@@ -12,16 +12,14 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 27-Jan-2002</h5>
-<P>&nbsp;<P>
-
-<H1>BBS doors dropfiles.</H1>
+<div align=right><h5>Last update 23-May-2003</h5></div>
+<div align=center><H1>BBS doors dropfiles.</H1></div>
 <P>
 
 <h3>Dropfiles for Unix BBS systems.</h3>
 <p>
 Not all options that are available under DOS or OS/2 can be used with Unix
-BBS systems and must be faked. The doorfile is written in the users
+BBS systems and must be faked. The doorfiles are written in the users
 homedirectory when the user starts a door.
 <p>&nbsp;<P>
 
@@ -52,7 +50,7 @@ Line	Description
 17	Users last call date MM-DD-YY or MM-DD-YYYY
 18	Seconds remaining this call
 19	Time left in minutes
-20	ANSI, "GR" is yes, otherwise ?
+20	ANSI, "GR" is yes, otherwise "NG"
 21	Screen length
 22	User mode, always N
 23	Always blank
@@ -69,7 +67,7 @@ Line	Description
 34	Path to message database files, cannot be used on Unix
 35	Sysop first and last name
 36	Users handle
-37	Next event starting time or "none"
+37	Next event starting time, "none" on Unix
 38	Error-free connection Y=Yes or N=No, always Y
 39	Always set to N
 40	Always set to Y
@@ -86,7 +84,27 @@ Line	Description
 51	Always set to 0
 52	Total number of messages posted
 </pre>
-<P>&nbsp;<P>
+<p>&nbsp;<p>
+
+<h3>DOOR.SYS format.</h3>
+<p>
+The door32.sys format is a 11 lines ascii textfile, each line is terminated with
+a cr/lf pair.
+<pre>   
+Line	Description
+-----	-----------------------------------------------------------------
+1	Com type: 1=serial, 2=telnet, with mbse always 1
+2	Com port: 1 or 0 for local mode
+3	Effective baudrate: 19200 or 0
+4	BBS name
+5	User record number
+6	User's real name
+7	User's handle
+8	User's security level
+9	Time left in minutes
+10	Graphicsmode: 1 or 0
+11	Node (line) number
+</pre>
 
 <A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
