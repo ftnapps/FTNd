@@ -1,18 +1,13 @@
 /*****************************************************************************
  *
- * File ..................: m_bbs.c
+ * $Id$
  * Purpose ...............: BBS Setup Program 
- * Last modification date : 17-Jul-1999
- * Todo ..................: 
- *			    Edit BBS lists
- *                          Edit timebank data
- *  		            Edit safe data
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2002
  *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
  *
@@ -45,8 +40,11 @@
 #include "m_fgroup.h"
 #include "m_farea.h"
 #include "m_menu.h"
+#include "m_safe.h"
 #include "m_bbs.h"
+#include "m_bbslist.h"
 #include "m_limits.h"
+
 
 
 void bbs_menu(void)
@@ -64,38 +62,33 @@ void bbs_menu(void)
 		mvprintw(11, 6, "5.    Edit Transfer Protocols");
 		mvprintw(12, 6, "6.    Edit BBS List Data");
 		mvprintw(13, 6, "7.    Edit Oneliners");
-		mvprintw(14, 6, "8.    Edit TimeBank data");
-		mvprintw(15, 6, "9.    Edit Safe Cracker data");
+		mvprintw(14, 6, "8.    Edit Safecracker Data");
 
-		switch(select_menu(9)) {
-		case 0:
-			return;
+		switch(select_menu(8)) {
+		case 0: return;
 
-		case 1:
-			EditLimits();
+		case 1: EditLimits();
 			break;
 
-		case 2:
-			EditLanguage();
+		case 2: EditLanguage();
 			break;
 
-		case 3:
-			EditMenus();
+		case 3: EditMenus();
 			break;
 
-		case 4:
-			EditFilearea();
+		case 4: EditFilearea();
 			break;
 
-		case 5:
-			EditProtocol();
+		case 5: EditProtocol();
 			break;
 
-		case 6:
+		case 6: bbslist_menu();
 			break;
 
-		case 7:
-			ol_menu();
+		case 7: ol_menu();
+			break;
+
+		case 8: EditSafe();
 			break;
 		}
 	}

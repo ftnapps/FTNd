@@ -244,7 +244,7 @@ int EditOnelRec(int Area)
 	working(0, 0, 0);
 
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "8.8.1   EDIT ONELINER");
+	mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.  Text");
 	mvprintw( 8, 2, "2.  User");
@@ -323,7 +323,7 @@ void EditOneline(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "8.8.1 ONELINERS SETUP");
+		mvprintw( 5, 2, "8.7.1 ONELINERS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
@@ -409,7 +409,7 @@ void PurgeOneline(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.8.2   ONELINERS PURGE");
+	mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
 	set_color(CYAN, BLACK);
 	working(1, 0, 0);
 
@@ -473,7 +473,7 @@ void ImportOneline(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw(5, 6, "8.8.3  IMPORT ONELINERS");
+	mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
 	set_color(CYAN, BLACK);
 	memset(&temp, 0, sizeof(temp));
 	strcpy(temp, edit_str(21, 6,64, temp, (char *)"The ^full path and filename^ of the file to import"));
@@ -554,7 +554,7 @@ void ol_menu(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.8   ONELINER SETUP");
+		mvprintw( 5, 6, "8.7   ONELINER SETUP");
 		set_color(CYAN, BLACK);
 		mvprintw( 7, 6, "1.    Edit Oneliners");
 		mvprintw( 8, 6, "2.    Purge Oneliners");

@@ -49,10 +49,11 @@ FILE *pSafe;
 
 int iLoop, iFirst, iSecond, iThird;
 char sFirst[4], sSecond[4], sThird[4];
-
+int cracked;
+int tries;
 
 int  getdigits(void);
-int  SafeCheckUser(void);
+int  SafeCheckUser(int);
 
 
 
@@ -63,6 +64,8 @@ void Safe(void)
 
 	isize = sizeof(int);
 	srand(Time_Now);
+	cracked = FALSE;
+	tries = 0;
 
 	WhosDoingWhat(SAFE);
 
@@ -77,7 +80,7 @@ void Safe(void)
 
 	DisplayFile(CFG.sSafeWelcome);
 
-	if (SafeCheckUser() == TRUE)
+	if (SafeCheckUser(TRUE) == TRUE)
 		return;
 
 	/* In the safe lies */
@@ -115,8 +118,10 @@ void Safe(void)
 	 */
 	while (TRUE) {
 		/* Get digits, TRUE if safe cracked. */
-		if (getdigits() == TRUE)
-			break;
+		if (getdigits() == TRUE) {
+		    SafeCheckUser(FALSE);
+		    break;
+		}
 
 		Enter(1);
 		/* Do you want to try again ? [Y/n]: */
@@ -125,10 +130,12 @@ void Safe(void)
 
 		alarm_on();
 		i = toupper(Getone());
-		if (i == Keystroke(101, 1)) 
-			break;
+		if (i == Keystroke(101, 1)) {
+		    SafeCheckUser(FALSE);
+		    break;
+		}
 
-		if (SafeCheckUser() == TRUE)
+		if (SafeCheckUser(FALSE) == TRUE)
 			break;
 	}
 	Syslog('+', "User exited Safe Cracker Door");
@@ -141,211 +148,179 @@ void Safe(void)
  */
 int getdigits(void)
 {
-	long	result;
-	int	i;
-	char	temp[81];
+    int	    i;
+    char    temp[81];
 
-	colour(WHITE, BLACK);
-	/* Please enter three numbers consisting from 1 to */
-	printf("\n\n%s%d\n", (char *) Language(89), CFG.iSafeMaxNumber);
-	/* Please enter three combinations. */
-	printf("%s", (char *) Language(90));
+    colour(WHITE, BLACK);
+    /* Please enter three numbers consisting from 1 to */
+    printf("\n\n%s%d\n", (char *) Language(89), CFG.iSafeMaxNumber);
+    /* Please enter three combinations. */
+    printf("%s", (char *) Language(90));
 
-	while (TRUE) {
-		Enter(2);
-		/* 1st Digit */
-		pout(LIGHTRED, BLACK, (char *) Language(91));
-		colour(LIGHTBLUE, BLACK);
-		fflush(stdout);
-		Getnum(sFirst, 2);
-		sprintf(temp, "1st: %s", sFirst);
-		if((strcmp(sFirst, "")) != 0) {
-			Syslog('-', temp);
-			iFirst=atoi(sFirst);
-		}
-
-		if((iFirst > CFG.iSafeMaxNumber) || (iFirst <= 0) || (strcmp(sFirst, "") == 0)) {
-			colour(WHITE, BLUE);
-			/* Please try again! You must input a number greater than Zero and less than */
-			printf("\n%s%d.", (char *) Language(92), CFG.iSafeMaxNumber);
-       		        Syslog('-', "Value out of range!");
-		} else 
-			break;
+    while (TRUE) {
+	Enter(2);
+	/* 1st Digit */
+	pout(LIGHTRED, BLACK, (char *) Language(91));
+	colour(LIGHTBLUE, BLACK);
+	fflush(stdout);
+	Getnum(sFirst, 2);
+	sprintf(temp, "1st: %s", sFirst);
+	if((strcmp(sFirst, "")) != 0) {
+	    iFirst=atoi(sFirst);
 	}
 
-	while (TRUE) {
-		Enter(1);
-		/* 2nd digit: */
-		pout(LIGHTRED, BLACK, (char *) Language(93));
-		colour(LIGHTBLUE, BLACK);
-		fflush(stdout);
-		Getnum(sSecond, 2);
-		sprintf(temp, "2nd: %s", sSecond);
-		if((strcmp(sSecond, "")) != 0) {
-			Syslog('-', temp);
-			iSecond=atoi(sSecond);
-		}
+	if((iFirst > CFG.iSafeMaxNumber) || (iFirst <= 0) || (strcmp(sFirst, "") == 0)) {
+	    colour(WHITE, BLUE);
+	    /* Please try again! You must input a number greater than Zero and less than */
+	    printf("\n%s%d.", (char *) Language(92), CFG.iSafeMaxNumber);
+	} else 
+	    break;
+    }
 
-		if((iSecond > CFG.iSafeMaxNumber) || (iSecond <= 0) || (strcmp(sSecond, "") == 0)) {
-			colour(WHITE, BLUE);
-			/* Please try again! You must input a number greater than Zero and less than */
-			printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
-			Syslog('-', "Value out of range!");
-		} else
-			break;
+    while (TRUE) {
+	Enter(1);
+	/* 2nd digit: */
+	pout(LIGHTRED, BLACK, (char *) Language(93));
+	colour(LIGHTBLUE, BLACK);
+	fflush(stdout);
+	Getnum(sSecond, 2);
+	sprintf(temp, "2nd: %s", sSecond);
+	if((strcmp(sSecond, "")) != 0) {
+	    iSecond=atoi(sSecond);
 	}
 
-	while (TRUE) {
-		Enter(1);
-		pout(LIGHTRED, BLACK, (char *) Language(94));
-		colour(LIGHTBLUE, BLACK);
-		fflush(stdout);
-		Getnum(sThird, 2);
-		if((strcmp(sThird, "")) != 0) {
-			if((strcmp(sThird, "737") != 0) && (strcmp(sThird, "747") != 0)) {
-				sprintf(temp, "3rd: %s", sThird);
-				Syslog('!', temp);
-			} else {
-				sprintf(temp, "3rd: %d", CFG.iSafeMaxNumber - 1);
-				Syslog('-', temp);
-			}
-		}
- 		iThird=atoi(sThird);
+	if((iSecond > CFG.iSafeMaxNumber) || (iSecond <= 0) || (strcmp(sSecond, "") == 0)) {
+	    colour(WHITE, BLUE);
+	    /* Please try again! You must input a number greater than Zero and less than */
+	    printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
+	} else
+	    break;
+    }
 
-		if((iThird == 737) || (iThird == 747))
-			break;
-
-		if((iThird > CFG.iSafeMaxNumber) || (iThird <= 0)) {
-			colour(WHITE, BLUE);
-			/* Please try again! You must input a number greater than Zero and less than */
-			printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
-       		        Syslog('-', "Value out of range!");
-		} else
-			break;
+    while (TRUE) {
+	Enter(1);
+	pout(LIGHTRED, BLACK, (char *) Language(94));
+	colour(LIGHTBLUE, BLACK);
+	fflush(stdout);
+	Getnum(sThird, 2);
+	sprintf(temp, "3rd: %s", sThird);
+	if((strcmp(sThird, "")) != 0) {
+	    iThird=atoi(sThird);
 	}
+
+	if((iThird > CFG.iSafeMaxNumber) || (iThird <= 0) || (strcmp(sThird, "") == 0)) {
+	    colour(WHITE, BLUE);
+	    /* Please try again! You must input a number greater than Zero and less than */
+	    printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
+	} else
+	    break;
+    }
+
+    /* Left: */
+    Enter(1);
+    pout(LIGHTRED, BLACK, (char *) Language(95));
+    poutCR(LIGHTBLUE, BLACK, sFirst);
+
+    /* Right: */
+    pout(LIGHTRED, BLACK, (char *) Language(96));
+    poutCR(LIGHTBLUE, BLACK, sSecond);
+
+    /* Left: */
+    pout(LIGHTRED, BLACK, (char *) Language(95));
+    poutCR(LIGHTBLUE, BLACK, sThird);
+
+    Enter(1);
+    /* Attempt to open safe with this combination [Y/n]: */
+    pout(LIGHTRED, BLACK, (char *) Language(97));
+    fflush(stdout);
+    alarm_on();
+    i = toupper(Getone());
+    sprintf(temp, "%c", i);
+
+    if ((i == Keystroke(97, 0)) || (i == 13)) {
+	printf("\n\n");
+	tries++;
+	Syslog('+', "Attempt %d with combination %d %d %d", tries, iFirst, iSecond, iThird);
 
 	/* Left: */
-	Enter(1);
 	pout(LIGHTRED, BLACK, (char *) Language(95));
+	for (iLoop = 0; iLoop < iFirst; iLoop++) {
+	    pout(YELLOW, BLACK, (char *)".");
+	    fflush(stdout);
+	    usleep(100000);
+	}
 	poutCR(LIGHTBLUE, BLACK, sFirst);
 
 	/* Right: */
 	pout(LIGHTRED, BLACK, (char *) Language(96));
+	for (iLoop = 0; iLoop < iSecond; iLoop++) {
+	    pout(YELLOW, BLACK, (char *)".");
+	    fflush(stdout);
+	    usleep(100000);
+	}
 	poutCR(LIGHTBLUE, BLACK, sSecond);
 
 	/* Left: */
 	pout(LIGHTRED, BLACK, (char *) Language(95));
+	for (iLoop = 0; iLoop < iThird; iLoop++) {
+	    pout(YELLOW, BLACK, (char *)"."); 
+	    fflush(stdout);
+	    usleep(100000);
+	}
 	poutCR(LIGHTBLUE, BLACK, sThird);
 
-	Enter(1);
-	/* Attempt to open safe with this combination [Y/n]: */
-	pout(LIGHTRED, BLACK, (char *) Language(97));
-	fflush(stdout);
-	alarm_on();
-	i = toupper(Getone());
-	sprintf(temp, "%c", i);
-
-	if ((i == Keystroke(97, 0)) || (i == 13)) {
-		printf("\n\n");
-
-		/* Left: */
-		pout(LIGHTRED, BLACK, (char *) Language(95));
-		for (iLoop = 0; iLoop < iFirst; iLoop++)
-			pout(YELLOW, BLACK, (char *)".");
-		poutCR(LIGHTBLUE, BLACK, sFirst);
-
-		/* Right: */
-		pout(LIGHTRED, BLACK, (char *) Language(96));
-		for (iLoop = 0; iLoop < iSecond; iLoop++)
-			pout(YELLOW, BLACK, (char *)".");
-		poutCR(LIGHTBLUE, BLACK, sSecond);
-
-		/* Left: */
-		pout(LIGHTRED, BLACK, (char *) Language(95));
-		for (iLoop = 0; iLoop < iThird; iLoop++)
-			pout(YELLOW, BLACK, (char *)"."); 
-		poutCR(LIGHTBLUE, BLACK, sThird);
-
-		if(CFG.iSafeNumGen) {
-			CFG.iSafeFirstDigit  = (rand() % CFG.iSafeMaxNumber) + 1;
-			CFG.iSafeSecondDigit = (rand() % CFG.iSafeMaxNumber) + 1;
-			CFG.iSafeThirdDigit  = (rand() % CFG.iSafeMaxNumber) + 1;
-		}
-
-		if(CFG.iSafeFirstDigit == iFirst)
-			if(CFG.iSafeSecondDigit == iSecond)
-				if(CFG.iSafeThirdDigit == iThird) {
-
-					DisplayFile(CFG.sSafeOpened);
-
-					Enter(1);
-					/* You have won the following... */
-					pout(LIGHTRED, BLACK, (char *) Language(98));
-					Enter(2);
-					poutCR(LIGHTMAGENTA, BLACK, CFG.sSafePrize);
-					Enter(1);
-
-			 		sprintf(temp, "%s/etc/safe.data", getenv("MBSE_ROOT"));
-					if(( pSafe = fopen(temp, "r+")) == NULL)
-						WriteError("Can't open %s for updating", temp);
-					else {
-						fseek(pSafe, 0L, SEEK_END);
-						result = ftell(pSafe);
-						result /= sizeof(safe);
-
-						fread(&safe, sizeof(safe), 1, pSafe);
-
-						safe.Opened = TRUE;
-
-						fseek(pSafe, 0L, SEEK_END);
-						result = ftell(pSafe);
-						result /= sizeof(safe);
-						fwrite(&safe, sizeof(safe), 1, pSafe);
-						fclose(pSafe);
-					}
-
-					Syslog('!', "User opened Safe Cracker Door");
-
-					Pause();
-					return TRUE;
-		}
-
-		Enter(1);
-		pout(LIGHTGREEN, BLACK, (char *) Language(99));
-		Enter(1);
-
-		if(CFG.iSafeNumGen) {
-			Enter(1);
-			/* The safe code was: */
-			pout(LIGHTRED, BLACK, (char *) Language(100));
-			Enter(2);
-			colour(LIGHTRED, BLACK);
-
-			/* Left: */
-			printf("%s%d\n", (char *) Language(95), CFG.iSafeFirstDigit);
-
-			/* Right */
-			printf("%s%d\n", (char *) Language(96), CFG.iSafeSecondDigit);
-
-			/* Left */
-			printf("%s%d\n", (char *) Language(95), CFG.iSafeThirdDigit);
-		}
-
-		if(iThird == 737)
-			CFG.iSafeNumGen = FALSE;
-
-		if(iThird == 747) {
-			colour(LIGHTBLUE, BLACK);
-			printf("Code: %d %d %d\n", CFG.iSafeFirstDigit, CFG.iSafeSecondDigit, CFG.iSafeThirdDigit);
-		}
-
-		Enter(1);
-		/* Please press key to continue */
-		pout(LIGHTGREEN, BLACK, (char *) Language(87));
-		alarm_on();
-		getchar();
+	if(CFG.iSafeNumGen) {
+	    CFG.iSafeFirstDigit  = (rand() % CFG.iSafeMaxNumber) + 1;
+	    CFG.iSafeSecondDigit = (rand() % CFG.iSafeMaxNumber) + 1;
+	    CFG.iSafeThirdDigit  = (rand() % CFG.iSafeMaxNumber) + 1;
 	}
-	return FALSE;
+
+	if ((CFG.iSafeFirstDigit == iFirst) && (CFG.iSafeSecondDigit == iSecond) && (CFG.iSafeThirdDigit == iThird)) {
+
+	    DisplayFile(CFG.sSafeOpened);
+	    cracked = TRUE;
+
+	    Enter(1);
+	    /* You have won the following... */
+	    pout(LIGHTRED, BLACK, (char *) Language(98));
+	    Enter(2);
+	    poutCR(LIGHTMAGENTA, BLACK, CFG.sSafePrize);
+	    Enter(1);
+
+	    Syslog('!', "User opened Safe Cracker Door");
+
+	    Pause();
+	    return TRUE;
+	}
+
+	Enter(1);
+	pout(LIGHTGREEN, BLACK, (char *) Language(99));
+	Enter(1);
+
+	if(CFG.iSafeNumGen) {
+	    Enter(1);
+	    /* The safe code was: */
+	    pout(LIGHTRED, BLACK, (char *) Language(100));
+	    Enter(2);
+	    colour(LIGHTRED, BLACK);
+
+	    /* Left: */
+	    printf("%s%d\n", (char *) Language(95), CFG.iSafeFirstDigit);
+
+	    /* Right */
+	    printf("%s%d\n", (char *) Language(96), CFG.iSafeSecondDigit);
+
+	    /* Left */
+	    printf("%s%d\n", (char *) Language(95), CFG.iSafeThirdDigit);
+	}
+
+	Enter(1);
+	/* Please press key to continue */
+	pout(LIGHTGREEN, BLACK, (char *) Language(87));
+	alarm_on();
+	getchar();
+    }
+    return FALSE;
 }
 
 
@@ -353,106 +328,139 @@ int getdigits(void)
 /*
  * Returns true when safe already cracked or maximum trys exceeded
  */
-int SafeCheckUser(void)
+int SafeCheckUser(int init)
 {
-	int  Counter = 0;
-	char *File, *Name, *Date;
+    char *File, *Name, *Date;
 
-	File = calloc(PATH_MAX, sizeof(char));
-	Name = calloc(50, sizeof(char));
-	Date = calloc(50, sizeof(char));
+    File = calloc(PATH_MAX, sizeof(char));
+    Name = calloc(50, sizeof(char));
+    Date = calloc(50, sizeof(char));
 
-	sprintf(Name, "%s", exitinfo.sUserName);
-	sprintf(Date, "%s", (char *) GetDateDMY());
-	sprintf(File, "%s/etc/safe.data", getenv("MBSE_ROOT"));
+    sprintf(Name, "%s", exitinfo.sUserName);
+    sprintf(Date, "%s", (char *) GetDateDMY());
+    sprintf(File, "%s/etc/safe.data", getenv("MBSE_ROOT"));
 
-	if(( pSafe = fopen(File, "r")) == NULL) {
-		if((pSafe = fopen(File, "w")) != NULL) {
-			sprintf(safe.Date, "%s", (char *) GetDateDMY());
-			sprintf(safe.Name, "%s", Name);
-			safe.Trys   = 0;
-			safe.Opened = 0;
-			fwrite(&safe, sizeof(safe), 1, pSafe);
-			fclose(pSafe);
-			chmod(File, 0660);
-		}
-	} else {
-		while ( fread(&safe, sizeof(safe), 1, pSafe) == 1) {
-			if(safe.Opened) {
-				fclose(pSafe);
-				Syslog('+', "Safe is currently LOCKED - exiting door.");
-
-				/* THE SAFE IS CURRENTLY LOCKED */
-				poutCR(WHITE, RED, (char *) Language(103));
-				Enter(1);
-				colour(LIGHTRED, BLACK);
-
-				/* has cracked the safe. */
-				printf("%s, %s\n", safe.Name, (char *) Language(104));
-
-				/* The safe will remain locked until the sysop rewards the user. */
-				pout(LIGHTGREEN, BLACK, (char *) Language(105));
-				Enter(2);
-				Pause();
-				fclose(pSafe);
-				free(File);
-				free(Name);
-				free(Date);
-				return TRUE;
-			}
-		}
-		rewind(pSafe);
-
-		fread(&safe, sizeof(safe), 1, pSafe);
-		if((strcmp(Date, safe.Date)) != 0) {
-			fclose(pSafe);
-			if((pSafe = fopen(File, "w")) != NULL) {
-				sprintf(safe.Date, "%s", (char *) GetDateDMY());
-				sprintf(safe.Name, "%s", Name);
-				safe.Trys   = 0;
-				safe.Opened = 0;
-				fwrite(&safe, sizeof(safe), 1, pSafe);
-				fclose(pSafe);
-			}
-		} else {
-			while ( fread(&safe, sizeof(safe), 1, pSafe) == 1) {
-				if((strcmp(Name, safe.Name)) == 0)
-					Counter++;
-			}
-
-			rewind(pSafe);
-
-			if(Counter >= CFG.iSafeMaxTrys - 1) {
-				Enter(2);
-				/* Maximum trys per day exceeded */
-				pout(WHITE, BLACK, (char *) Language(106));
-				Enter(1);
-				sleep(3);
-				fclose(pSafe);
-				free(File);
-				free(Name);
-				free(Date);
-				return TRUE;
-			}
-
-			fclose(pSafe);
-		
-			if(( pSafe = fopen(File, "a+")) == NULL)
-				WriteError("Unable to append to safe.data", File);
-			else {
-				sprintf(safe.Date, "%s", (char *) GetDateDMY());
-				sprintf(safe.Name, "%s", Name);
-				safe.Trys   = 0;
-				safe.Opened = 0;                              
-				fwrite(&safe, sizeof(safe), 1, pSafe);
-				fclose(pSafe);
-			}
-		}
+    if ((pSafe = fopen(File, "r+")) == NULL) {
+	if ((pSafe = fopen(File, "w")) != NULL) {
+	    safehdr.hdrsize = sizeof(safehdr);
+	    safehdr.recsize = sizeof(safe);
+	    fwrite(&safehdr, sizeof(safehdr), 1, pSafe);
+	    sprintf(safe.Date, "%s", (char *) GetDateDMY());
+	    sprintf(safe.Name, "%s", Name);
+	    safe.Trys   = 0;
+	    safe.Opened = FALSE;
+	    fwrite(&safe, sizeof(safe), 1, pSafe);
+	    fclose(pSafe);
+	    chmod(File, 0660);
 	}
-	free(File);
-	free(Name);
-	free(Date);
-	return FALSE;
+    } else {
+	fread(&safehdr, sizeof(safehdr), 1, pSafe);
+	/*
+	 * Check if safe already cracked
+	 */
+	while (fread(&safe, safehdr.recsize, 1, pSafe) == 1) {
+	    if (safe.Opened) {
+		fclose(pSafe);
+		Syslog('+', "Safe is currently LOCKED - exiting door.");
+
+		/* THE SAFE IS CURRENTLY LOCKED */
+		poutCR(WHITE, RED, (char *) Language(103));
+		Enter(1);
+		colour(LIGHTRED, BLACK);
+
+		/* has cracked the safe. */
+		printf("%s, %s\n", safe.Name, (char *) Language(104));
+
+		/* The safe will remain locked until the sysop rewards the user. */
+		pout(LIGHTGREEN, BLACK, (char *) Language(105));
+		Enter(2);
+		Pause();
+		free(File);
+		free(Name);
+		free(Date);
+		return TRUE;
+	    }
+	}
+	fseek(pSafe, safehdr.hdrsize, SEEK_SET);
+
+	/*
+	 * Check if this user is already in the database
+	 */
+	while (fread(&safe, safehdr.recsize, 1, pSafe) == 1) {
+	    if ((strcmp(Name, safe.Name)) == 0) {
+		if ((strcmp(Date, safe.Date)) != 0) {
+		    /*
+		     * User found, but last time used is not today.
+		     * Reset this user.
+		     */
+		    fseek(pSafe, - safehdr.recsize, SEEK_CUR);
+		    sprintf(safe.Date, "%s", (char *) GetDateDMY());
+		    safe.Trys = 0;
+		    tries = 0;
+		    safe.Opened = FALSE;
+		    fwrite(&safe, safehdr.recsize, 1, pSafe);
+		    fclose(pSafe);
+		    free(File);
+		    free(Name);
+		    free(Date);
+		    return FALSE;
+		} else {
+		    /*
+		     * User found, last time is today, check attempts
+		     */
+		    fseek(pSafe, - safehdr.recsize, SEEK_CUR);
+		    if (init)
+			tries = safe.Trys;
+		    else {
+			safe.Trys = tries;
+		    }
+		    safe.Opened = cracked;
+		    fwrite(&safe, safehdr.recsize, 1, pSafe);
+		    fclose(pSafe);
+		    free(File);
+		    free(Name);
+		    free(Date);
+		    if (safe.Trys >= CFG.iSafeMaxTrys) {
+			Syslog('+', "Maximum trys per day exceeded");
+			Enter(2);
+			/* Maximum trys per day exceeded */
+			pout(WHITE, BLACK, (char *) Language(106));
+			Enter(1);
+			sleep(3);
+			return TRUE;
+		    }
+		    return FALSE;
+		}
+	    }
+	}
+	
+	/*
+	 * User not found, append new record
+	 */
+	fclose(pSafe);
+	if ((pSafe = fopen(File, "a")) == NULL) {
+	    WriteError("Can't append to %s", File);
+	    free(File);
+	    free(Name);
+	    free(Date);
+	    return TRUE;
+	}
+	fseek(pSafe, 0, SEEK_END);
+	memset(&safe, 0, sizeof(safe));
+	sprintf(safe.Date, "%s", (char *) GetDateDMY());
+	sprintf(safe.Name, "%s", Name);
+	safe.Trys   = 0;
+	safe.Opened = FALSE;
+	tries = 0;
+	fwrite(&safe, sizeof(safe), 1, pSafe);
+	fclose(pSafe);
+	Syslog('+', "Append new safe.data record");
+    }
+
+    free(File);
+    free(Name);
+    free(Date);
+    return FALSE;
 }
 
 

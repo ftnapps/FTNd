@@ -4585,6 +4585,7 @@ v0.33.19        26-Oct-2001
 v0.33.20        10-Feb-2002
 
 	upgrade:
+		Remove /opt/mbse/etc/safe.data
 		Compile sources and install binaries. Restart the BBS.
 		Enter mbsetup, this will upgrade the databases.
 		Go into global configuration, exit and save, this will update
@@ -4669,6 +4670,10 @@ v0.33.20        10-Feb-2002
 		Some dangerous menus cannot be entered anymore while some
 		programs are being used, ie. the bbs must be free. When these
 		menus are entered, the bbs will be closed for use.
+		Added menu 8.6, edit BBS list entries.
+		Fixed numbering of menu 8.7, edit oneliners.
+		Added menu 8.8 for safe crackers data. If the safe is cracked
+		it can now be reset.
 
 	mbmon:
 		The top statusbar now displays the bbs Free/Down/Busy status.
@@ -4836,6 +4841,9 @@ v0.33.20        10-Feb-2002
 		When a user has no Location filled in, the bbs doesn't crash
 		anymore.
 		The new files scan colored areasnames bar length is corrected.
+		Fixed the problems with the safecracker door. Removed the
+		cheat codes and added a delay for the display of the safe
+		opening.
 
 	mbnewusr:
 		New users have the default internal fullscreen editor.

@@ -117,7 +117,7 @@ void BBS_Add(void)
 		pout(15, 0, (char *) Language(303));
 		colour(CFG.InputColourF, CFG.InputColourB);
 		fflush(stdout);
-		GetstrC(bbs.Phone[0], 20);
+		GetstrC(bbs.Phone[0], 19);
 
 		if((strlen(bbs.Phone[0])) > 3)
 			break;
@@ -163,7 +163,7 @@ void BBS_Add(void)
 		pout(15, 0, (char *) Language(307));
 		colour(CFG.InputColourF, CFG.InputColourB);
 		fflush(stdout);
-		GetstrC(bbs.Speeds[0], 40);
+		GetstrC(bbs.Speeds[0], 39);
 
 		if((strlen(bbs.Speeds[0])) > 2)
 			break;
@@ -181,11 +181,11 @@ void BBS_Add(void)
 		pout(15, 0, (char *)": ");
 		colour(CFG.InputColourF, CFG.InputColourB);
 		fflush(stdout);
-		GetstrC(bbs.Desc[0], 71);
+		GetstrC(bbs.Desc[0], 65);
 		pout(15, 0, (char *)": ");
 		colour(CFG.InputColourF, CFG.InputColourB);
 		fflush(stdout);
-		GetstrC(bbs.Desc[1], 71);
+		GetstrC(bbs.Desc[1], 65);
 	} 
 
 	printf("\n");

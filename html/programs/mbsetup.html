@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 25-Oct-2001</h5>
+<h5>Last update 05-May-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbsetup - The Setup Program</H1>
@@ -34,7 +34,14 @@ When <b>mbsetup</b> is started without arguments the databases will be checked
 and initialized before the main screen is displayed.
 Both methods are being used to make sure all needed databases excist.
 For a detailed description of all setup options see 
-<A HREF="../setup/index.htm">MBSE BBS Setup Guide</A>
+<A HREF="../setup/index.htm">MBSE BBS Setup Guide</A><br>
+<b>mbsetup</b> uses locking to protect the system databases. Some setup menus
+can only be entered if the bbs is free, ie. no users logged on, no mailer
+sessions, not tossing mail etc. If the bbs is free, then these menus can be
+entered and the bbs will be closed. No users can login, tossers do not run etc.
+Only mailer calls are still accepted. So be carefull not to stay too long in
+these menus, you are blocking normal bbs use. In the top status bar this
+situation is displayed.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>

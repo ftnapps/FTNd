@@ -58,6 +58,8 @@
 #include "m_fdb.h"
 #include "m_new.h"
 #include "m_ol.h"
+#include "m_bbslist.h"
+#include "m_safe.h"
 #include "m_protocol.h"
 #include "m_ff.h"
 #include "m_modem.h"
@@ -360,6 +362,8 @@ void initdatabases(void)
     InitNGroup();
     InitNodes();
     InitOneline();
+    InitBBSlist();
+    InitSafe();
     InitProtocol();
     InitService();
     InitTicarea();

@@ -62,31 +62,49 @@ char *aka2str(fidoaddr aka)
 
 
 
+/*
+ * Try to create a aka structure of a string.
+ */
 fidoaddr str2aka(char *addr)
 {
 	char		a[256];
 	static char	b[43];
-	char		*temp;
-	fidoaddr	n;
+	char		*p, *temp = NULL;
+	static fidoaddr	n;
 
-	sprintf(b, "%s~", addr);
 	n.zone = 0;
 	n.net = 0;
 	n.node = 0;
 	n.point = 0;
 	n.domain[0] = '\0';
 
-	if ((strchr(b, ':') == NULL) || (strchr(b, '@') == NULL))
+	/*
+	 * Safety check
+	 */
+	if (strlen(addr) > 42)
+		return n;
+	
+	sprintf(b, "%s~", addr);
+	if ((strchr(b, ':') == NULL) || (strchr(b, '/') == NULL))
 		return n;
 
-	/* First split the f:n/n.p and domain part
+	/* 
+	 * First split the f:n/n.p and domain part
 	 */
-	temp = strtok(b, "@");
-	strcpy(n.domain, strtok(NULL, "~"));
+	if ((strchr(b, '@'))) {
+	    temp = strtok(b, "@");
+	    p = strtok(NULL, "~");
+	    if (p)
+		strcpy(n.domain, p);
+	}
 
-	/* Handle f:n/n.p part
+	/* 
+	 * Handle f:n/n.p part
 	 */
-	strcpy(a, strcat(temp, "~"));
+	if (temp)
+	    strcpy(a, strcat(temp, "~"));
+	else
+	    strcpy(a, b);
 	if (strchr(a, '.') == NULL) {
 		n.zone = atoi(strtok(a, ":"));
 		n.net = atoi(strtok(NULL, "/"));
@@ -99,7 +117,5 @@ fidoaddr str2aka(char *addr)
 	}
 	return n;
 }
-
-
 
 
