@@ -187,10 +187,39 @@ int mbsedb_UnlockFDB(struct _fdbarea *fdb_area)
 
 
 
+void mbsedb_Temp2Data(unsigned long);
+void mbsedb_Temp2Data(unsigned long fdb_area)
+{
+    char    *temp1, *temp2;
+
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
+
+    /*
+     * Now the trick, some might be waiting for a lock on the original file,
+     * we will give that a new name on disk. Then we move the temp in place.
+     * Finaly remove the old (still locked) original file.
+     */
+    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area);
+    sprintf(temp1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    rename(temp2, temp1);
+    sprintf(temp1, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area);
+    rename(temp1, temp2);
+    sprintf(temp1, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area);
+    unlink(temp1);
+
+    free(temp1);
+    free(temp2);
+
+    return;
+}
+
+
+
 int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int AddAlpha)
 {
-    char    *temp, *temp2;
-    int	    i, Insert, Done = FALSE, Found = FALSE, rc;
+    char    *temp;
+    int	    i, Insert, Done = FALSE, Found = FALSE;
     FILE    *fp;
     
     Syslog('f', "mbsedb_InsertFDB: \"%s\", magic \"%s\"", frec.LName, frec.Magic);
@@ -212,7 +241,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
      * There are files, search the insert point.
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
     Insert = 0;
@@ -301,19 +329,8 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	    fwrite(&frec, fdbhdr.recsize, 1, fp);
 	}
 
-	/*
-	 * Now the trick, some might be waiting for a lock on the original file,
-	 * we will give that a new name on disk. Then we move the temp in place.
-	 * Finaly remove the old (still locked) original file.
-	 */
-	sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-	sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-	rc = rename(temp2, temp);
-	sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
-	rc = rename(temp, temp2);
-	sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-	rc = unlink(temp);
-
+	fclose(fdb_area->fp);
+	mbsedb_Temp2Data(fdb_area->area);
 	fdb_area->fp = fp;
 	fdb_area->locked = 0;
     } else {
@@ -325,7 +342,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
     }
 
     free(temp);
-    free(temp2);
 
     return TRUE;
 }
@@ -337,7 +353,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
  */
 int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 {
-    char    *temp, *temp2;
+    char    *temp;
     FILE    *fp;
     int	    count = 0;
 
@@ -353,11 +369,11 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
      * There are files, copy the remaining entries
      */
     temp = calloc(PATH_MAX, sizeof(char));
-    temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't create %s", temp);
 	mbsedb_UnlockFDB(fdb_area);
+	free(temp);
 	return -1;
     }
     fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
@@ -370,24 +386,12 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 	    count++;
     }
 
-    /*
-     * Now the trick, some might be waiting for a lock on the original file,
-     * we will give that a new name on disk. Then we move the temp in place.
-     * Finaly remove the old (still locked) original file.
-     */
-    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rename(temp2, temp);
-    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
-    rename(temp, temp2);
-    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    unlink(temp);
-
+    fclose(fdb_area->fp);
+    mbsedb_Temp2Data(fdb_area->area);
     fdb_area->fp = fp;
     fdb_area->locked = 0;
 
     free(temp);
-    free(temp2);
 
     return count;
 }
@@ -476,7 +480,7 @@ int comp_fdbs(fdbs **fap1, fdbs **fap2)
 int mbsedb_SortFDB(struct _fdbarea *fdb_area)
 {
     fdbs    *fdx = NULL, *tmp;
-    char    *temp, *temp2;
+    char    *temp;
     FILE    *fp;
     int	    count = 0;
 
@@ -522,25 +526,12 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     }
     tidy_fdbs(&fdx);
 
-    /*
-     * Now the trick, some might be waiting for a lock on the original file,
-     * we will give that a new name on disk. Then we move the temp in place.
-     * Finaly remove the old (still locked) original file.
-     */
-    temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rename(temp2, temp);
-    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
-    rename(temp, temp2);
-    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    unlink(temp);
-
+    fclose(fdb_area->fp);
+    mbsedb_Temp2Data(fdb_area->area);
     fdb_area->fp = fp;
     fdb_area->locked = 0;
 
     free(temp);
-    free(temp2);
 
     return count;
 }
