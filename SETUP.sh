@@ -70,7 +70,6 @@ if [ "$OSTYPE" = "Linux" ]; then
     	# Slackware 7.0 and later
     	DISTNAME="Slackware"
     	DISTVERS=`cat /etc/slackware-version`
-	DISTVERS=${DISTVERS:0:3}
     else
     	if [ -f /etc/debian_version ]; then
 	    # Debian, at least since version 2.2
@@ -112,7 +111,6 @@ fi # Linux
 if [ "$OSTYPE" = "FreeBSD" ]; then
     DISTNAME="FreeBSD"
     DISTVERS=`uname -r`
-    DISTVERS=${DISTVERS:0:3}
     PW="pw "
 fi
 if [ "$OSTYPE" = "NetBSD" ]; then
