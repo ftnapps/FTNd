@@ -54,6 +54,9 @@ struct in_addr		paddr;			/* Current ping address	*/
 
 
 
+/*
+ * Internal prototypes
+ */
 static int      icmp4_errcmp(char *, int, struct in_addr *, char *, int, int);
 unsigned short  get_rand16(void);
 int             ping_send(struct in_addr);
@@ -99,6 +102,12 @@ int             ping_receive(struct in_addr);
 #define ICMP4_ECHO_LEN    ICMP_BASEHDR_LEN
 
 
+short                   p_sequence = 0;
+unsigned short          id;
+struct icmphdr          icmpd;
+struct sockaddr_in      to;
+
+
 
 /*
  * Takes a packet as send out and a recieved ICMP packet and looks whether the ICMP packet is 
@@ -108,40 +117,39 @@ int             ping_receive(struct in_addr);
  * compared of the IP header). The RFC sais that we get at least 8 bytes of the offending packet.
  * We do not compare more, as this is all we need.
  */
-static int icmp4_errcmp(char *packet, int plen, struct in_addr *to, char *errmsg, int elen, int errtype)
+static int icmp4_errcmp(char *packet, int plen, struct in_addr *too, char *errmsg, int elen, int errtype)
 {
-	struct iphdr	iph;
-	struct icmphdr	icmph;
-	struct iphdr	eiph;
-	char		*data;
+    struct iphdr	iph;
+    struct icmphdr	icmph;
+    struct iphdr	eiph;
+    char		*data;
 
-	/* XXX: lots of memcpy to avoid unaligned accesses on alpha */
-	if (elen < sizeof(struct iphdr))
-                return 0;
-	memcpy(&iph, errmsg, sizeof(iph));
-	if (iph.ip_p != IPPROTO_ICMP || elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + sizeof(eiph))
-		return 0;
-	memcpy(&icmph, errmsg + iph.ip_hl * 4, ICMP_BASEHDR_LEN);
-	memcpy(&eiph, errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN, sizeof(eiph));
-	if (elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4 + 8)
-		return 0;
-	data = errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4;
-	return icmph.icmp_type == errtype && memcmp(&to->s_addr, &eiph.ip_daddr, sizeof(to->s_addr)) == 0 && 
-		memcmp(data, packet, plen < 8 ?plen:8) == 0;
+    /* 
+     * lots of memcpy to avoid unaligned accesses on alpha
+     */
+    if (elen < sizeof(struct iphdr))
+	return 0;
+
+    memcpy(&iph, errmsg, sizeof(iph));
+    if (iph.ip_p != IPPROTO_ICMP || elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + sizeof(eiph))
+	return 0;
+
+    memcpy(&icmph, errmsg + iph.ip_hl * 4, ICMP_BASEHDR_LEN);
+    memcpy(&eiph, errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN, sizeof(eiph));
+    if (elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4 + 8)
+	return 0;
+
+    data = errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4;
+    return icmph.icmp_type == errtype && memcmp(&too->s_addr, &eiph.ip_daddr, sizeof(too->s_addr)) == 0 && 
+	memcmp(data, packet, plen < 8 ?plen:8) == 0;
 }
 
 
 
 unsigned short get_rand16(void)
 {
-	return random()&0xffff;
+    return random()&0xffff;
 }
-
-
-short			p_sequence = 0;
-unsigned short          id;
-struct icmphdr          icmpd;
-struct sockaddr_in      to;
 
 
 
@@ -172,12 +180,14 @@ int ping_send(struct in_addr addr)
     id = (unsigned short)get_rand16(); /* randomize a ping id */
 
 #ifdef __linux__
-    /* Fancy ICMP filering -- only on Linux (as far is I know) */
-        
-    /* In fact, there should be macros for treating icmp_filter, but I haven't found them in Linux 2.2.15.
-     * So, set it manually and unportable ;-) */
-    /* This filter lets ECHO_REPLY (0), DEST_UNREACH(3) and TIME_EXCEEDED(11) pass. */
-    /* !(0000 1000 0000 1001) = 0xff ff f7 f6 */
+    /* 
+     * Fancy ICMP filering -- only on Linux (as far is I know)
+     *   
+     * In fact, there should be macros for treating icmp_filter, but I haven't found them in Linux 2.2.15.
+     * So, set it manually and unportable ;-)
+     * This filter lets ECHO_REPLY (0), DEST_UNREACH(3) and TIME_EXCEEDED(11) pass.
+     * !(0000 1000 0000 1001) = 0xff ff f7 f6 
+     */
     f.data=0xfffff7f6;
     if (setsockopt(ping_isocket, SOL_RAW, ICMP_FILTER, &f, sizeof(f)) == -1) {
 	if (icmp_errs < ICMP_MAX_ERRS)
@@ -261,7 +271,6 @@ int ping_receive(struct in_addr addr)
 		    memcpy(&icmpp, ((unsigned long int *)buf)+iph.ip_hl, sizeof(icmpp));
 		    if (iph.ip_saddr == addr.s_addr && icmpp.icmp_type == ICMP_ECHOREPLY &&
 			ntohs(icmpp.icmp_id) == id && ntohs(icmpp.icmp_seq) == p_sequence) {
-//			tasklog('-', "ping: valid reply received, id %d, sequence %d", ntohs(icmpp.icmp_id), ntohs(icmpp.icmp_seq));
 			return 0;
 		    } else {
 			/* No regular echo reply. Maybe an error? */
@@ -292,7 +301,7 @@ int ping_receive(struct in_addr addr)
 
 void check_ping(void)
 {
-    int	    rc;
+    int	    rc = 0;
 
     /*
      *  If the previous pingstat is still P_SENT, then we now consider it a timeout.
@@ -301,13 +310,12 @@ void check_ping(void)
 	pingresult[pingnr] = FALSE;
 	icmp_errs++;
 	if (icmp_errs < ICMP_MAX_ERRS)
-	    tasklog('p', "ping %s seq=%d timeout", pingaddress, p_sequence);
+	    tasklog('p', "ping: %s seq=%d timeout", pingaddress, p_sequence);
     }
 
     /*
      *  Check internet connection with ICMP ping
      */
-    rc = 0;
     if (pingnr == 1) {
 	pingnr = 2;
 	if (strlen(TCFG.isp_ping2)) {
@@ -328,7 +336,7 @@ void check_ping(void)
 	rc = ping_send(paddr);
 	if (rc) {
 	    if (icmp_errs++ < ICMP_MAX_ERRS)
-		tasklog('?', "ping send %s rc=%d", pingaddress, rc);
+		tasklog('?', "ping: to %s rc=%d", pingaddress, rc);
 	    pingstate = P_FAIL;
 	    pingresult[pingnr] = FALSE;
 	} else {
@@ -382,8 +390,8 @@ void state_ping(void)
 			    pingstate = P_OK;
 			    pingresult[pingnr] = TRUE;
 			} else {
-//			    if (rc != -6)
-				tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
+			    if (rc != -6)
+				tasklog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
 			}
 			break;
     }
