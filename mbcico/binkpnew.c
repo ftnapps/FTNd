@@ -5,7 +5,7 @@
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -396,6 +396,7 @@ SM_STATE(WaitAddr)
 			SM_ERROR;
 		    }
 		}
+		free(p);
 		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 		    Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
 		    if (nodelock(tmpa->addr, mypid)) {
@@ -1700,7 +1701,7 @@ int binkp_poll_frame(void)
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
 		    } else {
-			Syslog('b', "Binkp: got data frame %s bytes", bp.rxlen);
+			Syslog('b', "Binkp: got data frame %d bytes", bp.rxlen);
 		    }
 		    rc = 1;
 		    break;
