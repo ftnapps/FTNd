@@ -716,7 +716,7 @@ char *edit_str(int y, int x, int l, char *line, char *help)
 
 
 
-char *edit_pth(int y, int x, int l, char *line, char *help)
+char *edit_pth(int y, int x, int l, char *line, char *help, mode_t mode)
 {
 	static	char s[256];
 	char	*temp;
@@ -729,7 +729,7 @@ char *edit_pth(int y, int x, int l, char *line, char *help)
 		temp = xstrcat(temp, (char *)"/foobar");
 		if (access(s, R_OK)) {
 			if (yes_no((char *)"Path doesn't exist, create"))
-				if (! mkdirs(temp, 0775))
+				if (! mkdirs(temp, mode))
 					errmsg((char *)"Can't create path");
 		}
 	}
@@ -1719,6 +1719,95 @@ char *getmagictype(int val)
 		case MG_DELETE:		return (char *)"Delete file ";
 		default:		return NULL;
 	}
+}
+
+
+
+char *get_sessiontype(int val)
+{
+    switch (val) {
+	case S_DIRECT:	    return (char *)"Direct   ";
+	case S_DIR:	    return (char *)"Directory";
+	case S_FTP:	    return (char *)"FTP      ";
+	default:	    return NULL;
+    }
+}
+
+
+
+void show_sessiontype(int y, int x, int val)
+{
+    mvprintw(y, x, get_sessiontype(val));
+}
+
+
+
+int edit_sessiontype(int y, int x, int val)
+{
+    int ch;
+
+    showhelp((char *)"Toggle ^Session type^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
+	show_sessiontype(y, x, val);
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < S_FTP)
+		val++;
+	    else
+		val = S_DIRECT;
+	}
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_sessiontype(y, x, val);
+    return val;
+}
+
+
+
+char *get_routertype(int val)
+{
+    switch (val) {
+	case R_ROUTE:	    return (char *)"Routed    ";
+	case R_NEWDEST:	    return (char *)"Redirect  ";
+	case R_BOUNCE:	    return (char *)"Bounce    ";
+	case R_CC:	    return (char *)"CarbonCopy";
+	default:	    return NULL;
+    }
+}
+
+
+
+void show_routertype(int y, int x, int val)
+{
+    mvprintw(y, x, get_routertype(val));
+}
+
+
+
+int edit_routertype(int y, int x, int val)
+{
+    int ch;
+
+    showhelp((char *)"Toggle ^Routing mode^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
+	show_routertype(y, x, val);
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < R_CC)
+		val++;
+	    else
+		val = R_ROUTE;
+	}
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_routertype(y, x, val);
+    return val;
 }
 
 

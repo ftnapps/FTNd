@@ -420,7 +420,7 @@ int EditFGrpRec(int Area)
 			    strcpy(fgroup.BbsGroup, fgroup.Name);
 			break;
 		case 2: E_STR(  7,16,55,fgroup.Comment,    "The ^description^ of this file group")
-		case 3: E_PTH(  8,16,64,fgroup.BasePath,   "The ^base path^ for new created file areas")
+		case 3: E_PTH(  8,16,64,fgroup.BasePath,   "The ^base path^ for new created file areas", 0775)
 		case 4: tmp = PickAka((char *)"10.1.4", TRUE);
 			if (tmp != -1)
 				fgroup.UseAka = CFG.aka[tmp];

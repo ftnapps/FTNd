@@ -364,7 +364,7 @@ int EditMagicRec(int Area)
 
 				case MG_COPY:
 				case MG_UNPACK:
-						E_PTH(12,16,64, magic.Path,   "The ^path^ to use")
+						E_PTH(12,16,64, magic.Path,   "The ^path^ to use", 0750)
 
 				case MG_EXEC:
 						E_STR(12,16,64, magic.Cmd,    "The ^command^ to execute")

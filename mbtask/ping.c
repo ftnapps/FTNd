@@ -336,7 +336,7 @@ void check_ping(void)
 				 * Reply received.
 				 */
 				rc = time(NULL) - (pingtime - 20);
-				if (rc != 1)
+				if (rc > 2)
 				    tasklog('p', "ping: reply after %d seconds", rc);
 				pingresult[pingnr] = TRUE;
 				if (pingresult[1] || pingresult[2]) {

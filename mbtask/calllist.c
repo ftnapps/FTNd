@@ -124,7 +124,7 @@ int check_calllist(void)
 		}
 	    }
 	}
-	tasklog('o', "%d systems to call", call_work);
+	tasklog('o', "%d system%s to call", call_work, (call_work == 1)?"":"s");
     } else {
 	if (s_scanout)
 	    sem_set((char *)"scanout", FALSE);

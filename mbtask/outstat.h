@@ -43,7 +43,8 @@ typedef struct _alist
 #define F_POLL   0x0020
 #define F_ISFLO  0x0040
 #define F_ISPKT  0x0080
-#define F_CALL   0x0100
+#define	F_ISFIL  0x0100
+#define F_CALL   0x0200
 
 
 

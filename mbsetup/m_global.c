@@ -240,12 +240,12 @@ void e_global2(void)
 
                 switch(select_menu(7)) {
                 case 0: return;
-                case 1: E_PTH( 6,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.")
+                case 1: E_PTH( 6,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.", 0750)
                 case 2: E_STR( 7,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
-                case 3: E_PTH( 8,16,64, CFG.uxpath,         "The translated ^Unix^ path.")
+                case 3: E_PTH( 8,16,64, CFG.uxpath,         "The translated ^Unix^ path.", 0750)
                 case 4: E_BOOL(9,16,    CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
-		case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory")
-		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.")
+		case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory", 0750)
+		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.", 0750)
 		case 7: E_STR(12,16,64, CFG.externaleditor, 
 				"The full path and filename to the ^external message editor^ (blank=disable)")
                 }
@@ -296,17 +296,17 @@ void e_global(void)
 
 		switch(select_menu(12)) {
 		case 0:	return;
-		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.")
-		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.")
-		case 3: E_PTH( 8,16,64, CFG.bbs_macros,   "The path to the ^default macro templates^.")
-		case 4:	E_PTH( 9,16,64, CFG.bbs_usersdir, "The path to the ^users home^ directories.")
-		case 5:	E_PTH(10,16,64, CFG.nodelists,    "The path to the ^nodelists^.")
-		case 6:	E_PTH(11,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.")
-		case 7:	E_PTH(12,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.")
-		case 8:	E_PTH(13,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.")
-		case 9: E_PTH(14,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.")
-		case 10:E_PTH(15,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
-		case 11:E_PTH(16,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
+		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.", 0750)
+		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.", 0750)
+		case 3: E_PTH( 8,16,64, CFG.bbs_macros,   "The path to the ^default macro templates^.", 0750)
+		case 4:	E_PTH( 9,16,64, CFG.bbs_usersdir, "The path to the ^users home^ directories.", 0770)
+		case 5:	E_PTH(10,16,64, CFG.nodelists,    "The path to the ^nodelists^.", 0750)
+		case 6:	E_PTH(11,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.", 0750)
+		case 7:	E_PTH(12,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.", 0750)
+		case 8:	E_PTH(13,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.", 0750)
+		case 9: E_PTH(14,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.", 0750)
+		case 10:E_PTH(15,16,64, CFG.badtic,       "The path to the ^bad tic files^.", 0750)
+		case 11:E_PTH(16,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.", 0750)
 		case 12:e_global2();
 			s_global();
 			break;
@@ -1066,9 +1066,9 @@ void e_intmailcfg(void)
                 case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
                 case 2: E_STR(  8,16,64, CFG.smtpnode,     "The ^FQDN^ of the node where the ^SMTP^ server runs.")
 		case 3: if (CFG.newsfeed == FEEDRNEWS)
-				strcpy(CFG.rnewspath, edit_pth(9,16,64, CFG.rnewspath, (char *)"The path and filename to the ^rnews^ command."));
+				strcpy(CFG.rnewspath, edit_pth(9,16,64, CFG.rnewspath, (char *)"The path and filename to the ^rnews^ command.", 0775));
 			if (CFG.newsfeed == FEEDUUCP)
-				strcpy(CFG.rnewspath, edit_pth(9,16,64, CFG.rnewspath, (char *)"The path to the ^uucppublic^ directory."));
+				strcpy(CFG.rnewspath, edit_pth(9,16,64, CFG.rnewspath, (char *)"The path to the ^uucppublic^ directory.", 0775));
 			break;
                 case 4: if (CFG.newsfeed == FEEDINN)
 				strcpy(CFG.nntpnode, edit_str(10,16,64, CFG.nntpnode, (char *)"The ^FQDN^ of the node where the ^NNTP^ server runs."));

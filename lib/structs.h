@@ -1240,7 +1240,7 @@ struct	_nodes {
 	unsigned	Dir_in_waitclr	: 1;	/* Inbound wait for clear   */
 	unsigned	Dir_in_mklck	: 1;	/* Inbound create lock	    */
 
-						/* FTP transfer		    */
+						/* FTP transfers		    */
 	char		FTP_site[65];		/* Site name or IP address  */
 	char		FTP_user[17];		/* Username		    */
 	char		FTP_pass[17];		/* Password		    */
@@ -1256,12 +1256,24 @@ struct	_nodes {
 	unsigned	FTP_unique	: 1;	/* Unique storage	    */
 	unsigned	FTP_uppercase	: 1;	/* Force uppercase	    */
 	unsigned	FTP_lowercase	: 1;	/* Force lowercase	    */
+	unsigned	FTP_passive	: 1;	/* Passive mode		    */
 	unsigned	FTP_out_chklck	: 1;	/* Outbound check lockfile  */
 	unsigned	FTP_out_waitclr	: 1;	/* Outbound wait for clear  */
 	unsigned	FTP_out_mklck	: 1;	/* Outbound create lock	    */
 	unsigned	FTP_in_chklck	: 1;	/* Inbound check lockfile   */
 	unsigned	FTP_in_waitclr	: 1;	/* Inbound wait for clear   */
 	unsigned	FTP_in_mklck	: 1;	/* Inbound create lock	    */
+
+	char		OutBox[65];		/* Node's personal outbound */
+	char		Nl_flags[65];		/* Override nodelist flags  */
+	char		Nl_hostname[41];	/* Override hostname	    */
+
+						/* Contact information	    */
+	char		Ct_phone[17];		/* Node's private phone	    */
+	char		Ct_fax[17];		/* Node's fax		    */
+	char		Ct_cellphone[21];	/* Node's cellphone	    */
+	char		Ct_email[31];		/* Node's email		    */
+	char		Ct_remark[65];		/* Remark		    */
 };
 
 

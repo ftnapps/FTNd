@@ -66,55 +66,138 @@ static struct _alist
 
 int outstat()
 {
-	int		rc;
-	struct _alist	*tmp, *old;
-	char		flstr[6];
-	time_t		age;
-	char		temp[81];
-	callstat        *cst;
+    int		    rc;
+    struct _alist   *tmp, *old;
+    char	    flstr[6], *temp, flavor;
+    time_t	    age;
+    faddr	    *fa;
+    callstat        *cst;
+    FILE	    *fp;
+    DIR		    *dp = NULL;
+    struct dirent   *de;
+    struct stat	    sb;
+    struct passwd   *pw;
 
-	if ((rc = scanout(each))) {
-		WriteError("Error scanning outbound, aborting");
-		return rc;
-	}
+    if ((rc = scanout(each))) {
+	WriteError("Error scanning outbound, aborting");
+	return rc;
+    }
 
-	if (!do_quiet) {
-		colour(10, 0);
-		printf("flavor try      size age    address\n");
-		colour(3, 0);
-	}
+    /*
+     * Check private outbound box for nodes in the setup.
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	WriteError("Error open %s, aborting", temp);
+	free(temp);
+	return 1;
+    }
+    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
+    fseek(fp, 0, SEEK_SET);
+    fread(&nodeshdr, nodeshdr.hdrsize, 1, fp);
+    pw = getpwnam((char *)"mbse");
 
-	Syslog('+', "Flavor Try      Size Age    Address");
-	for (tmp = alist; tmp; tmp = tmp->next) {
-		if ((tmp->flavors & F_FREQ) || (tmp->size) || 1) {
-			strcpy(flstr,"......");
-			if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
-			if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
-			if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
-			if ((tmp->flavors) & F_HOLD  ) flstr[3]='H';
-			if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
-			if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
-
-			cst = getstatus(&(tmp->addr));
-			age = time(NULL);
-			age -= tmp->time;
-			sprintf(temp, "%s %3d %9lu %s %s", flstr, cst->tryno, (long)tmp->size, 
-				str_time(age), ascfnode(&(tmp->addr), 0x1f));
-
-			if (!do_quiet)
-				printf("%s\n", temp);
-			Syslog('+', "%s", temp);
+    while ((fread(&nodes, nodeshdr.recsize, 1, fp)) == 1) {
+	if (strlen(nodes.OutBox)) {
+	    if (nodes.Crash)
+		flavor = 'c';
+	    else if (nodes.Hold)
+		flavor = 'h';
+	    else
+		flavor = 'o';
+	    fa = fido2faddr(nodes.Aka[0]);
+	    Syslog('o', "checking outbox %s (%s)", nodes.OutBox, ascfnode(fa, 0x2f));
+	    if ((dp = opendir(nodes.OutBox)) == NULL) {
+		Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(nodes.OutBox));
+	    } else {
+		while ((de = readdir(dp))) {
+		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+			sprintf(temp, "%s/%s", nodes.OutBox, de->d_name);
+			if (stat(temp, &sb) == 0) {
+			    Syslog('o' ,"checking: \"%s\"", de->d_name);
+			    if (S_ISREG(sb.st_mode)) {
+				if (pw->pw_uid == sb.st_uid) {
+				    /*
+				     * We own the file
+				     */
+				    if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
+					each(fa, flavor, 0, temp);
+				    } else {
+					Syslog('o', "no R/W permission on %s", temp);
+				    }
+				} else if (pw->pw_gid == sb.st_gid) {
+				    /*
+				     * We own the file group
+				     */
+				    if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
+					each(fa, flavor, 0, temp);
+				    } else {
+					Syslog('o', "no R/W permission on %s", temp);
+				    }
+				} else {
+				    /*
+				     * No owner of file
+				     */
+				    if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
+					each(fa, flavor, 0, temp);
+				    } else {
+					Syslog('o', "no R/W permission on %s", temp);
+				    }
+				}
+			    } else {
+				Syslog('o', "not a regular file");
+			    }
+			} else {
+			    WriteError("Can't stat %s", temp);
+			}
+		    }
 		}
+		closedir(dp);
+	    }
+	    tidy_faddr(fa);
 	}
+	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+    }
+    fclose(fp);
 
-	for (tmp = alist; tmp; tmp = old) {
-		old = tmp->next;
-		free(tmp->addr.domain);
-		free(tmp);
+    if (!do_quiet) {
+	colour(10, 0);
+	printf("flavor try      size age    address\n");
+	colour(3, 0);
+    }
+
+    Syslog('+', "Flavor Try      Size Age    Address");
+    for (tmp = alist; tmp; tmp = tmp->next) {
+	if ((tmp->flavors & F_FREQ) || (tmp->size) || 1) {
+	    strcpy(flstr,"......");
+	    if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
+	    if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
+	    if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
+	    if ((tmp->flavors) & F_HOLD  ) flstr[3]='H';
+	    if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
+	    if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
+
+	    cst = getstatus(&(tmp->addr));
+	    age = time(NULL);
+	    age -= tmp->time;
+	    sprintf(temp, "%s %3d %9lu %s %s", flstr, cst->tryno, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
+
+	    if (!do_quiet)
+		printf("%s\n", temp);
+	    Syslog('+', "%s", temp);
 	}
-	alist = NULL;
+    }
 
-	return 0;
+    free(temp);
+    for (tmp = alist; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp->addr.domain);
+	free(tmp);
+    }
+    alist = NULL;
+
+    return 0;
 }
 
 
@@ -125,6 +208,8 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	struct	stat st;
 	FILE	*fp;
 	char	buf[256], *p;
+
+	Syslog('o', "each(%s, %c, %s, %s)", ascfnode(addr, 0x2f), flavor, isflo?"isflo":"noflo", fname);
 
 	if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL))
 		return 0;

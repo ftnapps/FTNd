@@ -608,6 +608,8 @@ void ipflags(unsigned long flags)
 		t = xstrcat(t, (char *)" IVM");
 	if (flags & IP_IP)
 		t = xstrcat(t, (char *)" IP");
+	if (flags & IP_IFT)
+		t = xstrcat(t, (char *)" IFT");
 	Syslog('s', "%s", t);
 	free(t);
 }

@@ -125,7 +125,7 @@ int E_Group(gr_list **fdp, char *title)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw(5, 5, (char *)"%s", title);
+	mvprintw(5, 6, (char *)"%s", title);
 	set_color(CYAN, BLACK);
 
 	for (tmp = *fdp; tmp; tmp = tmp->next)

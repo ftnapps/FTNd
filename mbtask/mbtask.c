@@ -30,6 +30,7 @@
 
 #include "libs.h"
 #include "../lib/structs.h"
+#include "../paths.h"
 #include "signame.h"
 #include "taskstat.h"
 #include "taskutil.h"
@@ -417,7 +418,8 @@ void load_taskcfg(void)
 		sprintf(TCFG.cmd_mailin,   "%s/bin/mbfido tic toss web -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_newnews,  "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_mbindex1, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
-		sprintf(TCFG.cmd_mbindex2, "%s/bin/goldnode -f -q", getenv("MBSE_ROOT"));
+		if (strlen(_PATH_GOLDNODE))
+		    sprintf(TCFG.cmd_mbindex2, "%s/bin/goldnode -f -q", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
 		TCFG.debug    = FALSE;

@@ -82,7 +82,6 @@ int load_node(fidoaddr n)
 		(n.node == nodes.Aka[i].node) && (n.point == nodes.Aka[i].point)) {
 		fclose(fp);
 		free(temp);
-//		tasklog('-' , "Node record %d, aka nr %d", j, i+1);
 		return TRUE;
 	    }
 	}
@@ -188,13 +187,17 @@ int outstat()
 {
     int		    rc, first = TRUE, T_window, iszmh = FALSE;
     struct _alist   *tmp, *old;
-    char	    flstr[13];
-    char	    temp[81];
-    char	    as[6], be[6], utc[6];
+    char	    flstr[13], *temp, as[6], be[6], utc[6], flavor;
     time_t	    now;
     struct tm	    *tm;
     int		    uhour, umin, thour, tmin;
     pp_list	    *tpl;
+    faddr	    *fa;
+    FILE	    *fp;
+    DIR		    *dp = NULL;
+    struct dirent   *de;
+    struct stat	    sb;
+    struct passwd   *pw;
 
     now = time(NULL);
     tm = gmtime(&now); /* UTC time */
@@ -221,13 +224,97 @@ int outstat()
     }
 
     /*
+     * Check private outbound box for nodes in the setup.
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	tasklog('?', "Error open %s, aborting", temp);
+	free(temp);
+	return 1;
+    }
+    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
+    fseek(fp, 0, SEEK_SET);
+    fread(&nodeshdr, nodeshdr.hdrsize, 1, fp);
+    pw = getpwnam((char *)"mbse");
+
+    while ((fread(&nodes, nodeshdr.recsize, 1, fp)) == 1) {
+	if (strlen(nodes.OutBox)) {
+	    if (nodes.Crash)
+		flavor = 'c';
+	    else if (nodes.Hold)
+		flavor = 'h';
+	    else
+		flavor = 'o';
+
+	    fa = (faddr *)malloc(sizeof(faddr));
+	    fa->name   = NULL;
+	    fa->domain = xstrcpy(nodes.Aka[0].domain);
+	    fa->zone   = nodes.Aka[0].zone;
+	    fa->net    = nodes.Aka[0].net;
+	    fa->node   = nodes.Aka[0].node;
+	    fa->point  = nodes.Aka[0].point;
+
+	    if ((dp = opendir(nodes.OutBox)) != NULL) {
+		while ((de = readdir(dp))) {
+		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+			sprintf(temp, "%s/%s", nodes.OutBox, de->d_name);
+			if (stat(temp, &sb) == 0) {
+			    if (S_ISREG(sb.st_mode)) {
+				if (pw->pw_uid == sb.st_uid) {
+				    /*
+				     * We own the file
+				     */
+				    if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
+					each(fa, flavor, OUT_FIL, temp);
+				    } else {
+					tasklog('+', "No R/W permission on %s", temp);
+				    }
+				} else if (pw->pw_gid == sb.st_gid) {
+				    /*
+				     * We own the file group
+				     */
+				    if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
+					each(fa, flavor, OUT_FIL, temp);
+				    } else {
+					tasklog('+', "No R/W permission on %s", temp);
+				    }
+				} else {
+				    /*
+				     * No owner of file
+				     */
+				    if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
+					each(fa, flavor, OUT_FIL, temp);
+				    } else {
+					tasklog('+', "No R/W permission on %s", temp);
+				    }
+				}
+			    } else {
+				tasklog('+', "Not a regular file: %s", temp);
+			    }
+			} else {
+			    tasklog('?', "Can't stat %s", temp);
+			}
+		    }
+		}
+		closedir(dp);
+	    }
+	    if (fa->domain)
+		free(fa->domain);
+	    free(fa);
+	}
+	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+    }
+    fclose(fp);
+
+    /*
      * During processing the outbound list, determine when the next event will occur,
      * ie. the time when the callout status of a node changes because of starting a
      * ZMH, or changeing the time window for Txx flags.
      */
     for (tmp = alist; tmp; tmp = tmp->next) {
 	if (first) {
-	    tasklog('+', "Flavor Out       Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
+	    tasklog('+', "Flavor Out        Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
 	    first = FALSE;
 	}
 
@@ -309,7 +396,7 @@ int outstat()
 	    }
 	}
 //	tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
-	strcpy(flstr,"...... ... ..");
+	strcpy(flstr,"...... .... ..");
 
 	/*
 	 * If the node has internet and we have internet configured, 
@@ -351,8 +438,11 @@ int outstat()
 	    flstr[5]='P';
 	    tmp->flavors |= F_CALL;
 	}
+
+	if ((tmp->flavors) & F_ISFIL )
+	    flstr[7]='A';
 	if ((tmp->flavors) & F_ISPKT ) { 
-	    flstr[7]='M';
+	    flstr[8]='M';
 	    /*
 	     * Normal mail, send during ZMH or if node has a Txx window.
 	     */
@@ -361,7 +451,7 @@ int outstat()
 	    }
 	}
 	if ((tmp->flavors) & F_ISFLO ) 
-	    flstr[8]='F';
+	    flstr[9]='F';
 
 	if (tmp->cst.tryno >= 30) {
 	    /*
@@ -370,11 +460,11 @@ int outstat()
 	    tmp->flavors &= ~F_CALL;
 	}
 	if ((tmp->flavors) & F_CALL) 
-	    flstr[9]='C';
+	    flstr[10]='C';
 	if (tmp->t1) 
-	    flstr[11] = tmp->t1;
+	    flstr[12] = tmp->t1;
 	if (tmp->t2) 
-	    flstr[12] = tmp->t2;
+	    flstr[13] = tmp->t2;
 
 	/*
 	 * If forbidden to call from setup, clear callflag.
@@ -464,8 +554,9 @@ int outstat()
     /*
      * Log results
      */
-    tasklog('+', "Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
+    tasklog('+', "Systems to call: Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
 	    inet_calls, isdn_calls, pots_calls, nxt_hour, nxt_min);
+    free(temp);
     return 0;
 }
 
@@ -480,7 +571,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	node		*nlent;
 	callstat	*cst;
 
-	if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL))
+	if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL) && (isflo != OUT_FIL))
 		return 0;
 
 	for (tmp = &alist; *tmp; tmp = &((*tmp)->next))
@@ -525,7 +616,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	(*tmp)->cst.tryno   = cst->tryno;
 	(*tmp)->cst.trystat = cst->trystat;
 
-	if ((isflo == OUT_FLO) || (isflo == OUT_PKT)) 
+	if ((isflo == OUT_FLO) || (isflo == OUT_PKT) || (isflo == OUT_FIL)) 
 		switch (flavor) {
 			case '?':	break;
 			case 'i':	(*tmp)->flavors |= F_IMM; break;
@@ -602,6 +693,9 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		(*tmp)->flavors |= F_FREQ;
 	} else if (isflo == OUT_POL) {
 		(*tmp)->flavors |= F_POLL;
+	} else if (isflo == OUT_FIL) {
+		(*tmp)->size += st.st_size;
+		(*tmp)->flavors |= F_ISFIL;
 	}
 
 	return 0;

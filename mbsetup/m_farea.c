@@ -332,7 +332,7 @@ int EditFileRec(int Area)
 			return 0;
 		case 1:	E_STR(  6,16,44, area.Name,      "The ^name^ for this area")
 		case 2:	strcpy(tpath, area.Path);
-			strcpy(area.Path, edit_pth(7,16,64, area.Path, (char *)"The ^path^ for the files in this area"));
+			strcpy(area.Path, edit_pth(7,16,64, area.Path, (char *)"The ^path^ for the files in this area", 0775));
 			if (strlen(tpath) && strlen(area.Path) && strcmp(tpath, area.Path) && strcmp(tpath, CFG.ftp_base)) {
 			    if ((dp = opendir(tpath)) == NULL) {
 				WriteError("Can't open directory %s", tpath);

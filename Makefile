@@ -144,6 +144,11 @@ install:
 			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/var ; \
 			chmod -R 0750 ${PREFIX}/var ; \
 		fi
+		@if [ ! -d ${PREFIX}/var/boxes ]; then \
+			mkdir ${PREFIX}/var/boxes ; \
+			${CHOWN}  ${OWNER}.${GROUP} ${PREFIX}/var/boxes ; \
+			chmod 0750 ${PREFIX}/var/boxes ; \
+		fi
 		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
 			mkdir ${PREFIX}/var/unknown ; \
 			mkdir ${PREFIX}/var/inbound ; \

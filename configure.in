@@ -9,7 +9,7 @@ AC_SUBST(SUBDIRS)
 dnl General settings for MBSE BBS
 dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
-VERSION="0.35.01"
+VERSION="0.35.02"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
@@ -175,6 +175,9 @@ AC_PATH_PROG(RB,rb)
 AC_PATH_PROG(SB,sb)
 AC_PATH_PROG(RZ,rz)
 AC_PATH_PROG(SZ,sz)
+AC_PATH_PROG(GOLDEDBIN,golded)
+AC_PATH_PROG(GOLDNODE,goldnode)
+
 dnl
 AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
 case "$LOG_COMPRESS" in

@@ -40,3 +40,10 @@
 #define	_PATH_SZ	"@SZ@"
 
 
+
+/*
+ * GoldED
+ */
+#define	_PATH_GOLDED	"@GOLDEDBIN@"
+#define	_PATH_GOLDNODE	"@GOLDNODE@"
+

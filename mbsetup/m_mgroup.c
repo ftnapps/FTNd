@@ -381,7 +381,7 @@ int EditMGrpRec(int Area)
 			}
 			break;
 		case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
-		case 3: E_PTH(  9,16,64, mgroup.BasePath,   "The ^Base path^ where new JAM areas are created")
+		case 3: E_PTH(  9,16,64, mgroup.BasePath,   "The ^Base path^ where new JAM areas are created", 0770)
 		case 4: E_SEC( 10,16,    mgroup.RDSec,      "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
 		case 5: E_SEC( 11,16,    mgroup.WRSec,      "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
 		case 6: E_SEC( 12,16,    mgroup.SYSec,      "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)

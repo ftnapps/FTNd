@@ -1196,7 +1196,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 
 
 PACKAGE="mbsebbs"
-VERSION="0.35.01"
+VERSION="0.35.02"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
@@ -7689,6 +7689,85 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+# Extract the first word of "golded", so it can be a program name with args.
+set dummy golded; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_GOLDEDBIN+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $GOLDEDBIN in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GOLDEDBIN="$GOLDEDBIN" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_GOLDEDBIN="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+GOLDEDBIN=$ac_cv_path_GOLDEDBIN
+
+if test -n "$GOLDEDBIN"; then
+  echo "$as_me:$LINENO: result: $GOLDEDBIN" >&5
+echo "${ECHO_T}$GOLDEDBIN" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "goldnode", so it can be a program name with args.
+set dummy goldnode; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_GOLDNODE+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $GOLDNODE in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GOLDNODE="$GOLDNODE" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_GOLDNODE="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+GOLDNODE=$ac_cv_path_GOLDNODE
+
+if test -n "$GOLDNODE"; then
+  echo "$as_me:$LINENO: result: $GOLDNODE" >&5
+echo "${ECHO_T}$GOLDNODE" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+
 
 # Check whether --with-log-compress or --without-log-compress was given.
 if test "${with_log_compress+set}" = set; then
@@ -8375,6 +8454,8 @@ s,@RB@,$RB,;t t
 s,@SB@,$SB,;t t
 s,@RZ@,$RZ,;t t
 s,@SZ@,$SZ,;t t
+s,@GOLDEDBIN@,$GOLDEDBIN,;t t
+s,@GOLDNODE@,$GOLDNODE,;t t
 s,@LOG_COMPRESS@,$LOG_COMPRESS,;t t
 s,@LOG_COMPRESSEXT@,$LOG_COMPRESSEXT,;t t
 CEOF
