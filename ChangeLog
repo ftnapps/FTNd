@@ -4343,6 +4343,9 @@ v0.33.19        26-Oct-2001
 		The tic file import function now sorts and tests on long file-
 		names, with the new mangle function an DOS 8.3 filename is
 		also stored in the file database.
+		For all files received in tic area, the crc of the tic area
+		name is stored in the filerecord. This is for the future 
+		rescan option.
 
 	mbfile:
 		During check the file databases are reset to filemode 0660.
@@ -4364,6 +4367,8 @@ v0.33.19        26-Oct-2001
 		The mbfile check function now converts the short filenames
 		to DOS 8.3 filenames. (The first time this logs lots of
 		errors).
+		The mbfile list function now gives a listing of the contents
+		of a file area if the area number is given as argument.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.

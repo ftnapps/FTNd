@@ -28,8 +28,12 @@
 #define	KEY_PGDN	209
 
 
+#ifndef LINES
 #define	LINES		24
+#endif
+#ifndef COLS
 #define	COLS		80
+#endif
 
 
 /*

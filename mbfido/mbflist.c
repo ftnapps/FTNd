@@ -44,11 +44,11 @@ extern int	do_quiet;		/* Supress screen output	    */
 
 void ListFileAreas(int Area)
 {
-    FILE    *pAreas, *pFile;
+    FILE    *pAreas, *pFile, *pTic;
     int     i, iAreas, fcount, tcount = 0;
     int     iTotal = 0;
     long    fsize, tsize = 0;
-    char    *sAreas, *fAreas, flags[6];
+    char    *sAreas, *fAreas, *sTic, flags[6], *ticarea;
 
     /*
      * If nothing to display allowed, return at once.
@@ -57,11 +57,12 @@ void ListFileAreas(int Area)
 	return;
 
     colour(LIGHTRED, BLACK);
-    sAreas = calloc(PATH_MAX, sizeof(char));
-    fAreas = calloc(PATH_MAX, sizeof(char));
+    sAreas  = calloc(PATH_MAX, sizeof(char));
+    fAreas  = calloc(PATH_MAX, sizeof(char));
+    sTic    = calloc(PATH_MAX, sizeof(char));
+    ticarea = calloc(21, sizeof(char));
 
     sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	printf("Can't open %s\n", sAreas);
@@ -71,10 +72,18 @@ void ListFileAreas(int Area)
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
     fseek(pAreas, 0, SEEK_END);
     iAreas = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
-    
+
     if (Area) {
 	IsDoing("List area %d", Area);
 
+	sprintf(sTic, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	if ((pTic = fopen(sTic, "r")) == NULL) {
+	    WriteError("Can't open %s", sTic);
+	    printf("Can't open %s\n", sTic);
+	    die(0);
+	}
+	fread(&tichdr, sizeof(tichdr), 1, pTic);
+		
 	if (fseek(pAreas, ((Area - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET)) {
 	    WriteError("$Can't seek area %d", Area);
 	    printf("Can't seek area %d\n", Area);
@@ -104,8 +113,12 @@ void ListFileAreas(int Area)
 	    fsize  = 0L;
 	    colour(CYAN, BLACK);
 	    printf("File listing of area %d, %s\n\n", Area, area.Name);
-	    printf("File name    Kbytes File date  Dnlds Flags Description\n");
-	    printf("------------ ------ ---------- ----- ----- ------------------------------------\n");
+	    printf("Short name     Kb. File date  Down Flags TIC Area             Long name\n");
+	    printf("------------ ----- ---------- ---- ----- -------------------- ");
+	    for (i = 63; i < COLS; i++)
+		printf("-");
+	    printf("\n");
+
 	    colour(LIGHTGRAY, BLACK);
 
 	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
@@ -121,18 +134,37 @@ void ListFileAreas(int Area)
 		if (file.Announced)
 		    flags[4] = 'A';
 
-		if (strlen(file.Desc[0]) > 36)
-		    file.Desc[0][36] = '\0';
-		printf("%-12s %6ld %s %5ld %s %s\n", 
+		if (file.TicAreaCRC) {
+		    /*
+		     * Fill the default answer
+		     */
+		    sprintf(ticarea, "Not found");
+		    fseek(pTic, tichdr.hdrsize, SEEK_SET);
+		    while (fread(&tic, tichdr.recsize, 1, pTic)) {
+			if (StringCRC32(tic.Name) == file.TicAreaCRC) {
+			    sprintf(ticarea, "%s", tic.Name);
+			    break;
+			}
+			fseek(pTic, tichdr.syssize, SEEK_CUR);
+		    }
+		} else {
+		    sprintf(ticarea, "N/A");
+		}
+
+		file.LName[COLS - 63] = '\0';
+		printf("%-12s %5ld %s %4ld %s %-20s %s\n", 
 			file.Name, (long)(file.Size / 1024), StrDateDMY(file.FileDate), 
-			(long)(file.TimesDL + file.TimesFTP + file.TimesReq), flags, file.Desc[0]);
+			(long)(file.TimesDL + file.TimesFTP + file.TimesReq), flags, ticarea, file.LName);
 		fcount++;
 		fsize = fsize + file.Size;
 	    }
 	    fsize = fsize / 1024;
 
 	    colour(CYAN, BLACK);
-	    printf("-------------------------------------------------------------------------------\n");
+	    printf("--------------------------------------------------------------");
+	    for (i = 63; i < COLS; i++)
+		printf("-");
+	    printf("\n");
 	    printf("%d file%s, %ld Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);
 
 	} else {
@@ -141,8 +173,11 @@ void ListFileAreas(int Area)
 	    return;
 	}
 
+	fclose(pTic);
+	free(ticarea);
 	free(sAreas);
 	free(fAreas);
+	free(sTic);
 	return;
     }
 
@@ -189,7 +224,9 @@ void ListFileAreas(int Area)
     printf("----- ----- ----- ---------------------------------------------------------\n");
     printf("%5d %5d %5ld \n", iTotal, tcount, tsize);
     fclose(pAreas);
+    free(ticarea);
     free(sAreas);
     free(fAreas);
+    free(sTic);
 }
 
