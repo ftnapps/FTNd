@@ -200,9 +200,8 @@ void Check(long AreaNr)
 
 void CheckArea(long Area)
 {
-    FILE		*pFile;
     int			j, Fix, inArea, rc;
-    char		*fAreas, *newdir, *temp, *mname, *tname;
+    char		*newdir, *temp, *mname, *tname;
     DIR			*dp;
     struct dirent	*de;
     int			Found, Update;
@@ -210,8 +209,14 @@ void CheckArea(long Area)
     struct stat		stb;
     struct passwd	*pw;
     struct group	*gr;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	*fdb_area = NULL;
+#else
+    FILE		*pFile;
+    char		*fAreas;
 
     fAreas = calloc(PATH_MAX, sizeof(char));
+#endif
     newdir = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
     mname  = calloc(PATH_MAX, sizeof(char));
@@ -289,282 +294,334 @@ void CheckArea(long Area)
 	WriteError("Can't stat %s", area.Path);
     }
 
-	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+#ifdef USE_EXPERIMENT
+    if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
+	return;
+#else
+    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+
+    /*
+     * Open the file database, if it doesn't exist,
+     * create an empty one.
+     */
+    if ((pFile = fopen(fAreas, "r+")) == NULL) {
+	Syslog('!', "Creating new %s", fAreas);
+	if ((pFile = fopen(fAreas, "a+")) == NULL) {
+	    WriteError("$Can't create %s", fAreas);
+	    die(MBERR_GENERAL);
+	}
+	fdbhdr.hdrsize = sizeof(fdbhdr);
+	fdbhdr.recsize = sizeof(fdb);
+	fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+    } else {
+	fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+    }
+
+    /*
+     * We don't do any upgrade, so the header must be correct.
+     */
+    if (fdbhdr.hdrsize != sizeof(fdbhdr)) {
+	Syslog('+', "fAreas hdrsize is corrupt: %d", fdbhdr.hdrsize);
+	return;
+    }
+    if (fdbhdr.recsize != sizeof(fdb)) {
+    	Syslog('+', "fAreas recordsize is corrupt: %d, expected %d", fdbhdr.recsize, sizeof(fdbhdr));
+    	return;
+    }
+#endif
+
+    /*
+     * Now start checking the files in the filedatabase
+     * against the contents of the directory.
+     */
+    inArea = 0;
+#ifdef	USE_EXPERIMENT
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
+    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
+
+	iTotal++;
+	inArea++;
+	sprintf(newdir, "%s/%s", area.Path, fdb.LName);
+	sprintf(mname,  "%s/%s", area.Path, fdb.Name);
+
+	if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
+	    Syslog('+', "File %s area %ld not on disk.", newdir, Area);
+	    if (!fdb.NoKill) {
+	    	fdb.Deleted = TRUE;
+	    	do_pack = TRUE;
+	    }
+	    iErrors++;
+#ifdef	USE_EXPERIMENT
+	    if (mbsedb_LockFDB(fdb_area, 30)) {
+		fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+		fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+		mbsedb_UnlockFDB(fdb_area);
+	    }
+#else
+	    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+	    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
+	} else {
+	    /*
+	     * File exists, now check the file.
+	     */
+	    Marker();
+	    Update = FALSE;
+
+	    strcpy(temp, fdb.LName);
+	    name_mangle(temp);
+	    sprintf(mname, "%s/%s", area.Path, temp);
+	    if (strcmp(fdb.Name, temp))  {
+		Syslog('!', "Converted %s to %s", fdb.Name, temp);
+	    	tname = calloc(PATH_MAX, sizeof(char));
+	    	sprintf(tname, "%s/%s", area.Path, fdb.Name);
+	    	rename(tname, mname);
+	    	sprintf(tname, "%s/%s", area.Path, fdb.LName);
+	    	unlink(tname);
+	    	symlink(mname, tname);
+	    	free(tname);
+	    	strncpy(fdb.Name, temp, 12);
+	    	iErrors++;
+	    	Update = TRUE;
+	    }
 
 	    /*
-	     * Open the file database, if it doesn't exist,
-	     * create an empty one.
+	     * If 8.3 and LFN are the same, try to rename the LFN to lowercase.
 	     */
-	    if ((pFile = fopen(fAreas, "r+")) == NULL) {
-		Syslog('!', "Creating new %s", fAreas);
-		if ((pFile = fopen(fAreas, "a+")) == NULL) {
-		    WriteError("$Can't create %s", fAreas);
-		    die(MBERR_GENERAL);
-		}
-		fdbhdr.hdrsize = sizeof(fdbhdr);
-		fdbhdr.recsize = sizeof(fdb);
-		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    if (strcmp(fdb.Name, fdb.LName) == 0) {
+		/*
+	    	 * 8.3 and LFN are the same.
+	    	 */
+	    	tname = calloc(PATH_MAX, sizeof(char));
+	    	sprintf(tname, "%s/%s", area.Path, fdb.LName);
+	    	for (j = 0; j < strlen(fdb.LName); j++)
+	    	    fdb.LName[j] = tolower(fdb.LName[j]);
+	    	sprintf(newdir, "%s/%s", area.Path, fdb.LName);
+	    	if (strcmp(tname, newdir)) {
+	    	    Syslog('+', "Rename LFN from %s to %s", fdb.Name, fdb.LName);
+	    	    rename(tname, newdir);
+	    	    Update = TRUE;
+	    	}
+	    	free(tname);
+	    }
+
+	    /*
+	     * At this point we may have (depending on the upgrade level)
+             * a real file with a long name or a real file with a short name
+	     * or both. One of them may also be a symbolic link or not exist
+	     * at all. Whatever it was, make it good.
+	     */
+	    if ((lstat(newdir, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
+		/*
+	    	 * Long filename is a regular file and not a symbolic link.
+	    	 */
+	    	if (lstat(mname, &stb) == 0) {
+	    	    /*
+	    	     * 8.3 name exists, is it a real file?
+	    	     */
+	    	    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
+	    		unlink(newdir);
+	    		symlink(mname, newdir);
+	    		Syslog('+', "%s changed into symbolic link", newdir);
+	    		iErrors++;
+	    	    } else {
+	    		/*
+	    		 * 8.3 is a symbolic link.
+	    		 */
+	    		unlink(mname);
+	    		rename(newdir, mname);
+	    		symlink(mname, newdir);
+	    		Syslog('+', "%s changed to real file", mname);
+	    		iErrors++;
+	    	    }
+	    	} else {
+	    	    /*
+	    	     * No 8.3 name on disk.
+	    	     */
+	    	    rename(newdir, mname);
+	    	    symlink(mname, newdir);
+	    	    Syslog('+', "%s changed to real file and created symbolic link", mname);
+	    	    iErrors++;
+	    	}
+	    } else if ((lstat(mname, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
+	    	/*
+	    	 * Short filename is a real file.
+	    	 */
+	    	if (lstat(newdir, &stb) == 0) {
+	    	    /*
+	    	     * LFN exists, is it a real file?
+	    	     */
+	    	    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
+	    	    	/*
+	    	    	 * LFN is a real filename too.
+	    	    	 */
+	    	    	unlink(newdir);
+	    	    	symlink(mname, newdir);
+	    	    	Syslog('+', "%s changed into symbolic link", newdir);
+	    	    	iErrors++;
+	    	    }
+	    	} else {
+	    	    /*
+	    	     * No LFN, create symbolic link
+	    	     */
+	    	    symlink(mname, newdir);
+	    	    Syslog('+', "%s created symbolic link", newdir);
+	    	    iErrors++;
+	    	}
 	    } else {
-		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    	/*
+	    	 * Weird, could not happen
+	    	 */
+	    	Syslog('!', "Weird problem, %s is no regular file", newdir);
 	    }
 
 	    /*
-	     * We don't do any upgrade, so the header must be correct.
-	     */
-	    if (fdbhdr.hdrsize != sizeof(fdbhdr)) {
-		Syslog('+', "fAreas hdrsize is corrupt: %d", fdbhdr.hdrsize);
-		return;
-	    }
-	    if (fdbhdr.recsize != sizeof(fdb)) {
-		Syslog('+', "fAreas recordsize is corrupt: %d, expected %d", fdbhdr.recsize, sizeof(fdbhdr));
-		return;
-	    }
-
-	    /*
-	     * Now start checking the files in the filedatabase
-	     * against the contents of the directory.
-	     */
-	    inArea = 0;
-	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
-		iTotal++;
-		inArea++;
-		sprintf(newdir, "%s/%s", area.Path, fdb.LName);
-		sprintf(mname,  "%s/%s", area.Path, fdb.Name);
-
-		if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
-		    Syslog('+', "File %s area %ld not on disk.", newdir, Area);
-		    if (!fdb.NoKill) {
-			fdb.Deleted = TRUE;
-			do_pack = TRUE;
-		    }
-		    iErrors++;
-		    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-		    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-		} else {
-		    /*
-		     * File exists, now check the file.
-		     */
-		    Marker();
-		    Update = FALSE;
-
-		    strcpy(temp, fdb.LName);
-		    name_mangle(temp);
-		    sprintf(mname, "%s/%s", area.Path, temp);
-		    if (strcmp(fdb.Name, temp))  {
-			Syslog('!', "Converted %s to %s", fdb.Name, temp);
-			tname = calloc(PATH_MAX, sizeof(char));
-			sprintf(tname, "%s/%s", area.Path, fdb.Name);
-			rename(tname, mname);
-			sprintf(tname, "%s/%s", area.Path, fdb.LName);
-			unlink(tname);
-			symlink(mname, tname);
-			free(tname);
-			strncpy(fdb.Name, temp, 12);
-			iErrors++;
-			Update = TRUE;
-		    }
-
-		    /*
-		     * If 8.3 and LFN are the same, try to rename the LFN to lowercase.
-		     */
-		    if (strcmp(fdb.Name, fdb.LName) == 0) {
-			/*
-			 * 8.3 and LFN are the same.
-			 */
-			tname = calloc(PATH_MAX, sizeof(char));
-			sprintf(tname, "%s/%s", area.Path, fdb.LName);
-			for (j = 0; j < strlen(fdb.LName); j++)
-			    fdb.LName[j] = tolower(fdb.LName[j]);
-			sprintf(newdir, "%s/%s", area.Path, fdb.LName);
-			if (strcmp(tname, newdir)) {
-			    Syslog('+', "Rename LFN from %s to %s", fdb.Name, fdb.LName);
-			    rename(tname, newdir);
-			    Update = TRUE;
-			}
-			free(tname);
-		    }
-
-		    /*
-		     * At this point we may have (depending on the upgrade level)
-                     * a real file with a long name or a real file with a short name
-		     * or both. One of them may also be a symbolic link or not exist
-		     * at all. Whatever it was, make it good.
-		     */
-		    if ((lstat(newdir, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
-			/*
-			 * Long filename is a regular file and not a symbolic link.
-			 */
-			if (lstat(mname, &stb) == 0) {
-			    /*
-			     * 8.3 name exists, is it a real file?
-			     */
-			    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
-				unlink(newdir);
-				symlink(mname, newdir);
-				Syslog('+', "%s changed into symbolic link", newdir);
-				iErrors++;
-			    } else {
-				/*
-				 * 8.3 is a symbolic link.
-				 */
-				unlink(mname);
-				rename(newdir, mname);
-				symlink(mname, newdir);
-				Syslog('+', "%s changed to real file", mname);
-				iErrors++;
-			    }
-			} else {
-			    /*
-			     * No 8.3 name on disk.
-			     */
-			    rename(newdir, mname);
-			    symlink(mname, newdir);
-			    Syslog('+', "%s changed to real file and created symbolic link", mname);
-			    iErrors++;
-			}
-		    } else if ((lstat(mname, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
-			/*
-			 * Short filename is a real file.
-			 */
-			if (lstat(newdir, &stb) == 0) {
-			    /*
-			     * LFN exists, is it a real file?
-			     */
-			    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
-			    	/*
-			    	 * LFN is a real filename too.
-			    	 */
-			    	unlink(newdir);
-			    	symlink(mname, newdir);
-			    	Syslog('+', "%s changed into symbolic link", newdir);
-			    	iErrors++;
-			    }
-			} else {
-			    /*
-			     * No LFN, create symbolic link
-			     */
-			    symlink(mname, newdir);
-			    Syslog('+', "%s created symbolic link", newdir);
-			    iErrors++;
-			}
-		    } else {
-			/*
-			 * Weird, could not happen
-			 */
-			Syslog('!', "Weird problem, %s is no regular file", newdir);
-		    }
-
-		    /*
-		     * It could be that there is a thumbnail made of the LFN.
-		     */
-		    tname = calloc(PATH_MAX, sizeof(char));
-		    sprintf(tname, "%s/.%s", area.Path, fdb.LName);
-		    if (file_exist(tname, R_OK) == 0) {
-			Syslog('+', "Removing thumbnail %s", tname);
-			iErrors++;
-			unlink(tname);
-		    }
-		    free(tname);
+    	     * It could be that there is a thumbnail made of the LFN.
+    	     */
+    	    tname = calloc(PATH_MAX, sizeof(char));
+    	    sprintf(tname, "%s/.%s", area.Path, fdb.LName);
+    	    if (file_exist(tname, R_OK) == 0) {
+    		Syslog('+', "Removing thumbnail %s", tname);
+    		iErrors++;
+    		unlink(tname);
+    	    }
+    	    free(tname);
 
 
-		    if (file_time(newdir) != fdb.FileDate) {
-			Syslog('!', "Date mismatch area %ld file %s", Area, fdb.LName);
-			fdb.FileDate = file_time(newdir);
-			iErrors++;
-			Update = TRUE;
-		    }
-		    if (file_size(newdir) != fdb.Size) {
-			Syslog('!', "Size mismatch area %ld file %s", Area, fdb.LName);
-			fdb.Size = file_size(newdir);
-			iErrors++;
-			Update = TRUE;
-		    }
-		    if (file_crc(newdir, CFG.slow_util && do_quiet) != fdb.Crc32) {
-			Syslog('!', "CRC error area %ld, file %s", Area, fdb.LName);
-			fdb.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
-			iErrors++;
-			Update = TRUE;
-		    }
-		    Marker();
-		    if (Update) {
-			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-		    }
+    	    if (file_time(newdir) != fdb.FileDate) {
+    		Syslog('!', "Date mismatch area %ld file %s", Area, fdb.LName);
+    		fdb.FileDate = file_time(newdir);
+    		iErrors++;
+    		Update = TRUE;
+    	    }
+    	    if (file_size(newdir) != fdb.Size) {
+    		Syslog('!', "Size mismatch area %ld file %s", Area, fdb.LName);
+    		fdb.Size = file_size(newdir);
+    		iErrors++;
+    		Update = TRUE;
+    	    }
+    	    if (file_crc(newdir, CFG.slow_util && do_quiet) != fdb.Crc32) {
+    		Syslog('!', "CRC error area %ld, file %s", Area, fdb.LName);
+    		fdb.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
+    		iErrors++;
+    		Update = TRUE;
+    	    }
+    	    Marker();
+    	    if (Update) {
+#ifdef	USE_EXPERIMENT
+		if (mbsedb_LockFDB(fdb_area, 30)) {
+		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+		    mbsedb_UnlockFDB(fdb_area);
 		}
-		if (strlen(fdb.Magic)) {
-		    rc = magic_check(fdb.Magic, fdb.Name);
-		    if (rc == -1) {
-			Syslog('+', "Area %ld magic alias %s file %s is invalid", Area, fdb.Magic, fdb.Name);
-			memset(&fdb.Magic, 0, sizeof(fdb.Magic));
-			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-			iErrors++;
-		    }
-		}
+#else
+    		fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+    		fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
 	    }
-	    if (inArea == 0)
-		Syslog('+', "Warning: area %ld (%s) is empty", Area, area.Name);
+    	}
 
-	    /*
-	     * Check files in the directory against the database.
-	     * This test is skipped for CD-rom.
-	     */
-	    if (!area.CDrom) {
-		if ((dp = opendir(area.Path)) != NULL) {
-		    while ((de = readdir(dp)) != NULL) {
-			if (de->d_name[0] != '.') {
-			    Marker();
-			    Found = FALSE;
-			    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
-			    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-				if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
-				    if (!Found) {
-					Found = TRUE;
-				    } else {
-					/*
-					 * Record has been found before, so this must be
-					 * a double record.
-					 */
-					Syslog('!', "Double file record area %ld file %s", Area, fdb.LName);
-					iErrors++;
-					fdb.Double = TRUE;
-					do_pack = TRUE;
-					fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-					fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-				    }
+	if (strlen(fdb.Magic)) {
+	    rc = magic_check(fdb.Magic, fdb.Name);
+	    if (rc == -1) {
+		Syslog('+', "Area %ld magic alias %s file %s is invalid", Area, fdb.Magic, fdb.Name);
+		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
+#ifdef	USE_EXPERIMENT
+		if (mbsedb_LockFDB(fdb_area, 30)) {
+		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+		    mbsedb_UnlockFDB(fdb_area);
+		}
+#else
+	    	fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+	    	fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
+		iErrors++;
+	    }
+	}
+    }
+
+    if (inArea == 0)
+    	Syslog('+', "Warning: area %ld (%s) is empty", Area, area.Name);
+
+    /*
+     * Check files in the directory against the database.
+     * This test is skipped for CD-rom.
+     */
+    if (!area.CDrom) {
+    	if ((dp = opendir(area.Path)) != NULL) {
+    	    while ((de = readdir(dp)) != NULL) {
+    		if (de->d_name[0] != '.') {
+    		    Marker();
+    		    Found = FALSE;
+#ifdef	USE_EXPERIMENT
+		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
+    		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
+    		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
+			if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
+    			    if (!Found) {
+	    			Found = TRUE;
+    			    } else {
+    				/*
+    				 * Record has been found before, so this must be
+    				 * a double record.
+    				 */
+    				Syslog('!', "Double file record area %ld file %s", Area, fdb.LName);
+    				iErrors++;
+    				fdb.Double = TRUE;
+    				do_pack = TRUE;
+#ifdef	USE_EXPERIMENT
+				if (mbsedb_LockFDB(fdb_area, 30)) {
+				    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+				    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+				    mbsedb_UnlockFDB(fdb_area);
 				}
+#else
+    				fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+    				fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
 			    }
-			    if ((!Found) && (strncmp(de->d_name, "files.bbs", 9)) &&
-				(strncmp(de->d_name, "files.bak", 9)) &&
-				(strncmp(de->d_name, "00index", 7)) &&
-				(strncmp(de->d_name, "header", 6)) &&
-				(strncmp(de->d_name, "index", 5)) &&
-				(strncmp(de->d_name, "readme", 6))) {
-				sprintf(fn, "%s/%s", area.Path, de->d_name);
-				if (stat(fn, &stb) == 0)
-				    if (S_ISREG(stb.st_mode)) {
-					if (unlink(fn) == 0) {
-					    Syslog('!', "%s not in fdb, deleted from disk", fn);
-					    iErrors++;
-					} else {
-					    WriteError("$%s not in fdb, cannot delete", fn);
-					}
-				    }
-			    }
-			}
-		    }
-		    closedir(dp);
-		} else {
-		    WriteError("Can't open %s", area.Path);
-		}
-	    }
+    			}
+    		    }
+    		    if ((!Found) && (strncmp(de->d_name, "files.bbs", 9)) &&
+    			(strncmp(de->d_name, "files.bak", 9)) &&
+    			(strncmp(de->d_name, "00index", 7)) &&
+    			(strncmp(de->d_name, "header", 6)) &&
+    			(strncmp(de->d_name, "index", 5)) &&
+    			(strncmp(de->d_name, "readme", 6))) {
+    			sprintf(fn, "%s/%s", area.Path, de->d_name);
+    			if (stat(fn, &stb) == 0)
+    			    if (S_ISREG(stb.st_mode)) {
+    				if (unlink(fn) == 0) {
+    				    Syslog('!', "%s not in fdb, deleted from disk", fn);
+    				    iErrors++;
+    				} else {
+    				    WriteError("$%s not in fdb, cannot delete", fn);
+    				}
+    			    }
+    		    }
+    		}
+    	    }
+    	    closedir(dp);
+    	} else {
+    	    WriteError("Can't open %s", area.Path);
+    	}
+    }
 
-	    fclose(pFile);
-	    chmod(fAreas, 0660);
-	    iAreasNew++;
-    
+#ifdef	USE_EXPERIMENT
+    mbsedb_CloseFDB(fdb_area);
+#else
+    fclose(pFile);
+    chmod(fAreas, 0660);
     free(fAreas);
+#endif
+
+    iAreasNew++;
     free(newdir);
     free(temp);
     free(mname);

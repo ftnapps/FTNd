@@ -39,7 +39,7 @@
 
 
 /*
- *  Open files database Area number, with path. Do some checks and abort
+ *  Open files database Area number. Do some checks and abort
  *  if they fail.
  */
 struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
@@ -69,11 +69,26 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
 	Syslog('f', "Open file area %ld, try %d", Area, Tries);
     }
     if (fp == NULL) {
+	if (errno == ENOENT) {
+	    Syslog('+', "Create empty FDB for area %ld", Area);
+	    fdbhdr.hdrsize = sizeof(fdbhdr);
+	    fdbhdr.recsize = sizeof(fdb);
+	    if ((fp = fopen(temp, "w+"))) {
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
+	    }
+	}
+    } else {
+	fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+    }
+
+    /*
+     * If still not open, it's fatal.
+     */
+    if (fp == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
 	return NULL;
     }
-    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 
     /*
      * Fix attributes if needed
