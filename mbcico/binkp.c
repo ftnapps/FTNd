@@ -1491,6 +1491,19 @@ int binkp_batch(file_list *to_send)
 				break;
 
 		case MM_FILE:   Syslog('b', "Binkp: got FILE: %s", bp.rxbuf+1);
+				if (bp.RxState == RxReceData ) {
+				    /*
+				     * If we get a m_file command during receive, the current file is
+				     * considered interrupted. Save the partial received file and accept
+				     * the new file. After this file the transmitter should continue
+				     * with the original file and this mailer should send m_get to set
+				     * the offset to the point were we left off.
+				     */
+				    Syslog('+', "Binkp: new file during receive, saving %s", bp.rname);
+				    closefile();
+				    bp.rxfp = NULL;
+				    bp.RxState = RxWaitFile;
+				}
 				if ((bp.RxState == RxWaitFile) || (bp.RxState == RxEndOfBatch)) {
 				    bp.RxState = RxAcceptFile;
 				    /*

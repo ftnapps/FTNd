@@ -2,12 +2,13 @@ $Id$
 
 v0.39.5		24-Dec-2003
 
-
 	mbcico:
 		Binkp code cleanup.
+		Allow m_file command in binkp during file transfer in progress.
 
 	script:
 		Fixed NetBSD init script
+
 
 v0.39.4		08-Dec-2003 - 24-Dec-2003
 
