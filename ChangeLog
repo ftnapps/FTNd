@@ -4240,6 +4240,11 @@ v0.33.19        26-Oct-2001
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
 
+	libcommon.a:
+		When adding seenby entries, the zone number is copied from the
+		previous adress just like with the net numbers. This is for
+		old style tic files, they were not full 3d.
+
 	lang:
 		Changed language prompts 6, 71, 429.
 		Added language prompts 472 and 473 for FS editor.

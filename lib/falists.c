@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: falists.c
+ * $Id$
  * Purpose ...............: SEEN-BY and PATH lists
- * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -80,7 +79,7 @@ void fill_list(fa_list **fap, char *str, fa_list **omit)
 {
 	fa_list			*tmp;
 	faddr			*ta;
-	static unsigned int	oldnet;
+	static unsigned int	oldzone, oldnet;
 	char			*buf, *p, *q, *r;
 	int			allowskip = 1;
 
@@ -94,6 +93,10 @@ void fill_list(fa_list **fap, char *str, fa_list **omit)
 	     p;
 	     p = (q < r) ? strtok(q, " \t\n"):NULL, q = p ? p + strlen(p) + 1:r)
 	if ((ta = parsefnode(p))) {
+		if (ta->zone == 0)
+			ta->zone = oldzone;
+		else
+			oldzone = ta->zone;
 		if (ta->net == 0) 
 			ta->net = oldnet;
 		else 
