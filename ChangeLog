@@ -31,6 +31,7 @@ v0.39.4		08-Dec-2003
 
 	mbtask:
 		Moved the scheduler in a thread.
+		Rewrote shutdown procedure to make it more portable.
 
 	script:
 		Dropped support for Slackware pre 7.0.
