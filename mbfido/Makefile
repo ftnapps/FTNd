@@ -100,6 +100,7 @@ install:	all
 		rm -f ${BINDIR}/mbnews
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbnews
 		(cd ${PREFIX}; tar xfz ${PACKAGE}-${VERSION}/mbfido/maptabs.tgz; ${CHOWN} ${OWNER}.${GROUP} etc/maptabs/*)
+		chmod 0775 ${PREFIX}/etc
 
 filelist:	Makefile
 		BASE=`pwd`; \

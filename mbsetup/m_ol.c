@@ -185,6 +185,7 @@ void CloseOneline(int force)
 			return;
 		}
 	}
+	chmod(fin, 0660);
 	working(1, 0, 0);
 	unlink(fout); 
 }

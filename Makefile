@@ -39,6 +39,12 @@ install:
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/etc/maptabs ; \
 		fi
 		@chmod 0775 ${PREFIX}/etc
+		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
+			chmod 0660 ${PREFIX}/etc/lastcall.data ; \
+		fi
+		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
+			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
+		fi
 		@if [ ! -d ${PREFIX}/doc ] ; then \
 			mkdir ${PREFIX}/doc ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/doc ; \

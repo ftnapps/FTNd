@@ -185,6 +185,7 @@ void CloseFGroup(int force)
 			return;
 		}
 	}
+	chmod(fin, 0640);
 	working(1, 0, 0);
 	unlink(fout); 
 }

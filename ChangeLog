@@ -4261,6 +4261,7 @@ v0.33.19        26-Oct-2001
 		mblogin and mbuseradd.
 		Started NetBSD port, is in testing fase.
 		Added support for xinetd.
+		Fixed filemodes for some directories and data files.
 
 	SETUP.sh:
 		Better grep to check for excisting usernames like bbs, mbse.
@@ -4303,6 +4304,7 @@ v0.33.19        26-Oct-2001
 		now in a more logical order for a first system setup.
 		Most datafiles are now saved mode 0640 exept the files that
 		need to be rewritten by users, they have mode 0660.
+		The filemodes are always checked and corrected during startup.
 		In the file database editor the default choice was 0 in stead
 		of -.
 		When a file area is made unavailable in menu 8.4, first the
