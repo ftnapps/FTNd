@@ -3,12 +3,9 @@
 #ifndef TTYIO_H
 #define TTYIO_H
 
-/*
- * Timer numbers for Hydra
- */
-#define TIMERNO_BRAIN	0
-#define TIMERNO_RX	1
-#define	TIMERNO_TX	2
+#define TIMERNO_BRAIN   0               /* BRAIN timerno                     */
+#define TIMERNO_RX      1               /* Receiver timerno                  */
+#define TIMERNO_TX      2               /* Transmitter timerno               */
 
 #define RESETTIMER(x) tty_resettimer(x)
 #define RESETTIMERS() tty_resettimers()
@@ -164,6 +161,11 @@
 
 extern int tty_status;
 
+extern int tty_resettimer(int tno);
+extern void tty_resettimers(void);
+extern int tty_settimer(int,int);
+extern int tty_expired(int);
+extern int tty_running(int);
 extern int tty_check(void);
 extern int tty_waitputget(int);
 extern int tty_ungetc(int);
@@ -176,10 +178,5 @@ extern int tty_putget(char**,int*,char**,int*);
 extern void tty_flushout(void);
 extern void tty_flushin(void);
 extern void sendbrk(void);
-extern int tty_resettimer(int tno);
-extern void tty_resettimers(void);
-extern int tty_settimer(int,int);
-extern int tty_expired(int);
-extern int tty_running(int);
 
 #endif

@@ -343,7 +343,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 	}
     }
 
-    Syslog('h', "GETCHAR returned %i", c);
+    Syslog('h', "Hydra: GETCHAR returned %i", c);
 
     if ((c == TERROR) || (c == EOFILE) || (c == HANGUP)) {
 	return H_CARRIER;
@@ -362,7 +362,7 @@ void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
     enum	HyPktFormats format;
 
     if (pkttype == HPKT_DATAACK)
-        Syslog('h', "ACK 0x%02x%02x%02x%02x", txbuf[0], txbuf[1], txbuf[2], txbuf[3]);
+        Syslog('h', "Hydra: ACK 0x%02x%02x%02x%02x", txbuf[0], txbuf[1], txbuf[2], txbuf[3]);
 
     /*
      * some packets have to be transferred in HEX mode
@@ -530,13 +530,11 @@ int resync(off_t off)
 int hydra_batch(int role, file_list *to_send)
 {
     static char	    txbuf[H_ZIPBUFLEN], rxbuf[H_ZIPBUFLEN];
-    static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
     struct stat	    txstat;			/* file stat being transmitted */
     FILE	    *txfp = NULL;		/* file currently being transmitted */
     FILE	    *rxfp = NULL;		/* file currently being received */
     char	    *inbuf, *outbuf;
     int		    rxlen, txlen;		/* length of receive/transmit buffer */
-    unsigned long   rxzlen, txzlen;		/* length of receive/transmit compressed buffer */
     long	    txwindow, rxwindow;		/* window sizes */
     long	    txpos;
     off_t	    rxpos;			/* file positions */
@@ -560,8 +558,13 @@ int hydra_batch(int role, file_list *to_send)
     struct timeval  rxstarttime, rxendtime;
     struct timezone tz;
     int		    sverr;
-    int		    rcz, txcompressed, rxctries;
-
+    int		    txcompressed, rxctries;
+#ifdef HAVE_ZLIB_H
+    static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
+    unsigned long   rxzlen, txzlen;             /* length of receive/transmit compressed buffer */
+    int		    rcz, cmpblksize;
+#endif
+    
     Syslog('h', "Hydra: resettimers");
     RESETTIMERS();
 
@@ -573,6 +576,7 @@ int hydra_batch(int role, file_list *to_send)
     rxlastsync = rxsyncid = 0;
     rxlastdatalen = 0;
     blksize = 512;
+    cmpblksize = H_UNCBLKLEN;
     goodbytes = 0;
     goodneeded = 1024;
     Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
@@ -624,8 +628,13 @@ int hydra_batch(int role, file_list *to_send)
 		pkttype = hyrxpkt(rxbuf, &rxlen, -1);
 	    }
 
-	    if ((pkttype == H_CARRIER) || (EXPIRED(TIMERNO_BRAIN))) {
-		Syslog('h', "Hydra: BRAIN timer expired");
+	    if (EXPIRED(TIMERNO_BRAIN)) {
+		Syslog('+', "Hydra: BRAIN timer expired");
+		txstate = HTX_Abort;
+		break;
+	    }
+	    if (pkttype == H_CARRIER) {
+		Syslog('+', "Hydra: lost CARRIER");
 		txstate = HTX_Abort;
 		break;
 	    }
@@ -650,6 +659,12 @@ int hydra_batch(int role, file_list *to_send)
 	    if ((rpos_id == -1) && (compstate != HCMP_NONE)) {
 		Syslog('+', "Hydra: remote asked stop compression");
 		compstate = HCMP_NONE;
+		/*
+		 * Adjust blocksize for normal uncompressed transfers
+		 */
+		if (blksize > H_UNCBLKLEN) {
+		    blksize = H_UNCBLKLEN;
+		}
 	    }
 #endif
 
@@ -663,7 +678,7 @@ int hydra_batch(int role, file_list *to_send)
 		    txpos = -2;
 		    txstate = HTX_EOF;
 		} else {
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 		    txstate = HTX_SkipFile;
 		}
@@ -695,7 +710,7 @@ int hydra_batch(int role, file_list *to_send)
 		    if (txstate == HTX_EOFACK)
 			txstate = HTX_DATA;
 
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 		}
 	    }
@@ -934,7 +949,7 @@ int hydra_batch(int role, file_list *to_send)
 		Syslog('h', "SM 'HTX' entering 'FINFOACK'");
 		if ((pkttype == HPKT_FINFOACK) && (rxlen == 4)) {
 		    txpos = get_long(rxbuf);
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 
 		    if (to_send == NULL) {
@@ -996,7 +1011,7 @@ int hydra_batch(int role, file_list *to_send)
 			Syslog('h', "Hydra: set TX timer %d", H_MINTIMER/2);
 			SETTIMER(TIMERNO_TX, H_MINTIMER/2);
 		    } else {
-			Syslog('H', "HYDRA: SET TX TIMER %D", H_MINTIMER);
+			Syslog('h', "Hydra: set TX timer %d", H_MINTIMER);
 			SETTIMER(TIMERNO_TX, H_MINTIMER);
 		    }
 		    txstate = HTX_DATAACK;
@@ -1023,6 +1038,8 @@ int hydra_batch(int role, file_list *to_send)
 			    txstate = HTX_EOF;
 			}
 		    } else {
+			Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);	// 03-11-2003 MB.
+			SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);		// 03-11-2003 MB.
 #ifdef HAVE_ZLIB_H
 			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
@@ -1038,6 +1055,18 @@ int hydra_batch(int role, file_list *to_send)
 				    goodbytes += txlen;
 				    txzlen += 4;
 				    hytxpkt(HPKT_ZIPDATA, txzbuf, txzlen);
+				    /*
+				     * Calculate the perfect blocksize for the next block
+				     * using the current compression ratio. This gives
+				     * a dynamic optimal blocksize. The average maximum
+				     * blocksize on the line will be 2048 bytes.
+				     */
+				    cmpblksize = ((txlen * 4) / txzlen) * 512;
+				    if (cmpblksize < H_UNCBLKLEN)
+					cmpblksize = H_UNCBLKLEN;
+				    if (cmpblksize > H_MAXBLKLEN)
+					cmpblksize = H_MAXBLKLEN;
+				    Syslog('h', "Hydra: adjusting next blocksize to %d bytes", cmpblksize);
 				} else {
 				    txpos += txlen;
 				    sentbytes += txlen;
@@ -1066,20 +1095,31 @@ int hydra_batch(int role, file_list *to_send)
 			    txlen += 4;
 			    hytxpkt(HPKT_DATA, txbuf, txlen);
 			}
+			if (goodbytes > goodneeded) {
+			    blksize *= 2;
+			    if (compstate != HCMP_NONE) {
+				if (blksize > cmpblksize) {
+				    blksize = cmpblksize;
+				}
+			    } else {
+				if (blksize > H_UNCBLKLEN) {
+				    blksize = H_UNCBLKLEN;
+				}
+			    }
+			}
 #else
 			txpos += txlen;
 			sentbytes += txlen;
 			goodbytes += txlen;
 			txlen += 4;
 			hytxpkt(HPKT_DATA, txbuf, txlen);
-#endif
-// FIXME: here to decide in PLZ mode to use larger blocks.
 			if (goodbytes > goodneeded) {
 			    blksize *= 2;
 			    if (blksize > H_UNCBLKLEN) {
 				blksize = H_UNCBLKLEN;
 			    }
 			}
+#endif
 		    }
 		}
 		break;
@@ -1180,7 +1220,7 @@ int hydra_batch(int role, file_list *to_send)
 	    case HTX_EOFACK: 
 		Syslog('h', "SM 'HTX' entering 'EOFACK'");
 		if ((pkttype == HPKT_EOFACK) && (rxlen == 0)) {
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 
 		    /*
@@ -1352,7 +1392,7 @@ int hydra_batch(int role, file_list *to_send)
 			put_long(txbuf, 0);
 			hytxpkt(HPKT_FINFOACK, txbuf, 4);
 		
-			Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+			Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 			SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 			rxstate = HRX_DONE;
 		    }
@@ -1417,7 +1457,7 @@ int hydra_batch(int role, file_list *to_send)
 			    }
 			    hytxpkt(HPKT_FINFOACK, txbuf, 4);
 	
-			    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+			    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 			    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 			}
 		    }
@@ -1510,7 +1550,7 @@ int hydra_batch(int role, file_list *to_send)
 			}
 		    } else {
 			if (rxpos >= 0) {
-			    Syslog('+', "Hydra: received bad rxpos");
+			    Syslog('+', "Hydra: received bad rxpos %d", rxpos);
 			}
 			rxstate = HRX_BadPos;
 		    }
@@ -1574,7 +1614,7 @@ int hydra_batch(int role, file_list *to_send)
 
 		    pkttype = H_NOPKT;	/* packet has already been processed */
 		} else if ((pkttype == HPKT_IDLE) && (rxlen == 0) && (hdxlink == FALSE)) {
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 
 		    pkttype = H_NOPKT;	/* packet has already been processed */
@@ -1675,7 +1715,7 @@ int hydra_batch(int role, file_list *to_send)
 
 		    pkttype = H_NOPKT;	/* packet has already been processed */
 		} else if ((pkttype == HPKT_IDLE) && (rxlen == 0)) {
-		    Syslog('h', "Hydra: set BRAIN timer", H_BRAINDEAD);
+		    Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
 		    SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 
 		    pkttype = H_NOPKT;	/* packet has already been processed */

@@ -26,6 +26,8 @@ v0.39.1		22-Oct-2003
 		Added hydra rpos id -1 indicator for compression stop that
 		Alex and I agreed to use.
 		Compression log fixed and added percentage compression.
+		Added dynamic optimum sendbuffer size with a maximum of 8192
+		bytes with an average size of 2048 bytes.
 
 	mbsetup:
 		In node editor, fixed error message when there was no more

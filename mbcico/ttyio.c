@@ -64,6 +64,17 @@ char *ttystat[]= {(char *)"Ok",
 		  (char *)"Hangup", 
 		  (char *)"Empty"};
 
+int  tty_resettimer(int tno);
+void tty_resettimers(void);
+int  tty_settimer(int,int);
+int  tty_expired(int);
+int  tty_running(int);
+
+#define RESETTIMER(x) tty_resettimer(x)
+#define RESETTIMERS() tty_resettimers()
+#define SETTIMER(x,y) tty_settimer(x,y)
+#define EXPIRED(x) tty_expired(x)
+#define RUNNING(x) tty_running(x)
 
 
 
@@ -153,7 +164,6 @@ int tty_running(int tno)
 /*
  * private r/w functions
  */
-
 static int tty_read(char *buf, int size, int tot)
 {
     time_t	    timeout, now;
@@ -168,7 +178,7 @@ static int tty_read(char *buf, int size, int tot)
     now = time(NULL);
     timeout = (time_t)300; /* maximum of 5 minutes */
 
-    for (i = 0; i < TIMERNO_TX; i++) {
+    for (i = 0; i < 2; i++) {
 	if (timer[i]) {
 	    if (now >= timer[i]) {
 		tty_status=STAT_TIMEOUT;
