@@ -270,7 +270,6 @@ void add_path(char *path)
 #endif
 
     if (strlen(path) == 0) {
-	Syslog('d', "add_path() empty pathname");
 	return;
     }
 
@@ -284,7 +283,6 @@ void add_path(char *path)
 	return;
     }
 
-    Syslog('d', "add_path(%s)", path);
     if (lstat(path, &sb) == 0) {
 	if (S_ISDIR(sb.st_mode)) {
 
@@ -343,7 +341,6 @@ void add_path(char *path)
 	     */
 	    if ((p = strrchr(path, '/')))
 		*p = '\0';
-	    Syslog('d', "Recursive add name %s", path);
 	    add_path(path);
 	}
     } else {
@@ -354,7 +351,6 @@ void add_path(char *path)
 	 */
 	if ((p = strrchr(path, '/')))
 	    *p = '\0';
-	Syslog('d', "Recursive add name %s", path);
 	add_path(path);
     }
     recursecount--;
