@@ -2,7 +2,7 @@
  *
  * File ..................: structs.h
  * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 26-Sep-2001
+ * Last modification date : 17-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -602,7 +602,7 @@ struct	sysconfig {
 	char		bbs_menus[65];		/* Default Menus	    */
 	char		bbs_txtfiles[65];	/* Default Textfiles	    */
 	char		nntpnode[65];		/* NNTP server		    */
-	char		xbbs_filebase[65];
+	char		msgs_path[65];		/* Path to *.msg area	    */
 	char		xbbs_language[65];
 	char		req_magic[65];		/* Request magic directory  */
 	char		bbs_usersdir[65];	/* Users Home Dir Base	    */
@@ -902,6 +902,7 @@ struct	menufile {
 	unsigned	NoDoorsys	: 1;	/* Suppress door.sys	    */
 	unsigned	Y2Kdoorsys	: 1;	/* Write Y2K style door.sys */
 	unsigned	Comport		: 1;	/* Vmodem compart mode	    */
+	unsigned	NoSuid		: 1;	/* Execute door nosuid	    */
 	long		Credit;			/* Credit needed	    */
 	int		HiForeGnd;		/* High ForeGround color    */
 	int		HiBackGnd;		/* High ForeGround color    */

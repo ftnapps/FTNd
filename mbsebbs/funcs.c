@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/funcs.c
  * Purpose ...............: Misc functions
- * Last modification date : 28-Jun-2001
+ * Last modification date : 17-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001 
@@ -52,6 +52,7 @@
 
 extern long	ActiveMsgs;
 extern time_t	t_start;
+extern int	e_pid;
 
 
 
@@ -277,7 +278,7 @@ char *Rdate(char *ind, int Y2K)
 /*
  * Function will run a external program or door
  */
-void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport)
+void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid)
 {
 	char	*String, *String1;
 	int	i, rc;
@@ -331,11 +332,11 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport)
 			WriteError("$Can't create %s", temp1);
 		} else {
 			if (Comport) {
-				fprintf(fp, "COM1\r\n"); /* COM port             */
+				fprintf(fp, "COM1:\r\n"); /* COM port             */
 				fprintf(fp, "115200\r\n");/* Effective baudrate   */
 
 			} else {
-				fprintf(fp, "COM0\r\n");/* COM port		*/
+				fprintf(fp, "COM0:\r\n");/* COM port		*/
 				fprintf(fp, "0\r\n");	/* Effective baudrate	*/
 			}
 			fprintf(fp, "8\r\n");		/* Databits		*/
@@ -390,14 +391,17 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport)
 			fprintf(fp, "%ld\r\n", exitinfo.DownloadK);
 			fprintf(fp, "%s\r\n", exitinfo.sComment);
 			fprintf(fp, "0\r\n");		/* Always 0		*/
-			fprintf(fp, "%d\r\n", exitinfo.iPosted);
+			fprintf(fp, "%d\r\n\032", exitinfo.iPosted);
 			fclose(fp);
 		}
 	}
 
 	clear();
 	printf("Loading ...\n\n");
-	rc = execute((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
+	if (NoSuid) 
+	    rc = exec_nosuid(Program);
+	else
+	    rc = execute((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
 
 	Altime(0);
 	alarm_off();
@@ -407,6 +411,64 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport)
 	free(temp1);
 	printf("\n\n");
 	Pause();
+}
+
+
+
+/*
+ * Execute a door as real user, not suid.
+ */
+int exec_nosuid(char *mandato)
+{
+    int	    rc, status;
+    pid_t   pid;
+
+    if (mandato == NULL)
+	return 1;   /* Prevent running a shell  */
+    Syslog('+', "Execve: /bin/sh -c %s", mandato);
+    pid = fork();
+    if (pid == -1)
+	return 1;
+    if (pid == 0) {
+	char *argv[4];
+	argv[0] = (char *)"sh";
+	argv[1] = (char *)"-c";
+	argv[2] = mandato;
+	argv[3] = 0;
+	execve("/bin/sh", argv, environ);
+	exit(127);
+    }
+    e_pid = pid;
+
+    do {
+	rc = waitpid(pid, &status, 0);
+	e_pid = 0;
+    } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
+
+    switch(rc) {
+	case -1:
+		WriteError("$Waitpid returned %d, status %d,%d", rc,status>>8,status&0xff);
+		return -1;
+	case 0:
+		return 0;
+	default:
+		if (WIFEXITED(status)) {
+		    rc = WEXITSTATUS(status);
+		    if (rc) {
+			WriteError("Exec_nosuid: returned error %d", rc);
+			return rc;
+		    }
+		}
+		if (WIFSIGNALED(status)) {
+		    rc = WTERMSIG(status);
+		    WriteError("Wait stopped on signal %d", rc);
+		    return rc;
+		}
+		if (rc)
+		    WriteError("Wait stopped unknown, rc=%d", rc);
+		return rc;      
+	}
+	return 0;
 }
 
 

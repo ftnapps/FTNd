@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_menu.c
  * Purpose ...............: Edit BBS menus
- * Last modification date : 26-Sep-2001
+ * Last modification date : 17-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -113,9 +113,10 @@ void Show_A_Menu(void)
 	mvprintw(18, 2, "11. Hi-colors");
 	mvprintw(15,42, "12. Autoexec");
 	if (menus.MenuType == 7) {
-		mvprintw(16,42, "13. No door.sys");
-		mvprintw(17,42, "14. Y2K style");
-		mvprintw(18,42, "15. Use Comport");
+		mvprintw(15,42, "13. No door.sys");
+		mvprintw(16,42, "14. Y2K style");
+		mvprintw(17,42, "15. Use Comport");
+		mvprintw(18,42, "16. Run nosuid");
 	}
 
 	set_color(WHITE, BLACK);
@@ -138,9 +139,10 @@ void Show_A_Menu(void)
 	set_color(WHITE, BLACK);
 	show_bool(15,58,   menus.AutoExec);
 	if (menus.MenuType == 7) {
-		show_bool(16,58,  menus.NoDoorsys);
-		show_bool(17,58,  menus.Y2Kdoorsys);
-		show_bool(18,58,  menus.Comport);
+		show_bool(15,58,  menus.NoDoorsys);
+		show_bool(16,58,  menus.Y2Kdoorsys);
+		show_bool(17,58,  menus.Comport);
+		show_bool(18,58,  menus.NoSuid);
 	}
 }
 
@@ -211,7 +213,7 @@ void Edit_A_Menu(void)
 	Show_A_Menu();
 
 	for (;;) {
-		switch(select_menu(15)) {
+		switch(select_menu(16)) {
 		case 0: return;
 			break;
 		case 1:	E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
@@ -238,15 +240,19 @@ void Edit_A_Menu(void)
 			break;
 		case 12:E_BOOL(15,58,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
 		case 13:if (menus.MenuType == 7) {
-				E_BOOL(16,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+				E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
 			} else
 				break;
 		case 14:if (menus.MenuType == 7) {
-				E_BOOL(17,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+				E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
 			} else
 				break;
 		case 15:if (menus.MenuType == 7) {
-				E_BOOL(18,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+				E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+			} else
+				break;
+		case 16:if (menus.MenuType == 7) {
+				E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
 			} else
 				break;
 		}

@@ -4134,6 +4134,7 @@ v0.33.18        27-Jul-2001
 		Fixed a bug in the menu editor, deleted menus were not really
 		deleted.
 		Added setup items for the menu Display colors.
+		Added a no suid switch to the menu for doors.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a
@@ -4153,6 +4154,10 @@ v0.33.18        27-Jul-2001
 		limit he may download unlimited.
 		When a user has no timelimit set in the limits, he will get
 		a 24 hours session limit.
+		The written door.sys file now has EOF character at the end.
+		The written door.sys file now has a : after the comport.
+		Executing doors in nosuid mode (as real user) is now possible.
+		The can be switched on using mbsetup.
 
 	mbuseradd:
 		Ported to work on FreeBSD.

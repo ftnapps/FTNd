@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/menu.c
  * Purpose ...............: Display and handle the menus.
- * Last modification date : 27-Sep-2001
+ * Last modification date : 17-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -323,7 +323,7 @@ void DoMenu(int Type)
 
 	case 7:
 		/* Run external program */
-		ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport);
+		ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport, menus.NoSuid);
 		break;
 
 	case 8:
