@@ -4,8 +4,8 @@ $Id$
 v0.61.3		25-Jul-2004
 
 	upgrade:
-		To resinstall the corrected dutch macro templates go into the
-		examples directory and type "make dutch-macros".
+		To reinstall the corrected macro templates go into the examples
+		directory and type "make macros".
 		In mbsetup menu 1.7 check the new items 15, 16 and 17.
 
 	libmbse.a:
@@ -50,6 +50,8 @@ v0.61.3		25-Jul-2004
 
 	examples:
 		Fixed 2 spelling errors in the dutch macro templates.
+		Fixed another spelling error in the filemgr.help template of
+		all languages.
 
 	lang:
 		Added language prompts 26 and 27.

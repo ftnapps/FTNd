@@ -861,7 +861,8 @@ node *getnlent(faddr *addr)
 			    if (strncmp(p, (*tmps)->flag, 3) == 0) {
 				if (atoi(r)) {
 				    (*tmps)->tmpport = atoi(r);
-				    Syslog('n', "getnlent: port override %s %s to %d", (*tmpm)->name, p, (*tmps)->tmpport);
+				    Syslog('n', "getnlent: port override %s %d to %d", 
+					    (*tmpm)->name, (*tmps)->defport, (*tmps)->tmpport);
 				}
 			    }
 			}
