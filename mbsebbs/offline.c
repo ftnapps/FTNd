@@ -214,6 +214,7 @@ void Add_Kludges(fidoaddr dest, int IsReply, char *fn)
 
     Add_Footkludges(FALSE, newtear);
     Msg_AddMsg();
+    Msg_UnLock();
 }
 
 
@@ -1706,7 +1707,6 @@ void BlueWave_Fetch()
 			    sprintf(temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
 			    unlink(temp);
 			    i++;
-			    Close_Msgbase();
 			    fseek(mf, - (msgshdr.recsize + msgshdr.syssize), SEEK_CUR);
 			    msgs.Posted.total++;
 			    msgs.Posted.tweek++;
@@ -1726,6 +1726,7 @@ void BlueWave_Fetch()
 				    fclose(fp);
 				}
 			    }
+			    Msg_Close();
 			}
 		    } else {
 			/*        No Write access to area */
@@ -2594,10 +2595,10 @@ void QWK_Fetch()
 
 				Add_Footkludges(FALSE, NULL);
 				Msg_AddMsg();
+				Msg_UnLock();
 
 				Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
 				nPosted++;
-				Close_Msgbase();
 				Syslog('m', "Msgbase closed again");
 				fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
 				msgs.Posted.total++;
@@ -2618,6 +2619,7 @@ void QWK_Fetch()
 					fclose(fp);
 				    }
 				}
+				Msg_Close();
 			    }
 			} else {
 			    Syslog('+', "Can't post messages in area %u", Area);
