@@ -33,7 +33,9 @@
 #include "memwatch.h"
 #include "structs.h"
 #include "clcomm.h"
+#include "mberrors.h"
 #include "dbdupe.h"
+
 
 
 typedef struct _dupesrec {
@@ -85,7 +87,7 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	    if ((fil = fopen(dfile, "w")) == NULL) {
 		WriteError("$PANIC: dbdupe.c, can't create %s", dfile);
 		free(dfile);
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	    }
 	    fclose(fil);
 	    fil = fopen(dfile, "r+");

@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
+#include "../lib/mberrors.h"
 #include "lutil.h"
 #include "session.h"
 #include "config.h"
@@ -56,109 +57,110 @@ extern int		Loaded;
 
 int answer(char *stype)
 {
-	int	st, rc;
-	char	*p, *q;
-	FILE	*fp;
+    int	    st, rc;
+    char    *p, *q;
+    FILE    *fp;
 
+    /*
+     *  mgetty set's the environment variable CONNECT and CALLER_ID,
+     *  so if they are present, we might as well make log entries.
+     */
+    if ((q = getenv("CONNECT")) != NULL)
+	Syslog('+', "CONNECT %s", q);
+    if ((q = getenv("CALLER_ID")) != NULL)
+	if (strncmp(q, "none", 4))
+	    Syslog('+', "CALLER  %s", q);
+
+    /*
+     *  Incoming calls from modem/ISDN lines do have a tty.
+     *  Network calls don't have a tty attached.
+     */
+    carrier = TRUE;
+    p = ttyname(0);
+    if (p) {
+	q = strrchr(ttyname(0), '/');
+	if (q)
+	    p = q + 1;
+	strncpy(history.tty, p, 6);
+	if (load_port(p))
+	    Syslog('d', "Port %s, modem %s", ttyinfo.tty, modem.modem);
+	else
+	    Syslog('d', "Port and modem not loaded!");
+    }
+
+    if ((nlent = getnlent(NULL)) == NULL) {
+	WriteError("could not get dummy nodelist entry");
+	return MBERR_NODE_NOT_IN_LIST;
+    }
+
+    c_start = time(NULL);
+    rdoptions(FALSE);
+
+    if (inbound)
+	free(inbound);
+    inbound = xstrcpy(CFG.inbound); /* slave session is unsecure by default */
+
+    if (stype == NULL) {
+	st=SESSION_UNKNOWN;
+    } else if (strcmp(stype,"tsync") == 0) {
+	st=SESSION_FTSC;
+	IsDoing("Answer ftsc");
+    } else if (strcmp(stype,"yoohoo") == 0) {
+	st=SESSION_YOOHOO;
+	IsDoing("Answer yoohoo");
+    } else if (strncmp(stype,"**EMSI_",7) == 0) {
+	st=SESSION_EMSI;
+	IsDoing("Answer EMSI");
+    } else if (strncmp(stype,"ibn",3) == 0) {
+	st=SESSION_BINKP;
+	IsDoing("Answer binkp");
+    } else {
+	st=SESSION_UNKNOWN;
+	IsDoing("Answer unknown");
+    }
+
+    if ((rc = rawport()) != 0)
+	WriteError("Unable to set raw mode");
+    else {
+	nolocalport();
+	rc = session(NULL,NULL,SESSION_SLAVE,st,stype);
+    }
+
+    cookedport();
+    if (p) {
 	/*
-	 *  mgetty set's the environment variable CONNECT and CALLER_ID,
-	 *  so if they are present, we might as well make log entries.
+	 *  Hangup will write the history record.
 	 */
-	if ((q = getenv("CONNECT")) != NULL)
-		Syslog('+', "CONNECT %s", q);
-	if ((q = getenv("CALLER_ID")) != NULL)
-		if (strncmp(q, "none", 4))
-			Syslog('+', "CALLER  %s", q);
-
+	hangup();
+    } else {
 	/*
-	 *  Incoming calls from modem/ISDN lines do have a tty.
-	 *  Network calls don't have a tty attached.
+	 *  Network call, write history record.
 	 */
-	carrier = TRUE;
-	p = ttyname(0);
-	if (p) {
-		q = strrchr(ttyname(0), '/');
-		if (q)
-			p = q + 1;
-		strncpy(history.tty, p, 6);
-		if (load_port(p))
-			Syslog('d', "Port %s, modem %s", ttyinfo.tty, modem.modem);
-		else
-			Syslog('d', "Port and modem not loaded!");
-	}
+	c_end = time(NULL);
+	online += (c_end - c_start);
 
-	if ((nlent = getnlent(NULL)) == NULL) {
-		WriteError("could not get dummy nodelist entry");
-		return 1;
-	}
+	history.online  = c_start;
+	history.offline = c_end;
+	history.sent_bytes = sentbytes;
+	history.rcvd_bytes = rcvdbytes;
+	history.inbound = TRUE;
 
-	c_start = time(NULL);
-	rdoptions(FALSE);
-
-	if (inbound)
-		free(inbound);
-	inbound = xstrcpy(CFG.inbound); /* slave session is unsecure by default */
-
-	if (stype == NULL) {
-		st=SESSION_UNKNOWN;
-	} else if (strcmp(stype,"tsync") == 0) {
-		st=SESSION_FTSC;
-		IsDoing("Answer ftsc");
-	} else if (strcmp(stype,"yoohoo") == 0) {
-		st=SESSION_YOOHOO;
-		IsDoing("Answer yoohoo");
-	} else if (strncmp(stype,"**EMSI_",7) == 0) {
-		st=SESSION_EMSI;
-		IsDoing("Answer EMSI");
-	} else if (strncmp(stype,"ibn",3) == 0) {
-		st=SESSION_BINKP;
-		IsDoing("Answer binkp");
-	} else {
-		st=SESSION_UNKNOWN;
-		IsDoing("Answer unknown");
-	}
-
-	if ((rc = rawport()) != 0)
-		WriteError("Unable to set raw mode");
+	p = calloc(PATH_MAX, sizeof(char));
+	sprintf(p, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	if ((fp = fopen(p, "a")) == NULL)
+	    WriteError("$Can't open %s", p);
 	else {
-		nolocalport();
-		rc=session(NULL,NULL,SESSION_SLAVE,st,stype);
+	    fwrite(&history, sizeof(history), 1, fp);
+	    fclose(fp);
 	}
-
-	cookedport();
-	if (p) {
-		/*
-		 *  Hangup will write the history record.
-		 */
-		hangup();
-	} else {
-		/*
-		 *  Network call, write history record.
-		 */
-		c_end = time(NULL);
-		online += (c_end - c_start);
-
-		history.online  = c_start;
-		history.offline = c_end;
-		history.sent_bytes = sentbytes;
-		history.rcvd_bytes = rcvdbytes;
-		history.inbound = TRUE;
-
-		p = calloc(PATH_MAX, sizeof(char));
-		sprintf(p, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
-		if ((fp = fopen(p, "a")) == NULL)
-			WriteError("$Can't open %s", p);
-		else {
-			fwrite(&history, sizeof(history), 1, fp);
-			fclose(fp);
-		}
-		free(p);
-		if (Loaded) {
-			nodes.LastDate = time(NULL);
-			UpdateNode();
-		}
+	free(p);
+	
+	if (Loaded) {
+	    nodes.LastDate = time(NULL);
+	    UpdateNode();
 	}
-	return rc;
+    }
+    return rc;
 }
 
 

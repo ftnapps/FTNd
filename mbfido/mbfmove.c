@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfmove.h"
 
@@ -63,7 +64,7 @@ void Move(int From, int To, char *File)
 	WriteError("Area numbers are the same");
 	if (!do_quiet)
 	    printf("Can't move to the same area\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
     }
 
     /*
@@ -71,22 +72,22 @@ void Move(int From, int To, char *File)
      */
     if (LoadAreaRec(From) == FALSE) {
 	WriteError("Can't load record %d", From);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
     if (!area.Available) {
 	WriteError("Area %d not available", From);
 	if (!do_quiet)
 	    printf("Area %d not available\n", From);
-	die(0);
+	die(MBERR_COMMANDLINE);
     }
     if (area.CDrom) {
 	WriteError("Can't move from CD-ROM");
 	if (!do_quiet)
 	    printf("Can't move from CD-ROM\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
     }
     if (CheckFDB(From, area.Path))
-	die(0);
+	die(MBERR_GENERAL);
     frompath = xstrcpy(area.Path);
     frompath = xstrcat(frompath, (char *)"/");
     frompath = xstrcat(frompath, File);
@@ -96,22 +97,22 @@ void Move(int From, int To, char *File)
      */
     if (LoadAreaRec(To) == FALSE) {
 	WriteError("Can't load record %d", To);
-	die(0);
+	die(MBERR_GENERAL);
     }
     if (!area.Available) {
 	WriteError("Area %d not available", To);
 	if (!do_quiet)
 	    printf("Area %d not available\n", To);
-	die(0);
+	die(MBERR_GENERAL);
     }
     if (area.CDrom) {
 	WriteError("Can't move to CD-ROM");
 	if (!do_quiet)
 	    printf("Can't move to CD-ROM\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
     }
     if (CheckFDB(To, area.Path))
-	die(0);
+	die(MBERR_GENERAL);
     topath = xstrcpy(area.Path);
     topath = xstrcat(topath, (char *)"/");
     topath = xstrcat(topath, File);
@@ -122,9 +123,9 @@ void Move(int From, int To, char *File)
     sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), From);
 
     if ((fp1 = fopen(temp1, "r")) == NULL)
-	die(0);
+	die(MBERR_GENERAL);
     if ((fp2 = fopen(temp2, "a+")) == NULL)
-	die(0);
+	die(MBERR_GENERAL);
 
     /*
      * Search the file if the From area, if found, the

@@ -32,6 +32,7 @@
 #include "libs.h"
 #include "../lib/structs.h"
 #include "../paths.h"
+#include "../lib/mberrors.h"
 #include "signame.h"
 #include "taskstat.h"
 #include "taskutil.h"
@@ -393,7 +394,7 @@ void load_maincfg(void)
         if ((fp = fopen(cfgfn, "a+")) == NULL) {
 	    perror("");
             fprintf(stderr, "Can't create %s\n", cfgfn);
-            exit(2);
+            exit(MBERR_INIT_ERROR);
         }
         fwrite(&CFG, sizeof(CFG), 1, fp);
         fclose(fp);
@@ -434,7 +435,7 @@ void load_taskcfg(void)
 		sprintf(TCFG.isp_ping2, "192.168.1.1");
 		if ((fp = fopen(tcfgfn, "a+")) == NULL) {
 			tasklog('?', "$Can't create %s", tcfgfn);
-			die(2);
+			die(MBERR_INIT_ERROR);
 		}
 		fwrite(&TCFG, sizeof(TCFG), 1, fp);
 		fclose(fp);
@@ -493,22 +494,22 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
 			tasklog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
-			_exit(-1);
+			_exit(MBERR_EXEC_FAILED);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
 			tasklog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
-			_exit(-1);
+			_exit(MBERR_EXEC_FAILED);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
 			tasklog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
-			_exit(-1);
+			_exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
 		tasklog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
-		_exit(-1);
+		_exit(MBERR_EXEC_FAILED);
 	default:
 		/* grandchild's daddy's process */
 		break;
@@ -819,7 +820,7 @@ void check_sema(void)
 		 *  Since the upsdown semafore is permanent, the system WILL go down
 		 *  there is no point for this program to stay. Signal all tasks and stop.
 		 */
-		die(SIGTERM);
+		die(MBERR_UPS_ALARM);
 	}
 
 	/*
@@ -879,7 +880,7 @@ void scheduler(void)
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
 	tasklog('?', "$Can't create socket");
-	die(1);
+	die(MBERR_INIT_ERROR);
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
@@ -890,7 +891,7 @@ void scheduler(void)
 	close(sock);
 	sock = -1;
 	tasklog('?', "$Can't bind socket %s", spath);
-	die(1);
+	die(MBERR_INIT_ERROR);
     }
 
     /*
@@ -1273,19 +1274,19 @@ int main(int argc, char **argv)
 		perror("");
 		printf("can't setuid to mbse\n");
 		close(ping_isocket);
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 	if (setgid(pw->pw_gid)) {
 		perror("");
 		printf("can't setgid to bbs\n");
 		close(ping_isocket);
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	umask(007);
         if (locktask(pw->pw_dir)) {
 		close(ping_isocket);
-                exit(1);
+                exit(MBERR_NO_PROGLOCK);
         }
 
 	sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
@@ -1324,14 +1325,14 @@ int main(int argc, char **argv)
          */
 	if ((pgrp = setpgid(0, 0)) == -1) {
 		tasklog('?', "$setpgid failed");
-		die(0);
+		die(MBERR_INIT_ERROR);
 	}
 
 	frk = fork();
         switch (frk) {
         case -1:
                 tasklog('?', "$Unable to fork daemon");
-                die(0);
+                die(MBERR_INIT_ERROR);
         case 0:
                 /*
                  *  Starting the deamon child process here. 
@@ -1352,7 +1353,7 @@ int main(int argc, char **argv)
                         fclose(fp);
                 }
                 tasklog('+', "Starting daemon with pid %d", frk);
-                exit(0);
+                exit(MBERR_OK);
         }
 
         /*

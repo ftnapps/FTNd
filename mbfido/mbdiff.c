@@ -38,6 +38,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbdiff.h"
 
 
@@ -115,322 +116,317 @@ void die(int onsig)
 
 int main(int argc, char **argv)
 {
-	int	i, Match;
-	char	*cmd, *nl = NULL, *nd = NULL, *nn;
-	int	rc;
-	char	*p, *q, *arc;
-	struct	passwd *pw;
-	char	*wrk, *onl, *ond;
-	DIR	*dp;
-	struct	dirent *de;
+    int		    i, Match, rc;
+    char	    *cmd, *nl = NULL, *nd = NULL, *nn, *p, *q, *arc, *wrk, *onl, *ond;
+    struct passwd   *pw;
+    DIR		    *dp;
+    struct dirent   *de;
 
 #ifdef MEMWATCH
-        mwInit();
+    mwInit();
 #endif
-	InitConfig();
-	TermInit(1);
-	t_start = time(NULL);
-	umask(002);
+    InitConfig();
+    TermInit(1);
+    t_start = time(NULL);
+    umask(002);
 
-	/*
-	 * Catch all signals we can, and ignore the rest.
-	 */
-	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) ||
-		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGKILL))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
-	}
+    /*
+     * Catch all signals we can, and ignore the rest.
+     */
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGKILL))
+	    signal(i, (void (*))die);
+	else
+	    signal(i, SIG_IGN);
+    }
 
-	if(argc < 3)
+    if(argc < 3)
+	Help();
+
+    cmd = xstrcpy((char *)"Cmd: mbdiff");
+
+    for (i = 1; i < argc; i++) {
+
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, argv[i]);
+
+	if (i == 1)
+	    if ((nl = argv[i]) == NULL)
 		Help();
+	if (i == 2)
+	    if ((nd = argv[i]) == NULL)
+		Help();
+	if (!strncasecmp(argv[i], "-q", 2))
+	    do_quiet = TRUE;
 
-	cmd = xstrcpy((char *)"Cmd: mbdiff");
+    }
 
-	for (i = 1; i < argc; i++) {
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbdiff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
 
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, argv[i]);
+    Syslog(' ', " ");
+    Syslog(' ', "MBDIFF v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
 
-		if (i == 1)
-			if ((nl = argv[i]) == NULL)
-				Help();
-		if (i == 2)
-			if ((nd = argv[i]) == NULL)
-				Help();
-		if (!strncasecmp(argv[i], "-q", 2))
-			do_quiet = TRUE;
+    if (!do_quiet) {
+	colour(12, 0);
+	printf("\n");
+    }
 
+    if (!diskfree(CFG.freespace))
+	die(MBERR_DISK_FULL);
+
+    /*
+     *  Extract work directory from the first commandline parameter
+     *  and set that directory as default.
+     */
+    show_log = TRUE;
+    wrk = xstrcpy(nl);
+    if (strrchr(wrk, '/') == NULL) {
+	WriteError("No path in nodelist name");
+	free(wrk);
+	die(MBERR_COMMANDLINE);
+    }
+    if (strrchr(wrk, '.') != NULL) {
+	WriteError("Filename extension given for nodelist");
+	free(wrk);
+	die(MBERR_COMMANDLINE);
+    }
+    if (strrchr(nd, '/') == NULL) {
+	WriteError("No path in nodediff name");
+	free(wrk);
+	die(MBERR_COMMANDLINE);
+    }
+    show_log = FALSE;
+
+    while (wrk[strlen(wrk) -1] != '/')
+	wrk[strlen(wrk) -1] = '\0';
+    wrk[strlen(wrk) -1] = '\0';
+
+    show_log = TRUE;
+    if (access(wrk, R_OK|W_OK)) {
+	WriteError("$No R/W access in %s", wrk);
+	free(wrk);
+	die(MBERR_INIT_ERROR);
+    }
+
+    if (chdir(wrk)) {
+	WriteError("$Can't chdir to %s", wrk);
+	free(wrk);
+	die(MBERR_INIT_ERROR);
+    }
+    show_log = FALSE;
+
+    onl = xstrcpy(strrchr(nl, '/') + 1);
+    onl = xstrcat(onl, (char *)".???");
+
+    if ((dp = opendir(wrk)) == 0) {
+	show_log = TRUE;
+	free(wrk);
+	WriteError("$Error opening directory %s", wrk);
+	die(MBERR_INIT_ERROR);
+    }
+
+    Match = FALSE;
+    while ((de = readdir(dp))) {
+	if (strlen(de->d_name) == strlen(onl)) {
+	    Match = TRUE;
+	    for (i = 0; i < strlen(onl); i++) {
+		if ((onl[i] != '?') && (onl[i] != de->d_name[i]))
+		    Match = FALSE;
+	    }
+	    if (Match) {
+		free(onl);
+		onl = xstrcpy(de->d_name);
+		break;
+	    }
 	}
+    }
+    closedir(dp);
+    if (!Match) {
+	show_log = TRUE;
+	free(wrk);
+	free(onl);
+	WriteError("Old nodelist not found");
+	die(MBERR_INIT_ERROR);
+    }
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbdiff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    /*
+     *  Now try to get the diff file into the workdir.
+     */
+    if ((arc = unpacker(nd)) == NULL) {
+	show_log = TRUE;
+	free(onl);
+	free(wrk);
+	WriteError("Can't get filetype for %s", nd);
+	die(MBERR_CONFIG_ERROR);
+    }
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBDIFF v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
+    ond = xstrcpy(strrchr(nd, '/') + 1);
 
-	if (!do_quiet) {
-		colour(12, 0);
-		printf("\n");
+    if (strncmp(arc, "ASC", 3)) {
+	if (!getarchiver(arc)) {
+	    show_log = TRUE;
+	    free(onl);
+	    free(wrk);
+	    free(ond);
+	    WriteError("Can't find unarchiver %s", arc);
+	    die(MBERR_CONFIG_ERROR);
 	}
-
-	if (!diskfree(CFG.freespace))
-		die(101);
 
 	/*
-	 *  Extract work directory from the first commandline parameter
-	 *  and set that directory as default.
+	 * We may both use the unarchive command for files and mail,
+	 * unarchiving isn't recursive anyway.
 	 */
-	show_log = TRUE;
-	wrk = xstrcpy(nl);
-	if (strrchr(wrk, '/') == NULL) {
-		WriteError("No path in nodelist name");
-		free(wrk);
-		die(100);
-	}
-	if (strrchr(wrk, '.') != NULL) {
-		WriteError("Filename extension given for nodelist");
-		free(wrk);
-		die(100);
-	}
-	if (strrchr(nd, '/') == NULL) {
-		WriteError("No path in nodediff name");
-		free(wrk);
-		die(100);
-	}
-	show_log = FALSE;
+	if (strlen(archiver.funarc))
+	    cmd = xstrcpy(archiver.funarc);
+	else
+	    cmd = xstrcpy(archiver.munarc);
 
-	while (wrk[strlen(wrk) -1] != '/')
-		wrk[strlen(wrk) -1] = '\0';
-	wrk[strlen(wrk) -1] = '\0';
-
-	show_log = TRUE;
-	if (access(wrk, R_OK|W_OK)) {
-		WriteError("$No R/W access in %s", wrk);
-		free(wrk);
-		die(100);
+	if ((cmd == NULL) || (cmd == "")) {
+	    show_log = TRUE;
+	    free(cmd);
+	    free(onl);
+	    free(wrk);
+	    free(ond);
+	    WriteError("No unarc command available for %s", arc);
+	    die(MBERR_CONFIG_ERROR);
 	}
 
-	if (chdir(wrk)) {
-		WriteError("$Can't chdir to %s", wrk);
-		free(wrk);
-		die(100);
+	if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+	    show_log = TRUE;
+	    free(cmd);
+	    free(onl);
+	    free(wrk);
+	    free(ond);
+	    WriteError("Unpack error");
+	    die(MBERR_EXEC_FAILED);
 	}
-	show_log = FALSE;
-
-	onl = xstrcpy(strrchr(nl, '/') + 1);
-	onl = xstrcat(onl, (char *)".???");
-
-	if ((dp = opendir(wrk)) == 0) {
-		show_log = TRUE;
-		free(wrk);
-		WriteError("$Error opening directory %s", wrk);
-		die(100);
-	}
+	free(cmd);
+	sync();
 
 	Match = FALSE;
-	while ((de = readdir(dp))) {
-		if (strlen(de->d_name) == strlen(onl)) {
-			Match = TRUE;
-			for (i = 0; i < strlen(onl); i++) {
-				if ((onl[i] != '?') && (onl[i] != de->d_name[i]))
-					Match = FALSE;
-			}
-			if (Match) {
-				free(onl);
-				onl = xstrcpy(de->d_name);
-				break;
-			}
+	if ((dp = opendir(wrk)) != NULL) {
+	    while ((de = readdir(dp))) {
+		if (strlen(ond) == strlen(de->d_name)) {
+		    Match = TRUE;
+		    for (i = 0; i < (strlen(ond) -3); i++)
+			if (toupper(ond[i]) != toupper(de->d_name[i]))
+			    Match = FALSE;
+		    if (Match) {
+			free(ond);
+			ond = xstrcpy(de->d_name);
+			break;
+		    }
 		}
+	    }
+	    closedir(dp);
 	}
-	closedir(dp);
 	if (!Match) {
-		show_log = TRUE;
-		free(wrk);
-		free(onl);
-		WriteError("Old nodelist not found");
-		die(100);
+	    show_log = TRUE;
+	    free(ond);
+	    free(onl);
+	    free(wrk);
+	    WriteError("Could not find extracted file");
+	    die(MBERR_DIFF_ERROR);
 	}
-
-	/*
-	 *  Now try to get the diff file into the workdir.
-	 */
-	if ((arc = unpacker(nd)) == NULL) {
-		show_log = TRUE;
-		free(onl);
-		free(wrk);
-		WriteError("Can't get filetype for %s", nd);
-		die(100);
+    } else {
+	if ((rc = file_cp(nd, ond))) {
+	    show_log = TRUE;
+	    free(ond);
+	    free(onl);
+	    free(wrk);
+	    WriteError("Copy %s failed, %s", nd, strerror(rc));
+	    die(MBERR_DIFF_ERROR);
 	}
+	Syslog('s', "Copied %s", nd);
+    }
 
-	ond = xstrcpy(strrchr(nd, '/') + 1);
+    if (((p = strrchr(onl, '.'))) && ((q = strrchr(ond, '.'))) && (strlen(p) == strlen(q))) {
+	nn = xstrcpy(onl);
+	p = strrchr(nn, '.') + 1;
+	q++;
+	strcpy(p, q);
+    } else 
+	nn = xstrcpy((char *)"newnodelist");
 
-	if (strncmp(arc, "ASC", 3)) {
-		if (!getarchiver(arc)) {
-			show_log = TRUE;
-			free(onl);
-			free(wrk);
-			free(ond);
-			WriteError("Can't find unarchiver %s", arc);
-			die(100);
-		}
-
-		/*
-		 * We may both use the unarchive command for files and mail,
-		 * unarchiving isn't recursive anyway.
-		 */
-		if (strlen(archiver.funarc))
-			cmd = xstrcpy(archiver.funarc);
-		else
-			cmd = xstrcpy(archiver.munarc);
-
-		if ((cmd == NULL) || (cmd == "")) {
-			show_log = TRUE;
-			free(cmd);
-			free(onl);
-			free(wrk);
-			free(ond);
-			WriteError("No unarc command available for %s", arc);
-			die(100);
-		}
-
-		if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
-			show_log = TRUE;
-			free(cmd);
-			free(onl);
-			free(wrk);
-			free(ond);
-			WriteError("Unpack error");
-			die(100);
-		}
-		free(cmd);
-		sync();
-
-		Match = FALSE;
-		if ((dp = opendir(wrk)) != NULL) {
-			while ((de = readdir(dp))) {
-				if (strlen(ond) == strlen(de->d_name)) {
-					Match = TRUE;
-					for (i = 0; i < (strlen(ond) -3); i++)
-						if (toupper(ond[i]) != toupper(de->d_name[i]))
-							Match = FALSE;
-					if (Match) {
-						free(ond);
-						ond = xstrcpy(de->d_name);
-						break;
-					}
-				}
-			}
-			closedir(dp);
-		}
-		if (!Match) {
-			show_log = TRUE;
-			free(ond);
-			free(onl);
-			free(wrk);
-			WriteError("Could not find extracted file");
-			die(100);
-		}
-	} else {
-		if ((rc = file_cp(nd, ond))) {
-			show_log = TRUE;
-			free(ond);
-			free(onl);
-			free(wrk);
-			WriteError("Copy %s failed, %s", nd, strerror(rc));
-			die(100);
-		}
-		Syslog('s', "Copied %s", nd);
-	}
-
-	if (((p = strrchr(onl, '.'))) && ((q = strrchr(ond, '.'))) &&
-	    (strlen(p) == strlen(q))) {
-		nn = xstrcpy(onl);
-		p = strrchr(nn, '.') + 1;
-		q++;
-		strcpy(p, q);
-	} else 
-		nn = xstrcpy((char *)"newnodelist");
-
-	if (strcmp(onl, nn) == 0) {
-		show_log = TRUE;
-		WriteError("Attempt to update nodelist to the same version");
-		unlink(ond);
-		free(ond);
-		free(onl);
-		free(wrk);
-		free(nn);
-		die(100);
-	}
-
-	Syslog('+', "Apply %s with %s to %s", onl, ond, nn);
-	if (!do_quiet) {
-		colour(3, 0);
-		printf("Apply %s with %s to %s\n", onl, ond, nn);
-	}
-	rc = apply(onl, ond, nn);
-
+    if (strcmp(onl, nn) == 0) {
+	show_log = TRUE;
+	WriteError("Attempt to update nodelist to the same version");
 	unlink(ond);
-	if (rc) {
-		unlink(nn);
-		free(nn);
+	free(ond);
+	free(onl);
+	free(wrk);
+	free(nn);
+	die(MBERR_DIFF_ERROR);
+    }
+
+    Syslog('+', "Apply %s with %s to %s", onl, ond, nn);
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("Apply %s with %s to %s\n", onl, ond, nn);
+    }
+    rc = apply(onl, ond, nn);
+
+    unlink(ond);
+    if (rc) {
+	unlink(nn);
+	free(nn);
+	free(ond);
+	free(onl);
+	free(wrk);
+	die(MBERR_DIFF_ERROR);
+    } else {
+	unlink(onl);
+	cmd = xstrcpy(archiver.farc);
+
+	if ((cmd == NULL) || (!strlen(cmd))) {
+	    free(cmd);
+	    Syslog('+', "No archive command for %s, fallback to ZIP", arc);
+	    if (!getarchiver((char *)"ZIP")) {
+		WriteError("No ZIP command available");
 		free(ond);
 		free(onl);
 		free(wrk);
-		die(rc + 100);
-	} else {
-		unlink(onl);
+		free(nn);
+		die(MBERR_DIFF_ERROR);
+	    } else {
 		cmd = xstrcpy(archiver.farc);
-
-		if ((cmd == NULL) || (!strlen(cmd))) {
-			free(cmd);
-			Syslog('+', "No archive command for %s, fallback to ZIP", arc);
-			if (!getarchiver((char *)"ZIP")) {
-				WriteError("No ZIP command available");
-				free(ond);
-				free(onl);
-				free(wrk);
-				free(nn);
-				die(100);
-			} else {
-				cmd = xstrcpy(archiver.farc);
-			}
-		} else {
-			free(cmd);
-			cmd = xstrcpy(archiver.farc);
-		}
-
-		if ((cmd == NULL) || (!strlen(cmd))) {
-			WriteError("No archiver command available");
-		} else {
-			free(onl);
-			onl = xstrcpy(nn);
-			onl[strlen(onl) -3] = tolower(archiver.name[0]);
-			tl(onl);
-			p = xstrcpy(onl);
-			p = xstrcat(p, (char *)" ");
-			p = xstrcat(p, nn);
-			if (execute(cmd, p, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))
-				WriteError("Create %s failed", onl);
-			else {
-				CreateSema((char *)"mailin");
-			}
-			sync();
-			free(p);
-			free(cmd);
-		}
-
-		free(onl);
-		free(ond);
-		free(wrk);
-		free(nn);
-		die(0);
+	    }
+	} else {
+	    free(cmd);
+	    cmd = xstrcpy(archiver.farc);
 	}
-	return 0;
+
+	if ((cmd == NULL) || (!strlen(cmd))) {
+	    WriteError("No archiver command available");
+	} else {
+	    free(onl);
+	    onl = xstrcpy(nn);
+	    onl[strlen(onl) -3] = tolower(archiver.name[0]);
+	    tl(onl);
+	    p = xstrcpy(onl);
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, nn);
+	    if (execute(cmd, p, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))
+		WriteError("Create %s failed", onl);
+	    else {
+		CreateSema((char *)"mailin");
+	    }
+	    sync();
+	    free(p);
+	    free(cmd);
+	}
+
+	free(onl);
+	free(ond);
+	free(wrk);
+	free(nn);
+	die(MBERR_OK);
+    }
+    return 0;
 }
 
 
@@ -455,7 +451,7 @@ void Help(void)
 	printf("	-quiet		Quiet mode\n");
 	colour(7, 0);
 	printf("\n");
-	die(99);
+	die(MBERR_COMMANDLINE);
 }
 
 

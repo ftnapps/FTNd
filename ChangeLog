@@ -8,6 +8,8 @@ v0.35.05	19-Oct-2002
 
 	general:
 		This may become release 0.36.00
+		There is now a mberrors.h file that defines all errorcodes
+		returned by all programs.
 
 
 

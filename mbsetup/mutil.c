@@ -34,6 +34,7 @@
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "screen.h" 
 #include "mutil.h"
 
@@ -46,7 +47,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
 		perror("open 9");
-		exit(1);
+		exit(MBERR_TTYIO_ERROR);
 	}
 	Setraw();
 
@@ -88,7 +89,7 @@ unsigned char testkey(int y, int x)
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
 		perror("open 9");
-		exit(1);
+		exit(MBERR_TTYIO_ERROR);
 	}
 	Setraw();
 

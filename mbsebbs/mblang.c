@@ -34,6 +34,7 @@
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
+#include "../lib/mberrors.h"
 
 
 int main(int argc, char **argv)
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_COMMANDLINE);
 	}
 
 	sprintf(temp1, "%s", *(argv + 1));
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_COMMANDLINE);
 	}
 	sprintf(temp1, "%s", *(argv + 1));
 	if ((fp = fopen(temp1, "a+")) == NULL) {
@@ -76,7 +77,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_COMMANDLINE);
 	}
 
 	lines = 0;
@@ -97,7 +98,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 	mwTerm();
 #endif
-			exit(1);
+			exit(MBERR_GENERAL);
 		}
 
 		/*
@@ -115,7 +116,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 	mwTerm();
 #endif
-			exit(1);
+			exit(MBERR_GENERAL);
 		}
 
 		fwrite(&ldata, sizeof(ldata), 1, fp);

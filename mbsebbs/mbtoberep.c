@@ -32,6 +32,7 @@
 #include "../lib/libs.h"
 #include "../lib/memwatch.h"
 #include "../lib/structs.h"
+#include "../lib/mberrors.h"
 
 
 int main(int argc, char **argv)
@@ -50,7 +51,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	temp = calloc(PATH_MAX, sizeof(char));
@@ -62,7 +63,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	while (fread(&rep, sizeof(rep), 1, fp) == 1) {

@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "oneline.h"
 #include "mail.h"
 #include "bbslist.h"
@@ -92,160 +93,160 @@ void InitMenu()
 
 void menu()
 {
-	FILE	*pMenuFile;
-	int	iFoundKey = FALSE, Key, IsANSI;
-	char	*Input, *Semfile;
-	char	*sMenuPathFileName;
+    FILE    *pMenuFile;
+    int	    iFoundKey = FALSE, Key, IsANSI;
+    char    *Input, *Semfile, *sMenuPathFileName;
 
-	Input = calloc(81, sizeof(char));
-	sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
+    Input = calloc(PATH_MAX, sizeof(char));
+    sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
 
-	/* 
-	 * Loop forever, this is what a BBS should do until a user logs out.
+    /* 
+     * Loop forever, this is what a BBS should do until a user logs out.
+     */
+    while (TRUE) {
+
+	WhosDoingWhat(BROWSING);
+
+	/*
+	 * Open menufile, first users language menu, if it fails
+	 * try to open the default menu.
 	 */
-	while (TRUE) {
+	sprintf(sMenuPathFileName,"%s/%s", lang.MenuPath, Menus[MenuLevel]);
+	if ((pMenuFile = fopen(sMenuPathFileName, "r")) == NULL) {
+	    sprintf(sMenuPathFileName,"%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
+	    pMenuFile = fopen(sMenuPathFileName,"r");
+	    if (pMenuFile != NULL)
+		Syslog('+', "Menu %s (Default)", Menus[MenuLevel]);
+	} else {
+	    Syslog('+', "Menu %s (%s)", Menus[MenuLevel], lang.Name);
+	}
 
-		WhosDoingWhat(BROWSING);
+	if (pMenuFile == NULL) {
+	    clear();
+	    WriteError("Can't open menu file: %s", sMenuPathFileName);
+	    MenuError++;
 
-		/*
-		 * Open menufile, first users language menu, if it fails
-		 * try to open the default menu.
-		 */
-		sprintf(sMenuPathFileName,"%s/%s", lang.MenuPath, Menus[MenuLevel]);
-		if ((pMenuFile = fopen(sMenuPathFileName, "r")) == NULL) {
-			sprintf(sMenuPathFileName,"%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
-			pMenuFile = fopen(sMenuPathFileName,"r");
-			if (pMenuFile != NULL)
-				Syslog('+', "Menu %s (Default)", Menus[MenuLevel]);
-		} else {
-			Syslog('+', "Menu %s (%s)", Menus[MenuLevel], lang.Name);
+	    /*
+	     * Is this the last attempt to open the default menu?
+	     */
+	    if (MenuError == 10) {
+		WriteError("FATAL ERROR: Too many menu errors");
+		printf("Too many menu errors, notifying Sysop\n\n");
+		sleep(3);
+		die(MBERR_CONFIG_ERROR);
+	    }
+
+	    /*
+	     * Switch back to the default menu
+	     */
+	    MenuLevel = 0;
+	    strcpy(Menus[0], CFG.default_menu);
+	} else {
+	    /*
+	     * Display Menu Text Fields and Perform all autoexec menus in order of menu file.
+	     * First check if there are any ANSI menus, if not, send a clearscreen first.
+	     */
+	    IsANSI = FALSE;
+	    while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
+		if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
+		    if ((menus.MenuType == 5) || (menus.MenuType == 19) || (menus.MenuType == 20))
+			IsANSI = TRUE;
 		}
+	    }
+	    fseek(pMenuFile, 0, SEEK_SET);
+	    if (! IsANSI)
+		clear();
 
-		if (pMenuFile == NULL) {
-			clear();
-			WriteError("Can't open menu file: %s", sMenuPathFileName);
-			MenuError++;
+	    while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
+		if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
+		    if ( menus.AutoExec ) {
+			DoMenu( menus.MenuType );
+		    }
+		    DisplayMenu( ); 
+		}
+	    }
 
-			/*
-			 * Is this the last attempt to open the default menu?
-			 */
-			if (MenuError == 10) {
-				WriteError("FATAL ERROR: Too many menu errors");
-				printf("Too many menu errors, notifying Sysop\n\n");
-				sleep(3);
-				die(SIGILL);
-			}
+	    /*
+	     * Check if the BBS closed down for Zone Mail Hour or
+	     * system shutdown. If so, we run the Goodbye show.
+	     */
+	    if (CheckStatus() == FALSE) {
+		fclose(pMenuFile);
+		Syslog('+', "Kicking user out, the BBS is closed.");
+		sleep(3);
+		Good_Bye(MBERR_OK);
+	    }
 
-			/*
-			 * Switch back to the default menu
-			 */
-			MenuLevel = 0;
-			strcpy(Menus[0], CFG.default_menu);
-		} else {
-			/*
-			 * Display Menu Text Fields and Perform all autoexec menus in order of menu file.
-			 * First check if there are any ANSI menus, if not, send a clearscreen first.
-			 */
-			IsANSI = FALSE;
-			while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
-				if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
-					if ((menus.MenuType == 5) || (menus.MenuType == 19) || (menus.MenuType == 20))
-						IsANSI = TRUE;
-				}
-			}
-			fseek(pMenuFile, 0, SEEK_SET);
-			if (! IsANSI)
-				clear();
+	    /*
+	     * Check the upsdown semafore
+	     */
+	    Semfile = calloc(PATH_MAX, sizeof(char));
+	    sprintf(Semfile, "%s/sema/upsdown", getenv("MBSE_ROOT"));
+	    if (file_exist(Semfile, R_OK) == 0) {
+		fclose(pMenuFile);
+		Syslog('+', "Kicking user out, upsdown semafore detected");
+		printf("System power failure, closing the bbs\n\n");
+		free(Semfile);
+		sleep(3);
+		Good_Bye(MBERR_OK);
+	    }
+	    free(Semfile);
 
-		        while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
-				if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
-					if ( menus.AutoExec ) {
-						DoMenu( menus.MenuType );
-					}
-					DisplayMenu( ); 
-				}
-			}
+	    /*
+	     * Check if SysOp wants to chat to user everytime user
+	     * gets prompt. Make sure /tmp/chatdev exists before
+	     * before calling chat(). Make sure if a second user
+	     * logs in, that .BusyChatting does exist.
+	     */
+	    if(CFG.iChatPromptChk && (access("/tmp/chatdev", R_OK) == 0) && (access("/tmp/.BusyChatting", F_OK) != 0))
+		Chat();
 
-			/*
-			 * Check if the BBS closed down for Zone Mail Hour or
-			 * system shutdown. If so, we run the Goodbye show.
-			 */
-			if (CheckStatus() == FALSE) {
-				fclose(pMenuFile);
-				Syslog('+', "Kicking user out, the BBS is closed.");
-				sleep(3);
-				Good_Bye(0);
-			}
+	    /*
+	     * Check users timeleft
+	     */
+	    TimeCheck();
 
-			/*
-			 * Check the upsdown semafore
-			 */
-			Semfile = calloc(PATH_MAX, sizeof(char));
-			sprintf(Semfile, "%s/sema/upsdown", getenv("MBSE_ROOT"));
-			if (file_exist(Semfile, R_OK) == 0) {
-				fclose(pMenuFile);
-				Syslog('+', "Kicking user out, upsdown semafore detected");
-				printf("System power failure, closing the bbs\n\n");
-				free(Semfile);
-				sleep(3);
-				Good_Bye(0);
-			}
-			free(Semfile);
+	    alarm_on();
 
-			/*
-			 * Check if SysOp wants to chat to user everytime user
-			 * gets prompt. Make sure /tmp/chatdev exists before
-			 * before calling chat(). Make sure if a second user
-			 * logs in, that .BusyChatting does exist.
-			 */
-			if(CFG.iChatPromptChk && (access("/tmp/chatdev", R_OK) == 0) && (access("/tmp/.BusyChatting", F_OK) != 0))
-				Chat();
+	    if (exitinfo.HotKeys) {
+		fflush(stdout);
+		Key = Getone();
+		sprintf(Input, "%c", Key);
+		printf("\n");
+	    } else {
+		colour(CFG.InputColourF, CFG.InputColourB);
+		GetstrC(Input, 80);
+	    }
 
-			/*
-			 * Check users timeleft
-			 */
-			TimeCheck();
+	    if ((strcmp(Input, "")) != 0) {
 
-			alarm_on();
+		fseek(pMenuFile, 0, SEEK_SET);
 
-			if (exitinfo.HotKeys) {
-				fflush(stdout);
-				Key = Getone();
-				sprintf(Input, "%c", Key);
-				printf("\n");
-			} else {
-				colour(CFG.InputColourF, CFG.InputColourB);
-				GetstrC(Input, 80);
-			}
-
-			if((strcmp(Input, "")) != 0) {
-
-				fseek(pMenuFile, 0, SEEK_SET);
-
-				while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
+		while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
 		 
-					if ((strcmp(tu(Input), menus.MenuKey)) == 0) {
-						if ((Access(exitinfo.Security, menus.MenuSecurity)) && (UserAge >= menus.Age)) {
-							Syslog('b', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, menus.MenuType, menus.TypeDesc, menus.OptionalData);
-							if (menus.MenuType == 13) {
-								/*
-								 *  Terminate call, cleanup here
-								 */
-								free(Input);
-								free(sMenuPathFileName);
-								fclose(pMenuFile);
-							}
-							DoMenu(menus.MenuType);
-							iFoundKey = TRUE;
-							break;
-						}
-					}
-				}
+		    if ((strcmp(tu(Input), menus.MenuKey)) == 0) {
+			if ((Access(exitinfo.Security, menus.MenuSecurity)) && (UserAge >= menus.Age)) {
+			    Syslog('b', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, menus.MenuType, 
+					menus.TypeDesc, menus.OptionalData);
+			    if (menus.MenuType == 13) {
+				/*
+				 *  Terminate call, cleanup here
+				 */
+				free(Input);
+				free(sMenuPathFileName);
+				fclose(pMenuFile);
+			    }
+			    DoMenu(menus.MenuType);
+			    iFoundKey = TRUE;
+			    break;
 			}
-			fclose(pMenuFile);
+		    }
+		}
+	    }
+	    fclose(pMenuFile);
 
-		} /* If menu open */
-	} /* while true */
+	} /* If menu open */
+    } /* while true */
 }
 
 
@@ -370,7 +371,7 @@ void DoMenu(int Type)
 		free(sPrompt);
 		free(sPromptBak);
 		free(temp);
-		Good_Bye(0);
+		Good_Bye(MBERR_OK);
 		break;
 
 	case 14:

@@ -38,6 +38,7 @@
 #include "../lib/common.h"
 #include "../lib/dbnode.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "session.h"
 #include "statetbl.h"
@@ -95,96 +96,96 @@ int		batchnr = 0, crc_errors = 0;
 
 int binkp(int role)
 {
-	int		rc = 0;
-	fa_list		*eff_remote;
-	file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
-	char		*nonhold_mail;
+    int		rc = MBERR_OK;
+    fa_list	*eff_remote;
+    file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
+    char	*nonhold_mail;
 
-	if (role == 1) {
-		Syslog('+', "BINKP start outbound session");
-		if (orgbinkp()) {
-			rc = 5;
-		}
-	} else {
-		Syslog('+', "BINKP start inbound session");
-		if (ansbinkp()) {
-			rc = 5;
-		}
+    if (role == 1) {
+	Syslog('+', "BINKP start outbound session");
+	if (orgbinkp()) {
+	    rc = MBERR_FTRANSFER;
 	}
+    } else {
+	Syslog('+', "BINKP start inbound session");
+	if (ansbinkp()) {
+	    rc = MBERR_FTRANSFER;
+	}
+    }
 	
-	if (rc) {
-		Syslog('!', "BINKP session failed");
-		return rc;
-	}
-
-	nonhold_mail = (char *)ALL_MAIL;
-	eff_remote = remote;
-	/*
-	 * If remote doesn't have the 8.3 flag set, allow long filenames.
-	 */
-	if (!nodes.FNC)
-		remote_flags &= ~SESSION_FNC;
-	
-	tosend = create_filelist(eff_remote, nonhold_mail, 0);
-	request = create_freqlist(remote);
-
-	if (request != NULL) {
-		Syslog('b', "Inserting request list");
-		tmpfl = tosend;
-		tosend = request;
-		for (; request->next; request = request->next);
-		request->next = tmpfl;
-
-		request = NULL;
-	}
-
-	rc = binkp_batch(tosend, role);
-	tidy_filelist(tosend, (rc == 0));
-	tosend = NULL;
-
-	if ((rc == 0) && transferred && MBflag) {
-		/*
-		 * Running Multiple Batch, only if last batch actually
-		 * did transfer some data.
-		 */
-		respond = respond_wazoo();
-		/*
-		 * Just create the tosend list again, there may be something
-		 * ready again for this node.
-		 */
-		tosend = create_filelist(eff_remote, nonhold_mail, 0);
-		for (tmpfl = tosend; tmpfl->next; tmpfl = tmpfl->next);
-		tmpfl->next = respond;
-		rc = binkp_batch(tosend, role);
-		tmpfl->next = NULL;
-	}
-
-	Syslog('+', "BINKP end transfer rc=%d", rc);
-	closetcp();
-
-	if (!MBflag) {
-		/*
-		 *  In singe batch mode we process filerequests after the batch.
-		 *  The results will be put on hold for the calling node.
-		 */
-		respond = respond_wazoo();
-		for (tmpfl = respond; tmpfl; tmpfl = tmpfl->next) {
-			if (strncmp(tmpfl->local, "/tmp", 4)) {
-				attach(*remote->addr, tmpfl->local, LEAVE, 'h');
-				Syslog('+', "Put on hold: %s", MBSE_SS(tmpfl->local));
-			} else {
-				file_mv(tmpfl->local, pktname(remote->addr, 'h'));
-				Syslog('+', "New netmail: %s", pktname(remote->addr, 'h'));
-			}
-		}
-	}
-
-	tidy_filelist(request, (rc == 0));
-	tidy_filelist(tosend, (rc == 0));
-	tidy_filelist(respond, 0);
-
-	rc = abs(rc);
+    if (rc) {
+	Syslog('!', "BINKP session failed");
 	return rc;
+    }
+
+    nonhold_mail = (char *)ALL_MAIL;
+    eff_remote = remote;
+    /*
+     * If remote doesn't have the 8.3 flag set, allow long filenames.
+     */
+    if (!nodes.FNC)
+	remote_flags &= ~SESSION_FNC;
+	
+    tosend = create_filelist(eff_remote, nonhold_mail, 0);
+    request = create_freqlist(remote);
+
+    if (request != NULL) {
+	Syslog('b', "Inserting request list");
+	tmpfl = tosend;
+	tosend = request;
+	for (; request->next; request = request->next);
+	request->next = tmpfl;
+
+	request = NULL;
+    }
+
+    rc = binkp_batch(tosend, role);
+    tidy_filelist(tosend, (rc == 0));
+    tosend = NULL;
+
+    if ((rc == 0) && transferred && MBflag) {
+	/*
+	 * Running Multiple Batch, only if last batch actually
+	 * did transfer some data.
+	 */
+	respond = respond_wazoo();
+	/*
+	 * Just create the tosend list again, there may be something
+	 * ready again for this node.
+	 */
+	tosend = create_filelist(eff_remote, nonhold_mail, 0);
+	for (tmpfl = tosend; tmpfl->next; tmpfl = tmpfl->next);
+	tmpfl->next = respond;
+	rc = binkp_batch(tosend, role);
+	tmpfl->next = NULL;
+    }
+
+    Syslog('+', "BINKP end transfer rc=%d", rc);
+    closetcp();
+
+    if (!MBflag) {
+	/*
+	 *  In singe batch mode we process filerequests after the batch.
+	 *  The results will be put on hold for the calling node.
+	 */
+	respond = respond_wazoo();
+	for (tmpfl = respond; tmpfl; tmpfl = tmpfl->next) {
+	    if (strncmp(tmpfl->local, "/tmp", 4)) {
+		attach(*remote->addr, tmpfl->local, LEAVE, 'h');
+		Syslog('+', "Put on hold: %s", MBSE_SS(tmpfl->local));
+	    } else {
+		file_mv(tmpfl->local, pktname(remote->addr, 'h'));
+		Syslog('+', "New netmail: %s", pktname(remote->addr, 'h'));
+	    }
+	}
+    }
+
+    tidy_filelist(request, (rc == 0));
+    tidy_filelist(tosend, (rc == 0));
+    tidy_filelist(respond, 0);
+
+    rc = abs(rc);
+    return rc;
 }
 
 
@@ -854,7 +855,7 @@ int binkp_batch(file_list *to_send, int role)
 	    RxState = RxDone;
 	    TxState = TxDone;
 	    binkp_send_control(MM_ERR, "Transfer timeout");
-	    rc = -2;
+	    rc = MBERR_FTRANSFER;
 	    break;
 	}
 
@@ -876,7 +877,7 @@ int binkp_batch(file_list *to_send, int role)
 		    Syslog('?', "Binkp: receiver status %s", ttystat[c]);
 		    TxState = TxDone;
 		    RxState = RxDone;
-		    rc = -c;
+		    rc = (MBERR_TTYIO + (-c));
 		    break;
 		} else {
 		    switch (rxlen) {
@@ -1056,13 +1057,13 @@ int binkp_batch(file_list *to_send, int role)
 		case MM_ERR:    Syslog('+', "Binkp: got ERR: %s", rxbuf+1);
 				RxState = RxDone;
 				TxState = TxDone;
-				rc = -10;
+				rc = MBERR_FTRANSFER;
 				break;
 
 		case MM_BSY:	Syslog('+', "Binkp: got BSY: %s", rxbuf+1);
 				RxState = RxDone;
 				TxState = TxDone;
-				rc = -11;
+				rc = MBERR_FTRANSFER;
 				break;
 
 		case MM_SKIP:   Syslog('+', "Binkp: got SKIP: %s", rxbuf+1);
@@ -1151,7 +1152,7 @@ int binkp_batch(file_list *to_send, int role)
 					WriteError("File CRC error nr %d, aborting session", crc_errors);
 					binkp_send_control(MM_ERR, "Too much CRC errors, aborting session");
 					RxState = RxDone;
-					rc = -12;
+					rc = MBERR_FTRANSFER;
 				    }
 				    closefile(FALSE);
 				}
@@ -1205,7 +1206,7 @@ int binkp_batch(file_list *to_send, int role)
 		binkp_send_control(MM_BSY, "Low diskspace, try again later");
 		RxState = RxDone;
 		TxState = TxDone;
-		rc = -13;
+		rc = MBERR_FTRANSFER;
 		break;
 	    }
 

@@ -38,6 +38,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/mberrors.h"
 #include "funcs.h"
 #include "input.h"
 #include "newuser.h"
@@ -85,7 +86,7 @@ int newuser()
     clear();
     DisplayFile((char *)"newuser");
     if ((iLang = Chg_Language(TRUE)) == 0)
-	Fast_Bye(1);
+	Fast_Bye(MBERR_INIT_ERROR);
 
     Enter(1);
     /* MBSE BBS - NEW USER REGISTRATION */
@@ -119,7 +120,7 @@ int newuser()
 	 */
 	if ((strcasecmp(temp, "off")) == 0) {
 	    Syslog('+', "Quick \"off\" logout");
-	    Fast_Bye(0);
+	    Fast_Bye(MBERR_OK);
 	}
 
 	Count++;
@@ -129,7 +130,7 @@ int newuser()
 	    language(CFG.HiliteF, CFG.HiliteB, 2);
 	    Enter(2);
 	    Syslog('!', "Exceeded maximum login attempts");
-	    Fast_Bye(0);
+	    Fast_Bye(MBERR_OK);
 	}
 
 	/*
@@ -486,7 +487,7 @@ int newuser()
     sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
     if ((pUsrConfig = fopen(temp, "r+")) == NULL) {
 	WriteError("Can't open file: %s", temp);
-	ExitClient(1);
+	ExitClient(MBERR_GENERAL);
     }
 
     fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
@@ -582,7 +583,7 @@ void Fast_Bye(int onsig)
 #ifdef MEMWATCH
     mwTerm();
 #endif
-    exit(0);
+    exit(MBERR_OK);
 }
 
 
@@ -659,7 +660,7 @@ char *NameCreate(char *Name, char *Comment, char *Password)
 	perror("");
         WriteError("Failed to create unix account");
         free(progname);
-        ExitClient(1);
+        ExitClient(MBERR_GENERAL);
     }
 
     sprintf(progname, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), Name, Password);
@@ -671,7 +672,7 @@ char *NameCreate(char *Name, char *Comment, char *Password)
 	perror("");
         WriteError("Failed to set unix password");
         free(progname);
-        ExitClient(1);
+        ExitClient(MBERR_GENERAL);
     }
 
     colour(YELLOW, BLACK);

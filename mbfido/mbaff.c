@@ -38,6 +38,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
 #include "../lib/msg.h"
+#include "../lib/mberrors.h"
 #include "announce.h"
 #include "filefind.h"
 #include "mbaff.h"
@@ -152,7 +153,7 @@ int main(int argc, char **argv)
 		printf("\n");
 
 	if (!diskfree(CFG.freespace))
-		die(101);
+		die(MBERR_DISK_FULL);
 
 	memset(&MsgBase, 0, sizeof(MsgBase));
 
@@ -169,7 +170,7 @@ int main(int argc, char **argv)
 		CreateSema((char *)"msglink");
 	}
 
-	die(0);
+	die(MBERR_OK);
 	return 0;
 }
 
@@ -193,7 +194,7 @@ void Help(void)
 	printf("	-q -quiet	Quiet mode\n");
 	colour(7, 0);
 	printf("\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 

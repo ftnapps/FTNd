@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/mberrors.h"
 #include "funcs.h"
 #include "input.h"
 #include "language.h"
@@ -79,7 +80,7 @@ int ChkFiles()
 	if ((pUsersFile = fopen(temp,"rb")) == NULL) {
 		if((pUsersFile = fopen(temp,"wb")) == NULL) {
 			WriteError("$Can't create %s", temp);
-			ExitClient(1); 
+			ExitClient(MBERR_INIT_ERROR); 
 		} else {
 			usrconfighdr.hdrsize = sizeof(usrconfighdr);
 			usrconfighdr.recsize = sizeof(usrconfig);

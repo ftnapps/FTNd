@@ -38,6 +38,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/msg.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "post.h"
 #include "mbmsg.h"
 
@@ -177,7 +178,7 @@ int main(int argc, char **argv)
 		Post(too, tarea, subj, mfile, flavor);
 	}
 
-	die(0);
+	die(MBERR_OK);
 	return 0;
 }
 
@@ -205,7 +206,7 @@ void Help()
 	printf("	-q -quiet				Quiet mode\n");
 
 	printf("\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 
@@ -276,7 +277,7 @@ void DoMsgBase()
 	sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if(( pAreas = fopen (sAreas, "r")) == NULL) {
 		WriteError("$Can't open Messages Areas File.");
-		die(SIGILL);
+		die(MBERR_INIT_ERROR);
 	}
 	fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
 
@@ -286,7 +287,7 @@ void DoMsgBase()
 			if (msgs.Active) {
 
 				if (!diskfree(CFG.freespace))
-					die(101);
+					die(MBERR_DISK_FULL);
 
 				if (!do_quiet) {
 					colour(3, 0);
@@ -315,7 +316,7 @@ void DoMsgBase()
 			if (msgs.Active) {
 
 				if (!diskfree(CFG.freespace))
-					die(101);
+					die(MBERR_DISK_FULL);
 
 				Nopper();
 				if (!do_quiet) {
@@ -417,7 +418,7 @@ void DoMsgBase()
 
 	free(sAreas);
 	free(Name);
-	die(0);
+	die(MBERR_OK);
 }
 
 

@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "virscan.h"
 #include "mbfutil.h"
 #include "mbflist.h"
@@ -64,7 +65,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	colour(CYAN, BLACK);
 
     if (LoadAreaRec(Area) == FALSE)
-	die(0);
+	die(MBERR_INIT_ERROR);
 
     if (area.Available) {
 	temp   = calloc(PATH_MAX, sizeof(char));
@@ -73,7 +74,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	tmpdir = calloc(PATH_MAX, sizeof(char));
 
 	if (CheckFDB(Area, area.Path))
-	    die(0);
+	    die(MBERR_INIT_ERROR);
 	getcwd(pwd, PATH_MAX);
 
 	if (!do_quiet) {
@@ -92,7 +93,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		if (!do_quiet)
 		    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
-		die(0);
+		die(MBERR_INIT_ERROR);
 	    } else {
 		if (do_novir == FALSE) {
 		    if (!do_quiet) {
@@ -109,7 +110,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		    WriteError("Virus found");
 		    if (!do_quiet)
 			printf("Virus found\n");
-		    die(0);
+		    die(MBERR_VIRUS_FOUND);
 		}
 	    }
 	} else {
@@ -118,7 +119,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		MustRearc = TRUE;
 	    UnPacked = UnpackFile(temp);
 	    if (!UnPacked)
-		die(0);
+		die(MBERR_INIT_ERROR);
 
 	    if (do_novir == FALSE) {
 		if (!do_quiet) {
@@ -136,7 +137,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		WriteError("Virus found");
 		if (!do_quiet)
 		    printf("Virus found\n");
-		die(0);
+		die(MBERR_VIRUS_FOUND);
             }
 	}
 
@@ -221,7 +222,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		if (!do_quiet)
 		    printf("No FILE_ID.DIZ and no description on the commandline\n");
 		DeleteVirusWork();
-		die(0);
+		die(MBERR_COMMANDLINE);
 	    } else {
 		/*
 		 * Create description from the commandline.
@@ -279,7 +280,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	}
 
 	if (AddFile(fdb, Area, temp2, File) == FALSE) {
-	    die(0);
+	    die(MBERR_GENERAL);
 	}
 	Syslog('+', "File %s added to area %d", File, Area);
 

@@ -39,6 +39,7 @@
 #include "../lib/dbcfg.h"
 #include "../lib/dbnode.h"
 #include "../lib/dbftn.h"
+#include "../lib/mberrors.h"
 #include "config.h"
 #include "answer.h"
 #include "call.h"
@@ -182,7 +183,7 @@ int main(int argc, char *argv[])
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(101);
+		exit(MBERR_COMMANDLINE);
 	}
 
 	InitConfig();
@@ -254,7 +255,7 @@ int main(int argc, char *argv[])
 						tcp_mode = TCPMODE_IBN;
 					else {
 						usage();
-						die(101);
+						die(MBERR_COMMANDLINE);
 					}
 					free(p);
 					RegTCP();
@@ -267,7 +268,7 @@ int main(int argc, char *argv[])
 					break;
 
 			default:	usage(); 
-					die(101);
+					die(MBERR_COMMANDLINE);
 		}
 
 	/*
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
 #ifdef MEMWATCH
                         mwTerm();
 #endif
-                        exit(100);
+                        exit(MBERROR_EXEC_FAILED);
                 }
 #endif
 		if ((strcasecmp(argv[optind],"tsync") == 0) ||
@@ -364,11 +365,11 @@ int main(int argc, char *argv[])
 		 * Don't do outbound calls if low diskspace
 		 */
 		if (!diskfree(CFG.freespace))
-			die(101);
+			die(MBERR_DISK_FULL);
 
 		if (callist == NULL) {
 			WriteError("Calling mbcico without node address not supported anymore");
-			die(101);
+			die(MBERR_COMMANDLINE);
 		}
 
 		for (tmpl = &callist; *tmpl; tmpl = &((*tmpl)->next)) {
@@ -401,9 +402,9 @@ int main(int argc, char *argv[])
 	tidy_falist(&callist);
 
 	if (maxrc)
-		die(maxrc+100);
+		die(maxrc);
 	else
-		die(0);
+		die(MBERR_OK);
 	return 0;
 }
 

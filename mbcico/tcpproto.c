@@ -38,6 +38,7 @@
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "session.h"
 #include "config.h"
@@ -84,7 +85,7 @@ int tcpsndfiles(file_list *lst)
 
 	if (getsync()) {
 		WriteError("Can't get synchronization");
-		return 1;
+		return MBERR_FTRANSFER;
 	}
 
 	for (tmpf = lst; tmpf && (maxrc == 0); tmpf = tmpf->next) {
@@ -108,9 +109,11 @@ int tcpsndfiles(file_list *lst)
 	if (rc > maxrc) 
 		maxrc=rc;
 
-	if (rc)
-		WriteError("TCP send error: rc=%d",maxrc);
-	return maxrc;
+	if (rc) {
+	    WriteError("TCP send error: rc=%d",maxrc);
+	    return MBERR_FTRANSFER;
+	} else
+	    return 0;
 }
 
 
@@ -124,7 +127,7 @@ int tcprcvfiles(void)
 	Syslog('+', "Start TCP receive");
 	if (getsync()) {
 		WriteError("Can't get synchronization");
-		return 1;
+		return MBERR_FTRANSFER;
 	}
 next:
 	if ((rc = tcp_rblk(rxbuf, &bufl)) == 0) {
@@ -155,9 +158,11 @@ next:
 			goto next;
 	}
 
-	if (rc)
-		WriteError("TCP receive error: rc=%d", rc);
-	return abs(rc);
+	if (rc) {
+	    WriteError("TCP receive error: rc=%d", rc);
+	    return MBERR_FTRANSFER;
+	} else
+	    return 0;
 }
 
 

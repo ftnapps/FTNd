@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfmove.h"
 
@@ -67,28 +68,28 @@ void Delete(int UnDel, int Area, char *File)
      */
     if (LoadAreaRec(Area) == FALSE) {
 	WriteError("Can't load record %d", Area);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
     if (!area.Available) {
 	WriteError("Area %d not available", Area);
 	if (!do_quiet)
 	    printf("Area %d not available\n", Area);
-	die(0);
+	die(MBERR_CONFIG_ERROR);
     }
     if (area.CDrom) {
 	WriteError("Can't %sdelete from CD-ROM", UnDel?"un":"");
 	if (!do_quiet)
 	    printf("Can't %sdelete from CD-ROM\n", UnDel?"un":"");
-	die(0);
+	die(MBERR_COMMANDLINE);
     }
     if (CheckFDB(Area, area.Path))
-	die(0);
+	die(MBERR_GENERAL);
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
 
     if ((fp = fopen(temp, "r+")) == NULL)
-	die(0);
+	die(MBERR_GENERAL);
 
     colour(CYAN, BLACK);
 

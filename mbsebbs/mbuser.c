@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbuser.h"
 
 
@@ -108,7 +109,7 @@ int main(int argc, char **argv)
 	free(cmd);
 
 	if (!diskfree(CFG.freespace))
-		ExitClient(101);
+		ExitClient(MBERR_DISK_FULL);
 
 	oldmask = umask(027);
 	if (!do_quiet)
@@ -121,7 +122,7 @@ int main(int argc, char **argv)
 
 	if (!do_quiet)
 		colour(7, 0);
-	ExitClient(0);
+	ExitClient(MBERR_OK);
 	return 0;
 }
 
@@ -163,7 +164,7 @@ void Help(void)
 
 	colour(7, 0);
 	printf("\n");
-	ExitClient(1);
+	ExitClient(MBERR_COMMANDLINE);
 }
 
 

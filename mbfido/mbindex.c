@@ -38,6 +38,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
 #include "../lib/dbftn.h"
+#include "../lib/mberrors.h"
 
 
 #define TMPNAME "TMP."
@@ -151,7 +152,7 @@ void Help(void)
 	printf("	-quiet		Quiet mode\n");
 	colour(7, 0);
 	printf("\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 
@@ -208,7 +209,7 @@ void die(int onsig)
 
 int main(int argc,char *argv[])
 {
-	int	i, rc;
+	int	i;
 	char	*cmd;
 	struct	passwd *pw;
 
@@ -258,16 +259,18 @@ int main(int argc,char *argv[])
 	free(cmd);
 
 	if (!diskfree(CFG.freespace))
-		die(101);
+		die(MBERR_DISK_FULL);
 
 	if (lockindex()) {
 		if (!do_quiet)
 			printf("Can't lock mbindex, abort.\n");
-		die(104);
+		die(MBERR_NO_PROGLOCK);
 	}
 
-	rc = nodebld();
-	die(rc);
+	if (nodebld())
+	    die(MBERR_GENERAL);
+	else
+	    die(MBERR_OK);
 	return 0;
 }
 

@@ -43,6 +43,7 @@
 #include "../lib/dbmsgs.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
+#include "../lib/mberrors.h"
 #include "rfc2ftn.h"
 #include "mbfido.h"
 #include "../paths.h"
@@ -164,57 +165,56 @@ const char *HeaderFindMem(const char *Article, const int ArtLen, const char *Hea
 static int StartChild(int, char *, char *[]);
 static int StartChild(int fd, char *path, char *argv[])
 {
-	int	pan[2];
-	int	i;
-	pid_t	pid;
+    int	pan[2], i;
+    pid_t	pid;
 
-	/* Create a pipe. */
-	if (pipe(pan) < 0) {
-		WriteError("%Cant pipe for %s", path);
-		die(101);
+    /* Create a pipe. */
+    if (pipe(pan) < 0) {
+	WriteError("%Cant pipe for %s", path);
+	die(MBERR_EXEC_FAILED);
+    }
+
+    /* Get a child. */
+    for (i = 0; (pid = fork()) < 0; i++) {
+	if (i == MAX_FORKS) {
+	    WriteError("$Cant fork %s -- spooling", path);
+	    return -1;
+	}
+	Syslog('n', "Cant fork %s -- waiting", path);
+	(void)sleep(60);
+    }
+
+    /* Run the child, with redirection. */
+    if (pid == 0) {
+	(void)close(pan[PIPE_READ]);
+
+	/* Stdin comes from our old input. */
+	if (fd != STDIN) {
+	    if ((i = dup2(fd, STDIN)) != STDIN) {
+		WriteError("$Cant dup2 %d to 0 got %d", fd, i);
+		_exit(MBERR_EXEC_FAILED);
+	    }
+	    (void)close(fd);
 	}
 
-	/* Get a child. */
-	for (i = 0; (pid = fork()) < 0; i++) {
-		if (i == MAX_FORKS) {
-			WriteError("$Cant fork %s -- spooling", path);
-			return -1;
-		}
-		Syslog('n', "Cant fork %s -- waiting", path);
-		(void)sleep(60);
+	/* Stdout goes down the pipe. */
+	if (pan[PIPE_WRITE] != STDOUT) {
+	    if ((i = dup2(pan[PIPE_WRITE], STDOUT)) != STDOUT) {
+		WriteError("$Cant dup2 %d to 1 got %d", pan[PIPE_WRITE], i);
+		_exit(MBERR_EXEC_FAILED);
+	    }
+	    (void)close(pan[PIPE_WRITE]);
 	}
 
-	/* Run the child, with redirection. */
-	if (pid == 0) {
-		(void)close(pan[PIPE_READ]);
+	Syslog('n', "execv %s %s", MBSE_SS(path), MBSE_SS(argv[1]));
+	(void)execv(path, argv);
+	WriteError("$Cant execv %s", path);
+	_exit(MBERR_EXEC_FAILED);
+    }
 
-		/* Stdin comes from our old input. */
-		if (fd != STDIN) {
-			if ((i = dup2(fd, STDIN)) != STDIN) {
-				WriteError("$Cant dup2 %d to 0 got %d", fd, i);
-				_exit(1);
-			}
-			(void)close(fd);
-		}
-
-		/* Stdout goes down the pipe. */
-		if (pan[PIPE_WRITE] != STDOUT) {
-			if ((i = dup2(pan[PIPE_WRITE], STDOUT)) != STDOUT) {
-				WriteError("$Cant dup2 %d to 1 got %d", pan[PIPE_WRITE], i);
-				_exit(1);
-			}
-			(void)close(pan[PIPE_WRITE]);
-		}
-
-		Syslog('n', "execv %s %s", MBSE_SS(path), MBSE_SS(argv[1]));
-		(void)execv(path, argv);
-		WriteError("$Cant execv %s", path);
-		_exit(1);
-	}
-
-	(void)close(pan[PIPE_WRITE]);
-	(void)close(fd);
-	return pan[PIPE_READ];
+    (void)close(pan[PIPE_WRITE]);
+    (void)close(fd);
+    return pan[PIPE_READ];
 }
 
 
@@ -322,50 +322,50 @@ static int Process(char *article)
 static int ReadRemainder(register int, char, char);
 static int ReadRemainder(register int fd, char first, char second)
 {
-	register FILE	*F;
-	register char	*article;
-	register int	size;
-	register int	used;
-	register int	left;
-	register int	i;
-	int		ok;
+    register FILE   *F;
+    register char   *article;
+    register int    size;
+    register int    used;
+    register int    left;
+    register int    i;
+    int		    ok;
 
-	/* Turn the descriptor into a stream. */
-	if ((F = fdopen(fd, "r")) == NULL) {
-		WriteError("$Can't fdopen %d", fd);
-		die(101);
+    /* Turn the descriptor into a stream. */
+    if ((F = fdopen(fd, "r")) == NULL) {
+	WriteError("$Can't fdopen %d", fd);
+	die(MBERR_GENERAL);
+    }
+
+    /* Get an initial allocation, leaving space for the \0. */
+    size = BUFSIZ + 1;
+    article = NEW(char, size + 2);
+    article[0] = first;
+    article[1] = second;
+    used = second ? 2 : 1;
+    left = size - used;
+
+    /* Read the input. */
+    while ((i = fread((POINTER)&article[used], (size_t)1, (size_t)left, F)) != 0) {
+	if (i < 0) {
+	    WriteError("$Cant fread after %d bytes", used);
+	    die(MBERR_GENERAL);
 	}
-
-	/* Get an initial allocation, leaving space for the \0. */
-	size = BUFSIZ + 1;
-	article = NEW(char, size + 2);
-	article[0] = first;
-	article[1] = second;
-	used = second ? 2 : 1;
-	left = size - used;
-
-	/* Read the input. */
-	while ((i = fread((POINTER)&article[used], (size_t)1, (size_t)left, F)) != 0) {
-		if (i < 0) {
-			WriteError("$Cant fread after %d bytes", used);
-			die(101);
-		}
-		used += i;
-		left -= i;
-		if (left < SMBUF) {
-			size += BUFSIZ;
-			left += BUFSIZ;
-			RENEW(article, char, size);
-		}
+	used += i;
+	left -= i;
+	if (left < SMBUF) {
+	    size += BUFSIZ;
+	    left += BUFSIZ;
+	    RENEW(article, char, size);
 	}
-	if (article[used - 1] != '\n')
-		article[used++] = '\n';
-	article[used] = '\0';
-	(void)fclose(F);
+    }
+    if (article[used - 1] != '\n')
+	article[used++] = '\n';
+    article[used] = '\0';
+    (void)fclose(F);
 
-	ok = Process(article);
-	DISPOSE(article);
-	return ok;
+    ok = Process(article);
+    DISPOSE(article);
+    return ok;
 }
 
 
@@ -421,23 +421,23 @@ static int ReadBytecount(register int fd, int artsize)
 static int ReadLine(char *, int, int);
 static int ReadLine(char *p, int size, int fd)
 {
-	char	*save;
+    char    *save;
 
-	/* Fill the buffer, a byte at a time. */
-	for (save = p; size > 0; p++, size--) {
-		if (read(fd, p, 1) != 1) {
-			*p = '\0';
-			WriteError("$Cant read first line got %s", save);
-			die(101);
-		}
-		if (*p == '\n') {
-			*p = '\0';
-			return TRUE;
-		}
+    /* Fill the buffer, a byte at a time. */
+    for (save = p; size > 0; p++, size--) {
+	if (read(fd, p, 1) != 1) {
+	    *p = '\0';
+	    WriteError("$Cant read first line got %s", save);
+	    die(MBERR_GENERAL);
 	}
-	*p = '\0';
-	WriteError("bad_line too long %s", save);
-	return FALSE;
+	if (*p == '\n') {
+	    *p = '\0';
+	    return TRUE;
+	}
+    }
+    *p = '\0';
+    WriteError("bad_line too long %s", save);
+    return FALSE;
 }
 
 

@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "mbnewusr.h"
 #include "funcs.h"
 #include "input.h"
@@ -76,7 +77,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_CONFIG_ERROR);
 	}
 
 	/*
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	/*
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
                 mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	/* 
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
 
 	if ((tty = ttyname(0)) == NULL) {
 		WriteError("Not at a tty");
-		Fast_Bye(0);
+		Fast_Bye(MBERR_OK);
 	}
 
 	if (strncmp("/dev/", tty, 5) == 0)
@@ -154,8 +155,7 @@ int main(int argc, char **argv)
 	 * Trap signals
 	 */
 	for(i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) ||
-		    (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
 		signal(i, (void (*))die);
 	else
 		signal(i, SIG_IGN);
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	 */
 	if (CheckStatus() == FALSE) {
 		Syslog('+', "Kicking user out, the BBS is closed");
-		Fast_Bye(0);
+		Fast_Bye(MBERR_OK);
 	}
 
 	colour(YELLOW, BLACK);
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 		if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 			Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
 			printf("No BBS on this port allowed!\n\n");
-			Fast_Bye(0);
+			Fast_Bye(MBERR_OK);
 		}
 
 		/* 
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
 	Pause();
 
 	newuser();
-	Fast_Bye(0);
+	Fast_Bye(MBERR_OK);
 	return 0;
 }
 

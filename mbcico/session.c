@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "statetbl.h"
 #include "emsi.h"
@@ -79,7 +80,7 @@ char *typestr(int tp)
 
 int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
-	int	rc = 1;
+	int	rc = MBERR_OK;
 	fa_list *tmpl;
 	struct	sockaddr_in peeraddr;
 	int	addrlen = sizeof(struct sockaddr_in);
@@ -108,7 +109,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 				IsDoing("Incoming IFC/TCP");
 			} else if (tcp_mode == TCPMODE_NONE) {
 				WriteError("Unknown TCP connection, parameter missing");
-				die(101);
+				die(MBERR_COMMANDLINE);
 			}
 		}
 		session_flags |= SESSION_TCP;
@@ -147,11 +148,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		if (type == SESSION_UNKNOWN) 
 			(void)tx_define_type();
 		switch(type) {
-			case SESSION_UNKNOWN:	rc=20; break;
-			case SESSION_FTSC:	rc=tx_ftsc(); break;
-			case SESSION_YOOHOO:	rc=tx_yoohoo(); break;
-			case SESSION_EMSI:	rc=tx_emsi(data); break;
-			case SESSION_BINKP:	rc=binkp(role); break;
+			case SESSION_UNKNOWN:	rc = MBERR_UNKNOWN_SESSION; break;
+			case SESSION_FTSC:	rc = tx_ftsc(); break;
+			case SESSION_YOOHOO:	rc = tx_yoohoo(); break;
+			case SESSION_EMSI:	rc = tx_emsi(data); break;
+			case SESSION_BINKP:	rc = binkp(role); break;
 		}
 	} else {
 		if (type == SESSION_FTSC) 
@@ -159,11 +160,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		if (type == SESSION_UNKNOWN) 
 			(void)rx_define_type();
 		switch(type) {
-			case SESSION_UNKNOWN:	rc=20; break;
-			case SESSION_FTSC:	rc=rx_ftsc(); break;
-			case SESSION_YOOHOO:	rc=rx_yoohoo(); break;
-			case SESSION_EMSI:	rc=rx_emsi(data); break;
-			case SESSION_BINKP:	rc=binkp(role); break;
+			case SESSION_UNKNOWN:	rc = MBERR_UNKNOWN_SESSION; break;
+			case SESSION_FTSC:	rc = rx_ftsc(); break;
+			case SESSION_YOOHOO:	rc = rx_yoohoo(); break;
+			case SESSION_EMSI:	rc = rx_emsi(data); break;
+			case SESSION_BINKP:	rc = binkp(role); break;
 		}
 	}
 	sleep(2);

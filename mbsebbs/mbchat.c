@@ -4,7 +4,7 @@
  * Purpose ...............: Sysop chat utility.
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:2801/2802
  * Beekmansbos 10
@@ -34,6 +34,7 @@
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 
 
 char *ttime2(void);            /* Returns current time  HH:MM     */
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
  	sprintf(FileName, "%s/etc/config.data", BBSpath);
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_CONFIG_ERROR);
 	}
 	fread(&CFG, sizeof(CFG), 1, pDataFile);
 	fclose(pDataFile);
@@ -106,7 +107,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(0);
+		exit(MBERR_COMMANDLINE);
 	}
 
  	printf("\f");
@@ -130,7 +131,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_COMMANDLINE);
 	} else {
 		fgets(pid1,19,pPid);
 		fclose(pPid);
@@ -232,7 +233,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 	mwTerm();
 #endif
-	exit(0);
+	exit(MBERR_OK);
 }
 
 

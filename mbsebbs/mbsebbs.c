@@ -38,6 +38,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/msg.h"
+#include "../lib/mberrors.h"
 #include "mbsebbs.h"
 #include "user.h"
 #include "dispfile.h"
@@ -78,7 +79,7 @@ int main(int argc, char **argv)
 		strcpy(sUnixName, getenv("USER"));
 	} else {
                 WriteError("No username in environment");
-                Quick_Bye(0);
+                Quick_Bye(MBERR_OK);
         }
 
 	/*
@@ -128,7 +129,7 @@ int main(int argc, char **argv)
 
 	if ((tty = ttyname(0)) == NULL) {
 		WriteError("Not at a tty");
-		Quick_Bye(0);
+		Quick_Bye(MBERR_OK);
 	}
 
 	if (strncmp("/dev/", tty, 5) == 0)
@@ -145,8 +146,7 @@ int main(int argc, char **argv)
 	 * Trap signals
 	 */
 	for(i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) ||
-		    (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
 		signal(i, (void (*))die);
 	else
 		signal(i, SIG_IGN);
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 	 */
 	if (CheckStatus() == FALSE) {
 		Syslog('+', "Kicking user out, the BBS is closed");
-		Quick_Bye(0);
+		Quick_Bye(MBERR_OK);
 	}
 
 	clear();
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 		if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 			Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
 			printf("No BBS on this port allowed!\n\n");
-			Quick_Bye(0);
+			Quick_Bye(MBERR_OK);
 		}
 		Syslog('b', "Node number %d", iNode);
 

@@ -38,6 +38,7 @@
 #include "../lib/common.h"
 #include "../lib/dbcfg.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "mball.h"
 
 
@@ -124,7 +125,7 @@ void Help()
 	printf("	-z -zip		Create .zip archives\n");
 	colour(7, 0);
 	printf("\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 
@@ -148,8 +149,7 @@ int main(int argc, char **argv)
 	 * Catch all signals we can, and ignore the rest.
 	 */
 	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGKILL) || (i == SIGBUS) ||
-		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+		if ((i == SIGHUP) || (i == SIGKILL) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 			signal(i, (void (*))die);
 		else
 			signal(i, SIG_IGN);
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 	if (!do_quiet)
 		printf("Done!\n");
 
-	die(0);
+	die(MBERR_OK);
 	return 0;
 }
 
@@ -286,7 +286,7 @@ void Masterlist()
     if(( pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open File Areas File: %s", sAreas);
 	colour(7,0);
-	die(1);
+	die(MBERR_GENERAL);
     }
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
@@ -295,12 +295,12 @@ void Masterlist()
 
     if ((fp = fopen("allfiles.tmp", "a+")) == NULL) {
  	WriteError("$Can't open allfiles.tmp");
-	die(1);
+	die(MBERR_GENERAL);
     }
     if ((np = fopen("newfiles.tmp", "a+")) == NULL) {
 	WriteError("$Can't open newfiles.tmp");
 	fclose(fp);
-	die(1);
+	die(MBERR_GENERAL);
     }
 
     TopBox(fp, TRUE);

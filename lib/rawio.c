@@ -33,6 +33,7 @@
 #include "memwatch.h"
 #include "structs.h"
 #include "common.h"
+#include "mberrors.h"
 
 
 int rawset = FALSE;
@@ -43,31 +44,31 @@ int rawset = FALSE;
  */
 void Setraw()
 {
-	int	rc;
+    int	rc;
 
-	if ((rc = tcgetattr(ttyfd, &tbufs))) {
-		perror("");
-		printf("$tcgetattr(0, save) return %d\n", rc);
-		exit(1);
-	}
+    if ((rc = tcgetattr(ttyfd, &tbufs))) {
+	perror("");
+	printf("$tcgetattr(0, save) return %d\n", rc);
+	exit(MBERR_TTYIO_ERROR);
+    }
 
-	tbufsavs = tbufs;
-	tbufs.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  ); /* IUCLC removed for FreeBSD */
-        /*
-         *  Map CRNL modes strip control characters and flow control
-         */
-	tbufs.c_oflag &= ~OPOST;		/* Don't do ouput character translation */
-	tbufs.c_lflag &= ~(ICANON | ECHO);	/* No canonical input and no echo */
-	tbufs.c_cc[VMIN] = 1;			/* Receive 1 character at a time */
-	tbufs.c_cc[VTIME] = 0;			/* No time limit per character */
+    tbufsavs = tbufs;
+    tbufs.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  ); /* IUCLC removed for FreeBSD */
+    /*
+     *  Map CRNL modes strip control characters and flow control
+     */
+    tbufs.c_oflag &= ~OPOST;		/* Don't do ouput character translation	*/
+    tbufs.c_lflag &= ~(ICANON | ECHO);	/* No canonical input and no echo	*/
+    tbufs.c_cc[VMIN] = 1;		/* Receive 1 character at a time	*/
+    tbufs.c_cc[VTIME] = 0;		/* No time limit per character		*/
 
-	if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
-		perror("");
-		printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
-		exit(1);
-	}
+    if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
+	perror("");
+	printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
+	exit(MBERR_TTYIO_ERROR);
+    }
 
-	rawset = TRUE;
+    rawset = TRUE;
 }
 
 
@@ -77,19 +78,19 @@ void Setraw()
  */
 void Unsetraw()
 {
-	int	rc;
+    int	rc;
 
-	/*
-	 * Only unset the mode if it is set to raw mode
-	 */
-	if (rawset == TRUE) {
-		if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
-			perror("");
-			printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
-			exit(1);
-		}
+    /*
+     * Only unset the mode if it is set to raw mode
+     */
+    if (rawset == TRUE) {
+	if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
+	    perror("");
+	    printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
+	    exit(MBERR_TTYIO_ERROR);
 	}
-	rawset = FALSE;
+    }
+    rawset = FALSE;
 }
 
 
@@ -104,7 +105,7 @@ unsigned char Getone()
 
 	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
 		perror("open 8");
-		exit(1);
+		exit(MBERR_TTYIO_ERROR);
 	}
 	Setraw();
 

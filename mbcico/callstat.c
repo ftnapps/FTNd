@@ -72,6 +72,7 @@ void putstatus(faddr *addr, int incr, int sts)
 	} else {
 	    cst->tryno += incr;
 	    srand(getpid());
+	    Syslog('d', "putstatus %s, incr=%d, tryno=%d, status=%d", ascfnode(addr, 0xf), incr, cst->tryno, sts);
 	    while (TRUE) {
 		j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
 		if ((j > (CFG.dialdelay / 10)) && (j > 9))

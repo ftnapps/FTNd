@@ -39,6 +39,7 @@
 #include "../lib/dbcfg.h"
 #include "../lib/dbnode.h"
 #include "../lib/dbftn.h"
+#include "../lib/mberrors.h"
 #include "outstat.h"
 #include "nlinfo.h"
 
@@ -147,21 +148,21 @@ void Help()
 	colour(3, 0);
 	printf("	-quiet					Quiet mode\n");
 	colour(7, 0);
-	die(0);
+	die(MBERR_OK);
 }
 
 
 
-void Fatal(char *);
-void Fatal(char *msg)
+void Fatal(char *, int);
+void Fatal(char *msg, int error)
 {
-	show_log = TRUE;
-	if (!do_quiet) {
-		colour(12, 0);
-		printf("%s\n", msg);
-	}
-	WriteError(msg);
-	die(100);
+    show_log = TRUE;
+    if (!do_quiet) {
+	colour(12, 0);
+	printf("%s\n", msg);
+    }
+    WriteError(msg);
+    die(error);
 }
 
 
@@ -243,12 +244,10 @@ int main(int argc, char *argv[])
     }
 
     if (strcmp(pw->pw_name, "mbse"))
-	Fatal((char *)"You are not user 'mbse'");
+	Fatal((char *)"You are not user 'mbse'", MBERR_COMMANDLINE);
     
     if (do_stat) {
 	rc = outstat();
-	if (rc)
-	    rc += 100;
 	die(rc);
     }
 
@@ -257,19 +256,17 @@ int main(int argc, char *argv[])
      */
     if (do_attach || do_node || do_poll || do_stop || do_req || do_reset) {
 	if (argc < 3)
-	    Fatal((char *)"Not enough parameters");
+	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
     }
 
     if (do_attach || do_node || do_req || do_reset) {
 	if ((addr = parsefaddr(argv[2])) == NULL)
-	    Fatal((char *)"Unrecognizable address");
+	    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
     }
 
     if (do_node) {
 	rc = nlinfo(addr);
 	tidy_faddr(addr);
-	if (rc)
-	    rc += 100;
 	die(rc);
     }
 
@@ -277,15 +274,13 @@ int main(int argc, char *argv[])
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
-		    Fatal((char *)"Unrecognizable address");
+		    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
 		j = poll(addr, do_stop);
 		tidy_faddr(addr);
-		if (j > rc)
+		if (j)
 		    rc = j;
 	    }
 	}
-	if (rc)
-	    rc = 100;
 	die(rc);
     }
 
@@ -293,50 +288,48 @@ int main(int argc, char *argv[])
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
-		    Fatal((char *)"Unrecognizable address");
+		    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
 		j = reset(addr);
 		tidy_faddr(addr);
-		if (j > rc)
+		if (j)
 		    rc = j;
 	    }
 	}
-	if (rc)
-	    rc = 100;
 	die(rc);
     }
 
     if (do_attach) {
 	if (argc < 5)
-	    Fatal((char *)"Not enough parameters");
+	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
 	flavor = tolower(argv[3][0]);
 	switch (flavor) {
 	    case 'n' : 	flavor = 'f';	break;
 	    case 'i' :	flavor = 'i';	break;
 	    case 'c' :	flavor = 'c';	break;
 	    case 'h' :	flavor = 'h';	break;
-	    default  :	Fatal((char *)"Invalid flavor, must be: immediate, crash, normal or hold");
+	    default  :	Fatal((char *)"Invalid flavor, must be: immediate, crash, normal or hold", MBERR_COMMANDLINE);
 	}
 
 	nlent = getnlent(addr);
 	if (nlent->pflag == NL_DUMMY)
-	    Fatal((char *)"Node is not in nodelist");
+	    Fatal((char *)"Node is not in nodelist", MBERR_NODE_NOT_IN_LIST);
 	if (nlent->pflag == NL_DOWN)
-	    Fatal((char *)"Node has status Down");
+	    Fatal((char *)"Node has status Down", MBERR_NODE_MAY_NOT_CALL);
 	if (nlent->pflag == NL_HOLD)
-	    Fatal((char *)"Node has status Hold");
+	    Fatal((char *)"Node has status Hold", MBERR_NODE_MAY_NOT_CALL);
 	if (((nlent->oflags & OL_CM) == 0) && (flavor == 'c'))
-	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor");
+	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", MBERR_NODE_MAY_NOT_CALL);
 
 	if (argv[4][0] == '-')
-	    Fatal((char *)"Invalid filename given");
+	    Fatal((char *)"Invalid filename given", MBERR_COMMANDLINE);
 	if (file_exist(argv[4], R_OK) != 0)
-	    Fatal((char *)"File doesn't exist");
+	    Fatal((char *)"File doesn't exist", MBERR_COMMANDLINE);
 
 	cmd = calloc(PATH_MAX, sizeof(char));
 	sprintf(cmd, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, addr->zone, addr->net, addr->node, addr->point);
 	mkdirs(cmd, 0750);
 	if ((fl = fopen(cmd, "a+")) == NULL) {
-	    Fatal((char *)"File attach failed");
+	    Fatal((char *)"File attach failed", MBERR_ATTACH_FAILED);
 	} else {
 	    fprintf(fl, "%c LEAVE %s\n", flavor, argv[4]);
 	    Syslog('+', "File attach %s is successfull", argv[4]);
@@ -347,14 +340,14 @@ int main(int argc, char *argv[])
 	    fsync(fileno(fl));
 	    fclose(fl);
 	    free(cmd);
-	    die(0);
+	    die(MBERR_OK);
 	}
 	free(cmd);
     }
 
     if (do_req) {
 	if (argc < 4)
-	    Fatal((char *)"Not enough parameters");
+	    Fatal((char *)"Not enough parameters", MBERR_COMMANDLINE);
 	for (i = 4; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		rc = freq(addr, argv[i-1]);
@@ -362,8 +355,6 @@ int main(int argc, char *argv[])
 		    break;
 	    }
 	}
-	if (rc)
-	    rc += 100;
 	die(rc);
     }
 
@@ -371,7 +362,7 @@ int main(int argc, char *argv[])
 #ifdef MEMWATCH
     mwTerm();
 #endif
-    return 0;
+    return MBERR_OK;
 }
 
 

@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "libs.h"
 #include "memwatch.h"
+#include "mberrors.h"
 #include "clcomm.h"
 
 
@@ -106,7 +107,7 @@ void InitClient(char *user, char *myname, char *where, char *log, long loggr, ch
 		printf("Could not get the MBSE_ROOT environment variable\n");
 		printf("Please set the environment variable ie:\n");
 		printf("\"MBSE_ROOT=/opt/mbse; export MBSE_ROOT\"\n\n");
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 
 	sprintf(progname, "%s", myname);
@@ -125,7 +126,7 @@ void InitClient(char *user, char *myname, char *where, char *log, long loggr, ch
         mypid = getpid();
         if (socket_connect(user, myname, where) == -1) {
                 printf("PANIC: cannot access socket\n");
-                exit(1);
+                exit(MBERR_INIT_ERROR);
         }
 }
 

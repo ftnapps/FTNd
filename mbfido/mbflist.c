@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbflist.h"
 
@@ -69,7 +70,7 @@ void ListFileAreas(int Area)
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("Can't open %s", sAreas);
 	printf("Can't open %s\n", sAreas);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -83,7 +84,7 @@ void ListFileAreas(int Area)
 	if ((pTic = fopen(sTic, "r")) == NULL) {
 	    WriteError("Can't open %s", sTic);
 	    printf("Can't open %s\n", sTic);
-	    die(0);
+	    die(MBERR_GENERAL);
 	}
 	fread(&tichdr, sizeof(tichdr), 1, pTic);
 		
@@ -108,7 +109,7 @@ void ListFileAreas(int Area)
 		Syslog('!', "Creating new %s", fAreas);
 		if ((pFile = fopen(fAreas, "a+")) == NULL) {
 		    WriteError("$Can't create %s", fAreas);
-		    die(0);
+		    die(MBERR_GENERAL);
 		}
 	    }
 
@@ -204,7 +205,7 @@ void ListFileAreas(int Area)
 		Syslog('!', "Creating new %s", fAreas);
 		if ((pFile = fopen(fAreas, "a+")) == NULL) {
 		    WriteError("$Can't create %s", fAreas);
-		    die(0);
+		    die(MBERR_GENERAL);
 		}
 	    }
 

@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../lib/libs.h"
 #include "../lib/memwatch.h"
+#include "../lib/mberrors.h"
 #include <sys/un.h>
 #include "common.h"
 
@@ -43,30 +44,30 @@ static int      sock = -1;      	/* TCP/IP socket		*/
 int		ttyfd;			/* Filedescriptor for raw mode	*/
 struct termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
 
-struct sockaddr_un	clntaddr;	/* Client socket address	*/
-struct sockaddr_un	servaddr;	/* Server socket address	*/
-struct sockaddr_un	from;		/* From socket address		*/
-int			fromlen;
-static char		spath[108];	/* Server socket path		*/
-static char		cpath[108];	/* Client socket path		*/
+struct sockaddr_un  clntaddr;		/* Client socket address	*/
+struct sockaddr_un  servaddr;		/* Server socket address	*/
+struct sockaddr_un  from;		/* From socket address		*/
+int		    fromlen;
+static char	    spath[PATH_MAX];	/* Server socket path		*/
+static char	    cpath[PATH_MAX];	/* Client socket path		*/
 
 
 
 
 void InitClient(char *user)
 {
-	sprintf(cpath, "%s/tmp/mbmon%d", getenv("MBSE_ROOT"), getpid());
-	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+    sprintf(cpath, "%s/tmp/mbmon%d", getenv("MBSE_ROOT"), getpid());
+    sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
 
-	/*
-	 * Store my pid in case a child process is forked and wants to do
-	 * some communications with the mbsed server.
-	 */
-	mypid = getpid();
-	if (socket_connect(user) == -1) {
-		printf("PANIC: cannot access socket\n");
-		exit(1);
-	}
+    /*
+     * Store my pid in case a child process is forked and wants to do
+     * some communications with the mbsed server.
+     */
+    mypid = getpid();
+    if (socket_connect(user) == -1) {
+	printf("PANIC: cannot access socket\n");
+	exit(MBERR_INIT_ERROR);
+    }
 }
 
 
@@ -456,41 +457,31 @@ int rawset = FALSE;
  */
 void Setraw()
 {
-	int	rc;
+    int	rc;
 
-	if ((rc = tcgetattr(ttyfd, &tbufs))) {
-		perror("");
-		printf("$tcgetattr(0, save) return %d\n", rc);
-		exit(1);
-	}
+    if ((rc = tcgetattr(ttyfd, &tbufs))) {
+	perror("");
+	printf("$tcgetattr(0, save) return %d\n", rc);
+	exit(MBERR_TTYIO_ERROR);
+    }
 
-//	if (ioctl(ttyfd, TCGETA, &tbuf) == -1) {
-//		perror("TCGETA Failed");
-//		exit(1);  /* ERROR  - could not set get tty ioctl */
-//	}
+    tbufsavs = tbufs;
+    tbufs.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  );
+    /*
+     *  Map CRNL modes strip control characters and flow control
+     */
+    tbufs.c_oflag &= ~OPOST;		/* Don't do ouput character translation */
+    tbufs.c_lflag &= ~(ICANON | ECHO);  /* No canonical input and no echo */
+    tbufs.c_cc[VMIN]  = 1;  		/* Receive 1 character at a time */
+    tbufs.c_cc[VTIME] = 0;  		/* No time limit per character */
 
-	tbufsavs = tbufs;
-	tbufs.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  );
-	/*
-	 *  Map CRNL modes strip control characters and flow control
-	 */
-	tbufs.c_oflag &= ~OPOST;   	   /* Don't do ouput character translation */
-	tbufs.c_lflag &= ~(ICANON | ECHO);  /* No canonical input and no echo */
-	tbufs.c_cc[VMIN]  = 1;  		   /* Receive 1 character at a time */
-	tbufs.c_cc[VTIME] = 0;  		   /* No time limit per character */
+    if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
+	perror("");
+	printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
+	exit(MBERR_TTYIO_ERROR);
+    }
 
-	if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
-		perror("");
-		printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
-		exit(1);
-	}
-
-//	if (ioctl(ttyfd, TCSETAF, &tbuf) == -1) {
-//		perror("TCSETAF failed");
-//		exit(1);  /* ERROR - could not set tty ioctl */
-//	}
-
-	rawset = TRUE;
+    rawset = TRUE;
 }
 
 
@@ -500,23 +491,19 @@ void Setraw()
  */
 void Unsetraw()
 {
-	int	rc;
+    int	rc;
 
-	/*
-	 * Only unset the mode if it is set to raw mode
-	 */
-	if (rawset == TRUE) {
-//		if (ioctl(ttyfd, TCSETAF, &tbufsav) == -1) {
-//			perror("TCSETAF Normal Failed");
-//			exit(1);  /* ERROR  - could not save original tty ioctl */
-//		}
-		if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
-			perror("");
-			printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
-			exit(1);
-		}
+    /*
+     * Only unset the mode if it is set to raw mode
+     */
+    if (rawset == TRUE) {
+	if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
+	    perror("");
+	    printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
+	    exit(MBERR_TTYIO_ERROR);
 	}
-	rawset = FALSE;
+    }
+    rawset = FALSE;
 }
 
 

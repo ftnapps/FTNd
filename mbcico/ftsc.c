@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "session.h"
 #include "ttyio.h"
 #include "statetbl.h"
@@ -62,23 +63,26 @@ extern int		Loaded;
 
 int rx_ftsc(void)
 {
-	int	rc;
+    int	rc;
 
-	Syslog('+', "Start inbound FTS-0001 session");
-	IsDoing("FTS-0001 inbound");
+    Syslog('+', "Start inbound FTS-0001 session");
+    IsDoing("FTS-0001 inbound");
 
-	session_flags |= SESSION_BARK;
-	if ((rc = rxftsc())) {
-		WriteError("Session failed: rc=%d",rc);
-		PUTCHAR(CAN);
-		PUTCHAR(CAN);
-		PUTCHAR(CAN);
-	} else 
-		Syslog('+', "FTS-0001 session completed");
+    session_flags |= SESSION_BARK;
+    if ((rc = rxftsc())) {
+	WriteError("Session failed: rc=%d",rc);
+	PUTCHAR(CAN);
+	PUTCHAR(CAN);
+	PUTCHAR(CAN);
+    } else 
+	Syslog('+', "FTS-0001 session completed");
 
-	tidy_filelist(tosend, (rc == 0));
-	tosend = NULL;
-	return rc;
+    tidy_filelist(tosend, (rc == 0));
+    tosend = NULL;
+    if (rc)
+	return MBERR_FTSC;
+    else
+	return 0;
 }
 
 
@@ -86,22 +90,25 @@ int rx_ftsc(void)
 
 int tx_ftsc(void)
 {
-	int	rc;
+    int	rc;
 
-	Syslog('+', "Start outbound FTS-0001 session with %s", ascfnode(remote->addr,0x1f));
-	IsDoing("FTS-0001 to %s", ascfnode(remote->addr, 0x0f));
+    Syslog('+', "Start outbound FTS-0001 session with %s", ascfnode(remote->addr,0x1f));
+    IsDoing("FTS-0001 to %s", ascfnode(remote->addr, 0x0f));
 
-	if ((rc = txftsc())) {
-		WriteError("Session failed: rc=%d",rc);
-		PUTCHAR(CAN);
-		PUTCHAR(CAN);
-		PUTCHAR(CAN);
-	} else 
-		Syslog('+', "FTS-0001 session completed");
+    if ((rc = txftsc())) {
+	WriteError("Session failed: rc=%d",rc);
+	PUTCHAR(CAN);
+	PUTCHAR(CAN);
+	PUTCHAR(CAN);
+    } else 
+	Syslog('+', "FTS-0001 session completed");
 
-	tidy_filelist(tosend, (rc == 0));
-	tosend = NULL;
-	return rc;
+    tidy_filelist(tosend, (rc == 0));
+    tosend = NULL;
+    if (rc)
+	return MBERR_FTSC;
+    else
+	return 0;
 }
 
 

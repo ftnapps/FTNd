@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -130,7 +131,7 @@ static void die(int onsig)
 		WriteError("MBSETUP finished on signal %s", SigName[onsig]);
 	else
 		Syslog(' ', "MBSETUP finished");
-	ExitClient(0);
+	ExitClient(onsig);
 }
 
 
@@ -395,7 +396,7 @@ int main(int argc, char *argv[])
 	pw = getpwuid(geteuid());
 	if (strcmp(pw->pw_name, (char *)"mbse")) {
 	    printf("ERROR: only user \"mbse\" may use this program\n");
-	    exit(1);
+	    exit(MBERR_INIT_ERROR);
 	}
 
 #ifdef MEMWATCH
@@ -534,7 +535,7 @@ int main(int argc, char *argv[])
 	    } while (loop == 1);
 	}
 
-	die(0);
+	die(MBERR_OK);
 	return 0;
 }
 

@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/mberrors.h"
 #include "dispfile.h"
 #include "misc.h"
 #include "language.h"
@@ -95,7 +96,7 @@ void Good_Bye(int onsig)
 			offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
 			if(fseek(pUsrConfig, offset, 0) != 0) {
 				WriteError("Can't move pointer in file %s", temp);
-				ExitClient(1);
+				ExitClient(MBERR_GENERAL);
 			}
 
 			fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
@@ -160,7 +161,7 @@ void Quick_Bye(int onsig)
 #ifdef MEMWATCH
 	mwTerm();
 #endif
-	exit(0);
+	exit(MBERR_OK);
 }
 
 

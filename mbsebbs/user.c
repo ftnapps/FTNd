@@ -39,6 +39,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "timeout.h"
 #include "user.h"
 #include "dispfile.h"
@@ -195,7 +196,7 @@ void user()
 	     */
 	    WriteError("$Can't open %s", temp);
 	    printf("Can't open userfile, run \"newuser\" first");
-	    ExitClient(0);
+	    ExitClient(MBERR_OK);
 	}
 
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
@@ -215,7 +216,7 @@ void user()
 	    printf("%s\n", (char *) Language(390));
 	    Syslog('?', "FATAL: Could not find user in BBS users file.");
 	    Syslog('?', "       and system is using unix accounts\n");
-	    ExitClient(0);
+	    ExitClient(MBERR_OK);
 	}
 
 	/*
@@ -411,7 +412,7 @@ void user()
 	 * A copy of the userrecord is also in the variable exitinfo.
 	 */
 	if (! InitExitinfo())
-	    Good_Bye(1);
+	    Good_Bye(MBERR_INIT_ERROR);
 
 	GetLastUser();
 	StartTime = xstrcpy(GetLocalHM());

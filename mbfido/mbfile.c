@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfkill.h"
 #include "mbfadopt.h"
 #include "mbfindex.h"
@@ -74,191 +75,190 @@ time_t		t_end;			/* End time			    */
 
 int main(int argc, char **argv)
 {
-	int	i, Area = 0, ToArea = 0, UnDel = FALSE;
-	char	*cmd, *FileName = NULL, *Description = NULL;
-	struct	passwd *pw;
+    int	    i, Area = 0, ToArea = 0, UnDel = FALSE;
+    char    *cmd, *FileName = NULL, *Description = NULL;
+    struct  passwd *pw;
 
 #ifdef MEMWATCH
-	mwInit();
+    mwInit();
 #endif
-	InitConfig();
-	TermInit(1);
-	t_start = time(NULL);
-	umask(002);
+    InitConfig();
+    TermInit(1);
+    t_start = time(NULL);
+    umask(002);
 
-	/*
-	 * Catch all signals we can, and ignore the rest.
-	 */
-	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGKILL) ||
-		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
-	}
+    /*
+     * Catch all signals we can, and ignore the rest.
+     */
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGKILL) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, (void (*))die);
+	else
+	    signal(i, SIG_IGN);
+    }
 
-	if(argc < 2)
-		Help();
+    if(argc < 2)
+	Help();
 
-	cmd = xstrcpy((char *)"Command line: mbfile");
+    cmd = xstrcpy((char *)"Command line: mbfile");
 
-	for (i = 1; i < argc; i++) {
+    for (i = 1; i < argc; i++) {
 
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, argv[i]);
+
+	if (!strncasecmp(argv[i], "a", 1)) {
+	    do_adopt = TRUE;
+	    i++;
+	    Area = atoi(argv[i]);
+	    cmd = xstrcat(cmd, (char *)" ");
+	    cmd = xstrcat(cmd, argv[i]);
+	    i++;
+	    FileName = xstrcpy(argv[i]);
+	    cmd = xstrcat(cmd, (char *)" ");
+	    cmd = xstrcat(cmd, argv[i]);
+	    if (argc > (i + 1)) {
+		i++;
 		cmd = xstrcat(cmd, (char *)" ");
 		cmd = xstrcat(cmd, argv[i]);
-
-		if (!strncasecmp(argv[i], "a", 1)) {
-			do_adopt = TRUE;
-			i++;
-			Area = atoi(argv[i]);
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
+		if (!strncasecmp(argv[i], "-a", 2)) {
+		    do_annon = TRUE;
+		} else {
+		    Description = xstrcpy(argv[i]);
+		}
+	    }
+	} else if ((!strncasecmp(argv[i], "d", 1)) || (!strncasecmp(argv[i], "u", 1))) {
+	    if (!strncasecmp(argv[i], "u", 1))
+		UnDel = TRUE;
+	    if (argc > (i + 1)) {
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+		if (argc > (i + 1)) {
+		    i++;
+		    FileName = xstrcpy(argv[i]);
+		    cmd = xstrcat(cmd, (char *)" ");
+		    cmd = xstrcat(cmd, argv[i]);
+		    do_del = TRUE;
+		}
+	    }
+	} else if (!strncasecmp(argv[i], "in", 2)) {
+	    do_index = TRUE;
+	} else if (!strncasecmp(argv[i], "im", 2)) {
+	    if (argc > (i + 1)) {
+		do_import = TRUE;
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+	    }
+	} else if (!strncasecmp(argv[i], "l", 1)) {
+	    do_list  = TRUE;
+	    if (argc > (i + 1)) {
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+	    }
+	} else if (!strncasecmp(argv[i], "m", 1)) {
+	    if (argc > (i + 1)) {
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+		if (argc > (i + 1)) {
+		    i++;
+		    ToArea = atoi(argv[i]);
+		    cmd = xstrcat(cmd, (char *)" ");
+		    cmd = xstrcat(cmd, argv[i]);
+		    if (argc > (i + 1)) {
 			i++;
 			FileName = xstrcpy(argv[i]);
 			cmd = xstrcat(cmd, (char *)" ");
 			cmd = xstrcat(cmd, argv[i]);
-			if (argc > (i + 1)) {
-				i++;
-				cmd = xstrcat(cmd, (char *)" ");
-				cmd = xstrcat(cmd, argv[i]);
-				if (!strncasecmp(argv[i], "-a", 2)) {
-				    do_annon = TRUE;
-				} else {
-				    Description = xstrcpy(argv[i]);
-				}
-			}
-		} else if ((!strncasecmp(argv[i], "d", 1)) || (!strncasecmp(argv[i], "u", 1))) {
-		    if (!strncasecmp(argv[i], "u", 1))
-			UnDel = TRUE;
-		    if (argc > (i + 1)) {
-			i++;
-			Area = atoi(argv[i]);
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
-			if (argc > (i + 1)) {
-			    i++;
-			    FileName = xstrcpy(argv[i]);
-			    cmd = xstrcat(cmd, (char *)" ");
-			    cmd = xstrcat(cmd, argv[i]);
-			    do_del = TRUE;
-			}
+			do_move = TRUE;
 		    }
-		} else if (!strncasecmp(argv[i], "in", 2)) {
-			do_index = TRUE;
-		} else if (!strncasecmp(argv[i], "im", 2)) {
-		    if (argc > (i + 1)) {
-			do_import = TRUE;
-			i++;
-			Area = atoi(argv[i]);
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
-		    }
-		} else if (!strncasecmp(argv[i], "l", 1)) {
-			do_list  = TRUE;
-			if (argc > (i + 1)) {
-			    i++;
-			    Area = atoi(argv[i]);
-			    cmd = xstrcat(cmd, (char *)" ");
-			    cmd = xstrcat(cmd, argv[i]);
-			}
-		} else if (!strncasecmp(argv[i], "m", 1)) {
-		    if (argc > (i + 1)) {
-			i++;
-			Area = atoi(argv[i]);
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
-			if (argc > (i + 1)) {
-			    i++;
-			    ToArea = atoi(argv[i]);
-			    cmd = xstrcat(cmd, (char *)" ");
-			    cmd = xstrcat(cmd, argv[i]);
-			    if (argc > (i + 1)) {
-				i++;
-				FileName = xstrcpy(argv[i]);
-				cmd = xstrcat(cmd, (char *)" ");
-				cmd = xstrcat(cmd, argv[i]);
-				do_move = TRUE;
-			    }
-			}
-		    }
-		} else if (!strncasecmp(argv[i], "p", 1)) {
-			do_pack = TRUE;
-		} else if (!strncasecmp(argv[i], "c", 1)) {
-			do_check = TRUE;
-		} else if (!strncasecmp(argv[i], "k", 1)) {
-			do_kill = TRUE;
-		} else if (!strncasecmp(argv[i], "t", 1)) {
-			do_tobe = TRUE;
-		} else if (!strncasecmp(argv[i], "-q", 2)) {
-			do_quiet = TRUE;
-		} else if (!strncasecmp(argv[i], "-a", 2)) {
-			do_annon = TRUE;
-		} else if (!strncasecmp(argv[i], "-v", 2)) {
-			do_novir = TRUE;
 		}
+	    }
+	} else if (!strncasecmp(argv[i], "p", 1)) {
+	    do_pack = TRUE;
+	} else if (!strncasecmp(argv[i], "c", 1)) {
+	    do_check = TRUE;
+	} else if (!strncasecmp(argv[i], "k", 1)) {
+	    do_kill = TRUE;
+	} else if (!strncasecmp(argv[i], "t", 1)) {
+	    do_tobe = TRUE;
+	} else if (!strncasecmp(argv[i], "-q", 2)) {
+	    do_quiet = TRUE;
+	} else if (!strncasecmp(argv[i], "-a", 2)) {
+	    do_annon = TRUE;
+	} else if (!strncasecmp(argv[i], "-v", 2)) {
+	    do_novir = TRUE;
 	}
+    }
 
-	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_del || do_move || do_tobe))
-		Help();
+    if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_del || do_move || do_tobe))
+	Help();
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbfile", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbfile", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBFILE v%s", VERSION);
-	Syslog(' ', cmd);
-	if (do_novir)
-	    Syslog('!', "WARNING: running without virus checking");
-	free(cmd);
+    Syslog(' ', " ");
+    Syslog(' ', "MBFILE v%s", VERSION);
+    Syslog(' ', cmd);
+    if (do_novir)
+	Syslog('!', "WARNING: running without virus checking");
+    free(cmd);
 
-	if (!do_quiet)
-	    printf("\n");
+    if (!do_quiet)
+	printf("\n");
 
-	if (!diskfree(CFG.freespace))
-	    die(101);
+    if (!diskfree(CFG.freespace))
+	die(MBERR_DISK_FULL);
 
-	if (do_adopt) {
-	    AdoptFile(Area, FileName, Description);
-	    die(0);
-	}
+    if (do_adopt) {
+	AdoptFile(Area, FileName, Description);
+	die(MBERR_OK);
+    }
 
-	if (do_import) {
-	    ImportFiles(Area);
-	    die(0);
-	}
+    if (do_import) {
+	ImportFiles(Area);
+	die(MBERR_OK);
+    }
 
-	if (do_kill)
-		Kill();
+    if (do_kill)
+	Kill();
 
-	if (do_check)
-		Check();
+    if (do_check)
+	Check();
 
-	if (do_pack)
-		PackFileBase();
+    if (do_pack)
+	PackFileBase();
 
-	if (do_index)
-		Index();
+    if (do_index)
+	Index();
 
-	if (do_move) {
-	    Move(Area, ToArea, FileName);
-	    die(0);
-	}
+    if (do_move) {
+	Move(Area, ToArea, FileName);
+	die(MBERR_OK);
+    }
 
-	if (do_del) {
-	    Delete(UnDel, Area, FileName);
-	    die(0);
-	}
+    if (do_del) {
+	Delete(UnDel, Area, FileName);
+	die(MBERR_OK);
+    }
 
-	if (do_list) {
-	    ListFileAreas(Area);
-	    die(0);
-	}
+    if (do_list) {
+	ListFileAreas(Area);
+	die(MBERR_OK);
+    }
 
-	if (do_tobe)
-		ToBeRep();
-	die(0);
-	return 0;
+    if (do_tobe)
+	ToBeRep();
+    die(MBERR_OK);
+    return 0;
 }
 
 

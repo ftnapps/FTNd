@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -69,7 +70,7 @@ void config_check(char *path)
 	if (some_fd == -1) {
 		perror("");
 		fprintf(stderr, "Fatal, %s/etc/config.data not found, is mbtask running?\n", path);
-		exit(1);
+		exit(MBERR_CONFIG_ERROR);
 	}
 	close(some_fd); 
 }

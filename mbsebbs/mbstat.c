@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbstat.h"
 
 
@@ -63,7 +64,7 @@ void Help(void)
 	colour(3, 0);
 	printf("	-q -quiet	Quiet, no screen output\n");
 	colour(7, 0);
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 
@@ -123,9 +124,7 @@ int main(int argc, char **argv)
 	 * Catch or ignore signals
 	 */
 	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) ||
-		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) ||
-		    (i == SIGKILL))
+		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 			signal(i, (void (*))die);
 		else
 			signal(i, SIG_IGN);
@@ -191,7 +190,7 @@ int main(int argc, char **argv)
 		Help();
 
 	usleep(1);
-	die(0);
+	die(MBERR_OK);
 	return 0;
 }
 

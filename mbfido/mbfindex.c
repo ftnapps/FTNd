@@ -38,6 +38,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
 #include "../lib/diesel.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfindex.h"
 
@@ -364,13 +365,13 @@ void Index(void)
     sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
 
     sprintf(sIndex, "%s/etc/request.index", getenv("MBSE_ROOT"));
     if ((pIndex = fopen(sIndex, "w")) == NULL) {
 	WriteError("$Can't create %s", sIndex);
-	die(0);
+	die(MBERR_GENERAL);
     }
 
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -422,7 +423,7 @@ void Index(void)
 	if (area.Available) {
 
 	    if (!diskfree(CFG.freespace))
-		die(101);
+		die(MBERR_DISK_FULL);
 
 	    if (!do_quiet) {
 		printf("\r%4ld => %-44s    \b\b\b\b", i, area.Name);
@@ -452,7 +453,7 @@ void Index(void)
 		Syslog('!', "Creating new %s", fAreas);
 		if ((pFile = fopen(fAreas, "a+")) == NULL) {
 		    WriteError("$Can't create %s", fAreas);
-		    die(0);
+		    die(MBERR_GENERAL);
 		}
 	    } 
 

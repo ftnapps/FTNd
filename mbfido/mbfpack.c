@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfpack.h"
 
@@ -71,7 +72,7 @@ void PackFileBase(void)
 
 	if ((pAreas = fopen (sAreas, "r")) == NULL) {
 		WriteError("Can't open %s", sAreas);
-		die(0);
+		die(MBERR_INIT_ERROR);
 	}
 
 	fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -86,7 +87,7 @@ void PackFileBase(void)
 		if (area.Available && !area.CDrom) {
 
 			if (!diskfree(CFG.freespace))
-				die(101);
+				die(MBERR_DISK_FULL);
 
 			if (!do_quiet) {
 				printf("\r%4d => %-44s", i, area.Name);
@@ -101,13 +102,13 @@ void PackFileBase(void)
 				Syslog('!', "Creating new %s", fAreas);
 				if ((pFile = fopen(fAreas, "a+")) == NULL) {
 					WriteError("$Can't create %s", fAreas);
-					die(0);
+					die(MBERR_GENERAL);
 				}
 			} 
 
 			if ((fp = fopen(fTmp, "a+")) == NULL) {
 				WriteError("$Can't create %s", fTmp);
-				die(0);
+				die(MBERR_GENERAL);
 			}
 
 			while (fread(&file, sizeof(file), 1, pFile) == 1) {

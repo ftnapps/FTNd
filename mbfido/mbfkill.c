@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfkill.h"
 #include "mbfutil.h"
 
@@ -79,7 +80,7 @@ void Kill(void)
 
 	if ((pAreas = fopen (sAreas, "r")) == NULL) {
 		WriteError("Can't open %s", sAreas);
-		die(0);
+		die(MBERR_INIT_ERROR);
 	}
 
 	fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -95,7 +96,7 @@ void Kill(void)
 		if ((area.Available) && (area.DLdays || area.FDdays) && (!area.CDrom)) {
 
 			if (!diskfree(CFG.freespace))
-				die(101);
+				die(MBERR_DISK_FULL);
 
 			if (!do_quiet) {
 				printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
@@ -125,7 +126,7 @@ void Kill(void)
 				Syslog('!', "Creating new %s", fAreas);
 				if ((pFile = fopen(fAreas, "a+")) == NULL) {
 					WriteError("$Can't create %s", fAreas);
-					die(0);
+					die(MBERR_GENERAL);
 				}
 			} 
 

@@ -139,7 +139,7 @@ addbbs.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/us
 backalias.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h backalias.h
 flock.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h flock.h
 hatch.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbtic.h utic.h rollover.h hatch.h
-mbdiff.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbdiff.h
+mbdiff.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbdiff.h
 mgrutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/diesel.h sendmail.h rollover.h addpkt.h createm.h createf.h mgrutil.h
 ptic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbtic.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbdupe.h unpack.h mover.h toberep.h tic.h utic.h addbbs.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h
 sendmail.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbnode.h ../lib/clcomm.h ../lib/dbmsgs.h addpkt.h rollover.h sendmail.h
@@ -148,7 +148,7 @@ addpkt.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/us
 bwrite.o: ../config.h ../lib/libs.h ../lib/memwatch.h bwrite.h
 forward.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbtic.h ../lib/diesel.h tic.h sendmail.h rollover.h mgrutil.h forward.h
 lhash.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h lhash.h
-mbfido.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbdupe.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbuser.h ../lib/dbftn.h ../lib/dbtic.h ../lib/msg.h flock.h tosspkt.h unpack.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h dirsession.h dirlock.h queue.h
+mbfido.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbdupe.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbuser.h ../lib/dbftn.h ../lib/dbtic.h ../lib/msg.h ../lib/mberrors.h flock.h tosspkt.h unpack.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h dirsession.h dirlock.h queue.h
 mkftnhdr.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h atoul.h hash.h msgflags.h aliasdb.h mkftnhdr.h
 ping.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h sendmail.h postnetmail.h ping.h
 rfc2ftn.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h postnetmail.h postecho.h msgflags.h rfc2ftn.h
@@ -157,17 +157,17 @@ unpack.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/us
 aliasdb.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h aliasdb.h
 fsort.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h fsort.h
 magic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbtic.h tic.h utic.h magic.h
-mbfile.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfkill.h mbfadopt.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfimport.h mbftoberep.h mbfmove.h mbfdel.h mbfutil.h mbfile.h
+mbfile.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfkill.h mbfadopt.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfimport.h mbftoberep.h mbfmove.h mbfdel.h mbfutil.h mbfile.h
 mover.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h mover.h
 post.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h post.h
-rnews.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h rfc2ftn.h mbfido.h ../paths.h rnews.h
+rnews.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h ../lib/mberrors.h rfc2ftn.h mbfido.h ../paths.h rnews.h
 storenet.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbmsgs.h ../lib/dbuser.h msgflags.h rollover.h storenet.h
 utic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h mover.h tic.h utic.h
 announce.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h announce.h
 fflist.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h ../lib/msg.h fflist.h
 ftn2rfc.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbftn.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h rollover.h aliasdb.h postemail.h backalias.h msgflags.h ftn2rfc.h
 makestat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/diesel.h ../lib/msg.h mgrutil.h makestat.h
-mbindex.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbftn.h mbindex.h
+mbindex.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbftn.h ../lib/mberrors.h mbindex.h
 msgutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h
 postecho.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h
 rollover.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h rollover.h
@@ -176,7 +176,7 @@ areamgr.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/u
 filefind.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h fflist.h filefind.h msgutil.h
 grlist.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h grlist.h
 maketags.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h maketags.h
-mbmsg.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/dbcfg.h post.h mbmsg.h
+mbmsg.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/dbcfg.h ../lib/mberrors.h post.h mbmsg.h
 newspost.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h newspost.h
 postemail.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h postemail.h
 scan.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msg.h ../lib/clcomm.h ../lib/msgtext.h ../lib/dbnode.h ../lib/dbmsgs.h addpkt.h tracker.h ftn2rfc.h rfc2ftn.h postemail.h scan.h
@@ -184,24 +184,24 @@ toberep.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/u
 atoul.o: ../config.h ../lib/libs.h ../lib/memwatch.h atoul.h
 filemgr.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ../lib/diesel.h sendmail.h mgrutil.h createf.h filemgr.h
 hash.o: ../config.h ../lib/libs.h ../lib/memwatch.h hash.h lhash.h
-mbaff.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h announce.h filefind.h mbaff.h
+mbaff.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/mberrors.h announce.h filefind.h mbaff.h
 mbseq.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbseq.h
 notify.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbnode.h filemgr.h areamgr.h sendmail.h mgrutil.h notify.h
 postnetmail.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/common.h ../lib/records.h ../lib/dbcfg.h ../lib/dbuser.h ../lib/dbnode.h ../lib/dbftn.h ../lib/clcomm.h tracker.h addpkt.h storenet.h ftn2rfc.h areamgr.h filemgr.h ping.h bounce.h postemail.h
 scannews.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h storeecho.h rfc2ftn.h scannews.h
 tosspkt.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h tosspkt.h postnetmail.h postecho.h rollover.h createm.h
-mbfkill.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfkill.h mbfutil.h
-mbfutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfile.h
-mbfindex.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/diesel.h mbfutil.h mbfindex.h
-mbfcheck.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfcheck.h
-mbfpack.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfpack.h
-mbflist.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbflist.h
-mbfadopt.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h virscan.h mbfutil.h mbflist.h
-mbfimport.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h virscan.h mbfutil.h mbfimport.h
+mbfkill.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfkill.h mbfutil.h
+mbfutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbfile.h
+mbfindex.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/diesel.h ../lib/mberrors.h mbfutil.h mbfindex.h
+mbfcheck.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbfcheck.h
+mbfpack.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbfpack.h
+mbflist.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbflist.h
+mbfadopt.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h virscan.h mbfutil.h mbflist.h
+mbfimport.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h virscan.h mbfutil.h mbfimport.h
 virscan.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h virscan.h
 mbftoberep.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbftoberep.h
-mbfmove.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfmove.h
-mbfdel.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfmove.h
+mbfmove.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbfmove.h
+mbfdel.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfutil.h mbfmove.h
 bounce.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h sendmail.h postnetmail.h ping.h
 createm.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h mgrutil.h createm.h
 createf.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mgrutil.h createf.h

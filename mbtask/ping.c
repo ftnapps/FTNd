@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "libs.h"
 #include "../lib/structs.h"
+#include "../lib/mberrors.h"
 #include "taskstat.h"
 #include "taskutil.h"
 #include "ping.h"
@@ -432,7 +433,7 @@ void init_pingsocket(void)
 	} else {
 	    fprintf(stderr, "socket init failed\n");
 	}
-	exit(1);
+	exit(MBERR_INIT_ERROR);
     }
 
     /*
@@ -440,7 +441,7 @@ void init_pingsocket(void)
      * It would be nice to issue an error message, but to where? 
      */
     if (ping_isocket == STDIN_FILENO || ping_isocket == STDOUT_FILENO || ping_isocket == STDERR_FILENO) {
-	exit(255);
+	exit(MBERR_GENERAL);
     }
 }
 

@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../lib/libs.h"
 #include "../lib/memwatch.h"
+#include "../lib/mberrors.h"
 #include "common.h"
 #include "mutil.h"
 
@@ -44,8 +45,8 @@ unsigned char readkey(int y, int x, int fg, int bg)
 	unsigned char 	ch = 0;
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 9");
-		exit(1);
+		perror("open /dev/tty");
+		exit(MBERR_TTYIO_ERROR);
 	}
 	Setraw();
 
@@ -87,8 +88,8 @@ unsigned char testkey(int y, int x)
 	fflush(stdout);
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 9");
-		exit(1);
+		perror("open /dev/tty");
+		exit(MBERR_TTYIO_ERROR);
 	}
 	Setraw();
 

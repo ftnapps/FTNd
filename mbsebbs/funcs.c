@@ -39,6 +39,7 @@
 #include "../lib/msgtext.h"
 #include "../lib/msg.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "funcs.h"
 
 
@@ -197,7 +198,7 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	if ((access(CFG.bbs_usersdir, R_OK)) != 0) {
 		WriteError("$FATAL: Access to %s failed", CFG.bbs_usersdir);
 		free(temp);
-		ExitClient(1);
+		ExitClient(MBERR_INIT_ERROR);
 	}
 
 	sprintf(temp1, "%s/%s", CFG.bbs_usersdir, Name);
@@ -208,7 +209,7 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	if ((access(temp1, R_OK)) != 0) {
 		WriteError("$FATAL: Users homedir %s doesn't exist", temp1);
 		free(temp);
-		ExitClient(1);
+		ExitClient(MBERR_INIT_ERROR);
 	}
 
 	/*
@@ -217,7 +218,7 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	if (chdir(temp1) != 0) {
 		WriteError("$FATAL: Can't change to users home dir, aborting: %s", temp1);
 		free(temp);
-		ExitClient(1);
+		ExitClient(MBERR_INIT_ERROR);
 	}
 	setenv("HOME", temp1, 1);
 
@@ -319,7 +320,7 @@ void FindMBSE()
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 	sprintf(FileName, "%s/etc/config.data", getenv("MBSE_ROOT"));
 
@@ -331,7 +332,7 @@ void FindMBSE()
 #ifdef MEMWATCH
                 mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_CONFIG_ERROR);
 	}
 
 	fread(&CFG, sizeof(CFG), 1, pDataFile);

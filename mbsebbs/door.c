@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "input.h"
 #include "timeout.h"
 #include "exitinfo.h"
@@ -263,7 +264,7 @@ int exec_nosuid(char *mandato)
 	argv[2] = mandato;
 	argv[3] = 0;
 	execve("/bin/sh", argv, environ);
-	exit(127);
+	exit(MBERR_EXEC_FAILED);
     }
     e_pid = pid;
 

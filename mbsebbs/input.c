@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/mberrors.h"
 #include "input.h"
 #include "timeout.h"
 #include "language.h"
@@ -497,7 +498,7 @@ void Getpass(char *theword)
          */
         if ((ttyfd = open ("/dev/tty", O_RDWR)) < 0) {
                 perror("open 7");
-                ExitClient(1);
+                ExitClient(MBERR_TTYIO_ERROR);
         }
 
         /* Set Raw mode so that the characters don't echo */

@@ -45,6 +45,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "../lib/dbnode.h"
+#include "../lib/mberrors.h"
 #include "statetbl.h"
 #include "ttyio.h"
 #include "session.h"
@@ -121,165 +122,166 @@ Hello gethello2(unsigned char[]);
 
 int rx_yoohoo(void)
 {
-	int		rc;
-	unsigned short	capabilities,localcaps;
-	char		*pwd = NULL;
+    int		    rc;
+    unsigned short  capabilities,localcaps;
+    char	    *pwd = NULL;
 
-	Syslog('+', "Start inbound YooHoo session");
+    Syslog('+', "Start inbound YooHoo session");
 
-	pwd = NULL;
-	localcaps = LOCALCAPS;
-	if (localoptions & NOZMODEM) localcaps &= ~(ZED_ZAPPER|ZED_ZIPPER);
-	if (localoptions & NOZEDZAP) localcaps &= ~ZED_ZAPPER;
-	if (localoptions & NOHYDRA)  localcaps &= ~DOES_HYDRA;
-	emsi_local_opts = 0;
-	emsi_remote_opts = 0;
-	iscaller = 0;
+    pwd = NULL;
+    localcaps = LOCALCAPS;
+    if (localoptions & NOZMODEM) localcaps &= ~(ZED_ZAPPER|ZED_ZIPPER);
+    if (localoptions & NOZEDZAP) localcaps &= ~ZED_ZAPPER;
+    if (localoptions & NOHYDRA)  localcaps &= ~DOES_HYDRA;
+    emsi_local_opts = 0;
+    emsi_remote_opts = 0;
+    iscaller = 0;
 
-	if ((rc = rxyoohoo()) == 0) {
-		Loaded = checkhello();
-		capabilities = hello2.capabilities;
-		if (capabilities & WZ_FREQ) 
-			session_flags |= SESSION_WAZOO;
-		else 
-			session_flags &= ~SESSION_WAZOO;
-		localcaps &= capabilities;
-		if (localcaps & DOES_HYDRA) 
-			localcaps &= DOES_HYDRA;
-		else if (localcaps & ZED_ZAPPER) 
-			localcaps &= ZED_ZAPPER;
-		else if (localcaps & ZED_ZIPPER) 
-			localcaps &= ZED_ZIPPER;
-		else if (localcaps & FTB_USER)   
-			localcaps &= FTB_USER;
-		else if (localcaps & Y_DIETIFNA) 
-			localcaps &= Y_DIETIFNA;
-		if ((localoptions & NOFREQS) == 0) 
-			localcaps |= WZ_FREQ;
-		else 
-			emsi_local_opts |= OPT_NRQ;
-
-		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
-			Syslog('+', "Remote is a listed system");
-			if (inbound)
-				free(inbound);
-			inbound = xstrcpy(CFG.inbound);
-			strncpy(history.location, nlent->location, 35);
-		}
-		if (nlent) 
-			rdoptions(Loaded);
-
-		if (strlen(nodes.Spasswd)) {
-			if ((strncasecmp((char*)hello2.my_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
-			    (strlen((char*)hello2.my_password) == strlen(nodes.Spasswd))) {
-				Syslog('+', "Password correct, protected mail session");
-				if (inbound)
-					free(inbound);
-				inbound = xstrcpy(CFG.pinbound);
-				pwd = xstrcpy(nodes.Spasswd);
-			} else {
-				pwd = (char *)"BAD_PASS";
-				Syslog('?', "Remote password \"%s\", expected \"%s\"", (char*)hello2.my_password, nodes.Spasswd);
-				localcaps = 0;
-			}
-		} else
-			Syslog('s', "No YooHoo password check");
-		fillhello(localcaps,pwd);
-
-		rc = txyoohoo();
-		if (pwd)
-			free(pwd);
-	}
-
-	if ((rc == 0) && ((localcaps & LOCALCAPS) == 0)) {
-		Syslog('+', "No common protocols or bad password");
-		return 0;
-	}
-	if (rc) 
-		return rc;
-
-	IsDoing("Inbound %s", ascfnode(remote->addr, 0x0f));
-
-	session_flags |= SESSION_WAZOO;
-	if (localcaps & DOES_HYDRA) 
-		return hydra(0);
-	else if ((localcaps & ZED_ZAPPER) || (localcaps & ZED_ZIPPER)) {
-		if (localcaps & ZED_ZAPPER) 
-			emsi_local_protos = PROT_ZAP;
-		else 
-			emsi_local_protos = PROT_ZMO;
-		return rxwazoo();
-	} else if (localcaps & Y_DIETIFNA) 
-		return rxdietifna();
+    if ((rc = rxyoohoo()) == 0) {
+	Loaded = checkhello();
+	capabilities = hello2.capabilities;
+	if (capabilities & WZ_FREQ) 
+	    session_flags |= SESSION_WAZOO;
 	else 
-		WriteError("YooHoo internal error - no proto for 0x%04xh",localcaps);
-	return 1;
+	    session_flags &= ~SESSION_WAZOO;
+	localcaps &= capabilities;
+	if (localcaps & DOES_HYDRA) 
+	    localcaps &= DOES_HYDRA;
+	else if (localcaps & ZED_ZAPPER) 
+	    localcaps &= ZED_ZAPPER;
+	else if (localcaps & ZED_ZIPPER) 
+	    localcaps &= ZED_ZIPPER;
+	else if (localcaps & FTB_USER)   
+	    localcaps &= FTB_USER;
+	else if (localcaps & Y_DIETIFNA) 
+	    localcaps &= Y_DIETIFNA;
+	if ((localoptions & NOFREQS) == 0) 
+	    localcaps |= WZ_FREQ;
+	else 
+	    emsi_local_opts |= OPT_NRQ;
+
+	if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
+	    Syslog('+', "Remote is a listed system");
+	    if (inbound)
+		free(inbound);
+	    inbound = xstrcpy(CFG.inbound);
+	    strncpy(history.location, nlent->location, 35);
+	}
+	if (nlent) 
+	    rdoptions(Loaded);
+
+	if (strlen(nodes.Spasswd)) {
+	    if ((strncasecmp((char*)hello2.my_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
+		(strlen((char*)hello2.my_password) == strlen(nodes.Spasswd))) {
+		Syslog('+', "Password correct, protected mail session");
+		if (inbound)
+		    free(inbound);
+		inbound = xstrcpy(CFG.pinbound);
+		pwd = xstrcpy(nodes.Spasswd);
+	    } else {
+		pwd = (char *)"BAD_PASS";
+		Syslog('?', "Remote password \"%s\", expected \"%s\"", (char*)hello2.my_password, nodes.Spasswd);
+		localcaps = 0;
+	    }
+	} else
+	    Syslog('s', "No YooHoo password check");
+	
+	fillhello(localcaps,pwd);
+
+	rc = txyoohoo();
+	if (pwd)
+	    free(pwd);
+    }
+
+    if ((rc == 0) && ((localcaps & LOCALCAPS) == 0)) {
+	Syslog('+', "No common protocols or bad password");
+	return 0;
+    }
+    if (rc) 
+	return MBERR_YOOHOO;
+
+    IsDoing("Inbound %s", ascfnode(remote->addr, 0x0f));
+
+    session_flags |= SESSION_WAZOO;
+    if (localcaps & DOES_HYDRA) 
+	return hydra(0);
+    else if ((localcaps & ZED_ZAPPER) || (localcaps & ZED_ZIPPER)) {
+	if (localcaps & ZED_ZAPPER) 
+	    emsi_local_protos = PROT_ZAP;
+	else 
+	    emsi_local_protos = PROT_ZMO;
+	return rxwazoo();
+    } else if (localcaps & Y_DIETIFNA) 
+	return rxdietifna();
+	
+    WriteError("YooHoo internal error - no proto for 0x%04xh",localcaps);
+    return MBERR_YOOHOO;
 }
 
 
 
 int tx_yoohoo(void)
 {
-	int		rc;
-	unsigned short	capabilities;
-	char		*pwd;
+    int		    rc;
+    unsigned short  capabilities;
+    char	    *pwd;
 
-	Syslog('+', "Start outbound YooHoo session");
+    Syslog('+', "Start outbound YooHoo session");
 
-	if (strlen(nodes.Spasswd))
-		pwd = xstrcpy(nodes.Spasswd);
-	else
-		pwd = NULL;
+    if (strlen(nodes.Spasswd))
+	pwd = xstrcpy(nodes.Spasswd);
+    else
+	pwd = NULL;
 
-	capabilities = LOCALCAPS;
-	if (localoptions & NOZMODEM) 
-		capabilities &= ~(ZED_ZAPPER|ZED_ZIPPER);
-	if (localoptions & NOZEDZAP) 
-		capabilities &= ~ZED_ZAPPER;
-	if (localoptions & NOHYDRA) 
-		capabilities &= ~DOES_HYDRA;
-	if ((localoptions & NOFREQS) == 0) 
-		capabilities |= WZ_FREQ;
+    capabilities = LOCALCAPS;
+    if (localoptions & NOZMODEM) 
+	capabilities &= ~(ZED_ZAPPER|ZED_ZIPPER);
+    if (localoptions & NOZEDZAP) 
+	capabilities &= ~ZED_ZAPPER;
+    if (localoptions & NOHYDRA) 
+	capabilities &= ~DOES_HYDRA;
+    if ((localoptions & NOFREQS) == 0) 
+	capabilities |= WZ_FREQ;
+    else 
+	emsi_local_opts |= OPT_NRQ;
+
+    fillhello(capabilities,pwd);
+    iscaller=1;
+
+    if ((rc = txyoohoo()) == 0) {
+	rc = rxyoohoo();
+	checkhello();
+	capabilities = hello2.capabilities;
+	if (capabilities & WZ_FREQ) 
+	    session_flags |= SESSION_WAZOO;
 	else 
-		emsi_local_opts |= OPT_NRQ;
+	    session_flags &= ~SESSION_WAZOO;
+    }
 
-	fillhello(capabilities,pwd);
-	iscaller=1;
+    if ((rc == 0) && ((capabilities & LOCALCAPS) == 0)) {
+	Syslog('+', "No common protocols");
+	return 0;
+    }
 
-	if ((rc = txyoohoo()) == 0) {
-		rc = rxyoohoo();
-		checkhello();
-		capabilities = hello2.capabilities;
-		if (capabilities & WZ_FREQ) 
-			session_flags |= SESSION_WAZOO;
-		else 
-			session_flags &= ~SESSION_WAZOO;
-	}
+    if (rc) 
+	return MBERR_YOOHOO;
 
-	if ((rc == 0) && ((capabilities & LOCALCAPS) == 0)) {
-		Syslog('+', "No common protocols");
-		return 0;
-	}
+    IsDoing("Outbound %s", ascfnode(remote->addr, 0x0f));
 
-	if (rc) 
-		return rc;
-
-	IsDoing("Outbound %s", ascfnode(remote->addr, 0x0f));
-
-	session_flags |= SESSION_WAZOO;
-	if (capabilities & DOES_HYDRA) 
-		return hydra(1);
-	else if ((capabilities & ZED_ZAPPER) || (capabilities & ZED_ZIPPER)) {
-		if (capabilities & ZED_ZAPPER) 
-			emsi_local_protos = PROT_ZAP;
-		else 
-			emsi_local_protos = PROT_ZMO;
-		return txwazoo();
-	} else if (capabilities & Y_DIETIFNA) 
-		return txdietifna();
+    session_flags |= SESSION_WAZOO;
+    if (capabilities & DOES_HYDRA) 
+	return hydra(1);
+    else if ((capabilities & ZED_ZAPPER) || (capabilities & ZED_ZIPPER)) {
+	if (capabilities & ZED_ZAPPER) 
+	    emsi_local_protos = PROT_ZAP;
 	else 
-		WriteError("YooHoo internal error - no proto for 0x%04xh",capabilities);
-	return 1;
+	    emsi_local_protos = PROT_ZMO;
+	return txwazoo();
+    } else if (capabilities & Y_DIETIFNA) 
+	return txdietifna();
+		
+    WriteError("YooHoo internal error - no proto for 0x%04xh",capabilities);
+    return MBERR_YOOHOO;
 }
 
 

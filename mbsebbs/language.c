@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "input.h"
 #include "language.h"
 
@@ -132,7 +133,7 @@ void InitLanguage()
 	sprintf(temp, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
 	if ((pLang = fopen(temp, "rb")) == NULL) {
 		WriteError("$FATAL: Can't open %s", temp);
-		ExitClient(1);
+		ExitClient(MBERR_INIT_ERROR);
 	}
 
 	while (fread(&ldata, sizeof(ldata), 1, pLang) == 1) {
@@ -144,7 +145,7 @@ void InitLanguage()
 
 		if(iLang >= LANG) {
 			printf("FATAL: Language file has to many lines in it");
-			ExitClient(1);
+			ExitClient(MBERR_INIT_ERROR);
 		}
 	}
 

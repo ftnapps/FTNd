@@ -45,6 +45,7 @@
 #include "../lib/dbftn.h"
 #include "../lib/dbtic.h"
 #include "../lib/msg.h"
+#include "../lib/mberrors.h"
 #include "flock.h"
 #include "tosspkt.h"
 #include "unpack.h"
@@ -147,7 +148,7 @@ void Help(void)
     printf("	-uns -unsecure			Toss unsecure\n");
     printf("	-unp -unprotect			Toss unprotected inbound\n");
     colour(LIGHTGRAY, BLACK);
-    ExitClient(0);
+    ExitClient(MBERR_COMMANDLINE);
 }
 
 
@@ -189,7 +190,7 @@ void die(int onsig)
 	system("stty sane");
     }
 
-    if (onsig != 110)
+    if (onsig != MBERR_NO_PROGLOCK)
 	CloseDupes();
 
     /*
@@ -244,7 +245,7 @@ void die(int onsig)
      * and there should be no lock. We prevent removing the lock of another
      * mbfido this way.
      */
-    if (onsig != 110) {
+    if (onsig != MBERR_NO_PROGLOCK) {
 	ulockdir(CFG.inbound);
 	ulockdir(CFG.pinbound);
 	ulockdir(CFG.out_queue);
@@ -433,10 +434,10 @@ int main(int argc, char **argv)
     free(cmd);
 
     /*
-     * Not yet locked, if anything goes wrong, exit with die(110)
+     * Not yet locked, if anything goes wrong, exit with die(MBERR_NO_PROGLOCK)
      */
     if (!diskfree(CFG.freespace))
-	die(110);
+	die(MBERR_DISK_FULL);
 
     if (do_mail) {
 	/*
@@ -458,7 +459,7 @@ int main(int argc, char **argv)
 	    i--;
 	    if (! i) {
 		WriteError("Lock timeout, aborting");
-		die(110);
+		die(MBERR_NO_PROGLOCK);
 	    }
 	    sleep(20);
 	    Nopper();
@@ -470,10 +471,10 @@ int main(int argc, char **argv)
 	 */
 	if (do_unprot) {
 	    if (! lockdir(CFG.inbound))
-		die(110);
+		die(MBERR_NO_PROGLOCK);
 	} else {
 	    if (! lockdir(CFG.pinbound))
-		die(110);
+		die(MBERR_NO_PROGLOCK);
 	}
     }
 
@@ -482,7 +483,7 @@ int main(int argc, char **argv)
      */
 
     if (initnl())
-	die(101);
+	die(MBERR_INIT_ERROR);
     if (!do_mail && !do_uucp)
 	Rollover();
     if (!do_quiet)
@@ -500,13 +501,13 @@ int main(int argc, char **argv)
     if (do_mail) {
 	if (!envrecip_count) {
 	    WriteError("No valid receipients specified, aborting");
-	    die(105);
+	    die(MBERR_NO_RECIPIENTS);
 	}
 
 	umask(066);
 	if ((ofp = tmpfile()) == NULL) {
 	    WriteError("$Can't open tmpfile for RFC message");
-	    die(104);
+	    die(MBERR_INIT_ERROR);
 	}
 	temp = calloc(10240, sizeof(char));
 	while (fgets(temp, 10240, stdin))
@@ -520,7 +521,7 @@ int main(int argc, char **argv)
 
 	fclose(ofp);
 	flush_queue();
-	die(0);
+	die(MBERR_OK);
     }
 
     InitDupes();
@@ -540,7 +541,7 @@ int main(int argc, char **argv)
 	do {
 	    Hatch();
 	    switch (Tic()) {
-		case -1:    die(0);
+		case -1:    die(MBERR_OK);
 			    break;
 		case 0:	    Loop = FALSE;
 			    break;
@@ -559,7 +560,7 @@ int main(int argc, char **argv)
 	if (IsSema((char *)"mailin"))
 	    RemoveSema((char *)"mailin");
 	if (TossMail() == FALSE)
-	    die(0);
+	    die(MBERR_OK);
     }
     if (do_tic || do_toss) {
 	/*
@@ -586,7 +587,7 @@ int main(int argc, char **argv)
     if (do_flush)
 	flush_queue();
 
-    die(0);
+    die(MBERR_OK);
     return 0;
 }
 
@@ -613,7 +614,7 @@ int TossMail(void)
 
     if (chdir(inbound) == -1) {
 	WriteError("$Can't chdir(%s)", inbound);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
 
     /*
@@ -629,7 +630,7 @@ int TossMail(void)
      */
     if ((dp = opendir(inbound)) == NULL) {
 	WriteError("$Can't opendir(%s)", inbound);
-	die(0);
+	die(MBERR_INIT_ERROR);
     }
 
     Syslog('+', "Pass: toss ARCmail (%s)", inbound);
@@ -662,7 +663,7 @@ int TossMail(void)
 	    break;
 	}
 	if (!diskfree(CFG.freespace)) {
-	    rc = 101;
+	    rc = MBERR_DISK_FULL;
 	    break;
 	}
 

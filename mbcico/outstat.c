@@ -39,6 +39,7 @@
 #include "../lib/dbcfg.h"
 #include "../lib/dbnode.h"
 #include "../lib/dbftn.h"
+#include "../lib/mberrors.h"
 #include "scanout.h"
 #include "callstat.h"
 #include "outstat.h"
@@ -82,7 +83,7 @@ int outstat()
 
     if ((rc = scanout(each))) {
 	WriteError("Error scanning outbound, aborting");
-	return rc;
+	return MBERR_OUTBOUND_SCAN;
     }
 
     /*
@@ -93,7 +94,7 @@ int outstat()
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("Error open %s, aborting", temp);
 	free(temp);
-	return 1;
+	return MBERR_OUTBOUND_SCAN;
     }
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     fseek(fp, 0, SEEK_SET);
@@ -364,24 +365,24 @@ int poll(faddr *addr, int stop)
 			Syslog('+', "Node %s not in nodelist", ascfnode(addr, 0x1f));
 			if (!do_quiet)
 				printf("Node %s not in nodelist", ascfnode(addr, 0x1f));
-			return 1;
+			return MBERR_NODE_NOT_IN_LIST;
 		}
 		if (nlent->pflag == NL_DOWN) {
 			Syslog('+', "Node %s has status Down", ascfnode(addr, 0x1f));
 			if (!do_quiet)
 				printf("Node %s has status Down", ascfnode(addr, 0x1f));
-			return 1;
+			return MBERR_NODE_MAY_NOT_CALL;
 		}
 		if (nlent->pflag == NL_HOLD) {
 			Syslog('+', "Node %s has status Hold", ascfnode(addr, 0x1f));
 			if (!do_quiet)
 				printf("Node %s has status Hold", ascfnode(addr, 0x1f));
-			return 1;
+			return MBERR_NODE_MAY_NOT_CALL;
 		}
 	
 		if ((fp = fopen(pol, "w+")) == NULL) {
 			WriteError("$Can't create poll for %s", ascfnode(addr, 0x1f));
-			rc = 1;
+			rc = MBERR_CANNOT_MAKE_POLL;
 		} else {
 			fclose(fp);
 			if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
@@ -394,12 +395,13 @@ int poll(faddr *addr, int stop)
 					printf("Created poll for %s\n", ascfnode(addr, 0x1f));
 			}
 			cst = getstatus(addr);
-			if ((cst->trystat == 5) || 
-			    (cst->trystat == ST_NOTZMH) ||
-			    (cst->trystat == ST_NOCONN) ||
-			    (cst->trystat == ST_NOCALL7) ||
-			    (cst->trystat == ST_NOCALL8) ||
-                            (cst->trystat > 10)) {
+			if ((cst->trystat == MBERR_NODE_LOCKED) || 
+			    (cst->trystat == MBERR_NOT_ZMH) ||
+			    (cst->trystat == MBERR_NO_CONNECTION) ||
+			    (cst->trystat == MBERR_SESSION_ERROR) ||
+			    (cst->trystat == MBERR_UNKNOWN_SESSION) ||
+			    (cst->trystat == MBERR_NO_PORT_AVAILABLE) ||
+			    (cst->trystat == MBERR_MODEM_ERROR)) {
 				putstatus(addr, 0, 0);
 			}
 			CreateSema((char *)"scanout");
@@ -443,7 +445,7 @@ int freq(faddr *addr, char *fname)
 		if (!do_quiet)
 			printf("File request failed\n");
 		free(req);
-		return 1;
+		return MBERR_REQUEST;
 	}
 	fprintf(fp, "%s\r\n", fname);
 	fclose(fp);

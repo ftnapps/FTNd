@@ -35,6 +35,7 @@
 #include "structs.h"
 #include "users.h"
 #include "records.h"
+#include "mberrors.h"
 #include "dbcfg.h"
 
 
@@ -46,7 +47,7 @@ void InitConfig(void)
 		printf("Could not get MBSE_ROOT environment variable\n");
 		printf("Please set the environment variable ie:\n");
 		printf("\"MBSE_ROOT=/opt/mbse;export MBSE_ROOT\"\n\n");
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 	LoadConfig();
 }
@@ -69,7 +70,7 @@ void LoadConfig(void)
 #ifdef MEMWATCH
 		mwTerm();
 #endif
-		exit(1);
+		exit(MBERR_CONFIG_ERROR);
 	}
 
 	free(FileName);

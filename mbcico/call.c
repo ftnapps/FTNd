@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
+#include "../lib/mberrors.h"
 #include "session.h"
 #include "callstat.h"
 #include "call.h"
@@ -68,10 +69,10 @@ int portopen(faddr *addr)
 	if ((rc = opentcp(inetaddr))) {
 	    Syslog('+', "Cannot connect %s", inetaddr);
 	    nodeulock(addr);
-	    putstatus(addr,1,ST_NOCONN);
-	    return ST_NOCONN;
+	    putstatus(addr,1,MBERR_NO_CONNECTION);
+	    return MBERR_NO_CONNECTION;
 	}
-	return 0;
+	return MBERR_OK;
     }
 
     if (forcedline) {
@@ -83,19 +84,19 @@ int portopen(faddr *addr)
 	    if ((rc = openport(p, ttyinfo.portspeed))) {
 		Syslog('+', "Cannot open port %s",p);
 		nodeulock(addr);
-		putstatus(addr, 10, ST_PORTERR);
-		return ST_PORTERR;
+		putstatus(addr, 10, MBERR_PORTERROR);
+		return MBERR_PORTERROR;
 	    }
-	    return ST_PORTOK;
+	    return MBERR_OK;
 	} else {
 	    nodeulock(addr);
-	    putstatus(addr, 0, ST_PORTERR);
-	    return ST_PORTERR;
+	    putstatus(addr, 0, MBERR_PORTERROR);
+	    return MBERR_PORTERROR;
 	}
     }
 
     WriteError("No call method available, maybe missing parameters");
-    return ST_PORTERR;
+    return MBERR_NO_CONNECTION;
 }
 
 
@@ -116,15 +117,15 @@ int call(faddr *addr)
      */
     if (nodelock(addr)) {
 	Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));
-	putstatus(addr, 0, ST_LOCKED);
-	return ST_LOCKED;
+	putstatus(addr, 0, MBERR_NODE_LOCKED);
+	return MBERR_NODE_LOCKED;
     }
 
     if ((nlent = getnlent(addr)) == NULL) {
 	WriteError("Cannot call %s: fatal in nodelist lookup", ascfnode(addr, 0x1f));
-	putstatus(addr,0,ST_LOOKUP);
+	putstatus(addr,0,MBERR_NODE_NOT_IN_LIST);
 	nodeulock(addr);
-	return ST_LOOKUP;
+	return MBERR_NODE_NOT_IN_LIST;
     }
 
     /*
@@ -215,7 +216,7 @@ int call(faddr *addr)
 	    }
 	} else {
 	    WriteError("No IP address, abort call");
-	    rc = ST_NOCALL8;
+	    rc = MBERR_NO_IP_ADDRESS;
 	    putstatus(addr, 10, rc);
 	    nodeulock(addr);
 	    return rc;
@@ -244,15 +245,14 @@ int call(faddr *addr)
 	IsDoing("Call %s", ascfnode(addr, 0x0f));
 	rc = portopen(addr);
 
-	if ((rc == 0) && (!inetaddr)) {
+	if ((rc == MBERR_OK) && (!inetaddr)) {
 	    if ((rc = dialphone(forcedphone?forcedphone:nlent->phone))) {
 		Syslog('+', "Dial failed");
 		nodeulock(addr);
-		rc+=1; /* rc=2 - dial fail, rc=3 - could not reset */
 	    } 
 	}
 
-	if (rc == 0) {
+	if (rc == MBERR_OK) {
 	    if (!inetaddr)
 		nolocalport();
 
@@ -260,9 +260,6 @@ int call(faddr *addr)
 		rc = session(addr,nlent,SESSION_MASTER,SESSION_BINKP,NULL);
 	    else
 		rc = session(addr,nlent,SESSION_MASTER,SESSION_UNKNOWN,NULL);
-
-	    if (rc) 
-		rc=abs(rc)+10;
 	}
 
 	IsDoing("Disconnect");
@@ -285,18 +282,15 @@ int call(faddr *addr)
     } else {
 	IsDoing("NoCall");
 	Syslog('+', "Cannot call %s (%s, phone %s)", ascfnode(addr,0x1f),MBSE_SS(nlent->name), MBSE_SS(nlent->phone));
-	if ((nlent->phone || forcedphone || inetaddr ))
-	    rc=ST_NOCALL8;
-	else 
-	    rc=ST_NOCALL7;
+	rc = MBERR_NO_CONNECTION;
 	putstatus(addr, 10, rc);
 	nodeulock(addr);
 	return rc;
     }
 
-    if ((rc > 10) && (rc < 20))  /* Session error */
+    if ((rc == MBERR_NOT_ZMH) || (rc == MBERR_UNKNOWN_SESSION))  /* Session error */
 	putstatus(addr, 5, rc);
-    else if ((rc == 2) || (rc == 30))
+    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_SESSION_ERROR))
 	putstatus(addr,1,rc);
     else
 	putstatus(addr,0,rc);

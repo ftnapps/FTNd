@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
+#include "../lib/mberrors.h"
 #include "config.h"
 #include "chat.h"
 #include "ttyio.h"
@@ -62,9 +63,9 @@ int initmodem(void)
 	if (strlen(modem.init[i]))
 	    if (chat(modem.init[i], CFG.timeoutreset, FALSE, NULL)) {
 		WriteError("dial: could not reset the modem");
-		return 1;
+		return MBERR_MODEM_ERROR;
 	    }
-    return 0;
+    return MBERR_OK;
 }
 
 
@@ -77,7 +78,7 @@ int dialphone(char *Phone)
     carrier = FALSE;
 
     if (initmodem())
-	return 2;
+	return MBERR_MODEM_ERROR;
 
     rc = 0;
     if (strlen(nodes.phone[0])) {
@@ -100,11 +101,11 @@ int dialphone(char *Phone)
 
     if (rc) {
 	Syslog('+', "Could not connect to the remote");
-	return 1;
+	return MBERR_NO_CONNECTION;
     } else {
 	c_start = time(NULL);
 	carrier = TRUE;
-	return 0;
+	return MBERR_OK;
     }
 }
 
@@ -147,7 +148,7 @@ int hangup()
     }
     FLUSHIN();
     FLUSHOUT();
-    return 0;
+    return MBERR_OK;
 }
 
 

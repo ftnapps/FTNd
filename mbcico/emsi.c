@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/dbnode.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "session.h"
 #include "statetbl.h"
@@ -105,7 +106,7 @@ int rx_emsi(char *data)
 	caller=0;
 
 	if ((rc=rxemsi())) 
-		return rc;
+		return MBERR_EMSI;
 
 	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 	Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
@@ -179,7 +180,7 @@ int rx_emsi(char *data)
 	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
 	if ((rc=txemsi())) 
-		return rc;
+		return MBERR_EMSI;
 
 	if (denypw || (emsi_local_protos == 0)) {
 		Syslog('+', "Refusing remote: %s", emsi_local_protos?"bad password presented": "no common protocols");
@@ -243,10 +244,10 @@ int tx_emsi(char *data)
 	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
 	if ((rc=txemsi())) 
-		return rc;
+		return MBERR_EMSI;
 	else {
 		if ((rc=rxemsi())) 
-			return rc;
+			return MBERR_EMSI;
 	}
 
 	if ((emsi_remote_opts & OPT_EII) == 0) {

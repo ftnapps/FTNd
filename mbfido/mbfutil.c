@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfile.h"
 
@@ -134,7 +135,7 @@ void Help(void)
 	printf("	-a -announce			Suppress announce added files\n");
 	printf("	-q -quiet			Quiet mode\n");
 	printf("	-v -virus			Suppress virus scanning, use with care\n");
-	die(0);
+	die(MBERR_COMMANDLINE);
 }
 
 
@@ -250,7 +251,7 @@ int UnpackFile(char *File)
 	    WriteError("$Can't create %s", temp);
 	    if (!do_quiet)
 		printf("Can't create %s\n", temp);
-	    die(0);
+	    die(MBERR_GENERAL);
 	}
     }
 
@@ -282,7 +283,7 @@ int UnpackFile(char *File)
     sprintf(temp, "%s/tmp/arc", getenv("MBSE_ROOT"));
     if (chdir(temp) != 0) {
 	WriteError("$Can't change to %s", temp);
-	die(0);
+	die(MBERR_GENERAL);
     }
 
     if (execute(cmd, File, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {

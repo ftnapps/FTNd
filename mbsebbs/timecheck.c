@@ -37,6 +37,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/mberrors.h"
 #include "timecheck.h"
 #include "funcs.h"
 #include "bye.h"
@@ -116,7 +117,7 @@ void TimeCheck(void)
 		sleep(3);
 		Syslog('!', "Users time limit exceeded ... user disconnected!");
 		iExpired = TRUE;
-		Good_Bye(1);
+		Good_Bye(MBERR_TIMEOUT);
 	}
 
 	/*

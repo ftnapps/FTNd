@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/mberrors.h"
 #include "virscan.h"
 #include "mbfutil.h"
 #include "mbfimport.h"
@@ -63,7 +64,7 @@ void ImportFiles(int Area)
 	colour(CYAN, BLACK);
 
     if (LoadAreaRec(Area) == FALSE)
-	die(0);
+	die(MBERR_INIT_ERROR);
 
     if (area.Available && !area.CDrom) {
         temp   = calloc(PATH_MAX, sizeof(char));
@@ -75,7 +76,7 @@ void ImportFiles(int Area)
 
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
-	    die(0);
+	    die(MBERR_GENERAL);
 	sprintf(tmpdir, "%s/tmp/arc", getenv("MBSE_ROOT"));
 
 	IsDoing("Import files");
@@ -92,7 +93,7 @@ void ImportFiles(int Area)
 		    WriteError("Can't find files.bbs anywhere");
 		    if (!do_quiet)
 			printf("Can't find files.bbs anywhere\n");
-		    die(0);
+		    die(MBERR_INIT_ERROR);
 		}
 	    }
 	}
@@ -165,7 +166,7 @@ void ImportFiles(int Area)
 		 * Check diskspace
 		 */
 		if (!diskfree(CFG.freespace))
-		    die(101);
+		    die(MBERR_DISK_FULL);
 
 		Files++;
 		memset(&fdb, 0, sizeof(fdb));

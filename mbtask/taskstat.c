@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "libs.h"
 #include "../lib/structs.h"
+#include "../lib/mberrors.h"
 #include "taskstat.h"
 #include "callstat.h"
 #include "outstat.h"
@@ -119,7 +120,7 @@ void status_init()
 	cnt = read(stat_fd, &status, sizeof(status_r));
 	if (cnt != sizeof(status_r)) {
 		printf("Error reading status file\n");
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 	status.startups++;
 	status.laststart = time(NULL);
@@ -129,7 +130,7 @@ void status_init()
 	cnt = write(stat_fd, &status, sizeof(status_r));
 	if (cnt != sizeof(status_r)) {
 		tasklog('?', "$Error rewrite status file\n");
-		exit(1);
+		exit(MBERR_INIT_ERROR);
 	}
 	close(stat_fd);
 }

@@ -47,6 +47,7 @@
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/mberrors.h"
 #include "session.h"
 #include "filelist.h"
 #include "filetime.h"
@@ -278,7 +279,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 
 							if ((i & ~0x0f) || (n & ~ 0x0f)) {
 								Syslog('+', "Hydra: RXPKT assert");
-								die(1);
+								die(MBERR_FTRANSFER);
 								break;
 							}
 
@@ -295,7 +296,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 				case HCHR_UUEPKT:
 				default:
 					Syslog('+', "Hydra: RXPKT assert");
-					die(1);
+					die(MBERR_FTRANSFER);
 				}
 
 				if ((format != HCHR_HEXPKT) && (rxoptions & HOPT_CRC32)) {
@@ -449,7 +450,7 @@ void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
 	case HCHR_UUEPKT:
 	default:
 		Syslog('+', "Hydra: TXPKT assert");
-		die(1);
+		die(MBERR_FTRANSFER);
 	}
 
 	*outbuf++ = H_DLE;
@@ -1196,7 +1197,7 @@ int hydra_batch(int role, file_list *to_send)
 			break;
 
 		default:
-			die(1);
+			die(MBERR_FTRANSFER);
 		} /* switch (txstate) */
 
 		switch (rxstate) {
@@ -1586,10 +1587,10 @@ int hydra_batch(int role, file_list *to_send)
 		sleep(4);				/* wait a few seconds... */
 		FLUSHIN();
 
-		return 2;
+		return MBERR_FTRANSFER;
 	}
 
-	return 0;
+	return MBERR_OK;
 }
 
 
