@@ -97,6 +97,8 @@ v0.35.05	19-Oct-2002
 		node, this was not processed in the same session.
 		Moved the ^aTID kludge to the top of the exported message
 		after the last kludge so people won't complain anymore.
+		Experimental change for hatched ticfiles to force including
+		of our own area aka. TEST TEST !!
 
 	mbtask:
 		Removed debug logging of "does" info.

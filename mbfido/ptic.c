@@ -731,8 +731,8 @@ int ProcessTic(fa_list *sbl)
 	 * Add all our system aka's to the seenby lines in the same zone
 	 */
 	for (i = 0; i < 40; i++) {
-	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) &&
-		!((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node))) {
+	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) /* &&
+		!((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node)) */) {
 		sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
 		fill_list(&sbl, sbe, NULL);
 	    }
