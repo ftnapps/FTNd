@@ -84,6 +84,7 @@ void A_Help(faddr *t, char *replyid)
 {
     FILE    *fp, *fi;
     char    *subject;
+    faddr   *ta;
 
     Syslog('+', "AreaMgr: Help");
     
@@ -92,8 +93,10 @@ void A_Help(faddr *t, char *replyid)
     GetRpSubject("areamgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
-	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ){
-	    MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
+	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ) {
+	    ta = bestaka_s(t);
+	    MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(ta, 0xf), nodes.Apasswd );
+	    tidy_faddr(ta);
 	    MacroRead(fi, fp);
 	    fclose(fi);
 	}
@@ -465,6 +468,7 @@ void A_Status(faddr *t, char *replyid)
     FILE    *fp, *fi;
     int	    i;
     char    *subject; 
+    faddr   *ta;
 
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Status");
@@ -474,23 +478,24 @@ void A_Status(faddr *t, char *replyid)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("DCEfGvPQRpqrsYy","ddddcsddddddsss",   
- 	    					nodes.Direct, 
- 	    	                                nodes.Crash, 
- 	    	                                nodes.Hold,
- 	    	                                nodes.Notify,
- 	    	                                nodes.Language,
- 	    	                                aka2str(nodes.RouteVia),
- 	    	                                nodes.MailSent.lweek,
- 	    	                                nodes.MailSent.month[i],
- 	    	                                nodes.MailSent.total,
- 	    	                                nodes.MailRcvd.lweek,
- 	    	                                nodes.MailRcvd.month[i],
- 	    	                                nodes.MailRcvd.total,
- 	    	                                nodes.Sysop,
-		    				ascfnode(t, 0xff),
-						ascfnode(bestaka_s(t), 0xf)
-    	                                 );
+    MacroVars("D", "d", nodes.Direct);
+    MacroVars("C", "d", nodes.Crash);
+    MacroVars("E", "d", nodes.Hold);
+    MacroVars("f", "d", nodes.Notify);
+    MacroVars("G", "c", nodes.Language);
+    MacroVars("v", "s", aka2str(nodes.RouteVia));
+    MacroVars("P", "d", nodes.MailSent.lweek);
+    MacroVars("Q", "d", nodes.MailSent.month[i]);
+    MacroVars("R", "d", nodes.MailSent.total);
+    MacroVars("p", "d", nodes.MailRcvd.lweek);
+    MacroVars("q", "d", nodes.MailRcvd.month[i]);
+    MacroVars("r", "d", nodes.MailRcvd.total);
+    MacroVars("s", "s", nodes.Sysop);
+    MacroVars("Y", "s", ascfnode(t, 0xff));
+    ta = bestaka_s(t);
+    MacroVars("y", "s", ascfnode(ta, 0xf));
+    tidy_faddr(ta);
+
     GetRpSubject("areamgr.status",subject);
 
     if ((fi = OpenMacro("areamgr.status", nodes.Language, FALSE)) == NULL ){

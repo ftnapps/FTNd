@@ -650,13 +650,18 @@ faddr *bestaka_s(faddr *addr)
 
 int is_local(faddr *addr)
 {
-	int	i;
+    int	    i;
+    faddr   *tmp;
 
-	for (i = 0; i < 40; i++) {
-		if ((CFG.akavalid[i]) && (metric(fido2faddr(CFG.aka[i]), addr) == METRIC_EQUAL))
-			return TRUE;
+    for (i = 0; i < 40; i++) {
+	tmp = fido2faddr(CFG.aka[i]);
+	if ((CFG.akavalid[i]) && (metric(tmp, addr) == METRIC_EQUAL)) {
+	    tidy_faddr(tmp);
+	    return TRUE;
 	}
-	return FALSE;
+	tidy_faddr(tmp);
+    }
+    return FALSE;
 }
 
 
