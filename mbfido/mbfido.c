@@ -371,6 +371,8 @@ int main(int argc, char **argv)
 				Help();
 			    }
 			    i++;
+			    cmd = xstrcat(cmd, (char *)" ");
+			    cmd = xstrcat(cmd, argv[i]);
 			}
 		} else if (strncmp(tl(argv[i]), "to", 2) == 0) 
 			do_toss = TRUE;

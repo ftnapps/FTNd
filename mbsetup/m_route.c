@@ -215,7 +215,7 @@ int AppendRoute(void)
 	/*
 	 * Fill in default values
 	 */
-	route.routetype = RT_ROUTE;
+	route.routetype = R_NOROUTE;
 	fwrite(&route, sizeof(route), 1, fil);
 	fclose(fil);
 	RouteUpdated = 1;

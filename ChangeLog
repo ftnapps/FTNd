@@ -30,7 +30,9 @@ v0.35.03	06-Jul-2002
 		When a new tic area was created the first file received for
 		that area was refused.
 		Fixed a few problems with local UUCP created netmails.
-		Added very experimental routing table.
+		* Added very experimental routing table.
+		* Test for local node moved in sequence, testing is now done
+		  so as real routing will be done.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.

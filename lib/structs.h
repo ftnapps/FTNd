@@ -56,7 +56,20 @@ typedef enum {E_NOISP, E_TMPISP, E_PRMISP} EMODE;
 typedef enum {AREAMGR, FILEMGR, EMAIL} SERVICE;
 typedef enum {FEEDINN, FEEDRNEWS, FEEDUUCP} NEWSFEED;
 typedef enum {S_DIRECT, S_DIR, S_FTP} SESSIONTYPE;
-typedef enum {RT_ROUTE, RT_DIRECT, RT_DEFAULT, RT_REDIRECT, RT_BOUNCE, RT_CC} ROUTER;
+
+
+/***********************************************************************
+ *
+ *  Routing definitions
+ */
+#define R_NOROUTE   0           /* No route descision made          */
+#define R_ROUTE     1           /* Route to destination             */
+#define	R_DIRECT    2		/* Direct route			    */
+#define	R_REDIRECT  3		/* Redirect to new address	    */
+#define	R_BOUNCE    4		/* Bounce back to sender	    */
+#define	R_CC	    5		/* Make a CC			    */
+#define	R_LOCAL	    6		/* Local destination		    */
+#define	R_UNLISTED  7		/* Unlisted destination		    */
 
 
 /***********************************************************************

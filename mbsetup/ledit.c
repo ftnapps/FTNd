@@ -1772,12 +1772,12 @@ int edit_sessiontype(int y, int x, int val)
 char *get_routetype(int val)
 {
     switch (val) {
-	case RT_ROUTE:	    return (char *)"Route to   ";
-	case RT_DIRECT:	    return (char *)"Direct     ";
-	case RT_DEFAULT:    return (char *)"Default    ";
-	case RT_REDIRECT:   return (char *)"New address";
-	case RT_BOUNCE:	    return (char *)"Bounce     ";
-	case RT_CC:	    return (char *)"CarbonCopy ";
+	case R_NOROUTE:	    return (char *)"Default    ";
+	case R_ROUTE:	    return (char *)"Route to   ";
+	case R_DIRECT:	    return (char *)"Direct     ";
+	case R_REDIRECT:    return (char *)"New address";
+	case R_BOUNCE:	    return (char *)"Bounce     ";
+	case R_CC:	    return (char *)"CarbonCopy ";
 	default:	    return NULL;
     }
 }
@@ -1804,10 +1804,10 @@ int edit_routetype(int y, int x, int val)
 
 	if (ch == ' ') {
 //	    if (val < RT_CC)
-	    if (val < RT_DEFAULT)
+	    if (val < R_DIRECT)
 		val++;
 	    else
-		val = RT_ROUTE;
+		val = R_NOROUTE;
 	}
     } while (ch != KEY_ENTER && ch != '\012');
     set_color(WHITE, BLACK);
