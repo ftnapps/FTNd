@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/mbse.h"
 #include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "filesub.h"
 #include "file.h"
 #include "funcs.h"
@@ -55,6 +56,24 @@ int	FileRecno = 0;
 int CheckFile(char *, int);
 int CheckFile(char *File, int iArea)
 {
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+
+    if ((fdb_area = mbsedb_OpenFDB(iArea, 30)) == NULL)
+	return FALSE;
+
+    /*
+     * Check long and short filenames, case insensitive
+     */
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+	if (((strcasecmp(fdb.Name, File)) == 0) || ((strcasecmp(fdb.LName, File)) == 0)) {
+	    mbsedb_CloseFDB(fdb_area);
+	    return TRUE;
+	}
+    }
+
+    mbsedb_CloseFDB(fdb_area);
+#else
     FILE    *pFileB;
     char    *sFileArea;
 
@@ -79,6 +98,7 @@ int CheckFile(char *File, int iArea)
     }
 
     fclose(pFileB);
+#endif
     return FALSE;
 }
 
@@ -89,10 +109,14 @@ int CheckFile(char *File, int iArea)
  */
 void File_List()
 {
-    FILE	*pFile;
     int		FileCount = 0;
     unsigned	FileBytes = 0;
     _Tag	T;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE        *pFile;
+#endif
 
     iLineCount = 0;
     WhosDoingWhat(FILELIST, NULL);
@@ -109,18 +133,30 @@ void File_List()
 
     InitTag();
 
+#ifdef	USE_EXPERIMENT
+    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL)
+	return;
+#else
     if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL)
 	return;
+#endif
 
     clear();
     Header();
     if (iLC(2) == 1) {
+#ifdef	USE_EXPERIMENT
+	mbsedb_CloseFDB(fdb_area);
+#else
 	fclose(pFile);
+#endif
 	return;
     }
 
+#ifdef	USE_EXPERIMENT
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
     while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
+#endif
 	memset(&T, 0, sizeof(T));
 	T.Area   = iAreaNumber;
 	T.Active = FALSE;
@@ -130,7 +166,11 @@ void File_List()
 	SetTag(T);
 
 	if (ShowOneFile() == 1) {
+#ifdef	USE_EXPERIMENT
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(pFile);
+#endif
 	    return;
 	}
 
@@ -150,7 +190,11 @@ void File_List()
     printf("\n%s%d / %d bytes\n\n", (char *) Language(242), FileCount, FileBytes);
 
     iLineCount = 0;
+#ifdef	USE_EXPERIMENT
+    mbsedb_CloseFDB(fdb_area);
+#else
     fclose(pFile);
+#endif
     Pause();
 }
 
@@ -163,7 +207,7 @@ void Download(void)
 {
     DIR		    *dirp;
     struct dirent   *dp;
-    FILE	    *tf, *fp, *fd;
+    FILE	    *tf, *fd;
     int		    i, err, Count = 0;
     int		    OldArea;
     char	    *symTo, *symFrom;
@@ -171,6 +215,11 @@ void Download(void)
     long	    Size = 0, CostSize = 0;
     time_t	    ElapstimeStart, ElapstimeFin, iTime;
     long	    iTransfer = 0;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE    *fp;
+#endif
 
     Enter(2);
     OldArea = iAreaNumber;
@@ -202,6 +251,15 @@ void Download(void)
 	     * Check password for selected file  FIXME: Where???
 	     */
 	    memset(&fdb, 0, sizeof(fdb));
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30)) != NULL) {
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+		    if (strcmp(fdb.LName, Tag.LFile) == 0)
+			break;
+		}
+		mbsedb_CloseFDB(fdb_area);
+	    }
+#else
 	    if ((fp = OpenFileBase(Tag.Area, FALSE)) != NULL) {
 		while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
 		    if (strcmp(fdb.LName, Tag.LFile) == 0)
@@ -209,6 +267,7 @@ void Download(void)
 		}
 		fclose(fp);
 	    } 
+#endif
 
 	    if (strcmp(fdb.LName, Tag.LFile) == 0) {
 		Syslog('b', "Found file %s in area %d", fdb.LName, Tag.Area);
@@ -429,6 +488,22 @@ void Download(void)
 		     * Update the download counter and the last download date.
 		     */
 		    SetFileArea(Tag.Area);
+#ifdef	USE_EXPERIMENT
+		    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30))) {
+			while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+			    if (strcmp(fdb.LName, Tag.LFile) == 0)
+				break;
+			}
+			Size += fdb.Size;
+			fdb.TimesDL++;
+			fdb.LastDL = time(NULL);
+			if (mbsedb_LockFDB(fdb_area, 30)) {
+			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+			    mbsedb_UnlockFDB(fdb_area);
+			}
+			mbsedb_CloseFDB(fdb_area);
+#else
 		    if ((fp = OpenFileBase(Tag.Area, TRUE)) != NULL) {
 			while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
 			    if (strcmp(fdb.LName, Tag.LFile) == 0)
@@ -440,6 +515,7 @@ void Download(void)
 			fseek(fp, - fdbhdr.recsize, SEEK_CUR);
 			fwrite(&fdb, fdbhdr.recsize, 1, fp);
 			fclose(fp);
+#endif
 			Count++;
 		    }
 		} else {
@@ -563,12 +639,16 @@ void File_RawDir(char *OpData)
  */
 int KeywordScan()
 {
-    FILE	    *pAreas, *pFile;
+    FILE	    *pAreas;
     int		    i, z, y, Found, Count = 0;
     char	    *Name, *tmpname, *BigDesc, temp[81];
     _Tag	    T;
     unsigned long   OldArea;
-
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *pFile;
+#endif
 
     Name     = calloc(81, sizeof(char));
     tmpname  = calloc(81, sizeof(char));
@@ -612,14 +692,20 @@ int KeywordScan()
 
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+#else
 	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
-
+#endif
 		Nopper();
 		Found = FALSE;
 		Sheader();
 
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
+#endif
 		    for (i = 0; i < 25; i++)
 			sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
 
@@ -657,7 +743,11 @@ int KeywordScan()
 
 		} /* while */
 
+#ifdef	USE_EXPERIMENT
+		mbsedb_CloseFDB(fdb_area);
+#else
 		fclose(pFile);
+#endif
 		if (Found) {
 		    Enter(2);
 		    if (iLC(2) == 1) {
@@ -695,12 +785,17 @@ int KeywordScan()
  */
 int FilenameScan()
 {
-    FILE	    *pAreas, *pFile;
+    FILE	    *pAreas;
     int		    Found, Count = 0;
     char	    mask[256];
     char	    *Name;
     _Tag	    T;
     unsigned long   OldArea;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *pFile;
+#endif
 
     Name     = calloc(81, sizeof(char));
     OldArea  = iAreaNumber;
@@ -741,14 +836,20 @@ int FilenameScan()
     while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+#else
 	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
-
+#endif
 		Found = FALSE;
 		Sheader();
 		Nopper();
 
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
+#endif
 		    if (re_exec(fdb.Name) || re_exec(fdb.LName)) {
 			if (!Found) {
 			    Enter(2);
@@ -775,7 +876,11 @@ int FilenameScan()
 
 		} /* End of while */
 
+#ifdef	USE_EXPERIMENT
+		mbsedb_CloseFDB(fdb_area);
+#else
 		fclose(pFile);
+#endif
 		if (Found) {
 		    Enter(2);
 		    if (iLC(2) == 1) {
@@ -808,11 +913,16 @@ int FilenameScan()
  */
 int NewfileScan(int AskStart) 
 { 
-    FILE    *pAreas, *pFile;
+    FILE    *pAreas;
     long    ifDate, itDate;
     char    *temp, *Date;
     int	    Found, Count = 0;
     _Tag    T;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *pFile;
+#endif
 
     Date     = calloc(81, sizeof(char));
     temp     = calloc(81, sizeof(char));
@@ -865,13 +975,20 @@ int NewfileScan(int AskStart)
 
 	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0) && (area.New)) {
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(arecno, 30))) {
+#else
 	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL ) {
-
+#endif
 		Sheader();
 		Found = FALSE;
 		Nopper();
 
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		    strcpy(temp, StrDateDMY(fdb.UploadDate));	/* Realloc Space for Date */
 		    Date[0] = temp[6];	    /* Swap the date around      */
 		    Date[1] = temp[7];	    /* Instead of   DD-MM-YYYY   */
@@ -891,7 +1008,11 @@ int NewfileScan(int AskStart)
 			    if (iLC(2) == 1) {
 				free(Date);
 				free(temp);
+#ifdef	USE_EXPERIMENT
+				mbsedb_CloseFDB(fdb_area);
+#else
 				fclose(pFile);
+#endif
 				fclose(pAreas);
 				return 1;
 			    }
@@ -910,7 +1031,11 @@ int NewfileScan(int AskStart)
 			if (ShowOneFile() == 1) {
 			    free(Date);
 			    free(temp);
+#ifdef	USE_EXPERIMENT
+			    mbsedb_CloseFDB(fdb_area);
+#else
 			    fclose(pFile);
+#endif
 			    fclose(pAreas);
 			    return 1;
 			}
@@ -918,8 +1043,12 @@ int NewfileScan(int AskStart)
 		    } /* End of if */
 		} /* End of while */
 
+#ifdef	USE_EXPERIMENT
+		mbsedb_CloseFDB(fdb_area);
+#else
 		fclose(pFile);
-
+#endif
+		
 		/*
 		 * Add 2 blank lines after found files.
 		 */
@@ -1958,10 +2087,14 @@ void FileArea_List(char *Option)
  */
 void Copy_Home()
 {
-    FILE    *pFile;
     char    *File, *temp1, *temp2;
     int	    err, Found = FALSE;
-	
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE    *pFile;
+#endif
+
     File  = calloc(81, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
@@ -2004,15 +2137,22 @@ void Copy_Home()
 	return;
     }
 
+#ifdef	USE_EXPERIMENT
+    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL) {
+#else
     if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL) {
-        free(File);
+#endif
+	free(File);
         free(temp1);
         free(temp2);
 	return;
     }
 
+#ifdef	USE_EXPERIMENT
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
     while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
+#endif
 	if ((strcasecmp(File, fdb.Name) == 0) || (strcasecmp(File, fdb.LName) == 0)) {
 
 	    Found = TRUE;
@@ -2045,7 +2185,11 @@ void Copy_Home()
 	    }
 	}
     }
+#ifdef	USE_EXPERIMENT
+    mbsedb_CloseFDB(fdb_area);
+#else
     fclose(pFile);
+#endif
 
     if (!Found) {
 	colour(CFG.HiliteF, CFG.HiliteB);
@@ -2188,7 +2332,12 @@ void ViewFile(char *name)
 {
     char    *File, *temp, *arc;
     int	    count, total, rc, found = FALSE;
-    FILE    *fp, *pFile;
+    FILE    *fp;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *pFile;
+#endif
 
     Syslog('+', "ViewFile(%s)", printable(name, 0));
 
@@ -2250,18 +2399,30 @@ void ViewFile(char *name)
     /*
      * Now check if this file is present
      */
+#ifdef	USE_EXPERIMENT
+    if ((fdb_area = mbsedb_OpenFDB(iAreaNumber, 30)) == NULL) {
+#else
     if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL) {
+#endif
 	free(File);
 	return;
     }
 
+#ifdef	USE_EXPERIMENT
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
     while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 	if (((strcasecmp(File, fdb.Name) == 0) || (strcasecmp(File, fdb.LName) == 0)) && (!fdb.Deleted)) {
 	    found = TRUE;
 	    break;
 	}
     }
+#ifdef	USE_EXPERIMENT
+    mbsedb_CloseFDB(fdb_area);
+#else
     fclose(pFile);
+#endif
 
     if (!found) {
 	colour(YELLOW, BLACK);

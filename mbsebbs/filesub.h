@@ -2,7 +2,9 @@
 #define	_FILESUB_H
 
 
+#ifndef	USE_EXPERIMENT
 FILE		*OpenFileBase(unsigned long Area, int);
+#endif
 FILE		*OpenFareas(int);
 int		ForceProtocol(void);
 int		CheckBytesAvailable(long);

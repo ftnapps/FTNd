@@ -41,6 +41,8 @@ v0.51.4		11-Apr-2004
 		Fixed a bug that tossed echomail was attempted to post to the
 		ISP newsserver (that didn't accept it).
 		More debug logging info added for double filename announces.
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
 
 	mbfile:
 		The toberep command now logs the toberep.data in the debug
@@ -52,6 +54,10 @@ v0.51.4		11-Apr-2004
 		Added new experimental files database code which will only be
 		used if configured with --enable-experiment.
 
+	mbaff:
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
+
 	mbnntp:
 		New program, news server to read echomail with a news client.
 		Reading news works, no posts yet.
@@ -60,6 +66,8 @@ v0.51.4		11-Apr-2004
 		Added loging of virus scanner results.
 		Patches for offline reader programs that create messages with
 		wrong line terminaters (Sempoint).
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
 
 	mbsetup:
 		Added auto setup for message area creation date. Also creates
