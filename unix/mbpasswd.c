@@ -732,7 +732,9 @@ int main(int argc, char *argv[])
 	int			pfd, tfd;
 #endif
 	char			*cp;
-	char			temp[128];
+#ifdef _VPOPMAIL_PATH
+	char			temp[PATH_MAX];
+#endif
 
 	/*
 	 * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.

@@ -333,6 +333,7 @@ v0.33.20        10-Feb-2002
 
 	mbpasswd:
 		Added support for vpopmail, vpasswd command.
+		Corrected a define for temp variable.
 
 	mbuser:
 		Added support for vpopmail, vdeluser command.
