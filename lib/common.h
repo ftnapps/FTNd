@@ -435,17 +435,6 @@ char *bgets(char *, int, FILE *);
 
 
 /*
- * some special chars values
- */
-// #define NUL         0
-// #define NL          10
-// #define FF          12
-// #define CR          13
-// #define ESC         27
-
-
-
-/*
  * parsedate.c
  */
 typedef struct _TIMEINFO {
@@ -513,6 +502,17 @@ int  Le_Access(securityrec, securityrec);  /* Endian independant	*/
  */
 int lockprogram(char *);	    /* Lock a program			*/
 void ulockprogram(char *);	    /* Unlock a program			*/
+
+
+
+/*
+ * timers.c
+ */
+int gpt_resettimer(int);    	    /* Reset timer no			*/
+void gpt_resettimers(void);	    /* Reset all timers			*/
+int gpt_settimer(int, int);	    /* Set timer no to time		*/
+int gpt_expired(int);		    /* Is timer expired			*/
+int gpt_running(int);		    /* Is timer running			*/
 
 #endif
 

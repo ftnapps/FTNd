@@ -232,8 +232,8 @@ SM_STATE(skipjunk)
     Syslog('s', "tx_define_type SKIPJUNK");
     while ((c = GETCHAR(1)) >= 0) /*nothing*/ ;
     if (c == TIMEOUT) {
-	RESETTIMERS();
-	SETTIMER(0, 60);    /* 60 second master timer */
+	gpt_resettimers();
+	gpt_settimer(0, 60);    /* 60 second master timer */
 	SM_PROCEED(wake);
     } else {
 	SM_ERROR;
@@ -242,7 +242,7 @@ SM_STATE(skipjunk)
 SM_STATE(wake)
 
     Syslog('s', "tx_define_type WAKE");
-    if (EXPIRED(0)) {
+    if (gpt_expired(0)) {
 	Syslog('+', "Remote did not respond");
 	SM_ERROR;
     }
@@ -255,7 +255,7 @@ SM_STATE(wake)
 	WriteError("Error while waking remote");
 	SM_ERROR;
     } else {
-	SETTIMER(0, 60);
+	gpt_settimer(0, 60);
 	Syslog('S', "Got %c wakeup", c);
 	SM_PROCEED(nextchar);
     }
@@ -266,7 +266,7 @@ SM_STATE(waitchar)
 	standby = 0;
 	ep = ebuf;
 	ebuf[0] = '\0';
-	if (EXPIRED(0)) {
+	if (gpt_expired(0)) {
 	    Syslog('+', "Too many tries waking remote");
 	    SM_ERROR;
 	}
@@ -413,9 +413,9 @@ SM_EDECL
     session_flags|=FTSC_XMODEM_CRC;
     ebuf[0]='\0';
     ep=ebuf;
-    RESETTIMERS();
-    SETTIMER(0, 60);
-    SETTIMER(1, 20);
+    gpt_resettimers();
+    gpt_settimer(0, 60);
+    gpt_settimer(1, 20);
 
 SM_START(sendintro)
 
@@ -457,17 +457,17 @@ SM_STATE(sendintro)
 SM_STATE(settimer)
 
     Syslog('s', "Set 20 secs timer");
-    SETTIMER(1, 20);
+    gpt_settimer(1, 20);
     SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
-    if (EXPIRED(0)) {
+    if (gpt_expired(0)) {
         Syslog('+', "Session setup timeout");
         SM_ERROR;
     }
 
-    if (EXPIRED(1)) {
+    if (gpt_expired(1)) {
 	Syslog('s', "20 sec timer timeout");
 	SM_PROCEED(sendintro);
     }
@@ -535,7 +535,7 @@ SM_STATE(nextchar)
 			     * first sendintro, send the intro again. After
 			     * that take it easy.
 			     */
-			    if (EXPIRED(1) || (count == 1)) {
+			    if (gpt_expired(1) || (count == 1)) {
 				Syslog('s', "sendintro after eol char");
 				SM_PROCEED(sendintro);
 			    } else {

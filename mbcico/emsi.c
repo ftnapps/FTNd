@@ -307,28 +307,28 @@ SM_START(init)
 SM_STATE(init)
     
     Syslog('i', "RXEMSI: init");
-    RESETTIMERS();
-    SETTIMER(0, 60);
-    SETTIMER(1, 20);
+    gpt_resettimers();
+    gpt_settimer(0, 60);
+    gpt_settimer(1, 20);
     SM_PROCEED(checkpkt);
 
 SM_STATE(waitpkt)
 
     Syslog('i', "RXEMSI: waitpkt");
     standby = 0;
-    SETTIMER(1, 20);
+    gpt_settimer(1, 20);
     SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
     Syslog('i', "RXEMSI: waitchar, tries=%d", tries);
 
-    if (EXPIRED(0)) {
+    if (gpt_expired(0)) {
 	Syslog('+', "EMSI receive 60 seconds timeout");
 	SM_ERROR;
     }
 
-    if (EXPIRED(1)) {
+    if (gpt_expired(1)) {
 	Syslog('s', "20 sec timeout");
 	SM_PROCEED(sendnak);
     }
@@ -517,8 +517,8 @@ SM_EDECL
     p = buf;
     memset(&buf, 0, sizeof(buf));
     strncpy(buf, intro, sizeof(buf) - 1);
-    RESETTIMERS();
-    SETTIMER(0, 60);
+    gpt_resettimers();
+    gpt_settimer(0, 60);
     Syslog('i', "TXEMSI: 60 seconds timer set");
 
 SM_START(senddata)
@@ -534,7 +534,7 @@ SM_STATE(senddata)
     PUTSTR(trailer);
     Syslog('i', "TXEMSI: send **%s%04X", p, crc16xmodem(p, strlen(p)));
     free(p);
-    SETTIMER(1, 20);
+    gpt_settimer(1, 20);
     SM_PROCEED(waitpkt);
 
 SM_STATE(waitpkt)
@@ -544,12 +544,12 @@ SM_STATE(waitpkt)
 
 SM_STATE(waitchar)
 
-    if (EXPIRED(0)) {
+    if (gpt_expired(0)) {
 	Syslog('+', "EMSI transmit 60 seconds timeout");
 	SM_ERROR;
     }
 
-    if (EXPIRED(1)) {
+    if (gpt_expired(1)) {
 	Syslog('i', "TXEMSI: 20 seconds timeout");
 	if (++tries > 19) {
 	    Syslog('+', "too many tries sending EMSI");

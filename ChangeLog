@@ -10,6 +10,14 @@ v0.37.8		14-Sep-2003
 	general:
 		This version is issued to prepare for a stable release.
 
+	common.a:
+		Added a set of general purpose timers.
+
+	mbcico:
+		Session handshake and EMSI handshake use the general purpose
+		timers instead of the ttyio timers. This should prevent invalid
+		timeouts during zmodem transfers. (bug since 0.37.6).
+
 
 v0.37.7		09-Sep-2003 - 14-09-2003
 

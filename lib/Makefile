@@ -11,12 +11,12 @@ COMMON_SRCS	= attach.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
 		  batchrd.c ftn.c pktname.c mangle.c sectest.c proglock.c \
 		  dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  execute.c expipe.c getheader.c noderecord.c rfcaddr.c strutil.c \
-		  faddr.c gmtoffset.c packet.c rfcdate.c term.c endian.c
+		  faddr.c gmtoffset.c packet.c rfcdate.c term.c endian.c timers.c
 COMMON_OBJS	= ftscprod.o attach.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
 		  batchrd.o ftn.o pktname.o mangle.o sectest.o proglock.o \
 		  dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
 		  execute.o expipe.o getheader.o noderecord.o rfcaddr.o strutil.o \
-		  faddr.o gmtoffset.o packet.o rfcdate.o term.o endian.o
+		  faddr.o gmtoffset.o packet.o rfcdate.o term.o endian.o timers.o
 COMMON_HDRS	= common.h
 NODELIST_SRCS	= nodelist.c
 NODELIST_OBJS	= nodelist.o
@@ -152,6 +152,7 @@ packet.o: ../config.h libs.h structs.h users.h records.h clcomm.h common.h dbnod
 rfcdate.o: ../config.h libs.h structs.h common.h clcomm.h
 term.o: ../config.h libs.h structs.h users.h ansi.h records.h common.h
 endian.o: ../config.h libs.h structs.h common.h
+timers.o: ../config.h libs.h structs.h clcomm.h common.h
 dbcfg.o: ../config.h libs.h mbse.h structs.h users.h records.h mberrors.h dbcfg.h
 dbdupe.o: ../config.h libs.h structs.h clcomm.h mberrors.h dbdupe.h
 dbftn.o: ../config.h libs.h structs.h users.h records.h dbcfg.h dbftn.h
