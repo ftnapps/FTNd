@@ -27,18 +27,17 @@ typedef struct _down_list {
  */
 typedef struct _up_list {
 	struct _up_list		*next;
-	char			*remote;	/* Remote filename	*/
-	char			*local;		/* Local filename	*/
-	long			cps;		/* CPS after received	*/
-	unsigned		success	: 1;	/* If received Ok.	*/
+	char			*filename;	/* Filename		*/
+	unsigned long		size;		/* Filesize		*/
 } up_list;
 
-int             ForceProtocol(void);
 
-void add_download(down_list **, char *, char *, long, unsigned long, int);
-void tidy_download(down_list **);
-int download(down_list *);
-int upload(up_list *);
+int     ForceProtocol(void);
+void	add_download(down_list **, char *, char *, long, unsigned long, int);
+void	tidy_download(down_list **);
+int	download(down_list *);
+void	tidy_upload(up_list **);
+int	upload(up_list **);
 
 
 #endif

@@ -257,7 +257,7 @@ JN|Node onbekend, toch doorgaan [j/N]:
 |Verwijder selectie Offline Reader berichten gebieden
 |FILEID.DIZ gevonden in
 |Geen bestanden gemarkeerd voor download.
-|extra minuten.
+|
 |De volgende conferentie(s) zijn geselecteerd:
 |Bestand                                                Grootte     Datum
 |Protocol: Kan protocollen bestand niet openen.

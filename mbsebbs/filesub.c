@@ -759,20 +759,20 @@ char *GetFileType(char *fn)
 /*
  * Import file in area. Returns TRUE if successfull.
  */
-int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
+int ImportFile(char *fn, int Area, int fileid, off_t Size)
 {
     char    *temp, *temp1, msg[81];
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/%s", area.Path, fn);
-    sprintf(temp1, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    sprintf(temp, "%s/%s", area.Path, basename(fn));
+    sprintf(temp1, "%s", fn);
 
     if ((file_mv(temp1, temp))) {
 	WriteError("$Can't move %s to %s", fn, area.Path);
     } else {
 	chmod(temp, 0664);
-	if (Addfile(fn, Area, fileid)) {
+	if (Addfile(basename(fn), Area, fileid)) {
 
 	    ReadExitinfo();
 
@@ -793,13 +793,6 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 		exitinfo.DownloadKToday += (Size / 1024);
 		Syslog('b', "DownloadKToday %d", exitinfo.DownloadKToday);
 	    }
-
-	    iTime /= 60; /* Divide Seconds by 60 to give minutes */
-	    /* You have */ /* extra minutes. */
-	    sprintf(msg, "%s %ld %s", (char *) Language(249), iTime, (char *) Language(259));
-	    PUTSTR(msg);
-	    Enter(1);
-	    exitinfo.iTimeLeft += iTime;
 
 	    WriteExitinfo();
 	    free(temp);

@@ -20,7 +20,7 @@ char		*GetFileType(char *);
 void		Home(void);
 int		ScanDirect(char *);
 int		ScanArchive(char *, char *);
-int		ImportFile(char *, int, int, time_t, off_t);
+int		ImportFile(char *, int, int, off_t);
 unsigned long	Quota(void);
 void		ImportHome(char *);
 

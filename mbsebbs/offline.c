@@ -1011,10 +1011,10 @@ USHORT TOffline::TooOld (ULONG Restrict, class TMsgBase *Msg)
  */
 void OLR_Upload(void)
 {
-    char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81], msg[81];
-    time_t	ElapstimeStart, ElapstimeFin, iTime;
-    int		err, RetVal = FALSE;
+    char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81];
+    int		rc = 0, RetVal = FALSE;
     FILE	*fp;
+    up_list	*up = NULL, *tmpf;
 
     if (strlen(CFG.bbsid) == 0) {
 	PUTSTR((char *)"System configuration error, inform sysop");
@@ -1029,57 +1029,17 @@ void OLR_Upload(void)
     /*      Offline Reader Upload */
     poutCR(LIGHTMAGENTA, BLACK, (char *)Language(439));
 
-    if (!ForceProtocol())
-	return;
-
     File  = calloc(PATH_MAX, sizeof(char));
     temp  = calloc(PATH_MAX, sizeof(char));
 
     Enter(1);
-    /* Please start your upload now */
-    sprintf(msg, "%s, %s", sProtAdvice, (char *) Language(283));
-    pout(CFG.HiliteF, CFG.HiliteB, msg);
-    Enter(2);
-    Syslog('+', "Upload using %s", sProtName);
 
-    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-
-    if (chdir(temp)) {
-	WriteError("$Can't chdir to %s", temp);
+    if ((rc = upload(&up))) {
+	Syslog('+', "Upload failed, rc=%d", rc);
 	return;
     }
-
-    sleep(2);
-    ElapstimeStart = time(NULL);
-
-    /*
-     *  Get the file
-     */
-    Altime(7200);
-    alarm_set(7190);
-    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
-    if (rawport() != 0) {
-	WriteError("Unable to set raw mode");
-    }
-    if (err) {
-	WriteError("$Upload error %d, prot: %s", err, sProtUp);
-    }
-    Altime(0);
-    alarm_off();
-    alarm_on();
-
-    Enter(1);
-    ElapstimeFin = time(NULL);
-
-    /*
-     *  Get the upload time.
-     */
-    iTime = ElapstimeFin - ElapstimeStart;
-    if (!iTime)
-	iTime = 1;
-
-    Syslog('m', "Transfer time %ld", iTime);
     Home();
+    Enter(1);
 
     sprintf(Dirpath, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
     sprintf(Filename, "%s.NEW", CFG.bbsid);
@@ -1097,12 +1057,18 @@ void OLR_Upload(void)
 
     if (RetVal == FALSE) {
 	WriteError("Invalid OLR packed received");
+	for (tmpf = up; tmpf; tmpf = tmpf->next) {
+	    Syslog('+', "Delete %s", tmpf->filename);
+	    unlink(tmpf->filename);
+	}
+	tidy_upload(&up);
 	/*      Invalid packet received */
 	pout(LIGHTRED, BLACK, (char *)Language(440));
 	Enter(2);
-	sleep(2);
+	sleep(3);
 	return;
     }
+    tidy_upload(&up);
 
     sprintf(File, "%s/%s", Dirpath, Filename);
     Syslog('+', "Received OLR packet %s", File);
@@ -1112,6 +1078,7 @@ void OLR_Upload(void)
 	poutCR(LIGHTRED, BLACK, (char *)Language(441));
 	Syslog('+', "Unknown compression type");
 	Pause();
+	unlink(File);
 	return;
     }
 
@@ -1134,6 +1101,7 @@ void OLR_Upload(void)
 	/*      Archiver not available */
 	poutCR(LIGHTRED, BLACK, (char *)Language(442));
 	Pause();
+	unlink(File);
 	return;
     }
 
@@ -1147,11 +1115,11 @@ void OLR_Upload(void)
     Syslog('m', "Unarc %s", temp);
     colour(CFG.HiliteF, CFG.HiliteB);
 
-    err = execute_str(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    rc = execute_str(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     if (rawport() != 0) {
 	WriteError("Unable to set raw mode");
     }
-    if (err) {
+    if (rc) {
 	WriteError("$Failed %s", temp);
 	/* ERROR */
 	poutCR(LIGHTRED, BLACK, (char *) Language(217));

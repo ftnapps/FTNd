@@ -349,14 +349,42 @@ int download(down_list *download_list)
 
 
 
+void tidy_upload(up_list **fdp)
+{
+    up_list   *tmp, *old;
+
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->filename)
+	    free(tmp->filename);
+	free(tmp);
+    }
+
+    *fdp = NULL;
+    return;
+}
+
+
+
 /*
  * Upload files from the user.
  * Returns:
  *  0 - All seems well
  *  1 - No transfer protocol selected.
+ *  2 - Transfer failed
  */
-int upload(up_list *upload_list)
+int upload(up_list **upload_list)
 {
+    char	    *temp;
+    struct dirent   *dp;
+    DIR		    *dirp;
+    struct stat	    statfile;
+    struct timeval  starttime, endtime;
+    struct timezone tz;
+    unsigned long   Size = 0;
+    int		    err, Count = 0, rc = 0;
+    up_list	    *tmp, *ta;
+
     /*
      * If user has no default protocol, make sure he has one.
      */
@@ -364,7 +392,91 @@ int upload(up_list *upload_list)
 	return 1;
     }
 
-    return 0;
+    temp  = calloc(PATH_MAX, sizeof(char));
+
+    /* Please start your upload now */
+    sprintf(temp, "%s, %s", sProtAdvice, (char *) Language(283));
+    pout(CFG.HiliteF, CFG.HiliteB, temp);
+    Enter(2);
+    Syslog('+', "Upload using %s", sProtName);
+
+    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+
+    if (chdir(temp)) {
+	WriteError("$Can't chdir to %s", temp);
+	free(temp);
+	return 1;
+    }
+    sleep(2);
+
+    if (uProtInternal) {
+    } else {
+	/*
+	 * External protocol
+	 */
+	gettimeofday(&starttime, &tz);
+    
+	Altime(7200);
+	alarm_set(7190);
+	err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
+	if (rawport() != 0) {
+	    WriteError("Unable to set raw mode");
+	}
+	if (err) {
+	    WriteError("$Upload error %d, prot: %s", err, sProtUp);
+	    rc = 2;
+	}
+	Altime(0);
+	alarm_off();
+	alarm_on();
+
+	gettimeofday(&endtime, &tz);
+
+	/*
+	 * With external protocols we don't know anything about what we got.
+	 * Just check the files in the users upload directory.
+	 */
+	if ((dirp = opendir(".")) == NULL) {
+	    WriteError("$Upload: can't open ./upl");
+	    Home();
+	    rc = 1;
+	} else {
+	    while ((dp = readdir(dirp)) != NULL) {
+		if (*(dp->d_name) != '.') {
+		    stat(dp->d_name, &statfile);
+		    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+		    Count++;
+		    Size += statfile.st_size;
+		    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
+		    chmod(temp, 0660);
+
+		    /*
+		     * Add uploaded file to the list
+		     */
+		    tmp = (up_list *)malloc(sizeof(up_list));
+		    tmp->next = NULL;
+		    tmp->filename = xstrcpy(temp);
+		    tmp->size = Size;
+
+		    if (*upload_list == NULL) {
+			*upload_list = tmp;
+		    } else {
+			for (ta = *upload_list; ta; ta = ta->next) {
+			    if (ta->next == NULL) {
+				ta->next = (up_list *)tmp;
+				break;
+			    }
+			}
+		    }
+		}
+	    }
+	    closedir(dirp);
+	    Syslog('+', "Upload %s in %d file(s)", transfertime(starttime, endtime, (unsigned long)Size, FALSE), Count);
+	}
+    }
+    free(temp);
+
+    return rc;
 }
 
 

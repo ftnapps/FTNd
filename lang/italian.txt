@@ -257,7 +257,7 @@ SN|Nodo sconosciuto, continua lo stesso [s/N]:
 |Untag aree messaggi per l'Offline Reader
 |Trovato FILEID.DIZ in
 |Nessun file selezionato per il download.
-|minuti extra.
+|
 |Hai selezionato le seguenti Conferenze:
 |Filename                                               Dimensione  Data
 |Protocollo: Non posso aprire il file del protocollo.

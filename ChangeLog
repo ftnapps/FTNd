@@ -25,9 +25,13 @@ v0.71.0		27-Oct-2004
 		Removed support for non-batching protocols (xmodem) and for
 		bidirectional protocols.
 		Removed Ctrl-F G, this is of no use anymore.
-		Switched to new modular download function.
+		Switched to new modular download and upload functions.
 		With download from file areas, the long filename is sent to
 		the users, we will only support protocols that allow this.
+		When an invalid OLR reply packet is received, it is removed
+		from the users upload directory.
+		We don't reward upload time anymore, only bytes. It's more
+		troubles to implement right then it's worth these days.
 
 	mbnewusr:
 		Rewrote terminal i/o.
@@ -41,7 +45,7 @@ v0.71.0		27-Oct-2004
 		Changed width of prompt 261.
 		Added prompt 28.
 		Removed leading spaces of prompt 151.
-		Removed prompt 276.
+		Removed prompts 259 and 276.
 
 	script:
 		Modified rundoor.sh so that it uses two different dosemu

@@ -882,24 +882,12 @@ int NewfileScan(int AskStart)
  */
 int Upload()
 {
-    char	    temp[81];
-    int		    Area, err;
+    int		    Area, rc;
     unsigned long   OldArea;
-    time_t	    ElapstimeStart, ElapstimeFin, iTime;
-    DIR		    *dirp;
-    struct dirent   *dp;
-    struct stat	    statfile;
-    char	    *arc;
-
+    char	    *arc, *temp;
+    up_list	    *up = NULL, *tmpf;
 
     WhosDoingWhat(UPLOAD, NULL); 
-
-    /*
-     * Select default protocol if users hasn't any.
-     */
-    if (!ForceProtocol())
-	return 0;
-
     Enter(1);
     Area = OldArea = iAreaNumber;
 
@@ -909,8 +897,6 @@ int Upload()
      */
     if (area.Upload)
 	Area = area.Upload;
-    SetFileArea(Area);
-
     SetFileArea(Area);
     Syslog('+', "Upload area is %d %s", Area, area.Name);
 
@@ -929,113 +915,66 @@ int Upload()
 
     clear();
     Enter(2);
-    colour(CFG.HiliteF, CFG.HiliteB);
-    /* Please start your upload now ...*/
-    pout(CFG.HiliteF, CFG.HiliteB, sProtAdvice);
-    PUTCHAR(' ');
-    PUTSTR((char *) Language(283));
-    Enter(2);
 
-    Syslog('+', "Upload using %s", sProtName);
+    rc = upload(&up);
 
-    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-    if (chdir(temp)) {
-	WriteError("$Can't chdir to %s", temp);
+    if (rc) {
+	Syslog('+', "Upload failed, rc=%d", rc);
 	SetFileArea(OldArea);
 	return 0;
     }
-
-    sleep(2);
-    ElapstimeStart = time(NULL);
-	
-    /*
-     * Get the file(s). Set the Client/Server time to 2 hours.
-     * This is not a nice solution, at least it works and prevents
-     * that the bbs will hang.
-     */
-    Altime(7200);
-    alarm_set(7190);
-    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
-    rawport();
-
-    if (err) {
-	/*
-	 * Log any errors
-	 */
-	WriteError("$Upload error %d, prot: %s", err, sProtUp);
-    }
-    Altime(0);
-    alarm_off();
-    alarm_on();
-    Enter(3);
-    ElapstimeFin = time(NULL);
-
-    /*
-     * Get time from Before Upload and After Upload to get
-     * upload time, if the time is zero, it will be one.
-     */
-    iTime = ElapstimeFin - ElapstimeStart;
-    if (!iTime)
-	iTime = 1;
-
-    Syslog('b', "Transfer time %ld", iTime);
-
-    if ((dirp = opendir(".")) == NULL) {
-	WriteError("$Upload: can't open ./upl");
-	Home();
-	SetFileArea(OldArea);
-	return 1;
-    }
+    Syslog('b', "upload done, start checks");
 
     Enter(2);
     pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"Checking your upload(s)");
     Enter(1);
 
-    while ((dp = readdir(dirp)) != NULL) {
-	if (*(dp->d_name) != '.') {
-	    stat(dp->d_name, &statfile);
-	    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+    temp = calloc(PATH_MAX, sizeof(char));
+    for (tmpf = up; tmpf; tmpf = tmpf->next) {
+	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+	chdir(temp);
 
-	    if ((arc = GetFileType(dp->d_name)) == NULL) {
-		/*
-		 * If the filetype is unknown, it is probably 
-		 * a textfile or so. Import it direct.
-		 */
-		Syslog('b', "Unknown file type");
-		if (!ScanDirect(dp->d_name))
-		    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+	Syslog('b', "Checking upload %s", tmpf->filename);
+	if ((arc = GetFileType(tmpf->filename)) == NULL) {
+	    /*
+	     * If the filetype is unknown, it is probably 
+	     * a textfile or so. Import it direct.
+	     */
+	    Syslog('b', "Unknown file type");
+	    if (!ScanDirect(basename(tmpf->filename)))
+		ImportFile(tmpf->filename, Area, FALSE, tmpf->size);
+	} else {
+	    /*
+	     * We figured out the type of the uploaded file.
+	     */
+	    Syslog('b', "File type is %s", arc);
+
+	    /*
+	     * MS-DOS executables are handled direct.
+	     */
+	    if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
+	        if (!ScanDirect(basename(tmpf->filename))) 
+		   ImportFile(tmpf->filename, Area, FALSE, tmpf->size);
 	    } else {
-		/*
-		 * We figured out the type of the uploaded file.
-		 */
-		Syslog('b', "File type is %s", arc);
-
-		/*
-		 * MS-DOS executables are handled direct.
-		 */
-		if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
-		    if (!ScanDirect(dp->d_name)) 
-			ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
-		} else {
-		    switch (ScanArchive(dp->d_name, arc)) {
-			case 0:	ImportFile(dp->d_name, Area, TRUE, iTime, statfile.st_size);
-				break;
-			case 1: break;
-			case 2: break;
-			case 3: /*
-				 * No valid unarchiver found, just import after scanning,
-			         * may catch macro viri.
-			         */
-			        if (!ScanDirect(dp->d_name))
-				    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
-				break;
-		    }
+		switch (ScanArchive(basename(tmpf->filename), arc)) {
+		    case 0: ImportFile(tmpf->filename, Area, TRUE, tmpf->size);
+			    break;
+		    case 1: break;
+		    case 2: break;
+		    case 3: /*
+			     * No valid unarchiver found, just import after scanning,
+			     * may catch macro viri.
+			     */
+			    if (!ScanDirect(basename(tmpf->filename)))
+				ImportFile(tmpf->filename, Area, FALSE, tmpf->size);
+			    break;
 		}
 	    }
 	}
     }
-    closedir(dirp);
 
+    tidy_upload(&up);
+    free(temp);
     Home();
     SetFileArea(OldArea);
     Pause();
@@ -1168,7 +1107,7 @@ void List_Home()
  */
 void Delete_Home()
 {
-    char    *temp, *temp1;
+    char    *temp, *temp1, msg[81];
     int	i;
 
     temp  = calloc(PATH_MAX, sizeof(char));
@@ -1198,8 +1137,8 @@ void Delete_Home()
 	if ((access(temp, R_OK)) == 0) {
 	    Enter(1);
 	    /* Delete file: */ /* Are you Sure? [Y/n]: */
-	    sprintf(temp1, "%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
-	    pout(LIGHTGREEN, BLACK, temp1);
+	    sprintf(msg, "%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
+	    pout(LIGHTGREEN, BLACK, msg);
 	    i = toupper(Readkey());
 
 	    if (i == Keystroke(369, 0) || i == 13) {
@@ -1306,142 +1245,84 @@ int Download_Home()
  */
 int Upload_Home()
 {
-    DIR		    *dirp;
-    struct dirent   *dp;
-    char	    *File, *sFileName, *temp, *arc;
-    time_t	    ElapstimeStart, ElapstimeFin, iTime;
-    int		    err;
-    struct stat	    statfile;
-	
-    WhosDoingWhat(UPLOAD, NULL);
-    if (!ForceProtocol())
-	return 0;
+    char    *temp, *arc;
+    int	    rc = 0, Count = 0;
+    up_list *up = NULL, *tmpf;
 
-    File      = calloc(PATH_MAX, sizeof(char));
-    sFileName = calloc(PATH_MAX, sizeof(char));
+    WhosDoingWhat(UPLOAD, NULL);
+
     temp      = calloc(PATH_MAX, sizeof(char));
 
     clear();
     Enter(2);
-    /* Please start your upload now ...*/
-    sprintf(temp, "%s, %s", sProtAdvice, (char *) Language(283));
-    pout(CFG.HiliteF, CFG.HiliteB, temp);
-    Enter(2);
-    Syslog('+', "Upload using %s", sProtName);
 
-    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-    if (chdir(temp)) {
-	WriteError("$Can't chdir to %s", temp);
-	free(File);
-	free(sFileName);
-	free(temp);
-	return 0;
-    }
+    rc = upload(&up);
 
-    sleep(2);
-    ElapstimeStart = time(NULL);
-	
-    /*
-     * Get the file(s). Set the Client/Server time to 2 hours.
-     * This is not a nice solution, at least it works and prevents
-     * that the bbs will hang.
-     */
-    Altime(7200);
-    alarm_set(7190);
-    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
-    rawport();
-
-    if (err) {
-	/*
-	 * Log any errors
-	 */
-	WriteError("$Upload error %d, prot: %s", err, sProtUp);
-    }
-    
-    Altime(0);
-    alarm_off();
-    alarm_on();
-    Enter(3);
-    ElapstimeFin = time(NULL);
-
-    /*
-     * Get time from Before Upload and After Upload to get
-     * upload time, if the time is zero, it will be one.
-     */
-    iTime = ElapstimeFin - ElapstimeStart;
-    if (!iTime)
-	iTime = 1;
-
-    Syslog('b', "Transfer time %ld", iTime);
-
-    if ((dirp = opendir(".")) == NULL) {
-	WriteError("$Upload: can't open ./upl");
+    if (rc) {
+	Syslog('+', "Upload home failed, rc=%d", rc);
 	Home();
-        free(File);
-        free(sFileName);
-        free(temp);
 	return 1;
     }
-
+    
     Syslog('b', "Start checking uploaded files");
     Enter(2);
     pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"Checking your upload(s)");
     Enter(2);
 
-    while ((dp = readdir(dirp)) != NULL) {
+    for (tmpf = up; tmpf; tmpf = tmpf->next) {
+	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+	chdir(temp);
 
-	if (*(dp->d_name) != '.') {
-	    stat(dp->d_name, &statfile);
-	    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+	Syslog('b', "Checking upload %s", tmpf->filename);
+	if ((arc = GetFileType(tmpf->filename)) == NULL) {
+	    /*
+	     * If the filetype is unknown, it is probably 
+	     * a textfile or so. Import it direct.
+	     */
+	    Syslog('b', "Unknown file type");
+	    ImportHome(basename(tmpf->filename));
+	    Count++;
+	} else {
+	    /*
+	     * We figured out the type of the uploaded file.
+	     */
+	    Syslog('b', "File type is %s", arc);
 
-	    if ((arc = GetFileType(dp->d_name)) == NULL) {
-		/*
-		 * If the filetype is unknown, it is probably 
-		 * a textfile or so. Import it direct.
-		 */
-		Syslog('b', "Unknown file type");
-		ImportHome(dp->d_name);
+	    /*
+	     * MS-DOS executables are handled direct.
+	     */
+	    if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
+	        if (!ScanDirect(basename(tmpf->filename))) {
+		    ImportHome(basename(tmpf->filename));
+		    Count++;
+		}
 	    } else {
-		/*
-		 * We figured out the type of the uploaded file.
-		 */
-		Syslog('b', "File type is %s", arc);
-
-		/*
-		 * MS-DOS executables are handled direct.
-		 */
-		if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
-		    if (!ScanDirect(dp->d_name)) 
-			ImportHome(dp->d_name);
-		} else {
-		    switch(ScanArchive(dp->d_name, arc)) {
-			case 0: ImportHome(dp->d_name);
-				break;
-			case 1: break;
-			case 2: break;
-			case 3: /*
-				 * No valid unarchiver found, just import
-				 */
-				ImportHome(dp->d_name);
-				break;
-		    }
+		switch(ScanArchive(basename(tmpf->filename), arc)) {
+		    case 0: ImportHome(basename(tmpf->filename));
+			    Count++;
+			    break;
+		    case 1: break;
+		    case 2: break;
+		    case 3: /*
+			     * No valid unarchiver found, just import
+			     */
+			    ImportHome(basename(tmpf->filename));
+			    Count++;
+			    break;
 		}
 	    }
 	}
     }
-	
-    closedir(dirp);
     Home();
 
     ReadExitinfo();
-    exitinfo.Uploads++;
+    exitinfo.Uploads += Count;
     WriteExitinfo();	
 
+    tidy_upload(&up);
     Pause();
-    free(File);
-    free(sFileName);
     free(temp);
-    return 1;
+    return rc;
 }
 
 

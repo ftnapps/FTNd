@@ -257,7 +257,7 @@ ON|Node inconnu, continue quand même [o/N]:
 |Untag Offline Reader message areas
 |Found FILEID.DIZ in
 |No files marked for download.
-|extra minutes.
+|
 |You have selected the following Conference(s):
 |Filename                                               Size        Date
 |Protocol: Can't open protocol file.

@@ -257,7 +257,7 @@ SN|Nodo desco¤ecido. ¨Continuar? [s/N]:
 |Desmarcar  reas para lectura Off-Line
 |Atopado FILEID.DIZ en
 |Non hai ficheiros marcados.
-|minutos extra.
+|
 |Escolleche-las seguintes  reas: 
 |Ficheiro                                               Tama¤o      Fecha
 |Protocolo: Non podo abrir ficheiro de protocolos.

@@ -257,7 +257,7 @@
 256	offline.c			|Untag Offline Reader message areas
 257	filesub.c			|Found FILEID.DIZ in
 258	file.c				|No files marked for download.
-259	filesub.c			|extra minutes.
+259	.c				|
 260	offline.c			|You have selected the following Conference(s):
 261	file.c				|Filename            Size        Date
 262	change.c			|Protocol: Can't open protocol file.

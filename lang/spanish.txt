@@ -257,7 +257,7 @@ SN|Nodo desconocido. ¨Continuar? [s/N]:
 |Desmarcar  reas para lectura Off-Line
 |Encontrado FILEID.DIZ en
 |No hay ficheros marcados.
-|minutos extra.
+|
 |Has seleccionado las siguientes  reas: 
 |Fichero                                                Tama¤o      Fecha
 |Protocolo: No puedo abrir fichero de protocolos.
