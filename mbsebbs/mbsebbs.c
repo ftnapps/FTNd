@@ -57,168 +57,167 @@ time_t		t_start;
 
 int main(int argc, char **argv)
 {
-	FILE		*pTty;
-	char		*p, *tty;
-	int		i;
-	char		temp[PATH_MAX];
+    FILE    *pTty;
+    char    *p, *tty, temp[PATH_MAX];
+    int	    i;
 
 #ifdef MEMWATCH
 	mwInit();
 #endif
-	printf("Loading MBSE BBS ...\n");
- 	pTTY = calloc(15, sizeof(char));
-	tty = ttyname(1);
+    printf("Loading MBSE BBS ...\n");
+    pTTY = calloc(15, sizeof(char));
+    tty = ttyname(1);
 
-	/*
-	 * Find username from the environment
-	 */
-	sUnixName[0] = '\0';
-        if (getenv("LOGNAME") != NULL) {
-                strcpy(sUnixName, getenv("LOGNAME"));
-        } else if (getenv("USER") != NULL) {
-		strcpy(sUnixName, getenv("USER"));
-	} else {
-                WriteError("No username in environment");
-                Quick_Bye(MBERR_OK);
-        }
+    /*
+     * Find username from the environment
+     */
+    sUnixName[0] = '\0';
+    if (getenv("LOGNAME") != NULL) {
+        strncpy(sUnixName, getenv("LOGNAME"), 8);
+    } else if (getenv("USER") != NULL) {
+	strcpy(sUnixName, getenv("USER"));
+    } else {
+        WriteError("No username in environment");
+        Quick_Bye(MBERR_OK);
+    }
 
-	/*
-	 * Set the users device to writable by other bbs users, so they
-         * can send one-line messages
-	 */
-	chmod(tty, 00666);
+    /*
+     * Set the users device to writable by other bbs users, so they
+     * can send one-line messages
+     */
+    chmod(tty, 00666);
 
-	/*
-	 * Get MBSE_ROOT Path and load Config into Memory
-	 */
-	FindMBSE();
+    /*
+     * Get MBSE_ROOT Path and load Config into Memory
+     */
+    FindMBSE();
 
-	/* 
-	 * Set local time and statistic indexes.
-	 */
-	Time_Now = t_start = time(NULL); 
-	l_date = localtime(&Time_Now); 
-	Diw = l_date->tm_wday;
-	Miy = l_date->tm_mon;
-	ltime = time(NULL);  
+    /* 
+     * Set local time and statistic indexes.
+     */
+    Time_Now = t_start = time(NULL); 
+    l_date = localtime(&Time_Now); 
+    Diw = l_date->tm_wday;
+    Miy = l_date->tm_mon;
+    ltime = time(NULL);  
 
-	/*
-	 * Initialize this client with the server. 
-	 */
-	do_quiet = TRUE;
-	InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog);
-	IsDoing("Loging in");
+    /*
+     * Initialize this client with the server. 
+     */
+    do_quiet = TRUE;
+    InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog);
+    IsDoing("Loging in");
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBSEBBS v%s", VERSION);
+    Syslog(' ', " ");
+    Syslog(' ', "MBSEBBS v%s", VERSION);
 
-	if ((p = getenv("CONNECT")) != NULL)
-		Syslog('+', "CONNECT %s", p);
-	if ((p = getenv("CALLER_ID")) != NULL)
-		if (!strncmp(p, "none", 4))
-			Syslog('+', "CALLER  %s", p);
+    if ((p = getenv("CONNECT")) != NULL)
+	Syslog('+', "CONNECT %s", p);
+    if ((p = getenv("CALLER_ID")) != NULL)
+	if (strncmp(p, "none", 4))
+	    Syslog('+', "CALLER  %s", p);
 
-	/*
-	 * Initialize 
-	 */
-	InitLanguage();
-	InitMenu();
-	memset(&MsgBase, 0, sizeof(MsgBase));
+    /*
+     * Initialize 
+     */
+    InitLanguage();
+    InitMenu();
+    memset(&MsgBase, 0, sizeof(MsgBase));
 		
-	i = getpid();
+    i = getpid();
 
-	if ((tty = ttyname(0)) == NULL) {
-		WriteError("Not at a tty");
-		Quick_Bye(MBERR_OK);
-	}
+    if ((tty = ttyname(0)) == NULL) {
+	WriteError("Not at a tty");
+	Quick_Bye(MBERR_OK);
+    }
 
-	if (strncmp("/dev/", tty, 5) == 0)
-		sprintf(pTTY, "%s", tty+5);
-	else if (*tty == '/') {
-		tty = strrchr(ttyname(0), '/');
-		++tty;
-		sprintf(pTTY, "%s", tty);
-	}
+    if (strncmp("/dev/", tty, 5) == 0)
+	sprintf(pTTY, "%s", tty+5);
+    else if (*tty == '/') {
+	tty = strrchr(ttyname(0), '/');
+	++tty;
+	sprintf(pTTY, "%s", tty);
+    }
 
-	umask(007);
+    umask(007);
 
-	/* 
-	 * Trap signals
-	 */
-	for(i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
-		signal(i, (void (*))die);
+    /* 
+     * Trap signals
+     */
+    for(i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+	    signal(i, (void (*))die);
 	else
-		signal(i, SIG_IGN);
-	}
+	    signal(i, SIG_IGN);
+    }
 
-	/*
-	 * Default set the terminal to ANSI mode. If your logo
-	 * is in color, the user will see color no mather what.
-	 */
-	TermInit(1);
+    /*
+     * Default set the terminal to ANSI mode. If your logo
+     * is in color, the user will see color no mather what.
+     */
+    TermInit(1);
 		
-	sprintf(temp, "chat.%s", pTTY);
-	if(access(temp, F_OK) == 0)
-		unlink(temp);
+    sprintf(temp, "chat.%s", pTTY);
+    if (access(temp, F_OK) == 0)
+	unlink(temp);
 
-	/*
-	 * Now it's time to check if the bbs is open. If not, we 
-	 * log the user off.
-	 */
-	if (CheckStatus() == FALSE) {
-		Syslog('+', "Kicking user out, the BBS is closed");
-		Quick_Bye(MBERR_OK);
-	}
+    /*
+     * Now it's time to check if the bbs is open. If not, we 
+     * log the user off.
+     */
+    if (CheckStatus() == FALSE) {
+	Syslog('+', "Kicking user out, the BBS is closed");
+	Quick_Bye(MBERR_OK);
+    }
 
-	clear();
-	DisplayLogo();
+    clear();
+    DisplayLogo();
 
-	colour(YELLOW, BLACK);
-	printf("MBSE BBS v%s (Release: %s) on %s/%s\n", VERSION, ReleaseDate, OsName(), OsCPU());
-	colour(WHITE, BLACK);
-	printf("%s\n\n", COPYRIGHT);
+    colour(YELLOW, BLACK);
+    printf("MBSE BBS v%s (Release: %s) on %s/%s\n", VERSION, ReleaseDate, OsName(), OsCPU());
+    colour(WHITE, BLACK);
+    printf("%s\n\n", COPYRIGHT);
  
-	/*
-	 * Check if this port is available.
-	 */
-	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    /*
+     * Check if this port is available. In iNode we set a fake
+     * line number, this will be used by doors.
+     */
+    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    iNode = 0;
+    if ((pTty = fopen(temp, "r")) == NULL) {
+	WriteError("Can't read %s", temp);	
+    } else {
+	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
 
-	iNode = 0;
-	if ((pTty = fopen(temp, "r")) == NULL) {
-		WriteError("Can't read %s", temp);	
-	} else {
-		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
-
-		while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-			iNode++;
-			if (strcmp(ttyinfo.tty, pTTY) == 0) 
-				break;
-		}
-		fclose(pTty);
-
-		if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
-			Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-			printf("No BBS on this port allowed!\n\n");
-			Quick_Bye(MBERR_OK);
-		}
-		Syslog('b', "Node number %d", iNode);
-
-		/* 
-		 * Ask whether to display Connect String 
-		 */
-		if (CFG.iConnectString) {
-			/* Connected on port */
-			colour(CYAN, BLACK);
-			printf("%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
-			/* on */
-			printf("%s %s\n", (char *) Language(135), ctime(&ltime));
-		}
+	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
+	    iNode++;
+	    if (strcmp(ttyinfo.tty, pTTY) == 0) 
+		break;
 	}
+	fclose(pTty);
 
-	sprintf(sMailbox, "mailbox");
-	colour(LIGHTGRAY, BLACK);
-	user();
-	return 0;
+	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
+	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
+	    printf("No BBS on this port allowed!\n\n");
+	    Quick_Bye(MBERR_OK);
+	}
+	Syslog('b', "Node number %d", iNode);
+
+	/* 
+	 * Display Connect String if turned on.
+	 */
+	if (CFG.iConnectString) {
+	    /* Connected on port */
+	    colour(CYAN, BLACK);
+	    printf("%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    /* on */
+	    printf("%s %s\n", (char *) Language(135), ctime(&ltime));
+	}
+    }
+
+    sprintf(sMailbox, "mailbox");
+    colour(LIGHTGRAY, BLACK);
+    user();
+    return 0;
 }
 

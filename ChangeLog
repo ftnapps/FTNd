@@ -55,6 +55,7 @@ v0.35.06
 		Uploaded files will now also have a 8.3 hard link to the long
 		filename.
 		Filesearch on filename now uses regexp to find the files.
+		The caller id didn't show up when the info was available.
 
 	mbfido:
 		TIC file forwarding now uses a list of qualified systems to
