@@ -117,6 +117,8 @@ int main(int argc, char **argv)
 	if (strncasecmp(argv[i], "pa", 2) == 0)
 	    do_pack = TRUE;
 	if (strncasecmp(argv[i], "po", 2) == 0) {
+	    if ((argc - i) != 6)
+		Help();
 	    do_post = TRUE;
 	    too = argv[++i];
 	    cmd = xstrcat(cmd, (char *)" \"");

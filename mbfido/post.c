@@ -43,203 +43,232 @@ extern int		do_quiet;		/* Suppress screen output    */
 
 void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 {
-	int		i, rc = FALSE;
-	char		*aka, *temp, *sAreas;
-	FILE		*fp, *tp;
-	unsigned long	crc = -1;
-	time_t		tt;
-	struct tm	*t;
+    int		    i, rc = FALSE;
+    char	    *aka, *temp, *sAreas;
+    FILE	    *fp, *tp;
+    unsigned long   crc = -1;
+    time_t	    tt;
+    struct tm	    *t;
 
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);
+    }
 
-	if (!do_quiet) {
-		colour(3, 0);
-		printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);
-	}
+    IsDoing("Posting");
+    Syslog('+', "Post \"%s\" area %ld to \"%s\" flavor %s", File, Area, To, Flavor);
+    Syslog('+', "Subject: \"%s\"", Subj);
 
-	IsDoing("Posting");
-	Syslog('+', "Post \"%s\" area %ld to \"%s\" flavor %s", File, Area, To, Flavor);
-	Syslog('+', "Subject: \"%s\"", Subj);
+    if ((tp = fopen(File, "r")) == NULL) {
+	WriteError("$Can't open %s", File);
+	if (!do_quiet)
+	    printf("Can't open \"%s\"\n", File);
+	return;
+    }
 
-	if ((tp = fopen(File, "r")) == NULL) {
-		WriteError("$Can't open %s", File);
-		return;
-	}
-
-	sAreas = calloc(128, sizeof(char));
-	sprintf(sAreas, "%s//etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(sAreas, "r")) == NULL) {
-		WriteError("$Can't open %s", sAreas);
-		free(sAreas);
-		fclose(tp);
-		return;
-	}
-
-	fread(&msgshdr, sizeof(msgshdr), 1, fp);
-	if (fseek(fp, (msgshdr.recsize + msgshdr.syssize) * (Area - 1), SEEK_CUR) == 0) {
-		if (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
-			rc = TRUE;
-		} else {
-			WriteError("$Can't read area %ld", Area);
-		}
-	} else {
-		WriteError("$Can't seek area %ld", Area);
-	}
-
+    sAreas = calloc(PATH_MAX, sizeof(char));
+    sprintf(sAreas, "%s//etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(sAreas, "r")) == NULL) {
+	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
-	if (rc == FALSE) {
-		fclose(fp);
-		fclose(tp);
-		return;
-	}
-
-	if (!msgs.Active) {
-		WriteError("Area %s not active", msgs.Name);
-		fclose(fp);
-		fclose(tp);
-		return;
-	}
-
-	if (!Msg_Open(msgs.Base)) {
-		WriteError("Can't open %s", msgs.Base);
-		fclose(fp);
-		fclose(tp);
-		return;
-	}
-
-	if (!Msg_Lock(30L)) {
-		WriteError("Can't lock %s", msgs.Base);
-		Msg_Close();
-		fclose(fp);
-		fclose(tp);
-		return;
-	}
-
-	tt = time(NULL);
-	t = localtime(&tt);
-	Diw = t->tm_wday;
-	Miy = t->tm_mon;
-	memset(&Msg, 0, sizeof(Msg));
-	Msg_New();
-
-	/*
-	 * Update statistic counter for message area
-	 */
-	fseek(fp, - msgshdr.recsize, SEEK_CUR);
-	msgs.Posted.total++;
-	msgs.Posted.tweek++;
-	msgs.Posted.tdow[Diw]++;
-	msgs.Posted.month[Miy]++;
-	fwrite(&msgs, msgshdr.recsize, 1, fp);
-	fclose(fp);
-
-	/*
-	 * Start writing the message
-	 */
-	sprintf(Msg.From, CFG.sysop_name);
-	sprintf(Msg.To, To);
-
-	/*
-	 * If netmail, clean the To field.
-	 */
-	if ((msgs.Type == NETMAIL) && strchr(To, '@')) {
-		for (i = 0; i < strlen(Msg.To); i++) {
-			if (Msg.To[i] == '_')
-				Msg.To[i] = ' ';
-			if (Msg.To[i] == '@') {
-				Msg.To[i] = '\0';
-				break;
-			}
-		}
-	}
-
-	sprintf(Msg.Subject, "%s", Subj);
-	sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
-	Msg.Written = time(NULL);
-	Msg.Arrived = time(NULL);
-	Msg.Local = TRUE;
-
-	if (strchr(Flavor, 'c'))
-		Msg.Crash = TRUE;
-	if (strchr(Flavor, 'p'))
-		Msg.Private = TRUE;
-	if (strchr(Flavor, 'h'))
-		Msg.Hold = TRUE;
-
-	switch (msgs.Type) {
-		case LOCALMAIL:	
-				Msg.Localmail = TRUE;
-				break;
-
-		case NETMAIL:
-				Msg.Netmail = TRUE;
-				sprintf(Msg.ToAddress, "%s", ascfnode(parsefaddr(To), 0xff));
-				break;
-
-		case ECHOMAIL:
-				Msg.Echomail = TRUE;
-				break;
-
-		case NEWS:
-				Msg.News = TRUE;
-				break;
-	}
-
-	temp = calloc(128, sizeof(char));
-	sprintf(temp, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
-	MsgText_Add2(temp);
-	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
-	Msg.ReplyCRC = 0xffffffff;
-	sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
-	MsgText_Add2(temp);
-	if (msgs.Charset != FTNC_NONE) {
-	    sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
-	} else {
-	    sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
-	}
-	MsgText_Add2(temp);
-	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
-	MsgText_Add2(temp);
-
-	/*
-	 * Add the file as text
-	 */
-	Msg_Write(tp);
 	fclose(tp);
+	return;
+    }
 
-	/*
-	 * Finish the message
-	 */
-	aka = calloc(40, sizeof(char));
-	MsgText_Add2((char *)"");
-	MsgText_Add2(TearLine());
+    fread(&msgshdr, sizeof(msgshdr), 1, fp);
+    if (fseek(fp, (msgshdr.recsize + msgshdr.syssize) * (Area - 1), SEEK_CUR) == 0) {
+	if (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
+	    rc = TRUE;
+	} else {
+	    WriteError("$Can't read area %ld", Area);
+	}
+    } else {
+	WriteError("$Can't seek area %ld", Area);
+    }
 
-	if (msgs.Aka.point)
-		sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
-	else
-		sprintf(aka, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+    free(sAreas);
+    if (rc == FALSE) {
+	fclose(fp);
+	fclose(tp);
+	return;
+    }
 
-	if (strlen(msgs.Origin))
-		sprintf(temp, " * Origin: %s %s", msgs.Origin, aka);
-	else
-		sprintf(temp, " * Origin: %s %s", CFG.origin, aka);
+    if (!msgs.Active) {
+	WriteError("Area %s not active", msgs.Name);
+	fclose(fp);
+	fclose(tp);
+	return;
+    }
 
-	MsgText_Add2(temp);
-	free(aka);
+    /*
+     * Check the proper syntax in the To parameter, in netmail areas
+     * it must have a destination address, in all other areas just a
+     * full name.
+     */
+    if (msgs.Type == NETMAIL) {
+	if ((strchr(To, '@') == NULL) || (strstr(To, (char *)".n") == NULL) || (strstr(To, (char *)".z") == NULL)) {
+	    WriteError("No address in \"%s\" and area is netmail", To);
+	    if (!do_quiet)
+		printf("No address in \"%s\" and area is netmail\n", To);
+	    fclose(fp);
+	    fclose(tp);
+	    return;
+	}
+    } else {
+	if ((strchr(To, '@')) || (strstr(To, (char *)".n")) || (strstr(To, (char *)".z"))) {
+	    WriteError("Address present in \"%s\" and area is not netmail", To);
+	    if (!do_quiet)
+		printf("Address present in \"%s\" and area is not netmail\n", To);
+	    fclose(fp);
+	    fclose(tp);
+	    return;
+	}
+    }
 
-	Msg_AddMsg();
-	Msg_UnLock();
-	Syslog('+', "Posted message %ld", Msg.Id);
+    if (!Msg_Open(msgs.Base)) {
+	WriteError("Can't open %s", msgs.Base);
+	fclose(fp);
+	fclose(tp);
+	return;
+    }
 
+    if (!Msg_Lock(30L)) {
+	WriteError("Can't lock %s", msgs.Base);
+	Msg_Close();
+	fclose(fp);
+	fclose(tp);
+	return;
+    }
+
+    tt = time(NULL);
+    t = localtime(&tt);
+    Diw = t->tm_wday;
+    Miy = t->tm_mon;
+    memset(&Msg, 0, sizeof(Msg));
+    Msg_New();
+
+    /*
+     * Update statistic counter for message area
+     */
+    fseek(fp, - msgshdr.recsize, SEEK_CUR);
+    msgs.Posted.total++;
+    msgs.Posted.tweek++;
+    msgs.Posted.tdow[Diw]++;
+    msgs.Posted.month[Miy]++;
+    fwrite(&msgs, msgshdr.recsize, 1, fp);
+    fclose(fp);
+
+    /*
+     * Start writing the message
+     */
+    sprintf(Msg.From, CFG.sysop_name);
+    sprintf(Msg.To, To);
+
+    /*
+     * If netmail, clean the To field.
+     */
+    if ((msgs.Type == NETMAIL) && strchr(To, '@')) {
+	for (i = 0; i < strlen(Msg.To); i++) {
+	    if (Msg.To[i] == '_')
+		Msg.To[i] = ' ';
+	    if (Msg.To[i] == '@') {
+		Msg.To[i] = '\0';
+		break;
+	    }
+	}
+    }
+
+    sprintf(Msg.Subject, "%s", Subj);
+    sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
+    Msg.Written = time(NULL);
+    Msg.Arrived = time(NULL);
+    Msg.Local = TRUE;
+
+    if (strchr(Flavor, 'c'))
+	Msg.Crash = TRUE;
+    if (strchr(Flavor, 'p'))
+	Msg.Private = TRUE;
+    if (strchr(Flavor, 'h'))
+	Msg.Hold = TRUE;
+
+    switch (msgs.Type) {
+	case LOCALMAIL:	
+			Msg.Localmail = TRUE;
+			break;
+
+	case NETMAIL:
+			Msg.Netmail = TRUE;
+			sprintf(Msg.ToAddress, "%s", ascfnode(parsefaddr(To), 0xff));
+			break;
+
+	case ECHOMAIL:
+			Msg.Echomail = TRUE;
+			break;
+
+	case NEWS:
+			Msg.News = TRUE;
+			break;
+    }
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
+    MsgText_Add2(temp);
+    Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
+    Msg.ReplyCRC = 0xffffffff;
+    sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
+    MsgText_Add2(temp);
+    if (msgs.Charset != FTNC_NONE) {
+	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
+    } else {
+	sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
+    }
+    MsgText_Add2(temp);
+    sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
+    MsgText_Add2(temp);
+
+    /*
+     * Add the file as text
+     */
+    Msg_Write(tp);
+    fclose(tp);
+
+    /*
+     * Finish the message
+     */
+    aka = calloc(40, sizeof(char));
+    MsgText_Add2((char *)"");
+    MsgText_Add2(TearLine());
+
+    if (msgs.Aka.point)
+	sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
+    else
+	sprintf(aka, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+
+    if (strlen(msgs.Origin))
+	sprintf(temp, " * Origin: %s %s", msgs.Origin, aka);
+    else
+	sprintf(temp, " * Origin: %s %s", CFG.origin, aka);
+
+    MsgText_Add2(temp);
+    free(aka);
+
+    Msg_AddMsg();
+    Msg_UnLock();
+    Syslog('+', "Posted message %ld", Msg.Id);
+
+    if (msgs.Type != LOCALMAIL) {
 	sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), (msgs.Type == ECHOMAIL) ? "echo" : "net");
 	if ((fp = fopen(temp, "a")) != NULL) {
-		fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
-		fclose(fp);
+	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+	    fclose(fp);
 	}
-	free(temp);
-	Msg_Close();
 	CreateSema((char *)"mailout");
+    }
 
-	return;
+    free(temp);
+    Msg_Close();
+
+    return;
 }
 
 

@@ -137,16 +137,6 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
-mbmsg:
-	N: With the post command if a netmail area is used the netmail area
-	   will cause trouble later, should be blocked to be used on netmail
-	   areas.
-
-	N: With the post command check the commandline before doing anything.
-
-	N: With post in echomail, if a name name@address is given, the address
-	   part should be stripped.
-
 mbaff:
 	L: Rewrite filefind search algorithm.
 
