@@ -285,18 +285,16 @@ int Add_BBS(qualify **qal)
 
 		    /*
 		     * With the path to the 8.3 name, we can check if this file
-		     * is attached for any possible downlink.
-		     * We must get the qualify list passed so we have a quick systems list.
+		     * is attached for any possible downlink. We use the qualify
+		     * list created by the ptic function to check connected nodes
+		     * only.
 		     */
-		    Syslog('p', "Enter un_attach loop");
 		    for (tmpq = *qal; tmpq; tmpq = tmpq->next) {
-			Syslog('p', "loop");
 			if (tmpq->send) {
 			    taka = fido2faddr(tmpq->aka);
 			    un_attach(taka, temp2);
 			    tidy_faddr(taka);
 			}
-			Syslog('p', "done");
 		    }
 
 		    if (unlink(temp2) != 0)
