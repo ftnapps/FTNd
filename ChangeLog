@@ -1,10 +1,5 @@
 $Id$
 
-		If you feel lucky then try this version, if not just wait
-		a few days so that I fix the destructive bugs that might
-		be present in this version.
-		One found, destroyed 5 fileareas, don't think it won't happen!
-
 
 v0.51.2		06-Mar-2004
 
@@ -25,6 +20,11 @@ v0.51.2		06-Mar-2004
 		features.
 		Removed all references to costsharing for ticfiles which wasn't
 		fully implemented.
+
+	libcommon.a:
+		Moved the initial delay in the execute functions to the child
+		process, that may be the trick to work around the lost child
+		messages.
 
 	mbcico:
 		Updated file request function to new files database structure.

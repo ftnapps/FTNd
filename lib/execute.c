@@ -36,8 +36,8 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 
 
-int _execute(char **, char *, char *, char *);
-int _execute(char **args, char *in, char *out, char *err)
+int _execute(char **, char *, char *, char *, int);
+int _execute(char **args, char *in, char *out, char *err, int priority)
 {
     char    buf[PATH_MAX];
     int	    i, pid, terrno = 0, status = 0, rc = 0;
@@ -55,6 +55,12 @@ int _execute(char **args, char *in, char *out, char *err)
     fflush(stderr);
 
     if ((pid = fork()) == 0) {
+	/*
+	 * A delay in the child to prevent it returns before the main
+	 * process sess it ever started.
+	 */
+	msleep(150);
+
 	if (in) {
 	    close(0);
 	    if (open(in,O_RDONLY) != 0) {
@@ -78,15 +84,16 @@ int _execute(char **args, char *in, char *out, char *err)
 	}
 
 	errno = 0;
-	rc = getpriority(PRIO_PROCESS, 0);
-	if (errno == 0) {
-	    rc = setpriority(PRIO_PROCESS, 0, 15);
-	    if (rc)
-		WriteError("$execv can't set priority to 15");
+	if (priority) {
+	    rc = getpriority(PRIO_PROCESS, 0);
+	    if (errno == 0) {
+		rc = setpriority(PRIO_PROCESS, 0, priority);
+		if (rc)
+		    WriteError("$execv can't set priority to %d", priority);
+	    }
 	}
 	rc = execv(args[0],args);
 	WriteError("$execv \"%s\" returned %d", MBSE_SS(args[0]), rc);
-	setpriority(PRIO_PROCESS, 0, 0);
 	exit(MBERR_EXEC_FAILED);
     }
 
@@ -98,7 +105,8 @@ int _execute(char **args, char *in, char *out, char *err)
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
 
     terrno = errno;
-    setpriority(PRIO_PROCESS, 0, 0);
+    if (priority)
+	setpriority(PRIO_PROCESS, 0, 0);
     errno = terrno;
 
     switch (rc) {
@@ -144,8 +152,7 @@ int execute(char **args, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(300);
-    rc = _execute(args, in, out, err);
+    rc = _execute(args, in, out, err, 15);
 #ifdef __linux__
     sync();
 #endif
@@ -237,6 +244,12 @@ int _execsh(char *cmd, char *in, char *out, char *err)
     fflush(stderr);
 
     if ((pid = fork()) == 0) {
+	/*
+	 * A delay in the child to prevent it returns before the main
+	 * process sess it ever started.
+	 */
+	msleep(300);
+	
 	if (in) {
 	    close(0);
 	    if (open(in, O_RDONLY) != 0) {
@@ -291,7 +304,6 @@ int execsh(char *cmd, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(300);
     rc = _execsh(cmd, in, out, err);
 #ifdef __linux__
     sync();
