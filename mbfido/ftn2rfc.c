@@ -581,7 +581,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			newsmode = TRUE;
 	} else 
 		newsmode = FALSE;
-	Syslog('M', "Got %s message", newsmode?"echo":"netmail");
+	Syslog('m', "Got %s message", newsmode?"echo":"netmail");
 
 	if ((outcode == CHRS_NOTSET) && (hdr((char *)"MSGID", kmsg))) {
 		p = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
@@ -905,14 +905,17 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			 * Probaly not needed as messages for systems without ISP never get here.
 			 * Perhaps only news to moderators.
 			 */
+			Syslog('m', "We should not be here");
 			sprintf(temp, "From %s!%s %s", ascinode(f,0x3f), ascinode(f,0x40), ctime(&mdate));
 			Send(FALSE, temp);
 		}
 
+		Syslog('m', "Should send Received: header for mbfido");
 		sprintf(temp, "Received: from %s by %s\n", ascinode(f,0x3f), ascinode(bestaka,0x3f));
 		Send(FALSE, temp);
 		sprintf(temp, "\twith FTN (mbfido v.%s) id AA%u; %s\n", VERSION, getpid(), rfcdate(now));
 		Send(FALSE, temp);
+		Syslog('m', "Is done now");
 
 		for (qmsg = kmsg; qmsg; qmsg = qmsg->next)
 			if (!strcasecmp(qmsg->key,"RFC-Received")) {
@@ -1539,7 +1542,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
         count = lines = 0;
 	first = TRUE;
 
-	Syslog('M', "Start sending message body");
+	Syslog('m', "Start sending message body");
 	while (fgets(buf,sizeof(buf)-1,fp) && pass) {
 		if (first) {
 			p = xstrcpy((char *)"\n");
@@ -1558,7 +1561,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		}
 
 		if (ftell(fp) > endmsg_off) {
-			Syslog('M', "line \"%s\" past message end %ld %ld", buf,(long)endmsg_off, ftell(fp));
+			Syslog('m', "line \"%s\" past message end %ld %ld", buf,(long)endmsg_off, ftell(fp));
 			pass=0;
 		}
 		if (pass) {
@@ -1571,9 +1574,11 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				}
 				if ((count++ > BOUNDARY) && (!pgpsigned)) {
 					if (b) {
-						*b++='\r';
-						*b = '\n';
-						p=b+2;
+//						*b++='\r';
+//						*b = '\n';
+						*b++='\n';  // Replace space.
+						p = b + 1;
+//						p=b+2;
 						b=NULL;
 						lines++;
 						count=0;
@@ -1588,7 +1593,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			free(q);
 		}
 	}
-	Syslog('M', "End sending message body");
+	Syslog('m', "End sending message body");
 
 	if ((modtype==1) && (!hdr((char *)"Approved",msg)) &&
 	    (!hdr((char *)"RFC-Approved",kmsg)) && (!hdr((char *)"Approved",kmsg)))
