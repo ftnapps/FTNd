@@ -268,15 +268,92 @@ void E_F(long areanr)
 
 void EditFDB()
 {
-	long	areanr;
+    int     records, i, o, x, y;
+    char    pick[12];
+    FILE    *fil;
+    char    temp[PATH_MAX];
+    long    offset;
 
-	IsDoing("Browsing Menu");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
 
-	for (;;) {
-		if ((areanr = PickFilearea((char *)"14")) == 0)
-			return;
-		E_F(areanr);
+    records = CountFilearea();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    working(0, 0, 0);
+    o = 0;
+
+    for (;;) {
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 4, "14. EDIT FILES DATABSE");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&areahdr, sizeof(areahdr), 1, fil);
+		x = 2;
+		y = 7;
+		set_color(CYAN, BLACK);
+		for (i = 1; i <= 20; i++) {
+		    if (i == 11) {
+			x = 42;
+			y = 7;
+		    }
+		    if ((o + i) <= records) {
+			offset = sizeof(areahdr) + (((o + i) - 1) * areahdr.recsize);
+			fseek(fil, offset, SEEK_SET);
+			fread(&area, areahdr.recsize, 1, fil);
+			if (area.Available)
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			sprintf(temp, "%3d.  %-32s", o + i, area.Name);
+			temp[37] = 0;
+			mvprintw(y, x, temp);
+			y++;
+		    }
+		}
+		fclose(fil);
+	    }
 	}
+	working(0, 0, 0);
+	strcpy(pick, select_record(records, 20));
+
+	if (strncmp(pick, "-", 1) == 0) {
+	    return;
+	}
+
+	if (strncmp(pick, "N", 1) == 0) 
+	    if ((o + 20) < records) 
+		o = o + 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o = o - 20;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		offset = areahdr.hdrsize + ((atoi(pick) - 1) * areahdr.recsize);
+		fseek(fil, offset, SEEK_SET);
+		fread(&area, areahdr.recsize, 1, fil);
+		fclose(fil);
+		if (area.Available) {
+		    E_F(atoi(pick));
+		}
+		o = ((atoi(pick) - 1) / 20) * 20;
+	    }
+	}
+    }
 }
 
 
