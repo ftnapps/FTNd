@@ -119,6 +119,8 @@ mbfido:
 	   any new mail until the number of messages becomes higher then the
 	   position of the lastread pointer.
 
+	N: Someday make retoss from bad possible (volonteers?).
+
 mbcico:
 	L: Implement binkp option ND.
 
@@ -147,6 +149,9 @@ mbfile:
 	N: The adopt command switches the LFN and 8.3 name.
 
 	N: The import command doesn't work with long filenames.
+
+	N: Several import commands shoudlcheck ownership of the files before
+	   processing them to prevent problems later.
 
 mbtask:
 	U: During chat when one of the users is disconnected for some reason
