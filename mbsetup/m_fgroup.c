@@ -402,7 +402,7 @@ int EditFGrpRec(int Area)
 		case 1: if (CheckFgroup())
 				break;
 			strcpy(fgroup.Name, edit_ups(6,16,12, fgroup.Name, (char *)"The ^name^ of this file group"));
-			if (strlen(mgroup.BasePath) == 0) {
+			if (strlen(fgroup.BasePath) == 0) {
 			    memset(&temp, 0, sizeof(temp));
 			    strcpy(temp, fgroup.Name);
 			    for (i = 0; i < strlen(temp); i++) {
