@@ -46,6 +46,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sys/param.h>
 #if defined(SHADOW_PASSWORD)
 #include <shadow.h>
 #endif
