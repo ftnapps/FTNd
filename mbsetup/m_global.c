@@ -934,36 +934,36 @@ void s_intmailcfg(void)
  */
 void e_uucp(void)
 {
-        int     j;
+    int j;
 
-        clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "1.12  EDIT UUCP GATEWAY");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.    Zone");
+    mvprintw( 8, 6, "2.    Net");
+    mvprintw( 9, 6, "3.    Node");
+    mvprintw(10, 6, "4.    Point");
+    mvprintw(11, 6, "5.    Domain");
+
+    for (;;) {
         set_color(WHITE, BLACK);
-        mvprintw( 5, 6, "1.12  EDIT UUCP GATEWAY");
-        set_color(CYAN, BLACK);
-        mvprintw( 7, 6, "1.    Zone");
-        mvprintw( 8, 6, "2.    Net");
-        mvprintw( 9, 6, "3.    Node");
-        mvprintw(10, 6, "4.    Point");
-        mvprintw(11, 6, "5.    Domain");
+        show_int( 7,19,   CFG.UUCPgate.zone);
+        show_int( 8,19,   CFG.UUCPgate.net);
+        show_int( 9,19,   CFG.UUCPgate.node);
+        show_int(10,19,   CFG.UUCPgate.point);
+        show_str(11,19,8, CFG.UUCPgate.domain);
 
-        for (;;) {
-                set_color(WHITE, BLACK);
-                show_int( 7,19, CFG.UUCPgate.zone);
-                show_int( 8,19, CFG.UUCPgate.net);
-                show_int( 9,19, CFG.UUCPgate.node);
-                show_int(10,19, CFG.UUCPgate.point);
-                show_str(11,19,12, CFG.UUCPgate.domain);
-
-                j = select_menu(5);
-                switch(j) {
-                        case 0: return;
-                        case 1: E_INT(  7,19,    CFG.UUCPgate.zone,   "The ^zone^ number for the UUCP gateway")
-                        case 2: E_INT(  8,19,    CFG.UUCPgate.net,    "The ^Net^ number for the UUCP gateway")
-                        case 3: E_INT(  9,19,    CFG.UUCPgate.node,   "The ^Node^ number for the UUCP gateway")
-                        case 4: E_INT( 10,19,    CFG.UUCPgate.point,  "The ^Point^ number for the UUCP gateway")
-                        case 5: E_STR( 11,19,11, CFG.UUCPgate.domain, "The ^FTN Domain^ for the UUCP gateway without a dot")
-                }
+        j = select_menu(5);
+        switch(j) {
+            case 0: return;
+            case 1: E_INT(  7,19,   CFG.UUCPgate.zone,   "The ^zone^ number for the UUCP gateway")
+            case 2: E_INT(  8,19,   CFG.UUCPgate.net,    "The ^Net^ number for the UUCP gateway")
+            case 3: E_INT(  9,19,   CFG.UUCPgate.node,   "The ^Node^ number for the UUCP gateway")
+            case 4: E_INT( 10,19,   CFG.UUCPgate.point,  "The ^Point^ number for the UUCP gateway")
+            case 5: E_STR( 11,19,8, CFG.UUCPgate.domain, "The ^FTN Domain^ for the UUCP gateway without a dot")
         }
+    }
 }
 
 
@@ -1069,39 +1069,39 @@ void e_newfiles(void)
  */
 void e_aka(int Area)
 {
-	int	j;
+    int	j;
 
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "1.1   EDIT AKA");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.    Zone");
+    mvprintw( 8, 6, "2.    Net");
+    mvprintw( 9, 6, "3.    Node");
+    mvprintw(10, 6, "4.    Point");
+    mvprintw(11, 6, "5.    Domain");
+    mvprintw(12, 6, "6.    Active");
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.1   EDIT AKA");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.    Zone");
-	mvprintw( 8, 6, "2.    Net");
-	mvprintw( 9, 6, "3.    Node");
-	mvprintw(10, 6, "4.    Point");
-	mvprintw(11, 6, "5.    Domain");
-	mvprintw(12, 6, "6.    Active");
+	show_int( 7,19,   CFG.aka[Area].zone);
+	show_int( 8,19,   CFG.aka[Area].net);
+	show_int( 9,19,   CFG.aka[Area].node);
+	show_int(10,19,   CFG.aka[Area].point);
+	show_str(11,19,8, CFG.aka[Area].domain);
+	show_bool(12,19,  CFG.akavalid[Area]);
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_int( 7,19, CFG.aka[Area].zone);
-		show_int( 8,19, CFG.aka[Area].net);
-		show_int( 9,19, CFG.aka[Area].node);
-		show_int(10,19, CFG.aka[Area].point);
-		show_str(11,19,12, CFG.aka[Area].domain);
-		show_bool(12,19, CFG.akavalid[Area]);
-
-		j = select_menu(6);
-		switch(j) {
-		case 0:	return;
-		case 1: E_INT(  7,19,    CFG.aka[Area].zone,   "The ^zone^ number for this aka")
-		case 2:	E_INT(  8,19,    CFG.aka[Area].net,    "The ^Net^ number for this aka")
-		case 3:	E_INT(  9,19,    CFG.aka[Area].node,   "The ^Node^ number for this aka")
-		case 4:	E_INT( 10,19,    CFG.aka[Area].point,  "The ^Point^ number for this node (if any)")
-		case 5:	E_STR( 11,19,11, CFG.aka[Area].domain, "The ^FTN Domain^ for this aka without a dot (ie no .org)")
-		case 6:	E_BOOL(12,19,    CFG.akavalid[Area],   "Is this aka ^available^")
-		}
+	j = select_menu(6);
+	switch(j) {
+	    case 0: return;
+	    case 1: E_INT(  7,19,   CFG.aka[Area].zone,   "The ^zone^ number for this aka")
+	    case 2: E_INT(  8,19,   CFG.aka[Area].net,    "The ^Net^ number for this aka")
+	    case 3: E_INT(  9,19,   CFG.aka[Area].node,   "The ^Node^ number for this aka")
+	    case 4: E_INT( 10,19,   CFG.aka[Area].point,  "The ^Point^ number for this node (if any)")
+	    case 5: E_STR( 11,19,8, CFG.aka[Area].domain, "The ^FTN Domain^ for this aka without a dot (ie no .org)")
+	    case 6: E_BOOL(12,19,   CFG.akavalid[Area],   "Is this aka ^available^")
 	}
+    }
 }
 
 

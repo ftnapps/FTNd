@@ -227,149 +227,139 @@ int AppendFidonet(void)
  */
 int EditFidoRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX], *temp;
-	long	offset;
-	int	i, j = 0;
-	unsigned long crc, crc1;
+    FILE	    *fil;
+    char	    mfile[PATH_MAX], *temp;
+    long	    offset;
+    int		    i, j = 0;
+    unsigned long   crc, crc1;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit Fidonet");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit Fidonet");
 
-	sprintf(mfile, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(fidonethdr) + ((Area -1) * sizeof(fidonet));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(fidonethdr) + ((Area -1) * sizeof(fidonet));
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&fidonet, sizeof(fidonet), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&fidonet, crc, sizeof(fidonet));
-	working(0, 0, 0);
+    fread(&fidonet, sizeof(fidonet), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&fidonet, crc, sizeof(fidonet));
+    working(0, 0, 0);
 
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.  Comment");
+    mvprintw( 8, 6, "2.  Domain name");
+    mvprintw( 9, 6, "3.  Available");
+    mvprintw(10, 6, "4.  Deleted");
+    mvprintw(11, 6, "5.  Main Nodelist");
+    mvprintw(12, 6, "6.  Merge list #1");
+    mvprintw(13, 6, "7.  Merge list #2");
+    mvprintw(14, 6, "8.  Merge list #3");
+    mvprintw(15, 6, "9.  Merge list #4");
+    mvprintw(16, 6, "10. Merge list #5");
+    mvprintw(17, 6, "11. Merge list #6");
+    mvprintw(12,55, "12. Primary zone");
+    mvprintw(13,55, "13. Zone number #2");
+    mvprintw(14,55, "14. Zone number #3");
+    mvprintw(15,55, "15. Zone number #4");
+    mvprintw(16,55, "16. Zone number #5");
+    mvprintw(17,55, "17. Zone number #6");
+    temp = calloc(18, sizeof(char));
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Comment");
-	mvprintw( 8, 6, "2.  Domain name");
-	mvprintw( 9, 6, "3.  Available");
-	mvprintw(10, 6, "4.  Deleted");
-	mvprintw(11, 6, "5.  Main Nodelist");
-	mvprintw(12, 6, "6.  Merge list #1");
-	mvprintw(13, 6, "7.  Merge list #2");
-	mvprintw(14, 6, "8.  Merge list #3");
-	mvprintw(15, 6, "9.  Merge list #4");
-	mvprintw(16, 6, "10. Merge list #5");
-	mvprintw(17, 6, "11. Merge list #6");
-	mvprintw(12,55, "12. Primary zone");
-	mvprintw(13,55, "13. Zone number #2");
-	mvprintw(14,55, "14. Zone number #3");
-	mvprintw(15,55, "15. Zone number #4");
-	mvprintw(16,55, "16. Zone number #5");
-	mvprintw(17,55, "17. Zone number #6");
-	temp = calloc(18, sizeof(char));
-
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,26,40, fidonet.comment);
-		show_str( 8,26,12, fidonet.domain);
-		show_bool(9,26,    fidonet.available);
-		show_bool(10,26,   fidonet.deleted);
-		show_str(11,26,8,  fidonet.nodelist);
-		for (i = 0; i < 6; i++) {
-			if ((fidonet.seclist[i].zone) || strlen(fidonet.seclist[i].nodelist)) {
-				show_str(i + 12,26,8, fidonet.seclist[i].nodelist);
-				sprintf(temp, "%d:%d/%d", fidonet.seclist[i].zone, fidonet.seclist[i].net, fidonet.seclist[i].node);
-				show_str(i + 12, 36,17, temp);
-			} else 
-				show_str(i + 12,26,27, (char *)"                           ");
-			show_int(i + 12,74, fidonet.zone[i]);
-		}
-
-		j = select_menu(17);
-		switch(j) {
-		case 0:
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&fidonet, crc1, sizeof(fidonet));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						free(temp);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&fidonet, sizeof(fidonet), 1, fil);
-					fclose(fil);
-					FidoUpdated = 1;
-					working(1, 0, 0);
-					working(0, 0, 0);
-				}
-			}
-			IsDoing("Browsing Menu");
-			free(temp);
-			return 0;
-		case 1:
-			E_STR(7,26,40, fidonet.comment, "The ^Comment^ for this network name")
-		
-		case 2:
-			E_STR(8, 26,12, fidonet.domain, "The ^Name^ of the network without dots")
-
-		case 3:
-			E_BOOL(9,26, fidonet.available, "Is this network ^Available^ for use")
-
-		case 4:
-			E_BOOL(10,26, fidonet.deleted,   "Is this netword ^Deleted^")
-
-		case 5:
-			E_STR(11,26,8, fidonet.nodelist, "The name of the ^Primary Nodelist^ for this network")
-
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-			strcpy(fidonet.seclist[j-6].nodelist, edit_str(j+6,26,8, fidonet.seclist[j-6].nodelist, (char *)"The secondary ^nodelist^ or ^pointlist^ name for this domain"));
-			if (strlen(fidonet.seclist[j-6].nodelist)) {
-				do {
-					sprintf(temp, "%d:%d/%d", fidonet.seclist[j-6].zone, fidonet.seclist[j-6].net, fidonet.seclist[j-6].node);
-					strcpy(temp, edit_str(j+6,36,17, temp, (char *)"The top ^fidonet aka^ for this nodelist (zone:net/node)"));
-					if ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL)) {
-						working(2, 0, 0);
-						working(0, 0, 0);
-					}
-				} while ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL));
-				fidonet.seclist[j-6].zone = atoi(strtok(temp, ":"));
-				fidonet.seclist[j-6].net  = atoi(strtok(NULL, "/"));
-				fidonet.seclist[j-6].node = atoi(strtok(NULL, ""));
-			} else {
-				fidonet.seclist[j-6].zone = 0;
-				fidonet.seclist[j-6].net  = 0;
-				fidonet.seclist[j-6].node = 0;
-			}
-			break;
-
-		case 12:
-		case 13:
-		case 14:
-		case 15:
-		case 16:
-		case 17:
-			E_INT(j,74, fidonet.zone[j-12], "A ^Zone number^ which belongs to this domain (1..4095)")
-		}
+	show_str( 7,26,40, fidonet.comment);
+	show_str( 8,26,8,  fidonet.domain);
+	show_bool(9,26,    fidonet.available);
+	show_bool(10,26,   fidonet.deleted);
+	show_str(11,26,8,  fidonet.nodelist);
+	for (i = 0; i < 6; i++) {
+	    if ((fidonet.seclist[i].zone) || strlen(fidonet.seclist[i].nodelist)) {
+		show_str(i + 12,26,8, fidonet.seclist[i].nodelist);
+		sprintf(temp, "%d:%d/%d", fidonet.seclist[i].zone, fidonet.seclist[i].net, fidonet.seclist[i].node);
+		show_str(i + 12, 36,17, temp);
+	    } else 
+		show_str(i + 12,26,27, (char *)"                           ");
+	    show_int(i + 12,74, fidonet.zone[i]);
 	}
 
-	return 0;
+	j = select_menu(17);
+	switch(j) {
+	    case 0: crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&fidonet, crc1, sizeof(fidonet));
+		    if (crc != crc1) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				working(2, 0, 0);
+				free(temp);
+				return -1;
+			    }
+			    fseek(fil, offset, 0);
+			    fwrite(&fidonet, sizeof(fidonet), 1, fil);
+			    fclose(fil);
+			    FidoUpdated = 1;
+			    working(1, 0, 0);
+			    working(0, 0, 0);
+			}
+		    }
+		    IsDoing("Browsing Menu");
+		    free(temp);
+		    return 0;
+	    case 1: E_STR(7,26,40, fidonet.comment, "The ^Comment^ for this network name")
+	    case 2: E_STR(8, 26,8, fidonet.domain, "The ^Name^ of the network without dots")
+	    case 3: E_BOOL(9,26, fidonet.available, "Is this network ^Available^ for use")
+	    case 4: E_BOOL(10,26, fidonet.deleted,   "Is this netword ^Deleted^")
+	    case 5: E_STR(11,26,8, fidonet.nodelist, "The name of the ^Primary Nodelist^ for this network")
+	    case 6:
+	    case 7:
+	    case 8:
+	    case 9:
+	    case 10:
+	    case 11: strcpy(fidonet.seclist[j-6].nodelist, 
+			    edit_str(j+6,26,8, fidonet.seclist[j-6].nodelist, 
+				(char *)"The secondary ^nodelist^ or ^pointlist^ name for this domain"));
+		    if (strlen(fidonet.seclist[j-6].nodelist)) {
+			do {
+			    sprintf(temp, "%d:%d/%d", fidonet.seclist[j-6].zone, 
+				    fidonet.seclist[j-6].net, fidonet.seclist[j-6].node);
+			    strcpy(temp, edit_str(j+6,36,17, temp, 
+					(char *)"The top ^fidonet aka^ for this nodelist (zone:net/node)"));
+			    if ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL)) {
+				working(2, 0, 0);
+				working(0, 0, 0);
+			    }
+			} while ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL));
+			fidonet.seclist[j-6].zone = atoi(strtok(temp, ":"));
+			fidonet.seclist[j-6].net  = atoi(strtok(NULL, "/"));
+			fidonet.seclist[j-6].node = atoi(strtok(NULL, ""));
+		    } else {
+			fidonet.seclist[j-6].zone = 0;
+			fidonet.seclist[j-6].net  = 0;
+			fidonet.seclist[j-6].node = 0;
+		    }
+		    break;
+	    case 12:
+	    case 13:
+	    case 14:
+	    case 15:
+	    case 16:
+	    case 17:E_INT(j,74, fidonet.zone[j-12], "A ^Zone number^ which belongs to this domain (1..4095)")
+	}
+    }
+
+    return 0;
 }
 
 

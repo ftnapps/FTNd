@@ -145,9 +145,6 @@ mbnewusr:
 mbsetup:
 	N: Add a check for double areatag names.
 
-	U: PickAka function lets mbsetup crash if domain is 12 characters
-	   -- Check, still so?
-
 	N: Use some sort of sorting for the system aka's and make sure the
 	   main aka with zone's is listed first. Having zone's mixed gives
 	   too high outbound stats and the outbound is scanned multiple times.
