@@ -137,7 +137,7 @@ depend:
 bank.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h bank.h input.h language.h dispfile.h timeout.h timecheck.h whoson.h exitinfo.h
 filesub.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h funcs.h language.h input.h misc.h timeout.h exitinfo.h change.h
 language.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h input.h language.h
-mbtoberep.o: ../lib/libs.h ../config.h ../lib/structs.h
+mbtoberep.o: ../lib/libs.h ../lib/structs.h
 msgutil.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
 oneline.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h oneline.h funcs.h input.h language.h
 bbslist.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h bbslist.h funcs.h input.h language.h
