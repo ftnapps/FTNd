@@ -35,7 +35,7 @@ TBS|(T)iempo, (B)ytes, (S)alir :
 |Has excedido el saldo de tu cuenta.
 |Kilobytes disponible en tu cuenta : 
 |¨Cuantos kilobytes. Dispones de  
-|Mbsebbs - REGISTRO DE NUEVO USUARIO
+|MBSEBBS - REGISTRO DE NUEVO USUARIO
 |Use este nombre: 
 |Por favor teclee el nuevo password : 
 |Por favor tecleelo de nuevo......  : 
@@ -91,7 +91,7 @@ SN|¨Quieres men£s r pidos? [S/n]:
 |Teclee tres combinaciones.
 |1er digito: 
 |­Repita! Debe ser un n£mero mayor que cero y menor que  
-|2§ digito : 
+|2do digito : 
 |3er digito: 
 |Izquierda : 
 |  Derecha : 
@@ -315,7 +315,7 @@ SN|¨Quieres a¤adir una descripcion? [S/n]:
 |Necesito al menos 3 letras ...
 SN|¨Ver esta BBS? [S/n]: 
 |No puedo encontrar BBS ...
-|MostrS 
+|Mostrar 
 |N£mero a listar: 
 |Registro inexistente
 | Registro      : 
@@ -360,7 +360,7 @@ AT|(A)ctivar/desactivar, desactivar (T)odos, (ENTER) para seguir:
 |N£mero de fichero, 1..
 |Marcado: 
 |No hay ficheros marcados.
-|Replace
+|Remplazar
 |Cargando BBS, espere por favor ...
 |Areas de correo nuevas o borradas en 
 |Area  Estado Tipo     Descripci¢n
@@ -389,7 +389,7 @@ SN|¨Est s seguro? [S/n]:
 |de Pantalla completa
 |externo
 | 
-|New    
+|Nuevo    
 |Local    
 |Netmail  
 |Echomail 
@@ -408,7 +408,7 @@ SN|¨Est s seguro? [S/n]:
 |Oct
 |Nov
 |Dic
-|Autologout: ¨Te has dormido o es que se ha cortado?
+|Autodesconeccion: ¨Te has dormido o es que se ha cortado?
 |se empaquetar n.
 |Alias (Enter si no quieres ninguno): 
 |Hala, Ya puedes usar la BBS
@@ -425,9 +425,9 @@ SN|¨Est s seguro? [S/n]:
 |Lst. Ficheros
 SN|¨Quieres descargar estos mensajes [S/N]?
 |En el Banco
-|Safe Door
+|Door de la Caja Fuerte
 |L. Conectados
-|Offline Reader
+|Lector Off-line
 |Teclea usuario al que enviar un aviso: 
 |No hay usuario en 
 |No quiere ser molestado
