@@ -2087,8 +2087,6 @@ char *getmenutype(int val)
 		case 20:	return (char *)"Display .A?? file with Enter";
 		case 21:	return (char *)"Display Text Only";
 
-		case 25:	return (char *)"Safe cracker door";
-
 		case 101:	return (char *)"Select new file area";
 		case 102:	return (char *)"List files in current area";
 		case 103:	return (char *)"View file contents";

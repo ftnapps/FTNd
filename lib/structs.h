@@ -49,7 +49,7 @@ typedef enum {IGNORE, CREATE, KILL} ORPHANTYPE;
 typedef enum {SEND, RECV, BOTHDIR} NODETYPE;
 typedef enum {POTS, ISDN, NETWORK, LOCAL} LINETYPE;
 typedef enum {BROWSING, DOWNLOAD, UPLOAD, READ_POST, DOOR, SYSOPCHAT,
-	      FILELIST, TIMEBANK, SAFE, WHOSON, OLR} DOESTYPE;
+	      FILELIST, WHOSON, OLR} DOESTYPE;
 typedef enum {I_AVT0, I_ANSI, I_VT52, I_VT100, I_TTY} ITERM;
 typedef enum {I_DZA, I_ZAP, I_ZMO, I_SLK, I_KER} IPROT;
 typedef enum {E_NOISP, E_TMPISP, E_PRMISP} EMODE;
@@ -618,16 +618,15 @@ struct	sysconfig {
 	char		xNuScreen[50];          /* Obsolete Next User Door  */
 	char		xNuQuote[81];
 
-						/* Safe Cracker Door	    */
-	int		iSafeFirstDigit;        /* Safe Door First Digit    */
-	int		iSafeSecondDigit;       /* Safe Door Second Digit   */
-	int		iSafeThirdDigit;        /* Safe Door Third Digit    */
-	int		iSafeMaxTrys;           /* Max trys per day         */
-	int		iSafeMaxNumber;         /* Maximum Safe Number      */
-	unsigned	iSafeNumGen  : 1;       /* Use number generator     */
-	char		sSafePrize[81];         /* Safe Prize               */
-	char		sSafeWelcome[81];       /* Safe welcome file        */
-	char		sSafeOpened[81];        /* Opended safe file        */
+	int		xSafeFirstDigit;
+	int		xSafeSecondDigit;
+	int		xSafeThirdDigit;
+	int		xSafeMaxTrys;
+	int		xSafeMaxNumber;
+	unsigned	xSafeNumGen  : 1;
+	char		xSafePrize[81];
+	char		xSafeWelcome[81];
+	char		xSafeOpened[81];
 
 						/* Sysop Paging		    */
 	int		iPageLength;		/* Page Length in Seconds   */
@@ -960,23 +959,6 @@ struct langdata {
 	char		sKey[30];		/* Keystroke characters	   */
 };
  
-
-
-/*
- * Structure for Safe Cracker Door Data File (safe.data)
- */
-struct	crackerhdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-};
-
-struct	cracker {
-	char		Date[12];		/* Date used		   */
-	char		Name[36];		/* User name		   */
-	int		Trys;			/* Trys today		   */
-	unsigned	Opened : 1;		/* If user succeeded	   */
-};
-
 
 
 /*

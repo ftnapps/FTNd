@@ -238,14 +238,6 @@ void WhosDoingWhat(int iStatus)
 	case FILELIST:	strcpy(temp, "List Files");
 			break;
 
-	case TIMEBANK:	strcpy(temp, "Time Bank");
-			LC_Door = TRUE;
-			break;
-
-	case SAFE:	strcpy(temp, "Safe Cracker");
-			LC_Door = TRUE;
-			break;
-
 	case WHOSON:	strcpy(temp, "View Whoson List");
 			break;
 

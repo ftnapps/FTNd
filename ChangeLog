@@ -14,6 +14,9 @@ v0.37.01	14-Jan-2003.
 		areas.
 		After upgrade you may remove ~/etc/maptabs and it's contents.
 		After upgrade you may remove ~/etc/bank.data.
+		After upgrade you may remove ~/etc/safe.data.
+		If you want, download and install the nu-door and safe-door
+		packages.
 
 	general:
 		This version may be used on production systems, but be 
@@ -32,6 +35,7 @@ v0.37.01	14-Jan-2003.
 		the html docs.
 		The main Makefile now sets each txtfiles directory to mode 775
 		to allow doors to write ansi/ascii screens.
+		Removed the safe cracker door, this is now external.
 
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default
@@ -92,6 +96,9 @@ v0.37.01	14-Jan-2003.
 		Added setup for rules directory.
 		Added setup for menu 221. Changed description of menu 103.
 		The menu editor is machine endian independant.
+		Removed setup for the safe cracker door.
+		In menu 8.3 showing long option data lines, the lines were too
+		long for a 80 characters display.
 
 	mbsebbs:
 		It will now refuse to up/download OLR packets when the system
@@ -123,6 +130,7 @@ v0.37.01	14-Jan-2003.
 		now only the writer or those with sysop access to the area are
 		allowed to delete messages.
 		Finally wrote Delete Message from the menu (menu 206).
+		Removed the safe cracker door.
 
 	examples:
 		The English and Dutch templates are updated to show the new

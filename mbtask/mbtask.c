@@ -251,19 +251,6 @@ void load_maincfg(void)
         CFG.MsgInputColourB     = BLACK;
 
         /*
-         * Safe Door
-         */
-        CFG.iSafeFirstDigit     = 1;
-        CFG.iSafeSecondDigit    = 2;
-        CFG.iSafeThirdDigit     = 3;
-        CFG.iSafeMaxTrys        = 4;
-        CFG.iSafeMaxNumber      = 20;
-        CFG.iSafeNumGen         = FALSE;
-        strcpy(CFG.sSafePrize, "Free access for a year!");
-        sprintf(CFG.sSafeWelcome, "safewel");
-        sprintf(CFG.sSafeOpened, "safeopen");
-
-        /*
          * Paging
          */
         CFG.iPageLength         = 30;

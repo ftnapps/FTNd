@@ -42,7 +42,6 @@
 #include "m_fgroup.h"
 #include "m_farea.h"
 #include "m_menu.h"
-#include "m_safe.h"
 #include "m_bbs.h"
 #include "m_bbslist.h"
 #include "m_limits.h"
@@ -64,9 +63,8 @@ void bbs_menu(void)
 		mvprintw(11, 6, "5.    Edit Transfer Protocols");
 		mvprintw(12, 6, "6.    Edit BBS List Data");
 		mvprintw(13, 6, "7.    Edit Oneliners");
-		mvprintw(14, 6, "8.    Edit Safecracker Data");
 
-		switch(select_menu(8)) {
+		switch(select_menu(7)) {
 		case 0: return;
 
 		case 1: EditLimits();
@@ -88,9 +86,6 @@ void bbs_menu(void)
 			break;
 
 		case 7: ol_menu();
-			break;
-
-		case 8: EditSafe();
 			break;
 		}
 	}

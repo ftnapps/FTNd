@@ -10,7 +10,7 @@ SRCS		= signature.c filesub.c language.c mbtoberep.c \
 		  bye.c funcs.c mail.c \
 		  newuser.c pinfo.c timecheck.c change.c \
 		  exitinfo.c mball.c mbsebbs.c menu.c pop3.c lastcallers.c \
-		  safe.c timeout.c chat.c file.c mbchat.c mbstat.c misc.c \
+		  timeout.c chat.c file.c mbchat.c mbstat.c misc.c \
 		  offline.c user.c mbnewusr.c input.c whoson.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c
 HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
@@ -19,11 +19,11 @@ HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  funcs.h mail.h mbuser.h page.h \
 		  change.h exitinfo.h mball.h newuser.h \
 		  pinfo.h chat.h file.h menu.h \
-		  pop3.h safe.h timecheck.h mbnewusr.h input.h whoson.h \
+		  pop3.h timecheck.h mbnewusr.h input.h whoson.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h
 MBSEBBS_OBJS	= signature.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
 		  misc.o pinfo.o oneline.o page.o fsedit.o \
-		  bye.o change.o mbsebbs.o safe.o timeout.o user.o timecheck.o \
+		  bye.o change.o mbsebbs.o timeout.o user.o timecheck.o \
 		  exitinfo.o filesub.o lineedit.o offline.o language.o msgutil.o \
 		  pop3.o email.o input.o whoson.o door.o dispfile.o userlist.o timestats.o \
 		  logentry.o morefile.o lastcallers.o
@@ -158,10 +158,9 @@ change.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/struc
 exitinfo.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
 mball.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/mbse.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbcfg.h ../lib/clcomm.h ../lib/mberrors.h mball.h
 mbsebbs.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/mberrors.h mbsebbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h
-menu.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h oneline.h mail.h bbslist.h change.h chat.h file.h funcs.h input.h misc.h safe.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h
+menu.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h oneline.h mail.h bbslist.h change.h chat.h file.h funcs.h input.h misc.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h
 pop3.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h
 lastcallers.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h input.h language.h lastcallers.h
-safe.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h whoson.h dispfile.h input.h misc.h safe.h timeout.h language.h
 timeout.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h
 chat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h chat.h funcs.h input.h language.h misc.h whoson.h
 file.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h file.h funcs.h input.h language.h misc.h timeout.h exitinfo.h whoson.h change.h

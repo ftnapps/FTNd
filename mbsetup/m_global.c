@@ -545,55 +545,11 @@ void e_colors(void)
 
 
 
-void e_safe_door(void)
-{
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.9  EDIT SAFE DOOR");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.   Digit 1"); 
-	mvprintw( 8, 2, "2.   Digit 2");
-	mvprintw( 9, 2, "3.   Digit 3");
-	mvprintw(10, 2, "4.   Max trys");
-	mvprintw(11, 2, "5.   Max numb");
-	mvprintw(12, 2, "6.   Num gen");
-	mvprintw(13, 2, "7.   Prize");
-	mvprintw(14, 2, "8.   Welcome");
-	mvprintw(15, 2, "9.   Opened");
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_int( 7,16, CFG.iSafeFirstDigit);
-		show_int( 8,16, CFG.iSafeSecondDigit);
-		show_int( 9,16, CFG.iSafeThirdDigit);
-		show_int(10,16, CFG.iSafeMaxTrys);
-		show_int(11,16, CFG.iSafeMaxNumber);
-		show_bool(12,16, CFG.iSafeNumGen);
-		show_str(13,16,64, CFG.sSafePrize); 
-		show_str(14,16,64, CFG.sSafeWelcome);
-		show_str(15,16,64, CFG.sSafeOpened);
-
-		switch(select_menu(9)) {
-		case 0:	return;
-		case 1:	E_INT(  7,16, CFG.iSafeFirstDigit,  "Enter ^first^ digit of the safe")
-		case 2:	E_INT(  8,16, CFG.iSafeSecondDigit, "Enter ^second^ digit of the safe")
-		case 3:	E_INT(  9,16, CFG.iSafeThirdDigit,  "Enter ^third^ digit of the safe")
-		case 4:	E_INT( 10,16, CFG.iSafeMaxTrys,     "Maximum ^trys^ per day")
-		case 5:	E_INT( 11,16, CFG.iSafeMaxNumber,   "^Maximum number^ of each digit")
-		case 6:	E_BOOL(12,16, CFG.iSafeNumGen,      "^Automatic^ number generation")
-		case 7:	E_STR( 13,16,64, CFG.sSafePrize,    "The ^prize^ the user wins when he opens the safe")
-		case 8:	E_STR( 14,16,64, CFG.sSafeWelcome,  "The ^welcome^ screen for the safe door")
-		case 9:	E_STR( 15,16,64, CFG.sSafeOpened,   "The file to display when the safe is ^opened^")
-		}
-	};
-}
-
-
-
 void e_paging(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.10  EDIT SYSOP PAGING");
+	mvprintw( 5, 2, "1.9   EDIT SYSOP PAGING");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.    Ext. Chat");
 	mvprintw( 8, 2, "2.    Chat Device");
@@ -697,7 +653,7 @@ void e_flags(int Users)
     if (Users)
 	mvprintw( 5, 6, "1.6   EDIT USER FLAG DESCRIPTIONS");
     else
-	mvprintw( 5, 6, "1.18  EDIT MANAGER FLAG DESCRIPTIONS");
+	mvprintw( 5, 6, "1.17  EDIT MANAGER FLAG DESCRIPTIONS");
     
     set_color(CYAN, BLACK);
     for (i = 0; i < 32; i++) {
@@ -767,7 +723,7 @@ void e_ticconf(void)
     
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "1.11   EDIT FILEECHO PROCESSING");
+    mvprintw( 5, 6, "1.10   EDIT FILEECHO PROCESSING");
     set_color(CYAN, BLACK);
 
     mvprintw( 7, 2, "1.  Keep days");
@@ -859,7 +815,7 @@ void s_fidomailcfg(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 5, "1.12   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
+    mvprintw( 5, 5, "1.11   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
     set_color(CYAN, BLACK);
     mvprintw( 7, 2, "1. Badboard");
     mvprintw( 8, 2, "2. Dupeboard");
@@ -967,7 +923,7 @@ void s_intmailcfg(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 5, "1.13   EDIT INTERNET MAIL AND NEWS PROCESSING");
+        mvprintw( 5, 5, "1.12   EDIT INTERNET MAIL AND NEWS PROCESSING");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1. POP3 node");
         mvprintw( 8, 2, "2. SMTP node");
@@ -1036,7 +992,7 @@ void e_uucp(void)
 
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 6, "1.13  EDIT UUCP GATEWAY");
+        mvprintw( 5, 6, "1.12  EDIT UUCP GATEWAY");
         set_color(CYAN, BLACK);
         mvprintw( 7, 6, "1.    Zone");
         mvprintw( 8, 6, "2.    Net");
@@ -1090,7 +1046,7 @@ void e_intmailcfg(void)
                 case 6: E_STR( 12,16,15, CFG.nntpuser,     "The ^Username^ for the NNTP server if needed.")
                 case 7: E_STR( 13,16,15, CFG.nntppass,     "The ^Password^ for the NNTP server if needed.")
                 case 8: E_INT( 14,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
-                case 9: tmp = PickAka((char *)"1.15.9", FALSE);
+                case 9: tmp = PickAka((char *)"1.13.9", FALSE);
                         if (tmp != -1)
                                 CFG.EmailFidoAka = CFG.aka[tmp];
                         s_intmailcfg();
@@ -1120,7 +1076,7 @@ void s_newfiles(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.14 ALLFILES & NEWFILES LISTINGS");
+	mvprintw( 5, 2, "1.13 ALLFILES & NEWFILES LISTINGS");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.   New days");
 	mvprintw( 8, 2, "2.   Security");
@@ -1143,7 +1099,7 @@ void e_newfiles(void)
 	switch(select_menu(3)) {
 	    case 0: return;
 	    case 1: E_INT(7,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
-	    case 2: E_SEC(8,16,    CFG.security,   "1.16  NEWFILES REPORTS SECURITY", s_newfiles)
+	    case 2: E_SEC(8,16,    CFG.security,   "1.13  NEWFILES REPORTS SECURITY", s_newfiles)
 	    case 3: temp = CFG.new_groups;
 		    temp = edit_int( 9, 16, temp, (char *)"The maximum of ^newfiles^ groups in the newfiles database");
 		    if (temp < CountNewfiles()) {
@@ -1311,7 +1267,7 @@ void s_mailer(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.15 EDIT MAILER SETTINGS");
+	mvprintw( 5, 2, "1.14 EDIT MAILER SETTINGS");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.   Mailer logl.");
 	mvprintw( 8, 2, "2.   Default phone");
@@ -1346,7 +1302,7 @@ void e_trans(int start)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.15  EDIT PHONE TRANSLATION");
+	mvprintw( 5, 6, "1.14  EDIT PHONE TRANSLATION");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 12, "String to match       String to replace");
 	for (i = 0; i < 10; i++) {
@@ -1398,7 +1354,7 @@ void e_mailer(void)
 
 		switch(select_menu(23)) {
 		case 0:	return;
-		case 1: E_LOGL(CFG.cico_loglevel, "1.15.1", s_mailer)
+		case 1: E_LOGL(CFG.cico_loglevel, "1.14.1", s_mailer)
 		case 2: E_STR(  8,23,20,CFG.Phone,          "The mailer default ^phone number^ for this system")
 		case 3: E_STR(  9,23,30,CFG.Flags,          "The mailer ^TCP/IP capability flags^ for this system")
 		case 4: E_INT( 10,23,   CFG.Speed,          "The mailer ^default linespeed^ for this system")
@@ -1434,7 +1390,7 @@ void e_ftpd(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 2, "1.16 EDIT FTPD SETTINGS");
+        mvprintw( 5, 2, "1.15 EDIT FTPD SETTINGS");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1.  Upload pth");
         mvprintw( 8, 2, "2.  Banner msg");
@@ -1510,7 +1466,7 @@ void e_html(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 2, "1.17 EDIT HTML SETTINGS");
+        mvprintw( 5, 2, "1.16 EDIT HTML SETTINGS");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1.  Docs root");
         mvprintw( 8, 2, "2.  Link to ftp");
@@ -1628,19 +1584,18 @@ void global_menu(void)
 	mvprintw(12, 6, "6.    Edit User flag Descriptions");
 	mvprintw(13, 6, "7.    Edit New Users defaults");
 	mvprintw(14, 6, "8.    Edit Text Colors");
-	mvprintw(15, 6, "9.    Edit Safe Door");
-	mvprintw(16, 6, "10.   Edit Sysop Paging");
+	mvprintw(15, 6, "9.    Edit Sysop Paging");
 
-	mvprintw( 7,46, "11.   Edit Files Processing");
-	mvprintw( 8,46, "12.   Edit Fidonet Mail/Echomail");
-	mvprintw( 9,46, "13.   Edit Internet Mail/News");
-	mvprintw(10,46, "14.   Edit All-/Newfiles lists");
-	mvprintw(11,46, "15.   Edit Mailer global setup");
-	mvprintw(12,46, "16.   Edit Ftp daemon setup");
-	mvprintw(13,46, "17.   Edit HTML pages setup");
-	mvprintw(14,46, "18.   Edit Mgr flag descriptions");
+	mvprintw( 7,46, "10.   Edit Files Processing");
+	mvprintw( 8,46, "11.   Edit Fidonet Mail/Echomail");
+	mvprintw( 9,46, "12.   Edit Internet Mail/News");
+	mvprintw(10,46, "13.   Edit All-/Newfiles lists");
+	mvprintw(11,46, "14.   Edit Mailer global setup");
+	mvprintw(12,46, "15.   Edit Ftp daemon setup");
+	mvprintw(13,46, "16.   Edit HTML pages setup");
+	mvprintw(14,46, "17.   Edit Mgr flag descriptions");
 
-	switch(select_menu(18)) {
+	switch(select_menu(17)) {
 	    case 0:
 		    crc1 = 0xffffffff;
 		    crc1 = upd_crc32((char *)&CFG, crc1, sizeof(CFG));
@@ -1677,33 +1632,30 @@ void global_menu(void)
 		    e_colors();
 		    break;
 	    case 9:
-		    e_safe_door();
-		    break;
-	    case 10:
 		    e_paging();
 		    break;
-	    case 11:
+	    case 10:
 		    e_ticconf();
 		    break;
-	    case 12:
+	    case 11:
 		    e_fidomailcfg();
 		    break;
-	    case 13:
+	    case 12:
 		    e_intmailcfg();
 		    break;
-	    case 14:
+	    case 13:
 		    e_newfiles();
 		    break;
-	    case 15:
+	    case 14:
 		    e_mailer();
 		    break;
-	    case 16:
+	    case 15:
 		    e_ftpd();
 		    break;
-	    case 17:
+	    case 16:
 		    e_html();
 		    break;
-	    case 18:
+	    case 17:
 		    e_flags(FALSE);
 		    break;
 	}
@@ -1927,20 +1879,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      File description %s on %s\n", get_color(CFG.FiledescF), get_color(CFG.FiledescB));
 	fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
 
-	addtoc(fp, toc, 1, 10, page, (char *)"Safecracker door");
-
-	fprintf(fp, "      Digit nr 1       %d\n", CFG.iSafeFirstDigit);
-	fprintf(fp, "      Digit nr 2       %d\n", CFG.iSafeSecondDigit);
-	fprintf(fp, "      Digit nr 3       %d\n", CFG.iSafeThirdDigit);
-	fprintf(fp, "      Maximum tries    %d\n", CFG.iSafeMaxTrys);
-	fprintf(fp, "      Maximum number   %d\n", CFG.iSafeMaxNumber);
-	fprintf(fp, "      Show generator   %s\n", getboolean(CFG.iSafeNumGen));
-	fprintf(fp, "      Prize            %s\n", CFG.sSafePrize);
-	fprintf(fp, "      Safe welcome     %s\n", CFG.sSafeWelcome);
-	fprintf(fp, "      Safe opened file %s\n", CFG.sSafeOpened);
-
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 11, page, (char *)"Sysop paging");
+	addtoc(fp, toc, 1, 10, page, (char *)"Sysop paging");
 
 	fprintf(fp, "      Ext. Chat program  %s\n", CFG.sExternalChat);
 	fprintf(fp, "      Chat device        %s\n", CFG.sChatDevice);
@@ -1964,7 +1904,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Friday             %s %s\n", CFG.cStartTime[5], CFG.cStopTime[5]);
 	fprintf(fp, "      Saterday           %s %s\n", CFG.cStartTime[6], CFG.cStopTime[6]);
 
-	addtoc(fp, toc, 1, 12, page, (char *)"Fileecho processing");
+	addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
 
 	fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
 	fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
@@ -1983,7 +1923,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      FileMgr: pause     %s\n", getboolean(CFG.ct_Pause));
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 13, page, (char *)"Fidonet Mail and Echomail  processing");
+	addtoc(fp, toc, 1, 12, page, (char *)"Fidonet Mail and Echomail  processing");
 
 	fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);
 	fprintf(fp, "      Max archive size   %d Kb.\n", CFG.maxarcsize);
@@ -2003,7 +1943,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      AreaMgr: passwd    %s\n", getboolean(CFG.ca_Passwd));
 	fprintf(fp, "      AreaMgr: pause     %s\n", getboolean(CFG.ca_Pause));
 
-	addtoc(fp, toc, 1, 14, page, (char *)"Internet Mail and News processing");
+	addtoc(fp, toc, 1, 13, page, (char *)"Internet Mail and News processing");
 
 	fprintf(fp, "      Split messages at  %d KBytes\n", CFG.new_split);
 	fprintf(fp, "      Force split at     %d KBytes\n", CFG.new_force);
@@ -2029,14 +1969,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Allow control msgs %s\n", getboolean(CFG.allowcontrol));
 	fprintf(fp, "      Don't regate msgs  %s\n", getboolean(CFG.dontregate));
 
-	addtoc(fp, toc, 1, 15, page, (char *)"Newfile reports");
+	addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
 
 	fprintf(fp, "      New files days     %d\n", CFG.newdays);
 	fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
 	fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 16, page, (char *)"Mailer setup");
+	addtoc(fp, toc, 1, 15, page, (char *)"Mailer setup");
 
 	p = getloglevel(CFG.cico_loglevel);
 	fprintf(fp, "      Mailer loglevel    %s\n",  p);
@@ -2063,7 +2003,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "      Translate          %-20s %s\n", CFG.phonetrans[i].match, CFG.phonetrans[i].repl);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 17, page, (char *)"FTP server setup");
+	addtoc(fp, toc, 1, 16, page, (char *)"FTP server setup");
 
 	fprintf(fp, "      Connections limit  %d\n", CFG.ftp_limit);
 	fprintf(fp, "      Login fails        %d\n", CFG.ftp_loginfails);
@@ -2083,7 +2023,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Path filter        %s\n", CFG.ftp_pth_filter);
 	fprintf(fp, "      Path message       %s\n", CFG.ftp_pth_message);
 
-	addtoc(fp, toc, 1, 18, page, (char *)"WWW server setup");
+	addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
 
 	fprintf(fp, "      HTML root          %s\n", CFG.www_root);
 	fprintf(fp, "      Link to FTP base   %s\n", CFG.www_link2ftp);
@@ -2094,7 +2034,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      File per webpage   %d\n", CFG.www_files_page);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1,19, page, (char *)"Manager flag descriptions");
+	addtoc(fp, toc, 1,18, page, (char *)"Manager flag descriptions");
 	fprintf(fp, "               1    1    2    2    3 3\n");
 	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
 	fprintf(fp, "      --------------------------------\n");

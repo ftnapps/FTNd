@@ -78,9 +78,6 @@ struct	languagehdr	langhdr;		/* Language data	   */
 struct	language	lang;			  			  
 struct	langdata	ldata;
 
-struct	crackerhdr	safehdr;		/* Safe cracker structure  */
-struct	cracker		safe;
-
 struct	_fidonethdr	fidonethdr;		/* Fidonet structure	   */
 struct	_fidonet	fidonet;
 struct  domhdr		domainhdr;

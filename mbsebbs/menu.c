@@ -47,7 +47,6 @@
 #include "funcs.h"
 #include "input.h"
 #include "misc.h"
-#include "safe.h"
 #include "timeout.h"
 #include "menu.h"
 #include "page.h"
@@ -408,13 +407,6 @@ void DoMenu(int Type)
 
 	case 21:
 		/* display menuline only */
-		break;
-
-		/* Menus 22, 23 and 24 were obsolete doors */
-
-	case 25:
-		/* safe cracker door */
-		Safe();
 		break;
 
 	case 101:
