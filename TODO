@@ -19,6 +19,8 @@ mbsebbs:
 	   mail, must be user selectable. see remarks of William McBrine.
 	   The default is oke now.
 
+	N: The whosin display doesn't honnor the /H switch.
+
 	N: Rewrite chat to use "mbtask". Write chat functions into "mbmon"
 
 	N: Implement session and time/day limits.
