@@ -193,7 +193,7 @@ int pw_mkdb(char *username)
 			syslog(LOG_WARNING, "rebuilding the database...");
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", tempname, NULL);
 		} else {
-			syslog(LOG_WARNING, "updating the database...");
+			syslog(LOG_WARNING, "updating the database for %s...", username);
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", "-u", username, tempname, NULL);
 		}
 		pw_error((char *)_PATH_PWD_MKDB, 1, 1);

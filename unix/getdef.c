@@ -93,7 +93,6 @@ static int def_loaded = 0;		/* are defs already loaded?	*/
 
 /* local function prototypes */
 static struct itemdef *def_find (const char *);
-static void def_load (void);
 
 
 
@@ -229,7 +228,7 @@ static struct itemdef *def_find(const char *name)
  *
  * Loads the user-configured options from the default configuration file
  */
-static void def_load(void)
+void def_load(void)
 {
 	int		i;
 	FILE		*fp;

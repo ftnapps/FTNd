@@ -62,6 +62,7 @@
 #include "pwio.h"
 #include "shadowio.h"
 #include "pw_util.h"
+#include "getdef.h"
 #include "mbpasswd.h"
 
 
@@ -732,6 +733,10 @@ int main(int argc, char *argv[])
 #endif
 	char			*cp;
 
+	/*
+	 * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.
+	 */
+	def_load();
 
 	/*
 	 * Get my username
@@ -763,10 +768,10 @@ int main(int argc, char *argv[])
 //	     Dit programma is een groot security gat.
 
 	if (argc != 4) {
-		printf("\nmbpasswd commandline:\n\n");
-		printf("mbpasswd [-opt] [username] [newpassword]\n");
-		printf("options are:  -n   normal password change\n");
-		printf("              -f   forced password change\n");
+		fprintf(stderr, "\nmbpasswd commandline:\n\n");
+		fprintf(stderr, "mbpasswd [-opt] [username] [newpassword]\n");
+		fprintf(stderr, "options are:  -n   normal password change\n");
+		fprintf(stderr, "              -f   forced password change\n");
 		exit(E_FAILURE);
 	}
 
@@ -832,7 +837,6 @@ int main(int argc, char *argv[])
 #else
 	cp = pw->pw_passwd;
 #endif
-
 	/*
 	 * See if the user is permitted to change the password.
 	 * Otherwise, go ahead and set a new password.
