@@ -92,3 +92,17 @@ char	SigName[32][16] = {	"NOSIGNAL",
 
 #endif
 
+#ifdef __hppa__
+
+char    SigName[32][16] = {     "NOSIGNAL",
+		"SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
+		"SIGTRAP",      "SIGABRT",      "SIGEMT",       "SIGFPE",
+		"SIGKILL",      "SIGBUS",       "SIGSEGV",      "SIGSYS",
+		"SIGPIPE",      "SIGALRM",      "SIGTERM",      "SIGUSR1",
+		"SIGUSR2",      "SIGCHLD",      "SIGPWR",       "SIGVTALRM",
+		"SIGPROF",      "SIGIO",        "SIGWINCH",     "SIGSTOP",
+		"SIGTSTP",      "SIGCONT",      "SIGTTIN",      "SIGTTOU",
+		"SIGURG",       "SIGLOST",      "SIGUNUSED"};
+
+#endif
+

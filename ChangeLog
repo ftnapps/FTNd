@@ -7,6 +7,10 @@ WARNING: Extra debug logging enabled for checking internet news dupes.
 
 v0.35.03	06-Jul-2002
 
+	general:
+		Now compiles and installs on HP-PARISC hardware, tested with
+		Debian 3.0 on a HP 712/80.
+
 	upgrade:
 		After installation restart mbtask.
 		Start mbsetup, enter global configuration and exit and save.

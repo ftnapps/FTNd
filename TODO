@@ -77,6 +77,8 @@ mbfido:
 	N: Long email gated to netmail and splitted in several messages, the
 	   second and higher messages get the wrong flavor.
 
+	L: Add %from command to areamgr/filemgr.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

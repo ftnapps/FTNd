@@ -361,6 +361,8 @@ char *OsCPU()
     return (char *)"Sparc";
 #elif __alpha__
     return (char *)"Alpha";
+#elif __hppa__
+    return (char *)"HPPA";
 #else
     return (char *)"Unknown";
 #endif

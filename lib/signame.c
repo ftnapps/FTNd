@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: signame.c
+ * $Id$
  * Purpose ...............: Signal names
- * Last modification date : 19-May-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -83,15 +82,28 @@ char	SigName[32][16] = {	"NOSIGNAL",
 #ifdef __alpha__
 
 char	SigName[32][16] = {	"NOSIGNAL",
-		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
-		"SIGTRAP",	"SIGABRT",	"SIGEMT",	"SIGFPE",
-		"SIGKILL",	"SIGBUS",	"SIGSEGV",	"SIGSYS",
-		"SIGPIPE",	"SIGALRM",	"SIGTERM",	"SIGURG",
-		"SIGSTOP",	"SIGTSTP",	"SIGCONT",	"SIGCHLD",
-		"SIGTTIN",	"SIGTTOU",	"SIGIO",	"SIGXCPU",
-		"SIGXFSZ",	"SIGVTALRM",	"SIGPROF",	"SIGWINCH",
-		"SIGINFO",	"SIGUSR1",	"SIGUSR2"};
+		"SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
+		"SIGTRAP",      "SIGABRT",      "SIGEMT",       "SIGFPE",
+		"SIGKILL",      "SIGBUS",       "SIGSEGV",      "SIGSYS",
+		"SIGPIPE",      "SIGALRM",      "SIGTERM",      "SIGURG",
+		"SIGSTOP",      "SIGTSTP",      "SIGCONT",      "SIGCHLD",
+		"SIGTTIN",      "SIGTTOU",      "SIGIO",        "SIGXCPU",
+		"SIGXFSZ",      "SIGVTALRM",    "SIGPROF",      "SIGWINCH",
+		"SIGINFO",      "SIGUSR1",      "SIGUSR2"};
 
+#endif
+
+#ifdef __hppa__
+
+char    SigName[32][16] = {     "NOSIGNAL",
+		"SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
+		"SIGTRAP",      "SIGABRT",      "SIGEMT",       "SIGFPE",
+		"SIGKILL",      "SIGBUS",       "SIGSEGV",      "SIGSYS",
+		"SIGPIPE",      "SIGALRM",      "SIGTERM",      "SIGUSR1",
+		"SIGUSR2",      "SIGCHLD",      "SIGPWR",       "SIGVTALRM",
+		"SIGPROF",      "SIGIO",        "SIGWINCH",     "SIGSTOP",
+		"SIGTSTP",      "SIGCONT",      "SIGTTIN",      "SIGTTOU",
+		"SIGURG",       "SIGLOST",      "SIGUNUSED"};
 
 #endif
 
