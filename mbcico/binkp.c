@@ -217,10 +217,13 @@ char *unix2binkd(char *fn)
 
     while (*p) {
 	if (strspn(p, (char *)BNKCHARS)) {
-	    *q++ = *p; *q = '\0';
+	    *q++ = *p; 
+	    *q = '\0';
 	} else {
-	    sprintf(q, "\\%2x", *p);
+	    sprintf(q, "\\%2x", p[0]);
 	}
+	while (*q)
+	    q++;
 	p++;
     }
     *q = '\0';
