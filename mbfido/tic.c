@@ -270,8 +270,8 @@ int LoadTic(char *inb, char *tfn)
 	    }
 	
 	} else if (strncasecmp(Temp, "path ", 5) == 0) {
-	    strncpy(TIC.TicIn.Path[TIC.TicIn.TotPath], Temp+5, 80);
-	    if (strchr(TIC.TicIn.Path[TIC.TicIn.TotPath], ':') && strchr(Temp+5, '/')) {
+	    if (strchr(Temp+5, ':') && strchr(Temp+5, '/')) {
+		strncpy(TIC.TicIn.Path[TIC.TicIn.TotPath], Temp+5, 80);
 		TIC.TicIn.TotPath++;
 		TIC.Aka.zone = atoi(strtok(Temp+5, ":"));
 		TIC.Aka.net  = atoi(strtok(NULL, "/"));
@@ -283,12 +283,16 @@ int LoadTic(char *inb, char *tfn)
 			Syslog('+', "Aka %d: %s in path", i + 1, aka2str(CFG.aka[i]));
 		    }
 	    } else {
-		WriteError("No AKA in path: \"%s\"", printable(Temp, 0));
+		WriteError("No valid AKA in Path line: \"%s\"", printable(Temp, 0));
 		WriteError("Report this to author of that program");
 	    }
 		
 	} else if (strncasecmp(Temp, "seenby ", 7) == 0) {
-	    fill_list(&sbl, Temp+7, NULL);
+	    if (strchr(Temp+7, ':') && strchr(Temp+7, '/')) {
+		fill_list(&sbl, Temp+7, NULL);
+	    } else {
+		WriteError("No valid AKA in Seenby line: \"%s\"", printable(Temp, 0));
+	    }
 
 	} else if (strncasecmp(Temp, "areadesc ", 9) == 0) {
 	    strncpy(TIC.TicIn.AreaDesc, Temp+9, 60);
@@ -430,27 +434,6 @@ int LoadTic(char *inb, char *tfn)
 	 * Find out what the real name of the file is,
 	 * most likely this is a 8.3 filename.
 	 */
-//	if ((dp = opendir(TIC.Inbound)) == NULL) {
-//	    WriteError("$Can't opendir(%s)", TIC.Inbound);
-//	    return 1;
-//	}
-//        while ((de = readdir(dp))) {
-//	    /*
-//	     * Check 8.3 FN
-//	     */
-//	    if (strcasecmp(de->d_name, TIC.TicIn.File) == 0) {
-//		strncpy(RealName, de->d_name, 255);
-//		break;
-//	    }
-//	    /*
-//	     * Check LFN
-//	     */
-//	    if (strcasecmp(de->d_name, TIC.TicIn.FullName) == 0) {
-//		strncpy(RealName, de->d_name, 255);
-//		break;
-//	    }
-//	}
-//	closedir(dp);
 	strncpy(RealName, TIC.TicIn.File, 255);
 	Syslog('f', "getfilecase(%s, %s)", TIC.Inbound, RealName);
 	if (! getfilecase(TIC.Inbound, RealName)) {
