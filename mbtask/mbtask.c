@@ -120,9 +120,7 @@ int			sched_run = FALSE;	/* Scheduler running	*/
 /*
  * Global thread vaiables
  */
-int		thr_id[NUM_THREADS];		/* thread ID's		*/
 pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
-// pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;	/* Ping mutex	*/
 
 
 

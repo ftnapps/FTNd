@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbmail/lhash.c
+ * $Id$
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 28-Aug-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -223,9 +222,7 @@ char *lh_insert(LHASH *lh, char *data)
 			return(NULL);
 		nn->data=data;
 		nn->next=NULL;
-//#ifndef NO_HASH_COMP
 		nn->hash=hash;
-//#endif
 		*rn=nn;
 		ret=NULL;
 		lh->num_insert++;
@@ -298,8 +295,6 @@ char *lh_retrieve(LHASH *lh, char *data)
 
 
 void lh_doall(LHASH *lh, void (*func)(char *, char *))
-//LHASH *lh;
-//void (*func)();
 {
 	lh_doall_arg(lh,func,NULL);
 }
@@ -307,9 +302,6 @@ void lh_doall(LHASH *lh, void (*func)(char *, char *))
 
 
 void lh_doall_arg(LHASH *lh, void(*func)(char *, char *), char *arg)
-// LHASH *lh;
-//void (*func)();
-//char *arg;
 {
 	int i;
 	LHASH_NODE *a,*n;
@@ -348,12 +340,7 @@ static void expand(LHASH *lh)
 	
 	for (np= *n1; np != NULL; )
 		{
-//#ifndef NO_HASH_COMP
 		hash=np->hash;
-//#else
-//		hash=(*(lh->hash))(np->data);
-//		lh->num_hash_calls++;
-//#endif
 		if ((hash%nni) != p)
 			{ /* move it */
 			*n1= (*n1)->next;
@@ -447,14 +434,12 @@ static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned long *rhash)
 	ret= &(lh->b[(int)nn]);
 	for (n1= *ret; n1 != NULL; n1=n1->next)
 		{
-//#ifndef NO_HASH_COMP
 		lh->num_hash_comps++;
 		if (n1->hash != hash)
 			{
 			ret= &(n1->next);
 			continue;
 			}
-//#endif
 		lh->num_comp_calls++;
 		if ((*cf)(n1->data,data) == 0)
 			break;

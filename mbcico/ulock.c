@@ -43,9 +43,9 @@
 #define LCKPREFIX LOCKDIR"/LCK.."
 #define LCKTMP LOCKDIR"/TMP."
 
-#ifdef DONT_HAVE_PID_T
-#define pid_t int
-#endif
+//#ifdef DONT_HAVE_PID_T
+//#define pid_t int
+//#endif
 
 
 
