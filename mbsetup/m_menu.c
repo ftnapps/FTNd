@@ -46,51 +46,51 @@
 
 char *select_menurec(int max)
 {
-	static	char *menu=(char *)"-";
-	char	help[81];
-	int	pick;
+    static char	*menu=(char *)"-";
+    char	help[81];
+    int		pick;
 
-	if (max > 10)
-		sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove, ^P^revious, ^N^ext", max);
-	else if (max > 1)
-		sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove", max);
-	else if (max == 1)
-		sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete", max);
-	else
-		sprintf(help, "Select ^\"-\"^ for previous level, ^A^ppend a record");
+    if (max > 10)
+	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove, ^P^revious, ^N^ext", max);
+    else if (max > 1)
+	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete, ^M^ove", max);
+    else if (max == 1)
+	sprintf(help, "Rec. (1..%d), ^\"-\"^ Back, ^A^ppend, ^D^elete", max);
+    else
+	sprintf(help, "Select ^\"-\"^ for previous level, ^A^ppend a record");
 
-	showhelp(help);
+    showhelp(help);
 
-	for (;;) {
-		mvprintw(LINES - 3, 6, "Enter your choice >");
-		menu = (char *)"-";
-		menu = edit_field(LINES - 3, 26, 6, '!', menu);
-		locate(LINES -3, 6);
-		clrtoeol();
+    for (;;) {
+	mvprintw(LINES - 3, 6, "Enter your choice >");
+	menu = (char *)"-";
+	menu = edit_field(LINES - 3, 26, 6, '!', menu);
+	locate(LINES -3, 6);
+	clrtoeol();
 
-		if (strncmp(menu, "A", 1) == 0)
-			break;
-		if (strncmp(menu, "-", 1) == 0)
-			break;
-		if (strncmp(menu, "D", 1) == 0)
-			break;
-		if ((max > 1) && (strncmp(menu, "M", 1) == 0))
-			break;
+	if (strncmp(menu, "A", 1) == 0)
+	    break;
+	if (strncmp(menu, "-", 1) == 0)
+	    break;
+	if (strncmp(menu, "D", 1) == 0)
+	    break;
+	if ((max > 1) && (strncmp(menu, "M", 1) == 0))
+	    break;
 
-		if (max > 10) {
-			if (strncmp(menu, "N", 1) == 0)
-				break;
-			if (strncmp(menu, "P", 1) == 0)
-				break;
-		}
-		pick = atoi(menu);
-		if ((pick >= 1) && (pick <= max))
-			break;
-
-		working(2, 0, 0);
-		working(0, 0, 0);
+	if (max > 10) {
+	    if (strncmp(menu, "N", 1) == 0)
+		break;
+	    if (strncmp(menu, "P", 1) == 0)
+		break;
 	}
-	return menu;
+	pick = atoi(menu);
+	if ((pick >= 1) && (pick <= max))
+	    break;
+
+	working(2, 0, 0);
+	working(0, 0, 0);
+    }
+    return menu;
 }
 
 
@@ -135,12 +135,6 @@ void Show_A_Menu(void)
     S_COL(15,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
     S_COL(16,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
     set_color(WHITE, BLACK);
-    Syslog('-', "AutoExec %d %d", menus.AutoExec, le_int(menus.AutoExec));
-    Syslog('-', "NoDoorSys %d %d", menus.NoDoorsys, le_int(menus.NoDoorsys));
-    Syslog('-', "Y2Kdoorsys %d %d", menus.Y2Kdoorsys, le_int(menus.Y2Kdoorsys));
-    Syslog('-', "Comport %d %d", menus.Comport, le_int(menus.Comport));
-    Syslog('-', "NoSuid %d %d", menus.NoSuid, le_int(menus.NoSuid));
-    Syslog('-', "NoPrompt %d %d", menus.NoPrompt, le_int(menus.NoPrompt));
     show_bool(17,16,  menus.AutoExec);
     if (le_int(menus.MenuType) == 7) {
 	show_bool(13,58,  menus.NoDoorsys);
@@ -156,31 +150,31 @@ void Show_A_Menu(void)
 int GetSubmenu(int, int);
 int GetSubmenu(int Base, int Max)
 {
-	int	i, x, y;
-	char	temp[81];
+    int	    i, x, y;
+    char    temp[81];
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
-	set_color(CYAN, BLACK);
-	y = 6;
-	x = 2;
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
+    set_color(CYAN, BLACK);
+    y = 6;
+    x = 2;
 
-	for (i = 1; i <= Max; i++) {
-		sprintf(temp, "%2d. %s", i, getmenutype(i - 1 + Base));
-		mvprintw(y, x, temp);
-		y++;
-		if ((i % 13) == 0) {
-			y = 6;
-			x = 42;
-		}
+    for (i = 1; i <= Max; i++) {
+	sprintf(temp, "%2d. %s", i, getmenutype(i - 1 + Base));
+	mvprintw(y, x, temp);
+	y++;
+	if ((i % 13) == 0) {
+	    y = 6;
+	    x = 42;
 	}
-	i = select_menu(Max);
+    }
+    i = select_menu(Max);
 
-	if (i)
-		return (i + Base - 1);
-	else
-		return 0;
+    if (i)
+	return (i + Base - 1);
+    else
+	return 0;
 }
 
 
@@ -478,88 +472,87 @@ void EditMenu(char *Name)
 
 void EditMenus(void)
 {
-	int	Lang, mcount, err, i, x, y;
-	DIR	*dp;
-	FILE	*fil;
-	struct	dirent *de;
-	char	menuname[50][11];
-	char	temp[81], pick[12], *p;
+    int	    Lang, mcount, err, i, x, y;
+    DIR	    *dp;
+    FILE    *fil;
+    struct  dirent *de;
+    char    menuname[50][11], temp[81], pick[12], *p;
 
-	Syslog('+', "Start menu edit");
-	memset(&menuname, 0, sizeof(menuname));
-	Lang = PickLanguage((char *)"8.3");
-	if (Lang == '\0')
-		return;
+    Syslog('+', "Start menu edit");
+    memset(&menuname, 0, sizeof(menuname));
+    Lang = PickLanguage((char *)"8.3");
+    if (Lang == '\0')
+	return;
 
-	for (;;) {
-		clr_index();
-		mcount = 0;
-		if ((dp = opendir(lang.MenuPath)) != NULL) {
-			working(1, 0, 0);
+    for (;;) {
+	clr_index();
+	mcount = 0;
+	if ((dp = opendir(lang.MenuPath)) != NULL) {
+	    working(1, 0, 0);
 	
-			while ((de = readdir(dp))) {
-				if (de->d_name[0] != '.') {
-					strcpy(menuname[mcount], strtok(de->d_name, "."));
-					mcount++;
-				}
-			}
-			closedir(dp);
-			working(0, 0, 0);
+	    while ((de = readdir(dp))) {
+		if (de->d_name[0] != '.') {
+		    strcpy(menuname[mcount], strtok(de->d_name, "."));
+		    mcount++;
 		}
-
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
-		set_color(CYAN, BLACK);
-		
-		if (mcount) {
-			x = 6;
-			y = 7;
-			set_color(CYAN, BLACK);
-			for (i = 1; i <= mcount; i++) {
-				sprintf(temp, "%2d. %s", i, menuname[i-1]);
-				mvprintw(y, x, temp);
-				y++;
-				if ((i % 10) == 0) {
-					x+=15;
-					y = 7;
-				}
-			}
-		}
-		strcpy(pick, select_record(mcount, 50));
-
-		if (strncmp(pick, "-", 1) == 0) {
-			Syslog('+', "Finished menu edit");
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			set_color(WHITE, BLACK);
-			mvprintw(LINES -3, 6, (char *)"New menu name >");
-			memset(&temp, 0, sizeof(temp));
-			strcpy(temp, edit_str(LINES -3, 22, 10, temp, (char *)"Enter a new ^menu^ name without extension"));
-			if (strlen(temp)) {
-				p = xstrcpy(lang.MenuPath);
-				p = xstrcat(p, (char *)"/");
-				p = xstrcat(p, temp);
-				p = xstrcat(p, (char *)".mnu");
-				if ((err = file_exist(p, F_OK))) {
-					if ((fil = fopen(p, "a")) == NULL) {
-						errmsg("Can't create menu %s", temp);
-					} else {
-						fclose(fil);
-						chmod(p, 0640);
-						Syslog('+', "Created menufile %s", p);
-					}
-				} else {
-					errmsg("Menu %s already exists", temp);
-				}
-				free(p);
-			}
-		}
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= mcount))
-			EditMenu(menuname[atoi(pick) -1]);
+	    }
+	    closedir(dp);
+	    working(0, 0, 0);
 	}
+
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
+	set_color(CYAN, BLACK);
+		
+	if (mcount) {
+	    x = 6;
+	    y = 7;
+	    set_color(CYAN, BLACK);
+	    for (i = 1; i <= mcount; i++) {
+		sprintf(temp, "%2d. %s", i, menuname[i-1]);
+		mvprintw(y, x, temp);
+		y++;
+		if ((i % 10) == 0) {
+		    x+=15;
+		    y = 7;
+		}
+	    }
+	}
+	strcpy(pick, select_record(mcount, 50));
+
+	if (strncmp(pick, "-", 1) == 0) {
+	    Syslog('+', "Finished menu edit");
+	    return;
+	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    set_color(WHITE, BLACK);
+	    mvprintw(LINES -3, 6, (char *)"New menu name >");
+	    memset(&temp, 0, sizeof(temp));
+	    strcpy(temp, edit_str(LINES -3, 22, 10, temp, (char *)"Enter a new ^menu^ name without extension"));
+	    if (strlen(temp)) {
+		p = xstrcpy(lang.MenuPath);
+		p = xstrcat(p, (char *)"/");
+		p = xstrcat(p, temp);
+		p = xstrcat(p, (char *)".mnu");
+		if ((err = file_exist(p, F_OK))) {
+		    if ((fil = fopen(p, "a")) == NULL) {
+			errmsg("Can't create menu %s", temp);
+		    } else {
+			fclose(fil);
+			chmod(p, 0640);
+			Syslog('+', "Created menufile %s", p);
+		    }
+		} else {
+		    errmsg("Menu %s already exists", temp);
+		}
+		free(p);
+	    }
+	}
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= mcount))
+	    EditMenu(menuname[atoi(pick) -1]);
+    }
 }
 
 
@@ -637,6 +630,4 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
     fclose(no);
     return page;
 }
-
-
 

@@ -1,11 +1,13 @@
 $Id$
 
 
-	WARNING, users of Sparc and HP-PA systems should be carefull, some bbs
-	menus do not work. All other programs do work on all platforms.
-	All other users on Intel machines (99,9% I think) can use this version.
-
 v0.37.9		17-Sep-2003
+
+	mbsebbs:
+		Made menus work on non-intel platforms.
+
+	mbsetup:
+		Made menus editor work on non-intel platforms.
 
 
 v0.37.8		14-Sep-2003 - 17-Sep-2003
