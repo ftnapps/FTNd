@@ -358,9 +358,9 @@ static int tcp_sblk(char *buf, int len, int typ)
 {
 	Nopper();
 	if (typ == TCP_CMD)
-		Syslog('A', "tcp_sblk: cmd: %s", buf);
+		Syslog('a', "tcp_sblk: cmd: %s", buf);
 	else
-		Syslog('A', "tcp_sblk: data: %d bytes", len);
+		Syslog('a', "tcp_sblk: data: %d bytes", len);
 
 	PUTCHAR(0xc6);
 	PUTCHAR(typ);
@@ -439,9 +439,9 @@ static int tcp_rblk(char *buf, int *len)
 
 	if (rx_type == TCP_CMD) {
 		buf[*len] = '\0';
-		Syslog('A', "tcp_rblk: cmd: %s", buf);
+		Syslog('a', "tcp_rblk: cmd: %s", buf);
 	} else
-		Syslog('A', "tcp_rblk: data: %d bytes", *len);
+		Syslog('a', "tcp_rblk: data: %d bytes", *len);
 
 to:
 	if (tty_status)
