@@ -814,8 +814,9 @@ SM_RETURN
  */
 int file_transfer(void)
 {
-    int	    rc = 0, complete = FALSE;
-    TrType  Trc = Ok;
+    int		rc = 0, complete = FALSE;
+    TrType	Trc = Ok;
+    binkp_list	*tmp;
     
     for (;;) {
 	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
@@ -894,7 +895,23 @@ int file_transfer(void)
 				}
 				break;
 
-	    case DeinitTransfer:/* Clear current filelist */
+	    case DeinitTransfer:/*
+				 * In case of a transfer error the filelist is not yet cleared
+				 */
+				if (tosend != NULL) {
+				    Syslog('b', "Clear current filelist");
+				    for (tmp = bll; bll; bll = tmp) {
+					tmp = bll->next;
+					if (bll->local)
+					    free(bll->local);
+					if (bll->remote)
+					    free(bll->remote);
+					free(bll);
+				    }
+
+				    tidy_filelist(tosend, TRUE);
+				    tosend = NULL;
+				}
 				if (bp.rc)
 				    return MBERR_FTRANSFER;
 				else
@@ -1354,23 +1371,6 @@ TrType binkp_transmitter(void)
 	    if (tosend != NULL) {
 		Syslog('b', "Clear current filelist");
 
-		debug_binkp_list(&bll);
-
-		/*
-		 *  Process all send files.
-		 */
-		for (tsl = tosend; tsl; tsl = tsl->next) {
-		    if (tsl->remote == NULL) {
-			execute_disposition(tsl);
-		    } else {
-			for (tmp = bll; tmp; tmp = tmp->next) {
-			    if ((strcmp(tmp->local, tsl->local) == 0) && (tmp->state == Got)) {
-				execute_disposition(tsl);
-			    }
-			}
-		    }
-		}
-
 		for (tmp = bll; bll; bll = tmp) {
 		    tmp = bll->next;
 		    if (bll->local)
@@ -1749,6 +1749,7 @@ int binkp_process_messages(void)
 {
     the_queue	*tmpq, *oldq;
     binkp_list	*tmp;
+    file_list	*tsl;
     int		Found;
     char	*lname;
     time_t	ltime;
@@ -1828,6 +1829,15 @@ int binkp_process_messages(void)
 			Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
 		    }
 		    tmp->state = Got;
+		    for (tsl = tosend; tsl; tsl = tsl->next) {
+			if (tsl->remote == NULL) {
+			    execute_disposition(tsl);
+			} else {
+			    if (strcmp(tmp->local, tsl->local) == 0) {
+				execute_disposition(tsl);
+			    }
+			}
+		    }
 		    break;
 		}
 	    }
@@ -1854,7 +1864,7 @@ int binkp_process_messages(void)
 		}
 	    }
 	    if (!Found) {
-		Syslog('!', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
+		Syslog('!', "Binkp: unexpected M_SKIP \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else {
 	    /* Illegal message on the queue */

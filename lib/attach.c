@@ -4,7 +4,7 @@
  * Purpose ...............: Attach files to outbound
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -41,7 +41,7 @@
 int attach(faddr noden, char *ofile, int mode, char flavor)
 {
     FILE    *fp;
-    char    *flofile;
+    char    *flofile, *thefile;
     int	    rc;
 
     if (ofile == NULL)
@@ -53,6 +53,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
     }
 
     flofile = calloc(PATH_MAX, sizeof(char));
+    thefile = calloc(PATH_MAX, sizeof(char));
     sprintf(flofile, "%s", floname(&noden, flavor));
 
     /*
@@ -74,6 +75,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	WriteError("$Can't open %s", flofile);
 	WriteError("May be locked by mbcico");
 	free(flofile);
+	free(thefile);
 	return FALSE;
     }
 
@@ -81,39 +83,54 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	case LEAVE:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    fprintf(fp, "%s\r\n", Unix2Dos(ofile));
+		    sprintf(thefile, "%s", Unix2Dos(ofile));
 		else
-		    fprintf(fp, "%s\r\n", tu(Unix2Dos(ofile)));
+		    sprintf(thefile, "%s", tu(Unix2Dos(ofile)));
 	    } else {
-		fprintf(fp, "%s\r\n", ofile);
+		sprintf(thefile, "%s", ofile);
 	    }
 	    break;
 
 	case KFS:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    fprintf(fp, "^%s\r\n", Unix2Dos(ofile));
+		    sprintf(thefile, "^%s", Unix2Dos(ofile));
 		else
-		    fprintf(fp, "^%s\r\n", tu(Unix2Dos(ofile)));
+		    sprintf(thefile, "^%s", tu(Unix2Dos(ofile)));
 	    } else {
-		fprintf(fp, "^%s\r\n", ofile);
+		sprintf(thefile, "^%s", ofile);
 	    }
 	    break;
 
 	case TFS:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    fprintf(fp, "#%s\r\n", Unix2Dos(ofile));
+		    sprintf(thefile, "#%s", Unix2Dos(ofile));
 		else
-		    fprintf(fp, "#%s\r\n", tu(Unix2Dos(ofile)));
+		    sprintf(thefile, "#%s", tu(Unix2Dos(ofile)));
 	    } else {
-		fprintf(fp, "#%s\r\n", ofile);
+		sprintf(thefile, "#%s", ofile);
 	    }
 	    break;
     }
 
+    fseek(fp, 0, SEEK_SET);
+    while (fgets(flofile, PATH_MAX -1, fp) != NULL) {
+	Striplf(flofile);
+	if (strncmp(flofile, thefile, strlen(thefile)) == 0) {
+	    fclose(fp);
+	    Syslog('+', "attach: file %s already attached", ofile);
+	    free(flofile);
+	    free(thefile);
+	    return TRUE;
+	}
+    }
+
+    fseek(fp, 0, SEEK_END);
+    fprintf(fp, "%s\r\n", thefile);
     fclose(fp);
     free(flofile);
+    free(thefile);
     return TRUE;
 }
 

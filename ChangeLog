@@ -10,6 +10,7 @@ v0.39.5		24-Dec-2003
 	common.a:
 		Allows node locking with zero bytes lockfiles created by some
 		other OS when enabled in the setup.
+		The attach function now checks if a file is already attached.
 
 	mbcico:
 		Binkp code cleanup.
