@@ -32,7 +32,7 @@ PARAM="~/edit.msg"
 # uncomment next line. If user select Emacs keys then this
 # editor was selected.
 
-if [ "BBSFSEDKEYS" = "1" ]; then EDITOR=/usr/bin/bbsjmacs; fi
+if [ "BBSFSEDKEYS" = "1" ]; then EDITOR=@joebin@/bbsjmacs; fi
 
 
 ## Setting Language environmment for msg header
@@ -67,7 +67,7 @@ case $BBSLANGUAGE in
 	 ;;
      ## Dutch
      N)
-         LANGAREA='Gebied'
+         LANGAREA='GEBIED'
 	 LANGFROM='Van      '
 	   LANGTO='Aan      '
 	   LANGRE='Onderwerp'
@@ -76,9 +76,9 @@ case $BBSLANGUAGE in
      ## Languages not set defaults to english.
      *)
          LANGAREA='AREA'
-         LANGFROM='FROM    '
-           LANGTO='TO      '
-           LANGRE='SUBJECT '
+         LANGFROM='From    '
+           LANGTO='To      '
+           LANGRE='Subject '
          ;;
 esac
 
@@ -87,12 +87,12 @@ alarma $TIME $EDITOR &
 
 ## Draw header and call editor
 clear
-echo "[2J[1;1H[0m[1;44m                                                                               
+echo -e "[2J[1;1H[0m[1;44m                                                                               
 [1;1H[0m[1;44m$LANGAREA: [31m$AREANUM[37m [33m$AREA
-[0;37;40m[A[79C [1;33m$LANGFROM: [32m$MSGFROM[0;37m
-[A[79C [1;33m$LANGTO: [0;32m$MSGTO [36m$MSGTOADDR[37m
-[A[79C [1;33m$LANGRE: [0;32m$MSGSUBJECT[37m
-[A[79C [0m"
+[0;37;40m[A[79C\n[1;33m$LANGFROM: [32m$MSGFROM [36m$MSGFROMADDR[0;37m
+[A[79C\n[1;33m$LANGTO: [0;32m$MSGTO [36m$MSGTOADDR[37m
+[A[79C\n[1;33m$LANGRE: [0;32m$MSGSUBJECT[37m
+[A[79C\n[0m"
 $EDITOR $PARAM
 ## kill alarm
 killall sleep >/dev/null 2>&1

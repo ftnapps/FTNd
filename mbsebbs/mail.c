@@ -2811,7 +2811,7 @@ int Ext_Edit()
 
     tmpname = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(tmpname, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, "data.msg");
+    sprintf(tmpname, "%s/%s/data.msg", CFG.bbs_usersdir, exitinfo.Name);
     if ((fd = fopen(tmpname, "w")) == NULL) {
 	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
     } else {
@@ -2819,6 +2819,7 @@ int Ext_Edit()
 	fprintf(fd,"AREANUM='%d'\n",iMsgAreaNumber+1);
 	fprintf(fd,"AREATYPE='%d'\n",iMsgAreaType);
 	fprintf(fd,"MSGFROM='%s'\n",Msg.From);
+	fprintf(fd,"MSGFROMADDR='%s'\n",Msg.FromAddress);
 	fprintf(fd,"MSGTO='%s'\n",Msg.To);
 	fprintf(fd,"MSGTOADDR='%s'\n",Msg.ToAddress);
 	fprintf(fd,"MSGSUBJECT='%s'\n",Msg.Subject);
@@ -2827,7 +2828,7 @@ int Ext_Edit()
 	fclose(fd);
     }
 
-    sprintf(tmpname, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, "edit.msg");
+    sprintf(tmpname, "%s/%s/edit.msg", CFG.bbs_usersdir, exitinfo.Name);
     if ((fd = fopen(tmpname, "w")) == NULL) {
 	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
     } else {
