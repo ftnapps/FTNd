@@ -66,7 +66,7 @@ int Add_ToBeRep(struct _filerecord report)
 		 * If it's a later received file, update the record
 		 */
 		if (report.Fdate > Temp.Fdate) {
-		    Syslog('f', "Add_ToBeRep this file is newer, update record");
+		    Syslog('f', "Add_ToBeRep this file is newer, update record at position %d", ftell(tbr));
 		    fseek(tbr, - sizeof(Temp), SEEK_SET);
 		    fwrite(&report, sizeof(report), 1, tbr);
 		    fclose(tbr);
@@ -77,14 +77,14 @@ int Add_ToBeRep(struct _filerecord report)
 		return TRUE;
 	    }
 	}
-	if ((strcmp(Temp.Name, report.Name) == 0) && (Temp.Fdate == T_File.Fdate)) {
+	if ((strcmp(Temp.Name, report.Name) == 0) && (Temp.Fdate == report.Fdate)) {
 	    Syslog('f', "Add_ToBeRep record with same filename, but other area");
 	    Found = TRUE;
 	}
     }
 
     if (Found) {
-	Syslog('!', "File %s already in toberep.data", T_File.Name);
+	Syslog('!', "File %s already in toberep.data", report.Name);
 	fclose(tbr);
 	return FALSE;
     }
@@ -92,8 +92,8 @@ int Add_ToBeRep(struct _filerecord report)
     /*
      * Append record
      */
-    Syslog('f', "Add_ToBeRep append record");
-    fwrite(&T_File, sizeof(T_File), 1, tbr);
+    Syslog('f', "Add_ToBeRep append record at position %ld", ftell(tbr));
+    fwrite(&report, sizeof(report), 1, tbr);
     fclose(tbr);
     return TRUE;
 }

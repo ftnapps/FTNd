@@ -25,6 +25,8 @@ v0.51.3		22-Mar-2003
 
 	mbfido:
 		The area tags are now created in /opt/mbse/share/doc/tags.
+		Added more debug info in Add_ToBeRep(), we still see double
+		announces of files like FP-DEF.ZIP.
 
 	mblogin:
 		Changed some defines for NetBSD 1.6.2
