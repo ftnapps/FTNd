@@ -4,7 +4,7 @@ v0.51.4		11-Apr-2004
 
 	upgrade:
 		Start mbsetup and leave. This wil update the message area
-		records.
+		records and the message group permission.
 
 	general:
 		Added new location of joerc files for FreeBSD 4.9
