@@ -30,6 +30,8 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"

@@ -58,6 +58,7 @@ v0.51.4		11-Apr-2004
 		needed for the newsserver.
 		It wasn't possible anymore to change the number of systems in
 		menu 1.11.11
+		Fixed a header include.
 
 	mbtask:
 		Removed debug logging for the disk thread.
