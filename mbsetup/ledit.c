@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: ledit.c
+ * $Id$
  * Purpose ...............: Line Editor
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1113,6 +1112,7 @@ char *getmsgtype(int val)
 		case NETMAIL:   return (char *)"Netmail ";
 		case ECHOMAIL:  return (char *)"Echomail";
 		case NEWS:	return (char *)"News    ";
+		case LIST:	return (char *)"Listserv";
 		default:        return NULL;
 	}
 }
@@ -1138,7 +1138,7 @@ int edit_msgtype(int y, int x, int val)
 		ch = readkey(y, x, YELLOW, BLUE);
 
 		if (ch == ' ') {
-			if (val < NEWS)
+			if (val < LIST)
 				val++;
 			else
 				val = LOCALMAIL;
@@ -1149,6 +1149,7 @@ int edit_msgtype(int y, int x, int val)
 	fflush(stdout);
 	return val;
 }
+
 
 
 char *getemailmode(int val)

@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 22-Jun-2001</h5>
+<h5>Last update 08-Nov-2001</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Global Setup</H1>
@@ -21,7 +21,12 @@ In this setup you can edit all global settings for MBSE BBS. All sections will
 be discussed below.
 <P>
 
-<h3>1.1. Edit Registration Info.</H3>
+<h3>1.1. Fidonet Aka's.</h3>
+<p>
+Here you can enter 40 fidonet addresses. These are 5d addresses.
+<p>
+
+<h3>1.2. Edit Registration Info.</H3>
 <P>
 <pre>
 <strong>System name       </strong>The name of your BBS
@@ -38,7 +43,7 @@ be discussed below.
 </pre>
 <P>
 
-<h3>1.2. Edit Global Filenames.</H3>
+<h3>1.3. Edit Global Filenames.</H3>
 <P>
 <pre>
 <strong>System logfile    </strong>The name of the main logfile
@@ -50,7 +55,7 @@ be discussed below.
 </pre>
 <P>
 
-<h3>1.3. Edit Global Paths</H3>
+<h3>1.4. Edit Global Paths</H3>
 <P>
 <pre>
 <strong>BBS Menus         </strong>The path to the default menus
@@ -82,7 +87,7 @@ and the Unix paths will be stored in the .flo files. This is the best setting
 if mbsebbs is the only mailer running on your system.
 <P>
 
-<h3>1.4. Edit BBS Configuration</H3>
+<h3>1.5. Edit BBS Configuration</H3>
 <p>
 <pre>
 <strong>Private system    </strong>Set to true when only pre-registered users are allowed
@@ -114,7 +119,12 @@ one is on a separate filesystem. Ext2, reiserfs, msdos and vfat partitions
 are checked. The lowest free diskspace found counts. Default is 10 MB.
 <p>
 
-<h3>1.5. New users defaults.</h3>
+<h3>1.6. Flag Descriptions.</h3>
+<p>
+In this menu you can give the 32 users flags a meaningfull description.
+<p>
+
+<h3>1.7. New users defaults.</h3>
 <p>
 <pre>
 <strong>Access level      </strong>The access level and flags after registration
@@ -134,7 +144,7 @@ are checked. The lowest free diskspace found counts. Default is 10 MB.
 </pre>
 <p>
 
-<h3>1.6. Text Colors.</h3>
+<h3>1.8. Text Colors.</h3>
 <p>
 Several prompts use different colors. They can be changed with the following
 menu.
@@ -143,7 +153,7 @@ menu.
 <IMG SRC="../images/mbsetup1.6.S.gif" width="589" height="343">
 <P>
 
-<h3>1.7. Next User Door.</h3>
+<h3>1.9. Next User Door.</h3>
 <p>
 This is a "message to nextuser" door I found in RapidBBS. It allows a user
 to write a message to the next BBS user.
@@ -153,7 +163,7 @@ to write a message to the next BBS user.
 </pre>
 <p>
 
-<h3>1.8. Safe cracker door.</h3>
+<h3>1.10. Safe cracker door.</h3>
 <p>
 This is a door I found in RapidBBS, it is a simple number guessing game.
 <pre>
@@ -169,7 +179,7 @@ This is a door I found in RapidBBS, it is a simple number guessing game.
 </pre>
 <p>
 
-<h3>1.9. Time Bank Door.</h3>
+<h3>1.11. Time Bank Door.</h3>
 <p>
 This is the timebank door I found in RapidBBS. It allows a user to deposit
 time or download kilobytes on his bank account so when he needs it for
@@ -188,7 +198,7 @@ these settings are not well explained right now.
 </pre>
 <p>
 
-<h3>1.10. Sysop paging</h3>
+<h3>1.12. Sysop paging</h3>
 <p>
 For sysop chat we use a program that will connect to the users tty. This is 
 not a nice solution because it will not work over a network, but at least
@@ -208,12 +218,7 @@ it works.
 <strong>Sunday..Saturday  </strong>The times the Sysop is normal available
 </pre><p>
 
-<h3>1.11. Flag Descriptions.</h3>
-<p>
-In this menu you can give the 32 users flags a meaningfull description.
-<p>
-
-<h3>1.12. Fileecho Processing.</h3>
+<h3>1.13. Fileecho Processing.</h3>
 <p>
 A note, when you change the number of Systems or Groups, the databases affected
 will be updated automatic.
@@ -237,7 +242,7 @@ will be updated automatic.
 <strong>Pause             </strong>Allow filemgr pause/resume commands
 </pre><p>
 
-<h3>1.13. Edit Fidonet mail and echomail processing.</h3>
+<h3>1.14. Edit Fidonet mail and echomail processing.</h3>
 <p>
 Note that the first 2 mailboards must also exist in the normal mail areas if
 you want to see what is in them. Here they are defined for quick access of the
@@ -286,7 +291,7 @@ if they are larger then 32 KBytes. Splitting is used for newsfiles reports
 and gated news articles to Fidonet.
 <P>
 
-<h3>1.14. Edit Internet mail and news processing.</h3>
+<h3>1.15. Edit Internet mail and news processing.</h3>
 <p>
 Email and news is setup here. There are three possible configurations which you
 can set with 1.14.11:
@@ -351,7 +356,7 @@ In UUCP mode the NNTP entries are replaced by:
 
 
 <P>
-<h3>1.15. Allfiles and Newfiles lists.</h3>
+<h3>1.16. Allfiles and Newfiles lists.</h3>
 <p>
 These are the settings that affect the generation of newfiles and allfiles reports.
 <pre>
@@ -360,11 +365,6 @@ These are the settings that affect the generation of newfiles and allfiles repor
 <strong>Security          </strong>The highest security level to include files in the reports
 <strong>Groups            </strong>The number of newfile groups the newfiles database can hold
 </pre><p>
-
-<h3>1.16. Fidonet Aka's.</h3>
-<p>
-Here you can enter 40 fidonet addresses. These are 5d addresses.
-<p>
 
 <h3>1.17. Mailer Setup.</h3>
 <p>

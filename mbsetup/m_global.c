@@ -1,8 +1,7 @@
 /****************************************************************************
  *
- * File ..................: m_global.c
+ * $Id$
  * Purpose ...............: Global Setup Program 
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1493,23 +1492,23 @@ void global_menu(void)
 		set_color(WHITE, BLACK);
 		mvprintw( 5, 6, "1.    GLOBAL SETUP");
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Registration Info");
-		mvprintw( 8, 6, "2.    Edit Global Filenames");
-		mvprintw( 9, 6, "3.    Edit Global Paths");
-		mvprintw(10, 6, "4.    Edit Global Settings");
-		mvprintw(11, 6, "5.    Edit New Users defaults");
-		mvprintw(12, 6, "6.    Edit Text Colors");
-		mvprintw(13, 6, "7.    Edit Next User Door");
-		mvprintw(14, 6, "8.    Edit Safe Door");
-		mvprintw(15, 6, "9.    Edit Time Bank Door");
-		mvprintw(16, 6, "10.   Edit Sysop Paging");
+		mvprintw( 7, 6, "1.    Edit Fidonet Aka's");
+		mvprintw( 8, 6, "2.    Edit Registration Info");
+		mvprintw( 9, 6, "3.    Edit Global Filenames");
+		mvprintw(10, 6, "4.    Edit Global Paths");
+		mvprintw(11, 6, "5.    Edit Global Settings");
+		mvprintw(12, 6, "6.    Edit Flag Descriptions");
+		mvprintw(13, 6, "7.    Edit New Users defaults");
+		mvprintw(14, 6, "8.    Edit Text Colors");
+		mvprintw(15, 6, "9.    Edit Next User Door");
+		mvprintw(16, 6, "10.   Edit Safe Door");
 
-		mvprintw( 7,46, "11.   Edit Flag Descriptions");
-		mvprintw( 8,46, "12.   Edit Files Processing");
-		mvprintw( 9,46, "13.   Edit Fidonet Mail/Echomail");
-		mvprintw(10,46, "14.   Edit Internet Mail/News");
-		mvprintw(11,46, "15.   Edit All-/Newfiles lists");
-		mvprintw(12,46, "16.   Edit Fidonet Aka's");
+		mvprintw( 7,46, "11.   Edit Time Bank Door");
+		mvprintw( 8,46, "12.   Edit Sysop Paging");
+		mvprintw( 9,46, "13.   Edit Files Processing");
+		mvprintw(10,46, "14.   Edit Fidonet Mail/Echomail");
+		mvprintw(11,46, "15.   Edit Internet Mail/News");
+		mvprintw(12,46, "16.   Edit All-/Newfiles lists");
 		mvprintw(13,46, "17.   Edit Mailer setup");
 		mvprintw(14,46, "18.   Edit Ftp daemon setup");
 		mvprintw(15,46, "19.   Edit HTML pages setup");
@@ -1525,53 +1524,53 @@ void global_menu(void)
 				}
 			}
 			return;
-		case 1:
-			e_reginfo();
+                case 1: 
+			e_fidoakas();
 			break;
 		case 2:
-			e_filenames();
+			e_reginfo();
 			break;
 		case 3:
-			e_global();
+			e_filenames();
 			break;
 		case 4:
-			e_bbsglob();
+			e_global();
 			break;
 		case 5:
-			e_newuser();
+			e_bbsglob();
 			break;
-		case 6:
-			e_colors();
-			break;
-		case 7:
-			e_nu_door();
-			break;
-		case 8:
-			e_safe_door();
-			break;
-		case 9:
-			e_timebank();
-			break;
-		case 10:
-			e_paging();
-			break;
-		case 11:
+                case 6: 
 			e_flags();
 			break;
+		case 7:
+			e_newuser();
+			break;
+		case 8:
+			e_colors();
+			break;
+		case 9:
+			e_nu_door();
+			break;
+		case 10:
+			e_safe_door();
+			break;
+		case 11:
+			e_timebank();
+			break;
 		case 12:
-			e_ticconf();
+			e_paging();
 			break;
 		case 13:
-			e_fidomailcfg();
+			e_ticconf();
 			break;
 		case 14:
-			e_intmailcfg();
+			e_fidomailcfg();
 			break;
 		case 15:
-			e_newfiles();
+			e_intmailcfg();
 			break;
 		case 16:
-			e_fidoakas();
+			e_newfiles();
 			break;
 		case 17:
 			e_mailer();
@@ -1678,8 +1677,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	time(&now);
 	fprintf(fp, "      Date created     %s", ctime(&now));
 
-	addtoc(fp, toc, 1, 2, page, (char *)"Registration information");
+        addtoc(fp, toc, 1, 2, page, (char *)"System fidonet addresses");
+	for (i = 0; i < 40; i++)
+	    if (CFG.akavalid[i])
+		fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
 
+	page = newpage(fp, page);
+
+	addtoc(fp, toc, 1, 3, page, (char *)"Registration information");
 	fprintf(fp, "      System name      %s\n", CFG.bbs_name);
 	fprintf(fp, "      Domain name      %s\n", CFG.sysdomain);
 	fprintf(fp, "      Sysop unix name  %s\n", CFG.sysop);
@@ -1691,8 +1696,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Origin line      %s\n", CFG.origin);
 	fprintf(fp, "      Start unix name  %s\n", CFG.startname);
 
-	addtoc(fp, toc, 1, 3, page, (char *)"Global filenames");
-
+	addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
 	fprintf(fp, "      System logfile   %s\n", CFG.logfile);
 	fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
 	fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
@@ -1700,8 +1704,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Chat logfile     %s\n", CFG.chat_log);
 	fprintf(fp, "      Welcome logo     %s\n", CFG.welcome_logo);
 
-	addtoc(fp, toc, 1, 4, page, (char *)"Pathnames");
-
+	addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
 	fprintf(fp, "      Menufiles        %s\n", CFG.bbs_menus);
 	fprintf(fp, "      Textfiles        %s\n", CFG.bbs_txtfiles);
 	fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
@@ -1717,7 +1720,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Leave case as is %s\n", getboolean(CFG.leavecase));
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 5, page, (char *)"Global settings");
+	addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
 
 	fprintf(fp, "      Private system   %s\n", getboolean(CFG.elite_mode));
 	fprintf(fp, "      Show new msgarea %s\n", getboolean(CFG.NewAreas));
@@ -1746,7 +1749,23 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      FileAttach level %d\n", CFG.iAttachLevel);
 	fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
 
-	addtoc(fp, toc, 1, 6, page, (char *)"New users defaults");
+	addtoc(fp, toc, 1, 7, page, (char *)"Flag descriptions");
+	fprintf(fp, "               1    1    2    2    3 3\n");
+	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
+	fprintf(fp, "      --------------------------------\n");
+	fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
+	for (i = 0; i < 32; i++) {
+	    fprintf(fp, "      ");
+	    for (j = 0; j < (31 - i); j++)
+		fprintf(fp, "|");
+	    fprintf(fp, "+");
+	    for (j = (32 - i); j < 32; j++)
+		fprintf(fp, "-");
+	    fprintf(fp, " %s\n", CFG.fname[31 - i]);
+	}
+
+	page = newpage(fp, page);
+	addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
 
 	fprintf(fp, "      Access level     %s\n", get_secstr(CFG.newuser_access));
 	fprintf(fp, "      Cap. username    %s\n", getboolean(CFG.iCapUserName));
@@ -1763,7 +1782,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Ask address      %s\n", getboolean(CFG.AskAddress));
 	fprintf(fp, "      Give email box   %s\n", getboolean(CFG.GiveEmail));
 
-	addtoc(fp, toc, 1, 7, page, (char *)"Text colors");
+	addtoc(fp, toc, 1, 9, page, (char *)"Text colors");
 
 	fprintf(fp, "      Normal text      %s on %s\n", get_color(CFG.TextColourF), get_color(CFG.TextColourB));
 	fprintf(fp, "      Underline text   %s on %s\n", get_color(CFG.UnderlineColourF), get_color(CFG.UnderlineColourB));
@@ -1778,12 +1797,12 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 8, page, (char *)"Next user door");
+	addtoc(fp, toc, 1, 10, page, (char *)"Next user door");
 	
 	fprintf(fp, "      Text file        %s\n", CFG.sNuScreen);
 	fprintf(fp, "      Quote            %s\n", CFG.sNuQuote);
 
-	addtoc(fp, toc, 1, 9, page, (char *)"Safecracker door");
+	addtoc(fp, toc, 1, 11, page, (char *)"Safecracker door");
 
 	fprintf(fp, "      Digit nr 1       %d\n", CFG.iSafeFirstDigit);
 	fprintf(fp, "      Digit nr 2       %d\n", CFG.iSafeSecondDigit);
@@ -1795,7 +1814,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Safe welcome     %s\n", CFG.sSafeWelcome);
 	fprintf(fp, "      Safe opened file %s\n", CFG.sSafeOpened);
 
-	addtoc(fp, toc, 1, 10, page, (char *)"Timebank door");
+	addtoc(fp, toc, 1, 12, page, (char *)"Timebank door");
 
 	fprintf(fp, "      Users time balance %d\n", CFG.iMaxTimeBalance);
 	fprintf(fp, "      Max. time withdraw %d\n", CFG.iMaxTimeWithdraw);
@@ -1806,7 +1825,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Users time ratio   %s\n", CFG.sTimeRatio);
 	fprintf(fp, "      Users Kb. ratio    %s\n", CFG.sByteRatio);
 
-	addtoc(fp, toc, 1, 11, page, (char *)"Sysop paging");
+	addtoc(fp, toc, 1, 13, page, (char *)"Sysop paging");
 
 	fprintf(fp, "      Ext. Chat program  %s\n", CFG.sExternalChat);
 	fprintf(fp, "      Chat device        %s\n", CFG.sChatDevice);
@@ -1831,27 +1850,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Saterday           %s %s\n", CFG.cStartTime[6], CFG.cStopTime[6]);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 12, page, (char *)"Flag descriptions");
-
-	fprintf(fp, "               1    1    2    2    3 3\n");
-	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
-	fprintf(fp, "      --------------------------------\n");
-	fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
-
-	for (i = 0; i < 32; i++) {
-		fprintf(fp, "      ");
-
-		for (j = 0; j < (31 - i); j++)
-			fprintf(fp, "|");
-		fprintf(fp, "+");
-		for (j = (32 - i); j < 32; j++)
-			fprintf(fp, "-");
-
-		fprintf(fp, " %s\n", CFG.fname[31 - i]);
-	}
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 13, page, (char *)"Fileecho processing");
+	addtoc(fp, toc, 1, 14, page, (char *)"Fileecho processing");
 
 	fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
 	fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
@@ -1871,7 +1870,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Areamgr: TIC       %s\n", getboolean(CFG.ct_TIC));
 	fprintf(fp, "      Areamgr: pause     %s\n", getboolean(CFG.ct_Pause));
 
-	addtoc(fp, toc, 1, 14, page, (char *)"Fidonet Mail and Echomail  processing");
+	addtoc(fp, toc, 1, 15, page, (char *)"Fidonet Mail and Echomail  processing");
 
 	fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);
 	fprintf(fp, "      Max archive size   %d Kb.\n", CFG.maxarcsize);
@@ -1887,7 +1886,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Maximum groups     %ld\n", CFG.toss_groups);
 	fprintf(fp, "      Use 4d addressing  %s\n", getboolean(CFG.addr4d));
 
-	addtoc(fp, toc, 1, 15, page, (char *)"Internet Mail and News processing");
+	addtoc(fp, toc, 1, 16, page, (char *)"Internet Mail and News processing");
 
 	fprintf(fp, "      Split messages at  %d KBytes\n", CFG.new_split);
 	fprintf(fp, "      Force split at     %d KBytes\n", CFG.new_force);
@@ -1912,18 +1911,12 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Allow control msgs %s\n", getboolean(CFG.allowcontrol));
 	fprintf(fp, "      Don't regate msgs  %s\n", getboolean(CFG.dontregate));
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 16, page, (char *)"Newfile reports");
+	addtoc(fp, toc, 1, 17, page, (char *)"Newfile reports");
 
 	fprintf(fp, "      FTP base path      %s\n", CFG.ftp_base);
 	fprintf(fp, "      New files days     %d\n", CFG.newdays);
 	fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
 	fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
-
-	addtoc(fp, toc, 1, 17, page, (char *)"System fidonet addresses");
-	for (i = 0; i < 40; i++)
-		if (CFG.akavalid[i])
-			fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 18, page, (char *)"Mailer setup");
