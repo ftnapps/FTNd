@@ -1259,7 +1259,7 @@ Mfunc(f_strlen)
     ArgCount(1, 1);
 
     Sarg(str, 0);
-    Rint(strlen(str));
+    Rint((int)strlen(str));
 }
 
 /*  @(STRSTR,<str1>,<str2>)  --  Find a substring in a string  */

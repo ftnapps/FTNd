@@ -45,7 +45,7 @@
 static FILE *fout=NULL;
 
 static int Usevhdrs;
-static long rxbytes;
+static off_t rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
 static long sbytes;
@@ -507,7 +507,7 @@ int procheader(char *Name)
 	strcpy(ctt,date(Modtime));
 	Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
 
-	fout = openfile(Name,Modtime,Bytesleft,&(long)(rxbytes),resync);
+	fout = openfile(Name,Modtime,Bytesleft,&rxbytes,resync);
 	gettimeofday(&starttime, &tz);
 	sbytes = rxbytes;
 
