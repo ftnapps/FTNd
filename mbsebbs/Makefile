@@ -15,7 +15,7 @@ SRCS		= bank.c commonio.c filesub.c language.c mbtoberep.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c pw_util.c \
 		  mblogin.c env.c chowntty.c ttytype.c shell.c basename.c \
 		  failure.c pwdcheck.c pwauth.c loginprompt.c utmp.c limits.c \
-		  setupenv.c sub.c ulimit.c log.c tz.c setugid.c
+		  setupenv.c sub.c ulimit.c log.c tz.c setugid.c utent.c
 HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  putpwent.h salt.h timeout.h bbslist.h email.h fsedit.h lineedit.h \
 		  mbstat.h msgutil.h oneline.h sgetpwent.h user.h bye.h morefile.h \
@@ -26,7 +26,7 @@ HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h pw_util.h \
 		  mblogin.h env.h chowntty.h ttytype.h shell.h basename.h \
 		  failure.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h \
-		  setupenv.h sub.h ulimit.h log.h tz.h setugid.h
+		  setupenv.h sub.h ulimit.h log.h tz.h setugid.h utent.h
 MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
 		  misc.o pinfo.o nextuser.o oneline.o page.o fsedit.o \
 		  bye.o change.o mbsebbs.o safe.o timeout.o user.o timecheck.o \
@@ -57,7 +57,7 @@ MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
 		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o pw_util.o
 MBLOGIN_OBJS	= getdef.o env.o chowntty.o ttytype.o shell.o basename.o failure.o \
 		  pwdcheck.o pwauth.o encrypt.o loginprompt.o utmp.o limits.o setupenv.o sub.o \
-		  xmalloc.o ulimit.o log.o tz.o setugid.o mblogin.o
+		  xmalloc.o ulimit.o log.o tz.o setugid.o utent.o mblogin.o
 OTHER		= Makefile
 TARGET		= mbsebbs mbnewusr mball mblang mbchat mbstat mbtoberep mbuser mbuseradd mbpasswd mblogin
 
@@ -238,4 +238,5 @@ ulimit.o: ../config.h ulimit.h
 log.o: ../config.h mblogin.h log.h
 tz.o: ../config.h mblogin.h getdef.h tz.h
 setugid.o: ../config.h mblogin.h getdef.h setugid.h
+utent.o: ../config.h mblogin.h
 # End of generated dependencies

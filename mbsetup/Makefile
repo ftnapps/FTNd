@@ -74,7 +74,7 @@ grlist.o: ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h screen.
 m_domain.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_menu.h m_domain.h
 m_fgroup.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_node.h m_ticarea.h m_fgroup.h
 m_lang.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_lang.h
-m_marea.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h grlist.h m_global.h m_node.h m_mgroup.h m_marea.h
+m_marea.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h screen.h mutil.h ledit.h grlist.h m_global.h m_node.h m_mgroup.h m_marea.h
 m_new.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h grlist.h m_new.h m_lang.h m_marea.h m_ngroup.h
 m_protocol.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h screen.h mutil.h ledit.h stlist.h m_global.h m_protocol.h
 m_ticarea.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h grlist.h m_global.h m_node.h m_fgroup.h m_farea.h m_archive.h m_ticarea.h

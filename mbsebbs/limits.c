@@ -138,10 +138,12 @@ int check_logins(const char *name, const char *maxlogins)
 		if (ut->ut_type != USER_PROCESS)
 			continue;
 #endif
+#ifndef	__FreeBSD__
 		if (ut->ut_user[0] == '\0')
 			continue;
 		if (strncmp(name, ut->ut_user, sizeof(ut->ut_user)) != 0)
 			continue;
+#endif
 		if (++count > limit)
 			break;
 	}

@@ -8,6 +8,9 @@
 /* Memory debugging  */
 #undef MEMWATCH
 
+/* Define if you have the snprintf function.  */
+#undef HAVE_SNPRINTF
+
 /* Has strcasestr function  */
 #undef HAVE_STRCASESTR
 
@@ -339,6 +342,12 @@
 
 /* Define if `utime(file, NULL)' sets file's timestamp to the present. */
 #undef HAVE_UTIME_NULL
+
+/* Define if you have the <utmp.h> header file.  */
+#undef HAVE_UTMP_H
+
+/* Define if you have the <utmpx.h> header file.  */
+#undef HAVE_UTMPX_H
 
 /* Define if you have the <vfork.h> header file. */
 #undef HAVE_VFORK_H

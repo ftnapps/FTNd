@@ -37,11 +37,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include "mblogin.h"
-#if HAVE_LASTLOG_H
-#include <lastlog.h>
-#else
-// #include "lastlog_.h"
-#endif
+#include <utmp.h>
 #include "log.h"
 
 
@@ -91,7 +87,7 @@ void dolastlog(struct lastlog *ll, const struct passwd *pw, const char *line, co
 
 	time(&newlog.ll_time);
 	strncpy(newlog.ll_line, line, sizeof newlog.ll_line);
-#if HAVE_LL_HOST
+#ifdef HAVE_LL_HOST
 	strncpy(newlog.ll_host, host, sizeof newlog.ll_host);
 #endif
 	if (lseek(fd, offset, SEEK_SET) == offset)

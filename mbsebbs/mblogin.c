@@ -47,7 +47,7 @@
 #endif
 #include <signal.h>
 #include <unistd.h>
-#include <lastlog.h>
+#include <utmp.h>
 #include "getdef.h"
 
 #ifdef SVR4_SI86_EUA
@@ -725,7 +725,9 @@ auth_ok:
 				else
 					failent_user = "UNKNOWN";
 			}
+#ifndef	__FreeBSD__
 			strncpy(failent.ut_user, failent_user, sizeof(failent.ut_user));
+#endif
 #ifdef USER_PROCESS
 			failent.ut_type = USER_PROCESS;
 #endif
@@ -780,7 +782,11 @@ auth_ok:
 	if (getenv("IFS"))		/* don't export user IFS ... */
 		addenv("IFS= \t\n", NULL);  /* ... instead, set a safe IFS */
 
+#ifdef __FreeBSD__
+	setutmp(username, tty); /* make entry in utmp & wtmp files */
+#else
 	setutmp(username, tty, hostname); /* make entry in utmp & wtmp files */
+#endif
 	if (pwent.pw_shell[0] == '*') {	/* subsystem root */
 		subsystem (&pwent);	/* figure out what to execute */
 		subroot++;		/* say i was here again */

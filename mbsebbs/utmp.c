@@ -281,7 +281,7 @@ updwtmpx(const char *filename, const struct utmpx *utx)
  *	USER_PROCESS.  the wtmp file will be updated as well.
  */
 
-#if defined(__linux__)  /* XXX */
+#if defined(__linux__) /* XXX */
 
 void
 setutmp(const char *name, const char *line, const char *host)
@@ -427,7 +427,9 @@ setutmp(const char *name, const char *line)
 	 * while System V has the name, PID and a type.
 	 */
 
+#ifndef	__FreeBSD__
 	strncpy(utmp.ut_user, name, sizeof utent.ut_user);
+#endif
 #ifdef USER_PROCESS
 	utmp.ut_type = USER_PROCESS;
 	utmp.ut_pid = getpid ();
