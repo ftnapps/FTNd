@@ -33,15 +33,36 @@
 #include "openport.h"
 #include "zmmisc.h"
 
+#ifdef USE_SGTTY
+#  ifdef LLITOUT
+long Locmode;           /* Saved "local mode" for 4.x BSD "new driver" */
+long Locbit = LLITOUT;  /* Bit SUPPOSED to disable output translations */
+#  endif
+#endif
+
+#ifdef USE_TERMIOS
+struct termios oldtty, tty;
+#else
+#  if defined(USE_TERMIO)
+struct termio oldtty, tty;
+#  else
+struct sgttyb oldtty, tty;
+struct tchars oldtch, tch;
+#  endif
+#endif
 
 int			hanged_up = 0;
-static struct termios	oldtty;			/* Saved termios	    */
-static struct termios	tty;
 unsigned		Baudrate = 2400;
 
 /* Next is on compile commandline in lrzsz */
 #define NFGVMIN 1
 #define HOWMANY 255
+
+#if defined(HOWMANY) && HOWMANY  > 255
+#ifndef NFGVMIN
+Howmany must be 255 or less
+#endif
+#endif
 
 
 static struct {
@@ -164,6 +185,8 @@ int io_mode(int fd, int n)
     Syslog('t', "io_mode(%d, %d)", fd, n);
 
     switch(n) {
+
+#ifdef USE_TERMIOS
 	case 2:
 		if (!did0) {
 		    did0 = TRUE;
@@ -246,6 +269,15 @@ int io_mode(int fd, int n)
 		tcflow (fd,TCOON); /* restart output */
 
 		return 0;
+#endif
+
+#ifdef USE_TERMIO
+#error USE_TERMIO driver not coded
+#endif
+
+#ifdef USE_SGTTY
+#error USE_SGTTY driver not coded
+#endif
     }
     return -1;
 }
@@ -273,14 +305,19 @@ void sendbrk(void)
     Syslog('t', "Send break");
     
     if (isatty(0)) {
-#if (defined(TIOCSBRK))
-	Syslog('t', "TIOCSBRK");
-	ioctl(0, TIOCSBRK, 0L);
-#elif (defined(TCSBRK))
-	Syslog('t', "TCSBRK");
-	ioctl(0, TCSBRK, 0L);
-#else /* any ideas about BSD? */
-	;
+#ifdef USE_TERMIOS
+	tcsendbreak(fd,0);
+#endif
+#ifdef USE_TERMIO
+	ioctl(fd, TCSBRK, 0);
+#endif
+#ifdef USE_SGTTY
+#ifdef TIOCSBRK
+	sleep(1);
+	ioctl(fd, TIOCSBRK, 0);
+	sleep(1);
+	ioctl(fd, TIOCCBRK, 0);
+#endif
 #endif
     }
 }
