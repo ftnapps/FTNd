@@ -105,11 +105,12 @@ int Add_BBS()
 		}
 #ifdef	USE_EXPERIMENT
 		if (mbsedb_LockFDB(fdb_area, 30)) {
-		    fseek(fdb_area->fp, 0 - sizeof(frec), SEEK_CUR);
-		    fwrite(&frec, sizeof(frec), 1, fdb_area->fp);
+		    fseek(fdb_area->fp, 0 - fdbhdr.recsize, SEEK_CUR);
+		    fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
 		    mbsedb_UnlockFDB(fdb_area);
 		}
 		mbsedb_CloseFDB(fdb_area);
+		Syslog('f', "updated file entry");
 #else
 		fseek(fp, 0 - sizeof(frec), SEEK_CUR);
 		fwrite(&frec, sizeof(frec), 1, fp);
