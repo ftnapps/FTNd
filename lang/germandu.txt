@@ -2,28 +2,28 @@
 |Bitte gib Deinen Nachnamen ein: 
 |Abmelden des Benutzers ...
 |Pruefen der Datei ...
-JN|Hast Du Deinen Namen korrekt eingegeben? [J/n]
+JN|Hast Du Deinen Namen korrekt eingegeben? [<J>a/<n>ein]
 |Bitte melde Dich nun mit folgendem Namen erneut an: 
 |Dies ist ein PRIVATES System. Gib zum Verlassen "off" ein
 |Gib bitte die Nummer ein - beenden mit <Enter>: 
 |Passwort: 
 |Die maximale Anzahl von Login-Versuchen wurde ueberschritten ...
 |Entweder Dein NAME oder Dein PASSWORT wurden falsch eingegeben
-HR|Export in (H)ome oder (R)ules Direktorie: 
-|Message exportiert in das Rules Direktorie als 
+HR|Export in <H>ome oder <R>ules Verzeichnis: 
+|Message exportiert in das Rules Verzeichnis als 
 |Keine Rules gefunden fuer diese Area
 |Keine Berechtigung zum loeschen der Message
-|Offline Reader: Erweiterte Info ANgestellt
-|Offline Reader: Erweiterte Info AUSgestellt
+|Offline Reader: Erweiterte Info _AN_gestellt
+|Offline Reader: Erweiterte Info _AUS_gestellt
 |Dies ist keine Textdatei.
 |Du darfst nur
 |mal gleichzeitig eingewaehlt sein
-|The door is in use by another user, try again later
-YN| Is this correct [y/N]: 
+|Dieses Program ist von jemand anderem in Benutzung, versuchs spaeter nochmal
+JN| Ist dies richtig richtig? [<j>a/<N>ein]: 
 |Could not parse
-|Select your preferred character set
-|Select character set (Enter to Quit): 
-|Character set now set to: 
+|Waehle Deinen bevorzugten Zeichensatz
+|Waehle Zeichensatz (beenden mit <ENTER>): 
+|Zeichensatz ist jetzt: 
 |
 |
 |
@@ -42,14 +42,14 @@ YN| Is this correct [y/N]:
 |Die Passwoerter stimmen nicht ueberein! Bitte wiederholen.
 |Dein Passwort muss mindestens 
 |Zeichen enthalten! Bitte wiederholen.
-JN|Moechtest Du den ANSI Anzeigemodus verwenden [J/n]: 
+JN|Moechtest Du den ANSI Anzeigemodus verwenden [<J>a/<n>ein]: 
 |Bitte gib Deine Telefonnummer an:
 |Die Mitteilung wurde in Dein privates Verzeichnis gespeichert als: 
 |Bitte gib Deine vollstaendige Telefonnummer an:
 |Bitte gib Deine Daten-Telefonnummer an:
 |Bitte gib Deinen Ihren Wohnort an: 
 |Der Name des Wohnortes ist zu kurz
-MW|Bist Du (m)aennlich oder (w)eiblich ? : 
+MW|Bist Du <m>aennlich oder <w>eiblich ? : 
 |Maennlich
 |Weiblich
 |Bitte druecke "M" oder "W"
@@ -59,9 +59,9 @@ MW|Bist Du (m)aennlich oder (w)eiblich ? :
 |Bitte verwende das vorgegebene Datumsformat
 |*** Der Sysop beginnt den Chat ***
 |*** Der Sysop hat den Chat beendet ***
-JN=|Weiter (J/n/=) 
-JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [J/n]: 
-|Bitte druecke J oder N
+JN=|Weiter (<J>a/<n>ein/<=>) 
+JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [<J>a/<n>ein]: 
+|Bitte druecke "J" oder "N"
 |Gib bitte die Zeilenanzahl Deines Bildschirms an [24]: 
 |Keine(r)
 |Mitteilungsbereiche fuer den Offline Reader markieren
@@ -90,17 +90,17 @@ JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [J/n]:
 |Bitte gib drei Zahlen ein - von 1 bis 
 |Bitte gib Deine Kombination ein.
 |1. Zahl: 
-|Bitte versuche es erneut! Verwenden Sie Zahlen groesser 0 und kleiner 
+|Bitte versuche es erneut! Verwende Zahlen groesser 0 und kleiner 
 |2. Zahl: 
 |3. Zahl: 
 | Links: 
 |Rechts: 
-JN|Moechtest Du den Safe mit dieser Kombination oeffnen [J/n]: 
+JN|Moechtest Du den Safe mit dieser Kombination oeffnen [<J>a/<n>ein]: 
 |Du hast folgendes gewonnen...
 |Du hast den Safe leider nicht geoeffnet !
 |Der Safe Code war:
-JN|Moechtest Du es noch einmal versuchen ? [J/n]: 
-JN|Moechtest Du den Safe oeffnen ? [J/n]: 
+JN|Moechtest Du es noch einmal versuchen ? [<J>a/<n>ein]: 
+JN|Moechtest Du den Safe oeffnen ? [<J>a/<n>ein]: 
 |DER SAFE IST ZUR ZEIT VERSCHLOSSEN
 |hat den Safe geknackt.
 |Der Safe bleibt verschlossen bis der Sysop den Preis vergeben hat..
@@ -112,7 +112,7 @@ JN|Moechtest Du den Safe oeffnen ? [J/n]:
 |Betreff: 
 |  Bitte bis zu 10 Zeilen mit je 74 Zeichen eingeben
 |Verfuegbare Funktionen:
-LEBAS|(L)isten, (E)rsetze Text, (B)earbeite Zeile, (A)bbrechen, (S)peichern
+LEBAS|<L>isten, <E>rsetze Text, <B>earbeite Zeile, <A>bbrechen, <S>peichern
 |Auswaehlen: 
 |Abbruch...
 |Rueckkehr zu 
@@ -125,11 +125,11 @@ LEBAS|(L)isten, (E)rsetze Text, (B)earbeite Zeile, (A)bbrechen, (S)peichern
 |Passwort-Aenderung erfolgreich
 |Bisheriges Passwort wurde nicht richtig eingegeben !
 |Benutzerliste
-|Suchzeichenkette eingeben oder (Enter) fuer alle Benutzer: 
+|Suchzeichenkette eingeben oder <Enter> fuer alle Benutzer: 
 |Name                     Ort                           Zuletzt hier  Logins
 |Die Suchzeichenkette wurde nicht gefunden ...
 |Zeitlimit erreicht ... Verbindung wird getrennt!
-JN=M|Weiter (J/n/=) M=Markieren 
+JN=M|Weiter (<J>a/<n>ein/<=>) <M>arkieren 
 |Suche
 |mit
 |Zeit Statistik fuer 
@@ -141,7 +141,7 @@ JN=M|Weiter (J/n/=) M=Markieren
 |Verbleibende Zeit Heute :
 |Taegl. Zeitlimit        :
 |Sie haben 
-JN|Mitteilungen, moechtest Du jetzt Deine Post lesen? [J/n]: 
+JN|Mitteilungen, moechtest Du jetzt Deine Post lesen? [<J>a/<n>ein]: 
 |Es liegen keine neuen Mitteilungen fuer Dich vor.
 |Hotkeys sind jetzt EIN
 |Hotkeys sind jetzt AUS
@@ -160,8 +160,8 @@ JN|Mitteilungen, moechtest Du jetzt Deine Post lesen? [J/n]:
 |Suche Adressaten ...
 |Adressat nicht gefunden. Bitte nochmals eingeben oder beenden mit <Enter>
 |Betreff  : 
-JN|Mitteilung verwerfen [j/N] ?: 
-JN|Privat [j/N]: 
+JN|Mitteilung verwerfen [<j>a/<N>ein] ?: 
+JN|Privat [<j>a/<N>ein]: 
 |Schreibe die Mitteilung jetzt.  Beenden: eine leere Zeile eingeben
 |Maximal 60 Zeilen, 73 Zeichen pro Zeile
 |Maximale Zeilenanzahl erreicht
@@ -188,7 +188,7 @@ ASWBLETXRZ|Z - Zeile zentrieren
 |Unveraendert.
 |Zeile jetzt:
 |Beenden
-JN|Bist Du sicher [j/N]: 
+JN|Bist Du sicher [<j>a/<N>ein]: 
 |Mitteilung wurde verworfen.
 |Nein
 |Text bearbeiten
@@ -205,18 +205,18 @@ JN|Bist Du sicher [j/N]:
 |Die Zeile kann nicht zentriert werden, da sie maximale Laenge hat.
 |Es liegen keine Mitteilungen in diesem Bereich vor.
 |Datum   : 
-JN=|Weiter (J/n/=/Bereich-Nr.): 
+JN=|Weiter (<J>a/<n>ein/<=>/Bereich-Nr.): 
 |An      : 
 |Von     : 
 |Betreff : 
 |Naechste Antwort:
 |Antwort auf:
 |Mitteilungen in
-WNLAUEHX|Wiederh. Naechste Letzte Antwort neU loescHen Ende eXport
-|Wiederh. Naechste Letzte Antwort neU loescHen Ende eXport
+WNLAUEHX|<W>iederh. <N>aechste <L>etzte <A>ntwort ne<U> loesc<H>en <E>nde e<X>port
+|Wiederh. <N>aechste <L>etzte <A>ntwort ne<U> loesc<H>en <E>nde e<X>port
 |Naechste
 |FEHLER
-ANE|(A)ntwort, (N)aechste, (E)nde: 
+ANE|<A>ntwort, <N>aechste, <E>nde: 
 |Enter um Betreff zu uebernehmen.
 |#     Von                  An                   Betreff                        
 |Bereich 
@@ -239,7 +239,7 @@ ANE|(A)ntwort, (N)aechste, (E)nde:
 |Heraufgeladen von: 
 |G E L O E S C H T
 |
-JN|Adresse unbekannt, dennoch fortfahren [j/N]: 
+JN|Adresse unbekannt, dennoch fortfahren [<j>a/<N>ein]: 
 |Dateien insgesamt: 
 |FATAL: die Datenbank der Dateibereiche kann nicht geoeffnet werden
 |Du hast nicht ausreichend Rechte zum Herunterladen aus diesem Bereich
@@ -271,7 +271,7 @@ JN|Adresse unbekannt, dennoch fortfahren [j/N]:
 |                            *.zip entspricht .zip
 |Gib den zu suchenden Dateinamen an: 
 |Dateisuche nach Dateinamen
-JN|Neue Dateien seit Deinem letzten Login suchen [J/n]: 
+JN|Neue Dateien seit Deinem letzten Login suchen [<J>a/<n>ein]: 
 |Gib das Suchdatum an [TT-MM-JJJJ]: 
 |Dateisuche nach Datum
 |Gib den Namen der heraufzuladenden Datei ein: 
@@ -283,7 +283,7 @@ JN|Neue Dateien seit Deinem letzten Login suchen [J/n]:
 |Diese Datei ist schon vorhanden
 |Bitte starte das Heraufladen jetzt ...
 |Folgendes konnte nicht heraufgeladen werden: 
-JN|Moechtest Du das Heraufgeladene mit einem Passwort schuetzen ? [j/N]: 
+JN|Moechtest Du das Heraufgeladene mit einem Passwort schuetzen ? [<j>a/<N>ein]: 
 |Beachte: Passwoerter sind "CaSe SeNsITiVe!"
 |Bitte gib die Beschreibung der Datei ein
 |Danke! Die Zeit fuer das Heraufladen wurde Dir gutgeschrieben.
@@ -306,14 +306,14 @@ JN|Moechtest Du das Heraufgeladene mit einem Passwort schuetzen ? [j/N]:
 |BBS Software: 
 |Speicherplatz (GigaByte): 
 |Zugangsgeschwindigkeiten: 
-JN|Moechtest Du eine erweiterte Beschreibung hinzufuegen ? [J/n]: 
+JN|Moechtest Du eine erweiterte Beschreibung hinzufuegen ? [<J>a/<n>ein]: 
 |Bitte geben Sie eine Beschreibung ein fuer 
 |BBS Liste 
 |#    BBS Name               Nummer         Software        GigaByte   Speed
 |Nach BBS suchen
 |Bitte 3 Buchstaben des zu suchenden Namens eingeben: 
 |Mindestens 3 Zeichen muessen eingegeben werden...
-JN|BBS-Details anzeigen ? [J/n]: 
+JN|BBS-Details anzeigen ? [<J>a/<n>ein]: 
 |BBS in der Liste kann nicht gefunden werden ...
 |BBS-Details anzeigen
 |Bitte eine aufzulistende Nummer angeben: 
@@ -356,7 +356,7 @@ JN|BBS-Details anzeigen ? [J/n]:
 |  #  Area  Aktiv   Datei              Gr.   Kosten
 |Ja
 |Nein
-UA|Aufgelistete (U)mschalten, alle (A)bwaehlen, <ENTER> um fortzufahren: 
+UA|Aufgelistete <U>mschalten, alle <A>bwaehlen, <ENTER> um fortzufahren: 
 |Datei-Nummer eingeben, 1..
 |Markiert: 
 |Zurzeit sind keine Dateien markiert.
@@ -367,11 +367,11 @@ UA|Aufgelistete (U)mschalten, alle (A)bwaehlen, <ENTER> um fortzufahren:
 |Check auf neue Mail ist jetzt AN
 |Check auf neue Mail ist jetzt AUS
 |Datei loeschen: 
-JN|Bist Du sicher? [J/n]: 
+JN|Bist Du sicher? [<J>a/<n>ein]: 
 |Check auf neue Dateien ist jetzt AN
 |Check auf neue Dateien ist jetzt AUS
 |Du verwendest jetzt den 
-123|Auswahl: 1) Zeilen-Editor, 2) Vollbild-Editor, 3) Externer Editor 
+123|Auswahl: <1> Zeilen-Editor, <2> Vollbild-Editor, <3> Externer Editor 
 |Es liegen keine Mitteilungen zum Herunterladen vor!
 |Weiter mit <Enter> ... 
 |Zentrieren
@@ -423,7 +423,7 @@ JN|Bist Du sicher? [J/n]:
 |Ext. Programm
 |Im Chat
 |Dateibereich
-JN|Moechtest Du diese Mitteilungen herunterladen [J/n]?
+JN|Moechtest Du diese Mitteilungen herunterladen [<J>a/<n>ein]?
 |Bank Programm 
 |Sich. ext. Programm
 |Liste Online
@@ -436,7 +436,7 @@ JN|Moechtest Du diese Mitteilungen herunterladen [J/n]?
 |Dein Passwort ist abgelaufen, neues Passwort: 
 |Drueck <Enter> um fortzufahren 
 |Kein Senden moeglich, diese Area ist "Nur lesen"!
-12|Auswahl: 1) Zeilen-Editor, 2) Vollbild-Editor
+12|Auswahl: <1> Zeilen-Editor, <2> Vollbild-Editor
 |"Offline Reader" Paket heraufladen 
 |Kein oder fehlerhaftes Paket erhalten
 |Unbekannter Datenkompressionstyp
@@ -459,9 +459,9 @@ JN|Moechtest Du diese Mitteilungen herunterladen [J/n]?
 |Herunterladen von QWK Offline
 |Verarbeiten des  QWK Antwort-Pakets
 |Herunterladen ASCII Offline
-JN|Crash-Mail [j/N]: 
-JN|Warnung: Station ist nicht CM, sofort senden [j/N]: 
-JN|Datei anhaengen [j/N]: 
+JN|Crash-Mail [<j>a/<N>ein]: 
+JN|Warnung: Station ist nicht CM, sofort senden [<j>a/<N>ein]: 
+JN|Datei anhaengen [<j>a/<N>ein]: 
 |Datei
 |wird angehaengt
 |Datei nicht in
@@ -476,5 +476,5 @@ JN|Datei anhaengen [j/N]:
 |Du musst Deine Adresse hier angeben
 |Alte Adresse:
 |Moechtest Du Deinen Aliasnamen (
-JN|) als Absender verwenden [J/n] 
-|Keine weitere Bereiche mit ungelsenen Nachrichten
+JN|) als Absender verwenden [<J>a/<n>ein] 
+|Keine weitere Bereiche mit ungelesenen Nachrichten
