@@ -45,7 +45,8 @@
 #include "callstat.h"
 
 
-extern	int  tcp_mode;
+extern	int	tcp_mode;
+
 
 node	*nlent;
 fa_list *remote=NULL;

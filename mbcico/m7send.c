@@ -88,7 +88,6 @@ SM_START(sendack)
 
 SM_STATE(waitnak)
 
-	Syslog('x', "m7send WAITNAK");
 	if (count++ > 20) {
 		Syslog('+', "too many tries sending modem7 name");
 		SM_ERROR;
@@ -110,7 +109,6 @@ SM_STATE(waitnak)
 
 SM_STATE(sendack)
 
-	Syslog('x', "m7send SENDACK");
 	i = 0;
 	PUTCHAR(ACK);
 	if (STATUS) {
@@ -121,7 +119,6 @@ SM_STATE(sendack)
 
 SM_STATE(sendchar)
 
-	Syslog('x', "m7send SENDCHAR");
 	if (i > 11) {
 		SM_PROCEED(sendsub);
 	}
@@ -135,7 +132,6 @@ SM_STATE(sendchar)
 
 SM_STATE(waitack)
 
-	Syslog('x', "m7send WAITACK");
 	c = GETCHAR(1);
 	if (c == TIMEOUT) {
 		Syslog('x', "m7 got timeout waiting ACK for char %d",i);
@@ -153,13 +149,11 @@ SM_STATE(waitack)
 
 SM_STATE(sendsub)
 
-	Syslog('x', "m7send SENDSUB");
 	PUTCHAR(SUB);
 	SM_PROCEED(waitcheck);
 
 SM_STATE(waitcheck)
 
-	Syslog('x', "m7send WAITCHECK");
 	c = GETCHAR(1);
 	if (c == TIMEOUT) {
 		Syslog('x', "m7 got timeout waiting check");
@@ -177,7 +171,6 @@ SM_STATE(waitcheck)
 
 SM_STATE(ackcheck)
 
-	Syslog('x', "m7send ACKCHECK");
 	PUTCHAR(ACK);
 	if (STATUS) {
 		SM_ERROR;

@@ -310,18 +310,15 @@ SM_EDECL
 	databuf = xstrcpy(intro);
 
 SM_START(checkpkt)
-	Syslog('I', "rxemsi START");
 	Syslog('i', "RXEMSI: start");
 
 SM_STATE(waitpkt)
 
-	Syslog('I', "rxemsi WAITPKT");
 	standby = 0;
 	SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
-	Syslog('I', "rxemsi WAITCHAR");
 	c = GETCHAR(5);
 	if (c == TIMEOUT) {
 		if (++tries > 9) {
@@ -359,7 +356,6 @@ SM_STATE(waitchar)
 
 SM_STATE(checkemsi)
 
-	Syslog('I', "rxemsi CHECKEMSI");
 	Syslog('i', "RXEMSI: rcvd %s", printable(buf, 0));
 
 	if (strncasecmp(buf, "EMSI_DAT",8) == 0) {
@@ -374,8 +370,6 @@ SM_STATE(checkemsi)
 	}
 
 SM_STATE(getdat)
-
-	Syslog('I', "rxemsi GETDAT");
 
 	if (sscanf(buf+8,"%04x",&len) != 1) {
 		SM_PROCEED(sendnak);
@@ -406,7 +400,6 @@ SM_STATE(getdat)
 
 SM_STATE(checkpkt)
 
-	Syslog('I', "rxemsi CHECKPKT");
 	if (strncasecmp(databuf,"EMSI_DAT",8) == 0) {
 		SM_PROCEED(checkdat);
 	}
@@ -422,13 +415,11 @@ SM_STATE(checkpkt)
 	} else if (strncasecmp(databuf, "EMSI_INQ", 8) == 0) {
 		SM_PROCEED(sendnak);
 	} else {
-		Syslog('I', "RXEMSI: ignore packet \"%s\"",databuf);
 		SM_PROCEED(waitpkt);
 	}
 
 SM_STATE(checkdat)
 
-	Syslog('I', "rxemsi CHECKDAT");
 	sscanf(databuf + 8, "%04x", &len);
 	if (len != (strlen(databuf) - 16)) {
 		Syslog('+', "Bad EMSI_DAT length: %d/%d", len, strlen(databuf));
@@ -453,7 +444,6 @@ SM_STATE(checkdat)
 
 SM_STATE(sendnak)
 
-	Syslog('I', "rxemsi SENDNAK");
 	if (++tries > 9) {
 		Syslog('+', "Too many tries getting EMSI_DAT");
 		SM_ERROR;
@@ -472,14 +462,12 @@ SM_STATE(sendnak)
 
 SM_STATE(sendack)
 
-	Syslog('I', "rxemsi SENDACK");
 	Syslog('i', "RXEMSI: send **EMSI_ACKA490 (2 times)"); 
 	PUTSTR((char *)"**EMSI_ACKA490\r\021");
 	PUTSTR((char *)"**EMSI_ACKA490\r\021");
 	SM_SUCCESS;
 
 SM_END
-	Syslog('I', "rxemsi END");
 	Syslog('i', "RXEMSI: end");
 	free(databuf);
 
@@ -518,7 +506,6 @@ SM_START(senddata)
 
 SM_STATE(senddata)
 
-	Syslog('I', "txemsi SENDDATA");
 	p = mkemsidat(caller);
 	PUTCHAR('*');
 	PUTCHAR('*');
@@ -531,13 +518,11 @@ SM_STATE(senddata)
 
 SM_STATE(waitpkt)
 
-	Syslog('I', "txemsi WAITPKT");
 	standby = 0;
 	SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
-	Syslog('I', "txemsi WAITCHAR");
 	c = GETCHAR(8);
 	if (c == TIMEOUT) {
 		if (++tries > 9) {
@@ -575,7 +560,6 @@ SM_STATE(waitchar)
 
 SM_STATE(checkpkt)
 
-	Syslog('I', "txemsi CHECKPKT");
 	Syslog('i', "TXEMSI: rcvd %s", buf);
 	if (strncasecmp(buf, "EMSI_DAT", 8) == 0) {
 		SM_PROCEED(sendack);
@@ -598,7 +582,6 @@ SM_STATE(checkpkt)
 
 SM_STATE(sendack)
 
-	Syslog('I', "txemsi SENDACK");
 	Syslog('i', "TXEMSI: send **EMSI_ACKA490 (2 times)");
 	PUTSTR((char *)"**EMSI_ACKA490\r\021");
 	PUTSTR((char *)"**EMSI_ACKA490\r\021");

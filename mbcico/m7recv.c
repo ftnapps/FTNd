@@ -86,7 +86,6 @@ SM_START(waitchar)
 
 SM_STATE(sendnak)
 
-	Syslog('X', "m7recv SENDNAK count=%d", count);
 	if (count++ > 20) {
 		Syslog('+', "Too many tries getting modem7 name");
 		SM_ERROR;
@@ -103,37 +102,33 @@ SM_STATE(sendnak)
 
 SM_STATE(waitack)
 
-	Syslog('X', "m7recv WAITACK");
 	c = GETCHAR(5);
 	if (c == TIMEOUT) {
-		Syslog('X', "m7 got timeout waiting for ACK");
+		Syslog('x', "m7 got timeout waiting for ACK");
 		SM_PROCEED(sendnak);
 	} else if (c < 0) {
 		SM_ERROR;
 	} else {
-		Syslog('X', "Got 0x%02x %s", c, printablec(c));
 		switch (c) {
 		case ACK:	SM_PROCEED(waitchar); 
 				break;
 		case EOT:	last=1; 
 				SM_SUCCESS; 
 				break;
-		default:	Syslog('X', "m7 got '%s' waiting for ACK", printablec(c));
+		default:	Syslog('x', "m7 got '%s' waiting for ACK", printablec(c));
 				break;
 		}
 	}
 
 SM_STATE(waitchar)
 
-	Syslog('X', "m7recv WAITCHAR");
 	c = GETCHAR(1);
 	if (c == TIMEOUT) {
-		Syslog('X', "m7 got timeout waiting for char",c);
+		Syslog('x', "m7 got timeout waiting for char",c);
 		SM_PROCEED(sendnak);
 	} else if (c < 0) {
 		SM_ERROR;
 	} else {
-		Syslog('X', "Got 0x%02x %s", c, printablec(c));
 		switch (c) {
 		case EOT:	last=1; 
 				SM_SUCCESS; 
@@ -159,22 +154,19 @@ SM_STATE(waitchar)
 
 SM_STATE(sendack)
 
-	Syslog('X', "m7recv SENDACK");
 	PUTCHAR(ACK);
 	SM_PROCEED(waitchar);
 
 SM_STATE(sendcheck)
 
-	Syslog('X', "m7recv SENDCHECK cs=%d", cs);
 	PUTCHAR(cs);
 	SM_PROCEED(waitckok);
 
 SM_STATE(waitckok)
 
-	Syslog('X', "m7recv WAITCKOK");
 	c = GETCHAR(1);
 	if (c == TIMEOUT) {
-		Syslog('X', "m7 got timeout waiting for ack ACK");
+		Syslog('x', "m7 got timeout waiting for ack ACK");
 		SM_PROCEED(sendnak);
 	} else if (c < 0) {
 		SM_ERROR;

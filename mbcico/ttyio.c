@@ -592,3 +592,4 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
 		return ((*isize == 0) | ((*osize == 0) << 1));
 }
 
+
