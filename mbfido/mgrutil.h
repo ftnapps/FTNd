@@ -4,13 +4,16 @@
 #define	_MGRUTIL_H
 
 
+int  MsgResult(const char *, FILE * );
+void GetRpSubject(const char *, char*);
+
 void WriteMailGroups(FILE *, faddr *);
 void WriteFileGroups(FILE *, faddr *);
 char *GetBool(int);
 void CleanBuf(char *);
 void ShiftBuf(char *, int);
-void MgrPasswd(faddr *, char *, FILE *, int);
-void MgrNotify(faddr *, char *, FILE *);
+void MgrPasswd(faddr *, char *, FILE *, int, int);
+void MgrNotify(faddr *, char *, FILE *, int);
 int  UplinkRequest(faddr *, int, char *);
 
 #endif

@@ -27,15 +27,22 @@ MSGBASE_HDRS	= jam.h jammsg.h jamsys.h msg.h msgtext.h
 MBINET_SRCS	= nntp.c pop3.c smtp.c
 MBINET_OBJS	= nntp.o pop3.o smtp.o
 MBINET_HDRS	= mbinet.h
+DIESEL_SRSC	= diesel.c mbdiesel.c
+DIESEL_HDRS	= diesel.h
+DIESEL_OBJS	= diesel.o mbdiesel.o
 MEMWATCH_SRCS	= memwatch.c
 MEMWATCH_OBJS	= memwatch.o
 MEMWATCH_HDRS	= memwatch.h
 OTHER_HDRS	= ansi.h bluewave.h libs.h mbse.h records.h structs.h users.h
-SRCS		= ${CLCOMM_SRCS} ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} ${MEMWATCH_SRCS}
-OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} ${MEMWATCH_OBJS}
-HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} ${MEMWATCH_HDRS} ${OTHER_HDRS}
-OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c memwatch.c.org
-TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libmemwatch.a
+SRCS		= ${CLCOMM_SRCS} ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} \
+		  ${DIESEL_SRCS} ${MEMWATCH_SRCS}
+OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} \
+		  ${DIESEL_OBJS} ${MEMWATCH_OBJS}
+HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
+		  ${DIESEL_HDRS} ${MEMWATCH_HDRS} ${OTHER_HDRS}
+OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c \
+		  memwatch.c.org README.diesel README.macro Diesel.doc
+TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a libmemwatch.a
 
 #############################################################################
 
@@ -64,6 +71,10 @@ libmsgbase.a:	${MSGBASE_OBJS}
 		${RANLIB} $@
 
 libmbinet.a:	${MBINET_OBJS}
+		ar r $@ $?
+		${RANLIB} $@
+
+libdiesel.a:	${DIESEL_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
