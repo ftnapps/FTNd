@@ -310,14 +310,6 @@ int outstat()
 		     */
 		    if (internet)
 			tmp->flavors |= F_CALL;
-		    /*
-		     * Always set semafore do_inet
-		     */
-		    if (!s_do_inet) {
-			CreateSema((char *)"do_inet");
-			s_do_inet = TRUE;
-			tasklog('c', "Created semafore do_inet");
-		    }
 		}
 		if ((tmp->flavors) & F_IMM   ) {
 		    flstr[0]='I';
@@ -436,6 +428,15 @@ int outstat()
 	     */
 	    nxt_hour = 0;
 	    nxt_min  = 0;
+	}
+
+	/*
+	 * Always set semafore do_inet if internet is needed.
+	 */
+	if (!s_do_inet && inet_calls) {
+	    CreateSema((char *)"do_inet");
+	    s_do_inet = TRUE;
+	    tasklog('c', "Created semafore do_inet");
 	}
 
 	tasklog('o', "Call inet=%d, isdn=%d, pots=%d", inet_calls, isdn_calls, pots_calls);
