@@ -1601,316 +1601,334 @@ int CheckLine(int FG, int BG, int Email)
  */
 void MsgArea_List(char *Option)
 {
-	FILE	*pAreas;
-	int     iAreaCount = 6, Recno = 0; 
-	int     iOldArea = 0, iAreaNum = 0;
-	int     iGotArea = FALSE; /* Flag to check if user typed in area */
-	int	iCheckNew = FALSE; /* Flag to check for new mail in area */
-	long    offset;
-	char    *temp;
-	lastread	LR;
-	int loopcount=0;
+    FILE	*pAreas;
+    int		iAreaCount = 6, Recno = 0, iOldArea = 0, iAreaNum = 0, loopcount = 0;
+    int		iGotArea = FALSE; /* Flag to check if user typed in area */
+    int		iCheckNew = FALSE; /* Flag to check for new mail in area */
+    long	offset;
+    char	*temp;
+    lastread	LR;
 
-	temp         = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
-	sprintf(temp,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    /*
+     * Save old area, incase he picks a invalid area
+     */
+    iOldArea = iMsgAreaNumber;
 
-	/*
-	 * Save old area, incase he picks a invalid area
-	 */
-	iOldArea = iMsgAreaNumber;
-
-	if(( pAreas = fopen(temp, "rb")) == NULL) {
-		WriteError("Can't open msg areas file: %s", temp);
-		free(temp);
-		fclose(pAreas);
-		return;
-	}
-	
-	/* 
-	 * Count how many records there are
-	 */
-	fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
-	fseek(pAreas, 0, SEEK_END);
-	iAreaNum = (ftell(pAreas) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
-
-	/*
-	 * If there are menu options, parse them first
-	 *  1. Check for New Messages in Area (only option that will continue to display list)
-	 *  2. Increment Area, return
-	 *  3. Decrement Area, return
-	 *  4. Select area direct (via area number), return
-	 */
-	if (strlen(Option) != 0) {
-		if (strcmp(Option, "N") == 0) {
-			iCheckNew = TRUE;
-		} else {
-			if (strcmp(Option, "U+") == 0) 
-				while(TRUE) {
-					iMsgAreaNumber++;
-					if (iMsgAreaNumber >= iAreaNum) {
-						iMsgAreaNumber = 0;
-						loopcount++;
-						if ( loopcount > 1 ) {
-							pout(LIGHTRED, BLACK, (char *) Language(479));
-							iMsgAreaNumber = iOldArea;
-							Enter(2);
-							Pause();
-							return;
-						}
-					}
-	
-					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-					if(fseek(pAreas, offset, 0) != 0) {
-						printf("Can't move pointer there.");
-					}
-									
-					fread(&msgs, msgshdr.recsize, 1, pAreas);
-					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
-						if(Msg_Open(msgs.Base)){
-							MsgBase.Highest = Msg_Highest();
-							LR.UserID = grecno; 
-							if ( Msg_GetLastRead(&LR) != TRUE ){
-								LR.HighReadMsg = 0;
-							}
-							if (MsgBase.Highest > LR.HighReadMsg ) 
-								break;
-						}
-					}
-				}
-
-			if (strcmp(Option, "U-") == 0) 
-				while(TRUE) {
-					iMsgAreaNumber--;
-					if (iMsgAreaNumber < 0) {
-						iMsgAreaNumber = iAreaNum - 1;
-						loopcount++;
-						if ( loopcount > 1 ) {
-							pout(LIGHTRED, BLACK, (char *) Language(479));
-							iMsgAreaNumber = iOldArea;
-							Enter(2);
-							Pause();
-							return;
-						}
-					}
-	
-					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-					if(fseek(pAreas, offset, 0) != 0) {
-						printf("Can't move pointer there.");
-					}
-									
-					fread(&msgs, msgshdr.recsize, 1, pAreas);
-					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
-						if(Msg_Open(msgs.Base)){
-							MsgBase.Highest = Msg_Highest();
-							LR.UserID = grecno; 
-							if ( Msg_GetLastRead(&LR) != TRUE ){
-								LR.HighReadMsg = 0;
-							}
-							if (MsgBase.Highest > LR.HighReadMsg ) 
-								break;
-						}
-					}
-				}
-			
-			if (strcmp(Option, "M+") == 0) 
-				while(TRUE) {
-					iMsgAreaNumber++;
-					if (iMsgAreaNumber >= iAreaNum)
-						iMsgAreaNumber = 0;
-	
-					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-					if(fseek(pAreas, offset, 0) != 0) {
-						printf("Can't move pointer there.");
-					}
-									
-					fread(&msgs, msgshdr.recsize, 1, pAreas);
-					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
-						break;
-				}
-			
-			if (strcmp(Option, "M-") == 0) 
-				while(TRUE) {
-					iMsgAreaNumber--;
-					if (iMsgAreaNumber < 0)
-						iMsgAreaNumber = iAreaNum -1;
-	
-					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-					if(fseek(pAreas, offset, 0) != 0) {
-						printf("Can't move pointer there.");
-					}
-					
-					fread(&msgs, msgshdr.recsize, 1, pAreas);
-					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
-						break;
-				}
-	
-	
-			SetMsgArea(iMsgAreaNumber);
-			Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
-			free(temp);
-			fclose(pAreas);
-			return;
-		}
-	}
-	
-	clear();
-	Enter(1);
-	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(231));
-	Enter(2);
-
-	fseek(pAreas, msgshdr.hdrsize, 0);
-	
-	while (fread(&msgs, msgshdr.recsize, 1, pAreas) == 1) {
-		/*
-		 * Skip the echomail systems
-		 */
-		fseek(pAreas, msgshdr.syssize, SEEK_CUR);
-		if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active)) {
-			msgs.Name[31] = '\0';
-
-			colour(WHITE, BLACK);
-			printf("%5d", Recno + 1);
-
-			colour(LIGHTBLUE, BLACK);
-			/* Check for New Mail if N was put on option data */
-			if ( iCheckNew ) {
-				if(Msg_Open(msgs.Base)){
-					MsgBase.Highest = Msg_Highest();
-					LR.UserID = grecno; 
-					if ( Msg_GetLastRead(&LR) != TRUE ){
-						LR.HighReadMsg = 0;
-					}
-					if (MsgBase.Highest > LR.HighReadMsg ) {
-						colour(YELLOW, BLACK);
-						printf(" %c ", 42 );
-					} else {
-						printf(" %c ", 46 );
-					}
-				} else {
-					printf(" %c ", 46 );
-				}
-			} else {
-				printf(" %c ", 46);
-			}
-
-			colour(CYAN, BLACK);
-			printf("%-31s", msgs.Name);
-
-			iAreaCount++;
-
-			if ((iAreaCount % 2) == 0)
-				printf("\n");
-			else
-				printf(" ");
-		}
-
-		Recno++;
-
-		if((iAreaCount / 2) == exitinfo.iScreenLen) {
-			/* More (Y/n/=/Area #): */
-			pout(CFG.MoreF, CFG.MoreB, (char *) Language(207));
-			/*
-			 * Ask user for Area or enter to continue
-			 */
-			colour(CFG.InputColourF, CFG.InputColourB);
-			fflush(stdout);
-			GetstrC(temp, 7);
-
-			if (toupper(temp[0]) == Keystroke(207, 1))
-				break;
-
-			if ((strcmp(temp, "")) != 0) {
-				iGotArea = TRUE;
-				break;
-			}
-
-			iAreaCount = 2;
-		}
-	}
-
-	/*
-	 * If user type in area above during area listing
-	 * don't ask for it again
-	 */
-	if (!iGotArea) {
-		Enter(1);
-		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(232));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-	}
-
-	/*
-	 * Check if user pressed ENTER
-	 */
-	if ((strcmp(temp, "")) == 0) {
-		fclose(pAreas);
-		return;
-	}
-	iMsgAreaNumber = atoi(temp);
-	iMsgAreaNumber--;
-
-	/*
-	 * Do a check in case user presses Zero
-	 */
-	if (iMsgAreaNumber == -1)
-		iMsgAreaNumber = 0;
-
-	offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-	if(fseek(pAreas, offset, 0) != 0) {
-		printf("Can't move pointer there.");
-	} 
-	fread(&msgs, msgshdr.recsize, 1, pAreas);
-
-	/*
-	 * Do a check if area is greater or less number than allowed,
-	 * security acces (level, flags and age) is oke, and the area
-	 * is active.
-	 */
-	if (iMsgAreaNumber > iAreaNum || iMsgAreaNumber < 0 || (Access(exitinfo.Security, msgs.RDSec) == FALSE) || (!msgs.Active)) {
-		Enter(1);
-		/*
-		 * Invalid area specified - Please try again ...
-		 */
-		pout(LIGHTRED, BLACK, (char *) Language(233));
-		Enter(2);
-		Pause();
-		fclose(pAreas);
-		iMsgAreaNumber = iOldArea;
-		SetMsgArea(iMsgAreaNumber);
-		free(temp);
-		return;
-	}
-
-	SetMsgArea(iMsgAreaNumber);
-	Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
-
-	/*
-	 * Check if msg area has a password, if it does ask user for it
-	 */
-	if((strlen(msgs.Password)) > 2) {
-		Enter(2);
-		/* Please enter Area Password: */
-		pout(WHITE, BLACK, (char *) Language(233));
-		fflush(stdout);
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 20);
-
-		if((strcmp(temp, msgs.Password)) != 0) {
-			Enter(1);
-			pout(WHITE, BLACK, (char *) Language(234));
-			Syslog('!', "Incorrect Message Area # %d password given: %s", iMsgAreaNumber, temp);
-			SetMsgArea(iOldArea);
-		} else {
-			Enter(1);
-			pout(WHITE, BLACK, (char *) Language(235));
-			Enter(2);
-		}
-		Pause();
-	}
-
+    if ((pAreas = fopen(temp, "rb")) == NULL) {
+	WriteError("$Can't open %s", temp);
 	free(temp);
+	return;
+    }
+	
+    /* 
+     * Count how many records there are
+     */
+    fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
+    fseek(pAreas, 0, SEEK_END);
+    iAreaNum = (ftell(pAreas) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
+
+    /*
+     * If there are menu options, parse them first
+     *  1. Check for New Messages in Area (only option that will continue to display list)
+     *  2. Increment Area, return
+     *  3. Decrement Area, return
+     *  4. Select area direct (via area number), return
+     */
+    if (strlen(Option) != 0) {
+	if (strcmp(Option, "N") == 0) {
+	    iCheckNew = TRUE;
+	} else {
+	    if (strcmp(Option, "U+") == 0) {
+		while(TRUE) {
+		    iMsgAreaNumber++;
+		    if (iMsgAreaNumber >= iAreaNum) {
+			iMsgAreaNumber = 0;
+			loopcount++;
+			if (loopcount > 1) {
+			    /* No more areas with unread messages */
+			    pout(LIGHTRED, BLACK, (char *) Language(479));
+			    iMsgAreaNumber = iOldArea;
+			    Enter(2);
+			    Pause();
+			    free(temp);
+			    fclose(pAreas);
+			    return;
+			}
+		    }
+	
+		    offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+		    if (fseek(pAreas, offset, 0) != 0) {
+			WriteError("$Can't move pointer in %s", temp);
+		    }
+									
+		    fread(&msgs, msgshdr.recsize, 1, pAreas);
+		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+			if (Msg_Open(msgs.Base)) {
+			    MsgBase.Highest = Msg_Highest();
+			    LR.UserID = grecno; 
+			    if (Msg_GetLastRead(&LR) != TRUE) {
+				LR.HighReadMsg = 0;
+			    }
+			    if (MsgBase.Highest > LR.HighReadMsg) {
+				Msg_Close();
+				break;
+			    }
+			    Msg_Close();
+			}
+		    }
+		}
+	    }
+
+	    if (strcmp(Option, "U-") == 0) {
+		while(TRUE) {
+		    iMsgAreaNumber--;
+		    if (iMsgAreaNumber < 0) {
+			iMsgAreaNumber = iAreaNum - 1;
+			loopcount++;
+			if (loopcount > 1) {
+			    /* No more areas with unread messages */
+			    pout(LIGHTRED, BLACK, (char *) Language(479));
+			    iMsgAreaNumber = iOldArea;
+			    Enter(2);
+			    Pause();
+			    fclose(pAreas);
+			    free(temp);
+			    return;
+			}
+		    }
+	
+		    offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+		    if (fseek(pAreas, offset, 0) != 0) {
+			WriteError("$Can't move pointer in %s", temp);
+		    }
+									
+		    fread(&msgs, msgshdr.recsize, 1, pAreas);
+		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+			if (Msg_Open(msgs.Base)) {
+			    MsgBase.Highest = Msg_Highest();
+			    LR.UserID = grecno; 
+			    if (Msg_GetLastRead(&LR) != TRUE ){
+				LR.HighReadMsg = 0;
+			    }
+			    if (MsgBase.Highest > LR.HighReadMsg) {
+				Msg_Close();	
+				break;
+			    }
+			    Msg_Close();
+			}
+		    }
+		}
+	    }
+
+	    if (strcmp(Option, "M+") == 0) {
+		while (TRUE) {
+		    iMsgAreaNumber++;
+		    if (iMsgAreaNumber >= iAreaNum) {
+			iMsgAreaNumber = 0;
+		    }
+		    offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+		    if(fseek(pAreas, offset, 0) != 0) {
+			WriteError("$Can't move pointer in %s", temp);
+		    }
+									
+		    fread(&msgs, msgshdr.recsize, 1, pAreas);
+		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+			break;
+		    }
+		}
+	    }
+		
+	    if (strcmp(Option, "M-") == 0) {
+		while (TRUE) {
+		    iMsgAreaNumber--;
+		    if (iMsgAreaNumber < 0) {
+			iMsgAreaNumber = iAreaNum -1;
+		    }
+		    offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+		    if (fseek(pAreas, offset, 0) != 0) {
+			WriteError("$Can't move pointer in %s", temp);
+		    }
+					
+		    fread(&msgs, msgshdr.recsize, 1, pAreas);
+		    if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+			break;
+		    }
+		}
+	    }
+
+	    SetMsgArea(iMsgAreaNumber);
+	    Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
+	    free(temp);
+	    fclose(pAreas);
+	    return;
+	}
+    }
+
+    clear();
+    Enter(1);
+    /*  Message Areas */
+    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(231));
+    Enter(2);
+
+    fseek(pAreas, msgshdr.hdrsize, 0);
+    
+    while (fread(&msgs, msgshdr.recsize, 1, pAreas) == 1) {
+	/*
+	 * Skip the echomail systems
+	 */
+	fseek(pAreas, msgshdr.syssize, SEEK_CUR);
+	if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active)) {
+	    msgs.Name[31] = '\0';
+
+	    colour(WHITE, BLACK);
+	    printf("%5d", Recno + 1);
+
+	    colour(LIGHTBLUE, BLACK);
+	    /* Check for New Mail if N was put on option data */
+	    if (iCheckNew) {
+		if (Msg_Open(msgs.Base)) {
+		    MsgBase.Highest = Msg_Highest();
+		    LR.UserID = grecno; 
+		    if (Msg_GetLastRead(&LR) != TRUE) {
+			LR.HighReadMsg = 0;
+		    }
+		    if (MsgBase.Highest > LR.HighReadMsg ) {
+			pout(YELLOW, BLACK, (char *)" * ");
+		    } else {
+			printf(" . ");
+		    }
+		    Msg_Close();
+		} else {
+		    printf(" . ");
+		}
+	    } else {
+		printf(" . ");
+	    }
+
+	    colour(CYAN, BLACK);
+	    printf("%-31s", msgs.Name);
+
+	    iAreaCount++;
+
+	    if ((iAreaCount % 2) == 0)
+		printf("\n");
+	    else
+		printf(" ");
+	}
+
+	Recno++;
+
+	if ((iAreaCount / 2) == exitinfo.iScreenLen) {
+	    /* More (Y/n/=/Area #): */
+	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(207));
+	    /*
+	     * Ask user for Area or enter to continue
+	     */
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    fflush(stdout);
+	    GetstrC(temp, 7);
+
+	    if (toupper(temp[0]) == Keystroke(207, 1))
+		break;
+
+	    if ((strcmp(temp, "")) != 0) {
+		iGotArea = TRUE;
+		break;
+	    }
+
+	    iAreaCount = 2;
+	}
+    }
+
+    /*
+     * If user type in area above during area listing
+     * don't ask for it again
+     */
+    if (!iGotArea) {
+	Enter(1);
+	/* Select Area: */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(232));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 80);
+    }
+
+    /*
+     * Check if user pressed ENTER
+     */
+    if ((strcmp(temp, "")) == 0) {
 	fclose(pAreas);
+	free(temp);
+	return;
+    }
+    iMsgAreaNumber = atoi(temp);
+    iMsgAreaNumber--;
+
+    /*
+     * Do a check in case user presses Zero
+     */
+    if (iMsgAreaNumber == -1)
+	iMsgAreaNumber = 0;
+
+    offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+    if (fseek(pAreas, offset, 0) != 0) {
+	WriteError("$Can't move pointer in mareas.data.");
+    } 
+    fread(&msgs, msgshdr.recsize, 1, pAreas);
+
+    /*
+     * Do a check if area is greater or less number than allowed,
+     * security acces (level, flags and age) is oke, and the area
+     * is active.
+     */
+    if (iMsgAreaNumber > iAreaNum || iMsgAreaNumber < 0 || (Access(exitinfo.Security, msgs.RDSec) == FALSE) || (!msgs.Active)) {
+	Enter(1);
+	/*
+	 * Invalid area specified - Please try again ...
+	 */
+	pout(LIGHTRED, BLACK, (char *) Language(233));
+	Enter(2);
+	Pause();
+	fclose(pAreas);
+	iMsgAreaNumber = iOldArea;
+	SetMsgArea(iMsgAreaNumber);
+	free(temp);
+	return;
+    }
+
+    SetMsgArea(iMsgAreaNumber);
+    Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
+
+    /*
+     * Check if msg area has a password, if it does ask user for it
+     */
+    if ((strlen(msgs.Password)) > 2) {
+	Enter(2);
+	/* Please enter Area Password: */
+	pout(WHITE, BLACK, (char *) Language(233));
+	fflush(stdout);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 20);
+
+	if ((strcmp(temp, msgs.Password)) != 0) {
+	    Enter(1);
+	    /* Password is incorrect */
+	    pout(WHITE, BLACK, (char *) Language(234));
+	    Syslog('!', "Incorrect Message Area # %d password given: %s", iMsgAreaNumber, temp);
+	    SetMsgArea(iOldArea);
+	} else {
+	    Enter(1);
+	    /* Password is correct */
+	    pout(WHITE, BLACK, (char *) Language(235));
+	    Enter(2);
+	}
+	Pause();
+    }
+
+    free(temp);
+    fclose(pAreas);
 }
 
 

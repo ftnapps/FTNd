@@ -30,6 +30,8 @@ v0.37.01	14-Jan-2003.
 		installed.
 		Documented menu 318, was present for a long time, just not in
 		the html docs.
+		The main Makefile now sets each txtfiles directory to mode 775
+		to allow doors to write ansi/ascii screens.
 
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default
@@ -108,6 +110,8 @@ v0.37.01	14-Jan-2003.
 		Fixed send online message to send to user real names, handles
 		and unix names again.
 		The menus are machine endian independant.
+		Maybe removed a bug where the bbs sometimes crashed during
+		mail reading.
 
 	examples:
 		The English and Dutch templates are updated to show the new

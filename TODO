@@ -41,6 +41,7 @@ mbsebbs:
 
 	L: ChangeHandle, allow own unix name as handle.
 
+	N: Delete messages.
 
 newuser:
 	L: Allow handles to be the same as the unixname.

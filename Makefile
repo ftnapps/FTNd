@@ -82,6 +82,7 @@ install:
 			mkdir ${PREFIX}/dutch/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/dutch ; \
 		fi
+		@chmod 0775 ${PREFIX}/dutch/txtfiles
 		@if [ ! -d ${PREFIX}/english ] ; then \
 			mkdir ${PREFIX}/english ; \
 			mkdir ${PREFIX}/english/txtfiles ; \
@@ -89,6 +90,7 @@ install:
 			mkdir ${PREFIX}/english/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/english ; \
 		fi
+		@chmod 0775 ${PREFIX}/english/txtfiles
 		@if [ ! -d ${PREFIX}/italian ] ; then \
 			mkdir ${PREFIX}/italian ; \
 			mkdir ${PREFIX}/italian/txtfiles ; \
@@ -96,6 +98,7 @@ install:
 			mkdir ${PREFIX}/italian/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/italian ; \
 		fi
+		@chmod 0775 ${PREFIX}/italian/txtfiles
 		@if [ ! -d ${PREFIX}/spanish ] ; then \
 			mkdir ${PREFIX}/spanish ; \
 			mkdir ${PREFIX}/spanish/txtfiles ; \
@@ -103,6 +106,7 @@ install:
 			mkdir ${PREFIX}/spanish/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/spanish ; \
 		fi
+		@chmod 0775 ${PREFIX}/spanish/txtfiles
 		@if [ ! -d ${PREFIX}/galego ] ; then \
 			mkdir ${PREFIX}/galego ; \
 			mkdir ${PREFIX}/galego/txtfiles ; \
@@ -110,6 +114,7 @@ install:
 			mkdir ${PREFIX}/galego/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/galego ; \
 		fi
+		@chmod 0775 ${PREFIX}/galego/txtfiles
 		@if [ ! -d ${PREFIX}/german ] ; then \
 			mkdir ${PREFIX}/german; \
 			mkdir ${PREFIX}/german/txtfiles ; \
@@ -117,6 +122,7 @@ install:
 			mkdir ${PREFIX}/german/macro ; \
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/german; \
 		fi
+		@chmod 0775 ${PREFIX}/german/txtfiles
 		@if [ ! -d ${PREFIX}/ftp ] ; then \
 			mkdir ${PREFIX}/ftp ; \
 			mkdir ${PREFIX}/ftp/pub ; \
