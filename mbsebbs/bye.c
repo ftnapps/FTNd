@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/bye.c
  * Purpose ...............: Hangup functions
- * Last modification date : 27-May-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -36,6 +36,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "funcs.h"
+#include "misc.h"
 #include "language.h"
 #include "bye.h"
 
@@ -62,6 +63,7 @@ void Good_Bye(int onsig)
 	if (do_mailout)
 		CreateSema((char *)"mailout");
 
+	SaveLastCallers();
 
 	/*
 	 * Update the users database record.
@@ -81,7 +83,6 @@ void Good_Bye(int onsig)
 			usrconfig.iLastFileArea = iAreaNumber;
 			if (!iAreaNumber)
 				WriteError("Setting filearea to zero");
-			usrconfig.iHangUps++;
 
 			/* If time expired, do not say say successful logoff */
 			if(!iExpired)
