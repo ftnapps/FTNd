@@ -2,7 +2,7 @@
 #
 # MBSE BBS Midnight - Should be run from cron at 00:00
 #
-# 26-Aug-1999 MB.
+# $Id$
 
 if [ "$MBSE_ROOT" = "" ]; then
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`

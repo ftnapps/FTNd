@@ -147,79 +147,8 @@ if [ "$DISTNAME" = "SuSE" ]; then
     echo "Installing SystemV init scripts for SuSE"
     log "+" "Installing SystemV init scripts for SuSE"
     echo "Adding $DISTINIT"
-
-cat << EOF >$DISTINIT
-#!/bin/bash
-# Copyright (c) 2001 Michiel Broek
-#
-# Author: Michiel Broek <mbse@users.sourceforge.net>, 23-May-2001
-#
-# $DISTINIT for SuSE
-#
-
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=\`cat /etc/passwd | grep mbse: | awk -F ':' '{ print \$6}'\`
-
-if [ "\$MBSE_ROOT" = "" ]
-then
-        echo "MBSE BBS: No 'mbse' user in the password file."
-        exit 1
-fi
- 
-if [ ! -d \$MBSE_ROOT ]
-then
-        echo "MBSE BBS: Home directory '\$MBSE_ROOT' not found."
-        exit 1
-fi
- 
-export MBSE_ROOT
-
-case "\$1" in
-    start|reload)
-        echo -n "MBSE BBS starting:"
-        rm -f \$MBSE_ROOT/sema/*
-        rm -f \$MBSE_ROOT/var/*.LCK
-	rm -f \$MBSE_ROOT/tmp/mb*
-        $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
-        echo -n " mbtask"
-	sleep 2
-        if [ -f \$MBSE_ROOT/etc/config.data ]; then
-                $SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
-                echo " and opened the bbs."
-	else
-		echo ""
-        fi
-	;;
-    stop)
-        echo -n "MBSE BBS shutdown:"
-        if [ -f \$MBSE_ROOT/etc/config.data ]; then
-                echo -n " logoff users "
-                $SU mbse -c '\$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-                echo -n "done,"
-        fi
-        echo -n " stopping mbtask "
-        killproc \$MBSE_ROOT/bin/mbtask -15
-        echo "done."
-	;;
-    restart)
-        echo "Restarting MBSE BBS: just kidding!"
-	;;
-    status)
-        echo -n "MBSE BBS status: "
-        if [ "\`/sbin/pidof mbtask\`" = "" ]; then
-                echo "mbtask is NOT running"
-        else
-                echo "mbtask Ok"
-        fi
-	;;
-    *)
-	echo "Usage: \$0 {start|stop|status|reload|restart}"
-	exit 1
-esac
-exit 0
-EOF
-
-    chmod 755 /etc/rc.d/init.d/mbsed
+    cp init.SuSE $DISTINIT
+    chmod 755 $DISTINIT
     echo "Making links for start/stop in runlevel 2"
     ln -s ../mbsed /sbin/init.d/rc2.d/K05mbsed
     ln -s ../mbsed /sbin/init.d/rc2.d/S99mbsed
@@ -272,78 +201,7 @@ if [ "$DISTNAME" = "Slackware" ]; then
 	echo "Adding SystemV Slackware MBSE BBS start/stop scripts"
         log "+" "Adding SystemV Slackware MBSE BBS start/stop scripts"
 	checkrcdir
-
-cat << EOF >$DISTINIT
-#!/bin/sh
-#
-# description: Starts and stops MBSE BBS. 
-#
-# Author: Michiel Broek <mbse@users.sourceforge.net>, 23-May-2001
-#
-# $DISTINIT for Slackware
-#
-
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=\`cat /etc/passwd | grep mbse: | awk -F ':' '{ print \$6}'\`
-
-if [ "\$MBSE_ROOT" = "" ]
-then
-        echo "MBSE BBS: No 'mbse' user in the password file."
-        exit 1
-fi
-
-if [ ! -d \$MBSE_ROOT ]
-then
-        echo "MBSE BBS: Home directory '\$MBSE_ROOT' not found."
-        exit 1
-fi
-
-export MBSE_ROOT
-
-# See how we were called.
-case "\$1" in
-  start)
-        echo -n "MBSE BBS starting:"
-        rm -f \$MBSE_ROOT/sema/*
-        rm -f \$MBSE_ROOT/var/*.LCK
-	rm -f \$MBSE_ROOT/tmp/mb*
-        $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
-        echo -n " mbtask"
-	sleep 2
-	if [ -f \$MBSE_ROOT/etc/config.data ]; then
-        	$SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
-        	echo " and opened the bbs."
-	fi
-        ;;
-  stop)
-        echo -n "MBSE BBS shutdown:"
-        if [ -f \$MBSE_ROOT/etc/config.data ]; then
-                echo -n " logoff users "
-                $SU mbse -c '\$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-                echo -n "done,"
-	fi
-        echo -n " stopping mbtask "
-        kill -15 \`pidof \$MBSE_ROOT/bin/mbtask\`
-        echo "done."
-        ;;
-  status)
-	echo -n "MBSE BBS status: "
-	if [ "\`/sbin/pidof mbtask\`" = "" ]; then
-		echo "mbtask is NOT running"
-	else
-		echo "mbtask Ok"
-	fi
-        ;;
-  restart)
-        echo "Restarting MBSE BBS: just kidding!"
-        ;;
-  *)
-        echo "Usage: mbsed {start|stop|restart|status}"
-        exit 1
-esac
-
-exit 0
-EOF
+	cp init.Slackware $DISTINIT
         chmod 755 $DISTINIT
         if [ -f $MBSE_ROOT/bin/mbse.start ]; then
             echo "Removing old startup scripts"
@@ -382,145 +240,51 @@ if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
 
     log "+" "Adding RedHat/E-Smith/Mandrake SystemV init scripts"
     DISTINIT="/etc/rc.d/init.d/mbsed"
-    SU="su"
     #
-    # From RedHat version 6.1 and up the behaviour of "su" has changed.
     # Extra tests are added for the RedHat e-smith server distribution,
     # this is a special distribution based on RedHat.
-    # For Mandrake we follow the same behaviour.
     #
     if [ -f /etc/mandrake-release ]; then
-	RHR="`cat /etc/mandrake-release | awk '{ print $4 }' | tr -d .`"
 	RHN="Mandrake"
-	if [ $RHR -gt 60 ]; then
-	    echo "You are running Mandrake v6.1 or newer"
-	    SU="su -"
-	else
-	    echo "You are running Mandrake v6.0 or older"
-	fi
     else
     	if [ -f /etc/redhat-release ]; then
 	    if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-	    	RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
 	    	RHN="RedHat"
 	    else
-	    	RHR=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d . | tr -d \)`
 	    	RHN="e-smith based on RedHat"
-	    fi
-	    if [ $RHR -gt 60 ]; then
-	    	echo "You are running $RHN v6.1 or newer"
-	    	SU="su -"
-	    else
-	    	echo "You are running $RHN v6.0 or older"
 	    fi
 	else
 	    echo "You are in big trouble."
 	fi
     fi
     echo "Adding startup file $DISTINIT"
-
-cat << EOF >$DISTINIT
-#!/bin/sh
-#
-# chkconfig: 345 95 05
-# description: Starts and stops MBSE BBS.
-#
-# For RedHat, E-Smith and Mandrake SYSV init style.
-# 20-Jan-2002 M. Broek
-#
-# Source function library.
-. /etc/rc.d/init.d/functions
-
-# Source networking configuration.
-. /etc/sysconfig/network
-
-# Check that networking is up.
-[ \${NETWORKING} = "no" ] && exit 1
-
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=\`cat /etc/passwd | grep mbse: | awk -F ':' '{ print \$6}'\`
-
-if [ "\$MBSE_ROOT" = "" ]
-then
-	echo "MBSE BBS: No 'mbse' user in the password file."
-	exit 1
-fi
-
-if [ ! -d \$MBSE_ROOT ]
-then
-	echo "MBSE BBS: Home directory '\$MBSE_ROOT' not found."
-	exit 1
-fi
-
-export MBSE_ROOT
-
-# See how we were called.
-case "\$1" in
-  start)
-	echo -n "Starting MBSE BBS: "
-	rm -f \$MBSE_ROOT/sema/*
-	rm -f \$MBSE_ROOT/var/*.LCK
-	rm -f \$MBSE_ROOT/tmp/mb*
-	$SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
-	echo -n "mbtask "
-	sleep 2
-	if [ -f \$MBSE_ROOT/etc/config.data ]; then
-		$SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
-		echo "opened"
+    cp init.RedHat $DISTINIT
+    chmod 755 $DISTINIT
+    echo "Making links for stop in runlevels 0 and 6"
+    if [ -f /etc/rc.d/rc0.d/K05mbsed ]; then
+	rm /etc/rc.d/rc0.d/K05mbsed
+    fi  
+    ln -s ../init.d/mbsed /etc/rc.d/rc0.d/K05mbsed
+    if [ -f /etc/rc.d/rc6.d/K05mbsed ]; then
+	rm /etc/rc.d/rc6.d/K05mbsed
+    fi
+    ln -s ../init.d/mbsed /etc/rc.d/rc6.d/K05mbsed
+    echo "Making links for start in runlevels 3 and 5"
+    if [ -f /etc/rc.d/rc3.d/S95mbsed ]; then
+	rm /etc/rc.d/rc3.d/S95mbsed
+    fi  
+    ln -s ../init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
+    if [ -f /etc/rc.d/rc5.d/S95mbsed ]; then
+	rm /etc/rc.d/rc5.d/S95mbsed
+    fi
+    ln -s ../init.d/mbsed /etc/rc.d/rc5.d/S95mbsed
+    if [ "$RHN" = "e-smith based on RedHat" ]; then
+	echo "Making link for start in runlevel 7"
+	if [ -f /etc/rc.d/rc7.d/S95mbsed ]; then
+	    rm /etc/rc.d/rc7.d/S95mbsed
 	fi
-	touch /var/lock/subsys/mbsed
-	;;
-  stop)
-	echo -n "Shutting down MBSE BBS: "
-	if [ -f \$MBSE_ROOT/etc/config.data ]; then
-		echo -n "logoff users "
-		$SU mbse -c '\$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-		echo -n "done, "
-	fi
-	echo -n "stop mbtask: "
-	killproc mbtask -15
-	rm -f /var/lock/subsys/mbsed
-	echo "done."
-	;;
-  status)
-	status mbsed
-	;;
-  restart)
-	echo "Restarting MBSE BBS: just kidding!"
-	;;
-  *)
-	echo "Usage: mbsed {start|stop|restart|status}"
-	exit 1
-esac
-
-exit 0
-EOF
-	chmod 755 $DISTINIT
-        echo "Making links for stop in runlevels 0 and 6"
-	if [ -f /etc/rc.d/rc0.d/K05mbsed ]; then
-	    rm /etc/rc.d/rc0.d/K05mbsed
-	fi  
-	ln -s ../init.d/mbsed /etc/rc.d/rc0.d/K05mbsed
-	if [ -f /etc/rc.d/rc6.d/K05mbsed ]; then
-	    rm /etc/rc.d/rc6.d/K05mbsed
-	fi
-	ln -s ../init.d/mbsed /etc/rc.d/rc6.d/K05mbsed
-	echo "Making links for start in runlevels 3 and 5"
-	if [ -f /etc/rc.d/rc3.d/S95mbsed ]; then
-	    rm /etc/rc.d/rc3.d/S95mbsed
-	fi  
-	ln -s ../init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
-	if [ -f /etc/rc.d/rc5.d/S95mbsed ]; then
-	    rm /etc/rc.d/rc5.d/S95mbsed
-	fi
-	ln -s ../init.d/mbsed /etc/rc.d/rc5.d/S95mbsed
-	if [ "$RHN" = "e-smith based on RedHat" ]; then
-	    echo "Making link for start in runlevel 7"
-	    if [ -f /etc/rc.d/rc7.d/S95mbsed ]; then
-		rm /etc/rc.d/rc7.d/S95mbsed
-	    fi
-	    ln -s ../init.d/mbsed /etc/rc.d/rc7.d/S95mbsed
-	fi
+	ln -s ../init.d/mbsed /etc/rc.d/rc7.d/S95mbsed
+    fi
 fi
 
 
@@ -534,73 +298,7 @@ if [ "$DISTNAME" = "Debian" ]; then
 	echo "You are running Debian Linux $DISTVERS"
         log "+" "Adding Debian SystemV init script"
 	DISTINIT="/etc/init.d/mbsebbs"
-
-cat << EOF >$DISTINIT
-#!/bin/sh
-#
-# Note: this is not 100% Debian style, at least it works for now.
-# 23-May-2001 Michiel Broek.
-#  
-# description: Starts and stops the MBSE BBS.
-
-# For Debian SYSV init style.
-
-# Find the MBSE_ROOT from the /etc/passwd file.
-MBSE_ROOT=\`cat /etc/passwd | grep mbse: | awk -F ':' '{ print \$6}'\`
-
-if [ "\$MBSE_ROOT" = "" ]; then
-	echo "MBSE BBS: No 'mbse' user in the password file."
-	exit 1
-fi
-
-if [ ! -d \$MBSE_ROOT ]; then 
-	echo "MBSE BBS: Home directory '\$MBSE_ROOT' not found."
-	exit 1
-fi
-
-PATH=/sbin:/bin:/usr/sbin:/usr/bin:\$MBSE_ROOT/bin
-DAEMON=\$MBSE_ROOT/bin/mbtask
-NAME=mbsebbs
-DESC="MBSE BBS"
-
-export MBSE_ROOT
-
-# See how we were called.
-case "\$1" in
-  start)
-	echo -n "Starting \$DESC: "
-	rm -f \$MBSE_ROOT/sema/*
-	rm -f \$MBSE_ROOT/var/*.LCK
-	rm -f \$MBSE_ROOT/tmp/mb*
-	su mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
-	echo -n "mbtask "
-	sleep 2
-	if [ -f \$MBSE_ROOT/etc/config.data ]; then
-		su mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
-		echo -n "opened "
-	fi
-	echo "done."
-	;;
-  stop)
-	echo -n "Stopping \$DESC: "
-	if [ -f \$MBSE_ROOT/etc/config.data ]; then
-		echo -n "logoff users "
-		su mbse -c '\$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-	fi
-	start-stop-daemon --stop --signal 15 --user mbtask
-	echo "\$NAME done."
-	;;
-  force-reload|restart)
-	echo "Restarting \$DESC: is not possible, done."
-	;;
-  *)
-	N=/etc/init.d/\$NAME
-	echo "Usage: \$N {start|stop|restart|force-reload}" >&2
-	exit 1
-esac
-
-exit 0
-EOF
+	cp init.Debian $DISTINIT
 	chmod 755 $DISTINIT
 	update-rc.d mbsebbs defaults
 	echo "Debian install ready."
@@ -615,7 +313,7 @@ fi
 #
 if [ "$DISTNAME" = "FreeBSD" ] || [ "$DISTNAME" = "NetBSD" ]; then
     #
-    # FreeBSD init
+    # FreeBSD, NetBSD init
     #
     DISTINIT="$MBSE_ROOT/etc/rc"
     echo "Adding $DISTNAME style MBSE BBS start/stop scripts"

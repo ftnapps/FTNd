@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# /opt/mbse/etc/rc.shutdown:  BBS Shutdown script for Slackware and FreeBSD
+# /opt/mbse/etc/rc.shutdown:  BBS Shutdown script for Slackware, FreeBSD and NetBSD.
 #
-# 13-Aug-2001
+# $Id$
 
 if [ "$MBSE_ROOT" = "" ]; then 
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`

@@ -1,11 +1,11 @@
 # Makefile for MBSE BBS under Linux
-# Copyright (c) 1998, 2001 by M. Broek.
 # $Id$
 
 include ../Makefile.global
 
 OTHER		= Makefile README maint midnight weekly monthly installinit.sh rc rc.shutdown \
-		  mbse.start mbse.stop bbsdoor.sh rundoor.sh
+		  mbse.start mbse.stop bbsdoor.sh rundoor.sh init.Debian init.RedHat \
+		  init.Slackware init.SuSE
 
 ####################################################################################################
 

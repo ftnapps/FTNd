@@ -1,9 +1,9 @@
 #
-# ~/bin/mbse.start
 # BBS Startup script, should be run as BBS owner.
-# Note: This is only used on Slackware systems until 7.0.0 and FreeBSD
+# Note: This is only used on Slackware systems until 7.0.0, FreeBSD and NetBSD.
 #
-# 25-Oct-2001 MB.
+# $Id$
+#
 
 if [ "$MBSE_ROOT" = "" ]; then
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
