@@ -197,7 +197,7 @@ char *disk_getfs()
 	else
 	    ans = xstrcat(ans, (char *)",");
 	tt[0] = '\0';
-	sprintf(tt, "%lu %lu %s %s", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype);
+	sprintf(tt, "%lu %lu %s %s %d", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype, tmp->ro);
 	ans = xstrcat(ans, tt);
 	if (i == 10) /* No more then 10 filesystems */
 	    break;

@@ -118,7 +118,7 @@ v0.51.2		06-Mar-2004
 		On screen 2 added disk status.
 		On screen 3, the warning colors for diskspace are now triggered
 		by the global config setting, red for the upper limit, and
-		yellow for the upper limit * 4.
+		yellow for the upper limit * 4. Added RO/RW status indicator.
 
 	mbtask:
 		Added communication commands for disk watch thread.

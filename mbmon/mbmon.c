@@ -328,7 +328,7 @@ void system_stat(void)
 
 void disk_stat(void)
 {
-    int		    ch, i;
+    int		    ch, i, ro;
     char	    buf[1024], *cnt, *type, *fs, *p, sign;
     unsigned long   last[10], size, used, perc, avail;
 
@@ -336,7 +336,7 @@ void disk_stat(void)
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
     set_color(YELLOW, RED);
-    mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   Mountpoint                             ");
+    mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   St Mountpoint                          ");
     set_color(CYAN, BLACK);
     mvprintw(lines - 2, 6, "Press any key");
     IsDoing("Filesystem Usage");
@@ -361,7 +361,8 @@ void disk_stat(void)
 		    perc = (used * 100) / size;
 		    sign = ' ';
 		    fs = strtok(NULL, " ");
-		    type = strtok(NULL, ",;");
+		    type = strtok(NULL, " ");
+		    ro = atoi(strtok(NULL, ",;"));
 		    if (used > last[i])
 			sign = '^';
 		    if (used < last[i])
@@ -373,7 +374,7 @@ void disk_stat(void)
 		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, used);
 		    set_color(WHITE, BLACK);
 		    printf("%c  ", sign);
-		    if ((strstr(type, "iso") == NULL) && (strstr(type, "9660") == NULL)) {
+		    if (ro == 0) {
 			if (avail <= CFG.freespace)
 			    set_color(LIGHTRED, BLACK);
 			else if (avail <= (CFG.freespace * 4))
@@ -381,12 +382,12 @@ void disk_stat(void)
 			else
 			    set_color(CYAN, BLACK);
 		    } else {
-			set_color(CYAN, BLACK);
+			set_color(GREEN, BLACK);
 		    }
 		    printf("%3lu", perc);
 		    putchar('%');
 		    set_color(CYAN, BLACK);
-		    printf("  %-8s  %-40s", type, fs);
+		    printf("  %-8s  %s %-37s", type, ro ?"RO":"RW", fs);
 		}
 		locate(i+8, 1);
 		clrtoeol();
