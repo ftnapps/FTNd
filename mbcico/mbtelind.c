@@ -84,7 +84,7 @@ void die(int onsig)
     }
 
     t_end = time(NULL);
-    Syslog(' ', "MBTELNETD finished in %s", t_elapsed(t_start, t_end));
+    Syslog(' ', "MBTELIND finished in %s", t_elapsed(t_start, t_end));
     if (envptr)
 	free(envptr);
     ExitClient(onsig);
@@ -122,11 +122,11 @@ int main(int ac, char **av)
     InitConfig();
     t_start = time(NULL);
 
-    InitClient(pw->pw_name, (char *)"mbtelnetd", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"mbtelind", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
-    Syslog(' ', "MBTELNETDv%s", VERSION);
+    Syslog(' ', "MBTELIND v%s", VERSION);
 
     /*
      * Catch all signals we can, and ignore the rest.
@@ -188,7 +188,7 @@ int main(int ac, char **av)
     telnet_init();
 
     tmp = calloc(81, sizeof(char ));
-    sprintf(tmp, "mbtelnetd v%s\r\n", VERSION);
+    sprintf(tmp, "mbtelind v%s\r\n", VERSION);
     telnet_write(tmp, strlen(tmp));
     free(tmp);
 
@@ -248,10 +248,6 @@ bad: ;
 
 
 
-static int	tellen;
-static int	buflen = 0;
-
-
 /* --- This is an artwork of serge terekhov, 2:5000/13@fidonet :) --- */
 
 void telnet_answer(int tag, int opt)
@@ -273,7 +269,7 @@ void telnet_answer(int tag, int opt)
 	    r = (char *)"DONT";
 	    break;
     }
-    Syslog('s', "TELNET send %s %d", r, opt);
+    Syslog('s', "Telnet: send %s %d", r, opt);
 
     buf[0] = IAC;
     buf[1] = tag;
@@ -332,28 +328,27 @@ int telnet_read(char *buf, int len)
 		    --n;
 		    switch (m = (unsigned char)*q++) {
 			case WILL:  m = (unsigned char)*q++; --n;
-				    Syslog('s', "TELNET: recv WILL %d", m);
+				    Syslog('s', "Telnet: recv WILL %d", m);
 				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
 					telnet_answer(DONT, m);
 				    break;
 			case WONT:  m = *q++; 
 				    --n;
-				    Syslog('s', "TELNET: recv WONT %d", m);
+				    Syslog('s', "Telnet: recv WONT %d", m);
 				    break;
 			case DO:    m = (unsigned char)*q++; 
 				    --n;
-				    Syslog('s', "TELNET: recv DO %d", m);
+				    Syslog('s', "Telnet: recv DO %d", m);
 				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
 					telnet_answer(WONT, m);
 				    break;
 			case DONT:  m = (unsigned char)*q++; 
 				    --n;
-				    Syslog('s', "TELNET: recv DONT %d", m);
+				    Syslog('s', "Telnet: recv DONT %d", m);
 				    break;
-			case IAC:   Syslog('s', "TELNET: recv 2nd IAC %d", m);
-				    *p++ = IAC;
+			case IAC:   *p++ = IAC;
 				    break;
-			default:    Syslog('s', "TELNET: recv IAC %d", m);
+			default:    Syslog('s', "Telnet: recv IAC %d, not good", m);
 				    break;
 		    }
 		}
