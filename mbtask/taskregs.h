@@ -23,20 +23,15 @@ typedef struct _reg_info {
         time_t          lastcon;                /* Last connection      */
         int             altime;                 /* Alarm time           */
         unsigned        silent          : 1;    /* Do not disturb       */
-        unsigned        chatting        : 1;    /* User is chatting     */
         unsigned        ismsg           : 1;    /* Message waiting      */
 	unsigned	istcp		: 1;	/* Is a TCP/IP session	*/
 	unsigned	paging		: 1;	/* Is paging sysop	*/
 	unsigned	haspaged	: 1;	/* Has paged sysop	*/
-	unsigned	moderator	: 1;	/* Is channel moderator	*/
-        int             channel;                /* Chat channel         */
         int             ptr_in;                 /* Input buffer pointer */
         int             ptr_out;                /* Output buffer ptr    */
         char            fname[RB][36];          /* Message from user    */
         char            msg[RB][81];            /* The message itself   */
 	char		reason[81];		/* Chat reason		*/
-	char		chname[21];		/* Short channel name	*/
-	char		chsubj[61];		/* Channel subject	*/
 } reg_info;
 
 
@@ -59,6 +54,8 @@ int	reg_sysop(char *);	    /* Registrate sysop presence    */
 int	reg_page(char *);	    /* Page sysop for chat	    */
 int	reg_cancel(char *);	    /* Cancel sysop page	    */
 char	*reg_checkpage(char *);	    /* Check paging status	    */
+int	reg_ispaging(char *);	    /* Check if user with pid paged */
+void	reg_sysoptalk(char *);	    /* Is now talking to the sysop  */
 
 #endif
 

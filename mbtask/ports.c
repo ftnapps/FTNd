@@ -90,6 +90,7 @@ void fill_portlist(pp_list **fdp, pp_list *new)
     strncpy(tmp->tty, new->tty, 6);
     tmp->mflags = new->mflags;
     tmp->dflags = new->dflags;
+    tmp->locktime = 0;
 
     if (*fdp == NULL) {
 	*fdp = tmp;

@@ -4,8 +4,6 @@ $Id$
 	menus do not work.
 	All other users on Intel machines (99,9% I think) can use this version.
 
-	WARNING, sysop chat doesn't work right now.
-
 
 v0.37.2		23-Feb-2003.
 
@@ -54,11 +52,12 @@ v0.37.2		23-Feb-2003.
 		Fixed user idle logoff when new mailcheck took too long.
 		Added email reply when reading new (e)mail.
 		To page the sysop, the CPAG and CCAN commands to mbtask are now
-		used. Until the chatserver is ready, there is no buildin sysop
-		user chat.
+		used.
 		Removed all old chat code that worked on the tty device.
-		Added chat client site. This is more or less complete but does
-		not yet respond to sysop chat requests.
+		Added chat client site. If the sysop responds to the page
+		request, the user is dropped into chatmode in the sysop
+		channel as soon as the user does nothing (ie in a menu or still
+		in page mode).
 
 	mbmon:
 		Reports sysop available or left the system when mbmon starts
@@ -71,19 +70,22 @@ v0.37.2		23-Feb-2003.
 		The show lastcallers now adjusts the number of lines available.
 		The show server clients screen now adjusts to the number of
 		lines available.
-		Added chatserver client, this is more or less complete now and
-		does communicate with the development server.
+		Added chatserver client, there are 2 modes, one id general chat
+		and the other is respond to a users page request where the
+		channel is automatic set.
 
 	mbtask:
 		Safer logging of user log messages.
 		In personal message text the text after a ; character is not
 		ignored anymore.
+		With mbtask start, the ports locktimes are reset to zero.
 		Added CSYS command to report if sysop is available.
 		Added CPAG command to page the sysop.
 		Added CCAN command to cancel the sysop page.
 		Added CCKP command to check for a page.
 		Added CCON, CCLO, CPUT and CGET commands for chatserver. The
 		chatserver commands will be added and are in development.
+		Basic chatting now works.
 
 	lang:
 		Changed language prompts 15, 16 and 152.

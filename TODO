@@ -22,8 +22,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	N: Rewrite chat to use "mbtask". Write chat functions into "mbmon"
-
 	N: Implement session and time/day limits.
 
 	N: Display archives.
@@ -149,11 +147,7 @@ mbindex:
 mbmon:
 	L: Logfile tail functions.
 
-	L: Chat with bbs users.
-
 mbtask:
-	L: Add chat protocol.
-
 	N: Add events.
 
 mbnewusr:

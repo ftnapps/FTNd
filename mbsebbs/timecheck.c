@@ -82,51 +82,50 @@ void Check_PM(void)
 
 
 /*
- * This is the users onlinetime check. Must be REWRITTEN!!
+ * This is the users onlinetime check.
  */
 void TimeCheck(void)
 {
-	char	temp[81];
-	time_t	Now;
-	int	Elapsed;
+    time_t  Now;
+    int	    Elapsed;
 
-	Now = time(NULL);
+    Now = time(NULL);
 
-	/*
-	 * Update the global string for the menu prompt
-	 */
+    /*
+     * Update the global string for the menu prompt
+     */
+    sprintf(sUserTimeleft, "%d", iUserTimeLeft);
+    ReadExitinfo();
+
+    if (iUserTimeLeft != ((Time2Go - Now) / 60)) {
+
+	Elapsed = iUserTimeLeft - ((Time2Go - Now) / 60);
+	iUserTimeLeft -= Elapsed;
 	sprintf(sUserTimeleft, "%d", iUserTimeLeft);
-	ReadExitinfo();
-
-	if (iUserTimeLeft != ((Time2Go - Now) / 60)) {
-
-		Elapsed = iUserTimeLeft - ((Time2Go - Now) / 60);
-		iUserTimeLeft -= Elapsed;
-		sprintf(sUserTimeleft, "%d", iUserTimeLeft);
-
-		/*
-		 * Update users counter if not chatting
-		 */
-		if (!CFG.iStopChatTime || (! chat_with_sysop)) {
-			exitinfo.iTimeLeft    -= Elapsed;
-			exitinfo.iConnectTime += Elapsed;
-			exitinfo.iTimeUsed    += Elapsed;
-			WriteExitinfo();
-		}
-	}
-
-	if(exitinfo.iTimeLeft <= 0) {
-	 	printf("\n%s\n", (char *) Language(130));
-		sleep(3);
-		Syslog('!', "Users time limit exceeded ... user disconnected!");
-		iExpired = TRUE;
-		Good_Bye(MBERR_TIMEOUT);
-	}
 
 	/*
-	 *  Check for a personal message
+	 * Update users counter if not chatting
 	 */
-	Check_PM();
+	if (!CFG.iStopChatTime || (! chat_with_sysop)) {
+	    exitinfo.iTimeLeft    -= Elapsed;
+	    exitinfo.iConnectTime += Elapsed;
+	    exitinfo.iTimeUsed    += Elapsed;
+	    WriteExitinfo();
+	}
+    }
+
+    if (exitinfo.iTimeLeft <= 0) {
+	printf("\n%s\n", (char *) Language(130));
+	sleep(3);
+	Syslog('!', "Users time limit exceeded ... user disconnected!");
+	iExpired = TRUE;
+	Good_Bye(MBERR_TIMEOUT);
+    }
+
+    /*
+     *  Check for a personal message
+     */
+    Check_PM();
 }
 
 

@@ -455,9 +455,9 @@ void DispMsg(char *msg)
 /*
  * Sysop/user chat
  */
-void Chat(void)
+void Chat(int sysop)
 {
-    int		    curpos = 0, stop = FALSE, data;
+    int		    curpos = 0, stop = FALSE, data, rc;
     unsigned char   ch = 0;
     char	    sbuf[81], resp[128], *cnt, *msg;
     static char	    buf[200];
@@ -466,7 +466,7 @@ void Chat(void)
     rsize = lines - 7;
     rpointer = 0;
 
-    sprintf(buf, "CCON,2,%d,%s", mypid, CFG.sysop);
+    sprintf(buf, "CCON,3,%d,%s,%s;", mypid, CFG.sysop, sysop ? "1":"0");
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
@@ -495,6 +495,16 @@ void Chat(void)
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
+    if (sysop) {
+	/*
+	 * Join channel #sysop automatic
+	 */
+	sprintf(buf, "CPUT:2,%d,/JOIN #sysop;", mypid);
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	}
+    }
+
     Syslog('-', "Start loop");
 
     while (stop == FALSE) {
@@ -507,19 +517,29 @@ void Chat(void)
 	    sprintf(buf, "CGET:1,%d;", mypid);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-		if (strncmp(buf, "100:1,", 6) == 0) {
+		if (strncmp(buf, "100:2,", 6) == 0) {
 		    Syslog('-', "> CGET:1,%d;", mypid);
 		    Syslog('-', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
-		    strncpy(resp, strtok(NULL, ","), 5);	/* Should be 1		    */
-		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message		    */
+		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2	    */
+		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error	    */
+		    rc = atoi(resp);
+		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message	    */
 		    resp[strlen(resp)-1] = '\0';
 		    DispMsg(resp);
+		    if (rc == 1) {
+			Syslog('+', "Chat server error: %s", resp);
+			stop = TRUE;
+			data = FALSE;
+		    }
 		} else {
 		    data = FALSE;
 		}
 	    }
 	}
+
+	if (stop)
+	    break;
 
 	/*
 	 * Update top bars
@@ -550,19 +570,23 @@ void Chat(void)
 		putchar(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
-	    if (strncasecmp(sbuf, "/exit", 5) == 0)
-		stop = TRUE;
 	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
 	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
 		Syslog('-', "< %s", buf);
-		if (strncmp(buf, "100:1,", 6) == 0) {
+		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
-		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 1              */
+		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
+		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error, end chat	*/
+		    rc = atoi(resp);
 		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message              */
 		    resp[strlen(resp)-1] = '\0';
 		    DispMsg(resp);
+		    if (rc == 1) {
+			Syslog('+', "Chat server error: %s", resp);
+			stop = TRUE;
+		    }
 		}
 	    }
 	    curpos = 0;
@@ -581,14 +605,20 @@ void Chat(void)
 	sprintf(buf, "CGET:1,%d;", mypid);
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
-	    if (strncmp(buf, "100:1,", 6) == 0) {
+	    if (strncmp(buf, "100:2,", 6) == 0) {
 		Syslog('-', "> CGET:1,%d;", mypid);
 		Syslog('-', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
-		strncpy(resp, strtok(NULL, ","), 5);        /* Should be 1              */
-		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message                  */
+		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
+		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
+		rc = atoi(resp);
+		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message          */
 		resp[strlen(resp)-1] = '\0';
 		DispMsg(resp);
+		if (rc == 1) {
+		    Syslog('+', "Chat server error: %s", resp);
+		    data = FALSE;
+		}
 	    } else {
 		data = FALSE;
 	    }
@@ -598,7 +628,7 @@ void Chat(void)
     /*
      * Close server connection
      */
-    sprintf(buf, "CCLO,1,%d", mypid);
+    sprintf(buf, "CCLO,1,%d;", mypid);
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
@@ -694,10 +724,11 @@ int main(int argc, char *argv[])
 	mvprintw( 9, 6, "3.    View Filesystem Usage");
 	mvprintw(10, 6, "4.    View BBS System Information");
 	mvprintw(11, 6, "5.    View BBS Lastcallers List");
-	mvprintw(12, 6, "6.    Chat with user");
-	mvprintw(13, 6, "7.    View Software Information");
+	mvprintw(12, 6, "6.    Chat with any user");
+	mvprintw(13, 6, "7.    Respond to sysop page");
+	mvprintw(14, 6, "8.    View Software Information");
 
-	switch(select_menu(7)) {
+	switch(select_menu(8)) {
 	    case 0:
 		    die(0);
 		    break;
@@ -717,9 +748,12 @@ int main(int argc, char *argv[])
 		    ShowLastcaller();
 		    break;
 	    case 6:
-		    Chat();
+		    Chat(FALSE);
 		    break;
 	    case 7:
+		    Chat(TRUE);
+		    break;
+	    case 8:
 		    soft_info();
 		    break;
 	}

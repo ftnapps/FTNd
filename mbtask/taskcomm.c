@@ -262,9 +262,9 @@ char *exe_cmd(char *in)
     }
 
     /*
-     * CSYS:1,1;    Sysop available for chat (from mbmon)
-     * CSYS:1,0;    Sysop goes away (from mbmon)
-     * 100:0;	    Allways Ok.
+     * CSYS:2,pid,1;    Sysop available for chat (from mbmon)
+     * CSYS:2,pid,0;    Sysop goes away (from mbmon)
+     * 100:0;		Allways Ok.
      */
     if (strncmp(cmd, "CSYS", 4) == 0) {
 	reg_sysop(token);
@@ -306,11 +306,22 @@ char *exe_cmd(char *in)
     }
 
     /*
+     * Check for sysop in chatmode for forced sysop chat
+     *
+     * CISC:1,pid;
+     * 100:1,1;		    Yes (and drop into chatmode)
+     * 100:1,0;		    No
+     */
+    if (strncmp(cmd, "CISC", 4) == 0) {
+	return chat_checksysop(token);
+    }
+
+    /*
      * Connect to chatserver
      *
-     * CCON:2,pid,username; Connect to chatserver with username
-     * 100:1,error;	    If error
-     * 100:0;		    Ok
+     * CCON:3,pid,username,n;	Connect to chatserver with username, n=1 user is the sysop
+     * 100:1,error;		If error
+     * 100:0;			Ok
      */
     if (strncmp(cmd, "CCON", 4) == 0) {
 	return chat_connect(token);
@@ -331,7 +342,8 @@ char *exe_cmd(char *in)
      * Put message on server
      *
      * CPUT:2,pid,message;  Put message on server
-     * 100:1,error;	    Error
+     * 100:2,0,error;	    Error, not fatal and continue chat
+     * 100:2,1,error;	    Error, fatal and disconnect
      * 100:0;		    Ok
      */
     if (strncmp(cmd, "CPUT", 4) == 0) {
@@ -342,7 +354,8 @@ char *exe_cmd(char *in)
      * Get message from server
      *
      * CGET:1,pid;	    Get message from server
-     * 100:1,message;	    If message present
+     * 100:2,0,message;	    If message present
+     * 100:2,1,error;	    Error and disconnect
      * 100:0;		    No message
      */
     if (strncmp(cmd, "CGET", 4) == 0) {
@@ -524,6 +537,7 @@ char *exe_cmd(char *in)
      * If we got this far, there must be an error.
      */
     stat_inc_serr();
+    Syslog('!', "Comm systax error: \"%s:%s\"", cmd, printable(token, 0));
     return ebuf;
 }
 

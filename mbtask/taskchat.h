@@ -9,5 +9,6 @@ char *chat_connect(char *);
 char *chat_close(char *);
 char *chat_put(char *);
 char *chat_get(char *);
+char *chat_checksysop(char *);
 
 #endif

@@ -53,6 +53,7 @@ typedef struct _ch_user_rec {
     int		pointer;	    /* Message pointer			*/
     unsigned	chatting    : 1;    /* Is chatting in a channel		*/
     unsigned	chanop	    : 1;    /* Is a chanop			*/
+    unsigned	sysop	    : 1;    /* User is sysop in channel #sysop	*/
 } _chat_users;
 
 
@@ -118,16 +119,30 @@ void chat_msg(int, char *, char *);
 
 void chat_dump(void)
 {
-    int	    i;
+    int	    i, first;
     
+    first = TRUE;
     for (i = 0; i < MAXCLIENT; i++)
-	if (chat_users[i].pid)
-	    Syslog('u', "%5d %-36s %2d %s", chat_users[i].pid, chat_users[i].name, chat_users[i].channel,
-		chat_users[i].chatting?"True":"False");
+	if (chat_users[i].pid) {
+	    if (first) {
+		Syslog('u', "  pid username                             ch chats sysop");
+		Syslog('u', "----- ------------------------------------ -- ----- -----");
+		first = FALSE;
+	    }
+	    Syslog('u', "%5d %-36s %2d %s %s", chat_users[i].pid, chat_users[i].name, chat_users[i].channel,
+		chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
+	}
+    first = TRUE;
     for (i = 0; i < MAXCHANNELS; i++)
-	if (chat_channels[i].owner)
+	if (chat_channels[i].owner) {
+	    if (first) {
+		Syslog('c', "channel name         owner cnt activ");
+		Syslog('c', "-------------------- ----- --- -----");
+		first = FALSE;
+	    }
 	    Syslog('c', "%-20s %5d %3d %s", chat_channels[i].name, chat_channels[i].owner, chat_channels[i].users,
 		    chat_channels[i].active?"True":"False");
+	}
 }
 
 
@@ -329,10 +344,15 @@ char *chat_connect(char *data)
 {
     char	*pid, *usr;
     static char buf[200];
-    int		i, j, count = 0;
+    int		i, j, count = 0, sys = FALSE;
 
     Syslog('-', "CCON:%s", data);
     memset(&buf, 0, sizeof(buf));
+
+    if (IsSema((char *)"upsalarm")) {
+	sprintf(buf, "100:1,Power failure, running on UPS;");
+	return buf;
+    }
 
     /*
      * Search free userslot
@@ -342,16 +362,18 @@ char *chat_connect(char *data)
 	    /*
 	     * Oke, found
 	     */
-	    pid = strtok(data, ",");	/* Should be 2	    */
-	    pid = strtok(NULL, ",");	/* The pid	    */
-	    usr = strtok(NULL, ";");	/* Username	    */
+	    pid = strtok(data, ",");	    /* Should be 3  */
+	    pid = strtok(NULL, ",");	    /* The pid	    */
+	    usr = strtok(NULL, ",");	    /* Username	    */
+	    sys = atoi(strtok(NULL, ";"));  /* Sysop flag   */
 	    chat_users[i].pid = atoi(pid);
 	    strncpy(chat_users[i].name, usr, 36);
 	    chat_users[i].connected = time(NULL);
 	    chat_users[i].pointer = buffer_head;
 	    chat_users[i].channel = -1;
+	    chat_users[i].sysop = sys;
 
-	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d", usr, pid, i);
+	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d, sysop %s", usr, pid, i, sys ? "True":"False");
 
 	    /*
 	     * Now put welcome message into the ringbuffer and report success.
@@ -411,6 +433,11 @@ char *chat_put(char *data)
     Syslog('-', "CPUT:%s", data);
     memset(&buf, 0, sizeof(buf));
 
+    if (IsSema((char *)"upsalarm")) {
+	sprintf(buf, "100:2,1,Power alarm, running on UPS;");
+	return buf;
+    }
+
     pid = strtok(data, ",");
     pid = strtok(NULL, ",");
     msg = strtok(NULL, "\0");
@@ -421,7 +448,7 @@ char *chat_put(char *data)
 	    /*
 	     * We are connected and known, first send the input back to ourself.
 	     */
-	    system_msg(chat_users[i].pid, msg);
+//	    system_msg(chat_users[i].pid, msg);
 
 	    if (msg[0] == '/') {
 		/*
@@ -435,13 +462,9 @@ char *chat_put(char *data)
 		    (strncasecmp(msg, "/quit", 5) == 0) ||
 		    (strncasecmp(msg, "/bye", 4) == 0)) {
 		    part(chat_users[i].pid, (char *)"Quitting");
-		    /*
-		     * Just send messages, the client should later do a
-		     * real disconnect.
-		     */
 		    sprintf(buf, "Goodbye");
 		    system_msg(chat_users[i].pid, buf);
-		    goto ack;
+		    goto hangup;
 		}
 		if (strncasecmp(msg, "/join", 5) == 0) {
 		    cmd = strtok(msg, " \0");
@@ -492,11 +515,15 @@ char *chat_put(char *data)
 	}
     }
     Syslog('-', "Pid %s was not connected to chatserver");
-    sprintf(buf, "100:1,ERROR - Not connected to server;");
+    sprintf(buf, "100:2,1,ERROR - Not connected to server;");
     return buf;
 
 ack:
     sprintf(buf, "100:0;");
+    return buf;
+
+hangup:
+    sprintf(buf, "100:2,1,Disconnecting;");
     return buf;
 }
 
@@ -509,6 +536,12 @@ char *chat_get(char *data)
     int		i;
 
 //    Syslog('-', "CGET:%s", data);
+    
+    if (IsSema((char *)"upsalarm")) {
+	sprintf(buf, "100:2,1,Power failure, running on UPS;");
+	return buf;
+    }
+
     memset(&buf, 0, sizeof(buf));
     pid = strtok(data, ",");
     pid = strtok(NULL, ";");
@@ -524,7 +557,7 @@ char *chat_get(char *data)
 		    /*
 		     * Message is for us.
 		     */
-		    sprintf(buf, "100:1,%s;", chat_messages[chat_users[i].pointer].message);
+		    sprintf(buf, "100:2,0,%s;", chat_messages[chat_users[i].pointer].message);
 		    Syslog('-', "%s", buf);
 		    return buf;
 		}
@@ -533,7 +566,44 @@ char *chat_get(char *data)
 	    return buf;
 	}
     }
-    sprintf(buf, "100:1,ERROR - Not connected to server;");
+    sprintf(buf, "100:2,1,ERROR - Not connected to server;");
+    return buf;
+}
+
+
+
+/*
+ * Check for sysop present for forced chat
+ */
+char *chat_checksysop(char *data)
+{
+    static char	buf[20];
+    char	*pid;
+    int		i;
+
+    memset(&buf, 0, sizeof(buf));
+    pid = strtok(data, ",");
+    pid = strtok(NULL, ";");
+
+    if (reg_ispaging(pid)) {
+	Syslog('-', "Check sysopchat for pid %s, user has paged", pid);
+
+	/*
+	 * Now check if sysop is present in the sysop channel
+	 */
+	for (i = 0; i < MAXCLIENT; i++) {
+	    if (atoi(pid) != chat_users[i].pid) {
+		if (chat_users[i].chatting && chat_users[i].sysop) {
+		    Syslog('-', "Sending ACK on check");
+		    sprintf(buf, "100:1,1;");
+		    reg_sysoptalk(pid);
+		    return buf;
+		}
+	    }
+	}
+    }
+
+    sprintf(buf, "100:1,0;");
     return buf;
 }
 

@@ -198,7 +198,7 @@ void Page_Sysop(char *String)
 		    /*
 		     * First cancel page request
 		     */
-		    sprintf(buf, "CCAN:1,%d", mypid);
+		    sprintf(buf, "CCAN:1,%d;", mypid);
 		    socket_send(buf);
 		    socket_receive();
 		    Syslog('+', "Sysop responded to paging request");
@@ -212,7 +212,7 @@ void Page_Sysop(char *String)
 	/*
 	 * Cancel page request
 	 */
-	sprintf(buf, "CCAN:1,%d", mypid);
+	sprintf(buf, "CCAN:1,%d;", mypid);
 	socket_send(buf);
 	strcpy(buf, socket_receive());
     }

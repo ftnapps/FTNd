@@ -99,7 +99,6 @@ int reg_newcon(char *data)
     reginfo[retval].started = time(NULL); 
     reginfo[retval].lastcon = time(NULL);
     reginfo[retval].altime = 600;
-    reginfo[retval].channel = -1;	/* Default chat channel	*/
 
     /*
      * Everyone says do not disturb, unless the flag
@@ -372,17 +371,6 @@ int reg_sysop(char *data)
     sysop_present = atoi(strtok(NULL, ";"));
  
     if ((rec = reg_find(pid)) != -1) {
-	if (sysop_present) {
-	    /*
-	     * Allthough the sysop is not really chatting, still put channel 0
-	     * into chatmode for the sysop's process.
-	     */
-	    reginfo[rec].channel = 0;
-	    reginfo[rec].chatting = TRUE;
-	} else {
-	    reginfo[rec].channel = -1;
-	    reginfo[rec].chatting = FALSE;
-	}
 	reginfo[rec].lastcon = time(NULL);
     }
 
@@ -587,13 +575,11 @@ int reg_page(char *data)
 	return 2;
 
     /*
-     * Check if another user is pagin the sysop or is already
-     * chatting with the sysop, if so, mark sysop busy.
+     * Check if another user is paging the sysop or has paged the sysop.
+     * If so, mark sysop busy.
      */
     for (i = 1; i < MAXCLIENT; i++) {
-	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].channel == 0) && (reginfo[i].chatting))
-	    return 1;
-	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging))
+	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging || reginfo[i].haspaged))
 	    return 1;
     }
 
@@ -604,7 +590,6 @@ int reg_page(char *data)
      * All seems well, accept the page
      */
     reginfo[rec].paging = TRUE;
-    reginfo[rec].channel = 0;
     strncpy(reginfo[rec].reason, reason, 80);
     reginfo[rec].lastcon = time(NULL);
     return 0;
@@ -623,7 +608,7 @@ int reg_cancel(char *data)
     cnt = strtok(data, ",");
     pid = strtok(NULL, ";");
 
-    Syslog('+', "reg_cancel: pid=%d", pid);
+    Syslog('+', "reg_cancel: pid=%s", pid);
 
     if ((rec = reg_find(pid)) == -1)
 	return -1;
@@ -631,7 +616,6 @@ int reg_cancel(char *data)
     if (reginfo[rec].paging) {
 	reginfo[rec].paging = FALSE;
 	reginfo[rec].haspaged = TRUE;
-	reginfo[rec].channel = -1;
     }
     reginfo[rec].lastcon = time(NULL);
     return 0;
@@ -660,6 +644,37 @@ char *reg_checkpage(char *data)
     }
     sprintf(buf, "100:0;");
     return buf;
+}
+
+
+
+/*
+ * Check if this user has paged or is paging
+ */
+int reg_ispaging(char *pid)
+{
+    int	    rec;
+    
+    if ((rec = reg_find(pid)) == -1)
+	return FALSE;
+
+    return (reginfo[rec].paging || reginfo[rec].haspaged);
+}
+
+
+
+/*
+ * Mark that this user is now talking to the sysop
+ */
+void reg_sysoptalk(char *pid)
+{
+    int	    rec;
+
+    if ((rec = reg_find(pid)) == -1)
+	return;
+
+    reginfo[rec].paging = FALSE;
+    reginfo[rec].haspaged = FALSE;
 }
 
 
