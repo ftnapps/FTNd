@@ -177,7 +177,9 @@ AC_PATH_PROG(SB,sb)
 AC_PATH_PROG(RZ,rz)
 AC_PATH_PROG(SZ,sz)
 AC_PATH_PROG(GOLDEDBIN,golded)
+AC_PATH_PROG(GOLDEDBIN,gedlnx)
 AC_PATH_PROG(GOLDNODE,goldnode)
+AC_PATH_PROG(GOLDNODE,gnlnx)
 
 dnl
 AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
