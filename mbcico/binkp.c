@@ -108,13 +108,22 @@ typedef enum {InitTransfer, Switch, Receive, Transmit} TransferType;
 typedef enum {Ok, Failure, Continue} TrType;
 typedef enum {No, WeCan, WeWant, TheyWant, Active} OptionState;
 
+static char *rxstate[] = { (char *)"RxWaitFile", (char *)"RxAccpetFile", (char *)"RxReceData", 
+			   (char *)"RxWriteData", (char *)"RxEndOfBatch", (char *)"RxDone" };
+static char *txstate[] = { (char *)"TxGetNextFile", (char *)"TryRread", (char *)"ReadSent", 
+			   (char *)"WaitLastAck", (char *)"TxDone" };
+//static char *tfstate[] = { (char *)"InitTransfer", (char *)"Switch", (char *)"Receive", (char *)"Transmit" };
+//static char *trstate[] = { (char *)"Ok", (char *)"Failure", (char *)"Continue" };
+static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
+
+
 static int	RxState;			/* Receiver state		    */
 static int	TxState;			/* Transmitter state		    */
 //static int	TfState;
 static time_t	Timer;
-static int	MBflag = WeCan;			/* MB option flag		    */
+static int	MBflag = No;			/* MB option flag		    */
 static int	CRAMflag = FALSE;		/* CRAM option flag		    */
-static int	CRCflag = WeCan;		/* CRC option flag		    */
+static int	CRCflag = No;			/* CRC option flag		    */
 static int	Major = 1;			/* Remote major protocol version    */
 static int	Minor = 0;			/* Remote minor protocol version    */
 static int	Secure = FALSE;			/* Secure session		    */
@@ -124,6 +133,13 @@ int		batchnr = 0, crc_errors = 0;
 unsigned char	*MD_challenge = NULL;		/* Received CRAM challenge data	    */
 int		ext_rand = 0;
 
+long		rsize;				/* Receiver filesize		    */
+long		roffs;				/* Receiver offset		    */
+char		*rname;				/* Receiver filename		    */
+time_t		rtime;				/* Receiver filetime		    */
+unsigned long	rcrc;				/* Receiver crc			    */
+
+
 
 int binkp(int role)
 {
@@ -131,6 +147,12 @@ int binkp(int role)
     fa_list	*eff_remote;
     file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
     char	*nonhold_mail;
+
+    MBflag = WeCan;
+    if (CFG.NoCRC32)
+	CRCflag = No;
+    else
+	CRCflag = WeCan;
 
     most_debug = TRUE;
     if (role == 1) {
@@ -225,13 +247,6 @@ int binkp(int role)
 
     rc = abs(rc);
     return rc;
-}
-
-
-
-int resync(off_t off)
-{
-    return 0;
 }
 
 
@@ -388,6 +403,19 @@ void binkp_send_control(int id,...)
 
 
 
+int resync(off_t off)
+{
+    Syslog('b', "Binkp: resync(%d)", off);
+    if (CRCflag == Active) {
+	binkp_send_control(MM_GET, "%s %ld %ld %ld %lx", rname, &rsize, &rtime, &roffs, &rcrc);
+    } else {
+	binkp_send_control(MM_GET, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
+    }
+    return 0; 
+}
+
+
+
 /*
  *  Receive control frame
  */
@@ -498,10 +526,12 @@ void b_nul(char *msg)
 	    Syslog('b', "Remote requests MB, current state = %d", MBflag);
 	    if (MBflag == WeCan) {	    /* Answering session and do binkp/1.0   */
 		MBflag = TheyWant;
-		Syslog('b', "MB flag set to TheyWant");
+		Syslog('b', "MBflag WeCan => TheyWant");
 	    } else if (MBflag == WeWant) {  /* Originating session and do binkp/1.0 */
 		MBflag = Active;
-		Syslog('b', "MB flag set to Active");
+		Syslog('b', "MBflag WeWant => Active");
+	    } else {
+		Syslog('b', "MBflag is %s and received MB option", opstate[MBflag]);
 	    }
 	}
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
@@ -513,8 +543,16 @@ void b_nul(char *msg)
 		MD_challenge = MD_getChallenge(msg, NULL);
 	    }
 	}
-	if ((strstr(msg, (char *)"CRC") != NULL) && (CRCflag == WeCan)) {
-	    CRCflag = TheyWant;
+	if (strstr(msg, (char *)"CRC") != NULL) {
+	    if (CRCflag == WeCan) {
+		CRCflag = TheyWant;
+		Syslog('b', "CRCflag WeCan => TheyWant");
+	    } else if (CRCflag == WeWant) {
+		CRCflag = Active;
+		Syslog('b', "CRCflag WeWant => Active");
+	    } else {
+		Syslog('b', "CRCflag is %s and received CRC option", opstate[CRCflag]);
+	    }
 	}
     } else
 	Syslog('+', "Binkp: M_NUL \"%s\"", msg);
@@ -562,13 +600,21 @@ SM_STATE(WaitConn)
     Loaded = FALSE;
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
+
+    /*
+     * Build options we want
+     */
     p = xstrcpy((char *)"OPT");
     if (MBflag == WeCan) {
 	p = xstrcat(p, (char *)" MB");
 	MBflag = WeWant;
+	Syslog('b', "MBflag WeCan => WeWant");
     }
-    if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32)
+    if ((noderecord(remote->addr)) && nodes.CRC32 && (CRCflag == WeCan)) {
 	p = xstrcat(p, (char *)" CRC");
+	CRCflag = WeWant;
+	Syslog('b', "CRCflag WeCan => WeWant");
+    }
     if (strcmp(p, (char *)"OPT"))
 	binkp_send_control(MM_NUL, p);
     free(p);
@@ -1085,12 +1131,12 @@ int binkp_batch(file_list *to_send, int role)
     int		    rc = 0, NotDone, rxlen = 0, txlen = 0, rxerror = FALSE;
     static char	    *txbuf, *rxbuf;
     FILE	    *txfp = NULL, *rxfp = NULL;
-    long	    txpos = 0, rxpos = 0, stxpos = 0, written, rsize, roffs, lsize, gsize, goffset;
+    long	    txpos = 0, rxpos = 0, stxpos = 0, written, lsize, gsize, goffset;
     int		    sverr, cmd = FALSE, GotFrame = FALSE, blklen = 0, c, Found = FALSE;
     unsigned short  header = 0;
-    char	    *rname, *lname, *gname;
-    time_t	    rtime, ltime, gtime;
-    unsigned long   rcrc = 0, tcrc = 0, rxcrc = 0;
+    char	    *lname, *gname;
+    time_t	    ltime, gtime;
+    unsigned long   tcrc = 0, rxcrc = 0;
     off_t	    rxbytes;
     binkp_list	    *bll = NULL, *tmp, *tmpg, *cursend = NULL;
     file_list	    *tsl;
@@ -1103,6 +1149,7 @@ int binkp_batch(file_list *to_send, int role)
     txtvstart.tv_sec = txtvstart.tv_usec = 0;
     txtvend.tv_sec   = txtvend.tv_usec   = 0;
     tz.tz_minuteswest = tz.tz_dsttime = 0;
+    rcrc = 0;
 
     batchnr++;
     Syslog('+', "Binkp: starting batch %d", batchnr);
@@ -1137,7 +1184,7 @@ int binkp_batch(file_list *to_send, int role)
 	Nopper();
 	if (binkp_expired()) {
 	    Syslog('!', "Binkp: Transfer timeout");
-	    Syslog('b', "Binkp: TxState=%d, RxState=%d, rxlen=%d", TxState, RxState, rxlen);
+	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[TxState], rxstate[RxState], rxlen);
 	    RxState = RxDone;
 	    TxState = TxDone;
 	    binkp_send_control(MM_ERR, "Transfer timeout");
@@ -1520,6 +1567,7 @@ int binkp_batch(file_list *to_send, int role)
 		    binkp_send_control(MM_SKIP, "%s %ld %ld", rname, rsize, rtime);
 		RxState = RxWaitFile;
 	    } else {
+		Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", rsize, rxbytes, roffs);
 		RxState = RxReceData;
 	    }
 	    break;

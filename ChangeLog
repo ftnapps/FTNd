@@ -39,6 +39,8 @@ v0.37.7		09-Sep-2003
 
 	mbcico:
 		Fixed MB state error from the previous version.
+		Added more code to debug the broken transfer problem.
+		Add attempt to send a resync command, please test.
 
 	mbtask:
 		Added support for debug logfile. Dropped the debug switch for
