@@ -4717,6 +4717,7 @@ v0.33.20        10-Feb-2002
 		that has a header line starting with X-MS-, the headerline is
 		supressed because there is no key for this header. This looks
 		like a new kind of M$ standard. mbnews crashed on this one.
+		Fixed a small problem in magic filename testing.
 
 	mbfile:
 		The mbfile index command now creates the html pages using the

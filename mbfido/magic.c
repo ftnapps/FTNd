@@ -100,82 +100,77 @@ char *Magic_Macro(int C)
 
 int GetMagicRec(int Typ, int First)
 {
-	int	Eof = FALSE, DoMagic = TRUE;
-	int	i;
-	char	*temp;
-	FILE	*FeM;
+    int	    Eof = FALSE, DoMagic = TRUE;
+    int	    i;
+    char    *temp;
+    FILE    *FeM;
 
-	if (First)
-		MagicNr = 0;
+    if (First)
+	MagicNr = 0;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	if ((FeM = fopen(temp, "r")) == NULL) {
-		Syslog('+', "Huh? No magic file? (%s)", temp);
-		free(temp);
-		return FALSE;
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+    if ((FeM = fopen(temp, "r")) == NULL) {
+	Syslog('+', "Huh? No magic file? (%s)", temp);
+	free(temp);
+	return FALSE;
+    }
+
+    fread(&magichdr, sizeof(magichdr), 1, FeM);
+
+    do {
+	if (fseek(FeM, magichdr.hdrsize + (MagicNr * magichdr.recsize), SEEK_SET) != 0) {
+	    WriteError("$Can't seek record %ld in %s", MagicNr, temp);
+	    free(temp);
+	    fclose(FeM);
+	    return FALSE;
 	}
 
-	fread(&magichdr, sizeof(magichdr), 1, FeM);
+	MagicNr++;
 
-	do {
-		if (fseek(FeM, magichdr.hdrsize + (MagicNr * magichdr.recsize), SEEK_SET) != 0) {
-			WriteError("$Can't seek record %ld in %s", MagicNr, temp);
-			free(temp);
-			fclose(FeM);
-			return FALSE;
-		}
+	if (fread(&magic, magichdr.recsize, 1, FeM) == 1) {
 
-		MagicNr++;
+	    if ((magic.Active) && (magic.Attrib == Typ) && (strcasecmp(magic.From, TIC.TicIn.Area) == 0)) {
 
-		if (fread(&magic, magichdr.recsize, 1, FeM) == 1) {
+		/*
+		 * Comparing of the filename must be done in 
+		 * two parts, before and after the dot.
+		 */
+		if (strlen(magic.Mask) == strlen(TIC.NewName)) {
+		    for (i = 0; i < strlen(magic.Mask); i++) {
+			switch (magic.Mask[i]) {
+			    case '?':	break;
+			    case '@':	if (!isalpha(TIC.NewName[i]))
+					    DoMagic = FALSE;
+					break;
+			    case '#':	if (!isdigit(TIC.NewName[i]))
+					    DoMagic = FALSE;
+					break;
 
-			if ((magic.Active) && (magic.Attrib == Typ) &&
-			    (strcmp(magic.From, TIC.TicIn.Area) == 0)) {
-
-				/*
-				 * Comparing of the filename must be done in 
-				 * two parts, before and after the dot.
-				 */
-				if (strlen(magic.Mask) == strlen(TIC.NewName)) {
-					for (i = 0; i < strlen(magic.Mask); i++) {
-						switch (magic.Mask[i]) {
-							case '?':
-								break;
-
-							case '@':
-								if ((TIC.NewName[i] < 'a') || (TIC.NewName[i] > 'z'))
-									DoMagic = FALSE;
-								break;
-
-							case '#':
-								if ((TIC.NewName[i] < '0') || (TIC.NewName[i] > '9'))
-									DoMagic = FALSE;
-								break;
-
-							default:
-								if (TIC.NewName[i] != magic.Mask[i])
-									DoMagic = FALSE;
-						}
-					}
-				}
-
-				if (DoMagic) {
-					fclose(FeM);
-					free(temp);
-					return TRUE;
-				}
+			    default:	if (toupper(TIC.NewName[i]) != toupper(magic.Mask[i]))
+					    DoMagic = FALSE;
 			}
-
+		    }
 		} else {
-			Eof = TRUE;
+		    DoMagic = FALSE;
 		}
 
-	} while (!Eof);
+		if (DoMagic) {
+		    fclose(FeM);
+		    free(temp);
+		    return TRUE;
+		}
+	    }
 
-	free(temp);
-	fclose(FeM);
-	return FALSE;
+	} else {
+	    Eof = TRUE;
+	}
+
+    } while (!Eof);
+
+    free(temp);
+    fclose(FeM);
+    return FALSE;
 }
 
 
