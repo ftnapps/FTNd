@@ -36,6 +36,7 @@ v0.61.3		25-Jul-2004
 	mbtask:
 		Added defaults for questions for screenlen, newmail chack and
 		newfiles check.
+		When calling mbcico the address passed is now 5d.
 
 	mbsetup:
 		In menu 1.7 added 3 new items to ask new users for screenlen,

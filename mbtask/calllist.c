@@ -77,7 +77,7 @@ int check_calllist(void)
 		}
 	    }
 	    if (!found) {
-		Syslog('c', "Removing slot %d node %s from calllist", i, fido2str(calllist[i].addr, 0x0f));
+		Syslog('c', "Removing slot %d node %s from calllist", i, fido2str(calllist[i].addr, 0x01f));
 		memset(&calllist[i], 0, sizeof(tocall));
 	    }
 	}

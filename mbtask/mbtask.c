@@ -1335,11 +1335,12 @@ void *scheduler(void)
 					    break;
 			}
 			if (calllist[call_entry].addr.point) {
-			    sprintf(opts, "%sp%u.f%u.n%u.z%u", port, calllist[call_entry].addr.point, 
-				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, calllist[call_entry].addr.zone);
+			    sprintf(opts, "%sp%u.f%u.n%u.z%u.%s", port, calllist[call_entry].addr.point, 
+				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, 
+				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			} else {
-			    sprintf(opts, "%sf%u.n%u.z%u", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
-				    calllist[call_entry].addr.zone);
+			    sprintf(opts, "%sf%u.n%u.z%u.%s", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+				    calllist[call_entry].addr.zone, calllist[call_entry].addr.domain);
 			}
 			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
 			if (calllist[call_entry].taskpid)
