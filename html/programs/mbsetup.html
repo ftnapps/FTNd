@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 31-Jan-2001</h5>
+<h5>Last update 25-Oct-2001</h5>
 <P>&nbsp;<P>
 
 <H1>mbsetup - The Setup Program</H1>
@@ -19,16 +19,21 @@
 
 <H3>Synopsis.</H3>
 <P>
-<code><strong>mbsetup</strong></code>
+<code><strong>mbsetup</strong> [init]</code>
 <P>&nbsp;<P>
 
 <H3>Description.</H3>
 <P>
 <strong>mbsetup</strong> is the setup program for MBSE BBS. It should be run
-only by user <strong>mbse</strong>. If you run it by accident as root file
-permissions will be wrong and your bbs may not function. For a detailed
-description of all setup options see <A HREF="../setup/index.htm">MBSE BBS
-Setup Guide</A>
+only by user <strong>mbse</strong> and it fails to start if you are not. 
+If it is started with the optional paramater <b>init</b> only the databases are
+initialized. This is automagic done by <b>mbtask</b> when you start the system
+for the very first time. You should never need to use this switch. 
+When <b>mbsetup</b> is started without arguments the databases will be checked
+and initialized before the main screen is displayed.
+Both methods are being used to make sure all needed databases excist.
+For a detailed description of all setup options see 
+<A HREF="../setup/index.htm">MBSE BBS Setup Guide</A>
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>

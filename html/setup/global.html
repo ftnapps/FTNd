@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -60,6 +60,8 @@ be discussed below.
 <strong>Inbound           </strong>The unprotected fidonet inbound
 <strong>Prot inb.         </strong>The (password) protected fidonet inbound
 <strong>Outbound          </strong>The outbound for the main aka
+<strong>*.msgs            </strong>A netmail directory from where *.msg mails are tossed
+                  These are *.msg files can be created by several doors. (Not in use yet)
 <strong>Bad TIC's         </strong>Where bad TIC files are saved
 <strong>TIC queue         </strong>Where TIC files for downlinks are kept
 <strong>Magic's           </strong>Where the magic filerequests are kept
@@ -76,7 +78,8 @@ directory. To set this up correctly is also important if you use other mailers
 as well, for example binkd, or even a DOS binkly-style mailer running from
 a network. All those mailer must "see" the same file attaches in the .flo
 files. If you leave the DOS path empty, no translation will be performed
-and the Unix paths will be stored in the .flo files.
+and the Unix paths will be stored in the .flo files. This is the best setting
+if mbsebbs is the only mailer running on your system.
 <P>
 
 <h3>1.4. Edit BBS Configuration</H3>
@@ -107,11 +110,8 @@ and the Unix paths will be stored in the .flo files.
 </pre>
 The minimum diskspace setting is to prevent that files get corrupted if your filesystem
 is full. All drives are checked except CD-roms and floppies and the /boot directory if that
-one is on a separate filesystem. Ext2, msdos and vfat partitions
+one is on a separate filesystem. Ext2, reiserfs, msdos and vfat partitions
 are checked. The lowest free diskspace found counts. Default is 10 MB.
-Note, Reiserfs is not supported at this moment because I don't have access to a
-system with reisefs volumes. This means that if you use Reiserfs that you are not
-protected against a full filesystem.
 <p>
 
 <h3>1.5. New users defaults.</h3>
@@ -399,7 +399,7 @@ carrier select functions.
 <p>
 A new program is <strong>mbftpd</strong>. This is a replacement for the normal
 ftp server for Linux with special futures for MBSE BBS. This is not working
-yet so don't use it. Setting it up is adviced.
+yet and is not included in the distribution. Setting it up is adviced.
 <pre>
 <strong>Base path         </strong>The ftp base directory (ie. /SYS/usr/ftp).
 <strong>Upload pth        </strong>Incoming files (ie. /SYS/usr/ftp/incoming).
