@@ -1320,7 +1320,7 @@ int NodeInMarea(fidoaddr A)
 
 void gold_areas(FILE *fp)
 {
-	char	*temp;
+	char	*temp, *aka;
 	FILE	*no;
 	int	i = 0;
 
@@ -1353,7 +1353,9 @@ void gold_areas(FILE *fp)
 				case ECHOMAIL	: fprintf(fp, "C Echo");	break;
 				case NEWS	: fprintf(fp, "I News");	break;
 			}
-			fprintf(fp, " JAM %s . ", msgs.Base);
+			aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
+			fprintf(fp, " JAM %s %s ", msgs.Base, aka);
+			free(aka);
 			if (msgs.Type == NETMAIL)
 				fprintf(fp, "(Loc Pvt)");
 			else
