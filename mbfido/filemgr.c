@@ -68,11 +68,11 @@ extern	int	echo_bad;		/* Bad fileecho			    */
 extern	int	echo_dupe;		/* Dupe fileecho		    */
 
 int	filemgr = 0;			/* Nr of FileMgr messages	    */
-int	f_help  = FALSE;
-int	f_list	= FALSE;
-int	f_query = FALSE;
-int	f_stat	= FALSE;
-int	f_unlnk	= FALSE;
+int	f_help  = FALSE;		/* Send FileMgr help		    */
+int	f_list	= FALSE;		/* Send FileMgr list		    */
+int	f_query = FALSE;		/* Send FileMgr query		    */
+int	f_stat	= FALSE;		/* Send FileMgr status		    */
+int	f_unlnk	= FALSE;		/* Send FileMgr unlink		    */
 
 
 
@@ -101,8 +101,8 @@ void F_Help(faddr *t, char *replyid)
 	fprintf(fp, "%%UNLINKED             To request a list of available fileecho areas\r");
 	fprintf(fp, "                      to which you are not already connected\r");
 	fprintf(fp, "%%STATUS               To request a status report for your system\r");
-//	fprintf(fp, "%%PAUSE                To temporary disconnect from the connected areas\r");
-//	fprintf(fp, "%%RESUME               To reconnect the temporary disconnected areas\r);
+	fprintf(fp, "%%PAUSE                To temporary disconnect from the connected areas\r");
+	fprintf(fp, "%%RESUME               To reconnect the temporary disconnected areas\r");
 	fprintf(fp, "%%PWD=newpwd           To set a new AreaMgr and FileMgr password\r");
 //	fprintf(fp, "%%RESCAN <area>        To request all files from 'area' again\r");
 	fprintf(fp, "%%MESSGAE=On/Off       To switch the message function on or off\r");
@@ -149,14 +149,24 @@ void F_Query(faddr *t, char *replyid)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", replyid)) != NULL) {
 
 	temp = calloc(PATH_MAX, sizeof(char));
-
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	fp = fopen(temp, "r");
+	if ((fp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&tichdr, sizeof(tichdr), 1, fp);
 	Cons = tichdr.syssize / sizeof(System);
+	
 	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(fp);
+	    return;
+	}
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all connected file areas\r\r");
 
@@ -227,7 +237,6 @@ void F_Query(faddr *t, char *replyid)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -252,15 +261,26 @@ void F_List(faddr *t, char *replyid, int Notify)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", replyid)) != NULL) {
 
 	WriteFileGroups(qp, f);
-	temp = calloc(PATH_MAX, sizeof(char));
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	fp = fopen(temp, "r");
+	if ((fp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&tichdr, sizeof(tichdr), 1, fp);
 	Cons = tichdr.syssize / sizeof(System);
+
 	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(fp);
+	    return;
+	}
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all file areas\r\r");
 
@@ -326,7 +346,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -366,10 +385,14 @@ void F_Status(faddr *t, char *replyid)
 
 	fprintf(fp, "                 Last week  Last month Total ever\r");
 	fprintf(fp, "                 ---------- ---------- ----------\r");
-	fprintf(fp, "Files sent       %-10ld %-10ld %-10ld\r", nodes.FilesSent.lweek, nodes.FilesSent.month[i], nodes.FilesSent.total);
-	fprintf(fp, "KBytes sent      %-10ld %-10ld %-10ld\r", nodes.F_KbSent.lweek,  nodes.F_KbSent.month[i],  nodes.F_KbSent.total);
-	fprintf(fp, "Files received   %-10ld %-10ld %-10ld\r", nodes.FilesRcvd.lweek, nodes.FilesRcvd.month[i], nodes.FilesRcvd.total);
-	fprintf(fp, "KBytes received  %-10ld %-10ld %-10ld\r", nodes.F_KbRcvd.lweek,  nodes.F_KbRcvd.month[i],  nodes.F_KbRcvd.total);
+	fprintf(fp, "Files sent       %-10ld %-10ld %-10ld\r", nodes.FilesSent.lweek, 
+				    nodes.FilesSent.month[i], nodes.FilesSent.total);
+	fprintf(fp, "KBytes sent      %-10ld %-10ld %-10ld\r", nodes.F_KbSent.lweek,  
+				    nodes.F_KbSent.month[i],  nodes.F_KbSent.total);
+	fprintf(fp, "Files received   %-10ld %-10ld %-10ld\r", nodes.FilesRcvd.lweek, 
+				    nodes.FilesRcvd.month[i], nodes.FilesRcvd.total);
+	fprintf(fp, "KBytes received  %-10ld %-10ld %-10ld\r", nodes.F_KbRcvd.lweek,  
+				    nodes.F_KbRcvd.month[i],  nodes.F_KbRcvd.total);
 
 	fprintf(fp, "\rWith regards, %s\r\r", CFG.sysop_name);
 
@@ -398,14 +421,24 @@ void F_Unlinked(faddr *t, char *replyid)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", replyid)) != NULL) {
 
 	temp = calloc(PATH_MAX, sizeof(char));
-
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	fp = fopen(temp, "r");
+	if ((fp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&tichdr, sizeof(tichdr), 1, fp);
 	Cons = tichdr.syssize / sizeof(System);
+	
 	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(fp);
+	    return;
+	}
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all available file areas\r\r");
 
@@ -474,18 +507,8 @@ void F_Unlinked(faddr *t, char *replyid)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
-}
-
-
-
-void F_Global(faddr *, char *, FILE *);
-void F_Global(faddr *t, char *Cmd, FILE *tmp)
-{
-	ShiftBuf(Cmd, 1);
-	Syslog('m', "  FileMgr node %s global %s", ascfnode(t, 0x1f), Cmd);
 }
 
 
@@ -500,7 +523,9 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     Syslog('+', "FileMgr: %s", Area);
     ShiftBuf(Area, 1);
-
+    for (i = 0; i < strlen(Area); i++)
+	Area[i] = toupper(Area[i]);
+    
     if (!SearchTic(Area)) {
 	fprintf(tmp, "Area %s not found\n", Area);
 	Syslog('+', "  Area not found");
@@ -571,6 +596,8 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (Area[0] == '+')
 	ShiftBuf(Area, 1);
+    for (i = 0; i < strlen(Area); i++)
+	Area[i] = toupper(Area[i]);
 
     if (!SearchTic(Area)) {
 	fprintf(tmp, "Area %s not found\n", Area);
@@ -640,7 +667,7 @@ void F_All(faddr *, int, FILE *, char *);
 void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 {
     FILE	*fp, *gp;
-    char	*Group, temp[PATH_MAX];
+    char	*Group, *temp;
     faddr	*f;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
@@ -659,13 +686,25 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     }
 
     f = bestaka_s(t);
+    temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-    fp = fopen(temp, "r+");
+    if ((fp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return;
+    }
     fread(&tichdr, sizeof(tichdr), 1, fp);
     Cons = tichdr.syssize / sizeof(Sys);
+
     sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-    gp = fopen(temp, "r");
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	fclose(fp);
+	return;
+    }
     fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+    free(temp);
 
     while (TRUE) {
 	Group = GetNodeFileGrp(First);
@@ -736,8 +775,12 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 void F_Group(faddr *, char *, int, FILE *);
 void F_Group(faddr *t, char *Area, int Connect, FILE *tmp)
 {
+    int	    i;
+    
     ShiftBuf(Area, 2);
     CleanBuf(Area);
+    for (i = 0; i < strlen(Area); i++)
+	Area[i] = toupper(Area[i]);
     F_All(t, Connect, tmp, Area);
 }
 
@@ -746,10 +789,48 @@ void F_Group(faddr *t, char *Area, int Connect, FILE *tmp)
 void F_Pause(faddr *, int, FILE *);
 void F_Pause(faddr *t, int Pause, FILE *tmp)
 {
+    FILE	*fp;
+    faddr	*f;
+    int		i, Cons;
+    sysconnect	Sys;
+    char	*temp;
+    
     if (Pause)
 	Syslog('+', "FileMgr: Pause");
     else
 	Syslog('+', "FileMgr: Resume");
+
+    f = bestaka_s(t);
+    Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return;
+    }
+    fread(&tichdr, sizeof(tichdr), 1, fp);
+    Cons = tichdr.syssize / sizeof(Sys);
+
+    while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
+	if (tic.Active) {
+	    for (i = 0; i < Cons; i++) {
+		fread(&Sys, sizeof(Sys), 1, fp);
+		if ((metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) && (!Sys.cutoff)) {
+		    Sys.pause = Pause;
+		    fseek(fp, - sizeof(Sys), SEEK_CUR);
+		    fwrite(&Sys, sizeof(Sys), 1, fp);
+		    Syslog('+', "FileMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
+		    fprintf(tmp, "%s area %s\n", Pause?"Pause":"Resume", msgs.Tag);
+		    f_list = TRUE;
+		}
+	    }
+	} else {
+	    fseek(fp, tichdr.syssize, SEEK_CUR);
+	}
+    }
+    fclose(fp);
 }
 
 
@@ -898,8 +979,6 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		F_Message(f, Buf, tmp);
 	    else if (!strncasecmp(Buf, "%tick", 5))
 		F_Tick(f, Buf, tmp);
-	    else if (*(Buf) == '%')
-		F_Global(f, Buf, tmp);
 	    else if (*(Buf) == '-')
 		F_Disconnect(f, Buf, tmp);
 	    else

@@ -631,15 +631,6 @@ void A_Unlinked(faddr *t, char *replyid)
 
 
 
-void A_Global(faddr *, char *, FILE *);
-void A_Global(faddr *t, char *Cmd, FILE *tmp)
-{
-    ShiftBuf(Cmd, 1);
-    Syslog('m', "  AreaMgr node %s global %s", ascfnode(t, 0x1f), Cmd);
-}
-
-
-
 void A_Disconnect(faddr *, char *, FILE *);
 void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 {
@@ -1016,7 +1007,6 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     int		i, rc = 0, spaces;
     char	*Buf;
     FILE	*tmp, *np;
-    fidoaddr	Node;
 
     a_help = a_stat = a_unlnk = a_list = a_query = FALSE;
     areamgr++;
@@ -1048,8 +1038,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	/*
 	 * Make sure we have the nodes record loaded
 	 */
-	memcpy(&Node, faddr2fido(f), sizeof(fidoaddr));
-	SearchNode(Node);
+	SearchNodeFaddr(f);
 
 	spaces = 0;
 	for (i = 0; i < strlen(Buf); i++) {
@@ -1110,8 +1099,6 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		MgrPasswd(f, Buf, tmp, 4);
 	    else if (!strncasecmp(Buf, "%notify", 7))
 		MgrNotify(f, Buf, tmp);
-	    else if (*(Buf) == '%')
-		A_Global(f, Buf, tmp);
 	    else if (*(Buf) == '-')
 		A_Disconnect(f, Buf, tmp);
 	    else

@@ -189,8 +189,6 @@ void CleanBuf(char *Buf)
  */
 void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
 {
-	fidoaddr	Node;
-
 	ShiftBuf(Buf, Len);
 	CleanBuf(Buf);
 
@@ -205,8 +203,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
 	fprintf(tmp, "AreaMgr and FileMgr password is now \"%s\"\n", nodes.Apasswd);
 	Syslog('+', "XxxxMgr: Password \"%s\" for node %s", nodes.Apasswd, ascfnode(t, 0x1f));
 	UpdateNode();
-	memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
-	SearchNode(Node);
+	SearchNodeFaddr(t);
 }
 
 
@@ -216,8 +213,6 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
  */
 void MgrNotify(faddr *t, char *Buf, FILE *tmp)
 {
-	fidoaddr	Node;
-
 	/*
 	 *  First strip leading garbage
 	 */
@@ -232,8 +227,7 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp)
 		return;
 
 	UpdateNode();
-	memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
-	SearchNode(Node);
+	SearchNodeFaddr(t);
 	Syslog('+', "XxxxMgr: Notify %s", GetBool(nodes.Notify));
 	fprintf(tmp, "AreaMgr and FileMgr Notify is %s\n", GetBool(nodes.Notify));
 }
