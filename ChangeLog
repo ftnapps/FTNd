@@ -1,919 +1,247 @@
 $Id$
 
-v0.39.9		29-Jan-2004
+
+v0.50.0		03-Oct-2003 - 09-Feb-2004
 
 	general:
-		Changed first time installation to install mbcico itself again
-		to handle incoming telnet sessions at port 60177. The program
-		mbtelind is obsolete, this was a temporary hack. Change your
-		inetd or xinetd configuration for itn (tfido) calls. 
-		See the documentation of mbcico how to do this.
-
-	libcommon.a:
-		Increased the sync() delay time for execute from 200 to 300 mS.
-
-	mbcico:
-		Added telnet input and output filters so we can now call and
-		answer telnet (ITN) sessions. We don't need mbtelind anymore
-		to handle incoming calls.
-
-	mbsetup:
-		Clearing the working message is now only done by the keyboard
-		read function.
-		In several menu items added range check for integer values.
-		In global main aka setup, added check if a domain name is
-		present.
-		Updates to the database is now shown to the user.
-
-	script:
-		Dropped support for RedHat and Mandrake pre 6.1.
-
-	examples:
-		Fixed a small bug in the dutch newfiles template.
-
-
-v0.39.8		26-Jan-2004 - 29-Jan-2004
-
-	warning:
-		Avoid this version, binkp compression is buggy.
-
-	libcommon.a:
-		Fixed compiler directive for Linux in execute function.
-		Code cleanup.
-
-	mbcico:
-		Fixed binkp file resync.
-		Binkp now only tries to compress data frames.
-		Fixed binkp master timer reset points, this should make session
-		timeout work.
-		Code cleanup.
-		The filelist function didn't add files from fileboxes.
-		Added refresh heartbeat in binkp driver to prevent broken
-		sessions after 10 minutes.
-		Added more logging to investigate the tty hangup problem
-		Fixed zlib (un)compress buffersize init.
-
-
-v0.39.7		14-Jan-2004 - 26-Jan-2004
-
-	remark:
-		Calling points is available now, but I know in the past that I
-		changed it to allways call the boss. That was from the time 
-		that mbtask didn't exist. It is possible that something is
-		broken now, please report such situations.
-
-	general:
-		In all sources replaced the usleep function with the msleep
-		function. The usleep function will become obsolete someday.
-
-	libcommon.a:
-		In execute and execsh on Linux systems sync() is called before
-		and after running the external program to make sure diskbuffers
-		are committed.
-		Added a milliseconds timer.
-		Before and after execute and execsh a 200 ms pause is inserted
-		to prevent (un)archiver and other errors.
-
-	mbcico:
-		Removed the check to disable calling points. 
-		Added a check to see if we get a URL to call other systems.
-		If nodelist info fails, increase error counter in steps of 10.
-		Merged tmail patches from Przemyslaw Kwiatkowski.
-		Fixed nodelocks during session handshake after many years. The
-		problem showed only when mbcico was used together with a mailer
-		on a different OS. When a aka is busy, the aka is now dropped.
-		When all akas are busy, a session is impossible and the session
-		is refused. Thanks to Przemyslaw Kwiatkowski for finding and
-		documenting this bug.
-		The total session avg cps is now corrected with the two seconds
-		session close delay time.
-		During binkp handshake increased the timer of the receiver to
-		avoid handshake timeouts.
-		Added PLZ compression option to binkp.
-
-	mbfido:
-		Removed sync calls that are now in execute.
-
-	mbfile:
-		Removed sync calls that are now in execute.
-
-	mbdiff:
-		Removed sync calls that are now in execute.
-
-	mbtask:
-		Will call points if a call method is available.
-		Merged tmail patches from Przemyslaw Kwiatkowski.
-
-	script:
-		New scripts are installed with an extension of .new, you need
-		to check yourself if you can use them to replace your own
-		possible modified scripts.
-		Updated the hatch script to abort if it's not configured.
-		If the user skips to hatch a file, the questions for the magic
-		and replace command are not shown anymore.
-
-	examples:
-		Changed Dutch newfiles template file.
-
-	html:
-		Added upgrade procedure.
-
-
-v0.39.6		11-Jan-2004 - 14-Jan-2004
+                Added menu setup switches for doors: Singe user door and
+                hidden from lists.
+                Make dist now creates bzip2 archives.
+                Two html pages are now under control of configure.
+                The configure scripts shows the use of zlib compression for
+                Hydra and Binkp.
+                Updated all documentation to validate html makeup.
+                Added installation support for Gentoo Linux, contributed by
+                Capitán X.
+                Since this version Posix threads are being used, please let
+                me know if this doesn't compile on you system.
+                All Makefiles do not strip the binaries anymore, the binaries
+                are stripped during make install only. This allows to run the
+                not yet installed binaries under debuggers.
+                The configure script has a --enable-debugging option so that
+                all code can be compiled to let it run under debuggers. Not
+                usefull for production systems.
+                This version had a lot of testing using valgrind. Most errors
+                were minor problems.
+                Added French language file created by Francois Thunus. This
+                translation is not yet complete.
+                Cleanup in main makefile, added help.
+                Revised configure and all Makefiles for better support of
+                linking with threads libraries.
+                Changed endian tests using the configure script.
+                Upgraded to new released ftscprod.008
+                Added setup option per node to disable the binkp/1.1 protocol.
+                Added new binkp/1.1 driver.
+                In all sources replaced the usleep function with the msleep
+                function. The usleep function will become obsolete someday.
+		Incoming and outgoing telnet (ITN) sessions finally works.
 
         upgrade:
+                If you don't have any personal archivers, then remove
+                ~/etc/archiver.data and start mbsetup to recreate the
+                archivers setup.
+                If you didn't change anything of the language defaults then
+                delete /opt/mbse/etc/language.data and run mbsetup to create
+                a new language.data including the french setup.
                 Check setting 7.x.3.18 for each node. If you know the node uses
-                Irex between 2.24 and 2.29 then set this to Yes or you won't 
-		have good sessions without files with this mailer. Sessions
-		with Irex that do transfer some file are Ok.
-
-	mbcico:
-		New binkp/1.1 driver. Check the upgrade for your Irex links.
-		In case of troubles please report these. 
-		In the mbcico directory are 2 files, binkpold.c and binkpold.h
-		if they are renamed to binkp.c and binkp.h you get the old 1.0
-		driver back. After some weeks I hope to remove these 2 old 
-		files.
-		Added support for T-Mail fileboxes, partly written and info
-		provided by Przemyslaw Kwiatkowski (2:480/127).
-
-	mbout:
-		Added support for T-Mail fileboxes.
-
-	mbtask:
-		Added support for T-Mail fileboxes.
-
-	mbsetup:
-		Reorganised menu 1.4 screen 1 and 2.
-		Added settings for T-Mail filebox paths in the second screen
-		of menu 1.4.
-
-
-v0.39.5		24-Dec-2003 - 11-Jan-2004
-
-	general:
-		Upgraded to new released ftscprod.008
-		Added setup option per node to disable the binkp/1.1 protocol.
-		Added new binkp/1.1 driver, the code is disabled by default
-		and can only be used with the right configure option.
-
-	common.a:
-		Allows node locking with zero bytes lockfiles created by some
-		other OS when enabled in the setup.
-		The attach function now checks if a file is already attached.
-
-	mbcico:
-		Binkp code cleanup.
-		Allow m_file command in binkp during file transfer in progress.
-		Fixed a segfault when a session failed.
-		New binkp/1.1 driver, not compiled by default.
-
-	mbout:
-		Poll, remove poll and request failed to points which had no
-		point directory in the outbound, now the directory is created.
-
-	mbfido:
-		With scannews after a GROUP command when authorisation was
-		asked we did not perform a login.
-
-	mbsetup:
-		Added setting in menu 1.14 to allow zero bytes lockfiles
-		created by another OS.
-		Added setting in menu 7.x.3.18 to disable the use of binkp/1.1
-		protocol per node.
-		Corrected a spelling error (thanks Vince).
-		Removed global setup screen for the ftp server.
-
-	mbtask:
-		Changed slow ping logmessages from 5 to 10 seconds.
-		Removed default settings for the ftp server.
-
-	script:
-		Fixed NetBSD init script
-		All init scripts now clean the ~/var/run directory and start
-		the bbs allways so that the bbs will try to start after a power
-		failure.
-
-	html:
-		Removed the outdated ftsc documents, www.ftsc.org is the place
-		to look for them
-
-
-v0.39.4		08-Dec-2003 - 24-Dec-2003
-
-	general:
-		Added French language file created by Francois Thunus. This
-		translation is not yet complete.
-		Cleanup in main makefile, added help.
-		Revised configure and all Makefiles for better support of
-		linking with threads libraries.
-		Changed endian tests using the configure script.
-		Changed compiler flags for threads.
-
-	upgrade:
-		If you didn't change anything of the language defaults then
-		delete /opt/mbse/etc/language.data and run mbsetup to create
-		a new language.data including the french setup.
-
-	libmsgbase:
-		Changed the fix in JAM to prevent the copy overwrite. This may
-		also fixed the message renumbering bug introduced with previous
-		version.
-
-	mbsebbs:
-		A lot of small fixes for problems found with valgrind.
-
-	mbsetup:
-		Added default record for french language.
-
-	mbtask:
-		Moved the scheduler in a thread.
-		Rewrote shutdown procedure to make it more portable.
-
-	script:
-		Dropped support for Slackware pre 7.0.
-		Changed startup scripts for NetBSD.
-
-
-v0.39.3		26-Nov-2003 - 08-Dec-2003.
-
-	general:
-		Since this version Posix threads are being used, please let
-		me know if this doesn't compile on you system.
-		All Makefiles do not strip the binaries anymore, the binaries
-		are stripped during make install only. This allows to run the
-		not yet installed binaries under debuggers.
-		The configure script has a --enable-debugging option so that
-		all code can be compiled to let it run under debuggers. Not
-		usefull for production systems.
-		This version had a lot of testing using valgrind. Most errors
-		were minor problems.
-
-	libclcomm:
-		Fixed a small (not harmfull) buffer overlapped copy detected
-		by valgrind.
-
-	libcommon:
-		Code cleanup in proglock, pktname and crc.
-		Fixed a forgotten fclose in proglock.
-
-	libmsgbase:
-		In JAM_Open replaced a strcpy with memmove.
-		Fixed invalid memory read/write in Msg_Link.
-
-	libdbase:
-		Code cleanup in dbdupe.
-
-	libnodelist:
-		Fixed a small memeory leak.
-
-	mbcico:
-		Dropped binkp CRC support because it will be incompatible with
-		future extensions.
-		Fixed a small memory leak.
-
-	mbout:
-		Fixed several memory leaks.
-
-	mbfido:
-		Fixed a some small memory leaks.
-
-	mbfile:
-		Fixed a uninitialized memory pointer in the index command.
-		Fixed a 3 forgotten file closes in mbfile list.
-
-	mbindex:
-		Fixed a forgotten file close.
-
-	mbsetup:
-		Removed binkp CRC settings.
-		Fixed a unitialized unlink call in nodes close.
-		Fixed unclosed tempfile.
-		Fixed several small memory leaks.
-
-	mbsebbs:
-		Fixed small memory leak.
-		Fixed posting to local/echomail areas from bbs users.
-
-	mball:
-		Fixed 2 forgotten fclose functions.
-
-	mbuser:
-		Fixed a forgotten file close when nothing was done.
-
-	mbmon:
-		Fixed a minor problem with an uninitialized array.
-
-	mbtask:
-		The ping function now runs in a separate thread.
-		Changed some ping timer logic.
-		Added a "secret" commandline parameter to allow mbtask to run
-		under control of debuggers.
-		The client command server runs in a separate thread.
-		Fixed some small memory leaks which had no effect on long term
-		running of mbtask, only leaks during program stop.
-
-	mbpasswd:
-		Fixed a small memory leak.
-
-	script:
-		Changed all init scripts to allow the slower stopping of mbtask
-		For the latest Slackware distros a setup script for pkgtool is
-		added. Most other distro's don't need this.
-
-
-v0.39.2		21-Nov-2003 - 26-Nov-2003
-
-	general:
-		Incoming telnet mailer connections are handled using a telnet
-		proxy daemon: mbtelind.
-
-	common.a:
-		A small fix in printable log function.
-		Added a safety check for the TCP registrate function to prevent
-		stale TCP/IP mailer counts.
-
-	mbcico:
-		All internal references to tfido port changed to telnet port
-		because we now default to telnet port 23 for ITN calls.
-		Incoming calls using the -t itn commandline parameters are not
-		supported anymore, they need to go via mbtelind.
-		Outgoing telnet doesn't work!
-
-	mbtelind:
-		New program, a incoming telnet proxy daemon to accept incoming
-		calls and transfer these via port 60179 to mbcico that will
-		handle the call in raw ifcico mode.
-
-	mbtask:
-		Restored ITN protocol.
-
-	SETUP.sh:
-		Changed installation for incoming mailer telnet connections to
-		install mbtelind.
-
-	examples:
-		Updated file menus, added View File command.
-
-
-v0.39.1		22-Oct-2003 - 21-Nov-2003
-
-	general:
-		Make dist now creates bzip2 archives.
-		Two html pages are now under control of configure.
-		The configure scripts shows the use of zlib compression for
-		Hydra.
-		Completly dropped support for ITN connections sice this is so
-		buggy on different implementations that this is impossible to
-		get it right to connect to every system.
-		You may need to remove the lines for itn support from 
-		/etc/inetd.conf or /etc/xinetd.d/mbsebbs or /etc/xinetd.conf.
-		Also check mbsetup 1.14.3 and remove any ITN flag in there.
-		Updated all documentation to validate html makeup.
-		Added installation support for Gentoo Linux, contributed by
-		Capitán X.
-
-	upgrade:
-		If you don't have any personal archivers, then remove 
-		~/etc/archiver.data and start mbsetup to recreate the
-		archivers setup.
-
-	mbsebbs:
-		Fixed a bug where the bbs goes into a loop after idle timeout
-		during login (and maybe in other situations).
-		Fixed chat debug logging to only the debug.log file.
-		Posted netmail messages now support CC: lines. The CC: lines
-		should be the first lines of the message in the format:
-		CC: Michiel Broek 2:280/28
-		The Carbon Copied messages are marked with original sender.
-
-	mbfile:
-		When the areanumber with the adopt command was not given, the
-		help is displayed instead of trying area 0 that doesn't exist.
-		With the file move, adopt and import command if the file 
-		already exists in the destination area, the action is refused.
-		Added mbfile sort <area> command. Files are case insensitive
-		sorted on the long filename. After sort the indexes are rebuild.
-		Fixed some logging that should have been debug logging.
-
-	mbcico:
-		Added hydra rpos id -1 indicator for compression stop that
-		Alex and I agreed to use. A FSP document will be written.
-		Compression log fixed and added percentage compression.
-		Added dynamic optimum sendbuffer size with a maximum of 8192
-		bytes with an average size of 2048 bytes.
-		Removed ITN support.
-		Changed two inbound logmessages to debug level.
-
-	mbfido:
-		Changed two logmessages to debug level.
-
-	mbsetup:
-		In node editor, fixed error message when there was no more
-		room for new nodes to point to the right menus.
-		Added support for tar compressed archives.
-		Changed all fidonet domain names to maximum 8 characters so
-		that we now follow the FTSC specs.
-
-	mbtask:
-		Removed support for ITN.
-
-	script:
-		Added install scripts for Gentoo.
-
-	lang:	Two new language prompts, 21 and 22.
-
-
-v0.39.0		09-Oct-2003 - 22-Oct-2003
-
-	general:
-		Added menu setup switches for doors: Singe user door and
-		hidden from lists.
-
-	mbsebbs:
-		The whoson list displays the doorname if set in the menus.
-		If a door is single user and the door is in use, the second
-		user can't start the door but gets a message about this
-		situation.
-
-	mbsetup:
-		Added menu settings for single user door and hide door. Added
-		setting for the door name in the menus and removed the never
-		used password for the menu (Was only present in the setup).
-
-	mbcico:
-		Added Hydra zlib compressed data blocks using the idea of Alex
-		Shakhaylo. This is experimental and looks compatible with
-		mailers that don't support this option. The compression will
-		transfer some files about twice as fast as without compression.
-		Changed signal handlers to better detect broken TCP links.
-		Added logging to show compressed bytes and switched to compress
-		level 9 compression instead of 6.
-		Prepared hydra for large compressed data blocks. In the next
-		developmement version we will actually start using these
-		large blocks, this change is to give all beta testers the
-		chance to upgrade.
-
-	lang:
-		Added language prompt 20.
-
-	examples:
-		Updated English and Spanish menus with the new door settings.
-		Fixed some spelling errors in the Dutch templates.
-
-
-
-v0.38.0		26-Dec-2002 - 03-Oct-2003
-
-	upgrade:
-		Note: if upgrading from a 0.37.8 or 0.37.9 development version,
-		then no upgrade procedure is needed. All others read the next
-		carefully!
-
-		A bit tricky to upgrade and start using the new debug logfile,
-                follow the next steps exactly!!
-                1.  Download and install the source
-                2.  Run "./configure"
-                3.  Run "make" (and do not install yet)
-                4.  Run "mbstat close"
-                5.  Backup /opt/mbse/bin and /opt/mbse/etc.
-                6.  Run "mbstat close"
-                7.  Kill mbtask, mostly "kill `/sbin/pidoff mbtask`" will do.
-                8.  Run (as root) "make install" to install the new software.
-                9.  Make sure you are user mbse again.
-                10. Start mbtask manual, "mbtask"
-                11. Run "mbsetup", enter menu 1, exit, save and close.
-                12. Wait one minute.
-                13. Run "mbstat open"
-                After this is done the first time, restarting mbtask can be
-                done as usual by running the mbsed init script. If something
-                doesn't work (you get socket errors), it is important that you
-                kill mbtask during software versions swap. All software must
-                be of the same build.
-		Check settings menu 1.5.21 for maximum allowed logins.
-		Check setting of menu 1.14.15.
-                Remove ~/etc/archiver.data, start mbsetup menu 3, leave and
-                save. This updates the archiver view contents commands.
-                After upgrade you may remove ~/etc/maptabs and it's contents.
-                After upgrade you may remove ~/etc/bank.data.
-                After upgrade you may remove ~/etc/safe.data.
-                If you want, download and install the nu-door and safe-door
-                packages.
-                In mbsetup 1.17.3 check if you have the XX,CM,IBN,IFC flags,
-                which indicates your TCP/IP capabilities. This is only for
-                systems that use TCP/IP, dialup systems should only have
-                the XX,CM flags. Important: only protocols that you place
-                in this entry are supported, so XX,CM,IBN will let your system
-                only call binkp nodes.
-
-	general:
-                The nodelist lookup functions are now in a separate library.
-                This will give us easy implemtation of new nodelist formats
-                and flags.
-                Introduced a new file, ~/etc/nodelist.conf, this file will
-                be used for nodelist lookup behaviour.
-                The current looked-up nodelist strcuture has an extra field,
-                the URL how that node must be contacted.
-                Debug logging is now in a separate file, the normal logging is
-                now only in the normal logfiles.
-                Changed all Linux references into GNU/Linux.
-                Changed the address of the FSF in all sources.
-                Removed memwatch debugger.
-                Changed all gif and jpg images to png images.
-                Added a setup switch for the nodes for selecting the wrong
-                binkp long filenames escape method for Argus and Irex nodes.
-                Activated the productcode for mbse that is published in the
-                ftscprod.007, MBSE now has an official product code.
-                Changed the website address in several sources.
-		Added switches for binkp CRC mode in global and node records.
-                Added check for inconv.h in configure script for UNIX98 
-                character set conversion. (Not yet used).
-                Removed external (sysop) chat, chat paging times and other
-                chat stuff that is of no use anymore. The sysop shows his
-                presence by running mbmon. The mbchat program is obsolete.
-                Menu item 22 is added, this is user chat session.
-                For chat (and sysop/user paging chat) works now using the
-                mbtask daemon.
-                In several messages handling functions the international 
-                charset translations are removed because of several bugs. They
-                will be replaced by standard library functions. Right now the
-                messages are 8 bit clean and there is no translation on the
-                gateway. The maptabs are removed.
-                Menu items 22 and 23 are removed, menu 319 is added. You may 
-                want to replace the default txtfiles and menus, upgraded
-                versions are in the distribution but are not automatic
-                installed.
-                Documented menu 318, was present for a long time, just not in
-                the html docs.
-                The main Makefile now sets each txtfiles directory to mode 775
-                to allow doors to write ansi/ascii screens.
-                Removed the safe cracker door, this is now external.
-                A new developer/translator joined the team, David Gonzalez.
-                The settings to suppres some IP protocols (global and nodes)
-                are removed, this behaviour must be set using nodelist flags 
-                configuration.
-                Debug logging for mail and news now have one setting, the M.
-                Nodelist debug logging now uses the N character.
-                In some makefiles the chown user.group syntax changed to
-                user:group to follow the new POSIX syntax. Please let me know
-                if you are using an older distribution that complains about
-                this. This was needed for FreeBSD 4.7.
-                Added Dutch template macro files. Updated English and German
-                template macro files. Please remove old ones before installing.
-
-	common.a:
-                Added a set of general purpose timers.
-                Node locking tests for non-stale lockfiles older then 6 hours.
-                Added general code for prgram locking.
-                The getheader function changed to support stone-age .pkt's.
-                If the packet year has a Y2K bug, the year is fixed. This is
-                only cosmetic for logging.
-                If the zone info is missing, the zone is guessed from 2d aka
-                matching against the system aka's. Then all mail in the .pkt
-                file is also assumed to be in that zone if there is no zone
-                info in the messages also.
-                Guess what, these packets do still exist in Fidonet, it took
-                5 years to find them! If you want to check, call 5:5/0
-                Fixed compiler warning in network code.
-                printable function now escapes all non-printable characters.
-                In rfcmsg function the Cc: header is now treated as any other
-                header to prevent a SIGSEGV when the headerline is empty.
-                Removed charset conversion/translation.
-                Added integer endian byteorder swapper, usefull for non-Intel
-                hardware.
-                The poutCR function for the bbs never did send a newline.
-		New function to get the real case of a filename.
-
-        nodelist.a:
-                Added experimental support for IP nodes lookup using a default
-                domain method. This is not the final implementation yet!
-                Update, this works now as described in a FSP-xxxx that is in
-                discussion in the FTSC. This will also work for current
-                practice.
-
-        msgbase.a:
-		Moved messages link from mbmsg program into library.
-                Resolved a buffer overflow problem with kludges larger then
-                512 bytes.
-
-        mbcico:
-                Compiled IEMSI code back in, starts mblogin which is not IEMSI
-                ready yet. A user with an IEMSI terminal can from there do a
-		manual login.
-                If doesn't do Multiple Batch mode anymore against binkp/1.1
-                mailers.
-                File resync during receive finally works.
-                In binkp we don't send a empty dataframe after a file anymore.
-                Completly changed the files inbound receive, all files are now
-                first stored in a unique per node temporary inbound directory.
-                Only after a successfull session all received files are moved
-                to the final inbound directory. 
-                Another goodie is that this is more safe on busy multiline
-                systems.
-                A light improvement in session handshake setup timers.
-                Added EMSI handshake timers, this gives a more relaxed EMSI
-                handshake.
-                Set the EMSI receive failure count to 20 instead of 6, we can
-                now even accept buggy maindoor sessions and still display a
-                banner.
-                For FTS-0001 sessions the mail password was used instead of the
-                session password. Also improved the password check.
-                The product code was not entered in the FTS-0001 packet headers.
-                Revised some state tables in the binkp session setup stage.
-                Fixed a possible buffer overflow in the binkp driver.
-                Implemented CRAM rev.4 change in binkp driver.
-                Binkp now sends M_BSY to the remote when the bbs is closed.
-                Better logging of BSY and ERR messages.
-                The binkp transmitter does now escape the unsafe filename
-                characters. Method is selectable in the setup.
-                The binkp receiver now does process escaped filenames.
-                The binkp protocol now supports MD5 crypted passwords.
-                Removed some heavy debug code from ttyio functions to increase
-                throughput.
-                Standarized raw ifcico protocol logging.
-                Some minor changes to the raw ifcico protocol, better error
-                checking and a check for buffer overflow.
-                YooHoo transmitter fixed for transmitting 16 bits product
-                codes.
-                With binkp and EMSI sessions double received remote aka's are
-                filtered.
-                When calling ITN nodes, the default port is now 23.
-                Call setup changed and uses now the nodelist lookup URL.
-                Changed raw ifcico debug logging.
-
-        mbout:
-                When a poll was removed, the outbound was not rescanned.
-
-        mbfile:
-                Added program locking to prevent that more than one mbfile can
-                run at the same time.
-                When a file was deleted for age or download age, the 8.3
-                filename was not removed from disk.
-                A better check againts empty upload dates when purging files.
-                Also added a log when this happens. Please report if you see
-                any of these.
-                In the import function several bugfixes for reading files.bbs.
-                Fixed upper/lowercase filenames bug with import.
-                Move old files to another area failed, only the symbolic link
-                was moved.
-                Prepared for multilanguage html pages creation.
-
-        mbfido:
-                The rfc to ftn gate now drops the headerlines starting with
-                X-Spam- because they are only filled with advertisents and are
-                very large (upto 1200 bytes which is somewhat larger for a
-                fidonet kludge).
-                Stone age packet support, see common.a.
-                Due to a configuration error in some system using some tic
-                processor mbfido did crash.
-                Now it will log this and continue processing ticfiles with the
-                risk of sending files back to the owner of that faulty program.
-                Added the same check for Seenby lines.
-                In a scanned netmail destined to our own local UUCP gate the
-                useless X-FTN-INTL and X-FTN-TOPT kludges are no longer 
-                inserted in the message.
-		Finding the inbound tic file now uses the new filecase function.
-                Removed all code for charset translation.
-                In areamgr/filemgr lists the messages are forced splitted when
-                the force limit is reached in the middle of a group listing.
-                The nodes statistics are expanded with flow counters.
-                If echomail is accepted in a unsecure area or the unsecure
-                commandline option is set, a violation is logged as warning.
-                Removed some debugging tests and log messages.
-                If a tic file was received in uppercase, during import in the
-                bbs the LFN is converted to lowercase.
-                Promoted some normal debug logmessages to heavy debug messages
-                in the outbound queue packer.
-                Echomail from other zones showed the address of your own zone.
-                Added logging when other errors are found.
-                At zonegates, the seenby lines were twice stripped.
-                Another patch to compensate for sysops that pack pascalnet
-                files in fidonet packets and send these messages into the world
-                without zone information.
-                Made the incoming tic files complete case insensitive, mixed
-                case is now processed. If such file is received, the LFN will
-                be set to that name.
-                The magic unpack command now uses the mail unpack command
-                instead of file unpack command so that paths in the archive are
-                junked.
+                Irex between 2.24 and 2.29 then set this to Yes or you won't
+                have good sessions without files with this mailer. Sessions
+                with Irex that do transfer some file are Ok.
+
+        libclcomm:
+                Fixed a small (not harmfull) buffer overlapped copy detected
+                by valgrind.
+
+        libcommon:
+                A small fix in printable log function.
+                Added a safety check for the TCP registrate function to prevent
+                stale TCP/IP mailer counts.
+                Fixed a forgotten fclose in proglock.
+                Allows node locking with zero bytes lockfiles created by some
+                other OS when enabled in the setup.
+                The attach function now checks if a file is already attached.
+                In execute and execsh on Linux systems sync() is called before
+                and after running the external program to make sure diskbuffers
+                are committed. Also added a 300 ms pause.
+                Added a milliseconds timer.
+                Code cleanup.
+
+        libmsgbase:
+                In JAM_Open replaced a strcpy with memmove.
+                Fixed invalid memory read/write in Msg_Link.
+
+        libdbase:
+                Code cleanup in dbdupe.
+
+        libnodelist:
+                Fixed a small memory leak.
 
         mbsebbs:
-                When a message is saved, the messages in that area are linked.
-                Added check for maximum simultaneous logins.
-                Removed debug logging for userrecord i/o
-                During virusscan of file uploads, the mbtask timeout timer is
-                set to one hour to support very long scans.
-                Changed logging during user login.
-                Fixed bugs in QWK mail upload processing.
-                Allow - and _ in email names (GetstrU function).
-                Increased internal message buffer size to 700 lines.
-                Fullscreen editor code cleanup, debug messages removed.
-                When entering a message, the first character of the subject
-                line was capitalized.
-                Fixed recognition of tar.gz files.
-                Added menu function display file.
-                Display ascii textfiles now uses the More Y/n/= prompt.
-                When a new message is saved in a local area, the mailout
-                semafore is not set anymore.
-                Offline reader, the reply packets are now handled complete
-                case insensitive.
-                Dropped BlueWave v2 format completly, obsolete format.
-                The BlueWave and QWK download packets can have kludges, this
-                depends on a setting in the userbase.
-                In downloaded netmail, if message comes from a point, the FMPT
-                kludge is allways included in the message.
-                Added some forgotten checks for a valid QWK board name.
-                Lots of code cleanups in the offline code.
-                Added menu 320, toggle Offline Reader Extended Info.
-                Added new control code: control-U + 8, this displays YES or NO
-                for the new Extended Info setting.
-                The display file function now displays the ^U8 code.
-                Added support for door32.sys dropfile.
-                Fixed user idle logoff when new mailcheck took too long.
-                Added email reply when reading new (e)mail.
-                To page the sysop, the CPAG and CCAN commands to mbtask are now
-                used.
-                Removed all old chat code that worked on the tty device.
-                Added chat client site. If the sysop responds to the page
-                request, the user is dropped into chatmode in the sysop
-                channel as soon as the user does nothing (ie in a menu or still
-                in page mode).
-                It will now refuse to up/download OLR packets when the system
-                bbs id is not set in the global setup.
-                When a reply is made on a message in a area which allows
-                aliases, the user is asked to use his alias.
-                When a reply is made on a message in a newsgroup and your
-                systems has a permanent mail domain the email address is used
-                as from name.
-                Removed timebank and nextuser doors.
-                Added editing of user's signature file. New menu item 319.
-                If the sysop is exporting a echomail message he will have the
-                option to save to his private directory or to the rules
-                directory. If saved to the rules directory the message will
-                have the filename of the area tag. Normal users can only export
-                to their private directory. Sysops: now you can start 
-                collecting area rules!
-                New menu 221, display arearules. This function tries to find
-                the arearules in the rules directory and if found displays
-                this to the user.
-                Fixed whoson list to display user real names and handles again.
-                Fixed send online message to send to user real names, handles
-                and unix names again.
-                The menus are machine endian independant.
-                Maybe removed a bug where the bbs sometimes crashed during
-                mail reading.
-                Fixed some minor things to the door.sys file.
-                Normal users were allowed to delete messages of other users,
-                now only the writer or those with sysop access to the area are
-                allowed to delete messages.
-                Finally wrote Delete Message from the menu (menu 206).
-                Removed the safe cracker door.
-                Changed to use the new nodelist lookup methods.
+                The whoson list displays the doorname if set in the menus.
+                If a door is single user and the door is in use, the second
+                user can't start the door but gets a message about this
+                situation.
+                Fixed a bug where the bbs goes into a loop after idle timeout
+                during login (and maybe in other situations).
+                Fixed chat debug logging to only log to the debug.log file.
+                Posted netmail messages now support CC: lines. The CC: lines
+                should be the first lines of the message in the format:
+                CC: Michiel Broek 2:280/28 
+                The Carbon Copied messages are marked with original sender.
+                Fixed small memory leak.
+                Fixed posting to local/echomail areas from bbs users.
+		A lot of small fixes for problems found with valgrind.
 
         mbsetup:
-                Made menus editor work on non-intel platforms.
-                Added support for debug logging in menu 1.3 and removed the
-                mbtask debug switch from menu 18.
-                Import and purge oneliners now log what is done.
-                In the nodes setup a switch is added to fallback to the wrong
-                binkp escape method.
-                Added menu entry 1.5.21 for setting maximum allowed logins.
-                Added program locking, only one mbsetup can run at the same
-                time.
-                In menu 1.14 added global switch to disable binkp CRC32 file
-                transfers.
-                In menu 7.x.3 added a switch to enable binkp CRC32 file
-                transfers with this node.
-                In menu 1.14 added a switch to turn MD5 crypted passwords off.
-                The edit archiver has now an edit line for the view archive
-                commands.
-                Added protection against wrong database sizes depending on
-                global settings.
-                When moving a message area to area zero mbsetup doesn't crash
-                anymore.
-                Added new menu item 319, removed menu items 22 and 23.
-                Added setup for rules directory.
-                Added setup for menu 221. Changed description of menu 103.
-                The menu editor is machine endian independant.
-                Removed setup for the safe cracker door.
-                In menu 8.3 showing long option data lines, the lines were too
-                long for a 80 characters display.
-                Removed global flags No-IBN, IFC and ITN from the setup.
-                Removed nodes flags No-IBN, IFC and ITN from the setup.
-                removed del/rubout/bs keys logging.
+                Added menu settings for single user door and hide door. Added
+                setting for the door name in the menus and removed the never
+                used password for the menu (Was only present in the setup).
+                In node editor, fixed error message when there was no more
+                room for new nodes to point to the right menus.
+                Added support for tar compressed archives.
+                Changed all fidonet domain names to maximum 8 characters so
+                that we now follow the FTSC specs.
+                Removed binkp CRC settings.
+                Fixed a unitialized unlink call in nodes close.
+                Fixed unclosed tempfile.
+                Fixed several small memory leaks.
+                Added default record for french language. 
+                Added setting in menu 1.14 to allow zero bytes lockfiles
+                created by another OS.
+                Added setting in menu 7.x.3.18 to disable the use of binkp/1.1
+                protocol per node.
+                Corrected a spelling error (thanks Vince).
+                Removed global setup screen for the ftp server.
+                Reorganised menu 1.4 screen 1 and 2.
+                Added settings for T-Mail filebox paths in the second screen
+                of menu 1.4.
+                Clearing the working message is now only done by the keyboard
+                read function.
+                In several menu items added range check for integer values.
+                In global main aka setup, added check if a domain name is
+                present.
+                Updates to the database is now shown to the user.
+
+        mbcico:
+                Added Hydra zlib compressed data blocks using the idea of Alex
+                Shakhaylo. The compression will transfer some files about twice
+                as fast as without compression.
+                Changed signal handlers to better detect broken TCP links.
+                Changed two inbound logmessages to debug level.
+                All internal references to tfido port changed to telnet port
+                because we now default to telnet port 23 for ITN calls.
+                Dropped binkp CRC support because it will be incompatible with
+                future extensions.
+                Fixed a small memory leak.
+                New binkp/1.1 driver. Check the upgrade for your Irex links.
+                In case of troubles please report these.
+                Added support for T-Mail fileboxes, partly written and info
+                provided by Przemyslaw Kwiatkowski (2:480/127).
+                Removed the check to disable calling points.
+                Added a check to see if we get a URL to call other systems.
+                If nodelist info fails, increase error counter in steps of 10.
+                Fixed nodelocks during session handshake after many years. The
+                problem showed only when mbcico was used together with a mailer
+                on a different OS. When a aka is busy, the aka is now dropped.
+                When all akas are busy, a session is impossible and the session
+                is refused. Thanks to Przemyslaw Kwiatkowski for finding and
+                documenting this bug.
+                The total session avg cps is now corrected with the two seconds
+                session close delay time.
+                Added PLZ compression option to binkp.
+                Added telnet input and output filters so we can now call and
+                answer telnet (ITN) sessions.
+
+        mbfile:
+                When the areanumber with the adopt command was not given, the
+                help is displayed instead of trying area 0 that doesn't exist.
+                With the file move, adopt and import command if the file
+                already exists in the destination area, the action is refused.
+                Added mbfile sort <area> command. Files are case insensitive
+                sorted on the long filename. After sort the indexes are rebuild.
+                Fixed some logging that should have been debug logging.
+                Fixed a uninitialized memory pointer in the index command.
+                Fixed a 3 forgotten file closes in mbfile list.
+                Removed sync calls that are now in execute.
+
+        mbfido:
+                Changed two logmessages to debug level.
+                Fixed a some small memory leaks.
+                With scannews after a GROUP command when authorisation was
+                asked we did not perform a login.
+                Removed sync calls that are now in execute.
 
         mbtask:
-                Added support for debug logfile. Dropped the debug switch for
-                mbtask logging, this is now allways on.
-                On new installations sets max logins to 1.
-                Now uses standard locking in ~/var/run
-                When idle, it now reports the time to the next event to be
-                seen in mbmon menu 1.
-                With startup it now shows the tty flags in the log.
-                Remove some semafore debug messages.
-                Fixed compiler warnings in network code.
-                Safer logging of user log messages.
-                In personal message text the text after a ; character is not
-                ignored anymore.
-                With mbtask start, the ports locktimes are reset to zero.
-                Added CSYS command to report if sysop is available.
-                Added CPAG command to page the sysop.
-                Added CCAN command to cancel the sysop page.
-                Added CCKP command to check for a page.
-                Added CCON, CCLO, CPUT and CGET commands for chatserver. 
-                Implemented a chatserver, this looks like a simple IRC server
-                to the users.
-                Arcmail for non-CM nodes and Txx nodes is now sent during the
-                node's opening hours or ZMH.
-                Fixed a bug where one of the nodelists was node closed with
-                each outbound scan and was causing mbtask to stop functioning
-                after a few days.
-                After forking the daemon, the stdin, stdout and stderr are
-                reopend to /dev/null.
-                Zero the daily status counters finally works again.
-                Added experimental code where tossing mail is not started as
-                long as there are mailers running, but not longer as 30 mins.
-                This should make the whole system less nervous.
-                Modified this code, didn't work, the toss was always started
-                at once.
+                The ping function now runs in a separate thread.
+                Changed some ping timer logic.
+                Added a "secret" commandline parameter to allow mbtask to run
+                under control of debuggers.
+                The client command server runs in a separate thread.
+                Fixed some small memory leaks which had no effect on long term
+                running of mbtask, only leaks during program stop.
+                Moved the scheduler in a thread.
+                Rewrote shutdown procedure to make it more portable.
+                Removed default settings for the ftp server.
+                Added support for T-Mail fileboxes.
+                Will call points if a call method is available.
 
-        mbdiff:
-                If unpacking a diff file fails, a second attempt is done after
-                a sync and one second delay.
+        mbout:
+                Fixed several memory leaks.
+                Poll, remove poll and request failed to points which had no
+                point directory in the outbound, now the directory is created.
+                Added support for T-Mail fileboxes.
 
-        mbmon:
-                Updated software info screen.
-                Added program locking, only one mbmon can run at the same time
-                to prevent troubles with chat and sysop available.
-                Reports sysop available or left the system when mbmon starts
-                or stops.
-                Reports a page from a user in row 3 of the screen (but doesn't
-                do chat right now).
-                Adjusts its screensize if the environment variables LINES and
-                COLUMNS are set.
-                (in ~/.profile add the line "export LINES COLUMNS").
-                The show lastcallers now adjusts the number of lines available.
-                The show server clients screen now adjusts to the number of
-                lines available.
-                Added chatserver client, there are 2 modes, one id general chat
-                and the other is respond to a users page request where the
-                channel is automatic set.
-
-        mbuser:
-                Added program locking to prevent that more than one mbuser can
-                run at the same time.
-                Added nopper code during pack.
-
-        mbaff:
-                Added program locking to prevent that more than one mbaff can
-                run at the same time.
+        mbindex:
+                Fixed a forgotten file close.
 
         mball:
-                Added program locking to prevent that more than one mball can
-                run at the same time.
+                Fixed 2 forgotten fclose functions.
 
-        mbmsg:
-                Moved message linking to msgbase library.
+        mbuser:
+                Fixed a forgotten file close when nothing was done.
 
-        unix:
-                Fixed compiler warning.
+        mbmon:
+                Fixed a minor problem with an uninitialized array.
 
-        examples:
-                Updated Spaning and English chat menu to use the internal
-                chatserver.
-                Removed the last menu item from the offline menu, added new
-                Extended Info toggle (English only).
-                Updated offline textfiles to remove point download and add
-                new Extended Info toggle (English only)
-                The English and Dutch templates are updated to show the new
-                nodes flow counters (html.nodes).
-                English textfiles and menus are updated to show the new menu
-                functions.
-                Prepared for more example translations.
-                Added German template files made by Joachim Kuwan.
+        mbdiff:
+                Removed sync calls that are now in execute.
+
+        mbpasswd:
+                Fixed a small memory leak.
+
+	mbuseradd:
+		Now logs to syslog instead of stderr.
 
         script:
-                Fixed debian init script to allow it to run over the network
-		by using kill `pidof mbtask` to kill the daemon.
-                Added full path to pidof command in FreeBSD init script.
-                Added new init script for FreeBSD.
+                Added install scripts for Gentoo.
+                Changed all init scripts to allow the slower stopping of mbtask
+                For the latest Slackware distros a setup script for pkgtool is
+                added. Most other distro's don't need this.
+                Dropped support for Slackware pre 7.0. 
+                Changed startup scripts for NetBSD.
+                Fixed NetBSD init script
+                All init scripts now clean the ~/var/run directory and start
+                the bbs allways so that the bbs will try to start after a power
+                failure.
+                New scripts are installed with an extension of .new, you need
+                to check yourself if you can use them to replace your own
+                possible modified scripts.
+                Updated the hatch script to abort if it's not configured.
+                If the user skips to hatch a file, the questions for the magic
+                and replace command are not shown anymore.
+		Dropped support for RedHat and Mandrake pre 6.1.
 
         lang:
-                Added language prompts 18 and 19.
-                Added germandu, a German language file in "Du" style instead of
-                "Sie". Written by Malte Tychsen.
-                Changed the last Englsh language prompts in the german.txt.
-                New language prompt number 17.
-                Erased language prompts 18..36.
-                Changed language prompts 15, 16 and 152.
-                Changed english, german and dutch language prompts 11, 12, 13,
-                14 and 107.
-                Changed in other languages as well, but in English.
+                Added language prompts 20, 21 and 22.
 
-	SETUP.sh
-		Made the script more portable.
+        examples:
+                Updated English and Spanish menus with the new door settings.
+                Fixed some spelling errors in the Dutch templates.
+                Updated file menus, added View File command.
+                Changed Dutch newfiles template file.
 
-	CRON.sh
-		Removed explanation about Zone Mail Hour, this is obsolete
-		for a long time already.
+        html:
+                Removed the outdated ftsc documents, www.ftsc.org is the place
+                to look for them
+                Added upgrade procedure.
 

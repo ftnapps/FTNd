@@ -354,7 +354,7 @@ int EditFidoRec(int Area)
 	    case 14:
 	    case 15:
 	    case 16:
-	    case 17:E_IRC(j,74, fidonet.zone[j-12], 1, 32767, "A ^Zone number^ which belongs to this domain (1..32767)")
+	    case 17:E_IRC(j,74, fidonet.zone[j-12], 0, 32767, "A ^Zone number^ which belongs to this domain (1..32767)")
 	}
     }
 
