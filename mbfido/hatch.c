@@ -127,7 +127,7 @@ int CheckHatch(char *temp)
 		return FALSE;
 	}
 
-	Temp = xstrcpy(temp);
+	Temp = xstrcpy(fn);
 	p = tl(Temp);
 	q = mask;
 	*q++ = '^';
@@ -138,14 +138,16 @@ int CheckHatch(char *temp)
 		case '.':   *q++ = '\\'; *q++ = '.'; break;
 		case '+':   *q++ = '\\'; *q++ = '+'; break;
 		case '*':   *q++ = '.'; *q++ = '*'; break;
-		default:    *q++ = toupper(*p); break;
+		case '@':   sprintf(q, "[:alpha:]"); while (*q) q++; break;
+		case '#':   sprintf(q, "[:digit:]"); while (*q) q++; break;
+		default:    *q++ = *p; break;
 	    }
 	    p++;
 	}
 	*q++ = '$';
 	*q = '\0';
 	Syslog('f', "Hatch mask \"%s\" -> \"%s\"", MBSE_SS(Temp), MBSE_SS(mask));
-	if ((re_comp(mask)) != NULL)
+	if ((re_comp(mask)) == NULL)
 	    Syslog('f', "re_comp() accepted");
 	else
 	    Syslog('f', "re_comp() returned NULL");

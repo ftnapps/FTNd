@@ -144,20 +144,22 @@ int GetMagicRec(int Typ, int First)
 			case '.':   *q++ = '\\'; *q++ = '.'; break;
 			case '+':   *q++ = '\\'; *q++ = '+'; break;
 			case '*':   *q++ = '.'; *q++ = '*'; break;
-			default:    *q++ = toupper(*p); break;
+			case '@':   sprintf(q, "[:alpha:]"); while (*q) q++; break;
+			case '#':   sprintf(q, "[:digit:]"); while (*q) q++; break;
+			default:    *q++ = *p; break;
 		    }
 		    p++;
 		}
 		*q++ = '$';
 		*q = '\0';
 		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(Magic), MBSE_SS(mask));
-		if ((re_comp(mask)) != NULL) {
+		if ((re_comp(mask)) == NULL) {
 		    if (re_exec(TIC.NewName))
 			Syslog('f', "Should matched using regexp");
 		    else
 			Syslog('f', "No match using regexp");
 		} else {
-		    Syslog('f', "re_comp returned NULL");
+		    Syslog('f', "re_comp() failed");
 		}
 		free(Magic);
 
