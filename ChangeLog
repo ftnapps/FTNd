@@ -12,6 +12,8 @@ v0.39.3		26-Nov-2003
 		not yet installed binaries under debuggers.
 		The configure script has a --enable-debugging option so that
 		all code can be compiled to let it run under debuggers.
+		This version had a lot of testing using valgrind. Most errors
+		were minor problems.
 
 	libclcomm:
 		Fixed a small (not harmfull) buffer overlapped copy detected
@@ -70,6 +72,8 @@ v0.39.3		26-Nov-2003
 
 	script:
 		Changed all init scripts to allow the slower stopping of mbtask
+		For the latest Slackware distros a setup script for pkgtool is
+		added.
 
 
 v0.39.2		21-Nov-2003 - 26-Nov-2003
