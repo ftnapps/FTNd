@@ -48,10 +48,7 @@ void Show_Ins(void)
 {
 	locate(1, 70);
 	colour(YELLOW, BLUE);
-	if (InsMode)
-		printf("INS");
-	else
-		printf("OVR");
+	printf("%s", InsMode ? "INS": "OVR");
 	fflush(stdout);
 }
 
@@ -192,7 +189,7 @@ void Refresh(void)
 
 void Debug(void)
 {
-	Syslog('B', "Col=%d Row=%d TopVisible=%d Lines=%d CurRow=%d Len=%d", 
+	Syslog('b', "FSEDIT: Col=%d Row=%d TopVisible=%d Lines=%d CurRow=%d Len=%d", 
 		Col, Row, TopVisible, Line, Row+TopVisible-1, strlen(Message[Row+TopVisible-1]));
 }
 
@@ -234,30 +231,28 @@ void GetstrLC(char *sStr, int iMaxlen)
 
 void ScrollUp()
 {
-	Syslog('b', "Scroll up");
+	Syslog('b', "FSEDIT: Scroll up");
 	if (TopVisible > 12) {
 		TopVisible -= 12;
 		Row += 12;
 	} else {
-		Row += TopVisible;
+		Row += TopVisible - 1;
 		TopVisible = 1;
 	}
 	Refresh();
-	Setcursor();
-	Debug();
+	/* Debug(); */
 }
 
 
 void ScrollDown()
 {
-	Syslog('b', "Scroll down");
+	Syslog('b', "FSEDIT: Scroll down");
 	if ((TopVisible + 12) <= Line) {
 		Row -= 12;
 		TopVisible += 12;
 	}
 	Refresh();
-	Setcursor();
-	Debug();
+	/* Debug(); */
 }
 
 
@@ -268,7 +263,7 @@ int Fs_Edit()
 	char		*filname, *tmpname;
 	FILE		*fd;
 
-	Syslog('b', "Entering FullScreen editor");
+	Syslog('b', "FSEDIT: Entering FullScreen editor");
 	clear();
 	fflush(stdout);
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
@@ -291,52 +286,39 @@ int Fs_Edit()
 
 		switch (ch) {
 		case KEY_ENTER:
-			Syslog('B', "Enter pressed: Col=%d CurRow=%d Line=%d", Col, CurRow, Line);
+			Syslog('b', "FSEDIT: Enter pressed");
 			Debug();
 			if (Col == 1) {
-				Syslog('B', "Enter at beginning of line");
+				/* Enter at beginning of line */
 				for (i = Line; i >= CurRow; i--) {
 					sprintf(Message[i+1], "%s", Message[i]);
-					Syslog('B', "-Moving row %d to %d", i, i+1);
-					Syslog('B', ":%s", Message[i]);
 				}
 				Message[i+1][0] = '\0';
-				Syslog('B', "-Clearing row %d", i+1);
 			} else {
 				for (i = Line; i > CurRow; i--) {
 					sprintf(Message[i+1], "%s", Message[i]);
-					Syslog('B', "-Moving row %d to %d", i, i+1);
 				}
 				Message[CurRow+1][0] = '\0';
-				Syslog('B', "-Clearing row %d", CurRow+1);
 				if (Col <= strlen(Message[CurRow])) {
-					Syslog('B', "Enter in middle of line");
+					/* Enter in middle of line */
 					for (i = Col-1; i <= strlen(Message[CurRow]); i++) {
 						sprintf(Message[CurRow+1], "%s%c", Message[CurRow+1], Message[CurRow][i]);
 					}
 					Message[CurRow][Col-1] = '\0';
-				} else {
-					Syslog('B', "Enter at end of line");
 				}
+				/* else Enter at end of line */
 			}
 			Line++;
 			Row++;
 			Col = 1;
-			if (Row < (exitinfo.iScreenLen -1)) {
-				CurRow++;
-			} else {
-				Syslog('B', "Scroll down by ENTER");
-				Row -= 12;
-				TopVisible += 12;
-			}
+			if (Row >= (exitinfo.iScreenLen -1)) ScrollDown();
 			Refresh();
-			Setcursor();
-			Debug();
+			/* Debug(); */
 			Changed = TRUE;
 			break;
 
 		case ('N' - 64):  /* Insert line, scroll down */
-			Syslog('B', "Insert line");
+			Syslog('b', "FSEDIT: Insert line");
 			Debug();
 			for (i = Line; i >= CurRow; i--)
 				sprintf(Message[i+1], "%s", Message[i]);
@@ -344,31 +326,31 @@ int Fs_Edit()
 			Line++;
 			Col = 1;
 			Refresh();
-			Debug();
+			/* Debug(); */
 			Changed = TRUE;
 			break;
 
 		case ('Y' - 64):  /* Erase line, scroll up */
-				Syslog('B', "Erase line");
+				Syslog('b', "FSEDIT: Erase line");
 				Debug();
 				if (Line == CurRow) {
-					Syslog('B', "Erasing last line");
-					if (Line > 1) {
+					/* Erasing last line */
+					if ((Line > 1) || (strlen(Message[CurRow]) > 0)) {
 						Message[CurRow][0] = '\0';
-						Line--;
-						if ((Row == 1) && (TopVisible > 12)) {
-							Row += 12;
-							TopVisible -= 12;
-						} else
+						if (Line > 1) {
+							Line--;
+							if (Row == 1) ScrollUp();
 							Row--;
+						}
+						if (Col > strlen(Message[CurRow]))
+						    Col = strlen(Message[CurRow]);
 						Refresh();
-						Setcursor();
-						Debug();
+						/* Debug(); */
 						Changed = TRUE;
 					} else
 						Beep();
 				} else {
-					Syslog('B', "Erasing line in the middle");
+					/* Erasing line in the middle */
 					for (i = CurRow; i < Line; i++) {
 						sprintf(Message[i], "%s", Message[i+1]);
 					}
@@ -377,22 +359,21 @@ int Fs_Edit()
 					if (Col > strlen(Message[CurRow]) + 1)
 						Col = strlen(Message[CurRow]) + 1;
 					Refresh();
-					Setcursor();
-					Debug();
+					/* Debug(); */
 					Changed = TRUE;
 				}
 				break;
 
 		case KEY_UP:
 		case ('E' - 64):
-			Syslog('B', "Cursor up");
+			Syslog('b', "FSEDIT: Cursor up");
+			Debug();
 			if (Row > 1) {
 				Row--;
-				CurRow--;
-				if (Col > strlen(Message[CurRow]) + 1)
-					Col = strlen(Message[CurRow]) + 1;
+				if (Col > strlen(Message[CurRow-1]) + 1)
+					Col = strlen(Message[CurRow-1]) + 1;
 				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else {
 				ScrollUp();
 			}
@@ -400,16 +381,15 @@ int Fs_Edit()
 
 		case KEY_DOWN:
 		case ('X' - 64):
-			Syslog('B', "Cursor down");
+			Syslog('b', "FSEDIT: Cursor down");
 			Debug();
 			if (Row < (Line - TopVisible + 1)) {
 				if (Row < (exitinfo.iScreenLen -1)) {
 					Row++;
-					CurRow++;
-					if (Col > strlen(Message[CurRow]) + 1)
-						Col = strlen(Message[CurRow]) + 1;
+					if (Col > strlen(Message[CurRow+1]) + 1)
+						Col = strlen(Message[CurRow+1]) + 1;
 					Setcursor();
-					Debug();
+					/* Debug(); */
 				} else {
 					ScrollDown();
 				}
@@ -419,22 +399,21 @@ int Fs_Edit()
 
 		case KEY_LEFT:
 		case ('S' - 64):
-			Syslog('b', "Cursor left Col=%d Row=%d CurRow=%d TopVisible=%d", Col, Row, CurRow, TopVisible);
+			Syslog('b', "FSEDIT: Cursor left");
+			Debug();
 			if (Col > 1) {
 				Col--;
 				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else if (CurRow > 1) {
 				Col = strlen(Message[CurRow-1]) +1;
 				if (Row == 1) ScrollUp();
-				CurRow--;
 				Row--;
 				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else if (TopVisible > 12) {
 				Refresh();
-				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else
 				Beep();
 			
@@ -442,32 +421,32 @@ int Fs_Edit()
 
 		case KEY_RIGHT:
 		case ('D' - 64):
-			Syslog('B', "Cursor Right");
+			Syslog('b', "FSEDIT: Cursor Right");
+			Debug();
 			if (Col <= strlen(Message[CurRow])) {
 				Col++;
 				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else if (Row < (Line - TopVisible +1)) {
 				Row++;
-				CurRow++;
 				Col = 1;
 				if (Row > (exitinfo.iScreenLen -1)) ScrollDown();
 				Refresh();
-				Setcursor();
-				Debug();
+				/* Debug(); */
 			} else
 				Beep();
 
 			break;
 
 		case KEY_DEL:
-			Syslog('b', "DEL key Col=%d Row=%d CurRow=%d", Col, Row, CurRow);
+			Syslog('b', "FSEDIT: DEL key");
+			Debug();
 			if (Col <= strlen(Message[CurRow])) {
-				Syslog('b', "DEL Col(%d) <= Length(%d)", Col, strlen(Message[CurRow]));
-				Debug();
+				/*
+				 * If before the end of the line...
+				 */
 				Setcursor();
 				for (i = Col; i <= strlen(Message[CurRow]); i++) {
-					/* Syslog('b', "i=%d", i); */
 					Message[CurRow][i-1] = Message[CurRow][i];
 					printf("%c", Message[CurRow][i]);
 				}
@@ -494,12 +473,13 @@ int Fs_Edit()
 
 		case KEY_BACKSPACE:
 		case KEY_RUBOUT:
-			Syslog('b', "BS at Col=%d Row=%d CurRow=%d", Col, Row, CurRow);
+			Syslog('b', "FSEDIT: BS (Backspace)");
+			Debug();
 			if (Col == 1 && CurRow == 1) {
-				Syslog('b', "BS on first character in message");
+				/* BS on first character in message */
 				Beep();
 			} else if (Col == 1) {
-				Syslog('b', "BS at beginning of line");
+				/* BS at beginning of line */
 				if ((strlen(Message[CurRow-1]) + strlen(Message[CurRow]) < 75)
 					|| strlen(Message[CurRow]) == 0) {
 					Col = strlen(Message[CurRow-1]) + 1;
@@ -510,14 +490,12 @@ int Fs_Edit()
 					Line--;
 					if (Row == 1) ScrollUp();
 					Row--;
-					CurRow--;
 					Refresh();
-					Setcursor();
-					Debug();
+					/* Debug(); */
 					Changed = TRUE;
 				} else {
 					i = strlen(Message[CurRow-1]) + strlen(Message[CurRow]);
-					Syslog('b', "BS lines are too big! %d + %d = %d",
+					Syslog('b', "FSEDIT: BS lines are too big! %d + %d = %d",
 					       strlen(Message[CurRow]),
 					       strlen(Message[CurRow-1]),
 					       i);
@@ -525,20 +503,17 @@ int Fs_Edit()
 				}
 			} else {
 				if (Col == strlen(Message[CurRow]) + 1) {
-					Syslog('b', "BS at end of line");
-					Debug();
+					/* BS at end of line */
 					printf("\b \b");
 					fflush(stdout);
 					Col--;
 					Message[CurRow][Col-1] = '\0';
 					Changed = TRUE;
 				} else {
-					Syslog('b', "BS in middle of line");
-					Debug();
+					/* BS in middle of line */
 					Col--;
 					Setcursor();
 					for (i = Col; i <= strlen(Message[CurRow]); i++) {
-						/* Syslog('b', "i=%d", i); */
 						Message[CurRow][i-1] = Message[CurRow][i];
 						printf("%c", Message[CurRow][i]);
 					}
@@ -556,7 +531,7 @@ int Fs_Edit()
 			Show_Ins();
 			colour(CFG.TextColourF, CFG.TextColourB);
 			Setcursor();
-			Syslog('b', "InsertMode now %s", InsMode ? "True" : "False");
+			Syslog('b', "FSEDIT: InsertMode now %s", InsMode ? "True" : "False");
 			/* 
 			 * Trap the extra code so it isn't
 			 * inserted in the text
@@ -565,13 +540,13 @@ int Fs_Edit()
 			break;
 
 		case ('L' - 64):  /* Refresh screen */
-			Syslog('b', "Refresh()");
+			Syslog('b', "FSEDIT: Refresh()");
 			Refresh();
 			Debug();
 			break;
 
 		case ('R' - 64):  /* Read from file */
-			Syslog('b', "Read from file");
+			Syslog('b', "FSEDIT: Read from file");
 
 			tmpname = calloc(PATH_MAX, sizeof(char));
 			filname = calloc(PATH_MAX, sizeof(char));
@@ -590,7 +565,7 @@ int Fs_Edit()
 				free(filname);
 				free(tmpname);
 				Refresh();
-				Debug();
+				/* Debug(); */
 				break;
 			}
 
@@ -602,7 +577,7 @@ int Fs_Edit()
 				free(tmpname);
 				free(filname);
 				Refresh();
-				Debug();
+				/* Debug(); */
 				break;
 			}
 
@@ -636,24 +611,23 @@ int Fs_Edit()
 				}
 				fclose(fd);
 				Changed = TRUE;
-				Syslog('+', "Inserted file %s", tmpname);
+				Syslog('+', "FSEDIT: Inserted file %s", tmpname);
 			}
 
 			free(tmpname);
 			free(filname);
-			Refresh();
-			Debug();
 			Col = 1;
-			Setcursor();
+			Refresh();
+			/* Debug(); */
 			break;
 
 		case KEY_ESCAPE:  /* Editor menu */
-			Syslog('b', "Escape pressed");
+			Syslog('b', "FSEDIT: Escape pressed");
 			Top_Menu();
 
 			ch = toupper(Readkey());
 			if (ch == 'A' || ch == 'S') {
-				Syslog('b', "%s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
+				Syslog('b', "FSEDIT: %s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
 				Unsetraw();
 				close(ttyfd);
 				Debug();
@@ -662,16 +636,16 @@ int Fs_Edit()
 				for (i = 1; i <= Line; i++)
 					Syslog('b', "%3d \"%s\"", i, Message[i]);
 				if (ch == 'S' && Changed) {
-					Syslog('+', "Message saved");
+					Syslog('+', "FSEDIT: Message saved");
 					return TRUE;
 				} else {
-					Syslog('+', "Message aborted");
+					Syslog('+', "FSEDIT: Message aborted");
 					return FALSE;
 				}
 			}
 
 			if (ch == 'H') {
-				Syslog('b', "User wants help");
+				Syslog('b', "FSEDIT: User wants help");
 				Full_Help();
 				ch = Readkey();
 				Refresh();
@@ -687,7 +661,7 @@ int Fs_Edit()
 				/*
 				 *  Normal printable characters
 				 */
-				Debug();
+				/* Debug(); */
 				if (Col == strlen(Message[CurRow]) + 1) {
 					/*
 					 *  Append to line
@@ -703,17 +677,23 @@ int Fs_Edit()
 						 *  Do simple word wrap
 						 */
 						for (i = Line; i > CurRow; i--) {
+							/*
+							 * Shift lines down by one
+							 */
 							sprintf(Message[i+1], "%s", Message[i]);
-							Syslog('b', "[WW]-Moving row %d to %d", i, i+1);
 						}
+						/*
+						 * Clear row for wrapped words
+						 */
 						Message[CurRow+1][0] = '\0';
-						Syslog('b', "[WW]-Clearing row %d", CurRow+1);
 						Col = 74;
 						while (Message[CurRow][Col] != ' ' && i != 0)
 							Col--;
 						Col++;
 						if (Col <= strlen(Message[CurRow])) {
-							Syslog('b', "[WW]-Move end of line %d to new row %d", CurRow, CurRow+1);
+							/* 
+							 * Move end of line to new row
+							 */
 							for (i = Col; i <= strlen(Message[CurRow]); i++) {
 								sprintf(Message[CurRow+1], "%s%c", Message[CurRow+1], Message[CurRow][i]);
 							}
@@ -724,18 +704,20 @@ int Fs_Edit()
 						Row++;
 						Col = strlen(Message[CurRow+1])+1;
 						Refresh();
-						Debug();
+						/* Debug(); */
 						Changed = TRUE;
 					}
 				} else {
 					/*
 					 *  Insert or overwrite
 					 */
-					Syslog('b', "%s in line", InsMode ? "Insert" : "Overwrite");
+					Syslog('b', "FSEDIT: %s in line", InsMode ? "Insert" : "Overwrite");
 					if (InsMode) {
 						if (strlen(Message[CurRow]) < 80) {
 							for (i = strlen(Message[CurRow]); i >= (Col-1); i--) {
-								/* Syslog('b', "(i+1=%d)[%c] = (i=%d)[%c]", i+1, Message[CurRow][i+1], i, Message[CurRow][i]); */
+								/*
+								 * Shift characters right
+								 */
 								Message[CurRow][i+1] = Message[CurRow][i];
 							}
 							Message[CurRow][Col-1] = ch;
@@ -756,7 +738,7 @@ int Fs_Edit()
 					}
 				}
 			} else
-				Syslog('b', "Pressed %d (unsupported)", ch);
+				Syslog('b', "FSEDIT: Pressed %d (unsupported)", ch);
 		}
 	}
 
