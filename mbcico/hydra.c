@@ -566,6 +566,7 @@ int hydra_batch(int role, file_list *to_send)
 	SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 	txstate = HTX_START;
 	txoptions = HTXI_OPTIONS;
+	rxstarttime = txstarttime = time(NULL);
 
 	rxstate = HRX_INIT;
 	rxoptions = HRXI_OPTIONS;

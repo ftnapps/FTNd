@@ -837,6 +837,7 @@ int binkp_batch(file_list *to_send)
 	binkp_settimer(BINKP_TIMEOUT);
 	nethold = mailhold = 0L;
 	transferred = FALSE;
+	rxstarttime = txstarttime = time(NULL);
 
 	/*
 	 *  Build a new filelist from the existing filelist.
