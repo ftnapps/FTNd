@@ -5,7 +5,10 @@ $Id$
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
-v0.37.4		10-May-2003
+v0.37.5		12-Jul-2003
+
+
+v0.37.4		10-May-2003 - 12-Jul-2003
 
 	upgrade:
 		Check setting of menu 1.14.15
