@@ -79,7 +79,7 @@ mbfido:
 
 	L: Add %from command to areamgr/filemgr.
 
-	N: Add areas security with flags.
+	L: Add netmail notification of changed areas.
 
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
@@ -157,7 +157,4 @@ mbsetup:
 	   Fileecho groups <=> File echos
 	   Fileecho groups <=> Newfile reports
 	   Fileecho groups <=> BBS Areas
-
-	N: Add backspace test and store result in global setup.
-	   Note: experimental patch to test Rubout key as backspace.
 

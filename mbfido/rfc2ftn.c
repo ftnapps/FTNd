@@ -77,7 +77,6 @@ static int	dirtyoutcode = CHRS_NOTSET;
  */
 extern	int	do_quiet;
 extern	int	do_learn;
-extern	int	most_debug;
 extern	int	news_in;
 extern	int	email_in;
 extern	char	*replyaddr;

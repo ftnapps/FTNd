@@ -1,10 +1,5 @@
 $Id$
 
-WARNING: Extra debug logging enabled for checking internet news dupes.
-         This will just make bigger logfiles if you gate news.
-	 Since 28-08-2002 mbfido news produces real big logs!!
-	 Extra debug logging will be removed around 14 Oct 2002.
-
 
 				MBSEBBS History.
 
@@ -36,6 +31,8 @@ v0.35.04	29-Sep-2002
 		Files and echomail security flags implemented.
 		Echomail rescan will also work with newsgroups.
 		Removed some debug logging with files replace.
+		Fixed trashing news dupes file when mbfido was called multiple
+		times. Improved program locking.
 
 	mbsetup:
 		Added setup for the nodes record for security flags.
@@ -44,6 +41,10 @@ v0.35.04	29-Sep-2002
 		Added setup for the tic areas security flags.
 		Added setup for the message areas security flags.
 		Menu 14, edit files database had the wrong selection prompt.
+		Fixed backspace/delete key issue.
+
+	mbmon:
+		Fixed backspace/delete key issue.
 
 	mbindex:
 		Removed debug logging.

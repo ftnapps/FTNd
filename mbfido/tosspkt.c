@@ -59,7 +59,6 @@ extern	int	do_quiet;
 extern  int     do_unsec;
 extern  int     check_dupe;
 extern  time_t  t_start;
-extern  int     most_debug;
 
 
 

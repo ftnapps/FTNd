@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * %Id$
+ * $Id$
  * Purpose ...............: Dupe checking.
  *
  *****************************************************************************
@@ -56,7 +56,7 @@ void InitDupes()
 {
     int	i;
 
-    Syslog('n', "Init Dupes");
+    Syslog('N', "Init Dupes");
     for (i = 0; i < 3; i++) {
 	dupes[i].crcs= NULL;
 	dupes[i].loaded = FALSE;
@@ -111,18 +111,18 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	    dupes[idx].crcs[dupes[idx].count] = test;
 	    dupes[idx].count++;
 	}
-	Syslog('n', "Loaded %d dupe records in %s", dupes[idx].count++, files[idx]);
+	Syslog('N', "Loaded %d dupe records in %s", dupes[idx].count++, files[idx]);
 	fclose(fil);
 	free(dfile);
 	dupes[idx].loaded = TRUE;
 	dupes[idx].max = max;
     }
 
-    Syslog('n', "dupetest %08x %s %d", crc, files[idx], max);
+    // Syslog('N', "dupetest %08x %s %d", crc, files[idx], max);
 
     for (i = 0; i < dupes[idx].count; i++) {
 	if (dupes[idx].crcs[i] == crc) {
-	    Syslog('n', "dupe at %d", i);
+	    // Syslog('N', "dupe at %d", i);
 	    return TRUE;
 	}
     }
@@ -130,7 +130,7 @@ int CheckDupe(unsigned long crc, int idx, int max)
      * Not a dupe, append new crc value
      */
     dupes[idx].crcs[dupes[idx].count] = crc;
-    Syslog('n', "Added new dupe at %d", dupes[idx].count);
+    // Syslog('N', "Added new dupe at %d", dupes[idx].count);
     dupes[idx].count++;
     dupes[idx].changed = TRUE;
 
@@ -151,7 +151,7 @@ void CloseDdb(int idx)
     FILE    *fil;
 
     dfile = calloc(PATH_MAX, sizeof(char));
-    Syslog('n', "Checking %s.dupe", files[idx]);
+//  Syslog('N', "Checking %s.dupe", files[idx]);
     if (dupes[idx].loaded) {
 	if (dupes[idx].changed) {
 	    if (dupes[idx].count > dupes[idx].max)
@@ -160,15 +160,13 @@ void CloseDdb(int idx)
 		start = 0;
 	    sprintf(dfile, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
 	    if ((fil = fopen(dfile, "w"))) {
-		Syslog('n', "Writing dupes %d to %d", start, dupes[idx].count);
+		Syslog('N', "Writing dupes %d to %d", start, dupes[idx].count);
 		for (j = start; j < dupes[idx].count; j++)
 		    fwrite(&dupes[idx].crcs[j], sizeof(unsigned long), 1, fil);
 		fclose(fil);
 	    } else {
 		WriteError("$Can't write %s", dfile);
 	    }
-	} else {
-	    Syslog('n', "Not changed so not saved");
 	}
 
 	dupes[idx].changed = FALSE;
@@ -179,8 +177,6 @@ void CloseDdb(int idx)
 	free(dupes[idx].crcs);
 	dupes[idx].crcs = NULL;
 
-    } else {
-	Syslog('n', "Not loaded");
     }
     free(dfile);
 }
@@ -191,7 +187,6 @@ void CloseDupes()
 {
     int	i;
 
-    Syslog('n', "Closing dupes databases");
     for (i = 0; i < 3; i++)
 	CloseDdb(i);
 }
