@@ -591,7 +591,7 @@ int JAM_Open(char *Msgbase)
 void JAM_Pack(void)
 {
 	int		fdnHdr, fdnJdx, fdnJdt, fdnJlr;
-	int		ToRead, Readed;
+	int		ToRead, Readed, i, count;
 	char		*File, *New, *Subfield, *Temp;
 	JAMIDXREC	jamIdx;
 	unsigned long	NewNumber = 0, RefNumber = 0, Written = 0;
@@ -605,8 +605,14 @@ void JAM_Pack(void)
 	fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 	sprintf(File, "%s%s", BaseName, ".$dx");
 	fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-	sprintf(File, "%s%s", BaseName, ".$lr");
-	fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+        sprintf(File, "%s%s", BaseName, ".$lr");
+        fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+
+	/*
+	 * Get the number of LastRead records, this number is needed to prevent
+	 * that FreeBSD makes garbage of the LastRead pointers for some reason.
+	 */
+	count = lseek(fdJlr, 0, SEEK_END) / sizeof(lastread);
 
 	if (fdnHdr != -1 && fdnJdt != -1 && fdnJdx != -1 && fdnJlr != -1) {
 		lseek(fdHdr, 0L, SEEK_SET);
@@ -642,21 +648,23 @@ void JAM_Pack(void)
 					Written++;
 
 					lseek(fdJlr, 0, SEEK_SET);
-					while ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
-						/*
-						 * Test if one of the lastread pointer is the current
-						 * old message number.
-						 */
-						if ((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) {
+					for (i = 0; i < count; i++) {
+						if ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
 							/*
-							 * Adjust the matching numbers
+							 * Test if one of the lastread pointer is the current
+							 * old message number.
 							 */
-							if (LR.LastReadMsg == jamHdr.MsgNum)
-								LR.LastReadMsg = NewNumber;
-							if (LR.HighReadMsg == jamHdr.MsgNum)
-								LR.HighReadMsg = NewNumber;
-							lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
-							write(fdJlr, &LR, sizeof(lastread));
+							if ((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) {
+								/*
+								 * Adjust the matching numbers
+								 */
+								if (LR.LastReadMsg == jamHdr.MsgNum)
+									LR.LastReadMsg = NewNumber;
+								if (LR.HighReadMsg == jamHdr.MsgNum)
+									LR.HighReadMsg = NewNumber;
+								lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
+								write(fdJlr, &LR, sizeof(lastread));
+							}
 						}
 					}
 					jamHdr.MsgNum = NewNumber;
@@ -704,8 +712,10 @@ void JAM_Pack(void)
 		 * Now copy the lastread file
 		 */
 		lseek(fdJlr, 0, SEEK_SET);
-		while (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
-			write(fdnJlr, &LR, sizeof(lastread));
+		for (i = 0; i < count; i++) {
+			if (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
+				write(fdnJlr, &LR, sizeof(lastread));
+			}
 		}
 
 		/*
