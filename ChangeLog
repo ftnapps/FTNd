@@ -41,6 +41,7 @@ v0.37.01	14-Jan-2003.
 		Removed all code for charset translation.
 		In areamgr/filemgr lists the messages are forced splitted when
 		the force limit is reached in the middle of a group listing.
+		The nodes statistocs are expanded with flow counters.
 
 	mbsetup:
 		Added protection against wrong database sizes depending on
@@ -56,6 +57,10 @@ v0.37.01	14-Jan-2003.
 		When a reply is made on a message in a newsgroup and your
 		systems has a permanent mail domain the email address is used
 		as from name.
+
+	examples:
+		The English and Dutch templates are updated to show the new
+		nodes flow counters (html.nodes).
 
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003
