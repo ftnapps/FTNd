@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsetup.c
+ * $Id$
  * Purpose ...............: Setup Program 
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -144,7 +143,7 @@ void soft_info(void)
 	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
 #endif
 	set_color(WHITE, BLACK);
-	center_addstr( 8, (char *)Copyright);
+	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);
 	center_addstr(10, (char *)"Made in the Netherlands");
 	set_color(WHITE, BLACK);

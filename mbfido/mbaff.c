@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbaff/mbaff.c
+ * $Id$
  * Purpose ...............: Announce new files and FileFind
- * Last modification date : 08-Oct-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -59,7 +58,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBAFF: MBSE BBS %s Announce new files and FileFind\n", VERSION);
 	colour(14, 0);
-	printf("       %s\n", Copyright);
+	printf("       %s\n", COPYRIGHT);
 }
 
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mutil.c
+ * $Id$
  * Purpose ...............: Utilities
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -425,7 +424,7 @@ void screen_start(char *name)
 	printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
 	set_color(YELLOW, BLUE);
 	locate(2, 1);
-	printf((char *)"(c) Copyright Michiel Broek");
+	printf((char *)SHORTRIGHT);
 	set_color(LIGHTGRAY, BLACK);
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 	fflush(stdout);

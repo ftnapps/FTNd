@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbdiff/mbdiff.c
+ * $Id$
  * Purpose ...............: Nodelist diff processor
- * Last modification date : 25-May-2001
  * Original ideas ........: Eugene G. Crosser.
  * 
  *****************************************************************************
@@ -64,7 +63,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
 	colour(14, 0);
-	printf("        %s\n", Copyright);
+	printf("        %s\n", COPYRIGHT);
 }
 
 

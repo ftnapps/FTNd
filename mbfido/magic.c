@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/magic.c
+ * $Id$
  * Purpose ...............: .TIC files magic processing. 
- * Last modification date : 16-Feb-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -387,7 +386,7 @@ void Magic_AdoptFile(void)
 			else {
 				fprintf(Tf, "Hatch\r\n");
 				fprintf(Tf, "NoMove\r\n");
-				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, ShortRight);
+				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
 				fprintf(Tf, "Area %s\r\n", magic.ToArea);
 				fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));
 				fprintf(Tf, "From %s\r\n", aka2str(tic.Aka));

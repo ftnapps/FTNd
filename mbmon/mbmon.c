@@ -34,8 +34,6 @@
 #include "common.h"
 #include "mutil.h"
 
-#define Copyright  "Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
-
 
 static void die(int onsig)
 {
@@ -379,7 +377,7 @@ void soft_info(void)
 	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
 #endif
 	set_color(WHITE, BLACK);
-	center_addstr( 8, (char *)Copyright);
+	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);
 	center_addstr(10, (char *)"Made in the Netherlands.");
 	set_color(WHITE, BLACK);

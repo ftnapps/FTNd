@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsebbs/mbsebbs.c
+ * $Id$
  * Purpose ...............: Main startup
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -200,7 +199,7 @@ int main(int argc, char **argv)
 	colour(YELLOW, BLACK);
 	printf("MBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
 	colour(WHITE, BLACK);
-	printf("%s\n\n", Copyright);
+	printf("%s\n\n", COPYRIGHT);
  
 	/*
 	 * Check if this port is available.

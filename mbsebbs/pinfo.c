@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/pinfo.c
+ * $Id$
  * Purpose ...............: Product information
- * Last modification date : 08-Oct-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -101,7 +100,7 @@ void cr(void)
 	rs(a);
 	wl(a);
 	ls(a);
-	sprintf(temp, "%s", Copyright);
+	sprintf(temp, "%s", COPYRIGHT);
 	pout(11, 0, padleft(temp, 76, ' '));
 	rs(a);
 	wl(a);

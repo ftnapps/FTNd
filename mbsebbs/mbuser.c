@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbuser/mbuser.c
+ * $Id$
  * Purpose ...............: User Pack Util
- * Last modification date : 12-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -136,7 +135,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBUSER: MBSE BBS %s - User maintenance utility\n", VERSION);
 	colour(14, 0);
-	printf("        %s\n\n", Copyright);
+	printf("        %s\n\n", COPYRIGHT);
 	colour(7, 0);
 }
 

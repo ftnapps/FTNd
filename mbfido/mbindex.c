@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbindex.c
+ * $Id$
  * Purpose ...............: Nodelist Compiler
- * Last modification date : 08-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -165,7 +164,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBINDEX: MBSE BBS %s Nodelist Index Compiler\n", VERSION);
 	colour(14, 0);
-	printf("         %s\n", Copyright);
+	printf("         %s\n", COPYRIGHT);
 	colour(3, 0);
 }
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbmsg/mbmsg.c
+ * $Id$
  * Purpose ...............: Message Base Maintenance
- * Last modification date : 27-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -73,7 +72,7 @@ void ProgName()
 	colour(15, 0);
 	printf("\nMBMSG: MBSE BBS %s - Message Base Maintenance Utility\n", VERSION);
 	colour(14, 0);
-	printf("       %s\n", Copyright);
+	printf("       %s\n", COPYRIGHT);
 	colour(7, 0);
 }
 

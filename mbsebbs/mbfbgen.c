@@ -1,9 +1,8 @@
 /*****************************************************************************
  *
- * File ..................: mbfbgen.c
+ * $Id$
  * Purpose ...............: mbfbgen generates file databases from the old 
  *                          style files.bbs.
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -68,7 +67,7 @@ int main(void)
 	colour(15, 0);
 	printf("\nMBFBGEN: MBSE BBS %s FileBase Generator Utility\n", VERSION);
 	colour(14, 0);
-	printf("         %s\n\n", Copyright);
+	printf("         %s\n\n", COPYRIGHT);
 	colour(7, 0);
 
 	pw = getpwuid(getuid());

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsebbs/mblang.c
+ * $Id$
  * Purpose ...............: Language Compiler
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -47,7 +46,7 @@ int main(int argc, char **argv)
 	temp1 = calloc(PATH_MAX, sizeof(char));  
 
 	printf("\nMBLANG: MBSE BBS %s Quick Language Data File Creator\n", VERSION);
-	printf("        %s\n", Copyright);
+	printf("        %s\n", COPYRIGHT);
 
 	if (argc < 3) {
 		printf("\nUsage: %s [language data file] [language text file]\n\n", *(argv));

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: screen.c
+ * $Id$
  * Purpose ...............: Screen functions for setup. 
- * Last modification date : 25-Oct-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -148,7 +147,7 @@ void screen_start(char *name)
 	printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
 	set_color(YELLOW, BLUE);
 	locate(2, 1);
-	printf((char *)ShortRight);
+	printf((char *)SHORTRIGHT);
 	set_color(LIGHTGRAY, BLACK);
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 	fflush(stdout);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsebbs/mball.c
+ * $Id$
  * Purpose ...............: Creates allfiles listings
- * Last modification date : 09-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -65,7 +64,7 @@ void ProgName()
 	colour(15, 0);
 	printf("\nMBALL: MBSE BBS %s Allfiles Listing Creator\n", VERSION);
 	colour(14, 0);
-	printf("       %s\n", Copyright);
+	printf("       %s\n", COPYRIGHT);
 }
 
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfile/mbfile.c
- * Purpose ...............: File Database Maintenance
- * Last modification date : 19-Oct-2001
+ * $Id$
+ * Purpose: File Database Maintenance
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -66,7 +65,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBFILE: MBSE BBS %s File maintenance utility\n", VERSION);
 	colour(14, 0);
-	printf("        %s\n", Copyright);
+	printf("        %s\n", COPYRIGHT);
 }
 
 
@@ -212,15 +211,16 @@ void Help(void)
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
+//	printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
 	printf("	c  check			Check filebase\n");
-//	printf("	d  delete <file> <area>		Mark file in area for deletion\n");
-//	printf("        im import <file> <area>		Import file in area\n");
+//	printf("	d  delete <area> <file>		Mark file in area for deletion\n");
+//	printf("        im import <area>		Import files in current dir to area\n");
 	printf("	in index			Create filerequest index\n");
 	printf("        k  kill				Kill/move old files\n");
 	printf("	l  list				List file areas\n");
-//	printf("	m  move <file> <from> <to>	Move file from to area\n");
+//	printf("	m  move <from> <to> <file>	Move file from to area\n");
 	printf("	p  pack				Pack filebase\n");
-//	printf("	r  rearc <file> <area> <arc>	Rearc file in area to new archiver\n");
+//	printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");
 	colour(9, 0);
 	printf("\n	Options are:\n\n");
 	colour(3, 0);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: structs.h
+ * $Id$
  * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -37,16 +36,12 @@
 
 /*****************************************************************************
  *
- *  Global definitions and structures.
+ *  Global typedefs.
  *
  */
 
-#define Copyright  "Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
-#define ShortRight "Copyright (C) 1997-2001 M. Broek"
-
-
 typedef enum {YES, NO, ASK, ONLY} ASKTYPE;
-typedef enum {LOCALMAIL, NETMAIL, ECHOMAIL, NEWS} MSGTYPE;
+typedef enum {LOCALMAIL, NETMAIL, ECHOMAIL, NEWS, LIST} MSGTYPE;
 typedef enum {BOTH, PRIVATE, PUBLIC, RONLY, FTNMOD, USEMOD} MSGKINDSTYPE;
 typedef enum {IGNORE, CREATE, KILL} ORPHANTYPE;
 typedef enum {SEND, RECV, BOTHDIR} NODETYPE;
@@ -497,7 +492,8 @@ struct	FILEIndex {
 struct	FILERecord {
 	char		Name[13];		/* DOS style filename	    */
 	char		LName[81];		/* Long filename	    */
-	char		xTicArea[13];		/* Tic area file came in    */
+	char		xTicArea[9];		/* Tic area file came in    */
+	unsigned long	TicAreaCRC;		/* CRC of TIC area name	    */
 	off_t		Size;			/* File Size                */
 	unsigned long	Crc32;			/* File CRC-32		    */
 	char		Uploader[36];		/* Uploader name            */

@@ -1,6 +1,7 @@
 /* config.h.in.  */
 /* $Id$ */
 
+#undef SHORTRIGHT
 #undef COPYRIGHT
 #undef VERSION
 

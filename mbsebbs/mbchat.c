@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsebbs/mbchat.c
+ * $Id$
  * Purpose ...............: Sysop chat utility.
- * Last modification date : 27-Nov-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -95,7 +94,7 @@ int main(int argc, char **argv)
 
 	if(argc != 2) {
 		printf("\nSCHAT: MBSE BBS %s Sysop chat facilty\n", VERSION);
-		printf("       %s\n", Copyright);
+		printf("       %s\n", COPYRIGHT);
 
 		printf("\nCommand-line parameters:\n\n");
 

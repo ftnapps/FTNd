@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/mbfido.c
- * Purpose ...............: Process Fidonet style mail and files.
- * Last modification date : 14-Aug-2001
+ * $Id$
+ * Purpose: Process Fidonet style mail and files.
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -156,7 +155,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBFIDO: MBSE BBS %s - Fidonet File and Mail processor\n", VERSION);
 	colour(14, 0);
-	printf("        %s\n", Copyright);
+	printf("        %s\n", COPYRIGHT);
 }
 
 

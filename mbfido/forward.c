@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/forward.c
+ * $Id$
  * Purpose ...............: File forward to a node
- * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -189,7 +188,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 					for (i = 0; i < TIC.TicIn.TotLDesc; i++)
 						fprintf(fp, "LDesc %s\r\n", TIC.TicIn.LDesc[i]);
 			}
-			fprintf(fp, "Created by MBSE BBS %s %s\r\n", VERSION, ShortRight);
+			fprintf(fp, "Created by MBSE BBS %s %s\r\n", VERSION, SHORTRIGHT);
 			if (TIC.TicIn.TotPath)
 				for (i = 0; i < TIC.TicIn.TotPath; i++)
 					fprintf(fp, "Path %s\r\n", TIC.TicIn.Path[i]);

@@ -53,7 +53,6 @@
 #define ICMP_BASEHDR_LEN	8
 #define ICMP_MAX_ERRS		5
 #define SET_SOCKA_LEN4(socka)
-#define Copyright		"Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
 
 
 typedef enum {P_INIT, P_SENT, P_FAIL, P_OK, P_ERROR, P_NONE} PINGSTATE;
@@ -1377,7 +1376,7 @@ int main(int argc, char **argv)
          * Print copyright notices and setup logging.
          */
         printf("MBTASK: MBSE BBS v%s Task Manager Daemon\n", VERSION);
-        printf("        %s\n\n", Copyright);
+        printf("        %s\n\n", COPYRIGHT);
 
         /*
          *  Catch all the signals we can, and ignore the rest. Note that SIGKILL can't be ignored

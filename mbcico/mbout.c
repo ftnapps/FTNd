@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/mbout.c
- * Purpose ...............: MBSE BBS Outbound Manager
- * Last modification date : 31-Jan-2001
+ * $Id$
+ * Purpose: MBSE BBS Outbound Manager
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -64,7 +63,7 @@ void ProgName()
 	colour(15, 0);
 	printf("\nMBOUT: MBSE BBS %s Outbound Manager\n", VERSION);
 	colour(14, 0);
-	printf("       %s\n", Copyright);
+	printf("       %s\n", COPYRIGHT);
 }
 
 

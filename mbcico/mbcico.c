@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/mbcico.c
- * Purpose ...............: Fidonet mailer
- * Last modification date : 07-Feb-2001
+ * $Id$
+ * Purpose: Fidonet mailer
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -80,7 +79,7 @@ extern int	mypid;
 void usage(void)
 {
 	fprintf(stderr,"ifcico; (c) Eugene G. Crosser, 1993-1997\n");
-	fprintf(stderr,"mbcico ver. %s; (c) %s\n\n", VERSION, ShortRight);
+	fprintf(stderr,"mbcico ver. %s; (c) %s\n\n", VERSION, SHORTRIGHT);
 	fprintf(stderr,"-r<role> -a<inetaddr> <node> ...\n");
 	fprintf(stderr,"-r 0|1		1 - master, 0 - slave	[0]\n");
 	fprintf(stderr,"-n<phone>	forced phone number\n");

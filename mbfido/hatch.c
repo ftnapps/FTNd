@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/hatch.c
+ * $Id$
  * Purpose ...............: Hatch files
- * Last modification date : 08-Oct-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -152,7 +151,7 @@ int CheckHatch(char *temp)
 				WriteError("Can't create %s", tf);
 			else {
 				fprintf(Tf, "Hatch\r\n");
-				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, ShortRight);
+				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
 				fprintf(Tf, "Area %s\r\n", hatch.Name);
 				if (SearchTic(hatch.Name)) {
 					fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));

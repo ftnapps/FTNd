@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbstat/mbstat.c
+ * $id$
  * Purpose ...............: Change BBS status
- * Last modification date : 10-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -74,7 +73,7 @@ void ProgName(void)
 	colour(15, 0);
 	printf("\nMBSTAT: MBSE BBS %s Status Changer\n", VERSION);
 	colour(14, 0);
-	printf("        %s\n", Copyright);
+	printf("        %s\n", COPYRIGHT);
 	colour(3, 0);
 }
 
