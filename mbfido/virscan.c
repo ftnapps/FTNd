@@ -54,6 +54,7 @@ int VirScan(void)
         while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
             cmd = NULL;
             if (virscan.available) {
+		Altime(3600);
                 cmd = xstrcpy(virscan.scanner);
                 cmd = xstrcat(cmd, (char *)" ");
                 cmd = xstrcat(cmd, virscan.options);
@@ -63,6 +64,7 @@ int VirScan(void)
 		    rc = TRUE;
                 }
                 free(cmd);
+		Altime(0);
 		Nopper();
             }
         }
