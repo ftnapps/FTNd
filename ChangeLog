@@ -4366,6 +4366,10 @@ v0.33.19        26-Oct-2001
 		Added more checks to see if it's legal invoked.
 		Password change on FreeBSD finally works.
 
+	mblogin:
+		New program. Replaces standard login, allows Fidonet style
+		usernames.
+
 	mbcico:
 		Undefined IEMSI support since mbsebbs doesn't support it 
 		anymore.

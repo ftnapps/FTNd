@@ -941,8 +941,8 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup import lang examples htm
 
 PACKAGE="mbsebbs"
 VERSION="0.33.19"
-COPYRIGHT="Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
-SHORTRIGHT="Copyright (C) 1997-2001 M. Broek"
+COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
+SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
 OWNER="mbse"
 
