@@ -515,7 +515,7 @@ struct	sysconfig {
 	char		bbs_txtfiles[65];	/* Default Textfiles	    */
 	char		nntpnode[65];		/* NNTP server		    */
 	char		msgs_path[65];		/* Path to *.msg area	    */
-	char		xbbs_language[65];
+	char		alists_path[65];	/* Area lists storage	    */
 	char		req_magic[65];		/* Request magic directory  */
 	char		bbs_usersdir[65];	/* Users Home Dir Base	    */
 	char		nodelists[65];		/* Nodelists		    */
@@ -535,7 +535,7 @@ struct	sysconfig {
 	unsigned	leavecase	  : 1;	/* Leave outbound case	    */
 
 						/* BBS Globals		    */
-	int		max_login;		/* Maximum login attempts   */
+	int		xmax_login;
 	unsigned	NewAreas	  : 1;	/* Notify if new msg areas  */
 	unsigned	xelite_mode       : 1;
 	unsigned	slow_util	  : 1;	/* Run utils slowly	    */
@@ -1241,6 +1241,32 @@ struct	_fgroup {
 	char		AreaFile[13];		/* Areas filename	   */
 	statcnt		Files;			/* Files processed	   */
 	statcnt		KBytes;			/* KBytes msgs or files	   */
+						/* Auto add area options   */
+	long		StartArea;		/* Lowest filearea nr.	   */
+	char		Banner[15];		/* Banner to add	   */
+	char		Convert[6];		/* Archiver to convert	   */
+	unsigned	FileGate	: 1;	/* List is in filegate fmt */
+	unsigned	AutoChange	: 1;	/* Auto add/del areas      */
+	unsigned	UserChange	: 1;	/* User add/del areas      */
+	unsigned	ShowAll		: 1;	/* Show all areas in lists */
+	unsigned	Replace		: 1;	/* Allow replace	   */
+	unsigned	DupCheck	: 1;	/* Dupe Check		   */
+	unsigned	Secure		: 1;	/* Check for secure system */
+	unsigned	NoToch		: 1;	/* Don't touch filedates   */
+	unsigned	VirScan		: 1;	/* Run Virus scanners	   */
+	unsigned	Announce	: 1;	/* Announce files	   */
+	unsigned	UpdMagic	: 1;	/* Update Magic database   */
+	unsigned	FileId		: 1;	/* Check FILE_ID.DIZ	   */
+	unsigned	ConvertAll	: 1;	/* Convert always	   */
+	unsigned	SendOrg		: 1;	/* Send original file	   */
+	unsigned	xRes7		: 1;
+	unsigned	xRes8		: 1;
+	char		BasePath;		/* File area base path     */
+	securityrec	DLSec;			/* Download Security	   */
+	securityrec	UPSec;			/* Upload Security	   */
+	securityrec	LTSec;			/* List Security	   */
+	char		BbsGroup[13];		/* BBS Group		   */
+	unsigned	Upload;			/* Upload area		   */
 };
 
 
@@ -1267,6 +1293,20 @@ struct	_mgroup {
 	char		AreaFile[13];		/* Areas filename	   */
 	statcnt		MsgsRcvd;		/* Received messages	   */
 	statcnt		MsgsSent;		/* Sent messages	   */
+						/* Auto create options	   */
+	char		BasePath[65];		/* Base path to JAM areas  */
+	securityrec	RDSec;			/* Read security	   */
+	securityrec	WRSec;			/* Write security	   */
+	securityrec	SYSec;			/* Sysop secirity	   */
+	unsigned	NetReply;		/* Netmail reply area	   */
+	unsigned	UsrDelete	: 1;	/* Allow users to delete   */
+	unsigned	Aliases		: 1;	/* Allow aliases	   */
+	unsigned	Quotes		: 1;	/* Add random quotes	   */
+	unsigned	AutoChange	: 1;	/* Auto add/del from list  */
+	unsigned	UserChange	: 1;	/* User add/del from list  */
+	unsigned	xRes6		: 1;
+	unsigned	xRes7		: 1;
+	unsigned	xRes8		: 1;
 };
 
 
