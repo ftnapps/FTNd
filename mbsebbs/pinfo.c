@@ -89,60 +89,57 @@ void cr(void)
 	printf("%c\n", a ? 184 : '+');
 
 	wl(a);
-
 	ls(a);
-	sprintf(temp, "MBSE Bulletin Board System %s Linux Pro", VERSION);
+#ifdef __linux__
+	sprintf(temp, "MBSE Bulletin Board System %s (Linux)", VERSION);
+#elif __FreeBSD__
+	sprintf(temp, "MBSE Bulletin Board System %s (FreeBSD)", VERSION);
+#else
+	sprintf(temp, "MBSE Bulletin Board System %s (Unknown OS)", VERSION);
+#endif
 	pout(14, 0, padleft(temp, 76, ' '));
 	rs(a);
-
 	wl(a);
-
 	ls(a);
 	sprintf(temp, "%s", Copyright);
 	pout(11, 0, padleft(temp, 76, ' '));
 	rs(a);
-
 	wl(a);
-
 	ls(a);
 	sprintf(temp, "Compiled on %s at %s", __DATE__, __TIME__);
 	pout(14, 0, padleft(temp, 76, ' '));
 	rs(a);
-
 	wl(a);
-
 	ls(a);
 	pout(11, 0, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given ");
 	rs(a);
-
 	ls(a);
 	pout(11, 0, (char *)"valuable time in the form of new ideas and suggestions on how to make MBSE  ");
 	rs(a);
-
 	ls(a);
 	pout(11, 0, (char *)"BBS a better BBS                                                            ");
 	rs(a);
-
 	wl(a);
-
+	ls(a);
+	pout(15, 0, (char *)"Available from http://mbse.sourceforge.net or 2:280/2802                    ");
+	rs(a);
+	wl(a);
 	ls(a);
 	pout(12, 0, (char *)"JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner,              ");
 	rs(a);
-
 	ls(a);
 	pout(12, 0, (char *)"                          Mats Birch, Mats Wallin.                          ");
 	rs(a);
-
 	ls(a);
 	pout(12, 0, (char *)"                          ALL RIGHTS RESERVED.                              ");
 	rs(a);
-
 	wl(a);
-
 	ls(a);
-	pout(9, 0, (char *)"Special thanks to Steven Wishart who wrote RapidBBS                         ");
+	pout(9, 0,  (char *)"This is free software; released under the terms of the GNU General Public   ");
 	rs(a);
-
+	ls(a);
+	pout(9, 0,  (char *)"License as published by the Free Software Foundation.                       ");
+	rs(a);
 	wl(a);
 
 	printf("%c", a ? 212 : '+');
