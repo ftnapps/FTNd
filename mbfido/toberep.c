@@ -53,8 +53,6 @@ int Add_ToBeRep(struct _filerecord report)
 	    WriteError("$Can't create %s", fname);
 	    free(fname);
 	    return FALSE;
-	} else {
-	    Syslog('f', "Created new %s", fname);
 	}
     }
     free(fname);
@@ -63,35 +61,26 @@ int Add_ToBeRep(struct _filerecord report)
     while (fread(&Temp, sizeof(Temp), 1, tbr) == 1) {
 
 	if (strcmp(Temp.Name, report.Name) == 0) {
-	    Syslog('f', "Add_ToBeRep found record with the same name");
 	    if (strlen(report.Echo) && (strcmp(Temp.Echo, report.Echo) == 0)) {
-		Syslog('f', "Add_ToBeRep this is the same tic area !!!");
 		/*
 		 * If it's a later received file, update the record
 		 */
 		if (report.Fdate > Temp.Fdate) {
-		    Syslog('f', "Add_ToBeRep this file is newer, update record at position %d", ftell(tbr));
 		    rc = fseek(tbr, - sizeof(Temp), SEEK_CUR);
-		    Syslog('f', "fseek rc=%d, size=%d", rc, sizeof(Temp));
-		    Syslog('f', "Position before update is now %d", ftell(tbr));
 		    rc = fwrite(&report, sizeof(Temp), 1, tbr);
-		    Syslog('f', "Written %d, position after update is now %d", rc, ftell(tbr));
 		    fclose(tbr);
 		    return TRUE;
 		}
-		Syslog('f', "Add_ToBeRep this file is older, discard record");
 		fclose(tbr);
 		return TRUE;
 	    }
 	}
 	if ((strcmp(Temp.Name, report.Name) == 0) && (Temp.Fdate == report.Fdate)) {
-	    Syslog('f', "Add_ToBeRep record with same filename, but other area");
 	    Found = TRUE;
 	}
     }
 
     if (Found) {
-	Syslog('!', "File %s already in toberep.data", report.Name);
 	fclose(tbr);
 	return FALSE;
     }
@@ -99,7 +88,6 @@ int Add_ToBeRep(struct _filerecord report)
     /*
      * Append record
      */
-    Syslog('f', "Add_ToBeRep append record at position %ld", ftell(tbr));
     fwrite(&report, sizeof(report), 1, tbr);
     fclose(tbr);
     return TRUE;
