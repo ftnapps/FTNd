@@ -205,7 +205,7 @@ int LoadTic(char *inb, char *tfn)
 		    Temp[255] = '\0';
 		}
 
-		Syslog('f', "TIC: %s", Temp);
+//		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
 			TIC.TicIn.Hatch = TRUE;
 
@@ -229,7 +229,6 @@ int LoadTic(char *inb, char *tfn)
 
 		} else if (strncasecmp(Temp, "fullname ", 9) == 0) {
 			strncpy(TIC.TicIn.FullName, Temp+9, 80);
-			Syslog('f', "Long filename: %s", TIC.TicIn.FullName);
 
 		} else if (strncasecmp(Temp, "created ", 8) == 0) {
 			strncpy(TIC.TicIn.Created, Temp+8, 80);

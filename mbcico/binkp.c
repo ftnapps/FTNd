@@ -116,15 +116,7 @@ int binkp(int role)
 		return rc;
 	}
 
-	if (role) {
-//		if (localoptions & NOHOLD)
-			nonhold_mail = (char *)ALL_MAIL;
-//		else
-//			nonhold_mail = (char *)NONHOLD_MAIL;
-	} else {
-		nonhold_mail = (char *)ALL_MAIL;
-	}
-
+	nonhold_mail = (char *)ALL_MAIL;
 	eff_remote = remote;
 	/*
 	 * If remote doesn't have the 8.3 flag set, allow long filenames.
@@ -304,7 +296,6 @@ to:
 
 void binkp_settimer(int interval)
 {
-	Syslog('B', "Set timer %d", interval);
 	Timer = time((time_t*)NULL) + interval;
 }
 
@@ -317,7 +308,7 @@ int binkp_expired(void)
 
 	now = time(NULL);
 	if (now >= Timer)
-		Syslog('b', "Timer expired");
+		Syslog('+', "Binkp: timeout");
 	return (now >= Timer);
 }
 
@@ -455,10 +446,8 @@ SM_STATE(sendpass)
 	if (strlen(nodes.Epasswd)) {
 		SendPass = TRUE;
 		binkp_send_control(MM_PWD, "%s", nodes.Epasswd);
-		Syslog('-', "Password from setup sent");
 	} else { 
 		binkp_send_control(MM_PWD, "-");
-		Syslog('-', "Blank password - sent");
 	}
 
 	SM_PROCEED(waitaddr)
@@ -724,7 +713,6 @@ SM_STATE(waitpwd)
 	}
 
 SM_STATE(pwdack)
-	Syslog('-', "pwdack '%s' Loaded=%s strlen(nodes.Epasswd)=%d", &rbuf[1], Loaded?"true":"false", strlen(nodes.Epasswd));
         if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
 		Syslog('+', "Node not in setup, unprotected BINKP session");
 		binkp_send_control(MM_OK, "");
@@ -1039,7 +1027,6 @@ int binkp_batch(file_list *to_send)
 					NotDone = TRUE;
 					break;
 				}
-			Syslog('B', "NotDone=%s", NotDone ? "True" : "False");
 			if (tmp == NULL) {
 				TxState = TxDone;
 				binkp_send_control(MM_EOB, "");
