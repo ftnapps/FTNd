@@ -21,6 +21,10 @@ v0.39.1		22-Oct-2003
 		With the file move command if the file already exists in the
 		destination area, the move is refused.
 
+	mbcico:
+		Added hydra rpos id -1 indicator for compression stop that
+		Alex and I agreed to use.
+
 	mbsetup:
 		In node editor, fixed error message when there was no more
 		room for new nodes to point to the right menus.

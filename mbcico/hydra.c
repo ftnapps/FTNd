@@ -560,7 +560,7 @@ int hydra_batch(int role, file_list *to_send)
     struct timeval  rxstarttime, rxendtime;
     struct timezone tz;
     int		    sverr;
-    int		    rcz, txcompressed;
+    int		    rcz, txcompressed, rxctries;
 
     Syslog('h', "Hydra: resettimers");
     RESETTIMERS();
@@ -585,6 +585,7 @@ int hydra_batch(int role, file_list *to_send)
     rxstate = HRX_INIT;
     rxoptions = HRXI_OPTIONS;
     compstate = HCMP_NONE;
+    rxctries = 0;
 
     while ((txstate != HTX_DONE) && (txstate != HTX_Abort)) {
 	/*
@@ -641,6 +642,16 @@ int hydra_batch(int role, file_list *to_send)
 	    long rpos_pos = get_long(rxbuf);
 	    long rpos_blksize = get_long(rxbuf + 4);
 	    long rpos_id = get_long(rxbuf + 8);
+
+#ifdef HAVE_ZLIB_H
+	    /*
+	     * If rpos_id is -1 the drop compression mode.
+	     */
+	    if ((rpos_id == -1) && (compstate != HCMP_NONE)) {
+		Syslog('+', "Hydra: remote asked stop compression");
+		compstate = HCMP_NONE;
+	    }
+#endif
 
 	    if (rpos_pos < 0) {
 		/*
@@ -1015,11 +1026,11 @@ int hydra_batch(int role, file_list *to_send)
 			}
 		    } else {
 #ifdef HAVE_ZLIB_H
-			if ((txoptions & HOPT_CANPLZ) && (txretries == 0)) {
+			if (compstate == HCMP_GZ) {
 			    txzlen = H_ZIPBUFLEN - 4;
 			    rcz = compress2(txzbuf + 4, &txzlen, txbuf + 4, txlen, 9);
 			    if (rcz == Z_OK) {
-				Syslog('h', "Compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
+				Syslog('h', "Hydra: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
 					(txzlen < txlen) ?"yes":"no");
 				if (txzlen < txlen) {
 				    txcompressed += (txlen - txzlen);
@@ -1040,7 +1051,7 @@ int hydra_batch(int role, file_list *to_send)
 				/*
 				 * Compress failed, send data uncompressed
 				 */
-				Syslog('h', "Compress error");
+				Syslog('h', "Hydra: compress error");
 				txpos += txlen;
 				sentbytes += txlen;
 				goodbytes += txlen;
@@ -1268,7 +1279,6 @@ int hydra_batch(int role, file_list *to_send)
 		    /* Skip application ID */
 		    Syslog('+', "Hydra: remote \"%s\"", rxbuf+8);
 		    inbuf = rxbuf + strlen(rxbuf) + 1;
-//		    Syslog('+', "Hydra: inbuf=\"%s\"", inbuf);
 
 		    inbuf += strlen(inbuf) + 1;
 	
@@ -1292,6 +1302,16 @@ int hydra_batch(int role, file_list *to_send)
 		    txoptions = rxoptions;
 		    put_flags(txbuf, rxoptions);
 		    Syslog('+', "Hydra: options: %s (%08lx)", txbuf, rxoptions);
+
+#ifdef HAVE_ZLIB_H
+		    /*
+		     * Set zlib gzip compression mode
+		     */
+		    if (txoptions & HOPT_CANPLZ) {
+			Syslog('h', "Hydra: compstate => HCMP_GZ");
+			compstate = HCMP_GZ;
+		    }
+#endif
 
 		    /*
  		     * get desired window sizes
@@ -1443,7 +1463,7 @@ int hydra_batch(int role, file_list *to_send)
 			    /*
 			     * Uncompress data and put the data into the normal receive buffer.
 			     */
-			    Syslog('h', "uncompressed size %d => %d", rxlen -4, rxzlen);
+			    Syslog('h', "Hydra: uncompressed size %d => %d", rxlen -4, rxzlen);
 			    memcpy(rxbuf + 4, rxzbuf, rxzlen);
 			    rxlen = rxzlen + 4;
 			} else {
@@ -1454,6 +1474,7 @@ int hydra_batch(int role, file_list *to_send)
 			    Syslog('+', "Hydra: ZIPDATA uncompress error, sending BadPos");
 			    longnum = get_long(rxbuf);
 			    rxstate = HRX_BadPos;
+			    rxctries++;
 			    pkttype = H_NOPKT;  /* packet has already been processed */
 			    break;
 			}
@@ -1467,7 +1488,7 @@ int hydra_batch(int role, file_list *to_send)
 		    Syslog('h', "Hydra: rcvd DATA (0x%08lx, 0x%08lx) %lu", longnum, rxpos, rxlen-4);
 #endif
 		    Nopper();
-		    Syslog('h', "longnum=%d, rxpos=%d", longnum, rxpos);
+		    Syslog('h', "Hydra: longnum=%d, rxpos=%d", longnum, rxpos);
 		    if (longnum == rxpos) {
 			if (fwrite(rxbuf + 4, 1, rxlen - 4, rxfp) != (rxlen - 4)) {
 			    WriteError("$Hydra: error writing to file");
@@ -1595,9 +1616,9 @@ int hydra_batch(int role, file_list *to_send)
 		rxstate = HRX_Retries;
 		break;	/* TODO: fallthrough */
 
-	    case HRX_Retries: 
-		Syslog('h', "SM 'HRX' entering 'Retries'");
+	    case HRX_Retries:
 		rxretries++;
+		Syslog('h', "SM 'HRX' entering 'Retries' (%d)", rxretries);
 		if (rxretries >= 10) {
 		    Syslog('+', "Hydra: too many errors");
 		    txstate = HTX_Abort;
@@ -1615,8 +1636,21 @@ int hydra_batch(int role, file_list *to_send)
 
 		put_long(txbuf, rxpos);
 		put_long(txbuf + 4, rxlastdatalen);
+#ifdef HAVE_ZLIB_H
+		/*
+		 * FIXME: after some errors and we are in gzip compression
+		 * mode we should send ID -1 to instruct the remote to
+		 * stop compression mode.
+		 */
+		if ((compstate != HCMP_NONE) && (rxctries > 4)) {
+		    Syslog('+', "Hydra: too much compress errors, instructing remote to stop compression");
+		    put_long(txbuf + 8, (long)-1L);
+		} else {
+		    put_long(txbuf + 8, rxsyncid);
+		}
+#else
 		put_long(txbuf + 8, rxsyncid);
-
+#endif
 		hytxpkt(HPKT_RPOS, txbuf, 12);
 		Syslog('h', "Hydra: set TX timer %d", H_MINTIMER);
 		SETTIMER(TIMERNO_RX, H_MINTIMER);
