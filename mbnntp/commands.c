@@ -44,6 +44,9 @@ char		currentgroup[81];   /* Current newsgroup    */
 extern unsigned long	sentbytes;
 
 
+void send_xlat(char *);
+char *make_msgid(char *);
+
 
 /*
  * Safe sending to the client with charset translation.
@@ -78,11 +81,16 @@ void send_xlat(char *inp)
 
 
 
-char *make_msgid(unsigned long nr, unsigned long crc)
+/*
+ * Build a faked RFC msgid, use the CRC32 of the FTN msgid, 
+ * the current group and the configured system's fqdn. This
+ * gives a unique string specific for the message.
+ */
+char *make_msgid(char *msgid)
 {
     static char	buf[100];
 
-    sprintf(buf, "<%lu$%8lx@%s>", nr, crc, CFG.sysdomain);
+    sprintf(buf, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
     return buf;
 }
 
@@ -96,9 +104,9 @@ char *make_msgid(unsigned long nr, unsigned long crc)
  */
 void command_abhs(char *buf)
 {
-    char	    *p, *cmd, *opt, dig[128];
+    char	    *p, *cmd, *opt;
     unsigned long   art = 0L;
-    int		    i;
+    int		    found;
 
     Syslog('+', "%s", buf);
     cmd = strtok(buf, " \0");
@@ -117,17 +125,24 @@ void command_abhs(char *buf)
     }
 
     if (opt[0] == '<') {
-	Syslog('n', "\"%s\"", printable(opt, 0));
-	strcpy(dig, opt+1);
-	Syslog('n', "\"%s\"", printable(dig, 0));
-	for (i = 0; i < strlen(dig); i++) {
-	    if (dig[i] == '$') {
-		dig[i] = '\0';
-		break;
+	/*
+	 * We have to read all headers in the area to retrieve the message using the msgid.
+	 */
+	found = FALSE;
+	Syslog('n', "Search from %lu to %lu for %s", MsgBase.Lowest, MsgBase.Highest, opt);
+	for (art = MsgBase.Lowest; art <= MsgBase.Highest; art++) {
+	    if (Msg_ReadHeader(art)) {
+		if (strcmp(opt, make_msgid(Msg.Msgid)) == 0) {
+		    Syslog('n', "Found message %lu", art);
+		    found = TRUE;
+		    break;
+		}
 	    }
 	}
-	Syslog('n', "\"%s\"", printable(dig, 0));
-	art = atoi(dig);
+	if (! found) {
+	    send_nntp("430 No such article found");
+	    return;
+	}
     } else {
 	art = atoi(opt);
     }
@@ -145,7 +160,7 @@ void command_abhs(char *buf)
     }
 
     if (strcasecmp(cmd, "STAT") == 0) {
-	send_nntp("223 %lu %s Article retrieved", art, make_msgid(art, StringCRC32(Msg.Msgid)));
+	send_nntp("223 %lu %s Article retrieved", art, make_msgid(Msg.Msgid));
 	return;
     }
 
@@ -157,11 +172,11 @@ void command_abhs(char *buf)
     if (Msg_Read(art, 75)) {
 
 	if (strcasecmp(cmd, "ARTICLE") == 0)
-	    send_nntp("220 %ld %s Article retrieved - Head and body follow", art, make_msgid(art, StringCRC32(Msg.Msgid)));
+	    send_nntp("220 %ld %s Article retrieved - Head and body follow", art, make_msgid(Msg.Msgid));
 	if (strcasecmp(cmd, "HEAD") == 0)
-	    send_nntp("221 %ld %s Article retrieved - Head follows", art, make_msgid(art, StringCRC32(Msg.Msgid)));
+	    send_nntp("221 %ld %s Article retrieved - Head follows", art, make_msgid(Msg.Msgid));
 	if (strcasecmp(cmd, "BODY") == 0)
-	    send_nntp("222 %ld %s Article retrieved - Body follows", art, make_msgid(art, StringCRC32(Msg.Msgid)));
+	    send_nntp("222 %ld %s Article retrieved - Body follows", art, make_msgid(Msg.Msgid));
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
@@ -170,9 +185,9 @@ void command_abhs(char *buf)
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    send_nntp("Subject: %s", Msg.Subject);
 	    send_nntp("Date: %s", rfcdate(Msg.Written));
-	    send_nntp("Message-ID: %s", make_msgid(art, StringCRC32(Msg.Msgid)));
+	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
-		send_nntp("References: %s", make_msgid(Msg.Reply, StringCRC32(Msg.Replyid)));
+		send_nntp("References: %s", make_msgid(Msg.Replyid));
 	    send_nntp("X-JAM-From: %s <%s>", Msg.From, Msg.FromAddress);
 	    if (strlen(Msg.To))
 		send_nntp("X-JAM-To: %s", Msg.To);
@@ -248,7 +263,6 @@ void command_group(char *cmd)
 	while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 	    if (msgs.Active && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Newsgroup) &&
 		    (strcasecmp(opt, msgs.Newsgroup) == 0) && Access(usrconfig.Security, msgs.RDSec)) {
-		Syslog('n', "Found the group");
 		if (Msg_Open(msgs.Base)) {
 		    Msg_Number();
 		    Msg_Highest();
@@ -417,10 +431,10 @@ void command_xover(char *cmd)
 		    } while ((p = (char *)MsgText_Next()) != NULL);
 		}
 	    }
-	    sprintf(msgid, "%s", make_msgid(i, StringCRC32(Msg.Msgid)));
+	    sprintf(msgid, "%s", make_msgid(Msg.Msgid));
 	    reply[0] = 0;
 	    if (strlen(Msg.Replyid))
-		sprintf(reply, "%s", make_msgid(Msg.Reply, StringCRC32(Msg.Replyid)));
+		sprintf(reply, "%s", make_msgid(Msg.Replyid));
 	    send_nntp("%lu\t%s\t%s <%s>\t%s\t%s\t%s\t%d\t%d", i, Msg.Subject, Msg.From, Msg.FromAddress, 
 		    rfcdate(Msg.Written), msgid, reply, bytecount, linecount);
 	}

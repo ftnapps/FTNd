@@ -6,6 +6,9 @@ v0.51.4		11-Apr-2004
 		Start mbsetup and leave. This wil update the message area
 		records.
 
+	libmsgbase.a:
+		With JAM_Readheader the Msg.Replyid field wasn't filled.
+
 	mbcico:
 		All heavy debug logmessages are now in defines and are only
 		enabled with ./configure --enable-newbinkp

@@ -845,205 +845,210 @@ int JAM_Previous (unsigned long *ulMsg)
 
 int JAM_ReadHeader (unsigned long ulMsg)
 {
-	int		i, RetVal = FALSE;
-	unsigned char	*pPos;
-	unsigned long	ulSubfieldLen, tmp;
-	JAMIDXREC	jamIdx;
-	JAMBINSUBFIELD	*jamSubField;
+    int		    i, RetVal = FALSE;
+    unsigned char   *pPos;
+    unsigned long   ulSubfieldLen, tmp;
+    JAMIDXREC	    jamIdx;
+    JAMBINSUBFIELD  *jamSubField;
 
-	tmp = Msg.Id;
-	JAM_New ();
-	Msg.Id = tmp;
+    tmp = Msg.Id;
+    JAM_New ();
+    Msg.Id = tmp;
 
-	if (Msg.Id == ulMsg) {
+    if (Msg.Id == ulMsg) {
 	// --------------------------------------------------------------------
 	// The user is requesting the header of the last message retrived
 	// so our first attempt is to read the last index from the file and
 	// check if this is the correct one.
 	// --------------------------------------------------------------------
-		lseek (fdJdx, tell (fdJdx) - sizeof (jamIdx), SEEK_SET);
-		if (read (fdJdx, &jamIdx, sizeof (jamIdx)) == sizeof (jamIdx)) {
-			lseek (fdHdr, jamIdx.HdrOffset, SEEK_SET);
-			read (fdHdr, &jamHdr, sizeof (JAMHDR));
-			if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
-				RetVal = TRUE;
-		}
+	lseek (fdJdx, tell (fdJdx) - sizeof (jamIdx), SEEK_SET);
+	if (read (fdJdx, &jamIdx, sizeof (jamIdx)) == sizeof (jamIdx)) {
+	    lseek (fdHdr, jamIdx.HdrOffset, SEEK_SET);
+	    read (fdHdr, &jamHdr, sizeof (JAMHDR));
+	    if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
+		RetVal = TRUE;
 	}
+    }
 
-	if (((Msg.Id + 1) == ulMsg) && (RetVal == FALSE)) {
+    if (((Msg.Id + 1) == ulMsg) && (RetVal == FALSE)) {
 	//---------------------------------------------------------------------
 	// If the user is requesting the header of the next message we attempt
 	// to read the next header and check if this is the correct one.
 	// This is EXPERIMENTAL
 	//---------------------------------------------------------------------
-		if (read(fdJdx, &jamIdx, sizeof(jamIdx)) == sizeof(jamIdx)) {
-			lseek(fdHdr, jamIdx.HdrOffset, SEEK_SET);
-			read(fdHdr, &jamHdr, sizeof(JAMHDR));
-			if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
-				RetVal = TRUE;
-		}
+	if (read(fdJdx, &jamIdx, sizeof(jamIdx)) == sizeof(jamIdx)) {
+	    lseek(fdHdr, jamIdx.HdrOffset, SEEK_SET);
+	    read(fdHdr, &jamHdr, sizeof(JAMHDR));
+	    if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
+		RetVal = TRUE;
 	}
+    }
 
 
-	if (RetVal == FALSE) {
+    if (RetVal == FALSE) {
 	// --------------------------------------------------------------------
 	// The message request is not the last retrived or the file pointers
 	// are not positioned where they should be, so now we attempt to
-	// retrive the message header scanning the database from the beginning.
+	// retrieve the message header scanning the database from the beginning.
 	// --------------------------------------------------------------------
-		Msg.Id = 0L;
-		lseek (fdJdx, 0L, SEEK_SET);
-		do {
-			if (read (fdJdx, &jamIdx, sizeof (jamIdx)) == sizeof (jamIdx)) {
-				lseek (fdHdr, jamIdx.HdrOffset, SEEK_SET);
-				read (fdHdr, &jamHdr, sizeof (JAMHDR));
-				if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
-					RetVal = TRUE;
-			}
-		} while (RetVal == FALSE && tell (fdJdx) < filelength (fdJdx));
-	}
+	Msg.Id = 0L;
+	lseek (fdJdx, 0L, SEEK_SET);
+	do {
+	    if (read (fdJdx, &jamIdx, sizeof (jamIdx)) == sizeof (jamIdx)) {
+		lseek (fdHdr, jamIdx.HdrOffset, SEEK_SET);
+		read (fdHdr, &jamHdr, sizeof (JAMHDR));
+		if (!(jamHdr.Attribute & MSG_DELETED) && jamHdr.MsgNum == ulMsg)
+		    RetVal = TRUE;
+	    }
+	} while (RetVal == FALSE && tell (fdJdx) < filelength (fdJdx));
+    }
 
-	if (RetVal == TRUE) {
-		Msg.Current = Msg.Id = ulMsg;
+    if (RetVal == TRUE) {
+	Msg.Current = Msg.Id = ulMsg;
 
-		Msg.Local          = (unsigned char)((jamHdr.Attribute & MSG_LOCAL)       ? TRUE : FALSE);
-		Msg.Intransit      = (unsigned char)((jamHdr.Attribute & MSG_INTRANSIT)   ? TRUE : FALSE);
-		Msg.Private        = (unsigned char)((jamHdr.Attribute & MSG_PRIVATE)     ? TRUE : FALSE);
-		Msg.Received       = (unsigned char)((jamHdr.Attribute & MSG_READ)        ? TRUE : FALSE);
-		Msg.Sent           = (unsigned char)((jamHdr.Attribute & MSG_SENT)        ? TRUE : FALSE);
-		Msg.KillSent       = (unsigned char)((jamHdr.Attribute & MSG_KILLSENT)    ? TRUE : FALSE);
-		Msg.ArchiveSent    = (unsigned char)((jamHdr.Attribute & MSG_ARCHIVESENT) ? TRUE : FALSE);
-		Msg.Hold           = (unsigned char)((jamHdr.Attribute & MSG_HOLD)        ? TRUE : FALSE);
-		Msg.Crash          = (unsigned char)((jamHdr.Attribute & MSG_CRASH)       ? TRUE : FALSE);
-		Msg.Immediate      = (unsigned char)((jamHdr.Attribute & MSG_IMMEDIATE)   ? TRUE : FALSE);
-		Msg.Direct         = (unsigned char)((jamHdr.Attribute & MSG_DIRECT)      ? TRUE : FALSE);
-		Msg.Gate	   = (unsigned char)((jamHdr.Attribute & MSG_GATE)        ? TRUE : FALSE);
-		Msg.FileRequest    = (unsigned char)((jamHdr.Attribute & MSG_FILEREQUEST) ? TRUE : FALSE);
-		Msg.FileAttach     = (unsigned char)((jamHdr.Attribute & MSG_FILEATTACH)  ? TRUE : FALSE);
-		Msg.TruncFile      = (unsigned char)((jamHdr.Attribute & MSG_TRUNCFILE)   ? TRUE : FALSE);
-		Msg.KillFile       = (unsigned char)((jamHdr.Attribute & MSG_KILLFILE)    ? TRUE : FALSE);
-		Msg.ReceiptRequest = (unsigned char)((jamHdr.Attribute & MSG_RECEIPTREQ)  ? TRUE : FALSE);
-		Msg.ConfirmRequest = (unsigned char)((jamHdr.Attribute & MSG_CONFIRMREQ)  ? TRUE : FALSE);
-		Msg.Orphan         = (unsigned char)((jamHdr.Attribute & MSG_ORPHAN)      ? TRUE : FALSE);
-		Msg.Encrypt        = (unsigned char)((jamHdr.Attribute & MSG_ENCRYPT)     ? TRUE : FALSE);
-		Msg.Compressed     = (unsigned char)((jamHdr.Attribute & MSG_COMPRESS)    ? TRUE : FALSE);
-		Msg.Escaped        = (unsigned char)((jamHdr.Attribute & MSG_ESCAPED)     ? TRUE : FALSE);
-		Msg.ForcePU        = (unsigned char)((jamHdr.Attribute & MSG_FPU)         ? TRUE : FALSE);
-		Msg.Localmail	   = (unsigned char)((jamHdr.Attribute & MSG_TYPELOCAL)   ? TRUE : FALSE);
-		Msg.Echomail       = (unsigned char)((jamHdr.Attribute & MSG_TYPEECHO)    ? TRUE : FALSE);
-		Msg.Netmail        = (unsigned char)((jamHdr.Attribute & MSG_TYPENET)     ? TRUE : FALSE);
-		Msg.Nodisplay      = (unsigned char)((jamHdr.Attribute & MSG_NODISP)      ? TRUE : FALSE);
-		Msg.Locked         = (unsigned char)((jamHdr.Attribute & MSG_LOCKED)      ? TRUE : FALSE);
-		Msg.Deleted        = (unsigned char)((jamHdr.Attribute & MSG_DELETED)     ? TRUE : FALSE);
+	Msg.Local          = (unsigned char)((jamHdr.Attribute & MSG_LOCAL)       ? TRUE : FALSE);
+	Msg.Intransit      = (unsigned char)((jamHdr.Attribute & MSG_INTRANSIT)   ? TRUE : FALSE);
+	Msg.Private        = (unsigned char)((jamHdr.Attribute & MSG_PRIVATE)     ? TRUE : FALSE);
+	Msg.Received       = (unsigned char)((jamHdr.Attribute & MSG_READ)        ? TRUE : FALSE);
+	Msg.Sent           = (unsigned char)((jamHdr.Attribute & MSG_SENT)        ? TRUE : FALSE);
+	Msg.KillSent       = (unsigned char)((jamHdr.Attribute & MSG_KILLSENT)    ? TRUE : FALSE);
+	Msg.ArchiveSent    = (unsigned char)((jamHdr.Attribute & MSG_ARCHIVESENT) ? TRUE : FALSE);
+	Msg.Hold           = (unsigned char)((jamHdr.Attribute & MSG_HOLD)        ? TRUE : FALSE);
+	Msg.Crash          = (unsigned char)((jamHdr.Attribute & MSG_CRASH)       ? TRUE : FALSE);
+	Msg.Immediate      = (unsigned char)((jamHdr.Attribute & MSG_IMMEDIATE)   ? TRUE : FALSE);
+	Msg.Direct         = (unsigned char)((jamHdr.Attribute & MSG_DIRECT)      ? TRUE : FALSE);
+	Msg.Gate	   = (unsigned char)((jamHdr.Attribute & MSG_GATE)        ? TRUE : FALSE);
+	Msg.FileRequest    = (unsigned char)((jamHdr.Attribute & MSG_FILEREQUEST) ? TRUE : FALSE);
+	Msg.FileAttach     = (unsigned char)((jamHdr.Attribute & MSG_FILEATTACH)  ? TRUE : FALSE);
+	Msg.TruncFile      = (unsigned char)((jamHdr.Attribute & MSG_TRUNCFILE)   ? TRUE : FALSE);
+	Msg.KillFile       = (unsigned char)((jamHdr.Attribute & MSG_KILLFILE)    ? TRUE : FALSE);
+	Msg.ReceiptRequest = (unsigned char)((jamHdr.Attribute & MSG_RECEIPTREQ)  ? TRUE : FALSE);
+	Msg.ConfirmRequest = (unsigned char)((jamHdr.Attribute & MSG_CONFIRMREQ)  ? TRUE : FALSE);
+	Msg.Orphan         = (unsigned char)((jamHdr.Attribute & MSG_ORPHAN)      ? TRUE : FALSE);
+	Msg.Encrypt        = (unsigned char)((jamHdr.Attribute & MSG_ENCRYPT)     ? TRUE : FALSE);
+	Msg.Compressed     = (unsigned char)((jamHdr.Attribute & MSG_COMPRESS)    ? TRUE : FALSE);
+	Msg.Escaped        = (unsigned char)((jamHdr.Attribute & MSG_ESCAPED)     ? TRUE : FALSE);
+	Msg.ForcePU        = (unsigned char)((jamHdr.Attribute & MSG_FPU)         ? TRUE : FALSE);
+	Msg.Localmail	   = (unsigned char)((jamHdr.Attribute & MSG_TYPELOCAL)   ? TRUE : FALSE);
+	Msg.Echomail       = (unsigned char)((jamHdr.Attribute & MSG_TYPEECHO)    ? TRUE : FALSE);
+	Msg.Netmail        = (unsigned char)((jamHdr.Attribute & MSG_TYPENET)     ? TRUE : FALSE);
+	Msg.Nodisplay      = (unsigned char)((jamHdr.Attribute & MSG_NODISP)      ? TRUE : FALSE);
+	Msg.Locked         = (unsigned char)((jamHdr.Attribute & MSG_LOCKED)      ? TRUE : FALSE);
+	Msg.Deleted        = (unsigned char)((jamHdr.Attribute & MSG_DELETED)     ? TRUE : FALSE);
 
-		Msg.Written = jamHdr.DateWritten;
-		Msg.Arrived = jamHdr.DateProcessed;
-		Msg.Read    = jamHdr.DateReceived;
+	Msg.Written = jamHdr.DateWritten;
+	Msg.Arrived = jamHdr.DateProcessed;
+	Msg.Read    = jamHdr.DateReceived;
 
-		Msg.Original = jamHdr.ReplyTo;
-		Msg.Reply = jamHdr.ReplyNext;
+	Msg.Original = jamHdr.ReplyTo;
+	Msg.Reply = jamHdr.ReplyNext;
 
-		if (pSubfield != NULL)
-			free (pSubfield);
-		pSubfield = NULL;
+	if (pSubfield != NULL)
+	    free (pSubfield);
+	pSubfield = NULL;
 
-		if (jamHdr.SubfieldLen > 0L) {
-			ulSubfieldLen = jamHdr.SubfieldLen;
-			pPos = pSubfield = (unsigned char *)malloc ((size_t)(ulSubfieldLen + 1));
-			if (pSubfield == NULL)
-				return (FALSE);
+	if (jamHdr.SubfieldLen > 0L) {
+	    ulSubfieldLen = jamHdr.SubfieldLen;
+	    pPos = pSubfield = (unsigned char *)malloc ((size_t)(ulSubfieldLen + 1));
+	    if (pSubfield == NULL)
+		return (FALSE);
 
-			read (fdHdr, pSubfield, (size_t)jamHdr.SubfieldLen);
+	    read (fdHdr, pSubfield, (size_t)jamHdr.SubfieldLen);
 
-			while (ulSubfieldLen > 0L) {
-				jamSubField = (JAMBINSUBFIELD *)pPos;
-				pPos += sizeof (JAMBINSUBFIELD);
-				/*
-				 * The next check is to prevent a segmentation
-				 * fault by corrupted subfields.
-				 */
-				if ((jamSubField->DatLen < 0) || (jamSubField->DatLen > jamHdr.SubfieldLen))
-					return FALSE;
-
-				switch (jamSubField->LoID) {
-				case JAMSFLD_SENDERNAME:
-					if (jamSubField->DatLen > 100) {
-						memcpy (Msg.From, pPos, 100);
-						Msg.From[100] = '\0';
-					} else {
-						memcpy (Msg.From, pPos, (int)jamSubField->DatLen);
-						Msg.From[(int)jamSubField->DatLen] = '\0';
-					}
-					break;
-
-				case JAMSFLD_RECVRNAME:
-					if (jamSubField->DatLen > 100) {
-						memcpy (Msg.To, pPos, 100);
-						Msg.To[100] = '\0';
-					} else {
-						memcpy (Msg.To, pPos, (int)jamSubField->DatLen);
-						Msg.To[(int)jamSubField->DatLen] = '\0';
-					}
-					break;
-
-				case JAMSFLD_SUBJECT:
-					if (jamSubField->DatLen > 100) {
-						memcpy (Msg.Subject, pPos, 100);
-						Msg.Subject[100] = '\0';
-					} else {
-						memcpy (Msg.Subject, pPos, (int)jamSubField->DatLen);
-						Msg.Subject[(int)jamSubField->DatLen] = '\0';
-					}
-					break;
-
-				case JAMSFLD_OADDRESS:
-					if (jamSubField->DatLen > 100) {
-						memcpy (Msg.FromAddress, pPos, 100);
-						 Msg.FromAddress[100] = '\0';
-					} else {
-						memcpy (Msg.FromAddress, pPos, (int)jamSubField->DatLen);
-						Msg.FromAddress[(int)jamSubField->DatLen] = '\0';
-					}
-					break;
-
-				case JAMSFLD_DADDRESS:
-					if (jamSubField->DatLen > 100) {
-						memcpy(Msg.ToAddress, pPos, 100);
-						Msg.ToAddress[100] = '\0';
-					} else {
-						memcpy (Msg.ToAddress, pPos, (int)jamSubField->DatLen);
-						Msg.ToAddress[(int)jamSubField->DatLen] = '\0';
-					}
-					break;
-
-				case JAMSFLD_MSGID:
-					memcpy (Msg.Msgid, pPos, (int)jamSubField->DatLen);
-					Msg.Msgid[(int)jamSubField->DatLen] = '\0';
-					break;
-
-				default:
-					break;
-				}
-				ulSubfieldLen -= sizeof (JAMBINSUBFIELD) + jamSubField->DatLen;
-				if (ulSubfieldLen > 0)
-					pPos += (int)jamSubField->DatLen;
-			}
-		}
+	    while (ulSubfieldLen > 0L) {
+		jamSubField = (JAMBINSUBFIELD *)pPos;
+		pPos += sizeof (JAMBINSUBFIELD);
 		/*
-		 *  In the original BBS we found that GEcho was not
-		 *  setting the FromAddress. We take it from the MSGID
-		 *  if there is one.
+		 * The next check is to prevent a segmentation
+		 * fault by corrupted subfields.
 		 */
-		if ((!strlen(Msg.FromAddress)) && (strlen(Msg.Msgid))) {
-			for (i = 0; i < strlen(Msg.Msgid); i++) {
-				if ((Msg.Msgid[i] == '@') || (Msg.Msgid[i] == ' '))
-					break;
-				Msg.FromAddress[i] = Msg.Msgid[i];
-			}
-		}
-	}
+		if ((jamSubField->DatLen < 0) || (jamSubField->DatLen > jamHdr.SubfieldLen))
+		    return FALSE;
 
-	return (RetVal);
+		switch (jamSubField->LoID) {
+		    case JAMSFLD_SENDERNAME:
+			if (jamSubField->DatLen > 100) {
+			    memcpy (Msg.From, pPos, 100);
+			    Msg.From[100] = '\0';
+			} else {
+			    memcpy (Msg.From, pPos, (int)jamSubField->DatLen);
+			    Msg.From[(int)jamSubField->DatLen] = '\0';
+			}
+			break;
+
+		    case JAMSFLD_RECVRNAME:
+			if (jamSubField->DatLen > 100) {
+			    memcpy (Msg.To, pPos, 100);
+			    Msg.To[100] = '\0';
+			} else {
+			    memcpy (Msg.To, pPos, (int)jamSubField->DatLen);
+			    Msg.To[(int)jamSubField->DatLen] = '\0';
+			}
+			break;
+
+		    case JAMSFLD_SUBJECT:
+			if (jamSubField->DatLen > 100) {
+			    memcpy (Msg.Subject, pPos, 100);
+			    Msg.Subject[100] = '\0';
+			} else {
+			    memcpy (Msg.Subject, pPos, (int)jamSubField->DatLen);
+			    Msg.Subject[(int)jamSubField->DatLen] = '\0';
+			}
+			break;
+
+		    case JAMSFLD_OADDRESS:
+			if (jamSubField->DatLen > 100) {
+			    memcpy (Msg.FromAddress, pPos, 100);
+			    Msg.FromAddress[100] = '\0';
+			} else {
+			    memcpy (Msg.FromAddress, pPos, (int)jamSubField->DatLen);
+			    Msg.FromAddress[(int)jamSubField->DatLen] = '\0';
+			}
+			break;
+
+		    case JAMSFLD_DADDRESS:
+			if (jamSubField->DatLen > 100) {
+			    memcpy(Msg.ToAddress, pPos, 100);
+			    Msg.ToAddress[100] = '\0';
+			} else {
+			    memcpy (Msg.ToAddress, pPos, (int)jamSubField->DatLen);
+			    Msg.ToAddress[(int)jamSubField->DatLen] = '\0';
+			}
+			break;
+
+		    case JAMSFLD_MSGID:
+			memcpy (Msg.Msgid, pPos, (int)jamSubField->DatLen);
+			Msg.Msgid[(int)jamSubField->DatLen] = '\0';
+			break;
+
+		    case JAMSFLD_REPLYID:
+			memcpy (Msg.Replyid, pPos, (int)jamSubField->DatLen);
+			Msg.Replyid[(int)jamSubField->DatLen] = '\0';
+			break;
+
+		    default:
+			break;
+		}
+		ulSubfieldLen -= sizeof (JAMBINSUBFIELD) + jamSubField->DatLen;
+		if (ulSubfieldLen > 0)
+		    pPos += (int)jamSubField->DatLen;
+	    }
+	}
+	/*
+	 *  In the original BBS we found that GEcho was not
+	 *  setting the FromAddress. We take it from the MSGID
+	 *  if there is one.
+	 */
+	if ((!strlen(Msg.FromAddress)) && (strlen(Msg.Msgid))) {
+	    for (i = 0; i < strlen(Msg.Msgid); i++) {
+		if ((Msg.Msgid[i] == '@') || (Msg.Msgid[i] == ' '))
+		    break;
+		Msg.FromAddress[i] = Msg.Msgid[i];
+	    }
+	}
+    }
+
+    return (RetVal);
 }
 
 

@@ -30,11 +30,14 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
- #include "ttyio.h"
+#include "ttyio.h"
 #include "openport.h"
 
 
-int		hanged_up = 0;
+int	hanged_up = 0;
+
+void    linedrop(int);
+void    sigpipe(int);
 
 
 
@@ -63,11 +66,7 @@ int rawport(void)
     signal(SIGHUP, linedrop);
     Syslog('t', "SIGPIPE => sigpipe()");
     signal(SIGPIPE, sigpipe);
-
-    if (isatty(0)) 
-	return tty_raw(0);
-    else 
-	return 0;
+    return 0;
 }
 
 
@@ -78,51 +77,6 @@ int cookedport(void)
     signal(SIGHUP, SIG_IGN);
     Syslog('t', "SIGPIPE => SIG_IGN");
     signal(SIGPIPE, SIG_IGN);
-    if (isatty(0)) 
-	return tty_cooked();
-    else 
-	return 0;
+    return 0;
 }
-
-
-static struct termios savetios;
-static struct termios tios;
-
-
-int tty_raw(int speed)
-{
-    int	    rc;
-
-    Syslog('t', "Set tty raw");
-
-    if ((rc = tcgetattr(0,&savetios))) {
-	WriteError("$tcgetattr(0,save) return %d",rc);
-	return rc;
-    }
-
-    tios = savetios;
-    tios.c_iflag = 0;
-    tios.c_oflag = 0;
-    tios.c_cflag &= ~(CSTOPB | PARENB | PARODD);
-    tios.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
-    tios.c_lflag = 0;
-    tios.c_cc[VMIN] = 1;
-    tios.c_cc[VTIME] = 0;
-
-    if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
-	WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
-
-    return rc;
-}
-
-
-int tty_cooked(void)
-{
-    int	    rc;
-
-    if ((rc = tcsetattr(0,TCSAFLUSH,&savetios)))
-	Syslog('t', "$tcsetattr(0,TCSAFLUSH,save) return %d",rc);
-    return rc;
-}
-
 

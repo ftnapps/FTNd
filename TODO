@@ -30,7 +30,7 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 libmsgbase.a:
-	N: Msg.Replyid is not filled. CRC fields are not filled.
+	N: CRC fields are not filled.
 
 mbsebbs:
 	X: Better word wrapping or paragraph justification in editor.
