@@ -1012,286 +1012,293 @@ USHORT TOffline::TooOld (ULONG Restrict, class TMsgBase *Msg)
  */
 void OLR_Upload(void)
 {
-	char		*File, *temp, *Arc;
-	time_t		ElapstimeStart, ElapstimeFin, iTime;
-	int		err, Strlen, RetVal = FALSE;
-	struct stat	statbuf;
-	FILE		*fp;
+    char	*File, *temp, *Arc;
+    time_t	ElapstimeStart, ElapstimeFin, iTime;
+    int		err, Strlen, RetVal = FALSE;
+    struct stat	statbuf;
+    FILE	*fp;
 
-	WhosDoingWhat(OLR);
-	clear();
-	colour(13, 0);
-	/*      Offline Reader Upload */
-	printf("%s\n", (char *)Language(439));
-
-	if (!ForceProtocol())
-		return;
-
-	File  = calloc(PATH_MAX, sizeof(char));
-	temp  = calloc(PATH_MAX, sizeof(char));
-
-	if (!uProtBatch) {
-		Enter(1);
-		/* Please enter file to upload: */
-		pout(14, 0, (char *) Language(276));
-
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(File, 80);
-
-		Syslog('+', "Filename entered \"%s\"", File);
-
-		if ((strcmp(File, "")) == 0)
-			return;
-
-		if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return;
-		}
-
-		Strlen = strlen(File);
-		Strlen--;
-
-		if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return;
-		}
-
-		if (strncasecmp(File, CFG.bbsid, strlen(CFG.bbsid))) {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return;
-		}
-		Syslog('+', "Filename accepted");
-	}
-
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Please start your upload now */
-	printf("\n%s, %s\n\n", sProtAdvice, (char *) Language(283));
-	if (uProtBatch)
-		Syslog('+', "Upload using %s", sProtName);
-	else
-		Syslog('+', "Upload \"%s\" using %s", File, sProtName);
-
-	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-
-	if (chdir(temp)) {
-		WriteError("$Can't chdir to %s", temp);
-		return;
-	}
-
-	fflush(stdout);
-	fflush(stdin);
-	sleep(2);
-	ElapstimeStart = time(NULL);
-
-	/*
-	 *  Get the file
-	 */
-	Altime(7200);
-	alarm_set(7190);
-	if ((err = execute(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		WriteError("$Upload error %d, prot: %s", err, sProtUp);
-	}
-	Altime(0);
-	alarm_off();
-	alarm_on();
-	printf("\n");
-	fflush(stdout);
-	fflush(stdin);
-	ElapstimeFin = time(NULL);
-
-	/*
-	 *  Get the upload time.
-	 */
-	iTime = ElapstimeFin - ElapstimeStart;
-	if (!iTime)
-		iTime = 1;
-
-	Syslog('m', "Transfer time %ld", iTime);
-	Home();
-
-	if (!RetVal) {
-		sprintf(File, "%s/%s/upl/%s.NEW", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		Syslog('m', "Check %s", File);
-		if (stat(File, &statbuf) == 0)
-			RetVal = TRUE;
-	}
-
-	if (!RetVal) {
-		File = tl(File);
-		Syslog('m', "Check %s", File);
-		if (stat(File, &statbuf) == 0)
-			RetVal = TRUE;
-	}
-
-	if (!RetVal) {
-		sprintf(File, "%s/%s/upl/%s.REP", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		Syslog('m', "Check %s", File);
-		if (stat(File, &statbuf) == 0)
-			RetVal = TRUE;
-	}
-
-	if (!RetVal) {
-		File = tl(File);
-		Syslog('m', "Check %s", File);
-		if (stat(File, &statbuf) == 0)
-			RetVal = TRUE;
-	}
-
-	if (RetVal == FALSE) {
-		WriteError("Invalid OLR packed received");
-		/*      Invalid packet received */
-		printf("%s\n\n", (char *)Language(440));
-		sleep(2);
-		return;
-	}
-	Syslog('+', "Received OLR packet %s", File);
-
-	if ((Arc = GetFileType(File)) == NULL) {
-		/*      Unknown compression type */
-		printf("%s\n", (char *)Language(441));
-		Syslog('+', "Unknown compression type");
-		Pause();
-		return;
-	}
-
-	Syslog('m', "File type is %s", Arc);
-
-	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL)
-		return;
-
-	fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
-
-	while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
-		if ((strcmp(Arc, archiver.name) == 0) && archiver.available)
-			break;
-	}
-	fclose(fp);
-
-	if (strcmp(Arc, archiver.name) || (!archiver.available)) {
-		Syslog('+', "Archiver %s not available", Arc);
-		/*      Archiver not available */
-		printf("%s\n", (char *)Language(442));
-		Pause();
-		return;
-	}
-
-	Syslog('m', "Archiver %s", archiver.comment);
-
-	colour(CFG.TextColourF, CFG.TextColourB);
-	/* Unpacking archive */
-	printf("%s ", (char *) Language(201));
-	fflush(stdout);
-	sprintf(temp, "%s %s", archiver.funarc, File);
-	Syslog('m', "Unarc %s", temp);
-	colour(CFG.HiliteF, CFG.HiliteB);
-
-	if ((err = execute(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
-		WriteError("$Failed %s", temp);
-		/* ERROR */
-		printf("%s\n", (char *) Language(217));
-		fflush(stdout);
-		Pause();
-		return;
-	}
-
-	/* Ok */
-	printf("%s\n", (char *) Language(200));
-	fflush(stdout);
-	unlink(File);
-
-	/*
-	 * Check for BlueWave files, upper and lowercase.
-	 */
-	RetVal = FALSE;
-	sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-	temp = tl(temp);
-	if (!file_exist(temp, R_OK))
-		RetVal = TRUE;
-
-	sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	if (RetVal) {
-		Syslog('+', "OLR packet is BlueWave");
-		free(File);
-		free(temp);
-		BlueWave_Fetch();
-		return;
-	}
-
-	sprintf(temp, "%s/%s/%s.MSG", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if (!file_exist(temp, R_OK)) 
-		RetVal = TRUE;
-
-        temp = tl(temp);
-        if (!file_exist(temp, R_OK))
-                RetVal = TRUE;
-
-	if (RetVal) {
-		Syslog('+', "OLR packet is QWK");
-		free(File);
-		free(temp);
-		QWK_Fetch();
-		return;
-	}
-
-	WriteError("OLR_Upload: Garbage in mailpacket, clean directory!");
-	/*      Unknown type mailpacket */
-	printf("%s\n", (char *)Language(443));
+    if (strlen(CFG.bbsid) == 0) {
+	printf("System configuration error, inform sysop\n");
+	WriteError("Config OLR bbsid not configured");
 	Pause();
+	return;
+    }
+
+    WhosDoingWhat(OLR);
+    clear();
+    colour(13, 0);
+    /*      Offline Reader Upload */
+    printf("%s\n", (char *)Language(439));
+
+    if (!ForceProtocol())
+	return;
+
+    File  = calloc(PATH_MAX, sizeof(char));
+    temp  = calloc(PATH_MAX, sizeof(char));
+
+    if (!uProtBatch) {
+	Enter(1);
+	/* Please enter file to upload: */
+	pout(14, 0, (char *) Language(276));
+
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(File, 80);
+
+	Syslog('+', "Filename entered \"%s\"", File);
+
+	if ((strcmp(File, "")) == 0)
+	    return;
+
+	if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    return;
+	}
+
+	Strlen = strlen(File);
+	Strlen--;
+
+	if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal Filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    return;
+	}
+
+	if (strncasecmp(File, CFG.bbsid, strlen(CFG.bbsid))) {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    return;
+	}
+	Syslog('+', "Filename accepted");
+    }
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    /* Please start your upload now */
+    printf("\n%s, %s\n\n", sProtAdvice, (char *) Language(283));
+    if (uProtBatch)
+	Syslog('+', "Upload using %s", sProtName);
+    else
+	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+
+    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+
+    if (chdir(temp)) {
+	WriteError("$Can't chdir to %s", temp);
+	return;
+    }
+
+    fflush(stdout);
+    fflush(stdin);
+    sleep(2);
+    ElapstimeStart = time(NULL);
+
+    /*
+     *  Get the file
+     */
+    Altime(7200);
+    alarm_set(7190);
+    if ((err = execute(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
+	colour(CFG.HiliteF, CFG.HiliteB);
+	WriteError("$Upload error %d, prot: %s", err, sProtUp);
+    }
+    Altime(0);
+    alarm_off();
+    alarm_on();
+    printf("\n");
+    fflush(stdout);
+    fflush(stdin);
+    ElapstimeFin = time(NULL);
+
+    /*
+     *  Get the upload time.
+     */
+    iTime = ElapstimeFin - ElapstimeStart;
+    if (!iTime)
+	iTime = 1;
+
+    Syslog('m', "Transfer time %ld", iTime);
+    Home();
+
+    if (!RetVal) {
+	sprintf(File, "%s/%s/upl/%s.NEW", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	Syslog('m', "Check %s", File);
+	if (stat(File, &statbuf) == 0)
+	    RetVal = TRUE;
+    }
+
+    if (!RetVal) {
+	File = tl(File);
+	Syslog('m', "Check %s", File);
+	if (stat(File, &statbuf) == 0)
+	    RetVal = TRUE;
+    }
+
+    if (!RetVal) {
+	sprintf(File, "%s/%s/upl/%s.REP", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	Syslog('m', "Check %s", File);
+	if (stat(File, &statbuf) == 0)
+	    RetVal = TRUE;
+    }
+
+    if (!RetVal) {
+	File = tl(File);
+	Syslog('m', "Check %s", File);
+	if (stat(File, &statbuf) == 0)
+	    RetVal = TRUE;
+    }
+
+    if (RetVal == FALSE) {
+	WriteError("Invalid OLR packed received");
+	/*      Invalid packet received */
+	printf("%s\n\n", (char *)Language(440));
+	sleep(2);
+	return;
+    }
+    Syslog('+', "Received OLR packet %s", File);
+
+    if ((Arc = GetFileType(File)) == NULL) {
+	/*      Unknown compression type */
+	printf("%s\n", (char *)Language(441));
+	Syslog('+', "Unknown compression type");
+	Pause();
+	return;
+    }
+
+    Syslog('m', "File type is %s", Arc);
+
+    sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL)
+	return;
+
+    fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
+
+    while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
+	if ((strcmp(Arc, archiver.name) == 0) && archiver.available)
+	    break;
+    }
+    fclose(fp);
+
+    if (strcmp(Arc, archiver.name) || (!archiver.available)) {
+	Syslog('+', "Archiver %s not available", Arc);
+	/*      Archiver not available */
+	printf("%s\n", (char *)Language(442));
+	Pause();
+	return;
+    }
+
+    Syslog('m', "Archiver %s", archiver.comment);
+
+    colour(CFG.TextColourF, CFG.TextColourB);
+    /* Unpacking archive */
+    printf("%s ", (char *) Language(201));
+    fflush(stdout);
+    sprintf(temp, "%s %s", archiver.funarc, File);
+    Syslog('m', "Unarc %s", temp);
+    colour(CFG.HiliteF, CFG.HiliteB);
+
+    if ((err = execute(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
+	WriteError("$Failed %s", temp);
+	/* ERROR */
+	printf("%s\n", (char *) Language(217));
+	fflush(stdout);
+	Pause();
+	return;
+    }
+
+    /* Ok */
+    printf("%s\n", (char *) Language(200));
+    fflush(stdout);
+    unlink(File);
+
+    /*
+     * Check for BlueWave files, upper and lowercase.
+     */
+    RetVal = FALSE;
+    sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+	RetVal = TRUE;
+
+    sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+        RetVal = TRUE;
+
+    sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+        RetVal = TRUE;
+
+    sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+        RetVal = TRUE;
+
+    sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+        RetVal = TRUE;
+
+    sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+	RetVal = TRUE;
+
+    if (RetVal) {
+	Syslog('+', "OLR packet is BlueWave");
 	free(File);
 	free(temp);
+	BlueWave_Fetch();
+	return;
+    }
+
+    sprintf(temp, "%s/%s/%s.MSG", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if (!file_exist(temp, R_OK)) 
+	RetVal = TRUE;
+
+    temp = tl(temp);
+    if (!file_exist(temp, R_OK))
+        RetVal = TRUE;
+
+    if (RetVal) {
+	Syslog('+', "OLR packet is QWK");
+	free(File);
+	free(temp);
+	QWK_Fetch();
+	return;
+    }
+
+    WriteError("OLR_Upload: Garbage in mailpacket, clean directory!");
+    /*      Unknown type mailpacket */
+    printf("%s\n", (char *)Language(443));
+    Pause();
+    free(File);
+    free(temp);
 }
 
 
@@ -1323,6 +1330,13 @@ void OLR_DownBW()
     INF_AREA_INFO   AreaInf;
     unsigned long   Start, High;
     msg_high	    *mhl = NULL;
+
+    if (strlen(CFG.bbsid) == 0) {
+	printf("System configuration error, inform sysop\n");
+	WriteError("Config OLR bbsid not configured");
+	Pause();
+	return;
+    }
 
     if (!OLR_Prescan())
 	return;
@@ -2204,6 +2218,13 @@ void OLR_DownQWK(void)
     unsigned long   Start, High;
     msg_high	    *tmp, *mhl = NULL;
 
+    if (strlen(CFG.bbsid) == 0) {
+	printf("System configuration error, inform sysop\n");
+	WriteError("Config OLR bbsid not configured");
+	Pause();
+	return;
+    }
+
     if (!OLR_Prescan())
 	return;
 
@@ -2890,128 +2911,134 @@ char *StripSpaces(char *String, int Size)
 
 void OLR_DownASCII(void)
 {
-	struct  tm      *tp;
-	time_t          Now;
-	char            Pktname[32];
-	long            Area = 0;
-	char            *Work, *Temp;
-	int             rc = 0;
-	FILE            *fp = NULL, *tf, *mf, *af;
-	unsigned long   Start, High;
-	msg_high        *tmp, *mhl = NULL;
+    struct  tm      *tp;
+    time_t          Now;
+    char            Pktname[32], *Work, *Temp;
+    long            Area = 0;
+    int             rc = 0;
+    FILE            *fp = NULL, *tf, *mf, *af;
+    unsigned long   Start, High;
+    msg_high        *tmp, *mhl = NULL;
 
-	if (!OLR_Prescan())
-		return;
-
-	Total = TotalPersonal = 0L;
-	clear();
-	colour(9, 0);
-	/*      ASCII Offline Download */
-	printf("%s\n", (char *)Language(460));
-
-	Work = calloc(PATH_MAX, sizeof(char));
-	Temp = calloc(PATH_MAX, sizeof(char));
-	
-	Now = time(NULL);
-	tp = localtime(&Now);
-	Syslog('+', "Preparing ASCII packet");
-
-	sprintf(Temp, "%s.MSG", CFG.bbsid);
-	sprintf(Pktname, "%s", tl(Temp));
-	sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
-
-	sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((mf = fopen(Temp, "r")) == NULL) {
-		WriteError("$Can't open %s", Temp);
-		fclose(fp);
-		return;
-	}
-	fread(&msgshdr, sizeof(msgshdr), 1, mf);
-
-	sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	if ((tf = fopen(Temp, "r")) == NULL) {
-		WriteError("$Can't open %s", Temp);
-		fclose(fp);
-		fclose(mf);
-		return;
-	}
-
-	Area = 0;
-	DrawBar(Pktname);
-	fseek(mf, sizeof(msgshdr), SEEK_SET);
-	fseek(tf, 0, SEEK_SET);
-
-	while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-		fseek(mf, msgshdr.syssize, SEEK_CUR);
-		fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-		Area++;
-		if (olrtagrec.Tagged) {
-			if (Msg_Open(msgs.Base)) {
-				Current = Personal = 0;
-				if (Msg_Highest() != 0) {
-					memset(&LR, 0, sizeof(LR));
-					LR.UserID = grecno;
-					if (Msg_GetLastRead(&LR))
-						Start = LR.HighReadMsg;
-					else
-						Start = Msg_Lowest() -1;
-					if (Start > Msg_Highest())
-						Start = Msg_Highest();
-					if (Start < Msg_Highest()) {
-						High = ASCII_PackArea(Start, Area);
-						fill_high(&mhl, Area, High, Personal);
-					}
-				}
-				Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
-				Msg_Close();
-			}
-		}
-	}
-
-	if (Total) {
-		/*        Packing with */
-		printf("\n%s ", (char *)Language(446));
-		sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-		if ((af = fopen(Temp, "r")) != NULL) {
-			fread(&archiverhdr, sizeof(archiverhdr), 1, af);
-			while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
-				if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
-					Syslog('+', "Archiver %s", archiver.comment);
-					printf("%s ", archiver.comment);
-					alarm_on();
-
-					for (tmp = mhl; tmp; tmp = tmp->next) {
-						sprintf(Temp, "%s/%03ld.TXT", Work, tmp->Area);
-						AddArc(Temp, Pktname);
-					}
-					sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
-					rc = DownloadDirect(Temp, FALSE);
-					unlink(Temp);
-				}
-			}
-			fclose(af);
-		}
-	}
-
-	colour(CFG.HiliteF, CFG.HiliteB);
-	if (rc == FALSE) {
-		Syslog('+', "ASCII download failed");
-		/*      Download failed */
-		printf("%s", (char *)Language(447));
-	} else {
-		Syslog('+', "ASCII download successfull");
-		/*        Download successfull */
-		printf("\r%s\n", (char *)Language(448));
-
-		if (mhl != NULL)
-			UpdateLR(mhl, mf);
-	}
-	fclose(mf);
-	tidy_high(&mhl);
-	free(Temp);
-	free(Work);
-	printf("\n\n");
+    if (strlen(CFG.bbsid) == 0) {
+	printf("System configuration error, inform sysop\n");
+	WriteError("Config OLR bbsid not configured");
 	Pause();
+	return;
+    }
+
+    if (!OLR_Prescan())
+	return;
+
+    Total = TotalPersonal = 0L;
+    clear();
+    colour(9, 0);
+    /*      ASCII Offline Download */
+    printf("%s\n", (char *)Language(460));
+
+    Work = calloc(PATH_MAX, sizeof(char));
+    Temp = calloc(PATH_MAX, sizeof(char));
+	
+    Now = time(NULL);
+    tp = localtime(&Now);
+    Syslog('+', "Preparing ASCII packet");
+
+    sprintf(Temp, "%s.MSG", CFG.bbsid);
+    sprintf(Pktname, "%s", tl(Temp));
+    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+
+    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((mf = fopen(Temp, "r")) == NULL) {
+	WriteError("$Can't open %s", Temp);
+	fclose(fp);
+	return;
+    }
+    fread(&msgshdr, sizeof(msgshdr), 1, mf);
+
+    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    if ((tf = fopen(Temp, "r")) == NULL) {
+	WriteError("$Can't open %s", Temp);
+	fclose(fp);
+	fclose(mf);
+	return;
+    }
+
+    Area = 0;
+    DrawBar(Pktname);
+    fseek(mf, sizeof(msgshdr), SEEK_SET);
+    fseek(tf, 0, SEEK_SET);
+
+    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+	fseek(mf, msgshdr.syssize, SEEK_CUR);
+	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+	Area++;
+	if (olrtagrec.Tagged) {
+	    if (Msg_Open(msgs.Base)) {
+		Current = Personal = 0;
+		if (Msg_Highest() != 0) {
+		    memset(&LR, 0, sizeof(LR));
+		    LR.UserID = grecno;
+		    if (Msg_GetLastRead(&LR))
+			Start = LR.HighReadMsg;
+		    else
+			Start = Msg_Lowest() -1;
+		    if (Start > Msg_Highest())
+			Start = Msg_Highest();
+		    if (Start < Msg_Highest()) {
+			High = ASCII_PackArea(Start, Area);
+			fill_high(&mhl, Area, High, Personal);
+		    }
+		}
+		Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
+		Msg_Close();
+	    }
+	}
+    }
+
+    if (Total) {
+	/*        Packing with */
+	printf("\n%s ", (char *)Language(446));
+	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	if ((af = fopen(Temp, "r")) != NULL) {
+	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
+	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
+		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
+		    Syslog('+', "Archiver %s", archiver.comment);
+		    printf("%s ", archiver.comment);
+		    alarm_on();
+
+		    for (tmp = mhl; tmp; tmp = tmp->next) {
+			sprintf(Temp, "%s/%03ld.TXT", Work, tmp->Area);
+			AddArc(Temp, Pktname);
+		    }
+		    sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    rc = DownloadDirect(Temp, FALSE);
+		    unlink(Temp);
+		}
+	    }
+	    fclose(af);
+	}
+    }
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    if (rc == FALSE) {
+	Syslog('+', "ASCII download failed");
+	/*      Download failed */
+	printf("%s", (char *)Language(447));
+    } else {
+	Syslog('+', "ASCII download successfull");
+	/*        Download successfull */
+	printf("\r%s\n", (char *)Language(448));
+
+	if (mhl != NULL)
+	    UpdateLR(mhl, mf);
+    }
+    fclose(mf);
+    tidy_high(&mhl);
+    free(Temp);
+    free(Work);
+    printf("\n\n");
+    Pause();
 }
 
 

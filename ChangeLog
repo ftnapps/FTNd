@@ -43,6 +43,10 @@ v0.37.01	14-Jan-2003.
 		When moving a message area to area zero mbsetup doesn't crash
 		anymore.
 
+	mbsebbs:
+		It will now refuse to up/download OLR packets when the system
+		bbs id is not set in the global setup.
+
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003
 
