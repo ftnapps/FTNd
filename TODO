@@ -76,7 +76,6 @@ mbtask:
 	   available for all other programs so they know very fast if enough
 	   space is still available.
 
-
 mbfido:
 	N: The elist rules files are named (8.3) areaname.rul where areaname
 	   is the first 8 characters of the area name and we use the full name
@@ -140,8 +139,6 @@ mbfile:
 	L: Rearc <area>
 
 	L: Possibility to skip file areas from checking and reindexing.
-
-	N: Add check for newfiles database for double entries.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area
