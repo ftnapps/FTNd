@@ -38,7 +38,7 @@ v0.61.2		11-Jul-2004
 		deleted from the system by replace, or keep # magic actions,
 		but also for files with the same name that are replaced.
 		Currently tested: duplicate names - works.
-				  keep #          -
+				  keep #          - works.
 				  replace	  -
 		Removed debug logging from toberep function since all problems
 		seems solved.
