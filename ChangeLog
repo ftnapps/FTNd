@@ -62,6 +62,8 @@ v0.51.4		11-Apr-2004
 		It wasn't possible anymore to change the number of systems in
 		menu 1.11.11
 		Fixed a header include.
+		Fixed an error where new created file areas were created
+		without a file header.
 
 	mbtask:
 		Removed debug logging for the disk thread.

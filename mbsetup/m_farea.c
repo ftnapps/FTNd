@@ -419,6 +419,9 @@ int EditFileRec(int Area)
 			    if ((fp = fopen(temp, "a+")) == NULL) {
 				WriteError("$Can't create file database %s", temp);
 			    } else {
+				fdbhdr.hdrsize = sizeof(fdbhdr);
+				fdbhdr.recsize = sizeof(fdb);
+				fwrite(fp, sizeof(fdbhdr), 1, fp);
 				fclose(fp);
 			    }
 			    chmod(temp, 0660);
