@@ -40,7 +40,7 @@ int _execute(char **, char *, char *, char *);
 int _execute(char **args, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
-    int	    i, pid, status = 0, rc = 0;
+    int	    i, pid, terrno = 0, status = 0, rc = 0;
 
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
@@ -76,6 +76,7 @@ int _execute(char **args, char *in, char *out, char *err)
 		exit(MBERR_EXEC_FAILED);
 	    }
 	}
+
 	errno = 0;
 	rc = getpriority(PRIO_PROCESS, 0);
 	if (errno == 0) {
@@ -96,12 +97,22 @@ int _execute(char **args, char *in, char *out, char *err)
 	e_pid = 0;
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
 
+    terrno = errno;
     setpriority(PRIO_PROCESS, 0, 0);
+    errno = terrno;
 
     switch (rc) {
 	case -1:
-		WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
-		return 0;
+		/*
+		 * Seems to be a problem on fast systems, hope it is ok.
+		 */
+		if (errno == ECHILD) {
+		    Syslog('+', "Execute: no child process, this seems well");
+		    return 0;
+		} else {
+		    WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
+		    return -1;
+		}
 	case 0:
 		return 0;
 	default:
