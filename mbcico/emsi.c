@@ -73,210 +73,202 @@ char	emsi_remote_comm[4]="8N1";
 
 int rx_emsi(char *data)
 {
-	int	rc;
-	fa_list	*tmr;
-	int	denypw=0;
+    int	    rc;
+    fa_list *tmr;
+    int	    denypw=0;
 
-	Syslog('+', "Start inbound EMSI session");
+    Syslog('+', "Start inbound EMSI session");
 
-	emsi_local_lcodes = LCODE_RH1;
-//	if (localoptions & NOPUA) 
-//		emsi_local_lcodes |= LCODE_PUP;
-	emsi_remote_lcodes=0;
+    emsi_local_lcodes = LCODE_RH1;
+    emsi_remote_lcodes=0;
 
-	emsi_local_protos=LOCAL_PROTOS;
-	if (localoptions & NOZMODEM) 
-		emsi_local_protos &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
-	if (localoptions & NOZEDZAP) 
-		emsi_local_protos &= ~PROT_ZAP;
-	if (localoptions & NOJANUS) 
-		emsi_local_protos &= ~PROT_JAN;
-	if (localoptions & NOHYDRA) 
-		emsi_local_protos &= ~PROT_HYD;
-	if ((localoptions & NOITN) || (localoptions & NOIFC) || ((session_flags & SESSION_TCP) == 0)) {
-		emsi_local_protos &= ~PROT_TCP;
+    emsi_local_protos=LOCAL_PROTOS;
+    if (localoptions & NOZMODEM) 
+	emsi_local_protos &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
+    if (localoptions & NOZEDZAP) 
+	emsi_local_protos &= ~PROT_ZAP;
+    if (localoptions & NOJANUS) 
+	emsi_local_protos &= ~PROT_JAN;
+    if (localoptions & NOHYDRA) 
+	emsi_local_protos &= ~PROT_HYD;
+    if ((localoptions & NOITN) || (localoptions & NOIFC) || ((session_flags & SESSION_TCP) == 0)) {
+	emsi_local_protos &= ~PROT_TCP;
+    }
+
+    emsi_remote_protos=0;
+    emsi_local_opts = OPT_XMA;
+    emsi_remote_opts=0;
+    emsi_local_password = NULL;
+    emsi_remote_password = NULL;
+    intro=data+2;
+    caller=0;
+
+    if ((rc=rxemsi())) 
+	return MBERR_EMSI;
+
+    Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
+    Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
+
+    if (emsi_remote_opts & OPT_EII) {
+	emsi_local_opts |= OPT_EII;
+    }
+
+    emsi_local_protos &= emsi_remote_protos;
+    if (emsi_local_protos & PROT_TCP) 
+	emsi_local_protos &= PROT_TCP;
+    else if (emsi_local_protos & PROT_HYD) 
+	emsi_local_protos &= PROT_HYD;
+    else if (emsi_local_protos & PROT_JAN)
+	emsi_local_protos &= PROT_JAN;
+    else if (emsi_local_protos & PROT_ZAP) 
+	emsi_local_protos &= PROT_ZAP;
+    else if (emsi_local_protos & PROT_ZMO) 
+	emsi_local_protos &= PROT_ZMO;
+    else if (emsi_local_protos & PROT_DZA) 
+	emsi_local_protos &= PROT_DZA;
+    else if (emsi_local_protos & PROT_KER) 
+	emsi_local_protos &= PROT_KER;
+
+    emsi_local_password = NULL;
+
+    for (tmr = remote; tmr; tmr = tmr->next)
+	if (((nlent = getnlent(tmr->addr))) && (nlent->pflag != NL_DUMMY)) {
+	    Syslog('+', "Remote is a listed system");
+	    if (inbound)
+		free(inbound);
+	    inbound = xstrcpy(CFG.inbound);
+	    break;
 	}
+    if (nlent) 
+	rdoptions(TRUE);
 
-	emsi_remote_protos=0;
-	emsi_local_opts = OPT_XMA;
-	emsi_remote_opts=0;
-	emsi_local_password = NULL;
-	emsi_remote_password = NULL;
-	intro=data+2;
-	caller=0;
+    /*
+     * Added these options, if they are in the setup for this
+     * calling node, then disable these options.
+     */
+    if (localoptions & NOHYDRA)
+	emsi_local_opts &= ~PROT_HYD;
+    if (localoptions & NOZEDZAP)
+	emsi_local_opts &= ~PROT_ZAP;
+    if (localoptions & NOZMODEM)
+	emsi_local_opts &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
 
-	if ((rc=rxemsi())) 
-		return MBERR_EMSI;
+    if (localoptions & NOFREQS)
+	emsi_local_opts |= OPT_NRQ;
 
-	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
-	Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
-
-	if (emsi_remote_opts & OPT_EII) {
-		emsi_local_opts |= OPT_EII;
-	}
-
-	emsi_local_protos &= emsi_remote_protos;
-	if (emsi_local_protos & PROT_TCP) 
-		emsi_local_protos &= PROT_TCP;
-	else if (emsi_local_protos & PROT_HYD) 
-		emsi_local_protos &= PROT_HYD;
-	else if (emsi_local_protos & PROT_JAN)
-		emsi_local_protos &= PROT_JAN;
-	else if (emsi_local_protos & PROT_ZAP) 
-		emsi_local_protos &= PROT_ZAP;
-	else if (emsi_local_protos & PROT_ZMO) 
-		emsi_local_protos &= PROT_ZMO;
-	else if (emsi_local_protos & PROT_DZA) 
-		emsi_local_protos &= PROT_DZA;
-	else if (emsi_local_protos & PROT_KER) 
-		emsi_local_protos &= PROT_KER;
-
-	emsi_local_password = NULL;
-
-	for (tmr = remote; tmr; tmr = tmr->next)
-		if (((nlent = getnlent(tmr->addr))) && (nlent->pflag != NL_DUMMY)) {
-			Syslog('+', "Remote is a listed system");
-			if (inbound)
-				free(inbound);
-			inbound = xstrcpy(CFG.inbound);
-			break;
-		}
-	if (nlent) 
-		rdoptions(TRUE);
-
-	/*
-	 * Added these options, if they are in the setup for this
-	 * calling node, then disable these options.
-	 */
-	if (localoptions & NOHYDRA)
-		emsi_local_opts &= ~PROT_HYD;
-	if (localoptions & NOZEDZAP)
-		emsi_local_opts &= ~PROT_ZAP;
-	if (localoptions & NOZMODEM)
-		emsi_local_opts &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
-
-	if (localoptions & NOFREQS)
-		emsi_local_opts |= OPT_NRQ;
-
-	if (strlen(nodes.Spasswd)) {
-		if ((strncasecmp(emsi_remote_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
-	            (strlen(emsi_remote_password) == strlen(nodes.Spasswd))) {
-			emsi_local_password = xstrcpy(nodes.Spasswd);
-			if (inbound)
-				free(inbound);
-			inbound = xstrcpy(CFG.pinbound);
-			Syslog('+', "Password correct, protected EMSI session");
-		} else {
-			denypw = 1;
-			Syslog('?', "Remote password \"%s\", expected \"%s\"", MBSE_SS(emsi_remote_password), nodes.Spasswd);
-			emsi_local_password = xstrcpy((char *)"BAD_PASS");
-			emsi_local_lcodes = LCODE_HAT;
-		}
+    if (strlen(nodes.Spasswd)) {
+	if ((strncasecmp(emsi_remote_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
+	    (strlen(emsi_remote_password) == strlen(nodes.Spasswd))) {
+	    emsi_local_password = xstrcpy(nodes.Spasswd);
+	    if (inbound)
+		free(inbound);
+	    inbound = xstrcpy(CFG.pinbound);
+	    Syslog('+', "Password correct, protected EMSI session");
 	} else {
-		Syslog('i', "No EMSI password check");
-		Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
+	    denypw = 1;
+	    Syslog('?', "Remote password \"%s\", expected \"%s\"", MBSE_SS(emsi_remote_password), nodes.Spasswd);
+	    emsi_local_password = xstrcpy((char *)"BAD_PASS");
+	    emsi_local_lcodes = LCODE_HAT;
 	}
+    } else {
+	Syslog('i', "No EMSI password check");
+	Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
+    }
 
-	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
+    Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
-	if ((rc=txemsi())) 
-		return MBERR_EMSI;
+    if ((rc=txemsi())) 
+	return MBERR_EMSI;
 
-	if (denypw || (emsi_local_protos == 0)) {
-		Syslog('+', "Refusing remote: %s", emsi_local_protos?"bad password presented": "no common protocols");
-		return 0;
-	}
+    if (denypw || (emsi_local_protos == 0)) {
+	Syslog('+', "Refusing remote: %s", emsi_local_protos?"bad password presented": "no common protocols");
+	return 0;
+    }
 
-	IsDoing("EMSI %s inb", ascfnode(remote->addr, 0x0f));
+    IsDoing("EMSI %s inb", ascfnode(remote->addr, 0x0f));
 
-	if ((emsi_remote_opts & OPT_NRQ) == 0) 
-		session_flags |= SESSION_WAZOO;
-	else 
-		session_flags &= ~SESSION_WAZOO;
+    if ((emsi_remote_opts & OPT_NRQ) == 0) 
+	session_flags |= SESSION_WAZOO;
+    else 
+	session_flags &= ~SESSION_WAZOO;
 
-	if (emsi_local_protos & PROT_TCP) 
-		return rxtcp();
-	else if (emsi_local_protos & PROT_HYD)
-		return hydra(0);
-//	else if (emsi_local_protos & PROT_JAN)
-//		return janus();
-	else 
-		return rxwazoo();
+    if (emsi_local_protos & PROT_TCP) 
+	return rxtcp();
+    else if (emsi_local_protos & PROT_HYD)
+	return hydra(0);
+//  else if (emsi_local_protos & PROT_JAN)
+//	return janus();
+    else 
+	return rxwazoo();
 }
 
 
 
 int tx_emsi(char *data)
 {
-	int	rc;
+    int	rc;
 
-	Syslog('+', "Start outbound EMSI session");
-	emsi_local_lcodes = LCODE_PUA | LCODE_RH1;
-//	if (localoptions & NOPUA) {
-//		emsi_local_lcodes |= LCODE_PUP;
-//		emsi_local_lcodes &= ~LCODE_PUA;
-//	}
-	emsi_remote_lcodes = 0;
+    Syslog('+', "Start outbound EMSI session");
+    emsi_local_lcodes = LCODE_PUA | LCODE_RH1;
+    emsi_remote_lcodes = 0;
 
-	emsi_local_protos=LOCAL_PROTOS;
-	if (localoptions & NOZMODEM) 
-		emsi_local_protos &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
-	if (localoptions & NOZEDZAP) 
-		emsi_local_protos &= ~PROT_ZAP;
-	if (localoptions & NOJANUS)
-		emsi_local_protos &= ~PROT_JAN;
-	if (localoptions & NOHYDRA) 
-		emsi_local_protos &= ~PROT_HYD;
-	if ((localoptions & NOIFC) || (localoptions & NOITN) || ((session_flags & SESSION_TCP) == 0)) {
-		emsi_local_protos &= ~PROT_TCP;
-	}
-	emsi_remote_protos=0;
-	emsi_local_opts=OPT_XMA | OPT_EII | OPT_NRQ;
-//	if (localoptions & NOFREQS) /* 17-Dec-1998, refuse requests when we pay the bill. */
-//		emsi_local_opts |= OPT_NRQ;
-	emsi_remote_opts=0;
-	emsi_local_password=NULL;
-	emsi_remote_password=NULL;
-	intro=data+2;
-	caller=1;
-	emsi_local_password=NULL;
+    emsi_local_protos=LOCAL_PROTOS;
+    if (localoptions & NOZMODEM) 
+	emsi_local_protos &= ~(PROT_ZMO | PROT_ZAP | PROT_DZA);
+    if (localoptions & NOZEDZAP) 
+	emsi_local_protos &= ~PROT_ZAP;
+    if (localoptions & NOJANUS)
+	emsi_local_protos &= ~PROT_JAN;
+    if (localoptions & NOHYDRA) 
+	emsi_local_protos &= ~PROT_HYD;
+    if ((localoptions & NOIFC) || (localoptions & NOITN) || ((session_flags & SESSION_TCP) == 0)) {
+	emsi_local_protos &= ~PROT_TCP;
+    }
+    emsi_remote_protos=0;
+    emsi_local_opts=OPT_XMA | OPT_EII | OPT_NRQ;
+    emsi_remote_opts=0;
+    emsi_local_password=NULL;
+    emsi_remote_password=NULL;
+    intro=data+2;
+    caller=1;
+    emsi_local_password=NULL;
 
-	Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
+    Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
-	if ((rc=txemsi())) 
-		return MBERR_EMSI;
-	else {
-		if ((rc=rxemsi())) 
-			return MBERR_EMSI;
-	}
+    if ((rc=txemsi())) 
+	return MBERR_EMSI;
+    else {
+	if ((rc=rxemsi())) 
+	    return MBERR_EMSI;
+    }
 
-	if ((emsi_remote_opts & OPT_EII) == 0) {
-		emsi_local_opts &= ~OPT_EII;
-	}
+    if ((emsi_remote_opts & OPT_EII) == 0) {
+	emsi_local_opts &= ~OPT_EII;
+    }
 
-	Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
+    Syslog('i', "remote lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_remote_lcodes,emsi_remote_protos,emsi_remote_opts);
 
-	if ((emsi_remote_protos == 0) || (emsi_remote_lcodes & LCODE_HAT)) {
-		Syslog('+', "Remote refused us: %s", emsi_remote_protos?"traffic held":"no common protos");
-		return 0;
-	}
+    if ((emsi_remote_protos == 0) || (emsi_remote_lcodes & LCODE_HAT)) {
+	Syslog('+', "Remote refused us: %s", emsi_remote_protos?"traffic held":"no common protos");
+	return MBERR_SESSION_ERROR;
+    }
 
-	IsDoing("EMSI %s out", ascfnode(remote->addr, 0x0f));
+    IsDoing("EMSI %s out", ascfnode(remote->addr, 0x0f));
 
-	emsi_local_protos &= emsi_remote_protos;
-	if ((emsi_remote_opts & OPT_NRQ) == 0) 
-		session_flags |= SESSION_WAZOO;
-	else 
-		session_flags &= ~SESSION_WAZOO;
+    emsi_local_protos &= emsi_remote_protos;
+    if ((emsi_remote_opts & OPT_NRQ) == 0) 
+	session_flags |= SESSION_WAZOO;
+    else 
+	session_flags &= ~SESSION_WAZOO;
 
-	if (emsi_local_protos & PROT_TCP) 
-		return txtcp();
-	else if (emsi_local_protos & PROT_HYD)
-		return hydra(1);
-//	else if (emsi_local_protos & PROT_JAN)
-//		return janus();
-	else 
-		return txwazoo();
+    if (emsi_local_protos & PROT_TCP) 
+	return txtcp();
+    else if (emsi_local_protos & PROT_HYD)
+	return hydra(1);
+//  else if (emsi_local_protos & PROT_JAN)
+//	return janus();
+    else 
+	return txwazoo();
 }
 
 

@@ -104,12 +104,12 @@ int binkp(int role)
     if (role == 1) {
 	Syslog('+', "BINKP start outbound session");
 	if (orgbinkp()) {
-	    rc = MBERR_FTRANSFER;
+	    rc = MBERR_SESSION_ERROR;
 	}
     } else {
 	Syslog('+', "BINKP start inbound session");
 	if (ansbinkp()) {
-	    rc = MBERR_FTRANSFER;
+	    rc = MBERR_SESSION_ERROR;
 	}
     }
 	

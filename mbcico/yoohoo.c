@@ -260,7 +260,7 @@ int tx_yoohoo(void)
 
     if ((rc == 0) && ((capabilities & LOCALCAPS) == 0)) {
 	Syslog('+', "No common protocols");
-	return 0;
+	return MBERR_SESSION_ERROR;
     }
 
     if (rc) 

@@ -180,18 +180,27 @@ This variable must point to the root of the bbs directoy structure.
 <pre>
 0        - No errors
 1..32    - OS errors, SIGHUP, SIGKILL, etc.
-101      - No dialout ports available.
-102      - Dial failed (no CONNECT or TCP connection failed).
-103      - Could not reset the modem (no OK).
-104      - System is locked.
-105      - not used?
-106      - Nodelist lookup failed.
-107      - Call prohibited by config options.
-108      - Phone number unavailable.
-109      - No matching ports defined.
-110      - Tried to call a CM system outside ZMH.
-111..129 - Session failures (not defined).
-130      - Could not establish session, system is marked undialable.
+100      - Commandline error.
+101      - Configuration error.
+103      - Disk full.
+108      - File transfer error.
+111      - Node not in nodelist.
+112      - Node may not be called (Hold, Down, not ZMH).
+113      - Could not make connection.
+114      - Cannot open tty port.
+115      - Node is locked.
+116      - No IP address.
+117      - Unknown session type.
+118      - Not Zone Mail Hour.
+119      - Modem error.
+120      - Not port available.
+121      - Session error.
+122      - EMSI session error.
+123      - FTSC session error.
+124      - Wazoo session error.
+125      - YooHoo session error.
+126      - Outbound scan error.
+127      - Cannot poll.
 </pre>
 These codes are also stored in status files for nodes, with the extension
 of ".sts". These are small datafiles containing three decimal numbers.

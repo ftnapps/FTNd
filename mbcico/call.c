@@ -69,7 +69,7 @@ int portopen(faddr *addr)
 	if ((rc = opentcp(inetaddr))) {
 	    Syslog('+', "Cannot connect %s", inetaddr);
 	    nodeulock(addr);
-	    putstatus(addr,1,MBERR_NO_CONNECTION);
+//	    putstatus(addr,1,MBERR_NO_CONNECTION);
 	    return MBERR_NO_CONNECTION;
 	}
 	return MBERR_OK;
@@ -288,9 +288,9 @@ int call(faddr *addr)
 	return rc;
     }
 
-    if ((rc == MBERR_NOT_ZMH) || (rc == MBERR_UNKNOWN_SESSION))  /* Session error */
+    if ((rc == MBERR_NOT_ZMH) || (rc == MBERR_SESSION_ERROR))  /* Session error */
 	putstatus(addr, 5, rc);
-    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_SESSION_ERROR))
+    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_UNKNOWN_SESSION))
 	putstatus(addr,1,rc);
     else
 	putstatus(addr,0,rc);
