@@ -470,10 +470,10 @@ YN|Adxuntar ficheiro [s/N]:
 |papeleira - Papeleira, Email borrado
 |Area # 
 |minutos.
-|Fullscreen Editor shortcut keys set to Emacs
-|Fullscreen Editor shortcut keys set to Wordstar
-|Your address, maximum 3 lines (only visible for the sysop):
-|You need to enter your address here
-|Old address:
-|Use your alias (
-YN|) to post this message [Y/n]: 
+|O editor funcionar  cas teclas de Emacs
+|O editor funcionar  cas teclas de Wordstar
+|Enderezo, m ximo 3 li¤as (solo o ver  o SysOp):
+|Tes que po¤e-lo teu enderezo 
+|Enderezo vello:
+|¨Queres usa-lo alias (
+SN|) nesta mensaxe?  [S/n]: 

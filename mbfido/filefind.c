@@ -183,8 +183,10 @@ int StartReply(ff_list *ffl)
 	Msg.Written = time(NULL);
 	Msg.Arrived = time(NULL);
 	Msg.Local   = TRUE;
-	if (scanmgr.NetReply)
+	if (scanmgr.NetReply){
 		Msg.Netmail = TRUE;
+		sprintf(Msg.ToAddress, "%d:%d/%d.%d", ffl->zone, ffl->net, ffl->node, ffl->point);
+	}
 	else
 		Msg.Echomail = TRUE;
 
