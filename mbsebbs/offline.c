@@ -232,7 +232,7 @@ void OLR_TagArea()
     long    total, Offset, Area;
     int	    lines, input, ignore = FALSE, maxlines;
 
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
 
     Msgname = calloc(PATH_MAX, sizeof(char));
     Tagname = calloc(PATH_MAX, sizeof(char));
@@ -375,7 +375,7 @@ void OLR_UntagArea()
     long    total, Offset, Area;
     int     lines, input, ignore = FALSE, maxlines;
 
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
 
     Msgname = calloc(PATH_MAX, sizeof(char));
     Tagname = calloc(PATH_MAX, sizeof(char));
@@ -719,7 +719,7 @@ void OLR_ViewTags()
     long    total, Area = 0;
     int     lines, input, ignore = FALSE, maxlines;
 
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
 
     Tagname = calloc(PATH_MAX, sizeof(char));
     Msgname = calloc(PATH_MAX, sizeof(char));
@@ -813,7 +813,7 @@ int OLR_Prescan()
     FILE	    *mf, *tf;
     int		    x;
 
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
     clear();
     colour(LIGHTMAGENTA, BLACK);
     /*      Offline Reader Download */
@@ -939,7 +939,7 @@ void DrawBar(char *Pktname)
 
 void OLR_RestrictDate()
 {
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
 
     printf("Not Yet Implemented\n");
     Pause();
@@ -1022,7 +1022,7 @@ void OLR_Upload(void)
 	return;
     }
 
-    WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR, NULL);
     clear();
     colour(LIGHTMAGENTA, BLACK);
     /*      Offline Reader Upload */

@@ -18,7 +18,7 @@
 17	file.c				|This is not a plain textfile.
 18	user.c				|You may only login
 19	user.c				|times at the same time
-20	.c				|
+20	door.c				|The door is in use by another user, try again later
 21	.c				|
 22	.c				|
 23	.c				|

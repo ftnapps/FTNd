@@ -402,7 +402,7 @@ void Post_Msg()
     unsigned short  point;
 
     Line = 1;
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
     SetMsgArea(iMsgAreaNumber);
 
     clear();
@@ -811,7 +811,7 @@ int Export_a_Msg(unsigned long Num)
 
     LastNum = Num;
     iLineCount = 7;
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
 
     /*
      * The sysop has a choice to export to the rules directory.
@@ -960,7 +960,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 
 	LastNum = Num;
 	iLineCount = 7;
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 
 	/*
 	 * The area data is already set, so we can do the next things
@@ -1172,7 +1172,7 @@ int ReadPanel()
 {
     int input;
 
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
 
     colour(WHITE, RED);
     /*
@@ -1310,7 +1310,7 @@ void Reply_Msg(int IsReply)
     strncpy(msgid, Msg.Msgid, 80);
 
     x = 0;
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
     clear();
     colour(BLUE, LIGHTGRAY);
     printf("   %-71s", sMsgAreaDesc);
@@ -1486,7 +1486,7 @@ void QuickScan_Msgs()
     long    i;
 
     iLineCount = 2;
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
 
     if (MsgBase.Total == 0) {
 	Enter(1);
@@ -1552,7 +1552,7 @@ void Delete_Msg()
     char	    *temp;
     unsigned long   Msgnum = 0L;
 
-    WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST, NULL);
 
     /*
      * The area data is already set, so we can do the next things
@@ -2524,7 +2524,7 @@ int Ext_Edit()
 	}
 	fclose(fd);
 	stat( tmpname, &st1 );
-	ExtDoor(CFG.externaleditor,FALSE,TRUE,TRUE,FALSE,TRUE);
+	ExtDoor(CFG.externaleditor,FALSE,TRUE,TRUE,FALSE,TRUE, FALSE, (char *)"Write message");
 	stat( tmpname, &st2 );
     }
     

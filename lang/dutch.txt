@@ -18,7 +18,7 @@ HR|Exporteer naar (H)ome of (R)egels directory:
 |Dit is geen normaal tekst bestand
 |U mag maar
 |keer tegelijk inloggen
-|
+|De door is in gebruik door een andere gebruiker, probeer het later nog eens
 |
 |
 |

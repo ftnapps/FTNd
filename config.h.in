@@ -302,3 +302,6 @@
 /* Define if you have the <iconv.h> header file.  */
 #undef HAVE_ICONV_H
 
+/* Define if you have the <zlib.h> header file. */
+#undef HAVE_ZLIB_H
+

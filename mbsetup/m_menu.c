@@ -108,16 +108,18 @@ void Show_A_Menu(void)
     mvprintw(11, 2, "4.  Display");
     mvprintw(12, 2, "5.  Security");
     mvprintw(13, 2, "6.  Min. age");
-    mvprintw(14, 2, "7.  Password");
-    mvprintw(15, 2, "8.  Lo-colors");
-    mvprintw(16, 2, "9.  Hi-colors");
-    mvprintw(17, 2, "10. Autoexec");
+    mvprintw(14, 2, "7.  Lo-colors");
+    mvprintw(15, 2, "8.  Hi-colors");
+    mvprintw(16, 2, "9.  Autoexec");
     if (le_int(menus.MenuType) == 7) {
-	mvprintw(13,42, "11. No door.sys");
-	mvprintw(14,42, "12. Y2K style");
-	mvprintw(15,42, "13. Use Comport");
-	mvprintw(16,42, "14. Run nosuid");
-	mvprintw(17,42, "15. No Prompt");
+	mvprintw(17, 2, "10. Door Name");
+	mvprintw(18, 2, "11. Y2K style");
+	mvprintw(13,42, "12. No door.sys");
+	mvprintw(14,42, "13. Use COMport");
+	mvprintw(15,42, "14. Run nosuid");
+	mvprintw(16,42, "15. No Prompt");
+	mvprintw(17,42, "16. Single User");
+	mvprintw(18,42, "17. Hidden door");
     }
 
     set_color(WHITE, BLACK);
@@ -128,20 +130,19 @@ void Show_A_Menu(void)
     show_str(11,16,64, menus.Display);
     show_sec(12,16,    menus.MenuSecurity);
     show_int(13,16,    le_int(menus.Age));
-    if (strlen(menus.Password))
-	show_str(14,16,14, (char *)"**************");
-    else
-	show_str(14,16,14, (char *)"<null>");
-    S_COL(15,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
-    S_COL(16,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
+    S_COL(14,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
+    S_COL(15,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
     set_color(WHITE, BLACK);
-    show_bool(17,16,  menus.AutoExec);
+    show_bool(16,16,  menus.AutoExec);
     if (le_int(menus.MenuType) == 7) {
+	show_str(17,16,14, menus.DoorName);
+	show_bool(18,16,  menus.Y2Kdoorsys);
 	show_bool(13,58,  menus.NoDoorsys);
-	show_bool(14,58,  menus.Y2Kdoorsys);
-	show_bool(15,58,  menus.Comport);
-	show_bool(16,58,  menus.NoSuid);
-	show_bool(17,58,  menus.NoPrompt);
+	show_bool(14,58,  menus.Comport);
+	show_bool(15,58,  menus.NoSuid);
+	show_bool(16,58,  menus.NoPrompt);
+	show_bool(17,58,  menus.SingleUser);
+	show_bool(18,58,  menus.HideDoor);
     }
 }
 
@@ -214,7 +215,7 @@ void Edit_A_Menu(void)
     Show_A_Menu();
 
     for (;;) {
-	switch(select_menu(15)) {
+	switch(select_menu(17)) {
 	    case 0: return;
 		    break;
 	    case 1: E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
@@ -238,41 +239,76 @@ void Edit_A_Menu(void)
 		    temp = edit_int(13,16, temp, (char *)"The minimum ^Age^ to select this menu, 0 is don't care");
 		    menus.Age = le_int(temp);
 		    break;
-	    case 7: E_STR(14,16,14, menus.Password,     "The ^password^ to access this menu item")
-	    case 8: fg = le_int(menus.ForeGnd);
+	    case 7: fg = le_int(menus.ForeGnd);
 		    bg = le_int(menus.BackGnd);
-		    edit_color(&fg, &bg, (char *)"8.3.8  EDIT COLOR", (char *)"normal");
+		    edit_color(&fg, &bg, (char *)"8.3.7  EDIT COLOR", (char *)"normal");
 		    menus.ForeGnd = le_int(fg);
 		    menus.BackGnd = le_int(bg);
 		    Show_A_Menu();
 		    break;
-	    case 9: fg = le_int(menus.HiForeGnd);
+	    case 8: fg = le_int(menus.HiForeGnd);
 		    bg = le_int(menus.HiBackGnd);
-		    edit_color(&fg, &bg, (char *)"8.3.9  EDIT COLOR", (char *)"bright");
+		    edit_color(&fg, &bg, (char *)"8.3.8  EDIT COLOR", (char *)"bright");
 		    menus.HiForeGnd = le_int(fg);
 		    menus.HiBackGnd = le_int(bg);
 		    Show_A_Menu();
 		    break;
-	    case 10:menus.AutoExec = edit_bool(17,16, menus.AutoExec, (char *)"Is this an ^Autoexecute^ menu item");
+	    case 9: menus.AutoExec = edit_bool(16,16, menus.AutoExec, (char *)"Is this an ^Autoexecute^ menu item");
+		    break;
+	    case 10:if (le_int(menus.MenuType) == 7) {
+			E_STR(17,16,14, menus.DoorName, (char *)"The ^name^ of the door to show to the users")
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
+		    }
 		    break;
 	    case 11:if (le_int(menus.MenuType) == 7) {
-			menus.NoDoorsys = edit_bool(13,58, menus.NoDoorsys, (char *)"Suppress writing ^door.sys^ dropfile");
+			menus.Y2Kdoorsys = edit_bool(18,16, menus.Y2Kdoorsys, (char *)"Create ^door.sys^ with 4 digit yearnumbers");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
 		    }
 		    break;
 	    case 12:if (le_int(menus.MenuType) == 7) {
-			menus.Y2Kdoorsys = edit_bool(14,58, menus.Y2Kdoorsys, (char *)"Create ^door.sys^ with 4 digit yearnumbers");
+			menus.NoDoorsys = edit_bool(13,58, menus.NoDoorsys, (char *)"Suppress writing ^door.sys^ dropfile");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
 		    }
 		    break;
 	    case 13:if (le_int(menus.MenuType) == 7) {
-			menus.Comport = edit_bool(15,58, menus.Comport, (char *)"Write real ^COM port^ in door.sys for Vmodem patch");
+			menus.Comport = edit_bool(14,58, menus.Comport, (char *)"Write real ^COM port^ in door.sys for Vmodem patch");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
 		    }
 		    break;
 	    case 14:if (le_int(menus.MenuType) == 7) {
-			menus.NoSuid = edit_bool(16,58, menus.NoSuid, (char *)"Run the door as ^real user (nosuid)^");
+			menus.NoSuid = edit_bool(15,58, menus.NoSuid, (char *)"Run the door as ^real user (nosuid)^");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
 		    }
 		    break;
 	    case 15:if (le_int(menus.MenuType) == 7) {
-			menus.NoPrompt = edit_bool(17,58, menus.NoPrompt, (char *)"^Don't display prompt^ when door is finished");
+			menus.NoPrompt = edit_bool(16,58, menus.NoPrompt, (char *)"^Don't display prompt^ when door is finished");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
+		    }
+		    break;
+	    case 16:if (le_int(menus.MenuType) == 7) {
+			menus.SingleUser = edit_bool(17,58, menus.SingleUser, (char *)"Set if door is for ^single user^ only");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
+		    }
+		    break;
+	    case 17:if (le_int(menus.MenuType) == 7) {
+			menus.HideDoor = edit_bool(18,58, menus.HideDoor, (char *)"^Hide door^ from user display lists");
+		    } else {
+			working(2, 0, 0);
+			working(0, 0, 0);
 		    }
 		    break;
 	}
@@ -596,17 +632,19 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(fp, "    Display       %s\n", menus.Display);
 			    fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
 			    fprintf(fp, "    Minimum age   %d\n", menus.Age);
-			    fprintf(fp, "    Password      %s\n", menus.Password);
 			    fprintf(fp, "    Lo-colors     %s on %s\n", 
 						get_color(le_int(menus.ForeGnd)), get_color(le_int(menus.BackGnd)));
 			    fprintf(fp, "    Hi-colors     %s on %s\n", 
 						get_color(le_int(menus.HiForeGnd)), get_color(le_int(menus.HiBackGnd)));
 			    if (le_int(menus.MenuType) == 7) {
-				fprintf(fp, "    No door.sys   %s\n", getboolean(menus.NoDoorsys));
-				fprintf(fp, "    Y2K door.sys  %s\n", getboolean(menus.Y2Kdoorsys));
+				fprintf(fp, "    Door Name     %s\n", menus.DoorName);
+				fprintf(fp, "    No door.sys   %s", getboolean(menus.NoDoorsys));
+				fprintf(fp, "    Y2K door.sys  %s", getboolean(menus.Y2Kdoorsys));
 				fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
-				fprintf(fp, "    No setuid     %s\n", getboolean(menus.NoSuid));
-				fprintf(fp, "    No Prompt     %s\n", getboolean(menus.NoPrompt));
+				fprintf(fp, "    Run nosuid    %s", getboolean(menus.NoSuid));
+				fprintf(fp, "    No Prompt     %s", getboolean(menus.NoPrompt));
+				fprintf(fp, "    Single user   %s\n", getboolean(menus.SingleUser));
+				fprintf(fp, "    Hidden door   %s\n", getboolean(menus.HideDoor));
 			    }
 			    fprintf(fp, "\n\n");
 			    j++;

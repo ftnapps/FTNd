@@ -1,5 +1,40 @@
 $Id$
 
+	WARNING: This code contains unfinished changes, if you use the bbs
+		 then do not use this version.
+		 This code also contains changes in the hydra code, this
+		 should be safe to use because the code is disabled for
+		 endusers.
+
+
+v0.39.0		09-Oct-2003
+
+	general:
+		Added menu setup switches for doors: Singe user door and
+		hidden from lists.
+		Added configure settings for zlib, disabled for endusers.
+
+	mbsebbs:
+		The whoson list displays the doorname if set in the menus.
+		If a door is single user and the door is in use, the second
+		user can't start the door but gets a message about this
+		situation.
+
+	mbsetup:
+		Added menu settings for single user door and hide door. Added
+		setting for the door name in the menus and removed the never
+		used password for the menu (Was only present in the setup).
+
+	mbcico:
+		Started adding code for zlib compression of hydra packets.
+		Not functional yet and disabled by configure.
+
+	lang:
+		Added language prompt 20.
+
+	examples:
+		Updated English and Spanish menus with the new door settings.
+
 
 v0.38.0		26-Dec-2002 - 03-Oct-2003
 

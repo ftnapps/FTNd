@@ -104,7 +104,7 @@ void menu()
      */
     while (TRUE) {
 
-	WhosDoingWhat(BROWSING);
+	WhosDoingWhat(BROWSING, NULL);
 
 	/*
 	 * Open menufile, first users language menu, if it fails
@@ -333,7 +333,15 @@ void DoMenu(int Type)
 
 	case 7:
 		/* Run external program */
-		ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport, menus.NoSuid, menus.NoPrompt);
+		if (strlen(menus.DoorName) && !menus.HideDoor) {
+		    memset(temp, 0, sizeof(temp));
+		    strcpy(temp, menus.DoorName);
+		    ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport, 
+			menus.NoSuid, menus.NoPrompt, menus.SingleUser, temp);
+		} else {
+		    ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport,
+			menus.NoSuid, menus.NoPrompt, menus.SingleUser, NULL);
+		}
 		break;
 
 	case 8:

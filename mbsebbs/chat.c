@@ -175,7 +175,7 @@ void Chat(char *username, char *channel)
     char	    sbuf[81], resp[128], *cnt, *msg;
     static char	    buf[200];
 
-    WhosDoingWhat(SYSOPCHAT);
+    WhosDoingWhat(SYSOPCHAT, NULL);
     clear();
 
     rsize = exitinfo.iScreenLen - 5;

@@ -839,7 +839,7 @@ struct	menufile {
 	securityrec	MenuSecurity;		/* Menu Security Level      */
 	int		Age;			/* Minimum Age to use menu  */
 	unsigned int	xMaxSecurity;
-	char		Password[15];		/* Menu Password            */
+	char		DoorName[15];		/* Door name		    */
 	char		TypeDesc[30];		/* Menu Type Description    */
 #ifdef __i386__
 	unsigned	AutoExec	: 1;	/* Auto Exec Menu Type      */
@@ -848,10 +848,12 @@ struct	menufile {
 	unsigned	Comport		: 1;	/* Vmodem comport mode	    */
 	unsigned	NoSuid		: 1;	/* Execute door nosuid	    */
 	unsigned	NoPrompt	: 1;	/* No prompt after door	    */
+	unsigned	SingleUser	: 1;	/* Single user door	    */
+	unsigned	HideDoor	: 1;	/* Hide door from lists	    */
 #else
 						/* All bits swapped	    */
-	unsigned        xxLE_Dummy1     : 1;
-	unsigned        xxLE_Dummy2     : 1;
+	unsigned        HideDoor	: 1;	/* Hide door from lists	    */
+	unsigned        SingleUser	: 1;	/* Single user door	    */
 	unsigned        NoPrompt        : 1;	/* No prompt after door	    */
 	unsigned        NoSuid          : 1;	/* Execute noduid	    */
 	unsigned        Comport         : 1;	/* Vmodem comport mode      */
@@ -859,7 +861,7 @@ struct	menufile {
 	unsigned        NoDoorsys       : 1;	/* Suppress door.sys        */
 	unsigned        AutoExec        : 1;	/* Auto Exec Menu Type      */
 #endif
-	long		xCredit;
+	long		xUnused;
 	int		HiForeGnd;		/* High ForeGround color    */
 	int		HiBackGnd;		/* High ForeGround color    */
 	int		ForeGnd;		/* Normal ForeGround color  */

@@ -18,7 +18,7 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Dies ist keine Textdatei.
 |Du darfst nur
 |mal gleichzeitig eingewaehlt sein
-|
+|The door is in use by another user, try again later
 |
 |
 |

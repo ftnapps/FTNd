@@ -62,10 +62,13 @@ void Good_Bye(int onsig)
     if (onsig != SIGHUP)
 	DisplayFile((char *)"goodbye");
 
+    Syslog('b', "goodbye displayed");
+
     if (do_mailout)
 	CreateSema((char *)"mailout");
 
     SaveLastCallers();
+    Syslog('b', "Lastcallers written");
 
     /*
      * Update the users database record.

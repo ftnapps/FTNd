@@ -12,11 +12,10 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 06-Mar-2002</h5>
-<P>&nbsp;<P>
+<div align=right><h5>Last update 11-Oct-2003</h5></div>
+<div align=center><H1>MBSE BBS Menu System</H1></div>
 
-<H1>MBSE BBS Menu System</H1>
-<P ALIGN=CENTER>Menus sections:
+<P>Menus sections:
 <A HREF="menu0.html">Global menus</A>&nbsp;
 <A HREF="menu100.html">File areas</A>&nbsp;
 <A HREF="menu200.html">Message areas</A>&nbsp;
@@ -104,7 +103,7 @@ display and finally show the prompt.
 this menu. This field is ignored when AutoExec is set to Yes. </LI>
 
 <LI><B>Type nr.</B> this is the menu type to execute. For a description
-of all available types see below. </LI>
+of all available types see the links at the top of this page.</LI>
 
 <LI><B>Optional data.</B> Some menus need optional data, for example the
 function goto another menu needs the name of that menu file here. </LI>
@@ -123,15 +122,6 @@ everyone must be able to execute. </LI>
 You may want to restrict access to certain areas to users older than 18
 years. If you leave this to 0, every one can execute this menu. </LI>
 
-<LI><B>Max. lvl.</B> The maximum level a user must have to execute this
-menu. If you leave this at 0 then the maximum level has no effect. </LI>
-
-<LI><B>Password.</B> You can protect the menu selection with a password.
-If this field is empty, no password check is done. </LI>
-
-<LI><B>Credit.</B> How much credit a user must have to execute this menu
-selection. This field is not in use yet. </LI>
-
 <LI><B>Lo-colors.</B> The normal display color for the display line.
 </LI>
 
@@ -139,24 +129,39 @@ selection. This field is not in use yet. </LI>
 
 <LI><B>AutoExec.</B> If this is an automatic executed selection. </LI>
 
-<LI><B>No door.sys</B> Suppress writing of a door.sys file in the users
-home directory. This item is only visible with menu type 7.</LI>
+<LI><B>Door Name</B> The name of the door that will be displayed to other users.
+This name is also used to count the same doors running if the door only allows a
+single user. It is important that you use the same name in every language menu
+file for the same door. This item is only visible with menu type 7.</LI>
 
 <LI><B>Y2K style</B> Writes the dates in the door.sys file in the new style,
 with 4 digit year numbers, else the old 2 digit style is used. This item
 is only visible with menu type 7.</LI>
 
-<LI><B>Use Comport</B> Writes real comport to the door.sys file, this is
-for dosemu with the vmodem patch. This item is only visible with menu
+<LI><B>No door.sys</B> Suppress writing of a door.sys file in the users
+home directory. This item is only visible with menu type 7.</LI>
+
+<LI><B>Use Comport</B> Writes COM1: with 19200 as baudrate to the door.sys file, 
+this is for dosemu with the vmodem patch. This item is only visible with menu
 type 7.</LI>
 
 <LI><B>Run nosuid</B> If set to Yes the door will run in non-suid mode.
-You need this to run DOS doors using dosemu. This item is only visible
+Most doors need this. This item is only visible
 with menu type 7.</LI>
 
 <LI><B>No Prompt</B> If set to Yes then when the door is finished there will be
 no prompt to press Enter, instead the bbs menu will show up immediatly. This
 item is only visible with menu type 7.</LI>
+
+<LI><B>Single User</B> Set to yes of the door only allows one user at the same
+time. Make sure you have set a unique name that must be the same for the door in
+every language file so that the bbs is able to count the instances of the door
+running. This item is only visible with menu type 7.</LI>
+
+<LI><B>Hidden door</B> Set to yes to hide the door from being visible for other
+users. If someone is using that door the whoson list displays "External Door"
+instead of the door name. This may be good to hide some special sysop only
+doors. This item is only visible with menu type 7.</LI>
 
 </OL>
 <P>&nbsp;<P>

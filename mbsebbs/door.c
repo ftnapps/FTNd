@@ -97,17 +97,54 @@ char *Rdate(char *ind, int Y2K)
 /*
  * Function will run a external program or door
  */
-void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid, int NoPrompt)
+void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid, int NoPrompt, int SingleUser, char *What)
 {
     char    *String, *String1;
-    int	    i, rc;
-    char    *temp1;
+    int	    i, rc, Start;
+    char    *temp1, buf[128];
     FILE    *fp;
 
     temp1 = calloc(PATH_MAX, sizeof(char));
     String = calloc(81, sizeof(char));
 
-    WhosDoingWhat(DOOR);
+    Start = TRUE;
+    if (SingleUser && What) {
+	/*
+	 * Check if the door is in use
+	 */
+	while (TRUE) {
+	    if (Start)
+		sprintf(buf, "GMON:1,1;");
+	    else
+		sprintf(buf, "GMON:1,0;");
+	    Start = FALSE;
+	    if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		if (strncmp(buf, "100:0;", 6) == 0)
+		    break;  /* No more data */
+		if (strstr(buf, "mbsebbs")) {
+		    strtok(buf, ",");   /* Nr of parameters */
+		    strtok(NULL, ",");  /* Pid              */
+		    strtok(NULL, ",");  /* tty              */
+		    strtok(NULL, ",");  /* username         */
+		    strtok(NULL, ",");  /* program name     */
+		    strtok(NULL, ",");  /* location         */
+		    if (strcmp(strtok(NULL, ","), menus.DoorName) == 0) {
+			Syslog('+', "User tried single user door %s, but door is in use", menus.DoorName);
+			colour(LIGHTRED, BLACK);
+			/* The door is in use by another user, try again later */
+			printf("\n%s\n\n", (char *) Language(20));
+			Pause();
+			free(temp1);
+			free(String);
+			return;
+		    }
+		}
+	    }
+	}
+    }
+    
+    WhosDoingWhat(DOOR, What);
 
     if ((strstr(Program, "/N")) != NULL) {
 	sprintf(temp1, "%d", iNode);

@@ -99,7 +99,7 @@ void File_List()
 	_Tag		T;
 
 	iLineCount = 0;
-	WhosDoingWhat(FILELIST);
+	WhosDoingWhat(FILELIST, NULL);
 
 	Syslog('+', "Listing File Area # %d", iAreaNumber);
 
@@ -184,7 +184,7 @@ void Download(void)
 
     Enter(2);
     OldArea = iAreaNumber;
-    WhosDoingWhat(DOWNLOAD);
+    WhosDoingWhat(DOWNLOAD, NULL);
     system("rm -f ./tag/*");
 
     if ((tf = fopen("taglist", "r+")) == NULL) {
@@ -1005,7 +1005,7 @@ int Upload()
 	char		*arc;
 
 
-	WhosDoingWhat(UPLOAD); 
+	WhosDoingWhat(UPLOAD, NULL); 
 
 	/*
 	 * Select default protocol if users hasn't any.
@@ -1278,7 +1278,7 @@ int DownloadDirect(char *Name, int Wait)
 		return FALSE;
 	}
 
-	WhosDoingWhat(DOWNLOAD);
+	WhosDoingWhat(DOWNLOAD, NULL);
 	ReadExitinfo();
 
 	clear();
@@ -1524,7 +1524,7 @@ int Download_Home()
 	File  = calloc(PATH_MAX, sizeof(char));
 	temp  = calloc(PATH_MAX, sizeof(char));
 
-	WhosDoingWhat(DOWNLOAD);
+	WhosDoingWhat(DOWNLOAD, NULL);
 
 	colour(14,0);
 	/* Please enter filename: */
@@ -1589,7 +1589,7 @@ int Upload_Home()
 	int		err;
 	struct stat	statfile;
 	
-	WhosDoingWhat(UPLOAD);
+	WhosDoingWhat(UPLOAD, NULL);
 	if (!ForceProtocol())
 		return 0;
 

@@ -236,11 +236,12 @@ unsigned long StringCRC32(char *str)
 /*
  * Update CRC32, first initialize CRC with 0xffffffff.
  */
-unsigned long crc32(int octet, unsigned long crc)
+/*
+unsigned long update_crc32(int octet, unsigned long crc)
 {
 	return (crc32tab[((int)crc ^ ((long)octet)) & 0xff] ^ ((((unsigned long)crc) >> 8) & 0x00ffffff));
 }
-
+*/
 
 
 /*

@@ -1,8 +1,14 @@
-/* As this file has been derived from the HydraCom source, here is the
+/* $Id$ */
+/* 
+ * As this file has been derived from the HydraCom source, here is the
  * original copyright information:
  *
  * Note that you can find the file LICENSE.DOC from HydraCom in
  * misc/HYDRACOM-LICENSE
+ *
+ * Some changes are made in this file to customize for use with MBSE BBS.
+ * There are also some extensions not in the original Hydra code for zlib
+ * packet compression of data packets.
  */
 /*=============================================================================
 
@@ -147,9 +153,23 @@ enum HyPktTypes
   HPKT_IDLE = 'L',	/* Idle - just saying I'm alive	     */
   HPKT_DEVDATA = 'M',	/* Data to specified device	     */
   HPKT_DEVDACK = 'N',	/* Response to DEVDATA pkt	     */
+#ifdef	HAVE_ZLIB_H
+  HPKT_ZIPDATA = 'O',	/* Zlib compressed file data packet  */
 
-  HPKT_HIGHEST = 'N'	/* Highest known pkttype in this imp */
+  HPKT_HIGHEST = 'O'	/* Highest known pkttype in this imp */
+#else
+  HPKT_HIGHEST = 'N'    /* Highest known pkttype in this imp */
+#endif
 };
+
+/* HYDRA compression types ------------------------------------------------- */
+enum HyCompStates
+{
+  HCMP_NONE,		/* No compression, default	     */
+  HCMP_GZ,		/* Gzip compression		     */
+  HCMP_BZ2,		/* Bzip2 compression		     */
+};
+
 
 /* HYDRA Internal Pseudo Packet Types -------------------------------------- */
 #define H_NOPKT		0		/* No packet (yet)		     */
@@ -182,17 +202,33 @@ enum HyPktFormats
 #define HOPT_CRC32    (0x00000100L)	/* Packets with CRC-32 allowed	     */
 #define HOPT_DEVICE   (0x00000200L)	/* DEVICE packets allowed	     */
 #define HOPT_FPT      (0x00000400L)	/* Can handle filenames with paths   */
+#ifdef HAVE_ZLIB_H
+#define HOPT_CANPLZ   (0x00000800L)	/* Can handle zlib packet compress   */
+#endif
 
 /* What we can do */
+#ifdef HAVE_ZLIB_H
+#define HCAN_OPTIONS  (HOPT_XONXOFF | HOPT_TELENET | HOPT_CTLCHRS | HOPT_HIGHCTL | HOPT_HIGHBIT | HOPT_CRC32 | HOPT_CANPLZ)
+#else
 #define HCAN_OPTIONS  (HOPT_XONXOFF | HOPT_TELENET | HOPT_CTLCHRS | HOPT_HIGHCTL | HOPT_HIGHBIT | HOPT_CRC32)
+#endif
+
 /* Vital options if we ask for any; abort if other side doesn't support them */
 #define HNEC_OPTIONS  (HOPT_XONXOFF | HOPT_TELENET | HOPT_CTLCHRS | HOPT_HIGHCTL | HOPT_HIGHBIT | HOPT_CANBRK)
+
 /* Non-vital options; nice if other side supports them, but doesn't matter */
+#ifdef HAVE_ZLIB_H
+#define HUNN_OPTIONS  (HOPT_CANASC | HOPT_CANUUE | HOPT_CRC32 | HOPT_CANPLZ)
+#else
 #define HUNN_OPTIONS  (HOPT_CANASC | HOPT_CANUUE | HOPT_CRC32)
+#endif
+
 /* Default options */
 #define HDEF_OPTIONS  (HOPT_CRC32)
+
 /* rxoptions during init (needs to handle ANY link yet unknown at that point */
 #define HRXI_OPTIONS  (HOPT_XONXOFF | HOPT_TELENET | HOPT_CTLCHRS | HOPT_HIGHCTL | HOPT_HIGHBIT)
+
 /* ditto, but this time txoptions */
 #define HTXI_OPTIONS  (HOPT_XONXOFF | HOPT_TELENET | HOPT_CTLCHRS | HOPT_HIGHCTL | HOPT_HIGHBIT)
 

@@ -1,11 +1,11 @@
 /*****************************************************************************
  *
+ * $Id$
  * File ..................: libs.h
  * Purpose ...............: Libraries include list
- * Last modification date : 05-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -85,6 +85,9 @@
 #include <sys/resource.h>
 #ifdef	HAVE_ICONV_H
 #include <iconv.h>
+#endif
+#ifdef	HAVE_ZLIB_H
+#include <zlib.h>
 #endif
 
 #pragma pack(1)

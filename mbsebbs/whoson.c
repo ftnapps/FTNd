@@ -62,7 +62,7 @@ void WhosOn(char *OpData)
     Underline = calloc(81, sizeof(char));
     Heading   = calloc(81, sizeof(char));
 
-    WhosDoingWhat(WHOSON);
+    WhosDoingWhat(WHOSON, NULL);
 
     clear();
     Enter(1);
@@ -174,9 +174,15 @@ void WhosOn(char *OpData)
 		else if (strstr(isdoing, "Offline"))
 		    /* Offline Reader */
 		    printf("%-15s", (char *) Language(429));
-		else
-		    /* Browsing */ /* This is default when nothing matches */
-		    printf("%-15s", (char *) Language(418));
+		else {
+		    /* 
+		     * This is default when nothing matches, with doors this
+		     * will show the name of the door.
+		     */
+		    if (strlen(isdoing) > 15)
+			isdoing[15] = '\0';
+		    printf("%-15s", isdoing);
+		}
 
 		colour(LIGHTRED, BLACK);
 		printf("%-25s\n", location);
@@ -200,7 +206,7 @@ void WhosOn(char *OpData)
 /*
  * Function will update users file and and update exitinfo.iStatus
  */
-void WhosDoingWhat(int iStatus)
+void WhosDoingWhat(int iStatus, char *what)
 {
     char *temp;
 
@@ -226,7 +232,10 @@ void WhosDoingWhat(int iStatus)
 			LC_Read = TRUE;
 			break;
 
-	case DOOR:	strcpy(temp, "External Door");
+	case DOOR:	if (what)
+			    strcpy(temp, what);
+			else
+			    strcpy(temp, "External Door");
 			LC_Door = TRUE;
 			break;	
 

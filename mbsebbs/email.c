@@ -178,7 +178,7 @@ int Export_a_Email(unsigned long Num)
 
 	LastNum = Num;
 	iLineCount = 7;
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 	Syslog('+', "Export email %d in area %s", Num, sMailbox);
 
 	/*
@@ -374,7 +374,7 @@ int Read_a_Email(unsigned long Num)
 
 	LastNum = Num;
 	iLineCount = 7;
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 
 	/*
 	 * The area data is already set, so we can do the next things
@@ -519,7 +519,7 @@ int EmailPanel(void)
 {
 	int	input;
 
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 
 	colour(15, 4);
 	/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port */
@@ -681,7 +681,7 @@ void Reply_Email(int IsReply)
 
 	x = 0;
 	Line = 1;
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 	clear();
 	colour(1,7);
 	printf("   %-71s", sMailbox);
@@ -817,7 +817,7 @@ void Write_Email(void)
 	orgbox = xstrcpy(sMailbox);
 	SetEmailArea((char *)"mailbox");
 
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 	clear();
 
 	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
@@ -907,7 +907,7 @@ void QuickScan_Email(void)
 	long    i;
 
 	iLineCount = 2;
-	WhosDoingWhat(READ_POST);
+	WhosDoingWhat(READ_POST, NULL);
 
 	if (EmailBase.Total == 0) {
 		Enter(1);
