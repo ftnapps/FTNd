@@ -6,7 +6,7 @@ include ../Makefile.global
 
 H_BASE		= basic.html date.html dist.html manual.css \
 		  flow.html postfix.html gwnews.html index.htm ups.html \
-		  intergate.html intro.html invoking.html \
+		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
 H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
@@ -40,7 +40,7 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
 		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
 		  images/larrow.gif   images/nodes.gif        images/users.png \
 		  images/mbse.jpg     images/taskmgr.png      images/mbsebbs.gif \
-		  images/mbsebbs.png  images/users2.png \
+		  images/mbsebbs.png  images/users2.png       images/hand.up.gif \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
 		  images/tdream1.gif  images/tdream2.gif      images/tdream3.gif
 
