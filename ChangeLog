@@ -1,5 +1,10 @@
 $Id$
 
+NOTE: for previous 0.35.06 users, the hard links are now replaced with
+      symbolic links. Run mbfile check to update if you were running
+      a pre 09-12-2002 version. Backup everything!! If all went well the
+      backups should be in size back to normal.
+
 
 				MBSEBBS History.
 
@@ -39,7 +44,7 @@ v0.35.06
 	general:
 		This may become release 0.36.00 (again).
 		Added better support for 8.3 and long filenames by creating
-		hard links in the download directories.
+		symbolic links in the download directories.
 
 	common.a:
 		Changed the LFN name mangle functions to prevent 8.3 name 
@@ -56,10 +61,12 @@ v0.35.06
 
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.
-		Uploaded files will now also have a 8.3 hard link to the long
-		filename.
+		Uploaded files will now also have a symbolic link to then
+		long filename from the real 8.3 filename.
 		Filesearch on filename now uses regexp to find the files.
 		The caller id didn't show up when the info was available.
+		A user with only a limit on download files or download Kb could
+		not download at all.
 
 	mbfido:
 		TIC file forwarding now uses a list of qualified systems to
@@ -68,7 +75,8 @@ v0.35.06
 		Imported tic files with a new banner file in the archive got
 		the wrong filetime in the files database. The mbfile check
 		command would detect and correct this.
-		TIC files added to the bbs will now also have a 8.3 hard link.
+		TIC files added to the bbs will now also have a long filename
+		symbolic link.
 		With TIC file attaches, the filename attached is the 8.3 name.
 		TIC processing completly modified to make better LFN support,
 		internal everything works on the 8.3 filename.
@@ -90,7 +98,7 @@ v0.35.06
 
 	mbfile:
 		Finished complete support for 8.3 and long filenames.
-		The check function now creates hard links in the download
+		The check function now creates symbolic links in the download
 		areas with the 8.3 filename to the long filename so that the
 		files seem to exist under both names.
 		The delete and move functions can now use 8.3 or long

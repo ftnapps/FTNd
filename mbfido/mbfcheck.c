@@ -66,8 +66,8 @@ extern int	do_pack;		/* Pack filebase		    */
 void Check(void)
 {
     FILE	    *pAreas, *pFile;
-    int		    i, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0;
-    char	    *sAreas, *fAreas, *newdir, *temp, *lname;
+    int		    i, j, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0;
+    char	    *sAreas, *fAreas, *newdir, *temp, *mname, *tname;
     DIR		    *dp;
     struct dirent   *de;
     int		    Found, Update;
@@ -80,7 +80,7 @@ void Check(void)
     fAreas = calloc(PATH_MAX, sizeof(char));
     newdir = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
-    lname  = calloc(PATH_MAX, sizeof(char));
+    mname  = calloc(PATH_MAX, sizeof(char));
 
     if (!do_quiet) {
 	colour(3, 0);
@@ -202,8 +202,9 @@ void Check(void)
 		iTotal++;
 		inArea++;
 		sprintf(newdir, "%s/%s", area.Path, file.LName);
+		sprintf(mname,  "%s/%s", area.Path, file.Name);
 
-		if (file_exist(newdir, R_OK)) {
+		if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
 		    Syslog('+', "File %s area %d not on disk.", newdir, i);
 		    if (!file.NoKill) {
 			file.Deleted = TRUE;
@@ -222,25 +223,108 @@ void Check(void)
 
 		    strcpy(temp, file.LName);
 		    name_mangle(temp);
-		    sprintf(lname, "%s/%s", area.Path, temp);
+		    sprintf(mname, "%s/%s", area.Path, temp);
 		    if (strcmp(file.Name, temp))  {
 			Syslog('!', "Converted %s to %s", file.Name, temp);
+			tname = calloc(PATH_MAX, sizeof(char));
+			sprintf(tname, "%s/%s", area.Path, file.Name);
+			rename(tname, mname);
+			free(tname);
 			strncpy(file.Name, temp, 12);
 			iErrors++;
 			Update = TRUE;
 		    }
+
 		    /*
-		     * Check hard link to the short/mangled filename.
+		     * If 8.3 and LFN are the same, try to rename the LFN to lowercase.
 		     */
-		    if (strcmp(file.Name, file.LName)) {
-			if (file_exist(lname, F_OK)) {
-			    if (link(newdir, lname)) {
-				WriteError("$Can't create link %s to %s", lname, newdir);
-			    } else {
-				Syslog('!', "Created hard link area %d LFN %s to 8.3 %s", i, file.LName, file.Name);
-			    }
+		    if (strcmp(file.Name, file.LName) == 0) {
+			/*
+			 * 8.3 and LFN are the same.
+			 */
+			tname = calloc(PATH_MAX, sizeof(char));
+			sprintf(tname, "%s/%s", area.Path, file.LName);
+			for (j = 0; j < strlen(file.LName); j++)
+			    file.LName[j] = tolower(file.LName[j]);
+			sprintf(newdir, "%s/%s", area.Path, file.LName);
+			if (strcmp(tname, newdir)) {
+			    Syslog('+', "Rename LFN from %s to %s", file.Name, file.LName);
+			    rename(tname, newdir);
+			    Update = TRUE;
 			}
+			free(tname);
 		    }
+
+		    /*
+		     * At this point we may have (depending on the upgrade level)
+                     * a real file with a long name or a real file with a short name
+		     * or both. One of them may also be a symbolic link or not exist
+		     * at all. Whatever it was, make it good.
+		     */
+		    if ((lstat(newdir, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
+			/*
+			 * Long filename is a regular file and not a symbolic link.
+			 */
+			if (lstat(mname, &stb) == 0) {
+			    /*
+			     * 8.3 name exists, is it a real file?
+			     */
+			    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
+				unlink(newdir);
+				symlink(mname, newdir);
+				Syslog('+', "%s changed into symbolic link", newdir);
+				iErrors++;
+			    } else {
+				/*
+				 * 8.3 is a symbolic link.
+				 */
+				unlink(mname);
+				rename(newdir, mname);
+				symlink(mname, newdir);
+				Syslog('+', "%s changed to real file", mname);
+				iErrors++;
+			    }
+			} else {
+			    /*
+			     * No 8.3 name on disk.
+			     */
+			    rename(newdir, mname);
+			    symlink(mname, newdir);
+			    Syslog('+', "%s changed to real file and created symbolic link", mname);
+			    iErrors++;
+			}
+		    } else if ((lstat(mname, &stb) == 0) && ((stb.st_mode & S_IFLNK) != S_IFLNK)) {
+			/*
+			 * Short filename is a real file.
+			 */
+			if (lstat(newdir, &stb) == 0) {
+			    /*
+			     * LFN exists, is it a real file?
+			     */
+			    if ((stb.st_mode & S_IFLNK) != S_IFLNK) {
+			    	/*
+			    	 * LFN is a real filename too.
+			    	 */
+			    	unlink(newdir);
+			    	symlink(mname, newdir);
+			    	Syslog('+', "%s changed into symbolic link", newdir);
+			    	iErrors++;
+			    }
+			} else {
+			    /*
+			     * No LFN, create symbolic link
+			     */
+			    symlink(mname, newdir);
+			    Syslog('+', "%s created symbolic link", newdir);
+			    iErrors++;
+			}
+		    } else {
+			/*
+			 * Weird, could not happen
+			 */
+			Syslog('!', "Weird problem, %s is no regular file", newdir);
+		    }
+
 		    if (file_time(newdir) != file.FileDate) {
 			Syslog('!', "Date mismatch area %d file %s", i, file.LName);
 			file.FileDate = file_time(newdir);
@@ -345,7 +429,7 @@ void Check(void)
 	fflush(stdout);
     }
 
-    free(lname);
+    free(mname);
     free(temp);
     free(newdir);
     free(sAreas);

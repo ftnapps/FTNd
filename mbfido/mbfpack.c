@@ -124,11 +124,11 @@ void PackFileBase(void)
 			Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
 			sprintf(fn, "%s/%s", area.Path, file.LName);
 			rc = unlink(fn);
-			if (rc)
+			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
 			sprintf(fn, "%s/%s", area.Path, file.Name);
 			rc = unlink(fn);
-			if (rc)
+			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
 			/*
 			 * If a dotted version (thumbnail) exists, remove it silently

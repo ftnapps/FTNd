@@ -148,7 +148,7 @@ int Add_BBS()
     chmod(temp2, 0644);
     lname = calloc(PATH_MAX, sizeof(char));
     sprintf(lname, "%s/%s", TIC.BBSpath, frec.LName);
-    if (link(temp2, lname)) {
+    if (symlink(temp2, lname)) {
 	WriteError("$Create link %s to %s failed", temp2, lname);
     }
     free(lname);

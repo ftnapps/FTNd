@@ -464,7 +464,7 @@ void name_mangle(char *OutName)
      */
     if (!is_8_3(OutName)) {
 	mangle_name_83(OutName);
-	Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
+//	Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
     } else {
 	/*
 	 * No mangling needed, convert to uppercase
