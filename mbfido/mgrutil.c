@@ -287,7 +287,7 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
 
 /*
  * Create uplink areamgr request. One netmail per request.
- * More is possible, cmd is then: "+area1\+area2\-area3"
+ * More is possible, cmd is then: "+area1\r+area2\r-area3"
  * Return values:
  *  0   - Ok
  *  1   - Node not in setup
@@ -395,6 +395,10 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
 	putc(cmd[i], qp);
     putc('\r', qp);
     fprintf(qp, TearLine());
+    /*
+     * Add a warning after the tearline.
+     */
+    fprintf(qp, "Please note, this is an automatic created message\r");
 
     tm = gmtime(&Now);
     fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.02.UTC %s\r",
@@ -495,7 +499,7 @@ void fill_arealist(AreaList **fdp, char *tag, int DoDelete)
 int Areas(void)
 {
     FILE	*gp, *ap, *fp;
-    char	*temp, *buf, *tag, *desc, *p;
+    char	*temp, *buf, *tag, *desc, *p, *cmd = NULL;
     AreaList	*alist = NULL, *tmp;
     int		i, count = 0, Found;
     sysconnect	System;
@@ -578,8 +582,18 @@ int Areas(void)
 		     * Make modification, first add missing areas
 		     */
 		    for (tmp = alist; tmp; tmp = tmp->next) {
-			if (!tmp->IsPresent && !tmp->DoDelete)
-			    CheckEchoGroup(tmp->Name, TRUE, NULL);
+			if (!tmp->IsPresent && !tmp->DoDelete) {
+			    /*
+			     * Autocraete group, don't sent uplink request yet.
+			     */
+			    CheckEchoGroup(tmp->Name, FALSE, NULL);
+			    if (cmd == NULL) {
+				cmd = xstrcpy((char *)"+");
+			    } else {
+				cmd = xstrcat(cmd, (char *)"\r+");
+			    }
+			    cmd = xstrcat(cmd, tmp->Name);
+			}
 		    }
 
 		    /*
@@ -628,6 +642,14 @@ int Areas(void)
 					memset(&System, 0, sizeof(System));
 					for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
 					    fwrite(&System, sizeof(system), 1, fp);
+					/*
+					 * Prepare uplink command
+					 */
+					if (cmd == NULL)
+					    cmd = xstrcpy((char *)"-");
+					else
+					    cmd = xstrcat(cmd, (char *)"\r-");
+					cmd = xstrcat(cmd, tmp->Name);
 					break;
 				    } else {
 					fseek(fp, msgshdr.syssize, SEEK_CUR);
@@ -638,6 +660,18 @@ int Areas(void)
 			fclose(fp);
 		    }
 		    tidy_arealist(&alist);
+		    if (cmd != NULL) {
+			/*
+			 * Sent one uplink command with additions and deletions
+			 */
+			if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, cmd)) {
+			    WriteError("Uplink request failed");
+			} else {
+			    Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
+			}
+			free(cmd);
+			cmd = NULL;
+		    }
 		}
 	    }
 	}
@@ -761,8 +795,18 @@ int Areas(void)
 		     * Make modification, first add missing areas
 		     */
 		    for (tmp = alist; tmp; tmp = tmp->next) {
-			if (!tmp->IsPresent && !tmp->DoDelete)
-			    CheckTicGroup(tmp->Name, TRUE, NULL);
+			if (!tmp->IsPresent && !tmp->DoDelete) {
+                            /*
+			     * Autocraete group, don't sent uplink request yet.
+			     */
+			    CheckTicGroup(tmp->Name, FALSE, NULL);
+			    if (cmd == NULL) {
+				cmd = xstrcpy((char *)"+");
+			    } else {
+				cmd = xstrcat(cmd, (char *)"\r+");
+			    }
+			    cmd = xstrcat(cmd, tmp->Name);
+			}
 		    }
 
 		    /*
@@ -789,6 +833,14 @@ int Areas(void)
 					tic.Active  = FALSE;
 					fwrite(&tic, tichdr.recsize, 1, fp);
 					Found = TRUE;
+                                        /*
+					 * Prepare uplink command
+					 */
+					 if (cmd == NULL)
+					    cmd = xstrcpy((char *)"-");
+					else
+					    cmd = xstrcat(cmd, (char *)"\r-");
+					cmd = xstrcat(cmd, tmp->Name);
 				    }
 				    fseek(fp, tichdr.syssize, SEEK_CUR);
 				}
@@ -830,6 +882,18 @@ int Areas(void)
 		    }
 
 		    tidy_arealist(&alist);
+                    if (cmd != NULL) {
+			/*
+			 * Sent one uplink command with additions and deletions
+			 */
+			if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, cmd)) {
+			    WriteError("Uplink request failed");
+			} else {
+			    Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));
+			}
+			free(cmd);
+			cmd = NULL;
+		    }
 		}
 	    }
 	}
