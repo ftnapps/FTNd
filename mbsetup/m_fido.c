@@ -292,7 +292,21 @@ int EditFidoRec(int Area)
 
 	j = select_menu(17);
 	switch(j) {
-	    case 0: crc1 = 0xffffffff;
+	    case 0: if (fidonet.available && fidonet.deleted)
+			fidonet.available = FALSE;
+		    if (fidonet.available && (strlen(fidonet.domain) == 0)) {
+			errmsg("You must fill in a valid domain name");
+			break;
+		    }
+		    if (fidonet.available && (fidonet.zone[0] == 0)) {
+			errmsg("The network must have a main zone number");
+			break;
+		    }
+		    if (fidonet.available && (strlen(fidonet.nodelist) == 0)) {
+			errmsg("You must fill in a nodelist for this network");
+			break;
+		    }
+		    crc1 = 0xffffffff;
 		    crc1 = upd_crc32((char *)&fidonet, crc1, sizeof(fidonet));
 		    if (crc != crc1) {
 			if (yes_no((char *)"Record is changed, save") == 1) {

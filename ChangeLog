@@ -48,6 +48,10 @@ v0.61.2		11-Jul-2004
 	mbout:
 		Changed to use direct instead of immediate mail.
 
+	mbsetup:
+		In menu 2, added 3 checks to see if enough info is entered to
+		make a valid network setup.
+
 	mbtask:
 		Changed to use direct instead of immediate mail.
 
