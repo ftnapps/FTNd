@@ -47,12 +47,13 @@ log "+" "Current directory is `pwd`"
 
 # Check the OS type, only Linux for now.
 #
-if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ]; then
+if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ] && [ "$OSTYPE" != "NetBSD" ]; then
 
     cat << EOF
 
 Your are trying to install MBSE BBS on a $OSTYPE system, however
-at this time only Linux or FreeBSD is supported.
+at this time only Linux, FreeBSD or NetBSD is supported.
+
 
 EOF
     log "!" "Aborted, OS is $OSTYPE"
@@ -108,7 +109,10 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
     DISTVERS=${DISTVERS:0:3}
     PW="pw "
 fi
-
+if [ "$OSTYPE" = "NetBSD" ]; then
+    DISTNAME="NetBSD"
+    DISTVERS=`uname -r`
+fi
 
 log "+" "Detected \"${OSTYPE}\" (${HOSTTYPE}) \"${DISTNAME}\" version \"${DISTVERS}\""
 
@@ -167,9 +171,9 @@ if [ "$OSTYPE" = "Linux" ]; then
     fi
 fi
 
-if [ "$OSTYPE" = "FreeBSD" ]; then
+if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ]; then
     #
-    #  FreeBSD uses /usr/local for extra packages and doesn't use /opt
+    #  FreeBSD/NetBSD uses /usr/local for extra packages and doesn't use /opt
     #  Also using /opt means that we are in the root partition which
     #  by default is very small. We put everything in /usr/local/opt
     #  and create symlinks to it.
@@ -234,6 +238,9 @@ fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
     pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash
 fi
+if [ "$OSTYPE" = "NetBSD" ]; then
+    useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/pkg/bin/bash mbse
+fi
 log "+" "[$?] Added user mbse"
 chmod 770 $MHOME
 log "+" "[$?] chmod 770 $MHOME"
@@ -272,7 +279,7 @@ if [ ! -d $MHOME/home ]; then
 fi
 chown mbse.bbs $MHOME/home
 log "+" "[$?] chown mbse.bbs $MHOME/home"
-chmod 775 $MHOME/home
+chmod 770 $MHOME/home
 log "+" "[$?] chmod 775 $MHOME/home"
 if [ "$OSTYPE" = "Linux" ]; then
     useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewusr bbs
@@ -282,7 +289,12 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
     pw useradd bbs -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewusr
     log "+" "[$?] Added user bbs"
 fi
+if [ "$OSTYPE" = "NetBSD" ]; then
+    useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -m -g bbs -s $MHOME/bin/mbnewusr bbs
+    log "+" "[$?] Added user bbs"
+fi
 # Some systems (RedHat and Mandrake) insist on creating a users homedir.
+# NetBSD gives errormessages when not creating a homedir, so we let it create.
 # These are full of garbage we don't need. Kill it first.
 if [ -d $MHOME/home/bbs ]; then
     rm -Rf $MHOME/home/bbs
@@ -337,6 +349,21 @@ if [ "$OSTYPE" = "Linux" ]; then
 	echo " File /etc/passwd.mbse is your backup of /etc/passwd"
     fi
     rm /etc/passwd.lock
+fi
+if [ "$OSTYPE" = "NetBSD" ]; then
+cat << EOF
+
+READ THIS CAREFULLY NOW   READ THIS CAREFULLY NOW
+
+I don't know how to automatic remove the password for the "bbs"
+user account in NetBSD. You have to do this for me!
+Next I start the editor you need to use, remove all the stars"
+after the word Password, then save the file with "wq!"
+
+EOF
+    echo -n "Press Enter when ready "
+    read junk
+    chpass bbs
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
     #
@@ -432,7 +459,7 @@ cat << EOF
      Then issue (as root of course) the following commands:
 
 EOF
-if [ "$OSTYPE" = "Linux" ]; then
+if [ "$OSTYPE" = "Linux" ] || [ "$OSTYPE" = "NetBSD" ]; then
     echo "     userdel bbs"
     echo "     userdel -r mbse"
     echo "     groupdel bbs"
