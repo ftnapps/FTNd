@@ -1892,6 +1892,7 @@ void parse_m_nul(char *msg)
  *   0 = Nothing yet
  *   1 = Got a frame
  *   2 = Frame not processed
+ *   3 = Uncompress error
  */
 int binkp_poll_frame(void)
 {
@@ -1950,13 +1951,19 @@ int binkp_poll_frame(void)
 		    if (plz) {
 			Syslog('b', "Binkp: rcvd compressed block %d bytes", bp.rxlen -1);
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
-			memmove(zbuf, bp.rxbuf, bp.rxlen -1);
-			zlen = 0;
-			rc = uncompress(bp.rxbuf, &zlen, zbuf, bp.rxlen -1);
-			free(zbuf);
+			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
 			Syslog('b', "Binkp: uncompress rc=%d %d => %d", rc, bp.rxlen -1, zlen);
-			bp.rxlen = zlen +1;
-			bp.blklen = zlen;
+			if (rc == Z_OK) {
+			    bp.rxcompressed = (zlen - (bp.rxlen -1));
+			    memmove(bp.rxbuf, zbuf, zlen);
+			    bp.rxlen = zlen +1;
+			    bp.blklen = zlen;
+			} else {
+			    free(zbuf);
+			    Syslog('!', "Binkp: uncompress error");
+			    return 3;
+			}
+			free(zbuf);
 		    }
 #endif
 		    Syslog('b', "Binkp: bp.rxlen=%d bp.blklen=%d", bp.rxlen, bp.blklen);
