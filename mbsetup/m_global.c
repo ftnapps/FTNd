@@ -4,7 +4,7 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -599,7 +599,7 @@ void e_flags(int Users)
     if (Users)
 	mvprintw( 5, 6, "1.6   EDIT USER FLAG DESCRIPTIONS");
     else
-	mvprintw( 5, 6, "1.17  EDIT MANAGER FLAG DESCRIPTIONS");
+	mvprintw( 5, 6, "1.16  EDIT MANAGER FLAG DESCRIPTIONS");
     
     set_color(CYAN, BLACK);
     for (i = 0; i < 32; i++) {
@@ -1334,87 +1334,11 @@ void e_mailer(void)
 
 
 
-void e_ftpd(void)
-{
-        clr_index();
-        set_color(WHITE, BLACK);
-        mvprintw( 5, 2, "1.15 EDIT FTPD SETTINGS");
-        set_color(CYAN, BLACK);
-        mvprintw( 7, 2, "1.  Upload pth");
-        mvprintw( 8, 2, "2.  Banner msg");
-        mvprintw( 9, 2, "3.  Pth filter");
-        mvprintw(10, 2, "4.  Pth msg");
-        mvprintw(11, 2, "5.  Email addr");
-        mvprintw(12, 2, "6.  Shutdown");
-	mvprintw(13, 2, "7.  Rdm login");
-	mvprintw(14, 2, "8.  Rdm cwd*");
-	mvprintw(15, 2, "9.  Msg login");
-	mvprintw(16, 1,"10.  Msg cwd*");
-	mvprintw(17, 1,"11.  Userslimit");
-	mvprintw(18, 1,"12.  Loginfails");
-
-	mvprintw(13,60,"13.  Compress");
-	mvprintw(14,60,"14.  Tar");
-	mvprintw(15,60,"15.  Mkdir ok");
-	mvprintw(16,60,"16.  Log cmds");
-	mvprintw(17,60,"17.  Anonymous");
-	mvprintw(18,60,"18.  User mbse");
-
-	set_color(WHITE, BLACK);
-	show_str( 7,18,59, CFG.ftp_upl_path);
-	show_str( 8,18,59, CFG.ftp_banner);
-	show_str( 9,18,40, CFG.ftp_pth_filter);
-	show_str(10,18,59, CFG.ftp_pth_message);
-	show_str(11,18,40, CFG.ftp_email);
-	show_str(12,18,40, CFG.ftp_msg_shutmsg);
-	show_str(13,18,20, CFG.ftp_readme_login);
-	show_str(14,18,20, CFG.ftp_readme_cwd);
-	show_str(15,18,20, CFG.ftp_msg_login);
-	show_str(16,18,20, CFG.ftp_msg_cwd);
-	show_int(17,18,    CFG.ftp_limit);
-	show_int(18,18,    CFG.ftp_loginfails);
-
-	show_bool(13,75, CFG.ftp_compress);
-	show_bool(14,75, CFG.ftp_tar);
-	show_bool(15,75, CFG.ftp_upl_mkdir);
-	show_bool(16,75, CFG.ftp_log_cmds);
-	show_bool(17,75, CFG.ftp_anonymousok);
-	show_bool(18,75, CFG.ftp_mbseok);
-
-        for (;;) {
-                set_color(WHITE, BLACK);
-
-                switch(select_menu(18)) {
-                case 0: return;
-		case 1: E_STR( 7,18,59, CFG.ftp_upl_path,    "Public ^upload^ path, must be in the base path")
-		case 2: E_STR( 8,18,59, CFG.ftp_banner,      "^Banner^ file to show before login")
-		case 3: E_STR( 9,18,40, CFG.ftp_pth_filter,  "^Filter^ with allowed characters in upload filename")
-		case 4: E_STR(10,18,59, CFG.ftp_pth_message, "^Message^ to display if illegal characters in filename")
-		case 5:	E_STR(11,18,40, CFG.ftp_email,       "^Email^ address of the ftp server administrator")
-		case 6:	E_STR(12,18,40, CFG.ftp_msg_shutmsg, "^Shutdown message^, if this file is present, login if forbidden")
-		case 7: E_STR(13,18,20, CFG.ftp_readme_login,"^README^ file to display at login")
-		case 8: E_STR(14,18,20, CFG.ftp_readme_cwd,  "^README^ file to display when entering a new directory")
-		case 9: E_STR(15,18,20, CFG.ftp_msg_login,   "^Message^ file to display at login")
-		case 10:E_STR(16,18,20, CFG.ftp_msg_cwd,     "^Message^ file to display when entering a new directory")
-		case 11:E_INT(17,18,    CFG.ftp_limit,       "^Limit^ the number of concurent ftp users")
-		case 12:E_INT(18,18,    CFG.ftp_loginfails,  "Maximum ^login fails^ before a user is disconnected")
-		case 13:E_BOOL(13,75,   CFG.ftp_compress,    "Allow the use of the ^compress^ command")
-		case 14:E_BOOL(14,75,   CFG.ftp_tar,         "Allow the use if the ^tar^ command")
-		case 15:E_BOOL(15,75,   CFG.ftp_upl_mkdir,   "Allow ^mkdir^ in the upload directory")
-		case 16:E_BOOL(16,75,   CFG.ftp_log_cmds,    "^Log^ all user ^commands^")
-		case 17:E_BOOL(17,75,   CFG.ftp_anonymousok, "Allow ^anonymous^ users to login")
-		case 18:E_BOOL(18,75,   CFG.ftp_mbseok,      "Allow the ^mbse^ user to login")
-                }
-        };
-}
-
-
-
 void e_html(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 2, "1.16 EDIT HTML SETTINGS");
+        mvprintw( 5, 2, "1.15 EDIT HTML SETTINGS");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1.  Docs root");
         mvprintw( 8, 2, "2.  Link to ftp");
@@ -1517,18 +1441,17 @@ void global_menu(void)
 	mvprintw(12, 6, "6.    Edit User flag Descriptions");
 	mvprintw(13, 6, "7.    Edit New Users defaults");
 	mvprintw(14, 6, "8.    Edit Text Colors");
-	mvprintw(15, 6, "9.    Edit Sysop Paging");
 
-	mvprintw( 7,46, "10.   Edit Files Processing");
-	mvprintw( 8,46, "11.   Edit Fidonet Mail/Echomail");
-	mvprintw( 9,46, "12.   Edit Internet Mail/News");
-	mvprintw(10,46, "13.   Edit All-/Newfiles lists");
-	mvprintw(11,46, "14.   Edit Mailer global setup");
-	mvprintw(12,46, "15.   Edit Ftp daemon setup");
-	mvprintw(13,46, "16.   Edit HTML pages setup");
-	mvprintw(14,46, "17.   Edit Mgr flag descriptions");
+	mvprintw( 7,46, "9.    Edit Sysop Paging");
+	mvprintw( 8,46, "10.   Edit Files Processing");
+	mvprintw( 9,46, "11.   Edit Fidonet Mail/Echomail");
+	mvprintw(10,46, "12.   Edit Internet Mail/News");
+	mvprintw(11,46, "13.   Edit All-/Newfiles lists");
+	mvprintw(12,46, "14.   Edit Mailer global setup");
+	mvprintw(13,46, "15.   Edit HTML pages setup");
+	mvprintw(14,46, "16.   Edit Mgr flag descriptions");
 
-	switch(select_menu(17)) {
+	switch(select_menu(16)) {
 	    case 0:
 		    crc1 = 0xffffffff;
 		    crc1 = upd_crc32((char *)&CFG, crc1, sizeof(CFG));
@@ -1583,12 +1506,9 @@ void global_menu(void)
 		    e_mailer();
 		    break;
 	    case 15:
-		    e_ftpd();
-		    break;
-	    case 16:
 		    e_html();
 		    break;
-	    case 17:
+	    case 16:
 		    e_flags(FALSE);
 		    break;
 	}
@@ -1929,26 +1849,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "      Translate          %-20s %s\n", CFG.phonetrans[i].match, CFG.phonetrans[i].repl);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 16, page, (char *)"FTP server setup");
-
-	fprintf(fp, "      Connections limit  %d\n", CFG.ftp_limit);
-	fprintf(fp, "      Login fails        %d\n", CFG.ftp_loginfails);
-	fprintf(fp, "      Allow compress     %s\n", getboolean(CFG.ftp_compress));
-	fprintf(fp, "      Allow tar          %s\n", getboolean(CFG.ftp_tar));
-	fprintf(fp, "      Log commands       %s\n", getboolean(CFG.ftp_log_cmds));
-	fprintf(fp, "      Anonymous login    %s\n", getboolean(CFG.ftp_anonymousok));
-	fprintf(fp, "      User mbse login    %s\n", getboolean(CFG.ftp_mbseok));
-	fprintf(fp, "      Shutdown message   %s\n", CFG.ftp_msg_shutmsg);
-	fprintf(fp, "      Upload path        %s\n", CFG.ftp_upl_path);
-	fprintf(fp, "      README login       %s\n", CFG.ftp_readme_login);
-	fprintf(fp, "      README cwd*        %s\n", CFG.ftp_readme_cwd);
-	fprintf(fp, "      Message login      %s\n", CFG.ftp_msg_login);
-	fprintf(fp, "      Message cwd*       %s\n", CFG.ftp_msg_cwd);
-	fprintf(fp, "      Login banner       %s\n", CFG.ftp_banner);
-	fprintf(fp, "      Email address      %s\n", CFG.ftp_email);
-	fprintf(fp, "      Path filter        %s\n", CFG.ftp_pth_filter);
-	fprintf(fp, "      Path message       %s\n", CFG.ftp_pth_message);
-
 	addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
 
 	fprintf(fp, "      HTML root          %s\n", CFG.www_root);

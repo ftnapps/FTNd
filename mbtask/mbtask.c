@@ -343,27 +343,6 @@ void load_maincfg(void)
         sprintf(CFG.Flags, "CM,XX");
         CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
 
-        /*
-         * FTP Server
-         */
-        CFG.ftp_limit = 20;
-        CFG.ftp_loginfails = 2;
-        CFG.ftp_compress = TRUE;
-        CFG.ftp_tar = TRUE;
-        CFG.ftp_log_cmds = TRUE;
-        CFG.ftp_anonymousok = TRUE;
-        CFG.ftp_mbseok = FALSE;
-        sprintf(CFG.ftp_readme_login, "README*");
-        sprintf(CFG.ftp_readme_cwd, "README*");
-        sprintf(CFG.ftp_msg_login, "/welcome.msg");
-        sprintf(CFG.ftp_msg_cwd, ".message");
-        sprintf(CFG.ftp_msg_shutmsg, "/etc/nologin");
-        sprintf(CFG.ftp_upl_path, "%s/ftp/incoming", getenv("MBSE_ROOT"));
-        sprintf(CFG.ftp_banner, "%s/etc/ftpbanner", getenv("MBSE_ROOT"));
-        sprintf(CFG.ftp_email, "sysop@%s", CFG.sysdomain);
-        sprintf(CFG.ftp_pth_filter, "^[-A-Za-z0-9_\\.]*$  ^\\.  ^-");
-        sprintf(CFG.ftp_pth_message, "%s/etc/pathmsg", getenv("MBSE_ROOT"));
-
 	/*
 	 *  WWW defaults
 	 */

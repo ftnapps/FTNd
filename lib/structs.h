@@ -737,28 +737,28 @@ struct	sysconfig {
 	char		extra5[96];
 	dual		phonetrans[40];		/* Phone translation table  */
 
-                                                /* FTP Daemon               */
-	int             ftp_limit;              /* Connections limit        */
-	int             ftp_loginfails;         /* Maximum login fails      */
-	unsigned        ftp_compress    : 1;    /* Allow compress           */
-	unsigned        ftp_tar         : 1;    /* Allow tar                */
-	unsigned        ftp_upl_mkdir   : 1;    /* Allow mkdir              */
-	unsigned        ftp_log_cmds	: 1;	/* Log user commands	    */
-	unsigned        ftp_anonymousok	: 1;	/* Allow anonymous logins   */
-	unsigned        ftp_mbseok	: 1;	/* Allow mbse user login    */
-	unsigned        ftp_x7          : 1;
-	unsigned        ftp_x8          : 1;
-	unsigned        ftp_x9          : 1;
-	char            ftp_readme_login[21];   /* Readme file for login    */
-	char		ftp_readme_cwd[21];	/* Readme file for cwd	    */
-	char		ftp_msg_login[21];	/* Message file for login   */
-	char		ftp_msg_cwd[21];	/* Message file for cwd	    */
-	char		ftp_msg_shutmsg[41];	/* Shutdown message	    */
-	char		ftp_upl_path[81];	/* Upload path		    */
-	char		ftp_banner[81];		/* Banner file		    */
-	char		ftp_email[41];		/* Email address	    */
-	char		ftp_pth_filter[41];	/* Path filter expression   */
-	char		ftp_pth_message[81];	/* Message to display	    */
+                                                /* Obsolete FTP Daemon      */
+	int             xftp_limit;
+	int             xftp_loginfails;
+	unsigned        xftp_compress   : 1;
+	unsigned        xftp_tar        : 1;
+	unsigned        xftp_upl_mkdir  : 1;
+	unsigned        xftp_log_cmds	: 1;
+	unsigned        xftp_anonymousok: 1;
+	unsigned        xftp_mbseok	: 1;
+	unsigned        xftp_x7         : 1;
+	unsigned        xftp_x8         : 1;
+	unsigned        xftp_x9         : 1;
+	char            xftp_readme_login[21];
+	char		xftp_readme_cwd[21];
+	char		xftp_msg_login[21];
+	char		xftp_msg_cwd[21];
+	char		xftp_msg_shutmsg[41];
+	char		xftp_upl_path[81];
+	char		xftp_banner[81];
+	char		xftp_email[41];
+	char		xftp_pth_filter[41];
+	char		xftp_pth_message[81];
 
 						/* HTML creation	    */
 	char		www_root[81];		/* HTML doc root	    */
@@ -804,6 +804,8 @@ struct	sysconfig {
 
 	char		rulesdir[65];		/* Area rules directory	    */
 	char		debuglog[15];		/* Debug logfile	    */
+	char		tmailshort[65];		/* T-Mail short filebox base*/
+	char		tmaillong[65];		/* T-Mail long filebox base */
 };
 
 

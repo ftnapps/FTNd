@@ -46,9 +46,11 @@ v0.39.5		24-Dec-2003
 		Added setting in menu 7.x.3.18 to disable the use of binkp/1.1
 		protocol per node.
 		Corrected a spelling error (thanks Vince).
+		Removed global setup screen for the ftp server.
 
 	mbtask:
 		Changed slow ping logmessages from 5 to 10 seconds.
+		Removed default settings for the ftp server.
 
 	script:
 		Fixed NetBSD init script

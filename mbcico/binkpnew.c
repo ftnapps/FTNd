@@ -111,6 +111,7 @@ int		ext_rand = 0;
 
 the_queue	    *tql = NULL;		/* The Queue List		    */
 file_list	    *tosend = NULL;		/* Files to send		    */
+file_list	    *respond = NULL;		/* Requests honored		    */
 binkp_list	    *bll = NULL;		/* Files to send with status	    */
 static binkp_list   *cursend = NULL;		/* Current file being transmitted   */
 
@@ -1219,7 +1220,6 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
-
     Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 
     if (bp.TxState == TxGNF) {
@@ -1241,6 +1241,9 @@ TrType binkp_transmitter(void)
 
 	    eff_remote = remote;
 	    tosend = create_filelist(eff_remote, nonhold_mail, 0);
+	    respond = respond_wazoo();
+	    for (tsl = tosend; tsl->next; tsl = tsl ->next);
+	    tsl->next = respond;
 
 	    /*
 	     *  Build a new filelist from the existing filelist.
@@ -2112,7 +2115,9 @@ void binkp_clear_filelist(void)
 	}
 
 	tidy_filelist(tosend, TRUE);
+	tidy_filelist(respond, 0);
 	tosend = NULL;
+	respond = NULL;
     }
 }
 
