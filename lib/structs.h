@@ -1308,7 +1308,7 @@ struct	_mgroup {
 	unsigned	xRes6		: 1;
 	unsigned	xRes7		: 1;
 	unsigned	xRes8		: 1;
-	unsigned	StartArea	: 1;	/* Start at area number    */
+	unsigned	StartArea;		/* Start at area number    */
 };
 
 

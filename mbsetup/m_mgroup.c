@@ -230,26 +230,27 @@ void MgScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 1, "9.1 EDIT MESSAGE GROUP");
+	mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 1, "1.  Name");
-	mvprintw( 8, 1, "2.  Comment");
-	mvprintw( 9, 1, "3.  Base path");
-	mvprintw(10, 1, "4.  Read sec");
-	mvprintw(11, 1, "5.  Write sec");
-	mvprintw(12, 1, "6.  Sysop sec");
-	mvprintw(13, 1, "7.  Net reply");
-	mvprintw(14, 1, "8.  Users del");
-	mvprintw(15, 1, "9.  Aliases");
-	mvprintw(16, 1, "10. Quotes");
-	
-	mvprintw(10,41, "11. Auto change");
-	mvprintw(11,41, "12. User change");
-	mvprintw(12,41, "13. Active");
-	mvprintw(13,41, "14. Use Aka");
-	mvprintw(14,41, "15. Uplink");
-	mvprintw(15,41, "16. Areas");
-	mvprintw(16,41, "17. Deleted");
+	mvprintw( 7, 2, "1.  Name");
+	mvprintw( 8, 2, "2.  Comment");
+	mvprintw( 9, 2, "3.  Base path");
+	mvprintw(10, 2, "4.  Read sec");
+	mvprintw(11, 2, "5.  Write sec");
+	mvprintw(12, 2, "6.  Sysop sec");
+	mvprintw(13, 2, "7.  Start at");
+	mvprintw(14, 2, "8.  Net reply");
+	mvprintw(15, 2, "9.  Users del");
+	mvprintw(16, 2, "10. Aliases");
+	mvprintw(17, 2, "11. Quotes");
+	mvprintw(18, 2, "12. Active");
+
+	mvprintw(13,41, "13. Deleted");
+	mvprintw(14,41, "14. Auto change");
+	mvprintw(15,41, "15. User change");
+	mvprintw(16,41, "16. Use Aka");
+	mvprintw(17,41, "17. Uplink");
+	mvprintw(18,41, "18. Areas");
 }
 
 
@@ -311,26 +312,27 @@ int EditMGrpRec(int Area)
 	
 	for (;;) {
 		set_color(WHITE, BLACK);
-		show_str(  7,15,12, mgroup.Name);
-		show_str(  8,15,55, mgroup.Comment);
-		show_str(  9,15,64, mgroup.BasePath);
-		show_int( 10,15,    mgroup.RDSec.level);
-		show_int( 11,15,    mgroup.WRSec.level);
-		show_int( 12,15,    mgroup.SYSec.level);
-		show_int( 13,15,    mgroup.NetReply);
-		show_bool(14,15,    mgroup.UsrDelete);
-		show_bool(15,15,    mgroup.Aliases);
-		show_bool(16,15,    mgroup.Quotes);
+		show_str(  7,16,12, mgroup.Name);
+		show_str(  8,16,55, mgroup.Comment);
+		show_str(  9,16,64, mgroup.BasePath);
+		show_int( 10,16,    mgroup.RDSec.level);
+		show_int( 11,16,    mgroup.WRSec.level);
+		show_int( 12,16,    mgroup.SYSec.level);
+		show_int( 13,16,    mgroup.StartArea);
+		show_int( 14,16,    mgroup.NetReply);
+		show_bool(15,16,    mgroup.UsrDelete);
+		show_bool(16,16,    mgroup.Aliases);
+		show_bool(17,16,    mgroup.Quotes);
+		show_bool(18,16,    mgroup.Active);
 
-		show_bool(10,57,    mgroup.AutoChange);
-		show_bool(11,57,    mgroup.UserChange);
-		show_bool(12,57,    mgroup.Active);
-		show_aka( 13,57,    mgroup.UseAka);
-		show_aka( 14,57,    mgroup.UpLink);
-		show_str( 15,57,12, mgroup.AreaFile);
-		show_bool(16,57,    mgroup.Deleted);
+		show_bool(13,57,    mgroup.Deleted);
+		show_bool(14,57,    mgroup.AutoChange);
+		show_bool(15,57,    mgroup.UserChange);
+		show_aka( 16,57,    mgroup.UseAka);
+		show_aka( 17,57,    mgroup.UpLink);
+		show_str( 18,57,12, mgroup.AreaFile);
 
-		j = select_menu(17);
+		j = select_menu(18);
 		switch(j) {
 		case 0:
 			crc1 = 0xffffffff;
@@ -355,39 +357,40 @@ int EditMGrpRec(int Area)
 			return 0;
 		case 1: if (CheckMgroup())
 				break;
-			strcpy(mgroup.Name, edit_str(7,15,12, mgroup.Name, (char *)"The ^name^ for this message group"));
+			strcpy(mgroup.Name, edit_str(7,16,12, mgroup.Name, (char *)"The ^name^ for this message group"));
 			if (strlen(mgroup.BasePath) == 0) {
 			    memset(&temp, 0, sizeof(temp));
 			    strcpy(temp, mgroup.Name);
 			    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(temp));
 			}
 			break;
-		case 2: E_STR( 8,15,55, mgroup.Comment,"The ^desription^ for this message group")
-		case 3: E_PTH( 9,15,64, mgroup.BasePath, "The ^Base path^ where new JAM areas are created")
-		case 4: E_SEC(10,15,    mgroup.RDSec, "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
-		case 5: E_SEC(11,15,    mgroup.WRSec, "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
-		case 6: E_SEC(12,15,    mgroup.SYSec, "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
-		case 7: E_INT(13,15,    mgroup.NetReply, "The ^Area Number^ for netmail replies")
-		case 8: E_BOOL(14,15,   mgroup.UsrDelete, "Allow users to ^Delete^ their messages")
-		case 9: E_BOOL(15,15,   mgroup.Aliases, "Allow ^Aliases^ or real names only")
-		case 10:E_BOOL(16,15,   mgroup.Quotes, "Allow random ^quotes^ to new messages")
-		case 11:E_BOOL(10,57,   mgroup.AutoChange, "^Auto change^ areas from new areas lists")
-		case 12:E_BOOL(11,57,   mgroup.UserChange, "^Auto add/delete^ areas from downlinks requests")
+		case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
+		case 3: E_PTH(  9,16,64, mgroup.BasePath,   "The ^Base path^ where new JAM areas are created")
+		case 4: E_SEC( 10,16,    mgroup.RDSec,      "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
+		case 5: E_SEC( 11,16,    mgroup.WRSec,      "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
+		case 6: E_SEC( 12,16,    mgroup.SYSec,      "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
+		case 7: E_INT( 13,16,    mgroup.StartArea,  "The ^Start area number^ from where to add areas")
+		case 8: E_INT( 14,16,    mgroup.NetReply,   "The ^Area Number^ for netmail replies")
+		case 9: E_BOOL(15,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
+		case 10:E_BOOL(16,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
+		case 11:E_BOOL(17,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
+		case 12:if (CheckMgroup())
+			    break;
+			E_BOOL(18,16,    mgroup.Active,     "Is this message group ^active^")
 		case 13:if (CheckMgroup())
-				break;
-			E_BOOL(9,15,   mgroup.Active, "Is this message group ^active^")
-		case 14:tmp = PickAka((char *)"9.1.14", TRUE);
+			    break;
+			E_BOOL(13,57,    mgroup.Deleted,    "Is this group ^Deleted^")
+		case 14:E_BOOL(14,57,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
+		case 15:E_BOOL(15,57,    mgroup.UserChange, "^Auto add/delete^ areas from downlinks requests")
+		case 16:tmp = PickAka((char *)"9.1.16", TRUE);
 			if (tmp != -1)
 				memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));
 			MgScreen();
 			break;
-		case 15:mgroup.UpLink = PullUplink((char *)"9.1.15");
+		case 17:mgroup.UpLink = PullUplink((char *)"9.1.17");
 			MgScreen();
 			break;
-		case 16:E_STR(15,57,12,mgroup.AreaFile,"The name of the ^Areas File^ from the uplink")
-		case 17:if (CheckMgroup())
-				break;
-			E_BOOL(16,57,  mgroup.Deleted, "Is this group ^Deleted^")
+		case 18:E_STR( 18,57,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
 		}
 	}
 
@@ -619,14 +622,24 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 			j = 0;
 		}
 
-		fprintf(fp, "    Name       %s\n", mgroup.Name);
-		fprintf(fp, "    Comment    %s\n", mgroup.Comment);
-		fprintf(fp, "    Active     %s\n", getboolean(mgroup.Active));
-		fprintf(fp, "    Use Aka    %s\n", aka2str(mgroup.UseAka));
-		fprintf(fp, "    Uplink     %s\n", aka2str(mgroup.UpLink));
-		fprintf(fp, "    Areas file %s\n", mgroup.AreaFile);
-		fprintf(fp, "    Start date %s",   ctime(&mgroup.StartDate));
-		fprintf(fp, "    Last date  %s\n", ctime(&mgroup.LastDate));
+		fprintf(fp, "    Group name         %s\n", mgroup.Name);
+		fprintf(fp, "    Comment            %s\n", mgroup.Comment);
+		fprintf(fp, "    Active             %s\n", getboolean(mgroup.Active));
+		fprintf(fp, "    Use Aka            %s\n", aka2str(mgroup.UseAka));
+		fprintf(fp, "    Uplink             %s\n", aka2str(mgroup.UpLink));
+		fprintf(fp, "    Areas file         %s\n", mgroup.AreaFile);
+		fprintf(fp, "    Base path          %s\n", mgroup.BasePath);
+		fprintf(fp, "    Netmail reply area %d\n", mgroup.NetReply);
+		fprintf(fp, "    Start new areas at %d\n", mgroup.StartArea);
+		fprintf(fp, "    Read security      %s\n", get_secstr(mgroup.RDSec));
+		fprintf(fp, "    Write security     %s\n", get_secstr(mgroup.WRSec));
+		fprintf(fp, "    Sysop security     %s\n", get_secstr(mgroup.SYSec));
+		fprintf(fp, "    Use aliases        %s\n", getboolean(mgroup.Aliases));
+		fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
+		fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
+		fprintf(fp, "    user add/del areas %s\n", getboolean(mgroup.UserChange));
+		fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
+		fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
 
 //		fprintf(fp, "               Total      This month Last month\n");
 //		fprintf(fp, "               ---------- ---------- ----------\n");
