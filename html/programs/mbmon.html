@@ -12,10 +12,8 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 04-Jul-2002</h5>
-<P>&nbsp;<P>
-
-<H1>mbmon - MBSE BBS Monitor</H1>
+<h5 div align=right>Last update 24-Aug-2003</h5>
+<H1 div align=center>mbmon - MBSE BBS Monitor</H1>
 <P>
 
 <H3>Sysnopsis.</H3>
@@ -28,7 +26,11 @@
 <strong>mbmon</strong> is the monitor program so that you can see what is
 happening on your bbs. It can show all processes and actions of all programs,
 show system statitistics, disk useage, and the last callers list. 
-<strong>mbmon</strong> must run on the same system where the bbs is.
+<strong>mbmon</strong> must run on the same system where the bbs is. When
+started it will also report that the sysop is present on the system for chat so
+that users of your bbs can page you for a chat. If a user pages you, this will
+be shown in every screen of <strong>mbmon</strong> and a beep will sound every
+few seconds.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>
@@ -49,7 +51,7 @@ This screen displays the actual mbtask server status and some internal
 variables. The left side of the screen are more statistics and counters, the
 right side displays the actual bbs open status, Zone Mail Hour status, if
 Internet is alive, if internet is needed, if mbtask is internal running and the
-system load average.
+system load average. Consult this screen if you think mbse doesn't run.
 <P>&nbsp;<P>
 
 <H3>Menu 3.</H3>
@@ -74,6 +76,21 @@ messages, <b>C</b>hat, <b>O</b>ffline reader, <b>E</b>xternal door.
 <P>&nbsp;<P>
 
 <H3>Menu 6.</H3>
+<P>
+Chat with any user. Using this menu you enter the chatserver and you can chat in
+any channel just as the users of your bbs can do. The chatserver works just like
+an IRC server. Type /HELP for help.
+<P>&nbsp;<P>
+
+<H3>Menu 7.</H3>
+<P>
+Respond to a sysop page. This is actually the same as chat with any user, the
+only difference is that you will join channel #sysop immediatly. If the user is
+not yet connected after his page, he will also be connected to the channel as
+soon as possible.
+<P>&nbsp;<P>
+
+<H3>Menu 8.</H3>
 <P>
 This shows the software information.
 <P>
