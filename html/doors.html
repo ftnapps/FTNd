@@ -17,7 +17,77 @@
 <div align='right'><h5>Last update 09-Aug-2004</h5></div>
 <div align='center'><H1>MBSE BBS - Running DOS doors.</H1></div>
 
+<h3>Introduction</h3>
+<p>
+Running DOS doors is possible on systems that can run 
+<a href="http://www.dosemu.org">dosemu</a>. The latest versions of dosemu don't
+need to be started suid root or started using sudo, it can run as the user that
+is logged in the bbs. Since that is possible, a new location for the virtual C:
+drive is now being used withing the $MBSE_ROOT file structure. This virtual C:
+drive is owned by the group bbs. The basic ideas how doors should be run written
+by Redy Rodriguez are still valid, but some scripts are changed and some dosemu
+files must be copied into the mbse directory tree.
+<p>&nbsp;<p>
 
+<h3>Installing dosemu</h3>
+<p>
+Some distributions have good dosemu packages, others don't. You need a dosemu
+that can be used in a systemwide multiuser setup. The bad packages want to have
+the dos drive in each users home directory, this is not what we want for doors.
+If you don't have a good dosemu you have to compile your own. This is not too
+complicated. First download the source from <a
+href="http://www.dosemu.org">dosemu</a>. You don't need the freedos-bin source
+if you are going to use ms-dos or pc-dos. 
+Unpack the source in some directory of your choice and compile the sources:<br>
+<pre>
+mbse@seaport$ tar xfvz dosemu-1.2.2.tgz
+mbse@seaport$ cd dosemu-1.2.2
+mbse@seaport:~/dosemu-1.2.2$ ./configure --prefix=/usr --sysconfdir=/etc/dosemu --with-x
+mbse@seaport:~/dosemu-1.2.2$ make
+</pre>
+Note that the <code>--with-x</code> is not needed for running doors, but it
+might be handy that you can use dosemu as user mbse in X to do maintenance on
+your doors.<br>
+Then as root do:<br>
+<pre>
+root@seaport:~/dosemu-1.2.2# make install
+</pre>
+<p>&nbsp;<p>
+
+<h3>Setup dosemu in mbse</h3>
+<p>
+First copy <code>/etc/dosemu/dosemu.conf</code> into <code>~/etc/dosmeu</code>.
+Then edit <code>~/etc/dosemu/dosemu.conf</code> so that we have a version for
+mbse users. Set the following settings in that file:<br>
+<pre>
+$_hdimage = "/opt/mbse/var/dosemu/c"
+$_floppy_a = ""
+$_xms = (1024)
+$_ems = (2048)
+$_dpmi = (0x1000)
+$_layout = "us"
+</pre>
+Next we need to setup the C: drive. Do this as user mbse. First type <code>umask
+007</code>, this sets the create mode for directories to 0770 and files to 0660
+so that we create all files and directories read/write for all bbs users. This
+is very important! Type the following commands:
+<pre>
+mbse@seaport:~$ umask 007
+mbse@seaport:~$ cd var/dosemu/c
+mbse@seaport:~/var/dosemu/c$ mkdir dos dosemu temp util
+</pre>
+To be continued....
+<p>&nbsp;</P>
+
+<h3>What if I don't upgrade</h3>
+<p>
+That's your choice, but for a while the old method starting dosemu via sudo is
+still supported. The file <code>~/bin/bbsdoor.sh</code> is still there, but the
+file <code>~/bin/rundoor.sh</code> is renamed to
+<code>~/bin/runvirtual.sh</code>. So you should change all symlinks of your door
+names in <code>~/bin</code> (or copies) to <code>~/bin/runvirtual.sh</code>. You
+should not need to change anything else.
+<p>
 
 <A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
