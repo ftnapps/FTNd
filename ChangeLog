@@ -3,9 +3,23 @@ $Id$
 
 v0.37.00	26-Dec-2002.
 
+	general:
+		A new developer joined the team, David Gonzalez.
+
+	libs:
+		The nodelist lookup functions are now in a separate library.
+		This will give us easy implemtation of new nodelist formats
+		and flags.
+		Introduced a new file, ~/etc/nodelist.conf, this file will
+		be used for nodelist lookup behaviour.
+
 	mbcico:
 		With binkp and EMSI sessions double received remote aka's are
 		filtered.
+
+	examples:
+		Prepared for more example translations.
+
 
 
 v0.36.00	26-Dec-2002 - stable release

@@ -78,7 +78,7 @@ int check_calllist(void)
 		}
 	    }
 	    if (!found) {
-		tasklog('c', "Removing slot %d node %s from calllist", i, ascfnode(calllist[i].addr, 0x0f));
+		Syslog('c', "Removing slot %d node %s from calllist", i, ascfnode(calllist[i].addr, 0x0f));
 		memset(&calllist[i], 0, sizeof(tocall));
 	    }
 	}
@@ -113,7 +113,7 @@ int check_calllist(void)
 		if (!found) {
 		    for (i = 0; i < MAXTASKS; i++) {
 			if (!calllist[i].addr.zone) {
-			    tasklog('c', "Adding %s to calllist slot %d", ascfnode(tmp->addr, 0x1f), i);
+			    Syslog('c', "Adding %s to calllist slot %d", ascfnode(tmp->addr, 0x1f), i);
 			    calllist[i].addr = tmp->addr;
 			    calllist[i].cst = tmp->cst;
 			    calllist[i].callmode = tmp->callmode;
@@ -126,7 +126,7 @@ int check_calllist(void)
 		}
 	    }
 	}
-	tasklog('o', "%d system%s to call", call_work, (call_work == 1)?"":"s");
+	Syslog('o', "%d system%s to call", call_work, (call_work == 1)?"":"s");
     } else {
 	if (s_scanout)
 	    sem_set((char *)"scanout", FALSE);
@@ -136,11 +136,11 @@ int check_calllist(void)
     for (i = 0; i < MAXTASKS; i++) {
 	if (calllist[i].addr.zone) {
 	    if (!call_work) {
-		tasklog('c', "Slot Call  Pid   Try Status  Mode    Modem    ISDN     TCP/IP   Address");
-		tasklog('c', "---- ----- ----- --- ------- ------- -------- -------- -------- ----------------");
+		Syslog('c', "Slot Call  Pid   Try Status  Mode    Modem    ISDN     TCP/IP   Address");
+		Syslog('c', "---- ----- ----- --- ------- ------- -------- -------- -------- ----------------");
 	    }
 	    call_work++;
-	    tasklog('c', "%4d %s %5d %3d %s %s %08x %08x %08x %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
+	    Syslog('c', "%4d %s %5d %3d %s %s %08x %08x %08x %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
 		calllist[i].cst.tryno, callstatus(calllist[i].cst.trystat), callmode(calllist[i].callmode),
 		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, ascfnode(calllist[i].addr, 0x1f));
 	}

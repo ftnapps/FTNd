@@ -450,17 +450,17 @@ void do_cmd(char *cmd)
 	int	slen, tries = 0;
 
 	if (logtrans)
-		tasklog('-', "< %s", cmd);
+		Syslog('-', "< %s", cmd);
 	sprintf(buf, "%s", exe_cmd(cmd));
 	if (logtrans)
-		tasklog('-', "> %s", buf);
+		Syslog('-', "> %s", buf);
 
 	for (;;) {
 		slen = sendto(sock, buf, strlen(buf), 0, &from, fromlen);
 		if (slen == -1)
-			tasklog('?', "$do_cmd(): sendto error %d %s", tries, from.sun_path);
+			Syslog('?', "$do_cmd(): sendto error %d %s", tries, from.sun_path);
 		else if (slen != strlen(buf))
-			tasklog('?', "do_cmd(): send %d of %d bytes, try=%d", slen, strlen(buf), tries);
+			Syslog('?', "do_cmd(): send %d of %d bytes, try=%d", slen, strlen(buf), tries);
 		else
 			return;
 		tries++;

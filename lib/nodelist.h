@@ -3,9 +3,12 @@
 #ifndef _NODELIST_H
 #define	_NODELIST_H
 
+#include "../config.h"
+
 
 #define MAXNAME 35
 #define MAXUFLAGS 16
+
 
 
 /*
@@ -112,8 +115,8 @@ typedef struct	_node {
 	unsigned long	oflags;			/* Online flags		*/
 	unsigned long	xflags;			/* Request flags	*/
 	char		*uflags[MAXUFLAGS];	/* User flags		*/
-	int		t1;			/* First Txx flag	*/
-	int		t2;			/* Second Txx flag	*/
+	int		t1;			/* T flag, first char	*/
+	int		t2;			/* T flag, second char	*/
 } node;
 
 
@@ -176,8 +179,17 @@ extern struct _pkey {
 } pkey[];
 
 
+
+/*
+ * From nodelist.c
+ */
 int		initnl(void);
 node		*getnlent(faddr *);
+void		olflags(unsigned long);
+void		rqflags(unsigned long);
+void		moflags(unsigned long);
+void		diflags(unsigned long);
+void		ipflags(unsigned long);
 
 
 #endif

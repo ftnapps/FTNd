@@ -170,7 +170,7 @@ int ping_send(struct in_addr addr)
 
 #ifndef __linux__
     if (!(pe = getprotobyname("ip"))) {
-	tasklog('?', "icmp ping: getprotobyname() failed: %s", strerror(errno));
+	Syslog('?', "icmp ping: getprotobyname() failed: %s", strerror(errno));
 	return -1;
     }
     SOL_IP = pe->p_proto;
@@ -191,7 +191,7 @@ int ping_send(struct in_addr addr)
     f.data=0xfffff7f6;
     if (setsockopt(ping_isocket, SOL_RAW, ICMP_FILTER, &f, sizeof(f)) == -1) {
 	if (icmp_errs < ICMP_MAX_ERRS)
-	    tasklog('?', "$icmp ping: setsockopt() failed %d", ping_isocket);
+	    Syslog('?', "$icmp ping: setsockopt() failed %d", ping_isocket);
 	return -1;
     }
 #endif
@@ -224,9 +224,9 @@ int ping_send(struct in_addr addr)
     if (sentlen != ICMP4_ECHO_LEN) {
 	if (icmp_errs < ICMP_MAX_ERRS) {
 	    if (sentlen == -1)
-		tasklog('+', "ping: sent error: %s", strerror(errno));
+		Syslog('+', "ping: sent error: %s", strerror(errno));
 	    else
-		tasklog('+', "ping: sent %d octets, ret %d", ICMP4_ECHO_LEN, sentlen);
+		Syslog('+', "ping: sent %d octets, ret %d", ICMP4_ECHO_LEN, sentlen);
 	}
 	return -2;
     }
@@ -263,7 +263,7 @@ int ping_receive(struct in_addr addr)
      */
     if (poll(&pfd, 1, 10) < 0) {
 	if (icmp_errs < ICMP_MAX_ERRS)
-	    tasklog('?', "$poll/select failed");
+	    Syslog('?', "$poll/select failed");
 	return -3; 
     }
 
@@ -317,16 +317,16 @@ void check_ping(void)
 			pingresult[1] = pingresult[2] = internet = FALSE;
 			break;
 			
-	case P_PAUSE:	// tasklog('p', "PAUSE:");
+	case P_PAUSE:	// Syslog('p', "PAUSE:");
 			if (time(NULL) >= pingtime)
 			    pingstate = P_SENT;
 			break;
 			
-	case P_WAIT:	// tasklog('p', "WAIT:");
+	case P_WAIT:	// Syslog('p', "WAIT:");
 			if (time(NULL) >= pingtime) {
 			    pingstate = P_ERROR;
 			    if (icmp_errs < ICMP_MAX_ERRS)
-				tasklog('?', "ping: to %s timeout", pingaddress);
+				Syslog('?', "ping: to %s timeout", pingaddress);
 			} else {
 			    /*
 			     * Quickly eat all packets not for us, we only want our
@@ -339,11 +339,11 @@ void check_ping(void)
 				 */
 				rc = time(NULL) - (pingtime - 20);
 				if (rc > 2)
-				    tasklog('p', "ping: reply after %d seconds", rc);
+				    Syslog('p', "ping: reply after %d seconds", rc);
 				pingresult[pingnr] = TRUE;
 				if (pingresult[1] || pingresult[2]) {
 				    if (!internet) {
-					tasklog('!', "Internet connection is up");
+					Syslog('!', "Internet connection is up");
 					internet = TRUE;
 					sem_set((char *)"scanout", TRUE);
 					CreateSema((char *)"is_inet");
@@ -355,14 +355,14 @@ void check_ping(void)
 				pingstate = P_PAUSE;
 			    } else {
 				if (rc != -6) {
-				    tasklog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
+				    Syslog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
 				    pingstate = P_ERROR;
 				}
 			    }
 			}
 			break;
 			
-	case P_SENT:	// tasklog('p', "SENT:");
+	case P_SENT:	// Syslog('p', "SENT:");
 			pingtime = time(NULL) + 10;	// 10 secs timeout for pause.
 			if (pingnr == 1) {
 			    pingnr = 2;
@@ -384,12 +384,12 @@ void check_ping(void)
 			    }
 			}
 			pingtime = time(NULL) + 20;	// 20 secs timeout for a real ping
-			// tasklog('p', "nr %d address %s", pingnr, pingaddress);
+			// Syslog('p', "nr %d address %s", pingnr, pingaddress);
 			if (inet_aton(pingaddress, &paddr)) {
 			    rc = ping_send(paddr);
 			    if (rc) {
 				if (icmp_errs++ < ICMP_MAX_ERRS)
-				    tasklog('?', "ping: to %s rc=%d", pingaddress, rc);
+				    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
 				pingstate = P_ERROR;
 				pingresult[pingnr] = FALSE;
 			    } else {
@@ -397,17 +397,17 @@ void check_ping(void)
 			    }
 			} else {
 			    if (icmp_errs++ < ICMP_MAX_ERRS)
-				tasklog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
+				Syslog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
 			    pingstate = P_PAUSE;
 			}
 			break;
 			
-	case P_ERROR:	// tasklog('p', "ERROR:");
+	case P_ERROR:	// Syslog('p', "ERROR:");
 			pingresult[pingnr] = FALSE;
 			if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
 			    icmp_errs++;
 			    if (internet) {
-				tasklog('!', "Internet connection is down");
+				Syslog('!', "Internet connection is down");
 				internet = FALSE;
 				sem_set((char *)"scanout", TRUE);
 				RemoveSema((char *)"is_inet");

@@ -35,7 +35,7 @@
 #include "taskutil.h"
 #include "taskstat.h"
 #include "scanout.h"
-#include "nodelist.h"
+#include "../lib/nodelist.h"
 #include "callstat.h"
 #include "ports.h"
 #include "outstat.h"
@@ -153,7 +153,7 @@ char *callstatus(int status)
 	case MBERR_NOT_ZMH:		return (char *)"No ZMH ";
 	case MBERR_SESSION_ERROR:	return (char *)"Badsess";
 	case MBERR_NO_IP_ADDRESS:	return (char *)"No IP  ";
-	default:			tasklog('-', "callstatus(%d), unknown", status);
+	default:			Syslog('-', "callstatus(%d), unknown", status);
 					return (char *)"ERROR  ";
     }
 }
@@ -208,7 +208,7 @@ int outstat()
     uhour = tm->tm_hour;
     umin  = tm->tm_min;
     sprintf(utc, "%02d:%02d", uhour, umin);
-    tasklog('+', "Scanning outbound at %s UTC.", utc);
+    Syslog('+', "Scanning outbound at %s UTC.", utc);
     nxt_hour = 24;
     nxt_min  = 0;
     inet_calls = isdn_calls = pots_calls = 0;
@@ -223,7 +223,7 @@ int outstat()
     alist = NULL;
 
     if ((rc = scanout(each))) {
-	tasklog('?', "Error scanning outbound, aborting");
+	Syslog('?', "Error scanning outbound, aborting");
 	return rc;
     }
 
@@ -233,7 +233,7 @@ int outstat()
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
-	tasklog('?', "Error open %s, aborting", temp);
+	Syslog('?', "Error open %s, aborting", temp);
 	free(temp);
 	return 1;
     }
@@ -272,7 +272,7 @@ int outstat()
 				    if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
 					each(fa, flavor, OUT_FIL, temp);
 				    } else {
-					tasklog('+', "No R/W permission on %s", temp);
+					Syslog('+', "No R/W permission on %s", temp);
 				    }
 				} else if (pw->pw_gid == sb.st_gid) {
 				    /*
@@ -281,7 +281,7 @@ int outstat()
 				    if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
 					each(fa, flavor, OUT_FIL, temp);
 				    } else {
-					tasklog('+', "No R/W permission on %s", temp);
+					Syslog('+', "No R/W permission on %s", temp);
 				    }
 				} else {
 				    /*
@@ -290,14 +290,14 @@ int outstat()
 				    if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
 					each(fa, flavor, OUT_FIL, temp);
 				    } else {
-					tasklog('+', "No R/W permission on %s", temp);
+					Syslog('+', "No R/W permission on %s", temp);
 				    }
 				}
 			    } else {
-				tasklog('+', "Not a regular file: %s", temp);
+				Syslog('+', "Not a regular file: %s", temp);
 			    }
 			} else {
-			    tasklog('?', "Can't stat %s", temp);
+			    Syslog('?', "Can't stat %s", temp);
 			}
 		    }
 		}
@@ -318,12 +318,12 @@ int outstat()
      */
     for (tmp = alist; tmp; tmp = tmp->next) {
 	if (first) {
-	    tasklog('+', "Flavor Out        Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
+	    Syslog('+', "Flavor Out        Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
 	    first = FALSE;
 	}
 
 	rc = load_node(tmp->addr);
-//	tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
+//	Syslog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
 //		    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
 
 	/*
@@ -399,7 +399,7 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
-//	tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+//	Syslog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 	strcpy(flstr,"...... .... ..");
 
 	/*
@@ -516,7 +516,7 @@ int outstat()
 	     * Here we are out of options, clear callflag.
 	     */
 	    if (tmp->callmode == CM_NONE) {
-		tasklog('!', "No method to call %s available", ascfnode(tmp->addr, 0x0f));
+		Syslog('!', "No method to call %s available", ascfnode(tmp->addr, 0x0f));
 		tmp->flavors &= ~F_CALL;
 	    }
 	}
@@ -536,7 +536,7 @@ int outstat()
 		(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 		(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
 		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
-	tasklog('+', "%s", temp);
+	Syslog('+', "%s", temp);
 
     } /* All nodes scanned. */
 	
@@ -554,17 +554,17 @@ int outstat()
     if (!IsSema((char *)"do_inet") && inet_calls) {
 	CreateSema((char *)"do_inet");
 	s_do_inet = TRUE;
-	tasklog('c', "Created semafore do_inet");
+	Syslog('c', "Created semafore do_inet");
     } else if (IsSema((char *)"do_inet") && !inet_calls) {
 	RemoveSema((char *)"do_inet");
 	s_do_inet = FALSE;
-	tasklog('c', "Removed semafore do_inet");
+	Syslog('c', "Removed semafore do_inet");
     }
 
     /*
      * Log results
      */
-    tasklog('+', "Systems to call: Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
+    Syslog('+', "Systems to call: Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
 	    inet_calls, isdn_calls, pots_calls, nxt_hour, nxt_min);
     free(temp);
     return 0;
@@ -633,11 +633,11 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 			case 'o':	(*tmp)->flavors |= F_NORMAL; break;
 			case 'c':	(*tmp)->flavors |= F_CRASH; break;
 			case 'h':	(*tmp)->flavors |= F_HOLD; break;
-			default:	tasklog('?', "Unknown flavor: '%c'\n",flavor); break;
+			default:	Syslog('?', "Unknown flavor: '%c'\n",flavor); break;
 		}
 
 	if (stat(fname,&st) != 0) {
-		tasklog('?', "$Can't stat %s", fname);
+		Syslog('?', "$Can't stat %s", fname);
 		st.st_size  = 0L;
 		st.st_mtime = time(NULL);
 	}
@@ -694,7 +694,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 			}
 			fclose(fp);
 		} else 
-			tasklog('?', "Can't open %s", fname);
+			Syslog('?', "Can't open %s", fname);
 
 	} else if (isflo == OUT_PKT) {
 		(*tmp)->size += st.st_size;

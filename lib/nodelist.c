@@ -36,6 +36,7 @@
 #include "records.h"
 #include "clcomm.h"
 #include "common.h"
+#include "nodelist.h"
 
 
 #define NULLDOMAIN "nulldomain"

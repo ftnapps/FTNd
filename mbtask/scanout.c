@@ -63,17 +63,17 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	time_t	t_start;
 
 	t_start = time(NULL);
-//	tasklog('o' ,"scan_dir \"%s\" (%s)",MBSE_SS(dname),ispoint?"point":"node");
+//	Syslog('o' ,"scan_dir \"%s\" (%s)",MBSE_SS(dname),ispoint?"point":"node");
 
 	if ((dp = opendir(dname)) == NULL) {
-		tasklog('-', "Creating directory %s", dname);
+		Syslog('-', "Creating directory %s", dname);
 		/*
 		 * Create a fake filename, mkdirs() likes that.
 		 */
 		sprintf(fname, "%s/foo", dname);
 		(void)mkdirs(fname, 0770);
 		if ((dp = opendir(dname)) == NULL) {
-			tasklog('o' ,"\"%s\" cannot be opened, proceed",MBSE_SS(dname));
+			Syslog('o' ,"\"%s\" cannot be opened, proceed",MBSE_SS(dname));
 			return 0;
 		}
 	}
@@ -81,7 +81,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 	while ((de=readdir(dp)))
 	if ((strlen(de->d_name) == 12) && (de->d_name[8] == '.') &&
 	    (strspn(de->d_name,"0123456789abcdefABCDEF") == 8)) {
-//		tasklog('o' ,"checking: \"%s\"",de->d_name);
+//		Syslog('o' ,"checking: \"%s\"",de->d_name);
 		addr.point= 0;
 		strncpy(fname,dname,PATH_MAX-2);
 		strcat(fname,"/");
@@ -124,7 +124,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 				isflo=OUT_POL;
 			else
 				isflo=-1;
-//			tasklog('o' ,"%s \"%s\"", (isflo == OUT_FLO) ? "flo file" : "packet", de->d_name);
+//			Syslog('o' ,"%s \"%s\"", (isflo == OUT_FLO) ? "flo file" : "packet", de->d_name);
 			if ((rc=fn(&addr,flavor,isflo,fname)))
 				goto exout;
 		} else if ((strncasecmp(de->d_name+9,"su",2) == 0) ||
@@ -138,12 +138,12 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 			if ((rc = fn(&addr, flavor, isflo, fname)))
 				goto exout;
 
-//			tasklog('o' ,"arcmail file \"%s\"",de->d_name);
+//			Syslog('o' ,"arcmail file \"%s\"",de->d_name);
 			sprintf(fname, "%s/%s", dname, de->d_name);
 			fage = (int)((t_start - file_time(fname)) / 86400);
 
 			if (file_size(fname) == 0) {
-//				tasklog('o', "Age %d days", fage);
+//				Syslog('o', "Age %d days", fage);
 				/*
 				 *  Remove truncated ARCmail that has a day extension
 				 *  other then the current day or if the file is older
@@ -151,7 +151,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 				 */
 				if ((strncasecmp(de->d_name+9, dayname(), 2)) || (fage > 6)) {
 					if (unlink(fname) == 0)
-						tasklog('-', "Removed truncated ARCmail file %s", fname);
+						Syslog('-', "Removed truncated ARCmail file %s", fname);
 				}
 			}
 
@@ -160,10 +160,10 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 				 *  Remove ARCmail that is on hold too long.
 				 */
 				if (unlink(fname) == 0)
-					tasklog('+', "Removed ARCmail %s, %d days", fname, fage);
+					Syslog('+', "Removed ARCmail %s, %d days", fname, fage);
 			}
 		} else {
-//			tasklog('o' ,"skipping \"%s\"",de->d_name);
+//			Syslog('o' ,"skipping \"%s\"",de->d_name);
 		}
 	}
 
@@ -183,7 +183,7 @@ int scanout(int (*fn)(faddr *, char, int, char *))
 	DIR		*dp;
 
 	if ((dp = opendir(CFG.outbound)) == NULL) {
-		tasklog('?', "$Can't open outbound directory \"%s\" for reading", MBSE_SS(CFG.outbound));
+		Syslog('?', "$Can't open outbound directory \"%s\" for reading", MBSE_SS(CFG.outbound));
 		return 1;
 	}
 	closedir(dp);
@@ -217,7 +217,7 @@ int scanout(int (*fn)(faddr *, char, int, char *))
 							sprintf(fext, ".%03x", fidonet.zone[j]);
 							p = xstrcat(p, fext);
 						}
-//						tasklog('o', "Zone %d Dir %s", fidonet.zone[j], p);
+//						Syslog('o', "Zone %d Dir %s", fidonet.zone[j], p);
 						addr.zone = fidonet.zone[j];
 						addr.domain = fidonet.domain;
 

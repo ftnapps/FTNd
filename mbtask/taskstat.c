@@ -113,7 +113,7 @@ void status_init()
 		status.sequence = (unsigned long)time(NULL);
 		stat_fd = open(stat_fn, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR); 
 		cnt = write(stat_fd, &status, sizeof(status_r));
-		tasklog('+', "New statusfile created");
+		Syslog('+', "New statusfile created");
 		lseek(stat_fd, 0, SEEK_SET);
 	}
 	
@@ -129,7 +129,7 @@ void status_init()
 	lseek(stat_fd, 0, SEEK_SET);
 	cnt = write(stat_fd, &status, sizeof(status_r));
 	if (cnt != sizeof(status_r)) {
-		tasklog('?', "$Error rewrite status file\n");
+		Syslog('?', "$Error rewrite status file\n");
 		exit(MBERR_INIT_ERROR);
 	}
 	close(stat_fd);
@@ -156,36 +156,36 @@ void status_write(void)
 	 * If we passed to the next day, zero the today counters 
 	 */
 	if (ttm->tm_yday != ytm->tm_yday) {
-		tasklog('+', "Last days statistics:");
-		tasklog('+', "Total clients : %lu", status.today.tot_clt);
-		tasklog('+', "Peak clients  : %lu", status.today.peak_clt);
-		tasklog('+', "Syntax errors : %lu", status.today.s_error);
-		tasklog('+', "Comms errors  : %lu", status.today.c_error);
+		Syslog('+', "Last days statistics:");
+		Syslog('+', "Total clients : %lu", status.today.tot_clt);
+		Syslog('+', "Peak clients  : %lu", status.today.peak_clt);
+		Syslog('+', "Syntax errors : %lu", status.today.s_error);
+		Syslog('+', "Comms errors  : %lu", status.today.c_error);
 
 		memset((char *)&status.today, 0, sizeof(cl_stat));
 		status.daily = time(NULL);
-		tasklog('+', "Zeroed todays status counters");
+		Syslog('+', "Zeroed todays status counters");
 	}
 
 	if ((stat_fd = open(stat_fn, O_RDWR)) == -1) {
-		tasklog('?', "$Error open statusfile %s", stat_fn);
+		Syslog('?', "$Error open statusfile %s", stat_fn);
 		return;
 	}
 
 	if ((d = lseek(stat_fd, 0, SEEK_SET)) != 0) {
-		tasklog('?', "$Error seeking in statusfile");
+		Syslog('?', "$Error seeking in statusfile");
 		return;
 	}
 
 	d = write(stat_fd, &status, sizeof(status_r));
 	if (d != sizeof(status_r))
-		tasklog('?', "$Error writing statusfile, only %d bytes", d);
+		Syslog('?', "$Error writing statusfile, only %d bytes", d);
 
 	/*
 	 * CLose the statusfile
 	 */
 	if (close(stat_fd) != 0)
-		tasklog('?', "$Error closing statusfile");
+		Syslog('?', "$Error closing statusfile");
 }
 
 
@@ -212,13 +212,13 @@ int get_zmh()
 	if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
 		if (!ZMH) {
 			CreateSema((char *)"zmh");
-			tasklog('!', "Start of Zone Mail Hour");
+			Syslog('!', "Start of Zone Mail Hour");
 			ZMH = TRUE;
 		}
 	} else {
 		if (ZMH) {
 			RemoveSema((char *)"zmh");
-			tasklog('!', "End of Zone Mail Hour");
+			Syslog('!', "End of Zone Mail Hour");
 			ZMH = FALSE;
 		}
 	}
@@ -254,12 +254,12 @@ void stat_set_open(int op)
 {
 	if (op) {
 		if (!s_bbsopen) {
-			tasklog('!', "The bbs is open");
+			Syslog('!', "The bbs is open");
 			sem_set((char *)"scanout", TRUE);
 		}
 	} else {
 		if (s_bbsopen) {
-			tasklog('!', "The bbs is closed");
+			Syslog('!', "The bbs is closed");
 		}
 	}
 	s_bbsopen = status.open = op;
@@ -339,7 +339,7 @@ char *getseq(void)
 
 int sem_set(char *sem, int value)
 {
-	tasklog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
+	Syslog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
 
 	if (!strcmp(sem, "scanout")) {
 		s_scanout = value;
@@ -398,12 +398,12 @@ char *sem_status(char *data)
 	} else if (!strcmp(sem, "do_inet")) {
 	        value = s_do_inet;
         } else {
-		tasklog('s', "sem_status(%s) buf=%s", sem, buf);
+		Syslog('s', "sem_status(%s) buf=%s", sem, buf);
 		return buf;
         }
 
 	sprintf(buf, "100:1,%s;", value ? "1":"0");
-	tasklog('s', "Check semafore \"%s\": %s present", sem, value?"is":"not");
+	Syslog('s', "Check semafore \"%s\": %s present", sem, value?"is":"not");
 	return buf;
 }
 

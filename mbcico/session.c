@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/nodelist.h"
 #include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "statetbl.h"

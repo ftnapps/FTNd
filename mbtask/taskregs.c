@@ -55,7 +55,7 @@ int reg_find(char *pids)
 			return i;
 	}
 
-	tasklog('?', "Panic, pid %s not found", pids);
+	Syslog('?', "Panic, pid %s not found", pids);
 	return -1;
 }
 
@@ -82,7 +82,7 @@ int reg_newcon(char *data)
 	 * Abort if no empty record is found 
 	 */
 	if ((retval = reg_find((char *)"0")) == -1) {
-		tasklog('?', "Maximum clients (%d) reached", MAXCLIENT);
+		Syslog('?', "Maximum clients (%d) reached", MAXCLIENT);
 		return -1;
 	}
 
@@ -106,7 +106,7 @@ int reg_newcon(char *data)
 	stat_inc_clients();
 	if (strcmp(prg, (char *)"mbcico") == 0)
 	    mailers++;
-	tasklog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
+	Syslog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
 		prg, pid, retval, mailers, ipmailers);
 	return retval;
 }
@@ -127,7 +127,7 @@ int reg_closecon(char *data)
 	    mailers--;
 	if (reginfo[rec].istcp)
 	    ipmailers--;
-	tasklog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
+	Syslog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
 		reginfo[rec].prg, pid, rec, mailers, ipmailers);
 	memset(&reginfo[rec], 0, sizeof(reg_info)); 
 	stat_dec_clients();
@@ -153,7 +153,7 @@ void reg_check(void)
 					    mailers--;
 					if (reginfo[i].istcp)
 					    ipmailers--;
-					tasklog('?', "Stale registration found for pid %d (%s), mailers now %d, TCP/IP now %d", 
+					Syslog('?', "Stale registration found for pid %d (%s), mailers now %d, TCP/IP now %d", 
 						reginfo[i].pid, reginfo[i].prg, mailers, ipmailers);
 					memset(&reginfo[i], 0, sizeof(reg_info));
 					stat_dec_clients();
@@ -165,10 +165,10 @@ void reg_check(void)
 				if ((Now - reginfo[i].lastcon) >= reginfo[i].altime) {
 					if (reginfo[i].altime < 600) {
 						kill(reginfo[i].pid, SIGKILL);
-						tasklog('+', "Send SIGKILL to pid %d", reginfo[i].pid);
+						Syslog('+', "Send SIGKILL to pid %d", reginfo[i].pid);
 					} else {
 						kill(reginfo[i].pid, SIGTERM);
-						tasklog('+', "Send SIGTERM to pid %d", reginfo[i].pid);
+						Syslog('+', "Send SIGTERM to pid %d", reginfo[i].pid);
 					}
 					/*
 					 *  10 seconds to the next kill
@@ -222,7 +222,7 @@ int reg_ip(char *data)
     reginfo[rec].istcp = TRUE;
     reginfo[rec].lastcon = time(NULL);
     ipmailers++;
-    tasklog('?', "TCP/IP session registered (%s), now %d sessions", pid, ipmailers);
+    Syslog('?', "TCP/IP session registered (%s), now %d sessions", pid, ipmailers);
     return 0;
 }
 
@@ -275,7 +275,7 @@ int reg_timer(int Set, char *data)
 
 	reginfo[rec].altime = val;
 	reginfo[rec].lastcon = time(NULL);
-	tasklog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
+	Syslog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
 	return 0;
 }
 
@@ -379,7 +379,7 @@ char *reg_ipm(char *data)
 		reginfo[rec].ptr_out = 0;
 	if (reginfo[rec].ptr_out == reginfo[rec].ptr_in)
 		reginfo[rec].ismsg = FALSE;
-	tasklog('+', "reg_ipm: in=%d out=%d ismsg=%d", reginfo[rec].ptr_in, reginfo[rec].ptr_out, reginfo[rec].ismsg);
+	Syslog('+', "reg_ipm: in=%d out=%d ismsg=%d", reginfo[rec].ptr_in, reginfo[rec].ptr_out, reginfo[rec].ismsg);
 
 	return buf;
 }
@@ -427,7 +427,7 @@ int reg_spm(char *data)
 			else
 				reginfo[i].ptr_in = 0;
 			reginfo[i].ismsg = TRUE;
-			tasklog('+', "reg_spm: in=%d out=%d ismsg=%d", reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
+			Syslog('+', "reg_spm: in=%d out=%d ismsg=%d", reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
 			return 0;
 		}
 	}

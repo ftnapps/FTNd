@@ -21,7 +21,8 @@ typedef struct  _srv_auth {
 /*
  *  Function prototypes
  */
-void		tasklog(int, const char *, ...);
+void		WriteError(const char *, ...);
+void		Syslog(int, const char *, ...);
 int		ulog(char *, char *, char *, char *, char*);
 char            *xstrcpy(char *);
 char            *xstrcat(char *, char *);
@@ -38,6 +39,7 @@ char		*Dos2Unix(char *);
 char		*dayname(void);
 void		InitFidonet(void);
 int		SearchFidonet(unsigned short);
+char		*printable(char *, int);
 
 
 #endif

@@ -46,6 +46,7 @@ extern struct _fidonet	    fidonet;
 extern struct taskrec	    TCFG;
 unsigned long		    lcrc = 0, tcrc = 1;
 int			    lcnt = 0, lchr;
+static char		    *pbuff = NULL;
 
 
 static char *mon[] = {
@@ -79,10 +80,25 @@ char *date(void)
 
 
 
+void WriteError(const char *format, ...)
+{
+    char    *outputstr;
+    va_list va_ptr;
+
+    outputstr = calloc(10240, sizeof(char));
+    va_start(va_ptr, format);
+    vsprintf(outputstr, format, va_ptr);
+    va_end(va_ptr);
+    Syslog('?', outputstr);
+    free(outputstr);
+}
+
+
+
 /*
  * general log for this server
  */
-void tasklog(int grade, const char *format, ...)
+void Syslog(int grade, const char *format, ...)
 {
 	va_list va_ptr;
 	char    outstr[1024];
@@ -151,7 +167,7 @@ int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 	umask(oldmask);
 	if (log == NULL) {
 		oserr = errno;
-		tasklog('!', "$Cannot open user logfile %s", fn);
+		Syslog('!', "$Cannot open user logfile %s", fn);
 		return -1;
 	}
 
@@ -162,7 +178,7 @@ int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
         fflush(log);
         if (fclose(log) != 0) {
                 oserr = errno;
-                tasklog('!', "$Cannot close user logfile %s", fn);
+                Syslog('!', "$Cannot close user logfile %s", fn);
                 return -1;
         }
         return 0;
@@ -216,7 +232,7 @@ void CreateSema(char *sem)
         if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
                 close(fd);
         else
-                tasklog('?', "Can't create semafore %s", temp);
+                Syslog('?', "Can't create semafore %s", temp);
 }
 
 
@@ -230,7 +246,7 @@ void TouchSema(char *sem)
         if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
                 close(fd);
         } else
-                tasklog('?', "Can't touch semafore %s", temp);
+                Syslog('?', "Can't touch semafore %s", temp);
 }
 
 
@@ -243,7 +259,7 @@ void RemoveSema(char *sem)
 	if (access(temp, F_OK))
 		return;
         if (unlink(temp) == -1)
-                tasklog('?', "Can't remove semafore %s", temp);
+                Syslog('?', "Can't remove semafore %s", temp);
 }
 
 
@@ -302,7 +318,7 @@ int mkdirs(char *name, mode_t mode)
         if ((last == 0) || (last == EEXIST)) {
                 return TRUE;
         } else {
-                tasklog('?', "$mkdirs(%s)", name);
+                Syslog('?', "$mkdirs(%s)", name);
                 return FALSE;
         }
 }
@@ -445,4 +461,59 @@ int SearchFidonet(unsigned short zone)
         return FALSE;
 }
 
+
+
+char *xmalloc(size_t);
+char *xmalloc(size_t size)
+{
+    char *tmp;
+
+    tmp = malloc(size);
+    if (!tmp) 
+	abort();
+			            
+    return tmp;
+}
+
+
+
+char *printable(char *s, int l)
+{
+    int     len;
+    char    *p;
+
+    if (pbuff) 
+	free(pbuff);
+    pbuff=NULL;
+
+    if (s == NULL) 
+	return (char *)"(null)";
+
+    if (l > 0) 
+	len=l;
+    else if (l == 0) 
+	len=strlen(s);
+    else {
+	len=strlen(s);
+	if (len > -l) 
+	    len=-l;
+    }
+    pbuff=(char*)xmalloc(len*4+1);
+    p=pbuff;
+    while (len--) {
+	if (*(unsigned char*)s >= ' ') 
+	    *p++=*s;
+	else switch (*s) {
+	    case '\\': *p++='\\'; *p++='\\'; break;
+	    case '\r': *p++='\\'; *p++='r'; break;
+	    case '\n': *p++='\\'; *p++='n'; break;
+	    case '\t': *p++='\\'; *p++='t'; break;
+	    case '\b': *p++='\\'; *p++='b'; break;
+	    default:   sprintf(p,"\\%03o",*s); p+=4; break;
+	}
+	s++;
+    }
+    *p='\0';
+    return pbuff;
+}
 

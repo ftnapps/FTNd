@@ -65,6 +65,7 @@ static void garbitch(void);
 #include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "../lib/clcomm.h"
 #include "ttyio.h"
 #include "session.h"

@@ -40,7 +40,7 @@
 #include "taskcomm.h"
 #include "callstat.h"
 #include "outstat.h"
-#include "nodelist.h"
+#include "../lib/nodelist.h"
 #include "ports.h"
 #include "calllist.h"
 #include "ping.h"
@@ -437,13 +437,13 @@ void load_taskcfg(void)
 		sprintf(TCFG.isp_ping1, "192.168.1.1");
 		sprintf(TCFG.isp_ping2, "192.168.1.1");
 		if ((fp = fopen(tcfgfn, "a+")) == NULL) {
-			tasklog('?', "$Can't create %s", tcfgfn);
+			Syslog('?', "$Can't create %s", tcfgfn);
 			die(MBERR_INIT_ERROR);
 		}
 		fwrite(&TCFG, sizeof(TCFG), 1, fp);
 		fclose(fp);
 		chmod(tcfgfn, 0640);
-		tasklog('+', "Created new %s", tcfgfn);
+		Syslog('+', "Created new %s", tcfgfn);
 	} else {
 		fread(&TCFG, sizeof(TCFG), 1, fp);
 		fclose(fp);
@@ -467,7 +467,7 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	pid_t	pid = 0;
 
 	if (checktasks(0) >= MAXTASKS) {
-		tasklog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
+		Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
 		return 0;
 	}
 
@@ -482,36 +482,36 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	vector[15] = NULL;
 
 	if (file_exist(vector[0], X_OK)) {
-		tasklog('?', "Launch: can't execute %s, command not found", vector[0]);
+		Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
 		return 0;
 	}
 
 	pid = fork();
 	switch (pid) {
 	case -1:
-		tasklog('?', "$Launch: error, can't fork grandchild");
+		Syslog('?', "$Launch: error, can't fork grandchild");
 		return 0;
 	case 0:
 		/* From Paul Vixies cron: */
 		(void)setsid(); /* It doesn't seem to help */
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
-			tasklog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
+			Syslog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
 			_exit(MBERR_EXEC_FAILED);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-			tasklog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
+			Syslog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
 			_exit(MBERR_EXEC_FAILED);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-			tasklog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
+			Syslog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
 			_exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
-		tasklog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
+		Syslog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
 		_exit(MBERR_EXEC_FAILED);
 	default:
 		/* grandchild's daddy's process */
@@ -539,9 +539,9 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	ptimer = PAUSETIME;
 
 	if (opts)
-		tasklog('+', "Launch: task %d \"%s %s\" success, pid=%d", i, cmd, opts, pid);
+		Syslog('+', "Launch: task %d \"%s %s\" success, pid=%d", i, cmd, opts, pid);
 	else
-		tasklog('+', "Launch: task %d \"%s\" success, pid=%d", i, cmd, pid);
+		Syslog('+', "Launch: task %d \"%s\" success, pid=%d", i, cmd, pid);
 	return pid;
 }
 
@@ -577,9 +577,9 @@ int checktasks(int onsig)
 
 	    if (onsig) {
 		if (kill(task[i].pid, onsig) == 0)
-		    tasklog('+', "%s to %s (pid %d) succeeded", SigName[onsig], task[i].name, task[i].pid);
+		    Syslog('+', "%s to %s (pid %d) succeeded", SigName[onsig], task[i].name, task[i].pid);
 		else
-		    tasklog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
+		    Syslog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
 	    }
 
 	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
@@ -595,20 +595,20 @@ int checktasks(int onsig)
 
 	    if (first && task[i].rc) {
 		first = FALSE;
-		tasklog('t', "Task             Type      pid stat    rc");
-		tasklog('t', "---------------- ------- ----- ---- -----");
+		Syslog('t', "Task             Type      pid stat    rc");
+		Syslog('t', "---------------- ------- ----- ---- -----");
 		for (j = 0; j < MAXTASKS; j++)
 		    if (strlen(task[j].name))
-			tasklog('t', "%-16s %s %5d %s %5d", task[j].name, callmode(task[j].tasktype), 
+			Syslog('t', "%-16s %s %5d %s %5d", task[j].name, callmode(task[j].tasktype), 
 				task[j].pid, task[j].running?"runs":"stop", task[j].rc);
 	    }
 
 	    switch (task[i].rc) {
 		case -1:
 			if (errno == ECHILD)
-			    tasklog('+', "Task %d \"%s\" is ready", i, task[i].name);
+			    Syslog('+', "Task %d \"%s\" is ready", i, task[i].name);
 			else
-			    tasklog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
+			    Syslog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
 			break;
 		case 0:
 			/*
@@ -621,20 +621,20 @@ int checktasks(int onsig)
 			if (WIFEXITED(task[i].status)) {
 			    rc = WEXITSTATUS(task[i].status);
 			    if (rc)
-				tasklog('+', "Task %s is ready, error=%d", task[i].name, rc);
+				Syslog('+', "Task %s is ready, error=%d", task[i].name, rc);
 			    else
-				tasklog('+', "Task %s is ready", task[i].name);
+				Syslog('+', "Task %s is ready", task[i].name);
 			} else if (WIFSIGNALED(task[i].status)) {
 			    rc = WTERMSIG(task[i].status);
 			    if (rc <= 31)
-				tasklog('+', "Task %s terminated on signal %s (%d)", task[i].name, SigName[rc], rc);
+				Syslog('+', "Task %s terminated on signal %s (%d)", task[i].name, SigName[rc], rc);
 			    else
-				tasklog('+', "Task %s terminated with error nr %d", task[i].name, rc);
+				Syslog('+', "Task %s terminated with error nr %d", task[i].name, rc);
 			} else if (WIFSTOPPED(task[i].status)) {
 			    rc = WSTOPSIG(task[i].status);
-			    tasklog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
+			    Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
 			} else {
-			    tasklog('+', "FIXME: 1");
+			    Syslog('+', "FIXME: 1");
 			}
 			break;
 	    }
@@ -663,15 +663,15 @@ void die(int onsig)
 
 	signal(onsig, SIG_IGN);
 	if (onsig == SIGTERM)
-	    tasklog('+', "Starting normal shutdown");
+	    Syslog('+', "Starting normal shutdown");
 	else
-	    tasklog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
+	    Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
 
 	/*
 	 *  First check if there are tasks running, if so try to stop them
 	 */
 	if ((count = checktasks(0))) {
-		tasklog('+', "There are %d tasks running, sending SIGTERM", count);
+		Syslog('+', "There are %d tasks running, sending SIGTERM", count);
 		checktasks(SIGTERM);
 		for (i = 0; i < 15; i++) {
 			sleep(1);
@@ -683,21 +683,21 @@ void die(int onsig)
 			/*
 			 *  There are some diehards running...
 			 */
-			tasklog('+', "There are %d tasks running, sending SIGKILL", count);
+			Syslog('+', "There are %d tasks running, sending SIGKILL", count);
 			count = checktasks(SIGKILL);
 		}
 		if (count) {
 			sleep(1);
 			count = checktasks(0);
 			if (count)
-				tasklog('?', "Still %d tasks running, giving up", count);
+				Syslog('?', "Still %d tasks running, giving up", count);
 		}
 	}
 
 	if ((count = checktasks(0)))
-	    tasklog('?', "Shutdown with %d tasks still running", count);
+	    Syslog('?', "Shutdown with %d tasks still running", count);
 	else
-	    tasklog('+', "Good, no more tasks running");
+	    Syslog('+', "Good, no more tasks running");
 
 	ulocktask();
 	if (sock != -1)
@@ -707,7 +707,7 @@ void die(int onsig)
 	if (!file_exist(spath, R_OK)) {
 		unlink(spath);
 	}
-	tasklog(' ', "MBTASK finished");
+	Syslog(' ', "MBTASK finished");
 	exit(onsig);
 }
 
@@ -791,7 +791,7 @@ void test_sema(char *sema)
 {
 	if (IsSema(sema)) {
 		RemoveSema(sema);
-		tasklog('s', "Semafore %s detected", sema);
+		Syslog('s', "Semafore %s detected", sema);
 		sem_set(sema, TRUE);
 	}
 }
@@ -810,15 +810,15 @@ void check_sema(void)
 	 */
         if (IsSema((char *)"upsalarm")) {
                 if (!UPSalarm)
-                        tasklog('!', "UPS: power failure");
+                        Syslog('!', "UPS: power failure");
 		UPSalarm = TRUE;
 	} else {
                 if (UPSalarm)
-                        tasklog('!', "UPS: the power is back");
+                        Syslog('!', "UPS: the power is back");
 		UPSalarm = FALSE; 
 	}
 	if (IsSema((char *)"upsdown")) {
-		tasklog('!', "UPS: power failure, starting shutdown");
+		Syslog('!', "UPS: power failure, starting shutdown");
 		/*
 		 *  Since the upsdown semafore is permanent, the system WILL go down
 		 *  there is no point for this program to stay. Signal all tasks and stop.
@@ -882,7 +882,7 @@ void scheduler(void)
      * Setup UNIX Datagram socket
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
-	tasklog('?', "$Can't create socket");
+	Syslog('?', "$Can't create socket");
 	die(MBERR_INIT_ERROR);
     }
 
@@ -893,7 +893,7 @@ void scheduler(void)
     if (bind(sock, &servaddr, sizeof(servaddr)) < 0) {
 	close(sock);
 	sock = -1;
-	tasklog('?', "$Can't bind socket %s", spath);
+	Syslog('?', "$Can't bind socket %s", spath);
 	die(MBERR_INIT_ERROR);
     }
 
@@ -914,7 +914,7 @@ void scheduler(void)
     initnl();
     sem_set((char *)"scanout", TRUE);
     if (!TCFG.max_tcp && !pots_lines && !isdn_lines) {
-	tasklog('?', "ERROR: this system cannot connect to other systems, check setup");
+	Syslog('?', "ERROR: this system cannot connect to other systems, check setup");
     }
 	
     /*
@@ -935,7 +935,7 @@ void scheduler(void)
 	     *  Poll can be interrupted by a finished child so that's not a real error.
 	     */
 	    if (errno != EINTR) {
-		tasklog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
+		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
 	    }
 	} else if (rc) {
 	    if (pfd.revents & POLLIN) {
@@ -947,7 +947,7 @@ void scheduler(void)
 		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, &from, &fromlen);
 		do_cmd(buf);
 	    } else {
-		tasklog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
+		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
 	    }
 	}
 
@@ -971,19 +971,19 @@ void scheduler(void)
 	    if (fscanf(fp, "%lf %lf %lf", &loadavg[0], &loadavg[1], &loadavg[2]) == 3) {
 		Load = loadavg[0];
 	    } else {
-		tasklog('-', "error");
+		Syslog('-', "error");
 	    }
 	    fclose(fp);
 	}
 #endif
 	if (Load >= TCFG.maxload) {
 	    if (!LOADhi) {
-		tasklog('!', "System load too high: %2.2f (%2.2f)", Load, TCFG.maxload);
+		Syslog('!', "System load too high: %2.2f (%2.2f)", Load, TCFG.maxload);
 		LOADhi = TRUE;
 	    }
 	} else {
 	    if (LOADhi) {
-		tasklog('!', "System load normal: %2.2f (%2.2f)", Load, TCFG.maxload);
+		Syslog('!', "System load normal: %2.2f (%2.2f)", Load, TCFG.maxload);
 		LOADhi = FALSE;
 	    }
 	}
@@ -1021,17 +1021,17 @@ void scheduler(void)
 	    olddo = tm->tm_min;
 	    TouchSema((char *)"mbtask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
-		tasklog('+', "Task configuration changed, reloading");
+		Syslog('+', "Task configuration changed, reloading");
 		load_taskcfg();
 		sem_set((char *)"scanout", TRUE);
 	    }
 	    if (file_time(cfgfn) != cfg_time) {
-		tasklog('+', "Main configuration changed, reloading");
+		Syslog('+', "Main configuration changed, reloading");
 		load_maincfg();
 		sem_set((char *)"scanout", TRUE);
 	    }
 	    if (file_time(ttyfn) != tty_time) {
-		tasklog('+', "Ports configuration changed, reloading");
+		Syslog('+', "Ports configuration changed, reloading");
 		load_ports();
 		check_ports();
 		sem_set((char *)"scanout", TRUE);
@@ -1041,7 +1041,7 @@ void scheduler(void)
 	     * If the next event time is reached, rescan the outbound
 	     */
 	    if ((utm->tm_hour == nxt_hour) && (utm->tm_min == nxt_min)) {
-		tasklog('+', "It is now %02d:%02d UTC, starting new event", utm->tm_hour, utm->tm_min);
+		Syslog('+', "It is now %02d:%02d UTC, starting new event", utm->tm_hour, utm->tm_min);
 		sem_set((char *)"scanout", TRUE);
 	    }
 	}
@@ -1051,12 +1051,12 @@ void scheduler(void)
 	 */
 	if (s_bbsopen && !UPSalarm && !LOADhi) {
 	    if (!Processing) {
-		tasklog('+', "Resuming normal operations");
+		Syslog('+', "Resuming normal operations");
 		Processing = TRUE;
 	    }
         } else {
 	    if (Processing) {
-		tasklog('+', "Suspending operations");
+		Syslog('+', "Suspending operations");
 		Processing = FALSE;
 	    }
 	}
@@ -1295,8 +1295,8 @@ int main(int argc, char **argv)
 	sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
 	load_maincfg();
 
-        tasklog(' ', " ");
-        tasklog(' ', "MBTASK v%s", VERSION);
+        Syslog(' ', " ");
+        Syslog(' ', "MBTASK v%s", VERSION);
 	sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
         load_taskcfg();
         status_init();
@@ -1327,14 +1327,14 @@ int main(int argc, char **argv)
          * associated with that terminal as its control terminal.
          */
 	if ((pgrp = setpgid(0, 0)) == -1) {
-		tasklog('?', "$setpgid failed");
+		Syslog('?', "$setpgid failed");
 		die(MBERR_INIT_ERROR);
 	}
 
 	frk = fork();
         switch (frk) {
         case -1:
-                tasklog('?', "$Unable to fork daemon");
+                Syslog('?', "$Unable to fork daemon");
                 die(MBERR_INIT_ERROR);
         case 0:
                 /*
@@ -1355,7 +1355,7 @@ int main(int argc, char **argv)
                         fprintf(fp, "%10u\n", frk);
                         fclose(fp);
                 }
-                tasklog('+', "Starting daemon with pid %d", frk);
+                Syslog('+', "Starting daemon with pid %d", frk);
                 exit(MBERR_OK);
         }
 

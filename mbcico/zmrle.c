@@ -43,6 +43,7 @@
 #include "../lib/structs.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "session.h"
 #include "zmodem.h"

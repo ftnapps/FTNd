@@ -8,16 +8,19 @@ CLCOMM_SRCS	= clcomm.c client.c crc.c semafore.c signame.c
 CLCOMM_OBJS	= clcomm.o client.o crc.o semafore.o signame.o
 CLCOMM_HDRS	= clcomm.h
 COMMON_SRCS	= attach.c charconv_utf.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
-		  batchrd.c charset.c ftn.c nodelist.c pktname.c mangle.c sectest.c \
+		  batchrd.c charset.c ftn.c pktname.c mangle.c sectest.c \
 		  charconv.c dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  charconv_hz.c execute.c expipe.c getheader.c mime.c noderecord.c rfcaddr.c strutil.c \
 		  charconv_jp.c faddr.c gmtoffset.c packet.c rfcdate.c term.c 
 COMMON_OBJS	= ftscprod.o attach.o charconv_utf.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
-		  batchrd.o charset.o ftn.o nodelist.o pktname.o mangle.o sectest.o \
+		  batchrd.o charset.o ftn.o pktname.o mangle.o sectest.o \
 		  charconv.o dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
 		  charconv_hz.o execute.o expipe.o getheader.o mime.o noderecord.o rfcaddr.o strutil.o \
 		  charconv_jp.o faddr.o gmtoffset.o packet.o rfcdate.o term.o
 COMMON_HDRS	= common.h
+NODELIST_SRCS	= nodelist.c
+NODELIST_OBJS	= nodelist.o
+NODELIST_HDRS	= nodelist.h
 DBASE_SRCS	= dbcfg.c dbdupe.c dbftn.c dbmsgs.c dbnode.c dbtic.c dbuser.c
 DBASE_OBJS	= dbcfg.o dbdupe.o dbftn.o dbmsgs.o dbnode.o dbtic.o dbuser.o
 DBASE_HDRS	= dbcfg.h dbdupe.h dbftn.h dbmsgs.h dbnode.h dbtic.h dbuser.h
@@ -35,14 +38,15 @@ MEMWATCH_OBJS	= memwatch.o
 MEMWATCH_HDRS	= memwatch.h
 OTHER_HDRS	= ansi.h bluewave.h libs.h mbse.h records.h structs.h users.h mberrors.h
 SRCS		= ${CLCOMM_SRCS} ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} \
-		  ${DIESEL_SRCS} ${MEMWATCH_SRCS}
+		  ${DIESEL_SRCS} ${MEMWATCH_SRCS} ${NODELIST_SRCS}
 OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} \
-		  ${DIESEL_OBJS} ${MEMWATCH_OBJS}
+		  ${DIESEL_OBJS} ${MEMWATCH_OBJS} ${NODELIST_OBJS}
 HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
-		  ${DIESEL_HDRS} ${MEMWATCH_HDRS} ${OTHER_HDRS}
+		  ${DIESEL_HDRS} ${MEMWATCH_HDRS} ${NODELIST_HDRS} ${OTHER_HDRS}
 OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c \
 		  memwatch.c.org README.diesel README.macro Diesel.doc nodelist.conf
-TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a libmemwatch.a
+TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
+		  libmemwatch.a libnodelist.a
 
 #############################################################################
 
@@ -79,6 +83,10 @@ libdiesel.a:	${DIESEL_OBJS}
 		${RANLIB} $@
 
 libmemwatch.a:	${MEMWATCH_OBJS}
+		ar r $@ $?
+		${RANLIB} $@
+
+libnodelist.a:	${NODELIST_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
@@ -131,7 +139,6 @@ unpacker.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h c
 batchrd.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 charset.o: ../config.h libs.h memwatch.h structs.h common.h clcomm.h
 ftn.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h dbftn.h common.h
-nodelist.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 pktname.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 mangle.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 sectest.o: ../config.h libs.h structs.h common.h clcomm.h
@@ -172,5 +179,6 @@ smtp.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h mbine
 diesel.o: ../config.h libs.h memwatch.h diesel.h
 mbdiesel.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h clcomm.h diesel.h
 memwatch.o: ../config.h libs.h memwatch.h
+nodelist.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h nodelist.h
 ftscprod.o: ../config.h libs.h memwatch.h structs.h common.h
 # End of generated dependencies

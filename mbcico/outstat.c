@@ -35,6 +35,7 @@
 #include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
 #include "../lib/dbnode.h"

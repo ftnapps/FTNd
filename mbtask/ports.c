@@ -32,7 +32,7 @@
 #include "libs.h"
 #include "../lib/structs.h"
 #include "taskutil.h"
-#include "nodelist.h"
+#include "../lib/nodelist.h"
 #include "ports.h"
 
 
@@ -116,7 +116,7 @@ void load_ports()
 
     tidy_portlist(&pl);
     if ((fp = fopen(ttyfn, "r")) == NULL) {
-	tasklog('?', "$Can't open %s", ttyfn);
+	Syslog('?', "$Can't open %s", ttyfn);
 	return;
     }
     fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
@@ -151,14 +151,14 @@ void load_ports()
 		}
 	    }
 
-	    tasklog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
+	    Syslog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
 	    fill_portlist(&pl, &new);
 	}
     }
 
     fclose(fp);
     tty_time = file_time(ttyfn);
-    tasklog('+', "Detected %d modem port%s and %d ISDN port%s", 
+    Syslog('+', "Detected %d modem port%s and %d ISDN port%s", 
 		    pots_lines, (pots_lines == 1)?"":"s", isdn_lines, (isdn_lines == 1)?"":"s");
 }
 
@@ -183,7 +183,7 @@ void check_ports(void)
 	if ((lf = fopen(lckname, "r")) == NULL) {
 	    if (tpl->locked) {
 		tpl->locked = 0;
-		tasklog('+', "Port %s is now free after %d seconds", tpl->tty, tpl->locktime);
+		Syslog('+', "Port %s is now free after %d seconds", tpl->tty, tpl->locktime);
 		if (tpl->locktime > 4)
 		    /*
 		     * Good, set master rescan flag if longer then 4 seconds locked.
@@ -195,14 +195,14 @@ void check_ports(void)
 	    rempid = tmppid;
 	    fclose(lf);
 	    if (kill(rempid, 0) && (errno == ESRCH)) {
-		tasklog('+', "Stale lockfile for %s, unlink", tpl->tty);
+		Syslog('+', "Stale lockfile for %s, unlink", tpl->tty);
 		unlink(lckname);
 		changed = TRUE;
 	    } else {
 		if (!tpl->locked) {
 		    tpl->locked = rempid;
 		    tpl->locktime = 0;
-		    tasklog('+', "Port %s locked, pid %d", tpl->tty, rempid);
+		    Syslog('+', "Port %s locked, pid %d", tpl->tty, rempid);
 		} else {
 		    /*
 		     * Count locktime
@@ -210,7 +210,7 @@ void check_ports(void)
 		    tpl->locktime++;
 		    if (tpl->locktime == 5) {
 			changed = TRUE;
-			tasklog('+', "Port %s locked for 5 seconds, forcing scan", tpl->tty);
+			Syslog('+', "Port %s locked for 5 seconds, forcing scan", tpl->tty);
 		    }
 		}
 	    }
@@ -226,7 +226,7 @@ void check_ports(void)
 
 	if (changed) {
 	    rescan = TRUE;
-	    tasklog('p', "Free ports: pots=%d isdn=%d", pots_free, isdn_free);
+	    Syslog('p', "Free ports: pots=%d isdn=%d", pots_free, isdn_free);
 	}
     }
 }

@@ -46,6 +46,7 @@
 #include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "../lib/clcomm.h"
 #include "../lib/mberrors.h"
 #include "session.h"

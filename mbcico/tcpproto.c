@@ -38,6 +38,7 @@
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/nodelist.h"
 #include "../lib/mberrors.h"
 #include "ttyio.h"
 #include "session.h"

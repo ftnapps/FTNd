@@ -36,6 +36,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "config.h"
 #include "session.h"
 #include "filelist.h"

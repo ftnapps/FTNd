@@ -44,6 +44,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/nodelist.h"
 #include "../lib/dbnode.h"
 #include "../lib/mberrors.h"
 #include "statetbl.h"
