@@ -181,9 +181,11 @@ int call(faddr *addr)
 		tcp_mode = TCPMODE_IBN;
 	    } else if (strcmp(protocol, "fido") == 0) {
 		tcp_mode = TCPMODE_IFC;
-//	    } else if (strcmp(protocol, "telnet") == 0) {
-//		tcp_mode = TCPMODE_ITN;
-//		telnet = TRUE;
+#ifdef USE_EXPERIMENT
+	    } else if (strcmp(protocol, "telnet") == 0) {
+		tcp_mode = TCPMODE_ITN;
+		telnet = TRUE;
+#endif
 	    } else {
 		Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);
 		free(inetaddr);

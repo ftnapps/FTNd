@@ -124,6 +124,8 @@ mbcico:
 
 	N: Implement PLZ turn off m_get command.
 
+	N: Make workaround for binkp bug in Irex 2.24 upto 2.29
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 

@@ -369,11 +369,17 @@ int main(int argc, char *argv[])
 	/*
 	 * Slave (answer) mode
 	 */
+#ifdef USE_EXPERIMENT
+	if (telnet) {
+	    Syslog('-', "Will use experimental telnet code");
+	}
+#else
 	if (telnet) {
 	    WriteError("Answering calls with the \"-t itn\" option no longer supported");
 	    WriteError("Install mbtelind to answer incoming telnet calls");
 	    die(MBERR_COMMANDLINE);
 	}
+#endif
 	if (!answermode && tcp_mode == TCPMODE_IBN)
 	    answermode = xstrcpy((char *)"ibn");
 	rc = maxrc = answer(answermode);

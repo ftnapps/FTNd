@@ -86,6 +86,7 @@
 #ifdef	HAVE_ZLIB_H
 #include <zlib.h>
 #endif
+#include <pthread.h>
 
 #pragma pack(1)
 

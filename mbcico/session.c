@@ -110,6 +110,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    }
 	}
 	session_flags |= SESSION_TCP;
+#ifdef USE_EXPERIMENT
+	if ((tcp_mode == TCPMODE_ITN) && (role == 0)) {
+	    Syslog('-', "Will need to install telnet receiver thread");
+	}
+#endif
     }
 
     if (data)
