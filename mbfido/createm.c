@@ -46,10 +46,11 @@ int create_msgarea(char *marea, faddr *p_from)
     char	*temp;
     FILE	*gp;
 
+    Syslog('m', "create_msgarea(%s)", marea);
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
     if ((gp = fopen(temp, "r")) == NULL) {
-	WriteError("$Can't open %s", temp);
+	WriteError("Can't open %s", temp);
 	free(temp);
 	return FALSE;
     }
@@ -97,7 +98,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
     Syslog('m', "Checking echogroup %s %s", mgroup.Name, mgroup.Comment);
     sprintf(temp, "%s/%s", CFG.alists_path , mgroup.AreaFile);
     if ((ap = fopen(temp, "r")) == NULL) {
-	WriteError("$Can't open %s", temp);
+	WriteError("Echogroup %s: area taglist %s not found", mgroup.Name, temp);
 	free(temp);
 	return 1;
     }
@@ -232,6 +233,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 	} /* if (strcmp(tag, Area) == 0) */
     } /* while (fgets(buf, 4096, ap)) */
 
+    Syslog('m', "Area %s not found in taglist", Area);
     free(buf);
     fclose(ap);
     free(temp);
