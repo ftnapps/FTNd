@@ -139,12 +139,11 @@ struct icmp_filter {
  *
  *  Defines
  */
+#define PRODCODE	0x11ff		/* Official MBSE FTSC product code  */
+#define Max_passlen     14		/* Define maximum passwd length     */
+#define SS_BUFSIZE      1024            /* Socket buffersize		    */
+#define MAXNLLINELEN    1024		/* Maximum nodelist line length	    */
 
-#define PRODCODE    0x11ff          /* Official MBSE FTSC product code  */
-
-#define Max_passlen     14      /* Define maximum passwd length            */
-
-#define SS_BUFSIZE      1024            /* Socket buffersize    */
 
 
 /*

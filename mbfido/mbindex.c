@@ -35,8 +35,8 @@
 
 
 typedef struct _nl_list {
-	struct _nl_list	*next;
-	struct _nlidx	idx;
+    struct _nl_list	*next;
+    struct _nlidx	idx;
 } nl_list;
 
 
@@ -62,18 +62,18 @@ time_t		t_end;			/* End time			    */
  */
 void Help(void)
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	colour(11, 0);
-	printf("\nUsage: mbindex <options>\n\n");
-	colour(9, 0);
-	printf("	Options are:\n\n");
-	colour(3, 0);
-	printf("	-quiet		Quiet mode\n");
-	colour(7, 0);
-	printf("\n");
-	die(MBERR_COMMANDLINE);
+    colour(LIGHTCYAN, BLACK);
+    printf("\nUsage: mbindex <options>\n\n");
+    colour(LIGHTBLUE, BLACK);
+    printf("	Options are:\n\n");
+    colour(CYAN, BLACK);
+    printf("	-quiet		Quiet mode\n");
+    colour(LIGHTGRAY, BLACK);
+    printf("\n");
+    die(MBERR_COMMANDLINE);
 }
 
 
@@ -83,14 +83,14 @@ void Help(void)
  */
 void ProgName(void)
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	colour(15, 0);
-	printf("\nMBINDEX: MBSE BBS %s Nodelist Index Compiler\n", VERSION);
-	colour(14, 0);
-	printf("         %s\n", COPYRIGHT);
-	colour(3, 0);
+    colour(WHITE, BLACK);
+    printf("\nMBINDEX: MBSE BBS %s Nodelist Index Compiler\n", VERSION);
+    colour(YELLOW, BLACK);
+    printf("         %s\n", COPYRIGHT);
+    colour(CYAN, BLACK);
 }
 
 
@@ -103,7 +103,7 @@ void die(int onsig)
     ulockprogram((char *)"mbindex");
 
     if (!do_quiet) {
-	colour(3, 0);
+	colour(CYAN, BLACK);
 	show_log = TRUE;
     }
 
@@ -121,7 +121,7 @@ void die(int onsig)
     Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
 	
     if (!do_quiet)
-	colour(7, 0);
+	colour(LIGHTGRAY, BLACK);
 
     ExitClient(onsig);
 }
@@ -197,167 +197,165 @@ int main(int argc,char *argv[])
 
 void tidy_nllist(nl_list **fap)
 {
-	nl_list	*tmp, *old;
+    nl_list	*tmp, *old;
 
-	for (tmp = *fap; tmp; tmp = old) {
-		old = tmp->next;
-		free(tmp);
-	}
-	*fap = NULL;
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fap = NULL;
 }
 
 
 
 int in_nllist(struct _nlidx idx, nl_list **fap, int replace)
 {
-	nl_list	*tmp;
+    nl_list	*tmp;
 
-	for (tmp = *fap; tmp; tmp = tmp->next)
-		if ((tmp->idx.zone == idx.zone) && (tmp->idx.net == idx.net) &&
-		    (tmp->idx.node == idx.node) && (tmp->idx.point == idx.point)) {
-			if (replace) {
-				tmp->idx = idx;
-				entries++;
-			}
-			regio = tmp->idx.region;
-			return TRUE;
+    for (tmp = *fap; tmp; tmp = tmp->next) {
+	if ((tmp->idx.zone == idx.zone) && (tmp->idx.net == idx.net) &&
+	       	(tmp->idx.node == idx.node) && (tmp->idx.point == idx.point)) {
+	    if (replace) {
+		tmp->idx = idx;
+		entries++;
+	    }
+	    regio = tmp->idx.region;
+	    return TRUE;
 	}
-	return FALSE;
+    }
+    return FALSE;
 }
 
 
 
 void fill_nllist(struct _nlidx idx, nl_list **fap)
 {
-	nl_list	*tmp;
+    nl_list	*tmp;
 
-	tmp = (nl_list *)malloc(sizeof(nl_list));
-	tmp->next = *fap;
-	tmp->idx  = idx;
-	*fap = tmp;
-	total++;
-	entries++;
+    tmp = (nl_list *)malloc(sizeof(nl_list));
+    tmp->next = *fap;
+    tmp->idx  = idx;
+    *fap = tmp;
+    total++;
+    entries++;
 }
 
 
 
 char *fullpath(char *fname)
 {
-	static char path[PATH_MAX];
+    static char path[PATH_MAX];
 
-	sprintf(path, "%s/%s", CFG.nodelists, fname);
-	return path;
+    sprintf(path, "%s/%s", CFG.nodelists, fname);
+    return path;
 }
 
 
 
 void sort_nllist(nl_list **fap)
 {
-	nl_list	*ta, **vector;
-	size_t	n = 0, i;
+    nl_list	*ta, **vector;
+    size_t	n = 0, i;
 
-	if (*fap == NULL)
-		return;
-
-	for (ta = *fap; ta; ta = ta->next)
-		n++;
-
-	vector = (nl_list **)malloc(n * sizeof(nl_list *));
-
-	i = 0;
-	for (ta = *fap; ta; ta = ta->next) {
-		vector[i++] = ta;
-	}
-
-	qsort(vector, n, sizeof(nl_list *), 
-		(int(*)(const void*, const void *))comp_node);
-
-	(*fap) = vector[0];
-	i = 1;
-
-	for (ta = *fap; ta; ta = ta->next) {
-		if (i < n)
-			ta->next = vector[i++];
-		else
-			ta->next = NULL;
-	}
-
-	free(vector);
+    if (*fap == NULL)
 	return;
+
+    for (ta = *fap; ta; ta = ta->next)
+	n++;
+
+    vector = (nl_list **)malloc(n * sizeof(nl_list *));
+
+    i = 0;
+    for (ta = *fap; ta; ta = ta->next) {
+	vector[i++] = ta;
+    }
+
+    qsort(vector, n, sizeof(nl_list *), (int(*)(const void*, const void *))comp_node);
+
+    (*fap) = vector[0];
+    i = 1;
+
+    for (ta = *fap; ta; ta = ta->next) {
+	if (i < n)
+	    ta->next = vector[i++];
+	else
+	    ta->next = NULL;
+    }
+
+    free(vector);
+    return;
 }
 
 
 
 int comp_node(nl_list **fap1, nl_list **fap2)
 {
-	if ((*fap1)->idx.zone != (*fap2)->idx.zone)
-		return ((*fap1)->idx.zone - (*fap2)->idx.zone);
-	else if ((*fap1)->idx.net != (*fap2)->idx.net)
-		return ((*fap1)->idx.net - (*fap2)->idx.net);
-	else if ((*fap1)->idx.node != (*fap2)->idx.node)
-		return ((*fap1)->idx.node - (*fap2)->idx.node);
-	else
-		return ((*fap1)->idx.point - (*fap2)->idx.point);
+    if ((*fap1)->idx.zone != (*fap2)->idx.zone)
+	return ((*fap1)->idx.zone - (*fap2)->idx.zone);
+    else if ((*fap1)->idx.net != (*fap2)->idx.net)
+	return ((*fap1)->idx.net - (*fap2)->idx.net);
+    else if ((*fap1)->idx.node != (*fap2)->idx.node)
+	return ((*fap1)->idx.node - (*fap2)->idx.node);
+    else
+	return ((*fap1)->idx.point - (*fap2)->idx.point);
 }
 
 
 
 int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short no)
 {
-	int		num, i, rc = 0;
-	int		lineno, boss = FALSE, bossvalid = FALSE;
-	unsigned short	upnet, upnode;
-	char		buf[256], *p, *q;
-	faddr		*tmpa;
-	FILE		*nl;
-	struct _nlidx	ndx;
-	struct _nlusr	udx;
+    int		    num, i, rc = 0, lineno, boss = FALSE, bossvalid = FALSE;
+    unsigned short  upnet, upnode;
+    char	    buf[MAXNLLINELEN], *p, *q;
+    faddr	    *tmpa;
+    FILE	    *nl;
+    struct _nlidx   ndx;
+    struct _nlusr   udx;
 
-	rc = 0;
-	if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
-		WriteError("$Can't open %s", fullpath(nlname));
-		return 102;
-	}
+    rc = 0;
+    if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
+	WriteError("$Can't open %s", fullpath(nlname));
+	return 102;
+    }
 
-	Syslog('+', "Compiling \"%s\" (%d)", nlname, filenr);
-	IsDoing("Compile NL %d", filenr +1);
+    Syslog('+', "Compiling \"%s\" (%d)", nlname, filenr);
+    IsDoing("Compile NL %d", filenr +1);
 
-	memset(&ndx, 0, sizeof(ndx));
-	ndx.type = NL_NODE;
-	ndx.fileno = filenr;
-	upnet = 0;
-	upnode = 0;
+    memset(&ndx, 0, sizeof(ndx));
+    ndx.type = NL_NODE;
+    ndx.fileno = filenr;
+    upnet = 0;
+    upnode = 0;
+
+    /*
+     *  If zone is set, it is a overlay segment
+     */
+    if (zo) {
+	ndx.zone  = zo;
+	ndx.net   = ne;
+	ndx.node  = no;
+	ndx.point = 0;
+    }
+    entries = 0;
+    lineno  = 0;
+
+    while (!feof(nl)) {
+
+	Nopper();
+	ndx.offset = ftell(nl);
+	lineno++;
+	if (fgets(buf, sizeof(buf)-1, nl) == NULL)
+	    continue;
 
 	/*
-	 *  If zone is set, it is a overlay segment
+	 * Next check at <lf> and <eof> characters
 	 */
-	if (zo) {
-		ndx.zone  = zo;
-		ndx.net   = ne;
-		ndx.node  = no;
-		ndx.point = 0;
+	if ((*(buf+strlen(buf) -1) != '\n') && (*(buf + strlen(buf) -1) != '\012')) {
+	    while (fgets(buf, sizeof(buf) -1, nl) && (*(buf + strlen(buf) -1) != '\n')) /*void*/;
+		if (strlen(buf) > 1) /* Suppress EOF character */
+		    Syslog('-', "Nodelist: too long line junked (%d)", lineno);
+	    continue;
 	}
-	entries = 0;
-	lineno  = 0;
-
-	while (!feof(nl)) {
-
-		Nopper();
-		ndx.offset = ftell(nl);
-		lineno++;
-		if (fgets(buf, sizeof(buf)-1, nl) == NULL)
-			continue;
-
-		/*
-		 * Next check at <lf> and <eof> characters
-		 */
-		if ((*(buf+strlen(buf) -1) != '\n') && (*(buf + strlen(buf) -1) != '\012')) {
-			while (fgets(buf, sizeof(buf) -1, nl) &&
-			       (*(buf + strlen(buf) -1) != '\n')) /*void*/;
-			if (strlen(buf) > 1) /* Suppress EOF character */
-				Syslog('-', "Nodelist: too long line junked (%d)", lineno);
-			continue;
-		}
 
 		if (*(p=buf+strlen(buf) -1) == '\n') 
 			*p-- = '\0';
