@@ -249,9 +249,14 @@ void user()
 	InitLanguage();
 
 	/*
-	 * User logged in, tell it to the server.
+	 * User logged in, tell it to the server. Check if a location is
+	 * set, if Ask User location for new users is off, this field is
+	 * empty but we have to send something to the server.
 	 */
-	UserCity(mypid, usrconfig.sUserName, usrconfig.sLocation);
+	if (strlen(usrconfig.sLocation))
+	    UserCity(mypid, usrconfig.sUserName, usrconfig.sLocation);
+	else
+	    UserCity(mypid, usrconfig.sUserName, (char *)"N/A");
 
 	/*
 	 * See if this user is the Sysop.

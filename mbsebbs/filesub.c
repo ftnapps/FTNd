@@ -244,7 +244,7 @@ void Sheader()
 	printf(" ... ");
 
 	colour(Hcolor, 0);
-	printf("%-40s", area.Name);
+	printf("%-44s", area.Name);
 	fflush(stdout);
 
 	if (Hcolor < 15)
