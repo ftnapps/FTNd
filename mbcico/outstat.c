@@ -374,6 +374,7 @@ int poll(faddr *addr, int stop)
 	return 0;
 
     pol = xstrcpy(polname(addr));
+    mkdirs(pol, 0770);
 
     if (stop) {
 	if (access(pol, R_OK) == 0) {
@@ -413,6 +414,8 @@ int poll(faddr *addr, int stop)
 	
 	if ((fp = fopen(pol, "w+")) == NULL) {
 	    WriteError("$Can't create poll for %s", ascfnode(addr, 0x1f));
+	    if (!do_quiet)
+		printf("Can't create poll for %s\n", ascfnode(addr, 0x1f));
 	    rc = MBERR_CANNOT_MAKE_POLL;
 	} else {
 	    fclose(fp);
@@ -467,31 +470,32 @@ int reset(faddr *addr)
 
 int freq(faddr *addr, char *fname)
 {
-	char	*req;
-	FILE	*fp;
+    char    *req;
+    FILE    *fp;
 
-	Syslog('o', "Freq %s %s", ascfnode(addr, 0x1f), fname);
+    Syslog('o', "Freq %s %s", ascfnode(addr, 0x1f), fname);
 
-	/*
-	 * Append filename to .req file
-	 */
-	req = xstrcpy(reqname(addr));
-	if ((fp = fopen(req, "a")) == NULL) {
-		WriteError("$Can't append to %s", req);
-		if (!do_quiet)
-			printf("File request failed\n");
-		free(req);
-		return MBERR_REQUEST;
-	}
-	fprintf(fp, "%s\r\n", fname);
-	fclose(fp);
-
-	Syslog('+', "File request \"%s\" from %s", fname, ascfnode(addr, 0x1f));
+    /*
+     * Append filename to .req file
+     */
+    req = xstrcpy(reqname(addr));
+    mkdirs(req, 0770);
+    if ((fp = fopen(req, "a")) == NULL) {
+	WriteError("$Can't append to %s", req);
 	if (!do_quiet)
-		printf("File request \"%s\" from %s\n", fname, ascfnode(addr, 0x1f));
-
+	    printf("File request failed\n");
 	free(req);
-	return 0;
+	return MBERR_REQUEST;
+    }
+    fprintf(fp, "%s\r\n", fname);
+    fclose(fp);
+
+    Syslog('+', "File request \"%s\" from %s", fname, ascfnode(addr, 0x1f));
+    if (!do_quiet)
+	printf("File request \"%s\" from %s\n", fname, ascfnode(addr, 0x1f));
+
+    free(req);
+    return 0;
 }
 
 
