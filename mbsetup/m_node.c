@@ -1609,6 +1609,14 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
 
 	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Private data</H3>\n");
+	    add_webtable(wp, (char *)"Private phone", nodes.Ct_phone);
+	    add_webtable(wp, (char *)"Fax number", nodes.Ct_fax);
+	    add_webtable(wp, (char *)"Cellphone", nodes.Ct_cellphone);
+	    add_webtable(wp, (char *)"E-mail", nodes.Ct_email);
+	    add_webtable(wp, (char *)"Remark", nodes.Ct_remark);
+
+	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>File Groups</H3>\n");
 	    fprintf(wp, "<PRE>\n");
 	    fprintf(wp, "      ");

@@ -22,11 +22,14 @@ v0.51.3		22-Mar-2003
 		there was nothing in it yet.
 		Removed setup for the unused free diskspace parameter.
 		In nodes edit aka's it was not possible to delete aka's.
+		Added nodes private data in the html sitedoc.
 
 	mbfido:
 		The area tags are now created in /opt/mbse/share/doc/tags.
 		Added more debug info in Add_ToBeRep(), we still see double
 		announces of files like FP-DEF.ZIP.
+		Fixed (I hope for real now) the double announce of the files
+		like FP-DEF.ZIP received twice a day.
 
 	mbtask:
 		Fixed crash on NetBSD Sparc when getsysinfo was called.

@@ -24,8 +24,6 @@ everything:
 
 	L: Document error return codes in the manual.
 
-	N: Make filesystem space check run only on mbse used filesystems.
-
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
@@ -66,8 +64,6 @@ mbsebbs:
 
 newuser:
 	L: Allow handles to be the same as the unixname.
-
-	N: Add menu setup to set users preffered character set.
 
 mbfido:
 	N: The elist rules files are named (8.3) areaname.rul where areaname
@@ -137,6 +133,12 @@ mbfile:
 
 	N: The import function doesn't strip the [0] from the files.bbs
 	   when importing the description.
+
+	N: The import function has troubles when there is nothing behind
+	   the filename.
+
+	N: It is not possible to import areas that run of cd-roms. Do we still
+	   need cd-rom support with current hd prices?
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

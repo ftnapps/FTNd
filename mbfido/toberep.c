@@ -67,7 +67,7 @@ int Add_ToBeRep(struct _filerecord report)
 		 */
 		if (report.Fdate > Temp.Fdate) {
 		    Syslog('f', "Add_ToBeRep this file is newer, update record at position %d", ftell(tbr));
-		    fseek(tbr, - sizeof(Temp), SEEK_SET);
+		    fseek(tbr, - sizeof(Temp), SEEK_CUR);
 		    fwrite(&report, sizeof(report), 1, tbr);
 		    fclose(tbr);
 		    return TRUE;
