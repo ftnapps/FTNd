@@ -9,7 +9,7 @@ HDRS		= mbnntp.h openport.h ttyio.h auth.h commands.h rfc2ftn.h \
 		  hash.h lhash.h msgflags.h mkftnhdr.h atoul.h
 OBJS		= mbnntp.o openport.o ttyio.o auth.o commands.o rfc2ftn.o \
 		  hash.o lhash.o msgflags.o mkftnhdr.o atoul.o
-LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a
+SLIBS		= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a
 OTHER		= Makefile
 
 #############################################################################
@@ -20,8 +20,8 @@ OTHER		= Makefile
 all:		mbnntp
 
 
-mbnntp:		${OBJS} ${LIBS}
-		${CC} -o mbnntp   ${OBJS} ${LDFLAGS} ${LIBS}
+mbnntp:		${OBJS} ${SLIBS}
+		${CC} -o mbnntp   ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 clean:
 		rm -f mbnntp *.o *.h~ *.c~ core filelist Makefile.bak

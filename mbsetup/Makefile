@@ -22,7 +22,7 @@ OBJS		= grlist.o m_domain.o m_fgroup.o m_lang.o m_marea.o m_new.o m_protocol.o \
 		  m_magic.o m_mgroup.o m_node.o m_task.o m_users.o screen.o m_bbs.o m_ff.o \
 		  m_hatch.o m_mail.o m_modem.o m_ol.o m_tic.o m_virus.o stlist.o m_bbslist.o \
 		  m_route.o
-LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
+SLIBS		= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
 OTHER		= Makefile
 
 #############################################################################
@@ -33,8 +33,8 @@ OTHER		= Makefile
 all:		mbsetup
 
 
-mbsetup:	${OBJS} ${LIBS}
-		${CC} -o mbsetup ${OBJS} ${LDFLAGS} ${LIBS}
+mbsetup:	${OBJS} ${SLIBS}
+		${CC} -o mbsetup ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 clean:
 		rm -f mbsetup *.o *.h~ *.c~ core filelist Makefile.bak

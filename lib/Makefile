@@ -48,7 +48,7 @@ OTHER		= Makefile README ftscprod.008 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libmbse.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
 		  libnodelist.a mbcharsetc charset.bin
-LIBS		+= ../lib/libmbse.a
+SLIBS		= ../lib/libmbse.a
 
 #############################################################################
 
@@ -84,8 +84,8 @@ libnodelist.a:	${NODELIST_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
-mbcharsetc:	${CHC_OBJS}
-		${CC} -o mbcharsetc ${CHC_OBJS} ${LDFLAGS} ${LIBS}
+mbcharsetc:	${CHC_OBJS} ${SLIBS}
+		${CC} -o mbcharsetc ${CHC_OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 charset.bin:	mbcharsetc ${MAPS}
 		./mbcharsetc charset.map charset.bin

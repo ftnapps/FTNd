@@ -7,7 +7,7 @@ include ../Makefile.global
 SRCS		= mutil.c mbmon.c proglock.c
 HDRS		= mutil.h mbmon.h proglock.h
 OBJS		= mutil.o mbmon.o proglock.o
-LIBS		+= ../lib/libmbse.a ../lib/libdbase.a
+SLIBS		= ../lib/libmbse.a ../lib/libdbase.a
 OTHER		= Makefile
 
 #############################################################################
@@ -18,8 +18,8 @@ OTHER		= Makefile
 all:		mbmon
 
 
-mbmon:		${OBJS} ${LIBS}
-		${CC} -o mbmon   ${OBJS} ${LDFLAGS} ${LIBS}
+mbmon:		${OBJS} ${SLIBS}
+		${CC} -o mbmon   ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 clean:
 		rm -f mbmon *.o *.h~ *.c~ core filelist Makefile.bak

@@ -24,7 +24,7 @@ OTHER		= Makefile issue issue.netbsd
 all:		mbtask
 
 mbtask:		${OBJS} ${SLIBS}
-		${CC} ${CFLAGS} -o mbtask ${OBJS} ${LDFLAGS} ${LIBS} ${LIBS}
+		${CC} ${CFLAGS} -o mbtask ${OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 clean:
 		rm -f mbtask *.o *.h~ *.c~ version.* core filelist Makefile.bak

@@ -31,7 +31,7 @@ MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  ttyio.o lutil.o scanout.o emsi.o ulock.o \
 		  callstat.o session.o call.o mbcico.o
 MBOUT_OBJS	= outstat.o nlinfo.o mbout.o scanout.o callstat.o
-LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libnodelist.a
+SLIBS		= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libnodelist.a
 OTHER		= Makefile README
 TARGET		= mbcico mbout
 
@@ -51,11 +51,11 @@ install:	all
 		@rm -f ${BINDIR}/mbtelind
 		@rm -f ${BINDIR}/mbtelout
 
-mbcico:		${MBCICO_OBJS} ${LIBS}
-		${CC} -o mbcico ${MBCICO_OBJS} ${LDFLAGS} ${LIBS}
+mbcico:		${MBCICO_OBJS} ${SLIBS}
+		${CC} -o mbcico ${MBCICO_OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
-mbout:		${MBOUT_OBJS} ${LIBS}
-		${CC} -o mbout ${MBOUT_OBJS} ${LDFLAGS} ${LIBS}
+mbout:		${MBOUT_OBJS} ${SLIBS}
+		${CC} -o mbout ${MBOUT_OBJS} ${LDFLAGS} ${LIBS} ${SLIBS}
 
 filelist:	Makefile
 		BASE=`pwd`; \
