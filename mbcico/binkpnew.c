@@ -842,6 +842,9 @@ int file_transfer(void)
 				if (rc == -1) {
 				    if (bp.local_EOB && bp.remote_EOB) {
 					Syslog('b', "Binkp: ignore TCP error in EOB state");
+					rc = 0;
+					bp.FtState = Transmit;	/* Go once more through transmitter to cleanup */
+					break;
 				    } else {
 					/*
 					 * Only check if not in EOB state
@@ -1707,8 +1710,8 @@ int binkp_poll_frame(void)
 		    break;
 		}
 		Syslog('?', "Binkp: receiver status %s", ttystat[c]);
-		bp.TxState = TxDone;
-		bp.RxState = RxDone;
+//		bp.TxState = TxDone;
+//		bp.RxState = RxDone;
 		bp.rc = (MBERR_TTYIO + (-c));
 		rc = -1;
 		break;
