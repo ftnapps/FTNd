@@ -142,15 +142,15 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
  */
 int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, int cost, FILE *fp, int tonews)
 {
-    char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16];
-    int		    First = TRUE, rc = 0, i, kludges = TRUE;
-    int		    dupe = FALSE, bad = TRUE, seenlen, oldnet;
+    char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16], datestr[21];
+    int		    First = TRUE, rc = 0, i, kludges = TRUE, dupe = FALSE, bad = TRUE, seenlen, oldnet;
     faddr	    *Faddr;
     unsigned long   crc;
     sysconnect	    Link;
     fa_list	    *sbl = NULL, *ptl = NULL, *tmpl;
     qualify	    *qal = NULL, *tmpq;
     FILE	    *nfp, *qp;
+    struct tm	    *tm;
 
     memset(&Link, 0, sizeof(Link));
     crc = 0xffffffff;
@@ -246,7 +246,20 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	Syslog('!', "No origin line found");
     else
 	crc = upd_crc32(orig, crc, strlen(orig));
+
+    /*
+     * Some tossers don't bother the seconds in the message, also some
+     * rescanning software changes the seconds of a message. Do the
+     * timestamp check without the seconds.
+     */
+    tm = gmtime(&mdate);
+    memset(&datestr, 0, sizeof(datestr));
+    sprintf(datestr, "%04d%02d%02d%02d%02d", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
+//    crc = upd_crc32(datestr, crc, strlen(datestr));
+//  NOT ACTIVATED BEFORE A LOT OF DUPES AT MY HUB ARE PROCESSED
+
     crc = upd_crc32((char *)&mdate, crc, sizeof(mdate));
+
     if (msgid != NULL) {
 	crc = upd_crc32(msgid, crc, strlen(msgid));
     } else {
@@ -468,6 +481,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	    free(msgid);
 	if (reply)
 	    free(reply);
+	fclose(nfp);
 	return rc;
     }
 

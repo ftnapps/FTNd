@@ -72,57 +72,57 @@ int InitMsgs(void)
 }
 
 
-int smsgarea(char *w, int);
+int smsgarea(char *, int);
 int smsgarea(char *what, int newsgroup)
 {
-	FILE	*fil;
+    FILE    *fil;
 
-	if ((fil = fopen(msgs_fil, "r")) == NULL) {
-		return FALSE;
-	}
-
-	fread(&msgshdr, sizeof(msgshdr), 1, fil);
-
-	while (fread(&msgs, msgshdr.recsize, 1, fil) == 1) {
-		/*
-		 * Mark the start of the connected systems records
-		 * for later use and skip the system records.
-		 */
-		msgs_pos = ftell(fil) - msgshdr.recsize;
-		sysstart = ftell(fil);
-		fseek(fil, msgshdr.syssize, SEEK_CUR);
-		if (((!strcmp(what, msgs.Tag) && !newsgroup) || (!strcmp(what, msgs.Newsgroup) && newsgroup)) && msgs.Active) {
-			sysrecord = 0;
-			fclose(fil);
-			msgs_crc = 0xffffffff;
-			msgs_crc = upd_crc32((char *)&msgs, msgs_crc, msgshdr.recsize);
-			mgrp_pos = -1;
-			mgrp_crc = -1;
-
-			if (strlen(msgs.Group)) {
-				if ((fil = fopen(mgrp_fil, "r")) != NULL) {
-					fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
-					while ((fread(&mgroup, mgrouphdr.recsize, 1, fil)) == 1) {
-						if (!strcmp(msgs.Group, mgroup.Name)) {
-							mgrp_pos = ftell(fil) - mgrouphdr.recsize;
-							mgrp_crc = 0xffffffff;
-							mgrp_crc = upd_crc32((char *)&mgroup, mgrp_crc, mgrouphdr.recsize);
-							break;
-						}
-					}
-					fclose(fil);
-				}
-			} else
-				memset(&mgroup, 0, sizeof(mgroup));
-
-			return TRUE;
-		}
-	}
-	sysstart = -1;
-	msgs_crc = -1;
-	msgs_pos = -1;
-	fclose(fil);
+    if ((fil = fopen(msgs_fil, "r")) == NULL) {
 	return FALSE;
+    }
+
+    fread(&msgshdr, sizeof(msgshdr), 1, fil);
+
+    while (fread(&msgs, msgshdr.recsize, 1, fil) == 1) {
+	/*
+	 * Mark the start of the connected systems records
+	 * for later use and skip the system records.
+	 */
+	msgs_pos = ftell(fil) - msgshdr.recsize;
+	sysstart = ftell(fil);
+	fseek(fil, msgshdr.syssize, SEEK_CUR);
+	if (((!strcmp(what, msgs.Tag) && !newsgroup) || (!strcmp(what, msgs.Newsgroup) && newsgroup)) && msgs.Active) {
+	    sysrecord = 0;
+	    fclose(fil);
+	    msgs_crc = 0xffffffff;
+	    msgs_crc = upd_crc32((char *)&msgs, msgs_crc, msgshdr.recsize);
+	    mgrp_pos = -1;
+	    mgrp_crc = -1;
+
+	    if (strlen(msgs.Group)) {
+		if ((fil = fopen(mgrp_fil, "r")) != NULL) {
+		    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
+		    while ((fread(&mgroup, mgrouphdr.recsize, 1, fil)) == 1) {
+			if (!strcmp(msgs.Group, mgroup.Name)) {
+			    mgrp_pos = ftell(fil) - mgrouphdr.recsize;
+			    mgrp_crc = 0xffffffff;
+			    mgrp_crc = upd_crc32((char *)&mgroup, mgrp_crc, mgrouphdr.recsize);
+			    break;
+			}
+		    }
+		    fclose(fil);
+		}
+	    } else
+		memset(&mgroup, 0, sizeof(mgroup));
+
+	    return TRUE;
+	}
+    }
+    sysstart = -1;
+    msgs_crc = -1;
+    msgs_pos = -1;
+    fclose(fil);
+    return FALSE;
 }
 
 

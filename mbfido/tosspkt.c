@@ -98,41 +98,41 @@ int     importmsg(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, F
 
 char *aread(char *s, int count, FILE *fp)
 {
-	int i,c,next;
+    int	i,c,next;
 
-	if (feof(fp)) 
-		return(NULL);
-	if (s == NULL) 
-		return NULL;
-	if (at_zero)
-	{
-		at_zero=0;
-		return NULL;
+    if (feof(fp)) 
+	return(NULL);
+    if (s == NULL) 
+	return NULL;
+    if (at_zero) {
+	at_zero=0;
+	return NULL;
+    }
+
+    for (i = 0,next = 1; (i < count-1) && next;)
+	switch (c=getc(fp)) {
+	    case '\n':	break;
+
+	    case '\r':	s[i]='\n';
+			i++;
+			next=0;
+			break;
+
+	    case 0x8d:	s[i]=' ';
+			i++;
+			break;
+
+	    case '\0':	at_zero=1;
+			next=0;
+			break;
+
+	    default:	s[i]=c;
+			i++;
+			break;
 	}
-
-	for (i = 0,next = 1; (i < count-1) && next;)
-		switch (c=getc(fp)) {
-		case '\n':	break;
-
-		case '\r':	s[i]='\n';
-				i++;
-				next=0;
-				break;
-
-		case 0x8d:	s[i]=' ';
-				i++;
-				break;
-
-		case '\0':	at_zero=1;
-				next=0;
-				break;
-
-		default:	s[i]=c;
-				i++;
-				break;
-		}
-	s[i]='\0';
-	return s;
+    
+    s[i]='\0';
+    return s;
 }
 
 
@@ -149,101 +149,99 @@ char *aread(char *s, int count, FILE *fp)
  *  5 - Locking error.
  *
  */
-int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, 
-		time_t mdate, int flags, int cost, FILE *fp)
+int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, int cost, FILE *fp)
 {
-	char		*buf, *marea = NULL;
-	int		echomail = FALSE, rc = 0, bad = FALSE, Known = FALSE, FirstLine;
-	sysconnect	Link;
+    char	*buf, *marea = NULL;
+    int		echomail = FALSE, rc = 0, bad = FALSE, Known = FALSE, FirstLine;
+    sysconnect	Link;
 
-	if (CFG.slow_util && do_quiet)
-		usleep(1);
+    if (CFG.slow_util && do_quiet)
+	usleep(1);
 
-	Nopper();
-	memset(&Link, 0, sizeof(Link));
+    memset(&Link, 0, sizeof(Link));
+
+    /*
+     * Increase uplink's statistic counter.
+     */
+    Link.aka.zone  = p_from->zone;
+    Link.aka.net   = p_from->net;
+    Link.aka.node  = p_from->node;
+    Link.aka.point = p_from->point;
+    if (SearchNode(Link.aka)) {
+	StatAdd(&nodes.MailRcvd, 1);
+	UpdateNode();
+	SearchNode(Link.aka);
+	Known = TRUE;
+    }
+
+    buf = calloc(2049, sizeof(char));
+    marea = NULL;
+
+    /*
+     * First read the message for kludges we need.
+     */
+    rewind(fp);
+
+    FirstLine = TRUE;
+    while ((fgets(buf, 2048, fp)) != NULL) {
+
+	Striplf(buf);
 
 	/*
-	 * Increase uplink's statistic counter.
+	 * Check if message is echomail and if the areas exists.
 	 */
-	Link.aka.zone  = p_from->zone;
-	Link.aka.net   = p_from->net;
-	Link.aka.node  = p_from->node;
-	Link.aka.point = p_from->point;
-	if (SearchNode(Link.aka)) {
-		StatAdd(&nodes.MailRcvd, 1);
+	if (FirstLine && (!strncmp(buf, "AREA:", 5))) {
+
+	    marea = xstrcpy(tu(buf + 5));
+
+	    if (orig == NULL) {
+		Syslog('!', "Echomail without Origin line");
+		echo_bad++;
+		echo_in++;
+		bad = TRUE;
+		free(buf);
+		free(marea);
+		return 3;
+	    }
+
+	    if (!SearchMsgs(marea)) {
 		UpdateNode();
-		SearchNode(Link.aka);
-		Known = TRUE;
-	}
-
-	buf = calloc(2048, sizeof(char));
-	marea = NULL;
-
-	/*
-	 * First read the message for kludges we need.
-	 */
-	rewind(fp);
-
-	FirstLine = TRUE;
-	while ((fgets(buf, 2048, fp)) != NULL) {
-
-		Striplf(buf);
-
-		/*
-		 * Check if message is echomail and if the areas exists.
-		 */
-		if (FirstLine && (!strncmp(buf, "AREA:", 5))) {
-
-			marea = xstrcpy(tu(buf + 5));
-
-			if (orig == NULL) {
-				Syslog('!', "Echomail without Origin line");
-				echo_bad++;
-				echo_in++;
-				bad = TRUE;
-				free(buf);
-				free(marea);
-				return 3;
-			}
-
-			if (!SearchMsgs(marea)) {
-				UpdateNode();
-				Syslog('m', "Unknown echo area %s", marea);
-				if (!create_msgarea(marea, p_from)) {
-				    WriteError("Create echomail area %s failed", marea);
-				    echo_bad++;
-				    echo_in++;
-				    bad = TRUE;
-				    free(marea);
-				    free(buf);
-				    return 4;
-				}
-				SearchNode(Link.aka);
-				if (!SearchMsgs(marea)) {
-					WriteError("Unknown echo area %s", marea);
-					echo_bad++;
-					echo_in++;
-					bad = TRUE;
-					free(marea);
-					free(buf);
-					return 4;
-				}       
-			}
-			echomail = TRUE;
-			free(marea);
+		Syslog('m', "Unknown echo area %s", marea);
+		if (!create_msgarea(marea, p_from)) {
+		    WriteError("Create echomail area %s failed", marea);
+		    echo_bad++;
+		    echo_in++;
+		    bad = TRUE;
+		    free(marea);
+		    free(buf);
+		    return 4;
 		}
-		if (*buf != '\001')
-			FirstLine = FALSE;
-	} /* end of checking kludges */
+		SearchNode(Link.aka);
+		if (!SearchMsgs(marea)) {
+		    WriteError("Unknown echo area %s", marea);
+		    echo_bad++;
+		    echo_in++;
+		    bad = TRUE;
+		    free(marea);
+		    free(buf);
+		    return 4;
+		}       
+	    }
+	    echomail = TRUE;
+	    free(marea);
+	}
+	if (*buf != '\001')
+	    FirstLine = FALSE;
+    } /* end of checking kludges */
 
 
-	if (echomail)
-		rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
-	else
-		rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE);
+    if (echomail)
+	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
+    else
+	rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE);
 
-	free(buf);
-	return rc;
+    free(buf);
+    return rc;
 }
 
 
@@ -318,194 +316,190 @@ int TossPkt(char *fn)
  */
 int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 {
-	char		buf[2048];
-	char		*orig = NULL;
-	char		*p, *l, *r;
-	int		tmp, rc, maxrc = 0;
-	static faddr	f, t;
-	faddr		*o;
-	int		result, flags, cost;
-	time_t		mdate = 0L;
-	FILE		*fp;
-	unsigned char	buffer[0x0e];
-	char		*subj = NULL;
+    char	    buf[2048], *orig = NULL, *p, *l, *r, *subj = NULL;
+    int		    tmp, rc, maxrc = 0, result, flags, cost;
+    static faddr    f, t;
+    faddr	    *o;
+    time_t	    mdate = 0L;
+    FILE	    *fp;
+    unsigned char   buffer[0x0e];
 
-	result = fread(&buffer, 1, sizeof(buffer), pkt);
-	if (result == 0) {
-		Syslog('m', "Zero bytes message, assume end of pkt");
-		return 0;
-	}
+    Nopper();
 
-	switch(tmp = (buffer[0x01] << 8) + buffer[0x00]) {
-	case 0:	
-		if (result == 2)
-			return 0;
+    result = fread(&buffer, 1, sizeof(buffer), pkt);
+    if (result == 0) {
+	Syslog('m', "Zero bytes message, assume end of pkt");
+	return 0;
+    }
+
+    switch (tmp = (buffer[0x01] << 8) + buffer[0x00]) {
+	case 0:	if (result == 2)
+		    return 0;
 		else {
-			Syslog('!', "Junk after logical end of packet, skipped");
-			return 5;
+		    Syslog('!', "Junk after logical end of packet, skipped");
+		    return 5;
 
 		}
-	case 2:	
-		break;
+	case 2:	break;
 
-	default:
-		Syslog('!', "bad message type: 0x%04x",tmp);
+	default:Syslog('!', "bad message type: 0x%04x",tmp);
 		return 2;
-	}
+    }
 
-	if (result != 14) {
-		Syslog('!', "Unexpected end of packet");
-		return 5;
-	}
+    if (result != 14) {
+	Syslog('!', "Unexpected end of packet");
+	return 5;
+    }
 
-	memset(&f, 0, sizeof(f));
-	memset(&t, 0, sizeof(t));
-	f.node = (buffer[0x03] << 8) + buffer[0x02];
-	t.node = (buffer[0x05] << 8) + buffer[0x04];
-	f.net  = (buffer[0x07] << 8) + buffer[0x06];
-	t.net  = (buffer[0x09] << 8) + buffer[0x08];
-	flags  = (buffer[0x0b] << 8) + buffer[0x0a];
-	cost   = (buffer[0x0d] << 8) + buffer[0x0c];
+    memset(&f, 0, sizeof(f));
+    memset(&t, 0, sizeof(t));
+    f.node = (buffer[0x03] << 8) + buffer[0x02];
+    t.node = (buffer[0x05] << 8) + buffer[0x04];
+    f.net  = (buffer[0x07] << 8) + buffer[0x06];
+    t.net  = (buffer[0x09] << 8) + buffer[0x08];
+    flags  = (buffer[0x0b] << 8) + buffer[0x0a];
+    cost   = (buffer[0x0d] << 8) + buffer[0x0c];
+
+    /*
+     * Read the DateTime, toUserName, fromUserName and subject fields
+     * from the packed message. The stringlength is +1 for the right
+     * check. This is different then in ifmail's original code.
+     */
+    if (aread(buf, sizeof(buf)-1, pkt)) {
+	if (strlen(buf) > 20)
+	    Syslog('!', "date too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
+	mdate = parsefdate(buf, NULL);
+	if (aread(buf, sizeof(buf)-1, pkt)) {
+	    Syslog('!', "date not null-terminated: \"%s\"",buf);
+	    return 3;
+	}
+    }
+
+    if (aread(buf, sizeof(buf)-1, pkt)) {
+	if (strlen(buf) > 36)
+	    Syslog('!', "to name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
+	t.name = xstrcpy(buf);
+	if (aread(buf, sizeof(buf)-1, pkt)) {
+	    if (*(p=t.name+strlen(t.name)-1) == '\n')
+		*p = '\0';
+	    Syslog('!', "to name not null-terminated: \"%s\"",buf);
+	    return 3;
+	}
+    }
+
+    if (aread(buf, sizeof(buf)-1, pkt)) {
+	if (strlen(buf) > 36)
+	    Syslog('!', "from name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
+	f.name = xstrcpy(buf);
+	if (aread(buf, sizeof(buf)-1, pkt)) {
+	    if (*(p=f.name+strlen(f.name)-1) == '\n') 
+		*p = '\0';
+	    Syslog('!', "from name not null-terminated: \"%s\"",buf);
+	    return 3;
+	}
+    }
+	
+    if (aread(buf, sizeof(buf)-1, pkt)) {
+	if (strlen(buf) > 72)
+	    Syslog('!', "subject too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
+	subj = xstrcpy(buf);
+	if (aread(buf, sizeof(buf)-1, pkt)) {
+	    if (*(p=subj+strlen(subj)-1) == '\n') 
+		*p = '\0';
+	    subj = xstrcat(subj,(char *)"\\n");
+	    subj = xstrcat(subj,buf);
+	    Syslog('!', "subj not null-terminated: \"%s\"",buf);
+	    return 3;
+	}
+    }
+
+    if (feof(pkt) || ferror(pkt)) {
+	Syslog('!', "Could not read message header, aborting");
+	return 3;
+    }
+
+    f.zone = p_from->zone;
+    t.zone = p_to->zone;
+	
+    if ((fp = tmpfile()) == NULL) {
+	WriteError("$unable to open temporary file");
+	return 4;
+    }
+
+    /*
+     * Read the text from the .pkt file
+     */
+    while (aread(buf,sizeof(buf)-1,pkt)) {
+
+	fputs(buf, fp);
 
 	/*
-	 * Read the DateTime, toUserName, fromUserName and subject fields
-	 * from the packed message. The stringlength is +1 for the right
-	 * check. This is different then in ifmail's original code.
+	 * Extract info from Origin line if found.
 	 */
-	if (aread(buf, sizeof(buf)-1, pkt)) {
-		if (strlen(buf) > 20)
-			Syslog('!', "date too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
-		mdate = parsefdate(buf, NULL);
-		if (aread(buf, sizeof(buf)-1, pkt)) {
-			Syslog('!', "date not null-terminated: \"%s\"",buf);
-			return 3;
+	if (!strncmp(buf," * Origin:",10)) {
+	    p=buf+10;
+	    while (*p == ' ') 
+		p++;
+	    if ((l=strrchr(p,'(')) && (r=strrchr(p,')')) && (l < r)) {
+		*l = '\0';
+		*r = '\0';
+		l++;
+		if ((o = parsefnode(l))) {
+		    f.point = o->point;
+		    f.node = o->node;
+		    f.net = o->net;
+		    f.zone = o->zone;
+		    if (o->domain) 
+			f.domain=o->domain;
+		    o->domain=NULL;
+		    tidy_faddr(o);
 		}
+	    } else
+		if (*(l=p+strlen(p)-1) == '\n')
+		    *l='\0';
+		for (l=p+strlen(p)-1;*l == ' ';l--) 
+		    *l='\0'; 
+		orig = xstrcpy(p);
 	}
+    }
 
-	if (aread(buf, sizeof(buf)-1, pkt)) {
-		if (strlen(buf) > 36)
-			Syslog('!', "to name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
-		t.name = xstrcpy(buf);
-		if (aread(buf, sizeof(buf)-1, pkt)) {
-			if (*(p=t.name+strlen(t.name)-1) == '\n')
-				 *p = '\0';
-			Syslog('!', "to name not null-terminated: \"%s\"",buf);
-			return 3;
-		}
-	}
+    rc = importmsg(p_from, &f,&t,orig,subj,mdate,flags,cost,fp);
+    if (rc)
+	rc+=10;
+    if (rc > maxrc) 
+	maxrc = rc;
 
-	if (aread(buf, sizeof(buf)-1, pkt)) {
-		if (strlen(buf) > 36)
-			Syslog('!', "from name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
-		f.name = xstrcpy(buf);
-		if (aread(buf, sizeof(buf)-1, pkt)) {
-			if (*(p=f.name+strlen(f.name)-1) == '\n') 
-				*p = '\0';
-			Syslog('!', "from name not null-terminated: \"%s\"",buf);
-			return 3;
-		}
-	}
-	
-	if (aread(buf, sizeof(buf)-1, pkt)) {
-		if (strlen(buf) > 72)
-			Syslog('!', "subject too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
-		subj = xstrcpy(buf);
-		if (aread(buf, sizeof(buf)-1, pkt)) {
-			if (*(p=subj+strlen(subj)-1) == '\n') 
-				*p = '\0';
-			subj = xstrcat(subj,(char *)"\\n");
-			subj = xstrcat(subj,buf);
-			Syslog('!', "subj not null-terminated: \"%s\"",buf);
-			return 3;
-		}
-	}
+    fclose(fp);
 
-	if (feof(pkt) || ferror(pkt)) {
-		Syslog('!', "Could not read message header, aborting");
-		return 3;
-	}
+    if(f.name) 
+	free(f.name); 
+    f.name=NULL;
 
-	f.zone = p_from->zone;
-	t.zone = p_to->zone;
-	
-	if ((fp = tmpfile()) == NULL) {
-		WriteError("$unable to open temporary file");
-		return 4;
-	}
+    if(t.name) 
+	free(t.name); 
+    t.name=NULL;
 
-	/*
-	 * Read the text from the .pkt file
-	 */
-	while (aread(buf,sizeof(buf)-1,pkt)) {
+    if(f.domain) 
+	free(f.domain); 
+    f.domain=NULL;
 
-		fputs(buf, fp);
+    if(t.domain) 
+	free(t.domain); 
+    t.domain=NULL;
 
-		/*
-		 * Extract info from Origin line if found.
-		 */
-		if (!strncmp(buf," * Origin:",10)) {
-			p=buf+10;
-			while (*p == ' ') p++;
-			if ((l=strrchr(p,'(')) && (r=strrchr(p,')')) && (l < r)) {
-				*l = '\0';
-				*r = '\0';
-				l++;
-				if ((o = parsefnode(l))) {
-					f.point = o->point;
-					f.node = o->node;
-					f.net = o->net;
-					f.zone = o->zone;
-					if (o->domain) 
-						f.domain=o->domain;
-					o->domain=NULL;
-					tidy_faddr(o);
-				}
-			} else
-				if (*(l=p+strlen(p)-1) == '\n')
-					 *l='\0';
-			for (l=p+strlen(p)-1;*l == ' ';l--) 
-				*l='\0'; 
-			orig = xstrcpy(p);
-		}
-	}
+    if (subj)
+	free(subj);
+    subj = NULL;
 
-	rc = importmsg(p_from, &f,&t,orig,subj,mdate,flags,cost,fp);
-	if (rc)
-		rc+=10;
-	if (rc > maxrc) 
-		maxrc = rc;
+    if (orig)
+	free(orig);
+    orig = NULL;
 
-	fclose(fp);
-
-	if(f.name) 
-		free(f.name); 
-	f.name=NULL;
-
-	if(t.name) 
-		free(t.name); 
-	t.name=NULL;
-
-	if(f.domain) 
-		free(f.domain); 
-	f.domain=NULL;
-
-	if(t.domain) 
-		free(t.domain); 
-	t.domain=NULL;
-
-	if (subj)
-		free(subj);
-	subj = NULL;
-
-	if (orig)
-		free(orig);
-	orig = NULL;
-
-	if (feof(pkt) || ferror(pkt)) {
-		WriteError("Unexpected end of packet");
-		return 5;
-	}
-	return 1;
+    if (feof(pkt) || ferror(pkt)) {
+	WriteError("Unexpected end of packet");
+	return 5;
+    }
+    return 1;
 }
 
 

@@ -94,6 +94,8 @@ v0.35.06
 		processing.
 		During toss the Nopper code is called to prevent timeout when
 		a very large packet is tossed that takes longer then 10 mins.
+		When more then 1024 dupes were tossed, mbfido crashed because
+		a temp file wasn't closed.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 
