@@ -56,12 +56,28 @@ char *unpacker(char *fn)
 
 	fclose(fp);
 
-	if (memcmp(buf,"PK",2) == 0)         return (char *)"ZIP";
-	if (*buf == 0x1a)                    return (char *)"ARC";
-	if (memcmp(buf+2,"-l",2) == 0)       return (char *)"LHA";
-	if (memcmp(buf,"ZOO",3) == 0)        return (char *)"ZOO";
-	if (memcmp(buf,"`\352",2) == 0)      return (char *)"ARJ";
-	if (memcmp(buf,"Rar",3) == 0)        return (char *)"RAR";
+	if (memcmp(buf,"PK\003\004",4) == 0)	return (char *)"ZIP";
+	if (*buf == 0x1a)			return (char *)"ARC";
+	if (memcmp(buf+2,"-l",2) == 0)		return (char *)"LHA";
+	if (memcmp(buf,"ZOO",3) == 0)		return (char *)"ZOO";
+	if (memcmp(buf,"`\352",2) == 0)		return (char *)"ARJ";
+	if (memcmp(buf,"Rar!",4) == 0)		return (char *)"RAR";
+	if (memcmp(buf,"UC2\0x1a",4) == 0)	return (char *)"UC2";
+	if (memcmp(buf,"BZ",2) == 0)		return (char *)"BZIP";
+	if (memcmp(buf,"MSCF",4) == 0)		return (char *)"CAB";   /* M$ CAB files	    */
+	if (memcmp(buf,"\037\213",2) == 0)	return (char *)"GZIP";  /* gzip compressed data */
+	if (memcmp(buf,"\037\235",2) == 0)	return (char *)"CMP";   /* unix compressed data */
+	
+	if ((fp = fopen(fn,"r"))) {
+	    fseek(fp, 257, SEEK_SET);
+	    if (fread(buf,1,sizeof(buf),fp) != sizeof(buf)) {
+		WriteError("$Could not read position 257 of the file %s", fn);
+		fclose(fp);
+		return NULL;
+	    }
+	    fclose(fp);
+	}
+	if (memcmp(buf,"ustar",5) == 0)	    return (char *)"TAR";   /* GNU/Posix tar	    */
 
 	Syslog('p', "Unknown compress scheme in file %s", fn);
 	return NULL;

@@ -14,6 +14,7 @@ v0.35.02	22-Jun-2002
 
 	common.a:
 		Added debug nodelist IFT flag for logging.
+		Added archive detection for tar, gzip and compress.
 
 	mbsetup:
 		Changed node records layout into 8 screens to be able to add
