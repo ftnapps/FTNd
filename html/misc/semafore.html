@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 02-Feb-2002</h5>
+<h5>Last update 21-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>Semafore files with MBSE BBS.</H1>
@@ -56,6 +56,11 @@ scanout		Purpose: Signal that the outbound must be rescanned.
 do_inet		Purpose: Signal that there are node(s) to be called via the
 		internet. Usefull for dialup systems to check whether a
 		connection to the internet is needed.
+		Created and removed by mbtask.
+
+is_inet		Purpose: Signal that the internet is available. Usefull for
+		dialup systems to check when the internet connection is up
+		or down after starting or stopping ppp.
 		Created and removed by mbtask.
 
 mbtask.last	Purpose: A timestamp created and touched by "mbtask" every

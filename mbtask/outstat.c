@@ -54,6 +54,45 @@ extern int		s_do_inet;	    /* Internet wanted		*/
 
 
 
+/*
+ * Load noderecord if the node is in our setup.
+ */
+int load_node(fidoaddr);
+int load_node(fidoaddr n)
+{
+    char    *temp;
+    FILE    *fp;
+    int	    i;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	free(temp);
+	memset(&nodes, 0, sizeof(nodes));
+	return FALSE;
+    }
+ 
+    fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
+    while (fread(&nodes, nodeshdr.recsize, 1, fp) == 1) {
+	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+	for (i = 0; i < 20; i++) {
+	    if ((n.zone == nodes.Aka[i].zone) || (n.net == nodes.Aka[i].net) ||
+		(n.node == nodes.Aka[i].node) || (n.point == nodes.Aka[i].point)) {
+		fclose(fp);
+		free(temp);
+		return TRUE;
+	    }
+	}
+    }
+
+    fclose(fp);
+    memset(&nodes, 0, sizeof(nodes));
+    free(temp);
+    return FALSE;    
+}
+
+
+
 void set_next(int, int);
 void set_next(int hour, int min)
 {
@@ -164,6 +203,10 @@ int outstat()
 			first = FALSE;
 		}
 
+		if (load_node(tmp->addr))
+		    tasklog('o', "Loaded node %s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), 
+			    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
+
 		/*
 		 * Zone Mail Hours, only use Fidonet Hours.
 		 * Other nets use your default ZMH.
@@ -237,7 +280,7 @@ int outstat()
 			    T_window = TRUE;
 		    }
 		}
-//		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 		strcpy(flstr,"...... ... ..");
 		/*
 		 * If the node has internet and we have internet available, check if we can send
@@ -313,6 +356,12 @@ int outstat()
 		    flstr[12] = tmp->t2;
 
 		/*
+		 * If forbidden to call from setup, clear callflag.
+		 */
+		if (nodes.NoCall)
+		    tmp->flavors &= ~F_CALL;
+
+		/*
 		 * If we must call this node, figure out how to call this node.
 		 */
 		if ((tmp->flavors) & F_CALL) {
@@ -322,7 +371,7 @@ int outstat()
 
 
 		    tmp->callmode = CM_NONE;
-		    if (internet && TCFG.max_tcp && 
+		    if (internet && TCFG.max_tcp && !nodes.NoTCP &&
 			    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
 			inet_calls++;
 			tmp->callmode = CM_INET;

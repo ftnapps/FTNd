@@ -5,6 +5,9 @@
 
 typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS, MBFIDO, MBINDEX, MBFILE, MBINIT} CMODE;
 
+struct  _nodeshdr   nodeshdr;   /* Header record		*/
+struct  _nodes	    nodes;	/* Nodes datarecord		*/
+
 
 /*
  * Linked list of nodes with mail in the outbound.

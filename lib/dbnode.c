@@ -72,7 +72,7 @@ int TestNode(fidoaddr aka)
 	int	i, nodeok = FALSE;
 
 	for (i = 0; i < 20; i++) {
-		if (((aka.zone == 0) || (aka.zone = nodes.Aka[i].zone)) &&
+		if (((aka.zone == 0) || (aka.zone == nodes.Aka[i].zone)) &&
 		    (aka.net == nodes.Aka[i].net) &&
 		    (aka.node == nodes.Aka[i].node) &&
 		    (aka.point == nodes.Aka[i].point))

@@ -1492,12 +1492,14 @@ void scheduler(void)
 			tasklog('!', "Internet connection is down");
 			internet = FALSE;
 			sem_set((char *)"scanout", TRUE);
+			RemoveSema((char *)"is_inet");
 		    }
 		} else {
 		    if (!internet) {
 			tasklog('!', "Internet connection is up");
 			internet = TRUE;
 			sem_set((char *)"scanout", TRUE);
+			CreateSema((char *)"is_inet");
 		    }
 		    icmp_errs = 0;
 		}
