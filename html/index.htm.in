@@ -16,7 +16,7 @@
 <BLOCKQUOTE>
 <center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
-<div align=right><h5>Last update 22-Nov-2003</h5></div>
+<div align=right><h5>Last update 26-Nov-2003</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
@@ -108,6 +108,7 @@
     <li><a href="programs/mbstat.html">mbstat, The bbs status change program</a></li>
     <li><a href="programs/mbtask.html">mbtask, The taskmanager for the bbs system</a></li>
     <li><A HREF="programs/mbtelnetd.html">mbtelnetd, The incoming telnet proxy</A></li>
+    <li><A HREF="programs/mbtelind.html">mbtelind, The telnet input proxy daemon</A></li>
     <li><a href="programs/mbtoberep.html">mbtoberep, The toberep.data lister</a></li>
     <li><a href="programs/mbuser.html">mbuser, The userbase maintenance program</a></li>
     <li><a href="programs/mbuseradd.html">mbuseradd, The useradd wrapper</a></li>
