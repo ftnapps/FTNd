@@ -131,6 +131,7 @@ client.o: ../config.h mbselib.h
 crc.o: ../config.h mbselib.h
 semafore.o: ../config.h mbselib.h
 signame.o: ../config.h mbselib.h
+charset.o: ../config.h mbselib.h
 attach.o: ../config.h mbselib.h
 falists.o: ../config.h mbselib.h
 hdr.o: ../config.h mbselib.h
@@ -178,5 +179,6 @@ smtp.o: ../config.h mbselib.h mbinet.h
 diesel.o: ../config.h mbselib.h diesel.h
 mbdiesel.o: ../config.h mbselib.h diesel.h
 nodelist.o: ../config.h mbselib.h nodelist.h
+mbcharsetc.o: ../config.h mbselib.h mbcharsetc.h
 ftscprod.o: ../config.h mbselib.h
 # End of generated dependencies

@@ -1,9 +1,8 @@
 #ifndef	_TOBEREP_H
 #define	_TOBEREP_H
 
+/* $Id$ */
 
-void Add_ToBeRep(void);
-
+int Add_ToBeRep(void);
 
 #endif
-

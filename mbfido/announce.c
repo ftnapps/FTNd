@@ -37,6 +37,7 @@
 #include "../lib/diesel.h"
 #include "grlist.h"
 #include "msgutil.h"
+#include "toberep.h"
 #include "announce.h"
 
 
@@ -45,45 +46,6 @@ struct _filerecord	T_File;			/* Internal announce record */
 int			TotalFiles;		/* Total announced files    */
 unsigned long		TotalSize;		/* Total size in KBytes.    */
 int			MsgCount;		/* Message counter	    */
-
-
-
-/*
- *  Add a file whos data is in T_File to the toberep.data file.
- */
-int Add_ToBeRep(void);
-int Add_ToBeRep()
-{
-    char		*fname;
-    struct _filerecord	Temp;
-    FILE		*tbr;
-    int			Found = FALSE;
-
-    fname = calloc(PATH_MAX, sizeof(char));
-    sprintf(fname, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
-    if ((tbr = fopen(fname, "a+")) == NULL) {
-	WriteError("$Can't create %s", fname);
-	free(fname);
-	return FALSE;
-    }
-    free(fname);
-
-    fseek(tbr, 0, SEEK_SET);
-    while (fread(&Temp, sizeof(Temp), 1, tbr) == 1) {
-	if ((strcmp(Temp.Name, T_File.Name) == 0) && (Temp.Fdate = T_File.Fdate))
-	    Found = TRUE;
-    }
-
-    if (Found) {
-	Syslog('!', "File %s already in toberep.data", T_File.Name);
-	fclose(tbr);
-	return FALSE;
-    }
-
-    fwrite(&T_File, sizeof(T_File), 1, tbr);
-    fclose(tbr);
-    return TRUE;
-}
 
 
 

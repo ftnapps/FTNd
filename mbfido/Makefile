@@ -35,7 +35,7 @@ MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o 
 		  postecho.o backalias.o createm.o createf.o msgflags.o dirsession.o \
 		  queue.o dirlock.o qualify.o
 MBSEQ_OBJS	= mbseq.o
-MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o
+MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o toberep.o
 MBINDEX_OBJS	= mbindex.o
 MBDIFF_OBJS	= mbdiff.o
 MBFILE_OBJS	= mbfile.o mbfkill.o mbfutil.o mbfindex.o mbfcheck.o mbfpack.o mbflist.o mbfadopt.o \
@@ -153,7 +153,7 @@ post.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h
 rnews.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h rfc2ftn.h mbfido.h ../paths.h rnews.h
 storenet.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h msgflags.h rollover.h storenet.h
 utic.o: ../config.h ../lib/mbselib.h tic.h mover.h tic.h utic.h
-announce.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h announce.h
+announce.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h toberep.h announce.h
 fflist.o: ../config.h ../lib/mbselib.h ../lib/msg.h fflist.h
 ftn2rfc.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h rollover.h aliasdb.h postemail.h backalias.h msgflags.h ftn2rfc.h
 makestat.o: ../config.h ../lib/mbselib.h ../lib/diesel.h ../lib/msg.h mgrutil.h makestat.h

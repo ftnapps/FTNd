@@ -121,10 +121,6 @@ mbfido:
 
 	N: After readalias we need to free the alias list when mbfido ends.
 
-	N: When a file with the same name is received in a tic area more than
-	   once (virus defs for example) the file is written multiple times
-	   in the toberep database and will be multiple times announced.
-
 	N: Reimplement characterset conversion again on the gateway.
 
 mbcico:

@@ -79,6 +79,8 @@ v0.51.1		21-Feb-2004
 		now case insensitive, also the area tagnames are forced to
 		uppercase. This should solve the problems with Linuxnet.
 		Replaced system() call with execute.
+		New files with already in the toberep database will not be
+		added again.
 
 	mbdiff:
 		Replaced system() call with execute.

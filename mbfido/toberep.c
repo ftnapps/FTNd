@@ -31,8 +31,6 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "tic.h"
-
-
 #include "toberep.h"
 
 
@@ -40,35 +38,37 @@
  *  Add a file whos data is in T_File to the toberep.data file.
  *  The newfiles announce option will later remove these records.
  */
-void Add_ToBeRep()
+int Add_ToBeRep()
 {
-	char	fname[128];
-	struct	_filerecord Temp;
-	FILE	*tbr;
-	int	Found = FALSE;
+    char		*fname;
+    struct _filerecord	Temp;
+    FILE		*tbr;
+    int			Found = FALSE;
 
-	sprintf(fname, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
-	if ((tbr = fopen(fname, "a+")) == NULL) {
-		WriteError("$Can't create %s", fname);
-		return;
-	}
+    fname = calloc(PATH_MAX, sizeof(char));
+    sprintf(fname, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
+    if ((tbr = fopen(fname, "a+")) == NULL) {
+	WriteError("$Can't create %s", fname);
+	free(fname);
+	return FALSE;
+    }
+    free(fname);
 
-	fseek(tbr, 0, SEEK_SET);
-	while (fread(&Temp, sizeof(Temp), 1, tbr) == 1) {
-		if ((strcmp(Temp.Name, T_File.Name) == 0) &&
-		    (Temp.Fdate == T_File.Fdate) &&
-		    (strcmp(Temp.Echo, T_File.Echo) == 0))
-			Found = TRUE;
-	}
+    fseek(tbr, 0, SEEK_SET);
+    while (fread(&Temp, sizeof(Temp), 1, tbr) == 1) {
+	if ((strcmp(Temp.Name, T_File.Name) == 0) && (Temp.Fdate == T_File.Fdate))
+	    Found = TRUE;
+    }
 
-	if (Found) {
-		Syslog('!', "File %s already in toberep.data", T_File.Name);
-		fclose(tbr);
-		return;
-	}
-
-	fwrite(&T_File, sizeof(T_File), 1, tbr);
+    if (Found) {
+	Syslog('!', "File %s already in toberep.data", T_File.Name);
 	fclose(tbr);
+	return FALSE;
+    }
+
+    fwrite(&T_File, sizeof(T_File), 1, tbr);
+    fclose(tbr);
+    return TRUE;
 }
 
 
