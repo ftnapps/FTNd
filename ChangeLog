@@ -3,6 +3,11 @@ $Id$
 
 v0.61.3		25-Jul-2004
 
+	libmbse.a:
+		Removed the fdn parameter from the attach and un_attach 
+		functions, not needed anymore.
+
+
 v0.61.2		11-Jul-2004 - 25-Jul-2004
 
 	upgrade:

@@ -70,7 +70,7 @@ void flush_dir(char *ndir)
     FILE	    *fp, *inf, *ouf;
     faddr	    noden, *bestaka;
     fidoaddr	    nodenr;
-    int		    flavor, mode, Attach, fage, first, bread, rc, fdn;
+    int		    flavor, mode, Attach, fage, first, bread, rc;
     long	    fsize;
     char	    *p, *temp, *fname, *arcfile, *pktfile, *ext, maxnr, nr, oldnr, *buf;
     time_t	    Now;
@@ -407,7 +407,7 @@ void flush_dir(char *ndir)
 	 * Attach file to .flo, not for FTP or Directory sessions.
 	 */
 	if (Attach && nodes.Session_out == S_DIRECT)
-	    attach(noden, arcfile, TFS, flavor, FALSE);
+	    attach(noden, arcfile, TFS, flavor);
     }
 
     /*
@@ -551,18 +551,13 @@ void flush_dir(char *ndir)
 	    }
 	    p = strchr(p, ' ');
 	    p++;
-	    if (strncmp(p, "NOR ", 4) == 0)
-		fdn = FALSE;
-	    else if (strncmp(p, "FDN ", 4) == 0)
-		fdn = TRUE;
-	    else
-		fdn = FALSE;
+	    // Here is a extra now unused keyword.
 	    p = strchr(p, ' ');
 	    p++;
 
-	    Syslog('p', "File attach (fdn=%s) %s to %s", fdn?"True":"False", p, ascfnode(&noden, 0x1f));
+	    Syslog('p', "File attach %s to %s", p, ascfnode(&noden, 0x1f));
 	    if (nodes.Session_out == S_DIRECT) {
-		attach(noden, p, mode, flavor, fdn);
+		attach(noden, p, mode, flavor);
 	    } else if (nodes.Session_out == S_DIR) {
 		sprintf(arcfile, "%s/%s", nodes.Dir_out_path, Basename(p));
 		if (mode == LEAVE) {

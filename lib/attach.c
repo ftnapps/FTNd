@@ -35,12 +35,8 @@
 
 /*
  * Attach a file to the real outbound fo a given node.
- * If fdn == TRUE, the the file is a forwarded tic file, then
- * make sure to see if there was an old file with the same name
- * that the old attach is removed including the .tic file so
- * that we will send the new file with the right .tic file.
  */
-int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
+int attach(faddr noden, char *ofile, int mode, char flavor)
 {
     FILE    *fp;
     char    *flofile, *thefile;
@@ -57,7 +53,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
     /*
      * Check if we attach a file with the same name
      */
-    un_attach(&noden, ofile, fdn);
+    un_attach(&noden, ofile);
 
     flofile = calloc(PATH_MAX, sizeof(char));
     thefile = calloc(PATH_MAX, sizeof(char));
@@ -159,8 +155,8 @@ int is_my_tic(char *filename, char *ticfile)
 /*
  * The real unatach function, return 1 if a file is removed.
  */
-int check_flo(faddr *, char *, char, int);
-int check_flo(faddr *node, char *filename, char flavor, int fdn)
+int check_flo(faddr *, char *, char);
+int check_flo(faddr *node, char *filename, char flavor)
 {
     char    *flofile, *ticfile, *buf;
     FILE    *fp;
@@ -189,7 +185,7 @@ int check_flo(faddr *node, char *filename, char flavor, int fdn)
 		fflush(fp);
 		fseek(fp, newpos, SEEK_SET);
 		filepos = newpos;
-		if (fdn && fgets(buf, PATH_MAX +2, fp)) {
+		if (fgets(buf, PATH_MAX +2, fp)) {
 		    Striplf(buf);
 		    if (buf[strlen(buf)-1] == '\r')
 			buf[strlen(buf)-1] = '\0';
@@ -225,11 +221,11 @@ int check_flo(faddr *node, char *filename, char flavor, int fdn)
 /*
  * Remove a file from the flofile, also search for a .tic file.
  */
-void un_attach(faddr *node, char *filename, int fdn)
+void un_attach(faddr *node, char *filename)
 {
     char    *base, *allname;
 
-    Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename, fdn ?"FDN":"NOR");
+    Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename);
     allname = xstrcpy(filename);
     base = basename(allname);
 
@@ -244,8 +240,8 @@ void un_attach(faddr *node, char *filename, int fdn)
     }
     free(allname);
 
-    if (check_flo(node, filename, 'h', fdn) == 0)
-	if (check_flo(node, filename, 'f', fdn) == 0)
-	    check_flo(node, filename, 'c', fdn);
+    if (check_flo(node, filename, 'h') == 0)
+	if (check_flo(node, filename, 'f') == 0)
+	    check_flo(node, filename, 'c');
 }
 

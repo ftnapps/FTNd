@@ -292,7 +292,7 @@ int Add_BBS(qualify **qal)
 		    for (tmpq = *qal; tmpq; tmpq = tmpq->next) {
 			if (tmpq->send) {
 			    taka = fido2faddr(tmpq->aka);
-			    un_attach(taka, temp2, TRUE);
+			    un_attach(taka, temp2);
 			    tidy_faddr(taka);
 			}
 		    }
