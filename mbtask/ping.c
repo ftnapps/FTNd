@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - ping functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -405,7 +405,7 @@ void *ping_thread(void)
 			     * Reply received.
 			     */
 			    rc = time(NULL) - pingsend;
-			    if (rc > 5)
+			    if (rc > 10)
 				Syslog('+', "Ping: slow reply after %d seconds", rc);
 			    pingresult[pingnr] = TRUE;
 			    now = time(NULL) + 20 - rc;

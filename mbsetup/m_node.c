@@ -449,7 +449,7 @@ void E_Files(void)
     mvprintw( 8,46, "12.  Billing (CSO)");
     mvprintw( 9,46, "13.  Bill direct");
     mvprintw(10,46, "14.  Credit");
-    mvprintw(11,46, "15.  Debet");
+    mvprintw(11,46, "15.  Debit");
     mvprintw(12,46, "16.  Add %");
     mvprintw(13,46, "17.  Warn level");
     mvprintw(14,46, "18.  Stop level");
@@ -491,7 +491,7 @@ void E_Files(void)
 	case 12:E_BOOL( 8,66,   nodes.Billing,    "Send ^bills^ to this node, Costsharing is active")
 	case 13:E_BOOL( 9,66,   nodes.BillDirect, "Send bills ^direct^ after file processing")
 	case 14:E_INT( 10,66,   nodes.Credit,     "The ^credit^ this node has for costsharing")
-	case 15:E_INT( 11,66,   nodes.Debet,      "The ^debet^ in cents we have credit from this node")
+	case 15:E_INT( 11,66,   nodes.Debet,      "The ^debit^ in cents we have credit from this node")
 	case 16:E_INT( 12,66,   nodes.AddPerc,    "The + or - ^promille^ factor for this node")
 	case 17:E_INT( 13,66,   nodes.WarnLevel,  "Credit level in cents to ^Warn^ node for low credit")
 	case 18:E_INT( 14,66,   nodes.StopLevel,  "Credit level in cents to ^Stop^ sending files")
@@ -1538,7 +1538,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 
 		if (nodes.Billing) {
 		    fprintf(fp, "     Credit units   %-8ld   Warnlevel  %ld\n", nodes.Credit, nodes.WarnLevel);
-		    fprintf(fp, "     Debet units    %-8ld   Stoplevel  %ld\n", nodes.Debet, nodes.StopLevel);
+		    fprintf(fp, "     Debit units    %-8ld   Stoplevel  %ld\n", nodes.Debet, nodes.StopLevel);
 		    fprintf(fp, "     Add promille   %ld\n\n", nodes.AddPerc);
 		}
 		fprintf(fp, "     File groups:\n      ");

@@ -1421,7 +1421,7 @@ TrType binkp_transmitter(void)
 			bp.RxState = RxWaitF;
 			Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
 			binkp_clear_filelist();
-			return Continue;
+			return Ok; /* Continue is not good here, troubles with binkd on slow links. */
 		    }
 		}
 

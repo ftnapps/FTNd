@@ -30,7 +30,8 @@ v0.39.5		24-Dec-2003
 		Fixed a segfault when a session failed.
 		New binkp/1.1 driver, not compiled by default yet.
 		- Changed testing EOB to prevent out-of-sync batches.
-	
+		- Changed EOB handling some more.
+
 	mbout:
 		Poll, remove poll and request failed to points which had no
 		point directory in the outbound, now the directory is created.
@@ -44,6 +45,10 @@ v0.39.5		24-Dec-2003
 		created by another OS.
 		Added setting in menu 7.x.3.18 to disable the use of binkp/1.1
 		protocol per node.
+		Corrected a spelling error (thanks Vince).
+
+	mbtask:
+		Changed slow ping logmessages from 5 to 10 seconds.
 
 	script:
 		Fixed NetBSD init script
