@@ -2453,7 +2453,6 @@ int rearc(char *, char *, int);     /* Rearc command                    */
  */
 void magic_update(char *, char *);  /* Update magic alias		*/
 int  magic_check(char *, char *);   /* Check if magic alias exists	*/
-long magic_get(char *, long);	    /* Get fdb record for magic name	*/
 
 
 

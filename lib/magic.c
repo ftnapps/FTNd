@@ -73,10 +73,8 @@ int magic_check(char *Alias, char *FileName)
     FILE    *fp;
     int	    rc = -1;
 
-    Syslog('f', "magic_check(%s, %s)", Alias, FileName);
-
     if (!strlen(CFG.req_magic)) {
-	WriteError("No magic filename path configured");
+	WriteError("magic_check(): no magic filename path configured");
 	return -1;
     }
 
@@ -100,16 +98,6 @@ int magic_check(char *Alias, char *FileName)
     free(path);
 
     return rc;
-}
-
-
-
-/*
- * Get record for a magic alias in area.
- */
-long magic_get(char *Name, long AreaNum)
-{
-    return -1;
 }
 
 

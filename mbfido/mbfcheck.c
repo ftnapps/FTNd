@@ -365,7 +365,6 @@ void Check(void)
 		    }
 		}
 		if (strlen(fdb.Magic)) {
-		    Syslog('f', "Checking magic %s file %s", fdb.Magic, fdb.Name);
 		    rc = magic_check(fdb.Magic, fdb.Name);
 		    if (rc == -1) {
 			Syslog('+', "Area %d magic alias %s file %s is invalid", i, fdb.Magic, fdb.Name);
@@ -468,7 +467,6 @@ void Check(void)
 		    if (file_exist(temp, X_OK) == 0) {
 			Syslog('f', "%s is executable", temp);
 		    } else if (file_exist(temp, R_OK) == 0) {
-			Syslog('f', "%s is magic alias", temp);
 			if ((pFile = fopen(temp, "r"))) {
 			    fgets(mname, PATH_MAX -1, pFile);
 			    fclose(pFile);
