@@ -35,6 +35,7 @@
 #include "transfer.h"
 #include "zmmisc.h"
 #include "zmrecv.h"
+#include "openport.h"
 
 
 static FILE *fout = NULL;
@@ -105,6 +106,7 @@ int zmrcvfiles(void)
     secbuf = NULL;
     free_frame_buffer();
 
+    io_mode(0, 1);
     Syslog('z', "Zmodem: receive rc=%d",rc);
     return abs(rc);
 }
@@ -128,19 +130,19 @@ int tryz(void)
 	 */
 	Syslog('z', "tryz attempt %d", n);
 	stohdr(0L);
-//	Txhdr[ZF0] = CANFC32|CANFDX|CANOVIO;
-	Txhdr[ZF0] = CANFC32;
+	Txhdr[ZF0] = CANFC32|CANFDX|CANOVIO;
+//	Txhdr[ZF0] = CANFC32;
 	if (Zctlesc)
 	    Txhdr[ZF0] |= TESCCTL;
 //	Txhdr[ZF0] |= CANRLE;
-	Txhdr[ZF1] = CANVHDR;
-	zshhdr(4, tryzhdrtype, Txhdr);
+//	Txhdr[ZF1] = CANVHDR;
+	zshhdr(tryzhdrtype, Txhdr);
 	if (tryzhdrtype == ZSKIP)       /* Don't skip too far */
 	    tryzhdrtype = ZRINIT;	/* CAF 8-21-87 */
 again:
 	switch (zgethdr(Rxhdr)) {
-	    case ZRQINIT:   if (Rxhdr[ZF3] & 0x80)
-				Usevhdrs = TRUE; /* we can var header */
+	    case ZRQINIT:   // if (Rxhdr[ZF3] & 0x80)
+				// Usevhdrs = TRUE; /* we can var header */
 			    continue;
 	    case ZEOF:	    continue;
 	    case TIMEOUT:   Syslog('+', "Zmodem: tryz() timeout attempt %d", n);
@@ -148,18 +150,20 @@ again:
 	    case ZFILE:	    zconv = Rxhdr[ZF0];
 			    if (!zconv) {
 				Syslog('z', "*** !zconv %d", zconv);
+				zconv = ZCBIN;
 			    }
 			    zmanag = Rxhdr[ZF1];
 			    ztrans = Rxhdr[ZF2];
-			    if (Rxhdr[ZF3] & ZCANVHDR)
-				Usevhdrs = TRUE;
+//			    if (Rxhdr[ZF3] & ZCANVHDR)
+//				Usevhdrs = TRUE;
 			    tryzhdrtype = ZRINIT;
 			    c = zrdata(secbuf, MAXBLOCK);
+			    io_mode(0, 3);
 			    if (c == GOTCRCW) {
 				Syslog('z', "tryz return ZFILE");
 				return ZFILE;
 			    }
-			    zshhdr(4,ZNAK, Txhdr);
+			    zshhdr(ZNAK, Txhdr);
 			    goto again;
 	    case ZSINIT:    /* this once was:
 			     * Zctlesc = TESCCTL & Rxhdr[ZF0];
@@ -173,13 +177,13 @@ again:
 			    Zctlesc |= TESCCTL & Rxhdr[ZF0];
 			    if (zrdata(Attn, ZATTNLEN) == GOTCRCW) {
 				stohdr(1L);
-				zshhdr(4,ZACK, Txhdr);
+				zshhdr(ZACK, Txhdr);
 				goto again;
 			    }
-			    zshhdr(4,ZNAK, Txhdr);
+			    zshhdr(ZNAK, Txhdr);
 			    goto again;
 	    case ZFREECNT:  stohdr(getfree());
-			    zshhdr(4,ZACK, Txhdr);
+			    zshhdr(ZACK, Txhdr);
 			    goto again;
 	    case ZCOMMAND:  cmdzack1flg = Rxhdr[ZF0];
 			    if (zrdata(secbuf, MAXBLOCK) == GOTCRCW) {
@@ -189,11 +193,11 @@ again:
 				    Syslog('+', "Zmodem: request for command \"%s\" ignored", printable(secbuf,-32));
 				stohdr(0L);
 				do {
-				    zshhdr(4,ZCOMPL, Txhdr);
+				    zshhdr(ZCOMPL, Txhdr);
 				} while (++errors<20 && zgethdr(Rxhdr) != ZFIN);
 				return ackbibi();
 			    }
-			    zshhdr(4,ZNAK, Txhdr); 
+			    zshhdr(ZNAK, Txhdr); 
 			    goto again;
 	    case ZCOMPL:    goto again;
 	    case ZRINIT:    Syslog('z', "tryz: got ZRINIT");
@@ -262,7 +266,7 @@ int rzfile(void)
     for (;;) {
 	Syslog('z', "rxbytes %ld", rxbytes);
 	stohdr(rxbytes);
-	zshhdr(4,ZRPOS, Txhdr);
+	zshhdr(ZRPOS, Txhdr);
 nxthdr:
 	switch (c = zgethdr(Rxhdr)) {
 	    default:	    Syslog('z', "rzfile: Wrong header %d", c);
@@ -349,13 +353,13 @@ moredata:
 						Syslog('z', "rxbytes %ld, will ACK", rxbytes);
 						stohdr(rxbytes);
 						PUTCHAR(XON);
-						zshhdr(4,ZACK, Txhdr);
+						zshhdr(ZACK, Txhdr);
 						goto nxthdr;
 				case GOTCRCQ:	n = 20;
 						putsec(secbuf, Rxcount);
 						rxbytes += Rxcount;
 						stohdr(rxbytes);
-						zshhdr(4,ZACK, Txhdr);
+						zshhdr(ZACK, Txhdr);
 						goto moredata;
 				case GOTCRCG:	n = 20;
 						putsec(secbuf, Rxcount);
@@ -445,7 +449,7 @@ int ackbibi(void)
     stohdr(0L);
 	
     for (n=3; --n>=0; ) {
-	zshhdr(4,ZFIN, Txhdr);
+	zshhdr(ZFIN, Txhdr);
 		
 	switch ((c = GETCHAR(10))) {
 	    case 'O':	    GETCHAR(1);	/* Discard 2nd 'O' */

@@ -3,6 +3,7 @@
 
 /* $Id$ */
 
+int	io_mode(int, int);
 void	hangup(void);
 int 	rawport(void);
 int 	cookedport(void);

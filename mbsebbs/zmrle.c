@@ -50,6 +50,7 @@ extern char *Zendnames[];
 /*
  * Send data subpacket RLE encoded with 32 bit FCS
  */
+/*
 void zsdar32(char *buf, int length, int frameend)
 {
     register int	    c, l, n;
@@ -87,8 +88,8 @@ void zsdar32(char *buf, int length, int frameend)
 				l = c; 
 				break;
 			    }
-			    /* **** FALL THRU TO **** */
-		default:    zsendline(ZRESC); crc = updcrc32(ZRESC, crc);
+*/			    /* **** FALL THRU TO **** */
+/*		default:    zsendline(ZRESC); crc = updcrc32(ZRESC, crc);
 			    if (l == 040 && n < 34) {
 				n += 036;
 				zsendline(n); 
@@ -116,11 +117,12 @@ void zsdar32(char *buf, int length, int frameend)
 	crc >>= 8;
     }
 }
-
+*/
 
 /*
  * Receive data subpacket RLE encoded with 32 bit FCS
  */
+/*
 int zrdatr32(register char *buf, int length)
 {
     register int	    c;
@@ -131,7 +133,7 @@ int zrdatr32(register char *buf, int length)
     crc = 0xFFFFFFFFL;  
     Rxcount = 0;  
     end = buf + length;
-    d = 0;	/* Use for RLE decoder state */
+    d = 0; */	/* Use for RLE decoder state */ /*
     while (buf <= end) {
 	if ((c = zdlread()) & ~0377) {
 crcfoo:
@@ -208,4 +210,5 @@ badpkt:
     Syslog('+', "Zmodem: Data subpacket too long");
     return TERROR;
 }
+*/
 

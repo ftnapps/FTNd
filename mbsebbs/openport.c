@@ -31,12 +31,77 @@
 #include "../lib/mbselib.h"
 #include "ttyio.h"
 #include "openport.h"
+#include "zmmisc.h"
 
 
 int			hanged_up = 0;
-static int		termios_saved = FALSE;	/* Is termios saved	    */
-static struct termios	savetios;		/* Saved termios	    */
-static struct termios	tios;
+static struct termios	oldtty;			/* Saved termios	    */
+static struct termios	tty;
+unsigned		Baudrate = 2400;
+
+
+#define HOWMANY 255
+
+
+static struct {
+    unsigned	baudr;
+    speed_t	speedcode;
+} speeds[] = {
+    {110,   B110},
+    {300,   B300},
+    {600,   B600},
+    {1200,  B1200},
+    {2400,  B2400},
+    {4800,  B4800},
+    {9600,  B9600},
+#ifdef B12000
+    {12000, B12000},
+#endif
+#ifdef B14400
+    {14400, B14400},
+#endif
+#ifdef B19200
+    {19200,  B19200},
+#endif
+#ifdef B38400
+    {38400,  B38400},
+#endif
+#ifdef B57600
+    {57600,  B57600},
+#endif
+#ifdef B115200
+    {115200,  B115200},
+#endif
+#ifdef B230400
+    {230400,  B230400},
+#endif
+#ifdef B460800
+    {460800,  B460800},
+#endif
+#ifdef B500000
+    {500000, B500000},
+#endif
+#ifdef EXTA
+    {19200, EXTA},
+#endif
+#ifdef EXTB
+    {38400, EXTB},
+#endif
+    {0, 0}
+};
+
+
+
+unsigned getspeed(speed_t);
+unsigned getspeed(speed_t code)
+{
+    int n;
+
+    for (n = 0; speeds[n].baudr; ++n)
+	if (speeds[n].speedcode == code)
+	    return speeds[n].baudr;
+    return 38400;   /* Assume fifo if ioctl failed */
+}
 
 
 
@@ -61,8 +126,8 @@ void hangup(void)
 
 	cflag = Tios.c_cflag | CLOCAL;
 
-	ispeed = cfgetispeed(&tios);
-	ospeed = cfgetospeed(&tios);
+	ispeed = cfgetispeed(&tty);
+	ospeed = cfgetospeed(&tty);
 	cfsetispeed(&Tios,0);
 	cfsetospeed(&Tios,0);
 	if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
@@ -85,59 +150,122 @@ void hangup(void)
 
 
 /*
- * Put the current opened tty in raw mode.
+ * mode(n)
+ *  3: save old tty stat, set raw mode with flow control
+ *  2: set XON/XOFF for sb/sz with ZMODEM or YMODEM-g
+ *  1: save old tty stat, set raw mode 
+ *  0: restore original tty mode
  */
+int io_mode(int fd, int n)
+{
+    static int	did0 = FALSE;
+
+    Syslog('t', "io_mode(%d, %d)", fd, n);
+
+    switch(n) {
+	case 2:         /* Un-raw mode used by sz, sb when -g detected */
+		if(!did0) {
+		    did0 = TRUE;
+		    tcgetattr(fd,&oldtty);
+		}
+		tty = oldtty;
+
+		tty.c_iflag = BRKINT|IXON;
+
+		tty.c_oflag = 0;        /* Transparent output */
+
+		tty.c_cflag &= ~PARENB; /* Disable parity */
+		tty.c_cflag |= CS8;     /* Set character size = 8 */
+//		if (Twostop)
+//		    tty.c_cflag |= CSTOPB;  /* Set two stop bits */
+#ifdef READCHECK
+		tty.c_lflag = protocol==ZM_ZMODEM ? 0 : ISIG;
+		tty.c_cc[VINTR] = protocol==ZM_ZMODEM ? -1 : 030;       /* Interrupt char */
+#else
+		tty.c_lflag = 0;
+		tty.c_cc[VINTR] = protocol==ZM_ZMODEM ? 03 : 030;       /* Interrupt char */
+#endif
+#ifdef _POSIX_VDISABLE
+		if (((int) _POSIX_VDISABLE)!=(-1)) {
+		    tty.c_cc[VQUIT] = _POSIX_VDISABLE;              /* Quit char */
+		} else {
+		    tty.c_cc[VQUIT] = -1;                   /* Quit char */
+		}
+#else
+		tty.c_cc[VQUIT] = -1;                   /* Quit char */
+#endif
+#ifdef NFGVMIN
+		tty.c_cc[VMIN] = 1;
+#else
+		tty.c_cc[VMIN] = 3;      /* This many chars satisfies reads */
+#endif
+		tty.c_cc[VTIME] = 1;    /* or in this many tenths of seconds */
+
+		tcsetattr(fd,TCSADRAIN,&tty);
+
+		return 0;
+	case 1:
+	case 3:
+		if(!did0) {
+		    did0 = TRUE;
+		    tcgetattr(fd,&oldtty);
+		}
+		tty = oldtty;
+
+		tty.c_iflag = IGNBRK;
+		if (n==3) /* with flow control */
+		    tty.c_iflag |= IXOFF;
+
+		/* Setup raw mode: no echo, noncanonical (no edit chars),
+		 * no signal generating chars, and no extended chars (^V, 
+		 * ^O, ^R, ^W).
+		 */
+		tty.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+		tty.c_oflag = 0;        /* Transparent output */
+
+		tty.c_cflag &= ~(PARENB);       /* Same baud rate, disable parity */
+		/* Set character size = 8 */
+		tty.c_cflag &= ~(CSIZE);
+		tty.c_cflag |= CS8;     
+//		if (Twostop)
+//		    tty.c_cflag |= CSTOPB;  /* Set two stop bits */
+#ifdef NFGVMIN
+		tty.c_cc[VMIN] = 1; /* This many chars satisfies reads */
+#else
+		tty.c_cc[VMIN] = HOWMANY; /* This many chars satisfies reads */
+#endif
+		tty.c_cc[VTIME] = 1;    /* or in this many tenths of seconds */
+		tcsetattr(fd,TCSADRAIN,&tty);
+		Baudrate = getspeed(cfgetospeed(&tty));
+		Syslog('t', "Baudrate = %d", Baudrate);
+		return 0;
+	case 0:
+		if(!did0)
+		    return ERROR;
+		tcdrain (fd); /* wait until everything is sent */
+		tcflush (fd,TCIOFLUSH); /* flush input queue */
+		tcsetattr (fd,TCSADRAIN,&oldtty);
+		tcflow (fd,TCOON); /* restart output */
+
+		return 0;
+    }
+    return -1;
+}
+
+
+
 int rawport(void)
 {
-    int     rc = 0;
-
     Syslog('t', "rawport()");
-    tty_status = 0;
-
-    if (isatty(0)) {
-	if ((rc = tcgetattr(0,&savetios))) {
-	    WriteError("$tcgetattr(0,save) return %d",rc);
-	    return rc;
-	}
-
-	termios_saved = TRUE;
-	tios = savetios;
-    	tios.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  ); /* IUCLC removed for FreeBSD */
-        /*
-	 *  Map CRNL modes strip control characters and flow control
-	 */
-        tios.c_oflag &= ~OPOST;            /* Don't do ouput character translation */
-	tios.c_lflag &= ~(ICANON | ECHO);  /* No canonical input and no echo       */
-	tios.c_cc[VMIN] = 1;               /* Receive 1 character at a time        */
-	tios.c_cc[VTIME] = 0;              /* No time limit per character          */
-
-	if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
-	    WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
-    } else {
-	Syslog('t', "not at a tty");
-    }
-    return rc;
+    return io_mode(0, 1);
 }
 
 
 
 int cookedport(void)
 {
-    int	    rc = 0;
-
     Syslog('t', "cookedport()");
-
-    if (termios_saved == FALSE) {
-	WriteError("Can't restore termios before it was saved");
-	return -1;
-    }
-
-    if (isatty(0)) {
-	if ((rc = tcsetattr(0,TCSAFLUSH,&savetios)))
-	    WriteError("$tcsetattr(0,TCSAFLUSH,save) return %d", rc);
-    }
-
-    return rc;
+    return io_mode(0, 0);
 }
 
 

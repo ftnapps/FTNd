@@ -35,7 +35,7 @@ v0.71.0		27-Oct-2004
 		from the users upload directory.
 		We don't reward upload time anymore, only bytes. It's more
 		troubles to implement right then it's worth these days.
-		Added internal zmodem download protocol.
+		Added internal zmodem download and upload protocol.
 		With user chat, the timeout timer wasn't refreshed.
 
 	mbnewusr:

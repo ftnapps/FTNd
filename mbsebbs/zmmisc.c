@@ -51,8 +51,8 @@
  */
 
 static void zputhex(int);
-static void zsbh32(int,char*,int,int);
-static void zsda32(char*,int,int);
+static void zsbh32(char*, int);
+static void zsda32(char*, int, int);
 static int  zrdat32(char*,int);
 static int  noxrd7(void);
 static int  zrbhd32(char*);
@@ -75,10 +75,12 @@ static void garbitch(void);
 */
 static int Rxtimeout = 10;	/* Seconds to wait for something */
 
-int Rxhlen;			/* Length of header received */
+// int Rxhlen;			/* Length of header received */
 char *txbuf=NULL;
 static int lastsent;		/* Last char we sent */
 static int Not8bit;		/* Seven bits seen on header */
+
+extern unsigned	Baudrate;
 
 
 char *frametypes[] = {
@@ -159,12 +161,12 @@ void free_frame_buffer(void)
 /*
  * Send ZMODEM binary header hdr of type type
  */
-void zsbhdr(int len, int type, register char *shdr)
+void zsbhdr(int type, char *shdr)
 {
     register int	    n;
     register unsigned short crc;
 
-    Syslog('z', "zsbhdr: %c %d %s %lx", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
+    Syslog('z', "zsbhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
     BUFFER_CLEAR();
 	
@@ -176,20 +178,16 @@ void zsbhdr(int len, int type, register char *shdr)
     BUFFER_BYTE(ZDLE);
 
     switch (Crc32t=Txfcs32) {
-	case 2:	    zsbh32(len, shdr, type, Usevhdrs?ZVBINR32:ZBINR32);
+	case 2:	    zsbh32(shdr, type);
 		    BUFFER_FLUSH(); 
 		    break;
-        case 1:	    zsbh32(len, shdr, type, Usevhdrs?ZVBIN32:ZBIN32);  
+        case 1:	    zsbh32(shdr, type);  
 		    break;
-	default:    if (Usevhdrs) {
-			BUFFER_BYTE(ZVBIN);
-			zsendline(len);
-		    } else
-			BUFFER_BYTE(ZBIN);
+	default:    BUFFER_BYTE(ZBIN);
 		    zsendline(type);
 		    crc = updcrc16(type, 0);
 
-		    for (n=len; --n >= 0; ++shdr) {
+		    for (n=4; --n >= 0; ++shdr) {
 			zsendline(*shdr);
 			crc = updcrc16((0377& *shdr), crc);
 		    }
@@ -206,19 +204,17 @@ void zsbhdr(int len, int type, register char *shdr)
 /*
  * Send ZMODEM binary header hdr of type type 
  */
-void zsbh32(int len, register char *shdr, int type, int flavour)
+void zsbh32(char *shdr, int type)
 {
     register int	    n;
     register unsigned long  crc;
 
-    BUFFER_BYTE(flavour); 
-    if (Usevhdrs) 
-	zsendline(len);
+    BUFFER_BYTE(ZBIN32); 
     zsendline(type);
     crc = 0xFFFFFFFFL; 
     crc = updcrc32(type, crc);
 
-    for (n=len; --n >= 0; ++shdr) {
+    for (n=4; --n >= 0; ++shdr) {
 	crc = updcrc32((0377 & *shdr), crc);
 	zsendline(*shdr);
     }
@@ -234,33 +230,30 @@ void zsbh32(int len, register char *shdr, int type, int flavour)
 /*
  * Send ZMODEM HEX header hdr of type type
  */
-void zshhdr(int len, int type, register char *shdr)
+void zshhdr(int type, register char *shdr)
 {
     register int	    n;
     register unsigned short crc;
 
-    Syslog('z', "zshhdr: %c %d %s %lx", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
+    Syslog('z', "zshhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
     BUFFER_CLEAR();
 	
     BUFFER_BYTE(ZPAD); 
     BUFFER_BYTE(ZPAD); 
     BUFFER_BYTE(ZDLE);
-    if (Usevhdrs) {
-	BUFFER_BYTE(ZVHEX);
-	zputhex(len);
-    } else
-	BUFFER_BYTE(ZHEX);
-    zputhex(type);
+    BUFFER_BYTE(ZHEX);
+    zputhex(type & 0x7f);
     Crc32t = 0;
 
-    crc = updcrc16(type, 0);
-    for (n=len; --n >= 0; ++shdr) {
+    crc = updcrc16((type & 0x7f), 0);
+    for (n=4; --n >= 0; ++shdr) {
 	zputhex(*shdr); 
 	crc = updcrc16((0377 & *shdr), crc);
     }
     crc = updcrc16(0,updcrc16(0,crc));
-    zputhex(((int)(crc>>8))); zputhex(crc);
+    zputhex(((int)(crc>>8))); 
+    zputhex(crc);
 
     /*
      * Make it printable on remote machine
@@ -290,25 +283,24 @@ void zsdata(register char *buf, int length, int frameend)
     Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 
     BUFFER_CLEAR();
-	
-    switch (Crc32t) {
-        case 1:	    zsda32(buf, length, frameend);  
-		    break;
-        case 2:	    zsdar32(buf, length, frameend);  
-		    break;
-	default:    crc = 0;
-		    for (;--length >= 0; ++buf) {
-			zsendline(*buf); 
-			crc = updcrc16((0377 & *buf), crc);
-		    }
-		    BUFFER_BYTE(ZDLE); 
-		    BUFFER_BYTE(frameend);
-		    crc = updcrc16(frameend, crc);
+    
+    if (Crc32t)
+	zsda32(buf, length, frameend);
+    else {
+	crc = 0;
+	for (;--length >= 0; ++buf) {
+	    zsendline(*buf); 
+	    crc = updcrc16((0377 & *buf), crc);
+	}
+	BUFFER_BYTE(ZDLE); 
+        BUFFER_BYTE(frameend);
+        crc = updcrc16(frameend, crc);
 
-		    crc = updcrc16(0,updcrc16(0,crc));
-		    zsendline(((int)(crc>>8))); 
-		    zsendline(crc);
+        crc = updcrc16(0,updcrc16(0,crc));
+        zsendline(((int)(crc>>8))); 
+        zsendline(crc);
     }
+
     if (frameend == ZCRCW)
 	BUFFER_BYTE(XON);
 
@@ -356,14 +348,10 @@ int zrdata(register char *buf, int length)
     register char *end;
     register int d;
 
-    Syslog('z', "zrdata: len=%d, Crc32r=%d", length, Crc32r);
+    Syslog('z', "zrdata: len=%d, Crc32r=%s", length, Crc32r ? "true":"false");
 
-    switch (Crc32r) {
-	case 1:
-		return zrdat32(buf, length);
-	case 2:
-		return zrdatr32(buf, length);
-    }
+    if (Crc32r)
+	return zrdat32(buf, length);
 
     crc = Rxcount = 0;  
     end = buf + length;
@@ -487,11 +475,10 @@ int zgethdr(char *shdr)
 {
     register int    c, n, cancount;
     int		    Zrwindow = 1400;
-    int		    Baudrate = 9600;
     
     n = Zrwindow + Baudrate;
     Rxframeind = Rxtype = 0;
-    Syslog('z', "zgethdr(%lx)", rclhdr(shdr));
+//    Syslog('z', "zgethdr(%lx)", rclhdr(shdr));
 
 startover:
     cancount = 5;
@@ -503,7 +490,6 @@ again:
     if (((c = GETCHAR(Rxtimeout)) < 0) && (c != TIMEOUT))
 	goto fifi;
     else {
-//	Syslog('z', "Zmodem: Got %c %d", c, c);
 	switch(c) {
 	case 021: 
 	case 0221:	goto again;
@@ -538,13 +524,13 @@ agn2:
 #define GCOUNT (-4)
 			if ( --n == 0) {
 			    c = GCOUNT; 
+			    Syslog('z', "zgethdr: garbage count exceeded");
 			    goto fifi;
 			}
 			goto startover;
 	case ZPAD|0200:	/* This is what we want. */
 			Not8bit = c;
 	case ZPAD:	/* This is what we want. */
-//			Syslog('z', "zgethdr: got ZPAD");
 			break;
 	}
     }
@@ -557,77 +543,33 @@ splat:
 	case TIMEOUT:	goto fifi;
 	default:	goto agn2;
 	case ZDLE:	/* This is what we want. */
-//			Syslog('z', "zgethdr: got ZDLE");
 			break;
     }
 
-
-    Rxhlen = 4;		/* Set default length */
     Rxframeind = c = noxrd7();
-    Syslog('z', "zgethdr: header type %d", c);
     switch (c) {
-	case ZVBIN32:	if ((Rxhlen = c = zdlread()) < 0)
-			    goto fifi;
-			if (c > ZMAXHLEN)
-			    goto agn2;
-			Crc32r = 1;  
-			c = zrbhd32(shdr); 
-			break;
-	case ZBIN32:	if (Usevhdrs)
-			    goto agn2;
-			Crc32r = 1;  
-			c = zrbhd32(shdr); 
-			break;
-	case ZVBINR32:	if ((Rxhlen = c = zdlread()) < 0)
-			    goto fifi;
-			if (c > ZMAXHLEN)
-			    goto agn2;
-			Crc32r = 2;  
-			c = zrbhd32(shdr); 
-			break;
-	case ZBINR32:	if (Usevhdrs)
-			    goto agn2;
-			Crc32r = 2;  
+	case ZBIN32:	Crc32r = 1;  
 			c = zrbhd32(shdr); 
 			break;
 	case HANGUP:
 	case TIMEOUT:	goto fifi;
-	case ZVBIN:	if ((Rxhlen = c = zdlread()) < 0)
-			    goto fifi;
-			if (c > ZMAXHLEN)
-			    goto agn2;
-			Crc32r = 0;  
+	case ZBIN:	Crc32r = 0;  
 			c = zrbhdr(shdr); 
 			break;
-	case ZBIN:	if (Usevhdrs)
-			    goto agn2;
-			Crc32r = 0;  
-			c = zrbhdr(shdr); 
-			break;
-	case ZVHEX:	if ((Rxhlen = c = zgethex()) < 0)
-			    goto fifi;
-			if (c > ZMAXHLEN)
-			    goto agn2;
-			Crc32r = 0;  
-			c = zrhhdr(shdr); 
-			break;
-	case ZHEX:	if (Usevhdrs)
-			    goto agn2;
-			Crc32r = 0;  
+	case ZHEX:	Crc32r = 0;  
 			c = zrhhdr(shdr); 
 			break;
 	case CAN:	goto gotcan;
 	default:	goto agn2;
     }
 
-    for (n = Rxhlen; ++n < ZMAXHLEN; )	/* Clear unused hdr bytes */
+    for (n = 4; ++n < ZMAXHLEN; )	/* Clear unused hdr bytes */
 	shdr[n] = 0;
     Rxpos = shdr[ZP3] & 0377;
     Rxpos = (Rxpos<<8) + (shdr[ZP2] & 0377);
     Rxpos = (Rxpos<<8) + (shdr[ZP1] & 0377);
     Rxpos = (Rxpos<<8) + (shdr[ZP0] & 0377);
 fifi:
-    Syslog('z', "Zmodem: at fifi Got %d", c);
     switch (c) {
 	case GOTCAN:	c = ZCAN;
 	/* **** FALL THRU TO **** */
@@ -638,14 +580,13 @@ fifi:
 	case HANGUP:	Syslog('+', "Zmodem: Got %s", frametypes[c+FTOFFSET]);
 			/* **** FALL THRU TO **** */
 	default:	if (c >= -FTOFFSET && c <= FRTYPES)
-			    Syslog('z', "zgethdr: %c %d %s %lx", Rxframeind, Rxhlen, frametypes[c+FTOFFSET], Rxpos);
+			    Syslog('z', "zgethdr: %c %s %lx", Rxframeind, frametypes[c+FTOFFSET], Rxpos);
 			else
-			    Syslog('z', "zgethdr: %d %d %ld", Rxframeind, c, Rxpos);
+			    Syslog('z', "zgethdr: %d %d %lx", Rxframeind, c, Rxpos);
     }
 	
     /* Use variable length headers if we got one */
     if (c >= 0 && c <= FRTYPES && Rxframeind & 040) {
-	Usevhdrs = 1;
 	Syslog('z', "zgethdr: Usevhdrs");
     }
     return c;
@@ -666,7 +607,7 @@ int zrbhdr(register char *shdr)
     Rxtype = c;
     crc = updcrc16(c, 0);
 
-    for (n=Rxhlen; --n >= 0; ++shdr) {
+    for (n=4; --n >= 0; ++shdr) {
 	if ((c = zdlread()) & ~0377)
 	    return c;
 	crc = updcrc16(c, crc);
@@ -700,7 +641,7 @@ int zrbhd32(register char *shdr)
     Rxtype = c;
     crc = 0xFFFFFFFFL; crc = updcrc32(c, crc);
 
-    for (n=Rxhlen; --n >= 0; ++shdr) {
+    for (n=4; --n >= 0; ++shdr) {
 	if ((c = zdlread()) & ~0377)
 	    return c;
 	crc = updcrc32(c, crc);
@@ -734,7 +675,7 @@ int zrhhdr(char *shdr)
     Rxtype = c;
     crc = updcrc16(c, 0);
 
-    for (n=Rxhlen; --n >= 0; ++shdr) {
+    for (n=4; --n >= 0; ++shdr) {
 	if ((c = zgethex()) < 0)
 	    return c;
 	crc = updcrc16(c, crc);
@@ -868,10 +809,10 @@ again:
 
     switch (c) {
 	case ZDLE:  break;
-	case 023:
-	case 0223:
-	case 021:
-	case 0221:  goto again;
+	case XON:
+	case XON|0200:
+	case XOFF:
+	case XOFF|0200:  goto again;
 	default:    if (Zctlesc && !(c & 0140)) {
 			goto again;
 		    }
@@ -896,10 +837,10 @@ again2:
 	case ZCRCW: return (c | GOTOR);
 	case ZRUB0: return 0177;
 	case ZRUB1: return 0377;
-	case 023:
-	case 0223:
-	case 021:
-	case 0221:  goto again2;
+	case XON:
+	case XON|0200:
+	case XOFF:
+	case XOFF|0200:  goto again2;
 	default:    if (Zctlesc && ! (c & 0140)) {
 			goto again2;
 		    }

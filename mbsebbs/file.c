@@ -328,7 +328,7 @@ void Download(void)
      * Checking the successfull sent files, they are missing from
      * the ./tag directory. Failed files are still there.
      */
-    Enter(1);
+    PUTCHAR('\r');
     /* Updating download counters, please wait ... */
     pout(LIGHTCYAN, BLACK, (char *) Language(352));
     Count = Size = 0; 

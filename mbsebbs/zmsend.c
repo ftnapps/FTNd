@@ -34,6 +34,8 @@
 #include "zmmisc.h"
 #include "zmrle.h"
 #include "transfer.h"
+#include "openport.h"
+
 
 static int initsend(void);
 static int sendzfile(char*);
@@ -135,9 +137,10 @@ static int initsend(void)
 {
     Syslog('z', "Zmodem: initsend");
 
+    io_mode(0, 1);
     PUTSTR((char *)"rz\r");
     stohdr(0x80L);		/* Show we can do var header */
-    zshhdr(4, ZRQINIT, Txhdr);
+    zshhdr(ZRQINIT, Txhdr);
 
     if (getzrxinit()) {
 	Syslog('+', "Zmodem: Unable to initiate send");
@@ -160,7 +163,7 @@ static int finsend(void)
     while (GETCHAR(1) >= 0) /*nothing*/;
     for (i = 0; i < 30; i++) {
 	stohdr(0L);
-	zshhdr(4, ZFIN, Txhdr);
+	zshhdr(ZFIN, Txhdr);
 	if ((rc = zgethdr(Rxhdr)) == ZFIN)
 	    PUTSTR((char *)"OO");
 	if ((rc == ZFIN) || (rc == ZCAN) || (rc < 0)) 
@@ -241,17 +244,18 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 	switch (zgethdr(Rxhdr)) {
 	    case ZCHALLENGE:	/* Echo receiver's challenge numbr */
 			stohdr(Rxpos);
-			zshhdr(4, ZACK, Txhdr);
+			zshhdr(ZACK, Txhdr);
 			continue;
 	    case ZCOMMAND:		/* They didn't see out ZRQINIT */
 			stohdr(0L);
-			zshhdr(4, ZRQINIT, Txhdr);
+			zshhdr(ZRQINIT, Txhdr);
 			continue;
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
-			Usevhdrs = Rxhdr[ZF1] & CANVHDR;
+//			Usevhdrs = Rxhdr[ZF1] & CANVHDR;
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
 			Zctlesc |= Rxflags & TESCCTL;
+			
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
 				Txwindow = 0;
@@ -268,9 +272,9 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 			Syslog('z', "Rxbuflen=%d blklen=%d", Rxbuflen, blklen);
 			Syslog('z', "Txwindow = %u Txwspac = %d", Txwindow, Txwspac);
 
-			if (Lztrans == ZTRLE && (Rxflags & CANRLE))
-				Txfcs32 = 2;
-			else
+//			if (Lztrans == ZTRLE && (Rxflags & CANRLE))
+//				Txfcs32 = 2;
+//			else
 				Lztrans = 0;
 
 			return (sendzsinit());
@@ -283,7 +287,7 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 			if (Rxhdr[ZF0] == ZCOMMAND)
 				continue;
 	    default:
-			zshhdr(4, ZNAK, Txhdr);
+			zshhdr(ZNAK, Txhdr);
 			continue;
 	}
     }
@@ -305,9 +309,9 @@ int sendzsinit(void)
     for (;;) {
 	stohdr(0L);
 	if (Zctlesc) {
-	    Txhdr[ZF0] |= TESCCTL; zshhdr(4, ZSINIT, Txhdr);
+	    Txhdr[ZF0] |= TESCCTL; zshhdr(ZSINIT, Txhdr);
 	} else
-	    zsbhdr(4, ZSINIT, Txhdr);
+	    zsbhdr(ZSINIT, Txhdr);
 	zsdata(Myattn, ZATTNLEN, ZCRCW);
 	c = zgethdr(Rxhdr);
 	switch (c) {
@@ -358,7 +362,7 @@ int zsendfile(char *buf, int blen)
 	    Txhdr[ZF1] |= ZMSKNOLOC;
 	Txhdr[ZF2] = Lztrans;	/* file transport request */
 	Txhdr[ZF3] = 0;
-	zsbhdr(4, ZFILE, Txhdr);
+	zsbhdr(ZFILE, Txhdr);
 	zsdata(buf, blen, ZCRCW);
 again:
 	c = zgethdr(Rxhdr);
@@ -393,7 +397,7 @@ again:
 				lastcrcrq = Rxpos;
 			}
 			stohdr(crc);
-			zsbhdr(4, ZCRC, Txhdr);
+			zsbhdr(ZCRC, Txhdr);
 			goto again;
 	    case ZFERR:
 	    case ZSKIP:
@@ -486,7 +490,7 @@ to:
     newcnt = Rxbuflen;
     Txwcnt = 0;
     stohdr(Txpos);
-    zsbhdr(4, ZDATA, Txhdr);
+    zsbhdr(ZDATA, Txhdr);
 
     do {
 	n = zfilbuf();
@@ -555,7 +559,7 @@ to:
 
     for (;;) {
 	stohdr(Txpos);
-	zsbhdr(4, ZEOF, Txhdr);
+	zsbhdr(ZEOF, Txhdr);
 egotack:
 	switch (getinsync(0)) {
 	    case ZACK:	    Syslog('z', "zsendfdata() ZACK");
@@ -628,7 +632,7 @@ int getinsync(int flag)
 	    case ZRINIT:    return c;
 	    case ZSKIP:	    Syslog('+', "Zmodem: File skipped by receiver request");
 			    return c;
-	    default:	    zsbhdr(4, ZNAK, Txhdr);
+	    default:	    zsbhdr(ZNAK, Txhdr);
 			    continue;
 	}
     }

@@ -22,14 +22,14 @@
 #define ZBIN 'A'        /* Binary frame indicator (CRC-16) */
 #define ZHEX 'B'        /* HEX frame indicator */
 #define ZBIN32 'C'      /* Binary frame with 32 bit FCS */
-#define ZBINR32 'D'     /* RLE packed Binary frame with 32 bit FCS */
-#define ZVBIN 'a'       /* Binary frame indicator (CRC-16) */
-#define ZVHEX 'b'       /* HEX frame indicator */
-#define ZVBIN32 'c'     /* Binary frame with 32 bit FCS */
-#define ZVBINR32 'd'    /* RLE packed Binary frame with 32 bit FCS */
-#define ZRESC   0176    /* RLE flag/escape character */
+// #define ZBINR32 'D'     /* RLE packed Binary frame with 32 bit FCS */
+// #define ZVBIN 'a'       /* Binary frame indicator (CRC-16) */
+// #define ZVHEX 'b'       /* HEX frame indicator */
+// #define ZVBIN32 'c'     /* Binary frame with 32 bit FCS */
+// #define ZVBINR32 'd'    /* RLE packed Binary frame with 32 bit FCS */
+// #define ZRESC   0176    /* RLE flag/escape character */
 #define ZMAXHLEN 16     /* Max header information length  NEVER CHANGE */
-#define ZMAXSPLEN 1024  /* Max subpacket length  NEVER CHANGE */
+// #define ZMAXSPLEN 1024  /* Max subpacket length  NEVER CHANGE */
 
 
 /* Frame types (see array "frametypes" in zm.c) */
@@ -82,27 +82,27 @@
 #define ZP3     3       /* High order 8 bits of file position */
 
 /* Parameters for ZRINIT header */
-#define ZRPXWN  8       /* 9th byte in header contains window size/256 */
-#define ZRPXQQ  9       /* 10th to 14th bytes contain quote mask */
+// #define ZRPXWN  8       /* 9th byte in header contains window size/256 */
+// #define ZRPXQQ  9       /* 10th to 14th bytes contain quote mask */
 /* Bit Masks for ZRINIT flags byte ZF0 */
 #define CANFDX  01      /* Rx can send and receive true FDX */
 #define CANOVIO 02      /* Rx can receive data during disk I/O */
 #define CANBRK  04      /* Rx can send a break signal */
-#define CANRLE  010     /* Receiver can decode RLE */
+// #define CANRLE  010     /* Receiver can decode RLE */
 #define CANLZW  020     /* Receiver can uncompress */
 #define CANFC32 040     /* Receiver can use 32 bit Frame Check */
 #define ESCCTL 0100     /* Receiver expects ctl chars to be escaped */
 #define ESC8   0200     /* Receiver expects 8th bit to be escaped */
 
 /* Bit Masks for ZRINIT flags byte ZF1 */
-#define CANVHDR 01      /* Variable headers OK */
-#define ZRRQWN  8       /* Receiver specified window size in ZRPXWN */
-#define ZRRQQQ  16      /* Additional control chars to quote in ZRPXQQ  */
-#define ZRQNVH  (ZRRQWN|ZRRQQQ) /* Variable len hdr reqd to access info */
+// #define CANVHDR 01      /* Variable headers OK */
+// #define ZRRQWN  8       /* Receiver specified window size in ZRPXWN */
+// #define ZRRQQQ  16      /* Additional control chars to quote in ZRPXQQ  */
+// #define ZRQNVH  (ZRRQWN|ZRRQQQ) /* Variable len hdr reqd to access info */
 
 /* Parameters for ZSINIT frame */
 #define ZATTNLEN 32     /* Max length of attention string */
-#define ALTCOFF ZF1     /* Offset to alternate canit string, 0 if not used */
+// #define ALTCOFF ZF1     /* Offset to alternate canit string, 0 if not used */
 /* Bit Masks for ZSINIT flags byte ZF0 */
 #define TESCCTL 0100    /* Transmitter expects ctl chars to be escaped */
 #define TESC8   0200    /* Transmitter expects 8th bit to be escaped */
@@ -130,9 +130,9 @@
 #define ZTRLE   3       /* Run Length encoding */
 /* Extended options for ZF3, bit encoded */
 #define ZXSPARS 64      /* Encoding for sparse file operations */
-#define ZCANVHDR        01      /* Variable headers OK */
+// #define ZCANVHDR        01      /* Variable headers OK */
 /* Receiver window size override */
-#define ZRWOVR 4        /* byte position for receive window override/256 */
+// #define ZRWOVR 4        /* byte position for receive window override/256 */
 
 /* Parameters for ZCOMMAND frame ZF0 (otherwise 0) */
 #define ZCACK1  1       /* Acknowledge, then do command */
@@ -154,13 +154,20 @@ char Attn[ZATTNLEN+1];  /* Attention string rx sends to tx on err */
 char *Altcan;           /* Alternate canit string */
 char Zsendmask[33];     /* Additional control characters to mask */
 int  Zctlesc;
-int  Usevhdrs;          /* Use variable length headers */
+//int  Usevhdrs;          /* Use variable length headers */
 
+enum zm_type_enum {
+    ZM_XMODEM,
+    ZM_YMODEM,
+    ZM_ZMODEM
+};
+
+enum zm_type_enum protocol;
 
 void	get_frame_buffer(void);
 void	free_frame_buffer(void);
-void	zsbhdr(int, int, register char *);
-void	zshhdr(int, int, register char *);
+void	zsbhdr(int, char *);
+void	zshhdr(int, char *);
 void	zsdata(register char *, int, int);
 int	zrdata(register char *, int);
 int	zrdat32(register char *, int);
