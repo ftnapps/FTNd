@@ -2114,7 +2114,8 @@ int	le_int(int);
 /*
  * From attach.c
  */
-int	attach(faddr, char *, int, char);
+int	attach(faddr, char *, int, char, int);
+int	un_attach(faddr, char *);
 
 
 

@@ -3,6 +3,10 @@ $Id$
 
 v0.61.2		11-Jul-2004
 
+	general:
+		Added -fno-strict-aliasing switch to gcc to prevent some
+		warnings.
+
 	libmbse.a:
 		Added logging for obsolete .tic files in .flo files.
 		When files are attached that should "leave" after sent (not

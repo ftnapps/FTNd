@@ -33,7 +33,14 @@
 
 
 
-int attach(faddr noden, char *ofile, int mode, char flavor)
+/*
+ * Attach a file to the real outbound fo a given node.
+ * If fdn == TRUE, the the file is a forwarded tic file, then
+ * make sure to see if there was an old file with the same name
+ * that the old attach is removed including the .tic file so
+ * that we will send the new file with the right .tic file.
+ */
+int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
 {
     FILE    *fp;
     char    *flofile, *thefile;
@@ -44,6 +51,14 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 
     if ((rc = file_exist(ofile, R_OK))) {
 	WriteError("attach: file %s failed, %s", ofile, strerror(rc));
+	return FALSE;
+    }
+
+    /*
+     * Check if we attach a file with the same name
+     */
+    if ((fdn) && (un_attach(noden, ofile) == FALSE)) {
+	WriteError("attach: can't un_attach %s, %s", ofile, strerror(rc));
 	return FALSE;
     }
 
@@ -109,33 +124,6 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	    break;
     }
 
-    fseek(fp, 0, SEEK_SET);
-    while (fgets(flofile, PATH_MAX -1, fp) != NULL) {
-	Striplf(flofile);
-	if (strncmp(flofile, thefile, strlen(thefile)) == 0) {
-	    Syslog('+', "attach: file %s already attached", ofile);
-	    /*
-	     * If one of the next entries in the .flo file is a .tic file
-	     * pointing to this file, we should remove that .tic file and
-	     * mark the entry in the .flo as sent. For the file with this
-	     * name, a new .tic file will be added.
-	     */
-	    while (fgets(flofile, PATH_MAX -1, fp) != NULL) {
-		Striplf(flofile);
-		if (strstr(flofile, (char *)".tic")) {
-		    /*
-		     * Check this .tic file
-		     */
-		    Syslog('f', "Should check %s to be deleted", flofile);
-		}
-	    }
-	    fclose(fp);
-	    free(flofile);
-	    free(thefile);
-	    return TRUE;
-	}
-    }
-
     fseek(fp, 0, SEEK_END);
     fprintf(fp, "%s\r\n", thefile);
     fclose(fp);
@@ -145,4 +133,14 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 }
 
 
+
+/*
+ * Remove a file from the flofile, also search for a .tic file.
+ */
+int un_attach(faddr node, char *filename)
+{
+    Syslog('p', "un_attach: %s %s", fido2faddr(node), filename);
+
+    return TRUE;
+}
 
