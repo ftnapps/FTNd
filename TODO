@@ -61,9 +61,6 @@ mbsebbs:
 	N: Translate characterset of messages to the users preferred 
            characterset. This is partly done for testing.
 
-	N: There are some bugs in the bbs list menu. Make it a door? YES! The
-	   bbslist is unsupported since 0.71.0. The door will be released soon.
-
 newuser:
 	L: Allow handles to be the same as the unixname. Most menus allow this,
 	   still needed?

@@ -3,6 +3,23 @@ $Id$
 
 v0.71.1		28-Nov-2004
 
+	upgrade:
+		Make sure you remove everything related to bbslist menus from
+		your menus and txtfiles.
+
+	mbsebbs:
+		The creation of the mailout semafore is now after the hangup
+		so that mbfido won't start before the bbs is finished.
+		Removed bbslist menus, this will become a door.
+
+	examples:
+		Removed bbs list items from the English menus and txtfiles and
+		the Spanish menus and txtfiles.
+
+	lang:
+		TODO: remove bbslist entries.
+
+
 v0.71.0		27-Oct-2004 - 28-Nov-2004
 
 	upgrade:

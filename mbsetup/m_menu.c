@@ -187,15 +187,13 @@ int GetMenuType(void)
     mbse_mvprintw( 9, 6, "3.  Message areas menus");
     mbse_mvprintw(10, 6, "4.  User setting menus");
     mbse_mvprintw(11, 6, "5.  Oneliner menus");
-    mbse_mvprintw(12, 6, "6.  BBS List menus");
 
-    switch (select_menu(6)) {
+    switch (select_menu(5)) {
 	case 1:	    return GetSubmenu(1, 22);
 	case 2:	    return GetSubmenu(101, 19);
 	case 3:	    return GetSubmenu(201, 21);
 	case 4:	    return GetSubmenu(301, 21);
 	case 5:	    return GetSubmenu(401, 5);
-	case 6:	    return GetSubmenu(501, 6);
 	default:    return 0; 
     }
 }

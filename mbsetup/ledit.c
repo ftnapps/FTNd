@@ -2222,13 +2222,6 @@ char *getmenutype(int val)
 		case 404:	return (char *)"Mark oneliner for deletion";
 		case 405:	return (char *)"Print a random oneliner";
 
-		case 501:	return (char *)"Add a BBS";
-		case 502:	return (char *)"List BBS's";
-		case 503:	return (char *)"Show a BBS";
-		case 504:	return (char *)"Mark a BBS for deletion";
-		case 505:	return (char *)"Print a BBS";
-		case 506:	return (char *)"Search for a BBS";
-
 		default:	return (char *)"Unknown menu";
 	}
 }

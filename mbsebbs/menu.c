@@ -34,7 +34,6 @@
 #include "../lib/users.h"
 #include "oneline.h"
 #include "mail.h"
-#include "bbslist.h"
 #include "change.h"
 #include "chat.h"
 #include "file.h"
@@ -682,26 +681,6 @@ void DoMenu(int Type)
 
 	case 405:
 		Oneliner_Print();
-		break;
-
-	case 501:
-		BBS_Add();
-		break;
-
-	case 502:
-		BBS_List();
-		break;
-
-	case 503:
-		BBS_Show();
-		break;
-
-	case 504:
-		BBS_Delete();
-		break;
-
-	case 506:
-		BBS_Search();
 		break;
 
 	default:

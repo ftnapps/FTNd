@@ -69,9 +69,6 @@ void Good_Bye(int onsig)
     if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0))
 	DisplayFile((char *)"goodbye");
 
-    if (do_mailout)
-	CreateSema((char *)"mailout");
-
     SaveLastCallers();
 
     /*
@@ -119,6 +116,9 @@ void Good_Bye(int onsig)
 
     cookedport();
     hangup();
+
+    if (do_mailout)
+	CreateSema((char *)"mailout");
 
     t_end = time(NULL);
     Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
