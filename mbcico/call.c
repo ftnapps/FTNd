@@ -212,13 +212,15 @@ int call(faddr *addr)
 
     /*
      * Call when:
-     *  there is a phone number or fqdn/ip-address
-     * and
-     *  nodenumber on commandline, or node is CM and not down, hold, pvt
-     * and
+     *  there is a phone number and node is not down, hold or pvt
+     *    or
+     *  there is a fqdn/ip-address and node is not down or hold
+     *
+     *      and
      *  nocall is false
      */
-    if ((forcedphone||inetaddr) && (((nlent->pflag & (NL_DUMMY|NL_DOWN|NL_HOLD|NL_PVT))==0) && ((localoptions & NOCALL)==0))) {
+    if (((forcedphone && ((nlent->pflag & (NL_DUMMY | NL_DOWN | NL_HOLD | NL_PVT)) == 0)) ||
+	 (inetaddr && ((nlent->pflag & (NL_DUMMY | NL_DOWN | NL_HOLD)) == 0))) && ((localoptions & NOCALL) == 0)) {
 	Syslog('+', "Calling %s (%s, phone %s)", ascfnode(addr,0x1f), nlent->name, forcedphone);
 	IsDoing("Call %s", ascfnode(addr, 0x0f));
 	rc = portopen(addr);
