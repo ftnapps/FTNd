@@ -57,8 +57,8 @@ mbsebbs:
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-	N: Translate characterset of messages to the users preferred characterset.
-	   This is partly done for testing.
+	N: Translate characterset of messages to the users preferred 
+           characterset. This is partly done for testing.
 
 	N: There are some bugs in the bbs list menu. Make it a door?
 
@@ -166,4 +166,8 @@ mbsetup:
 	   data.
 
 	N: When a message area is deleted, delete the rulesfile too.
+
+	N: In files browsing (menu 14) after leaving a file edit, show the
+	   group of 10 files where that file was in.
+
 
