@@ -40,14 +40,21 @@ typedef struct _nl_list {
 } nl_list;
 
 
+typedef struct _nl_user {
+    struct _nl_user	*next;
+    struct _nlusr	udx;
+} nl_user;
+
+
 #include "mbindex.h"
 
 
 FILE		*ifp, *ufp, *ffp;
-long		total = 0, entries = 0;
+long		total = 0, entries = 0, users = 0;
 int		filenr = 0;
 unsigned short	regio;
 nl_list		*nll = NULL;
+nl_user		*nlu = NULL;
 
 
 extern		int do_quiet;		/* Quiet flag			    */
@@ -289,6 +296,68 @@ void sort_nllist(nl_list **fap)
 
 
 
+void tidy_nluser(nl_user **fap)
+{
+    nl_user     *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+void fill_nluser(struct _nlusr udx, nl_user **fap)
+{
+    nl_user     *tmp;
+
+    tmp = (nl_user *)malloc(sizeof(nl_user));
+    tmp->next = *fap;
+    tmp->udx  = udx;
+    *fap = tmp;
+    users++;
+}
+
+
+
+void sort_nluser(nl_user **fap)
+{
+    nl_user     *ta, **vector;
+    size_t      n = 0, i;
+
+    if (*fap == NULL)
+	return;
+
+    for (ta = *fap; ta; ta = ta->next)
+	n++;
+
+    vector = (nl_user **)malloc(n * sizeof(nl_user *));
+
+    i = 0;
+    for (ta = *fap; ta; ta = ta->next) {
+	vector[i++] = ta;
+    }
+
+    qsort(vector, n, sizeof(nl_user *), (int(*)(const void*, const void *))comp_user);
+
+    (*fap) = vector[0];
+    i = 1;
+
+    for (ta = *fap; ta; ta = ta->next) {
+	if (i < n)
+	    ta->next = vector[i++];
+	else
+	    ta->next = NULL;
+    }
+
+    free(vector);
+    return;
+}
+
+
+
 int comp_node(nl_list **fap1, nl_list **fap2)
 {
     if ((*fap1)->idx.zone != (*fap2)->idx.zone)
@@ -299,6 +368,13 @@ int comp_node(nl_list **fap1, nl_list **fap2)
 	return ((*fap1)->idx.node - (*fap2)->idx.node);
     else
 	return ((*fap1)->idx.point - (*fap2)->idx.point);
+}
+
+
+
+int comp_user(nl_user **fap1, nl_user **fap2)
+{
+    return strcmp((*fap1)->udx.user, (*fap2)->udx.user);
 }
 
 
@@ -525,8 +601,10 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	 */
 	for (i = 0; i < 3; i++) {
 	    p = q;
-	    if (p == NULL)
+	    if (p == NULL) {
+		WriteError("%s(%u): invalid dataline", nlname,lineno);
 		continue;
+	    }
 	    if ((q = strchr(p, ',')))
 		*q++ = '\0';
 	    if (q == NULL)
@@ -539,15 +617,16 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	udx.net   = ndx.net;
 	udx.node  = ndx.node;
 	udx.point = ndx.point;
-	// FIXME: the record is filled, now do something with it!
 
 	/*
 	 *  Now search for the baudrate field, just to check if it's there.
 	 */
 	for (i = 0; i < 2; i++) {
 	    p = q;
-	    if (p == NULL)
+	    if (p == NULL) {
+		WriteError("%s(%u): invalid dataline", nlname,lineno);
 		continue;
+	    }
 	    if ((q = strchr(p, ',')))
 		*q++ = '\0';
 	    if (q == NULL)
@@ -570,6 +649,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	    }
 	} else
 	    fill_nllist(ndx, &nll);
+	fill_nluser(udx, &nlu);
     }
 
     fclose(nl);
@@ -696,69 +776,69 @@ char *pull_fdlist(fd_list **fdp)
 
 int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no)
 {
-	int		rc = 0, files = 0;
-	struct dirent	*de;
-	DIR		*dp;
-	char		*p = NULL, *q;
-	struct _nlfil	fdx;
-	fd_list		*fdl = NULL;
+    int		    rc = 0, files = 0;
+    struct dirent   *de;
+    DIR		    *dp;
+    char	    *p = NULL, *q;
+    struct _nlfil   fdx;
+    fd_list	    *fdl = NULL;
 
-	if (!strlen(base)) {
-		WriteError("Error, no nodelist defined for %d:%d/%d", zo, ne, no);
-		return 0;
-	}
+    if (!strlen(base)) {
+	WriteError("Error, no nodelist defined for %d:%d/%d", zo, ne, no);
+	return 0;
+    }
 
-	if ((dp = opendir(CFG.nodelists)) == NULL) {
-		WriteError("$Can't open dir %s", CFG.nodelists);
-		rc = 103;
-	} else {
-		while ((de = readdir(dp)))
-			if (strncmp(de->d_name, base, strlen(base)) == 0) {
-				/*
-				 *  Extension must be at least 2 digits
-				 */
-				q = (de->d_name) + strlen(base);
-				if ((*q == '.') && (strlen(q) > 2) &&
-				    (strspn(q+1,"0123456789") == (strlen(q)-1))) {
-					/*
-					 * Add matched filenames to the array
-					 */
-					fill_fdlist(&fdl, de->d_name, file_time(fullpath(de->d_name)));
-					files++;
-				}
-			}
-		closedir(dp);
-
-		if (files == 0) {
-			Syslog('+', "No nodelist found for %s", base);
-			return 103;
-		}
-
+    if ((dp = opendir(CFG.nodelists)) == NULL) {
+	WriteError("$Can't open dir %s", CFG.nodelists);
+	rc = MBERR_GENERAL;
+    } else {
+	while ((de = readdir(dp))) {
+	    if (strncmp(de->d_name, base, strlen(base)) == 0) {
 		/*
-		 * Sort found nodelists by age and kill all but the newest 2.
+		 *  Extension must be at least 2 digits
 		 */
-		sort_fdlist(&fdl);
-		while (files) {
-			p = pull_fdlist(&fdl);
-			if (files > 2) {
-				Syslog('+', "Remove old \"%s\"", p);
-				unlink(fullpath(p));
-			}
-			files--;
+		q = (de->d_name) + strlen(base);
+		if ((*q == '.') && (strlen(q) > 2) && (strspn(q+1,"0123456789") == (strlen(q)-1))) {
+		    /*
+		     * Add matched filenames to the array
+		     */
+		    fill_fdlist(&fdl, de->d_name, file_time(fullpath(de->d_name)));
+		    files++;
 		}
-		tidy_fdlist(&fdl); 
+	    }
+	}
+	closedir(dp);
 
-		memset(&fdx, 0, sizeof(fdx));
-		sprintf(fdx.filename, "%s", p);
-		sprintf(fdx.domain, "%s", fidonet.domain);
-		fdx.number = filenr;
-		fwrite(&fdx, sizeof(fdx), 1, ffp);
-
-		rc = compile(p, zo, ne, no);
-		filenr++;
+	if (files == 0) {
+	    Syslog('+', "No nodelist found for %s", base);
+	    return MBERR_GENERAL;
 	}
 
-	return rc;
+	/*
+	 * Sort found nodelists by age and kill all but the newest 2.
+	 */
+	sort_fdlist(&fdl);
+	while (files) {
+	    p = pull_fdlist(&fdl);
+	    if (files > 2) {
+		Syslog('+', "Remove old \"%s\"", p);
+		unlink(fullpath(p));
+	    }
+	    files--;
+	}
+	tidy_fdlist(&fdl); 
+
+	memset(&fdx, 0, sizeof(fdx));
+	sprintf(fdx.filename, "%s", p);
+	sprintf(fdx.domain, "%s", fidonet.domain);
+	fdx.number = filenr;
+	fwrite(&fdx, sizeof(fdx), 1, ffp);
+
+	rc = compile(p, zo, ne, no);
+	filenr++;
+    }
+
+    return rc;
 }
 
 
@@ -770,6 +850,7 @@ int nodebld(void)
     struct _nlfil   fdx;
     FILE	    *fp;
     nl_list	    *tmp;
+    nl_user	    *tmu;
 
     memset(&fdx, 0, sizeof(fdx));
     im = xstrcpy(fullpath((char *)"temp.index"));
@@ -827,17 +908,23 @@ int nodebld(void)
 	fclose(fp);
     }
 
-    fclose(ufp);
     fclose(ffp);
 
     if (rc == 0) {
 	IsDoing("Sorting nodes");
 	sort_nllist(&nll);
 
+	IsDoing("Sorting users");
+	sort_nluser(&nlu);
+
 	IsDoing("Writing files");
 	for (tmp = nll; tmp; tmp = tmp->next)
 	    fwrite(&tmp->idx, sizeof(struct _nlidx), 1, ifp);
 	fclose(ifp);
+
+	for (tmu = nlu; tmu; tmu = tmu->next)
+	    fwrite(&tmu->udx, sizeof(struct _nlusr), 1, ufp);
+	fclose(ufp);
 
 	Syslog('+', "Compiled %d entries", total);
 

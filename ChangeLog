@@ -28,6 +28,7 @@ v0.61.1		20-Jun-2004.
 		Code cleanup for nodelist processing.
 		Added a extra check to see if nodelist datalines are valid to
 		prevent segfaults on Skynet nodelists.
+		Does finally compile a username index.
 
 	mbnntp:
 		If compiled in full newsmode, this program acts like a dummy.

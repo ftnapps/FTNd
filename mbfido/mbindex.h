@@ -25,6 +25,9 @@ int	makelist(char *, unsigned short, unsigned short, unsigned short);
 void	tidy_nllist(nl_list **);
 int	in_nllist(struct _nlidx, nl_list **, int);
 void	fill_nllist(struct _nlidx, nl_list **);
+void    tidy_nluser(nl_user **);
+void    fill_nluser(struct _nlusr, nl_user **);
+int	comp_user(nl_user **, nl_user **);
 int	comp_node(nl_list **, nl_list **);
 int	nodebld(void);
 

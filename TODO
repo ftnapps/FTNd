@@ -139,9 +139,6 @@ mbfile:
 mbaff:
 	L: Rewrite filefind search algorithm.
 
-mbindex:
-	X: Add usernames index.
-
 mbsetup:
 	N: Add a check for double areatag names.
 
