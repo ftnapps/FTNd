@@ -37,6 +37,9 @@ v0.37.7		09-Sep-2003
 		Debug logging is now in a separate file, the normal logging is
 		now only in the normal logfiles.
 
+	mbcico:
+		Fixed MB state error from the previous version.
+
 	mbtask:
 		Added support for debug logfile. Dropped the debug switch for
 		mbtask logging, this is now allways on.

@@ -106,7 +106,7 @@ typedef enum {RxWaitFile, RxAcceptFile, RxReceData, RxWriteData, RxEndOfBatch, R
 typedef enum {TxGetNextFile, TxTryRead, TxReadSend, TxWaitLastAck, TxDone} TxType;
 typedef enum {InitTransfer, Switch, Receive, Transmit} TransferType;
 typedef enum {Ok, Failure, Continue} TrType;
-typedef enum {No, WeCan, TheyWant, Active} OptionState;
+typedef enum {No, WeCan, WeWant, TheyWant, Active} OptionState;
 
 static int	RxState;			/* Receiver state		    */
 static int	TxState;			/* Transmitter state		    */
@@ -198,6 +198,8 @@ int binkp(int role)
 
     Syslog('+', "Binkp: end transfer rc=%d", rc);
     closetcp();
+
+    Syslog('b', "2nd batch or not, MB flag =%d", MBflag);
 
     if (MBflag != Active) {
 	/*
@@ -492,8 +494,16 @@ void b_nul(char *msg)
 	Syslog('+', "Binkp: remote has %s mail/files for us", msg+4);
     else if (strncmp(msg, "OPT ", 4) == 0) {
 	Syslog('+', "Options : %s", msg+4);
-	if ((strstr(msg, (char *)"MB") != NULL) && (MBflag == WeCan))
-	    MBflag = TheyWant;
+	if (strstr(msg, (char *)"MB") != NULL) {
+	    Syslog('b', "Remote requests MB, current state = %d", MBflag);
+	    if (MBflag == WeCan) {	    /* Answering session and do binkp/1.0   */
+		MBflag = TheyWant;
+		Syslog('b', "MB flag set to TheyWant");
+	    } else if (MBflag == WeWant) {  /* Originating session and do binkp/1.0 */
+		MBflag = Active;
+		Syslog('b', "MB flag set to Active");
+	    }
+	}
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
 	    if (CFG.NoMD5) {
 		Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
@@ -553,8 +563,10 @@ SM_STATE(WaitConn)
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
     p = xstrcpy((char *)"OPT");
-    if (MBflag == WeCan)
+    if (MBflag == WeCan) {
 	p = xstrcat(p, (char *)" MB");
+	MBflag = WeWant;
+    }
     if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32)
 	p = xstrcat(p, (char *)" CRC");
     if (strcmp(p, (char *)"OPT"))
