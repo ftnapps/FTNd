@@ -69,6 +69,8 @@ mbfido:
 	N: The first file received in a not yet created tic area is refused
 	   after the area is created: node xxx not connected to area xxx.
 
+	N: Doesn't erase netmail.jam and/or echomail.jam after a full mailscan.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

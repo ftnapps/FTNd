@@ -39,74 +39,81 @@
 
 int attach(faddr noden, char *ofile, int mode, char flavor)
 {
-	FILE		*fp;
-	char		*flofile;
+    FILE    *fp;
+    char    *flofile;
+    int	    rc;
 
-	if (ofile == NULL)
-		return FALSE;
+    if (ofile == NULL)
+	return FALSE;
 
-	flofile = calloc(PATH_MAX, sizeof(char));
-	sprintf(flofile, "%s", floname(&noden, flavor));
+    if ((rc = file_exist(ofile, R_OK))) {
+	WriteError("attach: file %s failed, %s", ofile, strerror(rc));
+	return FALSE;
+    }
 
-	/*
-	 * Check if outbound directory exists and 
-	 * create if it doesn't exist.
-	 */
-	mkdirs(ofile, 0770);
+    flofile = calloc(PATH_MAX, sizeof(char));
+    sprintf(flofile, "%s", floname(&noden, flavor));
 
-	/*
-	 *  Attach file to .flo
-	 *
-	 *  Note that mbcico when connected to a node opens the file "r+",
-	 *  locks it with fcntl(F_SETLK), F_RDLCK, whence=0, start=0L, len=0L.
-	 *  It seems that this lock is released after the files in the .flo
-	 *  files are send. I don't know what will happen if we add entries
-	 *  to the .flo files, this must be tested!
-	 */
-	if ((fp = fopen(flofile, "a+")) == NULL) {
-		WriteError("$Can't open %s", flofile);
-		WriteError("May be locked by mbcico");
-		free(flofile);
-		return FALSE;
-	}
+    /*
+     * Check if outbound directory exists and 
+     * create if it doesn't exist.
+     */
+    mkdirs(ofile, 0770);
 
-	switch (mode) {
-		case LEAVE:
-			if (strlen(CFG.dospath)) {
-				if (CFG.leavecase)
-					fprintf(fp, "%s\r\n", Unix2Dos(ofile));
-				else
-					fprintf(fp, "%s\r\n", tu(Unix2Dos(ofile)));
-			} else {
-				fprintf(fp, "%s\r\n", ofile);
-			}
-			break;
-		case KFS:
-			if (strlen(CFG.dospath)) {
-				if (CFG.leavecase)
-					fprintf(fp, "^%s\r\n", Unix2Dos(ofile));
-				else
-					fprintf(fp, "^%s\r\n", tu(Unix2Dos(ofile)));
-			} else {
-				fprintf(fp, "^%s\r\n", ofile);
-			}
-			break;
-
-		case TFS:
-			if (strlen(CFG.dospath)) {
-				if (CFG.leavecase)
-					fprintf(fp, "#%s\r\n", Unix2Dos(ofile));
-				else
-					fprintf(fp, "#%s\r\n", tu(Unix2Dos(ofile)));
-			} else {
-				fprintf(fp, "#%s\r\n", ofile);
-			}
-			break;
-	}
-
-	fclose(fp);
+    /*
+     *  Attach file to .flo
+     *
+     *  Note that mbcico when connected to a node opens the file "r+",
+     *  locks it with fcntl(F_SETLK), F_RDLCK, whence=0, start=0L, len=0L.
+     *  It seems that this lock is released after the files in the .flo
+     *  files are send. I don't know what will happen if we add entries
+     *  to the .flo files, this must be tested!
+     */
+    if ((fp = fopen(flofile, "a+")) == NULL) {
+	WriteError("$Can't open %s", flofile);
+	WriteError("May be locked by mbcico");
 	free(flofile);
-	return TRUE;
+	return FALSE;
+    }
+
+    switch (mode) {
+	case LEAVE:
+	    if (strlen(CFG.dospath)) {
+		if (CFG.leavecase)
+		    fprintf(fp, "%s\r\n", Unix2Dos(ofile));
+		else
+		    fprintf(fp, "%s\r\n", tu(Unix2Dos(ofile)));
+	    } else {
+		fprintf(fp, "%s\r\n", ofile);
+	    }
+	    break;
+
+	case KFS:
+	    if (strlen(CFG.dospath)) {
+		if (CFG.leavecase)
+		    fprintf(fp, "^%s\r\n", Unix2Dos(ofile));
+		else
+		    fprintf(fp, "^%s\r\n", tu(Unix2Dos(ofile)));
+	    } else {
+		fprintf(fp, "^%s\r\n", ofile);
+	    }
+	    break;
+
+	case TFS:
+	    if (strlen(CFG.dospath)) {
+		if (CFG.leavecase)
+		    fprintf(fp, "#%s\r\n", Unix2Dos(ofile));
+		else
+		    fprintf(fp, "#%s\r\n", tu(Unix2Dos(ofile)));
+	    } else {
+		fprintf(fp, "#%s\r\n", ofile);
+	    }
+	    break;
+    }
+
+    fclose(fp);
+    free(flofile);
+    return TRUE;
 }
 
 
