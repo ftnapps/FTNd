@@ -1156,7 +1156,6 @@ int EditMsgRec(int Area)
 	    case 5: sprintf(oldpath, "%s", msgs.Base);
 		    strcpy(msgs.Base, edit_jam(10,16,64,msgs.Base ,(char *)"The path to the ^JAM Message Base^"));
 		    if (strcmp(oldpath, msgs.Base)) {
-			Syslog('+', "JAM path changed");
 			i = 0;
 			temp = calloc(PATH_MAX, sizeof(char));
 			sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
@@ -1177,7 +1176,8 @@ int EditMsgRec(int Area)
 				}
 			    }
 			    fclose(fil);
-			    Syslog('+', "Updated %d paths in %s", i, temp);
+			    if (i)
+				Syslog('+', "Updated %d paths in %s", i, temp);
 			}
 
 			i = 0;
@@ -1194,7 +1194,8 @@ int EditMsgRec(int Area)
 				fseek(fil, newfileshdr.grpsize, SEEK_CUR);
 			    }
 			    fclose(fil);
-			    Syslog('+', "Updated %d paths in %s", i, temp);
+			    if (i)
+				Syslog('+', "Updated %d paths in %s", i, temp);
 			}
 			free(temp);
 			Forced = TRUE;
