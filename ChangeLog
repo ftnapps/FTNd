@@ -16,6 +16,8 @@ v0.61.3		25-Jul-2004
 	general:
 		With the newer versions of dosemu running doors as user finally
 		works. To migrate you need to read doors.html.
+		Changed security of most directories and files to allow only
+		bbs users.
 
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 

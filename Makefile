@@ -40,189 +40,73 @@ install:
 		@if [ -z ${PREFIX} ] ; then \
 			echo; echo "PREFIX is not set!"; echo; exit 3; \
 		fi
-		@if [ ! -d ${PREFIX}/bin ] ; then \
-			mkdir ${PREFIX}/bin ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/bin ; \
-		fi
-		@if [ ! -d ${PREFIX}/etc ] ; then \
-			mkdir ${PREFIX}/etc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc ; \
-		fi
-		@chmod 0775 ${PREFIX}/etc
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/bin
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/etc
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/etc/dosemu
 		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
 			chmod 0660 ${PREFIX}/etc/lastcall.data ; \
 		fi
 		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
 			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
 		fi
-		@if [ ! -d ${PREFIX}/share ] ; then \
-			mkdir ${PREFIX}/share ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share ; \
-		fi
-		@if [ ! -d ${PREFIX}/share/doc ] ; then \
-			mkdir ${PREFIX}/share/doc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share/doc ; \
-		fi
-		@if [ ! -d ${PREFIX}/fdb ] ; then \
-			mkdir ${PREFIX}/fdb ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/fdb ; \
-		fi
-		@chmod 0775 ${PREFIX}/fdb
-		@if [ ! -d ${PREFIX}/log ] ; then \
-			mkdir ${PREFIX}/log ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/log ; \
-		fi
-		@chmod 0775 ${PREFIX}/log
-		@if [ ! -d ${PREFIX}/magic ] ; then \
-			mkdir ${PREFIX}/magic ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/magic ; \
-		fi
-		@if [ ! -d ${PREFIX}/sema ] ; then \
-			mkdir ${PREFIX}/sema ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/sema ; \
-		fi
-		@chmod 0777 ${PREFIX}/sema
-		@if [ ! -d ${PREFIX}/var ] ; then \
-			mkdir ${PREFIX}/var ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var ; \
-		fi
-		@if [ ! -d ${PREFIX}/tmp ] ; then \
-			mkdir ${PREFIX}/tmp ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/tmp ; \
-		fi
-		@chmod 0775 ${PREFIX}/tmp
-		@if [ ! -d ${PREFIX}/dutch ] ; then \
-			mkdir ${PREFIX}/dutch ; \
-			mkdir ${PREFIX}/dutch/txtfiles ; \
-			mkdir ${PREFIX}/dutch/menus ; \
-			mkdir ${PREFIX}/dutch/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/dutch ; \
-		fi
-		@chmod 0775 ${PREFIX}/dutch/txtfiles
-		@if [ ! -d ${PREFIX}/english ] ; then \
-			mkdir ${PREFIX}/english ; \
-			mkdir ${PREFIX}/english/txtfiles ; \
-			mkdir ${PREFIX}/english/menus ; \
-			mkdir ${PREFIX}/english/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/english ; \
-		fi
-		@chmod 0775 ${PREFIX}/english/txtfiles
-		@if [ ! -d ${PREFIX}/italian ] ; then \
-			mkdir ${PREFIX}/italian ; \
-			mkdir ${PREFIX}/italian/txtfiles ; \
-			mkdir ${PREFIX}/italian/menus ; \
-			mkdir ${PREFIX}/italian/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/italian ; \
-		fi
-		@chmod 0775 ${PREFIX}/italian/txtfiles
-		@if [ ! -d ${PREFIX}/spanish ] ; then \
-			mkdir ${PREFIX}/spanish ; \
-			mkdir ${PREFIX}/spanish/txtfiles ; \
-			mkdir ${PREFIX}/spanish/menus ; \
-			mkdir ${PREFIX}/spanish/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/spanish ; \
-		fi
-		@chmod 0775 ${PREFIX}/spanish/txtfiles
-		@if [ ! -d ${PREFIX}/galego ] ; then \
-			mkdir ${PREFIX}/galego ; \
-			mkdir ${PREFIX}/galego/txtfiles ; \
-			mkdir ${PREFIX}/galego/menus ; \
-			mkdir ${PREFIX}/galego/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/galego ; \
-		fi
-		@chmod 0775 ${PREFIX}/galego/txtfiles
-		@if [ ! -d ${PREFIX}/german ] ; then \
-			mkdir ${PREFIX}/german; \
-			mkdir ${PREFIX}/german/txtfiles ; \
-			mkdir ${PREFIX}/german/menus ; \
-			mkdir ${PREFIX}/german/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/german; \
-		fi
-		@chmod 0775 ${PREFIX}/german/txtfiles
-		@if [ ! -d ${PREFIX}/french ] ; then \
-			mkdir ${PREFIX}/french; \
-			mkdir ${PREFIX}/french/txtfiles ; \
-			mkdir ${PREFIX}/french/menus ; \
-			mkdir ${PREFIX}/french/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/french; \
-		fi
-		@chmod 0775 ${PREFIX}/french/txtfiles
-		@if [ ! -d ${PREFIX}/ftp ] ; then \
-			mkdir ${PREFIX}/ftp ; \
-			mkdir ${PREFIX}/ftp/pub ; \
-			mkdir ${PREFIX}/ftp/incoming ; \
-			mkdir ${PREFIX}/ftp/pub/local ; \
-			${CHOWN} `id -un`:`id -gn` ${PREFIX}/ftp ; \
-			chmod 0755 ${PREFIX}/ftp ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/ftp/pub ; \
-			chmod 0755 ${PREFIX}/ftp/pub ; \
-			${CHOWN} `id -un`:`id -gn` ${PREFIX}/ftp/incoming ; \
-			chmod 0755 ${PREFIX}/ftp/incoming ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/ftp/pub/local ; \
-			chmod 0755 ${PREFIX}/ftp/pub/local ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/bso ] ; then \
-			mkdir ${PREFIX}/var/nodelist ; \
-			mkdir ${PREFIX}/var/bso ; \
-			mkdir ${PREFIX}/var/bso/outbound ; \
-			mkdir ${PREFIX}/var/queue ; \
-			mkdir ${PREFIX}/var/msgs; \
-			mkdir ${PREFIX}/var/badtic ; \
-			mkdir ${PREFIX}/var/ticqueue ; \
-			mkdir ${PREFIX}/var/mail ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/var ; \
-			chmod -R 0750 ${PREFIX}/var ; \
-		fi
-		@chmod 0770 ${PREFIX}/var/msgs
-		@if [ ! -d ${PREFIX}/var/boxes ]; then \
-			mkdir ${PREFIX}/var/boxes ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/boxes ; \
-		fi
-		@chmod 0770 ${PREFIX}/var/boxes
-		@if [ ! -d ${PREFIX}/var/rules ]; then \
-			mkdir ${PREFIX}/var/rules ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/rules ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/run ]; then \
-			mkdir ${PREFIX}/var/run ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/run ; \
-		fi
-		@if [ -d ${PREFIX}/var/inbound/tmp ]; then \
-			rmdir ${PREFIX}/var/inbound/tmp ; \
-			echo "Removed ${PREFIX}/var/inbound/tmp" ; \
-		fi
-		@chmod 0770 ${PREFIX}/var/rules
-		@chmod 0770 ${PREFIX}/var/run
-		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
-			mkdir ${PREFIX}/var/unknown ; \
-			mkdir ${PREFIX}/var/inbound ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/unknown ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/inbound ; \
-			chmod 0750 ${PREFIX}/var/unknown ; \
-			chmod 0750 ${PREFIX}/var/inbound ; \
-		fi
-		@chmod 0770 ${PREFIX}/var
-		@chmod 0770 ${PREFIX}/var/mail
-		@if [ ! -d ${PREFIX}/var/arealists ] ; then \
-			mkdir ${PREFIX}/var/arealists ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/arealists ; \
-			chmod 0750 ${PREFIX}/var/arealists ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/dosemu ]; then \
-			mkdir ${PREFIX}/var/dosemu ; \
-			chmod 0770 ${PREFIX}/var/dosemu ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/dosemu ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/dosemu/c ]; then \
-			mkdir ${PREFIX}/var/dosemu/c ; \
-			chmod 0770 ${PREFIX}/var/dosemu/c ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/dosemu/c ; \
-		fi
-		@if [ ! -d ${PREFIX}/etc/dosemu ]; then \
-			mkdir ${PREFIX}/etc/dosemu ; \
-			chmod 0750 ${PREFIX}/etc/dosemu ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc/dosemu ; \
-		fi
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/html
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/tags
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/fdb
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/magic
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/sema
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/tmp
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/home
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/dutch/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/dutch/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/english
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/english/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/english/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/italian
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/italian/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/italian/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/italian/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/spanish
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/spanish/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/spanish/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/spanish/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/galego
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/galego/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/galego/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/galego/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/german
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/german/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/german/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/german/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/french
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/french/txtfiles
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/menus
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/macro
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/ftp/pub/local
+		${INSTALL} -d -o ${ROWNER} -g ${RGROUP} -m 0750 ${PREFIX}/ftp/incoming
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/arealists
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/badtic
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/boxes
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/bso
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/bso/outbound
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/boxes
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/dosemu
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/dosemu/c
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/hatch
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/inbound
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/mail
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/msgs
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/nodelist
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/queue
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/rules
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/run
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/ticqueue
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/unknown
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
 			rm ${BINDIR}/mbtelnetd ; \
 			echo "removed ${BINDIR}/mbtelnetd"; \
@@ -232,6 +116,7 @@ install:
 			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
 			echo "you may remove that obsolete directory." ; \
 		fi
+
 dist tar:	${TARFILE}
 
 clean:

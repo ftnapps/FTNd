@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 09-Aug-2004</h5></div>
+<div align="right"><h5>Last update 11-Aug-2004</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -42,43 +42,43 @@ MBSE BBS is default installed in <b>/opt/mbse</b>. The default filesystem
 layout looks like this:<br>
 <pre>
 /opt/mbse                      0775  Default MBSE_ROOT
-/opt/mbse/bin                  0755  Binaries
-/opt/mbse/dutch/macro          0755  Dutch macro files
-/opt/mbse/dutch/menus          0755  Dutch menu files
-/opt/mbse/dutch/txtfiles       0755  Dutch ANSI files
-/opt/mbse/english/macro        0755  Default english macro files
-/opt/mbse/english/menus        0755  Default english menu files
-/opt/mbse/english/txtfiles     0755  Default english ANSI files
-/opt/mbse/etc                  0775  System configuration files
+/opt/mbse/bin                  0770  Binaries
+/opt/mbse/dutch/macro          0750  Dutch macro files
+/opt/mbse/dutch/menus          0750  Dutch menu files
+/opt/mbse/dutch/txtfiles       0770  Dutch ANSI files
+/opt/mbse/english/macro        0750  Default english macro files
+/opt/mbse/english/menus        0750  Default english menu files
+/opt/mbse/english/txtfiles     0770  Default english ANSI files
+/opt/mbse/etc                  0770  System configuration files
 /opt/mbse/etc/dosemu           0750  DOSemu configuration files
-/opt/mbse/fdb                  0775  Files database
-/opt/mbse/ftp/pub              0775  Default FTP root for download areas.
-/opt/mbse/galego/macro         0755  Galego macro files
-/opt/mbse/galego/menus         0755  Galego menu files
-/opt/mbse/galego/txtfiles      0755  Galego ANSI files
+/opt/mbse/fdb                  0770  Files database
+/opt/mbse/ftp/pub              0755  Default FTP root for download areas.
+/opt/mbse/galego/macro         0750  Galego macro files
+/opt/mbse/galego/menus         0750  Galego menu files
+/opt/mbse/galego/txtfiles      0770  Galego ANSI files
 /opt/mbse/home                 0770  Users homedirectories
 /opt/mbse/home/bbs             0770  Newuser account
 /opt/mbse/html                 0755  HTML documentation
-/opt/mbse/italian/macro        0755  Italian macro files
-/opt/mbse/italian/menus        0755  Italian menu files
-/opt/mbse/italian/txtfiles     0755  Italian ANSI files
-/opt/mbse/log                  0775  MBSE BBS logfiles
-/opt/mbse/magic                0755  Magic filerequest names
+/opt/mbse/italian/macro        0750  Italian macro files
+/opt/mbse/italian/menus        0750  Italian menu files
+/opt/mbse/italian/txtfiles     0770  Italian ANSI files
+/opt/mbse/log                  0770  MBSE BBS logfiles
+/opt/mbse/magic                0750  Magic filerequest names
 /opt/mbse/sema                 0777  Semafore files
-/opt/mbse/share/doc            0755  Generated sitedocs
-/opt/mbse/share/doc/html       0755  Generated html sitedocs
-/opt/mbse/share/doc/tags       0755  Generated area tags
-/opt/mbse/spanish/macro        0755  Spanish macro files
-/opt/mbse/spanish/menus        0755  Spanish menu files
-/opt/mbse/spanish/txtfiles     0755  Spanish ANSI files
-/opt/mbse/tmp                  0775  Temp directory
-/opt/mbse/tmp/arc              0775  Temp archiver directory
+/opt/mbse/share/doc            0750  Generated sitedocs
+/opt/mbse/share/doc/html       0750  Generated html sitedocs
+/opt/mbse/share/doc/tags       0750  Generated area tags
+/opt/mbse/spanish/macro        0750  Spanish macro files
+/opt/mbse/spanish/menus        0750  Spanish menu files
+/opt/mbse/spanish/txtfiles     0770  Spanish ANSI files
+/opt/mbse/tmp                  0770  Temp directory
+/opt/mbse/tmp/arc              0770  Temp archiver directory
 /opt/mbse/var                  0770  Var root
 /opt/mbse/var/arealists        0750  Areamgr arealist files
 /opt/mbse/var/badtic           0750  Bad TIC files
 /opt/mbse/var/boxes            0770  Base for nodes fileboxes
-/opt/mbse/var/bso              0750  Binkley Style Outbound directory
-/opt/mbse/var/bso/outbound     0750  Default outbound for main aka
+/opt/mbse/var/bso              0770  Binkley Style Outbound directory
+/opt/mbse/var/bso/outbound     0770  Default outbound for main aka
 /opt/mbse/var/dosemu           0770  Base for DOS drives
 /opt/mbse/var/dosemu/c         0770  DOS drive C:
 /opt/mbse/var/inbound          0750  Protected inbound directory
