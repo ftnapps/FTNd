@@ -8248,7 +8248,7 @@ echo "${ECHO_T}$vpop" >&6
 done
 
 
-                                                                                ac_config_files="$ac_config_files Makefile.global paths.h unix/login.defs INSTALL FILE_ID.DIZ script/editor html/index.htm html/basic.html"
+                                                                                          ac_config_files="$ac_config_files Makefile.global paths.h unix/login.defs INSTALL FILE_ID.DIZ script/editor html/index.htm html/basic.html html/upgrade.html"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -8790,6 +8790,7 @@ do
   "script/editor" ) CONFIG_FILES="$CONFIG_FILES script/editor" ;;
   "html/index.htm" ) CONFIG_FILES="$CONFIG_FILES html/index.htm" ;;
   "html/basic.html" ) CONFIG_FILES="$CONFIG_FILES html/basic.html" ;;
+  "html/upgrade.html" ) CONFIG_FILES="$CONFIG_FILES html/upgrade.html" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

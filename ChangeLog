@@ -30,6 +30,20 @@ v0.39.7		14-Jan-2004
 	mbtask:
 		Will call points if a call method is available.
 
+	script:
+		New scripts are installed with an extension of .new, you need
+		to check yourself if you can use them to replace your own
+		possible modified scripts.
+		Updated the hatch script to abort if it's not configured.
+		If the user skips to hatch a file, the questions for the magic
+		and replace command are not shown anymore.
+
+	examples:
+		Changed Dutch newfiles template file.
+
+	html:
+		Added upgrade procedure.
+
 
 v0.39.6		11-Jan-2004 - 14-Jan-2004
 

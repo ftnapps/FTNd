@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 09-Nov-2003</h5></div>
+<div align="right"><h5>Last update 21-Jan-2004</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -166,7 +166,7 @@ rm -Rf mbsebbs-@VERSION@
 Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
 While in mbse's home directory (/opt/mbse) unpack the distribution archives:
 <pre>
-tar xfvz /path/to/mbsebbs-@VERSION@.tar.bz2
+tar xfvj /path/to/mbsebbs-@VERSION@.tar.bz2
 </pre>
 You now have the subdirectory with sources in the right place. 
 Next build the binaries and install them using the following commands:

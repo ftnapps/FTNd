@@ -5,7 +5,7 @@
 # Hatch script for MBSE BBS.
 #
 #============================================================================
-# Copyright (C) 1997-2002
+# Copyright (C) 1997-2004
 #   
 # Michiel Broek                FIDO:           2:280/2802
 # Beekmansbos 10
@@ -31,15 +31,20 @@
 #
 # Global settings, change as needed:
 #
-# Password, see menu 1.13.2
+# Password, see menu 1.10.2
 # 
 HATCHPWD="DizIzMyBIGseeKret"
 INBOUND=$MBSE_ROOT/var/inbound
-HVERSION="1.0.1"
+HVERSION="1.0.2"
 
 
 if [ "`id -un`" != "mbse" ]; then
     echo "This program may only be used by user 'mbse'"
+    exit 1
+fi
+
+if [ "DizIzMyBIGseeKret" == "${HATCHPWD}" ]; then
+    echo "This script is not yet configured, first edit this script before use!"
     exit 1
 fi
 
@@ -79,13 +84,13 @@ do
 	echo -e "Enter description for $f (empty is skip file)"
 	echo -n ": "
 	read DESC
-	echo -e "Replace filename (empty is none)"
-	echo -n ": "
-	read REPL
-	echo -e "Magic filename (empty is no magic)"
-	echo -n ": "
-	read MAGIC
 	if [ ! -z "$DESC" ]; then
+	    echo -e "Replace filename (empty is none)"
+	    echo -n ": "
+	    read REPL
+	    echo -e "Magic filename (empty is no magic)"
+	    echo -n ": "
+	    read MAGIC
 	    let i=i+1
 	    FILE=$INBOUND/`$MBSE_ROOT/bin/mbseq`.tic
 	    echo "Hatch" > $FILE

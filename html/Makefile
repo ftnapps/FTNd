@@ -73,9 +73,9 @@ H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/hatch.html     setup/virscan.html  setup/services.html \
 		  setup/domains.html   setup/taskmgr.html  setup/route.html
 
-H_OTHER		= index.htm basic.html
+H_OTHER		= index.htm basic.html upgrade.html
 
-H_IN		= index.htm.in basic.html.in
+H_IN		= index.htm.in basic.html.in upgrade.html.in
 
 FILES		= $(H_IN) $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
 

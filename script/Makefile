@@ -19,24 +19,39 @@ install:
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
 		@if [ ! -x ${ETCDIR}/maint ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR} ; \
-			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 maint       ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 maint       ${ETCDIR}" ; \
+		else \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 maint       ${ETCDIR}/maint.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 maint       ${ETCDIR}/maint.new" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/midnight ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR} ; \
-			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 midnight    ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 midnight    ${ETCDIR}" ; \
+		else \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 midnight    ${ETCDIR}/midnight.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 midnight    ${ETCDIR}/midnight.new" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/weekly ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR} ; \
-			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 weekly      ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 weekly      ${ETCDIR}" ; \
+		else \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 weekly      ${ETCDIR}/weekly.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 weekly      ${ETCDIR}/weekly.new" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/monthly ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR} ; \
-			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 monthly     ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 monthly     ${ETCDIR}" ; \
+		else \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 monthly     ${ETCDIR}/monthly.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 monthly     ${ETCDIR}/monthly.new" ; \
 		fi
 		@if [ ! -x ${BINDIR}/hatch ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR} ; \
-			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 hatch       ${BINDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0744 hatch       ${BINDIR}" ; \
+		else  \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 hatch       ${BINDIR}/hatch.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 hatch       ${BINDIR}/hatch/new" ; \
 		fi
 		@if [ -x ${JOEBIN}/joe ]; then \
 			echo "Installing support for joe editor" ; \
@@ -60,6 +75,11 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}" ; \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}" ; \
+		else \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 bbsdoor.sh  ${BINDIR}/bbsdoor.sh.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 bbsdoor.sh  ${BINDIR}/bbsdoor.sh.new" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 rundoor.sh  ${BINDIR}/rundoor.sh.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 rundoor.sh  ${BINDIR}/rundoor.sh.new" ; \
 		fi
 		@bash ./installinit.sh
 

@@ -345,6 +345,7 @@ AC_OUTPUT(
 	script/editor
 	html/index.htm
 	html/basic.html
+	html/upgrade.html
 )
 
 #=================================================================================
