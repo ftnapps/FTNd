@@ -211,14 +211,17 @@ install:
 		@if [ ! -d ${PREFIX}/var/dosemu ]; then \
 			mkdir ${PREFIX}/var/dosemu ; \
 			chmod 0770 ${PREFIX}/var/dosemu ; \
+			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/dosemu ; \
 		fi
 		@if [ ! -d ${PREFIX}/var/dosemu/c ]; then \
 			mkdir ${PREFIX}/var/dosemu/c ; \
 			chmod 0770 ${PREFIX}/var/dosemu/c ; \
+			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/dosemu/c ; \
 		fi
 		@if [ ! -d ${PREFIX}/etc/dosemu ]; then \
 			mkdir ${PREFIX}/etc/dosemu ; \
 			chmod 0750 ${PREFIX}/etc/dosemu ; \
+			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc/dosemu ; \
 		fi
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
 			rm ${BINDIR}/mbtelnetd ; \
