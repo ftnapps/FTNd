@@ -22,7 +22,7 @@ NODELIST_SRCS	= nodelist.c
 NODELIST_OBJS	= nodelist.o
 NODELIST_HDRS	= nodelist.h
 DBASE_SRCS	= dbcfg.c dbdupe.c dbftn.c dbmsgs.c dbnode.c dbtic.c dbuser.c dbfdb.c
-DBASE_OBJS	= dbcfg.o dbdupe.o dbftn.o dbmsgs.o dbnode.o dbtic.o dbuser.o dbfdb.h
+DBASE_OBJS	= dbcfg.o dbdupe.o dbftn.o dbmsgs.o dbnode.o dbtic.o dbuser.o dbfdb.o
 DBASE_HDRS	= mbsedb.h
 MSGBASE_SRCS	= jammsg.c msg.c msgtext.c
 MSGBASE_OBJS	= jammsg.o msg.o msgtext.o
@@ -173,6 +173,7 @@ dbmsgs.o: ../config.h mbselib.h users.h mbsedb.h
 dbnode.o: ../config.h mbselib.h users.h mbsedb.h
 dbtic.o: ../config.h mbselib.h users.h mbsedb.h
 dbuser.o: ../config.h mbselib.h users.h mbsedb.h
+dbfdb.o: ../config.h mbselib.h users.h mbsedb.h
 jammsg.o: ../config.h mbselib.h msgtext.h msg.h jam.h jammsg.h
 msg.o: ../config.h mbselib.h msgtext.h msg.h jammsg.h
 msgtext.o: ../config.h mbselib.h msgtext.h msg.h
