@@ -1013,7 +1013,7 @@ int EditMsgRec(int);
 int EditMsgRec(int Area)
 {
 	unsigned long	crc1;
-	int		tmp, i, connections, changed = FALSE, Active;
+	int		tmp, i, connections = 0, changed = FALSE, Active;
 	sysconnect	System;
 	char		*temp;
 

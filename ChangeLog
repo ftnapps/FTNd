@@ -4590,7 +4590,9 @@ v0.33.20        10-Feb-2002
 
 	general:
 		Added structures for area maintenance with area lists.
-
+		Installing the maptabs don't give any errors anymore when
+		installed as user mbse. The location of the source isn't
+		important anymore to install the maptabs.
 
 	common.a:
 		Added 2 functions to return the OS name and CPU family.

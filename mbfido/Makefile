@@ -101,7 +101,7 @@ install:	all
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbmail
 		rm -f ${BINDIR}/mbnews
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbnews
-		(cd ${PREFIX}; tar xfz ${PACKAGE}-${VERSION}/mbfido/maptabs.tgz; ${CHOWN} ${OWNER}.${GROUP} etc/maptabs/*)
+		(cp maptabs.tgz ${PREFIX}; cd ${PREFIX}; tar xfz maptabs.tgz; ${CHOWN} ${OWNER}.${GROUP} etc/maptabs/*; rm ${PREFIX}/maptabs.tgz)
 		chmod 0775 ${PREFIX}/etc
 
 filelist:	Makefile
