@@ -28,7 +28,6 @@
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-
 #include "../config.h"
 #include "../lib/libs.h"
 #include "../lib/clcomm.h"
@@ -36,11 +35,8 @@
 #include "telnio.h"
 
 
-static int	tellen;
 static int	buflen = 0;
 
-
-/* --- This is an artwork of serge terekhov, 2:5000/13@fidonet :) --- */
 
 void telnet_answer(int tag, int opt)
 {
@@ -75,7 +71,6 @@ void telnet_answer(int tag, int opt)
 int telnet_init(void)
 {
     Syslog('s', "telnet_init()");
-    tellen = 0;
     telnet_answer(DO, TOPT_SUPP);
     telnet_answer(WILL, TOPT_SUPP);
     telnet_answer(DO, TOPT_BIN);
@@ -88,93 +83,33 @@ int telnet_init(void)
 
 
 /*
- * Read function for mbtelnetd
- */
-int telnet_read(char *buf, int len)
-{
-    int		n = 0, m;
-    char	*q, *p;
-    static char	telbuf[4];
-
-    while ((n == 0) && (n = read (0, buf + tellen, H_ZIPBUFLEN - tellen)) > 0) {
-
-	if (n < 0) {
-	    return n;
-	}
-
-	if (tellen) {
-	    memcpy(buf, telbuf, tellen);
-	    n += tellen;
-	    tellen = 0;
-	}
-
-	if (memchr (buf, IAC, n)) {
-	    for (p = q = buf; n--; )
-		if ((m = (unsigned char)*q++) != IAC)
-		    *p++ = m;
-		else {
-		    if (n < 2) {
-			memcpy (telbuf, q - 1, tellen = n + 1);
-			break;
-		    }
-		    --n;
-		    switch (m = (unsigned char)*q++) {
-			case WILL:  m = (unsigned char)*q++; --n;
-				    Syslog('s', "TELNET: recv WILL %d", m);
-				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-					telnet_answer(DONT, m);
-				    break;
-			case WONT:  m = *q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv WONT %d", m);
-				    break;
-			case DO:    m = (unsigned char)*q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv DO %d", m);
-				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-					telnet_answer(WONT, m);
-				    break;
-			case DONT:  m = (unsigned char)*q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv DONT %d", m);
-				    break;
-			case IAC:   Syslog('s', "TELNET: recv 2nd IAC %d", m);
-				    *p++ = IAC;
-				    break;
-			default:    Syslog('s', "TELNET: recv IAC %d", m);
-				    break;
-		    }
-		}
-	    n = p - buf;
-	}
-    }
-
-    return n;
-}
-
-
-
-/*
  * Telnet output filter, IAC characters are escaped.
  */
 int telnet_write(char *buf, int len)
 {
     char    *q;
     int	    k, l;
+    int	    c = 0;
     
+    Syslog('s', "telnet_write(buf, %d)", len);
     l = len;
     while ((len > 0) && (q = memchr(buf, IAC, len))) {
 	k = (q - buf) + 1;
 	if ((write(1, buf, k) != k) || (write(1, q, 1) != 1)) {
 	    return -1;
 	}
+	c += k;
+	c += 1;
 	buf += k;
 	len -= k;
     }
 
+    c += len;
     if ((len > 0) && write(1, buf, len) != len) {
 	return -1;
     }
+
+    Syslog('s', "telnet_write: real sent %d", c);
     return l;
 }
 
@@ -190,6 +125,7 @@ int telnet_buffer(char *buf, int len)
     int		i, j, m = 0, rc;
     static char	telbuf[4];
     
+    Syslog('s', "telnet_buffer(buf, %d) buflen=%d", len, buflen);
     rc = len;
 
     if (buflen > 2) {
@@ -282,6 +218,8 @@ int telnet_buffer(char *buf, int len)
 	}
 	rc = j;
     }
+
+    Syslog('s', "telnet_buffer: rc=%d buflen=%d", rc, buflen);
 
     return rc;
 }

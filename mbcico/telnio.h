@@ -16,7 +16,6 @@
 
 void telnet_answer(int, int);
 int  telnet_init(void);
-int  telnet_read(char *, int);
 int  telnet_write(char *, int);
 int  telnet_buffer(char *, int);
 

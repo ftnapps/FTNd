@@ -105,6 +105,9 @@ mbfido:
 
 	N: Add statistic mail messages.
 
+	N: With auto created areas golded.inc is not adjusted to the new
+	   setup.
+
 mbcico:
 	N: Upgrade binkp protocol to 1.1.
 

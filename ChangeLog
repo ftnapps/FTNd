@@ -7,6 +7,14 @@ v0.39.2		21-Nov-2003
 		Well, almost certain that it will be removed. This version is
 		in cvs because I need to test it on several machines at once.
 
+	TESTS:
+		Originating calls: send and receive with Radius Ok.
+		Answering call: send and receive with Radius Ok.
+		Originating calls: send to MBSE/mbtelnetd Ok.
+				   receive from MBSE/mbtelnetd Error.
+		Problem is in TCP protocol in telnet mode. Hydra is OK.
+		Cause: wrong blocklength with transmitter?
+
 	general:
 		Outgoing telnet finally works.
 

@@ -163,8 +163,8 @@ char *mkemsidat(int caller)
 	}
 
 	p=xstrcat(p,(char *)"{");
-	if (emsi_local_protos & PROT_TCP)
-		p=xstrcat(p,(char *)"TCP,");
+//	if (emsi_local_protos & PROT_TCP)
+//		p=xstrcat(p,(char *)"TCP,");
 	if (emsi_local_protos & PROT_HYD)
 		p=xstrcat(p,(char *)"HYD,");
 	if (emsi_local_protos & PROT_JAN)

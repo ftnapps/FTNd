@@ -174,6 +174,8 @@ static int tty_read(char *buf, int size, int tot)
     fd_set	    readfds, writefds, exceptfds;
     struct timeval  seltimer;
 
+    Syslog('t', "tty_read(buf, %d, %d)", size, tot);
+
     if (size == 0) 
 	return 0;
     tty_status = 0;
@@ -234,6 +236,7 @@ static int tty_read(char *buf, int size, int tot)
     }
 
     rc = read(0,buf,size);
+    Syslog('t', "tty_read: real read %d", rc);
     if (rc <= 0) {
 	Syslog('t', "tty_read: return %d",rc);
 	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
@@ -250,6 +253,7 @@ static int tty_read(char *buf, int size, int tot)
 	}
     }
 
+    Syslog('t', "tty_read: rc=%d", rc);
     return rc;
 }
 

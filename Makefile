@@ -195,6 +195,10 @@ install:
 			rm ${BINDIR}/mbchat ; \
 			echo "removed ${BINDIR}/mbchat"; \
 		fi
+		@if [ -x ${BINDIR}/mbtelnetd ]; then \
+			rm ${BINDIR}/mbtelnetd ; \
+			echo "removed ${BINDIR}/mbtelnetd"; \
+		fi
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
 
 dist tar:	${TARFILE}

@@ -408,13 +408,6 @@ int tty_raw(int speed)
     if ((rc = tcgetattr(0,&savetios))) {
 	WriteError("$tcgetattr(0,save) return %d",rc);
 	return rc;
-    } else {
-	Syslog('T', "savetios.c_iflag=0x%08x",savetios.c_iflag);
-	Syslog('T', "savetios.c_oflag=0x%08x",savetios.c_oflag);
-	Syslog('T', "savetios.c_cflag=0x%08x",savetios.c_cflag);
-	Syslog('T', "savetios.c_lflag=0x%08x",savetios.c_lflag);
-	Syslog('T', "savetios.c_cc=\"%s\"",printable(savetios.c_cc,NCCS));
-	Syslog('T', "file flags: stdin: 0x%04x, stdout: 0x%04x", fcntl(0,F_GETFL,0L),fcntl(1,F_GETFL,0L));
     }
 
     tios = savetios;
@@ -453,7 +446,7 @@ int tty_local(void)
 	WriteError("$tcgetattr(0,save) return %d",rc);
 	return rc;
     }
-    Syslog('-', "Dropping DTR");
+    Syslog('+', "Lowering DTR to hangup");
 
     cflag = Tios.c_cflag | CLOCAL;
 
