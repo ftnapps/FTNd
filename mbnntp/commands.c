@@ -50,7 +50,6 @@ extern unsigned long	rcvdbytes;
 extern char         *ttystat[];
 
 void send_xlat(char *);
-char *make_msgid(char *);
 
 static CharsetAlias *charset_alias_list;
 static CharsetTable *charset_table_list;
@@ -245,10 +244,18 @@ void command_abhs(char *buf)
 
 	    /*
 	     * Send RFC 2045 Multipurpose Internet Mail Extensions (MIME) header.
+	     * Order is: 1. Charset defined in the FTN message
+	     *           2. Charset of the message area
+	     *           3. Charset of the user
+	     *           4. Default us-ascii.
 	     */
 	    send_nntp("MIME-Version: 1.0");
 	    if (charset) {
 		send_nntp("Content-Type: text/plain; charset=%s", charset_alias_rfc(charset));
+	    } else if (msgs.Charset != FTNC_NONE) {
+		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(msgs.Charset));
+	    } else if (usercharset != FTNC_NONE) {
+		send_nntp("Content-Type: text/plain; charset=%s", getrfcchrs(usercharset));
 	    } else {
 		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
 	    }

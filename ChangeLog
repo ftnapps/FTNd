@@ -23,8 +23,14 @@ v0.71.2		16-Jan-2005
 		so that we later can decide to mark these messages auto deleted.
 
 	mbnntp:
-		Does now send the right mime headers recognised by new clients.
+		Does now send the right mime headers recognised by news clients.
 		Fixed compile problem with some compilers.
+		When sending the mime header with the charset used to the news
+		client, the original message charset is tried first, else the
+		area charset, else the users charset and if all failed, we send
+		the us-ascci charset as default.
+		More patches added from Dmitry Komissaroff to improve charset
+		support. Also improved msgid linking.
 
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.

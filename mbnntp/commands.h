@@ -5,6 +5,8 @@
 
 #ifndef	USE_NEWSGATE
 
+char *getrfcchrs(int);
+char *make_msgid(char *);
 void command_abhs(char *);	    /* ARTICLE/BODY/HEADER/STAT	*/
 void command_group(char *);	    /* GROUP			*/
 void command_list(char *);	    /* LIST			*/

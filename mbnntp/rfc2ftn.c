@@ -39,6 +39,7 @@
 #include "hash.h"
 #include "msgflags.h"
 #include "rfc2ftn.h"
+#include "commands.h"
 
 #ifndef	USE_NEWSGATE
 
@@ -66,7 +67,7 @@ static int	removereturnto;
 extern	char	*replyaddr;
 extern	int	do_mailout;
 extern	int	grecno;
-
+extern	char	currentgroup[];
 
 /*
  *  Internal functions
@@ -78,15 +79,22 @@ int	needputrfc(rfcmsg *, int);
 int charwrite(char *, FILE *);
 int charwrite(char *s, FILE *fp)
 {
-	if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
-		putc('-',fp);
-		putc(' ',fp);
+    char *o;
+	
+    if ((strlen(s) >= 3) && (strncmp(s,"---",3) == 0) && (s[3] != '-')) {
+	putc('-',fp);
+	putc(' ',fp);
+    }
+    while (*s) {
+	o=s;
+	if (s[0] &0x080) {
+	    o=charset_map_c(s[0],0);
 	}
-	while (*s) {
-		putc(*s, fp);
-		s++;
-	}
-	return 0;
+//	putc(*s, fp);
+	putc (*o,fp);
+	s++;
+    }
+    return 0;
 }
 
 
@@ -113,6 +121,49 @@ int kludgewrite(char *s, FILE *fp)
 }
 
 
+int findorigmsg(char *msgid, char *o)
+{
+    unsigned long   i, start, end;
+    char	    *gen2;
+
+    if (msgid == NULL) {
+	return 0;
+    }
+
+    if (!Msg_Open(msgs.Base)) {
+	return 0;
+    }
+    Msg_Number();
+    Msg_Highest();
+    Msg_Lowest();
+
+    if (MsgBase.Open == FALSE) {
+	Syslog('-', "Base closed");
+	return 0;
+    }
+
+    strcpy(currentgroup,msgs.Newsgroup);
+    start = MsgBase.Lowest;
+    end   = MsgBase.Highest;
+
+    gen2 = calloc(strlen(msgid)+1,sizeof(char));
+    strcpy(gen2, strchr(msgid,'<'));
+    for (i = start; i <= end; i++) {
+	if (Msg_ReadHeader(i)) {
+	    if (strncmp(gen2,make_msgid(Msg.Msgid),strlen(gen2)-1) == 0) {
+		Syslog('m',"Found msgid: %s",make_msgid(Msg.Msgid));
+//		realloc(o,(strlen(Msg.Msgid)+1)* sizeof(char));
+		strcpy(o,Msg.Msgid);
+		free(gen2);
+		return 1;
+	    }
+        }
+    }
+    free(gen2);
+    return 0;
+}
+
+
 
 /*
  *  Input a RFC news message.
@@ -131,8 +182,10 @@ int rfc2ftn(FILE *fp)
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
     struct tm	    *l_date;
+    char	    *charset = NULL, *tq;
 
     temp = calloc(4097, sizeof(char));
+    charset = calloc(50,sizeof(char));
     Syslog('m', "Entering rfc2ftn");
     rewind(fp);
     msg = parsrfc(fp);
@@ -160,6 +213,16 @@ int rfc2ftn(FILE *fp)
     if ((p = hdr((char *)"References",msg))) {
 	p = strrchr(p,' ');
 	ftnmsgid(p,&fmsg->reply_a, &fmsg->reply_n,fmsg->area);
+
+//Griffin
+	fmsg->reply_s=calloc(256,sizeof(char));
+	findorigmsg(p,fmsg->reply_s);
+
+	fmsg->to->name=calloc(strlen(Msg.From)+1,sizeof(char));
+	strcpy(fmsg->to->name,Msg.From);
+	Syslog('m', "fmsg to-name %s",fmsg->to->name);
+	Syslog('m', "reply_s %s",fmsg->reply_s);
+
 	if (!chkftnmsgid(p)) {
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
 	}
@@ -169,6 +232,8 @@ int rfc2ftn(FILE *fp)
 	    hash_update_s(&fmsg->reply_n, fmsg->area);
 	}
     }
+
+
 
     chkftnmsgid(hdr((char *)"Message-ID",msg)); // ??
     removemime       = FALSE;
@@ -197,7 +262,20 @@ int rfc2ftn(FILE *fp)
 	    removemime = TRUE; /* no need in MIME headers */
 	    Syslog('m', "removemime=%s", removemime ? "True":"False");
 	}
+	tq=calloc(100,sizeof(char));
+	memset(tq,0,100*sizeof(char));
+	strcpy(charset,"iso-8859-1");	
+	strcpy(tq,strstr(p,"charset=")+8);
+	Syslog('m', "tq: %s|", tq);
+	if (tq!=NULL) {
+	    strcpy(charset,tq);
+	    charset[strlen(charset)-1]='\0';
+	}
+	Syslog('m', "charset: %s|", charset);
+	free(tq);
     }
+
+    charset_set_in_out(charset,getrfcchrs(msgs.Charset));
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -706,6 +784,7 @@ int rfc2ftn(FILE *fp)
         fclose(ofp);
     } while (needsplit);
     free(temp);
+    free(charset);
     tidyrfc(msg);
     tidy_ftnmsg(fmsg);
     UpdateMsgs();

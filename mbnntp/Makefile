@@ -63,7 +63,7 @@ openport.o: ../config.h ../lib/mbselib.h ttyio.h openport.h
 ttyio.o: ../config.h ../lib/mbselib.h ttyio.h
 auth.o: ../config.h ../lib/mbselib.h ../lib/users.h mbnntp.h auth.h
 commands.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h ttyio.h mbnntp.h rfc2ftn.h commands.h
-rfc2ftn.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h msgflags.h rfc2ftn.h
+rfc2ftn.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h msgflags.h rfc2ftn.h commands.h
 hash.o: ../config.h ../lib/mbselib.h hash.h lhash.h
 lhash.o: ../config.h ../lib/mbselib.h lhash.h
 msgflags.o: ../config.h ../lib/mbselib.h msgflags.h
