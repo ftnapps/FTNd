@@ -44,6 +44,7 @@
 
 
 int	BaseWrite = FALSE;
+int	NewMessages = FALSE;
 
 static char *wdays[]={(char *)"Sun",(char *)"Mon",(char *)"Tue",(char *)"Wed",
 		      (char *)"Thu",(char *)"Fri",(char *)"Sat"};
@@ -113,6 +114,7 @@ char *rfcdate(time_t now)
 int Open_Msgbase(char *Base, int Mode)
 {
     BaseWrite = FALSE;
+    NewMessages = FALSE;
 
     if (!Msg_Open(Base))
 	return FALSE;
@@ -134,11 +136,21 @@ int Open_Msgbase(char *Base, int Mode)
 /*
  *  Close current messagebase.
  */
-void Close_Msgbase()
+void Close_Msgbase(char *Base)
 {
+    int	    rc;
+
+    Syslog('b', "Close_Msgbase(%s) BaseWrite=%s NewMessages=%s", Base, BaseWrite?"TRUE":"FALSE", NewMessages?"TRUE":"FALSE");
     if (BaseWrite) {
 	Msg_UnLock();
 	BaseWrite = FALSE;
+	if (NewMessages) {
+	    rc = Msg_Link(Base, TRUE, CFG.slow_util);
+	    if (rc != -1)
+		Syslog('+', "Linked %d message%s", rc, (rc != 1) ? "s":"");
+	    else
+		Syslog('+', "Could not link messages");
+	}
     }
     Msg_Close();
 }
@@ -297,6 +309,7 @@ void Add_Footkludges(int Quote, char *tear, int HasTear)
 
     free(aka);
     free(temp);
+    NewMessages = TRUE;
 }
 
 

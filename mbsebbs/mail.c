@@ -684,7 +684,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 	}
     }
     free(temp);
-    Msg_Close();
+    Close_Msgbase(msgs.Base);
 
     SetMsgArea(iMsgAreaNumber);
     return TRUE;

@@ -32,6 +32,9 @@
 #include "libs.h"
 #include "msgtext.h"
 #include "msg.h"
+#include "clcomm.h"
+#include "structs.h"
+#include "common.h"
 #include "jammsg.h"
 
 
@@ -326,6 +329,135 @@ void Msg_Write(FILE *fp)
 	}
 
 	free(Buf);
+}
+
+
+typedef struct {
+    unsigned long   Subject;
+    unsigned long   Number;
+} MSGLINK;
+
+
+
+/*
+ * Link messages in one area.
+ * Returns -1 if error, else the number of linked messages.
+ */
+int Msg_Link(char *Path, int do_quiet, int slow_util)
+{
+    int             i, m, msg_link = 0;
+    unsigned long   Number, Prev, Next, Crc, Total;
+    char            Temp[128], *p;
+    MSGLINK         *Link;
+        
+    if (! Msg_Open(Path)) {
+	return -1;
+    }
+
+    if (!do_quiet) {
+	colour(12, 0);
+	printf(" (linking)");
+	colour(13, 0);
+	fflush(stdout);
+    }
+
+    if ((Total = Msg_Number()) != 0L) {
+	if (Msg_Lock(30L)) {
+	    if ((Link = (MSGLINK *)malloc(Total * sizeof(MSGLINK))) != NULL) {
+		memset(Link, 0, Total * sizeof(MSGLINK));
+		Number = Msg_Lowest();
+		i = 0;
+		do {
+		    Msg_ReadHeader(Number);
+		    strcpy(Temp, Msg.Subject);
+		    p = strupr(Temp);
+		    if (!strncmp(p, "RE:", 3)) {
+			p += 3;
+			if (*p == ' ')
+			    p++;
+		    }
+		    Link[i].Subject = StringCRC32(p);
+		    Link[i].Number = Number;
+		    i++;
+
+		    if (slow_util && do_quiet && ((i % 5) == 0))
+			usleep(1);
+
+		    if (((i % 10) == 0) && (!do_quiet)) {
+			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+			fflush(stdout);
+		    }
+		} while(Msg_Next(&Number) == TRUE);
+
+		if (!do_quiet) {
+		    printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+		    fflush(stdout);
+		}
+		Number = Msg_Lowest();
+		i = 0;
+		do {
+		    Msg_ReadHeader(Number);
+		    Prev = Next = 0;
+		    Crc = Link[i].Subject;
+
+		    for (m = 0; m < Total; m++) {
+			if (m == i)
+			    continue;
+			if (Link[m].Subject == Crc) {
+			    if (m < i)
+				Prev = Link[m].Number;
+			    else if (m > i) {
+				Next = Link[m].Number;
+				break;
+			    }
+			}
+		    }
+
+		    if (slow_util && do_quiet && ((i % 5) == 0))
+			usleep(1);
+                                                
+		    if (((i % 10) == 0) && (!do_quiet)) {
+			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+			fflush(stdout);
+		    }
+
+		    if (Msg.Original != Prev || Msg.Reply != Next) {
+			Msg.Original = Prev;
+			Msg.Reply = Next;
+			Msg_WriteHeader(Number);
+			msg_link++;
+		    }
+
+		    i++;
+	    
+		} while(Msg_Next(&Number) == TRUE);
+
+		if (!do_quiet) {
+		    printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
+		    fflush(stdout);
+		}
+
+		free(Link);
+	    }
+
+	    if (!do_quiet) {
+		printf("               \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		fflush(stdout);
+	    }
+	    Msg_UnLock();
+	} else {
+	    Syslog('+', "Can't lock %s", Path);
+	    return -1;
+	}
+    }
+
+    Msg_Close();
+
+    if (!do_quiet) {
+	printf("\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b");
+	fflush(stdout);
+    }
+    return msg_link;
 }
 
 

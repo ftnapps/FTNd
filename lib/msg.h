@@ -141,7 +141,7 @@ int		Msg_SetLastRead(lastread);
 void		Msg_UnLock(void);
 int		Msg_WriteHeader(unsigned long);
 void		Msg_Write(FILE *);
-
+int		Msg_Link(char *, int, int);
 
 #endif
 

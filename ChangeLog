@@ -46,6 +46,9 @@ v0.37.7		09-Sep-2003
 		Debug logging is now in a separate file, the normal logging is
 		now only in the normal logfiles.
 
+	msgbase.a:
+		Moved messages link from mbmsg program into library.
+
 	mbcico:
 		Fixed MB state error from the previous version.
 		Rewrote another part of the binkp driver, initializing the
@@ -64,6 +67,15 @@ v0.37.7		09-Sep-2003
 		mbtask debug switch from menu 18.
 		Import and purge oneliners now log what is done.
 
+	mbmsg:
+		Moved message linking to msgbase library.
+
+	mbsebbs:
+		When a message is saved, the messages in that area are linked.
+
+	mbfido:
+		When mails are scanned for export via ftn and one of the from,
+		to or subject lines are too long, the export is cancelled.
 
 
 v0.37.6		10-Aug-2003 - 09-Sep-2003

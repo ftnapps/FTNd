@@ -4,7 +4,7 @@
  * Purpose ...............: POP3 client
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -47,14 +47,14 @@
 void error_popmail(char *);
 void error_popmail(char *umsg)
 {
-	char	*p;
+    char	*p;
 
-	pop3_send((char *)"QUIT\r\n");
-	p = pop3_receive();
-	pop3_close();
-	colour(LIGHTRED, BLACK);
-	printf("%s\r\n", umsg);
-	fflush(stdout);
+    pop3_send((char *)"QUIT\r\n");
+    p = pop3_receive();
+    pop3_close();
+    colour(LIGHTRED, BLACK);
+    printf("%s\r\n", umsg);
+    fflush(stdout);
 }
 
 
@@ -62,69 +62,71 @@ void error_popmail(char *umsg)
 void retr_msg(int);
 void retr_msg(int msgnum)
 {
-	char    	*p, *q, temp[128];
-	int     	Header;
-	unsigned long	crc = -1;
+    char	    *p, *q, temp[PATH_MAX], *base;
+    int		    Header;
+    unsigned long   crc = -1;
 
-	sprintf(temp, "RETR %d\r\n", msgnum);
-	if (pop3_cmd(temp) == 0) {
-		Msg_New();
-		Header = TRUE;
-		sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
-		Open_Msgbase(temp, 'w');
-		Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-		Msg.Private = TRUE;
-		while (TRUE) {
-			p = pop3_receive();
-			if ((p[0] == '.') && (strlen(p) == 1)) {
-				break;
-			} else {
-				if (Header) {
-					/*
-					 *  Check the primary message header lines.
-					 */
-					if (strncmp(p, "To: ", 4) == 0) {
-						if (strlen(p) > 104)
-							p[104] = '\0';
-						sprintf(Msg.To, "%s", p+4);
-					}
-					if (strncmp(p, "From: ", 6) == 0) {
-						if (strlen(p) > 106)
-							p[106] = '\0';
-						sprintf(Msg.From, "%s", p+6);
-					}
-					if (strncmp(p, "Subject: ", 9) == 0) {
-						if (strlen(p) > 109)
-							p[109] = '\0';
-						sprintf(Msg.Subject, "%s", p+9);
-					}
-					if (strncmp(p, "Date: ", 6) == 0)
-						Msg.Written = parsedate(p+6, NULL) - (gmt_offset((time_t)0) * 60);
-					if (strncmp(p, "Message-Id: ", 12) == 0) {
-						q = xstrcpy(p+12);
-						Msg.MsgIdCRC = upd_crc32(q, crc, strlen(q));
-						free(q);
-					}
-					Msg.ReplyCRC = 0xffffffff;
-					if (strlen(p) == 0) {
-						Header = FALSE;
-					} else {
-						sprintf(temp, "\001%s", p);
-						MsgText_Add2(temp);
-					}
-				} else {
-					MsgText_Add2(p);
-				}
-			}
+    sprintf(temp, "RETR %d\r\n", msgnum);
+    if (pop3_cmd(temp) == 0) {
+	Msg_New();
+	Header = TRUE;
+	sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
+	base = xstrcpy(temp);
+	Open_Msgbase(base, 'w');
+	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+	Msg.Private = TRUE;
+	while (TRUE) {
+	    p = pop3_receive();
+	    if ((p[0] == '.') && (strlen(p) == 1)) {
+		break;
+	    } else {
+		if (Header) {
+		    /*
+		     *  Check the primary message header lines.
+		     */
+		    if (strncmp(p, "To: ", 4) == 0) {
+			if (strlen(p) > 104)
+			    p[104] = '\0';
+			sprintf(Msg.To, "%s", p+4);
+		    }
+		    if (strncmp(p, "From: ", 6) == 0) {
+		        if (strlen(p) > 106)
+			    p[106] = '\0';
+			sprintf(Msg.From, "%s", p+6);
+		    }
+		    if (strncmp(p, "Subject: ", 9) == 0) {
+			if (strlen(p) > 109)
+			    p[109] = '\0';
+			sprintf(Msg.Subject, "%s", p+9);
+		    }
+		    if (strncmp(p, "Date: ", 6) == 0)
+			Msg.Written = parsedate(p+6, NULL) - (gmt_offset((time_t)0) * 60);
+		    if (strncmp(p, "Message-Id: ", 12) == 0) {
+			q = xstrcpy(p+12);
+			Msg.MsgIdCRC = upd_crc32(q, crc, strlen(q));
+			free(q);
+		    }
+		    Msg.ReplyCRC = 0xffffffff;
+		    if (strlen(p) == 0) {
+			Header = FALSE;
+		    } else {
+			sprintf(temp, "\001%s", p);
+			MsgText_Add2(temp);
+		    }
+		} else {
+		    MsgText_Add2(p);
 		}
-		Msg_AddMsg();
-		Msg_UnLock();
-		Msg_Close();
-		sprintf(temp, "DELE %d\r\n", msgnum);
-		pop3_cmd(temp);
-	} else {
-		WriteError("POP3: Can't retrieve message %d", msgnum);
+	    }
 	}
+	Msg_AddMsg();
+	Msg_UnLock();
+	Close_Msgbase(base);
+	free(base);
+	sprintf(temp, "DELE %d\r\n", msgnum);
+	pop3_cmd(temp);
+    } else {
+	WriteError("POP3: Can't retrieve message %d", msgnum);
+    }
 }
 
 

@@ -360,7 +360,7 @@ int Save_Email(int IsReply)
     }
 
     free(temp);
-    Msg_Close();
+    Close_Msgbase(sMailpath);
 
     return TRUE;
 }

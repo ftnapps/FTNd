@@ -160,7 +160,7 @@ dbnode.o: ../config.h libs.h structs.h common.h users.h records.h clcomm.h dbcfg
 dbtic.o: ../config.h libs.h structs.h users.h records.h clcomm.h dbcfg.h dbtic.h
 dbuser.o: ../config.h libs.h structs.h users.h records.h dbcfg.h dbuser.h
 jammsg.o: ../config.h libs.h clcomm.h msgtext.h msg.h jam.h jammsg.h
-msg.o: ../config.h libs.h msgtext.h msg.h jammsg.h
+msg.o: ../config.h libs.h msgtext.h msg.h clcomm.h structs.h common.h jammsg.h
 msgtext.o: ../config.h libs.h msgtext.h msg.h
 nntp.o: ../config.h libs.h structs.h users.h records.h clcomm.h mbinet.h
 pop3.o: ../config.h libs.h structs.h users.h records.h clcomm.h mbinet.h

@@ -420,127 +420,17 @@ void DoMsgBase()
 
 
 
-typedef struct {
-	unsigned long	Subject;
-	unsigned long	Number;
-} MSGLINK;
-
-
-
 void LinkArea(char *Path, long Areanr)
 {
-	int		i, m;
-	unsigned long	Number, Prev, Next, Crc, Total;
-	char		Temp[128], *p;
-	MSGLINK		*Link;
-	
-	IsDoing("Linking %ld", Areanr);
+    int	    rc;
 
-	if (Msg_Open(Path)) {
-		if (!do_quiet) {
-			colour(12, 0);
-			printf(" (linking)");
-			colour(13, 0);
-			fflush(stdout);
-		}
+    IsDoing("Linking %ld", Areanr);
+    rc = Msg_Link(Path, do_quiet, CFG.slow_util);
 
-		if ((Total = Msg_Number()) != 0L) {
-			if (Msg_Lock(30L)) {
-				if ((Link = (MSGLINK *)malloc(Total * sizeof(MSGLINK))) != NULL) {
-					memset(Link, 0, Total * sizeof(MSGLINK));
-					Number = Msg_Lowest();
-					i = 0;
-					do {
-						Msg_ReadHeader(Number);
-						strcpy(Temp, Msg.Subject);
-						p = strupr(Temp);
-						if (!strncmp(p, "RE:", 3)) {
-							p += 3;
-							if (*p == ' ')
-								p++;
-						}
-						Link[i].Subject = StringCRC32(p);
-						Link[i].Number = Number;
-						i++;
-
-						if (CFG.slow_util && do_quiet && ((i % 5) == 0))
-							usleep(1);
-
-						if (((i % 10) == 0) && (!do_quiet)) {
-							printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
-							fflush(stdout);
-						}
-					} while(Msg_Next(&Number) == TRUE);
-
-					if (!do_quiet) {
-						printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
-						fflush(stdout);
-					}
-
-					Number = Msg_Lowest();
-					i = 0;
-					do {
-						Msg_ReadHeader(Number);
-						Prev = Next = 0;
-						Crc = Link[i].Subject;
-	
-						for (m = 0; m < Total; m++) {
-							if (m == i)
-								continue;
-							if (Link[m].Subject == Crc) {
-								if (m < i)
-									Prev = Link[m].Number;
-								else if (m > i) {
-									Next = Link[m].Number;
-									break;
-								}
-							}
-						}
-
-						if (CFG.slow_util && do_quiet && ((i % 5) == 0))
-							usleep(1);
-
-						if (((i % 10) == 0) && (!do_quiet)) {
-							printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
-							fflush(stdout);
-						}
-
-						if (Msg.Original != Prev || Msg.Reply != Next) {
-							Msg.Original = Prev;
-							Msg.Reply = Next;
-							Msg_WriteHeader(Number);
-							processed = TRUE;
-							msg_link++;
-						}
-
-						i++;
-					} while(Msg_Next(&Number) == TRUE);
-	
-					if (!do_quiet) {
-						printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
-						fflush(stdout);
-					}
-
-					free(Link);
-				}
-
-				if (!do_quiet) {
-					printf("               \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-					fflush(stdout);
-				}
-				Msg_UnLock();
-			} else {
-				Syslog('+', "Can't lock %s", Path);
-			}
-		}
-
-		Msg_Close();
-
-		if (!do_quiet) {
-			printf("\b\b\b\b\b\b\b\b\b\b          \b\b\b\b\b\b\b\b\b\b");
-			fflush(stdout);
-		}
-	}
+    if (rc != -1) {
+	msg_link = rc;
+	processed = TRUE;
+    }
 }
 
 

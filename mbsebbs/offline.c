@@ -1692,7 +1692,7 @@ void BlueWave_Fetch()
 				    fclose(fp);
 				}
 			    }
-			    Msg_Close();
+			    Close_Msgbase(msgs.Base);
 			}
 		    } else {
 			/*        No Write access to area */
@@ -2493,7 +2493,7 @@ void QWK_Fetch()
 					    fclose(fp);
 					}
 				    }
-				    Msg_Close();
+				    Close_Msgbase(msgs.Base);
 				}
 			    } else {
 				Syslog('+', "Can't post messages in area %u", Area);
