@@ -37,6 +37,7 @@
 extern reg_info		reginfo[MAXCLIENT];     /* Array with clients   */
 static int 		entrypos = 0;		/* Status pointer	*/
 static int		mailers = 0;		/* Registered mailers	*/
+int			ipmailers = 0;		/* TCP/IP mail sessions	*/
 
 
 /***********************************************************************
@@ -104,7 +105,8 @@ int reg_newcon(char *data)
 	stat_inc_clients();
 	if (strcmp(prg, (char *)"mbcico") == 0)
 	    mailers++;
-	tasklog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d", prg, pid, retval, mailers);
+	tasklog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
+		prg, pid, retval, mailers, ipmailers);
 	return retval;
 }
 
@@ -122,7 +124,10 @@ int reg_closecon(char *data)
 
 	if (strcmp(reginfo[rec].prg, (char *)"mbcico") == 0)
 	    mailers--;
-	tasklog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d", reginfo[rec].prg, pid, rec, mailers);
+	if (reginfo[rec].istcp)
+	    ipmailers--;
+	tasklog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
+		reginfo[rec].prg, pid, rec, mailers, ipmailers);
 	memset(&reginfo[rec], 0, sizeof(reg_info)); 
 	stat_dec_clients();
 	return 0;
@@ -145,8 +150,10 @@ void reg_check(void)
 				if (errno == ESRCH) {
 					if (strcmp(reginfo[i].prg, (char *)"mbcico") == 0)
 					    mailers--;
-					tasklog('?', "Stale registration found for pid %d (%s), mailers now %d", 
-						reginfo[i].pid, reginfo[i].prg, mailers);
+					if (reginfo[i].istcp)
+					    ipmailers--;
+					tasklog('?', "Stale registration found for pid %d (%s), mailers now %d, TCP/IP now %d", 
+						reginfo[i].pid, reginfo[i].prg, mailers, ipmailers);
 					memset(&reginfo[i], 0, sizeof(reg_info));
 					stat_dec_clients();
 				}
@@ -193,6 +200,29 @@ int reg_doing(char *data)
 	strncpy(reginfo[rec].doing, line, 35);
 	reginfo[rec].lastcon = time(NULL);
 	return 0;
+}
+
+
+
+/*
+ * Registrate connection as TCP/IP connection
+ */
+int reg_ip(char *data)
+{
+    char    *cnt, *pid;
+    int	    rec;
+
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ";");
+
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
+
+    reginfo[rec].istcp = TRUE;
+    reginfo[rec].lastcon = time(NULL);
+    ipmailers++;
+    tasklog('?', "TCP/IP session registered, now %d sessions", ipmailers);
+    return 0;
 }
 
 

@@ -336,6 +336,13 @@ void IsDoing(const char *format, ...)
 
 
 
+void RegTCP(void)
+{
+    SockS("ATCP:1,%d;", mypid);
+}
+
+
+
 void SetTTY(char *tty)
 {
 	SockS("ATTY:2,%d,%s;", mypid, tty);

@@ -256,6 +256,7 @@ int main(int argc, char *argv[])
 						die(101);
 					}
 					free(p);
+					RegTCP();
 					break;
 
 			case 'a':	inetaddr = optarg; 

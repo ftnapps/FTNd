@@ -185,6 +185,7 @@ int call(faddr *addr)
 		 * If we have an internet address, set protocol
 		 */
 		if (inetaddr) {
+			RegTCP();
 			Syslog('d', "TCP/IP node \"%s\"", MBSE_SS(inetaddr));
 
 			if (tcp_mode == TCPMODE_NONE) {
@@ -207,8 +208,11 @@ int call(faddr *addr)
 				Syslog('d', "TCP mode set to %d", tcp_mode);
 			}
 		} else {
-			Syslog('d', "No IP address, fallback to dial");
-			tcp_mode = TCPMODE_NONE;
+			WriteError("No IP address, abort call");
+			rc = ST_NOCALL8;
+			putstatus(addr, 10, rc);
+			nodeulock(addr);
+			return rc;
 		}
 	}
 

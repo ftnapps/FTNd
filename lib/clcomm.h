@@ -65,6 +65,7 @@ char		*SockR(const char *, ...);
 void		WriteError(const char *, ...);
 void		Syslog(int, const char *, ...);
 void		Syslogp(int, char *);
+void		RegTCP(void);
 void		IsDoing(const char *, ...);
 void		SetTTY(char *);
 void		UserCity(pid_t, char *, char *);

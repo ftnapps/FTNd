@@ -101,6 +101,7 @@ extern int		isdn_lines;		/* ISDN lines available */
 extern int		pots_free;		/* POTS lines free	*/
 extern int		isdn_free;		/* ISDN lines free	*/
 extern pp_list		*pl;			/* List of tty ports	*/
+extern int		ipmailers;		/* TCP/IP mail sessions	*/
 
 
 
@@ -1157,7 +1158,7 @@ void scheduler(void)
 			 */
 			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling && 
 				(calllist[call_entry].cst.trytime < now)) {
-			    if ((calllist[call_entry].callmode == CM_INET) && (runtasktype(CM_INET) < TCFG.max_tcp) && internet) {
+			    if ((calllist[call_entry].callmode == CM_INET) && (ipmailers < TCFG.max_tcp) && internet) {
 				found = TRUE;
 				break;
 			    }

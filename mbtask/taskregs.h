@@ -22,6 +22,7 @@ typedef struct _reg_info {
         unsigned        silent          : 1;    /* Do not disturb       */
         unsigned        chatting        : 1;    /* User is chatting     */
         unsigned        ismsg           : 1;    /* Message waiting      */
+	unsigned	istcp		: 1;	/* Is a TCP/IP session	*/
         int             channel;                /* Chat channel         */
         int             ptr_in;                 /* Input buffer pointer */
         int             ptr_out;                /* Output buffer ptr    */
@@ -30,11 +31,13 @@ typedef struct _reg_info {
 } reg_info;
 
 
+
 void	reg_init(void);
 int	reg_newcon(char *);
 int	reg_closecon(char *);
 void	reg_check(void);
 int	reg_doing(char *);
+int	reg_ip(char *);
 int	reg_nop(char *);
 int	reg_timer(int, char *);
 int	reg_tty(char *);

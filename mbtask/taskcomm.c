@@ -144,6 +144,20 @@ char *exe_cmd(char *in)
 	}
 
 	/*
+	 *  ATCP:1,pid;
+	 *  100:0;
+	 *  200:1,Syntax Error;
+	 */
+	if (strncmp(cmd, "ATCP", 4) == 0) {
+	    if (reg_ip(token) == 0)
+		return obuf;
+	    else {
+		stat_inc_serr();
+		return ebuf;
+	    }
+	}
+
+	/*
 	 *  ATTY:2,pid,tty;
          *  100:0;
          *  200:1,Syntax Error;
