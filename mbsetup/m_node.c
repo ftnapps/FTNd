@@ -392,6 +392,43 @@ int CheckAka(fidoaddr A)
 
 
 
+void E_UplMgr(void);
+void E_UplMgr(void)
+{
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "7.10 EDIT NODE - UPLINK MANAGERS");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.   Uplink AreaMgr program");
+    mvprintw( 8, 6, "2.   Uplink AreaMgr password");
+    mvprintw( 9, 6, "3.   Uplink AreaMgr is BBBS");
+    mvprintw(10, 6, "4.   Uplink FileMgr program");
+    mvprintw(11, 6, "5.   Uplink FileMgr password");
+    mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
+
+    for (;;) {
+	set_color(WHITE, BLACK);
+        show_str(  7,35, 8, nodes.UplAmgrPgm);
+	show_str(  8,35,15, (char *)"***************");
+	show_bool( 9,35,    nodes.UplAmgrBbbs);
+        show_str( 10,35, 8, nodes.UplFmgrPgm);
+	show_str( 11,35,15, (char *)"***************");
+	show_bool(12,35,    nodes.UplFmgrBbbs);
+
+	switch(select_menu(6)) {
+	    case 0: return;
+	    case 1: E_STR(  7,35, 8, nodes.UplAmgrPgm,   "Name of the uplink ^areamanager program^")
+	    case 2: E_STR(  8,35,15, nodes.UplAmgrPass,  "Uplink ^areamanager password^ for this node")
+	    case 3: E_BOOL( 9,35,    nodes.UplAmgrBbbs,  "Uplink ^areamanager^ is ^BBBS^ software")
+            case 4: E_STR( 10,35,8,  nodes.UplFmgrPgm,   "Name of the uplink ^filemanager^ program")
+	    case 5: E_STR( 11,35,15, nodes.UplFmgrPass,  "Uplink ^filemanager password^ for this node")
+	    case 6: E_BOOL(12,35,    nodes.UplFmgrBbbs,  "Uplink ^filemanager^ is ^BBBS^ software")
+	}
+    }
+}
+
+
+
 void E_Mail(void);
 void E_Mail(void)
 {
@@ -401,31 +438,25 @@ void E_Mail(void)
     set_color(CYAN, BLACK);
     mvprintw( 7, 6, "1.   PKT password");
     mvprintw( 8, 6, "2.   Check PKT pwd");
-    mvprintw( 9, 6, "3.   UplMgr program");
-    mvprintw(10, 6, "4.   UplMgr passwd");
-    mvprintw(11, 6, "5.   Mail forward");
-    mvprintw(12, 6, "6.   ARCmail comp.");
-    mvprintw(13, 6, "7.   ARCmail a..z");
+    mvprintw( 9, 6, "3.   Mail forward");
+    mvprintw(10, 6, "4.   ARCmail comp.");
+    mvprintw(11, 6, "5.   ARCmail a..z");
 
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_str(  7,25,15, (char *)"***************");
 	show_bool( 8,25,    nodes.MailPwdCheck);
-	show_str(  9,25, 8, nodes.UplAmgrPgm);
-	show_str( 10,25,15, (char *)"***************");
-	show_bool(11,25,    nodes.MailFwd);
-	show_bool(12,25,    nodes.ARCmailCompat);
-	show_bool(13,25,    nodes.ARCmailAlpha);
+	show_bool( 9,25,    nodes.MailFwd);
+	show_bool(10,25,    nodes.ARCmailCompat);
+	show_bool(11,25,    nodes.ARCmailAlpha);
 
-	switch(select_menu(7)) {
-	case 0:	return;
-	case 1: E_STR(  7,25,15, nodes.Epasswd,       "The ^Mail (.pkt)^ password^ for this node")
-	case 2:	E_BOOL( 8,25,    nodes.MailPwdCheck,  "Check the ^mail PKT^ password")
-	case 3:	E_STR(  9,25, 8, nodes.UplAmgrPgm,    "Name of the uplink ^areamanager program^")
-	case 4:	E_STR( 10,25,15, nodes.UplAmgrPass,   "Uplink ^areamanager password^ for this node")
-	case 5:	E_BOOL(11,25,    nodes.MailFwd,       "^Forward^ echomail for this node")
-	case 6: E_BOOL(12,25,    nodes.ARCmailCompat, "Use ^ARCmail 0.60^ file naming convention for out of zone mail")
-	case 7: E_BOOL(13,25,    nodes.ARCmailAlpha,  "Allow ^0..9 and a..z^ filename extensions for ARCmail archives")
+	switch(select_menu(5)) {
+	    case 0: return;
+	    case 1: E_STR(  7,25,15, nodes.Epasswd,       "The ^Mail (.pkt)^ password^ for this node")
+	    case 2: E_BOOL( 8,25,    nodes.MailPwdCheck,  "Check the ^mail PKT^ password")
+	    case 3: E_BOOL( 9,25,    nodes.MailFwd,       "^Forward^ echomail for this node")
+	    case 4: E_BOOL(10,25,    nodes.ARCmailCompat, "Use ^ARCmail 0.60^ file naming convention for out of zone mail")
+	    case 5: E_BOOL(11,25,    nodes.ARCmailAlpha,  "Allow ^0..9 and a..z^ filename extensions for ARCmail archives")
 	}
     }
 }
@@ -441,43 +472,34 @@ void E_Files(void)
     set_color(CYAN, BLACK);
     mvprintw( 7, 6, "1.   Files password");
     mvprintw( 8, 6, "2.   Mgr password");
-    mvprintw( 9, 6, "3.   UplMgr program");
-    mvprintw(10, 6, "4.   UplMgr passwd");
-    mvprintw(11, 6, "5.   UplMgr Add +");
-    mvprintw(12, 6, "6.   Incl. message");
-    mvprintw(13, 6, "7.   Send TIC file");
-    mvprintw(14, 6, "8.   Advanced TIC");
-    mvprintw(15, 6, "9.   Advanced SB");
-    mvprintw(16, 6, "10.  To line in TIC");
-    mvprintw(17, 6, "11.  File forward");
+    mvprintw( 9, 6, "3.   Incl. message");
+    mvprintw(10, 6, "4.   Send TIC file");
+    mvprintw(11, 6, "5.   Advanced TIC");
+    mvprintw(12, 6, "6.   Advanced SB");
+    mvprintw(13, 6, "7.   To line in TIC");
+    mvprintw(14, 6, "8.   File forward");
 
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_str(  7,26,15, (char *)"***************");
 	show_str(  8,26,15, (char *)"***************");
-	show_str(  9,26, 8, nodes.UplFmgrPgm);
-	show_str( 10,26,15, (char *)"***************");
-	show_bool(11,26,    nodes.AddPlus);
-	show_bool(12,26,    nodes.Message);
-	show_bool(13,26,    nodes.Tic);
-	show_bool(14,26,    nodes.AdvTic);
-	show_bool(15,26,    nodes.TIC_AdvSB);
-	show_bool(16,26,    nodes.TIC_To);
-	show_bool(17,26,    nodes.FileFwd);
+	show_bool( 9,26,    nodes.Message);
+	show_bool(10,26,    nodes.Tic);
+	show_bool(11,26,    nodes.AdvTic);
+	show_bool(12,26,    nodes.TIC_AdvSB);
+	show_bool(13,26,    nodes.TIC_To);
+	show_bool(14,26,    nodes.FileFwd);
 
-	switch(select_menu(11)) {
+	switch(select_menu(8)) {
 	    case 0: return;
 	    case 1: E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
 	    case 2: E_STR(  8,26,15,nodes.Apasswd,    "The filemanager ^password^ for this node")
-	    case 3: E_STR(  9,26,8, nodes.UplFmgrPgm, "The name of the uplink ^filemanager^ program")
-	    case 4: E_STR( 10,26,15,nodes.UplFmgrPass,"The uplink filemanager ^password^")
-	    case 5: E_BOOL(11,26,   nodes.AddPlus,    "Add ^+^ in uplink manager requests for new areas")
-	    case 6: E_BOOL(12,26,   nodes.Message,    "Send ^messages^ with files send to this node")
-	    case 7: E_BOOL(13,26,   nodes.Tic,        "Send ^TIC^ files to this node")
-	    case 8: E_BOOL(14,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
-	    case 9: E_BOOL(15,26,	nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
-	    case 10:E_BOOL(16,26,	nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
-	    case 11:E_BOOL(17,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
+	    case 3: E_BOOL( 9,26,   nodes.Message,    "Send ^messages^ with files send to this node")
+	    case 4: E_BOOL(10,26,   nodes.Tic,        "Send ^TIC^ files to this node")
+	    case 5: E_BOOL(11,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
+	    case 6: E_BOOL(12,26,   nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
+	    case 7: E_BOOL(13,26,   nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
+	    case 8: E_BOOL(14,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
 	}
     }
 }
@@ -493,7 +515,7 @@ void S_Stat(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.10 NODE STATISTICS");
+	mvprintw( 5, 6, "7.11 NODE STATISTICS");
 	set_color(CYAN, BLACK);
 	mvprintw( 8,18, " This week  Last week This month Last month      Total");
 	mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
@@ -1084,9 +1106,10 @@ int EditNodeRec(int Area)
 	mvprintw(13, 6, "7.   Files groups");
 	mvprintw(14, 6, "8.   Directory session");
 	mvprintw(15, 6, "9.   Security flags");
-	mvprintw(16, 6, "10.  Statistics");
+	mvprintw(16, 6, "10.  Uplink managers");
+	mvprintw(17, 6, "11.  Statistics");
 
-	switch(select_menu(10)) {
+	switch(select_menu(11)) {
 	case 0:	crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&nodes, crc1, nodeshdr.recsize);
 		if ((crc != crc1) || GrpChanged) {
@@ -1157,7 +1180,9 @@ int EditNodeRec(int Area)
 		break;
 	case 9:	nodes.Security = edit_nsec(nodes.Security, (char *)"7.9  NODE SECURITY FLAGS");
 		break;
-	case 10:S_Stat(); 
+	case 10:E_UplMgr();
+		break;
+	case 11:S_Stat(); 
 		break;
 	}
     }
@@ -1594,15 +1619,15 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
 	    fprintf(wp, "<COL width='30%%'><COL width='30%%'><COL width='40%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
-	    fprintf(wp, "<TR><TH align='left'>Uplink mgrs</TH><TH align='left'>Program</TH><TH align='left'>Password</TH></TR>\n");
-	    fprintf(wp, "<TR><TH align='left'>Files</TH><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplFmgrPgm, nodes.UplFmgrPass);
-	    fprintf(wp, "<TR><TH align='left'>Mail</TH><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplAmgrPgm, nodes.UplAmgrPass);
+	    fprintf(wp, "<TR><TH align='left'>Uplink mgrs</TH><TH align='left'>Program</TH><TH align='left'>Password</TH><TH>BBBS</TH></TR>\n");
+	    fprintf(wp, "<TR><TH align='left'>Files</TH><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplFmgrPgm, nodes.UplFmgrPass, getboolean(nodes.UplFmgrBbbs));
+	    fprintf(wp, "<TR><TH align='left'>Mail</TH><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplAmgrPgm, nodes.UplAmgrPass, getboolean(nodes.UplAmgrBbbs));
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
-	    fprintf(fp, "     Uplink mgrs    Program   Password\n");
-	    fprintf(fp, "     ------------   --------- ---------------\n");
-	    fprintf(fp, "     Files          %s %s\n", padleft(nodes.UplFmgrPgm, 9, ' '), nodes.UplFmgrPass);
-	    fprintf(fp, "     Mail           %s %s\n\n", padleft(nodes.UplAmgrPgm, 9, ' '), nodes.UplAmgrPass);
+	    fprintf(fp, "     Uplink mgrs    Program  Password        BBBS\n");
+	    fprintf(fp, "     ------------   -------- --------------- ----\n");
+	    fprintf(fp, "     Files          %-8s %-15s %s\n", nodes.UplFmgrPgm, nodes.UplFmgrPass, getboolean(nodes.UplFmgrBbbs));
+	    fprintf(fp, "     Mail           %-8s %-15s %s\n\n", nodes.UplAmgrPgm, nodes.UplAmgrPass, getboolean(nodes.UplAmgrBbbs));
 
 	    fprintf(wp, "<HR>\n");
 	    fprintf(wp, "<H3>Node Statistics</H3>\n");
