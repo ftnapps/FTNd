@@ -4525,6 +4525,7 @@ v0.33.19        26-Oct-2001
 		The index function is now obsolete, this is added to mbfile.
 		You may need to adjust your scripts that call "mball index".
 		Fixes for Sparc systems.
+		Fixed to prevent negative values with large filebases.
 
 	mbaff:
 		Fixes for Sparc systems.

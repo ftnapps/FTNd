@@ -266,13 +266,13 @@ void BotBox(FILE *fp, int doit)
 
 void Masterlist()
 {
-	FILE	*fp, *np, *pAreas, *pFile, *pHeader;
-	int	AreaNr = 0, z, x = 0, New;
-	long	AllFiles = 0, AllBytes = 0, NewFiles = 0, NewBytes = 0;
-	int	AllAreaFiles, AllAreaBytes, popdown, down;
-	int	NewAreaFiles, NewAreaBytes;
-	char	*sAreas, *fAreas;
-	char	temp[81], pop[81];
+	FILE		*fp, *np, *pAreas, *pFile, *pHeader;
+	int		AreaNr = 0, z, x = 0, New;
+	unsigned long	AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
+	unsigned long	AllAreaFiles, AllAreaBytes, popdown, down;
+	unsigned long	NewAreaFiles, NewAreaBytes;
+	char		*sAreas, *fAreas;
+	char		temp[81], pop[81];
 
 	sAreas	= calloc(PATH_MAX, sizeof(char));
 	fAreas	= calloc(PATH_MAX, sizeof(char));
@@ -346,7 +346,6 @@ void Masterlist()
 						if (CFG.slow_util && do_quiet && ((x % 3) == 0))
 							usleep(1);
 						AllFiles++;
-						AllBytes += file.Size;
 						AllAreaFiles++;
 						AllAreaBytes += file.Size;
 						down = file.TimesDL + file.TimesFTP + file.TimesReq;
@@ -356,13 +355,15 @@ void Masterlist()
 						}
 						if (((t_start - file.UploadDate) / 84400) <= CFG.newdays) {
 							NewFiles++;
-							NewBytes += file.Size;
 							NewAreaFiles++;
 							NewAreaBytes += file.Size;
 						}
 					}
 				}
 
+				AllKBytes += AllAreaBytes / 1024;
+				NewKBytes += NewAreaBytes / 1024;
+				
 				/*
 				 * If there are files to report do it.
 				 */
@@ -378,9 +379,9 @@ void Masterlist()
 					MidLine(temp, fp, area.FileReq);
 					MidLine(temp, np, area.FileReq && NewAreaFiles);
 
-					sprintf(temp, "%d KBytes in %d files", AllAreaBytes / 1024, AllAreaFiles);
+					sprintf(temp, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
 					MidLine(temp, fp, TRUE);
-					sprintf(temp, "%d KBytes in %d files", NewAreaBytes / 1024, NewAreaFiles);
+					sprintf(temp, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
 					MidLine(temp, np, NewAreaFiles);
 					if (popdown) {
 						sprintf(temp, "Most popular file is %s", pop);
@@ -427,9 +428,9 @@ void Masterlist()
 
 	TopBox(fp, TRUE);
 	TopBox(np, TRUE);
-	sprintf(temp, "Total %ld files, %ld KBytes", AllFiles, AllBytes / 1024);
+	sprintf(temp, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
 	MidLine(temp, fp, TRUE);
-	sprintf(temp, "Total %ld files, %ld KBytes", NewFiles, NewBytes / 1024);
+	sprintf(temp, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
 	MidLine(temp, np, TRUE);
 
 	MidLine((char *)"", fp, TRUE);
@@ -461,8 +462,8 @@ void Masterlist()
 	if ((rename("newfiles.tmp", "newfiles.txt")) == 0)
 		unlink("newfiles.tmp");
 
-	Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllBytes / 1048576);
-	Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewBytes / 1048576);
+	Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllKBytes / 1024);
+	Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewKBytes / 1024);
 	free(sAreas);
 	free(fAreas);
 }
