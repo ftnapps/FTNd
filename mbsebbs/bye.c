@@ -37,6 +37,7 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "../lib/mberrors.h"
+#include "../lib/nodelist.h"
 #include "dispfile.h"
 #include "misc.h"
 #include "language.h"
@@ -45,6 +46,9 @@
 
 extern	pid_t		mypid;
 extern	time_t		t_start;
+extern	char		*StartTime;
+
+
 int			do_mailout = FALSE;
 
 
@@ -129,6 +133,9 @@ void Good_Bye(int onsig)
     Unsetraw();
     Free_Language();
     free(pTTY);
+    if (StartTime)
+	free(StartTime);
+    deinitnl();
     exit(onsig);
 }
 
@@ -152,6 +159,8 @@ void Quick_Bye(int onsig)
 
     Free_Language();
     free(pTTY);
+    if (StartTime)
+	free(StartTime);
     exit(MBERR_OK);
 }
 

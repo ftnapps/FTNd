@@ -807,96 +807,101 @@ void Reply_Email(int IsReply)
 
 void Write_Email(void)
 {
-	faddr	*Dest = NULL;
-	int	i;
-	char	*orgbox;
+    faddr   *Dest = NULL;
+    int	    i;
+    char    *orgbox;
 
-	if (HasNoEmail())
-		return;
+    if (HasNoEmail())
+	return;
 
-	orgbox = xstrcpy(sMailbox);
-	SetEmailArea((char *)"mailbox");
+    orgbox = xstrcpy(sMailbox);
+    SetEmailArea((char *)"mailbox");
 
-	WhosDoingWhat(READ_POST, NULL);
-	clear();
+    WhosDoingWhat(READ_POST, NULL);
+    clear();
 
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
+    Line = 1;
+
+    Msg_New();
+
+    colour(9, 0);
+    /* Posting message in area: */
+    printf("\n%s\"%s\"\n", (char *) Language(156), "mailbox");
+
+    Enter(1);
+    /* From   : */
+    pout(14, 0, (char *) Language(157));
+    if (CFG.EmailMode != E_PRMISP) {
+	/*
+	 * If not permanent connected to the internet, use fidonet.org style addressing.
+	 */
+	Dest = fido2faddr(CFG.EmailFidoAka);
+	sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
+    } else
+	sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+    
+    for (i = 0; i < strlen(Msg.From); i++) {
+        if (Msg.From[i] == ' ')
+            Msg.From[i] = '_';
+        if (Msg.From[i] == '@')
+            break;
+    }
+    
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    printf("%s", Msg.From);
+    Syslog('b', "Setting From: %s", Msg.From);
+
+    Enter(1);
+    /* To     : */
+    pout(14, 0, (char *) Language(158));
+
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    GetstrU(Msg.To, 63);
+
+    if ((strcmp(Msg.To, "")) == 0) {
 	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
-	Line = 1;
+	    free(Message[i]);
+	SetEmailArea(orgbox);
+	free(orgbox);
+	return;
+    }
 
-        Msg_New();
+    /* Subject  :  */
+    pout(14, 0, (char *) Language(161));
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    fflush(stdout);
+    alarm_on();
+    GetstrP(Msg.Subject, 65, 0);
 
-	colour(9, 0);
-	/* Posting message in area: */
-	printf("\n%s\"%s\"\n", (char *) Language(156), "mailbox");
-
+    if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);
-	/* From   : */
-	pout(14, 0, (char *) Language(157));
-	if (CFG.EmailMode != E_PRMISP) {
-		/*
-		 * If not permanent connected to the internet, use fidonet.org style addressing.
-		 */
-		Dest = fido2faddr(CFG.EmailFidoAka);
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
-	} else
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
-        for (i = 0; i < strlen(Msg.From); i++) {
-                if (Msg.From[i] == ' ')
-                        Msg.From[i] = '_';
-                if (Msg.From[i] == '@')
-                        break;
-        }
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	printf("%s", Msg.From);
-	Syslog('b', "Setting From: %s", Msg.From);
-
-	Enter(1);
-	/* To     : */
-	pout(14, 0, (char *) Language(158));
-
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	GetstrU(Msg.To, 63);
-
-	if ((strcmp(Msg.To, "")) == 0) {
-		for(i = 0; i < (TEXTBUFSIZE + 1); i++)
-			free(Message[i]);
-		SetEmailArea(orgbox);
-		return;
-	}
-
-	/* Subject  :  */
-	pout(14, 0, (char *) Language(161));
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	/* Abort Message [y/N] ?: */
+	pout(3, 0, (char *) Language(162));
 	fflush(stdout);
 	alarm_on();
-	GetstrP(Msg.Subject, 65, 0);
 
-	if((strcmp(Msg.Subject, "")) == 0) {
-		Enter(1);
-		/* Abort Message [y/N] ?: */
-		pout(3, 0, (char *) Language(162));
-		fflush(stdout);
-		alarm_on();
-
-		if (toupper(Getone()) == Keystroke(162, 0)) {
-			for(i = 0; i < (TEXTBUFSIZE + 1); i++)
-				free(Message[i]);
-			SetEmailArea(orgbox);
-			return;
-		}
-	}
-
-	Msg.Private = TRUE;
-
-	if (Edit_Msg()) {
-		Save_Email(FALSE);
-	}
-
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	if (toupper(Getone()) == Keystroke(162, 0)) {
+	    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
 		free(Message[i]);
+	    SetEmailArea(orgbox);
+	    free(orgbox);
+	    return;
+	}
+    }
 
-	SetEmailArea(orgbox);
+    Msg.Private = TRUE;
+
+    if (Edit_Msg()) {
+	Save_Email(FALSE);
+    }
+
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	free(Message[i]);
+
+    SetEmailArea(orgbox);
+    free(orgbox);
 }
 
 

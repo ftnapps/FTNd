@@ -134,7 +134,7 @@ lineedit.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/user
 mblang.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/mberrors.h
 mbuser.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbuser.h
 page.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h dispfile.h input.h chat.h page.h timeout.h mail.h language.h
-bye.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h dispfile.h misc.h language.h bye.h
+bye.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h ../lib/nodelist.h dispfile.h misc.h language.h bye.h
 funcs.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/msg.h ../lib/clcomm.h ../lib/mberrors.h funcs.h
 mail.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/msgtext.h ../lib/clcomm.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h door.h whoson.h
 newuser.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h funcs.h input.h newuser.h language.h timeout.h change.h dispfile.h

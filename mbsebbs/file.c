@@ -297,12 +297,12 @@ void Download(void)
 	    }
 	}
     }
-	
+    fclose(tf);
+
     /*
      * If anything left to download...
      */
     if (!Count) {
-	fclose(tf);
 	SetFileArea(OldArea);
 	unlink("taglist");
 	/* No files marked for download */
@@ -458,6 +458,7 @@ void Download(void)
 		}
 	    }
 	}
+	fclose(tf);
     }
 
     /*
@@ -844,147 +845,151 @@ int FilenameScan()
  */
 int NewfileScan(int AskStart) 
 { 
-	FILE	*pAreas, *pFile;
-	long	ifDate, itDate;
-	char	*temp, *Date;
-	int	Found, Count = 0;
-	_Tag	T;
+    FILE    *pAreas, *pFile;
+    long    ifDate, itDate;
+    char    *temp, *Date;
+    int	    Found, Count = 0;
+    _Tag    T;
 
-        Date     = calloc(81, sizeof(char));
-        temp     = calloc(81, sizeof(char));
+    Date     = calloc(81, sizeof(char));
+    temp     = calloc(81, sizeof(char));
 
-	iLineCount = 2;
-	arecno     = 1; /* Reset Area Number to One  */
+    iLineCount = 2;
+    arecno     = 1; /* Reset Area Number to One  */
 
-	if (AskStart) {
-		Enter(2);
-		/* Search for new since your last call [Y/n]: */
-		pout(11, 0, (char *) Language(273));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
-
-		if (toupper(Getone()) == Keystroke(273, 1)) {
-			Enter(1);
-			/* Enter new date to search for [DD-MM-YYYY]: */
-			pout(2, 0, (char *) Language(274));
-			colour(CFG.InputColourF, CFG.InputColourB);
-			fflush(stdout);
-			GetDate(temp, 10);
-		} else
-			strcpy(temp, LastLoginDate);
-	} else
-		strcpy(temp, LastLoginDate);
-
-	Syslog('+', "NewfileScan() since %s", temp);
-	clear();
-	/* File Search by Date */
-	pout(15, 0, (char *) Language(275));
+    if (AskStart) {
 	Enter(2);
+	/* Search for new since your last call [Y/n]: */
+	pout(11, 0, (char *) Language(273));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	fflush(stdout);
 
-	Date[0] = temp[6];	/* Swap the date around      */
-	Date[1] = temp[7];	/* Instead of   DD-MM-YYYY   */
-	Date[2] = temp[8];	/* Let it equal YYYYMMDD     */
-	Date[3] = temp[9];	/* Swap the date around      */
-	Date[4] = temp[3];	/* Swap the date around      */
-	Date[5] = temp[4];	/* because when you convert  */
-	Date[6] = temp[0];	/* a string to an int you    */
-	Date[7] = temp[1];	/* loose the front Zero      */
-	Date[8] = '\0';   	/* making the number smaller */
-	itDate = atol(Date);
+	if (toupper(Getone()) == Keystroke(273, 1)) {
+	    Enter(1);
+	    /* Enter new date to search for [DD-MM-YYYY]: */
+	    pout(2, 0, (char *) Language(274));
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    fflush(stdout);
+	    GetDate(temp, 10);
+	} else
+	    strcpy(temp, LastLoginDate);
+    } else
+	strcpy(temp, LastLoginDate);
 
-	InitTag();
+    Syslog('+', "NewfileScan() since %s", temp);
+    clear();
+    /* File Search by Date */
+    pout(15, 0, (char *) Language(275));
+    Enter(2);
 
-	if ((pAreas = OpenFareas(FALSE)) == NULL)
-		return 0;
+    Date[0] = temp[6];	/* Swap the date around      */
+    Date[1] = temp[7];	/* Instead of   DD-MM-YYYY   */
+    Date[2] = temp[8];	/* Let it equal YYYYMMDD     */
+    Date[3] = temp[9];	/* Swap the date around      */
+    Date[4] = temp[3];	/* Swap the date around      */
+    Date[5] = temp[4];	/* because when you convert  */
+    Date[6] = temp[0];	/* a string to an int you    */
+    Date[7] = temp[1];	/* loose the front Zero      */
+    Date[8] = '\0';   	/* making the number smaller */
+    itDate = atol(Date);
 
-	while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
+    InitTag();
 
-		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && 
-		    (strlen(area.Password) == 0) && (area.New)) {
+    if ((pAreas = OpenFareas(FALSE)) == NULL)
+	return 0;
 
-			if ((pFile = OpenFileBase(arecno, FALSE)) != NULL ) {
+    while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
 
-				Sheader();
-				Found = FALSE;
-				Nopper();
+	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0) && (area.New)) {
 
-				while (fread(&file, sizeof(file), 1, pFile) == 1) {
-					strcpy(temp, StrDateDMY(file.UploadDate)); /* Realloc Space for Date */
-					Date[0] = temp[6];	/* Swap the date around      */
-					Date[1] = temp[7];	/* Instead of   DD-MM-YYYY   */
-					Date[2] = temp[8];	/* Let it equal YYYYMMDD     */
-					Date[3] = temp[9];	/* Swap the date around      */
-					Date[4] = temp[3];	/* Swap the date around      */
-					Date[5] = temp[4];	/* because when you convert  */
-					Date[6] = temp[0];	/* a string to an int you    */
-					Date[7] = temp[1];	/* loose the front Zero      */
-					Date[8] = '\0';		/* making the number smaller */
-								/* and invalid to this cause */
-					ifDate = atol(Date);
+	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL ) {
 
-			                if(ifDate >= itDate) {
-						if (!Found) {
-							printf("\n\n");
-							if (iLC(2) == 1) {
-								free(Date);
-								free(temp);
-								return 1;
-							}
-							Found = TRUE;
-						}
+		Sheader();
+		Found = FALSE;
+		Nopper();
 
-						memset(&T, 0, sizeof(T));
-						T.Area   = arecno;
-						T.Active = FALSE;
-						T.Cost   = file.Cost;
-						T.Size   = file.Size;
-						strncpy(T.SFile, file.Name, 12);
-						strncpy(T.LFile, file.LName, 80);
-						SetTag(T);
+		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		    strcpy(temp, StrDateDMY(file.UploadDate));	/* Realloc Space for Date */
+		    Date[0] = temp[6];	    /* Swap the date around      */
+		    Date[1] = temp[7];	    /* Instead of   DD-MM-YYYY   */
+		    Date[2] = temp[8];	    /* Let it equal YYYYMMDD     */
+		    Date[3] = temp[9];	    /* Swap the date around      */
+		    Date[4] = temp[3];	    /* Swap the date around      */
+		    Date[5] = temp[4];	    /* because when you convert  */
+		    Date[6] = temp[0];	    /* a string to an int you    */
+		    Date[7] = temp[1];	    /* loose the front Zero      */
+		    Date[8] = '\0';	    /* making the number smaller */
+					    /* and invalid to this cause */
+		    ifDate = atol(Date);
 
-						Count++;
-						if (ShowOneFile() == 1) {
-							free(Date);
-							free(temp);
-							return 1;
-						}
-
-					} /* End of if */
-				} /* End of while */
-
+		    if (ifDate >= itDate) {
+			if (!Found) {
+			    printf("\n\n");
+			    if (iLC(2) == 1) {
+				free(Date);
+				free(temp);
 				fclose(pFile);
+				fclose(pAreas);
+				return 1;
+			    }
+			    Found = TRUE;
+			}
 
-				/*
-				 * Add 2 blank lines after found files.
-				 */
-				if (Found) {
-					printf("\n\n");
-					if (iLC(2) == 1) {
-						free(Date);
-						free(temp);
-						return 1;
-					}
-				}
+			memset(&T, 0, sizeof(T));
+			T.Area   = arecno;
+			T.Active = FALSE;
+			T.Cost   = file.Cost;
+			T.Size   = file.Size;
+			strncpy(T.SFile, file.Name, 12);
+			strncpy(T.LFile, file.LName, 80);
+			SetTag(T);
 
-			} /* End of open filebase */
+			Count++;
+			if (ShowOneFile() == 1) {
+			    free(Date);
+			    free(temp);
+			    fclose(pFile);
+			    fclose(pAreas);
+			    return 1;
+			}
 
-		} /* End of check new files scan */
-		arecno++; /* Go to next file area */
+		    } /* End of if */
+		} /* End of while */
 
-	} /* End of Main */
+		fclose(pFile);
 
-	if (Count)
-		Syslog('+', "Found %d new files", Count);
-	fclose(pAreas);
-	printf("\n");
-	if (Count)
-		Mark();
-	else
-		Pause();
+		/*
+		 * Add 2 blank lines after found files.
+		 */
+		if (Found) {
+		    printf("\n\n");
+		    if (iLC(2) == 1) {
+			free(Date);
+			free(temp);
+			fclose(pAreas);
+			return 1;
+		    }
+		}
 
-	free(temp);
-	free(Date);
-	return 1;
+	    } /* End of open filebase */
+
+	} /* End of check new files scan */
+	arecno++; /* Go to next file area */
+
+    } /* End of Main */
+
+    if (Count)
+	Syslog('+', "Found %d new files", Count);
+    fclose(pAreas);
+    printf("\n");
+    if (Count)
+	Mark();
+    else
+	Pause();
+
+    free(temp);
+    free(Date);
+    return 1;
 }
 
 

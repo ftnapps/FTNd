@@ -4,7 +4,7 @@
  * Purpose ...............: Misc functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -62,75 +62,74 @@ int		LC_Door = FALSE;
 
 int ChkFiles()
 {
-	FILE	*pCallerLog, *pUsersFile;
-	char	*sDataFile;
-	time_t	Now;
-	char	*temp;
+    FILE	*fp;
+    char	*temp;
+    time_t	Now;
 
-	sDataFile = calloc(PATH_MAX, sizeof(char));
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
-	chmod(sDataFile, 0660);
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	/*
-	 * Check if users.data exists, if not create a new one.
-	 */
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((pUsersFile = fopen(temp,"rb")) == NULL) {
-		if((pUsersFile = fopen(temp,"wb")) == NULL) {
-			WriteError("$Can't create %s", temp);
-			ExitClient(MBERR_INIT_ERROR); 
-		} else {
-			usrconfighdr.hdrsize = sizeof(usrconfighdr);
-			usrconfighdr.recsize = sizeof(usrconfig);
-			fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, pUsersFile);
-			fclose(pUsersFile);
-			chmod(temp, 0660);
-		}
+    /*
+     * Check if users.data exists, if not create a new one.
+     */
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp,"rb")) == NULL) {
+	if ((fp = fopen(temp,"wb")) == NULL) {
+	    WriteError("$Can't create %s", temp);
+	    ExitClient(MBERR_INIT_ERROR); 
+	} else {
+	    usrconfighdr.hdrsize = sizeof(usrconfighdr);
+	    usrconfighdr.recsize = sizeof(usrconfig);
+	    fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, fp);
+	    fclose(fp);
 	}
+    } else {
+	fclose(fp);
+    }
+    chmod(temp, 0660);
 
-	/*
-	 * Check if sysinfo.data exists, if not, create a new one.
-	 */
-	if ((pCallerLog = fopen(sDataFile, "rb")) == NULL) {
-		if((pCallerLog = fopen(sDataFile, "wb")) == NULL)
-			WriteError("$ChkFiles: Can't create %s", sDataFile);
-		else {
-			memset((char *)&SYSINFO, 0, sizeof(SYSINFO));
-			Now = time(NULL);
-			SYSINFO.StartDate = Now;
-
-			rewind(pCallerLog);
-			fwrite(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-			fclose(pCallerLog);
-			chmod(sDataFile, 0660);
-		}
+    /*
+     * Check if sysinfo.data exists, if not, create a new one.
+     */
+    sprintf(temp, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "rb")) == NULL) {
+	if ((fp = fopen(temp, "wb")) == NULL) {
+	    WriteError("$ChkFiles: Can't create %s", temp);
+	} else {
+	    memset((char *)&SYSINFO, 0, sizeof(SYSINFO));
+	    Now = time(NULL);
+	    SYSINFO.StartDate = Now;
+	    fwrite(&SYSINFO, sizeof(SYSINFO), 1, fp);
+	    fclose(fp);
 	}
-	free(temp);
-	free(sDataFile);
-	return 1;
+    } else {
+	fclose(fp);
+    }
+    chmod(temp, 0660);
+
+    free(temp);
+    return 1;
 }
 
 
 
 void DisplayLogo()
 {
-	FILE	*pLogo;
-	char	*sString, *temp;
+    FILE	*pLogo;
+    char	*sString, *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sString = calloc(81, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sString = calloc(81, sizeof(char));
 
-	sprintf(temp, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
-	if((pLogo = fopen(temp,"rb")) == NULL)
-		WriteError("$DisplayLogo: Can't open %s", temp);
-	else {
-		while( fgets(sString,80,pLogo) != NULL)
-			printf("%s", sString);
-		fclose(pLogo);
-	}
-	free(sString);
-	free(temp);
+    sprintf(temp, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
+    if ((pLogo = fopen(temp,"rb")) == NULL)
+	WriteError("$DisplayLogo: Can't open %s", temp);
+    else {
+	while (fgets(sString, 80, pLogo) != NULL)
+	    printf("%s", sString);
+	fclose(pLogo);
+    }
+    free(sString);
+    free(temp);
 }
 
 
@@ -140,85 +139,86 @@ void DisplayLogo()
  */
 void Setup(char *Option, char *variable)
 {
-	ReadExitinfo();
-	strcpy(Option, variable);
-	WriteExitinfo();
+    ReadExitinfo();
+    strcpy(Option, variable);
+    WriteExitinfo();
 }
 
 
 
 void SaveLastCallers()
 {
-	FILE	*pGLC;
-	char	*sFileName;
-	char	sFileDate[9];
-	char	sDate[9];
-	struct	stat statfile;
+    FILE	*pGLC;
+    char	*sFileName, sFileDate[9], sDate[9];
+    struct stat	statfile;
 
-	/*
-	 * First check if we passed midnight, in that case we
-	 * create a fresh file.
-	 */
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-	stat(sFileName, &statfile);
+    /*
+     * First check if we passed midnight, in that case we create a fresh file.
+     */
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+    stat(sFileName, &statfile);
 
-	sprintf(sFileDate,"%s", StrDateDMY(statfile.st_mtime));
-	sprintf(sDate,"%s", (char *) GetDateDMY());
+    sprintf(sFileDate,"%s", StrDateDMY(statfile.st_mtime));
+    sprintf(sDate,"%s", (char *) GetDateDMY());
 
-	if ((strcmp(sDate,sFileDate)) != 0) {
-		unlink(sFileName);
-		Syslog('+', "Erased old lastcall.data");
+    if ((strcmp(sDate,sFileDate)) != 0) {
+	unlink(sFileName);
+	Syslog('+', "Erased old lastcall.data");
+    }
+
+    /*
+     * Check if file exists, if not create the file and write the fileheader.
+     */
+    if ((pGLC = fopen(sFileName, "r")) == NULL) {
+	if ((pGLC = fopen(sFileName, "w")) != NULL) {
+	    LCALLhdr.hdrsize = sizeof(LCALLhdr);
+	    LCALLhdr.recsize = sizeof(LCALL);
+	    fwrite(&LCALLhdr, sizeof(LCALLhdr), 1, pGLC);
+	    fclose(pGLC);
+	    Syslog('+', "Created new lastcall.data");
 	}
+    } else {
+	fclose(pGLC);
+    }
+    chmod(sFileName, 0660);
 
-	/*
-	 * Check if file exists, if not create the file and
-	 * write the fileheader.
-	 */
-	if ((pGLC = fopen(sFileName, "r")) == NULL) {
-		if ((pGLC = fopen(sFileName, "w")) != NULL) {
-			LCALLhdr.hdrsize = sizeof(LCALLhdr);
-			LCALLhdr.recsize = sizeof(LCALL);
-			fwrite(&LCALLhdr, sizeof(LCALLhdr), 1, pGLC);
-			Syslog('+', "Created new lastcall.data");
-		}
-		fclose(pGLC);
-	}
-	chmod(sFileName, 0660);
+    /*
+     * Now append a record
+     */
+    if ((pGLC = fopen(sFileName,"a+")) == NULL) {
+	WriteError("$Can't open %s", sFileName);
+	return;
+    } else {
+	ReadExitinfo();
+	memset(&LCALL, 0, sizeof(LCALL));
+	sprintf(LCALL.UserName,"%s", exitinfo.sUserName);
+	sprintf(LCALL.Handle,"%s", exitinfo.sHandle);
+	sprintf(LCALL.Name, "%s", exitinfo.Name);
+	sprintf(LCALL.TimeOn,"%s", StartTime);
+	sprintf(LCALL.Device,"%s", pTTY);
+	LCALL.SecLevel = exitinfo.Security.level;
+	LCALL.Calls    = exitinfo.iTotalCalls;
+	LCALL.CallTime = exitinfo.iConnectTime;
+	LCALL.Download = LC_Download;
+	LCALL.Upload   = LC_Upload;
+	LCALL.Read     = LC_Read;
+	LCALL.Wrote    = LC_Wrote;
+	LCALL.Chat     = LC_Chat;
+	LCALL.Olr      = LC_Olr;
+	LCALL.Door     = LC_Door;
+	sprintf(LCALL.Speed, "%s", ttyinfo.speed);
 
-	if ((pGLC = fopen(sFileName,"a+")) == NULL) {
-		WriteError("$Can't open %s", sFileName);
-		return;
-	} else {
-		ReadExitinfo();
-		memset(&LCALL, 0, sizeof(LCALL));
-		sprintf(LCALL.UserName,"%s", exitinfo.sUserName);
-		sprintf(LCALL.Handle,"%s", exitinfo.sHandle);
-		sprintf(LCALL.Name, "%s", exitinfo.Name);
-		sprintf(LCALL.TimeOn,"%s", StartTime);
-		sprintf(LCALL.Device,"%s", pTTY);
-		LCALL.SecLevel = exitinfo.Security.level;
-		LCALL.Calls  = exitinfo.iTotalCalls;
-		LCALL.CallTime = exitinfo.iConnectTime;
-		LCALL.Download = LC_Download;
-		LCALL.Upload = LC_Upload;
-		LCALL.Read = LC_Read;
-		LCALL.Wrote = LC_Wrote;
-		LCALL.Chat = LC_Chat;
-		LCALL.Olr = LC_Olr;
-		LCALL.Door = LC_Door;
-		sprintf(LCALL.Speed, "%s", ttyinfo.speed);
+	/* If true then set hidden so it doesn't display in lastcallers function */
+	LCALL.Hidden = exitinfo.Hidden;
 
-		/* If true then set hidden so it doesn't display in lastcallers function */
-		LCALL.Hidden = exitinfo.Hidden;
+	sprintf(LCALL.Location,"%s", exitinfo.sLocation);
 
-		sprintf(LCALL.Location,"%s", exitinfo.sLocation);
-
-		rewind(pGLC); /* ???????????? */
-		fwrite(&LCALL, sizeof(LCALL), 1, pGLC);
-		fclose(pGLC);
- 	}
-	free(sFileName);
+	rewind(pGLC); /* ???????????? */
+	fwrite(&LCALL, sizeof(LCALL), 1, pGLC);
+	fclose(pGLC);
+    }
+    free(sFileName);
 }
 
 
@@ -226,14 +226,14 @@ void SaveLastCallers()
 /* Gets Date for GetLastCallers(), returns DD:Mmm */
 char *GLCdate()
 {
-	static char	GLcdate[15];
+    static char	GLcdate[15];
 
-	Time_Now = time(NULL);
-	l_date = localtime(&Time_Now);
-	sprintf(GLcdate,"%02d-", l_date->tm_mday);
+    Time_Now = time(NULL);
+    l_date = localtime(&Time_Now);
+    sprintf(GLcdate,"%02d-", l_date->tm_mday);
 
-	strcat(GLcdate,GetMonth(l_date->tm_mon+1));
-	return(GLcdate);
+    strcat(GLcdate,GetMonth(l_date->tm_mon+1));
+    return(GLcdate);
 }
 
 

@@ -225,6 +225,13 @@ int Crash_Option(faddr *Dest)
 		printf("%c", Keystroke(462, 1));
 	}
 	fflush(stdout);
+
+	if (Nlent->addr.domain)
+	    free(Nlent->addr.domain);
+	Nlent->addr.domain = NULL;
+	if (Nlent->url)
+	    free(Nlent->url);
+	Nlent->url = NULL;
     }
 
     Dest->point = point;
@@ -399,7 +406,7 @@ void Post_Msg()
     int		    i, x, cc;
     char	    *FidoNode;
     faddr	    *Dest = NULL;
-    node	    *Nlent;
+    node	    *Nlent = NULL;
     unsigned short  point;
 
     Line = 1;
@@ -505,6 +512,13 @@ void Post_Msg()
 		    point = Dest->point;
 		    Dest->point = 0;
 		    if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
+			if (Nlent->url)
+			    free(Nlent->url);
+			Nlent->url = NULL;
+			if (Nlent->addr.domain)
+			    free(Nlent->addr.domain);
+			Nlent->addr.domain = NULL;
+
 			colour(YELLOW, BLACK);
 			if (point)
 			    printf("Boss     : ");
@@ -577,6 +591,7 @@ void Post_Msg()
 	if (toupper(Getone()) == Keystroke(162, 0)) {
 	    for(i = 0; i < (TEXTBUFSIZE + 1); i++)
 		free(Message[i]);
+	    tidy_faddr(Dest);
 	    return;
 	}
     }
@@ -642,6 +657,7 @@ void Post_Msg()
     
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
 	free(Message[i]);
+    tidy_faddr(Dest);
 }
 
 

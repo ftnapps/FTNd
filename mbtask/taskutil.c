@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager, utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -194,30 +194,30 @@ void Syslog(int grade, const char *format, ...)
 int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 {
     int     i, oldmask;
-    FILE    *log;
+    FILE    *fp;
         
     oldmask = umask(066);
-    log = fopen(fn, "a");
+    fp = fopen(fn, "a");
     umask(oldmask);
-    if (log == NULL) {
+    if (fp == NULL) {
 	oserr = errno;
 	Syslog('!', "$Cannot open user logfile %s", fn);
 	return -1;
     }
 
-    fprintf(log, "%s %s %s[%s] ", grade, date(), prname, prpid);
+    fprintf(fp, "%s %s %s[%s] ", grade, date(), prname, prpid);
     for (i = 0; i < strlen(format); i++) {
 	if (iscntrl(format[i])) {
-	    fputc('^', log);
-	    fputc(format[i] + 64, log);
+	    fputc('^', fp);
+	    fputc(format[i] + 64, fp);
 	} else {
-	    fputc(format[i], log);
+	    fputc(format[i], fp);
 	}
     }
-    fputc('\n', log);
-    fflush(log);
+    fputc('\n', fp);
+    fflush(fp);
 
-    if (fclose(log) != 0) {
+    if (fclose(fp) != 0) {
         oserr = errno;
         Syslog('!', "$Cannot close user logfile %s", fn);
 	return -1;

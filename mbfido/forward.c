@@ -4,7 +4,7 @@
  * Purpose ...............: File forward to a node
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -71,7 +71,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	T_File.Cost = TIC.FileCost + (TIC.FileCost * nodes.AddPerc / 1000);
 	if ((nodes.Credit < (nodes.StopLevel + T_File.Cost))  && (!TIC.Charge)) {
 	    Syslog('!', "No forward to %s, not enough credit left", aka2str(Node));
-	    exit;
+	    return;
 	}
 
 	/*

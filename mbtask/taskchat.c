@@ -352,7 +352,7 @@ void chat_cleanuser(pid_t pid)
 void chat_msg(int channel, char *nick, char *msg)
 {
     int	    i;
-    char    buf[128], *log;
+    char    buf[128], *logm;
 
     if (nick == NULL)
 	sprintf(buf, "%s", msg);
@@ -360,10 +360,10 @@ void chat_msg(int channel, char *nick, char *msg)
 	sprintf(buf, "<%s> %s", nick, msg);
 
     if (CFG.iAutoLog && strlen(CFG.chat_log)) {
-	log = calloc(PATH_MAX, sizeof(char));
-	sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
-	ulog(log, (char *)"+", chat_channels[channel].name, (char *)"-1", buf);
-	free(log);
+	logm = calloc(PATH_MAX, sizeof(char));
+	sprintf(logm, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+	ulog(logm, (char *)"+", chat_channels[channel].name, (char *)"-1", buf);
+	free(logm);
     }
     buf[79] = '\0';
 

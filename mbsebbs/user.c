@@ -59,7 +59,7 @@
 
 extern int	sock;
 extern pid_t	mypid;
-char		*StartTime;
+char		*StartTime = NULL;
 
 
 /* 

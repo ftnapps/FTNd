@@ -422,7 +422,7 @@ char *reg_ipm(char *data)
  */
 int reg_spm(char *data)
 {
-    char    *cnt, *from, *too, *txt, *log;
+    char    *cnt, *from, *too, *txt, *logm;
     int	    i;
 
     cnt  = strtok(data, ",");
@@ -463,10 +463,10 @@ int reg_spm(char *data)
 	    reginfo[i].ismsg = TRUE;
 
 	    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
-		log = calloc(PATH_MAX, sizeof(char));
-		sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
-		ulog(log, (char *)"+", from, (char *)"-1", txt);
-		free(log);
+		logm = calloc(PATH_MAX, sizeof(char));
+		sprintf(logm, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+		ulog(logm, (char *)"+", from, (char *)"-1", txt);
+		free(logm);
 	    }
 
 	    Syslog('+', "reg_spm: rec=%d in=%d out=%d ismsg=%d", i, reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);

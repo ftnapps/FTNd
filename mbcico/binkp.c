@@ -1112,7 +1112,7 @@ void fill_binkp_list(binkp_list **bll, file_list *fal, off_t offs)
 
     if (stat(fal->local, &tstat) != 0) {
 	Syslog('!', "$Can't add %s to sendlist", fal->local);
-	exit;
+	return;
     }
     if (strstr(fal->remote, (char *)".pkt"))
 	nethold += tstat.st_size;

@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2544,13 +2544,13 @@ union Converter {
 
 float IEEToMSBIN(float f)
 {
-    int		    sign, exp;
+    int		    sign, expo;
     union Converter t;
 
     t.f[0] = f;
     sign = t.uc[3] / 0x80;
-    exp = ((t.ui[1] >> 7) - 0x7F + 0x81) & 0xFF;
-    t.ui[1] = (t.ui[1] & 0x7F) | (sign << 7) | (exp << 8);
+    expo = ((t.ui[1] >> 7) - 0x7F + 0x81) & 0xFF;
+    t.ui[1] = (t.ui[1] & 0x7F) | (sign << 7) | (expo << 8);
 
     return t.f[0];
 }
@@ -2560,12 +2560,12 @@ float IEEToMSBIN(float f)
 float MSBINToIEEE(float f)
 {
     union Converter t;
-    int		    sign, exp;
+    int		    sign, expo;
 
     t.f[0] = f;
     sign = t.uc[2] / 0x80;
-    exp  = (t.uc[3] - 0x81 + 0x7f) & 0xff;
-    t.ui[1] = (t.ui[1] & 0x7f) | (exp << 7) | (sign << 15);
+    expo = (t.uc[3] - 0x81 + 0x7f) & 0xff;
+    t.ui[1] = (t.ui[1] & 0x7f) | (expo << 7) | (sign << 15);
     return t.f[0];
 }
 

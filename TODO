@@ -58,6 +58,8 @@ mbsebbs:
 
 	N: Reimplememnt CHRS kludge.
 
+	N: There are some bugs in the bbs list menu. Make it a door?
+
 newuser:
 	N: Test with valgrind.
 

@@ -102,7 +102,7 @@ char *xstrcat(char *src, char *add)
 
 
 
-void InitClient(char *user, char *myname, char *where, char *log, long loggr, char *err, char *mgr, char *debug)
+void InitClient(char *user, char *myname, char *where, char *logfname, long loggr, char *err, char *mgr, char *debug)
 {
 	if ((getenv("MBSE_ROOT")) == NULL) {
 		printf("Could not get the MBSE_ROOT environment variable\n");
@@ -112,7 +112,7 @@ void InitClient(char *user, char *myname, char *where, char *log, long loggr, ch
 	}
 
 	sprintf(progname, "%s", myname);
-	sprintf(logfile, "%s", log);
+	sprintf(logfile, "%s", logfname);
 	sprintf(errfile, "%s", err);
 	sprintf(mgrfile, "%s", mgr);
 	sprintf(logdebug, "%s", debug);

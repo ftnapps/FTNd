@@ -143,9 +143,9 @@ int main(int argc, char **argv)
      * Trap signals
      */
     for(i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
-	else
+	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
 

@@ -7,7 +7,7 @@
  *			    Intro New BBS at logon
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -597,115 +597,114 @@ void BBS_Show(void)
 
 void BBS_Delete(void)
 {
-	FILE		*pBBSLine;
-	int		recno = 0;
-	long int	offset;
-	int		nrecno = 0;
-	char		srecno[7];
-	char		*sFileName;
- 	char		stemp[50];
-	char		sUser[35];
+    FILE    *pBBSLine;
+    int	    recno = 0, nrecno = 0;
+    long    offset;
+    char    srecno[7], *sFileName, stemp[50], sUser[35];
 
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	sprintf(sFileName,"%s/etc/bbslist.data", getenv("MBSE_ROOT"));
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName,"%s/etc/bbslist.data", getenv("MBSE_ROOT"));
 
-	if((pBBSLine = fopen(sFileName, "r+")) == NULL) {
-		WriteError("Can't open file: %s", sFileName);
-		free(sFileName);
-		return;
-	}
+    if ((pBBSLine = fopen(sFileName, "r+")) == NULL) {
+	WriteError("Can't open file: %s", sFileName);
 	free(sFileName);
-	fread(&bbshdr, sizeof(bbshdr),1 , pBBSLine);
+	return;
+    }
+    fread(&bbshdr, sizeof(bbshdr),1 , pBBSLine);
 
-	if(exitinfo.GraphMode) {
-		colour(9, 0);
-		printf("[2J\n\t\t\t\t%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177);
-		printf("\t\t\t\t%c%c", 177, 177);
-		colour(15, 0);
-		/* Delete BBS */
-		printf(" %s", (char *) Language(330));
-		colour(9, 0);
-		printf("%c%c %c\n", 177, 177, 219);
-		printf("\t\t\t\t%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %c\n",  177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 219);
-		printf("\t\t\t\t  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n\n", 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 219);
-	} else {
-		printf("\n\t\t\t\t+--------------+\n");
-		/* Delete BBS */
-		printf("\t\t\t\t|  %s |\n", (char *) Language(330));
-		printf("\t\t\t\t+--------------+\n\n");
-	}
+    if (exitinfo.GraphMode) {
+	colour(9, 0);
+	printf("[2J\n\t\t\t\t%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177);
+	printf("\t\t\t\t%c%c", 177, 177);
+	colour(15, 0);
+	/* Delete BBS */
+	printf(" %s", (char *) Language(330));
+	colour(9, 0);
+	printf("%c%c %c\n", 177, 177, 219);
+	printf("\t\t\t\t%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c %c\n",  177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 177, 219);
+	printf("\t\t\t\t  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n\n", 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 220, 219);
+    } else {
+	printf("\n\t\t\t\t+--------------+\n");
+	/* Delete BBS */
+	printf("\t\t\t\t|  %s |\n", (char *) Language(330));
+	printf("\t\t\t\t+--------------+\n\n");
+    }
 
-	Enter(1);
-	/* Please enter number to delete: */
-	pout(15, 0, (char *) Language(331));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(srecno, 9);
+    Enter(1);
+    /* Please enter number to delete: */
+    pout(15, 0, (char *) Language(331));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(srecno, 9);
 
-	if((strcmp(srecno,"")) == 0)
-		return;
+    if ((strcmp(srecno,"")) == 0)
+	return;
 
-	recno = atoi(srecno);
-	nrecno = recno;
-	recno = 0;
+    recno = atoi(srecno);
+    nrecno = recno;
+    recno = 0;
 		                                                                                           
-	while (fread(&bbs, bbshdr.recsize, 1, pBBSLine) == 1)
-		recno++;
+    while (fread(&bbs, bbshdr.recsize, 1, pBBSLine) == 1)
+	recno++;
 
-	if(nrecno >= recno) {
-		Enter(1);
-		/* Record does not exist */
-		pout(12, 0, (char *) Language(319));
-		Enter(2);
-		fclose(pBBSLine);
-		Pause();
-		return;
-	} else {
-		offset = bbshdr.hdrsize + (nrecno * bbshdr.recsize);
-		if (fseek(pBBSLine, offset, 0) != 0)
-			WriteError("Can't move pointer there. %s",sFileName); 
+    if (nrecno >= recno) {
+	Enter(1);
+	/* Record does not exist */
+	pout(12, 0, (char *) Language(319));
+	Enter(2);
+	fclose(pBBSLine);
+	free(sFileName);
+	Pause();
+	return;
+    } else {
+	offset = bbshdr.hdrsize + (nrecno * bbshdr.recsize);
+	if (fseek(pBBSLine, offset, 0) != 0)
+	    WriteError("Can't move pointer there. %s",sFileName); 
 
-		fread(&bbs, sizeof(bbs), 1, pBBSLine);
+	fread(&bbs, sizeof(bbs), 1, pBBSLine);
 	                                                                                            
-		/* Convert Record Int to string, so we can print to logfiles */
-		sprintf(stemp,"%d", nrecno);
+	/* Convert Record Int to string, so we can print to logfiles */
+	sprintf(stemp,"%d", nrecno);
 
-		/* Print UserName to String, so we can compare for deletion */
-		sprintf(sUser,"%s", exitinfo.sUserName);
+	/* Print UserName to String, so we can compare for deletion */
+	sprintf(sUser,"%s", exitinfo.sUserName);
 
-		if((strcmp(sUser, bbs.UserName)) != 0) {
-			if((!SYSOP) && (exitinfo.Security.level < CFG.sysop_access)) {
-				/* Record */ /* does not belong to you.*/
-				printf("\n%s%s %s\n\n", (char *) Language(332), stemp, (char *) Language(333));
-				Syslog('!', "User tried to delete somebody else's bbslist record: %s", stemp);
-				return;
-			}
-		}
-
-		if ((bbs.Available == FALSE)) {
-			colour(12, 0);
-			/* Record */
-			printf("\n%s%d %s\n\n", (char *) Language(332), nrecno, (char *) Language(334));
-			Syslog('!', "User tried to mark an already marked bbslist record: %s", stemp);
-		} else {
-			bbs.Available = FALSE;
-			colour(10, 0);
-			/* Record: */
-			printf("\n%s%d %s\n\n", (char *) Language(332), nrecno, (char *) Language(335));
-			Syslog('+', "User marked bbslist record for deletion: %s", stemp);
-			colour(15, 2);
-			/* The Sysop will purge the list once he has *//* seen you have marked a record for deletion. */
-			printf("%s\n%s\n\n", (char *) Language(336), (char *) Language(337));
-			Pause();
-		}
-
-		offset = bbshdr.hdrsize + (nrecno * bbshdr.recsize);
-		if(fseek(pBBSLine, offset, 0) != 0)
-			WriteError("Can't move pointer there. %s",sFileName); 
-		fwrite(&bbs, sizeof(bbs), 1, pBBSLine);
+	if ((strcmp(sUser, bbs.UserName)) != 0) {
+	    if ((!SYSOP) && (exitinfo.Security.level < CFG.sysop_access)) {
+		/* Record */ /* does not belong to you.*/
+		printf("\n%s%s %s\n\n", (char *) Language(332), stemp, (char *) Language(333));
+		Syslog('!', "User tried to delete somebody else's bbslist record: %s", stemp);
+		free(sFileName);
+		fclose(pBBSLine);
+		return;
+	    }
 	}
 
-	fclose(pBBSLine);
-	chmod(sFileName, 0660);
+	if ((bbs.Available == FALSE)) {
+	    colour(12, 0);
+	    /* Record */
+	    printf("\n%s%d %s\n\n", (char *) Language(332), nrecno, (char *) Language(334));
+	    Syslog('!', "User tried to mark an already marked bbslist record: %s", stemp);
+	} else {
+	    bbs.Available = FALSE;
+	    colour(10, 0);
+	    /* Record: */
+	    printf("\n%s%d %s\n\n", (char *) Language(332), nrecno, (char *) Language(335));
+	    Syslog('+', "User marked bbslist record for deletion: %s", stemp);
+	    colour(15, 2);
+	    /* The Sysop will purge the list once he has *//* seen you have marked a record for deletion. */
+	    printf("%s\n%s\n\n", (char *) Language(336), (char *) Language(337));
+	    Pause();
+	}
+
+	offset = bbshdr.hdrsize + (nrecno * bbshdr.recsize);
+	if (fseek(pBBSLine, offset, 0) != 0)
+	    WriteError("Can't move pointer there. %s",sFileName); 
+	fwrite(&bbs, sizeof(bbs), 1, pBBSLine);
+    }
+
+    fclose(pBBSLine);
+    chmod(sFileName, 0660);
+    free(sFileName);
 }
 
 

@@ -3,7 +3,7 @@ $Id$
 v0.39.4		08-Dec-2003
 
 		Added --enable-experiment mbtask debugging code for Hans.
-
+		
 	general:
 		Added French language file created by Francois Thunus. This
 		translation is not yet complete.
@@ -18,6 +18,9 @@ v0.39.4		08-Dec-2003
 		Changed the fix in JAM to prevent the copy overwrite. This may
 		also fixed the message renumbering bug introduced with previous
 		version.
+
+	mbsebbs:
+		A lot of small fixes for problems found with valgrind.
 
 	mbsetup:
 		Added default record for french language.

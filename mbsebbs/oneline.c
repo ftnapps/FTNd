@@ -4,7 +4,7 @@
  * Purpose ...............: Oneliner functions.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -48,23 +48,26 @@ int	iColour;		/* Current color	*/
 
 void Oneliner_Check()
 {
-	FILE	*pOneline;
-	char	*sFileName;
+    FILE    *pOneline;
+    char    *sFileName;
 
-	sFileName = calloc(128, sizeof(char));
-	sprintf(sFileName, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
-	if ((pOneline = fopen(sFileName, "r")) == NULL) {
-		if ((pOneline = fopen(sFileName, "w")) != NULL) {
-			olhdr.hdrsize = sizeof(olhdr);
-			olhdr.recsize = sizeof(ol);
-			fwrite(&olhdr, sizeof(olhdr), 1, pOneline);
-			fclose(pOneline);
-			chmod(sFileName, 0660);
-			Syslog('-', "Created oneliner database");
-		}
+    if ((pOneline = fopen(sFileName, "r")) == NULL) {
+	if ((pOneline = fopen(sFileName, "w")) != NULL) {
+	    olhdr.hdrsize = sizeof(olhdr);
+	    olhdr.recsize = sizeof(ol);
+	    fwrite(&olhdr, sizeof(olhdr), 1, pOneline);
+	    fclose(pOneline);
+	    Syslog('-', "Created oneliner database");
 	}
-	free(sFileName);
+    } else {
+	fclose(pOneline);
+    }
+
+    chmod(sFileName, 0660);
+    free(sFileName);
 }
 
 
