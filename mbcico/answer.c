@@ -112,7 +112,7 @@ int answer(char *stype)
 		IsDoing("Answer EMSI");
 	} else if (strncmp(stype,"ibn",3) == 0) {
 		st=SESSION_BINKP;
-		IsDoing("Answer Binkp");
+		IsDoing("Answer binkp");
 	} else {
 		st=SESSION_UNKNOWN;
 		IsDoing("Answer unknown");

@@ -90,7 +90,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 
 	if (role) {
 		Syslog('s', "Start outbound session type %s with %s", typestr(type), ascfnode(a,0x1f));
-		IsDoing("Outb %s", ascfnode(a, 0x0f));
 	} else
 		Syslog('s', "Start inbound session type %s", typestr(type));
 
@@ -98,18 +97,19 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 			addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 		if (role == 0) {
-			if (tcp_mode == TCPMODE_IBN)
+			if (tcp_mode == TCPMODE_IBN) {
 				Syslog('+', "Incoming IBN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-			else if (tcp_mode == TCPMODE_ITN)
+				IsDoing("Incoming IBN/TCP");
+			} else if (tcp_mode == TCPMODE_ITN) {
 				Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-			else if (tcp_mode == TCPMODE_IFC)
+				IsDoing("Incoming ITN/TCP");
+			} else if (tcp_mode == TCPMODE_IFC) {
 				Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-			else if (tcp_mode == TCPMODE_NONE) {
+				IsDoing("Incoming IFC/TCP");
+			} else if (tcp_mode == TCPMODE_NONE) {
 				WriteError("Unknown TCP connection, parameter missing");
 				die(101);
 			}
-
-			IsDoing("Answer TCP");
 		}
 		session_flags |= SESSION_TCP;
 	}

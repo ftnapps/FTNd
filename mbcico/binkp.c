@@ -64,7 +64,7 @@ int		resync(off_t);
 
 static int	orgbinkp(void);
 static int	ansbinkp(void);
-static int	binkp_batch(file_list *);
+static int	binkp_batch(file_list *, int);
 
 extern char	*ttystat[];
 extern int	Loaded;
@@ -102,13 +102,11 @@ int binkp(int role)
 
 	if (role == 1) {
 		Syslog('+', "BINKP start outbound session");
-		IsDoing("Binkp %s outb", ascfnode(remote->addr, 0x0f));
 		if (orgbinkp()) {
 			rc = 5;
 		}
 	} else {
 		Syslog('+', "BINKP start inbound session");
-		IsDoing("Answer binkp");
 		if (ansbinkp()) {
 			rc = 5;
 		}
@@ -140,7 +138,7 @@ int binkp(int role)
 		request = NULL;
 	}
 
-	rc = binkp_batch(tosend);
+	rc = binkp_batch(tosend, role);
 	tidy_filelist(tosend, (rc == 0));
 	tosend = NULL;
 
@@ -157,7 +155,7 @@ int binkp(int role)
 		tosend = create_filelist(eff_remote, nonhold_mail, 0);
 		for (tmpfl = tosend; tmpfl->next; tmpfl = tmpfl->next);
 		tmpfl->next = respond;
-		rc = binkp_batch(tosend);
+		rc = binkp_batch(tosend, role);
 		tmpfl->next = NULL;
 	}
 
@@ -413,6 +411,7 @@ SM_STATE(waitconn)
 
     Loaded = FALSE;
     Syslog('+', "Start binkp session with %s", ascfnode(remote->addr, 0x1f));
+    IsDoing("Connect binkp %s", ascfnode(remote->addr, 0x1f));
     b_banner(TRUE);
     binkp_send_control(MM_NUL,"OPT MB CRC");
 
@@ -794,7 +793,7 @@ void debug_binkp_list(binkp_list **bll)
 
 
 
-int binkp_batch(file_list *to_send)
+int binkp_batch(file_list *to_send, int role)
 {
     int		    rc = 0, NotDone, rxlen = 0, txlen = 0, rxerror = FALSE;
     static char	    *txbuf, *rxbuf;
@@ -820,6 +819,7 @@ int binkp_batch(file_list *to_send)
 
     batchnr++;
     Syslog('+', "Binkp: starting batch %d", batchnr);
+    IsDoing("Binkp %s %s", (role == 1)?"out":"inb", ascfnode(remote->addr, 0x1f));
     txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     rname = calloc(512, sizeof(char));
