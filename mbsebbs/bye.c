@@ -121,9 +121,15 @@ void Good_Bye(int onsig)
     	cookedport();
     }
 Syslog('b', "Will hangup");
-    	hangup();
+    hangup();
     Syslog('b', "Done");
 
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, SIG_DFL);
+    }
+Syslog('b', "Restored signals");
+    
     if (do_mailout)
 	CreateSema((char *)"mailout");
 
@@ -169,7 +175,8 @@ void Quick_Bye(int onsig)
      * Prevent that we call die() if something goes wrong next
      */
     for (i = 0; i < NSIG; i++)
-	signal(i, SIG_DFL);
+	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, SIG_DFL);
 
     colour(LIGHTGRAY, BLACK);
     sleep(3);

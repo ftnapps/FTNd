@@ -79,12 +79,6 @@ int main(int argc, char **argv)
     }
 
     /*
-     * Set the users device to writable by other bbs users, so they
-     * can send one-line messages
-     */
-//    chmod(tty, 00666);
-
-    /*
      * Get MBSE_ROOT Path and load Config into Memory
      */
     FindMBSE();
@@ -114,8 +108,7 @@ int main(int argc, char **argv)
     }
 
     PUTSTR((char *)"Loading MBSE BBS ...");
-    PUTCHAR('\r');
-    PUTCHAR('\n');
+    Enter(1);
 
     if ((p = getenv("CONNECT")) != NULL)
 	Syslog('+', "CONNECT %s", p);
@@ -156,8 +149,6 @@ int main(int argc, char **argv)
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
-	else if ((i != SIGKILL) && (i != SIGSTOP))
-	    signal(i, SIG_IGN);
     }
 
     /*

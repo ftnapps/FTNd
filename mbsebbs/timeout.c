@@ -48,7 +48,7 @@ extern	int hanged_up;			/* Hanged up status		*/
 void die(int onsig)
 {
     if (onsig <= NSIG)
-	signal(onsig, SIG_IGN);
+	signal(onsig, SIG_DFL);
      
     /*
      * First check if there is a child running, if so, kill it.
