@@ -190,7 +190,19 @@ void Check(void)
 		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    } else {
 		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-	    } 
+	    }
+
+	    /*
+	     * We don't do any upgrade, so the header must be correct.
+	     */
+	    if (fdbhdr.hdrsize != sizeof(fdbhdr)) {
+		Syslog('+', "fAreas hdrsize is corrupt: %d", fdbhdr.hdrsize);
+		return;
+	    }
+	    if (fdbhdr.recsize != sizeof(fdb)) {
+		Syslog('+', "fAreas recordsize is corrupt: %d, expected %d", fdbhdr.recsize, sizeof(fdbhdr));
+		return;
+	    }
 
 	    /*
 	     * Now start checking the files in the filedatabase

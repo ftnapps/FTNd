@@ -40,6 +40,8 @@ v0.51.4		11-Apr-2004
 	mbfile:
 		The toberep command now logs the toberep.data in the debug
 		logfile.
+		Mbfile check will abort if a header of a files database is 
+		corrupt.
 
 	mbnntp:
 		New program, news server to read echomail with a news client.
