@@ -12,6 +12,10 @@ v0.37.9		17-Sep-2003
 	script:
 		Fixed debian init script to allow it to run over the network.
 
+	examples:
+		Updated Spaning and English chat menu to use the internal
+		chatserver.
+
 
 v0.37.8		14-Sep-2003 - 17-Sep-2003
 
