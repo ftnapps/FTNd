@@ -88,7 +88,7 @@ char			ttyfn[PATH_MAX];	/* TTY file name	*/
 int     		ping_isocket;		/* Ping socket		*/
 int     		icmp_errs = 0;		/* ICMP error counter	*/
 int			internet = FALSE;	/* Internet is down	*/
-float			Load;			/* System Load		*/
+double			Load;			/* System Load		*/
 int			Processing;		/* Is system running	*/
 int			ZMH = FALSE;		/* Zone Mail Hour	*/
 int			UPSalarm = FALSE;	/* UPS alarm status	*/
@@ -1169,12 +1169,14 @@ void scheduler(void)
     static char	    doing[32], buf[2048];
     time_t          now;
     struct tm       *tm, *utm;
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
     FILE	    *fp;
-    float	    lavg1, lavg2, lavg3;
+#endif
     struct pollfd   pfd;
     struct in_addr  paddr;
     int		    call_work;
     static int	    call_entry = MAXTASKS;
+    double	    loadavg[3];
 
     InitFidonet();
 
@@ -1275,22 +1277,30 @@ void scheduler(void)
 	/*
 	 * Check the systems load average. FIXME: doesn't work in FreeBSD !!!
 	 */
+	Load = 0.0;
+	loadavg[0] = loadavg[1] = loadavg[2] = 0.0;
+#if defined(__FreeBSD__) || defined(__NetBSD__)
+	if (getloadavg(loadavg, 3) == 3) {
+	    Load = loadavg[0];
+	}
+#else
 	if ((fp = fopen((char *)"/proc/loadavg", "r"))) {
-	    if (fscanf(fp, "%f %f %f", &lavg1, &lavg2, &lavg3) == 3) {
-		Load = lavg1;
-		if (lavg1 >= TCFG.maxload) {
-		    if (!LOADhi) {
-			tasklog('!', "System load too high: %2.2f (%2.2f)", lavg1, TCFG.maxload);
-			LOADhi = TRUE;
-		    }
-		} else {
-		    if (LOADhi) {
-			tasklog('!', "System load normal: %2.2f (%2.2f)", lavg1, TCFG.maxload);
-			LOADhi = FALSE;
-		    }
-		}
+	    if (fscanf(fp, "%f %f %f", &loadavg[0], &loadavg[1], &loadavg[2]) == 3) {
+		Load = loadavg[0];
 	    }
 	    fclose(fp);
+	}
+#endif
+	if (Load >= TCFG.maxload) {
+	    if (!LOADhi) {
+		tasklog('!', "System load too high: %2.2f (%2.2f)", Load, TCFG.maxload);
+		LOADhi = TRUE;
+	    }
+	} else {
+	    if (LOADhi) {
+		tasklog('!', "System load normal: %2.2f (%2.2f)", Load, TCFG.maxload);
+		LOADhi = FALSE;
+	    }
 	}
 
 	/*
@@ -1306,7 +1316,7 @@ void scheduler(void)
 	else if (Processing)
 	    sprintf(doing, "Waiting (%d)", oldmin);
 	else
-	    sprintf(doing, "Overload %2.2f", lavg1);
+	    sprintf(doing, "Overload %2.2f", Load);
 
 	sprintf(reginfo[0].doing, "%s", doing);
 	reginfo[0].lastcon = time(NULL);

@@ -4464,6 +4464,9 @@ v0.33.19        26-Oct-2001
 		used by ppp scripts to see if there is work and when there is
 		no more work to do. Not important for permament connected
 		systems.
+		Made the FreeBSD and NetBSD disk status calls reliable now
+		that I know how to really get the mounted filesystems.
+		The system load value is implemented on FreeBSD and NetBSD.
 
 	mbmon:
 		Changed the lastcaller screen to display the External Door

@@ -82,7 +82,7 @@ typedef struct {
 
 static char	stat_fn[PATH_MAX];	/* Statusfile name		*/
 static status_r	status;			/* Status data			*/
-extern float	Load;			/* System Load			*/
+extern double	Load;			/* System Load			*/
 extern int	Processing;		/* Is system running		*/
 
 
