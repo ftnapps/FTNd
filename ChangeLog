@@ -47,6 +47,7 @@ v0.35.05	19-Oct-2002
 		Removed the default Virnet record from the fidonet setup.
 		In node setup the pack netmail switch is renamed and is now 
 		for all mail.
+		Added length check when importing taglines.
 
 	mbfido:
 		With ticfile processing, the KeepDate setup setting now works.

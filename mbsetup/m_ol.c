@@ -403,183 +403,185 @@ void InitOneline(void)
 
 void PurgeOneline(void)
 {
-	FILE	*pOneline, *fp;
-	int	recno = 0;
-	int	iCount = 0;
-	char	sFileName[PATH_MAX];
-	char	temp[81];
+    FILE    *pOneline, *fp;
+    int	    recno = 0, iCount = 0;
+    char    *sFileName, temp[81];
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
-	set_color(CYAN, BLACK);
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
+    set_color(CYAN, BLACK);
+    working(1, 0, 0);
+
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    IsDoing("Purge Oneliners");
+
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
+
+    if ((pOneline = fopen(sFileName, "r")) == NULL) {
+	free(sFileName);
+	return;
+    }
+
+    fread(&olhdr, sizeof(olhdr), 1, pOneline);
+    while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
+	recno++;
+	if (!ol.Available) 
+	    iCount++;
+    }
+    working(0, 0, 0);
+
+    sprintf(temp, "%d records, %d records to purge", recno, iCount);
+    mvprintw(7, 6, temp);
+    if (iCount == 0) {
+	mvprintw(9, 6, "Press any key");
+	readkey(9, 20, LIGHTGRAY, BLACK);
+	free(sFileName);
+	return;
+    }
+
+    if (yes_no((char *)"Purge deleted records") == TRUE) {
 	working(1, 0, 0);
-
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	IsDoing("Purge Oneliners");
-
-	sprintf(sFileName,"%s/etc/oneline.data", getenv("MBSE_ROOT"));
-
-	if ((pOneline = fopen(sFileName, "r")) == NULL) {
-		return;
-	}
-
-	fread(&olhdr, sizeof(olhdr), 1, pOneline);
+	fseek(pOneline, olhdr.hdrsize, 0);
+	fp = fopen("tmp.1", "a");
+	fwrite(&olhdr, sizeof(olhdr), 1, fp);
 	while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
-		recno++;
-		if (!ol.Available) 
-			iCount++;
+	    if (ol.Available)
+		fwrite(&ol, olhdr.recsize, 1, fp);
 	}
+	fclose(fp);
+	fclose(pOneline);
+	if ((rename("tmp.1", sFileName)) != 0)
+	    working(2, 0, 0);
+	unlink("tmp.1");
 	working(0, 0, 0);
-
-	sprintf(temp, "%d records, %d records to purge", recno, iCount);
-	mvprintw(7, 6, temp);
-	if (iCount == 0) {
-		mvprintw(9, 6, "Press any key");
-		readkey(9, 20, LIGHTGRAY, BLACK);
-		return;
-	}
-
-	if (yes_no((char *)"Purge deleted records") == TRUE) {
-		working(1, 0, 0);
-		fseek(pOneline, olhdr.hdrsize, 0);
-		fp = fopen("tmp.1", "a");
-		fwrite(&olhdr, sizeof(olhdr), 1, fp);
-		while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
-			if (ol.Available)
-				fwrite(&ol, olhdr.recsize, 1, fp);
-		}
-		fclose(fp);
-		fclose(pOneline);
-		if ((rename("tmp.1", sFileName)) != 0)
-			working(2, 0, 0);
-		unlink("tmp.1");
-		working(0, 0, 0);	
-	}
+	free(sFileName);
+    }
 }
 
 
 
 void ImportOneline(void)
 {
-	FILE	*Imp, *pOneline;
-	char	temp[PATH_MAX];
-	int	recno = 0;
-	struct	tm *l_date;
-	char	buf[12];
-	time_t	Time;
+    FILE    *Imp, *pOneline;
+    int	    recno = 0, skipped = 0;
+    struct  tm *l_date;
+    char    *temp, buf[12];
+    time_t  Time;
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
-	set_color(CYAN, BLACK);
-	memset(&temp, 0, sizeof(temp));
-	strcpy(temp, edit_str(21, 6,64, temp, (char *)"The ^full path and filename^ of the file to import"));
-	if (strlen(temp) == 0)
-		return;
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
+    set_color(CYAN, BLACK);
+    temp = calloc(PATH_MAX, sizeof(char));
+    memset(&temp, 0, sizeof(temp));
+    strcpy(temp, edit_str(21, 6,64, temp, (char *)"The ^full path and filename^ of the file to import"));
+    if (strlen(temp) == 0) {
+	free(temp);
+	return;
+    }
 
-	working(1, 0, 0);
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
+    working(1, 0, 0);
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	free(temp);
+	return;
+    }
 
-	if ((Imp = fopen(temp, "r")) == NULL) {
-		working(2, 0, 0);
-		working(0, 0, 0);
-		mvprintw(21, 6, temp);
-		readkey(22, 6, LIGHTGRAY, BLACK);
-		return;
-	}
-
-	sprintf(temp, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
-
-	/*
-	 * Check if database exists, if not create a new one
-	 */
-	if ((pOneline = fopen(temp, "r" )) == NULL) {
-		if ((pOneline = fopen(temp, "w")) != NULL) {
-			olhdr.hdrsize = sizeof(olhdr);
-			olhdr.recsize = sizeof(ol);
-			fwrite(&olhdr, sizeof(olhdr), 1, pOneline);
-			fclose(pOneline);
-		}
-	} else
-		fclose(pOneline);
-
-	/*
-	 * Open database for appending
-	 */
-	if ((pOneline = fopen(temp, "a+")) == NULL) {
-		working(2, 0, 0);
-		working(0, 0, 0);
-		fclose(Imp);
-		mvprintw(21, 6, temp);
-		readkey(22, 6, LIGHTGRAY, BLACK);
-		return;
-	}
-
-	Time = time(NULL);
-	l_date = localtime(&Time);
-	sprintf(buf, "%02d-%02d-%04d", l_date->tm_mday, l_date->tm_mon+1, l_date->tm_year+1900);
-
-	while ((fgets(temp, 80, Imp)) != NULL) {
-		Striplf(temp);
-		if ((strlen(temp) > 0) && (strlen(temp) < 78)) {
-			memset(&ol, 0, sizeof(ol));
-			strcpy(ol.Oneline, temp);
-			strcpy(ol.UserName, CFG.sysop_name);
-			strcpy(ol.DateOfEntry, buf);
-			ol.Available = TRUE;
-			fwrite(&ol, sizeof(ol), 1, pOneline);
-			recno++;
-		}
-	}
-
-	fclose(Imp);
-	fclose(pOneline);
+    if ((Imp = fopen(temp, "r")) == NULL) {
+	working(2, 0, 0);
 	working(0, 0, 0);
-
-	sprintf(temp, "Imported %d records", recno);
 	mvprintw(21, 6, temp);
-	readkey(21, 27, LIGHTGRAY, BLACK);
+	readkey(22, 6, LIGHTGRAY, BLACK);
+	free(temp);
+	return;
+    }
+
+    sprintf(temp, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+
+    /*
+     * Check if database exists, if not create a new one
+     */
+    if ((pOneline = fopen(temp, "r" )) == NULL) {
+	if ((pOneline = fopen(temp, "w")) != NULL) {
+	    olhdr.hdrsize = sizeof(olhdr);
+	    olhdr.recsize = sizeof(ol);
+	    fwrite(&olhdr, sizeof(olhdr), 1, pOneline);
+	    fclose(pOneline);
+	}
+    } else
+	fclose(pOneline);
+
+    /*
+     * Open database for appending
+     */
+    if ((pOneline = fopen(temp, "a+")) == NULL) {
+	working(2, 0, 0);
+	working(0, 0, 0);
+	fclose(Imp);
+	mvprintw(21, 6, temp);
+	readkey(22, 6, LIGHTGRAY, BLACK);
+	free(temp);
+	return;
+    }
+
+    Time = time(NULL);
+    l_date = localtime(&Time);
+    sprintf(buf, "%02d-%02d-%04d", l_date->tm_mday, l_date->tm_mon+1, l_date->tm_year+1900);
+
+    while ((fgets(temp, 80, Imp)) != NULL) {
+	Striplf(temp);
+	if ((strlen(temp) > 0) && (strlen(temp) < 69)) {
+	    memset(&ol, 0, sizeof(ol));
+	    strcpy(ol.Oneline, temp);
+	    strcpy(ol.UserName, CFG.sysop_name);
+	    strcpy(ol.DateOfEntry, buf);
+	    ol.Available = TRUE;
+	    fwrite(&ol, sizeof(ol), 1, pOneline);
+	    recno++;
+	} else {
+	    skipped++;
+	}
+    }
+
+    fclose(Imp);
+    fclose(pOneline);
+    working(0, 0, 0);
+
+    sprintf(temp, "Imported %d records, skipped %d long/empty lines", recno, skipped);
+    mvprintw(21, 6, temp);
+    readkey(21, 27, LIGHTGRAY, BLACK);
+    free(temp);
 }
 
 
 
 void ol_menu(void)
 {
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.7   ONELINER SETUP");
-		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Oneliners");
-		mvprintw( 8, 6, "2.    Purge Oneliners");
-		mvprintw( 9, 6, "3.    Import Oneliners");
+    for (;;) {
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "8.7   ONELINER SETUP");
+	set_color(CYAN, BLACK);
+	mvprintw( 7, 6, "1.    Edit Oneliners");
+	mvprintw( 8, 6, "2.    Purge Oneliners");
+	mvprintw( 9, 6, "3.    Import Oneliners");
 
-		switch(select_menu(3)) {
-		case 0:
-			return;
-
-		case 1:
-			EditOneline();
-			break;
-
-		case 2:
-			PurgeOneline();
-			break;
-
-		case 3:
-			ImportOneline();
-			break;
-
-		}
+	switch(select_menu(3)) {
+	    case 0: return;
+	    case 1: EditOneline();
+		    break;
+	    case 2: PurgeOneline();
+		    break;
+	    case 3: ImportOneline();
+		    break;
 	}
+    }
 }
 
 
