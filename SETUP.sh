@@ -35,7 +35,7 @@ If anything goes wrong with this script, look at the output of
 the file SETUP.log that is created by this script in this
 directory. If you can't get this script to run on your system,
 mail this logfile to Michiel Broek at 2:280/2802 or email it
-to mbroek@users.sourceforge.net
+to mbroek@mbse.dds.nl
 
 EOF
 
