@@ -151,7 +151,7 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
                  * If not a bad or dupe message, eat the first
                  * line (AREA:tag).
                  */
-		buf = calloc(2048, sizeof(char));
+		buf = calloc(2049, sizeof(char));
                 rewind(fp);
                 if (!dupe && !bad)
                         fgets(buf , 2048, fp);

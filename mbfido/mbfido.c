@@ -676,9 +676,8 @@ int TossPkts(void)
 	 * Read all .pkt filenames, get the timestamp and add them
 	 * to the memory array for later sort on filedate.
 	 */ 
-	while((de = readdir(dp)))
-	 	if ((strlen(de->d_name) == 12) &&
-		    (strncasecmp(de->d_name+8,".pkt",4) == 0)) {
+	while ((de = readdir(dp)))
+	 	if ((strlen(de->d_name) == 12) && (strncasecmp(de->d_name+8,".pkt",4) == 0)) {
 			stat(de->d_name, &sbuf);
 			fill_fdlist(&fdl, de->d_name, sbuf.st_mtime);
 		}
