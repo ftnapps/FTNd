@@ -35,6 +35,7 @@
       <li><a href='#1.4'>What does the quest switch in the bbs user setup mean?</a></li>
       <li><a href='#1.5'>How do I monitor as the things happen?</a></li>
       <li><a href='#1.6'>How do I start mbsebbs from inetd?</a></li>
+      <li><a href='#1.7'>I just installed mbse, now I get a Socket send failed error 2</a></li>
     </ol>
     <p>&nbsp;</p>
     <li><a name="_Fidosetup"></a><a href='#2'>Fidonet Setup</a></li>
@@ -135,6 +136,26 @@ How to start mbsebbs from inetd?
 <tr><td valign=top>A 1.6</td><td>
 This is described in the documentation of the <a
 href="programs/mblogin.html">mblogin</a> program.
+</td></tr></table>
+<a href='#_Installation'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<p>
+
+<table width=100%>
+<tr><td width=50 valign=top><a name="1.7">Q 1.7</a></td><td>
+I just installed mbse, now I get a Socket send failed error 2.
+</td></tr>
+<tr><td valign=top>A 1.7</td><td>
+With a normal system boot the <b>mbtask</b> daemon will be started by one of the
+systems init scripts. If you just installed mbse you need to do this for the
+first time manually. As user <b>mbse</b> issue the following commands:
+<pre>
+
+mbtask
+mbstat open
+
+</pre>
+This will start the daemon, the daemon creates the default databases. Then you
+can use <b>mbsetup</b> to configure your new system.
 </td></tr></table>
 <a href='#_Installation'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>
