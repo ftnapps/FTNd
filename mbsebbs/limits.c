@@ -46,7 +46,8 @@
 #include <grp.h>
 #include "getdef.h"
 #include "utmp.h"
-#include "ulimit.h"
+#include "limits.h"
+
 
 #ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
@@ -61,6 +62,8 @@
 
 #define LOGIN_ERROR_RLIMIT	1
 #define LOGIN_ERROR_LOGIN	2
+
+
 
 /* Set a limit on a resource */
 /*
@@ -114,50 +117,6 @@ int set_umask(const char *value)
 }
 
 
-/* Counts the number of user logins and check against the limit */
-int check_logins(const char *name, const char *maxlogins)
-{
-	struct utmp *ut;
-	unsigned int limit, count;
-	char **endptr = (char **) &maxlogins;
-	const char *ml_orig = maxlogins;
-
-	limit = strtol(maxlogins, endptr, 10);
-	if (limit == 0 && ml_orig == *endptr) /* no chars read */
-		return 0;
-
-	if (limit == 0) /* maximum 0 logins ? */ {
-		syslog(LOG_WARNING, "No logins allowed for `%s'\n", name);
-		return LOGIN_ERROR_LOGIN;
-	}
-
-	setutent();
-	count = 0;
-	while ((ut = getutent())) {
-#ifdef USER_PROCESS
-		if (ut->ut_type != USER_PROCESS)
-			continue;
-#endif
-#ifndef	__FreeBSD__
-		if (ut->ut_user[0] == '\0')
-			continue;
-		if (strncmp(name, ut->ut_user, sizeof(ut->ut_user)) != 0)
-			continue;
-#endif
-		if (++count > limit)
-			break;
-	}
-	endutent();
-	/*
-	 * This is called after setutmp(), so the number of logins counted
-	 * includes the user who is currently trying to log in.
-	 */
-	if (count > limit) {
-		syslog(LOG_WARNING, "Too many logins (max %d) for %s\n", limit, name);
-		return LOGIN_ERROR_LOGIN;
-	}
-	return 0;
-}
 
 /* Function setup_user_limits - checks/set limits for the curent login
  * Original idea from Joel Katz's lshell. Ported to shadow-login
@@ -272,8 +231,7 @@ int do_user_limits(const char *buf, const char *name)
 			break;
 		case 'l':
 		case 'L':
-			/* LIMIT the number of concurent logins */
-			retval |= check_logins(name, pp);
+			/* LIMIT the number of concurent logins, not for MBSE BBS. */
 			break;
 		case 'p':
 		case 'P':
@@ -282,6 +240,8 @@ int do_user_limits(const char *buf, const char *name)
 	}
 	return retval;
 }
+
+
 
 int setup_user_limits(const char *uname)
 {
@@ -419,4 +379,13 @@ void setup_limits(const struct passwd *info)
 	}
 }
 
+
+
+void set_filesize_limit(int blocks)
+{
+    struct rlimit rlimit_fsize;
+
+    rlimit_fsize.rlim_cur = rlimit_fsize.rlim_max = 512L * blocks;
+    setrlimit(RLIMIT_FSIZE, &rlimit_fsize);
+}
 

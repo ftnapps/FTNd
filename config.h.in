@@ -121,6 +121,9 @@
 /* Define if you have the <lastlog.h> header file.  */
 #undef HAVE_LASTLOG_H
 
+/* Define if you have the initgroups function.  */
+#undef HAVE_INITGROUPS
+
 /* Define if you have ut_host in struct utmp.  */
 #undef UT_HOST
 

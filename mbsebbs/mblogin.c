@@ -61,10 +61,8 @@
 
 #include "env.h"
 #include "chowntty.h"
-#include "ttytype.h"
 #include "basename.h"
 #include "shell.h"
-#include "failure.h"
 #include "pwdcheck.h"
 #include "pwauth.h"
 #include "loginprompt.h"
@@ -72,9 +70,7 @@
 #include "limits.h"
 #include "setupenv.h"
 #include "sub.h"
-#include "ulimit.h"
 #include "log.h"
-#include "tz.h"
 #include "setugid.h"
 
 
@@ -126,7 +122,6 @@ extern	char	**environ;
 #define	RETRIES	3
 #endif
 
-static struct faillog faillog;
 
 #define	NO_SHADOW	"no shadow password for `%s'%s\n"
 #define	BAD_PASSWD	"invalid password for `%s'%s\n"
@@ -307,8 +302,7 @@ static void init_env(void)
 
 	if ((tmp = getenv("TZ"))) {
 		addenv("TZ", tmp);
-	} else if ((cp = getdef_str("ENV_TZ")))
-		addenv(*cp == '/' ? tz(cp) : cp, NULL);
+	}
 
 	/* 
 	 * Add the clock frequency so that profiling commands work
@@ -697,19 +691,11 @@ auth_ok:
 			failed = 1;
 		}
 #endif
-		if (pwd && getdef_bool("FAILLOG_ENAB") && ! failcheck (pwent.pw_uid, &faillog, failed)) {
-			syslog(LOG_CRIT, FAILURE_CNT, username, fromhost);
-			failed = 1;
-		}
 		if (! failed)
 			break;
 
-		/* don't log non-existent users */
-		if (pwd && getdef_bool("FAILLOG_ENAB"))
-			failure (pwent.pw_uid, tty, &faillog);
 		if (getdef_str("FTMP_FILE") != NULL) {
 			const char *failent_user;
-
 #if HAVE_UTMPX_H
 			failent = utxent;
 			gettimeofday(&(failent.ut_tv), NULL);
@@ -725,13 +711,10 @@ auth_ok:
 				else
 					failent_user = "UNKNOWN";
 			}
-#ifndef	__FreeBSD__
 			strncpy(failent.ut_user, failent_user, sizeof(failent.ut_user));
-#endif
 #ifdef USER_PROCESS
 			failent.ut_type = USER_PROCESS;
 #endif
-			failtmp(&failent);
 		}
 		memzero(username, sizeof username);
 
@@ -862,9 +845,6 @@ auth_ok:
 	textdomain(PACKAGE);
 
 	addenv("HUSHLOGIN=TRUE", NULL);
-
-	if (getdef_str("TTYTYPE_FILE") != NULL && getenv("TERM") == NULL)
-  		ttytype (tty);
 
 	signal(SIGQUIT, SIG_DFL);	/* default quit signal */
 	signal(SIGTERM, SIG_DFL);	/* default terminate signal */

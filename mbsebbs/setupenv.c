@@ -60,6 +60,7 @@ void addenv_path(const char *varname, const char *dirname, const char *filename)
 }
 
 
+
 void read_env_file(const char *filename)
 {
 	FILE *fp;
@@ -93,89 +94,11 @@ void read_env_file(const char *filename)
 		/* NUL-terminate the name */
 		*cp++ = '\0';
 		val = cp;
-#if 0  /* XXX untested, and needs rewrite with fewer goto's :-) */
-/*
- (state, char_type) -> (state, action)
-
- state: unquoted, single_quoted, double_quoted, escaped, double_quoted_escaped
- char_type: normal, white, backslash, single, double
- action: remove_curr, remove_curr_skip_next, remove_prev, finish XXX
-*/
-no_quote:
-		if (*cp == '\\') {
-			/* remove the backslash */
-			remove_char(cp);
-			/* skip over the next character */
-			if (*cp)
-				cp++;
-			goto no_quote;
-		} else if (*cp == '\'') {
-			/* remove the quote */
-			remove_char(cp);
-			/* now within single quotes */
-			goto s_quote;
-		} else if (*cp == '"') {
-			/* remove the quote */
-			remove_char(cp);
-			/* now within double quotes */
-			goto d_quote;
-		} else if (*cp == '\0') {
-			/* end of string */
-			goto finished;
-		} else if (isspace(*cp)) {
-			/* unescaped whitespace - end of string */
-			*cp = '\0';
-			goto finished;
-		} else {
-			cp++;
-			goto no_quote;
-		}
-s_quote:
-		if (*cp == '\'') {
-			/* remove the quote */
-			remove_char(cp);
-			/* unquoted again */
-			goto no_quote;
-		} else if (*cp == '\0') {
-			/* end of string */
-			goto finished;
-		} else {
-			/* preserve everything within single quotes */
-			cp++;
-			goto s_quote;
-		}
-d_quote:
-		if (*cp == '\"') {
-			/* remove the quote */
-			remove_char(cp);
-			/* unquoted again */
-			goto no_quote;
-		} else if (*cp == '\\') {
-			cp++;
-			/* if backslash followed by double quote, remove backslash
-			   else skip over the backslash and following char */
-			if (*cp == '"')
-				remove_char(cp - 1);
-			else if (*cp)
-				cp++;
-			goto d_quote;
-		} eise if (*cp == '\0') {
-			/* end of string */
-			goto finished;
-		} else {
-			/* preserve everything within double quotes */
-			goto d_quote;
-		}
-finished:
-#endif /* 0 */
-		/*
-		 * XXX - should handle quotes, backslash escapes, etc.
-		 * like the shell does.
-		 */
 		addenv(name, val);
 	}
 	fclose(fp);
 }
+
 
 
 
@@ -184,7 +107,6 @@ finished:
  *	set the HOME, SHELL, MAIL, PATH, and LOGNAME or USER environmental
  *	variables.
  */
-
 void setup_env(struct passwd *info)
 {
 	char *cp, *envf;
@@ -247,25 +169,25 @@ void setup_env(struct passwd *info)
 	/*
 	 * MAILDIR environment variable for Qmail
 	 */
-	if ((cp=getdef_str("QMAIL_DIR")))
-		addenv_path("MAILDIR", info->pw_dir, cp);
+//	if ((cp=getdef_str("QMAIL_DIR")))
+//		addenv_path("MAILDIR", info->pw_dir, cp);
 
 	/*
 	 * Create the MAIL environmental variable and export it.  login.defs
 	 * knows the prefix.
 	 */
 
-	if ((cp=getdef_str("MAIL_DIR")))
-		addenv_path("MAIL", cp, info->pw_name);
-	else if ((cp=getdef_str("MAIL_FILE")))
-		addenv_path("MAIL", info->pw_dir, cp);
-	else {
-#if defined(MAIL_SPOOL_FILE)
-		addenv_path("MAIL", info->pw_dir, MAIL_SPOOL_FILE);
-#elif defined(MAIL_SPOOL_DIR)
-		addenv_path("MAIL", MAIL_SPOOL_DIR, info->pw_name);
-#endif
-	}
+//	if ((cp=getdef_str("MAIL_DIR")))
+//		addenv_path("MAIL", cp, info->pw_name);
+//	else if ((cp=getdef_str("MAIL_FILE")))
+//		addenv_path("MAIL", info->pw_dir, cp);
+//	else {
+//#if defined(MAIL_SPOOL_FILE)
+//		addenv_path("MAIL", info->pw_dir, MAIL_SPOOL_FILE);
+//#elif defined(MAIL_SPOOL_DIR)
+//		addenv_path("MAIL", MAIL_SPOOL_DIR, info->pw_name);
+//#endif
+//	}
 
 	/*
 	 * Read environment from optional config file.  --marekm
@@ -273,3 +195,4 @@ void setup_env(struct passwd *info)
 	if ((envf = getdef_str("ENVIRON_FILE")))
 		read_env_file(envf);
 }
+

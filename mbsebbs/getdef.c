@@ -1,13 +1,12 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/getdef.c
+ * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -68,6 +67,8 @@
 #include <syslog.h>
 #include "getdef.h"
 
+
+#ifndef	__FreeBSD__
 
 /*
  * A configuration item definition.
@@ -399,3 +400,5 @@ int main(int argc, char **argv)
 	exit(0);
 }
 #endif
+
+#endif /* ifndef __FreeBSD__ */

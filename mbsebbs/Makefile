@@ -13,9 +13,9 @@ SRCS		= bank.c commonio.c filesub.c language.c mbtoberep.c \
 		  safe.c timeout.c chat.c file.c getdef.c mbchat.c mbstat.c misc.c \
 		  offline.c putpwent.c salt.c user.c mbnewusr.c input.c whoson.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c pw_util.c \
-		  mblogin.c env.c chowntty.c ttytype.c shell.c basename.c \
-		  failure.c pwdcheck.c pwauth.c loginprompt.c utmp.c limits.c \
-		  setupenv.c sub.c ulimit.c log.c tz.c setugid.c utent.c
+		  mblogin.c env.c chowntty.c shell.c basename.c \
+		  pwdcheck.c pwauth.c loginprompt.c utmp.c limits.c \
+		  setupenv.c sub.c log.c setugid.c utent.c
 HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  putpwent.h salt.h timeout.h bbslist.h email.h fsedit.h lineedit.h \
 		  mbstat.h msgutil.h oneline.h sgetpwent.h user.h bye.h morefile.h \
@@ -24,9 +24,9 @@ HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  pinfo.h rad64.h chat.h file.h getdef.h mbpasswd.h menu.h \
 		  nextuser.h pop3.h safe.h timecheck.h mbnewusr.h input.h whoson.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h pw_util.h \
-		  mblogin.h env.h chowntty.h ttytype.h shell.h basename.h \
-		  failure.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h \
-		  setupenv.h sub.h ulimit.h log.h tz.h setugid.h utent.h
+		  mblogin.h env.h chowntty.h shell.h basename.h \
+		  pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h \
+		  setupenv.h sub.h log.h setugid.h utent.h
 MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
 		  misc.o pinfo.o nextuser.o oneline.o page.o fsedit.o \
 		  bye.o change.o mbsebbs.o safe.o timeout.o user.o timecheck.o \
@@ -55,9 +55,9 @@ MBUSER_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/
 MBUSERADD_OBJS	= mbuseradd.o
 MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
 		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o pw_util.o
-MBLOGIN_OBJS	= getdef.o env.o chowntty.o ttytype.o shell.o basename.o failure.o \
+MBLOGIN_OBJS	= getdef.o env.o chowntty.o shell.o basename.o \
 		  pwdcheck.o pwauth.o encrypt.o loginprompt.o utmp.o limits.o setupenv.o sub.o \
-		  xmalloc.o ulimit.o log.o tz.o setugid.o utent.o mblogin.o
+		  xmalloc.o log.o setugid.o utent.o mblogin.o
 OTHER		= Makefile
 TARGET		= mbsebbs mbnewusr mball mblang mbchat mbstat mbtoberep mbuser mbuseradd mbpasswd mblogin
 
@@ -220,23 +220,19 @@ userlist.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib
 timestats.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h timestats.h funcs.h language.h input.h exitinfo.h
 logentry.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h logentry.h
 pw_util.o: pw_util.h
-mblogin.o: ../config.h mblogin.h getdef.h env.h chowntty.h ttytype.h basename.h shell.h failure.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h setupenv.h sub.h ulimit.h log.h tz.h setugid.h
+mblogin.o: ../config.h mblogin.h getdef.h env.h chowntty.h basename.h shell.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h setupenv.h sub.h log.h setugid.h
 env.o: ../config.h mblogin.h xmalloc.h
 chowntty.o: ../config.h mblogin.h getdef.h chowntty.h
-ttytype.o: ../config.h mblogin.h getdef.h env.h ttytype.h
 shell.o: ../config.h mblogin.h basename.h shell.h
 basename.o: ../config.h mblogin.h basename.h
-failure.o: ../config.h mblogin.h getdef.h failure.h
 pwdcheck.o: ../config.h mblogin.h pwauth.h pwdcheck.h
 pwauth.o: ../config.h mblogin.h pwauth.h getdef.h encrypt.h
 loginprompt.o: ../config.h mblogin.h getdef.h xmalloc.h env.h loginprompt.h
 utmp.o: ../config.h mblogin.h utmp.h
-limits.o: ../config.h mblogin.h getdef.h utmp.h ulimit.h
+limits.o: ../config.h mblogin.h getdef.h utmp.h limits.h
 setupenv.o: ../config.h mblogin.h getdef.h xmalloc.h env.h setupenv.h
 sub.o: ../config.h mblogin.h sub.h
-ulimit.o: ../config.h ulimit.h
 log.o: ../config.h mblogin.h log.h
-tz.o: ../config.h mblogin.h getdef.h tz.h
 setugid.o: ../config.h mblogin.h getdef.h setugid.h
 utent.o: ../config.h mblogin.h
 # End of generated dependencies

@@ -77,6 +77,8 @@ int setup_groups(const struct passwd *info)
 	return 0;
 }
 
+
+
 int change_uid(const struct passwd *info)
 {
 	/*
@@ -96,29 +98,20 @@ int change_uid(const struct passwd *info)
 	return 0;
 }
 
+
+
 /*
  *	setup_uid_gid() performs the following steps -
  *
  *	set the group ID to the value from the password file entry
  *	set the supplementary group IDs
- *	optionally call specified function which may add more groups
- *	set the user ID to the value from the password file entry
  *
  *	Returns 0 on success, or -1 on failure.
  */
-
 int setup_uid_gid(const struct passwd *info, int is_console)
 {
 	if (setup_groups(info) < 0)
 		return -1;
-
-#ifdef HAVE_INITGROUPS
-	if (is_console) {
-		char *cp = getdef_str("CONSOLE_GROUPS");
-		if (cp && add_groups(cp))
-			perror("Warning: add_groups");
-	}
-#endif /* HAVE_INITGROUPS */
 
 	if (change_uid(info) < 0)
 		return -1;

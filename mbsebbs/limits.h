@@ -12,5 +12,6 @@ int do_user_limits(const char *, const char *);
 int setup_user_limits(const char *);
 void setup_usergroups(const struct passwd *);
 void setup_limits(const struct passwd *);
+void set_filesize_limit(int);
 
 #endif

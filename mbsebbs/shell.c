@@ -3,7 +3,7 @@
  * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
  * Copyright (C) 1997-2001

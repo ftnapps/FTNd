@@ -247,26 +247,6 @@ extern char *strerror();
 
 
 
-/*
- * login failure logging file format
- *
- * The login failure file is maintained by login(1) and faillog(8)
- * Each record in the file represents a separate UID and the file
- * is indexed in that fashion.
- */
-struct  faillog {
-    short   fail_cnt;       /* failures since last success */
-    short   fail_max;       /* failures before turning account off */
-    char    fail_line[12];  /* last failure occured here */
-    time_t  fail_time;      /* last failure occured then */
-    /*
-     * If nonzero, the account will be re-enabled if there are no
-     * failures for fail_locktime seconds since last failure.
-     */
-    long    fail_locktime;
-};
-
-
 #define Max_passlen     14      /* Define maximum passwd length            */
 
 
