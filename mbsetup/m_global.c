@@ -240,10 +240,10 @@ void e_global2(void)
 
                 switch(select_menu(7)) {
                 case 0: return;
-                case 1: E_PTH(16,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.")
-                case 2: E_STR(17,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
-                case 3: E_PTH(18,16,64, CFG.uxpath,         "The translated ^Unix^ path.")
-                case 4: E_BOOL(19,16,   CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+                case 1: E_PTH( 6,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.")
+                case 2: E_STR( 7,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
+                case 3: E_PTH( 8,16,64, CFG.uxpath,         "The translated ^Unix^ path.")
+                case 4: E_BOOL(9,16,    CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
 		case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory")
 		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.")
 		case 7: E_STR(12,16,64, CFG.externaleditor, 

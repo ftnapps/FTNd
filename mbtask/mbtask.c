@@ -159,6 +159,7 @@ void load_maincfg(void)
                 sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
                 sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
                 sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
+		sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
 		CFG.leavecase = TRUE;
 
                 /*

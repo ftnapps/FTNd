@@ -4621,6 +4621,7 @@ v0.33.20        10-Feb-2002
 		Added edit of NoPrompt setting in menus for doors.
 		Changed edit of message editor in user editor.
 		Double noderecords are automatic removed with error logging.
+		Corrected screen layout in menu 1.4.11.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 
@@ -4686,6 +4687,7 @@ v0.33.20        10-Feb-2002
 		For ISDN and POTS calls, mbtask now decides which tty to use,
 		mbcico gets the tty to use as option on the commandline.
 		Keeps track of the number of mailers running.
+		Added default path for arealists.
 
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.
