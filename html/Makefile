@@ -4,8 +4,8 @@
 
 include ../Makefile.global
 
-H_BASE		= basic.html dist.html manual.css \
-		  flow.html postfix.html index.htm ups.html \
+H_BASE		= dist.html manual.css \
+		  flow.html postfix.html ups.html \
 		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
@@ -83,7 +83,11 @@ H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/hatch.html     setup/virscan.html  setup/services.html \
 		  setup/domains.html   setup/taskmgr.html  setup/route.html
 
-FILES		= $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
+H_OTHER		= index.htm basic.html
+
+H_IN		= index.htm.in basic.html.in
+
+FILES		= $(H_IN) $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
 
 #########################################################################################################
 
@@ -109,6 +113,7 @@ install:
 		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/programs
 		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/setup
 		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_BASE}    ${PREFIX}/html
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_OTHER}   ${PREFIX}/html
 		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_FTSC}    ${PREFIX}/html/ftsc
 		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_IMAGES}  ${PREFIX}/html/images
 		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_LICENSE} ${PREFIX}/html/license

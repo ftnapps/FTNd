@@ -13,7 +13,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 12-Jan-2003</h5></div>
+<div align="right"><h5>Last update 03-Nov-2003</h5></div>
 
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
@@ -94,15 +94,15 @@ previous or failed installation on your system. If that's so the script will
 not run. In other words, you can only run this script once. The script makes
 backup copies of the system files it changes, these files will get the
 extension <strong>.mbse</strong> To run the installation script you need
-the archive <strong>mbbsebbs-0.nn.nn.tar.gz</strong>.
-Unpack this archive on your system, in /tmp will do fine:
+the archive <strong>mbbsebbs-@VERSION@.tar.bz2</strong>.
+Unpack this archive on your system, in /tmp:
 <pre>
 cd /tmp
-tar xfvz /path/to/the/mbsebbs-0.nn.nn.tar.gz
+tar xfvj /path/to/the/mbsebbs-@VERSION@.tar.bz2
 </pre>
 To start the script type:
 <pre>
-cd mbsebbs-0.nn.nn
+cd mbsebbs-@VERSION@
 bash ./SETUP.sh
 </pre>
 Yes, use <b>bash</b> as shell here. On some systems root doesn't use  bash
@@ -140,10 +140,10 @@ If something is wrong, now is the time to fix it. Don't panic and remember
 the backups of the system files that are changed are in /etc with the 
 extension <strong>.mbse</strong> i.e: those were the original files.
 The installation logfile is copied to /opt/mbse.
-If everythings is allright, then remove the directory /tmp/mbsebbs-0.nn.nn:
+If everythings is allright, then remove the directory /tmp/mbsebbs-@VERSION@:
 <pre>
 cd /tmp
-rm -Rf mbsebbs-0.nn.nn
+rm -Rf mbsebbs-@VERSION@
 </pre>
 <p>&nbsp;<p>
 
@@ -152,12 +152,12 @@ rm -Rf mbsebbs-0.nn.nn
 Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
 While in mbse's home directory (/opt/mbse) unpack the distribution archives:
 <pre>
-tar xfvz /path/to/mbsebbs-0.nn.nn.tar.gz
+tar xfvz /path/to/mbsebbs-@VERSION@.tar.bz2
 </pre>
 You now have the subdirectory with sources in the right place. 
 Next build the binaries and install them using the folowing commands:
 <pre>
-cd ~/mbsebbs-0.nn.nn
+cd ~/mbsebbs-@VERSION@
 ./configure
 make
 su        <b>important, do not use "su -"</b>
