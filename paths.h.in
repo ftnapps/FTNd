@@ -10,6 +10,7 @@
 #define _PATH_COMPRESS  "@COMPRESS@"
 #define _PATH_GZIP      "@GZIP@"
 #define _PATH_ARC	"@ARC@"
+#define _PATH_NOMARCH   "@NOMARCH@"
 #define	_PATH_ARJ	"@ARJ@"
 #define	_PATH_UNARJ	"@UNARJ@"
 #define	_PATH_LHA	"@LHA@"

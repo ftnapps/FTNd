@@ -14,9 +14,14 @@ v0.35.05	19-Oct-2002
 	mbcico:
 		Fixed crash with incoming YooHoo session with bad password.
 
-
 	mbmsg:
-		The total counters in the logfile are increased to 6 digits.
+		The summary counters in the logfile are increased to 6 digits.
+
+	mbsetup:
+		When installing the default unarchivers (new installations)
+		the rar is used to unarchive instead of unrar when available,
+		rar is compiled static and prefered.
+		Added support for the nomarch unarchiver.
 
 
 

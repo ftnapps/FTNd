@@ -158,6 +158,7 @@ dnl Check for external programs
 AC_PATH_PROG(COMPRESS,compress,no-compress-found-during-configure)
 AC_PATH_PROG(GZIP,gzip,no-gzip-found-during-configure)
 AC_PATH_PROG(ARC,arc)
+AC_PATH_PROG(NOMARCH,nomarch)
 AC_PATH_PROG(ARJ,arj)
 AC_PATH_PROG(UNARJ,unarj)
 AC_PATH_PROG(LHA,lha)

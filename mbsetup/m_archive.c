@@ -72,8 +72,12 @@ int CountArchive(void)
 			 *  right paths. Others are meant as examples.
 			 */
 			memset(&archiver, 0, sizeof(archiver));
-			sprintf(archiver.comment, "ARC Version 5.21");
+			if (strlen(_PATH_ARC) && strlen(_PATH_NOMARCH))
+			    sprintf(archiver.comment, "ARC and NOMARCH");
+			else
+			    sprintf(archiver.comment, "ARC Version 5.21");
 			sprintf(archiver.name,    "ARC");
+			archiver.available = FALSE;
 			if (strlen(_PATH_ARC)) {
 			    archiver.available = TRUE;
 			    sprintf(archiver.marc,    "%s anw", _PATH_ARC);
@@ -82,12 +86,19 @@ int CountArchive(void)
 			    sprintf(archiver.munarc,  "%s enw", _PATH_ARC);
 			    sprintf(archiver.iunarc,  "%s enw", _PATH_ARC);
 			} else {
-			    archiver.available = FALSE;
 			    sprintf(archiver.marc,    "/usr/bin/arc anw");
 			    sprintf(archiver.tarc,    "/usr/bin/arc tnw");
 			    sprintf(archiver.funarc,  "/usr/bin/arc xnw");
 			    sprintf(archiver.munarc,  "/usr/bin/arc enw");
 			    sprintf(archiver.iunarc,  "/usr/bin/arc enw");
+			}
+			/*
+			 * Override arc when nomarch is available
+			 */
+			if (strlen(_PATH_NOMARCH)) {
+			    sprintf(archiver.funarc,  "%s", _PATH_NOMARCH);
+			    sprintf(archiver.munarc,  "%s", _PATH_NOMARCH);
+			    sprintf(archiver.iunarc,  "%s", _PATH_NOMARCH);
 			}
 			fwrite(&archiver, sizeof(archiver), 1, fil);
 
@@ -114,26 +125,26 @@ int CountArchive(void)
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "RAR by Eugene Roshal");
                         sprintf(archiver.name,    "RAR");
-			if (strlen(_PATH_RAR) && strlen(_PATH_UNRAR))
-			    archiver.available = TRUE;
-			else
-			    archiver.available = FALSE;
 			if (strlen(_PATH_RAR)) {
+			    archiver.available = TRUE;
 			    sprintf(archiver.farc,    "%s a -y -r", _PATH_RAR);
 			    sprintf(archiver.marc,    "%s a -y", _PATH_RAR);
 			    sprintf(archiver.barc,    "%s c -y", _PATH_RAR);
 			    sprintf(archiver.tarc,    "%s t -y", _PATH_RAR);
-			} else {
-			    sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
-			    sprintf(archiver.marc,    "/usr/bin/rar a -y");
-			    sprintf(archiver.barc,    "/usr/bin/rar c -y");
-			    sprintf(archiver.tarc,    "/usr/bin/rar t -y");
-			}
-			if (strlen(_PATH_UNRAR)) {
+			    sprintf(archiver.funarc,  "%s x -o+ -y -r", _PATH_RAR);
+			    sprintf(archiver.munarc,  "%s e -o+ -y", _PATH_RAR);
+			    sprintf(archiver.iunarc,  "%s e", _PATH_RAR);
+			} else if (strlen(_PATH_UNRAR)) {
+			    archiver.available = TRUE;
 			    sprintf(archiver.funarc,  "%s x -o+ -y -r", _PATH_UNRAR);
 			    sprintf(archiver.munarc,  "%s e -o+ -y", _PATH_UNRAR);
 			    sprintf(archiver.iunarc,  "%s e", _PATH_UNRAR);
 			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
+			    sprintf(archiver.marc,    "/usr/bin/rar a -y");
+			    sprintf(archiver.barc,    "/usr/bin/rar c -y");
+			    sprintf(archiver.tarc,    "/usr/bin/rar t -y");
 			    sprintf(archiver.funarc,  "/usr/bin/unrar x -o+ -y -r");
 			    sprintf(archiver.munarc,  "/usr/bin/unrar e -o+ -y");
 			    sprintf(archiver.iunarc,  "/usr/bin/unrar e");
