@@ -29,6 +29,15 @@ v0.51.2		06-Mar-2004
 	mbcico:
 		Updated file request function to new files database structure.
 		Fixed a compile problem on FreeBSD 5.1
+		To test 3 bugfixes:
+		Fixed a bug when a m_get was received with file offset = file
+		size that would log a negative transfer time and transfer rate.
+		Fixed a bug when a m_get message was received with the current
+		file with offset = file size to properly close the file and
+		unlink from the outbound queue.
+		Fixed a bug when a m_get message was received on a file that
+		was already transmitted to remove that file from the outbound
+		queue.
 
 	mbfido:
 		When removing files during tic import due to replace or maximum

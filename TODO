@@ -78,7 +78,7 @@ mbtask:
 
 mbfido:
 	N: When importing a tic file with magic name, remove the magic from
-	   the filerecord of the previous file.
+	   the filerecord of the previous file. (Is no corrected by mbfile c).
 
 	N: The elist rules files are named (8.3) areaname.rul where areaname
 	   is the first 8 characters of the area name and we use the full name
@@ -127,10 +127,10 @@ mbfido:
 
 	N: When adding a record to the toberep database add check for existing
 	   older entry to update the info with the later received file. Else
-	   just handle the record as a dupe.
+	   just handle the record as a dupe (In test again).
 
 mbcico:
-	N: Further investigate binkp tty_error hangup.
+	N: Further investigate binkp tty_error hangup (Seems Oke).
 
 	L: Implement binkp option ND.
 

@@ -2052,6 +2052,12 @@ int binkp_process_messages(void)
 			if (cursend && (strcmp(lname, cursend->remote) == 0) && 
 				(lsize == cursend->size) && (ltime == cursend->date)) {
 			    Syslog('b', "Got M_GET with offset == filesize for current file, close");
+
+			    /*
+			     * calculate time needed and bytes transferred
+			     */
+			    gettimeofday(&txtvend, &bp.tz);
+
 			    /*
 			     * Close transmitter file
 			     */
@@ -2066,11 +2072,34 @@ int binkp_process_messages(void)
 					txtvend.tv_sec - txtvstart.tv_sec);
 			    }
 
-			    cursend->state = IsSent;
+			    cursend->state = Got; // 12-03-2004 changed from IsSent, bug from LdG with FT.
 			    cursend = NULL;
 			    bp.TxState = TxGNF;
+
+			    for (tsl = tosend; tsl; tsl = tsl->next) { // Added 12-03
+				if (tsl->remote == NULL) {
+				    execute_disposition(tsl);
+				} else {
+				    if (strcmp(cursend->local, tsl->local) == 0) {
+					execute_disposition(tsl);
+				    }
+				}
+			    }
 			} else {
 			    Syslog('+', "Binkp: requested offset = filesize, but is not the current file");
+			    if (tmp->state == IsSent) { // Added 12-03
+				Syslog('b', "Binkp: file is sent, treat as m_got");
+				tmp->state = Got;
+				for (tsl = tosend; tsl; tsl = tsl->next) {
+				    if (tsl->remote == NULL) {
+					execute_disposition(tsl);
+				    } else {
+					if (strcmp(tmp->local, tsl->local) == 0) {
+					    execute_disposition(tsl);
+					}
+				    }
+				}
+			    }
 			}
 		    } else if (loffs < lsize) {
 			tmp->state = NoState;
