@@ -346,7 +346,19 @@ long Report(gr_list *ta, long filepos)
 		}
 		filepos3 = ftell(fi);
 	    }
-	    MacroVars("u", "s", T_File.Magic);
+
+	    /*
+	     * Magic request
+	     */
+	    if (strlen(T_File.Magic)) {
+		MacroVars("u", "s", T_File.Magic);
+		Msg_Macro(fi);
+	    } else {
+		line = calloc(MAXSTR, sizeof(char));
+		while ((fgets(line, MAXSTR-2, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
+		free(line);
+	    }
+	    filepos3 = ftell(fi);
 	    Total++;
 	    Size += T_File.SizeKb;
 	}
