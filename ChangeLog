@@ -7,6 +7,9 @@ v0.71.1		28-Nov-2004
 		Make sure you remove everything related to bbslist menus from
 		your menus and txtfiles.
 
+	general:
+		Added port to OpenBSD, is under test.
+
 	mbsebbs:
 		The creation of the mailout semafore is now after the hangup
 		so that mbfido won't start before the bbs is finished.
