@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 24-Jun-2004</h5></div>
+<div align="right"><h5>Last update 25-Jul-2004</h5></div>
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for MBSE BBS. All sections will
@@ -365,11 +365,14 @@ carrier select functions. The setting of TCP/IP flags is important too, this
 gives the information what this system will do. If you only enter IBN as TCP/IP
 flags then the system will only call IBN nodes (binkp). The default is
 XX,CM and TCP/IP systems (internet) should use the XX,CM,IBN,IFC flags.
+If you cannot do TCP/IP connections, leave TCP/IP "phone" empty. The three
+TCP/IP fields are used to give your system information via EMSI or binkp to
+the other nodes.
 <pre>
 <strong>Mailer logl.      </strong>The logging level for mailer sessions
-<strong>Default phone     </strong>The default phonenumber for EMSI sessions
+<strong>TCP/IP "phone"    </strong>The TCP/IP "phone" number (IP address or domain name)
 <strong>TCP/IP flags      </strong>The TCP/IP capability flags for TCP/IP sessions
-<strong>Default speed     </strong>The default speed for EMSI sessions
+<strong>TCP/IP speed      </strong>The TCP/IP linespeed
 <strong>Timeout reset     </strong>The timout for normal modem commands
 <strong>Timeout connect   </strong>The timeout for waiting for connect
 <strong>Dial delay        </strong>The maximum delay between calls, minimum is 10 seconds.
