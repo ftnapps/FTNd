@@ -1,6 +1,6 @@
 # Makefile for mbtask.
 # Copyright (c) 1997-2001 by M. Broek.
-# $Id:
+# $Id$
 
 include ../Makefile.global
 

@@ -1,5 +1,6 @@
 # Compile-time configuration for MBSE FidoNet/Internet BBS
-#
+# $Id$
+
 VERSION		= @VERSION@
 PACKAGE		= @PACKAGE@
 

@@ -1,5 +1,6 @@
 # Copyright (c) M Broek, 1997-2000
 # Top-level makefile for MBSE BBS html documentation.
+# $Id$
 
 include ../Makefile.global
 

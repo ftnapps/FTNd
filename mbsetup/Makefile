@@ -1,6 +1,6 @@
 # Makefile for the mbsetup.
-# Copyright (c) 1997-2000 by M. Broek.
-# $Id:
+# Copyright (c) 1997-2001 by M. Broek.
+# $Id$
 
 include ../Makefile.global
 

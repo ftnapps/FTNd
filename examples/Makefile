@@ -1,5 +1,5 @@
 # Copyright (c) M. Broek, 1997-2001
-# $Id:
+# $Id$
 
 include ../Makefile.global
 

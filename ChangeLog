@@ -1,3 +1,5 @@
+$id$
+
 	MBSEBBS History.
 
 	The good news is at the bottom :-)
@@ -4211,6 +4213,9 @@ v0.33.18        27-Jul-2001
 
 
 v0.33.19        26-Oct-2001
+
+	general:
+		Made the Makefile system more simple.
 
 	lang:
 		Changed language prompt 71.

@@ -1,6 +1,6 @@
 # Makefile for mbcico.
-# Copyright (c) 1998, 2000 by M. Broek.
-# $Id:
+# Copyright (c) 1998, 2001 by M. Broek.
+# $Id$
 
 include ../Makefile.global
 
