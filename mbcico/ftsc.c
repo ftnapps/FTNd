@@ -443,7 +443,7 @@ SM_STATE(scan_packet)
 		history.aka.node  = remote->addr->node;
 		history.aka.point = remote->addr->point;
 		if (remote->addr->domain && strlen(remote->addr->domain))
-		    sprintf(history.aka.domain, "%s", remote->addr->domain);
+		    sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
 	
 		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
 		    Syslog('+', "remote is a listed system");

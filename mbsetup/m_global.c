@@ -834,6 +834,7 @@ void e_fidomailcfg(void)
 			errmsg("You have %d nodes defined", CountNoderec());
 			show_int( 17,16, CFG.toss_systems);
 		    } else {
+			Syslog('+', "Changing number of systems from %d to %d", CFG.toss_systems, temp);
 			CFG.toss_systems = temp;
 			if ((OpenMsgarea() == 0))
 			    CloseMsgarea(TRUE);
@@ -845,6 +846,7 @@ void e_fidomailcfg(void)
 			errmsg("You have %d groups defined", CountMGroup());
 			show_int( 18,16, CFG.toss_groups);
 		    } else {
+			Syslog('+', "Changing number of groups from %d to %d", CFG.toss_groups, temp);
 			CFG.toss_groups = temp;
 			if ((OpenNoderec() == 0))
 			    CloseNoderec(TRUE);

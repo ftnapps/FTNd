@@ -35,6 +35,11 @@ v0.51.4		11-Apr-2004
 		Fixed a bug that no news was fetched at all.
 		Fixed a bug that tossed echomail was attempted to post to the
 		ISP newsserver (that didn't accept it).
+		More debug logging info added for double filename announces.
+
+	mbfile:
+		The toberep command now logs the toberep.data in the debug
+		logfile.
 
 	mbnntp:
 		New program, news server to read echomail with a news client.

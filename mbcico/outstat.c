@@ -237,8 +237,8 @@ int outstat()
 			fa->point = strtol(digit, NULL, 32);
 			if (SearchFidonet(fa->zone)) {
 			    fa->domain = xstrcpy(fidonet.domain);
+			    checkdir(temp, fa, flavor);
 			}
-			checkdir(temp, fa, flavor);
 			tidy_faddr(fa);
 		    }
 		}
@@ -265,12 +265,12 @@ int outstat()
                         if ((n==4) || ((n==5) && (tolower(c)=='h'))) {
                             if (SearchFidonet(fa->zone)) {
                                 fa->domain = xstrcpy(fidonet.domain);
-                            }
-                            if (n==4) 
-				flavor = 'o';
-                            else 
-				flavor = 'h';
-                            checkdir(temp, fa, flavor);
+				if (n==4) 
+				    flavor = 'o';
+				else 
+				    flavor = 'h';
+				checkdir(temp, fa, flavor);
+			    }
 			}
 			tidy_faddr(fa);
 		    }	

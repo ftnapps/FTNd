@@ -70,6 +70,8 @@ void ToBeRep(void)
 	while (fread(&rep, sizeof(rep), 1, fp) == 1) {
 	    printf("%-20s  %-12s  %-12s  %5ld  %s     %s\n", 
 		rep.Echo, rep.Group, rep.Name, rep.SizeKb, StrDateDMY(rep.Fdate), rep.Announce ? "Yes":"No ");
+	    Syslog('f', "%-20s  %-12s  %-12s  %5ld  %s     %s",
+		    rep.Echo, rep.Group, rep.Name, rep.SizeKb, StrDateDMY(rep.Fdate), rep.Announce ? "Yes":"No ");
 	}
 
 	fclose(fp);

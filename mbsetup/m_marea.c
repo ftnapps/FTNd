@@ -192,7 +192,6 @@ int OpenMsgarea(void)
 	start = SYSINFO.StartDate;
 	fclose(fin);
     }
-    InitFidonet();
 
     sprintf(fnin,  "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     sprintf(fnout, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));

@@ -396,7 +396,7 @@ int scanemsidat(char *buf)
 	history.aka.net   = remote->addr->net;
 	history.aka.node  = remote->addr->node;
 	history.aka.point = remote->addr->point;
-	sprintf(history.aka.domain, "%s", remote->addr->domain);
+	sprintf(history.aka.domain, "%s", printable(remote->addr->domain, 0));
     }
 
     if (emsi_remote_password) 

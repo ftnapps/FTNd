@@ -358,6 +358,7 @@ void initdatabases(void)
     InitFilefind();
     InitFGroup();
     InitFidonetdb();
+    InitFidonet();
     InitHatch();
     InitLanguage();
     InitLimits();

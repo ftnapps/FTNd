@@ -31,6 +31,8 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "config.h"
 #include "session.h"
 #include "filelist.h"
@@ -422,9 +424,9 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
                        fa->point = strtol(digit, NULL, 32);
                        for (tmpa = al; tmpa; tmpa = tmpa->next) {
                            if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
-			       (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
-			       strchr(fl, flavor)) 
-			       check_filebox(temp, &st);
+			       (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && strchr(fl, flavor))
+				if (SearchFidonet(tmpa->addr->zone))
+				    check_filebox(temp, &st);
                        }
                        tidy_faddr(fa);
                    }
@@ -458,8 +460,9 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
                            for (tmpa = al; tmpa; tmpa = tmpa->next) {
                                if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
 				    (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
-				    strchr(fl, flavor)) 
-				   check_filebox(temp, &st);
+				    strchr(fl, flavor))
+				  if (SearchFidonet(tmpa->addr->zone)) 
+					check_filebox(temp, &st);
                            }
                        }
                        tidy_faddr(fa);

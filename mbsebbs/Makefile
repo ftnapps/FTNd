@@ -1,236 +1,163 @@
-# Top-level makefile for MBSE BBS package
+# Makefile for MBSE BBS under Linux
+# Copyright (c) 1998, 2001 by M. Broek.
 # $Id$
 
-include Makefile.global
+include ../Makefile.global
 
-OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
-		  INSTALL.in Makefile Makefile.global.in NEWS cpuflags \
-		  ChangeLog_1998 ChangeLog_1999 ChangeLog_2000 ChangeLog_2001 \
-		  ChangeLog_2002 ChangeLog_2003 README SETUP.sh TODO UPGRADE \
-		  aclocal.m4 checkbasic config.h.in configure configure.in paths.h.in
-TARFILE		= ${PACKAGE}-${VERSION}.tar.bz2
+SRCS		= signature.c filesub.c language.c mbtoberep.c \
+		  msgutil.c oneline.c bbslist.c morefile.c \
+		  email.c fsedit.c lineedit.c mblang.c mbuser.c page.c \
+		  bye.c funcs.c mail.c \
+		  newuser.c pinfo.c timecheck.c change.c \
+		  exitinfo.c mball.c mbsebbs.c menu.c pop3.c lastcallers.c \
+		  timeout.c chat.c file.c mbstat.c misc.c \
+		  offline.c user.c mbnewusr.c input.c whoson.c \
+		  door.c dispfile.c userlist.c timestats.c logentry.c
+HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
+		  timeout.h bbslist.h email.h fsedit.h lineedit.h \
+		  mbstat.h msgutil.h oneline.h user.h bye.h morefile.h \
+		  funcs.h mail.h mbuser.h page.h \
+		  change.h exitinfo.h mball.h newuser.h \
+		  pinfo.h chat.h file.h menu.h \
+		  pop3.h timecheck.h mbnewusr.h input.h whoson.h \
+		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h
+MBSEBBS_OBJS	= signature.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
+		  misc.o pinfo.o oneline.o page.o fsedit.o \
+		  bye.o change.o mbsebbs.o timeout.o user.o timecheck.o \
+		  exitinfo.o filesub.o lineedit.o offline.o language.o msgutil.o \
+		  pop3.o email.o input.o whoson.o door.o dispfile.o userlist.o timestats.o \
+		  logentry.o morefile.o lastcallers.o
+MBSEBBS_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a ../lib/libnodelist.a
+MBNEWUSR_OBJS	= mbnewusr.o newuser.o language.o timeout.o dispfile.o oneline.o \
+		  timecheck.o input.o exitinfo.o funcs.o misc.o change.o door.o \
+		  filesub.o mail.o email.o msgutil.o pop3.o lineedit.o fsedit.o whoson.o
+MBNEWUSR_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a ../lib/libnodelist.a
+MBALL_OBJS	= mball.o
+MBALL_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
+MBLANG_OBJS	= mblang.o
+MBLANG_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
+MBSTAT_OBJS	= mbstat.o
+MBSTAT_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
+MBTOBE_OBJS	= mbtoberep.o
+MBTOBE_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
+MBUSER_OBJS	= mbuser.o
+MBUSER_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
+OTHER		= Makefile
+TARGET		= mbsebbs mbnewusr mball mblang mbstat mbtoberep mbuser
 
-###############################################################################
+#############################################################################################################
 
+.c.o:
+		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
 
-all depend:
-		@if [ -z ${MBSE_ROOT} ] ; then \
-			echo; echo " MBSE_ROOT is not set!"; echo; exit 3; \
-		else \
-			for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done; \
-		fi
+all:		${TARGET}
 
-help:
-		@echo "         Help for MBSE BBS make:"
-		@echo ""
-		@echo "make [all]                 Compile all sources"
-		@echo "make install               Install everything (must be root)"
-		@echo "make depend                Update source dependencies"
-		@echo "make dist                  Create distribution archive"
-		@echo "make clean                 Clean sourcetree and configuration"
-		@echo "make crontab               Install default crontab for mbse"
-		@echo "make filelist              Create filelist for make dist"
-		@echo ""
+clean: 
+		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak
 
-install:
-		@./checkbasic
+mbsebbs:	${MBSEBBS_OBJS} ${MBSEBBS_LIBS}
+		${CC} -o mbsebbs ${MBSEBBS_OBJS} ${LDFLAGS} ${LIBS} ${MBSEBBS_LIBS}
+
+mbnewusr:	${MBNEWUSR_OBJS} ${MBNEWUSR_LIBS}
+		${CC} -o mbnewusr ${MBNEWUSR_OBJS} ${LDFLAGS} ${LIBS} ${MBNEWUSR_LIBS}
+
+mball:		${MBALL_OBJS} ${MBALL_LIBS}
+		${CC} -o mball   ${MBALL_OBJS} ${LDFLAGS} ${LIBS} ${MBALL_LIBS}
+
+mblang:		${MBLANG_OBJS} ${MBLANG_LIBS}
+		${CC} -o mblang  ${MBLANG_OBJS} ${LDFLAGS} ${LIBS} ${MBLANG_LIBS}
+
+mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
+		${CC} -o mbstat ${MBSTAT_OBJS} ${LDFLAGS} ${LIBS} ${MBSTAT_LIBS}
+
+mbtoberep:	${MBTOBE_OBJS} ${MBTOBE_LIBS}
+		${CC} -o mbtoberep ${MBTOBE_OBJS} ${LDFLAGS} ${LIBS} ${MBTOBE_LIBS}
+
+mbuser:		${MBUSER_OBJS} ${MBUSER_LIBS}
+		${CC} -o mbuser ${MBUSER_OBJS} ${LDFLAGS} ${LIBS} ${MBUSER_LIBS}
+
+install:	all
 		@if [ "`id -un`" != "root" ] ; then \
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
-		@if [ -z ${PREFIX} ] ; then \
-			echo; echo "PREFIX is not set!"; echo; exit 3; \
-		fi
-		@if [ ! -d ${PREFIX}/bin ] ; then \
-			mkdir ${PREFIX}/bin ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/bin ; \
-		fi
-		@if [ ! -d ${PREFIX}/etc ] ; then \
-			mkdir ${PREFIX}/etc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc ; \
-		fi
-		@chmod 0775 ${PREFIX}/etc
-		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
-			chmod 0660 ${PREFIX}/etc/lastcall.data ; \
-		fi
-		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
-			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
-		fi
-		@if [ ! -d ${PREFIX}/share ] ; then \
-			mkdir ${PREFIX}/share ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share ; \
-		fi
-		@if [ ! -d ${PREFIX}/share/doc ] ; then \
-			mkdir ${PREFIX}/share/doc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share/doc ; \
-		fi
-		@if [ ! -d ${PREFIX}/fdb ] ; then \
-			mkdir ${PREFIX}/fdb ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/fdb ; \
-		fi
-		@chmod 0775 ${PREFIX}/fdb
-		@if [ ! -d ${PREFIX}/log ] ; then \
-			mkdir ${PREFIX}/log ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/log ; \
-		fi
-		@chmod 0775 ${PREFIX}/log
-		@if [ ! -d ${PREFIX}/magic ] ; then \
-			mkdir ${PREFIX}/magic ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/magic ; \
-		fi
-		@if [ ! -d ${PREFIX}/sema ] ; then \
-			mkdir ${PREFIX}/sema ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/sema ; \
-		fi
-		@chmod 0777 ${PREFIX}/sema
-		@if [ ! -d ${PREFIX}/var ] ; then \
-			mkdir ${PREFIX}/var ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var ; \
-		fi
-		@if [ ! -d ${PREFIX}/tmp ] ; then \
-			mkdir ${PREFIX}/tmp ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/tmp ; \
-		fi
-		@chmod 0775 ${PREFIX}/tmp
-		@if [ ! -d ${PREFIX}/dutch ] ; then \
-			mkdir ${PREFIX}/dutch ; \
-			mkdir ${PREFIX}/dutch/txtfiles ; \
-			mkdir ${PREFIX}/dutch/menus ; \
-			mkdir ${PREFIX}/dutch/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/dutch ; \
-		fi
-		@chmod 0775 ${PREFIX}/dutch/txtfiles
-		@if [ ! -d ${PREFIX}/english ] ; then \
-			mkdir ${PREFIX}/english ; \
-			mkdir ${PREFIX}/english/txtfiles ; \
-			mkdir ${PREFIX}/english/menus ; \
-			mkdir ${PREFIX}/english/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/english ; \
-		fi
-		@chmod 0775 ${PREFIX}/english/txtfiles
-		@if [ ! -d ${PREFIX}/italian ] ; then \
-			mkdir ${PREFIX}/italian ; \
-			mkdir ${PREFIX}/italian/txtfiles ; \
-			mkdir ${PREFIX}/italian/menus ; \
-			mkdir ${PREFIX}/italian/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/italian ; \
-		fi
-		@chmod 0775 ${PREFIX}/italian/txtfiles
-		@if [ ! -d ${PREFIX}/spanish ] ; then \
-			mkdir ${PREFIX}/spanish ; \
-			mkdir ${PREFIX}/spanish/txtfiles ; \
-			mkdir ${PREFIX}/spanish/menus ; \
-			mkdir ${PREFIX}/spanish/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/spanish ; \
-		fi
-		@chmod 0775 ${PREFIX}/spanish/txtfiles
-		@if [ ! -d ${PREFIX}/galego ] ; then \
-			mkdir ${PREFIX}/galego ; \
-			mkdir ${PREFIX}/galego/txtfiles ; \
-			mkdir ${PREFIX}/galego/menus ; \
-			mkdir ${PREFIX}/galego/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/galego ; \
-		fi
-		@chmod 0775 ${PREFIX}/galego/txtfiles
-		@if [ ! -d ${PREFIX}/german ] ; then \
-			mkdir ${PREFIX}/german; \
-			mkdir ${PREFIX}/german/txtfiles ; \
-			mkdir ${PREFIX}/german/menus ; \
-			mkdir ${PREFIX}/german/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/german; \
-		fi
-		@chmod 0775 ${PREFIX}/german/txtfiles
-		@if [ ! -d ${PREFIX}/french ] ; then \
-			mkdir ${PREFIX}/french; \
-			mkdir ${PREFIX}/french/txtfiles ; \
-			mkdir ${PREFIX}/french/menus ; \
-			mkdir ${PREFIX}/french/macro ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/french; \
-		fi
-		@chmod 0775 ${PREFIX}/french/txtfiles
-		@if [ ! -d ${PREFIX}/ftp ] ; then \
-			mkdir ${PREFIX}/ftp ; \
-			mkdir ${PREFIX}/ftp/pub ; \
-			mkdir ${PREFIX}/ftp/incoming ; \
-			mkdir ${PREFIX}/ftp/pub/local ; \
-			${CHOWN} `id -un`:`id -gn` ${PREFIX}/ftp ; \
-			chmod 0755 ${PREFIX}/ftp ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/ftp/pub ; \
-			chmod 0755 ${PREFIX}/ftp/pub ; \
-			${CHOWN} `id -un`:`id -gn` ${PREFIX}/ftp/incoming ; \
-			chmod 0755 ${PREFIX}/ftp/incoming ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/ftp/pub/local ; \
-			chmod 0755 ${PREFIX}/ftp/pub/local ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/bso ] ; then \
-			mkdir ${PREFIX}/var/nodelist ; \
-			mkdir ${PREFIX}/var/bso ; \
-			mkdir ${PREFIX}/var/bso/outbound ; \
-			mkdir ${PREFIX}/var/queue ; \
-			mkdir ${PREFIX}/var/msgs; \
-			mkdir ${PREFIX}/var/badtic ; \
-			mkdir ${PREFIX}/var/ticqueue ; \
-			mkdir ${PREFIX}/var/mail ; \
-			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/var ; \
-			chmod -R 0750 ${PREFIX}/var ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/boxes ]; then \
-			mkdir ${PREFIX}/var/boxes ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/boxes ; \
-			chmod 0750 ${PREFIX}/var/boxes ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/rules ]; then \
-			mkdir ${PREFIX}/var/rules ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/rules ; \
-		fi
-		@if [ ! -d ${PREFIX}/var/run ]; then \
-			mkdir ${PREFIX}/var/run ; \
-			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/run ; \
-		fi
-		@if [ -d ${PREFIX}/var/inbound/tmp ]; then \
-			rmdir ${PREFIX}/var/inbound/tmp ; \
-			echo "Removed ${PREFIX}/var/inbound/tmp" ; \
-		fi
-		@chmod 0770 ${PREFIX}/var/rules
-		@chmod 0770 ${PREFIX}/var/run
-		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
-			mkdir ${PREFIX}/var/unknown ; \
-			mkdir ${PREFIX}/var/inbound ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/unknown ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/inbound ; \
-			chmod 0750 ${PREFIX}/var/unknown ; \
-			chmod 0750 ${PREFIX}/var/inbound ; \
-		fi
-		@chmod 0770 ${PREFIX}/var
-		@chmod 0770 ${PREFIX}/var/mail
-		@if [ ! -d ${PREFIX}/var/arealists ] ; then \
-			mkdir ${PREFIX}/var/arealists ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/arealists ; \
-			chmod 0750 ${PREFIX}/var/arealists ; \
-		fi
-		@if [ -x ${BINDIR}/mbtelnetd ]; then \
-			rm ${BINDIR}/mbtelnetd ; \
-			echo "removed ${BINDIR}/mbtelnetd"; \
-		fi
-		@for d in ${SUBDIRS}; do (cd $$d && ${MAKE} -w $@) || exit; done
-		@if [ -d ${PREFIX}/doc ] ; then \
-			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
-			echo "you may remove that obsolete directory." ; \
-		fi
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbsebbs   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 6711 mbnewusr  ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mball     ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mblang    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbstat    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbtoberep ${BINDIR}
+		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6711 mbuser    ${BINDIR}
+		@rm -f mbchat
 
-dist tar:	${TARFILE}
+filelist:	Makefile
+		BASE=`pwd`; \
+		BASE=`basename $${BASE}`; \
+		(for f in ${SRCS} ${HDRS} ${OTHER} ; do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; done) >filelist
 
-clean:
-		rm -f .filelist core ${TARFILE} paths.h config.h
-		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done;
+depend:
+		@rm -f Makefile.bak; \
+		mv Makefile Makefile.bak; \
+		sed -e '/^# DO NOT DELETE/,$$d' Makefile.bak >Makefile; \
+		${ECHO} '# DO NOT DELETE THIS LINE - MAKE DEPEND RELIES ON IT' \
+		>>Makefile; \
+		${ECHO} '# Dependencies generated by make depend' >>Makefile; \
+		for f in ${SRCS}; \
+		do \
+		${ECHO} "Dependencies for $$f:\c"; \
+		${ECHO} "`basename $$f .c`.o:\c" >>Makefile; \
+		for h in `sed -n -e \
+			's/^#[ 	]*include[ 	]*"\([^"]*\)".*/\1/p' $$f`; \
+		do \
+			${ECHO} " $$h\c"; \
+			${ECHO} " $$h\c" >>Makefile; \
+		done; \
+		${ECHO} " done."; \
+		${ECHO} "" >>Makefile; \
+		done; \
+		${ECHO} '# End of generated dependencies' >>Makefile
 
-${TARFILE}:	.filelist
-		cd ..; rm -f ${TARFILE}; \
-		${TAR} cvTf ./${PACKAGE}-${VERSION}/.filelist - | bzip2 >${TARFILE}
-
-crontab:
-		sh ./CRON.sh
-
-.filelist filelist:
-		(for f in ${OTHER} ;do echo ${PACKAGE}-${VERSION}/$$f; done) >.filelist
-		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} filelist && cat filelist >>../.filelist) || exit; done;
-
+# DO NOT DELETE THIS LINE - MAKE DEPEND RELIES ON IT
+# Dependencies generated by make depend
+signature.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h signature.h funcs.h input.h language.h timeout.h
+filesub.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h filesub.h funcs.h language.h input.h misc.h timeout.h exitinfo.h change.h
+language.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h
+mbtoberep.o: ../config.h ../lib/mbselib.h
+msgutil.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
+oneline.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h funcs.h input.h language.h
+bbslist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h bbslist.h funcs.h input.h language.h
+morefile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h morefile.h timeout.h
+email.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h ../lib/mbinet.h exitinfo.h language.h mail.h timeout.h msgutil.h input.h email.h whoson.h
+fsedit.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h mail.h input.h language.h timeout.h pinfo.h fsedit.h
+lineedit.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h mail.h input.h language.h timeout.h lineedit.h
+mblang.o: ../config.h ../lib/mbselib.h
+mbuser.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbuser.h
+page.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h dispfile.h input.h chat.h page.h timeout.h mail.h language.h
+bye.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h dispfile.h misc.h language.h bye.h
+funcs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h funcs.h
+mail.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/nodelist.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h door.h whoson.h
+newuser.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h newuser.h language.h timeout.h change.h dispfile.h
+pinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h pinfo.h input.h
+timecheck.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timecheck.h funcs.h bye.h exitinfo.h language.h input.h
+change.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h change.h dispfile.h funcs.h input.h language.h misc.h timeout.h exitinfo.h bye.h
+exitinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
+mball.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbsedb.h mball.h
+mbsebbs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h mbsebbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h
+menu.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h mail.h bbslist.h change.h chat.h file.h funcs.h input.h misc.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h
+pop3.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h
+lastcallers.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h lastcallers.h
+timeout.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h
+chat.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h chat.h funcs.h input.h language.h misc.h whoson.h
+file.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h filesub.h file.h funcs.h input.h language.h misc.h timeout.h exitinfo.h whoson.h change.h dispfile.h
+mbstat.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbstat.h
+misc.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h language.h misc.h timeout.h exitinfo.h
+offline.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/bluewave.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h file.h filesub.h exitinfo.h timeout.h msgutil.h pop3.h offline.h whoson.h
+user.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timeout.h user.h dispfile.h funcs.h input.h misc.h bye.h file.h mail.h change.h menu.h exitinfo.h language.h offline.h email.h
+mbnewusr.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h mbnewusr.h funcs.h input.h language.h misc.h timeout.h newuser.h
+input.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h timeout.h language.h
+whoson.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h exitinfo.h whoson.h
+door.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h language.h input.h timeout.h exitinfo.h whoson.h door.h
+dispfile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h funcs.h language.h oneline.h misc.h timeout.h timecheck.h exitinfo.h mail.h email.h input.h dispfile.h filesub.h
+userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h language.h input.h timeout.h
+timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h
+logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
+# End of generated dependencies

@@ -44,7 +44,7 @@ int Add_ToBeRep(struct _filerecord report)
     char		*fname;
     struct _filerecord	Temp;
     FILE		*tbr;
-    int			Found = FALSE;
+    int			rc, Found = FALSE;
 
     fname = calloc(PATH_MAX, sizeof(char));
     sprintf(fname, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
@@ -61,14 +61,17 @@ int Add_ToBeRep(struct _filerecord report)
 	if (strcmp(Temp.Name, report.Name) == 0) {
 	    Syslog('f', "Add_ToBeRep found record with the same name");
 	    if (strlen(report.Echo) && (strcmp(Temp.Echo, report.Echo) == 0)) {
-		Syslog('f', "Add_ToBeRep this is the same tic area");
+		Syslog('f', "Add_ToBeRep this is the same tic area !!!");
 		/*
 		 * If it's a later received file, update the record
 		 */
 		if (report.Fdate > Temp.Fdate) {
 		    Syslog('f', "Add_ToBeRep this file is newer, update record at position %d", ftell(tbr));
-		    fseek(tbr, - sizeof(Temp), SEEK_CUR);
-		    fwrite(&report, sizeof(report), 1, tbr);
+		    rc = fseek(tbr, - sizeof(Temp), SEEK_CUR);
+		    Syslog('f', "fseek rc=%d, size=%d", rc, sizeof(Temp));
+		    Syslog('f', "Position before update is now %d", ftell(tbr));
+		    rc = fwrite(&report, sizeof(report), 1, tbr);
+		    Syslog('f', "Written %d, position after update is now %d", rc, ftell(tbr));
 		    fclose(tbr);
 		    return TRUE;
 		}

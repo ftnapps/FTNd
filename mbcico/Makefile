@@ -103,7 +103,7 @@ chat.o: ../config.h ../lib/mbselib.h config.h chat.h ttyio.h
 dial.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h config.h chat.h ttyio.h session.h dial.h
 dietifna.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h emsi.h dietifna.h respfreq.h filelist.h xmrecv.h xmsend.h
 emsidat.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h emsi.h session.h lutil.h config.h emsidat.h filetime.h
-filelist.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h config.h session.h filelist.h
+filelist.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h config.h session.h filelist.h
 openfile.o: ../config.h ../lib/mbselib.h config.h lutil.h openfile.h
 openport.o: ../config.h ../lib/mbselib.h ulock.h ttyio.h mbcico.h openport.h
 opentcp.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h session.h ttyio.h openport.h opentcp.h
