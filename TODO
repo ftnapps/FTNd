@@ -111,6 +111,8 @@ mbfile:
 
 	N: Override timeout during virus scan when files are imported.
 
+	N: Add area sorting
+
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area
 	   will cause trouble later, should be blocked to be used on netmail

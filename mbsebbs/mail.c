@@ -807,98 +807,148 @@ void ShowMsgHdr()
 
 
 /*
- * Export a message to file in the users home directory.
+ * Export a message to file in the users home directory or to the rules directory.
  */
 int Export_a_Msg(unsigned long Num)
 {
-	char            *p;
-	int             ShowMsg = TRUE;
+    char    *p;
+    int     ShowMsg = TRUE, z, homedir = TRUE;
 
-	LastNum = Num;
-	iLineCount = 7;
-	WhosDoingWhat(READ_POST);
-	Syslog('+', "Export msg %d in area #%d (%s)", Num, iMsgAreaNumber + 1, sMsgAreaDesc);
+    LastNum = Num;
+    iLineCount = 7;
+    WhosDoingWhat(READ_POST);
 
-	/*
-	 * The area data is already set, so we can do the next things
-	 */
-	if (MsgBase.Total == 0) {
-		colour(WHITE, BLACK);
-		/* There are no messages in this area */
-		printf("\n%s\n\n", (char *) Language(205));
-		sleep(3);
-		return FALSE;
+    /*
+     * The sysop has a choice to export to the rules directory.
+     */
+    if ((exitinfo.Security.level >= CFG.sysop_access) && strlen(msgs.Tag)) {
+	while (TRUE) {
+	    Enter(2);
+	    /* Export to (H)ome or (R)ules directory: */
+	    pout(WHITE, RED, (char *) Language(11));
+	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	    fflush(stdout);
+	    alarm_on();
+	    z = toupper(Getone());
+	    if (z == Keystroke(11, 0)) {
+		printf("%c", Keystroke(478, 0));
+		break;
+	    }
+	    if (z == Keystroke(11, 1)) {
+		printf("%c", Keystroke(478, 1));
+		homedir = FALSE;
+		break;
+	    }
 	}
+    }
+    
+    Syslog('+', "Export msg %d in area #%d (%s) to %s directory", Num, iMsgAreaNumber + 1, sMsgAreaDesc, homedir?"Home":"Rules");
 
-	if (!Msg_Open(sMsgAreaBase)) {
-		WriteError("Error open JAM base %s", sMsgAreaBase);
-		return FALSE;
-	}
+    /*
+     * The area data is already set, so we can do the next things
+     */
+    if (MsgBase.Total == 0) {
+	colour(WHITE, BLACK);
+	/* There are no messages in this area */
+	printf("\n%s\n\n", (char *) Language(205));
+	Syslog('+', "No messages in area");
+	sleep(3);
+	return FALSE;
+    }
 
-	if (!Msg_ReadHeader(Num)) {
-		perror("");
-		colour(WHITE, BLACK);
-		printf("\n%s\n\n", (char *)Language(77));
-		Msg_Close();
-		sleep(3);
-		return FALSE;
-	}
+    if (!Msg_Open(sMsgAreaBase)) {
+	WriteError("Error open JAM base %s", sMsgAreaBase);
+	return FALSE;
+    }
 
-	if (Msg.Private) {
-		ShowMsg = FALSE;
-		if ((strcasecmp(exitinfo.sUserName, Msg.From) == 0) || (strcasecmp(exitinfo.sUserName, Msg.To) == 0))
-			ShowMsg = TRUE;
-		if (exitinfo.Security.level >= msgs.SYSec.level)
-			ShowMsg = TRUE;
-	}
-
-	if (!ShowMsg) {
-		printf("\n%s\n\n", (char *) Language(82));
-		Msg_Close();
-		sleep(3);
-		return FALSE;
-	}
-
-	/*
-	 * Export the message text to the file in the users home/wrk directory.
-	 * Create the filename as <areanum>_<msgnum>.msg The message is
-	 * written in M$DOS <cr/lf> format.
-	 */
-	p = calloc(128, sizeof(char));
-	sprintf(p, "%s/%s/wrk/%d_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
-	if ((qf = fopen(p, "w")) != NULL) {
-		free(p);
-		p = NULL;
-		if (Msg_Read(Num, 80)) {
-			if ((p = (char *)MsgText_First()) != NULL)
-				do {
-					if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
-						if (Kludges) {
-							if (p[0] == '\001') {
-								p[0] = 'a';
-								fprintf(qf, "^%s\r\n", p);
-							} else
-								fprintf(qf, "%s\r\n", p);
-						}
-					} else
-						fprintf(qf, "%s\r\n", p);
-				} while ((p = (char *)MsgText_Next()) != NULL);
-		}
-		fclose(qf);
-	} else {
-		WriteError("$Can't open %s", p);
-	}
+    if (!Msg_ReadHeader(Num)) {
+	perror("");
+	colour(WHITE, BLACK);
+	/* Message doesn't exist */
+	printf("\n%s\n\n", (char *)Language(77));
 	Msg_Close();
+	sleep(3);
+	return FALSE;
+    }
 
-	/*
-	 * Report the result.
-	 */
-	colour(CFG.TextColourF, CFG.TextColourB);
+    if (Msg.Private) {
+	ShowMsg = FALSE;
+	if ((strcasecmp(exitinfo.sUserName, Msg.From) == 0) || (strcasecmp(exitinfo.sUserName, Msg.To) == 0))
+	    ShowMsg = TRUE;
+	if (exitinfo.Security.level >= msgs.SYSec.level)
+	    ShowMsg = TRUE;
+    }
+
+    if (!ShowMsg) {
+	/* Private message, not owner */
+	printf("\n%s\n\n", (char *) Language(82));
+	Msg_Close();
+	sleep(3);
+	return FALSE;
+    }
+
+    /*
+     * Export the message text to the file in the users home/wrk directory
+     * or to the rules directory.
+     * Create the filename as <areanum>_<msgnum>.msg if exported to the
+     * home directory, if exported to a rule directory the name is the area tag.
+     * The message is written in M$DOS <cr/lf> format.
+     */
+    p = calloc(PATH_MAX, sizeof(char));
+    if (homedir)
+	sprintf(p, "%s/%s/wrk/%d_%lu.msg", CFG.bbs_usersdir, exitinfo.Name, iMsgAreaNumber + 1, Num);
+    else
+	sprintf(p, "%s/%s", CFG.rulesdir, msgs.Tag);
+
+    if ((qf = fopen(p, "w")) != NULL) {
+	free(p);
+	p = NULL;
+	if (Msg_Read(Num, 80)) {
+	    if ((p = (char *)MsgText_First()) != NULL) {
+		do {
+		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+			if (Kludges && homedir) {
+			    if (p[0] == '\001') {
+				p[0] = 'a';
+				fprintf(qf, "^%s\r\n", p);
+			    } else {
+				fprintf(qf, "%s\r\n", p);
+			    }
+			}
+		    } else {
+			if (homedir || (strncmp(p, "--- ", 4) && strncmp(p, " * Origin", 9))) {
+			    /*
+			     * In rules directory, don't write tearline and Origin line.
+			     */
+			    fprintf(qf, "%s\r\n", p);
+			}
+		    }
+		} while ((p = (char *)MsgText_Next()) != NULL);
+	    }
+	}
+	fclose(qf);
+    } else {
+	WriteError("$Can't open %s", p);
+    }
+    Msg_Close();
+
+    /*
+     * Report the result.
+     */
+    colour(CFG.TextColourF, CFG.TextColourB);
+    if (homedir) {
+	/* Message exported to your private directory as: */
 	printf("\n\n%s", (char *) Language(46));
 	colour(CFG.HiliteF, CFG.HiliteB);
 	printf("%d_%lu.msg\n\n", iMsgAreaNumber + 1, Num);
-	Pause();
-	return TRUE;
+    } else {
+	/* Message exported to rules directory as */
+	printf("\n\n%s", (char *) Language(12));
+	colour(CFG.HiliteF, CFG.HiliteB);
+	printf("%s\n\n", msgs.Tag);
+    }
+    Pause();
+    return TRUE;
 }
 
 

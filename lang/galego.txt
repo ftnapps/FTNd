@@ -9,8 +9,8 @@ SN|¨Escribiche-lo teu nome correctamente? [S/n]
 |Password: 
 |Sobrepasouse o n£mero m ximo de erros permitido... 
 |O teu nome ou a tua PASSWORD son incorrectos
-|                         Banco de MBSE BBS                                  
-|Conta: 
+HR|Export to (H)ome or (R)ules directory: 
+|Message exported to rules directory as 
 |Tempo na conta           : 
 |Bytes na cuenta          : 
 |Tempo depositado hoxe    : 

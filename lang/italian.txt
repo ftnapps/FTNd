@@ -9,8 +9,8 @@ SN|Hai scritto il tuo nome e cognome correttamente? [S/n]
 |Password: 
 |Numero massimo di tentativi per il login raggiunto ...
 |Hai inserito un NOME o una PASSWORD errata
-|                      MBSE BBS Banca di Sistema                              
-|Account bancario di  : 
+HR|Export to (H)ome or (R)ules directory: 
+|Message exported to rules directory as 
 |Tempo disponibile    :              
 |Byte disponibili     :
 |Tempo depositato oggi:

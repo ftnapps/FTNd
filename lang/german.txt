@@ -9,8 +9,8 @@ JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
 |Passwort: 
 |Die maximale Anzahl von Login-Versuchen wurde ueberschritten ...
 |Entweder Ihr NAME oder Ihr PASSWORT wurden falsch eingegeben
-|                              MBSE BBS System Bank                              
-|Zeitbank Konto fuer: 
+HR|Export to (H)ome or (R)ules directory: 
+|Message exported to rules directory as 
 |Kontostand Zeit (min) . . . . . . : 
 |Kontostand Daten (KBytes) . . . . : 
 |Heute gesparte Zeit . . . . . . . : 

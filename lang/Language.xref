@@ -9,8 +9,8 @@
 8	user.c filesub.c		|Password: 
 9	user.c				|Maximum login attempts have been exceeded ...
 10	user.c				|Either your NAME or PASSWORD is incorrect
-11	.c				|
-12	.c				|
+11	mail.c email.c			HR|Export to (H)ome or (R)ules directory: 
+12	mail.c email.c			|Message exported to rules directory as 
 13	.c				|
 14	.c				|
 15	.c				|

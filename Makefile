@@ -151,8 +151,8 @@ install:
 		@if [ ! -d ${PREFIX}/var/rules ]; then \
 			mkdir ${PREFIX}/var/rules ; \
 			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/rules ; \
-			chmod 0750 ${PREFIX}/var/rules ; \
 		fi
+		chmod 0770 ${PREFIX}/var/rules
 		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
 			mkdir ${PREFIX}/var/unknown ; \
 			mkdir ${PREFIX}/var/inbound ; \

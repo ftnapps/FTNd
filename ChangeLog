@@ -6,7 +6,8 @@ v0.37.01	14-Jan-2003.
 	upgrade:
 		After installing the binaries, start mbsetup, enter menu 1 and
 		leave that and save it. This will set the default rules 
-		directory, will be used later.
+		directory, here we will store the area rules of all echomail
+		areas.
 		After upgrade you may remove ~/etc/maptabs and it's contents.
 		After upgrade you may remove ~/etc/bank.data.
 
@@ -58,7 +59,7 @@ v0.37.01	14-Jan-2003.
 		global settings.
 		When moving a message area to area zero mbsetup doesn't crash
 		anymore.
-		Added new menu item 319, remove menu items 22 and 23.
+		Added new menu item 319, removed menu items 22 and 23.
 		Added setup for rules directory.
 
 	mbsebbs:
@@ -71,13 +72,19 @@ v0.37.01	14-Jan-2003.
 		as from name.
 		Removed timebank and nextuser doors.
 		Added editing of user's signature file. New menu item 319.
+		If the sysop is exporting a echomail message he will have the
+		option to save to his private directory or to the rules
+		directory. If saved to the rules directory the message will
+		have the filename of the area tag. Normal users can only export
+		to their private directory. Sysops: now you can start 
+		collecting area rules!
 
 	examples:
 		The English and Dutch templates are updated to show the new
 		nodes flow counters (html.nodes).
 
 	lang:
-		Changed english and dutch language prompts 107.
+		Changed english and dutch language prompts 11, 12 and 107.
 
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003

@@ -9,8 +9,8 @@ YN|Did you spell your name correctly? [Y/n]
 |Password: 
 |Maximum login attempts have been exceeded ...
 |Either your NAME or PASSWORD is incorrect
-|                              MBSE BBS System Bank                              
-|Bank Account: 
+HR|Export to (H)ome or (R)ules directory: 
+|Message exported to rules directory as 
 |Time in account                    
 |Bytes in account                   
 |Time deposited today               
