@@ -88,13 +88,13 @@ clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak
 
 install:	all
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 4751 mbfido  ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbseq   ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbaff   ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbindex ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbdiff  ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbfile  ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbmsg   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 4751 mbfido  ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbseq   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbaff   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbindex ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbdiff  ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbfile  ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbmsg   ${BINDIR}
 		rm -f ${BINDIR}/mbmail
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbmail
 		rm -f ${BINDIR}/mbnews

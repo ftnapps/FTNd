@@ -4235,6 +4235,8 @@ v0.33.19        26-Oct-2001
 		can't start the bbs from telnet anymore! With a later release
 		this may change by adding a login wrapper, for now this is how
 		it works now. Take it or leave it.
+		On FreeBSD the installed files are not removed anymore from
+		the source tree.
 		Added German language file made by Harald Wuensch.
 
 	SETUP.sh

@@ -14,7 +14,7 @@ clean:
 		rm -f core filelist Makefile.bak *.lang
 
 install: ${LDAT}
-		${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${ETCDIR}
+		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${ETCDIR}
 
 english.lang:	english.txt
 		../mbsebbs/mblang english.lang english.txt

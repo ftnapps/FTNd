@@ -19,23 +19,23 @@ install:
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
 		@if [ ! -x ${ETCDIR}/maint ]; then \
-			${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR} ; \
-			echo "${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 maint       ${ETCDIR}" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/midnight ]; then \
-			${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR} ; \
-			echo "${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 midnight    ${ETCDIR}" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/weekly ]; then \
-			${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR} ; \
-			echo "${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 weekly      ${ETCDIR}" ; \
 		fi
 		@if [ ! -x ${ETCDIR}/monthly ]; then \
-			${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR} ; \
-			echo "${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR}" ; \
 		fi
-		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}
-		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}
+		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}
+		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}
 		@bash ./installinit.sh
 
 filelist:	Makefile

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/salt.c
+ * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 13-May-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
@@ -64,9 +63,12 @@ char *crypt_make_salt(void)
 	static char result[40];
 
 	result[0] = '\0';
+
+#ifndef __FreeBSD__
 	if (getdef_bool("MD5_CRYPT_ENAB")) {
 		strcpy(result, "$1$");  /* magic for the new MD5 crypt() */
 	}
+#endif
 
 	/*
 	 * Generate 8 chars of salt, the old crypt() will use only first 2.

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbpasswd.c
+ * $Id$
  * Purpose ...............: setuid root version of passwd
- * Last modification date : 10-Aug-2001
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
@@ -871,7 +870,7 @@ int main(int argc, char *argv[])
 		strcpy(temp, "/sbin/chpass");
 	else {
 		fprintf(stderr, "mbpasswd: Can't find chpass\n");
-		syslog(LOG_INFO, "Can't find chpass");
+		syslog(LOG_ERR, "Can't find chpass");
 		closelog();
 		exit(E_FAILURE);
 	}
@@ -879,14 +878,14 @@ int main(int argc, char *argv[])
 
 	if (system(cmd) != 0) {
 		perror("mbpasswd: failed to change password\n");
-		syslog(LOG_INFO, "password change for `%s' failed", name);
+		syslog(LOG_ERR, "password change for `%s' failed", name);
 		closelog();
 		exit(E_FAILURE);
 	}
 
 #endif /* __FreeBSD__ */
 
-	syslog(LOG_INFO, "password for `%s' changed by user `%s'", name, myname);
+	syslog(LOG_NOTICE, "password for `%s' changed by user `%s'", name, myname);
 	closelog();
 	exit(E_SUCCESS);
 }

@@ -26,7 +26,7 @@ clean:
 		rm -f mbmon *.o *.h~ *.c~ core filelist Makefile.bak
 
 install:	all
-		${INSTALL} -s -g ${GROUP} -o ${OWNER} -m ${MODE} mbmon   ${BINDIR}
+		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m ${MODE} mbmon   ${BINDIR}
 
 filelist:	Makefile
 		BASE=`pwd`; \

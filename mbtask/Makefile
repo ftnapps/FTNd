@@ -30,7 +30,7 @@ install:	all
 		@if [ "`id -un`" != "root" ] ; then \
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
-		${INSTALL} -s -o `id -un` -g `id -gn` -m 6711 mbtask   ${BINDIR}
+		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbtask   ${BINDIR}
 		@if [ -f ${ETCDIR}/mbsed.conf ]; then \
 			rm ${ETCDIR}/mbsed.conf ; \
 		fi
@@ -41,8 +41,8 @@ install:	all
 			rm ${BINDIR}/mbsed ; \
 		fi
 		@if [ ! -f ${ETCDIR}/issue ]; then \
-			${INSTALL} -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR} ; \
-			echo "${INSTALL} -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR}"; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR}"; \
 		fi
 
 filelist:	Makefile
