@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/funcs.c
  * Purpose ...............: Misc functions
- * Last modification date : 17-Oct-2001
+ * Last modification date : 22-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001 
@@ -338,7 +338,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 		} else {
 			if (Comport) {
 				fprintf(fp, "COM1:\r\n"); /* COM port             */
-				fprintf(fp, "115200\r\n");/* Effective baudrate   */
+				fprintf(fp, "19200\r\n");/* Effective baudrate   */
 
 			} else {
 				fprintf(fp, "COM0:\r\n");/* COM port		*/
@@ -347,7 +347,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 			fprintf(fp, "8\r\n");		/* Databits		*/
 			fprintf(fp, "%d\r\n", iNode);	/* Node number		*/
 			if (Comport)
-				fprintf(fp, "115200\r\n");/* Locked baudrate	*/
+				fprintf(fp, "19200\r\n");/* Locked baudrate	*/
 			else
 				fprintf(fp, "%ld\r\n", ttyinfo.portspeed); /* Locked baudrate */
 			fprintf(fp, "Y\r\n");		/* Screen display	*/
