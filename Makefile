@@ -128,8 +128,6 @@ install:
 			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
 			echo "you may remove that obsolete directory." ; \
 		fi
-		@rm -rf ${PREFIX}/sema
-
 
 dist tar:	${TARFILE}
 
