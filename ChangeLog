@@ -21,6 +21,7 @@ v0.51.3		22-Mar-2003
 		The ~/doc/xref.doc and ~/doc/stat.doc are not created anymore,
 		there was nothing in it yet.
 		Removed setup for the unused free diskspace parameter.
+		In nodes edit aka's it was not possible to delete aka's.
 
 	mbfido:
 		The area tags are now created in /opt/mbse/share/doc/tags.

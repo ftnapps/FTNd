@@ -543,6 +543,7 @@ fidoaddr e_a(fidoaddr n, int x)
 		mvprintw( 9, 6, "3.  Node");
 		mvprintw(10, 6, "4.  Point");
 		mvprintw(11, 6, "    Domain");
+		mvprintw(12, 6, "5.  Delete");
 		set_color(WHITE, BLACK);
 		show_int( 7,17, n.zone);
 		show_int( 8,17, n.net);
@@ -550,7 +551,7 @@ fidoaddr e_a(fidoaddr n, int x)
 		show_int(10,17, n.point);
 		show_str(11,17,12, n.domain);
 
-		switch(select_menu(4)) {
+		switch(select_menu(5)) {
 		case 0:	return n;
 		case 1:	n.zone = edit_int_range(7, 17, n.zone, 1, 4095, (char *)"The ^zone^ number 1..4095");
 			sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
@@ -573,6 +574,8 @@ fidoaddr e_a(fidoaddr n, int x)
 		case 2:	E_IRC( 8,17,n.net,   1, 32767, "The ^net^ number 1..32767")
 		case 3:	E_IRC( 9,17,n.node,  0, 32767, "The ^node^ number 0..32767")
 		case 4:	E_IRC(10,17,n.point, 0, 32767, "The ^point^ number 0..32767")
+		case 5: memset(&n, 0, sizeof(n));
+			break;
 		}
 	}
 }
