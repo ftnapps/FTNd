@@ -225,9 +225,6 @@ void Kill(void)
 					unlink(sTemp);
 					chmod(fAreas, 006600);
 				}
-				if (!FilesLeft) {
-					Syslog('+', "Warning: area %d (%s) is empty", i, area.Name);
-				}
 			} else 
 				fclose(pFile);
 

@@ -17,7 +17,7 @@ typedef	struct	_tic_in {
 	char		Created[81];		/* Created text		    */
 	char		Path[25][81];		/* Travelled path	    */
 	int		TotPath;		/* Nr of pathlines	    */
-	char		Desc[256];		/* Short description	    */
+	char		Desc[1024];		/* Short description	    */
 	char		Magic[21];		/* Magic alias		    */
 	char		Crc[9];			/* CRC of file		    */
 	char		Pw[21];			/* Password		    */

@@ -63,7 +63,7 @@ extern int	do_pack;		/* Pack filebase		    */
 void Check(void)
 {
 	FILE	*pAreas, *pFile;
-	int	i, iAreas, iAreasNew = 0, Fix;
+	int	i, iAreas, iAreasNew = 0, Fix, inArea;
 	int	iTotal = 0, iErrors =  0;
 	char	*sAreas, *fAreas, *newdir, *temp;
 	DIR	*dp;
@@ -193,9 +193,11 @@ void Check(void)
 			 * Now start checking the files in the filedatabase
 			 * against the contents of the directory.
 			 */
+			inArea = 0;
 			while (fread(&file, sizeof(file), 1, pFile) == 1) {
 
 				iTotal++;
+				inArea++;
 				sprintf(newdir, "%s/%s", area.Path, file.LName);
 
 				if (file_exist(newdir, R_OK)) {
@@ -248,6 +250,8 @@ void Check(void)
 					}
 				}
 			}
+			if (inArea == 0)
+			    Syslog('+', "Warning: area %d (%s) is empty", i, area.Name);
 
 			/*
 			 * Check files in the directory against the database.

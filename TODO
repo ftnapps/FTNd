@@ -71,10 +71,6 @@ mbfile:
 
 	N: Rearc <area>
 
-	L: When files are moved from one area to another, the thumbnails
-	   are not moved. They are recreated later but this can be very
-	   time consuming.
-
 mbaff:
 	L: Add setup parameters for minimum length of keywords.
 

@@ -579,9 +579,7 @@ int ProcessTic(fa_list *sbl)
 	if (!Get_File_Id()) {
 		if (TIC.TicIn.TotLDesc > 2) {
 			for (i = 0; i < TIC.TicIn.TotLDesc; i++) {
-				strcpy(temp1, TIC.TicIn.LDesc[i]);
-				temp1[48] = '\0';
-				strcpy(TIC.File_Id[i], temp1);
+				strncpy(TIC.File_Id[i], TIC.TicIn.LDesc[i], 48);
 			}
 			TIC.File_Id_Ct = TIC.TicIn.TotLDesc;
 		} else {
@@ -599,14 +597,18 @@ int ProcessTic(fa_list *sbl)
 					j = 48;
 					while (TDesc[j] != ' ')
 						j--;
-					strncat(TIC.File_Id[TIC.File_Id_Ct], TDesc, j);
+					strncpy(TIC.File_Id[TIC.File_Id_Ct], TDesc, j);
+					Syslog('f', "%2d/%2d: \"%s\"", TIC.File_Id_Ct, j, TIC.File_Id[TIC.File_Id_Ct]);
 					TIC.File_Id_Ct++;
 					k = strlen(TDesc);
 					j++; /* Correct space */
 					for (i = 0; i <= k; i++, j++)
 						TDesc[i] = TDesc[j];
+					if (TIC.File_Id_Ct == 23)
+					    break;
 				}
-				strcpy(TIC.File_Id[TIC.File_Id_Ct], TDesc);
+				strncpy(TIC.File_Id[TIC.File_Id_Ct], TDesc, 48);
+				Syslog('f', "%2d/%2d: \"%s\"", TIC.File_Id_Ct, strlen(TIC.File_Id[TIC.File_Id_Ct]), TIC.File_Id[TIC.File_Id_Ct]);
 				TIC.File_Id_Ct++;
 			}
 		}

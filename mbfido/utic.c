@@ -172,74 +172,80 @@ void ReCalcCrc(char *fn)
 
 int Get_File_Id()
 {
-	char	*temp;
-	char	Desc[256];
-	FILE	*fp;
-	int	i, j, lines = 0;
+    char    *temp;
+    char    Desc[1024];
+    FILE    *fp;
+    int	    i, j, lines = 0;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	sprintf(temp, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
-	    sprintf(temp, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
-	    if ((fp = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return FALSE;
+	    free(temp);
+	    return FALSE;
+	}
+    }
+
+    /*
+     * Read no more then 25 lines.
+     */
+    while (((fgets(Desc, 1023, fp)) != NULL) && (TIC.File_Id_Ct < 25)) {
+	lines++;
+	/*
+	 * Check if the FILE_ID.DIZ is in a normal layout.
+	 * The layout should be max. 10 lines of max. 48 characters.
+	 * We check at 51 characters and if the lines are longer,
+	 * we trash the FILE_ID.DIZ file.
+	 */
+	if (strlen(Desc) > 51) {
+	    fclose(fp);
+	    unlink(temp);
+	    for (i = 0; i < 25; i++)
+		TIC.File_Id[i][0] = '\0';
+	    TIC.File_Id_Ct = 0;
+	    Syslog('f', "FILE_ID.DIZ line %d is %d chars", lines, strlen(Desc));
+	    Syslog('!', "Trashing illegal formatted FILE_ID.DIZ");
+	    free(temp);
+	    return FALSE;
+	}
+
+	if (strlen(Desc) > 0) {
+	    j = 0;
+	    for (i = 0; i < strlen(Desc); i++) {
+		if (isprint(Desc[i])) {
+		    TIC.File_Id[TIC.File_Id_Ct][j] = Desc[i];
+		    j++;
+		    if (j > 47)
+			break;
+		}
 	    }
+
+	    /*
+	     * Remove trailing spaces
+	     */
+	    while (j && isspace(TIC.File_Id[TIC.File_Id_Ct][j-1]))
+		j--;
+	    TIC.File_Id[TIC.File_Id_Ct][j] = '\0';
+	    Syslog('f', "%2d/%2d: \"%s\"", TIC.File_Id_Ct, j, TIC.File_Id[TIC.File_Id_Ct]);
+	    TIC.File_Id_Ct++;
 	}
+    }
+    fclose(fp);
+    unlink(temp);
+    free(temp);
 
-	/*
-	 * Read no more then 25 lines.
-	 */
-	while (((fgets(Desc, 255, fp)) != NULL) && (TIC.File_Id_Ct < 25)) {
-		lines++;
-		/*
-		 * Check if the FILE_ID.DIZ is in a normal layout.
-		 * The layout should be max. 10 lines of max. 48 characters.
-		 * We check at 51 characters and if the lines are longer,
-		 * we trash the FILE_ID.DIZ file.
-		 */
-		if (strlen(Desc) > 51) {
-			fclose(fp);
-			unlink(temp);
-			TIC.File_Id_Ct = 0;
-			Syslog('f', "FILE_ID.DIZ line %d is %d chars", lines, strlen(Desc));
-			Syslog('!', "Trashing illegal formatted FILE_ID.DIZ");
-			free(temp);
-			return FALSE;
-		}
+    /*
+     * Strip empty lines at end of FILE_ID.DIZ
+     */
+    while ((strlen(TIC.File_Id[TIC.File_Id_Ct-1]) == 0) && (TIC.File_Id_Ct))
+	TIC.File_Id_Ct--;
 
-		if (strlen(Desc) > 0) {
-			j = 0;
-			for (i = 0; i < strlen(Desc); i++) {
-				if ((Desc[i] >= ' ') || (Desc[i] < 0)) {
-					TIC.File_Id[TIC.File_Id_Ct][j] = Desc[i];
-					j++;
-				}
-			}
-
-			if (j >= 48)
-				TIC.File_Id[TIC.File_Id_Ct][48] = '\0';
-			else
-				TIC.File_Id[TIC.File_Id_Ct][j] = '\0';
-
-			TIC.File_Id_Ct++;
-		}
-	}
-	fclose(fp);
-	unlink(temp);
-	free(temp);
-
-	/*
-	 * Strip empty lines at end of FILE_ID.DIZ
-	 */
-	while ((strlen(TIC.File_Id[TIC.File_Id_Ct-1]) == 0) && (TIC.File_Id_Ct))
-		TIC.File_Id_Ct--;
-
-	Syslog('f', "Got %d FILE_ID.DIZ lines", TIC.File_Id_Ct);
-	if (TIC.File_Id_Ct)
-		return TRUE;
-	else
-		return FALSE;
+    Syslog('f', "Got %d FILE_ID.DIZ lines", TIC.File_Id_Ct);
+    if (TIC.File_Id_Ct)
+	return TRUE;
+    else
+	return FALSE;
 }
 
 

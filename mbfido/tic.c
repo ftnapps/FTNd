@@ -165,7 +165,7 @@ int LoadTic(char *inb, char *tfn)
 {
 	FILE	*tfp;
 	char	*Temp, *Temp2, *Buf, *Log = NULL;
-	int	i, j, rc;
+	int	i, j, rc, bufsize;
 	fa_list	*sbl = NULL;
 	int	DescCnt = FALSE;
 
@@ -184,10 +184,15 @@ int LoadTic(char *inb, char *tfn)
 		return 1;
 	}
 
-	Temp = calloc(PATH_MAX, sizeof(char));
-	Buf  = calloc(PATH_MAX, sizeof(char));
+	if (PATH_MAX > 1024)
+	    bufsize = PATH_MAX;
+	else
+	    bufsize = 1024;
+	Temp = calloc(bufsize+1, sizeof(char));
+	Buf  = calloc(bufsize+1, sizeof(char));
+	Syslog('f', "Tic buffersize %d", bufsize);
 
-	while ((fgets(Buf, PATH_MAX -1, tfp)) != NULL) {
+	while ((fgets(Buf, bufsize, tfp)) != NULL) {
 		/*
 		 * Remove all garbage from the .TIC file.
 		 */
@@ -200,10 +205,10 @@ int LoadTic(char *inb, char *tfn)
 			}
 		Temp[j] = '\0';
 
-		if (strlen(Temp) > 255) {
-		    Syslog('+', "Truncating TIC line of %d characters", strlen(Temp));
-		    Temp[255] = '\0';
-		}
+//		if (strlen(Temp) > 255) {
+//		    Syslog('+', "Truncating TIC line of %d characters", strlen(Temp));
+//		    Temp[255] = '\0';
+//		}
 
 		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
@@ -251,7 +256,7 @@ int LoadTic(char *inb, char *tfn)
 
 		} else if (strncasecmp(Temp, "desc ", 5) == 0) {
 			if (!DescCnt) {
-				strncpy(TIC.TicIn.Desc, Temp+5, 255);
+				strncpy(TIC.TicIn.Desc, Temp+5, 1023);
 				strncpy(T_File.Desc, TIC.TicIn.Desc, 255);
 				DescCnt = TRUE;
 			} else {

@@ -132,8 +132,26 @@ void Move(int From, int To, char *File)
     while (fread(&fdb, sizeof(fdb), 1, fp1) == 1) {
 	if (strcmp(fdb.LName, File))
 	    fwrite(&fdb, sizeof(fdb), 1, fp2);
-	else
+	else {
 	    rc = AddFile(fdb, To, topath, frompath);
+	    if (rc) {
+		/*
+		 * Try to move thumbnail if it exists
+		 */
+		unlink(frompath);
+		free(frompath);
+		free(topath);
+		frompath = xstrcpy(area.Path);
+		frompath = xstrcat(frompath, (char *)"/.");
+		frompath = xstrcat(frompath, File);
+		topath = xstrcpy(area.Path);
+		topath = xstrcat(topath, (char *)"/.");
+		topath = xstrcat(topath, File);
+		if (file_exist(frompath, R_OK) == 0) {
+		    file_mv(frompath, topath);
+		}
+	    }
+	}
     }
     fclose(fp1);
     fclose(fp2);
@@ -149,7 +167,6 @@ void Move(int From, int To, char *File)
 	    WriteError("$Can't unlink %s", temp1);
 	    unlink(temp2);
 	}
-	unlink(frompath);
 	colour(CYAN, BLACK);
     } else {
 	/*
