@@ -60,6 +60,7 @@
 #include "makestat.h"
 #include "newspost.h"
 #include "rnews.h"
+#include "mgrutil.h"
 #include "backalias.h"
 #include "rfc2ftn.h"
 
@@ -67,6 +68,7 @@
 #define	UNPACK_FACTOR 300
 
 
+int	do_areas   = FALSE;		/* Process area taglists	    */
 int	do_toss    = FALSE;		/* Toss flag			    */
 int	do_scan    = FALSE;		/* Scan flag			    */
 int	do_tic     = FALSE;		/* Process .tic files		    */
@@ -116,6 +118,7 @@ void Help(void)
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
+	printf("	a    areas			Process Areas taglists\n");
 	printf("	m    mail <recipient> ...	MTA Mail mode\n");
 	printf("	ne   news			Scan for new news\n");
 	printf("	no   notify <nodes>		Send notify messages\n");
@@ -351,6 +354,8 @@ int main(int argc, char **argv)
 		}
 		if (strncmp(tl(argv[i]), "r", 1) == 0)
 			do_roll = TRUE;
+		else if (strncmp(tl(argv[i]), "a", 1) == 0)
+			do_areas = TRUE;
 		else if (strncmp(tl(argv[i]), "s", 1) == 0)
 			do_scan = TRUE;
 		else if (strncmp(tl(argv[i]), "ta", 2) == 0)
@@ -529,6 +534,8 @@ int main(int argc, char **argv)
 		MakeStat();
 	if (do_uucp)
 		NewsUUCP();
+	if (do_areas)
+		Areas();
 	die(0);
 	return 0;
 }

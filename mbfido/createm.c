@@ -34,6 +34,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/msg.h"
 #include "mgrutil.h"
 #include "createm.h"
 
@@ -215,6 +216,9 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 			tag[i] = '/';
 		sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
 		fwrite(&msgs, sizeof(msgs), 1, mp);
+		mkdirs(msgs.Base, 0770);
+		if (Msg_Open(msgs.Base))
+		    Msg_Close();
 		
 		memset(&System, 0, sizeof(System));
 		System.aka = mgroup.UpLink;
@@ -228,8 +232,11 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		fclose(ap);
 		free(buf);
 		free(temp);
-		Syslog('+', "Auto created echo %s, group %s, area %ld, for node %s",
-		    msgs.Tag, msgs.Group, offset, ascfnode(f , 0x1f));
+		if (f == NULL)
+		    Syslog('+', "Auto created echo %s, group %s, area %ld", msgs.Tag, msgs.Group, offset);
+		else
+		    Syslog('+', "Auto created echo %s, group %s, area %ld, for node %s",
+			msgs.Tag, msgs.Group, offset, ascfnode(f , 0x1f));
 		return 0;
 	    } /* if (strcmp(tag, Area) == 0) */
 	} /* if (strlen(buf) && isalnum(buf[0])) */

@@ -292,6 +292,7 @@ void DoMsgBase()
 					fflush(stdout);
 				}
 				are_tot++;
+				mkdirs(msgs.Base, 0770);
 				if (do_kill)
 					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs);
 				if (do_pack || msg_del)
@@ -321,6 +322,7 @@ void DoMsgBase()
 					fflush(stdout);
 				}
 				are_tot++;
+				mkdirs(msgs.Base, 0770);
 				processed = FALSE;
 				if (do_kill)
 					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs);

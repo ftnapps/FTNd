@@ -451,9 +451,9 @@ int EditConnections(FILE *fil)
 
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
-					sprintf(temp, "%3d. %s %d:%d/%d.%d@%s", o+i, status, 
-						System.aka.zone, System.aka.net, System.aka.node, 
-						System.aka.point, System.aka.domain);
+					sprintf(temp, "%3d. %s %s", o+i, status, aka2str(System.aka));
+//						System.aka.zone, System.aka.net, System.aka.node, 
+//						System.aka.point, System.aka.domain);
 				} else {
 					set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.", o+i);
@@ -1290,7 +1290,7 @@ void EditMsgarea(void)
 						fread(&msgs, msgshdr.recsize, 1, fil);
 						if (msgs.Active) {
 							set_color(CYAN, BLACK);
-							sprintf(temp, "%3d. %-8s %-25s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
+							sprintf(temp, "%3d. %-8s %-23s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
 						} else {
 							set_color(LIGHTBLUE, BLACK);
 							sprintf(temp, "%3d.", o+i);

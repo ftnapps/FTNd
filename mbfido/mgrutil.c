@@ -39,10 +39,18 @@
 #include "sendmail.h"
 #include "rollover.h"
 #include "addpkt.h"
+#include "pack.h"
+#include "createm.h"
+#include "createf.h"
 #include "mgrutil.h"
 
 
 extern int	net_out;
+
+
+void tidy_arealist(AreaList **);
+void fill_arealist(AreaList **, char *, int);
+
 
 
 void MacroRead(FILE *fi, FILE *fp)
@@ -453,6 +461,199 @@ int MsgResult(const char * report, FILE *fo)
     free(resp);
     free(temp);
     return res;
+}
+
+
+
+void tidy_arealist(AreaList **fdp)
+{
+    AreaList	*tmp, *old;
+
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fdp = NULL;
+}
+
+    
+
+void fill_arealist(AreaList **fdp, char *tag, int DoDelete)
+{
+    AreaList	**tmp;
+
+    for (tmp = fdp; *tmp; tmp = &((*tmp)->next));
+    *tmp = (AreaList *)malloc(sizeof(AreaList));
+    (*tmp)->next = NULL;
+    strcpy((*tmp)->Name, tag);
+    (*tmp)->IsPresent = FALSE;
+    (*tmp)->DoDelete = DoDelete;
+}
+
+
+
+int Areas(void)
+{
+    FILE	*gp, *ap, *fp;
+    char	*temp, *buf, *tag;
+    AreaList	*alist = NULL, *tmp;
+    int		i, Found;
+    sysconnect	System;
+
+    Syslog('+', "Process areas taglists");
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    buf  = calloc(4097, sizeof(char));
+
+    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("Can't open %s", temp);
+    } else {
+	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+	fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
+
+	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
+	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile)) {
+		Syslog('+', "Checking mail group %s, file %s", mgroup.Name, mgroup.AreaFile);
+		sprintf(temp, "%s/%s", CFG.alists_path, mgroup.AreaFile);
+		if ((ap = fopen(temp, "r")) == NULL) {
+		    WriteError("Can't open %s", temp);
+		} else {
+		    while (fgets(buf, 4096, ap)) {
+			if (strlen(buf) && isalnum(buf[0])) {
+			    tag = strtok(buf, "\t \r\n\0");
+			    fill_arealist(&alist, tag, FALSE);
+			}
+		    }
+		    fclose(ap);
+
+		    /*
+		     * Mark areas already present in the taglist.
+		     */
+		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    if ((fp = fopen(temp, "r")) == NULL) {
+			WriteError("Can't open %s", temp);
+			tidy_arealist(&alist);
+			free(buf);
+			free(temp);
+			return FALSE;
+		    }
+		    fread(&msgshdr, sizeof(msgshdr), 1, fp);
+		    for (tmp = alist; tmp; tmp = tmp->next) {
+			fseek(fp, msgshdr.hdrsize, SEEK_SET);
+			while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
+			    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name))
+				tmp->IsPresent = TRUE;
+			    fseek(fp, msgshdr.syssize, SEEK_CUR);
+			}
+		    }
+
+		    /*
+		     * Add areas to AreaList not in the taglist, they must be deleted.
+		     */
+		    fseek(fp, msgshdr.hdrsize, SEEK_SET);
+		    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
+			if (msgs.Active && !strcmp(msgs.Group, mgroup.Name)) {
+			    Found = FALSE;
+			    for (tmp = alist; tmp; tmp = tmp->next) {
+				if (!strcmp(msgs.Tag, tmp->Name))
+				    Found = TRUE;
+			    }
+			    if (!Found)
+				fill_arealist(&alist, msgs.Tag, TRUE);
+			}
+			fseek(fp, msgshdr.syssize, SEEK_CUR);
+		    }
+		    fclose(fp);
+
+		    /*
+		     * Debug logging
+		     */
+//		    Syslog('m', "Area tag             Oke Del");
+//		    for (tmp = alist; tmp; tmp = tmp->next) {
+//			Syslog('m', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
+//		    }
+
+		    /*
+		     * Make modification, first add missing areas
+		     */
+		    for (tmp = alist; tmp; tmp = tmp->next) {
+			if (!tmp->IsPresent && !tmp->DoDelete)
+			    CheckEchoGroup(tmp->Name, TRUE, NULL);
+		    }
+
+		    /*
+		     * Now remove deleted areas
+		     */
+		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		    if ((fp = fopen(temp, "r+")) == NULL) {
+			WriteError("Can't open %s for r/w");
+		    } else {
+			fread(&msgshdr, sizeof(msgshdr), 1, fp);
+			for (tmp = alist; tmp; tmp = tmp->next) {
+			    if (!tmp->IsPresent && tmp->DoDelete) {
+				fseek(fp, msgshdr.hdrsize, SEEK_SET);
+				Syslog('m', "Delete %s", tmp->Name);
+				while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
+				    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name)) {
+					fseek(fp, - msgshdr.recsize, SEEK_CUR);
+					Syslog('+', "Removing message area %d, %s", 
+					    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1, msgs.Tag);
+					memset(&msgs, 0, sizeof(msgs));
+					msgs.DaysOld = CFG.defdays;
+					msgs.MaxMsgs = CFG.defmsgs;
+					msgs.Type = ECHOMAIL;
+					msgs.MsgKinds = PUBLIC;
+					msgs.UsrDelete = TRUE;
+					msgs.Rfccode = CHRS_DEFAULT_RFC;
+					msgs.Ftncode = CHRS_DEFAULT_FTN;
+					msgs.MaxArticles = CFG.maxarticles;
+					strcpy(msgs.Origin, CFG.origin);
+					memset(&System, 0, sizeof(System));
+					fwrite(&msgs, msgshdr.recsize, 1, fp);
+					for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
+					    fwrite(&System, sizeof(system), 1, fp);
+					break;
+				    } else {
+					fseek(fp, msgshdr.syssize, SEEK_CUR);
+				    }
+				}
+			    }
+			}
+		    }
+		    tidy_arealist(&alist);
+		}
+	    }
+	}
+	fclose(gp);
+    }
+    
+    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("Can't open %s", temp);
+    } else {
+	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+	fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
+
+	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
+	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile)) {
+		Syslog('+', "Checking tic group %s, file %s", fgroup.Name, fgroup.AreaFile);
+		    Syslog('f', "Area tag             Oke Del");
+		    for (tmp = alist; tmp; tmp = tmp->next) {
+			Syslog('f', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
+		    }
+		    
+		    tidy_arealist(&alist);
+
+	    }
+	}
+	fclose(gp);
+    }
+
+    free(buf);
+    free(temp);
+    packmail();
+    return TRUE;
 }
 
 

@@ -217,7 +217,7 @@ void Cookie(void)
 	srand(getpid());
 	firstrandom = FALSE;
     }
-    recno = 1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0));
+    recno = (1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0))) - 1;
 
     if (fseek(olf, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
 	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {

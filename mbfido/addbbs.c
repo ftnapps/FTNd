@@ -64,7 +64,7 @@ int Add_BBS()
 	 * Create filedatabase record.
 	 */
 	memset(&frec, 0, sizeof(frec));
-	strcpy(temp1, TIC.NewName);
+	sprintf(temp1, "%s", TIC.NewName);
 	name_mangle(temp1);
 	strcpy(frec.Name, temp1);
 	strcpy(frec.LName, TIC.NewName);

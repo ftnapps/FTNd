@@ -224,6 +224,8 @@ int AppendFGroup(void)
 		fgroup.VirScan = TRUE;
 		fgroup.Announce = TRUE;
 		fgroup.FileId = TRUE;
+		fgroup.DupCheck = TRUE;
+		fgroup.Replace = TRUE;
 		fwrite(&fgroup, sizeof(fgroup), 1, fil);
 		fclose(fil);
 		FGrpUpdated = 1;
@@ -307,9 +309,9 @@ void FgScreen(void)
 int EditFGrpRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[PATH_MAX];
+	char	mfile[PATH_MAX], temp[13];
 	long	offset;
-	int	j, tmp;
+	int	i, j, tmp;
 	unsigned long crc, crc1;
 
 	clr_index();
@@ -399,7 +401,21 @@ int EditFGrpRec(int Area)
 		
 		case 1: if (CheckFgroup())
 				break;
-			E_UPS(  6,16,12,fgroup.Name,       "The ^name^ of this file group")
+			strcpy(fgroup.Name, edit_ups(6,16,12, fgroup.Name, (char *)"The ^name^ of this file group"));
+			if (strlen(mgroup.BasePath) == 0) {
+			    memset(&temp, 0, sizeof(temp));
+			    strcpy(temp, fgroup.Name);
+			    for (i = 0; i < strlen(temp); i++) {
+				if (temp[i] == '.')
+				    temp[i] = '/';
+				if (isupper(temp[i]))
+				    temp[i] = tolower(temp[i]);
+			    }
+			    sprintf(fgroup.BasePath, "%s/%s", CFG.ftp_base, temp);
+			}
+			if (strlen(fgroup.BbsGroup) == 0)
+			    strcpy(fgroup.BbsGroup, fgroup.Name);
+			break;
 		case 2: E_STR(  7,16,55,fgroup.Comment,    "The ^description^ of this file group")
 		case 3: E_PTH(  8,16,64,fgroup.BasePath,   "The ^base path^ for new created file areas")
 		case 4: tmp = PickAka((char *)"10.1.4", TRUE);
