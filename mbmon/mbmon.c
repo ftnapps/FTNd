@@ -268,7 +268,7 @@ void system_stat(void)
     mvprintw(12,62, "Load avg");
     hor_lin(13,30,8);
     hor_lin(13,45,8);
-    mvprintw(13,62, "Disk stat");
+    mvprintw(13,62, "Diskspace");
     mvprintw(14, 6, "Client connects");
     mvprintw(15, 6, "Peak connections");
     mvprintw(16, 6, "Protocol syntax errors");

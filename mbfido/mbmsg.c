@@ -277,10 +277,8 @@ void DoMsgBase()
 			fread(&msgs, msgshdr.recsize, 1, pAreas);
 			if (msgs.Active) {
 
-				if (enoughspace(CFG.freespace) == 0) {
-					Syslog('+', "Low diskspace, abort");
+				if (enoughspace(CFG.freespace) == 0)
 					die(MBERR_DISK_FULL);
-				}
 
 				if (!do_quiet) {
 					colour(3, 0);
@@ -308,10 +306,8 @@ void DoMsgBase()
 			arearec++;
 			if (msgs.Active) {
 
-				if (enoughspace(CFG.freespace) == 0) {
-					Syslog('+', "Low diskspace, abort");
+				if (enoughspace(CFG.freespace) == 0)
 					die(MBERR_DISK_FULL);
-				}
 
 				Nopper();
 				if (!do_quiet) {

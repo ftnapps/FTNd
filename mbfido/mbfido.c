@@ -424,10 +424,8 @@ int main(int argc, char **argv)
     /*
      * Not yet locked, if anything goes wrong, exit with die(MBERR_NO_PROGLOCK)
      */
-    if (enoughspace(CFG.freespace) == 0) {
-	Syslog('+', "Low diskspace, abort");
+    if (enoughspace(CFG.freespace) == 0)
 	die(MBERR_DISK_FULL);
-    }
 
     if (do_mail) {
 	/*

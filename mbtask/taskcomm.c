@@ -378,8 +378,8 @@ char *exe_cmd(char *in)
     
     /*
      *  DSPC:1,n;           Check free space in MBytes
-     *  100:1,0;            No
-     *  100:1,1;            Yes
+     *  100:2,0,n;          No, n = lowest size in MBytes
+     *  100:2,1,n;          Yes, n = lowest size in MBytes
      *  100:1,2;            Unknown
      *  100:1,3;            Error
      */

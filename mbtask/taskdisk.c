@@ -40,6 +40,7 @@ typedef struct _mfs_list {
     char		*fstype;		/* FS type		*/
     unsigned long	size;			/* Size in MB		*/
     unsigned long	avail;			/* Available in MB	*/
+    unsigned		ro		: 1;	/* Read-Only fs.	*/
 } mfs_list;
 
 mfs_list	    *mfs = NULL;		/* List of filesystems	*/
@@ -72,6 +73,7 @@ void tidy_mfslist(mfs_list **fap)
     for (tmp = *fap; tmp; tmp = old) {
 	old = tmp->next;
 	free(tmp->mountpoint);
+	free(tmp->fstype);
 	free(tmp);
     }
     *fap = NULL;
@@ -105,6 +107,7 @@ void fill_mfslist(mfs_list **fap, char *mountpoint, char *fstype)
     tmp->fstype = xstrcpy(fstype);
     tmp->size = 0L;
     tmp->avail = 0L;
+    tmp->ro = TRUE; // Read-only, statfs will set real value.
     *fap = tmp;
 }
 
@@ -132,19 +135,11 @@ char *disk_check(char *token)
 {
     static char	    buf[SS_BUFSIZE];
     mfs_list	    *tmp;
-    unsigned long   needed;
+    unsigned long   needed, lowest = 0xffffffff;
     int		    rc;
 
     strtok(token, ",");
     needed = atol(strtok(NULL, ";"));
-
-    if (! needed) {
-	/*
-	 * Answer enough space
-	 */
-	sprintf(buf, "100:1,1");
-	return buf;
-    }
 
     if (mfs == NULL) {
 	/*
@@ -158,24 +153,18 @@ char *disk_check(char *token)
 	Syslog('!', "disk_check() mutex_lock failed rc=%d", rc);
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
-	if (tmp->avail < needed) {
-	    /*
-	     * Answer Not enough space
-	     */
-	    if ((rc = pthread_mutex_unlock(&a_mutex)))
-		Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
-	    sprintf(buf, "100:1,0");
-	    return buf;
-	}
+	if (!tmp->ro && (tmp->avail < lowest))
+	    lowest = tmp->avail;
     }
 
     if ((rc = pthread_mutex_unlock(&a_mutex)))
 	Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 
-    /*
-     * Enough space
-     */
-    sprintf(buf, "100:1,1");
+    if (lowest < needed) {
+	sprintf(buf, "100:2,0,%ld;", lowest);
+    } else {
+	sprintf(buf, "100:2,1,%ld;", lowest);
+    }
     return buf;
 }
 
@@ -247,6 +236,16 @@ void update_diskstat(void)
             temp = (unsigned long)(sfs.f_bsize / 512L);
 	    tmp->size  = (unsigned long)(sfs.f_blocks * temp) / 2048L;
 	    tmp->avail = (unsigned long)(sfs.f_bavail * temp) / 2048L;
+#if defined(__linux__)
+	    /*
+	     * The struct statfs (or statvfs) seems to have no information
+	     * about read-only filesystems, so we guess it based on fstype.
+	     * See man 2 statvfs about what approximately is defined.
+	     */
+	    tmp->ro = (strstr(tmp->fstype, "iso") != NULL);
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+	    Syslog('-', "%s %d", tmp->mountpoint, sfs.f_flags);
+#endif
         }
     }
 
@@ -283,6 +282,7 @@ void add_path(char *path)
 	if (S_ISDIR(sb.st_mode)) {
 
 #if defined(__linux__)
+
 	    if ((fp = fopen((char *)"/etc/mtab", "r"))) {
 		mtab = calloc(PATH_MAX, sizeof(char));
 		fsname = calloc(PATH_MAX, sizeof(char));
@@ -297,7 +297,6 @@ void add_path(char *path)
 		     * mounted filesystem that matches must be the one we seek.
 		     */
 		    if (strncmp(fs, path, strlen(fs)) == 0) {
-			Syslog('d', "Found fs %s", fs);
 			sprintf(fsname, "%s", fs);
 			fs = strtok(NULL, " \t");
 			sprintf(fstype, "%s", fs);
@@ -318,9 +317,7 @@ void add_path(char *path)
 		fstype = calloc(PATH_MAX, sizeof(char));
 
 		for (i = 0; i < mntsize; i++) {
-		    Syslog('d', "Check fs %s", mntbuf[i].f_mntonname);
 		    if (strncmp(mntbuf[i].f_mntonname, path, strlen(mntbuf[i].f_mntonname)) == 0) {
-			Syslog('d', "Found fs %s", mntbuf[i].f_mntonname);
 			sprintf(fsname, "%s", mntbuf[i].f_mntonname);
 			sprintf(fstype, "%s", mntbuf[i].f_fstypename);
 		    }
@@ -331,10 +328,18 @@ void add_path(char *path)
 		free(fstype);
 	    }
 
+#else
+#error "Unknow OS - don't know what to do"
 #endif
 
 	} else {
-	    Syslog('d', "****  Is not a dir");
+	    /*
+	     * Not a directory, maybe a file.
+	     */
+	    if ((p = strrchr(path, '/')))
+		*p = '\0';
+	    Syslog('d', "Recursive add name %s", path);
+	    add_path(path);
 	}
     } else {
 	/*
@@ -513,7 +518,7 @@ void *disk_thread(void)
 	    Syslog('d', "All directories added");
 
 	    for (tmp = mfs; tmp; tmp = tmp->next) {
-		Syslog('+', "%s %s %ld %ld", tmp->mountpoint, tmp->fstype, tmp->size, tmp->avail);
+		Syslog('+', "Found filesystem: %s type: %s", tmp->mountpoint, tmp->fstype);
 	    }
 
 	    if ((rc = pthread_mutex_unlock(&a_mutex)))

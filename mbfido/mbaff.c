@@ -143,10 +143,8 @@ int main(int argc, char **argv)
     if (!do_quiet)
 	printf("\n");
 
-    if (enoughspace(CFG.freespace) == 0) {
-	Syslog('+', "Low diskspace, abort");
+    if (enoughspace(CFG.freespace) == 0)
 	die(MBERR_DISK_FULL);
-    }
 
     if (lockprogram((char *)"mbaff")) {
 	if (!do_quiet)

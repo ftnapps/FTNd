@@ -358,10 +358,8 @@ void ReqIndex(void)
 
 	if (area.Available) {
 
-	    if (enoughspace(CFG.freespace) == 0) {
-		Syslog('+', "Low diskspace, abort");
+	    if (enoughspace(CFG.freespace) == 0)
 		die(MBERR_DISK_FULL);
-	    }
 
 	    if (!do_quiet) {
 		printf("\r%4ld => %-44s    \b\b\b\b", i, area.Name);
@@ -599,10 +597,8 @@ void HtmlIndex(char *Lang)
 
 	if (area.Available) {
 
-	    if (enoughspace(CFG.freespace) == 0) {
-		Syslog('+', "Low diskspace, abort");
+	    if (enoughspace(CFG.freespace) == 0)
 		die(MBERR_DISK_FULL);
-	    }
 
 	    if (!do_quiet) {
 		printf("\r%4ld => %-44s    \b\b\b\b", i, area.Name);

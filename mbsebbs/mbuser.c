@@ -100,10 +100,8 @@ int main(int argc, char **argv)
     Syslog(' ', cmd);
     free(cmd);
 
-    if (enoughspace(CFG.freespace) == 0) {
-	Syslog('+', "Low diskspace, abort");
+    if (enoughspace(CFG.freespace) == 0)
 	ExitClient(MBERR_DISK_FULL);
-    }
 
     if (lockprogram((char *)"mbuser")) {
 	if (!do_quiet)

@@ -346,10 +346,8 @@ int main(int argc, char *argv[])
 	/*
 	 * Don't do outbound calls if low diskspace
 	 */
-	if (enoughspace(CFG.freespace) == 0) {
-	    WriteError("Low diskspace, abort");
+	if (enoughspace(CFG.freespace) == 0)
 	    die(MBERR_DISK_FULL);
-	}
 
 	if (addr == NULL) {
 	    WriteError("Calling mbcico without node address not supported anymore");

@@ -471,20 +471,30 @@ unsigned long sequencer()
  */
 int enoughspace(unsigned long needed)
 {
-    char    *buf, *res;
-    int	    rc = 3;
+    char	    *buf, *res;
+    int		    rc = 3, cnt;
+    unsigned long   avail = 0L;
 
     buf = calloc(SS_BUFSIZE, sizeof(char));
     sprintf(buf, "DSPC:1,%ld;", needed);
 
     if (socket_send(buf) == 0) {
-	free(buf);
-	buf = socket_receive();
-	res = strtok(buf, ",");
-	res = strtok(NULL, ";");
-	rc = atoi(res);
+	sprintf(buf, "%s", socket_receive());
+	res = strtok(buf, ":");
+	cnt = atoi(strtok(NULL, ","));
+	if (cnt == 1) {
+	    rc = atoi(strtok(NULL, ";"));
+	} else if (cnt == 2) {
+	    rc = atoi(strtok(NULL, ","));
+	    avail = atol(strtok(NULL, ";"));
+	    if (rc == 0)
+		Syslog('+', "Only %ld MBytes diskspace, need %ld MBytes", avail, needed);
+	} else {
+	    Syslog('-', "Error in enoughspace()");
+	}
     }
 
+    free(buf);
     return rc;
 }
 

@@ -158,10 +158,8 @@ void SortFileBase(int Area)
 
 	if (area.Available) {
 
-	    if (enoughspace(CFG.freespace) == 0) {
-		Syslog('+', "Low diskspace, abort");
+	    if (enoughspace(CFG.freespace) == 0)
 		die(MBERR_DISK_FULL);
-	    }
 
 	    if (!do_quiet) {
 		printf("Sorting area %d: %-44s", Area, area.Name);
