@@ -39,6 +39,13 @@ mbsebbs:
 
 	N: Only count posted messages in local mail areas.
 
+	L: ChangeHandle, allow own unix name as handle.
+
+
+newuser:
+	L: Allow handles to be the same as the unixname.
+
+
 mbfido:
 	N: The elist rules files are named (8.3) areaname.rul where areaname
 	   is the first 8 characters of the area name and we use the full name

@@ -87,6 +87,9 @@ v0.37.01	14-Jan-2003.
 		New menu 221, display arearules. This function tries to find
 		the arearules in the rules directory and if found displays
 		this to the user.
+		Fixed whoson list to display user real names and handles again.
+		Fixed send online message to send to user real names, handles
+		and unix names again.
 
 	examples:
 		The English and Dutch templates are updated to show the new

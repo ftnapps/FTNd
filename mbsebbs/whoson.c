@@ -104,10 +104,10 @@ void WhosOn(char *OpData)
 		device   = xstrcpy(strtok(NULL, ","));
 		fullname = xstrcpy(strtok(NULL, ","));
 
-		if (((strcasecmp(OpData, "/H")) == 0) || (strcasecmp(OpData, "/U") == 0)) {
+		if (((strcasecmp(OpData, "/H")) == 0) || (strlen(OpData) == 0)) {
 		    /*
-		     * The mbtask daemon has only the users real names, we
-		     * want the handle or unix name instead.
+		     * The mbtask daemon has only the users Unix names, we
+		     * want the handle or real name instead.
 		     */
 		    temp = calloc(PATH_MAX, sizeof(char));
 		    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
@@ -115,13 +115,13 @@ void WhosOn(char *OpData)
 			fread(&ushdr, sizeof(ushdr), 1, fp);
 
 			while (fread(&us, ushdr.recsize, 1, fp) == 1) {
-			    if (strcmp(fullname, us.sUserName) == 0) {
+			    if (strcmp(fullname, us.Name) == 0) {
 				if ((strcasecmp(OpData, "/H") == 0) && strlen(us.sHandle)) {
 				    free(fullname);
 				    fullname = xstrcpy(us.sHandle);
-				} else if (strcasecmp(OpData, "/U") == 0) {
+				} else if (strlen(OpData) == 0) {
 				    free(fullname);
-				    fullname = xstrcpy(us.Name);
+				    fullname = xstrcpy(us.sUserName);
 				}
 				break;
 			    }
@@ -289,10 +289,10 @@ void SendOnlineMsg(char *OpData)
     }
 
     /*
-     * If we were displaying handles or unix names, then lookup the 
-     * users fullname to send to mbtask.
+     * If we were displaying handles or real names, then lookup the 
+     * users unix name to send to mbtask.
      */
-    if ((strcasecmp(OpData, "/H") == 0) || (strcasecmp(OpData, "/U") == 0)) {
+    if ((strcasecmp(OpData, "/H") == 0) || (strlen(OpData) == 0)) {
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "rb")) != NULL) {
@@ -301,10 +301,10 @@ void SendOnlineMsg(char *OpData)
 
 	    while (fread(&us, ushdr.recsize, 1, fp) == 1) {
 		if ((strcasecmp(OpData, "/H") == 0) && strlen(us.sHandle) && (strcasecmp(User, us.sHandle) == 0)) {
-		    sprintf(User, "%s", us.sUserName);
+		    sprintf(User, "%s", us.Name);
 		    break;
-		} else if ((strcasecmp(OpData, "/U") == 0) && (strcasecmp(User, us.Name) == 0)) {
-		    sprintf(User, "%s", us.sUserName);
+		} else if ((strlen(OpData) == 0) && (strcasecmp(User, us.sUserName) == 0)) {
+		    sprintf(User, "%s", us.Name);
 		    break;
 		}
 	    }
