@@ -453,7 +453,9 @@ int Fs_Edit()
 				printf(" \b");
 				Message[CurRow][i-1] = '\0';
 				Setcursor();
-			} else if ((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) && (CurRow < Line)) {
+			} else if (((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) 
+				    || (strlen(Message[CurRow]) == 0))
+				    && (CurRow < Line)) {
 				for (i = 0; i < strlen(Message[CurRow+1]); i++)
 					sprintf(Message[CurRow], "%s%c", Message[CurRow], Message[CurRow+1][i]);
 				for (i = CurRow+1; i < Line; i++)
