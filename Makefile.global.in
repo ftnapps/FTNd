@@ -15,6 +15,8 @@ ETCDIR		= @prefix@/etc
 DOCDIR		= @prefix@/doc
 OWNER		= @OWNER@
 GROUP		= @GROUP@
+ROWNER		= @ROWNER@
+RGROUP		= @RGROUP@
 MODE		= 0711
 SMODE		= 6711
 

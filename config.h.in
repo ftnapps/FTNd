@@ -8,6 +8,9 @@
 #undef VERSION_REVISION
 #undef VERSION
 
+/* According to Sun we MUST define this in the source */
+#define _REENTRANT 1
+
 /* Compile experimental code (may not be present) */
 #undef USE_EXPERIMENT
 

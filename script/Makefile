@@ -50,10 +50,10 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}" ; \
 		fi
 		@if [ -d ${JOELIB} ]; then \
-			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    ${JOELIB} ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc    ${JOELIB}" ; \
-			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB} ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB}" ; \
+			${INSTALL} -c -o ${ROWNER} -g ${RGROUP} -m 0644 bbsjoerc    ${JOELIB} ; \
+			echo "${INSTALL} -c -o ${ROWNER} -g ${RGROUP} -m 0644 bbsjoerc    ${JOELIB}" ; \
+			${INSTALL} -c -o ${ROWNER} -g ${RGROUP} -m 0644 bbsjmacsrc  ${JOELIB} ; \
+			echo "${INSTALL} -c -o ${ROWNER} -g ${RGROUP} -m 0644 bbsjmacsrc  ${JOELIB}" ; \
 		fi
 		@if [ ! -x ${BINDIR}/bbsdoor.sh ]; then \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR} ; \

@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER VERSION MAKE AWK INSTALL CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE RANLIB ac_ct_RANLIB TAR ZIP CHOWN CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT LOG_COMPRESS LOG_COMPRESSEXT joebin joelib LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER ROWNER RGROUP VERSION MAKE AWK INSTALL CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE RANLIB ac_ct_RANLIB TAR ZIP CHOWN CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT LOG_COMPRESS LOG_COMPRESSEXT joebin joelib LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1280,6 +1280,10 @@ COPYRIGHT="Copyright (C) 1997-2003 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2003 M. Broek"
 GROUP="bbs"
 OWNER="mbse"
+ROWNER="`id -un root`"
+RGROUP="`id -gn root`"
+
+
 
 
 
@@ -2877,84 +2881,9 @@ else
    debugging=no
 fi;
 if test "$debugging" = "yes"; then
-    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS"
+    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 else
-    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS"
-fi
-
-
-if test "$SYSTEM" = "NetBSD"; then
-    CFLAGS="$CFLAGS `pthread-config --cflags`"
-    LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
-fi
-
-
-if test "$SYSTEM" = "FreeBSD"; then
-    CFLAGS="-pthread $CFLAGS"
-else
-    echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5
-echo $ECHO_N "checking for pthread_create in -lpthread... $ECHO_C" >&6
-if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpthread  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char pthread_create ();
-int
-main ()
-{
-pthread_create ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_pthread_pthread_create=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_pthread_pthread_create=no
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_pthread_pthread_create" >&5
-echo "${ECHO_T}$ac_cv_lib_pthread_pthread_create" >&6
-if test $ac_cv_lib_pthread_pthread_create = yes; then
-  result=yes
-else
-  result=no
-fi
-
-    if test "$result" = "yes"; then
-        LIBS="$LIBS -lpthread"
-    fi
+    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 fi
 
 
@@ -4783,6 +4712,83 @@ fi
 done
 
 fi
+
+
+
+if test "$SYSTEM" = "NetBSD"; then
+    CFLAGS="$CFLAGS `pthread-config --cflags`"
+    LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
+fi
+
+
+if test "$SYSTEM" = "FreeBSD"; then
+    CFLAGS="-pthread $CFLAGS"
+else
+    echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5
+echo $ECHO_N "checking for pthread_create in -lpthread... $ECHO_C" >&6
+if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char pthread_create ();
+int
+main ()
+{
+pthread_create ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_pthread_pthread_create=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_pthread_pthread_create=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_pthread_pthread_create" >&5
+echo "${ECHO_T}$ac_cv_lib_pthread_pthread_create" >&6
+if test $ac_cv_lib_pthread_pthread_create = yes; then
+  result=yes
+else
+  result=no
+fi
+
+    if test "$result" = "yes"; then
+        LIBS="$LIBS -lpthread"
+    fi
+fi
+
 
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
@@ -9705,6 +9711,8 @@ s,@REVISION@,$REVISION,;t t
 s,@COPYRIGHT@,$COPYRIGHT,;t t
 s,@GROUP@,$GROUP,;t t
 s,@OWNER@,$OWNER,;t t
+s,@ROWNER@,$ROWNER,;t t
+s,@RGROUP@,$RGROUP,;t t
 s,@VERSION@,$VERSION,;t t
 s,@MAKE@,$MAKE,;t t
 s,@AWK@,$AWK,;t t

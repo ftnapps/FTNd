@@ -82,13 +82,13 @@ install:	all
 		@if [ "`id -un`" != "root" ] ; then \
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbsebbs   ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 6711 mbnewusr  ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mball     ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mblang    ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbstat    ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbtoberep ${BINDIR}
-		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbuser    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbsebbs   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 6711 mbnewusr  ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mball     ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mblang    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbstat    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0711 mbtoberep ${BINDIR}
+		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6711 mbuser    ${BINDIR}
 		@rm -f mbchat
 
 filelist:	Makefile

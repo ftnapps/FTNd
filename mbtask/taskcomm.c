@@ -597,9 +597,6 @@ void *cmd_thread(void)
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	rc = poll(&pfd, 1, 1000);
-#ifdef USE_EXPERIMENT
-	Syslog('c', "cmd_thread: poll interrupted rc=%d events=%04x", rc, pfd.revents);
-#endif
 	if (rc == -1) { 
 	    /* 
 	     *  Poll can be interrupted by a finished child so that's not a real error.
@@ -615,9 +612,6 @@ void *cmd_thread(void)
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
 		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
-#ifdef USE_EXPERIMENT
-		Syslog('c', "rcvd: \"%s\"", printable(buf, 0));
-#endif
 		do_cmd(buf);
 	    } else {
 		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
