@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 10-Feb-2002</h5>
+<h5>Last update 13-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Global Setup</H1>
@@ -31,8 +31,8 @@ Here you can enter 40 fidonet addresses. These are 5d addresses.
 <P>
 <pre>
 <strong>System name       </strong>The name of your BBS
-<strong>Domain name       </strong>Your internet domain name (or a fake name if you have 
-                  no direct connection).
+<strong>Domain name       </strong>Your internet mail domain name (or system host.domain.com 
+                 if you don't have a maildomain).
 <strong>Sysop uid         </strong>The Unix name of your Sysop account
 <strong>Sysop Fido        </strong>The Fidonet name of your Sysop account
 <strong>Location          </strong>The Location of your BBS
@@ -298,23 +298,24 @@ and gated news articles to Fidonet.
 Email and news is setup here. There are three possible configurations which you
 can set with 1.15.11:
 <ul>
-  <li><strong>No ISP</strong>. If you don't have any connection to the internet
+  <li><strong>No internet</strong>. If you don't have any connection to the internet
       use this setting. Email will come from the default Fidonet UUCP gate and will be send out
       via the UUCP gate. Users have email addresses like
       <strong>user@f2802.m280.z2.fidonet.org</strong> Note, the username is their
       Unix name when sending email.
-  <li><strong>Dial ISP</strong>. If you dial the internet regulary or are connected
-      with a cable modem without a valid DNS (Nameserver) entry you should use
-      this mode. Email will be sent via your local SMTP port, then through your
+  <li><strong>No maildomain</strong>. If have internet but don't have your own
+      maildomain (most dialup systems) you should use this mode. 
+      Email will be sent via your local SMTP port, then through your
       own sendmail (or whatever you use) to your ISP. 
       As soon as you are connected to the internet
       the mail will be sent to your ISP's mailer. In your sendmail you should
       define the mailer of your ISP as Smarthost. Incoming email will still come
       from the UUCP gate. Users have email addresses like
-      <strong>user@f2802.m280.z2.fidonet.org</strong> Note, the username is their
-      Unix name. If you have your own maildomain, don't use this option, use the
-      next option:
-  <li><strong>Perm ISP</strong>. If you are permanent connected to the internet
+      <strong>user@f2802.m280.z2.fidonet.org</strong> Incoming email comes from
+      the default Fidonet UUCP gate.
+      Note, the username is their Unix name. 
+      If you have your own maildomain, don't use this option, use the next option:
+  <li><strong>Own maildomain</strong>. If you are permanent connected to the internet
       either with a static or dynamic IP address use this option. Use this option
       also if you have an UUCP domain and have a dialup UUCP connection. Also
       you can use this for dialup if you have your own maildomain without UUCP,
@@ -325,11 +326,9 @@ can set with 1.15.11:
       Incoming email will come directly from the internet, but if someone sends
       email via the UUCP gate it is also accepted. Users have email addresses like
       <strong>user@yourbbs.domain.org</strong>. Note, the username is their
-      Unix name.
+      Unix name and yourbbs.domain.org must be an existing internet domain.
 </ul>
-Note: the terms <b>Dial ISP</b> and <b>Perm ISP</b> are not correct, it doesn't
-matter how you are connected, it only matters if you have a maildomain or not.
-Another word of wisdom from my side, configuration of the internet, ppp, sendmail etc. is not discussed
+A word of wisdom from my side, configuration of the internet, ppp, sendmail etc. is not discussed
 here, see the HOWTO's and other documentation that exists at <A HREF="http://www.linuxdoc.org">
 www.linuxdoc.org</A>, it's all there.
 

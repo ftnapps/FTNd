@@ -1181,9 +1181,9 @@ int edit_msgtype(int y, int x, int val)
 char *getemailmode(int val)
 {
 	switch (val) {
-		case E_NOISP:	return (char *)"No ISP   ";
-		case E_TMPISP:	return (char *)"Dial. ISP";
-		case E_PRMISP:	return (char *)"Perm. ISP";
+		case E_NOISP:	return (char *)"No internet   ";
+		case E_TMPISP:	return (char *)"No maildomain ";
+		case E_PRMISP:	return (char *)"Own maildomain";
 		default:	return NULL;
 	}
 }
@@ -1201,7 +1201,7 @@ int edit_emailmode(int y, int x, int val)
 {
 	int ch;
 
-	showhelp((char *)"Toggle ^ISP Email Mode^ with spacebar, press <Enter> whene done.");
+	showhelp((char *)"Toggle ^Internet Email Mode^ with spacebar, press <Enter> whene done.");
 	do {
 		set_color(YELLOW, BLUE);
 		show_emailmode(y, x, val);

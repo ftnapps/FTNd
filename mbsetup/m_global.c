@@ -163,7 +163,7 @@ void e_reginfo(void)
 		switch(select_menu(10)) {
 		case 0: return;
 		case 1: E_STR( 7,25,35, CFG.bbs_name,   "Name of this ^BBS^ system")
-		case 2: E_STR( 8,25,35, CFG.sysdomain,  "Full internet ^domain^ name of this system")
+		case 2: E_STR( 8,25,35, CFG.sysdomain,  "Internet ^mail domain^ name of this system")
 		case 3:	E_STR( 9,25, 8, CFG.sysop,      "^Unix name^ of the sysop")
 		case 4:	E_STR(10,25,35, CFG.sysop_name, "^Fidonet name^ of the sysop")
 		case 5:	E_STR(11,25,35, CFG.location,   "^Location^ (city) of this system")
