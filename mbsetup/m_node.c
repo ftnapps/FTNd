@@ -667,7 +667,7 @@ void GeneralScreen(void)
     mvprintw(15, 2, "9.   Netmail direct");
     mvprintw(16, 2, "10.  Netmail crash");
     mvprintw(17, 2, "11.  Netmail hold");
-    mvprintw(18, 2, "12.  Pack netmail");
+    mvprintw(18, 2, "12.  Pack mail");
 
     mvprintw(16,42, "13.  Send notify");
     mvprintw(17,42, "14.  Language");
@@ -736,7 +736,7 @@ void GeneralEdit(void)
                 if (nodes.Hold)
                     nodes.Crash = FALSE;
                 break;
-	case 12:E_BOOL(18,23, nodes.PackNetmail, "^Pack netmail^ for this node")
+	case 12:E_BOOL(18,23, nodes.PackNetmail, "^Pack mail^ for this node")
 	case 13:E_BOOL(16,63, nodes.Notify,  "Send ^notify^ messages to this node")
 	case 14:i = PickLanguage((char *)"7.1.14");
 		if (i != '\0')
@@ -1464,7 +1464,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Mail direct    %s", getboolean(nodes.Direct));
 		fprintf(fp, "     Mail crash     %s", getboolean(nodes.Crash));
 		fprintf(fp, "     Mail hold      %s\n", getboolean(nodes.Hold));
-		fprintf(fp, "     Pack Netmail   %s", getboolean(nodes.PackNetmail));
+		fprintf(fp, "     Pack mail      %s", getboolean(nodes.PackNetmail));
 		fprintf(fp, "     Send notify    %s", getboolean(nodes.Notify));
 		fprintf(fp, "     Language       %c\n", nodes.Language);
 		fprintf(fp, "     No EMSI        %s", getboolean(nodes.NoEMSI));

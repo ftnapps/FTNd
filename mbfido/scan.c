@@ -44,6 +44,7 @@
 #include "tracker.h"
 #include "ftn2rfc.h"
 #include "rfc2ftn.h"
+#include "rollover.h"
 #include "postemail.h"
 #include "scan.h"
 
@@ -573,86 +574,106 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
  */
 void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 {
-	char	*p;
-	int	seenlen, oldnet, flags = 0;
-	char	sbe[16];
-	fa_list	*tmpl;
-	FILE	*qp;
-	faddr	*from, *dest;
-	int	is_pid = FALSE;
+    int	    seenlen, oldnet, flags = 0, is_pid = FALSE;
+    char    *p, sbe[16], ext[4];
+    fa_list *tmpl;
+    FILE    *qp;
+    faddr   *from, *dest;
 
-	if ((!L.sendto) || L.pause || L.cutoff)
-		return;
+    if ((!L.sendto) || L.pause || L.cutoff)
+	return;
 
-	Syslog('M', "Export to %s", aka2str(L.aka));
+    Syslog('M', "Export to %s", aka2str(L.aka));
 
-	if ((qp = OpenPkt(msgs.Aka, L.aka, (char *)"qqq")) == NULL)
-		return;
+    if (!SearchNode(L.aka)) {
+	WriteError("Can't send to %s, noderecord not found", aka2str(L.aka));
+	return;
+    }
 
-	flags |= (Msg.Private)		? M_PVT : 0;
-	from = fido2faddr(msgs.Aka);
-	dest = fido2faddr(L.aka);
-	AddMsgHdr(qp, from, dest, flags, 0, Msg.Written, Msg.To, Msg.From, Msg.Subject);
-	tidy_faddr(from);
-	tidy_faddr(dest);
-	fprintf(qp, "AREA:%s\r", msgs.Tag);
+    /*
+     * Add statistics count
+     */
+    StatAdd(&nodes.MailSent, 1L);
+    UpdateNode();
+    SearchNode(L.aka);
+    
+    memset(&ext, 0, sizeof(ext));
+    if (nodes.PackNetmail)
+	sprintf(ext, (char *)"qqq");
+    else if (nodes.Crash)
+	sprintf(ext, (char *)"ccc");
+    else if (nodes.Hold)
+	sprintf(ext, (char *)"hhh");
+    else
+	sprintf(ext, (char *)"nnn");
 
-	if (Msg_Read(MsgNum, 78)) {
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				if ((strncmp(p, " * Origin:", 10) == 0) && !is_pid) {
-					/*
-					 * If there was no PID kludge, insert the TID
-					 * kludge anyway.
-					 */
-					fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
-				}
-				fprintf(qp, "%s", p);
-				if (strncmp(p, " * Origin:", 10) == 0)
-					break;
+    if ((qp = OpenPkt(msgs.Aka, L.aka, (char *)ext)) == NULL)
+	return;
 
-				/*
-				 * Only append CR if not the last line
-				 */
-				fprintf(qp, "\r");
+    flags |= (Msg.Private)		? M_PVT : 0;
+    from = fido2faddr(msgs.Aka);
+    dest = fido2faddr(L.aka);
+    AddMsgHdr(qp, from, dest, flags, 0, Msg.Written, Msg.To, Msg.From, Msg.Subject);
+    tidy_faddr(from);
+    tidy_faddr(dest);
+    fprintf(qp, "AREA:%s\r", msgs.Tag);
 
-				/*
-				 * Append ^aTID line behind the PID.
-				 */
-				if (strncmp(p, "\001PID", 4) == 0) {
-					fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
-					is_pid = TRUE;
-				}
-
-			} while ((p = (char *)MsgText_Next()) != NULL);
+    if (Msg_Read(MsgNum, 78)) {
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if ((strncmp(p, " * Origin:", 10) == 0) && !is_pid) {
+		    /*
+		     * If there was no PID kludge, insert the TID
+		     * kludge anyway.
+		     */
+		    fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
 		}
-	}
+		fprintf(qp, "%s", p);
+		if (strncmp(p, " * Origin:", 10) == 0)
+		    break;
 
-	seenlen = MAXSEEN + 1;
-	/*
-	 * Ensure that it will not match the first entry.
-	 */
-	oldnet = (*sbl)->addr->net - 1;
-	for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
-		if (tmpl->addr->net == oldnet)
-			sprintf(sbe, " %u", tmpl->addr->node);
-		else
-			sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
-		oldnet = tmpl->addr->net;
-		seenlen += strlen(sbe);
-		if (seenlen > MAXSEEN) {
-			seenlen = 0;
-			fprintf(qp, "\rSEEN-BY:");
-			sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
-			seenlen = strlen(sbe);
+		/*
+		 * Only append CR if not the last line
+		 */
+		fprintf(qp, "\r");
+
+		/*
+		 * Append ^aTID line behind the PID.
+		 */
+		if (strncmp(p, "\001PID", 4) == 0) {
+		    fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
+		    is_pid = TRUE;
 		}
-		fprintf(qp, "%s", sbe);
-	}
-	fprintf(qp, "\r\001PATH: %u/%u\r", msgs.Aka.net, msgs.Aka.node);
-	putc(0, qp);
-	fclose(qp);
 
-	echo_out++;
+	    } while ((p = (char *)MsgText_Next()) != NULL);
+	}
+    }
+
+    seenlen = MAXSEEN + 1;
+    /*
+     * Ensure that it will not match the first entry.
+     */
+    oldnet = (*sbl)->addr->net - 1;
+    for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
+	if (tmpl->addr->net == oldnet)
+	    sprintf(sbe, " %u", tmpl->addr->node);
+	else
+	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	oldnet = tmpl->addr->net;
+	seenlen += strlen(sbe);
+	if (seenlen > MAXSEEN) {
+	    seenlen = 0;
+	    fprintf(qp, "\rSEEN-BY:");
+	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    seenlen = strlen(sbe);
+	}
+	fprintf(qp, "%s", sbe);
+    }
+    fprintf(qp, "\r\001PATH: %u/%u\r", msgs.Aka.net, msgs.Aka.node);
+    putc(0, qp);
+    fclose(qp);
+
+    echo_out++;
 }
 
 

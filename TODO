@@ -90,8 +90,6 @@ mbfido:
 	N: Force processing of arealists so that all tags are forced to
 	   uppercase.
 
-	N: Echomail is packed when mail for a node is set to unpacked.
-
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

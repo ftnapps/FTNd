@@ -35,6 +35,8 @@ v0.35.05	19-Oct-2002
 		Added in screen 1.14 settings for Plus All, Notify, Passwd and
 		Pause.
 		Removed the default Virnet record from the fidonet setup.
+		In node setup the pack netmail switch is renamed and is now 
+		for all mail.
 
 	mbfido:
 		With ticfile processing, the KeepDate setup setting now works.
@@ -42,6 +44,9 @@ v0.35.05	19-Oct-2002
 		Plus All, Notify, Passwd, Message, Tic on/off and Pause.
 		The AreaMgr reuqests now honor the setting of the switches
 		Plus All, Notify, Passwd and Pause.
+		Echomail is now also packed or not according to the packmail
+		switch in mbsetup.
+		Statistics count for exported echomail now works.
 
 	mbtask:
 		Removed debug logging of "does" info.

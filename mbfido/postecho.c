@@ -80,12 +80,25 @@ int  EchoOut(fidoaddr, char *, char *, char *, FILE *, int, int, time_t);
  */
 int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, int flags, int cost, time_t date)
 {
-    char    *buf;
+    char    *buf, ext[4];
     FILE    *qp;
     faddr   *From, *To;
     int	    rc;
 
-    if ((qp = OpenPkt(msgs.Aka, aka, (char *)"qqq")) == NULL) {
+    /*
+     * Pack flavor for echomail packets.
+     */
+    memset(&ext, 0, sizeof(ext));
+    if (nodes.PackNetmail)
+	sprintf(ext, (char *)"qqq");
+    else if (nodes.Crash)
+	sprintf(ext, (char *)"ccc");
+    else if (nodes.Hold)
+	sprintf(ext, (char *)"hhh");
+    else
+	sprintf(ext, (char *)"nnn");
+
+    if ((qp = OpenPkt(msgs.Aka, aka, (char *)ext)) == NULL) {
 	WriteError("EchoOut(): OpenPkt failed");
 	return 1;
     }
@@ -496,10 +509,12 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 		StatAdd(&nodes.MailSent, 1L);
 		UpdateNode();
 		SearchNode(tmpq->aka);
+		echo_out++;
+		if (EchoOut(tmpq->aka, t->name, f->name, subj, nfp, flags, cost, mdate))
+		    WriteError("Forward echomail to %s failed", aka2str(tmpq->aka));
+	    } else {
+		WriteError("Forward echomail to %s failed, noderecord not found", aka2str(tmpq->aka));
 	    }
-	    echo_out++;
-	    if (EchoOut(tmpq->aka, t->name, f->name, subj, nfp, flags, cost, mdate))
-		WriteError("Forward echomail to %s failed", aka2str(tmpq->aka));
 	}
     }
 
