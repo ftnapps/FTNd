@@ -9,10 +9,10 @@ JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
 |Passwort: 
 |Die maximale Anzahl von Login-Versuchen wurde ueberschritten ...
 |Entweder Ihr NAME oder Ihr PASSWORT wurden falsch eingegeben
-HR|Export to (H)ome or (R)ules directory: 
-|Message exported to rules directory as 
-|No rules found for this area
-|You are not allowed to delete that message
+HR|Export in (H)ome oder (R)ules Direktorie: 
+|Message exportiert in das Rules Direktorie als 
+|Keine Rules gefunden fuer diese Area
+|Keine Berechtigung zum loeschen der Message
 |Heute gesparte Zeit . . . . . . . : 
 |Heute gesparte KBytes . . . . . . : 
 |Heute abgehobene Zeit . . . . . . : 
