@@ -60,8 +60,6 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	U: Add routing table to override standard routing. UNDER TEST NOW!
-
 	N: Add traffic to html.nodes
 
 	N: Add stats for posts made by external programs.
@@ -69,6 +67,8 @@ mbfido:
 	N: Add macro's for stats of all months.
 
 	L: A separate log for processed area/filemgr requests.
+
+	N: Add logging info about added/removed areas.
 
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
@@ -117,6 +117,8 @@ mbsetup:
 	N: Put ZMH fields in the network setup for each zone.
 
 	N: Add switch for file area to skip checking and indexing.
+
+	N: Add logging info about added/removed areas.
 
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups

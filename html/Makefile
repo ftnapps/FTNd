@@ -43,7 +43,8 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
 		  images/mbse.jpg     images/taskmgr.png      images/mbsebbs.gif \
 		  images/mbsebbs.png  images/users2.png       images/hand.up.gif \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
-		  images/tdream1.gif  images/tdream2.gif      images/tdream3.gif
+		  images/tdream1.gif  images/tdream2.gif      images/tdream3.gif \
+		  images/route1.png   images/route2.png
 
 H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
 		  license/jam.html
@@ -82,7 +83,7 @@ H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/newgroups.html setup/files.html    setup/nodes.html \
 		  setup/ttyinfo.html   setup/global.html   setup/users.html \
 		  setup/hatch.html     setup/virscan.html  setup/services.html \
-		  setup/domains.html   setup/taskmgr.html
+		  setup/domains.html   setup/taskmgr.html  setup/route.html
 
 FILES		= $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
 
