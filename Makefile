@@ -146,6 +146,8 @@ install:
 			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/var ; \
 			chmod -R 0750 ${PREFIX}/var ; \
 		fi
+		@chmod 0770 ${PREFIX}/var
+		@chmod 0770 ${PREFIX}/var/mail
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
 
 dist tar:	${TARFILE}

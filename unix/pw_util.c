@@ -272,7 +272,6 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
 				goto err;
 			continue;
 		}
-		*p = '\0';
                 if (!(p = strchr(buf, ':'))) {
                         syslog(LOG_WARNING, "%s: corrupted entry", _PATH_MASTERPASSWD);
                         pw_error(NULL, 0, 1);
