@@ -357,11 +357,6 @@ int main(int argc, char *argv[])
 	if (rc > maxrc) 
 	    maxrc=rc;
     } else {
-	if (telnet) {
-	    WriteError("Incoming telnet call is not supported anymore");
-	    WriteError("Install mbtelnetd to handle telnet inbound traffic");
-	    die(MBERR_COMMANDLINE);
-	}
 	/* slave */
 	if (!answermode && tcp_mode == TCPMODE_IBN)
 	    answermode = xstrcpy((char *)"ibn");

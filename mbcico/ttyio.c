@@ -45,7 +45,6 @@
 
 extern	int	hanged_up;
 extern	int	telnet;
-extern	int	master;
 extern	char	*inetaddr;
 
 #define TT_BUFSIZ	1024
@@ -246,7 +245,7 @@ static int tty_read(char *buf, int size, int tot)
 	}
 	rc=-tty_status;
     } else {
-	if (master && telnet) {
+	if (telnet) {
 	    rc = telnet_buffer(buf, rc);
 	}
     }
@@ -261,7 +260,7 @@ int tty_write(char *buf, int size)
     int result;
 
     tty_status=0;
-    if (telnet && master)
+    if (telnet)
 	result = telnet_write(buf, size);
     else
 	result = write(1, buf, size);
@@ -581,7 +580,7 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
 	    WriteError("$tty_putget: read failed");
 	    tty_status=STAT_ERROR;
 	} else {
-	    if (master && telnet) {
+	    if (telnet) {
 		rc = telnet_buffer(*ibuf, rc);
 	    }
 	    (*ibuf)+=rc;
@@ -590,7 +589,7 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
     }
 
     if (FD_ISSET(1,&writefds) && *osize) {
-	if (telnet && master)
+	if (telnet)
 	    rc = telnet_write(*obuf,*osize);
 	else
 	    rc=write(1,*obuf,*osize);

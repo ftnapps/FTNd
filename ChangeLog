@@ -8,8 +8,6 @@ v0.39.2		21-Nov-2003
 		in cvs because I need to test it on several machines at once.
 
 	general:
-		With the use of a proxy based on the iftelnetd from the ifmail
-		package incoming telnet sessions are now supported.
 		Outgoing telnet finally works.
 
 	common.a:
@@ -22,12 +20,6 @@ v0.39.2		21-Nov-2003
 		because we now default to telnet port 23 for ITN calls.
 		Made outgoing telnet calls working with the help of sources
 		from other open source projects.
-
-	mbtelnetd:
-		New program, a proxy to handle incoming telnet/vmodem sessions.
-		Based on the work of Serge Terekhov, 2:5000/13@fidonet and
-		Vadim Kurland, vadim@gu.kiev.ua and Vadim Zaliva, 
-		lord@crocodile.kiev.ua.
 
 	mbtask:
 		Restored ITN protocol.
