@@ -36,6 +36,8 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
 #include "sendmail.h"
+#include "rollover.h"
+#include "addpkt.h"
 #include "mgrutil.h"
 
 
@@ -230,6 +232,135 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp)
 	SearchNodeFaddr(t);
 	Syslog('+', "XxxxMgr: Notify %s", GetBool(nodes.Notify));
 	fprintf(tmp, "AreaMgr and FileMgr Notify is %s\n", GetBool(nodes.Notify));
+}
+
+
+
+/*
+ * Create uplink areamgr request. One netmail per request.
+ * More is possible, cmd is then: "+area1\+area2\-area3"
+ * Return values:
+ *  0   - Ok
+ *  1   - Node not in setup
+ *  2   - No Uplink mgr program in setup
+ *  3   - No uplink password in setup
+ *  4   - Can't add mail to outbound
+ */
+int UplinkRequest(faddr *t, int FileMgr, char *cmd)
+{
+    FILE	*qp;
+    time_t	Now;
+    struct tm	*tm;
+    fidoaddr	Orig, Dest;
+    faddr	From;
+    unsigned	flags = M_PVT;
+    char	ext[4], *mgrname, *bymgr, *subj;
+    int		i;
+
+    From = *bestaka_s(t);
+    memset(&Orig, 0, sizeof(Orig));
+    Orig.zone  = From.zone;
+    Orig.net   = From.net;
+    Orig.node  = From.node;
+    Orig.point = From.point;
+    sprintf(Orig.domain, "%s", From.domain);
+
+    memset(&Dest, 0, sizeof(Dest));
+    Dest.zone  = t->zone;
+    Dest.net   = t->net;
+    Dest.node  = t->node;
+    Dest.point = t->point;
+    sprintf(Dest.domain, "%s", t->domain);
+
+    if (!SearchNode(Dest)) {
+	Syslog('+', "Can't find node %s in setup", aka2str(Dest));
+	return 1;
+    }
+
+    if (FileMgr) {
+	if (strlen(nodes.UplFmgrPgm) == 0) {
+	    Syslog('!', "FileMgr program not defined in setup of node %s", aka2str(Dest));
+	    return 2;
+	}
+	mgrname = xstrcpy(nodes.UplFmgrPgm);
+	bymgr = xstrcpy((char *)"FileMgr");
+    } else {
+	if (strlen(nodes.UplAmgrPgm) == 0) {
+	    Syslog('!', "AreaMgr program not defined in setup of node %s", aka2str(Dest));
+	    return 2;
+	}
+	mgrname = xstrcpy(nodes.UplAmgrPgm);
+	bymgr = xstrcpy((char *)"AreaMgr");
+    }
+
+    if (strlen(nodes.Apasswd) == 0) {
+	Syslog('!', "No %s password set for node %s", mgrname, aka2str(Dest));
+	return 3;
+    }
+    subj = xstrcpy(nodes.Apasswd);
+
+    Syslog('-', "  Netmail from %s to %s", aka2str(Orig), ascfnode(t, 0x1f));
+
+    Now = time(NULL) - (gmt_offset((time_t)0) * 60);
+    flags |= (nodes.Crash)  ? M_CRASH    : 0;
+    flags |= (nodes.Hold)   ? M_HOLD     : 0;
+
+    /*
+     *  Increase counters, update record and reload.
+     */
+    StatAdd(&nodes.MailSent, 1L);
+    UpdateNode();
+    SearchNode(Dest);
+
+    memset(&ext, 0, sizeof(ext));
+    if (nodes.PackNetmail)
+	sprintf(ext, (char *)"qqq");
+    else if (nodes.Crash)
+	sprintf(ext, (char *)"ccc");
+    else if (nodes.Hold)
+	sprintf(ext, (char *)"hhh");
+    else
+	sprintf(ext, (char *)"nnn");
+
+    if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
+	return 4;
+
+    if (AddMsgHdr(qp, &From, t, flags, 0, Now, mgrname, bymgr, subj)) {
+	fclose(qp);
+	return 4;
+    }
+
+    if (Dest.point)
+	fprintf(qp, "\001TOPT %d\r", Dest.point);
+    if (Orig.point)
+	fprintf(qp, "\001FMPT %d\r", Orig.point);
+
+    fprintf(qp, "\001INTL %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node, Orig.zone, Orig.net, Orig.node);
+
+    /*
+     * Add MSGID, REPLY and PID
+     */
+    fprintf(qp, "\001MSGID: %s %08lx\r", aka2str(Orig), sequencer());
+    fprintf(qp, "\001PID: MBSE-FIDO %s\r", VERSION);
+    fprintf(qp, "\001TZUTC: %s\r", gmtoffset(Now));
+
+    for (i = 0; i < strlen(cmd); i++)
+	putc(cmd[i], qp);
+    putc('\r', qp);
+    fprintf(qp, TearLine());
+
+    tm = gmtime(&Now);
+    fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.02.UTC %s\r",
+		ascfnode(bestaka_s(t), 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, 
+		tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
+
+    putc(0, qp);
+    fclose(qp);
+
+    free(mgrname);
+    free(bymgr);
+    free(subj);
+    return 0;
 }
 
 
