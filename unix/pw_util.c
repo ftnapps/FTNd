@@ -263,6 +263,16 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                                 goto err;
                         continue;
                 }
+		for (p = buf; *p != '\n'; p++)
+			if (*p != ' ' && *p != '\t')
+				break;
+		if (*p == '#' || *p == '\n') {
+			(void)fprintf(to, "%s", buf);
+			if (ferror(to))
+				goto err;
+			continue;
+		}
+		*p = '\0';
                 if (!(p = strchr(buf, ':'))) {
                         syslog(LOG_WARNING, "%s: corrupted entry", _PATH_MASTERPASSWD);
                         pw_error(NULL, 0, 1);
