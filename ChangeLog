@@ -34,6 +34,7 @@ v0.37.5		12-Jul-2003 - 10-Aug-2003
 		set to one hour to support very long scans.
 		Changed logging during user login.
 		Fixed bugs in QWK mail upload processing.
+		Allow - and _ in email names (GetstrU function).
 
 	mbsetup:
 		Added menu entry 1.5.21 for setting maximum allowed logins.

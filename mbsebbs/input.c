@@ -144,45 +144,45 @@ void GetstrC(char *sStr, int iMaxlen)
  */
 void GetstrU(char *sStr, int iMaxlen)
 {
-	unsigned char	ch = 0;
-	int		iPos = 0;
+    unsigned char   ch = 0;
+    int		    iPos = 0;
+
+    fflush(stdout);
+    if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
+	perror("open 6");
+	return;
+    }
+    Setraw();
+
+    strcpy(sStr, "");
+    alarm_on();
+
+    while (ch != 13) {
 
 	fflush(stdout);
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 6");
-		return;
-	}
-	Setraw();
+	ch = Readkey();
 
-	strcpy(sStr, "");
-	alarm_on();
-
-	while (ch != 13) {
-
-		fflush(stdout);
-		ch = Readkey();
-
-		if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
-			if (iPos > 0) {
-				printf("\b \b");
-				sStr[--iPos] = '\0';
-			} else
-				putchar('\007');
-		}
-
-		if (isalnum(ch) || (ch == '@') || (ch == '.')) {
-			if (iPos <= iMaxlen) {
-				iPos++;
-				sprintf(sStr, "%s%c", sStr, ch);
-				printf("%c", ch);
-			} else
-				putchar('\007');
-		}
+	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
+	    if (iPos > 0) {
+		printf("\b \b");
+		sStr[--iPos] = '\0';
+	    } else
+		putchar('\007');
 	}
 
-	Unsetraw();
-	close(ttyfd);
-	printf("\n");
+	if (isalnum(ch) || (ch == '@') || (ch == '.') || (ch == '-') || (ch == '_')) {
+	    if (iPos <= iMaxlen) {
+		iPos++;
+		sprintf(sStr, "%s%c", sStr, ch);
+		printf("%c", ch);
+	    } else
+		putchar('\007');
+	}
+    }
+
+    Unsetraw();
+    close(ttyfd);
+    printf("\n");
 }
 
 
