@@ -125,6 +125,7 @@ int Tic()
 	sort_fdlist(&fdl);
 
 	while ((fname = pull_fdlist(&fdl)) != NULL) {
+		Syslog('f', "Tic() starting with %s", fname);
 		if (LoadTic(inbound, fname) == 0)
 			rc = 1;
 		if (IsSema((char *)"upsalarm")) {
@@ -136,6 +137,7 @@ int Tic()
 			rc = 0;
 			break;
 		}
+		Syslog('f', "Tic() ending with %s", fname);
 	}
 
 	if (!do_quiet) {
@@ -169,6 +171,7 @@ int LoadTic(char *inb, char *tfn)
 	fa_list	*sbl = NULL;
 	int	DescCnt = FALSE;
 
+	Syslog('f', "Entering LoadTic()");
 	if (CFG.slow_util && do_quiet)
 		usleep(1);
 
@@ -467,7 +470,8 @@ int LoadTic(char *inb, char *tfn)
 	tic_in++;
 	rc = ProcessTic(sbl);
 	tidy_falist(&sbl);
-	
+	Syslog('f', "Finishing LoadTic()");
+
 	return rc;
 }
 

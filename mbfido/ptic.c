@@ -777,7 +777,9 @@ int ProcessTic(fa_list *sbl)
 	Syslog('f', "About to erase \"%s\"", Temp);
 
 	unlink(Temp);
+	Syslog('f', "Done, about to free Temp");
 	free(Temp);
+	Syslog('f', "Done with ptic");
 	return 0;
 }
 
