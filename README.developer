@@ -27,37 +27,7 @@ mbsebbs-0_39_00_current 09-Oct-2003 Start version 0.39 development.
 mbsebbs-0_50_00_release 09-Feb-2004 Version 0.50.0 release.
 mbsebbs-0_51_00_current 09-Feb-2004 Start 0.51 development.
 mbsebbs-0_60_00_release 04-Jun-2004 Version 0.60.0 release.
-
-
-	CVS usage.
-
-This will only work for registered MBSE developers. Replace username with your
-sourceforge's username. To initialize your account on the sourceforge cvs 
-server do:
-
-ssh username@cvs.sourceforge.net
-
-This command will fail but creates your homedirectory on the sourceforge cvs
-server.
-
-Set the following two variables (and add them to .profile):
-
-export CVS_RSH=ssh
-export CVSROOT=username@cvs.mbse.sourceforge.net:/cvsroot/mbse
-
-Install the sources with the followin command:
-
-cvs -dusername@cvs.mbse.sourceforge.net:/cvsroot/mbse co mbsebbs
-
-That will create the directory mbsebbs with all subdirectories. When you made
-some changes you can commit these from within the directory mbsebbs with:
-
-cvs ci -m "Description of your changes"
-
-To get a fresh source with changes of other developers do:
-
-cd mbsebbs
-cvs update
+mbsebbs-0_61_00_current 06-Jun-2004 Start 0.61 development.
 
 
 Michiel.
