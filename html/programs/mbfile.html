@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 22-Oct-2001</h5>
+<h5>Last update 19-Nov-2001</h5>
 <P>
 
 <H1>mbfile - File database maintenance program.</H1>
@@ -48,6 +48,16 @@ must exist in the subdirectory ~/etc.
 <P>&nbsp;<P>
 
 <H3>Commands.</H3>
+<P>
+<code><strong>mbfile</strong> adopt &lt;area&gt; &lt;file&gt; [description]</code>
+Adopt a file to the filebase. The description is optional, but if present it
+should be enclosed in quotes. The optional description may be 255 characters.
+Default mbfile will try to use the FILE_ID.DIZ if this is present. The file to
+adopt needs to be in your current directory and will be copied to the new area.
+If you have virus scanners defined, the file will be checked for virusses. If
+you have a different default archiver set for the destination file area then the
+file is archived with, the file will be rearchived.
+
 <P>
 <code><strong>mbfile</strong> check</code>
 Check the database integrity. All files in the filedatabase must exist on

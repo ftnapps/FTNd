@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_fdb.c
+ * $Id$
  * Purpose ...............: Edit Files DataBase.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1999-2001
@@ -209,7 +208,7 @@ void E_F(long areanr)
 
 		while(TRUE) {
 			mvprintw(LINES - 4, 6, "Enter your choice >");
-			menu = (char *)"0";
+			menu = (char *)"-";
 			menu = edit_field(LINES - 4, 26, 6, '!', menu);
 			locate(LINES - 4, 6);
 			clrtoeol();

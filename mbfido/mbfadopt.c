@@ -45,10 +45,14 @@ extern int	do_quiet;		/* Supress screen output	    */
 
 void AdoptFile(int Area, char *File, char *Description)
 {
-    FILE    *pAreas, *pFile, *fp;
-    char    *sAreas, *fAreas, *temp, *temp2, *unarc, *cmd, *pwd;
-    int	    IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
-    int	    IsVirus = FALSE, File_Id = FALSE;
+    FILE		*pAreas, *pFile, *fp;
+    char		*sAreas, *fAreas, *temp, *temp2, *unarc, *cmd, *pwd;
+    char		Desc[256], TDesc[256];
+    int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
+    int			IsVirus = FALSE, File_Id = FALSE;
+    int			i, j, k, lines = 0, File_id_cnt = 0;
+    int			Insert, Done = FALSE, Found = FALSE;
+    struct FILERecord	fdb;
 
     Syslog('-', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
 
@@ -214,6 +218,10 @@ void AdoptFile(int Area, char *File, char *Description)
                 fflush(stdout);
             }
 
+            memset(&fdb, 0, sizeof(fdb));
+	    strcpy(fdb.Uploader, CFG.sysop_name);
+	    fdb.UploadDate = time(NULL);
+	    
 	    temp2 = calloc(PATH_MAX, sizeof(char));
             sprintf(temp, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
             sprintf(temp2, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
@@ -224,13 +232,201 @@ void AdoptFile(int Area, char *File, char *Description)
 		if (file_cp(temp, temp2) == 0)
 		    File_Id = TRUE;
 	    }
-	    free(temp2);
-	    if (File_Id)
+	    if (File_Id) {
 		Syslog('-', "FILE_ID.DIZ found");
+		if ((fp = fopen(temp2, "r"))) {
+		    /*
+		     * Read no more then 25 lines
+		     */
+		    while (((fgets(Desc, 255, fp)) != NULL) && (File_id_cnt < 25)) {
+			lines++;
+			/*
+			 * Check if the FILE_ID.DIZ is in a normal layout.
+			 * This should be max. 10 lines of max. 48 characters.
+			 * We check at 51 characters and if the lines are longer,
+			 * we discard the FILE_ID.DIZ file.
+			 */
+			if (strlen(Desc) > 51) {
+			    File_id_cnt = 0;
+			    File_Id = FALSE;
+			    Syslog('!', "Discarding illegal formated FILE_ID.DIZ");
+			    break;
+			}
 
+			if (strlen(Desc)) {
+			    if (strlen(Desc) > 48)
+				Desc[48] = '\0';
+			    j = 0;
+			    for (i = 0; i < strlen(Desc); i++) {
+				if ((Desc[i] >= ' ') || (Desc[i] < 0)) {
+				    fdb.Desc[File_id_cnt][j] = Desc[i];
+				    j++;
+				}
+			    }
+			    File_id_cnt++;
+			}
+		    }
+		    fclose(fp);
+		    unlink(temp2);
 
+		    /*
+		     * Strip empty lines at end of FILE_ID.DIZ
+		     */
+		    while ((strlen(fdb.Desc[File_id_cnt-1]) == 0) && (File_id_cnt))
+			File_id_cnt--;
+
+		    Syslog('f', "Got %d FILE_ID.DIZ lines", File_id_cnt);
+		    for (i = 0; i < File_id_cnt; i++)
+			Syslog('f', "\"%s\"", fdb.Desc[i]);
+		}
+	    }
+
+	    if (!File_id_cnt) {
+	       	if (Description == NULL) {
+		    WriteError("No FILE_ID.DIZ and no description on the commandline");
+		    DeleteVirusWork();
+		    fclose(pFile);
+		    die(0);
+		} else {
+		    /*
+		     * Create description from the commandline.
+		     */
+		    if (strlen(Description) < 48) {
+			strcpy(fdb.Desc[0], Description);
+			File_id_cnt++;
+		    } else {
+			memset(&TDesc, 0, sizeof(TDesc));
+			strcpy(TDesc, Description);
+			while (strlen(TDesc) > 48) {
+			    j = 48;
+			    while (TDesc[j] != ' ')
+				j--;
+			    strncat(fdb.Desc[File_id_cnt], TDesc, j);
+			    File_id_cnt++;
+			    k = strlen(TDesc);
+			    j++; /* Correct space */
+			    for (i = 0; i <= k; i++, j++)
+				TDesc[i] = TDesc[j];
+			}
+			strcpy(fdb.Desc[File_id_cnt], TDesc);
+			File_id_cnt++;
+		    }
+		}
+	    }
+
+	    /*
+	     * Import the file.
+	     */
+	    chdir(pwd);
 	    DeleteVirusWork();
-	    fclose(pFile);
+	    strcpy(fdb.Name, File);
+	    strcpy(fdb.LName, File);
+	    fdb.Size = file_size(File);
+	    fdb.Crc32 = file_crc(File, TRUE);
+	    fdb.FileDate = file_time(File);
+	    sprintf(temp2, "%s/%s", area.Path, File);
+
+	    if (!do_quiet) {
+		printf("Adding    \b\b\b\b\b\b\b\b\b\b");
+		fflush(stdout);
+	    }
+
+	    mkdirs(temp2);
+	    if (file_cp(fdb.LName, temp2)) {
+		WriteError("Can't move file in place");
+		fclose(pFile);
+		die(0);
+	    }
+
+	    sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), Area);
+	    fseek(pFile, 0, SEEK_END);
+	    if (ftell(pFile) == 0) {
+		/*
+		 * No records yet
+		 */
+		fwrite(&fdb, sizeof(fdb), 1, pFile);
+		fclose(pFile);
+		free(temp2);
+		Syslog('+', "Added file in area %d", Area);
+	    } else {
+		/*
+		 * Files are already there. Find the right spot.
+		 */
+		fseek(pFile, 0, SEEK_SET);
+
+		Insert = 0;
+		do {
+		    if (fread(&file, sizeof(file), 1, pFile) != 1)
+			Done = TRUE;
+		    if (!Done) {
+			if (strcmp(fdb.Name, file.Name) == 0) {
+			    Found = TRUE;
+			    Insert++;
+			} else {
+			    if (strcmp(fdb.Name, file.Name) < 0)
+				Found = TRUE;
+			    else
+				Insert++;
+			}
+		    }
+		} while ((!Found) && (!Done));
+
+		if (Found) {
+		    if ((fp = fopen(temp2, "a+")) == NULL) {
+			WriteError("Can't create %s", temp2);
+			die(0);
+		    }
+
+		    fseek(pFile, 0, SEEK_SET);
+		    /*
+		     * Copy until the insert point
+		     */
+		    for (i = 0; i < Insert; i++) {
+			fread(&file, sizeof(file), 1, pFile);
+			/*
+			 * If we are importing a file with the same name,
+			 * skip the original record and put the new one in place.
+			 */
+			if (strcmp(file.Name, fdb.Name) != 0)
+			    fwrite(&file, sizeof(file), 1, fp);
+		    }
+		    if (area.AddAlpha)
+			fwrite(&fdb, sizeof(fdb), 1, fp);
+
+		    /*
+		     * Append the rest of the records
+		     */
+		    while (fread(&file, sizeof(file), 1, fp) == 1) {
+			if (strcmp(file.Name, fdb.Name) != 0)
+			    fwrite(&file, sizeof(file), 1, fp);
+		    }
+		    if (!area.AddAlpha)
+			fwrite(&fdb, sizeof(fdb), 1, fp);
+		    fclose(fp);
+		    fclose(pFile);
+		    
+		    if (unlink(fAreas) == 0) {
+			rename(temp2, fAreas);
+			chmod(fAreas, 0660);
+			Syslog('+', "Added file in area %d", Area);
+		    } else {
+			WriteError("$Can't unlink %s", fAreas);
+			unlink(temp2);
+		    }
+		} else {
+		    /*
+		     * Append file record
+		     */
+		    fseek(pFile, 0, SEEK_END);
+		    fwrite(&fdb, sizeof(fdb), 1, pFile);
+		    fclose(pFile);
+		    Syslog('+', "Added file in area %d", Area);
+		}
+	    }
+
+	    if (MustRearc) {
+		/* Here we should call the rearc function */
+	    }
 	}
 
 	free(pwd);
