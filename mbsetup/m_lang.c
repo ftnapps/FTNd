@@ -116,6 +116,16 @@ int CountLanguage(void)
 			lang.Available = TRUE;
 			fwrite(&lang, sizeof(lang), 1, fil);
 
+			memset(&lang, 0, sizeof(lang));
+			sprintf(lang.Name,      "Deutsch");
+			sprintf(lang.LangKey,   "D");
+			sprintf(lang.MenuPath,  "%s/german/menus", getenv("MBSE_ROOT"));
+			sprintf(lang.TextPath,  "%s/german/txtfiles", getenv("MBSE_ROOT"));
+			sprintf(lang.MacroPath, "%s/german/macro", getenv("MBSE_ROOT"));
+			sprintf(lang.Filename,  "german.lang");
+			lang.Available = TRUE;
+			fwrite(&lang, sizeof(lang), 1, fil);
+
 			fclose(fil);
 			chmod(ffile, 0640);
 			return 5;

@@ -1,3 +1,5 @@
+$Id$
+
 			LANGUAGE SOURCES FOR MBSE BBS.
 			==============================
 
@@ -22,7 +24,16 @@ If you do create language sources then I would like that you make them
 public available and send them to me so I can include them in the
 source distribution.
 
-The Italian language was translated by nervous@nervous.it
-
 Michiel.
+
+
+Current language maintainters:
+
+english		Michiel Broek <mbroek@users.sourceforge.net>
+dutch		Michiel Broek <mbroek@users.sourceforge.net>
+italian		NERvOus <nervous@nervous.it>
+spanisch	Redy Rodriguez <redy@users.sourceforge.net>
+galego		Redy Rodriguez <redy@users.sourceforge.net>
+german		Harald Wuensch <Harald.Wuensch@gecits-eu.com>
+
 

@@ -104,6 +104,13 @@ install:
 			mkdir ${PREFIX}/galego/macro ; \
 			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/galego ; \
 		fi
+		@if [ ! -d ${PREFIX}/german ] ; then \
+			mkdir ${PREFIX}/german; \
+			mkdir ${PREFIX}/german/txtfiles ; \
+			mkdir ${PREFIX}/german/menus ; \
+			mkdir ${PREFIX}/german/macro ; \
+			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/german; \
+		fi
 		@if [ ! -d /var/spool/mbse ] ; then \
 			mkdir /var/spool/mbse ; \
 			mkdir /var/spool/mbse/nodelist ; \
