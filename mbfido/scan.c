@@ -98,6 +98,7 @@ void ScanMail(int DoAll)
 				Syslog('+', "Export message %lu from %s", msg, path);
 				ScanOne(path, msg);
 				i++;
+				Nopper();
 			}
 			fclose(fp);
 			unlink(Fname); 
@@ -111,6 +112,7 @@ void ScanMail(int DoAll)
 				Syslog('+', "Export message %lu from %s", msg, path);
 				ScanOne(path, msg);
 				i++;
+				Nopper();
 			}
 			fclose(fp);
 			unlink(Fname);
@@ -161,6 +163,8 @@ void ScanFull()
 
 		while (fread(&usrconfig, usrconfighdr.recsize, 1, pAreas) == 1) {
 			if (usrconfig.Email && strlen(usrconfig.Name)) {
+
+				Nopper();
 				if (!do_quiet) {
 					colour(3, 0);
 					printf("\r%8s %-40s", usrconfig.Name, usrconfig.sUserName);
@@ -221,6 +225,8 @@ void ScanFull()
 		arearec++;
 
 		if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
+
+			Nopper();
 			if (!do_quiet) {
 				colour(3, 0);
 				printf("\r%5ld .. %-40s", arearec, msgs.Name);

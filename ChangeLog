@@ -4660,6 +4660,7 @@ v0.33.20        10-Feb-2002
 		Experimental patch in mkftnhdr to create a To address in news
 		articles where a Reply-To: header is present.
 		It was not possible to disconnect file areas.
+		Added nopper code to full mailscan.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
