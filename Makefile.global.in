@@ -13,6 +13,7 @@ PREFIX		= @prefix@
 BINDIR		= @prefix@/bin
 ETCDIR		= @prefix@/etc
 DOCDIR		= @prefix@/doc
+VARDIR		= @prefix@/var
 OWNER		= @OWNER@
 GROUP		= @GROUP@
 ROWNER		= @ROWNER@

@@ -74,9 +74,37 @@ is very important! Type the following commands:
 <pre>
 mbse@seaport:~$ umask 007
 mbse@seaport:~$ cd var/dosemu/c
-mbse@seaport:~/var/dosemu/c$ mkdir dos dosemu temp util
+mbse@seaport:~/var/dosemu/c$ mkdir dos dosemu temp util doors
 </pre>
-To be continued....
+Now we must install dos. If you use ms-dos then in <code>~/var/dosemu/c</code>
+copy the ms-dos files <code>command.com</code>, <code>io.sys</code> and
+<code>msdos.sys</code>. In <code>~/var/dosemu/c/dos</code> copy all ms-dos
+commands. Next install the dosemu utilities, copy these from
+<code>/usr/share/dosemu/freedos/dosemu</code> to
+<code>~/var/dosemu/c/dosemu</code>. Now there is a empty
+<code>~/var/dosemu/c/util</code>, copy some utilities here such as your
+favourite dos editor, zip and unzip etc.<br>
+Next we must create <code>config.sys</code> and <code>autoexec.bat</code>. These
+files must be dos crlf formatted. You can do that with the joe editor, for
+example <code>joe -crlf config.sys</code>. Examples:<br>
+<code>config.sys</code><br>
+<pre>
+BUFFERS = 20
+DEVICE=C:\DOS\SETVER.EXE
+SET TEMP=C:\TEMP
+DOS=HIGH,UMB
+FILES=50
+</pre>
+<code>autoexec.bat</code><br>
+<pre>
+@ECHO OFF
+PROMPT $P$G
+PATH C:\DOSEMU;C:\DOS;C:\UTIL;
+SET TEMP=C:\TEMP
+Lh C:\DOS\DOSKEY /INSERT
+Lh C:\DOS\SHARE
+</pre>
+
 <p>&nbsp;</P>
 
 <h3>What if I don't upgrade</h3>

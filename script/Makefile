@@ -5,7 +5,8 @@ include ../Makefile.global
 
 OTHER		= Makefile README maint midnight weekly monthly installinit.sh setup.mbse \
 		  bbsdoor.sh rundoor.sh runvirtual.sh init.Debian init.RedHat init.FreeBSD init.NetBSD \
-		  init.Slackware init.SuSE init.Gentoo hatch editor.in bbsjoerc bbsjmacsrc
+		  init.Slackware init.SuSE init.Gentoo hatch editor.in bbsjoerc bbsjmacsrc \
+		  doors.bat mbsedos
 
 ####################################################################################################
 
@@ -85,6 +86,8 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new" ; \
 		fi
+		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0440 doors.bat ${VARDIR}/dosemu/c
+		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0744 mbsedos   ${BINDIR}
 		@bash ./installinit.sh
 
 filelist:	Makefile
