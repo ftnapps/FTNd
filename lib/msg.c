@@ -365,9 +365,6 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 		    Link[i].Number = Number;
 		    i++;
 
-		    if (slow_util && do_quiet && ((i % 5) == 0))
-			msleep(1);
-
 		    if (((i % 10) == 0) && (!do_quiet)) {
 			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 			fflush(stdout);
@@ -398,9 +395,6 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 			}
 		    }
 
-		    if (slow_util && do_quiet && ((i % 5) == 0))
-			msleep(1);
-                                                
 		    if (((i % 10) == 0) && (!do_quiet)) {
 			printf("%6d / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", i, Total);
 			fflush(stdout);
