@@ -4904,7 +4904,7 @@ if test "$SYSTEM" = "NetBSD"; then
 fi
 
 
-if test "$SYSTEM" = "FreeBSD"; then
+if test "$SYSTEM" = "FreeBSD" || test "$SYSTEM" = "OpenBSD"; then
     CFLAGS="-pthread $CFLAGS"
 else
     echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5

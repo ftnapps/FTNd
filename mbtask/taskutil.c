@@ -267,13 +267,13 @@ char *xstrcat(char *src, char *add)
 void CreateSema(char *sem)
 {
     char    temp[PATH_MAX];
-    int     fd;
+    FILE    *fp;
 
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0)
 	return;
-    if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
-        close(fd);
+    if ((fp = fopen(temp, "w"))) {
+	fclose(fp);
     else
         Syslog('?', "Can't create semafore %s", temp);
 }
@@ -283,11 +283,11 @@ void CreateSema(char *sem)
 void TouchSema(char *sem)
 {
     char    temp[PATH_MAX];
-    int     fd;
+    FILE    *fp;
 
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
-        close(fd);
+    if ((fp = fopen(temp, "w"))) {
+	fclose(fp);
     } else
         Syslog('?', "Can't touch semafore %s", temp);
 }
@@ -331,6 +331,7 @@ int file_exist(char *path, int mode)
 
     return 0;
 }
+
 
 
 /*
@@ -399,6 +400,7 @@ time_t file_time(char *path)
 }
 
 
+
 /*
  * Return ASCII string for node, the bits in 'fl' set the output format.
  */
@@ -443,34 +445,36 @@ char *fido2str(fidoaddr a, int fl)
     return buf;
 }
 
+
+
 char *Dos2Unix(char *dosname)
 {
-        char            buf[PATH_MAX];
-        static char     buf2[PATH_MAX];
-        char            *p, *q;
+    char            buf[PATH_MAX];
+    static char     buf2[PATH_MAX];
+    char            *p, *q;
 
-        memset(&buf, 0, sizeof(buf));
-        memset(&buf2, 0, sizeof(buf2));
-        sprintf(buf, "%s", dosname);
-        p = buf;
+    memset(&buf, 0, sizeof(buf));
+    memset(&buf2, 0, sizeof(buf2));
+    sprintf(buf, "%s", dosname);
+    p = buf;
 
-        if (strlen(CFG.dospath)) {
-                if (strncasecmp(p, CFG.dospath, strlen(CFG.dospath)) == 0) {
-                        strcpy((char *)buf2, CFG.uxpath);
-                        for (p+=strlen(CFG.dospath), q = buf2 + strlen(buf2); *p; p++, q++)
-                                *q = ((*p) == '\\')?'/':tolower(*p);
-                        *q = '\0';
-                        p = buf2;
-                } else {
-                        if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
-                                for (p+=strlen(CFG.uxpath), q = buf2 + strlen(buf2); *p; p++, q++)
-                                        *q = ((*p) == '\\')?'/':tolower(*p);
-                                *q = '\0';
-                                p = buf2;
-                        }
-                }
+    if (strlen(CFG.dospath)) {
+        if (strncasecmp(p, CFG.dospath, strlen(CFG.dospath)) == 0) {
+            strcpy((char *)buf2, CFG.uxpath);
+            for (p+=strlen(CFG.dospath), q = buf2 + strlen(buf2); *p; p++, q++)
+                *q = ((*p) == '\\')?'/':tolower(*p);
+	    *q = '\0';
+            p = buf2;
+        } else {
+            if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
+                for (p+=strlen(CFG.uxpath), q = buf2 + strlen(buf2); *p; p++, q++)
+                    *q = ((*p) == '\\')?'/':tolower(*p);
+                *q = '\0';
+                p = buf2;
+            }
         }
-        return buf2;
+    }
+    return buf2;
 }
 
 
@@ -499,33 +503,33 @@ char *dayname(void)
 
 void InitFidonet(void)
 {
-        memset(&fidonet, 0, sizeof(fidonet));
+    memset(&fidonet, 0, sizeof(fidonet));
 }
 
 
 
 int SearchFidonet(unsigned short zone)
 {
-        FILE    *fil;
-	char	fidonet_fil[PATH_MAX];
-	int	i;
+    FILE    *fil;
+    char    fidonet_fil[PATH_MAX];
+    int	    i;
 
-	sprintf(fidonet_fil, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-        if ((fil = fopen(fidonet_fil, "r")) == NULL) {
-                return FALSE;
-        }
-        fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
-
-        while (fread(&fidonet, fidonethdr.recsize, 1, fil) == 1) {
-        	for (i = 0; i < 6; i++) {
-                	if (zone == fidonet.zone[i]) {
-	                        fclose(fil);
-        	                return TRUE;
-                	}
-		}
-        }
-        fclose(fil);
+    sprintf(fidonet_fil, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(fidonet_fil, "r")) == NULL) {
         return FALSE;
+    }
+    fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
+
+    while (fread(&fidonet, fidonethdr.recsize, 1, fil) == 1) {
+        for (i = 0; i < 6; i++) {
+            if (zone == fidonet.zone[i]) {
+	        fclose(fil);
+        	return TRUE;
+            }
+	}
+    }
+    fclose(fil);
+    return FALSE;
 }
 
 

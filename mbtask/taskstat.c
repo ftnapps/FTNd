@@ -94,44 +94,44 @@ extern int	Processing;		/* Is system running		*/
  */
 void status_init()
 {
-	size_t	cnt;
-	int	stat_fd;
+    size_t  cnt;
+    int	    stat_fd;
 
-	sprintf(stat_fn,  "%s/var/status.mbsed", getenv("MBSE_ROOT"));
+    sprintf(stat_fn,  "%s/var/status.mbsed", getenv("MBSE_ROOT"));
 
-	/*
-	 * First check if this is the very first time we start the show.
-	 * If so, we generate an empty status file with only the start
-	 * date in it.
-	 */
-	stat_fd = open(stat_fn, O_RDWR);
-	if (stat_fd == -1) {
-		memset((char *)&status, 0, sizeof(status_r));
-		status.start = time(NULL);
-		status.daily = time(NULL);
-		status.sequence = (unsigned long)time(NULL);
-		stat_fd = open(stat_fn, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR); 
-		cnt = write(stat_fd, &status, sizeof(status_r));
-		Syslog('+', "New statusfile created");
-		lseek(stat_fd, 0, SEEK_SET);
-	}
-	
-	cnt = read(stat_fd, &status, sizeof(status_r));
-	if (cnt != sizeof(status_r)) {
-		printf("Error reading status file\n");
-		exit(MBERR_INIT_ERROR);
-	}
-	status.startups++;
-	status.laststart = time(NULL);
-	status.clients = 1;		/* We are a client ourself */
-	s_bbsopen = status.open;
-	lseek(stat_fd, 0, SEEK_SET);
+    /*
+     * First check if this is the very first time we start the show.
+     * If so, we generate an empty status file with only the start
+     * date in it.
+     */
+    stat_fd = open(stat_fn, O_RDWR);
+    if (stat_fd == -1) {
+	memset((char *)&status, 0, sizeof(status_r));
+	status.start = time(NULL);
+	status.daily = time(NULL);
+	status.sequence = (unsigned long)time(NULL);
+	stat_fd = open(stat_fn, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR); 
 	cnt = write(stat_fd, &status, sizeof(status_r));
-	if (cnt != sizeof(status_r)) {
-		Syslog('?', "$Error rewrite status file\n");
-		exit(MBERR_INIT_ERROR);
-	}
-	close(stat_fd);
+	Syslog('+', "New statusfile created");
+	lseek(stat_fd, 0, SEEK_SET);
+    }
+	
+    cnt = read(stat_fd, &status, sizeof(status_r));
+    if (cnt != sizeof(status_r)) {
+	printf("Error reading status file\n");
+	exit(MBERR_INIT_ERROR);
+    }
+    status.startups++;
+    status.laststart = time(NULL);
+    status.clients = 1;		/* We are a client ourself */
+    s_bbsopen = status.open;
+    lseek(stat_fd, 0, SEEK_SET);
+    cnt = write(stat_fd, &status, sizeof(status_r));
+    if (cnt != sizeof(status_r)) {
+	Syslog('?', "$Error rewrite status file\n");
+	exit(MBERR_INIT_ERROR);
+    }
+    close(stat_fd);
 }
 
 
@@ -209,109 +209,109 @@ void status_write(void)
  */
 int get_zmh()
 {
-	struct	tm l_date; 
-	char	sstime[6];
-	time_t	Now;
+    struct  tm l_date; 
+    char    sstime[6];
+    time_t  Now;
 
-	Now = time(NULL);
+    Now = time(NULL);
 #if defined(__OpenBSD__)
-	gmtime_r(&Now, &l_date);
+    gmtime_r(&Now, &l_date);
 #else
-	l_date = *gmtime(&Now);
+    l_date = *gmtime(&Now);
 #endif
-	sprintf(sstime, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
+    sprintf(sstime, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
 
-	if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
-		if (!ZMH) {
-			CreateSema((char *)"zmh");
-			Syslog('!', "Start of Zone Mail Hour");
-			ZMH = TRUE;
-		}
-	} else {
-		if (ZMH) {
-			RemoveSema((char *)"zmh");
-			Syslog('!', "End of Zone Mail Hour");
-			ZMH = FALSE;
-		}
+    if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
+	if (!ZMH) {
+	    CreateSema((char *)"zmh");
+	    Syslog('!', "Start of Zone Mail Hour");
+	    ZMH = TRUE;
 	}
-	return ZMH;
+    } else {
+	if (ZMH) {
+	    RemoveSema((char *)"zmh");
+	    Syslog('!', "End of Zone Mail Hour");
+	    ZMH = FALSE;
+	}
+    }
+    return ZMH;
 }
 
 
 
 void stat_inc_clients()
 {
-	status.clients++;
-	status.total.tot_clt++;	
-	status.today.tot_clt++;
-	if (status.clients >= status.total.peak_clt)
-		status.total.peak_clt = status.clients;
-	if (status.clients >= status.today.peak_clt)
-		status.today.peak_clt = status.clients;	
+    status.clients++;
+    status.total.tot_clt++;	
+    status.today.tot_clt++;
+    if (status.clients >= status.total.peak_clt)
+	status.total.peak_clt = status.clients;
+    if (status.clients >= status.today.peak_clt)
+	status.today.peak_clt = status.clients;	
 
-	status_write();
+    status_write();
 }
 
 
 
 void stat_dec_clients()
 {
-	status.clients--; 
-	status_write();
+    status.clients--; 
+    status_write();
 }
 
 
 
 void stat_set_open(int op)
 {
-	if (op) {
-		if (!s_bbsopen) {
-			Syslog('!', "The bbs is open");
-			sem_set((char *)"scanout", TRUE);
-		}
-	} else {
-		if (s_bbsopen) {
-			Syslog('!', "The bbs is closed");
-		}
+    if (op) {
+	if (!s_bbsopen) {
+	    Syslog('!', "The bbs is open");
+	    sem_set((char *)"scanout", TRUE);
 	}
-	s_bbsopen = status.open = op;
-	status_write();
+    } else {
+	if (s_bbsopen) {
+	    Syslog('!', "The bbs is closed");
+	}
+    }
+    s_bbsopen = status.open = op;
+    status_write();
 }
 
 
 
 void stat_inc_serr()
 {
-	status.total.s_error++;
-	status.today.s_error++;
-	status_write();
+    status.total.s_error++;
+    status.today.s_error++;
+    status_write();
 }
 
 
 
 void stat_inc_cerr()
 {
-	status.total.c_error++;
-	status.today.c_error++;
-	status_write();
+    status.total.c_error++;
+    status.today.c_error++;
+    status_write();
 }
 
 
 
 char *stat_status()
 {
-	static char buf[160];
+    static char buf[160];
 
-	buf[0] = '\0';
-	sprintf(buf, "100:20,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu;",
-		(long)status.start, (long)status.laststart, (long)status.daily,
-		status.startups, status.clients, 
-		status.total.tot_clt, status.total.peak_clt,
-		status.total.s_error, status.total.c_error,
-		status.today.tot_clt, status.today.peak_clt,
-		status.today.s_error, status.today.c_error,
-		status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence);
-	return buf;
+    buf[0] = '\0';
+    sprintf(buf, "100:20,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu;",
+	(long)status.start, (long)status.laststart, (long)status.daily,
+	status.startups, status.clients, 
+	status.total.tot_clt, status.total.peak_clt,
+	status.total.s_error, status.total.c_error,
+	status.today.tot_clt, status.today.peak_clt,
+	status.today.s_error, status.today.c_error,
+	status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence);
+    return buf;
 }
 
 
@@ -324,11 +324,11 @@ char *stat_status()
  */
 int stat_bbs_stat()
 {
-	if (!status.open) 
-		return 1;
-	if (get_zmh())
-		return 2;
-	return 0;
+    if (!status.open) 
+	return 1;
+    if (get_zmh())
+	return 2;
+    return 0;
 }
 
 
@@ -338,13 +338,13 @@ int stat_bbs_stat()
  */
 char *getseq(void)
 {
-	static char	buf[80];
+    static char	buf[80];
 
-	buf[0] = '\0';
-	status.sequence++;
-	status_write();
-	sprintf(buf, "100:1,%lu;", status.sequence);
-	return buf;
+    buf[0] = '\0';
+    status.sequence++;
+    status_write();
+    sprintf(buf, "100:1,%lu;", status.sequence);
+    return buf;
 }
 
 

@@ -51,7 +51,7 @@ char	SigName[32][16] = {	"NOSIGNAL",
 
 #elif defined(__PPC__)
 
-char    SgName[32][16] = {     "NOSIGNAL",
+char    SigName[32][16] = {     "NOSIGNAL",
                 "SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
                 "SIGTRAP",      "SIGIOT",       "SIGBUS",       "SIGFPE",
                 "SIGKILL",      "SIGUSR1",      "SIGSEGV",      "SIGUSR2",
@@ -64,7 +64,7 @@ char    SgName[32][16] = {     "NOSIGNAL",
 
 #elif defined(__sparc__)
 
-char	SgName[32][16] = {	"NOSIGNAL",
+char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
 		"SIGTRAP",	"SIGIOT",	"SIGEMT",	"SIGFPE",
 		"SIGKILL",	"SIGBUS",	"SIGSEGV",	"SIGSYS",
@@ -76,7 +76,7 @@ char	SgName[32][16] = {	"NOSIGNAL",
 
 #elif defined(__alpha__)
 
-char	SgName[32][16] = {	"NOSIGNAL",
+char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGHUP",	"SIGINT",	"SIGQUIT",	"SIGILL",
 		"SIGTRAP",	"SIGABRT",	"SIGEMT",	"SIGFPE",
 		"SIGKILL",	"SIGBUS",	"SIGSEGV",	"SIGSYS",
