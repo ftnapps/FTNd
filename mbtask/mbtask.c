@@ -44,7 +44,7 @@
 
 /*
  *  Defines. 
- *  SLOWRUN is number of seconds for mailer calls. Use between 5 and 30.
+ *  SLOWRUN is number of seconds for scheduling mailer calls. Leave at 20!
  */
 #define	MAXTASKS		10
 #define	SLOWRUN			20
@@ -505,6 +505,10 @@ int check_calllist(void)
 		    if ((calllist[i].addr.zone  == tmp->addr.zone) && (calllist[i].addr.net   == tmp->addr.net) &&
 			(calllist[i].addr.node  == tmp->addr.node) && (calllist[i].addr.point == tmp->addr.point)) {
 			found = TRUE;
+			/*
+			 * Refresh last call status
+			 */
+			calllist[i].cst = tmp->cst;
 		    }
 		}
 		if (!found) {
@@ -1504,8 +1508,16 @@ void scheduler(void)
 			    call_entry = 0;
 			else
 			    call_entry++;
-			tasklog('c', "Call entry rotaded to %d", call_entry);
-			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling) {
+//			tasklog('c', "Call entry rotaded to %d", call_entry);
+			/*
+			 * If a valid entry, and not yet calling, and the retry time is reached,
+			 * then launch a callprocess for this node.
+			 */
+//			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling) {
+//			    tasklog('o', "trytime %lu, now %lu", calllist[call_entry].cst.trytime, now);
+//			}
+			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling && 
+				(calllist[call_entry].cst.trytime < now)) {
 			    if ((calllist[call_entry].callmode == CM_INET) && (runtasktype(CM_INET) < TCFG.max_tcp)) {
 				found = TRUE;
 				break;
@@ -1528,7 +1540,7 @@ void scheduler(void)
 			    break;
 		    }
 		    if (found) {
-			tasklog('c', "Should launch slot %d node %s", call_entry, ascfnode(calllist[call_entry].addr, 0x1f));
+//			tasklog('c', "Should launch slot %d node %s", call_entry, ascfnode(calllist[call_entry].addr, 0x1f));
 			cmd = xstrcpy(pw->pw_dir);
 			cmd = xstrcat(cmd, (char *)"/bin/mbcico");
 			sprintf(opts, "f%u.n%u.z%u", calllist[call_entry].addr.node, calllist[call_entry].addr.net,

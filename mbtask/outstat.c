@@ -265,15 +265,8 @@ int outstat()
 			tmp->flavors |= F_CALL;
 		    }
 		}
-		if ((tmp->flavors) & F_NORMAL) {
+		if ((tmp->flavors) & F_NORMAL)
 		    flstr[2]='N';
-		    /*
-		     * Normal mail, send during ZMH or if node has a Txx window.
-		     */
-		    if (iszmh || T_window) {
-			tmp->flavors |= F_CALL;
-		    }
-		}
 		if ((tmp->flavors) & F_HOLD  ) 
 		    flstr[3]='H';
 		if ((tmp->flavors) & F_FREQ  ) 
@@ -282,8 +275,15 @@ int outstat()
 		    flstr[5]='P';
 		    tmp->flavors |= F_CALL;
 		}
-		if ((tmp->flavors) & F_ISPKT ) 
+		if ((tmp->flavors) & F_ISPKT ) { 
 		    flstr[7]='M';
+		    /*
+		     * Normal mail, send during ZMH or if node has a Txx window.
+		     */
+		    if (iszmh || T_window) {
+			tmp->flavors |= F_CALL;
+		    }
+		}
 		if ((tmp->flavors) & F_ISFLO ) 
 		    flstr[8]='F';
 		if (tmp->cst.tryno >= 30) {
@@ -292,8 +292,7 @@ int outstat()
 		     */
 		    tmp->flavors &= ~F_CALL;
 		}
-		/*  Check retry timer also here */
-		if ((tmp->flavors) & F_CALL  ) 
+		if ((tmp->flavors) & F_CALL) 
 		    flstr[9]='C';
 		if (tmp->t1) 
 		    flstr[11] = tmp->t1;
