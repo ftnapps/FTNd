@@ -44,6 +44,9 @@ v0.61.4		11-Aug-2004
 		The postemail and scanemail functions are changed so that
 		Outlook email addresses are parsed so that we can reply via
 		smtp.
+		During scan the Msg_Read function is now called with a width
+		of 79 characters instead of 78. This fixes the missing address
+		on Origin lines of 79 characters long.
 
 	mbfile:
 		The html index now uses html named character entities on the

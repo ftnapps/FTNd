@@ -332,153 +332,146 @@ void ScanFull()
 
 void ScanOne(char *path, unsigned long MsgNum)
 {
-	char		*sAreas, sbe[128];
-	FILE		*pAreas;
-	long		sysstart;
-	unsigned long	Total, Area = 0;
-	int		i;
-	sysconnect	Link;
-	fa_list		*sbl = NULL;
+    char	    *sAreas, sbe[128];
+    FILE	    *pAreas;
+    long	    sysstart;
+    unsigned long   Total, Area = 0;
+    int		    i;
+    sysconnect	    Link;
+    fa_list	    *sbl = NULL;
 
-	IsDoing("Scanning mail");
+    IsDoing("Scanning mail");
 
-	if (!do_quiet) {
-		colour(9, 0);
-		printf("Scanning mail\n");
-		colour(3, 0);
-		fflush(stdout);
-	}
+    if (!do_quiet) {
+	colour(9, 0);
+	printf("Scanning mail\n");
+	colour(3, 0);
+	fflush(stdout);
+    }
 
-	if (strncmp(CFG.bbs_usersdir, path, strlen(CFG.bbs_usersdir)) == 0) {
-		if (Msg_Open(path)) {
-			if (((Total = Msg_Number()) != 0L) && (Msg_ReadHeader(MsgNum)) && Msg.Local) {
-				if (Msg_Lock(15L)) {
-					scanned++;
-					ExportEmail(MsgNum);
-					Msg.Local = FALSE;
-					Msg.Arrived = time(NULL);
-					Msg_WriteHeader(MsgNum);
-					Msg_UnLock();
-				}
-
-			}
-			Msg_Close();
-		} else {
-			WriteError("Can't open %s", path);
+    if (strncmp(CFG.bbs_usersdir, path, strlen(CFG.bbs_usersdir)) == 0) {
+	if (Msg_Open(path)) {
+	    if (((Total = Msg_Number()) != 0L) && (Msg_ReadHeader(MsgNum)) && Msg.Local) {
+		if (Msg_Lock(15L)) {
+		    scanned++;
+		    ExportEmail(MsgNum);
+		    Msg.Local = FALSE;
+		    Msg.Arrived = time(NULL);
+		    Msg_WriteHeader(MsgNum);
+		    Msg_UnLock();
 		}
-		return;
-	}
-
-	sAreas = calloc(PATH_MAX, sizeof(char));
-	sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((pAreas = fopen(sAreas, "r")) == NULL) {
-		WriteError("Can't open %s", sAreas);
-		free(sAreas);
-		return;
-	}
-	free(sAreas);
-	fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
-
-	/*
-	 * Seek the path we want
-	 */
-	while (TRUE) {
-		if (fread(&msgs, msgshdr.recsize, 1, pAreas) != 1) {
-			fclose(pAreas);
-			Syslog('m', "ScanOne() reached end of areas");
-			return;
-		}
-		Area++;
-		sysstart = ftell(pAreas);
-		fseek(pAreas, msgshdr.syssize, SEEK_CUR);
-		if (strcmp(msgs.Base, path) == 0)
-			break;
-	}
-
-	if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
-		if (!do_quiet) {
-			colour(3, 0);
-			printf("\r%5ld .. %-40s", Area, msgs.Name);
-			colour(13, 0);
-			fflush(stdout);
-		}
-
-		if (Msg_Open(msgs.Base)) {
-			if ((Total = Msg_Number()) != 0L) {
-				if (Msg_ReadHeader(MsgNum)) {
-					if (Msg.Local) {
-						if (Msg_Lock(15L)) {
-							scanned++;
-							/*
-							 * Setup SEEN-BY lines
-							 */
-							if (msgs.Type == ECHOMAIL || msgs.Type == NEWS) {
-								echo_in++;
-								fill_list(&sbl, aka2str(msgs.Aka), NULL);
-								for (i = 0; i < 40; i++) {
-									if (CFG.akavalid[i] && 
-									    (msgs.Aka.zone == CFG.aka[i].zone) &&
-									    (CFG.aka[i].point == 0) &&
-									    !((msgs.Aka.net == CFG.aka[i].net) && 
-									      (msgs.Aka.node == CFG.aka[i].node))) {
-										sprintf(sbe, "%u/%u", CFG.aka[i].net, 
-											CFG.aka[i].node);
-										fill_list(&sbl, sbe, NULL);
-									}
-								}
-								fseek(pAreas, sysstart, SEEK_SET);
-								for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
-									fread(&Link, sizeof(sysconnect), 1, pAreas);
-									if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-										fill_list(&sbl, aka2str(Link.aka), NULL);
-									}
-								}
-								uniq_list(&sbl);
-								sort_list(&sbl);
-
-								fseek(pAreas, sysstart, SEEK_SET);
-								for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
-									fread(&Link, sizeof(sysconnect), 1, pAreas);
-									if (Link.aka.zone) {
-										ExportEcho(Link, MsgNum, &sbl);
-									}
-								}
-#ifdef USE_NEWSGATE
-								if (strlen(msgs.Newsgroup))
-#else
-								if (strlen(msgs.Newsgroup) && (msgs.Type == NEWS))
-#endif
-								    ExportNews(MsgNum, &sbl);
-
-								tidy_falist(&sbl);
-							}
-							if (msgs.Type == NETMAIL) {
-								ExportNet(MsgNum, FALSE);
-								most_debug = FALSE;
-							}
-
-							Msg.Local = FALSE;
-							Msg.Arrived = time(NULL);
-							Msg_WriteHeader(MsgNum);
-							Msg_UnLock();
-						}
-					}
-
-				}
-			}
-
-			Msg_Close();
-		}
+	    }
+	    Msg_Close();
 	} else {
-		WriteError("Config error: area %d not active or not Echo/Netmail area", Area);
+	    WriteError("Can't open %s", path);
 	}
+	return;
+    }
 
-	fclose(pAreas);
+    sAreas = calloc(PATH_MAX, sizeof(char));
+    sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((pAreas = fopen(sAreas, "r")) == NULL) {
+	WriteError("Can't open %s", sAreas);
+	free(sAreas);
+	return;
+    }
+    free(sAreas);
+    fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
 
+    /*
+     * Seek the path we want
+     */
+    while (TRUE) {
+	if (fread(&msgs, msgshdr.recsize, 1, pAreas) != 1) {
+	    fclose(pAreas);
+	    Syslog('m', "ScanOne() reached end of areas");
+	    return;
+	}
+	Area++;
+	sysstart = ftell(pAreas);
+	fseek(pAreas, msgshdr.syssize, SEEK_CUR);
+	if (strcmp(msgs.Base, path) == 0)
+	    break;
+    }
+
+    if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
 	if (!do_quiet) {
-		printf("\r                                                        \r");
-		fflush(stdout);
+	    colour(3, 0);
+	    printf("\r%5ld .. %-40s", Area, msgs.Name);
+	    colour(13, 0);
+	    fflush(stdout);
 	}
+
+	if (Msg_Open(msgs.Base)) {
+	    if ((Total = Msg_Number()) != 0L) {
+		if (Msg_ReadHeader(MsgNum)) {
+		    if (Msg.Local) {
+			if (Msg_Lock(15L)) {
+			    scanned++;
+			    /*
+			     * Setup SEEN-BY lines
+			     */
+			    if (msgs.Type == ECHOMAIL || msgs.Type == NEWS) {
+				echo_in++;
+				fill_list(&sbl, aka2str(msgs.Aka), NULL);
+				for (i = 0; i < 40; i++) {
+				    if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) && (CFG.aka[i].point == 0) &&
+					    !((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
+					sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
+					fill_list(&sbl, sbe, NULL);
+				    }
+				}
+				fseek(pAreas, sysstart, SEEK_SET);
+				for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
+				    fread(&Link, sizeof(sysconnect), 1, pAreas);
+				    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
+					fill_list(&sbl, aka2str(Link.aka), NULL);
+				    }
+				}
+				uniq_list(&sbl);
+				sort_list(&sbl);
+
+				fseek(pAreas, sysstart, SEEK_SET);
+				for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
+				    fread(&Link, sizeof(sysconnect), 1, pAreas);
+				    if (Link.aka.zone) {
+					ExportEcho(Link, MsgNum, &sbl);
+				    }
+				}
+#ifdef USE_NEWSGATE
+				if (strlen(msgs.Newsgroup))
+#else
+				if (strlen(msgs.Newsgroup) && (msgs.Type == NEWS))
+#endif
+				     ExportNews(MsgNum, &sbl);
+
+				tidy_falist(&sbl);
+			    }
+			    if (msgs.Type == NETMAIL) {
+				ExportNet(MsgNum, FALSE);
+				most_debug = FALSE;
+			    }
+
+			    Msg.Local = FALSE;
+			    Msg.Arrived = time(NULL);
+			    Msg_WriteHeader(MsgNum);
+			    Msg_UnLock();
+			}
+		    }
+		}
+	    }
+	    Msg_Close();
+	}
+    } else {
+	WriteError("Config error: area %d not active or not Echo/Netmail area", Area);
+    }
+
+    fclose(pAreas);
+
+    if (!do_quiet) {
+	printf("\r                                                        \r");
+	fflush(stdout);
+    }
 }
 
 
@@ -624,7 +617,7 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 
     fprintf(qp, "AREA:%s\r", msgs.Tag);
 
-    if (Msg_Read(MsgNum, 78)) {
+    if (Msg_Read(MsgNum, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
 		if (kludges && (p[0] != '\001')) {
@@ -708,7 +701,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 	fprintf(qp, "AREA:%s\n", msgs.Tag);
 	Syslog('m', "AREA:%s", msgs.Tag);
 
-	if (Msg_Read(MsgNum, 78)) {
+	if (Msg_Read(MsgNum, 79)) {
 		if ((p = (char *)MsgText_First()) != NULL) {
 			do {
 				if (kludges) {
@@ -798,7 +791,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
      *  and check if we need them. If they are missing they are inserted.
      *  GoldED doesn't insert them but MBSE does.
      */
-    if (Msg_Read(MsgNum, 78)) {
+    if (Msg_Read(MsgNum, 79)) {
         if ((p = (char *)MsgText_First()) != NULL) {
             do {
                 if (strncmp(p, "\001FMPT", 5) == 0)
@@ -831,7 +824,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 		    fromname[i] = '_';
 	sprintf(MailFrom, "%s@%s", fromname, ascinode(from, 0x2f));
 
-        if (Msg_Read(MsgNum, 78)) {
+        if (Msg_Read(MsgNum, 79)) {
             if ((p = (char *)MsgText_First()) != NULL) {
                 do {
 		    if (strncmp(p, "To: ", 4) == 0) {
@@ -868,7 +861,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	if (msgs.Aka.point && !is_fmpt)
 	    fprintf(fp, "X-FTN-FMPT: %d\n", msgs.Aka.point);
 
-        if (Msg_Read(MsgNum, 78)) {
+        if (Msg_Read(MsgNum, 79)) {
             if ((p = (char *)MsgText_First()) != NULL) {
                 do {
 		    if (p[0] == '\001') {
@@ -881,7 +874,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
             }
         }
 
-	if (Msg_Read(MsgNum, 78)) {
+	if (Msg_Read(MsgNum, 79)) {
             if ((p = (char *)MsgText_First()) != NULL) {
                 do {
                     if (p[0] != '\001') {
@@ -1019,7 +1012,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	fprintf(qp, "\001INTL %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node, 
 		    msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
-    if (Msg_Read(MsgNum, 78)) {
+    if (Msg_Read(MsgNum, 79)) {
 	first = TRUE;
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
@@ -1113,7 +1106,7 @@ void ExportEmail(unsigned long MsgNum)
     flags |= (Msg.ConfirmRequest)   ? M_AUDIT : 0;
 
     Syslog('m', "------------ Scanned message start");
-    if (Msg_Read(MsgNum, 78)) {
+    if (Msg_Read(MsgNum, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
 		Syslog('m', "%s", printable(p, 0));
