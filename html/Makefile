@@ -24,11 +24,12 @@ H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
 		  ftsc/fsp-1011.html  ftsc/ftscprod.html  ftsc/fsc-0088.html \
 		  ftsc/fts-4001.html  ftsc/fts-5001.html
 
-H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
-		  images/connec.gif   images/mbsetup0.gif     images/nodes2.gif \
-		  images/domains.gif  images/mbsetup1.6.S.gif images/nodes3.gif \
-		  images/e_menu.png   images/mbsetup1.6.gif   images/nodes4.png \
+H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
+		  images/connec.gif   images/mbsetup0.gif     images/nodes2.png \
+		  images/domains.gif  images/mbsetup1.6.S.gif images/nodes3.png \
+		  images/e_menu.png   images/mbsetup1.6.gif   images/nodes4.gif \
 		  images/emareas.gif  images/mbsetup2.gif     images/nodes5.gif \
+		  images/nodes6.gif   images/nodes7.png       images/nodes8.gif \
 		  images/emgroup.gif  images/modems0.gif      images/oneliner.gif \
 		  images/fdb.gif      images/newfiles.gif     images/protocol.gif \
 		  images/fegroup.gif  images/newgroups.gif    images/rarrow.gif \
@@ -38,7 +39,7 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
 		  images/go_to.gif    images/nodelist3.gif    images/tty2.gif \
 		  images/hatch.gif    images/nodelist4.gif    images/tty3.gif \
 		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
-		  images/larrow.gif   images/nodes.png        images/users.png \
+		  images/larrow.gif   images/users.png \
 		  images/mbse.jpg     images/taskmgr.png      images/mbsebbs.gif \
 		  images/mbsebbs.png  images/users2.png       images/hand.up.gif \
 		  images/dream1.png   images/dream2.png       images/dream3.png \

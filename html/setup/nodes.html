@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 15-Jun-2002</h5>
+<h5>Last update 28-Jun-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Fidonet nodes.</H1>
@@ -23,25 +23,24 @@
 Unlike many other bbs packages, for each node you need only one record. If you
 have a relation with a node for one network with costsharing, and other 
 networks without costsharing you need two records for that node. For each node
-you can setup the aka's, mail, files and session handshake.
+you can setup the aka's, mail, files and session handshake. There are eight
+screens for each node.
 <p>&nbsp;<p>
 
-<H3>Main setup</H3>
+<H3>Edit general setup</H3>
 <p>
+This screen has the general information for the node. The contact info fields are
+just for private use, these fields are only used in this screen. The Outbox dir is for
+files to sent to the node, all file you put in there will be sent to the remote if
+user mbse has read/write access to the file. Only real files are allowed, not symlinks etc.
 <pre>
 <strong>Sysop name       </strong>The name of the system operator.
-<strong>Fido aka's       </strong>Maximum 20 Fido addresses.
-<strong>Dial command     </strong>You can put an override here for the normal 
-                 dial command. If you leave this empty the 
-                 command from the modem setup is used.
-<strong>Phone number 1   </strong>An alternative phone number/ip address to dial.
-<strong>Phone number 2   </strong>An alternative phone number/ip address to dial.
-                 Use these above commands if the node has
-                 another phone number as mentioned in the
-                 nodelist. If you call this node via TCP/IP
-                 and the IP address can't be resolved by
-                 the nodelist, you may enter an IP address
-                 or hostname here.
+<strong>Outbox dir       </strong>Private extra outbound directory for this node.
+<strong>Pvt. phone       </strong>Contact info, node private phone.
+<strong>Pvt. fax         </strong>Contact info, node private fax.
+<strong>Pvt. cellphone   </strong>Contact info, node cellphone (GSM).
+<strong>Pvt. e-mail      </strong>Contact info, node e-mail address.
+<strong>Pvt. remark      </strong>Contact info, node remark.
 <strong>Route via        </strong>A route via Fido address. All mail for this
                  node will be send via this Aka, even mail 
                  and files for other networks. This can be
@@ -51,29 +50,58 @@ you can setup the aka's, mail, files and session handshake.
 <strong>Netmail direct   </strong>Set "direct" flag in netmail to this node.
 <strong>Netmail crash    </strong>Send netmail always "crash" to this node.
 <strong>Netmail hold     </strong>Put mail on "hold" for this node.
+<strong>Pack netmail     </strong>Should netmail be packed in arcmail archives.
 <strong>Send notify      </strong>Send automatic generated notify messages.
-<strong>Language         </strong>The language to use (not yet working).
+<strong>Language         </strong>The language to use for areamgr msgs.
 <strong>Deleted          </strong>If this node must be deleted.
+</pre>
+<P>
+<IMG SRC="../images/nodes1.png">
+<P>&nbsp;<p>
+
+<H3>Edit nodes aka's</H3>
+<p>
+In this screen you can setup 20 aka's for the node.
+<p>
+<IMG SRC="../images/nodes2.png">
+<P>&nbsp;<p>
+
+<H3>Edit node session</H3>
+<p>
+In this screen you can setup the session defaults. Items 5/8 will be added later.
+<pre>
+<strong>Session passwd   </strong>This is the mailer session password.
+<strong>Dial command     </strong>You can put an override here for the normal
+                 dial command. If you leave this empty the
+                 command from the modem setup is used.
+<strong>Phone number 1   </strong>An alternative phone number/ip address to dial.
+<strong>Phone number 2   </strong>An alternative phone number/ip address to dial.
+                 Use these above commands if the node has
+                 another phone number as mentioned in the
+                 nodelist. If you call this node via TCP/IP
+                 and the IP address can't be resolved by
+                 the nodelist, you may enter an IP address
+                 or hostname here.
 <strong>No EMSI          </strong>Disable EMSI handshake.
 <strong>No YooHoo/2U2    </strong>Disable FTSC-0006 handshake.
 <strong>No Filerequest   </strong>Disable filerquest from this node.
 <strong>Don't call       </strong>Do not call this node.
+<strong>8.3 names        </strong>Set this if the node only accepts 8.3 filenames.
 <strong>No Zmodem        </strong>Disable Zmodem protocol.
 <strong>No Zedzap        </strong>Disable Zedzap protocol.
 <strong>No Hydra         </strong>Disable Hydra protocol.
 <strong>No TCP/IP IBN    </strong>Disbale TCP/IP IBN (binkp) protocol.
 <strong>No TCP/IP IFC    </strong>Disable TCP/IP IFC (ifcico) protocol.
 <strong>No TCP/IP ITN    </strong>Disable TCP/IP ITN (telnet) protocol.
-<strong>8.3 names        </strong>Set this if the node only accepts 8.3 filenames.
 </pre>
-<P>
-<IMG SRC="../images/nodes.png">
+<p>
+<IMG SRC="../images/nodes3.png">
 <P>&nbsp;<p>
 
-<H3>Mail setup</H3>
+
+<H3>Edit node - mail processing</H3>
 <P>
 <pre>
-<strong>Session pwd      </strong>The mailer session handshake password.
 <strong>PKT password     </strong>The password to insert in .pkt files.
 <strong>Check PKT pwd    </strong>Check password in received .pkt files. If not,
                  errors or missing passwords are only logged.
@@ -87,16 +115,16 @@ you can setup the aka's, mail, files and session handshake.
 <strong>ARCmail a..z     </strong>Allow a..z last character for ARCmail filenames.
 </pre>
 <P>
-<IMG SRC="../images/nodes1.gif">
+<IMG SRC="../images/nodes4.gif">
 <P>&nbsp;<p>
 
-<H3>Mail groups</H3>
+<H3>Edit mail groups</H3>
 <P>
 Here you can tag which mail groups are available for this node. Note that all
 groups are visible here, even for networks this node has no aka's in. Be 
 carefull not to allow a node to connect areas from networks he has no aka in.
 <P>
-<IMG SRC="../images/nodes2.gif">
+<IMG SRC="../images/nodes5.gif">
 <P>&nbsp;<p>
 
 <H3>File setup</H3>
@@ -121,14 +149,14 @@ carefull not to allow a node to connect areas from networks he has no aka in.
 <strong>Stop level       </strong>The debet level when to stop sending files.
 </pre>
 <P>
-<IMG SRC="../images/nodes3.gif">
+<IMG SRC="../images/nodes6.gif">
 <P>&nbsp;<p>
 
 <H3>File groups</H3>
 <P>
 The same story as for mail groups is true for the file groups.
 <P>
-<IMG SRC="../images/nodes4.png">
+<IMG SRC="../images/nodes7.png">
 <P>&nbsp;<p>
 
 <H3>Statistics</H3>
@@ -139,7 +167,7 @@ current month and previous month and the overall total since you defined
 this node. There are actual 12 months of statistics stored in the nodes
 record, only 2 are visible.
 <P>
-<IMG SRC="../images/nodes5.gif">
+<IMG SRC="../images/nodes8.gif">
 <P>
 
 <A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">Back to index</A>&nbsp;
