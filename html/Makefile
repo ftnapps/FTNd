@@ -17,7 +17,7 @@ H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/e_menu.png   images/mbsetup1.6.png   images/nodes4.png \
 		  images/emareas.png  images/mbsetup2.png     images/nodes5.png \
 		  images/nodes6.png   images/nodes7.png       images/nodes8.png \
-		  images/nodes9.png   images/nodes10.png \
+		  images/nodes9.png   images/nodes10.png      images/doors.png \
 		  images/emgroup.png  images/modems0.png      images/oneliner.png \
 		  images/fdb.png      images/newfiles.png     images/protocol.png \
 		  images/fegroup.png  images/newgroups.png    images/rarrow.png \
