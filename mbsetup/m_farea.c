@@ -614,6 +614,7 @@ void EditFilearea(void)
 				    fclose(tfil);
 				    Syslog('+', "Updated %d ticareas", count);
 				}
+				Syslog('+', "Moved filearea %d to %d", from, too);
 				working(0, 0, 0);
 			    }
 			}
