@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/msgutil.c
+ * $Id$
  * Purpose ...............: Utilities for message handling.
- * Last modification date : 18-Feb-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -242,19 +241,42 @@ void Add_Footkludges(int Quote)
 {
 	char	*temp;
 	char	*aka;
+	FILE	*fp;
 
-	temp = calloc(128, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
 	aka  = calloc(32,  sizeof(char));
 
+	/*
+	 * If Quote (message entered at the bbs) we append a signature.
+	 */
+	if (Quote) {
+	    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('m', "  Add .signature");
+		MsgText_Add2((char *)"");
+		while (fgets(temp, 80, fp)) {
+		    Striplf(temp);
+		    MsgText_Add2(temp);
+		}
+		fclose(fp);
+		MsgText_Add2((char *)"");
+	    }
+	}
+	
 	if (msgs.Quotes && Quote) {
 		Syslog('m', "  Add quote");
-		MsgText_Add2((char *)"");
 		sprintf(temp, "... %s", Oneliner_Get());
 		MsgText_Add2(temp);
 		MsgText_Add2((char *)"");
 	}
 
+#ifdef __linux__
 	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
+#elif __FreeBSD__
+	sprintf(temp, "--- MBSE BBS v%s (FreeBSD)", VERSION);
+#else
+	sprintf(temp, "--- MBSE BBS v%s (Unknown)", VERSION);
+#endif
 	MsgText_Add2(temp);
 
 	if (msgs.Type == ECHOMAIL) {

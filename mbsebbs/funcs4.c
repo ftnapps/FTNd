@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/funcs4.c
+ * $Id$
  * Purpose ...............: Misc functions, also for some utils.
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -730,8 +729,9 @@ char *NameCreate(char *Name, char *Comment, char *Password)
  */
 char *ChangeHomeDir(char *Name, int Mailboxes)
 {
-	char	*temp;
-	static	char temp1[PATH_MAX];
+	char		*temp;
+	static char	temp1[PATH_MAX];
+	FILE		*fp;
 
 	temp  = calloc(PATH_MAX, sizeof(char));
 
@@ -770,6 +770,23 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 		ExitClient(1);
 	}
 	setenv("HOME", temp1, 1);
+
+	/*
+	 * Check if user has a .signature file.
+	 * If not, create a simple one.
+	 */
+	sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, Name);
+	if (access(temp, R_OK)) {
+	    Syslog('+', "Creating users .signature file");
+	    if ((fp = fopen(temp, "w")) == NULL) {
+		WriteError("$Can't create %s", temp);
+	    } else {
+		fprintf(fp, "    Gtx, %s\n", exitinfo.sUserName);
+		if (CFG.EmailMode == E_PRMISP)
+		    fprintf(fp, "    email: %s@%s\n", exitinfo.Name, CFG.sysdomain);
+		fclose(fp);
+	    }
+	}
 
 	/*
 	 * Check subdirectories, create them if they don't exist.

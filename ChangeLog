@@ -4243,6 +4243,10 @@ v0.33.19        26-Oct-2001
 		doing. Also time online is correct now.
 		Added control-U 5, 6, 7, display users address lines 1, 2
 		and 3.
+		If a user doesn't have a .signature file in his homedir, a
+		simple one will be created.
+		If a user saves a message at the bbs, the message will be
+		signed using the .signature file.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
