@@ -29,12 +29,6 @@ libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.
 
-libmsgbase.a:
-	N: If a area becomes empty, the lastread pointers have the wrong value
-           the should be zero so that when a new (first) message arrives in the
-	   area, mbsebbs, GoldED etc will show that there are new unread
-	   messages in the area.
-
 mbsebbs:
 	U: If a users homedir is missing, the users sees a wrong error message
 	   before the connection is terminated.

@@ -13,6 +13,10 @@ v0.61.1		20-Jun-2004.
 		used then mbfido behaves like it did upto version 0.50.0 and
 		mbnntp is disabled.
 
+	libmsgbase.a:
+		If a message area becomes empty after a pack, all lastread
+		pointers are reset to zero.
+
 	mbfido:
 		Added compile directive for full newsgate.
 
