@@ -29,9 +29,6 @@ libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.
 
-mbtask:
-	N: Test with valgrind.
-
 mbsebbs:
 	N: Test with valgrind.
 
@@ -120,7 +117,7 @@ mbfido:
 	N: Tic, scan tests with valgrind.
 
 mbcico:
-	N: Test with valgrind, binkp is ok.
+	N: Test with valgrind, binkp, raw ifcico with tcp proto is ok.
 
 	N: Upgrade binkp protocol to 1.1.
 
