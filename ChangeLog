@@ -10,6 +10,7 @@ v0.61.2		11-Jul-2004
 		In mbsetup menu 1.14 update the TCP/IP connection details.
 		In the examples directory type "make macros" to update the
 		macro templates. Be carefull if you have personalized versions.
+		Check if /opt/mbse/var/msgs is empty before using this version.
 
 	general:
 		Added -fno-strict-aliasing switch to gcc to prevent some

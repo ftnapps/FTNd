@@ -59,6 +59,7 @@ int		net_in = 0;		/* Netmails received		    */
 int		net_imp = 0;		/* Netmails imported                */
 int		net_out = 0;		/* Netmails forwarded		    */
 int		net_bad = 0;		/* Bad netmails (tracking errors    */
+int		net_msgs = 0;		/* *.msg files processed	    */
 int		echo_in = 0;		/* Echomail received		    */
 int		echo_imp = 0;		/* Echomail imported		    */
 int		echo_out = 0;		/* Echomail forwarded		    */

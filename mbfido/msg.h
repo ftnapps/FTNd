@@ -3,4 +3,6 @@
 
 /* $Id$ */
 
+int toss_msgs(void);
+
 #endif

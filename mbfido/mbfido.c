@@ -57,6 +57,7 @@
 #include "dirsession.h"
 #include "dirlock.h"
 #include "queue.h"
+#include "msg.h"
 
 
 #define	UNPACK_FACTOR 300
@@ -91,7 +92,7 @@ int	packets    = 0;			/* Tossed packets		    */
 int	packets_ok = 0;			/* Tossed packets Ok.		    */
 char	*envptr = NULL;
 
-extern	int net_in, net_imp, net_out, net_bad;
+extern	int net_in, net_imp, net_out, net_bad, net_msgs;
 extern	int echo_in, echo_imp, echo_out, echo_bad, echo_dupe;
 extern	int email_in, email_imp, email_out, email_bad;
 extern	int news_in, news_imp, news_out, news_bad, news_dupe;
@@ -214,8 +215,8 @@ void die(int onsig)
     if (tic_imp)
 	CreateSema((char *)"reqindex");
 
-    if (net_in + net_imp + net_out + net_bad)
-	Syslog('+', "Netmail  [%4d] import [%4d] out [%4d] bad [%4d]", net_in, net_imp, net_out, net_bad);
+    if (net_in + net_imp + net_out + net_bad + net_msgs)
+	Syslog('+', "Netmail  [%4d] import [%4d] out [%4d] bad [%4d] msgs [%4d]", net_in, net_imp, net_out, net_bad, net_msgs);
     if (email_in + email_imp + email_out + email_bad)
 	Syslog('+', "Email    [%4d] import [%4d] out [%4d] bad [%4d]", email_in, email_imp, email_out, email_bad);
     if (echo_in + echo_imp + echo_out + echo_bad + echo_dupe)
@@ -529,6 +530,7 @@ int main(int argc, char **argv)
 	 */
 	Loop = TRUE;
 	do {
+	    toss_msgs();
 	    Hatch();
 	    switch (Tic()) {
 		case -1:    die(MBERR_OK);
@@ -544,11 +546,14 @@ int main(int argc, char **argv)
 	if (IsSema((char *)"newnews"))
 	    RemoveSema((char *)"newnews");
     }
-    if (do_scan)
+    if (do_scan) {
+	toss_msgs();
 	ScanMail(do_full);
+    }
     if (do_toss) {
 	if (IsSema((char *)"mailin"))
 	    RemoveSema((char *)"mailin");
+	toss_msgs();
 	if (TossMail() == FALSE)
 	    die(MBERR_OK);
     }
@@ -564,6 +569,7 @@ int main(int argc, char **argv)
 		 */
 		Loop = TRUE;
 		do {
+		    toss_msgs();
 		    Hatch();
 		    switch (Tic()) {
 			case -1:    die(MBERR_OK);
@@ -575,6 +581,7 @@ int main(int argc, char **argv)
 		} while (Loop);
 	    }
 	    if (do_toss) {
+		toss_msgs();
 		TossMail();
 	    }
 	}

@@ -33,4 +33,43 @@
 #include "msg.h"
 
 
+extern int	net_msgs;
+
+
+int toss_msgs(void)
+{
+    DIR			*dp;
+    struct dirent	*de;
+    int			files = 0;
+
+    if ((dp = opendir(CFG.msgs_path)) == NULL) {
+	WriteError("$Can't opendir %s", CFG.msgs_path);
+	return -1;
+    }
+
+    Syslog('m', "Process *.msg in %s", CFG.msgs_path);
+    IsDoing("Get *.msgs");
+
+    while ((de = readdir(dp))) {
+	if ((de->d_name[0] != '.') && (strstr(de->d_name, ".msg"))) {
+	    if (IsSema((char *)"upsalarm")) {
+		Syslog('+', "Detected upsalarm semafore, aborting toss");
+		break;
+	    }
+
+	    Syslog('m', "Process %s", de->d_name);
+	    files++;
+
+	}
+    }
+    closedir(dp);
+
+    if (files) {
+	Syslog('+',"Processed %d msg messages", files);
+    }
+
+    net_msgs += files;
+    return files;
+}
+
 
