@@ -153,6 +153,8 @@ void load_maincfg(void)
         sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
 #elif defined(__linux__)
         sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
+#elif defined(__FreeBSD__)
+	sprintf(CFG.sysdomain, "%s", un.nodename);	/* No domain in FreeBSD */
 #else
 #error "Don't know un.domainname on this OS"
 #endif
