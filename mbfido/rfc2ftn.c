@@ -64,8 +64,6 @@ static int	removemime;
 static int	removemsgid;
 static int	removeref;
 static int	removeinreply;
-static int	removesupersedes;
-static int	removeapproved;
 static int	removereplyto;
 static int	removereturnto;
 
@@ -85,7 +83,7 @@ extern	char	*replyaddr;
 /*
  *  Internal functions
  */
-int	needputrfc(rfcmsg *);
+int	needputrfc(rfcmsg *, int);
 
 
 
@@ -207,8 +205,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     removemsgid      = FALSE;
     removeref        = FALSE;
     removeinreply    = FALSE;
-    removesupersedes = FALSE;
-    removeapproved   = FALSE;
     removereplyto    = TRUE;
     removereturnto   = TRUE;
     ftnorigin = fmsg->ftnorigin;
@@ -227,11 +223,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	 * Check for mime to remove.
 	 */
 	if ((strncasecmp(p, "text/plain", 10) == 0) && ((q == NULL) || 
-		    (strncasecmp(q,"7bit",4) == 0) || (strncasecmp(q,"8bit",4) == 0)))
-	    removemime=1; /* no need in MIME headers */
+		    (strncasecmp(q,"7bit",4) == 0) || (strncasecmp(q,"8bit",4) == 0))) {
+	    removemime = TRUE; /* no need in MIME headers */
+	    Syslog('m', "removemime=%s", removemime ? "True":"False");
+	}
     }
-    if (removemime)
-	Syslog('m', "removemime=%s", removemime ? "True":"False");
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -248,24 +244,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     }
     if (removeref)
 	Syslog('m', "removeref = %s", removeref ? "True":"False");
-
-    if ((p = hdr((char *)"Supersedes",msg)))
-	removesupersedes = chkftnmsgid(p);
-    if (removesupersedes)
-	Syslog('m', "removesupersedes = %s", removesupersedes ? "True":"False");
-
-    if ((p = hdr((char *)"Approved",msg))) {
-	while (*p && isspace(*p)) 
-	    p++;
-	if ((q = strchr(p,'\n'))) 
-	    *q='\0';
-//	if (newsmode && strlen(msgs.Moderator) && (strcasestr(msgs.Moderator,p)))
-//	    removeapproved = TRUE;
-	if (q) 
-	    *q='\n';
-    }
-    if (removeapproved)
-	Syslog('m', "removeapproved = %s", removeapproved ? "True":"False");
 
     if ((p = hdr((char *)"Reply-To",msg))) {
 	removereplyto = FALSE;
@@ -325,7 +303,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
     if ((fmsg->origin) && (strlen(fmsg->origin) > i))
 	fmsg->origin[i]='\0';
-    forbidsplit = (ftnorigin || (hdr((char *)"X-FTN-Split",msg)));
+    forbidsplit = (ftnorigin || ((p = hdr((char *)"X-FTN-Split",msg))  && (strcasecmp(p," already\n") == 0)));
     needsplit = 0;
     splitpart = 0;
     hdrsize = 20;
@@ -431,15 +409,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 	}
 
-//	if (getchrs(outcode) != NULL) {
-//	    hdrsize += 8 + strlen(getchrs(outcode));
-//	    fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
-//	    if (html_message) {
-//		hdrsize += 9;
-//		fprintf(ofp, "\1HTML: 5\n");
-//	    }
-//	}
-
 	if (CFG.allowcontrol && (!hdr((char *)"X-FTN-ACUPDATE",msg)) && (p=hdr((char *)"Control",msg))) {
 	    if (strstr(p,"cancel")) {
 		ftnmsgid(p,&acup_a,&acup_n,fmsg->area);
@@ -535,7 +504,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 
 	    for (tmp = msg; tmp; tmp = tmp->next) {
-		if ((needputrfc(tmp) == 1)) {
+		if ((needputrfc(tmp, newsmode) == 1)) {
 		    if (strcasestr((char *)"X-Origin-Newsgroups",tmp->key)) {
 			hdrsize += 10+strlen(tmp->val);
 			fprintf(ofp,"\1RFC-Newsgroups:");
@@ -543,14 +512,13 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			hdrsize += strlen(tmp->key)+strlen(tmp->val);
 			fprintf(ofp,"\1RFC-%s:",tmp->key);
 		    }
-//		    kludgewrite(hdrconv(tmp->val, incode, outcode),ofp);
 		    kludgewrite(tmp->val, ofp);
 		}
 	    }
 
 	    rfcheaders=0;
 	    for (tmp=msg;tmp;tmp=tmp->next) {
-		if ((needputrfc(tmp) > 1)) {
+		if ((needputrfc(tmp, newsmode) > 1)) {
 		    rfcheaders++;
 		    if (strcasestr((char *)"X-Origin-Newsgroups",tmp->key)) {
 			hdrsize += 10+strlen(tmp->val);
@@ -560,7 +528,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			fprintf(ofp,"%s:",tmp->key);
 		    }
 		    charwrite(tmp->val, ofp);
-//		    charwrite(hdrconv(tmp->val, incode, outcode),ofp);
 		}
 	    }
 
@@ -568,8 +535,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		charwrite((char *)"\n",ofp);
 	    if ((hdr((char *)"X-FTN-SOT",msg)) || (sot_kludge))
 		fprintf(ofp,"\1SOT:\n");
-//	    if ((splitpart == 0) && (hdr((char *)"X-PGP-Signed",msg)))
-//		fprintf(ofp,PGP_SIGNED_BEGIN"\n");
 	}
 	if (replyaddr) {
 	    replyaddr = NULL;
@@ -581,56 +546,16 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	} else if ((p=hdr((char *)"X-Body-Start",msg))) {
 	    datasize += strlen(p);
 	    charwrite(p, ofp);
-//	    if (qp_or_base64==1)
-//		charwrite(strkconv(qp_decode(p), incode, outcode), ofp);
-//	    else if (qp_or_base64==2)
-//		charwrite(strkconv(b64_decode(p), incode, outcode), ofp);
-//	    else
-//		charwrite(strkconv(p, incode, outcode), ofp);
 	}
-//Syslog('-', "14");
 	while (!(needsplit=(!forbidsplit) && (((splitpart && (datasize > (CFG.new_split * 1024))) ||
 		      (!splitpart && ((datasize+hdrsize) > (CFG.new_split * 1024)))))) && (bgets(temp,4096-1,fp))) {
-//	    Striplf(temp);
-	    Syslog('-', "%d", strlen(temp));
-//	    if (*(temp + strlen(temp)) != '\0') {
-		Syslog('-', "%d", (*(temp + strlen(temp))));
-//	    }
-	    Syslog('-', "14a \"%s\"", temp);
 	    datasize += strlen(temp);
 	    charwrite(temp, ofp);
-//	    if (qp_or_base64==1)
-//		charwrite(strkconv(qp_decode(temp), incode, outcode), ofp);
-//	    else if (qp_or_base64==2)
-//		charwrite(strkconv(b64_decode(temp), incode, outcode), ofp);
-//	    else
-//		charwrite(strkconv(temp, incode, outcode), ofp);
 	}
-//Syslog('-', "15");
+
 	if (needsplit) {
 	    fprintf(ofp,"\n * Message split, to be continued *\n");
 	    splitpart++;
-//	} else if ((p=hdr((char *)"X-PGP-Signed",msg))) {
-//	    fprintf(ofp,PGP_SIG_BEGIN"\n");
-//	    if ((q=hdr((char *)"X-PGP-Version",msg))) {
-//		fprintf(ofp,"Version:");
-//		charwrite(q,ofp);
-//	    }
-//	    if ((q=hdr((char *)"X-PGP-Charset",msg))) {
-//		fprintf(ofp,"Charset:");
-//		charwrite(q,ofp);
-//	    }
-//	    if ((q=hdr((char *)"X-PGP-Comment",msg))) {
-//		fprintf(ofp,"Comment:");
-//		charwrite(q,ofp);
-//	    }
-//	    fprintf(ofp,"\n");
-//	    p=xstrcpy(p);
-//	    q=strtok(p," \t\n");
-//	    fprintf(ofp,"%s\n",q);
-//	    while ((q=(strtok(NULL," \t\n"))))
-//		fprintf(ofp,"%s\n",q);
-//	    fprintf(ofp,PGP_SIG_END"\n");
 	}
 	if ((p=hdr((char *)"X-FTN-EOT",msg)) || (eot_kludge))
 	    fprintf(ofp,"\1EOT:\n");
@@ -790,7 +715,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
  *  1   make kludge
  *  >1  pass
  */
-int needputrfc(rfcmsg *msg)
+int needputrfc(rfcmsg *msg, int newsmode)
 {
 	faddr	*ta;
 
@@ -832,11 +757,11 @@ int needputrfc(rfcmsg *msg)
 	}
 	if (!strcasecmp(msg->key,"Return-Path")) return 1;
 	if (!strcasecmp(msg->key,"Xref")) return 0;
-	if (!strcasecmp(msg->key,"Approved")) return removeapproved ? -1:1; // Was -1:2 18-04-2002 MB.
+	if (!strcasecmp(msg->key,"Approved")) return 1;
 	if (!strcasecmp(msg->key,"X-URL")) return 0;
 	if (!strcasecmp(msg->key,"Return-Receipt-To")) return removereturnto? 0:1;
 	if (!strcasecmp(msg->key,"Notice-Requested-Upon-Delivery-To")) return 0;
-	if (!strcasecmp(msg->key,"Received")) return ftnorigin ?0:1;
+	if (!strcasecmp(msg->key,"Received")) return newsmode?0:2;
 	if (!strcasecmp(msg->key,"From")) {
 		if ((ta = parsefaddr(msg->val))) {
 			tidy_faddr(ta);
@@ -874,6 +799,11 @@ int needputrfc(rfcmsg *msg)
 	if (!strcasecmp(msg->key,"Comment-To")) return 0;
 	if (!strcasecmp(msg->key,"X-Comment-To")) return 0;
 	if (!strcasecmp(msg->key,"X-Apparently-To")) return 0;
+	if (!strcasecmp(msg->key,"X-Originating-IP")) return 0;
+	if (!strcasecmp(msg->key,"X-Virus-Scanned")) return 0;
+	if (!strcasecmp(msg->key,"X-AntiVirus")) return 0;
+	if (!strcasecmp(msg->key,"X-Delivery-Agent")) return 0;
+	if (!strcasecmp(msg->key,"X-Virtual-Domain")) return 0;
 	if (!strcasecmp(msg->key,"Apparently-To")) return 0;
 	if (!strcasecmp(msg->key,"X-Fidonet-Comment-To")) return 0;
 	if (!strcasecmp(msg->key,"Keywords")) return 2;
@@ -886,7 +816,7 @@ int needputrfc(rfcmsg *msg)
 	if (!strcasecmp(msg->key,"Content-Description")) return 2;
 	if (!strcasecmp(msg->key,"Message-ID")) return removemsgid ?0:1;
 	if (!strcasecmp(msg->key,"References")) return removeref ?0:1;
-	if (!strcasecmp(msg->key,"Supersedes")) return removesupersedes ?0:1;
+	if (!strcasecmp(msg->key,"Supersedes")) return 1;
 	if (!strcasecmp(msg->key,"Distribution")) return ftnorigin ?0:0;
 	if (!strcasecmp(msg->key,"X-Newsreader")) return 0;
 	if (!strcasecmp(msg->key,"X-Mailer")) return 0;

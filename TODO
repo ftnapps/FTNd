@@ -151,8 +151,6 @@ mbtask:
 	   and then hangs up (at least with telnet), mbtask aborts.
 
 mbsetup:
-	U: In menu 9.2 moving a valid area to area 0 will crash mbsetup.
-
 	N: Add a check for double areatag names.
 
 	U: PickAka function lets mbsetup crash if domain is 12 characters

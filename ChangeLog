@@ -37,6 +37,12 @@ v0.37.01	14-Jan-2003.
 	mbfido:
 		Removed all code for charset translation.
 
+	mbsetup:
+		Added protection against wrong database sizes depending on
+		global settings.
+		When moving a message area to area zero mbsetup doesn't crash
+		anymore.
+
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003
 
