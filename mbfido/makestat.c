@@ -41,6 +41,8 @@
 #include "makestat.h"
 
 
+extern int  do_quiet;
+
 
 
 FILE *newpage(char *, FILE *);
@@ -124,6 +126,11 @@ void MakeStat(void)
 	return;
     }
 
+    if (!do_quiet) {
+	printf("\rMaking statistical HTML pages");
+	fflush(stdout);
+    }
+    
     Syslog('+', "Start making statistic HTML pages");
     name = calloc(128, sizeof(char));
     if (Miy == 0)
@@ -166,7 +173,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
-	
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
@@ -211,6 +221,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
@@ -245,6 +259,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/etc/tic.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
@@ -280,6 +298,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
@@ -326,6 +348,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) == NULL) {
 	WriteError("$Can't open %s", name);
@@ -369,6 +395,10 @@ void MakeStat(void)
 	fclose(fg);
     }
 
+    if (!do_quiet) {
+	printf(".");
+	fflush(stdout);
+    }
     sprintf(name, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
     if ((fg = fopen(name, "r")) != NULL ) {
 	if ((fi = OpenMacro("html.sysinfo", 'E', TRUE)) == NULL) {
@@ -396,6 +426,11 @@ void MakeStat(void)
 
     free(name);
     Syslog('+', "Finished making statistic HTML pages");
+
+    if (!do_quiet) {
+	printf("\r                                    \r");
+	fflush(stdout);
+    }
 }
 
 

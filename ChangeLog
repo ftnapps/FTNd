@@ -2,6 +2,7 @@ $Id$
 
 v0.39.3		26-Nov-2003
 
+	WARNING: DO NOT USE, PROBLEMS EXIST IN THIS CVS VERSION !!!!!!!!!!!!
 	general:
 		Since this version Posix threads are being used, please let
 		me know if this doesn't compile on you system.
@@ -23,6 +24,9 @@ v0.39.3		26-Nov-2003
 
 	libmsgbase:
 		In JAM_Open replaced a strcpy with memmove.
+
+	libdbase:
+		Code cleanup in dbdupe.
 
 	mbcico:
 		Dropped binkp CRC support because it will be incompatible with

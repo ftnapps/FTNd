@@ -57,7 +57,9 @@ void InitDupes()
 {
     int	i;
 
-    Syslog('N', "Init Dupes");
+    Syslog('n', "Init Dupes");
+    memset(dupes, 0, sizeof(dupes));
+
     for (i = 0; i < 3; i++) {
 	dupes[i].crcs= NULL;
 	dupes[i].loaded = FALSE;
@@ -104,6 +106,7 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	else
 	    dupes[idx].peak = max + 5000;
 	dupes[idx].crcs = (unsigned long *)malloc(dupes[idx].peak * sizeof(unsigned long));
+	memset(dupes[idx].crcs, 0, dupes[idx].peak * sizeof(unsigned long));
 
 	/*
 	 *  Load dupe records
