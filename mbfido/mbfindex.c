@@ -502,7 +502,7 @@ void HtmlIndex(char *Lang)
     int			AreaNr = 0, j, k, x = 0;
     int			aTotal = 0, inArea = 0, filenr;
     char		*sAreas, *fn;
-    char		linebuf[1024], outbuf[1024], desc[6400];
+    char		linebuf[1024], outbuf[1024], desc[6400], namebuf[1024];
     time_t		last = 0L, later;
     long		fileptr = 0, fileptr1 = 0;
     struct _fdbarea	*fdb_area = NULL;
@@ -709,12 +709,14 @@ void HtmlIndex(char *Lang)
 		    Syslog('+', "Removed obsolete %s", linebuf);
 		}
 
+		strcpy(linebuf, area.Name);
+		html_massage(linebuf, namebuf);
 		sprintf(linebuf, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
 		if (aSize > 1048576)
 		    sprintf(outbuf, "%ld Mb.", aSize / 1048576);
 		else
 		    sprintf(outbuf, "%ld Kb.", aSize / 1024);
-		MacroVars("efghi", "dssds", AreaNr, linebuf, area.Name, aTotal, outbuf);
+		MacroVars("efghi", "dssds", AreaNr, linebuf, namebuf, aTotal, outbuf);
 		if (last == 0L)
 		    MacroVars("j", "s", "&nbsp;");
 		else

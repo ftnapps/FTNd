@@ -26,6 +26,10 @@ v0.61.4		11-Aug-2004
 		Outlook email addresses are parsed so that we can reply via
 		smtp.
 
+	mbfile:
+		The html index now uses html named character entities on the
+		area names on the main index page.
+
 	mbindex:
 		Fixed compiling pointlists where on the Boss line there is no
 		last comma on the line.
