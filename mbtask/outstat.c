@@ -57,20 +57,21 @@ static struct _alist
 } *alist = NULL;
 
 
-#define F_NORMAL 1
-#define F_CRASH  2
-#define	F_IMM	 4
-#define F_HOLD   8
-#define F_FREQ  16
-#define	F_POLL  32
-
+#define F_NORMAL 0x0001
+#define F_CRASH  0x0002
+#define	F_IMM	 0x0004
+#define F_HOLD   0x0008
+#define F_FREQ	 0x0010
+#define	F_POLL   0x0020
+#define	F_ISFLO	 0x0040
+#define	F_ISPKT	 0x0080
 
 
 int outstat()
 {
 	int		rc, first = TRUE;
 	struct _alist	*tmp, *old;
-	char		flstr[6];
+	char		flstr[9];
 	char		temp[81];
 
 	tasklog('+', "Scanning outbound");
@@ -91,16 +92,18 @@ int outstat()
 
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor      Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
+			tasklog('+', "Flavor         Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
 			first = FALSE;
 		}
-		strcpy(flstr,"......");
+		strcpy(flstr,"...... ..");
 		if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
 		if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
 		if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
 		if ((tmp->flavors) & F_HOLD  ) flstr[3]='H';
 		if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
 		if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
+		if ((tmp->flavors) & F_ISPKT ) flstr[7]='M';
+		if ((tmp->flavors) & F_ISFLO ) flstr[8]='F';
 
 		sprintf(temp, "%s  %8lu %08x %08x %08x %08x %5d %6d %s", flstr, (long)tmp->size, 
 			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags, 
@@ -188,6 +191,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		(*tmp)->time = st.st_mtime;
 
 	if (isflo == OUT_FLO) {
+		(*tmp)->flavors |= F_ISFLO;
 		if ((fp = fopen(fname,"r"))) {
 			while (fgets(buf, sizeof(buf) - 1, fp)) {
 				if (*(p = buf + strlen(buf) - 1) == '\n') 
@@ -236,6 +240,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 
 	} else if (isflo == OUT_PKT) {
 		(*tmp)->size += st.st_size;
+		(*tmp)->flavors |= F_ISPKT;
 	} else if (isflo == OUT_REQ) {
 		(*tmp)->flavors |= F_FREQ;
 	} else if (isflo == OUT_POL) {
