@@ -6,7 +6,7 @@ include Makefile.global
 OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  INSTALL.in Makefile Makefile.global.in NEWS \
 		  ChangeLog_1998 ChangeLog_1999 ChangeLog_2000 ChangeLog_2001 \
-		  README SETUP.sh TODO UPGRADE aclocal.m4 \
+		  ChangeLog_2002 README SETUP.sh TODO UPGRADE aclocal.m4 \
 		  checkbasic config.h.in configure configure.in paths.h.in
 TARFILE		= ${PACKAGE}-${VERSION}.tar.gz
 
