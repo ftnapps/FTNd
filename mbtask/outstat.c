@@ -76,8 +76,8 @@ int load_node(fidoaddr n)
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
 	j++;
 	for (i = 0; i < 20; i++) {
-	    if ((n.zone == nodes.Aka[i].zone) || (n.net == nodes.Aka[i].net) ||
-		(n.node == nodes.Aka[i].node) || (n.point == nodes.Aka[i].point)) {
+	    if ((n.zone == nodes.Aka[i].zone) && (n.net == nodes.Aka[i].net) &&
+		(n.node == nodes.Aka[i].node) && (n.point == nodes.Aka[i].point)) {
 		fclose(fp);
 		free(temp);
 		tasklog('-' , "Node record %d, aka nr %d", j, i+1);
