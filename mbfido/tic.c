@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/tic.c
+ * $Id$
  * Purpose ...............: Process .tic files
- * Last modification date : 15-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -164,10 +163,10 @@ int Tic()
 int LoadTic(char *inb, char *tfn)
 {
 	FILE	*tfp;
-	char	*Temp, *Buf, *Log = NULL, *Realname;
+	char	*Temp, *Buf, *Log = NULL;
 	int	i, j, rc;
 	fa_list	*sbl = NULL;
-	int	Kwd, DescCnt = FALSE;
+	int	DescCnt = FALSE;
 
 	if (CFG.slow_util && do_quiet)
 		usleep(1);
@@ -187,116 +186,80 @@ int LoadTic(char *inb, char *tfn)
 
 	Temp = calloc(256, sizeof(char));
 	Buf  = calloc(256, sizeof(char));
-	Realname = calloc(PATH_MAX, sizeof(char));
 
 	while ((fgets(Buf, 256, tfp)) != NULL) {
-
 		/*
 		 * Remove all garbage from the .TIC file.
 		 */
 		Temp[0] = '\0';
 		j = 0;
 		for (i = 0; i < strlen(Buf); i++)
-			if ((Buf[i] >= ' ') || (Buf[i] < 0)) {
+			if (isprint(Buf[i])) {
 				Temp[j] = Buf[i];
 				j++;
 			}
 		Temp[j] = '\0';
 
-		Kwd = FALSE;
+		if (strncasecmp(Temp, "hatch", 5) == 0) {
+			TIC.TicIn.Hatch = TRUE;
 
-		if (strncasecmp(Temp, "hatch", 5) == 0)
-			Kwd = TIC.Hatch = TRUE;
+		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "pth ", 4) == 0)) {
+			sprintf(TIC.TicIn.Pth, "%s/", Temp+4);
 
-		if (TIC.Hatch) {
-			if (strncasecmp(Temp, "pth ", 4) == 0) {
-				sprintf(TIC.FilePath, "%s/", Temp+4);
-				Kwd = TRUE;
-			}
+		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "nomove", 6) == 0)) {
+			TIC.TicIn.NoMove = TRUE;
 
-			if (strncasecmp(Temp, "nomove", 6) == 0)
-				Kwd = TIC.NoMove = TRUE;
+		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "hatchnew", 8) == 0)) {
+			TIC.TicIn.HatchNew = TRUE;
 
-			if (strncasecmp(Temp, "hatchnew", 8) == 0)
-				Kwd = TIC.HatchNew = TRUE;
-		}
+		} else if (strncasecmp(Temp, "area ", 5) == 0) {
+			strncpy(TIC.TicIn.Area, Temp+5, 20);
+			strncpy(T_File.Echo, Temp+5, 20);
 
-		if (strncasecmp(Temp, "area ", 5) == 0) {
-			strcpy(TIC.TicIn.Area, Temp+5);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "origin ", 7) == 0) {
+			strncpy(TIC.TicIn.Origin, Temp+7, 80);
+			strncpy(T_File.Origin, Temp+7, 80);
 
-		if (strncasecmp(Temp, "origin ", 7) == 0) {
-			strcpy(TIC.TicIn.Origin, Temp+7);
-			strcpy(T_File.Origin, Temp+7);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "from ", 5) == 0) {
+			strncpy(TIC.TicIn.From, Temp+5, 80);
+			strncpy(T_File.From, Temp+5, 80);
 
-		if (strncasecmp(Temp, "from ", 5) == 0) {
-			strcpy(TIC.TicIn.From, Temp+5);
-			strcpy(T_File.From, Temp+5);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "file ", 5) == 0) {
+			strncpy(TIC.TicIn.File, Temp+5, 80);
 
-		if (strncasecmp(Temp, "file ", 5) == 0) {
-			sprintf(Realname, "%s", Temp+5);  /* Moved here for test Michiel/Redy */
-			if (TIC.Hatch)
-				strcpy(TIC.TicIn.OrgName, Temp+5);
-			else
-				strcpy(TIC.TicIn.OrgName, tl(Temp+5));
-//			sprintf(Realname, "%s", Temp+5); /* Temp removed */
-			strcpy(TIC.NewName, TIC.TicIn.OrgName);
-			strcpy(T_File.Name, TIC.TicIn.OrgName);
-			Kwd = TRUE;
-		}
-
-		if (strncasecmp(Temp, "fullname", 8) == 0) {
-			strcpy(TIC.TicIn.LName, Temp+8);
+		} else if (strncasecmp(Temp, "fullname ", 9) == 0) {
+			strncpy(TIC.TicIn.FullName, Temp+9, 80);
 			Syslog('f', "Long filename: %s", TIC.TicIn.LName);
-		}
- 
-		if (strncasecmp(Temp, "created ", 8) == 0) {
-			strcpy(TIC.TicIn.Created, Temp+8);
-			Kwd = TRUE;
-		}
 
-		if (strncasecmp(Temp, "magic ", 6) == 0) {
-			strcpy(TIC.TicIn.Magic, Temp+6);
-			strcpy(T_File.Magic, Temp+6);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "created ", 8) == 0) {
+			strncpy(TIC.TicIn.Created, Temp+8, 80);
 
-		if (strncasecmp(Temp, "crc ", 4) == 0) {
+		} else if (strncasecmp(Temp, "magic ", 6) == 0) {
+			strncpy(TIC.TicIn.Magic, Temp+6, 20);
+			strncpy(T_File.Magic, Temp+6, 20);
+
+		} else if (strncasecmp(Temp, "crc ", 4) == 0) {
 			TIC.Crc_Int = strtoul(Temp+4, (char **)NULL, 16);
 			sprintf(TIC.TicIn.Crc, "%08lX", TIC.Crc_Int);
 			strcpy(T_File.Crc, TIC.TicIn.Crc);
-			Kwd = TRUE;
-		}
 
-		if (strncasecmp(Temp, "pw ", 3) == 0) {
-			strcpy(TIC.TicIn.Pw, Temp+3);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "pw ", 3) == 0) {
+			strncpy(TIC.TicIn.Pw, Temp+3, 20);
 
-		if (strncasecmp(Temp, "replaces ", 9) == 0) {
-			strcpy(TIC.TicIn.Replace, Temp+9);
-			strcpy(T_File.Replace, Temp+9);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "replaces ", 9) == 0) {
+			strncpy(TIC.TicIn.Replace, Temp+9, 80);
+			strncpy(T_File.Replace, Temp+9, 80);
 
-		if (strncasecmp(Temp, "desc ", 5) == 0) {
+		} else if (strncasecmp(Temp, "desc ", 5) == 0) {
 			if (!DescCnt) {
-				strcpy(TIC.TicIn.Desc, Temp+5);
-				strcpy(T_File.Desc, TIC.TicIn.Desc);
-				Kwd = TRUE;
+				strncpy(TIC.TicIn.Desc, Temp+5, 255);
+				strncpy(T_File.Desc, TIC.TicIn.Desc, 255);
 				DescCnt = TRUE;
 			} else {
 				Syslog('!', "More than one \"Desc\" line");
 			}
-		}
-
-		if (strncasecmp(Temp, "path ", 5) == 0) {
-			strcpy(TIC.TicIn.Path[TIC.TicIn.TotPath], Temp+5);
+		} else if (strncasecmp(Temp, "path ", 5) == 0) {
+			strncpy(TIC.TicIn.Path[TIC.TicIn.TotPath], Temp+5, 80);
 			TIC.TicIn.TotPath++;
 			TIC.Aka.zone = atoi(strtok(Temp+5, ":"));
 			TIC.Aka.net  = atoi(strtok(NULL, "/"));
@@ -307,69 +270,46 @@ int LoadTic(char *inb, char *tfn)
 				    (CFG.aka[i].net   == TIC.Aka.net) &&
 				    (CFG.aka[i].node  == TIC.Aka.node) &&
 				    (!CFG.aka[i].point))
-					TIC.PathErr = TRUE;
-			Kwd = TRUE;
-		}
-
-		if (strncasecmp(Temp, "seenby ", 7) == 0) {
+					TIC.TicIn.PathError = TRUE;
+		} else if (strncasecmp(Temp, "seenby ", 7) == 0) {
 			fill_list(&sbl, Temp+7, NULL);
-			Kwd = TRUE;
-		}
 
-		if (strncasecmp(Temp, "areadesc ", 9) == 0) {
-			strcpy(TIC.TicIn.AreaDesc, Temp+9);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "areadesc ", 9) == 0) {
+			strncpy(TIC.TicIn.AreaDesc, Temp+9, 60);
 
-		if (strncasecmp(Temp, "to ", 3) == 0) {
+		} else if (strncasecmp(Temp, "to ", 3) == 0) {
 			/*
 			 * Drop this one
 			 */
-			Kwd = TRUE;
-		}
-
-		if (strncasecmp(Temp, "size ", 5) == 0) {
+		} else if (strncasecmp(Temp, "size ", 5) == 0) {
 			TIC.TicIn.Size = atoi(Temp+5);
-			Kwd = TRUE;
-		}
 
-		if (strncasecmp(Temp, "date ", 5) == 0) {
+		} else if (strncasecmp(Temp, "date ", 5) == 0) {
 			Syslog('f', "Date: %s", Temp+5);
-			Kwd = TRUE;
-		}
 
-		if (strncasecmp(Temp, "cost ", 5) == 0) {
-			TIC.TicIn.UplinkCost = atoi(Temp+5);
-			Kwd = TRUE;
-		}
+		} else if (strncasecmp(Temp, "cost ", 5) == 0) {
+			TIC.TicIn.Cost = atoi(Temp+5);
 
-		if (strncasecmp(Temp, "ldesc ", 6) == 0) {
+		} else if (strncasecmp(Temp, "ldesc ", 6) == 0) {
 			if (TIC.TicIn.TotLDesc < 25) {
-				Temp[86] = '\0';
-				strcpy(TIC.TicIn.LDesc[TIC.TicIn.TotLDesc], Temp+6);
+				strncpy(TIC.TicIn.LDesc[TIC.TicIn.TotLDesc], Temp+6, 80);
 				TIC.TicIn.TotLDesc++;
 			}
-			Kwd = TRUE;
-		}
-
-		/*
-		 * If we didn't find a matching keyword it is a line we
-		 * will just remember and forward if there are downlinks.
-		 */
-		if (!Kwd) {
+		} else if (strncasecmp(Temp, "destination ", 12) != 0) {
 			/*
-			 * Consider Destination keyword not as a passthru
-			 * line and drop it.
+			 * Drop this one
 			 */
-			if (strncasecmp(Temp, "destination ", 12) != 0) {
-				if (TIC.TicIn.Unknowns < 25) {
-					strcpy(TIC.TicIn.Unknown[TIC.TicIn.Unknowns], Temp);
-					TIC.TicIn.Unknowns++;
-				}
+		} else {
+			/*
+			 * If we didn't find a matching keyword it is a line we
+			 * will just remember and forward if there are downlinks.
+			 */
+			if (TIC.TicIn.Unknowns < 25) {
+				strcpy(TIC.TicIn.Unknown[TIC.TicIn.Unknowns], Temp);
+				TIC.TicIn.Unknowns++;
 			}
 		}
 	}
-
 	fclose(tfp);
 
 	if (TIC.TicIn.TotLDesc) {
@@ -386,7 +326,7 @@ int LoadTic(char *inb, char *tfn)
 	if (TIC.TicIn.TotLDesc) {
 		T_File.TotLdesc = TIC.TicIn.TotLDesc;
 		for (i = 0; i <= TIC.TicIn.TotLDesc; i++)
-			strcpy(T_File.LDesc[i], TIC.TicIn.LDesc[i]);
+			strncpy(T_File.LDesc[i], TIC.TicIn.LDesc[i], 48);
 	}
 
 	/*
@@ -404,7 +344,7 @@ int LoadTic(char *inb, char *tfn)
 	/*
 	 * Show in logfile what we are doing
 	 */
-	Syslog('+', "Processing %s, %s area %s from %s", TIC.TicName, TIC.TicIn.OrgName, TIC.TicIn.Area, TIC.TicIn.From);
+	Syslog('+', "Processing %s, %s area %s from %s", TIC.TicName, TIC.TicIn.File, TIC.TicIn.Area, TIC.TicIn.From);
 	Syslog('+', "+- %s", TIC.TicIn.Created);
 	Log = NULL;
 
@@ -425,13 +365,13 @@ int LoadTic(char *inb, char *tfn)
 		Log = NULL;
 	}
 
-	sprintf(Temp, "%s", TIC.TicIn.From);
+	strcpy(Temp, TIC.TicIn.From);
 	TIC.Aka.zone = atoi(strtok(Temp, ":"));
 	TIC.Aka.net  = atoi(strtok(NULL, "/"));
 	TIC.Aka.node = atoi(strtok(NULL, "@\0"));
 	if (SearchFidonet(TIC.Aka.zone))
 		strcpy(TIC.Aka.domain, fidonet.domain);
-	sprintf(Temp, "%s", TIC.TicIn.Origin);
+	strcpy(Temp, TIC.TicIn.Origin);
 	TIC.OrgAka.zone = atoi(strtok(Temp, ":"));
 	TIC.OrgAka.net  = atoi(strtok(NULL, "/"));
 	TIC.OrgAka.node = atoi(strtok(NULL, "@\0"));
@@ -441,9 +381,8 @@ int LoadTic(char *inb, char *tfn)
 	free(Buf);
 
 	tic_in++;
-	rc = ProcessTic(sbl, Realname);
+	rc = ProcessTic(sbl);
 	tidy_falist(&sbl);
-	free(Realname);
 	
 	return rc;
 }

@@ -105,6 +105,7 @@ int ProcessTic(fa_list *sbl, char *Realname)
 	 */
 	Temp2 = calloc(PATH_MAX, sizeof(char));
 	sprintf(Temp2, "%s%s", TIC.FilePath, Realname);
+	Syslog('f', "Realname with path \"%s\"", Temp2);
 	if (file_exist(Temp, R_OK) && !file_exist(Temp2, R_OK)) {
 		if (rename(Temp2, Temp))
 			WriteError("$Rename %s to %s failed", Temp2, Temp);

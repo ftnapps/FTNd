@@ -1269,7 +1269,7 @@ struct	_nodes {
 	unsigned	PackNetmail	: 1;	/* Pack netmail		   */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility   */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name */
-	unsigned	xFNC		: 1;	/* FileName Conversion	   */
+	unsigned	FNC		: 1;	/* Node needs 8.3 filenames*/
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	   */
@@ -1504,7 +1504,7 @@ struct	_filerecord {
 	char		Origin[24];		/* Origin system	   */
 	char		From[24];		/* From system		   */
 	char		Crc[9];			/* CRC 32		   */
-	char		Replace[13];		/* Replace file		   */
+	char		Replace[81];		/* Replace file		   */
 	char		Magic[21];		/* Magic name		   */
 	char		Desc[256];		/* Short description	   */
 	char		LDesc[25][49];		/* Long description	   */

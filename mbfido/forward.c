@@ -45,7 +45,7 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-	char		*subject = NULL, *fwdfile = NULL, *ticfile = NULL, fname[128];
+	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[128];
 	FILE		*fp, *net;
 	char		flavor;
 	faddr		*dest, *route, *Fa;
@@ -170,7 +170,16 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 				subject = xstrcpy(TIC.TicIn.OrgName);
 			else
 				subject = xstrcpy(TIC.NewName);
-			fprintf(fp, "File %s\r\n", tu(subject));
+			if (nodes.FNC) {
+			    temp = xstrcpy(subject);
+			    name_mangle(temp);
+			    fprintf(fp, "File %s\r\n", temp); // mbcico will send the file with this name
+			    fprintf(fp, "Fullname %s\r\n", subject);
+			    free(temp);
+			} else {
+			    fprintf(fp, "File %s\r\n", tu(subject));
+			    fprintf(fp, "Fullname %s\r\n", subject);
+			}
 			free(subject);
 			fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 			fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);

@@ -105,7 +105,7 @@ int CheckHatch(char *temp)
 {
 	DIR		*dp;
 	struct dirent	*de;
-	char		*fn, tf[81], tmp[4];
+	char		*fn, tf[81], tmp[4], *temp2;
 	int		i, Match, hatched = FALSE;
 	FILE		*Tf;
 
@@ -165,7 +165,12 @@ int CheckHatch(char *temp)
 					fprintf(Tf, "Replaces %s\r\n", hatch.Replace);
 				if (strlen(hatch.Magic))
 					fprintf(Tf, "Magic %s\r\n", hatch.Magic);
-				fprintf(Tf, "File %s\r\n", de->d_name);
+				temp2 = calloc(strlen(de->d_name) + 1, sizeof(char));
+				sprintf(temp2, "%s", de->d_name);
+				name_mangle(temp2);
+				fprintf(Tf, "File %s\r\n", temp2);
+				free(temp2);
+				fprintf(Tf, "Fullname %s\r\n", de->d_name);
 				fprintf(Tf, "Pth %s\r\n", temp);
 				fprintf(Tf, "Desc ");
 				for (i = 0; i < strlen(hatch.Desc); i++) {
