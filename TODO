@@ -172,6 +172,8 @@ mbsetup:
 	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
 
+	N: When a message area is deleted, delete the rulesfile too.
+
 	X: Generate crossreference document:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups

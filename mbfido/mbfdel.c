@@ -79,7 +79,7 @@ void Delete(int UnDel, int Area, char *File)
 	die(MBERR_GENERAL);
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 
     if ((fp = fopen(temp, "r+")) == NULL)
 	die(MBERR_GENERAL);

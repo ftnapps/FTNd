@@ -230,7 +230,7 @@ int AppendMGroup(void)
 	mgroup.StartDate = time(NULL);
 	mgroup.LinkSec.level = 1;
 	mgroup.LinkSec.flags = 1;
-	mgroup.Charset = FTNC_LATIN_1;
+	mgroup.Charset = FTNC_CP437;
 	fwrite(&mgroup, sizeof(mgroup), 1, fil);
 	fclose(fil);
 	MGrpUpdated = 1;

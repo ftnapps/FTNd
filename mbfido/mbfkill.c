@@ -230,7 +230,7 @@ void Kill(void)
 	     * we run into trouble later on.
 	     */
 	    fseek(pFile, 0, SEEK_SET);
-	    sprintf(sTemp, "%s/fdb/fdbtmp.data", getenv("MBSE_ROOT"));
+	    sprintf(sTemp, "%s/fdb/filetmp.data", getenv("MBSE_ROOT"));
 
 	    if ((pTemp = fopen(sTemp, "a+")) != NULL) {
 		fwrite(&fdbhdr, fdbhdr.hdrsize, 1, pTemp);

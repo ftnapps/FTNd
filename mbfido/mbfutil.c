@@ -443,7 +443,7 @@ int CheckFDB(int Area, char *Path)
     int	    rc = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, create new one if it doesn't excist.
@@ -454,9 +454,13 @@ int CheckFDB(int Area, char *Path)
 	    WriteError("$Can't create %s", temp);
 	    rc = TRUE;
 	} else {
+	    fdbhdr.hdrsize = sizeof(fdbhdr);
+	    fdbhdr.recsize = sizeof(fdb);
+	    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
 	    fclose(fp);
 	}
     } else {
+	fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 	fclose(fp);
     }
 

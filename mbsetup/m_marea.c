@@ -99,7 +99,7 @@ int CountMsgarea(void)
 			 */
 			memset(&msgs, 0, sizeof(msgs));
 			sprintf(msgs.Name, "Bad mail");
-			sprintf(msgs.Base, "/opt/mbse/var/mail/badmail");
+			sprintf(msgs.Base, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
 			sprintf(msgs.QWKname, "BADMAIL");
 			sprintf(msgs.Group, "LOCAL");
 			msgs.Active = TRUE;
@@ -122,7 +122,7 @@ int CountMsgarea(void)
 			 */
 			memset(&msgs, 0, sizeof(msgs));
 			sprintf(msgs.Name, "Dupe mail");
-			sprintf(msgs.Base, "/opt/mbse/var/mail/dupemail");
+			sprintf(msgs.Base, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
 			sprintf(msgs.QWKname, "DUPEMAIL");
 			sprintf(msgs.Group, "LOCAL");
 			msgs.Active = TRUE;
@@ -294,7 +294,7 @@ void InitMsgRec(void)
     msgs.Type = ECHOMAIL;
     msgs.MsgKinds = PUBLIC;
     msgs.UsrDelete = TRUE;
-    msgs.Charset = FTNC_LATIN_1;
+    msgs.Charset = FTNC_CP437;
     msgs.MaxArticles = CFG.maxarticles;
     strcpy(msgs.Origin, CFG.origin);
     msgs.LinkSec.level = 1;

@@ -580,8 +580,8 @@ void EditFilearea(void)
 				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
-				sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), from);
-				sprintf(new,  "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), too);
+				sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
+				sprintf(new,  "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
 				rename(temp, new);
 
 				/*

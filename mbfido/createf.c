@@ -325,15 +325,19 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Create download database
      */
-    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), AreaNr);
+    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), AreaNr);
     if ((fp = fopen(temp, "r+")) == NULL) {
 	Syslog('f', "Creating new %s", temp);
 	if ((fp = fopen(temp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", temp);
 	} else {
+	    fdbhdr.hdrsize = sizeof(fdbhdr);
+	    fdbhdr.recsize = sizeof(fdb);
+	    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
 	    fclose(fp);
 	}
     } else {
+	fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 	fclose(fp);
     }
     chmod(temp, 0660);

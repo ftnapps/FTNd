@@ -55,6 +55,8 @@ v0.51.2		06-Mar-2004
 	mbsetup:
 		Added auto upgrade for the files database.
 		Changed menus 14, 7.n.6, 10.1 and 8.4.
+		Changed default charset for new mailgroups and message areas
+		to CP437.
 
 	examples:
 		Updated English, German, Spanish and Dutch macro files:
