@@ -43,7 +43,6 @@
 #include "../lib/dbuser.h"
 #include "../lib/dbftn.h"
 #include "sendmail.h"
-#include "mgrutil.h"
 #include "postnetmail.h"
 #include "ping.h"
 

@@ -4693,7 +4693,7 @@ v0.33.20        10-Feb-2002
 		newsgroup didn't exist.
 		For points in echomail no seen-by entry is added.
 		The AreaMgr and FileMgr responses and notify messages now use
-		the diesel macro language with fallback to hardcoded replies.
+		the diesel macro language.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to

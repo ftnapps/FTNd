@@ -87,67 +87,54 @@ void MacroRead(FILE *fi, FILE *fp)
  */
 void WriteMailGroups(FILE *fp, faddr *f)
 {
-	int	Count = 0, First = TRUE;
-	char	*Group, *temp;
-	FILE	*gp,*fi;
-	faddr	*g;
-	fpos_t  fileptr;
+    int	    Count = 0, First = TRUE;
+    char    *Group, *temp;
+    FILE    *gp,*fi;
+    faddr   *g;
+    fpos_t  fileptr;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    if ((fi = OpenMacro("areamgr.group", nodes.Language)) == NULL)
+	return;
 
-	if ((fi = OpenMacro("areamgr.group", nodes.Language)) != NULL){
-	    MacroRead(fi, fp);
-	    fgetpos(fi,&fileptr);
-	} else {
-		fprintf(fp, "Dear %s\r\r", nodes.Sysop);
-		fprintf(fp, "The following is a list of mail groups at %s\r\r", ascfnode(f, 0x1f));
-	}
-	if ((gp = fopen(temp, "r")) == NULL) {
-		WriteError("$Can't open %s", temp);
-		free(temp);
-		return;
-	}
-	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+    MacroRead(fi, fp);
+    fgetpos(fi,&fileptr);
 
-	if (fi == NULL){	
-		fprintf(fp, "Group        Description\r");
-		fprintf(fp, "--------------------------------------------------------------------\r");
-	}
-	while (TRUE) {
-		Group = GetNodeMailGrp(First);
-		if (Group == NULL)
-			break;
-		First = FALSE;
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 
-		fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
-		while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
-			g = bestaka_s(fido2faddr(mgroup.UseAka));
-			if ((!strcmp(mgroup.Name, Group)) && 
-			    (g->zone  == f->zone) && (g->net   == f->net) &&
-			    (g->node  == f->node) && (g->point == f->point)) {
-			        if (fi !=NULL){	
- 	    			    MacroVars("gh", "ss", mgroup.Name, mgroup.Comment);
-				    fsetpos(fi, &fileptr);
-				    MacroRead(fi, fp);
-			        }else{
-				    fprintf(fp, "%-12s %s\r", mgroup.Name, mgroup.Comment);
-				}    
-				Count++;
-				break;
-			}
-		}
-	}
-	if (fi != NULL){	
- 	    MacroVars("b", "d", Count );
-	    MacroRead(fi, fp);
-	    fclose(fi);
-	}else{
-		fprintf(fp, "--------------------------------------------------------------------\r");
-		fprintf(fp, "%d group(s)\r\r\r", Count);
-	}
-	fclose(gp);
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
 	free(temp);
+	fclose(fi);
+	return;
+    }
+    fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+
+    while (TRUE) {
+	Group = GetNodeMailGrp(First);
+	if (Group == NULL)
+	    break;
+	First = FALSE;
+
+	fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
+	while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
+	    g = bestaka_s(fido2faddr(mgroup.UseAka));
+	    if ((!strcmp(mgroup.Name, Group)) && 
+		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
+		MacroVars("gh", "ss", mgroup.Name, mgroup.Comment);
+		fsetpos(fi, &fileptr);
+		MacroRead(fi, fp);
+		Count++;
+		break;
+	    }
+	}
+    }
+
+    MacroVars("b", "d", Count);
+    MacroRead(fi, fp);
+    fclose(fi);
+    fclose(gp);
+    free(temp);
 }
 
 
@@ -157,77 +144,54 @@ void WriteMailGroups(FILE *fp, faddr *f)
  */
 void WriteFileGroups(FILE *fp, faddr *f)
 {
-	int	Count = 0, First = TRUE;
-	char	*Group, *temp;
-	FILE	*gp, *fi;
-	faddr	*g;
-	fpos_t	fileptr;
+    int	    Count = 0, First = TRUE;
+    char    *Group, *temp;
+    FILE    *gp, *fi;
+    faddr   *g;
+    fpos_t  fileptr;
 
-	temp = calloc(128, sizeof(char));
-	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((fi = OpenMacro("filemgr.group", nodes.Language)) == NULL)
+	return;
+
+    MacroRead(fi, fp);
+    fgetpos(fi,&fileptr);
+
+    temp = calloc(128, sizeof(char));
+    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	
-        if ((fi = OpenMacro("filemgr.group", nodes.Language)) != NULL){
-	    MacroRead(fi, fp);
-            fgetpos(fi,&fileptr);
-        }else{
-		fprintf(fp, "Dear %s\r\r", nodes.Sysop);
-		fprintf(fp, "The following is a list of file groups at %s\r\r", ascfnode(f, 0x1f));
-	}
-	if ((gp = fopen(temp, "r")) == NULL) {
-		WriteError("$Can't open %s", temp);
-		free(temp);
-		return;
-	}
-	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
-
-        if (fi == NULL){
-		fprintf(fp, "Group        Description\r");
-		fprintf(fp, "--------------------------------------------------------------------\r");
-	}
-	while (TRUE) {
-		Group = GetNodeFileGrp(First);
-		if (Group == NULL)
-			break;
-		First = FALSE;
-
-		fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
-		while (fread(&fgroup, fgrouphdr.recsize, 1, gp) == 1) {
-			g = bestaka_s(fido2faddr(fgroup.UseAka));
-			if ((!strcmp(fgroup.Name, Group)) && 
-			    (g->zone  == f->zone) && (g->net   == f->net) &&
-			    (g->node  == f->node) && (g->point == f->point)) {
-			        if (fi !=NULL){	
- 	    			    MacroVars("gh", "ss", fgroup.Name, fgroup.Comment );
-				    fsetpos(fi,&fileptr);
-				    MacroRead(fi, fp);
-			        }else{
-				    fprintf(fp, "%-12s %s\r", fgroup.Name, fgroup.Comment);
-				}
-				Count++;
-				break;
-			}
-		}
-	}
-	if (fi != NULL){	
- 	    MacroVars("b", "d", Count );
-	    MacroRead(fi, fp);
-	    fclose(fi);
-	}else{
-	    fprintf(fp, "--------------------------------------------------------------------\r");
-	    fprintf(fp, "%d group(s)\r\r\r", Count);
-	}
-	fclose(gp);
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
 	free(temp);
-}
+	fclose(fi);
+	return;
+    }
+    fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
 
+    while (TRUE) {
+	Group = GetNodeFileGrp(First);
+	if (Group == NULL)
+	    break;
+	First = FALSE;
 
+	fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
+	while (fread(&fgroup, fgrouphdr.recsize, 1, gp) == 1) {
+	    g = bestaka_s(fido2faddr(fgroup.UseAka));
+	    if ((!strcmp(fgroup.Name, Group)) && 
+		(g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
+ 	        MacroVars("gh", "ss", fgroup.Name, fgroup.Comment );
+		fsetpos(fi,&fileptr);
+		MacroRead(fi, fp);
+		Count++;
+		break;
+	    }
+	}
+    }
 
-char *GetBool(int Flag)
-{
-	if (Flag)
-		return (char *)"Yes";
-	else
-		return (char *)"No";
+    MacroVars("b", "d", Count );
+    MacroRead(fi, fp);
+    fclose(fi);
+    fclose(gp);
+    free(temp);
 }
 
 
@@ -267,8 +231,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, mgr?(char *)"Filemgr":(char *)"Areamgr");
 	if ((strlen(Buf) < 3) || (strlen(Buf) > 15)) {
  	    MacroVars("RABCDE", "ssssss",(char *)"ERR_PASS_LEN",(char *)"",(char *)"",(char *)"",(char *)"",(char *)"");
-	    if (!MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp))
-		fprintf(tmp, "A new password must be between 3 and 15 characters in length\n");
+	    MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
 	    Syslog('+', "XxxxMgr: Password length %d, not changed", strlen(Buf));
 	    return;
 	}
@@ -276,8 +239,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	memset(&nodes.Apasswd, 0, sizeof(nodes.Apasswd));
 	strncpy(nodes.Apasswd, tu(Buf), 15);
 	MacroVars("RABCDE", "ssssss",(char *)"OK_PASS",nodes.Apasswd,(char *)"",(char *)"",(char *)"",(char *)"");
-	if (!MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp))
-	    fprintf(tmp, "AreaMgr and FileMgr password is now \"%s\"\n", nodes.Apasswd);
+	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
 	Syslog('+', "XxxxMgr: Password \"%s\" for node %s", nodes.Apasswd, ascfnode(t, 0x1f));
         MacroClear();
 	UpdateNode();
@@ -306,11 +268,10 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
 
 	UpdateNode();
 	SearchNodeFaddr(t);
-	Syslog('+', "XxxxMgr: Notify %s", GetBool(nodes.Notify));
+	Syslog('+', "XxxxMgr: Notify %s", nodes.Notify?"Yes":"No");
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,mgr?(char *)"Filemgr":(char *)"Areamgr");
 	MacroVars("RABCDE", "ssssss",(char *)"OK_PASS",nodes.Apasswd,(char *)"",(char *)"",(char *)"",(char *)"");
-	if (!MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp))
-	    fprintf(tmp, "AreaMgr and FileMgr Notify is %s\n", GetBool(nodes.Notify));
+	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
 	MacroClear();
 }
 
@@ -476,16 +437,17 @@ int MsgResult(const char * report, FILE *fo)
     int	    res;
 
     temp = calloc(256,sizeof(char)); 
-    if ((fi=OpenMacro(report, nodes.Language))!=NULL){
+    if ((fi = OpenMacro(report, nodes.Language)) != NULL){
         while ( fgets(temp, 254, fi) != NULL ){
 	    if (temp[0] != '#')
 		fprintf(fo,"%s\r",ParseMacro(temp,&res));
 	}
         fclose(fi);
         res=1;
-    }else{
-        res=0;
+    } else {
+        res = 0;
     }
+
     free(temp);
     return res;
 }

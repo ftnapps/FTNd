@@ -230,7 +230,7 @@ FILE *OpenMacro(const char *filename, int Language)
     }
 
     if (fi == NULL)
-	Syslog('d', "OpenMacro(%s, %c): not found, using hardcoded", filename, Language);
+	WriteError("OpenMacro(%s, %c): not found", filename, Language);
     else {
 	Syslog('d', "OpenMacro(%s, %c): using %s", filename, Language, temp);
 	MacroVars("HLMNSTUYZ", "ssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name,

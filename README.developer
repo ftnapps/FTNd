@@ -37,7 +37,7 @@ export CVSROOT=username@cvs.mbse.sourceforge.net:/cvsroot/mbse
 
 Install the sources with the followin command:
 
-cvs co mbsebbs
+cvs -dusername@cvs.mbse.sourceforge.net:/cvsroot/mbse co mbsebbs
 
 That will create the directory mbsebbs with all subdirectories. When you made
 some changes you can commit these from within the directory mbsebbs with:

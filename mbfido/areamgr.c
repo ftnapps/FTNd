@@ -92,54 +92,18 @@ void A_Help(faddr *t, char *replyid)
     GetRpSubject("areamgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
- 	    if ((fi = OpenMacro("areamgr.help", nodes.Language)) != NULL ){
-		MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
-		MacroRead(fi, fp);
- 	    	MacroClear();
- 	    	fclose(fi);
- 	    }else{
-	 	fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Areamgr");
-		fprintf(fp, "Your AreaMgr password goes on the subject line.\r\r");
-
-		fprintf(fp, "In the body of the message to AreaMgr:\r\r");
-
-		fprintf(fp, "+<areaname>    To connect to an echomail area\r");
-		fprintf(fp, "-<areaname>    To disconnect from an echomail area\r");
-		fprintf(fp, "%%+ALL          To connect to all echomail areas\r");
-		fprintf(fp, "%%-ALL          To disconnect from all echomail areas\r");
-		fprintf(fp, "%%+<group>      To connect all echomail areas of a group\r");
-		fprintf(fp, "%%-<group>      To disconnect from all echomail areas of a group\r");
-		fprintf(fp, "%%HELP          To request this help message\r");
-		fprintf(fp, "%%LIST          To request a list of echomail areas available to you\r");
-		fprintf(fp, "%%QUERY         To request a list of echomail areas for which you are active\r");
-		fprintf(fp, "%%UNLINKED      To request a list of echomail areas available to you\r");
-		fprintf(fp, "               to which you are not already connected\r");
-		fprintf(fp, "%%FLOW          To request a flow report of available areas\r");
-		fprintf(fp, "%%STATUS        To request a status report for your system\r");
-		fprintf(fp, "%%PAUSE         To temporary disconnect from the connected echomail areas\r");
-		fprintf(fp, "%%RESUME        To reconnect the temporary disconnected echomail areas\r");
-		fprintf(fp, "%%PWD=newpwd    To set a new AreaMgr and FileMgr password\r");
-		fprintf(fp, "%%MSGS <n>      To set max. number of messages to be rescanned\r");
-		fprintf(fp, "%%RESCAN <area> To request messages from 'area' again\r");
-		fprintf(fp, "%%NOTIFY=On/Off To switch the notify function on or off\r");
-		fprintf(fp, "[---]          Everything below the tearline is ignored\r\r");
-
-		fprintf(fp, "Example:\r\r");
-
-		fprintf(fp, "  By: %s\r", nodes.Sysop);
-		fprintf(fp, "  To: %s, %s\r", (char *)"Areamgr", ascfnode(bestaka_s(t), 0xf));
-		fprintf(fp, "  Re: %s\r", nodes.Apasswd);
-		fprintf(fp, "  St: Pvt Local Kill\r");
-		fprintf(fp, "  ----------------------------------------------------------\r");
-		fprintf(fp, "  +SYSOPS\r");
-		fprintf(fp, "  -GENERAL\r");
-		fprintf(fp, "  %%QUERY\r");
-		fprintf(fp, "  %%LIST\r\r");
+	if ((fi = OpenMacro("areamgr.help", nodes.Language)) != NULL ){
+	    MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
+	    MacroRead(fi, fp);
+	    fclose(fi);
 	}
+
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
-    } else
+    } else {
 	WriteError("Can't create netmail");
+    }
+
     free(subject);
     MacroClear();
 }
@@ -149,8 +113,10 @@ void A_Help(faddr *t, char *replyid)
 void A_Query(faddr *, char *);
 void A_Query(faddr *t, char *replyid)
 {
-	A_List(t, replyid, LIST_QUERY);
+    A_List(t, replyid, LIST_QUERY);
 }
+
+
 
 void A_List(faddr *t, char *replyid, int Notify)
 {
@@ -167,27 +133,34 @@ void A_List(faddr *t, char *replyid, int Notify)
     f = bestaka_s(t);
     MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
 
-    if (Notify==LIST_NOTIFY){
-	Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
-        sprintf(subject,"AreaMgr Notify");
-        GetRpSubject("areamgr.notify.list",subject);
-    }
-    if (Notify==LIST_LIST){
-	Syslog('+', "AreaMgr: List");
-        sprintf(subject,"AreaMgr list");
-        GetRpSubject("areamgr.list",subject);
-    }
-    if (Notify==LIST_QUERY){
-	Syslog('+', "AreaMgr: Query");
-        sprintf(subject,"AreaMgr Query");
-        GetRpSubject("areamgr.query",subject);
-    }
-    if (Notify>=LIST_UNLINK){
-	Syslog('+', "AreaMgr: Unlinked");
-        sprintf(subject,"AreaMgr: Unlinked areas");
-        GetRpSubject("areamgr.unlink",subject);
+    switch (Notify) {
+	case LIST_NOTIFY:   Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
+			    sprintf(subject,"AreaMgr Notify");
+			    GetRpSubject("areamgr.notify.list",subject);
+			    fi = OpenMacro("areamgr.notify.list", nodes.Language);
+			    break;
+	case LIST_LIST:	    Syslog('+', "AreaMgr: List");
+			    sprintf(subject,"AreaMgr list");
+			    GetRpSubject("areamgr.list",subject);
+			    fi = OpenMacro("areamgr.list", nodes.Language);
+			    break;
+	case LIST_QUERY:    Syslog('+', "AreaMgr: Query");
+			    sprintf(subject,"AreaMgr Query");
+			    GetRpSubject("areamgr.query",subject);
+			    fi = OpenMacro("areamgr.query", nodes.Language);
+			    break;
+	case LIST_UNLINK:   Syslog('+', "AreaMgr: Unlinked");
+			    sprintf(subject,"AreaMgr: Unlinked areas");
+			    GetRpSubject("areamgr.unlink",subject);
+			    fi = OpenMacro("areamgr.unlink", nodes.Language);
+			    break;
     }
 
+    if (fi == NULL) {
+	MacroClear();
+	free(subject);
+	return;
+    }
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
 
@@ -196,24 +169,12 @@ void A_List(faddr *t, char *replyid, int Notify)
          */
         msgptr = ftell(qp);
 
-	if (Notify==LIST_LIST){
-	    fi=OpenMacro("areamgr.list", nodes.Language);
-            WriteMailGroups(qp, f);
-	}
-	if (Notify==LIST_NOTIFY){
-	    fi=OpenMacro("areamgr.notify.list", nodes.Language);
-            WriteMailGroups(qp, f);
-	}
-	if (Notify==LIST_QUERY)
-	    fi=OpenMacro("areamgr.query", nodes.Language);
-	if (Notify>=LIST_UNLINK)
-	    fi=OpenMacro("areamgr.unlink", nodes.Language);
-	if (fi != NULL){
-		MacroRead(fi, qp);
-		fgetpos(fi,&fileptr);
-	}else{
-		fprintf(qp, "The following is a list of message areas\r\r");
-	}
+	if ((Notify == LIST_LIST) || (Notify == LIST_NOTIFY))
+	    WriteMailGroups(qp, f);
+
+	MacroRead(fi, qp);
+	fgetpos(fi,&fileptr);
+
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((mp = fopen(temp, "r")) == NULL) {
@@ -221,6 +182,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 	    free(temp);
 	    free(subject);
 	    MacroClear(); 
+	    fclose(fi);
 	    return;
 	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
@@ -233,6 +195,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 	    free(subject);
 	    MacroClear(); 
 	    fclose(mp);
+	    fclose(fi);
 	    return;
 	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
@@ -248,19 +211,12 @@ void A_List(faddr *t, char *replyid, int Notify)
 	    while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
 		g = bestaka_s(fido2faddr(mgroup.UseAka));
 		if ((!strcmp(mgroup.Name, Group)) &&
-		    (g->zone  == f->zone) && (g->net   == f->net) &&
-		    (g->node  == f->node) && (g->point == f->point)) {
+		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
-		    if (fi != NULL){	
- 	    		MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
-			fsetpos(fi,&fileptr);
-			MacroRead(fi, qp);
-			fgetpos(fi,&fileptr1);
-		    }else{
-			    fprintf(qp, "Group %s - %s (%s)\r\r", mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka));
-			    fprintf(qp, "Con  Message area              Description\r");
-			    fprintf(qp, "----------------------------------------------------------------------------\r");
-		    }
+		    MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+		    fsetpos(fi,&fileptr);
+		    MacroRead(fi, qp);
+		    fgetpos(fi,&fileptr1);
 		    fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		    while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
@@ -285,71 +241,43 @@ void A_List(faddr *t, char *replyid, int Notify)
 					Stat[3] = 'C';
 				}
 			    }
-			    if (    (Notify == LIST_LIST)
-			         || (Notify == LIST_NOTIFY)
+			    if (    (Notify == LIST_LIST) || (Notify == LIST_NOTIFY)
 			         || ((Notify == LIST_QUERY) && ((Stat[0]=='S') || (Stat[1]=='R')))
 			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){  
-			        if (fi !=NULL){	
- 	    			    MacroVars("XDEsrpc", "sssdddd", 
+				MacroVars("XDEsrpc", "sssdddd", 
  	    			                            Stat, msgs.Tag, msgs.Name,
  	    			                            (Stat[0] == 'S'),
  	    			                            (Stat[1] == 'R'),
  	    			                            (Stat[2] == 'P'),
  	    			                            (Stat[3] == 'C')
  	    			                            );
-				    fsetpos(fi,&fileptr1);
-				    MacroRead(fi, qp);
-				    fgetpos(fi,&fileptr2);
-			        }else{
-			    	    fprintf(qp, "%s %-25s %s\r", Stat, msgs.Tag, msgs.Name);
-			        }
+				fsetpos(fi,&fileptr1);
+				MacroRead(fi, qp);
+				fgetpos(fi,&fileptr2);
 			        SubTot++;
   			        Total++;
 			    }
 			} else
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);
 		    }
- 		    if (fi != NULL){	
- 	    	        MacroVars("ZC", "dd", (int) 0 , SubTot );
-			fsetpos(fi,&fileptr2);
-			if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
-			    MacroVars("Z","d",1);
-			    Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
-			    CloseMail(qp, t);
-			    qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
-			    msgptr = ftell(qp);
-			}
-			MacroRead(fi, qp);
-		    }else{
-			fprintf(qp, "----------------------------------------------------------------------------\r");
-			fprintf(qp, "%d area(s)\r\r\r", SubTot);
-		    
-                    	if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
-                            fprintf(qp, "To be continued....\r\r");
-                            Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
-                            CloseMail(qp, t);
-                            qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
-                            msgptr = ftell(qp);
-                        }
-                    }
+ 	    	    MacroVars("ZC", "dd", (int) 0 , SubTot );
+		    fsetpos(fi,&fileptr2);
+		    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+			MacroVars("Z","d",1);
+			Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+			CloseMail(qp, t);
+			qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
+			msgptr = ftell(qp);
+		    }
+		    MacroRead(fi, qp);
 		}
 	    }
 	}
-	if (fi != NULL){	
- 	    MacroVars("B", "d", Total );
-	    MacroRead(fi, qp);
- 	    MacroClear();
- 	    fclose(fi);
-	}else{
-		fprintf(qp, "Total: %d available area(s)\r\r\r", Total);
 
-		fprintf(qp, "Con means:\r");
-		fprintf(qp, " R  - You receive mail from my system\r");
-		fprintf(qp, " S  - You may send mail to my system\r");
-		fprintf(qp, " P  - The message area is temporary paused\r");
-		fprintf(qp, " C  - You are cutoff from this area\r\r");
-		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-	}
+ 	MacroVars("B", "d", Total );
+	MacroRead(fi, qp);
+ 	MacroClear();
+ 	fclose(fi);
 	fclose(mp);
 	fclose(gp);
 	fprintf(qp, "%s\r", TearLine());
@@ -393,18 +321,21 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	Syslog('+', "AreaMgr: Flow report to %s", ascfnode(t, 0xff));
         sprintf(subject,"AreaMgr Notify Flow Report");
         GetRpSubject("areamgr.notify.flow",subject);
+	fi = OpenMacro("areamgr.notify.flow", nodes.Language);
     }else{
 	Syslog('+', "AreaMgr: Flow report");
         sprintf(subject,"AreaMgr Flow Report");
         GetRpSubject("areamgr.flow",subject);
-    }	
+	fi = OpenMacro("areamgr.flow", nodes.Language);
+    }
+
+    if (fi == 0) {
+	free(subject);
+	MacroClear();
+	return;
+    }
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
-	if (Notify) {
-	    fi = OpenMacro("areamgr.notify.flow", nodes.Language);
-	} else {
-	    fi = OpenMacro("areamgr.flow", nodes.Language);
-	}
         /*
          * Mark begin of message in .pkt
          */
@@ -416,10 +347,8 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
 	    free(subject);
-	    if (fi) {
-		fclose(fi);
-		MacroClear();
-	    }
+	    fclose(fi);
+	    MacroClear();
 	    return;
 	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
@@ -431,20 +360,16 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    free(temp);
 	    free(subject);
 	    fclose(mp);
-	    if (fi) {
-		fclose(fi);
-		MacroClear();
-	    }
+	    fclose(fi);
+	    MacroClear();
 	    return;
 	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
 	free(temp);
-	if (fi != NULL){
-		MacroRead(fi, qp);
-		fgetpos(fi,&fileptr);
-	}else{
-		fprintf(qp, "The following is a flow report of all message areas\r\r");
-	}
+
+	MacroRead(fi, qp);
+	fgetpos(fi,&fileptr);
+
 	while (TRUE) {
 	    Group = GetNodeMailGrp(First);
 	    if (Group == NULL)
@@ -456,19 +381,12 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
 		g = bestaka_s(fido2faddr(mgroup.UseAka));
 		if ((!strcmp(mgroup.Name, Group)) &&
-		    (g->zone  == f->zone) && (g->net   == f->net) &&
-		    (g->node  == f->node) && (g->point == f->point)) {
+		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 
-		    if (fi != NULL){	
- 	    		MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
-			fsetpos(fi,&fileptr);
-			MacroRead(fi, qp);
-			fgetpos(fi,&fileptr1);
-		    }else{
-			fprintf(qp, "Group %s - %s\r\r", mgroup.Name, mgroup.Comment);
-		    	fprintf(qp, "Con Message area                                       Last week Last Month\r");
-		    	fprintf(qp, "---------------------------------------------------------------------------\r");
-		    }
+		    MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+		    fsetpos(fi,&fileptr);
+		    MacroRead(fi, qp);
+		    fgetpos(fi,&fileptr1);
 		    fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		    while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
@@ -487,8 +405,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 					Stat[0] = 'C';
 				}
 			    }
-			    if (fi !=NULL){	
- 	    			MacroVars("XAPQRpqrx", "csddddddd", 
+			   MacroVars("XAPQRpqrx", "csddddddd", 
  	    			                        Stat[0], 
  	    			                        msgs.Tag, 
  	    			                        msgs.Received.lweek, 
@@ -499,13 +416,9 @@ void A_Flow(faddr *t, char *replyid, int Notify)
  	    			                        msgs.Posted.total,
  	    			                        (Stat[0] == 'C')
  	    			                        );
-				fsetpos(fi,&fileptr1);
-				MacroRead(fi, qp);
-				fgetpos(fi,&fileptr2);
-			    }else{
-			    	fprintf(qp, "%s   %s %9lu %10lu\r", Stat, padleft(msgs.Tag, 50, ' '), 
-					msgs.Received.lweek, msgs.Received.month[lmonth]);
-			    }
+			    fsetpos(fi,&fileptr1);
+			    MacroRead(fi, qp);
+			    fgetpos(fi,&fileptr2);
 			    rlm += msgs.Received.month[lmonth];
 			    rlw += msgs.Received.lweek;
 			    rlt += msgs.Received.total;
@@ -515,44 +428,24 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 			} else
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);
 		    }
- 		    if (fi != NULL){	
- 	    	        MacroVars("ZBCDbcd", "ddddddd", (int) 0 , rlw, rlm, rlt, plw, plm, plt);
-			fsetpos(fi,&fileptr2);
-			if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
-			    MacroVars("Z","d",1);
-			    Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
-			    CloseMail(qp, t);
-			    qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
-			    msgptr = ftell(qp);
-			}
-			MacroRead(fi, qp);
-		    }else{
-			fprintf(qp, "---------------------------------------------------------------------------\r");
-			fprintf(qp, "Total %58lu %10lu\r\r\r", rlw, rlm);
-
-                    	if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
-                        	fprintf(qp, "To be continued....\r\r");
-                        	Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
-                        	CloseMail(qp, t);
-                        	qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
-                        	msgptr = ftell(qp);
-                    	}
-                    }	
+		    MacroVars("ZBCDbcd", "ddddddd", (int) 0 , rlw, rlm, rlt, plw, plm, plt);
+		    fsetpos(fi,&fileptr2);
+		    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+			MacroVars("Z","d",1);
+			Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+			CloseMail(qp, t);
+			qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
+			msgptr = ftell(qp);
+		    }
+		    MacroRead(fi, qp);
 		}
 	    }
 	}
-	if (fi != NULL){
-	    MacroRead(fi, qp);
- 	    MacroClear();
- 	    fclose(fi);
-	}else{
-	    fprintf(qp, "Con means:\r");
-	    fprintf(qp, " C  - You connected to this area\r");
-	    fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-	    fprintf(qp, "%s\r", TearLine());
-	}    
-	CloseMail(qp, t);
 
+	MacroRead(fi, qp);
+ 	MacroClear();
+ 	fclose(fi);
+	CloseMail(qp, t);
 	fclose(mp);
 	fclose(gp);
     } else
@@ -594,30 +487,17 @@ void A_Status(faddr *t, char *replyid)
 						ascfnode(bestaka_s(t), 0xf)
     	                                 );
     GetRpSubject("areamgr.status",subject);
-
     Syslog('+', "AreaMgr: Status");
 
+    if ((fi = OpenMacro("areamgr.status", nodes.Language)) == NULL ){
+	MacroClear();
+	free(subject);
+	return;
+    }
+    
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
- 	    if ( (fi=OpenMacro("areamgr.status", nodes.Language)) != NULL ){
-		MacroRead(fi, fp);
- 	    	fclose(fi);
- 	}else{
-		fprintf(fp, "Here is your (echo)mail status:\r\r");
-		fprintf(fp, "Netmail direct    %s\r", GetBool(nodes.Direct));
-		fprintf(fp, "Netmail crash     %s\r", GetBool(nodes.Crash));
-		fprintf(fp, "Netmail hold      %s\r", GetBool(nodes.Hold));
-		if (nodes.RouteVia.zone)
-		fprintf(fp, "Route via         %s\r", aka2str(nodes.RouteVia));
-		fprintf(fp, "\r\rMailflow:\r\r");
-		fprintf(fp, "                  Last week  Last month Total ever\r");
-		fprintf(fp, "                  ---------- ---------- ----------\r");
-		fprintf(fp, "Messages to you   %-10ld %-10ld %-10ld\r", nodes.MailSent.lweek, 
-				    nodes.MailSent.month[i], nodes.MailSent.total);
-		fprintf(fp, "Messages from you %-10ld %-10ld %-10ld\r", nodes.MailRcvd.lweek, 
-				    nodes.MailRcvd.month[i], nodes.MailRcvd.total);
-
-		fprintf(fp, "\rWith regards, %s\r\r", CFG.sysop_name);
-	}
+	MacroRead(fi, fp);
+ 	fclose(fi);
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
     } else
@@ -631,7 +511,7 @@ void A_Status(faddr *t, char *replyid)
 void A_Unlinked(faddr *, char *);
 void A_Unlinked(faddr *t, char *replyid)
 {
-	A_List(t, replyid, LIST_UNLINK);
+    A_List(t, replyid, LIST_UNLINK);
 }
 
 
@@ -652,8 +532,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     if (!SearchMsgs(Area)) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NOTFOUND",Area,"","","","");
-		if (!MsgResult("areamgr.responses",tmp))
-	fprintf(tmp, "Area %s not found\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  Area not found");
 	MacroClear();
 	return;
@@ -670,8 +549,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     if (Group == NULL) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NOTGROUP",Area,"","","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You may not disconnect from area %s\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  Group %s not available for %s", mgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
@@ -684,8 +562,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     if (i >= METRIC_NET) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_BADADD",Area,ascfnode(t, 0x1f),"","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You may not disconnect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), mgroup.Name);
 	MacroClear();
 	return;
@@ -699,8 +576,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     if (!MsgSystemConnected(Sys)) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NC",Area,"","","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You are not connected to %s\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  %s is not connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
@@ -715,16 +591,14 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	Syslog('+', "Disconnected echo area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","OK_DISC",Area,"","","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "Disconnected from area %s\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	MacroClear();	
 	return;
     }
 
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
     MacroVars("RABCDE", "ssssss","ERR_DISC_NOTAVAIL",Area,"","","","");
-    if (!MsgResult("areamgr.responses",tmp))
-	fprintf(tmp, "You may not disconnect area %s\n", Area);
+    MsgResult("areamgr.responses",tmp);
     Syslog('+', "Didn't disconnect %s from mandatory or cutoff echo area %s", ascfnode(t, 0x1f), Area);
     MacroClear();
 }
@@ -770,8 +644,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 		if (CheckEchoGroup(Area, TRUE, t) == 0) {
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    MacroVars("RABCDE", "ssssss","ERR_CONN_FORWARD",Area,aka2str(mgroup.UpLink),"","","");
-		    if (!MsgResult("areamgr.responses",tmp))
-			    fprintf(tmp, "Area %s not available, requested from uplink %s\n", Area, aka2str(mgroup.UpLink));
+		    MsgResult("areamgr.responses",tmp);
 		    break;
 		}
 	    }
@@ -786,8 +659,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	if (!SearchMsgs(Area)) {
 	    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	    MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
-	    if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "Area %s not found\n", Area);
+	    MsgResult("areamgr.responses",tmp);
 	    Syslog('+', "Area %s not found", Area);
 	    MacroClear();
 	    return;
@@ -805,8 +677,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     if (Group == NULL) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTGROUP",Area,"","","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You may not connect to area %s\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  Group %s not available for node %s", mgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
@@ -819,8 +690,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     if (i >= METRIC_NET) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_BADADD",Area,ascfnode(t, 0x1f),"","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You may not connect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  %s may not connect to group %s", ascfnode(t, 0x1f), mgroup.Name);
 	MacroClear();
 	return;
@@ -834,8 +704,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     if (MsgSystemConnected(Sys)) {
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_ALREADY",Area,"","","","");
-	if (!MsgResult("areamgr.responses",tmp))
-		fprintf(tmp, "You are already connected to %s\n", Area);
+	MsgResult("areamgr.responses",tmp);
 	Syslog('+', "  %s is already connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
@@ -850,15 +719,13 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	Syslog('+', "Connected echo area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","OK_CONN",Area,aka2str(msgs.Aka),"","","");
-	if (!MsgResult("areamgr.responses",tmp))
-	    fprintf(tmp, "Connected to area %s using aka %s\n", Area, aka2str(msgs.Aka));
+	MsgResult("areamgr.responses",tmp);
 	MacroClear();
 	return;
     }
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
     MacroVars("RABCDE", "ssssss","ERR_CONN_NOTAVAIL",Area,"","","","");
-    if (!MsgResult("areamgr.responses",tmp))
-        fprintf(tmp, "Not connected to %s, this is not allowed\n", Area);
+    MsgResult("areamgr.responses",tmp);
     WriteError("Can't connect node %s to echo area %s", ascfnode(t, 0x1f), Area);
     MacroClear();
 }
@@ -951,8 +818,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					Syslog('+', "AreaMgr: Connected %s", msgs.Tag);
 					MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    			MacroVars("RABCDE", "ssssss","OK_CONN",msgs.Tag,aka2str(msgs.Aka),"","","");
-		    			if (!MsgResult("areamgr.responses",tmp))
-						fprintf(tmp, "Connected area %s using aka %s\n", msgs.Tag, aka2str(msgs.Aka));
+		    			MsgResult("areamgr.responses",tmp);
 					MacroClear();						
 					a_list = TRUE;
 					break;
@@ -970,8 +836,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 				    Syslog('+', "AreaMgr: Disconnected %s", msgs.Tag);
 				    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    		    MacroVars("RABCDE", "ssssss","OK_DISC",msgs.Tag,"","","","");
-		    		    if (!MsgResult("areamgr.responses",tmp))
-				    	fprintf(tmp, "Disconnected area %s\n", msgs.Tag);
+		    		    MsgResult("areamgr.responses",tmp);
 				    MacroClear();
 				    a_list = TRUE;
 				}
@@ -1042,8 +907,7 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
 		    Syslog('+', "AreaMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    MacroVars("RABCDE", "ssssss","OK_PAUSE",msgs.Tag,ascfnode(t, 0x1f),"","");
-		    if (!MsgResult("areamgr.responses",tmp))
-			fprintf(tmp, "%s area %s\n", Pause?"Pause":"Resume", msgs.Tag);
+		    MsgResult("areamgr.responses",tmp);
 		    a_list = TRUE;
 		}
 	    }
@@ -1072,25 +936,18 @@ void A_Rescan(faddr *t, char *Area, FILE *tmp)
     result = RescanOne(t, Area, a_msgs);
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
     if (result == 0){
-      MacroVars("RABCDE", "ssdsss","OK_RESCAN",Area,a_msgs,"","","");
-      if (!MsgResult("areamgr.responses",tmp)){
-	if (a_msgs > 0) 
-	    fprintf(tmp, "Rescan area %s, %lu last msgs.\n", Area, a_msgs);
-	else
-	    fprintf(tmp, "Rescan area %s \n", Area);
-      }
-    } else if (result == 1)
-      MacroVars("RABCDE", "ssssss","ERR_RESCAN_UNK",Area,"","","","");
-      if (!MsgResult("areamgr.responses",tmp))
-	fprintf(tmp, "Can't rescan unknown area %s\n", Area);
-    else if (result == 2)
-      MacroVars("RABCDE", "ssssss","ERR_RESCAN_NOTAVAIL",Area,ascfnode(t, 0x1f),"","","");
-      if (!MsgResult("areamgr.responses",tmp))
-	fprintf(tmp, "%s can't rescan area %s\n", ascfnode(t, 0x1f), Area);
-    else
-      MacroVars("RABCDE", "ssssss","ERR_RESCAN_FATAL",Area,ascfnode(t, 0x1f),"","","");
-      if (!MsgResult("areamgr.responses",tmp))
-	fprintf(tmp, "Fatal Error Rescanning area %s\n", Area);   
+	MacroVars("RABCDE", "ssdsss","OK_RESCAN",Area,a_msgs,"","","");
+	MsgResult("areamgr.responses",tmp);
+    } else if (result == 1) {
+	MacroVars("RABCDE", "ssssss","ERR_RESCAN_UNK",Area,"","","","");
+	MsgResult("areamgr.responses",tmp);
+    } else if (result == 2) {
+	MacroVars("RABCDE", "ssssss","ERR_RESCAN_NOTAVAIL",Area,ascfnode(t, 0x1f),"","","");
+	MsgResult("areamgr.responses",tmp);
+    } else {
+	MacroVars("RABCDE", "ssssss","ERR_RESCAN_FATAL",Area,ascfnode(t, 0x1f),"","","");
+	MsgResult("areamgr.responses",tmp);
+    }
     MacroClear();      
 } 
 
@@ -1230,10 +1087,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	GetRpSubject("areamgr.responses",subject);
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");
-	    if (!MsgResult("areamgr.responses",np)){
-	        fprintf(np, "     Dear %s\r\r", nodes.Sysop);
-	        fprintf(np, "Here is the result of your AreaMgr request:\r\r");
-	    }
+	    MsgResult("areamgr.responses",np);
 	    fseek(tmp, 0, SEEK_SET);
 
 	    while ((fgets(Buf, 2048, tmp)) != NULL) {
@@ -1244,8 +1098,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		Syslog('m', "Rep: %s", Buf);
 	    }
 	    MacroVars("RABCDE", "ssssss","GOODBYE","","","","","");
-	    if (!MsgResult("areamgr.responses",np))
-		fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
+	    MsgResult("areamgr.responses",np);
 	    fprintf(np, "%s\r", TearLine());
 	    CloseMail(np, t);
 	} else
@@ -1276,3 +1129,4 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 
     return rc;
 }
+
