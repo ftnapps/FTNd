@@ -50,6 +50,7 @@ int			isdn_calls;	    /* ISDN calls to make	*/
 int			pots_calls;	    /* POTS calls to make	*/
 pp_list			*pl = NULL;	    /* Portlist			*/
 _alist_l		*alist = NULL;	    /* Nodes to call list	*/
+extern int		s_do_inet;	    /* Internet wanted		*/
 
 
 
@@ -242,10 +243,22 @@ int outstat()
 		 * If the node has internet and we have internet available, check if we can send
 		 * immediatly.
 		 */
-		if (internet && TCFG.max_tcp && 
+		if (TCFG.max_tcp && 
 			(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
 			((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
-		    tmp->flavors |= F_CALL;
+		    /*
+		     * If connection available, set callflag
+		     */
+		    if (internet)
+			tmp->flavors |= F_CALL;
+		    /*
+		     * Always set semafore do_inet
+		     */
+		    if (!s_do_inet) {
+			CreateSema((char *)"do_inet");
+			s_do_inet = TRUE;
+			tasklog('c', "Created semafore do_inet");
+		    }
 		}
 		if ((tmp->flavors) & F_IMM   ) {
 		    flstr[0]='I';

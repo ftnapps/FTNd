@@ -240,9 +240,10 @@ void system_stat(void)
 	mvprintw( 9, 6, "Total server starts");
 	mvprintw( 9,62, "Internet");
 	mvprintw(10, 6, "Connected clients");
-	mvprintw(10,62, "Running");
-	mvprintw(11,62, "Load avg");
+	mvprintw(10,62, "Need inet");
+	mvprintw(11,62, "Running");
 	mvprintw(12,30, "Total          Today");
+	mvprintw(12,62, "Load avg");
 	hor_lin(13,30,8);
 	hor_lin(13,45,8);
 	mvprintw(14, 6, "Client connects");
@@ -280,7 +281,8 @@ void system_stat(void)
 			mvprintw(8,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 			mvprintw(9,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
 			mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(11,72, "%s ", strtok(NULL, ","));
+			mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+			mvprintw(12,72, "%s ", strtok(NULL, ","));
 			mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
 		}
 

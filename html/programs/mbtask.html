@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Dec-2001</h5>
+<h5>Last update 02-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbtask - MBSE BBS Taskmanager</H1>
@@ -259,9 +260,9 @@ Command: GVER:0;                        Give server version.
 Reply:   100:1,Version ....;            Version reply.
 
 Command: GSTA:0;                        Get complete mbsed status record. (13 fields)
-Reply:   100:19,start,laststart,daily,startups,clients,tot_clients,tot_peak,syntax_errs,
+Reply:   100:20,start,laststart,daily,startups,clients,tot_clients,tot_peak,syntax_errs,
                 com_errs,today_clients,today_peak,today_syntax,today_comerr,bbsopen,
-                is_zmh,processing,system_load,sequence;
+                is_zmh,do_inet,processing,system_load,sequence;
 
 Command: GMON:1,n;                      Get registration info line, 1=First, 0=Next line.
 Reply:   100:7,pid,tty,user,program,city,isdoing,starttime;

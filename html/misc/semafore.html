@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 27-jul-2001</h5>
+<h5>Last update 02-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>Semafore files with MBSE BBS.</H1>
@@ -19,7 +20,7 @@
 The directory $MBSE_ROOT/sema is the hardcoded semafore directory where all
 semafore's must be created, tested and removed. When the system is booting,
 the init script will erase all semafore's just before the BBS is started.
-This description is valid from MBSE BBS v0.33.18 and newer.
+This description is valid from MBSE BBS v0.33.19 and newer.
 
 <PRE>
 zmh		Purpose: to mark the state of Zone Mail Hour. 
@@ -52,11 +53,16 @@ scanout		Purpose: Signal that the outbound must be rescanned.
 		Checked by mbtask to check the outbound.
 		Removed by mbtask as soon as it is detected.
 
+do_inet		Purpose: Signal that there are node(s) to be called via the
+		internet. Usefull for dialup systems to check whether a
+		connection to the internet is needed.
+		Created and removed by mbtask.
+
 mbtask.last	Purpose: A timestamp created and touched by "mbtask" every
 		minute so you can check it is running.
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

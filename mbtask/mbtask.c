@@ -100,6 +100,7 @@ extern int		s_index;		/* Compile nl semafore	*/
 extern int		s_newnews;		/* New news semafore	*/
 extern int		s_reqindex;		/* Create req index sem */
 extern int		s_msglink;		/* Messages link sem	*/
+extern int		s_do_inet;		/* Internet wanted	*/
 int			pingstate = P_INIT;	/* Ping state		*/
 int			pingnr = 1;		/* Ping #, 1 or 2	*/
 int			pingresult[2];		/* Ping results		*/
@@ -533,6 +534,17 @@ int check_calllist(void)
 	    sem_set((char *)"scanout", FALSE);
     }
 
+    /*
+     * Check if we need to remove the do_inet semafore
+     */
+    if (!inet_calls && s_do_inet) {
+	tasklog('c', "Removing do_inet semafore");
+	s_do_inet = FALSE;
+	if (IsSema((char *)"do_inet")) {
+	    RemoveSema((char *)"do_inet");
+	}
+    }
+    
     call_work = 0;
     for (i = 0; i < MAXTASKS; i++) {
 	if (calllist[i].addr.zone) {

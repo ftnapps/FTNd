@@ -48,6 +48,7 @@ int			s_index    = FALSE;
 int			s_msglink  = FALSE;
 int			s_newnews  = FALSE;
 int			s_bbsopen  = FALSE;
+int			s_do_inet  = FALSE;
 extern int		UPSalarm;
 extern int		ptimer;
 
@@ -287,14 +288,14 @@ char *stat_status()
 	static char buf[160];
 
 	buf[0] = '\0';
-	sprintf(buf, "100:19,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%2.2f,%lu;",
+	sprintf(buf, "100:20,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu;",
 		status.start, status.laststart, status.daily,
 		status.startups, status.clients, 
 		status.total.tot_clt, status.total.peak_clt,
 		status.total.s_error, status.total.c_error,
 		status.today.tot_clt, status.today.peak_clt,
 		status.today.s_error, status.today.c_error,
-		status.open, get_zmh(), internet, Processing, Load, status.sequence);
+		status.open, get_zmh(), internet, s_do_inet, Processing, Load, status.sequence);
 	return buf;
 }
 
@@ -351,6 +352,8 @@ int sem_set(char *sem, int value)
 		s_msglink = value;
 	} else if (!strcmp(sem, "reqindex")) {
 		s_reqindex = value;
+	} else if (!strcmp(sem, "do_inet")) {
+		s_do_inet = value;
 	} else {
 		return FALSE;
 	}
@@ -387,6 +390,8 @@ char *sem_status(char *data)
                 value = s_reqindex;
 	} else if (!strcmp(sem, "upsalarm")) {
 		value = UPSalarm;
+	} else if (!strcmp(sem, "do_inet")) {
+	        value = s_do_inet;
         } else {
 		tasklog('s', "sem_status(%s) buf=%s", sem, buf);
 		return buf;
