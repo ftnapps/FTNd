@@ -56,7 +56,6 @@ int CountTtyinfo(void)
     sprintf(ffile, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "r")) == NULL) {
 	if ((fil = fopen(ffile, "a+")) != NULL) {
-	    Syslog('+', "Creaded new %s", ffile);
 	    ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
 	    ttyinfohdr.recsize = sizeof(ttyinfo);
 	    fwrite(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
@@ -65,34 +64,31 @@ int CountTtyinfo(void)
 	    /*
 	     *  Only seen on Linux systems
 	     */
-	    for (i = 0; i < 20; i++) {
+	    for (i = 0; i < 16; i++) {
+		count++;
 		memset(&ttyinfo, 0, sizeof(ttyinfo));
-		sprintf(ttyinfo.comment, "Network port %d", i+11);
+		sprintf(ttyinfo.comment, "Network port %d", count);
 		sprintf(ttyinfo.tty,     "pts/%d", i);
 		sprintf(ttyinfo.speed,   "10 mbit");
 		sprintf(ttyinfo.flags,   "IBN,IFC,XX");
 		ttyinfo.type = NETWORK;
 		ttyinfo.available = TRUE;
-		sprintf(ttyinfo.name,    "Network port #%d", i+11);
+		sprintf(ttyinfo.name,    "Network port #%d", count);
 		fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-		count++;
 	    }
 #endif
 
-            for (i = 0; i < 20; i++) {
+            for (i = 0; i < 16; i++) {
+		count++;
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
-		sprintf(ttyinfo.comment, "Network port %d", i+1);
-		if (i > 9)
-		    sprintf(ttyinfo.tty,     "ttyp%c", (i - 10) + 'a');
-		else
-                    sprintf(ttyinfo.tty,     "ttyp%d", i);
+		sprintf(ttyinfo.comment, "Network port %d", count);
+		sprintf(ttyinfo.tty,     "ttyp%x", i);
                 sprintf(ttyinfo.speed,   "10 mbit");
                 sprintf(ttyinfo.flags,   "IBN,IFC,XX");
                 ttyinfo.type = NETWORK;
                 ttyinfo.available = TRUE;
-                sprintf(ttyinfo.name,    "Network port #%d", i+1);
+                sprintf(ttyinfo.name,    "Network port #%d", count);
                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-		count++;
             }
 
 #if defined(__linux__)
@@ -200,6 +196,7 @@ int CountTtyinfo(void)
 
 	    fclose(fil);
 	    chmod(ffile, 0640);
+	    Syslog('+', "Creaded new %s with %d ttys", ffile, count);
 	    return count;
 	} else
 	    return -1;
@@ -289,7 +286,7 @@ void CloseTtyinfo(int force)
 
 			while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fi) == 1)
 				if (!ttyinfo.deleted)
-					fill_stlist(&tty, ttyinfo.tty, ftell(fi) - ttyinfohdr.recsize);
+					fill_stlist(&tty, ttyinfo.comment, ftell(fi) - ttyinfohdr.recsize);
 			sort_stlist(&tty);
 
 			for (tmp = tty; tmp; tmp = tmp->next) {
