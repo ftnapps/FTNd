@@ -92,24 +92,25 @@ static void die(int onsig)
 		if ((fp = fopen(temp, "w")) != NULL) {
 			fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
 			fprintf(fp, "; Basic information\n;\n");
-			fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
-			fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
-			for (i = 1; i < 40; i++)
+			if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
+			    fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
+			    fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
+			    for (i = 1; i < 40; i++)
 				if (CFG.akavalid[i])
 					fprintf(fp, "AKA     %s\n", aka2str(CFG.aka[i]));
-			fprintf(fp, "\n");
+			    fprintf(fp, "\n");
 
-			gold_akamatch(fp);
+			    gold_akamatch(fp);
+			    fprintf(fp, "; JAM MessageBase Setup\n;\n");
+			    fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
+			    fprintf(fp, "JAMHARDDELETE NO\n\n");
 
-			fprintf(fp, "; JAM MessageBase Setup\n;\n");
-			fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
-			fprintf(fp, "JAMHARDDELETE NO\n\n");
+			    fprintf(fp, "; Semaphore files\n;\n");
+			    fprintf(fp, "SEMAPHORE NETSCAN    %s/sema/mailout\n", getenv("MBSE_ROOT"));
+			    fprintf(fp, "SEMAPHORE ECHOSCAN   %s/sema/mailout\n\n", getenv("MBSE_ROOT"));
 
-			fprintf(fp, "; Semaphore files\n;\n");
-			fprintf(fp, "SEMAPHORE NETSCAN    %s/sema/mailout\n", getenv("MBSE_ROOT"));
-			fprintf(fp, "SEMAPHORE ECHOSCAN   %s/sema/mailout\n\n", getenv("MBSE_ROOT"));
-
-			gold_areas(fp);
+			    gold_areas(fp);
+			}
 			Syslog('+', "Created new %s", temp);
 		} else {
 			WriteError("$Could not create %s", temp);

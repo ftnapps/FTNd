@@ -2,7 +2,7 @@
  *
  * File ..................: m_node.c
  * Purpose ...............: Nodes Setup Program 
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -70,7 +70,6 @@ int CountNoderec(void)
 			nodeshdr.mailgrp = CFG.toss_groups * 13;
 			fwrite(&nodeshdr, sizeof(nodeshdr), 1, fil);
 			fclose(fil);
-			Syslog('+', "Created nodes.data");
 			return 0;
 		} else
 			return -1;

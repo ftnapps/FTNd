@@ -4156,6 +4156,8 @@ v0.33.18        27-Jul-2001
 		should be used only once (but doesn't hurt if run more then
 		once) on a new installation.
 		A check is build in that mbsetup is started by user mbse.
+		Fixed segfault error during exit of mbsetup when writing the
+		golded.inc file when the bbs is more or less unconfigured.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a
