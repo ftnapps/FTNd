@@ -52,6 +52,10 @@
 #include <stdio.h>
 #include "utmp.h"
 
+#if defined(__NetBSD__)
+#undef LOGIN_PROCESS
+#undef HAVE_UTMPX_H
+#endif
 
 #if HAVE_UTMPX_H
 extern	struct	utmpx	utxent;

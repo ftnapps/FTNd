@@ -41,6 +41,9 @@
 #if defined(SHADOW_PASSWORD)
 #include <shadow.h>
 #endif
+#if defined(__NetBSD__)
+#undef HAVE_UTMPX_H
+#endif
 #if HAVE_UTMPX_H
 #include <utmpx.h>
 #endif

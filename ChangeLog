@@ -26,6 +26,9 @@ v0.51.3		22-Mar-2003
 	mbfido:
 		The area tags are now created in /opt/mbse/share/doc/tags.
 
+	mblogin:
+		Changed some defines for NetBSD 1.6.2
+
 
 v0.51.2		06-Mar-2004 - 22-Mar-2003
 
