@@ -293,6 +293,10 @@ long Report(gr_list *ta, long filepos)
 	return 0;
     }
 
+    MacroVars("GJZ", "ssd", "", "", 0);
+    MacroVars("slbkdt", "ssddss", "", "", 0, 0, "", "");
+    MacroVars("ABZ", "ddd", 0, 0, 0);
+
     while (fread(&T_File, sizeof(T_File), 1, fp) == 1) {
 	if ((!strcmp(T_File.Echo, ta->echo)) && (!strcmp(T_File.Group, ta->group)))
 	    break;
@@ -322,7 +326,7 @@ long Report(gr_list *ta, long filepos)
 	     * Report one newfile, first line.
 	     */
 	    fseek(fi, filepos1, SEEK_SET);
-	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, " ",
+	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, rfcdate(T_File.Fdate),
 				    To_Low(T_File.LDesc[0],newfiles.HiAscii));
 	    Msg_Macro(fi);
 	    filepos2 = ftell(fi);
@@ -335,8 +339,8 @@ long Report(gr_list *ta, long filepos)
 		if (strlen(T_File.LDesc[i])) {
 		    Msg_Macro(fi);
 		} else {
-		    line = calloc(255, sizeof(char));
-		    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
+		    line = calloc(MAXSTR, sizeof(char));
+		    while ((fgets(line, MAXSTR-2, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
 		    free(line);
 		}
 		filepos3 = ftell(fi);
@@ -397,7 +401,7 @@ int Announce()
     Uploads();
     IsDoing("Announce files");
 
-    temp = calloc(128, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
 	Syslog('+', "No new files to announce");
@@ -470,10 +474,11 @@ int Announce()
 		if ((filepos1 = StartMsg()) != -1) {
 		    filepos2 = 0;
 		    while (fread(&group, 13, 1, fp) == 1) {
-			for (tmp = fgr; tmp; tmp = tmp->next)
+			for (tmp = fgr; tmp; tmp = tmp->next) {
 			    if (!strcmp(tmp->group, group)) {
 				filepos2 = Report(tmp, filepos1);
 			    }
+			}
 		    }
 		    FinishMsg(TRUE, filepos2);
 		}

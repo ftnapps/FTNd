@@ -228,8 +228,8 @@ int ProcessTic(fa_list *sbl)
 		}
 	}
 
-	strcpy(T_File.Echo, tic.Name);
-	strcpy(T_File.Group, tic.Group);
+	strncpy(T_File.Echo, tic.Name, 20);
+	strncpy(T_File.Group, tic.Group, 12);
 	TIC.KeepNum = tic.KeepLatest;
 
 	Magic_Keepnum();
@@ -267,9 +267,9 @@ int ProcessTic(fa_list *sbl)
 		 * the group to that name.
 		 */
 		if (strlen(area.NewGroup))
-			strcpy(T_File.Group, area.NewGroup);
+			strncpy(T_File.Group, area.NewGroup, 12);
 	}
-	strcpy(T_File.Comment, tic.Comment);
+	strncpy(T_File.Comment, tic.Comment, 55);
 
 	/*
 	 * Check if the destination area really exists, it may be that
@@ -701,10 +701,11 @@ int ProcessTic(fa_list *sbl)
 			Magic_UpDateAlias();
 
 		for (i = 0; i <= TIC.File_Id_Ct; i++)
-			strcpy(T_File.LDesc[i], TIC.File_Id[i]);
+			strncpy(T_File.LDesc[i], TIC.File_Id[i], 48);
 		T_File.TotLdesc = TIC.File_Id_Ct;
 		T_File.Announce = tic.Announce;
-		strcpy(T_File.Name, TIC.NewName);
+		strncpy(T_File.Name, TIC.NewName, 12);
+		strncpy(T_File.LName, TIC.NewName, 80);
 		T_File.Fdate = TIC.FileDate;
 		T_File.Cost = TIC.TicIn.Cost;
 		Add_ToBeRep();

@@ -67,8 +67,9 @@ int main(int argc, char **argv)
 		printf("File echo     %s\n", rep.Echo);
 		printf("Comment       %s\n", rep.Comment);
 		printf("Group         %s\n", rep.Group);
-		printf("File name     %s\n", rep.Name);
-		printf("FIle size     %lu\n", (long)(rep.Size));
+		printf("Short name    %s\n", rep.Name);
+		printf("Long name     %s\n", rep.LName);
+		printf("File size     %lu\n", (long)(rep.Size));
 		printf("File size Kb  %lu\n", rep.SizeKb);
 		printf("File date     %s", ctime(&rep.Fdate));
 		printf("File CRC      %s\n", rep.Crc);

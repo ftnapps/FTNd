@@ -106,10 +106,11 @@ void Msg_Macro(FILE *fi)
     char    *temp, *line;
     int	    res;
 
-    temp = calloc(256, sizeof(char));
-    line = calloc(256, sizeof(char));
+    temp = calloc(MAXSTR, sizeof(char));
+    line = calloc(MAXSTR, sizeof(char));
 
-    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {
+    while ((fgets(line, MAXSTR-2, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {
+
 	/*
 	 * Skip comment lines
 	 */
@@ -121,7 +122,7 @@ void Msg_Macro(FILE *fi)
 		 */
 		MsgText_Add2((char *)"");
 	    } else {
-		strncpy(temp, ParseMacro(line,&res), 254);
+		strncpy(temp, ParseMacro(line,&res), MAXSTR-2);
 		if (res)
 		    Syslog('!', "Macro error line: \"%s\"", line);
 		/*
@@ -160,6 +161,7 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
+	    MacroVars("pqrf", "dsss", 0, "", "", "");
 	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && ttyinfo.available && strlen(ttyinfo.phone)) {
 		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
@@ -250,7 +252,7 @@ char *To_Low(char *inp, int High)
 	int		i;
 
 	memset(&temp, 0, sizeof(temp));
-	sprintf(temp, "%s", inp);
+	strncpy(temp, inp, 80);
 
 	if (High)
 		return temp;
