@@ -22,8 +22,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	N: Implement session and time/day limits.
-
 	L: Better word wrapping or paragraph justification in editor.
 
 	L: E-mail downloads with e-mail verification.
@@ -65,8 +63,6 @@ mbfido:
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
-	U: GoldED messages to internet becomes null.
-
 	N: Process GoldED filerequest netmails with the filereq flag set, we
 	   should create a .req file with the contents of the subject line.
 
@@ -77,9 +73,6 @@ mbfido:
 	L: Implement netmail K/S flag to mark netmail Deleted.
 
 	N: Implement file requests for directory nodes.
-
-	N: Long email gated to netmail and splitted in several messages, the
-	   second and higher messages get the wrong flavor.
 
 	L: Add %from command to areamgr/filemgr.
 
