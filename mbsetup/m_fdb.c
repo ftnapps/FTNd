@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_fdb.c
  * Purpose ...............: Edit Files DataBase.
- * Last modification date : 18-Mar-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1999-2000
+ * Copyright (C) 1999-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -120,7 +120,7 @@ void EditFile()
 void E_F(long areanr)
 {
 	FILE		*fil;
-	char		temp[81];
+	char		temp[PATH_MAX];
 	int		i, y, o, records, Ondisk;
 	char		help[81];
 	static	char	*menu = (char *)"0";

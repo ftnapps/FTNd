@@ -2,10 +2,10 @@
  *
  * File ..................: m_ff.c
  * Purpose ...............: Filefind Setup
- * Last modification date : 29-Oct-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,12 +54,13 @@ int	FilefindUpdated = 0;
 int CountFilefind(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			scanmgrhdr.hdrsize = sizeof(scanmgrhdr);
 			scanmgrhdr.recsize = sizeof(scanmgr);
 			fwrite(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
@@ -84,10 +85,11 @@ int CountFilefind(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenFilefind(void);
 int OpenFilefind(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
@@ -101,9 +103,10 @@ int OpenFilefind(void)
 			 * database must always be updated.
 			 */
 			oldsize    = scanmgrhdr.recsize;
-			if (oldsize != sizeof(scanmgr))
+			if (oldsize != sizeof(scanmgr)) {
 				FilefindUpdated = 1;
-			else
+				Syslog('+', "Updated %s to new format", fnin);
+			} else
 				FilefindUpdated = 0;
 			scanmgrhdr.hdrsize = sizeof(scanmgrhdr);
 			scanmgrhdr.recsize = sizeof(scanmgr);
@@ -130,9 +133,10 @@ int OpenFilefind(void)
 
 
 
-void CloseFilefind(void)
+void CloseFilefind(int);
+void CloseFilefind(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*fff = NULL, *tmp;
 
@@ -140,7 +144,7 @@ void CloseFilefind(void)
 	sprintf(fout,"%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 
 	if (FilefindUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -175,7 +179,7 @@ void CloseFilefind(void)
 int AppendFilefind(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -220,7 +224,7 @@ void FFScreen(void)
 int EditFfRec(int Area)
 {
 	FILE		*fil;
-	char		mfile[81], temp1[2];
+	char		mfile[PATH_MAX], temp1[2];
 	long		offset;
 	unsigned long	crc, crc1;
 	int		i;
@@ -313,7 +317,7 @@ void EditFilefind(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -376,7 +380,7 @@ void EditFilefind(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseFilefind();
+			CloseFilefind(FALSE);
 			return;
 		}
 
@@ -405,9 +409,18 @@ void EditFilefind(void)
 
 
 
+void InitFilefind(void)
+{
+    CountFilefind();
+    OpenFilefind();
+    CloseFilefind(TRUE);
+}
+
+
+
 int ff_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81];
+	char		temp[PATH_MAX];
 	FILE		*no;
 	int		j;
 

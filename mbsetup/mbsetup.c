@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup.c
  * Purpose ...............: Setup Program 
- * Last modification date : 24-Jun-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -39,6 +39,8 @@
 #include "ledit.h"
 #include "m_global.h"
 #include "m_bbs.h"
+#include "m_farea.h"
+#include "m_fgroup.h"
 #include "m_mail.h"
 #include "m_tic.h"
 #include "m_fido.h"
@@ -156,7 +158,7 @@ void site_docs(void);
 void site_docs(void)
 {
 	FILE	*fp, *toc;
-	char	temp[81], temp1[81];
+	char	temp[PATH_MAX], temp1[PATH_MAX];
 	int	page = 0, line = 0;
 
 	if (config_read() == -1)
@@ -315,6 +317,24 @@ void site_docs(void)
 
 
 
+void initdatabases(void)
+{
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Init Databases");
+    
+    InitArchive();
+    InitDomain();
+    InitFilearea();
+    InitFilefind();
+    InitFGroup();
+
+    working(0, 0, 0);
+    clr_index();
+}
+
+
+
 int main(int argc, char *argv[])
 {
 	int		loop = 1;
@@ -351,7 +371,8 @@ int main(int argc, char *argv[])
 	do_quiet = TRUE;
 	Syslog(' ', " ");
 	Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
-
+	initdatabases();
+	
 	do {
 		IsDoing("Browsing Menu");
 		clr_index();

@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_archive.c
  * Purpose ...............: Setup Archive structure.
- * Last modification date : 22-Jan-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	ArchUpdated = 0;
 int CountArchive(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			archiverhdr.hdrsize = sizeof(archiverhdr);
 			archiverhdr.recsize = sizeof(archiver);
 			fwrite(&archiverhdr, sizeof(archiverhdr), 1, fil);
@@ -168,10 +169,11 @@ int CountArchive(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenArchive(void);
 int OpenArchive(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/archiver.data", getenv("MBSE_ROOT"));
@@ -185,9 +187,10 @@ int OpenArchive(void)
 			 * database must always be updated.
 			 */
 			oldsize = archiverhdr.recsize;
-			if (oldsize != sizeof(archiver))
+			if (oldsize != sizeof(archiver)) {
 				ArchUpdated = 1;
-			else
+				Syslog('+', "Format of %s changed, updateing", fnin);
+			} else
 				ArchUpdated = 0;
 			archiverhdr.hdrsize = sizeof(archiverhdr);
 			archiverhdr.recsize = sizeof(archiver);
@@ -215,9 +218,10 @@ int OpenArchive(void)
 
 
 
-void CloseArchive(void)
+void CloseArchive(int);
+void CloseArchive(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*arc = NULL, *tmp;
 
@@ -225,7 +229,7 @@ void CloseArchive(void)
 	sprintf(fout,"%s/etc/archiver.temp", getenv("MBSE_ROOT"));
 
 	if (ArchUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -260,7 +264,7 @@ void CloseArchive(void)
 int AppendArchive(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/archiver.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -281,7 +285,7 @@ int AppendArchive(void)
 int EditArchRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -382,7 +386,7 @@ void EditArchive(void)
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -441,7 +445,7 @@ void EditArchive(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseArchive();
+			CloseArchive(FALSE);
 			return;
 		}
 
@@ -462,13 +466,22 @@ void EditArchive(void)
 
 
 
+void InitArchive(void)
+{
+    CountArchive();
+    OpenArchive();
+    CloseArchive(TRUE);
+}
+
+
+
 char *PickArchive(char *shdr)
 {
 	static	char Arch[6] = "";
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -533,7 +546,7 @@ char *PickArchive(char *shdr)
 
 int archive_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*arch;
 	int	j;
 

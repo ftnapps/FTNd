@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_fgroups.c
  * Purpose ...............: Setup FGroups.
- * Last modification date : 29-Oct-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,12 +55,13 @@ int	FGrpUpdated = 0;
 int CountFGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			fgrouphdr.hdrsize = sizeof(fgrouphdr);
 			fgrouphdr.recsize = sizeof(fgroup);
 			fwrite(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
@@ -87,10 +88,11 @@ int CountFGroup(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenFGroup(void);
 int OpenFGroup(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
@@ -113,11 +115,14 @@ int OpenFGroup(void)
 			 * database must always be updated.
 			 */
 			oldsize = fgrouphdr.recsize;
-			if (oldsize != sizeof(fgroup))
+			if (oldsize != sizeof(fgroup)) 
 				FGrpUpdated = 1;
 			fgrouphdr.hdrsize = sizeof(fgrouphdr);
 			fgrouphdr.recsize = sizeof(fgroup);
 			fwrite(&fgrouphdr, sizeof(fgrouphdr), 1, fout);
+
+			if (FGrpUpdated)
+			    Syslog('+', "Updated %s, format changed", fnin);
 
 			/*
 			 * The datarecord is filled with zero's before each
@@ -141,9 +146,10 @@ int OpenFGroup(void)
 
 
 
-void CloseFGroup(void)
+void CloseFGroup(int);
+void CloseFGroup(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*fgr = NULL, *tmp;
 
@@ -151,7 +157,7 @@ void CloseFGroup(void)
 	sprintf(fout,"%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 
 	if (FGrpUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -186,7 +192,7 @@ void CloseFGroup(void)
 int AppendFGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -251,7 +257,7 @@ void FgScreen(void)
 int EditFGrpRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j, tmp;
 	unsigned long crc, crc1;
@@ -352,7 +358,7 @@ void EditFGroup(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -415,7 +421,7 @@ void EditFGroup(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseFGroup();
+			CloseFGroup(FALSE);
 			return;
 		}
 
@@ -444,13 +450,22 @@ void EditFGroup(void)
 
 
 
+void InitFGroup(void)
+{
+    CountFGroup();
+    OpenFGroup();
+    CloseFGroup(TRUE);
+}
+
+
+
 char *PickFGroup(char *shdr)
 {
 	static	char FGrp[21] = "";
 	int	records, i, o = 0, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -537,7 +552,7 @@ char *PickFGroup(char *shdr)
 
 int tic_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

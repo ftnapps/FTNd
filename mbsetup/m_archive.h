@@ -7,6 +7,7 @@
 int  CountArchive(void);
 void EditArchive(void);
 char *PickArchive(char *);
+void InitArchive(void);
 int  archive_doc(FILE *, FILE *, int);
 
 #endif

@@ -2,10 +2,10 @@
  *
  * File ..................: m_farea.c
  * Purpose ...............: File Setup Program 
- * Last modification date : 28-Mar-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,12 +55,13 @@ int	FileUpdated = 0;
 int CountFilearea(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			areahdr.hdrsize = sizeof(areahdr);
 			areahdr.recsize = sizeof(area);
 			fwrite(&areahdr, sizeof(areahdr), 1, fil);
@@ -88,7 +89,7 @@ int CountFilearea(void)
 int OpenFilearea(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/fareas.data", getenv("MBSE_ROOT"));
@@ -102,9 +103,10 @@ int OpenFilearea(void)
 			 * database must always be updated.
 			 */
 			oldsize = areahdr.recsize;
-			if (oldsize != sizeof(area))
+			if (oldsize != sizeof(area)) {
 				FileUpdated = 1;
-			else
+				Syslog('+', "Updated %s to new format", fnin);
+			} else
 				FileUpdated = 0;
 			areahdr.hdrsize = sizeof(areahdr);
 			areahdr.recsize = sizeof(area);
@@ -131,15 +133,16 @@ int OpenFilearea(void)
 
 
 
-void CloseFilearea(void)
+void CloseFilearea(int);
+void CloseFilearea(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 
 	sprintf(fin, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 	sprintf(fout,"%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 
 	if (FileUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
@@ -156,7 +159,7 @@ void CloseFilearea(void)
 int AppendFilearea(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -223,7 +226,7 @@ void FileScreen(void)
 int EditFileRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	unsigned long crc, crc1;
 
@@ -345,7 +348,7 @@ void EditFilearea(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -408,7 +411,7 @@ void EditFilearea(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseFilearea();
+			CloseFilearea(FALSE);
 			return;
 		}
 
@@ -442,7 +445,7 @@ long PickFilearea(char *shdr)
 	int	records, i, o = 0, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -526,9 +529,18 @@ long PickFilearea(char *shdr)
 
 
 
+void InitFilearea(void)
+{
+    CountFilearea();
+    OpenFilearea();
+    CloseFilearea(TRUE);
+}
+
+
+
 int bbs_file_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81];
+	char		temp[PATH_MAX];
 	FILE		*no;
 	int		i = 0, j = 0;
 
