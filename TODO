@@ -59,6 +59,8 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
+	N: Must be able to use more nodelist override's from the setup.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
@@ -104,6 +106,8 @@ mbsetup:
 	N: Put ZMH fields in the network setup for each zone.
 
 	N: Add switch for file area to skip checking and indexing.
+
+	N: Add more nodelist override settings for nodes.
 
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups
