@@ -9,6 +9,8 @@ v0.51.1		21-Feb-2004
 		global editor (to Latin-1 for example). Local and netmail
 		areas must be done by hand because they are most likely not
 		in a group.
+		The macro templates are updated, you may want to install the
+		new ones.
 
 	SETUP.sh:
 		Changed to support Darwin (OS X). Note that in earlier days
