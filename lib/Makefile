@@ -40,7 +40,7 @@ OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJ
 		  ${DIESEL_OBJS} ${NODELIST_OBJS}
 HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 		  ${DIESEL_HDRS} ${NODELIST_HDRS} ${OTHER_HDRS}
-OTHER		= Makefile README ftscprod.006 mkprod.awk \
+OTHER		= Makefile README ftscprod.007 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
 		  libnodelist.a

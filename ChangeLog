@@ -28,6 +28,8 @@ v0.37.6		10-Aug-2003
 		Changed all gif and jpg images to png images.
 		Added a setup switch for the nodes for selecting the wrong
 		binkp long filenames escape method for Argus and Irex nodes.
+		Activated the productcode for mbse that is published in the
+		ftscprod.007
 
 	nodelist.a:
 		Removed some of the debug logging.
