@@ -114,6 +114,12 @@ if test "$result" = "yes"; then
   AC_CHECK_HEADERS(crypt.h)
 fi
 
+AC_CHECK_LIB(util,login,result=yes,result=no)
+if test "$result" = "yes"; then
+  LIBS="$LIBS -lutil"
+  AC_CHECK_HEADERS(libutil.h)
+fi
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_DIRENT

@@ -61,6 +61,8 @@ int pw_auth(const char *cipher, const char *user, int reason, const char *input)
 	const char *cp;
 	int	retval;
 
+	printf("\n%s %s %d %s\n", cipher, user, reason, input);
+
 	/*
 	 * There are programs for adding and deleting authentication data.
 	 */

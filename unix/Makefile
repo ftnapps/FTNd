@@ -7,17 +7,17 @@ include ../Makefile.global
 SRCS		= commonio.c putpwent.c salt.c sgetpwent.c xmalloc.c myname.c encrypt.c \
 		  pwio.c shadowio.c mbpasswd.c mbuseradd.c rad64.c getdef.c pw_util.c \
 		  mblogin.c env.c chowntty.c shell.c basename.c pwdcheck.c pwauth.c \
-		  loginprompt.c utmp.c limits.c setupenv.c sub.c log.c setugid.c utent.c
+		  loginprompt.c utmp.c limits.c setupenv.c sub.c log.c setugid.c
 HDRS		= commonio.h putpwent.h salt.h sgetpwent.h xmalloc.h myname.h encrypt.h \
 		  pwio.h shadowio.h mbpasswd.h mbuseradd.h rad64.h getdef.h pw_util.h \
 		  mblogin.h env.h chowntty.h shell.h basename.h pwdcheck.h pwauth.h \
-		  loginprompt.h utmp.h limits.h setupenv.h sub.h log.h setugid.h utent.h
+		  loginprompt.h utmp.h limits.h setupenv.h sub.h log.h setugid.h
 MBUSERADD_OBJS	= mbuseradd.o
 MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
 		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o pw_util.o
 MBLOGIN_OBJS	= getdef.o env.o chowntty.o shell.o basename.o pwdcheck.o pwauth.o encrypt.o \
 		  loginprompt.o utmp.o limits.o setupenv.o sub.o xmalloc.o log.o setugid.o \
-		  utent.o mblogin.o
+		  mblogin.o
 OTHER		= Makefile login.defs.in
 TARGET		= mbuseradd mbpasswd mblogin
 
@@ -112,5 +112,4 @@ setupenv.o: ../config.h mblogin.h getdef.h xmalloc.h env.h setupenv.h
 sub.o: ../config.h mblogin.h sub.h
 log.o: ../config.h mblogin.h log.h
 setugid.o: ../config.h mblogin.h getdef.h setugid.h
-utent.o: ../config.h mblogin.h
 # End of generated dependencies

@@ -42,12 +42,11 @@
 #endif
 #if HAVE_UTMPX_H
 #include <utmpx.h>
-#else
-#include <utmp.h>
 #endif
+#include <utmp.h>
 #include <signal.h>
 #include <unistd.h>
-#include <utmp.h>
+#include <ctype.h>
 #include "getdef.h"
 
 #ifdef SVR4_SI86_EUA
@@ -377,8 +376,6 @@ int main(int argc, char **argv)
 	 */
 	wipe_clear_pass = 0;
 #endif
-	printf("\nMBSE BBS v%s\n", VERSION);
-	printf("%s\n\n", COPYRIGHT);
 
 	/*
 	 * Some quick initialization.
@@ -426,6 +423,14 @@ int main(int argc, char **argv)
 
 	if (!isatty(0) || !isatty(1) || !isatty(2))
 		exit(1);		/* must be a terminal */
+
+	if (hflg) {
+	    /*
+	     * Only show this before a prompt from telnetd
+	     */
+	    printf("\nMBSE BBS v%s\n", VERSION);
+	    printf("%s\n\n", COPYRIGHT);
+	}
 
 	/*
 	 * Be picky if run by normal users (possible if installed setuid
@@ -586,11 +591,16 @@ top:
 		 * Here we try usernames on unix names and Fidonet style
 		 * names that are stored in the bbs userdatabase.
 		 * The name "bbs" is for new users, don't check the bbs userfile.
+		 * If allowed from login.defs accept the name "mbse".
 		 */
-		if (strcmp(username, "bbs") == 0) {
+		FoundName = 0;
+		if (strcmp(username, getdef_str("NEWUSER_ACCOUNT")) == 0) {
 		    FoundName = 1;
-		} else {
-		    FoundName = 0;
+		} 
+		if ((getdef_bool("ALLOW_MBSE") != 0) && (strcmp(username, "mbse") == 0)) {
+		    FoundName = 1;
+		}
+		if (! FoundName) {
 		    if ((ufp = fopen(userfile, "r"))) {
 			fread(&usrconfighdr, sizeof(usrconfighdr), 1, ufp);
 			while (fread(&usrconfig, usrconfighdr.recsize, 1, ufp) == 1) {
@@ -603,6 +613,22 @@ top:
 			    }
 			}
 			fclose(ufp);
+		    }
+		}
+
+		if (!FoundName) {
+		    if  (getdef_bool("ASK_NEWUSER") != 0) {
+			/*
+			 * User entered none excisting name, offer him/her the choice
+			 * to register as a new user.
+			 */
+			login_prompt(_("Do you want to register as new user? [y/N]: "), username, sizeof username);
+			if ((username[0] && (toupper(username[0]) == 'Y'))) {
+			    FoundName = 1;
+			    preauth_flag = 0;
+			    STRFCPY(username, getdef_str("NEWUSER_ACCOUNT"));
+			    syslog(LOG_WARNING, "unknown user wants to register");
+			}
 		    }
 		}
 
@@ -714,11 +740,8 @@ auth_ok:
 	if (getenv("IFS"))		/* don't export user IFS ... */
 		addenv("IFS= \t\n", NULL);  /* ... instead, set a safe IFS */
 
-#ifdef __FreeBSD__
-	setutmp(username, tty); /* make entry in utmp & wtmp files */
-#else
 	setutmp(username, tty, hostname); /* make entry in utmp & wtmp files */
-#endif
+
 	if (pwent.pw_shell[0] == '*') {	/* subsystem root */
 		subsystem (&pwent);	/* figure out what to execute */
 		subroot++;		/* say i was here again */
@@ -816,7 +839,6 @@ auth_ok:
 		syslog(LOG_INFO, REG_LOGIN, username, fromhost);
 	closelog();
 
-	sleep(3);
 	shell (pwent.pw_shell, (char *) 0); /* exec the shell finally. */
 	/*NOTREACHED*/
 	return 0;

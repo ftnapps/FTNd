@@ -38,6 +38,11 @@
 #include <utmpx.h>
 #endif
 
+#ifdef __FreeBSD__
+#include <sys/types.h>
+#include <libutil.h>
+#endif
+
 #include <fcntl.h>
 #include <stdio.h>
 #include "utmp.h"
@@ -70,8 +75,7 @@ extern	struct	utmp	utent;
 
 #if defined(__linux__)  /* XXX */
 
-void
-checkutmp(int picky)
+void checkutmp(int picky)
 {
 	char *line;
 	struct utmp *ut;
@@ -113,14 +117,14 @@ checkutmp(int picky)
 
 #elif defined(LOGIN_PROCESS)
 
-void
-checkutmp(int picky)
+void checkutmp(int picky)
 {
 	char *line;
 	struct utmp *ut;
 #if HAVE_UTMPX_H
 	struct utmpx *utx;
 #endif
+
 	pid_t pid = getpid();
 
 #if HAVE_UTMPX_H
@@ -208,8 +212,10 @@ checkutmp(int picky)
 
 #else	/* !USG */
 
-void
-checkutmp(int picky)
+/*
+ * Also used for FreeBSD
+ */
+void checkutmp(int picky)
 {
 	char *line;
 
@@ -252,8 +258,7 @@ void updwtmp(const char *filename, const struct utmp *ut)
 
 #ifdef HAVE_UTMPX_H
 #ifndef HAVE_UPDWTMPX
-static void
-updwtmpx(const char *filename, const struct utmpx *utx)
+static void updwtmpx(const char *filename, const struct utmpx *utx)
 {
 	int fd;
 
@@ -276,8 +281,7 @@ updwtmpx(const char *filename, const struct utmpx *utx)
 
 #if defined(__linux__) /* XXX */
 
-void
-setutmp(const char *name, const char *line, const char *host)
+void setutmp(const char *name, const char *line, const char *host)
 {
 	utent.ut_type = USER_PROCESS;
 	strncpy(utent.ut_user, name, sizeof utent.ut_user);
@@ -291,14 +295,14 @@ setutmp(const char *name, const char *line, const char *host)
 
 #elif HAVE_UTMPX_H
 
-void
-setutmp(const char *name, const char *line, const char *host)
+void setutmp(const char *name, const char *line, const char *host)
 {
 	struct	utmp	*utmp, utline;
 	struct	utmpx	*utmpx, utxline;
 	pid_t	pid = getpid ();
 	int	found_utmpx = 0, found_utmp = 0;
 
+	printf("setutmp HAVE_UTMP_H\n");
 	/*
 	 * The canonical device name doesn't include "/dev/"; skip it
 	 * if it is already there.
@@ -385,10 +389,30 @@ setutmp(const char *name, const char *line, const char *host)
 	utent = utline;
 }
 
+#elif __FreeBSD__
+
+/*
+ * FreeBSD version, simple and mean.
+ */
+void setutmp(const char *name, const char *line, const char *host)
+{
+	struct	utmp	utmp;
+
+	memset(&utmp, 0, sizeof(utmp));
+
+	strncpy(utmp.ut_line, line, (int) sizeof utmp.ut_line);
+	strncpy(utmp.ut_name, name, sizeof utent.ut_name);
+	strncpy(utmp.ut_host, host, sizeof utent.ut_host);
+	(void) time (&utmp.ut_time);
+
+	login(&utmp);
+	utent = utmp;
+}
+
+
 #else /* !SVR4 */
 
-void
-setutmp(const char *name, const char *line)
+void setutmp(const char *name, const char *line)
 {
 	struct	utmp	utmp;
 	int	fd;
@@ -420,9 +444,7 @@ setutmp(const char *name, const char *line)
 	 * while System V has the name, PID and a type.
 	 */
 
-#ifndef	__FreeBSD__
 	strncpy(utmp.ut_user, name, sizeof utent.ut_user);
-#endif
 #ifdef USER_PROCESS
 	utmp.ut_type = USER_PROCESS;
 	utmp.ut_pid = getpid ();

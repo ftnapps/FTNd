@@ -65,6 +65,8 @@
 /* Defined if it includes *Pw functions.  */
 #undef HAVE_LIBCRACK_PW
 
+/* Defined if you have libutil.h */
+#undef HAVE_LIBUTIL_H
 
 /* Defined if it includes *Pw functions.  */
 #undef HAVE_LIBCRACK_PW
