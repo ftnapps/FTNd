@@ -7,6 +7,9 @@ $Id$
 
 v0.37.5		12-Jul-2003
 
+	common.a:
+		Node locking tests for non-stale lockfiles older then 6 hours.
+
 
 v0.37.4		10-May-2003 - 12-Jul-2003
 

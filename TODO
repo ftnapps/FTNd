@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.37.03 TODO list.
+			MBSE BBS V0.37.05 TODO list.
 			----------------------------
 
 	These are a list of things that must be implemented one way or
@@ -106,9 +106,6 @@ mbcico:
 
 	N: Implement binkp resync when getting files. Transmit works.
 
-	N: Add better check for stale outbound locks, check if the pid is from
-	   a non-mbse program or add a age check.
-
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
 
@@ -132,12 +129,6 @@ mbaff:
 
 mbindex:
 	N: Add usernames index.
-
-mbmon:
-	L: Logfile tail functions.
-
-mbtask:
-	N: Add events.
 
 mbnewusr:
 	N: On NetBSD, supress error message from mbpasswd.
