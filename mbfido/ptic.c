@@ -731,10 +731,23 @@ int ProcessTic(fa_list *sbl)
 	 * Add all our system aka's to the seenby lines in the same zone
 	 */
 	for (i = 0; i < 40; i++) {
-	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) /* &&
-		!((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node)) */) {
-		sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
-		fill_list(&sbl, sbe, NULL);
+	    if (TIC.TicIn.Hatch) {
+		/*
+		 * Hatched file, add all aka's
+		 */
+		if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
+		    sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
+		    fill_list(&sbl, sbe, NULL);
+		}
+	    } else {
+		/*
+		 * Incoming file, don't add the aka already in the ticfile of our system.
+		 */
+		if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) &&
+		    !((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node))) {
+		    sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
+		    fill_list(&sbl, sbe, NULL);
+		}
 	    }
 	}
 
@@ -761,14 +774,20 @@ int ProcessTic(fa_list *sbl)
 	while (GetTicSystem(&Link, First)) {
 	    First = FALSE;
 	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
+		Syslog('p', "Forward loop to %s", aka2str(Link.aka));
 		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
 		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
+		    Syslog('p', "Will send");
 		    tic_out++;
 		    ForwardFile(Link.aka, sbl);
-		}			
+		    Syslog('p', "Did send");
+		} else {
+		    Syslog('p', "Will not send");
+		}
 	    }
 	}
     }
+    Syslog('p', "Forwarding to all nodes done");
 
     Magic_ExecCommand();
     Magic_CopyFile();
@@ -779,6 +798,7 @@ int ProcessTic(fa_list *sbl)
 
     unlink(Temp);
     free(Temp);
+    Syslog('p', "ptic() done");
     return 0;
 }
 
