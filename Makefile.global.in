@@ -27,6 +27,7 @@ CC		= @CC@
 AWK		= @AWK@
 TAR		= @TAR@
 ZIP		= @ZIP@
+MAKE		= @MAKE@
 
 # joe editor
 JOEBIN		= @joebin@

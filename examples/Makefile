@@ -16,6 +16,69 @@ OTHER		= Makefile header.txt footer.txt \
 
 all:
 
+help:
+		@echo "Installation help for the example files"
+		@echo ""
+		@echo "make install               Installs everything not yet installed"
+		@echo "make install-force         Reinstalls all menus, textfiles and macros"
+		@echo ""
+		@echo "make english-menus         Force (re)installation of English menus"
+		@echo "make english-txtfiles      Force (re)installation of English textfiles"
+		@echo "make english-macros        Force (re)installation of English macros"
+		@echo "make english               Force (re)installation of all ENglish files"
+		@echo ""
+		@echo "You may replace the word english above with spanish galego german dutch italian"
+
+english-menus:
+		@tar xfC menus-en.tar ${PREFIX}/english/menus
+		@echo "Installed default English menus"
+
+english-txtfiles:
+		@tar xfC txtfiles-en.tar ${PREFIX}/english/txtfiles
+		@echo "Installed default English txtfiles"
+
+english-macros:
+		@tar xfC templates-en.tar ${PREFIX}/english/macro
+		@echo "Installed default English macro files"
+
+english:	english-menus english-macros english-txtfiles
+
+
+spanish-menus:
+		@tar xfC menus-es.tar ${PREFIX}/spanish/menus
+		@echo "Installed default Spanish menus"
+
+spanish-txtfiles:
+		@tar xfC txtfiles-es.tar ${PREFIX}/spanish/txtfiles
+		@echo "Installed default Spanish txtfiles"
+
+spanish-macros:
+		@tar xfC templates-es.tar ${PREFIX}/spanish/macro
+		@echo "Installed default Spanish macro files"
+
+spanish:	spanish-menus spanish-txtfiles spanish-macros
+
+
+german-macros:
+		@tar xfC templates-de.tar ${PREFIX}/german/macro
+		@echo "Installed default German macro files"
+
+german:		german-macros
+
+
+dutch-macros:
+		@tar xfC templates-nl.tar ${PREFIX}/dutch/macro
+		@echo "Installed default Dutch macro files"
+
+dutch:		dutch-macros
+
+galego:
+
+italian:
+
+
+install-force:	english spanish dutch german italian galego
+
 
 install:
 		@if [ ! -f ${ETCDIR}/header.txt ]; then \
@@ -26,40 +89,14 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR}" ; \
 		fi
-		@if [ ! -f ${PREFIX}/english/menus/main.mnu ]; then \
-			tar xfC menus-en.tar ${PREFIX}/english/menus ; \
-			echo "tar xfC menus-en.tar ${PREFIX}/english/menus" ; \
-			echo "Installed default English menus" ; \
-		fi
-		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then \
-			tar xfC txtfiles-en.tar ${PREFIX}/english/txtfiles ; \
-			echo "Installed default English txtfiles" ; \
-		fi
-		@if [ ! -f ${PREFIX}/english/macro/html.tic ]; then \
-			tar xfC templates-en.tar ${PREFIX}/english/macro ; \
-			echo "Installed default English macro files" ; \
-		fi
-		@if [ ! -f ${PREFIX}/spanish/txtfiles/main.ans ]; then \
-			tar xfC txtfiles-es.tar ${PREFIX}/spanish/txtfiles ; \
-			echo "Installed default Spanish txtfiles" ; \
-		fi
-		@if [ ! -f ${PREFIX}/spanish/macro/html.tic ]; then \
-			tar xfC templates-es.tar ${PREFIX}/spanish/macro ; \
-			echo "Installed default Spanish macro files" ; \
-		fi
-		@if [ ! -f ${PREFIX}/spanish/menus/main.mnu ]; then \
-			tar xfC menus-es.tar ${PREFIX}/spanish/menus ; \
-			echo "tar xfC menus-es.tar ${PREFIX}/spanish/menus" ; \
-			echo "Installed default Spanish menus" ; \
-		fi
-		@if [ ! -f ${PREFIX}/german/macro/html.tic ]; then \
-			tar xfC templates-de.tar ${PREFIX}/german/macro ; \
-			echo "Installed default German macro files" ; \
-		fi
-		@if [ ! -f ${PREFIX}/dutch/macro/html.tic ]; then \
-			tar xfC templates-nl.tar ${PREFIX}/dutch/macro ; \
-			echo "Installed default Dutch macro files" ; \
-		fi
+		@if [ ! -f ${PREFIX}/english/menus/main.mnu ];    then ${MAKE} -s english-menus ;    fi
+		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then ${MAKE} -s english-txtfiles ; fi
+		@if [ ! -f ${PREFIX}/english/macro/html.tic ];    then ${MAKE} -s english-macros ;   fi
+		@if [ ! -f ${PREFIX}/spanish/menus/main.mnu ];    then ${MAKE} -s spanish-menus ;    fi
+		@if [ ! -f ${PREFIX}/spanish/txtfiles/main.ans ]; then ${MAKE} -s spanish-txtfiles ; fi
+		@if [ ! -f ${PREFIX}/spanish/macro/html.tic ];    then ${MAKE} -s spanish-macros ;   fi
+		@if [ ! -f ${PREFIX}/german/macro/html.tic ];     then ${MAKE} -s german-macros ;    fi
+		@if [ ! -f ${PREFIX}/dutch/macro/html.tic ];      then ${MAKE} -s dutch-macros ;     fi
 
 clean:
 		rm -f *.h~ *.c~ core filelist Makefile.bak

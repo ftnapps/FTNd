@@ -35,7 +35,9 @@ TARGET="$target"
 
 
 dnl Checks for programs.
-AC_PROG_CC
+dnl Try to find GNU make
+AC_CHECK_PROG(MAKE, gmake, gmake)
+AC_CHECK_PROG(MAKE, make, make)
 dnl Alternate awk check, I skip mawk because it doesn't work for MBSE.
 AC_CHECK_PROG(AWK, gawk, gawk)
 AC_CHECK_PROG(AWK, nawk, nawk)
@@ -292,7 +294,7 @@ AC_MSG_RESULT([
   Installation directories :
 
     Main directory    : ........... ${prefix}
-
+    Owner and group   : ........... ${OWNER}.${GROUP}
 
   Now type 'make' and as root 'make install'
 ])
