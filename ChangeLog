@@ -4629,6 +4629,9 @@ v0.33.20        10-Feb-2002
 		between the sysop name and fidonet aka.
 		When creating a filefind netmail reply there was no 
 		destination address.
+		Corrected spelling errors in the Areamgr and Filemgr help
+		messages.
+
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
 		create the allfiles and newfiles lists.

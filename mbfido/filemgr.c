@@ -85,7 +85,7 @@ void F_Help(faddr *t, char *replyid)
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr help", replyid)) != NULL) {
 	fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Filemgr");
-	fprintf(fp, "Youre FileMgr password goes on the subject line.\r\r");
+	fprintf(fp, "Your FileMgr password goes on the subject line.\r\r");
 
 	fprintf(fp, "In the body of the message to FileMgr:\r\r");
 

@@ -88,7 +88,7 @@ void A_Help(faddr *t, char *replyid)
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr help", replyid)) != NULL) {
 	fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Areamgr");
-	fprintf(fp, "Youre AreaMgr password goes on the subject line.\r\r");
+	fprintf(fp, "Your AreaMgr password goes on the subject line.\r\r");
 
 	fprintf(fp, "In the body of the message to AreaMgr:\r\r");
 
