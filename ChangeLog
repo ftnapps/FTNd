@@ -18,9 +18,11 @@ v0.71.1		28-Nov-2004
 		During hangup we set sighup to ignore.
 		Made zmodem-8k downloads work again.
 		Some small buffer protections added in addfile.
+		Fixed keyboad input for all bigendian machines.
 
 	mbnewuser:
 		During hangup we set sighup to ignore.
+		Fixed keyboad input for all bigendian machines.
 
 	mbfile:
 		The adopt command now first checks if the filename is 8.3 or a

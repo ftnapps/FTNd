@@ -50,23 +50,16 @@ int Waitchar(unsigned char *ch, int wtime)
 
     for (i = 0; i < wtime; i++) {
 	rc = GETCHAR(0);
-//	Syslog('t', "Waitchar(): after GETCHAR() tty_status = %d, rc = %d", tty_status, rc);
 	if (tty_status == STAT_SUCCESS) {
-//	    Syslog('t', "Waitchar(): return %d", rc);
-// #ifdef __NetBSD__
 	    *ch = (unsigned char)rc;
-// #else
-// 	    memcpy(ch, &rc, sizeof(unsigned char));
-// #endif
+// 	    memcpy(ch, &rc, sizeof(unsigned char)); /* doesn't work on bigendian machines */
 	    return 1;
 	}
 	if (tty_status != STAT_TIMEOUT) {
-//	    Syslog('t', "Waitchar(): error rc=%d", rc);
 	    return rc;
 	}
 	msleep(10);
     }
-//    Syslog('t', "Waitchar() timeout returns %d", rc);
     return rc;
 }
 
@@ -82,7 +75,6 @@ int Escapechar(unsigned char *ch)
      * 50 mSec, the user really pressed <esc>.
      */
     if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
-//	Syslog('t', "Escapechar() real escape");
 	return rc;
     }
 
@@ -91,9 +83,7 @@ int Escapechar(unsigned char *ch)
          *  Start of CSI sequence. If nothing follows,
          *  return immediatly.
          */
-//	Syslog('t', "Escapechar() CSI intro");
 	if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
-//	    Syslog('t', "Escapechar() nothing follows");
 	    return rc;
 	}
 
@@ -103,7 +93,6 @@ int Escapechar(unsigned char *ch)
          *  guaranteed to work with PC-clients.
          */
         c = *ch;
-//	Syslog('t', "Escapechar() CSI input %d", c);
         if (c == 'A')
 	    c = KEY_UP;
 	else if (c == 'B')
@@ -129,12 +118,10 @@ int Escapechar(unsigned char *ch)
 	    Waitchar(ch, 5);    /* Eat following ~ char */
 	    c = KEY_PGDN;
 	} else if (c == '1') {
-//	    Syslog('t', "Possible function key");
 	    if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
 		c = KEY_HOME;
 	    } else {
 		c = *ch;
-//		Syslog('t', "next %d %c", c, c);
 		Waitchar(ch, 5);    /* Eat following ~ char */
 		switch (c) {
 		    case '1'	: c = KEY_F1;	break;
@@ -148,11 +135,9 @@ int Escapechar(unsigned char *ch)
 		}
 	    }
 	}
-//	Syslog('t', "Escapechar() will return %d", c);
 	memcpy(ch, &c, sizeof(unsigned char));
 	return rc;
     }
-//    Syslog('t', "Escapechar() not a CSI sequence");
 
     return -1;
 }
@@ -171,32 +156,26 @@ unsigned char Readkey(void)
     unsigned char   ch = 0;
     int             rc = TIMEOUT;
 
-//    Syslog('t', "Readkey()");
     while (rc == TIMEOUT) {
 	rc = Waitchar(&ch, 5);
-//	Syslog('t', "rc = %d, ch = %d", rc, ch);
 
 	/*
          * If the character is not an Escape character,
          * then this function is finished.
          */
         if ((rc == 1) && (ch != KEY_ESCAPE)) {
-//	    Syslog('t', "Readkey() returns %d", ch);
 	    return ch;
 	}
 
 	if ((rc == 1) && (ch == KEY_ESCAPE)) {
 	    rc = Escapechar(&ch);
 	    if (rc == 1) {
-//		Syslog('t', "Readkey() escaped returns %d", ch);
 		return ch;
 	    } else {
-//		Syslog('t', "Readkey() escaped returns %d (real escape)", KEY_ESCAPE);
 		return KEY_ESCAPE;
 	    }
 	}
     }
-//    Syslog('t', "Readkey() returns %d", rc);
     return rc;
 }
 
