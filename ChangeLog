@@ -24,10 +24,6 @@ v0.71.1		28-Nov-2004
 		During hangup we set sighup to ignore.
 		Fixed keyboad input for all bigendian machines.
 
-	mbfido:
-		With html create some entries are not forced to use html
-		entinities. For test!
-
 	mbfile:
 		The adopt command now first checks if the filename is 8.3 or a
 		long filename and the correct format for import is then set.
@@ -51,6 +47,8 @@ v0.71.1		28-Nov-2004
 	mbfido:
 		In rfc2ftn a debug logmessage added to check for unrecognised
 		message ids.
+                With html create the general strings are now converted to html
+                entinities. 
 
 	mbnntp:
 		Removed dead timercode.

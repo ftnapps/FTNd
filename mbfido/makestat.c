@@ -147,8 +147,10 @@ void MakeStat(void)
 		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 		    if (mgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("b", "s", mgroup.Name);
-			MacroVars("c", "s", mgroup.Comment);
+			html_massage(mgroup.Name, name);
+			MacroVars("b", "s", name);
+			html_massage(mgroup.Comment, name);
+			MacroVars("c", "s", name);
 			MacroVars("d", "s", mgroup.UseAka.zone ? aka2str(mgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(mgroup.LastDate));
 			MacroVars("f", "d", mgroup.MsgsRcvd.lweek);
@@ -194,9 +196,12 @@ void MakeStat(void)
 			}
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "d", Area);
-			MacroVars("c", "s", msgs.Name);
-			MacroVars("d", "s", msgs.Tag);
-			MacroVars("e", "s", msgs.Group);
+			html_massage(msgs.Name, name);
+			MacroVars("c", "s", name);
+			html_massage(msgs.Tag, name);
+			MacroVars("d", "s", name);
+			html_massage(msgs.Group, name);
+			MacroVars("e", "s", name);
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
 			MacroVars("h", "d", msgs.Received.month[Lm]);
@@ -233,8 +238,10 @@ void MakeStat(void)
 		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 		    if (fgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("b", "s", fgroup.Name);
-			MacroVars("c", "s", fgroup.Comment);
+			html_massage(fgroup.Name, name);
+			MacroVars("b", "s", name);
+			html_massage(fgroup.Comment, name);
+			MacroVars("c", "s", name);
 			MacroVars("d", "s", fgroup.UseAka.zone ? aka2str(fgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(fgroup.LastDate));
 			MacroVars("f", "d", fgroup.Files.lweek);
@@ -271,9 +278,12 @@ void MakeStat(void)
 		while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
 		    if (tic.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("b", "s", tic.Comment);
-			MacroVars("c", "s", tic.Name);
-			MacroVars("d", "s", tic.Group);
+			html_massage(tic.Comment, name);
+			MacroVars("b", "s", name);
+			html_massage(tic.Name, name);
+			MacroVars("c", "s", name);
+			html_massage(tic.Group, name);
+			MacroVars("d", "s", name);
 			MacroVars("e", "s", adate(tic.LastAction));
 			MacroVars("f", "d", tic.Files.lweek);
 			MacroVars("g", "d", tic.KBytes.lweek);
@@ -318,7 +328,8 @@ void MakeStat(void)
 		    else
 			q = xstrcpy((char *)"Normal");
 		    MacroVars("b", "s", aka2str(nodes.Aka[0]));
-		    MacroVars("c", "s", nodes.Sysop);
+		    html_massage(nodes.Sysop, name);
+		    MacroVars("c", "s", name);
 		    MacroVars("d", "s", q);
 		    MacroVars("e", "s", p);
 		    MacroVars("f", "s", adate(nodes.LastDate));
