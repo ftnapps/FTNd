@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 	if ((fl = fopen(cmd, "a+")) == NULL) {
 	    Fatal((char *)"File attach failed", MBERR_ATTACH_FAILED);
 	} else {
-	    fprintf(fl, "%c LEAVE %s\n", flavor, argv[4]);
+	    fprintf(fl, "%c LEAVE NOR %s\n", flavor, argv[4]);
 	    Syslog('+', "File attach %s is successfull", argv[4]);
 	    if (!do_quiet)
 		printf("File attach %s is successfull", argv[4]);
