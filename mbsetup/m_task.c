@@ -113,15 +113,13 @@ int EditTask()
 	mvprintw(11, 1, " 6.  Index 3");
 	mvprintw(12, 1, " 7.  Msglink");
 	mvprintw(13, 1, " 8.  Reqindex");
-	mvprintw(14, 1, " 9.  ISP conn");
-	mvprintw(15, 1, "10.  ISP disc");
-	mvprintw(16, 1, "11.  Ping #1");
-	mvprintw(17, 1, "12.  Ping #2");
-	mvprintw(18, 1, "13.  Max TCP");
-	mvprintw(19, 1, "14.  Max Load");
+	mvprintw(14, 1, " 9.  Ping #1");
+	mvprintw(15, 1, "10.  Ping #2");
+	mvprintw(16, 1, "11.  Max TCP");
+	mvprintw(17, 1, "12.  Max Load");
 
-	mvprintw(18,41, "15.  ZMH start");
-	mvprintw(19,41, "16.  ZMH end");
+	mvprintw(16,41, "13.  ZMH start");
+	mvprintw(17,41, "14.  ZMH end");
 
 
 	for (;;) {
@@ -134,18 +132,16 @@ int EditTask()
 		show_str(11, 15,65, TCFG.cmd_mbindex3);
 		show_str(12, 15,65, TCFG.cmd_msglink);
 		show_str(13, 15,65, TCFG.cmd_reqindex);
-		show_str(14, 15,65, TCFG.isp_connect);
-		show_str(15, 15,65, TCFG.isp_hangup);
-		show_str(16, 15,40, TCFG.isp_ping1);
-		show_str(17, 15,40, TCFG.isp_ping2);
-		show_int(18, 15,    TCFG.max_tcp);
+		show_str(14, 15,40, TCFG.isp_ping1);
+		show_str(15, 15,40, TCFG.isp_ping2);
+		show_int(16, 15,    TCFG.max_tcp);
 		sprintf(temp, "%0.2f", TCFG.maxload);
-		show_str(19, 15,5, temp);
+		show_str(17, 15,5, temp);
 
-		show_str( 18,56, 5, TCFG.zmh_start);
-		show_str( 19,56, 5, TCFG.zmh_end);
+		show_str( 16,56, 5, TCFG.zmh_start);
+		show_str( 17,56, 5, TCFG.zmh_end);
 
-		j = select_menu(16);
+		j = select_menu(14);
 		switch(j) {
 		case 0:	return 0;
 		case 1:	E_STR(  6,15,65,TCFG.cmd_mailout,    "The command to execute on semafore ^mailout^")
@@ -156,16 +152,14 @@ int EditTask()
 		case 6: E_STR( 11,15,65,TCFG.cmd_mbindex3,   "The compiler 3 command to execute on semafore ^mbindex^")
 		case 7: E_STR( 12,15,65,TCFG.cmd_msglink,    "The command to execute on semafore ^msglink^")
 		case 8: E_STR( 13,15,65,TCFG.cmd_reqindex,   "The command to execute on semafore ^reqindex^")
-		case 9: E_STR( 14,15,65,TCFG.isp_connect,    "The command to ^connect^ the Internet Connection")
-		case 10:E_STR( 15,15,65,TCFG.isp_hangup,     "The command to ^hangup^ the Internet Connection")
-		case 11:E_STR( 16,15,40,TCFG.isp_ping1,      "The ^IP address^ of host 1 to check the Internet Connection")
-		case 12:E_STR( 17,15,40,TCFG.isp_ping2,      "The ^IP address^ of host 2 to check the Internet Connection")
-		case 13:E_INT( 18,15,   TCFG.max_tcp,        "Maximum simultanous ^TCP/IP^ connections")
-		case 14:strcpy(temp, edit_str(19,15,5,temp, (char *)"^Maximum system load^ at which processing stops (1.00 .. 3.00)"));
+		case 9: E_STR( 14,15,40,TCFG.isp_ping1,      "The ^IP address^ of host 1 to check the Internet Connection")
+		case 10:E_STR( 15,15,40,TCFG.isp_ping2,      "The ^IP address^ of host 2 to check the Internet Connection")
+		case 11:E_INT( 16,15,   TCFG.max_tcp,        "Maximum simultanous ^TCP/IP^ connections")
+		case 12:strcpy(temp, edit_str(17,15,5,temp, (char *)"^Maximum system load^ at which processing stops (1.00 .. 3.00)"));
 			sscanf(temp, "%f", &TCFG.maxload);
 			break;
-		case 15:E_STR( 18,56,5, TCFG.zmh_start,      "^Start^ of Zone Mail Hour in UTC")
-		case 16:E_STR( 19,56,5, TCFG.zmh_end,        "^End& of Zone Mail Hour in UTC")
+		case 13:E_STR( 16,56,5, TCFG.zmh_start,      "^Start^ of Zone Mail Hour in UTC")
+		case 14:E_STR( 17,56,5, TCFG.zmh_end,        "^End& of Zone Mail Hour in UTC")
 		}
 	}
 
@@ -211,8 +205,6 @@ int task_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Zone Mail Hour start", TCFG.zmh_start);
     add_webtable(wp, (char *)"Zone Mail Hour end", TCFG.zmh_end);
     fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
-    add_webtable(wp, (char *)"ISP connect command", TCFG.isp_connect);
-    add_webtable(wp, (char *)"ISP hangup command", TCFG.isp_hangup);
     add_webtable(wp, (char *)"ISP ping host 1", TCFG.isp_ping1);
     add_webtable(wp, (char *)"ISP ping host 2", TCFG.isp_ping2);
     fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
@@ -239,8 +231,6 @@ int task_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "     Zone Mail Hour start   %s\n", TCFG.zmh_start);
     fprintf(fp, "     Zone Mail Hour end     %s\n\n", TCFG.zmh_end);
 
-    fprintf(fp, "     ISP connect command    %s\n", TCFG.isp_connect);
-    fprintf(fp, "     ISP hangup command     %s\n", TCFG.isp_hangup);
     fprintf(fp, "     ISP ping host 1        %s\n", TCFG.isp_ping1);
     fprintf(fp, "     ISP ping host 2        %s\n", TCFG.isp_ping2);
 

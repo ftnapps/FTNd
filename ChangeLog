@@ -96,6 +96,8 @@ v0.51.4		11-Apr-2004
 		Added new experimental files database code which will only be
                 used if configured with --enable-experiment.
 		Message group setup now sets mode 660 for ~/etc/mgroups.data.
+		In menu 1.2 removed Omen Id that was not used.
+		In menu 18 removed settings for ISP connect and hangup.
 
 	mbtask:
 		Removed debug logging for the disk thread.

@@ -138,10 +138,9 @@ void e_reginfo(void)
 	mvprintw(10, 6, "4.    Sysop Fido");
 	mvprintw(11, 6, "5.    Location");
 	mvprintw(12, 6, "6.    QWK/Bluewave");
-	mvprintw(13, 6, "7.    Omen id");
-	mvprintw(14, 6, "8.    Comment");
-	mvprintw(15, 6, "9.    Origin line");
-	mvprintw(16, 6, "10.   Startup uid");
+	mvprintw(13, 6, "7.    Comment");
+	mvprintw(14, 6, "8.    Origin line");
+	mvprintw(15, 6, "9.    Startup uid");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -151,12 +150,11 @@ void e_reginfo(void)
 		show_str(10,25,35, CFG.sysop_name);
 		show_str(11,25,35, CFG.location);
 		show_str(12,25, 8, CFG.bbsid);
-		show_str(13,25, 2, CFG.bbsid2);
 		show_str(14,25,55, CFG.comment);
 		show_str(15,25,50, CFG.origin);  
 		show_str(16,25, 8, CFG.startname);
 
-		switch(select_menu(10)) {
+		switch(select_menu(9)) {
 		case 0: return;
 		case 1: E_STR( 7,25,35, CFG.bbs_name,   "Name of this ^BBS^ system")
 		case 2: E_STR( 8,25,35, CFG.sysdomain,  "Internet ^mail domain^ name of this system")
@@ -164,10 +162,9 @@ void e_reginfo(void)
 		case 4:	E_STR(10,25,35, CFG.sysop_name, "^Fidonet name^ of the sysop")
 		case 5:	E_STR(11,25,35, CFG.location,   "^Location^ (city) of this system")
 		case 6:	E_UPS(12,25, 8, CFG.bbsid,      "^QWK/Bluewave^ packets name")
-		case 7:	E_UPS(13,25, 2, CFG.bbsid2,     "^Omen offline^ reader ID characters")
-		case 8:	E_STR(14,25,55, CFG.comment,    "Some ^comment^ you may like to give")
-		case 9:	E_STR(15,25,50, CFG.origin,     "Default ^origin^ line under echomail messages")
-		case 10:E_STR(16,25, 8, CFG.startname,  "The ^Unix username^ that is used to start the bbs")
+		case 7:	E_STR(13,25,55, CFG.comment,    "Some ^comment^ you may like to give")
+		case 8:	E_STR(14,25,50, CFG.origin,     "Default ^origin^ line under echomail messages")
+		case 9: E_STR(15,25, 8, CFG.startname,  "The ^Unix username^ that is used to start the bbs")
 		}
 	};
 } 
@@ -1711,7 +1708,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Sysop fido name", CFG.sysop_name);
     add_webtable(wp, (char *)"System location", CFG.location);
     add_webtable(wp, (char *)"QWK/Bluewave id", CFG.bbsid);
-    add_webtable(wp, (char *)"Omen id", CFG.bbsid2);
     add_webtable(wp, (char *)"Comment", CFG.comment);
     add_webtable(wp, (char *)"Origin line", CFG.origin);
     add_webtable(wp, (char *)"Start unix name", CFG.startname);
@@ -1726,7 +1722,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      Sysop fido name  %s\n", CFG.sysop_name);
     fprintf(fp, "      System location  %s\n", CFG.location);
     fprintf(fp, "      QWK/Bluewave id  %s\n", CFG.bbsid);
-    fprintf(fp, "      Omen id          %s\n", CFG.bbsid2);
     fprintf(fp, "      Comment          %s\n", CFG.comment);
     fprintf(fp, "      Origin line      %s\n", CFG.origin);
     fprintf(fp, "      Start unix name  %s\n", CFG.startname);

@@ -581,8 +581,8 @@ typedef struct _dual {
 struct	taskrec {
 	float		maxload;		/* Maximum system load	    */
 
-	char		isp_connect[81];	/* ISP connect command	    */
-	char		isp_hangup[81];		/* ISP hangup command	    */
+	char		xisp_connect[81];	/* ISP connect command	    */
+	char		xisp_hangup[81];	/* ISP hangup command	    */
 	char		isp_ping1[41];		/* ISP ping host 1	    */
 	char		isp_ping2[41];		/* ISP ping host 2	    */
 
@@ -884,7 +884,7 @@ struct	sysconfig {
 	char		sysop[9];		/* Unix Sysop name	    */
 	char		location[36];		/* System location	    */
 	char		bbsid[9];		/* QWK/Bluewave BBS ID	    */
-	char		bbsid2[3];		/* Omen filename	    */
+	char		xbbsid2[3];		/* Omen filename	    */
 	char		sysdomain[36];		/* System Domain name	    */
 	char		comment[56];		/* Do what you like here    */
 	char		origin[51];		/* Default origin line	    */
