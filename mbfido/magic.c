@@ -269,7 +269,7 @@ void Magic_ExecCommand(void)
 
 void Magic_CopyFile(void)
 {
-	int	First = TRUE;
+	int	First = TRUE, rc;
 	char	*From, *To;
 
 	From = calloc(PATH_MAX, sizeof(char));
@@ -280,11 +280,11 @@ void Magic_CopyFile(void)
 		sprintf(From, "%s/%s", TIC.BBSpath, TIC.NewName);
 		sprintf(To, "%s/%s", magic.Path, TIC.NewName);
 
-		if (file_cp(From, To) == 0) {
+		if ((rc = file_cp(From, To) == 0)) {
 			MagicResult((char *)"%s copied to %s", From, To);
 			Magic_CheckCompile();
 		} else
-			WriteError("Magic: copy: %s to %s failed");
+			WriteError("Magic: copy: %s to %s failed, %s", strerror(rc));
 	}
 
 	free(From);
@@ -295,10 +295,10 @@ void Magic_CopyFile(void)
 
 void Magic_UnpackFile(void)
 {
-    int	rc, First = TRUE;
-    char	*buf = NULL, *unarc = NULL, *cmd = NULL;
-    char	Fn[PATH_MAX];
+    int	    rc, First = TRUE;
+    char    *Fn, *buf = NULL, *unarc = NULL, *cmd = NULL;
 
+    Fn = calloc(PATH_MAX, sizeof(char));
     while (GetMagicRec(MG_UNPACK, First)) {
 	First = FALSE;
 	buf = calloc(PATH_MAX, sizeof(char));
@@ -328,6 +328,7 @@ void Magic_UnpackFile(void)
 
 	free(buf);
     }
+    free(Fn);
 }
 
 

@@ -188,8 +188,8 @@ void Kill(void)
 							fwrite(&file, sizeof(file), 1, pFile);
 							iMoved++;
 						} else {
-							WriteError("Move %s to area %d failed rc = %d", 
-								    file.Name, area.MoveArea, rc);
+							WriteError("Move %s to area %d failed, %s", 
+								    file.Name, area.MoveArea, strerror(rc));
 						}
 					} else {
 						Syslog('+', "Delete %s, area %d", file.LName, i);

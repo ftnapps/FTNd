@@ -400,8 +400,8 @@ int LoadTic(char *inb, char *tfn)
 		return 2;
 	    }
 	    sprintf(Temp2, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
-	    if (file_mv(Temp, Temp2)) {
-		WriteError("Can't move %s to inbound", Temp);
+	    if ((rc = file_mv(Temp, Temp2))) {
+		WriteError("Can't move %s to inbound: %s", Temp, strerror(rc));
 		tidy_falist(&sbl);
 		return 1;
 	    }

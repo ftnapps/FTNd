@@ -75,7 +75,7 @@ int ProcessTic(fa_list *sbl)
 	int		DownLinks = 0;
 	int		MustRearc = FALSE;
 	int		UnPacked = FALSE, IsArchive = FALSE;
-	int		i, j, k, File_Id = FALSE;
+	int		rc, i, j, k, File_Id = FALSE;
 	char		*Temp, *unarc = NULL, *cmd = NULL;
 	char		temp1[PATH_MAX], temp2[PATH_MAX], sbe[24], TDesc[256];
 	unsigned long	crc, crc2, Kb;
@@ -235,7 +235,7 @@ int ProcessTic(fa_list *sbl)
 	Magic_Keepnum();
 
 	if (!tic.FileArea) {
-		Syslog('f', "Passthru area!");
+		Syslog('+', "Passthru TIC area!");
 		strcpy(TIC.BBSpath, CFG.ticout);
 		strcpy(TIC.BBSdesc, tic.Comment);
 	} else {
@@ -276,7 +276,7 @@ int ProcessTic(fa_list *sbl)
 	 * the area is not linked to an existing BBS area.
 	 */
 	if (tic.FileArea && access(TIC.BBSpath, W_OK)) {
-		WriteError("$No write access to \"%s\"", TIC.BBSpath);
+		WriteError("No write access to \"%s\"", TIC.BBSpath);
 		Bad((char *)"Dest directory not available");
 		free(Temp);
 		return 1;
@@ -406,10 +406,10 @@ int ProcessTic(fa_list *sbl)
 	if (((tic.SendOrg) && (MustRearc || strlen(tic.Banner))) || (!tic.FileArea)) {
 		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
 		sprintf(temp2, "%s/%s", CFG.ticout, TIC.RealName);
-		if (file_cp(temp1, temp2) == 0) {
+		if ((rc = file_cp(temp1, temp2) == 0)) {
 			TIC.SendOrg = TRUE;
 		} else {
-			WriteError("$Copy %s to %s failed", temp1, temp2);
+			WriteError("Copy %s to %s failed: %s", temp1, temp2, strerror(rc));
 		}
 	}
 
@@ -492,12 +492,10 @@ int ProcessTic(fa_list *sbl)
 	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
 	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.RealName);
 
-	    if (file_cp(temp1, temp2)) {
-		WriteError("Can't copy %s to %s", temp1, temp2);
+	    if ((rc = file_cp(temp1, temp2))) {
+		WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
 		free(Temp);
 		return 1;
-	    } else {
-		Syslog('f', "file_cp(%s, %s) ok", temp1, temp2);
 	    }
 
 	    sprintf(temp2, "%s/tmp/arc", getenv("MBSE_ROOT"));
@@ -704,7 +702,9 @@ int ProcessTic(fa_list *sbl)
 			strncpy(T_File.LDesc[i], TIC.File_Id[i], 48);
 		T_File.TotLdesc = TIC.File_Id_Ct;
 		T_File.Announce = tic.Announce;
-		strncpy(T_File.Name, TIC.NewName, 12);
+		sprintf(Temp, "%s", TIC.NewName);
+		name_mangle(Temp);
+		strncpy(T_File.Name, Temp, 12);
 		strncpy(T_File.LName, TIC.NewName, 80);
 		T_File.Fdate = TIC.FileDate;
 		T_File.Cost = TIC.TicIn.Cost;
@@ -772,15 +772,11 @@ int ProcessTic(fa_list *sbl)
 	Magic_CopyFile();
 	Magic_UnpackFile();
 	Magic_AdoptFile();
-	Syslog('f', "Almost at end of ptic");
 
 	sprintf(Temp, "%s/%s", TIC.Inbound, TIC.TicName);
-	Syslog('f', "About to erase \"%s\"", Temp);
 
 	unlink(Temp);
-	Syslog('f', "Done, about to free Temp");
 	free(Temp);
-	Syslog('f', "Done with ptic");
 	return 0;
 }
 

@@ -84,7 +84,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
 	    mkdirs(temp2, 0755);
 	    if ((rc = file_cp(temp, temp2))) {
-		WriteError("Can't copy file to %s", temp2);
+		WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		if (!do_quiet)
 		    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 		die(0);

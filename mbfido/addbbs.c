@@ -53,7 +53,7 @@ extern	int	tic_imp;
 int Add_BBS()
 {
 	struct FILERecord	frec;
-	int			i, Insert, Done = FALSE, Found = FALSE;
+	int			rc, i, Insert, Done = FALSE, Found = FALSE;
 	char			fdbname[PATH_MAX], fdbtemp[PATH_MAX];
 	char			temp1[PATH_MAX], temp2[PATH_MAX], *fname;
 	FILE			*fdb, *fdt;
@@ -87,8 +87,8 @@ int Add_BBS()
 	sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
 	mkdirs(temp2, 0755);
 
-	if (file_cp(temp1, temp2) != 0) {
-		WriteError("$Copy to %s failed", temp2);
+	if ((rc = file_cp(temp1, temp2))) {
+		WriteError("Copy to %s failed: %s", temp2, strerror(rc));
 		return FALSE;
 	}
 	chmod(temp2, 0644);

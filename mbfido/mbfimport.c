@@ -105,7 +105,7 @@ void ImportFiles(int Area)
 			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
 			mkdirs(temp2, 0755);
 			if ((rc = file_cp(temp, temp2))) {
-			    WriteError("Can't copy file to %s", temp2);
+			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 			    if (!do_quiet)
 				printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 			    Doit = FALSE;
@@ -305,8 +305,8 @@ void ImportFiles(int Area)
 		Syslog('+', "Unknown archive format %s", temp);
 		sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
 		mkdirs(temp2, 0755);
-		if (file_cp(temp, temp2)) {
-		    WriteError("Can't copy file to %s", temp2);
+		if ((rc = file_cp(temp, temp2))) {
+		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		    Doit = FALSE;
 		} else {
 		    if (!do_quiet) {

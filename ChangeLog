@@ -4767,6 +4767,7 @@ v0.33.20        10-Feb-2002
 		The hatch and magic processors now scan the filenames to test
 		using the regexp library, this should be more reliable.
 		Increased the size of the buffer for filesort.
+		Improved error reporting when file copy fails.
 
 	mbmsg:
 		When creating non-existend message bases, the path is created
@@ -4801,6 +4802,7 @@ v0.33.20        10-Feb-2002
 
 	mbdiff:
 		Removed nonsense error message when stopped on a signal.
+		Improved error reporting when copy fails.
 
 	mbindex:
 		Removed nonsense error message when stopped on a signal.

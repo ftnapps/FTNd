@@ -42,6 +42,7 @@
 void mover(char *fn)
 {
 	char	*From, *To;
+	int	rc;
 
 	From = calloc(PATH_MAX, sizeof(char));
 	To   = calloc(PATH_MAX, sizeof(char));
@@ -51,8 +52,10 @@ void mover(char *fn)
 	Syslog('!', "Moving %s to %s", From, To);
 
 	if (mkdirs(To, 0770)) {
-		if (file_mv(From, To) != 0)
-			WriteError("$Failed to move %s to %s", From, To);
+		if ((rc = file_mv(From, To)))
+			WriteError("$Failed to move %s to %s: %s", From, To, strerror(rc));
+	} else {
+		WriteError("$Can't create directory for %s", To);
 	}
 
 	free(From);

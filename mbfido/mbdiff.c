@@ -334,12 +334,12 @@ int main(int argc, char **argv)
 			die(100);
 		}
 	} else {
-		if (file_cp(nd, ond)) {
+		if ((rc = file_cp(nd, ond))) {
 			show_log = TRUE;
 			free(ond);
 			free(onl);
 			free(wrk);
-			WriteError("$Copy %s failed", nd);
+			WriteError("Copy %s failed, %s", nd, strerror(rc));
 			die(100);
 		}
 		Syslog('s', "Copied %s", nd);
