@@ -87,8 +87,12 @@ int main(int argc, char **argv)
 #endif
 		exit(1);
 	}
-	if ((setuid(pw->pw_uid) == -1) || (setgid(pw->pw_gid) == -1)) {
-		perror("Can't setuid() or setgid() to \"mbse\" user");
+
+	/*
+	 * Set effective user to mbse.bbs
+	 */
+	if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
+		perror("Can't seteuid() or setegid() to \"mbse\" user");
 #ifdef MEMWATCH
                 mwTerm();
 #endif

@@ -195,7 +195,13 @@ int pw_mkdb(char *username)
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", tempname, NULL);
 		} else {
 			syslog(LOG_WARNING, "updating the database for %s...", username);
+#ifdef __FreeBSD__
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", "-u", username, tempname, NULL);
+#elif __NetBSD__
+			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", tempname, NULL);
+#else                   
+#error "Not FreeBSD or NetBSD - don't know what to do"
+#endif
 		}
 		pw_error((char *)_PATH_PWD_MKDB, 1, 1);
 	}

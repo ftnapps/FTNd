@@ -215,7 +215,7 @@ void load_maincfg(void)
                 /*
                  * New Users
                  */
-                CFG.newuser_access.level = 5;
+                CFG.newuser_access.level = 20;
                 CFG.iCapUserName = TRUE;
                 CFG.iAnsi = TRUE;
                 CFG.iDataPhone = TRUE;
@@ -225,7 +225,7 @@ void load_maincfg(void)
                 CFG.iLocation = TRUE;
                 CFG.iHotkeys = TRUE;
                 CFG.iCapLocation = FALSE;
-                CFG.AskAddress = FALSE;
+                CFG.AskAddress = TRUE;
                 CFG.GiveEmail = TRUE;
 
                 /*

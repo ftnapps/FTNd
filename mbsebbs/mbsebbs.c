@@ -67,6 +67,19 @@ int main(int argc, char **argv)
 	tty = ttyname(1);
 
 	/*
+	 * Find username from the environment
+	 */
+	sUnixName[0] = '\0';
+        if (getenv("LOGNAME") != NULL) {
+                strcpy(sUnixName, getenv("LOGNAME"));
+        } else if (getenv("USER") != NULL) {
+		strcpy(sUnixName, getenv("USER"));
+	} else {
+                WriteError("No username in environment");
+                Quick_Bye(0);
+        }
+
+	/*
 	 * Set the users device to writable by other bbs users, so they
          * can send one-line messages
 	 */
@@ -90,7 +103,8 @@ int main(int argc, char **argv)
 	 * Initialize this client with the server. 
 	 */
 	do_quiet = TRUE;
-	InitClient(getenv("LOGNAME"), (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
+	InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", 
+		CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
 	IsDoing("Loging in");
 
 	Syslog(' ', " ");
@@ -101,14 +115,6 @@ int main(int argc, char **argv)
 	if ((p = getenv("CALLER_ID")) != NULL)
 		if (!strncmp(p, "none", 4))
 			Syslog('+', "CALLER  %s", p);
-
-	sUnixName[0] = '\0';
-	if (getenv("LOGNAME") != NULL) {
-		strcpy(sUnixName, getenv("LOGNAME"));
-	} else {
-		WriteError("No username in environment");
-		Quick_Bye(0);
-	}
 
 	/*
 	 * Initialize 
