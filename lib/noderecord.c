@@ -30,6 +30,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "common.h"
 #include "users.h"
 #include "records.h"
 #include "dbnode.h"

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef	_DBNODE_H
 #define	_DBNODE_H
 
@@ -8,6 +10,7 @@ int			nodes_cnt;	/* Node records in database	    */
 
 int	InitNode(void);			/* Initialize nodes database	    */
 int	TestNode(fidoaddr);		/* Check if noderecord is loaded    */
+int	SearchNodeFaddr(faddr *);	/* Search specified node and load   */
 int	SearchNode(fidoaddr);		/* Search specified node and load   */
 int	UpdateNode(void);		/* Update record if changed.	    */
 char	*GetNodeMailGrp(int);		/* Get nodes mailgroup record	    */

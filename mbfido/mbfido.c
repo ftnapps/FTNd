@@ -83,7 +83,6 @@ int	do_unsec   = FALSE;		/* Unsecure tossing		    */
 int	do_learn   = FALSE;		/* News articles learnmode	    */
 int	check_crc  = TRUE;		/* Check .tic crc values	    */
 int	check_dupe = TRUE;		/* Check duplicates		    */
-int	autocrea   = FALSE;		/* Autocreate new msg areas	    */
 extern	int do_quiet;			/* Quiet flag			    */
 extern	int e_pid;			/* Pid of child process		    */
 extern	int show_log;			/* Show logging on screen	    */
@@ -131,7 +130,6 @@ void Help(void)
 	colour(9, 0);
 	printf("	Options are:\n\n");
 	colour(3, 0);
-	printf("	-a   -auto			Autocreate new msg areas\n");
 	printf("	-f   -full			Full Mailscan\n");
 	printf("	-l   -learn			Learn News dupes\n");
 	printf("	-noc -nocrc			Skip CRC checking\n");
@@ -369,8 +367,6 @@ int main(int argc, char **argv)
 			do_mail = TRUE;
 		else if (strncmp(tl(argv[i]), "w", 1) == 0)
 			do_stat = TRUE;
-		else if (strncmp(tl(argv[i]), "-a", 2) == 0)
-			autocrea = TRUE;
 		else if (strncmp(tl(argv[i]), "-f", 2) == 0)
 			do_full = TRUE;
 		else if (strncmp(tl(argv[i]), "-l", 2) == 0)

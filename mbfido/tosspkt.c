@@ -46,6 +46,7 @@
 #include "postnetmail.h"
 #include "postecho.h"
 #include "rollover.h"
+#include "createm.h"
 
 
 
@@ -55,7 +56,6 @@
 extern	int	do_quiet;
 extern  int     do_unsec;
 extern  int     check_dupe;
-extern  int     autocrea;
 extern  time_t  t_start;
 extern  int     most_debug;
 
@@ -92,7 +92,6 @@ static int at_zero = 0;
  */
 char	*aread(char *, int, FILE *);
 int     importmsg(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *);
-void    autocreate(char *, faddr *);
 
 
 
@@ -206,26 +205,25 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 			}
 
 			if (!SearchMsgs(marea)) {
-				WriteError("Unknown echo area %s", marea);
-				if (autocrea) {
-					autocreate(marea, p_from);
-					if (!SearchMsgs(marea)) {
-						WriteError("Autocreate of area %s failed.", area);
-						echo_bad++;
-						echo_in++;
-						bad = TRUE;
-						free(marea);
-						free(buf);
-						return 4;
-					}       
-				} else {
+				Syslog('m', "Unknown echo area %s", marea);
+				if (!create_msgarea(marea, p_from)) {
+				    WriteError("Create echomail area %s failed", marea);
+				    echo_bad++;
+				    echo_in++;
+				    bad = TRUE;
+				    free(marea);
+				    free(buf);
+				    return 4;
+				}
+				if (!SearchMsgs(marea)) {
+					WriteError("Unknown echo area %s", marea);
 					echo_bad++;
 					echo_in++;
 					bad = TRUE;
-					free(buf);
 					free(marea);
+					free(buf);
 					return 4;
-				}
+				}       
 			}
 			echomail = TRUE;
 			free(marea);
@@ -242,111 +240,6 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 
 	free(buf);
 	return rc;
-}
-
-
-
-/*
- *  Create echomail area if it doesn't excist and allowed.
- *  Contributed by Redy Rodriguez.
- */
-void autocreate(char *marea, faddr *p_from)
-{
-	FILE            *pMsgs;
-	char            temp[250];
-	int             i;
-	struct  _sysconnect syscon;
-
-	if (!SearchMsgs((char *)"DEFAULT")){
-		WriteError("Can't find DEFAULT area, can't autocreate:");
-		autocrea = FALSE;
-		return;
-	}
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((pMsgs = fopen(temp, "r+")) == NULL) {
-		WriteError("$Database error: Can't create %s", temp);
-		return;
-	}
-	strncat(msgs.Name,marea,40-strlen(msgs.Name));
-	strncpy(msgs.Tag,marea,50);
-	strncpy(msgs.QWKname,marea,20);
-	strncat(msgs.Base,marea,64-strlen(msgs.Base));
-	fseek(pMsgs, 0, SEEK_END);
-	Syslog('+', "Autocreate area %s", marea);
-
-	memset(&syscon, 0, sizeof(syscon));
-	syscon.aka.zone    = p_from->zone;
-	syscon.aka.node    = p_from->node;
-	syscon.aka.net     = p_from->net;
-	if (SearchFidonet(p_from->zone)) 
-		strcpy(syscon.aka.domain,fidonet.domain);
-	else {
-		WriteError("New area %s from node of unknown zone %d not created.", marea,p_from->zone);
-		fclose(pMsgs);
-		return;
-	}       
-	syscon.sendto      = TRUE;
-	syscon.receivefrom = TRUE;
-	if (msgs.Aka.zone == 0) {
-		for (i = 0; i < 40; i++) {
-			if (CFG.akavalid[i]) { 
-				msgs.Aka.zone=CFG.aka[i].zone;
-				msgs.Aka.net=CFG.aka[i].net;
-				msgs.Aka.node=CFG.aka[i].node;
-				msgs.Aka.point=CFG.aka[i].point;
-				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
-				i=40;
-			}
-		}               
-		for (i = 0; i < 40; i++) {
-			if (CFG.akavalid[i] && (strcmp(CFG.aka[i].domain,msgs.Aka.domain)==0)) {
-				msgs.Aka.zone=CFG.aka[i].zone;
-				msgs.Aka.net=CFG.aka[i].net;
-				msgs.Aka.node=CFG.aka[i].node;
-				msgs.Aka.point=CFG.aka[i].point;
-				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
-				i=40;
-			}
-		}
-		for (i = 0; i < 40; i++) {
-			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone)) {
-				msgs.Aka.zone=CFG.aka[i].zone;
-				msgs.Aka.net=CFG.aka[i].net;
-				msgs.Aka.node=CFG.aka[i].node;
-				msgs.Aka.point=CFG.aka[i].point;
-				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
-				i=40;
-			}
-		}
-		for (i = 0; i < 40; i++) {
-			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone) && (CFG.aka[i].net  == p_from->net)) {
-				msgs.Aka.zone=CFG.aka[i].zone;
-				msgs.Aka.net=CFG.aka[i].net;
-				msgs.Aka.node=CFG.aka[i].node;
-				msgs.Aka.point=CFG.aka[i].point;
-				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
-				i=40;
-			}
-		}
-		for (i = 0; i < 40; i++) {
-			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone) &&
-			    (CFG.aka[i].net  == p_from->net) && (CFG.aka[i].node == p_from->node)) {
-				msgs.Aka.zone=CFG.aka[i].zone;
-				msgs.Aka.net=CFG.aka[i].net;
-				msgs.Aka.node=CFG.aka[i].node;
-				msgs.Aka.point=CFG.aka[i].point;
-				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
-				i=40;
-			}
-		}
-	}
-	fwrite(&msgs, msgshdr.recsize, 1, pMsgs);
-	fwrite(&syscon, sizeof(syscon), 1, pMsgs);
-	memset(&syscon, 0, sizeof(syscon));
-	for (i = 1 ; i < CFG.toss_systems; i++ ) 
-		fwrite(&syscon, sizeof(syscon), 1, pMsgs);
-	fclose(pMsgs);
-	return;
 }
 
 

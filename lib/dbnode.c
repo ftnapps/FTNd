@@ -30,6 +30,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "common.h"
 #include "users.h"
 #include "records.h"
 #include "clcomm.h"
@@ -78,6 +79,22 @@ int TestNode(fidoaddr aka)
 			nodeok = TRUE;
 	}
 	return(nodeok);
+}
+
+
+int SearchNodeFaddr(faddr *n)
+{
+    fidoaddr	Sys;
+
+    memset(&Sys, 0, sizeof(Sys));
+    Sys.zone  = n->zone;
+    Sys.net   = n->net;
+    Sys.node  = n->node;
+    Sys.point = n->point;
+    if (n->domain != NULL)
+	strncpy(Sys.domain, n->domain, 12);
+
+    return SearchNode(Sys);
 }
 
 

@@ -36,3 +36,131 @@
 #include "../lib/clcomm.h"
 #include "createm.h"
 
+
+#define MCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+
+int create_msgarea(char *marea, faddr *p_from)
+{
+    char	*temp, *buf, *tag, *desc, *p;
+    FILE	*gp, *ap, *mp;
+    long	offset;
+    int		i;
+    sysconnect	System;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return FALSE;
+    }
+    fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+
+    fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
+    while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
+	if ((mgroup.UpLink.zone  == p_from->zone) && (mgroup.UpLink.net   == p_from->net) &&
+	    (mgroup.UpLink.node  == p_from->node) && (mgroup.UpLink.point == p_from->point) &&
+	    strlen(mgroup.AreaFile)) {
+	    Syslog('m', "Checking echogroup %s %s", mgroup.Name, mgroup.Comment);
+	    sprintf(temp, "%s/%s", CFG.alists_path , mgroup.AreaFile);
+	    if ((ap = fopen(temp, "r")) == NULL) {
+		WriteError("$Can't open %s", temp);
+		free(temp);
+		fclose(gp);
+		return FALSE;
+	    } else {
+		buf = calloc(4097, sizeof(char));
+		while (fgets(buf, 4096, ap)) {
+		    tag = strtok(buf, "\t \r\n\0");
+		    p = strtok(NULL, "\r\n\0");
+		    desc = p;
+		    while ((*desc == ' ') || (*desc == '\t'))
+			desc++;
+		    if (strcmp(tag, marea) == 0) {
+			Syslog('m', "Found tag \"%s\" desc \"%s\"", tag, desc);
+			sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+			if ((mp = fopen(temp, "r+")) == NULL) {
+			    WriteError("$Can't open %s", temp);
+			    fclose(ap);
+			    fclose(gp);
+			    free(buf);
+			    free(temp);
+			    return FALSE;
+			}
+			fread(&msgshdr, sizeof(msgshdr), 1, mp);
+			offset = msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize));
+			if (fseek(mp, offset, SEEK_SET) == -1) {
+			    WriteError("$Can't seek in %s", temp);
+			    fclose(ap);
+			    fclose(gp);
+			    fclose(mp);
+			    free(buf);
+			    free(temp);
+			    return FALSE;
+			}
+			while (fread(&msgs, sizeof(msgs), 1, mp) == 1) {
+			    if (!msgs.Active) {
+				fseek(mp, - msgshdr.recsize, SEEK_CUR);
+				memset(&msgs, 0, sizeof(msgs));
+				offset = ((ftell(mp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1;
+				Syslog('m', "Found free slot at %ld", offset);
+				strncpy(msgs.Tag, tag, 50);
+				strncpy(msgs.Name, desc, 40);
+				strncpy(msgs.QWKname, tag, 20);
+				msgs.MsgKinds = PUBLIC;
+				msgs.Type = ECHOMAIL;
+				msgs.DaysOld = CFG.defdays;
+				msgs.MaxMsgs = CFG.defmsgs;
+				msgs.UsrDelete = mgroup.UsrDelete;
+				msgs.RDSec = mgroup.RDSec;
+				msgs.WRSec = mgroup.WRSec;
+				msgs.SYSec = mgroup.SYSec;
+				strncpy(msgs.Group, mgroup.Name, 12);
+				msgs.Aka = mgroup.UseAka;
+				strncpy(msgs.Origin, CFG.origin, 50);
+				msgs.Aliases = mgroup.Aliases;
+				msgs.NetReply = mgroup.NetReply;
+				msgs.Active = TRUE;
+				msgs.Quotes = mgroup.Quotes;
+				msgs.Rfccode = CHRS_DEFAULT_RFC;
+				msgs.Ftncode = CHRS_DEFAULT_FTN;
+				msgs.MaxArticles = CFG.maxarticles;
+				tag = tl(tag);
+				sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
+				fwrite(&msgs, sizeof(msgs), 1, mp);
+
+				memset(&System, 0, sizeof(System));
+				System.aka = mgroup.UpLink;
+				System.sendto = System.receivefrom = TRUE;
+				fwrite(&System, sizeof(System), 1, mp);
+				memset(&System, 0, sizeof(System));
+				for (i = 1; i < (msgshdr.syssize / sizeof(System)); i++)
+				    fwrite(&System, sizeof(System), 1, mp);
+
+				fclose(mp);
+				fclose(gp);
+				fclose(ap);
+				free(buf);
+				free(temp);
+				return TRUE;
+			    }
+			    /*
+			     * Skip systems
+			     */
+			    fseek(mp, msgshdr.syssize, SEEK_CUR);
+			}
+			/*
+			 * No free slot at the end, append a slot.
+			 */
+		    }
+		}
+		free(buf);
+		fclose(ap);
+	    }
+	}
+    }
+    fclose(gp);
+    return FALSE;
+}
+

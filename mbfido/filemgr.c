@@ -756,8 +756,6 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
 
 void F_Message(faddr *t, char *Buf, FILE *tmp)
 {
-    fidoaddr	Node;
-
     ShiftBuf(Buf, 8);
     CleanBuf(Buf);
 
@@ -769,8 +767,7 @@ void F_Message(faddr *t, char *Buf, FILE *tmp)
 	return;
 
     UpdateNode();
-    memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
-    SearchNode(Node);
+    SearchNodeFaddr(t);
     Syslog('+', "FileMgr: Message %s", GetBool(nodes.Message));
     fprintf(tmp, "FileMgr Message file is %s\n", GetBool(nodes.Message));
 }
@@ -779,11 +776,9 @@ void F_Message(faddr *t, char *Buf, FILE *tmp)
 
 void F_Tick(faddr *t, char *Buf, FILE *tmp)
 {
-    fidoaddr	Node;
-
     ShiftBuf(Buf, 5);
     CleanBuf(Buf);
-
+    
     if (!strncasecmp(Buf, "on", 2)) {
 	nodes.Tic = TRUE;
 	nodes.AdvTic = FALSE;
@@ -795,16 +790,15 @@ void F_Tick(faddr *t, char *Buf, FILE *tmp)
 	return;
 
     UpdateNode();
-    memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
-    SearchNode(Node);
-    Syslog('+', "FileMgr: Tick %s, Advanced %s", nodes.Tic, nodes.AdvTic);
+    SearchNodeFaddr(t);
+    Syslog('+', "FileMgr: Tick %s, Advanced %s", GetBool(nodes.Tic), GetBool(nodes.AdvTic));
     if (nodes.Tic)
 	if (nodes.AdvTic)
-	    fprintf(tmp, "Tick mode is advanced");
+	    fprintf(tmp, "Tick mode is advanced\n");
 	else
-	    fprintf(tmp, "Tick mode is normal");
+	    fprintf(tmp, "Tick mode is normal\n");
     else
-	fprintf(tmp, "Tick mode is off");
+	fprintf(tmp, "Tick mode is off\n");
 }
 
 
@@ -814,7 +808,6 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     int		i, rc = 0, spaces;
     char	*Buf;
     FILE	*tmp, *np;
-    fidoaddr	Node;
 
     f_help = f_stat = f_unlnk = f_list = f_query = FALSE;
     filemgr++;
@@ -837,7 +830,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	net_bad++;
 	return FALSE;
     }
-
+    
     Buf = calloc(2049, sizeof(char));
     rewind(fp);
 
@@ -846,8 +839,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	/*
 	 * Make sure we refresh the nodes record.
 	 */
-	memcpy(&Node, faddr2fido(f), sizeof(fidoaddr));
-	SearchNode(Node);
+	SearchNodeFaddr(f);
 
 	spaces = 0;
 	for (i = 0; i < strlen(Buf); i++) {
