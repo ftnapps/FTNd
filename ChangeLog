@@ -54,6 +54,11 @@ v0.51.1		21-Feb-2004
 	mbfido:
 		Changed ^aTID to include OS and CPU.
 
+	mbfile:
+		For creating www pages of the download areas, the new mapping
+		tables are used to translate from ibmpc characters to 
+		iso-8859-1.
+
 	examples:
 		Added change character set in English menus and textfiles.
 
