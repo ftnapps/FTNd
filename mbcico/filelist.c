@@ -243,13 +243,13 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 		/*
 		 * Check spool files.
 		 */
-//		if (strchr(fl, 'o')) {
-//			nm=splname(tmpa->addr);
-//			if ((fp=fopen(nm,"w"))) 
-//				fclose(fp);
-//			if ((nm != NULL) && (stat(nm,&stbuf) == 0))
-//				add_list(&st,nm,NULL,DSF,0L,NULL,1);
-//		}
+		if (strchr(fl, 'o')) {
+			nm=splname(tmpa->addr);
+			if ((fp=fopen(nm,"w"))) 
+				fclose(fp);
+			if ((nm != NULL) && (stat(nm,&stbuf) == 0))
+				add_list(&st,nm,NULL,DSF,0L,NULL,1);
+		}
 
 		/*
 		 * Check .pol files
