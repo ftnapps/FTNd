@@ -4308,6 +4308,8 @@ v0.33.19        26-Oct-2001
 		automatic set to reasonable defaults.
 		The color editor now has a rangecheck.
 		Rewrote calling of the color editor for Sparc systems.
+		Added setup items in global and message areas to limit the
+		fetching of newsgroups headers.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
@@ -4463,6 +4465,7 @@ v0.33.19        26-Oct-2001
 		Fixes for Sparc systems.
 		File forwarding now really depends on the downlink billing
 		flag.
+		Now limits fetching of newsheaders according to area setting.
 
 	mbfile:
 		During check the file databases are reset to filemode 0660.

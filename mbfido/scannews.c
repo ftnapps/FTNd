@@ -80,7 +80,7 @@ extern	char	*replyaddr;
 /*
  *  Internal functions
  */
-int		do_one_group(List **, char *, char *);
+int		do_one_group(List **, char *, char *, int);
 int		get_xover(char *, long, long, List **);
 int		get_xoverview(void);
 void		tidy_artlist(List **);
@@ -222,7 +222,7 @@ void ScanNews(void)
 				fflush(stdout);
 			}
 			Nopper();
-			if (do_one_group(&art, Msgs.Newsgroup, Msgs.Tag) == RETVAL_ERROR)
+			if (do_one_group(&art, Msgs.Newsgroup, Msgs.Tag, Msgs.MaxArticles) == RETVAL_ERROR)
 				break;
 		}
 	}
@@ -245,7 +245,7 @@ void ScanNews(void)
 
 
 
-int do_one_group(List **art, char *grpname, char *ftntag)
+int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 {
 	List	*tmp;
 	char	temp[128], *resp;
@@ -269,10 +269,10 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 	total = atol(strtok(NULL, " "));
 	start = atol(strtok(NULL, " "));
 	end   = atol(strtok(NULL, " '\0'"));
-	Syslog('n', "GROUP total %d, start %d, end %d", total, start, end);
-	if ((msgs.MaxArticles) && (total > msgs.MaxArticles)) {
-	    start = end - msgs.MaxArticles;
-	    total = msgs.MaxArticles;
+	Syslog('n', "GROUP total %d, start %d, end %d, max %d", total, start, end, maxarticles);
+	if ((maxarticles) && (total > maxarticles)) {
+	    start = end - maxarticles;
+	    total = maxarticles;
 	    Syslog('n', "NEW:  total %d, start %d, end %d", total, start, end);
 	}
 	if (!total) {
@@ -302,7 +302,7 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 
 	tidy_artlist(art);
 
-	if ((msgs.MaxArticles) && (fetched == msgs.MaxArticles))
+	if ((maxarticles) && (fetched == maxarticles))
 	    Syslog('!', "Warning: the maximum articles value for this group might be to low");
 
 	return RETVAL_OK;
