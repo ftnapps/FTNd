@@ -32,7 +32,7 @@
 #include "../lib/mbselib.h"
 
 #ifndef LOCKDIR
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define LOCKDIR "/var/spool/lock"
 #else
 #define LOCKDIR "/var/lock"

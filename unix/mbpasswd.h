@@ -30,7 +30,7 @@ char            *crypt_make_salt(void);
 char            *pw_encrypt(const char *, const char *);
 int             i64c(int);
 char            *l64a(long);
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 static void	fail_exit(int);
 static void	oom(void);
 static void	update_noshadow(int);

@@ -1075,7 +1075,7 @@ void *scheduler(void)
 	 * Check the systems load average.
 	 */
 	Load = loadavg[0] = loadavg[1] = loadavg[2] = 0.0;
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 	if (getloadavg(loadavg, 3) == 3) {
 	    Load = loadavg[0];
 	}

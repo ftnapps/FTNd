@@ -412,6 +412,8 @@ void soft_info(void)
 	p = xstrcpy((char *)"MBSE BBS (FreeBSD");
 #elif __NetBSD__
 	p = xstrcpy((char *)"MBSE BBS (NetBSD");
+#elif __OpenBSD__
+	p = xstrcpy((char *)"MBSE BBS (OpenBSD");
 #else
 	p = xstrcpy((char *)"MBSE BBS (Unknown");
 #endif

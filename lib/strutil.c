@@ -341,6 +341,8 @@ char *OsName()
     return (char *)"FreeBSD";
 #elif __NetBSD__
     return (char *)"NetBSD";
+#elif __OpenBSD__
+    return (char *)"OpenBSD";
 #else
     return (char *)"Unknown";
 #endif

@@ -358,7 +358,7 @@ void update_diskstat(void)
 	     * See man 2 statvfs about what approximately is defined.
 	     */
 	    tmp->ro = (strstr(tmp->fstype, "iso") != NULL);
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 	    /*
 	     * XxxxBSD has the info in the statfs structure.
 	     */
@@ -381,7 +381,7 @@ void add_path(char *lpath)
 #if defined(__linux__)
     char	    *mtab, *fs;
     FILE	    *fp;
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     struct statfs   *mntbuf;
     long	    mntsize;
     int		    i;
@@ -432,7 +432,7 @@ void add_path(char *lpath)
 		fill_mfslist(&mfs, fsname, fstype);
 	    }
 
-#elif defined(__FreeBSD__) || defined(__NetBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 
 	    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT))) {
 
@@ -446,7 +446,7 @@ void add_path(char *lpath)
 	    }
 
 #else
-#error "Unknow OS - don't know what to do"
+#error "Unknown OS - don't know what to do"
 #endif
 
 	} else {

@@ -107,6 +107,9 @@ int CountTtyinfo(void)
 #ifdef __NetBSD__
 				sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
 #endif
+#ifdef __OpenBSD__
+				sprintf(ttyinfo.tty,     "cuaia%d", i);	// I think this is wrong!
+#endif
                                 sprintf(ttyinfo.speed,   "64 kbits");
 				sprintf(ttyinfo.flags,   "XA,X75,CM");
                                 ttyinfo.type = ISDN;
@@ -128,6 +131,9 @@ int CountTtyinfo(void)
 #endif
 #ifdef __NetBSD__
 				sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
+#endif
+#ifdef __OpenBSD__
+				sprintf(ttyinfo.tty,	"tty0%d", i);
 #endif
                                 sprintf(ttyinfo.speed,   "33.6 kbits");
 				sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");

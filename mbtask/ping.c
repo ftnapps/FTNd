@@ -62,7 +62,7 @@ int             ping_receive(struct in_addr);
 /* 
  * different names, same thing... be careful, as these are macros... 
  */
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 # define icmphdr   icmp
 # define iphdr     ip
 # define ip_saddr  ip_src.s_addr
@@ -89,7 +89,7 @@ int             ping_receive(struct in_addr);
 # define icmp_seq   un.echo.sequence
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 # define ICMP_DEST_UNREACH   ICMP_UNREACH
 # define ICMP_TIME_EXCEEDED ICMP_TIMXCEED    
 #endif

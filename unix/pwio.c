@@ -30,7 +30,7 @@
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 
 #include "../config.h"
 #include <stdio.h>
@@ -168,7 +168,7 @@ int pw_name(const char *filename)
 
 
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 int pw_lock(void) 
 {
 	return commonio_lock(&passwd_db);

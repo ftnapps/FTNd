@@ -398,10 +398,10 @@ void setutmp(const char *name, const char *line, const char *host)
 	utent = utline;
 }
 
-#elif __FreeBSD__ || __NetBSD__
+#elif __FreeBSD__ || __NetBSD__ || __OpenBSD__
 
 /*
- * FreeBSD/NetBSD version, simple and mean.
+ * FreeBSD/NetBSD/OpenBSD version, simple and mean.
  */
 void setutmp(const char *name, const char *line, const char *host)
 {

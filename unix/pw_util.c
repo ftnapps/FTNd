@@ -62,7 +62,7 @@
  * SUCH DAMAGE.
  */
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 
 #include "../config.h"
 #include <sys/param.h>
@@ -196,12 +196,12 @@ int pw_mkdb(char *username)
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", tempname, NULL);
 		} else {
 			syslog(LOG_WARNING, "updating the database for %s...", username);
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", "-u", username, tempname, NULL);
-#elif __NetBSD__
+#elif defined(__NetBSD__)
 			execl(_PATH_PWD_MKDB, "pwd_mkdb", "-p", tempname, NULL);
 #else                   
-#error "Not FreeBSD or NetBSD - don't know what to do"
+#error "Not FreeBSD, OpenBSD or NetBSD - don't know what to do"
 #endif
 		}
 		pw_error((char *)_PATH_PWD_MKDB, 1, 1);
@@ -285,7 +285,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                                 goto err;
                         continue;
                 }
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__)
                 (void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
                     pw->pw_name, pw->pw_passwd,
                     pw->pw_fields & _PWF_UID ? uidstr : "",
@@ -294,7 +294,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                     pw->pw_fields & _PWF_CHANGE ? chgstr : "",
                     pw->pw_fields & _PWF_EXPIRE ? expstr : "",
                     pw->pw_gecos, pw->pw_dir, pw->pw_shell);
-#elif __NetBSD__
+#elif defined(__NetBSD__) || defined(__OpenBSD__)
 		(void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
 		    pw->pw_name, pw->pw_passwd,
 		    uidstr, gidstr,
@@ -302,7 +302,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
 		    chgstr, expstr,
 		    pw->pw_gecos, pw->pw_dir, pw->pw_shell);
 #else
-#error "Not FreeBSD or NetBSD - don't know what to do"
+#error "Not FreeBSD, OpenBSD or NetBSD - don't know what to do"
 #endif
                 done = 1;
                 if (ferror(to))
@@ -317,7 +317,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                         pw_error(NULL, 0, 1);
                 } else
 #endif /* YP */
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__)
                 (void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
                     pw->pw_name, pw->pw_passwd,
                     pw->pw_fields & _PWF_UID ? uidstr : "",
@@ -326,7 +326,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                     pw->pw_fields & _PWF_CHANGE ? chgstr : "",
                     pw->pw_fields & _PWF_EXPIRE ? expstr : "",
                     pw->pw_gecos, pw->pw_dir, pw->pw_shell);
-#elif __NetBSD__
+#elif defined(__NetBSD__) || defined(__OpenBSD__)
 		(void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
 		    pw->pw_name, pw->pw_passwd,
 		    uidstr, gidstr,
@@ -334,7 +334,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
 		    chgstr, expstr,
 		    pw->pw_gecos, pw->pw_dir, pw->pw_shell);
 #else
-#error "Not FreeBSD or NetBSD - don't know what to do"
+#error "Not FreeBSD, OpenBSD or NetBSD - don't know what to do"
 #endif
         }
 

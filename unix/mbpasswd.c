@@ -213,7 +213,7 @@ int execute(char **args, char *in, char *out, char *err)
 
 
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 static void fail_exit(int status)
 {
 //	gr_unlock();
@@ -627,7 +627,7 @@ static int new_password(const struct passwd *pw, char *newpasswd)
 }
 
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 
 static void update_noshadow(int shadow_locked)
 {
@@ -751,7 +751,7 @@ static void update_noshadow(int shadow_locked)
         pw_unlock();
 }
 
-#endif /* Not __FreeBSD__ && __NetBSD__ */
+#endif /* Not __FreeBSD__ && __NetBSD__ && __OpenBSD__ */
 
 
 #ifdef SHADOW_PASSWORD
@@ -815,7 +815,7 @@ static void update_shadow(void)
  */
 int main(int argc, char *argv[])
 {
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 	const struct passwd	*pw;
 	const struct group	*gr;
 #ifdef SHADOW_PASSWORD
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
 	 * to root to protect against unexpected signals.  Any
 	 * keyboard signals are set to be ignored.
 	 */
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 	pwd_init();
 #else
 	pw_init();
@@ -985,7 +985,7 @@ int main(int argc, char *argv[])
 		exit(E_FAILURE);
 	}
 
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
 
 #ifdef  HAVE_USERSEC_H
         update_userpw(pw->pw_passwd);
@@ -999,7 +999,7 @@ int main(int argc, char *argv[])
 		update_noshadow(0);
 #endif /* !HAVE_USERSEC_H */
 
-#else /* __FreeBSD__ && __NetBSD__ */
+#else /* __FreeBSD__ && __NetBSD__ && __OpenBSD__ */
 	/*
 	 *  FreeBSD password change, borrowed from the original FreeBSD sources
 	 */
@@ -1018,7 +1018,7 @@ int main(int argc, char *argv[])
 	if (!pw_mkdb(pw->pw_name))
 		pw_error((char *)NULL, 0, 1);
 
-#endif /* __FreeBSD__ */
+#endif /* __FreeBSD__ && __NetBSD__ && __OpenBSD__ */
 
 #ifdef _VPOPMAIL_PATH
 	fflush(stdout);

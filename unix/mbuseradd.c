@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
      * Build command to add user entry to the /etc/passwd and /etc/shadow
      * files. We use the systems own useradd program.
      */
-#if defined(__linux__) || defined(__NetBSD__)
+#if defined(__linux__) || defined(__NetBSD__) || defined(__OpenBSD__)
     if ((access("/usr/bin/useradd", R_OK)) == 0)
 	args[0] = (char *)"/usr/bin/useradd";
     else if ((access("/bin/useradd", R_OK)) == 0)
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     args[9] = argv[2];
     args[10] = NULL;
 #endif
-#if defined(__NetBSD__)
+#if defined(__NetBSD__) || defined(__OpenBSD__)
     args[1] = (char *)"-c";
     args[2] = argv[3];
     args[3] = (char *)"-d";
