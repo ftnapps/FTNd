@@ -1272,7 +1272,28 @@ void Reply_Msg(int IsReply)
     strncpy(Msg.ReplyAddr, replyaddr, 80);
 
     /* From     : */
-    strncpy(Msg.From, exitinfo.sUserName, 100);
+    if (Alias_Option()) {
+	/*
+	 * Set handle
+	 */
+	strcpy(Msg.From, exitinfo.sHandle);
+	tlcap(Msg.From); // Do we want this???
+    } else {
+	if (msgs.Type == NEWS) {
+	    if (CFG.EmailMode != E_PRMISP) {
+		/*
+		 * If no inernet mail domain, use fidonet addressing
+		 */
+		strcpy(Msg.From, exitinfo.sUserName);
+		tlcap(Msg.From);
+	    } else {
+		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+	    }
+	} else {
+	    strncpy(Msg.From, exitinfo.sUserName, 100);
+	    tlcap(Msg.From);
+	}
+    }
     pout(YELLOW, BLACK, (char *) Language(209));
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
     Enter(1);

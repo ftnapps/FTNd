@@ -267,6 +267,16 @@ void A_List(faddr *t, char *replyid, int Notify)
 				fgetpos(fi,&fileptr2);
 			        SubTot++;
   			        Total++;
+				/*
+				 * Panic message split
+				 */
+				if (((ftell(qp) - msgptr) / 1024) >= CFG.new_force) {
+				    MacroVars("Z","d",1);
+				    Syslog('-', "  Forced splitting message at %ld bytes", ftell(qp) - msgptr);
+				    CloseMail(qp, t);
+				    qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
+				    msgptr = ftell(qp);
+				}
 			    }
 			} else
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);

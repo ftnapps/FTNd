@@ -13,10 +13,6 @@ $Id$
 		 N = Normal, second priority.
                  L = Cosmetic or nice to have.
 
-general:
-	N: Add the default root domain DNS lookup if no DNS info is available
-	   in the nodelist. Setting per zone.
-
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.
@@ -43,7 +39,6 @@ mbsebbs:
 	N: If a new mailcheck takes longer then the idle timeout, the user is 
 	   disconnected as soon as the mailcheck is ready.
 
-	N: In mail areas for only Alias names, the normal usernames show up.
 
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
@@ -51,10 +46,6 @@ mbfido:
 
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
-
-	N: When a news article is received from a mailinglist there is a valid
-	   To: address in the message, the gate doesn't see that and uses the
-	   name to "All".
 
 	U: GoldED netmail from points, FMPT kludge is missing.
 
@@ -96,8 +87,6 @@ mbfido:
 	N: Send rulefile via netmail for each new connected mail area.
 
 	N: Send notifications to downlinks about changed areas from uplink.
-
-	N: Better areamgr message split.
 
 mbcico:
 	N: Implement MD5 crypt in binkp protocol driver.
