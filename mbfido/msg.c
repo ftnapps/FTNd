@@ -40,6 +40,7 @@
 
 extern int	net_msgs;
 extern int	net_in;
+extern int	net_imp;
 extern int	do_scan;
 
 
@@ -79,6 +80,7 @@ int toss_msgs(void)
     }
 
     net_msgs += files;
+    net_in += files;
     return files;
 }
 
@@ -302,7 +304,7 @@ int toss_onemsg(char *msgname)
 		sprintf(toUserName, "%s", CFG.sysop_name);
 		strcpy(Msg.To, toUserName);
 	    }
-	    net_in++;
+	    net_imp++;
 	} else {
 	    Msg.Local = TRUE;
 	    islocal = FALSE;
