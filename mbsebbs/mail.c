@@ -1531,8 +1531,10 @@ void MsgArea_List(char *Option)
 	int     iAreaCount = 6, Recno = 0; 
 	int     iOldArea = 0, iAreaNum = 0;
 	int     iGotArea = FALSE; /* Flag to check if user typed in area */
+	int	iCheckNew = FALSE; /* Flag to check for new mail in area */
 	long    offset;
 	char    *temp;
+	lastread	LR;
 
 	temp         = calloc(PATH_MAX, sizeof(char));
 
@@ -1558,48 +1560,57 @@ void MsgArea_List(char *Option)
 	iAreaNum = (ftell(pAreas) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
 
 	/*
-	 * If there are menu options, select area direct.
+	 * If there are menu options, parse them first
+	 *  1. Check for New Messages in Area (only option that will continue to display list)
+	 *  2. Increment Area, return
+	 *  3. Decrement Area, return
+	 *  4. Select area direct (via area number), return
 	 */
 	if (strlen(Option) != 0) {
-		
-		if (strcmp(Option, "M+") == 0) 
-			while(TRUE) {
-				iMsgAreaNumber++;
-				if (iMsgAreaNumber >= iAreaNum)
-					iMsgAreaNumber = 0;
-
-				offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-				if(fseek(pAreas, offset, 0) != 0) {
-					printf("Can't move pointer there.");
+		if (strcmp(Option, "N") == 0) {
+			iCheckNew = TRUE;
+		} else {
+			if (strcmp(Option, "M+") == 0) 
+				while(TRUE) {
+					iMsgAreaNumber++;
+					if (iMsgAreaNumber >= iAreaNum)
+						iMsgAreaNumber = 0;
+	
+					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+					if(fseek(pAreas, offset, 0) != 0) {
+						printf("Can't move pointer there.");
+					}
+									
+					fread(&msgs, msgshdr.recsize, 1, pAreas);
+					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
+						break;
 				}
-								
-				fread(&msgs, msgshdr.recsize, 1, pAreas);
-				if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
-					break;
-			}
-		
-		if (strcmp(Option, "M-") == 0) 
-			while(TRUE) {
-				iMsgAreaNumber--;
-				if (iMsgAreaNumber < 0)
-					iMsgAreaNumber = iAreaNum -1;
-
-				offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
-				if(fseek(pAreas, offset, 0) != 0) {
-					printf("Can't move pointer there.");
+			
+			if (strcmp(Option, "M-") == 0) 
+				while(TRUE) {
+					iMsgAreaNumber--;
+					if (iMsgAreaNumber < 0)
+						iMsgAreaNumber = iAreaNum -1;
+	
+					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+					if(fseek(pAreas, offset, 0) != 0) {
+						printf("Can't move pointer there.");
+					}
+					
+					fread(&msgs, msgshdr.recsize, 1, pAreas);
+					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
+						break;
 				}
-				
-				fread(&msgs, msgshdr.recsize, 1, pAreas);
-				if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0))
-					break;
-			}
-		SetMsgArea(iMsgAreaNumber);
-		Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
-		free(temp);
-		fclose(pAreas);
-		return;
+	
+	
+			SetMsgArea(iMsgAreaNumber);
+			Syslog('+', "Msg area %lu %s", iMsgAreaNumber, sMsgAreaDesc);
+			free(temp);
+			fclose(pAreas);
+			return;
+		}
 	}
-
+	
 	clear();
 	Enter(1);
 	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(231));
@@ -1619,7 +1630,26 @@ void MsgArea_List(char *Option)
 			printf("%5d", Recno + 1);
 
 			colour(LIGHTBLUE, BLACK);
-			printf(" %c ", 46);
+			/* Check for New Mail if N was put on option data */
+			if ( iCheckNew ) {
+				if(Msg_Open(msgs.Base)){
+					MsgBase.Highest = Msg_Highest();
+					LR.UserID = grecno; 
+					if ( Msg_GetLastRead(&LR) != TRUE ){
+						LR.HighReadMsg = 0;
+					}
+					if (MsgBase.Highest > LR.HighReadMsg ) {
+						colour(YELLOW, BLACK);
+						printf(" %c ", 42 );
+					} else {
+						printf(" %c ", 46 );
+					}
+				} else {
+					printf(" %c ", 46 );
+				}
+			} else {
+				printf(" %c ", 46);
+			}
 
 			colour(CYAN, BLACK);
 			printf("%-31s", msgs.Name);
