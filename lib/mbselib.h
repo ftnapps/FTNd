@@ -2134,6 +2134,7 @@ int	attach(faddr, char *, int, char);
  */
 char	*getchrs(int);			/* Return characterset name	    */
 char	*getchrsdesc(int);		/* Return characterset description  */
+char	*get_iconv_name(char *);	/* Return usable name for iconv	    */
 
 
 

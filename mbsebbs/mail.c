@@ -1136,155 +1136,245 @@ int Export_a_Msg(unsigned long Num)
  */
 int Read_a_Msg(unsigned long Num, int UpdateLR)
 {
-	char		*p = NULL, *fn;
-	int		ShowMsg = TRUE;
-	lastread	LR;
+    char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, *charsout = NULL;
+    int		ShowMsg = TRUE, UseIconv = FALSE;
+    lastread	LR;
+    iconv_t	iconvstr = (iconv_t)(0);
+#ifdef HAVE_ICONV_H
+    size_t	cnt, inleft, outleft;
+    char	inbuf[256], outbuf[1024];
+    char	*inb, *outb;
+#endif
 
-	LastNum = Num;
-	iLineCount = 7;
-	WhosDoingWhat(READ_POST, NULL);
+    LastNum = Num;
+    iLineCount = 7;
+    WhosDoingWhat(READ_POST, NULL);
 
-	/*
-	 * The area data is already set, so we can do the next things
-	 */
-	if (MsgBase.Total == 0) {
-		colour(WHITE, BLACK);
-		/* There are no messages in this area */
-		printf("\n%s\n\n", (char *) Language(205));
-		sleep(3);
-		return FALSE;
-	}
+    /*
+     * The area data is already set, so we can do the next things
+     */
+    if (MsgBase.Total == 0) {
+	colour(WHITE, BLACK);
+	/* There are no messages in this area */
+	printf("\n%s\n\n", (char *) Language(205));
+	sleep(3);
+	return FALSE;
+    }
 
-	if (!Msg_Open(sMsgAreaBase)) {
-		WriteError("Error open JAM base %s", sMsgAreaBase);
-		return FALSE;
-	}
+    if (!Msg_Open(sMsgAreaBase)) {
+	WriteError("Error open JAM base %s", sMsgAreaBase);
+	return FALSE;
+    }
 
-	if (!Msg_ReadHeader(Num)) {
-		perror("");
-		colour(WHITE, BLACK);
-		printf("\n%s\n\n", (char *)Language(77));
-		Msg_Close();
-		sleep(3);
-		return FALSE;
-	}
-	if (Msg.Private) {
-		ShowMsg = FALSE;
-		if ((strcasecmp(exitinfo.sUserName, Msg.From) == 0) || (strcasecmp(exitinfo.sUserName, Msg.To) == 0))
-			ShowMsg = TRUE;
-		if (exitinfo.Security.level >= msgs.SYSec.level)
-			ShowMsg = TRUE;
-	} 
-	if (!ShowMsg) {
-		printf("\n%s\n\n", (char *) Language(82));
-		Msg_Close();
-		sleep(3);
-		return FALSE;
-	}
-	ShowMsgHdr();
-
-	/*
-	 * Fill Quote file in case the user wants to reply. Note that line
-	 * wrapping is set lower then normal message read, to create room
-	 * for the Quote> strings at the start of each line.
-	 */
-	fn = calloc(128, sizeof(char));
-	sprintf(fn, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
-	if ((qf = fopen(fn, "w")) != NULL) {
-		if (Msg_Read(Num, 75)) {
-			if ((p = (char *)MsgText_First()) != NULL)
-				do {
-					if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
-						if (Kludges) {
-							if (p[0] == '\001') {
-								p[0] = 'a';
-								fprintf(qf, "^%s\n", p);
-							} else
-								fprintf(qf, "%s\n", p);
-						}
-					} else
-						fprintf(qf, "%s\n", p);
-				} while ((p = (char *)MsgText_Next()) != NULL);
-		}
-		fclose(qf);
-	} else {
-		WriteError("$Can't open %s", p);
-	}
-	free(fn);
-
-	/*
-	 * Show message text
-	 */
-	colour(CFG.TextColourF, CFG.TextColourB);
-	if (Msg_Read(Num, 78)) {
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
-					if (Kludges) {
-						colour(7, 0);
-						printf("%s\n", p);
-						if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
-							break;
-					}
-				} else {
-					colour(CFG.TextColourF, CFG.TextColourB);
-					if (strchr(p, '>') != NULL)
-						if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
-							colour(CFG.HiliteF, CFG.HiliteB);
-					printf("%s\n", p);
-					if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
-						break;
-				}
-			} while ((p = (char *)MsgText_Next()) != NULL);
-		}
-	}
-
-	/*
-	 * Set the Received status on this message if it's for the user.
-	 */
-	if ((!Msg.Received) && (strlen(Msg.To) > 0) &&
-	    ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(exitinfo.sHandle, Msg.To) == 0))) {
-		Syslog('m', "Marking message received");
-		Msg.Received = TRUE;
-		Msg.Read = time(NULL) - (gmt_offset((time_t)0) * 60);
-		if (Msg_Lock(30L)) {
-			Msg_WriteHeader(Num);
-			Msg_UnLock();
-		}
-	}
-
-	/*
-	 * Update lastread pointer if needed. Netmail boards are always updated.
-	 */
-	if (Msg_Lock(30L) && (UpdateLR || msgs.Type == NETMAIL)) {
-		LR.UserID = grecno;
-		p = xstrcpy(exitinfo.sUserName);
-		if (Msg_GetLastRead(&LR) == TRUE) {
-			LR.LastReadMsg = Num;
-			if (Num > LR.HighReadMsg)
-				LR.HighReadMsg = Num;
-			if (LR.HighReadMsg > MsgBase.Highest)
-				LR.HighReadMsg = MsgBase.Highest;
-			LR.UserCRC = StringCRC32(tl(p));
-			if (!Msg_SetLastRead(LR))
-				WriteError("Error update lastread");
-		} else {
-			/*
-			 * Append new lastread pointer
-			 */
-			LR.UserCRC = StringCRC32(tl(p));
-			LR.UserID  = grecno;
-			LR.LastReadMsg = Num;
-			LR.HighReadMsg = Num;
-			if (!Msg_NewLastRead(LR))
-				WriteError("Can't append lastread");
-		}
-		free(p);
-		Msg_UnLock();
-	}
-
+    if (!Msg_ReadHeader(Num)) {
+	perror("");
+	colour(WHITE, BLACK);
+	printf("\n%s\n\n", (char *)Language(77));
 	Msg_Close();
-	return TRUE;
+	sleep(3);
+	return FALSE;
+    }
+    
+    if (Msg.Private) {
+	ShowMsg = FALSE;
+	if ((strcasecmp(exitinfo.sUserName, Msg.From) == 0) || (strcasecmp(exitinfo.sUserName, Msg.To) == 0))
+	    ShowMsg = TRUE;
+	if (exitinfo.Security.level >= msgs.SYSec.level)
+	    ShowMsg = TRUE;
+    } 
+    if (!ShowMsg) {
+	printf("\n%s\n\n", (char *) Language(82));
+	Msg_Close();
+	sleep(3);
+	return FALSE;
+    }
+    ShowMsgHdr();
+
+    /*
+     * Fill Quote file in case the user wants to reply. Note that line
+     * wrapping is set lower then normal message read, to create room
+     * for the Quote> strings at the start of each line.
+     */
+    fn = calloc(128, sizeof(char));
+    sprintf(fn, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    if ((qf = fopen(fn, "w")) != NULL) {
+	if (Msg_Read(Num, 75)) {
+	    if ((p = (char *)MsgText_First()) != NULL)
+		do {
+		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+			/*
+			 * While we are here, check for the ^aCHRS: kludge and set the used charset.
+			 */
+			if (strncmp(p, "\001CHRS: ", 7) == 0) {
+			    charset = xstrcpy(p + 7);
+			}
+			if (strncmp(p, "\001CHARSET: ", 10) == 0) {
+			    charset = xstrcpy(p + 10);
+			}
+			if (Kludges) {
+			    if (p[0] == '\001') {
+				p[0] = 'a';
+				fprintf(qf, "^%s\n", p);
+			    } else
+				fprintf(qf, "%s\n", p);
+			}
+		    } else
+			fprintf(qf, "%s\n", p);
+		} while ((p = (char *)MsgText_Next()) != NULL);
+	}
+	fclose(qf);
+    } else {
+	WriteError("$Can't open %s", p);
+    }
+    free(fn);
+
+    if ((charset == NULL) && (msgs.Charset != FTNC_NONE)) {
+	/*
+	 * No charset marked in the message, use the area charset
+	 */
+	charset = xstrcpy(getchrs(msgs.Charset));
+    }
+    charsin = xstrcpy(get_iconv_name(charset));
+    charsout = xstrcpy(get_iconv_name(getchrs(exitinfo.Charset)));
+    Syslog('b', "Stage 3: charset %s, translate %s to %s", MBSE_SS(charset), MBSE_SS(charsin), MBSE_SS(charsout));
+
+#ifdef HAVE_ICONV_H
+    /*
+     * Try to setup iconv if the charactersets are different.
+     */
+    if (charsin && charsout && strcmp(charsout, charsin)) {
+
+	charsout = xstrcat(charsout, (char *)"//TRANSLIT");
+	iconvstr = iconv_open(charsout, charsin);
+	if (iconvstr == (iconv_t)(-1)) {
+	    Syslog('!', "$open_iconv(%s, %s)", charsin, charsout);
+	} else {
+	    UseIconv = TRUE;
+	}
+    }
+#endif
+
+    /*
+     * Show message text
+     */
+    colour(CFG.TextColourF, CFG.TextColourB);
+    if (Msg_Read(Num, 78)) {
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+		    if (Kludges) {
+			colour(7, 0);
+			printf("%s\n", p);
+			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
+			    break;
+		    }
+		} else {
+		    colour(CFG.TextColourF, CFG.TextColourB);
+		    if (strchr(p, '>') != NULL)
+			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
+			    colour(CFG.HiliteF, CFG.HiliteB);
+#ifdef HAVE_ICONV_H
+		    if (UseIconv) {
+			/*
+			 * Try to translate character sets with iconv
+			 */
+			inleft = outleft = strlen(p);
+			memset(&inbuf, 0, sizeof(inbuf));
+			memset(&outbuf, 0, sizeof(inbuf));
+			sprintf(inbuf, "%s", p);
+			inb = inbuf;
+			outb = outbuf;
+			cnt = iconv(iconvstr, &inb, &inleft, &outb, &outleft);
+			if (cnt == (size_t)(-1)) {
+			    /*
+			     * Failed, log and show original line.
+			     */
+			    Syslog('b', "iconv cnt=%d inleft=%d outleft=%d", cnt, inleft, outleft);
+			    Syslog('b', "%s", printable(p, 0));
+			    Syslog('b', "$iconv");
+			    printf("%s\n", p);
+			} else {
+			    if (strcmp(inbuf, outbuf)) {
+				/*
+				 * Success, translated and log
+				 */
+				Syslog('b', "< %s", MBSE_SS(inbuf));
+				Syslog('b', "> %s", MBSE_SS(outbuf));
+			    }
+			    printf("%s\n", outbuf);
+			}
+		    } else {
+			printf("%s\n", p);
+		    }
+#else
+		    printf("%s\n", p);
+#endif
+		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
+			break;
+		}
+	    } while ((p = (char *)MsgText_Next()) != NULL);
+	}
+    }
+
+    if (charset)
+	free(charset);
+    if (charsout)
+	free(charsout);
+    if (charsin)
+	free(charsin);
+    
+#ifdef HAVE_ICONV_H
+    if (UseIconv && (iconv_close(iconvstr) == -1)) {
+	Syslog('!', "$iconv_close()");
+    }
+#endif
+    
+    /*
+     * Set the Received status on this message if it's for the user.
+     */
+    if ((!Msg.Received) && (strlen(Msg.To) > 0) &&
+	    ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(exitinfo.sHandle, Msg.To) == 0))) {
+	Syslog('m', "Marking message received");
+	Msg.Received = TRUE;
+	Msg.Read = time(NULL) - (gmt_offset((time_t)0) * 60);
+	if (Msg_Lock(30L)) {
+	    Msg_WriteHeader(Num);
+	    Msg_UnLock();
+	}
+    }
+
+    /*
+     * Update lastread pointer if needed. Netmail boards are always updated.
+     */
+    if (Msg_Lock(30L) && (UpdateLR || msgs.Type == NETMAIL)) {
+	LR.UserID = grecno;
+	p = xstrcpy(exitinfo.sUserName);
+	if (Msg_GetLastRead(&LR) == TRUE) {
+	    LR.LastReadMsg = Num;
+	    if (Num > LR.HighReadMsg)
+		LR.HighReadMsg = Num;
+	    if (LR.HighReadMsg > MsgBase.Highest)
+		LR.HighReadMsg = MsgBase.Highest;
+	    LR.UserCRC = StringCRC32(tl(p));
+	    if (!Msg_SetLastRead(LR))
+		WriteError("Error update lastread");
+	} else {
+	    /*
+	     * Append new lastread pointer
+	     */
+	    LR.UserCRC = StringCRC32(tl(p));
+	    LR.UserID  = grecno;
+	    LR.LastReadMsg = Num;
+	    LR.HighReadMsg = Num;
+	    if (!Msg_NewLastRead(LR))
+		WriteError("Can't append lastread");
+	}
+	free(p);
+	Msg_UnLock();
+    }
+
+    Msg_Close();
+    return TRUE;
 }
 
 

@@ -43,6 +43,9 @@
 #include "timeout.h"
 #include "funcs.h"
 
+#include <locale.h>
+#include <langinfo.h>
+
 
 extern	int	do_quiet;	/* Logging quiet flag */
 time_t		t_start;
@@ -204,6 +207,12 @@ int main(int argc, char **argv)
 	    printf("%s %s\n", (char *) Language(135), ctime(&ltime));
 	}
     }
+
+    /*
+     * Some debugging for me
+     */
+    Syslog('b', "setlocale() returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
+    Syslog('b', "nl_langinfo(LC_CTYPE) returns \"%s\"", printable(nl_langinfo(LC_CTYPE), 0));
 
     sprintf(sMailbox, "mailbox");
     colour(LIGHTGRAY, BLACK);

@@ -1481,7 +1481,7 @@ void Delete_Home()
 			fflush(stdout);
 			i = toupper(Getone());
 
-			if (i == Keystroke(368, 0) || i == 13) {
+			if (i == Keystroke(369, 0) || i == 13) {
 				i = unlink(temp);
 
 				if (i == -1) {

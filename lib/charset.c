@@ -66,3 +66,35 @@ char *getchrsdesc(int val)
 }
 
 
+
+char *get_iconv_name(char *name)
+{
+    if (!strncasecmp(name, "CP437", 5))
+	return (char *)"IBM437";
+    if (!strncasecmp(name, "CP850", 5))
+	return (char *)"IBM850";
+    if (!strncasecmp(name, "CP865", 5))
+	return (char *)"IBM865";
+    if (!strncasecmp(name, "CP866", 5))
+	return (char *)"IBM866";
+    if (!strncasecmp(name, "LATIN-1", 7))
+	return (char *)"ISO_8859-1";
+    if (!strncasecmp(name, "LATIN-2", 7))
+	return (char *)"ISO_8859-2";
+    if (!strncasecmp(name, "LATIN-5", 7))
+	return (char *)"ISO_8859-5";
+    if (!strncasecmp(name, "PC-8", 4))
+	return (char *)"IBM437";
+    if (!strncasecmp(name, "IBMPC", 5))
+	return (char *)"IBM437";
+    if (!strncasecmp(name, "+7_FIDO", 7))
+	return (char *)"IBM866";
+    if (!strncasecmp(name, "CP1125", 6))
+	return (char *)"CP1125";
+
+    Syslog('+', "get_iconv_name(%s): no usable character set name found", name);
+    return NULL;
+}
+
+
+
