@@ -3,7 +3,7 @@
  *
  * File ..................: mbsebbs/fsedit.c
  * Purpose ...............: FullScreen Message editor.
- * Last modification date : 27-Oct-2001
+ * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -329,8 +329,8 @@ int FsWordWrap()
 	/*
 	 * FIXME: FsWordWrap
 	 * The word wrap still fails the BIG WORD test
-	 * (BIG WORD = continuous string of characters that spans multiple lines without
-	 *  any spaces)
+	 * (BIG WORD = continuous string of characters that spans multiple
+	 *             lines without any spaces)
 	 */
 	
 	Syslog('b', "FSEDIT: Word Wrap");
@@ -340,8 +340,8 @@ int FsWordWrap()
 	if ((WCol > 0) && (WCol < 80)) WCol++; else WCol=80;
 	if (WCol <= strlen(Message[CurRow])) {
 		/*
-		 * If WCol = 80 (no spaces in line) be sure to grab character 79.
-		 * Otherwise, drop it, because it's a space.
+		 * If WCol = 80 (no spaces in line) be sure to grab
+		 * character 79.  Otherwise, drop it, because it's a space.
 		 */
 		if ((WCol == 80) || (WCol-1 == Col))
 			sprintf(tmpLine, "%s%c", tmpLine, Message[CurRow][79]);
@@ -355,12 +355,21 @@ int FsWordWrap()
 		 * Truncate current row.
 		 */
 		Message[CurRow][WCol-1] = '\0';
+		/* 
+		 * If this is the last line, then be sure to create a
+		 * new line.x
+		 */
+		if (CurRow >= Line) {
+			Line = CurRow+1;
+			Message[CurRow+1][0] = '\0';
+		}
 		/*
-		 * If the wrapped section and the next row will not fit on one line,
-		 * shift all lines down one and use the wrapped section to create a new line.
+		 * If the wrapped section and the next row will not fit on
+		 * one line, shift all lines down one and use the wrapped
+		 * section to create a new line.
 		 *
-		 * Otherwise, slap the wrapped section on the front of the next row with
-		 * a space if needed.
+		 * Otherwise, slap the wrapped section on the front of the
+		 * next row with a space if needed.
 		 */
 		if ((strlen(tmpLine) + strlen(Message[CurRow+1])) > 79) {
 			for (i = Line; i > CurRow; i--)
