@@ -153,8 +153,6 @@ void Move(int From, int To, char *File)
     tothumb = xstrcat(tothumb, fdb.Name);
 
     if (file_exist(topath, F_OK) == 0) {
-	Syslog('-', "%s", topath);
-	Syslog('-', "%d", file_exist(topath, F_OK));
 	WriteError("File %s already exists in area %d", File, To);
 	if (!do_quiet)
 	    printf("File %s already exists in area %d\n", File, To);

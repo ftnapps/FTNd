@@ -31,14 +31,15 @@ v0.39.1		22-Oct-2003
 	mbfile:
 		When the areanumber with the adopt command was not given, the
 		help is displayed instead of trying area 0 that doesn't exist.
-		With the file move command if the file already exists in the
-		destination area, the move is refused.
+		With the file move, adopt and import command if the file 
+		already exists in the destination area, the action is refused.
 		Added mbfile sort <area> command. Files are case insensitive
 		sorted on the long filename. After sort the indexes are rebuild.
+		Fixed some logging that should have been debug logging.
 
 	mbcico:
 		Added hydra rpos id -1 indicator for compression stop that
-		Alex and I agreed to use.
+		Alex and I agreed to use. A FSP document will be written.
 		Compression log fixed and added percentage compression.
 		Added dynamic optimum sendbuffer size with a maximum of 8192
 		bytes with an average size of 2048 bytes.

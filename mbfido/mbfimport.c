@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Import files with files.bbs
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -59,7 +59,7 @@ void ImportFiles(int Area)
     struct stat		statfile;
     struct dirent	*de;
 
-    Syslog('-', "Import(%d)", Area);
+    Syslog('f', "Import(%d)", Area);
 
     if (!do_quiet)
 	colour(CYAN, BLACK);

@@ -330,7 +330,7 @@ if [ "$DISTNAME" = "Gentoo" ]; then
        DISTINIT="/etc/init.d/mbsebbs"
        cp init.Gentoo $DISTINIT
        chmod 755 $DISTINIT
-       update-rc mbsebbs defaults
+       rc-update add mbsebbs default
        echo "Gentoo install ready."
        log "+" "Gentoo init script installed"
 fi

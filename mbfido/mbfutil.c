@@ -251,7 +251,7 @@ int UnpackFile(char *File)
 	if (mkdir(temp, 0777)) {
 	    WriteError("$Can't create %s", temp);
 	    if (!do_quiet)
-		printf("Can't create %s\n", temp);
+		printf("\nCan't create %s\n", temp);
 	    die(MBERR_GENERAL);
 	}
     }
@@ -269,7 +269,7 @@ int UnpackFile(char *File)
     if (!getarchiver(unarc)) {
 	WriteError("No archiver available for %s", File);
 	if (!do_quiet)
-	    printf("No archiver available for %s\n", File);
+	    printf("\nNo archiver available for %s\n", File);
 	return FALSE;
     }
 
@@ -277,7 +277,7 @@ int UnpackFile(char *File)
     if ((cmd == NULL) || (cmd == "")) {
 	WriteError("No unarc command available");
 	if (!do_quiet)
-	    printf("No unarc command available\n");
+	    printf("\nNo unarc command available\n");
 	return FALSE;
     }
 
@@ -321,10 +321,18 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
      * 8.3 filename to the long filename.
      */
     mkdirs(DestPath, 0775);
+
+    if (file_exist(DestPath, F_OK) == 0) {
+	WriteError("File %s already exists in area %d", fdb.Name, Area);
+	if (!do_quiet)
+	    printf("\nFile %s already exists in area %d\n", fdb.Name, Area);
+	return FALSE;
+    }
+
     if ((rc = file_cp(FromPath, DestPath))) {
 	WriteError("Can't copy file in place");
 	if (!do_quiet)
-	    printf("Can't copy file to %s, %s\n", DestPath, strerror(rc));
+	    printf("\nCan't copy file to %s, %s\n", DestPath, strerror(rc));
 	return FALSE;
     }
     chmod(DestPath, 0644);
@@ -332,7 +340,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
 	if ((rc = symlink(DestPath, LinkPath))) {
 	    WriteError("Can't create symbolic link %s", LinkPath);
 	    if (!do_quiet)
-		printf("Can't create symbolic link %s, %s\n", LinkPath, strerror(rc));
+		printf("\nCan't create symbolic link %s, %s\n", LinkPath, strerror(rc));
 	    unlink(DestPath);
 	    return FALSE;
 	}
@@ -493,7 +501,7 @@ int LoadAreaRec(int Area)
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
         WriteError("$Can't open %s", sAreas);
         if (!do_quiet)
-            printf("Can't open %s\n", sAreas);
+            printf("\nCan't open %s\n", sAreas);
         return FALSE;
     }
 
@@ -501,7 +509,7 @@ int LoadAreaRec(int Area)
     if (fseek(pAreas, ((Area - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET)) {
         WriteError("$Can't seek record %d in %s", Area, sAreas);
         if (!do_quiet)
-            printf("Can't seek record %d in %s\n", Area, sAreas);
+            printf("\nCan't seek record %d in %s\n", Area, sAreas);
         fclose(pAreas);
         free(sAreas);
         return FALSE;
@@ -510,7 +518,7 @@ int LoadAreaRec(int Area)
     if (fread(&area, areahdr.recsize, 1, pAreas) != 1) {
         WriteError("$Can't read record %d in %s", Area, sAreas);
         if (!do_quiet)
-            printf("Can't read record %d in %s\n", Area, sAreas);
+            printf("\nCan't read record %d in %s\n", Area, sAreas);
         fclose(pAreas);
         free(sAreas);
         return FALSE;

@@ -58,7 +58,7 @@ void AdoptFile(int Area, char *File, char *Description)
     int			i, j, k, lines = 0, File_id_cnt = 0, rc;
     struct FILERecord	fdb;
 
-    Syslog('-', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
+    Syslog('f', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
 
     if (!do_quiet)
 	colour(CYAN, BLACK);
@@ -91,7 +91,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    if ((rc = file_cp(temp, temp2))) {
 		WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		if (!do_quiet)
-		    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
+		    printf("\nCan't copy file to %s, %s\n", temp2, strerror(rc));
 		die(MBERR_INIT_ERROR);
 	    } else {
 		if (do_novir == FALSE) {
@@ -108,7 +108,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		    chdir(pwd);
 		    WriteError("Virus found");
 		    if (!do_quiet)
-			printf("Virus found\n");
+			printf("\nVirus found\n");
 		    die(MBERR_VIRUS_FOUND);
 		}
 	    }
@@ -135,7 +135,7 @@ void AdoptFile(int Area, char *File, char *Description)
                 chdir(pwd);
 		WriteError("Virus found");
 		if (!do_quiet)
-		    printf("Virus found\n");
+		    printf("\nVirus found\n");
 		die(MBERR_VIRUS_FOUND);
             }
 	}
@@ -166,7 +166,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    }
 
 	    if (File_Id) {
-		Syslog('-', "FILE_ID.DIZ found");
+		Syslog('f', "FILE_ID.DIZ found");
 		if ((fp = fopen(temp2, "r"))) {
 		    /*
 		     * Read no more then 25 lines
@@ -219,7 +219,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	    if (Description == NULL) {
 		WriteError("No FILE_ID.DIZ and no description on the commandline");
 		if (!do_quiet)
-		    printf("No FILE_ID.DIZ and no description on the commandline\n");
+		    printf("\nNo FILE_ID.DIZ and no description on the commandline\n");
 		DeleteVirusWork();
 		die(MBERR_COMMANDLINE);
 	    } else {
@@ -303,7 +303,7 @@ void AdoptFile(int Area, char *File, char *Description)
     } else {
 	WriteError("Area %d is not available", Area);
 	if (!do_quiet)
-	    printf("Area %d is not available\n", Area);
+	    printf("\nArea %d is not available\n", Area);
     }
 
     if (!do_quiet) {
