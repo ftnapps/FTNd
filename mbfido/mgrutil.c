@@ -351,7 +351,7 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
     }
     subj = xstrcpy(nodes.Apasswd);
 
-    Mgrlog("%s request from %s to %s", mgrname, aka2str(Orig), ascfnode(t, 0x1f));
+    Mgrlog("Sending uplink request from %s to \"%s\" at %s", aka2str(Orig), mgrname, ascfnode(t, 0x1f));
 
     Now = time(NULL) - (gmt_offset((time_t)0) * 60);
     flags |= (nodes.Crash)  ? M_CRASH    : 0;
@@ -533,7 +533,7 @@ int Areas(void)
     sysconnect	System;
     faddr	*From, *To;
 
-    Syslog('+', "Process areas taglists");
+    Mgrlog("Process areas taglists");
 
     if (!do_quiet) {
 	colour(3, 0);
@@ -665,15 +665,13 @@ int Areas(void)
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
 					sprintf(temp, "%s.jhr", msgs.Base);
 					if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
-					    Mgrlog("Marking message area %d, %s read-only",
-						    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1,
-						    msgs.Tag);
+					    Mgrlog("Marking echo %s, group %s, area %d read-only", msgs.Tag, mgroup.Name,
+						    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1);
 					    msgs.MsgKinds = RONLY;          // Area read-only
 					    sprintf(msgs.Group, "DELETED"); // Make groupname invalid
 					} else {
-					    Mgrlog("Removing empty message area %d, %s", 
-						((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1, 
-						msgs.Tag);
+					    Mgrlog("Removing empty echo %s, group %s, area %d", msgs.Tag, mgroup.Name,
+						((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1);
 					    memset(&msgs, 0, sizeof(msgs));
 					    msgs.DaysOld = CFG.defdays;
 					    msgs.MaxMsgs = CFG.defmsgs;
@@ -868,9 +866,9 @@ int Areas(void)
 		    /*
 		     * Now we have a list of actions to perform
 		     */
-		    Syslog('f', "Area tag             Oke Del");
+		    Syslog('F', "Area tag             Oke Del");
 		    for (tmp = alist; tmp; tmp = tmp->next) {
-			Syslog('f', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
+			Syslog('F', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
 		    }
 		    
 		    /*
@@ -914,7 +912,7 @@ int Areas(void)
 				while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 				    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name)) {
 					fseek(fp, - tichdr.recsize, SEEK_CUR);
-					Syslog('+', "Marked TIC area %s for deletion", tmp->Name);
+					Mgrlog("Marked TIC area %s, group %s for deletion", tmp->Name, fgroup.Name);
 					tic.Deleted = TRUE;
 					tic.Active  = FALSE;
 					fwrite(&tic, tichdr.recsize, 1, fp);
@@ -963,7 +961,7 @@ int Areas(void)
 			    fclose(ap);
 			    unlink(temp);
 			    rename(buf, temp);
-			    Mgrlog("Purged %d TIC records", count);
+			    Mgrlog("Purged %d TIC areas", count);
 			}
 		    }
 
@@ -978,7 +976,7 @@ int Areas(void)
 			    if (UplinkRequest(To, From, TRUE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
-				Mgrlog("AreaMgr request sent to %s", aka2str(fgroup.UpLink));
+				Mgrlog("FileMgr request sent to %s", aka2str(fgroup.UpLink));
 			    }
 			    tidy_faddr(From);
 			    tidy_faddr(To);

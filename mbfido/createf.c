@@ -208,7 +208,6 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 	tidy_faddr(From);
 	tidy_faddr(To);
     }
-    Syslog('f', "Netmail ready");
 
     /*
      * Open tic area and set filepointer to the end to append
@@ -332,7 +331,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      */
     sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), AreaNr);
     if ((fp = fopen(temp, "r+")) == NULL) {
-	Syslog('+', "Creating new %s", temp);
+	Syslog('f', "Creating new %s", temp);
 	if ((fp = fopen(temp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", temp);
 	} else {
