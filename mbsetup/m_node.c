@@ -226,17 +226,18 @@ void CloseNoderec(int Force)
 			for (tmp = nod; tmp; tmp = tmp->next) {
 				fseek(fi, tmp->pos, SEEK_SET);
 				fread(&nodes, nodeshdr.recsize, 1, fi);
-				crc2 = upd_crc32((char *)&nodes, crc2, nodeshdr.recsize);
+				crc2 = upd_crc32((char *)&nodes, crc2, 100);
 				if (crc2 == crc1)
-				    WriteError("Removing double noderecord %s", nodes.Sysop);
-				else
+				    WriteError("Removing double noderecord %s %s", nodes.Sysop, aka2str(nodes.Aka[0]));
+				else {
 				    fwrite(&nodes, nodeshdr.recsize, 1, fo);
-				for (i = 0; i < ((nodeshdr.filegrp + nodeshdr.mailgrp) / sizeof(group)); i++) {
+				    for (i = 0; i < ((nodeshdr.filegrp + nodeshdr.mailgrp) / sizeof(group)); i++) {
 					fread(&group, sizeof(group), 1, fi);
-					if (crc2 != crc1)
-					    fwrite(&group, sizeof(group), 1, fo);
+				    	fwrite(&group, sizeof(group), 1, fo);
+				    }
 				}
 				crc1 = crc2;
+				crc2 = 0xffffffff;
 			}
 
 			tidy_stlist(&nod);
