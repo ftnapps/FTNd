@@ -38,7 +38,8 @@ images/go_to.gif    images/nodelist3.gif    images/tty2.gif \
 images/hatch.gif    images/nodelist4.gif    images/tty3.gif \
 images/language.gif images/nodelist5.gif    images/uarrow.gif \
 images/larrow.gif   images/nodes.gif        images/users.gif \
-images/mbse.jpg     images/taskmgr.gif
+images/mbse.jpg     images/taskmgr.gif      images/mbsebbs.gif \
+images/mbsebbs.png
 
 H_LICENSE = license/copying.html license/hydracom.html license/index.htm \
 license/jam.html

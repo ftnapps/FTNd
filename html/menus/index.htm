@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 26-Sep-2001</h5>
+<h5>Last update 27-Sep-2001</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Menu System</H1>
@@ -56,8 +56,7 @@ The normal color is the default, you can toggle bright on and of using
 the ^ in the display line. If you end a menu display line with a ; then
 no newline is send after that line. If you want to output teh ^ or ; characters
 you need to escape them with a backslash like this: \; or \^. The order of menu
-entries is important. Also note that the display line does nothing in 
-autoexec menus.
+entries is important.
 <P>&nbsp;<P>
 
 <H3>Automatic commands.</H3>
@@ -98,7 +97,7 @@ ie. begin with the menu specific screen display, then the global include
 display and finally show the prompt.
 <P>
 
-<IMG SRC="../images/e_menu.gif" Border="0" width="576" height="344">
+<IMG SRC="../images/e_menu.gif" Border="0">
 <OL>
 <LI><B>Selection key.</B> This is the key a user must press to activate
 this menu. This field is ignored when AutoExec is set to Yes. </LI>
@@ -141,9 +140,15 @@ selection. This field is not in use yet. </LI>
 
 <LI><B>No door.sys</B> Suppress writing of a door.sys file in the users
 home directory. This item is only visible with menu type 7.</LI>
+
 <LI><B>Y2K style</B> Writes the dates in the door.sys file in the new style,
 with 4 digit year numbers, else the old 2 digit style is used. This item
 is only visible with menu type 7.</LI>
+
+<LI><B>Use Comport</B> Writes real comport to the door.sys file, this is
+for dosemu with the vmodem patch. This item is only visible with menu
+type 7.</LI>
+
 </OL>
 <P>&nbsp;<P>
 
