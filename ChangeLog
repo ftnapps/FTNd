@@ -1,24 +1,17 @@
 $Id$
 
-	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
-
-	Inbound file handling is changed, this is safe to use now.
-	Please run this version with debugging on, mbsetup 1.14.1 turn 5, 11 
-	and 18 on at least. Report any problems and include a piece of the 
-	(debug)logfile.
-
-	Before installing, make a copy of /opt/mbse/bin/mbcico so you can go back
-	if you experience any problems.
-
-	As far as I have tested, there should be no problems with this version.
-
-	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
 
 	WARNING, users of Sparc and HP-PA systems should be carefull, some bbs
 	menus do not work. All other programs do work on all platforms.
 	All other users on Intel machines (99,9% I think) can use this version.
 
-v0.37.7		09-Sep-2003
+v0.37.8		14-Sep-2003
+
+	general:
+		This version is issued to prepare for a stable release.
+
+
+v0.37.7		09-Sep-2003 - 14-09-2003
 
 	upgrade:
 		A bit tricky to upgrade and start using the new debug logfile,
