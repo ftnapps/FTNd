@@ -2288,6 +2288,7 @@ void QWK_Fetch()
     sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
     sprintf(Filename, "%s.MSG", CFG.bbsid);
     if (getfilecase(Dirpath, Filename)) {
+	sprintf(temp, "%s/%s", Dirpath, Filename);
         up = fopen(temp, "r");
     }
 
@@ -2369,134 +2370,139 @@ void QWK_Fetch()
 		    sprintf(otemp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((mf = fopen(otemp, "r+")) != NULL) {
 			fread(&msgshdr, sizeof(msgshdr), 1, mf);
-			fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
-			fread(&msgs, msgshdr.recsize, 1, mf);
+			if ((fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0) &&
+			    (fread(&msgs, msgshdr.recsize, 1, mf) == 1)) {
+			    Syslog('m', "pos %d, should be %d", ftell(mf), ((Area) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize - msgshdr.syssize);
 
-			/*
-			 * Check access to this area
-			 */
-			if (msgs.Active && strlen(msgs.QWKname) && Access(exitinfo.Security, msgs.WRSec) && 
+			    /*
+			     * Check access to this area
+			     */
+			    Syslog('m', "%s %s", msgs.QWKname, msgs.Base);
+			    if (msgs.Active && strlen(msgs.QWKname) && Access(exitinfo.Security, msgs.WRSec) && 
 					(msgs.MsgKinds != RONLY)) {
-			    if (Open_Msgbase(msgs.Base, 'w')) {
-				Msg_New();
-				pLine = szLine;
-				nCol = 0;
-				Syslog('m', "Msgbase open and locked");
-				strcpy(Msg.From, tlcap(StripSpaces(Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
-				strcpy(Msg.To, tlcap(StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))));
-				strcpy(Msg.Subject, StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
-				if ((Qwk.Msgstat == '*') || (Qwk.Msgstat == '+'))
-				    Msg.Private = TRUE;
-				strcpy(Temp, StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
-				ltm = malloc(sizeof(struct tm));
-				memset(ltm, 0, sizeof(struct tm));
-				ltm->tm_mday = atoi(&Temp[3]);
-				ltm->tm_mon = atoi(&Temp[0]) -1;
-				ltm->tm_year = atoi(&Temp[6]);
-				if (ltm->tm_year < 96)
-				    ltm->tm_year += 100;
-				strcpy(Temp, StripSpaces(Qwk.Msgtime, sizeof(Qwk.Msgtime)));
-				ltm->tm_hour = atoi(&Temp[0]);
-				ltm->tm_min = atoi(&Temp[3]);
-				ltm->tm_sec = 0;
-				Msg.Written = mktime(ltm);
-				free(ltm);
-				Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-				Msg.Local  = TRUE;
-				memset(&dest, 0, sizeof(dest));
-//				dest.zone  = Upr.destzone;
-//				dest.net   = Upr.destnet;
-//				dest.node  = Upr.destnode;
-//				dest.point = Upr.destpoint;
-				Add_Headkludges(fido2faddr(dest), FALSE);
+				if (Open_Msgbase(msgs.Base, 'w')) {
+				    Msg_New();
+				    pLine = szLine;
+				    nCol = 0;
+				    Syslog('m', "Msgbase open and locked");
+				    strcpy(Msg.From, tlcap(StripSpaces(Qwk.MsgFrom, sizeof(Qwk.MsgFrom))));
+				    strcpy(Msg.To, tlcap(StripSpaces(Qwk.MsgTo, sizeof(Qwk.MsgTo))));
+				    strcpy(Msg.Subject, StripSpaces(Qwk.MsgSubj, sizeof(Qwk.MsgSubj)));
+				    if ((Qwk.Msgstat == '*') || (Qwk.Msgstat == '+'))
+					Msg.Private = TRUE;
+				    strcpy(Temp, StripSpaces(Qwk.Msgdate, sizeof(Qwk.Msgdate)));
+				    ltm = malloc(sizeof(struct tm));
+				    memset(ltm, 0, sizeof(struct tm));
+				    ltm->tm_mday = atoi(&Temp[3]);
+				    ltm->tm_mon = atoi(&Temp[0]) -1;
+				    ltm->tm_year = atoi(&Temp[6]);
+				    if (ltm->tm_year < 96)
+					ltm->tm_year += 100;
+				    strcpy(Temp, StripSpaces(Qwk.Msgtime, sizeof(Qwk.Msgtime)));
+				    ltm->tm_hour = atoi(&Temp[0]);
+				    ltm->tm_min = atoi(&Temp[3]);
+				    ltm->tm_sec = 0;
+				    Msg.Written = mktime(ltm);
+				    free(ltm);
+				    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+				    Msg.Local  = TRUE;
+				    memset(&dest, 0, sizeof(dest));
+//				    dest.zone  = Upr.destzone;
+//				    dest.net   = Upr.destnet;
+//				    dest.node  = Upr.destnode;
+//				    dest.point = Upr.destpoint;
+				    Add_Headkludges(fido2faddr(dest), FALSE);
 
-				for (r = 1; r < nRec; r++) {
-				    nReaded = fread(Temp, 1, 128, up);
-				    Syslog('m', "nReaded=%d", nReaded);
-				    if (r == (nRec - 1)) {
-					x = 127;
-					while (x > 0 && Temp[x] == ' ') {
-					    nReaded--;
-					    x--;
+				    for (r = 1; r < nRec; r++) {
+					nReaded = fread(Temp, 1, 128, up);
+					Syslog('m', "nReaded=%d", nReaded);
+					if (r == (nRec - 1)) {
+					    x = 127;
+					    while (x > 0 && Temp[x] == ' ') {
+						nReaded--;
+						x--;
+					    }
+					    Syslog('m', "Final=%d", nReaded);
 					}
-					Syslog('m', "Final=%d", nReaded);
-				    }
 
-				    for (i = 0, pBuff = Temp; i < nReaded; i++, pBuff++) {
-					if (*pBuff == '\r' || *pBuff == (char)0xE3) {
-					    *pLine = '\0';
-					    Syslog('m', "1 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
-					    MsgText_Add2(szLine);
-					    if (strncmp(szLine, (char *)"--- ", 4) == 0)
-						HasTear = TRUE;
-					    pLine = szLine;
-					    nCol = 0;
-					} else if (*pBuff != '\n') {
-					    *pLine++ = *pBuff;
-					    nCol++;
-					    if (nCol >= nWidth) {
+					for (i = 0, pBuff = Temp; i < nReaded; i++, pBuff++) {
+					    if (*pBuff == '\r' || *pBuff == (char)0xE3) {
 						*pLine = '\0';
-						while (nCol > 1 && *pLine != ' ') {
-						    nCol--;
-						    pLine--;
-						}
-						if (nCol > 0) {
-						    while (*pLine == ' ')
-							pLine++;
-						    strcpy (szWrp, pLine);
-						}
-						*pLine = '\0';
-						Syslog('m', "2 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
+						Syslog('m', "1 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
 						MsgText_Add2(szLine);
 						if (strncmp(szLine, (char *)"--- ", 4) == 0)
 						    HasTear = TRUE;
-						strcpy(szLine, szWrp);
-						pLine = strchr(szLine, '\0');
-						nCol = (short)strlen (szLine);
+						pLine = szLine;
+						nCol = 0;
+					    } else if (*pBuff != '\n') {
+						*pLine++ = *pBuff;
+						nCol++;
+						if (nCol >= nWidth) {
+						    *pLine = '\0';
+						    while (nCol > 1 && *pLine != ' ') {
+							nCol--;
+							pLine--;
+						    }
+						    if (nCol > 0) {
+							while (*pLine == ' ')
+							    pLine++;
+							strcpy (szWrp, pLine);
+						    }
+						    *pLine = '\0';
+						    Syslog('m', "2 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
+						    MsgText_Add2(szLine);
+						    if (strncmp(szLine, (char *)"--- ", 4) == 0)
+							HasTear = TRUE;
+						    strcpy(szLine, szWrp);
+						    pLine = strchr(szLine, '\0');
+						    nCol = (short)strlen (szLine);
+						}
 					    }
 					}
 				    }
-				}
-				if (nCol > 0) {
-				    *pLine = '\0';
-				    Syslog('m', "3 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
-				    MsgText_Add2(szLine);
-				    if (strncmp(szLine, (char *)"--- ", 4) == 0)
-					HasTear = TRUE;
-				}
-
-				Add_Footkludges(FALSE, NULL, HasTear);
-				Msg_AddMsg();
-				Msg_UnLock();
-
-				Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
-				nPosted++;
-				Syslog('m', "Msgbase closed again");
-				fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
-				msgs.Posted.total++;
-				msgs.Posted.tweek++;
-				msgs.Posted.tdow[Diw]++;
-				msgs.Posted.month[Miy]++;
-				msgs.LastPosted = time(NULL);
-				fwrite(&msgs, msgshdr.recsize, 1, mf);
-
-				/*
-				 * Add quick mailscan info
-				 */
-				if (msgs.Type != LOCALMAIL) {
-				    sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
-					    ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
-				    if ((fp = fopen(temp, "a")) != NULL) {
-					fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
-					fclose(fp);
+				    if (nCol > 0) {
+					*pLine = '\0';
+					Syslog('m', "3 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
+					MsgText_Add2(szLine);
+					if (strncmp(szLine, (char *)"--- ", 4) == 0)
+					    HasTear = TRUE;
 				    }
+
+				    Add_Footkludges(FALSE, NULL, HasTear);
+				    Msg_AddMsg();
+				    Msg_UnLock();
+
+				    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
+				    nPosted++;
+				    Syslog('m', "Msgbase closed again");
+				    fseek(mf, ((Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
+				    msgs.Posted.total++;
+				    msgs.Posted.tweek++;
+				    msgs.Posted.tdow[Diw]++;
+				    msgs.Posted.month[Miy]++;
+				    msgs.LastPosted = time(NULL);
+				    fwrite(&msgs, msgshdr.recsize, 1, mf);
+
+				    /*
+				     * Add quick mailscan info
+				     */
+				    if (msgs.Type != LOCALMAIL) {
+					sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"),
+					    ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
+					if ((fp = fopen(temp, "a")) != NULL) {
+					    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+					    fclose(fp);
+					}
+				    }
+				    Msg_Close();
 				}
-				Msg_Close();
+			    } else {
+				Syslog('+', "Can't post messages in area %u", Area);
 			    }
+			    fclose(mf);
 			} else {
-			    Syslog('+', "Can't post messages in area %u", Area);
+			    WriteError("$Can't read message area %u", Area);
 			}
-			fclose(mf);
 		    }
 		}
 	    } else {
@@ -2518,7 +2524,8 @@ void QWK_Fetch()
 	do_mailout = TRUE;
     }
     fflush(stdout);
-    unlink(temp);
+    sprintf(temp, "%s/%s", Dirpath, Filename);
+    Syslog('m', "Unlink %s rc=%d", temp, unlink(temp));
     free(temp);
     free(otemp);
     Pause();
