@@ -151,20 +151,21 @@ void load_maincfg(void)
                 sprintf(CFG.bbs_menus, "%s/english/menus", getenv("MBSE_ROOT"));
                 sprintf(CFG.bbs_txtfiles, "%s/english/txtfiles", getenv("MBSE_ROOT"));
                 sprintf(CFG.bbs_usersdir, "%s/home", getenv("MBSE_ROOT"));
-                sprintf(CFG.nodelists, "/var/spool/mbse/nodelist");
-                sprintf(CFG.inbound, "/var/spool/mbse/unknown");
-                sprintf(CFG.pinbound, "/var/spool/mbse/inbound");
-                sprintf(CFG.outbound, "/var/spool/mbse/outbound");
-		sprintf(CFG.msgs_path, "/var/spool/mbse/msgs");
-                sprintf(CFG.uxpath, "/var/spool/mbse");
-                sprintf(CFG.badtic, "/var/spool/mbse/badtic");
-                sprintf(CFG.ticout, "/var/spool/mbse/ticqueue");
+                sprintf(CFG.nodelists, "%s/var/nodelist", getenv("MBSE_ROOT"));
+                sprintf(CFG.inbound, "%s/var/unknown", getenv("MBSE_ROOT"));
+                sprintf(CFG.pinbound, "%s/var/inbound", getenv("MBSE_ROOT"));
+                sprintf(CFG.outbound, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
+		sprintf(CFG.msgs_path, "%s/var/msgs", getenv("MBSE_ROOT"));
+                sprintf(CFG.uxpath, "%s/var", getenv("MBSE_ROOT"));
+                sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
+                sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
                 sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
+		CFG.leavecase = TRUE;
 
                 /*
                  * Newfiles reports
                  */
-                sprintf(CFG.ftp_base, "/var/spool/mbse/ftp");
+                sprintf(CFG.ftp_base, "%s/ftp", getenv("MBSE_ROOT"));
                 CFG.newdays = 30;
                 CFG.security.level = 20;
                 CFG.new_split = 27;
@@ -312,8 +313,8 @@ void load_maincfg(void)
                  */
                 CFG.maxpktsize = 150;
                 CFG.maxarcsize = 300;
-                sprintf(CFG.badboard, "/var/spool/mbse/mail/badmail");
-                sprintf(CFG.dupboard, "/var/spool/mbse/mail/dupmail");
+                sprintf(CFG.badboard, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+                sprintf(CFG.dupboard, "%s/var/mail/dupmail", getenv("MBSE_ROOT"));
                 sprintf(CFG.popnode, "localhost");
                 sprintf(CFG.smtpnode, "localhost");
                 sprintf(CFG.nntpnode, "localhost");
@@ -372,7 +373,7 @@ void load_maincfg(void)
 		/*
 		 *  WWW defaults
 		 */
-        	sprintf(CFG.www_root, "/var/lib/apache/htdocs");
+        	sprintf(CFG.www_root, "/var/www/htdocs");
         	sprintf(CFG.www_link2ftp, "files");
         	sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
         	sprintf(CFG.www_charset, "ISO 8859-1");

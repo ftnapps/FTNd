@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Aug-2001</h5>
+<h5>Last update 25-Dec-2001</h5>
 <P>&nbsp;<P>
 
 <h1>MBSE BBS Basic Installation</h1>
@@ -24,27 +24,60 @@ environment. If you don't do this, things will fail.
 
 <h3>Step 1: planning the filesystems.</h3>
 <p>
-MBSE BBS is default installed in <b>/opt/mbse</b>. The spoolfiles (in and
-outbound, message bases) go into <b>/var/spool/mbse</b>. In the <b>/opt/mbse</b>
-path are several subdirectories, <b>bin</b> for the binaries, <b>etc</b> for the
-configuration and some scripts, <b>english, spanish, italian</b> and <b>dutch</b> for the language
-files and menus, <b>home</b> for the users homedirectories, <b>log</b> for the
-logfiles, <b>magic</b> for the filerequest magicnames, <b>fdb</b> for the files
-database, <b>var</b> for some statistic files and <b>tmp</b> as temp directory.
+MBSE BBS is default installed in <b>/opt/mbse</b>. The default filesystem
+layout looks like this:<br>
+<pre>
+/opt/mbse                      Default MBSE_ROOT
+/opt/mbse/bin                  Binaries
+/opt/mbse/doc                  Generated sitedocs
+/opt/mbse/dutch/macro          N/A
+/opt/mbse/dutch/menus          Dutch menu files
+/opt/mbse/dutch/txtfiles       Dutch ANSI files
+/opt/mbse/english/macro        Default english macros, not yet.
+/opt/mbse/english/menus        Default english menus
+/opt/mbse/english/txtfiles     Default english ANSI files
+/opt/mbse/etc                  System configuration files
+/opt/mbse/fdb                  Files database
+/opt/mbse/ftp                  Default FTP root
+/opt/mbse/galego/macro         N/A
+/opt/mbse/galego/menus         Galego menu files
+/opt/mbse/galego/txtfiles      Galego ANSI files
+/opt/mbse/home                 Users homedirectories
+/opt/mbse/home/bbs             Newuser account
+/opt/mbse/html                 HTML documentation
+/opt/mbse/italian/macro        N/A
+/opt/mbse/italian/menus        Italian menu files
+/opt/mbse/italian/txtfiles     Italian ANSI files
+/opt/mbse/log                  MBSE BBS logfiles
+/opt/mbse/magic                Magic filerequest names
+/opt/mbse/sema                 Semafore files
+/opt/mbse/spanish/macro        N/A
+/opt/mbse/spanish/menus        Spanish menu files
+/opt/mbse/spanish/txtfiles     Spanish ANSI files
+/opt/mbse/tmp                  Temp directory
+/opt/mbse/tmp/arc              Temp archiver directory
+/opt/mbse/var                  Var root
+/opt/mbse/var/badtic           Bad TIC files
+/opt/mbse/var/bso              Binkley Style Outbound directory
+/opt/mbse/var/bso/inbound      Protected inbound directory
+/opt/mbse/var/bso/outbound     Default outbound directory
+/opt/mbse/var/bso/unknown      Unprotected inbound directory
+/opt/mbse/var/mail             JAM messagebase root
+/opt/mbse/var/mail/badmail     Bad echomail
+/opt/mbse/var/mail/dupmail     Duplicate echomail
+/opt/mbse/var/msgs             *.msgs netmail directory (not yet in use).
+/opt/mbse/var/nodelist         Nodelists
+/opt/mbse/var/ticqueue         Queue for TIC files
+</pre>
 <p>
 Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard Linux
-filesystems (ext2 or reiserfs). If you intent to make your bbs also accessible
+filesystems (ext2 or reiserfs) or ufs if you use FreeBSD.
+If you intent to make your bbs also accessible
 by FTP and WWW you must create the directory structure under the ftp user
 behind the pub directory. Read <a href="misc/ftpserver.html">the
 ftp server</a> doc for details. If you don't follow these guidlines, you
 will run into trouble later and have to spend a lot of time in correcting
 this error.
-<p>
-The default setup will be as follows:<br>
-<pre>
-/opt/mbse		binaries, config and user home directories.
-/var/spool/mbse		In/outbound, queues, download directories.
-</pre>
 <P>&nbsp;<p>
 
 <h3>Step 2: Running the installation script.</h3>
@@ -106,8 +139,8 @@ rm -Rf mbsebbs-0.33.nn
 
 <h3>Step 4: Install the basic packages.</h3>
 <p>
-Login as user <b>mbse</b>. While in the home directory unpack the distribution
-archives:
+Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
+While in the home directory unpack the distribution archives:
 <pre>
 tar xfvz /path/to/mbsebbs-0.33.nn.tar.gz
 </pre>
@@ -117,7 +150,7 @@ Next build the binaries and install them using the folowing commands:
 cd ~/mbsebbs-0.33.nn
 ./configure
 make
-su
+su        <b>important, do not use "su -"</b>
 password: <em>enter root password here</em>
 make install
 exit

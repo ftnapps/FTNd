@@ -113,19 +113,29 @@ install:
 			mkdir ${PREFIX}/german/macro ; \
 			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/german; \
 		fi
-		@if [ ! -d /var/spool/mbse ] ; then \
-			mkdir /var/spool/mbse ; \
-			mkdir /var/spool/mbse/nodelist ; \
-			mkdir /var/spool/mbse/unknown ; \
-			mkdir /var/spool/mbse/inbound ; \
-			mkdir /var/spool/mbse/outbound ; \
-			mkdir /var/spool/mbse/msgs; \
-			mkdir /var/spool/mbse/badtic ; \
-			mkdir /var/spool/mbse/ticqueue ; \
-			mkdir /var/spool/mbse/ftp ; \
-			mkdir /var/spool/mbse/mail ; \
-			${CHOWN} -R ${OWNER}.${GROUP} /var/spool/mbse ; \
-			chmod -R 0755 /var/spool/mbse ; \
+		@if [ ! -d ${PREFIX}/ftp ] ; then \
+			mkdir ${PREFIX}/ftp ; \
+			mkdir ${PREFIX}/ftp/pub ; \
+			mkdir ${PREFIX}/ftp/incoming ; \
+			${CHOWN} `id -un`.`id -gn` ${PREFIX}/ftp ; \
+			chmod 0755 ${PREFIX}/ftp ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub ; \
+			chmod 0755 ${PREFIX}/ftp/pub ; \
+			${CHOWN} `id -un`.`id -gn` ${PREFIX}/ftp/incoming ; \
+			chmod 0755 ${PREFIX}/ftp/incoming ; \
+		fi
+		@if [ ! -d ${PREFIX}/var/bso ] ; then \
+			mkdir ${PREFIX}/var/nodelist ; \
+			mkdir ${PREFIX}/var/bso ; \
+			mkdir ${PREFIX}/var/bso/unknown ; \
+			mkdir ${PREFIX}/var/bso/inbound ; \
+			mkdir ${PREFIX}/var/bso/outbound ; \
+			mkdir ${PREFIX}/var/msgs; \
+			mkdir ${PREFIX}/var/badtic ; \
+			mkdir ${PREFIX}/var/ticqueue ; \
+			mkdir ${PREFIX}/var/mail ; \
+			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/var ; \
+			chmod -R 0750 ${PREFIX}/var ; \
 		fi
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
 
