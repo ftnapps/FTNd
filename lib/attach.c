@@ -57,10 +57,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
     /*
      * Check if we attach a file with the same name
      */
-    if ((fdn) && (un_attach(&noden, ofile) == FALSE)) {
-	WriteError("attach: can't un_attach %s, %s", ofile, strerror(rc));
-	return FALSE;
-    }
+    un_attach(&noden, ofile, fdn);
 
     flofile = calloc(PATH_MAX, sizeof(char));
     thefile = calloc(PATH_MAX, sizeof(char));
@@ -226,14 +223,12 @@ int check_flo(faddr *node, char *filename, char flavor)
 /*
  * Remove a file from the flofile, also search for a .tic file.
  */
-int un_attach(faddr *node, char *filename)
+void un_attach(faddr *node, char *filename, int fdn)
 {
-    Syslog('p', "un_attach: %s %s", ascfnode(node, 0x1f), filename);
+    Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename, fdn ?"FDN":"NOR");
 
     if (check_flo(node, filename, 'h') == 0)
 	if (check_flo(node, filename, 'f') == 0)
 	    check_flo(node, filename, 'c');
-
-    return TRUE;
 }
 
