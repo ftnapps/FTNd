@@ -1101,9 +1101,9 @@ struct	sysconfig {
 	unsigned	xNoITN		: 1;
 	unsigned	xNoIFC		: 1;
 
-	char		Phone[21];		/* Default phonenumber	    */
-	unsigned long	Speed;			/* Default linespeed	    */
-	char		Flags[31];		/* Default EMSI flags	    */
+	char		IP_Phone[21];		/* TCP/IP phonenumber	    */
+	unsigned long	IP_Speed;		/* TCP/IP linespeed	    */
+	char		IP_Flags[31];		/* TCP/IP EMSI flags	    */
 	int		Req_Files;		/* Maximum files request    */
 	int		Req_MBytes;		/* Maximum MBytes request   */
 	char		extra5[96];

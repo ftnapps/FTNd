@@ -165,6 +165,11 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
 	    MacroVars("pqrf", "dsss", 0, "", "", "");
+	    if (strlen(CFG.Flags)) {
+		MacroVars("pqrf", "dsds", 2, CFG.Phone, CFG.Speed, CFG.Flags);
+		fseek(fi, fileptr, SEEK_SET);
+		Msg_Macro(fi);
+	    }
 	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && ttyinfo.available && strlen(ttyinfo.phone)) {
 		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
