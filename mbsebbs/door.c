@@ -314,7 +314,8 @@ int exec_nosuid(char *mandato)
 {
     int	    rc, status;
     pid_t   pid;
-
+    char    *argv[4];
+    
     if (mandato == NULL)
 	return 1;   /* Prevent running a shell  */
 
@@ -324,7 +325,6 @@ int exec_nosuid(char *mandato)
 	return 1;
     if (pid == 0) {
 	msleep(150);
-	char *argv[4];
 	argv[0] = (char *)"sh";
 	argv[1] = (char *)"-c";
 	argv[2] = mandato;
