@@ -976,8 +976,8 @@ TrType binkp_receiver(void)
 		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
-		    if (bp.messages < 3) {
-			Syslog('b', "Binkp: receiver detected end of session, stay in RxWaitF");
+		    if ((bp.messages < 3) || binkp_pendingfiles()) {
+			Syslog('b', "Binkp: receiver detected end of session or pendingfiles, stay in RxWaitF");
 			return Ok;
 		    } else {
 			bp.batchnr++;
@@ -1247,9 +1247,11 @@ TrType binkp_transmitter(void)
 
 	    eff_remote = remote;
 	    tosend = create_filelist(eff_remote, nonhold_mail, 0);
-	    respond = respond_wazoo();
-	    for (tsl = tosend; tsl->next; tsl = tsl ->next);
-	    tsl->next = respond;
+	    if ((respond = respond_wazoo()) != NULL) {
+		for (tsl = tosend; tsl->next; tsl = tsl ->next);
+		tsl->next = respond;
+		Syslog('+', "Binkp: added requested files");
+	    }
 
 	    /*
 	     *  Build a new filelist from the existing filelist.
@@ -2121,7 +2123,6 @@ void binkp_clear_filelist(void)
 	}
 
 	tidy_filelist(tosend, TRUE);
-	tidy_filelist(respond, 0);
 	tosend = NULL;
 	respond = NULL;
     }
