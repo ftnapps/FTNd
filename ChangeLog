@@ -47,10 +47,12 @@ v0.37.00	26-Dec-2002.
 	mbfido:
 		Echomail from other zones showed the address of your own zone.
 		Added logging when other errors are found.
+		At zonegates, the seenby lines were twice stripped.
 
 	mbsetup:
 		Removed global flags No-IBN, IFC and ITN from the setup.
 		Removed nodes flags No-IBN, IFC and ITN from the setup.
+		removed del/rubout/bs keys logging.
 
 
 v0.36.00	26-Dec-2002 - stable release

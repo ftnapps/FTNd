@@ -221,14 +221,14 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	if (!strncmp(buf, "\001MSGID: ", 8)) {
 	    msgid = xstrcpy(buf + 8);
 	    /*
-	     * Extra test to see if the address is correct.
+	     * Extra test to see if the address is correct, only logging.
 	     */
 	    p = strtok(buf, " \n");
 	    p = strtok(NULL, " \n");
 	    if ((ta = parsefnode(p))) {
 		if ((ta->zone != f->zone) || (ta->point != f->point) || (ta->node != f->node) || (ta->net != f->net)) {
 		    p = xstrcpy(ascfnode(f, 0x1f));
-		    Syslog('!', "ERROR: f=%s, ta=%s", p, ascfnode(ta, 0x1f));
+		    Syslog('!', "ERROR: origin=%s, msgid=%s", p, ascfnode(ta, 0x1f));
 		    free(p);
 		}
 	    }
@@ -236,12 +236,12 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	if (!strncmp(buf, "\001REPLY: ", 8))
 	    reply = xstrcpy(buf + 8);
 	if (!strncmp(buf, "SEEN-BY:", 8)) {
-	    if (Link.aka.zone == msgs.Aka.zone) {
+//	    if (Link.aka.zone == msgs.Aka.zone) {
 		p = xstrcpy(buf + 9);
 		fill_list(&sbl, p, NULL);
 		free(p);
-	    } else
-		Syslog('m', "Strip zone SB lines");
+//	    } else
+//		Syslog('m', "Strip zone SB lines");
 	}
 	if (!strncmp(buf, "\001PATH:", 6)) {
 	    p = xstrcpy(buf + 7);

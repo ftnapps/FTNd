@@ -291,10 +291,6 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 			    break;
 	    case KEY_BACKSPACE:
 	    case KEY_RUBOUT:
-			    if (ch == KEY_RUBOUT)
-				Syslog('-', "Rubout pressed");
-			    else
-				Syslog('-', "Backspace pressed");
 			    if (strlen(s) > 0) {
 				if (curpos >= strlen(s)) {
 				    curpos--;
@@ -308,7 +304,6 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 				putchar(7);
 			    break;
 	    case KEY_DEL:
-			    Syslog('-', "Delete key pressed");
 			    if (strlen(s) > 0) {
 				if ((curpos) == (strlen(s) -1)) {
 				    s[curpos] = '\0';
