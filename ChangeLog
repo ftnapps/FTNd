@@ -12,18 +12,16 @@ v0.39.2		21-Nov-2003
 		package incoming telnet sessions are now supported.
 		Outgoing telnet finally works.
 
-	upgrade:
-		See mbtelnetd.html how to install mbtelnetd.
-
 	common.a:
 		A small fix in printable log function.
 		Added a safety check for the TCP registrate function to prevent
 		stale TCP/IP mailer counts.
 
 	mbcico:
-		If called by inetd with the -t itn parameters, mbcico aborts
-		and writes a short instruction in the log to install mbtelnetd.
-		Outgoing telnet works.
+		All internal references to tfido port changed to telnet port
+		because we now default to telnet port 23 for ITN calls.
+		Made outgoing telnet calls working with the help of sources
+		from other open source projects.
 
 	mbtelnetd:
 		New program, a proxy to handle incoming telnet/vmodem sessions.
@@ -31,11 +29,11 @@ v0.39.2		21-Nov-2003
 		Vadim Kurland, vadim@gu.kiev.ua and Vadim Zaliva, 
 		lord@crocodile.kiev.ua.
 
-	SETUP.sh:
-		Added installation of mbtelnetd for new systems.
+	mbtask:
+		Restored ITN protocol.
 
-	html:
-		Added mbtelnetd page.
+	SETUP.sh:
+		Added installation of mailer telnet answer back for port 60177.
 
 	examples:
 		Updated file menus, added View File command.

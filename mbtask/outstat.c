@@ -212,10 +212,8 @@ int outstat()
 	    ibnmask = (*tmpm)->mask;
 	if (strcmp((*tmpm)->name, "IFC") == 0)
 	    ifcmask = (*tmpm)->mask;
-#ifdef USE_TELNET
 	if (strcmp((*tmpm)->name, "ITN") == 0)
 	    itnmask = (*tmpm)->mask;
-#endif
     }
     now = time(NULL);
     tm = gmtime(&now); /* UTC time */
@@ -422,11 +420,7 @@ int outstat()
 	 */
 	if (TCFG.max_tcp && (tmp->olflags & cmmask) &&
 		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
-#ifdef USE_TELNET
 		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
-#else
-		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask))) {
-#endif
 	    tmp->flavors |= F_CALL;
 	}
 
@@ -505,11 +499,7 @@ int outstat()
 	if ((tmp->flavors) & F_CALL) {
 	    tmp->callmode = CM_NONE;
 
-#ifdef USE_TELNET
 	    if (TCFG.max_tcp && ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
-#else
-	    if (TCFG.max_tcp && ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask))) {
-#endif
 		inet_calls++;
 		tmp->callmode = CM_INET;
 	    }

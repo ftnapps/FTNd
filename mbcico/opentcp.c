@@ -103,13 +103,11 @@ int opentcp(char *name)
 				else
 				    server.sin_port = htons(FIDOPORT);
 				break;
-#ifdef USE_TELNET
-	    case TCPMODE_ITN:   if ((se = getservbyname("tfido", "tcp")))
+	    case TCPMODE_ITN:   if ((se = getservbyname("telnet", "tcp")))
 				    server.sin_port = se->s_port;
 				else
 				    server.sin_port = htons(TELNPORT);
 				break;
-#endif
 	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
 				    server.sin_port = se->s_port;
 				else
