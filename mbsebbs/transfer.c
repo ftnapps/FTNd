@@ -389,7 +389,7 @@ int upload(up_list **upload_list)
     struct timeval  starttime, endtime;
     struct timezone tz;
     unsigned long   Size = 0;
-    int		    err, Count = 0, rc = 0;
+    int		    err, Count = 0, rc = 0, want1k = FALSE;
     up_list	    *tmp, *ta;
 
     /*
@@ -427,7 +427,9 @@ int upload(up_list **upload_list)
 	    if (strncasecmp(sProtName, "ymodem", 6) == 0)
 		protocol = ZM_YMODEM;
 
-	    rc = zmrcvfiles();
+	    if (strstr(sProtName, "1K") || strstr(sProtName, "1k"))
+		want1k = TRUE;
+	    rc = zmrcvfiles(want1k);
 
 	    Syslog('b', "Begin dir processing");
 	    if ((dirp = opendir(".")) == NULL) {

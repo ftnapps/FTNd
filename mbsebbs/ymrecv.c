@@ -59,13 +59,14 @@ int wcgetsec(size_t *, char *, unsigned int);
  * Length is indeterminate as long as less than Blklen
  * A null string represents no more files (YMODEM)
  */
-int wcrxpn(char *rpn)
+int wcrxpn(char *rpn, int want1k)
 {
     register int    c;
     size_t	    Blklen = 0;                /* record length of received packets */
 
+    Crcflg = want1k
     purgeline(0);
-    Syslog('x', "%s: wcrxpn()", protname());
+    Syslog('x', "%s: wcrxpn() crc=%s", protname(), Crcflg ? "true":"false");
 
 et_tu:
     Firstsec = TRUE;
