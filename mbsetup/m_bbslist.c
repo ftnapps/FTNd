@@ -152,6 +152,8 @@ void CloseBBSlist(int force)
 				unlink(fout);
 			chmod(fin, 0660);
 			Syslog('+', "Updated \"bbslist.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -281,7 +283,7 @@ int EditBBSlistRec(int Area)
 					fwrite(&bbs, sizeof(bbs), 1, fil);
 					fclose(fil);
 					BBSlistUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

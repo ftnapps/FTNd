@@ -265,6 +265,7 @@ void CloseNoderec(int Force)
 	    free(fout);
 	    Syslog('+', "Updated \"nodes.data\"");
 	    CreateSema((char *)"scanout");
+	    working(6, 0, 0);
 	    return;
 	}
     }
@@ -303,6 +304,7 @@ int AppendNoderec(void)
 	nodes.StartDate = time(NULL);
 	nodes.Security.level = 1;
 	nodes.Security.flags = 1;
+	nodes.Language = 'E';
 	fwrite(&nodes, sizeof(nodes), 1, fil);
 	memset(&group, 0, 13);
 	for (i = 1; i <= CFG.tic_groups; i++)
@@ -576,7 +578,7 @@ fidoaddr e_a(fidoaddr n, int x)
 
 		switch(select_menu(4)) {
 		case 0:	return n;
-		case 1:	n.zone = edit_int(7, 17, n.zone, (char *)"The ^zone^ number 1..4095");
+		case 1:	n.zone = edit_int_range(7, 17, n.zone, 1, 4095, (char *)"The ^zone^ number 1..4095");
 			sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
 			if ((fil = fopen(temp, "r")) != NULL) {
 				fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
@@ -594,9 +596,9 @@ fidoaddr e_a(fidoaddr n, int x)
 				fclose(fil);
 			}
 			break;
-		case 2:	E_INT( 8,17,n.net,  "The ^net^ number 1..65535")
-		case 3:	E_INT( 9,17,n.node, "The ^node^ number 1..65535")
-		case 4:	E_INT(10,17,n.point,"The ^point^ number 0..65535")
+		case 2:	E_IRC( 8,17,n.net,   1, 32767, "The ^net^ number 1..32767")
+		case 3:	E_IRC( 9,17,n.node,  0, 32767, "The ^node^ number 0..32767")
+		case 4:	E_IRC(10,17,n.point, 0, 32767, "The ^point^ number 0..32767")
 		}
 	}
 }
@@ -1143,6 +1145,7 @@ int EditNodeRec(int Area)
 
 			fclose(fil);
 			NodeUpdated = 1;
+			working(6, 0, 0);
 		    }
 		}
 		tidy_grlist(&egr);

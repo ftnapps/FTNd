@@ -477,6 +477,8 @@ void CloseArchive(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"archiver.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -583,7 +585,7 @@ int EditArchRec(int Area)
 			    fwrite(&archiver, sizeof(archiver), 1, fil);
 			    fclose(fil);
 			    ArchUpdated = 1;
-			    working(1, 0, 0);
+			    working(6, 0, 0);
 			}
 		    }
 		    IsDoing("Browsing Menu");

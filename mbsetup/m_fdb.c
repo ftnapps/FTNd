@@ -259,6 +259,7 @@ void E_F(long areanr)
 			working(1, 0, 0);
 			fseek(fil, offset, SEEK_SET);
 			fwrite(&file, sizeof(file), 1, fil);
+			working(6, 0, 0);
 		    }
 		}
 		break;

@@ -194,6 +194,8 @@ void CloseFidonet(int force)
 			chmod(fin, 0640);
 
 			Syslog('+', "Updated \"fidonet.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -309,7 +311,7 @@ int EditFidoRec(int Area)
 			    fwrite(&fidonet, sizeof(fidonet), 1, fil);
 			    fclose(fil);
 			    FidoUpdated = 1;
-			    working(1, 0, 0);
+			    working(6, 0, 0);
 			}
 		    }
 		    IsDoing("Browsing Menu");
@@ -352,7 +354,7 @@ int EditFidoRec(int Area)
 	    case 14:
 	    case 15:
 	    case 16:
-	    case 17:E_INT(j,74, fidonet.zone[j-12], "A ^Zone number^ which belongs to this domain (1..4095)")
+	    case 17:E_IRC(j,74, fidonet.zone[j-12], 1, 32767, "A ^Zone number^ which belongs to this domain (1..32767)")
 	}
     }
 

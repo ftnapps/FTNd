@@ -184,6 +184,8 @@ void CloseDomain(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"domtrans.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -284,6 +286,7 @@ int EditDomainRec(int Area)
 					fwrite(&domtrans, domainhdr.recsize, 1, fil);
 					fclose(fil);
 					DomainUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

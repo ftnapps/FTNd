@@ -402,28 +402,28 @@ void e_bbsglob(void)
     for (;;) {
 	switch(select_menu(21)) {
 	    case 0: return;
-	    case 1: E_BOOL( 7,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
-	    case 2: E_BOOL( 8,24, CFG.iConnectString,    "Show ^connect string^ at logon")
-	    case 3: E_BOOL( 9,24, CFG.iAskFileProtocols, "Ask ^file protocol^ before every up- download")
-	    case 4: E_INT( 10,24, CFG.sysop_access,      "Sysop ^access level^")
-	    case 5: E_INT( 11,24, CFG.password_length,   "Mimimum ^password^ length.")
-	    case 6: E_INT( 12,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
-	    case 7: E_INT( 13,24, CFG.idleout,           "^Idle timeout^ in minutes")
-	    case 8: E_INT( 14,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
-	    case 9: E_INT( 15,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
-	    case 10:E_INT( 16,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
-	    case 11:E_BOOL(17,24, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
+	    case 1: E_BOOL( 7,24, CFG.exclude_sysop,         "^Exclude^ sysop from lists.")
+	    case 2: E_BOOL( 8,24, CFG.iConnectString,        "Show ^connect string^ at logon")
+	    case 3: E_BOOL( 9,24, CFG.iAskFileProtocols,     "Ask ^file protocol^ before every up- download")
+	    case 4: E_INT( 10,24, CFG.sysop_access,          "Sysop ^access level^")
+	    case 5: E_IRC( 11,24, CFG.password_length, 2, 8, "Mimimum ^password^ length (2..8)")
+	    case 6: E_IRC( 12,24, CFG.iPasswd_Char, 33, 126, "Ascii number of ^password^ character (33..126)")
+	    case 7: E_IRC( 13,24, CFG.idleout, 2, 60,        "^Idle timeout^ in minutes (2..60)")
+	    case 8: E_INT( 14,24, CFG.iCRLoginCount,         "Maximum ^Login Return^ count")
+	    case 9: E_INT( 15,24, CFG.iQuota,                "Maximum ^Quota^ in MBytes in users homedirectory");
+	    case 10:E_IRC( 16,24, CFG.CityLen, 3, 6,         "Minimum ^Location name^ length (3..6)")
+	    case 11:E_BOOL(17,24, CFG.NewAreas,              "Show ^new^ or ^deleted^ message areas to the user at login.")
 
-	    case 12:E_INT(  7,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
-	    case 13:E_INT(  8,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
-	    case 14:E_INT(  9,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
+	    case 12:E_INT(  7,59, CFG.OLR_MaxMsgs,           "^Maximum messages^ to pack for download (0=unlimited)")
+	    case 13:E_INT(  8,59, CFG.OLR_NewFileLimit,      "^Limit Newfiles^ listing for maximum days")
+	    case 14:E_INT(  9,59, CFG.OLR_MaxReq,            "Maximum ^Filerequests^ to honor")
 	    case 15:E_LOGL(CFG.bbs_loglevel, "1.5.15", b_screen)
 	    case 16:E_LOGL(CFG.util_loglevel, "1.5.16", b_screen)
-	    case 17:E_BOOL(12,59, CFG.slow_util,         "Let background utilities run ^slowly^")
-	    case 18:E_INT( 13,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
-	    case 19:E_INT( 14,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
-	    case 20:E_INT( 15,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
-	    case 21:E_INT( 16,59, CFG.max_logins,        "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
+	    case 17:E_BOOL(12,59, CFG.slow_util,             "Let background utilities run ^slowly^")
+	    case 18:E_INT( 13,59, CFG.iCrashLevel,           "The user level to allow sending ^CrashMail^")
+	    case 19:E_INT( 14,59, CFG.iAttachLevel,          "The user level to allow sending ^File Attaches^")
+	    case 20:E_IRC( 15,59, CFG.freespace, 2, 1000,    "Minimum ^free diskspace^ in MBytes on filesystems (2..1000)")
+	    case 21:E_INT( 16,59, CFG.max_logins,            "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
 	}
     }
 }
@@ -582,13 +582,13 @@ void e_paging(void)
 
 	switch(select_menu(7)) {
 	    case 0: return;
-	    case 1: E_INT(  7,20, CFG.iPageLength,    "The ^Length^ of paging in seconds")
-	    case 2: E_INT(  8,20, CFG.iMaxPageTimes,  "The ^Maximum times^ a user may page in a session")
-	    case 3: E_INT(  9,20, CFG.iSysopArea,     "The ^Message Area^ for ^Message to sysop^ when page fails")
-	    case 4: E_BOOL(10,20, CFG.iAskReason,     "Ask the user the ^reason for chat^")
-	    case 5: E_BOOL(11,20, CFG.iAutoLog,       "^Automatic log^ chat sessions")
-	    case 6: E_BOOL(12,20, CFG.iChatPromptChk, "Check for chat at the ^prompt^")
-	    case 7: E_BOOL(13,20, CFG.iStopChatTime,  "^Stop^ users time during chat")
+	    case 1: E_IRC(  7,20, CFG.iPageLength, 5, 120,  "The ^Length^ of paging in seconds (5..120)")
+	    case 2: E_IRC(  8,20, CFG.iMaxPageTimes, 1, 10, "The ^Maximum times^ a user may page in a session (1..10)")
+	    case 3: E_INT(  9,20, CFG.iSysopArea,           "The ^Message Area^ for ^Message to sysop^ when page fails")
+	    case 4: E_BOOL(10,20, CFG.iAskReason,           "Ask the user the ^reason for chat^")
+	    case 5: E_BOOL(11,20, CFG.iAutoLog,             "^Automatic log^ chat sessions")
+	    case 6: E_BOOL(12,20, CFG.iChatPromptChk,       "Check for chat at the ^prompt^")
+	    case 7: E_BOOL(13,20, CFG.iStopChatTime,        "^Stop^ users time during chat")
 	}
     }
 }
@@ -853,13 +853,13 @@ void e_fidomailcfg(void)
 			    CloseNoderec(TRUE);
 		    }
 		    break;
-	    case 13:E_BOOL(12,58, CFG.addr4d,          "Use ^4d^ addressing instead of ^5d^ addressing.")
-	    case 14:E_INT( 13,58, CFG.new_split,       "Gently ^split^ newfiles reports after n kilobytes (12..60).")
-	    case 15:E_INT( 14,58, CFG.new_force,       "Force ^split^ of newfiles reports after n kilobytes (16..64).")
-	    case 16:E_BOOL(15,58, CFG.ca_PlusAll,      "Allow ^+%*^ (Plus all) in AreaMgr requests.")
-	    case 17:E_BOOL(16,58, CFG.ca_Notify,       "Allow turning ^Notify^ messages on or off.")
-	    case 18:E_BOOL(17,58, CFG.ca_Passwd,       "Allow changing the AreaMgr/FileMgr ^password^.")
-	    case 19:E_BOOL(18,58, CFG.ca_Pause,        "Allow the ^Pause^ AreaMgr command.")
+	    case 13:E_BOOL(12,58, CFG.addr4d,            "Use ^4d^ addressing instead of ^5d^ addressing.")
+	    case 14:E_IRC( 13,58, CFG.new_split, 12, 60, "Gently ^split^ newfiles reports after n kilobytes (12..60).")
+	    case 15:E_IRC( 14,58, CFG.new_force, 16, 64, "Force ^split^ of newfiles reports after n kilobytes (16..64).")
+	    case 16:E_BOOL(15,58, CFG.ca_PlusAll,        "Allow ^+%*^ (Plus all) in AreaMgr requests.")
+	    case 17:E_BOOL(16,58, CFG.ca_Notify,         "Allow turning ^Notify^ messages on or off.")
+	    case 18:E_BOOL(17,58, CFG.ca_Passwd,         "Allow changing the AreaMgr/FileMgr ^password^.")
+	    case 19:E_BOOL(18,58, CFG.ca_Pause,          "Allow the ^Pause^ AreaMgr command.")
 	}
     }
 }
@@ -959,11 +959,11 @@ void e_uucp(void)
         j = select_menu(5);
         switch(j) {
             case 0: return;
-            case 1: E_INT(  7,19,   CFG.UUCPgate.zone,   "The ^zone^ number for the UUCP gateway")
-            case 2: E_INT(  8,19,   CFG.UUCPgate.net,    "The ^Net^ number for the UUCP gateway")
-            case 3: E_INT(  9,19,   CFG.UUCPgate.node,   "The ^Node^ number for the UUCP gateway")
-            case 4: E_INT( 10,19,   CFG.UUCPgate.point,  "The ^Point^ number for the UUCP gateway")
-            case 5: E_STR( 11,19,8, CFG.UUCPgate.domain, "The ^FTN Domain^ for the UUCP gateway without a dot")
+            case 1: E_IRC(  7,19,   CFG.UUCPgate.zone, 1, 32767,  "The ^zone^ number for the UUCP gateway (1..32767)")
+            case 2: E_IRC(  8,19,   CFG.UUCPgate.net, 0, 32767,   "The ^Net^ number for the UUCP gateway (0..32767)")
+            case 3: E_IRC(  9,19,   CFG.UUCPgate.node, 0, 32767,  "The ^Node^ number for the UUCP gateway (0..32767)")
+            case 4: E_IRC( 10,19,   CFG.UUCPgate.point, 0, 32767, "The ^Point^ number for the UUCP gateway (0..32767)")
+            case 5: E_STR( 11,19,8, CFG.UUCPgate.domain,          "The ^FTN Domain^ for the UUCP gateway without a dot")
         }
     }
 }
@@ -1010,10 +1010,10 @@ void e_intmailcfg(void)
 		case 13:CFG.newsfeed = edit_newsmode(13,57, CFG.newsfeed);
 			s_intmailcfg();
 			break;
-                case 14:E_INT( 14,57, CFG.new_split,       "Gently ^split^ messages after n kilobytes (12..60).")
-                case 15:E_INT( 15,57, CFG.new_force,       "Force ^split^ of messages after n kilobytes (16..64).")
-                case 16:E_BOOL(16,57, CFG.allowcontrol,    "^Allow control^ messages for news to be gated.")
-                case 17:E_BOOL(17,57, CFG.dontregate,      "Don't ^regate^ already gated messages.")
+                case 14:E_IRC( 14,57, CFG.new_split, 12, 60, "Gently ^split^ messages after n kilobytes (12..60).")
+                case 15:E_IRC( 15,57, CFG.new_force, 16, 64, "Force ^split^ of messages after n kilobytes (16..64).")
+                case 16:E_BOOL(16,57, CFG.allowcontrol,      "^Allow control^ messages for news to be gated.")
+                case 17:E_BOOL(17,57, CFG.dontregate,        "Don't ^regate^ already gated messages.")
                 }
         };
 }
@@ -1095,12 +1095,12 @@ void e_aka(int Area)
 	j = select_menu(6);
 	switch(j) {
 	    case 0: return;
-	    case 1: E_INT(  7,19,   CFG.aka[Area].zone,   "The ^zone^ number for this aka")
-	    case 2: E_INT(  8,19,   CFG.aka[Area].net,    "The ^Net^ number for this aka")
-	    case 3: E_INT(  9,19,   CFG.aka[Area].node,   "The ^Node^ number for this aka")
-	    case 4: E_INT( 10,19,   CFG.aka[Area].point,  "The ^Point^ number for this node (if any)")
-	    case 5: E_STR( 11,19,8, CFG.aka[Area].domain, "The ^FTN Domain^ for this aka without a dot (ie no .org)")
-	    case 6: E_BOOL(12,19,   CFG.akavalid[Area],   "Is this aka ^available^")
+	    case 1: E_IRC(  7,19,   CFG.aka[Area].zone, 0, 32767,  "The ^zone^ number for this aka (1..32767)")
+	    case 2: E_IRC(  8,19,   CFG.aka[Area].net, 0, 32767,   "The ^Net^ number for this aka (0..32767)")
+	    case 3: E_IRC(  9,19,   CFG.aka[Area].node, 0, 32767,  "The ^Node^ number for this aka (0..32767)")
+	    case 4: E_IRC( 10,19,   CFG.aka[Area].point, 0, 32767, "The ^Point^ number for this node (0..32767)")
+	    case 5: E_STR( 11,19,8, CFG.aka[Area].domain,          "The ^FTN Domain^ for this aka without a dot (ie no .org)")
+	    case 6: E_BOOL(12,19,   CFG.akavalid[Area],            "Is this aka ^available^")
 	}
     }
 }
@@ -1164,6 +1164,14 @@ void e_fidoakas(void)
 			error = TRUE;
 		if (error)
 		    errmsg("All aka's must be in one continues block");
+	    }
+	    if (error == FALSE) {
+		for (j = 0; j < 40; j++) {
+		    if (CFG.akavalid[j] && CFG.aka[j].zone && (strlen(CFG.aka[j].domain) == 0)) {
+			error = TRUE;
+			errmsg("Aka %d has no domain set", j+1);
+		    }
+		}
 	    }
 	    if (! error)
 		return;
@@ -1460,6 +1468,7 @@ void global_menu(void)
 			if (yes_no((char *)"Configuration is changed, save") == 1) {
 			    cf_close();
 			    Syslog('+', "Saved main config");
+			    working(6, 0, 0);
 			}
 		    }
 		    open_bbs();

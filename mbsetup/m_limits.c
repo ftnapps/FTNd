@@ -236,6 +236,8 @@ void CloseLimits(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"limits.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -332,7 +334,7 @@ int EditLimRec(int Area)
 					fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 					fclose(fil);
 					LimUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

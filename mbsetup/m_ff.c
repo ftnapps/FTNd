@@ -174,6 +174,8 @@ void CloseFilefind(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"scanmgr.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -293,6 +295,7 @@ int EditFfRec(int Area)
 					fwrite(&scanmgr, scanmgrhdr.recsize, 1, fil);
 					fclose(fil);
 					FilefindUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

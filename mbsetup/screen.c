@@ -243,6 +243,11 @@ void working(int txno, int y, int x)
 		break;
 	case 5: mvprintw(4, 66, (char *)"Moving . . . ");
 		break;
+	case 6:	mvprintw(4, 66, (char *)"Data updated ");
+		fputc(7, stdout);
+		fflush(stdout);
+		sleep(1);
+		break;
     }
 
     show_date(LIGHTGRAY, BLACK, 0, 0);

@@ -255,6 +255,8 @@ void CloseTtyinfo(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"ttyinfo.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -372,7 +374,7 @@ int EditTtyRec(int Area)
 					fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
 					fclose(fil);
 					TtyUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

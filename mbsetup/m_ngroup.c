@@ -189,6 +189,8 @@ void CloseNGroup(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"ngroups.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -287,7 +289,7 @@ int EditNGrpRec(int Area)
 					fwrite(&ngroup, sizeof(ngroup), 1, fil);
 					fclose(fil);
 					NGrpUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

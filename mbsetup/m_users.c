@@ -164,6 +164,8 @@ void CloseUsers(int force)
 				unlink(fout);
 			chmod(fin, 0660);
 			Syslog('+', "Updated \"users.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -481,6 +483,7 @@ int EditUsrRec(int Area)
 					fwrite(&usrconfig, sizeof(usrconfig), 1, fil);
 					fclose(fil);
 					UsrUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

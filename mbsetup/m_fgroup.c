@@ -203,6 +203,8 @@ void CloseFGroup(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"fgroups.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -400,7 +402,7 @@ int EditFGrpRec(int Area)
 					fwrite(&fgroup, sizeof(fgroup), 1, fil);
 					fclose(fil);
 					FGrpUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

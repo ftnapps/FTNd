@@ -189,6 +189,8 @@ void CloseHatch(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"hatch.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -427,6 +429,7 @@ int EditHatchRec(int Area)
 					fwrite(&hatch, hatchhdr.recsize, 1, fil);
 					fclose(fil);
 					HatchUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

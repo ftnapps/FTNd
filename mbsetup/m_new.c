@@ -226,6 +226,8 @@ void CloseNewfiles(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"newfiles.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -399,6 +401,7 @@ int EditNewRec(int Area)
 
 					fclose(fil);
 					NewUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			tidy_grlist(&fgr);

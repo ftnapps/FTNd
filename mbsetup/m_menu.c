@@ -394,6 +394,7 @@ void EditMenu(char *Name)
 			}
 			fclose(fil);
 			chmod(temp, 0640);
+			working(6, 0, 0);
 		    }
 		}
 	    }
@@ -485,6 +486,7 @@ void EditMenu(char *Name)
 		    fseek(tmp, offset, SEEK_SET);
 		    fwrite(&menus, sizeof(menus), 1, tmp);
 		    MenuUpdated = TRUE;
+		    working(6, 0, 0);
 		}
 	    }
 	}
@@ -564,6 +566,7 @@ void EditMenus(void)
 			fclose(fil);
 			chmod(p, 0640);
 			Syslog('+', "Created menufile %s", p);
+			working(3, 0, 0);
 		    }
 		} else {
 		    errmsg("Menu %s already exists", temp);

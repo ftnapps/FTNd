@@ -180,6 +180,8 @@ void CloseMagics(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"magic.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -342,6 +344,7 @@ int EditMagicRec(int Area)
 					fwrite(&magic, sizeof(magic), 1, fil);
 					fclose(fil);
 					MagicUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

@@ -189,11 +189,12 @@ void CloseRoute(int force)
 	    Syslog('+', "Updated \"route.data\"");
 	    free(fin);
 	    free(fout);
+	    if (!force)
+		working(6, 0, 0);
 	    return;
 	}
     }
     chmod(fin, 0640);
-    working(1, 0, 0);
     unlink(fout); 
     free(fin);
     free(fout);
@@ -369,6 +370,7 @@ int EditRouteRec(int Area)
 			    fwrite(&route, routehdr.recsize, 1, fil);
 			    fclose(fil);
 			    RouteUpdated = 1;
+			    working(6, 0, 0);
 			}
 		    }
 		    free(mfile);

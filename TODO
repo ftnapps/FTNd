@@ -151,8 +151,6 @@ mbnewusr:
 	   -- Currently no access to my old Sun Sparcstation.
 
 mbsetup:
-	N: Add check for reasonable settings for message split.
-
 	N: Add a check for double areatag names.
 
 	N: Use some sort of sorting for the system aka's and make sure the

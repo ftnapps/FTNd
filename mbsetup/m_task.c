@@ -88,9 +88,9 @@ void CloseTask(void)
 				chmod(fin, 0640);
 				Syslog('+', "Updated \"task.data\"");
 			}
+			working(6, 0, 0);
 		}
 	}
-	working(1, 0, 0);
 }
 
 

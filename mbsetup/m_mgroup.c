@@ -209,6 +209,8 @@ void CloseMGroup(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"mgroups.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -366,7 +368,7 @@ int EditMGrpRec(int Area)
 					fwrite(&mgroup, sizeof(mgroup), 1, fil);
 					fclose(fil);
 					MGrpUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

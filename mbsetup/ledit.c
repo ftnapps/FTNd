@@ -1049,17 +1049,37 @@ void show_int(int y, int x, int val)
 
 int edit_int(int y, int x, int val, char *help)
 {
-	static char s[6];
-	static char line[6];
+    static char s[7], line[7];
 
+    showhelp(help);
+    memset((char *)s, 0, sizeof(s));
+    sprintf(line, "%d", val);
+    strcpy(s, edit_field(y, x, 7, '9', line));
+    set_color(WHITE, BLACK);
+    show_int(y, x, atoi(s));
+    fflush(stdout);
+    return atoi(s);
+}
+
+
+
+int edit_int_range(int y, int x, int val, int min, int max, char *help)
+{
+    static char s[7], line[7];
+
+    while (TRUE) {
 	showhelp(help);
-	memset((char *)s, 0, 6);
+	memset((char *)s, 0, sizeof(s));
 	sprintf(line, "%d", val);
 	strcpy(s, edit_field(y, x, 7, '9', line));
 	set_color(WHITE, BLACK);
 	show_int(y, x, atoi(s));
 	fflush(stdout);
-	return atoi(s);
+	if ((atoi(s) >= min) && (atoi(s) <= max))
+	    break;
+	errmsg("Value must be between %d and %d", min, max);
+    }
+    return atoi(s);
 }
 
 
@@ -1073,25 +1093,24 @@ void show_ushort(int y, int x, unsigned short val)
 
 unsigned short edit_ushort(int y, int x, unsigned short val, char *help)
 {
-	unsigned short r;
-	static char s[6];
-	static char line[6];
+    unsigned short r;
+    static char s[7], line[7];
 
-	showhelp(help);
-	memset((char *)s, 0, 6);
-	do {
-		sprintf(line, "%d", val);
-		strcpy(s, edit_field(y, x, 5, '9', line));
-		r = atoi(s);
-		if (r >= 65535L) {
-			working(2, y, x);
-			working(0, y, x);
-		}
-	} while (r >= 65535L);
-	set_color(WHITE, BLACK);
-	show_int(y, x, val);
-	fflush(stdout);
-	return r;
+    showhelp(help);
+    memset((char *)s, 0, sizeof(s));
+    do {
+	sprintf(line, "%d", val);
+	strcpy(s, edit_field(y, x, 5, '9', line));
+	r = atoi(s);
+	if (r >= 65535L) {
+	    working(2, y, x);
+	    working(0, y, x);
+	}
+    } while (r >= 65535L);
+    set_color(WHITE, BLACK);
+    show_int(y, x, val);
+    fflush(stdout);
+    return r;
 }
 
 

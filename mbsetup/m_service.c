@@ -193,6 +193,8 @@ void CloseService(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"servrec.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -293,6 +295,7 @@ int EditServiceRec(int Area)
 					fwrite(&servrec, servhdr.recsize, 1, fil);
 					fclose(fil);
 					ServiceUpdated = 1;
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

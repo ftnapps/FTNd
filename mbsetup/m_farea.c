@@ -167,6 +167,8 @@ void CloseFilearea(int force)
 				unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"fareas.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -325,6 +327,7 @@ int EditFileRec(int Area)
 					fclose(fil);
 					FileUpdated = 1;
 					Syslog('+', "Updated file area %d", Area);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

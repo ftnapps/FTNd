@@ -251,6 +251,8 @@ void CloseModem(int force)
 			unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"modem.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -464,7 +466,7 @@ int EditModemRec(int Area)
 					fwrite(&modem, sizeof(modem), 1, fil);
 					fclose(fil);
 					ModemUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -478,7 +480,7 @@ int EditModemRec(int Area)
 		case 7: E_STR(13,14,40, modem.dial,       "The ^dial^ command for this modem, ^\\T^ is translated phonenumber")
 		case 8: E_STR(14,14,40, modem.info,       "The command to get connection ^info^ from this modem after call")
 		case 9: E_STR(15,14,10, modem.ok,         "The ^OK^ string to get from the modem")
-		case 10:E_INT(16,14,    modem.costoffset, "The ^offset^ time in seconds between answer and connect string")
+		case 10:E_IRC(16,14,    modem.costoffset, 0, 60, "The ^offset^ time in seconds between answer and connect string (0..60)")
 		case 11:E_STR(17,14,15, modem.speed,      "The ^EMSI speed^ message for this modem")
 		case 12:E_BOOL(15,44,   modem.available,  "If this modem is ^available^")
 		case 13:E_BOOL(16,44,   modem.deleted,    "If this modem is to be ^deleted^ from the setup")

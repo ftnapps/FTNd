@@ -244,6 +244,8 @@ void CloseLanguage(int force)
 			tidy_stlist(&lan);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"language.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -352,7 +354,7 @@ int EditLangRec(int Area)
 					fwrite(&lang, sizeof(lang), 1, fil);
 					fclose(fil);
 					LangUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

@@ -282,6 +282,8 @@ void CloseMsgarea(int Force)
 				unlink(fout);
 			chmod(fin, 0660);
 			Syslog('+', "Updated \"mareas.data\"");
+			if (!Force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -1090,6 +1092,7 @@ int EditMsgRec(int Area)
 				return -1;
 			    MsgUpdated = 1;
 			    Syslog('+', "Saved message area record %d", Area);
+			    working(6, 0, 0);
 			}
 		    }
 		    if (tfil != NULL)

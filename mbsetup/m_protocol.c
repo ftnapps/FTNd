@@ -234,6 +234,8 @@ void CloseProtocol(int force)
 			chmod(fin, 0640);
 			tidy_stlist(&pro);
 			Syslog('+', "Updated \"protocol.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -347,7 +349,7 @@ int EditProtRec(int Area)
 					fwrite(&PROT, sizeof(PROT), 1, fil);
 					fclose(fil);
 					ProtUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");

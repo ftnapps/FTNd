@@ -183,6 +183,8 @@ void CloseOneline(int force)
 				unlink(fout);
 			chmod(fin, 0660);
 			Syslog('+', "Updated \"oneline.data\"");
+			if (!force)
+			    working(6, 0, 0);
 			return;
 		}
 	}
@@ -273,7 +275,7 @@ int EditOnelRec(int Area)
 					fwrite(&ol, sizeof(ol), 1, fil);
 					fclose(fil);
 					OnelUpdated = 1;
-					working(1, 0, 0);
+					working(6, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
