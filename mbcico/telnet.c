@@ -40,11 +40,17 @@
 #include "telnet.h"
 
 
+/*
+ * Telnet I/O filters. See RFC854 for details.
+ */
 
 
 #ifdef USE_EXPERIMENT
 
 
+/*
+ * Send options to the remote.
+ */
 void telnet_init(int Fd)
 {
     Syslog('s', "telnet_init(%d)", Fd);
@@ -58,6 +64,9 @@ void telnet_init(int Fd)
 
 
 
+/*
+ * Answer options requested by remote.
+ */
 void telnet_answer(int tag, int opt, int Fd)
 {
     char    buf[3];

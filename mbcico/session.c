@@ -48,6 +48,7 @@
 #include "callstat.h"
 #include "inbound.h"
 #include "opentcp.h"
+#include "telnet.h"
 
 
 extern int	tcp_mode;
@@ -86,6 +87,10 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
     int	    rc = MBERR_OK, addrlen = sizeof(struct sockaddr_in);
     fa_list *tmpl;
+#ifdef USE_EXPERIMENT
+    int	    Fdo, input_pipe[2], output_pipe[2];
+    pid_t   fpid;
+#endif
 
     session_flags = 0;
     type = tp;
@@ -113,6 +118,77 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 #ifdef USE_EXPERIMENT
 	if ((tcp_mode == TCPMODE_ITN) && (role == 0)) {
 	    Syslog('-', "Will need to install telnet receiver thread");
+
+	    /*
+	     * First make sure the current input socket gets a new file descriptor
+	     * since it's now on stadin and stdout.
+	     */
+	    Fdo = dup(0);
+	    Syslog('s', "session: new socket %s", Fdo);
+
+	     /*
+	      * Close stdin and stdout so that when we create the pipes to
+	      * the telnet filter they get stdin and stdout as file descriptors.
+	      */
+	    fflush(stdin);
+	    fflush(stdout);
+	    setbuf(stdin,NULL);
+	    setbuf(stdout, NULL);
+	    close(0);
+	    close(1);
+
+	    /*
+	     * Create output pipe and start output filter.
+	     */
+	    if (pipe(output_pipe) == -1) {
+		WriteError("$could not create output_pipe");
+		die(MBERR_TTYIO_ERROR);
+	    }
+	    fpid = fork();
+	    switch (fpid) {
+		case -1:    WriteError("fork for telout_filter failed");
+			    die(MBERR_TTYIO_ERROR);
+		case 0:     if (close(output_pipe[1]) == -1) {
+				WriteError("$error close output_pipe[1]");
+				die(MBERR_TTYIO_ERROR);
+			    }
+			    telout_filter(output_pipe[0], Fdo);
+			    /* NOT REACHED */
+	    }
+	    if (close(output_pipe[0] == -1)) {
+		WriteError("$error close output_pipe[0]");
+		die(MBERR_TTYIO_ERROR);
+	    }
+	    Syslog('s', "telout_filter forked with pid %d", fpid);
+	
+	    /*
+	     * Create input pipe and start input filter
+	     */
+	    if (pipe(input_pipe) == -1) {
+		WriteError("$could not create input_pipe");
+		die(MBERR_TTYIO_ERROR);
+	    }
+	    fpid = fork();
+	    switch (fpid) {
+		case -1:    WriteError("fork for telin_filter failed");
+			    die(MBERR_TTYIO_ERROR);
+		case 0:     if (close(input_pipe[0]) == -1) {
+				WriteError("$error close input_pipe[0]");
+				die(MBERR_TTYIO_ERROR);
+			    }
+			    telin_filter(input_pipe[1], Fdo);
+			    /* NOT REACHED */
+	    }
+	    if (close(input_pipe[1]) == -1) {
+		WriteError("$error close input_pipe[1]");
+		die(MBERR_TTYIO_ERROR);
+	    }
+	    Syslog('s', "telin_filter forked with pid %d", fpid);
+
+	    Syslog('s', "stdout = %d", output_pipe[1]);
+	    Syslog('s', "stdin  = %d", input_pipe[0]);
+
+	    telnet_init(Fdo);
 	}
 #endif
     }
