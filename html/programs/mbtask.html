@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 02-Feb-2002</h5>
+<h5>Last update 23-Mar-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbtask - MBSE BBS Taskmanager</H1>
@@ -70,6 +70,11 @@ But before any program is started a number of things are checked:
       scanned.
   <LI>Scan the mailer outbound for work. This builds a list of nodes with mail
       in the outbound and sets the necessary flags on nodes who may be called.
+      If a node needs to be called, <b>mbtask</b> will spawn <b>mbcico</b> to
+      call this node. The number of free modem and ISDN ports and the maximum
+      number of TCP/IP sessions and already registered sessions, determine
+      howmany sessions will be started. The sessions will be started at
+      intervals of 20 seconds.
       It will also set a time when something will change for a node, ie. a zone
       mail hour is reached, or a mail window for a node with Txx flags is
       reached. Internally this scheduler runs at the UTC clock because Fidonet
@@ -201,6 +206,10 @@ Command: ALOG:5,fil,prg,pid,grade,txt;  Write a line of text in logfile with gra
 Reply:   100:0;                         Ok.
          201:1,errno;                   Error, number in errno.
 
+Command: ATCP:1,pid;			Registrate this session as TCP/IP session.
+Reply:   100:0;				Ok.
+         200:1,Syntax Error;		Error.
+
 Command: AUSR:3,pid,uid,city;           Set username and city
 Reply:   100:0;                         Ok.
          200:1,Syntax Error;            Error.
@@ -317,8 +326,10 @@ Reply:   100:0;                         Ok (also if there was no semafore).
 Note: in reply of GDST the reply is 100:n,size free mountpoint fstype,.....
 where n = 1 for 1 filesystem, and 10 for a total of 10 filesystems. There
 will never be a reply for more then 10 filesystems. The reported filesystems
-are retrieved from /etc/mtab which is the actual mountstatus. This is used
-by the <b>mbmon</b> program to get a "live" view of your filesystems.
+are retrieved from /etc/mtab which is the actual mountstatus. On FreeBSD and
+NetBSD a system call is used to get the information about the mounted
+filesystem.
+This is used by the <b>mbmon</b> program to get a "live" view of your filesystems.
 <P>&nbsp;<P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;
