@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -110,11 +110,6 @@ int call(faddr *addr)
     unsigned long   cmmask;
 
     /*
-     *  Don't call points, call their boss instead.
-     */
-//    addr->point = 0;
-
-    /*
      *  First check if node is locked, if not lock it immediatly
      *  or stop further waste of time and logfile space.
      */
@@ -126,7 +121,17 @@ int call(faddr *addr)
 
     if ((nlent = getnlent(addr)) == NULL) {
 	WriteError("Cannot call %s: fatal in nodelist lookup", ascfnode(addr, 0x1f));
-	putstatus(addr,0,MBERR_NODE_NOT_IN_LIST);
+	putstatus(addr,10,MBERR_NODE_NOT_IN_LIST);
+	nodeulock(addr, mypid);
+	return MBERR_NODE_NOT_IN_LIST;
+    }
+
+    /*
+     * Check if we got a URL to make the call.
+     */
+    if (nlent->url == NULL) {
+	WriteError("Cannot call %s: no dialmethod available in nodelist", ascfnode(addr, 0x1f));
+	putstatus(addr,10,MBERR_NODE_NOT_IN_LIST);
 	nodeulock(addr, mypid);
 	return MBERR_NODE_NOT_IN_LIST;
     }

@@ -2,10 +2,21 @@ $Id$
 
 v0.39.7		14-Jan-2004
 
+	remark:
+		Calling points is availbale now, but I know in the past that I
+		changed it to allways call the boss. That was from the time 
+		that mbtask didn't exist. It is possible that something is
+		broken now, please report such situations.
+
 	libcommon.a:
 		In execute and execsh on Linux systems sync() is called before
 		and after running the external program to make sure diskbuffers
 		are committed.
+
+	mbcico:
+		Removed the check to disable calling points. 
+		Added a check to see if we get a URL to call other systems.
+		If nodelist info fails, increase error counter in steps of 10.
 
 	mbfido:
 		Removed sync calls that are now in execute.
@@ -15,6 +26,9 @@ v0.39.7		14-Jan-2004
 
 	mbdiff:
 		Removed sync calls that are now in execute.
+
+	mbtask:
+		Will call points if a call method is available.
 
 
 v0.39.6		11-Jan-2004 - 14-Jan-2004
