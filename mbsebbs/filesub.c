@@ -851,14 +851,14 @@ int Addfile(char *File, int AreaNum, int fileid)
 	}
 
 	memset(&fdb, 0, fdbhdr.recsize);
-	strcpy(fdb.LName, File); /* LFN, currently real file */
+	strncpy(fdb.LName, File, 80); /* LFN, currently real file */
 	strcpy(temp1, File);
 	name_mangle(temp1);
-	strcpy(fdb.Name, temp1); /* 8.3 name */
+	strncpy(fdb.Name, temp1, 12); /* 8.3 name */
 	fdb.Size = (long)(statfile.st_size);
 	fdb.FileDate = statfile.st_mtime;
 	fdb.Crc32 = file_crc(Filename, TRUE);
-	strcpy(fdb.Uploader, exitinfo.sUserName);
+	strncpy(fdb.Uploader, exitinfo.sUserName, 35);
 	fdb.UploadDate = time(NULL);
 	if (strcmp(fdb.Name, fdb.LName)) {
 	    /*

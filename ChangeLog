@@ -14,6 +14,7 @@ v0.71.1		28-Nov-2004
 		Added #define NFGVMIN 1 in openport.
 		During hangup we set sighup to ignore.
 		Made zmodem-8k downloads work again.
+		Some small buffer protections added in addfile.
 
 	mbnewuser:
 		During hangup we set sighup to ignore.
