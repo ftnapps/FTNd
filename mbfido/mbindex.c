@@ -426,6 +426,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 
 	while (!feof(nl)) {
 
+		Nopper();
 		ndx.offset = ftell(nl);
 		lineno++;
 		if (fgets(buf, sizeof(buf)-1, nl) == NULL)
@@ -611,6 +612,8 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				continue;
 			if ((q = strchr(p, ',')))
 				*q++ = '\0';
+			if (q == NULL)
+			    q = p;
 		}
 		if (strlen(p) > 35)
 			p[35] = '\0';
@@ -626,6 +629,8 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				continue;
 			if ((q = strchr(p, ',')))
 				*q++ = '\0';
+			if (q == NULL)
+				q = p;
 		}
 		if ((strlen(p) == 3) && (!strcmp(p, "300")) && (q != NULL)) {
 			if ((strstr(q, (char *)"X75")) ||

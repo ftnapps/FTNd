@@ -162,6 +162,8 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 	    if (strlen(buf) && isalnum(buf[0])) {
 		tag = strtok(buf, "\t \r\n\0");
 		p = strtok(NULL, "\r\n\0");
+		if (p == NULL)
+		    p = tag; /* If no description after the TAG, use TAG as description */
 		desc = p;
 		while ((*desc == ' ') || (*desc == '\t'))
 		    desc++;

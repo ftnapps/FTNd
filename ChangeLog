@@ -31,6 +31,19 @@ v0.35.02	22-Jun-2002
 		In newsmode when a mesage is received with an illegal formated
 		date headerline, the date is replaced with the current date 
 		and time. Possible cause: SunMail 1.0
+		When reading taglists if there was no description after the
+		tag, mbfido would crash.
+
+	mbindex:
+		Fixed a crash when a pointlist contained Point,5,reservered,
+		and nothing more.
+		Added nopper code to prevent timeout on slow systems with 
+		large pointlists to compile.
+
+	mbsebbs:
+		The email address in new created .signature files is only
+		added if global Give Email is true and in the userecord the
+		email is also enabled.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it

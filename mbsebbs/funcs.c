@@ -172,8 +172,8 @@ char *ChangeHomeDir(char *Name, int Mailboxes)
 	    if ((fp = fopen(temp, "w")) == NULL) {
 		WriteError("$Can't create %s", temp);
 	    } else {
-		fprintf(fp, "    Gtx, %s\n", exitinfo.sUserName);
-		if (CFG.EmailMode == E_PRMISP)
+		fprintf(fp,     "    Greetings, %s\n", exitinfo.sUserName);
+		if ((CFG.EmailMode == E_PRMISP) && exitinfo.Email && CFG.GiveEmail)
 		    fprintf(fp, "    email: %s@%s\n", exitinfo.Name, CFG.sysdomain);
 		fclose(fp);
 	    }
