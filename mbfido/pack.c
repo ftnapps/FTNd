@@ -121,13 +121,15 @@ int pack_queue(char *name)
 			flavor = 'h';
 	} else {
 		WriteError("Archiver ZIP not found");
+		if (noden.domain)
+			free(noden.domain);
 		return FALSE;
 	}
 
 	/*
 	 * Generate ARCmail filename and .PKT filename,
 	 */
-	arcfile = calloc(128, sizeof(char));
+	arcfile = calloc(PATH_MAX, sizeof(char));
 	sprintf(arcfile, "%s", arcname(&noden, nodes.Aka[0].zone, nodes.ARCmailCompat));
 	pktfile = calloc(40, sizeof(char));
 	sprintf(pktfile, "%08lx.pkt", sequencer());
@@ -390,7 +392,7 @@ void packmail()
 		colour(3, 0);
 	}
 
-	temp = calloc(129, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/tmp", getenv("MBSE_ROOT"));
 
 	if (chdir(temp) == -1) {

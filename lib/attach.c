@@ -57,7 +57,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	/*
 	 *  Attach file to .flo
 	 *
-	 *  Not that mbcico when connected to a node opens the file "r+",
+	 *  Note that mbcico when connected to a node opens the file "r+",
 	 *  locks it with fcntl(F_SETLK), F_RDLCK, whence=0, start=0L, len=0L.
 	 *  It seems that this lock is released after the files in the .flo
 	 *  files are send. I don't know what will happen if we add entries

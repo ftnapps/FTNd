@@ -1091,6 +1091,17 @@ int EditMsgRec(int Area)
 			if (strlen(msgs.Group)) {
 			    msgs.Aka = mgroup.UseAka;
 			    msgs.Active = TRUE;
+			    msgs.DaysOld = CFG.defdays;
+			    msgs.MaxMsgs = CFG.defmsgs;
+			    msgs.UsrDelete = mgroup.UsrDelete;
+			    msgs.RDSec = mgroup.RDSec;
+			    msgs.WRSec = mgroup.WRSec;
+			    msgs.SYSec = mgroup.SYSec;
+			    msgs.Aliases = mgroup.Aliases;
+			    msgs.NetReply = mgroup.NetReply;
+			    msgs.Quotes = mgroup.Quotes;
+			    msgs.MaxArticles = CFG.maxarticles;
+			    
 			    /*
 			     * If there is an uplink defined in the group,
 			     * and the first connected system is empty,

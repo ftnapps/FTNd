@@ -87,7 +87,7 @@ void ScanMail(int DoAll)
 		DoFull = TRUE;
 	} else {
 		scanned = 0;
-		Fname = calloc(128, sizeof(char));
+		Fname = calloc(PATH_MAX, sizeof(char));
 		temp  = calloc(128, sizeof(char));
 
 		sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
@@ -139,7 +139,7 @@ void ScanMail(int DoAll)
 
 void ScanFull()
 {
-	char		sAreas[81], sbe[128];
+	char		*sAreas, sbe[128];
 	FILE		*pAreas;
 	long		arearec = 0, sysstart, nextstart;
 	unsigned long	Total, Number;
@@ -157,6 +157,7 @@ void ScanFull()
 		fflush(stdout);
 	}
 
+	sAreas = calloc(PATH_MAX, sizeof(char));
 	sprintf(sAreas, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((pAreas = fopen(sAreas, "r")) != NULL) {
 		fread(&usrconfighdr, sizeof(usrconfighdr), 1, pAreas);
@@ -214,8 +215,10 @@ void ScanFull()
 	sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((pAreas = fopen(sAreas, "r")) == NULL) {
 		WriteError("Can't open %s", sAreas);
+		free(sAreas);
 		return;
 	}
+	free(sAreas);
 	fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
 
 	while (fread(&msgs, msgshdr.recsize, 1, pAreas) == 1) {
@@ -331,7 +334,7 @@ void ScanFull()
 
 void ScanOne(char *path, unsigned long MsgNum)
 {
-	char		sAreas[81], sbe[128];
+	char		*sAreas, sbe[128];
 	FILE		*pAreas;
 	long		sysstart;
 	unsigned long	Total, Area = 0;
@@ -368,11 +371,14 @@ void ScanOne(char *path, unsigned long MsgNum)
 		return;
 	}
 
+	sAreas = calloc(PATH_MAX, sizeof(char));
 	sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((pAreas = fopen(sAreas, "r")) == NULL) {
 		WriteError("Can't open %s", sAreas);
+		free(sAreas);
 		return;
 	}
+	free(sAreas);
 	fread(&msgshdr, sizeof(msgshdr), 1, pAreas);
 
 	/*
