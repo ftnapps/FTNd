@@ -52,7 +52,7 @@ void AdoptFile(int Area, char *File, char *Description)
     char		Desc[256], TDesc[256];
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
-    int			i, j, k, lines = 0, File_id_cnt = 0;
+    int			i, j, k, lines = 0, File_id_cnt = 0, rc;
     struct FILERecord	fdb;
 
     Syslog('-', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
@@ -83,10 +83,10 @@ void AdoptFile(int Area, char *File, char *Description)
 	    Syslog('+', "No known archive: %s", File);
 	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
 	    mkdirs(temp2, 0755);
-	    if (file_cp(temp, temp2)) {
+	    if ((rc = file_cp(temp, temp2))) {
 		WriteError("Can't copy file to %s", temp2);
 		if (!do_quiet)
-		    printf("Can't copy file to %s\n", temp2);
+		    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 		die(0);
 	    } else {
 		if (!do_quiet) {

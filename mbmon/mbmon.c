@@ -42,7 +42,7 @@ static void die(int onsig)
 	signal(onsig, SIG_IGN);
 	screen_stop(); 
 	if (onsig && (onsig <= NSIG))
-		Syslog('?', "$Finished on signal %s", SigName[onsig]);
+		Syslog('?', "Finished on signal %s", SigName[onsig]);
 	else
 		Syslog(' ', "Normally finished");
 	ExitClient(0);

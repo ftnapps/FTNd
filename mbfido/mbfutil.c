@@ -87,7 +87,7 @@ void die(int onsig)
 
 	if (onsig) {
 		if (onsig <= NSIG)
-			WriteError("$Terminated on signal %d (%s)", onsig, SigName[onsig]);
+			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
 		else
 			WriteError("Terminated with error %d", onsig);
 	}
@@ -309,11 +309,13 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 {
     char    *temp1, *temp2;
     FILE    *fp1, *fp2;
-    int	    i, Insert, Done = FALSE, Found = FALSE;
+    int	    i, rc, Insert, Done = FALSE, Found = FALSE;
 
     mkdirs(DestPath, 0755);
-    if (file_cp(FromPath, DestPath)) {
+    if ((rc = file_cp(FromPath, DestPath))) {
 	WriteError("Can't move file in place");
+	if (!do_quiet)
+	    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 	return FALSE;
     }
     chmod(DestPath, 0644);

@@ -82,7 +82,7 @@ void die(int onsig)
 			Syslog('+', "User inactivity timeout");
 		} else {
 			if (onsig <= NSIG)
-				WriteError("$Terminated on signal %d (%s)", onsig, SigName[onsig]);
+				WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
 			else
 				WriteError("Terminated with error %d", onsig);
 		}

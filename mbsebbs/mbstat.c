@@ -85,7 +85,7 @@ void die(int onsig)
 	signal(onsig, SIG_IGN);
 
 	if (onsig)
-		WriteError("$Terminated on signal %d", onsig);
+		WriteError("Terminated on signal %d", onsig);
 
 	if (!do_quiet) {
 		colour(7, 0);

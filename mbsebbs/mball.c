@@ -87,7 +87,7 @@ void die(int onsig)
 
 	if (onsig) {
 		if (onsig <= NSIG)
-			WriteError("$Terminated on signal %d (%s)", onsig, SigName[onsig]);
+			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
 		else
 			WriteError("Terminated with error %d", onsig);
 	}
