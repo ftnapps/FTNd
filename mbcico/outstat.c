@@ -457,7 +457,6 @@ int pollnode(faddr *addr, int stop)
 {
     char	    *pol;
     int		    rc = 0;
-    unsigned long   cmmask;
     FILE	    *fp;
     callstat	    *cst;
     node	    *nlent;
@@ -511,9 +510,8 @@ int pollnode(faddr *addr, int stop)
 	    rc = MBERR_CANNOT_MAKE_POLL;
 	} else {
 	    fclose(fp);
-	    cmmask = getCMmask();
-	    Syslog('s', "oflags %08x (i)cmmask %08x", nlent->oflags, cmmask);
-	    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
+	    if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (!IsZMH())) {
+//	    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
 		Syslog('+', "Created poll for %s, non-CM node outside ZMH", ascfnode(addr, 0x1f));
 		if (!do_quiet)
 		    printf("Created poll for %s, non-CM node outside ZMH\n", ascfnode(addr, 0x1f));

@@ -1091,13 +1091,20 @@ node *getnlent(faddr *addr)
     if (addr->domain == NULL) 
 	addr->domain = xstrcpy(nodebuf.addr.domain);
 
+    nodebuf.can_pots = (nodebuf.mflags || nodebuf.dflags)   ? TRUE : FALSE;
+    nodebuf.can_ip   = (nodebuf.iflags)			    ? TRUE : FALSE;
+    nodebuf.is_cm    = (nodebuf.oflags & 0x00000001)	    ? TRUE : FALSE;
+    nodebuf.is_icm   = (nodebuf.oflags & 0x00000002)	    ? TRUE : FALSE; 
+
     Syslog('n', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
     Syslog('n', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
     Syslog('n', "getnlent: URL     %s", printable(nodebuf.url, 0));
+    Syslog('n', "getnlent: online  POTS %s CM %s, IP %s ICM %s", nodebuf.can_pots ?"Yes":"No", 
+				nodebuf.is_cm ?"Yes":"No", nodebuf.can_ip ?"Yes":"No", nodebuf.is_icm ?"Yes":"No");
 //    moflags(nodebuf.mflags);
 //    diflags(nodebuf.dflags);
 //    ipflags(nodebuf.iflags);
-    olflags(nodebuf.oflags);
+//    olflags(nodebuf.oflags);
 //    rqflags(nodebuf.xflags);
     free(mydomain);
 
@@ -1222,28 +1229,6 @@ void ipflags(unsigned long flags)
     }
     Syslog('n', "%s", t);
     free(t);
-}
-
-
-
-unsigned long getCMmask(void)
-{
-    nodelist_flag	    **tmpm;
-    static unsigned long    mask = 0L;
-
-    for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
-	if (strcmp("CM", (*tmpm)->name) == 0) {
-	    mask |= (*tmpm)->value;
-	}
-	if (strcmp("ICM", (*tmpm)->name) == 0) {
-	    mask |= (*tmpm)->value;
-	}
-    }
-    if (mask)
-	return mask;
-
-    WriteError("CM and ICM mask not found in %s/etc/nodelist.conf", getenv("MBSE_ROOT"));
-    return 0;
 }
 
 

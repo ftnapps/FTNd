@@ -229,6 +229,14 @@ void CloseNoderec(int Force)
 	    while (fread(&nodes, nodeshdr.recsize, 1, fi) == 1) {
 		if (!nodes.Deleted)
 		    fill_stlist(&nod, nodes.Sysop, ftell(fi) - nodeshdr.recsize);
+		else {
+		    /*
+		     * Remove obsolete paths
+		     */
+		    unlink(nodes.Dir_out_path);
+		    unlink(nodes.Dir_in_path);
+		    unlink(nodes.OutBox);
+		}
 		fseek(fi, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
 	    }
 	    sort_stlist(&nod);

@@ -34,6 +34,10 @@ typedef struct	_node {
 	int		t1;			/* T flag, first char	*/
 	int		t2;			/* T flag, second char	*/
 	char		*url;			/* URL for connection	*/
+	unsigned	is_cm	    : 1;	/* Node is CM		*/
+	unsigned	is_icm	    : 1;	/* Node is ICM		*/
+	unsigned	can_pots    : 1;	/* Can do POTS or ISDN	*/
+	unsigned	can_ip	    : 1;	/* Can do TCP/IP	*/
 } node;
 
 
@@ -122,7 +126,6 @@ void		rqflags(unsigned long);
 void		moflags(unsigned long);
 void		diflags(unsigned long);
 void		ipflags(unsigned long);
-unsigned long	getCMmask(void);
 
 
 #endif

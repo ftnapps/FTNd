@@ -102,7 +102,6 @@ int call(faddr *addr)
 {
     int		    rc = 1;
     char	    *p, temp[81];
-    unsigned long   cmmask;
 
     /*
      *  First check if node is locked, if not lock it immediatly
@@ -136,7 +135,6 @@ int call(faddr *addr)
      */
     noderecord(addr);
     rdoptions(TRUE);
-    cmmask = getCMmask();
 
     /*
      * Fill default history info in case we get a FTS0001 session
@@ -205,7 +203,8 @@ int call(faddr *addr)
 	}
     }
 
-    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
+    if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (!IsZMH())) {
+//    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
 	Syslog('?', "Warning: calling non-CM system outside ZMH");
     }
 

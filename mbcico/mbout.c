@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
     faddr	    *addr = NULL;
     node	    *nlent;
     FILE	    *fl;
-    unsigned long   cmmask;
     
     most_debug = TRUE;
 
@@ -316,14 +315,14 @@ int main(int argc, char *argv[])
 	    free(nlent->url);
 	nlent->url = NULL;
 
-	cmmask = getCMmask();
 	if (nlent->pflag == NL_DUMMY)
 	    Fatal((char *)"Node is not in nodelist", MBERR_NODE_NOT_IN_LIST);
 	if (nlent->pflag == NL_DOWN)
 	    Fatal((char *)"Node has status Down", MBERR_NODE_MAY_NOT_CALL);
 	if (nlent->pflag == NL_HOLD)
 	    Fatal((char *)"Node has status Hold", MBERR_NODE_MAY_NOT_CALL);
-	if (((nlent->oflags & cmmask) == 0) && (flavor == 'c'))
+	if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (flavor == 'c'))
+//	if (((nlent->oflags & cmmask) == 0) && (flavor == 'c'))
 	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", MBERR_NODE_MAY_NOT_CALL);
 
 	if (argv[4][0] == '-')

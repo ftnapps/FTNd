@@ -1,5 +1,13 @@
 $Id$
 
+	WARNING!!!!!
+
+		This is a testversion for the ICM flag (FSP-1033). This flag
+		is not yet accepted. It is also possible that certain nodes
+		are not called anymore!! Please report if so, but only Fidonet
+		nodes, or if from other nets, show me the nodelist entry too.
+
+
 v0.61.0		06-Jun-2004.
 
 
@@ -33,6 +41,8 @@ v0.61.0		06-Jun-2004.
 	mbsetup:
 		In mail and files group edit screens, to make an area active
 		existing connections check is skipped.
+		If a node record is deleted, the outbox and directory paths
+		are removed as well if they are empty.
 
 
 v0.60.0         09-Feb-2004 - 04-Jun-2004

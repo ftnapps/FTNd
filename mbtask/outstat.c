@@ -265,11 +265,9 @@ int outstat()
     DIR		    *dp = NULL;
     struct dirent   *de;
     struct stat	    sb;
-    unsigned long   cmmask, ibnmask = 0, ifcmask = 0, itnmask = 0;
+    unsigned long   ibnmask = 0, ifcmask = 0, itnmask = 0;
     nodelist_modem  **tmpm;
-    nodelist_flag   **tmpf;
 
-    cmmask = getCMmask();
     for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
 	if (strcmp((*tmpm)->name, "IBN") == 0)
 	    ibnmask = (*tmpm)->mask;
@@ -534,7 +532,7 @@ int outstat()
 	 * If the node has internet and we have internet configured, 
 	 * check if we can send immediatly. Works for CM and ICM.
 	 */
-	if (TCFG.max_tcp && (tmp->olflags & cmmask) &&
+	if (TCFG.max_tcp && ((tmp->can_ip && tmp->is_icm) || (!tmp->can_pots && tmp->can_ip && tmp->is_cm))  &&
 		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
 		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 	    tmp->flavors |= F_CALL;
@@ -548,25 +546,13 @@ int outstat()
 	    /*
 	     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
 	     */
-	    cmmask = 0L;
-	    for (tmpf = &nl_online; *tmpf; tmpf=&((*tmpf)->next)) {
-		if (strcmp("CM", (*tmpf)->name) == 0) {
-		    cmmask = (*tmpf)->value;
-		}
-	    }
-	    if ((tmp->olflags & cmmask) || T_window || iszmh) {
+	    if (tmp->is_cm || T_window || iszmh) {
 		tmp->flavors |= F_CALL;
 	    }
 	    /*
 	     * Now check again for the ICM flag.
 	     */
-	    cmmask = 0L;
-	    for (tmpf = &nl_online; *tmpf; tmpf=&((*tmpf)->next)) {
-		if (strcmp("ICM", (*tmpf)->name) == 0) {
-		    cmmask = (*tmpf)->value;
-		}
-	    }
-	    if ((tmp->olflags & cmmask) && TCFG.max_tcp && 
+	    if (tmp->is_icm && TCFG.max_tcp && 
 		    ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 		tmp->flavors |= F_CALL;
 	    }
@@ -577,30 +563,17 @@ int outstat()
 	    /*
 	     * Crash mail, send if node is CM or is in a Txx window or is in ZMH.
 	     */
-	    cmmask = 0L;
-	    for (tmpf = &nl_online; *tmpf; tmpf=&((*tmpf)->next)) {
-		if (strcmp("CM", (*tmpf)->name) == 0) {
-		    cmmask = (*tmpf)->value;
-		}
-	    }
-	    if ((tmp->olflags & cmmask) || T_window || iszmh) {
+	    if (tmp->is_cm || T_window || iszmh) {
 		tmp->flavors |= F_CALL;
 	    }
 	    /*
 	     * Now check again for the ICM flag.
 	     */
-	    cmmask = 0L;
-	    for (tmpf = &nl_online; *tmpf; tmpf=&((*tmpf)->next)) {
-		if (strcmp("ICM", (*tmpf)->name) == 0) {
-		    cmmask = (*tmpf)->value;
-		}
-	    }
-	    if ((tmp->olflags & cmmask) && TCFG.max_tcp &&
+	    if (tmp->is_icm && TCFG.max_tcp &&
 		    ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 		tmp->flavors |= F_CALL;
 	    }
 	}
-	cmmask = getCMmask();
 
 	if ((tmp->flavors) & F_NORMAL)
 	    flstr[2]='N';
@@ -792,6 +765,10 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	    (*tmp)->ipflags = nlent->iflags;
 	    (*tmp)->t1 = nlent->t1;
 	    (*tmp)->t2 = nlent->t2;
+	    (*tmp)->can_pots = nlent->can_pots;
+	    (*tmp)->can_ip   = nlent->can_ip;
+	    (*tmp)->is_cm    = nlent->is_cm;
+	    (*tmp)->is_icm   = nlent->is_icm;
 	} else {
 	    (*tmp)->olflags = 0L;
 	    (*tmp)->moflags = 0L;
@@ -799,6 +776,10 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	    (*tmp)->ipflags = 0L;
 	    (*tmp)->t1 = '\0';
 	    (*tmp)->t2 = '\0';
+	    (*tmp)->can_pots = FALSE;
+	    (*tmp)->can_ip   = FALSE;
+	    (*tmp)->is_cm    = FALSE;
+	    (*tmp)->is_icm   = FALSE;
 	}
 	(*tmp)->time = time(NULL);
 	(*tmp)->size = 0L;

@@ -28,6 +28,10 @@ typedef struct _alist
     int             t1;         /* First Txx flag               */
     int             t2;         /* Second Txx flag              */
     int             callmode;   /* Call method                  */
+    unsigned	    can_pots	: 1;
+    unsigned	    can_ip	: 1;
+    unsigned	    is_cm	: 1;
+    unsigned	    is_icm	: 1;
 } _alist_l;
 
 

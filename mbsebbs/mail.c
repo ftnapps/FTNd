@@ -187,7 +187,6 @@ int Crash_Option(faddr *Dest)
     node	    *Nlent;
     int		    rc = 0;
     unsigned short  point;
-    unsigned long   cmmask;
 
     if (exitinfo.Security.level < CFG.iCrashLevel)
 	return 0;
@@ -196,8 +195,7 @@ int Crash_Option(faddr *Dest)
     Dest->point = 0;
 
     if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
-	cmmask = getCMmask();
-	if (Nlent->oflags & cmmask) {
+	if ((Nlent->can_pots && Nlent->is_cm) || (Nlent->can_ip && Nlent->is_icm)) {
 	    /* Crash [y/N]: */
 	    pout(CYAN, BLACK, (char *)Language(461));
 	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
