@@ -25,6 +25,10 @@ v0.61.3		25-Jul-2004
 		Made questions for screenlen, newmail check and newfiles check
 		dependant of settings in the setup.
 
+	mbsebbs:
+		When a netmail reply is done to a node without a valid address
+		we ask the user if he wants to continue.
+
 	mbtask:
 		Added defaults for questions for screenlen, newmail chack and
 		newfiles check.

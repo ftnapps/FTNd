@@ -226,6 +226,9 @@ int Crash_Option(faddr *Dest)
 	if (Nlent->url)
 	    free(Nlent->url);
 	Nlent->url = NULL;
+    } else {
+	Syslog('+', "Node %s not found", ascfnode(Dest, 0x1f));
+	rc = -1;
     }
 
     Dest->point = point;
@@ -1638,6 +1641,19 @@ void Reply_Msg(int IsReply)
 		    break;
 	    case 2: Msg.Immediate = TRUE;
 		    break;
+	    case -1:printf("\r");
+		    /* Node not known, continue anayway [y/N]: */
+		    pout(CYAN, BLACK, (char *) Language(241));
+		    fflush(stdout);
+		    alarm_on();
+		    if (toupper(Getone()) == Keystroke(241, 0)) {
+			Syslog('+', "Node not found, forced continue");
+		    } else {
+			for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+			    free(Message[i]);
+			return;
+		    }
+		    break;
 	}
     }
 
@@ -1666,8 +1682,8 @@ void Reply_Msg(int IsReply)
 	}
 	Line = 2;
 
-	tmp = calloc(128, sizeof(char));
-	buf = calloc(128, sizeof(char));
+	tmp = calloc(PATH_MAX, sizeof(char));
+	buf = calloc(129, sizeof(char));
 
 	sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
 	if ((qf = fopen(tmp, "r")) != NULL) {
