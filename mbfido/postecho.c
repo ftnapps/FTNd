@@ -156,6 +156,12 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     crc = 0xffffffff;
     echo_in++;
 
+    p = xstrcpy(ascfnode(f, 0x1f));
+    q = xstrcpy(ascfnode(t, 0x1f));
+    Syslog('m', "postecho %s to %s \"%s\"", p, q, subj);
+    free(q);
+    free(p);
+
     /*
      *  p_from is set for tossed echomail, it is NULL for local posted echomail and gated news.
      */
