@@ -38,6 +38,7 @@ int		do_quiet = FALSE;	/* Quiet flag			    */
 int		show_log = FALSE;	/* Show loglines on screen	    */
 int		most_debug = FALSE;	/* Toggle normal/most debugging	    */
 char		progname[21];		/* Program name			    */
+char		logdebug[PATH_MAX];	/* Debug logfile		    */
 char		logfile[PATH_MAX];	/* Normal logfile		    */
 char		errfile[PATH_MAX];	/* Error logfile		    */
 char		mgrfile[PATH_MAX];	/* Area/File- mgr logfile	    */
@@ -100,7 +101,7 @@ char *xstrcat(char *src, char *add)
 
 
 
-void InitClient(char *user, char *myname, char *where, char *log, long loggr, char *err, char *mgr)
+void InitClient(char *user, char *myname, char *where, char *log, long loggr, char *err, char *mgr, char *debug)
 {
 	if ((getenv("MBSE_ROOT")) == NULL) {
 		printf("Could not get the MBSE_ROOT environment variable\n");
@@ -113,6 +114,7 @@ void InitClient(char *user, char *myname, char *where, char *log, long loggr, ch
 	sprintf(logfile, "%s", log);
 	sprintf(errfile, "%s", err);
 	sprintf(mgrfile, "%s", mgr);
+	sprintf(logdebug, "%s", debug);
 	loggrade = loggr;
 
         sprintf(cpath, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
@@ -220,12 +222,14 @@ void WriteError(const char *format, ...)
 		lcrc = tcrc;
 		if (lcnt) {
 			lcnt++;
+			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logdebug, progname, mypid, lcnt);
 			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", logfile, progname, mypid, lcnt);
 			SockS("ALOG:5,%s,%s,%d,?,Last message repeated %d times;", errfile, progname, mypid, lcnt);
 		}
 		lcnt = 0;
 	}
 
+	SockS("ALOG:5,%s,%s,%d,?,%s;", logdebug, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
 	SockS("ALOG:5,%s,%s,%d,?,%s;", logfile, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
 	SockS("ALOG:5,%s,%s,%d,?,%s;", errfile, progname, mypid, *outputstr == '$' ? outputstr+1 : outputstr);
 	free(outputstr);
@@ -258,9 +262,11 @@ void Syslog(int level, const char *format, ...)
 void Syslogp(int level, char *outstr)
 {
     long    mask = 0;
-    int	    i, upper;
+    int	    i, upper, debug;
 
+    debug = isalpha(level);
     upper = isupper(level);
+
     switch(tolower(level)) {
 	case ' ' : mask = DLOG_ALLWAYS;	    break;
 	case '?' : mask = DLOG_ERROR;	    break;	
@@ -310,7 +316,9 @@ void Syslogp(int level, char *outstr)
 	lcrc = tcrc;
 	if (lcnt) {
 	    lcnt++;
-	    SockS("ALOG:5,%s,%s,%d,%c,Last message repeated %d times;", logfile, progname, mypid, level, lcnt);
+	    SockS("ALOG:5,%s,%s,%d,%c,Last message repeated %d times;", logdebug, progname, mypid, level, lcnt);
+	    if (!debug)
+		SockS("ALOG:5,%s,%s,%d,%c,Last message repeated %d times;", logfile, progname, mypid, level, lcnt);
 	}
 	lcnt = 0;
     }
@@ -318,10 +326,15 @@ void Syslogp(int level, char *outstr)
     if (show_log)
 	printf("%c %s\n", level, outstr);
 
-    if (*outstr == '$')
-	SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
-    else
-	SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
+    if (*outstr == '$') {
+	SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logdebug, progname, mypid, level, outstr+1, strerror(errno));
+	if (!debug)
+	    SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
+    } else {
+	SockS("ALOG:5,%s,%s,%d,%c,%s;", logdebug, progname, mypid, level, outstr);
+	if (!debug)
+	    SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
+    }
 }
 
 

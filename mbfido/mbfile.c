@@ -199,7 +199,8 @@ int main(int argc, char **argv)
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbfile", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    InitClient(pw->pw_name, (char *)"mbfile", CFG.location, CFG.logfile, 
+	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     Syslog(' ', " ");
     Syslog(' ', "MBFILE v%s", VERSION);

@@ -6,7 +6,7 @@ $Id$
 	be used on production systems if you don't want to help debugging.
 	Handshake and EMSI is changed, please run this version with debugging on,
 	mbsetup 1.14.1 turn 5, 11 and 18 on at least. Report any problems and include
-	a piece of the logfile.
+	a piece of the (debug)logfile.
 
 	Before installing, make a copy of /opt/mbse/bin/mbcico so you can go back
 	if you experience any problems.
@@ -19,7 +19,35 @@ $Id$
 	menus do not work. All other programs do work on all platforms.
 	All other users on Intel machines (99,9% I think) can use this version.
 
-v0.37.6		10-Aug-2003
+v0.37.7		09-Sep-2003
+
+	upgrade:
+		A bit tricky to upgrade and start using the new debug logfile:
+		  Before make install close the bbs "mbstat close"
+		  Then kill mbtask.
+		  Then as root a make install.
+		  As user mbse: start mbtask, just by typing mbtask.
+		  Then type "mbsetup init"
+		  Then open the bbs with mbstat open.
+		  Start mbsetup normal, enter the global menu, exit and save.
+		After this is done the first time, restarting mbtask can be
+		done as usual by running the mbsed init script.
+
+	general:
+		Debug logging is now in a separate file, the normal logging is
+		now only in the normal logfiles.
+
+	mbtask:
+		Added support for debug logfile. Dropped the debug switch for
+		mbtask logging, this is now allways on.
+
+	mbsetup:
+		Added support for debug logging in menu 1.3 and removed the
+		mbtask debug switch from menu 18.
+
+
+
+v0.37.6		10-Aug-2003 - 09-Sep-2003
 
 	general:
 		Changed all Linux references into GNU/Linux.

@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
     ProgName();
     pw = getpwuid(getuid());
-    InitClient(pw->pw_name, (char *)"mbout", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    InitClient(pw->pw_name, (char *)"mbout", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', " ");
     Syslog(' ', "MBOUT v%s", VERSION);
     Syslog(' ', cmd);

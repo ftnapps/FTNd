@@ -149,6 +149,7 @@ void load_maincfg(void)
         sprintf(CFG.chat_log, "chat.log");
         sprintf(CFG.welcome_logo, "logo.asc");
 	sprintf(CFG.mgrlog, "manager.log");
+	sprintf(CFG.debuglog, "debug.log");
 
         /*
          * Fill Global defaults
@@ -372,6 +373,8 @@ void load_maincfg(void)
     } else {
         fread(&CFG, sizeof(CFG), 1, fp);
         fclose(fp);
+	if (strlen(CFG.debuglog) == 0)
+	    sprintf(CFG.debuglog, "debug.log");
     }
 
     cfg_time = file_time(cfgfn);
@@ -399,7 +402,6 @@ void load_taskcfg(void)
 		    sprintf(TCFG.cmd_mbindex2, "%s -f -q", _PATH_GOLDNODE);
 		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
-		TCFG.debug    = FALSE;
 		TCFG.max_tcp  = 0;
 		sprintf(TCFG.isp_ping1, "192.168.1.1");
 		sprintf(TCFG.isp_ping2, "192.168.1.1");

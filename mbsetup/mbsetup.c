@@ -420,7 +420,9 @@ int main(int argc, char *argv[])
      */
     config_check(getenv("MBSE_ROOT"));
     config_read();
-    InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog);
+    if (strlen(CFG.debuglog) == 0)
+	sprintf(CFG.debuglog, "debug.log");
+    InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
     /*
      * Setup several signals so when the program terminate's it

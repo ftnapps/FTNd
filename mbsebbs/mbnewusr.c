@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 	 */
 	do_quiet = TRUE;
 	InitClient((char *)"Unknown", (char *)"mbnewusr", (char *)"Unknown", 
-		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog);
+		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 	IsDoing("Loging in");
 
 	Syslog(' ', " ");

@@ -60,7 +60,7 @@ extern char SigName[32][16];
 char		*xmalloc(size_t);
 char		*xstrcpy(char *);
 char		*xstrcat(char *, char *);
-void		InitClient(char *, char *, char *, char *, long, char *, char *);
+void		InitClient(char *, char *, char *, char *, long, char *, char *, char *);
 void		ExitClient(int);
 void		SockS(const char *, ...);
 char		*SockR(const char *, ...);

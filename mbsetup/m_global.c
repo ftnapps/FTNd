@@ -191,31 +191,34 @@ void e_filenames(void)
     set_color(CYAN, BLACK);
     mvprintw( 7, 6, "1.   System logfile");
     mvprintw( 8, 6, "2.   Error logfile");
-    mvprintw( 9, 6, "3.   Mgr logfile");
-    mvprintw(10, 6, "4.   Default Menu");
-    mvprintw(11, 6, "5.   Default Language");
-    mvprintw(12, 6, "6.   Chat Logfile");
-    mvprintw(13, 6, "7.   Welcome Logo");
+    mvprintw( 9, 6, "3.   Debug logfile");
+    mvprintw(10, 6, "4.   Mgr logfile");
+    mvprintw(11, 6, "5.   Default Menu");
+    mvprintw(12, 6, "6.   Default Language");
+    mvprintw(13, 6, "7.   Chat Logfile");
+    mvprintw(14, 6, "8.   Welcome Logo");
     
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_str( 7,28,14, CFG.logfile);
 	show_str( 8,28,14, CFG.error_log);
-	show_str( 9,28,14, CFG.mgrlog);
-	show_str(10,28,14, CFG.default_menu);
-	show_str(11,28,14, CFG.current_language);
-	show_str(12,28,14, CFG.chat_log);
-	show_str(13,28,14, CFG.welcome_logo);
+	show_str( 9,28,14, CFG.debuglog);
+	show_str(10,28,14, CFG.mgrlog);
+	show_str(11,28,14, CFG.default_menu);
+	show_str(12,28,14, CFG.current_language);
+	show_str(13,28,14, CFG.chat_log);
+	show_str(14,28,14, CFG.welcome_logo);
 
-	switch(select_menu(7)) {
+	switch(select_menu(8)) {
 	    case 0: return;
 	    case 1: E_STR( 7,28,14, CFG.logfile,          "The name of the ^system^ logfile.")
 	    case 2: E_STR( 8,28,14, CFG.error_log,        "The name of the ^errors^ logfile.")
-	    case 3: E_STR( 9,28,14, CFG.mgrlog,           "The name of the ^area-/filemgr^ logfile.")
-	    case 4: E_STR(10,28,14, CFG.default_menu,     "The name of the ^default^ (top) ^menu^.")
-	    case 5: E_STR(11,28,14, CFG.current_language, "The name of the ^default language^.")
-	    case 6: E_STR(12,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
-	    case 7: E_STR(13,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
+	    case 3: E_STR( 9,28,14, CFG.debuglog,         "The name of the ^debug^ logfile.")
+	    case 4: E_STR(10,28,14, CFG.mgrlog,           "The name of the ^area-/filemgr^ logfile.")
+	    case 5: E_STR(11,28,14, CFG.default_menu,     "The name of the ^default^ (top) ^menu^.")
+	    case 6: E_STR(12,28,14, CFG.current_language, "The name of the ^default language^.")
+	    case 7: E_STR(13,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
+	    case 8: E_STR(14,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
 	}
     }
 }
@@ -1481,6 +1484,11 @@ void global_menu(void)
 	Syslog('+', "Main config, upgraded for manager security");
     }
 
+    if (strlen(CFG.debuglog) == 0) {
+	sprintf(CFG.debuglog, "debug.log");
+	Syslog('+', "Main config, upgraded for new debug logfile");
+    }
+
     if (!CFG.ca_PlusAll && !CFG.ca_Notify && !CFG.ca_Passwd && !CFG.ca_Pause && !CFG.ca_Check) {
 	CFG.ca_PlusAll = TRUE;
 	CFG.ca_Notify  = TRUE;
@@ -1701,6 +1709,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
 	fprintf(fp, "      System logfile   %s\n", CFG.logfile);
 	fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
+	fprintf(fp, "      Debug logfile    %s\n", CFG.debuglog);
 	fprintf(fp, "      Manager logfile  %s\n", CFG.mgrlog);
 	fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
 	fprintf(fp, "      Default language %s\n", CFG.current_language);

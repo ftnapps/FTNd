@@ -102,22 +102,23 @@ void Syslog(int grade, const char *format, ...)
 {
     va_list va_ptr;
     char    outstr[1024];
-    int     oldmask;
-    FILE    *logfile;
-    char    *logname;
+    int     oldmask, debug;
+    FILE    *logfile = NULL, *debugfile;
+    char    *logname = NULL, *debugname;
 
-    if (grade == '+' || grade == '-' || grade == '!' || grade == '?' || grade == ' ' || TCFG.debug) {
-	va_start(va_ptr, format);
-	vsprintf(outstr, format, va_ptr);
-	va_end(va_ptr);
+    debug = isalpha(grade);
+    va_start(va_ptr, format);
+    vsprintf(outstr, format, va_ptr);
+    va_end(va_ptr);
 
-	tcrc = StringCRC32(outstr);
-	if (tcrc == lcrc) {
-	    lcnt++;
-	    return;
-	}
-	lcrc = tcrc;
+    tcrc = StringCRC32(outstr);
+    if (tcrc == lcrc) {
+	lcnt++;
+        return;
+    }
+    lcrc = tcrc;
 
+    if (!debug) {
 	logname = calloc(PATH_MAX, sizeof(char));
 	oldmask=umask(066);
 	sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
@@ -128,13 +129,32 @@ void Syslog(int grade, const char *format, ...)
 	    free(logname);
 	    return;
 	}
+    }
 
-	if ((lcnt) && ((lchr == '+') || (lchr == '-') || (lchr == '!') || (lchr == '?') || (lchr == ' ') || TCFG.debug)) {
-	    lcnt++;
-	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+    debugname = calloc(PATH_MAX, sizeof(char));
+    oldmask=umask(066);
+    sprintf(debugname, "%s/log/%s", getenv("MBSE_ROOT"), CFG.debuglog);
+    debugfile = fopen(debugname, "a");
+    umask(oldmask);
+    if (debugfile == NULL) {
+	printf("Cannot open logfile \"%s\"\n", debugname);
+	free(debugname);
+	if (!debug) {
+	    free(logname);
+	    fclose(logfile);
 	}
-	lcnt = 0;
+	return;
+    }
+	
+    if (lcnt) {
+	lcnt++;
+        fprintf(debugfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+	if (!debug)
+	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+    }
+    lcnt = 0;
 
+    if (!debug) {
 	fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
 	fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
 	if (*outstr == '$')
@@ -143,12 +163,26 @@ void Syslog(int grade, const char *format, ...)
 	    fprintf(logfile, "\n");
 
 	fflush(logfile);
-	if (fclose(logfile) != 0)
-	    printf("Cannot close logfile \"%s\"\n", logname);
+	    if (fclose(logfile) != 0)
+		printf("Cannot close logfile \"%s\"\n", logname);
 
-	lchr = grade;
 	free(logname);
     }
+
+    fprintf(debugfile, "%c %s mbtask[%d] ", grade, date(), getpid());
+    fprintf(debugfile, *outstr == '$' ? outstr+1 : outstr);
+    if (*outstr == '$')
+	fprintf(debugfile, ": %s\n", strerror(errno));
+    else
+	fprintf(debugfile, "\n");
+
+    fflush(debugfile);
+    if (fclose(debugfile) != 0)
+    printf("Cannot close logfile \"%s\"\n", debugname);
+
+    lchr = grade;
+    free(debugname);
+
     return;
 }
 

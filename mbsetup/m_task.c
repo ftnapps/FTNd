@@ -125,10 +125,9 @@ int EditTask()
 	mvprintw(18, 1, "13.  Max TCP");
 	mvprintw(19, 1, "14.  Max Load");
 
-	mvprintw(18,29, "15.  ZMH start");
-	mvprintw(19,29, "16.  ZMH end");
+	mvprintw(18,41, "15.  ZMH start");
+	mvprintw(19,41, "16.  ZMH end");
 
-	mvprintw(19,55, "17.  Debug");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -148,12 +147,10 @@ int EditTask()
 		sprintf(temp, "%0.2f", TCFG.maxload);
 		show_str(19, 15,5, temp);
 
-		show_str( 18,44, 5, TCFG.zmh_start);
-		show_str( 19,44, 5, TCFG.zmh_end);
+		show_str( 18,56, 5, TCFG.zmh_start);
+		show_str( 19,56, 5, TCFG.zmh_end);
 
-		show_bool(19,69,    TCFG.debug);
-
-		j = select_menu(17);
+		j = select_menu(16);
 		switch(j) {
 		case 0:	return 0;
 		case 1:	E_STR(  6,15,65,TCFG.cmd_mailout,    "The command to execute on semafore ^mailout^")
@@ -172,9 +169,8 @@ int EditTask()
 		case 14:strcpy(temp, edit_str(19,15,5,temp, (char *)"^Maximum system load^ at which processing stops (1.00 .. 3.00)"));
 			sscanf(temp, "%f", &TCFG.maxload);
 			break;
-		case 15:E_STR( 18,44,5, TCFG.zmh_start,      "^Start^ of Zone Mail Hour in UTC")
-		case 16:E_STR( 19,44,5, TCFG.zmh_end,        "^End& of Zone Mail Hour in UTC")
-		case 17:E_BOOL(19,69,   TCFG.debug,          "Enable ^debug^ logging")
+		case 15:E_STR( 18,56,5, TCFG.zmh_start,      "^Start^ of Zone Mail Hour in UTC")
+		case 16:E_STR( 19,56,5, TCFG.zmh_end,        "^End& of Zone Mail Hour in UTC")
 		}
 	}
 
@@ -223,7 +219,6 @@ int task_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "     ISP ping host 1        %s\n", TCFG.isp_ping1);
 	fprintf(fp, "     ISP ping host 2        %s\n", TCFG.isp_ping2);
 
-	fprintf(fp, "     Enable denug logging   %s\n", getboolean(TCFG.debug));
 	fprintf(fp, "     Maximum system load    %0.2f\n", TCFG.maxload);
 	fprintf(fp, "     Max TCP/IP connections %d\n", TCFG.max_tcp);
 

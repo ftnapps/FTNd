@@ -263,7 +263,7 @@ struct	taskrec {
 	int		max_tcp;		/* maximum TCP/IP calls	    */
 
 	unsigned	xipblocks	: 1;
-	unsigned	debug		: 1;	/* debugging on/off	    */
+	unsigned	xdebug		: 1;	/* debugging on/off	    */
 };
 
 
@@ -804,6 +804,7 @@ struct	sysconfig {
 	unsigned	ca_Check	: 1;	/* Flag for upgrade check   */
 
 	char		rulesdir[65];		/* Area rules directory	    */
+	char		debuglog[15];		/* Debug logfile	    */
 };
 
 
