@@ -50,7 +50,7 @@ MBINDEX_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib
 MBDIFF_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBFILE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a ../lib/libdiesel.a
 MBMSG_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
-OTHER		= Makefile README maptabs.tgz
+OTHER		= Makefile README
 TARGET		= mbfido mbseq mbaff mbindex mbdiff mbfile mbmsg
 
 ####################################################################################################################
@@ -103,8 +103,6 @@ install:	all
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbmail
 		rm -f ${BINDIR}/mbnews
 		ln -s ${BINDIR}/mbfido ${BINDIR}/mbnews
-		(cp maptabs.tgz ${PREFIX}; cd ${PREFIX}; tar xfz maptabs.tgz; ${CHOWN} ${OWNER}:${GROUP} etc/maptabs/*; rm ${PREFIX}/maptabs.tgz)
-		chmod 0775 ${PREFIX}/etc
 
 filelist:	Makefile
 		BASE=`pwd`; \
