@@ -65,6 +65,7 @@
 #include "mgrutil.h"
 #include "backalias.h"
 #include "rfc2ftn.h"
+#include "dirsession.h"
 
 
 #define	UNPACK_FACTOR 300
@@ -533,6 +534,12 @@ int main(int argc, char **argv)
 			RemoveSema((char *)"mailin");
 		if (TossMail() == FALSE)
 			die(0);
+	}
+	if (do_tic || do_toss) {
+	    /*
+	     * Do inbound direcory sessions
+	     */
+	    dirinbound();
 	}
 	if (!do_uucp)
 		newspost();

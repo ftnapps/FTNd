@@ -14,7 +14,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c pack.c \
 		  hash.c mbaff.c mbseq.c notify.c postnetmail.c scannews.c tosspkt.c \
 		  mbfkill.c mbfutil.c mbfindex.c mbfcheck.c mbfpack.c mbflist.c mbfadopt.c \
 		  mbfimport.c virscan.c mbftoberep.c mbfmove.c mbfdel.c bounce.c \
-		  createm.c createf.c msgflags.c
+		  createm.c createf.c msgflags.c dirsession.c
 HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h pack.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
 		  lhash.h mbfido.h mkftnhdr.h ptic.h sendmail.h tracker.h \
@@ -25,14 +25,14 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h pack.h \
 		  atoul.h filemgr.h hash.h mbaff.h mbseq.h notify.h postemail.h scan.h toberep.h \
 		  mbfkill.h mbfutil.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfadopt.h \
 		  mbfimport.h virscan.h mbftoberep.h mbfmove.h mbfdel.h bounce.h \
-		  createm.h createf.h msgflags.h
+		  createm.h createf.h msgflags.h dirsession.h
 MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o \
 		  makestat.o scannews.o lhash.o bounce.o pack.o ulock.o tic.o ptic.o \
 		  utic.o mover.o hash.o mkftnhdr.o addbbs.o magic.o fsort.o toberep.o \
 		  ftn2rfc.o atoul.o ping.o forward.o sendmail.o scan.o addpkt.o \
 		  storenet.o storeecho.o areamgr.o filemgr.o notify.o mgrutil.o rollover.o \
 		  bwrite.o rfc2ftn.o rnews.o newspost.o aliasdb.o postemail.o postnetmail.o \
-		  postecho.o backalias.o createm.o createf.o msgflags.o
+		  postecho.o backalias.o createm.o createf.o msgflags.o dirsession.o
 MBSEQ_OBJS	= mbseq.o
 MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o
 MBINDEX_OBJS	= mbindex.o
@@ -148,7 +148,7 @@ addpkt.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/us
 bwrite.o: ../config.h ../lib/libs.h ../lib/memwatch.h bwrite.h
 forward.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbtic.h ../lib/diesel.h tic.h sendmail.h rollover.h mgrutil.h forward.h
 lhash.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h lhash.h
-mbfido.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbdupe.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbuser.h ../lib/dbftn.h ../lib/dbtic.h ../lib/msg.h flock.h tosspkt.h pack.h ulock.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h
+mbfido.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbdupe.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbuser.h ../lib/dbftn.h ../lib/dbtic.h ../lib/msg.h flock.h tosspkt.h pack.h ulock.h tic.h fsort.h scan.h mbfido.h tracker.h notify.h rollover.h hatch.h scannews.h maketags.h makestat.h newspost.h rnews.h mgrutil.h backalias.h rfc2ftn.h dirsession.h
 mkftnhdr.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h atoul.h hash.h msgflags.h aliasdb.h mkftnhdr.h
 ping.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h sendmail.h postnetmail.h ping.h
 rfc2ftn.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h pack.h postnetmail.h postecho.h msgflags.h rfc2ftn.h
@@ -206,4 +206,5 @@ bounce.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/us
 createm.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h mgrutil.h createm.h
 createf.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mgrutil.h createf.h
 msgflags.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h msgflags.h
+dirsession.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h dirsession.h
 # End of generated dependencies
