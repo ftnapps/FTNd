@@ -52,6 +52,12 @@ install:
 			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /usr/lib/joe ; \
 			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /usr/lib/joe" ; \
 		fi
+		@if [ -d /etc/joe ]; then \
+			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /etc/joe ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /etc/joe" ; \
+			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /etc/joe ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /etc/joe" ; \
+		fi
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}
