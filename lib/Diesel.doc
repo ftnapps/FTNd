@@ -7,7 +7,7 @@ This is a  modified version of diesel  language.  Diesel is a  interpreted
 macro language, used in AutoCAD and released to public domain by AutoDesk.
 
 Modified  version by Redy Rodriguez,  for use in mbsebbs.  Original diesel
-language can be found at http://www.fournilab.ch/diesel.
+language can be found at http://www.fourmilab.ch/diesel.
  
 This  "Dumb  Interpretively  Executed  String  Expression Language" is the
 kernel of a macro  language  you  can  customise  by  adding  C  code  and

@@ -3,7 +3,7 @@
 
 include ../Makefile.global
 
-OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar txtfiles.tar
+OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar txtfiles.tar templates.tar
 
 #####################################################################################
 
@@ -29,6 +29,7 @@ install:
 			tar xfC txtfiles.tar ${PREFIX}/english/txtfiles ; \
 			echo "Installing default english txtfiles" ; \
 		fi
+		tar xfC templates.tar ${PREFIX}/english/macro
 
 clean:
 		rm -f filelist Makefile.bak

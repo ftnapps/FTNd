@@ -27,7 +27,7 @@ MSGBASE_HDRS	= jam.h jammsg.h jamsys.h msg.h msgtext.h
 MBINET_SRCS	= nntp.c pop3.c smtp.c
 MBINET_OBJS	= nntp.o pop3.o smtp.o
 MBINET_HDRS	= mbinet.h
-DIESEL_SRSC	= diesel.c mbdiesel.c
+DIESEL_SRCS	= diesel.c mbdiesel.c
 DIESEL_HDRS	= diesel.h
 DIESEL_OBJS	= diesel.o mbdiesel.o
 MEMWATCH_SRCS	= memwatch.c
@@ -168,6 +168,8 @@ msgtext.o: libs.h msgtext.h msg.h
 nntp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 pop3.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 smtp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
+diesel.o: libs.h diesel.h
+mbdiesel.o: libs.h structs.h users.h records.h clcomm.h diesel.h
 memwatch.o: ../config.h ../config.h libs.h memwatch.h
 ftscprod.o: libs.h structs.h common.h
 # End of generated dependencies

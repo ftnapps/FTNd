@@ -36,6 +36,155 @@
 #include "diesel.h"
 
 
+void MacroVars( const char *codes, const char *fmt, ...)
+{
+        char *tmp1, *tmp2;
+        va_list ap;
+        int j;
+        int dieselrc;
+        char *vs;
+        int vd;
+        char vc;
+        double vf;
+
+        tmp1=calloc(256,sizeof(char));
+        tmp2=calloc(256,sizeof(char));
+
+        va_start(ap,fmt);
+        for ( j=0; (codes[j] != '\0') && (fmt[j] != '\0') ; j++ ){
+             tmp1[0]='\0';
+             switch(fmt[j]) {
+                   case 's':           /* string */
+                        vs = va_arg(ap, char *);
+                        sprintf(tmp1,"@(setvar,%c,\"%s\")",codes[j],vs);
+                        break;
+                   case 'd':           /* int */
+                        vd = va_arg(ap, int);
+                        sprintf(tmp1,"@(setvar,%c,%d)",codes[j],vd);
+                        break;
+                   case 'c':           /* char */
+                        vc = va_arg(ap, char);
+                        sprintf(tmp1,"@(setvar,%c,%c)",codes[j],vc);
+                        break;
+                   case 'f':           /* char */
+                        vf = va_arg(ap, double);
+                        sprintf(tmp1,"@(setvar,%c,%f)",codes[j],vf);
+                        break;
+                   }
+                   dieselrc=diesel(tmp1,tmp2);
+		   if (dieselrc) {
+		       Syslog('!', "MacroVars error %d argument %d", dieselrc, j);
+		   }
+        }
+        va_end(ap);
+
+        free(tmp1);
+        free(tmp2);
+}
+
+
+
+void MacroClear(void)
+{
+    int	    dieselrc;
+    char    tmp1[] = "@(CLEAR)", *tmp2;
+
+    tmp2 = calloc(10,sizeof(char));
+    dieselrc = diesel(tmp1, tmp2);
+    if (dieselrc)
+	Syslog('!', "MacroClear error %d", dieselrc);
+    free(tmp2);
+}
+
+
+
+char *ParseMacro( const char *line, int *dieselrc)
+{
+    static char	res[256];
+    char	*tmp1, *tmp2, *tmp3, *i;
+    int		j, l;
+    char	code;
+
+    res[0]='\0';
+    *dieselrc=0;
+
+    if ( *line == '#' )
+	return res;
+
+    tmp1 = calloc(256,sizeof(char));
+    tmp2 = calloc(256,sizeof(char));
+    tmp3 = calloc(256,sizeof(char));
+
+    tmp1[0]='\0';
+
+    for ( i=line ; i[0] != '\0'; i++){
+	if ( (i[0] == '@') && isalpha(i[1]) ){
+	    l=2;
+	    i++;
+	    if (i[0] != '@') {
+		if ((code = i[0]) != '\0' )
+		    i++;
+		while (( i[0] == '_') || ( i[0] == '>') || ( i[0] == '<') ){
+		    l++;
+		    i++;
+		}
+		i--;
+		sprintf(tmp2,"@(GETVAR,%c)",code);
+		if (!diesel(tmp2,tmp3)==0){
+		    sprintf(tmp3,"%c%c",'@',code);
+		}
+		if (l>2){
+		    if ( *i != '>')
+			l=-l;
+		    sprintf(&tmp1[strlen(tmp1)],"%*.*s",l,l, tmp3);
+		}else{
+		    sprintf(&tmp1[strlen(tmp1)],"%s",tmp3);
+		}
+	    }else{
+		tmp1[(j=strlen(tmp1))]='@';
+		tmp1[j+1]='\0';
+	    }
+	}else{
+	    tmp1[(j=strlen(tmp1))]=i[0];
+	    tmp1[j+1]='\0';
+	}
+    }
+
+    i = tmp1;
+    sprintf(tmp2,"%s",tmp1);
+
+    if ((tmp1[0]=='@') && (tmp1[1]=='{')){
+	i++;
+	i++;
+	for (j=2; ((tmp1[j]!='}') && (tmp1[j]!='\0'));j++){
+	    i++;
+	}
+	if ( (tmp1[j]=='}') ){
+	    i++;
+	    res[0]='\0';
+	    if (j>2)
+		sprintf(res,"%.*s",j-2,&tmp1[2]);
+	    if ((diesel(res,tmp3)!=0) || (atoi(tmp3)==0))
+		sprintf(tmp2,"@!%s",i);
+	    else
+		sprintf(tmp2,"%s",i);
+	}
+    }
+    *dieselrc=diesel(tmp2, res);
+
+    free(tmp1);
+    free(tmp2);
+    free(tmp3);
+    while (isspace(res[strlen(res) - 1])) {
+	res[strlen(res) - 1] = EOS;
+    }
+//  sprintf(&res[strlen(res)],"\r\n");
+    if ((res[0] == '@') && (res[1] =='!' ))
+	res[0]='\0';
+    return res;
+}
+
+
 
 FILE *OpenMacro(const char *filename, int Language)
 {

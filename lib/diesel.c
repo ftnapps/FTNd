@@ -764,16 +764,16 @@ Mfunc(f_edtime)
     } pictab[] = {
 	/* Careful!  These must be sorted by descending order of
 	   picture string length. */
-	{"YYYY", "%02d", &year},
-	{"DD",	 "%02d", &mday},
-	{"HH",	 "%02d", &heure},
-	{"MM",	 "%02d", &min},
-	{"MO",	 "%02d", &tmon},
-	{"SS",	 "%02d", &sec},
-	{"YY",	 "%02d", &yearmod100},
-	{"D",	 "%d",	 &mday},
-	{"H",	 "%d",	 &heure},
-	{"M",	 "%d",	 &tmon}
+	{(char *)"YYYY", (char *)"%02d", &year},
+	{(char *)"DD",	 (char *)"%02d", &mday},
+	{(char *)"HH",	 (char *)"%02d", &heure},
+	{(char *)"MM",	 (char *)"%02d", &min},
+	{(char *)"MO",	 (char *)"%02d", &tmon},
+	{(char *)"SS",	 (char *)"%02d", &sec},
+	{(char *)"YY",	 (char *)"%02d", &yearmod100},
+	{(char *)"D",	 (char *)"%d",	 &mday},
+	{(char *)"H",	 (char *)"%d",	 &heure},
+	{(char *)"M",	 (char *)"%d",	 &tmon}
     };
 
     ArgCount(2, 2);
@@ -833,59 +833,59 @@ Mfunc(f_edtime)
 
 	if (strncasecmp(pp, lComp(month)) == 0) {
 	    static char *mois[] = {
-			"January",
-			"February",
-			"March",
-			"April",
-			"May",
-			"June",
-			"July",
-			"August",
-			"September",
-			"October",
-			"November",
-			"December" 
+			(char *)"January",
+			(char *)"February",
+			(char *)"March",
+			(char *)"April",
+			(char *)"May",
+			(char *)"June",
+			(char *)"July",
+			(char *)"August",
+			(char *)"September",
+			(char *)"October",
+			(char *)"November",
+			(char *)"December" 
 	    };
 	    V strcat(output, mois[jd->tm_mon]);
 	    pp += lcompl;
 	} else if (strncasecmp(pp, lComp(mon)) == 0) {
 	    static char *mois[] = {
-			"Jan",
-			"Feb",
-			"Mar",
-			"Apr",
-			"May",
-			"Jun",
-			"Jul",
-			"Aug",
-			"Sep",
-			"Oct",
-			"Nov",
-			"Dec" 
+			(char *)"Jan",
+			(char *)"Feb",
+			(char *)"Mar",
+			(char *)"Apr",
+			(char *)"May",
+			(char *)"Jun",
+			(char *)"Jul",
+			(char *)"Aug",
+			(char *)"Sep",
+			(char *)"Oct",
+			(char *)"Nov",
+			(char *)"Dec" 
 	    };
 	    V strcat(output, mois[jd->tm_mon]);
 	    pp += lcompl;
 	} else if (strncasecmp(pp, lComp(dddd)) == 0) {
 	    static char *jour[] = {
-			"Sunday",
-			"Monday",
-			"Tuesday",
-			"Wednesday",
-			"Thursday",
-			"Friday",
-			"Saturday"
+			(char *)"Sunday",
+			(char *)"Monday",
+			(char *)"Tuesday",
+			(char *)"Wednesday",
+			(char *)"Thursday",
+			(char *)"Friday",
+			(char *)"Saturday"
 	    };
 	    V strcat(output, jour[jd->tm_wday]);
 	    pp += lcompl;
 	} else if (strncasecmp(pp, lComp(ddd)) == 0) {
 	    static char *jour[] = {
-			"Sun",
-			"Mon",
-			"Tue",
-			"Wed",
-			"Thu",
-			"Fri",
-			"Sat"
+			(char *)"Sun",
+			(char *)"Mon",
+			(char *)"Tue",
+			(char *)"Wed",
+			(char *)"Thu",
+			(char *)"Fri",
+			(char *)"Sat"
 	    };
 	    V strcat(output, jour[jd->tm_wday]);
 	    pp += lcompl;
@@ -1363,43 +1363,43 @@ Mfunc(f_xor)
 /* Macro name/function table. */
 
 static struct mfent mftab[] = {
-	{"+",	    f_plus},
-	{"-",	    f_minus},
-	{"*",	    f_times},
-	{"/",	    f_divide},
-	{"=",	    f_numeq},
-	{"<",	    f_numlt},
-	{">",	    f_numgt},
-	{"!=",	    f_numne},
-	{"<=",	    f_numle},
-	{">=",	    f_numge},
-	{"AND",     f_and},
-	{"EQ",	    f_equal},
-	{"EVAL",    f_eval},
-	{"FIX",     f_fix},
-	{"IF",	    f_if},
-	{"INDEX",   f_index},
-	{"LOWER",   f_lower},
-	{"NTH",     f_nth},
-	{"OR",	    f_or},
-	{"STRCMP",  f_strcmp},
-	{"STRFILL", f_strfill},
-	{"STRLEN",  f_strlen},
-	{"STRSTR",  f_strstr},
-	{"SUBSTR",  f_substr},
-	{"UPPER",   f_upper},
-	{"XOR",     f_xor},
+	{(char *)"+",	    f_plus},
+	{(char *)"-",	    f_minus},
+	{(char *)"*",	    f_times},
+	{(char *)"/",	    f_divide},
+	{(char *)"=",	    f_numeq},
+	{(char *)"<",	    f_numlt},
+	{(char *)">",	    f_numgt},
+	{(char *)"!=",	    f_numne},
+	{(char *)"<=",	    f_numle},
+	{(char *)">=",	    f_numge},
+	{(char *)"AND",     f_and},
+	{(char *)"EQ",	    f_equal},
+	{(char *)"EVAL",    f_eval},
+	{(char *)"FIX",     f_fix},
+	{(char *)"IF",	    f_if},
+	{(char *)"INDEX",   f_index},
+	{(char *)"LOWER",   f_lower},
+	{(char *)"NTH",     f_nth},
+	{(char *)"OR",	    f_or},
+	{(char *)"STRCMP",  f_strcmp},
+	{(char *)"STRFILL", f_strfill},
+	{(char *)"STRLEN",  f_strlen},
+	{(char *)"STRSTR",  f_strstr},
+	{(char *)"SUBSTR",  f_substr},
+	{(char *)"UPPER",   f_upper},
+	{(char *)"XOR",     f_xor},
 
 #ifdef UNIXTENSIONS
-	{"EDTIME",  f_edtime},
-	{"GETENV",  f_getenv},
-	{"TIME",    f_time},
+	{(char *)"EDTIME",  f_edtime},
+	{(char *)"GETENV",  f_getenv},
+	{(char *)"TIME",    f_time},
 #endif /* UNIXTENSIONS */
 
 #ifdef VARIABLES
-	{"CLEAR",   f_clear},
-	{"GETVAR",  f_getvar},
-	{"SETVAR",  f_setvar},
+	{(char *)"CLEAR",   f_clear},
+	{(char *)"GETVAR",  f_getvar},
+	{(char *)"SETVAR",  f_setvar},
 #endif /* VARIABLES */
 };
 
@@ -1595,7 +1595,7 @@ static int macrovalue(int nargs, char *args, char *output)
     int i;
 
     for (i = 0; i < MAXARGS; i++) {
-	argv[i] = "";
+	argv[i] = (char *)"";
     }
     for (i = 0; i < nargs; i++) {
 	argv[i] = args;
@@ -1664,18 +1664,18 @@ static int macroeval(char **in, char **out)
     char *ip = *in, *op = *out;
     char margs[MAXSTR], mvalue[MAXSTR];
     char *ma = margs;
-    int stat, nargs;
+    int mstat, nargs;
 
-    nargs = stat = macromode(&ip, &ma);
+    nargs = mstat = macromode(&ip, &ma);
 
-    if (stat > 0) {
+    if (mstat > 0) {
 #ifdef ECHOMAC
 	*op++ = ' ';
 	*op++ = '<';
-	V sprintf(op, "(%d)", stat);
+	V sprintf(op, "(%d)", mstat);
 	op += strlen(op);
 	ma = margs;
-	while (stat-- > 0) {
+	while (mstat-- > 0) {
 	    int l = strlen(ma);
 
 	    V strcpy(op, ma);
@@ -1689,25 +1689,25 @@ static int macroeval(char **in, char **out)
 
 	/* Evaluate the macro. */
 
-	stat = macrovalue(nargs, margs, mvalue);
+	mstat = macrovalue(nargs, margs, mvalue);
 	V strcpy(op, mvalue);
 	op += strlen(mvalue);
 #ifdef ECHOMAC
-	if (stat == FALSE || stat == DIAGNOSTIC) {
+	if (mstat == FALSE || mstat == DIAGNOSTIC) {
 	    V strcpy(op, "*ERR*");
 	    op += 5;
 	}
 	*op++ = ' ';
 #endif
     } else {
-	stat = FALSE;
+	mstat = FALSE;
     }
 
     *op++ = EOS;
     *out = op;
     *in = ip;
 
-    return stat;
+    return mstat;
 }
 
 /*  DIESEL  --	Evaluate a string IN and  return  the  value  in  OUT.
@@ -1715,19 +1715,19 @@ static int macroeval(char **in, char **out)
 		error was detected, returns the column	at  which  the
 		error was found. */
 
-int diesel(const char *in, char *out)
+int diesel(char *in, char *out)
 {
-    int stat;
+    int dstat;
     char *inp = in, *outp = out;
 
     while (TRUE) {
-	stat = copymode(&inp, &outp);
-	if (stat == 1) {
+	dstat = copymode(&inp, &outp);
+	if (dstat == 1) {
 	    char margs[MAXSTR];
 	    char *ma = margs;
 
-	    stat = macroeval(&inp, &ma);
-	    if (stat > 0) {
+	    dstat = macroeval(&inp, &ma);
+	    if (dstat > 0) {
 
 		/* If we're about to overflow the output string,  bail
 		   out of  the	evaluation  and  append  the  overflow
@@ -1749,7 +1749,7 @@ int diesel(const char *in, char *out)
 	    /* Error  detected	in  macro  evaluation  which  placed a
 	       diagnostic string in the output.  */
 
-	    if (stat == DIAGNOSTIC) {
+	    if (dstat == DIAGNOSTIC) {
 		return inp - in;
 	    }
 	} else {
@@ -1758,147 +1758,9 @@ int diesel(const char *in, char *out)
 	}
     }
 
-    return stat;
+    return dstat;
 }
 
-void MacroVars( const char *codes, const char *fmt, ...)
-{
-	char *tmp1, *tmp2;
-	va_list ap;
-	int j;
-	int dieselrc;	
-	char *vs;
-	int vd;
-	char vc;
-	double vf;
-
-	tmp1=calloc(256,sizeof(char));
-	tmp2=calloc(256,sizeof(char));
-
-	va_start(ap,fmt);
-	for ( j=0; (codes[j] != '\0') && (fmt[j] != '\0') ; j++ ){
-	     tmp1[0]='\0';
-             switch(fmt[j]) {
-                   case 's':           /* string */
-                        vs = va_arg(ap, char *);
-			sprintf(tmp1,"@(setvar,%c,%s)",codes[j],vs);
-                        break;
- 	           case 'd':           /* int */
-                        vd = va_arg(ap, int);
-			sprintf(tmp1,"@(setvar,%c,%d)",codes[j],vd);
-                        break;
-                   case 'c':           /* char */
-                        vc = va_arg(ap, char);
-			sprintf(tmp1,"@(setvar,%c,%c)",codes[j],vc);
-                        break;
-                   case 'f':           /* char */
-                        vf = va_arg(ap, double);
-			sprintf(tmp1,"@(setvar,%c,%f)",codes[j],vf);
-                        break;
-                   }
-                   dieselrc=diesel(tmp1,tmp2);
-	}
-	va_end(ap);
-	free(tmp1);
-	free(tmp2);
-}
-
-void MacroClear(void)
-{
-	int dieselrc;
-	char tmp1[]="@(CLEAR)",*tmp2;
-	tmp2=calloc(10,sizeof(char));
-	dieselrc=diesel(tmp1,tmp2);
-	free(tmp2);
-}
-
-char *ParseMacro( const char *line, int *dieselrc)
-{
-	static char res[256];
-	char *tmp1,*tmp2,*tmp3;
-	char *i; 
-	int j;
-	int l;
-	char code;
-
-	res[0]='\0';
-	*dieselrc=0;
-
-	if ( *line == '#' )
-	   return res;
-
-	tmp1 = calloc(256,sizeof(char));
-	tmp2 = calloc(256,sizeof(char));
-	tmp3 = calloc(256,sizeof(char));
-
-	tmp1[0]='\0';
-
-	for ( i=line ; i[0] != '\0'; i++){
-		if ( (i[0] == '@') && isalpha(i[1]) ){
-		   l=2;
-		   i++;
-		   if (i[0] != '@') { 	
-			if ((code = i[0]) != '\0' ) 
-			   i++;
-			while (( i[0] == '_') || ( i[0] == '>') || ( i[0] == '<') ){
-				l++;
-				i++;
-			}
-			i--;
-			sprintf(tmp2,"@(GETVAR,%c)",code);
-			if (!diesel(tmp2,tmp3)==0){
-			    sprintf(tmp3,"%c%c",'@',code);
-			}
-			if (l>2){
-			    if ( *i != '>')
-			    	l=-l;
-			    sprintf(&tmp1[strlen(tmp1)],"%*.*s",l,l, tmp3);
-			}else{
-			    sprintf(&tmp1[strlen(tmp1)],"%s",tmp3);
-			}
-		   }else{
-			tmp1[(j=strlen(tmp1))]='@';
-			tmp1[j+1]='\0';
-		   }
-		}else{
-		   tmp1[(j=strlen(tmp1))]=i[0];
-		   tmp1[j+1]='\0';
-		}
-	}
-
-	i = tmp1;
-	sprintf(tmp2,"%s",tmp1);
-	
-	if ((tmp1[0]=='@') && (tmp1[1]=='{')){
-	   i++;
-	   i++;
-	   for (j=2; ((tmp1[j]!='}') && (tmp1[j]!='\0'));j++){
-		i++;
-	   }
-	   if ( (tmp1[j]=='}') ){
-	      i++;
-	      res[0]='\0';
-	      if (j>2)
-		 sprintf(res,"%.*s",j-2,&tmp1[2]);
-	      if ((diesel(res,tmp3)!=0) || (atoi(tmp3)==0))
-	         sprintf(tmp2,"@!%s",i);
-	      else
-		 sprintf(tmp2,"%s",i);   
-	   }
-	}
-	*dieselrc=diesel(tmp2, res);
-
-	free(tmp1);
-	free(tmp2);
-	free(tmp3);
-	while (isspace(res[strlen(res) - 1])) {
-	    res[strlen(res) - 1] = EOS;
-	}
-	sprintf(&res[strlen(res)],"\r\n");
-        if ((res[0] == '@') && (res[1] =='!' ))
-		res[0]='\0';
-	return res;
-}
 
 #ifdef TESTPROG
 

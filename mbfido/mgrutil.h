@@ -4,6 +4,7 @@
 #define	_MGRUTIL_H
 
 
+void MacroRead(FILE *, FILE *);
 int  MsgResult(const char *, FILE * );
 void GetRpSubject(const char *, char*);
 

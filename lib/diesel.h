@@ -39,15 +39,15 @@ int tracing = TRUE;		      /* Trace macro evalution */
 #define FUZZEQ(a, b) ((((a) < (b)) ? ((b) - (a)) : ((a) - (b))) < 1E-10)
 
 
-int diesel(const char *, char *);
-char *ParseMacro( const char *, int * );
-void MacroVars( const char *, const char *, ... );
-void MacroClear(void);
+int diesel(char *, char *);
 
 
 /*
  * MBSE BBS specific functions
  */
+char *ParseMacro( const char *, int * );
+void MacroVars( const char *, const char *, ... );
+void MacroClear(void);
 FILE *OpenMacro(const char *, int);
 
 #endif

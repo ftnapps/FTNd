@@ -45,36 +45,67 @@
 extern int	net_out;
 
 
+void MacroRead(FILE *fi, FILE *fp)
+{
+    char    *line, *temp;
+    int	    res;
+
+    line = calloc(256, sizeof(char));
+    temp = calloc(256, sizeof(char));
+
+    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {
+	/*
+	 * Skip comment lines
+	 */
+	if (line[0] != '#') {
+	    Striplf(line);
+	    if (strlen(line) == 0) {
+		/*
+		 * Empty lines are just written
+		 */
+		fprintf(fp, "\r");
+	    } else {
+		strncpy(temp, ParseMacro(line,&res), 254);
+		if (res)
+		    Syslog('!', "Macro error line: \"%s\"", line);
+		/*
+		 * Only output if something was evaluated
+		 */
+		if (strlen(temp))
+		    fprintf(fp, "%s\r", temp);
+	    }
+	}
+    }
+    free(line);
+    free(temp);
+}
+
+
 
 /*
  * Write Echomail groups list to tempfile
  */
 void WriteMailGroups(FILE *fp, faddr *f)
 {
-	int	Count = 0, First = TRUE, res;
-	char	*Group, *temp, *line;
+	int	Count = 0, First = TRUE;
+	char	*Group, *temp;
 	FILE	*gp,*fi;
 	faddr	*g;
 	fpos_t  fileptr;
 
-	temp = calloc(128, sizeof(char));
-	line = calloc(256, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	fi=NULL;
-	fi=OpenMacro("areamgr.group", nodes.Language);
-	if (fi != NULL){
- 	    while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    	fprintf( fp, "%s", ParseMacro(line,&res));
- 	    }
+
+	if ((fi = OpenMacro("areamgr.group", nodes.Language)) != NULL){
+	    MacroRead(fi, fp);
 	    fgetpos(fi,&fileptr);
-	}else{
+	} else {
 		fprintf(fp, "Dear %s\r\r", nodes.Sysop);
 		fprintf(fp, "The following is a list of mail groups at %s\r\r", ascfnode(f, 0x1f));
 	}
 	if ((gp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);
 		free(temp);
-		free(line);
 		return;
 	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
@@ -96,11 +127,9 @@ void WriteMailGroups(FILE *fp, faddr *f)
 			    (g->zone  == f->zone) && (g->net   == f->net) &&
 			    (g->node  == f->node) && (g->point == f->point)) {
 			        if (fi !=NULL){	
- 	    			    MacroVars("gh", "ss", mgroup.Name, mgroup.Comment );
-				    fsetpos(fi,&fileptr);
-		 		    while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    		    	        fprintf( fp, "%s", ParseMacro(line,&res));
- 		    		    }
+ 	    			    MacroVars("gh", "ss", mgroup.Name, mgroup.Comment);
+				    fsetpos(fi, &fileptr);
+				    MacroRead(fi, fp);
 			        }else{
 				    fprintf(fp, "%-12s %s\r", mgroup.Name, mgroup.Comment);
 				}    
@@ -111,16 +140,13 @@ void WriteMailGroups(FILE *fp, faddr *f)
 	}
 	if (fi != NULL){	
  	    MacroVars("b", "d", Count );
- 	    while ( fgets(line, 254, fi) != NULL ){
- 	    	fprintf( fp, "%s", ParseMacro(line,&res));
- 	    }
+	    MacroRead(fi, fp);
 	    fclose(fi);
 	}else{
 		fprintf(fp, "--------------------------------------------------------------------\r");
 		fprintf(fp, "%d group(s)\r\r\r", Count);
 	}
 	fclose(gp);
-	free(line);
 	free(temp);
 }
 
@@ -131,21 +157,17 @@ void WriteMailGroups(FILE *fp, faddr *f)
  */
 void WriteFileGroups(FILE *fp, faddr *f)
 {
-	int	Count = 0, First = TRUE, res;
-	char	*Group, *temp, *line;
+	int	Count = 0, First = TRUE;
+	char	*Group, *temp;
 	FILE	*gp, *fi;
 	faddr	*g;
 	fpos_t	fileptr;
 
 	temp = calloc(128, sizeof(char));
-	line = calloc(256, sizeof(char));
 	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	fi=NULL;
-	fi=OpenMacro("filemgr.group", nodes.Language);
-        if (fi != NULL){
- 	    while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
-                fprintf( fp, "%s", ParseMacro(line,&res));
-            }
+	
+        if ((fi = OpenMacro("filemgr.group", nodes.Language)) != NULL){
+	    MacroRead(fi, fp);
             fgetpos(fi,&fileptr);
         }else{
 		fprintf(fp, "Dear %s\r\r", nodes.Sysop);
@@ -154,7 +176,6 @@ void WriteFileGroups(FILE *fp, faddr *f)
 	if ((gp = fopen(temp, "r")) == NULL) {
 		WriteError("$Can't open %s", temp);
 		free(temp);
-		free(line);
 		return;
 	}
 	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
@@ -178,9 +199,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
 			        if (fi !=NULL){	
  	    			    MacroVars("gh", "ss", fgroup.Name, fgroup.Comment );
 				    fsetpos(fi,&fileptr);
-		 		    while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    		    	        fprintf( fp, "%s", ParseMacro(line,&res));
- 		    		    }
+				    MacroRead(fi, fp);
 			        }else{
 				    fprintf(fp, "%-12s %s\r", fgroup.Name, fgroup.Comment);
 				}
@@ -191,16 +210,13 @@ void WriteFileGroups(FILE *fp, faddr *f)
 	}
 	if (fi != NULL){	
  	    MacroVars("b", "d", Count );
- 	    while ( fgets(line, 254, fi) != NULL ){
- 	    	fprintf( fp, "%s", ParseMacro(line,&res));
- 	    }
+	    MacroRead(fi, fp);
 	    fclose(fi);
 	}else{
 	    fprintf(fp, "--------------------------------------------------------------------\r");
 	    fprintf(fp, "%d group(s)\r\r\r", Count);
 	}
 	fclose(gp);
-	free(line);
 	free(temp);
 }
 
@@ -429,33 +445,41 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
 }
 
 
+
 void GetRpSubject(const char *report, char* subject)
 {
-    FILE *fi;
-    char *temp;
-    int res;
+    FILE    *fi;
+    char    *temp;
+    int	    res;
+
     temp = calloc(256,sizeof(char)); 
     if ((fi=OpenMacro(report, nodes.Language))!=NULL){
        while ( fgets(temp, 254, fi) != NULL )
+	   if (temp[0] != '#')
           	ParseMacro(temp,&res);
        fclose(fi);
     }
-    res=diesel("@(getvar,subject)",temp);
-    Syslog('d', "diesel: %d %s", res, temp);
+    
+    res=diesel((char *)"@(getvar,subject)",temp);
+    
     if(res==0)
     	sprintf(subject,"%s",temp);
     free(temp);
 }
 
+
+
 int MsgResult(const char * report, FILE *fo)
 {
-    FILE *fi;
-    char *temp;
-    int res;
+    FILE    *fi;
+    char    *temp;
+    int	    res;
+
     temp = calloc(256,sizeof(char)); 
     if ((fi=OpenMacro(report, nodes.Language))!=NULL){
         while ( fgets(temp, 254, fi) != NULL ){
-	   fprintf(fo,"%s",ParseMacro(temp,&res));
+	    if (temp[0] != '#')
+		fprintf(fo,"%s\r",ParseMacro(temp,&res));
 	}
         fclose(fi);
         res=1;

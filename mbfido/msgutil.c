@@ -37,6 +37,7 @@
 #include "../lib/dbcfg.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
+#include "../lib/diesel.h"
 #include "msgutil.h"
 
 
@@ -44,7 +45,8 @@ extern int		do_quiet;		/* Supress screen output    */
 
 
 /*
- * Translation table from Hi-USA-ANSI to Lo-ASCII
+ * Translation table from Hi-USA-ANSI to Lo-ASCII,
+ * currently only ANSI graphics are translated.
  */
 char lotab[] = {
 "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017"
@@ -58,9 +60,9 @@ char lotab[] = {
 "\200\201\202\203\204\205\206\207\210\211\212\213\214\215\216\217"
 "\220\221\222\223\224\225\226\227\230\231\232\233\234\235\236\237"
 "\240\241\242\243\244\245\246\247\250\251\252\253\254\255\256\257"
-"\260\261\262\263\264\265\266\267\270\271\272\273\274\275\276\277"
-"\300\301\302\303\304\305\306\307\310\311\312\313\314\315\316\317"
-"\320\321\322\323\324\325\326\327\330\331\332\333\334\335\336\337"
+"\260\261\262\174\053\053\053\053\053\043\174\043\043\053\053\053"
+"\053\053\053\053\053\053\053\053\043\043\043\043\043\075\043\053"
+"\053\053\053\053\053\053\053\053\053\053\053\333\334\335\336\337"
 "\340\341\342\343\344\345\346\347\350\351\352\353\354\355\356\357"
 "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
 };
@@ -99,12 +101,77 @@ void Msg_Pid(void)
 
 
 
-void Msg_Top(void)
+void Msg_Macro(FILE *fi)
 {
-	char	*temp;
-	FILE	*fp;
+    char    *temp, *line;
+    int	    res;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(256, sizeof(char));
+    line = calloc(256, sizeof(char));
+
+    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {
+	/*
+	 * Skip comment lines
+	 */
+	if (line[0] != '#') {
+	    Striplf(line);
+	    if (strlen(line) == 0) {
+		/*
+		 * Empty lines are just written
+		 */
+		MsgText_Add2((char *)"");
+		Syslog('-', " ");
+	    } else {
+		strncpy(temp, ParseMacro(line,&res), 254);
+		if (res)
+		    Syslog('!', "Macro error line: \"%s\"", line);
+		/*
+		 * Only output if something was evaluated
+		 */
+		if (strlen(temp)) {
+		    MsgText_Add2(temp);
+		    Syslog('-', "%s", temp);
+		}
+	    }
+	}
+    }
+
+    free(line);
+    free(temp);
+}
+
+
+
+long Msg_Top(char *template, int language, fidoaddr aka)
+{
+    char    *temp;
+    FILE    *fp, *fi;
+    long    fileptr, fileptr1 = 0L;
+
+    MacroVars("YSNLTUMH", "ssssssss", aka2str(aka), CFG.sysop_name, CFG.bbs_name, CFG.location, 
+					CFG.comment, CFG.sysop, CFG.sysdomain, CFG.www_url);
+    temp = calloc(PATH_MAX, sizeof(char));
+
+    if ((fi = OpenMacro(template, language))) {
+	Msg_Macro(fi);
+	fileptr = ftell(fi);
+    
+	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "r")) != NULL) {
+	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
+
+	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
+		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && ttyinfo.available && strlen(ttyinfo.phone)) {
+		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
+		    fseek(fi, fileptr, SEEK_SET);
+		    Msg_Macro(fi);
+		    fileptr1 = ftell(fi);
+		}
+	    }
+	    fclose(fp);
+	}
+	fclose(fi);
+    } else {
 	sprintf(temp, "System name   %s", CFG.bbs_name);
 	MsgText_Add2(temp);
 	sprintf(temp, "Sysop         %s", CFG.sysop_name);
@@ -118,43 +185,42 @@ void Msg_Top(void)
 	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) != NULL) {
 
-		MsgText_Add2((char *)"Line Phone number         Maximum speed        Fidonet Flags");
-		MsgText_Add2((char *)"---- -------------------- -------------------- -------------------------");
-		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
+	    MsgText_Add2((char *)"Line Phone number         Maximum speed        Fidonet Flags");
+	    MsgText_Add2((char *)"---- -------------------- -------------------- -------------------------");
+	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
-		while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
-			if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) &&
-		              ttyinfo.available && strlen(ttyinfo.phone)) {
-				switch (ttyinfo.type) {
-					case POTS:	sprintf(temp, "POTS %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
-							break;
-					case ISDN:	sprintf(temp, "ISDN %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
-							break;
-				}
-				MsgText_Add2(temp);
-			}
+	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
+		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) &&
+		    ttyinfo.available && strlen(ttyinfo.phone)) {
+		    switch (ttyinfo.type) {
+			case POTS:  sprintf(temp, "POTS %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
+				    break;
+			case ISDN:  sprintf(temp, "ISDN %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
+				    break;
+		    }
+		    MsgText_Add2(temp);
 		}
-
-		fclose(fp);
+	    }
+	    fclose(fp);
 	}
 
 	MsgText_Add2((char *)"");
 	MsgText_Add2((char *)"");
-	free(temp);
+    }
+    
+    free(temp);
+    return fileptr1;
 }
 
 
 
-void Msg_Bot(fidoaddr UseAka, char *Org)
+void Msg_Bot(fidoaddr UseAka, char *Org, char *template)
 {
 	char	*temp, *aka;
 
 	temp = calloc(81, sizeof(char));
 	aka  = calloc(40, sizeof(char));
 
-	MsgText_Add2((char *)"");
-	sprintf(temp, "With regards, %s", CFG.sysop_name);
-	MsgText_Add2(temp);
 	MsgText_Add2((char *)"");
 	MsgText_Add2(TearLine());
 

@@ -78,8 +78,7 @@ void F_Help(faddr *, char *);
 void F_Help(faddr *t, char *replyid)
 {
     FILE	*fp, *fi;
-    char	*line,*subject;
-    int		res;
+    char	*subject;
 
     Syslog('+', "FileMgr: Help");
     subject=calloc(255,sizeof(char));
@@ -89,13 +88,9 @@ void F_Help(faddr *t, char *replyid)
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
  	    if ( (fi=OpenMacro("filemgr.help", nodes.Language)) != NULL ){
-                line = calloc(255, sizeof(char));
  	    	MacroVars("SNAP", "ssss", nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
- 	    	while ( fgets(line, 254, fi) != NULL ){
- 	    		fprintf( fp, "%s", ParseMacro(line,&res));
- 	    	}
+		MacroRead(fi, fp);
  	    	MacroClear();
- 	    	free(line);
  	    	fclose(fi);
  	    }else{
 		fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Filemgr");
@@ -155,8 +150,8 @@ void F_Query(faddr *t, char *replyid)
 void F_List(faddr *t, char *replyid, int Notify)
 {
     FILE	*qp, *gp, *fp, *fi;
-    char	*temp, *Group, *line, *subject;
-    int		i, First = TRUE, SubTot, Total = 0, Cons, res;
+    char	*temp, *Group, *subject;
+    int		i, First = TRUE, SubTot, Total = 0, Cons;
     char	Stat[4];
     faddr	*f, *g;
     sysconnect	System;
@@ -215,11 +210,8 @@ void F_List(faddr *t, char *replyid, int Notify)
 	    fi=OpenMacro("filemgr.query", nodes.Language);
 	if (Notify>=LIST_UNLINK)
 	    fi=OpenMacro("filemgr.unlink", nodes.Language);
-	line=calloc(256,sizeof(char));
 	if (fi != NULL){
- 	    	while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    		fprintf( qp, "%s", ParseMacro(line,&res));
- 	    	}
+		MacroRead(fi, qp);
 		fgetpos(fi,&fileptr);
 	}else{
 		fprintf(qp, "The following is a list of file areas\r\r");
@@ -229,7 +221,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 	if ((fp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
-	    free(line);
 	    free(subject);
 	    MacroClear();
 	    return;
@@ -241,7 +232,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 	if ((gp = fopen(temp, "r")) == NULL) {
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
-	    free(line);
 	    free(subject);
 	    MacroClear(); 
 	    fclose(fp);
@@ -266,9 +256,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 		    if (fi != NULL){	
  	    		MacroVars("GHI", "sss",fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka) );
 			fsetpos(fi,&fileptr);
-	 	    	while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    		    fprintf( qp, "%s", ParseMacro(line,&res));
- 		    	}
+			MacroRead(fi, qp);
 			fgetpos(fi,&fileptr1);
 		    }else{
 			    fprintf(qp, "Group %s - %s (%s)\r\r", fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka));
@@ -309,9 +297,7 @@ void F_List(faddr *t, char *replyid, int Notify)
  	    			                            (Stat[2] == 'P')
  	    			                            );
 				    fsetpos(fi,&fileptr1);
-		 		    while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
- 	    		    	        fprintf( qp, "%s", ParseMacro(line,&res));
- 		    		    }
+				    MacroRead(fi, qp);
 				    fgetpos(fi,&fileptr2);
 			        }else{
 				    fprintf(qp, "%s %-20s %s\r", Stat, tic.Name, tic.Comment);
@@ -325,16 +311,14 @@ void F_List(faddr *t, char *replyid, int Notify)
  		    if (fi != NULL){	
  	    	        MacroVars("ZA", "dd", (int) 0 , SubTot );
 			fsetpos(fi,&fileptr2);
- 			while ( (fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))){
-	                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
-  				MacroVars("Z","d",1);
-                        	Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
-                        	CloseMail(qp, t);
-                        	qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid);
-  				msgptr = ftell(qp);
-	                    }
- 	    		    fprintf( qp, "%s", ParseMacro(line,&res));
- 		    	}
+			if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+			    MacroVars("Z","d",1);
+			    Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+			    CloseMail(qp, t);
+			    qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid);
+			    msgptr = ftell(qp);
+			}
+			MacroRead(fi, qp);
 		    }else{
 		    	fprintf(qp, "------------------------------------------------------------------------\r");
 		    	fprintf(qp, "%d available area(s)\r\r\r", SubTot);
@@ -353,9 +337,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 
 	if (fi != NULL){	
  	    MacroVars("B", "d", Total );
- 	    while ( fgets(line, 254, fi) != NULL ){
- 	    	fprintf( qp, "%s", ParseMacro(line,&res));
- 	    }
+	    MacroRead(fi, qp);
  	    MacroClear();
  	    fclose(fi);
 	}else{
@@ -369,7 +351,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 	}
 	fclose(fp);
 	fclose(gp);
-	free(line);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
     } else
@@ -384,8 +365,8 @@ void F_Status(faddr *, char *);
 void F_Status(faddr *t, char *replyid)
 {
     FILE    *fp, *fi;
-    int	    i,res;
-    char    *line,*subject;
+    int	    i;
+    char    *subject;
 
     subject = calloc(255, sizeof(char));
     sprintf(subject,"FileMgr Status");
@@ -424,12 +405,8 @@ void F_Status(faddr *t, char *replyid)
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
  	    if ( (fi=OpenMacro("filemgr.status", nodes.Language)) != NULL ){
-                line = calloc(255, sizeof(char));
- 	    	while ( fgets(line, 254, fi) != NULL ){
- 	    		fprintf( fp, "%s", ParseMacro(line,&res));
- 	    	}
+		MacroRead(fi, fp);
  	    	MacroClear();
- 	    	free(line);
  	    	fclose(fi);
  	    }else{
 		fprintf(fp, "Here is your fileecho status:\r\r");

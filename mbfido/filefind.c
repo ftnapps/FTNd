@@ -198,7 +198,7 @@ int StartReply(ff_list *ffl)
 	MsgText_Add2(temp);
 	Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
 	Msg_Pid();
-	Msg_Top();
+	Msg_Top(scanmgr.template, scanmgr.Language, scanmgr.Aka);
 
 	return TRUE;
 }
@@ -224,9 +224,9 @@ void FinishReply(int Reported, int Total)
 	}
 
 	if (strlen(scanmgr.Origin))
-		Msg_Bot(scanmgr.Aka, scanmgr.Origin);
+		Msg_Bot(scanmgr.Aka, scanmgr.Origin, scanmgr.template);
 	else
-		Msg_Bot(scanmgr.Aka, CFG.origin);
+		Msg_Bot(scanmgr.Aka, CFG.origin, scanmgr.template);
 	Msg_AddMsg();
 	Msg_UnLock();
 	Syslog('+', "Posted message %ld", Msg.Id);
