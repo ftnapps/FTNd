@@ -1448,7 +1448,7 @@ void edit_color(int *fg, int *bg, char *help)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw(5, 6, "1.7  EDIT COLORS");
+	mvprintw(5, 6, "1.8  EDIT COLORS");
 	sprintf(temp, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
 	showhelp(temp);
 

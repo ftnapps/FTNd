@@ -4324,10 +4324,16 @@ v0.33.19        26-Oct-2001
 		Fixed quote initials of the original user containing a space
 		character if there was a dot followed by a space in the users
 		name.
+		If Ask Date of Birth is not set in the configuration the user
+		can't change his date of birth and his age is 0 years. You
+		should not disable this if you restrict access to some file
+		areas if you want to test the users age. Also the age in the
+		users record is invalid.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
 		bbs user. Should be started by the bbs account.
+		Ask Date of Birth now only is asked if set in configuration.
 
 	mbcico:
 		Removed IEMSI support since mbsebbs doesn't support it 

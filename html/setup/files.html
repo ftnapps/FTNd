@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Jan-2001</h5>
+<h5>Last update 16-Dec-2001</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - BBS Setup - File Areas.</H1>
@@ -39,7 +39,12 @@ newfiles groups</A>.
 <strong>Files.bbs  </strong>The full path and filename if this area is on CDROM.
            You may leave this blank if it is in the Path together
            with the files.
-<strong>Available  </strong>If this area is available.
+<strong>Available  </strong>If this area is available. If you make an available
+           area unavailable the area is checked if there are 
+	   downloadable files in that area. If so, you can't remove 
+	   the area. If there are none you will be asked if you are 
+	   sure. After the area is made unavailable, the record is 
+	   filled with reasonable default values.
 <strong>Check New  </strong>Check this area for new files if a user logs in.
 <strong>Dupecheck  </strong>Check this area for duplicates if a user uploads a file.
 <strong>Free area  </strong>If all files in this area are free.

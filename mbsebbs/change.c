@@ -722,7 +722,18 @@ int Test_DOB(char *DOB)
 	int	tyear, year, month, day;
 	char	temp[40], temp1[40];
 
-	/* First check length of string */
+	/*
+	 * If Ask Date of Birth is off, assume users age is
+	 * zero, and this check is ok.
+	 */
+	if (!CFG.iDOB) {
+	    UserAge = 0;
+	    return TRUE;
+	}
+
+	/*
+	 *  First check length of string 
+	 */
 	if (strlen(DOB) != 10) {
 		Syslog('!', "Date format length %d characters", strlen(DOB));
 		/* Please enter the correct date format */
@@ -769,8 +780,10 @@ void Chg_DOB()
 {
 	char	*temp;
 
-	temp  = calloc(81, sizeof(char));
+	if (!CFG.iDOB)
+	    return;
 
+	temp  = calloc(81, sizeof(char));
 	ReadExitinfo();
 	Syslog('+', "Old DOB %s", exitinfo.sDateOfBirth);
 
@@ -790,7 +803,6 @@ void Chg_DOB()
 	WriteExitinfo();
 	free(temp);
 }
-
 
 
 

@@ -375,7 +375,8 @@ int newuser()
 	} else /* End of if Statement */
 		sprintf(usrconfig.sSex, "Unknown"); /* If set off, set to Unknown */
 
-	while (TRUE) {
+	if (CFG.iDOB) {
+	    while (TRUE) {
 		Enter(1);
 		/* Please enter your Date of Birth DD-MM-YYYY: */
 		pout(CYAN, BLACK, (char *) Language(56));
@@ -390,20 +391,22 @@ int newuser()
 		sprintf(temp2, "%04d", iLang);
 
 		if ((strcmp(temp1,temp2)) == 0) {
+		    Enter(1);
+		    /* Sorry you entered this year by mistake. */
+		    pout(LIGHTRED, BLACK, (char *) Language(57));
+		    Enter(1);
+		} else {
+		    if((strlen(temp)) != 10) {
 			Enter(1);
-			/* Sorry you entered this year by mistake. */
-			pout(LIGHTRED, BLACK, (char *) Language(57));
+			/* Please enter the correct date format */
+			pout(LIGHTRED, BLACK, (char *) Language(58));
 			Enter(1);
-		} else
-			if((strlen(temp)) != 10) {
-				Enter(1);
-				/* Please enter the correct date format */
-				pout(LIGHTRED, BLACK, (char *) Language(58));
-				Enter(1);
-			} else {
-				strcpy(usrconfig.sDateOfBirth,temp);
-				break;
-			}
+		    } else {
+			strcpy(usrconfig.sDateOfBirth,temp);
+			break;
+		    }
+		}
+	    }
 	}
 
 	usrconfig.tFirstLoginDate = ltime; /* Set first login date to current date */
