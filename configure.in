@@ -10,7 +10,7 @@ dnl General settings for MBSE BBS
 dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
 MAJOR="0"
-MINOR="38"
+MINOR="39"
 REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2003 Michiel Broek, All Rights Reserved"
