@@ -401,13 +401,10 @@ void add_path(char *lpath)
 	return;
     }
 
-	rpath = calloc(PATH_MAX, sizeof(char));
-        mbt_realpath(lpath, rpath);
-        Syslog('d', "realpath %s", MBSE_SS(rpath));
+    rpath = calloc(PATH_MAX, sizeof(char));
+    mbt_realpath(lpath, rpath);
 
     if (lstat(rpath, &sb) == 0) {
-
-Syslog('d', "add_path(%s)", rpath);
 
 	if (S_ISDIR(sb.st_mode)) {
 
@@ -687,9 +684,9 @@ void *disk_thread(void)
     disk_run = FALSE;
     Syslog('+', "Disk thread stopped");
     pthread_exit(NULL);
-#if defined(__NetBSD__)
 
-	return NULL;
+#if defined(__NetBSD__)
+    return NULL;
 #endif
 }
 

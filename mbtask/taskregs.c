@@ -489,7 +489,7 @@ char *reg_fre(void)
 	if (reginfo[i].pid) {
 	    if ((!strncmp(reginfo[i].prg, "mbsebbs", 7)) ||
 		(!strncmp(reginfo[i].prg, "mbnewusr", 8)) ||
-		(!strncmp(reginfo[i].prg, "mbftpd", 6)))
+		(!strncmp(reginfo[i].prg, "mbnntp", 6)))
 		users++;
 
 	    if ((!strncmp(reginfo[i].prg, "mbfido", 6)) ||

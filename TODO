@@ -29,9 +29,6 @@ libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.
 
-libmsgbase.a:
-	N: CRC fields are not filled.
-
 mbsebbs:
 	X: Better word wrapping or paragraph justification in editor.
 

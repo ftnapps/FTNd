@@ -42,6 +42,10 @@ v0.51.4		11-Apr-2004
 		a faked newsgroup name in echomail areas. Both settings are
 		needed for the newsserver.
 
+	mbtask:
+		Removed debug logging for the disk thread.
+		Added mbnntp to the taskregs to count as a user program.
+
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
 

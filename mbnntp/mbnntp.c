@@ -76,6 +76,25 @@ void die(int onsig)
 
 
 
+/*
+ * Check if the system is available.
+ */
+int check_free(void);
+int check_free(void)
+{
+    char    buf[128];
+
+    strcpy(buf, SockR("SBBS:0;"));
+    if (strncmp(buf, "100:2,1", 7) == 0) {
+	Syslog('+', "The system is closed");
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
@@ -131,8 +150,12 @@ int main(int argc, char *argv[])
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
-	    send_nntp("200 MBNNTP v%s server ready -- no posting allowed", VERSION);
-	    nntp();
+	    if (! check_free()) {
+		send_nntp("400 Server closed");
+	    } else {
+		send_nntp("200 MBNNTP v%s server ready -- posting allowed", VERSION);
+		nntp();
+	    }
 	}
     }
 
@@ -162,7 +185,7 @@ int get_nntp(char *buf, int max)
 		/*
 		 * Timeout
 		 */
-		send_nntp("400 Service discontinued");
+		send_nntp("400 Service discontinued, timeout");
 	    }
 	    Syslog('+', "Receiver status %s", ttystat[- c]);
 	    return c;
@@ -223,6 +246,10 @@ void nntp(void)
 	    continue;
 
 	Syslog('n', "< \"%s\"", printable(buf, 0));
+	if (! check_free()) {
+	    send_nntp("400 server closed");
+	    return;
+	}
 
 	/*
 	 * Process received command
