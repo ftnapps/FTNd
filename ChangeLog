@@ -28,6 +28,8 @@ v0.35.01	05-Jun-2002
 		Irex and patched BinkP versions.
 		Better error handling for error conditions during a binkp
 		session.
+		Fixed a problem with the calculated filetransfer speed with
+		large files on fast connections.
 
 	mbfile:
 		Added -v commandline switch to supress virus checking for the
