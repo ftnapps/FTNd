@@ -5,7 +5,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -238,7 +238,7 @@ int cookedport(void)
 {
     Syslog('t', "SIGHUP => SIG_IGN");
     signal(SIGHUP, SIG_IGN);
-    Syslog('t', "SIGHUP => SIG_IGN");
+    Syslog('t', "SIGPIPE => SIG_IGN");
     signal(SIGPIPE, SIG_IGN);
     if (isatty(0)) 
 	return tty_cooked();

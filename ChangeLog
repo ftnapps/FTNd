@@ -5,11 +5,14 @@ v0.39.9		29-Jan-2004
 	general:
 		Changed first time installation to install mbcico itself again
 		to handle incoming telnet sessions at port 60177. The program
-		mbtelind is obsolete, this was a temporary hack.
+		mbtelind is obsolete, this was a temporary hack. Change your
+		inetd or xinetd configuration for itn (tfido) calls. 
+		See the documentation of mbcico how to do this.
 
 	mbcico:
-		Added experimental code for telnet outbound connections. This
-		code is not compiled by default so don't worry or bother.
+		Added telnet input and output filters so we can now call and
+		answer telnet (ITN) sessions. We don't need mbtelind anymore
+		to handle incoming calls.
 
 	mbsetup:
 		Clearing the working message is now only done by the keyboard

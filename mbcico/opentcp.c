@@ -40,7 +40,6 @@
 #include "session.h"
 #include "ttyio.h"
 #include "openport.h"
-#include "telnet.h"
 #include "opentcp.h"
 
 
@@ -71,11 +70,9 @@ int opentcp(char *name)
     struct servent	*se;
     struct hostent	*he;
     struct sockaddr_in  server;
-    int			a1, a2, a3, a4, rc, Fd, Fdo, GotPort = FALSE;
+    int			a1, a2, a3, a4, GotPort = FALSE;
     char		*errmsg, *portname;
     short		portnum;
-    int			input_pipe[2], output_pipe[2];
-    pid_t		fpid;
 
     Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(name));
 
@@ -106,13 +103,11 @@ int opentcp(char *name)
 				else
 				    server.sin_port = htons(FIDOPORT);
 				break;
-#ifdef USE_EXPERIMENT
 	    case TCPMODE_ITN:   if ((se = getservbyname("telnet", "tcp")))
 				    server.sin_port = se->s_port;
 				else
 				    server.sin_port = htons(TELNPORT);
 				break;
-#endif
 	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
 				    server.sin_port = se->s_port;
 				else
@@ -145,128 +140,32 @@ int opentcp(char *name)
     Syslog('d', "SIGHUP => linedrop()");
     signal(SIGHUP, linedrop);
 
-#ifdef USE_EXPERIMENT
-    if (tcp_mode == TCPMODE_ITN) {
-	Syslog('s', "Installing telnet filter...");
+    fflush(stdin);
+    fflush(stdout);
+    setbuf(stdin,NULL);
+    setbuf(stdout,NULL);
+    close(0);
+    close(1);
 
-	/*
-	 * Create TCP socket and open
-	 */
-	if ((Fdo = socket(AF_INET,SOCK_STREAM,0)) == -1) {
-	    WriteError("$Cannot create socket");
-	    return -1;
-	}
-	if (connect(Fdo,(struct sockaddr *)&server,sizeof(server)) == -1) {
-	    Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
-	    return -1;
-	}
-	Syslog('s', "socket %d", Fdo);
-
-	/*
-	 * Close stdin and stdout so that when we create the pipes to
-	 * the telnet filter they get stdin and stdout as file descriptors.
-	 */
-	fflush(stdin);
-	fflush(stdout);
-	setbuf(stdin,NULL);
-	setbuf(stdout, NULL);
-	close(0);
-	close(1);
-
-	/*
-	 * Create output pipe and start output filter.
-	 */
-	if ((rc = pipe(output_pipe)) == -1) {
-	    WriteError("$could not create output_pipe");
-	    return -1;
-	}
-	fpid = fork();
-	switch (fpid) {
-	    case -1:    WriteError("fork for telout_filter failed");
-			return -1;
-	    case 0:     if (close(output_pipe[1]) == -1) {
-			    WriteError("$error close output_pipe[1]");
-			    return -1;
-			}
-			telout_filter(output_pipe[0], Fdo);
-			/* NOT REACHED */
-	}
-	if (close(output_pipe[0] == -1)) {
-	    WriteError("$error close output_pipe[0]");
-	    return -1;
-	}
-	Syslog('s', "telout_filter forked with pid %d", fpid);
-
-	/*
-	 * Create input pipe and start input filter
-	 */
-	if ((rc = pipe(input_pipe)) == -1) {
-	    WriteError("$could not create input_pipe");
-	    return -1;
-	}
-	fpid = fork();
-	switch (fpid) {
-	    case -1:    WriteError("fork for telin_filter failed");
-			return -1;
-	    case 0:	if (close(input_pipe[0]) == -1) {
-			    WriteError("$error close input_pipe[0]");
-			    return -1;
-			}
-			telin_filter(input_pipe[1], Fdo);
-			/* NOT REACHED */
-	}
-	if (close(input_pipe[1]) == -1) {
-	    WriteError("$error close input_pipe[1]");
-	    return -1;
-	}
-	Syslog('s', "telin_filter forked with pid %d", fpid);
-
-	Syslog('s', "stdout = %d", output_pipe[1]);
-	Syslog('s', "stdin  = %d", input_pipe[0]);
-
-	if ((input_pipe[0] != 0) || (output_pipe[1] != 1)) {
-	    WriteError("Failed to create pipes on stdin and stdout");
-	    return -1;
-	}
-
-	Syslog('+', "Telnet I/O filters installed");
-	telnet_init(Fdo); /* Do we need that as originating system? */
-	f_flags=0;
-
-    } else {
-#endif
-	/*
-	 * Transparant 8 bits connection
-	 */
-	fflush(stdin);
-	fflush(stdout);
-	setbuf(stdin,NULL);
-	setbuf(stdout,NULL);
-	close(0);
-	close(1);
-
-	if ((Fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
-	    WriteError("$Cannot create socket (got %d, expected 0)", Fd);
-	    open("/dev/null",O_RDONLY);
-	    open("/dev/null",O_WRONLY);
-	    return -1;
-	}
-	if (dup(Fd) != 1) {
-	    WriteError("$Cannot dup socket");
-	    open("/dev/null",O_WRONLY);
-	    return -1;
-	}
-	clearerr(stdin);
-	clearerr(stdout);
-	if (connect(Fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
-	    Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
-	    return -1;
-	}
-
-	f_flags=0;
-#ifdef USE_EXPERIMENT
+    if ((fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
+        WriteError("$Cannot create socket (got %d, expected 0)", fd);
+        open("/dev/null",O_RDONLY);
+        open("/dev/null",O_WRONLY);
+        return -1;
     }
-#endif
+    if (dup(fd) != 1) {
+        WriteError("$Cannot dup socket");
+        open("/dev/null",O_WRONLY);
+        return -1;
+    }
+    clearerr(stdin);
+    clearerr(stdout);
+    if (connect(fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
+        Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
+	return -1;
+    }
+
+    f_flags=0;
 
     Syslog('+', "Established %s/TCP connection with %s, port %d", 
 	(tcp_mode == TCPMODE_IFC) ? "IFC":(tcp_mode == TCPMODE_ITN) ?"ITN":(tcp_mode == TCPMODE_IBN) ? "IBN":"Unknown",
@@ -286,14 +185,6 @@ void closetcp(void)
 
     if (!tcp_is_open)
 	return;
-
-#ifdef USE_EXPERIMENT
-    if (tcp_mode == TCPMODE_ITN) {
-	/*
-	 * Check if telout thread is running
-	 */
-    }
-#endif
 
     shutdown(fd, 2);
     Syslog('d', "SIGHUP => SIG_IGN");

@@ -87,10 +87,8 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
     int	    rc = MBERR_OK, addrlen = sizeof(struct sockaddr_in);
     fa_list *tmpl;
-#ifdef USE_EXPERIMENT
-    int	    Fdo, input_pipe[2], output_pipe[2];
-    pid_t   fpid;
-#endif
+    int	    Fdo = -1, input_pipe[2], output_pipe[2];
+    pid_t   ipid, opid;
 
     session_flags = 0;
     type = tp;
@@ -115,9 +113,9 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    }
 	}
 	session_flags |= SESSION_TCP;
-#ifdef USE_EXPERIMENT
-	if ((tcp_mode == TCPMODE_ITN) && (role == 0)) {
-	    Syslog('-', "Will need to install telnet receiver thread");
+
+	if (tcp_mode == TCPMODE_ITN) {
+	    Syslog('s', "Installing telnet filter...");
 
 	    /*
 	     * First make sure the current input socket gets a new file descriptor
@@ -144,8 +142,8 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		WriteError("$could not create output_pipe");
 		die(MBERR_TTYIO_ERROR);
 	    }
-	    fpid = fork();
-	    switch (fpid) {
+	    opid = fork();
+	    switch (opid) {
 		case -1:    WriteError("fork for telout_filter failed");
 			    die(MBERR_TTYIO_ERROR);
 		case 0:     if (close(output_pipe[1]) == -1) {
@@ -159,7 +157,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		WriteError("$error close output_pipe[0]");
 		die(MBERR_TTYIO_ERROR);
 	    }
-	    Syslog('s', "telout_filter forked with pid %d", fpid);
+	    Syslog('s', "telout_filter forked with pid %d", opid);
 	
 	    /*
 	     * Create input pipe and start input filter
@@ -168,8 +166,8 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		WriteError("$could not create input_pipe");
 		die(MBERR_TTYIO_ERROR);
 	    }
-	    fpid = fork();
-	    switch (fpid) {
+	    ipid = fork();
+	    switch (ipid) {
 		case -1:    WriteError("fork for telin_filter failed");
 			    die(MBERR_TTYIO_ERROR);
 		case 0:     if (close(input_pipe[0]) == -1) {
@@ -183,7 +181,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 		WriteError("$error close input_pipe[1]");
 		die(MBERR_TTYIO_ERROR);
 	    }
-	    Syslog('s', "telin_filter forked with pid %d", fpid);
+	    Syslog('s', "telin_filter forked with pid %d", ipid);
 
 	    Syslog('s', "stdout = %d", output_pipe[1]);
 	    Syslog('s', "stdin  = %d", input_pipe[0]);
@@ -195,7 +193,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    Syslog('+', "Telnet I/O filters installed");
 	    telnet_init(Fdo);
 	}
-#endif
     }
 
     if (data)
@@ -263,6 +260,21 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	 */
 	if (rc == 0)
 	    putstatus(tmpl->addr, 0, 0);
+    }
+
+    /*
+     * If the socket for the telnet filter is open, close it so that the telnet filters exit.
+     * After that wait a little while to let the filter childs die before the main program
+     * does, else we get zombies.
+     */
+    if (Fdo != -1) {
+	Syslog('s', "shutdown filter sockets and stdio");
+	shutdown(Fdo, 2);
+	close(0);
+	close(1);
+	close(output_pipe[1]);
+	close(input_pipe[0]);
+	msleep(100); 
     }
 
     tidy_falist(&remote);

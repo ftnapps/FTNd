@@ -49,6 +49,8 @@ clean:
 install:	all
 		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 4751 mbcico    ${BINDIR}
 		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbout     ${BINDIR}
+		@rm -f ${BINDIR}/mbtelind
+		@rm -f ${BINDIR}/mbtelout
 
 mbcico:		${MBCICO_OBJS} ${LIBS}
 		${CC} -o mbcico ${MBCICO_OBJS} ${LDFLAGS} ${LIBS}
@@ -105,7 +107,7 @@ emsidat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/reco
 filelist.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h config.h session.h filelist.h
 openfile.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/common.h ../lib/users.h ../lib/records.h config.h lutil.h openfile.h
 openport.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ulock.h ttyio.h mbcico.h openport.h
-opentcp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h ttyio.h openport.h telnet.h opentcp.h
+opentcp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h ttyio.h openport.h opentcp.h
 rdoptions.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h config.h
 yoohoo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/mberrors.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h
 recvbark.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ttyio.h session.h statetbl.h recvbark.h respfreq.h filelist.h
@@ -118,7 +120,7 @@ filetime.o: ../config.h ../lib/libs.h filetime.h
 ftsc.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/mberrors.h session.h ttyio.h statetbl.h config.h ftsc.h rdoptions.h recvbark.h filelist.h sendbark.h respfreq.h xmrecv.h xmsend.h inbound.h
 atoul.o: ../config.h ../lib/libs.h atoul.h
 portsel.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h portsel.h
-telnet.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h telnet.h
+telnet.o: ../config.h ../lib/libs.h ../lib/clcomm.h ../lib/mberrors.h telnet.h
 ttyio.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ttyio.h lutil.h
 lutil.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h lutil.h
 scanout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbftn.h config.h scanout.h lutil.h
@@ -131,6 +133,4 @@ mbcico.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/recor
 outstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h scanout.h callstat.h outstat.h
 nlinfo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h nlinfo.h
 mbout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h outstat.h nlinfo.h
-mbtelind.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbtelind.h
-mbtelout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbtelout.h
 # End of generated dependencies

@@ -30,13 +30,8 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "../lib/nodelist.h"
-#include "../lib/dbnode.h"
+#include "../lib/mberrors.h"
 #include "telnet.h"
 
 
@@ -44,8 +39,6 @@
  * Telnet I/O filters. See RFC854 for details.
  */
 
-
-#ifdef USE_EXPERIMENT
 
 
 /*
@@ -106,7 +99,6 @@ void telout_filter(int fdi, int fdo)
     while ((rc = read(fdi, &ch, 1)) > 0) {
 	c = (int)ch & 0xff;
 	if (c == IAC) {
-	    Syslog('s', "telout_filter: got IAC sending twice");
 	    /*
 	     * Escape IAC characters by sending it twice.
 	     */
@@ -114,11 +106,14 @@ void telout_filter(int fdi, int fdo)
 	}
 	if ((rc = write(fdo, &ch, 1)) == -1) {
 	    Syslog('s', "$telout_filter: write failed");
-	    exit(1);
+	    exit(MBERR_TTYIO_ERROR);
 	}
+	tcflush(fdo, TCOFLUSH);
     }
 
-    Syslog('s', "$telout_filter: finished rc=%d", rc);
+    tcflush(fdi, TCIFLUSH);
+    tcflush(fdo, TCOFLUSH);
+    Syslog('s', "telout_filter: finished rc=%d", rc);
     exit(0);
 }
 
@@ -136,12 +131,12 @@ void telin_filter(int fdo, int fdi)
 
     while ((rc = read(fdi, &ch, 1)) > 0) {
 	c = (int)ch & 0xff;
-//	Syslog('s', "telin_filter: ch=%s", printablec(c));
 	if (c == IAC) {
-	    Syslog('s', "got IAC");
+
 	    if ((read(fdi, &ch, 1) < 0))
 		break;
 	    m = (int)ch & 0xff;
+
 	    switch (m) {
 		case WILL:  read(fdi, &ch, 1);
 			    m = (int)ch & 0xff;
@@ -165,22 +160,25 @@ void telin_filter(int fdo, int fdi)
 			    break;
 		case IAC:   ch = (char)m;
 			    rc = write(fdo, &ch, 1);
-			    Syslog('s', "Telnet: got escaped IAC");
 			    break;
 		default:    Syslog('s', "Telnet: recv IAC %d, not good", m);
 			    break;
 	    }
+
 	} else {
 	    ch = (char)c;
 	    if ((rc = write(fdo, &ch, 1)) == -1) {
 		Syslog('s', "$telin_filter: write failed");
-		exit(1);
+		exit(MBERR_TTYIO_ERROR);
 	    }
 	}
+	tcflush(fdo, TCOFLUSH);
     }
+
+    tcflush(fdi, TCIFLUSH);
+    tcflush(fdo, TCOFLUSH);
 
     Syslog('s', "telin_filter: finished rc=%d", rc);
     exit(0);
 }
 
-#endif
