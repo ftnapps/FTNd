@@ -303,20 +303,20 @@ int cookedport(void)
 void sendbrk(void)
 {
     Syslog('t', "Send break");
-    
+
     if (isatty(0)) {
 #ifdef USE_TERMIOS
-	tcsendbreak(fd,0);
+	tcsendbreak(0, 0);
 #endif
 #ifdef USE_TERMIO
-	ioctl(fd, TCSBRK, 0);
+	ioctl(0, TCSBRK, 0);
 #endif
 #ifdef USE_SGTTY
 #ifdef TIOCSBRK
 	sleep(1);
-	ioctl(fd, TIOCSBRK, 0);
+	ioctl(0, TIOCSBRK, 0);
 	sleep(1);
-	ioctl(fd, TIOCCBRK, 0);
+	ioctl(0, TIOCCBRK, 0);
 #endif
 #endif
     }
