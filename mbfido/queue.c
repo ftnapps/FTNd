@@ -551,9 +551,9 @@ void flush_dir(char *ndir)
 	    }
 	    p = strchr(p, ' ');
 	    p++;
-	    if (strncmp(p, "NOR ", 4))
+	    if (strncmp(p, "NOR ", 4) == 0)
 		fdn = FALSE;
-	    else if (strncmp(p, "FDN ", 4))
+	    else if (strncmp(p, "FDN ", 4) == 0)
 		fdn = TRUE;
 	    else
 		fdn = FALSE;
