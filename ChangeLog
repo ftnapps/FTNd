@@ -3,6 +3,10 @@ $Id$
 
 v0.61.2		11-Jul-2004
 
+	upgrade:
+		Make sure that /opt/mbse/queue is empty, then close the
+		bbs with "mbstat close wait". Then do the upgrade.
+
 	general:
 		Added -fno-strict-aliasing switch to gcc to prevent some
 		warnings.

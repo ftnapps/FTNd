@@ -535,6 +535,7 @@ void flush_dir(char *ndir)
 
 	while (fgets(buf, PATH_MAX, fp)) {
 	    Striplf(buf);
+	    Syslog('p', ".filelist: %s", buf);
 	    flavor = buf[0];
 	    p = strchr(buf, ' ');
 	    p++;
