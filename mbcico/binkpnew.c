@@ -823,7 +823,7 @@ int file_transfer(void)
     TrType	Trc = Ok;
     
     for (;;) {
-//	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
+	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
 	switch (bp.FtState) {
 	    case InitTransfer:	binkp_settimer(BINKP_TIMEOUT);
 				bp.RxState = RxWaitF;
@@ -885,7 +885,10 @@ int file_transfer(void)
 	    case Receive:	Trc = binkp_receiver();
 				if (Trc == Ok) {
 				    binkp_settimer(BINKP_TIMEOUT);
-				    bp.FtState = Switch;
+				    if (bp.local_EOB && bp.remote_EOB)
+					bp.FtState = Transmit;
+				    else
+					bp.FtState = Switch;
 				} else if (Trc == Failure) {
 				    Syslog('+', "Binkp: receiver failure");
 				    bp.rc = 1;
@@ -962,19 +965,25 @@ TrType binkp_receiver(void)
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: rcvd M_EOB");
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-		Syslog('b', "Binkp: 1.1 mode and got M_EOB");
-		if (bp.local_EOB && bp.remote_EOB && (bp.messages < 3)) {
-		    Syslog('b', "Binkp: receiver detected end of session, stay in RxWaitF");
-		    return Ok;
+                Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+		if (bp.local_EOB && bp.remote_EOB) {
+		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
+		    if (bp.messages < 3) {
+			Syslog('b', "Binkp: receiver detected end of session, stay in RxWaitF");
+			return Ok;
+		    } else {
+			bp.batchnr++;
+			bp.local_EOB = FALSE;
+			bp.remote_EOB = FALSE;
+			bp.messages = 0;
+			bp.TxState = TxGNF;
+			bp.RxState = RxWaitF;
+			Syslog('+', "Binkp: receiver starts batch %d", bp.batchnr + 1);
+			binkp_clear_filelist();
+			return Ok;
+		    }
 		} else {
-		    bp.batchnr++;
-		    bp.local_EOB = FALSE;
-		    bp.remote_EOB = FALSE;
-		    bp.messages = 0;
-		    bp.TxState = TxGNF;
-		    bp.RxState = RxWaitF;
-		    Syslog('+', "Binkp: receiver starts batch %d", bp.batchnr + 1);
-		    binkp_clear_filelist();
 		    return Ok;
 		}
 	    } else {
