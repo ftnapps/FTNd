@@ -132,6 +132,25 @@ int     SearchNetBoard(unsigned short, unsigned short); /* Search netmail   */
 void    UpdateMsgs(void);               /* Update current messages record   */
 
 
+#ifdef  USE_EXPERIMENT
+
+/*
+ * Structure of current open file area
+ */
+struct _fdbarea {
+    long        area;           /* Area number          */
+    int         locked;         /* Is area locked       */
+    FILE        *fp;            /* File pointer         */
+};
+
+
+struct _fdbarea *mbsedb_OpenFDB(long, int);
+int mbsedb_CloseFDB(struct _fdbarea *);
+int mbsedb_LockFDB(struct _fdbarea *, int);
+int mbsedb_UnlockFDB(struct _fdbarea *);
+
+#endif
+
 
 
 #endif

@@ -36,19 +36,19 @@
 
 #ifdef	USE_EXPERIMENT
 
-int	fdbislocked = 0;		    /* Should database be locked	*/
-long	currentarea = -1;		    /* Current file area		*/
 
 
 /*
  *  Open files database Area number, with path. Do some checks and abort
  *  if they fail.
  */
-FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
+struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
 {
-    char    *temp;
-    FILE    *fp;
-    int     Tries = 0;
+    char	    *temp;
+    struct _fdbarea *fdb_area = NULL;
+    int		    Tries = 0;
+
+    Syslog('f', "OpenFDB area %ld, timeout %d", Area, Timeout);
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
@@ -56,8 +56,8 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
     /*
      * Open the file database, if it's locked, just wait.
      */
-    while (((fp = fopen(temp, "r+")) == NULL) && ((errno == EACCES) || (errno == EAGAIN))) {
-	if (++Tries >= (ulTimeout * 4)) {
+    while (((fdb_area->fp = fopen(temp, "r+")) == NULL) && ((errno == EACCES) || (errno == EAGAIN))) {
+	if (++Tries >= (Timeout * 4)) {
 	    WriteError("Can't open file area %ld, timeout", Area);
 	    free(temp);
 	    return NULL;
@@ -65,49 +65,40 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
 	msleep(250);
 	Syslog('f', "Open file area %ld, try %d", Area, Tries);
     }
-    if (fp == NULL) {
+    if (fdb_area->fp == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
 	return NULL;
     }
-    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+    fread(&fdbhdr, sizeof(fdbhdr), 1, fdb_area->fp);
 
     /*
      * Fix attributes if needed
      */
     chmod(temp, 0660);
-
-    /*
-     * Now check the download directory
-     */
-    if (access(Path, W_OK) == -1) {
-        sprintf(temp, "%s/foobar", Path);
-        if (mkdirs(temp, 0755))
-            Syslog('+', "Created directory %s", Path);
-    }
-
     free(temp);
 
     if ((fdbhdr.hdrsize != sizeof(fdbhdr)) || (fdbhdr.recsize != sizeof(fdb))) {
         WriteError("Files database header in area %d is corrupt (%d:%d)", Area, fdbhdr.hdrsize, fdbhdr.recsize);
-	fclose(fp);
+	fclose(fdb_area->fp);
 	return NULL;
     }
 
-    fseek(fp, 0, SEEK_END);
-    if ((ftell(fp) - fdbhdr.hdrsize) % fdbhdr.recsize) {
+    fseek(fdb_area->fp, 0, SEEK_END);
+    if ((ftell(fdb_area->fp) - fdbhdr.hdrsize) % fdbhdr.recsize) {
 	WriteError("Files database area %ld is corrupt, unalligned records", Area);
-	fclose(fp);
+	fclose(fdb_area->fp);
 	return NULL;
     }
 
     /*
      * Point to the first record
      */
-    fseek(fp, fdbhdr.hdrsize, SEEK_SET);
-    fdbislocked = 0;
-    currentarea = Area;
-    return fp;
+    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+    fdb_area->locked = 0;
+    fdb_area->area = Area;
+    Syslog('f', "OpenFDB success");
+    return fdb_area;
 }
 
 
@@ -115,26 +106,75 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
 /*
  *  Close current open file area
  */
-int mbsedb_CloseFDB(FILE *fp)
+int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
 {
-    if (currentarea == -1) {
-	WriteError("Can't close already closed file area");
-	return FALSE;
-    }
-
-    if (fdbislocked) {
+    Syslog('f', "CloseFDB %ld", fdb_area->area);
+    if (fdb_area->locked) {
 	/*
 	 * Unlock first
 	 */
+	mbsedb_UnlockFDB(fdb_area);
     }
-    currentarea = -1;
-    fclose(fp);
+    fclose(fdb_area->fp);
     return TRUE;
 }
 
 
-// mbsedb_LockFDB
-// mbsedb_UnlockFDB
+
+int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
+{
+    int		    rc, Tries = 0;
+    struct flock    fl;
+    
+    Syslog('f', "LockFDB %ld", fdb_area->area);
+    fl.l_type	= F_WRLCK;
+    fl.l_whence	= SEEK_SET;
+    fl.l_start	= 0L;
+    fl.l_len	= 1L;
+    fl.l_pid	= getpid();
+
+    while ((rc = fcntl(fileno(fdb_area->fp), F_SETLK, &fl)) && ((errno == EACCES) || (errno == EAGAIN))) {
+	if (++Tries >= (Timeout * 4)) {
+	    fcntl(fileno(fdb_area->fp), F_GETLK, &fl);
+	    WriteError("FDB %ld is locked by pid %d", fdb_area->area, fl.l_pid);
+	    return FALSE;
+	}
+	msleep(250);
+	Syslog('f', "FDB lock attempt %d", Tries);
+    }
+
+    if (rc) {
+	WriteError("$FDB %ld lock error", fdb_area->area);
+	return FALSE;
+    }
+
+    Syslog('f', "LockFDB success");
+    fdb_area->locked = 1;
+    return TRUE;
+}
+
+
+
+int mbsedb_UnlockFDB(struct _fdbarea *fdb_area)
+{
+    struct flock    fl;
+
+    Syslog('f', "UnlockFDB %ld", fdb_area->area);
+    fl.l_type   = F_UNLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start  = 0L;
+    fl.l_len    = 1L;
+    fl.l_pid    = getpid();
+
+    if (fcntl(fileno(fdb_area->fp), F_SETLK, &fl)) {
+	WriteError("$Can't unlock FDB area %ld", fdb_area->area);
+    }
+
+    fdb_area->locked = 0;
+    return TRUE;
+}
+
+
 // mbsedb_SearchFileFDB
 // mbsedb_UpdateFileFDB
 // mbsedb_InsertFileFDB
