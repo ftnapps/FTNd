@@ -318,10 +318,10 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
      */
     mkdirs(DestPath, 0775);
 
-    if (file_exist(DestPath, F_OK) == 0) {
-	WriteError("File %s already exists in area %d", f_db.Name, Area);
+    if ((file_exist(DestPath, F_OK) == 0) || (file_exist(LinkPath, F_OK) == 0)) {
+	WriteError("File %s (%s) already exists in area %d", f_db.Name, f_db.LName, Area);
 	if (!do_quiet)
-	    printf("\nFile %s already exists in area %d\n", f_db.Name, Area);
+	    printf("\nFile %s (%s) already exists in area %d\n", f_db.Name, f_db.LName, Area);
 	return FALSE;
     }
 
