@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/makestat.c
+ * $Id$
  * Purpose ...............: Make Web statistics
- * Last modification date : 08-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -418,7 +417,6 @@ void MakeStat(void)
 			fprintf(fw, "<TR><TH>ISDN calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.ISDN);
 			fprintf(fw, "<TR><TH>Network calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.Network);
 			fprintf(fw, "<TR><TH>Local calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.Local);
-			fprintf(fw, "<TR><TH>ADSL calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.ADSL);
 			fprintf(fw, "<TR><TH>Start date</TH><TD align=right>%s</TD></TR>\n", adate(SYSINFO.StartDate));
 			fprintf(fw, "<TR><TH>Last caller</TH><TD align=right>%s</TD></TR>\n", SYSINFO.LastCaller);
 			fprintf(fw, "</TABLE>\n");

@@ -134,14 +134,14 @@ if [ "$MBSE_ROOT" != "" ]; then
 	exit 2
 fi
 
-if [ "`grep mbse: /etc/passwd`" != "" ]; then
+if [ "`grep -w mbse: /etc/passwd`" != "" ]; then
 	echo "*** User 'mbse' already exists on this system ***"
 	echo "*** SETUP aborted ***"
 	log "!" "Aborted, user 'mbse' already exists on this system"
 	exit 2
 fi
 
-if [ "`grep bbs: /etc/group`" != "" ]; then
+if [ "`grep -w bbs: /etc/group`" != "" ]; then
 	echo "*** Group 'bbs' already exists on this system ***"
 	echo "*** SETUP aborted ***"
 	log "!" "Aborted, group 'bbs' already exists on this system"
@@ -300,7 +300,7 @@ if [ "$OSTYPE" = "Linux" ]; then
    if [ -f /etc/shadow ]; then
 	log "+" "Standard shadow password system"
 	# Not all systems are the same...
-	if [ "`grep bbs:\!\!: /etc/shadow`" != "" ]; then
+	if [ "`grep -w bbs:\!\!: /etc/shadow`" != "" ]; then
 		sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
 	else
 		sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
@@ -322,7 +322,7 @@ if [ "$OSTYPE" = "Linux" ]; then
 	echo " File /etc/shadow.mbse is your backup of /etc/shadow"
     else
 	log "+" "Not a shadow password system"
-        if [ "`grep bbs:\!\!: /etc/passwd`" != "" ]; then
+        if [ "`grep -w bbs:\!\!: /etc/passwd`" != "" ]; then
                 sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
         else
                 sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/passwd >/etc/passwd.bbs

@@ -4222,6 +4222,9 @@ v0.33.19        26-Oct-2001
 		the new style (not setuid) of mbsebbs.
 		Remove /opt/mbse/etc/maint to let it replace with a new
 		version, or change it by hand.
+		After compilation and installation run "mbfile check" to
+		update all file entries in the files database. This give a lot
+		of output in the logfile, don't worry about it.
 
 	general:
 		Made the Makefile system more simple. The bbs programs now
@@ -4230,6 +4233,9 @@ v0.33.19        26-Oct-2001
 		can't start the bbs from telnet anymore! With a later release
 		this may change by adding a login wrapper, for now this is how
 		it works now. Take it or leave it.
+
+	SETUP.sh
+		Better grep to check for excisting usernames like bbs, mbse.
 
 	lang:
 		Changed language prompts 6, 71, 429.
