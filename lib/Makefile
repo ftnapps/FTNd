@@ -8,12 +8,12 @@ CLCOMM_SRCS	= clcomm.c client.c crc.c semafore.c signame.c
 CLCOMM_OBJS	= clcomm.o client.o crc.o semafore.o signame.o
 CLCOMM_HDRS	= clcomm.h
 COMMON_SRCS	= attach.c charconv_utf.c falists.c hdr.c msgflags.c parsedate.c rfcmsg.c unpacker.c \
-		  batchrd.c charset.c ftn.c nodelist.c pktname.c \
+		  batchrd.c charset.c ftn.c nodelist.c pktname.c mangle.c \
 		  charconv.c dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  charconv_hz.c execute.c expipe.c getheader.c mime.c noderecord.c rfcaddr.c strutil.c \
 		  charconv_jp.c faddr.c gmtoffset.c packet.c rfcdate.c term.c 
 COMMON_OBJS	= ftscprod.o attach.o charconv_utf.o falists.o hdr.o msgflags.o parsedate.o rfcmsg.o unpacker.o \
-		  batchrd.o charset.o ftn.o nodelist.o pktname.o \
+		  batchrd.o charset.o ftn.o nodelist.o pktname.o mangle.o \
 		  charconv.o dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
 		  charconv_hz.o execute.o expipe.o getheader.o mime.o noderecord.o rfcaddr.o strutil.o \
 		  charconv_jp.o faddr.o gmtoffset.o packet.o rfcdate.o term.o
