@@ -4371,6 +4371,7 @@ v0.33.19        26-Oct-2001
 		of a file area if the area number is given as argument.
 		Implemented "mbfile move" command. You can only move one file
 		at the same time.
+		Implemented "mbfile delete" and "mbfile undelete" commands.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.

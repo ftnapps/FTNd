@@ -68,6 +68,11 @@ file is removed. If the area is a CD-rom area, the check that files on disk
 must exist in the filedatabase is skipped.
 <P>
 
+<code><strong>mbfile</strong> delete &lt;area&gt; &lt;file&gt;</code>
+Mark a file in an area for later deletion. 
+The file is not removed until you run <strong>mbfile pack</strong>.
+<P>
+
 <code><strong>mbfile</strong> import &lt;area&gt;</code>
 Import files to the given area using files.bbs descriptions. 
 You need to be in the area where the files are stored. 
@@ -89,7 +94,7 @@ created, starting at the ftp pub directory.
 <P>
 
 <code><strong>mbfile</strong> kill</code>
-Delete or move files in areas that have the <strong>download age</strong>
+Mark files to delete or move files in areas that have the <strong>download age</strong>
 set or the <strong>filedate age</strong> set. A setting of 0 is ignored.
 Areas on CD-rom are always skipped.
 If the Move to Area option is set the files are moved to the given area. The
@@ -102,18 +107,23 @@ there for 14 days after the move. This is good for automatic "last chance" areas
 List all defined file areas, the number of files, the total size of the files
 and the primary group. If and area is given on the commandline, the files in
 that area are listed.
-
 <P>
+
 <code><strong>mbfile</strong> move &lt;from&gt; &lt;to&gt; &lt;file&gt;</code>
 This command will move a file from one area to another. No actions on the file
 are performed.
-
 <P>
+
 <code><strong>mbfile</strong> pack</code>
 This command will actualy remove the records of files that are marked for
 deletion. If the file is still on disk, it will be removed also. So when
-you delete files with mbsetup, they are still in your database and on disk
+you delete files with mbsetup or with mbfile, they are still in your database and on disk
 until you run <strong>mbfile pack</strong>.
+<P>
+
+<code><strong>mbfile</strong> undelete &lt;area&gt; &lt;file&gt;</code>
+Mark a file that is marked for deletion to be available again, ie. undo the deletion
+mark.
 <P>&nbsp;<P>
 
 <H3>Options.</H3>

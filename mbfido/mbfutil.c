@@ -95,8 +95,8 @@ void die(int onsig)
 	Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
 
 	if (!do_quiet) {
-		colour(7, 0);
-		printf("\n");
+		colour(LIGHTGRAY, BLACK);
+		fflush(stdout);
 	}
 	ExitClient(onsig);
 }
@@ -115,7 +115,7 @@ void Help(void)
 	colour(CYAN, BLACK);
 	printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
 	printf("	c  check			Check filebase\n");
-//	printf("	d  delete <area> <file>		Mark file in area for deletion\n");
+	printf("	d  delete <area> <file>		Mark file in area for deletion\n");
 	printf("        im import <area>		Import files in current dir to area\n");
 	printf("	in index			Create filerequest index\n");
 	printf("        k  kill				Kill/move old files\n");
@@ -124,13 +124,12 @@ void Help(void)
 	printf("	p  pack				Pack filebase\n");
 //	printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");
 	printf("	t  toberep			Show toberep database\n");
+	printf("	u  undelete <area> <file>	Mark file in area for undeletion\n");
 	colour(LIGHTBLUE, BLACK);
 	printf("\n	Options are:\n\n");
 	colour(CYAN, BLACK);
 	printf("	-a -announce			Supress announce added files\n");
 	printf("	-q -quiet			Quiet mode\n");
-	colour(LIGHTGRAY, BLACK);
-	printf("\n");
 	die(0);
 }
 

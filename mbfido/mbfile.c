@@ -43,6 +43,7 @@
 #include "mbfimport.h"
 #include "mbftoberep.h"
 #include "mbfmove.h"
+#include "mbfdel.h"
 #include "mbfutil.h"
 #include "mbfile.h"
 
@@ -59,6 +60,7 @@ int		do_import= FALSE;	/* Import files in area		    */
 int		do_list  = FALSE;	/* List fileareas		    */
 int		do_tobe  = FALSE;	/* List toberep database	    */
 int		do_move  = FALSE;	/* Move a file			    */
+int		do_del   = FALSE;	/* Delete/undelete a file	    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -68,7 +70,7 @@ time_t		t_end;			/* End time			    */
 
 int main(int argc, char **argv)
 {
-	int	i, Area = 0, ToArea = 0;
+	int	i, Area = 0, ToArea = 0, UnDel = FALSE;
 	char	*cmd, *FileName = NULL, *Description = NULL;
 	struct	passwd *pw;
 
@@ -121,6 +123,22 @@ int main(int argc, char **argv)
 				    Description = xstrcpy(argv[i]);
 				}
 			}
+		} else if ((!strncasecmp(argv[i], "d", 1)) || (!strncasecmp(argv[i], "u", 1))) {
+		    if (!strncasecmp(argv[i], "u", 1))
+			UnDel = TRUE;
+		    if (argc > (i + 1)) {
+			i++;
+			Area = atoi(argv[i]);
+			cmd = xstrcat(cmd, argv[i]);
+			cmd = xstrcat(cmd, argv[i]);
+			if (argc > (i + 1)) {
+			    i++;
+			    FileName = xstrcpy(argv[i]);
+			    cmd = xstrcat(cmd, (char *)" ");
+			    cmd = xstrcat(cmd, argv[i]);
+			    do_del = TRUE;
+			}
+		    }
 		} else if (!strncasecmp(argv[i], "in", 2)) {
 			do_index = TRUE;
 		} else if (!strncasecmp(argv[i], "im", 2)) {
@@ -174,7 +192,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_move || do_tobe))
+	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_del || do_move || do_tobe))
 		Help();
 
 	ProgName();
@@ -216,6 +234,11 @@ int main(int argc, char **argv)
 
 	if (do_move) {
 	    Move(Area, ToArea, FileName);
+	    die(0);
+	}
+
+	if (do_del) {
+	    Delete(UnDel, Area, FileName);
 	    die(0);
 	}
 
