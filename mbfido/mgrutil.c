@@ -270,7 +270,7 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
 	SearchNodeFaddr(t);
 	Syslog('+', "XxxxMgr: Notify %s", nodes.Notify?"Yes":"No");
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,mgr?(char *)"Filemgr":(char *)"Areamgr");
-	MacroVars("RABCDE", "ssssss",(char *)"OK_PASS",nodes.Apasswd,(char *)"",(char *)"",(char *)"",(char *)"");
+	MacroVars("RABCDE", "sdssss",(char *)"NOTIFY",nodes.Notify,(char *)"",(char *)"",(char *)"",(char *)"");
 	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
 	MacroClear();
 }
@@ -433,14 +433,19 @@ void GetRpSubject(const char *report, char* subject)
 int MsgResult(const char * report, FILE *fo)
 {
     FILE    *fi;
-    char    *temp;
+    char    *temp, *resp;
     int	    res;
 
     temp = calloc(256,sizeof(char)); 
+    resp = calloc(256,sizeof(char));
+
     if ((fi = OpenMacro(report, nodes.Language)) != NULL){
         while ( fgets(temp, 254, fi) != NULL ){
-	    if (temp[0] != '#')
-		fprintf(fo,"%s\r",ParseMacro(temp,&res));
+	    if (temp[0] != '#') {
+		strncpy(resp, ParseMacro(temp, &res), 80);
+		if ((res == 0) && strlen(resp))
+		    fprintf(fo,"%s\r",ParseMacro(temp,&res));
+	    }
 	}
         fclose(fi);
         res=1;
@@ -448,6 +453,7 @@ int MsgResult(const char * report, FILE *fo)
         res = 0;
     }
 
+    free(resp);
     free(temp);
     return res;
 }

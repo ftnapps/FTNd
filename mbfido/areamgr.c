@@ -906,7 +906,7 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
 		    fwrite(&Sys, sizeof(Sys), 1, mp);
 		    Syslog('+', "AreaMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
-		    MacroVars("RABCDE", "ssssss","OK_PAUSE",msgs.Tag,ascfnode(t, 0x1f),"","");
+		    MacroVars("RABCDE", "ssdsss","OK_PAUSE",msgs.Tag,Pause,"","","");
 		    MsgResult("areamgr.responses",tmp);
 		    a_list = TRUE;
 		}
@@ -1088,6 +1088,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
 	    MacroVars("RABCDE", "ssssss","WELLCOME","","","","","");
 	    MsgResult("areamgr.responses",np);
+	    fprintf(np, "\r");
 	    fseek(tmp, 0, SEEK_SET);
 
 	    while ((fgets(Buf, 2048, tmp)) != NULL) {
@@ -1095,11 +1096,11 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		    Buf[strlen(Buf) - 1] = '\0';
 		}
 		fprintf(np, "%s\r", Buf);
-		Syslog('m', "Rep: %s", Buf);
 	    }
+	    fprintf(np, "\r");
 	    MacroVars("RABCDE", "ssssss","GOODBYE","","","","","");
 	    MsgResult("areamgr.responses",np);
-	    fprintf(np, "%s\r", TearLine());
+	    fprintf(np, "\r%s\r", TearLine());
 	    CloseMail(np, t);
 	} else
 	    WriteError("Can't create netmail");
