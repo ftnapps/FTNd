@@ -2905,7 +2905,7 @@ for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
                 echo "$as_me:$LINENO: result: unknown" >&5
 echo "${ECHO_T}unknown" >&6
         elif test -x $cpuflagsbin/cpuflags; then
-		CPUFLAGS=`cpuflags`
+		CPUFLAGS=`$cpuflagsbin/cpuflags`
                 echo "$as_me:$LINENO: result: $CPUFLAGS" >&5
 echo "${ECHO_T}$CPUFLAGS" >&6
 		CFLAGS="$CFLAGS $CPUFLAGS"

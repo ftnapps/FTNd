@@ -87,7 +87,7 @@ for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
         if test "$cpuflagsbin" = "NONE"; then
                 AC_MSG_RESULT(unknown)
         elif test -x $cpuflagsbin/cpuflags; then
-		CPUFLAGS=`cpuflags`
+		CPUFLAGS=`$cpuflagsbin/cpuflags`
                 AC_MSG_RESULT($CPUFLAGS)
 		CFLAGS="$CFLAGS $CPUFLAGS"
                 break
