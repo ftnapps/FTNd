@@ -9,6 +9,7 @@ OBJS		= endian.o
 OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar \
 		  txtfiles-en.tar templates-en.tar \
 		  txtfiles-es.tar templates-es.tar \
+		  menus-es.tar menus-en.tar \
 		  templates-de.tar \
 		  templates-nl.tar
 
