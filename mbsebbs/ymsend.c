@@ -31,43 +31,122 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "ymsend.h"
 #include "ttyio.h"
 #include "zmmisc.h"
 #include "transfer.h"
 #include "openport.h"
 #include "timeout.h"
 #include "term.h"
+#include "ymsend.h"
 
 
 #define MAX_BLOCK 8192
 #define sendline(c) PUTCHAR((c) & 0377)
 
 
-FILE *input_f;
-char Crcflg;
-char Lastrx;
-int Fullname=0;         /* transmit full pathname */
-int Filesleft;
-long Totalleft;
-long bytes_sent;
-int Ascii=0;            /* Add CR's for brain damaged programs */
-int firstsec;
-int Optiong;            /* Let it rip no wait for sector ACK's */
-int Lfseen=0;
-int Totsecs;            /* total number of sectors this file */
-char *txbuf;
-size_t blklen=128;              /* length of transmitted records */
-int zmodem_requested = 0;
-int Dottoslash=0;       /* Change foo.bar.baz to foo/bar/baz */
-static int no_unixmode;
+FILE		*input_f;
+char		Crcflg;
+char		Lastrx;
+int		Fullname = 0;		/* transmit full pathname */
+int		Filesleft;
+long		Totalleft;
+long		bytes_sent;
+int		firstsec;
+int		Optiong;		/* Let it rip no wait for sector ACK's */
+int		Totsecs;		/* total number of sectors this file */
+char		*txbuf;
+size_t		blklen = 128;		/* length of transmitted records */
+int		zmodem_requested = 0;
+static int	no_unixmode;
+struct timeval  starttime, endtime;
+struct timezone	tz;
+long		skipsize;
+
 
 extern int  Rxtimeout;
 
 
+static int wctxpn(char *);
 static int getnak(void);
-int wcputsec(char *, int, size_t);
+static int wctx(long);
+static int wcputsec(char *, int, size_t);
 static size_t filbuf(char *, size_t);
+
+
+
+int ymsndfiles(down_list *lst, int use1k)
+{
+    int         maxrc = 0;
+    down_list   *tmpf;
+
+    Syslog('+', "%s: start send files", protname());
+    txbuf = malloc(MAX_BLOCK);
+
+    /*
+     * Count files to transmit
+     */
+    Totalleft = Filesleft = 0;
+    for (tmpf = lst; tmpf; tmpf = tmpf->next) {
+	if (tmpf->remote) {
+	    Filesleft++;
+	    Totalleft += tmpf->size;
+	}
+    }
+    Syslog('x', "%s: %d files, size %d bytes", protname(), Filesleft, Totalleft);
+
+    for (tmpf = lst; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+	if (tmpf->remote) {
+	    bytes_sent = 0;
+	    skipsize = 0L;
+	    Totsecs = 0;
+
+	    switch (wctxpn(tmpf->remote)) {
+		case TERROR:	Syslog('x', "wctxpn returns error");
+				tmpf->failed = TRUE;
+				maxrc = 2;
+				break;
+		case ZSKIP:	Syslog('x', "wctxpn returns skip");
+				tmpf->failed = TRUE;
+				break;
+		case OK:	gettimeofday(&starttime, &tz);
+				if ((blklen == 128) && use1k) {
+				    Syslog('x', "%s: will use 1K blocks", protname());
+				    blklen = 1024;
+				}
+				if (wctx(tmpf->size) == ERROR) {
+				    Syslog('x', "wctx returned error");
+				    tmpf->failed = TRUE;
+				} else {
+				    tmpf->sent = TRUE;
+				    gettimeofday(&endtime, &tz);
+				    Syslog('+', "%s: OK %s", protname(), 
+					    transfertime(starttime, endtime, (unsigned long)tmpf->size - skipsize, TRUE));
+				}
+	    }
+
+	} else if (maxrc == 0) {
+	    tmpf->failed = TRUE;
+	}
+	if (unlink(tmpf->remote))
+	    Syslog('+', "%s: could not unlink %s", protname(), tmpf->remote);
+    }
+
+    if (protocol == ZM_YMODEM) {
+	/*
+	 * Send empty filename to signal end of batch
+	 */
+	wctxpn((char *)"");
+    }
+
+    if (txbuf)
+	free(txbuf);
+    txbuf = NULL;
+    io_mode(0, 1);
+
+    Syslog('x', "%s: send rc=%d", protname(), maxrc);
+    return (maxrc < 2)?0:maxrc;
+}
+
 
 
 /*
@@ -84,39 +163,40 @@ static int wctxpn(char *fname)
     struct stat	    f;
 
     name2 = alloca(PATH_MAX+1);
-    input_f = fopen(fname, "r");
 
-    if (protocol == ZM_XMODEM) {
-	if (*fname && fstat(fileno(input_f), &f) != -1) {
-	    Syslog('y', "Sending %s, %ld blocks: ", fname, (long) (f.st_size >> 7));
+    if ((input_f = fopen(fname, "r"))) {
+	fstat(fileno(input_f), &f);
+
+	Syslog('+', "%s: send \"%s\"", protname(), MBSE_SS(fname));
+	Syslog('+', "%s: size %lu bytes, dated %s", protname(), (unsigned long)f.st_size, rfcdate(f.st_mtime));
+	    
+	if (protocol == ZM_XMODEM) {
+	    if (*fname) {
+		sprintf(name2, "Sending %s, %ld blocks: ", fname, (long) (f.st_size >> 7));
+		PUTSTR(name2);
+		Enter(1);
+	    }
+	    PUTSTR((char *)"Give your local XMODEM receive command now.");
+	    Enter(1);
+	    return OK;
 	}
-	PUTSTR((char *)"Give your local XMODEM receive command now.");
-	Enter(1);
-	return OK;
+    } else {
+	/*
+	 * Reset, this normally happens for the ymodem end of batch block.
+	 */
+	f.st_size = 0;
+	f.st_mtime = 0;
+	f.st_mode = 0;
     }
 
-    if (!zmodem_requested)
+//    if (!zmodem_requested)
 	if (getnak()) {
 	    PUTSTR((char *)"getnak failed");
-	    Syslog('+', "%s/%s: getnak failed", fname, protname());
-	    return ERROR;
+	    Syslog('+', "%s/%s: getnak failed", MBSE_SS(fname), protname());
+	    return TERROR;
 	}
 
     q = (char *) 0;
-    if (Dottoslash) {               /* change . to . */
-	for (p = fname; *p; ++p) {
-	    if (*p == '/')
-		q = p;
-	    else if (*p == '.')
-		*(q=p) = '/';
-	}
-	if (q && strlen(++q) > 8) {     /* If name>8 chars */
-	    q += 8;                 /*   make it .ext */
-	    strcpy(name2, q);       /* save excess of name */
-	    *q = '.';
-	    strcpy(++q, name2);     /* add it back */
-	}
-    }
 
     for (p = fname, q = txbuf ; *p; )
 	if ((*q++ = *p++) == '/' && !Fullname)
@@ -125,20 +205,23 @@ static int wctxpn(char *fname)
     p = q;
     while (q < (txbuf + MAX_BLOCK))
 	*q++ = 0;
+
     /* 
      * note that we may lose some information here in case mode_t is wider than an 
      * int. But i believe sending %lo instead of %o _could_ break compatability
      */
-    if (!Ascii && (input_f != stdin) && *fname && fstat(fileno(input_f), &f)!= -1)
+    if ((input_f != stdin) && *fname)
 	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
-//    if (Verbose)
-//	vstringf(_("Sending: %s\n"),txbuf);
+    Syslog('x', "Sending: %s", txbuf);
+
     Totalleft -= f.st_size;
     if (--Filesleft <= 0)
 	Totalleft = 0;
     if (Totalleft < 0)
 	Totalleft = 0;
+
+    Syslog('x', "Totalleft = %d", Totalleft);
 
     /* force 1k blocks if name won't fit in 128 byte block */
     if (txbuf[125])
@@ -152,7 +235,7 @@ static int wctxpn(char *fname)
     if (wcputsec(txbuf, 0, 128)==ERROR) {
 	PUTSTR((char *)"wcputsec failed");
 	Syslog('+', "%s/%s: wcputsec failed", fname,protname());
-	return ERROR;
+	return TERROR;
     }
     return OK;
 }
@@ -164,7 +247,9 @@ static int getnak(void)
     int firstch;
     int tries = 0;
 
+    Syslog('x', "getnak()");
     Lastrx = 0;
+
     for (;;) {
 	tries++;
 	switch (firstch = GETCHAR(10)) {
@@ -174,9 +259,10 @@ static int getnak(void)
 //			Ascii = 0;      /* Receiver does the conversion */
 //			return FALSE;
 	    case TIMEOUT:
+			Syslog('x', "getnak: timeout try %d", tries);
 			/* 30 seconds are enough */
 			if (tries == 3) {
-			    Syslog('y', "Timeout on pathname");
+			    Syslog('x', "Timeout on pathname");
 			    return TRUE;
 			}
 			/* don't send a second ZRQINIT _directly_ after the
@@ -192,14 +278,18 @@ static int getnak(void)
 //			}
 			continue;
 	    case WANTG:
+			Syslog('x', "getnak: got WANTG");
 			io_mode(0, 2);  /* Set cbreak, XON/XOFF, etc. */
 			Optiong = TRUE;
 			blklen=1024;
 	    case WANTCRC:
+			Syslog('x', "getnak: got WANTCRC");
 			Crcflg = TRUE;
 	    case NAK:
+			Syslog('x', "getnak: got NAK");
 			return FALSE;
 	    case CAN:
+			Syslog('x', "getnak: got CAN");
 			if ((firstch = GETCHAR(2)) == CAN && Lastrx == CAN)
 			    return TRUE;
 	    default:
@@ -207,6 +297,7 @@ static int getnak(void)
 	}
     Lastrx = firstch;
     }
+    Syslog('x', "getnak: done");
 }
 
 
@@ -217,13 +308,13 @@ static int wctx(long bytes_total)
     register int    sectnum, attempts, firstch;
 
     firstsec=TRUE;  thisblklen = blklen;
-    Syslog('y', "wctx:file length=%ld", bytes_total);
+    Syslog('x', "wctx: file length=%ld, blklen=%d", bytes_total, blklen);
 
     while ((firstch = GETCHAR(Rxtimeout))!=NAK && firstch != WANTCRC
 	    && firstch != WANTG && firstch != TIMEOUT && firstch != CAN);
     if (firstch == CAN) {
-	Syslog('y', "Receiver Cancelled");
-	return ERROR;
+	Syslog('x', "Receiver Cancelled");
+	return TERROR;
     }
 
     if (firstch == WANTCRC)
@@ -238,7 +329,7 @@ static int wctx(long bytes_total)
 	if ( !filbuf(txbuf, thisblklen))
 	    break;
 	if (wcputsec(txbuf, ++sectnum, thisblklen) == TERROR)
-	    return ERROR;
+	    return TERROR;
 	bytes_sent += thisblklen;
     }
     
@@ -246,21 +337,21 @@ static int wctx(long bytes_total)
     attempts = 0;
     
     do {
-//	purgeline(io_mode_fd);
+	purgeline(5);
 	PUTCHAR(EOT);
 	fflush(stdout);
 	++attempts;
     } while ((firstch = (GETCHAR(Rxtimeout)) != ACK) && attempts < RETRYMAX);
     if (attempts == RETRYMAX) {
-	Syslog('y', "No ACK on EOT");
-	return ERROR;
+	Syslog('x', "No ACK on EOT");
+	return TERROR;
     } else
 	return OK;
 }
 
 
 
-int wcputsec(char *buf, int sectnum, size_t cseclen)
+static int wcputsec(char *buf, int sectnum, size_t cseclen)
 {
     int		Checksum, wcj;
     char	*cp;
@@ -269,8 +360,9 @@ int wcputsec(char *buf, int sectnum, size_t cseclen)
     int		attempts;
 
     firstch = 0;      /* part of logic to detect CAN CAN */
-
-    Syslog('y', "%s sectors/kbytes sent: %3d/%2dk", protname(), Totsecs, Totsecs/8 );
+    
+    Syslog('x', "wcputsec: sectnum %d, len %d", sectnum, cseclen);
+    Syslog('x', "%s sectors/kbytes sent: %3d/%2dk", protname(), Totsecs, Totsecs/8 );
     
     for (attempts = 0; attempts <= RETRYMAX; attempts++) {
 	Lastrx = firstch;
@@ -300,30 +392,31 @@ int wcputsec(char *buf, int sectnum, size_t cseclen)
 gotnak:
 	switch (firstch) {
 	    case CAN:
+			Syslog('x', "got CAN");
 			if(Lastrx == CAN) {
 cancan:
-			    Syslog('y', "Cancelled");  
+			    Syslog('x', "Cancelled");  
 			    return ERROR;
 			}
 			break;
 	    case TIMEOUT:
-			Syslog('y', "Timeout on sector ACK"); 
+			Syslog('x', "Timeout on sector ACK"); 
 			continue;
 	    case WANTCRC:
 			if (firstsec)
 			    Crcflg = TRUE;
 	    case NAK:
-			Syslog('y', "NAK on sector"); 
+			Syslog('x', "NAK on sector"); 
 			continue;
-	    case ACK: 
+	    case ACK:
 			firstsec=FALSE;
 			Totsecs += (cseclen>>7);
 			return OK;
 	    case TERROR:
-			Syslog('y', "Got burst for sector ACK"); 
+			Syslog('x', "Got burst for sector ACK"); 
 			break;
 	    default:
-			Syslog('y', "Got %02x for sector ACK", firstch); 
+			Syslog('x', "Got %02x for sector ACK", firstch); 
 			break;
 	}
 	for (;;) {
@@ -336,46 +429,25 @@ cancan:
 		goto cancan;
 	}
     }
-    Syslog('y', "Retry Count Exceeded");
-    return ERROR;
+    Syslog('x', "Retry Count Exceeded");
+    return TERROR;
 }
 
 
 
-/* fill buf with count chars padding with ^Z for CPM */
+/* 
+ * fill buf with count chars padding with ^Z for CPM 
+ */
 static size_t filbuf(char *buf, size_t count)
 {
-    int	    c;
     size_t  m;
 
-    if ( !Ascii) {
-	m = read(fileno(input_f), buf, count);
-	if (m <= 0)
-	    return 0;
-	while (m < count)
-	    buf[m++] = 032;
-	return count;
-    }
-    m=count;
-    if (Lfseen) {
-	*buf++ = 012; --m; Lfseen = 0;
-    }
-    while ((c=getc(input_f))!=EOF) {
-	if (c == 012) {
-	    *buf++ = 015;
-	    if (--m == 0) {
-		Lfseen = TRUE; break;
-	    }
-	}
-	*buf++ =c;
-	if (--m == 0)
-	    break;
-    }
-    if (m==count)
-        return 0;
-    else
-        while (m--!=0)
-	    *buf++ = CPMEOF;
+    m = read(fileno(input_f), buf, count);
+    if (m <= 0)
+	return 0;
+    
+    while (m < count)
+        buf[m++] = 032;
     return count;
 }
 

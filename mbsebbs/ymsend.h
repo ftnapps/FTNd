@@ -9,4 +9,7 @@
 #define WANTCRC 0103    /* send C not NAK to get crc not checksum */
 #define WANTG 0107  /* Send G not NAK to get nonstop batch xmsn */
 
+
+int ymsndfiles(down_list *, int);
+
 #endif

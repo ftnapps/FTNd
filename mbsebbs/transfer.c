@@ -42,8 +42,11 @@
 #include "language.h"
 #include "openport.h"
 #include "timeout.h"
+#include "zmmisc.h"
 #include "zmsend.h"
 #include "zmrecv.h"
+#include "ymsend.h"
+#include "ymrecv.h"
 
 
 /*
@@ -259,15 +262,23 @@ int download(down_list *download_list)
     sleep(2);
     
     if (uProtInternal) {
+	sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	chdir(temp);
 	if (strncasecmp(sProtName, "zmodem 8k", 9) == 0) {
-	    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
-	    chdir(temp);
 	    maxrc = zmsndfiles(download_list, TRUE);
 	    Home();
 	} else if (strncasecmp(sProtName, "zmodem", 6) == 0) {
-	    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
-	    chdir(temp);
 	    maxrc = zmsndfiles(download_list, FALSE);
+	    Home();
+	} else if ((strncasecmp(sProtName, "xmodem", 6) == 0) || (strncasecmp(sProtName, "ymodem", 6) == 0)) {
+	    if (strncasecmp(sProtName, "xmodem", 6) == 0)
+		protocol = ZM_XMODEM;
+	    else
+		protocol = ZM_YMODEM;
+	    if (strstr(sProtName, "1K") || strstr(sProtName, "1k"))
+		maxrc = ymsndfiles(download_list, TRUE);
+	    else
+		maxrc = ymsndfiles(download_list, FALSE);
 	    Home();
 	} else {
 	    Syslog('!', "Warning internal protocol %s not supported", sProtName);

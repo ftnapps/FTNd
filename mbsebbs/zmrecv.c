@@ -78,8 +78,7 @@ extern unsigned long	rcvdbytes;
 
 int zmrcvfiles(void)
 {
-    int rc, c, count = 0;
-    unsigned char ch = 0;
+    int	    rc;
 
     Syslog('+', "Zmodem: start Zmodem receive");
 
@@ -117,12 +116,7 @@ int zmrcvfiles(void)
     /*
      * Some programs send some garbage after the transfer, eat these.
      */
-    do {
-	c = Waitchar(&ch, 100);
-	count++;
-    } while (c == 1);
-    if (count)
-	Syslog('z', "zmrcvfiles: purged %d garbage characters", count);
+    purgeline(100);
     
     Syslog('z', "Zmodem: receive rc=%d",rc);
     return abs(rc);

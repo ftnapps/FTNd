@@ -66,6 +66,7 @@ static inline void zsendline_s(const char *, int);
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "ttyio.h"
+#include "input.h"
 #include "zmmisc.h"
 
 
@@ -956,20 +957,26 @@ long rclhdr(register char *shdr)
 
 char *protname(void)
 {
-    const char *prot_name;
-    
-    switch(protocol) {
-	case ZM_XMODEM:
-			prot_name = (char *)"Xmodem"; 
-			break;
-	case ZM_YMODEM:
-			prot_name = (char *)"Ymodem"; 
-			break;
-	default: 
-			prot_name = (char *)"Zmodem";
-			break;
+    switch (protocol) {
+	case ZM_XMODEM: return (char *)"Xmodem";
+	case ZM_YMODEM:	return (char *)"Ymodem";
+	default:	return (char *)"Zmodem";
     }
-    return prot_name;
+}
+
+
+
+void purgeline(int howlong)
+{
+    int		    c, count = 0;
+    unsigned char   ch = 0;
+    
+    do {
+	c = Waitchar(&ch, howlong);
+	count++;
+    } while (c == 1);
+    if (count)
+	Syslog('z', "purgeline: purged %d characters", count);
 }
 
 

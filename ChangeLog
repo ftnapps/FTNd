@@ -46,6 +46,14 @@ v0.71.0		27-Oct-2004
 		With user chat, the timeout timer wasn't refreshed.
 		Rewrote the rewritten terminal i/o to get zmodem upload to
 		work.
+		Added ymodem and xmodem download protocols, both with option
+		for 1k blocks. Not yet enabled for public use also.
+
+		Note: you could enable the internal protocols by adding these
+		to the protocol setup. But I recommend against it because not
+		yet all safety checks for uploads are installed. When the time
+		is right I will change mbsetup so that these protocols will be
+		automatic added.
 
 	mbnewusr:
 		Rewrote terminal i/o.

@@ -159,6 +159,7 @@ void	stohdr(long);
 long	rclhdr(register char *);
 void	zsendline_init(void);
 char	*protname(void);
+void	purgeline(int);
 
 
 #define FTOFFSET 16
