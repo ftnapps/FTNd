@@ -1274,7 +1274,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 
 PACKAGE="mbsebbs"
 MAJOR="0"
-MINOR="50"
+MINOR="51"
 REVISION="0"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2004 Michiel Broek, All Rights Reserved"
