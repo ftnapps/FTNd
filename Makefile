@@ -49,8 +49,12 @@ install:
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc ; \
 		fi
 		@chmod 0775 ${PREFIX}/etc
-		@chmod -f 0660 ${PREFIX}/etc/lastcall.data
-		@chmod -f 0660 ${PREFIX}/etc/sysinfo.data
+		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
+			chmod 0660 ${PREFIX}/etc/lastcall.data ; \
+		fi
+		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
+			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
+		fi
 		@if [ ! -d ${PREFIX}/doc ] ; then \
 			mkdir ${PREFIX}/doc ; \
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/doc ; \

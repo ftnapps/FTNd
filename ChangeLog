@@ -29,6 +29,9 @@ v0.39.4		08-Dec-2003
 	mbsetup:
 		Added default record for french language.
 
+	mbtask:
+		Moved the scheduler in a thread.
+
 	script:
 		Dropped support for Slackware pre 7.0.
 		Changed startup scripts for NetBSD.

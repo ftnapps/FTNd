@@ -48,7 +48,7 @@
 #include "mbtask.h"
 
 
-#define	NUM_THREADS	2			/* Max.	nr of threads	*/
+#define	NUM_THREADS	3			/* Max.	nr of threads	*/
 
 
 /*
@@ -113,6 +113,8 @@ int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 int			nodaemon = FALSE;	/* Run in foreground	*/
 extern int		cmd_run;		/* Cmd running		*/
 extern int		ping_run;		/* Ping running		*/
+int			sched_run = FALSE;	/* Scheduler running	*/
+
 
 
 /*
@@ -654,7 +656,6 @@ void die(int onsig)
     int	    i, count;
     time_t  now;
 
-    T_Shutdown = TRUE;
     signal(onsig, SIG_IGN);
 
     if ((onsig == SIGTERM) || (nodaemon && (onsig == SIGINT))) {
@@ -690,7 +691,16 @@ void die(int onsig)
 	}
     }
 
-    if (cmd_run || ping_run)
+    if ((count = checktasks(0)))
+	Syslog('?', "Shutdown with %d tasks still running", count);
+    else
+	Syslog('+', "Good, no more tasks running");
+
+    /*
+     * Now stop the threads
+     */
+    T_Shutdown = TRUE;
+    if (cmd_run || ping_run || sched_run)
 	Syslog('+', "Waiting for threads to stop");
 
     /*
@@ -698,14 +708,9 @@ void die(int onsig)
      * build to stop within a second.
      */
     now = time(NULL) + 2;
-    while ((cmd_run || ping_run) && (time(NULL) < now)) {
+    while ((cmd_run || ping_run || sched_run) && (time(NULL) < now)) {
 	sleep(1);
     }
-
-    if ((count = checktasks(0)))
-	Syslog('?', "Shutdown with %d tasks still running", count);
-    else
-	Syslog('+', "Good, no more tasks running");
 
     /*
      * Free memory
@@ -902,23 +907,13 @@ void check_sema(void)
 
 
 
-void scheduler(void)
+void start_scheduler(void)
 {
     struct passwd   *pw;
-    int		    running = 0, i, found;
-    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
-    char            *cmd = NULL, opts[41], port[21];
-    static char	    doing[32];
-    time_t          now;
-    struct tm       *tm, *utm;
-#if defined(__linux__)
-    FILE	    *fp;
-#endif
-    int		    call_work = 0;
-    static int	    call_entry = MAXTASKS;
-    double	    loadavg[3];
-    pp_list	    *tpl;
-
+    char            *cmd = NULL;
+    int		    rc;
+    pthread_attr_t  attr;
+    
     InitFidonet();
 
     /*
@@ -934,7 +929,6 @@ void scheduler(void)
 
     Processing = TRUE;
     TouchSema((char *)"mbtask.last");
-    pw = getpwuid(getuid());
 
     /*
      * Setup UNIX Datagram socket
@@ -961,6 +955,7 @@ void scheduler(void)
      * mbsetup init to create the default databases.
      */
     if (masterinit) {
+	pw = getpwuid(getuid());
 	cmd = xstrcpy(pw->pw_dir);
 	cmd = xstrcat(cmd, (char *)"/bin/mbsetup");
 	launch(cmd, (char *)"init", (char *)"mbsetup", MBINIT);
@@ -978,12 +973,50 @@ void scheduler(void)
     /*
      * Install threads
      */
-    thr_id[0] = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
-    Syslog('l', "pthread_create ping_thread rc=%d", thr_id[0]);
-    thr_id[1] = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL);
-    Syslog('l', "pthread_create cmd_thread rc=%d", thr_id[1]);
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    rc = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
+    Syslog('l', "pthread_create ping_thread rc=%d", rc);
+    rc = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL);
+    Syslog('l', "pthread_create cmd_thread rc=%d", rc);
+    rc = pthread_create(&p_thread[2], NULL, (void (*))scheduler, NULL);
+    Syslog('l', "pthread_create scheduler rc=%d", rc);
+    pthread_attr_destroy(&attr);
+    Syslog('+', "All threads installed");
 
-    Syslog('l', "Entering scheduler loop");
+    /*
+     * Sleep until we die
+     */
+    while (TRUE) {
+	sleep(1);
+    }
+}
+
+
+
+/*
+ * Scheduler thread
+ */
+void *scheduler(void)
+{
+    struct passwd   *pw;
+    int             running = 0, i, found;
+    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
+    char            *cmd = NULL, opts[41], port[21];
+    static char     doing[32];
+    time_t          now;
+    struct tm       *tm, *utm;
+#if defined(__linux__)
+    FILE            *fp;
+#endif
+    int             call_work = 0;
+    static int      call_entry = MAXTASKS;
+    double          loadavg[3];
+    pp_list         *tpl;
+
+    Syslog('+', "Starting scheduler thread with pid %d", (int)getpid());
+    sched_run = TRUE;
+    pw = getpwuid(getuid());
 
     /*
      * Enter the mainloop (forever)
@@ -993,6 +1026,8 @@ void scheduler(void)
 	Syslog('l', "Starting scheduler loop");
 #endif
 	sleep(1);
+	if (T_Shutdown)
+	    break;
 
 	/*
 	 * Check all registered connections and semafore's
@@ -1304,7 +1339,11 @@ void scheduler(void)
 	    } /* if (Processing) */
 	} /* if ((tm->tm_sec / SLOWRUN) != oldmin) */
 
-    } while (TRUE);
+    } while (! T_Shutdown);
+
+    sched_run = FALSE;
+    Syslog('+', "Scheduler thread stopped");
+    pthread_exit(NULL);
 }
 
 
@@ -1451,7 +1490,7 @@ int main(int argc, char **argv)
 		    _exit(MBERR_EXEC_FAILED);
 		}
 		mypid = getpid();
-		scheduler();
+		start_scheduler();
 		/* Not reached */
 	default:
 		/*
