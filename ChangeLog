@@ -23,6 +23,7 @@ v0.37.3		09-Apr-2003.
 	mbcico:
 		Removed some heavy debug code from ttyio functions to increase
 		throughput.
+		Standarized raw ifcico protocol logging.
 
 	lang:
 		New language prompt number 17.
