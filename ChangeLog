@@ -24,6 +24,10 @@ v0.71.0		27-Oct-2004
 		After forced chat, redisplay the last menu.
 		Removed support for non-batching protocols (xmodem) and for
 		bidirectional protocols.
+		Removed Ctrl-F G, this is of no use anymore.
+		Switched to new modular download function.
+		With download from file areas, the long filename is sent to
+		the users, we will only support protocols that allow this.
 
 	mbnewusr:
 		Rewrote terminal i/o.
@@ -31,6 +35,7 @@ v0.71.0		27-Oct-2004
 	mbsetup:
 		In file transfers edit, removed switches for batch and bidirect
 		protocols, added a switch for internal protocols.
+		In file areas, free downloads is now default for new areas.
 
 	lang:
 		Changed width of prompt 261.

@@ -89,6 +89,68 @@ int ForceProtocol()
 
 
 
+void add_download(down_list **lst, char *local, char *remote, long Area, unsigned long size, int kfs)
+{
+    down_list	*tmp, *ta;
+    int		i;
+
+    Syslog('b', "add_download(\"%s\",\"%s\",%ld,%ld,%d)", MBSE_SS(local), MBSE_SS(remote), Area, size, kfs);
+
+    tmp = (down_list *)malloc(sizeof(down_list));
+    tmp->next = NULL;
+    tmp->local = xstrcpy(local);
+    tmp->remote = xstrcpy(remote);
+    tmp->cps = 0;
+    tmp->area = Area;
+    tmp->size = size;
+    tmp->kfs = kfs;
+    tmp->sent = FALSE;
+    tmp->failed = FALSE;
+
+    /*
+     * Most prottocols don't allow spaces in filenames, so we modify the remote name.
+     * However, they should not exist on a bbs.
+     */
+    for (i = 0; i < strlen(tmp->remote); i++) {
+	if (tmp->remote[i] == ' ')
+	    tmp->remote[i] = '_';
+    }
+
+    if (*lst == NULL) {
+	*lst = tmp;
+    } else {
+	for (ta = *lst; ta; ta = ta->next) {
+	    if (ta->next == NULL) {
+		ta->next = (down_list *)tmp;
+		break;
+	    }
+	}
+    }
+    
+    return;
+}
+
+
+
+void tidy_download(down_list **fdp)
+{
+    down_list	*tmp, *old;
+
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->local)
+	    free(tmp->local);
+	if (tmp->remote)
+	    free(tmp->remote);
+	free(tmp);
+    }
+
+    *fdp = NULL;
+    return;
+}
+
+
+
 /*
  * Download files to the user.
  * Returns:
@@ -107,6 +169,12 @@ int download(down_list *download_list)
     struct timeval  starttime, endtime;
     struct timezone tz;
 
+    Syslog('b', "download()");
+    for (tmpf = download_list; tmpf; tmpf = tmpf->next) {
+	Syslog('b', "%s,%s,%ld,%ld,%ld,%s,%s,%s", tmpf->local, tmpf->remote, tmpf->cps, tmpf->area, tmpf->size,
+		tmpf->kfs ?"KFS":"KEEP", tmpf->sent ?"SENT":"N/A", tmpf->failed ?"FAILED":"N/A");
+    }
+
     /*
      * If user has no default protocol, make sure he has one.
      */
@@ -114,39 +182,40 @@ int download(down_list *download_list)
 	return 1;
     }
 
-    /*
-     * Clean users tag directory.
-     */
-    WhosDoingWhat(DOWNLOAD, NULL);
-    temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
-    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
-    CheckDir(temp);
-
     symTo   = calloc(PATH_MAX, sizeof(char));
     symFrom = calloc(PATH_MAX, sizeof(char));
-    
+    temp    = calloc(PATH_MAX, sizeof(char));
+
     /*
      * Build symlinks into the users tag directory.
      */
     chdir("./tag");
     for (tmpf = download_list; tmpf; tmpf = tmpf->next) {
         if (!tmpf->sent && !tmpf->failed) {
-	    unlink(tmpf->remote);
-	    sprintf(symFrom, "%s", tmpf->remote);
-	    sprintf(symTo, "%s", tmpf->local);
-	    if (symlink(symTo, symFrom)) {
-	        WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
-	        tmpf->failed = TRUE;
+	    sprintf(symFrom, "%s/%s/tag/%s", CFG.bbs_usersdir, exitinfo.Name, tmpf->remote);
+	    Syslog('b', "test \"%s\" \"%s\"", symFrom, tmpf->local);
+	    if (strcmp(symFrom, tmpf->local)) {
+		Syslog('b', "different, need a symlink");
+		unlink(tmpf->remote);
+		sprintf(symFrom, "%s", tmpf->remote);
+		sprintf(symTo, "%s", tmpf->local);
+		if (symlink(symTo, symFrom)) {
+		    WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
+		    tmpf->failed = TRUE;
+		} else {
+		    Syslog('b', "Created symlink %s -> %s", symFrom, symTo);
+		}
+		tmpf->kfs = FALSE;
 	    } else {
-	        Syslog('b', "Created symlink %s -> %s", symFrom, symTo);
+		Syslog('b', "the same, file is in tag directory");
 	    }
-	    if ((access(symFrom, R_OK)) != 0) {
-	        /*
-	         * Extra check, is symlink really there?
-	         */
-	        WriteError("Symlink %s check failed, unmarking download", symFrom);
+
+	    /*
+	     * Check if file or symlink is really there.
+	     */
+	    sprintf(symFrom, "%s", tmpf->remote);
+	    if ((access(symFrom, F_OK)) != 0) {
+	        WriteError("File or symlink %s check failed, unmarking download", symFrom);
 	        tmpf->failed = TRUE;
 	    } else {
 	        Count++;
@@ -174,7 +243,7 @@ int download(down_list *download_list)
     /* Protocol    : */
     pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
 
-    Syslog('+', "Download tagged files start, protocol: %s", sProtName);
+    Syslog('+', "Download files start, protocol: %s", sProtName);
 
     PUTSTR(sProtAdvice);
     Enter(2);
@@ -264,11 +333,16 @@ int download(down_list *download_list)
 	 * Size of the File by the amount of time it took to download 
 	 * the file.
 	 */
-	Syslog('+', "Download %s, %d", transfertime(starttime, endtime, (unsigned long)Size, TRUE), Count);
+	Syslog('+', "Download %s in %d file(s)", transfertime(starttime, endtime, (unsigned long)Size, TRUE), Count);
     }
     
     free(symTo);
     free(symFrom);
+
+    for (tmpf = download_list; tmpf; tmpf = tmpf->next) {
+	Syslog('b', "%s,%s,%ld,%ld,%ld,%s,%s,%s", tmpf->local, tmpf->remote, tmpf->cps, tmpf->area, tmpf->size,
+		tmpf->kfs ?"KFS":"KEEP", tmpf->sent ?"SENT":"N/A", tmpf->failed ?"FAILED":"N/A");
+    }
 
     return maxrc;
 }

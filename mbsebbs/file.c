@@ -163,19 +163,20 @@ void File_List()
  */
 void Download(void)
 {
-    DIR		    *dirp;
-    struct dirent   *dp;
     FILE	    *tf, *fd;
-    int		    i, err, Count = 0, OldArea;
-    char	    *symTo, *symFrom, *temp;
-    long	    Size = 0, CostSize = 0;
-    time_t	    ElapstimeStart, ElapstimeFin, iTime;
-    long	    iTransfer = 0;
+    int		    rc = 0, i, Count = 0, OldArea;
+    char	    *local, *temp;
+    long	    Size = 0, CostSize = 0, dsize;
     struct _fdbarea *fdb_area = NULL;
+    down_list	    *dl = NULL, *tmpf;
 
     Enter(2);
     OldArea = iAreaNumber;
     WhosDoingWhat(DOWNLOAD, NULL);
+
+    /*
+     * Clean users tag directory.
+     */
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
@@ -188,12 +189,10 @@ void Download(void)
 	pout(LIGHTRED, BLACK, (char *) Language(258));
 	Enter(2);
 	Pause();
-	free(temp);
 	return;
     }
 
-    symTo   = calloc(PATH_MAX, sizeof(char));
-    symFrom = calloc(PATH_MAX, sizeof(char));
+    local   = calloc(PATH_MAX, sizeof(char));
     /* Checking your marked downloads, please wait... */
     pout(LIGHTMAGENTA, BLACK, (char *) Language(255));
     Enter(2);
@@ -234,8 +233,8 @@ void Download(void)
 		 * can unlink it aftwerwards. We also insert CR
 		 * characters to please the poor DOS (M$oft) users.
 		 */
-		sprintf(symTo, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
-		if ((fd = fopen(symTo, "a")) != NULL) {
+		sprintf(local, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
+		if ((fd = fopen(local, "a")) != NULL) {
 		    fprintf(fd, "%s (%s)\r\n", fdb.LName, fdb.Name);
 		    for (i = 0; i < 25; i++) {
 			if (strlen(fdb.Desc[i]) > 1)
@@ -243,33 +242,14 @@ void Download(void)
 		    }
 		    fprintf(fd, "\r\n");
 		    fclose(fd);
-		    Syslog('b', "Added info to %s", symTo);
+		    Syslog('b', "Added info to %s", local);
 		} else {
-		    WriteError("Can't add info to %s", symTo);
+		    WriteError("Can't add info to %s", local);
 		}
 
-		/*
-		 * Make a symlink to the users download dir.
-		 * First unlink, in case there was an old one.
-		 * The shortname is linked to the original longname.
-		 */
-		chdir("./tag");
-		unlink(Tag.SFile);
-		sprintf(symFrom, "%s", Tag.SFile);
-		sprintf(symTo, "%s/%s", sAreaPath, Tag.LFile);
-		if (symlink(symTo, symFrom)) {
-		    WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
-		    Tag.Active = FALSE;
-		} else {
-		    Syslog('b', "Created symlink %s -> %s", symFrom, symTo);
-		}
-		if ((access(symFrom, R_OK)) != 0) {
-		    /*
-		     * Extra check, is symlink really there?
-		     */
-		    WriteError("Symlink %s check failed, unmarking download", symFrom);
-		    Tag.Active = FALSE;
-		}
+		sprintf(local, "%s/%s", sAreaPath, Tag.LFile);
+		add_download(&dl, local, Tag.LFile, Tag.Area, fdb.Size, FALSE);
+
 		Home();
 	    } 
 
@@ -304,170 +284,100 @@ void Download(void)
 	pout(LIGHTRED, BLACK, (char *) Language(258));
 	Enter(2);
 	Pause();
-	free(symTo);
-	free(symFrom);
 	free(temp);
+	free(local);
+	tidy_download(&dl);
 	Syslog('+', "No files left to download");
 	return;
     }
+
+    /*
+     * Add descriptions file to the queue.
+     */
+    sprintf(local, "%s/%s/tag/filedesc.%ld", CFG.bbs_usersdir, exitinfo.Name, exitinfo.Downloads % 256);
+    dsize = file_size(local);
+    sprintf(temp, "filedesc.%ld", exitinfo.Downloads % 256);
+    add_download(&dl, local, temp, 0, dsize, TRUE);
+    free(local);
 
     /* You have */ /* files( */ /* bytes) marked for download */
     sprintf(temp, "%s %d %s%ld %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
     pout(YELLOW, BLACK, temp);
     Enter(2);
 
-    /*
-     * If user has no default protocol, make sure he has one.
-     */
-    if (!ForceProtocol()) {
-	SetFileArea(OldArea);
-	free(symTo);
-	free(symFrom);
-	free(temp);
-	return;
-    }
-
     if (!CheckBytesAvailable(CostSize)) {
 	SetFileArea(OldArea);
-	free(symTo);
-	free(symFrom);
 	free(temp);
+	tidy_download(&dl);
 	return;
     }
 
     Pause();
 
-    clear();
-    /* File(s)     : */
-    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%d", Count);     PUTSTR(temp); Enter(1);
-    /* Size        : */
-    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
-    /* Protocol    : */
-    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
-
-    Syslog('+', "Download tagged files start, protocol: %s", sProtName);
-
-    PUTSTR(sProtAdvice);
-    Enter(2);
-
-    /*
-     * Wait a while before download
-     */
-    sleep(2);
-    ElapstimeStart = time(NULL);
-	
-    /*
-     * Transfer the files. Set the Client/Server time at the maximum
-     * time the user has plus 10 minutes. The overall timer 10 seconds
-     * less. Not a nice but working solution.
-     */
-    alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
-    Altime((exitinfo.iTimeLeft + 10) * 60);
-
-    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
-    if ((dirp = opendir(temp)) == NULL) {
-	WriteError("$Download: Can't open dir: %s", temp);
+    if ((rc = download(dl))) {
+	/*
+	 * Download error
+	 */
 	free(temp);
-    } else {
-	chdir(temp);
-	free(temp);
-	temp = NULL;
-	while ((dp = readdir(dirp)) != NULL ) {
-	    if (*(dp->d_name) != '.') {
-		if (temp != NULL) {
-		    temp = xstrcat(temp, (char *)" ");
-		    temp = xstrcat(temp, dp->d_name);
-		} else {
-		    temp = xstrcpy(dp->d_name);
-		}
-	    }
-	}
-	if (temp != NULL) {
-	    if ((err = execute_str(sProtDn, temp, NULL, NULL, NULL, NULL))) {
-		WriteError("$Download error %d, prot: %s", err, sProtDn);
-	    }
-	    /*
-	     * Restore rawport
-	     */
-	    rawport();
-	    free(temp);
-	} else {
-	    WriteError("No filebatch created");
-	}
-	closedir(dirp);
+	tidy_download(&dl);
+	return;
     }
-    Altime(0);
-    alarm_off();
-    alarm_on();
-    Home();
-    ElapstimeFin = time(NULL);
-
-    /*
-     * Get time from Before Download and After Download to get
-     * download time, if the time is zero, it will be one.
-     */
-    iTime = ElapstimeFin - ElapstimeStart;
-    if (!iTime)
-	iTime = 1;
-
+    
     /*
      * Checking the successfull sent files, they are missing from
      * the ./tag directory. Failed files are still there.
      */
-    PUTCHAR('\r');
+    Enter(1);
     /* Updating download counters, please wait ... */
     pout(LIGHTCYAN, BLACK, (char *) Language(352));
-    Enter(2);
     Count = Size = 0; 
 
+    /*
+     * Update downloadcounters, don't log anything because the state
+     * of sucessfull sent files is already logged by the download
+     * function.
+     */
     if ((tf = fopen("taglist", "r+")) != NULL) {
 	while (fread(&Tag, sizeof(Tag), 1, tf) == 1) {
+	    PUTCHAR('.');
 	    if (Tag.Active) {
-		sprintf(symTo, "./tag/%s", Tag.SFile);
-		/*
-		 * If symlink is gone the file is sent.
-		 */
-		if ((access(symTo, R_OK)) != 0) {
-		    Syslog('+', "File %s from area %d sent ok", Tag.LFile, Tag.Area);
-		    Tag.Active = FALSE;
-		    fseek(tf, - sizeof(Tag), SEEK_CUR);
-		    fwrite(&Tag, sizeof(Tag), 1, tf);
+		for (tmpf = dl; tmpf; tmpf = tmpf->next) {
+		    if (strcmp(tmpf->remote, Tag.SFile) == 0) {
+			if (tmpf->sent) {
+		
+			    Tag.Active = FALSE;
+			    fseek(tf, - sizeof(Tag), SEEK_CUR);
+			    fwrite(&Tag, sizeof(Tag), 1, tf);
 
-		    /*
-		     * Update the download counter and the last download date.
-		     */
-		    SetFileArea(Tag.Area);
-		    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30))) {
-			while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-			    if (strcmp(fdb.LName, Tag.LFile) == 0)
-				break;
+			    /*
+			     * Update the download counter and the last download date.
+			     */
+			    SetFileArea(Tag.Area);
+			    if ((fdb_area = mbsedb_OpenFDB(Tag.Area, 30))) {
+				while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+				    if (strcmp(fdb.LName, Tag.LFile) == 0)
+					break;
+				}
+				Size += fdb.Size;
+				fdb.TimesDL++;
+				fdb.LastDL = time(NULL);
+				if (mbsedb_LockFDB(fdb_area, 30)) {
+				    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+				    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+				    mbsedb_UnlockFDB(fdb_area);
+				}
+				mbsedb_CloseFDB(fdb_area);
+				Count++;
+			    }
 			}
-			Size += fdb.Size;
-			fdb.TimesDL++;
-			fdb.LastDL = time(NULL);
-			if (mbsedb_LockFDB(fdb_area, 30)) {
-			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
-			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-			    mbsedb_UnlockFDB(fdb_area);
-			}
-			mbsedb_CloseFDB(fdb_area);
-			Count++;
+			break;
 		    }
-		} else {
-		    Syslog('+', "Failed to sent %s from area %d", Tag.LFile, Tag.Area);
 		}
 	    }
 	}
 	fclose(tf);
     }
-
-    /*
-     * Work out transfer rate in seconds by dividing the
-     * Size of the File by the amount of time it took to download 
-     * the file.
-     */
-    iTransfer = Size / iTime;
-    Syslog('+', "Download time %ld seconds (%lu cps), %d files", iTime, iTransfer, Count);
+    Enter(2);
 
     /*
      * Update the users record.
@@ -483,14 +393,13 @@ void Download(void)
      */
     if (LIMIT.DownK || LIMIT.DownF) {
 	exitinfo.DownloadKToday -= (Size / 1024);
-	exitinfo.iTransferTime = iTransfer;
     }
 
     WriteExitinfo();
     Pause();
     SetFileArea(OldArea);
-    free(symTo);
-    free(symFrom);
+    free(temp);
+    tidy_download(&dl);
 }
 
 
@@ -1140,11 +1049,9 @@ int Upload()
  */
 int DownloadDirect(char *Name, int Wait)
 {
-    int	    err, rc;
-    char    *symTo, *symFrom, temp[81];
-    long    Size;
-    time_t  ElapstimeStart, ElapstimeFin, iTime;
-    long    iTransfer = 0;
+    int		rc = 0;
+    long	Size;
+    down_list	*dl = NULL;
 
     if ((Size = file_size(Name)) == -1) {
 	WriteError("No file %s", Name);
@@ -1153,110 +1060,28 @@ int DownloadDirect(char *Name, int Wait)
 	Pause();
     }
 
-    /*
-     * Make a symlink to the users tmp dir.
-     */
-    symTo = calloc(PATH_MAX, sizeof(char));
-    symFrom = calloc(PATH_MAX, sizeof(char));
-    sprintf(symFrom, "%s/%s/tmp%s", CFG.bbs_usersdir, exitinfo.Name, strrchr(Name, '/'));
-    sprintf(symTo, "%s", Name);
+    Syslog('+', "Download direct %s", Name);
 
-    if (symlink(symTo, symFrom)) {
-	WriteError("$Can't create symlink %s %s", symTo, symFrom);
-	free(symTo);
-	free(symFrom);
-	return FALSE;
-    }
-
-    /*
-     * If user has no default protocol, make sure he has one.
-     */
-    if (!ForceProtocol()) {
-	unlink(symFrom);
-	free(symTo);
-	free(symFrom);
-	return FALSE;
-    }
-
+    add_download(&dl, Name, basename(Name), 0, Size, FALSE);
     WhosDoingWhat(DOWNLOAD, NULL);
-    ReadExitinfo();
 
-    clear();
-    /* File(s)    : */
-    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%s", symFrom);   PUTSTR(temp); Enter(1);
-    /* Size       : */
-    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
-    /* Protocol   : */
-    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
-
-    Syslog('+', "Download direct start %s", Name);
-
-    PUTSTR(sProtAdvice);
-    Enter(2);
-
-    /*
-     * Wait a while before download
-     */
-    sleep(2);
-    ElapstimeStart = time(NULL);
-
-    /*
-     * Transfer the file. Set the Client/Server time at the maximum
-     * time the user has plus 10 minutes. The overall timer 10 seconds
-     * less.
-     */
-    alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
-    Altime((exitinfo.iTimeLeft + 10) * 60);
-    err = execute_str(sProtDn, symFrom, NULL, NULL, NULL, NULL);
-    rawport();
-    if (err) {
+    if ((rc = download(dl))) {
 	/*
-	 * Only log the error, we might have sent some files
-	 * instead of nothing.
+	 * Error
 	 */
-	WriteError("$Download error %d, prot: %s", err, sProtDn);
-    }
-	
-    Altime(0);
-    alarm_off();
-    alarm_on();
-    ElapstimeFin = time(NULL);
-
-    /*
-     * Get time from Before Download and After Download to get
-     * download time, if the time is zero, it will be one.
-     */
-    iTime = ElapstimeFin - ElapstimeStart;
-    if (!iTime)
-	iTime = 1;
-
-    if ((access(symFrom, R_OK)) != 0) {
-
-	/*
-	 * Work out transfer rate in seconds by dividing the
-	 * Size of the File by the amount of time it took to download 
-	 * the file.
-	 */
-	iTransfer = Size / iTime;
-	Syslog('+', "Download ok, time %ld seconds (%lu cps)", iTime, iTransfer);
-
+	Syslog('+', "Download failed rc=%d", rc);
+	poutCR(LIGHTRED, BLACK, (char *)Language(353));
+    } else {
 	/*
 	 * Update the users record. The file is free, so only statistics.
 	 */
 	ReadExitinfo();
 	exitinfo.Downloads++;    /* Increase download counter */
-	exitinfo.iTransferTime = iTransfer;
 	WriteExitinfo();
-	rc = TRUE;
-    } else {
-	Syslog('+', "Download failed to sent file");
-	unlink(symFrom);
-	rc = FALSE;
     }
+
     if (Wait)
 	Pause();
-    free(symTo);
-    free(symFrom);
     return rc;
 }
 

@@ -383,10 +383,6 @@ void ControlCodeF(int ch)
 		sprintf(temp, "%lu", LIMIT.DownK); 
 		break;
 
-	case 'G':
-		sprintf(temp, "%d", exitinfo.iTransferTime);
-		break;
-
 	case 'H':
 		sprintf(temp, "%d", iAreaNumber);
 		break;

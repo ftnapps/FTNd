@@ -1239,7 +1239,7 @@ void OLR_DownBW()
     time_t	    Now;
     char	    Pktname[32], *Work, *Temp;
     long	    Area = 0;
-    int		    RetVal = FALSE, rc;
+    int		    RetVal = FALSE, rc = 0;
     FILE	    *fp, *tf, *mf, *af;
     INF_HEADER	    Inf;
     INF_AREA_INFO   AreaInf;
@@ -1437,7 +1437,6 @@ void OLR_DownBW()
     }
     fclose(tf);
 
-    rc = FALSE;
     alarm_on();
 
     if (Total) {
@@ -1472,7 +1471,7 @@ void OLR_DownBW()
 	}
     }
 
-    if (rc == FALSE) {
+    if (rc) {
 	Syslog('+', "BlueWave download failed");
 	/*      Download failed */
 	poutCR(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));
@@ -2204,7 +2203,7 @@ void OLR_DownQWK(void)
 	}
     }
 
-    if (rc == FALSE) {
+    if (rc) {
 	Syslog('+', "QWK download failed");
 	/*      Download failed */
 	pout(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));
@@ -2820,7 +2819,7 @@ void OLR_DownASCII(void)
 	}
     }
 
-    if (rc == FALSE) {
+    if (rc) {
 	Syslog('+', "ASCII download failed");
 	/*      Download failed */
 	pout(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));

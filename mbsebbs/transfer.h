@@ -35,6 +35,8 @@ typedef struct _up_list {
 
 int             ForceProtocol(void);
 
+void add_download(down_list **, char *, char *, long, unsigned long, int);
+void tidy_download(down_list **);
 int download(down_list *);
 int upload(up_list *);
 
