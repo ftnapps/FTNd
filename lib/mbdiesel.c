@@ -66,7 +66,7 @@ void MacroVars( const char *codes, const char *fmt, ...)
                         sprintf(tmp1,"@(setvar,%c,%d)",codes[j],vd);
                         break;
                    case 'c':           /* char */
-                        vc = va_arg(ap, char);
+                        vc = va_arg(ap, int);
                         sprintf(tmp1,"@(setvar,%c,%c)",codes[j],vc);
                         break;
                    case 'f':           /* char */
