@@ -336,7 +336,7 @@ void disk_stat(void)
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
     set_color(YELLOW, RED);
-    mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   St Mountpoint                          ");
+    mvprintw( 7, 1, " Size MB   Free MB     Used  FS-Type   St Mountpoint                          ");
     set_color(CYAN, BLACK);
     mvprintw(lines - 2, 6, "Press any key");
     IsDoing("Filesystem Usage");
@@ -371,7 +371,7 @@ void disk_stat(void)
 			sign = ' ';
 		    last[i] = used;
 		    set_color(CYAN, BLACK);
-		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, used);
+		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, avail);
 		    set_color(WHITE, BLACK);
 		    printf("%c  ", sign);
 		    if (ro == 0) {
