@@ -105,6 +105,7 @@ int OpenMGroup(void)
 	FILE	*fin, *fout;
 	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
 	long	oldsize;
+	int	i;
 
 	sprintf(fnin,  "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	sprintf(fnout, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
@@ -142,10 +143,16 @@ int OpenMGroup(void)
 			 */
 			memset(&mgroup, 0, sizeof(mgroup));
 			while (fread(&mgroup, oldsize, 1, fin) == 1) {
-				if (MGrpUpdated) {
+				if (MGrpUpdated && !strlen(mgroup.BasePath)) {
 				    memset(&temp, 0, sizeof(temp));
 				    strcpy(temp, mgroup.Name);
-				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(temp));
+				    for (i = 0; i < strlen(temp); i++) {
+					if (isupper(temp[i]))
+					    temp[i] = tolower(temp[i]);
+					if (temp[i] == '.')
+					    temp[i] = '/';
+				    }
+				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
@@ -284,7 +291,7 @@ int EditMGrpRec(int Area)
 	FILE		*fil;
 	static char	mfile[PATH_MAX], temp[13];
 	static long	offset;
-	static int	j, tmp;
+	static int	i, j, tmp;
 	unsigned long	crc, crc1;
 
 	clr_index();
@@ -361,7 +368,13 @@ int EditMGrpRec(int Area)
 			if (strlen(mgroup.BasePath) == 0) {
 			    memset(&temp, 0, sizeof(temp));
 			    strcpy(temp, mgroup.Name);
-			    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(temp));
+			    for (i = 0; i < strlen(temp); i++) {
+				if (temp[i] == '.')
+				    temp[i] = '/';
+				if (isupper(temp[i]))
+				    temp[i] = tolower(temp[i]);
+			    }
+			    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 			}
 			break;
 		case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")

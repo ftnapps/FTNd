@@ -498,18 +498,18 @@ void SetScreen()
 	set_color(CYAN, BLACK);
 	mvprintw( 6, 2, "1.  Area Name");
 	mvprintw( 7, 2, "2.  FTN area");
-	mvprintw( 8, 2, "3.  Newsgroup");
-	mvprintw( 9, 2, "4.  Moderator");
+	mvprintw( 8, 2, "3.  Group");
+	mvprintw( 9, 2, "4.  Newsgroup");
 	mvprintw(10, 2, "5.  JAM base");
 	mvprintw(11, 2, "6.  Origin");
 	mvprintw(12, 2, "7.  Fido Aka");
 	mvprintw(13, 2, "8.  QWK name");
-	mvprintw(14, 2, "9.  Group");
-	mvprintw(15, 2, "10. Distrib.");
-	mvprintw(16, 2, "11. Area Type");
-	mvprintw(17, 2, "12. Msg Kinds");
-	mvprintw(18, 2, "13. FTN chars");
-	mvprintw(19, 2, "14. RFC chars");
+	mvprintw(14, 2, "9.  Distrib.");
+	mvprintw(15, 2, "10. Area Type");
+	mvprintw(16, 2, "11. Msg Kinds");
+	mvprintw(17, 2, "12. FTN chars");
+	mvprintw(18, 2, "13. RFC chars");
+	mvprintw(19, 2, "14. Active");
 
 	mvprintw(13,36, "15. Days Old");
 	mvprintw(14,36, "16. Max. Msgs");
@@ -521,22 +521,21 @@ void SetScreen()
 	    default:	    mvprintw(15,36, "17. N/A");
 			    break;
 	}
-	mvprintw(16,36, "18. Active");
-	mvprintw(17,36, "19. Read Sec.");
-	mvprintw(18,36, "20. Write Sec.");
-	mvprintw(19,36, "21. Sysop Sec.");
+	mvprintw(16,36, "18. Read Sec.");
+	mvprintw(17,36, "19. Write Sec.");
+	mvprintw(18,36, "20. Sysop Sec.");
+	mvprintw(19,36, "21. User Del.");
 
-	mvprintw(12,60, "22. User Del.");
-	mvprintw(13,60, "23. Aliases");
-	mvprintw(14,60, "24. Quotes");
-	mvprintw(15,60, "25. Mandatory");
-	mvprintw(16,60, "26. UnSecure");
-	mvprintw(17,60, "27. OLR Default");
-	mvprintw(18,60, "28. OLR Forced");
+	mvprintw(13,60, "22. Aliases");
+	mvprintw(14,60, "23. Quotes");
+	mvprintw(15,60, "24. Mandatory");
+	mvprintw(16,60, "25. UnSecure");
+	mvprintw(17,60, "26. OLR Default");
+	mvprintw(18,60, "27. OLR Forced");
 	switch (msgs.Type) {
 	    case ECHOMAIL:
 	    case NEWS:
-	    case LIST:	mvprintw(19,60, "29. Connections");
+	    case LIST:	mvprintw(19,60, "28. Connections");
 			break;
 	}
 } 
@@ -1030,18 +1029,18 @@ int EditMsgRec(int Area)
 		set_color(WHITE, BLACK);
 		show_str( 6,16,40, msgs.Name);
 		show_str( 7,16,50, msgs.Tag);
-		show_str( 8,16,64, msgs.Newsgroup);
-		show_str( 9,16,64, msgs.Moderator);
+		show_str( 8,16,12, msgs.Group);
+		show_str( 9,16,64, msgs.Newsgroup);
 		show_str(10,16,64, msgs.Base);
 		show_str(11,16,64, msgs.Origin);
 		show_aka(12,16,    msgs.Aka);
 		show_str(13,16,13, msgs.QWKname);
-		show_str(14,16,12, msgs.Group);
-		show_str(15,16,16, msgs.Distribution);
-		show_msgtype(16,16, msgs.Type);
-		show_msgkinds(17,16, msgs.MsgKinds);
-		show_str(18,16,16, printable(getchrs(msgs.Ftncode), 0));
-		show_str(19,16,16, printable(getchrs(msgs.Rfccode), 0));
+		show_str(14,16,16, msgs.Distribution);
+		show_msgtype(15,16, msgs.Type);
+		show_msgkinds(16,16, msgs.MsgKinds);
+		show_str(17,16,16, printable(getchrs(msgs.Ftncode), 0));
+		show_str(18,16,16, printable(getchrs(msgs.Rfccode), 0));
+		show_bool(19,16,   msgs.Active);
 
 		show_int( 13,52, msgs.DaysOld);
 		show_int( 14,52, msgs.MaxMsgs);
@@ -1051,12 +1050,11 @@ int EditMsgRec(int Area)
 		    case NEWS:	    show_int( 15,52, msgs.MaxArticles);
 				    break;
 		}
-		show_bool(16,52, msgs.Active);
-		show_int( 17,52, msgs.RDSec.level);
-		show_int( 18,52, msgs.WRSec.level);
-		show_int( 19,52, msgs.SYSec.level);
+		show_int( 16,52, msgs.RDSec.level);
+		show_int( 17,52, msgs.WRSec.level);
+		show_int( 18,52, msgs.SYSec.level);
+		show_bool(19,52, msgs.UsrDelete);
 
-		show_bool(12,76, msgs.UsrDelete);
 		show_bool(13,76, msgs.Aliases);
 		show_bool(14,76, msgs.Quotes);
 		show_bool(15,76, msgs.Mandatory);
@@ -1075,7 +1073,7 @@ int EditMsgRec(int Area)
 				break;
 		}
 
-		switch(select_menu(29)) {
+		switch (select_menu(28)) {
 		case 0:
 			crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&msgs, crc1, msgshdr.recsize);
@@ -1084,6 +1082,8 @@ int EditMsgRec(int Area)
 				fread(&System, sizeof(sysconnect), 1, tfil);
 				crc1 = upd_crc32((char *)&System, crc1, sizeof(sysconnect));
 			}
+			if (msgs.Active)
+			    test_jam(msgs.Base);
 			if ((MsgCrc != crc1) || (changed)) {
 			    if (msgs.Active && !strlen(msgs.Base)) {
 				errmsg((char *)"JAM message base is not set");
@@ -1096,7 +1096,7 @@ int EditMsgRec(int Area)
 				if (SaveMsgRec(Area, TRUE) == -1)
 				    return -1;
 				MsgUpdated = 1;
-				Syslog('+', "Saved record %d", Area);
+				Syslog('+', "Saved message area record %d", Area);
 			    }
 			}
 			IsDoing("Browsing Menu");
@@ -1108,57 +1108,63 @@ int EditMsgRec(int Area)
 				strncpy(msgs.QWKname, msgs.Tag, 13);
 			}
 			break;
-		case 3: E_STR(  8,16,64,msgs.Newsgroup,  "The ^Newsgroup^ name of this area")
-		case 4: E_STR(  9,16,64,msgs.Moderator,  "The ^Moderator^ if this is a moderated area")
-		case 5: E_JAM( 10,16,64,msgs.Base,       "The path to the ^JAM Message Base^")
-		case 6:	E_STR( 11,16,64,msgs.Origin,     "The ^Origin line^ to append to Echomail messages")
-                case 7:	tmp = PickAka((char *)"9.2.7", TRUE);
-                        if (tmp != -1)
-                                msgs.Aka = CFG.aka[tmp];
-                        SetScreen(); break;
-		case 8:	E_UPS( 13,16,13,msgs.QWKname,      "The name for ^QWK or Bluewave^ message packets")
-		case 9:	strcpy(msgs.Group, PickMGroup((char *)"9.2.9"));
+		case 3:	strcpy(msgs.Group, PickMGroup((char *)"9.2.3"));
 			if (strlen(msgs.Group)) {
-				msgs.Aka = mgroup.UseAka;
-				msgs.Active = TRUE;
-				/*
-				 * If there is an uplink defined in the group,
-				 * and the first connected system is empty,
-				 * copy the uplink as default connection.
-				 */
-				if (mgroup.UpLink.zone) {
-					fseek(tfil, 0, SEEK_SET);
-					fread(&System, sizeof(sysconnect), 1, tfil);
-					if (!System.aka.zone) {
-						memset(&System, 0, sizeof(sysconnect));
-						System.aka = mgroup.UpLink;
-						System.sendto = TRUE;
-						System.receivefrom = TRUE;
-						fseek(tfil, 0, SEEK_SET);
-						fwrite(&System, sizeof(sysconnect), 1, tfil);
-					}
+			    msgs.Aka = mgroup.UseAka;
+			    msgs.Active = TRUE;
+			    /*
+			     * If there is an uplink defined in the group,
+			     * and the first connected system is empty,
+			     * copy the uplink as default connection.
+			     */
+			    if (mgroup.UpLink.zone) {
+				fseek(tfil, 0, SEEK_SET);
+				fread(&System, sizeof(sysconnect), 1, tfil);
+				if (!System.aka.zone) {
+				    memset(&System, 0, sizeof(sysconnect));
+				    System.aka = mgroup.UpLink;
+				    System.sendto = TRUE;
+				    System.receivefrom = TRUE;
+				    fseek(tfil, 0, SEEK_SET);
+				    fwrite(&System, sizeof(sysconnect), 1, tfil);
 				}
+			    }
+			    if (!strlen(msgs.Base) && strlen(msgs.Tag)) {
+				/*
+				 * Invent the place for the JAM message base.
+				 */
+				temp = calloc(PATH_MAX, sizeof(char));
+				sprintf(temp, "%s/%s", msgs.Group, msgs.Tag);
+				for (i = 0; i < strlen(temp); i++) {
+				    if (isupper(temp[i]))
+					temp[i] = tolower(temp[i]);
+				    /*
+				     * If dots in the group or area tag, replace them
+				     * with directory slashes to create a group tree.
+				     */
+				    if (temp[i] == '.')
+					temp[i] = '/';
+				}
+				sprintf(msgs.Base, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+				free(temp);
+			    }
 			}
 			SetScreen(); 
 			break;
-		case 10:E_STR( 15,16,16,msgs.Distribution,  "The ^Distribution^ name if this is a newsgroup")
-		case 11:msgs.Type = edit_msgtype(16,16, msgs.Type); 
+		case 4: E_STR(  9,16,64,msgs.Newsgroup,  "The ^Newsgroup^ name of this area")
+		case 5: E_JAM( 10,16,64,msgs.Base,       "The path to the ^JAM Message Base^")
+		case 6: E_STR( 11,16,64,msgs.Origin,     "The ^Origin line^ to append to Echomail messages")
+		case 7: tmp = PickAka((char *)"9.2.7", TRUE);
+			if (tmp != -1)
+			    msgs.Aka = CFG.aka[tmp];
+			SetScreen(); break;
+		case 8: E_UPS( 13,16,13,msgs.QWKname,      "The name for ^QWK or Bluewave^ message packets")
+		case 9: E_STR( 14,16,16,msgs.Distribution,  "The ^Distribution^ name if this is a newsgroup")
+		case 10:msgs.Type = edit_msgtype(15,16, msgs.Type); 
 			SetScreen();
 			break;
-		case 12:msgs.MsgKinds = edit_msgkinds(17,16, msgs.MsgKinds); break;
-
-		case 15:E_INT( 13,52,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")
-		case 16:E_INT( 14,52,   msgs.MaxMsgs,       "The ^maximum^ amount of messages in this area")
-		case 17:switch (msgs.Type) {
-			    case ECHOMAIL:  msgs.NetReply = edit_int(15,52,msgs.NetReply, 
-						    (char *)"The ^Area Number^ for netmail replies");
-					    break;
-			    case NEWS:	    msgs.MaxArticles = edit_int(15,52,msgs.MaxArticles,
-						    (char *)"The ^maximum news articles^ to fetch");
-					    break;
-			}
-			break;
-		case 18:Active = edit_bool(16,52, msgs.Active, (char *)"Is this area ^Active^");
+		case 11:msgs.MsgKinds = edit_msgkinds(16,16, msgs.MsgKinds); break;
+		case 14:Active = edit_bool(19,16, msgs.Active, (char *)"Is this area ^Active^");
 			if (msgs.Active && !Active) {
 			    /*
 			     * Attempt to deactivate area, do some checks.
@@ -1204,18 +1210,29 @@ int EditMsgRec(int Area)
 			}
 			SetScreen();
 			break;
-		case 19:E_SEC( 17,52,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
-		case 20:E_SEC( 18,52,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
-		case 21:E_SEC( 19,52,   msgs.SYSec,         "9.2 EDIT SYSOP SECURITY", SetScreen)
+		case 15:E_INT( 13,52,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")
+		case 16:E_INT( 14,52,   msgs.MaxMsgs,       "The ^maximum^ amount of messages in this area")
+		case 17:switch (msgs.Type) {
+			    case ECHOMAIL:  msgs.NetReply = edit_int(15,52,msgs.NetReply,
+						    (char *)"The ^Area Number^ for netmail replies");
+					    break;
+			    case NEWS:      msgs.MaxArticles = edit_int(15,52,msgs.MaxArticles,
+						    (char *)"The ^maximum news articles^ to fetch");
+					    break;
+			}
+			break;
+		case 18:E_SEC( 16,52,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
+		case 19:E_SEC( 17,52,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
+		case 20:E_SEC( 18,52,   msgs.SYSec,         "9.2 EDIT SYSOP SECURITY", SetScreen)
+		case 21:E_BOOL(19,52,   msgs.UsrDelete,     "Allow users to ^Delete^ their messages")
 
-		case 22:E_BOOL(12,76,   msgs.UsrDelete,     "Allow users to ^Delete^ their messages")
-		case 23:E_BOOL(13,76,   msgs.Aliases,       "Allow ^aliases^ or real names only")
-		case 24:E_BOOL(14,76,   msgs.Quotes,        "Add random ^quotes^ to new messages")
-		case 25:E_BOOL(15,76,   msgs.Mandatory,     "Is this area ^mandatory^ for nodes")
-		case 26:E_BOOL(16,76,   msgs.UnSecure,      "Toss messages ^UnSecure^, ie: no originating check")
-		case 27:E_BOOL(17,76,   msgs.OLR_Default,   "Area is ^default^ for ^offline^ users.")
-		case 28:E_BOOL(18,76,   msgs.OLR_Forced,    "Area is ^always on^ for ^offline^ users.")
-		case 29:switch (msgs.Type) {
+		case 22:E_BOOL(13,76,   msgs.Aliases,       "Allow ^aliases^ or real names only")
+		case 23:E_BOOL(14,76,   msgs.Quotes,        "Add random ^quotes^ to new messages")
+		case 24:E_BOOL(15,76,   msgs.Mandatory,     "Is this area ^mandatory^ for nodes")
+		case 25:E_BOOL(16,76,   msgs.UnSecure,      "Toss messages ^UnSecure^, ie: no originating check")
+		case 26:E_BOOL(17,76,   msgs.OLR_Default,   "Area is ^default^ for ^offline^ users.")
+		case 27:E_BOOL(18,76,   msgs.OLR_Forced,    "Area is ^always on^ for ^offline^ users.")
+		case 28:switch (msgs.Type) {
 			    case ECHOMAIL:
 			    case NEWS:
 			    case LIST:	if (EditConnections(tfil))
@@ -1632,7 +1649,6 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "    Area tag         %s\n", msgs.Tag);
 			fprintf(fp, "    Newsgroup name   %s\n", msgs.Newsgroup);
 			fprintf(fp, "    Distribution     %s\n", msgs.Distribution);
-			fprintf(fp, "    Moderator        %s\n", msgs.Moderator);
 			fprintf(fp, "    JAM message base %s\n", msgs.Base);
 			fprintf(fp, "    Offline name     %s\n", msgs.QWKname);
 			fprintf(fp, "    Area type        %s\n", getmsgtype(msgs.Type));

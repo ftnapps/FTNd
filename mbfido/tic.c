@@ -185,9 +185,9 @@ int LoadTic(char *inb, char *tfn)
 	}
 
 	Temp = calloc(PATH_MAX, sizeof(char));
-	Buf  = calloc(257, sizeof(char));
+	Buf  = calloc(PATH_MAX, sizeof(char));
 
-	while ((fgets(Buf, 255, tfp)) != NULL) {
+	while ((fgets(Buf, PATH_MAX -1, tfp)) != NULL) {
 		/*
 		 * Remove all garbage from the .TIC file.
 		 */
@@ -200,7 +200,12 @@ int LoadTic(char *inb, char *tfn)
 			}
 		Temp[j] = '\0';
 
-//		Syslog('f', "TIC: %s", Temp);
+		if (strlen(Temp) > 255) {
+		    Syslog('+', "Truncating TIC line of %d characters", strlen(Temp));
+		    Temp[255] = '\0';
+		}
+
+		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
 			TIC.TicIn.Hatch = TRUE;
 
@@ -290,7 +295,7 @@ int LoadTic(char *inb, char *tfn)
 				strncpy(TIC.TicIn.LDesc[TIC.TicIn.TotLDesc], Temp+6, 80);
 				TIC.TicIn.TotLDesc++;
 			}
-		} else if (strncasecmp(Temp, "destination ", 12) != 0) {
+		} else if (strncasecmp(Temp, "destination ", 12) == 0) {
 			/*
 			 * Drop this one
 			 */

@@ -623,6 +623,7 @@ int KeywordScan()
 							Found = TRUE;
 						}
 
+						memset(&T, 0, sizeof(T));
 						T.Area   = arecno;
 						T.Active = FALSE;
 						T.Cost   = file.Cost;
@@ -774,6 +775,7 @@ int FilenameScan()
 							Found = TRUE;
 						}
 
+						memset(&T, 0, sizeof(T));
 						T.Area   = arecno;
 						T.Active = FALSE;
 						T.Cost   = file.Cost;
@@ -921,6 +923,7 @@ int NewfileScan(int AskStart)
 							Found = TRUE;
 						}
 
+						memset(&T, 0, sizeof(T));
 						T.Area   = arecno;
 						T.Active = FALSE;
 						T.Cost   = file.Cost;

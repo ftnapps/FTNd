@@ -602,32 +602,42 @@ char *edit_pth(int y, int x, int l, char *line, char *help)
 
 
 
+void test_jam(char *base)
+{
+    char    *temp;
+
+    /*
+     * Check if the messagebase exists, if not, create it.
+     */
+    if (base == NULL)
+	return;
+    if (strlen(base) == 0)
+	return;
+    temp = xstrcpy(base);
+    temp = xstrcat(temp, (char *)".jhr");
+    if (access(temp, W_OK)) {
+	if (mkdirs(base, 0770)) {
+	    if (yes_no((char *)"Messagebase doesn't exist, create")) {
+		if (Msg_Open(base))
+		    Msg_Close();
+	    }
+	} else {
+	    errmsg((char *)"Can't create directory");
+	}
+    }
+    free(temp);
+}
+
+
+
 char *edit_jam(int y, int x, int l, char *line, char *help)
 {
 	static	char s[256];
-	char	*temp;
 
 	showhelp(help);
 	memset((char *)s, 0, 256);
 	strcpy(s, edit_field(y, x, l, 'X', line));
-
-	/*
-	 * Check if the messagebase exists, if not, create it.
-	 */
-	temp = xstrcpy(s);
-	temp = xstrcat(temp, (char *)".jhr");
-	if (access(temp, W_OK)) {
-		if (mkdirs(s, 0770)) {
-			if (yes_no((char *)"Messagebase doesn't exist, create")) {
-				if (Msg_Open(s))
-					Msg_Close();
-			}
-		} else {
-			errmsg((char *)"Can't create directory");
-		}
-	}
-	free(temp);
-
+	test_jam(s);
 	set_color(WHITE, BLACK);
 	show_str(y, x, l, s);
 	return s;

@@ -4603,6 +4603,7 @@ v0.33.20        10-Feb-2002
 		Added servicename filemgr to the filemgr services.
 		When adding or deleting a message area, several extra checks
 		are done.
+		Layout for message area editor changed, more logical now.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 

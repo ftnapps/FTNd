@@ -17,6 +17,7 @@ int		select_tag(int);
 void		show_str(int, int, int, char *);
 char		*edit_str(int, int, int, char *, char *);
 char		*edit_pth(int, int, int, char *, char *);
+void		test_jam(char *);
 char		*edit_jam(int, int, int, char *, char *);
 char		*edit_ups(int, int, int, char *, char *);
 char		*getboolean(int val);

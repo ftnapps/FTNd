@@ -330,8 +330,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			p++;
 		if ((q = strchr(p,'\n'))) 
 			*q='\0';
-		if (newsmode && strlen(msgs.Moderator) && (strcasestr(msgs.Moderator,p)))
-			removeapproved = TRUE;
+//		if (newsmode && strlen(msgs.Moderator) && (strcasestr(msgs.Moderator,p)))
+//			removeapproved = TRUE;
 		if (q) 
 			*q='\n';
 	}

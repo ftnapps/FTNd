@@ -568,13 +568,12 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		newsgroup = xstrcpy(msgs.Newsgroup);
 		if (strlen(msgs.Distribution))
 			distribution = xstrcpy(msgs.Distribution);
-		if (strlen(msgs.Moderator)) {
-			moderator = xstrcpy(msgs.Moderator);
-			if (msgs.MsgKinds == USEMOD)
-				modtype = 1;
-		}
-		Syslog('M', "newsgroup %s, distribution %s, moderator %s modtype %d",
-			printable(newsgroup, 0), printable(distribution, 0), printable(moderator, 0), modtype);
+//		if (strlen(msgs.Moderator)) {
+//			moderator = xstrcpy(msgs.Moderator);
+//			if (msgs.MsgKinds == USEMOD)
+//				modtype = 1;
+//		}
+		Syslog('M', "newsgroup %s, distribution %s", printable(newsgroup, 0), printable(distribution, 0));
 		newsmode = TRUE;
 		if ((modtype == 1) && (!hdr((char *)"Approved",msg)) && 
 		    (!hdr((char *)"RFC-Approved",kmsg)) && (!hdr((char *)"Approved",kmsg))) 

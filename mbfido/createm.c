@@ -90,7 +90,7 @@ int create_msgarea(char *marea, faddr *p_from)
 			}
 			fread(&msgshdr, sizeof(msgshdr), 1, mp);
 			offset = msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize));
-			if (fseek(mp, offset, SEEK_SET) == -1) {
+			if (fseek(mp, offset, SEEK_SET)) {
 			    WriteError("$Can't seek in %s", temp);
 			    fclose(ap);
 			    fclose(gp);
@@ -115,6 +115,18 @@ int create_msgarea(char *marea, faddr *p_from)
 			if (!rc) {
 			    Syslog('m', "No free slot, append after last record");
 			    fseek(mp, 0, SEEK_END);
+			    if (ftell(mp) < msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize))) {
+				Syslog('m', "Database too small, expanding...");
+				memset(&msgs, 0, sizeof(msgs));
+				memset(&System, 0, sizeof(System));
+				while (TRUE) {
+				    fwrite(&msgs, sizeof(msgs), 1, mp);
+				    for (i = 0; i < (msgshdr.syssize / sizeof(System)); i++)
+					fwrite(&System, sizeof(System), 1, mp);
+				    if (ftell(mp) >= msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize)))
+					break;
+				}
+			    }
 			    rc = 1;
 			}
 
@@ -142,6 +154,9 @@ int create_msgarea(char *marea, faddr *p_from)
 			msgs.Ftncode = CHRS_DEFAULT_FTN;
 			msgs.MaxArticles = CFG.maxarticles;
 			tag = tl(tag);
+			for (i = 0; i < strlen(tag); i++)
+			    if (tag[i] == '.')
+				tag[i] = '/';
 			sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
 			fwrite(&msgs, sizeof(msgs), 1, mp);
 
