@@ -190,14 +190,12 @@ int main(int argc, char **argv)
      * line number, this will be used by doors.
      */
     sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-    iNode = 0;
     if ((pTty = fopen(temp, "r")) == NULL) {
 	WriteError("Can't read %s", temp);	
     } else {
 	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
 
 	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-	    iNode++;
 	    if (strcmp(ttyinfo.tty, pTTY) == 0) 
 		break;
 	}

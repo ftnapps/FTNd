@@ -10,6 +10,10 @@ v0.61.4		11-Aug-2004
 		thumbnails if supported by your system.
 		Start mbsetup, enter global setup and leave.
 
+	libmbse.a:
+		The socket_connect function now sets the global nodenumber from
+		the reply of mbtask.
+
 	libnodelist.a:
 		Removed some debug logging.
 
@@ -59,6 +63,9 @@ v0.61.4		11-Aug-2004
 		is given to joe.
 		In Quick_Bye reset all signal handlers to prevent that die() is
 		called in case something goes wrong during Quick_Bye.
+		The fake nodenumber is now obtained from mbtask instead of a
+		count of tty line records so the used nodenumbers will be a lot
+		lower then before.
 
 	mbnewusr:
 		During program exit, it tried to remove the wrong socket to
@@ -70,6 +77,8 @@ v0.61.4		11-Aug-2004
 	mbtask:
 		Tried to call nodes during ZMH or during a Tyx window when mail
 		was on hold.
+		The comm protocol reply to the AINI command now contains a fake
+		node number.
 
 	mbsetup:
 		Changed nodes screens to have a separate uplink managers setup

@@ -105,7 +105,6 @@ int	iExpired;		/* Check if users time ran out		   */
 char	sUnixName[9];		/* Unix login name			   */
 time_t	Time2Go;		/* Calculated time to force logout	   */
 struct	tm *l_date;		/* Structure for Date			   */
-int	iNode;			/* Current node number			   */
 
 time_t	ltime;
 time_t	Time_Now;

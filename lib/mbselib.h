@@ -1964,15 +1964,6 @@ struct _route {
 
 
 
-/*
-typedef struct	_srv_auth {
-	struct	_srv_auth	*next;
-	char			*hostname;
-	char			*authcode;
-} srv_auth;
-*/
-
-
 extern char SigName[32][16];
 
 
@@ -2007,6 +1998,7 @@ char		*printablec(char);
 /*
  * From client.c
  */
+int		iNode;	    /* Current node number  */
 int		socket_connect(char *, char *, char *);
 int		socket_send(char *);
 char		*socket_receive(void);

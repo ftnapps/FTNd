@@ -51,6 +51,7 @@ int socket_connect(char *user, char *prg, char *city)
 {
     int 	s;
     static char	buf[SS_BUFSIZE], tty[18];
+    char	*tmp;
 
     myname = prg;
 
@@ -123,11 +124,18 @@ int socket_connect(char *user, char *prg, char *city)
     }
 
     strcpy(buf, socket_receive());
-    if (strncmp(buf, "100:0;", 6) != 0) {
+    if (strncmp(buf, "100:1,", 6) != 0) {
 	printf("AINI not acknowledged by the server\n");
 	sock = -1;
 	return -1;
     }
+
+    /*
+     * Extract nodenumber from the reply.
+     */
+    tmp = strtok(buf, ",");
+    tmp = strtok(NULL, ";");
+    iNode = atoi(tmp);
 
     return s;
 }

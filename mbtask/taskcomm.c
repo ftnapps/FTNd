@@ -106,13 +106,14 @@ char *exe_cmd(char *in)
      * The A(counting) commands.
      *
      *  AINI:5,pid,tty,user,program,city;
-     *  100:0;
+     *  100:1,linenr;
      *  200:1,Syntax Error;
      */
     if (strncmp(cmd, "AINI", 4) == 0) {
-	if (reg_newcon(token) != -1)
+	if ((result = reg_newcon(token)) != -1) {
+	    sprintf(obuf, "100:1,%d;", result);
 	    return obuf;
-	else {
+	} else {
 	    stat_inc_serr();
 	    return ebuf;
 	}

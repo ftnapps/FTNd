@@ -161,6 +161,3 @@ mbsetup:
 	   format, if a filegate list is installed and the filegate switch
 	   setting is wrong, a lot of wrong areas will be created.
 
-	N: Sort tty records or use another method to create node numbers.
-
-
