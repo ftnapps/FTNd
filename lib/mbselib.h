@@ -1558,9 +1558,9 @@ struct	_nodes {
 	unsigned	FileFwd		: 1;	/* Accept File Forward	    */
 	unsigned	MailFwd		: 1;	/* Accept Mail Forward	    */
 	unsigned	AdvTic		: 1;	/* Advanced Tic files	    */
-	unsigned	xBilling	: 1;	/* Cost sharing on/off	    */
+	unsigned	UplFmgrBbbs	: 1;	/* Uplink FileMgr BBBS	    */
 
-	unsigned	xBillDirect	: 1;	/* Send bill direct	    */
+	unsigned	UplAmgrBbbs	: 1;	/* Uplink AreaMgr BBBS	    */
 	unsigned	Crash		: 1;	/* Netmail crash	    */
 	unsigned	Hold		: 1;	/* Netmail hold		    */
 	unsigned	AddPlus		: 1;	/* Add + for uplink msgs    */
