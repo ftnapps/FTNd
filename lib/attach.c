@@ -57,7 +57,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
     /*
      * Check if we attach a file with the same name
      */
-    if ((fdn) && (un_attach(noden, ofile) == FALSE)) {
+    if ((fdn) && (un_attach(&noden, ofile) == FALSE)) {
 	WriteError("attach: can't un_attach %s, %s", ofile, strerror(rc));
 	return FALSE;
     }
@@ -162,8 +162,8 @@ int is_my_tic(char *filename, char *ticfile)
 /*
  * The real unatach function, return 1 if a file is removed.
  */
-int check_flo(faddr, char *, char);
-int check_flo(faddr node, char *filename, char flavor)
+int check_flo(faddr *, char *, char);
+int check_flo(faddr *node, char *filename, char flavor)
 {
     char    *flofile, *ticfile, *buf;
     FILE    *fp;
@@ -175,7 +175,7 @@ int check_flo(faddr node, char *filename, char flavor)
     flofile = calloc(PATH_MAX, sizeof(char));
     ticfile = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(flofile, "%s", floname(&node, flavor));
+    sprintf(flofile, "%s", floname(node, flavor));
     Syslog('p', "%s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;
@@ -201,9 +201,9 @@ int check_flo(faddr node, char *filename, char flavor)
 			fseek(fp, filepos, SEEK_SET);
 			fwrite(&tpl, 1, 1, fp);
 			fflush(fp);
-			Syslog('p', "Removed old %s and %s for %s", basename(filename), basename(buf+1), ascfnode(&node, 0x1f));
+			Syslog('p', "Removed old %s and %s for %s", basename(filename), basename(buf+1), ascfnode(node, 0x1f));
 		    } else {
-			Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(&node, 0x1f));
+			Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(node, 0x1f));
 		    }
 		}
 		rc = 1;
@@ -226,9 +226,9 @@ int check_flo(faddr node, char *filename, char flavor)
 /*
  * Remove a file from the flofile, also search for a .tic file.
  */
-int un_attach(faddr node, char *filename)
+int un_attach(faddr *node, char *filename)
 {
-    Syslog('p', "un_attach: %s %s", ascfnode(&node, 0x1f), filename);
+    Syslog('p', "un_attach: %s %s", ascfnode(node, 0x1f), filename);
 
     if (check_flo(node, filename, 'h') == 0)
 	if (check_flo(node, filename, 'f') == 0)
