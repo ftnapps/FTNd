@@ -4719,7 +4719,9 @@ v0.33.20        10-Feb-2002
 		like a new kind of M$ standard. mbnews crashed on this one.
 		Fixed a small problem in magic filename testing.
 		In rfc2ftn the Approved: header now becomes a kludge instead
-		of plain passed.
+		of being plain passed.
+		Auto file area create implemented, it can use plain tagfiles
+		or filegate.zxx formatted files.
 
 	mbfile:
 		The mbfile index command now creates the html pages using the
