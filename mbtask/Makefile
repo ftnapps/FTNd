@@ -10,7 +10,7 @@ HDRS		= callstat.h mbtask.h outstat.h signame.h taskdisk.h taskregs.h  taskutil.
 		  libs.h nodelist.h scanout.h taskcomm.h taskinfo.h taskstat.h
 OBJS		= callstat.o nodelist.o scanout.o taskcomm.o taskinfo.o taskstat.o \
 		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o
-OTHER		= Makefile issue
+OTHER		= Makefile issue issue.netbsd
 
 #############################################################################
 
