@@ -701,6 +701,7 @@ int ProcessTic(fa_list *sbl)
 	    ut.modtime = mktime(localtime(&TIC.FileDate));
 	    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewName);
 	    utime(Temp, &ut);
+	    Syslog('-', "Restamp filedate %s to %s", Temp, rfcdate(ut.modtime));
 	}
     }
 
