@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 SUBDIRS = .
 
@@ -254,7 +254,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -271,152 +271,6 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-grlist.o: grlist.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h screen.h grlist.h ledit.h
-ledit.o: ledit.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/msg.h screen.h mutil.h \
-	ledit.h
-m_archive.o: m_archive.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_archive.h
-m_bbs.o: m_bbs.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	screen.h mutil.h ledit.h m_lang.h m_protocol.h m_ol.h \
-	m_fgroup.h m_farea.h m_menu.h m_bbs.h m_limits.h
-m_domain.o: m_domain.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_global.h m_menu.h m_domain.h
-m_farea.o: m_farea.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_global.h m_fgroup.h m_archive.h m_farea.h m_ngroup.h
-m_fdb.o: m_fdb.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_global.h m_farea.h m_fdb.h
-m_ff.o: m_ff.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/clcomm.h \
-	../lib/common.h screen.h mutil.h ledit.h stlist.h m_global.h \
-	m_ff.h m_lang.h m_marea.h
-m_fgroup.o: m_fgroup.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_node.h m_ticarea.h m_fgroup.h
-m_fido.o: m_fido.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_fido.h
-m_global.o: m_global.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_node.h m_marea.h m_ticarea.h m_global.h
-m_hatch.o: m_hatch.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_fgroup.h m_ticarea.h m_hatch.h
-m_lang.o: m_lang.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_lang.h
-m_limits.o: m_limits.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_limits.h
-m_magic.o: m_magic.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_ticarea.h m_global.h m_magic.h
-m_mail.o: m_mail.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h screen.h mutil.h ledit.h m_global.h m_marea.h \
-	m_mgroup.h m_mail.h
-m_marea.o: m_marea.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	grlist.h m_global.h m_node.h m_mgroup.h m_marea.h
-m_menu.o: m_menu.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h mutil.h screen.h ledit.h \
-	m_lang.h m_menu.h
-m_mgroup.o: m_mgroup.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_node.h m_marea.h m_mgroup.h
-m_modem.o: m_modem.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_modem.h
-m_new.o: m_new.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h grlist.h m_new.h m_lang.h m_marea.h \
-	m_ngroup.h
-m_ngroup.o: m_ngroup.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_ngroup.h
-m_node.o: m_node.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	grlist.h stlist.h m_global.h m_lang.h m_ticarea.h m_marea.h \
-	m_node.h
-m_ol.o: m_ol.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_ol.h
-m_protocol.o: m_protocol.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/clcomm.h ../lib/common.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_protocol.h
-m_service.o: m_service.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_service.h
-m_task.o: m_task.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_task.h
-m_tic.o: m_tic.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	screen.h mutil.h ledit.h m_fgroup.h m_ticarea.h m_magic.h \
-	m_hatch.h m_tic.h
-m_ticarea.o: m_ticarea.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h grlist.h m_global.h m_node.h m_fgroup.h m_farea.h \
-	m_archive.h m_ticarea.h
-m_tty.o: m_tty.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	stlist.h m_modem.h m_global.h m_tty.h
-m_users.o: m_users.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_global.h m_archive.h m_protocol.h m_users.h
-m_virus.o: m_virus.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/clcomm.h ../lib/common.h screen.h mutil.h ledit.h \
-	stlist.h m_global.h m_virus.h
-mbsetup.o: mbsetup.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h \
-	m_global.h m_bbs.h m_mail.h m_tic.h m_fido.h m_archive.h \
-	m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h \
-	m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h \
-	m_task.h
-mutil.o: mutil.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h screen.h mutil.h
-screen.o: screen.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/ansi.h \
-	../lib/common.h screen.h
-stlist.o: stlist.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h stlist.h
-
 info-am:
 info: info-recursive
 dvi-am:
