@@ -1156,19 +1156,40 @@ int EditMsgRec(int Area)
 			     * Invent the place for the JAM message base.
 			     */
 			    temp = calloc(PATH_MAX, sizeof(char));
-			    sprintf(temp, "%s/%s", msgs.Group, msgs.Tag);
-			    for (i = 0; i < strlen(temp); i++) {
-				if (isupper(temp[i]))
-				    temp[i] = tolower(temp[i]);
-				/*
-				 * If dots in the group or area tag, replace them
-				 * with directory slashes to create a group tree.
-				 */
-				if (temp[i] == '.')
-				    temp[i] = '/';
+			    if (strlen(mgroup.BasePath)) {
+				sprintf(temp, "%s", msgs.Tag);
+				for (i = 0; i < strlen(temp); i++) {
+				    if (isupper(temp[i]))
+					temp[i] = tolower(temp[i]);
+				    /*
+				     * If dots in the group or area tag, replace them
+				     * with directory slashes to create a group tree.
+				     */
+				    if (temp[i] == '.')
+					temp[i] = '/';
+				}
+				sprintf(msgs.Base, "%s/%s", mgroup.BasePath, temp);
+			    } else {
+				sprintf(temp, "%s/%s", msgs.Group, msgs.Tag);
+				for (i = 0; i < strlen(temp); i++) {
+				    if (isupper(temp[i]))
+					temp[i] = tolower(temp[i]);
+				    /*
+				     * If dots in the group or area tag, replace them
+				     * with directory slashes to create a group tree.
+				     */
+				    if (temp[i] == '.')
+					temp[i] = '/';
+				}
+				sprintf(msgs.Base, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 			    }
-			    sprintf(msgs.Base, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 			    free(temp);
+			    /*
+			     * Now fix any spaces in the path.
+			     */
+			    for (i = 0; i < strlen(msgs.Base); i++)
+				if (msgs.Base[i] == ' ')
+				    msgs.Base[i] = '_';
 			}
 		    }
 		    SetScreen(); 

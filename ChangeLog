@@ -52,6 +52,12 @@ v0.35.05	19-Oct-2002
 		Added length check when importing taglines.
 		Now writes also ~/etc/msg.txt for MsgEd after messagebase is
 		updated.
+		When a new echomail area was created with a default group
+		setting, then when the group was selected setup would create
+		the jam basepath itself instead of using the base from the
+		group.
+		New JAM areas will not have spaces anymore in the pathnames.
+		Spaces are replaced by underscores.
 
 	mbfido:
 		With ticfile processing, the KeepDate setup setting now works.
