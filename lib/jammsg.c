@@ -586,7 +586,7 @@ int JAM_Open(char *Msgbase)
 
 /*
  * Pack deleted messages from the message base. The messages are
- * renumbered on the fly.   LR update
+ * renumbered on the fly and the LastRead pointers are updated.
  */
 void JAM_Pack(void)
 {
@@ -642,7 +642,8 @@ void JAM_Pack(void)
 					Written++;
 
 					lseek(fdJlr, 0, SEEK_SET);
-					while (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
+					lseek(fdnJlr, 0, SEEK_SET);
+					while ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
 						/*
 						 * Test if one of the lastread pointer is the current
 						 * old message number.
@@ -655,9 +656,8 @@ void JAM_Pack(void)
 								LR.LastReadMsg = NewNumber;
 							if (LR.HighReadMsg == jamHdr.MsgNum)
 								LR.HighReadMsg = NewNumber;
-							lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
-							write(fdJlr, &LR, sizeof(lastread));
 						}
+						write(fdnJlr, &LR, sizeof(lastread));
 					}
 					jamHdr.MsgNum = NewNumber;
 					write(fdnHdr, &jamHdr, sizeof(JAMHDR));
@@ -701,13 +701,8 @@ void JAM_Pack(void)
 		}
 
 		/*
-		 * Now copy the lastread file
+		 * Close all files
 		 */
-
-		lseek(fdJlr, 0, SEEK_SET);
-		while (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))
-			write(fdnJlr, &LR, sizeof(lastread));
-
 		close(fdnHdr);
 		close(fdnJdt);
 		close(fdnJdx);
