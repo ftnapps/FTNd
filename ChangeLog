@@ -116,6 +116,10 @@ v0.35.03	06-Jul-2002
 		FTP server side).
 		Added setup setting for outbound queue in global setup.
 		Added support for default setup of the HA archiver.
+		Changed Rubout key to do the same as Backspace. (experimental)
+
+	mbmon:
+		Changed Rubout key to do the same as Backspace. (experimental)
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed

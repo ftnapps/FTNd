@@ -252,6 +252,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 					newinsert(1, YELLOW, BLUE);
 				break;
 		case KEY_BACKSPACE:
+		case KEY_RUBOUT:
 				if (strlen(s) > 0) {
 					if (curpos >= strlen(s)) {
 						curpos--;
@@ -264,7 +265,6 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 				} else
 					putchar(7);
 				break;
-		case KEY_RUBOUT:
 		case KEY_DEL:
 				if (strlen(s) > 0) {
 					if ((curpos) == (strlen(s) -1)) {

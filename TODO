@@ -167,4 +167,5 @@ mbsetup:
 	N: Add areas security flags.
 
 	N: Add backspace test and store result in global setup.
+	   Note: experimental patch to test Rubout key as backspace.
 

@@ -174,165 +174,168 @@ void newinsert(int i, int fg, int bg)
 
 char *edit_field(int y, int x, int w, int p, char *s_)
 {
-	int		i, charok, first, curpos, AllSpaces;
-	static char	s[256];
-	unsigned int	ch;
+    int		    i, charok, first, curpos, AllSpaces;
+    static char	    s[256];
+    unsigned int    ch;
 
-	memset((char *)s, 0, 256);
-	sprintf(s, "%s", s_);
-	curpos = 0;
-	first = 1;
-	newinsert(1, YELLOW, BLUE);
+    memset((char *)s, 0, 256);
+    sprintf(s, "%s", s_);
+    curpos = 0;
+    first = 1;
+    newinsert(1, YELLOW, BLUE);
 
+    do {
+	set_color(YELLOW, BLUE);
+	show_field(y, x, s, w, '_');
+	locate(y, x + curpos);
 	do {
-		set_color(YELLOW, BLUE);
-		show_field(y, x, s, w, '_');
-		locate(y, x + curpos);
-		do {
-			ch = readkey(y, x + curpos, YELLOW, BLUE);
-			set_color(YELLOW, BLUE);
+	    ch = readkey(y, x + curpos, YELLOW, BLUE);
+	    set_color(YELLOW, BLUE);
 
-			/*
-			 *  Test if the pressed key is a valid key.
-			 */
-			charok = 0;
-			if ((ch >= ' ') && (ch <= '~')) {
-				switch(p) {
-				case '!':	
-					ch = toupper(ch);
-					charok = 1;
-					break;
-				case 'X':
-					charok = 1;
-					break;
-				case '9':
-					if (ch == ' ' || ch == '-' || ch == ',' ||
-					    ch == '.' || isdigit(ch)) 
-						charok = 1;
-					break;
-				case 'U':
-					ch = toupper(ch);
-					if (isupper(ch))
-						charok = 1;
-					break;
-				default:
-					putchar(7);
-					break;
-				}
-			}
-
-		} while (charok == 0 && ch != KEY_ENTER && ch != KEY_LINEFEED &&
-			   ch != KEY_DEL && ch != KEY_INS && ch != KEY_HOME &&
-			   ch != KEY_LEFT && ch != KEY_RIGHT && ch != KEY_ESCAPE &&
-			   ch != KEY_BACKSPACE && ch != KEY_RUBOUT && ch != KEY_END);
-
-
-		if (charok == 1) {
-			if (first == 1) {
-				first = 0;
-				memset((char *)s, 0, 256);
-				curpos = 0;
-			}
-			if (curpos < w) {
-				if (insertflag == 1) {
-					/*
-					 *  Insert mode 
-					 */
-					if (strlen(s) < w) {
-						if (curpos < strlen(s)) {
-							for (i = strlen(s); i >= curpos; i--)
-								s[i+1] = s[i];
-						} 
-						s[curpos] = ch;
-						if (curpos < w)
-							curpos++;
-					} else {
-						putchar(7);
-					}
-				} else {
-					/*
-					 *  Overwrite mode
-					 */
-					s[curpos] = ch;
-					if (curpos < w)
-						curpos++;
-				}
-			} else {
-				/*
-				 *  The field is full 
-				 */
+	    /*
+	     *  Test if the pressed key is a valid key.
+	     */
+	    charok = 0;
+	    if ((ch >= ' ') && (ch <= '~')) {
+		switch(p) {
+		    case '!':	
+				ch = toupper(ch);
+				charok = 1;
+				break;
+		    case 'X':
+				charok = 1;
+				break;
+		    case '9':
+				if (ch == ' ' || ch == '-' || ch == ',' || ch == '.' || isdigit(ch)) 
+				    charok = 1;
+				break;
+		    case 'U':
+				ch = toupper(ch);
+				if (isupper(ch))
+				    charok = 1;
+				break;
+		    default:
 				putchar(7);
-			}
-		} /* if charok */
+				break;
+		}
+	    }
 
+	} while (charok == 0 && ch != KEY_ENTER && ch != KEY_LINEFEED && ch != KEY_DEL && 
+				ch != KEY_INS && ch != KEY_HOME && ch != KEY_LEFT && ch != KEY_RIGHT && 
+				ch != KEY_ESCAPE && ch != KEY_BACKSPACE && ch != KEY_RUBOUT && ch != KEY_END);
+
+
+	if (charok == 1) {
+	    if (first == 1) {
 		first = 0;
-		switch (ch) {
-		case KEY_HOME:
-				curpos = 0;	
-				break;
-		case KEY_END:
-				curpos = strlen(s);
-				break;
-		case KEY_LEFT:
-				if (curpos > 0)
-					curpos--;
-				else
-					putchar(7);
-				break;
-		case KEY_RIGHT:
-				if (curpos < strlen(s))
-					curpos++;
-				else
-					putchar(7);
-				break;
-		case KEY_INS:
-				if (insertflag == 1)
-					newinsert(0, YELLOW, BLUE);
-				else
-					newinsert(1, YELLOW, BLUE);
-				break;
-		case KEY_BACKSPACE:
-				if (strlen(s) > 0) {
-					if (curpos >= strlen(s)) {
-						curpos--;
-						s[curpos] = '\0';
-					} else {
-						for (i = curpos; i < strlen(s); i++)
-							s[i] = s[i+1];
-						s[i] = '\0';
-					}
-				} else
-					putchar(7);
-				break;
-		case KEY_RUBOUT:
-		case KEY_DEL:
-				if (strlen(s) > 0) {
-					if ((curpos) == (strlen(s) -1)) {
-						s[curpos] = '\0';
-					} else {
-						for (i = curpos; i < strlen(s); i++)
-							s[i] = s[i+1];
-						s[i] = '\0';
-					}
-				} else
-					putchar(7);
-				break;
+		memset((char *)s, 0, 256);
+		curpos = 0;
+	    }
+	    if (curpos < w) {
+		if (insertflag == 1) {
+		    /*
+		     *  Insert mode 
+		     */
+		    if (strlen(s) < w) {
+			if (curpos < strlen(s)) {
+			    for (i = strlen(s); i >= curpos; i--)
+				s[i+1] = s[i];
+			} 
+			s[curpos] = ch;
+			if (curpos < w)
+			    curpos++;
+		    } else {
+			putchar(7);
+		    }
+		} else {
+		    /*
+		     *  Overwrite mode
+		     */
+		    s[curpos] = ch;
+		    if (curpos < w)
+			curpos++;
 		}
-	} while ((ch != KEY_ENTER) && (ch != KEY_LINEFEED) && (ch != KEY_ESCAPE));
+	    } else {
+		/*
+		 *  The field is full 
+		 */
+		putchar(7);
+	    }
+	} /* if charok */
 
-	set_color(LIGHTGRAY, BLUE);
-	mvprintw(2,36, "     ");
-	set_color(LIGHTGRAY, BLACK);
-	if (strlen(s)) {
-		AllSpaces = TRUE;
-		for (i = 0; i < strlen(s); i++) {
-			if (s[i] != ' ')
-				AllSpaces = FALSE;
-		}
-		if (AllSpaces)
-			s[0] = '\0';
+	first = 0;
+	switch (ch) {
+	    case KEY_HOME:
+			    curpos = 0;	
+			    break;
+	    case KEY_END:
+			    curpos = strlen(s);
+			    break;
+	    case KEY_LEFT:
+			    if (curpos > 0)
+				curpos--;
+			    else
+				putchar(7);
+			    break;
+	    case KEY_RIGHT:
+			    if (curpos < strlen(s))
+				curpos++;
+			    else
+				putchar(7);
+			    break;
+	    case KEY_INS:
+			    if (insertflag == 1)
+				newinsert(0, YELLOW, BLUE);
+			    else
+				newinsert(1, YELLOW, BLUE);
+			    break;
+	    case KEY_BACKSPACE:
+	    case KEY_RUBOUT:
+			    if (ch == KEY_RUBOUT)
+				Syslog('-', "Rubout pressed");
+			    else
+				Syslog('-', "Backspace pressed");
+			    if (strlen(s) > 0) {
+				if (curpos >= strlen(s)) {
+				    curpos--;
+				    s[curpos] = '\0';
+				} else {
+				    for (i = curpos; i < strlen(s); i++)
+					s[i] = s[i+1];
+				    s[i] = '\0';
+				}
+			    } else
+				putchar(7);
+			    break;
+	    case KEY_DEL:
+			    Syslog('-', "Delete key pressed");
+			    if (strlen(s) > 0) {
+				if ((curpos) == (strlen(s) -1)) {
+				    s[curpos] = '\0';
+				} else {
+				    for (i = curpos; i < strlen(s); i++)
+					s[i] = s[i+1];
+				    s[i] = '\0';
+				}
+			    } else
+				putchar(7);
+			    break;
 	}
-	return s;
+    } while ((ch != KEY_ENTER) && (ch != KEY_LINEFEED) && (ch != KEY_ESCAPE));
+
+    set_color(LIGHTGRAY, BLUE);
+    mvprintw(2,36, "     ");
+    set_color(LIGHTGRAY, BLACK);
+    if (strlen(s)) {
+	AllSpaces = TRUE;
+	for (i = 0; i < strlen(s); i++) {
+	    if (s[i] != ' ')
+		AllSpaces = FALSE;
+	}
+	if (AllSpaces)
+	    s[0] = '\0';
+    }
+    return s;
 }
 
 
