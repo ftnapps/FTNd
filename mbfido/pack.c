@@ -133,7 +133,7 @@ int pack_queue(char *name)
 	sprintf(pktfile, "%08lx.pkt", sequencer());
 
 	if (nodelock(&noden)) {
-		WriteError("Node %s lock error", ascfnode(&noden, 0x1f));
+		Syslog('+', "Mail stays in queue, will be added later");
 		if (noden.domain)
 			free(noden.domain);
 		free(arcfile);
@@ -318,7 +318,7 @@ int add_queue(char *name)
 	Syslog('p', "Outfile: %s", outfile);
 
 	if (nodelock(&noden)) {
-		WriteError("Node %s lock error", ascfnode(&noden, 0x1f));
+		Syslog('+', "Mail stays in queue, will be added later");
 		free(outfile);
 		if (noden.domain)
 			free(noden.domain);

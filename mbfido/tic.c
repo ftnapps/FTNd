@@ -125,7 +125,6 @@ int Tic()
 	sort_fdlist(&fdl);
 
 	while ((fname = pull_fdlist(&fdl)) != NULL) {
-		Syslog('f', "Tic() starting with %s", fname);
 		if (LoadTic(inbound, fname) == 0)
 			rc = 1;
 		if (IsSema((char *)"upsalarm")) {
@@ -138,7 +137,6 @@ int Tic()
 			break;
 		}
 	}
-	Syslog('f', "Tic() finished all files");
 
 	if (!do_quiet) {
 		printf("\r");
@@ -171,7 +169,6 @@ int LoadTic(char *inb, char *tfn)
 	fa_list	*sbl = NULL;
 	int	DescCnt = FALSE;
 
-	Syslog('f', "Entering LoadTic()");
 	if (CFG.slow_util && do_quiet)
 		usleep(1);
 
@@ -179,8 +176,7 @@ int LoadTic(char *inb, char *tfn)
 	memset(&T_File, 0, sizeof(T_File));
 
 	sprintf(TIC.Inbound, "%s", inb);
-//	strncpy(TIC.TicName, tfn, 12);
-	sprintf(TIC.TicName, "%s", tfn);
+	strncpy(TIC.TicName, tfn, 12);
 
 	chdir(inb);
 	if ((tfp = fopen(tfn, "r")) == NULL) {
@@ -188,15 +184,23 @@ int LoadTic(char *inb, char *tfn)
 		return 1;
 	}
 
+	/*
+	 * Although a TIC line may only be 255 characters long,
+	 * nobody seems to care and lines are up to 1024 characters
+	 * long.
+	 */
 	if (PATH_MAX > 1024)
 	    bufsize = PATH_MAX;
 	else
 	    bufsize = 1024;
 	Temp = calloc(bufsize+1, sizeof(char));
 	Buf  = calloc(bufsize+1, sizeof(char));
-	Syslog('f', "Tic buffersize %d", bufsize);
 
 	while ((fgets(Buf, bufsize, tfp)) != NULL) {
+
+		if (strlen(Buf) == bufsize)
+		    Syslog('!', "Detected a TIC file line of %d characters long", bufsize);
+
 		/*
 		 * Remove all garbage from the .TIC file.
 		 */
@@ -208,11 +212,6 @@ int LoadTic(char *inb, char *tfn)
 				j++;
 			}
 		Temp[j] = '\0';
-
-//		if (strlen(Temp) > 255) {
-//		    Syslog('+', "Truncating TIC line of %d characters", strlen(Temp));
-//		    Temp[255] = '\0';
-//		}
 
 		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
@@ -292,6 +291,9 @@ int LoadTic(char *inb, char *tfn)
 			TIC.TicIn.Size = atoi(Temp+5);
 
 		} else if (strncasecmp(Temp, "date ", 5) == 0) {
+			/*
+			 * Drop this one and log
+			 */
 			Syslog('f', "Date: %s", Temp+5);
 
 		} else if (strncasecmp(Temp, "cost ", 5) == 0) {
@@ -471,7 +473,6 @@ int LoadTic(char *inb, char *tfn)
 	tic_in++;
 	rc = ProcessTic(sbl);
 	tidy_falist(&sbl);
-	Syslog('f', "Finishing LoadTic()");
 
 	return rc;
 }

@@ -307,6 +307,9 @@ long Report(gr_list *ta, long filepos)
 	/*
 	 * Area block header
 	 */
+#if defined(__FreeBSD__)
+	Syslog('-', "Area Block GJZ: \"%s\" \"%s\" 0", T_File.Echo, T_File.Comment);
+#endif
 	MacroVars("GJZ", "ssd", T_File.Echo, T_File.Comment, 0);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
@@ -327,23 +330,26 @@ long Report(gr_list *ta, long filepos)
 	     * Report one newfile, first line.
 	     */
 	    fseek(fi, filepos1, SEEK_SET);
-	Syslog('-', "1");
 	    ftime = T_File.Fdate;
-//	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, /* rfcdate(ftime) */ " ",
-	//			    To_Low(T_File.LDesc[0],newfiles.HiAscii));
-	MacroVars("sl", "ss", T_File.Name, T_File.LName);
-	Syslog('-', "2");
-	MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);
-	Syslog('-', "3");
-	MacroVars("dt", "ss", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
-	Syslog('-', "4");
+#if defined (__FreeBSD__)
+	    Syslog('-', "start a file ...");
+	    Syslog('-', "sl: \"%s\" \"%s\"", T_File.Name, T_File.LName);
+	    Syslog('-', "bk: \"%d\" \"%d\"", T_File.Size, T_File.SizeKb);
+	    Syslog('-', "dt: \"%d\" \"%d\"", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
+#endif
+	    MacroVars("sl", "ss", T_File.Name, T_File.LName);
+	    MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);
+	    MacroVars("dt", "ss", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
 	    Msg_Macro(fi);
-	Syslog('-', "5");
 	    filepos2 = ftell(fi);
+
 	    /*
 	     * Extra description lines follow
 	     */
 	    for (i = 1; i < 24; i++) {
+#if defined (__FreeBSD__)
+		Syslog('-', "t %2d: \"%s\"", i, To_Low(T_File.LDesc[i],newfiles.HiAscii));
+#endif
 		MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
 		fseek(fi, filepos2, SEEK_SET);
 		if (strlen(T_File.LDesc[i])) {

@@ -406,6 +406,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
      * If no selected language is loaded, try default language
      */
     if (fi == NULL) {
+	Syslog('-', "Macro file \"%s\" for language %c not found, trying default", filename, Language);
 	sprintf(temp, "%s/%s", CFG.bbs_macros, filename);
 	fi = fopen(temp,"r");
     }
@@ -413,7 +414,6 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
     if (fi == NULL)
 	WriteError("OpenMacro(%s, %c): not found", filename, Language);
     else {
-	Syslog('d', "OpenMacro(%s, %c): using %s", filename, Language, temp);
 	sprintf(temp, "%s-%s", OsName(), OsCPU());
 	if (CFG.aka[0].point)
 	    sprintf(aka, "%d:%d/%d.%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].point, CFG.aka[0].domain);
@@ -421,7 +421,10 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 	    sprintf(aka, "%d:%d/%d@%s", CFG.aka[0].zone, CFG.aka[0].net, CFG.aka[0].node, CFG.aka[0].domain);
 
 	if (htmlmode) {
-	    MacroVars("HMOUVYZ", "ssssssd", CFG.www_url, CFG.sysdomain, temp, CFG.sysop, VERSION, aka, 0);
+	    MacroVars("O", "s", temp);
+	    sprintf(linebuf, "%s", CFG.sysop);
+	    html_massage(linebuf, outbuf);
+	    MacroVars("U", "s", outbuf);
 	    sprintf(linebuf, "%s", CFG.location);
 	    html_massage(linebuf, outbuf);
 	    MacroVars("L", "s", outbuf);
@@ -435,9 +438,18 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 	    html_massage(linebuf, outbuf);
 	    MacroVars("T", "s", outbuf);
 	} else {
-	    MacroVars("HLMNOSTUVYZ", "ssssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name, temp,
-					    CFG.sysop_name, CFG.comment, CFG.sysop, VERSION, aka, 0);
+	    MacroVars("L", "s", CFG.location);
+	    MacroVars("N", "s", CFG.bbs_name);
+	    MacroVars("O", "s", temp);
+	    MacroVars("S", "s", CFG.sysop_name);
+	    MacroVars("T", "s", CFG.comment);
+	    MacroVars("U", "s", CFG.sysop);
 	}
+	MacroVars("H", "s", CFG.www_url);
+	MacroVars("M", "s", CFG.sysdomain);
+	MacroVars("V", "s", VERSION);
+	MacroVars("Y", "s", aka);
+	MacroVars("Z", "d", 0);
 	Cookie(htmlmode);
     }
 

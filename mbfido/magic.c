@@ -107,8 +107,6 @@ int GetMagicRec(int Typ, int First)
     if (First)
 	MagicNr = 0;
 
-    Syslog('f', "GetMagicRec(%d, %s), MagicNr = %d", Typ, First ? "true":"false", MagicNr);
-
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
     if ((FeM = fopen(temp, "r")) == NULL) {
@@ -152,7 +150,6 @@ int GetMagicRec(int Typ, int First)
 		}
 		*q++ = '$';
 		*q = '\0';
-		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(magic.Mask), MBSE_SS(mask));
 
 		if ((re_comp(mask)) == NULL) {
 		    if (re_exec(TIC.NewName)) {
