@@ -513,7 +513,7 @@ int ProcessTic(fa_list *sbl)
 			fflush(stdout);
 		}
 
-		if (VirScan()) {
+		if (VirScan(NULL)) {
 			DeleteVirusWork();
 			chdir(TIC.Inbound);
 			Bad((char *)"Possible virus found!");

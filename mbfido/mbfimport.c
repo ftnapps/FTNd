@@ -47,7 +47,7 @@ extern int	do_annon;		/* Supress announce files	    */
 
 void ImportFiles(int Area)
 {
-    char		*pwd, *temp, *temp2, *String, *token, *dest, *unarc;
+    char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc;
     FILE		*fbbs;
     int			Append = FALSE, Files = 0, rc, i, j = 0, k = 0, x, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
@@ -66,12 +66,14 @@ void ImportFiles(int Area)
         temp   = calloc(PATH_MAX, sizeof(char));
 	temp2  = calloc(PATH_MAX, sizeof(char));
         pwd    = calloc(PATH_MAX, sizeof(char));
+	tmpdir = calloc(PATH_MAX, sizeof(char));
 	String = calloc(4096, sizeof(char));
 	dest   = calloc(PATH_MAX, sizeof(char));
 
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
 	    die(0);
+	sprintf(tmpdir, "%s/tmp/arc", getenv("MBSE_ROOT"));
 
 	IsDoing("Import files");
 
@@ -114,7 +116,7 @@ void ImportFiles(int Area)
 				printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 				fflush(stdout);
 			    }
-			    if (VirScan()) {
+			    if (VirScan(tmpdir)) {
 				Doit = FALSE;
 			    }
 			}
@@ -128,7 +130,7 @@ void ImportFiles(int Area)
 				printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 				fflush(stdout);
 			    }
-			    if (VirScan()) {
+			    if (VirScan(tmpdir)) {
 				Doit = FALSE;
 			    }
 			} else {
@@ -313,7 +315,7 @@ void ImportFiles(int Area)
 			printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    if (VirScan()) {
+		    if (VirScan(tmpdir)) {
 			Doit = FALSE;
 		    }
 		}
@@ -327,7 +329,7 @@ void ImportFiles(int Area)
 			printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
-		    if (VirScan()) {
+		    if (VirScan(tmpdir)) {
 			Doit = FALSE;
 		    }
 		} else {
@@ -354,6 +356,7 @@ void ImportFiles(int Area)
 	free(pwd);
 	free(temp2);
 	free(temp);
+	free(tmpdir);
     } else {
 	if (!area.Available) {
 	    WriteError("Area not available");

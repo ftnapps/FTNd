@@ -48,7 +48,7 @@ extern int	do_annon;		/* Supress announce file	    */
 void AdoptFile(int Area, char *File, char *Description)
 {
     FILE		*fp;
-    char		*temp, *temp2, *unarc, *pwd;
+    char		*temp, *temp2, *tmpdir, *unarc, *pwd;
     char		Desc[256], TDesc[256];
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
@@ -67,6 +67,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	temp   = calloc(PATH_MAX, sizeof(char));
 	temp2  = calloc(PATH_MAX, sizeof(char));
 	pwd    = calloc(PATH_MAX, sizeof(char));
+	tmpdir = calloc(PATH_MAX, sizeof(char));
 
 	if (CheckFDB(Area, area.Path))
 	    die(0);
@@ -79,6 +80,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	}
 
 	sprintf(temp, "%s/%s", pwd, File);
+	sprintf(tmpdir, "%s/tmp/arc", getenv("MBSE_ROOT"));
 	if ((unarc = unpacker(File)) == NULL) {
 	    Syslog('+', "No known archive: %s", File);
 	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
@@ -93,7 +95,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 		    fflush(stdout);
 		}
-		IsVirus = VirScan();
+		IsVirus = VirScan(tmpdir);
 		if (IsVirus) {
 		    DeleteVirusWork();
 		    chdir(pwd);
@@ -116,7 +118,7 @@ void AdoptFile(int Area, char *File, char *Description)
                 fflush(stdout);
             }
 
-	    IsVirus = VirScan();
+	    IsVirus = VirScan(tmpdir);
             if (IsVirus) {
 		DeleteVirusWork();
                 chdir(pwd);
@@ -277,6 +279,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	free(pwd);
 	free(temp2);
 	free(temp);
+	free(tmpdir);
     } else {
 	WriteError("Area %d is not available", Area);
 	if (!do_quiet)

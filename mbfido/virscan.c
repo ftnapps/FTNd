@@ -37,40 +37,69 @@
 #include "virscan.h"
 
 
-int VirScan(void)
+/*
+ * Check for known viri, optional in a defined path.
+ */
+int VirScan(char *path)
 {
-    char    *temp, *cmd = NULL;
+    char    *pwd, *temp, *cmd = NULL;
     FILE    *fp;
-    int	    rc = FALSE;
+    int	    rc = FALSE, has_scan = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("No virus scanners defined");
-    } else {
-        fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
-
-        while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-            cmd = NULL;
-            if (virscan.available) {
-		Altime(3600);
-                cmd = xstrcpy(virscan.scanner);
-                cmd = xstrcat(cmd, (char *)" ");
-                cmd = xstrcat(cmd, virscan.options);
-                if (execute(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", 
-				(char *)"/dev/null" , (char *)"/dev/null") != virscan.error) {
-                    Syslog('!', "Virus found by %s", virscan.comment);
-		    rc = TRUE;
-                }
-                free(cmd);
-		Altime(0);
-		Nopper();
-            }
-        }
-        fclose(fp);
+	free(temp);
+	return FALSE;
     }
+    fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
 
+    while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
+	if (virscan.available)
+	    has_scan = TRUE;
+    }
+    if (!has_scan) {
+	Syslog('+', "No active virus scanners, skipping scan");
+	fclose(fp);
+	free(temp);
+	return FALSE;
+    }
+    
+    pwd = calloc(PATH_MAX, sizeof(char));
+    getcwd(pwd, PATH_MAX);
+    if (path) {
+	chdir(path);
+	Syslog('+', "Start virusscan in %s", path);
+    } else {
+	Syslog('+', "Start virusscan in %s", pwd);
+    }
+    
+    fseek(fp, virscanhdr.hdrsize, SEEK_SET);
+    while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
+        cmd = NULL;
+        if (virscan.available) {
+	    Altime(3600);
+            cmd = xstrcpy(virscan.scanner);
+            cmd = xstrcat(cmd, (char *)" ");
+            cmd = xstrcat(cmd, virscan.options);
+            if (execute(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", 
+			     (char *)"/dev/null" , (char *)"/dev/null") != virscan.error) {
+                Syslog('!', "Virus found by %s", virscan.comment);
+		rc = TRUE;
+            }
+	    free(cmd);
+	    Altime(0);
+	    Nopper();
+        }
+    }
+    fclose(fp);
+
+    if (path)
+	chdir(pwd);
+
+    free(pwd);
     free(temp);
     return rc;
 }

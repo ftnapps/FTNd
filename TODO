@@ -35,6 +35,9 @@ mbsebbs:
 
 	L: E-mail downloads with e-mail verification.
 
+	N: When a file is attached with netmail that doesn't exist the user
+	   doesn't see an error message.
+
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
