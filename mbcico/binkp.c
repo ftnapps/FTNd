@@ -132,6 +132,7 @@ struct binkprec {
     int			Minor;			/* Minor protocol version	    */
     unsigned char	*MD_Challenge;		/* Received challenge data	    */
     int			PLZflag;		/* Zlib packet compression	    */
+    int			cmpblksize;		/* Ideal next blocksize		    */
 
 						/* Receiver buffer		    */
     char		*rxbuf;			/* Receiver buffer		    */
@@ -233,6 +234,7 @@ int binkp(int role)
     bp.local_EOB = FALSE;
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
+    bp.cmpblksize = SND_BLKSIZE;
 #ifdef	HAVE_ZLIB_H
     bp.PLZflag = WeCan;
 #else
@@ -1077,6 +1079,7 @@ TrType binkp_receiver(void)
 	rxbytes = bp.rxbytes;
 	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, binkp_resync);
 	bp.rxbytes = rxbytes;
+	bp.rxcompressed = 0;
 
 	if (bp.DidSendGET) {
 	    Syslog('b', "Binkp: DidSendGET is set");
@@ -1203,6 +1206,10 @@ TrType binkp_receiver(void)
 	    closefile();
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
 	    gettimeofday(&rxtvend, &bp.tz);
+#ifdef HAVE_ZLIB_H
+	    if (bp.rxcompressed && (bp.PLZflag == Active))
+		Syslog('+', "Binkp: %s", compress_stat(bp.rxpos, bp.rxcompressed));
+#endif
 	    Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, bp.rxpos, FALSE));
 	    rcvdbytes += bp.rxpos;
 	    bp.RxState = RxWaitF;
@@ -1351,6 +1358,7 @@ TrType binkp_transmitter(void)
 		}
 
 		bp.txpos = bp.stxpos = tmp->offset;
+		bp.txcompressed = 0;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
 		Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
@@ -1395,7 +1403,7 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxReadS) {
 	fseek(bp.txfp, bp.txpos, SEEK_SET);
-	bp.txlen = fread(bp.txbuf, 1, SND_BLKSIZE, bp.txfp);
+	bp.txlen = fread(bp.txbuf, 1, bp.cmpblksize, bp.txfp);
 	eof = feof(bp.txfp);
 
 	if ((bp.txlen == 0) || eof) {
@@ -1434,6 +1442,10 @@ TrType binkp_transmitter(void)
 
 	    if (bp.txpos >= 0) {
 		bp.stxpos = bp.txpos - bp.stxpos;
+#ifdef HAVE_ZLIB_H
+		if (bp.txcompressed && (bp.PLZflag == Active))
+		    Syslog('+', "Binkp: %s", compress_stat(bp.stxpos, bp.txcompressed));
+#endif
 		Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, bp.stxpos, TRUE));
 	    } else {
 		Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txtvend.tv_sec - txtvstart.tv_sec);
@@ -1548,7 +1560,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     unsigned short  header = 0;
     int		    rc, id;
 #ifdef HAVE_ZLIB_H
-    int		    rcz;
+    int		    rcz, last;
     unsigned long   zlen;
     char	    *zbuf;
 #endif
@@ -1577,6 +1589,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     }
 
 #ifdef HAVE_ZLIB_H
+    last = bp.cmpblksize;
     if ((bp.PLZflag == Active) && (len > 20)) {
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	rcz = compress2(zbuf, &zlen, buf, len, 9);
@@ -1585,6 +1598,19 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		    len, zlen, (zlen < len) ?"yes":"no");
 	    if (zlen < len) {
 		bp.txcompressed += (len - zlen);
+		/*
+		 * Calculate the perfect blocksize for the next block
+		 * using the current compression ratio. This gives
+		 * a dynamic optimal blocksize. The average maximum
+		 * blocksize on the line will be 4096 bytes.
+		 */
+		if (!cmd) {
+		    bp.cmpblksize = ((len * 4) / zlen) * 512;
+		    if (bp.cmpblksize < SND_BLKSIZE)
+			bp.cmpblksize = SND_BLKSIZE;
+		    if (bp.cmpblksize > (BINKP_PLZ_BLOCK -1))
+			bp.cmpblksize = (BINKP_PLZ_BLOCK -1);
+		}
 		/*
 		 * Rebuild header for compressed block
 		 */
@@ -1604,6 +1630,8 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		    rc = PUTCHAR(header & 0x00ff);
 		if (len && !rc)
 		    rc = PUT(buf, len);
+		if (!cmd)
+		    bp.cmpblksize = SND_BLKSIZE;
 	    }
 	} else {
 	    rc = PUTCHAR((header >> 8) & 0x00ff);
@@ -1611,6 +1639,8 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		rc = PUTCHAR(header & 0x00ff);
 	    if (len && !rc)
 		rc = PUT(buf, len);
+	    if (!cmd)
+		bp.cmpblksize = SND_BLKSIZE;
 	}
 	free(zbuf);
     } else {
@@ -1619,13 +1649,18 @@ int binkp_send_frame(int cmd, char *buf, int len)
 	    rc = PUTCHAR(header & 0x00ff);
 	if (len && !rc)
 	    rc = PUT(buf, len);
+	if (!cmd)
+	    bp.cmpblksize = SND_BLKSIZE;
     }
+    if (!cmd && (last != bp.cmpblksize))
+	Syslog('b', "Binkp: adjusting next blocksize to %d bytes", bp.cmpblksize);
 #else
     rc = PUTCHAR((header >> 8) & 0x00ff);
     if (!rc)
 	rc = PUTCHAR(header & 0x00ff);
     if (len && !rc)
 	rc = PUT(buf, len);
+    bp.cmpblksize = SND_BLKSIZE;
 #endif
 
     FLUSHOUT();
@@ -1896,7 +1931,7 @@ void parse_m_nul(char *msg)
  */
 int binkp_poll_frame(void)
 {
-    int	    c, rc = 0, bcmd;
+    int		    c, rc = 0, bcmd;
 #ifdef HAVE_ZLIB_H
     int		    plz = FALSE;
     unsigned long   zlen;
@@ -1946,15 +1981,12 @@ int binkp_poll_frame(void)
 		}
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
-		    Syslog('b', "Binkp: got a complete %s frame, mode %scompressed", bp.cmd?"CMD":"DATA", plz?"":"un");
 #ifdef HAVE_ZLIB_H
 		    if (plz) {
-			Syslog('b', "Binkp: rcvd compressed block %d bytes", bp.rxlen -1);
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
-			Syslog('b', "Binkp: uncompress rc=%d %d => %d", rc, bp.rxlen -1, zlen);
 			if (rc == Z_OK) {
-			    bp.rxcompressed = (zlen - (bp.rxlen -1));
+			    bp.rxcompressed += (zlen - (bp.rxlen -1));
 			    memmove(bp.rxbuf, zbuf, zlen);
 			    bp.rxlen = zlen +1;
 			    bp.blklen = zlen;
@@ -1966,7 +1998,6 @@ int binkp_poll_frame(void)
 			free(zbuf);
 		    }
 #endif
-		    Syslog('b', "Binkp: bp.rxlen=%d bp.blklen=%d", bp.rxlen, bp.blklen);
 		    bp.rxbuf[bp.rxlen-1] = '\0';
 		    if (bp.cmd) {
 			bp.messages++;

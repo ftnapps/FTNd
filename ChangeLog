@@ -1,6 +1,9 @@
 $Id$
 
-v0.39.7		14-Jan-2004
+v0.39.8		26-Jan-2004
+
+
+v0.39.7		14-Jan-2004 - 26-Jan-2004
 
 	remark:
 		Calling points is availbale now, but I know in the past that I
@@ -17,7 +20,7 @@ v0.39.7		14-Jan-2004
 		and after running the external program to make sure diskbuffers
 		are committed.
 		Added a milliseconds timer.
-		Before and after execute and execsh a 100 ms pause is inserted
+		Before and after execute and execsh a 200 ms pause is inserted
 		to prevent (un)archiver and other errors.
 
 	mbcico:
@@ -35,9 +38,7 @@ v0.39.7		14-Jan-2004
 		session close delay time.
 		During binkp handshake increased the timer of the receiver to
 		avoid handshake timeouts.
-		Added PLZ compression option to binkp. Not yet 100% finished
-		but it seems to work. Not yet tested against latest Radius beta.
-		Be carefull!
+		Added PLZ compression option to binkp.
 
 	mbfido:
 		Removed sync calls that are now in execute.
