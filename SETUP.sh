@@ -232,7 +232,7 @@ if [ "$OSTYPE" = "Linux" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
-    pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G dialer -m -s /usr/local/bin/bash
+    pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash
 fi
 log "+" "[$?] Added user mbse"
 chmod 770 $MHOME

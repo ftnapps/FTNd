@@ -1,7 +1,7 @@
 #
-# Installation script to install bootscripts.
+# $Id$
 #
-# (C) Michiel Broek, v0.24 25-Oct-2001
+# Installation script to install bootscripts.
 #
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:$MBSE_ROOT/bin
 DISTNAME=
@@ -582,16 +582,25 @@ if [ "$DISTNAME" = "FreeBSD" ]; then
     DISTINIT="$MBSE_ROOT/etc/rc"
     echo "Adding FreeBSD style MBSE BBS start/stop scripts"
     log "+" "Adding FreeBSD style MBSE BBS start/stop scripts"
-    if [ "`grep MBSE /etc/rc.local`" = "" ]; then
-        log "+" "Adding $MBSE_ROOT/etc/rc to /etc/rc.local"
-        mv /etc/rc.local /etc/rc.local.mbse
-        cat /etc/rc.local.mbse >/etc/rc.local
-        echo "# Start MBSE BBS" >>/etc/rc.local
-        echo "$MBSE_ROOT/etc/rc" >>/etc/rc.local
-        chmod 644 /etc/rc.local
-        echo "   Added $MBSE_ROOT/etc/rc to /etc/rc.local"
-        echo "   /etc/rc.local.mbse is a backup file."
-        echo ""
+    if [ -f /etc/rc.local ]; then
+	if [ "`grep MBSE /etc/rc.local`" = "" ]; then
+	    log "+" "Adding $MBSE_ROOT/etc/rc to existing /etc/rc.local"
+	    mv /etc/rc.local /etc/rc.local.mbse
+	    cat /etc/rc.local.mbse >/etc/rc.local
+	    echo "# Start MBSE BBS" >>/etc/rc.local
+	    echo "$MBSE_ROOT/etc/rc" >>/etc/rc.local
+	    chmod 644 /etc/rc.local
+	    echo "   Added $MBSE_ROOT/etc/rc to /etc/rc.local"
+	    echo "   /etc/rc.local.mbse is a backup file."
+	    echo ""
+	fi
+    else
+	log "+" "Adding $MBSE_ROOT/etc/rc to new /etc/rc.local"
+	echo "# Start MBSE BBS" >/etc/rc.local
+	echo "$MBSE_ROOT/etc/rc" >>/etc/rc.local
+	chmod 644 /etc/rc.local
+	echo "   Added $MBSE_ROOT/etc/rc to /etc/rc.local"
+	echo ""
     fi
     cp mbse.start   $MBSE_ROOT/bin
     cp mbse.stop    $MBSE_ROOT/bin

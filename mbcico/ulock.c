@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/ulock.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 18-Dec-1999
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -33,7 +32,11 @@
 #include "../lib/clcomm.h"
 
 #ifndef LOCKDIR
+#ifdef __FreeBSD__
+#define LOCKDIR "/var/spool/lock"
+#else
 #define LOCKDIR "/var/lock"
+#endif
 #endif
 
 #define LCKPREFIX LOCKDIR"/LCK.."
