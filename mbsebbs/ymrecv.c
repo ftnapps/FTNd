@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/mbse.h"
 #include "ttyio.h"
+#include "timeout.h"
 #include "zmmisc.h"
 #include "zmrecv.h"
 #include "ymrecv.h"
@@ -64,7 +65,7 @@ int wcrxpn(char *rpn, int want1k)
     register int    c;
     size_t	    Blklen = 0;                /* record length of received packets */
 
-    Crcflg = want1k
+    Crcflg = want1k;
     purgeline(0);
     Syslog('x', "%s: wcrxpn() crc=%s", protname(), Crcflg ? "true":"false");
 

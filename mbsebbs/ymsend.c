@@ -213,15 +213,12 @@ static int wctxpn(char *fname)
     if ((input_f != stdin) && *fname)
 	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
-    Syslog('x', "Sending: %s", txbuf);
 
     Totalleft -= f.st_size;
     if (--Filesleft <= 0)
 	Totalleft = 0;
     if (Totalleft < 0)
 	Totalleft = 0;
-
-    Syslog('x', "Totalleft = %d", Totalleft);
 
     /* force 1k blocks if name won't fit in 128 byte block */
     if (txbuf[125])
@@ -307,10 +304,11 @@ static int wctx(long bytes_total)
     register size_t thisblklen;
     register int    sectnum, attempts, firstch;
 
-    firstsec=TRUE;  thisblklen = blklen;
+    firstsec=TRUE;  
+    thisblklen = blklen;
     Syslog('x', "wctx: file length=%ld, blklen=%d", bytes_total, blklen);
 
-    while ((firstch = GETCHAR(Rxtimeout))!=NAK && firstch != WANTCRC
+    while ((firstch = GETCHAR(Rxtimeout)) != NAK && firstch != WANTCRC
 	    && firstch != WANTG && firstch != TIMEOUT && firstch != CAN);
     if (firstch == CAN) {
 	Syslog('x', "Receiver Cancelled");
