@@ -887,7 +887,7 @@ int needputrfc(rfcmsg *msg)
 	}
 	if (!strcasecmp(msg->key,"Return-Path")) return 1;
 	if (!strcasecmp(msg->key,"Xref")) return 0;
-	if (!strcasecmp(msg->key,"Approved")) return removeapproved ? -1:2;
+	if (!strcasecmp(msg->key,"Approved")) return removeapproved ? -1:1; // Was -1:2 18-04-2002 MB.
 	if (!strcasecmp(msg->key,"X-URL")) return 0;
 	if (!strcasecmp(msg->key,"Return-Receipt-To")) return removereturnto? 0:1;
 	if (!strcasecmp(msg->key,"Notice-Requested-Upon-Delivery-To")) return 0;
