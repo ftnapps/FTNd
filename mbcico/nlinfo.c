@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/nlinfo.c
- * Purpose ...............: MBSE BBS Outbound Manager
- * Last modification date : 18-Dec-1999
+ * $Id$
+ * Purpose ...............: MBSE BBS Outbound Manager - show node info
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -40,7 +39,7 @@
 int nlinfo(faddr *addr)
 {
 	node	*nlent;
-	int	i;
+	int	i, t;
 	char	flagbuf[256];
 
 	if (addr == NULL)
@@ -115,6 +114,21 @@ int nlinfo(faddr *addr)
 		if (nlent->pflag & 0x20)
 			printf(" TCP/IP");
 		printf("\n");
+		if (nlent->t1) {
+		    printf("System open : ");
+		    t = toupper(nlent->t1);
+		    printf("%02d:", t - 65);
+		    if (isupper(nlent->t1))
+			printf("00 - ");
+		    else
+			printf("30 - ");
+		    t = toupper(nlent->t2);
+		    printf("%02d:", t - 65);
+		    if (isupper(nlent->t2))
+			printf("00\n");
+		    else
+			printf("30\n");
+		}
 		printf("Uplink      : %u/%u\n", nlent->upnet, nlent->upnode);
 		printf("Region      : %u\n", nlent->region);
 	}

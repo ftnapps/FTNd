@@ -4371,6 +4371,7 @@ v0.33.19        26-Oct-2001
 
 	mbout:
 		Fixes for Sparc systems.
+		The node query now displays the system open times (Txx) flags.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
