@@ -525,42 +525,102 @@ int PickLanguage(char *nr)
 
 int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
-	int	j;
+    char	    temp[PATH_MAX];
+    FILE	    *wp, *ip, *no;
+    int		    j;
+    DIR		    *dp;
+    struct dirent   *de;
 
-	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 8, 2, page, (char *)"BBS Language setup");
-	j = 0;
-	fprintf(fp, "\n\n");
-	fread(&langhdr, sizeof(langhdr), 1, no);
+    page = newpage(fp, page);
+    addtoc(fp, toc, 8, 2, page, (char *)"BBS Language setup");
+    j = 0;
+    fprintf(fp, "\n\n");
+    fread(&langhdr, sizeof(langhdr), 1, no);
 
-	while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
+    ip = open_webdoc((char *)"language.html", (char *)"BBS Language Setup", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
 
-		if (j == 5) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
+	if (j == 5) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
+	}
+	
+	sprintf(temp, "language_%s.html", lang.LangKey);
+        fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, lang.LangKey, lang.Name);
+	if ((wp = open_webdoc(temp, (char *)"Language", lang.Name))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"language.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Language key", lang.LangKey);
+	    add_webtable(wp, (char *)"Language name", lang.Name);
+	    add_webtable(wp, (char *)"Available", getboolean(lang.Available));
+	    add_webtable(wp, (char *)"Menu path", lang.MenuPath);
+	    add_webtable(wp, (char *)"Textfiles path", lang.TextPath);
+	    add_webtable(wp, (char *)"Macrofiles path", lang.MacroPath);
+	    add_webtable(wp, (char *)"Language file", lang.Filename);
+	    web_secflags(wp, (char *)"Security level", lang.Security);
+	    fprintf(wp, "</TBODY>\n");
+            fprintf(wp, "</TABLE>\n");
+            fprintf(wp, "<HR>\n");
+            fprintf(wp, "<H3>Menu files</H3>\n");
+	    if ((dp = opendir(lang.MenuPath))) {
+		while ((de = readdir(dp))) {
+		    if (de->d_name[0] != '.') {
+			fprintf(wp, "%s<BR>\n", de->d_name);
+		    }
 		}
-
-		fprintf(fp, "     Language key     %s\n", lang.LangKey);
-		fprintf(fp, "     Language name    %s\n", lang.Name);
-		fprintf(fp, "     Available        %s\n", getboolean(lang.Available));
-		fprintf(fp, "     Menu path        %s\n", lang.MenuPath);
-		fprintf(fp, "     Textfiles path   %s\n", lang.TextPath);
-		fprintf(fp, "     Macrofiles path  %s\n", lang.MacroPath);
-		fprintf(fp, "     Language file    %s\n", lang.Filename);
-		fprintf(fp, "     Security level   %s\n", get_secstr(lang.Security));
-		fprintf(fp, "\n\n");
-		j++;
+		closedir(dp);
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Text files</H3>\n");
+	    if ((dp = opendir(lang.TextPath))) {
+		while ((de = readdir(dp))) {
+		    if (de->d_name[0] != '.') {
+			fprintf(wp, "%s<BR>\n", de->d_name);
+		    }
+		}
+		closedir(dp);
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Macro template files</H3>\n");
+	    if ((dp = opendir(lang.MacroPath))) {
+		while ((de = readdir(dp))) {
+		    if (de->d_name[0] != '.') {
+			fprintf(wp, "%s<BR>\n", de->d_name);
+		    }
+		}
+		closedir(dp);
+	    }
+	    close_webdoc(wp);
 	}
 
-	fclose(no);
-	return page;
+	fprintf(fp, "     Language key     %s\n", lang.LangKey);
+	fprintf(fp, "     Language name    %s\n", lang.Name);
+	fprintf(fp, "     Available        %s\n", getboolean(lang.Available));
+	fprintf(fp, "     Menu path        %s\n", lang.MenuPath);
+	fprintf(fp, "     Textfiles path   %s\n", lang.TextPath);
+	fprintf(fp, "     Macrofiles path  %s\n", lang.MacroPath);
+	fprintf(fp, "     Language file    %s\n", lang.Filename);
+	fprintf(fp, "     Security level   %s\n", get_secstr(lang.Security));
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+
+    fclose(no);
+    return page;
 }
 
 

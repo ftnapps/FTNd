@@ -537,28 +537,67 @@ char *get_limit_name(int level)
 
 int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
+    char    temp[PATH_MAX];
+    FILE    *up, *ip, *no;
 
-	sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-
-	addtoc(fp, toc, 8, 1, page, (char *)"BBS user limits");
-
-	fread(&LIMIThdr, sizeof(LIMIThdr), 1, no);
-
-	fprintf(fp, "\n");
-	fprintf(fp, "     Access   Max.   Down   Down\n");
-	fprintf(fp, "      Level   time    Kb.  files Active Description\n");
-	fprintf(fp, "     ------ ------ ------ ------ ------ ------------------------------\n");
-
-	while ((fread(&LIMIT, LIMIThdr.recsize, 1, no)) == 1) {
-		fprintf(fp, "     %6ld %6ld %6ld %6d %s    %s\n", LIMIT.Security, LIMIT.Time, LIMIT.DownK, 
-			LIMIT.DownF, getboolean(LIMIT.Available), LIMIT.Description);
-	}	
-
-	fclose(no);
+    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
 	return page;
+
+    addtoc(fp, toc, 8, 1, page, (char *)"BBS user limits");
+
+    ip = open_webdoc((char *)"limits.html", (char *)"BBS User Security Limits", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<P>\n");
+    fprintf(ip, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Access Level</TH><TH align='left'>Max. time</TH>");
+    fprintf(ip, "<TH align='left'>Down Kb.</TH><TH align='left'>Down files</TH>");
+    fprintf(ip, "<TH align='left'>Active</TH><TH align='left'>Description</TH><TR>\n");
+    fread(&LIMIThdr, sizeof(LIMIThdr), 1, no);
+
+    fprintf(fp, "\n");
+    fprintf(fp, "     Access   Max.   Down   Down\n");
+    fprintf(fp, "      Level   time    Kb.  files Active Description\n");
+    fprintf(fp, "     ------ ------ ------ ------ ------ ------------------------------\n");
+
+    while ((fread(&LIMIT, LIMIThdr.recsize, 1, no)) == 1) {
+	fprintf(fp, "     %6ld %6ld %6ld %6d %s    %s\n", 
+	    LIMIT.Security, LIMIT.Time, LIMIT.DownK, LIMIT.DownF, getboolean(LIMIT.Available), LIMIT.Description);
+	fprintf(ip, "<TR><TD>%ld</TD><TD>%ld</TD><TD>%ld</TD><TD>%d</TD><TD>%s</TD><TD>%s</TD></TR>\n",
+	    LIMIT.Security, LIMIT.Time, LIMIT.DownK, LIMIT.DownF, getboolean(LIMIT.Available), LIMIT.Description);
+    }	
+
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
+    fprintf(ip, "<HR>\n");
+    fprintf(ip, "<H3>Users in security levels</H3>\n");
+    fprintf(ip, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(ip, "<COL width='20%%'><COL width='40%%'><COL width='40%%'>\n");
+    fprintf(ip, "<TBODY>\n");
+    fprintf(ip, "<TR><TH align='left'>Access Level</TH><TH align='left'>User</TH><TH align='left'>Location</TH></TR>\n");
+    fseek(no, LIMIThdr.hdrsize, SEEK_SET);
+
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((up = fopen(temp, "r"))) {
+	fread(&usrconfighdr, sizeof(usrconfighdr), 1, up);
+	
+	while ((fread(&LIMIT, LIMIThdr.recsize, 1, no)) == 1) {
+	    fseek(up, usrconfighdr.hdrsize, SEEK_SET);
+	    while (fread(&usrconfig, usrconfighdr.recsize, 1, up) == 1) {
+		if (strlen(usrconfig.sUserName) && (usrconfig.Security.level == LIMIT.Security)) {
+		    fprintf(ip, "<TR><TD>%ld</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+			LIMIT.Security, usrconfig.sUserName, usrconfig.sLocation);
+		}
+	    }
+	}
+	fclose(up);
+    }
+
+    fprintf(ip, "</TBODY>\n");
+    fprintf(ip, "</TABLE>\n");
+    close_webdoc(ip);
+    fclose(no);
+    return page;
 }
 

@@ -772,8 +772,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
 			    fprintf(wp, "<TBODY>\n");
 			}
-			sprintf(temp, "Area %d", i);
-			add_webtable(wp, temp, area.Name);
+			fprintf(wp, "<TR><TD><A HREF=\"filearea_%d.html\">Area %d</A></TD><TD>%s</TD></TR>\n", i, i, area.Name);
 			refs++;
 		    }
 		}
@@ -800,7 +799,8 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
 			    fprintf(wp, "<TBODY>\n");
 			}
-			add_webtable(wp, tic.Name, tic.Comment);
+			fprintf(wp, "<TR><TD><A HREF=\"ticarea_%s.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+				tic.Name, tic.Name, tic.Comment);
 			refs++;
 		    }
 		    fseek(ti, tichdr.syssize, SEEK_CUR);
@@ -830,7 +830,9 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 				fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
 				fprintf(wp, "<TBODY>\n");
 			    }
-			    add_webtable(wp, aka2str(nodes.Aka[0]), nodes.Sysop);
+			    fprintf(wp, "<TR><TD><A HREF=\"node_%d_%d_%d_%d_%s.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+				    nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node, nodes.Aka[0].point, 
+				    nodes.Aka[0].domain, aka2str(nodes.Aka[0]), nodes.Sysop);
 			    refs++;
 			}
 		    }
@@ -844,6 +846,11 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(wp, "</TBODY>\n");
 		fprintf(wp, "</TABLE>\n");
 	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Group Statistics</H3>\n");
+	    add_statcnt(wp, (char *)"processed files", fgroup.Files);
+	    add_statcnt(wp, (char *)"KBytes of files", fgroup.KBytes);
+	    close_webdoc(wp);
 	}
 	
 	fprintf(fp, "    Group name     %s\n", fgroup.Name);

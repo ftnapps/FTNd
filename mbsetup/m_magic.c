@@ -487,59 +487,83 @@ void InitMagics(void)
 
 int tic_magic_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
-	int	j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *no;
+    int	    nr = 0i, j;
 
-	sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 10, 4, page, (char *)"File Magic processing");
-	j = 0;
-	fprintf(fp, "\n\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 10, 4, page, (char *)"File Magic processing");
+    j = 0;
+    fprintf(fp, "\n\n");
+    fread(&magichdr, sizeof(magichdr), 1, no);
 
-	fread(&magichdr, sizeof(magichdr), 1, no);
-	while (fread(&magic, magichdr.recsize, 1, no) == 1) {
-		if (j == 6) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "   Filemask     %s\n", magic.Mask);
-		fprintf(fp, "   Type         %s\n", getmagictype(magic.Attrib));
-		fprintf(fp, "   Active       %s\n", getboolean(magic.Active));
-		fprintf(fp, "   Area         %s\n", magic.From);
-
-		switch (magic.Attrib) {
-			case MG_ADOPT:
-			case MG_MOVE:
-					fprintf(fp, "   To area      %s\n", magic.ToArea);
-					break;
-
-			case MG_EXEC:
-					fprintf(fp, "   Command      %s\n", magic.Cmd);
-					fprintf(fp, "   Compile NL   %s\n", getboolean(magic.Compile));
-					break;
-
-			case MG_UNPACK:
-			case MG_COPY:
-					fprintf(fp, "   Compile NL   %s\n", getboolean(magic.Compile));
-					fprintf(fp, "   Path         %s\n", magic.Path);
-					break;
-
-			case MG_KEEPNUM:fprintf(fp, "   Keep # file  %d\n", magic.KeepNum);
-					break;
-		}
-
-		fprintf(fp, "\n\n");
-		j++;
+    ip = open_webdoc((char *)"magic.html", (char *)"File Magic Processing", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while (fread(&magic, magichdr.recsize, 1, no) == 1) {
+	if (j == 6) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	nr++;
+	sprintf(temp, "magic_%d.html", nr);
+	fprintf(ip, " <LI><A HREF=\"%s\">Magic %3d</A> %s</LI>\n", temp, nr, magic.Mask);
+	if ((wp = open_webdoc(temp, (char *)"File Magic", magic.Mask))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"magic.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Filemask", magic.Mask);
+	    add_webtable(wp, (char *)"Magic type", getmagictype(magic.Attrib));
+	    add_webtable(wp, (char *)"Active", getboolean(magic.Active));
+	    add_webtable(wp, (char *)"TIC Area", magic.From);
+	    fprintf(fp, "   Filemask     %s\n", magic.Mask);
+	    fprintf(fp, "   Type         %s\n", getmagictype(magic.Attrib));
+	    fprintf(fp, "   Active       %s\n", getboolean(magic.Active));
+	    fprintf(fp, "   Area         %s\n", magic.From);
+
+	    switch (magic.Attrib) {
+		case MG_ADOPT:
+		case MG_MOVE:	    add_webtable(wp, (char *)"To area", magic.ToArea);
+				    fprintf(fp, "   To area      %s\n", magic.ToArea);
+				    break;
+		case MG_EXEC:	    add_webtable(wp, (char *)"Command", magic.Cmd);
+				    add_webtable(wp, (char *)"Compile nodelist", getboolean(magic.Compile));
+				    fprintf(fp, "   Command      %s\n", magic.Cmd);
+				    fprintf(fp, "   Compile NL   %s\n", getboolean(magic.Compile));
+				    break;
+		case MG_UNPACK:
+		case MG_COPY:	    add_webtable(wp, (char *)"Compile nodelist", getboolean(magic.Compile));
+				    add_webtable(wp, (char *)"Destination path", magic.Path);
+				    fprintf(fp, "   Compile NL   %s\n", getboolean(magic.Compile));
+				    fprintf(fp, "   Path         %s\n", magic.Path);
+				    break;
+		case MG_KEEPNUM:    add_webdigit(wp, (char *)"Keep # files", magic.KeepNum);
+				    fprintf(fp, "   Keep # file  %d\n", magic.KeepNum);
+				    break;
+	    }
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+	
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(no);
+    return page;
 }
 
 

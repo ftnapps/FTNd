@@ -119,6 +119,8 @@ mbfido:
 	   older entry to update the info with the later received file. Else
 	   just handle the record as a dupe (In test again).
 
+	N: Hatch statistics are not updated.
+
 mbcico:
 	L: Implement binkp option ND.
 

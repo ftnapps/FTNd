@@ -84,7 +84,7 @@ ledit.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h screen.h mutil
 m_farea.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_fgroup.h m_archive.h m_farea.h m_fgroup.h m_ngroup.h
 m_fido.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_fido.h
 m_limits.o: ../config.h ../lib/mbselib.h ../lib/users.h screen.h mutil.h ledit.h stlist.h m_global.h m_limits.h
-m_menu.o: ../config.h ../lib/mbselib.h mutil.h screen.h ledit.h m_lang.h m_menu.h
+m_menu.o: ../config.h ../lib/mbselib.h mutil.h screen.h ledit.h m_lang.h m_global.h m_menu.h
 m_ngroup.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_ngroup.h
 m_service.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_service.h
 m_tty.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_modem.h m_global.h m_tty.h

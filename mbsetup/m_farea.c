@@ -835,7 +835,8 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 				fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
 				fprintf(wp, "<TBODY>\n");
 			    }
-			    add_webtable(wp, tic.Name, tic.Comment);
+			    fprintf(wp, "<TR><TD><A HREF=\"ticarea_%s.html\">%s</A></TD><TD>%s</TD></TR>\n",
+					    tic.Name, tic.Name, tic.Comment);
 			    tics++;
 			}
 			fseek(ti, tichdr.syssize, SEEK_CUR);

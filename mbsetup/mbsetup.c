@@ -184,6 +184,16 @@ void soft_info(void)
 }
 
 
+int horiz;
+
+void dotter(void);
+void dotter(void)
+{
+    mvprintw(8, horiz++, (char *)".");
+    fflush(stdout);
+}
+
+	    
 
 void site_docs(void);
 void site_docs(void)
@@ -213,7 +223,7 @@ void site_docs(void)
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "21.  CREATING SITEDOCS");
     set_color(CYAN, BLACK);
-    mvprintw( 7,11, (char *)"Erasing directory       %s/doc/html", getenv("MBSE_ROOT"));
+    mvprintw( 7,11, (char *)"Erasing directory         %s/doc/html", getenv("MBSE_ROOT"));
     fflush(stdout);
 
     sprintf(temp, "-r -f %s/doc/html", getenv("MBSE_ROOT"));
@@ -228,27 +238,18 @@ void site_docs(void)
 	fprintf(hp, " <LI>Modem Types</LI>\n");
 	fprintf(hp, " <LI>TTY Lines Info</LI>\n");
 	fprintf(hp, " <LI>Fidonet Nodes</LI>\n");
-	fprintf(hp, " <LI><A HREF=\"bbs.html\">BBS Setup</A></LI>\n");
-	fprintf(hp, " <UL>\n");
-	fprintf(hp, "  <LI><A HREF=\"limits.html\">Security Limits</A></LI>\n");
-	fprintf(hp, "  <LI><A HREF=\"language.html\">Language Setup</A></LI>\n");
-	fprintf(hp, "  <LI><A HREF=\"menus.html\">BBS Menus</A></LI>\n");
-	fprintf(hp, "  <LI><A HREF=\"fileareas.html\">File Areas</A></LI>\n");
-	fprintf(hp, "  <LI><A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
-	fprintf(hp, "  <LI><A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
-	fprintf(hp, " </UL>\n");
-	fprintf(hp, " <LI>Mail Setup</LI>\n");
-	fprintf(hp, " <UL>\n");
-	fprintf(hp, "  <LI>Echomail Groups</LI>\n");
-	fprintf(hp, "  <LI>Echomail Areas</LI>\n");
-	fprintf(hp, " </UL>\n");
-	fprintf(hp, " <LI>File Echo's Setup</LI>\n");
-	fprintf(hp, " <UL>\n");
-	fprintf(hp, "  <LI><A HREF=\"filegroup.html\">FileEcho Groups</A></LI>\n");
-	fprintf(hp, "  <LI>Fileecho Areas</LI>\n");
-	fprintf(hp, "  <LI>Hatch Manager</LI>\n");
-	fprintf(hp, "  <LI>Magic Files</LI>\n");
-	fprintf(hp, " </UL>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"limits.html\">Security Limits</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"language.html\">Language Setup</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"menus.html\">BBS Menus</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"fileareas.html\">File Areas</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
+	fprintf(hp, " <LI>Mail: Echomail Groups</LI>\n");
+	fprintf(hp, " <LI>Mail: <A HREF=\"msgareas.html\">Echomail Areas</A></LI>\n");
+	fprintf(hp, " <LI>TIC: <A HREF=\"filegroup.html\">FileEcho Groups</A></LI>\n");
+	fprintf(hp, " <LI>TIC: Fileecho Areas</LI>\n");
+	fprintf(hp, " <LI>TIC: <A HREF=\"hatch.html\">Hatch Manager</A></LI>\n");
+	fprintf(hp, " <LI>TIC: <A HREF=\"magic.html\">Magic Files</A></LI>\n");
 	fprintf(hp, " <LI>Newfiles Groups</LI>\n");
 	fprintf(hp, " <LI>Newfiles Reports</LI>\n");
 	fprintf(hp, " <LI><A HREF=\"filefind.html\">Filefind Setup</A></LI>\n");
@@ -263,24 +264,45 @@ void site_docs(void)
         Syslog('+', "Can't create html documentation");
     }
 
-    mvprintw( 8,11, (char *)"Create document in file %s/doc/site.doc", getenv("MBSE_ROOT"));
+    mvprintw(8,11, (char *)"Creating site documents");
+    fflush(stdout);
+    horiz = 35;
     page = global_doc(fp, toc, page);
+    dotter();
     page = fido_doc(fp, toc, page);
+    dotter();
     page = archive_doc(fp, toc, page);
+    dotter();
     page = virus_doc(fp, toc, page);
+    dotter();
     page = modem_doc(fp, toc, page);
+    dotter();
     page = tty_doc(fp, toc, page);
+    dotter();
     page = node_doc(fp, toc, page);
+    dotter();
     page = bbs_doc(fp, toc, page);
+    dotter();
     page = mail_doc(fp, toc, page);
+    dotter();
     page = tic_doc(fp, toc, page);
+    dotter();
     page = newf_group_doc(fp, toc, page);
+    dotter();
     page = new_doc(fp, toc, page);
+    dotter();
     page = ff_doc(fp, toc, page);
+    dotter();
     page = service_doc(fp, toc, page);
+    dotter();
     page = domain_doc(fp, toc, page);
+    dotter();
     page = task_doc(fp, toc, page);
+    dotter();
     page = route_doc(fp, toc, page);
+    clrtoeol();
+    mvprintw( 8,11, (char *)"Created site documents in %s/doc", getenv("MBSE_ROOT"));
+    fflush(stdout);
 
     /*
      * Append table of contents

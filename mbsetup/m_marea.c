@@ -1762,8 +1762,8 @@ void gold_areas(FILE *fp)
 int mail_area_doc(FILE *fp, FILE *toc, int page)
 {
     char	temp[PATH_MAX], status[5];
-    FILE	*no;
-    int		i = 0, j, systems, First = TRUE, LMiy;
+    FILE	*ti, *wp, *ip, *no;
+    int		i = 0, j, k, systems, refs, First = TRUE, LMiy;
     sysconnect	System;
     struct tm	*t;
     time_t	Now;
@@ -1787,6 +1787,10 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
     fread(&msgshdr, msgshdr.hdrsize, 1, no);
     systems = msgshdr.syssize / sizeof(sysconnect);
 
+    ip = open_webdoc((char *)"msgareas.html", (char *)"Message Areas", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+
     while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
 
 	i++;
@@ -1799,6 +1803,52 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "\n");
 	    } else
 		fprintf(fp, "\n\n");
+
+	    sprintf(temp, "msgarea_%d.html", i);
+	    fprintf(ip, " <LI><A HREF=\"%s\">Area %d</A> %s</LI>\n", temp, i, msgs.Name);
+	    if ((wp = open_webdoc(temp, (char *)"File area", msgs.Name))) {
+		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"msgareas.html\">Back</A>\n");
+		fprintf(wp, "<P>\n");
+		fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+		fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+		fprintf(wp, "<TBODY>\n");
+		add_webdigit(wp, (char *)"Area number", i);
+		add_webtable(wp, (char *)"Area name", msgs.Name);
+		add_webtable(wp, (char *)"Area tag", msgs.Tag);
+		add_webtable(wp, (char *)"Newsgroup name", msgs.Newsgroup);
+		add_webtable(wp, (char *)"Distribution", msgs.Distribution);
+		add_webtable(wp, (char *)"JAM message base", msgs.Base);
+		add_webtable(wp, (char *)"Offline name", msgs.QWKname);
+		add_webtable(wp, (char *)"Area type", getmsgtype(msgs.Type));
+		add_webtable(wp, (char *)"Messages type", getmsgkinds(msgs.MsgKinds));
+		add_webtable(wp, (char *)"Character set", getchrs(msgs.Charset));
+		add_webdigit(wp, (char *)"Days old msgs", msgs.DaysOld);
+		add_webdigit(wp, (char *)"Maximum msgs", msgs.MaxMsgs);
+		add_webdigit(wp, (char *)"Max articles", msgs.MaxArticles);
+		add_webtable(wp, (char *)"Users delete", getboolean(msgs.UsrDelete));
+		web_secflags(wp, (char *)"Read security", msgs.RDSec);
+		web_secflags(wp, (char *)"Write security", msgs.WRSec);
+		web_secflags(wp, (char *)"Sysop security", msgs.SYSec);
+		add_webtable(wp, (char *)"Link security", getflag(msgs.LinkSec.flags, msgs.LinkSec.notflags));
+		add_webdigit(wp, (char *)"Minimum age", msgs.Age);
+		add_webtable(wp, (char *)"Password", msgs.Password);
+		add_webtable(wp, (char *)"Group", msgs.Group);
+		add_webtable(wp, (char *)"Fido address", aka2str(msgs.Aka));
+		add_webdigit(wp, (char *)"Netmail board", msgs.NetReply);
+		add_webtable(wp, (char *)"Origin line", msgs.Origin);
+		add_webtable(wp, (char *)"Allow aliases", getboolean(msgs.Aliases));
+		add_webtable(wp, (char *)"OLR mandatory", getboolean(msgs.OLR_Forced));
+		add_webtable(wp, (char *)"OLR default on", getboolean(msgs.OLR_Default));
+		add_webtable(wp, (char *)"Append quotes", getboolean(msgs.Quotes));
+		add_webtable(wp, (char *)"Nodes mandatory", getboolean(msgs.Mandatory));
+		add_webtable(wp, (char *)"UnSecure toss", getboolean(msgs.UnSecure));
+		add_webtable(wp, (char *)"Last msg rcvd", ctime(&msgs.LastRcvd));
+		add_webtable(wp, (char *)"Last msg posted", ctime(&msgs.LastPosted));
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+		fprintf(wp, "<HR>\n");
+		fprintf(wp, "<H3>Nodes Reference</H3>\n");
+	    }
 
 	    fprintf(fp, "    Area number      %d\n", i);
 	    fprintf(fp, "    Area name        %s\n", msgs.Name);
@@ -1833,9 +1883,16 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Last msg rcvd.   %s",   ctime(&msgs.LastRcvd));
 	    fprintf(fp, "    Last msg posted  %s",   ctime(&msgs.LastPosted));
 
+	    refs = 0;
 	    for (j = 0; j < systems; j++) {
 		fread(&System, sizeof(sysconnect), 1, no);
 		if (System.aka.zone) {
+		    if ((refs == 0) && (wp != NULL)) {
+			fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			fprintf(wp, "<COL width='20%%'><COL witdh='10%%'><COL width='70%%'>\n");
+			fprintf(wp, "<TBODY>\n");
+		    }
+		    refs++;
 		    memset(&status, 0, 5);
 		    memset(&status, '-', 4);
 		    if (System.sendto)
@@ -1848,7 +1905,43 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 			status[3] = 'C';
 
 		    fprintf(fp, "    Link %2d          %s %s\n", j+1, status, aka2str(System.aka));
+		    if (wp != NULL) {
+			sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+			if ((ti = fopen(temp, "r"))) {
+			    fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
+			    fseek(ti, 0, SEEK_SET);
+			    fread(&nodeshdr, nodeshdr.hdrsize, 1, ti);
+			    while ((fread(&nodes, nodeshdr.recsize, 1, ti)) == 1) {
+				fseek(ti, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+				for (k = 0; k < 20; k++) {
+				    if ((nodes.Aka[k].zone == System.aka.zone) &&
+					(nodes.Aka[k].net == System.aka.net ) &&
+					(nodes.Aka[k].node == System.aka.node) &&
+					(nodes.Aka[k].point == System.aka.point) &&
+					(strcmp(nodes.Aka[k].domain, System.aka.domain) == 0)) {
+					fprintf(wp, "<TR><TD><A HREF=\"node_%d_%d_%d_%d_%s.html\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+						nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node, nodes.Aka[0].point, 
+						nodes.Aka[0].domain, aka2str(nodes.Aka[0]), status, nodes.Sysop);
+				    }
+				}
+			    }
+			    fclose(ti);
+			}
+		    }
 		}
+	    }
+	    if (wp != NULL) {
+		if (refs == 0)
+		    fprintf(wp, "No Nodes References\n");
+		else {
+		    fprintf(wp, "</TBODY>\n");
+		    fprintf(wp, "</TABLE>\n");
+		}
+		fprintf(wp, "<HR>\n");
+                fprintf(wp, "<H3>Area Statistics</H3>\n");
+		add_statcnt(wp, (char *)"received msgs", msgs.Received);
+		add_statcnt(wp, (char *)"posted msgs", msgs.Posted);
+		close_webdoc(wp);
 	    }
 	    fprintf(fp, "\n");
 	    fprintf(fp, "                     Total      This Month Last Month\n");
@@ -1860,6 +1953,9 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fseek(no, msgshdr.syssize, SEEK_CUR);
     }
 
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
     fclose(no);
     return page;
 }

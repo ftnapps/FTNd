@@ -34,6 +34,7 @@
 #include "screen.h"
 #include "ledit.h"
 #include "m_lang.h"
+#include "m_global.h"
 #include "m_menu.h"
 
 
@@ -580,7 +581,7 @@ void EditMenus(void)
 int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 {
     char	    *temp;
-    FILE	    *no, *mn;
+    FILE	    *wp, *ip, *no, *mn;
     DIR		    *dp;
     struct dirent   *de;
     int		    j;
@@ -598,45 +599,83 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
     fread(&langhdr, sizeof(langhdr), 1, no);
     j =0;
 
+    ip = open_webdoc((char *)"menus.html", (char *)"BBS Menus", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+
     while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
+	fprintf(ip, "<H3>BBS Menus for %s</H3>\n", lang.Name);
+	fprintf(ip, "<UL>\n");
+
 	if ((dp = opendir(lang.MenuPath)) != NULL) {
 	    while ((de = readdir(dp))) {
 		if (de->d_name[0] != '.') {
 		    j = 0;
+		    fprintf(ip, "<LI><A HREF=\"menu_%s_%s.html\">%s</A></LI>\n", lang.LangKey, de->d_name, de->d_name);
 		    sprintf(temp, "%s/%s", lang.MenuPath, de->d_name);
 		    fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
 		    if ((mn = fopen(temp, "r")) != NULL) {
-			while (fread(&menus, sizeof(menus), 1, mn) == 1) {
-			    if (menus.MenuKey[0])
-				fprintf(fp, "    Menu select   %s\n", menus.MenuKey);
-			    if (menus.AutoExec)
-				fprintf(fp, "    Menu select   Autoexec\n");
-			    fprintf(fp, "    Type          %d %s\n", le_int(menus.MenuType), menus.TypeDesc);
-			    fprintf(fp, "    Opt. data     %s\n", menus.OptionalData);
-			    fprintf(fp, "    Display       %s\n", menus.Display);
-			    fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
-			    fprintf(fp, "    Minimum age   %d\n", menus.Age);
-			    fprintf(fp, "    Lo-colors     %s on %s\n", 
+			sprintf(temp, "menu_%s_%s.html", lang.LangKey, de->d_name);
+			if ((wp = open_webdoc(temp, lang.Name, de->d_name))) {
+			    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"menus.html\">Back</A>\n");
+			    while (fread(&menus, sizeof(menus), 1, mn) == 1) {
+				fprintf(wp, "<P>\n");
+				fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+				fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+				fprintf(wp, "<TBODY>\n");
+				if (menus.MenuKey[0]) {
+				    fprintf(fp, "    Menu select   %s\n", menus.MenuKey);
+				    add_webtable(wp, (char *)"Menu select", menus.MenuKey);
+				}
+				if (menus.AutoExec) {
+				    fprintf(fp, "    Menu select   Autoexec\n");
+				    add_webtable(wp, (char *)"Menu select", (char *)"Autoexec");
+				}
+				sprintf(temp, "%d %s", le_int(menus.MenuType), menus.TypeDesc);
+				add_webtable(wp, (char *)"Menu type", temp);
+				add_webtable(wp, (char *)"Optional data", menus.OptionalData);
+				add_webtable(wp, (char *)"Display", menus.Display);
+				web_secflags(wp, (char *)"Security level", menus.MenuSecurity);
+				add_webdigit(wp, (char *)"Minimum age", menus.Age);
+				add_colors(wp, (char *)"Normal colors", le_int(menus.ForeGnd), le_int(menus.BackGnd));
+				add_colors(wp, (char *)"Bright colors", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd));
+				fprintf(fp, "    Type          %d %s\n", le_int(menus.MenuType), menus.TypeDesc);
+				fprintf(fp, "    Opt. data     %s\n", menus.OptionalData);
+				fprintf(fp, "    Display       %s\n", menus.Display);
+				fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
+				fprintf(fp, "    Minimum age   %d\n", menus.Age);
+				fprintf(fp, "    Lo-colors     %s on %s\n", 
 						get_color(le_int(menus.ForeGnd)), get_color(le_int(menus.BackGnd)));
-			    fprintf(fp, "    Hi-colors     %s on %s\n", 
+				fprintf(fp, "    Hi-colors     %s on %s\n", 
 						get_color(le_int(menus.HiForeGnd)), get_color(le_int(menus.HiBackGnd)));
-			    if (le_int(menus.MenuType) == 7) {
-				fprintf(fp, "    Door Name     %s\n", menus.DoorName);
-				fprintf(fp, "    No door.sys   %s", getboolean(menus.NoDoorsys));
-				fprintf(fp, "    Y2K door.sys  %s", getboolean(menus.Y2Kdoorsys));
-				fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
-				fprintf(fp, "    Run nosuid    %s", getboolean(menus.NoSuid));
-				fprintf(fp, "    No Prompt     %s", getboolean(menus.NoPrompt));
-				fprintf(fp, "    Single user   %s\n", getboolean(menus.SingleUser));
-				fprintf(fp, "    Hidden door   %s\n", getboolean(menus.HideDoor));
+				if (le_int(menus.MenuType) == 7) {
+				    add_webtable(wp, (char *)"Door Name", menus.DoorName);
+				    add_webtable(wp, (char *)"No door.sys file", getboolean(menus.NoDoorsys));
+				    add_webtable(wp, (char *)"Y2K format in door.sys", getboolean(menus.Y2Kdoorsys));
+				    add_webtable(wp, (char *)"Use COM port", getboolean(menus.Comport));
+				    add_webtable(wp, (char *)"Run nosuid", getboolean(menus.NoSuid));
+				    add_webtable(wp, (char *)"No Prompt after door", getboolean(menus.NoPrompt));
+				    add_webtable(wp, (char *)"Single user door", getboolean(menus.SingleUser));
+				    add_webtable(wp, (char *)"Hidden door", getboolean(menus.HideDoor));
+				    fprintf(fp, "    Door Name     %s\n", menus.DoorName);
+				    fprintf(fp, "    No door.sys   %s", getboolean(menus.NoDoorsys));
+				    fprintf(fp, "    Y2K door.sys  %s", getboolean(menus.Y2Kdoorsys));
+				    fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
+				    fprintf(fp, "    Run nosuid    %s", getboolean(menus.NoSuid));
+				    fprintf(fp, "    No Prompt     %s", getboolean(menus.NoPrompt));
+				    fprintf(fp, "    Single user   %s\n", getboolean(menus.SingleUser));
+				    fprintf(fp, "    Hidden door   %s\n", getboolean(menus.HideDoor));
+				}
+				fprintf(fp, "\n\n");
+				j++;
+				if (j == 4) {
+				    j = 0;
+				    page = newpage(fp, page);
+				    fprintf(fp, "\n");
+				}
+				fprintf(wp, "</TBODY>\n");
+				fprintf(wp, "</TABLE>\n");
 			    }
-			    fprintf(fp, "\n\n");
-			    j++;
-			    if (j == 4) {
-				j = 0;
-				page = newpage(fp, page);
-				fprintf(fp, "\n");
-			    }
+			    close_webdoc(wp);
 			}
 			fclose(mn);
 		    }
@@ -646,8 +685,12 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 	    }
 	    closedir(dp);
 	}
+	fprintf(ip, "</UL>\n");
+	fprintf(ip, "<HR>\n");
     }
 
+    close_webdoc(ip);
+	
     free(temp);
     fclose(no);
     return page;

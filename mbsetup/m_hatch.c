@@ -557,82 +557,120 @@ void InitHatch(void)
 
 int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX], *tmp = NULL;
-	FILE		*no;
-	int		i, j, All;
+    char    temp[PATH_MAX], *tmp = NULL;
+    FILE    *wp, *ip, *no;
+    int	    i, j, nr = 0, All;
 
-	sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 10, 3, page, (char *)"Hatch manager");
-	j = 1;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 10, 3, page, (char *)"Hatch manager");
+    j = 1;
 
-	fprintf(fp, "\n\n");
-	fread(&hatchhdr, sizeof(hatchhdr), 1, no);
+    fprintf(fp, "\n\n");
+    fread(&hatchhdr, sizeof(hatchhdr), 1, no);
 
-	while ((fread(&hatch, hatchhdr.recsize, 1, no)) == 1) {
+    ip = open_webdoc((char *)"hatch.html", (char *)"File Areas", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&hatch, hatchhdr.recsize, 1, no)) == 1) {
 
-		if (j == 5) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "     File spec         %s\n", hatch.Spec);
-		fprintf(fp, "     File echo         %s\n", hatch.Name);
-		fprintf(fp, "     Replace file      %s\n", hatch.Replace);
-		fprintf(fp, "     Magic filename    %s\n", hatch.Magic);
-		fprintf(fp, "     Description       %s\n", hatch.Desc);
-		fprintf(fp, "     Dupe check        %s\n", getboolean(hatch.DupeCheck));
-		fprintf(fp, "     Active            %s\n", getboolean(hatch.Active));
-		tmp = NULL;
-		for (i = 0; i < 7; i++)
-			if (hatch.Days[i]) {
-				if (tmp == NULL) {
-					tmp = xstrcpy(Days[i]);
-				} else {
-					tmp = xstrcat(tmp, (char *)", ");
-					tmp = xstrcat(tmp, Days[i]);
-				}
-			}
-		if (tmp == NULL)
-			tmp = xstrcpy((char *)"None");
-		fprintf(fp, "     Hatch on days     %s\n", tmp);
-		if (tmp != NULL) {
-			free(tmp);
-			tmp = NULL;
-		}
-		All = TRUE;
-		for (i = 0; i < 32; i++)
-			if (!hatch.Month[i])
-				All = FALSE;
-		if (!All) {
-			for (i = 0; i < 32; i++)
-				if (hatch.Month[i]) {
-					if (tmp == NULL) {
-						tmp = xstrcpy(Month[i]);
-					} else {
-						tmp = xstrcat(tmp, (char *)", ");
-						tmp = xstrcat(tmp, Month[i]);
-					}
-				}
-		} else
-			tmp = xstrcpy((char *)"All dates");
-		if (tmp == NULL)
-			tmp = xstrcpy((char *)"None");
-		fprintf(fp, "     Hatch on dates    %s\n", tmp);
-		if (tmp != NULL) {
-			free(tmp);
-			tmp = NULL;
-		}
-		fprintf(fp, "\n\n");
-		j++;
+	nr++;
+	if (j == 5) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	sprintf(temp, "hatch_%d.html", nr);
+	fprintf(ip, " <LI><A HREF=\"%s\">Hatch %3d</A> %s</LI>\n", temp, nr, hatch.Spec);
+	if ((wp = open_webdoc(temp, (char *)"Hatch Manager", hatch.Spec))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"hatch.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"File specification", hatch.Spec);
+	    add_webtable(wp, (char *)"TIC File area", hatch.Name);
+	    add_webtable(wp, (char *)"Replace file", hatch.Replace);
+	    add_webtable(wp, (char *)"Magic filename", hatch.Magic);
+	    add_webtable(wp, (char *)"File description", hatch.Desc);
+	    add_webtable(wp, (char *)"Dupe check", getboolean(hatch.DupeCheck));
+	    add_webtable(wp, (char *)"Active", getboolean(hatch.Active));
+	}
+	
+	fprintf(fp, "     File spec         %s\n", hatch.Spec);
+	fprintf(fp, "     File echo         %s\n", hatch.Name);
+	fprintf(fp, "     Replace file      %s\n", hatch.Replace);
+	fprintf(fp, "     Magic filename    %s\n", hatch.Magic);
+	fprintf(fp, "     Description       %s\n", hatch.Desc);
+	fprintf(fp, "     Dupe check        %s\n", getboolean(hatch.DupeCheck));
+	fprintf(fp, "     Active            %s\n", getboolean(hatch.Active));
+	tmp = NULL;
+	for (i = 0; i < 7; i++)
+	    if (hatch.Days[i]) {
+		if (tmp == NULL) {
+		    tmp = xstrcpy(Days[i]);
+		} else {
+		    tmp = xstrcat(tmp, (char *)", ");
+		    tmp = xstrcat(tmp, Days[i]);
+		}
+	    }
+	if (tmp == NULL)
+	    tmp = xstrcpy((char *)"None");
+	if (wp != NULL)
+	    add_webtable(wp, (char *)"Hatch on days", tmp);
+	fprintf(fp, "     Hatch on days     %s\n", tmp);
+	if (tmp != NULL) {
+	    free(tmp);
+	    tmp = NULL;
+	}
+	All = TRUE;
+	for (i = 0; i < 32; i++)
+	    if (!hatch.Month[i])
+		All = FALSE;
+	if (!All) {
+	    for (i = 0; i < 32; i++) {
+		if (hatch.Month[i]) {
+		    if (tmp == NULL) {
+			tmp = xstrcpy(Month[i]);
+		    } else {
+			tmp = xstrcat(tmp, (char *)", ");
+			tmp = xstrcat(tmp, Month[i]);
+		    }
+		}
+	    }
+	} else {
+	    tmp = xstrcpy((char *)"All dates");
+	}
+	if (tmp == NULL)
+	    tmp = xstrcpy((char *)"None");
+	if (wp != NULL) {
+	    add_webtable(wp, (char *)"Hatch on dates", tmp);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Hatch Statistics</H3>\n");
+	    add_statcnt(wp, (char *)"hatched files", hatch.Hatched);
+	    close_webdoc(wp);
+	}
+	fprintf(fp, "     Hatch on dates    %s\n", tmp);
+	if (tmp != NULL) {
+	    free(tmp);
+	    tmp = NULL;
+	}
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	    
+    fclose(no);
+    return page;
 }
 
 
