@@ -325,7 +325,7 @@ void b_banner(int originate)
 	binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
 	t = time(NULL);
 	binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
-	binkp_send_control(MM_NUL,"VER mbcico/%s binkp/1.0", VERSION);
+	binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.0", VERSION, OsName(), OsCPU());
 	if (strlen(CFG.Phone))
 		binkp_send_control(MM_NUL,"PHN %s", CFG.Phone);
 	if (strlen(CFG.comment))

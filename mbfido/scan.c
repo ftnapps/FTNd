@@ -88,11 +88,11 @@ void ScanMail(int DoAll)
 	} else {
 		scanned = 0;
 		Fname = calloc(PATH_MAX, sizeof(char));
-		temp  = calloc(128, sizeof(char));
+		temp  = calloc(PATH_MAX, sizeof(char));
 
 		sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 		if ((fp = fopen(Fname, "r")) != NULL) {
-			while ((fgets(temp, 128, fp)) != NULL) {
+			while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 				path = strtok(temp, " ");
 				msg = atol(strtok(NULL, "\n"));
 				Syslog('+', "Export message %lu from %s", msg, path);
@@ -106,7 +106,7 @@ void ScanMail(int DoAll)
 
 		sprintf(Fname, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
 		if ((fp = fopen(Fname, "r")) != NULL) {
-			while ((fgets(temp, 128, fp)) != NULL) {
+			while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
 				path = strtok(temp, " ");
 				msg = atol(strtok(NULL, "\n"));
 				Syslog('+', "Export message %lu from %s", msg, path);

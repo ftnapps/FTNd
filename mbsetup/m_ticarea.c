@@ -1097,15 +1097,16 @@ char *PickTicarea(char *shdr)
 
 	clr_index();
 	working(1, 0, 0);
+	memset(&Buf, 0, sizeof(Buf));
 	if (config_read() == -1) {
 		working(2, 0, 0);
-		return '\0';
+		return Buf;
 	}
 
 	records = CountTicarea();
 	if (records == -1) {
 		working(2, 0, 0);
-		return '\0';
+		return Buf;
 	}
 
 	working(0, 0, 0);
@@ -1146,7 +1147,7 @@ char *PickTicarea(char *shdr)
 		strcpy(pick, select_pick(records, 10));
 
 		if (strncmp(pick, "-", 1) == 0)
-			return '\0';
+			return Buf;
 
 		if (strncmp(pick, "N", 1) == 0)
 			if ((o + 10) < records) 

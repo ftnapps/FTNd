@@ -69,8 +69,6 @@ mbfido:
 	N: The first file received in a not yet created tic area is refused
 	   after the area is created: node xxx not connected to area xxx.
 
-	N: Doesn't erase netmail.jam and/or echomail.jam after a full mailscan.
-
 	N: Add traffic to html.nodes
 
 mbcico:
@@ -111,8 +109,6 @@ mbnewusr:
 	N: On NetBSD, supress error message from mbpasswd.
 
 mbsetup:
-	U: In menu 10.3, selection 2, pressing enter crashes mbsetup.
-
 	U: PickAka function lets mbsetup crash if domain is 12 characters
 
 	U: Use some sort of sorting for the system aka's and make sure the

@@ -20,6 +20,7 @@ v0.35.01	05-Jun-2002
 
 	mbcico:
 		Now uses the new session password field for session handshake.
+		The binkd version string now includes the OS and CPU type.
 
 	mbfile:
 		Added -v commandline switch to supress virus checking for the
@@ -34,6 +35,7 @@ v0.35.01	05-Jun-2002
 		during first configure of this program are automatic installed
 		in the setup and enabled. Others are shown there with default
 		paths but are disabled, they can be used as examples.
+		Fixed crashing mbsetup in menus 10.3.2, 10.4.5 and 10.4.6.
 
 
 v0.33.21	04-Jun-2002
