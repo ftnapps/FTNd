@@ -195,7 +195,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 			fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
 			if (nodes.AdvTic) {
-				fprintf(fp, "To %s %s\r\n", nodes.Sysop, ascfnode(dest, 0x1f));
+				fprintf(fp, "To %s, %s\r\n", nodes.Sysop, ascfnode(dest, 0x1f));
 				fprintf(fp, "Areadesc %s\r\n", tic.Comment);
 				fprintf(fp, "Fdn %s\r\n", fgroup.Comment);
 				/*
