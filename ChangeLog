@@ -32,6 +32,10 @@ v0.71.2		16-Jan-2005
 		More patches added from Dmitry Komissaroff to improve charset
 		support. Also improved msgid linking.
 
+	mbtask:
+		The created semafore files are now world readable so that low
+		privileged users like nobody can check the semafore's.
+
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.
 

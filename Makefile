@@ -98,7 +98,7 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub/local
 		@${INSTALL} -d -o ${ROWNER} -g ${RGROUP} -m 0750 ${PREFIX}/ftp/incoming
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/var
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/arealists
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/badtic
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/boxes
@@ -130,9 +130,11 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/queue
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/rules
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/run
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/var/sema
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/var/sema
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/ticqueue
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/unknown
+		@chmod 0775 ${PREFIX}/var
+		@chmod 0775 ${PREFIX}/var/sema
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
 			rm ${BINDIR}/mbtelnetd ; \
 			echo "removed ${BINDIR}/mbtelnetd"; \

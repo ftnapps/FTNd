@@ -268,14 +268,17 @@ void CreateSema(char *sem)
 {
     char    temp[PATH_MAX];
     FILE    *fp;
+    int	    oldmask;
 
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0)
 	return;
+    oldmask = umask(002);
     if ((fp = fopen(temp, "w")))
 	fclose(fp);
     else
         Syslog('?', "Can't create semafore %s", temp);
+    umask(oldmask);
 }
 
 
@@ -284,12 +287,15 @@ void TouchSema(char *sem)
 {
     char    temp[PATH_MAX];
     FILE    *fp;
+    int	    oldmask;
 
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
+    oldmask = umask(002);
     if ((fp = fopen(temp, "w")))
 	fclose(fp);
     else
         Syslog('?', "Can't touch semafore %s", temp);
+    umask(oldmask);
 }
 
 
