@@ -461,7 +461,12 @@ int EditFGrpRec(int Area)
 		case 26:E_BOOL(11,70,   fgroup.Announce,   "Set ^Announce files^ in new created tic areas")
 		case 27:E_BOOL(12,70,   fgroup.UpdMagic,   "Set ^Update magic^ in new created tic areas")
 		case 28:E_BOOL(13,70,   fgroup.FileId,     "Set ^FILE_ID.DIZ extract^ in new created tic areas")
-		case 29:E_BOOL(14,70,   fgroup.ConvertAll, "Set ^Convert All^ setting in new created tic areas")
+		case 29:tmp = edit_bool(14,70, fgroup.ConvertAll, (char *)"Set ^Convert All^ setting in new created tic areas");
+			if (tmp && !fgroup.ConvertAll && (strlen(fgroup.Convert) == 0))
+			    errmsg("No archiver configured to convert to, edit 9 first");
+			else
+			    fgroup.ConvertAll = tmp;
+			break;
 		case 30:E_BOOL(15,70,   fgroup.SendOrg,    "Set ^Send original^ setting in new created tic areas")
 		case 31:E_SEC( 16,70,   fgroup.DLSec,      "10.1.31 FILE GROUP DOWNLOAD SECURITY", FgScreen)
 		case 32:E_SEC( 17,70,   fgroup.UPSec,      "10.1.32 FILE GROUP UPLOAD SECURITY", FgScreen)

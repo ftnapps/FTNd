@@ -930,7 +930,12 @@ int EditTicRec(int Area)
 		case 15:E_BOOL(11,55, tic.Announce,   "^Announce^ received files");
 		case 16:E_BOOL(12,55, tic.UpdMagic,   "Update files ^magic^ names");
 		case 17:E_BOOL(13,55, tic.FileId,     "Extract ^FILE_ID.DIZ^ from received files");
-		case 18:E_BOOL(14,55, tic.ConvertAll, "^Convert^ archive always");
+		case 18:tmp = edit_bool(14,55, tic.ConvertAll, (char *)"^Convert^ archive always");
+			if (tmp && !tic.ConvertAll && strlen(tic.Convert) == 0)
+			    errmsg("No archiver configured to convert to, edit 8 first");
+			else
+			    tic.ConvertAll = tmp;
+			break;
 		case 19:E_BOOL(15,55, tic.SendOrg,    "^Send original^ file to downlinks");
 		case 20:E_BOOL( 7,77, tic.Mandat,     "Is this area ^mandatory^");
 		case 21:E_BOOL( 8,77, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
