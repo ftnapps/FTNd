@@ -85,6 +85,8 @@ void closepage(FILE *fa, char *Name, FILE *fi)
     sprintf(temp2, "%s/stat/%s.temp", CFG.www_root, Name);
     rename(temp2, temp1);
     chmod(temp1, 0644);
+    free(temp2);
+    free(temp1);
     fa = NULL;
 }
 

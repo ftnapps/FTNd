@@ -137,7 +137,8 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		if ((fi = OpenMacro("forward.tic", nodes.Language, FALSE)) != NULL) {
 		    MacroVars("abcdfghijmns", "ssdssddsssss", TIC.TicIn.Area, tic.Comment, TIC.FileCost, fgroup.Comment,
 							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
-							    TIC.TicIn.Crc, TIC.TicIn.Origin, " ", TIC.TicIn.Desc, nodes.Sysop);
+							    TIC.TicIn.Crc, TIC.TicIn.Origin, rfcdate(TIC.FileDate), 
+							    TIC.TicIn.Desc, nodes.Sysop);
 		    if (TIC.SendOrg)
 			MacroVars("e", "s", TIC.RealName);
 		    else

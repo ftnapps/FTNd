@@ -85,7 +85,7 @@ libmemwatch.a:	${MEMWATCH_OBJS}
 install:	all
 
 clean:
-		@rm -f ${TARGET} *.o *.h~ *.c~ ftscprod.c core filelist Makefile.bak
+		rm -f ${TARGET} *.o *.h~ *.c~ ftscprod.c core filelist Makefile.bak
 
 filelist:	Makefile
 		BASE=`pwd`; \

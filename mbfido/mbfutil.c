@@ -315,7 +315,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
     if ((rc = file_cp(FromPath, DestPath))) {
 	WriteError("Can't move file in place");
 	if (!do_quiet)
-	    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
+	    printf("Can't copy file to %s, %s\n", DestPath, strerror(rc));
 	return FALSE;
     }
     chmod(DestPath, 0644);

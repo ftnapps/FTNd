@@ -42,8 +42,8 @@ MBCHAT_OBJS	= mbchat.o
 MBCHAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBSTAT_OBJS	= mbstat.o
 MBSTAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
-MBTOBEREP_OBJS	= mbtoberep.o
-MBTOBEREP_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
+MBTOBE_OBJS	= mbtoberep.o
+MBTOBE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBUSER_OBJS	= mbuser.o
 MBUSER_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 OTHER		= Makefile
@@ -83,8 +83,8 @@ mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
 		${CC} -o mbstat ${MBSTAT_OBJS} ${LIBS} ${MBSTAT_LIBS}
 		strip mbstat
 
-mbtberep:	${MBTOBEREP_OBJS} ${MBTOBEREP_LIBS}
-		${CC} -o mbtoberep ${MBTOBEREP_OBJS} ${LIBS} ${MBTOBEREP_LIBS}
+mbtoberep:	${MBTOBE_OBJS} ${MBTOBE_LIBS}
+		${CC} -o mbtoberep ${MBTOBE_OBJS} ${LIBS} ${MBTOBE_LIBS}
 		strip mbtoberep
 
 mbuser:		${MBUSER_OBJS} ${MBUSER_LIBS}
@@ -137,7 +137,7 @@ depend:
 bank.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h bank.h input.h language.h dispfile.h timeout.h timecheck.h whoson.h exitinfo.h
 filesub.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h funcs.h language.h input.h misc.h timeout.h exitinfo.h change.h
 language.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h input.h language.h
-mbtoberep.o: ../lib/libs.h ../lib/structs.h
+mbtoberep.o: ../lib/libs.h ../config.h ../lib/structs.h
 msgutil.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
 oneline.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h oneline.h funcs.h input.h language.h
 bbslist.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h bbslist.h funcs.h input.h language.h

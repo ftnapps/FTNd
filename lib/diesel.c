@@ -1609,7 +1609,7 @@ static int macrovalue(int nargs, char *args, char *output)
     ucase(macname);
 #endif
 
-#ifdef TRACE
+#ifdef DIESEL_TRACE
     if (tracing) {
 	V printf("Eval: @(%s", macname);
 	for (i = 1; i < nargs; i++) {
@@ -1629,14 +1629,14 @@ static int macrovalue(int nargs, char *args, char *output)
 		V sprintf(output, " @(%s,%c%c) ", macname, '?', '?');
 	    }
 	    if (mstat != TRUE) {
-#ifdef TRACE
+#ifdef DIESEL_TRACE
 		if (tracing) {
 		    V printf("Err:  %s\n", output);
 		}
 #endif
 		return DIAGNOSTIC;
 	    }
-#ifdef TRACE
+#ifdef DIESEL_TRACE
 	    if (tracing) {
 		V printf("===>	%s\n", output);
 	    }
@@ -1645,7 +1645,7 @@ static int macrovalue(int nargs, char *args, char *output)
 	}
     }
     V sprintf(output, " @(%s)?? ", macname);
-#ifdef TRACE
+#ifdef DIESEL_TRACE
     if (tracing) {
 	 V printf("Err:  %s\n", output);
     }

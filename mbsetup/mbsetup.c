@@ -384,21 +384,18 @@ int main(int argc, char *argv[])
 	int		loop = 1;
 	struct passwd	*pw;
 
-#ifdef MEMWATCH
-	mwInit();
-#endif
-
 	/*
 	 * Find out who is on the keyboard or automated the keyboard.
 	 */
 	pw = getpwuid(geteuid());
 	if (strcmp(pw->pw_name, (char *)"mbse")) {
 	    printf("ERROR: only user \"mbse\" may use this program\n");
-#ifdef MEMWATCH
-	    mwExit();
-#endif
 	    exit(1);
 	}
+
+#ifdef MEMWATCH
+	mwInit();
+#endif
 
 	/*
 	 * Read the global configuration data, registrate connection
