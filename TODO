@@ -57,16 +57,12 @@ mbfido:
 
 	U: E-mail for points get status normal in the outbound.
 
-	N: Wish: internet addresses in the From: field.
-
 	N: Process GoldED filerequest netmails with the filereq flag set, we
 	   should create a .req file with the contents of the subject line.
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
 	N: Add traffic to html.nodes
-
-	N: Add stats for posts made by external programs.
 
 	N: Add macro's for stats of all months.
 
