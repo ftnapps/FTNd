@@ -15,13 +15,6 @@ $Id$
 
 
 mbsebbs:
-	L: Reading of function keys over modem lines, or worse PPP connections,
-	   must be fixed. Timing problems together with modem buffering?
-	   It works with direct serial connections. Note, this also happens
-	   on busy LAN's between Linux boxes with normal xterm's.
-	   Note: this problem almost dissapeared after kernel upgrade to
-	   2.2.16. Another note, this does not happen over ssh.
-
 	L: Must include SEEN-BY and other hidden lines into BlueWave  and QWK
 	   mail, must be user selectable. see remarks of William McBrine.
 	   The default is oke now.
@@ -44,12 +37,10 @@ mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
-        N: Received files not in an archive are not scanned for virusses.
-
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
-	N: Implement long filename support from .tic files.
+	N: Implement long filename support from .tic files (testing fase).
 
 	N: When a news article is received from a mailinglist there is a valid
 	   To: address in the message, the gate doesn't see that and uses the
@@ -66,8 +57,6 @@ mbfido:
 	N: Also check for file_id.diz filenames.
 
 mbcico:
-	U: Implement nodes FNC flag for sending files.
-
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
 	   option.

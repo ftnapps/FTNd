@@ -4270,6 +4270,7 @@ v0.33.19        26-Oct-2001
 		When a file area is made unavailable in menu 8.4, first the
 		files in that area area checked. If there are none, the area
 		is completly removed, including paths, indexes and database.
+		When an new area is made available, the database is created.
 		The AREADEF lines in golded.inc now contain the aka to use
 		instead of a dot.
 

@@ -173,6 +173,7 @@ int AppendFilearea(void)
 		area.FileFind = TRUE;
 		area.AddAlpha = TRUE;
 		area.FileReq  = TRUE;
+		strcpy(area.Path, CFG.ftp_base);
 		fwrite(&area, sizeof(area), 1, fil);
 		fclose(fil);
 		FileUpdated = 1;
@@ -314,12 +315,12 @@ int EditFileRec(int Area)
 		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
 		case 6:	E_STR( 11,16,64, area.FilesBbs,  "The path and name of \"files.bbs\" if area is on CDROM")
 		case 7:	Available = edit_bool(12, 16, area.Available, (char *)"Is this area ^available^");
+			temp = calloc(PATH_MAX, sizeof(char));
+			sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
 			if (area.Available && !Available) {
 			    /*
 			     * Attempt to disable this area, but check first.
 			     */
-			    temp = calloc(PATH_MAX, sizeof(char));
-			    sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
 			    if ((fp = fopen(temp, "r"))) {
 				fseek(fp, 0, SEEK_END);
 				files = ftell(fp) / sizeof(file);
@@ -330,12 +331,22 @@ int EditFileRec(int Area)
 				fclose(fp);
 			    }
 			    if (!Available) {
+				if (yes_no((char *)"Are you sure you want to delete this area") == 0)
+				    Available = TRUE;
+			    }
+			    if (!Available) {
 				/*
 				 * Make it so
 				 */
 				unlink(temp);
-				sprintf(temp, "rm -r -f %s", area.Path);
-				system(temp);
+				if (strlen(area.Path) && strcmp(area.Path, CFG.ftp_base)) {
+				    /*
+				     * Erase file in path if path is set and not the default
+				     * FTP base path
+				     */
+				    sprintf(temp, "rm -r -f %s", area.Path);
+				    system(temp);
+				}
 				memset(&area, 0, sizeof(area));
 				/*
 				 * Fill in default values
@@ -345,15 +356,22 @@ int EditFileRec(int Area)
 				area.FileFind = TRUE;
 				area.AddAlpha = TRUE;
 				area.FileReq  = TRUE;
+				strcpy(area.Path, CFG.ftp_base);
 				Syslog('+', "Removed file area %d", Area);
 			    }
-			    free(temp);
 			    area.Available = Available;
 			    FileScreen();
 			} 
 			if (!area.Available && Available) {
 			    area.Available = TRUE;
+			    if ((fp = fopen(temp, "a+")) == NULL) {
+				WriteError("$Can't create file database %s", temp);
+			    } else {
+				fclose(fp);
+			    }
+			    chmod(temp, 0660);
 			}
+			free(temp);
 			break;
 		case 8:	E_BOOL(13,16,    area.New,       "Include this area in ^new files^ check")
 		case 9:	E_BOOL(14,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
