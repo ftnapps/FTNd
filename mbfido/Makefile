@@ -152,6 +152,7 @@ mover.o: ../config.h ../lib/mbselib.h tic.h mover.h
 post.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h post.h
 rnews.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h rfc2ftn.h mbfido.h ../paths.h rnews.h
 storenet.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h msgflags.h rollover.h storenet.h
+mbfrearc.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfmove.h
 utic.o: ../config.h ../lib/mbselib.h tic.h mover.h tic.h utic.h
 announce.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h toberep.h announce.h
 fflist.o: ../config.h ../lib/mbselib.h ../lib/msg.h fflist.h
