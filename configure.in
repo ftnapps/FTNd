@@ -255,5 +255,6 @@ AC_OUTPUT(
 	unix/login.defs
 	INSTALL 
 	FILE_ID.DIZ
+	script/editor
 )
 
