@@ -7,8 +7,10 @@ SRCS		= endian.c
 HDRS		= endian.h
 OBJS		= endian.o
 OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar \
-		  txtfiles-en.tar templates-en.tar templates-es.tar templates-de.tar \
-		  templates-nl.tar txtfiles-es.tar 
+		  txtfiles-en.tar templates-en.tar \
+		  txtfiles-es.tar templates-es.tar \
+		  templates-de.tar \
+		  templates-nl.tar
 
 #####################################################################################
 
@@ -42,6 +44,14 @@ install:	all
 		@if [ ! -f ${PREFIX}/english/macro/html.tic ]; then \
 			tar xfC templates-en.tar ${PREFIX}/english/macro ; \
 			echo "Installed default English macro files" ; \
+		fi
+		@if [ ! -f ${PREFIX}/spanish/txtfiles/main.ans ]; then \
+			tar xfC txtfiles-es.tar ${PREFIX}/spanish/txtfiles ; \
+			echo "Installed default Spanish txtfiles" ; \
+		fi
+		@if [ ! -f ${PREFIX}/spanish/macro/html.tic ]; then \
+			tar xfC templates-es.tar ${PREFIX}/spanish/macro ; \
+			echo "Installed default Spanish macro files" ; \
 		fi
 		@if [ ! -f ${PREFIX}/german/macro/html.tic ]; then \
 			tar xfC templates-de.tar ${PREFIX}/german/macro ; \
