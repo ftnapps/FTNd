@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbmail/mkftnhdr.c
+ * $Id$
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 14-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -513,10 +512,8 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		tmsg->flags |= M_RRQ;
 	if (hdr((char *)"Notice-Requested-Upon-Delivery-To",msg)) 
 		tmsg->flags |= M_RRQ;
-	if (!newsmode) {
+	if (!newsmode)
 		tmsg->flags |= M_PVT;
-		tmsg->flags |= M_KILLSENT;
-	}
 
 	if ((p = hdr((char *)"X-Origin-Date",msg))) 
 		tmsg->date = parsedate(p, NULL);

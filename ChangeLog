@@ -4243,6 +4243,8 @@ v0.33.19        26-Oct-2001
 		Added setup item for menus 317 and 318.
 		Changed the order of menu 1, global settings. The screens are
 		now in a more logical order for a first system setup.
+		Most datafiles are now saved mode 0640 exept the files that
+		need to be rewritten by users, they have mode 0660.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
@@ -4278,6 +4280,7 @@ v0.33.19        26-Oct-2001
 		The users exitinfo file is now stored in his homedirectory
 		with mode 0600.
 		A lot of code rewrites to make it more modular.
+		The bbs datafiles that users create now have mode 0660.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
@@ -4304,5 +4307,7 @@ v0.33.19        26-Oct-2001
 	mbfido:
 		When running in mbmail mode, it will try to get the lock on
 		the program for 10 minutes before aborting.
+		Fixed the problem that the KillSent flag was set on processed
+		netmail.
 
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: tosser/sendmail.c
+ * $Id$
  * Purpose ...............: Output a netmail to one of our links.
- * Last modification date : 11-Mar-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -81,7 +80,6 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	flags |= (nodes.Crash)            ? M_CRASH    : 0;
 	flags |= (FileAttach)             ? M_FILE     : 0;
-	flags |= (!Keep)                  ? M_KILLSENT : 0;
 	flags |= (nodes.Hold)             ? M_HOLD     : 0;
 
 	/*

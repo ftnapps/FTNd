@@ -124,19 +124,20 @@ char *strip_flags(char *flags)
 
 int flag_on(char *flag, char *flags)
 {
-	char	*p,*tok;
-	int	up=0;
+	char	*p, *tok;
+	int	up = FALSE;
 
-	Syslog('m', "checking flag \"%s\" in string \"%s\"",MBSE_SS(flag),MBSE_SS(flags));
-	if (flags == NULL) 
-		return 0;
-	p=xstrcpy(flags);
+	if (flags == NULL)
+		return FALSE;
+
+	Syslog('m', "checking flag \"%s\" in string \"%s\"", MBSE_SS(flag), MBSE_SS(flags));
+	p = xstrcpy(flags);
 	for (tok = strtok(p, ", \t\n"); tok; tok = strtok(NULL, ", \t\n")) {
 		if (strcasecmp(flag, tok) == 0) 
-			up = 1;
+			up = TRUE;
 	}
 	free(p);
-	Syslog('m', "flag%s present",up?"":" not");
+	Syslog('m', "flag%s present", up ? "":" not");
 	return up;
 }
 
