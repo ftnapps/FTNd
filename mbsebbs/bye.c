@@ -93,11 +93,10 @@ void Good_Bye(int onsig)
 
 	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
 	    if (fseek(pUsrConfig, offset, SEEK_SET) != 0) {
-		WriteError("Can't move pointer in file %s", temp);
-		ExitClient(MBERR_GENERAL);
+		WriteError("$Can't move pointer in file %s/etc/users.data", getenv("MBSE_ROOT"));
+	    } else {
+	        fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
 	    }
-
-	    fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
 	    fclose(pUsrConfig);
 	}
     }
@@ -111,12 +110,18 @@ void Good_Bye(int onsig)
 	sleep(4);
     }
 
-    for (i = 0; i < NSIG; i++)
-	signal(i, SIG_IGN);
+    for (i = 0; i < NSIG; i++) {
+	if (i == SIGCHLD)
+	    signal(i, SIG_DFL);
+	else if ((i != SIGKILL) && (i != SIGSTOP))
+	    signal(i, SIG_IGN);
+    }
 
-    Syslog('b', "Will hangup");
-    cookedport();
-    hangup();
+    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
+    	cookedport();
+    }
+Syslog('b', "Will hangup");
+    	hangup();
     Syslog('b', "Done");
 
     if (do_mailout)
