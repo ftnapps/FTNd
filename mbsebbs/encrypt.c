@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/encrypt.c
+ * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -146,6 +145,10 @@ char *pw_encrypt(const char *clear, const char *salt)
 #ifdef	DOUBLESIZE
 	if (strlen (clear) > 8) {
 		cp = crypt (clear + 8, salt);
+		if (!cp) {
+		    perror("crypt");
+		    exit(1);
+		}
 		strcat (cipher, cp + 2);
 	}
 #endif	/* DOUBLESIZE */

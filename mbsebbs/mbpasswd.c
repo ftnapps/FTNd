@@ -5,7 +5,7 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -83,6 +83,7 @@ static int do_update_pwd = 0;
 
 
 #ifdef SHADOW_PASSWORD
+static int is_shadow_pwd;
 static void check_password(const struct passwd *, const struct spwd *);
 #else /* !SHADOW_PASSWORD */
 static void check_password(const struct passwd *);
@@ -124,7 +125,7 @@ static void fail_exit(int status)
 	if (is_shadow_grp)
 		sgr_unlock();
 #endif
-#ifdef SHADOWPWD
+#ifdef SHADOW_PASSWORD
 	if (is_shadow_pwd)
 		spw_unlock();
 #endif
@@ -319,7 +320,7 @@ int isexpired(const struct passwd *pw)
          * is considered to be infinite.
          */
 
-#ifdef  SHADOWPWD
+#ifdef  SHADOW_PASSWORD
         if (sp->sp_lstchg == -1 ||
                         sp->sp_max == -1 || sp->sp_max >= (10000L*DAY/SCALE))
                 return 0;
@@ -335,7 +336,7 @@ int isexpired(const struct passwd *pw)
          * the password has expired.
          */
 
-#ifdef  SHADOWPWD
+#ifdef  SHADOW_PASSWORD
         if (now >= sp->sp_lstchg + sp->sp_max)
                 return 1;
 #endif
@@ -778,8 +779,8 @@ int main(int argc, char *argv[])
 		 * this program runs under account mbse.
 		 */
 		force = 1;
-		if (strcmp(pw->pw_name, (char *)"mbse")) {
-			fprintf(stderr, "mbpasswd: only user \"mbse\" may do this.\n");
+		if (strcmp(pw->pw_name, (char *)"mbse") && strcmp(pw->pw_name, (char *)"bbs")) {
+			fprintf(stderr, "mbpasswd: only users `mbse' and `bbs' may do this.\n");
 			exit(E_NOPERM);
 		}
 	} else if (strncmp(argv[1], "-n", 2) == 0) {
@@ -824,6 +825,8 @@ int main(int argc, char *argv[])
 
 
 #ifdef SHADOW_PASSWORD
+	is_shadow_pwd = spw_file_present();
+
 	sp = getspnam(name);
 	if (!sp)
 		sp = pwd_to_spwd(pw);

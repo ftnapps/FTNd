@@ -42,6 +42,7 @@
 #undef REGEX
 #undef REGEXEC
 #undef SHADOW_PASSWORD
+#undef HAVE_SHADOWGRP
 #undef SO_OOBINLINE
 
 /* mbuseradd  */
@@ -51,15 +52,77 @@
 #undef AUTH_METHODS
 #undef CKDEFS
 #undef DOUBLESIZE
+
+/* Defined if you have libcrack.  */
 #undef HAVE_LIBCRACK
+
+/* Defined if you have the ts&szs cracklib.  */
 #undef HAVE_LIBCRACK_HIST
+
+/* Defined if it includes *Pw functions.  */
+#undef HAVE_LIBCRACK_PW
+
+
+/* Defined if it includes *Pw functions.  */
+#undef HAVE_LIBCRACK_PW
+
+/* Defined if you have libcrypt.  */
+#undef HAVE_LIBCRYPT
+
 #undef KEEP_NIS_AT_END
+
+/* Define to support the MD5-based password hashing algorithm.  */
 #undef MD5_CRYPT
 #undef PAM
+
+/* Define to support OPIE one-time password logins.  */
+#undef OPIE
 #undef SW_CRYPT
 
+/* Define to 1 if NLS is requested.  */
+#undef ENABLE_NLS
 
-/* That's it  */
+/* Path for faillog file.  */
+#undef FAILLOG_FILE
+
+/* Define to libshadow_getpass to use our own version of getpass().  */
+#undef getpass
+
+/* Define if your locale.h file contains LC_MESSAGES.  */
+#undef HAVE_LC_MESSAGES
+
+/* Path for lastlog file.  */
+#undef LASTLOG_FILE
+
+/* Define to support /etc/login.access login access control.  */
+#undef LOGIN_ACCESS
+
+/* Path for wtmp file.  */
+#undef _WTMP_FILE
+
+/* Define if you have the updwtmp function.  */
+#undef HAVE_UPDWTMP
+
+/* Define if you have the updwtmpx function.  */
+#undef HAVE_UPDWTMPX
+
+/* Define if mblogin should support the -r flag for rlogind. */
+#undef RLOGIN
+
+/* Define if you have the getusershell function.  */
+#undef HAVE_GETUSERSHELL
+
+/* Define if you have the getutent function.  */
+#undef HAVE_GETUTENT
+
+/* Define if you have the <lastlog.h> header file.  */
+#undef HAVE_LASTLOG_H
+
+/* Define if you have ut_host in struct utmp.  */
+#undef UT_HOST
+
+/* Path for utmp file.  */
+#undef _UTMP_FILE
 
 /* Define if you have the `a64l' function. */
 #undef HAVE_A64L
@@ -142,6 +205,12 @@
 /* Define if you have the `putpwent' function. */
 #undef HAVE_PUTPWENT
 
+/* Define if you have the putspent function.  */
+#undef HAVE_PUTSPENT
+
+/* Define if you have the putgrent function.  */
+#undef HAVE_PUTGRENT
+
 /* Define if you have the `regcmp' function. */
 #undef HAVE_REGCMP
 
@@ -215,6 +284,9 @@
 /* Define if you have the <syslog.h> header file. */
 #undef HAVE_SYSLOG_H
 
+/* Define to use syslog().  */
+#undef USE_SYSLOG
+
 /* Define if you have the <sys/dir.h> header file, and it defines `DIR'. */
 #undef HAVE_SYS_DIR_H
 
@@ -274,6 +346,12 @@
 /* Define if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+/* Define if you have the memset function.  */
+#undef HAVE_MEMSET
+
 /* Name of package */
 #undef PACKAGE
 
@@ -295,8 +373,7 @@
 /* Define if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
-/* Define if `lex' declares `yytext' as a `char *' by default, not a `char[]'.
-   */
+/* Define if `lex' declares `yytext' as a `char *' by default, not a `char[]'.  */
 #undef YYTEXT_POINTER
 
 /* Define to empty if `const' does not conform to ANSI C. */
