@@ -40,11 +40,9 @@ start() {
 	rm -f ${MBSE_ROOT}/var/*.LCK
 	rm -f ${MBSE_ROOT}/tmp/mb*
 	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
-	echo -n "mbtask "
 	sleep 2
 	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
 	      su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
-	      echo -n "opened "
 	fi
 	eend $? "Loading error."
 											
@@ -54,9 +52,7 @@ stop() {
 
 	ebegin "Stopping mbse"
 	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
-		echo -n "logoff users "
 		su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
-		echo -n " stopping mbtask"
 		kill `cat ${MBSE_ROOT}/var/run/mbtask`
 		i=10 
 		doit=1
