@@ -2,7 +2,7 @@
  *
  * File ..................: mbcico/answer.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 08-Jun-2001
+ * Last modification date : 04-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -146,7 +146,6 @@ int answer(char *stype)
 		if ((fp = fopen(p, "a")) == NULL)
 			WriteError("$Can't open %s", p);
 		else {
-			Syslog('s', "answer() write history");
 			fwrite(&history, sizeof(history), 1, fp);
 			fclose(fp);
 		}

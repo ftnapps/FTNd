@@ -2,7 +2,7 @@
  *
  * File ..................: mbcico/respfreq.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 08-Aug-2001
+ * Last modification date : 04-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -568,7 +568,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 static void attach_report(file_list **fl)
 {
 	FILE	*fp;
-	char	tmpfn[L_tmpnam];
+	char	tmpfn[PATH_MAX];
 	char	remname[14];
 	long	zeroes = 0L;
 	ftnmsg	fmsg;
@@ -592,8 +592,7 @@ static void attach_report(file_list **fl)
 
 	add_report((char *)"\r--- mbcico v%s\r", VERSION);
 
-	(void)tmpnam(tmpfn);
-
+	sprintf(tmpfn, "%s/tmp/%08lX.rpl", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
 	if ((fp = fopen(tmpfn,"w"))) {
 		fmsg.flags = M_PVT|M_KILLSENT;
 		fmsg.from = bestaka_s(remote->addr);

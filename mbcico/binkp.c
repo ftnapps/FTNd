@@ -2,7 +2,7 @@
  *
  * File ....................: mbcico/binkp.c
  * Purpose .................: Fidonet binkd protocol
- * Last modification date ..: 07-Aug-2001
+ * Last modification date ..: 04-Oct-2001
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
@@ -1043,8 +1043,8 @@ int binkp_batch(file_list *to_send)
 				TxState = TxDone;
 				binkp_send_control(MM_EOB, "");
 				Syslog('+', "Binkp: sending EOB");
-			} else {
-				Syslog('b', "tmp != NULL");
+//			} else {
+//				Syslog('b', "tmp != NULL");
 			}
 			break;
 

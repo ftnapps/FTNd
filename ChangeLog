@@ -4138,6 +4138,9 @@ v0.33.18        27-Jul-2001
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a
 		conflict with an excisting library call on FreeBSD.
+		Removed some debug logmessages.
+		The filerquest response message doesn't use the tmpnam function
+		anymore, this was the last one of the unsafe tmpnam calls.
 
 	mball:
 		Removed some compiler warnings on some systems.
