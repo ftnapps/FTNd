@@ -4220,7 +4220,8 @@ v0.33.19        26-Oct-2001
 	lang:
 		Changed language prompt 71.
 		Added language prompts 472 and 473 for FS editor.
-		Added language prompts 474 and 475 for address entry.
+		Added language prompts 474, 475 and 476 for address entry.
+		Added language prompts 477 and 478 for post with user alias.
 
 	examples:
 		SAVE:
@@ -4253,6 +4254,7 @@ v0.33.19        26-Oct-2001
 		- Fixed display file with more that stopped after every line.
 		- Added display file "mainlogo" before the "welcome" file.
 		- Added display files "welcome2..9" after "welcome1" file.
+		Posting message with users alias is now possible.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

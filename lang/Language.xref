@@ -475,3 +475,5 @@
 474	newuser.c change.c		|Your address, maximum 3 lines (only visible for the sysop):
 475	newuser.c change.c		|You need to enter your address here
 476	change.c			|Old address:
+477	mail.c				|Use your alias (
+478	mail.c				YN|) to post this message [Y/n]: 

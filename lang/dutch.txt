@@ -475,3 +475,5 @@ JN|Bestand meesturen [j/N]:
 |Geef adres, maximaal 3 regels (alleen zichtbaar voor de sysop):
 |U moet hier Uw adres opgeven
 |Oude adres:
+|Use your alias (
+YN|) to post this message [Y/n]: 

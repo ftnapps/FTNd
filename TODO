@@ -1,3 +1,5 @@
+$Id$
+
 			MBSE BBS V0.33.19 TODO list.
 			----------------------------
 
@@ -21,7 +23,7 @@ mbsebbs:
 	   It works with direct serial connections. Note, this also happens
 	   on busy LAN's between Linux boxes with normal xterm's.
 	   Note: this problem almost dissapeared after kernel upgrade to
-	   2.2.16.
+	   2.2.16. Another note, this does not happen over ssh.
 
 	L: Must include SEEN-BY and other hidden lines into BlueWave  and QWK
 	   mail, must be user selectable. see remarks of William McBrine.
@@ -34,8 +36,6 @@ mbsebbs:
 	N: Display textfiles and archives.
 
 	N: Check for tagged files before logoff
-
-	N: Can't post messages to users handle.
 
 	L: Implement telnet door.
 

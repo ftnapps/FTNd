@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/mail.c
+ * $Id$
  * Purpose ...............: Message reading and writing.
- * Last modification date : 26-Oct-2001
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
@@ -132,12 +131,47 @@ int Post_Allowed(void)
 {
 	if (msgs.MsgKinds == RONLY) {
 		/* Message area is Readonly */
-		pout(12, 0, (char *) Language(437));
+		pout(LIGHTRED, BLACK, (char *) Language(437));
 		fflush(stdout);
 		sleep(3);
 		return FALSE;
 	}
 	return TRUE;
+}
+
+
+
+/*
+ * Check if Alias is allowed, and if so if the user
+ * wants to use this in the From: field.
+ */
+int Alias_Option(void);
+int Alias_Option(void)
+{
+    int	    rc = TRUE;
+
+    if (!msgs.Aliases)
+	return FALSE;
+    if (strlen(exitinfo.sHandle) == 0)
+	return FALSE;
+    
+    /* Use your alias ( */ 
+    pout(CYAN, BLACK, (char *)Language(477));
+    pout(CYAN, BLACK, exitinfo.sHandle);
+    /* YN|) to post this message [Y/n]: */
+    pout(CYAN, BLACK, (char *)Language(478));
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    fflush(stdout);
+    alarm_on();
+    if (toupper(Getone()) == Keystroke(478, 1)) {
+	rc = FALSE;
+	printf("%c", Keystroke(478, 1));
+    } else {
+	printf("%c", Keystroke(478, 0));
+    }
+    Enter(2);
+    fflush(stdout);
+    return rc;
 }
 
 
@@ -161,7 +195,7 @@ int Crash_Option(faddr *Dest)
 	if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
 		if (Nlent->oflags & OL_CM) {
 			/* Crash [y/N]: */
-			pout(3, 0, (char *)Language(461));
+			pout(CYAN, BLACK, (char *)Language(461));
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 			fflush(stdout);
 			alarm_on();
@@ -172,7 +206,7 @@ int Crash_Option(faddr *Dest)
 				printf("%c", Keystroke(461, 1));
 		} else {
 			/* Warning: node is not CM, send Immediate [y/N]: */
-			pout(3, 0, (char *)Language(462));
+			pout(CYAN, BLACK, (char *)Language(462));
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 			fflush(stdout);
 			alarm_on();
@@ -203,7 +237,7 @@ int IsPrivate(void)
         if (msgs.MsgKinds == BOTH) {
                 Enter(1);
                 /* Private [y/N]: */
-                pout(3, 0, (char *) Language(163));
+                pout(CYAN, BLACK, (char *) Language(163));
                 fflush(stdout);
                 alarm_on();
                 if (toupper(Getone()) == Keystroke(163, 0)) {
@@ -243,7 +277,7 @@ void Check_Attach(void)
 		while (TRUE) {
 			Enter(1);
 			/* Attach file [y/N]: */
-			pout(3, 0, (char *)Language(463));
+			pout(CYAN, BLACK, (char *)Language(463));
 			fflush(stdout);
 			alarm_on();
 			if (toupper(Getone()) == Keystroke(463, 0)) {
@@ -251,7 +285,7 @@ void Check_Attach(void)
 				printf("%c", Keystroke(463, 0));
 				Enter(1);
 				/* Please enter filename: */
-				pout(14, 0, (char *)Language(245));
+				pout(YELLOW, BLACK, (char *)Language(245));
 				colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 				fflush(stdout);
 				alarm_on();
@@ -372,15 +406,28 @@ void Post_Msg()
 
 	Msg_New();
 
-	colour(9, 0);
+	colour(LIGHTBLUE, BLACK);
 	/* Posting message in area: */
 	printf("\n%s\"%s\"\n", (char *) Language(156), sMsgAreaDesc);
-	pout(14, 0, (char *) Language(157));
 
-	if (msgs.Type == NEWS) {
-		if (CFG.EmailMode == E_NOISP) {
+	if (Alias_Option()) {
+	    /*
+	     * Set Handle
+	     */
+	    strcpy(Msg.From, exitinfo.sHandle);
+	    tlcap(Msg.From); // Do we want this???
+	    /* From     : */
+	    pout(YELLOW, BLACK, (char *) Language(157));
+	} else {
+	    /*
+	     * Normal from address, no alias
+	     */
+	    /* From     : */
+	    pout(YELLOW, BLACK, (char *) Language(157));
+	    if (msgs.Type == NEWS) {
+		if (CFG.EmailMode != E_PRMISP) {
 			/*
-			 * If not connected to the internet, use Fido style addressing.
+			 * If no internet mail domain, use fidonet addressing.
 			 */
 			Dest = fido2faddr(CFG.EmailFidoAka);
 			strcpy(Msg.From, exitinfo.sUserName);
@@ -388,19 +435,25 @@ void Post_Msg()
 		} else {
 			sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 		}
-	} else {
+	    } else {
 		strcpy(Msg.From, exitinfo.sUserName);
 		tlcap(Msg.From);
+	    }
 	}
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	printf("%s", Msg.From);
+
+	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
 	Syslog('b', "Setting From: %s", Msg.From);
 
-	if (msgs.Type != NEWS) {
+	if ((msgs.Type == NEWS) || (msgs.Type == LIST)) {
+                /*
+		 * Newsmode or maillist mode, automatic addressing to All.
+		 *                                   */
+	        strcpy(Msg.To, "All");
+	} else {
 		while (TRUE) {
 			Enter(1);
 			/* To     : */
-			pout(14, 0, (char *) Language(158));
+			pout(YELLOW, BLACK, (char *) Language(158));
 	
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 			Getname(Msg.To, 35);
@@ -426,14 +479,14 @@ void Post_Msg()
 					 */
 					if (msgs.Type == LOCALMAIL) {
 						/* Verifying user ... */
-						pout(3, 0, (char *) Language(159));
+						pout(CYAN, BLACK, (char *) Language(159));
 						x = CheckUser(Msg.To);
 					} else
 						x = TRUE;
 				}
 			} else if (msgs.Type == NETMAIL) {
 				x = FALSE;
-				pout(14, 0, (char *)"Address  : ");
+				pout(YELLOW, BLACK, (char *)"Address  : ");
 				FidoNode = calloc(61, sizeof(char));
 				colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 				GetstrC(FidoNode, 60);
@@ -442,7 +495,7 @@ void Post_Msg()
 					point = Dest->point;
 					Dest->point = 0;
 					if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
-						colour(14, 0);
+						colour(YELLOW, BLACK);
 						if (point)
 							printf("Boss     : ");
 						else
@@ -470,7 +523,7 @@ void Post_Msg()
 					} else {
 						Dest->point = point;
 						printf("\r");
-						pout(3, 0, (char *) Language(241));
+						pout(CYAN, BLACK, (char *) Language(241));
 						fflush(stdout);
 						alarm_on();
 						if (toupper(Getone()) == Keystroke(241, 0)) {
@@ -489,20 +542,15 @@ void Post_Msg()
 			if(!x) {
 				printf("\r");
 				/* User not found. Try again, or (Enter) to quit */
-				pout(3, 0, (char *) Language(160));
+				pout(CYAN, BLACK, (char *) Language(160));
 			} else
 				break;
 		}
-	} else {
-		/*
-		 * Newsmode, automatic addressing to All.
-		 */
-		strcpy(Msg.To, "All");
 	}
 
 	Enter(1);
 	/* Subject  :  */
-	pout(14, 0, (char *) Language(161));
+	pout(YELLOW, BLACK, (char *) Language(161));
 	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 	fflush(stdout);
 	alarm_on();
@@ -512,7 +560,7 @@ void Post_Msg()
 	if((strcmp(Msg.Subject, "")) == 0) {
 		Enter(1);
 		/* Abort Message [y/N] ?: */
-		pout(3, 0, (char *) Language(162));
+		pout(CYAN, BLACK, (char *) Language(162));
 		fflush(stdout);
 		alarm_on();
 
@@ -646,27 +694,28 @@ void ShowMsgHdr()
 	static char	Buf1[35], Buf2[35], Buf3[81];
 	struct tm	*tm;
 	time_t		now;
+	int		color;
 
 	Buf1[0] = '\0';
 	Buf2[0] = '\0';
 	Buf3[0] = '\0';
 
   	clear();
-	colour(1,7);
+	colour(BLUE, LIGHTGRAY);
 	printf("   %-70s", sMsgAreaDesc);
 
-	colour(4,7);
+	colour(RED, LIGHTGRAY);
 	printf("#%-5lu\n", Msg.Id);
 
 	/* Date     : */
-	pout(14, 0, (char *) Language(206));
-	colour(10, 0);
+	pout(YELLOW, BLACK, (char *) Language(206));
+	colour(GREEN, BLACK);
 	/* Use intermediate variable to prevent SIGBUS on Sparc's */
 	now = Msg.Written;
 	tm = gmtime(&now);
 	printf("%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
-	colour(12, 0);
+	colour(LIGHTRED, BLACK);
 	if (Msg.Local)		printf(" Local");
 	if (Msg.Intransit)	printf(" Transit");
 	if (Msg.Private)	printf(" Priv.");
@@ -701,38 +750,46 @@ void ShowMsgHdr()
 	printf("\n");
 
 	/* From    : */
-	pout(14,0, (char *) Language(209));
-	colour(10, 0);
+	pout(YELLOW, BLACK, (char *) Language(209));
+	if (IsMe(Msg.From))
+	    color = LIGHTGREEN;
+	else
+	    color = GREEN;
+	colour(color++, BLACK);
 	printf("%s ", Msg.From);
 	if (iMsgAreaType != LOCALMAIL) {
-		colour(11, 0);
+		colour(color, BLACK);
 		printf("(%s)", Msg.FromAddress);
 	}
 	printf("\n");
 
 	/* To      : */
-	pout(14,0, (char *) Language(208));
-	colour(10, 0);
+	pout(YELLOW, BLACK, (char *) Language(208));
+	if (IsMe(Msg.To))
+	    color = LIGHTGREEN;
+	else
+	    color = GREEN;
+	colour(color++, BLACK);
 	printf("%s ", Msg.To);
 	if (iMsgAreaType == NETMAIL) {
-		colour(11, 0);
+		colour(color, BLACK);
 		printf("(%s)", Msg.ToAddress);
 	}
 	printf("\n");
 
 	/* Subject : */
-	pout(14,0, (char *) Language(210));
-	colour(10, 0);
+	pout(YELLOW, BLACK, (char *) Language(210));
+	colour(GREEN, BLACK);
 	printf("%s\n", Msg.Subject);
 
 	colour(CFG.HiliteF, CFG.HiliteB);
-	colour(14, 1);
+	colour(YELLOW, BLUE);
 	if (Msg.Reply)
 		sprintf(Buf1, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
 	if (Msg.Original)
 		sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
 	sprintf(Buf3, "%s%s ", Buf1, Buf2);
-	colour(14, 1);
+	colour(YELLOW, BLUE);
 	printf("%78s  \n", Buf3);
 }
 
@@ -755,7 +812,7 @@ int Export_a_Msg(unsigned long Num)
 	 * The area data is already set, so we can do the next things
 	 */
 	if (MsgBase.Total == 0) {
-		colour(15, 0);
+		colour(WHITE, BLACK);
 		/* There are no messages in this area */
 		printf("\n%s\n\n", (char *) Language(205));
 		sleep(3);
@@ -769,7 +826,7 @@ int Export_a_Msg(unsigned long Num)
 
 	if (!Msg_ReadHeader(Num)) {
 		perror("");
-		colour(15, 0);
+		colour(WHITE, BLACK);
 		printf("\n%s\n\n", (char *)Language(77));
 		Msg_Close();
 		sleep(3);
@@ -853,7 +910,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	 * The area data is already set, so we can do the next things
 	 */
 	if (MsgBase.Total == 0) {
-		colour(15, 0);
+		colour(WHITE, BLACK);
 		/* There are no messages in this area */
 		printf("\n%s\n\n", (char *) Language(205));
 		sleep(3);
@@ -867,7 +924,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 
 	if (!Msg_ReadHeader(Num)) {
 		perror("");
-		colour(15, 0);
+		colour(WHITE, BLACK);
 		printf("\n%s\n\n", (char *)Language(77));
 		Msg_Close();
 		sleep(3);
@@ -1005,7 +1062,8 @@ void Read_Msgs()
 
 	colour(CFG.TextColourF, CFG.TextColourB);
 	/* Message area \"%s\" contains %lu messages. */
-	printf("\n%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, (char *) Language(222), MsgBase.Total, (char *) Language(223));
+	printf("\n%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
+		(char *) Language(222), MsgBase.Total, (char *) Language(223));
 
 	/*
 	 * Check for lastread pointer, suggest lastread number for start.
@@ -1027,7 +1085,7 @@ void Read_Msgs()
 			Start = MsgBase.Highest;
 	}
 
-	colour(15, 0);
+	colour(WHITE, BLACK);
 	/* Please enter a message between */
 	printf("\n%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
 	/* Message number [ */
@@ -1060,7 +1118,7 @@ int ReadPanel()
 
 	WhosDoingWhat(READ_POST);
 
-	colour(15, 4);
+	colour(WHITE, RED);
  	if (msgs.UsrDelete || exitinfo.Security.level >= CFG.sysop_access) {
 		/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port */
 		printf("%s", (char *) Language(214));
@@ -1130,7 +1188,7 @@ int ReadPanel()
 		}
 	} else {
 		/* Next */
-		pout(15, 0, (char *) Language(216));
+		pout(WHITE, BLACK, (char *) Language(216));
 		if (LastNum < MsgBase.Highest)
 			LastNum++;
 		else
@@ -1183,9 +1241,9 @@ void Reply_Msg(int IsReply)
 	x = 0;
 	WhosDoingWhat(READ_POST);
 	clear();
-	colour(1,7);
+	colour(BLUE, LIGHTGRAY);
 	printf("   %-71s", sMsgAreaDesc);
-	colour(4,7);
+	colour(RED, LIGHTGRAY);
 	printf("#%-5lu", MsgBase.Highest + 1);
 
 	colour(CFG.HiliteF, CFG.HiliteB);
@@ -1201,21 +1259,21 @@ void Reply_Msg(int IsReply)
 
 	/* From     : */
 	sprintf(Msg.From, "%s", exitinfo.sUserName);
-	pout(14, 0, (char *) Language(209));
+	pout(YELLOW, BLACK, (char *) Language(209));
 	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
 	Enter(1);
 
 	/* To       : */
 	sprintf(Msg.To, "%s", to);
-	pout(14, 0, (char *) Language(208));
+	pout(YELLOW, BLACK, (char *) Language(208));
 	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
 	Enter(1);
 
 	/* Enter to keep Subject. */
-	pout(12, 0, (char *) Language(219));
+	pout(LIGHTRED, BLACK, (char *) Language(219));
 	Enter(1);
 	/* Subject  : */
-	pout(14, 0, (char *) Language(210));
+	pout(YELLOW, BLACK, (char *) Language(210));
 	sprintf(Msg.Subject, "%s", subj);
 	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
 
@@ -1342,7 +1400,7 @@ void QuickScan_Msgs()
 	if (MsgBase.Total == 0) {
 		Enter(1);
 		/* There are no messages in this area. */
-		pout(15, 0, (char *) Language(205));
+		pout(WHITE, BLACK, (char *) Language(205));
 		Enter(3);
 		sleep(3);
 		return;
@@ -1350,26 +1408,26 @@ void QuickScan_Msgs()
 
   	clear(); 
 	/* #    From                  To                       Subject */
-	poutCR(14, 1, (char *) Language(220));
+	poutCR(YELLOW, BLUE, (char *) Language(220));
 
 	if (Msg_Open(sMsgAreaBase)) {
 		for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
 			if (Msg_ReadHeader(i)) {
 				
-				colour(15, 0);
+				colour(WHITE, BLACK);
 				printf("%-6lu", Msg.Id);
 				if (IsMe(Msg.From))
-					colour(11, 0);
+					colour(LIGHTCYAN, BLACK);
 				else
-					colour(3, 0);
+					colour(CYAN, BLACK);
 				printf("%s ", padleft(Msg.From, 20, ' '));
 
 				if (IsMe(Msg.To))
-					colour(10, 0);
+					colour(LIGHTGREEN, BLACK);
 				else
-					colour(2, 0);
+					colour(GREEN, BLACK);
 				printf("%s ", padleft(Msg.To, 20, ' '));
-				colour(5, 0);
+				colour(MAGENTA, BLACK);
 				printf("%s", padleft(Msg.Subject, 31, ' '));
 				printf("\n");
 				FoundMsg = TRUE;
@@ -1383,7 +1441,7 @@ void QuickScan_Msgs()
 	if(!FoundMsg) {
 		Enter(1);
 		/* There are no messages in this area. */
-		pout(10, 0, (char *) Language(205));
+		pout(LIGHTGREEN, BLACK, (char *) Language(205));
 		Enter(2);
 		sleep(3);
 	}
@@ -1545,13 +1603,13 @@ void MsgArea_List(char *Option)
 		if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active)) {
 			msgs.Name[31] = '\0';
 
-			colour(15,0);
+			colour(WHITE, BLACK);
 			printf("%5d", Recno + 1);
 
-			colour(9,0);
+			colour(LIGHTBLUE, BLACK);
 			printf(" %c ", 46);
 
-			colour(3,0);
+			colour(CYAN, BLACK);
 			printf("%-31s", msgs.Name);
 
 			iAreaCount++;
@@ -1629,7 +1687,7 @@ void MsgArea_List(char *Option)
 		/*
 		 * Invalid area specified - Please try again ...
 		 */
-		pout(12, 0, (char *) Language(233));
+		pout(LIGHTRED, BLACK, (char *) Language(233));
 		Enter(2);
 		Pause();
 		fclose(pAreas);
@@ -1648,19 +1706,19 @@ void MsgArea_List(char *Option)
 	if((strlen(msgs.Password)) > 2) {
 		Enter(2);
 		/* Please enter Area Password: */
-		pout(15, 0, (char *) Language(233));
+		pout(WHITE, BLACK, (char *) Language(233));
 		fflush(stdout);
 		colour(CFG.InputColourF, CFG.InputColourB);
 		GetstrC(temp, 20);
 
 		if((strcmp(temp, msgs.Password)) != 0) {
 			Enter(1);
-			pout(15, 0, (char *) Language(234));
+			pout(WHITE, BLACK, (char *) Language(234));
 			Syslog('!', "Incorrect Message Area # %d password given: %s", iMsgAreaNumber, temp);
 			SetMsgArea(iOldArea);
 		} else {
 			Enter(1);
-			pout(15, 0, (char *) Language(235));
+			pout(WHITE, BLACK, (char *) Language(235));
 			Enter(2);
 		}
 		Pause();
@@ -1679,7 +1737,7 @@ void Delete_MsgNum(unsigned long MsgNum)
 {
 	int	Result = FALSE;
 
-	pout(12, 0, (char *) Language(230));
+	pout(LIGHTRED, BLACK, (char *) Language(230));
 
 	if (Msg_Open(sMsgAreaBase)) {
 		if (Msg_Lock(15L)) {
@@ -1772,9 +1830,9 @@ void CheckMail()
 
 	clear();
 	/* Checking your mail box ... */
-	language(10, 0, 150);
+	language(LIGHTGREEN, BLACK, 150);
 	Enter(2);
-	Color = 9;
+	Color = LIGHTBLUE;
 	fflush(stdout);
 
 	/*
@@ -1791,10 +1849,9 @@ void CheckMail()
 	temp = calloc(PATH_MAX, sizeof(char));
 	if (exitinfo.Email && strlen(exitinfo.Password)) {
 		check_popmail(exitinfo.Name, exitinfo.Password);
-		colour(Color, 0);
+		colour(Color++, BLACK);
 		printf("\re-mail  Private e-mail mailbox");
 		fflush(stdout);
-		Color++;
 		Count = 0;
 		sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
 		SetEmailArea((char *)"mailbox");
@@ -1860,10 +1917,10 @@ void CheckMail()
 			SetMsgArea(iMsgAreaNumber);
 			sprintf(temp, "%d", iMsgAreaNumber + 1);
 			colour(Color, 0);
-			if (Color < 15)
+			if (Color < WHITE)
 				Color++;
 			else
-				Color = 9;
+				Color = LIGHTBLUE;
 			printf("\r%6s  %-40s", temp, sMsgAreaDesc);
 			fflush(stdout);
 			Count = 0;
@@ -1914,7 +1971,7 @@ void CheckMail()
 	putchar('\r');
 
 	if (Found) {
-		colour(14, 0);
+		colour(YELLOW, BLACK);
 		/* You have messages, read your mail now? [Y/n]: */
 		printf("\n%s%d %s", (char *) Language(142), Found, (char *) Language(143));
 		colour(CFG.InputColourF, CFG.InputColourB);
@@ -1963,7 +2020,7 @@ void CheckMail()
 			}
 		}
 	} else {
-		language(12, 0, 144);
+		language(LIGHTRED, BLACK, 144);
 		Enter(1);
 		sleep(3);
 	} /* if (Found) */
@@ -1994,7 +2051,7 @@ void MailStatus()
 	OldMsgArea = iMsgAreaNumber;
 	iMsgAreaNumber = 0;
 	clear();
-	colour(14, 1);
+	colour(YELLOW, BLUE);
 	/* Area Type Description                                   Messages Personal */
 	printf("%-79s", (char *)Language(226));
 	Enter(1);
@@ -2012,16 +2069,16 @@ void MailStatus()
 				case 2:	SetEmailArea((char *)"trash");
 					break;
 			}
-			colour(12, 0);
+			colour(LIGHTRED, BLACK);
 			printf("      Email");
-			colour(11, 0);
+			colour(LIGHTCYAN, BLACK);
 			printf(" %-40s", Language(467 + i));
-			colour(14, 0);
+			colour(YELLOW, BLACK);
 			if (EmailBase.Highest)
 				printf(" %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
 			else
 				printf("        0");
-			colour(9, 0);
+			colour(LIGHTBLUE, BLACK);
 			if (EmailBase.Highest)
 				printf(" %8lu\n", EmailBase.Highest - EmailBase.Lowest + 1);
 			else
@@ -2050,9 +2107,9 @@ void MailStatus()
 		if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
 			SetMsgArea(iMsgAreaNumber);
 			sprintf(temp, "%d", iMsgAreaNumber + 1);
-			colour(15, 0);
+			colour(WHITE, BLACK);
 			printf("%5s", temp);
-			colour(12, 0);
+			colour(LIGHTRED, BLACK);
 			switch(msgs.Type) {
 				case LOCALMAIL:
 					printf(" Local");
@@ -2070,7 +2127,7 @@ void MailStatus()
 					printf(" News ");
 					break;
 			}
-			colour(11, 0);
+			colour(LIGHTCYAN, BLACK);
 			printf(" %-40s", sMsgAreaDesc);
 			Count = 0;
 
@@ -2084,12 +2141,12 @@ void MailStatus()
 				Msg_Close();
 			} else
 				WriteError("Error open JAM %s", sMsgAreaBase);
-			colour(14, 0);
+			colour(YELLOW, BLACK);
 			if (MsgBase.Highest)
 				printf(" %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
 			else
 				printf("        0");
-			colour(9, 0);
+			colour(LIGHTBLUE, BLACK);
 			printf(" %8d\n", Count);
 			if (LC(1))
 				break;
@@ -2154,6 +2211,5 @@ void SetMsgArea(unsigned long AreaNum)
 		WriteError("Error open JAM %s", sMsgAreaBase);
 	free(sFileName);
 }
-
 
 
