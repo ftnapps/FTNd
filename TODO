@@ -112,7 +112,8 @@ mbcico:
 	   mode and we did send a FREQ, a poll must be created after the
 	   session to pickup the result of the FREQ.
 
-	N: Support binkp Argus freqs (Radius too?).
+	L: Support binkp Argus freqs (Radius too?). Remark: Argus is obsolete
+	   and Radius will support normal freqs in the near future.
 
 	U: Fix binkp file resume when mbcico silently dies.
 
@@ -124,8 +125,6 @@ mbfile:
 	L: Rearc <area>
 
 	L: Possibility to skip file areas from checking and reindexing.
-
-	N: Add area sorting
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

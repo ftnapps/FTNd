@@ -5,15 +5,15 @@
  */
 
 
-BODY      { background-color: white; font-family: Arial, Helvetica; font-size=10pt; }
+BODY      { background-color: white; font: 12pt sans-serif,helvetica,arial; }
 
 /*
  * H1 is the page header, H3 the paragraph header, H5 is topright update date.
  */
-H1        { color: red;    align: center;   font-family: Arial, Helvetica; font-size: 16pt;  font-weight: bold }
-H2	  { color: orange; align: center;   font-family: Arial, Helvetica; font-size: 16pt;  font-weight: bold }
-H3        { color: black;  margin-left: 40; font-family: Arial, Helvetica; font-size: 14pt;  font-weight: bold }
-H5        { color: black;  align: right;    font-family: Arial, Helvetica; font-size: 8pt; }
+H1        { color: red;    align: center;   font: 16pt sans-serif,helvetica,arial;  font-weight: bold }
+H2	  { color: orange; align: center;   font: 14pt sans-serif,helvetica,arial;  font-weight: bold }
+H3        { position: relative; left: 60px; color: black; font: 14pt sans-serif,helvetica,arial; font-weight: bold }
+H5        { color: black;  align: right;    font: 10pt sans-serif,helvetica,arial; }
 
 A:link	  { color: blue }
 A:visited { color: darkblue }

@@ -1,22 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 <!-- $Id$ -->
 <HEAD>
-<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<TITLE>MBSE BBS Programs - mbfile - File database maintenance program.</TITLE>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META NAME="Language" content='en'>
 <META http-equiv="Content-Style-Type" content="text/css">
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
-<TITLE>MBSE BBS Programs - mbfile - File database maintenance program.</TITLE>
 <LINK rel=stylesheet HREF="../manual.css">
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 26-Jan-2002</h5>
-<P>
-
-<H1>mbfile - File database maintenance program.</H1>
-<P>
+<div align="right"><h5>Last update 08-Nov-2003</h5></div>
+<div align="center"><H1>mbfile - File database maintenance program.</H1></div>
 
 <H3>Synopsys.</H3>
 <code><strong>mbfile</strong> [commands] &lt;options&gt;</code>
@@ -137,6 +136,12 @@ you delete files with mbsetup or with mbfile, they are still in your database an
 until you run <strong>mbfile pack</strong>.
 <P>
 
+<code><strong>mbfile</strong> sort &lt;area&gt;</code>
+Sort the files in area on the long filenames. The sort is case insensitive. When
+the sort is completed, the command <strong>mbfile index</strong> will automatic
+run to rebuild all indexes.
+<P>
+
 <code><strong>mbfile</strong> undelete &lt;area&gt; &lt;file&gt;</code>
 Mark a file that is marked for deletion to be available again, ie. undo the deletion
 mark.
@@ -153,14 +158,8 @@ that the added file(s) will be announced. This can be usefull if you add lots of
 files that you don't want to announce these as new files.
 <P>
 
-<H3>Setup.</H3>
-<P>
-In <strong>mbsetup</strong> menu 1.16 you need to set the public FTP base
-and the maximum security level.
-<P>
-
-<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+<A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.png" ALT="Main" Border="0">Back to Main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

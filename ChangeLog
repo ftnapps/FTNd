@@ -24,6 +24,8 @@ v0.39.1		22-Oct-2003
 		help is displayed instead of trying area 0 that doesn't exist.
 		With the file move command if the file already exists in the
 		destination area, the move is refused.
+		Added mbfile sort <area> command. Files are case insensitive
+		sorted on the long filename. After sort the indexes are rebuild.
 
 	mbcico:
 		Added hydra rpos id -1 indicator for compression stop that

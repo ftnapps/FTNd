@@ -109,33 +109,34 @@ void die(int onsig)
 
 void Help(void)
 {
-	do_quiet = FALSE;
-	ProgName();
+    do_quiet = FALSE;
+    ProgName();
 
-	colour(LIGHTCYAN, BLACK);
-	printf("\nUsage:	mbfile [command] <options>\n\n");
-	colour(LIGHTBLUE, BLACK);
-	printf("	Commands are:\n\n");
-	colour(CYAN, BLACK);
-	printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
-	printf("	c  check			Check filebase\n");
-	printf("	d  delete <area> <file>		Mark file in area for deletion\n");
-	printf("        im import <area>		Import files in current dir to area\n");
-	printf("	in index			Create filerequest index\n");
-	printf("        k  kill				Kill/move old files\n");
-	printf("	l  list	[area]			List file areas or one area\n");
-	printf("	m  move <from> <to> <file>	Move file from to area\n");
-	printf("	p  pack				Pack filebase\n");
-//	printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");
-	printf("	t  toberep			Show toberep database\n");
-	printf("	u  undelete <area> <file>	Mark file in area for undeletion\n");
-	colour(LIGHTBLUE, BLACK);
-	printf("\n	Options are:\n\n");
-	colour(CYAN, BLACK);
-	printf("	-a -announce			Suppress announce added files\n");
-	printf("	-q -quiet			Quiet mode\n");
-	printf("	-v -virus			Suppress virus scanning, use with care\n");
-	die(MBERR_COMMANDLINE);
+    colour(LIGHTCYAN, BLACK);
+    printf("Usage:	mbfile [command] <options>\n\n");
+    colour(LIGHTBLUE, BLACK);
+    printf("	Commands are:\n\n");
+    colour(CYAN, BLACK);
+    printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
+    printf("	c  check			Check filebase\n");
+    printf("	d  delete <area> <file>		Mark file in area for deletion\n");
+    printf("	im import <area>		Import files in current dir to area\n");
+    printf("	in index			Create filerequest index\n");
+    printf("	k  kill				Kill/move old files\n");
+    printf("	l  list	[area]			List file areas or one area\n");
+    printf("	m  move <from> <to> <file>	Move file from to area\n");
+    printf("	p  pack				Pack filebase\n");
+//  printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");
+    printf("	s  sort <area>			Sort files in a file area\n");
+    printf("	t  toberep			Show toberep database\n");
+    printf("	u  undelete <area> <file>	Mark file in area for undeletion\n");
+    colour(LIGHTBLUE, BLACK);
+    printf("\n	Options are:\n\n");
+    colour(CYAN, BLACK);
+    printf("	-a -announce			Suppress announce added files\n");
+    printf("	-q -quiet			Quiet mode\n");
+    printf("	-v -virus			Suppress virus scanning, use with care\n");
+    die(MBERR_COMMANDLINE);
 }
 
 

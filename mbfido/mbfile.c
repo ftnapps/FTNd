@@ -48,6 +48,7 @@
 #include "mbfmove.h"
 #include "mbfdel.h"
 #include "mbfutil.h"
+#include "mbfsort.h"
 #include "mbfile.h"
 
 
@@ -65,11 +66,11 @@ int		do_list  = FALSE;	/* List fileareas		    */
 int		do_tobe  = FALSE;	/* List toberep database	    */
 int		do_move  = FALSE;	/* Move a file			    */
 int		do_del   = FALSE;	/* Delete/undelete a file	    */
+int		do_sort  = FALSE;	/* Sort a filebase		    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
 time_t		t_end;			/* End time			    */
-
 
 
 int main(int argc, char **argv)
@@ -179,6 +180,14 @@ int main(int argc, char **argv)
 		    }
 		}
 	    }
+	} else if (!strncasecmp(argv[i], "s", 1)) {
+	    if (argc > (i + 1)) {
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+		do_sort = TRUE;
+	    }
 	} else if (!strncasecmp(argv[i], "p", 1)) {
 	    do_pack = TRUE;
 	} else if (!strncasecmp(argv[i], "c", 1)) {
@@ -196,7 +205,8 @@ int main(int argc, char **argv)
 	}
     }
 
-    if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_del || do_move || do_tobe))
+    if (!(do_pack || do_sort || do_check || do_kill || do_index || do_import || 
+		do_list || do_adopt || do_del || do_move || do_tobe))
 	Help();
 
     ProgName();
@@ -235,6 +245,9 @@ int main(int argc, char **argv)
 
     if (do_kill)
 	Kill();
+
+    if (do_sort)
+	SortFileBase(Area);
 
     if (do_check)
 	Check();
