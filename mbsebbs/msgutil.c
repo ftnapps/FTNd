@@ -243,8 +243,9 @@ void Add_Headkludges(faddr *dest, int IsReply)
 /*
  *  Add bottom message kludges. The flag Quote is false if this is called
  *  from Offline Reader, the user then may or may have not added a quote.
+ *  The QWK upload may set HasTear if the client already uploaded a tearline.
  */
-void Add_Footkludges(int Quote, char *tear)
+void Add_Footkludges(int Quote, char *tear, int HasTear)
 {
 	char	*temp;
 	char	*aka;
@@ -280,11 +281,13 @@ void Add_Footkludges(int Quote, char *tear)
 	/*
 	 * The offline reader may override the tearline
 	 */
-	if (tear == NULL) {
-	    MsgText_Add2(TearLine());
-	} else {
-	    sprintf(temp, "--- %s", tear);
-	    MsgText_Add2(temp);
+	if (!HasTear) {
+	    if (tear == NULL) {
+		MsgText_Add2(TearLine());
+	    } else {
+		sprintf(temp, "--- %s", tear);
+		MsgText_Add2(temp);
+	    }
 	}
 
 	if ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {

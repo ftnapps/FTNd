@@ -212,7 +212,7 @@ void Add_Kludges(fidoaddr dest, int IsReply, char *fn)
 	fclose(tp);
     }
 
-    Add_Footkludges(FALSE, newtear);
+    Add_Footkludges(FALSE, newtear, FALSE);
     Msg_AddMsg();
     Msg_UnLock();
 }
@@ -2412,6 +2412,7 @@ void QWK_Fetch()
     unsigned long   Area;
     struct tm	    *ltm = NULL;
     fidoaddr	    dest;
+    int		    HasTear;
 
     colour(9, 0);
     /*      Processing BlueWave reply packet */
@@ -2500,6 +2501,7 @@ void QWK_Fetch()
 		     * Normal message
 		     */
 		    Syslog('m', "Message");
+		    HasTear = FALSE;
 		    sprintf(otemp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((mf = fopen(otemp, "r+")) != NULL) {
 			fread(&msgshdr, sizeof(msgshdr), 1, mf);
@@ -2561,6 +2563,8 @@ void QWK_Fetch()
 					    *pLine = '\0';
 					    Syslog('m', "1 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
 					    MsgText_Add2(szLine);
+					    if (strncmp(szLine, (char *)"--- ", 4) == 0)
+						HasTear = TRUE;
 					    pLine = szLine;
 					    nCol = 0;
 					} else if (*pBuff != '\n') {
@@ -2580,6 +2584,8 @@ void QWK_Fetch()
 						*pLine = '\0';
 						Syslog('m', "2 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
 						MsgText_Add2(szLine);
+						if (strncmp(szLine, (char *)"--- ", 4) == 0)
+						    HasTear = TRUE;
 						strcpy(szLine, szWrp);
 						pLine = strchr(szLine, '\0');
 						nCol = (short)strlen (szLine);
@@ -2591,9 +2597,11 @@ void QWK_Fetch()
 				    *pLine = '\0';
 				    Syslog('m', "3 Len=%d \"%s\"", strlen(szLine), printable(szLine, 0));
 				    MsgText_Add2(szLine);
+				    if (strncmp(szLine, (char *)"--- ", 4) == 0)
+					HasTear = TRUE;
 				}
 
-				Add_Footkludges(FALSE, NULL);
+				Add_Footkludges(FALSE, NULL, HasTear);
 				Msg_AddMsg();
 				Msg_UnLock();
 
