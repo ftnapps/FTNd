@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c \
+SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c qualify.c \
 		  ptic.c sendmail.c tracker.c addpkt.c bwrite.c forward.c lhash.c \
 		  mbfido.c mkftnhdr.c ping.c rfc2ftn.c storeecho.c unpack.c aliasdb.c \
 		  fsort.c magic.c mbfile.c mover.c post.c rnews.c storenet.c \
@@ -15,7 +15,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c \
 		  mbfkill.c mbfutil.c mbfindex.c mbfcheck.c mbfpack.c mbflist.c mbfadopt.c \
 		  mbfimport.c virscan.c mbftoberep.c mbfmove.c mbfdel.c bounce.c \
 		  createm.c createf.c msgflags.c dirsession.c queue.c dirlock.c
-HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h \
+HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
 		  lhash.h mbfido.h mkftnhdr.h ptic.h sendmail.h tracker.h \
 		  aliasdb.h fsort.h magic.h mbfile.h mover.h ping.h rfc2ftn.h \
@@ -33,7 +33,7 @@ MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o 
 		  storenet.o storeecho.o areamgr.o filemgr.o notify.o mgrutil.o rollover.o \
 		  bwrite.o rfc2ftn.o rnews.o newspost.o aliasdb.o postemail.o postnetmail.o \
 		  postecho.o backalias.o createm.o createf.o msgflags.o dirsession.o \
-		  queue.o dirlock.o
+		  queue.o dirlock.o qualify.o
 MBSEQ_OBJS	= mbseq.o
 MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o
 MBINDEX_OBJS	= mbindex.o
@@ -141,6 +141,7 @@ flock.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/clcomm.h flock.h
 hatch.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbtic.h utic.h rollover.h hatch.h
 mbdiff.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbdiff.h
 mgrutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/diesel.h sendmail.h rollover.h addpkt.h createm.h createf.h mgrutil.h
+qualify.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h qualify.h
 ptic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbtic.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbdupe.h unpack.h mover.h toberep.h tic.h utic.h addbbs.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h
 sendmail.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbnode.h ../lib/clcomm.h ../lib/dbmsgs.h addpkt.h rollover.h sendmail.h
 tracker.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbftn.h tracker.h
@@ -169,7 +170,7 @@ ftn2rfc.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/u
 makestat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/diesel.h ../lib/msg.h mgrutil.h makestat.h
 mbindex.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbftn.h ../lib/mberrors.h mbindex.h
 msgutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h
-postecho.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h
+postecho.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h qualify.h
 rollover.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h rollover.h
 tic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbftn.h ../lib/clcomm.h unpack.h ptic.h fsort.h tic.h
 areamgr.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ../lib/diesel.h sendmail.h mgrutil.h scan.h createm.h areamgr.h

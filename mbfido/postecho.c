@@ -49,6 +49,7 @@
 #include "storeecho.h"
 #include "addpkt.h"
 #include "rollover.h"
+#include "qualify.h"
 
 
 
@@ -68,8 +69,6 @@ extern	int	echo_bad;		/* Bad echomail		*/
 #define	MAXSEEN	70
 
 
-void tidy_qualify(qualify **);
-void fill_qualify(qualify **, fidoaddr, int, int);
 int  EchoOut(fidoaddr, char *, char *, char *, FILE *, int, int, time_t);
 
 
@@ -126,34 +125,6 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
     fsync(fileno(qp));
     fclose(qp);
     return 0;
-}
-
-
-
-void tidy_qualify(qualify **qal)
-{
-    qualify	*tmp, *old;
-
-    for (tmp = *qal; tmp; tmp = old) {
-	old = tmp->next;
-	free(tmp);
-    }
-    *qal = NULL;
-}
-
-
-
-void fill_qualify(qualify **qal, fidoaddr aka, int orig, int insb)
-{
-    qualify		*tmp;
-
-    tmp = (qualify *)malloc(sizeof(qualify));
-    tmp->next     = *qal;
-    tmp->aka      = aka;
-    tmp->inseenby = insb;
-    tmp->send     = ((!insb) && (!orig));
-    tmp->orig     = orig;
-    *qal = tmp;
 }
 
 
