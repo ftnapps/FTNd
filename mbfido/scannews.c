@@ -295,6 +295,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	Syslog('m', "NEW:  total %d, start %d, end %d", total, start, end);
     }
     if (!total) {
+	Syslog('+', "Fetched 0 articles from %s", grpname);
 	return RETVAL_NOARTICLES;
     }
 
@@ -321,7 +322,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
     if ((maxarticles) && (fetched == maxarticles))
 	Syslog('!', "Warning: the max. articles value in newsgroup %s might be to low", grpname);
 
-    Syslog('+', "Fetched %d message%s from %s", fetched, (fetched == 1) ? "":"s", grpname);
+    Syslog('+', "Fetched %d article%s from %s", fetched, (fetched == 1) ? "":"s", grpname);
     return RETVAL_OK;
 }
 
