@@ -17,28 +17,28 @@ install: ${LDAT}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${LDAT} ${ETCDIR}
 
 english.lang:	english.txt
-		../mbsebbs/mblang english.lang english.txt
+		../mbutils/mblang english.lang english.txt
 
 dutch.lang:	dutch.txt
-		../mbsebbs/mblang dutch.lang dutch.txt
+		../mbutils/mblang dutch.lang dutch.txt
 
 italian.lang:	italian.txt
-		../mbsebbs/mblang italian.lang italian.txt
+		../mbutils/mblang italian.lang italian.txt
 
 spanish.lang:	spanish.txt
-		../mbsebbs/mblang spanish.lang spanish.txt
+		../mbutils/mblang spanish.lang spanish.txt
 
 galego.lang:	galego.txt
-		../mbsebbs/mblang galego.lang galego.txt
+		../mbutils/mblang galego.lang galego.txt
 
 german.lang:	german.txt
-		../mbsebbs/mblang german.lang german.txt
+		../mbutils/mblang german.lang german.txt
 
 germandu.lang:	germandu.txt
-		../mbsebbs/mblang germandu.lang germandu.txt
+		../mbutils/mblang germandu.lang germandu.txt
 
 french.lang:	french.txt
-		../mbsebbs/mblang french.lang french.txt
+		../mbutils/mblang french.lang french.txt
 
 filelist:	Makefile
 		BASE=`pwd`; \
