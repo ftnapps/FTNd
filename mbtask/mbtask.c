@@ -1320,8 +1320,13 @@ void *scheduler(void)
 			    default:	    port[0] = '\0';
 					    break;
 			}
-			sprintf(opts, "%sf%u.n%u.z%u", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
-				calllist[call_entry].addr.zone);
+			if (calllist[call_entry].addr.point) {
+			    sprintf(opts, "%sp%u.f%u.n%u.z%u", port, calllist[call_entry].addr.point, 
+				    calllist[call_entry].addr.node, calllist[call_entry].addr.net, calllist[call_entry].addr.zone);
+			} else {
+			    sprintf(opts, "%sf%u.n%u.z%u", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+				    calllist[call_entry].addr.zone);
+			}
 			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
 			if (calllist[call_entry].taskpid)
 			    calllist[call_entry].calling = TRUE;

@@ -112,7 +112,7 @@ int call(faddr *addr)
     /*
      *  Don't call points, call their boss instead.
      */
-    addr->point = 0;
+//    addr->point = 0;
 
     /*
      *  First check if node is locked, if not lock it immediatly
