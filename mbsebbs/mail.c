@@ -577,7 +577,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 	/*
 	 * Add message text
 	 */
-	for (i = 1; i < Line; i++) {
+	for (i = 1; i <= Line; i++) {
 		MsgText_Add2(Message[i]);
 	}
 
