@@ -1394,6 +1394,8 @@ TrType binkp_transmitter(void)
 	if (bp.msgs_on_queue) {
 	    if (binkp_process_messages()) {
 		return Failure;
+	    } else {
+		return Continue;
 	    }
 	}
 	return Ok;
