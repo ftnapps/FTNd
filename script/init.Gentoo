@@ -28,6 +28,7 @@ DESC="MBSE BBS"
 export MBSE_ROOT
 
 depend() {
+	use net xinetd
 	need localmount
 }
 
