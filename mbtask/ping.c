@@ -401,7 +401,7 @@ void state_ping(void)
 
 
 /*
- *  Create the ping socket, called from main() durig init as root.
+ *  Create the ping socket, called from main() during init as root.
  */
 void init_pingsocket(void)
 {

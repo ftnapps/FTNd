@@ -67,7 +67,6 @@ void tidy_portlist(pp_list ** fdp)
 {
     pp_list *tmp, *old;
 
-    tasklog('p', "tidy_portlist");
     for (tmp = *fdp; tmp; tmp = old) {
 	old = tmp->next;
 	free(tmp);
@@ -121,7 +120,6 @@ void load_ports()
     }
     fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
     
-    tasklog('p', "Building portlist...");
     pots_lines = isdn_lines = 0;
 
     while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
@@ -159,7 +157,8 @@ void load_ports()
 
     fclose(fp);
     tty_time = file_time(ttyfn);
-    tasklog('+', "Detected %d modem ports and %d ISDN ports", pots_lines, isdn_lines);
+    tasklog('+', "Detected %d modem port%s and %d ISDN port%s", 
+		    pots_lines, (pots_lines == 1)?"":"s", isdn_lines, (isdn_lines == 1)?"":"s");
 }
 
 

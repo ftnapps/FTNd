@@ -1031,8 +1031,23 @@ void scheduler(void)
 	    }
 	}
 
+	/*
+	 * Check system processing state
+	 */
 	if (s_bbsopen && !UPSalarm && !LOADhi) {
+	    if (!Processing) {
+		tasklog('+', "Resuming normal operations");
+		Processing = TRUE;
+	    }
+        } else {
+	    if (Processing) {
+		tasklog('+', "Suspending operations");
+		Processing = FALSE;
+	    }
+	}
 
+
+	if (Processing) {
 	    /*
 	     * Check Pause Timer, make sure it's only checked
 	     * once each second.
@@ -1041,11 +1056,6 @@ void scheduler(void)
 		oldsec = tm->tm_sec;
 		if (ptimer)
 		    ptimer--;
-	    }
-
-	    if (!Processing) {
-		tasklog('+', "Resuming normal operations");
-		Processing = TRUE;
 	    }
 
 	    /*
@@ -1107,14 +1117,17 @@ void scheduler(void)
 		s_reqindex = FALSE;
 	    }
 
-	    if ((tm->tm_sec / SLOWRUN) != oldmin) {
+	} /* if (Processing) */
 
-		/*
-		 *  These tasks run once per 20 seconds.
-		 */
-		oldmin = tm->tm_sec / SLOWRUN;
+	if ((tm->tm_sec / SLOWRUN) != oldmin) {
 
-		check_ping();
+	    /*
+	     *  These tasks run once per 20 seconds.
+	     */
+	    oldmin = tm->tm_sec / SLOWRUN;
+	    check_ping();
+
+	    if (Processing) {
 
 		/*
 		 * Update outbound status if needed.
@@ -1206,19 +1219,15 @@ void scheduler(void)
 			cmd = NULL;
 		    }
 		}
-	    }
+	    } /* if (Processing) */
 
 	    /*
 	     * PING state changes
 	     */
 	    state_ping();
 
-	} else {
-	    if (Processing) {
-		tasklog('+', "Suspending operations");
-		Processing = FALSE;
-	    }
-	}
+	} /* if ((tm->tm_sec / SLOWRUN) != oldmin) */
+
     } while (TRUE);
 }
 
