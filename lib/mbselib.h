@@ -428,7 +428,8 @@ struct icmp_filter {
 #define	FTNC_MAC		8	/* MacIntosh character set	    */
 #define FTNC_CP852		9	/* IBM CP 852 (Czech, Latin-2)	    */
 #define	FTNC_CP895		10	/* IBM CP 895 (Czech, Kamenicky)    */
-#define FTNC_MAXCHARS		10	/* Highest charset number	    */
+#define	FTNC_KOI8_R		11	/* Unix koi8-r			    */
+#define FTNC_MAXCHARS		11	/* Highest charset number	    */
 
 
 /*****************************************************************************
