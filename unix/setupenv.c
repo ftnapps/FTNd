@@ -49,59 +49,6 @@
 
 
 
-void addenv_path(const char *varname, const char *dirname, const char *filename)
-{
-	char *buf;
-
-	buf = xmalloc(strlen(dirname) + strlen(filename) + 2);
-	sprintf(buf, "%s/%s", dirname, filename);
-	addenv(varname, buf);
-	free(buf);
-}
-
-
-
-void read_env_file(const char *filename)
-{
-	FILE *fp;
-	char buf[1024];
-	char *cp, *name, *val;
-
-	fp = fopen(filename, "r");
-	if (!fp)
-		return;
-	while (fgets(buf, sizeof buf, fp) == buf) {
-		cp = strrchr(buf, '\n');
-		if (!cp)
-			break;
-		*cp = '\0';
-
-		cp = buf;
-		/* ignore whitespace and comments */
-		while (*cp && isspace(*cp))
-			cp++;
-		if (*cp == '\0' || *cp == '#')
-			continue;
-		/*
-		 * ignore lines which don't follow the name=value format
-		 * (for example, the "export NAME" shell commands)
-		 */
-		name = cp;
-		while (*cp && !isspace(*cp) && *cp != '=')
-			cp++;
-		if (*cp != '=')
-			continue;
-		/* NUL-terminate the name */
-		*cp++ = '\0';
-		val = cp;
-		addenv(name, val);
-	}
-	fclose(fp);
-}
-
-
-
-
 /*
  *	change to the user's home directory
  *	set the HOME, SHELL, MAIL, PATH, and LOGNAME or USER environmental
@@ -109,6 +56,8 @@ void read_env_file(const char *filename)
  */
 void setup_env(struct passwd *info)
 {
+	char	*cp;
+
 	/*
 	 * Change the current working directory to be the home directory
 	 * of the user.  It is a fatal error for this process to be unable
@@ -119,10 +68,15 @@ void setup_env(struct passwd *info)
 	 * home directories.
 	 */
 	if (chdir(info->pw_dir) == -1) {
+	    static char temp_pw_dir[] = "/";
+	    if (!getdef_bool("DEFAULT_HOME") || chdir("/") == -1) {
 		fprintf(stderr, _("Unable to cd to \"%s\"\n"), info->pw_dir);
 		syslog(LOG_WARNING, "unable to cd to `%s' for user `%s'\n", info->pw_dir, info->pw_name);
 		closelog();
 		exit (1);
+	    }
+	    puts(_("No directory, logging in with HOME=/"));
+	    info->pw_dir = temp_pw_dir;
 	}
 
 	/*
@@ -143,7 +97,8 @@ void setup_env(struct passwd *info)
 	/*
 	 * Create the PATH environmental variable and export it.
 	 */
-	addenv("PATH=/bin:/usr/bin", NULL);
+	cp = getdef_str("ENV_PATH");
+	addenv(cp ? cp : "PATH=/bin:/usr/bin", NULL);
 
 	/*
 	 * Export the user name.  For BSD derived systems, it's "USER", for

@@ -64,11 +64,9 @@ char *crypt_make_salt(void)
 
 	result[0] = '\0';
 
-#ifndef __FreeBSD__
 	if (getdef_bool("MD5_CRYPT_ENAB")) {
 		strcpy(result, "$1$");  /* magic for the new MD5 crypt() */
 	}
-#endif
 
 	/*
 	 * Generate 8 chars of salt, the old crypt() will use only first 2.

@@ -67,10 +67,25 @@ int is_my_tty(const char *tty)
  */
 void chown_tty(const char *tty, const struct passwd *info)
 {
-	char	buf[200], full_tty[200];
-	gid_t	gid;
+	char		buf[200], full_tty[200];
+	char		*group;	    /* TTY group name or number */
+	struct group	*grent;
+	gid_t		gid;
 
-	gid = info->pw_gid;
+	/*
+	 *          * See if login.defs has some value configured for the port group
+	 *                   * ID.  Otherwise, use the user's primary group ID.
+	 *                            */
+
+	if (! (group = getdef_str ("TTYGROUP")))
+		gid = info->pw_gid;
+	else if (group[0] >= '0' && group[0] <= '9')
+		gid = atoi (group);
+	else if ((grent = getgrnam (group)))
+		gid = grent->gr_gid;
+	else
+		gid = info->pw_gid;
+
 
 	/*
 	 * Change the permissions on the TTY to be owned by the user with

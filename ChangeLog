@@ -4236,18 +4236,24 @@ v0.33.19        26-Oct-2001
 		Fill in the right IP addresses in fields 11 and 12 of your
 		ISP's nameservers. If you don't have internet, fill these
 		with 192.168.1.1 and 192.168.1.2 as dummy addresses.
+		Change the startup program in /etc/inetd.conf for telnet if
+		you previously used mbsebbs to mblogin.
+		Change the default login program in mgetty's login.config to
+		* - - /opt/mbse/bin/mblogin @
 
 	general:
 		Made the Makefile system more simple. The bbs programs now
-		don't run setuid anymore! This makes the system more secure
-		but you can't login with Fidonet style names anymore. You
-		can't start the bbs from telnet anymore! With a later release
-		this may change by adding a login wrapper, for now this is how
-		it works now. Take it or leave it.
+		don't run setuid anymore! This makes the system more secure.
+		A new program, mblogin, is written to allow logins with
+		Fidonet style names. This is a login replacement for bbs use
+		only.
 		On FreeBSD the installed files are not removed anymore from
 		the source tree.
 		Added German language file made by Harald Wuensch.
 		The mbtask daemon now handles the calling of Fidonet nodes.
+		The sourcetree has now a new subdirectory called unix. Here
+		are all the system specific programs such as mbpasswd,
+		mblogin and mbuseradd.
 
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
@@ -4365,6 +4371,7 @@ v0.33.19        26-Oct-2001
 	mbpasswd:
 		Added more checks to see if it's legal invoked.
 		Password change on FreeBSD finally works.
+		Moved to new sourcetree.
 
 	mblogin:
 		New program. Replaces standard login, allows Fidonet style

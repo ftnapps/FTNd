@@ -149,7 +149,7 @@ extern	char	**environ;
 static void usage(void);
 static void setup_tty(void);
 static void check_flags(int, char * const *);
-static void check_nologin(char *);
+static void check_nologin(void);
 static void init_env(void);
 static RETSIGTYPE alarm_handler(int);
 int main(int, char **);
@@ -214,11 +214,9 @@ static void setup_tty(void)
 	termio.c_oflag |= (XTABS|OPOST|ONLCR);
 #endif
 
-#ifndef __FreeBSD__
 	/* leave these values unchanged if not specified in login.defs */
 	termio.c_cc[VERASE] = getdef_num("ERASECHAR", termio.c_cc[VERASE]);
 	termio.c_cc[VKILL] = getdef_num("KILLCHAR", termio.c_cc[VKILL]);
-#endif
 
 	/*
 	 * ttymon invocation prefers this, but these settings won't come into
@@ -248,10 +246,7 @@ static void check_flags(int argc, char * const *argv)
 
 
 
-/*
- * nologin file is $MBSE_ROOT/etc/nologin
- */
-static void check_nologin(char *path)
+static void check_nologin(void)
 {
 	char *fname;
 
@@ -263,8 +258,7 @@ static void check_nologin(char *path)
 	 * forgotten about it ...
 	 */
 
-	fname = calloc(PATH_MAX, sizeof(char));
-	sprintf(fname, "%s/etc/nologin", path);
+	fname = getdef_str("NOLOGINS_FILE");
 	if (access(fname, F_OK) == 0) {
 		FILE	*nlfp;
 		int	c;
@@ -298,10 +292,7 @@ static void check_nologin(char *path)
 
 static void init_env(void)
 {
-#ifndef	__FreeBSD__
-	char 	*cp;
-#endif
-	char	*tmp;
+	char 	*cp, *tmp;
 
 	if ((tmp = getenv("LANG"))) {
 		addenv("LANG", tmp);
@@ -314,7 +305,7 @@ static void init_env(void)
 
 	if ((tmp = getenv("TZ"))) {
 		addenv("TZ", tmp);
-	}
+	} 
 
 	/* 
 	 * Add the clock frequency so that profiling commands work
@@ -323,12 +314,9 @@ static void init_env(void)
 
 	if ((tmp = getenv("HZ"))) {
 		addenv("HZ", tmp);
-#ifndef __FreeBSD__
-	} else if ((cp = getdef_str("ENV_HZ")))
+	} else if ((cp = getdef_str("ENV_HZ"))) {
 		addenv(cp, NULL);
-#else
 	}
-#endif
 }
 
 
@@ -488,7 +476,7 @@ int main(int argc, char **argv)
 
 	openlog("mblogin", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
 	setup_tty();
-	umask(007);
+	umask(getdef_num("UMASK", 007));
 
 	if (pflg)
 	    while (*envp)           /* add inherited environment, */
@@ -509,7 +497,7 @@ int main(int argc, char **argv)
 	addenv("MBSE_ROOT", pw->pw_dir);
 	sprintf(userfile, "%s/etc/users.data",  pw->pw_dir);
 
-	check_nologin(pw->pw_dir);
+	check_nologin();
 
 	init_env();
 
@@ -574,13 +562,13 @@ int main(int argc, char **argv)
 top:
 	/* only allow ALARM sec. for login */
 	signal(SIGALRM, alarm_handler);
-	timeout = LOGIN_TIMEOUT;
+	timeout = getdef_num("LOGIN_TIMEOUT", ALARM);
 	if (timeout > 0)
 		alarm(timeout);
 
 	environ = newenvp;		/* make new environment active */
-	delay   = LOGIN_DELAY;
-	retries = LOGIN_RETRIES;
+	delay   = getdef_num("FAIL_DELAY", 1);
+	retries = getdef_num("LOGIN_RETRIES", RETRIES);
 
 	while (1) {			/* repeatedly get login/password pairs */
 		failed = 0;		/* haven't failed authentication yet */
@@ -663,7 +651,7 @@ top:
 		 * username at least once...  Should probably use LOG_AUTHPRIV
 		 * for those who really want to log them.  --marekm
 		 */
-		syslog(LOG_WARNING, BAD_PASSWD, "UNKNOWN", fromhost);
+		syslog(LOG_WARNING, BAD_PASSWD, (pwd || getdef_bool("LOG_UNKFAIL_ENAB")) ? username : "UNKNOWN", fromhost);
 		failed = 1;
 
 auth_ok:
@@ -722,20 +710,6 @@ auth_ok:
 
 	}  /* while (1) */
 	(void) alarm (0);		/* turn off alarm clock */
-#if 1
-	/*
-	 * porttime checks moved here, after the user has been
-	 * authenticated.  now prints a message, as suggested
-	 * by Ivan Nejgebauer <ian@unsux.ns.ac.yu>.  --marekm
-	 */
-//	if (getdef_bool("PORTTIME_CHECKS_ENAB") &&
-//	    !isttytime(pwent.pw_name, tty, time ((time_t *) 0))) {
-//		SYSLOG((LOG_WARN, BAD_TIME, username, fromhost));
-//		closelog();
-//		bad_time_notify();
-//		exit(1);
-//	}
-#endif
 
 	if (getenv("IFS"))		/* don't export user IFS ... */
 		addenv("IFS= \t\n", NULL);  /* ... instead, set a safe IFS */
@@ -759,7 +733,8 @@ auth_ok:
 		goto top;		/* go do all this all over again */
 	}
 
-	dolastlog(&lastlog, &pwent, utent.ut_line, hostname);
+	if (getdef_bool("LASTLOG_ENAB")) /* give last login and log this one */
+		dolastlog(&lastlog, &pwent, utent.ut_line, hostname);
 
 #ifdef SVR4_SI86_EUA
 	sysi86(SI86LIMUSER, EUA_ADD_USER);	/* how do we test for fail? */
