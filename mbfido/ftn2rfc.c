@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
- * Last modification date : 27-Oct-2001
+ * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -266,21 +266,13 @@ void substitute(char *buf)
 /*
  * Lines to send, if it is a newsarticle, the Message-Id is checked.
  */
-void Send(int, const char *, ...);
-void Send(int newsmode, const char *format, ...)
+void Send(int, char *);
+void Send(int newsmode, char *outstr)
 {
-	char            *outstr, *p;
-	va_list         va_ptr;
+	char            *p;
 	unsigned long	crc;
 
-	outstr = calloc(2048, sizeof(char));
-
-	va_start(va_ptr, format);
-	vsprintf(outstr, format, va_ptr);
-	va_end(va_ptr);
-
 	fwrite(outstr, 1, strlen(outstr), nfp);
-
 	if (newsmode) {
 		Striplf(outstr);
 		if (strncmp(outstr, (char*)"Message-ID: ", 12) == 0) {
@@ -332,7 +324,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	struct  utsname utsbuf;
 	char		MailFrom[128], MailTo[128];
 
-	temp = calloc(2048, sizeof(char));
+	temp = calloc(32768, sizeof(char));
 	tmsg = &kmsg;
 	tear_off = orig_off = via_off = 0L;
 	rbuf = NULL;
@@ -812,7 +804,9 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			q = xstrcat(q, p);
 		} else 
 			q = xstrcat(q, (char *)"not-for-mail");
-		Send(newsmode, "%s\n", q);
+		sprintf(temp, "%s\n", q);
+		Send(newsmode, temp);
+		free(q);
 
 		if ((p = hdr((char *)"Newsgroups",msg))) {
 			/*
@@ -833,40 +827,54 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		if (p) {
 			while (*p && isspace(*p)) 
 				p++;
-			Send(newsmode,"Newsgroups: %s\n",newsgroup);
-			Send(newsmode,"X-Origin-Newsgroups: %s",p);
-		} else 
-			Send(newsmode,"Newsgroups: %s\n",newsgroup);
+			sprintf(temp,"Newsgroups: %s\n",newsgroup);
+			Send(newsmode, temp);
+			sprintf(temp,"X-Origin-Newsgroups: %s",p);
+			Send(newsmode, temp);
+		} else {
+			sprintf(temp,"Newsgroups: %s\n",newsgroup);
+			Send(newsmode, temp);
+		}
 
-		if ((p=hdr((char *)"Distribution",msg))) 
-			Send(newsmode,"Distribution:%s",p);
-		else if ((p=hdr((char *)"RFC-Distribution",kmsg))) 
-			Send(newsmode,"Distribution: %s",p);
-		else if ((p=hdr((char *)"Distribution",kmsg))) 
-			Send(newsmode,"Distribution: %s",p);
-		else if (distribution) 
-			Send(newsmode,"Distribution: %s\n",distribution);
-
+		if ((p=hdr((char *)"Distribution",msg))) {
+			sprintf(temp,"Distribution:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-Distribution",kmsg))) {
+			sprintf(temp,"Distribution: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"Distribution",kmsg))) {
+			sprintf(temp,"Distribution: %s",p);
+			Send(newsmode, temp);
+		} else if (distribution) {
+			sprintf(temp,"Distribution: %s\n",distribution);
+			Send(newsmode, temp);
+		}
+		
 		p = hdr((char *)"Comment-To",msg);
 		if (p == NULL)
 			p=hdr((char *)"X-Comment-To",msg);
 		if (p == NULL)
 			p=hdr((char *)"To",msg);
-		if ((p) && (strcasecmp(p,"All\n")))
-			Send(newsmode,"X-Comment-To:%s",hdrconv(p,outcode,incode));
-		else {
+		if ((p) && (strcasecmp(p,"All\n"))) {
+			sprintf(temp,"X-Comment-To:%s",hdrconv(p,outcode,incode));
+			Send(newsmode, temp);
+		} else {
 			if (p == NULL) 
 				p=hdr((char *)"RFC-X-Comment-To",kmsg);
 			if (p == NULL) 
 				p=hdr((char *)"RFC-Comment-To",kmsg);
 			if (p == NULL) 
 				p=hdr((char *)"RFC-To",kmsg);
-			if ((p) && (strcasecmp(p,"All\n")))
-				Send(newsmode,"X-Comment-To: %s",hdrconv(p,outcode,incode));
-			else if ((t) && (t->name) && (strcasecmp(t->name,"All")))
-				Send(newsmode,"X-Comment-To: %s\n",hdrconv(t->name,outcode,incode));
-			else
-				Send(newsmode,"X-Comment-To: All\n");
+			if ((p) && (strcasecmp(p,"All\n"))) {
+				sprintf(temp,"X-Comment-To: %s",hdrconv(p,outcode,incode));
+				Send(newsmode, temp);
+			} else if ((t) && (t->name) && (strcasecmp(t->name,"All"))) {
+				sprintf(temp,"X-Comment-To: %s\n",hdrconv(t->name,outcode,incode));
+				Send(newsmode, temp);
+			} else {
+				sprintf(temp,"X-Comment-To: All\n");
+				Send(newsmode, temp);
+			}
 		}
 
 //		for (tmpml=approve;tmpml;tmpml=tmpml->next) {
@@ -877,14 +885,19 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 //			}
 //		}
 
-		if ((p=hdr((char *)"Approved",msg))) 
-			Send(newsmode,"Approved:%s",p);
-		else if ((p=hdr((char *)"RFC-Approved",kmsg))) 
-			Send(newsmode,"Approved: %s",p);
-		else if ((p=hdr((char *)"Approved",kmsg))) 
-			Send(newsmode,"Approved: %s",p);
-		else if (modtype==2) 
-			Send(newsmode,"Approved: %s\n",moderator);
+		if ((p=hdr((char *)"Approved",msg))) {
+			sprintf(temp,"Approved:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-Approved",kmsg))) {
+			sprintf(temp,"Approved: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"Approved",kmsg))) {
+			sprintf(temp,"Approved: %s",p);
+			Send(newsmode, temp);
+		} else if (modtype==2) {
+			sprintf(temp,"Approved: %s\n",moderator);
+			Send(newsmode, temp);
+		}
 
 	} else { /* if newsmode */
 		time(&now);
@@ -893,24 +906,39 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			 * Probaly not needed as messages for systems without ISP never get here.
 			 * Perhaps only news to moderators.
 			 */
-			Send(FALSE, "From: %s!", ascinode(f,0x3f));
-			Send(FALSE, "%s %s", ascinode(f,0x40), ctime(&mdate));
+			sprintf(temp, "From %s!%s %s", ascinode(f,0x3f), ascinode(f,0x40), ctime(&mdate));
+			Send(FALSE, temp);
 		}
-		for (qmsg = kmsg; qmsg; qmsg = qmsg->next)
-			if (!strcasecmp(qmsg->key,"RFC-Received"))
-				Send(FALSE, "%s: %s", qmsg->key+4, qmsg->val);
-		for (qmsg = msg; qmsg; qmsg = qmsg->next)
-			if (!strcasecmp(qmsg->key,"Received"))
-				Send(FALSE, "%s:%s", qmsg->key, qmsg->val);
 
-		if ((p=hdr((char *)"Apparently-To",msg))) 
-			Send(FALSE, "Apparently-To: %s\n",p);
-		else if ((p=hdr((char *)"RFC-Apparently-To",kmsg))) 	
-			Send(FALSE, "Apparently-To: %s\n",p);
-		else if ((p=hdr((char *)"Apparently-To",kmsg))) 
-			Send(FALSE, "Apparently-To: %s\n",p);
-		else if ((is_local(t))) 
-			Send(FALSE, "Apparently-To: %s\n",buf);
+		sprintf(temp, "Received: from %s by %s\n", ascinode(f,0x3f), ascinode(bestaka,0x3f));
+		Send(FALSE, temp);
+		sprintf(temp, "\twith FTN (mbfido v.%s) id AA%u; %s\n", VERSION, getpid(), rfcdate(now));
+		Send(FALSE, temp);
+
+		for (qmsg = kmsg; qmsg; qmsg = qmsg->next)
+			if (!strcasecmp(qmsg->key,"RFC-Received")) {
+				sprintf(temp, "%s: %s", qmsg->key+4, qmsg->val);
+				Send(FALSE, temp);
+			}
+		for (qmsg = msg; qmsg; qmsg = qmsg->next)
+			if (!strcasecmp(qmsg->key,"Received")) {
+				sprintf(temp, "%s:%s", qmsg->key, qmsg->val);
+				Send(FALSE, temp);
+			}
+
+		if ((p=hdr((char *)"Apparently-To",msg))) {
+			sprintf(temp, "Apparently-To: %s\n",p);
+			Send(FALSE, temp);
+		} else if ((p=hdr((char *)"RFC-Apparently-To",kmsg))) {
+			sprintf(temp, "Apparently-To: %s\n",p);
+			Send(FALSE, temp);
+		} else if ((p=hdr((char *)"Apparently-To",kmsg))) {
+			sprintf(temp, "Apparently-To: %s\n",p);
+			Send(FALSE, temp);
+		} else if ((is_local(t))) {
+			sprintf(temp, "Apparently-To: %s\n",buf);
+			Send(FALSE, temp);
+		}
 
 		if (flags & M_RRQ) 
 			rrq=TRUE;
@@ -920,7 +948,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		    !hdr((char *)"Return-Receipt-To",msg) &&
 		    !hdr((char *)"RFC-Notice-Requested-Upon-Delivery-To",kmsg) &&
 		    !hdr((char *)"Notice-Requested-Upon-Delivery-To",msg)) {
-			Send(FALSE,"Notice-Requested-Upon-Delivery-To: %s\n",buf);
+			sprintf(temp,"Notice-Requested-Upon-Delivery-To: %s\n",buf);
+			Send(FALSE, temp);
 		}
 
 		if (t->name == NULL) 
@@ -929,7 +958,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		if (p == NULL) 
 			p=hdr((char *)"To",msg);
 		if (p) {
-			Send(FALSE,"To:%s",p);
+			sprintf(temp,"To:%s",p);
+			Send(FALSE, temp);
 		} else {
 			if (p == NULL) 
 				p=hdr((char *)"RFC-Resent-To",kmsg);
@@ -937,36 +967,44 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				p=hdr((char *)"RFC-To",kmsg);
 			if (p) {
 				Syslog('m', "2");
-				Send(FALSE,"To: %s\n",p);
-			} else if (modtype == 1) 
-				Send(FALSE,"To: %s\n",moderator);
-			else if (is_local(t)) {
+				sprintf(temp,"To: %s\n",p);
+				Send(FALSE, temp);
+			} else if (modtype == 1) {
+				sprintf(temp,"To: %s\n",moderator);
+				Send(FALSE, temp);
+			} else if (is_local(t)) {
 				Syslog('m', "3");
-				Send(FALSE, "To: %s <%s>\n", t->name, buf);
+				sprintf(temp, "To: %s <%s>\n", t->name, buf);
+				Send(FALSE, temp);
 			} else {
 				Syslog('m', "4");
-				Send(FALSE,"To: %s\n",ascinode(t,0xff));
+				sprintf(temp,"To: %s\n",ascinode(t,0xff));
+				Send(FALSE, temp);
 			}
 		}
 	}
 
 	if ((p = hdr((char *)"From",msg))) {
-		Send(newsmode, "From:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From:%s", hdrconv(p,outcode,incode));
+		Send(FALSE, temp);
 	} else if ((p = hdr((char *)"RFC-From",kmsg))) {
 		Syslog('m', "b");
-		Send(newsmode, "From: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
+		Send(FALSE, temp);
 	} else if ((p = hdr((char *)"From\n",kmsg))) {
 		Syslog('m', "c");
-		Send(newsmode, "From: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
+		Send(FALSE, temp);
         } else if ((p = hdr((char *)"X-PcBoard-FROM",msg))) {
                 if (f->name) {
                         while (isspace(*p)) 
 				p++;
                         p[strlen(p)-1] = '\0';
-                        Send(newsmode,"From: %s <%s>\n", hdrconv(f->name,outcode,incode), p);
+                        sprintf(temp,"From: %s <%s>\n", hdrconv(f->name,outcode,incode), p);
                 } else {
-			Send(newsmode,"From:%s\n", p);
+			sprintf(temp,"From:%s\n", p);
 		}
+		Send(FALSE, temp);
 	} else if ((hdr((char *)"REPLYADDR",kmsg)) && (p=xstrcpy(hdr((char *)"REPLYADDR",kmsg)))) {
 		if (*(r=p+strlen(p)-1) == '\n') 
 			*(r--)='\0';
@@ -991,86 +1029,109 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				*r--='\0';
 			}
 			Syslog('m', "d");
-			Send(newsmode,"From: \"%s\" <%s>\n",hdrconv(l,outcode,incode),p);
+			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(l,outcode,incode),p);
+			Send(FALSE, temp);
 			free(q);
 		} else if (f->name) {
 			Syslog('m', "e");
-			Send(newsmode,"From: \"%s\" <%s>\n",hdrconv(f->name,outcode,incode),p);
+			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(f->name,outcode,incode),p);
+			Send(FALSE, temp);
 		} else {
 			Syslog('m', "f");
-			Send(newsmode,"From: %s\n",p);
+			sprintf(temp,"From: %s\n",p);
+			Send(FALSE, temp);
 		}
 		free(p);
 	}
 
 	if (p) 
-		Send(newsmode,"X-FTN-Sender: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
+		sprintf(temp,"X-FTN-Sender: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
 	else 
-		Send(newsmode,"From: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
+		sprintf(temp,"From: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
+	Send(newsmode, temp);
 
-	if ((p=hdr((char *)"Reply-To",msg))) 
-		Send(newsmode,"Reply-To:%s",p);
-	else if ((p=hdr((char *)"RFC-Reply-To",kmsg))) 
-		Send(newsmode,"Reply-To: %s",p);
-	else if ((p=hdr((char *)"Reply-To",kmsg))) 
-		Send(newsmode,"Reply-To: %s",p);
-	else if (((p=backalias(f))) && strlen(CFG.sysdomain))
-		Send(newsmode,"Reply-To: %s@%s\n",p,CFG.sysdomain);
-	else if ((p=hdr((char *)"REPLYADDR",kmsg))) 
-		Send(newsmode,"Reply-To: %s",p);
-	else if ((p=hdr((char *)"REPLYTO",kmsg))) 
-		Send(newsmode,"Reply-To: %s\n",ascinode(parsefaddr(p),0xff));
-
-	if ((p=hdr((char *)"Date",msg))) 
-		Send(newsmode,"Date:%s",p);
-	else if ((p=hdr((char *)"RFC-Date",kmsg))) 
-		Send(newsmode,"Date: %s",p);
-	else if ((p=hdr((char *)"Date",kmsg))) 
-		Send(newsmode,"Date: %s",p);
-	else if (newsmode) {
+	if ((p=hdr((char *)"Reply-To",msg))) {
+		sprintf(temp,"Reply-To:%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Reply-To",kmsg))) {
+		sprintf(temp,"Reply-To: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Reply-To",kmsg))) {
+		sprintf(temp,"Reply-To: %s",p);
+		Send(newsmode, temp);
+	} else if (((p=backalias(f))) && strlen(CFG.sysdomain)) {
+		sprintf(temp,"Reply-To: %s@%s\n",p,CFG.sysdomain);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"REPLYADDR",kmsg))) {
+		sprintf(temp,"Reply-To: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"REPLYTO",kmsg))) {
+		sprintf(temp,"Reply-To: %s\n",ascinode(parsefaddr(p),0xff));
+		Send(newsmode, temp);
+	}
+	
+	if ((p=hdr((char *)"Date",msg))) {
+		sprintf(temp,"Date:%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Date",kmsg))) {
+		sprintf(temp,"Date: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Date",kmsg))) {
+		sprintf(temp,"Date: %s",p);
+		Send(newsmode, temp);
+	} else if (newsmode) {
 		/*
 		 * Restamp future postings
 		 */
 		if(mdate > time(&now)) {
 			Syslog('+', "Future posting: %s", rfcdate(mdate));
-			Send(newsmode,"Date: %s\n", rfcdate(now));
-			Send(newsmode,"X-Origin-Date: %s\n", rfcdate(mdate));
+			sprintf(temp,"Date: %s\n", rfcdate(now));
+			Send(newsmode, temp);
+			sprintf(temp,"X-Origin-Date: %s\n", rfcdate(mdate));
+			Send(newsmode, temp);
 		} else if((mdate < time(&now)-14*24*60*60) && (mdate > time(&now)-RESTAMP_OLD_POSTINGS*24*60*60)) {
 			/*
 			 * Restamp old postings
 			 */
 			Syslog('+', "Article too old, restamped: %s", rfcdate(mdate));
-			Send(newsmode,"Date: %s\n", rfcdate(now));
-			Send(newsmode,"X-Origin-Date: %s\n", rfcdate(mdate));
-		} else
-			Send(newsmode,"Date: %s\n",rfcdate(mdate));
-	} else 
-		Send(newsmode,"Date: %s\n",rfcdate(mdate));
+			sprintf(temp,"Date: %s\n", rfcdate(now));
+			Send(newsmode, temp);
+			sprintf(temp,"X-Origin-Date: %s\n", rfcdate(mdate));
+			Send(newsmode, temp);
+		} else {
+			sprintf(temp,"Date: %s\n",rfcdate(mdate));
+			Send(newsmode, temp);
+		}
+	} else {
+		sprintf(temp,"Date: %s\n",rfcdate(mdate));
+		Send(newsmode, temp);
+	}
 
 	if ((p = hdr((char *)"Subject",msg))) 
-		Send(newsmode, "Subject:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject:%s", hdrconv(p,outcode,incode));
 	else if ((p = hdr((char *)"RFC-Subject",kmsg))) 
-		Send(newsmode, "Subject: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject: %s", hdrconv(p,outcode,incode));
 	else if ((p = hdr((char *)"Subject",kmsg))) 
-		Send(newsmode, "Subject: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject: %s", hdrconv(p,outcode,incode));
 	else if ((p = hdr((char *)"X-PcBoard-SUBJECT",msg))) 
-		Send(newsmode, "Subject:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject:%s", hdrconv(p,outcode,incode));
 	else if (subj && (strspn(subj," \t\n\r") != strlen(subj)))
-		Send(newsmode, "Subject: %s\n", hdrconv(subj,outcode,incode));
+		sprintf(temp, "Subject: %s\n", hdrconv(subj,outcode,incode));
 	else 
-		Send(newsmode, "Subject: <none>\n");
+		sprintf(temp, "Subject: <none>\n");
+	Send(newsmode, temp);
 
 	if ((p=hdr((char *)"Message-ID",msg)))
-		Send(newsmode,"Message-ID:%s",p);
+		sprintf(temp,"Message-ID:%s",p);
 	else if ((p=hdr((char *)"RFC-Message-ID",kmsg)))
-		Send(newsmode,"Message-ID: %s",p);
+		sprintf(temp,"Message-ID: %s",p);
 	else if ((p=hdr((char *)"Message-ID",kmsg)))
-		Send(newsmode,"Message-ID: %s",p);
+		sprintf(temp,"Message-ID: %s",p);
 	else if ((p=hdr((char *)"RFCID",kmsg)))
 		if ((p[0]=='<')) {
 			/* "^aRFCID: <local@machine>" */
 			if ((p[strlen(p)-2]=='>'))
-				Send(newsmode,"Message-ID: %s",p);
+				sprintf(temp,"Message-ID: %s",p);
 			/* "^aRFCID: <local@machine" */
 			/* I saw it on some IntToss gated articles
 			 * it seems to be a bug on the program or something
@@ -1079,122 +1140,162 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			 */
                         else { 
 				p[strlen(p)-1]='\0';
-                                Send(newsmode,"Message-ID: %s>\n",p);
+                                sprintf(temp,"Message-ID: %s>\n",p);
 			}
-	}
-	/* "^aRFCID: local@machine" */
-	else { 
-		p[strlen(p)-1]='\0'; 
-		Send(newsmode,"Message-ID: <%s>\n",p);
-	} else if ((p=hdr((char *)"ORIGID",kmsg)))
-		Send(newsmode,"Message-ID: %s",p);
-	else if ((p = hdr((char *)"MSGID",kmsg))) {
-		q = rfcmsgid(p, bestaka);
-		Send(newsmode,"Message-ID: %s\n", q);
-		free(q);
-	} else 
-		Send(newsmode,"Message-ID: <%lu@%s.ftn>\n", mdate^(subj?str_crc32(subj):0L), ascinode(f,0x1f));
+		/* "^aRFCID: local@machine" */
+		} else { 
+			p[strlen(p)-1]='\0'; 
+			sprintf(temp,"Message-ID: <%s>\n",p);
+		} else if ((p=hdr((char *)"ORIGID",kmsg))) {
+			sprintf(temp,"Message-ID: %s",p);
+		} else if ((p = hdr((char *)"MSGID",kmsg))) {
+			q = rfcmsgid(p, bestaka);
+			sprintf(temp,"Message-ID: %s\n", q);
+			free(q);
+		} else 
+			sprintf(temp,"Message-ID: <%lu@%s.ftn>\n", mdate^(subj?str_crc32(subj):0L), ascinode(f,0x1f));
+	Send(newsmode, temp);
 
 	if (newsmode) {
-		if ((p=hdr((char *)"References",msg)))
-			Send(newsmode,"References:%s",p);
-		else if ((p=hdr((char *)"RFC-References",kmsg)))
-			Send(newsmode,"References: %s",p);
-		else if ((p=hdr((char *)"References",kmsg)))
-			Send(newsmode,"References: %s",p);
-		else if ((p=hdr((char *)"ORIGREF",kmsg)))
-			Send(newsmode,"References: %s",p);
-		else if ((p=hdr((char *)"REPLY",kmsg))) {
+		if ((p=hdr((char *)"References",msg))) {
+			sprintf(temp,"References:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-References",kmsg))) {
+			sprintf(temp,"References: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"References",kmsg))) {
+			sprintf(temp,"References: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"ORIGREF",kmsg))) {
+			sprintf(temp,"References: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"REPLY",kmsg))) {
 			q = rfcmsgid(p, bestaka);
-			Send(newsmode,"References: %s\n", q);
+			sprintf(temp,"References: %s\n", q);
+			Send(newsmode, temp);
 			free(q);
 		}
 	} else {
-		if ((p=hdr((char *)"In-Reply-To",msg)))
-			Send(newsmode,"In-Reply-To:%s",p);
-		else if ((p=hdr((char *)"RFC-In-Reply-To",kmsg)))
-			Send(newsmode,"In-Reply-To: %s",p);
-		else if ((p=hdr((char *)"REPLY",kmsg))) {
+		if ((p=hdr((char *)"In-Reply-To",msg))) {
+			sprintf(temp,"In-Reply-To:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-In-Reply-To",kmsg))) {
+			sprintf(temp,"In-Reply-To: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"REPLY",kmsg))) {
 			q = rfcmsgid(p,bestaka);
-			Send(newsmode,"In-Reply-To: %s\n", q);
+			sprintf(temp,"In-Reply-To: %s\n", q);
+			Send(newsmode, temp);
 			free(q);
 		}
 	}
 
-	if ((p=hdr((char *)"Organization",msg)))
-		Send(newsmode,"Organization:%s",hdrconv(p,outcode,incode));
-	else if ((p=hdr((char *)"Organisation",msg)))
-		Send(newsmode,"Organization:%s",hdrconv(p,outcode,incode));
-	else if ((p=hdr((char *)"RFC-Organization",kmsg)))
-		Send(newsmode,"Organization: %s",hdrconv(p,outcode,incode));
-	else if ((p=hdr((char *)"RFC-Organisation",kmsg)))
-		Send(newsmode,"Organization: %s",hdrconv(p,outcode,incode));
-	else if ((p=hdr((char *)"Organization",kmsg)))
-		Send(newsmode,"Organization: %s",hdrconv(p,outcode,incode));
-	else if ((p=hdr((char *)"Organisation",kmsg)))
-		Send(newsmode,"Organization: %s",hdrconv(p,outcode,incode));
-	else if (origline) 
-		Send(newsmode,"Organization: %s\n",hdrconv(origline,outcode,incode));
-
-	if ((p=hdr((char *)"Supersedes",msg)))
-		Send(newsmode,"Supersedes:%s",p);
-	else if ((p=hdr((char *)"RFC-Supersedes",kmsg)))
-		Send(newsmode,"Supersedes: %s",p);
-	else if ((p=hdr((char *)"Supersedes",kmsg)))
-		Send(newsmode,"Supersedes: %s",p);
-	else if ((p=hdr((char *)"ACUPDATE",kmsg)) && (strstr(p,"MODIFY"))) {
+	if ((p=hdr((char *)"Organization",msg))) {
+		sprintf(temp,"Organization:%s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Organisation",msg))) {
+		sprintf(temp,"Organization:%s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Organization",kmsg))) {
+		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Organisation",kmsg))) {
+		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Organization",kmsg))) {
+		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Organisation",kmsg))) {
+		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		Send(newsmode, temp);
+	} else if (origline) {
+		sprintf(temp,"Organization: %s\n",hdrconv(origline,outcode,incode));
+		Send(newsmode, temp);
+	}
+	
+	if ((p=hdr((char *)"Supersedes",msg))) {
+		sprintf(temp,"Supersedes:%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Supersedes",kmsg))) {
+		sprintf(temp,"Supersedes: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Supersedes",kmsg))) {
+		sprintf(temp,"Supersedes: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"ACUPDATE",kmsg)) && (strstr(p,"MODIFY"))) {
 		q = rfcmsgid(p+8,bestaka);
-		Send(newsmode,"Supersedes: %s\n", q);
+		sprintf(temp,"Supersedes: %s\n", q);
+		Send(newsmode, temp);
 		free(q);
 	}
+
 	if (CFG.allowcontrol) {
-		if ((p=hdr((char *)"Control",msg)))
-			Send(newsmode,"Control:%s",p);
-		else if ((p=hdr((char *)"RFC-Control",kmsg)))
-			Send(newsmode,"Control: %s",p);
-		else if ((p=hdr((char *)"Control",kmsg)))
-			Send(newsmode,"Control: %s",p);
-		else if ((p=hdr((char *)"ACUPDATE",kmsg)) && (strstr(p,"DELETE"))) {
+		if ((p=hdr((char *)"Control",msg))) {
+			sprintf(temp,"Control:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-Control",kmsg))) {
+			sprintf(temp,"Control: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"Control",kmsg))) {
+			sprintf(temp,"Control: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"ACUPDATE",kmsg)) && (strstr(p,"DELETE"))) {
 			q = rfcmsgid(p+8,bestaka);
-			Send(newsmode,"Control: cancel %s\n", q);
+			sprintf(temp,"Control: cancel %s\n", q);
+			Send(newsmode, temp);
 			free(q);
 		}
 	}
 
-	Send(newsmode, "X-FTN-CHRS: %s\n", getchrs(incode));
-	if (incode != outcode)
-		Send(newsmode, "X-FTN-ORIGCHRS: %s\n", getchrs(outcode));
+	sprintf(temp, "X-FTN-CHRS: %s\n", getchrs(incode));
+	Send(newsmode, temp);
+	if (incode != outcode) {
+		sprintf(temp, "X-FTN-ORIGCHRS: %s\n", getchrs(outcode));
+		Send(newsmode, temp);
+	}
 	charset = getcharset(incode);
 
-	if ((p=hdr((char *)"Mime-Version",msg))) 
-		Send(newsmode,(char *)"Mime-Version:%s",p);
-	else if ((p=hdr((char *)"RFC-Mime-Version",kmsg))) 
-		Send(newsmode,(char *)"Mime-Version: %s",p);
-	else if ((p=hdr((char *)"Mime-Version",kmsg))) 
-		Send(newsmode,(char *)"Mime-Version: %s",p);
-	else if ((charset) && (incode != CHRS_NOTSET)) 
-		Send(newsmode,"Mime-Version: 1.0\n");
-
-	temp[0] = '\0';
-	if ((p=hdr((char *)"Content-Type",msg))) 
-		Send(newsmode,"Content-Type:%s",p);
-	else if ((p=hdr((char *)"RFC-Content-Type",kmsg))) 
-		Send(newsmode,"Content-Type: %s",p);
-	else if ((p=hdr((char *)"Content-Type",kmsg))) 
-		Send(newsmode,"Content-Type: %s",p);
-	else if ((charset) && (incode != CHRS_NOTSET)) {
-		if ((p=hdr((char *)"FSCHTML",kmsg)) || (p=hdr((char *)"HTML",kmsg)))
-			Send(newsmode,"Content-Type: text/html; charset=%s\n",charset);
-		else
-			Send(newsmode,"Content-Type: text/plain; charset=%s\n",charset);
+	if ((p=hdr((char *)"Mime-Version",msg))) {
+		sprintf(temp,(char *)"Mime-Version:%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Mime-Version",kmsg))) {
+		sprintf(temp,(char *)"Mime-Version: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Mime-Version",kmsg))) {
+		sprintf(temp,(char *)"Mime-Version: %s",p);
+		Send(newsmode, temp);
+	} else if ((charset) && (incode != CHRS_NOTSET)) {
+		sprintf(temp,"Mime-Version: 1.0\n");
+		Send(newsmode, temp);
 	}
 
-	if ((p=hdr((char *)"Content-Length",msg))) 
-		Send(newsmode,"Content-Length%s",p);
-	else if ((p=hdr((char *)"RFC-Content-Length",kmsg))) 
-		Send(newsmode,"Content-Length: %s",p);
-	else if ((p=hdr((char *)"Content-Length",kmsg))) 
-		Send(newsmode,"Content-Length: %s",p);
+	if ((p=hdr((char *)"Content-Type",msg))) {
+		sprintf(temp,"Content-Type:%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Content-Type",kmsg))) {
+		sprintf(temp,"Content-Type: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Content-Type",kmsg))) {
+		sprintf(temp,"Content-Type: %s",p);
+		Send(newsmode, temp);
+	} else if ((charset) && (incode != CHRS_NOTSET)) {
+		if ((p=hdr((char *)"FSCHTML",kmsg)) || (p=hdr((char *)"HTML",kmsg)))
+			sprintf(temp,"Content-Type: text/html; charset=%s\n",charset);
+		else
+			sprintf(temp,"Content-Type: text/plain; charset=%s\n",charset);
+		Send(newsmode, temp);
+	}
+
+	if ((p=hdr((char *)"Content-Length",msg))) {
+		sprintf(temp,"Content-Length%s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"RFC-Content-Length",kmsg))) {
+		sprintf(temp,"Content-Length: %s",p);
+		Send(newsmode, temp);
+	} else if ((p=hdr((char *)"Content-Length",kmsg))) {
+		sprintf(temp,"Content-Length: %s",p);
+		Send(newsmode, temp);
+	}
 
 	temp[0] = '\0';
 	if ((p=hdr((char *)"Content-Transfer-Encoding",msg))) 
@@ -1217,23 +1318,33 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		Send(newsmode, temp);
 
 	if (newsmode) {
-		if ((p=hdr((char *)"X-Newsreader",msg)))
-			Send(newsmode,"X-Newsreader: %s",p);
-		else if ((p=hdr((char *)"RFC-X-Newsreader",kmsg)))
-			Send(newsmode,"X-Newsreader: %s",p);
-		else if ((p=hdr((char *)"X-Newsreader",kmsg)))
-			Send(newsmode,"X-Newsreader: %s",p);
-		else if ((p=hdr((char *)"PID",kmsg)))
-			Send(newsmode,"X-Newsreader: %s",p);
+		if ((p=hdr((char *)"X-Newsreader",msg))) {
+			sprintf(temp,"X-Newsreader: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-X-Newsreader",kmsg))) {
+			sprintf(temp,"X-Newsreader: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"X-Newsreader",kmsg))) {
+			sprintf(temp,"X-Newsreader: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"PID",kmsg))) {
+			sprintf(temp,"X-Newsreader: %s",p);
+			Send(newsmode, temp);
+		}
 	} else {
-		if ((p=hdr((char *)"X-Mailer",msg)))
-			Send(newsmode,"X-Mailer:%s",p);
-		else if ((p=hdr((char *)"RFC-X-Mailer",kmsg)))
-			Send(newsmode,"X-Mailer: %s",p);
-		else if ((p=hdr((char *)"X-Mailer",kmsg)))
-			Send(newsmode,"X-Mailer: %s",p);
-		else if ((p=hdr((char *)"PID",kmsg)))
-			Send(newsmode,"X-Mailer: %s",p);
+		if ((p=hdr((char *)"X-Mailer",msg))) {
+			sprintf(temp,"X-Mailer:%s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"RFC-X-Mailer",kmsg))) {
+			sprintf(temp,"X-Mailer: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"X-Mailer",kmsg))) {
+			sprintf(temp,"X-Mailer: %s",p);
+			Send(newsmode, temp);
+		} else if ((p=hdr((char *)"PID",kmsg))) {
+			sprintf(temp,"X-Mailer: %s",p);
+			Send(newsmode, temp);
+		}
 	}
 
 	for (qmsg=msg;qmsg;qmsg=qmsg->next) {
@@ -1267,12 +1378,15 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
                     strcasecmp(qmsg->key,"Apparently-To") &&
                     strcasecmp(qmsg->key,"Distribution") &&
                     strcasecmp(qmsg->key,"Approved") &&
-                    strcasecmp(qmsg->key,"Message-ID"))
-			Send(newsmode,"%s:%s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+                    strcasecmp(qmsg->key,"Message-ID")) {
+			sprintf(temp,"%s:%s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+			Send(newsmode, temp);
+		}
 	}
 
 	if ((p=compose_flags(flags,hdr((char *)"FLAGS",kmsg)))) {
-		Send(newsmode,"X-FTN-FLAGS:%s\n",p);
+		sprintf(temp,"X-FTN-FLAGS:%s\n",p);
+		Send(newsmode, temp);
 		free(p);
 	}
 
@@ -1344,16 +1458,22 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
                     strcasecmp(qmsg->key,"RFC-Distribution") &&
                     strcasecmp(qmsg->key,"RFC-Approved") &&
                     strcasecmp(qmsg->key,"RFC-Message-ID")) {
-			if (!strncmp(qmsg->key,"RFC-",4))
-				Send(newsmode,"%s: %s",qmsg->key+4,hdrconv(qmsg->val,outcode,incode));
-			else if ((!strncasecmp(qmsg->key,"X-",2)) || (!strncasecmp(qmsg->key,"NNTP-",5)))
-				Send(newsmode,"%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
-			else if ((!strncasecmp(qmsg->key,"ZC-",3)))
-				Send(newsmode,"X-%s: %s",qmsg->key,qmsg->val);
-			else if ((!strcasecmp(qmsg->key,"Origin")) || (!strcasecmp(qmsg->key,"MOOD"))) 
-				Send(newsmode,"X-FTN-%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
-			else
-				Send(newsmode,"X-FTN-%s: %s",qmsg->key,qmsg->val);
+			if (!strncmp(qmsg->key,"RFC-",4)) {
+				sprintf(temp,"%s: %s",qmsg->key+4,hdrconv(qmsg->val,outcode,incode));
+				Send(newsmode, temp);
+			} else if ((!strncasecmp(qmsg->key,"X-",2)) || (!strncasecmp(qmsg->key,"NNTP-",5))) {
+				sprintf(temp,"%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+				Send(newsmode, temp);
+			} else if ((!strncasecmp(qmsg->key,"ZC-",3))) {
+				sprintf(temp,"X-%s: %s",qmsg->key,qmsg->val);
+				Send(newsmode, temp);
+			} else if ((!strcasecmp(qmsg->key,"Origin")) || (!strcasecmp(qmsg->key,"MOOD"))) {
+				sprintf(temp,"X-FTN-%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+				Send(newsmode, temp);
+			} else {
+				sprintf(temp,"X-FTN-%s: %s",qmsg->key,qmsg->val);
+				Send(newsmode, temp);
+			}
 		}
 	}
 
@@ -1383,7 +1503,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			seenlen+=strlen(sbe);
 			if (seenlen > MAXPATH) {
 				seenlen=0;
-				Send(newsmode, "%s\n", q);
+				sprintf(temp, "%s\n", q);
+				Send(newsmode, temp);
 				free(q);
 				q = xstrcpy((char *)"X-FTN-PATH:");
 				sprintf(sbe," %u/%u",tmpl->addr->net, tmpl->addr->node);
@@ -1391,12 +1512,15 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			}
 			q = xstrcat(q, sbe);
 		}
-		Send(newsmode,"%s\n", q);
+		sprintf(temp,"%s\n", q);
+		Send(newsmode, temp);
 		free(q);
 		tidy_falist(&ptl);
 
-		if ((hdr((char *)"X-FTN-SPTH", msg)))
-			Send(newsmode,"X-FTN-SPTH: %s\n", ascfnode(bestaka,0x1f));
+		if ((hdr((char *)"X-FTN-SPTH", msg))) {
+			sprintf(temp,"X-FTN-SPTH: %s\n", ascfnode(bestaka,0x1f));
+			Send(newsmode, temp);
+		}
 	}
 
 	/*
@@ -1425,7 +1549,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
 			if ((p=hdr((char *)"X-Body-Start",msg))) {
 				lines++;
-				Send(newsmode, "%s", strkconv(p, outcode, incode));
+				Send(newsmode, strkconv(p, outcode, incode));
 			}
 		}
 
