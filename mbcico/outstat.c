@@ -512,7 +512,7 @@ int pollnode(faddr *addr, int stop)
 	} else {
 	    fclose(fp);
 	    cmmask = getCMmask();
-	    Syslog('s', "oflags %08x cmmask %08x", nlent->oflags, cmmask);
+	    Syslog('s', "oflags %08x (i)cmmask %08x", nlent->oflags, cmmask);
 	    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
 		Syslog('+', "Created poll for %s, non-CM node outside ZMH", ascfnode(addr, 0x1f));
 		if (!do_quiet)

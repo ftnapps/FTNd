@@ -1097,7 +1097,7 @@ node *getnlent(faddr *addr)
 //    moflags(nodebuf.mflags);
 //    diflags(nodebuf.dflags);
 //    ipflags(nodebuf.iflags);
-//    olflags(nodebuf.oflags);
+    olflags(nodebuf.oflags);
 //    rqflags(nodebuf.xflags);
     free(mydomain);
 
@@ -1228,15 +1228,21 @@ void ipflags(unsigned long flags)
 
 unsigned long getCMmask(void)
 {
-    nodelist_flag   **tmpm;
+    nodelist_flag	    **tmpm;
+    static unsigned long    mask = 0L;
 
     for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
 	if (strcmp("CM", (*tmpm)->name) == 0) {
-	    return (*tmpm)->value;
+	    mask &= (*tmpm)->value;
+	}
+	if (strcmp("ICM", (*tmpm)->name) == 0) {
+	    mask &= (*tmpm)->value;
 	}
     }
+    if (mask)
+	return mask;
 
-    WriteError("CM mask not found in %s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    WriteError("CM and ICM mask not found in %s/etc/nodelist.conf", getenv("MBSE_ROOT"));
     return 0;
 }
 

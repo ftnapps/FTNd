@@ -2,6 +2,10 @@ $Id$
 
 v0.61.0		06-Jun-2004.
 
+
+	libnodelist.a:
+		Prepared for ICM flag (FSP-1033).
+
 	mbmsg:
 		With te post command, the right number of commandline options
 		is checked, if this is wrong the help message is displayed.
@@ -9,6 +13,13 @@ v0.61.0		06-Jun-2004.
 		updated and the mailout semafore is not set.
 		Added checks in the mbmsg post command if the To parameter has
 		the correct syntax for netmail and all other areas.
+
+	mbout:
+		Prepared for ICM flag (FSP-1033).
+
+	mbcico:
+		Prepared for ICM flag (FSP-1033).
+
 
 
 v0.60.0         09-Feb-2004 - 04-Jun-2004
