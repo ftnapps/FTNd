@@ -510,7 +510,6 @@ service tfido
 	server          = $MHOME/bin/mbcico
 	server_args	= -t itn
 }
-disable=yes
 
 # Telnet to the bbs using mblogin, disabled by default.
 #
