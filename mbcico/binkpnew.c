@@ -238,6 +238,12 @@ int binkp(int role)
 	}
     }
 
+    if (Loaded && nodes.NoBinkp11 && (bp.Major == 1) && (bp.Minor != 0)) {
+	Syslog('+', "Binkp: forcing downgrade to binkp/1.0 protocol");
+	bp.Major = 1;
+	bp.Minor = 0;
+    }
+
     bp.FtState = InitTransfer;
     rc = file_transfer();
 
@@ -1554,8 +1560,12 @@ int binkp_banner(void)
     t = time(NULL);
     if (!rc)
 	rc = binkp_send_command(MM_NUL,"TIME %s", rfcdate(t));
-    if (!rc)
-	rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
+    if (!rc) {
+	if (nodes.NoBinkp11)
+	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLOLD);
+	else
+	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
+    }
     if (strlen(CFG.Phone) && !rc)
 	rc = binkp_send_command(MM_NUL,"PHN %s", CFG.Phone);
     if (strlen(CFG.comment) && !rc)
@@ -1632,13 +1642,6 @@ void parse_m_nul(char *msg)
 	    bp.Major = atoi(p + 6);
 	    bp.Minor = atoi(q + 1);
 	    Syslog('b', "Remote protocol version %d.%d", bp.Major, bp.Minor);
-	    /*
-	     * Disable MB if protocol > 1.0 and MB was not yet active.
-	     */
-//	    if ((bp.MBflag != Active) && (((bp.Major * 10) + bp.Minor) > 10)) {
-//		Syslog('b', "MBflag %s => No", opstate[bp.MBflag]);
-//		bp.MBflag = No;
-//	    }
 	}
     } else if (strncmp(msg, "PHN ", 4) == 0) {
 	Syslog('+', "Phone   : %s", msg+4);
@@ -1651,24 +1654,6 @@ void parse_m_nul(char *msg)
     
     } else if (strncmp(msg, "OPT ", 4) == 0) {
 	Syslog('+', "Options : %s", msg+4);
-
-//	if (strstr(msg, (char *)"MB") != NULL) {
-//	    Syslog('b', "Remote requests MB, current state = %s", opstate[bp.MBflag]);
-//	    if ((bp.MBflag == WeCan) && (bp.Major == 1) && (bp.Minor == 0)) {   /* Answering session and do binkp/1.0   */
-//		bp.MBflag = TheyWant;
-//		Syslog('b', "MBflag WeCan => TheyWant");
-//		binkp_send_control(MM_NUL,"OPT MB");
-//		Syslog('b', "MBflag TheyWant => Active");
-//		bp.MBflag = Active;
-//	    } else if ((bp.MBflag == WeWant) && (bp.Major == 1) && (bp.Minor == 0)) {  /* Originating session and do binkp/1.0 */
-//		bp.MBflag = Active;
-//		Syslog('b', "MBflag WeWant => Active");
-//	    } else {
-//		Syslog('b', "MBflag is %s and received MB option", opstate[bp.MBflag]);
-//
-//	    }
-//	}
-
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) { /* No SHA-1 support */
 	    if (CFG.NoMD5) {
 		Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");

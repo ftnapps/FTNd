@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Global structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -1203,7 +1203,7 @@ struct	_nodes {
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */
 	unsigned	FNC		: 1;	/* Node needs 8.3 filenames */
 	unsigned	WrongEscape	: 1;	/* Binkp wrong escape	    */
-	unsigned	xNoIFC		: 1;
+	unsigned	NoBinkp11	: 1;	/* No binkp/1.1 mode	    */
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	    */

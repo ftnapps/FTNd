@@ -6,6 +6,14 @@ v0.39.5		24-Dec-2003
 		Added code for new binkp development, the code is disabled by
 		default and can only be used with the right configure option.
 		Upgraded to new released ftscprod.008
+		Added setup option per node to disable the binkp/1.1 protocol.
+
+	upgrade:
+		Check setting 7.x.3.18 for each node. If you know the node uses
+		Irex 2.29 or older then set this to Yes or you won't have good
+		sessions with these mailers. (For the default compile it doesn't
+		do anything yet, but it will as soon as the new binkp/1.1
+		driver is ready).
 
 	common.a:
 		Allows node locking with zero bytes lockfiles created by some
@@ -16,7 +24,7 @@ v0.39.5		24-Dec-2003
 		Binkp code cleanup.
 		Allow m_file command in binkp during file transfer in progress.
 		Fixed a segfault when a session failed.
-		New binkp driver, not compiled by default yet.
+		New binkp/1.1 driver, not compiled by default yet.
 	
 	mbout:
 		Poll, remove poll and request failed to points which had no
@@ -29,6 +37,8 @@ v0.39.5		24-Dec-2003
 	mbsetup:
 		Added setting in menu 1.14 to allow zero bytes lockfiles
 		created by another OS.
+		Added setting in menu 7.x.3.18 to disable the use of binkp/1.1
+		protocol per node.
 
 	script:
 		Fixed NetBSD init script
