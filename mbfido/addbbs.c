@@ -87,8 +87,6 @@ int Add_BBS()
 		    if (i == 24)
 			break;
 		}
-		if (strlen(TIC.TicIn.Magic))
-		    sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
 		fseek(fp, 0 - sizeof(frec), SEEK_CUR);
 		fwrite(&frec, sizeof(frec), 1, fp);
 		fclose(fp);

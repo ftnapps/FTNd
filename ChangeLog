@@ -52,6 +52,8 @@ v0.51.2		06-Mar-2004
 		one will be announced.
 		Fixed a bug in mbfile kill that destroyed the filebase when a
 		file was deleted or moved.
+		Doesn't write Magic Request into files description anymore,
+		this is now handled outsite the description lines.
 
 	mbfile:
 		Updated kill, index, check, pack, list, adopt, import, move,
@@ -77,6 +79,9 @@ v0.51.2		06-Mar-2004
 
 	mbsebbs:
 		Updated to the new files database structure.
+
+	mball:
+		Added support for files database Magic request field.
 
 	mbsetup:
 		Added auto upgrade for the files database.

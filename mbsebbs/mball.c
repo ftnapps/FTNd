@@ -404,7 +404,7 @@ void Masterlist()
 			    if (New)
 				fprintf(np, "%s\r\n", temp);
 	
-			    for (z = 0; z <= 25; z++) {
+			    for (z = 0; z < 25; z++) {
 				if (strlen(fdb.Desc[z])) {
 				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
 					fprintf(fp, "                         %s\r\n",fdb.Desc[z]+4);
@@ -416,6 +416,11 @@ void Masterlist()
 					    fprintf(np, "                         %s\r\n",fdb.Desc[z]);
 				    }
 				}
+			    }
+			    if (strlen(fdb.Magic)) {
+				fprintf(fp, "                         Magic filerequest: %s\r\n", fdb.Magic);
+				if (New)
+				    fprintf(np, "                         Magic filerequest: %s\r\n", fdb.Magic);
 			    }
 			}
 		    }
