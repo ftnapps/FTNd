@@ -30,6 +30,8 @@ v0.37.00	26-Dec-2002.
 	mbcico:
 		With binkp and EMSI sessions double received remote aka's are
 		filtered.
+		When calling ITN nodes, the default port is now 23.
+		Call setup changed and uses now the nodelist lookup URL.
 
 	mbout:
 		When a poll was removed, the outbound was not rescanned.

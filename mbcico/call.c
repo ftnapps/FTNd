@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -52,11 +52,11 @@
 
 
 extern int		tcp_mode;
-extern int		forcedcalls;
 extern int		immediatecall;
 extern char		*forcedphone;
 extern char		*forcedline;
 extern char		*inetaddr;
+extern char		*protocol;
 
 
 
@@ -70,7 +70,6 @@ int portopen(faddr *addr)
 	if ((rc = opentcp(inetaddr))) {
 	    Syslog('+', "Cannot connect %s", inetaddr);
 	    nodeulock(addr);
-//	    putstatus(addr,1,MBERR_NO_CONNECTION);
 	    return MBERR_NO_CONNECTION;
 	}
 	return MBERR_OK;
@@ -104,10 +103,9 @@ int portopen(faddr *addr)
 
 int call(faddr *addr)
 {
-    int		    i, rc = 1, proto = FALSE;
-    struct hostent  *he;
-    unsigned long   cmmask, ipmask;
-    nodelist_modem  **tmpm;
+    int		    rc = 1;
+    char	    *p, temp[81];
+    unsigned long   cmmask;
 
     /*
      *  Don't call points, call their boss instead.
@@ -152,90 +150,55 @@ int call(faddr *addr)
 	sprintf(history.aka.domain, "%s", addr->domain);
 
     /*
-     * First see if this node can be reached over the internet and
-     * that internet calls are allowed.
+     * Extract the protocol from the URL.
      */
-    if (nlent->iflags) {
+    strncpy(temp, nlent->url, 80);
+    p = strchr(temp, ':');
+    *p = '\0';
+    protocol = xstrcpy(temp);
+
+    if (strcasecmp(protocol, "pots") && strcasecmp(protocol, "isdn")) {
 	if (!inetaddr) {
-	    Syslog('d', "Trying to find IP address...");
 	    /*
-	     * There is no fdn or IP address at the commandline.
-	     * First check nodesetup for an override in the phone field.
-	     * Try to find the fdn in several places in the nodelist fields.
+	     * Get the internet address from the URL.
 	     */
-	    if ((nlent->phone != NULL) && (strncmp(nlent->phone, (char *)"000-", 4) == 0)) {
-		inetaddr = xstrcpy(nlent->phone+4);
-		for (i = 0; i < strlen(inetaddr); i++)
-		    if (inetaddr[i] == '-')
-			inetaddr[i] = '.';
-		Syslog('d', "Got IP address from phone field");
-	    } else if ((he = gethostbyname(nlent->name))) {
-		inetaddr = xstrcpy(nlent->name);
-		Syslog('d', "Got hostname from nodelist system name");
-	    } else if ((he = gethostbyname(nlent->location))) {
-		/*
-		 * A fdn at the nodelist location field is not in the specs
-		 * but the real world differs from the specs.
-		 */
-		inetaddr = xstrcpy(nlent->location);
-		Syslog('d', "Got hostname from nodelist location");
+	    p = strchr(nlent->url, '/');
+	    p++;
+	    p++;
+	    inetaddr = xstrcpy(p);
+	}
+	RegTCP();
+
+	if (tcp_mode == TCPMODE_NONE) {
+	    if (strcmp(protocol, "binkp") == 0) {
+		tcp_mode = TCPMODE_IBN;
+	    } else if (strcmp(protocol, "fido") == 0) {
+		tcp_mode = TCPMODE_IFC;
+	    } else if (strcmp(protocol, "telnet") == 0) {
+		tcp_mode = TCPMODE_ITN;
+	    } else {
+		Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);
+		free(inetaddr);
+		inetaddr = NULL;
 	    }
 	}
 
-	/*
-	 * If we have an internet address, set protocol
-	 */
-	if (inetaddr) {
-	    RegTCP();
-	    Syslog('d', "TCP/IP node \"%s\"", MBSE_SS(inetaddr));
-
-	    if (tcp_mode == TCPMODE_NONE) {
-		/*
-		 * If protocol not forced at the commandline, get it
-		 * from the nodelist. If it fails, fallback to dial.
-		 * Priority IBN, IFC, ITN.
-		 */
-		ipmask = 0;
-		for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
-		    if (strcmp("IBN", (*tmpm)->name) == 0)
-			ipmask = (*tmpm)->mask;
-		if (nlent->iflags & ipmask) {
-		    tcp_mode = TCPMODE_IBN;
-		    Syslog('d', "TCP/IP mode set to IBN");
-		    proto = TRUE;
-		}
-		if (!proto) {
-		    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
-			if (strcmp("IFC", (*tmpm)->name) == 0)
-			    ipmask = (*tmpm)->mask;
-		    if (nlent->iflags & ipmask) {
-			tcp_mode = TCPMODE_IFC;
-			Syslog('d', "TCP/IP mode set to IFC");
-			proto = TRUE;
-		    }
-		}
-		if (!proto) {
-		    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
-			if (strcmp("ITN", (*tmpm)->name) == 0)
-			    ipmask = (*tmpm)->mask;
-		    if (nlent->iflags & ipmask) {
-			tcp_mode = TCPMODE_ITN;
-			Syslog('d', "TCP/IP mode seto to ITN");
-			proto = TRUE;
-		    }
-		}
-		if (!proto) {	
-		    Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);
-		    free(inetaddr);
-		    inetaddr = NULL;
-		}
-	    }
-	} else {
+	if (inetaddr == NULL) {
 	    WriteError("No IP address, abort call");
 	    rc = MBERR_NO_IP_ADDRESS;
 	    putstatus(addr, 10, rc);
 	    nodeulock(addr);
 	    return rc;
+	}
+    } else {
+	if (!forcedphone) {
+            /*
+	     * Get the phone number from the URL.
+	     */
+	    p = strchr(nlent->url, '/');
+	    p++;
+	    p++;
+	    forcedphone = xstrcpy(p);
 	}
     }
 
@@ -249,20 +212,19 @@ int call(faddr *addr)
 
     /*
      * Call when:
-     *  the nodelist has a phone, or phone on commandline, or TCP address given
+     *  there is a phone number or fqdn/ip-address
      * and
      *  nodenumber on commandline, or node is CM and not down, hold, pvt
      * and
      *  nocall is false
      */
-    if ((nlent->phone || forcedphone || inetaddr ) && 
-	(forcedcalls || (((nlent->pflag & (NL_DUMMY|NL_DOWN|NL_HOLD|NL_PVT)) == 0) && ((localoptions & NOCALL) == 0)))) {
-	Syslog('+', "Calling %s (%s, phone %s)",ascfnode(addr,0x1f), nlent->name,nlent->phone?nlent->phone:forcedphone);
+    if ((forcedphone||inetaddr) && (((nlent->pflag & (NL_DUMMY|NL_DOWN|NL_HOLD|NL_PVT))==0) && ((localoptions & NOCALL)==0))) {
+	Syslog('+', "Calling %s (%s, phone %s)", ascfnode(addr,0x1f), nlent->name, forcedphone);
 	IsDoing("Call %s", ascfnode(addr, 0x0f));
 	rc = portopen(addr);
 
-	if ((rc == MBERR_OK) && (!inetaddr)) {
-	    if ((rc = dialphone(forcedphone?forcedphone:nlent->phone))) {
+	if ((rc == MBERR_OK) && (forcedphone)) {
+	    if ((rc = dialphone(forcedphone))) {
 		Syslog('+', "Dial failed");
 		nodeulock(addr);
 	    } 
@@ -297,7 +259,7 @@ int call(faddr *addr)
 	}
     } else {
 	IsDoing("NoCall");
-	Syslog('+', "Cannot call %s (%s, phone %s)", ascfnode(addr,0x1f),MBSE_SS(nlent->name), MBSE_SS(nlent->phone));
+	Syslog('+', "Cannot call %s (%s)", ascfnode(addr,0x1f), MBSE_SS(nlent->name));
 	rc = MBERR_NO_CONNECTION;
 	putstatus(addr, 10, rc);
 	nodeulock(addr);

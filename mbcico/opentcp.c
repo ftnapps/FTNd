@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -118,7 +118,7 @@ int opentcp(char *name)
 				else
 				    server.sin_port = htons(FIDOPORT);
 				break;
-	    case TCPMODE_ITN:	if ((se = getservbyname("tfido", "tcp")))
+	    case TCPMODE_ITN:	if ((se = getservbyname("telnet", "tcp")))
 				    server.sin_port = se->s_port;
 				else
 				    server.sin_port = htons(TELNPORT);
