@@ -253,10 +253,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      * timestamp check without the seconds.
      */
     ddate = mdate - (mdate % 60);
-    Syslog('m', "dtime=%d, mtime=%d", ddate, mdate);
     crc = upd_crc32((char *)&ddate, crc, sizeof(ddate));
-
-//    crc = upd_crc32((char *)&mdate, crc, sizeof(mdate));
 
     if (msgid != NULL) {
 	crc = upd_crc32(msgid, crc, strlen(msgid));
