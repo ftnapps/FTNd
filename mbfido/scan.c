@@ -574,7 +574,7 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
  */
 void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 {
-    int	    seenlen, oldnet, flags = 0, is_pid = FALSE;
+    int	    seenlen, oldnet, flags = 0, kludges = TRUE;
     char    *p, sbe[16], ext[4];
     fa_list *tmpl;
     FILE    *qp;
@@ -621,11 +621,11 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
     if (Msg_Read(MsgNum, 78)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
-		if ((strncmp(p, " * Origin:", 10) == 0) && !is_pid) {
+		if (kludges && (p[0] != '\001')) {
 		    /*
-		     * If there was no PID kludge, insert the TID
-		     * kludge anyway.
+		     * At the end of the kludges, add the TID kludge.
 		     */
+		    kludges = FALSE;
 		    fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
 		}
 		fprintf(qp, "%s", p);
@@ -636,15 +636,6 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
 		 * Only append CR if not the last line
 		 */
 		fprintf(qp, "\r");
-
-		/*
-		 * Append ^aTID line behind the PID.
-		 */
-		if (strncmp(p, "\001PID", 4) == 0) {
-		    fprintf(qp, "\001TID: MBSE-FIDO %s\r", VERSION);
-		    is_pid = TRUE;
-		}
-
 	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
     }
@@ -689,7 +680,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 	fa_list *tmpl;
 	FILE    *qp;
 	faddr   *from, *dest;
-	int     is_pid = FALSE, kludges = TRUE;
+	int     kludges = TRUE;
 
 	qp = tmpfile();
 
@@ -720,6 +711,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 						 * After the first kludges, send RFC headers
 						 */
 						kludges = FALSE;
+						fprintf(qp, "\001TID: MBSE-FIDO %s\n", VERSION);
 						fprintf(qp, "Subject: %s\n", Msg.Subject);
 						Syslog('m', "Subject: %s", Msg.Subject);
 						fprintf(qp, "\n");
@@ -731,14 +723,6 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 						Syslog('m', "%s", p+1);
 					}
 				} else {
-					if ((strncmp(p, " * Origin:", 10) == 0) && !is_pid) {
-						/*
-						 * If there was no PID kludge, insert the TID
-						 * kludge anyway.
-						 */
-						fprintf(qp, "\001TID: MBSE-FIDO %s\n", VERSION);
-						Syslog('m', "\\001TID: MBSE-FIDO %s", VERSION);
-					}
 					fprintf(qp, "%s", p);
 					Syslog('m', "%s", printable(p, 0));
 					if (strncmp(p, " * Origin:", 10) == 0)
@@ -748,15 +732,6 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 					 * Only append NL if not the last line
 					 */
 					fprintf(qp, "\n");
-
-					/*
-					 * Append ^aTID line
-					 */
-					if (strncmp(p, "\001PID", 4) == 0) {
-						fprintf(qp, "\001TID: MBSE-FIDO %s\n", VERSION);
-						Syslog('m', "\\001TID: MBSE-FIDO %s", VERSION);
-						is_pid = TRUE;
-					}
 				}
 			} while ((p = (char *)MsgText_Next()) != NULL);
 		}
