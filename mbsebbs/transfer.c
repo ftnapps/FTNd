@@ -440,7 +440,7 @@ int upload(up_list **upload_list)
 		    if (*(dp->d_name) != '.') {
 			if (rc == 0) {
 			    stat(dp->d_name, &statfile);
-			    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+			    Syslog('b', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
 			    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
 			    chmod(temp, 0660);
 

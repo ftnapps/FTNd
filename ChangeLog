@@ -34,9 +34,18 @@ v0.71.0		27-Oct-2004
 		When an invalid OLR reply packet is received, it is removed
 		from the users upload directory.
 		We don't reward upload time anymore, only bytes. It's more
-		troubles to implement right then it's worth these days.
-		Added internal zmodem download and upload protocol.
+		troubles to implement right then it's worth these days. This
+		is caused by telnet connections when we never know what the
+		real linespeed is with to/from the user.
+		Added internal zmodem download and upload protocol. Not yet
+		enabled for public use, this will be done when it's ready.
+		The receiver will accept non-standard zmodem 8k blocks. The
+		sender is normal zmodem or zmodem-8K.
+		TODO: uploads smaller then blocksize seems to fail with
+		Dynacomm.
 		With user chat, the timeout timer wasn't refreshed.
+		Rewrote the rewritten terminal i/o to get zmodem upload to
+		work.
 
 	mbnewusr:
 		Rewrote terminal i/o.

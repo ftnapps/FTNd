@@ -160,7 +160,7 @@ again:
 	switch (zgethdr(Rxhdr)) {
 	    case ZRQINIT:   continue;
 	    case ZEOF:	    continue;
-	    case TIMEOUT:   Syslog('+', "Zmodem: tryz() timeout attempt %d", n);
+	    case TIMEOUT:   Syslog('z', "Zmodem: tryz() timeout attempt %d", n);
 			    continue;
 	    case ZFILE:	    zconv = Rxhdr[ZF0];
 			    if (!zconv) {
@@ -291,7 +291,7 @@ nxthdr:
 			    }
 			    continue;
 	    case TIMEOUT:   if ( --n < 0) {
-				Syslog('+', "Zmodem: TIMEOUT");
+				Syslog('z', "Zmodem: TIMEOUT");
 				return TERROR;
 			    }
 			    continue;
