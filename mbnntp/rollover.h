@@ -4,6 +4,5 @@
 /* $Id$ */
 
 void StatAdd(statcnt *, unsigned long);
-void Rollover(void);
 
 #endif
