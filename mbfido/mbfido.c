@@ -407,6 +407,7 @@ int main(int argc, char **argv)
 	Syslog(' ', "MBFIDO v%s", VERSION);
 	Syslog(' ', cmd);
 	free(cmd);
+
 	InitDupes();
 
 	if (!diskfree(CFG.freespace))

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/rollover.c
+ * $Id$
  * Purpose ...............: Statistic rollover util.
- * Last modification date : 23-Aug-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -97,7 +96,7 @@ FILE *OpenData(char *Name)
  */
 void Rollover()
 {
-	time_t		Now;
+	time_t		Now, Temp;
 	struct tm	*t;
 	FILE		*fp, *ft;
 	int		do_week, do_month, Day, i;
@@ -114,7 +113,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"nodes.data")) != NULL) {
 		fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
-		t = localtime(&nodeshdr.lastupd);
+		Temp = nodeshdr.lastupd;
+		t = localtime(&Temp);
 
 		/*
 		 *  Test if it's sunday, and the last update wasn't today.
@@ -173,7 +173,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"mareas.data")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, fp);
-		t = localtime(&msgshdr.lastupd);
+		Temp = msgshdr.lastupd;
+		t = localtime(&Temp);
 
 		if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
 			do_week = TRUE;
@@ -212,7 +213,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"mgroups.data")) != NULL) {
 		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
-		t = localtime(&mgrouphdr.lastupd);
+		Temp = mgrouphdr.lastupd;
+		t = localtime(&Temp);
 
 		if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
 			do_week = TRUE;
@@ -250,7 +252,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"tic.data")) != NULL) {
 		fread(&tichdr, sizeof(tichdr), 1, fp);
-		t = localtime(&tichdr.lastupd);
+		Temp = tichdr.lastupd;
+		t = localtime(&Temp);
 
 		if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
 			do_week = TRUE;
@@ -289,7 +292,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"fgroups.data")) != NULL) {
 		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
-		t = localtime(&fgrouphdr.lastupd);
+		Temp = fgrouphdr.lastupd;
+		t = localtime(&Temp);
 
 		if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
 			do_week = TRUE;
@@ -327,7 +331,8 @@ void Rollover()
 
 	if ((fp = OpenData((char *)"hatch.data")) != NULL) {
 		fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
-		t = localtime(&hatchhdr.lastupd);
+		Temp = hatchhdr.lastupd;
+		t = localtime(&Temp);
 
 		if (((Diw == 0) && (Day != t->tm_yday)) || ((Day - t->tm_yday) > 7))
 			do_week = TRUE;
@@ -365,7 +370,8 @@ void Rollover()
 	sprintf(temp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r"))) {
 		fread(&history, sizeof(history), 1, fp);
-		t = localtime(&history.online);
+		Temp = history.online;
+		t = localtime(&Temp);
 		if (t->tm_mon != Miy) {
 			/*
 			 *  Calculate date/time for records to delete
