@@ -8,6 +8,9 @@ v0.71.2		16-Jan-2005
 		data frames, this will case uncompress error -5 because zero
 		bytes can't be compressed ar all.
 
+	mbnntp:
+		Fixed compile problem with some compilers.
+
 
 v0.71.1		28-Nov-2004 - 16-Jan-2005
 

@@ -134,7 +134,7 @@ char *getrfcchrs(int val)
  */
 void command_abhs(char *buf)
 {
-    char	    *p, *cmd, *opt;
+    char	    *p, *cmd, *opt, *subj;
     unsigned long   art = 0L;
     int		    found;
 
@@ -195,7 +195,6 @@ void command_abhs(char *buf)
     }
 
 
-
     /*
      * Setup a charset translation
      */
@@ -215,7 +214,6 @@ void command_abhs(char *buf)
 	    send_nntp("Path: MBNNTP!not-for-mail");
 	    send_nntp("From: %s <%s>", Msg.From, Msg.FromAddress);
 	    send_nntp("Newsgroups: %s", currentgroup);
-	    char *subj;
 	    asprintf(&subj,"Subject: %s", Msg.Subject);
 	    send_xlat(subj);
 	    send_nntp("Date: %s", rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)));
