@@ -12,6 +12,9 @@ v0.61.5		25-Sep-2004
 		In user setup, if user gets a new security level, his timelimit
 		is updated with your permission.
 
+	mbdiff:
+		Added EOF character as last character in the new created list.
+
 
 v0.61.4		11-Aug-2004 - 25-Sep-2004
 

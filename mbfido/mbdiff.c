@@ -455,119 +455,111 @@ void Help(void)
 
 int apply(char *nl, char *nd, char *nn)
 {
-	FILE		*fo, *fd, *fn;
-	unsigned char	cmdbuf[BLKSIZ];
-	unsigned char	lnbuf[BLKSIZ];
-	int		i, count;
-	int		ac = 0, cc = 0, dc = 0;
-	int		rc = 0;
-	int		firstline = 1;
-	unsigned short	theircrc = 0, mycrc = 0;
-	unsigned char	*p;
+    FILE	    *fo, *fd, *fn;
+    unsigned char   cmdbuf[BLKSIZ], lnbuf[BLKSIZ], *p;
+    int		    i, count, ac = 0, cc = 0, dc = 0, rc = 0, firstline = 1;
+    unsigned short  theircrc = 0, mycrc = 0;
 
-	if ((fo = fopen(nl, "r")) == NULL) {
-		WriteError("$Can't open %s", nl);
-		return 2;
-	}
+    if ((fo = fopen(nl, "r")) == NULL) {
+	WriteError("$Can't open %s", nl);
+	return 2;
+    }
 
-	if ((fd = fopen(nd, "r")) == NULL) {
-		WriteError("$Can't open %s", nd);
-		fclose(fo);
-		return 2;
-	}
+    if ((fd = fopen(nd, "r")) == NULL) {
+	WriteError("$Can't open %s", nd);
+	fclose(fo);
+	return 2;
+    }
 
-	if ((fn = fopen(nn, "w")) == NULL) {
-		WriteError("$Can't open %s", nn);
-		fclose(fo);
-		fclose(fd);
-		return 2;
-	}
-
-	if ((fgets(cmdbuf, sizeof(cmdbuf)-1, fd) == NULL) ||
-	    (fgets(lnbuf, sizeof(cmdbuf)-1, fo) == NULL) ||
-	    (strcmp(cmdbuf, lnbuf) != 0)) {
-		rc = 6;
-	} else {
-		rewind(fo);
-		rewind(fd);
-
-		while ((rc == 0) && fgets(cmdbuf, sizeof(cmdbuf)-1, fd))
-			switch (cmdbuf[0]) {
-				case ';':
-					Striplf(cmdbuf);
-					break;
-				case 'A':
-					count = atoi(cmdbuf+1);
-					ac += count;
-					Striplf(cmdbuf);
-					for (i = 0;(i < count) && (rc == 0); i++)
-						if (fgets(lnbuf, sizeof(lnbuf)-1, fd)) {
-							if (firstline) {
-								firstline = 0;
-								if ((p = strrchr(lnbuf, ':'))) {
-									theircrc = atoi(p+1);
-								}
-							} else {
-								for (p = lnbuf; *p; p++)
-									mycrc = updcrc(*p, mycrc);
-							}
-							fputs(lnbuf, fn);
-						} else
-							rc = 3;
-					break;
-				case 'D':
-					count = atoi(cmdbuf + 1);
-					dc += count;
-					Striplf(cmdbuf);
-					for (i = 0;(i < count) && (rc == 0); i++)
-						if (fgets(lnbuf, sizeof(lnbuf)-1, fo) == NULL) 
-							rc = 3;
-					break;
-				case 'C':
-					count = atoi(cmdbuf+1);
-					cc += count;
-					Striplf(cmdbuf);
-					for (i = 0; (i < count) && (rc == 0); i++)
-						if (fgets(lnbuf, sizeof(lnbuf) - 1, fo)) {
-							for (p = lnbuf; *p; p++)
-								mycrc = updcrc(*p, mycrc);
-							fputs(lnbuf, fn);
-						} else
-							rc = 3;
-					break;
-				default:
-					rc = 5;
-					break;
-			}
-	}
-
+    if ((fn = fopen(nn, "w")) == NULL) {
+	WriteError("$Can't open %s", nn);
 	fclose(fo);
 	fclose(fd);
-	fclose(fn);
+	return 2;
+    }
 
-	if ((rc != 0) && !do_quiet) {
-		show_log = TRUE;
-		colour(12, 0);
+    if ((fgets(cmdbuf, sizeof(cmdbuf)-1, fd) == NULL) ||
+	(fgets(lnbuf, sizeof(cmdbuf)-1, fo) == NULL) ||
+	(strcmp(cmdbuf, lnbuf) != 0)) {
+	rc = 6;
+    } else {
+	rewind(fo);
+	rewind(fd);
+
+	while ((rc == 0) && fgets(cmdbuf, sizeof(cmdbuf)-1, fd)) {
+	    switch (cmdbuf[0]) {
+		case ';':   Striplf(cmdbuf);
+			    break;
+		case 'A':   count = atoi(cmdbuf+1);
+			    ac += count;
+			    Striplf(cmdbuf);
+			    for (i = 0;(i < count) && (rc == 0); i++)
+				if (fgets(lnbuf, sizeof(lnbuf)-1, fd)) {
+				    if (firstline) {
+					firstline = 0;
+					if ((p = strrchr(lnbuf, ':'))) {
+					    theircrc = atoi(p+1);
+					}
+				    } else {
+					for (p = lnbuf; *p; p++)
+					    mycrc = updcrc(*p, mycrc);
+				    }
+				    fputs(lnbuf, fn);
+				} else
+				    rc = 3;
+			    break;
+		case 'D':   count = atoi(cmdbuf + 1);
+			    dc += count;
+			    Striplf(cmdbuf);
+			    for (i = 0;(i < count) && (rc == 0); i++)
+				if (fgets(lnbuf, sizeof(lnbuf)-1, fo) == NULL) 
+				    rc = 3;
+			    break;
+		case 'C':   count = atoi(cmdbuf+1);
+			    cc += count;
+			    Striplf(cmdbuf);
+			    for (i = 0; (i < count) && (rc == 0); i++)
+				if (fgets(lnbuf, sizeof(lnbuf) - 1, fo)) {
+				    for (p = lnbuf; *p; p++)
+					mycrc = updcrc(*p, mycrc);
+				    fputs(lnbuf, fn);
+				} else
+				    rc = 3;
+			    break;
+		default:    rc = 5;
+			    break;
+	    }
 	}
+    }
 
-	if ((rc == 0) && (mycrc != theircrc)) 
-		rc = 4;
+    fclose(fo);
+    fclose(fd);
+    fputc('\012', fn);
+    fclose(fn);
 
-	if (rc == 3)
-		WriteError("Could not read some of the files");
-	else if (rc == 4)
-		WriteError("CRC is %hu, should be %hu", mycrc, theircrc);
-	else if (rc == 5)
-		WriteError("Unknown input line: \"%s\"", cmdbuf);
-	else if (rc == 6)
-		WriteError("Diff does not match old list");
-	else {
-		Syslog('+', "Copied %d, added %d, deleted %d, difference %d", cc, ac, dc, ac-dc);
-		if (!do_quiet)
-			printf("Created new nodelist\n");
-	}
+    if ((rc != 0) && !do_quiet) {
+	show_log = TRUE;
+	colour(12, 0);
+    }
 
-	return rc;
+    if ((rc == 0) && (mycrc != theircrc)) 
+	rc = 4;
+
+    if (rc == 3)
+	WriteError("Could not read some of the files");
+    else if (rc == 4)
+	WriteError("CRC is %hu, should be %hu", mycrc, theircrc);
+    else if (rc == 5)
+	WriteError("Unknown input line: \"%s\"", cmdbuf);
+    else if (rc == 6)
+	WriteError("Diff does not match old list");
+    else {
+	Syslog('+', "Copied %d, added %d, deleted %d, difference %d", cc, ac, dc, ac-dc);
+	if (!do_quiet)
+	    printf("Created new nodelist\n");
+    }
+
+    return rc;
 }
 
 
