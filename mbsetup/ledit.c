@@ -2148,6 +2148,7 @@ char *getmenutype(int val)
 		case 317:	return (char *)"Change FS edit shortcut keys";
 		case 318:	return (char *)"Change address";
 		case 319:	return (char *)"Change .signature file";
+		case 320:	return (char *)"Change OLR Extended Info";
 
 		case 401:	return (char *)"Add oneliner";
 		case 402:	return (char *)"List oneliners";

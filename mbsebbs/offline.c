@@ -35,9 +35,6 @@
 #include "../lib/mbse.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
-#ifndef	BIG_ENDIAN
-#define	BIG_ENDIAN
-#endif
 #include "../lib/bluewave.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
@@ -148,10 +145,10 @@ void UpdateLR(msg_high *mhl, FILE *mf)
     char	*p;
     msg_high	*tmp;
 
-    colour(14, 0);
+    colour(YELLOW, BLACK);
     /*      Updating lastread pointer */
     printf("%s\n", (char *)Language(449));
-    colour(13, 0);
+    colour(LIGHTMAGENTA, BLACK);
         
     for (tmp = mhl; tmp; tmp = tmp->next) {
 	printf(".");
@@ -246,12 +243,12 @@ void OLR_TagArea()
     sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
-    colour(14, 0);
+    colour(YELLOW, BLACK);
     /*      Tag Offline Reader message areas */
     printf("%s\n", (char *)Language(66));
 
     do {
-	colour(15, 0);
+	colour(WHITE, BLACK);
 	/*        Enter the name of the conference, or ? for a list: */
 	printf("\n%s", (char *)Language(228));
 	colour(CFG.InputColourF, CFG.InputColourB);
@@ -259,7 +256,7 @@ void OLR_TagArea()
 
 	if (buf[0] == '?') {
 	    maxlines = lines = exitinfo.iScreenLen - 1;
-	    colour(11, 0);
+	    colour(LIGHTCYAN, BLACK);
 	    /*      Conference           Area  Msgs   Description */
 	    printf("%s\n", (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
@@ -275,7 +272,7 @@ void OLR_TagArea()
 			    Msg_Close();
 			} else
 			    total = 0;
-			colour(3, 0);
+			colour(CYAN, BLACK);
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
@@ -283,7 +280,7 @@ void OLR_TagArea()
 			    }
 			    if (lines == 0) {
 				fflush(stdin);
-				colour(15, 0);
+				colour(WHITE, BLACK);
 				/* More (Y/n/=) */
 				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
 				fflush(stdout);
@@ -301,7 +298,7 @@ void OLR_TagArea()
 				    ignore = TRUE;
 				else
 				    lines  = maxlines;
-				colour(3, 0);
+				colour(CYAN, BLACK);
 			    }
 			}
 		    }
@@ -389,12 +386,12 @@ void OLR_UntagArea()
     sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
-    colour(14, 0);
+    colour(YELLOW, BLACK);
     /*      Untag Offline Reader message areas */
     printf("%s\n", (char *)Language(256));
 
     do {
-	colour(15, 0);
+	colour(WHITE, BLACK);
 	/*        Enter the name of the conference, or ? for a list:  */
 	printf("\n%s", (char *)Language(228));
 	colour(CFG.InputColourF, CFG.InputColourB);
@@ -402,7 +399,7 @@ void OLR_UntagArea()
 
 	if (buf[0] == '?') {
 	    maxlines = lines = exitinfo.iScreenLen - 1;
-	    colour(11, 0);
+	    colour(LIGHTCYAN, BLACK);
 	    /*      Conference           Area  Msgs   Description */
 	    printf("%s\n", (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
@@ -418,7 +415,7 @@ void OLR_UntagArea()
 			    Msg_Close();
 			} else
 			    total = 0;
-			colour(3, 0);
+			colour(CYAN, BLACK);
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && olrtagrec.Tagged && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
@@ -426,7 +423,7 @@ void OLR_UntagArea()
 			    }
 			    if (lines == 0) {
 				fflush(stdin);
-				colour(15, 0);
+				colour(WHITE, BLACK);
 				/* More (Y/n/=) */
 				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
 				fflush(stdout);
@@ -444,7 +441,7 @@ void OLR_UntagArea()
 				    ignore = TRUE;
 				else
 				    lines  = maxlines;
-				colour(3, 0);
+				colour(CYAN, BLACK);
 			    }
 			}
 		    }
@@ -525,15 +522,15 @@ void New_Hdr()
 {
     char	*temp;
 
-    temp = calloc(81, sizeof(char));
+    temp = calloc(128, sizeof(char));
     clear();
-    colour(14, 0);
+    colour(YELLOW, BLACK);
     /* New or deleted mail areas at */
     sprintf(temp, "%s%s", (char *) Language(364), CFG.bbs_name);
     Center(temp);
     free(temp);
     printf("\n");
-    colour(15, 1);
+    colour(WHITE, BLUE);
     /* Area  State  Type     Description */
     printf("%-79s\n", (char *) Language(365));
 }
@@ -543,7 +540,7 @@ void New_Hdr()
 void New_Area(long);
 void New_Area(long Area)
 {
-    colour(11, 0);
+    colour(LIGHTCYAN, BLACK);
     	/*    New    */
     printf("%4ld  %s", Area, (char *)Language(391));
     switch (msgs.Type) {
@@ -565,7 +562,7 @@ void New_Area(long Area)
 void Old_Area(long);
 void Old_Area(long Area)
 {
-    colour(12, 0);
+    colour(LIGHTRED, BLACK);
     /*            Del */
     printf("%4ld  %s\n", Area, (char *)Language(397));
 }
@@ -578,138 +575,137 @@ void Old_Area(long Area)
  */
 void OLR_SyncTags()
 {
-	char	*Tagname, *Msgname;
-	FILE	*fp, *ma;
-	long	Area;
-	int	Changed = FALSE;
+    char    *Tagname, *Msgname;
+    FILE    *fp, *ma;
+    long    Area;
+    int	    Changed = FALSE;
 
-	Tagname = calloc(PATH_MAX, sizeof(char));
-	Msgname = calloc(PATH_MAX, sizeof(char));
-	sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    Tagname = calloc(PATH_MAX, sizeof(char));
+    Msgname = calloc(PATH_MAX, sizeof(char));
+    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
-	if ((fp = fopen(Tagname, "r+")) == NULL) {
+    if ((fp = fopen(Tagname, "r+")) == NULL) {
 
-		/*
-		 *  If the user has no .olrtagsfile yet, we silently create
-		 *  a new one. The user will not be notified of new areas
-		 *  of coarse.
-		 */
-		Syslog('m', "Creating %s", Tagname);
-		if ((fp = fopen(Tagname, "w")) != NULL) {
+	/*
+	 *  If the user has no .olrtagsfile yet, we silently create
+	 *  a new one. The user will not be notified of new areas
+	 *  of coarse.
+	 */
+	Syslog('m', "Creating %s", Tagname);
+	if ((fp = fopen(Tagname, "w")) != NULL) {
 
-			if ((ma = fopen(Msgname, "r")) != NULL) {
-				fread(&msgshdr, sizeof(msgshdr), 1, ma);
+	    if ((ma = fopen(Msgname, "r")) != NULL) {
+		fread(&msgshdr, sizeof(msgshdr), 1, ma);
 
-				while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-					memset(&olrtagrec, 0, sizeof(olrtagrec));
-					if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec)) {
-						olrtagrec.Available = TRUE;
-						olrtagrec.ScanNew = TRUE;
-						if (msgs.OLR_Forced || msgs.OLR_Default)
-							olrtagrec.Tagged = TRUE;
-					}
-					fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
-					fseek(ma, msgshdr.syssize, SEEK_CUR);
-				}
-
-				fclose(ma);
-			}
+		while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+		    memset(&olrtagrec, 0, sizeof(olrtagrec));
+		    if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			olrtagrec.Available = TRUE;
+			olrtagrec.ScanNew = TRUE;
+			if (msgs.OLR_Forced || msgs.OLR_Default)
+			    olrtagrec.Tagged = TRUE;
+		    }
+		    fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
+		    fseek(ma, msgshdr.syssize, SEEK_CUR);
 		}
-	} else {
-		/*
-		 *  The user has been here before...
-		 */
-		if ((ma = fopen(Msgname, "r")) != NULL) {
-			fread(&msgshdr, sizeof(msgshdr), 1, ma);
-			Area = 0;
 
-			while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-				Area++;
+		fclose(ma);
+	    }
+	}
+    } else {
+	/*
+	 *  The user has been here before...
+	 */
+	if ((ma = fopen(Msgname, "r")) != NULL) {
+	    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+	    Area = 0;
 
-				if (fread(&olrtagrec, sizeof(olrtagrec), 1, fp) == 1) {
+	    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+		Area++;
 
-					/*
-					 *  Check if this is a new area for the user.
-					 */
-					if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Available)) {
-						Syslog('m', "New msg area %ld %s", Area, msgs.Name);
-						fseek(fp, - sizeof(olrtagrec), SEEK_CUR);
-						olrtagrec.Available = TRUE;
-						olrtagrec.ScanNew = TRUE;
-						if (msgs.OLR_Forced || msgs.OLR_Default)
-							olrtagrec.Tagged = TRUE;
-						fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
-						if (CFG.NewAreas) {
-							if (!Changed) {
-								New_Hdr();
-								Changed = TRUE;
-							}
-							New_Area(Area);
-						}
-					} else {
-						/*
-						 *  Check if this area is no longer
-						 *  available for the user.
-						 */
-						if (((!msgs.Active) || (!Access(exitinfo.Security, msgs.RDSec))) && 
-						     olrtagrec.Available) {
-							Syslog('m', "Deleted msg area %ld", Area);
-							fseek(fp, - sizeof(olrtagrec), SEEK_CUR);
-							olrtagrec.Available = FALSE;
-							olrtagrec.ScanNew = FALSE;
-							olrtagrec.Tagged = FALSE;
-							fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
-							if (CFG.NewAreas) {
-								if (!Changed) {
-									New_Hdr();
-									Changed = TRUE;
-								}
-								Old_Area(Area);
-							}
-						}
-					}
+		if (fread(&olrtagrec, sizeof(olrtagrec), 1, fp) == 1) {
 
-				} else {
-					/*
-					 * If the number if msg areas was increased,
-					 * append a new tagrecord.
-					 */
-					memset(&olrtagrec, 0, sizeof(olrtagrec));
-					if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec)) {
-						Syslog('m', "Append new area %ld %s", Area, msgs.Name);
-						olrtagrec.Available = TRUE;
-						olrtagrec.ScanNew = TRUE;
-						if (msgs.OLR_Forced || msgs.OLR_Default)
-							olrtagrec.Tagged = TRUE;
-						if (CFG.NewAreas) {
-							if (!Changed) {
-								New_Hdr();
-								Changed = TRUE;
-							}
-							New_Area(Area);
-						}
-					}
-					fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
-				}
-				fseek(ma, msgshdr.syssize, SEEK_CUR);
+		    /*
+		     *  Check if this is a new area for the user.
+		     */
+		    if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname) && (!olrtagrec.Available)) {
+			Syslog('m', "New msg area %ld %s", Area, msgs.Name);
+			fseek(fp, - sizeof(olrtagrec), SEEK_CUR);
+			olrtagrec.Available = TRUE;
+			olrtagrec.ScanNew = TRUE;
+			if (msgs.OLR_Forced || msgs.OLR_Default)
+			    olrtagrec.Tagged = TRUE;
+			fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
+			if (CFG.NewAreas) {
+			    if (!Changed) {
+				New_Hdr();
+				Changed = TRUE;
+			    }
+			    New_Area(Area);
 			}
+		    } else {
+			/*
+			 *  Check if this area is no longer
+			 *  available for the user.
+			 */
+			if (((!msgs.Active) || (!Access(exitinfo.Security, msgs.RDSec))) && olrtagrec.Available) {
+			    Syslog('m', "Deleted msg area %ld", Area);
+			    fseek(fp, - sizeof(olrtagrec), SEEK_CUR);
+			    olrtagrec.Available = FALSE;
+			    olrtagrec.ScanNew = FALSE;
+			    olrtagrec.Tagged = FALSE;
+			    fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
+			    if (CFG.NewAreas) {
+				if (!Changed) {
+				    New_Hdr();
+				    Changed = TRUE;
+				}
+				Old_Area(Area);
+			    }
+			}
+		    }
 
-			fclose(ma);
+		} else {
+		    /*
+		     * If the number if msg areas was increased,
+		     * append a new tagrecord.
+		     */
+		    memset(&olrtagrec, 0, sizeof(olrtagrec));
+		    if ((msgs.Active) && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			Syslog('m', "Append new area %ld %s", Area, msgs.Name);
+			olrtagrec.Available = TRUE;
+			olrtagrec.ScanNew = TRUE;
+		        if (msgs.OLR_Forced || msgs.OLR_Default)
+			    olrtagrec.Tagged = TRUE;
+			if (CFG.NewAreas) {
+			    if (!Changed) {
+				New_Hdr();
+			        Changed = TRUE;
+			    }
+			    New_Area(Area);
+			}
+		    }
+		    fwrite(&olrtagrec, sizeof(olrtagrec), 1, fp);
 		}
+		fseek(ma, msgshdr.syssize, SEEK_CUR);
+	    }
+
+	    fclose(ma);
 	}
+    }
 
-	fclose(fp);
+    fclose(fp);
 
-	if (Changed) {
-		colour(10, 0);
-		fLine(79);
-		Pause();
-	}
+    if (Changed) {
+	colour(LIGHTGREEN, BLACK);
+	fLine(79);
+	Pause();
+    }
 
-	SetMsgArea(exitinfo.iLastMsgArea);
-	free(Tagname);
-	free(Msgname);
+    SetMsgArea(exitinfo.iLastMsgArea);
+    free(Tagname);
+    free(Msgname);
 }
 
 
@@ -719,86 +715,90 @@ void OLR_SyncTags()
  */
 void OLR_ViewTags()
 {
-	char	*Tagname, *Msgname;
-	FILE	*tf, *ma;
-	long	total, Area = 0;
-	int     lines, input, ignore = FALSE, maxlines;
+    char    *Tagname, *Msgname;
+    FILE    *tf, *ma;
+    long    total, Area = 0;
+    int     lines, input, ignore = FALSE, maxlines;
 
-	WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR);
 
-	Tagname = calloc(PATH_MAX, sizeof(char));
-	Msgname = calloc(PATH_MAX, sizeof(char));
-	sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    Tagname = calloc(PATH_MAX, sizeof(char));
+    Msgname = calloc(PATH_MAX, sizeof(char));
+    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
-	if ((tf = fopen(Tagname, "r")) == NULL) {
-		WriteError("$Can't open %s", Tagname);
-		return;
-	}
-
-	if ((ma = fopen(Msgname, "r")) == NULL) {
-		WriteError("$Can't open %s", Msgname);
-		fclose(tf);
-		return;
-	}
-	fread(&msgshdr, sizeof(msgshdr), 1, ma);
-
-	clear();
-	colour(14, 0);
-	/*       You have selected the following Conference(s): */
-	printf ("%s\n", (char *)Language(260));
-	colour(11, 0);
-	/*         Conference           Area  Msgs   Description */
-	printf ("\n%s\n", (char *)Language(229));
-	colour(3, 0);
-	fflush(stdout);
-	maxlines = lines = exitinfo.iScreenLen - 1;
-
-	while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-		fseek(ma, msgshdr.syssize, SEEK_CUR);
-		fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-		Area++;
-
-		if (olrtagrec.Tagged) {
-			if (Msg_Open(msgs.Base)) {
-				total = Msg_Number();
-				Msg_Close();
-			} else
-				total = 0;
-			if ( (lines != 0) || (ignore) ) {
-				lines--;
-				printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
-			}
-			if (lines == 0) {
-				fflush(stdin);
-				colour(15, 0);
-				/* More (Y/n/=) */
-				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-				fflush(stdout);
-				alarm_on();
-				input = toupper(Getone());
-				printf("%c\r",input);
-				if ((input == Keystroke(61, 0)) || (input == '\r'))
-					lines = maxlines;
-
-				if (input == Keystroke(61, 1)) {
-					break;
-				}
-				if (input == Keystroke(61, 2))
-					ignore = TRUE;
-				else
-					lines  = maxlines;
-				colour(3, 0);
-			}
-			fflush(stdout);
-		}
-	}
-
-	fclose(tf);
-	fclose(ma);
-	Pause();
+    if ((tf = fopen(Tagname, "r")) == NULL) {
+	WriteError("$Can't open %s", Tagname);
 	free(Tagname);
 	free(Msgname);
+	return;
+    }
+
+    if ((ma = fopen(Msgname, "r")) == NULL) {
+	WriteError("$Can't open %s", Msgname);
+	fclose(tf);
+	free(Tagname);
+	free(Msgname);
+	return;
+    }
+    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+
+    clear();
+    colour(YELLOW, BLACK);
+    /*       You have selected the following Conference(s): */
+    printf ("%s\n", (char *)Language(260));
+    colour(LIGHTCYAN, BLACK);
+    /*         Conference           Area  Msgs   Description */
+    printf ("\n%s\n", (char *)Language(229));
+    colour(CYAN, BLACK);
+    fflush(stdout);
+    maxlines = lines = exitinfo.iScreenLen - 1;
+
+    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+	fseek(ma, msgshdr.syssize, SEEK_CUR);
+	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+	Area++;
+
+	if (olrtagrec.Tagged) {
+	    if (Msg_Open(msgs.Base)) {
+		total = Msg_Number();
+		Msg_Close();
+	    } else
+		total = 0;
+	    if ( (lines != 0) || (ignore) ) {
+		lines--;
+		printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+	    }
+	    if (lines == 0) {
+		fflush(stdin);
+		colour(WHITE, BLACK);
+		/* More (Y/n/=) */
+		printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
+		fflush(stdout);
+		alarm_on();
+		input = toupper(Getone());
+		printf("%c\r",input);
+		if ((input == Keystroke(61, 0)) || (input == '\r'))
+		    lines = maxlines;
+
+		if (input == Keystroke(61, 1)) {
+		    break;
+		}
+		if (input == Keystroke(61, 2))
+		    ignore = TRUE;
+		else
+		    lines  = maxlines;
+		colour(CYAN, BLACK);
+	    }
+	    fflush(stdout);
+	}
+    }
+
+    fclose(tf);
+    fclose(ma);
+    Pause();
+    free(Tagname);
+    free(Msgname);
 }
 
 
@@ -808,117 +808,116 @@ void OLR_ViewTags()
  */
 int OLR_Prescan()
 {
-	unsigned short	RetVal = FALSE, Areas;
-	unsigned long	Number;
-	char		*Temp;
-	FILE		*mf, *tf;
-	int		x;
+    unsigned short  RetVal = FALSE, Areas;
+    unsigned long   Number;
+    char	    *Temp;
+    FILE	    *mf, *tf;
+    int		    x;
 
-	WhosDoingWhat(OLR);
-	clear();
-	colour(13, 0);
-	/*      Offline Reader Download */
-	printf("%s\n\n", (char *)Language(277));
-	fflush(stdout);
+    WhosDoingWhat(OLR);
+    clear();
+    colour(LIGHTMAGENTA, BLACK);
+    /*      Offline Reader Download */
+    printf("%s\n\n", (char *)Language(277));
+    fflush(stdout);
 
-	if (exitinfo.Email)
-		check_popmail(exitinfo.Name, exitinfo.Password);
+    if (exitinfo.Email)
+	check_popmail(exitinfo.Name, exitinfo.Password);
 
-	Temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	mf = fopen(Temp, "r");
-	fread(&msgshdr, sizeof(msgshdr), 1, mf);
+    Temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    mf = fopen(Temp, "r");
+    fread(&msgshdr, sizeof(msgshdr), 1, mf);
 
-	sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	tf = fopen(Temp, "r");
-	Total = TotalPersonal = Areas = 0;
+    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    tf = fopen(Temp, "r");
+    Total = TotalPersonal = Areas = 0;
 
-	colour(15, 1);
-	/*        Forum                Description                               Msgs. Pers.   */
-	printf("\n%s\n", (char *)Language(297));
+    colour(WHITE, BLUE);
+    /*        Forum                Description                               Msgs. Pers.   */
+    printf("\n%s\n", (char *)Language(297));
 
-	while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-		fseek(mf, msgshdr.syssize, SEEK_CUR);
-		fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+	fseek(mf, msgshdr.syssize, SEEK_CUR);
+	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
 
-		if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname) && olrtagrec.Tagged) {
-			if (Msg_Open(msgs.Base)) {
-				Areas++;
-				Current = Personal = 0;
-				colour(11, 0);
-				printf("%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
-				fflush(stdout);
-
-				memset(&LR, 0, sizeof(LR));
-				LR.UserID = grecno;
-				if (Msg_GetLastRead(&LR))
-					Number = LR.HighReadMsg;
-				else
-					Number = Msg_Lowest() -1;
-				if (Number > Msg_Highest())
-					Number = Msg_Highest();
-				if (Msg_Next(&Number)) {
-					do {
-						Msg_ReadHeader(Number);
-						Current++;
-						Total++;
-						if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) ||
-						    (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
-							Personal++;
-							TotalPersonal++;
-						} else if (msgs.Type == NETMAIL) {
-							Current--;
-							Total--;
-						}
-					} while (Msg_Next(&Number));
-				}
-
-				colour(10, 0);
-				printf("%5lu %5lu\n", Current, Personal);
-				fflush(stdout);
-				Msg_Close();
-			}
-		}
-	}
-
-	Syslog('+', "OLR Prescan: %u Areas, %lu Messages", Areas, Total);
-
-	colour(9, 0);
-	/*        Total messages found: */
-	printf("\n%s %lu\n\n", (char *)Language(338), Total);
-	if (Total == 0L) {
-		colour(14, 0);
-		/*      No messages found to download! */
-		printf("%s\n\007", (char *)Language(374));
-		Pause();
-	} else {
-		if (CFG.OLR_MaxMsgs != 0 && Total > CFG.OLR_MaxMsgs) {
-			/*      Too much messages. Only the first    will be packed! */
-			printf("%s %d %s\n\n\007", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
-			Total = CFG.OLR_MaxMsgs;
-		}
-
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/*      Do you want to download these messages [Y/n]? */
-		printf("%s", (char *)Language(425));
+	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname) && olrtagrec.Tagged) {
+	    if (Msg_Open(msgs.Base)) {
+		Areas++;
+		Current = Personal = 0;
+		colour(LIGHTCYAN, BLACK);
+		printf("%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
 		fflush(stdout);
-		alarm_on();
-		x = toupper(Getone());
 
-		if (x != Keystroke(425, 1)) {
-			RetVal = TRUE;
-			TotalPack = Total;
-			BarWidth = 0;
+		memset(&LR, 0, sizeof(LR));
+		LR.UserID = grecno;
+		if (Msg_GetLastRead(&LR))
+		    Number = LR.HighReadMsg;
+		else
+		    Number = Msg_Lowest() -1;
+		if (Number > Msg_Highest())
+		    Number = Msg_Highest();
+		if (Msg_Next(&Number)) {
+		    do {
+			Msg_ReadHeader(Number);
+			Current++;
+			Total++;
+			if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
+			    Personal++;
+			    TotalPersonal++;
+			} else if (msgs.Type == NETMAIL) {
+			    Current--;
+			    Total--;
+			}
+		    } while (Msg_Next(&Number));
 		}
+
+		colour(LIGHTGREEN, BLACK);
+		printf("%5lu %5lu\n", Current, Personal);
+		fflush(stdout);
+		Msg_Close();
+	    }
+	}
+    }
+
+    Syslog('+', "OLR Prescan: %u Areas, %lu Messages", Areas, Total);
+
+    colour(LIGHTBLUE, BLACK);
+    /*        Total messages found: */
+    printf("\n%s %lu\n\n", (char *)Language(338), Total);
+    if (Total == 0L) {
+	colour(YELLOW, BLACK);
+	/*      No messages found to download! */
+	printf("%s\n\007", (char *)Language(374));
+	Pause();
+    } else {
+	if (CFG.OLR_MaxMsgs != 0 && Total > CFG.OLR_MaxMsgs) {
+	    /*      Too much messages. Only the first    will be packed! */
+	    printf("%s %d %s\n\n\007", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
+	    Total = CFG.OLR_MaxMsgs;
 	}
 
-	if (mf != NULL)	
-		fclose(mf);
-	if (tf != NULL)
-		fclose(tf);
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/*      Do you want to download these messages [Y/n]? */
+	printf("%s", (char *)Language(425));
+	fflush(stdout);
+	alarm_on();
+	x = toupper(Getone());
 
-	free(Temp);
-	return(RetVal);
+	if (x != Keystroke(425, 1)) {
+	    RetVal = TRUE;
+	    TotalPack = Total;
+	    BarWidth = 0;
+	}
+    }
+
+    if (mf != NULL)	
+	fclose(mf);
+    if (tf != NULL)
+	fclose(tf);
+
+    free(Temp);
+    return(RetVal);
 }
 
 
@@ -928,23 +927,23 @@ int OLR_Prescan()
  */
 void DrawBar(char *Pktname)
 {
-	colour(14, 0);
-	/*        Preparing packet */
-	printf("\n%s %s...\n\n", (char *)Language(445), Pktname);
-	colour(10, 0);
-	printf("0%%    10%%  20%%   30%%   40%%   50%%   60%%   70%%   80%%   90%%   100%%\n");
-	printf("|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|\r");
-	fflush(stdout);
+    colour(YELLOW, BLACK);
+    /*        Preparing packet */
+    printf("\n%s %s...\n\n", (char *)Language(445), Pktname);
+    colour(LIGHTGREEN, BLACK);
+    printf("0%%    10%%  20%%   30%%   40%%   50%%   60%%   70%%   80%%   90%%   100%%\n");
+    printf("|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|\r");
+    fflush(stdout);
 }
 
 
 
 void OLR_RestrictDate()
 {
-	WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR);
 
-	printf("Not Yet Implemented\n");
-	Pause();
+    printf("Not Yet Implemented\n");
+    Pause();
 }
 
 
@@ -1012,10 +1011,9 @@ USHORT TOffline::TooOld (ULONG Restrict, class TMsgBase *Msg)
  */
 void OLR_Upload(void)
 {
-    char	*File, *temp, *Arc;
+    char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81];
     time_t	ElapstimeStart, ElapstimeFin, iTime;
     int		err, Strlen, RetVal = FALSE;
-    struct stat	statbuf;
     FILE	*fp;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -1027,7 +1025,7 @@ void OLR_Upload(void)
 
     WhosDoingWhat(OLR);
     clear();
-    colour(13, 0);
+    colour(LIGHTMAGENTA, BLACK);
     /*      Offline Reader Upload */
     printf("%s\n", (char *)Language(439));
 
@@ -1040,7 +1038,7 @@ void OLR_Upload(void)
     if (!uProtBatch) {
 	Enter(1);
 	/* Please enter file to upload: */
-	pout(14, 0, (char *) Language(276));
+	pout(YELLOW, BLACK, (char *) Language(276));
 
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(File, 80);
@@ -1126,32 +1124,18 @@ void OLR_Upload(void)
     Syslog('m', "Transfer time %ld", iTime);
     Home();
 
+    sprintf(Dirpath, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Filename, "%s.NEW", CFG.bbsid);
+
     if (!RetVal) {
-	sprintf(File, "%s/%s/upl/%s.NEW", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	Syslog('m', "Check %s", File);
-	if (stat(File, &statbuf) == 0)
-	    RetVal = TRUE;
+	RetVal = getfilecase(Dirpath, Filename);
+	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
     }
 
     if (!RetVal) {
-	File = tl(File);
-	Syslog('m', "Check %s", File);
-	if (stat(File, &statbuf) == 0)
-	    RetVal = TRUE;
-    }
-
-    if (!RetVal) {
-	sprintf(File, "%s/%s/upl/%s.REP", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	Syslog('m', "Check %s", File);
-	if (stat(File, &statbuf) == 0)
-	    RetVal = TRUE;
-    }
-
-    if (!RetVal) {
-	File = tl(File);
-	Syslog('m', "Check %s", File);
-	if (stat(File, &statbuf) == 0)
-	    RetVal = TRUE;
+	sprintf(Filename, "%s.REP", CFG.bbsid);
+	RetVal = getfilecase(Dirpath, Filename);
+	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
     }
 
     if (RetVal == FALSE) {
@@ -1161,6 +1145,8 @@ void OLR_Upload(void)
 	sleep(2);
 	return;
     }
+
+    sprintf(File, "%s/%s", Dirpath, Filename);
     Syslog('+', "Received OLR packet %s", File);
 
     if ((Arc = GetFileType(File)) == NULL) {
@@ -1218,72 +1204,40 @@ void OLR_Upload(void)
     unlink(File);
 
     /*
-     * Check for BlueWave files, upper and lowercase.
+     * Check for BlueWave files, case insensitive.
      */
     RetVal = FALSE;
-    sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
+    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Filename, "%s.UPL", CFG.bbsid);
+    RetVal = getfilecase(Dirpath, Filename);
+    Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
 
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-	RetVal = TRUE;
+    if (!RetVal) {
+	sprintf(Filename, "%s.REQ", CFG.bbsid);
+	RetVal = getfilecase(Dirpath, Filename);
+	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
+    }
 
-    sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-        RetVal = TRUE;
-
-    sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-        RetVal = TRUE;
-
-    sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-        RetVal = TRUE;
-
-    sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-        RetVal = TRUE;
-
-    sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-	RetVal = TRUE;
+    if (!RetVal) {
+	sprintf(Filename, "%s.OLC", CFG.bbsid);
+	RetVal = getfilecase(Dirpath, Filename);
+	Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
+    }
 
     if (RetVal) {
-	Syslog('+', "OLR packet is BlueWave");
+	Syslog('+', "OLR packet is BlueWave v3");
 	free(File);
 	free(temp);
 	BlueWave_Fetch();
 	return;
     }
 
-    sprintf(temp, "%s/%s/%s.MSG", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if (!file_exist(temp, R_OK)) 
-	RetVal = TRUE;
-
-    temp = tl(temp);
-    if (!file_exist(temp, R_OK))
-        RetVal = TRUE;
+    /*
+     * Check for QWK packet
+     */
+    sprintf(Filename, "%s.MSG", CFG.bbsid);
+    RetVal = getfilecase(Dirpath, Filename);
+    Syslog('m', "%s RetVal=%s", Filename, RetVal?"True":"False");
 
     if (RetVal) {
 	Syslog('+', "OLR packet is QWK");
@@ -1343,7 +1297,7 @@ void OLR_DownBW()
 
     Total = TotalPersonal = 0;
     clear();
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /*      BlueWave Offline download */
     printf("%s\n", (char *)Language(444));
 
@@ -1429,7 +1383,7 @@ void OLR_DownBW()
 	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
 	Area++;
 
-	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec)) {
+	if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
 	    memset(&AreaInf, 0, sizeof(AreaInf));
 	    sprintf((char *)AreaInf.areanum, "%lu", Area);
 	    strcpy((char *)AreaInf.echotag, msgs.QWKname);
@@ -1584,40 +1538,40 @@ void OLR_DownBW()
  */
 void BlueWave_Fetch()
 {
-    char	*temp;
-    char	*buffer,*b;
-    FILE	*fp, *up, *mf, *tp, *iol;
+    char	*temp, *buffer, *b, Dirpath[PATH_MAX], Filename[81], Echotag[20];
+    FILE	*fp, *up = NULL, *mf, *tp = NULL, *iol = NULL;
     UPL_HEADER	Uph;
     UPL_REC	Upr;
-    PDQ_HEADER	Pdh;
-    PDQ_REC	Pdr;
     REQ_REC	Req;
-    int		i, Found, OLC_head, OLC_filter, OLC_macro, OLC_keyword, HEAD_written;
+    int		i = 0, j, Found, OLC_head, AreaChanges = FALSE;
     fidoaddr	dest;
     time_t	now;
     struct tm	*tm;
 
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /*      Processing BlueWave reply packet */
     printf("%s\n", (char *)Language(450));
     temp = calloc(PATH_MAX, sizeof(char));
-    b = calloc(255, sizeof(char));
+    b = calloc(256, sizeof(char));
     buffer = b;
+
     /*
      *  Process uploaded mail
      */
-    sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((up = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
+    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Filename, "%s.UPL", CFG.bbsid);
+    if (getfilecase(Dirpath, Filename)) {
+	sprintf(temp, "%s/%s", Dirpath, Filename);
 	up = fopen(temp, "r");
     }
     if (up != NULL) {
 	fread(&Uph, sizeof(UPL_HEADER), 1, up);
-	Syslog('+', "Processing BlueWave .UPL file");
+	Syslog('+', "Processing BlueWave v3 \"%s\" file", Filename);
 	Syslog('+', "Client: %s %d.%d", Uph.reader_name, Uph.reader_major, Uph.reader_minor);
 	if (Uph.upl_header_len != sizeof(UPL_HEADER)) {
 	    WriteError("Recordsize mismatch");
 	    fclose(up);
+	    free(temp);
 	    /*      ERROR in packet */
 	    printf("%s\n", (char *)Language(451));
 	    Pause();
@@ -1763,21 +1717,7 @@ void BlueWave_Fetch()
 	}
 	fflush(stdout);
 	fclose(up);
-
-	/*
-	 *  Remove processed files.
-	 */
-	sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	unlink(temp);
-	temp = tl(temp);
-	unlink(temp);
-	sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	unlink(temp);
-	temp = tl(temp);
-	unlink(temp);
-	sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	unlink(temp);
-	temp = tl(temp);
+	sprintf(temp, "%s/%s", Dirpath, Filename);
 	unlink(temp);
     }
 
@@ -1786,283 +1726,172 @@ void BlueWave_Fetch()
 	newtear = NULL;
     }
 
-
-    /*
-     * If a .UPL file was not found it is possible we received an version 2
-     * reply packet.
-     */
-    sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((up = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
-	up = fopen(temp, "r");
-    }
-    if (up != NULL) {
-	Syslog('+', "Received Version 2 .UPI packet, not supported");
-	fclose(up);
-    }
-    sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((up = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
-	up = fopen(temp, "r");
-    }
-    if (up != NULL) {
-	Syslog('+', "Received Version 2 .NET packet, not supported");
-	fclose(up);
-    }
-
     /*
      *  Process offline configuration
      */
-    sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((iol = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
+    sprintf(Filename, "%s.OLC", CFG.bbsid);
+    if (getfilecase(Dirpath, Filename)) {
+	sprintf(temp, "%s/%s", Dirpath, Filename);
 	iol = fopen(temp, "r");
     }
     if (iol != NULL) {
-	/*
-	 *   If .OLC file found convert it in .PDQ
-	 */
-	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	Syslog('+', "Converting BW/v3 .OLC file to %s",temp);
-	if (( tp = fopen(temp, "w")) != NULL) {
-	    HEAD_written=FALSE;
-	    OLC_head=FALSE;
-	    OLC_filter=OLC_macro=OLC_keyword=0;
-	    memset(&Pdh,0,sizeof(PDQ_HEADER));
-	    Syslog('f', "%s Opened for writing", temp);
-	    while (fgets(b,255,iol) != NULL ){
-	        buffer=b;
-		while (isspace(buffer[0]))
-				    buffer++;
-		Syslog('m', "Reading: %s ", buffer);
-		if (( strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ){
-		   OLC_head=TRUE;
-		   continue;
-		}else{   
-		    if (buffer[0]=='['){
-			strtok(buffer,"]");
-			buffer++;
-			OLC_head=FALSE;
-			strncpy(Pdr.echotag,buffer,20);
-			continue;
-		    }
-		}
-		if (OLC_head == TRUE){
-		    if (strncasecmp(buffer,"AreaChanges",11)==0){ 
-			buffer+=11; 
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
-			    Pdh.flags |= PDQ_AREA_CHANGES;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"MenuHotKeys",11)==0){ 
-			buffer+=11; 
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
-			    Pdh.flags |= PDQ_HOTKEYS;
-			continue;
-		    }
-		    if ( (strncasecmp(buffer,"ExpertMenus",11)==0)){ 
-			buffer+=11; 
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
-			    Pdh.flags |= PDQ_XPERT;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"SkipUserMsgs",12)==0){ 
-			buffer+=12; 
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
-			    Pdh.flags |= PDQ_NOT_MY_MAIL;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"DoorGraphics",12)==0){ 
-			buffer+=12; 
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
-			    Pdh.flags |= PDQ_GRAPHICS;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"Password",8)==0){
-			buffer+=8;
-			while (isspace(buffer[0]) || buffer[0]=='=')
-			    buffer++;
-			Pdh.passtype=0;
-			if(strncasecmp(buffer,"Door",4)==0)
-			    Pdh.passtype=1;
-			if(strncasecmp(buffer,"Reader",6)==0)
-			    Pdh.passtype=2;
-			if(strncasecmp(buffer,"Both",4)==0)
-			    Pdh.passtype=3;
-			while(buffer[0] != ',' && buffer[0] !='\0')
-			    buffer++;
-			if ( Pdh.passtype != 0 ){
-			    while (isspace(buffer[0])); 
-				buffer++;
-			    strncpy(Pdh.password,buffer,20);
+	colour(LIGHTBLUE, BLACK);
+	/*      Processing Offline Configuration */
+	printf("%s\n", (char *)Language(455));
+	Syslog('+', "Processing BlueWave v3 configuration file \"%s\"", Filename);
+	OLC_head = FALSE;
+	
+	while (fgets(b, 255, iol) != NULL ) {
+	    buffer = b;
+	    for (j = 0; j < strlen(b); j++) {
+		if (*(b + j) == '\0')
+		    break;
+		if (*(b + j) == '\r')
+		    *(b + j) = '\0';
+		if (*(b + j) == '\n')
+		    *(b + j) = '\0';
+	    }
+	    while (isspace(buffer[0]))
+		buffer++;
+	    Syslog('m', "Reading: \"%s\"", printable(buffer, 0));
+
+	    /*
+	     * The .OLC file starts with [Global Mail Host Configuration]
+	     * Then some global options.
+	     * Then each mail area like [AREA_TAG]
+	     * Then the area options.
+	     */
+	    if ((strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ) {
+		OLC_head = TRUE;
+		continue;
+	    } else {   
+		if (buffer[0]=='[') {
+		    strtok(buffer,"]");
+		    buffer++;
+		    strncpy(Echotag, buffer, 20);
+		    if (OLC_head) {
+			OLC_head = FALSE;
+			if (AreaChanges) {
+			    /*
+			     * There are areachanges, first reset all areas.
+			     */
+			    Syslog('m', "Resetting all areas");
+			    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+			    if ((up = fopen(temp, "r+")) != NULL) {
+				sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				if ((mf = fopen(temp, "r")) != NULL) {
+				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
+				    while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
+					fread(&msgs, msgshdr.recsize, 1, mf);
+					fseek(mf, msgshdr.syssize, SEEK_CUR);
+					if (!msgs.OLR_Forced)
+					    olrtagrec.Tagged = FALSE;
+					fseek(up, - sizeof(olrtagrec), SEEK_CUR);
+					fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
+				    }
+				    fclose(mf);
+				}
+				fclose(up);
+			    }
+			    i = 0;
 			}
-			continue;
-		    }
-		    if (strncasecmp(buffer,"Filter",6)==0){
-			buffer+=6;
-			while (isspace(buffer[0]) || buffer[0]=='=') 
-			    buffer++;
-			strncpy(Pdh.filters[OLC_filter],buffer,20);
-			OLC_filter++;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"Keyword",7)==0){
-			buffer+=7;
-			while (isspace(buffer[0]) || buffer[0]=='=') 
-			    buffer++;
-			strncpy(Pdh.keywords[OLC_keyword],buffer,20);
-			OLC_keyword++;
-			continue;
-		    }
-		    if (strncasecmp(buffer,"Macro=",5)==0){
-			buffer+=5;
-			while (isspace(buffer[0]) || buffer[0]=='=') 
-			    buffer++;
-			strncpy(Pdh.macros[OLC_macro],buffer,20);
-			OLC_macro++;
-			continue;
-		    }
 		    continue;
-		}
-		if (strncasecmp(buffer,"Scan",4) == 0){
-		    buffer+=4;
-		    while (isspace(buffer[0]) || buffer[0]=='=') 
-			buffer++;
-		    if ((strncasecmp(buffer,"All",3)==0) || (strncasecmp(buffer,"Pers",4)==0)){
-			if ( HEAD_written == FALSE ){
-			    fwrite(&Pdh,sizeof(PDQ_HEADER),1,tp);
-			    Syslog('m', "Writting PDQ header...");
-			    HEAD_written = TRUE;
-			}
-			if (strlen(Pdr.echotag) > 0){
-			    fwrite(&Pdr,sizeof(PDQ_REC),1,tp);
-			    Syslog('m', "Writting PDQ record: %s", Pdr.echotag);
-			    memset(&Pdr,0,sizeof(PDQ_REC));
-			}
 		    }
 		}
 	    }
-	    fclose(tp);
-	} else {
-	    WriteError("Unable to convert .OLC file to %s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	    Syslog('?', "Unable to convert .OLC file to %s/%s/%s.PDQ",CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	}			
-	fclose(iol);		
-	sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	unlink(temp);
-	temp = tl(temp);
-	unlink(temp);
-    }
 
-    sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((tp = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
-	tp = fopen(temp, "r");
-    }
-    if (tp != NULL) {
-	colour(9, 0);
-	/*      Processing Offline Configuration */
-	printf("%s\n", (char *)Language(455));
-	Syslog('+', "Processing offline configuration");
-
-	fread(&Pdh, sizeof(PDQ_HEADER), 1, tp);
-	for (i = 0; i < 10; i++)
-	    if (strlen(Pdh.keywords[i]))
-		Syslog('m', "  Kwrd %2d : %s", i+1, Pdh.keywords[i]);
-	for (i = 0; i < 10; i++)
-	    if (strlen(Pdh.filters[i]))
-		Syslog('m', "  Filt %2d : %s", i+1, Pdh.filters[i]);
-	for (i = 0; i < 3; i++)
-	    if (strlen(Pdh.macros[i]))
-		Syslog('m', "  Macro %d : %s", i+1, Pdh.macros[i]);
-	Syslog('m', "  Pwtype  : %d", Pdh.passtype);
-	Syslog('m', "  Flags   : %08x", Pdh.flags);
-
-	/*
-	 *  If the changes flag is set there are records with
-	 *  active areas. Reset all areas first and then set
-	 *  the active areas back on.
-	 */
-	if (Pdh.flags & PDQ_AREA_CHANGES) {
-	    Syslog('+', "  New Area Configuration present");
-	    i = 0;
-
-	    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	    if ((up = fopen(temp, "r+")) != NULL) {
-
-		sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-		if ((mf = fopen(temp, "r")) != NULL) {
-
-		    fread(&msgshdr, sizeof(msgshdr), 1, mf);
-
-		    while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
-			fread(&msgs, msgshdr.recsize, 1, mf);
-			fseek(mf, msgshdr.syssize, SEEK_CUR);
-			if (!msgs.OLR_Forced)
-			    olrtagrec.Tagged = FALSE;
-			fseek(up, - sizeof(olrtagrec), SEEK_CUR);
-			fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
-		    }
-
-		    while (fread(&Pdr, sizeof(PDQ_REC), 1, tp) == 1) {
-			if (strlen(Pdr.echotag)) {
-			    fseek(mf, msgshdr.hdrsize, SEEK_SET);
-			    fseek(up, 0, SEEK_SET);
-			    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-				fseek(mf, msgshdr.syssize, SEEK_CUR);
-				fread(&olrtagrec, sizeof(olrtagrec), 1, up);
-				if ((strcmp(msgs.QWKname, Pdr.echotag) == 0) && (msgs.Active) &&
-					    (Access(exitinfo.Security, msgs.RDSec))) {
-				    Syslog('m', "  Area %s", Pdr.echotag);
-				    olrtagrec.Tagged = TRUE;
-				    fseek(up, - sizeof(olrtagrec), SEEK_CUR);
-				    fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
-				    i++;
-				    break;
+	    /*
+	     * Process header commands
+	     */
+	    if (OLC_head == TRUE){
+		if (strncasecmp(buffer,"AreaChanges", 11) == 0) { 
+		    buffer += 11; 
+		    while (isspace(buffer[0]) || buffer[0] == '=')
+			buffer++;
+		    if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			AreaChanges = TRUE;
+		}
+		if (strncasecmp(buffer,"MenuHotKeys", 11) == 0) { 
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"ExpertMenus", 11 ) == 0) {
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"SkipUserMsgs", 12) == 0) { 
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"DoorGraphics", 12) == 0) { 
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"Password", 8) == 0) {
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"Filter", 6) == 0) {
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"Keyword", 7) == 0) {
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		if (strncasecmp(buffer,"Macro",5) == 0) {
+		    Syslog('m', "%s - ignored", printable(buffer, 0));
+		}
+		continue;
+	    } else {
+		if (strncasecmp(buffer,"Scan", 4) == 0) {
+		    buffer+=4;
+		    while (isspace(buffer[0]) || buffer[0] == '=') 
+			buffer++;
+		    if ((strncasecmp(buffer,"All",3)==0) || (strncasecmp(buffer,"Pers",4)==0)) {
+			if (strlen(Echotag) > 0) {
+			    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+			    if ((up = fopen(temp, "r+")) != NULL) {
+				sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+				if ((mf = fopen(temp, "r")) != NULL) {
+				    fread(&msgshdr, sizeof(msgshdr), 1, mf);
+				    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+					fseek(mf, msgshdr.syssize, SEEK_CUR);
+					fread(&olrtagrec, sizeof(olrtagrec), 1, up);
+					if ((strcmp(msgs.QWKname, Echotag) == 0) && (msgs.Active) &&
+						    (Access(exitinfo.Security, msgs.RDSec)) && strlen(msgs.QWKname)) {
+					    Syslog('m', "  Area %s", Echotag);
+					    olrtagrec.Tagged = TRUE;
+					    fseek(up, - sizeof(olrtagrec), SEEK_CUR);
+					    fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
+					    i++;
+					    break;
+					}
+				    }
+				    fclose(mf);
 				}
+				fclose(up);
 			    }
 			}
 		    }
-		    fclose(mf);
-		    colour(3, 0);
-		    /*         Message areas selected */
-		    printf("%d %s\n", i, (char *)Language(456));
-		    Syslog('+', "  %d active message areas.", i);
 		}
-		fclose(up);
 	    }
 	}
-	fclose(tp);
-	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	fclose(iol);
+	sprintf(temp, "%s/%s", Dirpath, Filename);
 	unlink(temp);
-	temp = tl(temp);
-	unlink(temp);
+	colour(CYAN, BLACK);
+	/*         Message areas selected */
+	printf("%d %s\n", i, (char *)Language(456));
+	Syslog('+', "  %d active message areas.", i);
     }
 
     /*
      *  Check for .REQ file.
      */
-    sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((tp = fopen(temp, "r")) == NULL) {
-	temp = tl(temp);
+    sprintf(Filename, "%s.REQ", CFG.bbsid);
+    if (getfilecase(Dirpath, Filename)) {
 	tp = fopen(temp, "r");
     }
     if (tp != NULL) {
 	i = 0;
-	colour(9, 0);
+//	colour(LIGHTBLUE, BLACK);
 	/*      Processing file requests */
-	printf("%s\n", (char *)Language(457));
-	Syslog('+', "Processing file requests");
+//	printf("%s\n", (char *)Language(457));
+	Syslog('+', "Processing file requests %s (not supported)", Filename);
 
 	while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
 	    Syslog('m', "  File %s", Req.filename);
@@ -2160,8 +1989,8 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 
 		    if ((Text = (char *)MsgText_First()) != NULL) {
 			do {
-			    if ((Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9))||
-				(strncmp(Text, "\001MSGID", 6) == 0) /* || (exitinfo.OL_ExtInfo) */ ) {
+			    if ((Text[0] != 0x01) || (strncmp(Text, "\001MSGID", 6) == 0) ||
+				((strncmp(Text, "\001FMPT ", 6) == 0) && (msgs.Type == NETMAIL)) || (exitinfo.OL_ExtInfo)) {
 				Fti.msglength += fwrite(Text, 1, strlen(Text), fdm);
 				Fti.msglength += fwrite("\r\n", 1, 2, fdm);
 			    }
@@ -2173,7 +2002,7 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 
 		if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 		    BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-		    colour(3, 0);
+		    colour(CYAN, BLACK);
 		    printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
 		    fflush(stdout);
 		}
@@ -2230,7 +2059,7 @@ void OLR_DownQWK(void)
 
     Total = TotalPersonal = 0L;
     clear();
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /*      QWK Offline Download */
     printf("%s\n", (char *)Language(458));
 
@@ -2441,29 +2270,29 @@ void OLR_DownQWK(void)
  */
 void QWK_Fetch()
 {
-    char	    *temp, *otemp, Temp[128], szLine[132], *pLine = NULL, *pBuff;
-    FILE	    *fp, *up, *op, *mf;
+    char	    *temp, *otemp, Temp[128], szLine[132], *pLine = NULL, *pBuff, Dirpath[PATH_MAX], Filename[81];
+    FILE	    *fp, *up = NULL, *op, *mf;
     unsigned short  nRec, i, r, x, nCol = 0, nWidth, nReaded, nPosted = 0;
     unsigned long   Area;
     struct tm	    *ltm = NULL;
     fidoaddr	    dest;
     int		    HasTear;
 
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /*      Processing BlueWave reply packet */
     printf("%s\n", (char *)Language(459));
     temp = calloc(2048, sizeof(char));
     otemp = calloc(PATH_MAX, sizeof(char));
     nWidth = 78;
 
-    sprintf(temp, "%s/%s/%s.MSG", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-    if ((up = fopen(temp, "r")) == NULL) {
-        temp = tl(temp);
+    sprintf(Dirpath, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Filename, "%s.MSG", CFG.bbsid);
+    if (getfilecase(Dirpath, Filename)) {
         up = fopen(temp, "r");
     }
 
     if (up != NULL) {
-	Syslog('+', "Processing QWK file %s", temp);
+	Syslog('+', "Processing QWK file %s", Filename);
 
 	fread(&Temp, 128, 1, up);
 	Temp[8] = '\0';
@@ -2841,7 +2670,8 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		    Size = 128L;
 		    if ((Text = (char *)MsgText_First()) != NULL) {
 			do {
-			    if (Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9)) {
+			    if ((Text[0] != 0x01) || (strncmp(Text, "\001MSGID", 6) == 0) ||
+				((strncmp(Text, "\001FMPT ", 6) == 0) && (msgs.Type == NETMAIL)) || (exitinfo.OL_ExtInfo)) {
 				Size += fwrite(Text, 1, strlen(Text), fdm);
 				Size += fwrite("\xE3", 1, 1, fdm);
 			    }
@@ -2862,7 +2692,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-			colour(3, 0);
+			colour(CYAN, BLACK);
 			printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
 			fflush(stdout);
 		    }
@@ -2932,7 +2762,7 @@ void OLR_DownASCII(void)
 
     Total = TotalPersonal = 0L;
     clear();
-    colour(9, 0);
+    colour(LIGHTBLUE, BLACK);
     /*      ASCII Offline Download */
     printf("%s\n", (char *)Language(460));
 
@@ -3048,77 +2878,78 @@ void OLR_DownASCII(void)
  */
 unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 {
-        FILE            *fp;
-        char            *Work, *Temp, *Text;
-        unsigned long   Number;
-        int             Pack = FALSE;
-        struct tm       *tp;
+    FILE            *fp;
+    char            *Work, *Temp, *Text;
+    unsigned long   Number;
+    int             Pack = FALSE;
+    struct tm       *tp;
 
-        Number = ulLast;
-        Current = Personal = 0L;
+    Number = ulLast;
+    Current = Personal = 0L;
 
-	Temp = calloc(128, sizeof(char));
-        Work = calloc(128, sizeof(char));
-        sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    Temp = calloc(PATH_MAX, sizeof(char));
+    Work = calloc(PATH_MAX, sizeof(char));
+    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 
-        sprintf(Temp, "%s/%03ld.TXT", Work, Area);
-        if ((fp = fopen(Temp, "a+")) != NULL) {
-		if (Msg_Next(&Number)) {
-			do {
-				Msg_ReadHeader(Number);
-				Msg_Read(Number, 78);
-				Pack = TRUE;
-				if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) ||
-                                    (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
-                                        Personal++;
-                                        TotalPersonal++;
-				} else if (msgs.Type == NETMAIL) {
-					Pack = FALSE;
-				} else if ( msgs.MsgKinds == PRIVATE ) {
-					Pack = FALSE;
-				} else if (msgs.MsgKinds == BOTH ) {
-					if ( Msg.Private == TRUE ) Pack = FALSE;
-				}
-
-                                if (Pack) {
-					fprintf (fp, "\n==============================================\n    Msg. #%ld of %ld (%s)\n", Number, Msg_Number(), msgs.Name);
-					tp = localtime(&Msg.Written);
-					fprintf (fp, "   Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
-						GetMonth(tp->tm_mon + 1), tp->tm_year, tp->tm_hour, tp->tm_min);
-					fprintf (fp, "   From: %s\n", Msg.From);
-					if (Msg.To[0])
-						fprintf (fp, "     To: %s\n", Msg.To);
-					fprintf (fp, "Subject: %s\n----------------------------------------------\n", Msg.Subject);
-					Current++;
-					Total++;
-
-					if ((Text = (char *)MsgText_First()) != NULL) {
-						do {
-							if (Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9))
-								fprintf(fp, "%s\n", Text);
-						} while ((Text = (char *)MsgText_Next()) != NULL);
-					}
-
-					if ((Total % 16L) == 0L)
-						usleep(1);
-
-					if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
-						BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-						colour(3, 0);
-						printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
-						fflush(stdout);
-					}
-				}
-			} while (Msg_Next(&Number));
+    sprintf(Temp, "%s/%03ld.TXT", Work, Area);
+    if ((fp = fopen(Temp, "a+")) != NULL) {
+	if (Msg_Next(&Number)) {
+	    do {
+		Msg_ReadHeader(Number);
+		Msg_Read(Number, 78);
+		Pack = TRUE;
+		if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
+                    Personal++;
+		    TotalPersonal++;
+		} else if (msgs.Type == NETMAIL) {
+		    Pack = FALSE;
+		} else if ( msgs.MsgKinds == PRIVATE ) {
+		    Pack = FALSE;
+		} else if (msgs.MsgKinds == BOTH ) {
+		    if ( Msg.Private == TRUE ) 
+			Pack = FALSE;
 		}
-		fclose(fp);
-	} else {
-		WriteError("Not all files open");
-	}
 
-        free(Work);
-	free(Temp);
-        return Number;
+                if (Pack) {
+		    fprintf (fp, "\n==============================================\n    Msg. #%ld of %ld (%s)\n", 
+			    Number, Msg_Number(), msgs.Name);
+		    tp = localtime(&Msg.Written);
+		    fprintf (fp, "   Date: %d %s %d %2d:%02d\n", tp->tm_mday, 
+						GetMonth(tp->tm_mon + 1), tp->tm_year, tp->tm_hour, tp->tm_min);
+		    fprintf (fp, "   From: %s\n", Msg.From);
+		    if (Msg.To[0])
+			fprintf (fp, "     To: %s\n", Msg.To);
+		    fprintf (fp, "Subject: %s\n----------------------------------------------\n", Msg.Subject);
+		    Current++;
+		    Total++;
+
+		    if ((Text = (char *)MsgText_First()) != NULL) {
+			do {
+			    if (Text[0] != 0x01 && strncmp(Text, "SEEN-BY: ", 9))
+				fprintf(fp, "%s\n", Text);
+			} while ((Text = (char *)MsgText_Next()) != NULL);
+		    }
+
+		    if ((Total % 16L) == 0L)
+			usleep(1);
+
+		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
+			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
+			colour(CYAN, BLACK);
+			printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+			fflush(stdout);
+		    }
+		}
+	    } while (Msg_Next(&Number));
+	}
+	fclose(fp);
+    } else {
+	WriteError("Not all files open");
+    }
+
+    free(Work);
+    free(Temp);
+    return Number;
 }
 
 

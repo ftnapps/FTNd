@@ -18,10 +18,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	L: Must include SEEN-BY and other hidden lines into BlueWave  and QWK
-	   mail, must be user selectable. see remarks of William McBrine.
-	   The default is oke now.
-
 	N: Rewrite chat to use "mbtask". Write chat functions into "mbmon"
 
 	N: Implement session and time/day limits.
@@ -40,6 +36,20 @@ mbsebbs:
 	N: Only count posted messages in local mail areas.
 
 	L: ChangeHandle, allow own unix name as handle.
+
+	L: OLR: tagged areas must have 3 states, off, on or personal only.
+
+	L: OLR: implement limit date function.
+
+	L: OLR: include private email area in download packets.
+
+	L: OLR: implement some global settings from the offline configuration.
+
+	L: OLR: implement keywords and filters.
+
+	L: OLR: check qwke extensions.
+
+	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
 newuser:
 	L: Allow handles to be the same as the unixname.

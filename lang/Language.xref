@@ -13,8 +13,8 @@
 12	mail.c email.c			|Message exported to rules directory as 
 13	dispfile.c			|No rules found for this area
 14	mail.c				|You are not allowed to delete that message
-15	.c				|
-16	.c				|
+15	change.c			|Offline Reader: Extended Info turned ON
+16	change.c			|Offline Reader: Extended Info turned OFF
 17	.c				|
 18	.c				|
 19	.c				|

@@ -13,8 +13,8 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Message exportiert in das Rules Direktorie als 
 |Keine Rules gefunden fuer diese Area
 |Keine Berechtigung zum loeschen der Message
-|Heute gesparte Zeit . . . . . . . : 
-|Heute gesparte KBytes . . . . . . : 
+|Offline Reader: Extended Info turned ON
+|Offline Reader: Extended Info turned OFF
 |Heute abgehobene Zeit . . . . . . : 
 |Heute abgehobene KBytes . . . . . : 
 SAE|(S)paren, (A)bheben, (E)nde: 

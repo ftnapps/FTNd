@@ -81,14 +81,6 @@
 **  data types in a different fashion.  (Note that the tCHAR and tINT types
 **  are currently not used; they are included simply for completeness.)
 **
-**  If you are programming for a system that employs a CPU which stores multi-
-**  byte integers in a manner other than in Intel format (LSB-MSB, or "little
-**  endian"), simply #define BIG_ENDIAN before #including this header.  As
-**  shown below, this will define the data types as arrays of bytes; the
-**  drawback is that *YOU* will have to write functions to convert the data,
-**  since the Blue Wave packet specification requires the data to be in Intel-
-**  style little-endian format.
-**
 **  IMPORTANT NOTE ABOUT COMPILERS AND STRUCTURES:
 **  All structures *must* be "packed" (i.e., the compiler MUST NOT insert
 **  padding bytes between structure elements in order to force elements onto
@@ -96,16 +88,6 @@
 **  they aren't, you're bound to get some *very* interesting results.
 */
 
-//#ifdef BIG_ENDIAN
-
-//typedef signed char    tCHAR;     /* 8 bit signed values           */
-//typedef unsigned char  tBYTE;     /* 8 bit unsigned values         */
-//typedef unsigned char  tINT[2];   /* little-endian 16 bit signed   */
-//typedef unsigned char  tWORD[2];  /* little-endian 16 bit unsigned */
-//typedef unsigned char  tLONG[4];  /* little-endian 32 bit signed   */
-//typedef unsigned char  tDWORD[4]; /* little-endian 32 bit unsigned */
-
-//#else
 
 typedef signed char    tCHAR;     /* 8 bit signed values    */
 typedef unsigned char  tBYTE;     /* 8 bit unsigned values  */
@@ -114,7 +96,6 @@ typedef unsigned short tWORD;     /* 16 bit unsigned values */
 typedef signed long    tLONG;     /* 32 bit signed values   */
 typedef unsigned long  tDWORD;    /* 32 bit unsigned values */
 
-//#endif
 
 
 /*****************************************************************************/

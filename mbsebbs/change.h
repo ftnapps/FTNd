@@ -22,7 +22,7 @@ int  Test_DOB(char *);		/* Test of Date of Birth is valid	*/
 void Chg_DOB(void);		/* Change Date of Birth			*/
 void Chg_Protocol(void);	/* Change default transfer protocol.	*/
 void Set_Protocol(char *);	/* Set default protocol			*/
-
+void Chg_OLR_ExtInfo(void);	/* Set OLR Extended Info		*/
 
 #endif
 

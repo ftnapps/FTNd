@@ -13,8 +13,8 @@ HR|Export to (H)ome or (R)ules directory:
 |Message exported to rules directory as 
 |No rules found for this area
 |You are not allowed to delete that message
-|Tempo depositado hoxe    : 
-|Bytes depositados hoxe   : 
+|Offline Reader: Extended Info turned ON
+|Offline Reader: Extended Info turned OFF
 |Tempo retirado hoxe      : 
 |Bytes retirados hoxe     : 
 DRS|(D)epositar, (R)etirar, (S)air : 

@@ -640,6 +640,10 @@ void DoMenu(int Type)
 		signature();
 		break;
 
+	case 320:
+		Chg_OLR_ExtInfo();
+		break;
+
 	case 401:
 		Oneliner_Add();
 		break;

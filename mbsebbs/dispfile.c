@@ -544,6 +544,10 @@ void ControlCodeU(int ch)
 		printf(exitinfo.address[2]);
 		break;
 
+	case '8':
+		printf("%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
+		break;
+
 	default:
 		printf(" ");
 	}

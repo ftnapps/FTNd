@@ -961,3 +961,22 @@ void Set_Protocol(char *Protocol)
 
 
 
+void Chg_OLR_ExtInfo()
+{
+    ReadExitinfo();
+
+    if (exitinfo.OL_ExtInfo) {
+	exitinfo.OL_ExtInfo = FALSE;
+	/* Offline Reader: Extended Info turned OFF */
+	printf("\n\n%s\n\n", (char *) Language(16));
+    } else {
+	exitinfo.OL_ExtInfo = TRUE;
+	/* Offline Reader: Extended Info turned ON */
+	printf("\n\n%s\n\n", (char *) Language(15));
+    }
+    Syslog('+', "OLR Extended Info now %s", exitinfo.OL_ExtInfo?"True":"False");
+    sleep(2);
+    WriteExitinfo();
+}
+
+

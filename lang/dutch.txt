@@ -13,8 +13,8 @@ HR|Exporteer naar (H)ome of (R)egels directory:
 |Bericht geexporteerd naar rules directory als 
 |Geen regels gevonden voor dit gebied
 |Je mag dit bericht niet verwijderen
-|Tijd gestort vandaag               
-|Bytes gestort vandaag              
+|Offline Reader: Uitgebreide Informatie is nu AAN
+|Offline Reader: Uitgebreide Informatie is nu UIT
 |Tijd opgenomen vandaag             
 |Bytes opgenomen vandaag            
 SOE|(S)torten, (O)pnemen, (E)inde: 

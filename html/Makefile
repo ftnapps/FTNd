@@ -76,10 +76,10 @@ H_PROGS		= programs/mbchat.html \
 H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/bbslist.html   setup/language.html setup/oneliner.html \
 		  setup/emareas.html   setup/magic.html    setup/mail.html \
-		  setup/protocol.html  setup/emgroup.html  setup/safe.html \
+		  setup/protocol.html  setup/emgroup.html  \
 		  setup/fdb.html       setup/security.html setup/sitedoc.html \
 		  setup/fegroup.html   setup/modems.html   setup/softinfo.html \
-		  setup/fidonet.html   setup/tic.html      setup/timebank.html \
+		  setup/fidonet.html   setup/tic.html      \
 		  setup/fileecho.html  setup/newfiles.html setup/filefind.html \
 		  setup/newgroups.html setup/files.html    setup/nodes.html \
 		  setup/ttyinfo.html   setup/global.html   setup/users.html \

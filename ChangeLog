@@ -1,7 +1,7 @@
 $Id$
 
 	WARNING, users of Sparc and HP-PA systems should be carefull, some
-	menus might not work.
+	menus do not work.
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
@@ -16,6 +16,30 @@ v0.37.2		23-Feb-2003.
 
 	mbfido:
 		Finding the inbound tic file now uses the new function.
+
+	examples:
+		Removed the last menu item from the offline menu, added new
+		Extended Info toggle (English only).
+		Updated offline textfiles to remove point download and add
+		new Extended Info toggle (English only).
+
+	mbsebbs:
+		Offline reader, the reply packets are now handled complete
+		case insensitive.
+		Dropped BlueWave v2 format completly, obsolete format.
+		The BlueWave and QWK download packets can have kludges, this
+		depends on a setting in the userbase.
+		In downloaded netmail, if message comes from a point, the FMPT
+		kludge is allways included in the message.
+		Added some forgotten checks for a valid QWK board name.
+		Lots of code cleanups in the offline code.
+		Added menu 320, toggle Offline Reader Extended Info.
+		Added new control code: control-U + 8, this displays YES or NO
+		for the new Extended Info setting.
+		The display file functio now displays the ^U8 code.
+
+	lang:
+		Changed language prompts 15 and 16.
 
 
 v0.37.1		14-Jan-2003 - 23-Feb-2003
