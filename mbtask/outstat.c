@@ -53,17 +53,6 @@ _alist_l		*alist = NULL;	    /* Nodes to call list	*/
 
 
 
-#define F_NORMAL 0x0001
-#define F_CRASH  0x0002
-#define	F_IMM	 0x0004
-#define F_HOLD   0x0008
-#define F_FREQ	 0x0010
-#define	F_POLL   0x0020
-#define	F_ISFLO	 0x0040
-#define	F_ISPKT	 0x0080
-#define	F_CALL	 0x0100
-
-
 void set_next(int, int);
 void set_next(int hour, int min)
 {
@@ -253,7 +242,9 @@ int outstat()
 		 * If the node has internet and we have internet available, check if we can send
 		 * immediatly.
 		 */
-		if (internet && TCFG.max_tcp && ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+		if (internet && TCFG.max_tcp && 
+			(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
+			((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
 		    tmp->flavors |= F_CALL;
 		}
 		if ((tmp->flavors) & F_IMM   ) {

@@ -481,7 +481,8 @@ int check_calllist(void)
 	    found = FALSE;
 	    for (tmp = alist; tmp; tmp = tmp->next) {
 		if ((calllist[i].addr.zone  == tmp->addr.zone) && (calllist[i].addr.net   == tmp->addr.net) &&
-		    (calllist[i].addr.node  == tmp->addr.node) && (calllist[i].addr.point == tmp->addr.point)) {
+		    (calllist[i].addr.node  == tmp->addr.node) && (calllist[i].addr.point == tmp->addr.point) &&
+		    ((tmp->flavors) & F_CALL)) {
 		    found = TRUE;
 		}
 	    }
@@ -511,6 +512,9 @@ int check_calllist(void)
 			    calllist[i].addr = tmp->addr;
 			    calllist[i].cst = tmp->cst;
 			    calllist[i].callmode = tmp->callmode;
+			    calllist[i].moflags  = tmp->moflags;
+			    calllist[i].diflags  = tmp->diflags;
+			    calllist[i].ipflags  = tmp->ipflags;
 			    break;
 			}
 		    }
@@ -527,13 +531,13 @@ int check_calllist(void)
     for (i = 0; i < MAXTASKS; i++) {
 	if (calllist[i].addr.zone) {
 	    if (!call_work) {
-		tasklog('c', "Slot Call  Pid   Try Status  Mode    Address");
-		tasklog('c', "---- ----- ----- --- ------- ------- ----------------");
+		tasklog('c', "Slot Call  Pid   Try Status  Mode    Modem    ISDN     TCP/IP   Address");
+		tasklog('c', "---- ----- ----- --- ------- ------- -------- -------- -------- ----------------");
 	    }
 	    call_work++;
-	    tasklog('c', "%4d %s %5d %3d %s %s %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
+	    tasklog('c', "%4d %s %5d %3d %s %s %08x %08x %08x %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
 		calllist[i].cst.tryno, callstatus(calllist[i].cst.trystat), callmode(calllist[i].callmode),
-		ascfnode(calllist[i].addr, 0x1f));
+		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, ascfnode(calllist[i].addr, 0x1f));
 	}
     }
 
