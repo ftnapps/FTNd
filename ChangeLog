@@ -3,8 +3,17 @@ $Id$
 
 				MBSEBBS History.
 
+v0.35.06
 
-v0.35.05	19-Oct-2002
+	general:
+		This may become release 0.36.00 (again).
+
+	mbsebbs:
+		Several user input functions don't allow comma's anymore.
+
+
+
+v0.35.05	19-Oct-2002 - 13-Nov-2002.
 
 	upgrade:
 		Start mbsetup, go into global configuration, leave it and 
@@ -13,7 +22,6 @@ v0.35.05	19-Oct-2002
 		this setting now also affects echomail!
 
 	general:
-		This may become release 0.36.00
 		There is now a mberrors.h file that defines all errorcodes
 		returned by all programs.
 
