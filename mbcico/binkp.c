@@ -457,8 +457,7 @@ void b_nul(char *msg)
 	    if (CFG.NoMD5) {
 		Syslog('+', "Remote supports MD5, but it's turned off here");
 	    } else {
-		CRAMflag = TRUE;
-		Syslog('+', "Remote requests MD5 password");
+		Syslog('b', "Remote requests MD5 password");
 		if (MD_challenge)
 		    free(MD_challenge);
 		MD_challenge = MD_getChallenge(msg, NULL);
@@ -614,7 +613,7 @@ SM_STATE(waitaddr)
 
 SM_STATE(sendpass)
 
-    if (MD_challenge && strlen(nodes.Spasswd) && CRAMflag) {
+    if (MD_challenge && strlen(nodes.Spasswd)) {
 	char	*pw = NULL, *tp = NULL;
 	Syslog('b', "MD_challenge is set, building digest");
 	pw = xstrcpy(nodes.Spasswd);
@@ -624,7 +623,9 @@ SM_STATE(sendpass)
 	    SM_ERROR;
 	}
 	SendPass = TRUE;
+	CRAMflag = TRUE;
 	binkp_send_control(MM_PWD, "%s", tp);
+	free(tp);
 	free(pw);
     } else {
 	if (strlen(nodes.Spasswd)) {
@@ -666,7 +667,7 @@ SM_STATE(waitok)
 	if (cmd) {
 	    if (rbuf[0] == MM_OK) {
 		if (SendPass)
-		    Syslog('+', "Binkp: password protected session");
+		    Syslog('+', "Binkp: %spassword protected session", CRAMflag ? "MD5 ":"");
 		else
 		    Syslog('+', "Binkp: unprotected session");
 		SM_SUCCESS;
