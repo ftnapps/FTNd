@@ -142,6 +142,8 @@ int main(int argc, char **argv)
     for (i = 0; i < NSIG; i++) {
 	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
+	else if (i == SIGCHLD)
+	    signal(i, SIG_DFL);
 	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }

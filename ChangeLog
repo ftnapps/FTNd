@@ -30,11 +30,28 @@ v0.51.3		22-Mar-2003
 		announces of files like FP-DEF.ZIP.
 		Fixed (I hope for real now) the double announce of the files
 		like FP-DEF.ZIP received twice a day.
+		Fixed SIGCHLD logmessages on Fedora.
+
+	mbfile:
+		Fixed SIGCHLD logmessages on Fedora.
+
+	mbdiff:
+		Fixed SIGCHLD logmessages on Fedora.
 
 	mbtask:
 		Fixed crash on NetBSD Sparc when getsysinfo was called.
 		Fixed disk search check when /opt/mbse is a symlink on a non-
 		root disk to display the correct partition.
+		Fixed SIGCHLD logmessages on Fedora.
+
+	mbsebbs:
+		Fixed SIGCHLD logmessages on Fedora.
+
+	mbnewusr:
+		Fixed SIGCHLD logmessages on Fedora.
+
+	mball:
+		Fixed SIGCHLD logmessages on Fedora.
 
 	mblogin:
 		Changed some defines for NetBSD 1.6.2

@@ -14,9 +14,6 @@ $Id$
                  L = Cosmetic or nice to have.
 		 X = Will not be done unless it's really needed.
 
-general:
-	N: Investigate the wait logmessages on Fedora.
-
 everything:
 	L: Consider XML format for databases.
 

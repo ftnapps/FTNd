@@ -312,6 +312,8 @@ int main(int argc, char **argv)
 
 	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
+	else if (i == SIGCHLD)
+	    signal(i, SIG_DFL);
 	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
