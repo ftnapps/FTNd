@@ -339,7 +339,16 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 
     memset(&System, 0, sizeof(System));
     System.aka = fgroup.UpLink;
-    System.receivefrom = TRUE;
+    if (flow && !strcmp(flow, "*&"))
+	/*
+	 * Areas direction HQ's go the other way
+	 */
+	System.sendto = TRUE;
+    else
+	/*
+	 * Normal distribution areas.
+	 */
+	System.receivefrom = TRUE;
     fwrite(&System, sizeof(System), 1, mp);
     memset(&System, 0, sizeof(System));
     for (i = 1; i < (tichdr.syssize / sizeof(System)); i++)

@@ -296,25 +296,24 @@ int GroupInNode(char *Group, int Mail)
 {
 	char	temp[PATH_MAX], group[13];
 	FILE	*no;
-	int	i, groups, Area = 0, RetVal = 0;
+	int	i, groups, RetVal = 0;
 
 	sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
-		return FALSE;
+		return 0;
 
 	fread(&nodeshdr, sizeof(nodeshdr), 1, no);
 	fseek(no, 0, SEEK_SET);
 	fread(&nodeshdr, nodeshdr.hdrsize, 1, no);
 
 	while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
-		Area++;
 		groups = nodeshdr.filegrp / sizeof(group);
 		for (i = 0; i < groups; i++) {
 			fread(&group, sizeof(group), 1, no);
 			if (strlen(group) && !Mail) {
 				if (!strcmp(group, Group)) {
 					RetVal++;
-					Syslog('-', "File group %s in %d: %s", Group, Area, aka2str(nodes.Aka[0]));
+					Syslog('-', "File group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
 				}
 			}
 		}
@@ -324,7 +323,7 @@ int GroupInNode(char *Group, int Mail)
 			if (strlen(group) && Mail) {
 				if (!strcmp(group, Group)) {
 					RetVal++;
-					Syslog('-', "Mail group %s found in %d: %s", Group, Area, aka2str(nodes.Aka[0]));
+					Syslog('-', "Mail group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
 				}
 			}
 		}
