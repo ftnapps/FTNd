@@ -93,7 +93,9 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/french/txtfiles
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/menus
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/french/macro
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/ftp/pub/local
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}/ftp/pub/local
 		@${INSTALL} -d -o ${ROWNER} -g ${RGROUP} -m 0750 ${PREFIX}/ftp/incoming
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/arealists
