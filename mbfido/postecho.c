@@ -142,7 +142,7 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
  */
 int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, int cost, FILE *fp, int tonews)
 {
-    char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16], datestr[21];
+    char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16];
     int		    First = TRUE, rc = 0, i, kludges = TRUE, dupe = FALSE, bad = TRUE, seenlen, oldnet;
     faddr	    *Faddr;
     unsigned long   crc;
@@ -150,7 +150,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     fa_list	    *sbl = NULL, *ptl = NULL, *tmpl;
     qualify	    *qal = NULL, *tmpq;
     FILE	    *nfp, *qp;
-    struct tm	    *tm;
+    time_t	    ddate;
 
     memset(&Link, 0, sizeof(Link));
     crc = 0xffffffff;
@@ -252,13 +252,11 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      * rescanning software changes the seconds of a message. Do the
      * timestamp check without the seconds.
      */
-//    tm = gmtime(&mdate);
-//    memset(&datestr, 0, sizeof(datestr));
-//    sprintf(datestr, "%04d%02d%02d%02d%02d", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
-//    crc = upd_crc32(datestr, crc, strlen(datestr));
-//  NOT ACTIVATED BEFORE A LOT OF DUPES AT MY HUB ARE PROCESSED
+    ddate = mdate - (mdate % 60);
+    Syslog('m', "dtime=%d, mtime=%d", ddate, mdate);
+    crc = upd_crc32((char *)&ddate, crc, sizeof(ddate));
 
-    crc = upd_crc32((char *)&mdate, crc, sizeof(mdate));
+//    crc = upd_crc32((char *)&mdate, crc, sizeof(mdate));
 
     if (msgid != NULL) {
 	crc = upd_crc32(msgid, crc, strlen(msgid));
