@@ -1,7 +1,7 @@
 $Id$
 
-			MBSE BBS V0.37.05 TODO list.
-			----------------------------
+			MBSE BBS V0.38.0 TODO list.
+			---------------------------
 
 	These are a list of things that must be implemented one way or
 	another. Some things are urgent and necessary to operate the bbs
@@ -114,6 +114,8 @@ mbcico:
 
 	N: Support binkp Argus freqs (Radius too?).
 
+	U: Fix binkp file resume when mbcico silently dies.
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 
@@ -124,6 +126,9 @@ mbfile:
 	L: Possibility to skip file areas from checking and reindexing.
 
 	N: Add area sorting
+
+	N: If area is missing on the commandline, mbfile searches for record
+	   0 wich doesn't exist.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

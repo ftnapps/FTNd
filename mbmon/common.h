@@ -79,6 +79,7 @@ void		Unsetraw(void);			/* Unset raw mode	    */
 int		Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
 int		Escapechar(unsigned char *);	/* Escape sequence test	    */
 char		*xstrcpy(char *);
+char		*xstrcat(char *, char *);
 char		*padleft(char *str, int size, char pad);
 void		Striplf(char *String);
 void		colour(int, int);

@@ -391,19 +391,34 @@ void disk_stat(void)
 
 void soft_info(void)
 {
-	char	temp[81];
+	char	temp[81], *p;
 
 	clr_index();
 	set_color(YELLOW, BLACK);
 #ifdef __linux__
-	center_addstr( 6, (char *)"MBSE BBS (Linux)");
+	p = xstrcpy((char *)"MBSE BBS (GNU/Linux");
 #elif __FreeBSD__
-	center_addstr( 6, (char *)"MBSE BBS (FreeBSD)");
+	p = xstrcpy((char *)"MBSE BBS (FreeBSD");
 #elif __NetBSD__
-	center_addstr( 6, (char *)"MBSE BBS (NetBSD)");
+	p = xstrcpy((char *)"MBSE BBS (NetBSD");
 #else
-	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
+	p = xstrcpy((char *)"MBSE BBS (Unknown");
 #endif
+#ifdef __i386__
+	p = xstrcat(p, (char *)" i386)");
+#elif __PPC__
+	p = xstrcat(p, (char *)" PPC)");
+#elif __sparc__
+	p = xstrcat(p, (char *)" Sparc)");
+#elif __alpha__
+	p = xstrcat(p, (char *)" Alpha)");
+#elif __hppa__
+	p = xstrcat(p, (char *)" HPPA)");
+#else
+	p = xstrcat(p, (char *)" Unknown)");
+#endif
+	center_addstr( 6, p);
+	free(p);
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);
