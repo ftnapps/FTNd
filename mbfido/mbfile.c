@@ -164,6 +164,8 @@ int main(int argc, char **argv)
 		cmd = xstrcat(cmd, (char *)" ");
 		cmd = xstrcat(cmd, argv[i]);
 	    }
+	} else if (!strcasecmp(argv[i], "i")) {
+	    Help();
 	} else if (!strncasecmp(argv[i], "l", 1)) {
 	    do_list  = TRUE;
 	    if (argc > (i + 1)) {

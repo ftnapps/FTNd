@@ -15,6 +15,9 @@ v0.61.3		25-Jul-2004
 		Changed netmail counters in the .msg import function.
 		Fixed logging of 0 articles in scannews.
 
+	mbfile:
+		Fixed a bug where "mbfile k p i" didn't give the help screen.
+
 	examples:
 		Fixed 2 spelling errors in the dutch macro templates.
 
