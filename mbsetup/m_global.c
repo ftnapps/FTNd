@@ -2,7 +2,7 @@
  *
  * File ..................: m_global.c
  * Purpose ...............: Global Setup Program 
- * Last modification date : 27-Sep-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -222,12 +222,13 @@ void e_global(void)
 	mvprintw(10, 2, "5.  Inbound");
 	mvprintw(11, 2, "6.  Prot inb.");
 	mvprintw(12, 2, "7.  Outbound");
-	mvprintw(13, 2, "8.  Bad TIC's");
-	mvprintw(14, 2, "9.  TIC queue");
-	mvprintw(15, 2, "10. Magic's");
-	mvprintw(16, 2, "11. DOS path");
-	mvprintw(17, 2, "12. Unix path");
-	mvprintw(18, 2, "13. LeaveCase");
+	mvprintw(13, 2, "8.  *.msgs");
+	mvprintw(14, 2, "9.  Bad TIC's");
+	mvprintw(15, 2, "10. TIC queue");
+	mvprintw(16, 2, "11. Magic's");
+	mvprintw(17, 2, "12. DOS path");
+	mvprintw(18, 2, "13. Unix path");
+	mvprintw(19, 2, "14. LeaveCase");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -238,14 +239,15 @@ void e_global(void)
 		show_str(10,16,64, CFG.inbound);
 		show_str(11,16,64, CFG.pinbound);
 		show_str(12,16,64, CFG.outbound);
-		show_str(13,16,64, CFG.badtic);
-		show_str(14,16,64, CFG.ticout);
-		show_str(15,16,64, CFG.req_magic);
-		show_str(16,16,64, CFG.dospath);
-		show_str(17,16,64, CFG.uxpath);
-		show_bool(18,16,   CFG.leavecase);
+		show_str(13,16,64, CFG.msgs_path);
+		show_str(14,16,64, CFG.badtic);
+		show_str(15,16,64, CFG.ticout);
+		show_str(16,16,64, CFG.req_magic);
+		show_str(17,16,64, CFG.dospath);
+		show_str(18,16,64, CFG.uxpath);
+		show_bool(19,16,   CFG.leavecase);
 
-		switch(select_menu(13)) {
+		switch(select_menu(14)) {
 		case 0:	return;
 		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.")
 		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.")
@@ -254,12 +256,13 @@ void e_global(void)
 		case 5:	E_PTH(10,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.")
 		case 6:	E_PTH(11,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.")
 		case 7:	E_PTH(12,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.")
-		case 8: E_PTH(13,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
-		case 9: E_PTH(14,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
-		case 10:E_PTH(15,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
-		case 11:E_STR(16,16,64, CFG.dospath,      "The translated ^DOS^ drive and path.")
-		case 12:E_PTH(17,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
-		case 13:E_BOOL(18,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+		case 8: E_PTH(13,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.")
+		case 9: E_PTH(14,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
+		case 10:E_PTH(15,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
+		case 11:E_PTH(16,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
+		case 12:E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path.")
+		case 13:E_PTH(18,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
+		case 14:E_BOOL(19,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
 		}
 	};
 }
@@ -1696,6 +1699,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
 	fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);
 	fprintf(fp, "      Known inbound    %s\n", CFG.pinbound);
+	fprintf(fp, "      *.msgs path      %s\n", CFG.msgs_path);
 	fprintf(fp, "      Bad TIC's        %s\n", CFG.badtic);
 	fprintf(fp, "      TIC queue        %s\n", CFG.ticout);
 	fprintf(fp, "      Magic filereq.   %s\n", CFG.req_magic);

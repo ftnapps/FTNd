@@ -4067,6 +4067,7 @@ v0.33.18        27-Jul-2001
 		In your Mail Transport Agent (if you use it) replace the line
 		"mbmail -r <nexthop> (recipients)" to mbmail "(recipients)".
 		In postfix this is in the master.cf file.
+		With mbsetup menu 1.3.8 fill in the path to the *.msg path.
 
 	lang:
 		Added Galego language by Redy Rodriguez.
@@ -4135,6 +4136,7 @@ v0.33.18        27-Jul-2001
 		deleted.
 		Added setup items for the menu Display colors.
 		Added a no suid switch to the menu for doors.
+		Added setup for *.msg directory in menu 1.3.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a

@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/mbtask.c
  * Purpose ...............: MBSE BBS Task Manager
- * Last modification date : 13-Aug-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -154,6 +154,7 @@ void load_maincfg(void)
                 sprintf(CFG.inbound, "/var/spool/mbse/unknown");
                 sprintf(CFG.pinbound, "/var/spool/mbse/inbound");
                 sprintf(CFG.outbound, "/var/spool/mbse/outbound");
+		sprintf(CFG.msgs_path, "/var/spool/mbse/msgs");
                 sprintf(CFG.dospath, "a:"); /* The biggest floppy on earth, JvdW. */
                 sprintf(CFG.uxpath, "/var/spool/mbse");
                 sprintf(CFG.badtic, "/var/spool/mbse/badtic");
