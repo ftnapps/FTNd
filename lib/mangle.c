@@ -54,9 +54,7 @@ int		is_8_3(char *);
 /* -------------------------------------------------------------------------- **
  * Other stuff...
  *
- * magic_char     - This is the magic char used for mangling.  It's
- *                  global.  There is a call to lp_magicchar() in server.c
- *                  that is used to override the initial value.
+ * magic_char     - This is the magic char used for mangling.  It's global.
  *
  * MANGLE_BASE    - This is the number of characters we use for name mangling.
  *
@@ -136,6 +134,7 @@ int str_checksum(const char *s)
 	s++;
 	i++;
     }
+//    Syslog('f', "str_cksum(%s) %d", s, res);
     return res;
 }
 
@@ -348,7 +347,7 @@ int is_8_3( char *fname)
  */
 void mangle_name_83(char *s)
 {
-    int		csum, i;
+    int		csum, crc16, i;
     char	*p, *q;
     char	extension[4];
     char	base[9];
@@ -406,11 +405,17 @@ void mangle_name_83(char *s)
 	if (all_normal && p[1] != 0) {
 	    *p = 0;
 	    csum = str_checksum(s);
+	    crc16 = crc16xmodem(s, strlen(s));
 	    *p = '.';
-	} else
+	} else {
 	    csum = str_checksum(s);
-    } else
+	    crc16 = crc16xmodem(s, strlen(s));
+	}
+    } else {
 	csum = str_checksum(s);
+	crc16 = crc16xmodem(s, strlen(s));
+    }
+//    Syslog('f', "crc16xmodem(%s) %d", s, crc16);
 
     tu(s);
 
@@ -438,8 +443,11 @@ void mangle_name_83(char *s)
     base[baselen] = 0;
 
     csum = csum % (MANGLE_BASE * MANGLE_BASE);
+    crc16 = crc16 % (MANGLE_BASE * MANGLE_BASE);
     sprintf(s, "%s%c%c%c", base, magic_char, mangle(csum / MANGLE_BASE), mangle(csum));
-
+    Syslog('f', "csum %4d mangle old %c%c%c  crc16 %4d mangle new %c%c%c", 
+	    csum, magic_char, mangle(csum / MANGLE_BASE), mangle(csum),
+	    crc16, magic_char, mangle(crc16 / MANGLE_BASE), mangle(crc16));
     if( *extension ) {
 	(void)strcat(s, ".");
 	(void)strcat(s, extension);
