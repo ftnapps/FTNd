@@ -684,7 +684,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	Syslog('m', "========== Fido end");
 
 	if (newsmode)
-	    rc = postecho(NULL, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, fmsg->flags, 0, ofp, FALSE);
+	    rc = postecho(NULL, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, fmsg->flags, 0, ofp, FALSE, 0);
 	else
 	    rc = postnetmail(ofp, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, 
 		    fmsg->flags, FALSE, fmsg->from->zone, fmsg->to->zone);

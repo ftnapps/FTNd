@@ -4,7 +4,7 @@
 /* $Id$ */
 
 
-int	postecho(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *, int);
+int	postecho(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *, int, int);
 
 
 #endif

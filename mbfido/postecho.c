@@ -130,7 +130,8 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
  * For echomail, the crc32 is calculated over the ^AREA kludge, subject, 
  * message date, origin line, message id.
  */
-int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, int cost, FILE *fp, int tonews)
+int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, 
+	int cost, FILE *fp, int tonews, int isbad)
 {
     char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16];
     int		    First = TRUE, rc = 0, i, kludges = TRUE, dupe = FALSE, bad = TRUE, seenlen, oldnet;
@@ -146,6 +147,9 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     crc = 0xffffffff;
     echo_in++;
 
+    if (isbad)
+	Syslog('m', "postecho isbad=%d", isbad);
+
     /*
      *  p_from is set for tossed echomail, it is NULL for local posted echomail and gated news.
      */
@@ -157,6 +161,15 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 		break;
 	    }
 	}
+
+	/*
+	 * Echomail for unknow area was passed, make sure we pass the next tests
+	 */
+	if (isbad == 6) {
+	    bad = FALSE;
+	    Link.receivefrom = TRUE;
+	}
+
 	if (bad && (msgs.UnSecure || do_unsec)) {
 	    bad = FALSE;
 	    memset(&Link, 0, sizeof(Link));
@@ -164,8 +177,9 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	}
 	if (bad) {
 	    Syslog('+', "Node %s not connected to area %s", ascfnode(p_from, 0x1f), msgs.Tag);
-	    echo_bad++;
-	    return 4;
+	    bad = FALSE;
+	    Link.receivefrom = TRUE;
+	    isbad = 7;	/* Force to goto badboard */
 	}
 	if (Link.cutoff && !bad) {
 	    Syslog('+', "Echomail from %s in %s refused, cutoff", ascfnode(p_from, 0x1f), msgs.Tag);
@@ -247,7 +261,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     if (msgid != NULL) {
 	crc = upd_crc32(msgid, crc, strlen(msgid));
     } else {
-	if (check_dupe) {
+	if (check_dupe && !isbad) {
 	    /*
 	     *  If a MSGID is missing it is possible that dupes from some offline
 	     *  readers slip through because these readers use the same date for
@@ -264,13 +278,13 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	    }     
 	}   
     }
-    if (check_dupe)
+    if (check_dupe && !isbad)
 	dupe = CheckDupe(crc, D_ECHOMAIL, CFG.toss_dupes);
     else
 	dupe = FALSE;
 
 
-    if (!dupe && !msgs.UnSecure && !do_unsec) {
+    if (!dupe && !msgs.UnSecure && !do_unsec && !isbad) {
 	/*
 	 * Check if the message is for us. Don't check point address,
 	 * echomail messages don't have point destination set.
@@ -303,11 +317,26 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	}
     }
 
+    if (isbad) {
+	/*
+	 * If the isbad was passed, this is echomail with an error that maybe
+	 * later can be retossed from the bad board. Store it as original as
+	 * possible.
+	 */
+	Syslog('m', "storeecho to bad isbad=%d", isbad);
+	rc = storeecho(f, t, mdate, flags, subj, msgid, reply, TRUE, FALSE, fp);
+	free(buf);
+	if (msgid)
+	    free(msgid);
+	if (reply)
+	    free(reply);
+	return rc;
+    }
 
     /*
      *  The echomail message is accepted for post/forward/gate
      */
-    if (!dupe) {
+    if (!dupe && !isbad) {
 
 	if (msgs.Aka.zone != Link.aka.zone) {
 	    /*
@@ -336,7 +365,6 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	uniq_list(&sbl);
     }
 
-
     /*
      * Add our system to the path for later export.
      */
@@ -350,13 +378,13 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      */
     First = TRUE;
     while (GetMsgSystem(&Link, First)) {
-	First = FALSE;
-	if ((Link.aka.zone) && (Link.sendto) && (!Link.pause) && (!Link.cutoff)) {
+        First = FALSE;
+        if ((Link.aka.zone) && (Link.sendto) && (!Link.pause) && (!Link.cutoff)) {
 	    Faddr = fido2faddr(Link.aka);
 	    if (p_from == NULL) {
-		fill_qualify(&qal, Link.aka, FALSE, in_list(Faddr, &sbl, FALSE));
+	        fill_qualify(&qal, Link.aka, FALSE, in_list(Faddr, &sbl, FALSE));
 	    } else {
-		fill_qualify(&qal, Link.aka, ((p_from->zone  == Link.aka.zone) && 
+	        fill_qualify(&qal, Link.aka, ((p_from->zone  == Link.aka.zone) && 
 		      (p_from->net   == Link.aka.net) && (p_from->node  == Link.aka.node) && 
 		      (p_from->point == Link.aka.point)), in_list(Faddr, &sbl, FALSE));
 	    }
@@ -370,8 +398,8 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      *  When ready, filter the dupes and sort the SEEN-BY entries.
      */
     for (tmpq = qal; tmpq; tmpq = tmpq->next) {
-	if (tmpq->send) {
-	    sprintf(sbe, "%u/%u", tmpq->aka.net, tmpq->aka.node);
+        if (tmpq->send) {
+	   sprintf(sbe, "%u/%u", tmpq->aka.net, tmpq->aka.node);
 	    fill_list(&sbl, sbe, NULL);
 	}
     }

@@ -67,8 +67,9 @@ int InitMsgs(void)
 }
 
 
-int smsgarea(char *, int);
-int smsgarea(char *what, int newsgroup)
+
+int smsgarea(char *, int, int);
+int smsgarea(char *what, int newsgroup, int bad)
 {
     FILE    *fil;
 
@@ -86,7 +87,9 @@ int smsgarea(char *what, int newsgroup)
 	msgs_pos = ftell(fil) - msgshdr.recsize;
 	sysstart = ftell(fil);
 	fseek(fil, msgshdr.syssize, SEEK_CUR);
-	if (((!strcasecmp(what, msgs.Tag) && !newsgroup) || (!strcmp(what, msgs.Newsgroup) && newsgroup)) && msgs.Active) {
+	if (((!strcasecmp(what, msgs.Tag) && !newsgroup && !bad) || 
+	     (!strcmp(what, msgs.Newsgroup) && newsgroup && !bad) ||
+	     (!strcmp(CFG.badboard, msgs.Base) && bad)) && msgs.Active) {
 	    sysrecord = 0;
 	    fclose(fil);
 	    msgs_crc = 0xffffffff;
@@ -124,14 +127,21 @@ int smsgarea(char *what, int newsgroup)
 
 int SearchMsgs(char *Area)
 {
-	return smsgarea(Area, FALSE);
+    return smsgarea(Area, FALSE, FALSE);
 }
 
 
 
 int SearchMsgsNews(char *Group)
 {
-	return smsgarea(Group, TRUE);
+    return smsgarea(Group, TRUE, FALSE);
+}
+
+
+
+int SearchBadBoard(void)
+{
+    return smsgarea((char *)"xXxX", FALSE, TRUE);
 }
 
 

@@ -86,17 +86,11 @@ mbfido:
 
 	N: Add macro's for stats of all months.
 
-	L: Implement netmail K/S flag to mark netmail Deleted. CHECK!
-
 	N: Implement file requests for directory nodes.
 
 	L: Add %from command to areamgr/filemgr.
 
 	L: Add netmail notification of changed areas.
-
-	L: Maybe store insecure echomail in badmail area.
-
-	L: Maybe store echomail for unknown areas in badmail area.
 
 	L: Make it possible to only virus scan the complete archives.
 

@@ -136,15 +136,16 @@ char *aread(char *s, int count, FILE *fp)
  *  1 - Can't access messagebase.
  *  2 - Cannot open mareas.data
  *  3 - Echomail without Origin line.
- *  4 - Echomail from unknown node, disconnected node.
+ *  4 - Echomail from unknown node or disconnected node.
  *  5 - Locking error.
+ *  6 - Unknown echomail area.
  *
  */
 int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, 
 	int flags, int cost, FILE *fp, unsigned int tzone)
 {
     char	*buf, *marea = NULL;
-    int		echomail = FALSE, rc = 0, bad = FALSE, Known = FALSE, FirstLine;
+    int		echomail = FALSE, rc = 0, bad = 0, Known = FALSE, FirstLine;
     sysconnect	Link;
 
     if (CFG.slow_util && do_quiet)
@@ -190,7 +191,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 		Syslog('!', "Echomail without Origin line");
 		echo_bad++;
 		echo_in++;
-		bad = TRUE;
+		bad = 3;
 		free(buf);
 		free(marea);
 		return 3;
@@ -201,23 +202,20 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 		Syslog('m', "Unknown echo area %s", marea);
 		if (!create_msgarea(marea, p_from)) {
 		    WriteError("Create echomail area %s failed", marea);
-		    echo_bad++;
-		    echo_in++;
-		    bad = TRUE;
-		    free(marea);
-		    free(buf);
-		    return 4;
+		    bad = 6;
 		}
-		SearchNode(Link.aka);
-		if (!SearchMsgs(marea)) {
-		    WriteError("Unknown echo area %s", marea);
-		    echo_bad++;
-		    echo_in++;
-		    bad = TRUE;
-		    free(marea);
-		    free(buf);
-		    return 4;
-		}       
+		if (bad == 0) {	
+		    SearchNode(Link.aka);
+		    if (!SearchMsgs(marea)) {
+			WriteError("Unknown echo area %s", marea);
+			echo_bad++;
+			echo_in++;
+			bad = 4;
+			free(marea);
+			free(buf);
+			return 4;
+		    }
+		}	    
 	    }
 	    echomail = TRUE;
 	    free(marea);
@@ -227,12 +225,23 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     } /* end of checking kludges */
 
     if (echomail) {
+	if (bad) {
+	    /*
+	     * Bad, load the badmail record
+	     */
+	    if ((strlen(CFG.badboard) == 0) && !SearchBadBoard()) {
+		Syslog('+', "No badmail area, killing message");
+		free(buf);
+		return 6;
+	    }
+	    UpdateMsgs();
+	}
 	/*
 	 * At this point, the destination zone is not yet set.
 	 */
 	if (!t->zone)
 	    t->zone = tzone;
-	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
+	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE, bad);
     } else
 	rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE, p_from->zone, tzone);
 

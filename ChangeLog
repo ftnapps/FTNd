@@ -3,6 +3,13 @@ $Id$
 
 v0.61.4		11-Aug-2004
 
+	mbfido:
+		No help was displayed when no valid command was given.
+		Echomail for non-existing areas now finally is stored in the
+		badmail area.
+		Echomail received from not connected nodes is stored in the
+		badmail area unless the area allowes it.
+
 	mbuser:
 		Fixed permissions.
 

@@ -414,6 +414,10 @@ int main(int argc, char **argv)
 	}
     }
 
+    if ((!do_areas) && (!do_toss) && (!do_scan) && (!do_tic) && (!do_notify) && (!do_roll) && 
+    	(!do_tags) && (!do_stat) && (!do_test) && (!do_news) && (!do_uucp) && (!do_mail))
+	Help();
+
     ProgName();
     pw = getpwuid(getuid());
     InitClient(pw->pw_name, (char *)"mbfido", CFG.location, CFG.logfile, 
