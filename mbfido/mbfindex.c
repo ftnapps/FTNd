@@ -645,13 +645,13 @@ void HtmlIndex(char *Lang)
 				}
 			    }
 			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp, 
-					area.Path+strlen(CFG.ftp_base), fdb.Name);
+					area.Path+strlen(CFG.ftp_base), fdb.LName);
 			    sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), fdb.Name);
+					area.Path+strlen(CFG.ftp_base), fdb.LName);
 			    MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);
 			} else {
 			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), fdb.Name);
+					area.Path+strlen(CFG.ftp_base), fdb.LName);
 			    MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
 			}
 
