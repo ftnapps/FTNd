@@ -4633,6 +4633,7 @@ v0.33.20        10-Feb-2002
 		destination address.
 		Corrected spelling errors in the Areamgr and Filemgr help
 		messages.
+		Removed some debug logging from tge RFC->FTN gate.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to

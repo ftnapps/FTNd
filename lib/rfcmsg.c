@@ -76,7 +76,7 @@ rfcmsg *parsrfc(FILE *fp)
 				} else 
 					cur->val = xstrcat(cur->val,buffer);
 			} else {
-				Syslog('M', "this is a header line");
+//				Syslog('M', "this is a header line");
 				if (cur) {
 					firstline=FALSE;
 					(cur->next) = (rfcmsg *)malloc(sizeof(rfcmsg));
@@ -109,7 +109,7 @@ rfcmsg *parsrfc(FILE *fp)
 					/* at least one non blank char */
 					 (strspn(p+2, " \t\n") < strlen(p+2)) && (strspn(buffer,KWDCHARS) == (p-buffer))) {
 					*p='\0';
-					Syslog('M', "This is a regular header");
+//					Syslog('M', "This is a regular header");
 					cur->key = xstrcpy(buffer);
 					cur->val = xstrcpy(p+1);
 				} else {
