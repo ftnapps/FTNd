@@ -136,8 +136,6 @@ install:
 		@if [ ! -d ${PREFIX}/var/bso ] ; then \
 			mkdir ${PREFIX}/var/nodelist ; \
 			mkdir ${PREFIX}/var/bso ; \
-			mkdir ${PREFIX}/var/bso/unknown ; \
-			mkdir ${PREFIX}/var/bso/inbound ; \
 			mkdir ${PREFIX}/var/bso/outbound ; \
 			mkdir ${PREFIX}/var/msgs; \
 			mkdir ${PREFIX}/var/badtic ; \
@@ -145,6 +143,14 @@ install:
 			mkdir ${PREFIX}/var/mail ; \
 			${CHOWN} -R ${OWNER}.${GROUP} ${PREFIX}/var ; \
 			chmod -R 0750 ${PREFIX}/var ; \
+		fi
+		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
+			mkdir ${PREFIX}/var/unknown ; \
+			mkdir ${PREFIX}/var/inbound ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/var/unknown ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/var/inbound ; \
+			chmod 0750 ${PREFIX}/var/unknown ; \
+			chmod 0750 ${PREFIX}/var/inbound ; \
 		fi
 		@chmod 0770 ${PREFIX}/var
 		@chmod 0770 ${PREFIX}/var/mail

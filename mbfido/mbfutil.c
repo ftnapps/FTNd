@@ -230,7 +230,7 @@ int UnpackFile(char *File)
     Syslog('f', "UnpackFile(%s)", File);
 
     if ((unarc = unpacker(File)) == NULL) {
-	Syslog('+', "Unknown archive format %s", File);
+	Syslog('f', "Unknown archive format %s", File);
 	return FALSE;
     }
 

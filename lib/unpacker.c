@@ -62,7 +62,7 @@ char *unpacker(char *fn)
 	if (memcmp(buf,"ZOO",3) == 0)        return (char *)"ZOO";
 	if (memcmp(buf,"`\352",2) == 0)      return (char *)"ARJ";
 	if (memcmp(buf,"Rar",3) == 0)        return (char *)"RAR";
-	if (memcmp(buf, ";A ",3) == 0)       return (char *)"ASC";
+//	if (memcmp(buf, ";A ",3) == 0)       return (char *)"ASC";
 
 	Syslog('p', "Unknown compress scheme in file %s", fn);
 	return NULL;
