@@ -33,10 +33,6 @@ mbsebbs:
 	U: When the bbs times out during login, the GoodBye functions goes
 	   into a loop.
 
-	N: Add switch for single user doors.
-
-	N: Send the doorname instead of "external door" to mbtask.
-
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.

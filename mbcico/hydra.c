@@ -1441,9 +1441,15 @@ int hydra_batch(int role, file_list *to_send)
 			    memcpy(rxbuf + 4, rxzbuf, rxzlen);
 			    rxlen = rxzlen + 4;
 			} else {
+			    /*
+			     * Send BadPos if uncompress failed, the transmitter should
+			     * resent the block without compression.
+			     */
 			    Syslog('+', "Hydra: ZIPDATA uncompress error, sending BadPos");
+			    longnum = get_long(rxbuf);
 			    rxstate = HRX_BadPos;
 			    pkttype = H_NOPKT;  /* packet has already been processed */
+			    break;
 			}
 		    }
 		    longnum = get_long(rxbuf);

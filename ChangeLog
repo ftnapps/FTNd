@@ -1,10 +1,5 @@
 $Id$
 
-	WARNING: This code contains unfinished changes, if you use the bbs
-		 then do not use this version.
-		 This code also contains changes in the hydra code, this
-		 is under test.
-
 
 v0.39.0		09-Oct-2003
 
@@ -35,6 +30,8 @@ v0.39.0		09-Oct-2003
 
 	examples:
 		Updated English and Spanish menus with the new door settings.
+		Fixed some spelling errors in the Dutch templates.
+
 
 
 v0.38.0		26-Dec-2002 - 03-Oct-2003
