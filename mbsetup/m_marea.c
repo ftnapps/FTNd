@@ -704,7 +704,7 @@ void MsgGlobal(void);
 void MsgGlobal(void)
 {
     gr_list	*mgr = NULL, *tmp;
-    char	*p, mfile[PATH_MAX], *temp;
+    char	*p, mfile[PATH_MAX];
     FILE	*fil;
     fidoaddr	a1, a2;
     int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_CP437;
