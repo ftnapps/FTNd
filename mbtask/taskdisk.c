@@ -28,6 +28,7 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "libs.h"
 #include "../lib/structs.h"
 #include "taskdisk.h"

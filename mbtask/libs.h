@@ -36,8 +36,6 @@
 #define	SS_BUFSIZE	1024		/* Streams socket buffersize	*/
 
 
-#include "../config.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
