@@ -62,6 +62,7 @@ v0.35.03	06-Jul-2002
 		There are people using M$ wordprocessors to create TIC files,
 		there is now better filtering to get that garbage out of the
 		received tic files. We will forward plain ascii of course.
+		Fixed the outbound queue to send to nodes not in the setup.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.

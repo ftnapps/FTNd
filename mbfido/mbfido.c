@@ -90,6 +90,7 @@ int	do_learn   = FALSE;		/* News articles learnmode	    */
 int	check_crc  = TRUE;		/* Check .tic crc values	    */
 int	check_dupe = TRUE;		/* Check duplicates		    */
 int	do_flush   = FALSE;		/* Flush outbound queue		    */
+int	flushed    = FALSE;		/* If anything was flushed	    */
 extern	int do_quiet;			/* Quiet flag			    */
 extern	int e_pid;			/* Pid of child process		    */
 extern	int show_log;			/* Show logging on screen	    */
@@ -215,7 +216,7 @@ void die(int onsig)
     if (echo_imp + net_imp + net_out + echo_out)
 	CreateSema((char *)"msglink");
 
-    if (echo_out + net_out + tic_out)
+    if ((echo_out + net_out + tic_out) || flushed)
 	CreateSema((char *)"scanout");
 
     if (tic_imp)

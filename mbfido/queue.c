@@ -48,6 +48,8 @@ static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we",
 
 
 extern	int	do_quiet;
+extern	int	flushed;
+
 
 
 /*
@@ -98,11 +100,16 @@ void flush_dir(char *ndir)
     sprintf(nodenr.domain, "%s", noden.domain);
 
     if (!SearchNode(nodenr)) {
-	WriteError("Downlink %s not found", aka2str(nodenr));
-	if (noden.domain)
-	    free(noden.domain);
-	free(temp);
-	return;
+	/*
+	 * Node not known, blank noderecord and fill in some details
+	 * so that we are able to send mail crash or immediate.
+	 */
+	Syslog('+', "Node %s not in setup, using default settings", aka2str(nodenr));
+	memset(&nodes, 0, sizeof(nodes));
+	nodes.Aka[0].zone  = noden.zone;
+	nodes.Aka[0].net   = noden.net;
+	nodes.Aka[0].node  = noden.node;
+	nodes.Aka[0].point = noden.point;
     }
 
     /*
@@ -351,6 +358,7 @@ void flush_dir(char *ndir)
 		fflush(stdout);
 	    }
 	    first = FALSE;
+	    flushed = TRUE;
 	}
 
 	if (execute(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
@@ -419,6 +427,7 @@ void flush_dir(char *ndir)
 		fflush(stdout);
 	    }
 	    first = FALSE;
+	    flushed = TRUE;
 	}
 
 	sprintf(pktfile, "%s/%s", temp, fname);
@@ -500,6 +509,7 @@ void flush_dir(char *ndir)
 	if (!do_quiet) {
 	    printf("\rAdding files for %s                        ", ascfnode(&noden, 0x1f));
 	    fflush(stdout);
+	    flushed = TRUE;
 	}
 
 	buf = calloc(PATH_MAX + 1, sizeof(char));
