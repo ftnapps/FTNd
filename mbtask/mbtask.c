@@ -1041,9 +1041,6 @@ void *scheduler(void)
      * Enter the mainloop (forever)
      */
     do {
-#ifdef USE_EXPERIMENT
-	Syslog('l', "Starting scheduler loop");
-#endif
 	sleep(1);
 	if (T_Shutdown)
 	    break;
