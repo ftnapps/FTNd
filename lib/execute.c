@@ -156,7 +156,7 @@ int execute(char **args, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(300);
+//    msleep(300);
     return rc;
 }
 
@@ -308,7 +308,7 @@ int execsh(char *cmd, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(300);
+//    msleep(300);
     return rc;
 }
 
