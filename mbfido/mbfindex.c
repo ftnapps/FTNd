@@ -322,7 +322,9 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current)
         } else {
                 sprintf(linebuf, "%s", Name);
                 html_massage(linebuf, outbuf);
+		fprintf(fa, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n");
                 fprintf(fa, "<HTML>\n");
+		fprintf(fa, "<!-- Page created by MBSE BBS v%s -->\n", VERSION);
                 fprintf(fa, "<META http-equiv=\"Expires\" content=\"%s\">\n", rfcdate(later));
                 fprintf(fa, "<META http-equiv=\"Cache-Control\" content=\"no-cache, must-revalidate\">\n");
                 fprintf(fa, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
@@ -445,7 +447,9 @@ void Index(void)
 	 */
 	sprintf(linebuf, "File areas at %s", CFG.bbs_name);
 	html_massage(linebuf, outbuf);
+	fprintf(fm, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n");
 	fprintf(fm, "<HTML>\n");
+	fprintf(fm, "<!-- Page created by MBSE BBS v%s -->\n", VERSION);
 	fprintf(fm, "<META http-equiv=\"Expires\" content=\"%s\">\n", rfcdate(later));
 	fprintf(fm, "<META http-equiv=\"Cache-Control\" content=\"no-cache, must-revalidate\">\n");
 	fprintf(fm, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);

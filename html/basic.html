@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Dec-2001</h5>
+<h5>Last update 04-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <h1>MBSE BBS Basic Installation</h1>
@@ -28,47 +28,45 @@ environment. If you don't do this, things will fail.
 MBSE BBS is default installed in <b>/opt/mbse</b>. The default filesystem
 layout looks like this:<br>
 <pre>
-/opt/mbse                      Default MBSE_ROOT
-/opt/mbse/bin                  Binaries
-/opt/mbse/doc                  Generated sitedocs
-/opt/mbse/dutch/macro          N/A
-/opt/mbse/dutch/menus          Dutch menu files
-/opt/mbse/dutch/txtfiles       Dutch ANSI files
-/opt/mbse/english/macro        Default english macros, not yet.
-/opt/mbse/english/menus        Default english menus
-/opt/mbse/english/txtfiles     Default english ANSI files
-/opt/mbse/etc                  System configuration files
-/opt/mbse/fdb                  Files database
-/opt/mbse/ftp                  Default FTP root
-/opt/mbse/galego/macro         N/A
-/opt/mbse/galego/menus         Galego menu files
-/opt/mbse/galego/txtfiles      Galego ANSI files
-/opt/mbse/home                 Users homedirectories
-/opt/mbse/home/bbs             Newuser account
-/opt/mbse/html                 HTML documentation
-/opt/mbse/italian/macro        N/A
-/opt/mbse/italian/menus        Italian menu files
-/opt/mbse/italian/txtfiles     Italian ANSI files
-/opt/mbse/log                  MBSE BBS logfiles
-/opt/mbse/magic                Magic filerequest names
-/opt/mbse/sema                 Semafore files
-/opt/mbse/spanish/macro        N/A
-/opt/mbse/spanish/menus        Spanish menu files
-/opt/mbse/spanish/txtfiles     Spanish ANSI files
-/opt/mbse/tmp                  Temp directory
-/opt/mbse/tmp/arc              Temp archiver directory
-/opt/mbse/var                  Var root
-/opt/mbse/var/badtic           Bad TIC files
-/opt/mbse/var/bso              Binkley Style Outbound directory
-/opt/mbse/var/bso/inbound      Protected inbound directory
-/opt/mbse/var/bso/outbound     Default outbound directory
-/opt/mbse/var/bso/unknown      Unprotected inbound directory
-/opt/mbse/var/mail             JAM messagebase root
-/opt/mbse/var/mail/badmail     Bad echomail
-/opt/mbse/var/mail/dupmail     Duplicate echomail
-/opt/mbse/var/msgs             *.msgs netmail directory (not yet in use).
-/opt/mbse/var/nodelist         Nodelists
-/opt/mbse/var/ticqueue         Queue for TIC files
+/opt/mbse                      0775  Default MBSE_ROOT
+/opt/mbse/bin                  0755  Binaries
+/opt/mbse/doc                  0755  Generated sitedocs
+/opt/mbse/dutch/macro          0755  N/A
+/opt/mbse/dutch/menus          0755  Dutch menu files
+/opt/mbse/dutch/txtfiles       0755  Dutch ANSI files
+/opt/mbse/english/macro        0755  Default english macros, not yet.
+/opt/mbse/english/menus        0755  Default english menus
+/opt/mbse/english/txtfiles     0755  Default english ANSI files
+/opt/mbse/etc                  0775  System configuration files
+/opt/mbse/fdb                  0775  Files database
+/opt/mbse/ftp                  0755  Default FTP root
+/opt/mbse/galego/macro         0755  N/A
+/opt/mbse/galego/menus         0755  Galego menu files
+/opt/mbse/galego/txtfiles      0755  Galego ANSI files
+/opt/mbse/home                 0770  Users homedirectories
+/opt/mbse/home/bbs             0770  Newuser account
+/opt/mbse/html                 0755  HTML documentation
+/opt/mbse/italian/macro        0755  N/A
+/opt/mbse/italian/menus        0755  Italian menu files
+/opt/mbse/italian/txtfiles     0755  Italian ANSI files
+/opt/mbse/log                  0775  MBSE BBS logfiles
+/opt/mbse/magic                0755  Magic filerequest names
+/opt/mbse/sema                 0777  Semafore files
+/opt/mbse/spanish/macro        0755  N/A
+/opt/mbse/spanish/menus        0755  Spanish menu files
+/opt/mbse/spanish/txtfiles     0755  Spanish ANSI files
+/opt/mbse/tmp                  0775  Temp directory
+/opt/mbse/tmp/arc              0775  Temp archiver directory
+/opt/mbse/var                  0770  Var root
+/opt/mbse/var/badtic           0750  Bad TIC files
+/opt/mbse/var/bso              0750  Binkley Style Outbound directory
+/opt/mbse/var/bso/inbound      0750  Protected inbound directory
+/opt/mbse/var/bso/outbound     0750  Default outbound directory
+/opt/mbse/var/bso/unknown      0750  Unprotected inbound directory
+/opt/mbse/var/mail             0770  JAM messagebase root
+/opt/mbse/var/msgs             0750  *.msgs netmail directory (not yet in use).
+/opt/mbse/var/nodelist         0750  Nodelists
+/opt/mbse/var/ticqueue         0750  Queue for TIC files
 </pre>
 <p>
 Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard Linux

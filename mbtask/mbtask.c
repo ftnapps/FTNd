@@ -326,7 +326,7 @@ void load_maincfg(void)
                 CFG.maxpktsize = 150;
                 CFG.maxarcsize = 300;
                 sprintf(CFG.badboard, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-                sprintf(CFG.dupboard, "%s/var/mail/dupmail", getenv("MBSE_ROOT"));
+                sprintf(CFG.dupboard, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
                 sprintf(CFG.popnode, "localhost");
                 sprintf(CFG.smtpnode, "localhost");
                 sprintf(CFG.nntpnode, "localhost");

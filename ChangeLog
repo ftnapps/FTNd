@@ -4274,6 +4274,7 @@ v0.33.19        26-Oct-2001
 		Changed to recognize the e-smith server based on RedHat.
 		On RedHat, Mandrake and e-smith systems the symlinks to start
 		and stop the bbs are now added.
+		Reorganized the init scripts.
 
 	libcommon.a:
 		When adding seenby entries, the zone number is copied from the
@@ -4531,6 +4532,8 @@ v0.33.19        26-Oct-2001
 		Fixes for Sparc systems.
 		Fixed index screens to prevent negative totals with large
 		filebases.
+		Added standard doctype header and commentline to the html 
+		pages.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.
