@@ -24,6 +24,8 @@ v0.35.06
 		followed by a tilde and 2 characters code calculated from the
 		checksum of the string modulo 1849. Both methods are different
 		then what MS does.
+		Added long extension to 3 char extensions for mpeg, smil, perl,
+		jpeg and tiff.
 
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.

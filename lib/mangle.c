@@ -331,6 +331,7 @@ void mangle_name_83(char *s)
     /*
      * First, convert some common Unix extensions to extensions of 3
      * characters. If none fits, don't change anything now.
+     * FIXME: should be in an external file.
      */
     if (strcmp(q = s + strlen(s) - strlen(".tar.gz"), ".tar.gz") == 0) {
 	*q = '\0';
@@ -353,6 +354,18 @@ void mangle_name_83(char *s)
     } else if (strcmp(q = s + strlen(s) - strlen(".mpeg"), ".mpeg") == 0) {
 	*q = '\0';
 	q = (char *)"mpg";
+    } else if (strcmp(q = s + strlen(s) - strlen(".smil"), ".smil") == 0) {
+	*q = '\0';
+	q = (char *)"smi";
+    } else if (strcmp(q = s + strlen(s) - strlen(".perl"), ".perl") == 0) {
+	*q = '\0';
+	q = (char *)"pl";
+    } else if (strcmp(q = s + strlen(s) - strlen(".jpeg"), ".jpeg") == 0) {
+	*q = '\0';
+	q = (char *)"jpg";
+    } else if (strcmp(q = s + strlen(s) - strlen(".tiff"), ".tiff") == 0) {
+	*q = '\0';
+	q = (char *)"tif";
     } else {
 	q = NULL;
     }
