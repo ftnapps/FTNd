@@ -1,0 +1,177 @@
+Frequently asked questions for MBSE BBS
+
+
+Author: P.E. Kimble aka King Kimerud
+        kimerud@bayahus.org
+
+
+
+Introduction
+
+This FAQ is a work in progress. It is not complete, nor does its author claim
+that it is complete. This FAQ only answers questions pertaining to using MBSE
+BBS on your Linux box. It is a compilation of previous questions that Michiel
+Broek has recieved and answered from us newbies in getting MBSE up & running.
+
+
+
+TABLE OF CONTENTS
+
+MBSE Installation
+ 1.1 Why do I have to install mbse in the /opt directory?
+ 1.2 Will MBSE ever be ported to other Operating Systems?
+ 1.3 Will MBSE BBS ever be ported to DOS/Windows or OS/2?
+ 1.4 What does the guest switch in BBS user setup mean?
+ 1.5 How do I monitor as the things happen?
+
+
+FidoNet Setup
+2.1 The nodelist compiler crashes 
+2.2 What is the purpose of the "Comment" line in the tic area setup?
+2.3 How do I poll a node?
+2.4 I created a filerequest but mbcico doesn't call out.
+2.5 Does MBSE support fidonet via ftp feeds?
+
+Internet Setup
+3.1 Posting newsmessages to the newsserver fails.
+3.2 Ftp fidonet feeds how-to
+
+
+
+INSTALLATION
+
+1.1 Why is MBSE installed in /opt/mbse, I want to install in /usr/local.
+
+A: The /opt is for extra applications, when mbse is installed there it
+   is easier to upgrade the OS. If insist on installing in /usr/local
+   the do it in /usr/local/mbse.
+
+
+1.2 What other operating systems will MBSE run on?
+
+A. Currently only linux, most distributions. The author, Michiel Broek,
+has made a valiant effort ensuring that MBSE-0.33.17 will recognize and
+install on the major distributions of linux. Additionally, MBSE will compile
+on FreeBSD, but is still in testing.
+
+
+1.3 Will MBSE BBS ever be ported to DOS/Windows or OS/2.
+
+A: No.
+
+
+1.4 What does the guest switch in BBS user setup mean.
+
+A: Nothing yet.
+
+
+1.5 How do I monitor as the things happen?
+
+A: tail -f /opt/mbse/log/system.log or start mbmon.
+
+
+
+FIDONET SETUP
+2.1 The nodelist compiler crashes
+
+Note: From previous experience, it is vital that you follow the docs 
+closely.  Also, ensure that you have a copy of a valid nodelist and 
+nodediff file.  I have ran into problems where either the noddiffs 
+don't match the nodelist, the crc checks fail, or I have files from 
+two different zones. I have even had to back up several months before 
+finding a valid noddiff that would match the nodelist.
+
+A: Make sure the domain translations do exist, with mbsetup enter 
+menu 17 and save it even if you didn't change anything.
+
+
+2.2 In Menu 10.2 (Tic Area Setup) line 1: comment, Is this an internal 
+     comment or will this be extracted somehow and sent to downlinks?
+
+A: The downlinks will see this when receiving FileMgr replies. It is
+   meant only as a description for the filearea.
+
+2.3 How do I poll a node?
+
+A: mbout poll f2802.n280.z2
+
+
+2.4 I created a filerequest but mbcico doesn't call out.
+
+A: You need to add a poll for that node to do the call.
+
+
+2.5 Does MBSE support fidonet via ftp transfers?
+
+A. No, not directly. It is a matter of using scripts to translate the .*lo
+(*.flo, *.clo, *.dlo, *.ilo) files for each node, and copying the node's 
+outbound files to their respective directory. Refer to 3.2.
+
+
+
+INTERNET SETUP
+
+3.1 Posting newsmessages to the newsserver fails.
+
+A: Check if you need the "mode reader" command for the newsserver.
+   Set this flag in mbsetup 1.14.5
+
+
+3.2 How do I configure MBSE for my ftp filenet feeds?
+
+ 1. In mbsetup menu 1.3.11, remove any reference to a DOS translation path.
+ 2. In mbsetup menu 1.3.12, remove any reference to a DOS translation path.
+
+This will give you a "True' path to your files directory where mbcico tosses
+the inbound files.
+
+ 3. Ftp Script for running a ftp feed with MBSE
+NOTE: Gracefully contributed by Janis Kacht <janis@filegate.net>
+
+a. This script does not delete or change the .flo file. It reads it in and 
+creates a new script that will be used to move and copy the files to the user's
+outbound directory you specify on the command line. Just call this script, 
+then call the finalflo.sh script with the directory name where the files 
+should be PUT, like:
+
+   parseflo <enter>
+   finalflo.sh /home/fido/jdoe/out <enter>
+
+b. You will need a full path to the flo file in the "test" line below and change 
+the name of the flo file (it's not going to be 00000063.flo) 
+Uncomment the "if test" line, and also uncomment the last line (fi)
+
+#!/bin/sh
+if test -e /opt/mbse/mail/outbound/00000063.flo ; then
+cat 00000063.flo | sed 's/\/home/cp \/home/' > newflo.txt
+cat newflo.txt | sed 's/\^\cp \/home/mv \/home/'> newflo2.txt
+cat newflo2.txt | sed 's/$/ \$1/' > finalflo.sh
+fi
+
+c. here's what finalflo.sh looks like,
+$1 is a variable for the directory  name you specify on the command line, 
+or in a cron script:
+
+cp /home/ftp/pub/filegate/fg_worf/filegate.zxx $1
+mv /opt/mbse/mail/outbound/00000063/dooqi39k.tic $1
+cp /home/ftp/pub/filegate/ss_areas/ss_areas.zip $1
+mv /opt/mbse/mail/outbound/00000063/dooqi39l.tic $1
+cp /home/ftp/pub/filebone/admin/backbone/backbone.z1b $1
+mv /opt/mbse/mail/outbound/00000063/dooqi39m.tic $1
+
+## Janis Kracht can not and will not be held liable if harm is done to your
+computer system due to any use of this script, either directly or indirectly.
+This script works perfectly when instructions are followed, and the correct 
+directories are substitiuted. How it will affect your system, is the 
+responsiblity of the system administrator!
+
+### In the future this segment will be moved to the MBSEBBS-HOWTO!
+
+4. Do not forget to test this setup. It has work fine on my system, but 
+nothing works the way it should the first time out of the box! Pay close
+attention to the ftp script and directories you enter. It seems as if 75% 
+of the problems experinced with this sed script is due to improper
+outbound directories.
+
+"And that is all I am going to say about that"!
+ ~Forrest Gump
