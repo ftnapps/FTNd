@@ -44,123 +44,120 @@
 #include "dial.h"
 
 
-extern time_t		c_start;
-extern time_t		c_end;
-extern int		online;
-extern int		master;
-int			carrier;
-extern long		sentbytes;
-extern long		rcvdbytes;
-extern int		Loaded;
+extern time_t	c_start;
+extern time_t	c_end;
+extern int	online;
+extern int	master;
+int		carrier;
+extern long	sentbytes;
+extern long	rcvdbytes;
+extern int	Loaded;
 
 
 int initmodem(void)
 {
-	int	i;
+    int	i;
 
-	for (i = 0; i < 3; i++)
-		if (strlen(modem.init[i]))
-			if (chat(modem.init[i], CFG.timeoutreset, NULL)) {
-				WriteError("dial: could not reset the modem");
-				return 1;
-			}
-	return 0;
+    for (i = 0; i < 3; i++)
+	if (strlen(modem.init[i]))
+	    if (chat(modem.init[i], CFG.timeoutreset, FALSE, NULL)) {
+		WriteError("dial: could not reset the modem");
+		return 1;
+	    }
+    return 0;
 }
 
 
 
 int dialphone(char *Phone)
 {
-	int	rc;
+    int	rc;
 
-	Syslog('+', "dial: %s (%s)",MBSE_SS(Phone), MBSE_SS(tranphone(Phone)));
-	carrier = FALSE;
+    Syslog('+', "dial: %s (%s)",MBSE_SS(Phone), MBSE_SS(tranphone(Phone)));
+    carrier = FALSE;
 
-	if (initmodem())
-		return 2;
+    if (initmodem())
+	return 2;
 
-	rc = 0;
-	if (strlen(nodes.phone[0])) {
-		if (strlen(nodes.dial)) 
-			rc = chat(nodes.dial, CFG.timeoutconnect, nodes.phone[0]);
-		else
-			rc = chat(modem.dial, CFG.timeoutconnect, nodes.phone[0]);
-		if ((rc == 0) && strlen(nodes.phone[1])) {
-			if (strlen(nodes.dial))
-				rc = chat(nodes.dial, CFG.timeoutconnect, nodes.phone[1]);
-			else
-				rc = chat(modem.dial, CFG.timeoutconnect, nodes.phone[1]);
-		}
-	} else {
-		if (strlen(nodes.dial))
-			rc = chat(nodes.dial, CFG.timeoutconnect, Phone);
-		else
-			rc = chat(modem.dial, CFG.timeoutconnect, Phone);
+    rc = 0;
+    if (strlen(nodes.phone[0])) {
+	if (strlen(nodes.dial)) 
+	    rc = chat(nodes.dial, CFG.timeoutconnect, FALSE, nodes.phone[0]);
+	else
+	    rc = chat(modem.dial, CFG.timeoutconnect, FALSE, nodes.phone[0]);
+	if ((rc == 0) && strlen(nodes.phone[1])) {
+	    if (strlen(nodes.dial))
+		rc = chat(nodes.dial, CFG.timeoutconnect, FALSE, nodes.phone[1]);
+	    else
+		rc = chat(modem.dial, CFG.timeoutconnect, FALSE, nodes.phone[1]);
 	}
+    } else {
+	if (strlen(nodes.dial))
+	    rc = chat(nodes.dial, CFG.timeoutconnect, FALSE, Phone);
+	else
+	    rc = chat(modem.dial, CFG.timeoutconnect, FALSE, Phone);
+    }
 
-	if (rc) {
-		Syslog('+', "Could not connect to the remote");
-		return 1;
-	} else {
-		c_start = time(NULL);
-		carrier = TRUE;
-		return 0;
-	}
+    if (rc) {
+	Syslog('+', "Could not connect to the remote");
+	return 1;
+    } else {
+	c_start = time(NULL);
+	carrier = TRUE;
+	return 0;
+    }
 }
 
 
 
 int hangup()
 {
-	char	*tmp;
-	FILE	*fp;
+    char    *tmp;
+    FILE    *fp;
 
-	FLUSHIN();
-	FLUSHOUT();
-	if (strlen(modem.hangup))
-		chat(modem.hangup, CFG.timeoutreset, NULL);
+    FLUSHIN();
+    FLUSHOUT();
+    if (strlen(modem.hangup))
+	chat(modem.hangup, CFG.timeoutreset, FALSE, NULL);
 
-	if (carrier) {
-		c_end = time(NULL);
-		online += (c_end - c_start);
-		Syslog('+', "Connection time %s", t_elapsed(c_start, c_end));
-		carrier = FALSE;
-		history.offline = c_end;
-		history.online  = c_start;
-		history.sent_bytes = sentbytes;
-		history.rcvd_bytes = rcvdbytes;
-		history.inbound = ~master;
-		tmp = calloc(128, sizeof(char));
-		sprintf(tmp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
-		if ((fp = fopen(tmp, "a")) == NULL)
-			WriteError("$Can't open %s", tmp);
-		else {
-			fwrite(&history, sizeof(history), 1, fp);
-			fclose(fp);
-		}
-		free(tmp);
-		memset(&history, 0, sizeof(history));
-		if (Loaded) {
-			nodes.LastDate = time(NULL);
-			UpdateNode();
-		}
+    if (carrier) {
+	c_end = time(NULL);
+	online += (c_end - c_start);
+	Syslog('+', "Connection time %s", t_elapsed(c_start, c_end));
+	carrier = FALSE;
+	history.offline = c_end;
+	history.online  = c_start;
+	history.sent_bytes = sentbytes;
+	history.rcvd_bytes = rcvdbytes;
+	history.inbound = ~master;
+	tmp = calloc(128, sizeof(char));
+	sprintf(tmp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	if ((fp = fopen(tmp, "a")) == NULL)
+	    WriteError("$Can't open %s", tmp);
+	else {
+	    fwrite(&history, sizeof(history), 1, fp);
+	    fclose(fp);
 	}
-	FLUSHIN();
-	FLUSHOUT();
-	return 0;
+	free(tmp);
+	memset(&history, 0, sizeof(history));
+	if (Loaded) {
+	    nodes.LastDate = time(NULL);
+	    UpdateNode();
+	}
+    }
+    FLUSHIN();
+    FLUSHOUT();
+    return 0;
 }
 
 
 
-int aftercall()
+void aftercall()
 {
-	if (strlen(modem.info)) {
-		Syslog('d', "Reading link stat (aftercall)");
-		FLUSHIN();
-		FLUSHOUT();
-		chat(modem.info, CFG.timeoutreset, NULL);
-	}
-	return 0;
+    Syslog('d', "Reading link stat (aftercall)");
+    FLUSHIN();
+    FLUSHOUT();
+    chat(modem.info, CFG.timeoutreset, TRUE, NULL);
 }
 
 
