@@ -1063,10 +1063,10 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	    WriteError("$Can't open %s", p);
 	} else {
 	    if (strlen(CFG.dospath)) {
-		fprintf(fl, "%c LEAVE %s\n", flavor, Dos2Unix(Msg.Subject));
+		fprintf(fl, "%c LEAVE NOR %s\n", flavor, Dos2Unix(Msg.Subject));
 		Syslog('+', "FileAttach %s", Dos2Unix(Msg.Subject));
 	    } else {
-		fprintf(fl, "%c LEAVE %s\n", flavor, Msg.Subject);
+		fprintf(fl, "%c LEAVE NOR %s\n", flavor, Msg.Subject);
 		Syslog('+', "FileAttach %s", Msg.Subject);
 	    }
 	    fsync(fileno(fl));

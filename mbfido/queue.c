@@ -70,7 +70,7 @@ void flush_dir(char *ndir)
     FILE	    *fp, *inf, *ouf;
     faddr	    noden, *bestaka;
     fidoaddr	    nodenr;
-    int		    flavor, mode, Attach, fage, first, bread, rc;
+    int		    flavor, mode, Attach, fage, first, bread, rc, fdb;
     long	    fsize;
     char	    *p, *temp, *fname, *arcfile, *pktfile, *ext, maxnr, nr, oldnr, *buf;
     time_t	    Now;
@@ -550,8 +550,16 @@ void flush_dir(char *ndir)
 	    }
 	    p = strchr(p, ' ');
 	    p++;
+	    if (strncmp(p, "NOR ", 4))
+		fdb = FALSE;
+	    else if (strncmp(p, "FDN ", 4))
+		fdb = TRUE;
+	    else
+		fdb = FALSE;
+	    p = strchr(p, ' ');
+	    p++;
 
-	    Syslog('p', "File attach %s", p);
+	    Syslog('p', "File attach (fdb=%s) %s", fdb?"True":"False", p);
 	    if (nodes.Session_out == S_DIRECT) {
 		attach(noden, p, mode, flavor);
 	    } else if (nodes.Session_out == S_DIR) {

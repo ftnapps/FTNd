@@ -90,7 +90,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     if (nodes.Hold)
 	flavor = 'h';
 
-    fprintf(fl, "%c LEAVE %s\n", flavor, fwdfile);
+    fprintf(fl, "%c LEAVE FDN %s\n", flavor, fwdfile);
 
     if (nodes.RouteVia.zone)
 	routeto = fido2faddr(nodes.RouteVia);
@@ -256,7 +256,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 
 	    fprintf(fp, "Pw %s\r\n", nodes.Fpasswd);
 	    fclose(fp);
-	    fprintf(fl, "%c KFS %s\n", flavor, ticfile);
+	    fprintf(fl, "%c KFS NOR %s\n", flavor, ticfile);
 	} else {
 	    WriteError("$Can't create %s", ticfile);
 	}
