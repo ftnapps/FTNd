@@ -6,6 +6,16 @@ v0.39.1		22-Oct-2003
 	general:
 		Make dist now creates bzip2 archives.
 
+	upgrade:
+		If you don't have any personal archivers, then remove 
+		~/etc/archiver.data and start mbsetup to recreate the
+		archivers setup.
+
+	mbsetup:
+		In node editor, fixed error message when there was no more
+		room for new nodes to point to the right menus.
+		Added support for tar compressed archives.
+
 
 v0.39.0		09-Oct-2003 - 22-Oct-2003
 
