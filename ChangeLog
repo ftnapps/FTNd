@@ -40,6 +40,9 @@ v0.71.1		28-Nov-2004
 		8.3 and long filenames and does the right thing during import.
 		During file import the destination is tested for both 8.3 and
 		LFN for an existing file. Improved error reporting.
+		With mbfile import the original file isn't renamed anymore.
+		Fixed error reporting when files in files.bbs were not found
+		on disk.
 
 	mbfido:
 		In rfc2ftn a debug logmessage added to check for unrecognised

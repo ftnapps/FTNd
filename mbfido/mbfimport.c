@@ -45,7 +45,7 @@ extern int	do_novir;		/* Suppress virus scanning	    */
 
 void ImportFiles(int Area)
 {
-    char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
+    char		*pwd, *temp, *fod, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
     FILE		*fbbs;
     DIR			*dp;
     int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, y, Doit;
@@ -81,6 +81,7 @@ void ImportFiles(int Area)
 	String = calloc(4096, sizeof(char));
 	dest   = calloc(PATH_MAX, sizeof(char));
 	lname  = calloc(PATH_MAX, sizeof(char));
+	fod    = calloc(PATH_MAX, sizeof(char));
 
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
@@ -215,15 +216,16 @@ void ImportFiles(int Area)
 		closedir(dp);
 
 		if (strlen(temp2) == 0) {
-		    WriteError("Can't find file on disk, skipping: %s", temp2);
+		    WriteError("Can't find file on disk, skipping: %s", token);
 		    if (!do_quiet)
-			printf("\nCan't find file on disk, skipping: %s\n", temp2);
+			printf("\nCan't find file on disk, skipping: %s\n", token);
 		    Append = FALSE;
 		    Present = FALSE;
 		} else {
 		    /*
 		     * Check type of filename and set the right values.
 		     */
+		    strcpy(fod, temp2);
 		    if (is_real_8_3(temp2)) {
 			Syslog('f', "%s is 8.3", temp2);
 			strcpy(f_db.Name, temp2);
@@ -234,12 +236,9 @@ void ImportFiles(int Area)
 			strcpy(f_db.LName, temp2);
 			name_mangle(temp2);
 			strcpy(f_db.Name, temp2);
-			if (strcmp(f_db.LName, f_db.Name) && (rename(f_db.LName, f_db.Name) == 0)) {
-			    Syslog('+', "Renamed %s to %s", f_db.LName, f_db.Name);
-			}
 		    }
 
-		    sprintf(temp, "%s/%s", pwd, f_db.Name);
+		    sprintf(temp, "%s/%s", pwd, fod);
 		    stat(temp, &statfile);
 
 		    if (do_annon)
@@ -433,6 +432,7 @@ void ImportFiles(int Area)
 	    }
 	}
 
+	free(fod);
 	free(lname);
 	free(dest);
 	free(String);
