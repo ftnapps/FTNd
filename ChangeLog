@@ -8,6 +8,12 @@ v0.39.1		22-Oct-2003
 		Two html pages are now under control of configure.
 		The configure scripts shows the use of zlib compression for
 		Hydra.
+		Completly dropped support for ITN connections sice this is so
+		buggy on different implementations that this is impossible to
+		get it right to connect to every system.
+		You may need to remove the lines for itn support from 
+		/etc/inetd.conf or /etc/xinetd.d/mbsebbs or /etc/xinetd.conf.
+		Also check mbsetup 1.14.3 and remove any ITN flag in there.
 
 	upgrade:
 		If you don't have any personal archivers, then remove 
@@ -33,6 +39,7 @@ v0.39.1		22-Oct-2003
 		Compression log fixed and added percentage compression.
 		Added dynamic optimum sendbuffer size with a maximum of 8192
 		bytes with an average size of 2048 bytes.
+		Removed ITN support.
 
 	mbsetup:
 		In node editor, fixed error message when there was no more
@@ -40,6 +47,9 @@ v0.39.1		22-Oct-2003
 		Added support for tar compressed archives.
 		Changed all fidonet domain names to maximum 8 characters so
 		that we now follow the FTSC specs.
+
+	mbtask:
+		Removed support for ITN.
 
 
 v0.39.0		09-Oct-2003 - 22-Oct-2003

@@ -71,7 +71,7 @@ int CountTtyinfo(void)
 				sprintf(ttyinfo.comment, "Network port %d", i+11);
 				sprintf(ttyinfo.tty,     "pts/%d", i);
 				sprintf(ttyinfo.speed,   "10 mbit");
-				sprintf(ttyinfo.flags,   "IBN,IFC,ITN:60177,XX");
+				sprintf(ttyinfo.flags,   "IBN,IFC,XX");
 				ttyinfo.type = NETWORK;
 				ttyinfo.available = TRUE;
 				sprintf(ttyinfo.name,    "Network port #%d", i+11);
@@ -83,7 +83,7 @@ int CountTtyinfo(void)
                                 sprintf(ttyinfo.comment, "Network port %d", i+1);
                                 sprintf(ttyinfo.tty,     "ttyp%d", i);
                                 sprintf(ttyinfo.speed,   "10 mbit");
-                                sprintf(ttyinfo.flags,   "IBN,IFC,ITN:60177,XX");
+                                sprintf(ttyinfo.flags,   "IBN,IFC,XX");
                                 ttyinfo.type = NETWORK;
                                 ttyinfo.available = TRUE;
                                 sprintf(ttyinfo.name,    "Network port #%d", i+1);

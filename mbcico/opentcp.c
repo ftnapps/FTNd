@@ -44,7 +44,7 @@
 
 
 #define	BINKPORT 24554
-#define	TELNPORT 23
+// #define	TELNPORT 23
 #define FIDOPORT 60179		/* Eugene G. Crossers birthday */
 
 
@@ -59,19 +59,6 @@ extern int	carrier;
 extern long	sentbytes;
 extern long	rcvdbytes;
 extern int	Loaded;
-
-
-char	telnet_options[256];
-char	do_dont_resp[256];
-char	will_wont_resp[256];
-
-void	tel_enter_binary(int rw);
-void	tel_leave_binary(int rw);
-void	send_do(register int);
-void	send_dont(register int);
-void	send_will(register int);
-void	send_wont(register int);
-
 static int	tcp_is_open = FALSE;
 
 
@@ -90,7 +77,6 @@ int opentcp(char *name)
     Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(name));
 
     tcp_is_open = FALSE;
-    memset(&telnet_options, 0, sizeof(telnet_options));
     server.sin_family = AF_INET;
 
     /*
@@ -116,11 +102,6 @@ int opentcp(char *name)
 				    server.sin_port = se->s_port;
 				else
 				    server.sin_port = htons(FIDOPORT);
-				break;
-	    case TCPMODE_ITN:	if ((se = getservbyname("telnet", "tcp")))
-				    server.sin_port = se->s_port;
-				else
-				    server.sin_port = htons(TELNPORT);
 				break;
 	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
 				    server.sin_port = se->s_port;
@@ -179,11 +160,8 @@ int opentcp(char *name)
 
     f_flags=0;
 
-    if (tcp_mode == TCPMODE_ITN)
-	tel_enter_binary(3);
-
     Syslog('+', "Established %s/TCP connection with %s, port %d", 
-	(tcp_mode == TCPMODE_ITN) ? "ITN":(tcp_mode == TCPMODE_IFC) ? "IFC":(tcp_mode == TCPMODE_IBN) ? "IBN":"Unknown",
+	(tcp_mode == TCPMODE_IFC) ? "IFC":(tcp_mode == TCPMODE_IBN) ? "IBN":"Unknown",
 	inet_ntoa(server.sin_addr), (int)ntohs(server.sin_port));
     c_start = time(NULL);
     carrier = TRUE;
@@ -200,9 +178,6 @@ void closetcp(void)
 
     if (!tcp_is_open)
 	return;
-
-    if (tcp_mode == TCPMODE_ITN)
-	tel_leave_binary(3);
 
     shutdown(fd, 2);
     Syslog('d', "SIGHUP => SIG_IGN");
@@ -237,74 +212,5 @@ void closetcp(void)
     }
     tcp_is_open = FALSE;
 }
-
-
-
-void tel_enter_binary(int rw)
-{
-    Syslog('d', "Telnet enter binary %d", rw);
-    if (rw & 1)
-	send_do(TELOPT_BINARY);
-    if (rw & 2)
-	send_will(TELOPT_BINARY);
-
-    send_dont(TELOPT_ECHO);
-    send_do(TELOPT_SGA);
-    send_dont(TELOPT_RCTE);
-    send_dont(TELOPT_TTYPE);
-
-    send_wont(TELOPT_ECHO);
-    send_will(TELOPT_SGA);
-    send_wont(TELOPT_RCTE);
-    send_wont(TELOPT_TTYPE);
-}
-
-
-
-void tel_leave_binary(int rw)
-{
-    Syslog('d', "Telnet leave binary %d", rw);
-    if (rw & 1)
-	send_dont(TELOPT_BINARY);
-    if (rw & 2)
-	send_wont(TELOPT_BINARY);
-}
-
-
-
-/*
- * These routines are in charge of sending option negotiations
- * to the other side.
- * The basic idea is that we send the negotiation if either side
- * is in disagreement as to what the current state should be.
- */
-
-void send_do(register int c)
-{
-    NET2ADD(IAC, DO);
-    NETADD(c);
-}
-
-
-void send_dont(register int c)
-{
-    NET2ADD(IAC, DONT);
-    NETADD(c);
-}
-
-
-void send_will(register int c)
-{
-    NET2ADD(IAC, WILL);
-    NETADD(c);
-}
-
-
-void send_wont(register int c)
-{
-    NET2ADD(IAC, WONT);
-    NETADD(c);
-}
-
 
 

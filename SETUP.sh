@@ -410,7 +410,6 @@ if [ "$FIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
 	fi
 	if [ "$FIDO" = "TRUE" ]; then
 		echo -n ", fido at port 60179"
-		echo "tfido		60177/tcp		# mbcico ITN mode">>/etc/services
 		echo "fido		60179/tcp		# mbcico IFC mode">>/etc/services
 	fi
 	chmod 644 /etc/services
@@ -429,7 +428,6 @@ cat << EOF >>/etc/inetd.conf
 
 #:MBSE-BBS: bbs service
 binkp	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ibn
-tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t itn
 fido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ifc
 
 EOF
@@ -468,17 +466,6 @@ service binkp
 	instances	= 10
 	server		= $MHOME/bin/mbcico
 	server_args	= -t ibn
-}
-
-service tfido
-{
-	socket_type	= stream
-	protocol	= tcp
-	wait		= no
-	user		= mbse
-	instances	= 10
-	server		= $MHOME/bin/mbcico
-	server_args	= -t itn
 }
 
 service fido

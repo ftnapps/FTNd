@@ -96,9 +96,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    if (tcp_mode == TCPMODE_IBN) {
 		Syslog('+', "Incoming IBN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
 		IsDoing("Incoming IBN/TCP");
-	    } else if (tcp_mode == TCPMODE_ITN) {
-		Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-		IsDoing("Incoming ITN/TCP");
 	    } else if (tcp_mode == TCPMODE_IFC) {
 		Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
 		IsDoing("Incoming IFC/TCP");
@@ -435,18 +432,6 @@ SM_STATE(sendintro)
     if ((localoptions & NOEMSI) == 0) {
 	PUTSTR((char *)"**EMSI_REQA77E\r\021");
     }
-//    PUTSTR((char *)"\r\rAddress: ");
-//    PUTSTR(aka2str(CFG.aka[0]));
-//    PUTSTR((char *)" using mbcico ");
-//    PUTSTR((char *)VERSION);
-//    switch (tcp_mode) {
-//	case TCPMODE_IFC:   PUTSTR((char *)"; IFC");
-//			    break;
-//	case TCPMODE_ITN:   PUTSTR((char *)"; ITN");
-//			    break;
-//	case TCPMODE_IBN:   PUTSTR((char *)"; IBN");
-//			    break;
-//  }
     PUTCHAR('\r');
     if (STATUS) {
 	SM_ERROR;

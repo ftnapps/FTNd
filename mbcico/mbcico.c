@@ -85,11 +85,11 @@ void usage(void)
     fprintf(stderr,"-a<inetaddr> <node>\n");
     fprintf(stderr,"-n<phone>	forced phone number\n");
     fprintf(stderr,"-l<ttydevice>	forced tty device\n");
-    fprintf(stderr,"-t<tcpmode>	must be one of ifc|itn|ibn, forces TCP/IP\n");
+    fprintf(stderr,"-t<tcpmode>	must be one of ifc|ibn, forces TCP/IP\n");
     fprintf(stderr,"-a<inetaddr>	supply internet hostname if not in nodelist\n");
     fprintf(stderr,"  <node>	should be in domain form, e.g. f11.n22.z3\n");
     fprintf(stderr,"		(this implies master mode)\n");
-    fprintf(stderr,"\n or: %s tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc|-t itn\n",myname);
+    fprintf(stderr,"\n or: %s tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc\n",myname);
     fprintf(stderr,"		(this implies slave mode)\n");
 }
 
@@ -243,9 +243,6 @@ int main(int argc, char *argv[])
 			if (strncmp(p, "ifc", 3) == 0) {
 			    tcp_mode = TCPMODE_IFC;
 			    protocol = xstrcpy((char *)"fido");
-			} else if (strncmp(p, "itn", 3) == 0) {
-			    tcp_mode = TCPMODE_ITN;
-			    protocol = xstrcpy((char *)"telnet");
 			} else if (strncmp(p, "ibn", 3) == 0) {
 			    tcp_mode = TCPMODE_IBN;
 			    protocol = xstrcpy((char *)"binkp");
