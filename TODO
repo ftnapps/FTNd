@@ -81,6 +81,10 @@ mbfido:
 
 	L: Add netmail notification of changed areas.
 
+	L: Maybe store insecure echomail in badmail area.
+
+	L: Maybe store echomail for unknown areas in badmail area.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
