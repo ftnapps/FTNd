@@ -45,6 +45,7 @@
 #include "../lib/diesel.h"
 #include "sendmail.h"
 #include "mgrutil.h"
+#include "createf.h"
 #include "filemgr.h"
 
 #define LIST_LIST   0
@@ -439,9 +440,10 @@ void F_Connect(faddr *, char *, FILE *);
 void F_Connect(faddr *t, char *Area, FILE *tmp)
 {
     int		i, First;
-    char	*Group;
+    char	*Group, *temp;
     faddr	*b;
     sysconnect	Sys;
+    FILE	*gp;
 
     Syslog('+', "FileMgr: %s", Area);
 
@@ -451,19 +453,48 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	Area[i] = toupper(Area[i]);
 
     if (!SearchTic(Area)) {
-	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
-	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
-	MsgResult("filemgr.responses",tmp);
-	Syslog('m', "  Area not found");
-	/* SHOULD CHECK FOR AREAS FILE AND ASK UPLINK
-	   CHECK ALL GROUPRECORDS FOR AKA MATCH
-	   IF MATCH CHECK FOR UPLINK AND AREAS FILE
-	   IF FOUND, CREATE TIC AREA, CONNECT UPLINK
-	   RESTORE NODERECORD (IS GONE!)
-	   FALLTHRU TO CONNECT DOWNLINK
-	*/
-	MacroClear();
-	return;
+	/*
+	 * Close noderecord, atocreate will destroy it.
+	 */
+	UpdateNode();
+
+	Syslog('f', "  Area not found, trying to create");
+	temp = calloc(PATH_MAX, sizeof(char));
+	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
+	fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+	fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
+
+	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
+	    if ((fgroup.UseAka.zone == t->zone) && (fgroup.UseAka.net == t->net) && fgroup.UpLink.zone &&
+		strlen(fgroup.AreaFile) && fgroup.Active && fgroup.UserChange) {
+		if (CheckTicGroup(Area, TRUE, t) == 0) {
+		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
+		    MacroVars("RABCDE", "ssssss","ERR_CONN_FORWARD",Area,aka2str(fgroup.UpLink),"","","");
+		    MsgResult("filemgr.responses",tmp);
+		    break;
+		}
+	    }
+	}
+	fclose(gp);
+	free(temp);
+
+	/*
+	 * Restore noderecord and try to load area again
+	 */
+	SearchNodeFaddr(t);
+	if (!SearchTic(Area)) {
+	    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
+	    MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
+	    MsgResult("filemgr.responses",tmp);
+	    Syslog('+', "Area %s not found", Area);
+	    MacroClear();
+	    return;
+	}
     }
 
     Syslog('m', "  Found %s group %s", tic.Name, fgroup.Name);

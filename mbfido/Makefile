@@ -141,7 +141,7 @@ hatch.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/c
 mbdiff.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbdiff.h
 mgrutil.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/diesel.h sendmail.h rollover.h addpkt.h mgrutil.h
 pack.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbftn.h ../lib/clcomm.h ../lib/dbnode.h pack.h
-ptic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbtic.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbdupe.h ulock.h mover.h toberep.h tic.h utic.h addbbs.h magic.h forward.h rollover.h ptic.h magic.h virscan.h
+ptic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbtic.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbdupe.h ulock.h mover.h toberep.h tic.h utic.h addbbs.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h
 sendmail.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/dbnode.h ../lib/clcomm.h ../lib/dbmsgs.h addpkt.h rollover.h sendmail.h
 tracker.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbnode.h ../lib/dbftn.h tracker.h
 addpkt.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/dbnode.h ../lib/dbmsgs.h pack.h addpkt.h
@@ -182,7 +182,7 @@ postemail.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../l
 scan.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msg.h ../lib/clcomm.h ../lib/msgtext.h ../lib/dbnode.h ../lib/dbmsgs.h addpkt.h pack.h tracker.h ftn2rfc.h rfc2ftn.h postemail.h scan.h
 toberep.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h toberep.h
 atoul.o: ../lib/libs.h atoul.h
-filemgr.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ../lib/diesel.h sendmail.h mgrutil.h filemgr.h
+filemgr.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ../lib/diesel.h sendmail.h mgrutil.h createf.h filemgr.h
 hash.o: ../lib/libs.h hash.h lhash.h
 mbaff.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h announce.h filefind.h mbaff.h
 mbseq.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbseq.h
@@ -204,5 +204,5 @@ mbfmove.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib
 mbfdel.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfmove.h
 bounce.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h sendmail.h postnetmail.h ping.h
 createm.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mgrutil.h createm.h
-createf.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h createm.h
+createf.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mgrutil.h createf.h
 # End of generated dependencies

@@ -48,6 +48,7 @@
 #include "rollover.h"
 #include "ptic.h"
 #include "magic.h"
+#include "createf.h"
 #include "virscan.h"
 
 
@@ -83,7 +84,7 @@ int ProcessTic(fa_list *sbl)
 	long		FwdCost = 0, FwdSize = 0;
 	struct utimbuf	ut;
 	int		BBS_Imp = FALSE, DidBanner = FALSE;
-
+	faddr		*p_from;
 
 	Now = time(NULL);
 
@@ -156,11 +157,17 @@ int ProcessTic(fa_list *sbl)
 	 * Load and check the .TIC area.
 	 */
 	if (!SearchTic(TIC.TicIn.Area)) {
+	    UpdateNode();
+	    Syslog('f', "Unknown file area %s", TIC.TicIn.Area);
+	    p_from = fido2faddr(TIC.Aka);
+	    if (!create_ticarea(TIC.TicIn.Area, p_from)) {
 		Bad((char *)"Unknown file area %s", TIC.TicIn.Area);
 		free(Temp);
+		tidy_faddr(p_from);
 		return 1;
+	    }
+	    tidy_faddr(p_from);
 	}
-
 
 	if ((tic.Secure) && (!TIC.TicIn.Hatch)) {
 		First = TRUE;

@@ -34,5 +34,325 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "createm.h"
+#include "mgrutil.h"
+#include "createf.h"
+
+
+#define MCHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+
+int create_ticarea(char *farea, faddr *p_from)
+{
+    char        *temp;
+    FILE        *gp;
+
+    Syslog('f', "create_ticarea(%s)", farea);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((gp = fopen(temp, "r")) == NULL) {
+        WriteError("Can't open %s", temp);
+        free(temp);
+        return FALSE;
+    }
+    fread(&fgrouphdr, sizeof(fgrouphdr), 1, gp);
+    free(temp);
+
+    fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
+    while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
+        if ((fgroup.UpLink.zone  == p_from->zone) && (fgroup.UpLink.net   == p_from->net) &&
+            (fgroup.UpLink.node  == p_from->node) && (fgroup.UpLink.point == p_from->point) &&
+            strlen(fgroup.AreaFile)) {
+            if (CheckTicGroup(farea, FALSE, p_from) == 0) {
+                fclose(gp);
+                return TRUE;
+            }
+        }
+    }
+    fclose(gp);
+    return FALSE;
+}
+
+
+
+/*
+ * Check TIC group AREAS file if requested area exists.
+ * If so, create tic area and if SendUplink is TRUE,
+ * send the uplink a FileMgr request to connect this area.
+ * The tic group record (fgroup) must be in memory.
+ * Return codes:
+ *  0  - All Seems Well
+ *  1  - Some error
+ *
+ * The current nodes record may be destroyed after this,
+ * make sure it is saved.
+ */
+int CheckTicGroup(char *Area, int SendUplink, faddr *f)
+{
+    char        *temp, *buf, *tag = NULL, *desc = NULL, *p, *raid = NULL, *flow = NULL;
+    FILE        *ap, *mp, *fp;
+    long        offset, AreaNr;
+    int         i, rc = 0, Found = FALSE;
+    sysconnect  System;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    Syslog('f', "Checking file group \"%s\" \"%s\"", fgroup.Name, fgroup.Comment);
+    sprintf(temp, "%s/%s", CFG.alists_path , fgroup.AreaFile);
+    if ((ap = fopen(temp, "r")) == NULL) {
+        WriteError("Filegroup %s: area taglist %s not found", fgroup.Name, temp);
+        free(temp);
+        return 1;
+    }
+
+    buf = calloc(4097, sizeof(char));
+
+    if (fgroup.FileGate) {
+	/*
+	 * filegate.zxx format
+	 */
+	while (fgets(buf, 4096, ap)) {
+	    /*
+	     * Each filegroup starts with "% FDN:      Filegroup Description"
+	     */
+	    if (strlen(buf) && !strncmp(buf, "% FDN:", 6)) {
+		tag = strtok(buf, "\t \r\n\0");
+		p = strtok(NULL, "\t \r\n\0");
+		p = strtok(NULL, "\r\n\0");
+		desc = p;
+		while ((*desc == ' ') || (*desc == '\t'))
+		    desc++;
+		if (!strcmp(desc, fgroup.Comment)) {
+//		    Syslog('f', "Start of group \"%s\" found", desc);
+		    while (fgets(buf, 4096, ap)) {
+			if (!strncasecmp(buf, "Area ", 5)) {
+//			    Syslog('f', "Area: %s", buf);
+			    tag = strtok(buf, "\t \r\n\0");
+			    tag = strtok(NULL, "\t \r\n\0");
+//			    Syslog('f', "Tag: \"%s\"", tag);
+			    if (!strcmp(tag, Area)) {
+				raid = strtok(NULL, "\t \r\n\0");
+				flow = strtok(NULL, "\t \r\n\0");
+				p = strtok(NULL, "\r\n\0");
+				desc = p;
+				while ((*desc == ' ') || (*desc == '\t'))
+				    desc++;
+				Syslog('f', "Found area \"%s\" \"%s\" \"%s\" \"%s\"", tag, raid, flow, desc);
+				Found = TRUE;
+				break;
+			    }
+			}
+			if (strlen(buf) && !strncmp(buf, "% FDN:", 6)) {
+			    /*
+			     * All entries in group are seen, the area wasn't there.
+			     */
+//			    Syslogp('f', buf);
+			    break;
+			}
+		    }
+		}
+		if (Found)
+		    break;
+	    }
+	}
+    } else {
+	/*
+	 * Normal taglist format
+	 */
+	while (fgets(buf, 4096, ap)) {
+	    if (strlen(buf) && isalnum(buf[0])) {
+		tag = strtok(buf, "\t \r\n\0");
+		p = strtok(NULL, "\r\n\0");
+		desc = p;
+		if (strcmp(tag, Area) == 0) {
+		    Syslog('f', "Found tag \"%s\" desc \"%s\"", tag, desc);
+		    Found = TRUE;
+		    break;
+		}
+	    }
+	}
+    }
+    if (!Found) {
+	Syslog('f', "Area %s not found in taglist", Area);
+	free(buf);
+	fclose(ap);
+	free(temp);
+	return 1;
+    }
+
+    Syslog('m', "Found tag \"%s\" desc \"%s\"", tag, desc);
+
+    /*
+     * Area is in AREAS file, now create area.
+     * If needed, connect at uplink.
+     */
+    if (SendUplink) {
+	sprintf(temp, "+%s", Area);
+	if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, temp)) {
+	    WriteError("Can't send netmail to uplink");
+	    fclose(ap);
+	    free(buf);
+	    free(temp);
+	    return 1;
+	}
+    }
+    Syslog('f', "Netmail ready");
+
+    /*
+     * Open tic area and set filepointer to the end to append
+     * a new record.
+     */
+    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    if ((mp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	fclose(ap);
+	free(buf);
+	free(temp);
+	return 1;
+    }
+    fread(&tichdr, sizeof(tichdr), 1, mp);
+    fseek(mp, 0, SEEK_END);
+    memset(&tic, 0, sizeof(tic));
+    Syslog('f', "TIC area open, filepos %ld", ftell(mp));
+
+    /*
+     * Open files area, and find a free slot
+     */
+    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	fclose(ap);
+	fclose(mp);
+	free(buf);
+	free(temp);
+	return 1;
+    }
+    fread(&areahdr, sizeof(areahdr), 1, fp);
+    Syslog('f', "File area is open");
+
+    offset = areahdr.hdrsize + ((fgroup.StartArea -1) * (areahdr.recsize));
+    if (fseek(fp, offset, SEEK_SET)) {
+	WriteError("$Can't seek in %s", temp);
+	fclose(ap);
+	fclose(mp);
+	fclose(fp);
+	free(buf);
+	free(temp);
+	return 1;
+    }
+
+    /*
+     * Search a free record
+     */
+    Syslog('f', "Start search record");
+    while (fread(&area, sizeof(area), 1, fp) == 1) {
+	if (!area.Available) {
+	    fseek(fp, - areahdr.recsize, SEEK_CUR);
+	    rc = 1;
+	    break;
+	}
+    }
+ 
+    if (!rc) {
+	Syslog('f', "No free slot, append after last record");
+	fseek(fp, 0, SEEK_END);
+	if (ftell(fp) < areahdr.hdrsize + ((fgroup.StartArea -1) * (areahdr.recsize))) {
+	    Syslog('f', "Database too small, expanding...");
+	    memset(&area, 0, sizeof(area));
+	    while (TRUE) {
+		fwrite(&area, sizeof(area), 1, fp);
+		if (ftell(fp) >= areahdr.hdrsize + ((fgroup.StartArea -1) * (areahdr.recsize)))
+		    break;
+	    }
+	}
+	rc = 1;
+    }
+    AreaNr = ((ftell(fp) - areahdr.hdrsize) / (areahdr.recsize)) + 1;
+    Syslog('f', "Found free slot at %ld", AreaNr);
+
+    /*
+     * Create the records
+     */
+    memset(&area, 0, sizeof(area));
+    strncpy(area.Name, desc, 44);
+    strcpy(temp, tag);
+    temp = tl(temp);
+    for (i = 0; i < strlen(temp); i++)
+	if (temp[i] == '.')
+	    temp[i] = '/';
+    sprintf(area.Path, "%s/%s", fgroup.BasePath, temp);
+    area.DLSec = fgroup.DLSec;
+    area.UPSec = fgroup.UPSec;
+    area.LTSec = fgroup.LTSec;
+    area.New = area.Dupes = area.Free = area.AddAlpha = area.FileFind = area.Available = area.FileReq = TRUE;
+    strncpy(area.BbsGroup, fgroup.BbsGroup, 12);
+    strncpy(area.NewGroup, fgroup.AnnGroup, 12);
+    strncpy(area.Archiver, fgroup.Convert, 5);
+    area.Upload = fgroup.Upload;
+    fwrite(&area, sizeof(area), 1, fp);
+    fclose(fp);
+
+    /*
+     * Create download path
+     */
+    sprintf(temp, "%s/foobar", area.Path);
+    if (!mkdirs(temp, 0775))
+	WriteError("Can't create %s", temp);
+
+    /*
+     * Create download database
+     */
+    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), AreaNr);
+    if ((fp = fopen(temp, "r+")) == NULL) {
+	Syslog('+', "Creating new %s", temp);
+	if ((fp = fopen(temp, "a+")) == NULL) {
+	    WriteError("$Can't create %s", temp);
+	} else {
+	    fclose(fp);
+	}
+    } else {
+	fclose(fp);
+    }
+    chmod(temp, 0660);
+
+    /*
+     * Setup new TIC area.
+     */
+    strncpy(tic.Name, tag, 20);
+    strncpy(tic.Comment, desc, 55);
+    tic.FileArea = AreaNr;
+    strncpy(tic.Group, fgroup.Name, 12);
+    tic.AreaStart = time(NULL);
+    tic.Aka = fgroup.UseAka;
+    strncpy(tic.Convert, fgroup.Convert, 5);
+    strncpy(tic.Banner, fgroup.Banner, 14);
+    tic.Replace = fgroup.Replace;
+    tic.DupCheck = fgroup.DupCheck;
+    tic.Secure = fgroup.Secure;
+    tic.NoTouch = fgroup.NoTouch;
+    tic.VirScan = fgroup.VirScan;
+    tic.Announce = fgroup.Announce;
+    tic.UpdMagic = fgroup.UpdMagic;
+    tic.FileId = fgroup.FileId;
+    tic.ConvertAll = fgroup.ConvertAll;
+    tic.SendOrg = fgroup.SendOrg;
+    tic.Active = TRUE;
+    fwrite(&tic, sizeof(tic), 1, mp);
+
+    memset(&System, 0, sizeof(System));
+    System.aka = fgroup.UpLink;
+    System.receivefrom = TRUE;
+    fwrite(&System, sizeof(System), 1, mp);
+    memset(&System, 0, sizeof(System));
+    for (i = 1; i < (tichdr.syssize / sizeof(System)); i++)
+	fwrite(&System, sizeof(System), 1, mp);   
+
+    fclose(mp);
+    fclose(ap);
+    free(buf);
+    free(temp);
+    Syslog('+', "Auto created TIC area %s, group %s, bbs area %ld, for node %s",
+	    tic.Name, tic.Group, AreaNr, ascfnode(f, 0x1f));
+
+    return 0;
+}
+
 
