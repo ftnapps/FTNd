@@ -131,9 +131,7 @@ int opentcp(char *name)
 	return -1;
     }
 
-    Syslog('d', "SIGPIPE => sigpipe()");
     signal(SIGPIPE, sigpipe);
-    Syslog('d', "SIGHUP => linedrop()");
     signal(SIGHUP, linedrop);
 
     fflush(stdin);
@@ -183,9 +181,7 @@ void closetcp(void)
 	return;
 
     shutdown(fd, 2);
-    Syslog('d', "SIGHUP => SIG_IGN");
     signal(SIGHUP, SIG_IGN);
-    Syslog('d', "SIGPIPE => SIG_IGN");
     signal(SIGPIPE, SIG_IGN);
 
     if (carrier) {
