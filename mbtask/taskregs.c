@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/taskregs.c
+ * $Id$
  * Purpose ...............: Buffers for registration information.
- * Last modification date : 07-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -30,6 +29,7 @@
  *****************************************************************************/
 
 #include "libs.h"
+#include "../lib/structs.h"
 #include "taskstat.h"
 #include "taskregs.h"
 #include "taskutil.h"

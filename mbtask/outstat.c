@@ -91,7 +91,6 @@ void set_next(int hour, int min)
 
 
 
-char *callstatus(int);
 char *callstatus(int status)
 {
     switch (status) {
@@ -116,11 +115,15 @@ char *callstatus(int status)
 char *callmode(int mode)
 {
     switch (mode) {
-	case CM_NONE:	return (char *)"None";
-	case CM_INET:	return (char *)"Inet";
-	case CM_ISDN:	return (char *)"ISDN";
-	case CM_POTS:	return (char *)"POTS";
-	default:	return (char *)"None";
+	case CM_NONE:	return (char *)"None   ";
+	case CM_INET:	return (char *)"Inet   ";
+	case CM_ISDN:	return (char *)"ISDN   ";
+	case CM_POTS:	return (char *)"POTS   ";
+	case MBFIDO:	return (char *)"mbfido ";
+	case MBINDEX:	return (char *)"mbindex";
+	case MBFILE:	return (char *)"mbfile ";
+	case MBINIT:	return (char *)"mbinit ";
+	default:	return (char *)"None   ";
     }
 }
 
@@ -153,7 +156,6 @@ int outstat()
 	 */
         for (tmp = alist; tmp; tmp = old) {
                 old = tmp->next;
-                free(tmp->addr.domain);
                 free(tmp);
         }
         alist = NULL;
@@ -170,7 +172,7 @@ int outstat()
 	 */
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status  Mode Address");
+			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
 			first = FALSE;
 		}
 
@@ -351,7 +353,7 @@ int outstat()
 		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %s %s %s", flstr, (long)tmp->size,
 			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
-			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(&(tmp->addr), 0x0f));
+			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
 		tasklog('+', "%s", temp);
 	}
 	
@@ -392,12 +394,11 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		nlent = getnlent(addr);
 		*tmp = (struct _alist *)malloc(sizeof(struct _alist));
 		(*tmp)->next = NULL;
-		(*tmp)->addr.name   = NULL;
 		(*tmp)->addr.zone   = addr->zone;
 		(*tmp)->addr.net    = addr->net;
 		(*tmp)->addr.node   = addr->node;
 		(*tmp)->addr.point  = addr->point;
-		(*tmp)->addr.domain = xstrcpy(addr->domain);
+		sprintf((*tmp)->addr.domain, "%s", addr->domain);
 		if (nlent->addr.domain)
 			free(nlent->addr.domain);
 		(*tmp)->flavors = 0;

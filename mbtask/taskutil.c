@@ -327,28 +327,21 @@ time_t file_time(char *path)
  * Return ASCII string for node, the bits in 'fl' set the
  * output format.
  */
-char *ascfnode(faddr *a, int fl)
+char *ascfnode(fidoaddr a, int fl)
 {
         static char buf[128];
 
-        if (a == NULL) {
-                strcpy(buf, "<none>");
-                return buf;
-        }
-
         buf[0] = '\0';
-        if ((fl & 0x40) && (a->name))
-                sprintf(buf+strlen(buf),"%s of ",a->name);
-        if ((fl & 0x08) && (a->zone))
-                sprintf(buf+strlen(buf),"%u:",a->zone);
+        if ((fl & 0x08) && (a.zone))
+                sprintf(buf+strlen(buf),"%u:",a.zone);
         if (fl & 0x04)
-                sprintf(buf+strlen(buf),"%u/",a->net);
+                sprintf(buf+strlen(buf),"%u/",a.net);
         if (fl & 0x02)
-                sprintf(buf+strlen(buf),"%u",a->node);
-        if ((fl & 0x01) && (a->point))
-                sprintf(buf+strlen(buf),".%u",a->point);
-        if ((fl & 0x10) && (a->domain))
-                sprintf(buf+strlen(buf),"@%s",a->domain);
+                sprintf(buf+strlen(buf),"%u",a.node);
+        if ((fl & 0x01) && (a.point))
+                sprintf(buf+strlen(buf),".%u",a.point);
+        if ((fl & 0x10) && (strlen(a.domain)))
+                sprintf(buf+strlen(buf),"@%s",a.domain);
         return buf;
 }
 

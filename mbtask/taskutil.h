@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef	_TASKUTIL_H
 #define	_TASKUTIL_H
 
@@ -31,7 +33,7 @@ int             file_exist(char *, int);
 int		mkdirs(char *);
 long		file_size(char *);
 time_t		file_time(char *);
-char		*ascfnode(faddr *, int);
+char		*ascfnode(fidoaddr, int);
 char		*Dos2Unix(char *);
 char		*dayname(void);
 void		InitFidonet(void);

@@ -63,6 +63,7 @@ typedef enum {P_INIT, P_SENT, P_FAIL, P_OK, P_ERROR, P_NONE} PINGSTATE;
  *  Global variables
  */
 static onetask		task[MAXTASKS];		/* Array with tasks	*/
+static tocall		calllist[MAXTASKS];	/* Array with calllist	*/
 reg_info		reginfo[MAXCLIENT];	/* Array with clients	*/
 static pid_t		pgrp;			/* Pids group		*/
 static char		lockfile[PATH_MAX];	/* Lockfile 		*/
@@ -108,6 +109,10 @@ int			ptimer = PAUSETIME;	/* Pause timer		*/
 int			tflags = FALSE;		/* if nodes with Txx	*/
 extern int		nxt_hour;		/* Next event hour	*/
 extern int		nxt_min;		/* Next event minute	*/
+extern _alist_l		*alist;			/* Nodes to call list	*/
+extern int		pots_calls;
+extern int		isdn_calls;
+extern int		inet_calls;
 
 
 
@@ -460,6 +465,84 @@ void load_taskcfg(void)
 
 
 /*
+ * Check the actual list of nodes to call.
+ */
+int check_calllist(void);
+int check_calllist(void)
+{
+    int		    i, found, call_work;
+    struct _alist   *tmp;
+
+    /*
+     * Check callist, remove obsolete entries.
+     */
+    for (i = 0; i < MAXTASKS; i++) {
+	if (calllist[i].addr.zone) {
+	    found = FALSE;
+	    for (tmp = alist; tmp; tmp = tmp->next) {
+		if ((calllist[i].addr.zone  == tmp->addr.zone) && (calllist[i].addr.net   == tmp->addr.net) &&
+		    (calllist[i].addr.node  == tmp->addr.node) && (calllist[i].addr.point == tmp->addr.point)) {
+		    found = TRUE;
+		}
+	    }
+	    if (!found) {
+		tasklog('c', "Removing slot %d node %s from calllist", i, ascfnode(calllist[i].addr, 0x0f));
+		memset(&calllist[i], 0, sizeof(tocall));
+	    }
+	}
+    }
+
+    if (pots_calls || isdn_calls || inet_calls) {
+	call_work = 0;
+	for (tmp = alist; tmp; tmp = tmp->next) {
+	    if (tmp->callmode != CM_NONE) {
+		call_work++;
+		found = FALSE;
+		for (i = 0; i < MAXTASKS; i++) {
+		    if ((calllist[i].addr.zone  == tmp->addr.zone) && (calllist[i].addr.net   == tmp->addr.net) &&
+			(calllist[i].addr.node  == tmp->addr.node) && (calllist[i].addr.point == tmp->addr.point)) {
+			found = TRUE;
+		    }
+		}
+		if (!found) {
+		    for (i = 0; i < MAXTASKS; i++) {
+			if (!calllist[i].addr.zone) {
+			    tasklog('c', "Adding %s to calllist slot %d", ascfnode(tmp->addr, 0x1f), i);
+			    calllist[i].addr = tmp->addr;
+			    calllist[i].cst = tmp->cst;
+			    calllist[i].callmode = tmp->callmode;
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+	tasklog('o', "%d systems to call", call_work);
+    } else {
+	if (s_scanout)
+	    sem_set((char *)"scanout", FALSE);
+    }
+
+    call_work = 0;
+    for (i = 0; i < MAXTASKS; i++) {
+	if (calllist[i].addr.zone) {
+	    if (!call_work) {
+		tasklog('c', "Slot Call  Pid   Try Status  Mode    Address");
+		tasklog('c', "---- ----- ----- --- ------- ------- ----------------");
+	    }
+	    call_work++;
+	    tasklog('c', "%4d %s %5d %3d %s %s %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
+		calllist[i].cst.tryno, callstatus(calllist[i].cst.trystat), callmode(calllist[i].callmode),
+		ascfnode(calllist[i].addr, 0x1f));
+	}
+    }
+
+    return call_work;
+}
+
+
+
+/*
  *  Launch an external program in the background.
  *  On success add it to the tasklist and return
  *  the pid. Set the pause timer.
@@ -590,19 +673,19 @@ int checktasks(int onsig)
 			task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
 			if (task[i].rc) {
 				task[i].running = FALSE;
-				if (task[i].tasktype == CALL_POTS || task[i].tasktype == CALL_ISDN || task[i].tasktype == CALL_IP)
+				if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
 					do_outstat = TRUE;
 				ptimer = PAUSETIME;
 			}
 
 			if (first && task[i].rc) {
 				first = FALSE;
-				tasklog('t', "Task             T  pid  stat status      rc    status");
-				tasklog('t', "---------------- - ----- ---- ----------- ----- --------");
+				tasklog('t', "Task             Type      pid stat status      rc    status");
+				tasklog('t', "---------------- ------- ----- ---- ----------- ----- --------");
 				for (j = 0; j < MAXTASKS; j++)
 					if (strlen(task[j].name))
-						tasklog('t', "%-16s %d %5d %s %-11d %5d %08x", task[j].name, 
-							task[j].tasktype, task[j].pid, task[j].running?"runs":"stop", 
+						tasklog('t', "%-16s %s %5d %s %-11d %5d %08x", task[j].name, 
+							callmode(task[j].tasktype), task[j].pid, task[j].running?"runs":"stop", 
 							task[j].status, task[j].rc, task[j].status);
 			}
 
@@ -643,13 +726,22 @@ int checktasks(int onsig)
 				break;
 			}
 
-			if (!task[i].running)
-				memset(&task[i], 0, sizeof(onetask));
+			if (!task[i].running) {
+			    for (j = 0; j < MAXTASKS; j++) {
+				if (calllist[j].taskpid == task[i].pid) {
+				    calllist[j].calling = FALSE;
+				    calllist[j].taskpid = 0;
+				}
+			    }
+			    memset(&task[i], 0, sizeof(onetask));
+			}
 		}
 	}
 
-	if (do_outstat)
+	if (do_outstat) {
 		outstat();
+		check_calllist();
+	}
 
 	return count;
 }
@@ -1049,9 +1141,9 @@ void check_sema(void)
 void scheduler(void)
 {
     struct passwd   *pw;
-    int		    running = 0, rc, rlen;
+    int		    running = 0, rc, i, rlen, found;
     static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
-    char            *cmd = NULL;
+    char            *cmd = NULL, opts[41];
     static char	    doing[32], buf[2048];
     time_t          now;
     struct tm       *tm, *utm;
@@ -1059,6 +1151,8 @@ void scheduler(void)
     float	    lavg1, lavg2, lavg3;
     struct pollfd   pfd;
     struct in_addr  paddr;
+    int		    call_work;
+    static int	    call_entry = MAXTASKS;
 
     InitFidonet();
 
@@ -1367,18 +1461,82 @@ void scheduler(void)
 		}
 
 		/*
+		 * Update outbound status if needed.
+		 */
+		if (s_scanout) {
+		    outstat();
+		}
+		call_work = check_calllist();
+
+		/*
+		 * Launch the systems to call, start one system each time.
+		 * Set the safety counter to MAXTASKS + 1, this forces that
+		 * the counter really will advance to the next node in case
+		 * of failing sessions.
+		 */
+		i = MAXTASKS + 1;
+		found = FALSE;
+		if (call_work) {
+		    while (TRUE) {
+			/*
+			 * Rotate the call entries
+			 */
+			if (call_entry == MAXTASKS)
+			    call_entry = 0;
+			else
+			    call_entry++;
+			tasklog('c', "Call entry rotaded to %d", call_entry);
+			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling) {
+			    if ((calllist[call_entry].callmode == CM_INET) && (runtasktype(CM_INET) < TCFG.max_tcp)) {
+				found = TRUE;
+				break;
+			    }
+			    if ((calllist[call_entry].callmode == CM_ISDN) && (runtasktype(CM_ISDN) < TCFG.max_isdn)) {
+				found = TRUE;
+				break;
+			    }
+			    if ((calllist[call_entry].callmode == CM_POTS) && (runtasktype(CM_POTS) < TCFG.max_pots)) {
+				found = TRUE;
+				break;
+			    }
+			}
+			/*
+			 * Safety counter, if all systems are already calling, we should
+			 * never break out of this loop anymore.
+			 */
+			i--;
+			if (!i)
+			    break;
+		    }
+		    if (found) {
+			tasklog('c', "Should launch slot %d node %s", call_entry, ascfnode(calllist[call_entry].addr, 0x1f));
+			cmd = xstrcpy(pw->pw_dir);
+			cmd = xstrcat(cmd, (char *)"/bin/mbcico");
+			sprintf(opts, "f%u.n%u.z%u", calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+				calllist[call_entry].addr.zone);
+			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
+			if (calllist[call_entry].taskpid)
+			    calllist[call_entry].calling = TRUE;
+			running = checktasks(0);
+			check_calllist();
+			free(cmd);
+			cmd = NULL;
+		    }
+		}
+		
+		/*
 		 *  Run the mailer if something to do. For now we run just
 		 *  one task and lock it with CALL_POTS.
 		 *  Later tasks for different calltypes should run parallel.
 		 */
-		if (s_scanout && !runtasktype(CALL_POTS)) {
-		    cmd = xstrcpy(pw->pw_dir);
-		    cmd = xstrcat(cmd, (char *)"/bin/mbcico");
-		    launch(cmd, (char *)"-r1", (char *)"mbcico", CALL_POTS);
-		    running = checktasks(0);
-		    free(cmd);
-		    cmd = NULL;
-		}
+//		if (s_scanout && !runtasktype(CALL_POTS)) {
+//		    cmd = xstrcpy(pw->pw_dir);
+//		    cmd = xstrcat(cmd, (char *)"/bin/mbcico");
+//		    launch(cmd, (char *)"-r1", (char *)"mbcico", CALL_POTS);
+//		    running = checktasks(0);
+//		    free(cmd);
+//		    cmd = NULL;
+//		}
 	    }
 
             switch (pingstate) {
@@ -1475,6 +1633,7 @@ int main(int argc, char **argv)
 
         memset(&task, 0, sizeof(task));
 	memset(&reginfo, 0, sizeof(reginfo));
+	memset(&calllist, 0, sizeof(calllist));
 	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
 
 	sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));

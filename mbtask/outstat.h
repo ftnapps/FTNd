@@ -3,7 +3,7 @@
 #ifndef _OUTSTAT_H
 #define	_OUTSTAT_H
 
-typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS} CMODE;
+typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS, MBFIDO, MBINDEX, MBFILE, MBINIT} CMODE;
 
 
 /*
@@ -13,7 +13,7 @@ typedef enum {CM_NONE, CM_INET, CM_ISDN, CM_POTS} CMODE;
 typedef struct _alist
 {
     struct _alist   *next;	/* Next entry                   */
-    faddr           addr;       /* Node address                 */
+    fidoaddr	    addr;       /* Node address                 */
     int             flavors;    /* ORed flavors of mail/files   */
     time_t          time;       /* Date/time of mail/files      */
     off_t           size;       /* Total size of mail/files     */
@@ -45,6 +45,7 @@ struct _ttyinfo	    ttyinfo;
 
 
 int  each(faddr *, char, int, char *);
+char *callstatus(int);
 char *callmode(int);
 int  outstat(void);
 void load_ports(void);

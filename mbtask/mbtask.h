@@ -2,8 +2,6 @@
 #define	_MBTASK_H
 
 
-typedef enum {CALL_POTS, CALL_ISDN, CALL_IP, MBFIDO, MBINDEX, MBFILE, MBINIT} TASKTYPE;
-
 
 /*
  *  Running tasks information
@@ -18,6 +16,19 @@ typedef struct _onetask {
 	int		status;			/* Waitpid status	*/
 	int		rc;			/* Exit code		*/
 } onetask;
+
+
+
+/*
+ *  Callist
+ */
+typedef struct _tocall {
+    fidoaddr	addr;				/* Address to call	*/
+    int		callmode;			/* Method to use	*/
+    callstat	cst;				/* Last call status	*/
+    int		calling;			/* Is calling		*/
+    pid_t	taskpid;			/* Task pid number	*/
+} tocall;
 
 
 

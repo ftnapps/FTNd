@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/taskcomm.c
+ * $Id$
  * Purpose ...............: MBSE BBS Daemon
- * Last modification date : 01-Nov-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -30,6 +29,7 @@
  *****************************************************************************/
 
 #include "libs.h"
+#include "../lib/structs.h"
 #include "taskstat.h"
 #include "taskregs.h"
 #include "taskdisk.h"
