@@ -637,7 +637,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 		MsgText_Add2(Message[i]);
 	}
 
-	Add_Footkludges(TRUE);
+	Add_Footkludges(TRUE, NULL);
 
 	/*
 	 * Save if to disk

@@ -34,6 +34,8 @@ mbsebbs:
 	N: When a file is attached with netmail that doesn't exist the user
 	   doesn't see an error message.
 
+	N: OLR, implement file requests.
+
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.

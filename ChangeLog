@@ -67,6 +67,7 @@ v0.35.02	22-Jun-2002
 		optional data to use handles or unix names.
 		The display lastcaller list now also supports the /U optional
 		data to display Unix names.
+		Code cleanup in offline reader.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it

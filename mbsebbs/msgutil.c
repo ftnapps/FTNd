@@ -244,7 +244,7 @@ void Add_Headkludges(faddr *dest, int IsReply)
  *  Add bottom message kludges. The flag Quote is false if this is called
  *  from Offline Reader, the user then may or may have not added a quote.
  */
-void Add_Footkludges(int Quote)
+void Add_Footkludges(int Quote, char *tear)
 {
 	char	*temp;
 	char	*aka;
@@ -276,7 +276,16 @@ void Add_Footkludges(int Quote)
 		MsgText_Add2(temp);
 		MsgText_Add2((char *)"");
 	}
-	MsgText_Add2(TearLine());
+
+	/*
+	 * The offline reader may override the tearline
+	 */
+	if (tear == NULL) {
+	    MsgText_Add2(TearLine());
+	} else {
+	    sprintf(temp, "--- %s", tear);
+	    MsgText_Add2(temp);
+	}
 
 	if ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
 		/* RANDOM ORIGIN LINES IMPLEMENTEREN */

@@ -64,6 +64,7 @@ unsigned short	BarWidth;
 lastread	LR;
 static char	TempStr[128];
 extern int	do_mailout;
+char		*newtear = NULL;
 
 
 typedef struct	_msg_high {
@@ -104,23 +105,23 @@ unsigned long	ASCII_PackArea(unsigned long, long);
 
 void AddArc(char *Temp, char *Pktname)
 {
-	execute((char *)archiver.marc, Pktname, Temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-	unlink(Temp);
-	printf(".");
-	fflush(stdout);
+    execute((char *)archiver.marc, Pktname, Temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    unlink(Temp);
+    printf(".");
+    fflush(stdout);
 }
 
 
 
 void tidy_high(msg_high **hdp)
 {
-	msg_high *tmp, *old;
+    msg_high *tmp, *old;
 
-	for (tmp = *hdp; tmp; tmp = old) {
-		old = tmp->next;
-		free(tmp);
-	}
-	*hdp = NULL;
+    for (tmp = *hdp; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *hdp = NULL;
 }
 
 
@@ -130,70 +131,68 @@ void tidy_high(msg_high **hdp)
  */
 void fill_high(msg_high **hdp, unsigned long Area, unsigned long Last, unsigned long Pers)
 {
-	msg_high *tmp;
+    msg_high *tmp;
 
-	Syslog('M', "fill_high Area %lu Msg %lu, Pers %lu", Area, Last, Pers);
-
-	tmp = (msg_high *)malloc(sizeof(msg_high));
-	tmp->next = *hdp;
-	tmp->Area = Area;
-	tmp->LastMsg = Last;
-	tmp->Personal = Pers;
-	*hdp = tmp;
+    tmp = (msg_high *)malloc(sizeof(msg_high));
+    tmp->next = *hdp;
+    tmp->Area = Area;
+    tmp->LastMsg = Last;
+    tmp->Personal = Pers;
+    *hdp = tmp;
 }
 
 
 
 void UpdateLR(msg_high *mhl, FILE *mf)
 {
-	char		*p;
-	msg_high	*tmp;
+    char	*p;
+    msg_high	*tmp;
 
-	colour(14, 0);
-	/*      Updating lastread pointer */
-	printf("%s\n", (char *)Language(449));
-	colour(13, 0);
+    colour(14, 0);
+    /*      Updating lastread pointer */
+    printf("%s\n", (char *)Language(449));
+    colour(13, 0);
         
-	for (tmp = mhl; tmp; tmp = tmp->next) {
-		printf(".");
-		fflush(stdout);
-		fseek(mf, ((tmp->Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
-		fread(&msgs, msgshdr.recsize, 1, mf);
-		if (Msg_Open(msgs.Base)) {
-			if (Msg_Lock(30L)) {
-				if (tmp->Personal) 
-					Syslog('?', "Personal messages to update");
+    for (tmp = mhl; tmp; tmp = tmp->next) {
+	printf(".");
+	fflush(stdout);
+	fseek(mf, ((tmp->Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
+	fread(&msgs, msgshdr.recsize, 1, mf);
+	if (Msg_Open(msgs.Base)) {
+	    if (Msg_Lock(30L)) {
+		if (tmp->Personal) 
+		    Syslog('?', "Personal messages to update");
 
-				LR.UserID = grecno;
-				p = xstrcpy(exitinfo.sUserName);
-				if (Msg_GetLastRead(&LR) == TRUE) {
-					LR.LastReadMsg = tmp->LastMsg;
-					if (tmp->LastMsg > LR.HighReadMsg)
-						LR.HighReadMsg = tmp->LastMsg;
-					if (LR.HighReadMsg > Msg_Highest()) {
-						Syslog('?', "Highread was too high");
-						LR.HighReadMsg = Msg_Highest();
-					}
-					LR.UserCRC = StringCRC32(tl(p));
-					if (!Msg_SetLastRead(LR))
-						WriteError("Error update lastread");
-				} else {
-					/*
-					 * Append new lastread pointer
-					 */
-					LR.UserCRC = StringCRC32(tl(p));
-					LR.UserID = grecno;
-					LR.LastReadMsg = tmp->LastMsg;
-					LR.HighReadMsg = tmp->LastMsg;
-					if (!Msg_NewLastRead(LR))
-						WriteError("Can't append new lastread");
-				}
-				free(p);
-				Msg_UnLock();
-			}
-			Msg_Close();
+		LR.UserID = grecno;
+		p = xstrcpy(exitinfo.sUserName);
+		if (Msg_GetLastRead(&LR) == TRUE) {
+		    LR.LastReadMsg = tmp->LastMsg;
+		    if (tmp->LastMsg > LR.HighReadMsg)
+			LR.HighReadMsg = tmp->LastMsg;
+		    if (LR.HighReadMsg > Msg_Highest()) {
+			Syslog('?', "Highread was too high");
+			LR.HighReadMsg = Msg_Highest();
+		    }
+		    LR.UserCRC = StringCRC32(tl(p));
+		    if (!Msg_SetLastRead(LR))
+			WriteError("Error update lastread");
+		} else {
+		    /*
+		     * Append new lastread pointer
+		     */
+		    LR.UserCRC = StringCRC32(tl(p));
+		    LR.UserID = grecno;
+		    LR.LastReadMsg = tmp->LastMsg;
+		    LR.HighReadMsg = tmp->LastMsg;
+		    if (!Msg_NewLastRead(LR))
+			WriteError("Can't append new lastread");
 		}
+		free(p);
+		Msg_UnLock();
+	    }
+	    Msg_Close();
 	}
+    }
 }
 
 
@@ -204,29 +203,17 @@ void UpdateLR(msg_high *mhl, FILE *mf)
  */
 void Add_Kludges(fidoaddr dest, int IsReply, char *fn)
 {
-	char		*temp, *aka;
-	FILE		*tp;
+    FILE    *tp;
 
-	temp = calloc(2048, sizeof(char));
-	aka  = calloc(81,   sizeof(char));
+    Add_Headkludges(fido2faddr(dest), IsReply);
 
-	Add_Headkludges(fido2faddr(dest), IsReply);
-	Syslog('m', "Kludges done, start textfile %s", fn);
+    if ((tp = fopen(fn, "r")) != NULL) {
+	Msg_Write(tp);
+	fclose(tp);
+    }
 
-	if ((tp = fopen(fn, "r")) != NULL) {
-		Msg_Write(tp);
-		fclose(tp);
-	}
-
-	Syslog('m', "Add footer");
-	Add_Footkludges(FALSE);
-
-	Syslog('m', "Add message now");
-	Msg_AddMsg();
-	Syslog('m', "Msg added");
-
-	free(aka);
-	free(temp);
+    Add_Footkludges(FALSE, newtear);
+    Msg_AddMsg();
 }
 
 
@@ -242,147 +229,141 @@ void Add_Kludges(fidoaddr dest, int IsReply, char *fn)
  */
 void OLR_TagArea()
 {
-	char	*Msgname, *Tagname;
-	FILE	*ma, *tf;
-	char	*buf;
-	long	total, Offset, Area;
-	int	lines, input, ignore = FALSE, maxlines;
+    char    *Msgname, *Tagname;
+    FILE    *ma, *tf;
+    char    *buf;
+    long    total, Offset, Area;
+    int	    lines, input, ignore = FALSE, maxlines;
 
-	WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR);
 
-	Msgname = calloc(PATH_MAX, sizeof(char));
-	Tagname = calloc(PATH_MAX, sizeof(char));
-	buf     = calloc(81,  sizeof(char));
+    Msgname = calloc(PATH_MAX, sizeof(char));
+    Tagname = calloc(PATH_MAX, sizeof(char));
+    buf     = calloc(81,  sizeof(char));
 
-	sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
-	clear();
-	colour(14, 0);
-	/*      Tag Offline Reader message areas */
-	printf("%s\n", (char *)Language(66));
+    clear();
+    colour(14, 0);
+    /*      Tag Offline Reader message areas */
+    printf("%s\n", (char *)Language(66));
 
-	do {
-		colour(15, 0);
-		/*        Enter the name of the conference, or ? for a list: */
-		printf("\n%s", (char *)Language(228));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(buf, 20);
+    do {
+	colour(15, 0);
+	/*        Enter the name of the conference, or ? for a list: */
+	printf("\n%s", (char *)Language(228));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(buf, 20);
 
-		if (buf[0] == '?') {
-			maxlines = lines = exitinfo.iScreenLen - 1;
-			colour(11, 0);
-			/*      Conference           Area  Msgs   Description */
-			printf("%s\n", (char *)Language(229));
-			if ((ma = fopen(Msgname, "r")) != NULL) {
-				fread(&msgshdr, sizeof(msgshdr), 1, ma);
-				Area = 0;
-				if ((tf = fopen(Tagname, "r")) != NULL) {
-					while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-						fseek(ma, msgshdr.syssize, SEEK_CUR);
-						fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-						Area++;
-						if (Msg_Open(msgs.Base)) {
-							total = Msg_Number();
-							Msg_Close();
-						} else
-							total = 0;
-						colour(3, 0);
-						if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-						    (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
-							if ( (lines != 0) || (ignore) ) {
-								lines--;
-								printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
-							}
-							if (lines == 0) {
-								fflush(stdin);
-								colour(15, 0);
-								/* More (Y/n/=) */
-								printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-								fflush(stdout);
-								alarm_on();
-								input = toupper(Getone());
-								printf("%c\r",input);
-								if ((input == Keystroke(61, 0)) || (input == '\r'))
-									lines = maxlines;
+	if (buf[0] == '?') {
+	    maxlines = lines = exitinfo.iScreenLen - 1;
+	    colour(11, 0);
+	    /*      Conference           Area  Msgs   Description */
+	    printf("%s\n", (char *)Language(229));
+	    if ((ma = fopen(Msgname, "r")) != NULL) {
+		fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		Area = 0;
+		if ((tf = fopen(Tagname, "r")) != NULL) {
+		    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			fseek(ma, msgshdr.syssize, SEEK_CUR);
+			fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+			Area++;
+			if (Msg_Open(msgs.Base)) {
+			    total = Msg_Number();
+			    Msg_Close();
+			} else
+			    total = 0;
+			colour(3, 0);
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
+			    if ( (lines != 0) || (ignore) ) {
+				lines--;
+				printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+			    }
+			    if (lines == 0) {
+				fflush(stdin);
+				colour(15, 0);
+				/* More (Y/n/=) */
+				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				fflush(stdout);
+				alarm_on();
+				input = toupper(Getone());
+				printf("%c\r",input);
+				if ((input == Keystroke(61, 0)) || (input == '\r'))
+				    lines = maxlines;
 
-								if (input == Keystroke(61, 1)) {
-									break;
-								}
-
-								if (input == Keystroke(61, 2))
-									ignore = TRUE;
-								else
-									lines  = maxlines;
-								colour(3, 0);
-							}
-						}
-					}
-					fclose(tf);
-				} 
-				fclose(ma);
-			}
-		} else 
-			if (buf[0] != '\0') {
-				if (atoi(buf) != 0) {
-					if ((ma = fopen(Msgname, "r")) != NULL) {
-						fread(&msgshdr, sizeof(msgshdr), 1, ma);
-						Offset = msgshdr.hdrsize + ((atoi(buf)-1) * (msgshdr.recsize + msgshdr.syssize));
-						fseek(ma, Offset, SEEK_SET);
-						if (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-							if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-							    strlen(msgs.QWKname)) {
-								if ((tf = fopen(Tagname, "r+")) != NULL) {
-									fseek(tf, (atoi(buf)-1) * sizeof(olrtagrec), SEEK_SET);
-									fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-									if (!olrtagrec.Tagged) {
-										olrtagrec.Tagged = TRUE;
-										fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
-										fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
-										Syslog('+', "OLR Tagged %d %s", 
-											atoi(buf), msgs.QWKname);
-									}
-									fclose(tf);
-								}
-							}
-						}
-						fclose(ma);
-					}
-				} else {
-					if ((ma = fopen(Msgname, "r")) != NULL) {
-						fread(&msgshdr, sizeof(msgshdr), 1, ma);
-						Area = 0;
-						while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-							fseek(ma, msgshdr.syssize, SEEK_CUR);
-							Area++;
-							if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-							    strlen(msgs.QWKname)) {
-								if (strcasecmp(msgs.QWKname, buf) == 0) {
-									if ((tf = fopen(Tagname, "r+")) != NULL) {
-										fseek(tf, (Area-1) * sizeof(olrtagrec), SEEK_SET);
-										fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-										if (!olrtagrec.Tagged) {
-											olrtagrec.Tagged = TRUE;
-											fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
-											fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
-											Syslog('+', "OLR Tagged %d %s", 
-												Area, msgs.QWKname);
-										}
-										fclose(tf);
-									}
-								}
-							}
-						}
-						fclose(ma);
-					}
+				if (input == Keystroke(61, 1)) {
+				    break;
 				}
+
+				if (input == Keystroke(61, 2))
+				    ignore = TRUE;
+				else
+				    lines  = maxlines;
+				colour(3, 0);
+			    }
 			}
+		    }
+		    fclose(tf);
+		} 
+		fclose(ma);
+	    }
+	} else if (buf[0] != '\0') {
+	    if (atoi(buf) != 0) {
+		if ((ma = fopen(Msgname, "r")) != NULL) {
+		    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		    Offset = msgshdr.hdrsize + ((atoi(buf)-1) * (msgshdr.recsize + msgshdr.syssize));
+		    fseek(ma, Offset, SEEK_SET);
+		    if (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			    if ((tf = fopen(Tagname, "r+")) != NULL) {
+				fseek(tf, (atoi(buf)-1) * sizeof(olrtagrec), SEEK_SET);
+				fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+				if (!olrtagrec.Tagged) {
+				    olrtagrec.Tagged = TRUE;
+				    fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
+				    fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
+				    Syslog('+', "OLR Tagged %d %s", atoi(buf), msgs.QWKname);
+				}
+				fclose(tf);
+			    }
+			}
+		    }
+		    fclose(ma);
+		}
+	    } else {
+		if ((ma = fopen(Msgname, "r")) != NULL) {
+		    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		    Area = 0;
+		    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			fseek(ma, msgshdr.syssize, SEEK_CUR);
+			Area++;
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			    if (strcasecmp(msgs.QWKname, buf) == 0) {
+				if ((tf = fopen(Tagname, "r+")) != NULL) {
+				    fseek(tf, (Area-1) * sizeof(olrtagrec), SEEK_SET);
+				    fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+				    if (!olrtagrec.Tagged) {
+					olrtagrec.Tagged = TRUE;
+					fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
+					fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
+					Syslog('+', "OLR Tagged %d %s", Area, msgs.QWKname);
+				    }
+				    fclose(tf);
+				}
+			    }
+			}
+		    }
+		    fclose(ma);
+		}
+	    }
+	}
 
-	} while (buf[0] != '\0');
+    } while (buf[0] != '\0');
 
-	free(buf);
-	free(Tagname);
-	free(Msgname);
+    free(buf);
+    free(Tagname);
+    free(Msgname);
 }
 
 
@@ -392,154 +373,148 @@ void OLR_TagArea()
  */
 void OLR_UntagArea()
 {
-	char	*Msgname, *Tagname, *buf;
-	FILE	*ma, *tf;
-	long	total, Offset, Area;
-	int     lines, input, ignore = FALSE, maxlines;
+    char    *Msgname, *Tagname, *buf;
+    FILE    *ma, *tf;
+    long    total, Offset, Area;
+    int     lines, input, ignore = FALSE, maxlines;
 
-	WhosDoingWhat(OLR);
+    WhosDoingWhat(OLR);
 
-	Msgname = calloc(PATH_MAX, sizeof(char));
-	Tagname = calloc(PATH_MAX, sizeof(char));
-	buf	= calloc(81,  sizeof(char));
+    Msgname = calloc(PATH_MAX, sizeof(char));
+    Tagname = calloc(PATH_MAX, sizeof(char));
+    buf	= calloc(81,  sizeof(char));
 
-	sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(Msgname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
-	clear();
-	colour(14, 0);
-	/*      Untag Offline Reader message areas */
-	printf("%s\n", (char *)Language(256));
+    clear();
+    colour(14, 0);
+    /*      Untag Offline Reader message areas */
+    printf("%s\n", (char *)Language(256));
 
-	do {
-		colour(15, 0);
-		/*        Enter the name of the conference, or ? for a list:  */
-		printf("\n%s", (char *)Language(228));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(buf, 20);
+    do {
+	colour(15, 0);
+	/*        Enter the name of the conference, or ? for a list:  */
+	printf("\n%s", (char *)Language(228));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(buf, 20);
 
-		if (buf[0] == '?') {
-			maxlines = lines = exitinfo.iScreenLen - 1;
-			colour(11, 0);
-			/*      Conference           Area  Msgs   Description */
-			printf("%s\n", (char *)Language(229));
-			if ((ma = fopen(Msgname, "r")) != NULL) {
-				fread(&msgshdr, sizeof(msgshdr), 1, ma);
-				Area = 0;
-				if ((tf = fopen(Tagname, "r")) != NULL) {
-					while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-						fseek(ma, msgshdr.syssize, SEEK_CUR);
-						fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-						Area++;
-						if (Msg_Open(msgs.Base)) {
-							total = Msg_Number();
-							Msg_Close();
-						} else
-							total = 0;
-						colour(3, 0);
-						if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-						    olrtagrec.Tagged && strlen(msgs.QWKname)) {
-							if ( (lines != 0) || (ignore) ) {
-								lines--;
-								printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
-							}
-							if (lines == 0) {
-								fflush(stdin);
-								colour(15, 0);
-								/* More (Y/n/=) */
-								printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-								fflush(stdout);
-								alarm_on();
-								input = toupper(Getone());
-								printf("%c\r",input);
-								if ((input == Keystroke(61, 0)) || (input == '\r'))
-								lines = maxlines;
+	if (buf[0] == '?') {
+	    maxlines = lines = exitinfo.iScreenLen - 1;
+	    colour(11, 0);
+	    /*      Conference           Area  Msgs   Description */
+	    printf("%s\n", (char *)Language(229));
+	    if ((ma = fopen(Msgname, "r")) != NULL) {
+		fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		Area = 0;
+		if ((tf = fopen(Tagname, "r")) != NULL) {
+		    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			fseek(ma, msgshdr.syssize, SEEK_CUR);
+			fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+			Area++;
+			if (Msg_Open(msgs.Base)) {
+			    total = Msg_Number();
+			    Msg_Close();
+			} else
+			    total = 0;
+			colour(3, 0);
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && olrtagrec.Tagged && strlen(msgs.QWKname)) {
+			    if ( (lines != 0) || (ignore) ) {
+				lines--;
+				printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+			    }
+			    if (lines == 0) {
+				fflush(stdin);
+				colour(15, 0);
+				/* More (Y/n/=) */
+				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				fflush(stdout);
+				alarm_on();
+				input = toupper(Getone());
+				printf("%c\r",input);
+				if ((input == Keystroke(61, 0)) || (input == '\r'))
+				    lines = maxlines;
 
-								if (input == Keystroke(61, 1)) {
-									break;
-								}
-
-								if (input == Keystroke(61, 2))
-									ignore = TRUE;
-								else
-									lines  = maxlines;
-								colour(3, 0);
-							}
-						}
-					}
-					fclose(tf);
-				} 
-				fclose(ma);
-			}
-		} else 
-			if (buf[0] != '\0') {
-				if (atoi(buf) != 0) {
-					if ((ma = fopen(Msgname, "r")) != NULL) {
-						fread(&msgshdr, sizeof(msgshdr), 1, ma);
-						Offset = msgshdr.hdrsize + ((atoi(buf)-1) * (msgshdr.recsize + msgshdr.syssize));
-						fseek(ma, Offset, SEEK_SET);
-						if (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-							if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-							    strlen(msgs.QWKname)) {
-								if ((tf = fopen(Tagname, "r+")) != NULL) {
-									fseek(tf, (atoi(buf)-1) * sizeof(olrtagrec), SEEK_SET);
-									fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-									if (olrtagrec.Tagged) {
-										if (msgs.OLR_Forced) {
-											printf("Area cannot be switched off\n");
-										} else {
-											olrtagrec.Tagged = FALSE;
-											fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
-											fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
-											Syslog('+', "OLR Untagged %d %s", 
-												atoi(buf), msgs.QWKname);
-										}
-									}
-									fclose(tf);
-								}
-							}
-						}
-						fclose(ma);
-					}
-				} else {
-					if ((ma = fopen(Msgname, "r")) != NULL) {
-						fread(&msgshdr, sizeof(msgshdr), 1, ma);
-						Area = 0;
-						while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
-							fseek(ma, msgshdr.syssize, SEEK_CUR);
-							Area++;
-							if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && 
-							     strlen(msgs.QWKname)) {
-								if (strcasecmp(msgs.QWKname, buf) == 0) {
-									if ((tf = fopen(Tagname, "r+")) != NULL) {
-										fseek(tf, (Area-1) * sizeof(olrtagrec), SEEK_SET);
-										fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-										if (olrtagrec.Tagged) {
-											if (msgs.OLR_Forced) {
-												printf("Area cannot be switched off\n");
-											} else {
-												olrtagrec.Tagged = FALSE;
-												fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
-												fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
-												Syslog('+', "OLR Untagged %d %s", 
-													Area, msgs.QWKname);
-											}
-										}
-										fclose(tf);
-									}
-								}
-							}
-						}
-						fclose(ma);
-					}
+				if (input == Keystroke(61, 1)) {
+				    break;
 				}
+
+				if (input == Keystroke(61, 2))
+				    ignore = TRUE;
+				else
+				    lines  = maxlines;
+				colour(3, 0);
+			    }
 			}
+		    }
+		    fclose(tf);
+		} 
+		fclose(ma);
+	    }
+	} else if (buf[0] != '\0') {
+	    if (atoi(buf) != 0) {
+		if ((ma = fopen(Msgname, "r")) != NULL) {
+		    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		    Offset = msgshdr.hdrsize + ((atoi(buf)-1) * (msgshdr.recsize + msgshdr.syssize));
+		    fseek(ma, Offset, SEEK_SET);
+		    if (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			    if ((tf = fopen(Tagname, "r+")) != NULL) {
+				fseek(tf, (atoi(buf)-1) * sizeof(olrtagrec), SEEK_SET);
+				fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+				if (olrtagrec.Tagged) {
+				    if (msgs.OLR_Forced) {
+					printf("Area cannot be switched off\n");
+				    } else {
+					olrtagrec.Tagged = FALSE;
+					fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
+					fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
+					Syslog('+', "OLR Untagged %d %s", atoi(buf), msgs.QWKname);
+				    }
+				}
+				fclose(tf);
+			    }
+			}
+		    }
+		    fclose(ma);
+		}
+	    } else {
+		if ((ma = fopen(Msgname, "r")) != NULL) {
+		    fread(&msgshdr, sizeof(msgshdr), 1, ma);
+		    Area = 0;
+		    while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
+			fseek(ma, msgshdr.syssize, SEEK_CUR);
+			Area++;
+			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+			    if (strcasecmp(msgs.QWKname, buf) == 0) {
+				if ((tf = fopen(Tagname, "r+")) != NULL) {
+				    fseek(tf, (Area-1) * sizeof(olrtagrec), SEEK_SET);
+				    fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+				    if (olrtagrec.Tagged) {
+					if (msgs.OLR_Forced) {
+					    printf("Area cannot be switched off\n");
+					} else {
+					    olrtagrec.Tagged = FALSE;
+					    fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
+					    fwrite(&olrtagrec, sizeof(olrtagrec), 1, tf);
+					    Syslog('+', "OLR Untagged %d %s", Area, msgs.QWKname);
+					}
+				    }
+				    fclose(tf);
+				}
+			    }
+			}
+		    }
+		    fclose(ma);
+		}
+	    }
+	}
 
-	} while (buf[0] != '\0');
+    } while (buf[0] != '\0');
 
-	free(buf);
-	free(Tagname);
-	free(Msgname);
+    free(buf);
+    free(Tagname);
+    free(Msgname);
 }
 
 
@@ -547,19 +522,19 @@ void OLR_UntagArea()
 void New_Hdr(void);
 void New_Hdr()
 {
-	char	*temp;
+    char	*temp;
 
-	temp = calloc(81, sizeof(char));
-	clear();
-	colour(14, 0);
-	/* New or deleted mail areas at */
-	sprintf(temp, "%s%s", (char *) Language(364), CFG.bbs_name);
-	Center(temp);
-	free(temp);
-	printf("\n");
-	colour(15, 1);
-	/* Area  State  Type     Description */
-	printf("%-79s\n", (char *) Language(365));
+    temp = calloc(81, sizeof(char));
+    clear();
+    colour(14, 0);
+    /* New or deleted mail areas at */
+    sprintf(temp, "%s%s", (char *) Language(364), CFG.bbs_name);
+    Center(temp);
+    free(temp);
+    printf("\n");
+    colour(15, 1);
+    /* Area  State  Type     Description */
+    printf("%-79s\n", (char *) Language(365));
 }
 
 
@@ -567,21 +542,21 @@ void New_Hdr()
 void New_Area(long);
 void New_Area(long Area)
 {
-	colour(11, 0);
-		/*    New    */
-	printf("%4ld  %s", Area, (char *)Language(391));
-	switch (msgs.Type) {
-		case LOCALMAIL:	printf(Language(392)); /* Local    */
-				break;
-		case NETMAIL:	printf(Language(393)); /* Netmail  */
-				break;
-		case LIST:
-		case ECHOMAIL:	printf(Language(394)); /* Echomail */
-				break;
-		case NEWS:	printf(Language(395)); /* News     */
-				break;
-	}
-	printf("%s\n", msgs.Name);
+    colour(11, 0);
+    	/*    New    */
+    printf("%4ld  %s", Area, (char *)Language(391));
+    switch (msgs.Type) {
+	case LOCALMAIL:	printf(Language(392)); /* Local    */
+			break;
+	case NETMAIL:	printf(Language(393)); /* Netmail  */
+			break;
+	case LIST:
+	case ECHOMAIL:	printf(Language(394)); /* Echomail */
+			break;
+	case NEWS:	printf(Language(395)); /* News     */
+			break;
+    }
+    printf("%s\n", msgs.Name);
 }
 
 
@@ -589,9 +564,9 @@ void New_Area(long Area)
 void Old_Area(long);
 void Old_Area(long Area)
 {
-	colour(12, 0);
-	/*            Del */
-	printf("%4ld  %s\n", Area, (char *)Language(397));
+    colour(12, 0);
+    /*            Del */
+    printf("%4ld  %s\n", Area, (char *)Language(397));
 }
 
 
@@ -1637,6 +1612,9 @@ void BlueWave_Fetch()
 	}
 	Syslog('+', "Login %s, Alias %s", Uph.loginname, Uph.aliasname);
 	Syslog('m', "Tear: %s", Uph.reader_tear);
+	if (strlen(Uph.reader_tear))
+	    newtear = xstrcpy(Uph.reader_tear);
+
 	/* MORE CHECKS HERE */
 
 	colour(CFG.TextColourF, CFG.TextColourB);
@@ -1717,7 +1695,8 @@ void BlueWave_Fetch()
 				Msg.Private = TRUE;
 			    if (msgs.MsgKinds == PRIVATE)
 				Msg.Private = TRUE;
-			    Msg.Written = Upr.unix_date;
+//			    Msg.Written = Upr.unix_date;
+			    Msg.Written = Upr.unix_date - (gmt_offset((time_t)0) * 60);
 			    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
 			    Msg.Local  = TRUE;
 			    dest.zone  = Upr.destzone;
@@ -1777,6 +1756,12 @@ void BlueWave_Fetch()
 	temp = tl(temp);
 	unlink(temp);
     }
+
+    if (newtear) {
+	free(newtear);
+	newtear = NULL;
+    }
+
 
     /*
      * If a .UPL file was not found it is possible we received an version 2
@@ -1955,122 +1940,121 @@ void BlueWave_Fetch()
 	unlink(temp);
     }
 
-	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((tp = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		tp = fopen(temp, "r");
-	}
-	if (tp != NULL) {
-		colour(9, 0);
-		/*      Processing Offline Configuration */
-		printf("%s\n", (char *)Language(455));
-		Syslog('+', "Processing offline configuration");
+    sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((tp = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	tp = fopen(temp, "r");
+    }
+    if (tp != NULL) {
+	colour(9, 0);
+	/*      Processing Offline Configuration */
+	printf("%s\n", (char *)Language(455));
+	Syslog('+', "Processing offline configuration");
 
-		fread(&Pdh, sizeof(PDQ_HEADER), 1, tp);
-		for (i = 0; i < 10; i++)
-			if (strlen(Pdh.keywords[i]))
-				Syslog('m', "  Kwrd %2d : %s", i+1, Pdh.keywords[i]);
-		for (i = 0; i < 10; i++)
-			if (strlen(Pdh.filters[i]))
-				Syslog('m', "  Filt %2d : %s", i+1, Pdh.filters[i]);
-		for (i = 0; i < 3; i++)
-			if (strlen(Pdh.macros[i]))
-				Syslog('m', "  Macro %d : %s", i+1, Pdh.macros[i]);
-		Syslog('m', "  Pwtype  : %d", Pdh.passtype);
-		Syslog('m', "  Flags   : %08x", Pdh.flags);
-
-		/*
-		 *  If the changes flag is set there are records with
-		 *  active areas. Reset all areas first and then set
-		 *  the active areas back on.
-		 */
-		if (Pdh.flags & PDQ_AREA_CHANGES) {
-			Syslog('m', "  New Area Configuration present");
-			i = 0;
-
-			sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-			if ((up = fopen(temp, "r+")) != NULL) {
-
-				sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-				if ((mf = fopen(temp, "r")) != NULL) {
-
-					fread(&msgshdr, sizeof(msgshdr), 1, mf);
-
-					while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
-						fread(&msgs, msgshdr.recsize, 1, mf);
-						fseek(mf, msgshdr.syssize, SEEK_CUR);
-						if (!msgs.OLR_Forced)
-							olrtagrec.Tagged = FALSE;
-						fseek(up, - sizeof(olrtagrec), SEEK_CUR);
-						fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
-					}
-
-					while (fread(&Pdr, sizeof(PDQ_REC), 1, tp) == 1) {
-						if (strlen(Pdr.echotag)) {
-							fseek(mf, msgshdr.hdrsize, SEEK_SET);
-							fseek(up, 0, SEEK_SET);
-							while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-								fseek(mf, msgshdr.syssize, SEEK_CUR);
-								fread(&olrtagrec, sizeof(olrtagrec), 1, up);
-								if ((strcmp(msgs.QWKname, Pdr.echotag) == 0) &&
-								    (msgs.Active) &&
-								    (Access(exitinfo.Security, msgs.RDSec))) {
-									Syslog('m', "  Area %s", Pdr.echotag);
-									olrtagrec.Tagged = TRUE;
-									fseek(up, - sizeof(olrtagrec), SEEK_CUR);
-									fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
-									i++;
-									break;
-								}
-							}
-						}
-					}
-					fclose(mf);
-					colour(3, 0);
-					/*         Message areas selected */
-					printf("%d %s\n", i, (char *)Language(456));
-				}
-				fclose(up);
-			}
-		}
-		fclose(tp);
-		sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		unlink(temp);
-		temp = tl(temp);
-		unlink(temp);
-	}
+	fread(&Pdh, sizeof(PDQ_HEADER), 1, tp);
+	for (i = 0; i < 10; i++)
+	    if (strlen(Pdh.keywords[i]))
+		Syslog('m', "  Kwrd %2d : %s", i+1, Pdh.keywords[i]);
+	for (i = 0; i < 10; i++)
+	    if (strlen(Pdh.filters[i]))
+		Syslog('m', "  Filt %2d : %s", i+1, Pdh.filters[i]);
+	for (i = 0; i < 3; i++)
+	    if (strlen(Pdh.macros[i]))
+		Syslog('m', "  Macro %d : %s", i+1, Pdh.macros[i]);
+	Syslog('m', "  Pwtype  : %d", Pdh.passtype);
+	Syslog('m', "  Flags   : %08x", Pdh.flags);
 
 	/*
-	 *  Check for .REQ file.
+	 *  If the changes flag is set there are records with
+	 *  active areas. Reset all areas first and then set
+	 *  the active areas back on.
 	 */
-	sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((tp = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		tp = fopen(temp, "r");
-	}
-	if (tp != NULL) {
-		i = 0;
-		colour(9, 0);
-		/*      Processing file requests */
-		printf("%s\n", (char *)Language(457));
-		Syslog('+', "Processing file requests");
+	if (Pdh.flags & PDQ_AREA_CHANGES) {
+	    Syslog('m', "  New Area Configuration present");
+	    i = 0;
 
-		while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
-			Syslog('m', "  File %s", Req.filename);
-			colour(CFG.TextColourF, CFG.TextColourB);
-			printf("%-12s ", Req.filename);
-			colour(CFG.HiliteF, CFG.HiliteB);
-			fflush(stdout);
+	    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+	    if ((up = fopen(temp, "r+")) != NULL) {
 
-			printf("\n");
+		sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+		if ((mf = fopen(temp, "r")) != NULL) {
+
+		    fread(&msgshdr, sizeof(msgshdr), 1, mf);
+
+		    while (fread(&olrtagrec, sizeof(olrtagrec), 1, up) == 0) {
+			fread(&msgs, msgshdr.recsize, 1, mf);
+			fseek(mf, msgshdr.syssize, SEEK_CUR);
+			if (!msgs.OLR_Forced)
+			    olrtagrec.Tagged = FALSE;
+			fseek(up, - sizeof(olrtagrec), SEEK_CUR);
+			fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
+		    }
+
+		    while (fread(&Pdr, sizeof(PDQ_REC), 1, tp) == 1) {
+			if (strlen(Pdr.echotag)) {
+			    fseek(mf, msgshdr.hdrsize, SEEK_SET);
+			    fseek(up, 0, SEEK_SET);
+			    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+				fseek(mf, msgshdr.syssize, SEEK_CUR);
+				fread(&olrtagrec, sizeof(olrtagrec), 1, up);
+				if ((strcmp(msgs.QWKname, Pdr.echotag) == 0) && (msgs.Active) &&
+					    (Access(exitinfo.Security, msgs.RDSec))) {
+				    Syslog('m', "  Area %s", Pdr.echotag);
+				    olrtagrec.Tagged = TRUE;
+				    fseek(up, - sizeof(olrtagrec), SEEK_CUR);
+				    fwrite(&olrtagrec, sizeof(olrtagrec), 1, up);
+				    i++;
+				    break;
+				}
+			    }
+			}
+		    }
+		    fclose(mf);
+		    colour(3, 0);
+		    /*         Message areas selected */
+		    printf("%d %s\n", i, (char *)Language(456));
 		}
+		fclose(up);
+	    }
+	}
+	fclose(tp);
+	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	unlink(temp);
+	temp = tl(temp);
+	unlink(temp);
+    }
 
-		fclose(tp);
+    /*
+     *  Check for .REQ file.
+     */
+    sprintf(temp, "%s/%s/%s.REQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((tp = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	tp = fopen(temp, "r");
+    }
+    if (tp != NULL) {
+	i = 0;
+	colour(9, 0);
+	/*      Processing file requests */
+	printf("%s\n", (char *)Language(457));
+	Syslog('+', "Processing file requests");
+
+	while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
+	    Syslog('m', "  File %s", Req.filename);
+	    colour(CFG.TextColourF, CFG.TextColourB);
+	    printf("%-12s ", Req.filename);
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    fflush(stdout);
+
+	    printf("\n");
 	}
 
-	free(temp);
-	free(b);
-	Pause();
+	fclose(tp);
+    }
+
+    free(temp);
+    free(b);
+    Pause();
 }
 
 
@@ -2601,7 +2585,7 @@ void QWK_Fetch()
 									MsgText_Add2(szLine);
 								}
 
-								Add_Footkludges(FALSE);
+								Add_Footkludges(FALSE, NULL);
 								Msg_AddMsg();
 
 								Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, 
