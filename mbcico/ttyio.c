@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -62,7 +62,8 @@ char *ttystat[]= {(char *)"Ok",
 		  (char *)"TimeOut", 
 		  (char *)"EOF", 
 		  (char *)"Hangup", 
-		  (char *)"Empty"};
+		  (char *)"Empty",
+		  (char *)"UnCompress"};
 
 int  tty_resettimer(int tno);
 void tty_resettimers(void);

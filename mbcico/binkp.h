@@ -1,5 +1,5 @@
-#ifndef	_BINKPNEW_H
-#define	_BINKPNEW_H
+#ifndef	_BINKP_H
+#define	_BINKP_H
 
 
 /* $Id$ */
@@ -9,12 +9,23 @@
    binkp's frames:
 
     +---------------------- 0=data block, 1=message(command)
-    |                +---- data block size / msg's argument size
+    |                +----- data block size / msg's argument size
     |                |
-    7  6543210 76543210
+    7 6543210 76543210
    +-+-------+--------+--- ... ---+
    | |   HI      LO   |           | -- data block / msg's argument
    +-+-------+--------+--- ... ---+
+
+   binkp's frames in PLZ mode:
+
+    +---------------------- 0=data block, 1=message(command)
+    | +-------------------- 0=standard block, 1=zlib compressed block
+    | |               +---- data block size / msg's argument size
+    | |               |
+    7 6 543210 76543210
+   +-+-+------+--------+--- ... ---+
+   | | |  HI      LO   |           | -- data block / msg's argument
+   +-+-+------+--------+--- ... ---+
 
  */
 
@@ -46,6 +57,7 @@
 
 #define BINKP_DATA_BLOCK	0x0000
 #define BINKP_CONTROL_BLOCK	0x8000
+#define	BINKP_PLZ_BLOCK		0x4000
 
 
 typedef struct _binkp_frame {

@@ -131,7 +131,8 @@ struct binkprec {
     int			Major;			/* Major protocol version	    */
     int			Minor;			/* Minor protocol version	    */
     unsigned char	*MD_Challenge;		/* Received challenge data	    */
-    
+    int			PLZflag;		/* Zlib packet compression	    */
+
 						/* Receiver buffer		    */
     char		*rxbuf;			/* Receiver buffer		    */
     int			GotFrame;		/* Frame complete flag		    */
@@ -181,7 +182,7 @@ int	binkp_send_command(int, ...);		    /* Send command frame	    */
 void	binkp_settimer(int);			    /* Set timeout timer	    */
 int	binkp_expired(void);			    /* Timer expired?		    */
 int	binkp_banner(void);			    /* Send system banner	    */
-int	binkp_recv_command(char *, int *, int *);   /* Receive command frame	    */
+int	binkp_recv_command(char *, unsigned long *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
 void	binkp_add_message(char *frame);		    /* Add cmd frame to queue	    */
@@ -230,6 +231,11 @@ int binkp(int role)
     bp.local_EOB = FALSE;
     bp.remote_EOB = FALSE;
     bp.msgs_on_queue = 0;
+#ifdef	HAVE_ZLIB_H
+    bp.PLZflag = WeCan;
+#else
+    bp.PLZflag = No;
+#endif
 
     if (role == 1) {
 	if (orgbinkp()) {
@@ -304,11 +310,12 @@ SM_NAMES
     (char *)"WaitOk",
     (char *)"Opts"
 SM_EDECL
-    faddr   *primary;
-    char    *p, *q, *pwd;
-    int     i, rc = 0, bufl, cmd, dupe, SendPass = FALSE, akas = 0;
-    fa_list **tmp, *tmpa;
-    faddr   *fa, ra;
+    faddr	    *primary;
+    char	    *p, *q, *pwd;
+    int		    i, rc = 0, cmd, dupe, SendPass = FALSE, akas = 0;
+    unsigned long   bufl;
+    fa_list	    **tmp, *tmpa;
+    faddr	    *fa, ra;
 
 SM_START(ConnInit)
 
@@ -323,10 +330,18 @@ SM_STATE(WaitConn)
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
 
     /*
-     * Build options we want (Add PLZ etc).
+     * Build options we want
      */
     p = xstrcpy((char *)"OPT");
 
+#ifdef HAVE_ZLIB_H
+    if (bp.PLZflag == WeCan) {
+	p = xstrcat(p, (char *)" PLZ");
+	bp.PLZflag = WeWant;
+	Syslog('b', "PLZflag WeCan => WeWant");
+    }
+#endif
+    
     if (strcmp(p, (char *)"OPT"))
 	rc = binkp_send_command(MM_NUL, p);
     free(p);
@@ -576,6 +591,7 @@ SM_RETURN
 
 SM_DECL(ansbinkp, (char *)"ansbinkp")
 SM_STATES
+    ConnInit,
     WaitConn,
     WaitAddr,
     IsPasswd,
@@ -583,6 +599,7 @@ SM_STATES
     PwdAck,
     Opts
 SM_NAMES
+    (char *)"ConnInit",
     (char *)"WaitConn",
     (char *)"WaitAddr",
     (char *)"IsPasswd",
@@ -590,12 +607,17 @@ SM_NAMES
     (char *)"PwdAck",
     (char *)"Opts"
 SM_EDECL
-    char    *p, *q, *pw;
-    int     i, rc, bufl, cmd, dupe, we_have_pwd = FALSE, akas = 0;
-    fa_list **tmp, *tmpa;
-    faddr   *fa;
+    char	    *p, *q, *pw;
+    int		    i, rc, cmd, dupe, we_have_pwd = FALSE, akas = 0;
+    unsigned long   bufl;
+    fa_list	    **tmp, *tmpa;
+    faddr	    *fa;
 
-SM_START(WaitConn)
+SM_START(ConnInit)
+
+SM_STATE(ConnInit)
+
+    SM_PROCEED(WaitConn)
 
 SM_STATE(WaitConn)
 
@@ -613,7 +635,14 @@ SM_STATE(WaitConn)
 	 */
 	char s[MD5_DIGEST_LEN*2+15]; /* max. length of opt string */
 	strcpy(s, "OPT ");
-	MD_toString(s+4, bp.MD_Challenge[0], bp.MD_Challenge+1);
+#ifdef HAVE_ZLIB_H
+	if (bp.PLZflag == WeCan) {
+	    strcpy(s + strlen(s), "PLZ ");
+	    bp.PLZflag = WeWant;
+	    Syslog('b', "PLZflag WeCan => WeWant");
+	}
+#endif
+	MD_toString(s + strlen(s), bp.MD_Challenge[0], bp.MD_Challenge+1);
 	bp.CRAMflag = TRUE;
 	if ((rc = binkp_send_command(MM_NUL, "%s", s))) {
 	    SM_ERROR;
@@ -1639,9 +1668,13 @@ int binkp_banner(void)
 /*
  *  Receive command frame
  */
-int binkp_recv_command(char *buf, int *len, int *cmd)
+int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
 {
-    int b0, b1;
+    int	    b0, b1;
+#ifdef HAVE_ZLIB_H
+    int	    rc, zlen, plz = FALSE;
+    char    *zbuf;
+#endif
 
     *len = *cmd = 0;
 
@@ -1651,15 +1684,52 @@ int binkp_recv_command(char *buf, int *len, int *cmd)
     if (b0 & 0x80)
 	*cmd = 1;
 
+#ifdef HAVE_ZLIB_H
+    /*
+     * During session setup even if we are not yet in PLZ mode,
+     * we already accept zlib compressed packets. This assumes
+     * that there are no command messages longer then 16Kb.
+     */
+    if ((b0 & 0x40) && (bp.PLZflag != No)) {
+	Syslog('b', "Binkp: binkp_recv_command() compressed block");
+	plz = TRUE;
+    }
+#endif
+
     b1 = GETCHAR(BINKP_TIMEOUT / 2);
     if (tty_status)
 	goto to;
 
+#ifdef HAVE_ZLIB_H
+    if (plz) {
+	*len = (b0 & 0x3f) << 8;
+
+	zbuf = calloc(*len +1, sizeof(char));
+	GET(zbuf, *len, BINKP_TIMEOUT / 2);
+	zlen = *len;
+	rc = uncompress(buf, len, zbuf, zlen);
+	free(zbuf);
+
+	if (rc == Z_OK) {
+	    Syslog('b', "Binkp: uncompress size %d => %d", zlen, len);
+	} else {
+	    Syslog('b', "Binkp: uncompress error %d", rc);
+	    tty_status = STAT_UNCOMP;
+	}
+	buf[*len] = '\0';
+    } else {
+	*len = (b0 & 0x7f) << 8;
+	*len += b1;
+	GET(buf, *len, BINKP_TIMEOUT / 2);
+	buf[*len] = '\0';
+    }
+#else
     *len = (b0 & 0x7f) << 8;
     *len += b1;
 
     GET(buf, *len, BINKP_TIMEOUT / 2);
     buf[*len] = '\0';
+#endif
     if (tty_status)
 	goto to;
 
@@ -1713,15 +1783,39 @@ void parse_m_nul(char *msg)
     
     } else if (strncmp(msg, "OPT ", 4) == 0) {
 	Syslog('+', "Options : %s", msg+4);
-	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) { /* No SHA-1 support */
-	    if (CFG.NoMD5) {
-		Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
+	p = msg;
+	q = strtok(p, " \n\r\0");
+	while ((q = strtok(NULL, " \r\n\0"))) {
+	    Syslog('b', "Binkp: parsing opt \"%s\"", printable(q, 0));
+	    if (strncmp(q, (char *)"CRAM-MD5-", 9) == 0) { /* No SHA-1 support */
+		if (CFG.NoMD5) {
+		    Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
+		} else {
+		    if (bp.MD_Challenge)
+			free(bp.MD_Challenge);
+		    bp.MD_Challenge = MD_getChallenge(q, NULL);
+		}
+#ifdef HAVE_ZLIB_H
+	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
+		Syslog('b', "Binkp: got PLZ, current state %s", opstate[bp.PLZflag]);
+		if (bp.PLZflag == WeCan) {
+		    bp.PLZflag = TheyWant;
+		    Syslog('b', "PLZflag WeCan => TheyWant");
+		    binkp_send_command(MM_NUL,"OPT PLZ");
+		    Syslog('b', "PLZflag TheyWant => Active");
+		    bp.PLZflag = Active;
+		} else if (bp.PLZflag == WeWant) {
+		    bp.PLZflag = Active;
+		    Syslog('b', "PLZflag WeWant => Active");
+		} else {
+		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
+		}
+#endif
 	    } else {
-		if (bp.MD_Challenge)
-		    free(bp.MD_Challenge);
-		bp.MD_Challenge = MD_getChallenge(msg, NULL);
+		Syslog('b', "Binkp: opt not supported");
 	    }
 	}
+
     } else {
 	Syslog('+', "Binkp: M_NUL \"%s\"", msg);
     }
@@ -1739,6 +1833,11 @@ void parse_m_nul(char *msg)
 int binkp_poll_frame(void)
 {
     int	    c, rc = 0, bcmd;
+#ifdef HAVE_ZLIB_H
+    int		    plz = FALSE;
+    unsigned long   zlen;
+    char	    *zbuf;
+#endif
 
     for (;;) {
 	if (bp.GotFrame) {
@@ -1769,11 +1868,31 @@ int binkp_poll_frame(void)
 		    default:bp.rxbuf[bp.rxlen-2] = c;
 		}
 		if (bp.rxlen == 1) {
-		    bp.cmd = bp.header & 0x8000;
+		    bp.cmd = bp.header & BINKP_CONTROL_BLOCK;
+#ifdef HAVE_ZLIB_H
+		    if (bp.PLZflag == Active) {
+			bp.blklen = bp.header & 0x3fff;
+			plz = bp.header & BINKP_PLZ_BLOCK;
+		    } else {
+			bp.blklen = bp.header & 0x7fff;
+		    }
+#else
 		    bp.blklen = bp.header & 0x7fff;
+#endif
 		}
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
+#ifdef HAVE_ZLIB_H
+		    if (plz) {
+			Syslog('b', "Binkp: rcvd compressed block %d bytes", bp.rxlen -1);
+			zbuf = calloc(bp.rxlen, sizeof(char));
+			strncpy(zbuf, bp.rxbuf, bp.rxlen -1);
+			rc = uncompress(bp.rxbuf, &zlen, zbuf, bp.rxlen -1);
+			free(zbuf);
+			Syslog('b', "Binkp: uncompress rc=%d %d => %d", rc, bp.rxlen -1, zlen);
+			bp.rxlen = zlen +1;
+		    }
+#endif
 		    bp.rxbuf[bp.rxlen-1] = '\0';
 		    if (bp.cmd) {
 			bp.messages++;

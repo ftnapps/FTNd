@@ -33,6 +33,7 @@
 #define STAT_EOFILE  3
 #define STAT_HANGUP  4
 #define STAT_EMPTY   5
+#define	STAT_UNCOMP  6
 
 #define SUCCESS (STATUS == 0)
 #define TERROR (-STAT_ERROR)
