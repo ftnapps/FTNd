@@ -23,6 +23,7 @@ SMODE		= 6711
 CHOWN		= @CHOWN@
 INSTALL		= @INSTALL@
 RANLIB		= @RANLIB@
+LN_S		= @LN_S@
 SHELL		= /bin/sh
 ECHO		= echo -e
 CC		= @CC@
