@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-SRCS		= bank.c commonio.c filesub.c language.c mbfbgen.c mbtoberep.c \
+SRCS		= bank.c commonio.c filesub.c language.c mbtoberep.c \
 		  msgutil.c oneline.c sgetpwent.c xmalloc.c bbslist.c morefile.c \
 		  email.c fsedit.c lineedit.c mblang.c mbuser.c myname.c page.c \
 		  pwio.c shadowio.c bye.c encrypt.c funcs.c mail.c mbpasswd.c \
@@ -40,8 +40,6 @@ MBLANG_OBJS	= mblang.o
 MBLANG_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBCHAT_OBJS	= mbchat.o
 MBCHAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
-MBFBGEN_OBJS	= mbfbgen.o
-MBFBGEN_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
 MBSTAT_OBJS	= mbstat.o
 MBSTAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBTOBEREP_OBJS	= mbtoberep.o
@@ -52,7 +50,7 @@ MBUSERADD_OBJS	= mbuseradd.o
 MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
 		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o
 OTHER		= Makefile
-TARGET		= mbsebbs mbnewusr mball mblang mbchat mbfbgen mbstat mbtoberep mbuser mbuseradd mbpasswd
+TARGET		= mbsebbs mbnewusr mball mblang mbchat mbstat mbtoberep mbuser mbuseradd mbpasswd
 
 #############################################################################################################
 
@@ -84,10 +82,6 @@ mbchat:		${MBCHAT_OBJS} ${MBCHAT_LIBS}
 		${CC} -o mbchat  ${MBCHAT_OBJS} ${LIBS} ${MBCHAT_LIBS}
 		strip mbchat
 
-mbfbgen:	${MBFBGEN_OBJS} ${MBFBGEN_LIBS}
-		${CC} -o mbfbgen ${MBFBGEN_OBJS} ${LIBS} ${MBFBGEN_LIBS}
-		strip mbfbgen
-
 mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
 		${CC} -o mbstat ${MBSTAT_OBJS} ${LIBS} ${MBSTAT_LIBS}
 		strip mbstat
@@ -117,12 +111,12 @@ install:	all
 		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mball     ${BINDIR}
 		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mblang    ${BINDIR}
 		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbchat    ${BINDIR}
-		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbfbgen   ${BINDIR}
 		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbstat    ${BINDIR}
 		${INSTALL} -s -o ${OWNER} -g ${GROUP} -m 0711 mbtoberep ${BINDIR}
 		${INSTALL} -s -o `id -un` -g `id -gn` -m 6711 mbuser    ${BINDIR}
 		${INSTALL} -s -o `id -un` -g `id -gn` -m 6711 mbuseradd ${BINDIR}
 		${INSTALL} -s -o `id -un` -g `id -gn` -m 6711 mbpasswd  ${BINDIR}
+		@rm -f ${BINDIR}/mbfbgen
 
 filelist:	Makefile
 		BASE=`pwd`; \
@@ -157,7 +151,6 @@ bank.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clc
 commonio.o: ../config.h commonio.h
 filesub.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h funcs.h language.h input.h misc.h timeout.h exitinfo.h change.h
 language.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h input.h language.h
-mbfbgen.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h
 mbtoberep.o: ../lib/libs.h ../lib/structs.h
 msgutil.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
 oneline.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h oneline.h funcs.h input.h language.h

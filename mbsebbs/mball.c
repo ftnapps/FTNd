@@ -575,38 +575,38 @@ void MakeIndex()
 								}
 						   	}
 
-							fprintf(fa, "<TR><TD align=right>%d</TD>", aTotal);
+							fprintf(fa, "<TR><TD align=right valign=top>%d</TD>", aTotal);
 							/*
 							 * Check if this is a .gif or .jpg file, if so then
 							 * check if a thumbnail file exists. If not try to
 							 * create a thumbnail file to add to the html listing.
 							 */
-							if (strstr(file.Name, ".gif") || strstr(file.Name, ".jpg")) {
-								sprintf(linebuf, "%s/%s", area.Path, file.Name);
-								sprintf(outbuf, "%s/.%s", area.Path, file.Name);
+							if (strstr(file.LName, ".gif") || strstr(file.LName, ".jpg")) {
+								sprintf(linebuf, "%s/%s", area.Path, file.LName);
+								sprintf(outbuf, "%s/.%s", area.Path, file.LName);
 								if (file_exist(outbuf, R_OK)) {
 									if ((j = execute(CFG.www_convert, linebuf, outbuf,
 										(char *)"/dev/null", (char *)"/dev/null", 
 										(char *)"/dev/null"))) {
-										Syslog('+', "Failed to create thumbnail for %s, rc=%d", file.Name, j);
+										Syslog('+', "Failed to create thumbnail for %s, rc=%d", file.LName, j);
 									}
 								}
-								fprintf(fa, "<TD align=center><PRE><A HREF=\"%s/%s%s/%s\">",
+								fprintf(fa, "<TD align=center valign=top><A HREF=\"%s/%s%s/%s\">",
 									CFG.www_url, CFG.www_link2ftp, 
-									area.Path+strlen(CFG.ftp_base), file.Name);
+									area.Path+strlen(CFG.ftp_base), file.LName);
 								fprintf(fa, "<IMG SRC=\"%s/%s%s/.%s\" ALT=\"%s\" BORDER=0>", 
 									CFG.www_url, CFG.www_link2ftp,
-									area.Path+strlen(CFG.ftp_base), file.Name, file.Name);
-								fprintf(fa, "</A></PRE></TD>");
+									area.Path+strlen(CFG.ftp_base), file.LName, file.LName);
+								fprintf(fa, "</A></TD>");
 							} else {
-								fprintf(fa, "<TD><PRE><A HREF=\"%s/%s%s/%s\">%s</A></PRE></TD>", 
+								fprintf(fa, "<TD valign=top><A HREF=\"%s/%s%s/%s\">%s</A></TD>", 
 									CFG.www_url, CFG.www_link2ftp, 
-									area.Path+strlen(CFG.ftp_base), file.Name, file.Name);
+									area.Path+strlen(CFG.ftp_base), file.LName, file.LName);
 							}
-							fprintf(fa, "<TD><PRE>%s</PRE></TD>", StrDateDMY(file.FileDate));
-							fprintf(fa, "<TD align=right><PRE>%lu Kb.</PRE></TD>", 
+							fprintf(fa, "<TD valign=top>%s</TD>", StrDateDMY(file.FileDate));
+							fprintf(fa, "<TD align=right valign=top>%lu Kb.</TD>", 
 								(long)(file.Size / 1024));
-							fprintf(fa, "<TD><PRE>%8ld</PRE></TD>", 
+							fprintf(fa, "<TD valign=top>%8ld</TD>", 
 								file.TimesDL + file.TimesFTP + file.TimesReq);
 							fprintf(fa, "<TD><PRE>");
 							for (j = 0; j < 25; j++)
