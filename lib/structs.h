@@ -772,6 +772,7 @@ struct	sysconfig {
 	char		nntppass[16];		/* NNTP password	    */
 	long		nntpdupes;		/* NNTP dupes database size */
 	int		newsfeed;		/* Newsfeed mode	    */
+	int		maxarticles;		/* Default max articles	    */
 };
 
 
@@ -891,6 +892,7 @@ struct msgareas {
 	char		Moderator[65];		/* Moderator/Email-address  */
 	int		Rfccode;		/* RFC characterset	    */
 	int		Ftncode;		/* FTN characterset	    */
+	int		MaxArticles;		/* Max. newsarticles to get */
 };
 
 

@@ -269,6 +269,7 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 	total = atol(strtok(NULL, " "));
 	start = atol(strtok(NULL, " "));
 	end   = atol(strtok(NULL, " '\0'"));
+	Syslog('n', "GROUP total %d, start %d, end %d", total, start, end);
 	if (!total) {
 		Syslog('N', "No articles");
 		return RETVAL_OK;
@@ -377,6 +378,7 @@ int get_xover(char *grpname, long startnr, long endnr, List **art)
 			done = TRUE;
 		} else {
 			Marker();
+			Nopper();
 			pov = xoverview;
 			ptr = resp;
 			ptr2 = ptr;
