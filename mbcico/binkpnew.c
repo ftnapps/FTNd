@@ -212,6 +212,8 @@ int binkp(int role)
 
     most_debug = TRUE;
 
+    Syslog('+', "Binkp: start session");
+
     memset(&bp, 0, sizeof(bp));
     bp.Role = role;
     bp.CRAMflag = FALSE;
@@ -238,19 +240,19 @@ int binkp(int role)
 	}
     }
 
+    if (rc) {
+	Syslog('!', "Binkp: session handshake failed");
+	goto binkpend;
+    }
+
     if (Loaded && nodes.NoBinkp11 && (bp.Major == 1) && (bp.Minor != 0)) {
 	Syslog('+', "Binkp: forcing downgrade to binkp/1.0 protocol");
-	bp.Major = 1;
-	bp.Minor = 0;
+        bp.Major = 1;
+        bp.Minor = 0;
     }
 
     bp.FtState = InitTransfer;
     rc = file_transfer();
-
-    if (rc) {
-	Syslog('!', "Binkp: session failed");
-	goto binkpend;
-    }
 
 binkpend:   
     /*
@@ -265,7 +267,8 @@ binkpend:
     if (bp.txbuf)
 	free(bp.txbuf);
     rc = abs(rc);
-    Syslog('b', "Binkp: rc=%d", rc);
+
+    Syslog('+', "Binkp: session finished, rc=%d", rc);
     return rc;
 }
 
@@ -317,11 +320,7 @@ SM_STATE(WaitConn)
      * Build options we want (Add PLZ etc).
      */
     p = xstrcpy((char *)"OPT");
-    // if ((noderecord(remote->addr)) && nodes.CRC32 && (bp.CRCflag == WeCan)) {
-    // p = xstrcat(p, (char *)" CRC");
-    // bp.CRCflag = WeWant;
-    // Syslog('b', "CRCflag WeCan => WeWant");
-    // }
+
     if (strcmp(p, (char *)"OPT"))
 	rc = binkp_send_command(MM_NUL, p);
     free(p);
@@ -825,7 +824,7 @@ int file_transfer(void)
     TrType	Trc = Ok;
     
     for (;;) {
-	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
+//	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
 	switch (bp.FtState) {
 	    case InitTransfer:	binkp_settimer(BINKP_TIMEOUT);
 				bp.RxState = RxWaitF;
@@ -836,7 +835,6 @@ int file_transfer(void)
 				break;
 
 	    case Switch:	if ((bp.RxState == RxDone) && (bp.TxState == TxDone)) {
-				    Syslog('+', "Binkp: file transfer complete rc=%d", bp.rc);
 				    bp.FtState = DeinitTransfer;
 				    break;
 				}
@@ -1117,19 +1115,20 @@ TrType binkp_receiver(void)
 	}
     } else if (bp.RxState == RxWriteD) {
 	written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
-	Syslog('b', "Binkp: write %d bytes of %d bytes", written, bp.blklen);
 
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
 	bp.header = 0;
-	bp.blklen = 0;
 
-	if (!written && bp.blklen) {
+	if (bp.blklen && (bp.blklen != written)) {
 	    Syslog('+', "Binkp: file write error");
 	    bp.RxState = RxDone;
+	    bp.blklen = 0;
 	    return Failure;
 	}
+	bp.blklen = 0;
 	bp.rxpos += written;
+
 	if (bp.rxpos == bp.rsize) {
 	    rc = binkp_send_command(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 	    closefile();
@@ -1641,7 +1640,6 @@ void parse_m_nul(char *msg)
 	if ((p = strstr(msg+4, PRTCLNAME "/")) && (q = strstr(p, "."))) {
 	    bp.Major = atoi(p + 6);
 	    bp.Minor = atoi(q + 1);
-	    Syslog('b', "Remote protocol version %d.%d", bp.Major, bp.Minor);
 	}
     } else if (strncmp(msg, "PHN ", 4) == 0) {
 	Syslog('+', "Phone   : %s", msg+4);
@@ -1829,7 +1827,7 @@ int binkp_process_messages(void)
 		    break;
 		}
 		if (!Found) {
-		    Syslog('!', "Binkp: unexpected M_GET \"%s\"", tmpq->data); /* Ignore frame */
+		    Syslog('+', "Binkp: unexpected M_GET \"%s\"", tmpq->data); /* Ignore frame */
 		}
 	    }
 	} else if (tmpq->cmd == MM_GOT) {
@@ -1861,7 +1859,7 @@ int binkp_process_messages(void)
 		}
 	    }
 	    if (!Found) {
-		Syslog('!', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
+		Syslog('+', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else if (tmpq->cmd == MM_SKIP) {
 	    sscanf(tmpq->data, "%s %ld %ld", lname, &lsize, &ltime);
@@ -1883,7 +1881,7 @@ int binkp_process_messages(void)
 		}
 	    }
 	    if (!Found) {
-		Syslog('!', "Binkp: unexpected M_SKIP \"%s\"", tmpq->data); /* Ignore frame */
+		Syslog('+', "Binkp: unexpected M_SKIP \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else {
 	    /* Illegal message on the queue */
@@ -1923,7 +1921,8 @@ int binkp_pendingfiles(void)
 	    count++;
     }
 
-    Syslog('b', "Binkp: %d pending files on queue", count);
+    if (count)
+	Syslog('b', "Binkp: %d pending files on queue", count);
     return count;
 }
 
@@ -2044,7 +2043,7 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     struct stat tstat;
 
     if (stat(fal->local, &tstat) != 0) {
-	Syslog('!', "$Can't add %s to sendlist", fal->local);
+	Syslog('+', "$Binkp: can't add %s to sendlist", fal->local);
 	return;
     }
     if (strstr(fal->remote, (char *)".pkt"))
@@ -2088,7 +2087,7 @@ void binkp_clear_filelist(void)
     binkp_list	*tmp;
 
     if (tosend != NULL) {
-	Syslog('b', "Clear current filelist");
+	Syslog('b', "Binkp: clear current filelist");
 
 	for (tmp = bll; bll; bll = tmp) {
 	    tmp = bll->next;
