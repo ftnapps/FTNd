@@ -148,6 +148,7 @@ struct _fdbarea *mbsedb_OpenFDB(long, int);
 int mbsedb_CloseFDB(struct _fdbarea *);
 int mbsedb_LockFDB(struct _fdbarea *, int);
 int mbsedb_UnlockFDB(struct _fdbarea *);
+int mbsedb_InsertFDB(struct _fdbarea *, struct FILE_record, int);
 
 #endif
 
