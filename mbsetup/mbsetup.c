@@ -244,7 +244,7 @@ void site_docs(void)
 	fprintf(hp, " <LI>BBS: <A HREF=\"fileareas.html\">File Areas</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
-	fprintf(hp, " <LI>Mail: Echomail Groups</LI>\n");
+	fprintf(hp, " <LI>Mail: <A HREF=\"msggroup.html\">Echomail Groups</A></LI>\n");
 	fprintf(hp, " <LI>Mail: <A HREF=\"msgareas.html\">Echomail Areas</A></LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"filegroup.html\">FileEcho Groups</A></LI>\n");
 	fprintf(hp, " <LI>TIC: Fileecho Areas</LI>\n");

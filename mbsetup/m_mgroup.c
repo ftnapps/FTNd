@@ -639,55 +639,164 @@ char *PickMGroup(char *shdr)
 
 int mail_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
-	int	j;
+    char    temp[PATH_MAX], group[13];
+    FILE    *ti, *wp, *ip, *no;
+    int	    refs, i, j;
 
-	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	addtoc(fp, toc, 9, 1, page, (char *)"Mail processing groups");
-	j = 0;
-	fprintf(fp, "\n");
+    addtoc(fp, toc, 9, 1, page, (char *)"Mail processing groups");
+    j = 0;
+    fprintf(fp, "\n");
 
-	fread(&mgrouphdr, sizeof(mgrouphdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&mgrouphdr, mgrouphdr.hdrsize, 1, no);
+    fread(&mgrouphdr, sizeof(mgrouphdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&mgrouphdr, mgrouphdr.hdrsize, 1, no);
 
-	while ((fread(&mgroup, mgrouphdr.recsize, 1, no)) == 1) {
-		if (j == 2) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "    Group name         %s\n", mgroup.Name);
-		fprintf(fp, "    Comment            %s\n", mgroup.Comment);
-		fprintf(fp, "    Active             %s\n", getboolean(mgroup.Active));
-		fprintf(fp, "    Use Aka            %s\n", aka2str(mgroup.UseAka));
-		fprintf(fp, "    Uplink             %s\n", aka2str(mgroup.UpLink));
-		fprintf(fp, "    Areas file         %s\n", mgroup.AreaFile);
-		fprintf(fp, "    Base path          %s\n", mgroup.BasePath);
-		fprintf(fp, "    Netmail reply area %d\n", mgroup.NetReply);
-		fprintf(fp, "    Start new areas at %d\n", mgroup.StartArea);
-		fprintf(fp, "    Read security      %s\n", get_secstr(mgroup.RDSec));
-		fprintf(fp, "    Write security     %s\n", get_secstr(mgroup.WRSec));
-		fprintf(fp, "    Sysop security     %s\n", get_secstr(mgroup.SYSec));
-		fprintf(fp, "    Def. link security       %s\n", getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
-		fprintf(fp, "    Use aliases        %s\n", getboolean(mgroup.Aliases));
-		fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
-		fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
-		fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
-		fprintf(fp, "    Default charset    %s\n", getchrs(mgroup.Charset));
-		fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
-		fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
-		fprintf(fp, "\n\n");
-		j++;
+    ip = open_webdoc((char *)"msggroup.html", (char *)"Message Groups", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&mgroup, mgrouphdr.recsize, 1, no)) == 1) {
+	if (j == 2) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	sprintf(temp, "msggroup_%s.html", mgroup.Name);
+	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, mgroup.Name, mgroup.Comment);
+
+	if ((wp = open_webdoc(temp, (char *)"Message group", mgroup.Comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"msggroup.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Group name", mgroup.Name);
+	    add_webtable(wp, (char *)"Comment", mgroup.Comment);
+	    add_webtable(wp, (char *)"Active", getboolean(mgroup.Active));
+	    add_webtable(wp, (char *)"Use Aka", aka2str(mgroup.UseAka));
+	    add_webtable(wp, (char *)"Uplink", aka2str(mgroup.UpLink));
+	    add_webtable(wp, (char *)"Areas file", mgroup.AreaFile);
+	    add_webtable(wp, (char *)"Base path", mgroup.BasePath);
+	    add_webdigit(wp, (char *)"Netmail reply area", mgroup.NetReply);
+	    add_webdigit(wp, (char *)"Start new areas at", mgroup.StartArea);
+	    web_secflags(wp, (char *)"Read security", mgroup.RDSec);
+	    web_secflags(wp, (char *)"Write security", mgroup.WRSec);
+	    web_secflags(wp, (char *)"Sysop security", mgroup.SYSec);
+	    add_webtable(wp, (char *)"Def. link security", getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+	    add_webtable(wp, (char *)"Use aliases", getboolean(mgroup.Aliases));
+	    add_webtable(wp, (char *)"Add quotes", getboolean(mgroup.Quotes));
+	    add_webtable(wp, (char *)"Auto add/del areas", getboolean(mgroup.AutoChange));
+	    add_webtable(wp, (char *)"User add/del areas", getboolean(mgroup.UserChange));
+	    add_webtable(wp, (char *)"Default charset", getchrs(mgroup.Charset));
+	    add_webtable(wp, (char *)"Start area date", ctime(&mgroup.StartDate));
+	    add_webtable(wp, (char *)"Last active date", ctime(&mgroup.LastDate));
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Message Areas Reference</H3>\n");
+	    refs = 0;
+            sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&tichdr, sizeof(tichdr), 1, ti);
+		fseek(ti, 0, SEEK_SET);
+		fread(&msgshdr, msgshdr.hdrsize, 1, ti);
+		i = 0;
+		while ((fread(&msgs, msgshdr.recsize, 1, ti)) == 1) {
+		    i++;
+		    if (msgs.Active && (strcmp(mgroup.Name, msgs.Group) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			fprintf(wp, "<TR><TD><A HREF=\"msgarea_%d.html\">Area %d</A></TD><TD>%s</TD></TR>\n", 
+				i, i, msgs.Name);
+			refs++;
+		    }
+		    fseek(ti, msgshdr.syssize, SEEK_CUR);
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No Message Areas References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Nodes Reference</H3>\n");
+	    refs = 0;
+	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
+		fseek(ti, 0, SEEK_SET);
+		fread(&nodeshdr, nodeshdr.hdrsize, 1, ti);
+		while ((fread(&nodes, nodeshdr.recsize, 1, ti)) == 1) {
+		    fseek(ti, nodeshdr.filegrp, SEEK_CUR);
+		    for (i = 0; i < nodeshdr.mailgrp / sizeof(group); i++) {
+			fread(&group, sizeof(group), 1, ti);
+			if (strcmp(group, mgroup.Name) == 0) {
+			    if (refs == 0) {
+				fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+				fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+				fprintf(wp, "<TBODY>\n");
+			    }
+			    fprintf(wp, "<TR><TD><A HREF=\"node_%d_%d_%d_%d_%s.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+				    nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node, nodes.Aka[0].point, 
+				    nodes.Aka[0].domain, aka2str(nodes.Aka[0]), nodes.Sysop);
+			    refs++;
+			}
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No Nodes References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Group Statistics</H3>\n");
+	    add_statcnt(wp, (char *)"reveived messages", mgroup.MsgsRcvd);
+	    add_statcnt(wp, (char *)"sent messages", mgroup.MsgsSent);
+	    close_webdoc(wp);
+	}
+	
+	fprintf(fp, "    Group name         %s\n", mgroup.Name);
+	fprintf(fp, "    Comment            %s\n", mgroup.Comment);
+	fprintf(fp, "    Active             %s\n", getboolean(mgroup.Active));
+	fprintf(fp, "    Use Aka            %s\n", aka2str(mgroup.UseAka));
+	fprintf(fp, "    Uplink             %s\n", aka2str(mgroup.UpLink));
+	fprintf(fp, "    Areas file         %s\n", mgroup.AreaFile);
+	fprintf(fp, "    Base path          %s\n", mgroup.BasePath);
+	fprintf(fp, "    Netmail reply area %d\n", mgroup.NetReply);
+	fprintf(fp, "    Start new areas at %d\n", mgroup.StartArea);
+	fprintf(fp, "    Read security      %s\n", get_secstr(mgroup.RDSec));
+	fprintf(fp, "    Write security     %s\n", get_secstr(mgroup.WRSec));
+	fprintf(fp, "    Sysop security     %s\n", get_secstr(mgroup.SYSec));
+	fprintf(fp, "    Def. link security       %s\n", getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+	fprintf(fp, "    Use aliases        %s\n", getboolean(mgroup.Aliases));
+	fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
+	fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
+	fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
+	fprintf(fp, "    Default charset    %s\n", getchrs(mgroup.Charset));
+	fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
+	fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(no);
+    return page;
 }
 
 
