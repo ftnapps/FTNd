@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.71.1		28-Nov-2004
+v0.71.2		16-Jan-2005
+
+v0.71.1		28-Nov-2004 - 16-Jan-2005
 
 	porting:
 		Compiles more or less on x86_64, there are issues with utmp
@@ -20,6 +22,7 @@ v0.71.1		28-Nov-2004
 		instead of missing code parts.
 		Added Unix codepage KOI8-R (Russian) and patches from Dmitry
 		Komissaroff.
+		Updated Copyright notices to 2004 to 2005.
 
 	mbsebbs:
 		The creation of the mailout semafore is now after the hangup
