@@ -29,6 +29,8 @@ v0.37.00	26-Dec-2002.
 		user:group to follow the new POSIX syntax. Please let me know
 		if you are using an older distribution that complains about
 		this. This was needed for FreeBSD 4.7.
+		Added Dutch template macro files. Updated English and German
+		template macro files. Please remove old ones before installing.
 
 	libs:
 		The nodelist lookup functions are now in a separate library.
