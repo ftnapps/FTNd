@@ -4,7 +4,7 @@
  * Purpose ...............: Main startup
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -157,10 +157,6 @@ int main(int argc, char **argv)
      */
     TermInit(1);
 		
-    sprintf(temp, "chat.%s", pTTY);
-    if (access(temp, F_OK) == 0)
-	unlink(temp);
-
     /*
      * Now it's time to check if the bbs is open. If not, we 
      * log the user off.

@@ -35,7 +35,7 @@
 #include "taskregs.h"
 #include "taskchat.h"
 
-#define	MAXCHANNELS 100		    /* Maximum chat channels		*/
+#define	MAXCHANNELS 10		    /* Maximum chat channels		*/
 #define	MAXMESSAGES 100		    /* Maximum ringbuffer for messages	*/
 
 
@@ -74,6 +74,19 @@ typedef struct	_chatmsg {
 
 
 /*
+ * List of channels
+ */
+typedef struct _channel_rec {
+    char	name[21];	    /* Channel name			*/
+    pid_t	owner;		    /* Channel owner			*/
+    int		users;		    /* Users in channel			*/
+    time_t	created;	    /* Creation time			*/
+    unsigned	active	    : 1;    /* Channel active			*/
+} _channel;
+
+
+
+/*
  *  List of banned users from a channel. This is a dynamic list.
  */
 typedef struct	_banned {
@@ -82,15 +95,40 @@ typedef struct	_banned {
 } banned_users;
 
 
+
 /*
  *  The buffers
  */
-_chat_messages	chat_messages[MAXMESSAGES];
-_chat_users	chat_users[MAXCLIENT];
+_chat_messages		chat_messages[MAXMESSAGES];
+_chat_users		chat_users[MAXCLIENT];
+_channel		chat_channels[MAXCHANNELS];
 
 
 int			buffer_head = 0;    /* Messages buffer head	*/
 extern struct sysconfig CFG;		    /* System configuration	*/
+
+
+/*
+ * Prototypes
+ */
+void chat_msg(int, char *, char *);
+
+
+
+
+void chat_dump(void)
+{
+    int	    i;
+    
+    for (i = 0; i < MAXCLIENT; i++)
+	if (chat_users[i].pid)
+	    Syslog('u', "%5d %-36s %2d %s", chat_users[i].pid, chat_users[i].name, chat_users[i].channel,
+		chat_users[i].chatting?"True":"False");
+    for (i = 0; i < MAXCHANNELS; i++)
+	if (chat_channels[i].owner)
+	    Syslog('c', "%-20s %5d %3d %s", chat_channels[i].name, chat_channels[i].owner, chat_channels[i].users,
+		    chat_channels[i].active?"True":"False");
+}
 
 
 
@@ -128,10 +166,158 @@ void chat_help(pid_t pid)
 
 
 
+/*
+ * Join a channel
+ */
+int join(pid_t, char *);
+int join(pid_t pid, char *channel)
+{
+    int	    i, j;
+    char    buf[81];
+
+    Syslog('-', "Join pid %d to channel %s", pid, channel);
+    for (i = 0; i < MAXCHANNELS; i++) {
+	if (strcasecmp(chat_channels[i].name, channel) == 0) {
+	    /*
+	     * Excisting channel, add user to channel.
+	     */
+	    chat_channels[i].users++;
+	    for (j = 0; j < MAXCLIENT; j++) {
+		if (chat_users[j].pid == pid) {
+		    chat_users[j].channel = i;
+		    chat_users[j].chatting = TRUE;
+		    Syslog('-', "Added user %d to channel %d", j, i);
+		    chat_dump();
+		    sprintf(buf, "%s has joined channel #%s, now %d users", chat_users[j].name, channel, chat_channels[i].users);
+		    chat_msg(i, NULL, buf);
+		    return TRUE;
+		}
+	    }
+	}
+    }
+
+    /*
+     * No matching channel found, add a new channel.
+     */
+    for (i = 0; i < MAXCHANNELS; i++) {
+	if (chat_channels[i].active == FALSE) {
+	    /*
+	     * Got one, register channel.
+	     */
+	    strncpy(chat_channels[i].name, channel, 20);
+	    chat_channels[i].owner = pid;
+	    chat_channels[i].users = 1;
+	    chat_channels[i].created = time(NULL);
+	    chat_channels[i].active = TRUE;
+	    Syslog('-', "Created channel %d", i);
+	    /*
+	     * Register user to channel
+	     */
+	    for (j = 0; j < MAXCLIENT; j++) {
+		if (chat_users[j].pid == pid) {
+		    chat_users[j].channel = i;
+		    chat_users[j].chatting = TRUE;
+		    Syslog('-', "Added user %d to channel %d", j, i);
+		    sprintf(buf, "Created channel #%s", channel);
+		    chat_msg(i, NULL, buf);
+		}
+	    }
+	    chat_dump();
+	    return TRUE;
+	}
+    }
+
+    /*
+     * No matching or free channels
+     */
+    Syslog('+', "Cannot create chat channel %s, no free channels", channel);
+    return FALSE;
+}
+
+
+
+/*
+ * Part from a channel
+ */
+int part(pid_t, char*);
+int part(pid_t pid, char *reason)
+{
+    int	    i;
+    char    buf[81];
+
+    Syslog('-', "Part pid %d from channel, reason %s", pid, reason);
+
+    for (i = 0; i < MAXCLIENT; i++) {
+	if ((chat_users[i].pid == pid) && chat_users[i].chatting) {
+	    chat_channels[chat_users[i].channel].users--;
+
+	    /*
+	     * Inform other users
+	     */
+	    if (reason != NULL)
+		chat_msg(chat_users[i].channel, chat_users[i].name, reason);
+	    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].name, chat_channels[chat_users[i].channel].name,
+		    chat_channels[chat_users[i].channel].users);
+	    chat_msg(chat_users[i].channel, NULL, buf);
+	    
+	    /*
+	     * First clean channel
+	     */
+	    Syslog('-', "User leaves channel %s", chat_channels[chat_users[i].channel].name);
+	    if (chat_channels[chat_users[i].channel].users == 0) {
+		/*
+		 * Last user from channel, clear channel
+		 */
+		Syslog('-', "Remove channel %s, no more users left", chat_channels[chat_users[i].channel].name);
+		memset(&chat_channels[chat_users[i].channel], 0, sizeof(_channel));
+	    }
+	    chat_users[i].channel = -1;
+	    chat_users[i].chatting = FALSE;
+	    chat_dump();
+	    return TRUE;
+	}
+    }
+    Syslog('-', "No channel found");
+    return FALSE;
+}
+
+
+
 void chat_init(void)
 {
     memset(&chat_users, 0, sizeof(chat_users));
     memset(&chat_messages, 0, sizeof(chat_messages));
+    memset(&chat_channels, 0, sizeof(chat_channels));
+}
+
+
+
+void chat_cleanuser(pid_t pid)
+{
+    part(pid, (char *)"I'm hanging up!");
+}
+
+
+
+/*
+ * Send message into channel
+ */
+void chat_msg(int channel, char *nick, char *msg)
+{
+    int	    i;
+    char    buf[128];
+
+    if (nick == NULL)
+	sprintf(buf, "%s", msg);
+    else
+	sprintf(buf, "<%s> %s", nick, msg);
+    buf[79] = '\0';
+
+    for (i = 0; i < MAXCLIENT; i++) {
+	if ((chat_users[i].channel == channel) && chat_users[i].chatting) {
+	    system_msg(chat_users[i].pid, buf);
+	}
+    }
 }
 
 
@@ -243,18 +429,19 @@ char *chat_put(char *data)
 		 */
 		if (strncasecmp(msg, "/help", 5) == 0) {
 		    chat_help(atoi(pid));
-		    sprintf(buf, "100:0;");
-		    return buf;
+		    goto ack;
 		}
-		if (strncasecmp(msg, "/exit", 5) == 0) {
+		if ((strncasecmp(msg, "/exit", 5) == 0) || 
+		    (strncasecmp(msg, "/quit", 5) == 0) ||
+		    (strncasecmp(msg, "/bye", 4) == 0)) {
+		    part(chat_users[i].pid, (char *)"Quitting");
 		    /*
 		     * Just send messages, the client should later do a
 		     * real disconnect.
 		     */
 		    sprintf(buf, "Goodbye");
 		    system_msg(chat_users[i].pid, buf);
-		    sprintf(buf, "100:0;");
-		    return buf;
+		    goto ack;
 		}
 		if (strncasecmp(msg, "/join", 5) == 0) {
 		    cmd = strtok(msg, " \0");
@@ -266,9 +453,20 @@ char *chat_put(char *data)
 			system_msg(chat_users[i].pid, buf);
 		    } else {
 			Syslog('-', "Trying to join channel %s", cmd);
+			join(chat_users[i].pid, cmd+1);
 		    }
-		    sprintf(buf, "100:0;");
-		    return buf;
+		    goto ack;
+		}
+		if (strncasecmp(msg, "/part", 5) == 0) {
+		    cmd = strtok(msg, " \0");
+		    Syslog('-', "\"%s\"", cmd);
+		    cmd = strtok(NULL, "\0");
+		    Syslog('-', "\"%s\"", cmd);
+		    if (part(chat_users[i].pid, cmd) == FALSE) {
+			sprintf(buf, "Not in a channel");
+			system_msg(chat_users[i].pid, buf);
+		    }
+		    goto ack;
 		}
 		/*
 		 * If still here, the command was not recognized.
@@ -276,8 +474,7 @@ char *chat_put(char *data)
 		cmd = strtok(msg, " \t\r\n\0");
 		sprintf(buf, "%s :Unknown command", cmd+1);
 		system_msg(chat_users[i].pid, buf);
-		sprintf(buf, "100:0;");
-		return buf;
+		goto ack;
 	    }
 	    if (chat_users[i].channel == -1) {
 		/*
@@ -285,15 +482,21 @@ char *chat_put(char *data)
 		 */
 		sprintf(buf, "No channel joined. Try /join #channel");
 		system_msg(chat_users[i].pid, buf);
-		sprintf(buf, "100:0;");
-		return buf;
+		chat_dump();
+		goto ack;
+	    } else {
+		chat_msg(chat_users[i].channel, chat_users[i].name, msg);
+		chat_dump();
 	    }
-	    sprintf(buf, "100:0;");
-	    return buf;
+	    goto ack;
 	}
     }
     Syslog('-', "Pid %s was not connected to chatserver");
     sprintf(buf, "100:1,ERROR - Not connected to server;");
+    return buf;
+
+ack:
+    sprintf(buf, "100:0;");
     return buf;
 }
 
@@ -305,7 +508,7 @@ char *chat_get(char *data)
     char	*pid;
     int		i;
 
-    Syslog('-', "CGET:%s", data);
+//    Syslog('-', "CGET:%s", data);
     memset(&buf, 0, sizeof(buf));
     pid = strtok(data, ",");
     pid = strtok(NULL, ";");

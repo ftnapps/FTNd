@@ -33,6 +33,7 @@
 #include "../lib/structs.h"
 #include "taskstat.h"
 #include "taskregs.h"
+#include "taskchat.h"
 #include "taskutil.h"
 
 extern reg_info		reginfo[MAXCLIENT];     /* Array with clients   */
@@ -130,6 +131,9 @@ int reg_closecon(char *data)
 	mailers--;
     if (reginfo[rec].istcp)
 	ipmailers--;
+    if ((strcmp(reginfo[rec].prg, (char *)"mbsebbs") == 0) || (strcmp(reginfo[rec].prg, (char *)"mbmon") == 0))
+	chat_cleanuser(atoi(pid));
+
     Syslog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d, TCP/IP %d", 
 		reginfo[rec].prg, pid, rec, mailers, ipmailers);
     memset(&reginfo[rec], 0, sizeof(reg_info)); 
@@ -156,11 +160,11 @@ void reg_check(void)
 			mailers--;
 		    if (reginfo[i].istcp)
 			ipmailers--;
+		    if ((strcmp(reginfo[i].prg, (char *)"mbsebbs") == 0) || (strcmp(reginfo[i].prg, (char *)"mbmon") == 0))
+			chat_cleanuser(reginfo[i].pid);
+
 		    Syslog('?', "Stale registration found for pid %d (%s), mailers now %d, TCP/IP now %d", 
 						reginfo[i].pid, reginfo[i].prg, mailers, ipmailers);
-
-		    // FIXME: If this was a moderators chat channel, kill the whole channel
-
 		    memset(&reginfo[i], 0, sizeof(reg_info));
 		    stat_dec_clients();
 		}

@@ -258,16 +258,9 @@ void load_maincfg(void)
         CFG.iMaxPageTimes       = 5;
         CFG.iAskReason          = TRUE;
         CFG.iSysopArea          = 1;
-        CFG.iExternalChat       = FALSE;
-        strcpy(CFG.sExternalChat, "/usr/local/bin/chat");
         CFG.iAutoLog            = TRUE;
-        strcpy(CFG.sChatDevice, "/dev/tty01");
         CFG.iChatPromptChk      = TRUE;
         CFG.iStopChatTime       = TRUE;
-        for (i = 0; i < 7; i++) {
-	    sprintf(CFG.cStartTime[i], "18:00");
-            sprintf(CFG.cStopTime[i], "23:59");
-        }
 
         /*
          * Fill ticconf defaults

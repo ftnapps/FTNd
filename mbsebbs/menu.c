@@ -67,6 +67,8 @@
 #include "signature.h"
 
 
+extern pid_t	mypid;
+
 
 /*
  * Menu stack, 50 levels deep.
@@ -93,7 +95,7 @@ void menu()
 {
     FILE    *pMenuFile;
     int	    iFoundKey = FALSE, Key, IsANSI;
-    char    *Input, *Semfile, *sMenuPathFileName;
+    char    *Input, *Semfile, *sMenuPathFileName, buf[81];
 
     Input = calloc(PATH_MAX, sizeof(char));
     sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
@@ -191,19 +193,23 @@ void menu()
 	    free(Semfile);
 
 	    /*
-	     * Check if SysOp wants to chat to user everytime user
-	     * gets prompt. Make sure /tmp/chatdev exists before
-	     * before calling chat(). Make sure if a second user
-	     * logs in, that .BusyChatting does exist.
+	     * Check if SysOp wants to chat to user everytime user gets prompt.
 	     */
-	    if (CFG.iChatPromptChk && (access("/tmp/chatdev", R_OK) == 0) && (access("/tmp/.BusyChatting", F_OK) != 0))
-		Chat(0);
+	    if (CFG.iChatPromptChk) {
+		sprintf(buf, "CISC:1,%d", mypid);
+		if (socket_send(buf) == 0) {
+		    strcpy(buf, socket_receive());
+		    if (strcmp(buf, "100:1,1;") == 0) {
+			Syslog('+', "Forced sysop/user chat");
+			Chat(exitinfo.Name, (char *)"#sysop");
+		    }
+		}
+	    }
 
 	    /*
 	     * Check users timeleft
 	     */
 	    TimeCheck();
-
 	    alarm_on();
 
 	    if (exitinfo.HotKeys) {
@@ -407,6 +413,11 @@ void DoMenu(int Type)
 
 	case 21:
 		/* display menuline only */
+		break;
+
+	case 22:
+		/* Chat with any user */
+		Chat(NULL, NULL);
 		break;
 
 	case 101:

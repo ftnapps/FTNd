@@ -5,7 +5,7 @@
  * Todo ..................: Implement new config settings.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -191,10 +191,22 @@ void Page_Sysop(char *String)
 	    fflush(stdout);
 	    sleep(1);
 
-	    // if drop into chat
-	    //	Chat();
-	    //	free(Reason);
-	    //	return;
+	    sprintf(buf, "CISC:1,%d", mypid);
+	    if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		if (strcmp(buf, "100:1,1;") == 0) {
+		    /*
+		     * First cancel page request
+		     */
+		    sprintf(buf, "CCAN:1,%d", mypid);
+		    socket_send(buf);
+		    socket_receive();
+		    Syslog('+', "Sysop responded to paging request");
+		    Chat(exitinfo.Name, (char *)"#sysop");
+		    free(Reason);
+		    return;
+		}
+	    }
 	}
 
 	/*

@@ -155,7 +155,7 @@ menu.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs
 pop3.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h
 lastcallers.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h input.h language.h lastcallers.h
 timeout.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h
-chat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h chat.h funcs.h input.h language.h misc.h whoson.h
+chat.o: ../config.h ../lib/libs.h ../lib/ansi.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h chat.h funcs.h input.h language.h misc.h whoson.h
 file.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h file.h funcs.h input.h language.h misc.h timeout.h exitinfo.h whoson.h change.h
 mbstat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbstat.h
 misc.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h funcs.h input.h language.h misc.h timeout.h exitinfo.h

@@ -59,8 +59,7 @@ H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
 		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
 		  misc/usleep.html     misc/webserver.html
 
-H_PROGS		= programs/mbchat.html \
-		  programs/mbfido.html     programs/mbmon.html \
+H_PROGS		= programs/mbfido.html     programs/mbmon.html \
 		  programs/mbtoberep.html  programs/mblogin.html \
 		  programs/index.htm       programs/mbcico.html \
 		  programs/mbfile.html     programs/mbmsg.html \

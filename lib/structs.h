@@ -633,15 +633,15 @@ struct	sysconfig {
 	int		iMaxPageTimes;		/* Max Pages per call       */
 	unsigned	iAskReason     : 1;	/* Ask Reason               */
 	int		iSysopArea;		/* Msg Area if Sysop not in */
-	unsigned	iExternalChat  : 1;	/* Use External Chat        */
-	char		sExternalChat[50];	/* External Chat Program    */
-	unsigned	iAutoLog       : 1;	/* Log Chats ?              */
-	char		sChatDevice[20];	/* Chat Device              */
+	unsigned	xxExternalChat  : 1;
+	char		xExternalChat[50];
+	unsigned	iAutoLog       : 1;	/* Log Chats                */
+	char		xChatDevice[20];
 	unsigned	iChatPromptChk;		/* Check for chat at prompt */
 	unsigned	iStopChatTime;		/* Stop time during chat    */
-	char		cStartTime[7][6];	/* Starting Times	    */
-	char		cStopTime[7][6];	/* Stop Times		    */
-	char		sCallScript[51];	/* Sysop External Call scr. */
+	char		xStartTime[7][6];
+	char		xStopTime[7][6];
+	char		xCallScript[51];
 
 						/* Mail Options		    */
 	char		xquotestr[11];		/* Quote String		    */

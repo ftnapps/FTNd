@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 02-Feb-2003</h5></div>
+<div align="right"><h5>Last update 01-Apr-2003</h5></div>
 
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 <P>
@@ -159,43 +159,22 @@ menu.
 <IMG SRC="../images/mbsetup1.6.S.gif" width="589" height="343">
 <P>
 
-<h3>1.9. Safe cracker door.</h3>
+<h3>1.9. Sysop paging</h3>
 <p>
-This is a door I found in RapidBBS, it is a simple number guessing game.
+For sysop chat a protocol is used to communicate with the mbtask daemon which
+has a very simple IRC like chatserver. For sysop/user chat a forced channel
+with the name #sysop is used.
 <pre>
-<strong>Digit 1           </strong>The first digit to guess
-<strong>Digit 2           </strong>The second digit to guess
-<strong>Digit 3           </strong>The third digit to guess
-<strong>Max trys          </strong>The maximum number of trys per day
-<strong>Max numb          </strong>The highest number to guess
-<strong>Num gen           </strong>Automatic number generation
-<strong>Prize             </strong>The prize to win
-<strong>Welcome           </strong>The welcome file to display
-<strong>Opened            </strong>The file to display to the winner
-</pre>
-<p>
-
-<h3>1.10. Sysop paging</h3>
-<p>
-For sysop chat we use a program that will connect to the users tty. This is 
-not a nice solution because it will not work over a network, but at least
-it works.
-<pre>
-<strong>Ext. chat         </strong>External chat program, not in use!
-<strong>Chat device       </strong>The device where the sysop is called (beeped)
-<strong>Call script       </strong>For future use
 <strong>Page length       </strong>The length of a page in seconds
 <strong>Page times        </strong>Maximum number of times a user may page the sysop
 <strong>Sysop area        </strong>Message from user to Sysop area number
 <strong>Ask reason        </strong>Ask reason for chat, this will be logged
-<strong>Use Extern        </strong>Use external chat 
 <strong>Log Chat          </strong>Log the chat conversation
 <strong>Prompt Chk.       </strong>Check at menu prompts for Sysop breaking in
 <strong>Freeze Time       </strong>Freeze users time during chat
-<strong>Sunday..Saturday  </strong>The times the Sysop is normal available
 </pre><p>
 
-<h3>1.11. Fileecho Processing.</h3>
+<h3>1.10. Fileecho Processing.</h3>
 <p>
 A note, when you change the number of Systems or Groups, the databases affected
 will be updated automatic.
@@ -221,7 +200,7 @@ the file /opt/mbse/english/macro/filemgr.help to reflect the new settings.
 Default all these switches are set to Yes.
 
 <p>
-<h3>1.12. Edit Fidonet mail and echomail processing.</h3>
+<h3>1.11. Edit Fidonet mail and echomail processing.</h3>
 <p>
 Note that the first 2 mailboards must also exist in the normal mail areas if
 you want to see what is in them. Here they are defined for quick access of the
@@ -278,10 +257,10 @@ if they are larger then 32 KBytes. Splitting is used for newfiles reports
 and gated news articles to Fidonet.
 <P>
 
-<h3>1.13. Edit Internet mail and news processing.</h3>
+<h3>1.12. Edit Internet mail and news processing.</h3>
 <p>
 Email and news is setup here. There are three possible configurations which you
-can set with 1.15.11:
+can set with 1.12.11:
 <ul>
   <li><strong>No internet</strong>. If you don't have any connection to the internet
       use this setting. Email will come from the default Fidonet UUCP gate and will be send out
@@ -347,7 +326,7 @@ In UUCP mode the NNTP entries are replaced by:
 
 
 <P>
-<h3>1.14. Allfiles and Newfiles lists.</h3>
+<h3>1.13. Allfiles and Newfiles lists.</h3>
 <p>
 These are the settings that affect the generation of newfiles and allfiles reports.
 <pre>
@@ -356,7 +335,7 @@ These are the settings that affect the generation of newfiles and allfiles repor
 <strong>Groups            </strong>The number of newfile groups the newfiles database can hold
 </pre><p>
 
-<h3>1.15. Mailer Setup.</h3>
+<h3>1.14. Mailer Setup.</h3>
 <p>
 Note that you can't disable FTS-0001 sessions as that is a mandatory session
 protocol in Fidonet. There are 40 phonenumber translations present, this is for
@@ -385,7 +364,7 @@ XX,CM and TCP/IP systems (internet) should use the XX,CM,IBN,IFC flags.
 <strong>Max. MBytes       </strong>Maximum MBytes to request, 0 is unlimited
 </pre>
 
-<h3>1.16. FTPD Settings.</h3>
+<h3>1.15. FTPD Settings.</h3>
 <p>
 A new program is <strong>mbftpd</strong>. This is a replacement for the normal
 ftp server for Linux with special futures for MBSE BBS. This is not working
@@ -411,7 +390,7 @@ yet and is not included in the distribution. Setting it up is adviced.
 <strong>User mbse         </strong>If user <strong>mbse</strong> is allowed. Dangerous!
 </pre>
 
-<h3>1.17. Edit HTML pages setup.</h3>
+<h3>1.16. Edit HTML pages setup.</h3>
 <p>
 Here you setup the HTML pages that can be created with the <strong>
 mbfile web</strong> command. These are HTML pages of your download
@@ -444,7 +423,7 @@ there is no user authentication yet available.
 </pre>
 <P>
 
-<h3>1.18. Manager flag Descriptions.</h3>
+<h3>1.17. Manager flag Descriptions.</h3>
 <p>
 In this menu you can give the 32 area-/filemgr flags a meaningfull description.
 <p>

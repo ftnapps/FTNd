@@ -3,6 +3,6 @@
 
 /* $Id$ */
 
-void Chat(int);	/* Chat Function */
+void Chat(char *, char *);	/* Chat Function */
 
 #endif

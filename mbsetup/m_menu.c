@@ -195,7 +195,7 @@ int GetMenuType(void)
     mvprintw(12, 6, "6.  BBS List menus");
 
     switch (select_menu(6)) {
-	case 1:	    return GetSubmenu(1, 21);
+	case 1:	    return GetSubmenu(1, 22);
 	case 2:	    return GetSubmenu(101, 19);
 	case 3:	    return GetSubmenu(201, 21);
 	case 4:	    return GetSubmenu(301, 20);

@@ -4,7 +4,7 @@
  * Purpose ...............: Global Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -547,98 +547,39 @@ void e_colors(void)
 
 void e_paging(void)
 {
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "1.9   EDIT SYSOP PAGING");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1.    Page Length");
+    mvprintw( 8, 2, "2.    Page Times");
+    mvprintw( 9, 2, "3.    Sysop Area");
+    mvprintw(10, 2, "4.    Ask Reason");
+    mvprintw(11, 2, "5.    Log Chat");
+    mvprintw(12, 2, "6.    Prompt Chk.");
+    mvprintw(13, 2, "7.    Freeze Time");
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.9   EDIT SYSOP PAGING");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.    Ext. Chat");
-	mvprintw( 8, 2, "2.    Chat Device");
-	mvprintw( 9, 2, "3.    Call Script");
-	mvprintw(10, 2, "4.    Page Length");
-	mvprintw(11, 2, "5.    Page Times");
-	mvprintw(12, 2, "6.    Sysop Area");
-	mvprintw(13, 2, "7.    Ask Reason");
-	mvprintw(14, 2, "8.    Use Extern");
-	mvprintw(15, 2, "9.    Log Chat");
-	mvprintw(16, 2, "10.   Prompt Chk.");
-	mvprintw(17, 2, "11.   Freeze Time");
+	show_int(  7,20, CFG.iPageLength);
+	show_int(  8,20, CFG.iMaxPageTimes);
+	show_int(  9,20, CFG.iSysopArea);
+	show_bool(10,20, CFG.iAskReason);
+	show_bool(11,20, CFG.iAutoLog);
+	show_bool(12,20, CFG.iChatPromptChk);
+	show_bool(13,20, CFG.iStopChatTime);
 
-	mvprintw(11,42, "12.   Sunday");
-	mvprintw(12,42, "13.   Monday");
-	mvprintw(13,42, "14.   Tuesday");
-	mvprintw(14,42, "15.   Wednesday");
-	mvprintw(15,42, "16.   Thursday");
-	mvprintw(16,42, "17.   Friday");
-	mvprintw(17,42, "18.   Saterday");
-
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,20,49, CFG.sExternalChat); 
-		show_str( 8,20,19, CFG.sChatDevice);
-		show_str( 9,20,50, CFG.sCallScript);
-		show_int(10,20, CFG.iPageLength);
-		show_int(11,20, CFG.iMaxPageTimes);
-		show_int(12,20, CFG.iSysopArea);
-		show_bool(13,20, CFG.iAskReason);
-		show_bool(14,20, CFG.iExternalChat);
-		show_bool(15,20, CFG.iAutoLog);
-		show_bool(16,20, CFG.iChatPromptChk);
-		show_bool(17,20, CFG.iStopChatTime);
-
-		show_str(11,58,5, CFG.cStartTime[0]);
-		show_str(12,58,5, CFG.cStartTime[1]);
-		show_str(13,58,5, CFG.cStartTime[2]);
-		show_str(14,58,5, CFG.cStartTime[3]);
-		show_str(15,58,5, CFG.cStartTime[4]);
-		show_str(16,58,5, CFG.cStartTime[5]);
-		show_str(17,58,5, CFG.cStartTime[6]);
-
-		show_str(11,65,5, CFG.cStopTime[0]);
-		show_str(12,65,5, CFG.cStopTime[1]);
-		show_str(13,65,5, CFG.cStopTime[2]);
-		show_str(14,65,5, CFG.cStopTime[3]);
-		show_str(15,65,5, CFG.cStopTime[4]);
-		show_str(16,65,5, CFG.cStopTime[5]);
-		show_str(17,65,5, CFG.cStopTime[6]);
-
-		switch(select_menu(18)) {
-		case 0:	return;
-
-		case 1:	E_STR(  7,20,49, CFG.sExternalChat,  "The name of the ^External Chat^ program.")
-		case 2:	E_STR(  8,20,19, CFG.sChatDevice,    "The ^device^ to use for chat")
-		case 3:	E_STR(  9,20,50, CFG.sCallScript,    "The ^Call Script^ to connect to remote sysop")
-		case 4:	E_INT( 10,20,    CFG.iPageLength,    "The ^Length^ of paging in seconds")
-		case 5:	E_INT( 11,20,    CFG.iMaxPageTimes,  "The ^Maximum times^ a user may page in a session")
-		case 6:	E_INT( 12,20,    CFG.iSysopArea,     "The ^Message Area^ for ^Message to sysop^ when page fails")
-		case 7:	E_BOOL(13,20,    CFG.iAskReason,     "Ask the user the ^reason for chat^")
-		case 8:	E_BOOL(14,20,    CFG.iExternalChat,  "Use ^External Chat^ program")
-		case 9:	E_BOOL(15,20,    CFG.iAutoLog,       "^Automatic log^ chat sessions")
-		case 10:E_BOOL(16,20,    CFG.iChatPromptChk, "Check for chat at the ^prompt^")
-		case 11:E_BOOL(17,20,    CFG.iStopChatTime,  "^Stop^ users time during chat")
-		case 12:strcpy(CFG.cStartTime[0], edit_str(11,58,5, CFG.cStartTime[0], (char *)"Start Time paging on ^Sunday^"));
-			strcpy(CFG.cStopTime[0],  edit_str(11,65,5, CFG.cStopTime[0],  (char *)"Stop Time paging on ^Sunday^"));
-			break;
-		case 13:strcpy(CFG.cStartTime[1], edit_str(12,58,5, CFG.cStartTime[1], (char *)"Start Time paging on ^Monday^"));
-			strcpy(CFG.cStopTime[1],  edit_str(12,65,5, CFG.cStopTime[1],  (char *)"Stop Time paging on ^Monday^"));
-			break;
-		case 14:strcpy(CFG.cStartTime[2], edit_str(13,58,5, CFG.cStartTime[2], (char *)"Start Time paging on ^Tuesday^"));
-			strcpy(CFG.cStopTime[2],  edit_str(13,65,5, CFG.cStopTime[2],  (char *)"Stop Time paging on ^Tuesday^"));
-			break;
-		case 15:strcpy(CFG.cStartTime[3], edit_str(14,58,5, CFG.cStartTime[3], (char *)"Start Time paging on ^Wednesday^"));
-			strcpy(CFG.cStopTime[3],  edit_str(14,65,5, CFG.cStopTime[3],  (char *)"Stop Time paging on ^Wednesday^"));
-			break;
-		case 16:strcpy(CFG.cStartTime[4], edit_str(15,58,5, CFG.cStartTime[4], (char *)"Start Time paging on ^Thursday^"));
-			strcpy(CFG.cStopTime[4],  edit_str(15,65,5, CFG.cStopTime[4],  (char *)"Stop Time paging on ^Thursday^"));
-			break;
-		case 17:
-			strcpy(CFG.cStartTime[5], edit_str(16,58,5, CFG.cStartTime[5], (char *)"Start Time paging on ^Friday^"));
-			strcpy(CFG.cStopTime[5],  edit_str(16,65,5, CFG.cStopTime[5],  (char *)"Stop Time paging on ^Friday^"));
-			break;
-		case 18:strcpy(CFG.cStartTime[6], edit_str(17,58,5, CFG.cStartTime[6], (char *)"Start Time paging on ^Saterday^"));
-			strcpy(CFG.cStopTime[6],  edit_str(17,65,5, CFG.cStopTime[6],  (char *)"Stop Time paging on ^Saterday^"));
-			break;
-		}
-	};
+	switch(select_menu(7)) {
+	    case 0: return;
+	    case 1: E_INT(  7,20, CFG.iPageLength,    "The ^Length^ of paging in seconds")
+	    case 2: E_INT(  8,20, CFG.iMaxPageTimes,  "The ^Maximum times^ a user may page in a session")
+	    case 3: E_INT(  9,20, CFG.iSysopArea,     "The ^Message Area^ for ^Message to sysop^ when page fails")
+	    case 4: E_BOOL(10,20, CFG.iAskReason,     "Ask the user the ^reason for chat^")
+	    case 5: E_BOOL(11,20, CFG.iAutoLog,       "^Automatic log^ chat sessions")
+	    case 6: E_BOOL(12,20, CFG.iChatPromptChk, "Check for chat at the ^prompt^")
+	    case 7: E_BOOL(13,20, CFG.iStopChatTime,  "^Stop^ users time during chat")
+	}
+    }
 }
 
 
@@ -1882,27 +1823,13 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 10, page, (char *)"Sysop paging");
 
-	fprintf(fp, "      Ext. Chat program  %s\n", CFG.sExternalChat);
-	fprintf(fp, "      Chat device        %s\n", CFG.sChatDevice);
-	fprintf(fp, "      Call sysop script  %s\n", CFG.sCallScript);
 	fprintf(fp, "      Page length        %d seconds\n", CFG.iPageLength);
 	fprintf(fp, "      Page times         %d\n", CFG.iMaxPageTimes);
 	fprintf(fp, "      Sysop msg area     %d\n", CFG.iSysopArea);
 	fprintf(fp, "      Ask chat reason    %s\n", getboolean(CFG.iAskReason));
-	fprintf(fp, "      Use external chat  %s\n", getboolean(CFG.iExternalChat));
 	fprintf(fp, "      Log chat           %s\n", getboolean(CFG.iAutoLog));
 	fprintf(fp, "      Check at prompt    %s\n", getboolean(CFG.iChatPromptChk));
 	fprintf(fp, "      Freeze online time %s\n", getboolean(CFG.iStopChatTime));
-
-	fprintf(fp, "\n      Weekday            Start Stop\n");
-	fprintf(fp, "      -------------      ----- -----\n");
-	fprintf(fp, "      Sunday             %s %s\n", CFG.cStartTime[0], CFG.cStopTime[0]);
-	fprintf(fp, "      Monday             %s %s\n", CFG.cStartTime[1], CFG.cStopTime[1]);
-	fprintf(fp, "      Tuesday            %s %s\n", CFG.cStartTime[2], CFG.cStopTime[2]);
-	fprintf(fp, "      Wednesday          %s %s\n", CFG.cStartTime[3], CFG.cStopTime[3]);
-	fprintf(fp, "      Thursday           %s %s\n", CFG.cStartTime[4], CFG.cStopTime[4]);
-	fprintf(fp, "      Friday             %s %s\n", CFG.cStartTime[5], CFG.cStopTime[5]);
-	fprintf(fp, "      Saterday           %s %s\n", CFG.cStartTime[6], CFG.cStopTime[6]);
 
 	addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
 

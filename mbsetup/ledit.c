@@ -2086,6 +2086,7 @@ char *getmenutype(int val)
 		case 19:	return (char *)"Display textfile with more";
 		case 20:	return (char *)"Display .A?? file with Enter";
 		case 21:	return (char *)"Display Text Only";
+		case 22:	return (char *)"User chat session";
 
 		case 101:	return (char *)"Select new file area";
 		case 102:	return (char *)"List files in current area";

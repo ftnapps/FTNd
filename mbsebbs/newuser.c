@@ -5,7 +5,7 @@
  *			    BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -66,6 +66,7 @@ char		UnixName[9];		    /* Unix Name				*/
 extern	char	*ieHandle;		    /* Users Handle				*/
 extern  time_t  t_start;		    /* Program starttime			*/
 int		do_mailout = FALSE;	    /* Just for linking				*/
+int		chat_with_sysop = FALSE;    /* Just for linking				*/
 
 
 

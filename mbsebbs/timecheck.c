@@ -4,7 +4,7 @@
  * Purpose ...............: Timecheck functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
@@ -46,10 +46,11 @@
 #include "input.h"
 
 
-extern pid_t    mypid;          /* Pid of this program      */
+extern pid_t    mypid;		    /* Pid of this program	    */
+extern int	chat_with_sysop;    /* True if chatting with sysop  */
 
 
-/*
+/* 
  * Check for a personal message, this will go via mbsed. If there
  * is a message, it will be displayed, else nothing happens.
  */
@@ -103,11 +104,10 @@ void TimeCheck(void)
 		iUserTimeLeft -= Elapsed;
 		sprintf(sUserTimeleft, "%d", iUserTimeLeft);
 
-		sprintf(temp, "/tmp/.chat.%s", pTTY);
 		/*
 		 * Update users counter if not chatting
 		 */
-		if(!CFG.iStopChatTime || (access(temp, F_OK) != 0)) {
+		if (!CFG.iStopChatTime || (! chat_with_sysop)) {
 			exitinfo.iTimeLeft    -= Elapsed;
 			exitinfo.iConnectTime += Elapsed;
 			exitinfo.iTimeUsed    += Elapsed;

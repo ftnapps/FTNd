@@ -4,6 +4,7 @@
 /* $Id$ */
 
 void chat_init(void);
+void chat_cleanuser(pid_t);
 char *chat_connect(char *);
 char *chat_close(char *);
 char *chat_put(char *);

@@ -87,11 +87,11 @@ mbtask.o: ../config.h libs.h ../lib/structs.h ../paths.h ../lib/mberrors.h signa
 outstat.o: ../config.h libs.h ../lib/structs.h ../lib/mberrors.h taskutil.h taskstat.h scanout.h ../lib/nodelist.h callstat.h ports.h outstat.h
 signame.o: ../config.h signame.h
 taskdisk.o: ../config.h libs.h ../lib/structs.h taskdisk.h taskutil.h
-taskregs.o: ../config.h libs.h ../lib/structs.h taskstat.h taskregs.h taskutil.h
+taskregs.o: ../config.h libs.h ../lib/structs.h taskstat.h taskregs.h taskchat.h taskutil.h
 taskutil.o: ../config.h libs.h ../lib/structs.h signame.h scanout.h crc.h taskutil.h
 ports.o: ../config.h libs.h ../lib/structs.h taskutil.h ../lib/nodelist.h ports.h
 calllist.o: ../config.h libs.h ../lib/structs.h taskstat.h taskutil.h callstat.h outstat.h mbtask.h calllist.h
 ping.o: ../config.h libs.h ../lib/structs.h ../lib/mberrors.h taskstat.h taskutil.h ping.h
 crc.o: ../config.h libs.h crc.h
-taskchat.o: ../config.h libs.h ../lib/structs.h taskutil.h taskchat.h
+taskchat.o: ../config.h libs.h ../lib/structs.h taskutil.h taskregs.h taskchat.h
 # End of generated dependencies

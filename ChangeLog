@@ -12,6 +12,10 @@ v0.37.2		23-Feb-2003.
 	general:
 		System prepared for setting the official FTSC product code,
 		this will be 0x11FF. The code is not yet activated.
+		Removed external (sysop) chat, chat paging times and other
+		chat stuff that is of no use anymore. The sysop shows his
+		presence by running mbmon. The mbchat program is obsolete.
+		Menu item 22 is added, this is user chat session.
 
 	common.a:
 		New function to get the real case of a filename.
@@ -52,6 +56,9 @@ v0.37.2		23-Feb-2003.
 		To page the sysop, the CPAG and CCAN commands to mbtask are now
 		used. Until the chatserver is ready, there is no buildin sysop
 		user chat.
+		Removed all old chat code that worked on the tty device.
+		Added chat client site. This is more or less complete but does
+		not yet respond to sysop chat requests.
 
 	mbmon:
 		Reports sysop available or left the system when mbmon starts
