@@ -36,10 +36,15 @@
 #include "ttyio.h"
 #include "mbnntp.h"
 
-time_t		t_start;
-time_t		t_end;
-char		*envptr = NULL;
+time_t		    t_start;
+time_t		    t_end;
+char		    *envptr = NULL;
 struct sockaddr_in  peeraddr;
+
+extern char	    *ttystat[];
+
+
+void send_nntp(const char *, ...);
 
 
 void die(int onsig)
@@ -94,7 +99,7 @@ int main(int argc, char *argv[])
     umask(002);
 
     t_start = time(NULL);
-    InitClient(pw->pw_name, (char *)"mbnntpd", CFG.location, CFG.logfile, 
+    InitClient(pw->pw_name, (char *)"mbnntp", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', "MBNNTP v%s", VERSION);
 
@@ -114,13 +119,12 @@ int main(int argc, char *argv[])
     if ((rc = rawport()) != 0)
 	WriteError("Unable to set raw mode");
     else {
-//	nolocalport();
-
 	if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
-	    PUTSTR((char *)"Hello there\r\n");
+	    send_nntp("200 Welcome to MBNNTP v%s (posting may or may not be allowed, try your luck)", VERSION);
+	    nntp();
 	}
     }
 
@@ -128,6 +132,104 @@ int main(int argc, char *argv[])
 
     die(0);
     return 0;
+}
+
+
+
+void send_nntp(const char *format, ...)
+{
+    char    *out;
+    va_list va_ptr;
+
+    out = calloc(4096, sizeof(char));
+
+    va_start(va_ptr, format);
+    vsprintf(out, format, va_ptr);
+    va_end(va_ptr);
+
+    Syslog('n', "> \"%s\"", printable(out, 0));
+    PUTSTR(out);
+    PUTSTR((char *)"\r\n");
+    free(out);
+}
+
+
+
+void command_list(void)
+{
+    send_nntp("215 List of newsgroups follows");
+
+    send_nntp(".");
+}
+
+
+
+void nntp(void)
+{
+    char    buf[4096];
+    int	    len, c;
+    
+    while (TRUE) {
+	len = 0;
+	memset(&buf, 0, sizeof(buf));
+	while (TRUE) {
+	    c = tty_getc(180);
+	    if (c <= 0) {
+		if (c == -2) {
+		    /*
+		     * Timeout
+		     */
+		    send_nntp("500 Timeout");
+		}
+		Syslog('+', "Receiver status %s", ttystat[- c]);
+		return;
+	    }
+	    if ((c == '\r') || (c == '\n'))
+		break;
+	    else {
+		buf[len] = c;
+		len++;
+		buf[len] = '\0';
+	    }
+	    if (len == sizeof(buf)) {
+		WriteError("Input buffer full");
+		break;
+	    }
+	}
+	if (strlen(buf) == 0)
+	    continue;
+
+	/*
+	 * Process received command
+	 */
+	Syslog('n', "< \"%s\"", printable(buf, 0));
+	if (strncasecmp(buf, "QUIT", 4) == 0) {
+	    send_nntp("205 Goodbye\r\n");
+	    return;
+	} else if (strncasecmp(buf, "LIST", 4) == 0) {
+	    command_list();
+	} else if (strncasecmp(buf, "IHAVE", 5) == 0) {
+	    send_nntp("435 Article not wanted - do not send it");
+	} else if (strncasecmp(buf, "NEWGROUPS", 9) == 0) {
+	    send_nntp("235 Warning: NEWGROUPS not implemented, returning empty list");
+	    send_nntp(".");
+	} else if (strncasecmp(buf, "NEWNEWS", 7) == 0) {
+	    send_nntp("230 Warning: NEWNEWS not implemented, returning empty list");
+	    send_nntp(".");
+	} else if (strncasecmp(buf, "SLAVE", 5) == 0) {
+	    send_nntp("202 Slave status noted (but ignored)");
+	} else if (strncasecmp(buf, "HELP", 4) == 0) {
+	    send_nntp("100 Help text follows");
+	    send_nntp("Recognized commands:");
+	    send_nntp("QUIT");
+	    send_nntp("");
+	    send_nntp("MBNNTP supports most of RFC-977 and also has support for AUTHINFO and");
+	    send_nntp("limited XOVER support (RFC-2980)");
+	    send_nntp(".");
+	} else {
+	    send_nntp("500 Unknown command");
+	}
+    }
 }
 
 

@@ -3,5 +3,6 @@
 
 /* $Id$ */
 
+void nntp(void);
 
 #endif
