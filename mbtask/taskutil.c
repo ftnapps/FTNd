@@ -33,17 +33,19 @@
 #include "../lib/structs.h"
 #include "signame.h"
 #include "scanout.h"
+#include "crc.h"
 #include "taskutil.h"
 
 
 
-pid_t           		mypid;	/* Original parent pid if child     	*/
-int				oserr;	/* Last OS error number			*/
-extern struct sysconfig 	CFG;
-extern struct _fidonethdr	fidonethdr;
-extern struct _fidonet		fidonet;
-extern struct taskrec		TCFG;
-
+pid_t           	    mypid;	/* Original parent pid if child     	*/
+int			    oserr;	/* Last OS error number			*/
+extern struct sysconfig     CFG;
+extern struct _fidonethdr   fidonethdr;
+extern struct _fidonet	    fidonet;
+extern struct taskrec	    TCFG;
+unsigned long		    lcrc = 0, tcrc = 1;
+int			    lcnt = 0, lchr;
 
 
 static char *mon[] = {
@@ -93,6 +95,13 @@ void tasklog(int grade, const char *format, ...)
 		vsprintf(outstr, format, va_ptr);
 		va_end(va_ptr);
 
+		tcrc = StringCRC32(outstr);
+		if (tcrc == lcrc) {
+		    lcnt++;
+		    return;
+		}
+		lcrc = tcrc;
+
 		logname = calloc(PATH_MAX, sizeof(char));
 		oldmask=umask(066);
 		sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
@@ -103,6 +112,12 @@ void tasklog(int grade, const char *format, ...)
 			free(logname);
 			return;
 		}
+
+		if ((lcnt) && ((lchr == '+') || (lchr == '-') || (lchr == '!') || (lchr == '?') || (lchr == ' ') || TCFG.debug)) {
+		    lcnt++;
+		    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+		}
+		lcnt = 0;
 
 		fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
 		fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
@@ -115,6 +130,7 @@ void tasklog(int grade, const char *format, ...)
 		if (fclose(logfile) != 0)
 			printf("Cannot close logfile \"%s\"\n", logname);
 
+		lchr = grade;
 		free(logname);
 	}
 	return;

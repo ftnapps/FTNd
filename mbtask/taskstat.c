@@ -338,7 +338,7 @@ char *getseq(void)
 
 int sem_set(char *sem, int value)
 {
-	tasklog('s', "sem_set(%s, %s)", sem, value?"TRUE":"FALSE");
+	tasklog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
 
 	if (!strcmp(sem, "scanout")) {
 		s_scanout = value;
@@ -402,7 +402,7 @@ char *sem_status(char *data)
         }
 
 	sprintf(buf, "100:1,%s;", value ? "1":"0");
-	tasklog('s', "sem_status(%s) = %d buf=%s", sem, value, buf);
+	tasklog('s', "Check semafore \"%s\": %s present", sem, value?"is":"not");
 	return buf;
 }
 
