@@ -35,6 +35,8 @@ v0.61.1		20-Jun-2004.
 		name creation in default compiled mode.
 		When editing files, after leaving a file record the file range
 		displayed stays around the last area.
+		If a message area is deleted and a rulefile is present, this
+		rulefile is deleted too.
 
 
 v0.61.0		06-Jun-2004 - 20-Jun-2004

@@ -638,6 +638,48 @@ int SaveMsgRec(int Area, int work)
 
 
 
+void DeleteRules(char *);
+void DeleteRules(char *filename)
+{
+    DIR		    *dp;
+    struct dirent   *de;
+    char	    temp[128];
+
+    if (strlen(filename) == 0)
+	return;
+
+    if ((dp = opendir(CFG.rulesdir)) == NULL)
+	return;
+
+    while ((de = readdir(dp))) {
+	if (de->d_name[0] != '.') {
+	    strcpy(temp, msgs.Tag);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
+		break;
+	    }
+	    sprintf(temp, "%s.rul", msgs.Tag);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
+		break;
+	    }
+	    memset(&temp, 0, sizeof(temp));
+	    strncpy(temp, msgs.Tag, 8);
+	    sprintf(temp, "%s.rul", temp);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		Syslog('+', "unlink(%s) rc=%d", temp, unlink(temp));
+		break;
+	    }
+	}
+    }
+    closedir(dp);
+}
+
+
+
 void ShowStatus(sysconnect);
 void ShowStatus(sysconnect S)
 {
@@ -662,7 +704,7 @@ void MsgGlobal(void);
 void MsgGlobal(void)
 {
     gr_list	*mgr = NULL, *tmp;
-    char	*p, mfile[PATH_MAX];
+    char	*p, mfile[PATH_MAX], *temp;
     FILE	*fil;
     fidoaddr	a1, a2;
     int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_CP437;
@@ -1008,6 +1050,7 @@ void MsgGlobal(void)
 				case 14:if (msgs.Active) {
 					    msgs.Active = FALSE;
 					    Msg_DeleteMsgBase(msgs.Base);
+					    DeleteRules(msgs.Tag);
 					    memset(&msgs, 0, sizeof(msgs));
 					    if (SaveMsgRec(marea, FALSE) == 0) {
 						Done++;
@@ -1311,6 +1354,7 @@ int EditMsgRec(int Area)
 			     * Make it so
 			     */
 			    Msg_DeleteMsgBase(msgs.Base);
+			    DeleteRules(msgs.Tag);
 			    memset(&System, 0, sizeof(System));
 			    fseek(tfil, 0, SEEK_SET);
 			    for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
