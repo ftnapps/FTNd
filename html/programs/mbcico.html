@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 21-Jan-2002</h5>
+<h5>Last update 03-Mar-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbcico - The Fidonet mailer.</H1>
@@ -23,17 +23,15 @@ This is work in progress....
 
 <h3>Synopsis.</H3>
 <P>
-<code>-r&lt;role&gt; -a&lt;inetaddr&gt; &lt;node&gt; ...</code><br>
-<code>-r 0|1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>1 - master, o - slave [0]<br>
+<code>-a&lt;inetaddr&gt; -l&lt;ttydevice&gt; &lt;node&gt; ...</code><br>
 <code>-n&lt;phone&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>forced phone number<br>
 <code>-l&lt;ttydevice&gt;&nbsp;</code>forced tty device<br>
 <code>-t&lt;tcpmode&gt;&nbsp;&nbsp;&nbsp;</code>telnet TCP/IP mode, must be one of ifc|itn|ibn, forces TCP/IP<br>
 <code>-a&lt;inetaddr&gt;&nbsp;&nbsp;</code>supply internet hostname if not in nodelist<br>
-<code>   &lt;node&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>should be in domain form, e.g. f11.n22.z3
-(this implies master mode)<br>
+<code>   &lt;node&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>should be in domain form, e.g. f11.n22.z3<br>
 <code>-h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>show this help message<br>
 <br>
-&nbsp;or: <code>mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc|-t itn</code> (this implies slave mode)
+&nbsp;or: <code>mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc|-t itn</code> (this is answer mode)
 <P>&nbsp;<P>
 
 <H3>Description.</H3>
@@ -69,7 +67,7 @@ more efficient. Nodelist flag is IBN, the default port is 24554, and the
 nodelist request flag is XX. This Binkp implementation supports multiple
 batches, however this is only tested against another <strong>mbcico.</strong>
 I don't know if any other mailer supports this option, but it is documented 
-in the spec's.
+in the spec's. (Irex uses it).
 <P>
 Outbound directory structure is BinkleyTerm compatible, with domains and
 point subdirectories (full 5d). There are separate "protected" and
@@ -161,24 +159,11 @@ sysops do.
 <P>&nbsp;<P>
 
 
-<h3>Master Mode.</h3>
+<h3>Calling Mode.</h3>
 <P>
-To make <strong>mbcico</strong> scan for pending outbound mail and do 
-appropriate calls, start it with <strong>-r1</strong> flag. It will check
-for Zone Mail Hour, outside ZMH only crash mail is delivered. Mail to 
-non-CM systems is only send when mail has the Immedidate status.
-Poll request are always honnored, even to non-CM systems if there is a 
-<strong>poll</strong> request in the outbound. Be carefull.
-The taskmanager <strong>mbtask</strong> will start calling <strong>mbcico -r1</strong>
-if it has seen the <b>scanout</b> semafore. After all calls are completed <b>mbcico</b>
-will remove the <b>scanout</b> semafore.
-During ZMH all non-compressed mail is send. File requests in the outbound do not
-force calling a system. If you make a filerequest, you must also make a
-poll for that node to really start the request. You can also force a call
-by entering <strong>mbcico f2802.n280.z2</strong> on the commandline.
-Only one call is made then and there is no dial delay. If <b>mbcico -r1</b> is
-called a random dialdelay is used with each call except for internet calls.
-<P><B>Note:</B> you should not call nodes with mbcico directly, let
+You never need to call nodes with <b>mbcico</b> by hand, <b>mbtask</b> will
+start <b>mbcico</b> with the right commandline.<BR>
+<B>Note:</B> you should not call nodes with mbcico directly, let
 <b>mbtask</b> do the calling. 
 If you want to call a node make a <a href="mbout.html">poll</a> command.
 <P>&nbsp;<P>
@@ -194,7 +179,7 @@ This variable must point to the root of the bbs directoy structure.
 <P>
 <pre>
 0        - No errors
-1..32    - Linux errors, SIGHUP, SIGKILL, etc.
+1..32    - OS errors, SIGHUP, SIGKILL, etc.
 101      - No dialout ports available.
 102      - Dial failed (no CONNECT or TCP connection failed).
 103      - Could not reset the modem (no OK).
@@ -211,8 +196,10 @@ This variable must point to the root of the bbs directoy structure.
 These codes are also stored in status files for nodes, with the extension
 of ".sts". These are small datafiles containing three decimal numbers.
 <ol>
-  <li>Time retry code, this is the last call attempt time. This is an unsigned
-      long representing the number of seconds since the epoch.
+  <li>Time retry code, this is the next call attempt time. This is an unsigned
+      long representing the number of seconds since the epoch. Before this time
+      the node may not be called. This is set after a failed call, a random time
+      in the near future is selected.
   <li>Retries, this is the number of consequtive call attempts made that returned
       "call failed" or other errors. This field is zeroed when the call succeeds and
       when a new "poll" is created. If the value is 30, the node won't be called

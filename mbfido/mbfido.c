@@ -377,6 +377,8 @@ int main(int argc, char **argv)
 			check_dupe = FALSE;
 		else if (strncmp(tl(argv[i]), "-q", 2) == 0)
 			do_quiet = TRUE;
+		else if (strncmp(tl(argv[i]), "-a", 2) == 0)
+			WriteError("The -a option is obsolete, adjust your setup");
 		else if (strncmp(tl(argv[i]), "-unp", 4) == 0)
 			do_unprot = TRUE;
 		else if (strncmp(tl(argv[i]), "-uns", 4) == 0)
