@@ -140,6 +140,24 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		}
 		fread(&msgshdr, sizeof(msgshdr), 1, mp);
 		offset = msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize));
+		Syslog('+', "file end at %ld, offset needed %ld", ftell(mp), offset);
+
+		/*
+		 * Verify the file is large enough
+		 */
+		if (ftell(mp) < offset) {
+		    Syslog('m', "Database too small, expanding...");
+		    memset(&msgs, 0, sizeof(msgs));
+		    memset(&System, 0, sizeof(System));
+		    while (TRUE) {
+			fwrite(&msgs, sizeof(msgs), 1, mp);
+			for (i = 0; i < (msgshdr.syssize / sizeof(System)); i++)
+			    fwrite(&System, sizeof(System), 1, mp);
+			if (ftell(mp) >= msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize)))
+			    break;
+		    }
+		}
+
 		if (fseek(mp, offset, SEEK_SET)) {
 		    WriteError("$Can't seek in %s", temp);
 		    fclose(ap);

@@ -230,9 +230,25 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     fread(&areahdr, sizeof(areahdr), 1, fp);
     Syslog('f', "File area is open");
 
+    /*
+     * Verify the file is large enough
+     */
+    fseek(fp, 0, SEEK_END);
     offset = areahdr.hdrsize + ((fgroup.StartArea -1) * (areahdr.recsize));
+    Syslog('+', "file end at %ld, offset needed %ld", ftell(fp), offset);
+
+    if (ftell(fp) < offset) {
+	Syslog('f', "Database too small, expanding...");
+	memset(&area, 0, sizeof(area));
+	while (TRUE) {
+	    fwrite(&area, sizeof(area), 1, fp);
+	    if (ftell(fp) >= areahdr.hdrsize + ((fgroup.StartArea -1) * (areahdr.recsize)))
+		break;
+	}
+    } 
+
     if (fseek(fp, offset, SEEK_SET)) {
-	WriteError("$Can't seek in %s", temp);
+	WriteError("$Can't seek in %s to position %ld", temp, offset);
 	fclose(ap);
 	fclose(mp);
 	fclose(fp);
