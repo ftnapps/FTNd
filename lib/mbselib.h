@@ -1176,6 +1176,10 @@ struct	sysconfig {
 	char		debuglog[15];		/* Debug logfile	    */
 	char		tmailshort[65];		/* T-Mail short filebox base*/
 	char		tmaillong[65];		/* T-Mail long filebox base */
+
+	int		priority;		/* Child process priority   */
+	unsigned	do_sync		: 1;	/* Sync() during execute    */
+	unsigned	is_upgraded	: 1;	/* For internal upgrade use */
 };
 
 
@@ -1876,6 +1880,7 @@ struct	_scanmgr {
 	unsigned	NetReply	: 1;	/* Netmail reply	   */
 	unsigned	Deleted		: 1;	/* Area is deleted	   */
 	unsigned	HiAscii		: 1;	/* High Ascii allowed	   */
+	int		keywordlen;		/* Minimum keyword length  */
 };
 
 

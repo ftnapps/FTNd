@@ -120,6 +120,10 @@ int OpenFilefind(void)
 				    sprintf(scanmgr.template, "filefind");
 				    FilefindUpdated = 1;
 				}
+				if (!scanmgr.keywordlen) {
+				    scanmgr.keywordlen = 3;
+				    FilefindUpdated = 1;
+				}
 				fwrite(&scanmgr, sizeof(scanmgr), 1, fout);
 				memset(&scanmgr, 0, sizeof(scanmgr));
 			}
@@ -195,6 +199,7 @@ int AppendFilefind(void)
 		scanmgr.Language = 'E';
 		sprintf(scanmgr.template, "filefind");
 		strncpy(scanmgr.Origin, CFG.origin, 50);
+		scanmgr.keywordlen = 3;
 		fwrite(&scanmgr, sizeof(scanmgr), 1, fil);
 		fclose(fil);
 		FilefindUpdated = 1;
@@ -222,6 +227,7 @@ void FFScreen(void)
 	mvprintw(15, 2, "9.  Deleted");
 	mvprintw(16, 2, "10. Net. reply");
 	mvprintw(17, 2, "11. Hi Ascii");
+	mvprintw(18, 2, "12. Keywrd len");
 }
 
 
@@ -231,90 +237,90 @@ void FFScreen(void)
  */
 int EditFfRec(int Area)
 {
-	FILE		*fil;
-	char		mfile[PATH_MAX], temp1[2];
-	long		offset;
-	unsigned long	crc, crc1;
-	int		i;
+    FILE	    *fil;
+    char	    mfile[PATH_MAX], temp1[2];
+    long	    offset;
+    unsigned long   crc, crc1;
+    int		    i;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit Filefind");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit Filefind");
 
-	sprintf(mfile, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
-	offset = scanmgrhdr.hdrsize + ((Area -1) * scanmgrhdr.recsize);
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
+    offset = scanmgrhdr.hdrsize + ((Area -1) * scanmgrhdr.recsize);
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&scanmgr, scanmgrhdr.recsize, 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&scanmgr, crc, scanmgrhdr.recsize);
+    fread(&scanmgr, scanmgrhdr.recsize, 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&scanmgr, crc, scanmgrhdr.recsize);
 
-	for (;;) {
-		FFScreen();
-		set_color(WHITE, BLACK);
-		show_str(  7,18,55, scanmgr.Comment);
-		show_str(  8,18,50, scanmgr.Origin);
-		show_str(  9,18,35, aka2str(scanmgr.Aka));
-		show_str( 10,18,50, scanmgr.ScanBoard);
-		show_str( 11,18,50, scanmgr.ReplBoard);
-		sprintf(temp1, "%c", scanmgr.Language);
-		show_str( 12,18,2,  temp1);
-		show_str( 13,18,14, scanmgr.template);
-		show_bool(14,18,    scanmgr.Active);
-		show_bool(15,18,    scanmgr.Deleted);
-		show_bool(16,18,    scanmgr.NetReply);
-		show_bool(17,18,    scanmgr.HiAscii);
-
-		switch(select_menu(11)) {
-		case 0:
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&scanmgr, crc1, scanmgrhdr.recsize);
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&scanmgr, scanmgrhdr.recsize, 1, fil);
-					fclose(fil);
-					FilefindUpdated = 1;
-					working(6, 0, 0);
-				}
+    for (;;) {
+	FFScreen();
+	set_color(WHITE, BLACK);
+	show_str(  7,18,55, scanmgr.Comment);
+	show_str(  8,18,50, scanmgr.Origin);
+	show_str(  9,18,35, aka2str(scanmgr.Aka));
+	show_str( 10,18,50, scanmgr.ScanBoard);
+	show_str( 11,18,50, scanmgr.ReplBoard);
+	sprintf(temp1, "%c", scanmgr.Language);
+	show_str( 12,18,2,  temp1);
+	show_str( 13,18,14, scanmgr.template);
+	show_bool(14,18,    scanmgr.Active);
+	show_bool(15,18,    scanmgr.Deleted);
+	show_bool(16,18,    scanmgr.NetReply);
+	show_bool(17,18,    scanmgr.HiAscii);
+	show_int( 18,18,    scanmgr.keywordlen);
+		
+	switch(select_menu(12)) {
+	    case 0: crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&scanmgr, crc1, scanmgrhdr.recsize);
+		    if (crc != crc1) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				working(2, 0, 0);
+				return -1;
+			    }
+			    fseek(fil, offset, 0);
+			    fwrite(&scanmgr, scanmgrhdr.recsize, 1, fil);
+			    fclose(fil);
+			    FilefindUpdated = 1;
+			    working(6, 0, 0);
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-
-		case 1:	E_STR(  7,18,55, scanmgr.Comment,   "The ^comment^ for this area")
-		case 2: E_STR(  8,18,50, scanmgr.Origin,    "The ^origin^ line to append, leave blank for random lines")
-		case 3: i = PickAka((char *)"13.3", TRUE);
-			if (i != -1)
-				scanmgr.Aka = CFG.aka[i];
-			break;
-		case 4: strcpy(scanmgr.ScanBoard, PickMsgarea((char *)"13.4"));
-			break;
-		case 5: strcpy(scanmgr.ReplBoard, PickMsgarea((char *)"13.5"));
-			break;
-		case 6: scanmgr.Language = PickLanguage((char *)"13.6");
-			break;
-		case 7: E_STR( 13,18,14, scanmgr.template,  "The ^template^ file to use for the report")
-		case 8: E_BOOL(14,18,    scanmgr.Active,    "If this report is ^active^")
-		case 9: E_BOOL(15,18,    scanmgr.Deleted,   "If this record is ^deleted^")
-		case 10:E_BOOL(16,18,    scanmgr.NetReply,  "If reply's via ^netmail^ instead of echomail")
-		case 11:E_BOOL(17,18,    scanmgr.HiAscii,   "Allow ^Hi ASCII^ in this area")
-		}
+		    }
+		    IsDoing("Browsing Menu");
+		    return 0;
+	    case 1: E_STR(  7,18,55, scanmgr.Comment,   "The ^comment^ for this area")
+	    case 2: E_STR(  8,18,50, scanmgr.Origin,    "The ^origin^ line to append, leave blank for random lines")
+	    case 3: i = PickAka((char *)"13.3", TRUE);
+		    if (i != -1)
+			scanmgr.Aka = CFG.aka[i];
+		    break;
+	    case 4: strcpy(scanmgr.ScanBoard, PickMsgarea((char *)"13.4"));
+		    break;
+	    case 5: strcpy(scanmgr.ReplBoard, PickMsgarea((char *)"13.5"));
+		    break;
+	    case 6: scanmgr.Language = PickLanguage((char *)"13.6");
+		    break;
+	    case 7: E_STR( 13,18,14, scanmgr.template,  "The ^template^ file to use for the report")
+	    case 8: E_BOOL(14,18,    scanmgr.Active,    "If this report is ^active^")
+	    case 9: E_BOOL(15,18,    scanmgr.Deleted,   "If this record is ^deleted^")
+	    case 10:E_BOOL(16,18,    scanmgr.NetReply,  "If reply's via ^netmail^ instead of echomail")
+	    case 11:E_BOOL(17,18,    scanmgr.HiAscii,   "Allow ^Hi ASCII^ in this area")
+	    case 12:E_IRC( 18,18,    scanmgr.keywordlen, 3, 8, "Minimum ^keyword length^ to allowed for search")
 	}
+    }
 }
 
 
@@ -443,7 +449,7 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 
 	while ((fread(&scanmgr, scanmgrhdr.recsize, 1, no)) == 1) {
 
-		if (j == 5) {
+		if (j == 4) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;
@@ -455,8 +461,11 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Scan msg board    %s\n", scanmgr.ScanBoard);
 		fprintf(fp, "     Reply msg board   %s\n", scanmgr.ReplBoard);
 		fprintf(fp, "     Language          %c\n", scanmgr.Language);
+		fprintf(fp, "     Template file     %s\n", scanmgr.template);
 		fprintf(fp, "     Active            %s\n", getboolean(scanmgr.Active));
 		fprintf(fp, "     Netmail reply     %s\n", getboolean(scanmgr.NetReply));
+		fprintf(fp, "     Allow Hi-ASCII    %s\n", getboolean(scanmgr.HiAscii));
+		fprintf(fp, "     Keyword length    %d\n", scanmgr.keywordlen);
 		fprintf(fp, "\n\n");
 		j++;
 	}

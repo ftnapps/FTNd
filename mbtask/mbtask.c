@@ -355,6 +355,12 @@ void load_maincfg(void)
 
 	CFG.maxarticles = 500;
 
+	CFG.priority = 15;
+#ifdef __linux__
+	CFG.do_sync = TRUE;
+#endif
+	CFG.is_upgraded = TRUE;
+
         if ((fp = fopen(cfgfn, "a+")) == NULL) {
 	    perror("");
             fprintf(stderr, "Can't create %s\n", cfgfn);

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 14-Jan-2004</h5></div>
+<div align="right"><h5>Last update 17-Mar-2004</h5></div>
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for MBSE BBS. All sections will
@@ -125,11 +125,25 @@ files.
 <strong>FileAttach level  </strong>Minimum level to allow attach files to netmail
 <strong>Min diskspace MB  </strong>At which low diskspace level utilities should stop working.
 <strong>Simult. logins    </strong>Maximum simultaneous logins allowed, 0 is unlimited, 1 is adviced.
+<strong>Child priority    </strong>Subproces nice priority, 0=high, 15=low CPU load.
+<strong>Filesystem sync   </strong>Call sync before and after execute.
 </pre>
 The minimum diskspace setting is to prevent that files get corrupted if your filesystem
 is full. All drives are checked except CD-roms and floppies and the /boot directory if that
 one is on a separate filesystem. Ext2, ext3, reiserfs, msdos and vfat partitions
 are checked. The lowest free diskspace found counts. Default is 10 MB.
+<p>
+The Child priority sets the nice value for example zip/unzip, virus scanners
+etc. Modern fast hardware will do fine with a low setting, older (pre PII)
+hardware may need 15 to prevent a too heavy CPU load.
+<p>
+The filesystem sync setting is to call sync before and after the execute call,
+such as when unzip is called. Almost all GNU/Linux systems need this because GNU/Linux
+uses asynchronous directory changes. Since Linux 2.5.19 it should be possible to
+mount filesystems synchronous. If this setting is No on asynchronous filesystems
+mail and files can get corrupted. XxxxBSD systems use synchronous directory
+updates and don't need this switch. If you don't know what all this is about,
+leave this to the default setting.
 <p>
 
 <h3>1.6. User flag Descriptions.</h3>

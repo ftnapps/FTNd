@@ -332,7 +332,7 @@ void ScanFiles(ff_list *tmp)
 			    }
 			    tl(kwd);
 
-			    if (strlen(kwd) > 3) {
+			    if (strlen(kwd) > scanmgr.keywordlen) {
 				if (strstr(fdb.Name, kwd) != NULL) {
 				    Found = TRUE;
 				    Syslog('m', "Found %s in %s in filename", kwd, fdb.Name);

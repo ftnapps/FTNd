@@ -36,8 +36,8 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 
 
-int _execute(char **, char *, char *, char *, int);
-int _execute(char **args, char *in, char *out, char *err, int priority)
+int _execute(char **, char *, char *, char *);
+int _execute(char **args, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
     int	    i, pid, terrno = 0, status = 0, rc = 0;
@@ -84,12 +84,15 @@ int _execute(char **args, char *in, char *out, char *err, int priority)
 	}
 
 	errno = 0;
-	if (priority) {
+	if (CFG.priority) {
 	    rc = getpriority(PRIO_PROCESS, 0);
+	    Syslog('e', "getpriority in child %d", rc);
 	    if (errno == 0) {
-		rc = setpriority(PRIO_PROCESS, 0, priority);
+		rc = setpriority(PRIO_PROCESS, 0, CFG.priority);
 		if (rc)
-		    WriteError("$execv can't set priority to %d", priority);
+		    WriteError("$execv can't set priority to %d", CFG.priority);
+		rc = getpriority(PRIO_PROCESS, 0);
+		Syslog('e', "getpriority in set to %d", rc);
 	    }
 	}
 	rc = execv(args[0],args);
@@ -105,8 +108,11 @@ int _execute(char **args, char *in, char *out, char *err, int priority)
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
 
     terrno = errno;
-    if (priority)
+    if (CFG.priority) {
+	rc = getpriority(PRIO_PROCESS, 0);
+	Syslog('e', "getpriority in parent %d", rc);
 	setpriority(PRIO_PROCESS, 0, 0);
+    }
     errno = terrno;
 
     switch (rc) {
@@ -149,14 +155,11 @@ int execute(char **args, char *in, char *out, char *err)
 {
     int	    rc;
 
-#ifdef __linux__
-    sync();
-#endif
-    rc = _execute(args, in, out, err, 15);
-#ifdef __linux__
-    sync();
-#endif
-//    msleep(300);
+    if (CFG.do_sync)
+	sync();
+    rc = _execute(args, in, out, err);
+    if (CFG.do_sync)
+	sync();
     return rc;
 }
 
@@ -248,7 +251,7 @@ int _execsh(char *cmd, char *in, char *out, char *err)
 	 * A delay in the child to prevent it returns before the main
 	 * process sess it ever started.
 	 */
-	msleep(300);
+	msleep(150);
 	
 	if (in) {
 	    close(0);
@@ -301,14 +304,11 @@ int execsh(char *cmd, char *in, char *out, char *err)
 {
     int	rc;
 
-#ifdef __linux__
-    sync();
-#endif
+    if (CFG.do_sync)
+	sync();
     rc = _execsh(cmd, in, out, err);
-#ifdef __linux__
-    sync();
-#endif
-//    msleep(300);
+    if (CFG.do_sync)
+	sync();
     return rc;
 }
 

@@ -152,7 +152,7 @@ mbmsg:
 	   areas.
 
 mbaff:
-	L: Add setup parameters for minimum length of keywords.
+	L: Rewrite filefind search algorithm.
 
 mbindex:
 	X: Add usernames index.

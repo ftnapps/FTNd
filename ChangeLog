@@ -10,7 +10,7 @@ v0.51.2		06-Mar-2004
 		Install programs as root (as usual).
 		Start mbsetup, this can take a while on a system with lots of
 		files, during startup the files database will be converted.
-		After the menu appears, you may exit mbsetup.
+		After the menu appears, enter global setup, exit and save.
 		Open the system again.
 		If you want you may restart mbtask.
 
@@ -20,6 +20,8 @@ v0.51.2		06-Mar-2004
 		features.
 		Removed all references to costsharing for ticfiles which wasn't
 		fully implemented.
+		Added setup items for subprocess priority and sync filesystem.
+		Added setup parameter for filefind keyword length.
 
 	libcommon.a:
 		Moved the initial delay in the execute functions to the child
@@ -81,6 +83,9 @@ v0.51.2		06-Mar-2004
 		Changed menus 14, 7.n.6, 10.1 and 8.4.
 		Changed default charset for new mailgroups and message areas
 		to CP437.
+		Added setup for filefind keyword length in menu 13.
+		Added setup items in menu 1.5 for child priority and filesystem
+		sync calls.
 
 	mbuseradd:
 		Fixed removing of a OS created homedir. This may solve problems

@@ -350,17 +350,19 @@ void b_screen(void)
     mvprintw(15, 2, "9.   Homedir Quota");
     mvprintw(16, 2, "10.  Location length");
     mvprintw(17, 2, "11.  Show new msgarea");
-	
-    mvprintw( 7,37, "12.  OLR Max. msgs.");
-    mvprintw( 8,37, "13.  OLR Newfile days");
-    mvprintw( 9,37, "14.  OLR Max Filereq");
-    mvprintw(10,37, "15.  BBS Log Level");
-    mvprintw(11,37, "16.  Utils loglevel");
-    mvprintw(12,37, "17.  Utils slowly");
-    mvprintw(13,37, "18.  CrashMail level");
-    mvprintw(14,37, "19.  FileAttach level");
-    mvprintw(15,37, "20.  Min diskspace MB");
-    mvprintw(16,37, "21.  Simult. logins");
+    mvprintw(18, 2, "12.  OLR Max. msgs.");
+
+    mvprintw( 7,37, "13.  OLR Newfile days");
+    mvprintw( 8,37, "14.  OLR Max Filereq");
+    mvprintw( 9,37, "15.  BBS Log Level");
+    mvprintw(10,37, "16.  Utils loglevel");
+    mvprintw(11,37, "17.  Utils slowly");
+    mvprintw(12,37, "18.  CrashMail level");
+    mvprintw(13,37, "19.  FileAttach level");
+    mvprintw(14,37, "20.  Min diskspace MB");
+    mvprintw(15,37, "21.  Simult. logins");
+    mvprintw(16,37, "22.  Child priority");
+    mvprintw(17,37, "23.  Filesystem sync");
 
     set_color(WHITE, BLACK);
     show_bool( 7,24, CFG.exclude_sysop);
@@ -374,17 +376,19 @@ void b_screen(void)
     show_int( 15,24, CFG.iQuota);
     show_int( 16,24, CFG.CityLen);
     show_bool(17,24, CFG.NewAreas);
+    show_int( 18,24, CFG.OLR_MaxMsgs);
 
-    show_int(  7,59, CFG.OLR_MaxMsgs);
-    show_int(  8,59, CFG.OLR_NewFileLimit);
-    show_int(  9,59, CFG.OLR_MaxReq);
-    show_logl(10,59, CFG.bbs_loglevel);
-    show_logl(11,59, CFG.util_loglevel);
-    show_bool(12,59, CFG.slow_util);
-    show_int( 13,59, CFG.iCrashLevel);
-    show_int( 14,59, CFG.iAttachLevel);
-    show_int( 15,59, CFG.freespace);
-    show_int( 16,59, CFG.max_logins);
+    show_int(  7,59, CFG.OLR_NewFileLimit);
+    show_int(  8,59, CFG.OLR_MaxReq);
+    show_logl( 9,59, CFG.bbs_loglevel);
+    show_logl(10,59, CFG.util_loglevel);
+    show_bool(11,59, CFG.slow_util);
+    show_int( 12,59, CFG.iCrashLevel);
+    show_int( 13,59, CFG.iAttachLevel);
+    show_int( 14,59, CFG.freespace);
+    show_int( 15,59, CFG.max_logins);
+    show_int( 16,59, CFG.priority);
+    show_bool(17,59, CFG.do_sync);
 }
 
 
@@ -394,7 +398,7 @@ void e_bbsglob(void)
     b_screen();
 
     for (;;) {
-	switch(select_menu(21)) {
+	switch(select_menu(23)) {
 	    case 0: return;
 	    case 1: E_BOOL( 7,24, CFG.exclude_sysop,         "^Exclude^ sysop from lists.")
 	    case 2: E_BOOL( 8,24, CFG.iConnectString,        "Show ^connect string^ at logon")
@@ -407,17 +411,19 @@ void e_bbsglob(void)
 	    case 9: E_INT( 15,24, CFG.iQuota,                "Maximum ^Quota^ in MBytes in users homedirectory");
 	    case 10:E_IRC( 16,24, CFG.CityLen, 3, 6,         "Minimum ^Location name^ length (3..6)")
 	    case 11:E_BOOL(17,24, CFG.NewAreas,              "Show ^new^ or ^deleted^ message areas to the user at login.")
+	    case 12:E_INT( 18,24, CFG.OLR_MaxMsgs,           "^Maximum messages^ to pack for download (0=unlimited)")
 
-	    case 12:E_INT(  7,59, CFG.OLR_MaxMsgs,           "^Maximum messages^ to pack for download (0=unlimited)")
-	    case 13:E_INT(  8,59, CFG.OLR_NewFileLimit,      "^Limit Newfiles^ listing for maximum days")
-	    case 14:E_INT(  9,59, CFG.OLR_MaxReq,            "Maximum ^Filerequests^ to honor")
+	    case 13:E_INT(  7,59, CFG.OLR_NewFileLimit,      "^Limit Newfiles^ listing for maximum days")
+	    case 14:E_INT(  8,59, CFG.OLR_MaxReq,            "Maximum ^Filerequests^ to honor")
 	    case 15:E_LOGL(CFG.bbs_loglevel, "1.5.15", b_screen)
 	    case 16:E_LOGL(CFG.util_loglevel, "1.5.16", b_screen)
-	    case 17:E_BOOL(12,59, CFG.slow_util,             "Let background utilities run ^slowly^")
-	    case 18:E_INT( 13,59, CFG.iCrashLevel,           "The user level to allow sending ^CrashMail^")
-	    case 19:E_INT( 14,59, CFG.iAttachLevel,          "The user level to allow sending ^File Attaches^")
-	    case 20:E_IRC( 15,59, CFG.freespace, 2, 1000,    "Minimum ^free diskspace^ in MBytes on filesystems (2..1000)")
-	    case 21:E_INT( 16,59, CFG.max_logins,            "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
+	    case 17:E_BOOL(11,59, CFG.slow_util,             "Let background utilities run ^slowly^")
+	    case 18:E_INT( 12,59, CFG.iCrashLevel,           "The user level to allow sending ^CrashMail^")
+	    case 19:E_INT( 13,59, CFG.iAttachLevel,          "The user level to allow sending ^File Attaches^")
+	    case 20:E_IRC( 14,59, CFG.freespace, 2, 1000,    "Minimum ^free diskspace^ in MBytes on filesystems (2..1000)")
+	    case 21:E_INT( 15,59, CFG.max_logins,            "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
+	    case 22:E_IRC( 16,59, CFG.priority, 0, 15,       "Subproces ^nice priority^, 0=high, 15=low CPU load")
+	    case 23:E_BOOL(17,59, CFG.do_sync,               "Call ^sync^ before and after execute, use Yes on GNU/Linux")
 	}
     }
 }
@@ -1430,6 +1436,15 @@ void global_menu(void)
 	Syslog('+', "Main config, upgraded rules directory");
     }
 
+    if (!CFG.is_upgraded) {
+	CFG.priority = 15;
+#ifdef __linux__
+	CFG.do_sync = TRUE;
+#endif
+	CFG.is_upgraded = TRUE;
+	Syslog('+', "Main config, upgraded execute settings");
+    }
+
     for (;;) {
 
 	clr_index();
@@ -1692,6 +1707,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "      Simult. logins   %d\n", CFG.max_logins);
 	else
 	    fprintf(fp, "      Simult. logins   unlimited\n");
+	fprintf(fp, "      Child priority   %d\n", CFG.priority);
+	fprintf(fp, "      Sync on execute  %s\n", getboolean(CFG.do_sync));
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");
