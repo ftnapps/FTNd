@@ -30,6 +30,9 @@ v0.37.01	14-Jan-2003.
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default
 		domain method. This is not the final implementation yet!
+		Update, this works now as described in a FSP-xxxx that is in
+		discussion in the FTSC. This will also work for current
+		practice.
 
 	common.a:
 		Removed charset conversion/translation.

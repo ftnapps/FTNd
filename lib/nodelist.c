@@ -628,9 +628,24 @@ node *getnlent(faddr *addr)
 	goto retdummy;
 
     /*
-     *  First, lookup node in index. NOTE -- NOT 5D YET
+     * Search domainname for the requested aka, should not fail.
      */
     path = calloc(PATH_MAX, sizeof(char));
+    sprintf(path, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(path, "r"))) {
+	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
+	while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
+	    for (i = 0; i < 6; i++) {
+		if (addr->zone == fidonet.zone[i])
+		    nodebuf.addr.domain = xstrcpy(fidonet.domain);
+	    }
+	}
+	fclose(fp);
+    }
+
+    /*
+     *  First, lookup node in index. NOTE -- NOT 5D YET
+     */
     sprintf(path, "%s/%s", CFG.nodelists, "node.index");
     if ((fp = fopen(path, "r")) == NULL) {
 	WriteError("$Can't open %s", path);
@@ -1039,14 +1054,18 @@ node *getnlent(faddr *addr)
 		    memset(&tbuf, 0, sizeof(tbuf));
 		} else if (strcasecmp((*tmpa)->name, "defdomain") == 0) {
 		    Syslog('n', "Trying default domain");
-		    for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
-			if ((*tmpd)->zone == nodebuf.addr.zone) {
-			    sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
-				    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
-			    Syslog('n', "Will try default domain \"%s\"", tbuf);
-			    nodebuf.url = xstrcat(nodebuf.url, tbuf);
-			    break;
+		    if (nodebuf.addr.domain) {
+			for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
+			    if ((*tmpd)->zone == nodebuf.addr.zone) {
+				sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+					nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
+				Syslog('n', "Will try default domain \"%s\"", tbuf);
+				nodebuf.url = xstrcat(nodebuf.url, tbuf);
+				break;
+			    }
 			}
+		    } else {
+			Syslog('+', "getnlent: no domain name for zone %d, check setup", nodebuf.addr.zone);
 		    }
 		    if (strlen(tbuf))
 			break;
