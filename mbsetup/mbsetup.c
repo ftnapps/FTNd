@@ -69,6 +69,7 @@
 mode_t		oldmask;		/* Old umask value	 	*/
 extern int	do_quiet;		/* Suppress log to screen	*/
 extern int	bbs_free;		/* Free/Busy status		*/
+extern int	horiz;			/* Dot position in docs		*/
 int		exp_golded = FALSE;	/* Export GoldED config		*/
 int		init = FALSE;		/* Run init only		*/
 
@@ -184,17 +185,6 @@ void soft_info(void)
 }
 
 
-int horiz;
-
-void dotter(void);
-void dotter(void)
-{
-    Nopper();
-    mvprintw(8, horiz++, (char *)".");
-    fflush(stdout);
-}
-
-	    
 
 void site_docs(void);
 void site_docs(void)
@@ -301,6 +291,8 @@ void site_docs(void)
     page = task_doc(fp, toc, page);
     dotter();
     page = route_doc(fp, toc, page);
+    dotter();
+    ol_doc();
     clrtoeol();
     mvprintw( 8,11, (char *)"Created site documents in %s/doc", getenv("MBSE_ROOT"));
     fflush(stdout);

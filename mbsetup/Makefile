@@ -103,7 +103,7 @@ m_ff.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.
 m_hatch.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_fgroup.h m_ticarea.h m_hatch.h
 m_mail.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_marea.h m_mgroup.h m_mail.h
 m_modem.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_modem.h
-m_ol.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_ol.h
+m_ol.o: ../config.h ../lib/mbselib.h ../lib/diesel.h screen.h mutil.h ledit.h m_global.h m_ol.h
 m_tic.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_fgroup.h m_ticarea.h m_magic.h m_hatch.h m_tic.h
 m_virus.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_virus.h
 stlist.o: ../config.h ../lib/mbselib.h stlist.h

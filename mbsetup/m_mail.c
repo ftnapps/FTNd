@@ -76,13 +76,14 @@ void mail_menu(void)
 
 int mail_doc(FILE *fp, FILE *toc, int page)
 {
-	page = newpage(fp, page);
-	addtoc(fp, toc, 9, 0, page, (char *)"Mail setup");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 9, 0, page, (char *)"Mail setup");
 
-	page = mail_group_doc(fp, toc, page);
-	page = mail_area_doc(fp, toc, page);
+    page = mail_group_doc(fp, toc, page);
+    dotter();
+    page = mail_area_doc(fp, toc, page);
 
-	return page;
+    return page;
 }
 
 

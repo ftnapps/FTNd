@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
+#include "../lib/diesel.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -574,6 +575,38 @@ void ol_menu(void)
 		    break;
 	}
     }
+}
+
+
+
+void ol_doc(void)
+{
+    FILE    *fp, *wp;
+    char    *temp, out[1024];
+    int	    nr = 0;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r"))) {
+	if ((wp = open_webdoc((char *)"oneliners.html", (char *)"Oneliners", NULL))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE border='1' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    fread(&olhdr, sizeof(olhdr), 1, fp);
+	    while (fread(&ol, olhdr.recsize, 1, fp) == 1) {
+		nr++;
+		html_massage(ol.Oneline, out);
+		fprintf(wp, "<TR><TD>%d</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+		    nr, out, ol.UserName, ol.DateOfEntry, getboolean(ol.Available));
+	    }
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+	fclose(fp);
+    }
+    free(temp);
 }
 
 

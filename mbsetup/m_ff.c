@@ -433,8 +433,8 @@ void InitFilefind(void)
 int ff_doc(FILE *fp, FILE *toc, int page)
 {
     char    temp[PATH_MAX];
-    FILE    *wp, *ip, *no;
-    int	    i = 0, j;
+    FILE    *ti, *wp, *ip, *no;
+    int	    refs, nr, i = 0, j;
 
     sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
@@ -482,6 +482,35 @@ int ff_doc(FILE *fp, FILE *toc, int page)
 	    add_webdigit(wp, (char *)"Keyword length", scanmgr.keywordlen);
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>BBS File Areas Reference</H3>\n");
+	    nr = refs = 0;
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&areahdr, sizeof(areahdr), 1, ti);
+		while ((fread(&area, areahdr.recsize, 1, ti)) == 1) {
+		    nr++;
+		    if (area.Available) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='15%%'><COL width='15%%'><COL width='70%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			    fprintf(wp, "<TR><TH align='left'>Area</TH><TH align='left'>Search</TH><TH align='left'>Description</TH></TD>\n");
+			}
+			fprintf(wp, "<TR><TD><A HREF=\"filearea_%d.html\">Area %d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+				nr, nr, getboolean(area.FileFind), area.Name);
+			refs++;
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No BBS File Areas References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
 	    close_webdoc(wp);
 	}
 

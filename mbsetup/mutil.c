@@ -261,3 +261,13 @@ void add_statcnt(FILE *fp, char * hstr, statcnt st)
 }
 
 
+
+int horiz;
+
+void dotter(void)
+{
+    Nopper();
+    mvprintw(8, horiz++, (char *)".");
+    fflush(stdout);
+}
+

@@ -96,9 +96,13 @@ int bbs_doc(FILE *fp, FILE *toc, int page)
     addtoc(fp, toc, 8, 0, page, (char *)"BBS setup");
 
     page = bbs_limits_doc(fp, toc, page);
+    dotter();
     page = bbs_lang_doc(fp, toc, page);
+    dotter();
     page = bbs_menu_doc(fp, toc, page);
+    dotter();
     page = bbs_file_doc(fp, toc, page);
+    dotter();
     page = bbs_prot_doc(fp, toc, page);
 
     return page;

@@ -1422,7 +1422,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 
 	sprintf(temp, "node_%d_%d_%d_%d_%s.html", nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node,
 		nodes.Aka[0].point, nodes.Aka[0].domain);
-	fprintf(ip, " <LI><A HREF=\"%s\">Node %s</A> %s</LI>\n", temp, aka2str(nodes.Aka[0]), nodes.Sysop);
+	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, aka2str(nodes.Aka[0]), nodes.Sysop);
 	if ((wp = open_webdoc(temp, (char *)"Fidonet node", aka2str(nodes.Aka[0])))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"nodes.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
