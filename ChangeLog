@@ -47,6 +47,7 @@ v0.37.7		09-Sep-2003
 	mbsetup:
 		Added support for debug logging in menu 1.3 and removed the
 		mbtask debug switch from menu 18.
+		Import and purge oneliners now log what is done.
 
 
 

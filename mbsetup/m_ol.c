@@ -446,12 +446,16 @@ void PurgeOneline(void)
 
     if (yes_no((char *)"Purge deleted records") == TRUE) {
 	working(1, 0, 0);
+	recno = iCount = 0;
 	fseek(pOneline, olhdr.hdrsize, 0);
 	fp = fopen("tmp.1", "a");
 	fwrite(&olhdr, sizeof(olhdr), 1, fp);
 	while (fread(&ol, olhdr.recsize, 1, pOneline) == 1) {
+	    recno++;
 	    if (ol.Available)
 		fwrite(&ol, olhdr.recsize, 1, fp);
+	    else
+		iCount++;
 	}
 	fclose(fp);
 	fclose(pOneline);
@@ -460,6 +464,7 @@ void PurgeOneline(void)
 	unlink("tmp.1");
 	working(0, 0, 0);
 	free(sFileName);
+	Syslog('+', "Purged %d out of %d oneliners", iCount, recno);
     }
 }
 
@@ -552,7 +557,8 @@ void ImportOneline(void)
     fclose(pOneline);
     working(0, 0, 0);
 
-    sprintf(temp, "Imported %d records, skipped %d long/empty lines", recno, skipped);
+    sprintf(temp, "Imported %d oneliners, skipped %d long/empty lines", recno, skipped);
+    Syslog('+', temp);
     mvprintw(21, 6, temp);
     readkey(21, 7 + strlen(temp), LIGHTGRAY, BLACK);
     free(temp);

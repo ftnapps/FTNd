@@ -365,7 +365,7 @@ void binkp_send_control(int id,...)
 	sz = 1;
     }
 
-    Syslog('B', "Binkp: send_ctl %s \"%s\"", bstate[id], buf);
+    Syslog('b', "Binkp: send_ctl %s \"%s\"", bstate[id], buf);
     frame.header = ((BINKP_CONTROL_BLOCK + sz) & 0xffff);
     frame.id = (char)id;
     frame.data = buf;
@@ -741,7 +741,7 @@ SM_STATE(WaitOk)
 
 	if (cmd) {
 	    if (rbuf[0] == MM_OK) {
-		Syslog('!', "Binkp: M_OK \"%s\"", printable(&rbuf[1], 0));
+		Syslog('b', "Binkp: M_OK \"%s\"", printable(&rbuf[1], 0));
 	        if (SendPass)
 		   Secure = TRUE;
 		Syslog('+', "Binkp: %s%sprotected session", CRAMflag ? "MD5 ":"", Secure ? "":"un");
@@ -824,7 +824,6 @@ SM_STATE(WaitConn)
 	strcpy(s, "OPT ");
 	MD_toString(s+4, MD_challenge[0], MD_challenge+1);
 	CRAMflag = TRUE;
-	Syslog('b', "Binkp: sending \"%s\"", s);
 	binkp_send_control(MM_NUL, "%s", s);
     }
     b_banner();
@@ -1327,7 +1326,7 @@ int binkp_batch(file_list *to_send, int role)
 	    if (tmp == NULL) {
 		TxState = TxDone;
 		binkp_send_control(MM_EOB, "");
-		Syslog('+', "Binkp: sending EOB");
+		Syslog('b', "Binkp: sending EOB");
 	    }
 	    break;
 

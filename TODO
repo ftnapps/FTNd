@@ -18,6 +18,8 @@ everything:
 	L: Finish big-endian machines porting (low priority because it seems
 	   that I'm the only one using Sun's and HP-PA systems next to Intel).
 
+	L: Consider XML format for databases.
+
 	L: Implement IPv6.
 
 	L: Document error return codes in the manual.
@@ -107,6 +109,9 @@ mbfido:
 	N: Add statistic mail messages.
 
 mbcico:
+	N: Upgrade binkp protocol to 1.1, that may solve the next two
+	   issues as well.
+
 	N: See if it is possible with binkp protocol to resume aborted
 	   transfers. Changes are under test now. Feedback needed!
 
@@ -116,6 +121,8 @@ mbcico:
 	N: With binkp, if the other node is a binkp/1.0 mailer without MB
 	   mode and we did send a FREQ, a poll must be created after the
 	   session to pickup the result of the FREQ.
+
+	N: Support binkp Argus freqs.
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
