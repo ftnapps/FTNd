@@ -292,6 +292,8 @@ typedef struct	_node {
 	unsigned long	oflags;			/* Online flags		*/
 	unsigned long	xflags;			/* Request flags	*/
 	char		*uflags[MAXUFLAGS];	/* User flags		*/
+	int		t1;			/* T flag, first char	*/
+	int		t2;			/* T flag, second char	*/
 } node;
 
 
