@@ -1595,20 +1595,22 @@ void OLR_DownBW()
 void BlueWave_Fetch()
 {
 	char		*temp;
-	FILE		*up, *mf, *tp;
+	char		*buffer,*b;
+	FILE		*up, *mf, *tp, *iol;
 	UPL_HEADER	Uph;
 	UPL_REC		Upr;
 	PDQ_HEADER	Pdh;
 	PDQ_REC		Pdr;
 	REQ_REC		Req;
-	int		i, Found;
+	int		i, Found, OLC_head, OLC_filter, OLC_macro, OLC_keyword, HEAD_written;
 	fidoaddr	dest;
 
 	colour(9, 0);
 	/*      Processing BlueWave reply packet */
 	printf("%s\n", (char *)Language(450));
 	temp = calloc(PATH_MAX, sizeof(char));
-
+	b = calloc(255, sizeof(char));
+	buffer = b;
 	/*
 	 *  Process uploaded mail
 	 */
@@ -1797,6 +1799,168 @@ void BlueWave_Fetch()
 	/*
 	 *  Process offline configuration
 	 */
+	 
+	sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	if ((iol = fopen(temp, "r")) == NULL) {
+		temp = tl(temp);
+		iol = fopen(temp, "r");
+	}
+	if (iol != NULL) {
+		/*
+		*   If .OLC file found convert it in .PDQ
+		*/
+		sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+		Syslog('+', "Converting BW/v3 .OLC file to %s",temp);
+		if (( tp = fopen(temp, "w")) != NULL) {
+			HEAD_written=FALSE;
+			OLC_head=FALSE;
+			OLC_filter=OLC_macro=OLC_keyword=0;
+			memset(&Pdh,0,sizeof(PDQ_HEADER));
+			Syslog('f', "%s Opened for writing", temp);
+			while(fgets(b,255,iol) != NULL ){
+			        buffer=b;
+				while (isspace(buffer[0]))
+				    buffer++;
+//				Syslog('+', "Reading: %s ", buffer);
+				if ( ( strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ){
+				   OLC_head=TRUE;
+				   continue;
+				}else{   
+					if (buffer[0]=='['){
+					   strtok(buffer,"]");
+					   buffer++;
+					   OLC_head=FALSE;
+					   strncpy(Pdr.echotag,buffer,20);
+					   continue;
+					}
+				}
+				if (OLC_head == TRUE){
+				   if (strncasecmp(buffer,"AreaChanges",11)==0){ 
+				      buffer+=11; 
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      if ((strncasecmp(buffer,"TRUE",4)==0) 
+				      || (strncasecmp(buffer,"YES",3)==0)
+				      || (strncasecmp(buffer,"ON",2)==0))
+				      	 Pdh.flags |= PDQ_AREA_CHANGES;
+				      continue;
+				   }
+				   if (strncasecmp(buffer,"MenuHotKeys",11)==0){ 
+				      buffer+=11; 
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      if ((strncasecmp(buffer,"TRUE",4)==0) 
+				      || (strncasecmp(buffer,"YES",3)==0)
+				      || (strncasecmp(buffer,"ON",2)==0))
+				      	 Pdh.flags |= PDQ_HOTKEYS;
+				      continue;
+			  	   }
+				   if ( (strncasecmp(buffer,"ExpertMenus",11)==0)){ 
+				      buffer+=11; 
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      if ((strncasecmp(buffer,"TRUE",4)==0) 
+				      || (strncasecmp(buffer,"YES",3)==0)
+				      || (strncasecmp(buffer,"ON",2)==0))
+				      	 Pdh.flags |= PDQ_XPERT;
+				      continue;
+				   }
+				   if (strncasecmp(buffer,"SkipUserMsgs",12)==0){ 
+				      buffer+=12; 
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      if ((strncasecmp(buffer,"TRUE",4)==0) 
+				      || (strncasecmp(buffer,"YES",3)==0)
+				      || (strncasecmp(buffer,"ON",2)==0))
+				      	 Pdh.flags |= PDQ_NOT_MY_MAIL;
+				      continue;
+				   }
+				   if (strncasecmp(buffer,"DoorGraphics",12)==0){ 
+				      buffer+=12; 
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      if ((strncasecmp(buffer,"TRUE",4)==0) 
+				      || (strncasecmp(buffer,"YES",3)==0)
+				      || (strncasecmp(buffer,"ON",2)==0))
+				      	 Pdh.flags |= PDQ_GRAPHICS;
+				      continue;
+				   }
+				   if (strncasecmp(buffer,"Password",8)==0){
+				      buffer+=8;
+				      while (isspace(buffer[0]) || buffer[0]=='=')
+					      buffer++;
+				      Pdh.passtype=0;
+				      if(strncasecmp(buffer,"Door",4)==0)
+				         Pdh.passtype=1;
+				      if(strncasecmp(buffer,"Reader",6)==0)
+				         Pdh.passtype=2;
+				      if(strncasecmp(buffer,"Both",4)==0)
+				         Pdh.passtype=3;
+				      while(buffer[0] != ',' && buffer[0] !='\0')
+				        buffer++;
+				      if ( Pdh.passtype != 0 ){
+					      while (isspace(buffer[0])); 
+					      	buffer++;
+					      strncpy(Pdh.password,buffer,20);
+				      }
+				      continue;
+				   }
+				   if (strncasecmp(buffer,"Filter",6)==0){
+					buffer+=6;
+					while (isspace(buffer[0]) || buffer[0]=='=') 
+						buffer++;
+				        strncpy(Pdh.filters[OLC_filter],buffer,20);
+				        OLC_filter++;
+				        continue;
+				   }
+				   if (strncasecmp(buffer,"Keyword",7)==0){
+					buffer+=7;
+					while (isspace(buffer[0]) || buffer[0]=='=') 
+						buffer++;
+				        strncpy(Pdh.keywords[OLC_keyword],buffer,20);
+				        OLC_keyword++;
+				        continue;
+				   }
+				   if (strncasecmp(buffer,"Macro=",5)==0){
+					buffer+=5;
+					while (isspace(buffer[0]) || buffer[0]=='=') 
+						buffer++;
+				        strncpy(Pdh.macros[OLC_macro],buffer,20);
+				        OLC_macro++;
+				        continue;
+				   }
+				continue;
+				}
+				if (strncasecmp(buffer,"Scan",4) == 0){
+				   buffer+=4;
+				   while (isspace(buffer[0]) || buffer[0]=='=') 
+					buffer++;
+				   if ((strncasecmp(buffer,"All",3)==0) 
+				   || (strncasecmp(buffer,"Pers",4)==0)){
+				   	if ( HEAD_written == FALSE ){
+				      		fwrite(&Pdh,sizeof(PDQ_HEADER),1,tp);
+//				      		Syslog('+', "Writting PDQ header...");
+				      		HEAD_written = TRUE;
+				   	}
+				        if (strlen(Pdr.echotag) > 0){
+					   fwrite(&Pdr,sizeof(PDQ_REC),1,tp);
+//					   Syslog('+', "Writting PDQ record: %s", Pdr.echotag);
+					   memset(&Pdr,0,sizeof(PDQ_REC));
+				        }
+				   }
+				}
+			}
+			fclose(tp);
+		}else{
+			WriteError("Unable to convert .OLC file to %s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+			Syslog('?', "Unable to convert .OLC file to %s/%s/%s.PDQ",CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+		}			
+		fclose(iol);		
+		sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+		unlink(temp);
+		temp = tl(temp);
+		unlink(temp);
+        }
 	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
 	if ((tp = fopen(temp, "r")) == NULL) {
 		temp = tl(temp);
@@ -1878,6 +2042,8 @@ void BlueWave_Fetch()
 		fclose(tp);
 		sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
 		unlink(temp);
+		temp = tl(temp);
+		unlink(temp);
 	}
 
 	/*
@@ -1909,6 +2075,7 @@ void BlueWave_Fetch()
 	}
 
 	free(temp);
+	free(b);
 	Pause();
 }
 
