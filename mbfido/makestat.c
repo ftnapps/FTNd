@@ -35,6 +35,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/diesel.h"
+#include "../lib/msg.h"
 #include "mgrutil.h"
 #include "makestat.h"
 
@@ -172,6 +173,12 @@ void MakeStat(void)
 		while ((fread(&msgs, msgshdr.recsize, 1, fg)) == 1) {
 		    Area++;
 		    if (msgs.Active) {
+			if (Msg_Open(msgs.Base)) {
+			    MacroVars("k", "d", Msg_Number());
+			    Msg_Close();
+			} else {
+			    MacroVars("k", "d", 0);
+			}
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("bcdefghij", "dssssdddd", Area, msgs.Name, msgs.Tag, msgs.Group, adate(msgs.LastRcvd),
 			    msgs.Received.lweek, msgs.Received.month[Lm], msgs.Posted.lweek, msgs.Posted.month[Lm]);
