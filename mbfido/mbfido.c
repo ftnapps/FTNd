@@ -412,8 +412,35 @@ int main(int argc, char **argv)
 	if (!diskfree(CFG.freespace))
 		die(101);
 
-	if (lockunpack())
+	if (do_mail) {
+	    /*
+	     * Try to get a lock for a long time, another mbfido may be legally
+	     * running since mbmail is started by the MTA instead of by mbtask.
+	     * The timeout is 10 minutes. If mbmail times out, the MTA will
+	     * bounce the message. What happens during the time we wait is
+	     * unknown, will the MTA be patient enough?
+	     */
+	    i = 30;
+	    while (TRUE) {
+		if (lockunpack() == 0)
+		    break;
+		i--;
+		if (! i) {
+		    WriteError("Lock timeout, aborting");
+		    die(101);
+		}
+		sleep(20);
+		Nopper();
+	    }
+	} else {
+	    /*
+	     * Started under control of mbtask, that means if there is a lock then
+	     * there is something wrong; abort.
+	     */
+	    if (lockunpack())
 		die(101);
+	}
+
 	if (initnl())
 		die(101);
 	if (!do_mail && !do_uucp)

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: msgflags.c
+ * $Id$
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 06-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -128,7 +127,7 @@ int flag_on(char *flag, char *flags)
 	char	*p,*tok;
 	int	up=0;
 
-	Syslog('M', "checking flag \"%s\" in string \"%s\"",MBSE_SS(flag),MBSE_SS(flags));
+	Syslog('m', "checking flag \"%s\" in string \"%s\"",MBSE_SS(flag),MBSE_SS(flags));
 	if (flags == NULL) 
 		return 0;
 	p=xstrcpy(flags);
@@ -137,7 +136,7 @@ int flag_on(char *flag, char *flags)
 			up = 1;
 	}
 	free(p);
-	Syslog('M', "flag%s present",up?"":" not");
+	Syslog('m', "flag%s present",up?"":" not");
 	return up;
 }
 
