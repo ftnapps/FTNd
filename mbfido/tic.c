@@ -179,7 +179,8 @@ int LoadTic(char *inb, char *tfn)
 	memset(&T_File, 0, sizeof(T_File));
 
 	sprintf(TIC.Inbound, "%s", inb);
-	strncpy(TIC.TicName, tfn, 12);
+//	strncpy(TIC.TicName, tfn, 12);
+	sprintf(TIC.TicName, "%s", tfn);
 
 	chdir(inb);
 	if ((tfp = fopen(tfn, "r")) == NULL) {

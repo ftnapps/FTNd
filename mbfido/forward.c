@@ -53,7 +53,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	char		flavor;
 	faddr		*dest, *route, *Fa;
 	int		i, z, n;
-	time_t		now;
+	time_t		now, ftime;
 	fa_list		*tmp;
 
 	if (!SearchNode(Node)) {
@@ -135,10 +135,17 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	if (nodes.Message) {
 	    if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
 		if ((fi = OpenMacro("forward.tic", nodes.Language, FALSE)) != NULL) {
-		    MacroVars("abcdfghijmns", "ssdssddsssss", TIC.TicIn.Area, tic.Comment, TIC.FileCost, fgroup.Comment,
-							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
-							    TIC.TicIn.Crc, TIC.TicIn.Origin, rfcdate(TIC.FileDate), 
-							    TIC.TicIn.Desc, nodes.Sysop);
+		    ftime = TIC.FileDate;
+		    MacroVars("ab", "ss", TIC.TicIn.Area, tic.Comment);
+		    MacroVars("cd", "ds", TIC.FileCost, fgroup.Comment);
+		    MacroVars("fg", "sd", TIC.TicIn.FullName, TIC.FileSize);
+		    MacroVars("hi", "ds", TIC.FileSize / 1024, TIC.TicIn.Crc);
+		    MacroVars("jm", "ss", TIC.TicIn.Origin, rfcdate(ftime));
+		    MacroVars("ns", "ss", TIC.TicIn.Desc, nodes.Sysop);
+//		    MacroVars("abcdfghijmns", "ssdssddsssss", TIC.TicIn.Area, tic.Comment, TIC.FileCost, fgroup.Comment,
+//							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
+//							    TIC.TicIn.Crc, TIC.TicIn.Origin, rfcdate(ftime), 
+//							    TIC.TicIn.Desc, nodes.Sysop);
 		    if (TIC.SendOrg)
 			MacroVars("e", "s", TIC.RealName);
 		    else

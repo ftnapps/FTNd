@@ -285,6 +285,7 @@ long Report(gr_list *ta, long filepos)
     int		    i, Total = 0;
     unsigned long   Size = 0;
     long	    filepos1 = 0, filepos2, filepos3 = 0, finalpos = 0;
+    time_t	    ftime;
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
@@ -326,9 +327,18 @@ long Report(gr_list *ta, long filepos)
 	     * Report one newfile, first line.
 	     */
 	    fseek(fi, filepos1, SEEK_SET);
-	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, rfcdate(T_File.Fdate),
-				    To_Low(T_File.LDesc[0],newfiles.HiAscii));
+	Syslog('-', "1");
+	    ftime = T_File.Fdate;
+//	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, /* rfcdate(ftime) */ " ",
+	//			    To_Low(T_File.LDesc[0],newfiles.HiAscii));
+	MacroVars("sl", "ss", T_File.Name, T_File.LName);
+	Syslog('-', "2");
+	MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);
+	Syslog('-', "3");
+	MacroVars("dt", "ss", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
+	Syslog('-', "4");
 	    Msg_Macro(fi);
+	Syslog('-', "5");
 	    filepos2 = ftell(fi);
 	    /*
 	     * Extra description lines follow
