@@ -26,7 +26,7 @@
    
   <hr>   
   <div align="Right">
-  <h5>Last updated 09-Jun-2002</h5>
+  <h5>Last updated 10-Jul-2002</h5>
   </div>
    
   <pre>  Author: P.E. Kimble aka King Kimerud<br>          kimerud@bayhaus.org<br>  </pre>
@@ -739,7 +739,12 @@ asked.
         <p> First we need a pair of scripts. These scripts are installed
 when you did install MBSE. These scripts are needed to execute the doors
 and are installed in /opt/mbse/bin: </p>
-        <pre>--- rundoor.sh ---<br><br>#!/bin/bash<br>#<br># rundoor.sh - Never call this script directly, create a symlink<br>#              to this file with the name of the door. For example<br>#              tu run the door ilord do:<br>#              cd /opt/mbse/bin<br>#              ln -s rundoor.sh ilord<br>#<br># by Redy Rodriguez and Michiel Broek.<br>#<br>DOOR=`basename $0`<br>COMMANDO="\" door $DOOR $*\r\""<br><br>/usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1<br>/usr/bin/sudo /opt/dosemu/bin/dosemu.bin \<br>        -F /var/lib/dosemu/global.conf \<br>        -I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"<br>reset<br>tput reset<br>stty sane<br><br><br><br>--- bbsdoor.sh ---<br>#<br>#  Initialize DOS environment before starting a bbs door.<br>#  Parameters: $1 = name of the door<br>#              $2 = the nodenumber for this session<br>#<br>#  by Redy Rodriguez, 22-Oct-2001<br><br>if [ "$1" != "" ]; then<br>    if [ "$2" != "" ]; then<br>        mkdir -p /dos/c/doors/node$2 &gt;/dev/null 2&gt;&amp;1<br>        # Copy door.sys to dos partition<br>        cat ~/door.sys &gt;/dos/c/doors/node$2/door.sys<br>        # Create .dosemu/disclaimer in user home to avoid warning<br>        if [ ! -d $HOME/.dosemu ]; then<br>            mkdir $HOME/.dosemu<br>        fi<br>        if [ ! -f $HOME/.dosemu/disclaimer ]; then<br>            touch $HOME/.dosemu/disclaimer<br>        fi<br>    fi<br>fi<br><br></pre>
+        <pre>--- rundoor.sh ---<br><br>#!/bin/bash<br>#<br># rundoor.sh - Never
+	call this script directly, create a symlink<br>#              to this
+	file with the name of the door. For example<br>#              tu run the
+	door ilord do:<br>#              cd /opt/mbse/bin<br>#              ln
+	-s rundoor.sh ilord<br>#<br># by Redy Rodriguez and Michiel
+	Broek.<br>#<br>DOOR=`basename $0`<br>COMMANDO="\" doors $DOOR $*\r\""<br><br>/usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1<br>/usr/bin/sudo /opt/dosemu/bin/dosemu.bin \<br>        -F /var/lib/dosemu/global.conf \<br>        -I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"<br>reset<br>tput reset<br>stty sane<br><br><br><br>--- bbsdoor.sh ---<br>#<br>#  Initialize DOS environment before starting a bbs door.<br>#  Parameters: $1 = name of the door<br>#              $2 = the nodenumber for this session<br>#<br>#  by Redy Rodriguez, 22-Oct-2001<br><br>if [ "$1" != "" ]; then<br>    if [ "$2" != "" ]; then<br>        mkdir -p /dos/c/doors/node$2 &gt;/dev/null 2&gt;&amp;1<br>        # Copy door.sys to dos partition<br>        cat ~/door.sys &gt;/dos/c/doors/node$2/door.sys<br>        # Create .dosemu/disclaimer in user home to avoid warning<br>        if [ ! -d $HOME/.dosemu ]; then<br>            mkdir $HOME/.dosemu<br>        fi<br>        if [ ! -f $HOME/.dosemu/disclaimer ]; then<br>            touch $HOME/.dosemu/disclaimer<br>        fi<br>    fi<br>fi<br><br></pre>
  The script rundoor.sh is never called directly, simply create a link with
 the name of the door to this file, this name must be the same as the one
 of the .bat file that starts the door in the doors directory of the dos partition. 
