@@ -406,12 +406,11 @@ char *reg_ipm(char *data)
 	return buf;
 
     reginfo[rec].lastcon = time(NULL);
-    if (!reginfo[rec].ismsg || (reginfo[rec].channel != -1))
+    if (!reginfo[rec].ismsg)
 	return buf;
 
     buf[0] = '\0';
-    sprintf(buf, "100:3,%d,%s,%s;", reginfo[rec].channel, 
-	reginfo[rec].fname[reginfo[rec].ptr_out], reginfo[rec].msg[reginfo[rec].ptr_out]);
+    sprintf(buf, "100:2,%s,%s;", reginfo[rec].fname[reginfo[rec].ptr_out], reginfo[rec].msg[reginfo[rec].ptr_out]);
     if (reginfo[rec].ptr_out < RB)
 	reginfo[rec].ptr_out++;
     else
@@ -419,8 +418,7 @@ char *reg_ipm(char *data)
     if (reginfo[rec].ptr_out == reginfo[rec].ptr_in)
 	reginfo[rec].ismsg = FALSE;
     
-    Syslog('+', "reg_ipm: ch=%d in=%d out=%d ismsg=%d", reginfo[rec].channel,
-	reginfo[rec].ptr_in, reginfo[rec].ptr_out, reginfo[rec].ismsg);
+    Syslog('+', "reg_ipm: in=%d out=%d ismsg=%d", reginfo[rec].ptr_in, reginfo[rec].ptr_out, reginfo[rec].ismsg);
 
     return buf;
 }
@@ -432,41 +430,33 @@ char *reg_ipm(char *data)
  */
 int reg_spm(char *data)
 {
-    char    *cnt, *ch, *from, *too, *txt, *log;
-    int	    i, error = 0;
+    char    *cnt, *from, *too, *txt, *log;
+    int	    i;
 
     cnt  = strtok(data, ",");
-    ch   = strtok(NULL, ",");
     from = strtok(NULL, ",");
     too  = strtok(NULL, ",");
     txt  = strtok(NULL, "\0");
     txt[strlen(txt)-1] = '\0';
 
-    Syslog('-', "SIPM:%s,%s,%s,%s,%s;", cnt, ch, from, too, txt);
-    log = calloc(PATH_MAX, sizeof(char));
-    sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+    Syslog('-', "SIPM:%s,%s,%s,%s;", cnt, from, too, txt);
 
     for (i = 0; i < MAXCLIENT; i++) {
-	/*
-	 *  Personal messages and sysop/user chat messages.
-	 */
-	if (reginfo[i].pid && 
-	    (((strcasecmp(reginfo[i].uname, too) == 0) && (atoi(ch) == -1)) || (atoi(ch) == 0)) &&
-	    (atoi(ch) == reginfo[i].channel)) {
+	if (reginfo[i].pid && (strcasecmp(reginfo[i].uname, too) == 0)) {
 	    /*
 	     *  If the in and out pointers are the same and the 
 	     *  message present flag is still set, then this user
 	     *  can't get anymore new messages.
 	     */
 	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
-		error = 2;
+		return 2;
 	    }
 
 	    /*
 	     *  If user has the "do not distrurb" flag set, but the sysop ignore's this.
 	     */
-	    if (reginfo[i].silent && (atoi(ch) == -1)) {
-		error = 1;
+	    if (reginfo[i].silent) {
+		return 1;
 	    }
 
 	    /*
@@ -481,45 +471,18 @@ int reg_spm(char *data)
 	    reginfo[i].ismsg = TRUE;
 
 	    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
-		ulog(log, (char *)"+", from, ch, txt);
+		log = calloc(PATH_MAX, sizeof(char));
+		sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+		ulog(log, (char *)"+", from, (char *)"-1", txt);
+		free(log);
 	    }
 
 	    Syslog('+', "reg_spm: rec=%d in=%d out=%d ismsg=%d", i, reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
-	}
-	if ((atoi(ch) == -1) || (atoi(ch) == 0)) {
-	    free(log);
-	    return error;
-	}
-
-	/*
-	 *  Chat messages, they are send to each user that is chatting in the right channel.
-	 */
-	if (reginfo[i].pid && reginfo[i].chatting && reginfo[i].channel == atoi(ch)) {
-	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
-		Syslog('!', "reg_spm: buffer full for %s", reginfo[i].uname);
-	    } else {
-		strncpy((char *)&reginfo[i].fname[reginfo[i].ptr_in], from, 35);
-		strncpy((char *)&reginfo[i].msg[reginfo[i].ptr_in], txt, 80);
-		if (reginfo[i].ptr_in < RB)
-		    reginfo[i].ptr_in++;
-		else
-		    reginfo[i].ptr_in = 0;
-		reginfo[i].ismsg = TRUE;
-
-		if (CFG.iAutoLog && strlen(CFG.chat_log)) {
-		    ulog(log, (char *)"+", from, ch, txt);
-		}
-
-		Syslog('+', "reg_spm: user=%s in=%d out=%d ismsg=%d", reginfo[i].uname, reginfo[i].ptr_in, 
-			reginfo[i].ptr_out, reginfo[i].ismsg);
-	    }
+	    return 0;
 	}
     }
-
-    free(log);
-    if ((atoi(ch) == -1) || (atoi(ch) == 0))
-	return 3;   // Error
-    return 0;	    // Ok
+    
+    return 3;   // Error, user not found
 }
 
 

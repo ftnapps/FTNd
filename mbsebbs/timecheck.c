@@ -56,7 +56,7 @@ extern pid_t    mypid;          /* Pid of this program      */
 void Check_PM(void);
 void Check_PM(void)
 {
-    static char buf[128];
+    static char buf[200];
     char        resp[128];
 
     sprintf(buf, "CIPM:1,%d;", mypid);
@@ -65,9 +65,8 @@ void Check_PM(void)
         if (strncmp(buf, "100:0;", 6) == 0)
             return;
 
-        strcpy(resp, strtok(buf, ":"));		/* Should be 100	*/
-	strcpy(resp, strtok(NULL, ","));	/* Should be 3		*/
-        strcpy(resp, strtok(NULL, ","));	/* Should be channel -1 */
+        strncpy(resp, strtok(buf, ":"), 5);	/* Should be 100	*/
+	strncpy(resp, strtok(NULL, ","), 3);	/* Should be 2		*/
 	strncpy(resp, strtok(NULL, ","), 36);	/* From Name		*/
         colour(CYAN, BLACK);
         /* ** Message ** from */

@@ -33,6 +33,7 @@
 #include "../lib/libs.h"
 #include "../lib/memwatch.h"
 #include "../lib/mberrors.h"
+#include "../lib/structs.h"
 #include "common.h"
 #include "mutil.h"
 
@@ -43,6 +44,13 @@ int		columns = 80;
 extern int	bbs_free;
 extern int	ttyfd;
 extern pid_t	mypid;
+
+struct sysconfig    CFG;
+
+
+char  	rbuf[50][80];	    /* Chat receive buffer	*/ /* FIXME: must be a dynamic buffer */
+int	rpointer = 0;	    /* Chat receive pointer	*/
+int	rsize = 5;	    /* Chat receive size	*/
 
 
 static void die(int onsig)
@@ -417,45 +425,98 @@ void soft_info(void)
 
 
 /*
+ * Display received chat message
+ */
+void DispMsg(char *);
+void DispMsg(char *msg)
+{
+    int	    i;
+
+    strncpy(rbuf[rpointer], msg, 80);
+    mvprintw(4+rpointer, 1, rbuf[rpointer]);
+    if (rpointer == rsize) {
+	/*
+	 * Scroll buffer
+	 */
+	for (i = 0; i <= rsize; i++) {
+	    locate(i+4,1);
+	    clrtoeol();
+	    sprintf(rbuf[i], "%s", rbuf[i+1]);
+	    mvprintw(i+4, 1, rbuf[i]);
+	}
+    } else {
+	rpointer++;
+    }
+    fflush(stdout);
+}
+
+
+
+/*
  * Sysop/user chat
  */
-void Chat(int channel)
+void Chat(void)
 {
-    int		    curpos = 0, rline = 0;
+    int		    curpos = 0, stop = FALSE, data;
     unsigned char   ch = 0;
-    char	    sbuf[81], rbuf[17][81], resp[128], from[36];
-    static char	    buf[128];
+    char	    sbuf[81], resp[128], *cnt, *msg;
+    static char	    buf[200];
 
     clr_index();
+    rsize = lines - 7;
+    rpointer = 0;
+
+    sprintf(buf, "CCON,2,%d,%s", mypid, CFG.sysop);
+    Syslog('-', "> %s", buf);
+    if (socket_send(buf) == 0) {
+	strcpy(buf, socket_receive());
+	Syslog('-', "< %s", buf);
+	if (strncmp(buf, "100:1,", 6) == 0) {
+	    cnt = strtok(buf, ",");
+	    msg = strtok(NULL, "\0");
+	    msg[strlen(msg)-1] = '\0';
+	    set_color(LIGHTRED, BLACK);
+	    mvprintw(4, 1, msg);
+	    working(2, 0, 0);
+	    working(0, 0, 0);
+	    center_addstr(lines -4, (char *)"Press any key");
+	    readkey(lines - 4, columns / 2 + 8, LIGHTGRAY, BLACK);
+	    return;
+	}
+    }
+
     locate(lines - 2, 1);
     set_color(WHITE, BLUE);
     clrtoeol();
-    mvprintw(lines - 2, 2, "Sysop to user chat, press @ to exit");
+    mvprintw(lines - 2, 2, "Chat, type \"/EXIT\" to exit");
 
     set_color(LIGHTGRAY, BLACK);
     mvprintw(lines - 1, 1, ">");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
-    while (TRUE) {
+    Syslog('-', "Start loop");
+
+    while (stop == FALSE) {
 
 	/*
-	 * Check for new message
+	 * Check for new message, loop fast until no more data available.
 	 */
-	sprintf(buf, "CIPM:1,%d;", mypid);
-	if (socket_send(buf) == 0) {
-	    strcpy(buf, socket_receive());
-	    if (strncmp(buf, "100:0;", 6)) {
-		Syslog('-', "%s", buf);
-		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
-		strncpy(resp, strtok(NULL, ","), 5);	/* Should be 3		    */
-		strncpy(resp, strtok(NULL, ","), 5);	/* Should be our channel    */
-		if (atoi(resp) != channel) {
-		    Syslog('+', "Message in channel %s instead of %d", resp, channel);
-		} else {
-		    strncpy(from, strtok(NULL, ","), 36);   /* From name	    */
-		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message	    */
+	data = TRUE;
+	while (data) {
+	    sprintf(buf, "CGET:1,%d;", mypid);
+	    if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		if (strncmp(buf, "100:1,", 6) == 0) {
+		    Syslog('-', "> CGET:1,%d;", mypid);
+		    Syslog('-', "< %s", buf);
+		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
+		    strncpy(resp, strtok(NULL, ","), 5);	/* Should be 1		    */
+		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message		    */
 		    resp[strlen(resp)-1] = '\0';
+		    DispMsg(resp);
+		} else {
+		    data = FALSE;
 		}
 	    }
 	}
@@ -489,11 +550,20 @@ void Chat(int channel)
 		putchar(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
-	    sprintf(buf, "CSPM:4,%d,Sysop,-,%s;", channel, sbuf);
-	    Syslog('-', "%s", buf);
+	    if (strncasecmp(sbuf, "/exit", 5) == 0)
+		stop = TRUE;
+	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
+	    Syslog('-', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-		Syslog('-', "%s", buf);
+		Syslog('-', "< %s", buf);
+		if (strncmp(buf, "100:1,", 6) == 0) {
+		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
+		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 1              */
+		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message              */
+		    resp[strlen(resp)-1] = '\0';
+		    DispMsg(resp);
+		}
 	    }
 	    curpos = 0;
 	    memset(&sbuf, 0, sizeof(sbuf));
@@ -502,6 +572,41 @@ void Chat(int channel)
 	    mvprintw(lines - 1, 1, ">");
 	}
     }
+
+    /* 
+     * Before sending the close command, purge all outstanding messages.
+     */
+    data = TRUE;
+    while (data) {
+	sprintf(buf, "CGET:1,%d;", mypid);
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	    if (strncmp(buf, "100:1,", 6) == 0) {
+		Syslog('-', "> CGET:1,%d;", mypid);
+		Syslog('-', "< %s", buf);
+		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
+		strncpy(resp, strtok(NULL, ","), 5);        /* Should be 1              */
+		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message                  */
+		resp[strlen(resp)-1] = '\0';
+		DispMsg(resp);
+	    } else {
+		data = FALSE;
+	    }
+	}
+    }
+
+    /*
+     * Close server connection
+     */
+    sprintf(buf, "CCLO,1,%d", mypid);
+    Syslog('-', "> %s", buf);
+    if (socket_send(buf) == 0) {
+	strcpy(buf, socket_receive());
+	Syslog('-', "< %s", buf);
+	if (strncmp(buf, "100:1,", 6)) {
+	}
+    }
+    sleep(1);
 }
 
 
@@ -509,12 +614,27 @@ void Chat(int channel)
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
-    char	    buf[128];
+    char	    buf[128], *temp;
     int		    rc;
+    FILE	    *fp;
 
 #ifdef MEMWATCH
     mwInit();
 #endif
+
+    /*
+     * Read configuration
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/config.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	perror("\n\nFATAL ERROR: ");
+	printf(" Can't open %s", temp);
+	exit(1);
+    }
+    fread(&CFG, sizeof(CFG), 1, fp);
+    fclose(fp);
+    free(temp);
 
     /*
      * Find out who is on the keyboard or automated the keyboard.
@@ -597,7 +717,7 @@ int main(int argc, char *argv[])
 		    ShowLastcaller();
 		    break;
 	    case 6:
-		    Chat(0);
+		    Chat();
 		    break;
 	    case 7:
 		    soft_info();

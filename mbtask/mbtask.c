@@ -44,6 +44,7 @@
 #include "ports.h"
 #include "calllist.h"
 #include "ping.h"
+#include "taskchat.h"
 #include "mbtask.h"
 
 
@@ -1315,6 +1316,7 @@ int main(int argc, char **argv)
     initnl();
     load_ports();
     check_ports();
+    chat_init();
 
     /*
      * Now that init is complete and this program is locked, it is

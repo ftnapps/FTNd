@@ -36,6 +36,7 @@
 #include "taskdisk.h"
 #include "taskinfo.h"
 #include "taskutil.h"
+#include "taskchat.h"
 #include "taskcomm.h"
 
 
@@ -239,14 +240,10 @@ char *exe_cmd(char *in)
     }
 
     /*
-     *  The chat commands
+     *  Check for personal message
      *
-     *  Used channels:  -1  Personal messages between ordinary users.
-     *		    0	    Sysop/user chat
-     *		    1..99   Chatting channels
-     *
-     *  CIPM:1,pid;  (Is personal/chat message present)
-     *  100:3,channel,fromname,message;
+     *  CIPM:1,pid;  (Is personal message present)
+     *  100:2,fromname,message;
      *  100:0;
      */
     if (strncmp(cmd, "CIPM", 4) == 0) {
@@ -254,7 +251,7 @@ char *exe_cmd(char *in)
     }
 
     /*
-     * CSPM:3,channel,fromuser,touser,text; (Send personal/chat message).
+     * CSPM:3,fromuser,touser,text; (Send personal message).
      * 100:1,n;  n: 1=donotdisturb 2=buffer full 3=error
      * 100:0;
      */
@@ -296,10 +293,63 @@ char *exe_cmd(char *in)
 	return obuf;
     }
 
+    /*
+     * Check for sysop page (from mbmon)
+     *
+     * CCKP:0;
+     * 100:3,pid,1,reason;  Page is active
+     * 100:3,pid,0,reason;  Page is canceled, but user still online
+     * 100:0;		    No page active
+     */
     if (strncmp(cmd, "CCKP", 4) == 0) {
 	return reg_checkpage(token);
     }
 
+    /*
+     * Connect to chatserver
+     *
+     * CCON:2,pid,username; Connect to chatserver with username
+     * 100:1,error;	    If error
+     * 100:0;		    Ok
+     */
+    if (strncmp(cmd, "CCON", 4) == 0) {
+	return chat_connect(token);
+    }
+    
+    /*
+     * Close chat session
+     *
+     * CCLO:1,pid;	    Leave chatserver
+     * 100:1,error;	    Error
+     * 100:0;		    Ok
+     */
+    if (strncmp(cmd, "CCLO", 4) == 0) {
+	return chat_close(token);
+    }
+
+    /*
+     * Put message on server
+     *
+     * CPUT:2,pid,message;  Put message on server
+     * 100:1,error;	    Error
+     * 100:0;		    Ok
+     */
+    if (strncmp(cmd, "CPUT", 4) == 0) {
+	return chat_put(token);
+    }
+
+    /*
+     * Get message from server
+     *
+     * CGET:1,pid;	    Get message from server
+     * 100:1,message;	    If message present
+     * 100:0;		    No message
+     */
+    if (strncmp(cmd, "CGET", 4) == 0) {
+	return chat_get(token);
+    }
+
+    
     /*
      * The G(lobal) commands.
      *

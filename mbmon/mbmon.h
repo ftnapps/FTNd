@@ -10,6 +10,6 @@ void	system_moni(void);
 void	system_stat(void);
 void	disk_stat(void);
 void	soft_info(void);
-void	Chat(int);
+void	Chat(void);
 
 #endif
