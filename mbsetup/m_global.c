@@ -150,9 +150,9 @@ void e_reginfo(void)
 		show_str(10,25,35, CFG.sysop_name);
 		show_str(11,25,35, CFG.location);
 		show_str(12,25, 8, CFG.bbsid);
-		show_str(14,25,55, CFG.comment);
-		show_str(15,25,50, CFG.origin);  
-		show_str(16,25, 8, CFG.startname);
+		show_str(13,25,55, CFG.comment);
+		show_str(14,25,50, CFG.origin);  
+		show_str(15,25, 8, CFG.startname);
 
 		switch(select_menu(9)) {
 		case 0: return;
