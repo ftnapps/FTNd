@@ -48,6 +48,8 @@ v0.71.0		27-Oct-2004
 		work.
 		Added ymodem and xmodem download protocols, both with option
 		for 1k blocks. Not yet enabled for public use also.
+		After upload, files are now stored correctly in the filebase.
+		In change protocol, changed the colors.
 
 		Note: you could enable the internal protocols by adding these
 		to the protocol setup. But I recommend against it because not

@@ -872,10 +872,14 @@ void Chg_Protocol()
 	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(263));
 	Enter(2);
 
-	colour(9,0);
 	while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
 	    if (PROT.Available && Access(exitinfo.Security, PROT.Level)) {
-		sprintf(temp, "(%s)  %-20s Efficiency %3d %%\r\n", PROT.ProtKey, PROT.ProtName, PROT.Efficiency);
+		colour(LIGHTBLUE, BLACK);
+		PUTCHAR('(');
+		colour(WHITE, BLACK);
+		PUTSTR(PROT.ProtKey);
+		colour(LIGHTBLUE, BLACK);
+		sprintf(temp, ")  %-20s Efficiency %3d %%\r\n", PROT.ProtName, PROT.Efficiency);
 		PUTSTR(temp);
 	    }
 	}
