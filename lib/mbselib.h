@@ -1992,6 +1992,7 @@ void		UserCity(pid_t, char *, char *);
 void		DoNop(void);
 void		Nopper(void);
 void		Altime(int);
+int		enoughspace(void);
 unsigned long	sequencer(void);
 char		*printable(char *, int);
 char		*printablec(char);

@@ -364,6 +364,36 @@ char *exe_cmd(char *in)
 	return chat_get(token);
     }
 
+    /*
+     * The D(isk) commands.
+     */
+
+    /*
+     *  DRES:0;             Reset and reread disk tables.
+     *  100:0;		    Always Ok.
+     */
+    if (strncmp(cmd, "DRES", 4) == 0) {
+	return disk_reset();
+    }
+    
+    /*
+     *  DSPC:0;             Enough free diskspace.
+     *  100:1,0;            No
+     *  100:1,1;            Yes
+     *  100:1,2;            Unknown
+     *  100:1,3;            Error
+     */
+    if (strncmp(cmd, "DSPC", 4) == 0) {
+	return disk_free();
+    }
+    
+    /*
+     *  DGFS:0;		    Get filesystem status.
+     *  100:n,data1,..,data10;
+     */
+    if (strncmp(cmd, "DGFS", 4) == 0) {
+	return disk_getfs();
+    }
     
     /*
      * The G(lobal) commands.
@@ -416,11 +446,11 @@ char *exe_cmd(char *in)
     }
 
     /*
-     *  GDST:0;
+     *  GDST:0;		Obsolete!
      *  100:n,data1,..,data10;
      */
     if (strncmp(cmd, "GDST", 4) == 0) {
-	return get_diskstat();
+	return disk_getfs();
     }
 
     /*

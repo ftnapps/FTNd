@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 06-Dec-2003</h5></div>
+<div align="right"><h5>Last update 20-Mar-2004</h5></div>
 <div align="center"><H1>mbtask - MBSE BBS Taskmanager</H1></div>
 
 <H3>Sysopsis.</H3>
@@ -186,6 +186,7 @@ Cat.    Description
 ----    -------------------------------------------
 Axxx    Accounting, system monitor info etc.
 Cxxx    Chatting
+Dxxx    Disk watch
 Gxxx    Global commands.
 Sxxx    Status commands.
 
@@ -234,7 +235,7 @@ Reply:   100:0;                         Ok.
          200:1,Syntax Error;            Error.
 
 
-         Group C, Chatting (just some ideas).
+         Group C, Chatting
 
 Command: CIPM:1,pid;                    Is Personal Message present.
 Reply:   100:2,fromname,message;        Yes, from .. with message text.
@@ -244,20 +245,55 @@ Command: CSPM:3,fromuser,touser,txt;    Send personal message to user.
 Reply:   100:1,n;                       n: 0=Ok, 1=Do not disturb, 2=Buffer full, 3=Error.
          100:0;                         Impossible.
 
-         The next commands are some ideas, they are not implemented.
-	 Channel 0 will be for sysop chat only, other channels are
-	 user channels.
+Command: CSYS:2,pid,1;                  Sysop available for chat (from mbmon).
+         CSYS:2,pid,0;                  Sysop goes away (from mbmon).
+Reply:   100:0;                         Always Ok.
 
-        -CBPM:2,fromuser,txt;           Broadcast message to all users.
-        -CJCH:2,pid,channel;            Join Channel
-        -CCCH:2,pid,channel;            Close Channel
-        -CAML:2,channel,text;           Add textline to channel
-        -CIML:1,channel;                Is new textline present
-        -CSSP:1,user,reason;            Send Sysop Page
-        -CESP:1,user;                   Retract Sysop Page
-        -CRSP:1,user;                   Reject user Page
-        -CFCH:2,channel,user;           Force user in chatmode (for Sysop chat).
-        -CKCH:2,channel,user;           Kill user chatmode (for Sysops and moderators).
+Command: CPAG:2,pid,reason;             Page sysop for a chat.
+Reply:   100:1,n;                       1=busy, 2=sysop not available, 3=error.
+         100:0;                         Ok
+
+Command: CCAN:1,pid;                    Cancel sysop page.
+Reply:   100:0;                         Always Ok.
+
+Command: CCKP:0;                        Check sysop page (from mbmon).
+Reply:   100:3,pid,1,reason;            Page is active.
+         100:3,pid,0,reason;            Page is cancelled, user still online.
+         100:0;                         No page active.
+
+Command: CISC:1,pid;                    Check sysop in chatmode.
+Reply:   100:1,1;                       Yes and drop into chatmode.
+         100:1,0;                       No.
+
+Command: CCON:3,pid,username,n;         Connect to chatserver with username. n=1 user is sysop.
+Reply:   100:1,error;                   Error with message.
+         100:0;                         Ok.
+
+Command: CCLO:1,pid;                    Close chat session.
+Reply:   100:1,error;                   Error.
+         100:0;                         Ok.
+
+Command: CPUT:2,pid,message;            Put message on chatserver.
+Reply:   100:2,0,error;                 Error, not fatal and continue.
+         100:2,1,error;                 Error, fatal and disconnect chat.
+	 100:0;                         Ok.
+
+Command: CGET:1,pid;                    Get message from chatserver.
+         100:2,0,message;               If message present.
+	 100:2,1,error;                 Error and disconnect chat.
+	 100:0;                         No new message.
+
+
+         Group D, Disk watch command.
+
+Command: DRES:0;                        Reset and reread disk tables.
+Reply:   100:0;                         Always Ok.
+
+Command: DSPC:0;                        Enough free diskspace.
+Reply:   100:1;n;                       0=No, 1=Yes, 2=Unknown, 3=Error.
+
+Command: DGFS:0;                        Get filesystem status (see note below).
+         100:n,data1, ..., data10;      Maximum 10 filesystems datalines.
 
 
          Group G, Global commands.
@@ -272,7 +308,7 @@ Command: GVER:0;                        Give server version.
 Reply:   100:1,Version ....;            Version reply.
 
 Command: GSTA:0;                        Get complete mbsed status record. (13 fields)
-Reply:   100:20,start,laststart,daily,startups,clients,tot_clients,tot_peak,syntax_errs,
+Reply:   100:19,start,laststart,daily,startups,clients,tot_clients,tot_peak,syntax_errs,
                 com_errs,today_clients,today_peak,today_syntax,today_comerr,bbsopen,
                 is_zmh,do_inet,processing,system_load,sequence;
 
@@ -280,7 +316,7 @@ Command: GMON:1,n;                      Get registration info line, 1=First, 0=N
 Reply:   100:7,pid,tty,user,program,city,isdoing,starttime;
          100:0;                         No more lines.
 
-Command: GDST:0;                        Get filesystem status (see note below).
+Command: GDST:0;                        Get filesystem status. Obsolete, use DGFS instead.
          100:n,data1, ..., data10;      Maximum 10 filesystems datalines.
 
 Command: GSYS:0;                        Get bbs statistics.
@@ -326,13 +362,14 @@ Command: SERM:1,semafore;               Remove semafore
 Reply:   100:0;                         Ok (also if there was no semafore).
          200:1,16;                      Semafore not known.
 </pre>
-Note: in reply of GDST the reply is 100:n,size free mountpoint fstype,.....
+Note: in reply of DGFS the reply is 100:n,size free mountpoint fstype,.....
 where n = 1 for 1 filesystem, and 10 for a total of 10 filesystems. There
 will never be a reply for more then 10 filesystems. The reported filesystems
-are retrieved from /etc/mtab which is the actual mountstatus. On FreeBSD and
-NetBSD a system call is used to get the information about the mounted
-filesystem.
+are collected by a thread process of mbtask that only includes the filesystems
+actually used by mbse.
 This is used by the <b>mbmon</b> program to get a "live" view of your filesystems.
+The GSPC command is used by utilities to check if enough space is available to
+continue to work safely.
 <P>&nbsp;<P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.png" ALT="Index" Border="0">Back to index</A>&nbsp;
@@ -340,4 +377,3 @@ This is used by the <b>mbmon</b> program to get a "live" view of your filesystem
 </BLOCKQUOTE>
 </BODY>
 </HTML>
-

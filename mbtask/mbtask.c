@@ -36,6 +36,7 @@
 #include "taskutil.h"
 #include "taskregs.h"
 #include "taskcomm.h"
+#include "taskdisk.h"
 #include "callstat.h"
 #include "outstat.h"
 #include "../lib/nodelist.h"
@@ -46,7 +47,7 @@
 #include "mbtask.h"
 
 
-#define	NUM_THREADS	3			/* Max.	nr of threads	*/
+#define	NUM_THREADS	4			/* Max.	nr of threads	*/
 
 
 /*
@@ -113,6 +114,7 @@ int			nodaemon = FALSE;	/* Run in foreground	*/
 extern int		cmd_run;		/* Cmd running		*/
 extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
+extern int		disk_run;		/* Disk watch running	*/
 
 
 
@@ -707,7 +709,7 @@ void die(int onsig)
      * build to stop within a second.
      */
     now = time(NULL) + 2;
-    while ((cmd_run || ping_run || sched_run) && (time(NULL) < now)) {
+    while ((cmd_run || ping_run || sched_run || disk_run) && (time(NULL) < now)) {
 	sleep(1);
     }
     Syslog('+', "All threads stopped");
@@ -978,7 +980,10 @@ void start_scheduler(void)
     } else if ((rc = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL))) {
 	WriteError("$pthread_create cmd_thread rc=%d", rc);
 	die(SIGTERM);
-    } else if ((rc = pthread_create(&p_thread[2], NULL, (void (*))scheduler, NULL))) {
+    } else if ((rc = pthread_create(&p_thread[2], NULL, (void (*))disk_thread, NULL))) {
+	WriteError("$pthread_create disk_thread rc=%d", rc);
+	die(SIGTERM);
+    } else if ((rc = pthread_create(&p_thread[3], NULL, (void (*))scheduler, NULL))) {
 	WriteError("$pthread_create scheduler rc=%d", rc);
 	die(SIGTERM);
     } else {

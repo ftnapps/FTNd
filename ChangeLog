@@ -27,6 +27,7 @@ v0.51.2		06-Mar-2004
 		Moved the initial delay in the execute functions to the child
 		process, that may be the trick to work around the lost child
 		messages.
+		Added enoughspace function to check diskspace.
 
 	mbcico:
 		Updated file request function to new files database structure.
@@ -91,6 +92,12 @@ v0.51.2		06-Mar-2004
 		Added setup for filefind keyword length in menu 13.
 		Added setup items in menu 1.5 for child priority and filesystem
 		sync calls.
+
+	mbmon:
+		Switched to use new filesystems command.
+
+	mbtask:
+		Added communication commands for disk watch thread.
 
 	mbuseradd:
 		Fixed removing of a OS created homedir. This may solve problems

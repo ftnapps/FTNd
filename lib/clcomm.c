@@ -465,6 +465,32 @@ unsigned long sequencer()
 
 
 
+/*
+ * Check enough diskspace.
+ * return 0=No, 1=Yes, 2=Unknown, 3=Error
+ */
+int enoughspace(void)
+{
+    char    *buf, *res;
+    int	    rc = 3;
+
+    buf = calloc(SS_BUFSIZE, sizeof(char));
+    sprintf(buf, "DSPC:0;");
+
+    if (socket_send(buf) == 0) {
+	free(buf);
+	buf = socket_receive();
+	res = strtok(buf, ",");
+	res = strtok(NULL, ";");
+	rc = atoi(res);
+    }
+
+    Syslog('s', "enoughspace() rc=%d", rc);
+    return rc;
+}
+
+
+
 char *printable(char *s, int l)
 {
     int	    len;

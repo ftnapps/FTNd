@@ -335,7 +335,7 @@ void disk_stat(void)
     do {
 	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-	sprintf(buf, "GDST:1,%d;", getpid());
+	sprintf(buf, "DGFS:0;");
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());
 	    set_color(LIGHTGRAY, BLACK);

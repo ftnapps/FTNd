@@ -34,12 +34,44 @@
 #include "taskutil.h"
 
 
+int		    disk_reread = FALSE;	/* Reread tables	*/
+extern int	    T_Shutdown;			/* Program shutdown	*/
+int		    disk_run = FALSE;		/* Thread running	*/
+
+
+
+/*
+ * This function signals the diskwatcher to reread the tables.
+ */
+char *disk_reset(void)
+{
+    static char	buf[10];
+
+    disk_reread = TRUE;
+    sprintf(buf, "100:0;");
+    return buf;
+}
+
+
+
+/*
+ * This function checks if enough diskspace is available.  (0=No, 1=Yes, 2=Unknown, 3=Error).
+ */
+char *disk_free(void)
+{
+    static char	buf[20];
+
+    sprintf(buf, "100:1,2;");
+    return buf;
+}
+
+
 
 /*
  * This function returns the information of all mounted filesystems,
  * but no more then 10 filesystems.
  */
-char *get_diskstat()
+char *disk_getfs()
 {
     static char	    buf[SS_BUFSIZE];
     char	    *tmp = NULL;
@@ -141,5 +173,38 @@ char *get_diskstat()
     return buf;
 }
 
+
+
+void add_path(char *path)
+{
+    Syslog('d', "add_path(%s)", path);
+}
+
+
+
+/*
+ * Diskwatch thread
+ */
+void *disk_thread(void)
+{
+    Syslog('+', "Start disk thread");
+    disk_run = TRUE;
+    disk_reread = TRUE;
+    
+    while (! T_Shutdown) {
+
+	if (disk_reread) {
+	    disk_reread = FALSE;
+	    Syslog('+', "Reread disk filesystems");
+	    add_path(CFG.bbs_menus);
+	}
+
+	sleep(1);
+    }
+
+    disk_run = FALSE;
+    Syslog('+', "Disk thread stopped");
+    pthread_exit(NULL);
+}
 
 
