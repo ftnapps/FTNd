@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -292,14 +292,12 @@ int UnpackFile(char *File)
 	free(temp);
 	free(pwd);
 	free(cmd);
-	sync();
 	return TRUE;
     } else {
 	chdir(pwd);
 	WriteError("Unpack error, file may be corrupt");
 	DeleteVirusWork();
     }
-    sync();
     return FALSE;
 }
 

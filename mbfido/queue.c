@@ -4,7 +4,7 @@
  * Purpose ...............: Mail and file queue operations
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -392,7 +392,7 @@ void flush_dir(char *ndir)
 	if (execute(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	    unlink(fname);
 	} else {
-	    Syslog('+', "Create ARCmail failed, trying again after sync()");
+	    WriteError("Create ARCmail failed, trying again after sync()");
 	    sync();
 	    sleep(1);
 	    if (execute(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {

@@ -4,7 +4,7 @@
  * Purpose: Process Fidonet style mail and files.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -690,7 +690,6 @@ int TossMail(void)
 	if (checkspace(inbound, fname, UNPACK_FACTOR))
 	    if ((rc = unpack(fname)) == 0) {
 		files_ok++;
-		sync();
 		rc = TossPkts();
 		chdir(inbound);
 	    } else 

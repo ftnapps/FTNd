@@ -4,7 +4,7 @@
  * Purpose ...............: Process 1 .tic file
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -488,7 +488,6 @@ int ProcessTic(fa_list *sbl)
 	} else {
 	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-		sync();
 		UnPacked = TRUE;
 	    } else {
 		chdir(TIC.Inbound);
@@ -574,12 +573,10 @@ int ProcessTic(fa_list *sbl)
 		    chdir(temp1);
 		    sprintf(temp1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
 		    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-			sync();
 			File_Id = TRUE;
 		    } else {
 			sprintf(temp1, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
 			if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-			    sync();
 			    File_Id = TRUE;
 			}
 		    }
@@ -670,7 +667,6 @@ int ProcessTic(fa_list *sbl)
 	    if (execute(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
 		WriteError("$Changing the banner failed");
 	    } else {
-		sync();
 		Syslog('+', "New banner %s", tic.Banner);
 		TIC.FileSize = file_size(temp1);
 		T_File.Size = TIC.FileSize;

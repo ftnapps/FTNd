@@ -4,7 +4,7 @@
  * Purpose ...............: .TIC files magic processing. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -292,7 +292,6 @@ void Magic_UnpackFile(void)
 		    cmd = xstrcpy(archiver.munarc);
 		    if (strlen(cmd)) {
 			rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-			sync();
 			if (rc)
 			    WriteError("$Magic: unpack in %s, error %d", magic.Path, rc);
 			else

@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	}
 
 	if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
-	    Syslog('!', "Warning: unpack error, trying again after a sync");
+	    WriteError("Warning: unpack error, trying again after a sync");
 	    sync();
 	    sleep(1);
 	    if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
@@ -307,7 +307,6 @@ int main(int argc, char **argv)
 	    }
 	}
 	free(cmd);
-	sync();
 
 	Match = FALSE;
 	if ((dp = opendir(wrk)) != NULL) {
@@ -417,7 +416,6 @@ int main(int argc, char **argv)
 	    else {
 		CreateSema((char *)"mailin");
 	    }
-	    sync();
 	    free(p);
 	    free(cmd);
 	}

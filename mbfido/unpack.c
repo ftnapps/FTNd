@@ -4,7 +4,7 @@
  * Purpose ...............: Unpacker
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -96,17 +96,17 @@ int unpack(char *fn)
     }
 
     if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
-	sync();
+//	sync();
 	unlink(fn);
     } else {
 	sync();
 	sleep(1);
-	Syslog('!', "Warning: unpack %s failed, trying again after sync()", fn);
+	WriteError("Warning: unpack %s failed, trying again after sync()", fn);
 	if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
-	    sync();
+//	    sync();
 	    unlink(fn);
 	} else {
-	    sync();
+//	    sync();
 	    strncpy(newname,fn,sizeof(newname)-1);
 	    strcpy(newname+8,".bad");
 	    rename(fn,newname);
