@@ -236,7 +236,7 @@ static int getsrv(char **dest)
     (*tmpm)->flag = xstrcpy(v);
     (*tmpm)->service = xstrcpy(p);
     tmp = strtoul(q, NULL, 0);
-    (*tmpm)->port = tmp;
+    (*tmpm)->defport = (*tmpm)->tmpport = tmp;
     return 0;
 }
 
@@ -817,6 +817,12 @@ node *getnlent(faddr *addr)
     nodebuf.speed = atoi(p);
 
     /*
+     * Reset all possible overridden portnumbers to the default from nodelist.conf
+     */
+    for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next))
+	(*tmps)->tmpport = (*tmps)->defport;
+    
+    /*
      * Process the nodelist flags.
      */
     if (ndrecord && strlen(nd.Nl_flags)) {
@@ -844,8 +850,23 @@ node *getnlent(faddr *addr)
 		if (strcasecmp(p, (*tmpm)->name) == 0)
 		    nodebuf.dflags |= (*tmpm)->value;
 	    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
-		if (strncasecmp(p, (*tmpm)->name, strlen((*tmpm)->name)) == 0)
+		if (strncasecmp(p, (*tmpm)->name, strlen((*tmpm)->name)) == 0) {
 		    nodebuf.iflags |= (*tmpm)->value;
+		    /*
+		     * Parse the IP flag for a optional port number.
+		     */
+		    if ((r = strrchr(p, ':'))) {
+			*r++;
+			for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
+			    if (strncmp(p, (*tmps)->flag, 3) == 0) {
+				if (atoi(r)) {
+				    (*tmps)->tmpport = atoi(r);
+				    Syslog('n', "getnlent: port override %s %s to %d", (*tmpm)->name, p, (*tmps)->tmpport);
+				}
+			    }
+			}
+		    }
+		}
 	    for (tmpf = &nl_request; *tmpf; tmpf=&((*tmpf)->next))
 		if (strcasecmp(p, (*tmpf)->name) == 0)
 		    nodebuf.xflags = (*tmpf)->value;
@@ -900,8 +921,8 @@ node *getnlent(faddr *addr)
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
 			sprintf(tbuf, "%s", (*tmps)->service);
-			tport = (*tmps)->port;
-			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->port);
+			tport = (*tmps)->tmpport;
+			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->tmpport);
 		    }
 		}
 	    }
@@ -1062,7 +1083,7 @@ node *getnlent(faddr *addr)
 	     * for this protocol.
 	     */
 	    sprintf(tbuf, ":%lu", tport);
-	    Syslog('n', "getnlent: adding default port %s", tbuf);
+	    Syslog('n', "getnlent: adding port %s", tbuf);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 

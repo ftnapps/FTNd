@@ -76,7 +76,8 @@ typedef struct _nodelist_service {
 	struct _nodelist_service    *next;
 	char			    *flag;
 	char			    *service;
-	unsigned long		    port;
+	unsigned long		    defport;	    /* Configured default port	*/
+	unsigned long		    tmpport;	    /* Override port for call	*/
 } nodelist_service;
 
 

@@ -12,6 +12,9 @@ v0.61.3		25-Jul-2004
 		Removed the fdn parameter from the attach and un_attach 
 		functions, not needed anymore.
 
+	libnodelist.a:
+		Fixed IP port override if there is a port added to a protocol.
+
 	mbfido:
 		Changed netmail counters in the .msg import function.
 		Fixed logging of 0 articles in scannews.
