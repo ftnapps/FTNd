@@ -52,6 +52,7 @@
 #include "magic.h"
 #include "createf.h"
 #include "virscan.h"
+#include "qualify.h"
 
 
 #define	UNPACK_FACTOR	300
@@ -84,6 +85,7 @@ int ProcessTic(fa_list *sbl)
     struct utimbuf  ut;
     int		    BBS_Imp = FALSE, DidBanner = FALSE;
     faddr	    *p_from;
+    qualify	    *qal = NULL, *tmpq;
 
     Now = time(NULL);
 
@@ -299,13 +301,24 @@ int ProcessTic(fa_list *sbl)
     }
 
     /*
-     * Count the actual downlinks for this area
+     * Count the actual downlinks for this area and build the list of
+     * systems qualified to receive this file.
      */
     First = TRUE;
     while (GetTicSystem(&Link, First)) {
 	First = FALSE;
-	if ((Link.aka.zone) && (Link.sendto))
+	if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
 	    DownLinks++;
+	    p_from = fido2faddr(Link.aka);
+	    if (TIC.TicIn.Hatch) {
+		fill_qualify(&qal, Link.aka, FALSE, in_list(p_from, &sbl, FALSE));
+	    } else {
+		fill_qualify(&qal, Link.aka, ((TIC.Aka.zone == Link.aka.zone) &&
+			(TIC.Aka.net == Link.aka.net) && (TIC.Aka.node == Link.aka.node) &&
+			(TIC.Aka.point == Link.aka.point)), in_list(p_from, &sbl, FALSE));
+	    }
+	    tidy_faddr(p_from);
+	}
     }
 
     /*
@@ -426,6 +439,7 @@ int ProcessTic(fa_list *sbl)
 	    if (mkdir(temp2, 0777)) {
 		WriteError("$Can't create %s", temp2);
 		free(Temp);
+		tidy_qualify(&qal);
 		return 1;
 	    }
 	}
@@ -449,12 +463,14 @@ int ProcessTic(fa_list *sbl)
 	if (!checkspace(temp2, TIC.RealName, UNPACK_FACTOR)) {
 	    Bad((char *)"Not enough free diskspace left");
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
 
 	if (chdir(temp2) != 0) {
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
 
@@ -462,6 +478,7 @@ int ProcessTic(fa_list *sbl)
 	    WriteError("Can't get archiver for %s", unarc);
 	    chdir(TIC.Inbound);
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
 
@@ -497,6 +514,7 @@ int ProcessTic(fa_list *sbl)
 	if ((rc = file_cp(temp1, temp2))) {
 	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
 
@@ -504,6 +522,7 @@ int ProcessTic(fa_list *sbl)
 	if (chdir(temp2) != 0) {
 	    WriteError("$Can't change to %s", temp2);
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
     }
@@ -520,6 +539,7 @@ int ProcessTic(fa_list *sbl)
 	    chdir(TIC.Inbound);
 	    Bad((char *)"Possible virus found!");
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
 
@@ -688,6 +708,7 @@ int ProcessTic(fa_list *sbl)
 	if (!BBS_Imp) {
 	    Bad((char *)"File Import Error");
 	    free(Temp);
+	    tidy_qualify(&qal);
 	    return 1;
 	}
     }
@@ -761,11 +782,23 @@ int ProcessTic(fa_list *sbl)
 		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
 		    sprintf(sbe, "%u:%u/%u", Link.aka.zone, Link.aka.net, Link.aka.node);
 		    fill_list(&sbl, sbe, NULL);
+		    Syslog('f', "Old style add SB %s", sbe);
 		}
 	    }
 	}
 	uniq_list(&sbl);
 	sort_list(&sbl);
+
+	/*
+	 * Debugging, new style SB adding
+	 */
+	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
+	    if (tmpq->send) {
+		Syslog('f', "New style add SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+	    } else {
+		Syslog('f', "New style skip SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+	    }
+	}
 
 	/*
 	 * Now start forwarding files
@@ -792,6 +825,7 @@ int ProcessTic(fa_list *sbl)
 
     unlink(Temp);
     free(Temp);
+    tidy_qualify(&qal);
     return 0;
 }
 

@@ -63,11 +63,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     Syslog('+', "Forward file to %s, %s netmail", aka2str(Node), nodes.Message?"with":"without");
 
     /*
-     * Hier moet een nieuwe SEEN-BY check komen, maar dan wel zo dat
-     * de net toegevoegde seenby niet getest wordt.
-     */
-
-    /*
      * If Costsharing active for this node
      */
     if (nodes.Billing) {

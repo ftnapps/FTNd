@@ -11,6 +11,9 @@ v0.35.06
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.
 
+	mbfido:
+		For debug and test added extra logging for tic processing.
+		This will be for better SEEN-BY lists creation.
 
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.
