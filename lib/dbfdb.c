@@ -33,10 +33,11 @@
 #include "users.h"
 #include "mbsedb.h"
 
-#ifdef USE_EXPERIMEMT
 
-int	fdbislocked	0;		    /* Should database be locked	*/
-long	current-area	-1;		    /* Current file area		*/
+#ifdef	USE_EXPERIMENT
+
+int	fdbislocked = 0;		    /* Should database be locked	*/
+long	currentarea = -1;		    /* Current file area		*/
 
 
 /*
@@ -47,10 +48,10 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
 {
     char    *temp;
     FILE    *fp;
-    int     rc, Tries;
+    int     Tries = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, if it's locked, just wait.
@@ -103,8 +104,9 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
     /*
      * Point to the first record
      */
-    fseek(fp, hdbhdr.hdrsize, SEEK_SET);
+    fseek(fp, fdbhdr.hdrsize, SEEK_SET);
     fdbislocked = 0;
+    currentarea = Area;
     return fp;
 }
 
@@ -115,7 +117,7 @@ FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
  */
 int mbsedb_CloseFDB(FILE *fp)
 {
-    if (current-area == -1) {
+    if (currentarea == -1) {
 	WriteError("Can't close already closed file area");
 	return FALSE;
     }
@@ -125,8 +127,9 @@ int mbsedb_CloseFDB(FILE *fp)
 	 * Unlock first
 	 */
     }
-    current-area = -1;
+    currentarea = -1;
     fclose(fp);
+    return TRUE;
 }
 
 
@@ -137,193 +140,6 @@ int mbsedb_CloseFDB(FILE *fp)
 // mbsedb_InsertFileFDB
 // mbsedb_DeleteFileFDB
 // mbsedb_SortFDB
-
-
-/*
- * Add file to the BBS. The file must in the current directory which may not be
- * the destination directory.
- * The f_db record already has all needed information.
- * AllowReplace should be set by mbfido on ticfiles import to allow updates of
- * files like allfiles.zip
- */
-int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, char *LinkPath, int AllowReplace)
-{
-    char    *temp1, *temp2;
-    FILE    *fp1, *fp2;
-    int     i, rc, Insert, Done = FALSE, Found = FALSE;
-
-    if (AllowReplace) {
-	/*
-	 * First check for an existing record with the same filename,
-	 * if it exists, update the record and we are ready. This will
-	 * prevent for example allfiles.zip to get a new record everytime
-	 * and thus the download counters will be reset after a new update.
-	 */
-	sprintf(fdbname, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), tic.FileArea);
-	if ((fp = fopen(fdbname, "r+")) != NULL) {
-	    fread(&frechdr, sizeof(frechdr), 1, fp);
-	    while (fread(&frec, frechdr.recsize, 1, fp) == 1) {
-		if (strcmp(frec.Name, TIC.NewFile) == 0) {
-		    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
-		    sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewFile);
-		    mkdirs(temp2, 0755);
-		    if ((rc = file_cp(temp1, temp2))) {
-			WriteError("Copy to %s failed: %s", temp2, strerror(rc));
-			fclose(fp);
-			return FALSE;
-		    }
-		    chmod(temp2, 0644);
-		    strncpy(frec.TicArea, TIC.TicIn.Area, sizeof(frec.TicArea) -1);
-		    frec.Size = TIC.FileSize;
-		    frec.Crc32 = TIC.Crc_Int;
-		    frec.Announced = TRUE;
-		    frec.FileDate = TIC.FileDate;
-		    frec.UploadDate = time(NULL);
-		    for (i = 0; i <= TIC.File_Id_Ct; i++) {
-			strcpy(frec.Desc[i], TIC.File_Id[i]);
-			if (i == 24)
-			    break;
-		    }
-		    fseek(fp, 0 - sizeof(frec), SEEK_CUR);
-		    fwrite(&frec, sizeof(frec), 1, fp);
-		    fclose(fp);
-		    tic_imp++;
-		    if ((i = file_rm(temp1)))
-			WriteError("file_rm(%s): %s", temp1, strerror(i));
-		    return TRUE;
-		}
-	    }
-	    fclose(fp);
-	}
-    }
-
-
-    /*
-     * Copy file to the final destination and make a hard link with the
-     * 8.3 filename to the long filename.
-     */
-    mkdirs(DestPath, 0775);
-
-    if (file_exist(DestPath, F_OK) == 0) {
-        WriteError("File %s already exists in area %d", f_db.Name, Area);
-        if (!do_quiet)
-            printf("\nFile %s already exists in area %d\n", f_db.Name, Area);
-        return FALSE;
-    }
-
-    if ((rc = file_cp(FromPath, DestPath))) {
-        WriteError("Can't copy file in place");
-        if (!do_quiet)
-            printf("\nCan't copy file to %s, %s\n", DestPath, strerror(rc));
-        return FALSE;
-    }
-    chmod(DestPath, 0644);
-    if (LinkPath) {
-        if ((rc = symlink(DestPath, LinkPath))) {
-            WriteError("Can't create symbolic link %s", LinkPath);
-            if (!do_quiet)
-                printf("\nCan't create symbolic link %s, %s\n", LinkPath, strerror(rc));
-            unlink(DestPath);
-            return FALSE;
-        }
-    }
-
-    temp1 = calloc(PATH_MAX, sizeof(char));
-    temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp1, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
-    sprintf(temp2, "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
-
-    fp1 = fopen(temp1, "r+");
-    fread(&fdbhdr, sizeof(fdbhdr.hdrsize), 1, fp1);
-    fseek(fp1, 0, SEEK_END);
-    if (ftell(fp1) == fdbhdr.hdrsize) {
-        /*
-         * No records yet
-         */
-        fwrite(&f_db, fdbhdr.recsize, 1, fp1);
-        fclose(fp1);
-    } else {
-        /*
-         * Files are already there. Find the right spot.
-         */
-        fseek(fp1, fdbhdr.hdrsize, SEEK_SET);
-
-        Insert = 0;
-        do {
-            if (fread(&fdb, fdbhdr.recsize, 1, fp1) != 1)
-                Done = TRUE;
-            if (!Done) {
-                if (strcmp(f_db.LName, fdb.LName) == 0) {
-                    Found = TRUE;
-                    Insert++;
-                } else {
-                    if (strcmp(f_db.LName, fdb.LName) < 0)
-                        Found = TRUE;
-                    else
-                        Insert++;
-                }
-            }
-        } while ((!Found) && (!Done));
-
-        if (Found) {
-            if ((fp2 = fopen(temp2, "a+")) == NULL) {
-                WriteError("Can't create %s", temp2);
-                return FALSE;
-            }
-            fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp2);
-            fseek(fp1, fdbhdr.hdrsize, SEEK_SET);
-
-            /*
-             * Copy until the insert point
-             */
-            for (i = 0; i < Insert; i++) {
-                fread(&fdb, fdbhdr.recsize, 1, fp1);
-                /*
-                 * If we are importing a file with the same name,
-                 * skip the original record and put the new one in place.
-                 */
-                if (strcmp(fdb.LName, f_db.LName) != 0)
-                    fwrite(&fdb, fdbhdr.recsize, 1, fp2);
-            }
-
-            if (area.AddAlpha)
-                fwrite(&f_db, fdbhdr.recsize, 1, fp2);
-
-            /*
-             * Append the rest of the records
-             */
-            while (fread(&fdb, fdbhdr.recsize, 1, fp1) == 1) {
-                if (strcmp(fdb.LName, f_db.LName) != 0)
-                    fwrite(&fdb, fdbhdr.recsize, 1, fp2);
-            }
-            if (!area.AddAlpha)
-                fwrite(&f_db, fdbhdr.recsize, 1, fp2);
-            fclose(fp1);
-            fclose(fp2);
-
-            if (unlink(temp1) == 0) {
-                rename(temp2, temp1);
-                chmod(temp1, 0660);
-            } else {
-                WriteError("$Can't unlink %s", temp1);
-                unlink(temp2);
-                return FALSE;
-            }
-        } else { /* if (Found) */
-            /*
-             * Append file record
-             */
-            fseek(fp1, 0, SEEK_END);
-            fwrite(&f_db, fdbhdr.recsize, 1, fp1);
-            fclose(fp1);
-        }
-    }
-
-    free(temp1);
-    free(temp2);
-    return TRUE;
-}
-
 
 
 #endif
