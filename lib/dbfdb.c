@@ -193,7 +193,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
     int	    i, Insert, Done = FALSE, Found = FALSE, rc;
     FILE    *fp;
     
-    Syslog('f', "InsertFDB %ld %s", fdb_area->area, frec.LName);
     if (mbsedb_LockFDB(fdb_area, 30) == FALSE)
 	return FALSE;
 
@@ -202,7 +201,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	/*
 	 * No records yet, simply append this first record.
 	 */
-	Syslog('f', "append first record");
 	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
 	mbsedb_UnlockFDB(fdb_area);
 	return TRUE;
@@ -250,7 +248,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	     * the old one.
 	     */
 	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
-		Syslog('f', "InsertFDB: remove magic from %s (%s)", fdb.Name, fdb.LName);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	    }
 
@@ -279,7 +276,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	     * the old one.
 	     */
 	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
-		Syslog('f', "InsertFDB: remove magic from %s (%s)", fdb.Name, fdb.LName);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	    }
 
@@ -307,13 +303,10 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
 	sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = rename(temp2, temp);
-	Syslog('f', "rename %s %s rc=%d", temp2, temp, rc);
 	sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = rename(temp, temp2);
-	Syslog('f', "rename %s %s rc=%d", temp, temp2, rc);
 	sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = unlink(temp);
-	Syslog('f', "unlink %s rc=%d", temp, rc);
 
 	fdb_area->fp = fp;
 	fdb_area->locked = 0;
@@ -341,8 +334,6 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
     char    *temp, *temp2;
     FILE    *fp;
     int	    count = 0;
-
-    Syslog('f', "PackFDB %ld", fdb_area->area);
 
     fseek(fdb_area->fp, 0, SEEK_END);
     if (ftell(fdb_area->fp) == fdbhdr.hdrsize) {
@@ -392,7 +383,6 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
     free(temp);
     free(temp2);
 
-    Syslog('f', "success, purged %d", count);
     return count;
 }
 
@@ -484,11 +474,8 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     FILE    *fp;
     int	    count = 0;
 
-    Syslog('f', "SortFDB %ld", fdb_area->area);
-
     fseek(fdb_area->fp, 0, SEEK_END);
     if (ftell(fdb_area->fp) <= (fdbhdr.hdrsize + fdbhdr.recsize)) {
-	Syslog('f', "0 or 1 records, nothing to sort");
 	return 0;
     }
 
@@ -549,7 +536,6 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     free(temp);
     free(temp2);
 
-    Syslog('f', "success, sorted %d", count);
     return count;
 }
 
