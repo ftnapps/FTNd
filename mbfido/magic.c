@@ -48,7 +48,7 @@ int	Magics = 0;		/* Processed magics			    */
 char *Magic_Macro(int);
 char *Magic_Macro(int C)
 {
-	static char	buf[81];
+	static char	buf[PATH_MAX];
 
 	buf[0] = '\0';
 	switch(toupper(C)) {
@@ -197,6 +197,7 @@ void MagicResult(char *format, ...)
 }
 
 
+
 void Magic_CheckCompile(void);
 void Magic_CheckCompile(void)
 {
@@ -224,7 +225,7 @@ void Magic_ExecCommand(void)
 {
 	int	i, j, k, Err, First = TRUE;
 	char	Line[256];
-	char	Temp[81];
+	char	Temp[PATH_MAX];
 	char	*cmd, *opts;
 
 	while (GetMagicRec(MG_EXEC, First)) {
@@ -273,8 +274,8 @@ void Magic_CopyFile(void)
 	int	First = TRUE;
 	char	*From, *To;
 
-	From = calloc(256, sizeof(char));
-	To   = calloc(256, sizeof(char));
+	From = calloc(PATH_MAX, sizeof(char));
+	To   = calloc(PATH_MAX, sizeof(char));
 
 	while (GetMagicRec(MG_COPY, First)) {
 		First = FALSE;
@@ -296,38 +297,38 @@ void Magic_CopyFile(void)
 
 void Magic_UnpackFile(void)
 {
-	int	rc, First = TRUE;
-	char	*buf = NULL, *unarc = NULL, *cmd = NULL;
-	char	Fn[128];
+    int	rc, First = TRUE;
+    char	*buf = NULL, *unarc = NULL, *cmd = NULL;
+    char	Fn[PATH_MAX];
 
-	while (GetMagicRec(MG_UNPACK, First)) {
-		First = FALSE;
-		buf = calloc(PATH_MAX, sizeof(char));	/* 06-01-2001 MB. Test if NULL pointer free'd message goes away */
-		getcwd(buf, 128);
+    while (GetMagicRec(MG_UNPACK, First)) {
+	First = FALSE;
+	buf = calloc(PATH_MAX, sizeof(char));
+	getcwd(buf, 128);
 
-		if (chdir(magic.Path) == 0) {
-			sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewName);
-			if ((unarc = unpacker(Fn)) != NULL) {
-				if (getarchiver(unarc)) {
-					cmd = xstrcpy(archiver.funarc);
-					if (strlen(cmd)) {
-						rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-						if (rc)
-							WriteError("$Magic: unpack in %s, error %d", magic.Path, rc);
-						else
-							MagicResult((char *)"unpacked in %s", magic.Path);
-					}
-					free(cmd);
-				}
-			}
+	if (chdir(magic.Path) == 0) {
+	    sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewName);
+	    if ((unarc = unpacker(Fn)) != NULL) {
+		if (getarchiver(unarc)) {
+		    cmd = xstrcpy(archiver.funarc);
+		    if (strlen(cmd)) {
+			rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+			if (rc)
+			    WriteError("$Magic: unpack in %s, error %d", magic.Path, rc);
+			else
+			    MagicResult((char *)"unpacked in %s", magic.Path);
+		    }
+		    free(cmd);
+		}
+	    }
 
-			chdir(buf);
-			Magic_CheckCompile();
-		} else
-			WriteError("$Magic: unpack: can't chdir \"%s\"", magic.Path);
+	    chdir(buf);
+	    Magic_CheckCompile();
+	} else
+	    WriteError("$Magic: unpack: can't chdir \"%s\"", magic.Path);
 
-		free(buf);
-	}
+	free(buf);
+    }
 }
 
 
@@ -358,7 +359,7 @@ void Magic_AdoptFile(void)
 	char	*temp;
 	FILE	*Tf;
 
-	temp = calloc(256, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
 
 	while (GetMagicRec(MG_ADOPT, First)) {
 		First = FALSE;

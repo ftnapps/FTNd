@@ -200,7 +200,7 @@ int LoadTic(char *inb, char *tfn)
 			}
 		Temp[j] = '\0';
 
-		Syslog('f', "TIC: %s", Temp);
+//		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
 			TIC.TicIn.Hatch = TRUE;
 

@@ -4310,6 +4310,8 @@ v0.33.19        26-Oct-2001
 		Rewrote calling of the color editor for Sparc systems.
 		Added setup items in global and message areas to limit the
 		fetching of newsgroups headers.
+		The edit field now shows the contents correctly if the field
+		contains the % character.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/

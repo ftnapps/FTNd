@@ -94,9 +94,19 @@ void errmsg(const char *format, ...)
 
 
 
+/*
+ * Safe field display, does not format % characters but displays it.
+ */
 void show_field(int y, int x, char *str, int length, int fill)
 {
-	mvprintw(y, x, padleft(str, length, fill));
+    int	    i;
+
+    locate(y, x);
+    for (i = 0; i < strlen(str); i++)
+	putchar(str[i]);
+    if (strlen(str) < length)
+	for (i = strlen(str); i < length; i++)
+	    putchar(fill);
 }
 
 

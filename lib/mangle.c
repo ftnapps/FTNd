@@ -4,7 +4,7 @@
  * Purpose ...............: Mangle a unix name to DOS 8.3 filename
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -391,7 +391,7 @@ void mangle_name_83(char *s)
 	for (i = 0; i < strlen(q); i++)
 	    *p++ = q[i];
 	*p++ = '\0';
-	Syslog('f', "name with new extension => \"%s\"", s);
+//	Syslog('f', "name with new extension => \"%s\"", s);
     }
 
     /*
@@ -474,7 +474,7 @@ void name_mangle(char *OutName)
 	tu(OutName);
     }
 
-    Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
+//    Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
     free(p);
 }
 
