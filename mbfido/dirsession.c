@@ -140,13 +140,18 @@ void remlock(char *lockfile, int create, int loglvl)
 
 
 
-void dirinbound(void)
+/*
+ * Process directory inbound. Return TRUE if something is moved
+ * to the inbound for processing.
+ */
+int dirinbound(void)
 {
     FILE	    *fp;
     char	    *temp, *from, *too;
     long	    fileptr;
     struct dirent   *de;
     DIR		    *dp;
+    int		    Something = FALSE;
     
     Syslog('m', "Starting directory inbound sessions");
 
@@ -188,6 +193,9 @@ void dirinbound(void)
 					Syslog('m', "Move %s to %s", from, too);
 					if (file_mv(from, too)) {
 					    WriteError("$Move %s to %s failed", from, too);
+					} else {
+					    Something = TRUE;
+					    Syslog('+', "Moved \"%s\" to %s", de->d_name, do_unprot ? CFG.inbound : CFG.pinbound);
 					}
 				    }
 				}
@@ -211,6 +219,7 @@ void dirinbound(void)
     }
     free(temp);
     Syslog('m', "Finished directory inbound sessions");
+    return Something;
 }
 
 

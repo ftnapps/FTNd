@@ -75,6 +75,8 @@ v0.35.05	19-Oct-2002
 		If filenames were exhausted and the last one (ending on z) is
 		truncated in the outbound (has been sent already) it is erased
 		before the archiver is called to reuse that filename again.
+		When mail/files were moved to the inbound from a directory
+		node, this was not processed in the same session.
 
 	mbtask:
 		Removed debug logging of "does" info.

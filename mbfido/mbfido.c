@@ -566,7 +566,28 @@ int main(int argc, char **argv)
 	/*
 	 * Do inbound direcory sessions
 	 */
-	dirinbound();
+	if (dirinbound()) {
+	    if (do_tic) {
+		/*
+		 *  Hatch new files and process .tic files
+		 *  until nothing left to do.
+		 */
+		Loop = TRUE;
+		do {
+		    Hatch();
+		    switch (Tic()) {
+			case -1:    die(MBERR_OK);
+				    break;
+			case 0:     Loop = FALSE;
+				    break;
+			default:    break;
+		    }
+		} while (Loop);
+	    }
+	    if (do_toss) {
+		TossMail();
+	    }
+	}
     }
     if (!do_uucp)
 	newspost();
