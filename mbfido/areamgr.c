@@ -1142,6 +1142,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	    fseek(tmp, 0, SEEK_SET);
 
 	    while ((fgets(Buf, MAX_LINE_LENGTH, tmp)) != NULL) {
+		Syslogp('-', printable(Buf, 0));
 		while ((Buf[strlen(Buf) - 1]=='\n') || (Buf[strlen(Buf) - 1]=='\r')) {
 		    Buf[strlen(Buf) - 1] = '\0';
 		}
