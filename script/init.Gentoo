@@ -1,0 +1,60 @@
+#!/sbin/runscript
+#
+# $Id$
+#
+# description: Starts and stops the MBSE BBS.
+#
+# For Gentoo GNU/Linux (by Capitán X).
+
+# Find the MBSE_ROOT from the /etc/passwd file.
+
+MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+
+if [ "$MBSE_ROOT" = "" ]; then
+	echo "MBSE BBS: No 'mbse' user in the password file."
+	exit 1
+fi
+
+if [ ! -d $MBSE_ROOT ]; then 
+	echo "MBSE BBS: Home directory '$MBSE_ROOT' not found."
+	exit 1
+fi
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:$MBSE_ROOT/bin
+DAEMON=$MBSE_ROOT/bin/mbtask
+NAME=mbsebbs
+DESC="MBSE BBS"
+
+export MBSE_ROOT
+
+depend() {
+	need localmount
+}
+
+start() {
+
+        ebegin "Starting mbse"
+	rm -f $MBSE_ROOT/sema/*
+	rm -f $MBSE_ROOT/var/*.LCK
+	rm -f $MBSE_ROOT/tmp/mb*
+	su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
+	echo -n "mbtask "
+	sleep 2
+	if [ -f $MBSE_ROOT/etc/config.data ]; then
+	      su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
+	      echo -n "opened "
+	fi
+	eend $? "Loading error."
+											
+}
+		
+stop() {
+
+       ebegin "Stopping mbse"
+       if [ -f $MBSE_ROOT/etc/config.data ]; then
+               echo -n "logoff users "
+               su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+       fi
+       kill `pidof mbtask`
+       eend $? "Stopping error."
+}

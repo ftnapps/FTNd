@@ -15,6 +15,8 @@ v0.39.1		22-Oct-2003
 		/etc/inetd.conf or /etc/xinetd.d/mbsebbs or /etc/xinetd.conf.
 		Also check mbsetup 1.14.3 and remove any ITN flag in there.
 		Updated all documentation to validate html makeup.
+		Added installation support for Gentoo Linux, contributed by
+		Capitán X.
 
 	upgrade:
 		If you don't have any personal archivers, then remove 
@@ -51,6 +53,9 @@ v0.39.1		22-Oct-2003
 
 	mbtask:
 		Removed support for ITN.
+
+	script:
+		Added install scripts for Gentoo.
 
 
 v0.39.0		09-Oct-2003 - 22-Oct-2003

@@ -100,7 +100,12 @@ if [ "$OSTYPE" = "Linux" ]; then
 		    	    DISTNAME="Slackware"
 		    	    DISTVERS="Old"
 		    	else
-		    	    DISTNAME="Unknown"
+                            if [ -f /etc/gentoo-release ]; then
+                                DISTNAME="Gentoo"
+                                DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
+                            else
+                                DISTNAME="Unknown"
+                            fi
 		    	fi
 		    fi
 	    	fi

@@ -108,15 +108,20 @@ if [ "$OSTYPE" = "Linux" ]; then
 		    	    DISTNAME="Slackware"
 		    	    DISTVERS="Old"
 		    	else
-		    	    DISTNAME="Unknown"
-		    	    log "!" "unknown distribution, collecting data"
-                    	    log "-" "`uname -a`"
-                    	    log "-" "`ls -la /etc`"
-		    	    echo "Failed to install bootscripts, unknown Linux distribution."
-		    	    echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
-		    	    echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
-                    	    echo "Add information about the distribution you use in the message."
-		    	    exit 1;
+                            if [ -f /etc/gentoo-release ]; then
+                                DISTNAME="Gentoo"
+                                DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
+                            else
+		    	        DISTNAME="Unknown"
+				log "!" "unknown distribution, collecting data"
+				log "-" "`uname -a`"
+				log "-" "`ls -la /etc`"
+				echo "Failed to install bootscripts, unknown Linux distribution."
+				echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
+				echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
+				echo "Add information about the distribution you use in the message."
+				exit 1;
+			    fi
 		    	fi
 		    fi
 	    	fi
@@ -206,8 +211,8 @@ if [ "$DISTNAME" = "Slackware" ]; then
         chmod 744       $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
     else
 	DISTINIT="/etc/rc.d/init.d/mbsed"
-	echo "Adding SystemV Slackware MBSE BBS start/stop scripts"
-        log "+" "Adding SystemV Slackware MBSE BBS start/stop scripts"
+	echo "Adding SystemV Slackware $DISTVERS MBSE BBS start/stop scripts"
+        log "+" "Adding SystemV Slackware $DISTVERS MBSE BBS start/stop scripts"
 	checkrcdir
 	cp init.Slackware $DISTINIT
         chmod 755 $DISTINIT
@@ -311,6 +316,23 @@ if [ "$DISTNAME" = "Debian" ]; then
 	update-rc.d mbsebbs defaults
 	echo "Debian install ready."
         log "+" "Debian SystemV init script installed"
+fi
+
+
+#-------------------------------------------------------------------------
+#
+#  Adding scripts for Gentoo
+#
+#
+if [ "$DISTNAME" = "Gentoo" ]; then
+       echo "You are running Gentoo Linux $DISTVERS"
+       log "+" "Adding Gentoo init script"
+       DISTINIT="/etc/init.d/mbsebbs"
+       cp init.Gentoo $DISTINIT
+       chmod 755 $DISTINIT
+       update-rc mbsebbs defaults
+       echo "Gentoo install ready."
+       log "+" "Gentoo init script installed"
 fi
 
 
