@@ -5,9 +5,9 @@
 
 #include "../config.h"
 
-#define MAXNAME 35
-#define MAXUFLAGS 16
-
+#define MAXNAME		35
+#define MAXUFLAGS	16
+#define	MAXNLLINELEN	1024
 
 
 /*

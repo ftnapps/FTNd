@@ -51,18 +51,6 @@ static int		getsrv(char**);
 
 
 
-struct _pkey pkey[] = {
-	{(char *)"Down",	NL_NODE,	NL_DOWN},
-	{(char *)"Hold",	NL_NODE,	NL_HOLD},
-	{(char *)"Region",	NL_REGION,	NL_REGION},
-	{(char *)"Host",	NL_HOST,	NL_HOST},
-	{(char *)"Hub",		NL_HUB,		NL_HUB},
-	{(char *)"Point",	NL_POINT,	NL_POINT},
-	{(char *)"Pvt",		NL_NODE,	NL_NODE},
-	{NULL,			0,		0}
-};
-
-
 /*
  * Table to parse the ~/etc/nodelist.conf file
  */
@@ -543,7 +531,7 @@ node *getnlent(faddr *addr)
 {
     FILE		    *fp, *np;
     static node		    nodebuf;
-    static char		    buf[2048], ebuf[2048], *p, *q, tbuf[256];
+    static char		    buf[MAXNLLINELEN], ebuf[MAXNLLINELEN], *p, *q, tbuf[256];
     struct _ixentry	    xaddr;
     int			    i, Found = FALSE, ixflag, stdflag, ndrecord = FALSE;
     char		    *mydomain, *path, *r;
