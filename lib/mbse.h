@@ -76,8 +76,7 @@ char	sProtName[21];		/* Current Transfer Protocol name	   */
 char	sProtUp[51];		/* Upload path & binary			   */
 char	sProtDn[51];		/* Download path & binary		   */
 char	sProtAdvice[31];	/* Advice for protocol			   */
-unsigned uProtBatch;		/* Batching protocol			   */
-unsigned uProtBidir;		/* Bi-directional protocol		   */
+unsigned uProtInternal;		/* Internal protocol			   */
 int	iProtEfficiency;	/* Protocol efficiency			   */
 
 

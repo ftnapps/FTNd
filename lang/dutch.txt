@@ -274,7 +274,7 @@ JN|Node onbekend, toch doorgaan [j/N]:
 JN|Zoeken naar nieuwe bestanden sinds de laatste keer? [J/n]: 
 |Geef nieuwe datum om vanaf te zoeken [DD-MM-JJJJ]: 
 |Bestanden zoeken op datum
-|Geef bestandsnaam voor upload: 
+|
 |Offline Reader Download
 |U heeft niet genoeg rechten om in dit gebied te uploaden.
 |U heeft niet genoeg vrije diskruimte om dit bestand te kopieren

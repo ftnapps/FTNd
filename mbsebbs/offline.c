@@ -1012,7 +1012,7 @@ void OLR_Upload(void)
 {
     char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81], msg[81];
     time_t	ElapstimeStart, ElapstimeFin, iTime;
-    int		err, Strlen, RetVal = FALSE;
+    int		err, RetVal = FALSE;
     FILE	*fp;
 
     if (strlen(CFG.bbsid) == 0) {
@@ -1034,60 +1034,12 @@ void OLR_Upload(void)
     File  = calloc(PATH_MAX, sizeof(char));
     temp  = calloc(PATH_MAX, sizeof(char));
 
-    if (!uProtBatch) {
-	Enter(1);
-	/* Please enter file to upload: */
-	pout(YELLOW, BLACK, (char *) Language(276));
-
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(File, 80);
-
-	Syslog('+', "Filename entered \"%s\"", File);
-
-	if ((strcmp(File, "")) == 0)
-	    return;
-
-	if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
-	    Enter(1);
-	    /* Illegal filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return;
-	}
-
-	Strlen = strlen(File);
-	Strlen--;
-
-	if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return;
-	}
-
-	if (strncasecmp(File, CFG.bbsid, strlen(CFG.bbsid))) {
-	    Enter(1);
-	    /* Illegal filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return;
-	}
-	Syslog('+', "Filename accepted");
-    }
-
     Enter(1);
     /* Please start your upload now */
     sprintf(msg, "%s, %s", sProtAdvice, (char *) Language(283));
     pout(CFG.HiliteF, CFG.HiliteB, msg);
     Enter(2);
-    if (uProtBatch)
-	Syslog('+', "Upload using %s", sProtName);
-    else
-	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+    Syslog('+', "Upload using %s", sProtName);
 
     sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
 

@@ -274,7 +274,7 @@ SN|Nodo sconosciuto, continua lo stesso [s/N]:
 SN|Cerca nuovi file dall'ultima chiamata [S/n]: 
 |Scegli una data per la ricerca dei nuovi file [GG-MM-AAAA] 
 |Ricerca per data
-|Scegli il file da uploadare: 
+|
 |Offline Reader Download
 |Non hai livello di accesso sufficiente per uploadare in quest'area.
 |Non hai abbastanza spazio libero per copiare questo file 

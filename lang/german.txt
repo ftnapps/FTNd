@@ -274,7 +274,7 @@ JN|Adresse unbekannt, dennoch fortfahren [j/N]:
 JN|Neue Dateien seit Ihrem letzten Login suchen [J/n]: 
 |Geben Sie das Suchdatum an [TT-MM-JJJJ]: 
 |Dateisuche nach Datum
-|Geben sie den Namen der heraufzuladenden Datei ein: 
+|
 |Mitteilungen fuer "Offline Reader" herunterladen
 |Ihre Zugriffsberechtigung reicht nicht fuer das Heraufladen.
 |Ihr Plattenplatz reicht nicht fuer das Kopieren der Datei

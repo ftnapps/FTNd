@@ -274,7 +274,7 @@
 273	file.c				YN|Search for new since your last call [Y/n]: 
 274	file.c				|Enter new date to search for [DD-MM-YYYY]: 
 275	file.c				|File Search by Date
-276	file.c	offline.c		|Please enter file to upload: 
+276	.c				|
 277	offline.c			|Offline Reader Download
 278	file.c				|You do not have enough access to upload to this area.
 279	file.c				|You have not enough diskspace free to copy this file

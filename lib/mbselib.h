@@ -684,8 +684,8 @@ struct	prot {
 	char		ProtUp[51];		/* Upload Path & Binary     */
 	char		ProtDn[51];		/* Download Path & Bianry   */
 	unsigned	Available	: 1;	/* Available/Not Available  */
-	unsigned	Batch		: 1;	/* Batching protocol	    */
-	unsigned	Bidir		: 1;	/* Bi Directional	    */
+	unsigned	xBatch		: 1;
+	unsigned	xBidir		: 1;
 	unsigned	Deleted		: 1;	/* Protocol is deleted	    */
 	unsigned	Internal	: 1;	/* Internal protocol	    */
 	char		Advice[31];		/* Small advice to user	    */

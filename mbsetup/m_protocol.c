@@ -74,7 +74,6 @@ int CountProtocol(void)
 			    PROT.Available = FALSE;
 			}
 			sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-			PROT.Batch = TRUE;
 			PROT.Efficiency = 92;
 			fwrite(&PROT, sizeof(PROT), 1, fil);
 
@@ -86,7 +85,6 @@ int CountProtocol(void)
                         sprintf(PROT.Advice,       "It goes before you know");
 			PROT.Available = FALSE;
                         PROT.Efficiency = 100;
-			PROT.Batch = TRUE;
                         fwrite(&PROT, sizeof(PROT), 1, fil);
 
                         memset(&PROT, 0, sizeof(PROT));
@@ -102,7 +100,6 @@ int CountProtocol(void)
 			    PROT.Available = FALSE;
 			}
                         sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-			PROT.Batch = TRUE;
                         PROT.Efficiency = 95;
                         fwrite(&PROT, sizeof(PROT), 1, fil);
 
@@ -119,7 +116,6 @@ int CountProtocol(void)
 			    PROT.Available = FALSE;
 			}
                         sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-			PROT.Batch = TRUE;
                         PROT.Efficiency = 98;
                         fwrite(&PROT, sizeof(PROT), 1, fil);
 
@@ -271,12 +267,11 @@ void s_protrec(void)
 	mbse_mvprintw( 9, 6, "3.  Upload");
 	mbse_mvprintw(10, 6, "4.  Download");
 	mbse_mvprintw(11, 6, "5.  Available");
-	mbse_mvprintw(12, 6, "6.  Batching");
-	mbse_mvprintw(13, 6, "7.  Bi direct");
-	mbse_mvprintw(14, 6, "8.  Advice");
-	mbse_mvprintw(15, 6, "9.  Efficiency");
-	mbse_mvprintw(16, 6, "10. Deleted");
-	mbse_mvprintw(17, 6, "11. Sec. level");
+	mbse_mvprintw(12, 6, "6.  Internal");
+	mbse_mvprintw(13, 6, "7.  Advice");
+	mbse_mvprintw(14, 6, "8.  Efficiency");
+	mbse_mvprintw(15, 6, "9.  Deleted");
+	mbse_mvprintw(16, 6, "10. Sec. level");
 }
 
 
@@ -286,84 +281,82 @@ void s_protrec(void)
  */
 int EditProtRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
-	long	offset;
-	int	j;
-	unsigned long crc, crc1;
+    FILE	    *fil;
+    char	    mfile[PATH_MAX];
+    long	    offset;
+    int		    j;
+    unsigned long   crc, crc1;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit Protocol");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit Protocol");
 
-	sprintf(mfile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(PROThdr) + ((Area -1) * sizeof(PROT));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(PROThdr) + ((Area -1) * sizeof(PROT));
+    if (fseek(fil, offset, 0) != 0) {
+    	working(2, 0, 0);
+    	return -1;
+    }
 
-	fread(&PROT, sizeof(PROT), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&PROT, crc, sizeof(PROT));
+    fread(&PROT, sizeof(PROT), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&PROT, crc, sizeof(PROT));
 
-	s_protrec();
+    s_protrec();
 	
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str(  7,21, 1, PROT.ProtKey);
-		show_str(  8,21,20, PROT.ProtName);
-		show_str(  9,21,50, PROT.ProtUp);
-		show_str( 10,21,50, PROT.ProtDn);
-		show_bool(11,21,    PROT.Available);
-		show_bool(12,21,    PROT.Batch);
-		show_bool(13,21,    PROT.Bidir);
-		show_str( 14,21,30, PROT.Advice);
-		show_int( 15,21,    PROT.Efficiency);
-		show_bool(16,21,    PROT.Deleted);
-		show_sec( 17,21,    PROT.Level);
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_str(  7,21, 1, PROT.ProtKey);
+	show_str(  8,21,20, PROT.ProtName);
+	show_str(  9,21,50, PROT.ProtUp);
+	show_str( 10,21,50, PROT.ProtDn);
+	show_bool(11,21,    PROT.Available);
+	show_bool(12,21,    PROT.Internal);
+	show_str( 13,21,30, PROT.Advice);
+	show_int( 14,21,    PROT.Efficiency);
+	show_bool(15,21,    PROT.Deleted);
+	show_sec( 16,21,    PROT.Level);
 
-		j = select_menu(11);
-		switch(j) {
-		case 0:	crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&PROT, crc1, sizeof(PROT));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&PROT, sizeof(PROT), 1, fil);
-					fclose(fil);
-					ProtUpdated = 1;
-					working(6, 0, 0);
-				}
+	j = select_menu(10);
+	switch(j) {
+	    case 0: crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&PROT, crc1, sizeof(PROT));
+		    if (crc != crc1) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				working(2, 0, 0);
+				return -1;
+			    }
+			    fseek(fil, offset, 0);
+			    fwrite(&PROT, sizeof(PROT), 1, fil);
+			    fclose(fil);
+			    ProtUpdated = 1;
+			    working(6, 0, 0);
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1:	E_UPS(  7,21,1, PROT.ProtKey,   "The ^Key^ to select this protocol")
-		case 2:	E_STR(  8,21,20,PROT.ProtName,  "The ^name^ of this protocol")
-		case 3:	E_STR(  9,21,50,PROT.ProtUp,    "The ^Upload^ path, binary and parameters")
-		case 4:	E_STR( 10,21,50,PROT.ProtDn,    "The ^Download^ path, binary and parameters")
-		case 5:	E_BOOL(11,21,   PROT.Available, "Is this protocol ^available^")
-		case 6:	E_BOOL(12,21,   PROT.Batch,     "Is this a ^batching^ transfer protocol")
-		case 7:	E_BOOL(13,21,   PROT.Bidir,     "Is this protocol ^bidirectional^")
-		case 8:	E_STR( 14,21,30,PROT.Advice,    "A small ^advice^ to the user, eg \"Press Ctrl-X to abort\"")
-		case 9:	E_INT( 15,21,   PROT.Efficiency,"The ^efficiency^ in % of this protocol")
-		case 10:E_BOOL(16,21,   PROT.Deleted,   "Is this protocol ^Deleted^")
-		case 11:E_SEC( 17,21,   PROT.Level,     "8.5.11  PROTOCOL SECURITY LEVEL", s_protrec)
-		}
+		    }
+		    IsDoing("Browsing Menu");
+		    return 0;
+	    case 1: E_UPS(  7,21,1, PROT.ProtKey,   "The ^Key^ to select this protocol")
+	    case 2: E_STR(  8,21,20,PROT.ProtName,  "The ^name^ of this protocol")
+	    case 3: E_STR(  9,21,50,PROT.ProtUp,    "The ^Upload^ path, binary and parameters")
+	    case 4: E_STR( 10,21,50,PROT.ProtDn,    "The ^Download^ path, binary and parameters")
+	    case 5: E_BOOL(11,21,   PROT.Available, "Is this protocol ^available^")
+	    case 6: E_BOOL(12,21,   PROT.Internal,  "Is this a ^internal^ transfer protocol")
+	    case 7: E_STR( 13,21,30,PROT.Advice,    "A small ^advice^ to the user, eg \"Press Ctrl-X to abort\"")
+	    case 8: E_INT( 14,21,   PROT.Efficiency,"The ^efficiency^ in % of this protocol")
+	    case 9: E_BOOL(15,21,   PROT.Deleted,   "Is this protocol ^Deleted^")
+	    case 10:E_SEC( 16,21,   PROT.Level,     "8.5.11  PROTOCOL SECURITY LEVEL", s_protrec)
 	}
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -562,8 +555,7 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Upload command", PROT.ProtUp);
 	    add_webtable(wp, (char *)"Download command", PROT.ProtDn);
 	    add_webtable(wp, (char *)"Available", getboolean(PROT.Available));
-	    add_webtable(wp, (char *)"Batch protocol", getboolean(PROT.Batch));
-	    add_webtable(wp, (char *)"Bidirectional", getboolean(PROT.Bidir));
+	    add_webtable(wp, (char *)"Internal protocol", getboolean(PROT.Internal));
 	    add_webtable(wp, (char *)"User advice", PROT.Advice);
 	    sprintf(temp, "%d%%", PROT.Efficiency);
 	    add_webtable(wp, (char *)"Efficiency", temp);
@@ -573,16 +565,15 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	    close_webdoc(wp);
 	}
 
-	fprintf(fp, "   Selection key    %s\n", PROT.ProtKey);
-        fprintf(fp, "   Protocol name    %s\n", PROT.ProtName);
-        fprintf(fp, "   Upload command   %s\n", PROT.ProtUp);
-        fprintf(fp, "   Download command %s\n", PROT.ProtDn);
-        fprintf(fp, "   Available        %s\n", getboolean(PROT.Available));
-        fprintf(fp, "   Batch protocol   %s\n", getboolean(PROT.Batch));
-        fprintf(fp, "   Bidirectional    %s\n", getboolean(PROT.Bidir));
-        fprintf(fp, "   User advice      %s\n", PROT.Advice);
-        fprintf(fp, "   Efficiency       %d%%\n", PROT.Efficiency);
-        fprintf(fp, "   Security level   %s\n", get_secstr(PROT.Level));
+	fprintf(fp, "   Selection key     %s\n", PROT.ProtKey);
+        fprintf(fp, "   Protocol name     %s\n", PROT.ProtName);
+        fprintf(fp, "   Upload command    %s\n", PROT.ProtUp);
+        fprintf(fp, "   Download command  %s\n", PROT.ProtDn);
+        fprintf(fp, "   Available         %s\n", getboolean(PROT.Available));
+        fprintf(fp, "   Internal protocol %s\n", getboolean(PROT.Internal));
+        fprintf(fp, "   User advice       %s\n", PROT.Advice);
+        fprintf(fp, "   Efficiency        %d%%\n", PROT.Efficiency);
+        fprintf(fp, "   Security level    %s\n", get_secstr(PROT.Level));
         fprintf(fp, "\n\n");
 
         j++;

@@ -274,7 +274,7 @@ SN|Nodo desco¤ecido. ¨Continuar? [s/N]:
 SN|Buscar novos ficheiros dende a tua £ltima chamada [S/n]: 
 |Buscar novos dende fecha [DD-MM-YYYY]: 
 |Buscar ficheiros por fecha 
-|Nome do ficheiro a enviar: 
+|
 |Descargar Correo para lectura OFF-LINE 
 |Non tes permiso para enviar ficheiros a esta  rea.
 |Non hai espacio dabondo para copiar este ficheiro 

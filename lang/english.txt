@@ -274,7 +274,7 @@ YN|Node not known, continue anyway [y/N]:
 YN|Search for new since your last call [Y/n]: 
 |Enter new date to search for [DD-MM-YYYY]: 
 |File Search by Date
-|Please enter file to upload: 
+|
 |Offline Reader Download
 |You do not have enough access to upload to this area.
 |You have not enough diskspace free to copy this file

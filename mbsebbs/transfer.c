@@ -57,8 +57,16 @@
 
 */
 
-int transfer(down_list **download_list, up_list **upload_list, int direction)
+int download(down_list **download_list)
 {
     return 0;
 }
+
+
+int upload(up_list **upload_list)
+{
+    return 0;
+}
+
+
 

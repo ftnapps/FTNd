@@ -972,8 +972,8 @@ int NewfileScan(int AskStart)
  */
 int Upload()
 {
-    char	    File[81], temp[81];
-    int		    Area, x = 0, err;
+    char	    temp[81];
+    int		    Area, err;
     unsigned long   OldArea;
     time_t	    ElapstimeStart, ElapstimeFin, iTime;
     DIR		    *dirp;
@@ -1001,79 +1001,6 @@ int Upload()
 	Area = area.Upload;
     SetFileArea(Area);
 
-    /*
-     * Only ask for a filename for non-batching protocols,
-     * ie. the stone age Xmodem for example.
-     */
-    if (!uProtBatch) {
-	/* Please enter file to upload: */
-	pout(YELLOW, BLACK, (char *) Language(276));
-
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(File, 80);
-
-	if ((strcmp(File, "")) == 0)
-	    return 0;
-
-	if (*(File) == '.' || *(File) == '*' || *(File) == ' ' || *(File) == '/') {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return 0;
-	}
-	
-	Strlen = strlen(File);
-	Strlen--;
-
-	if (*(File + Strlen) == '.' || *(File + Strlen) == '/' || *(File + Strlen) == ' ') {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return 0;
-	}
-
-	if ((!strcmp(File, "files.bbs")) || (!strcmp(File, "00index")) || (strstr(File, (char *)".html"))) {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Syslog('!', "Attempted to upload %s", File);
-	    Pause();
-	    return 0;
-	}
-
-	/*
-	 * Check for a space or ; in filename being uploaded
-	 */
-	if (((strchr(File, 32)) != NULL) || ((strchr(File, ';')) != NULL)) {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-	    return 0;
-	}
-
-	/* MOET IN ALLE AREAS ZOEKEN */
-	if (area.Dupes) {
-	    x = CheckFile(File, Area);
-	    if (x) {
-		Enter(1);
-		/* The file already exists on the system */
-		pout(WHITE, CYAN, (char *) Language(282));
-		Enter(2);
-		SetFileArea(OldArea);
-		Pause();
-		return 0;
-	    }
-	}
-	SetFileArea(OldArea);
-    }
-
     SetFileArea(Area);
     Syslog('+', "Upload area is %d %s", Area, area.Name);
 
@@ -1099,10 +1026,7 @@ int Upload()
     PUTSTR((char *) Language(283));
     Enter(2);
 
-    if (uProtBatch)
-	Syslog('+', "Upload using %s", sProtName);
-    else
-	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+    Syslog('+', "Upload using %s", sProtName);
 
     sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
     if (chdir(temp)) {
@@ -1571,60 +1495,13 @@ int Upload_Home()
     sFileName = calloc(PATH_MAX, sizeof(char));
     temp      = calloc(PATH_MAX, sizeof(char));
 
-    if (!uProtBatch) {
-
-	Enter(1);
-	/* Please enter file to upload: */
-	pout(YELLOW, BLACK, (char *) Language(276));
-
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(File, 80);
-
-	if ((strcmp(File, "")) == 0) {
-	    free(File);
-	    free(sFileName);
-	    free(temp);
-	    return 0;
-	}
-
-	if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-            free(File);
-            free(sFileName);
-            free(temp);
-	    return 0;
-	}
-
-	Strlen = strlen(File);
-	Strlen--;
-
-	if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
-	    Enter(1);
-	    /* Illegal Filename! */
-	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
-	    Enter(2);
-	    Pause();
-            free(File);
-            free(sFileName);
-            free(temp);
-	    return 0;
-	}
-    }
-
     clear();
     Enter(2);
     /* Please start your upload now ...*/
     sprintf(temp, "%s, %s", sProtAdvice, (char *) Language(283));
     pout(CFG.HiliteF, CFG.HiliteB, temp);
     Enter(2);
-    if (uProtBatch)
-	Syslog('+', "Upload using %s", sProtName);
-    else
-	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+    Syslog('+', "Upload using %s", sProtName);
 
     sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
     if (chdir(temp)) {

@@ -3,7 +3,6 @@
 
 /* $Id$ */
 
-typedef enum	{FT_UPLOAD, FT_DOWNLOAD, FT_BIDIRECT} TRANSFERTYPE;
 
 
 /*
@@ -31,7 +30,8 @@ typedef struct _up_list {
 } up_list;
 
 
-int transfer(down_list **, up_list **, int);
+int download(down_list **);
+int upload(up_list **);
 
 
 #endif

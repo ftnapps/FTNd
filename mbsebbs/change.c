@@ -896,8 +896,7 @@ void Chg_Protocol()
 	        strcpy(sProtUp, PROT.ProtUp);
 	        strcpy(sProtDn, PROT.ProtDn);
 	        strcpy(sProtAdvice, PROT.Advice);
-	        uProtBatch = PROT.Batch;
-	        uProtBidir = PROT.Bidir;
+	        uProtInternal = PROT.Internal;
 	        iProtEfficiency = PROT.Efficiency;
 	        iFoundProt = TRUE;
 	    } else
@@ -965,8 +964,7 @@ void Set_Protocol(char *Protocol)
 	    strcpy(sProtUp, PROT.ProtUp);
 	    strcpy(sProtDn, PROT.ProtDn);
 	    strcpy(sProtAdvice, PROT.Advice);
-	    uProtBatch = PROT.Batch;
-	    uProtBidir = PROT.Bidir;
+	    uProtInternal = PROT.Internal;
 	    iProtEfficiency = PROT.Efficiency;
 	} else
 	    precno++;

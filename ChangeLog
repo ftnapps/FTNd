@@ -1,8 +1,15 @@
 $Id$
 
-!!!! DON'T USE, THIS VERSION HAS LOTS OF BUGS !!!!
+	!!!! DON'T USE, THIS VERSION HAS LOTS OF BUGS !!!!
+	==================================================
+	But if you don't use the bbs then you may be safe.
+
 
 v0.71.0		27-Oct-2004
+
+	general:
+		From filetranfer records removed the batch and bidirectional
+		switches, these are no longer needed.
 
 	mbsebbs:
 		In change handle the first character of the name is not 
@@ -13,15 +20,22 @@ v0.71.0		27-Oct-2004
 		If a user pages the sysop a hint is displayed to fill in the
 		reason to chat, language prompt 28.
 		After forced chat, redisplay the last menu.
+		Removed support for non-batching protocols (xmodem) and for
+		bidirectional protocols.
 
 	mbnewusr:
 		Rewrote terminal i/o.
+
+	mbsetup:
+		In file transfers edit, removed switches for batch and bidirect
+		protocols, added a switch for internal protocols.
 
 	lang:
 		Changed width of prompt 261.
 		Added prompt 28.
 		Removed leading spaces of prompt 151.
- 
+		Removed prompt 276.
+
 	script:
 		Modified rundoor.sh so that it uses two different dosemu
 		configuration files, one for virtual modem and one without.
