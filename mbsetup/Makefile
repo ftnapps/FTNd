@@ -34,7 +34,7 @@ all:		mbsetup
 
 
 mbsetup:	${OBJS} ${LIBS}
-		${CC} -o mbsetup ${OBJS} ${LIBS}
+		${CC} -o mbsetup ${OBJS} ${LDFLAGS} ${LIBS}
 
 clean:
 		rm -f mbsetup *.o *.h~ *.c~ core filelist Makefile.bak

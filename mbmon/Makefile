@@ -18,7 +18,7 @@ all:		mbmon
 
 
 mbmon:		${OBJS} ${LIBS}
-		${CC} -o mbmon   ${OBJS} ${LIBS}
+		${CC} -o mbmon   ${OBJS} ${LDFLAGS} ${LIBS}
 
 clean:
 		rm -f mbmon *.o *.h~ *.c~ core filelist Makefile.bak

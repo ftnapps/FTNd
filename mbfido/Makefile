@@ -61,25 +61,25 @@ TARGET		= mbfido mbseq mbaff mbindex mbdiff mbfile mbmsg
 all:		${TARGET}
 
 mbfido:		${MBFIDO_OBJS} ${MBFIDO_LIBS}
-		${CC} -o mbfido ${MBFIDO_OBJS} ${LIBS} ${MBFIDO_LIBS}
+		${CC} -o mbfido ${MBFIDO_OBJS} ${LDFLAGS} ${LIBS} ${MBFIDO_LIBS}
 
 mbseq:		${MBSEQ_OBJS} ${MBSEQ_LIBS}
-		${CC} -o mbseq ${MBSEQ_OBJS} ${LIBS} ${MBSEQ_LIBS}
+		${CC} -o mbseq ${MBSEQ_OBJS} ${LDFLAGS} ${LIBS} ${MBSEQ_LIBS}
 
 mbaff:		${MBAFF_OBJS} ${MBAFF_LIBS}
-		${CC} -o mbaff ${MBAFF_OBJS} ${LIBS} ${MBAFF_LIBS}
+		${CC} -o mbaff ${MBAFF_OBJS} ${LDFLAGS} ${LIBS} ${MBAFF_LIBS}
 
 mbindex:	${MBINDEX_OBJS} ${MBINDEX_LIBS}
-		${CC} -o mbindex ${MBINDEX_OBJS} ${LIBS} ${MBINDEX_LIBS}
+		${CC} -o mbindex ${MBINDEX_OBJS} ${LDFLAGS} ${LIBS} ${MBINDEX_LIBS}
 
 mbdiff:		${MBDIFF_OBJS} ${MBDIFF_LIBS}
-		${CC} -o mbdiff ${MBDIFF_OBJS} ${LIBS} ${MBDIFF_LIBS}
+		${CC} -o mbdiff ${MBDIFF_OBJS} ${LDFLAGS} ${LIBS} ${MBDIFF_LIBS}
 
 mbfile:		${MBFILE_OBJS} ${MBFILE_LIBS}
-		${CC} -o mbfile ${MBFILE_OBJS} ${LIBS} ${MBFILE_LIBS}
+		${CC} -o mbfile ${MBFILE_OBJS} ${LDFLAGS} ${LIBS} ${MBFILE_LIBS}
 
 mbmsg:		${MBMSG_OBJS} ${MBMSG_LIBS}
-		${CC} -o mbmsg ${MBMSG_OBJS} ${LIBS} ${MBMSG_LIBS}
+		${CC} -o mbmsg ${MBMSG_OBJS} ${LDFLAGS} ${LIBS} ${MBMSG_LIBS}
 
 clean: 
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak

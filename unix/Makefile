@@ -32,13 +32,13 @@ clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak
 
 mbuseradd:	${MBUSERADD_OBJS}
-		${CC} -o mbuseradd ${MBUSERADD_OBJS} ${LIBS}
+		${CC} -o mbuseradd ${MBUSERADD_OBJS} ${LDFLAGS} ${LIBS}
 
 mbpasswd:	${MBPASSWD_OBJS}
-		${CC} -o mbpasswd ${MBPASSWD_OBJS} ${LIBS}
+		${CC} -o mbpasswd ${MBPASSWD_OBJS} ${LDFLAGS} ${LIBS}
 
 mblogin:	${MBLOGIN_OBJS}
-		${CC} -o mblogin ${MBLOGIN_OBJS} ${LIBS}
+		${CC} -o mblogin ${MBLOGIN_OBJS} ${LDFLAGS} ${LIBS}
 
 install:	all
 		@if [ "`id -un`" != "root" ] ; then \

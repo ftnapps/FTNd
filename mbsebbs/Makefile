@@ -58,25 +58,25 @@ clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak
 
 mbsebbs:	${MBSEBBS_OBJS} ${MBSEBBS_LIBS}
-		${CC} -o mbsebbs ${MBSEBBS_OBJS} ${LIBS} ${MBSEBBS_LIBS}
+		${CC} -o mbsebbs ${MBSEBBS_OBJS} ${LDFLAGS} ${LIBS} ${MBSEBBS_LIBS}
 
 mbnewusr:	${MBNEWUSR_OBJS} ${MBNEWUSR_LIBS}
-		${CC} -o mbnewusr ${MBNEWUSR_OBJS} ${LIBS} ${MBNEWUSR_LIBS}
+		${CC} -o mbnewusr ${MBNEWUSR_OBJS} ${LDFLAGS} ${LIBS} ${MBNEWUSR_LIBS}
 
 mball:		${MBALL_OBJS} ${MBALL_LIBS}
-		${CC} -o mball   ${MBALL_OBJS} ${LIBS} ${MBALL_LIBS}
+		${CC} -o mball   ${MBALL_OBJS} ${LDFLAGS} ${LIBS} ${MBALL_LIBS}
 
 mblang:		${MBLANG_OBJS} ${MBLANG_LIBS}
-		${CC} -o mblang  ${MBLANG_OBJS} ${LIBS} ${MBLANG_LIBS}
+		${CC} -o mblang  ${MBLANG_OBJS} ${LDFLAGS} ${LIBS} ${MBLANG_LIBS}
 
 mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
-		${CC} -o mbstat ${MBSTAT_OBJS} ${LIBS} ${MBSTAT_LIBS}
+		${CC} -o mbstat ${MBSTAT_OBJS} ${LDFLAGS} ${LIBS} ${MBSTAT_LIBS}
 
 mbtoberep:	${MBTOBE_OBJS} ${MBTOBE_LIBS}
-		${CC} -o mbtoberep ${MBTOBE_OBJS} ${LIBS} ${MBTOBE_LIBS}
+		${CC} -o mbtoberep ${MBTOBE_OBJS} ${LDFLAGS} ${LIBS} ${MBTOBE_LIBS}
 
 mbuser:		${MBUSER_OBJS} ${MBUSER_LIBS}
-		${CC} -o mbuser ${MBUSER_OBJS} ${LIBS} ${MBUSER_LIBS}
+		${CC} -o mbuser ${MBUSER_OBJS} ${LDFLAGS} ${LIBS} ${MBUSER_LIBS}
 
 install:	all
 		@if [ "`id -un`" != "root" ] ; then \
