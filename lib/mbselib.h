@@ -246,7 +246,16 @@ struct icmp_filter {
 #define KEY_DEL         207
 #define KEY_PGUP        208
 #define KEY_PGDN        209
-
+#define	KEY_F10		210
+#define	KEY_F1		211
+#define	KEY_F2		212
+#define KEY_F3          213
+#define KEY_F4          214
+#define KEY_F5          215
+#define KEY_F6          216
+#define KEY_F7          217
+#define KEY_F8          218
+#define KEY_F9          219
 
 
 #ifndef LINES
