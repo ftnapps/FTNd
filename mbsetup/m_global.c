@@ -436,6 +436,14 @@ void e_newuser(void)
 
 void e_colors(void)
 {
+	int fg, bg;
+
+/*
+ * With this macro intermediate variables are passed to the color editor to prevent SIGBUS
+ * on some CPU's (Sparc).
+ */
+#define ED_COL(f, b, t, h) fg = f; bg = b; edit_color(&fg, &bg, (char *)t, (char *)h); f = fg; b = bg; break;
+
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
@@ -466,17 +474,17 @@ void e_colors(void)
 
 		switch(select_menu(11)) {
 		case 0:	return;
-		case 1: edit_color(&CFG.TextColourF, &CFG.TextColourB, (char *)"normal text"); break;
-		case 2: edit_color(&CFG.UnderlineColourF, &CFG.UnderlineColourB, (char *)"underline"); break;
-		case 3: edit_color(&CFG.InputColourF, &CFG.InputColourB, (char *)"input"); break;
-		case 4: edit_color(&CFG.CRColourF, &CFG.CRColourB, (char *)"<Carriage Return>"); break;
-		case 5: edit_color(&CFG.MoreF, &CFG.MoreB, (char *)"more prompt"); break;
-		case 6: edit_color(&CFG.HiliteF, &CFG.HiliteB, (char *)"hilite text"); break;
-		case 7: edit_color(&CFG.FilenameF, &CFG.FilenameB, (char *)"file name"); break;
-		case 8: edit_color(&CFG.FilesizeF, &CFG.FilesizeB, (char *)"file size"); break;
-		case 9: edit_color(&CFG.FiledateF, &CFG.FiledateB, (char *)"file date"); break;
-		case 10:edit_color(&CFG.FiledescF, &CFG.FiledescB, (char *)"file description"); break;
-		case 11:edit_color(&CFG.MsgInputColourF, &CFG.MsgInputColourB, (char *)"message input"); break;
+		case 1: ED_COL(CFG.TextColourF, CFG.TextColourB, "1.8.1  EDIT COLOR", "normal text")
+		case 2: ED_COL(CFG.UnderlineColourF, CFG.UnderlineColourB, "1.8.2  EDIT COLOR", "underline")
+		case 3: ED_COL(CFG.InputColourF, CFG.InputColourB, "1.8.3  EDIT COLOR", "input")
+		case 4: ED_COL(CFG.CRColourF, CFG.CRColourB, "1.8.4  EDIT COLOR", "<Carriage Return>")
+		case 5: ED_COL(CFG.MoreF, CFG.MoreB, "1.8.5  EDIT COLOR", "more prompt")
+		case 6: ED_COL(CFG.HiliteF, CFG.HiliteB, "1.8.6  EDIT COLOR", "hilite text")
+		case 7: ED_COL(CFG.FilenameF, CFG.FilenameB, "1.8.7  EDIT COLOR", "file name")
+		case 8: ED_COL(CFG.FilesizeF, CFG.FilesizeB, "1.8.8  EDIT COLOR", "file size")
+		case 9: ED_COL(CFG.FiledateF, CFG.FiledateB, "1.8.9  EDIT COLOR", "file date")
+		case 10:ED_COL(CFG.FiledescF, CFG.FiledescB, "1.8.10 EDIT COLOR", "file description")
+		case 11:ED_COL(CFG.MsgInputColourF, CFG.MsgInputColourB, "1.8.11 EDIT COLOR", "message input")
 		}
 	};
 }

@@ -1442,14 +1442,14 @@ void show_aka(int y, int x, fidoaddr aka)
 
 
 
-void edit_color(int *fg, int *bg, char *help) 
+void edit_color(int *fg, int *bg, char *title, char *help) 
 {
 	int	ch, f, b;
 	char	temp[81];
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw(5, 6, "1.8  EDIT COLORS");
+	mvprintw(5, 6, title);
 	sprintf(temp, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
 	showhelp(temp);
 
@@ -1458,15 +1458,16 @@ void edit_color(int *fg, int *bg, char *help)
 			set_color(f, b);
 			mvprintw(b + 9, f + 33, ".");
 		}
-	f = (* fg);
-	b = (* bg);
+
+	f = (*fg) & 15;
+	b = (*bg) & 7;
 
 	for (;;) {
 		set_color(f, b);
 		mvprintw(7, 6, "This is an example...");
 		fflush(stdout);
 		mvprintw(b + 9, f + 33, "*");
-		ch = readkey(7,28,f,b);
+		ch = readkey(7,28, f, b);
 		mvprintw(b + 9, f + 33, ".");
 		switch(ch) {
 			case KEY_LINEFEED: 

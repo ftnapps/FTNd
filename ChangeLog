@@ -4304,6 +4304,8 @@ v0.33.19        26-Oct-2001
 		Changed users password length to 14 characters instead of 12.
 		When you make a tty line available, some settings are
 		automatic set to reasonable defaults.
+		The color editor now has a rangecheck.
+		Rewrote calling of the color editor for Sparc systems.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/

@@ -74,12 +74,15 @@ static int	old_b = -1;
 
 void set_color(int f, int b)
 {
-	if ((f != old_f) || (b != old_b)) {
-		old_f = f;
-		old_b = b;
-		colour(f, b);
-		fflush(stdout);
-	}
+    f = f & 15;
+    b = b & 7;
+
+    if ((f != old_f) || (b != old_b)) {
+	old_f = f;
+	old_b = b;
+	colour(f, b);
+	fflush(stdout);
+    }
 }
 
 

@@ -209,6 +209,8 @@ int GetMenuType(void)
 void Edit_A_Menu(void);
 void Edit_A_Menu(void)
 {
+	int fg, bg;
+
 	Show_A_Menu();
 
 	for (;;) {
@@ -226,15 +228,23 @@ void Edit_A_Menu(void)
 			break;
 		case 3: E_STR( 9,16,64, menus.OptionalData, "The ^optional data^ for this menu item")
 		case 4: E_STR(11,16,64, menus.Display,      "The text to ^display^ for this menu")
-		case 5: E_SEC(12,16,    menus.MenuSecurity, "7.3.5 MENU ACCESS SECURITY", Show_A_Menu)
+		case 5: E_SEC(12,16,    menus.MenuSecurity, "8.3.5 MENU ACCESS SECURITY", Show_A_Menu)
 		case 6: E_INT(13,16,    menus.Age,          "The minimum ^Age^ to select this menu, 0 is don't care")
 		case 7: E_INT(14,16,    menus.MaxSecurity,  "The maximum ^Security level^ to access this menu")
 		case 8: E_STR(15,16,14, menus.Password,     "The ^password^ to access this menu item")
 		case 9: E_INT(16,16,    menus.Credit,       "The ^credit cost^ for this menu item")
-		case 10:edit_color(&menus.ForeGnd, &menus.BackGnd, (char *)"normal");
+		case 10:fg = menus.ForeGnd;
+			bg = menus.BackGnd;
+			edit_color(&fg, &bg, (char *)"8.3.10 EDIT COLOR", (char *)"normal");
+			menus.ForeGnd = fg;
+			menus.BackGnd = bg;
 			Show_A_Menu();
 			break;
-		case 11:edit_color(&menus.HiForeGnd, &menus.HiBackGnd, (char *)"bright");
+		case 11:fg = menus.HiForeGnd;
+			bg = menus.HiBackGnd;
+			edit_color(&fg, &bg, (char *)"8.3.11 EDIT COLOR", (char *)"bright");
+			menus.HiForeGnd = fg;
+			menus.HiBackGnd = bg;
 			Show_A_Menu();
 			break;
 		case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
@@ -339,7 +349,7 @@ void EditMenu(char *Name)
 					if ((fil = fopen(temp, "w+")) == NULL) {
 						working(2, 0, 0);
 					} else {
-						Syslog('+', "Updated menu %s", temp);
+						Syslog('+', "Updated menu %s (%s)", temp, lang.Name);
 						fseek(tmp, 0, SEEK_SET);
 						while (fread(&menus, sizeof(menus), 1, tmp) == 1) {
 							if (menus.MenuKey[0] || menus.AutoExec)

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef _LEDIT_H
 #define _LEDIT_H
 
@@ -58,7 +60,7 @@ char		*getmagictype(int);
 void		show_magictype(int, int, int);
 int		edit_magictype(int, int, int);
 void		show_aka(int, int, fidoaddr);
-void		edit_color(int *, int *, char *);
+void		edit_color(int *, int *, char *, char *);
 char		*get_color(int);
 char		*getmenutype(int);
 
