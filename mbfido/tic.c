@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/tic.c
  * Purpose ...............: Process .tic files
- * Last modification date : 31-Jul-2001
+ * Last modification date : 15-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -239,11 +239,12 @@ int LoadTic(char *inb, char *tfn)
 		}
 
 		if (strncasecmp(Temp, "file ", 5) == 0) {
+			sprintf(Realname, "%s", Temp+5);  /* Moved here for test Michiel/Redy */
 			if (TIC.Hatch)
 				strcpy(TIC.TicIn.OrgName, Temp+5);
 			else
 				strcpy(TIC.TicIn.OrgName, tl(Temp+5));
-			sprintf(Realname, "%s", Temp+5);
+//			sprintf(Realname, "%s", Temp+5); /* Temp removed */
 			strcpy(TIC.NewName, TIC.TicIn.OrgName);
 			strcpy(T_File.Name, TIC.TicIn.OrgName);
 			Kwd = TRUE;

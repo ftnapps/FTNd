@@ -2,7 +2,7 @@
  *
  * File ..................: ledit.c
  * Purpose ...............: Line Editor
- * Last modification date : 27-Sep-2001
+ * Last modification date : 14-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1509,6 +1509,7 @@ char *get_color(int c)
 		case LIGHTMAGENTA:	return (char *)"lightmagenta";
 		case YELLOW:		return (char *)"yellow";
 		case WHITE:		return (char *)"white";
+		default:		return NULL;
 	}
 }
 
