@@ -937,12 +937,13 @@ TrType binkp_receiver(void)
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
 	bp.header = 0;
-	bp.blklen = 0;
 
         if (! bp.cmd) {
-            Syslog('b', "Binkp: got DATA frame in %s state, ignored", rxstate[bp.RxState]);
+            Syslog('b', "Binkp: got %d bytes DATA frame in %s state, ignored", bp.blklen, rxstate[bp.RxState]);
+	    bp.blklen = 0;
             return Ok;
         }
+	bp.blklen = 0;
 
         bcmd = bp.rxbuf[0];
         if (bcmd == MM_ERR) {
@@ -956,7 +957,7 @@ TrType binkp_receiver(void)
             parse_m_nul(bp.rxbuf +1);
             return Ok;
         } else if (bcmd == MM_EOB) {
-            Syslog('+', "Binkp: got M_EOB");
+            Syslog('+', "Binkp: rcvd M_EOB");
 	    if ((bp.Major == 1) && (bp.Minor != 0) && bp.local_EOB && bp.remote_EOB && ((bp.local_msgs + bp.remote_msgs) > 2)) {
 		Syslog('b', "Binkp: 1.1 mode, stay in RxWaitF");
 		bp.batchnr++;
@@ -1293,7 +1294,7 @@ TrType binkp_transmitter(void)
 	    /*
 	     * No more files
 	     */
-	    Syslog('+', "Binkp: sending M_EOB");
+	    Syslog('+', "Binkp: send M_EOB");
 	    rc = binkp_send_command(MM_EOB, "");
 	    bp.TxState = TxWLA;
 	    if (rc)
@@ -1710,8 +1711,6 @@ int binkp_poll_frame(void)
 		    break;
 		}
 		Syslog('?', "Binkp: receiver status %s", ttystat[c]);
-//		bp.TxState = TxDone;
-//		bp.RxState = RxDone;
 		bp.rc = (MBERR_TTYIO + (-c));
 		rc = -1;
 		break;
