@@ -717,8 +717,8 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	if ((wp = open_webdoc(temp, (char *)"File group", fgroup.Comment))) {
 	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"filegroup.html\">Back</A>\n");
 	    fprintf(wp, "<P>\n");
-	    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
-	    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"Group name", fgroup.Name);
 	    add_webtable(wp, (char *)"Comment", fgroup.Comment);
@@ -750,8 +750,8 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Default tic security", getflag(fgroup.LinkSec.flags, fgroup.LinkSec.notflags));
 	    fprintf(wp, "<TR><TH align='left'>BBS (tic) file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TH>\n",
 		fgroup.BbsGroup, fgroup.BbsGroup);
-	    fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newfilegroup_%s.html\">%s</A></TD></TH>\n",
-		fgroup.AnnGroup, fgroup.AnnGroup);
+	    fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newgroup.html\">%s</A></TD></TH>\n",
+		fgroup.AnnGroup);
 	    sprintf(temp, "%d", fgroup.Upload);
 	    add_webtable(wp, (char *)"Upload area", temp);
 	    add_webtable(wp, (char *)"Start date", ctime(&fgroup.StartDate));

@@ -189,6 +189,7 @@ int horiz;
 void dotter(void);
 void dotter(void)
 {
+    Nopper();
     mvprintw(8, horiz++, (char *)".");
     fflush(stdout);
 }
@@ -235,7 +236,7 @@ void site_docs(void)
 	fprintf(hp, " <LI><A HREF=\"fidonet.html\">Fido Networks</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"archivers.html\">Archivers</A></LI>\n");
 	fprintf(hp, " <LI>Virus Scaners</LI>\n");
-	fprintf(hp, " <LI>Modem Types</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"modem.html\">Modem Types</A></LI>\n");
 	fprintf(hp, " <LI>TTY Lines Info</LI>\n");
 	fprintf(hp, " <LI>Fidonet Nodes</LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"limits.html\">Security Limits</A></LI>\n");
@@ -250,8 +251,8 @@ void site_docs(void)
 	fprintf(hp, " <LI>TIC: Fileecho Areas</LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"hatch.html\">Hatch Manager</A></LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"magic.html\">Magic Files</A></LI>\n");
-	fprintf(hp, " <LI>Newfiles Groups</LI>\n");
-	fprintf(hp, " <LI>Newfiles Reports</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"newgroup.html\">Newfiles Groups</A></LI>\n");
+	fprintf(hp, " <LI><A HREF=\"newfiles.html\">Newfiles Reports</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"filefind.html\">Filefind Setup</A></LI>\n");
 	fprintf(hp, " <LI>BBS Users</LI>\n");
 	fprintf(hp, " <LI>Mail Services</LI>\n");

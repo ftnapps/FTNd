@@ -496,32 +496,97 @@ char *PickNGroup(char *shdr)
 
 int newf_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	*temp;
-	FILE	*no;
+    char    *temp;
+    FILE    *ip, *wp, *no;
+    int	    refs, nr;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return page;
-	}
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 11, 0, page, (char *)"Newfiles announce groups");
-	fprintf(fp, "\n");
-	fprintf(fp, "   Name         Act Comment\n");
-	fprintf(fp, "   ------------ --- --------------------------------------------------\n");
-
-	fread(&ngrouphdr, sizeof(ngrouphdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&ngrouphdr, ngrouphdr.hdrsize, 1, no);
-
-	while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1)
-		fprintf(fp, "   %-12s %s %s\n", ngroup.Name, getboolean(ngroup.Active), ngroup.Comment);
-
-	fclose(no);
 	return page;
+    }
+
+    wp = open_webdoc((char *)"newgroup.html", (char *)"Newfiles groups", NULL);
+    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+    
+    page = newpage(fp, page);
+    addtoc(fp, toc, 11, 0, page, (char *)"Newfiles announce groups");
+    fprintf(fp, "\n");
+    fprintf(fp, "   Name         Act Comment\n");
+    fprintf(fp, "   ------------ --- --------------------------------------------------\n");
+
+    fread(&ngrouphdr, sizeof(ngrouphdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&ngrouphdr, ngrouphdr.hdrsize, 1, no);
+
+    fprintf(wp, "<P>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='20%%'><COL width='5%%'><COL width='75%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    fprintf(wp, "<TR><TH align='left'>Name</TH><TH align='left'>Act</TH><TH align='left'>Comment</TH></TR>\n");
+
+    while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1) {
+	fprintf(fp, "   %-12s %s %s\n", ngroup.Name, getboolean(ngroup.Active), ngroup.Comment);
+	fprintf(wp, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", ngroup.Name, getboolean(ngroup.Active), ngroup.Comment);
+    }
+    
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+
+    fseek(no, ngrouphdr.hdrsize, SEEK_SET);
+    while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1) {
+	refs = 0;
+	sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	if ((ip = fopen(temp, "r"))) {
+	    fread(&areahdr, sizeof(areahdr), 1, ip);
+	    nr = 0;
+	    while ((fread(&area, areahdr.recsize, 1, ip)) == 1) {
+		nr++;
+		if (area.Available && (strcmp(ngroup.Name, area.NewGroup) == 0)) {
+		    if (refs == 0) {
+			fprintf(wp, "<HR>\n");
+			fprintf(wp, "<H3>References for group %s</H3>\n", ngroup.Name);
+			fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			fprintf(wp, "<TBODY>\n");
+		    }
+		    refs++;
+		    fprintf(wp, "<TR><TD><A HREF=\"filearea_%d.html\">File area %d</A></TD><TD>%s</TD></TR>\n", nr, nr, area.Name);
+		}
+	    }
+	    fclose(ip);
+	}
+	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	if ((ip = fopen(temp, "r"))) {
+	    fread(&fgrouphdr, fgrouphdr.hdrsize, 1, ip);
+	    while ((fread(&fgroup, fgrouphdr.recsize, 1, ip)) == 1) {
+		if (strcmp(ngroup.Name, fgroup.AnnGroup) == 0) {
+		    if (refs == 0) {
+			fprintf(wp, "<HR>\n");
+			fprintf(wp, "<H3>References for group %s</H3>\n", ngroup.Name);
+			fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			fprintf(wp, "<TBODY>\n");
+		    }
+		    refs++;
+		    fprintf(wp, "<TR><TD><A HREF=\"filegroup_%s.html\">File group %s</A></TD><TD>%s</TD></TR>\n", 
+			    fgroup.Name, fgroup.Name, fgroup.Comment);
+		}
+	    }
+	    fclose(ip);
+	}
+	if (refs) {
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	}
+    }
+
+    close_webdoc(wp);
+	
+    free(temp);
+    fclose(no);
+    return page;
 }
 
 

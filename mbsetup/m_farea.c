@@ -809,8 +809,8 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		add_webtable(wp, (char *)"Allow filerequest", getboolean(area.FileReq));
 		fprintf(wp, "<TR><TH align='left'>BBS (tic) file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TH>\n",
 			area.BbsGroup, area.BbsGroup);
-		fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newfilegroup_%s.html\">%s</A></TD></TH>\n",
-			area.NewGroup, area.NewGroup);
+		fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newgroup.html\">%s</A></TD></TH>\n",
+			area.NewGroup);
 		add_webdigit(wp, (char *)"Minimum age for access", area.Age);
 		add_webtable(wp, (char *)"Area password", area.Password);
 		add_webdigit(wp, (char *)"Kill Download days", area.DLdays);

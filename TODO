@@ -170,14 +170,11 @@ mbsetup:
 	N: When a message area is deleted, delete the rulesfile too.
 
 	X: Generate crossreference document:
-	   File Areas      <=> BBS groups
-	   File Areas      <=> Newfiles groups
 	   Filefind flags  <=> TIC Areas
 	   Echomail        <=> Nodes
 	   Fileechos       <=> Groups
 	   Fileechos       <=> Nodes
 	   Fileechos       <=> Magic processing
 	   Fileechos       <=> Hatch
-	   Newfiles        <=> BBS Areas
 	   Newfiles        <=> Newfiles groups
 

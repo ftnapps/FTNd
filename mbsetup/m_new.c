@@ -539,57 +539,92 @@ void InitNewfiles(void)
 
 int new_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX], group[13];
-	FILE		*no;
-	int		groups, i, j;
+    char    temp[PATH_MAX], group[13];
+    FILE    *wp, *ip, *no;
+    int	    groups, i, j, nr = 0;
 
-	sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 12, 0, page, (char *)"Newfiles reports");
-	j = 0;
-
-	fprintf(fp, "\n\n");
-	fread(&newfileshdr, sizeof(newfileshdr), 1, no);
-
-	while ((fread(&newfiles, newfileshdr.recsize, 1, no)) == 1) {
-
-		if (j == 3) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "     Area comment      %s\n", newfiles.Comment);
-		fprintf(fp, "     Message area      %s\n", newfiles.Area);
-		fprintf(fp, "     Origin line       %s\n", newfiles.Origin);
-		fprintf(fp, "     From name         %s\n", newfiles.From);
-		fprintf(fp, "     To name           %s\n", newfiles.Too);
-		fprintf(fp, "     Subject           %s\n", newfiles.Subject);
-		fprintf(fp, "     Language          %c\n", newfiles.Language);
-		fprintf(fp, "     Aka to use        %s\n", aka2str(newfiles.UseAka));
-		fprintf(fp, "     Active            %s\n", getboolean(newfiles.Active));
-		fprintf(fp, "     Allow High ASCII  %s\n", getboolean(newfiles.HiAscii));
-		fprintf(fp, "\n     File groups:\n     ");
-		groups = newfileshdr.grpsize / sizeof(group);
-		for (i = 0; i < groups; i++) {
-			fread(&group, sizeof(group), 1, no);
-			if (strlen(group)) {
-				fprintf(fp, "%-12s ", group);
-				if (((i+1) %5) == 0)
-					fprintf(fp, "\n     ");
-			}
-		}
-		if ((i+1) % 5)
-			fprintf(fp, "\n");
-		fprintf(fp, "\n\n\n");
-		j++;
-	}
-
-	fclose(no);
+    sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
 	return page;
+
+    page = newpage(fp, page);
+    addtoc(fp, toc, 12, 0, page, (char *)"Newfiles reports");
+    j = 0;
+
+    fprintf(fp, "\n\n");
+    fread(&newfileshdr, sizeof(newfileshdr), 1, no);
+
+    ip = open_webdoc((char *)"newfiles.html", (char *)"Newfiles Reports", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+
+    while ((fread(&newfiles, newfileshdr.recsize, 1, no)) == 1) {
+
+	if (j == 3) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
+	}
+	nr++;
+	sprintf(temp, "newfiles_%d.html", nr);
+	fprintf(ip, " <LI><A HREF=\"%s\">Report %d</A> %s</LI>\n", temp, nr, newfiles.Comment);
+	if ((wp = open_webdoc(temp, (char *)"Newfiles report", newfiles.Comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"newfiles.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Area comment", newfiles.Comment);
+	    add_webtable(wp, (char *)"Message area", newfiles.Area);
+	    add_webtable(wp, (char *)"Origin line", newfiles.Origin);
+	    add_webtable(wp, (char *)"From name", newfiles.From);
+	    add_webtable(wp, (char *)"To name", newfiles.Too);
+	    add_webtable(wp, (char *)"Subject", newfiles.Subject);
+	    sprintf(temp, "%c", newfiles.Language);
+	    add_webtable(wp, (char *)"Language", temp);
+	    add_webtable(wp, (char *)"Aka to use", aka2str(newfiles.UseAka));
+	    add_webtable(wp, (char *)"Active", getboolean(newfiles.Active));
+	    add_webtable(wp, (char *)"Allow High ASCII", getboolean(newfiles.HiAscii));
+	    fprintf(fp, "     Area comment      %s\n", newfiles.Comment);
+	    fprintf(fp, "     Message area      %s\n", newfiles.Area);
+	    fprintf(fp, "     Origin line       %s\n", newfiles.Origin);
+	    fprintf(fp, "     From name         %s\n", newfiles.From);
+	    fprintf(fp, "     To name           %s\n", newfiles.Too);
+	    fprintf(fp, "     Subject           %s\n", newfiles.Subject);
+	    fprintf(fp, "     Language          %c\n", newfiles.Language);
+	    fprintf(fp, "     Aka to use        %s\n", aka2str(newfiles.UseAka));
+	    fprintf(fp, "     Active            %s\n", getboolean(newfiles.Active));
+	    fprintf(fp, "     Allow High ASCII  %s\n", getboolean(newfiles.HiAscii));
+	    fprintf(fp, "\n     File groups:\n     ");
+	    groups = newfileshdr.grpsize / sizeof(group);
+	    for (i = 0; i < groups; i++) {
+		fread(&group, sizeof(group), 1, no);
+		if (strlen(group)) {
+		    if (i)
+			fprintf(wp, "<TR><TH>&nbsp;</TH><TD><A HREF=\"newgroup_%s.html\">%s</A></TD></TR>\n", group, group);
+		    else
+			fprintf(wp, "<TR><TH align='left'>File groups</TH><TD><A HREF=\"newgroup_%s.html\">%s</A></TD></TR>\n", 
+				group, group);
+		    fprintf(fp, "%-12s ", group);
+		    if (((i+1) %5) == 0)
+			fprintf(fp, "\n     ");
+		}
+	    }
+	    if ((i+1) % 5)
+		fprintf(fp, "\n");
+	    fprintf(fp, "\n\n\n");
+	    j++;
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(no);
+    return page;
 }
 
 

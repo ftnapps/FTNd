@@ -683,50 +683,120 @@ char *PickModem(char *shdr)
 
 int modem_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*mdm;
-	int	i, j;
+    char    temp[PATH_MAX];
+    FILE    *ti, *wp, *ip, *mdm;
+    int	    refs, nr = 0, i, j;
 
-	sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
-	if ((mdm = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
+    if ((mdm = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 5, 0, page, (char *)"Modem types information");
-	j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 5, 0, page, (char *)"Modem types information");
+    j = 0;
 
-	fprintf(fp, "\n\n");
-	fread(&modemhdr, sizeof(modemhdr), 1, mdm);
+    fprintf(fp, "\n\n");
+    fread(&modemhdr, sizeof(modemhdr), 1, mdm);
 
-	while ((fread(&modem, modemhdr.recsize, 1, mdm)) == 1) {
-		if (j == 1) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "     Modem type   %s\n", modem.modem);
-		for (i = 0; i < 3; i++)
-			fprintf(fp, "     Init string  %s\n", modem.init[i]);
-		fprintf(fp, "     OK string    %s\n", modem.ok);
-		fprintf(fp, "     Hangup       %s\n", modem.hangup);
-		fprintf(fp, "     Info command %s\n", modem.info);
-		fprintf(fp, "     Dial command %s\n", modem.dial);
-		for (i = 0; i < 20; i++)
-			fprintf(fp, "     Connect      %s\n", modem.connect[i]);
-		fprintf(fp, "     Reset cmd    %s\n", modem.reset);
-		for (i = 0; i < 10; i++)
-			fprintf(fp, "     Error string %s\n", modem.error[i]);
-		fprintf(fp, "     Cost offset  %d\n", modem.costoffset);
-		fprintf(fp, "     EMSI speed   %s\n", modem.speed);
-		fprintf(fp, "     Strip dashes %s\n", getboolean(modem.stripdash));
-		fprintf(fp, "     Available    %s\n", getboolean(modem.available));
-		fprintf(fp, "\n\n\n");
-		j++;
+    ip = open_webdoc((char *)"modem.html", (char *)"Modems", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&modem, modemhdr.recsize, 1, mdm)) == 1) {
+	if (j == 1) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(mdm);
-	return page;
+	nr++;
+	fprintf(ip, " <LI><A HREF=\"modem_%d.html\">%s</A></LI>\n", nr, modem.modem);
+	sprintf(temp, "modem_%d.html", nr);
+	if ((wp = open_webdoc(temp, (char *)"Modem", modem.modem))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"modem.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Modem type", modem.modem);
+	    for (i = 0; i < 3; i++)
+		if (strlen(modem.init[i])) {
+		    sprintf(temp, "Init string %d", i+1);
+		    add_webtable(wp, temp, modem.init[i]);
+		}
+	    add_webtable(wp, (char *)"OK string", modem.ok);
+	    add_webtable(wp, (char *)"Hangup", modem.hangup);
+	    add_webtable(wp, (char *)"Info command", modem.info);
+	    add_webtable(wp, (char *)"Dial command", modem.dial);
+	    for (i = 0; i < 20; i++)
+		if (strlen(modem.connect[i]))
+		    add_webtable(wp, (char *)"Connect", modem.connect[i]);
+	    add_webtable(wp, (char *)"Reset", modem.reset);
+	    for (i = 0; i < 10; i++)
+		if (strlen(modem.error[i]))
+		    add_webtable(wp, (char *)"Error string", modem.error[i]);
+	    add_webdigit(wp, (char *)"Cost offset", modem.costoffset);
+	    add_webtable(wp, (char *)"EMSI speed", modem.speed);
+	    add_webtable(wp, (char *)"Strip dashes", getboolean(modem.stripdash));
+	    add_webtable(wp, (char *)"Available", getboolean(modem.available));
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>TTY Lines Reference</H3>\n");
+	    refs = 0;
+	    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, ti);
+		fseek(ti, 0, SEEK_SET);
+		fread(&ttyinfo, ttyinfohdr.hdrsize, 1, ti);
+		while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, ti)) == 1) {
+		    if (ttyinfo.available && (strcmp(modem.modem, ttyinfo.modem) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			fprintf(wp, "<TR><TD><A HREF=\"ttyinfo_%s.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+				ttyinfo.tty, ttyinfo.tty, ttyinfo.comment);
+			refs++;
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No TTY Lines References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "     Modem type   %s\n", modem.modem);
+	for (i = 0; i < 3; i++)
+	    fprintf(fp, "     Init string  %s\n", modem.init[i]);
+	fprintf(fp, "     OK string    %s\n", modem.ok);
+	fprintf(fp, "     Hangup       %s\n", modem.hangup);
+	fprintf(fp, "     Info command %s\n", modem.info);
+	fprintf(fp, "     Dial command %s\n", modem.dial);
+	for (i = 0; i < 20; i++)
+	    fprintf(fp, "     Connect      %s\n", modem.connect[i]);
+	fprintf(fp, "     Reset cmd    %s\n", modem.reset);
+	for (i = 0; i < 10; i++)
+	    fprintf(fp, "     Error string %s\n", modem.error[i]);
+	fprintf(fp, "     Cost offset  %d\n", modem.costoffset);
+	fprintf(fp, "     EMSI speed   %s\n", modem.speed);
+	fprintf(fp, "     Strip dashes %s\n", getboolean(modem.stripdash));
+	fprintf(fp, "     Available    %s\n", getboolean(modem.available));
+	fprintf(fp, "\n\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(mdm);
+    return page;
 }
 
 
