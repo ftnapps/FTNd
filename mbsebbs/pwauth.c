@@ -3,7 +3,7 @@
  * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
  * Copyright (C) 1997-2002
@@ -100,8 +100,7 @@ int pw_auth(const char *cipher, const char *user, int reason, const char *input)
 	 * get the cleartext password for us.
 	 */
 	if (reason != PW_FTP && reason != PW_REXEC && !input) {
-		if (! (cp = getdef_str ("LOGIN_STRING")))
-			cp = PROMPT;
+		cp = PROMPT;
 		snprintf(prompt, sizeof prompt, cp, user);
 		clear = getpass(prompt);
 		if (!clear) {

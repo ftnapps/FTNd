@@ -3,7 +3,7 @@
  * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -31,23 +31,21 @@
  *****************************************************************************/
 
 #include "../config.h"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
 #include <stdio.h>
 #include <grp.h>
-
 #include "mblogin.h"
 #include <pwd.h>
 #include "getdef.h"
 #include "chowntty.h"
 
 
+
 /*
  * is_my_tty -- determine if "tty" is the same as TTY stdin is using
  */
-
 int is_my_tty(const char *tty)
 {
 	struct	stat	by_name, by_fd;
@@ -61,31 +59,18 @@ int is_my_tty(const char *tty)
 		return 1;
 }
 
+
+
 /*
  *	chown_tty() sets the login tty to be owned by the new user ID
  *	with TTYPERM modes
  */
-
 void chown_tty(const char *tty, const struct passwd *info)
 {
-	char buf[200], full_tty[200];
-	char	*group;		/* TTY group name or number */
-	struct	group	*grent;
-	gid_t gid;
+	char	buf[200], full_tty[200];
+	gid_t	gid;
 
-	/*
-	 * See if login.defs has some value configured for the port group
-	 * ID.  Otherwise, use the user's primary group ID.
-	 */
-
-	if (! (group = getdef_str ("TTYGROUP")))
-		gid = info->pw_gid;
-	else if (group[0] >= '0' && group[0] <= '9')
-		gid = atoi (group);
-	else if ((grent = getgrnam (group)))
-		gid = grent->gr_gid;
-	else
-		gid = info->pw_gid;
+	gid = info->pw_gid;
 
 	/*
 	 * Change the permissions on the TTY to be owned by the user with
@@ -103,7 +88,7 @@ void chown_tty(const char *tty, const struct passwd *info)
 		exit (1);
 	}
 	
-	if (chown(tty, info->pw_uid, gid) || chmod(tty, getdef_num("TTYPERM", 0600))) {
+	if (chown(tty, info->pw_uid, gid) || chmod(tty, 0600)) {
 		snprintf(buf, sizeof buf, "Unable to change tty %s", tty);
 		syslog(LOG_WARNING, "unable to change tty `%s' for user `%s'\n", tty, info->pw_name);
 		closelog();

@@ -222,9 +222,6 @@ void pwd_init(void)
 #ifdef RLIMIT_STACK
 	setrlimit(RLIMIT_STACK, &rlim);
 #endif
-#else /* !HAVE_SYS_RESOURCE_H */
-	set_filesize_limit(30000);
-	/* don't know how to set the other limits... */
 #endif /* !HAVE_SYS_RESOURCE_H */
 
 	signal(SIGALRM, SIG_IGN);

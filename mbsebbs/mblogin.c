@@ -75,6 +75,15 @@
 
 
 /*
+ * Login parameters
+ */
+#define	LOGIN_DELAY	3
+#define	LOGIN_TIMEOUT	300
+#define	LOGIN_RETRIES	10
+
+
+
+/*
  * Needed for MkLinux DR1/2/2.1 - J.
  */
 #ifndef LASTLOG_FILE
@@ -140,7 +149,7 @@ extern	char	**environ;
 static void usage(void);
 static void setup_tty(void);
 static void check_flags(int, char * const *);
-static void check_nologin(void);
+static void check_nologin(char *);
 static void init_env(void);
 static RETSIGTYPE alarm_handler(int);
 int main(int, char **);
@@ -163,9 +172,6 @@ usage(void)
     if (!amroot)
 	exit(1);
     fprintf(stderr, _("       %s [-p] [-h host] [-f name]\n"), Prog);
-#ifdef RLOGIN
-    fprintf(stderr, _("       %s [-p] -r host\n"), Prog);
-#endif
     exit(1);
 }
 
@@ -207,9 +213,12 @@ static void setup_tty(void)
 	termio.c_iflag &= ~IXANY;
 	termio.c_oflag |= (XTABS|OPOST|ONLCR);
 #endif
+
+#ifndef __FreeBSD__
 	/* leave these values unchanged if not specified in login.defs */
 	termio.c_cc[VERASE] = getdef_num("ERASECHAR", termio.c_cc[VERASE]);
 	termio.c_cc[VKILL] = getdef_num("KILLCHAR", termio.c_cc[VKILL]);
+#endif
 
 	/*
 	 * ttymon invocation prefers this, but these settings won't come into
@@ -239,7 +248,10 @@ static void check_flags(int argc, char * const *argv)
 
 
 
-static void check_nologin(void)
+/*
+ * nologin file is $MBSE_ROOT/etc/nologin
+ */
+static void check_nologin(char *path)
 {
 	char *fname;
 
@@ -251,8 +263,9 @@ static void check_nologin(void)
 	 * forgotten about it ...
 	 */
 
-	fname = getdef_str("NOLOGINS_FILE");
-	if (fname != NULL && access(fname, F_OK) == 0) {
+	fname = calloc(PATH_MAX, sizeof(char));
+	sprintf(fname, "%s/etc/nologin", path);
+	if (access(fname, F_OK) == 0) {
 		FILE	*nlfp;
 		int	c;
 
@@ -273,23 +286,22 @@ static void check_nologin(void)
 		} else
 			printf("\nSystem closed for routine maintenance\n");
 
-		/*
-		 * Non-root users must exit.  Root gets the message, but
-		 * gets to login.
-		 */
-		if (pwent.pw_uid != 0) {
-			closelog();
-			exit(0);
-		}
-		printf("\n[Disconnect bypassed -- root login allowed.]\n");
+		free(fname);
+		closelog();
+		exit(0);
 	}
+
+	free(fname);
 }
 
 
 
 static void init_env(void)
 {
-	char *cp, *tmp;
+#ifndef	__FreeBSD__
+	char 	*cp;
+#endif
+	char	*tmp;
 
 	if ((tmp = getenv("LANG"))) {
 		addenv("LANG", tmp);
@@ -311,8 +323,12 @@ static void init_env(void)
 
 	if ((tmp = getenv("HZ"))) {
 		addenv("HZ", tmp);
+#ifndef __FreeBSD__
 	} else if ((cp = getdef_str("ENV_HZ")))
 		addenv(cp, NULL);
+#else
+	}
+#endif
 }
 
 
@@ -471,24 +487,8 @@ int main(int argc, char **argv)
 #endif
 
 	openlog("mblogin", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
-
 	setup_tty();
-
-	umask(getdef_num("UMASK", 077));
-
-	{
-		/* 
-		 * Use the ULIMIT in the login.defs file, and if
-		 * there isn't one, use the default value.  The
-		 * user may have one for themselves, but otherwise,
-		 * just take what you get.
-		 */
-
-		long limit = getdef_long("ULIMIT", -1L);
-
-		if (limit != -1)
-			set_filesize_limit(limit);
-	}
+	umask(007);
 
 	if (pflg)
 	    while (*envp)           /* add inherited environment, */
@@ -508,6 +508,8 @@ int main(int argc, char **argv)
 	pw = getpwnam("mbse");
 	addenv("MBSE_ROOT", pw->pw_dir);
 	sprintf(userfile, "%s/etc/users.data",  pw->pw_dir);
+
+	check_nologin(pw->pw_dir);
 
 	init_env();
 
@@ -572,13 +574,13 @@ int main(int argc, char **argv)
 top:
 	/* only allow ALARM sec. for login */
 	signal(SIGALRM, alarm_handler);
-	timeout = getdef_num("LOGIN_TIMEOUT", ALARM);
+	timeout = LOGIN_TIMEOUT;
 	if (timeout > 0)
 		alarm(timeout);
 
 	environ = newenvp;		/* make new environment active */
-	delay   = getdef_num("FAIL_DELAY", 1);
-	retries = getdef_num("LOGIN_RETRIES", RETRIES);
+	delay   = LOGIN_DELAY;
+	retries = LOGIN_RETRIES;
 
 	while (1) {			/* repeatedly get login/password pairs */
 		failed = 0;		/* haven't failed authentication yet */
@@ -588,35 +590,32 @@ top:
 				exit (1);
 			}
 			preauth_flag = 0;
-#ifndef LOGIN_PROMPT
-#ifdef __linux__  /* hostname login: - like in util-linux login */
-			login_prompt(_("\n%s login: "), username, sizeof username);
-#else
 			login_prompt(_("login: "), username, sizeof username);
-#endif
-#else
-			login_prompt(LOGIN_PROMPT, username, sizeof username);
-#endif
 			continue;
 		}
 
 		/*
 		 * Here we try usernames on unix names and Fidonet style
 		 * names that are stored in the bbs userdatabase.
+		 * The name "bbs" is for new users, don't check the bbs userfile.
 		 */
-		FoundName = 0;
-		if ((ufp = fopen(userfile, "r"))) {
-		    fread(&usrconfighdr, sizeof(usrconfighdr), 1, ufp);
-		    while (fread(&usrconfig, usrconfighdr.recsize, 1, ufp) == 1) {
-			if ((strcasecmp(usrconfig.sUserName, username) == 0) ||
-			    (strcasecmp(usrconfig.sHandle, username) == 0) ||
-			    (strcmp(usrconfig.Name, username) == 0)) {
-			    FoundName = 1;
-			    STRFCPY(username, usrconfig.Name);
-			    break;
+		if (strcmp(username, "bbs") == 0) {
+		    FoundName = 1;
+		} else {
+		    FoundName = 0;
+		    if ((ufp = fopen(userfile, "r"))) {
+			fread(&usrconfighdr, sizeof(usrconfighdr), 1, ufp);
+			while (fread(&usrconfig, usrconfighdr.recsize, 1, ufp) == 1) {
+			    if ((strcasecmp(usrconfig.sUserName, username) == 0) ||
+				(strcasecmp(usrconfig.sHandle, username) == 0) ||
+				(strcmp(usrconfig.Name, username) == 0)) {
+				FoundName = 1;
+				STRFCPY(username, usrconfig.Name);
+				break;
+			    }
 			}
+			fclose(ufp);
 		    }
-		    fclose(ufp);
 		}
 
 		if ((! (pwd = getpwnam(username))) || (FoundName == 0)) {
@@ -664,7 +663,7 @@ top:
 		 * username at least once...  Should probably use LOG_AUTHPRIV
 		 * for those who really want to log them.  --marekm
 		 */
-		syslog(LOG_WARNING, BAD_PASSWD, (pwd || getdef_bool("LOG_UNKFAIL_ENAB")) ?  username : "UNKNOWN", fromhost);
+		syslog(LOG_WARNING, BAD_PASSWD, "UNKNOWN", fromhost);
 		failed = 1;
 
 auth_ok:
@@ -694,28 +693,6 @@ auth_ok:
 		if (! failed)
 			break;
 
-		if (getdef_str("FTMP_FILE") != NULL) {
-			const char *failent_user;
-#if HAVE_UTMPX_H
-			failent = utxent;
-			gettimeofday(&(failent.ut_tv), NULL);
-#else
-			failent = utent;
-			time(&failent.ut_time);
-#endif
-			if (pwd) {
-				failent_user = pwent.pw_name;
-			} else {
-				if (getdef_bool("LOG_UNKFAIL_ENAB"))
-					failent_user = username;
-				else
-					failent_user = "UNKNOWN";
-			}
-			strncpy(failent.ut_user, failent_user, sizeof(failent.ut_user));
-#ifdef USER_PROCESS
-			failent.ut_type = USER_PROCESS;
-#endif
-		}
 		memzero(username, sizeof username);
 
 		if (--retries <= 0)
@@ -760,8 +737,6 @@ auth_ok:
 //	}
 #endif
 
-	check_nologin();
-
 	if (getenv("IFS"))		/* don't export user IFS ... */
 		addenv("IFS= \t\n", NULL);  /* ... instead, set a safe IFS */
 
@@ -783,8 +758,8 @@ auth_ok:
 #endif
 		goto top;		/* go do all this all over again */
 	}
-	if (getdef_bool("LASTLOG_ENAB")) /* give last login and log this one */
-		dolastlog(&lastlog, &pwent, utent.ut_line, hostname);
+
+	dolastlog(&lastlog, &pwent, utent.ut_line, hostname);
 
 #ifdef SVR4_SI86_EUA
 	sysi86(SI86LIMUSER, EUA_ADD_USER);	/* how do we test for fail? */
@@ -865,9 +840,8 @@ auth_ok:
 	else
 		syslog(LOG_INFO, REG_LOGIN, username, fromhost);
 	closelog();
-	if ((tmp = getdef_str("FAKE_SHELL")) != NULL) {
-		shell(tmp, pwent.pw_shell);  /* fake shell */
-	}
+
+	sleep(3);
 	shell (pwent.pw_shell, (char *) 0); /* exec the shell finally. */
 	/*NOTREACHED*/
 	return 0;

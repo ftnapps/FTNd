@@ -3,7 +3,7 @@
  * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
  * Copyright (C) 1997-2002
@@ -46,13 +46,14 @@ void login_exit(int sig)
 	exit(1);
 }
 
+
+
 /*
  * login_prompt - prompt the user for their login name
  *
  * login_prompt() displays the standard login prompt.  If ISSUE_FILE
  * is set in login.defs, this file is displayed before the prompt.
  */
-
 void login_prompt(const char *prompt, char *name, int namesize)
 {
 	char	buf[1024];
@@ -85,7 +86,8 @@ void login_prompt(const char *prompt, char *name, int namesize)
 	 */
 
 	if (prompt) {
-		cp = getdef_str("ISSUE_FILE");
+//		cp = getdef_str("ISSUE_FILE");
+		cp = NULL;
 		if (cp && (fp = fopen(cp, "r"))) {
 			while ((i = getc(fp)) != EOF)
 				putc(i, stdout);
@@ -101,7 +103,6 @@ void login_prompt(const char *prompt, char *name, int namesize)
 	 * Read the user's response.  The trailing newline will be
 	 * removed.
 	 */
-
 	memzero(buf, sizeof buf);
 	if (fgets(buf, sizeof buf, stdin) != buf)
 		exit(1);

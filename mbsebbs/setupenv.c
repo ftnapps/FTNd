@@ -109,8 +109,6 @@ void read_env_file(const char *filename)
  */
 void setup_env(struct passwd *info)
 {
-	char *cp, *envf;
-
 	/*
 	 * Change the current working directory to be the home directory
 	 * of the user.  It is a fatal error for this process to be unable
@@ -118,32 +116,23 @@ void setup_env(struct passwd *info)
 	 * directory.
 	 *
 	 * We no longer do it as root - should work better on NFS-mounted
-	 * home directories.  Some systems default to HOME=/, so we make
-	 * this a configurable option.  --marekm
+	 * home directories.
 	 */
-
 	if (chdir(info->pw_dir) == -1) {
-		static char temp_pw_dir[] = "/";
-		if (!getdef_bool("DEFAULT_HOME") || chdir("/") == -1) {
-			fprintf(stderr, _("Unable to cd to \"%s\"\n"), info->pw_dir);
-			syslog(LOG_WARNING, "unable to cd to `%s' for user `%s'\n", info->pw_dir, info->pw_name);
-			closelog();
-			exit (1);
-		}
-		puts(_("No directory, logging in with HOME=/"));
-		info->pw_dir = temp_pw_dir;
+		fprintf(stderr, _("Unable to cd to \"%s\"\n"), info->pw_dir);
+		syslog(LOG_WARNING, "unable to cd to `%s' for user `%s'\n", info->pw_dir, info->pw_name);
+		closelog();
+		exit (1);
 	}
 
 	/*
 	 * Create the HOME environmental variable and export it.
 	 */
-
 	addenv("HOME", info->pw_dir);
 
 	/*
 	 * Create the SHELL environmental variable and export it.
 	 */
-
 	if (info->pw_shell == (char *) 0 || ! *info->pw_shell) {
 		static char temp_pw_shell[] = "/bin/sh";
 		info->pw_shell = temp_pw_shell;
@@ -154,9 +143,7 @@ void setup_env(struct passwd *info)
 	/*
 	 * Create the PATH environmental variable and export it.
 	 */
-
-	cp = getdef_str( info->pw_uid == 0 ? "ENV_SUPATH" : "ENV_PATH" );
-	addenv(cp ? cp : "PATH=/bin:/usr/bin", NULL);
+	addenv("PATH=/bin:/usr/bin", NULL);
 
 	/*
 	 * Export the user name.  For BSD derived systems, it's "USER", for
@@ -165,34 +152,5 @@ void setup_env(struct passwd *info)
 
 	addenv("USER", info->pw_name);
 	addenv("LOGNAME", info->pw_name);
-
-	/*
-	 * MAILDIR environment variable for Qmail
-	 */
-//	if ((cp=getdef_str("QMAIL_DIR")))
-//		addenv_path("MAILDIR", info->pw_dir, cp);
-
-	/*
-	 * Create the MAIL environmental variable and export it.  login.defs
-	 * knows the prefix.
-	 */
-
-//	if ((cp=getdef_str("MAIL_DIR")))
-//		addenv_path("MAIL", cp, info->pw_name);
-//	else if ((cp=getdef_str("MAIL_FILE")))
-//		addenv_path("MAIL", info->pw_dir, cp);
-//	else {
-//#if defined(MAIL_SPOOL_FILE)
-//		addenv_path("MAIL", info->pw_dir, MAIL_SPOOL_FILE);
-//#elif defined(MAIL_SPOOL_DIR)
-//		addenv_path("MAIL", MAIL_SPOOL_DIR, info->pw_name);
-//#endif
-//	}
-
-	/*
-	 * Read environment from optional config file.  --marekm
-	 */
-	if ((envf = getdef_str("ENVIRON_FILE")))
-		read_env_file(envf);
 }
 
