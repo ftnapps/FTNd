@@ -7790,6 +7790,33 @@ esac
 
 
 
+echo "$as_me:$LINENO: checking location of joe editor" >&5
+echo $ECHO_N "checking location of joe editor... $ECHO_C" >&6
+for joebin in /usr/bin /usr/local/bin NONE; do
+	if test "$joebin" = "NONE"; then
+		{ echo "$as_me:$LINENO: WARNING: not found" >&5
+echo "$as_me: WARNING: not found" >&2;}
+	elif test -x $joebin/joe; then
+
+		echo "$as_me:$LINENO: result: $joebin" >&5
+echo "${ECHO_T}$joebin" >&6
+		echo "$as_me:$LINENO: checking location of joe rc files" >&5
+echo $ECHO_N "checking location of joe rc files... $ECHO_C" >&6
+		for joelib in /etc/joe /usr/lib/joe /usr/local/etc/joe /usr/local/lib/joe NONE; do
+			if test "$joelib" = "NONE"; then
+				{ echo "$as_me:$LINENO: WARNING: not found" >&5
+echo "$as_me: WARNING: not found" >&2;}
+			elif test -f $joelib/joerc; then
+
+				echo "$as_me:$LINENO: result: $joelib" >&5
+echo "${ECHO_T}$joelib" >&6
+				break
+			fi
+		done
+		break
+	fi
+done
+
 echo "$as_me:$LINENO: checking location of utmp" >&5
 echo $ECHO_N "checking location of utmp... $ECHO_C" >&6
 for utmpdir in /var/run /var/adm /usr/adm /etc NONE; do
@@ -8458,6 +8485,8 @@ s,@GOLDEDBIN@,$GOLDEDBIN,;t t
 s,@GOLDNODE@,$GOLDNODE,;t t
 s,@LOG_COMPRESS@,$LOG_COMPRESS,;t t
 s,@LOG_COMPRESSEXT@,$LOG_COMPRESSEXT,;t t
+s,@joebin@,$joebin,;t t
+s,@joelib@,$joelib,;t t
 CEOF
 
 _ACEOF

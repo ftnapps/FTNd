@@ -26,6 +26,10 @@ AWK		= @AWK@
 TAR		= @TAR@
 ZIP		= @ZIP@
 
+# joe editor
+JOEBIN		= @joebin@
+JOELIB		= @joelib@
+
 CFLAGS		= -O2 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe
 LIBS		= @LIBS@
 

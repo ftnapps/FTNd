@@ -38,25 +38,19 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR}" ; \
 		fi
-		@if [ -x /usr/bin/joe ]; then \
-			rm -f /usr/bin/bbsjoe ; \
-			rm -f /usr/bin/bbsjmacs ; \
-			echo "ln -s /usr/bin/joe /usr/bin/bbsjoe" ; \
-			ln -s /usr/bin/joe /usr/bin/bbsjoe ; \
-			echo "ln -s /usr/bin/joe /usr/bin/bbsjmacs" ; \
-			ln -s /usr/bin/joe /usr/bin/bbsjmacs ; \
+		@if [ -x ${JOEBIN}/joe ]; then \
+			rm -f ${JOEBIN}/bbsjoe ; \
+			rm -f ${JOEBIN}/bbsjmacs ; \
+			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe" ; \
+			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe ; \
+			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs" ; \
+			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs ; \
 		fi
-		@if [ -d /usr/lib/joe ]; then \
-			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /usr/lib/joe ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /usr/lib/joe" ; \
-			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /usr/lib/joe ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /usr/lib/joe" ; \
-		fi
-		@if [ -d /etc/joe ]; then \
-			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /etc/joe ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc    /etc/joe" ; \
-			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /etc/joe ; \
-			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  /etc/joe" ; \
+		@if [ -d ${JOELIB} ]; then \
+			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    ${JOELIB} ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc    ${JOELIB}" ; \
+			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB} ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB}" ; \
 		fi
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}
 		@if [ ! -x ${BINDIR}/bbsdoor.sh ]; then \

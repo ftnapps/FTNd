@@ -195,6 +195,27 @@ AC_SUBST(LOG_COMPRESS)
 AC_SUBST(LOG_COMPRESSEXT)
 dnl
 
+AC_MSG_CHECKING(location of joe editor)
+for joebin in /usr/bin /usr/local/bin NONE; do
+	if test "$joebin" = "NONE"; then
+		AC_MSG_WARN(not found)
+	elif test -x $joebin/joe; then
+		AC_SUBST(joebin)
+		AC_MSG_RESULT($joebin)
+		AC_MSG_CHECKING(location of joe rc files)
+		for joelib in /etc/joe /usr/lib/joe /usr/local/etc/joe /usr/local/lib/joe NONE; do
+			if test "$joelib" = "NONE"; then
+				AC_MSG_WARN(not found)
+			elif test -f $joelib/joerc; then
+				AC_SUBST(joelib)
+				AC_MSG_RESULT($joelib)
+				break
+			fi
+		done
+		break
+	fi
+done
+
 AC_MSG_CHECKING(location of utmp)
 for utmpdir in /var/run /var/adm /usr/adm /etc NONE; do
         if test "$utmpdir" = "NONE"; then
