@@ -14,6 +14,12 @@ $Id$
                  L = Cosmetic or nice to have.
 		 X = Will not be done unless it's really needed.
 
+everything:
+	L: Finish big-endian machines porting (low priority because it seems
+	   that I'm the only one using Sun's and HP-PA systems next to Intel).
+
+	L: Implement IPv6.
+
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.

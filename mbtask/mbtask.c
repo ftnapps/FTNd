@@ -60,6 +60,7 @@ int			sock = -1;		/* Datagram socket	*/
 struct sockaddr_un	servaddr;		/* Server address	*/
 struct sockaddr_un	from;			/* From address		*/
 int			fromlen;
+char			waitmsg[81];		/* Waiting message	*/
 static char		spath[PATH_MAX];	/* Socket path		*/
 int			logtrans = 0;		/* Log transactions	*/
 struct taskrec		TCFG;			/* Task config record	*/
@@ -1011,7 +1012,7 @@ void scheduler(void)
 	else if (!s_bbsopen)
 	    sprintf(doing, "BBS is closed");
 	else if (Processing)
-	    sprintf(doing, "Waiting (%d)", oldmin);
+	    sprintf(doing, "%s", waitmsg);
 	else
 	    sprintf(doing, "Overload %2.2f", Load);
 

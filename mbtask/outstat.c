@@ -54,6 +54,7 @@ extern int		s_do_inet;	    /* Internet wanted		*/
 extern int		pots_lines;	    /* POTS lines available	*/
 extern int		isdn_lines;	    /* ISDN lines available	*/
 extern pp_list		*pl;		    /* Available ports		*/
+extern char		waitmsg[];	    /* Waiting message		*/
 
 
 
@@ -581,6 +582,7 @@ int outstat()
     /*
      * Log results
      */
+    sprintf(waitmsg, "Next event at %02d:%02d UTC", nxt_hour, nxt_min);
     Syslog('+', "Systems to call: Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
 	    inet_calls, isdn_calls, pots_calls, nxt_hour, nxt_min);
     free(temp);
