@@ -826,7 +826,7 @@ SM_RETURN
  */
 int file_transfer(void)
 {
-    int		rc = 0;
+    int		data;
     TrType	Trc = Ok;
     
     for (;;) {
@@ -845,14 +845,15 @@ int file_transfer(void)
 				}
 
 				/*
-				 * Check for received data
+				 * Get I/O status
 				 */
-				rc = binkp_poll_frame();
-				if (rc == -1) {
-				    bp.rc = rc;
-				    bp.FtState = DeinitTransfer;
-				    break;
-				} else if (rc == 1) {
+				data = WAITPUTGET(-1);
+//				Syslog('B', "Binkp: waitputget rc=%d", data);
+
+				/*
+				 * Data in input buffer
+				 */
+				if (data & 1) {
 				    bp.FtState = Receive;
 				    break;
 				}
@@ -860,7 +861,7 @@ int file_transfer(void)
 				/*
 				 * Check if there is room in the output buffer
 				 */
-				if ((WAITPUTGET(-1) & 2) != 0) {
+				if (data & 2) {
 				    bp.FtState = Transmit;
 				    break;
 				}
@@ -875,6 +876,7 @@ int file_transfer(void)
 				/*
 				 * Nothing done, release
 				 */
+				Syslog('b', "Binkp: NOTHING DONE");
 				usleep(1);
 				break;
 
@@ -928,15 +930,18 @@ TrType binkp_receiver(void)
     int		    bcmd, rc = 0;
     struct statfs   sfs;
     long	    written;
-	off_t		rxbytes;
-
-    Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
+    off_t	    rxbytes;
 
     if (bp.RxState == RxWaitF) {
-        if (! bp.GotFrame) {
-            return Ok;
-        }
-	
+
+	rc = binkp_poll_frame();
+	if (rc == -1) {
+	    return Failure;
+	} else if (rc == 0) {
+	    return Ok;
+	}
+
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
 	bp.header = 0;
@@ -962,8 +967,8 @@ TrType binkp_receiver(void)
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: rcvd M_EOB");
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+//                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+//		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
 		    if ((bp.messages < 3) || binkp_pendingfiles()) {
@@ -1000,7 +1005,8 @@ TrType binkp_receiver(void)
             return Ok;
         }
     } else if (bp.RxState == RxAccF) {
-        Syslog('b', "Binkp: got M_FILE \"%s\"", printable(bp.rxbuf +1, 0));
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
+ //       Syslog('b', "Binkp: got M_FILE \"%s\"", printable(bp.rxbuf +1, 0));
 	if (strlen(bp.rxbuf) < 512) {
 	    sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
 	    bp.rsize = atoi(strtok(NULL, " \n\r"));
@@ -1090,9 +1096,14 @@ TrType binkp_receiver(void)
 	}
 
     } else if (bp.RxState == RxReceD) {
-	if (! bp.GotFrame) {
+
+	rc = binkp_poll_frame();
+	if (rc == -1) {
+	    return Failure;
+	} else if (rc == 0) {
 	    return Ok;
 	}
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 
 	if (! bp.cmd) {
 	    bp.RxState = RxWriteD;
@@ -1130,6 +1141,7 @@ TrType binkp_receiver(void)
 	    return Ok;
 	}
     } else if (bp.RxState == RxWriteD) {
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 	written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
 
 	bp.GotFrame = FALSE;
@@ -1161,9 +1173,14 @@ TrType binkp_receiver(void)
 	bp.RxState = RxReceD;
 	return Ok;
     } else if (bp.RxState == RxEOB) {
-	if (! bp.GotFrame) {
+
+	rc = binkp_poll_frame();
+	if (rc == -1) {
+	    return Failure;
+	} else if (rc == 0) {
 	    return Ok;
 	}
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 
 	bp.GotFrame = FALSE;
 	bp.rxlen = 0;
@@ -1197,6 +1214,7 @@ TrType binkp_receiver(void)
 	}
 
     } else if (bp.RxState == RxDone) {
+	Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 	return Ok;
     }
 
@@ -1221,10 +1239,9 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
-    Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
-
     if (bp.TxState == TxGNF) {
 
+	Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 	/*
 	 * If we do not have a filelist yet, create one.
 	 */
@@ -1331,6 +1348,7 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxTryR) {
 
+	Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 	if (bp.msgs_on_queue == 0) {
 	    bp.TxState = TxReadS;
 	    return Continue;
@@ -1343,6 +1361,7 @@ TrType binkp_transmitter(void)
 	}
 
     } else if (bp.TxState == TxReadS) {
+	Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 	fseek(bp.txfp, bp.txpos, SEEK_SET);
 	bp.txlen = fread(bp.txbuf, 1, SND_BLKSIZE, bp.txfp);
 
@@ -1391,13 +1410,14 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxWLA) {
 
+	Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0)) {
 
 	    if ((bp.RxState >= RxEOB) && (bp.Major == 1) && (bp.Minor == 0)) {
 		bp.TxState = TxDone;
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: binkp/1.0 session seems complete");
-		    bp.RxState = RxDone;    /* Not in FSP-1018 rev.1 */
+		    bp.RxState = RxDone;
 		}
 
 		binkp_clear_filelist();
@@ -1410,8 +1430,8 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+//		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+//			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 
 		if (bp.local_EOB && bp.remote_EOB) {
 		    /*
@@ -1455,6 +1475,7 @@ TrType binkp_transmitter(void)
 	return Ok;
 
     } else if (bp.TxState == TxDone) {
+	Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
 	return Ok;
     }
 
@@ -1478,16 +1499,22 @@ TrType binkp_transmitter(void)
 int binkp_send_frame(int cmd, char *buf, int len)
 {
     unsigned short  header = 0;
-    int		    rc;
+    int		    rc, id;
 
     if (cmd) {
 	header = ((BINKP_CONTROL_BLOCK + len) & 0xffff);
 	bp.messages++;
-	if (buf[0] == MM_EOB) {
+	id = buf[0];
+	if (id == MM_EOB) {
 	    bp.local_EOB = TRUE;
 	}
+	if (len == 1)
+	    Syslog('b', "Binkp: send %s", bstate[id]);
+	else
+	    Syslog('b', "Binkp: send %s %s", bstate[id], printable(buf +1, len -1));
     } else {
 	header = ((BINKP_DATA_BLOCK + len) & 0xffff);
+	Syslog('b', "Binkp: send data (%d)", len);
     }
 
     rc = PUTCHAR((header >> 8) & 0x00ff);
@@ -1523,7 +1550,6 @@ int binkp_send_command(int id, ...)
 	sz = 0;
     }
 
-    Syslog('b', "Binkp: send %s %s", bstate[id], buf);
     memmove(buf+1, buf, sz);
     buf[0] = id & 0xff;
     sz++;
@@ -1736,10 +1762,12 @@ int binkp_poll_frame(void)
 		    if (bp.cmd) {
 			bp.messages++;
 			bcmd = bp.rxbuf[0];
-			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
+			Syslog('b', "Binkp: rcvd %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
 			if (bcmd == MM_EOB) {
 			    bp.remote_EOB = TRUE;
 			}
+		    } else {
+			Syslog('b', "Binkp: rcvd data (%d)", bp.rxlen);
 		    }
 		    rc = 1;
 		    break;
