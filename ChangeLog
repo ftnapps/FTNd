@@ -38,6 +38,7 @@ v0.51.2		06-Mar-2004
 		Fixed a bug when a m_get message was received on a file that
 		was already transmitted to remove that file from the outbound
 		queue.
+		Removed some debug logging from inbound handler.
 
 	mbfido:
 		When removing files during tic import due to replace or maximum

@@ -109,7 +109,6 @@ int inbound_close(int success)
     dest   = calloc(PATH_MAX, sizeof(char));
 
     while ((de = readdir(dp))) {
-	Syslog('s', "inbound_close() checking \"%s\"", MBSE_SS(de->d_name));
 	sprintf(source, "%s/%s", tempinbound, de->d_name);
 	sprintf(dest, "%s/%s", inbound, de->d_name);
 	if ((lstat(source, &stb) == 0) && (S_ISREG(stb.st_mode))) {
@@ -119,7 +118,7 @@ int inbound_close(int success)
 		if ((rc = file_mv(source, dest))) {
 		    WriteError("Can't move %s to %s: %s", source, dest, strerror(rc));
 		} else {
-		    Syslog('s', "Moved %s to %s", de->d_name, inbound);
+		    Syslog('s', "inbound_close(): moved %s to %s", de->d_name, inbound);
 		    gotfiles = TRUE;
 		}
 	    }
@@ -137,7 +136,7 @@ int inbound_close(int success)
     if ((rc = rmdir(tempinbound))) {
 	WriteError("Can't remove %s: %s", tempinbound, strerror(rc));
     } else {
-	Syslog('s', "Removed %s", tempinbound);
+	Syslog('s', "inbound_close(): removed %s", tempinbound);
     }
 
     free(tempinbound);

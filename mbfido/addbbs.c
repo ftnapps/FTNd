@@ -131,7 +131,6 @@ int Add_BBS()
     }
     if (strlen(TIC.TicIn.Magic)) {
 	strncpy(frec.Magic, TIC.TicIn.Magic, sizeof(frec.Magic) -1);
-	sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
     }
 
     sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
@@ -235,6 +234,16 @@ int Add_BBS()
 	 */
 	for (i = 0; i < Insert; i++) {
 	    fread(&fdb, frechdr.recsize, 1, fp);
+
+	    /*
+	     * If we see a magic that is the new magic, remove
+	     * the old one.
+	     */
+	    if (strlen(TIC.TicIn.Magic) && (strcmp(fdb.Magic, TIC.TicIn.Magic) == 0)) {
+		Syslog('f', "addbbs(): remove magic from %s (%s)", fdb.Name, fdb.LName);
+		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
+	    }
+
 	    /*
 	     * Check if we are importing a file with the same
 	     * name, if so, don't copy the original database
@@ -255,6 +264,16 @@ int Add_BBS()
 	 * Append the rest of the entries.
 	 */
 	while (fread(&fdb, frechdr.recsize, 1, fp) == 1) {
+
+	    /*
+	     * If we see a magic that is the new magic, remove
+	     * the old one.
+	     */
+	    if (strlen(TIC.TicIn.Magic) && (strcmp(fdb.Magic, TIC.TicIn.Magic) == 0)) {
+		Syslog('f', "addbbs(): remove magic from %s (%s)", fdb.Name, fdb.LName);
+		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
+	    }
+
 	    /*
 	     * Check if we find a file with the same name,
 	     * then we skip the record what was origionaly
