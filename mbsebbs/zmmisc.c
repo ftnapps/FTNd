@@ -366,122 +366,112 @@ void zsda32(register char *buf, int length, int frameend)
  */
 int zrdata(register char *buf, int length)
 {
-	register int c;
-	register unsigned short crc;
-	register char *end;
-	register int d;
+    register int c;
+    register unsigned short crc;
+    register char *end;
+    register int d;
 
-	switch (Crc32r) {
+    switch (Crc32r) {
 	case 1:
 		return zrdat32(buf, length);
 	case 2:
 		return zrdatr32(buf, length);
-	}
+    }
 
-	crc = Rxcount = 0;  end = buf + length;
-	while (buf <= end) {
-		if ((c = zdlread()) & ~0377) {
+    crc = Rxcount = 0;  end = buf + length;
+    while (buf <= end) {
+	if ((c = zdlread()) & ~0377) {
 crcfoo:
-			switch (c) {
-			case GOTCRCE:
-			case GOTCRCG:
-			case GOTCRCQ:
-			case GOTCRCW:
-				crc = updcrc16((((d=c))&0377), crc);
+	    switch (c) {
+		case GOTCRCE:
+		case GOTCRCG:
+		case GOTCRCQ:
+		case GOTCRCW:	crc = updcrc16((((d=c))&0377), crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc16(c, crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc16(c, crc);
 				if (crc & 0xFFFF) {
-					Syslog('+', "Zmodem zrdata: Bad CRC");
-					return TERROR;
+				    Syslog('+', "Zmodem zrdata: Bad CRC");
+				    return TERROR;
 				}
 				Rxcount = length - (end - buf);
 				Syslog('z', "zrdata: %d  %s", Rxcount, Zendnames[(d-GOTCRCE)&3]);
 				return d;
-			case GOTCAN:
-				Syslog('+', "Zmodem: Sender Canceled");
+		case GOTCAN:	Syslog('+', "Zmodem: Sender Canceled");
 				return ZCAN;
-			case TIMEOUT:
-				Syslog('+', "Zmodem: TIMEOUT receiving data");
+		case TIMEOUT:	Syslog('+', "Zmodem: TIMEOUT receiving data");
 				return c;
-			case HANGUP:
-				Syslog('+', "Zmodem: Carrier lost while receiving");
+		case HANGUP:	Syslog('+', "Zmodem: Carrier lost while receiving");
 				return c;
-			default:
-				garbitch(); 
+		default:	garbitch(); 
 				return c;
-			}
-		}
-		*buf++ = c;
-		crc = updcrc16(c, crc);
+	    }
 	}
-	Syslog('+', "Zmodem: Data subpacket too long");
-	return TERROR;
+	*buf++ = c;
+	crc = updcrc16(c, crc);
+    }
+    Syslog('+', "Zmodem: Data subpacket too long");
+    return TERROR;
 }
 
 
 
 int zrdat32(register char *buf, int length)
 {
-	register int c;
-	register unsigned long crc;
-	register char *end;
-	register int d;
+    register int c;
+    register unsigned long crc;
+    register char *end;
+    register int d;
 
-	crc = 0xFFFFFFFFL;  Rxcount = 0;  end = buf + length;
-	while (buf <= end) {
-		if ((c = zdlread()) & ~0377) {
+    crc = 0xFFFFFFFFL;  Rxcount = 0;  end = buf + length;
+    while (buf <= end) {
+	if ((c = zdlread()) & ~0377) {
 crcfoo:
-			switch (c) {
-			case GOTCRCE:
-			case GOTCRCG:
-			case GOTCRCQ:
-			case GOTCRCW:
-				d = c;  c &= 0377;
+	    switch (c) {
+		case GOTCRCE:
+		case GOTCRCG:
+		case GOTCRCQ:
+		case GOTCRCW:	d = c;  c &= 0377;
 				crc = updcrc32(c, crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc32(c, crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc32(c, crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc32(c, crc);
 				if ((c = zdlread()) & ~0377)
-					goto crcfoo;
+				    goto crcfoo;
 				crc = updcrc32(c, crc);
 				if (crc != 0xDEBB20E3) {
-					Syslog('+', "Zmodem zrdat32: Bad CRC");
-					return TERROR;
+				    Syslog('+', "Zmodem zrdat32: Bad CRC");
+				    return TERROR;
 				}
 				Rxcount = length - (end - buf);
 
 				Syslog('z', "zrdat32: %d %s", Rxcount, Zendnames[(d-GOTCRCE)&3]);
 
 				return d;
-			case GOTCAN:
-				Syslog('+', "Zmodem: Sender Canceled");
+		case GOTCAN:	Syslog('+', "Zmodem: Sender Canceled");
 				return ZCAN;
-			case TIMEOUT:
-				Syslog('+', "Zmodem: TIMEOUT");
+		case TIMEOUT:	Syslog('+', "Zmodem: TIMEOUT");
 				return c;
-			case HANGUP:
-				Syslog('+', "Zmodem: Carrier lost while receiving");
+		case HANGUP:	Syslog('+', "Zmodem: Carrier lost while receiving");
 				return c;
-			default:
-				garbitch(); 
+		default:	garbitch(); 
 				return c;
-			}
-		}
-		*buf++ = c;
-		crc = updcrc32(c, crc);
+	    }
 	}
-	Syslog('+', "Zmodem: Data subpacket too long");
-	return TERROR;
+	*buf++ = c;
+	crc = updcrc32(c, crc);
+    }
+    Syslog('+', "Zmodem: Data subpacket too long");
+    return TERROR;
 }
 
 

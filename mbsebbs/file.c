@@ -318,6 +318,7 @@ void Download(void)
 	/*
 	 * Download error
 	 */
+	Syslog('+', "Download error rc=%d", rc);
 	free(temp);
 	tidy_download(&dl);
 	return;
@@ -342,7 +343,7 @@ void Download(void)
 	    PUTCHAR('.');
 	    if (Tag.Active) {
 		for (tmpf = dl; tmpf; tmpf = tmpf->next) {
-		    if (strcmp(tmpf->remote, Tag.SFile) == 0) {
+		    if (strcmp(tmpf->remote, Tag.LFile) == 0) {
 			if (tmpf->sent) {
 		
 			    Tag.Active = FALSE;

@@ -112,7 +112,7 @@ newuser.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h inp
 pinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h pinfo.h input.h term.h ttyio.h
 timecheck.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timecheck.h funcs.h bye.h exitinfo.h language.h input.h term.h ttyio.h
 change.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h change.h dispfile.h funcs.h input.h language.h misc.h timeout.h exitinfo.h bye.h term.h ttyio.h
-transfer.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h transfer.h change.h whoson.h funcs.h term.h ttyio.h filesub.h language.h openport.h timeout.h
+transfer.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h transfer.h change.h whoson.h funcs.h term.h ttyio.h filesub.h language.h openport.h timeout.h zmsend.h
 exitinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
 mbsebbs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h mbsebbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h term.h ttyio.h openport.h
 menu.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h mail.h bbslist.h change.h chat.h file.h funcs.h input.h misc.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h term.h ttyio.h

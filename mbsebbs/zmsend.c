@@ -36,7 +36,7 @@
 #include "transfer.h"
 
 static int initsend(void);
-static int sendzfile(char*,char*);
+static int sendzfile(char*);
 static int finsend(void);
 
 static int getzrxinit(void);
@@ -81,66 +81,71 @@ extern void free_frame_buffer(void);
 
 int zmsndfiles(down_list *lst)
 {
-	int		rc, maxrc = 0;
-	down_list	*tmpf;
+    int		rc, maxrc = 0;
+    down_list	*tmpf;
 
-	Syslog('+', "Zmodem: start Zmodem send");
+    Syslog('+', "Zmodem: start Zmodem send");
 
-	get_frame_buffer();
+    get_frame_buffer();
 
-	if ((rc = initsend())) {
-		if (txbuf)
-			free(txbuf);
-		txbuf = NULL;
-		free_frame_buffer();
-		return abs(rc);
-	}
-
-	for (tmpf = lst; tmpf && (maxrc < 2); tmpf = tmpf->next) {
-		if (tmpf->remote) {
-			rc = sendzfile(tmpf->local, tmpf->remote);
-			rc = abs(rc);
-			if (rc > maxrc) 
-				maxrc = rc;
-			if (rc == 0) 
-			    unlink(tmpf->remote);
-		} else if (maxrc == 0) 
-		    unlink(tmpf->remote);
-	}
-
-	if (maxrc < 2) {
-		rc = finsend();
-		rc = abs(rc);
-	}
-
-	if (rc > maxrc) 
-		maxrc = rc;
-
+    if ((rc = initsend())) {
 	if (txbuf)
-		free(txbuf);
+	    free(txbuf);
 	txbuf = NULL;
 	free_frame_buffer();
+	return abs(rc);
+    }
 
-	Syslog('z', "Zmodem: send rc=%d", maxrc);
-	return (maxrc < 2)?0:maxrc;
+    for (tmpf = lst; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+	if (tmpf->remote) {
+	    rc = sendzfile(tmpf->remote);
+	    rc = abs(rc);
+	    if (rc > maxrc) 
+		maxrc = rc;
+	    if (rc == 0) {
+		tmpf->sent = TRUE;
+	    } else {
+		tmpf->failed = TRUE;
+	    }
+	} else if (maxrc == 0) {
+	    tmpf->failed = TRUE;
+	}
+	Syslog('z', "zmsndfiles: unlink(%s) returns %d", tmpf->remote, unlink(tmpf->remote));
+    }
+
+    if (maxrc < 2) {
+	rc = finsend();
+	rc = abs(rc);
+    }
+
+    if (rc > maxrc) 
+	maxrc = rc;
+
+    if (txbuf)
+	free(txbuf);
+    txbuf = NULL;
+    free_frame_buffer();
+
+    Syslog('z', "Zmodem: send rc=%d", maxrc);
+    return (maxrc < 2)?0:maxrc;
 }
 
 
 
 static int initsend(void)
 {
-	Syslog('z', "Zmodem: initsend");
+    Syslog('z', "Zmodem: initsend");
 
-	PUTSTR((char *)"rz\r");
-	stohdr(0x80L);		/* Show we can do var header */
-	zshhdr(4, ZRQINIT, Txhdr);
+    PUTSTR((char *)"rz\r");
+    stohdr(0x80L);		/* Show we can do var header */
+    zshhdr(4, ZRQINIT, Txhdr);
 
-	if (getzrxinit()) {
-		Syslog('+', "Zmodem: Unable to initiate send");
-		return 1;
-	}
+    if (getzrxinit()) {
+	Syslog('+', "Zmodem: Unable to initiate send");
+	return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -150,82 +155,76 @@ static int initsend(void)
  */
 static int finsend(void)
 {
-	int i, rc = 0;
+    int i, rc = 0;
 
-	Syslog('z', "Zmodem: finsend");
-	while (GETCHAR(1) >= 0) /*nothing*/;
-	for (i = 0; i < 30; i++) {
-		stohdr(0L);
-		zshhdr(4, ZFIN, Txhdr);
-		if ((rc = zgethdr(Rxhdr)) == ZFIN)
-			PUTSTR((char *)"OO");
-		if ((rc == ZFIN) || (rc == ZCAN) || (rc < 0)) 
-			break;
-	}
-	return (rc != ZFIN);
+    Syslog('z', "Zmodem: finsend");
+    while (GETCHAR(1) >= 0) /*nothing*/;
+    for (i = 0; i < 30; i++) {
+	stohdr(0L);
+	zshhdr(4, ZFIN, Txhdr);
+	if ((rc = zgethdr(Rxhdr)) == ZFIN)
+	    PUTSTR((char *)"OO");
+	if ((rc == ZFIN) || (rc == ZCAN) || (rc < 0)) 
+	    break;
+    }
+    return (rc != ZFIN);
 }
 
 
 
-static int sendzfile(char *ln, char *rn)
+static int sendzfile(char *rn)
 {
-	int rc=0;
-	struct stat st;
-	struct flock fl;
-	int bufl;
-	int sverr;
+    int		    rc = 0;
+    struct stat	    st;
+    struct flock    fl;
+    int		    bufl;
+    int		    sverr;
 
-	fl.l_type   = F_RDLCK;
-	fl.l_whence = 0;
-	fl.l_start  = 0L;
-	fl.l_len    = 0L;
-	if (txbuf == NULL) 
-		txbuf = malloc(MAXBLOCK);
+    fl.l_type   = F_RDLCK;
+    fl.l_whence = 0;
+    fl.l_start  = 0L;
+    fl.l_len    = 0L;
+    if (txbuf == NULL) 
+	txbuf = malloc(MAXBLOCK);
 
-	skipsize = 0L;
-	if ((in = fopen(ln, "r")) == NULL) {
-		sverr = errno;
-		if ((sverr == ENOENT) || (sverr == EINVAL)) {
-			Syslog('+', "File %s doesn't exist, removing", MBSE_SS(ln));
-			return 0;
-		} else {
-			WriteError("$Zmodem: cannot open file %s, skipping", MBSE_SS(ln));
-			return 1;
-		}
+    skipsize = 0L;
+    if ((in = fopen(rn, "r")) == NULL) {
+	sverr = errno;
+	if ((sverr == ENOENT) || (sverr == EINVAL)) {
+	    Syslog('+', "File %s doesn't exist, removing", MBSE_SS(rn));
+	    return 0;
+	} else {
+	    WriteError("$Zmodem: cannot open file %s, skipping", MBSE_SS(rn));
+	    return 1;
 	}
+    }
 
-	if (fcntl(fileno(in),F_SETLK,&fl) != 0) {
-		Syslog('+', "$Zmodem: cannot lock file %s, skipping",MBSE_SS(ln));
-		fclose(in);
-		return 1;
-	}
+    if (stat(rn,&st) != 0) {
+	Syslog('+', "$Zmodem: cannot access \"%s\", skipping",MBSE_SS(rn));
+	fclose(in);
+	return 1;
+    }
 
-	if (stat(ln,&st) != 0) {
-		Syslog('+', "$Zmodem: cannot access \"%s\", skipping",MBSE_SS(ln));
-		fclose(in);
-		return 1;
-	}
+    Syslog('+', "Zmodem: send \"%s\"", MBSE_SS(rn));
+    Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, rfcdate(st.st_mtime));
+    gettimeofday(&starttime, &tz);
 
-	Syslog('+', "Zmodem: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
-	Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, rfcdate(st.st_mtime));
-	gettimeofday(&starttime, &tz);
+    sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2), st.st_mode);
+    bufl = strlen(txbuf);
+    *(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
 
-	sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2), st.st_mode);
-	bufl = strlen(txbuf);
-	*(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
-
-	Eofseen = 0;
-	rc = zsendfile(txbuf,bufl);
-	if (rc == ZSKIP) {
-		Syslog('+', "Zmodem: remote skipped %s, is OK",MBSE_SS(ln));
-		return 0;
-	} else if ((rc == OK) && (st.st_size - skipsize)) {
-		gettimeofday(&endtime, &tz);
-		Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, (unsigned long)st.st_size - skipsize, TRUE));
-		sentbytes += (unsigned long)st.st_size - skipsize;
-		return 0;
-	} else 
-		return 2;
+    Eofseen = 0;
+    rc = zsendfile(txbuf,bufl);
+    if (rc == ZSKIP) {
+	Syslog('+', "Zmodem: remote skipped %s, is OK",MBSE_SS(rn));
+	return 0;
+    } else if ((rc == OK) && (st.st_size - skipsize)) {
+	gettimeofday(&endtime, &tz);
+	Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, (unsigned long)st.st_size - skipsize, TRUE));
+	sentbytes += (unsigned long)st.st_size - skipsize;
+	return 0;
+    } else 
+	return 2;
 }
 
 
@@ -235,21 +234,21 @@ static int sendzfile(char *ln, char *rn)
  */
 int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 {
-	int	n;
+    int	n;
 
-	Syslog('z', "getzrxinit");
-	for (n=10; --n>=0; ) {
+    Syslog('z', "getzrxinit");
+    for (n=10; --n>=0; ) {
 		
-		switch (zgethdr(Rxhdr)) {
-		case ZCHALLENGE:	/* Echo receiver's challenge numbr */
+	switch (zgethdr(Rxhdr)) {
+	    case ZCHALLENGE:	/* Echo receiver's challenge numbr */
 			stohdr(Rxpos);
 			zshhdr(4, ZACK, Txhdr);
 			continue;
-		case ZCOMMAND:		/* They didn't see out ZRQINIT */
+	    case ZCOMMAND:		/* They didn't see out ZRQINIT */
 			stohdr(0L);
 			zshhdr(4, ZRQINIT, Txhdr);
 			continue;
-		case ZRINIT:
+	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Usevhdrs = Rxhdr[ZF1] & CANVHDR;
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
@@ -276,20 +275,20 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 				Lztrans = 0;
 
 			return (sendzsinit());
-		case ZCAN:
-		case TIMEOUT:
+	    case ZCAN:
+	    case TIMEOUT:
 			return TERROR;
-		case HANGUP:
+	    case HANGUP:
 			return HANGUP;
-		case ZRQINIT:
+	    case ZRQINIT:
 			if (Rxhdr[ZF0] == ZCOMMAND)
 				continue;
-		default:
+	    default:
 			zshhdr(4, ZNAK, Txhdr);
 			continue;
-		}
 	}
-	return TERROR;
+    }
+    return TERROR;
 }
 
 
@@ -299,33 +298,28 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
  */
 int sendzsinit(void)
 {
-	int	c;
+    int	c;
 
-	if (Myattn[0] == '\0' && (!Zctlesc || (Rxflags & TESCCTL)))
-		return OK;
-	errors = 0;
-	for (;;) {
-		stohdr(0L);
-		if (Zctlesc) {
-			Txhdr[ZF0] |= TESCCTL; zshhdr(4, ZSINIT, Txhdr);
-		}
-		else
-			zsbhdr(4, ZSINIT, Txhdr);
-		zsdata(Myattn, ZATTNLEN, ZCRCW);
-		c = zgethdr(Rxhdr);
-		switch (c) {
-		case ZCAN:
-			return TERROR;
-		case HANGUP:
-			return HANGUP;
-		case ZACK:
-			return OK;
-		default:
-			if (++errors > 19)
+    if (Myattn[0] == '\0' && (!Zctlesc || (Rxflags & TESCCTL)))
+	return OK;
+    errors = 0;
+    for (;;) {
+	stohdr(0L);
+	if (Zctlesc) {
+	    Txhdr[ZF0] |= TESCCTL; zshhdr(4, ZSINIT, Txhdr);
+	} else
+	    zsbhdr(4, ZSINIT, Txhdr);
+	zsdata(Myattn, ZATTNLEN, ZCRCW);
+	c = zgethdr(Rxhdr);
+	switch (c) {
+	    case ZCAN:	    return TERROR;
+	    case HANGUP:    return HANGUP;
+	    case ZACK:	    return OK;
+	    default:	    if (++errors > 19)
 				return TERROR;
-			continue;
-		}
+			    continue;
 	}
+    }
 }
 
 
@@ -335,15 +329,15 @@ int sendzsinit(void)
  */
 int zfilbuf(void)
 {
-	int n;
+    int n;
 
-	n = fread(txbuf, 1, blklen, in);
-	if (n < blklen) {
-		Eofseen = 1;
-		Syslog('z', "zfilbuf return %d", n);
-	}
+    n = fread(txbuf, 1, blklen, in);
+    if (n < blklen) {
+	Eofseen = 1;
+	Syslog('Z', "zfilbuf return %d", n);
+    }
 
-	return n;
+    return n;
 }
 
 
@@ -353,42 +347,42 @@ int zfilbuf(void)
  */
 int zsendfile(char *buf, int blen)
 {
-	int	c;
-	register unsigned long crc = -1;
-	long lastcrcrq = -1;
+    int	c;
+    register unsigned long crc = -1;
+    long lastcrcrq = -1;
 
-	Syslog('z', "zsendfile %s (%d)", buf, blen);
-	for (errors=0; ++errors<11;) {
-		Txhdr[ZF0] = Lzconv;	/* file conversion request */
-		Txhdr[ZF1] = Lzmanag;	/* file management request */
-		if (Lskipnocor)
-			Txhdr[ZF1] |= ZMSKNOLOC;
-		Txhdr[ZF2] = Lztrans;	/* file transport request */
-		Txhdr[ZF3] = 0;
-		zsbhdr(4, ZFILE, Txhdr);
-		zsdata(buf, blen, ZCRCW);
+    Syslog('z', "zsendfile %s (%d)", buf, blen);
+    for (errors=0; ++errors<11;) {
+	Txhdr[ZF0] = Lzconv;	/* file conversion request */
+	Txhdr[ZF1] = Lzmanag;	/* file management request */
+	if (Lskipnocor)
+	    Txhdr[ZF1] |= ZMSKNOLOC;
+	Txhdr[ZF2] = Lztrans;	/* file transport request */
+	Txhdr[ZF3] = 0;
+	zsbhdr(4, ZFILE, Txhdr);
+	zsdata(buf, blen, ZCRCW);
 again:
-		c = zgethdr(Rxhdr);
-		switch (c) {
-		case ZRINIT:
+	c = zgethdr(Rxhdr);
+	switch (c) {
+	    case ZRINIT:
 			while ((c = GETCHAR(5)) > 0)
 				if (c == ZPAD) {
 					goto again;
 				}
 			continue;
-		case ZCAN:
-		case TIMEOUT:
-		case ZABORT:
-		case ZFIN:
+	    case ZCAN:
+	    case TIMEOUT:
+	    case ZABORT:
+	    case ZFIN:
 			Syslog('+', "Zmodem: Got %s on pathname", frametypes[c+FTOFFSET]);
 			return TERROR;
-		default:
+	    default:
 			Syslog('+', "Zmodem: Got %d frame type on pathname", c);
 			continue;
-		case TERROR:
-		case ZNAK:
+	    case TERROR:
+	    case ZNAK:
 			continue;
-		case ZCRC:
+	    case ZCRC:
 			if (Rxpos != lastcrcrq) {
 				lastcrcrq = Rxpos;
 				crc = 0xFFFFFFFFL;
@@ -402,11 +396,11 @@ again:
 			stohdr(crc);
 			zsbhdr(4, ZCRC, Txhdr);
 			goto again;
-		case ZFERR:
-		case ZSKIP:
+	    case ZFERR:
+	    case ZSKIP:
 			Syslog('+', "Zmodem: File skipped by receiver request");
 			fclose(in); return c;
-		case ZRPOS:
+	    case ZRPOS:
 			/*
 			 * Suppress zcrcw request otherwise triggered by
 			 * lastyunc==bytcnt
@@ -417,9 +411,9 @@ again:
 				return TERROR;
 			Lastsync = (bytcnt = Txpos = Lrxpos = Rxpos) -1;
 			return zsendfdata();
-		}
 	}
-	fclose(in); return TERROR;
+    }
+    fclose(in); return TERROR;
 }
 
 
@@ -429,171 +423,155 @@ again:
  */
 int zsendfdata(void)
 {
-	int	c=0, e, n;
-	int	newcnt;
-	int	tcount = 0;
-	int	junkcount; /* Counts garbage chars received by TX */
-	int	maxblklen, goodblks = 0, goodneeded = 8;
+    int	    c = 0, e, n;
+    int	    newcnt;
+    int	    tcount = 0;
+    int	    junkcount; /* Counts garbage chars received by TX */
+    int	    maxblklen, goodblks = 0, goodneeded = 8;
 
-	maxblklen = 1024; // FIXME: 8K variant set this to 8K
-	Syslog('z', "zsendfdata() maxblklen=%d", maxblklen);
+    maxblklen = 1024; // FIXME: 8K variant set this to 8K
+    Syslog('z', "zsendfdata() maxblklen=%d", maxblklen);
 
-	junkcount = 0;
-	Beenhereb4 = 0;
+    junkcount = 0;
+    Beenhereb4 = 0;
 somemore:
-	if (0) {
+    if (0) {
 waitack:
-		junkcount = 0;
-		c = getinsync(0);
+	junkcount = 0;
+	c = getinsync(0);
 gotack:
-		switch (c) {
-		default:
-		case ZCAN:
-			fclose(in);
-			return TERROR;
-		case ZRINIT:
-			fclose(in);
-			return ZSKIP;
-		case ZSKIP:
-			fclose(in);
-			return c;
-		case ZACK:
-			break;	// Possible bug, added 23-08-99
-		case ZRPOS:
-			blklen = ((blklen >> 2) > 64) ? (blklen >> 2) : 64;
-			goodblks = 0;
-			goodneeded = ((goodneeded << 1) > 16) ? 16 : goodneeded << 1;
-			Syslog('z', "zmsend: blocklen now %d", blklen);
-			break;
-		case TIMEOUT: /* Put back here 08-09-1999 mb */
-			Syslog('z', "zmsend: zsendfdata TIMEOUT");
-			goto to;
-		case HANGUP: /* New, added 08-09-1999 mb */
-			Syslog('z', "zmsend: zsendfdata HANGUP");
-			fclose(in);
-			return c;
-		}
-		/*
-		 * If the reverse channel can be tested for data,
-		 *  this logic may be used to detect error packets
-		 *  sent by the receiver, in place of setjmp/longjmp
-		 *  rdchk(fd) returns non 0 if a character is available
-		 */
-		if (TCHECK()) {
-			c = GETCHAR(1);
-			Syslog('z', "zsendfdata(): check getchar(1)=%d", c);
-			if (c < 0) {
-				return c;
-			} else switch (c) {
-			case CAN:
-			case ZPAD:
-				c = getinsync(1);
-				goto gotack;
-			case XOFF:		/* Wait a while for an XON */
-			case XOFF|0200:
-				GETCHAR(10);
-			}
-		}
+	switch (c) {
+	    default:
+	    case ZCAN:	    fclose(in);
+			    return TERROR;
+	    case ZRINIT:    fclose(in);
+			    return ZSKIP;
+	    case ZSKIP:	    fclose(in);
+			    return c;
+	    case ZACK:	    break;	// Possible bug, added 23-08-99
+	    case ZRPOS:	    blklen = ((blklen >> 2) > 64) ? (blklen >> 2) : 64;
+			    goodblks = 0;
+			    goodneeded = ((goodneeded << 1) > 16) ? 16 : goodneeded << 1;
+			    Syslog('z', "zmsend: blocklen now %d", blklen);
+			    break;
+	    case TIMEOUT:   /* Put back here 08-09-1999 mb */
+			    Syslog('z', "zmsend: zsendfdata TIMEOUT");
+			    goto to;
+	    case HANGUP:    /* New, added 08-09-1999 mb */
+			    Syslog('z', "zmsend: zsendfdata HANGUP");
+			    fclose(in);
+			    return c;
 	}
+
+	/*
+	 * If the reverse channel can be tested for data,
+	 *  this logic may be used to detect error packets
+	 *  sent by the receiver, in place of setjmp/longjmp
+	 *  rdchk(fd) returns non 0 if a character is available
+	 */
+	if (TCHECK()) {
+	    c = GETCHAR(1);
+	    Syslog('z', "zsendfdata(): check getchar(1)=%d", c);
+	    if (c < 0) {
+		return c;
+	    } else switch (c) {
+		case CAN:
+		case ZPAD:	c = getinsync(1);
+				goto gotack;
+		case XOFF:	/* Wait a while for an XON */
+		case XOFF|0200:	GETCHAR(10);
+	    }
+	}
+    }
 to:
-	newcnt = Rxbuflen;
-	Txwcnt = 0;
-	stohdr(Txpos);
-	zsbhdr(4, ZDATA, Txhdr);
+    newcnt = Rxbuflen;
+    Txwcnt = 0;
+    stohdr(Txpos);
+    zsbhdr(4, ZDATA, Txhdr);
 
-	do {
-		n = zfilbuf();
-		if (Eofseen)
-			e = ZCRCE;
-		else if (junkcount > 3)
-			e = ZCRCW;
-		else if (bytcnt == Lastsync)
-			e = ZCRCW;
-		else if (Rxbuflen && (newcnt -= n) <= 0)
-			e = ZCRCW;
-		else if (Txwindow && (Txwcnt += n) >= Txwspac) {
-			Txwcnt = 0;  e = ZCRCQ;
-		} else
-			e = ZCRCG;
-		Syslog('z', "%7ld ZMODEM%s    ",
-			  Txpos, Crc32t?" CRC-32":"");
-		Nopper();
-		zsdata(txbuf, n, e);
-		bytcnt = Txpos += n;
+    do {
+	n = zfilbuf();
+	if (Eofseen)
+	    e = ZCRCE;
+	else if (junkcount > 3)
+	    e = ZCRCW;
+	else if (bytcnt == Lastsync)
+	    e = ZCRCW;
+	else if (Rxbuflen && (newcnt -= n) <= 0)
+	    e = ZCRCW;
+	else if (Txwindow && (Txwcnt += n) >= Txwspac) {
+	    Txwcnt = 0;  e = ZCRCQ;
+	} else
+	    e = ZCRCG;
+	Syslog('Z', "%7ld ZMODEM%s    ", Txpos, Crc32t?" CRC-32":"");
+	Nopper();
+	zsdata(txbuf, n, e);
+	bytcnt = Txpos += n;
 
-		if ((blklen < maxblklen) && (++goodblks > goodneeded)) {
-			blklen = ((blklen << 1) < maxblklen) ? blklen << 1 : maxblklen;
-			goodblks = 0;
-			Syslog('z', "zmsend: blocklen now %d", blklen);
-		}
+	if ((blklen < maxblklen) && (++goodblks > goodneeded)) {
+	    blklen = ((blklen << 1) < maxblklen) ? blklen << 1 : maxblklen;
+	    goodblks = 0;
+	    Syslog('z', "zmsend: blocklen now %d", blklen);
+	}
 
-		if (e == ZCRCW)
-			goto waitack;
-		/*
-		 * If the reverse channel can be tested for data,
-		 *  this logic may be used to detect error packets
-		 *  sent by the receiver, in place of setjmp/longjmp
-		 *  rdchk(fd) returns non 0 if a character is available
-		 */
-		if (TCHECK()) {
-			c = GETCHAR(1);
-			if (c < 0) {
-				return c;
-			} else switch (c) {
-			case CAN:
-			case ZPAD:
-				c = getinsync(1);
+	if (e == ZCRCW)
+	    goto waitack;
+	/*
+	 * If the reverse channel can be tested for data,
+	 *  this logic may be used to detect error packets
+	 *  sent by the receiver, in place of setjmp/longjmp
+	 *  rdchk(fd) returns non 0 if a character is available
+	 */
+	if (TCHECK()) {
+	    c = GETCHAR(1);
+	    if (c < 0) {
+		return c;
+	    } else switch (c) {
+		case CAN:
+		case ZPAD:	c = getinsync(1);
 				if (c == ZACK)
-					break;
+				    break;
 				/* zcrce - dinna wanna starta ping-pong game */
 				zsdata(txbuf, 0, ZCRCE);
 				goto gotack;
-			case XOFF:		/* Wait a while for an XON */
-			case XOFF|0200:
-				GETCHAR(10);
-			default:
-				++junkcount;
-			}
-		}
-		if (Txwindow) {
-			while ((tcount = (Txpos - Lrxpos)) >= Txwindow) {
-				Syslog('z', "%ld window >= %u", tcount, Txwindow);
-				if (e != ZCRCQ)
-					zsdata(txbuf, 0, e = ZCRCQ);
-				c = getinsync(1);
-				if (c != ZACK) {
-					zsdata(txbuf, 0, ZCRCE);
-					goto gotack;
-				}
-			}
-			Syslog('z', "window = %ld", tcount);
-		}
-	} while (!Eofseen);
-
-	for (;;) {
-		stohdr(Txpos);
-		zsbhdr(4, ZEOF, Txhdr);
-egotack:
-		switch (getinsync(0)) {
-		case ZACK:
-			Syslog('z', "zsendfdata() ZACK");
-			goto egotack;	// continue in old source
-		case ZRPOS:
-			goto somemore;
-		case ZRINIT:
-			fclose(in);
-			return OK;
-		case ZSKIP:
-			fclose(in);
-			Syslog('+', "Zmodem: File skipped by receiver request");
-			return ZSKIP;
-		default:
-			Syslog('+', "Zmodem: Got %d trying to send end of file", c);
-		case TERROR:
-			fclose(in);
-			return TERROR;
-		}
+		case XOFF:	/* Wait a while for an XON */
+		case XOFF|0200: GETCHAR(10);
+		default:	++junkcount;
+	    }
 	}
+	if (Txwindow) {
+	    while ((tcount = (Txpos - Lrxpos)) >= Txwindow) {
+		Syslog('z', "%ld window >= %u", tcount, Txwindow);
+		if (e != ZCRCQ)
+		    zsdata(txbuf, 0, e = ZCRCQ);
+		c = getinsync(1);
+		if (c != ZACK) {
+		    zsdata(txbuf, 0, ZCRCE);
+		    goto gotack;
+		}
+	    }
+	    Syslog('z', "window = %ld", tcount);
+	}
+    } while (!Eofseen);
+
+    for (;;) {
+	stohdr(Txpos);
+	zsbhdr(4, ZEOF, Txhdr);
+egotack:
+	switch (getinsync(0)) {
+	    case ZACK:	    Syslog('z', "zsendfdata() ZACK");
+			    goto egotack;	// continue in old source
+	    case ZRPOS:	    goto somemore;
+	    case ZRINIT:    fclose(in);
+			    return OK;
+	    case ZSKIP:	    fclose(in);
+			    Syslog('+', "Zmodem: File skipped by receiver request");
+			    return ZSKIP;
+	    default:	    Syslog('+', "Zmodem: Got %d trying to send end of file", c);
+	    case TERROR:    fclose(in);
+			    return TERROR;
+	}
+    }
 }
 
 
@@ -603,64 +581,58 @@ egotack:
  */
 int getinsync(int flag)
 {
-	int	c = 0;
+    int	c = 0;
 
-	Syslog('z', "getinsync(%d)", flag);
+    Syslog('z', "getinsync(%d)", flag);
 
-	for (;;) {
-		c = zgethdr(Rxhdr);
-		switch (c) {
-		case HANGUP:
-			return HANGUP;
-		case ZCAN:
-		case ZABORT:
-		case ZFIN:
-		case TERROR:
-		case TIMEOUT:
-			Syslog('+', "Zmodem: Got %s sending data", frametypes[c+FTOFFSET]);
-			return TERROR;
-		case ZRPOS:
-			/* ************************************* */
-			/*  If sending to a buffered modem, you  */
-			/*   might send a break at this point to */
-			/*   dump the modem's buffer.		 */
-			clearerr(in);	/* In case file EOF seen */
-			if (fseek(in, Rxpos, 0)) {
+    for (;;) {
+	c = zgethdr(Rxhdr);
+	switch (c) {
+	    case HANGUP:    return HANGUP;
+	    case ZCAN:
+	    case ZABORT:
+	    case ZFIN:
+	    case TERROR:
+	    case TIMEOUT:   Syslog('+', "Zmodem: Got %s sending data", frametypes[c+FTOFFSET]);
+			    return TERROR;
+	    case ZRPOS:	    /* ************************************* */
+			    /*  If sending to a buffered modem, you  */
+			    /*   might send a break at this point to */
+			    /*   dump the modem's buffer.		 */
+			    clearerr(in);	/* In case file EOF seen */
+			    if (fseek(in, Rxpos, 0)) {
 				Syslog('+', "Zmodem: Bad Seek to %ld", Rxpos);
 				return TERROR;
-			}
-			Eofseen = 0;
-			bytcnt = Lrxpos = Txpos = Rxpos;
-			if (Lastsync == Rxpos) {
+			    }
+			    Eofseen = 0;
+			    bytcnt = Lrxpos = Txpos = Rxpos;
+			    if (Lastsync == Rxpos) {
 				if (++Beenhereb4 > 12) {
-					Syslog('+', "Zmodem: Can't send block");
-					return TERROR;
+				    Syslog('+', "Zmodem: Can't send block");
+				    return TERROR;
 				}
-				if (Beenhereb4 > 4)
-					if (blklen > 32) {
-						blklen /= 2;
-						Syslog('z', "Zmodem: blocklen now %d", blklen);
-					}
-			}
-			else 
+				if (Beenhereb4 > 4) {
+				    if (blklen > 32) {
+					blklen /= 2;
+					Syslog('z', "Zmodem: blocklen now %d", blklen);
+				    }
+				}
+			    } else {
 				Beenhereb4=0;
-			Lastsync = Rxpos;
-			return c;
-		case ZACK:
-			Lrxpos = Rxpos;
-			if (flag || Txpos == Rxpos)
+			    }
+			    Lastsync = Rxpos;
+			    return c;
+	    case ZACK:	    Lrxpos = Rxpos;
+			    if (flag || Txpos == Rxpos)
 				return ZACK;
-			continue;
-		case ZRINIT:
-			return c;
-		case ZSKIP:
-			Syslog('+', "Zmodem: File skipped by receiver request");
-			return c;
-		default:
-			zsbhdr(4, ZNAK, Txhdr);
-			continue;
-		}
+			    continue;
+	    case ZRINIT:    return c;
+	    case ZSKIP:	    Syslog('+', "Zmodem: File skipped by receiver request");
+			    return c;
+	    default:	    zsbhdr(4, ZNAK, Txhdr);
+			    continue;
 	}
+    }
 }
 
 
@@ -671,14 +643,14 @@ int getinsync(int flag)
  */
 void initzsendmsk(register char *p)
 {
-        int	c;
+    int	c;
 
-        for (c = 0; c < 33; ++c) {
-                if (p[c>>3] & (1 << (c & 7))) {
-                        Zsendmask[c] = 1;
-                        Syslog('z', "Zmodem: Escaping %02o", c);
-                }
+    for (c = 0; c < 33; ++c) {
+        if (p[c>>3] & (1 << (c & 7))) {
+            Zsendmask[c] = 1;
+            Syslog('z', "Zmodem: Escaping %02o", c);
         }
+    }
 }
 
 

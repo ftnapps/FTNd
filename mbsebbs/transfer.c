@@ -42,6 +42,7 @@
 #include "language.h"
 #include "openport.h"
 #include "timeout.h"
+#include "zmsend.h"
 
 
 /*
@@ -67,8 +68,8 @@
 */
 
 
-int	sentbytes = 0;
-int	rcvdbytes = 0;
+int	sentbytes;
+int	rcvdbytes;
 
 
 
@@ -257,7 +258,14 @@ int download(down_list *download_list)
     sleep(2);
     
     if (uProtInternal) {
-	for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+	if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+	    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	    chdir(temp);
+	    maxrc = zmsndfiles(download_list);
+	    Home();
+	} else {
+	    Syslog('!', "Warning internal protocol %s not supported", sProtName);
+	    maxrc = 1;
 	}
     } else {
 	gettimeofday(&starttime, &tz);
@@ -347,6 +355,7 @@ int download(down_list *download_list)
 		tmpf->kfs ?"KFS":"KEEP", tmpf->sent ?"SENT":"N/A", tmpf->failed ?"FAILED":"N/A");
     }
 
+    Syslog('b', "download() rc=%d", maxrc);
     return maxrc;
 }
 
