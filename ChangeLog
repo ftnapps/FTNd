@@ -84,6 +84,10 @@ v0.37.00	26-Dec-2002.
 	SETUP.sh
 		Made the script more portable.
 
+	CRON.sh
+		Removed explanation about Zone Mail Hour, this is obsolete
+		for a long time already.
+
 
 v0.36.00	26-Dec-2002 - stable release
 

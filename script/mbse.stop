@@ -1,6 +1,6 @@
 #
 # BBS Shutdown script, should be run as BBS owner.
-# Note: this is only used on old Slackware, FreeBSD and NetBSD systems.
+# Note: this is only used on old Slackware and NetBSD systems.
 #
 # On FreeBSD it needs the psmisc package.
 #

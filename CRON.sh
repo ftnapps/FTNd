@@ -51,18 +51,11 @@ cat << EOF
     There is a example at the bottom of the crontab which is commented
     out of course.
 
-    IMPORTANT: the first crontab entry is to set the Zone Mail Hour.
-    This entry is set for Holland, Amsterdam. ZMH is 02:30 - 03:30 UTC
-    for zone 2. CET is one hour plus in wintertime and two hours plus
-    in summertime. If you run "mbstat check" at each possible begin
-    and end of ZMH you must run it at 03:30, 04:30 and 05:30 local CET.
-    You must calculate and set the times for your own timezone and own
-    Fidonet Zone Mail Hour.
-
     On most systems you can edit the crontab by typing "crontab -e".
 
-    Hit Return to continue or Control-C to abort.
 EOF
+
+echo -n "Hit Return to continue or Control-C to abort: "
 read junk
 
 echo "Installing MBSE BBS crontab..."

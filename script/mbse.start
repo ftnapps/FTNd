@@ -1,6 +1,6 @@
 #
 # BBS Startup script, should be run as BBS owner.
-# Note: This is only used on Slackware systems until 7.0.0, FreeBSD and NetBSD.
+# Note: This is only used on Slackware systems until 7.0.0 and NetBSD.
 #
 # $Id$
 #
