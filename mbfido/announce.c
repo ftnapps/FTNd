@@ -240,6 +240,10 @@ void FinishMsg(int Final, long filepos)
     char    *temp;
     FILE    *fp, *fi;
 
+#if defined (__FreeBSD__)
+    Syslog('-', "FinishMsg(Final=%s, filepos=%ld)", Final?"true":"false", filepos);
+#endif
+
     temp = calloc(PATH_MAX, sizeof(char));
 
     if (Final && ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL)) {
@@ -287,6 +291,10 @@ long Report(gr_list *ta, long filepos)
     long	    filepos1 = 0, filepos2, filepos3 = 0, finalpos = 0;
     time_t	    ftime;
 
+#if defined (__FreeBSD__)
+    Syslog('-', "Report(grlist ..., filepos=%ld)", filepos);
+#endif
+
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
@@ -314,6 +322,9 @@ long Report(gr_list *ta, long filepos)
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
 	filepos1 = ftell(fi);
+#if defined(__FreeBSD__)
+	Syslog('-', "filepos1=%ld", filepos1);
+#endif
     } else {
 	free(temp);
 	return 0;
@@ -335,7 +346,7 @@ long Report(gr_list *ta, long filepos)
 	    Syslog('-', "start a file ...");
 	    Syslog('-', "sl: \"%s\" \"%s\"", T_File.Name, T_File.LName);
 	    Syslog('-', "bk: \"%d\" \"%d\"", T_File.Size, T_File.SizeKb);
-	    Syslog('-', "dt: \"%d\" \"%d\"", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
+	    Syslog('-', "dt: \"%s\" \"%s\"", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
 #endif
 	    MacroVars("sl", "ss", T_File.Name, T_File.LName);
 	    MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);

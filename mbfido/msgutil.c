@@ -143,9 +143,10 @@ void Msg_Macro(FILE *fi)
 
 long Msg_Top(char *template, int language, fidoaddr aka)
 {
-    char    *temp;
+    char    *temp, *line;
     FILE    *fp, *fi;
     long    fileptr, fileptr1 = -1L;
+    int	    hasmodems = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
 
@@ -167,9 +168,20 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
 		    fseek(fi, fileptr, SEEK_SET);
 		    Msg_Macro(fi);
+		    hasmodems = TRUE;
 		}
 	    }
 	    fclose(fp);
+	}
+
+	/*
+	 * If no modems were defined, the fileptr is at a wrong place and
+	 * must be moved.
+	 */
+	if (!hasmodems) {
+	    line = calloc(MAXSTR, sizeof(char));
+	    while ((fgets(line, MAXSTR-2, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
+	    free(line);
 	}
 
 	/*
