@@ -1210,9 +1210,14 @@ void scheduler(void)
     initnl();
     sem_set((char *)"scanout", TRUE);
 	
+    /*
+     * Enter the mainloop (forever)
+     */
     do {
 	/*
-	 *  Poll UNIX Datagram socket until the defined timeout.
+	 *  Poll UNIX Datagram socket until the defined timeout of one second.
+	 *  This means we listen of a MBSE BBS client program has something
+	 *  to tell.
 	 */
 	pfd.fd = sock;
 	pfd.events = POLLIN | POLLPRI;
@@ -1227,6 +1232,9 @@ void scheduler(void)
 	    }
 	} else if (rc) {
 	    if (pfd.revents & POLLIN) {
+		/*
+		 * Process the clients request
+		 */
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
 		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, &from, &fromlen);
@@ -1284,12 +1292,15 @@ void scheduler(void)
 	/*
 	 *  Touch the mbtask.last semafore to prove this daemon
 	 *  is actually running.
-	 *  Reload configuration data if the file is changed.
+	 *  Reload configuration data if some file is changed.
 	 */
 	now = time(NULL);
 	tm = localtime(&now);
 	utm = gmtime(&now);
 	if (tm->tm_min != olddo) {
+	    /*
+	     * Each minute we execute this part
+	     */
 	    olddo = tm->tm_min;
 	    TouchSema((char *)"mbtask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
@@ -1312,7 +1323,7 @@ void scheduler(void)
 	     * If the next event time is reached, rescan the outbound
 	     */
 	    if ((utm->tm_hour == nxt_hour) && (utm->tm_min == nxt_min)) {
-		tasklog('o', "Next event time reached %02d:%02d %02d:%02d", tm->tm_hour, tm->tm_min, utm->tm_hour, utm->tm_min);
+		tasklog('+', "It is now %02d:%02d UTC, starting new event", utm->tm_hour, utm->tm_min);
 		sem_set((char *)"scanout", TRUE);
 	    }
 	}
@@ -1337,6 +1348,8 @@ void scheduler(void)
 	    /*
 	     *  Here we run all normal operations.
 	     */
+	    running = checktasks(0);
+
 	    if (s_mailout && (!ptimer) && (!runtasktype(MBFIDO))) {
 		launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
 		running = checktasks(0);
@@ -1383,7 +1396,7 @@ void scheduler(void)
 	    }
 
 	    /*
-	     *  Creating filerequest indexes.
+	     *  Creating filerequest indexes, also only if nothing to do.
 	     */
 	    if (s_reqindex && (!ptimer) && (!running)) {
 		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
@@ -1523,22 +1536,11 @@ void scheduler(void)
 			cmd = NULL;
 		    }
 		}
-		
-		/*
-		 *  Run the mailer if something to do. For now we run just
-		 *  one task and lock it with CALL_POTS.
-		 *  Later tasks for different calltypes should run parallel.
-		 */
-//		if (s_scanout && !runtasktype(CALL_POTS)) {
-//		    cmd = xstrcpy(pw->pw_dir);
-//		    cmd = xstrcat(cmd, (char *)"/bin/mbcico");
-//		    launch(cmd, (char *)"-r1", (char *)"mbcico", CALL_POTS);
-//		    running = checktasks(0);
-//		    free(cmd);
-//		    cmd = NULL;
-//		}
 	    }
 
+	    /*
+	     * PING state changes
+	     */
             switch (pingstate) {
 		case P_NONE:    pingresult[pingnr] = TRUE;
 				break;

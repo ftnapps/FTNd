@@ -80,11 +80,9 @@ void set_next(int hour, int min)
 	if (hour < nxt_hour) {
 	    nxt_hour = hour;
 	    nxt_min  = min;
-	    tasklog('o', "set_next(%02d:%02d), next event setting %02d:%02d", hour, min, nxt_hour, nxt_min);
 	} else if ((hour == nxt_hour) && (min < nxt_min)) {
 	    nxt_hour = hour;
 	    nxt_min  = min;
-	    tasklog('o', "set_next(%02d:%02d), next event setting %02d:%02d", hour, min, nxt_hour, nxt_min);
 	}
     }
 }
@@ -131,7 +129,7 @@ char *callmode(int mode)
 
 int outstat()
 {
-	int		rc, first = TRUE, T_window, iszmh = FALSE, pass_midnight;
+	int		rc, first = TRUE, T_window, iszmh = FALSE;
 	struct _alist	*tmp, *old;
 	char		flstr[13];
 	char		temp[81];
@@ -187,7 +185,7 @@ int outstat()
 				set_next(9, 0);
 				set_next(10, 0);
 				break;
-		    case 2:	if (((uhour >= 2) && (umin >= 30)) && ((uhour <= 3) && (umin < 30)))
+		    case 2:	if (((uhour == 2) && (umin >= 30)) || ((uhour == 3) && (umin < 30)))
 				    iszmh = TRUE;
 				set_next(2, 30);
 				set_next(3, 30);
@@ -235,38 +233,44 @@ int outstat()
 			tmin = 30;
 		    sprintf(be, "%02d:%02d", thour, tmin);
 		    set_next(thour, tmin);
-		    if (strcmp(as, be) > 0)
-			pass_midnight = TRUE;
-		    else
-			pass_midnight = FALSE;
-		    tasklog('o', "window %s - %s, pass midnight=%s, %d", as, be, pass_midnight?"true":"false", strcmp(as, be));
-		    if (pass_midnight) {
-			tasklog('o', "strcmp(utc, as)=%d strcmp(utc, be)=%d", strcmp(utc, as), strcmp(utc, be));
+		    if (strcmp(as, be) > 0) {
+			/*
+			 * Time window is passing midnight
+			 */
 			if ((strcmp(utc, as) >= 0) || (strcmp(utc, be) < 0))
 			    T_window = TRUE;
 		    } else {
-			tasklog('o', "strcmp(utc, as)=%d strcmp(utc, be)=%d", strcmp(utc, as), strcmp(utc, be));
+			/*
+			 * Time window is not passing midnight
+			 */
 			if ((strcmp(utc, as) >= 0) && (strcmp(utc, be) < 0))
 			    T_window = TRUE;
 		    }
 		}
 		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 		strcpy(flstr,"...... ... ..");
+		/*
+		 * If the node has internet and we have internet available, check if we can send
+		 * immediatly.
+		 */
+		if (internet && TCFG.max_tcp && ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+		    tmp->flavors |= F_CALL;
+		}
 		if ((tmp->flavors) & F_IMM   ) {
 		    flstr[0]='I';
 		    /*
-		     * Immediate mail, send if node is CM.
+		     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
 		     */
-		    if ((tmp->olflags & OL_CM) || T_window) {
+		    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
 			tmp->flavors |= F_CALL;
 		    }
 		}
 		if ((tmp->flavors) & F_CRASH ) {
 		    flstr[1]='C';
 		    /*
-		     * Crash mail, send if node is CM.
+		     * Crash mail, send if node is CM or is in a Txx window or is in ZMH.
 		     */
-		    if ((tmp->olflags & OL_CM) || T_window) {
+		    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
 			tmp->flavors |= F_CALL;
 		    }
 		}
@@ -274,10 +278,8 @@ int outstat()
 		    flstr[2]='N';
 		    /*
 		     * Normal mail, send during ZMH or if node has a Txx window.
-		     * Also if node has TCP/IP capability and internet is ready.
 		     */
-		    if (iszmh || T_window || (internet && TCFG.max_tcp && 
-				((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN)))) {
+		    if (iszmh || T_window) {
 			tmp->flavors |= F_CALL;
 		    }
 		}
@@ -299,6 +301,7 @@ int outstat()
 		     */
 		    tmp->flavors &= ~F_CALL;
 		}
+		/*  Check retry timer also here */
 		if ((tmp->flavors) & F_CALL  ) 
 		    flstr[9]='C';
 		if (tmp->t1) 
@@ -320,7 +323,6 @@ int outstat()
 			    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
 			inet_calls++;
 			tmp->callmode = CM_INET;
-			tasklog('o', "Call over internet");
 		    }
 		    if (!TCFG.ipblocks || (TCFG.ipblocks && !internet)) {
 			/*
