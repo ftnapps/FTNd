@@ -304,7 +304,7 @@ void Magic_Keepnum(void)
 void Magic_UpDateAlias(void)
 {
     if (GetMagicRec(MG_UPDALIAS, TRUE)) {
-	UpDateAlias(TIC.TicIn.Area);
+	magic_update(TIC.TicIn.Area, TIC.NewFile);
 	MagicResult((char *)"Update Alias");
     }
 }

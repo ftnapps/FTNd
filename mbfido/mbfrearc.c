@@ -38,6 +38,7 @@
 
 
 extern int	do_quiet;		/* Suppress screen output	    */
+extern int	do_index;		/* Rebuild index		    */
 
 
 
@@ -46,7 +47,7 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void ReArc(int Area, char *File)
 {
-    char	    *p, *temp, *linkpath, mask[256];
+    char	    *p, *temp, *mname, *linkpath, mask[256];
     FILE	    *fp;
     int		    i, rc = -1, count = 0, errors = 0;
     struct utimbuf  ut;
@@ -168,15 +169,34 @@ void ReArc(int Area, char *File)
 		ut.actime = mktime(localtime(&fdb.FileDate));
 		ut.modtime = mktime(localtime(&fdb.FileDate));
 		utime(temp, &ut);
+		
+		/*
+		 * Check if mangled name is changed, and if so update to the
+		 * new name and rename the file on disk.
+		 */
+		mname = calloc(PATH_MAX, sizeof(char));
+		strcpy(mname, fdb.LName);
+		name_mangle(mname);
+		if (strcmp(fdb.Name, mname)) {
+		    Syslog('+', "Converted 8.3 name to %s", mname);
+		    strcpy(fdb.Name, mname);
+		    sprintf(mname, "%s/%s", area.Path, fdb.Name);
+		    rename(temp, mname);
+		    strcpy(temp, mname);
+		}
+		free(mname);
 		fseek(fp, - fdbhdr.recsize, SEEK_CUR);
 		fwrite(&fdb, fdbhdr.recsize, 1, fp);
-
+		
 		/*
 		 * Update symbolic link to long filename
 		 */
 		sprintf(linkpath, "%s/%s", area.Path, fdb.LName);
 		symlink(temp, linkpath);
 		free(linkpath);
+		if (strlen(fdb.Magic))
+		    magic_update(fdb.Magic, fdb.Name);
+		do_index = TRUE;
 	    } else {
 		errors++;
 		break; // stop when something goes wrong

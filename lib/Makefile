@@ -146,6 +146,7 @@ pktname.o: ../config.h mbselib.h
 mangle.o: ../config.h mbselib.h
 sectest.o: ../config.h mbselib.h
 proglock.o: ../config.h mbselib.h
+magic.o: ../config.h mbselib.h
 dostran.o: ../config.h mbselib.h
 ftnmsg.o: ../config.h mbselib.h
 mbfile.o: ../config.h mbselib.h

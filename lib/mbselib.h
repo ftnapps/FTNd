@@ -2441,6 +2441,22 @@ char *re_mask(char *, int);	    /* Bluid file mask			*/
 
 
 
+/*
+ * rearc.c
+ */ 
+int rearc(char *, char *, int);     /* Rearc command                    */
+
+
+
+/*
+ * magic.c
+ */
+void magic_update(char *, char *);  /* Update magic alias		*/
+int  magic_check(char *, char *);   /* Check if magic alias exists	*/
+long magic_get(char *, long);	    /* Get fdb record for magic name	*/
+
+
+
 /************************************************************************
  *
  *  Charset mapping
@@ -2479,12 +2495,6 @@ char *charset_map_c(int, int);		/* map single character		    */
 char *charset_alias_fsc(char *);	/* Search FSC alias		    */
 char *charset_alias_rfc(char *);	/* Search RFC alias		    */
 int charset_set_in_out(char *, char *);	/* Setup mapping		    */
-
-
-/*
- * rearc.c
- */
-int rearc(char *, char *, int);		/* Rearc command		    */
 
 
 

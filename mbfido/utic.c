@@ -257,33 +257,3 @@ int Get_File_Id()
 }
 
 
-
-void UpDateAlias(char *Alias)
-{
-    char    *path;
-    FILE    *fp;
-
-    Syslog('f', "UpDateAlias(%s) with %s", Alias, TIC.NewFile);
-
-    if (!strlen(CFG.req_magic)) {
-	WriteError("No magic filename path configured");
-	return;
-    }
-
-    path = xstrcpy(CFG.req_magic);
-    path = xstrcat(path, (char *)"/");
-    path = xstrcat(path, Alias);
-
-    if ((fp = fopen(path, "w")) == NULL) {
-	WriteError("$Can't create %s", path);
-	free(path);
-	return;
-    }
-
-    fprintf(fp, "%s\n", TIC.NewFile);
-    fclose(fp);
-    free(path);
-}
-
-
-

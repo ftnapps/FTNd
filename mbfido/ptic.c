@@ -666,7 +666,7 @@ int ProcessTic(fa_list *sbl)
      */
     if (tic.FileArea) {
 	if (strlen(TIC.TicIn.Magic))
-	    UpDateAlias(TIC.TicIn.Magic);
+	    magic_update(TIC.TicIn.Magic, TIC.NewFile);
 	else
 	    Magic_UpDateAlias();
 

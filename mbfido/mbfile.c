@@ -262,6 +262,13 @@ int main(int argc, char **argv)
     if (do_check)
 	Check();
 
+    if (do_rearc) {
+	ReArc(Area, FileName);
+	if (do_index)
+	    Index();
+	die(MBERR_OK);
+    }
+
     if (do_pack)
 	PackFileBase();
 
@@ -275,11 +282,6 @@ int main(int argc, char **argv)
 
     if (do_del) {
 	Delete(UnDel, Area, FileName);
-	die(MBERR_OK);
-    }
-
-    if (do_rearc) {
-	ReArc(Area, FileName);
 	die(MBERR_OK);
     }
 

@@ -27,6 +27,7 @@ v0.51.2		06-Mar-2004
 
 	mbcico:
 		Updated file request function to new files database structure.
+		Fixed a compile problem on FreeBSD 5.1
 
 	mbfido:
 		When removing files during tic import due to replace or maximum
@@ -43,6 +44,8 @@ v0.51.2		06-Mar-2004
 		Fixed an error in check when a mangled 8.3 filename was changed
 		and the symbolic link was not adjusted.
 		Added rearc command.
+		The check command does now also check if the magic alias file
+		request names are valid and removes the invalid entries.
 
 	mbaff:
 		When scanning for uploads, files which were hatched now have

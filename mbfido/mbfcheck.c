@@ -59,16 +59,17 @@ extern int	do_pack;		/* Pack filebase		    */
  */
 void Check(void)
 {
-    FILE	    *pAreas, *pFile;
-    int		    i, j, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0;
-    char	    *sAreas, *fAreas, *newdir, *temp, *mname, *tname;
-    DIR		    *dp;
-    struct dirent   *de;
-    int		    Found, Update;
-    char	    fn[PATH_MAX];
-    struct stat	    stb;
-    struct passwd   *pw;
-    struct group    *gr;
+    FILE		*pAreas, *pFile;
+    int			i, j, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0, rc;
+    char		*sAreas, *fAreas, *newdir, *temp, *mname, *tname;
+    DIR			*dp;
+    struct dirent	*de;
+    int			Found, Update;
+    char		fn[PATH_MAX];
+    struct stat		stb;
+    struct passwd	*pw;
+    struct group	*gr;
+    struct FILEIndex	idx;
 
     sAreas = calloc(PATH_MAX, sizeof(char));
     fAreas = calloc(PATH_MAX, sizeof(char));
@@ -363,6 +364,17 @@ void Check(void)
 			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 		    }
 		}
+		if (strlen(fdb.Magic)) {
+		    Syslog('f', "Checking magic %s file %s", fdb.Magic, fdb.Name);
+		    rc = magic_check(fdb.Magic, fdb.Name);
+		    if (rc == -1) {
+			Syslog('+', "Area %d magic alias %s file %s is invalid", i, fdb.Magic, fdb.Name);
+			memset(&fdb.Magic, 0, sizeof(fdb.Magic));
+			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+			iErrors++;
+		    }
+		}
 	    }
 	    if (inArea == 0)
 		Syslog('+', "Warning: area %d (%s) is empty", i, area.Name);
@@ -438,6 +450,55 @@ void Check(void)
     }
 
     fclose(pAreas);
+
+    if (!do_quiet) {
+	printf("\rChecking magic alias names ...                                    \r");
+	fflush(stdout);
+    }
+
+    if (!strlen(CFG.req_magic)) {
+	WriteError("No magic filename path configured");
+    } else {
+	if ((dp = opendir(CFG.req_magic)) == NULL) {
+	    WriteError("$Can't open directory %s", CFG.req_magic);
+	} else {
+	    while ((de = readdir(dp))) {
+		if (de->d_name[0] != '.') {
+		    sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
+		    if (file_exist(temp, X_OK) == 0) {
+			Syslog('f', "%s is executable", temp);
+		    } else if (file_exist(temp, R_OK) == 0) {
+			Syslog('f', "%s is magic alias", temp);
+			if ((pFile = fopen(temp, "r"))) {
+			    fgets(mname, PATH_MAX -1, pFile);
+			    fclose(pFile);
+			    Striplf(mname);
+			    sprintf(newdir, "%s/etc/request.index", getenv("MBSE_ROOT"));
+			    Found = FALSE;
+			    if ((pFile = fopen(newdir, "r"))) {
+				while (fread(&idx, sizeof(idx), 1, pFile)) {
+				    if ((strcmp(idx.Name, mname) == 0) || (strcmp(idx.LName, mname) == 0)) {
+					Found = TRUE;
+					break;
+				    }
+				}
+				fclose(pFile);
+			    }
+			    if (!Found) {
+				Syslog('+', "Error: magic alias %s (%s) is invalid, removed", de->d_name, mname);
+				iErrors++;
+				unlink(temp);
+			    }
+			}
+		    } else {
+			Syslog('f', "%s cannot be", temp);
+		    }
+		}
+	    }
+	    closedir(dp);
+	}
+    }
+
     if (!do_quiet) {
 	printf("\r                                                                  \r");
 	fflush(stdout);

@@ -135,8 +135,6 @@ mbcico:
 	N: Make workaround for binkp bug in Irex 2.24 upto 2.29
 
 mbfile:
-	N: Add a check to see if the magic filenames are (still) valid.
-
 	L: Update <filespec> <area> <-touch>
 
 	L: Possibility to skip file areas from checking and reindexing.
@@ -145,12 +143,6 @@ mbfile:
 
 	N: The import function doesn't strip the [0] from the files.bbs
 	   when importing the description.
-
-	N: With rearc if a LFN results in a new mangled name, update this.
-
-	N: With rearc if a file is a magic file, update the magic entry.
-
-	N: After rearc force index.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

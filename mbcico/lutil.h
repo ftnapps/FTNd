@@ -1,10 +1,10 @@
 #ifndef LUTIL_H
 #define LUTIL_H
 
-/* $id$ */
+/* $Id$ */
 
 void		setmyname(char *);
-char		*date(long);
+char		*date(time_t);
 int		IsZMH(void);
 unsigned long	rnd(void);
 
