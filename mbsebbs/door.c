@@ -304,6 +304,12 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     else
 	rc = execute_str((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
 
+    /*
+     * First set cookedport again, this will load our original saved
+     * termios values. This way it doesn't matter what the door might
+     * have done with the original termios.
+     */
+    cookedport();
     rawport();
 
     Altime(0);

@@ -77,16 +77,21 @@ int Escapechar(unsigned char *ch)
      * Escape character, if nothing follows within 
      * 50 mSec, the user really pressed <esc>.
      */
-    if ((rc = Waitchar(ch, 5)) == TIMEOUT)
+    if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
+	Syslog('t', "Escapechar() real escape");
 	return rc;
+    }
 
     if (*ch == '[') {
 	/*
          *  Start of CSI sequence. If nothing follows,
          *  return immediatly.
          */
-	if ((rc = Waitchar(ch, 5)) == TIMEOUT)
+	Syslog('t', "Escapechar() CSI intro");
+	if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
+	    Syslog('t', "Escapechar() nothing follows");
 	    return rc;
+	}
 
         /*
          *  Test for the most important keys. Note
@@ -94,29 +99,56 @@ int Escapechar(unsigned char *ch)
          *  guaranteed to work with PC-clients.
          */
         c = *ch;
+	Syslog('t', "Escapechar() CSI input %d", c);
         if (c == 'A')
 	    c = KEY_UP;
-	if (c == 'B')
+	else if (c == 'B')
 	    c = KEY_DOWN;
-	if (c == 'C')
+	else if (c == 'C')
 	    c = KEY_RIGHT;
-	if (c == 'D')
+	else if (c == 'D')
 	    c = KEY_LEFT;
-	if ((c == '1') || (c == 'H') || (c == 0))
+	else if ((c == 'H') || (c == 0))
 	    c = KEY_HOME;
-	if ((c == '4') || (c == 'K') || (c == 101) || (c == 144))
+	else if ((c == '4') || (c == 'K') || (c == 'F') || (c == 101) || (c == 144))
 	    c = KEY_END;
-	if (c == '2')
+	else if ((c == '2') || (c == 'L')) {
+	    Waitchar(ch, 5);	/* Eat following ~ char	*/
 	    c = KEY_INS;
-	if (c == '3')
+	} else if (c == '3') {
+	    Waitchar(ch, 5);    /* Eat following ~ char */
 	    c = KEY_DEL;
-	if (c == '5')
+	} else if ((c == '5') || (c == 'I')) {
+	    Waitchar(ch, 5);    /* Eat following ~ char */
 	    c = KEY_PGUP;
-	if (c == '6')
+	} else if ((c == '6') || (c == 'G')) {
+	    Waitchar(ch, 5);    /* Eat following ~ char */
 	    c = KEY_PGDN;
+	} else if (c == '1') {
+	    Syslog('t', "Possible function key");
+	    if ((rc = Waitchar(ch, 5)) == TIMEOUT) {
+		c = KEY_HOME;
+	    } else {
+		c = *ch;
+		Syslog('t', "next %d %c", c, c);
+		Waitchar(ch, 5);    /* Eat following ~ char */
+		switch (c) {
+		    case '1'	: c = KEY_F1;	break;
+		    case '2'	: c = KEY_F2;	break;
+		    case '3'	: c = KEY_F3;	break;
+		    case '4'	: c = KEY_F4;	break;
+		    case '5'	: c = KEY_F5;	break;
+		    case '7'	: c = KEY_F6;	break;
+		    case '8'	: c = KEY_F7;	break;
+		    case '9'	: c = KEY_F8;	break;
+		}
+	    }
+	}
+	Syslog('t', "Escapechar() will return %d", c);
 	memcpy(ch, &c, sizeof(unsigned char));
 	return rc;
     }
+    Syslog('t', "Escapechar() not a CSI sequence");
 
     return -1;
 }
@@ -152,10 +184,10 @@ unsigned char Readkey(void)
 	if ((rc == 1) && (ch == KEY_ESCAPE)) {
 	    rc = Escapechar(&ch);
 	    if (rc == 1) {
-		Syslog('t', "Readkey() returns %d", ch);
+		Syslog('t', "Readkey() escaped returns %d", ch);
 		return ch;
 	    } else {
-		Syslog('t', "Readkey() returns %d", KEY_ESCAPE);
+		Syslog('t', "Readkey() escaped returns %d (real escape)", KEY_ESCAPE);
 		return KEY_ESCAPE;
 	    }
 	}

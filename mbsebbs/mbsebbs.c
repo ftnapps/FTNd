@@ -82,7 +82,7 @@ int main(int argc, char **argv)
      * Set the users device to writable by other bbs users, so they
      * can send one-line messages
      */
-    chmod(tty, 00666);
+//    chmod(tty, 00666);
 
     /*
      * Get MBSE_ROOT Path and load Config into Memory
@@ -145,25 +145,6 @@ int main(int argc, char **argv)
 	++tty;
 	sprintf(pTTY, "%s", tty);
     }
-
-    /*
-     * Now that we have all terminal information, we close the tty and
-     * reopen the default tty so that doors will work.
-     */
-//    cookedport();
-//    close(0);
-//    close(1);
-//    if ((i = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-//	perror("open 0");
-//	exit(MBERR_TTYIO_ERROR);
-//    }
-//    Syslog('t', "new fd %d", i);
-//    if ((i = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-//	perror("open 1");
-//	exit(MBERR_TTYIO_ERROR);
-//    }
-//    Syslog('t', "new fd %d", i);
-//    rawport();
 
     umask(007);
 

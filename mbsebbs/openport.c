@@ -33,10 +33,10 @@
 #include "openport.h"
 
 
-int		hanged_up = 0;
-
-static struct termios savetios;
-static struct termios tios;
+int			hanged_up = 0;
+static int		termios_saved = FALSE;	/* Is termios saved	    */
+static struct termios	savetios;		/* Saved termios	    */
+static struct termios	tios;
 
 
 
@@ -50,7 +50,7 @@ void hangup(void)
     speed_t         ispeed, ospeed;
     int             rc;
 
-    Syslog('t', "Setting port local");
+    Syslog('t', "hangup()");
     
     if (isatty(0)) {
 	if ((rc = tcgetattr(0,&Tios))) {
@@ -94,18 +94,13 @@ int rawport(void)
     Syslog('t', "rawport()");
     tty_status = 0;
 
-    Syslog('t', "ttyname 0 %s", ttyname(0));
-    Syslog('t', "ttyname 1 %s", ttyname(1));
-    Syslog('t', "fd = %d", fileno(stdin));
-    Syslog('t', "fd = %d", fileno(stdout));
-    Syslog('t', "fd = %d", fileno(stderr));
-    
     if (isatty(0)) {
 	if ((rc = tcgetattr(0,&savetios))) {
 	    WriteError("$tcgetattr(0,save) return %d",rc);
 	    return rc;
 	}
 
+	termios_saved = TRUE;
 	tios = savetios;
     	tios.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  ); /* IUCLC removed for FreeBSD */
         /*
@@ -118,7 +113,6 @@ int rawport(void)
 
 	if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
 	    WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
-
     } else {
 	Syslog('t', "not at a tty");
     }
@@ -132,9 +126,15 @@ int cookedport(void)
     int	    rc = 0;
 
     Syslog('t', "cookedport()");
+
+    if (termios_saved == FALSE) {
+	WriteError("Can't restore termios before it was saved");
+	return -1;
+    }
+
     if (isatty(0)) {
 	if ((rc = tcsetattr(0,TCSAFLUSH,&savetios)))
-	    Syslog('t', "$tcsetattr(0,TCSAFLUSH,save) return %d", rc);
+	    WriteError("$tcsetattr(0,TCSAFLUSH,save) return %d", rc);
     }
 
     return rc;
