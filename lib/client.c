@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE Deamon Client
  *
  *****************************************************************************
- * Copyright (C) 1993-2000
+ * Copyright (C) 1993-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -164,7 +164,7 @@ char *socket_receive(void)
 
 	memset((char *)&buf, 0, SS_BUFSIZE);
         fromlen = sizeof(from);
-        rlen = recvfrom(sock, buf, SS_BUFSIZE, 0, &from, &fromlen);
+        rlen = recvfrom(sock, buf, SS_BUFSIZE, 0, (struct sockaddr *)&from, &fromlen);
         if (rlen == -1) {
                 perror("recv");
                 printf("Error reading socket\n");
