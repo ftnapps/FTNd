@@ -4233,6 +4233,7 @@ v0.33.19        26-Oct-2001
 		can't start the bbs from telnet anymore! With a later release
 		this may change by adding a login wrapper, for now this is how
 		it works now. Take it or leave it.
+		Added German language file made by Harald Wuensch.
 
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
@@ -4337,9 +4338,12 @@ v0.33.19        26-Oct-2001
 
 	mbfido:
 		When running in mbmail mode, it will try to get the lock on
-		the program for 10 minutes before aborting.
+		the program for 10 minutes before aborting and waits until
+		another mbfido program is ready.
 		Fixed the problem that the KillSent flag was set on processed
 		netmail.
+		Reset the KillSent and Hold flags when storing netmail in the
+		message base.
 		The tic file import function now sorts and tests on long file-
 		names, with the new mangle function an DOS 8.3 filename is
 		also stored in the file database.

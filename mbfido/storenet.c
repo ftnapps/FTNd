@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: tosser/storenet.c
- * Purpose ...............: Import a netmail message
- * Last modification date : 22-Oct-2001
+ * $Id$
+ * Purpose ...............: Import a netmail message in the message base.
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -79,7 +78,6 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 
 		if (Msg_Lock(30L)) {
 			Msg_New();
-
 			Syslog('m', "Flagfield 0x%04x", flags);
 			strcpy(Msg.From, f->name);
 			strcpy(Msg.To, usr.sUserName);
@@ -102,14 +100,9 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 			Msg.Intransit      = ((flags & M_TRANSIT));
 			Msg.FileRequest    = ((flags & M_REQ)      || flag_on((char *)"FRQ", flagstr));
 			Msg.ReceiptRequest = ((flags & M_RRQ)      || flag_on((char *)"RRQ", flagstr));
-			Msg.KillSent       = ((flags & M_KILLSENT) || flag_on((char *)"K/S", flagstr));
-			Msg.ArchiveSent    =                          flag_on((char *)"A/S", flagstr);
-			Msg.Hold           = ((flags & M_HOLD)     || flag_on((char *)"HLD", flagstr));
 			Msg.Immediate      =                          flag_on((char *)"IMM", flagstr);
 			Msg.Direct         =                          flag_on((char *)"DIR", flagstr);
 			Msg.Gate           =                          flag_on((char *)"ZON", flagstr);
-			Msg.TruncFile      =                          flag_on((char *)"TFS", flagstr);
-			Msg.KillFile       =                          flag_on((char *)"KFS", flagstr);
 			Msg.ConfirmRequest = ((flags & M_AUDIT)    || flag_on((char *)"CFM", flagstr));
 			Msg.Orphan         = ((flags & M_ORPHAN));
 
