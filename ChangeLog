@@ -4618,3 +4618,6 @@ v0.33.20        10-Feb-2002
 	mbtask:
 		Removed some debug logging.
 
+	mbcico:
+		Fixed binkp driver to accept incoming unprotected sessions.
+

@@ -135,7 +135,7 @@ execute.o: libs.h structs.h clcomm.h common.h
 expipe.o: libs.h structs.h clcomm.h common.h
 getheader.o: libs.h structs.h users.h records.h clcomm.h common.h
 mime.o: libs.h structs.h clcomm.h common.h
-noderecord.o: libs.h structs.h users.h records.h dbnode.h common.h
+noderecord.o: libs.h structs.h common.h users.h records.h dbnode.h common.h
 rfcaddr.o: libs.h structs.h users.h records.h clcomm.h common.h
 strutil.o: libs.h structs.h common.h
 charconv_jp.o: libs.h structs.h common.h
@@ -148,7 +148,7 @@ dbcfg.o: libs.h mbse.h structs.h users.h records.h dbcfg.h
 dbdupe.o: libs.h structs.h clcomm.h dbdupe.h
 dbftn.o: libs.h structs.h users.h records.h dbcfg.h dbftn.h
 dbmsgs.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbmsgs.h
-dbnode.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbnode.h
+dbnode.o: libs.h structs.h common.h users.h records.h clcomm.h dbcfg.h dbnode.h
 dbtic.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbtic.h
 dbuser.o: libs.h structs.h users.h records.h dbcfg.h dbuser.h
 jammsg.o: libs.h clcomm.h msgtext.h msg.h jam.h jammsg.h

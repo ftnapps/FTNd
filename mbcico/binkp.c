@@ -547,10 +547,10 @@ SM_STATE(authremote)
 
 SM_STATE(ifsecure)
 
-	if (SendPass) {
+//	if (SendPass) {
 		SM_PROCEED(waitok)
-	}
-	SM_SUCCESS;
+//	}
+//	SM_SUCCESS;
 
 SM_STATE(waitok)
 
@@ -562,8 +562,11 @@ SM_STATE(waitok)
 
 		if (cmd) {
 			if (rbuf[0] == MM_OK) {
-				Syslog('+', "Password protected session");
-				SM_SUCCESS;
+			    if (SendPass)
+				Syslog('+', "Password protected BINKP session");
+			    else
+				Syslog('+', "Unprotected BINKP session");
+			    SM_SUCCESS;
 
 			} else if (rbuf[0] == MM_BSY) {
 				Syslog('!', "Remote is busy");
@@ -705,10 +708,10 @@ SM_STATE(waitaddr)
 
 SM_STATE(ispasswd)
 
-	if (!Loaded && !strlen(nodes.Epasswd)) {
-		Syslog('+', "Unprotected session");
-		SM_SUCCESS;
-	}
+//	if (!Loaded && !strlen(nodes.Epasswd)) {
+//		Syslog('+', "Unprotected session");
+//		SM_SUCCESS;
+//	}
 	SM_PROCEED(waitpwd)
 
 SM_STATE(waitpwd)
@@ -734,7 +737,11 @@ SM_STATE(waitpwd)
 	}
 
 SM_STATE(pwdack)
-	if (strcmp(&rbuf[1], nodes.Epasswd) == 0) {
+        if ((strcmp(&rbuf[1], "-") == 0) && (!Loaded && !strlen(nodes.Epasswd))) {
+		Syslog('+', "No password, unprotected BINKP session");
+		binkp_send_control(MM_OK, "");
+		SM_SUCCESS;
+	} else if (strcmp(&rbuf[1], nodes.Epasswd) == 0) {
 		Syslog('+', "Password OK, protected BINKP session");
 		if (inbound)
 			free(inbound);
