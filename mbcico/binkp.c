@@ -216,6 +216,7 @@ int binkp(int role)
 #ifdef USE_NEWBINKP
     most_debug = TRUE;
 #endif
+most_debug = TRUE;
 
     Syslog('+', "Binkp: start session");
 
@@ -1186,6 +1187,15 @@ TrType binkp_receiver(void)
 	    return Ok;
 	}
     } else if (bp.RxState == RxWriteD) {
+	if (bp.rxfp == NULL) {
+		Syslog('b', "Binkp: file is closed, ignore data");
+		bp.GotFrame = FALSE;
+		bp.rxlen = 0;
+		bp.header = 0;
+        bp.RxState = RxReceD;
+        return Ok;
+	}
+
 	written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
 
 	bp.GotFrame = FALSE;
