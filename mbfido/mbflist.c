@@ -124,8 +124,8 @@ void ListFileAreas(int Area)
 		if (strlen(file.Desc[0]) > 36)
 		    file.Desc[0][36] = '\0';
 		printf("%-12s %6ld %s %5ld %s %s\n", 
-			file.Name, file.Size / 1024, StrDateDMY(file.FileDate), 
-			file.TimesDL + file.TimesFTP + file.TimesReq, flags, file.Desc[0]);
+			file.Name, (long)(file.Size / 1024), StrDateDMY(file.FileDate), 
+			(long)(file.TimesDL + file.TimesFTP + file.TimesReq), flags, file.Desc[0]);
 		fcount++;
 		fsize = fsize + file.Size;
 	    }

@@ -155,6 +155,9 @@ int main(int argc, char *argv[])
 	char		*answermode = NULL, *p = NULL, *cmd = NULL;
 	struct passwd	*pw;
 	FILE		*fp;
+#ifdef IEMSI
+	char		temp[81];
+#endif
 
 #ifdef MEMWATCH
 	mwInit();
@@ -286,7 +289,32 @@ int main(int argc, char *argv[])
 	tmpl = &callist;
 
 	while (argv[optind]) {
+
 		for (p = argv[optind]; (*p) && (*p == '*'); p++);
+#ifdef IEMSI
+                if (strncasecmp(p, "EMSI_NAKEEC3", 12) == 0) {
+
+                        Syslog('+', "Detected IEMSI client, starting BBS");
+                        sprintf(temp, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
+                        socket_shutdown(mypid);
+
+                        if (execl(temp, "mbsebbs", (char *)NULL) == -1)
+                                perror("FATAL: Error loading BBS!");
+
+                        /*
+                         * If this happens, nothing is logged!
+                         */
+                        printf("\n\nFATAL: Loading of the BBS failed!\n\n");
+                        sleep(3);
+                        free_mem();
+                        if (envptr)
+                                free(envptr);
+#ifdef MEMWATCH
+                        mwTerm();
+#endif
+                        exit(100);
+                }
+#endif
 		if ((strcasecmp(argv[optind],"tsync") == 0) ||
 		    (strcasecmp(argv[optind],"yoohoo") == 0) ||
 		    (strcasecmp(argv[optind],"ibn") == 0) ||

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/respfreq.c
- * Purpose ...............: Fidonet mailer 
- * Last modification date : 04-Oct-2001
+ * $Id$
+ * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -296,14 +295,12 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 						WriteError("$Can't read filerecord %d", idx.Record);
 					} else {
 						Send = FALSE;
-						Syslog('f', "Found \"%s\" in %s", file.Name, area.Name);
+						Syslog('f', "Found \"%s\" in %s", file.LName, area.Name);
 						tnm = xstrcpy(area.Path);
 						tnm = xstrcat(tnm, (char *)"/");
-						tnm = xstrcat(tnm, file.Name);
-						if ((stat(tnm, &st) == 0) &&
-						    (S_ISREG(st.st_mode)) &&
-						    (access(tnm, R_OK) == 0) &&
-						    ((upd == 0L) ||
+						tnm = xstrcat(tnm, file.LName);
+						if ((stat(tnm, &st) == 0) && (S_ISREG(st.st_mode)) &&
+						    (access(tnm, R_OK) == 0) && ((upd == 0L) ||
 						     ((newer) && (st.st_mtime <= upd)))) {
 							Send = TRUE;
 						}
@@ -320,7 +317,8 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 								if (strcasecmp(area.Password, pw)) {
 									Send = FALSE;
 									Syslog('+', "Bad password for area %s", area.Name);
-									add_report((char *)"ER: bad password for area %s", area.Name);
+									add_report((char *)"ER: bad password for area %s", 
+										area.Name);
 								}
 							} else {
 								Send = FALSE;
@@ -332,7 +330,8 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 								if (strcasecmp(file.Password, pw)) {
 									Send = FALSE;
 									Syslog('+', "Bad password for file %s", file.Name);
-									add_report((char *)"ER: bad password for file %s", file.Name);
+									add_report((char *)"ER: bad password for file %s", 
+										file.LName);
 								}
 							} else {
 								Send = FALSE;
@@ -351,7 +350,8 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 						if (Send && CFG.Req_MBytes) {
 							if ((st.st_size + report_total) > (CFG.Req_MBytes * 1048576)) {
 								Send = FALSE;
-								add_report((char *)"ER: file %s will exceed the request limit", file.Name);
+								add_report((char *)"ER: file %s will exceed the request limit", 
+									file.Name);
 								Syslog('+', "Exceeding request size limit");
 								no_more = TRUE;
 							}
@@ -361,8 +361,14 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 							Syslog('f', "Will send %s", file.LName);
 							report_total += st.st_size;
 							report_count++;
-							add_report((char *)"OK: Sending \"%s\" (%lu bytes)", file.Name, file.Size);
-							add_list(&fl, tnm, file.Name, 0, 0L, NULL, 1);
+							if (strcasecmp(file.Name, file.LName))
+							    add_report((char *)"OK: Sending \"%s\" as \"%s\" (%lu bytes)", 
+								file.LName, file.Name, file.Size);
+							else
+							    add_report((char *)"OK: Sending \"%s\" (%lu bytes)",
+								file.LName, file.Size);
+							add_list(&fl, tnm, file.LName, 0, 0L, NULL, 1);
+
 							/*
 							 * Update file information
 							 */
@@ -568,11 +574,13 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 static void attach_report(file_list **fl)
 {
 	FILE	*fp;
-	char	tmpfn[PATH_MAX];
+	char	*tmpfn;
 	char	remname[14];
-	long	zeroes = 0L;
+	long	zeroes = 0L, recno, records;
 	ftnmsg	fmsg;
 	char	*svname;
+
+	tmpfn = calloc(PATH_MAX, sizeof(char));
 
 	if (report_text == NULL) {
 		WriteError("Empty FREQ report");
@@ -589,6 +597,29 @@ static void attach_report(file_list **fl)
 		add_report((char *)"Maximum size : unlimited");
 	else
 		add_report((char *)"Maximum size : %d MBytes", CFG.Req_MBytes);
+
+	/*
+	 * Add random quote
+	 */
+	sprintf(tmpfn, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(tmpfn, "r+")) != NULL) {
+	    fread(&olhdr, sizeof(olhdr), 1, fp);
+	    fseek(fp, 0, SEEK_END);
+	    records = (ftell(fp) - olhdr.hdrsize) / olhdr.recsize;
+	    srand(getpid());
+	    recno = 1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0));
+	    Syslog('f', "Selected quote %d out of %d records", recno, records);
+	    if (fseek(fp, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
+		if (fread(&ol, olhdr.recsize, 1, fp) == 1) {
+		    add_report((char *)"\r... %s", ol.Oneline);
+		} else {
+		    WriteError("Can't read %s", tmpfn);
+		}
+	    } else {
+		WriteError("$Can't seek record %d in %s", recno, tmpfn);
+	    }
+	    fclose(fp);
+	}
 
 	add_report((char *)"\r--- mbcico v%s\r", VERSION);
 
@@ -628,6 +659,7 @@ static void attach_report(file_list **fl)
 
 	report_total = 0L;
 	free(report_text);
+	free(tmpfn);
 	report_text = NULL;
 }
 

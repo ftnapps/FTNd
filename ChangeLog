@@ -4304,6 +4304,12 @@ v0.33.19        26-Oct-2001
 	mbcico:
 		Removed IEMSI support since mbsebbs doesn't support it 
 		anymore.
+		Filerequest responses are now created with long filenames.
+		When sending files, if the remote has the FNC link flag, the
+		filename is mangled to DOS 8.3 format when transmitted.
+		File request response messages now displayy the long and
+		short filename in the reply.
+		Filerequest resonse messages now have a random quote added.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

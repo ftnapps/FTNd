@@ -122,6 +122,7 @@ charset.o: libs.h structs.h common.h clcomm.h
 ftn.o: libs.h structs.h records.h clcomm.h dbftn.h common.h
 nodelist.o: libs.h structs.h records.h clcomm.h common.h
 pktname.o: libs.h structs.h records.h clcomm.h common.h
+mangle.o: libs.h structs.h clcomm.h common.h
 charconv.o: libs.h structs.h records.h common.h clcomm.h
 dostran.o: libs.h structs.h records.h common.h
 ftnmsg.o: libs.h structs.h common.h clcomm.h

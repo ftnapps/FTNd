@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/filelist.c
+ * $Id$
  * Purpose ...............: fidonet mailer 
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -61,58 +60,26 @@ static char *tmpkname(void)
 
 char *xtodos(char *orig)
 {
-	int	i;
-	char	buf[8+1+3+1],*copy,*p,*q,*r;
+	char	buf[13], *copy, *p;
 
 	if (orig == NULL) 
 		return NULL;
 
 	if ((remote_flags & SESSION_FNC) == 0) {
-		Syslog('o', "No filename conversion for \"%s\"",MBSE_SS(orig));
+		Syslog('o', "No filename conversion for \"%s\"", MBSE_SS(orig));
 		return xstrcpy(orig);
 	}
 
-	copy=xstrcpy(orig);
-	if ((p=strrchr(copy,'/'))) 
+	copy = xstrcpy(orig);
+	if ((p = strrchr(copy,'/'))) 
 		p++;
 	else 
-		p=copy;
+		p = copy;
 
-	if (strcmp(q=copy+strlen(copy)-strlen(".tar.gz"),".tar.gz") == 0) {
-		*q='\0';
-		q=(char *)"tgz";
-	} else if (strcmp(q=copy+strlen(copy)-strlen(".tar.z"),".tar.z") == 0) {
-		*q='\0';
-		q=(char *)"tgz";
-	} else if (strcmp(q=copy+strlen(copy)-strlen(".tar.Z"),".tar.Z") == 0) {
-		*q='\0';
-		q=(char *)"taz";
-	} else if ((q=strrchr(p,'.'))) 
-		*q++='\0';
-	else 
-		q=NULL;
-
-	r=buf;
-	for (i=0;(i<8) && (*p);i++,p++,r++)
-		switch (*p) {
-			case '.':
-			case '\\':	*r='_'; break;
-			default:	*r=toupper(*p);
-		}
-
-	if (q) {
-		*r++='.';
-		for (i=0;(i<3) && (*q);i++,q++,r++)
-			switch (*q) {
-				case '.':
-				case '\\':	*r='_'; break;
-				default:	*r=toupper(*q);
-			}
-	}
-	*r++='\0';
-
-	Syslog('o', "name \"%s\" converted to \"%s\"",MBSE_SS(orig),MBSE_SS(buf));
-
+	name_mangle(p);
+	memset(&buf, 0, sizeof(buf));
+	strncpy(buf, p, 12);
+	Syslog('o', "name \"%s\" converted to \"%s\"", MBSE_SS(orig), MBSE_SS(buf));
 	free(copy);
 	return xstrcpy(buf);
 }
