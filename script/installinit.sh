@@ -106,6 +106,10 @@ if [ "$OSTYPE" = "NetBSD" ]; then
     DISTNAME="NetBSD"
     DISTVERS=`uname -r`
 fi
+if [ "$OSTYPE" = "OpenBSD" ]; then
+    DISTNAME="OpenBSD"
+    DISTVERS=`uname -r`
+fi
 
 
 log "+" "Distribution $OSTYPE $DISTNAME $DISTVERS"
@@ -313,6 +317,23 @@ if [ "$DISTNAME" = "FreeBSD" ]; then
     chmod 0755 $DISTINIT
 fi
 
+
+#--------------------------------------------------------------------------
+#
+#  Adding startup commands for OpenBSD
+#
+#
+if [ "$DISTNAME" = "OpenBSD" ]; then
+    if [ "`grep MBSE-BBS /etc/rc.local`" = "" ]; then
+	#
+	# OpenBSD init
+	#
+	DISTINIT="/etc/rc.local"
+	echo "Adding MBSE BBS startup commands to $DISTINIT"
+	log "+" "Adding MBSE BBS startup commands to $DISTINIT"
+	cat init.OpenBSD >> $DISTINIT
+    fi
+fi
 
 
 echo
