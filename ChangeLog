@@ -7,8 +7,8 @@ $Id$
 
 	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
 
-	WARNING, users of Sparc and HP-PA systems should be carefull, some
-	menus do not work.
+	WARNING, users of Sparc and HP-PA systems should be carefull, some bbs
+	menus do not work. All other programs do work on all platforms.
 	All other users on Intel machines (99,9% I think) can use this version.
 
 v0.37.6		10-Aug-2003
@@ -28,6 +28,7 @@ v0.37.6		10-Aug-2003
 		The other goodie is that this is more safe on busy multiline
 		systems.
 		Fixed the binkp escape sequence which is wrong in the FSP.
+		A light improvement in session handshake setup timers.
 
 
 v0.37.5		12-Jul-2003 - 10-Aug-2003

@@ -262,7 +262,6 @@ SM_STATE(wake)
 
 SM_STATE(waitchar)
 
-    Syslog('s', "tx_define_type WAITCHAR");
     if ((c = GETCHAR(2)) == TIMEOUT) {
 	standby = 0;
 	ep = ebuf;
@@ -349,7 +348,6 @@ SM_STATE(nextchar)
 
 SM_STATE(checkintro)
 
-    Syslog('s', "tx_define_type CHECKINTRO");
     Syslog('i', "Check \"%s\" for being EMSI request",ebuf);
 
     if (((localoptions & NOEMSI) == 0) && (strncasecmp(ebuf,"EMSI_REQA77E",12) == 0)) {
@@ -415,13 +413,12 @@ SM_EDECL
     ep=ebuf;
     RESETTIMERS();
     SETTIMER(0, 60);
-    Syslog('s', "rxdefine_type INIT");
 
 SM_START(sendintro)
 
 SM_STATE(sendintro)
 
-    Syslog('s', "rxdefine_type SENDINTRO");
+    Syslog('s', "rxdefine_type SENDINTRO count=%d", count);
     if (count++ > 6) {
 	Syslog('+', "Too many tries to get anything from the caller");
 	SM_ERROR;
@@ -434,18 +431,18 @@ SM_STATE(sendintro)
     if ((localoptions & NOEMSI) == 0) {
 	PUTSTR((char *)"**EMSI_REQA77E\r\021");
     }
-    PUTSTR((char *)"\r\rAddress: ");
-    PUTSTR(aka2str(CFG.aka[0]));
-    PUTSTR((char *)" using mbcico ");
-    PUTSTR((char *)VERSION);
-    switch (tcp_mode) {
-	case TCPMODE_IFC:   PUTSTR((char *)"; IFC");
-			    break;
-	case TCPMODE_ITN:   PUTSTR((char *)"; ITN");
-			    break;
-	case TCPMODE_IBN:   PUTSTR((char *)"; IBN");
-			    break;
-    }
+//    PUTSTR((char *)"\r\rAddress: ");
+//    PUTSTR(aka2str(CFG.aka[0]));
+//    PUTSTR((char *)" using mbcico ");
+//    PUTSTR((char *)VERSION);
+//    switch (tcp_mode) {
+//	case TCPMODE_IFC:   PUTSTR((char *)"; IFC");
+//			    break;
+//	case TCPMODE_ITN:   PUTSTR((char *)"; ITN");
+//			    break;
+//	case TCPMODE_IBN:   PUTSTR((char *)"; IBN");
+//			    break;
+//  }
     PUTCHAR('\r');
     if (STATUS) {
 	SM_ERROR;
@@ -455,17 +452,15 @@ SM_STATE(sendintro)
 
 SM_STATE(waitchar)
 
-    Syslog('s', "rxdefine_type WAITCHAR");
-
     if (EXPIRED(0)) {
-        Syslog('+', "Timeout session handshake with the caller");
+        Syslog('+', "Session setup timeout");
         SM_ERROR;
     }
 
     if ((c = GETCHAR(20)) == TIMEOUT) {
 	SM_PROCEED(sendintro);
     } else if (c < 0) {
-	Syslog('+', "EMSI error while getting from caller");
+	Syslog('+', "Session setup error");
 	SM_ERROR;
     } else {
 	SM_PROCEED(nextchar);
@@ -473,7 +468,6 @@ SM_STATE(waitchar)
 
 SM_STATE(nextchar)
 
-    Syslog('s', "rxdefine_type NEXTCHAR");
     if ((c >= ' ') && (c <= 'z')) {
 	if (c == '*') {
 	    standby = 1;
@@ -535,7 +529,6 @@ SM_STATE(nextchar)
 
 SM_STATE(checkemsi)
 
-    Syslog('s', "rxdefine_type CHECKEMSI");
     Syslog('i', "check \"%s\" for being EMSI inquery or data",ebuf);
 
     if (localoptions & NOEMSI) {
@@ -559,7 +552,6 @@ SM_STATE(checkemsi)
 
 SM_STATE(getdat)
 
-    Syslog('s', "rxdefine_type GETDAT");
     Syslog('i', "Try get emsi_dat packet starting with \"%s\"",ebuf);
 
     if (sscanf(ebuf+8, "%04x", &datasize) != 1) {

@@ -106,7 +106,7 @@ mbfido:
 
 mbcico:
 	N: See if it is possible with binkp protocol to resume aborted
-	   transfers. -- ND option ??
+	   transfers. Changes are under test now. Feedback needed!
 
 	N: Implement binkp resync when getting files. Transmit works.
 
@@ -136,7 +136,7 @@ mbindex:
 	X: Add usernames index.
 
 mbnewusr:
-	N: On NetBSD, supress error message from mbpasswd.
+	L: On NetBSD, supress error message from mbpasswd.
 	   -- Currently no access to my old Sun Sparcstation.
 
 mbsetup:
