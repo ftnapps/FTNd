@@ -16,7 +16,7 @@
 <BLOCKQUOTE>
 <center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
-<div align=right><h5>Last update 01-Feb-2004</h5></div>
+<div align=right><h5>Last update 13-Feb-2004</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
@@ -101,6 +101,7 @@
     <li><a href="programs/mblogin.html">mblogin, Unix login replacement</a></li>
     <li><a href="programs/mbmon.html">mbmon, The monitor program</a></li>
     <li><a href="programs/mbmsg.html">mbmsg, The messagebase utility program</a></li>
+    <li><a href="programs/mbnntp.html">mbnntp, The news server</a></li>
     <li><a href="programs/mbout.html">mbout, The mailer outbound program</a></li>
     <li><a href="programs/mbpasswd.html">mbpasswd, The passwd wrapper</a></li>
     <li><a href="programs/mbsebbs.html">mbsebbs, The bbs program</a></li>
