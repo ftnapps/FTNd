@@ -250,7 +250,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
     int	    retval, fetched = 0;
     long    total, start, end;
 
-    Syslog('M', "do_one_group(%s, %s)", grpname, ftntag);
+    Syslog('m', "do_one_group(%s, %s)", grpname, ftntag);
     IsDoing((char *)"Scan %s", grpname);
     sprintf(temp, "GROUP %s\r\n", grpname);
     nntp_send(temp);
@@ -288,7 +288,6 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	Syslog('m', "NEW:  total %d, start %d, end %d", total, start, end);
     }
     if (!total) {
-	Syslog('M', "No articles");
 	return RETVAL_NOARTICLES;
     }
 
@@ -315,6 +314,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
     if ((maxarticles) && (fetched == maxarticles))
 	Syslog('!', "Warning: the max. articles value in newsgroup %s might be to low", grpname);
 
+    Syslog('+', "Fetched %d message%s from %s", fetched, (fetched == 1) ? "":"s", grpname);
     return RETVAL_OK;
 }
 
@@ -322,214 +322,211 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 
 int get_article(char *msgid, char *ftntag)
 {
-	char	cmd[81], *resp;
-	int	retval, done = FALSE;
-	FILE	*fp = NULL, *dp;
-	char	dpath[PATH_MAX];
+    char    cmd[81], *resp;
+    int	    retval, done = FALSE;
+    FILE    *fp = NULL, *dp;
+    char    dpath[PATH_MAX];
 
-	Syslog('m', "Get article %s, %s", msgid, ftntag);
-	if (!SearchMsgs(ftntag)) {
-		WriteError("Search message area %s failed", ftntag);
-		return RETVAL_ERROR;
-	}
+    Syslog('m', "Get article %s, %s", msgid, ftntag);
+    if (!SearchMsgs(ftntag)) {
+	WriteError("Search message area %s failed", ftntag);
+	return RETVAL_ERROR;
+    }
 
-	sprintf(dpath, "%s/tmp/scannews.last", getenv("MBSE_ROOT"));
-	dp = fopen(dpath, "w");
+    sprintf(dpath, "%s/tmp/scannews.last", getenv("MBSE_ROOT"));
+    dp = fopen(dpath, "w");
 
-	IsDoing("Article %d", (news_in + 1));
-	sprintf(cmd, "ARTICLE %s\r\n", msgid);
-	fprintf(dp, "ARTICLE %s\n", msgid);
-	nntp_send(cmd);
-	resp = nntp_receive();
-	fprintf(dp, "%s\n", resp);
-	retval = atoi(strtok(resp, " "));
-	switch (retval) {
-		case 412:	WriteError("No newsgroup selected");
-				return RETVAL_UNEXPECTEDANS;
-		case 420:	WriteError("No current article has been selected");
-				return RETVAL_UNEXPECTEDANS;
-		case 423:	WriteError("No such article in this group");
-				return RETVAL_UNEXPECTEDANS;
-		case 430:	WriteError("No such article found");
-				return RETVAL_UNEXPECTEDANS;
-		case 220:	if ((fp = tmpfile()) == NULL) {
-					WriteError("$Can't open tmpfile");
-					return RETVAL_UNEXPECTEDANS;
-				}
-				while (done == FALSE) {
-					resp = nntp_receive();
-					fwrite(resp, strlen(resp), 1, dp);
-					fprintf(dp, "\n");
-					fflush(dp);
-					if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
-						done = TRUE;
-					} else {
-						fwrite(resp, strlen(resp), 1, fp);
-						fputc('\n', fp);
-					}
-				}
-				break;
-	}
+    IsDoing("Article %d", (news_in + 1));
+    sprintf(cmd, "ARTICLE %s\r\n", msgid);
+    fprintf(dp, "ARTICLE %s\n", msgid);
+    nntp_send(cmd);
+    resp = nntp_receive();
+    fprintf(dp, "%s\n", resp);
+    retval = atoi(strtok(resp, " "));
+    switch (retval) {
+	case 412:   WriteError("No newsgroup selected");
+		    return RETVAL_UNEXPECTEDANS;
+	case 420:   WriteError("No current article has been selected");
+		    return RETVAL_UNEXPECTEDANS;
+	case 423:   WriteError("No such article in this group");
+		    return RETVAL_UNEXPECTEDANS;
+	case 430:   WriteError("No such article found");
+		    return RETVAL_UNEXPECTEDANS;
+	case 220:   if ((fp = tmpfile()) == NULL) {
+			WriteError("$Can't open tmpfile");
+			return RETVAL_UNEXPECTEDANS;
+		    }
+		    while (done == FALSE) {
+			resp = nntp_receive();
+			fwrite(resp, strlen(resp), 1, dp);
+			fprintf(dp, "\n");
+			fflush(dp);
+			if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
+			    done = TRUE;
+			} else {
+			    fwrite(resp, strlen(resp), 1, fp);
+			    fputc('\n', fp);
+			}
+		    }
+		    break;
+    }
 
-	IsDoing("Article %d", (news_in));
-	retval = rfc2ftn(fp, NULL);
-	fclose(fp);
-	fclose(dp);
-	return retval;
+    IsDoing("Article %d", (news_in));
+    retval = rfc2ftn(fp, NULL);
+    fclose(fp);
+    fclose(dp);
+    return retval;
 }
 
 
 
 int get_xover(char *grpname, long startnr, long endnr, List **art)
 {
-	char		cmd[81], *ptr, *ptr2, *resp, *p;
-	int		retval, dupe, done = FALSE;
-	long		nr;
-	unsigned long	crc;
-	POverview	pov;
+    char	    cmd[81], *ptr, *ptr2, *resp, *p;
+    int		    retval, dupe, done = FALSE;
+    long	    nr;
+    unsigned long   crc;
+    POverview	    pov;
 
-	sprintf(cmd, "XOVER %ld-%ld\r\n", startnr, endnr);
-	if ((retval = nntp_cmd(cmd, 224))) {
-		switch (retval) {
-			case 412:
-				WriteError("No newsgroup selected");
-				return RETVAL_NOXOVER;
-			case 502:
-				WriteError("Permission denied");
-				return RETVAL_NOXOVER;
-			case 420:
-				Syslog('m', "No articles in group %s", grpname);
-				return RETVAL_OK;
-		}
+    sprintf(cmd, "XOVER %ld-%ld\r\n", startnr, endnr);
+    if ((retval = nntp_cmd(cmd, 224))) {
+	switch (retval) {
+	    case 412:	WriteError("No newsgroup selected");
+			return RETVAL_NOXOVER;
+	    case 502:	WriteError("Permission denied");
+			return RETVAL_NOXOVER;
+	    case 420:	Syslog('m', "No articles in group %s", grpname);
+			return RETVAL_OK;
 	}
+    }
 
-	while (done == FALSE) {
-		resp = nntp_receive();
-		if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
-			done = TRUE;
-		} else {
-			Marker();
-			Nopper();
-			pov = xoverview;
-			ptr = resp;
-			ptr2 = ptr;
+    while (done == FALSE) {
+	resp = nntp_receive();
+	if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
+	    done = TRUE;
+	} else {
+	    Marker();
+	    Nopper();
+	    pov = xoverview;
+	    ptr = resp;
+	    ptr2 = ptr;
 
-			/*
-			 * First item is the message number.
-			 */
-			while (*ptr2 != '\0' && *ptr2 != '\t')
-				ptr2++;
-			if (*ptr2 != '\0')
-				*(ptr2) = '\0';
-			nr = atol(ptr);
-			ptr = ptr2;
-			ptr++;
+	    /*
+	     * First item is the message number.
+	     */
+	    while (*ptr2 != '\0' && *ptr2 != '\t')
+		ptr2++;
+	    if (*ptr2 != '\0')
+		*(ptr2) = '\0';
+	    nr = atol(ptr);
+	    ptr = ptr2;
+	    ptr++;
 
-			/*
-			 * Search the message-id
-			 */
-			while (*ptr != '\0' && pov != NULL && strcmp(pov->header, "Message-ID:") != 0) {
-				/*
-				 * goto the next field, past the tab.
-				 */
-				pov = pov->next;
+	    /*
+	     * Search the message-id
+	     */
+	    while (*ptr != '\0' && pov != NULL && strcmp(pov->header, "Message-ID:") != 0) {
+		/*
+		 * goto the next field, past the tab.
+		 */
+		pov = pov->next;
 
-				while (*ptr != '\t' && *ptr != '\0')
-					ptr++;
-				if (*ptr != '\0')
-					ptr++;
-			}
-			if (*ptr != '\0' && pov != NULL) {
-				/*
-				 * Found it, now find start of msgid
-				 */
-				while (*ptr != '\0' && *ptr != '<')
-					ptr++;
-				if(ptr != '\0') {
-					ptr2 = ptr;
-					while(*ptr2 != '\0' && *ptr2 != '>')
-						ptr2++;
-					if (*ptr2 != '\0') {
-						*(ptr2+1) = '\0';
-						p = xstrcpy(ptr);
-						p = xstrcat(p, grpname);
-						crc = str_crc32(p);
-						dupe = CheckDupe(crc, D_NEWS, CFG.nntpdupes);
-						fill_artlist(art, ptr, nr, dupe);
-						free(p);
-						if (CFG.slow_util && do_quiet)
-							msleep(1);
-					}
-				}
-			}
+		while (*ptr != '\t' && *ptr != '\0')
+		    ptr++;
+		if (*ptr != '\0')
+		    ptr++;
+	    }
+	    if (*ptr != '\0' && pov != NULL) {
+		/*
+		 * Found it, now find start of msgid
+		 */
+		while (*ptr != '\0' && *ptr != '<')
+		    ptr++;
+		if(ptr != '\0') {
+		    ptr2 = ptr;
+		    while(*ptr2 != '\0' && *ptr2 != '>')
+			ptr2++;
+		    if (*ptr2 != '\0') {
+			*(ptr2+1) = '\0';
+			p = xstrcpy(ptr);
+			p = xstrcat(p, grpname);
+			crc = str_crc32(p);
+			dupe = CheckDupe(crc, D_NEWS, CFG.nntpdupes);
+			fill_artlist(art, ptr, nr, dupe);
+			free(p);
+			if (CFG.slow_util && do_quiet)
+			    msleep(1);
+		    }
 		}
+	    }
 	}
+    }
 
-	return RETVAL_OK;
+    return RETVAL_OK;
 }
 
 
 
 int get_xoverview(void)
 {
-	int		retval, len, full, done = FALSE;
-	char		*resp;
-	POverview	tmp, curptr = NULL;
+    int		retval, len, full, done = FALSE;
+    char	*resp;
+    POverview	tmp, curptr = NULL;
 
-	Syslog('m', "Getting overview format list");
-	if ((retval = nntp_cmd((char *)"LIST overview.fmt\r\n", 215)) == 0) {
-		while (done == FALSE) {
-			resp = nntp_receive();
-			if ((strcmp(resp, ".") == 0) && (strlen(resp) == 1)) {
-				done = TRUE;
-			} else {
-				len = strlen(resp);
-				/*
-				 * Check for the full flag, which means the field name
-				 * is in the xover string.
-				 */
-				full = (strstr(resp, ":full") == NULL) ? FALSE : TRUE;
-				/*
-				 * Now get rid of everything back to :
-				 */
-				while (resp[len] != ':')
-					resp[len--] = '\0';
-				len++;
+    Syslog('m', "Getting overview format list");
+    if ((retval = nntp_cmd((char *)"LIST overview.fmt\r\n", 215)) == 0) {
+	while (done == FALSE) {
+	    resp = nntp_receive();
+	    if ((strcmp(resp, ".") == 0) && (strlen(resp) == 1)) {
+		done = TRUE;
+	    } else {
+		len = strlen(resp);
+		/*
+		 * Check for the full flag, which means the field name
+		 * is in the xover string.
+		 */
+		full = (strstr(resp, ":full") == NULL) ? FALSE : TRUE;
+		/*
+		 * Now get rid of everything back to :
+		 */
+		while (resp[len] != ':')
+		    resp[len--] = '\0';
+		len++;
 
-				tmp = malloc(sizeof(Overview));
-				tmp->header = calloc(len + 1, sizeof(char));
-				strncpy(tmp->header, resp, len);
-				tmp->header[len] = '\0';
-				tmp->next = NULL;
-				tmp->field = NULL;
-				tmp->fieldlen = 0;
-				tmp->full = full;
+		tmp = malloc(sizeof(Overview));
+		tmp->header = calloc(len + 1, sizeof(char));
+		strncpy(tmp->header, resp, len);
+		tmp->header[len] = '\0';
+		tmp->next = NULL;
+		tmp->field = NULL;
+		tmp->fieldlen = 0;
+		tmp->full = full;
 
-				if (curptr == NULL) {
-					/* at head of list */
-					curptr = tmp;
-					xoverview = tmp;
-				} else {
-					/* add to linked list */
-					curptr->next = tmp;
-					curptr = tmp;
-				}
-			}
+		if (curptr == NULL) {
+		    /* at head of list */
+		    curptr = tmp;
+		    xoverview = tmp;
+		} else {
+		    /* add to linked list */
+		    curptr->next = tmp;
+		    curptr = tmp;
 		}
-
-		if ((tmp = xoverview) != NULL) {
-			Syslog('M', "--Xoverview.fmt list");
-			while (tmp != NULL) {
-				if (tmp->header != NULL) {
-					Syslog('M', "item = %s -- full = %s", tmp->header, tmp->full ? "True":"False");
-				}
-				tmp = tmp->next;
-			}
-		}
-	} else {
-		return 1;
+	    }
 	}
-	return 0;
+
+//	if ((tmp = xoverview) != NULL) {
+//	    Syslog('M', "--Xoverview.fmt list");
+//	    while (tmp != NULL) {
+//		if (tmp->header != NULL) {
+//		    Syslog('M', "item = %s -- full = %s", tmp->header, tmp->full ? "True":"False");
+//		}
+//		tmp = tmp->next;
+//	    }
+//	}
+    } else {
+	return 1;
+    }
+    return 0;
 }
 
 
