@@ -38,7 +38,7 @@
 #include <utmpx.h>
 #endif
 
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/types.h>
 #include <libutil.h>
 #endif
@@ -389,10 +389,10 @@ void setutmp(const char *name, const char *line, const char *host)
 	utent = utline;
 }
 
-#elif __FreeBSD__
+#elif __FreeBSD__ || __NetBSD__
 
 /*
- * FreeBSD version, simple and mean.
+ * FreeBSD/NetBSD version, simple and mean.
  */
 void setutmp(const char *name, const char *line, const char *host)
 {

@@ -37,7 +37,7 @@
 #ifndef _PW_UTIL_H
 #define	_PW_UTIL_H
 
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 
 void	pw_error __P((char *, int, int));
 void	pw_init __P((void));

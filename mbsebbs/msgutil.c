@@ -279,6 +279,8 @@ void Add_Footkludges(int Quote)
 	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
 #elif __FreeBSD__
 	sprintf(temp, "--- MBSE BBS v%s (FreeBSD)", VERSION);
+#elif __NetBSD__
+	sprintf(temp, "--- MBSE BBS v%s (NetBSD)", VERSION);
 #else
 	sprintf(temp, "--- MBSE BBS v%s (Unknown)", VERSION);
 #endif

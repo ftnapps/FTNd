@@ -1,13 +1,12 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd/pwio.c
+ * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,7 +30,7 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__netBSD__)
 
 #include "../config.h"
 #include <stdio.h>
@@ -169,7 +168,7 @@ int pw_name(const char *filename)
 
 
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 int pw_lock(void) 
 {
 	return commonio_lock(&passwd_db);

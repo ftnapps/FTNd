@@ -1,12 +1,11 @@
 /*****************************************************************************
  *
- * File ..................: mbmon/mbmon.c
+ * $Id$
  * Purpose ...............: Monitor Program 
- * Last modification date : 26-Oct-2001
  * Todo ..................: Chat with user via server
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -373,6 +372,8 @@ void soft_info(void)
 	center_addstr( 6, (char *)"MBSE BBS (Linux)");
 #elif __FreeBSD__
 	center_addstr( 6, (char *)"MBSE BBS (FreeBSD)");
+#elif __NetBSD__
+	center_addstr( 6, (char *)"MBSE BBS (NetBSD)");
 #else
 	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
 #endif

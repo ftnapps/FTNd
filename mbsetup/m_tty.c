@@ -108,6 +108,9 @@ int CountTtyinfo(void)
 #ifdef __FreeBSD__
 				sprintf(ttyinfo.tty,     "cuaia%d", i);
 #endif
+#ifdef __NetBSD__
+				sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
+#endif
                                 sprintf(ttyinfo.speed,   "64 kbits");
 				sprintf(ttyinfo.flags,   "XA,X75,CM");
                                 ttyinfo.type = ISDN;
@@ -127,13 +130,20 @@ int CountTtyinfo(void)
 #ifdef __FreeBSD__
 				sprintf(ttyinfo.tty,     "cuaa%d", i);
 #endif
+#ifdef __NetBSD__
+				sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
+#endif
                                 sprintf(ttyinfo.speed,   "33.6 kbits");
 				sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");
                                 ttyinfo.type = POTS;
                                 ttyinfo.available = FALSE;
                                 ttyinfo.callout = TRUE;
                                 ttyinfo.honor_zmh = TRUE;
+#ifdef __sparc__
+				ttyinfo.portspeed = 38400;	// Safe, ULTRA has a higher maxmimum speed
+#else
 				ttyinfo.portspeed = 57600;
+#endif
                                 sprintf(ttyinfo.name,    "Modem line #%d", i+1);
                                 fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
                         }

@@ -20,7 +20,7 @@ static void updwtmpx(const char *, const struct utmpx *);
 void setutmp(const char *, const char *, const char *);
 #elif HAVE_UTMPX_H
 void setutmp(const char *, const char *, const char *);
-#elif __FreeBSD__
+#elif __FreeBSD__ || __NetBSD__
 void setutmp(const char *, const char *, const char *);
 #else /* !SVR4 */
 void setutmp(const char *, const char *);

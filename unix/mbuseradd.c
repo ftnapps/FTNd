@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbuseradd.c
+ * $Id$
  * Purpose ...............: setuid root version of useradd
- * Last modification date : 25-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -165,7 +164,7 @@ int main(int argc, char *argv[])
 	 * Build command to add user entry to the /etc/passwd and /etc/shadow
 	 * files. We use the systems own useradd program.
 	 */
-#ifdef __linux__
+#if defined(__linux__) || defined(__NetBSD__)
 	if ((access("/usr/bin/useradd", R_OK)) == 0)
 		strcpy(temp, "/usr/bin/useradd");
 	else if ((access("/bin/useradd", R_OK)) == 0)
@@ -194,7 +193,7 @@ int main(int argc, char *argv[])
 
 	sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__NetBSD__)
 	sprintf(PassEnt, "%s -c \"%s\" -d %s/%s -g %s -s %s %s",
 		temp, argv[3], argv[4], argv[2], argv[1], shell, argv[2]);
 #endif

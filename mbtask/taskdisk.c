@@ -4,7 +4,7 @@
  * Purpose ...............: Give status of all filesystems
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbse@user.sourceforge.net
@@ -53,7 +53,7 @@ char *get_diskstat()
 	mtab = calloc(PATH_MAX, sizeof(char));
 #ifdef __linux__
 	if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
-#elif __FreeBSD__
+#elif __FreeBSD__ || __NetBSD__
 	if ((fp = fopen((char *)"/etc/fstab", "r")) == 0) {
 #endif
 		sprintf(buf, "100:0;");

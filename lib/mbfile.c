@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbfile
+ * $Id$
  * Purpose ...............: Basic File I/O
- * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -275,7 +274,7 @@ int diskfree(int needed)
 #ifdef __linux__
 	if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
 		WriteError("$Can't open /etc/mtab");
-#elif __FreeBSD__
+#elif __FreeBSD__ || __NetBSD__
 	if ((fp = fopen((char *)"/etc/fstab", "r")) == 0) {
 		WriteError("$Can't open /etc/fstab");
 #endif

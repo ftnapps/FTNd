@@ -32,7 +32,7 @@
 #include "../lib/clcomm.h"
 
 #ifndef LOCKDIR
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 #define LOCKDIR "/var/spool/lock"
 #else
 #define LOCKDIR "/var/lock"

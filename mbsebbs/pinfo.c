@@ -95,6 +95,8 @@ void cr(void)
 	sprintf(temp, "MBSE Bulletin Board System %s (Linux)", VERSION);
 #elif __FreeBSD__
 	sprintf(temp, "MBSE Bulletin Board System %s (FreeBSD)", VERSION);
+#elif __NetBSD__
+	sprintf(temp, "MBSE Bulletin Board System %s (NetBSD)", VERSION);
 #else
 	sprintf(temp, "MBSE Bulletin Board System %s (Unknown OS)", VERSION);
 #endif

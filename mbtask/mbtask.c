@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -870,7 +870,7 @@ void ulocktask(void)
 
 
 /* different names, same thing... be careful, as these are macros... */
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 # define icmphdr   icmp
 # define iphdr     ip
 # define ip_saddr  ip_src.s_addr
@@ -897,7 +897,7 @@ void ulocktask(void)
 # define icmp_seq   un.echo.sequence
 #endif
 
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 # define ICMP_DEST_UNREACH   ICMP_UNREACH
 # define ICMP_TIME_EXCEEDED ICMP_TIMXCEED    
 #endif

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: libs.h
- * Purpose ...............: Libraries include list
- * Last modification date : 11-Aug-2001
+ * $Id$
+ * Purpose ...............: Libraries include list for mbtask
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbse@user.sourceforge.net
@@ -70,7 +69,7 @@
 
 #include <stddef.h>
 #include <fcntl.h>
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <netinet/in_systm.h>
 #endif
 #include <netinet/ip.h>

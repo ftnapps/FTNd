@@ -117,7 +117,7 @@ static int  force;	/* Force update of locked passwords */
 
 
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 static void fail_exit(int status)
 {
 //	gr_unlock();
@@ -239,7 +239,7 @@ void pwd_init(void)
   
 	umask(077);
 }
-#endif /* not FreeBSD */
+#endif /* not FreeBSD && NetBSD */
 
 
 /*
@@ -531,7 +531,7 @@ static int new_password(const struct passwd *pw, char *newpasswd)
 }
 
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 
 static void update_noshadow(int shadow_locked)
 {
@@ -655,7 +655,7 @@ static void update_noshadow(int shadow_locked)
         pw_unlock();
 }
 
-#endif /* Not __FreeBSD__ */
+#endif /* Not __FreeBSD__ && __NetBSD__ */
 
 
 #ifdef SHADOW_PASSWORD
@@ -719,7 +719,7 @@ static void update_shadow(void)
  */
 int main(int argc, char *argv[])
 {
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 	const struct passwd	*pw;
 	const struct group	*gr;
 #ifdef SHADOW_PASSWORD
@@ -858,7 +858,7 @@ int main(int argc, char *argv[])
 	 * to root to protect against unexpected signals.  Any
 	 * keyboard signals are set to be ignored.
 	 */
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 	pwd_init();
 #else
 	pw_init();
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
 		exit(E_FAILURE);
 	}
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 
 #ifdef  HAVE_USERSEC_H
         update_userpw(pw->pw_passwd);
@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
 		update_noshadow(0);
 #endif /* !HAVE_USERSEC_H */
 
-#else /* __FreeBSD__ */
+#else /* __FreeBSD__ && __NetBSD__ */
 	/*
 	 *  FreeBSD password change, borrowed from the original FreeBSD sources
 	 */

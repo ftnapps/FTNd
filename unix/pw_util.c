@@ -1,11 +1,11 @@
 /*****************************************************************************
  *
  * $Id$
- * Purpose ...............: FreeBSD password utilities.
+ * Purpose ...............: FreeBSD/NetBSD password utilities.
  * Remark ................: Taken from FreeBSD and modified for MBSE BBS.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *
  * Michiel Broek        FIDO:           2:280/2802
  * Beekmansbos 10
@@ -62,7 +62,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef __FreeBSD__
+#ifdef __FreeBSD__ || __NetBSD__
 
 #include <sys/param.h>
 #include <sys/errno.h>

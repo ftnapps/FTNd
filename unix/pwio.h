@@ -3,7 +3,7 @@
 #ifndef	_PWIO_H
 #define	_PWIO_H
 
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 
 #ifndef PASSWD_FILE
 #define PASSWD_FILE "/etc/passwd"
