@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/statdisk.c
  * Purpose ...............: Give status of all filesystems
- * Last modification date : 23-May-2001
+ * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -50,16 +50,20 @@ char *get_diskstat()
 	unsigned long	temp;
 
 	buf[0] = '\0';
-	mtab = calloc(256, sizeof(char));
+	mtab = calloc(PATH_MAX, sizeof(char));
+#ifdef __linux__
 	if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
+#elif __FreeBSD__
+	if ((fp = fopen((char *)"/etc/fstab", "r")) == 0) {
+#endif
 		sprintf(buf, "100:0;");
 		return buf;
 	}
 
 	while (fgets(mtab, 255, fp)) {
-		dev  = strtok(mtab, " ");
-		fs   = strtok(NULL, " ");
-		type = strtok(NULL, " ");
+		dev  = strtok(mtab, " \t");
+		fs   = strtok(NULL, " \t");
+		type = strtok(NULL, " \t");
 		if (strncmp((char *)"/dev/", dev, 5) == 0) {
 			if (statfs(fs, &sfs) == 0) {
 				i++;

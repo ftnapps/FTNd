@@ -2,7 +2,7 @@
  *
  * File ..................: mbfile
  * Purpose ...............: Basic File I/O
- * Last modification date : 12-Aug-2001
+ * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -262,28 +262,30 @@ int mkdirs(char *name)
  */
 int diskfree(int needed)
 {
-#ifdef __linux__
 	char		*mtab, *dev, *fs, *type;
 	FILE		*fp;
 	struct statfs	sfs;
 	int		RetVal = TRUE;
 	unsigned long	temp;
-#endif
 
-#ifdef __linux__
 	if (! needed)
 		return TRUE;
 
 	mtab = calloc(PATH_MAX, sizeof(char));
+#ifdef __linux__
 	if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
 		WriteError("$Can't open /etc/mtab");
+#elif __FreeBSD__
+	if ((fp = fopen((char *)"/etc/fstab", "r")) == 0) {
+		WriteError("$Can't open /etc/fstab");
+#endif
 		return TRUE;
 	}
 
 	while (fgets(mtab, PATH_MAX, fp)) {
-		dev  = strtok(mtab, " ");
-		fs   = strtok(NULL, " ");
-		type = strtok(NULL, " ");
+		dev  = strtok(mtab, " \t");
+		fs   = strtok(NULL, " \t");
+		type = strtok(NULL, " \t");
 		if (strncmp((char *)"/dev/", dev, 5) == 0) {
 			/*
 			 *  Filter out unwanted filesystems, floppy.
@@ -308,9 +310,6 @@ int diskfree(int needed)
 	free(mtab);
 
 	return RetVal;
-#else /* ifdef __linux__ */
-	return TRUE;  /* Assume enough */
-#endif
 }
 
 
