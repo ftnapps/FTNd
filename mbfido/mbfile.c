@@ -42,6 +42,7 @@
 #include "mbflist.h"
 #include "mbfimport.h"
 #include "mbftoberep.h"
+#include "mbfmove.h"
 #include "mbfutil.h"
 #include "mbfile.h"
 
@@ -57,6 +58,7 @@ int		do_index = FALSE;	/* Create request index		    */
 int		do_import= FALSE;	/* Import files in area		    */
 int		do_list  = FALSE;	/* List fileareas		    */
 int		do_tobe  = FALSE;	/* List toberep database	    */
+int		do_move  = FALSE;	/* Move a file			    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -66,7 +68,7 @@ time_t		t_end;			/* End time			    */
 
 int main(int argc, char **argv)
 {
-	int	i, Area = 0;
+	int	i, Area = 0, ToArea = 0;
 	char	*cmd, *FileName = NULL, *Description = NULL;
 	struct	passwd *pw;
 
@@ -148,6 +150,27 @@ int main(int argc, char **argv)
 			    cmd = xstrcat(cmd, argv[i]);
 			}
 		}
+		if (!strncasecmp(argv[i], "m", 1)) {
+		    if (argc > (i + 1)) {
+			i++;
+			Area = atoi(argv[i]);
+			cmd = xstrcat(cmd, (char *)" ");
+			cmd = xstrcat(cmd, argv[i]);
+			if (argc > (i + 1)) {
+			    i++;
+			    ToArea = atoi(argv[i]);
+			    cmd = xstrcat(cmd, (char *)" ");
+			    cmd = xstrcat(cmd, argv[i]);
+			    if (argc > (i + 1)) {
+				i++;
+				FileName = xstrcpy(argv[i]);
+				cmd = xstrcat(cmd, (char *)" ");
+				cmd = xstrcat(cmd, argv[i]);
+				do_move = TRUE;
+			    }
+			}
+		    }
+		}
 		if (!strncasecmp(argv[i], "p", 1))
 			do_pack = TRUE;
 		if (!strncasecmp(argv[i], "c", 1))
@@ -173,16 +196,20 @@ int main(int argc, char **argv)
 	free(cmd);
 
 	if (!do_quiet)
-		printf("\n");
+	    printf("\n");
 
 	if (!diskfree(CFG.freespace))
-		die(101);
+	    die(101);
 
-	if (do_adopt)
-		AdoptFile(Area, FileName, Description);
+	if (do_adopt) {
+	    AdoptFile(Area, FileName, Description);
+	    die(0);
+	}
 
-	if (do_import)
-		ImportFiles(Area);
+	if (do_import) {
+	    ImportFiles(Area);
+	    die(0);
+	}
 
 	if (do_kill)
 		Kill();
@@ -196,8 +223,15 @@ int main(int argc, char **argv)
 	if (do_index)
 		Index();
 
-	if (do_list)
-		ListFileAreas(Area);
+	if (do_move) {
+	    Move(Area, ToArea, FileName);
+	    die(0);
+	}
+
+	if (do_list) {
+	    ListFileAreas(Area);
+	    die(0);
+	}
 
 	if (do_tobe)
 		ToBeRep();
