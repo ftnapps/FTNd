@@ -143,3 +143,6 @@ mbsetup:
 	   Fileecho groups <=> Newfile reports
 	   Fileecho groups <=> BBS Areas
 
+install:
+	U: On RedHat 7.3 the big-endian menus are installed.
+

@@ -84,6 +84,7 @@ static int	MBflag = FALSE;
 static int	NDflag = FALSE;
 static int	CRYPTflag = FALSE;
 static int	CRAMflag = FALSE;
+static int	CRCflag = FALSE;
 unsigned long	nethold, mailhold;
 int		transferred = FALSE;
 int		batchnr = 0;
@@ -368,9 +369,10 @@ void b_nul(char *msg)
 			NDflag = TRUE;
 		if (strstr(msg, (char *)"CRYPT") != NULL)
 			CRYPTflag = TRUE;
-		if (strstr(msg, (char *)"CRAM-") != NULL) {
+		if (strstr(msg, (char *)"CRAM-") != NULL)
 			CRAMflag = TRUE;
-		}
+		if (strstr(msg, (char *)"CRC") != NULL)
+			CRCflag = TRUE;
 	} else
 		Syslog('+', "M_NUL \"%s\"", msg);
 }
@@ -799,7 +801,7 @@ int binkp_batch(file_list *to_send)
 	int		sverr, cmd = FALSE, GotFrame = FALSE;
 	int		blklen = 0, c, Found = FALSE;
 	unsigned short	header = 0;
-	char		*rname, *lname, *gname;
+	char		*rname, *lname, *gname, *rcrc;
 	long		rsize, roffs, lsize, gsize, goffset;
 	time_t		rtime, ltime, gtime;
 	off_t		rxbytes;
@@ -821,6 +823,7 @@ int binkp_batch(file_list *to_send)
 	txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
 	rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
 	rname = calloc(512, sizeof(char));
+	rcrc  = calloc(512, sizeof(char));
 	lname = calloc(512, sizeof(char));
 	gname = calloc(512, sizeof(char));
 	TfState = Switch;
@@ -1090,7 +1093,18 @@ int binkp_batch(file_list *to_send)
 
 				case MM_FILE:   if ((RxState == RxWaitFile) || (RxState == RxEndOfBatch)) {
 							RxState = RxAcceptFile;
-							sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
+							Syslog('b', "MM_FILE %s", rxbuf+1);
+							if (strlen(rxbuf) < 512) {
+							    /*
+							     * Check against buffer overflow
+							     */
+							    if (CRCflag)
+								sscanf(rxbuf+1, "%s %ld %ld %ld %s", rname, &rsize, &rtime, &roffs, rcrc);
+							    else
+								sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
+							} else {
+							    Syslog('+', "Got corrupted FILE frame, size %d bytes", strlen(rxbuf));
+							}
 						} else {
 							Syslog('+', "Binkp: got unexpected FILE frame %s", rxbuf+1);
 						}
@@ -1190,8 +1204,7 @@ int binkp_batch(file_list *to_send)
 			execute_disposition(tsl);
 		} else {
 			for (tmp = bll; tmp; tmp = tmp->next) {
-				if ((strcmp(tmp->local, tsl->local) == 0) &&
-				    ((tmp->state == Got) || (tmp->state == Skipped))) {
+				if ((strcmp(tmp->local, tsl->local) == 0) && (tmp->state == Got)) {
 					execute_disposition(tsl);
 				}
 			}
@@ -1210,6 +1223,7 @@ int binkp_batch(file_list *to_send)
 	free(txbuf);
 	free(rxbuf);
 	free(rname);
+	free(rcrc);
 	free(lname);
 	free(gname);
 	Syslog('+', "Binkp: batch %d completed rc=%d", batchnr, rc);
