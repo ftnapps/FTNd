@@ -219,9 +219,9 @@ void load_maincfg(void)
         CFG.iAttachLevel = 100;
         CFG.new_groups = 25;
 	CFG.max_logins = 1;
-	CFG.AskScreenlen = ASK;
-	CFG.AskNewmail = ASK;
-	CFG.AskNewfiles = ASK;
+	CFG.AskScreenlen = TRUE;
+	CFG.AskNewmail = YES;
+	CFG.AskNewfiles = YES;
 
         CFG.slow_util = TRUE;
         CFG.iCrashLevel = 100;

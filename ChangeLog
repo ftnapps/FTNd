@@ -6,6 +6,7 @@ v0.61.3		25-Jul-2004
 	upgrade:
 		To resinstall the corrected dutch macro templates go into the
 		examples directory and type "make dutch-macros".
+		In mbsetup menu 1.7 check the new items 15, 16 and 17.
 
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 
@@ -27,6 +28,10 @@ v0.61.3		25-Jul-2004
 	mbtask:
 		Added defaults for questions for screenlen, newmail chack and
 		newfiles check.
+
+	mbsetup:
+		In menu 1.7 added 3 new items to ask new users for screenlen,
+		newmail check and newfiles check.
 
 	examples:
 		Fixed 2 spelling errors in the dutch macro templates.
