@@ -11,6 +11,7 @@ v0.71.1		28-Nov-2004
 		The creation of the mailout semafore is now after the hangup
 		so that mbfido won't start before the bbs is finished.
 		Removed bbslist menus, this will become a door.
+		Added #define NFGVMIN 1 in openport.
 
 	examples:
 		Removed bbs list items from the English menus and txtfiles and

@@ -39,7 +39,8 @@ static struct termios	oldtty;			/* Saved termios	    */
 static struct termios	tty;
 unsigned		Baudrate = 2400;
 
-
+/* Next is on compile commandline in lrzsz */
+#define NFGVMIN 1
 #define HOWMANY 255
 
 
