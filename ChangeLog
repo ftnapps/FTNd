@@ -32,6 +32,8 @@ v0.35.04	29-Sep-2002
 		Auto created area now get the link security from the group.
 		With message areas auto update it should now only delete
 		missing echomail areas.
+		File attaches to our own points were placed in the node's
+		outbound directory instead of the point outbound.
 
 	mbsetup:
 		Added setup for the nodes record for security flags.

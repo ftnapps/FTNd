@@ -782,7 +782,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 void ExportNet(unsigned long MsgNum, int UUCPgate)
 {
     char	    *p, *q, ext[4], fromname[37], flavor, MailFrom[128], MailTo[128];
-    int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE;
+    int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE, mypoint = FALSE;
     FILE	    *qp, *fp, *fl;
     fidoaddr	    Dest, Route, *dest;
     time_t	    now;
@@ -935,15 +935,34 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	    sprintf(ext, (char *)"ccc");
 	else
 	    sprintf(ext, (char *)"nnn");
-	point = Dest.point;
-	Dest.point = 0;
-	if (point)
-	    Syslog('+', "Routing via Boss %s", aka2str(Dest));
-	if ((qp = OpenPkt(msgs.Aka, Dest, (char *)ext)) == NULL) {
-	    net_bad++;
-	    return;
+
+	/*
+	 * If the destination is a point, check if it is our point
+	 */
+	for (i = 0; i < 40; i++) {
+	    if (CFG.akavalid[i] &&
+			(CFG.aka[i].zone == Dest.zone) && (CFG.aka[i].net == Dest.net) && (CFG.aka[i].node == Dest.node)) {
+		if (Dest.point && !CFG.aka[i].point) {
+		    mypoint = TRUE;
+		}
+	    }
 	}
-	Dest.point = point;
+	if (mypoint) {
+	    if ((qp = OpenPkt(msgs.Aka, Dest, (char *)ext)) == NULL) {
+		 net_bad++;
+		 return;
+	    }
+	} else {
+	    point = Dest.point;
+	    Dest.point = 0;
+	    if (point)
+		Syslog('+', "Routing via Boss %s", aka2str(Dest));
+	    if ((qp = OpenPkt(msgs.Aka, Dest, (char *)ext)) == NULL) {
+		net_bad++;
+		return;
+	    }
+	    Dest.point = point;
+	}
 
     } else {
 	Syslog('m', "Route via %s", aka2str(Route));
