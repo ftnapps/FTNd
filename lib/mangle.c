@@ -281,19 +281,13 @@ int is_8_3( char *fname)
 	fname = slash_pos + 1;
     len = strlen(fname);
 
-    Syslog('f', "Checking %s for 8.3", fname);
-
     /* Can't be 0 chars or longer than 12 chars */
-    if ((len == 0) || (len > 12)) {
-	Syslog('f', "filename length not right");
+    if ((len == 0) || (len > 12))
 	return FALSE;
-    }
 
     /* Mustn't be an MS-DOS Special file such as lpt1 or even lpt1.txt */
-    if (is_reserved_msdos(fname)) {
-	Syslog('f', "is reserved msdos name");
+    if (is_reserved_msdos(fname))
 	return FALSE;
-    }
 
     init_chartest();
     for (i = 0; i < strlen(fname); i++) {
@@ -323,10 +317,8 @@ int is_8_3( char *fname)
 	return(0 == strcmp( fname, "." ) || 0 == strcmp( fname, ".." ));
 
     /* base can't be greater than 8 */
-    if (l > 8) {
-	Syslog('f', "filebase longer then 8 chars");
+    if (l > 8)
 	return FALSE;
-    }
 
     if (len - l == 1 && !strchr( dot_pos + 1, '.' )) {
 	*dot_pos = 0;
@@ -334,16 +326,12 @@ int is_8_3( char *fname)
     }
 
     /* extension must be between 1 and 3 */
-    if ((len - l < 2 ) || (len - l > 4)) {
-	Syslog('f', "extension length not right");
+    if ((len - l < 2 ) || (len - l > 4))
 	return FALSE;
-    }
 
     /* extensions may not have a dot */
-    if (strchr( dot_pos+1, '.' )) {
-	Syslog('f', "extension with a dot in it");
+    if (strchr( dot_pos+1, '.' ))
 	return FALSE;
-    }
 
     /* must be in 8.3 format */
     return TRUE;
@@ -375,27 +363,21 @@ void mangle_name_83(char *s)
     if (strcmp(q = s + strlen(s) - strlen(".tar.gz"), ".tar.gz") == 0) {
 	*q = '\0';
 	q = (char *)"tgz";
-	Syslog('f', "mangle_name_83 tar.gz => tgz");
     } else if (strcmp(q = s + strlen(s) - strlen(".tar.z"), ".tar.z") == 0) {
 	*q = '\0';
 	q = (char *)"tgz";
-	Syslog('f', "mangle_name_83 tar.z => tgz");
     } else if (strcmp(q = s + strlen(s) - strlen(".tar.Z"), ".tar.Z") == 0) {
 	*q = '\0';
 	q = (char *)"taz";
-	Syslog('f', "mangle_name_83 tar.Z => taz");
     } else if (strcmp(q = s + strlen(s) - strlen(".html"), ".html") == 0) {
 	*q = '\0';
 	q = (char *)"htm";
-	Syslog('f', "mangle_name_83 html => htm");
     } else if (strcmp(q = s + strlen(s) - strlen(".shtml"), ".shtml") == 0) {
 	*q = '\0';
 	q = (char *)"stm";
-	Syslog('f', "mangle_name_83 shtml => stm");
     } else if (strcmp(q = s + strlen(s) - strlen(".conf"), ".conf") == 0) {
 	*q = '\0';
 	q = (char *)"cnf";
-	Syslog('f', "mangle_name_83 conf => cnf");
     } else {
 	q = NULL;
     }
@@ -484,7 +466,6 @@ void name_mangle(char *OutName)
      * check if it's already in 8.3 format
      */
     if (!is_8_3(OutName)) {
-	Syslog('f', "is 8.3 = FALSE");
 	mangle_name_83(OutName);
     } else {
 	/*

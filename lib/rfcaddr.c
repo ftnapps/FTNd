@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: rfcaddr.c
- * Purpose ...............: MBSE BBS Common Library
- * Last modification date : 23-Mar-2001 
+ * $Id$
+ * Purpose ...............: MBSE BBS Common Library - RFC address functions
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -87,8 +86,6 @@ parsedaddr parserfcaddr(char *s)
 	int		quotes, brackets, escaped, anglecomplete;
 	char		*firstat, *lastat, *percent, *colon, *comma, *exclam;
 
-//	Syslog('M', "parserfcaddr() 1");
-
 	result.target    = NULL;
 	result.remainder = NULL;
 	result.comment   = NULL;
@@ -97,13 +94,12 @@ parsedaddr parserfcaddr(char *s)
 	if ((s == NULL) || (*s == '\0')) 
 		return result;
 
-	/* First check if there is an "angled" portion */
-
-// Syslog('M', "parserfcaddr() 1b strlen=%d", strlen(s));
+	/*
+	 *  First check if there is an "angled" portion 
+	 */
 	inbrackets  = calloc(strlen(s)+1, sizeof(char));
 	outbrackets = calloc(strlen(s)+1, sizeof(char));
 	brackets = quotes = escaped = anglecomplete = 0;
-// Syslog('M', "parserfcaddr() 2");
 	for (p = s,q = inbrackets, r = outbrackets, x = &r; *p; p++) {
 		if (escaped) 
 			escaped = FALSE;
@@ -134,22 +130,16 @@ parsedaddr parserfcaddr(char *s)
 		if (!brackets) 
 			x = &r;
 	}
-// Syslog('M', "parserfcaddr() 3");
 	*q = '\0';
 	*r = '\0';
 	if (brackets || quotes) 
 		addrerror |= ADDR_UNMATCHED;
-
-//	Syslog('N', " inbrackets: \"%s\"",inbrackets);
-//	Syslog('N', "outbrackets: \"%s\"",outbrackets);
-//	Syslog('N', "  addrerror: 0x%04x",addrerror);
 
 	if (addrerror) 
 		goto leave1;
 
 	cleanbuf = calloc(strlen(s)+1, sizeof(char));
 	combuf = calloc(strlen(s)+1, sizeof(char));
-// Syslog('M', "parserfcaddr() 4");
 	if (*inbrackets) { /* there actually is an angled portion */
 		strcpy(combuf, outbrackets);
 		c = combuf + strlen(combuf);
@@ -160,15 +150,11 @@ parsedaddr parserfcaddr(char *s)
 		p = outbrackets;
 	}
 
-//	Syslog('N', "    now parsing: \"%s\"",p);
-//	Syslog('N', "current comment: \"%s\"",result.comment);
-
 
 	/* OK, now we have result.comment filled with wat was outside
 	   angle brackets, c pointing past the end of it,
 	   p pointing to what is supposed to be address, with angle
 	   brackets already removed */
-// Syslog('M', "parserfcaddr() 5");
 	quotes = brackets = escaped = 0;
 	for (r = cleanbuf, x = &r; *p; p++) {
 		if (escaped) {
@@ -214,11 +200,6 @@ parsedaddr parserfcaddr(char *s)
 	if (brackets || quotes) 
 		addrerror |= ADDR_UNMATCHED;
 
-//	Syslog('N', "     now parsing: \"%s\"",inbrackets);
-//	Syslog('N', "complete comment: \"%s\"",result.comment);
-//	Syslog('N', "       addrerror: 0x%04x",addrerror);
-
-// Syslog('M', "parserfcaddr() 6");
 	if (addrerror) 
 		goto leave2;
 
@@ -255,40 +236,28 @@ parsedaddr parserfcaddr(char *s)
 						exclam = p;
 					break;
 			}
-// Syslog('M', "parserfcaddr() 7");
 	if ((firstat == cleanbuf) && colon) {
-//		Syslog('N', "@aaa,@bbb:xxx@yyy construct");
 		if (comma && (comma < colon)) {
 			*comma = '\0';
 			r = comma + 1;
-// Syslog('M', "parserfcaddr() 9");
 		} else {
 			*colon = '\0';
 			r = colon + 1;
-// Syslog('M', "parserfcaddr() 10");
 		}
 		t = firstat + 1;
-// Syslog('M', "parserfcaddr() 11");
 	} else if (lastat) {
-//		Syslog('N', "anything@somewhere construct");
 		*lastat = '\0';
 		r = cleanbuf;
 		t = lastat + 1;
-// Syslog('M', "parserfcaddr() 12");
 	} else if (exclam) {
-//		Syslog('N', "domain!something construct (without @'s)");
 		*exclam = '\0';
 		r = exclam + 1;
 		t = cleanbuf;
-// Syslog('M', "parserfcaddr() 13");
 	} else if (percent) {
-//		Syslog('N', "anything%%somewhere construct (without !'s and @'s)");
 		*percent = '\0';
 		r = cleanbuf;
 		t = percent + 1;
-// Syslog('M', "parserfcaddr() 14");
 	} else {
-//		Syslog('N', "remainder only present");
 		/* unquote it if necessary */
 		if ((*cleanbuf == '\"') && (*(p = (cleanbuf+strlen(cleanbuf)-1)) == '\"')) {
 			*p = '\0';
@@ -296,33 +265,24 @@ parsedaddr parserfcaddr(char *s)
 		} else 
 			r = cleanbuf;
 		t = NULL;
-// Syslog('M', "parserfcaddr() 15");
 	}
-// Syslog('M', "parserfcaddr() 16");
 	if (t && (*t != '\0')) 
 		result.target = xstrcpy(t);
-// Syslog('M', "parserfcaddr() 17");
 	if (r && (*r != '\0')) 
 		result.remainder = xstrcpy(r);
-// Syslog('M', "parserfcaddr() 18");
 	if (*combuf != '\0') 
 		result.comment = xstrcpy(combuf);
-// Syslog('M', "parserfcaddr() 19");
 
 leave1: /* this is also normal exit */
-//	Syslog('M', "parserfcaddr() leave1");
 	free(cleanbuf);
 	free(combuf);
 	free(inbrackets);
 	free(outbrackets);
-// 	Syslog('M', "going");
 	return result;
 
 leave2: /* if error found on second stage, free */
-//	Syslog('M', "parserfcaddr() leave2");
 	free(cleanbuf);
 	free(combuf);
-//	Syslog('M', "going");
 	return result;
 }
 

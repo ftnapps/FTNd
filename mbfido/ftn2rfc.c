@@ -343,8 +343,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		if (strlen(buf) > (sizeof(buf) /2))
 		    Syslog('+', "FTN: Possible bufferoverflow: line read %d bytes", strlen(buf));
 		if (strlen(buf) > 200) {
-			Syslog('m', "FTN: Next line should be %d characters", strlen(buf));
-			Syslogp('m', printable(buf, 200));
+			Syslog('M', "FTN: Next line should be %d characters", strlen(buf));
+			Syslogp('M', printable(buf, 200));
 		} else {
 			Syslogp('M', printable(buf, 0));
 		}
@@ -574,7 +574,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			if (msgs.MsgKinds == USEMOD)
 				modtype = 1;
 		}
-		Syslog('m', "newsgroup %s, distribution %s, moderator %s modtype %d",
+		Syslog('M', "newsgroup %s, distribution %s, moderator %s modtype %d",
 			printable(newsgroup, 0), printable(distribution, 0), printable(moderator, 0), modtype);
 		newsmode = TRUE;
 		if ((modtype == 1) && (!hdr((char *)"Approved",msg)) && 
@@ -582,7 +582,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			newsmode = TRUE;
 	} else 
 		newsmode = FALSE;
-	Syslog('m', "Got %s message", newsmode?"echo":"netmail");
+	Syslog('M', "Got %s message", newsmode?"echo":"netmail");
 
 	if ((outcode == CHRS_NOTSET) && (hdr((char *)"MSGID", kmsg))) {
 		p = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
@@ -673,8 +673,10 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	if ((p=hdr((char *)"TOPT",kmsg))) 
 		t->point=atoi(p);
 
-	Syslog('m', "final from: %s",ascfnode(f,0xff));
-	Syslog('m', "final   to: %s",ascfnode(t,0xff));
+	if (!newsmode) {
+	    Syslog('m', "final from: %s",ascfnode(f,0xff));
+	    Syslog('m', "final   to: %s",ascfnode(t,0xff));
+	}
 
 	if (!newsmode) {
 		p=hdr((char *)"Resent-To",msg);

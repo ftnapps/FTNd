@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: common/charconv.c
- * Purpose ...............: Common utilities
- * Last modification date : 21-Mar-2001
+ * $Id$
+ * Purpose ...............: Common utilities - character set conversion
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -88,7 +87,6 @@ static int getmaptab(char *maptab_name)
 	char	buf[BUFSIZ], *p, *q;
 	int	in, on;
 
-	Syslog('M', "getmaptab: %s\n", maptab_name);
 	if ((fp = fopen(maptab_name, "r")) == NULL) {
 		WriteError("$can't open mapchan file \"%s\" ", maptab_name);
 		return 0;
@@ -661,12 +659,9 @@ char *hdrconv(char *s, int incode, int outcode)
 	char	*xbuf=NULL, *buf=NULL, *q;
 	int	codage;
 
-//	Syslog('N', "hdrconv(%s, %d, %d)", s, incode, outcode);
-
 	iptr = s;
 	while (*iptr) {
 		if (!strncmp(iptr,"=?",2)) {
-//			Syslog('N', "hdrconv =?");
 			q=strchr(iptr+2,'?');
 			if (q) {
 				incode=getcode(iptr+2);
@@ -704,20 +699,13 @@ char *hdrconv(char *s, int incode, int outcode)
 				xbuf=xstrcat(xbuf,b64_decode(ttbuf));
 			}
                 } else { /* not coded */
-//			Syslog('N', "hdrconv not coded 1");
 			*ttbuf=*iptr;
-//			Syslog('N', "hdrconv not coded 2");
 			*(ttbuf+1)='\0';
-//			Syslog('N', "hdrconv not coded 3");
 			xbuf=xstrcat(xbuf,ttbuf);
-//			Syslog('N', "hdrconv not coded 4");
 			iptr++;
-//			Syslog('N', "hdrconv not coded 5");
 		}
 	}
-//	Syslog('N', "hdrconv call strkconv");
 	buf=strkconv(xbuf, incode, outcode);
-//	Syslog('N', "hdrconv return");
 	return buf;
 }
 

@@ -49,17 +49,14 @@ int flagset(char *s)
 	int	i;
 	int	fl=0;
 
-	Syslog('M', "setting flags from string \"%s\"",MBSE_SS(s));
 	buf=xstrcpy(s);
 	for (p=strtok(buf," ,\t\n"); p; p=strtok(NULL," ,\t\n")) {
 		for (i=0;i<16;i++)
 			if (!strcasecmp(p,flnm[i])) {
-				Syslog('M', "setting flag bit %d for \"%s\"", i,MBSE_SS(p));
 				fl |= (1 << i);
 			}
 	}
 	free(buf);
-	Syslog('M', "set flags 0x%04x",fl);
 	return fl;
 }
 
@@ -73,7 +70,6 @@ char *compose_flags(int flags, char *fkludge)
 	if ((fkludge == NULL) && (!flags))
 		return buf;
 
-	Syslog('M', "composing flag string from binary 0x%04x and string \"%s\"", flags,MBSE_SS(fkludge));
 	if (fkludge) {
 		if (!isspace(fkludge[0])) 
 			buf=xstrcpy((char *)" ");
@@ -87,9 +83,7 @@ char *compose_flags(int flags, char *fkludge)
 		if ((flags & (1 << i)) && (!flag_on(flnm[i],buf))) {
 			buf=xstrcat(buf,(char *)" ");
 			buf=xstrcat(buf,flnm[i]);
-			Syslog('m', "adding \"%s\"",flnm[i]);
 		}
-	Syslog('M', "resulting string is \"%s\"",buf);
 	return buf;
 }
 
@@ -103,7 +97,6 @@ char *strip_flags(char *flags)
 	if (flags == NULL) 
 		return NULL;
 
-	Syslog('M', "stripping official flags from \"%s\"",MBSE_SS(flags));
 	p=xstrcpy(flags);
 	for (tok=strtok(flags,", \t\n");tok;tok=strtok(NULL,", \t\n")) {
 		canonic=0;
@@ -116,7 +109,6 @@ char *strip_flags(char *flags)
 		}
 	}
 	free(p);
-	Syslog('M', "stripped string is \"%s\"",q);
 	return q;
 }
 
@@ -130,14 +122,12 @@ int flag_on(char *flag, char *flags)
 	if (flags == NULL)
 		return FALSE;
 
-	Syslog('m', "checking flag \"%s\" in string \"%s\"", MBSE_SS(flag), MBSE_SS(flags));
 	p = xstrcpy(flags);
 	for (tok = strtok(p, ", \t\n"); tok; tok = strtok(NULL, ", \t\n")) {
 		if (strcasecmp(flag, tok) == 0) 
 			up = TRUE;
 	}
 	free(p);
-	Syslog('m', "flag%s present", up ? "":" not");
 	return up;
 }
 
