@@ -101,7 +101,9 @@
 #endif
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-
+#if defined(__NetBSD__)
+#include <re_comp.h>
+#endif
 
 /*
  *  Some older systems don;t have this
