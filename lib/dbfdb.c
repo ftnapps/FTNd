@@ -116,7 +116,6 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
     fdb_area->fp = fp;
     fdb_area->locked = 0;
     fdb_area->area = Area;
-    Syslog('f', "OpenFDB success");
     return fdb_area;
 }
 
@@ -172,7 +171,6 @@ int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
 	return FALSE;
     }
 
-    Syslog('f', "LockFDB success");
     fdb_area->locked = 1;
     return TRUE;
 }
@@ -344,7 +342,6 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
     free(temp);
     free(temp2);
 
-    Syslog('f', "success");
     return TRUE;
 }
 
