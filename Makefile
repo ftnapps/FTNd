@@ -123,15 +123,15 @@ install:
 			mkdir ${PREFIX}/ftp ; \
 			mkdir ${PREFIX}/ftp/pub ; \
 			mkdir ${PREFIX}/ftp/incoming ; \
-			mkdir ${PREFIX}/ftp/local ; \
+			mkdir ${PREFIX}/ftp/pub/local ; \
 			${CHOWN} `id -un`.`id -gn` ${PREFIX}/ftp ; \
 			chmod 0755 ${PREFIX}/ftp ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub ; \
 			chmod 0755 ${PREFIX}/ftp/pub ; \
 			${CHOWN} `id -un`.`id -gn` ${PREFIX}/ftp/incoming ; \
 			chmod 0755 ${PREFIX}/ftp/incoming ; \
-			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/local ; \
-			chmod 0755 ${PREFIX}/ftp/local ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub/local ; \
+			chmod 0755 ${PREFIX}/ftp/pub/local ; \
 		fi
 		@if [ ! -d ${PREFIX}/var/bso ] ; then \
 			mkdir ${PREFIX}/var/nodelist ; \

@@ -76,7 +76,7 @@ int CountFilearea(void)
 			area.FileFind  = TRUE;
 			sprintf(area.BbsGroup, "LOCAL");
 			sprintf(area.NewGroup, "LOCAL");
-			sprintf(area.Path, "%s/local/common", CFG.ftp_base);
+			sprintf(area.Path, "%s/pub/local/common", CFG.ftp_base);
 			fwrite(&area, sizeof(area), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
