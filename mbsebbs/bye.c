@@ -139,6 +139,7 @@ void Good_Bye(int onsig)
 void Quick_Bye(int onsig)
 {
     char    *temp;
+    int	    i;
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('+', "Quick_Bye");
@@ -147,12 +148,17 @@ void Quick_Bye(int onsig)
     unlink(temp);
     free(temp);
 
+    /*
+     * Prevent that we call die() if something goes wrong next
+     */
+    for (i = 0; i < NSIG; i++)
+	signal(i, SIG_DFL);
+
     colour(LIGHTGRAY, BLACK);
     fflush(stdout);
     fflush(stdin);
     sleep(3);
 
-    Free_Language();
     free(pTTY);
     if (StartTime)
 	free(StartTime);

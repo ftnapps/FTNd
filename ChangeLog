@@ -54,6 +54,8 @@ v0.61.4		11-Aug-2004
 		Added extra fflush in quickscan mail.
 		When calling the external editor, the fromaddress if available
 		is given to joe.
+		In Quick_Bye reset all signal handlers to prevent that die() is
+		called in case something goes wrong during Quick_Bye.
 
 	mbnewusr:
 		During program exit, it tried to remove the wrong socket to
