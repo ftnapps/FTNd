@@ -1,0 +1,126 @@
+# Copyright (c) M Broek, 1997-2000
+# Top-level makefile for MBSE BBS html documentation.
+
+include ../Makefile.global
+
+H_BASE		= basic.html date.html dist.html manual.css \
+		  flow.html postfix.html gwnews.html index.htm ups.html \
+		  install.html intergate.html intro.html invoking.html \
+		  known_bugs.html mgetty.html routing.html nodelist.html
+
+H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
+		  ftsc/fsp-1003.html  ftsc/fsp-1009.html  ftsc/fts-0007.html \
+		  ftsc/fsc-0046.html  ftsc/fsc-0057.html  ftsc/fsc-0091.html \
+		  ftsc/fsp-1004.html  ftsc/fta-1005.html  ftsc/fts-0008.html \
+		  ftsc/fsc-0048.html  ftsc/fsc-0059.html  ftsc/fsc-0092.html \
+		  ftsc/fsp-1005.html  ftsc/fts-0001.html  ftsc/fts-0009.html \
+		  ftsc/fsc-0049.html  ftsc/fsc-0062.html  ftsc/fsc-0093.html \
+		  ftsc/fsp-1006.html  ftsc/fts-0004.html  ftsc/index.htm \
+		  ftsc/fsc-0050.html  ftsc/fsc-0070.html  ftsc/fsp-1001.html \
+		  ftsc/fsp-1007.html  ftsc/fts-5000.html  ftsc/fsc-0053.html \
+		  ftsc/fsc-0072.html  ftsc/fsp-1002.html  ftsc/fsp-1008.html \
+		  ftsc/fts-0006.html  ftsc/fsc-0035.html  ftsc/fsp-1010.html \
+		  ftsc/fsp-1011.html  ftsc/ftscprod.html  ftsc/fsc-0088.html \
+		  ftsc/fts-4001.html  ftsc/fts-5001.html
+
+H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
+		  images/connec.gif   images/mbsetup0.gif     images/nodes2.gif \
+		  images/domains.gif  images/mbsetup1.6.S.gif images/nodes3.gif \
+		  images/e_menu.gif   images/mbsetup1.6.gif   images/nodes4.gif \
+		  images/emareas.gif  images/mbsetup2.gif     images/nodes5.gif \
+		  images/emgroup.gif  images/modems0.gif      images/oneliner.gif \
+		  images/fdb.gif      images/newfiles.gif     images/protocol.gif \
+		  images/fegroup.gif  images/newgroups.gif    images/rarrow.gif \
+		  images/fileecho.gif images/nodelist.gif     images/security.gif \
+		  images/filefind.gif images/nodelist1.gif    images/tty.gif \
+		  images/files.gif    images/nodelist2.gif    images/tty1.gif \
+		  images/go_to.gif    images/nodelist3.gif    images/tty2.gif \
+		  images/hatch.gif    images/nodelist4.gif    images/tty3.gif \
+		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
+		  images/larrow.gif   images/nodes.gif        images/users.gif \
+		  images/mbse.jpg     images/taskmgr.gif      images/mbsebbs.gif \
+		  images/mbsebbs.png  images/users2.gif
+
+H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
+		  license/jam.html
+
+H_MENUS		= menus/control.html  menus/index.htm     menus/menu100.html \
+		  menus/menu300.html  menus/menu500.html  \
+		  menus/menu0.html    menus/menu200.html  menus/menu400.html
+
+H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
+		  misc/jam.html        misc/semafore.html   misc/filefind.html \
+		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
+		  misc/usleep.html
+
+H_PROGS		= programs/import.html     programs/mbchat.html \
+		  programs/mbfido.html     programs/mbmon.html \
+		  programs/mbtoberep.html \
+		  programs/index.htm       programs/mbcico.html \
+		  programs/mbfile.html     programs/mbmsg.html \
+		  programs/mbseq.html      programs/mbuser.html \
+		  programs/mbaff.html      programs/mbdiff.html \
+		  programs/mbindex.html    programs/mbout.html \
+		  programs/mbsetup.html    programs/mbuseradd.html \
+		  programs/mball.html      programs/mbfbgen.html \
+		  programs/mblang.html     programs/mbsebbs.html \
+		  programs/mbstat.html     programs/mbpasswd.html \
+		  programs/mbtask.html     programs/mbmail.html
+
+H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
+		  setup/bbslist.html   setup/language.html setup/oneliner.html \
+		  setup/emareas.html   setup/magic.html    setup/mail.html \
+		  setup/protocol.html  setup/emgroup.html  setup/safe.html \
+		  setup/fdb.html       setup/security.html setup/sitedoc.html \
+		  setup/fegroup.html   setup/modems.html   setup/softinfo.html \
+		  setup/fidonet.html   setup/tic.html      setup/timebank.html \
+		  setup/fileecho.html  setup/newfiles.html setup/filefind.html \
+		  setup/newgroups.html setup/files.html    setup/nodes.html \
+		  setup/ttyinfo.html   setup/global.html   setup/users.html \
+		  setup/hatch.html     setup/virscan.html  setup/services.html \
+		  setup/domains.html   setup/taskmgr.html
+
+FILES		= $(H_BASE) $(H_FTSC) $(H_IMAGES) $(H_LICENSE) $(H_MENUS) $(H_MISC) $(H_PROGS) $(H_SETUP) Makefile
+
+#########################################################################################################
+
+all depend clean depend:
+
+install:
+		@echo "Installing html documentation in ${PREFIX}/html"
+		@rm -Rf ${PREFIX}/html
+		@mkdir -p ${PREFIX}/html
+		@mkdir -p ${PREFIX}/html/ftsc
+		@mkdir -p ${PREFIX}/html/images
+		@mkdir -p ${PREFIX}/html/license
+		@mkdir -p ${PREFIX}/html/menus
+		@mkdir -p ${PREFIX}/html/misc
+		@mkdir -p ${PREFIX}/html/programs
+		@mkdir -p ${PREFIX}/html/setup
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/ftsc
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/images
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/license
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/menus
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/misc
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/programs
+		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/setup
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_BASE}    ${PREFIX}/html
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_FTSC}    ${PREFIX}/html/ftsc
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_IMAGES}  ${PREFIX}/html/images
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_LICENSE} ${PREFIX}/html/license
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_MENUS}   ${PREFIX}/html/menus
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_MISC}    ${PREFIX}/html/misc
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_PROGS}   ${PREFIX}/html/programs
+		@${INSTALL} -o ${OWNER} -g ${GROUP} -m 0444 ${H_SETUP}   ${PREFIX}/html/setup
+
+clean:
+		rm -f filelist
+
+filelist:	Makefile
+		BASE=`pwd`; \
+		BASE=`basename $${BASE}`; \
+		(for f in ${FILES}; \
+			do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; \
+		done) >filelist
+
