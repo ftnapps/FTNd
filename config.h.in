@@ -17,6 +17,9 @@
 /* Compile new binkp driver */
 #undef USE_NEWBINKP
 
+/* Compile full newsgate */
+#undef USE_NEWSGATE
+
 /* Has strcasestr function  */
 #undef HAVE_STRCASESTR
 
