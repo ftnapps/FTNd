@@ -81,10 +81,10 @@ crontab - << EOF
 00 00 * * *	$MHOME/etc/midnight
 
 # Weekly event at Sunday 00:05.
-05 00 * * 0	$MHOME/etc/weekly
+15 00 * * 0	$MHOME/etc/weekly
 
 # Monthly event at the 1st day of the month at 00:10.
-10 00 1 * *	$MHOME/etc/monthly
+30 00 1 * *	$MHOME/etc/monthly
 
 #-----------------------------------------------------------------------------
 #
