@@ -113,6 +113,7 @@ void auth_pass(char *cmd)
     while (fread(&usrconfig, usrconfighdr.recsize, 1, fp) == 1) {
 	if (strcmp(usrconfig.Name, username) == 0) {
 	    FoundName = TRUE;
+	    usercharset=usrconfig.Charset;
 	    break;
 	}
 	grecno++;

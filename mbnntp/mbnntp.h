@@ -3,6 +3,8 @@
 
 /* $Id$ */
 
+int usercharset;
+
 void send_nntp(const char *, ...);
 
 #ifndef USE_NEWSGATE

@@ -64,7 +64,7 @@ void send_xlat(char *inp)
 {
     char    *xl, temp[1024];
     int     i;
-	
+
     memset(&temp, 0, sizeof(temp));
     
     for (i = 0; i < strlen(inp); i++) {
@@ -101,6 +101,27 @@ char *make_msgid(char *msgid)
 
     sprintf(buf, "<%8lx$%s@%s>", StringCRC32(msgid), currentgroup, CFG.sysdomain);
     return buf;
+}
+
+
+
+char *getrfcchrs(int val)
+{
+    switch (val) {
+        case FTNC_NONE:     return (char *)"iso-8859-1";
+        case FTNC_CP437:    return (char *)"cp437";
+        case FTNC_CP850:    return (char *)"cp850";
+        case FTNC_CP865:    return (char *)"cp865";
+        case FTNC_CP866:    return (char *)"cp866";
+	case FTNC_CP852:    return (char *)"cp852";
+	case FTNC_CP895:    return (char *)"cp895";
+        case FTNC_LATIN_1:  return (char *)"iso-8859-1";
+        case FTNC_LATIN_2:  return (char *)"iso-8859-2";
+        case FTNC_LATIN_5:  return (char *)"iso-8859-5";
+        case FTNC_MAC:      return (char *)"MAC 2";
+	case FTNC_KOI8_R:   return (char *)"koi8-r";
+        default:            return (char *)"iso-8859-1";
+    }
 }
 
 
@@ -173,10 +194,12 @@ void command_abhs(char *buf)
 	return;
     }
 
+
+
     /*
-     * Setup a default translation
+     * Setup a charset translation
      */
-    charset_set_in_out((char *)"x-ibmpc", (char *)"iso-8859-1");
+    charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
 
     if (Msg_Read(art, 75)) {
 
@@ -192,7 +215,9 @@ void command_abhs(char *buf)
 	    send_nntp("Path: MBNNTP!not-for-mail");
 	    send_nntp("From: %s <%s>", Msg.From, Msg.FromAddress);
 	    send_nntp("Newsgroups: %s", currentgroup);
-	    send_nntp("Subject: %s", Msg.Subject);
+	    char *subj;
+	    asprintf(&subj,"Subject: %s", Msg.Subject);
+	    send_xlat(subj);
 	    send_nntp("Date: %s", rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)));
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
@@ -213,7 +238,7 @@ void command_abhs(char *buf)
 	    }
 	    
 	    send_nntp("MIME-Version: 1.0");
-	    send_nntp("Content-Type: text/plain; charset=iso-8859-1; format=fixed");
+	    send_nntp("Content-Type: text/plain; charset=%s; format=fixed", getrfcchrs(usercharset));
 	    send_nntp("Content-Transfer-Encoding: 8bit");
 	}
 

@@ -450,7 +450,7 @@ int Read_a_Email(unsigned long Num)
 		    if (Kludges) {
 			pout(LIGHTGRAY, BLACK, p);
 			Enter(1);
-			if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
+			if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE, FALSE))
 			    break;
 		    }
 		} else {
@@ -460,7 +460,7 @@ int Read_a_Email(unsigned long Num)
 			    colour(CFG.HiliteF, CFG.HiliteB);
 		    PUTSTR(p);
 		    Enter(1);
-		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE))
+		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, TRUE, FALSE))
 			break;
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);

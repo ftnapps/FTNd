@@ -79,8 +79,7 @@ extern int	LC_Wrote;		/* Lastcaller info write message    */
 /*
  *  Internal prototypes
  */
-
-void	ShowMsgHdr(void);		/* Show message header		    */
+void	ShowMsgHdr(int Conv);		/* Show message header		    */
 int	Read_a_Msg(unsigned long Num, int);/* Read a message		    */
 int	Export_a_Msg(unsigned long Num);/* Export message to homedir	    */
 int	ReadPanel(void);		/* Read panel bar		    */
@@ -892,13 +891,13 @@ int Save_Msg(int IsReply, faddr *Dest)
 /* 
  * Show message header screen top for reading messages.
  */
-void ShowMsgHdr()
+void ShowMsgHdr(int Conv)
 {
     static char	Buf1[35], Buf2[35], Buf3[81];
     char	msg[81];
     struct tm	*tm;
     time_t	now;
-    int		color;
+    int		color, i;
 
     Buf1[0] = '\0';
     Buf2[0] = '\0';
@@ -986,7 +985,18 @@ void ShowMsgHdr()
 
     /* Subject : */
     pout(YELLOW, BLACK, (char *) Language(210));
-    pout(GREEN, BLACK, Msg.Subject);
+    colour(GREEN, BLACK);
+
+    if (Conv) {
+	/*
+	 * Try to translate character sets
+	 */
+	for (i = 0; i < strlen(Msg.Subject); i++) {
+	    PUTSTR(charset_map_c(Msg.Subject[i], FALSE));
+	}
+    } else {
+	PUTSTR(Msg.Subject);
+    }
     Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
@@ -1207,7 +1217,6 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	sleep(3);
 	return FALSE;
     }
-    ShowMsgHdr();
 
     /*
      * Fill Quote file in case the user wants to reply. Note that line
@@ -1263,6 +1272,10 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
     if (charsin && charsout && strcmp(charsout, charsin)) {
 	UseIconv = charset_set_in_out(charsin, charsout);
     }
+    /*
+     * Show message header with charset mapping if needed.
+     */
+    ShowMsgHdr(UseIconv);
 
     /*
      * Show message text
@@ -1275,7 +1288,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 		    if (Kludges) {
 			pout(LIGHTGRAY, BLACK, p);
 			Enter(1);
-			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
+			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE, UseIconv))
 			    break;
 		    }
 		} else {
@@ -1296,7 +1309,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 			Enter(1);
 		    }
 
-		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
+		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE, UseIconv))
 			break;
 		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
@@ -1933,7 +1946,7 @@ void Delete_Msg()
 /*
  * Check linecounter for reading messages.
  */
-int CheckLine(int FG, int BG, int Email)
+int CheckLine(int FG, int BG, int Email, int Conv)
 {
     int	    x, z;
 
@@ -1960,7 +1973,7 @@ int CheckLine(int FG, int BG, int Email)
 	if (Email)
 	    ShowEmailHdr();
 	else
-	    ShowMsgHdr();
+	    ShowMsgHdr(Conv);
 	colour(FG, BG);
     }
     return FALSE;

@@ -18,6 +18,8 @@ v0.71.1		28-Nov-2004
 		Added port to OpenBSD, is under test (and doesn't work).
 		Code cleanup so that compile stops on unknown OSes and CPUs
 		instead of missing code parts.
+		Added Unix codepage KOI8-R (Russian) and patches from Dmitry
+		Komissaroff.
 
 	mbsebbs:
 		The creation of the mailout semafore is now after the hangup
@@ -28,6 +30,8 @@ v0.71.1		28-Nov-2004
 		Made zmodem-8k downloads work again.
 		Some small buffer protections added in addfile.
 		Fixed keyboad input for all bigendian machines.
+		Patches from Dmitry Komissaroff to make charset translation 
+		work on message subject lines.
 
 	mbnewuser:
 		During hangup we set sighup to ignore.
@@ -66,6 +70,10 @@ v0.71.1		28-Nov-2004
 		is fresh created.
 		Changed X-JAM kludges to X-FTN kludges to make it compatible
 		with the rest of the gates.
+		Patches from Dmitry Komissaroff to make charset translation
+                work on message subject lines. It will now also send the right
+		charset of the user in the charset header line so that the 
+		client will show the message in the users charset.
 
 	mbsetup:
 		Added support for XxxxBSD console port.
