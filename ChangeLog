@@ -23,6 +23,9 @@ v0.61.3		25-Jul-2004
 	examples:
 		Fixed 2 spelling errors in the dutch macro templates.
 
+	lang:
+		Added language prompts 26 and 27.
+
 
 v0.61.2		11-Jul-2004 - 25-Jul-2004
 

@@ -24,8 +24,8 @@
 23	change.c			|Select your preferred character set
 24	change.c			|Select character set (Enter to Quit):
 25	change.c			|Character set now set to: 
-26	.c				|
-27	.c				|
+26	newuser.c			YN|Check for new mail at login [Y/n]: 
+27	newuser.c			YN|Check for new files at login [Y/n]: 
 28	.c				|
 29	.c				|
 30	.c				|

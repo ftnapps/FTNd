@@ -448,19 +448,22 @@ int newuser()
 
     usrconfig.iTimeLeft    = 20;  /* Set Timeleft in users file to 20 */
 
-    Enter(1);
-    /* Please enter your Screen Length [24]: */
-    pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
-    colour(CFG.InputColourF, CFG.InputColourB);
-    fflush(stdout);
-    alarm_on();
-    Getnum(temp, 3);
+    if (CFG.AskScreenlen) {
+	Enter(1);
+	/* Please enter your Screen Length [24]: */
+	pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	fflush(stdout);
+	alarm_on();
+	Getnum(temp, 3);
 
-    if(strlen(temp) == 0)
+	if(strlen(temp) == 0)
+	    usrconfig.iScreenLen = 24;
+	else
+	    usrconfig.iScreenLen = atoi(temp);
+    } else {
 	usrconfig.iScreenLen = 24;
-    else
-	usrconfig.iScreenLen = atoi(temp);
-
+    }
     TermInit(usrconfig.GraphMode, 80, usrconfig.iScreenLen);
     alarm_on();
 
@@ -470,8 +473,61 @@ int newuser()
 
     sprintf(usrconfig.sProtocol, "%s", (char *) Language(65));
     usrconfig.DoNotDisturb = FALSE;
-    usrconfig.MailScan     = TRUE;
-    usrconfig.ieFILE       = TRUE;
+
+    switch (CFG.Newmail) {
+	case NO:    usrconfig.Mailscan = FALSE;
+		    break;
+	case YES:   usrconfig.MailScan = TRUE;
+		    break;
+	default:    while (TRUE) {
+			Enter(1);
+			/* Check for new mail at login [Y/n]: */
+			pout(LIGHTRED, BLACK, (char *) Language(26));
+			colour(CFG.InputColourF, CFG.InputColourB);
+			alarm_on();
+			GetstrC(temp, 8);
+
+			if ((toupper(temp[0]) == Keystroke(26, 0)) || (strcmp(temp,"") == 0)) {
+			    usrconfig.MailScan = TRUE;
+			    break;
+			}
+			if (toupper(temp[0]) == Keystroke(26, 1)) {
+			    usrconfig.MailScan = FALSE;
+			    break;
+			}
+			/* Please answer Y or N */
+			pout(WHITE, BLACK, (char *) Language(63));
+		    }
+		    break;
+    }
+
+    switch (CFG.Newfiles) {
+	case NO:    usrconfig.ieFILE = FALSE;
+		    break;
+	case YES:   usrconfig.ieFILE = TRUE;
+		    break;
+	default:    while (TRUE) {
+			Enter(1);
+			/* Check for new files at login [Y/n]: */
+			pout(LIGHTRED, BLACK, (char *) Language(27));
+			colour(CFG.InputColourF, CFG.InputColourB);
+			alarm_on();
+			GetstrC(temp, 8);
+
+			if ((toupper(temp[0]) == Keystroke(27, 0)) || (strcmp(temp,"") == 0)) {
+			    usrconfig.ieFILE = TRUE;
+			    break;
+			}
+			if (toupper(temp[0]) == Keystroke(27, 1)) {
+			    usrconfig.ieFILE = FALSE;
+			    break;
+			}
+			/* Please answer Y or N */
+			pout(WHITE, BLACK, (char *) Language(63));
+		    }
+		    break;
+    }
+
     usrconfig.ieNEWS       = TRUE;
     usrconfig.Cls          = TRUE;
     usrconfig.More         = TRUE;

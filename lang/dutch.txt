@@ -24,8 +24,8 @@ JN| Is dit juist [j/N]:
 |Kies Uw karakter set
 |Kies karakter set (Enter is Stop): 
 |Karakter set is nu: 
-|
-|
+JN|Kijk voor nieuwe post tijdens login [J/n]: 
+JN|Kijk voor nieuwe bestanden tijdens login [J/n]: 
 |
 |
 |

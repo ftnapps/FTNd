@@ -24,8 +24,8 @@ JN| Ist dies richtig richtig? [<j>a/<N>ein]:
 |Waehle Deinen bevorzugten Zeichensatz
 |Waehle Zeichensatz (beenden mit <ENTER>): 
 |Zeichensatz ist jetzt: 
-|
-|
+YN|Check for new mail at login [Y/n]: 
+YN|Check for new files at login [Y/n]: 
 |
 |
 |

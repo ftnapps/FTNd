@@ -379,7 +379,7 @@ struct icmp_filter {
  *  Global typedefs.
  *
  */
-typedef enum {YES, NO, ASK, ONLY} ASKTYPE;
+typedef enum {YES, NO, ASK} ASKTYPE;
 typedef enum {LOCALMAIL, NETMAIL, ECHOMAIL, NEWS, LIST} MSGTYPE;
 typedef enum {BOTH, PRIVATE, PUBLIC, RONLY, FTNMOD, USEMOD} MSGKINDSTYPE;
 typedef enum {IGNORE, CREATE, KILL} ORPHANTYPE;
@@ -959,6 +959,7 @@ struct	sysconfig {
 	unsigned	GiveEmail	: 1;	/* Give user email	    */
 	unsigned	AskAddress      : 1;	/* Ask Home Address	    */
 	unsigned	iOneName        : 1;	/* Allow one user name      */
+	unsigned	AskScreenlen	: 1;	/* Ask screenlength	    */
 	unsigned	iCrashLevel;		/* User level for crash mail*/
 	unsigned	iAttachLevel;		/* User level for fileattach*/
 
@@ -989,9 +990,10 @@ struct	sysconfig {
 	char		xNuScreen[50];          /* Obsolete Next User Door  */
 	char		xNuQuote[81];
 
-	int		xSafeFirstDigit;
-	int		xSafeSecondDigit;
-	int		xSafeThirdDigit;
+	int		AskNewmail;		/* Ask newmail check	    */
+	int		AskNewfiles;		/* Ask newfiles check	    */
+	int		xAskDummy;
+
 	int		xSafeMaxTrys;
 	int		xSafeMaxNumber;
 	unsigned	xSafeNumGen  : 1;

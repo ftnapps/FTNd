@@ -1901,6 +1901,50 @@ char *getmagictype(int val)
 
 
 
+char *get_asktype(int val)
+{
+    switch(val) {
+	case	YES:	return (char *)"Yes";
+	case	NO:	return (char *)"No ";
+	case	ASK:	return (char *)"Ask";
+	default:	return (char *)"???";
+    }
+}
+
+
+
+void show_asktype(int y, int x, int val)
+{
+    mvprintw(y, x, get_asktype(val));
+}
+
+
+
+int edit_asktype(int y, int x, int val)
+{
+    int ch;
+
+    showhelp((char *)"Toggle ^Question mode^ with spacebar, press <Enter> whene done.");
+    do {
+	set_color(YELLOW, BLUE);
+	show_asktype(y, x, val);
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < ASK)
+		val++;
+	    else
+		val = YES;
+	}
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_asktype(y, x, val);
+    return val;
+}
+
+
+
 char *get_sessiontype(int val)
 {
     switch (val) {

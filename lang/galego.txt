@@ -24,8 +24,8 @@ SN| ‚ correcto [s/N]:
 |Select your preferred character set
 |Select character set (Enter to Quit): 
 |Character set now set to: 
-|
-|
+YN|Check for new mail at login [Y/n]: 
+YN|Check for new files at login [Y/n]: 
 |
 |
 |
