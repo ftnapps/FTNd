@@ -43,6 +43,7 @@ static int	eof_seen;
 static int	errors;
 
 extern long	Bytesleft;
+extern off_t	rxbytes;
 extern int	Crcflg;
 extern char	Lastrx;
 extern char	*secbuf;
@@ -52,6 +53,12 @@ extern char	*secbuf;
 
 int wcgetsec(size_t *, char *, unsigned int);
 
+
+/*
+ * Fetch a pathname from the other end as a C ctyle ASCIZ string.
+ * Length is indeterminate as long as less than Blklen
+ * A null string represents no more files (YMODEM)
+ */
 int wcrxpn(char *rpn)
 {
     register int    c;
@@ -102,7 +109,7 @@ int wcrx(void)
 	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
 	sectcurr = wcgetsec(&Blklen, secbuf, (unsigned int) ((sectnum & 0177) ? 5 : 13));
-	Syslog('x', "%s: got sector %d", sectcurr);
+	Syslog('x', "%s: got sector %d", protname(), sectcurr);
 
 	if (sectcurr == ((sectnum+1) &0377)) {
 	    sectnum++;
@@ -110,6 +117,7 @@ int wcrx(void)
 	    if (Bytesleft && (Bytesleft - bytes_received) < Blklen)
 		Blklen = Bytesleft - bytes_received;
 	    bytes_received += Blklen;
+	    rxbytes += Blklen;
 	    if (putsec(secbuf, Blklen) == ERROR)
 		return ERROR;
 	    sendchar = ACK;
@@ -153,7 +161,7 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
 	if (firstch == SOH) {
 	    *Blklen=128;
 get2:
-	    Syslog('x', "%s: wcgetsec blklen %d", protname(), Blklen);
+	    Syslog('x', "%s: wcgetsec blklen %d", protname(), *Blklen);
 	    sectcurr = GETCHAR(1);
 	    if ((sectcurr + (oldcrc = GETCHAR(1))) == 0377) {
 		oldcrc = Checksum = 0;

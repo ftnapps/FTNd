@@ -44,10 +44,10 @@
 static FILE *fout = NULL;
 char	    *curfile = NULL;
 
-static off_t rxbytes;
+off_t rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
-static long sbytes;
+long sbytes;
 struct timeval starttime, endtime;
 struct timezone tz;
 
@@ -85,22 +85,26 @@ int zmrcvfiles(void)
     if (secbuf == NULL) 
 	secbuf = malloc(MAXBLOCK+1);
     tryzhdrtype = ZRINIT;
-    protocol = ZM_ZMODEM;
 
     if ((rc = tryz()) < 0) {
 	Syslog('+', "%s: could not initiate receive, rc=%d", protname(), rc);
     } else {
 	if (rc == 0) {
-	    if (wcrxpn(secbuf) == TERROR) {
-		rc = 2;
-		goto fubar;
+	    if (protocol == ZM_ZMODEM) {
+		Syslog('+', "%s: switching to Ymodem", protname());
+		protocol = ZM_YMODEM;
 	    }
-	    /*
-	     * Enter X/Y modem receive loop
-	     */
 	    for (;;) {
+		/*
+		 * Ymodem or Xmodem receive loop
+		 */
+		rxbytes = 0l;
+		if (wcrxpn(secbuf) == TERROR) {
+		    rc = 2;
+		    goto fubar;
+		}
 		if (secbuf[0] == 0) {
-		    Syslog('z', "%s: seems complete", protname());
+		    Syslog('z', "%s: session seems complete", protname());
 		    goto fubar;
 		}
 		if (procheader(secbuf) == ZFERR) {
@@ -453,9 +457,9 @@ int closeit(int success)
     sbytes = rxbytes - sbytes;
     gettimeofday(&endtime, &tz);
     if (success)
-        Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, sbytes, FALSE));
+        Syslog('+', "%s: OK %s", protname(), transfertime(starttime, endtime, sbytes, FALSE));
     else
-	Syslog('+', "Zmodem: dropped after %lu bytes", sbytes);
+	Syslog('+', "%s: dropped after %lu bytes", protname(), sbytes);
     rcvdbytes += sbytes;
     return rc;
 }
@@ -531,7 +535,7 @@ int procheader(char *Name)
     // illegal characters in the filename.
     sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
     strcpy(ctt, rfcdate(Modtime));
-    Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
+    Syslog('+', "%s: \"%s\" %ld bytes, %s mode %o", protname(), Name, Bytesleft, ctt, Filemode);
 
     if (curfile)
 	free(curfile);
