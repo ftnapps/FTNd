@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/file.c
  * Purpose ...............: All the file functions. 
- * Last modification date : 10-Aug-2001
+ * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -415,8 +415,10 @@ void Download(void)
 	 * Minus the amount downloaded today from downloadktoday
 	 * if less than zero, it won't let the user download anymore.
 	 */
-	exitinfo.DownloadKToday -= (Size / 1024);
-	exitinfo.iTransferTime = iTransfer;
+	if (LIMIT.DownK || LIMIT.DownF) {
+		exitinfo.DownloadKToday -= (Size / 1024);
+		exitinfo.iTransferTime = iTransfer;
+	}
 
 	WriteExitinfo();
 	Pause();

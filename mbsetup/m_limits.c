@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_limits.c
  * Purpose ...............: Setup Limits.
- * Last modification date : 24-Jun-2001
+ * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -332,7 +332,7 @@ int EditLimRec(int Area)
 			IsDoing("Browsing Menu");
 			return 0;
 		case 1:	E_INT(  7,25,   LIMIT.Security,   "The ^Security^ level for this limit")
-		case 2:	E_INT(  8,25,   LIMIT.Time,       "The maxmimum ^Time online^ per day for this limit")
+		case 2:	E_INT(  8,25,   LIMIT.Time,       "The maxmimum ^Time online^ per day for this limit, zero to disable")
 		case 3:	E_INT(  9,25,   LIMIT.DownK,      "The ^Kilobytes^ download limit per day, 0 = don't care")
 		case 4:	E_INT( 10,25,   LIMIT.DownF,      "The ^nr of files^ to download per day, 0 = don't care")
 		case 5:	E_STR( 11,25,40,LIMIT.Description,"A short ^description^ for this limit")

@@ -4141,6 +4141,10 @@ v0.33.18        27-Jul-2001
 		Removed some compiler warnings on some systems.
 		Added menu Display lines.
 		Added menu item 21, display text only.
+		When a user has no download files limit and no download Kbytes
+		limit he may download unlimited.
+		When a user has no timelimit set in the limits, he will get
+		a 24 hours session limit.
 
 	mbuseradd:
 		Ported to work on FreeBSD.

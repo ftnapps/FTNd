@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/filesub.c
  * Purpose ...............: All the file sub functions. 
- * Last modification date : 09-Aug-2001
+ * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -488,24 +488,26 @@ int ShowOneFile()
 
 int CheckBytesAvailable(long CostSize)
 {
-	if((exitinfo.DownloadKToday <= 0) || ((CostSize / 1024) > exitinfo.DownloadKToday)) {
+	if (LIMIT.DownK || LIMIT.DownF) {
+		if ((exitinfo.DownloadKToday <= 0) || ((CostSize / 1024) > exitinfo.DownloadKToday)) {
+	
+			/* You do not have enough bytes to download \" */
+			pout(12, 0, (char *) Language(252));
+			Enter(1);
+			Syslog('+', "Not enough bytes to download %ld", CostSize);
 
-		/* You do not have enough bytes to download \" */
-		pout(12, 0, (char *) Language(252));
-		Enter(1);
-		Syslog('+', "Not enough bytes to download %ld", CostSize);
+			colour(15, 0);
+			/* You must upload before you can download. */
+			pout(12, 0, (char *) Language(253));
+			Enter(2);
 
-		colour(15, 0);
-		/* You must upload before you can download. */
-		pout(12, 0, (char *) Language(253));
-		Enter(2);
+			colour(14, 0);
+			/* Kilobytes currently available: */
+			printf("%s%lu Kbytes.\n\n", (char *) Language(254), exitinfo.DownloadKToday);
 
-		colour(14, 0);
-		/* Kilobytes currently available: */
-		printf("%s%lu Kbytes.\n\n", (char *) Language(254), exitinfo.DownloadKToday);
-
-		Pause();
-		return FALSE;
+			Pause();
+			return FALSE;
+		}
 	}
 	
 	return TRUE;

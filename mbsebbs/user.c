@@ -4,7 +4,7 @@
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.
- * Last modification date : 08-Aug-2001
+ * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -964,15 +964,23 @@ void user()
 			sprintf(temp,"%s", (char *) GetDateDMY());
 
 			if((strcmp(StrDateDMY(usrconfig.tLastLoginDate), temp)) != 0) {
-				usrconfig.iTimeLeft    = LIMIT.Time; /* Copy Sec limit/time to users file */
+				/*
+				 *  If no timelimit set give user 24 hours.
+				 */
+				if (LIMIT.Time)
+					usrconfig.iTimeLeft = LIMIT.Time;
+				else
+					usrconfig.iTimeLeft = 86400;
 				usrconfig.iTimeUsed    = 0;          /* Set time used today to Zero       */
 				usrconfig.iConnectTime = 0;	     /* Set connect time to Zero          */
 
 				/*
-				 * Give user new bytes and files every day
+				 * Give user new bytes and files every day if needed.
 				 */
-				usrconfig.DownloadKToday = LIMIT.DownK;
-				usrconfig.DownloadsToday = LIMIT.DownF;
+				if (LIMIT.DownK && LIMIT.DownF) {
+					usrconfig.DownloadKToday = LIMIT.DownK;
+					usrconfig.DownloadsToday = LIMIT.DownF;
+				}
 			}
 		} /* End of else  */
 
