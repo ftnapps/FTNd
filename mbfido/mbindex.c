@@ -966,6 +966,7 @@ int nodebld(void)
     free(fm);
     free(um);
     tidy_nllist(&nll);
+    tidy_nluser(&nlu);
 
     return rc;
 }
