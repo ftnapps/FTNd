@@ -142,6 +142,8 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
+	N: The adopt command switches the LFN and 8.3 name.
+
 mbtask:
 	U: During chat when one of the users is disconnected for some reason
 	   mbtask crashes when trying to send a message to the pid that is no
