@@ -3,10 +3,10 @@
  * $Id$
  * Purpose ...............: MBSE BBS Shadow Password Suite
  * Original Source .......: Shadow Password Suite
- * Original Copyrioght ...: Julianne Frances Haugh and others.
+ * Original Copyright ....: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -38,9 +38,14 @@
 #include <utmpx.h>
 #endif
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+#if HAVE_LIBUTIL_H
 #include <libutil.h>
+#endif
+#if HAVE_UTIL_H
+#include <util.h>
 #endif
 
 #include <fcntl.h>

@@ -68,6 +68,12 @@
 /* Defined if you have libutil.h */
 #undef HAVE_LIBUTIL_H
 
+/* Defined if you have util.h */
+#undef HAVE_UTIL_H
+
+/* Defined if you have sys/types.h */
+#undef HAVE_SYS_TYPES_H
+
 /* Defined if it includes *Pw functions.  */
 #undef HAVE_LIBCRACK_PW
 

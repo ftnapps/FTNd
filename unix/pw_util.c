@@ -73,6 +73,7 @@
 
 #include <syslog.h>
 #include <err.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <paths.h>
 #include <pwd.h>
@@ -268,6 +269,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                                 goto err;
                         continue;
                 }
+#ifdef __FreeBSD__
                 (void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
                     pw->pw_name, pw->pw_passwd,
                     pw->pw_fields & _PWF_UID ? uidstr : "",
@@ -276,6 +278,16 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                     pw->pw_fields & _PWF_CHANGE ? chgstr : "",
                     pw->pw_fields & _PWF_EXPIRE ? expstr : "",
                     pw->pw_gecos, pw->pw_dir, pw->pw_shell);
+#elif __NetBSD__
+		(void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
+		    pw->pw_name, pw->pw_passwd,
+		    uidstr, gidstr,
+		    pw->pw_class,
+		    chgstr, expstr,
+		    pw->pw_gecos, pw->pw_dir, pw->pw_shell);
+#else
+#error "Not FreeBSD or NetBSD - don't know what to do"
+#endif
                 done = 1;
                 if (ferror(to))
                         goto err;
@@ -289,6 +301,7 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                         pw_error(NULL, 0, 1);
                 } else
 #endif /* YP */
+#ifdef __FreeBSD__
                 (void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
                     pw->pw_name, pw->pw_passwd,
                     pw->pw_fields & _PWF_UID ? uidstr : "",
@@ -297,6 +310,16 @@ void pw_copy(int ffd, int tfd, struct passwd *pw)
                     pw->pw_fields & _PWF_CHANGE ? chgstr : "",
                     pw->pw_fields & _PWF_EXPIRE ? expstr : "",
                     pw->pw_gecos, pw->pw_dir, pw->pw_shell);
+#elif __NetBSD__
+		(void)fprintf(to, "%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n",
+		    pw->pw_name, pw->pw_passwd,
+		    uidstr, gidstr,
+		    pw->pw_class,
+		    chgstr, expstr,
+		    pw->pw_gecos, pw->pw_dir, pw->pw_shell);
+#else
+#error "Not FreeBSD or NetBSD - don't know what to do"
+#endif
         }
 
         if (ferror(to))
