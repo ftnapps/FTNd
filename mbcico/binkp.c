@@ -937,7 +937,6 @@ int file_transfer(void)
 
 	    case Receive:	Trc = binkp_receiver();
 				if (Trc == Ok) {
-				    binkp_settimer(BINKP_TIMEOUT);
 				    if (bp.local_EOB && bp.remote_EOB)
 					bp.FtState = Transmit;
 				    else
@@ -951,7 +950,6 @@ int file_transfer(void)
 
 	    case Transmit:	Trc = binkp_transmitter();
 				if (Trc == Ok) {
-				    binkp_settimer(BINKP_TIMEOUT);
 				    bp.FtState = Switch;
 				} else if (Trc == Failure) {
 				    Syslog('+', "Binkp: transmitter failure");
@@ -1731,7 +1729,7 @@ int binkp_expired(void)
 
     now = time(NULL);
     if (now >= Timer)
-	Syslog('+', "Binkp: timeout");
+	Syslog('+', "Binkp: session timeout");
     return (now >= Timer);
 }
 
@@ -1797,6 +1795,7 @@ int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
     buf[*len] = '\0';
     if (tty_status)
 	goto to;
+    binkp_settimer(BINKP_TIMEOUT);
 
 to:
     if (tty_status)
@@ -1978,6 +1977,7 @@ int binkp_poll_frame(void)
 		    } else {
 			Syslog('b', "Binkp: rcvd data (%d)", bp.rxlen -1);
 		    }
+		    binkp_settimer(BINKP_TIMEOUT);
 		    rc = 1;
 		    break;
 		}
