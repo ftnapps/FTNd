@@ -1495,7 +1495,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     File forward   %s\n", getboolean(nodes.FileFwd));
 		fprintf(fp, "     Advanced TIC   %s", getboolean(nodes.AdvTic));
 		fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
-		fprintf(fp, "     Sen To lines   %s\n", getboolean(nodes.TIC_To));
+		fprintf(fp, "     Sent To lines  %s\n", getboolean(nodes.TIC_To));
 		fprintf(fp, "     Billing        %s", getboolean(nodes.Billing));
 		fprintf(fp, "     Bill direct    %s", getboolean(nodes.BillDirect));
 		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));

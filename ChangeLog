@@ -26,6 +26,8 @@ v0.35.06
 		are valid html files validated at http://validator.w3.org/
 		This upgrade is not automatic because you might have personal
 		changes in the templates that I do not want to overwrite.
+		Another one changed is areamgr.status, that one had an error
+		and did display garbage for the routevia address.
 		They are in ~/mbsebbs-0.xx.xx/examples/templates.tar and should
 		go into ~/english/macro/
 

@@ -82,7 +82,7 @@ do
 	echo -e "Replace filename (empty is none)"
 	echo -n ": "
 	read REPL
-	echo -n "Magic filename (empty is no magic)"
+	echo -e "Magic filename (empty is no magic)"
 	echo -n ": "
 	read MAGIC
 	if [ ! -z "$DESC" ]; then
