@@ -71,7 +71,7 @@ static char	rbuf[2048];
 char		*unix2binkp(char *);
 char		*binkp2unix(char *);
 int		binkp_expired(void);
-void		b_banner(void);
+void		b_banner(int);
 void		b_nul(char *);
 void		fill_binkp_list(binkp_list **, file_list *, off_t);
 void		debug_binkp_list(binkp_list **);
@@ -121,6 +121,8 @@ int binkp(int role)
     file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
     char	*nonhold_mail;
 
+    Syslog('b', "NoFreqs %s", (localoptions & NOFREQS) ? "True":"False");
+
     if (role == 1) {
 	Syslog('+', "Binkp: start outbound session");
 	if (orgbinkp()) {
@@ -137,6 +139,14 @@ int binkp(int role)
 	Syslog('!', "Binkp: session failed");
 	return rc;
     }
+
+    Syslog('b', "NoFreqs %s", (localoptions & NOFREQS) ? "True":"False");
+    Syslog('b', "Session WAZOO %s", (session_flags & SESSION_WAZOO) ? "True":"False");
+    if (localoptions & NOFREQS)
+	session_flags &= ~SESSION_WAZOO;
+    else
+	session_flags |= ~SESSION_WAZOO;
+    Syslog('b', "Session WAZOO %s", (session_flags & SESSION_WAZOO) ? "True":"False");
 
     nonhold_mail = (char *)ALL_MAIL;
     eff_remote = remote;
@@ -415,7 +425,7 @@ int binkp_expired(void)
 
 
 
-void b_banner(void)
+void b_banner(int Norequests)
 {
     time_t  t;
 
@@ -425,7 +435,8 @@ void b_banner(void)
     binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
     t = time(NULL);
     binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
-    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.1", VERSION, OsName(), OsCPU());
+    Syslog('b', "M_NUL VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
+    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
     if (strlen(CFG.Phone))
 	binkp_send_control(MM_NUL,"PHN %s", CFG.Phone);
     if (strlen(CFG.comment))
@@ -449,8 +460,15 @@ void b_nul(char *msg)
 	Syslog('+', "Flags   : %s", msg+4);
     else if (strncmp(msg, "TIME ", 5) == 0)
 	Syslog('+', "Time    : %s", msg+5);
-    else if (strncmp(msg, "VER ", 4) == 0)
+    else if (strncmp(msg, "VER ", 4) == 0) {
 	Syslog('+', "Uses    : %s", msg+4);
+	if (strstr(msg+4, "binkp/1.1"))
+	    Syslog('b', "1.1 mode");
+	else {
+	    Syslog('b', "1.0 mode");
+	    localoptions |= NOFREQS;
+	}
+    }
     else if (strncmp(msg, "PHN ", 4) == 0)
 	Syslog('+', "Phone   : %s", msg+4);
     else if (strncmp(msg, "OPM ", 4) == 0)
@@ -481,7 +499,7 @@ void b_nul(char *msg)
 	}
 	if (strstr(msg, (char *)"CRC") != NULL) {
 	    CRCflag = TRUE;
-	    Syslog('+', "Remote supports CRC32 mode");
+	    Syslog('b', "Remote supports CRC32 mode");
 	}
     } else
 	Syslog('+', "M_NUL \"%s\"", msg);
@@ -520,8 +538,17 @@ SM_STATE(waitconn)
     Loaded = FALSE;
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
-    binkp_send_control(MM_NUL,"OPT MB CRC");
-    b_banner();
+    if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32) {
+	binkp_send_control(MM_NUL,"OPT MB CRC");
+	Syslog('b', "Send OPT MB CRC");
+    } else {
+	binkp_send_control(MM_NUL,"OPT MB");
+	Syslog('b', "Send OPT MB");
+    }
+    if (((noderecord(remote->addr)) && nodes.NoFreqs) || CFG.NoFreqs)
+	b_banner(TRUE);
+    else
+	b_banner(FALSE);
 
     /*
      * Build a list of aka's to send, the primary aka first.
@@ -745,7 +772,7 @@ SM_STATE(waitconn)
 	Syslog('b', "sending \"%s\"", s);
 	binkp_send_control(MM_NUL, "%s", s);
     }
-    b_banner();
+    b_banner(CFG.NoFreqs);
     p = xstrcpy((char *)"");
 
     for (i = 0; i < 40; i++)
@@ -832,8 +859,13 @@ SM_STATE(waitaddr)
 		}
 		if (CRCflag) {
 		    Syslog('b', "Remote supports CRC32");
-		    if (Loaded && nodes.CRC32)
+		    if (Loaded && nodes.CRC32 && !CFG.NoCRC32) {
 			binkp_send_control(MM_NUL,"OPT CRC");
+			Syslog('b', "Send OPT CRC");
+		    } else {
+			Syslog('b', "CRC32 support is diabled here");
+			CRCflag = FALSE;
+		    }
 		}
 
 		history.aka.zone  = remote->addr->zone;

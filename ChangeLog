@@ -19,8 +19,9 @@ v0.37.5		12-Jul-2003
 
 	mbcico:
 		Implemented CRAM rev.4 change in binkp driver.
-		Binkp now reports binkp 1.1, we were 1.1 compatible for a long
-		time already.
+		Binkp now reports binkp/1.1, if filerequests are allowed.
+		Binkp now only sends Wazoo requests if the remote is binkp/1.1
+		and file requests are allowed.
 
 	mbsebbs:
 		Added check for maximum simultaneous logins.
