@@ -13,6 +13,9 @@ $Id$
 		 N = Normal, second priority.
                  L = Cosmetic or nice to have.
 
+general:
+	N: Add the default root domain DNS lookup if no DNS info is available
+	   in the nodelist. Setting per zone.
 
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
