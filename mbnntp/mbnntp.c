@@ -276,6 +276,9 @@ void nntp(void)
 	} else if (strncasecmp(buf, "HEAD", 4) == 0) {
 	    if (check_auth(buf))
 		command_abhs(buf);
+	} else if (strncasecmp(buf, "HEAD", 4) == 0) {
+	    if (check_auth(buf))
+		command_post(buf);
 	} else if (strncasecmp(buf, "IHAVE", 5) == 0) {
 	    send_nntp("435 Article not wanted - do not send it");
 	} else if (strncasecmp(buf, "NEWGROUPS", 9) == 0) {
@@ -312,6 +315,7 @@ void nntp(void)
 	    send_nntp("LIST");
 	    send_nntp("NEWGROUPS (not implemented, always returns an empty list)");
 	    send_nntp("NEWNEWS (not implemented, always returns an empty list)");
+	    send_nntp("POST");
 	    send_nntp("QUIT");
 	    send_nntp("SLAVE (has no effect)");
 	    send_nntp("STAT");

@@ -34,6 +34,7 @@
 #include "../lib/msgtext.h"
 #include "ttyio.h"
 #include "mbnntp.h"
+#include "rfc2ftn.h"
 #include "commands.h"
 
 
@@ -46,6 +47,10 @@ extern unsigned long	sentbytes;
 
 void send_xlat(char *);
 char *make_msgid(char *);
+
+
+#define	POST_MAXSIZE	10000
+
 
 
 /*
@@ -369,6 +374,48 @@ void command_list(char *cmd)
 
     msleep(1);	    /* For the linker only */
     colour(0, 0);
+}
+
+
+
+/*
+ * POST
+ */
+void command_post(char *cmd)
+{
+    FILE    *fp = NULL;
+    int	    rc, Done = FALSE;
+    char    buf[1024];
+
+    if ((fp = tmpfile()) == NULL) {
+	WriteError("$Can't create tmpfile");
+	send_nntp("503 Out of memory");
+	return;
+    }
+
+    send_nntp("340 Send article to be posted. End with <CR-LF>.<CR-LF>");
+
+    while (Done == FALSE) {
+	rc = get_nntp(buf, sizeof(buf) -1);
+	if (rc < 0) {
+	    WriteError("nntp_get failed, abort");
+	    return;
+	}
+	if ((rc == 1) && (buf[0] == '.')) {
+	    Done = TRUE;
+	} else {
+	    fwrite(&buf, strlen(buf), 1, fp);
+	    fputc('\n', fp);
+	}
+    }
+    
+    rc = rfc2ftn(fp);
+    fclose(fp);
+
+    if (rc)
+	send_nntp("503 Post failed:");
+    else
+	send_nntp("240 Article posted");
 }
 
 
