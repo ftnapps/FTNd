@@ -150,134 +150,147 @@ struct sockaddr_in      to;
  */
 int ping_send(struct in_addr addr)
 {
-	int			len;
-	int			isock;
+    int			len, sentlen;
 #ifdef __linux__
-	struct icmp_filter	f;
+    struct icmp_filter	f;
 #else
-	struct protoent		*pe;
-	int			SOL_IP;
+    struct protoent	*pe;
+    int			SOL_IP;
 #endif
-	unsigned long		sum;
-	unsigned short		*ptr;
+    unsigned long	sum;
+    unsigned short	*ptr;
 
 #ifndef __linux__
-        if (!(pe = getprotobyname("ip"))) {
-                tasklog('?', "icmp ping: getprotobyname() failed: %s", strerror(errno));
-                return -1;
-        }
-        SOL_IP = pe->p_proto;
+    if (!(pe = getprotobyname("ip"))) {
+	tasklog('?', "icmp ping: getprotobyname() failed: %s", strerror(errno));
+	return -1;
+    }
+    SOL_IP = pe->p_proto;
 #endif
 
-	isock = ping_isocket;
-	p_sequence = 1;
-	id = (unsigned short)get_rand16(); /* randomize a ping id */
+    p_sequence++;
+    id = (unsigned short)get_rand16(); /* randomize a ping id */
 
 #ifdef __linux__
-	/* Fancy ICMP filering -- only on Linux (as far is I know) */
+    /* Fancy ICMP filering -- only on Linux (as far is I know) */
         
-	/* In fact, there should be macros for treating icmp_filter, but I haven't found them in Linux 2.2.15.
-	 * So, set it manually and unportable ;-) */
-	/* This filter lets ECHO_REPLY (0), DEST_UNREACH(3) and TIME_EXCEEDED(11) pass. */
-	/* !(0000 1000 0000 1001) = 0xff ff f7 f6 */
-	f.data=0xfffff7f6;
-	if (setsockopt(isock, SOL_RAW, ICMP_FILTER, &f, sizeof(f)) == -1) {
-		if (icmp_errs < ICMP_MAX_ERRS)
-			tasklog('?', "$icmp ping: setsockopt() failed %d", isock);
-		return -1;
-	}
+    /* In fact, there should be macros for treating icmp_filter, but I haven't found them in Linux 2.2.15.
+     * So, set it manually and unportable ;-) */
+    /* This filter lets ECHO_REPLY (0), DEST_UNREACH(3) and TIME_EXCEEDED(11) pass. */
+    /* !(0000 1000 0000 1001) = 0xff ff f7 f6 */
+    f.data=0xfffff7f6;
+    if (setsockopt(ping_isocket, SOL_RAW, ICMP_FILTER, &f, sizeof(f)) == -1) {
+	if (icmp_errs < ICMP_MAX_ERRS)
+	    tasklog('?', "$icmp ping: setsockopt() failed %d", ping_isocket);
+	return -1;
+    }
 #endif
 
-	icmpd.icmp_type  = ICMP_ECHO;
-	icmpd.icmp_code  = 0;
-	icmpd.icmp_cksum = 0;
-	icmpd.icmp_id    = htons((short)id);
-	icmpd.icmp_seq   = htons(p_sequence);
+    icmpd.icmp_type  = ICMP_ECHO;
+    icmpd.icmp_code  = 0;
+    icmpd.icmp_cksum = 0;
+    icmpd.icmp_id    = htons((short)id);
+    icmpd.icmp_seq   = htons(p_sequence);
 
-       	/* Checksumming - Algorithm taken from nmap. Thanks... */
+    /* Checksumming - Algorithm taken from nmap. Thanks... */
 
-	ptr = (unsigned short *)&icmpd;
-	sum = 0;
+    ptr = (unsigned short *)&icmpd;
+    sum = 0;
 
-	for (len = 0; len < 4; len++) {
-		sum += *ptr++;
-	}
-	sum = (sum >> 16) + (sum & 0xffff);
-	sum += (sum >> 16);
-	icmpd.icmp_cksum = ~sum;
+    for (len = 0; len < 4; len++) {
+	sum += *ptr++;
+    }
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    icmpd.icmp_cksum = ~sum;
 
-	memset(&to, 0, sizeof(to));
-	to.sin_family = AF_INET;
-	to.sin_port   = 0;
-	to.sin_addr   = addr;
-	SET_SOCKA_LEN4(to);
-	if (sendto(isock, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to)) == -1) {
-		return -2;
-	}
-	return 0;
+    memset(&to, 0, sizeof(to));
+    to.sin_family = AF_INET;
+    to.sin_port   = 0;
+    to.sin_addr   = addr;
+    SET_SOCKA_LEN4(to);
+
+    sentlen = sendto(ping_isocket, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to));
+    if (sentlen != ICMP4_ECHO_LEN) {
+	tasklog('+', "ping: sent %d octets, ret %d", ICMP4_ECHO_LEN, sentlen);
+	return -2;
+    }
+    return 0;
 }
 
 
 
+/*
+ *  0 = reply received Ok.
+ * -1 = reply packet not for us, this is Ok.
+ * -2 = destination unreachable.
+ * -3 = poll/select error.
+ * -4 = time exceeded.
+ * -5 = wrong packetlen received.
+ * -6 = no data received, this is Ok.
+ * -7 = icmp parameter problem.
+ */
 int ping_receive(struct in_addr addr)
 {
-	char                    buf[1024]; 
-	int                     isock;
-        int                     len;
-        struct sockaddr_in      ffrom;
-        struct icmphdr          icmpp;
-        struct iphdr            iph;
-	socklen_t               sl;        
-	struct pollfd           pfd;
+    char                buf[1024]; 
+    int                 len;
+    struct sockaddr_in	ffrom;
+    struct icmphdr      icmpp;
+    struct iphdr        iph;
+    socklen_t           sl;        
+    struct pollfd       pfd;
 
-	isock = ping_isocket;
+    pfd.fd = ping_isocket;
+    pfd.events = POLLIN;
 
-	pfd.fd = isock;
-	pfd.events = POLLIN;
-	/*
- 	 *  10 mSec is enough, this function is called at regular intervals.
-	 */
-	if (poll(&pfd, 1, 10) < 0) {
-		if (icmp_errs < ICMP_MAX_ERRS)
-			tasklog('?', "$poll/select failed");
-		return -3; 
-	}
+    /*
+     *  10 mSec is enough, this function is called at regular intervals.
+     */
+    if (poll(&pfd, 1, 10) < 0) {
+	if (icmp_errs < ICMP_MAX_ERRS)
+	    tasklog('?', "$poll/select failed");
+	return -3; 
+    }
 
-	if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
-		sl = sizeof(ffrom);
-		if ((len = recvfrom(isock, &buf, sizeof(buf), 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
-			if (len > sizeof(struct iphdr)) {
-				memcpy(&iph, buf, sizeof(iph));
-				if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
-					memcpy(&icmpp, ((unsigned long int *)buf)+iph.ip_hl, sizeof(icmpp));
-					if (iph.ip_saddr == addr.s_addr && 
-					    icmpp.icmp_type == ICMP_ECHOREPLY &&
-					    ntohs(icmpp.icmp_id) == id && 
-					    ntohs(icmpp.icmp_seq) <= p_sequence) {
-						return 0;
-					} else {
-						/* No regular echo reply. Maybe an error? */
-						if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, 
-						    &to.sin_addr, buf, len, ICMP_DEST_UNREACH) ||
-						    icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, 
-						    &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED)) {
-							return -4;
-						}
-					}
-				}
-			}
-		} else {
-			return -5; /* error */
+    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
+	sl = sizeof(ffrom);
+	if ((len = recvfrom(ping_isocket, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
+	    if (len > sizeof(struct iphdr)) {
+		memcpy(&iph, buf, sizeof(iph));
+		if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
+		    memcpy(&icmpp, ((unsigned long int *)buf)+iph.ip_hl, sizeof(icmpp));
+		    if (iph.ip_saddr == addr.s_addr && icmpp.icmp_type == ICMP_ECHOREPLY &&
+			ntohs(icmpp.icmp_id) == id && ntohs(icmpp.icmp_seq) == p_sequence) {
+//			tasklog('-', "ping: valid reply received, id %d, sequence %d", ntohs(icmpp.icmp_id), ntohs(icmpp.icmp_seq));
+			return 0;
+		    } else {
+			/* No regular echo reply. Maybe an error? */
+			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_DEST_UNREACH))
+			    return -2;
+			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED))
+			    return -4;
+			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_PARAMETERPROB))
+			    return -7;
+			/*
+			 * No fatal problem, the return code will be -1 caused by other
+			 * icmp trafic on the network (packets not for us).
+			 */
+			return -1;
+		    }
 		}
+	    }
+	} else {
+	    return -5; /* error */
 	}
-	return -6; /* no answer */
+    }
+    return -6; /* no answer */
 }
 
 
 
 void check_ping(void)
 {
-    int		    rc;
+    int	    rc;
 
     /*
      *  If the previous pingstat is still P_SENT, then we now consider it a timeout.
@@ -358,15 +371,44 @@ void state_ping(void)
     switch (pingstate) {
 	case P_NONE:    pingresult[pingnr] = TRUE;
 			break;
-	case P_SENT:    rc = ping_receive(paddr);
+	case P_SENT:    /*
+			 * Quickly eat all packets not for us, we only want our
+			 * packets and empty results (packet still underway).
+			 */
+			while ((rc = ping_receive(paddr)) == -1);
 			if (!rc) {
 			    pingstate = P_OK;
 			    pingresult[pingnr] = TRUE;
 			} else {
-			    if (rc != -6)
+//			    if (rc != -6)
 				tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
 			}
 			break;
+    }
+}
+
+
+
+/*
+ *  Create the ping socket, called from main() durig init as root.
+ */
+void init_pingsocket(void)
+{
+    if ((ping_isocket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1) {
+	if (errno == EPERM) {
+	    fprintf(stderr, "socket init failed, mbtask not installed setuid root\n");
+	} else {
+	    fprintf(stderr, "socket init failed\n");
+	}
+	exit(1);
+    }
+
+    /*
+     * If someone's messing with us, bail.
+     * It would be nice to issue an error message, but to where? 
+     */
+    if (ping_isocket == STDIN_FILENO || ping_isocket == STDOUT_FILENO || ping_isocket == STDERR_FILENO) {
+	exit(255);
     }
 }
 

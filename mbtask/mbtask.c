@@ -1248,14 +1248,7 @@ int main(int argc, char **argv)
                         signal(i, SIG_IGN);
         }
 
-	/*
-	 *  Create the ping socket while we are still root.
-	 */
-	if ((ping_isocket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1) {
-		perror("");
-		printf("socket init failed, is mbtask not installed setuid root?\n");
-		exit(1);
-	}
+	init_pingsocket();
 
 	/*
 	 *  mbtask is setuid root, drop privileges to user mbse.

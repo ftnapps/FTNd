@@ -1,4 +1,4 @@
-/* $Id */
+/* $Id$ */
 
 #ifndef _PING_H
 #define	_PING_H
@@ -17,6 +17,6 @@ typedef enum {P_INIT, P_SENT, P_FAIL, P_OK, P_ERROR, P_NONE} PINGSTATE;
 
 void		check_ping(void);
 void		state_ping(void);
-
+void		init_pingsocket(void);
 
 #endif
