@@ -70,7 +70,7 @@ int Add_ToBeRep(struct _filerecord report)
 		    rc = fseek(tbr, - sizeof(Temp), SEEK_CUR);
 		    Syslog('f', "fseek rc=%d, size=%d", rc, sizeof(Temp));
 		    Syslog('f', "Position before update is now %d", ftell(tbr));
-		    rc = fwrite(&report, sizeof(report), 1, tbr);
+		    rc = fwrite(&report, sizeof(Temp), 1, tbr);
 		    Syslog('f', "Written %d, position after update is now %d", rc, ftell(tbr));
 		    fclose(tbr);
 		    return TRUE;
