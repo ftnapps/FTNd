@@ -77,14 +77,15 @@ LIBS =
 
 EXTRA_DIST = Language.xref
 
-CONFIG_CLEAN_FILES = english.lang dutch.lang italian.lang spanish.lang
+CONFIG_CLEAN_FILES = english.lang dutch.lang italian.lang spanish.lang galego.lang
 
-noinst_PROGRAMS = english.lang dutch.lang italian.lang spanish.lang
+noinst_PROGRAMS = english.lang dutch.lang italian.lang spanish.lang galego.lang
 
 english_lang_SOURCES = english.txt
 dutch_lang_SOURCES = dutch.txt
 italian_lang_SOURCES = italian.txt
 spanish_lang_SOURCES = spanish.txt
+galego_lang_SOURCES = galego.txt
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 PROGRAMS =  $(noinst_PROGRAMS)
@@ -109,6 +110,10 @@ spanish_lang_OBJECTS =
 spanish_lang_LDADD = $(LDADD)
 spanish_lang_DEPENDENCIES = 
 spanish_lang_LDFLAGS = 
+galego_lang_OBJECTS = 
+galego_lang_LDADD = $(LDADD)
+galego_lang_DEPENDENCIES = 
+galego_lang_LDFLAGS = 
 DIST_COMMON =  README Makefile.am Makefile.in
 
 
@@ -116,8 +121,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-SOURCES = $(english_lang_SOURCES) $(dutch_lang_SOURCES) $(italian_lang_SOURCES) $(spanish_lang_SOURCES)
-OBJECTS = $(english_lang_OBJECTS) $(dutch_lang_OBJECTS) $(italian_lang_OBJECTS) $(spanish_lang_OBJECTS)
+SOURCES = $(english_lang_SOURCES) $(dutch_lang_SOURCES) $(italian_lang_SOURCES) $(spanish_lang_SOURCES) $(galego_lang_SOURCES)
+OBJECTS = $(english_lang_OBJECTS) $(dutch_lang_OBJECTS) $(italian_lang_OBJECTS) $(spanish_lang_OBJECTS) $(galego_lang_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -356,6 +361,7 @@ install-exec-local:
 	$(INSTALL) -o @OWNER@ -g @GROUP@ -m 0444 dutch.lang   $(sysconfdir)
 	$(INSTALL) -o @OWNER@ -g @GROUP@ -m 0444 italian.lang $(sysconfdir)
 	$(INSTALL) -o @OWNER@ -g @GROUP@ -m 0444 spanish.lang $(sysconfdir)
+	$(INSTALL) -o @OWNER@ -g @GROUP@ -m 0444 galego.lang  $(sysconfdir)
 
 english.lang:   english.txt
 		../mbsebbs/mblang english.lang english.txt
@@ -368,6 +374,9 @@ italian.lang:	italian.txt
 
 spanish.lang:	spanish.txt
 		../mbsebbs/mblang spanish.lang spanish.txt
+
+galego.lang:	galego.txt
+		../mbsebbs/mblang galego.lang galego.txt
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

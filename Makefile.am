@@ -80,6 +80,13 @@ install-exec-local:
 		$(mkinstalldirs) $(prefix)/spanish/macro ; \
 		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/spanish ; \
 	fi
+	@if [ ! -d $(prefix)/galego ] ; then \
+		$(mkinstalldirs) $(prefix)/galego ; \
+		$(mkinstalldirs) $(prefix)/galego/txtfiles ; \
+		$(mkinstalldirs) $(prefix)/galego/menus ; \
+		$(mkinstalldirs) $(prefix)/galego/macro ; \
+		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/galego ; \
+	fi
 	@if [ ! -d /var/spool/mbse ] ; then \
 		$(mkinstalldirs) /var/spool/mbse ; \
 		$(mkinstalldirs) /var/spool/mbse/nodelist ; \

@@ -4068,6 +4068,10 @@ v0.33.18        27-Jul-2001
 		"mbmail -r <nexthop> (recipients)" to mbmail "(recipients)".
 		In postfix this is in the master.cf file.
 
+	lang:
+		Added Galego language by Redy Rodriguez.
+		Corected Spanish language.
+
 	SETUP.sh:
 		Doesn't create .huslogin anymore for user bbs.
 		Script does now work on FreeBSD.

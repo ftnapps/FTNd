@@ -9,7 +9,7 @@ SN|¨Has escrito correctamente tu nombre? [S/n]
 |Password: 
 |El n£mero de errores permitidos se ha sobrepasado ... 
 |Tu nombre o tu PASSWORD son incorrectos
-|                         Banco de PAROLAS BBX                                  
+|                         Banco de mbsebbs                                  
 |Cuenta: 
 |Tiempo en la cuenta      : 
 |Bytes en la cuenta       : 
@@ -35,7 +35,7 @@ TBS|(T)iempo, (B)ytes, (S)alir :
 |Has excedido el saldo de tu cuenta.
 |Kilobytes disponible en tu cuenta : 
 |¨Cuantos kilobytes. Dispones de  
-|Parolas BBX - REGISTRO DE NUEVO USUARIO
+|Mbsebbs - REGISTRO DE NUEVO USUARIO
 |Use este nombre: 
 |Por favor teclee el nuevo password : 
 |Por favor tecleelo de nuevo......  : 
@@ -149,7 +149,7 @@ SN|mensajes, ¨Quieres leerlos ahora? [S/n]:
 |Desactivado
 |El nombre ya existe
 |Buscando correo nuevo ...
-|     Charla de PAROLAS BBS
+|     Charla de mbsebbs
 |El Sysop est  hablando con otro usuario en  
 |Intenta llamarlo de nuevo dentro de un rato ...
 |Ya has llamado muchas veces. 
@@ -183,7 +183,7 @@ LGCABITESZ|Z - Centrar linea
 |Insertar
 |Insertar antes de la l¡nea n§ 
 |Listar
-|N§ de Linea a susutituir 
+|N§ de Linea a sustituir 
 |La linea dice:
 |No modificada.
 |La linea ahora dice:
@@ -226,7 +226,7 @@ RST|(R)esponder, (S)iguiente, (T)erminar:
 |N£mero de mensaje [
 |Area  Tipo  Descripci¢n                              Mensajes Personal
 |hilo
-|Teclee TAG del  rea, ? para ver lista: 
+|Teclee N§ ¢ TAG del  rea, ? para ver lista: 
 |TAG                  Area  Msjs   Descripci¢n
 |Borrando mensaje 
 | Areas de Mensajes 
@@ -258,7 +258,7 @@ SN|Nodo desconocido. ¨Continuar? [s/N]:
 |Encontrado FILEID.DIZ en
 |No hay ficheros marcados.
 |minutos extra.
-|Has deleccionado las siguientes  reas: 
+|Has seleccionado las siguientes  reas: 
 |Fichero             Tama¤o      Fecha
 |Protocolo: No puedo abrir fichero de protocolos.
 |Elija el protocolo de transferencia predeterminado 
@@ -341,12 +341,12 @@ SN|¨Ver esta BBS? [S/n]:
 |Guardando...
 |Oneliners: Aparecer n de forma aleatoria en el men£ de la BBS.
 |Los textos obscenos u ofensivos ser n borrados
-|Teclee su 'oneliner' abajo. Máx 75 caracteres.
-|Oneliner añadida
-|nº A Fecha      Usuario         Descripci¢n
+|Teclee su 'oneliner' abajo. M x 75 caracteres.
+|Oneliner a¤adida
+|n§ A Fecha      Usuario         Descripci¢n
 | # Descripci¢n 
 |Teclee n£mero a listar:  
-|Connectado en puerto 
+|Conectado en puerto 
 |Ficheros  : 
 |Tama¤o    : 
 |Protocolo : 
@@ -372,10 +372,10 @@ SN|¨Est s seguro? [S/n]:
 |Comprobar ficheros nuevos DESACTIVADO
 |Editor a pantalla completa ACTIVADO
 |Editor a pantalla completa DESACTIVADO
-|Demasiados mensajes. S¢lo los primeros 
+|¡No hay mensajes! 
 |Pulsa (Enter) para seguir: 
 |Centrar
-|Idioma: No puedo abrir fichero de idiomas.
+|Demasiados mensajes, Solo los primeros 
 |Elija su Idioma / Escolla idioma / Select language
 |Elija Idioma: 
 |Idioma: 
@@ -386,7 +386,7 @@ SN|¨Est s seguro? [S/n]:
 |login > 
 |Ese nombre de LOGIN ya existe. Elije otro...
 |FATAL: No puedo abrir fichero de idioma
-|El password de su Login será igual que el de la BBS. 
+|El password de su Login ser  igual que el de la BBS. 
 |ERROR FATAL: No est s en el fichero de usuarios de la BBS.
 |             Ejecuta 'newuser' para crear un nuevo usuario
 |New    
