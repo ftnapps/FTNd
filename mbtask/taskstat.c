@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,10 +51,10 @@ int			s_msglink  = FALSE;
 int			s_newnews  = FALSE;
 int			s_bbsopen  = FALSE;
 int			s_do_inet  = FALSE;
+int			tosswait   = TOSSWAIT_TIME;
 extern int		UPSalarm;
 extern int		ptimer;
 extern int		rescan;
-
 
 
 extern struct taskrec	TCFG;
@@ -340,31 +340,33 @@ char *getseq(void)
 
 int sem_set(char *sem, int value)
 {
-	Syslog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
+    Syslog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
 
-	if (!strcmp(sem, "scanout")) {
-		s_scanout = value;
-		if (value)
-			rescan = TRUE;
-	} else if (!strcmp(sem, "mailout")) {
-		s_mailout = value;
-	} else if (!strcmp(sem, "mailin")) {
-		s_mailin = value;
-	} else if (!strcmp(sem, "mbindex")) {
-		s_index = value;
-	} else if (!strcmp(sem, "newnews")) {
-		s_newnews = value;
-	} else if (!strcmp(sem, "msglink")) {
-		s_msglink = value;
-	} else if (!strcmp(sem, "reqindex")) {
-		s_reqindex = value;
-	} else if (!strcmp(sem, "do_inet")) {
-		s_do_inet = value;
-	} else {
-		return FALSE;
-	}
-	ptimer = PAUSETIME;
-	return TRUE;
+    if (!strcmp(sem, "scanout")) {
+	s_scanout = value;
+	if (value)
+	    rescan = TRUE;
+    } else if (!strcmp(sem, "mailout")) {
+	s_mailout = value;
+    } else if (!strcmp(sem, "mailin")) {
+	s_mailin = value;
+	if (value)
+	    tosswait = TOSSWAIT_TIME;
+    } else if (!strcmp(sem, "mbindex")) {
+	s_index = value;
+    } else if (!strcmp(sem, "newnews")) {
+	s_newnews = value;
+    } else if (!strcmp(sem, "msglink")) {
+	s_msglink = value;
+    } else if (!strcmp(sem, "reqindex")) {
+	s_reqindex = value;
+    } else if (!strcmp(sem, "do_inet")) {
+	s_do_inet = value;
+    } else {
+	return FALSE;
+    }
+    ptimer = PAUSETIME;
+    return TRUE;
 }
 
 

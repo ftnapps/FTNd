@@ -104,6 +104,7 @@ extern int		pots_free;		/* POTS lines free	*/
 extern int		isdn_free;		/* ISDN lines free	*/
 extern pp_list		*pl;			/* List of tty ports	*/
 extern int		ipmailers;		/* TCP/IP mail sessions	*/
+extern int		tosswait;		/* Toss wait timer	*/
 
 
 
@@ -839,7 +840,7 @@ void scheduler(void)
 {
     struct passwd   *pw;
     int		    running = 0, rc, i, rlen, found;
-    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70, tosswait = TOSSWAIT_TIME;
+    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
     char            *cmd = NULL, opts[41], port[21];
     static char	    doing[32], buf[2048];
     time_t          now;

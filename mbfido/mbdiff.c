@@ -296,13 +296,18 @@ int main(int argc, char **argv)
 	}
 
 	if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
-	    show_log = TRUE;
-	    free(cmd);
-	    free(onl);
-	    free(wrk);
-	    free(ond);
-	    WriteError("Unpack error");
-	    die(MBERR_EXEC_FAILED);
+	    Syslog('!', "Warning: unpack error, trying again after a sync");
+	    sync();
+	    sleep(1);
+	    if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+		show_log = TRUE;
+		free(cmd);
+		free(onl);
+		free(wrk);
+		free(ond);
+		WriteError("Fatal: unpack error");
+		die(MBERR_EXEC_FAILED);
+	    }
 	}
 	free(cmd);
 	sync();

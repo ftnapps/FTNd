@@ -12,7 +12,6 @@
 #define SLOWRUN                 20
 #define TMPNAME                 "TMP."
 #define LCKNAME                 "LOCKTASK"
-#define	TOSSWAIT_TIME		30
 
 
 
