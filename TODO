@@ -83,6 +83,8 @@ mbfido:
 
 	L: Add %from command to areamgr/filemgr.
 
+	N: Add a flag for areas to make the area unavailable for downlinks.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
@@ -124,6 +126,10 @@ mbtask:
 
 mbnewusr:
 	N: On NetBSD, supress error message from mbpasswd.
+
+mbtask:
+	U: When a new user registers and presses enter on the name prompt
+	   and then hangs up (at least with telnet), mbtask aborts.
 
 mbsetup:
 	U: PickAka function lets mbsetup crash if domain is 12 characters
