@@ -21,6 +21,8 @@ everything:
 
 	L: Document error return codes in the manual.
 
+	N: Make filesystem space check run only on mbse used filesystems.
+
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
