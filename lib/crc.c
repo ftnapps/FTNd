@@ -1,11 +1,11 @@
 /*****************************************************************************
  *
+ * $Id$
  * File ..................: crc.c
  * Purpose ...............: Crc32 and Crc16 calculations
- * Last modification date : 18-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1993-2000
+ * Copyright (C) 1993-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -188,7 +188,7 @@ unsigned long crc32ccitt(char *str, int l)
 	unsigned long crc;
 
 	for (crc = 0xffffffffL; l--; str++) 
-		crc = crc32tab[((int) crc ^ (*str)) & 0xff] ^ ((crc >> 8) & 0x00ffffff);
+		crc = crc32tab[((int) crc ^ (*str)) & 0xff] ^ ((crc >> 8) & 0x00ffffffL);
 
 	return crc;
 }
@@ -216,7 +216,7 @@ unsigned long str_crc32(char *str)
 	unsigned long crc;
 
 	for (crc=0L; *str; str++) 
-		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffff);
+		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
 	return crc;
 }
 
@@ -226,22 +226,11 @@ unsigned long StringCRC32(char *str)
 {
 	unsigned long crc;
 
-	for (crc = 0xffffffff; *str; str++)
-		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffff);
+	for (crc = 0xffffffffL; *str; str++)
+		crc = crc32tab[((int)crc^(*str)) & 0xff] ^ ((crc>>8) & 0x00ffffffL);
 	return crc;
 }
 
-
-
-/*
- * Update CRC32, first initialize CRC with 0xffffffff.
- */
-/*
-unsigned long update_crc32(int octet, unsigned long crc)
-{
-	return (crc32tab[((int)crc ^ ((long)octet)) & 0xff] ^ ((((unsigned long)crc) >> 8) & 0x00ffffff));
-}
-*/
 
 
 /*
@@ -254,7 +243,7 @@ unsigned long upd_crc32(char *buf, unsigned long crc, int len)
 
 	cr = crc;
 	for (i = 0; i < len; i++) {
-		cr = (crc32tab[((int)cr ^ ((long)buf[i])) & 0xff] ^ ((((unsigned long)cr) >> 8) & 0x00ffffff));
+		cr = (crc32tab[((int)cr ^ ((long)buf[i])) & 0xff] ^ ((((unsigned long)cr) >> 8) & 0x00ffffffL));
 	}
 	return cr;
 }
@@ -269,13 +258,13 @@ unsigned long norm_crc32(unsigned long crc)
 {
 	unsigned long L;
 
-	L = crc & 0x000000ff;
+	L = crc & 0x000000ffL;
 	L <<= 8;
-	L |= ((crc >> 8) & 0x000000ff);
+	L |= ((crc >> 8) & 0x000000ffL);
 	L <<= 8;
-	L |= ((crc >> 16) & 0x000000ff);
+	L |= ((crc >> 16) & 0x000000ffL);
 	L <<= 8;
-	L |= ((crc >> 24) & 0x000000ff); 
+	L |= ((crc >> 24) & 0x000000ffL); 
 	return L;
 }
 

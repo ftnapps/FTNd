@@ -117,8 +117,6 @@ mbfido:
 	N: Tic, scan tests with valgrind.
 
 mbcico:
-	N: Test with valgrind, binkp, raw ifcico with tcp proto is ok.
-
 	N: Upgrade binkp protocol to 1.1.
 
 	N: With binkp, if the other node is a binkp/1.0 mailer without MB

@@ -125,7 +125,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		}
 		tidy_faddr(ta);
 	    }
-	    free(msgid);
+	    if (msgid)
+		free(msgid);
+	    msgid = NULL;
 	}
 	if (!strncmp(buf, "\001FMPT", 5)) {
 	    p = strtok(buf, " \n");

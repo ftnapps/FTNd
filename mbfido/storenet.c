@@ -4,7 +4,7 @@
  * Purpose ...............: Import a netmail message in the message base.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -133,11 +133,11 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 	 * Set MSGID and REPLY crc.
 	 */
 	if (msgid != NULL) {
-	    crc2 = -1;
+	    crc2 = 0xffffffffL;
 	    Msg.MsgIdCRC = upd_crc32(msgid, crc2, strlen(msgid));
 	}
 	if (reply != NULL) {
-	    crc2 = -1;
+	    crc2 = 0xffffffffL;
 	    Msg.ReplyCRC = upd_crc32(reply, crc2, strlen(reply));
 	}
 
