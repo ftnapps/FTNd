@@ -152,7 +152,7 @@ void Marker(void)
 	 * Release system resources when running in the background
 	 */
 	if (CFG.slow_util && do_quiet)
-		usleep(1);
+		msleep(1);
 
 	if (do_quiet)
 		return;

@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -117,7 +117,7 @@ void ScanArea(ff_list **ffl)
 	    }
 
 	    if (CFG.slow_util && do_quiet)
-		usleep(1);
+		msleep(1);
 
 	    if (Msg_ReadHeader(Number) == TRUE) {
 		if (((!strcasecmp(Msg.To, "allfix")) || (!strcasecmp(Msg.To, "filefind"))) && (!Msg.Received)) {
@@ -288,7 +288,7 @@ void ScanFiles(ff_list *tmp)
 	    Nopper();
 
 	    if (CFG.slow_util && do_quiet)
-		usleep(1);
+		msleep(1);
 
 	    if (!do_quiet) {
 		printf("%6lu / %6lu", areanr, found);

@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Build index for request processor
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -478,7 +478,7 @@ void ReqIndex(void)
 			     */
 			    x++;
 			    if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-				usleep(1);
+				msleep(1);
 
 			    for (z = 0; z <= 25; z++) {
 				if (strlen(file.Desc[z])) {
@@ -658,7 +658,7 @@ void HtmlIndex(char *Lang)
 			TotalHtml++;
 			aTotal++;
 			if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-			    usleep(1);
+			    msleep(1);
 			 
 			MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
 			MacroVars("e", "d", aTotal);

@@ -4,7 +4,7 @@
  * Purpose ...............: Utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -531,9 +531,9 @@ void working(int txno, int y, int x)
 		for (i = 1; i <= 5; i++) {
 		    putchar(7);
 		    fflush(stdout);
-		    usleep(150000);
+		    msleep(150);
 		}
-		usleep(550000);
+		msleep(550);
 		break;
 	case 3: mvprintw(4, columns - 14, (char *)"Form inserted");
 		putchar(7);

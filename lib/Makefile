@@ -40,7 +40,7 @@ OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJ
 		  ${DIESEL_OBJS} ${NODELIST_OBJS}
 HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 		  ${DIESEL_HDRS} ${NODELIST_HDRS} ${OTHER_HDRS}
-OTHER		= Makefile README ftscprod.007 mkprod.awk \
+OTHER		= Makefile README ftscprod.008 mkprod.awk \
 		  README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a \
 		  libnodelist.a
@@ -137,7 +137,7 @@ proglock.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/rec
 dostran.o: ../config.h libs.h structs.h users.h records.h common.h
 ftnmsg.o: ../config.h libs.h structs.h common.h clcomm.h
 mbfile.o: ../config.h libs.h structs.h clcomm.h common.h
-nodelock.o: ../config.h libs.h structs.h clcomm.h common.h
+nodelock.o: ../config.h libs.h structs.h users.h records.h clcomm.h common.h
 rawio.o: ../config.h libs.h structs.h common.h mberrors.h
 strcasestr.o: ../config.h libs.h
 execute.o: ../config.h libs.h structs.h clcomm.h mberrors.h common.h
@@ -160,7 +160,7 @@ dbmsgs.o: ../config.h libs.h structs.h users.h records.h clcomm.h dbcfg.h dbmsgs
 dbnode.o: ../config.h libs.h structs.h common.h users.h records.h clcomm.h dbcfg.h dbnode.h
 dbtic.o: ../config.h libs.h structs.h users.h records.h clcomm.h dbcfg.h dbtic.h
 dbuser.o: ../config.h libs.h structs.h users.h records.h dbcfg.h dbuser.h
-jammsg.o: ../config.h libs.h clcomm.h msgtext.h msg.h jam.h jammsg.h
+jammsg.o: ../config.h libs.h clcomm.h msgtext.h structs.h common.h msg.h jam.h jammsg.h
 msg.o: ../config.h libs.h msgtext.h msg.h clcomm.h structs.h common.h jammsg.h
 msgtext.o: ../config.h libs.h msgtext.h msg.h
 nntp.o: ../config.h libs.h structs.h users.h records.h clcomm.h mbinet.h

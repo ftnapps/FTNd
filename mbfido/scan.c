@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for outgoing mail.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -182,7 +182,7 @@ void ScanFull()
 
 			do {
 			    if (CFG.slow_util && do_quiet)
-				usleep(1);
+				msleep(1);
 
 			    if (((Number % 10) == 0) && (!do_quiet)) {
 				printf("%6lu\b\b\b\b\b\b", Number);
@@ -245,7 +245,7 @@ void ScanFull()
 
 		    do {
 			if (CFG.slow_util && do_quiet)
-			    usleep(1);
+			    msleep(1);
 
 			if (((Number % 10) == 0) && (!do_quiet)) {
 			    printf("%6lu\b\b\b\b\b\b", Number);

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -70,7 +70,7 @@ int	emsi_remote_opts;
 char	*emsi_local_password = NULL;
 char	*emsi_remote_password = NULL;
 char	emsi_remote_comm[4]="8N1";
-
+int	emsi_akas = 0;
 
 
 int rx_emsi(char *data)
@@ -448,6 +448,10 @@ SM_STATE(checkdat)
 	Syslog('+', "Got EMSI_DAT packet \"%s\" with bad crc: %04x/%04x", printable(databuf, 0), lcrc, rcrc);
 	SM_PROCEED(sendnak);
     } if (scanemsidat(databuf + 12) == 0) {
+	if (emsi_akas == 0) {
+	    Syslog('+', "All akas busy, abort");
+	    SM_ERROR;
+	}
 	SM_PROCEED(sendack);
     } else {
 	Syslog('+', "Could not parse EMSI_DAT packet \"%s\"",databuf);

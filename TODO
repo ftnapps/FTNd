@@ -121,7 +121,9 @@ mbcico:
 	U: Fix binkp file resume when mbcico silently dies. Check with the new
 	   driver.
 
-	U: Check node locking results for EMSI, YooHoo and FTS-0001 sessions.
+	L: Implement binkp option ND.
+
+	L: Implement binkp zlib compression.
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.

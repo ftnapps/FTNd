@@ -4,7 +4,7 @@
  * Purpose ...............: Nodelist Compiler
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -374,10 +374,10 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 
 		if (CFG.slow_util && do_quiet) {
 			if (zo) {
-				usleep(1);
+				msleep(1);
 			} else {
 				if ((lineno % 40) == 0)
-					usleep(1);
+					msleep(1);
 			}
 		}
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Creates allfiles listings
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -350,7 +350,7 @@ void Masterlist()
 			 */
 			x++;
 			if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-			    usleep(1);
+			    msleep(1);
 			AllFiles++;
 			AllAreaFiles++;
 			AllAreaBytes += file.Size;

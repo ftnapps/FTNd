@@ -4,7 +4,7 @@
  * Purpose ...............: Raw I/O routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -238,7 +238,7 @@ int Waitchar(unsigned char *ch, int wtime)
 		rc = read(ttyfd, ch, 1);
 		if (rc == 1)
 			return rc;
-		usleep(10000);
+		msleep(10);
 	}
 	return rc;
 }

@@ -4,7 +4,7 @@
  * Purpose ...............: General Purpose Timers
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -124,6 +124,43 @@ int gpt_running(int tno)
 	return 0;
     else
 	return 1;
+}
+
+
+
+/*
+ * Milliseconds timer, returns 0 on success.
+ */
+int msleep(int msecs)
+{
+    int		    rc;
+    struct timespec req, rem;
+
+    rem.tv_sec = 0;
+    rem.tv_nsec = 0;
+    req.tv_sec = msecs / 1000;
+    req.tv_nsec = (msecs % 1000) * 1000000;
+
+    while (TRUE) {
+
+	rc = nanosleep(&req, &rem);
+	if (rc == 0)
+	    break;
+	if ((errno == EINVAL) || (errno == EFAULT)) {
+	    WriteError("$msleep(%d)", msecs);
+	    break;
+	}
+
+	/*
+	 * Error was EINTR, run timer again to complete.
+	 */
+	req.tv_sec = rem.tv_sec;
+	req.tv_nsec = rem.tv_nsec;
+	rem.tv_sec = 0;
+	rem.tv_nsec = 0;
+    }
+
+    return rc;
 }
 
 

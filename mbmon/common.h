@@ -86,7 +86,7 @@ void		colour(int, int);
 void		clear(void);
 void		locate(int, int);
 void		mvprintw(int, int, const char *, ...);
-
+int		msleep(int);
 
 #endif
 

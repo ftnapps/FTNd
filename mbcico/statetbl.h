@@ -19,7 +19,7 @@ int proc(void)\
 
 #define SM_START(x) \
     sm_state=x;\
-    Syslog('S', "SM (%s): Start => %s", sm_name, sm_sname[sm_state]); \
+    Syslog('s', "SM (%s): Start => %s", sm_name, sm_sname[sm_state]); \
     while (!sm_success) switch (sm_state)\
     {\
     default: WriteError("Statemachine %s error: state=%d",sm_name,sm_state);\
@@ -38,16 +38,16 @@ int proc(void)\
 
 #define SM_PROCEED(x) \
     if (x != sm_state) {\
-	Syslog('S', "SM (%s): %s => %s", sm_name, sm_sname[sm_state], sm_sname[x]);\
+	Syslog('s', "SM (%s): %s => %s", sm_name, sm_sname[sm_state], sm_sname[x]);\
     }\
     sm_state=x; break;
 
 #define SM_SUCCESS \
-    Syslog('S', "SM (%s): %s => Success", sm_name, sm_sname[sm_state]);\
+    Syslog('s', "SM (%s): %s => Success", sm_name, sm_sname[sm_state]);\
     sm_success=1; break;
 
 #define SM_ERROR \
-    Syslog('S', "SM (%s): %s => Error", sm_name, sm_sname[sm_state]);\
+    Syslog('s', "SM (%s): %s => Error", sm_name, sm_sname[sm_state]);\
     sm_success=-1; break;
 
 #endif

@@ -4,7 +4,7 @@
  * Purpose ...............: Basic File I/O
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -193,8 +193,6 @@ long file_crc(char *path, int slow)
 	do {
 		bread = fread(line, 1, 32768, fp);
 		crc = upd_crc32(line, crc, bread);
-		if (slow)
-			usleep(1);
 		Nopper(); // For large files on slow systems.
 	} while (bread > 0);
 

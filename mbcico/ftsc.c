@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -116,95 +116,89 @@ int tx_ftsc(void)
 
 SM_DECL(txftsc,(char *)"txftsc")
 SM_STATES
-	wait_command,
-	recv_mail,
-	send_req,
-	recv_req
+    wait_command,
+    recv_mail,
+    send_req,
+    recv_req
 SM_NAMES
-	(char *)"wait_command",
-	(char *)"recv_mail",
-	(char *)"send_req",
-	(char *)"recv_req"
+    (char *)"wait_command",
+    (char *)"recv_mail",
+    (char *)"send_req",
+    (char *)"recv_req"
 SM_EDECL
-	int	c,rc;
-	char	*nonhold_mail;
-	int	mailsent = FALSE, mailrcvd = FALSE;
+    int	    c,rc, mailsent = FALSE, mailrcvd = FALSE;
+    char    *nonhold_mail;
 
-	nonhold_mail = (char *)ALL_MAIL;
-	tosend = create_filelist(remote,nonhold_mail,2);
+    nonhold_mail = (char *)ALL_MAIL;
+    tosend = create_filelist(remote,nonhold_mail,2);
 
-	Syslog('s', "txftsc SEND_MAIL");
-	if ((rc = xmsndfiles(tosend))) 
-		return rc;
-	mailsent = TRUE;
+    if ((rc = xmsndfiles(tosend))) 
+	return rc;
+    mailsent = TRUE;
 
 SM_START(wait_command)
 
 SM_STATE(wait_command)
 
-	Syslog('s', "txftsc WAIT_COMMAND");
-	c = GETCHAR(30);
-	if (c == TIMEOUT) {
-		Syslog('+', "timeout waiting for remote action, try receive");
-		SM_PROCEED(recv_mail);
-	} else if (c < 0) {
-		if (mailrcvd && mailsent) {
-			/*
-			 * Some systems hangup after sending mail, so if we did
-			 * send and receive mail we consider the session OK.
-			 */
-			Syslog('+', "Lost carrier, FTS-0001 session looks complete");
-			SM_SUCCESS;
-		} else {
-			Syslog('+', "got error waiting for TSYNC: received %d",c);
-			SM_ERROR;
-		}
-	} else switch (c) {
-	 	case TSYNC:	SM_PROCEED(recv_mail);
-				break;
-		case SYN:	SM_PROCEED(recv_req);
-				break;
-		case ENQ:	SM_PROCEED(send_req);
-				break;
-		case 'C':
-		case NAK:	PUTCHAR(EOT);
-				SM_PROCEED(wait_command);
-				break;
-		case CAN:	SM_SUCCESS;  /* this is not in BT */
-				break;
-		default:	Syslog('s', "got '%s' waiting command", printablec(c));
-				PUTCHAR(SUB);
-				SM_PROCEED(wait_command);
-				break;
+    c = GETCHAR(30);
+    if (c == TIMEOUT) {
+	Syslog('+', "timeout waiting for remote action, try receive");
+	SM_PROCEED(recv_mail);
+    } else if (c < 0) {
+	if (mailrcvd && mailsent) {
+	    /*
+	     * Some systems hangup after sending mail, so if we did
+	     * send and receive mail we consider the session OK.
+	     */
+	    Syslog('+', "Lost carrier, FTS-0001 session looks complete");
+		SM_SUCCESS;
+	} else {
+	    Syslog('+', "got error waiting for TSYNC: received %d",c);
+	    SM_ERROR;
 	}
+    } else switch (c) {
+	case TSYNC: SM_PROCEED(recv_mail);
+		    break;
+	case SYN:   SM_PROCEED(recv_req);
+		    break;
+	case ENQ:   SM_PROCEED(send_req);
+		    break;
+	case 'C':
+	case NAK:   PUTCHAR(EOT);
+		    SM_PROCEED(wait_command);
+		    break;
+	case CAN:   SM_SUCCESS;  /* this is not in BT */
+		    break;
+	default:    Syslog('s', "got '%s' waiting command", printablec(c));
+		    PUTCHAR(SUB);
+		    SM_PROCEED(wait_command);
+		    break;
+    }
 
 SM_STATE(recv_mail)
 
-	Syslog('s', "txftsc RECV_MAIL");
-	if (recvfiles()) {
-		SM_ERROR;
-	} else {
-		mailrcvd = TRUE;
-		SM_PROCEED(wait_command);
-	}
+    if (recvfiles()) {
+	SM_ERROR;
+    } else {
+	mailrcvd = TRUE;
+	SM_PROCEED(wait_command);
+    }
 
 SM_STATE(send_req)
 
-	Syslog('s', "txftsc SEND_BARK");
-	if (sendbark()) {
-		SM_ERROR;
-	} else {
-		SM_SUCCESS;
-	}
+    if (sendbark()) {
+	SM_ERROR;
+    } else {
+	SM_SUCCESS;
+    }
 
 SM_STATE(recv_req)
 
-	Syslog('s', "txftsc RECV_BARK");
-	if (recvbark()) {
-		SM_ERROR;
-	} else {
-		SM_PROCEED(wait_command);
-	}
+    if (recvbark()) {
+    	SM_ERROR;
+    } else {
+	SM_PROCEED(wait_command);
+    }
 
 SM_END
 SM_RETURN
@@ -213,148 +207,145 @@ SM_RETURN
 
 SM_DECL(rxftsc,(char *)"rxftsc")
 SM_STATES
-	recv_mail,
-	send_mail,
-	send_req,
-	recv_req
+    recv_mail,
+    send_mail,
+    send_req,
+    recv_req
 SM_NAMES
-	(char *)"recv_mail",
-	(char *)"send_mail",
-	(char *)"send_req",
-	(char *)"recv_req"
+    (char *)"recv_mail",
+    (char *)"send_mail",
+    (char *)"send_req",
+    (char *)"recv_req"
 SM_EDECL
-	int		c, count = 0, didwazoo = FALSE;
-	int		sentmail = FALSE, rcvdmail = FALSE;
-	file_list	*request = NULL, *tmpfl;
+    int		c, count = 0, didwazoo = FALSE, sentmail = FALSE, rcvdmail = FALSE;
+    file_list	*request = NULL, *tmpfl;
 
 SM_START(recv_mail)
 
 SM_STATE(recv_mail)
 
-	Syslog('s', "rxftsc RECV_MAIL");
-	if (recvfiles()) {
-		SM_ERROR;
-	} else {
-		rcvdmail = TRUE;
-		SM_PROCEED(send_mail);
-	}
+    if (recvfiles()) {
+	SM_ERROR;
+    } else {
+	rcvdmail = TRUE;
+	SM_PROCEED(send_mail);
+    }
 
 SM_STATE(send_mail)
 
-	Syslog('s', "rxftsc SEND_MAIL count=%d", count);
-	if (count++ > 45) {
-		SM_ERROR;
-	}
+    Syslog('x', "rxftsc SEND_MAIL count=%d", count);
+    if (count++ > 45) {
+	SM_ERROR;
+    }
 
-	/*
-	 * If we got a wazoo request, add files now.
-	 */
-	request = respond_wazoo();
-	if (request != NULL) {
-		didwazoo = TRUE;
-		tmpfl = tosend;
-		tosend = request;
-		for (; request->next; request = request->next);
-			request->next = tmpfl;
+    /*
+     * If we got a wazoo request, add files now.
+     */
+    request = respond_wazoo();
+    if (request != NULL) {
+	didwazoo = TRUE;
+	tmpfl = tosend;
+	tosend = request;
+	for (; request->next; request = request->next);
+	    request->next = tmpfl;
 
-		request = NULL;
-	}
+	request = NULL;
+    }
 
-	if (tosend == NULL) {
-		count = 0;
-		SM_PROCEED(send_req);
-	}
+    if (tosend == NULL) {
+	count = 0;
+	SM_PROCEED(send_req);
+    }
 
-	PUTCHAR(TSYNC);
-	c = GETCHAR(1);
-	Syslog('x', "Got char 0x%02x", c);
-	if (c == TIMEOUT) {
-		Syslog('x', "  timeout");
-		SM_PROCEED(send_mail);
-	} else if (c < 0) {
-		Syslog('+', "got error waiting for NAK: received %d",c);
-		SM_ERROR;
-	} else switch (c) {
-		case 'C':
-		case NAK:	if (xmsndfiles(tosend)) {
-					SM_ERROR;
-				} else {
-					sentmail = TRUE;
-					count = 0;
-					SM_PROCEED(send_req);
-				}
-				break;
-		case CAN:	Syslog('+', "Remote refused to pickup mail");
-				SM_SUCCESS;
-				break;
-		case EOT:	PUTCHAR(ACK);
-				SM_PROCEED(send_mail);
-				break;
-		default:	Syslog('s', "Got '%s' waiting NAK", printablec(c));
-				SM_PROCEED(send_mail);
-				break;
-	}
+    PUTCHAR(TSYNC);
+    c = GETCHAR(1);
+    Syslog('x', "Got char 0x%02x", c);
+    if (c == TIMEOUT) {
+	Syslog('x', "  timeout");
+	SM_PROCEED(send_mail);
+    } else if (c < 0) {
+	Syslog('+', "got error waiting for NAK: received %d",c);
+	SM_ERROR;
+    } else switch (c) {
+	case 'C':
+	case NAK:   if (xmsndfiles(tosend)) {
+			SM_ERROR;
+		    } else {
+			sentmail = TRUE;
+			count = 0;
+			SM_PROCEED(send_req);
+		    }
+		    break;
+	case CAN:   Syslog('+', "Remote refused to pickup mail");
+		    SM_SUCCESS;
+		    break;
+	case EOT:   PUTCHAR(ACK);
+		    SM_PROCEED(send_mail);
+		    break;
+	default:    Syslog('s', "Got '%s' waiting NAK", printablec(c));
+		    SM_PROCEED(send_mail);
+		    break;
+    }
 
 SM_STATE(send_req)
 
-	Syslog('s', "rxftsc SEND_REQ count=%d", count);
+    Syslog('x', "rxftsc SEND_REQ count=%d", count);
 
-	if (didwazoo) {
-		SM_SUCCESS;
-	}
+    if (didwazoo) {
+	SM_SUCCESS;
+    }
 
-	if (count > 15) {
-		SM_ERROR;
-	}
+    if (count > 15) {
+	SM_ERROR;
+    }
 
-	if (!made_request) {
-		SM_PROCEED(recv_req);
-	}
+    if (!made_request) {
+	SM_PROCEED(recv_req);
+    }
 
-	PUTCHAR(SYN);
-	c = GETCHAR(5);
-	Syslog('x', "Got char 0x%02x", c);
-	count++;
-	if (c == TIMEOUT) {
-		Syslog('x', "  timeout");
-		SM_PROCEED(send_req);
-	} else if (c < 0) {
-		Syslog('+', "got error waiting for ENQ: received %d",c);
-		SM_ERROR;
-	} else switch (c) {
-		case ENQ:	if (sendbark()) {
-					SM_ERROR;
-				} else {
-					SM_PROCEED(recv_req);
-				}
-				break;
-		case CAN:	Syslog('+', "Remote refused to accept request");
-				SM_PROCEED(recv_req);
-				break;
-		case 'C':
-		case NAK:	PUTCHAR(EOT);
-				SM_PROCEED(send_req);
-				break;
-		case SUB:	SM_PROCEED(send_req);
-				break;
-		default:	Syslog('s', "got '%s' waiting ENQ", printablec(c));
-				SM_PROCEED(send_req);
-				break;
-	}
+    PUTCHAR(SYN);
+    c = GETCHAR(5);
+    Syslog('x', "Got char 0x%02x", c);
+    count++;
+    if (c == TIMEOUT) {
+	Syslog('x', "  timeout");
+	SM_PROCEED(send_req);
+    } else if (c < 0) {
+	Syslog('+', "got error waiting for ENQ: received %d",c);
+	SM_ERROR;
+    } else switch (c) {
+	case ENQ:   if (sendbark()) {
+			SM_ERROR;
+		    } else {
+			SM_PROCEED(recv_req);
+		    }
+		    break;
+	case CAN:   Syslog('+', "Remote refused to accept request");
+		    SM_PROCEED(recv_req);
+		    break;
+	case 'C':
+	case NAK:   PUTCHAR(EOT);
+		    SM_PROCEED(send_req);
+		    break;
+	case SUB:   SM_PROCEED(send_req);
+		    break;
+	default:    Syslog('s', "got '%s' waiting ENQ", printablec(c));
+		    SM_PROCEED(send_req);
+		    break;
+    }
 
 SM_STATE(recv_req)
 
-	Syslog('s', "rxftsc RECV_REQ");
-	if (recvbark()) {
-		if (sentmail && rcvdmail) {
-			Syslog('+', "Consider session OK");
-			SM_SUCCESS;
-		} else {
-			SM_ERROR;
-		}
+    if (recvbark()) {
+	if (sentmail && rcvdmail) {
+	    Syslog('+', "Consider session OK");
+	    SM_SUCCESS;
 	} else {
-		SM_SUCCESS;
+	    SM_ERROR;
 	}
+    } else {
+	SM_SUCCESS;
+    }
 
 SM_END
 SM_RETURN
@@ -420,8 +411,18 @@ SM_STATE(scan_packet)
 		free(fpath);
 		SM_ERROR;
 	case 0:	
-	case 5:	Syslog('+', "accepting session");
-		fclose(fp);
+	case 5:	fclose(fp);
+		if (nodelock(&f, mypid)) {
+		    /* 
+		     * Lock failed, FTSC-0001 allowes only one aka, so abort session.
+		     */
+		    Syslog('+', "address : %s is locked, abort", ascfnode(&f, 0x1f));
+		    Syslog('s', "Unlink %s rc=%d", fpath, unlink(fpath));
+		    free(fpath);
+		    SM_ERROR;
+		}
+
+		Syslog('+', "accepting session");
 		for (tmpl = &remote; *tmpl; tmpl = &((*tmpl)->next));
 		(*tmpl)=(fa_list*)malloc(sizeof(fa_list));
 		(*tmpl)->next=NULL;
@@ -432,12 +433,15 @@ SM_STATE(scan_packet)
 		(*tmpl)->addr->point=f.point;
 		(*tmpl)->addr->name=NULL;
 		(*tmpl)->addr->domain=NULL;
-		for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next)) {
-		    (void)nodelock((*tmpl)->addr, mypid);
-		    /* try lock all remotes, ignore locking result */
-		    if (!Loaded)
-			if (noderecord((*tmpl)->addr))
-			    Loaded = TRUE;
+		Syslog('+', "address : %s",ascfnode((*tmpl)->addr,0x1f));
+
+		/*
+		 * With the loaded flag we prevent removing the noderecord
+		 * when the remote presents us an address we don't know about.
+		 */
+		if (!Loaded) {
+		    if (noderecord((*tmpl)->addr))
+			Loaded = TRUE;
 		}
 
 		history.aka.zone  = remote->addr->zone;

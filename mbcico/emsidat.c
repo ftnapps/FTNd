@@ -47,6 +47,7 @@
 
 extern int	Loaded;
 extern int	mypid;
+extern int	emsi_akas;
 
 
 
@@ -334,7 +335,7 @@ exit:
 
 int scanemsidat(char *buf)
 {
-    fa_list **tmp,*tmpa;
+    fa_list **tmp, *tmpa;
     faddr   *fa;
     char    *p, *q, *mailer_prod, *mailer_name, *mailer_version, *mailer_serial;
     int	    dupe;
@@ -375,24 +376,35 @@ int scanemsidat(char *buf)
 	}
     }
 
-    for (tmpa = remote; tmpa; tmpa = tmpa->next) {
-	Syslog('+', "address : %s",ascfnode(tmpa->addr,0x1f));
-	(void)nodelock(tmpa->addr, mypid);
-	/*
-	 * With the loaded flag we prevent removing the noderecord 
-	 * when the remote presents us an address we don't know about.
-	 */
-	if (!Loaded) {
-	    if (noderecord(tmpa->addr))
-		Loaded = TRUE;
+    tmp = &remote;
+    while (*tmp) {
+	if (nodelock((*tmp)->addr, mypid)) {
+	    Syslog('+', "address : %s is locked, removed from aka list",ascfnode((*tmp)->addr,0x1f));
+	    tmpa=*tmp;
+	    *tmp=(*tmp)->next;
+	    free(tmpa);
+	} else {
+	    /*
+	     * With the loaded flag we prevent removing the noderecord
+	     * when the remote presents us an address we don't know about.
+	     */
+	    emsi_akas++;
+	    Syslog('+', "address : %s",ascfnode((*tmp)->addr,0x1f));
+	    if (!Loaded) {
+		if (noderecord((*tmp)->addr))
+		    Loaded = TRUE;
+	    }
+	    tmp = &((*tmp)->next);
 	}
     }
 
-    history.aka.zone  = remote->addr->zone;
-    history.aka.net   = remote->addr->net;
-    history.aka.node  = remote->addr->node;
-    history.aka.point = remote->addr->point;
-    sprintf(history.aka.domain, "%s", remote->addr->domain);
+    if (emsi_akas) {	/* Only if any aka's left */
+	history.aka.zone  = remote->addr->zone;
+	history.aka.net   = remote->addr->net;
+	history.aka.node  = remote->addr->node;
+	history.aka.point = remote->addr->point;
+	sprintf(history.aka.domain, "%s", remote->addr->domain);
+    }
 
     if (emsi_remote_password) 
 	free(emsi_remote_password);

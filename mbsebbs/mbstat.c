@@ -4,7 +4,7 @@
  * Purpose ...............: Change BBS status
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -153,7 +153,6 @@ int main(int argc, char **argv)
 	pw = getpwuid(getuid());
 	InitClient(pw->pw_name, (char *)"mbstat", CFG.location, CFG.logfile, 
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-	usleep(1);
 
 	Syslog(' ', " ");
 	Syslog(' ', "MBSTAT v%s", VERSION);
@@ -186,7 +185,6 @@ int main(int argc, char **argv)
 	if (!(do_open || do_close || do_wait || do_sema))
 		Help();
 
-	usleep(1);
 	die(MBERR_OK);
 	return 0;
 }

@@ -8,16 +8,33 @@ v0.39.7		14-Jan-2004
 		that mbtask didn't exist. It is possible that something is
 		broken now, please report such situations.
 
+	general:
+		In all sources replaced the usleep function with the msleep
+		function. The usleep function will become obsolete someday.
+
 	libcommon.a:
 		In execute and execsh on Linux systems sync() is called before
 		and after running the external program to make sure diskbuffers
 		are committed.
+		Added a milliseconds timer.
+		Before and after execute and execsh a 100 ms pause is inserted
+		to prevent (un)archiver and other errors.
 
 	mbcico:
 		Removed the check to disable calling points. 
 		Added a check to see if we get a URL to call other systems.
 		If nodelist info fails, increase error counter in steps of 10.
 		Merged tmail patches from Przemyslaw Kwiatkowski.
+		Fixed nodelocks during session handshake after many years. The
+		problem showed only when mbcico was used together with a mailer
+		on a different OS. When a aka is busy, the aka is now dropped.
+		When all akas are busy, a session is impossible and the session
+		is refused. Thanks to Przemyslaw Kwiatkowski for finding and
+		documenting this bug.
+		The total session avg cps is now corrected with the two seconds
+		session close delay time.
+		During binkp handshake increased the timer of the receiver to
+		avoid handshake timeouts.
 
 	mbfido:
 		Removed sync calls that are now in execute.

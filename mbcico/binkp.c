@@ -306,7 +306,7 @@ SM_NAMES
 SM_EDECL
     faddr   *primary;
     char    *p, *q, *pwd;
-    int     i, rc = 0, bufl, cmd, dupe, SendPass = FALSE;
+    int     i, rc = 0, bufl, cmd, dupe, SendPass = FALSE, akas = 0;
     fa_list **tmp, *tmpa;
     faddr   *fa, ra;
 
@@ -409,20 +409,33 @@ SM_STATE(WaitAddr)
 		    }
 		}
 		free(p);
-		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
-		    Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
-		    if (nodelock(tmpa->addr, mypid)) {
-			binkp_send_command(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
-			SM_ERROR;
+
+		tmp = &remote;
+		while (*tmp) {
+		    if (nodelock((*tmp)->addr, mypid)) {
+			Syslog('+', "address : %s is locked, removed from aka list",ascfnode((*tmp)->addr,0x1f));
+			tmpa=*tmp;
+			*tmp=(*tmp)->next;
+			free(tmpa);
+		    } else {
+			/*
+			 * With the loaded flag we prevent removing the noderecord
+			 * when the remote presents us an address we don't know about.
+			 */
+			akas++;
+			Syslog('+', "address : %s",ascfnode((*tmp)->addr,0x1f));
+			if (!Loaded) {
+			    if (noderecord((*tmp)->addr))
+				Loaded = TRUE;
+			}
+			tmp = &((*tmp)->next);
 		    }
-		    /*
-		     * With the loaded flag we prevent removing the noderecord
-		     * when the remote presents us an address we don't know about.
-		     */
-		    if (!Loaded) {
-			if (noderecord(tmpa->addr))
-			    Loaded = TRUE;
-		    }
+		}
+
+		if (akas == 0) {
+		    binkp_send_command(MM_BSY, "All aka's busy");
+		    Syslog('+', "Binkp: abort, all aka's are busy");
+		    SM_ERROR;
 		}
 
 		history.aka.zone  = remote->addr->zone;
@@ -578,7 +591,7 @@ SM_NAMES
     (char *)"Opts"
 SM_EDECL
     char    *p, *q, *pw;
-    int     i, rc, bufl, cmd, dupe, we_have_pwd = FALSE;
+    int     i, rc, bufl, cmd, dupe, we_have_pwd = FALSE, akas = 0;
     fa_list **tmp, *tmpa;
     faddr   *fa;
 
@@ -666,21 +679,33 @@ SM_STATE(WaitAddr)
 			SM_ERROR;
 		    }
 		}
-		
-		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
-		    Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
-		    if (nodelock(tmpa->addr, mypid)) {
-			binkp_send_command(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
-			SM_ERROR;
+
+		tmp = &remote;
+		while (*tmp) {
+		    if (nodelock((*tmp)->addr, mypid)) {
+			Syslog('+', "address : %s is locked, removed from aka list",ascfnode((*tmp)->addr,0x1f));
+			tmpa=*tmp;
+			*tmp=(*tmp)->next;
+			free(tmpa);
+		    } else {
+			/*
+			 * With the loaded flag we prevent removing the noderecord
+			 * when the remote presents us an address we don't know about.
+			 */
+			akas++;
+			Syslog('+', "address : %s",ascfnode((*tmp)->addr,0x1f));
+			if (!Loaded) {
+			    if (noderecord((*tmp)->addr))
+				Loaded = TRUE;
+			}
+			tmp = &((*tmp)->next);
 		    }
-		    /*
-		     * With the loaded flag we prevent removing the noderecord
-		     * when the remote presents us an address we don't know about.
-		     */
-		    if (!Loaded) {
-			if (noderecord(tmpa->addr))
-			    Loaded = TRUE;
-		    }
+		}
+
+                if (akas == 0) {
+		    binkp_send_command(MM_BSY, "All aka's busy");
+		    Syslog('+', "Binkp: abort, all aka's are busy");
+		    SM_ERROR;
 		}
 
 		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
@@ -874,7 +899,7 @@ int file_transfer(void)
 				 * Nothing done, release
 				 */
 				Syslog('b', "Binkp: NOTHING DONE");
-				usleep(1);
+				msleep(1);
 				break;
 
 	    case Receive:	Trc = binkp_receiver();
@@ -1626,7 +1651,7 @@ int binkp_recv_command(char *buf, int *len, int *cmd)
     if (b0 & 0x80)
 	*cmd = 1;
 
-    b1 = GETCHAR(1);
+    b1 = GETCHAR(BINKP_TIMEOUT / 2);
     if (tty_status)
 	goto to;
 
@@ -1725,7 +1750,7 @@ int binkp_poll_frame(void)
 	    if (c < 0) {
 		c = -c;
 		if (c == STAT_TIMEOUT) {
-		    usleep(1);
+		    msleep(1);
 		    rc = 0;
 		    break;
 		}

@@ -4,7 +4,7 @@
  * Purpose ...............: AreaMgr and FileMgr utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -589,7 +589,7 @@ int Areas(void)
 		    for (tmp = alist; tmp; tmp = tmp->next) {
 			fseek(fp, msgshdr.hdrsize, SEEK_SET);
 			if (CFG.slow_util && do_quiet)
-			    usleep(1);
+			    msleep(1);
 			while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 			    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name))
 				tmp->IsPresent = TRUE;
@@ -639,7 +639,7 @@ int Areas(void)
 			    }
 			    cmd = xstrcat(cmd, tmp->Name);
 			    if (CFG.slow_util && do_quiet)
-				usleep(1);
+				msleep(1);
 			}
 		    }
 
@@ -658,7 +658,7 @@ int Areas(void)
 				fseek(fp, msgshdr.hdrsize, SEEK_SET);
 				Syslog('m', "Delete %s", tmp->Name);
 				if (CFG.slow_util && do_quiet)
-				    usleep(1);
+				    msleep(1);
 				while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 				    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name)) {
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
@@ -828,7 +828,7 @@ int Areas(void)
 		    for (tmp = alist; tmp; tmp = tmp->next) {
 			fseek(fp, tichdr.hdrsize, SEEK_SET);
 			if (CFG.slow_util && do_quiet)
-			    usleep(1);
+			    msleep(1);
 			while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 			    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name))
 				tmp->IsPresent = TRUE;
@@ -886,7 +886,7 @@ int Areas(void)
 			    }
 			    cmd = xstrcat(cmd, tmp->Name);
 			    if (CFG.slow_util && do_quiet)
-				usleep(1);
+				msleep(1);
 			}
 		    }
 
@@ -907,7 +907,7 @@ int Areas(void)
 				fseek(fp, tichdr.hdrsize, SEEK_SET);
 				Syslog('f', "Delete %s", tmp->Name);
 				if (CFG.slow_util && do_quiet)
-				    usleep(1);
+				    msleep(1);
 				while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 				    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name)) {
 					fseek(fp, - tichdr.recsize, SEEK_CUR);

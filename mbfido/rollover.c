@@ -4,7 +4,7 @@
  * Purpose ...............: Statistic rollover util.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -65,7 +65,7 @@ void RollWeek(statcnt *S)
     S->tweek = 0L;
 
     if (CFG.slow_util && do_quiet)
-	usleep(1);
+	msleep(1);
 }
 
 
@@ -158,7 +158,7 @@ void Rollover()
 		    nodes.MailSent.month[Miy] = 0;
 		    nodes.MailRcvd.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - nodeshdr.recsize, SEEK_CUR);
 		fwrite(&nodes, nodeshdr.recsize, 1, fp);
@@ -199,7 +199,7 @@ void Rollover()
 		    msgs.Received.month[Miy] = 0;
 		    msgs.Posted.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - msgshdr.recsize, SEEK_CUR);
 		fwrite(&msgs, msgshdr.recsize, 1, fp);
@@ -239,7 +239,7 @@ void Rollover()
 		    mgroup.MsgsRcvd.month[Miy] = 0;
 		    mgroup.MsgsSent.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - mgrouphdr.recsize, SEEK_CUR);
 		fwrite(&mgroup, mgrouphdr.recsize, 1, fp);
@@ -278,7 +278,7 @@ void Rollover()
 		    tic.Files.month[Miy] = 0;
 		    tic.KBytes.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - tichdr.recsize, SEEK_CUR);
 		fwrite(&tic, tichdr.recsize, 1, fp);
@@ -318,7 +318,7 @@ void Rollover()
 		    fgroup.Files.month[Miy] = 0;
 		    fgroup.KBytes.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - fgrouphdr.recsize, SEEK_CUR);
 		fwrite(&fgroup, fgrouphdr.recsize, 1, fp);
@@ -354,7 +354,7 @@ void Rollover()
 		if (do_month) {
 		    hatch.Hatched.month[Miy] = 0;
 		    if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		}
 		fseek(fp, - hatchhdr.recsize, SEEK_CUR);
 		fwrite(&hatch, hatchhdr.recsize, 1, fp);

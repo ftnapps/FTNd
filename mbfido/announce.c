@@ -4,7 +4,7 @@
  * Purpose ...............: Announce new files and FileFind
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -127,7 +127,7 @@ void Uploads()
 	i++;
 
 	if (CFG.slow_util && do_quiet)
-	    usleep(1);
+	    msleep(1);
 
 	if ((area.Available) && strlen(area.NewGroup)) {
 
@@ -321,7 +321,7 @@ long Report(gr_list *ta, long filepos)
 	if ((!strcmp(T_File.Echo, ta->echo)) && (!strcmp(T_File.Group, ta->group))) {
 
 	    if (CFG.slow_util && do_quiet)
-		usleep(1);
+		msleep(1);
 
 	    /*
 	     * Report one newfile, first line.

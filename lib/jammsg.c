@@ -10,7 +10,7 @@
  * MBSE BBS and utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -38,9 +38,12 @@
 #include "libs.h"
 #include "clcomm.h"
 #include "msgtext.h"
+#include "structs.h"
+#include "common.h"
 #include "msg.h"
 #include "jam.h"
 #include "jammsg.h"
+
 
 #define	MAX_TEXT	2048
 
@@ -400,7 +403,7 @@ int JAM_Lock(unsigned long ulTimeout)
 			WriteError("JAM messagebase is locked by pid %d", fl.l_pid);
 			return FALSE;
 		}
-		usleep(250000);
+		msleep(250);
 		Syslog('m', "JAM messagebase lock attempt %d", Tries);
 	}
 

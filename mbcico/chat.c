@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - modem chat
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -104,7 +104,7 @@ int send_str(char *str, char *Phone)
 		case 's':   PUTCHAR(' ');    *q++ = ' ';               break;
 		case ' ':   PUTCHAR(' ');    *q++ = ' ';               break;
 		case 'd':   sleep(1);        *q++ = '\\'; *q++ = 'd';  break;
-		case 'p':   usleep(250000L); *q++ = '\\'; *q++ = 'p';  break;
+		case 'p':   msleep(250); *q++ = '\\'; *q++ = 'p';  break;
 		case 'D':   if (Phone) {
 				PUTSTR(Phone);
 				sprintf(q, "%s", Phone);

@@ -126,8 +126,8 @@ void die(int onsig)
     }
 
     if (sentbytes || rcvdbytes) {
-	total = (int)(c_end - c_start);
-	if (!total)
+	total = (int)(c_end - c_start -2);
+	if (total < 1)
 	    total = 1;
 	Syslog('+', "Sent %lu bytes, received %lu bytes, avg %d cps", sentbytes, rcvdbytes, (sentbytes + rcvdbytes) / total);
     }

@@ -4,7 +4,7 @@
  * Purpose ...............: Offline Reader
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -2693,7 +2693,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 			fwrite(&Qwk, sizeof(Qwk), 1, fdm);
 			fseek(fdm, 0L, SEEK_END);
 			if ((Total % 16L) == 0L)
-			    usleep(1);
+			    msleep(1);
 		    }
 
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
@@ -2937,7 +2937,7 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 		    }
 
 		    if ((Total % 16L) == 0L)
-			usleep(1);
+			msleep(1);
 
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);

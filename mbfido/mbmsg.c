@@ -4,7 +4,7 @@
  * Purpose ...............: Message Base Maintenance
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -475,7 +475,7 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 
 			do {
 				if (CFG.slow_util && do_quiet)
-					usleep(1);
+					msleep(1);
 
 				if ((!do_quiet) && ((Counter % 10L) == 0)) {
 					printf("%6lu / %6lu\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", Counter, TotalMsgs);
@@ -587,7 +587,7 @@ void PackArea(char *Path, long Areanr)
 	}
 
 	if (CFG.slow_util && do_quiet)
-		usleep(1);
+		msleep(1);
 }
 
 

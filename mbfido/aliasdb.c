@@ -89,7 +89,7 @@ static int alias_db_init(void)
         while (fcntl(fileno(afp), F_SETLK, &txflock) != 0) {
                 if (tries > 4)
                         Syslog('+', "Alias database locked %d errno=%d %s", tries +1, errno, strerror(errno));
-                usleep(250000);
+                msleep(250);
                 if (++tries >= 60) {
                         fclose(afp);
 			afp = NULL;

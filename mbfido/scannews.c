@@ -464,7 +464,7 @@ int get_xover(char *grpname, long startnr, long endnr, List **art)
 						fill_artlist(art, ptr, nr, dupe);
 						free(p);
 						if (CFG.slow_util && do_quiet)
-							usleep(1);
+							msleep(1);
 					}
 				}
 			}

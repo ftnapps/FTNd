@@ -4,7 +4,7 @@
  * Purpose ...............: Toss a single *.pkt file
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -156,7 +156,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     sysconnect	Link;
 
     if (CFG.slow_util && do_quiet)
-	usleep(1);
+	msleep(1);
 
     memset(&Link, 0, sizeof(Link));
 

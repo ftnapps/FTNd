@@ -512,6 +512,8 @@ void gpt_resettimers(void);	    /* Reset all timers			*/
 int gpt_settimer(int, int);	    /* Set timer no to time		*/
 int gpt_expired(int);		    /* Is timer expired			*/
 int gpt_running(int);		    /* Is timer running			*/
+int msleep(int);		    /* Milliseconds timer		*/
+
 
 #endif
 

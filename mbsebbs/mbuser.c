@@ -4,7 +4,7 @@
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -255,7 +255,7 @@ void UserPack(int days, int level, int pack)
 		fwrite(&usr, sizeof(usr), 1, fout);
 		memset(&usr, 0, sizeof(usr));
 		if (CFG.slow_util && do_quiet)
-			usleep(1);
+			msleep(1);
 		Nopper();
 	}
 	fclose(fin);
@@ -300,7 +300,7 @@ void UserPack(int days, int level, int pack)
 				fwrite(&usr, sizeof(usr), 1, fout);
 			}
 			if (CFG.slow_util && do_quiet)
-				usleep(1);
+				msleep(1);
 		}
 		Syslog('+', "Marked %d users to delete", delete);
  	}
@@ -314,7 +314,7 @@ void UserPack(int days, int level, int pack)
 		fseek(fout, sizeof(usrhdr), SEEK_SET);
 		while (fread(&usr, sizeof(usr), 1, fout) == 1) {
 			if (CFG.slow_util && do_quiet)
-				usleep(1);
+				msleep(1);
 
 			Nopper();
 			if (usr.Deleted) {

@@ -4,7 +4,7 @@
  * Purpose ...............: Process .tic files
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -169,7 +169,7 @@ int LoadTic(char *inb, char *tfn)
     fa_list	    *sbl = NULL;
 
     if (CFG.slow_util && do_quiet)
-	usleep(1);
+	msleep(1);
 
     memset(&RealName, 0, sizeof(RealName));
     memset(&TIC, 0, sizeof(TIC));
