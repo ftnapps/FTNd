@@ -129,7 +129,6 @@ void Uploads()
 		if (CFG.slow_util && do_quiet)
 			usleep(1);
 
-		Nopper();
 		if ((area.Available) && strlen(area.NewGroup)) {
 
 			if (!do_quiet) {
@@ -141,6 +140,7 @@ void Uploads()
 			if ((pFile = fopen(fAreas, "r+")) != NULL) {
 
 				while (fread(&file, sizeof(file), 1, pFile) == 1) {
+					Nopper();
 					if (!file.Announced) {
 						Syslog('m', "  %d %s", i, file.Name);
 						memset(&T_File, 0, sizeof(T_File));
