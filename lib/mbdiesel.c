@@ -36,6 +36,8 @@
 #include "clcomm.h"
 #include "diesel.h"
 
+static int firstrandom = TRUE;
+
 
 void MacroVars( const char *codes, const char *fmt, ...)
 {
@@ -187,6 +189,53 @@ char *ParseMacro( const char *line, int *dieselrc)
 
 
 
+/*
+ * Add random fortune cookie to the macrovars
+ */
+void Cookie(void);
+void Cookie(void)
+{
+    FILE    *olf;
+    char    *fname;
+    long    recno, records;
+
+    fname = calloc(PATH_MAX, sizeof(char));
+    sprintf(fname, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
+
+    if ((olf = fopen(fname, "r")) == NULL) {
+	WriteError("$Can't open %s", fname);
+	free(fname);
+	return;
+    }
+
+    fread(&olhdr, sizeof(olhdr), 1, olf);
+    fseek(olf, 0, SEEK_END);
+    records = (ftell(olf) - olhdr.hdrsize) / olhdr.recsize;
+
+    if (firstrandom) {
+	srand(getpid());
+	firstrandom = FALSE;
+    }
+    recno = 1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0));
+    Syslog('f', "Selected quote %d out of %d records", recno, records);
+
+    if (fseek(olf, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
+	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {
+	    MacroVars("F", "s", ol.Oneline);
+	} else {
+	    WriteError("Can't read %s", fname);
+	}
+    } else {
+	WriteError("$Can't seek record %d in %s", recno, fname);
+    }
+    fclose(olf);
+    free(fname);
+
+    return;
+}
+
+
+
 FILE *OpenMacro(const char *filename, int Language)
 {
     FILE	*pLang, *fi = NULL;
@@ -236,6 +285,7 @@ FILE *OpenMacro(const char *filename, int Language)
 	sprintf(temp, "%s-%s", OsName(), OsCPU());
 	MacroVars("HLMNOSTUVYZ", "ssssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name, temp,
 					    CFG.sysop_name, CFG.comment, CFG.sysop, VERSION, aka2str(CFG.aka[0]), 0);
+	Cookie();
     }
 
     free(temp);

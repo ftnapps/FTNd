@@ -292,7 +292,7 @@ void F_Status(faddr *t, char *replyid)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("ABCDEFGIJabcdefghijkls", "ddddddddddddddddddddds", 	
+    MacroVars("ABCDEfGIJabcdefghijkls", "ddddddddddddddddddddds", 	
  	    					nodes.Message,
  	    					nodes.Tic,
  	    					nodes.AdvTic,

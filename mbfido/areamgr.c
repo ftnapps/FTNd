@@ -464,12 +464,13 @@ void A_Status(faddr *t, char *replyid)
 
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Status");
-    
+    Syslog('+', "AreaMgr: Status");
+
     if (Miy == 0)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("DCEFGRPQRpqrsYy","ddddcsddddddsss",   
+    MacroVars("DCEfGvPQRpqrsYy","ddddcsddddddsss",   
  	    					nodes.Direct, 
  	    	                                nodes.Crash, 
  	    	                                nodes.Hold,
@@ -487,7 +488,6 @@ void A_Status(faddr *t, char *replyid)
 						ascfnode(bestaka_s(t), 0xf)
     	                                 );
     GetRpSubject("areamgr.status",subject);
-    Syslog('+', "AreaMgr: Status");
 
     if ((fi = OpenMacro("areamgr.status", nodes.Language)) == NULL ){
 	MacroClear();

@@ -36,10 +36,11 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
 #include "../lib/dbtic.h"
+#include "../lib/diesel.h"
 #include "tic.h"
-#include "cookie.h"
 #include "sendmail.h"
 #include "rollover.h"
+#include "mgrutil.h"
 #include "forward.h"
 
 
@@ -47,13 +48,14 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
-	FILE		*fp, *net;
+	char		*subject = NULL, *temp, *line, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
+	FILE		*fp, *fi, *net;
 	char		flavor;
 	faddr		*dest, *route, *Fa;
 	int		i, z, n;
 	time_t		now;
 	fa_list		*tmp;
+	long		filepos;
 
 	Syslog('+', "Forward file to %s", aka2str(Node));
 
@@ -133,32 +135,38 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 *  Send netmail message if the node has it turned on.
 	 */
 	if (nodes.Message) {
-		if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
-			fprintf(net, "         Dear %s\r", nodes.Sysop);
-			fprintf(net, "\r");
-			fprintf(net, "I sent the following file to your system:\r");
-			fprintf(net, "\r");
-			if (TIC.SendOrg)
-			    fprintf(net, "File        : %s\r", TIC.RealName);
-			else
-			    fprintf(net, "File        : %s\r", TIC.NewName);
-			fprintf(net, "Description : %s\r", TIC.TicIn.Desc);
-			fprintf(net, "Area        : %s %s\r", TIC.TicIn.Area, TIC.TicIn.AreaDesc);
-			fprintf(net, "Size        : %ld\r", (long)(TIC.FileSize));
-			fprintf(net, "CRC         : %s\r", TIC.TicIn.Crc);
-			fprintf(net, "Origin      : %s\r", TIC.TicIn.Origin);
-			if (strlen(TIC.TicIn.Magic))
-				fprintf(net, "Magic       : %s\r", TIC.TicIn.Magic);
-			if (strlen(TIC.TicIn.Replace))
-				fprintf(net, "Replaces    : %s\r", TIC.TicIn.Replace);
-			fprintf(net, "\r\r");
-			fprintf(net, "With regards, %s\r\r", CFG.sysop_name);
-			fprintf(net, "... %s\r\r", Cookie());
-			fprintf(net, "%s\r", TearLine());
-			CloseMail(net, fido2faddr(Node));
-		} else {
-			WriteError("$Can't create netmail");
+	    if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
+		if ((fi = OpenMacro("forward.tic", nodes.Language)) != NULL) {
+		    MacroVars("abcfghijmns", "ssdsddsssss", TIC.TicIn.Area, TIC.TicIn.AreaDesc, TIC.FileCost,
+							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
+							    TIC.TicIn.Crc, TIC.TicIn.Origin, " ", TIC.TicIn.LDesc[0], nodes.Sysop);
+		    if (TIC.SendOrg)
+			MacroVars("e", "s", TIC.RealName);
+		    else
+			MacroVars("e", "s", TIC.NewName);
+		    if (strlen(TIC.TicIn.Magic))
+			MacroVars("k", "s", TIC.TicIn.Magic);
+		    if (strlen(TIC.TicIn.Replace))
+			MacroVars("l", "s", TIC.TicIn.Replace);
+		    MacroRead(fi, net);
+		    filepos = ftell(fi);
+		    for (i = 1; i < 25; i++) {
+			fseek(fi, filepos, SEEK_SET);
+			if (strlen(TIC.TicIn.LDesc[i])) {
+			    MacroRead(fi, net);
+			} else {
+			    line = calloc(255, sizeof(char));
+			    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
+			    free(line);
+			}
+		    }
+		    MacroRead(fi, net);
+		    fprintf(net, "%s\r", TearLine());
+		    CloseMail(net, fido2faddr(Node));
 		}
+	    } else {
+		WriteError("$Can't create netmail");
+	    }
 	}
 	free(subject);
 

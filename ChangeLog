@@ -4696,6 +4696,7 @@ v0.33.20        10-Feb-2002
 		the diesel macro language.
 		The tic file forward function now uses only filenames in the
 		subject of the netmail messages without the path.
+		The tic file forward netmails now uses template forward.tic
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
