@@ -10,17 +10,17 @@ SN|¨Has escrito correctamente tu nombre? [S/n]
 |El n£mero de errores permitidos se ha sobrepasado ... 
 |Tu nombre o tu PASSWORD son incorrectos
 PR|Exportar al directorio (P)ersonal o de (R)eglas: 
-|Mensaje exportado al deirectorio de reglas como 
+|Mensaje exportado al directorio de reglas como 
 |No se encuentran reglas para este  rea.
 |No puedes borrar este Mensaje.
 |Lector Offline: Informaci¢n extendida ACTIVADA
 |Lector Offline: Informaci¢n extendida DESACTIVADA
-|This is not a plain textfile.
-|You may only login
-|times at the same time
-|The door is in use by another user, try again later
-YN| Is this correct [y/N]: 
-|Could not parse
+|Este no es un fichero de texto plano.
+|S¢lo puedes hacer login
+|veces al mismo tiempo
+|Otro usuario est  usando esa door, int‚ntalo m s tarde.
+SN| Es correcto [s/N]: 
+|No puedo iterpretar
 |
 |
 |
@@ -33,8 +33,8 @@ YN| Is this correct [y/N]:
 |
 |
 |
-|
-|
+|¨­§¦
+|€¨­§¦
 |MBSEBBS - REGISTRO DE NUEVO USUARIO
 |Use este nombre: 
 |Por favor teclee el nuevo password : 
