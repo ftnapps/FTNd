@@ -1,5 +1,7 @@
 $Id$
 
+WARNING: Extra debug logging enabled for checking internet news dupes.
+         This will just make bigger logfiles if you gate news.
 
 				MBSEBBS History.
 

@@ -117,8 +117,11 @@ int CheckDupe(unsigned long crc, int idx, int max)
 		dupes[idx].max = max;
 	}
 
+	Syslog('n', "dupetest %08x %d %d", crc, idx, max);
+
 	for (i = 0; i < dupes[idx].count; i++) {
 		if (dupes[idx].crcs[i] == crc) {
+			Syslog('n', "dupe at %d", i);
 			return TRUE;
 		}
 	}

@@ -824,17 +824,17 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		fflush(ofp);
 		rewind(ofp);
 
-//		Syslog('n', "========== Fido start");
-//		while (fgets(temp, 4096, ofp) != NULL) {
+		Syslog('n', "========== Fido start");
+		while (fgets(temp, 4096, ofp) != NULL) {
 			/*
 			 *  Only log kludges, skip the body
 			 */
-//			if ((temp[0] == '\001') || !strncmp(temp, "AREA:", 5) || !strncmp(temp, "SEEN-BY", 7)) {
-//				Striplf(temp);
-//				Syslogp('n', printable(temp, 0));
-//			}
-//		}
-//		Syslog('n', "========== Fido end");
+			if ((temp[0] == '\001') || !strncmp(temp, "AREA:", 5) || !strncmp(temp, "SEEN-BY", 7)) {
+				Striplf(temp);
+				Syslogp('n', printable(temp, 0));
+			}
+		}
+		Syslog('n', "========== Fido end");
 
 		if (newsmode)
 			rc = postecho(NULL, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, fmsg->flags, 0, ofp, FALSE);
