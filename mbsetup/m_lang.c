@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -323,7 +323,6 @@ int EditLangRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&lang, crc, sizeof(lang));
-	working(0, 0, 0);
 
 	s_lang();
 	for (;;) {
@@ -354,7 +353,6 @@ int EditLangRec(int Area)
 					fclose(fil);
 					LangUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -402,7 +400,6 @@ void EditLanguage(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -446,7 +443,6 @@ void EditLanguage(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
@@ -488,7 +484,6 @@ int PickLanguage(char *nr)
 		return Lang;
 	}
 
-	working(0, 0, 0);
 
 	clr_index();
 	set_color(WHITE, BLACK);

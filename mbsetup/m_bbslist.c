@@ -4,7 +4,7 @@
  * Purpose ...............: Setup BBS lists.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -219,7 +219,6 @@ int EditBBSlistRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&bbs, crc, sizeof(bbs));
-	working(0, 0, 0);
 
 	set_color(WHITE, BLACK);
 	mvprintw( 4, 1, "8.6.1   EDIT BBSLIST");
@@ -283,7 +282,6 @@ int EditBBSlistRec(int Area)
 					fclose(fil);
 					BBSlistUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -352,7 +350,6 @@ void EditBBSlist(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -390,7 +387,6 @@ void EditBBSlist(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_record(records,20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -405,7 +401,6 @@ void EditBBSlist(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0)
@@ -467,7 +462,6 @@ void PurgeBBSlist(void)
 		if (!bbs.Available) 
 			iCount++;
 	}
-	working(0, 0, 0);
 
 	sprintf(temp, "%d records, %d records to purge", recno, iCount);
 	mvprintw(7, 6, temp);
@@ -491,7 +485,6 @@ void PurgeBBSlist(void)
 		if ((rename("tmp.1", sFileName)) != 0)
 			working(2, 0, 0);
 		unlink("tmp.1");
-		working(0, 0, 0);	
 	}
 }
 

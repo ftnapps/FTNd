@@ -4,7 +4,7 @@
  * Purpose ...............: Menu Utils
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -44,6 +44,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 	int		rc = -1, i;
 	unsigned char 	ch = 0;
 
+	working(0, 0, 0);
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
 		perror("open 9");
 		exit(MBERR_TTYIO_ERROR);

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Limits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -295,7 +295,6 @@ int EditLimRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&LIMIT, crc, sizeof(LIMIT));
-	working(0, 0, 0);
 
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 6, "8.1 EDIT SECURITY LIMIT");
@@ -334,7 +333,6 @@ int EditLimRec(int Area)
 					fclose(fil);
 					LimUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -380,7 +378,6 @@ void EditLimits(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -428,7 +425,6 @@ void EditLimits(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
@@ -470,7 +466,6 @@ char *PickLimits(int nr)
 		return Lim;
 	}
 
-	working(0, 0, 0);
 
 	clr_index();
 	set_color(WHITE, BLACK);

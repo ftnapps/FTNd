@@ -4,7 +4,7 @@
  * Purpose ...............: Domain Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -260,7 +260,6 @@ int EditDomainRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&domtrans, crc, domainhdr.recsize);
-	working(0, 0, 0);
 
 	for (;;) {
 		DomainScreen();
@@ -285,7 +284,6 @@ int EditDomainRec(int Area)
 					fwrite(&domtrans, domainhdr.recsize, 1, fil);
 					fclose(fil);
 					DomainUpdated = 1;
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -331,7 +329,6 @@ void EditDomain(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -366,7 +363,6 @@ void EditDomain(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_menurec(records));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -382,7 +378,6 @@ void EditDomain(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "D", 1) == 0) {

@@ -4,7 +4,7 @@
  * Purpose ...............: Newfiles Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -346,7 +346,6 @@ int EditNewRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&newfiles, crc, newfileshdr.recsize);
-	working(0, 0, 0);
 
 	for (;;) {
 		NewScreen();
@@ -400,7 +399,6 @@ int EditNewRec(int Area)
 
 					fclose(fil);
 					NewUpdated = 1;
-					working(0, 0, 0);
 				}
 			}
 			tidy_grlist(&fgr);
@@ -458,7 +456,6 @@ void EditNewfiles(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
 
     for (;;) {
@@ -496,7 +493,6 @@ void EditNewfiles(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_record(records, 20));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -512,7 +508,6 @@ void EditNewfiles(void)
 		    working(1, 0, 0);
 		} else
 		    working(2, 0, 0);
-		working(0, 0, 0);
 	    } else {
 		errmsg("Cannot add, change global setting in menu 1.14.3");
 	    }

@@ -112,9 +112,7 @@ int cf_open(void)
 	clr_index();
 	working(1, 0, 0);
 	IsDoing("Edit Global");
-	working(1, 0, 0);
 	if (0 == config_read()) {
-		working(0, 0, 0);
 		return 0;
 	} 
 
@@ -129,7 +127,6 @@ void cf_close(void)
 	working(1, 0, 0);
 	if (config_write() != 0)
 		working(2, 0, 0);
-	working(0, 0, 0);
 }
 
 
@@ -733,7 +730,6 @@ void e_ticconf(void)
 			CFG.tic_systems = temp;
 			if ((OpenTicarea() == 0))
 			    CloseTicarea(TRUE);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 5: temp =  CFG.tic_groups;
@@ -745,7 +741,6 @@ void e_ticconf(void)
 			CFG.tic_groups = temp;
 			if ((OpenNoderec() == 0))
 			    CloseNoderec(TRUE);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 6: E_INT( 12,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
@@ -845,7 +840,6 @@ void e_fidomailcfg(void)
 			CFG.toss_systems = temp;
 			if ((OpenMsgarea() == 0))
 			    CloseMsgarea(TRUE);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 12:temp = CFG.toss_groups;
@@ -857,7 +851,6 @@ void e_fidomailcfg(void)
 			CFG.toss_groups = temp;
 			if ((OpenNoderec() == 0))
 			    CloseNoderec(TRUE);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 13:E_BOOL(12,58, CFG.addr4d,          "Use ^4d^ addressing instead of ^5d^ addressing.")
@@ -1064,7 +1057,6 @@ void e_newfiles(void)
 			CFG.new_groups = temp;
 			if (OpenNewfiles() == 0)
 			    CloseNewfiles(TRUE);
-			working(0, 0, 0);
 		    }
 		    break;
 	}

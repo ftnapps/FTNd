@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Users
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -168,7 +168,6 @@ void CloseUsers(int force)
 		}
 	}
 	chmod(fin, 0660);
-	working(1, 0, 0);
 	unlink(fout); 
 }
 
@@ -392,7 +391,6 @@ int EditUsrRec2(void)
                         } else {
 			    working(2, 0, 0);
 			}
-                        working(0, 0, 0);
                         break;
                 case 10:strcpy(usrconfig.sSex, tl(edit_str(15,17,7, usrconfig.sSex, (char *)"^Male^ or ^Female^")));
                         break;
@@ -463,7 +461,6 @@ int EditUsrRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&usrconfig, crc, sizeof(usrconfig));
-	working(0, 0, 0);
 	Screen1();
 
 	for (;;) {
@@ -484,7 +481,6 @@ int EditUsrRec(int Area)
 					fwrite(&usrconfig, sizeof(usrconfig), 1, fil);
 					fclose(fil);
 					UsrUpdated = 1;
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -565,7 +561,6 @@ void EditUsers(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
         if (! check_free())
 	    return;
@@ -605,7 +600,6 @@ void EditUsers(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -621,7 +615,6 @@ void EditUsers(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0) 

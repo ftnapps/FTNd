@@ -224,6 +224,12 @@ int opentcp(char *name)
 	Syslog('s', "stdout = %d", output_pipe[1]);
 	Syslog('s', "stdin  = %d", input_pipe[0]);
 
+	if ((input_pipe[0] != 0) || (output_pipe[1] != 1)) {
+	    WriteError("Failed to create pipes on stdin and stdout");
+	    return -1;
+	}
+
+	Syslog('+', "Telnet I/O filters installed");
 	telnet_init(Fdo); /* Do we need that as originating system? */
 	f_flags=0;
 

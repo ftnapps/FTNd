@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Protocols.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -315,7 +315,6 @@ int EditProtRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&PROT, crc, sizeof(PROT));
-	working(0, 0, 0);
 
 	s_protrec();
 	
@@ -349,7 +348,6 @@ int EditProtRec(int Area)
 					fclose(fil);
 					ProtUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -399,7 +397,6 @@ void EditProtocol(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -444,7 +441,6 @@ void EditProtocol(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
@@ -486,7 +482,6 @@ char *PickProtocol(int nr)
 		return Prot;
 	}
 
-	working(0, 0, 0);
 
 	clr_index();
 	set_color(WHITE, BLACK);

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Fidonet structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -253,7 +253,6 @@ int EditFidoRec(int Area)
     fclose(fil);
     crc = 0xffffffff;
     crc = upd_crc32((char *)&fidonet, crc, sizeof(fidonet));
-    working(0, 0, 0);
 
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
@@ -311,7 +310,6 @@ int EditFidoRec(int Area)
 			    fclose(fil);
 			    FidoUpdated = 1;
 			    working(1, 0, 0);
-			    working(0, 0, 0);
 			}
 		    }
 		    IsDoing("Browsing Menu");
@@ -338,7 +336,6 @@ int EditFidoRec(int Area)
 					(char *)"The top ^fidonet aka^ for this nodelist (zone:net/node)"));
 			    if ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL)) {
 				working(2, 0, 0);
-				working(0, 0, 0);
 			    }
 			} while ((strstr(temp, ":") == NULL) || (strstr(temp, "/") == NULL));
 			fidonet.seclist[j-6].zone = atoi(strtok(temp, ":"));
@@ -391,7 +388,6 @@ void EditFidonet(void)
 	}
 	IsDoing("Browsing Menu");
 
-	working(0, 0, 0);
         if (! check_free())
 	    return;
 
@@ -442,7 +438,6 @@ void EditFidonet(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))

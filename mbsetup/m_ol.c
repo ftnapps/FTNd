@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Oneliners.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -242,7 +242,6 @@ int EditOnelRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&ol, crc, sizeof(ol));
-	working(0, 0, 0);
 
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
@@ -275,7 +274,6 @@ int EditOnelRec(int Area)
 					fclose(fil);
 					OnelUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -318,7 +316,6 @@ void EditOneline(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -356,7 +353,6 @@ void EditOneline(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_record(records,20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -371,7 +367,6 @@ void EditOneline(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0)
@@ -433,7 +428,6 @@ void PurgeOneline(void)
 	if (!ol.Available) 
 	    iCount++;
     }
-    working(0, 0, 0);
 
     sprintf(temp, "%d records, %d records to purge", recno, iCount);
     mvprintw(7, 6, temp);
@@ -462,7 +456,6 @@ void PurgeOneline(void)
 	if ((rename("tmp.1", sFileName)) != 0)
 	    working(2, 0, 0);
 	unlink("tmp.1");
-	working(0, 0, 0);
 	free(sFileName);
 	Syslog('+', "Purged %d out of %d oneliners", iCount, recno);
     }
@@ -499,7 +492,6 @@ void ImportOneline(void)
 
     if ((Imp = fopen(temp, "r")) == NULL) {
 	working(2, 0, 0);
-	working(0, 0, 0);
 	mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
 	free(temp);
@@ -526,7 +518,6 @@ void ImportOneline(void)
      */
     if ((pOneline = fopen(temp, "a+")) == NULL) {
 	working(2, 0, 0);
-	working(0, 0, 0);
 	fclose(Imp);
 	mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
@@ -555,7 +546,6 @@ void ImportOneline(void)
 
     fclose(Imp);
     fclose(pOneline);
-    working(0, 0, 0);
 
     sprintf(temp, "Imported %d oneliners, skipped %d long/empty lines", recno, skipped);
     Syslog('+', temp);

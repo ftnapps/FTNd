@@ -4,7 +4,7 @@
  * Purpose ...............: Edit Files DataBase.
  *
  *****************************************************************************
- * Copyright (C) 1999-2002
+ * Copyright (C) 1999-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -199,7 +199,6 @@ void E_F(long areanr)
 		y++;
 	    }
 	}
-	working(0, 0, 0);
 
 	if (records)
 	    if (records > 10)
@@ -291,7 +290,6 @@ void EditFDB()
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
 
     for (;;) {
@@ -329,7 +327,6 @@ void EditFDB()
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_pick(records, 20));
 
 	if (strncmp(pick, "-", 1) == 0) {

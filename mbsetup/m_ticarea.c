@@ -4,7 +4,7 @@
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -488,8 +488,6 @@ long LoadTicRec(int Area, int work)
 		TicCrc = upd_crc32((char *)&System, TicCrc, sizeof(sysconnect));
 	}
 	fclose(fil);
-	if (work)
-		working(0, 0, 0);
 	return offset;
 }
 
@@ -529,8 +527,6 @@ int SaveTicRec(int Area, int work)
 	fclose(fil);
 	fclose(ttfil);
 	ttfil = NULL;
-	if (work)
-		working(0, 0, 0);
 	return 0;
 }
 
@@ -581,7 +577,6 @@ void TicGlobal(void)
 	fclose(fil);
 	sort_grlist(&mgr);
     }
-    working(0, 0, 0);
 
     /*
      * Initialize some variables
@@ -799,7 +794,6 @@ void TicGlobal(void)
 		    fclose(ttfil);
 	    }
 
-	    working(0, 0, 0);
 	    mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
@@ -1026,7 +1020,6 @@ void EditTicarea(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
         if (! check_free())
 	    return;
@@ -1063,7 +1056,6 @@ Comment);
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_area(records, 10));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -1079,7 +1071,6 @@ Comment);
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "G", 1) == 0) {
@@ -1138,7 +1129,6 @@ char *PickTicarea(char *shdr)
 		return Buf;
 	}
 
-	working(0, 0, 0);
 
 	for(;;) {
 		clr_index();
@@ -1172,7 +1162,6 @@ char *PickTicarea(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 10));
 
 		if (strncmp(pick, "-", 1) == 0)

@@ -4,7 +4,7 @@
  * Purpose ...............: Edit BBS menus
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -88,7 +88,6 @@ char *select_menurec(int max)
 	    break;
 
 	working(2, 0, 0);
-	working(0, 0, 0);
     }
     return menu;
 }
@@ -259,56 +258,48 @@ void Edit_A_Menu(void)
 			E_STR(17,16,14, menus.DoorName, (char *)"The ^name^ of the door to show to the users")
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 11:if (le_int(menus.MenuType) == 7) {
 			menus.Y2Kdoorsys = edit_bool(18,16, menus.Y2Kdoorsys, (char *)"Create ^door.sys^ with 4 digit yearnumbers");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 12:if (le_int(menus.MenuType) == 7) {
 			menus.NoDoorsys = edit_bool(13,58, menus.NoDoorsys, (char *)"Suppress writing ^door.sys^ dropfile");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 13:if (le_int(menus.MenuType) == 7) {
 			menus.Comport = edit_bool(14,58, menus.Comport, (char *)"Write real ^COM port^ in door.sys for Vmodem patch");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 14:if (le_int(menus.MenuType) == 7) {
 			menus.NoSuid = edit_bool(15,58, menus.NoSuid, (char *)"Run the door as ^real user (nosuid)^");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 15:if (le_int(menus.MenuType) == 7) {
 			menus.NoPrompt = edit_bool(16,58, menus.NoPrompt, (char *)"^Don't display prompt^ when door is finished");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 16:if (le_int(menus.MenuType) == 7) {
 			menus.SingleUser = edit_bool(17,58, menus.SingleUser, (char *)"Set if door is for ^single user^ only");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	    case 17:if (le_int(menus.MenuType) == 7) {
 			menus.HideDoor = edit_bool(18,58, menus.HideDoor, (char *)"^Hide door^ from user display lists");
 		    } else {
 			working(2, 0, 0);
-			working(0, 0, 0);
 		    }
 		    break;
 	}
@@ -385,7 +376,6 @@ void EditMenu(char *Name)
 	    }
 	}
 
-	working(0, 0, 0);
 	strcpy(pick, select_menurec(records));
 
 	if (strncmp(pick, "-", 1) == 0) {
@@ -405,7 +395,6 @@ void EditMenu(char *Name)
 			fclose(fil);
 			chmod(temp, 0640);
 		    }
-		    working(0, 0, 0);
 		}
 	    }
 	    fclose(tmp);
@@ -421,7 +410,6 @@ void EditMenu(char *Name)
 	    fseek(tmp, 0, SEEK_END);
 	    fwrite(&menus, sizeof(menus), 1, tmp);
 	    records++;
-	    working(0, 0, 0);
 	}
 
 	if (strncmp(pick, "D", 1) == 0) {
@@ -497,7 +485,6 @@ void EditMenu(char *Name)
 		    fseek(tmp, offset, SEEK_SET);
 		    fwrite(&menus, sizeof(menus), 1, tmp);
 		    MenuUpdated = TRUE;
-		    working(0, 0, 0);
 		}
 	    }
 	}
@@ -533,7 +520,6 @@ void EditMenus(void)
 		}
 	    }
 	    closedir(dp);
-	    working(0, 0, 0);
 	}
 
 	set_color(WHITE, BLACK);

@@ -4,7 +4,7 @@
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -541,9 +541,6 @@ long LoadMsgRec(int Area, int work)
     sysconnect	System;
     int		i;
 
-    if (work)
-	working(1, 0, 0);
-
     sprintf(mfile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(mfile, "r")) == NULL) {
 	working(2, 0, 0);
@@ -573,8 +570,6 @@ long LoadMsgRec(int Area, int work)
 	MsgCrc = upd_crc32((char *)&System, MsgCrc, sizeof(sysconnect));
     }
     fclose(fil);
-    if (work)
-	working(0, 0, 0);
 
     return offset;
 }
@@ -615,8 +610,6 @@ int SaveMsgRec(int Area, int work)
 	fclose(fil);
 	fclose(tfil);
 	tfil = NULL;
-	if (work)
-		working(0, 0, 0);
 	return 0;
 }
 
@@ -669,7 +662,6 @@ void MsgGlobal(void)
 	fclose(fil);
 	sort_grlist(&mgr);
     }
-    working(0, 0, 0);
 
     /*
      * Initialize some variables
@@ -995,7 +987,6 @@ void MsgGlobal(void)
 		tfil = NULL;
 	    }
 
-	    working(0, 0, 0);
 	    mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
@@ -1362,7 +1353,6 @@ void EditMsgarea(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
     if (! check_free())
 	return;
@@ -1398,7 +1388,6 @@ void EditMsgarea(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_area(records, 10));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -1414,7 +1403,6 @@ void EditMsgarea(void)
 		working(1, 0, 0);
 	    } else
 		working(2, 0, 0);
-	    working(0, 0, 0);
 	}
 
 	if (strncmp(pick, "G", 1) == 0) {
@@ -1526,7 +1514,6 @@ char *PickMsgarea(char *shdr)
 		return '\0';
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -1565,7 +1552,6 @@ char *PickMsgarea(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0)

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup MGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002 
+ * Copyright (C) 1997-2004 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -281,7 +281,6 @@ int CheckMgroup(void)
 	working(1, 0, 0);
 	ncnt = GroupInNode(mgroup.Name, TRUE);
 	mcnt = GroupInMarea(mgroup.Name);
-	working(0, 0, 0);
 	if (ncnt || mcnt) {
 		errmsg((char *)"Error, %d node(s) and/or %d message area(s) connected", ncnt, mcnt);
 		return TRUE;
@@ -322,7 +321,6 @@ int EditMGrpRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&mgroup, crc, sizeof(mgroup));
-	working(0, 0, 0);
 	MgScreen();
 	
 	for (;;) {
@@ -369,7 +367,6 @@ int EditMGrpRec(int Area)
 					fclose(fil);
 					MGrpUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -457,7 +454,6 @@ void EditMGroup(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
     if (! check_free())
 	return;
@@ -497,7 +493,6 @@ void EditMGroup(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_record(records, 20));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -514,7 +509,6 @@ void EditMGroup(void)
 		    working(1, 0, 0);
 		} else
 		    working(2, 0, 0);
-		working(0, 0, 0);
 	    } else {
 		errmsg("Cannot add group, change global setting in menu 1.12.12");
 	    }
@@ -570,7 +564,6 @@ char *PickMGroup(char *shdr)
 		return MGrp;
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -608,7 +601,6 @@ char *PickMGroup(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0) 

@@ -4,7 +4,7 @@
  * Purpose ...............: Routing Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -342,7 +342,6 @@ int EditRouteRec(int Area)
     fclose(fil);
     crc = 0xffffffff;
     crc = upd_crc32((char *)&route, crc, routehdr.recsize);
-    working(0, 0, 0);
     RouteScreen();
 
     for (;;) {
@@ -370,7 +369,6 @@ int EditRouteRec(int Area)
 			    fwrite(&route, routehdr.recsize, 1, fil);
 			    fclose(fil);
 			    RouteUpdated = 1;
-			    working(0, 0, 0);
 			}
 		    }
 		    free(mfile);
@@ -434,7 +432,6 @@ void EditRoute(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -472,7 +469,6 @@ void EditRoute(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_record(records, 10));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -488,7 +484,6 @@ void EditRoute(void)
 		working(1, 0, 0);
 	    } else
 		working(2, 0, 0);
-	    working(0, 0, 0);
 	}
 
 	if (strncmp(pick, "N", 1) == 0) 

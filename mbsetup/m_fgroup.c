@@ -4,7 +4,7 @@
  * Purpose ...............: Setup FGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -253,7 +253,6 @@ int CheckFgroup(void)
 	working(1, 0, 0);
 	ncnt = GroupInNode(fgroup.Name, FALSE);
 	tcnt = GroupInTic(fgroup.Name);
-	working(0, 0, 0);
 	if (ncnt || tcnt) {
 		errmsg((char *)"Error, %d node(s) and/or %d tic area(s) connected", ncnt, tcnt);
 		return TRUE;
@@ -341,7 +340,6 @@ int EditFGrpRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&fgroup, crc, sizeof(fgroup));
-	working(0, 0, 0);
 	FgScreen();
 
 	for (;;) {
@@ -403,7 +401,6 @@ int EditFGrpRec(int Area)
 					fclose(fil);
 					FGrpUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -523,7 +520,6 @@ void EditFGroup(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
     if (! check_free())
 	return;
@@ -563,7 +559,6 @@ void EditFGroup(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_record(records, 20));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -580,7 +575,6 @@ void EditFGroup(void)
 		    working(1, 0, 0);
 		} else
 		    working(2, 0, 0);
-		working(0, 0, 0);
 	    } else {
 		errmsg("Cannot add group, change global setting in menu 1.11.5");
 	    }
@@ -635,7 +629,6 @@ char *PickFGroup(char *shdr)
 		return FGrp;
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -673,7 +666,6 @@ char *PickFGroup(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0) {

@@ -4,7 +4,7 @@
  * Purpose ...............: File Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -277,7 +277,6 @@ int EditFileRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&area, crc, areahdr.recsize);
-	working(0, 0, 0);
 	FileScreen();
 
 	for (;;) {
@@ -326,7 +325,6 @@ int EditFileRec(int Area)
 					fclose(fil);
 					FileUpdated = 1;
 					Syslog('+', "Updated file area %d", Area);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -361,7 +359,6 @@ int EditFileRec(int Area)
 				Force = TRUE;
 				FileForced = TRUE;
 				Syslog('+', "Moved %d files", count);
-				working(0, 0, 0);
 			    }
 			}
 			break;
@@ -486,7 +483,6 @@ void EditFilearea(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 	if (! check_free())
 	    return;
@@ -526,7 +522,6 @@ void EditFilearea(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_filearea(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -542,7 +537,6 @@ void EditFilearea(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "M", 1) == 0) {
@@ -641,7 +635,6 @@ void EditFilearea(void)
 				    Syslog('+', "Updated %d ticareas", count);
 				}
 				Syslog('+', "Moved filearea %d to %d", from, too);
-				working(0, 0, 0);
 			    }
 			}
 			fclose(fil);
@@ -686,7 +679,6 @@ long PickFilearea(char *shdr)
 		return 0;
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -724,7 +716,6 @@ long PickFilearea(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0)

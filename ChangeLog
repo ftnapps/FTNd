@@ -11,6 +11,10 @@ v0.39.9		29-Jan-2004
 		Added experimental code for telnet outbound connections. This
 		code is not compiled by default so don't worry or bother.
 
+	mbsetup:
+		Clearing the working message is now only done by the keyboard
+		read function.
+
 
 v0.39.8		26-Jan-2004 - 29-Jan-2004
 

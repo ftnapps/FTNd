@@ -4,7 +4,7 @@
  * Purpose ...............: Line Editor
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -371,7 +371,6 @@ char *select_show(int max)
 		}
 
 		working(2, 0, 0);
-		working(0, 0, 0);
 	}
 	
 	return menu;
@@ -424,7 +423,6 @@ char *select_record(int max, int items)
 			break;
 
 		working(2, 0, 0);
-		working(0, 0, 0);
 	}
 	
 	return menu;
@@ -575,7 +573,6 @@ char *select_pick(int max, int items)
 			break;
 
 		working(2, 0, 0);
-		working(0, 0, 0);
 	}
 	
 	return menu;
@@ -688,7 +685,6 @@ int select_menu_sub(int max, int items, char *hlp)
 			return pick;
 
 		working(2, 0, 0);
-		working(0, 0, 0);
 	}
 }
 
@@ -842,7 +838,6 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 	    }
 	    free(from);
 	    free(too);
-	    working(0, 0, 0);
 	} else if (strlen(s) == 0) {
 	    /*
 	     * If no new path, report

@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Ttyinfo structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -338,7 +338,6 @@ int EditTtyRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&ttyinfo, crc, sizeof(ttyinfo));
-	working(0, 0, 0);
 	TtyScreen();
 	
 	for (;;) {
@@ -374,7 +373,6 @@ int EditTtyRec(int Area)
 					fclose(fil);
 					TtyUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -449,7 +447,6 @@ void EditTtyinfo(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -500,7 +497,6 @@ void EditTtyinfo(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0) 

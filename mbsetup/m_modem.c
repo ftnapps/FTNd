@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Modem structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -428,7 +428,6 @@ int EditModemRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&modem, crc, sizeof(modem));
-	working(0, 0, 0);
 	Modem_Screen();
 
 	for (;;) {
@@ -466,7 +465,6 @@ int EditModemRec(int Area)
 					fclose(fil);
 					ModemUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -530,7 +528,6 @@ void EditModem(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -579,7 +576,6 @@ void EditModem(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
@@ -620,7 +616,6 @@ char *PickModem(char *shdr)
 		return '\0';
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -658,7 +653,6 @@ char *PickModem(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0)

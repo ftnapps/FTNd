@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -346,8 +346,6 @@ void site_docs(void)
 
 	Syslog('+', "Statistics created");
 
-	working(0, 0, 0);
-
 	center_addstr(LINES -4, (char *)"Press any key");
 	readkey(LINES -4, COLS / 2 + 8, LIGHTGRAY, BLACK);
 	return;
@@ -394,7 +392,6 @@ void initdatabases(void)
     InitRoute();
 
     if (!init) {
-	working(0, 0, 0);
 	clr_index();
     }
 }

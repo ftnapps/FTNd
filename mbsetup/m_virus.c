@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Virus structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -215,7 +215,6 @@ void CloseVirus(int force)
 		}
 	}
 	chmod(fin, 0640);
-	working(1, 0, 0);
 	unlink(fout); 
 }
 
@@ -270,7 +269,6 @@ int EditVirRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&virscan, crc, sizeof(virscan));
-	working(0, 0, 0);
 
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 2, "4.  EDIT VIRUS SCANNER");
@@ -306,7 +304,6 @@ int EditVirRec(int Area)
 					fwrite(&virscan, sizeof(virscan), 1, fil);
 					fclose(fil);
 					VirUpdated = 1;
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -351,7 +348,6 @@ void EditVirus(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -399,7 +395,6 @@ void EditVirus(void)
 				working(3, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))

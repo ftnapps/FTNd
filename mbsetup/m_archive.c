@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Archive structure.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -536,7 +536,6 @@ int EditArchRec(int Area)
     fclose(fil);
     crc = 0xffffffff;
     crc = upd_crc32((char *)&archiver, crc, sizeof(archiver));
-    working(0, 0, 0);
 
     set_color(WHITE, BLACK);
     mvprintw( 5, 2, "3.  EDIT ARCHIVER");
@@ -585,7 +584,6 @@ int EditArchRec(int Area)
 			    fclose(fil);
 			    ArchUpdated = 1;
 			    working(1, 0, 0);
-			    working(0, 0, 0);
 			}
 		    }
 		    IsDoing("Browsing Menu");
@@ -636,7 +634,6 @@ void EditArchive(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -688,7 +685,6 @@ void EditArchive(void)
 				working(3, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0)
@@ -740,7 +736,6 @@ char *PickArchive(char *shdr)
 		return Arch;
 	}
 
-	working(0, 0, 0);
 
 	clr_index();
 	set_color(WHITE, BLACK);

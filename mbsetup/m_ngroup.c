@@ -4,7 +4,7 @@
  * Purpose ...............: Setup NGroups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -262,7 +262,6 @@ int EditNGrpRec(int Area)
 	fclose(fil);
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&ngroup, crc, sizeof(ngroup));
-	working(0, 0, 0);
 	NgScreen();
 	
 	for (;;) {
@@ -289,7 +288,6 @@ int EditNGrpRec(int Area)
 					fclose(fil);
 					NGrpUpdated = 1;
 					working(1, 0, 0);
-					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
@@ -332,7 +330,6 @@ void EditNGroup(void)
 		working(2, 0, 0);
 		return;
 	}
-	working(0, 0, 0);
 	o = 0;
 
 	for (;;) {
@@ -370,7 +367,6 @@ void EditNGroup(void)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
@@ -385,7 +381,6 @@ void EditNGroup(void)
 				working(1, 0, 0);
 			} else
 				working(2, 0, 0);
-			working(0, 0, 0);
 		}
 
 		if (strncmp(pick, "N", 1) == 0)
@@ -437,7 +432,6 @@ char *PickNGroup(char *shdr)
 		return MGrp;
 	}
 
-	working(0, 0, 0);
 
 	for (;;) {
 		clr_index();
@@ -475,7 +469,6 @@ char *PickNGroup(char *shdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 
 		if (strncmp(pick, "-", 1) == 0) 

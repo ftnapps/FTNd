@@ -124,7 +124,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	     * since it's now on stadin and stdout.
 	     */
 	    Fdo = dup(0);
-	    Syslog('s', "session: new socket %s", Fdo);
+	    Syslog('s', "session: new socket %d", Fdo);
 
 	     /*
 	      * Close stdin and stdout so that when we create the pipes to
@@ -188,6 +188,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    Syslog('s', "stdout = %d", output_pipe[1]);
 	    Syslog('s', "stdin  = %d", input_pipe[0]);
 
+	    if ((input_pipe[0] != 0) || (output_pipe[1] != 1)) {
+		WriteError("Failed to create pipes on stdin and stdout");
+		die(MBERR_TTYIO_ERROR);
+	    }
+	    Syslog('+', "Telnet I/O filters installed");
 	    telnet_init(Fdo);
 	}
 #endif

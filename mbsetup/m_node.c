@@ -376,7 +376,6 @@ int CheckAka(fidoaddr A)
     working(1, 0, 0);
     mcnt = NodeInMarea(A);
     tcnt = NodeInTic(A);
-    working(0, 0, 0);
     if (mcnt || tcnt) {
 	errmsg((char *)"Error aka connected to %d message and/or %d tic areas", mcnt, tcnt);
 	return TRUE;
@@ -755,7 +754,6 @@ void GeneralEdit(void)
 		    if (nodes.Aka[i].zone)
 			count += NodeInMarea(nodes.Aka[i]);
 		if (count) {
-		    working(0, 0, 0);
 		    errmsg((char *)"Node is connected to %d message areas", count);
 		    break;
 		}
@@ -763,7 +761,6 @@ void GeneralEdit(void)
 		for (i = 0; i < 20; i++)
 		    if (nodes.Aka[i].zone)
 			count += NodeInTic(nodes.Aka[i]);
-		working(0, 0, 0);
 		if (count) {
 		    errmsg((char *)"Node is connected to %d tic areas", count);
 		    break;
@@ -1085,7 +1082,6 @@ int EditNodeRec(int Area)
     fclose(fil);
     crc = 0xffffffff;
     crc = upd_crc32((char *)&nodes, crc, nodeshdr.recsize);
-    working(0, 0, 0);
 	
     for (;;) {
 	clr_index();
@@ -1147,7 +1143,6 @@ int EditNodeRec(int Area)
 
 			fclose(fil);
 			NodeUpdated = 1;
-			working(0, 0, 0);
 		    }
 		}
 		tidy_grlist(&egr);
@@ -1207,7 +1202,6 @@ void EditNodes(void)
 	working(2, 0, 0);
 	return;
     }
-    working(0, 0, 0);
     o = 0;
     if (! check_free())
 	return;
@@ -1247,7 +1241,6 @@ void EditNodes(void)
 		fclose(fil);
 	    }
 	}
-	working(0, 0, 0);
 	strcpy(pick, select_record(records, 20));
 		
 	if (strncmp(pick, "-", 1) == 0) {
@@ -1264,7 +1257,6 @@ void EditNodes(void)
 		    working(1, 0, 0);
 		} else
 		    working(2, 0, 0);
-		working(0, 0, 0);
 	    } else {
 		if ((records + 1) > CFG.toss_systems) {
 		    errmsg("Cannot add node, change global setting in menu 1.11.11");
@@ -1360,7 +1352,6 @@ fidoaddr PullUplink(char *Hdr)
 				fclose(fil);
 			}
 		}
-		working(0, 0, 0);
 		strcpy(pick, select_pick(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
