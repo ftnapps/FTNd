@@ -548,7 +548,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, tty);
 
 	while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, tty)) == 1) {
-		if (j == 4) {
+		if (j == 3) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;

@@ -574,7 +574,7 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 10, 3, page, (char *)"Hatch manager");
-	j = 0;
+	j = 1;
 
 	fprintf(fp, "\n\n");
 	fread(&hatchhdr, sizeof(hatchhdr), 1, no);

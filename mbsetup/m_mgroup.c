@@ -642,7 +642,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 	fread(&mgrouphdr, mgrouphdr.hdrsize, 1, no);
 
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, no)) == 1) {
-		if (j == 3) {
+		if (j == 2) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;

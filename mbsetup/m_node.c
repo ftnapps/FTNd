@@ -772,8 +772,8 @@ void SessionScreen(void)
     mvprintw(10, 6, "4.   Phone number 2");
     mvprintw(11, 6, "5.   Nodelist flags");
     mvprintw(12, 6, "6.   Inet hostname");
-//  mvprintw(13, 6, "7.   Outbound sess.");
-//  mvprintw(14, 6, "8.   Inbound sess.");
+    mvprintw(13, 6, "7.   Outbound sess.");
+    mvprintw(14, 6, "8.   Inbound sess.");
     mvprintw(15, 6, "9.   No EMSI");
     mvprintw(16, 6, "10.  No YooHoo/2U2");
     mvprintw(17, 6, "11.  No Filerequest");
@@ -803,7 +803,8 @@ void SessionEdit(void)
 	show_str( 10,26,20, nodes.phone[1]);
 	show_str( 11,26,54, nodes.Nl_flags);
 	show_str( 12,26,40, nodes.Nl_hostname);
-
+	show_sessiontype(13,26,nodes.Session_out);
+	show_sessiontype(14,26,nodes.Session_in);
 	show_bool(15,26,    nodes.NoEMSI);
 	show_bool(16,26,    nodes.NoWaZOO);
 	show_bool(17,26,    nodes.NoFreqs);
@@ -825,7 +826,10 @@ void SessionEdit(void)
 	case 4: E_STR( 10,26,20, nodes.phone[1],    "Enter ^phone number^ to override the nodelist")
 	case 5: E_STR( 11,26,54, nodes.Nl_flags,    "^Nodelist flags^ override")
 	case 6: E_STR( 12,26,40, nodes.Nl_hostname, "Node internet ^hostname/IP address^ override")
-
+	case 7: nodes.Session_out = edit_sessiontype(13,26, nodes.Session_out);
+		break;
+	case 8: nodes.Session_in =  edit_sessiontype(14,26, nodes.Session_in);
+		break;
 	case 9: E_BOOL(15,26,    nodes.NoEMSI,      "Disable ^EMSI handshake^ with this node")
 	case 10:E_BOOL(16,26,    nodes.NoWaZOO,     "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")
 	case 11:E_BOOL(17,26,    nodes.NoFreqs,     "Disallow ^file requests^ from this node")
@@ -838,6 +842,146 @@ void SessionEdit(void)
 	case 17:E_BOOL(17,61,    nodes.NoIBN,       "Disable ^TCP/IP IBN binkp^ protocol with this node")
 	case 18:E_BOOL(18,61,    nodes.NoIFC,       "Disable ^TCP/IP IFC ifcico^ protocol with this node")
 	case 19:E_BOOL(19,61,    nodes.NoITN,       "Disable ^TCP/IP ITN telnet^ protocol with this node")
+	}
+    }
+}
+
+
+
+void DirectoryScreen(void);
+void DirectoryScreen(void)
+{   
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "7.8  EDIT NODE DIRECTORY SESSION");
+    mvprintw( 7, 2, "     Outbound settings");
+    set_color(CYAN, BLACK);
+    mvprintw( 8, 2, "1.   Files path");
+    mvprintw( 9, 2, "2.   Check for lock");
+    mvprintw( 9,41, "3.   Wait clear lock");
+    mvprintw(10, 2, "4.   Check lockfile");
+    mvprintw(11, 2, "5.   Create lock");
+    mvprintw(12, 2, "6.   Create lockfile");
+
+    set_color(WHITE, BLACK);
+    mvprintw(14, 2, "     Inbound settings");
+    set_color(CYAN, BLACK);
+    mvprintw(15, 2, "7.   Files path");
+    mvprintw(16, 2, "8.   Check for lock");
+    mvprintw(16,41, "9.   Wait clear lock");
+    mvprintw(17, 2, "10.  Check lockfile");
+    mvprintw(18, 2, "11.  Create lock");
+    mvprintw(19, 2, "12.  Create lockfile");
+}
+
+
+
+void DirectoryEdit(void);
+void DirectoryEdit(void)
+{
+    int	    pick, temp;
+    char    *p;
+
+    DirectoryScreen();
+	    
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_str(  8,23,56, nodes.Dir_out_path);
+	show_bool( 9,23,    nodes.Dir_out_chklck);
+	show_bool( 9,62,    nodes.Dir_out_waitclr);
+	show_str( 10,23,56, nodes.Dir_out_clock);
+	show_bool(11,23,    nodes.Dir_out_mklck);
+	show_str( 12,23,56, nodes.Dir_out_mlock);
+
+	show_str( 15,23,56, nodes.Dir_in_path);
+	show_bool(16,23,    nodes.Dir_in_chklck);
+	show_bool(16,62,    nodes.Dir_in_waitclr);
+	show_str( 17,23,56, nodes.Dir_in_clock);
+	show_bool(18,23,    nodes.Dir_in_mklck);
+	show_str( 19,23,56, nodes.Dir_in_mlock);
+
+	pick = select_menu(12);
+	if (pick == 0)
+	    return;
+
+	if (pick < 7) {
+	    if (nodes.Session_out != S_DIR) {
+		errmsg("Outbound session is not Directory");
+	    } else {
+		switch(pick) {
+		case 1:	if ((strlen(nodes.Dir_out_path) == 0) && (nodes.Aka[0].zone)) {
+			    sprintf(nodes.Dir_out_path, "%s/var/bbsftp/node%d_%d_%d/outbound", getenv("MBSE_ROOT"),
+				nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
+			}
+			E_PTH( 8,23,56, nodes.Dir_out_path,    "^Outbound path^ for files and mail to this node", 0770)
+		case 2: temp = edit_bool(9,23, nodes.Dir_out_chklck, (char *)"^Check^ outbound lockfile");
+			if (temp && !nodes.Dir_out_chklck && (strlen(nodes.Dir_out_clock) == 0)) {
+			    strcpy(nodes.Dir_out_clock, nodes.Dir_out_path);
+			    p = strrchr(nodes.Dir_out_clock, '/');
+			    if (p) {
+				p++;
+				*p = '\0';
+				sprintf(p, "lock.bsy");
+			    }
+			}
+			nodes.Dir_out_chklck = temp;
+			break;
+		case 3: E_BOOL( 9,62,   nodes.Dir_out_waitclr, "^Wait^ for lockfile to ^clear^")
+		case 4: E_STR(10,23,56, nodes.Dir_out_clock, "^Lockfile^ to check before adding files")
+		case 5: temp = edit_bool(11,23, nodes.Dir_out_mklck, (char *)"^Create^ lockfile before adding files");
+			if (temp && !nodes.Dir_out_mklck && (strlen(nodes.Dir_out_mlock) == 0)) {
+			    strcpy(nodes.Dir_out_mlock, nodes.Dir_out_path);
+			    p = strrchr(nodes.Dir_out_mlock, '/');
+			    if (p) {
+				p++;
+				*p = '\0';
+				sprintf(p, "lock.bsy");
+			    }
+			}
+			nodes.Dir_out_mklck = temp;
+			break;
+		case 6: E_STR(12,23,56, nodes.Dir_out_mlock, "^Lockfile^ to create while adding files")
+		}
+	    }
+	} else {
+	    if (nodes.Session_in != S_DIR) {
+		errmsg("Inbound session is not Directory");
+	    } else {
+		switch(pick) {
+                case 7: if ((strlen(nodes.Dir_in_path) == 0) && (nodes.Aka[0].zone)) {
+                            sprintf(nodes.Dir_in_path, "%s/var/bbsftp/node%d_%d_%d/inbound", getenv("MBSE_ROOT"),
+                                nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node);
+                        }
+                        E_PTH(15,23,56, nodes.Dir_in_path,    "^Inbound path^ for files and mail from this node", 0770)
+                case 8: temp = edit_bool(16,23, nodes.Dir_in_chklck, (char *)"^Check^ inbound lockfile");
+                        if (temp && !nodes.Dir_in_chklck && (strlen(nodes.Dir_in_clock) == 0)) {
+                            strcpy(nodes.Dir_in_clock, nodes.Dir_in_path);
+                            p = strrchr(nodes.Dir_in_clock, '/');
+                            if (p) {
+                                p++;
+                                *p = '\0';
+                                sprintf(p, "lock.bsy");
+                            }
+                        }
+                        nodes.Dir_in_chklck = temp;
+                        break;
+                case 9: E_BOOL(16,62,   nodes.Dir_in_waitclr, "^Wait^ for lockfile to ^clear^")
+		case 10:E_STR(17,23,56, nodes.Dir_in_clock, "^Lockfile^ to check before getting files")
+		case 11:temp = edit_bool(18,23, nodes.Dir_in_mklck, (char *)"^Create^ lockfile before getting files");
+                        if (temp && !nodes.Dir_in_mklck && (strlen(nodes.Dir_in_mlock) == 0)) {
+                            strcpy(nodes.Dir_in_mlock, nodes.Dir_in_path);
+                            p = strrchr(nodes.Dir_in_mlock, '/');
+                            if (p) {
+                                p++;
+                                *p = '\0';
+                                sprintf(p, "lock.bsy");
+                            }
+                        }
+                        nodes.Dir_in_mklck = temp;
+                        break;
+		case 12:E_STR(19,23,56, nodes.Dir_in_mlock, "^Lockfile^ to create while getting files")
+		}
+	    }
 	}
     }
 }
@@ -941,9 +1085,10 @@ int EditNodeRec(int Area)
 	mvprintw(11, 6, "5.   Mail groups");
 	mvprintw(12, 6, "6.   Files setup");
 	mvprintw(13, 6, "7.   Files groups");
-	mvprintw(14, 6, "8.   Statistics");
+	mvprintw(14, 6, "8.   Directory session");
+	mvprintw(15, 6, "9.   Statistics");
 
-	switch(select_menu(8)) {
+	switch(select_menu(9)) {
 	case 0:	crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&nodes, crc1, nodeshdr.recsize);
 		if ((crc != crc1) || GrpChanged) {
@@ -1010,7 +1155,9 @@ int EditNodeRec(int Area)
 	case 7: if (E_Group(&fgr, (char *)"7.7  FILE GROUPS"))
 		    GrpChanged = TRUE;
 		break;
-	case 8: S_Stat(); 
+	case 8: DirectoryEdit();
+		break;
+	case 9: S_Stat(); 
 		break;
 	}
     }
@@ -1277,7 +1424,8 @@ int node_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "\n\n");
 
 		fprintf(fp, "     Sysop          %s\n", nodes.Sysop);
-		fprintf(fp, "     Outbox dir     %s\n", nodes.OutBox);
+		if (strlen(nodes.OutBox))
+		    fprintf(fp, "     Outbox dir     %s\n", nodes.OutBox);
 		fprintf(fp, "     First date     %s", ctime(&nodes.StartDate));
 		fprintf(fp, "     Last date      %s", ctime(&nodes.LastDate));
 		for (i = 0; i < 20; i++)
@@ -1287,10 +1435,14 @@ int node_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "     Route via      %s\n", aka2str(nodes.RouteVia));
 
 		fprintf(fp, "     Session pwd    %s\n", nodes.Spasswd);
-		fprintf(fp, "     Dial command   %s\n", nodes.dial);
-		fprintf(fp, "     Phone numbers  %s %s\n", nodes.phone[0], nodes.phone[1]);
-		fprintf(fp, "     Nodelist flags %s\n", nodes.Nl_flags);
-		fprintf(fp, "     Hostname       %s\n", nodes.Nl_hostname);
+		if (strlen(nodes.dial))
+		    fprintf(fp, "     Dial command   %s\n", nodes.dial);
+		if (strlen(nodes.phone[0]) || strlen(nodes.phone[1]))
+		    fprintf(fp, "     Phone numbers  %s %s\n", nodes.phone[0], nodes.phone[1]);
+		if (strlen(nodes.Nl_flags))
+		    fprintf(fp, "     Nodelist flags %s\n", nodes.Nl_flags);
+		if (strlen(nodes.Nl_hostname))
+		    fprintf(fp, "     Hostname       %s\n", nodes.Nl_hostname);
 		fprintf(fp, "     PKT password   %s\n", nodes.Epasswd);
 		fprintf(fp, "     Files passwd   %s\n", nodes.Fpasswd);
 		fprintf(fp, "     Areamgr pwd    %s\n\n", nodes.Apasswd);
@@ -1324,6 +1476,30 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Bill direct    %s\n", getboolean(nodes.BillDirect));
 		fprintf(fp, "     Uplink add +   %s\n\n", getboolean(nodes.AddPlus));
 
+		fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));
+		if (nodes.Session_out == S_DIR) {
+		    fprintf(fp, "     Path           %s\n", nodes.Dir_out_path);
+		    fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_out_chklck));
+		    fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_out_waitclr));
+		    if (nodes.Dir_out_chklck)
+			fprintf(fp, "     File to check  %s\n", nodes.Dir_out_clock);
+		    fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_out_mklck));
+		    if (nodes.Dir_out_mklck)
+			fprintf(fp, "     File to create %s\n", nodes.Dir_out_mlock);
+		}
+		fprintf(fp, "     Inb session    %s\n", get_sessiontype(nodes.Session_in));
+		if (nodes.Session_in == S_DIR) {
+		    fprintf(fp, "     Path           %s\n", nodes.Dir_in_path);
+		    fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_in_chklck));
+		    fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_in_waitclr));
+		    if (nodes.Dir_in_chklck)
+			fprintf(fp, "     File to check  %s\n", nodes.Dir_in_clock);
+		    fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_in_mklck));
+		    if (nodes.Dir_in_mklck)
+			fprintf(fp, "     File to create %s\n", nodes.Dir_in_mlock);
+		}
+		fprintf(fp, "\n");
+
 		fprintf(fp, "     Uplink mgrs    Program   Password\n");
 		fprintf(fp, "     ------------   --------- ---------------\n");
 		fprintf(fp, "     Files          %s %s\n", padleft(nodes.UplFmgrPgm, 9, ' '), nodes.UplFmgrPass);
@@ -1334,10 +1510,12 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Total files    %-8lu %-8lu %-8lu %-8lu\n", nodes.FilesSent.total, nodes.F_KbSent.total, nodes.FilesRcvd.total, nodes.F_KbSent.total);
 		fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
 
-		fprintf(fp, "     Credit units   %-8ld   Warnlevel  %ld\n", nodes.Credit, nodes.WarnLevel);
-		fprintf(fp, "     Debet units    %-8ld   Stoplevel  %ld\n", nodes.Debet, nodes.StopLevel);
-		fprintf(fp, "     Add promille   %ld\n", nodes.AddPerc);
-		fprintf(fp, "\n     File groups:\n      ");
+		if (nodes.Billing) {
+		    fprintf(fp, "     Credit units   %-8ld   Warnlevel  %ld\n", nodes.Credit, nodes.WarnLevel);
+		    fprintf(fp, "     Debet units    %-8ld   Stoplevel  %ld\n", nodes.Debet, nodes.StopLevel);
+		    fprintf(fp, "     Add promille   %ld\n\n", nodes.AddPerc);
+		}
+		fprintf(fp, "     File groups:\n      ");
 		groups = nodeshdr.filegrp / sizeof(group);
 		for (i = 0; i < groups; i++) {
 			fread(&group, sizeof(group), 1, no);

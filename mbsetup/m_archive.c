@@ -735,7 +735,7 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 	fread(&archiverhdr, sizeof(archiverhdr), 1, arch);
 	while ((fread(&archiver, archiverhdr.recsize, 1, arch)) == 1) {
 
-		if (j == 5) {
+		if (j == 4) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;

@@ -1756,7 +1756,8 @@ int edit_sessiontype(int y, int x, int val)
 	ch = readkey(y, x, YELLOW, BLUE);
 
 	if (ch == ' ') {
-	    if (val < S_FTP)
+//	    if (val < S_FTP)
+	    if (val < S_DIR)
 		val++;
 	    else
 		val = S_DIRECT;

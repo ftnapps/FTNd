@@ -62,6 +62,9 @@ v0.35.03	06-Jul-2002
 		area, filefind and newfiles records are automatic updated if
 		they were connected to that area.
 		Added setup for routing the table.
+		Corrected several page layouts for printing on A4 paper.
+		Added setup for nodes connected via directories (we are the
+		FTP server side).
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed

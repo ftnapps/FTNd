@@ -533,14 +533,14 @@ int route_doc(FILE *fp, FILE *toc, int page)
 
     page = newpage(fp, page);
     addtoc(fp, toc, 12, 0, page, (char *)"Routing table");
-    j = 0;
+    j = 1;
 
     fprintf(fp, "\n\n");
     fread(&routehdr, sizeof(routehdr), 1, no);
 
     while ((fread(&route, routehdr.recsize, 1, no)) == 1) {
 
-	if (j == 5) {
+	if (j == 7) {
 	    page = newpage(fp, page);
 	    fprintf(fp, "\n");
 	    j = 0;

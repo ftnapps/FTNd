@@ -1843,6 +1843,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      FileAttach level %d\n", CFG.iAttachLevel);
 	fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
 
+	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 7, page, (char *)"Flag descriptions");
 	fprintf(fp, "               1    1    2    2    3 3\n");
 	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
@@ -1907,6 +1908,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Safe welcome     %s\n", CFG.sSafeWelcome);
 	fprintf(fp, "      Safe opened file %s\n", CFG.sSafeOpened);
 
+	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 12, page, (char *)"Timebank door");
 
 	fprintf(fp, "      Users time balance %d\n", CFG.iMaxTimeBalance);
@@ -1918,7 +1920,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Users time ratio   %s\n", CFG.sTimeRatio);
 	fprintf(fp, "      Users Kb. ratio    %s\n", CFG.sByteRatio);
 
-	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 13, page, (char *)"Sysop paging");
 
 	fprintf(fp, "      Ext. Chat program  %s\n", CFG.sExternalChat);
