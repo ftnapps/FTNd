@@ -14,7 +14,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c qualify.c \
 		  hash.c mbaff.c mbseq.c notify.c postnetmail.c scannews.c tosspkt.c \
 		  mbfkill.c mbfutil.c mbfindex.c mbfcheck.c mbfpack.c mbflist.c mbfadopt.c \
 		  mbfimport.c mbfsort.c virscan.c mbftoberep.c mbfmove.c mbfdel.c bounce.c \
-		  createm.c createf.c msgflags.c dirsession.c queue.c dirlock.c
+		  createm.c createf.c msgflags.c dirsession.c queue.c dirlock.c msg.c
 HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
 		  lhash.h mbfido.h mkftnhdr.h ptic.h sendmail.h tracker.h \
@@ -25,7 +25,7 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  atoul.h filemgr.h hash.h mbaff.h mbseq.h notify.h postemail.h scan.h toberep.h \
 		  mbfkill.h mbfutil.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfadopt.h \
 		  mbfimport.h mbfsort.h virscan.h mbftoberep.h mbfmove.h mbfdel.h bounce.h \
-		  createm.h createf.h msgflags.h dirsession.h queue.h dirlock.h
+		  createm.h createf.h msgflags.h dirsession.h queue.h dirlock.h msg.h
 MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o \
 		  makestat.o scannews.o lhash.o bounce.o unpack.o tic.o ptic.o \
 		  utic.o mover.o hash.o mkftnhdr.o addbbs.o magic.o fsort.o toberep.o \
@@ -33,7 +33,7 @@ MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o tracker.o 
 		  storenet.o storeecho.o areamgr.o filemgr.o notify.o mgrutil.o rollover.o \
 		  bwrite.o rfc2ftn.o rnews.o newspost.o aliasdb.o postemail.o postnetmail.o \
 		  postecho.o backalias.o createm.o createf.o msgflags.o dirsession.o \
-		  queue.o dirlock.o qualify.o
+		  queue.o dirlock.o qualify.o msg.o
 MBSEQ_OBJS	= mbseq.o
 MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o toberep.o
 MBINDEX_OBJS	= mbindex.o
@@ -131,7 +131,7 @@ hatch.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h utic.h roll
 mbdiff.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbdiff.h
 mgrutil.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/diesel.h sendmail.h rollover.h addpkt.h createm.h createf.h mgrutil.h
 qualify.o: ../config.h ../lib/mbselib.h qualify.h
-ptic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h mover.h toberep.h tic.h utic.h addbbs.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h qualify.h
+ptic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h unpack.h mover.h toberep.h tic.h utic.h magic.h forward.h rollover.h ptic.h magic.h createf.h virscan.h qualify.h addbbs.h
 sendmail.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h rollover.h sendmail.h
 tracker.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/nodelist.h ../lib/mbsedb.h tracker.h
 addpkt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h
@@ -201,4 +201,5 @@ msgflags.o: ../config.h ../lib/mbselib.h msgflags.h
 dirsession.o: ../config.h ../lib/mbselib.h dirsession.h
 queue.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h fsort.h dirsession.h queue.h
 dirlock.o: ../config.h ../lib/mbselib.h flock.h dirlock.h
+msg.o: ../config.h ../lib/mbselib.h msg.h
 # End of generated dependencies
