@@ -106,7 +106,7 @@ void Good_Bye(int onsig)
      * Flush all data to the user, wait 5 seconds to
      * be sure the user received all data.
      */
-    if (! hanged_up) {
+    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
 	colour(LIGHTGRAY, BLACK);
 	sleep(4);
     }
@@ -114,8 +114,10 @@ void Good_Bye(int onsig)
     for (i = 0; i < NSIG; i++)
 	signal(i, SIG_IGN);
 
+    Syslog('b', "Will hangup");
     cookedport();
     hangup();
+    Syslog('b', "Done");
 
     if (do_mailout)
 	CreateSema((char *)"mailout");
