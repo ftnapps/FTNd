@@ -2,7 +2,7 @@
  *
  * File ..................: mbuseradd/commonio.c
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 07-Feb-2001
+ * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
@@ -50,16 +50,19 @@
 #include "commonio.h"
 
 /* local function prototypes */
-static int check_link_count (const char *);
-static int do_lock_file (const char *, const char *);
-static FILE *fopen_set_perms (const char *, const char *, const struct stat *);
-static int create_backup (const char *, FILE *);
-static void free_linked_list (struct commonio_db *);
-static void add_one_entry (struct commonio_db *, struct commonio_entry *);
-static int name_is_nis (const char *);
-static int write_all (const struct commonio_db *);
-static struct commonio_entry *find_entry_by_name (struct commonio_db *, const char *);
+static int	check_link_count (const char *);
+static int	do_lock_file (const char *, const char *);
+static FILE	*fopen_set_perms (const char *, const char *, const struct stat *);
+static int	create_backup (const char *, FILE *);
+static void	free_linked_list (struct commonio_db *);
+static void	add_one_entry (struct commonio_db *, struct commonio_entry *);
+static int	name_is_nis (const char *);
+static int	write_all (const struct commonio_db *);
+static struct	commonio_entry *find_entry_by_name (struct commonio_db *, const char *);
 
+#ifdef HAVE_LCKPWDF
+static int	lock_count = 0;
+#endif
 
 static int check_link_count(const char *file)
 {
@@ -142,8 +145,8 @@ static int do_lock_file(const char *file, const char *lock)
 
 static FILE *fopen_set_perms(const char *name, const char *mode, const struct stat *sb)
 {
-	FILE *fp;
-	int mask;
+	FILE	*fp;
+	mode_t	mask;
 
 	mask = umask(0777);
 	fp = fopen(name, mode);
@@ -151,19 +154,19 @@ static FILE *fopen_set_perms(const char *name, const char *mode, const struct st
 	if (!fp)
 		return NULL;
 
-#ifdef HAVE_FCHMOD
-	if (fchmod(fileno(fp), sb->st_mode & 0777))
-		goto fail;
-#else
-        if (chmod(name, sb->st_mode & 0777))
-                goto fail;
-#endif
-
 #ifdef HAVE_FCHOWN
 	if (fchown(fileno(fp), sb->st_uid, sb->st_gid))
 		goto fail;
 #else
         if (chown(name, sb->st_mode))
+                goto fail;
+#endif
+
+#ifdef HAVE_FCHMOD
+        if (fchmod(fileno(fp), sb->st_mode & 0664))
+                goto fail;
+#else
+        if (chmod(name, sb->st_mode & 0664))
                 goto fail;
 #endif
 	return fp;
@@ -181,7 +184,8 @@ static int create_backup(const char *backup, FILE *fp)
 	struct stat sb;
 	struct utimbuf ub;
 	FILE *bkfp;
-	int c, mask;
+	int c;
+	mode_t mask;
 
 	if (fstat(fileno(fp), &sb))
 		return -1;
@@ -249,66 +253,71 @@ int commonio_present(const struct commonio_db *db)
 
 
 
-int commonio_lock(struct commonio_db *db)
+int commonio_lock_nowait(struct commonio_db *db)
 {
-	char	file[1024];
-	char	lock[1024];
+        char file[1024];
+        char lock[1024];
 
-	if (db->locked)
-		return 1;
+        if (db->locked)
+                return 1;
 
-	snprintf(file, sizeof file, "%s.%ld", db->filename, (long) getpid());
-	snprintf(lock, sizeof lock, "%s.lock", db->filename);
-	if (do_lock_file(file, lock)) {
-		db->locked = 1;
-		return 1;
-	}
-	return 0;
+        snprintf(file, sizeof file, "%s.%ld", db->filename, (long) getpid());
+        snprintf(lock, sizeof lock, "%s.lock", db->filename);
+        if (do_lock_file(file, lock)) {
+                db->locked = 1;
+                return 1;
+        }
+        return 0;
 }
 
 
-
-int commonio_lock_first(struct commonio_db *db)
+int commonio_lock(struct commonio_db *db)
 {
+        int i;
+
 #ifdef HAVE_LCKPWDF
-	/*
-	 * When locking several files, *_lock_first() is called
-	 * for the first one, and *_lock() for the others.
-	 * If lckpwdf() is available, call it here (it may block
-	 * for up to 15 seconds), and if it succeeds, call
-	 * *_lock() once (no retries, it should always succeed).
-	 */
-
-	if (lckpwdf() == -1)
-		return 0;  /* failure */
-
-	if (!commonio_lock(db)) {
-		ulckpwdf();
-		return 0;  /* failure */
-	}
-
-	return 1;  /* success */
-#else
-	int i;
-
-	/*
-	 * No lckpwdf() - do it the old way.
-	 */
+        /*
+         * only if the system libc has a real lckpwdf() - the one from
+         * lockpw.c calls us and would cause infinite recursion!
+         */
+        if (db->use_lckpwdf) {
+                /*
+                 * Call lckpwdf() on the first lock.
+                 * If it succeeds, call *_lock() only once
+                 * (no retries, it should always succeed).
+                 */
+                if (lock_count == 0) {
+                        if (lckpwdf() == -1)
+                                return 0;  /* failure */
+                }
+                if (!commonio_lock_nowait(db)) {
+                        ulckpwdf();
+                        return 0;  /* failure */
+                }
+                lock_count++;
+                return 1;  /* success */
+        }
+#endif
+        /*
+         * lckpwdf() not used - do it the old way.
+         */
 #ifndef LOCK_TRIES
 #define LOCK_TRIES 15
 #endif
-	for (i = 1; i < LOCK_TRIES; i++) {
-		if (commonio_lock(db))
-			return 1;  /* success */
 
-		sleep(1);
-	}
-
-	/*
-	 * Retry the last time...
-	 */
-	return commonio_lock(db);
-#endif /* !HAVE_LCKPWDF */
+#ifndef LOCK_SLEEP
+#define LOCK_SLEEP 1
+#endif
+        for (i = 0; i < LOCK_TRIES; i++) {
+                if (i > 0)
+                        sleep(LOCK_SLEEP);  /* delay between retries */
+                if (commonio_lock_nowait(db))
+                        return 1;  /* success */
+                /* no unnecessary retries on "permission denied" errors */
+                if (geteuid() != 0)
+                        return 0;
+        }
+        return 0;  /* failure */
 }
 
 
@@ -322,13 +331,24 @@ int commonio_unlock(struct commonio_db *db)
 		if (!commonio_close(db))
 			return 0;
 	}
-  	if (db->locked) {
-  		db->locked = 0;
-		snprintf(lock, sizeof lock, "%s.lock", db->filename);
-		unlink(lock);
-		return 1;
-	}
-	return 0;
+        if (db->locked) {
+                /*
+                 * Unlock in reverse order: remove the lock file,
+                 * then call ulckpwdf() (if used) on last unlock.
+                 */
+                db->locked = 0;
+                snprintf(lock, sizeof lock, "%s.lock", db->filename);
+                unlink(lock);
+#ifdef HAVE_LCKPWDF
+                if (db->use_lckpwdf && lock_count > 0) {
+                        lock_count--;
+                        if (lock_count == 0)
+                                ulckpwdf();
+                }
+#endif
+                return 1;
+        }
+        return 0;
 }
 
 
@@ -508,6 +528,7 @@ int commonio_close(struct commonio_db *db)
 		goto success;
 	}
 
+	memset(&sb, 0, sizeof sb);
 	if (db->fp) {
 		if (fstat(fileno(db->fp), &sb)) {
 			fclose(db->fp);

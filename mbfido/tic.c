@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/tic.c
  * Purpose ...............: Process .tic files
- * Last modification date : 08-Jul-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -311,7 +311,7 @@ int LoadTic(char *inb, char *tfn)
 		}
 
 		if (strncasecmp(Temp, "seenby ", 7) == 0) {
-			fill_list(&sbl, Temp+7, NULL, FALSE);
+			fill_list(&sbl, Temp+7, NULL);
 			Kwd = TRUE;
 		}
 

@@ -1,25 +1,16 @@
 	MBSE BBS Packages.
 
-This needs changes.
 
 Distribution naming scheme:
 
-mbd0_30a.tgz
-^^^^ ^^^
- |||  ||
- |||  |+---- Alpha, Beta, Gamma or none for stable version.
- |||  +----- Minor version number (2 digits).
- ||+-------- Major version number.
- |+--------- Package type, see next section.
- +---------- Always mb (2 alpha characters).
+mbsebbs-0.33.18.tar.gz
+  |     | |  |
+  |     | |  +-------- minor patchlevel 
+  |     | +----------- minor version
+  |     +------------- major version
+  +------------------- package name
 
-Package types:
+For fidonet distribution, the tar archive and FILE_ID.DIZ are
+zipped together in a file like mbb03318.zip
 
- b - The complete MBSE BBS package, including mailer and utilities.
- i - Internet <> Fidonet gateway software.
- p - Pointlist processing software.
-
-
-Note that for distribution via Fidonet Technology networks the naming scheme
-is restricted to dos 8.3 conventions, while longer names would be nicer.
 

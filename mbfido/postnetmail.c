@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/postnetmail.c
  * Purpose ...............: Post Netmail message from temp file
- * Last modification date : 21-Jun-2001
+ * Last modification date : 03-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -40,8 +40,8 @@
 #include "../lib/clcomm.h"
 #include "tracker.h"
 #include "addpkt.h"
-#include "importnet.h"
-#include "mkrfcmsg.h"
+#include "storenet.h"
+#include "ftn2rfc.h"
 #include "areamgr.h"
 #include "filemgr.h"
 #include "ping.h"
@@ -64,15 +64,16 @@ extern	int	most_debug;		/* Headvy debugging flag	*/
  *  Post netmail message for temp file. The tempfile is an FTN style message.
  *
  *  0 - All seems well.
- *  1 - Something went wrong.
+ *  1 - Can't access messagebase.
+ *  2 - Can't find netmail board.
  *
  */
 int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t mdate, int flags, int DoPing)
 {
-	char    	*p, *reply = NULL;
-	char    	name[36], *buf;
+	char    	*p, *msgid = NULL, *reply = NULL;
+	char    	name[36], *buf, *l, *r, *q;
 	char		System[36], ext[4];
-	int		result = 1, email = FALSE;
+	int		result = 1, email = FALSE, fmpt = 0, topt = 0;
 	faddr		*ta, *ra;
 	fidoaddr	na, route, Orig;
 	FILE		*sfp, *net;
@@ -83,6 +84,124 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	Syslog('m', "Post netmail to  : %s", ascfnode(t, 0xff));
 	Syslog('m', "Post netmail subj: %s", MBSE_SS(subject));
 	net_in++;
+
+	/*
+	 *  Extract MSGID and REPLY kludges from this netmail.
+	 */
+	buf = calloc(2048, sizeof(char));
+	rewind(fp);
+	while ((fgets(buf, 2048, fp)) != NULL) {
+		Striplf(buf);
+		Syslogp('m', printable(buf, 0));
+		if (!strncmp(buf, "\001MSGID: ", 8)) {
+			msgid = xstrcpy(buf + 8);
+			/*
+			 *  Extra test to see if the mail comes from a pointaddress.
+			 */
+			l = strtok(buf," \n");
+			l = strtok(NULL," \n");
+			if ((ta = parsefnode(l))) {
+				if (ta->zone == f->zone && ta->net == f->net && ta->node == f->node && !fmpt && ta->point) {
+					Syslog('m', "Setting pointinfo (%d) from MSGID", ta->point);
+					fmpt = f->point = ta->point;
+				}
+				tidy_faddr(ta);
+			}
+		}
+		if (!strncmp(buf, "\001FMPT", 5)) {
+			p = strtok(buf, " \n");
+			p = strtok(NULL, " \n");
+			fmpt = atoi(p);
+		}
+		if (!strncmp(buf, "\001TOPT", 5)) {
+			p = strtok(buf, " \n");
+			p = strtok(NULL, " \n");
+			topt = atoi(p);
+		}
+		if (!strncmp(buf, "\001REPLY: ", 8))
+			reply = xstrcpy(buf + 8);
+
+		/*
+		 * Check DOMAIN and INTL kludges
+		 */
+		if (!strncmp(buf, "\001DOMAIN", 7)) {
+			l = strtok(buf," \n");
+			l = strtok(NULL," \n");
+			p = strtok(NULL," \n");
+			r = strtok(NULL," \n");
+			q = strtok(NULL," \n");
+			if ((ta = parsefnode(p))) {
+				t->point = ta->point;
+				t->node = ta->node;
+				t->net = ta->net;
+				t->zone = ta->zone;
+				tidy_faddr(ta);
+			}
+			t->domain = xstrcpy(l);
+			if ((ta = parsefnode(q))) {
+				f->point = ta->point;
+				f->node = ta->node;
+				f->net = ta->net;
+				f->zone = ta->zone;
+				tidy_faddr(ta);
+			}
+			f->domain = xstrcpy(r);
+		} else {
+			if (!strncmp(buf, "\001INTL", 5)) {
+				l = strtok(buf," \n");
+				l = strtok(NULL," \n");
+				r = strtok(NULL," \n");
+				if ((ta = parsefnode(l))) {
+					t->point = ta->point;
+					t->node = ta->node;
+					t->net = ta->net;
+					t->zone = ta->zone;
+					if (ta->domain) {
+						if (t->domain)
+							free(t->domain);
+						t->domain = ta->domain;
+						ta->domain = NULL;
+					}
+					tidy_faddr(ta);
+				}
+				if ((ta = parsefnode(r))) {
+					f->point = ta->point;
+					f->node = ta->node;
+					f->net = ta->net;
+					f->zone = ta->zone;
+					if (ta->domain) {
+						if (f->domain)
+							free(f->domain);
+						f->domain = ta->domain;
+						ta->domain = NULL;
+					}
+					tidy_faddr(ta);
+				}
+			}
+		}
+
+		/*
+		 * Check for X-FTN- kludges, this could be gated email.
+		 * This should be impossible.
+		 */
+		if (!strncmp(buf, "\001X-FTN-", 7)) {
+			email = TRUE;
+			Syslog('?', "Warning: detected ^aX-FTN- kludge in netmail");
+		}
+	}
+	free(buf);
+
+	/*
+	 *  Only set point info if there was any info.
+	 *  GoldED doesn't set FMPT and TOPT kludges.
+	 */
+	if (fmpt)
+		f->point = fmpt;
+	if (topt)
+		t->point = topt;
+
+        Syslog('m', "Final netmail from: %s", ascfnode(f, 0xff));
+        Syslog('m', "Final netmail to  : %s", ascfnode(t, 0xff));
 
 	memset(&na, 0, sizeof(na));
 	na.zone  = t->zone;
@@ -108,12 +227,10 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
 		if (email) {
 			/*
-			 * Send this netmail via mkrfcmsg -> postemail.
+			 * Send this netmail via ftn2rfc -> postemail.
 			 */
-			if (reply)
-				free(reply);
 			most_debug = TRUE;
-			result = mkrfcmsg(f, t, subject, orig, mdate, flags, fp, 0L, FALSE);
+			result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
 			most_debug = FALSE;
 			return result;
 		}
@@ -142,18 +259,16 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 			while (fread(&servrec, servhdr.recsize, 1, sfp) == 1) {
 				if ((strncasecmp(servrec.Service, name, strlen(servrec.Service)) == 0) && servrec.Active) {
 					switch (servrec.Action) {
-					case AREAMGR:   result = AreaMgr(f, t, mdate, flags, fp);
+					case AREAMGR:   result = AreaMgr(f, t, msgid, subject, mdate, flags, fp);
 							break;
-					case FILEMGR:   result = FileMgr(f, t, mdate, flags, fp);
+					case FILEMGR:   result = FileMgr(f, t, msgid, subject, mdate, flags, fp);
 							break;
 					case EMAIL:     most_debug = TRUE;
-							result = mkrfcmsg(f, t, subject, orig, mdate, flags, fp, 0L, FALSE);
+							result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
 							most_debug = FALSE;
 							break;
 					}
 					Syslog('m', "Handled service %s, rc=%d", servrec.Service, result);
-					if (reply)
-						free(reply);
 					fclose(sfp);
 					return result;
 				}
@@ -174,9 +289,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		 * Import if one fits.
 		 */
 		if (SearchUser(name)) {
-			if (reply)
-				free(reply);
-			return importnet(f, t, mdate, flags, fp);
+			return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
 		}
 
 		Syslog('+', "  \"%s\" is not a known BBS user", name);
@@ -187,9 +300,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
 		sprintf(name, "%s", CFG.sysop_name);
 		if (SearchUser(name)) {
-			return importnet(f, t, mdate, flags, fp);
+			return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
 		} else {
-			WriteError("Readdress import failed");
+			WriteError("Readdress import failed, sysop doesn't exist. CHECK YOUR SETUP");
 			return 0;
 		}
 		break;
@@ -291,8 +404,6 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		fclose(net);
 		free(buf);
 		net_out++;
-		if (reply)
-			free(reply);
 		Syslog('m', "Forward done.");
 		return 0;
 
@@ -303,9 +414,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		 */
 		WriteError("No ROUTE for this netmail");
 		net_bad++;
-		if (reply)
-			free(reply);
-		return importnet(f, t, mdate, flags, fp);
+		return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
 		break;
 	}
 

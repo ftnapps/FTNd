@@ -12,10 +12,8 @@
 #undef HAVE_MKSTEMP
 
 /* If you have gettimeofday function  */
-#undef HAVE_GETTIMEOFDAY
 #undef HAVE_DECLARED_TIMEZONE
 #undef HAVE_TM_GMTOFF
-#undef HAVE_TM_ZONE
 
 /* If you don't have pid_t  */
 #undef DONT_HAVE_PID_T
@@ -56,11 +54,6 @@
 #undef AUTH_METHODS
 #undef CKDEFS
 #undef DOUBLESIZE
-#undef HAVE_A64L
-#undef HAVE_FCHMOD
-#undef HAVE_FCHOWN
-#undef HAVE_FSYNC
-#undef HAVE_LCKPWDF
 #undef HAVE_LIBCRACK
 #undef HAVE_LIBCRACK_HIST
 #undef KEEP_NIS_AT_END

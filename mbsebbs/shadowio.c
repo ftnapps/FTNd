@@ -2,12 +2,12 @@
  *
  * File ..................: mbuseradd/shadowio.c
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 13-Aug-2000
+ * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -117,16 +117,17 @@ static struct commonio_ops shadow_ops = {
 
 
 static struct commonio_db shadow_db = {
-	SHADOW_FILE,
-	&shadow_ops,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	0,
-	0,
-	0,
-	0
+        SHADOW_FILE,    /* filename */
+        &shadow_ops,    /* ops */
+        NULL,           /* fp */
+        NULL,           /* head */
+        NULL,           /* tail */
+        NULL,           /* cursor */
+        0,              /* changed */
+        0,              /* isopen */
+        0,              /* locked */
+        0,              /* readonly */
+        1               /* use_lckpwdf */
 };
 
 
@@ -148,13 +149,6 @@ int spw_file_present(void)
 int spw_lock(void)
 {
 	return commonio_lock(&shadow_db);
-}
-
-
-
-int spw_lock_first(void)
-{
-	return commonio_lock_first(&shadow_db);
 }
 
 

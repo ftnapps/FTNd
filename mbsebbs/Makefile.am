@@ -31,9 +31,9 @@ mbuser_SOURCES = mbuser.c mbuser.h
 mbuseradd_SOURCES = mbuseradd.c mbuseradd.h
 
 mbpasswd_SOURCES = mbpasswd.c commonio.c pwio.c shadowio.c sgetpwent.c \
-xmalloc.c myname.c rad64.c salt.c getdef.c encrypt.c \
+xmalloc.c myname.c rad64.c salt.c getdef.c encrypt.c putpwent.c \
 mbpasswd.h commonio.h pwio.h shadowio.h sgetpwent.h \
-xmalloc.h myname.h rad64.h salt.h getdef.h encrypt.h
+xmalloc.h myname.h rad64.h salt.h getdef.h encrypt.h putpwent.h
 
 mbsebbs_LDADD   = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a
 mball_LDADD     = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
@@ -45,7 +45,7 @@ mbtoberep_LDADD = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../
 mbuser_LDADD    = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 
 install-exec-local:
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 6711 mbsebbs   $(bindir)
@@ -55,7 +55,7 @@ install-exec-local:
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbfbgen   $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbstat    $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbtoberep $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbuser    $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbuseradd $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbpasswd  $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbuser    $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbuseradd $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbpasswd  $(bindir)
 

@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/file.c
  * Purpose ...............: All the file functions. 
- * Last modification date : 28-Jun-2001
+ * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -473,7 +473,7 @@ void File_RawDir(char *OpData)
 				printf("%-20s", dp->d_name);
 
 				colour(13,0);
-				printf("%-12ld", statfile.st_size);
+				printf("%-12ld", (long)(statfile.st_size));
 
 				colour(10,0);
 				printf("%-10s\n", StrDateDMY(statfile.st_mtime));
@@ -1354,7 +1354,7 @@ void List_Home()
 				printf("%-20s", dp->d_name);
 
 				colour(13,0);
-				printf("%-12ld", statfile.st_size);
+				printf("%-12ld", (long)(statfile.st_size));
 
 				colour(10,0);
 				printf("%s  ", StrDateDMY(statfile.st_mtime));
@@ -2098,7 +2098,7 @@ void EditTaglist()
 
 			Fg--;
 			colour(Fg, 0);
-			printf(" %8ld", Tag.Size);
+			printf(" %8ld", (long)(Tag.Size));
 
 			Fg--;
 			colour(Fg, 0);

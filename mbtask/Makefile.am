@@ -11,13 +11,13 @@ taskcomm.c taskcomm.h taskstat.c taskstat.h taskdisk.c taskdisk.h \
 taskregs.c taskregs.h taskinfo.c taskinfo.h outstat.c outstat.h \
 scanout.c scanout.h nodelist.c nodelist.h callstat.c callstat.h libs.h
 
-LDADD = ../lib/libmemwatch.a
+#  LDADD = ../lib/libmemwatch.a
 
 install-exec-local:
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
-	$(INSTALL) -s -o root -g root -m 6711 mbtask $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbtask $(bindir)
 	@if [ -f $(sysconfdir)/mbsed.conf ]; then \
 		rm $(sysconfdir)/mbsed.conf ; \
 	fi

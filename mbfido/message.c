@@ -2,7 +2,7 @@
  *
  * File ..................: mbmail/message.c
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 02-May-2001
+ * Last modification date : 27-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -54,7 +54,7 @@
 #include "mkftnhdr.h"
 #include "tracker.h"
 #include "viadate.h"
-#include "importnet.h"
+#include "storenet.h"
 
 
 #define MAXHDRSIZE 2048
@@ -458,7 +458,7 @@ int putmessage(rfcmsg *msg, ftnmsg *fmsg, FILE *fp, faddr *route, char flavor,fa
 		if (TrackMail(Dest, &Route) == R_LOCAL) {
 			/*
 			 *  Mail for our local system. Instead of adding the message to a .pkt create
-			 *  a temporary file which later will be send via the importnet function.
+			 *  a temporary file which later will be send via the storenet function.
 			 */
 			postlocal = TRUE;
 			pkt = tmpfile();
@@ -856,9 +856,9 @@ int putmessage(rfcmsg *msg, ftnmsg *fmsg, FILE *fp, faddr *route, char flavor,fa
 				fmsg->to->name = xstrcpy(CFG.sysop_name);
 			}
 			if (SearchUser(fmsg->to->name)) {
-				Syslog('m', "importnet(%s, %s, %s, %04x)", ascfnode(fmsg->from,0x7f), 
+				Syslog('m', "storenet(%s, %s, %s, %04x)", ascfnode(fmsg->from,0x7f), 
 					ascfnode(fmsg->to,0x7f), ftndate(fmsg->date), fmsg->flags);
-				if (importnet(fmsg->from, fmsg->to, fmsg->date, fmsg->flags, pkt))
+				if (storenet(fmsg->from, fmsg->to, fmsg->date, fmsg->flags, fmsg->subj, fmsg->msgid_a, fmsg->reply_a, pkt))
 					return 2;
 			} else {
 				WriteError("Unknown bbs user");

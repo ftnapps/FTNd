@@ -54,7 +54,7 @@ But before any program is started a number of things are checked:
   <LI>The UPS semafore <b>upsalarm</b> will be checked. This means that the system is running on
       battery power and no new jobs are started. 
   <LI>The UPS semafore <b>upsdown</b> will be checked. This is the fatal one, if
-      this one excists <b>mbtask</b> will try to stop all current running jobs.
+      this one exists <b>mbtask</b> will try to stop all current running jobs.
       If there are no jobs left running then <b>mbtask</b> will stop itself. 
       The upsdown semafore means that the system 
       will shutdown and power off, that's why it's fatal and there is no way back.<br>
@@ -86,7 +86,7 @@ The checks and actions are:
 <tr><td>mailout</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido scan web -quiet</td></tr>
 <tr><td>mailin</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido tic toss web -quiet</td></tr>
 <tr><td>newnews</td><td>Fast</td><td>mbfido</td><td>Max. 1 mbfido task</td><td>mbfido news web -quiet</td></tr>
-<tr><td>mbindex</td><td>Fast</td><td>mbindex</td><td>No other tasks</td><td>mbindex -quiet and if excist: goldnode</td></tr>
+<tr><td>mbindex</td><td>Fast</td><td>mbindex</td><td>No other tasks</td><td>mbindex -quiet and if exist: goldnode</td></tr>
 <tr><td>msglink</td><td>Fast</td><td>mbfido</td><td>No other tasks</td><td>mbmsg link -quiet</td></tr>
 <tr><td>reqindex</td><td>Fast</td><td>mbfile</td><td>No other tasks</td><td>mbfile index -quiet</td></tr>
 <tr><td>scanout</td><td>Slow</td><td>call</td><td>Only 1 call task</td><td>mbcico -r1</td></tr>

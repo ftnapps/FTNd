@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/scan.h
  * Purpose ...............: Scan for outgoing mail.
- * Last modification date : 01-Jul-2001
+ * Last modification date : 13-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -41,7 +41,7 @@
 #include "addpkt.h"
 #include "pack.h"
 #include "tracker.h"
-#include "mkrfcmsg.h"
+#include "ftn2rfc.h"
 #include "postemail.h"
 #include "scan.h"
 
@@ -52,8 +52,6 @@ extern	int	net_bad;
 extern	int	echo_in;
 extern	int	email_out;
 extern	int	echo_out;
-extern	int	email_imp;
-extern 	int	email_bad;
 extern	int	most_debug;
 int		scanned;
 
@@ -252,7 +250,7 @@ void ScanFull()
 								 */
 								if ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) {
 									echo_in++;
-									fill_list(&sbl, aka2str(msgs.Aka), NULL, FALSE);
+									fill_list(&sbl, aka2str(msgs.Aka), NULL);
 									for (i = 0; i < 40; i++) {
 										if (CFG.akavalid[i] &&
 										    (msgs.Aka.zone == CFG.aka[i].zone) &&
@@ -260,14 +258,14 @@ void ScanFull()
 										    (msgs.Aka.node == CFG.aka[i].node))) {
 											sprintf(sbe, "%u/%u", CFG.aka[i].net,
 												CFG.aka[i].node);
-											fill_list(&sbl, sbe, NULL, FALSE);
+											fill_list(&sbl, sbe, NULL);
 										}
 									}
 									fseek(pAreas, sysstart, SEEK_SET);
 									for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
 										fread(&Link, sizeof(sysconnect), 1, pAreas);
 										if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-											fill_list(&sbl, aka2str(Link.aka), NULL, FALSE);
+											fill_list(&sbl, aka2str(Link.aka), NULL);
 										}
 									}
 									uniq_list(&sbl);
@@ -404,7 +402,7 @@ void ScanOne(char *path, unsigned long MsgNum)
 							 */
 							if (msgs.Type == ECHOMAIL || msgs.Type == NEWS) {
 								echo_in++;
-								fill_list(&sbl, aka2str(msgs.Aka), NULL, FALSE);
+								fill_list(&sbl, aka2str(msgs.Aka), NULL);
 								for (i = 0; i < 40; i++) {
 									if (CFG.akavalid[i] && 
 									    (msgs.Aka.zone == CFG.aka[i].zone) &&
@@ -412,14 +410,14 @@ void ScanOne(char *path, unsigned long MsgNum)
 									      (msgs.Aka.node == CFG.aka[i].node))) {
 										sprintf(sbe, "%u/%u", CFG.aka[i].net, 
 											CFG.aka[i].node);
-										fill_list(&sbl, sbe, NULL, FALSE);
+										fill_list(&sbl, sbe, NULL);
 									}
 								}
 								fseek(pAreas, sysstart, SEEK_SET);
 								for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
 									fread(&Link, sizeof(sysconnect), 1, pAreas);
 									if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-										fill_list(&sbl, aka2str(Link.aka), NULL, FALSE);
+										fill_list(&sbl, aka2str(Link.aka), NULL);
 									}
 								}
 								uniq_list(&sbl);
@@ -530,8 +528,8 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
                         while (MsgNum<=Total){
                                 if (Msg_ReadHeader(MsgNum)) {
                                         if (Msg_Lock(15L)) {
-                                                fill_list(&sbl, aka2str(msgs.Aka), NULL, FALSE);
-                                                fill_list(&sbl, aka2str(Link.aka), NULL, FALSE);
+                                                fill_list(&sbl, aka2str(msgs.Aka), NULL);
+                                                fill_list(&sbl, aka2str(Link.aka), NULL);
                                                 sort_list(&sbl);
                                                 ExportEcho(Link, MsgNum, &sbl);
                                                 tidy_falist(&sbl);
@@ -753,7 +751,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 
 	rewind(qp);
 	most_debug = TRUE;
-	mkrfcmsg(from, dest, NULL, NULL, Msg.Written + (gmt_offset((time_t)0) * 60), flags, qp, 0L, FALSE);
+	ftn2rfc(from, dest, NULL, NULL, Msg.Written + (gmt_offset((time_t)0) * 60), flags, qp);
 	most_debug = FALSE;
 	tidy_faddr(from);
 	fclose(qp);
@@ -780,6 +778,26 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 
 	Syslog('m', "Export netmail to %s of %s (%s) %s mode", Msg.To, Msg.ToAddress, 
 		(Msg.Crash || Msg.Direct || Msg.FileAttach) ? "Direct" : "Routed", UUCPgate ? "UUCP" : "Netmail");
+
+        /*
+         *  Analyze this message if it contains INTL, FMPT and TOPT kludges 
+         *  and check if we need them. If they are missing they are inserted.
+         *  GoldED doesn't insert them but MBSE does.
+         */
+        if (Msg_Read(MsgNum, 78)) {
+                if ((p = (char *)MsgText_First()) != NULL) {
+                        do {
+                                if (strncmp(p, "\001FMPT", 5) == 0)
+                                        is_fmpt = TRUE;
+                                if (strncmp(p, "\001TOPT", 5) == 0)
+                                        is_topt = TRUE;
+                                if (strncmp(p, "\001INTL", 5) == 0)
+                                        is_intl = TRUE;
+                                if (strncmp(p, "--- ", 4) == 0)
+                                        break;
+                        } while ((p = (char *)MsgText_Next()) != NULL);
+                }
+        }
 
 	/*
 	 *  Check if this a netmail to our own local UUCP gate.
@@ -823,6 +841,14 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 		fprintf(fp, "Content-Type: text/plain\n");
 		fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
 		fprintf(fp, "X-Mailreader: MBSE BBS %s\r\n", VERSION);
+
+		if (msgs.Aka.point && !is_fmpt)
+			fprintf(fp, "X-FTN-FMPT: %d\r", msgs.Aka.point);
+		if (Dest.point && !is_topt)
+			fprintf(fp, "X-FTN-TOPT: %d\r", Dest.point);
+		if (!is_intl)
+			fprintf(fp, "X-FTN-INTL: %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node,
+				msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
                 if (Msg_Read(MsgNum, 78)) {
                         if ((p = (char *)MsgText_First()) != NULL) {
@@ -947,25 +973,6 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 		return;
 	}
 
-	/*
-	 *  Analyze this message if it contains INTL, FMPT and TOPT kludges 
-	 *  and check if we need them. If they are missing they are inserted.
-	 *  GoldED doesn't insert them but MBSE does.
-	 */
-	if (Msg_Read(MsgNum, 78)) {
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				if (strncmp(p, "\001FMPT", 5) == 0)
-					is_fmpt = TRUE;
-				if (strncmp(p, "\001TOPT", 5) == 0)
-					is_topt = TRUE;
-				if (strncmp(p, "\001INTL", 5) == 0)
-					is_intl = TRUE;
-				if (strncmp(p, "--- ", 4) == 0)
-					break;
-			} while ((p = (char *)MsgText_Next()) != NULL);
-		}
-	}
 	if (msgs.Aka.point && !is_fmpt)
 		fprintf(qp, "\001FMPT %d\r", msgs.Aka.point);
 	if (Dest.point && !is_topt)
@@ -1077,9 +1084,9 @@ void ExportEmail(unsigned long MsgNum)
 	}
 	rewind(qp);
 	most_debug = TRUE;
-	retval = mkrfcmsg(from, too, Msg.Subject, NULL, Msg.Written, flags, qp, 0L, TRUE);
+	retval = ftn2rfc(from, too, Msg.Subject, NULL, Msg.Written, flags, qp);
 	most_debug = FALSE;
-	Syslog('m', "mkrfcmsg rc=%d", retval);
+	Syslog('m', "ftn2rfc rc=%d", retval);
 	email_out++;
 }
 

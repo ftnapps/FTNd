@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/mbfido.c
  * Purpose ...............: Process Fidonet style mail and files.
- * Last modification date : 10-Jul-2001
+ * Last modification date : 14-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -61,6 +61,7 @@
 #include "newspost.h"
 #include "rnews.h"
 #include "backalias.h"
+#include "rfc2ftn.h"
 
 
 #define	UNPACK_FACTOR 300
@@ -77,6 +78,7 @@ int	do_stat    = FALSE;		/* Create statistic HTML pages	    */
 int	do_test    = FALSE;		/* Test routing			    */
 int	do_news    = FALSE;		/* Process NNTP news		    */
 int	do_uucp    = FALSE;		/* Process UUCP newsbatch	    */
+int	do_mail    = FALSE;		/* Process MTA email message	    */
 int	do_unsec   = FALSE;		/* Unsecure tossing		    */
 int	do_learn   = FALSE;		/* News articles learnmode	    */
 int	check_crc  = TRUE;		/* Check .tic crc values	    */
@@ -115,6 +117,7 @@ void Help(void)
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
+	printf("	m    mail <recipient> ...	MTA Mail mode\n");
 	printf("	ne   news			Scan for new news\n");
 	printf("	no   notify <nodes>		Send notify messages\n");
 	printf("	r    roll			Rollover statistic counters\n");
@@ -246,9 +249,13 @@ void die(int onsig)
 int main(int argc, char **argv)
 {
 	int	i, Loop;
-	char	*p, *cmd, Options[81];
+	char	*p, *cmd, *temp, Options[81];
 	struct	passwd *pw;
 	struct	tm *t;
+	fa_list	**envrecip, *envrecip_start = NULL;
+	faddr	*taddr;
+	int	envrecip_count = 0;
+	FILE	*ofp;
 
 #ifdef MEMWATCH
 	mwInit();
@@ -256,9 +263,11 @@ int main(int argc, char **argv)
 
         /*
          * The next trick is to supply a fake environment variable
-         * MBSE_ROOT in case we are started from UUCP.
+         * MBSE_ROOT in case we are started from UUCP or the MTA.
          * this will setup the variable so InitConfig() will work.
          * The /etc/passwd must point to the correct homedirectory.
+	 * Some programs can't set uid to mbse, so mbfido is installed
+	 * setuid mbse.
          */
 	if (getenv("MBSE_ROOT") == NULL) {
 		pw = getpwuid(getuid());
@@ -310,7 +319,11 @@ int main(int argc, char **argv)
 		p++;
 	else
 		p = argv[0];
-	if (!strcmp(p, "mbnews")) {
+	if (!strcmp(p, "mbmail")) {
+		do_quiet = TRUE;
+		do_mail  = TRUE;
+		cmd = xstrcpy((char *)"Cmd: mbmail");
+	} else if (!strcmp(p, "mbnews")) {
 		do_quiet = TRUE;
 		do_uucp  = TRUE;
 		cmd = xstrcpy((char *)"Cmd: mbnews");
@@ -320,9 +333,10 @@ int main(int argc, char **argv)
 		cmd = xstrcpy((char *)"Cmd: mbfido");
 	}
 
+	envrecip = &envrecip_start;
 	for (i = 1; i < argc; i++) {
 		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, tl(argv[i]));
+		cmd = xstrcat(cmd, argv[i]);
 
 		if (strncmp(tl(argv[i]), "ne", 2) == 0)
 			do_news = TRUE;
@@ -338,36 +352,52 @@ int main(int argc, char **argv)
 		}
 		if (strncmp(tl(argv[i]), "r", 1) == 0)
 			do_roll = TRUE;
-		if (strncmp(tl(argv[i]), "s", 1) == 0)
+		else if (strncmp(tl(argv[i]), "s", 1) == 0)
 			do_scan = TRUE;
-		if (strncmp(tl(argv[i]), "ta", 2) == 0)
+		else if (strncmp(tl(argv[i]), "ta", 2) == 0)
 			do_tags = TRUE;
-		if (strncmp(tl(argv[i]), "ti", 2) == 0)
+		else if (strncmp(tl(argv[i]), "ti", 2) == 0)
 			do_tic = TRUE;
-		if (strncmp(tl(argv[i]), "te", 2) == 0)
+		else if (strncmp(tl(argv[i]), "te", 2) == 0)
 			do_test = TRUE;
-		if (strncmp(tl(argv[i]), "to", 2) == 0) 
+		else if (strncmp(tl(argv[i]), "to", 2) == 0) 
 			do_toss = TRUE;
-		if (strncmp(tl(argv[i]), "u", 1) == 0)
+		else if (strncmp(tl(argv[i]), "u", 1) == 0)
 			do_uucp = TRUE;
-		if (strncmp(tl(argv[i]), "w", 1) == 0)
+		else if (strncmp(tl(argv[i]), "m", 1) == 0)
+			do_mail = TRUE;
+		else if (strncmp(tl(argv[i]), "w", 1) == 0)
 			do_stat = TRUE;
-		if (strncmp(tl(argv[i]), "-a", 2) == 0)
+		else if (strncmp(tl(argv[i]), "-a", 2) == 0)
 			autocrea = TRUE;
-		if (strncmp(tl(argv[i]), "-f", 2) == 0)
+		else if (strncmp(tl(argv[i]), "-f", 2) == 0)
 			do_full = TRUE;
-		if (strncmp(tl(argv[i]), "-l", 2) == 0)
+		else if (strncmp(tl(argv[i]), "-l", 2) == 0)
 			do_learn = TRUE;
-		if (strncmp(tl(argv[i]), "-noc", 4) == 0)
+		else if (strncmp(tl(argv[i]), "-noc", 4) == 0)
 			check_crc = FALSE;
-		if (strncmp(tl(argv[i]), "-nod", 4) == 0)
+		else if (strncmp(tl(argv[i]), "-nod", 4) == 0)
 			check_dupe = FALSE;
-		if (strncmp(tl(argv[i]), "-q", 2) == 0)
+		else if (strncmp(tl(argv[i]), "-q", 2) == 0)
 			do_quiet = TRUE;
-		if (strncmp(tl(argv[i]), "-unp", 4) == 0)
+		else if (strncmp(tl(argv[i]), "-unp", 4) == 0)
 			do_unprot = TRUE;
-		if (strncmp(tl(argv[i]), "-uns", 4) == 0)
+		else if (strncmp(tl(argv[i]), "-uns", 4) == 0)
 			do_unsec = TRUE;
+		else if (do_mail) {
+			/*
+			 *  Possible recipient address(es).
+			 */
+			if ((taddr = parsefaddr(argv[i]))) {
+				(*envrecip) = (fa_list*)malloc(sizeof(fa_list));
+				(*envrecip)->next = NULL;
+				(*envrecip)->addr = taddr;
+				envrecip = &((*envrecip)->next);
+				envrecip_count++;
+			} else {
+				cmd = strcat(cmd, (char *)" <- unparsable recipient! ");
+			}
+		}
 	}
 
 	ProgName();
@@ -384,10 +414,11 @@ int main(int argc, char **argv)
 		die(101);
 
 	if (lockunpack())
-		die(0);
+		die(101);
 	if (initnl())
 		die(101);
-	Rollover();
+	if (!do_mail && !do_uucp)
+		Rollover();
 	if (!do_quiet)
 		printf("\n");
 
@@ -396,9 +427,35 @@ int main(int argc, char **argv)
          */
 	cmd = calloc(PATH_MAX, sizeof(char));
 	sprintf(cmd, "%s/etc/aliases", getenv("MBSE_ROOT"));
-	if ((do_news || do_scan || do_toss) && file_exist(cmd, R_OK) == 0)
+	if ((do_news || do_scan || do_toss || do_mail) && file_exist(cmd, R_OK) == 0)
         	readalias(cmd);
 	free(cmd);
+
+	if (do_mail) {
+		if (!envrecip_count) {
+			WriteError("No valid receipients specified, aborting");
+			die(105);
+		}
+
+		umask(066);
+		if ((ofp = tmpfile()) == NULL) {
+			WriteError("$Can't open tmpfile for RFC message");
+			die(104);
+		}
+		temp = calloc(10240, sizeof(char));
+		while (fgets(temp, 10240, stdin))
+			fprintf(ofp, temp);
+		free(temp);
+
+		for (envrecip = &envrecip_start; *envrecip; envrecip = &((*envrecip)->next)) {
+			Syslog('+', "Message to: %s", ascfnode((*envrecip)->addr, 0x7f));
+			rfc2ftn(ofp, (*envrecip)->addr);
+		}
+
+		fclose(ofp);
+		packmail();
+		die(0);
+	}
 
 	if (do_notify)
 		if (Notify(Options))
@@ -410,8 +467,6 @@ int main(int argc, char **argv)
 		 *  Hatch new files and process .tic files
 		 *  until nothing left to do.
 		 */
-		if (!diskfree(CFG.freespace))
-			die(101);
 		Loop = TRUE;
 		do {
 			Hatch();
@@ -446,7 +501,7 @@ int main(int argc, char **argv)
 	if (do_stat)
 		MakeStat();
 	if (do_uucp)
-		NewsUUCP(FALSE);
+		NewsUUCP();
 	die(0);
 	return 0;
 }
@@ -625,8 +680,7 @@ int TossPkts(void)
 	}
 
 	free(inbound);
-	if (diskfree(CFG.freespace))
-		packmail();
+	packmail();
 	return maxrc;
 }
 

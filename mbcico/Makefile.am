@@ -29,7 +29,6 @@ LDADD = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a \
 ../lib/libmsgbase.a ../lib/libdbase.a
 
 install-exec-local:
-	$(mkinstalldirs) $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 4751 mbcico $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 0711 mbout  $(bindir)
 

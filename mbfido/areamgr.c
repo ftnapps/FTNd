@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/areamgr.c
  * Purpose ...............: AreaMgr
- * Last modification date : 11-Mar-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -67,8 +67,6 @@ extern	int	echo_imp;		/* Echomail imported		    */
 extern	int	echo_out;		/* Echomail forwarded		    */
 extern	int	echo_bad;		/* Bad echomail			    */
 extern	int	echo_dupe;		/* Dupe echomail		    */
-extern	char	*subj;			/* Message subject		    */
-extern	char	*msgid;			/* Original message id		    */
 
 int	areamgr = 0;			/* Nr of AreaMgr messages	    */
 int	a_help	= FALSE;
@@ -81,14 +79,14 @@ unsigned long	a_msgs = 0;
 
 
 
-void A_Help(faddr *);
-void A_Help(faddr *t)
+void A_Help(faddr *, char *);
+void A_Help(faddr *t, char *replyid)
 {
 	FILE	*fp;
 
 	Syslog('+', "AreaMgr: Help");
 
-	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr help", msgid)) != NULL) {
+	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr help", replyid)) != NULL) {
 		fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Areamgr");
 		fprintf(fp, "Youre AreaMgr password goes on the subject line.\r\r");
 
@@ -136,8 +134,8 @@ void A_Help(faddr *t)
 
 
 
-void A_Query(faddr *);
-void A_Query(faddr *t)
+void A_Query(faddr *, char *);
+void A_Query(faddr *t, char *replyid)
 {
 	FILE		*qp, *gp, *mp;
 	char		*temp, *Group;
@@ -149,7 +147,7 @@ void A_Query(faddr *t)
 	Syslog('+', "AreaMgr: Query");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", replyid)) != NULL) {
 
 		temp = calloc(128, sizeof(char));
 
@@ -243,7 +241,7 @@ void A_Query(faddr *t)
 
 
 
-void A_List(faddr *t, int Notify)
+void A_List(faddr *t, char *replyid, int Notify)
 {
 	FILE		*qp, *gp, *mp;
 	char		*temp, *Group;
@@ -258,7 +256,7 @@ void A_List(faddr *t, int Notify)
 		Syslog('+', "AreaMgr: List");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", replyid)) != NULL) {
 
 		WriteMailGroups(qp, f);
 		temp = calloc(128, sizeof(char));
@@ -350,7 +348,7 @@ void A_List(faddr *t, int Notify)
 
 
 
-void A_Flow(faddr *t, int Notify)
+void A_Flow(faddr *t, char *replyid, int Notify)
 {
 	FILE		*qp, *gp, *mp;
 	char		*temp, *Group;
@@ -377,7 +375,7 @@ void A_Flow(faddr *t, int Notify)
 		Syslog('+', "AreaMgr: Flow report");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", replyid)) != NULL) {
 
 		temp = calloc(128, sizeof(char));
 
@@ -464,8 +462,8 @@ void A_Flow(faddr *t, int Notify)
 
 
 
-void A_Status(faddr *);
-void A_Status(faddr *t)
+void A_Status(faddr *, char *);
+void A_Status(faddr *t, char *replyid)
 {
 	FILE	*fp;
 	int	i;
@@ -476,7 +474,7 @@ void A_Status(faddr *t)
 	else
 		i = Miy - 1;
 
-	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr status", msgid)) != NULL) {
+	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr status", replyid)) != NULL) {
 
 		fprintf(fp, "Here is your (echo)mail status:\r\r");
 
@@ -504,8 +502,8 @@ void A_Status(faddr *t)
 
 
 
-void A_Unlinked(faddr *);
-void A_Unlinked(faddr *t)
+void A_Unlinked(faddr *, char *);
+void A_Unlinked(faddr *t, char *replyid)
 {
 	FILE		*qp, *gp, *mp;
 	char		*temp, *Group;
@@ -517,7 +515,7 @@ void A_Unlinked(faddr *t)
 	Syslog('+', "AreaMgr: Unlinked");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", replyid)) != NULL) {
 
 		WriteMailGroups(qp, f);
 		temp = calloc(128, sizeof(char));
@@ -944,7 +942,7 @@ void A_Msgs(char *Buf, int skip)
 
 
 
-int AreaMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
+int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int flags, FILE *fp)
 {
 	int	i, rc = 0, spaces;
 	char	*Buf;
@@ -1057,7 +1055,7 @@ int AreaMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
 	 *  create a response netmail about what we did.
 	 */
 	if (ftell(tmp)) {
-		if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your AreaMgr request", msgid)) != NULL) {
+		if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your AreaMgr request", replyid)) != NULL) {
 
 			fprintf(np, "     Dear %s\r\r", nodes.Sysop);
 			fprintf(np, "Here is the result of your AreaMgr request:\r\r");
@@ -1081,22 +1079,22 @@ int AreaMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
 	fclose(tmp);
 
 	if (a_stat)
-		A_Status(f);
+		A_Status(f, replyid);
 
 	if (a_query)
-		A_Query(f);
+		A_Query(f, replyid);
 
 	if (a_list)
-		A_List(f, FALSE);
+		A_List(f, replyid, FALSE);
 
 	if (a_flow)
-		A_Flow(f, FALSE);
+		A_Flow(f, replyid, FALSE);
 
 	if (a_unlnk)
-		A_Unlinked(f);
+		A_Unlinked(f, replyid);
 
 	if (a_help)
-		A_Help(f);
+		A_Help(f, replyid);
 
 	return rc;
 }

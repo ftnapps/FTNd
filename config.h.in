@@ -37,6 +37,9 @@
 /* Define if you have the vprintf function.  */
 #undef HAVE_VPRINTF
 
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef mode_t
+
 /* Define to `long' if <sys/types.h> doesn't define.  */
 #undef off_t
 
@@ -51,6 +54,9 @@
 
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 #undef size_t
+
+/* Define if the `S_IS*' macros in <sys/stat.h> do not work properly.  */
+#undef STAT_MACROS_BROKEN
 
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
@@ -67,17 +73,8 @@
 /* Define vfork as fork if vfork does not work.  */
 #undef vfork
 
-/* Define if lex declares yytext as a char * by default, not a char[].  */
-#undef YYTEXT_POINTER
-
 /* Memory debugging  */
 #undef MEMWATCH
-
-/* If you have gettimeofday function  */
-#undef HAVE_GETTIMEOFDAY
-#undef HAVE_DECLARED_TIMEZONE
-#undef HAVE_TM_GMTOFF
-#undef HAVE_TM_ZONE
 
 /* If you don't have pid_t  */
 #undef DONT_HAVE_PID_T
@@ -102,6 +99,20 @@
 #undef SHADOW_PASSWORD
 #undef SO_OOBINLINE
 
+/* mbuseradd  */
+#undef AGING
+#undef ATT_AGE
+#undef ATT_COMMENTS
+#undef AUTH_METHODS
+#undef CKDEFS
+#undef DOUBLESIZE
+#undef HAVE_LIBCRACK
+#undef HAVE_LIBCRACK_HIST
+#undef KEEP_NIS_AT_END
+#undef MD5_CRYPT
+#undef PAM
+#undef SW_CRYPT
+
 /* Define if you have the a64l function.  */
 #undef HAVE_A64L
 
@@ -113,6 +124,9 @@
 
 /* Define if you have the fchown function.  */
 #undef HAVE_FCHOWN
+
+/* Define if you have the fdatasync function.  */
+#undef HAVE_FDATASYNC
 
 /* Define if you have the fsync function.  */
 #undef HAVE_FSYNC
@@ -143,6 +157,9 @@
 
 /* Define if you have the putenv function.  */
 #undef HAVE_PUTENV
+
+/* Define if you have the putpwent function.  */
+#undef HAVE_PUTPWENT
 
 /* Define if you have the re_comp function.  */
 #undef HAVE_RE_COMP
@@ -198,6 +215,9 @@
 /* Define if you have the <fcntl.h> header file.  */
 #undef HAVE_FCNTL_H
 
+/* Define if you have the <gshadow.h> header file.  */
+#undef HAVE_GSHADOW_H
+
 /* Define if you have the <malloc.h> header file.  */
 #undef HAVE_MALLOC_H
 
@@ -206,6 +226,12 @@
 
 /* Define if you have the <netinet/in.h> header file.  */
 #undef HAVE_NETINET_IN_H
+
+/* Define if you have the <regex.h> header file.  */
+#undef HAVE_REGEX_H
+
+/* Define if you have the <shadow.h> header file.  */
+#undef HAVE_SHADOW_H
 
 /* Define if you have the <sys/dir.h> header file.  */
 #undef HAVE_SYS_DIR_H
@@ -219,17 +245,32 @@
 /* Define if you have the <sys/ndir.h> header file.  */
 #undef HAVE_SYS_NDIR_H
 
+/* Define if you have the <sys/resource.h> header file.  */
+#undef HAVE_SYS_RESOURCE_H
+
 /* Define if you have the <sys/time.h> header file.  */
 #undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/vfs.h> header file.  */
+#undef HAVE_SYS_VFS_H
 
 /* Define if you have the <syslog.h> header file.  */
 #undef HAVE_SYSLOG_H
 
-/* Define if you have the <termio.h> header file.  */
-#undef HAVE_TERMIO_H
+/* Define if you have the <termios.h> header file.  */
+#undef HAVE_TERMIOS_H
+
+/* Define if you have the <ulimit.h> header file.  */
+#undef HAVE_ULIMIT_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
+
+/* Define if you have the <usersec.h> header file.  */
+#undef HAVE_USERSEC_H
+
+/* Define if you have the <utime.h> header file.  */
+#undef HAVE_UTIME_H
 
 /* Name of package */
 #undef PACKAGE

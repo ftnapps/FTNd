@@ -2,10 +2,10 @@
  *
  * File ..................: mbcico/tcpproto.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 24-Dec-2000
+ * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -55,9 +55,10 @@ static FILE 	*in;
 static char 	txbuf[2048];
 static char 	rxbuf[2048];
 static int  	rx_type;
-static long 	startime,endtime,rxbytes,sbytes;
+static long 	startime,endtime,sbytes;
+static off_t	rxbytes;
 
-static int	sendfile(char *,char *);
+static int	sendtfile(char *,char *);
 static int	finsend(void);
 static int	receivefile(char *,time_t,off_t);
 static int	resync(off_t);
@@ -85,7 +86,7 @@ int tcpsndfiles(file_list *lst)
 
 	for (tmpf = lst; tmpf && (maxrc == 0); tmpf = tmpf->next) {
 		if (tmpf->remote) {
-			rc = sendfile(tmpf->local,tmpf->remote);
+			rc = sendtfile(tmpf->local,tmpf->remote);
 			rc = abs(rc);
 			if (rc > maxrc) 
 				maxrc=rc;
@@ -158,7 +159,7 @@ next:
 
 
 
-static int sendfile(char *ln, char *rn)
+static int sendtfile(char *ln, char *rn)
 {
 	int	rc=0;
 	struct	stat st;

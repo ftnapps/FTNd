@@ -1414,10 +1414,10 @@ int GetTimeInfo(TIMEINFO *Now)
 #if	defined(HAVE_GETTIMEOFDAY)
     struct timeval	tv;
 #endif	/* defined(HAVE_GETTIMEOFDAY) */
-#if	!defined(HAVE_TM_GMTOFF)
+#if	!defined(HAVE_TM_ZONE)
     struct tm		local;
     struct tm		gmt;
-#endif	/* !defined(HAVE_TM_GMTOFF) */
+#endif	/* !defined(HAVE_TM_ZONE) */
 
     /* Get the basic time. */
 #if	defined(HAVE_GETTIMEOFDAY)
@@ -1436,7 +1436,7 @@ int GetTimeInfo(TIMEINFO *Now)
 	if ((tm = localtime(&Now->time)) == NULL)
 	    return -1;
 	secondsUntilNextHour = 60 * (60 - tm->tm_min) - tm->tm_sec;
-#if	!defined(HAVE_TM_GMTOFF)
+#if	!defined(HAVE_TM_ZONE)
 	/* To get the timezone, compare localtime with GMT. */
 	local = *tm;
 	if ((tm = gmtime(&Now->time)) == NULL)
@@ -1458,7 +1458,7 @@ int GetTimeInfo(TIMEINFO *Now)
 	LastTzone += gmt.tm_min - local.tm_min;
 #else
 	LastTzone =  (0 - tm->tm_gmtoff) / 60;
-#endif	/* defined(HAVE_TM_GMTOFF) */
+#endif	/* defined(HAVE_TM_ZONE) */
 	NextHour = Now->time + secondsUntilNextHour;
     }
     Now->tzone = LastTzone;
@@ -1739,7 +1739,7 @@ time_t parsedate(char *p, TIMEINFO *now)
     yyYear = tm->tm_year + 1900;
     yyMonth = tm->tm_mon + 1;
     yyDay = tm->tm_mday;
-#ifdef HAVE_TM_GMTOFF
+#ifdef HAVE_TM_ZONE
     yyTimezone = tm->tm_gmtoff/60;
 #else
 	yyTimezone = timezone/60;

@@ -3,7 +3,7 @@
 SUBDIRS = .
 
 install-exec-local:
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
 	@if [ ! -x $(sysconfdir)/maint ]; then \
@@ -22,8 +22,8 @@ install-exec-local:
 		$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir) ; \
 		echo "$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir)" ; \
 	fi
-	@./installinit
+	@bash ./installinit.sh
 
-EXTRA_DIST = README maint midnight weekly monthly installinit rc rc.shutdown mbse.start mbse.stop
+EXTRA_DIST = README maint midnight weekly monthly installinit.sh rc rc.shutdown mbse.start mbse.stop
 
 

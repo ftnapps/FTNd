@@ -13,4 +13,9 @@
 						|		|--> mkrfcmsg --> postemail
 						+---------------+
 
+						+---------------+
+					FTN     |		|--> Outbound
+					------->|   postecho	|--> MsgBase
+						|		|--> mkrfcmsg --> spool --> newspost
+						+---------------+
 

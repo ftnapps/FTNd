@@ -2,7 +2,7 @@
  *
  * File ..................: mbuseradd/encrypt.c
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 13-May-2001
+ * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
@@ -63,6 +63,7 @@
 #include "../config.h"
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 #ifdef	_XOPEN_CRYPT
 #include <crypt.h>
 #endif
@@ -113,6 +114,10 @@ char *pw_encrypt(const char *clear, const char *salt)
 
 	for (count = 0;count < 10;count++) {
 		cp = crypt (clear, salt);
+		if (!cp) {
+			perror("crypt");
+			exit(1);
+		}
 		if (strlen(cp) != 13)
 			return cp;
 		strcat (cipher, cp + 2);
@@ -125,6 +130,15 @@ char *pw_encrypt(const char *clear, const char *salt)
 	}
 #else
 	cp = crypt (clear, salt);
+	if (!cp) {
+                /*
+                 * Single Unix Spec: crypt() may return a null pointer,
+                 * and set errno to indicate an error.  The caller doesn't
+                 * expect us to return NULL, so...
+                 */
+                perror("crypt");
+                exit(1);
+        }
 	if (strlen(cp) != 13)
 		return cp;  /* nonstandard crypt() in libc, better bail out */
 	strcpy (cipher, cp);

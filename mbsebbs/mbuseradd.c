@@ -2,7 +2,7 @@
  *
  * File ..................: mbuseradd.c
  * Purpose ...............: setuid root version of useradd
- * Last modification date : 28-Jun-2001
+ * Last modification date : 25-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -41,8 +41,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
-
-#include <linux/limits.h>
+#include <sys/param.h>
 
 #include "mbuseradd.h"
 
@@ -71,7 +70,7 @@ int execute(char *cmd, char *file, char *in, char *out, char *err)
 			if (open(in, O_RDONLY) != 0) {
 				perror("");
 				fprintf(stderr, "mbuseradd: Reopen of stdin to %s failed\n", in);
-				exit(-1);
+				_exit(-1);
 			}
 		}
 		if (out) {
@@ -79,7 +78,7 @@ int execute(char *cmd, char *file, char *in, char *out, char *err)
 			if (open(out, O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
 				perror("");
 				fprintf(stderr, "mbuseradd: Reopen of stdout to %s failed\n", out);
-				exit(-1);
+				_exit(-1);
 			}
 		}
 		if (err) {
@@ -87,12 +86,12 @@ int execute(char *cmd, char *file, char *in, char *out, char *err)
 			if (open(err, O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
 				perror("");
 				fprintf(stderr, "mbuseradd: Reopen of stderr to %s failed\n", err);
-				exit(-1);
+				_exit(-1);
 			}
 		}
 		rc = execv(vector[0],vector);
 		fprintf(stderr, "mbuseradd: Exec \"%s\" returned %d\n", vector[0], rc);
-		exit(-1);
+		_exit(-1);
 	}
 
 	do {
@@ -135,19 +134,13 @@ int main(int argc, char *argv[])
 	char		*PassEnt, *temp, *shell;
 	int		i;
 	struct passwd	*pwent, *pwuser;
-	FILE		*fp;
-
-	if (setuid(0) == -1 || setgid(1) == -1) {
-		perror("");
-		fprintf(stderr, "mbuseradd: Unable to setuid(root) or setgid(root)\n");
-		fprintf(stderr, "Make sure that this program is set to -rwsr-sr-x\n");
-		fprintf(stderr, "Owner must be root and group root\n");
-		exit(1);
-	}
 
 	if (argc != 5)
 		Help();
 
+	/*
+	 *  First simple check for argument overflow
+	 */
 	for (i = 1; i < 5; i++) {
 		if (strlen(argv[i]) > 80) {
 			fprintf(stderr, "mbuseradd: Argument %d is too long\n", i);
@@ -159,10 +152,20 @@ int main(int argc, char *argv[])
 	temp    = calloc(PATH_MAX, sizeof(char));
 	shell   = calloc(PATH_MAX, sizeof(char));
 
+        if (setuid(0) == -1 || setgid(1) == -1) {
+                perror("");
+                fprintf(stderr, "mbuseradd: Unable to setuid(root) or setgid(root)\n");
+                fprintf(stderr, "Make sure that this program is set to -rwsr-sr-x\n");
+                fprintf(stderr, "Owner must be root and group root\n");
+                exit(1);
+        }
+	umask(0000);
+
 	/*
 	 * Build command to add user entry to the /etc/passwd and /etc/shadow
 	 * files. We use the systems own useradd program.
 	 */
+#ifdef __linux__
 	if ((access("/usr/bin/useradd", R_OK)) == 0)
 		strcpy(temp, "/usr/bin/useradd");
 	else if ((access("/bin/useradd", R_OK)) == 0)
@@ -175,11 +178,30 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "mbuseradd: Can't find useradd\n");
 		exit(1);
 	}
+#elif __FreeBSD__
+	if ((access("/usr/sbin/pw", X_OK)) == 0)
+		strcpy(temp, "/usr/sbin/pw");
+	else if ((access("/sbin/pw", X_OK)) == 0)
+		strcpy(temp, "/sbin/pw");
+	else {
+		fprintf(stderr, "mbuseradd: Can't find pw\n");
+		exit(1);
+	}
+#else
+	fprintf(stderr, "mbuseradd: Don't know how to add a user on this OS\n");
+	exit(1);
+#endif
 
 	sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
 
+#ifdef __linux__
 	sprintf(PassEnt, "%s -c \"%s\" -d %s/%s -g %s -s %s %s",
 		temp, argv[3], argv[4], argv[2], argv[1], shell, argv[2]);
+#endif
+#ifdef __FreeBSD__
+	sprintf(PassEnt, "%s useradd %s -c \"%s\" -d %s/%s -g %s -s %s",
+		temp, argv[2], argv[3], argv[4], argv[2], argv[1], shell);
+#endif
 	fflush(stdout);
 	fflush(stdin);
 

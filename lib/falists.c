@@ -2,7 +2,7 @@
  *
  * File ..................: falists.c
  * Purpose ...............: SEEN-BY and PATH lists
- * Last modification date : 25-Mar-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -76,7 +76,7 @@ int in_list(faddr *addr, fa_list **fap, int fourd)
 
 
 
-void fill_list(fa_list **fap, char *str, fa_list **omit, int force)
+void fill_list(fa_list **fap, char *str, fa_list **omit)
 {
 	fa_list			*tmp;
 	faddr			*ta;
@@ -109,7 +109,6 @@ void fill_list(fa_list **fap, char *str, fa_list **omit, int force)
 			tmp = (fa_list *)malloc(sizeof(fa_list));
 			tmp->next = *fap;
 			tmp->addr = ta;
-			tmp->force = force;
 			*fap = tmp;
 		}
 	}

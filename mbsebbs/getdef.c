@@ -2,7 +2,7 @@
  *
  * File ..................: mbuseradd/getdef.c
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 27-Jun-2001
+ * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
@@ -78,30 +78,37 @@ struct itemdef {
 	char *value;		/* value given, or NULL if no value	*/
 };
 
+
+
 /*
- * This list *must* be sorted by the "name" member.
+ *  This list *must* be sorted by the "name" member.
+ *  It doesn't hurt that there are extra entries here
+ *  that are not known by the system this is running
+ *  on. Missing entries here gives a nasty message to
+ *  new bbs users.
  */
 
 #define NUMDEFS	(sizeof(def_table)/sizeof(def_table[0]))
 static struct itemdef def_table[] = {
 	{ "CHFN_AUTH",			NULL },
 	{ "CHFN_RESTRICT",		NULL },
+	{ "CLOSE_SESSIONS",		NULL },
 	{ "CONSOLE",			NULL },
 	{ "CONSOLE_GROUPS",		NULL },
-#ifdef HAVE_LIBCRACK
 	{ "CRACKLIB_DICTPATH",		NULL },
-#endif
 	{ "CREATE_HOME",		NULL },
 	{ "DEFAULT_HOME",		NULL },
 	{ "DIALUPS_CHECK_ENAB",		NULL },
 	{ "ENVIRON_FILE",		NULL },
 	{ "ENV_HZ",			NULL },
 	{ "ENV_PATH" ,			NULL },
+	{ "ENV_ROOTPATH",		NULL },
 	{ "ENV_SUPATH",			NULL },
 	{ "ENV_TZ",			NULL },
 	{ "ERASECHAR",			NULL },
 	{ "FAILLOG_ENAB",		NULL },
 	{ "FAIL_DELAY",			NULL },
+	{ "FAKE_SHELL",			NULL },
 	{ "FTMP_FILE",			NULL },
 	{ "GID_MAX",			NULL },
 	{ "GID_MIN",			NULL },
@@ -121,6 +128,7 @@ static struct itemdef def_table[] = {
 	{ "MOTD_FILE",			NULL },
 	{ "NOLOGINS_FILE",		NULL },
 	{ "NOLOGIN_STR",		NULL },
+	{ "NO_PASSWORD_CONSOLE",	NULL },
 	{ "OBSCURE_CHECKS_ENAB",	NULL },
 	{ "PASS_ALWAYS_WARN",		NULL },
 	{ "PASS_CHANGE_TRIES",		NULL },

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/ptic.c
  * Purpose ...............: Process 1 .tic file
- * Last modification date : 08-Jul-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -730,7 +730,7 @@ int ProcessTic(fa_list *sbl, char *Realname)
 			if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) &&
 			    !((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node))) {
 				sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
-				fill_list(&sbl, sbe, NULL, FALSE);
+				fill_list(&sbl, sbe, NULL);
 			}
 		}
 
@@ -743,7 +743,7 @@ int ProcessTic(fa_list *sbl, char *Realname)
 				if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
 				      (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
 					sprintf(sbe, "%u:%u/%u", Link.aka.zone, Link.aka.net, Link.aka.node);
-					fill_list(&sbl, sbe, NULL, FALSE);
+					fill_list(&sbl, sbe, NULL);
 				}
 			}
 		}

@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Basic setup script for MBSE BBS
 #
-# (C) Michiel Broek, v0.17 26-May-2001
+# (C) Michiel Broek, v0.18 05-Aug-2001
 #
 # Customisation section, change the next variables to your need.
 # However, all docs refer to the setup below.
@@ -13,6 +13,7 @@ MHOME=/opt/mbse
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:
 DISTNAME=
 DISTVERS=
+OSTYPE=`uname -s`
 
 #------------------------------------------------------------------------
 #
@@ -42,48 +43,73 @@ read junk
 log "+" "MBSE BBS $0 started by `whoami`"
 log "+" "Current directory is `pwd`"
 
+# Check the OS type, only Linux for now.
+#
+if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ]; then
+
+    cat << EOF
+
+Your are trying to install MBSE BBS on a $OSTYPE system, however
+at this time only Linux or FreeBSD is supported.
+
+EOF
+    log "!" "Aborted, OS is $OSTYPE"
+    exit 2
+fi
+
 
 #
 # First do various tests to see which Linux distribution this is.
 #
-if [ -f /etc/slackware-version ]; then
-    # Slackware 7.0 and later
-    DISTNAME="Slackware"
-    DISTVERS=`cat /etc/slackware-version`
-else
-    if [ -f /etc/debian_version ]; then
-	# Debian, at least since version 2.2
-	DISTNAME="Debian"
-	DISTVERS=`cat /etc/debian_version`
+if [ "$OSTYPE" = "Linux" ]; then
+    PW=
+    if [ -f /etc/slackware-version ]; then
+    	# Slackware 7.0 and later
+    	DISTNAME="Slackware"
+    	DISTVERS=`cat /etc/slackware-version`
+	DISTVERS=${DISTVERS:0:3}
     else
-	if [ -f /etc/SuSE-release ]; then
-	    DISTNAME="SuSE"
-	    DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
-	else
-	    if [ -f /etc/redhat-release ]; then
-		DISTNAME="RedHat"
-		DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+    	if [ -f /etc/debian_version ]; then
+	    # Debian, at least since version 2.2
+	    DISTNAME="Debian"
+	    DISTVERS=`cat /etc/debian_version`
+    	else
+	    if [ -f /etc/SuSE-release ]; then
+	    	DISTNAME="SuSE"
+	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
 	    else
-		if [ -f /etc/mandrake-release ]; then
-		    DISTNAME="Mandrake"
-		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
-		else
-		    if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
-		    	# If Slackware wasn't detected yet it is version 4.0 or older.
-		    	DISTNAME="Slackware"
-		    	DISTVERS="Old"
+	    	if [ -f /etc/redhat-release ]; then
+		    DISTNAME="RedHat"
+		    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+	    	else
+		    if [ -f /etc/mandrake-release ]; then
+		    	DISTNAME="Mandrake"
+		    	# Format: Linux Mandrake release 8.0 (Cooker) for i586
+		    	DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
 		    else
-		    	DISTNAME="Unknown"
+		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
+		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
+		    	    DISTNAME="Slackware"
+		    	    DISTVERS="Old"
+		    	else
+		    	    DISTNAME="Unknown"
+		    	fi
 		    fi
-		fi
+	    	fi
 	    fi
-	fi
+    	fi
     fi
+fi # Linux
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    DISTNAME="FreeBSD"
+    DISTVERS=`uname -r`
+    DISTVERS=${DISTVERS:0:3}
+    PW="pw "
 fi
 
 
-log "+" "Detected \"${DISTNAME}\" version \"${DISTVERS}\""
+log "+" "Detected \"${OSTYPE}\" (${HOSTTYPE}) \"${DISTNAME}\" version \"${DISTVERS}\""
+
 
 # Basic checks.
 if [ `whoami` != "root" ]; then
@@ -129,19 +155,44 @@ if [ -f /etc/passwd.lock ]; then
 fi
 clear
 
-if [ -d /opt ]; then
-	log "+" "Directory /opt already present"
-else
-	mkdir /opt
+if [ "$OSTYPE" = "Linux" ]; then
+    if [ -d /opt ]; then
+    	log "+" "Directory /opt already present"
+    else
+    	mkdir /opt
+    	log "+" "[$?] Directory /opt created"
 	echo "Directory /opt created."
-	log "+" "Directory /opt created"
+    fi
+fi
+
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    #
+    #  FreeBSD uses /usr/local for extra packages and doesn't use /opt
+    #  Also using /opt means that we are in the root partition which
+    #  by default is very small. We put everything in /usr/local/opt
+    #  and create symlinks to it.
+    #
+    if [ -d /opt ]; then
+	log "+" "Directory /opt already present"
+    else
+    	if [ -d /usr/local/opt ]; then
+	    log "+" "Directory /usr/local/opt already present"
+    	else
+	    mkdir -p /usr/local/opt
+	    log "+" "[$?] Directory /usr/local/opt created"
+	    echo "Directory /usr/local/opt created."
+        fi
+    	ln -s /usr/local/opt /opt
+	log "+" "[$?] Link /opt to /usr/local/opt created"
+	echo "Link /opt to /usr/local/opt created."
+    fi
 fi
 
 
 cat << EOF
     Basic checks done.
 
-    The detected Linux distribution is $DISTNAME $DISTVERS
+    The detected $OSTYPE distribution is $DISTNAME $DISTVERS
 
     Everything looks allright to start the installation now.
     Next the script will install a new group 'bbs' and two new
@@ -164,7 +215,6 @@ echo -n "    press Enter to start the installation "
 read junk
 clear
 
-
 #------------------------------------------------------------------------
 #
 #  The real work starts here
@@ -173,10 +223,15 @@ log "+" "Starting installation"
 echo "Installing MBSE BBS for the first time..."
 echo ""
 echo -n "Adding group 'bbs'"
-groupadd bbs
+$PW groupadd bbs
 log "+" "[$?] Added group bbs"
 echo -n ", user 'mbse'"
-useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
+if [ "$OSTYPE" = "Linux" ]; then
+    useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
+fi
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G dialer -m -s /usr/local/bin/bash
+fi
 log "+" "[$?] Added user mbse"
 chmod 770 $MHOME
 log "+" "[$?] chmod 770 $MHOME"
@@ -207,34 +262,41 @@ echo "Now set the login password for user 'mbse'"
 passwd mbse
 log "+" "[$?] Password is set for user mbse"
 
+
 echo -n "Adding user 'bbs'"
-mkdir $MHOME/home
-log "+" "[$?] Created directory $MHOME/home"
+if [ ! -d $MHOME/home ]; then
+    mkdir $MHOME/home
+    log "+" "[$?] Created directory $MHOME/home"
+fi
 chown mbse.bbs $MHOME/home
-log "+" "[$?] chown mbse.bbs $MHOME/home
+log "+" "[$?] chown mbse.bbs $MHOME/home"
 chmod 775 $MHOME/home
-log "+" "[$?] chmod 775 $MHOME/home
-useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbsebbs bbs
-log "+" "[$?] Added user bbs"
+log "+" "[$?] chmod 775 $MHOME/home"
+if [ "$OSTYPE" = "Linux" ]; then
+    useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbsebbs bbs
+    log "+" "[$?] Added user bbs"
+fi
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    pw useradd bbs -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbsebbs
+    log "+" "[$?] Added user bbs"
+fi
 # Some systems (RedHat and Mandrake) insist on creating a users homedir.
 # These are full of garbage we don't need. Kill it first.
 if [ -d $MHOME/home/bbs ]; then
     rm -Rf $MHOME/home/bbs
     log "+" "[$?] Removed $MHOME/home/bbs"
 fi
-mkdir $MHOME/home/bbs
+mkdir -m 0770 $MHOME/home/bbs
 log "+" "[$?] mkdir $MHOME/home/bbs"
-chmod 770 $MHOME/home/bbs
-log "+" "[$?] chmod 770 $MHOME/home/bbs"
 chown mbse.bbs $MHOME/home/bbs
 log "+" "[$?] chown mbse.bbs $MHOME/home/bbs"
-touch $MHOME/home/bbs/.hushlogin
-log "+" "[$?] touch $MHOME/home/bbs/.hushlogin"
+
 
 echo ", removing password:"
-echo -n "$$" >/etc/passwd.lock
-if [ -f /etc/shadow ]; then
-	log "+" "Shadow password system"
+if [ "$OSTYPE" = "Linux" ]; then
+   echo -n "$$" >/etc/passwd.lock
+   if [ -f /etc/shadow ]; then
+	log "+" "Standard shadow password system"
 	# Not all systems are the same...
 	if [ "`grep bbs:\!\!: /etc/shadow`" != "" ]; then
 		sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
@@ -256,7 +318,7 @@ if [ -f /etc/shadow ]; then
 		log "+" "[$?] Default style owner of /etc/shadow (0600 root.root)"
 	fi
 	echo " File /etc/shadow.mbse is your backup of /etc/shadow"
-else
+    else
 	log "+" "Not a shadow password system"
         if [ "`grep bbs:\!\!: /etc/passwd`" != "" ]; then
                 sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/passwd >/etc/passwd.bbs
@@ -271,9 +333,18 @@ else
         chmod 644 /etc/passwd
 	log "+" "[$?] Changed owner of /etc/passwd"
 	echo " File /etc/passwd.mbse is your backup of /etc/passwd"
+    fi
+    rm /etc/passwd.lock
 fi
-rm /etc/passwd.lock
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    #
+    #  FreeBSD has a util to remove a password
+    #
+    chpass -p "" bbs
+    log "+" "[$?] Removed password of user bbs"
+fi
 echo ""
+
 
 if [ "`grep binkp /etc/services`" = "" ]; then
         BINKD=TRUE
@@ -358,8 +429,15 @@ cat << EOF
      or /etc/shadow, the backup copies have the extension '.mbse'.
      Then issue (as root of course) the following commands:
 
-       userdel bbs
-       userdel -r mbse
-       groupdel bbs
 EOF
+if [ "$OSTYPE" = "Linux" ]; then
+    echo "     userdel bbs"
+    echo "     userdel -r mbse"
+    echo "     groupdel bbs"
+fi
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    echo "     pw userdel bbs -r"
+    echo "     pw userdel mbse -r"
+    echo "     pw groupdel bbs"
+fi
 

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/rnews.c
  * Purpose ...............: rnews function
- * Last modification date : 19-Jul-2001
+ * Last modification date : 14-Aug-2001
  * Remarks ...............: Most of these functions are borrowed from inn.
  *
  *****************************************************************************
@@ -42,7 +42,7 @@
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
 #include "pack.h"
-#include "scannews.h"
+#include "rfc2ftn.h"
 #include "mbfido.h"
 #include "paths.h"
 #include "rnews.h"
@@ -88,6 +88,8 @@ static HEADER   RequiredHeaders[] = {
 #define ISWHITE(c)		((c) == ' ' || (c) == '\t')
 #define caseEQn(a, b, n)	(strncasecmp((a), (b), (size_t)(n)) == 0)
 
+
+
 /*
  *  External variables
  */
@@ -95,6 +97,7 @@ extern	int	do_quiet;
 extern	int	most_debug;
 extern	int	news_in;
 extern	int	news_dupe;
+extern	int	check_dupe;
 
 
 void ProcessOne(FILE *);
@@ -109,9 +112,11 @@ const char *HeaderFindMem(const char *Article, const int ArtLen, const char *Hea
 	const char	*p;
 
 	for (p = Article; ; ) {
-		/* Match first character, then colon, then whitespace (don't
+		/*
+		 * Match first character, then colon, then whitespace (don't
 		 * delete that line -- meet the RFC!) then compare the rest
-		 * of the word. */
+		 * of the word.
+		 */
 		if (HeaderLen + 1 < Article + ArtLen - p && p[HeaderLen] == ':'
 			&& ISWHITE(p[HeaderLen + 1]) && caseEQn(p, Header, (size_t)HeaderLen)) {
 			p += HeaderLen + 2;
@@ -274,7 +279,6 @@ static int Process(char *article)
 	char	*id = NULL;
 	FILE	*fp;
 
-	Syslog('n', "Process article");
 	/*
 	 * Empty article?
 	 */
@@ -538,7 +542,7 @@ static int UnpackOne(int *fdp, int *countp)
 
 
 
-void NewsUUCP(int unspool)
+void NewsUUCP(void)
 {
 	int	fd = STDIN, i, rc;
 
@@ -550,19 +554,11 @@ void NewsUUCP(int unspool)
 		printf("Process UUCP Newsbatch\n");
 	}
 
-	if (unspool) {
-//		Unspool();
-	} else {
-//		if (!UnpackOne(&fd, &i))
-//			Spool(fd);
-		most_debug = TRUE;
-		rc = UnpackOne(&fd, &i);
-		most_debug = FALSE;
-		Syslog('+', "Batch result=%d", rc);
-		WaitForChildren(i);
-	}
-
-	Syslog('+', "End of UUCP batch");
+	most_debug = TRUE;
+	rc = UnpackOne(&fd, &i);
+	most_debug = FALSE;
+	WaitForChildren(i);
+	Syslog('+', "End of UUCP batch, rc=%d", rc);
 	packmail();
 
 	if (!do_quiet)
@@ -601,7 +597,7 @@ void ProcessOne(FILE *fp)
 					groups[nrofgroups] = xstrcpy(group);
 					nrofgroups++;
 				} else {
-					Syslog('n', "Newsgroup %s doesn't exist", group);
+					Syslog('-', "Newsgroup %s doesn't exist", group);
 				}
 			}
 		}
@@ -620,19 +616,19 @@ void ProcessOne(FILE *fp)
 	} else if (mbuf == NULL) {
 		WriteError("No valid Message-ID found");
 	} else {
-		news_in++;
 		IsDoing("Article %d", (news_in + 1));
 		for (i = 0; i < nrofgroups; i++) {
 			Syslog('n', "Process %s", groups[i]);
 			p = xstrcpy(mbuf);
 			p = xstrcat(p, groups[i]);
 			crc = str_crc32(p);
-			if (CheckDupe(crc, D_NEWS, CFG.nntpdupes)) {
+			if (check_dupe && CheckDupe(crc, D_NEWS, CFG.nntpdupes)) {
 				news_dupe++;
+				news_in++;
 				Syslog('+', "Duplicate article \"%s\" in group %s", mbuf, groups[i]);
 			} else {
 				if (SearchMsgsNews(groups[i])) {
-					do_article(fp);
+					rfc2ftn(fp, NULL);
 				}
 			}
 			free(groups[i]);

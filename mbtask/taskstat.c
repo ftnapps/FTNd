@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/taskstat.c
  * Purpose ...............: Keep track of server status 
- * Last modification date : 09-Jul-2001
+ * Last modification date : 30-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -115,9 +115,6 @@ void status_init()
 	cnt = read(stat_fd, &status, sizeof(status_r));
 	if (cnt != sizeof(status_r)) {
 		printf("Error reading status file\n");
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		exit(1);
 	}
 	status.startups++;
@@ -128,9 +125,6 @@ void status_init()
 	cnt = write(stat_fd, &status, sizeof(status_r));
 	if (cnt != sizeof(status_r)) {
 		tasklog('?', "$Error rewrite status file\n");
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		exit(1);
 	}
 	close(stat_fd);

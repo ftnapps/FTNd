@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 27-May-2001</h5>
+<h5>Last update 07-Aug-2001</h5>
 <P>&nbsp;<P>
 
 <h1>MBSE BBS Basic Installation</h1>
@@ -27,13 +27,13 @@ environment. If you don't do this, things will fail.
 MBSE BBS is default installed in <b>/opt/mbse</b>. The spoolfiles (in and
 outbound, message bases) go into <b>/var/spool/mbse</b>. In the <b>/opt/mbse</b>
 path are several subdirectories, <b>bin</b> for the binaries, <b>etc</b> for the
-configuration and some scripts, <b>english</b> and <b>dutch</b> for the language
+configuration and some scripts, <b>english, spanish, italian</b> and <b>dutch</b> for the language
 files and menus, <b>home</b> for the users homedirectories, <b>log</b> for the
 logfiles, <b>magic</b> for the filerequest magicnames, <b>fdb</b> for the files
 database, <b>var</b> for some statistic files and <b>tmp</b> as temp directory.
 <p>
 Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard Linux
-filesystems (ext2). If you intent to make your bbs also accessible
+filesystems (ext2 or reiserfs). If you intent to make your bbs also accessible
 by FTP and WWW you must create the directory structure under the ftp user
 behind the pub directory. Read <a href="misc/ftpserver.html">the
 ftp server</a> doc for details. If you don't follow these guidlines, you
@@ -63,8 +63,10 @@ tar xfvz /path/to/the/mbsebbs-0.33.nn.tar.gz
 To start the script type:
 <pre>
 cd mbsebbs-0.33.nn
-sh ./SETUP.sh
+bash ./SETUP.sh
 </pre>
+Yes, use <b>bash</b> as shell here. On some systems root doesn't use  bash
+as login shell, calling the script with bash forces the use of bash.
 The script does the following:
 <ol>
  <li>Create the group <strong>bbs</strong>
@@ -80,6 +82,7 @@ easy to guess of course. The script will then continue again:
  <li>The user <strong>bbs</strong> is added.
  <li>The password will be removed from user <strong>bbs</strong> This action
 will make changes in /etc/shadow (if you have that) otherwise in /etc/passwd.
+On FreeBSD it uses other tools to modify the master database.
  <li>If they don't exist in the file /etc/services the services fido, tfido
 and binkp will be added.
  <li>If they don't exist in the file /etc/inetd.conf the internet protocols
@@ -94,6 +97,11 @@ The last screen of the script is about sanity checks. Perform those checks!
 If something is wrong, now is the time to fix it. Don't panic and remember
 the backups of the system files that are changed are in /etc with the 
 extension <strong>.mbse</strong> i.e: those were the original files.
+If everythings is allright, then remove the directory /tmp/mbsebbs-0.33.nn:
+<pre>
+cd /tmp
+rm -Rf mbsebbs-0.33.nn
+</pre>
 <p>&nbsp;<p>
 
 <h3>Step 4: Install the basic packages.</h3>
@@ -103,9 +111,7 @@ archives:
 <pre>
 tar xfvz /path/to/mbsebbs-0.33.nn.tar.gz
 </pre>
-You now have the subdirectory with sources in the right place. Indeed, if you
-have a new installation, you also have unpacked the archive somewere else
-to run the installation script. That one can be removed.
+You now have the subdirectory with sources in the right place. 
 Next build the binaries and install them using the folowing commands:
 <pre>
 cd ~/mbsebbs-0.33.nn
@@ -119,7 +125,7 @@ exit
 The last part of the installation procedure shows you the location of the bbs
 startup script that is added to your system.  Because this is your first
 time installation, example menus, textfiles and some databases are installed. 
-If they already excist on your systems (when you do an upgrade) they
+If they already exist on your systems (when you do an upgrade) they
 will not be installed again.
 <p>
 Now you must start the <b>mbtask</b> daemon by hand by typing <b>/opt/mbse/bin/mbtask</b>.

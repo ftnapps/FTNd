@@ -4060,3 +4060,86 @@ v0.33.17        21-May-2001
 		Replaced the internet menu and txtfiles with versions that work
 		with the current menu structure.
 
+
+v0.33.18        27-Jul-2001
+
+	Upgrade:
+		In your Mail Transport Agent (if you use it) replace the line
+		"mbmail -r <nexthop> (recipients)" to mbmail "(recipients)".
+		In postfix this is in the master.cf file.
+
+	SETUP.sh:
+		Doesn't create .huslogin anymore for user bbs.
+		Script does now work on FreeBSD.
+
+	common.a:
+		Corrected some defines in parsedate.c to include/exclude the
+		right code.
+		Changed the rawio to termios style instead of termio.
+		Added ufs filesystem as normal filesystem to the diskfree 
+		function.
+
+	mbftpd:
+		Removed the subdirectory for this not finished program. It may
+		or may not return later.
+
+	mbfido:
+		Filefind replies had a wrong ^aREPLY kludge.
+		Rewrote a lot of code so that similar functions are only once
+		present. This will make bughunting and maintaining much easier.
+		Scanned netmail from point addresses created with GoldED are 
+		now always checked for missing FMPT, TOPT and INTL kludges and
+		they are inserted when missing.
+		The checkdupe switch also work in uucp mode (mbnews).
+		The code for mbmail is now merged into mbfido. A symlink from
+		mbmail to mbfido is created to let mbfido run in mail mode.
+		The syntax to call mbmail is changed.
+
+	mbmail:
+		Obsolete, the functions are now in mbfido.
+
+	mbtask:
+		Removed all references to the Memwatch debugger, mbtask is oke
+		but the debugger fills up the harddisk (very fast).
+		Does now respond again to external semafore's mailout, mailin
+		and scanout in the semafore directory.
+		Removes stale socket file if found.
+
+	mbpasswd:
+		Added CLOSE_SESSIONS and ENV_ROOTPATH to getdef to prevent new
+		user error messages on some distributions.
+		Ported to work on FreeBSD.
+
+	mbindex:
+		Patched by Ken Bowley to prevent a crash when the 300 baud 
+		field is the last item on the nodelist line.
+
+	mbmon:
+		Changed the rawio to termios style instead of termio.
+		Shows the OS name in the info screen.
+
+	mbsetup:
+		Shows the OS name in the info screen.
+		Creates default tty records with tty names for the right
+		OS (I hope).
+
+	mbcico:
+		Renamed sendfile function in zmsend.c to sendzfile to prevent a
+		conflict with an excisting library call on FreeBSD.
+
+	mball:
+		Removed some compiler warnings on some systems.
+
+	mbsebbs:
+		Removed some compiler warnings on some systems.
+
+	mbuseradd:
+		Ported to work on FreeBSD.
+
+	mbpasswd:
+		Ported to work on FreeBSD.
+
+	htmldoc:
+		Upgraded the FTSC documents to the current state.
+
+

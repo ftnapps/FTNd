@@ -2,7 +2,7 @@
  *
  * File ..................: mbmon/mbmon.c
  * Purpose ...............: Monitor Program 
- * Last modification date : 29-Jun-2001
+ * Last modification date : 11-Aug-2001
  * Todo ..................: Trace logfiles
  *                          Chat with user via server
  *
@@ -366,7 +366,13 @@ void soft_info(void)
 {
 	clr_index();
 	set_color(YELLOW, BLACK);
-	center_addstr( 7, (char *)"MBSE BBS");
+#ifdef __linux__
+	center_addstr( 7, (char *)"MBSE BBS (Linux)");
+#elif __FreeBSD__
+	center_addstr( 7, (char *)"MBSE BBS (FreeBSD)");
+#else
+	center_addstr( 7, (char *)"MBSE BBS (Unknown)");
+#endif
 	set_color(WHITE, BLACK);
 	center_addstr( 9, (char *)"(c) Michiel Broek");
 	set_color(YELLOW, BLACK);

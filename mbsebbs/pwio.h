@@ -1,6 +1,14 @@
 #ifndef	_PWIO_H
 #define	_PWIO_H
 
+#ifndef PASSWD_FILE
+#define PASSWD_FILE "/etc/passwd"
+#endif
+
+#ifndef GROUP_FILE
+#define GROUP_FILE "/etc/group"
+#endif
+
 struct passwd *__pw_dup (const struct passwd *);
 void __pw_set_changed (void);
 int pw_close (void);

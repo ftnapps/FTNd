@@ -2,7 +2,7 @@
  *
  * File ..................: mbmail/mkftnhdr.c
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 25-Mar-2001
+ * Last modification date : 14-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -206,7 +206,7 @@ int ftnmsgid(char *msgid, char **s, unsigned long *n, char *areaname)
 
 
 
-ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode)
+ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *recipient)
 {
 	char		*freename = NULL, *rfcfrom = NULL, *p, *q, *l, *r;
 	char		*fbuf = NULL;
@@ -228,8 +228,10 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode)
 			p = xstrcpy(hdr((char *)"X-Fidonet-Comment-To",msg));
 		if (p == NULL) 
 			p = xstrcpy(hdr((char *)"X-Apparently-To",msg));
+		if (p == NULL)
+			p = xstrcpy(hdr((char *)"To", msg));  /* 14-Aug-2001 MB */
 		if (p) {
-			Syslog('N', "getting `to' address from: \"%s\"",p);
+			Syslog('n', "getting `to' address from: \"%s\"",p);
 			if ((tmsg->to = parsefaddr(p)) == NULL)
 				tmsg->to = parsefaddr((char *)"All@p0.f0.n0.z0");
 			if ((l = strrchr(p,'<')) && (r = strchr(p,'>')) && (l < r)) {
@@ -271,10 +273,55 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode)
 				tmsg->to->name=xstrcpy(l);
 			}
 			free(p);
-		} else
-			tmsg->to = parsefaddr((char *)"All@p0.f0.n0.z0");
-		Syslog('n', "TO: %s",ascinode(tmsg->to,0x7f));
-	}
+			/*
+			 *  It will become echomail, the destination FTN address must
+			 *  be our address.  14-Aug-2001 MB.
+			 */
+			tmsg->to->zone   = msgs.Aka.zone;
+			tmsg->to->net    = msgs.Aka.net;
+			tmsg->to->node   = msgs.Aka.node;
+			tmsg->to->point  = msgs.Aka.point;
+			tmsg->to->domain = xstrcpy(msgs.Aka.domain);
+		} else {
+			Syslog('n', "Filling default To: address");
+			tmsg->to = (faddr*)malloc(sizeof(faddr));
+			tmsg->to->name   = xstrcpy((char *)"All");
+			tmsg->to->zone   = msgs.Aka.zone;
+			tmsg->to->net    = msgs.Aka.net;
+			tmsg->to->node   = msgs.Aka.node;
+			tmsg->to->point  = msgs.Aka.point;
+			tmsg->to->domain = xstrcpy(msgs.Aka.domain);
+		}
+		Syslog('n', "TO: %s",ascfnode(tmsg->to,0xff));
+	} else {
+		if (recipient) {
+			/*
+			 *  In mbmail mode the recipient is valid and must be used 
+			 *  as the destination address. The To: field is probably
+			 *  an RFC address an cannot be used to route the message.
+			 */
+			tmsg->to = (faddr *)malloc(sizeof(faddr));
+			tmsg->to->point = recipient->point;
+			tmsg->to->node  = recipient->node;
+			tmsg->to->net   = recipient->net;
+			tmsg->to->zone  = recipient->zone;
+			tmsg->to->name  = xstrcpy(recipient->name);
+			if (tmsg->to->name && (strlen(tmsg->to->name) > MAXNAME))
+				tmsg->to->name[MAXNAME]='\0';
+			tmsg->to->domain = xstrcpy(recipient->domain);
+			Syslog('m', "Recipient TO: %s", ascfnode(tmsg->to,0xff));
+		} else {
+			p = xstrcpy(hdr((char *)"To",msg));
+			if (p == NULL)
+				p = xstrcpy(hdr((char *)"X-Apparently-To",msg));
+			if (p) {
+				if ((tmsg->to = parsefaddr(p)) == NULL)
+					WriteError("Unparsable destination address");
+				else
+					Syslog('m', "RFC parsed TO: %s",ascfnode(tmsg->to,0xff));
+			}
+		}
+	} /* else (newsmode) */
 
 	p = fbuf = xstrcpy(hdr((char *)"Reply-To", msg));
 	if (fbuf == NULL) 
@@ -376,9 +423,12 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode)
 
 	Syslog('m', "From address was%s distinguished as ftn", tmsg->from ? "" : " not");
 
-	/* FIXME: received email from an Unix mailer comes here as well, only the From address is set.
-		  The msgs.Aka next is not valid. */
-	if ((tmsg->from == NULL) && ((bestaka = bestaka_s(fido2faddr(msgs.Aka))))) {
+	if (newsmode)
+		bestaka = bestaka_s(fido2faddr(msgs.Aka));
+	else
+		bestaka = bestaka_s(tmsg->to);
+
+	if ((tmsg->from == NULL) && (bestaka)) {
 		if (CFG.dontregate) {
 			p = xstrcpy(hdr((char *)"X-FTN-Sender",msg));
 			if (p == NULL) {
@@ -522,7 +572,10 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode)
 	Syslog('m', "DATE: %s, MSGID: %s %lx, REPLY: %s %lx",
 		ftndate(tmsg->date), MBSE_SS(tmsg->msgid_a),tmsg->msgid_n, MBSE_SS(tmsg->reply_a),tmsg->reply_n);
 
-	if ((p = hdr((char *)"Organization",msg))) {
+	p = hdr((char *)"Organization",msg);
+	if (p == NULL)
+		p = hdr((char *)"Organisation",msg);
+	if (p) {
 		while (isspace(*p)) 
 			p++;
                 tmsg->origin = xstrcpy(hdrconv(p, incode, outcode));

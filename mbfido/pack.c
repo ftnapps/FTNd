@@ -2,7 +2,7 @@
  *
  * File ..................: tosser/pack.c
  * Purpose ...............: Pack mail
- * Last modification date : 11-Mar-2001
+ * Last modification date : 05-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -369,6 +369,9 @@ void packmail()
 	char		*temp;
 	struct	dirent	*de;
 	DIR		*dp;
+
+	if (!diskfree(CFG.freespace))
+		return;
 
 	IsDoing("Packing mail");
 	if (!do_quiet) {

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/filemgr.c
  * Purpose ...............: FileMgr
- * Last modification date : 11-Mar-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -66,8 +66,6 @@ extern	int	echo_imp;		/* Echomail imported		    */
 extern	int	echo_out;		/* Echomail forwarded		    */
 extern	int	echo_bad;		/* Bad fileecho			    */
 extern	int	echo_dupe;		/* Dupe fileecho		    */
-extern	char	*subj;			/* Message subject		    */
-extern	char	*msgid;			/* Original message id		    */
 
 int	filemgr = 0;			/* Nr of FileMgr messages	    */
 int	f_help  = FALSE;
@@ -78,14 +76,14 @@ int	f_unlnk	= FALSE;
 
 
 
-void F_Help(faddr *);
-void F_Help(faddr *t)
+void F_Help(faddr *, char *);
+void F_Help(faddr *t, char *replyid)
 {
 	FILE	*fp;
 
 	Syslog('+', "FileMgr: Help");
 
-	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr help", msgid)) != NULL) {
+	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr help", replyid)) != NULL) {
 		fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Filemgr");
 		fprintf(fp, "Youre FileMgr password goes on the subject line.\r\r");
 
@@ -134,8 +132,8 @@ void F_Help(faddr *t)
 
 
 
-void F_Query(faddr *);
-void F_Query(faddr *t)
+void F_Query(faddr *, char *);
+void F_Query(faddr *t, char *replyid)
 {
 	FILE		*qp, *gp, *fp;
 	char		*temp, *Group;
@@ -147,7 +145,7 @@ void F_Query(faddr *t)
 	Syslog('+', "FileMgr: Query");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", replyid)) != NULL) {
 
 		temp = calloc(128, sizeof(char));
 
@@ -237,7 +235,7 @@ void F_Query(faddr *t)
 
 
 
-void F_List(faddr *t, int Notify)
+void F_List(faddr *t, char *replyid, int Notify)
 {
 	FILE		*qp, *gp, *fp;
 	char		*temp, *Group;
@@ -252,7 +250,7 @@ void F_List(faddr *t, int Notify)
 		Syslog('+', "FileMgr: List");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", replyid)) != NULL) {
 
 		WriteFileGroups(qp, f);
 		temp = calloc(128, sizeof(char));
@@ -340,8 +338,8 @@ void F_List(faddr *t, int Notify)
 
 
 
-void F_Status(faddr *);
-void F_Status(faddr *t)
+void F_Status(faddr *, char *);
+void F_Status(faddr *t, char *replyid)
 {
 	FILE	*fp;
 	int	i;
@@ -352,7 +350,7 @@ void F_Status(faddr *t)
 	else
 		i = Miy - 1;
 
-	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr Status", msgid)) != NULL) {
+	if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr Status", replyid)) != NULL) {
 
 		fprintf(fp, "Here is your fileecho status:\r\r");
 
@@ -389,8 +387,8 @@ void F_Status(faddr *t)
 
 
 
-void F_Unlinked(faddr *);
-void F_Unlinked(faddr *t)
+void F_Unlinked(faddr *, char *);
+void F_Unlinked(faddr *t, char *replyid)
 {
 	FILE		*qp, *gp, *fp;
 	char		*temp, *Group;
@@ -402,7 +400,7 @@ void F_Unlinked(faddr *t)
 	Syslog('+', "FileMgr: Unlinked");
 	f = bestaka_s(t);
 
-	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", msgid)) != NULL) {
+	if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", replyid)) != NULL) {
 
 		temp = calloc(128, sizeof(char));
 
@@ -823,7 +821,7 @@ void F_Tick(faddr *t, char *Buf, FILE *tmp)
 
 
 
-int FileMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
+int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int flags, FILE *fp)
 {
 	int		i, rc = 0, spaces;
 	char		*Buf;
@@ -930,7 +928,7 @@ int FileMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
 	}
 
 	if (ftell(tmp)) {
-		if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your FileMgr request", msgid)) != NULL) {
+		if ((np = SendMgrMail(f, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your FileMgr request", replyid)) != NULL) {
 
 			fprintf(np, "     Dear %s\r\r", nodes.Sysop);
 			fprintf(np, "Here is the result of your FileMgr request:\r\r");
@@ -954,19 +952,19 @@ int FileMgr(faddr *f, faddr *t, time_t mdate, int flags, FILE *fp)
 	fclose(tmp);
 
 	if (f_stat)
-		F_Status(f);
+		F_Status(f, replyid);
 
 	if (f_query)
-		F_Query(f);
+		F_Query(f, replyid);
 
 	if (f_list)
-		F_List(f, FALSE);
+		F_List(f, replyid, FALSE);
 
 	if (f_unlnk)
-		F_Unlinked(f);
+		F_Unlinked(f, replyid);
 
 	if (f_help)
-		F_Help(f);
+		F_Help(f, replyid);
 
 	return rc;
 }

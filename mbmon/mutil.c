@@ -2,7 +2,7 @@
  *
  * File ..................: mutil.c
  * Purpose ...............: Utilities
- * Last modification date : 25-May-2001
+ * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -32,6 +32,8 @@
 #include "../lib/libs.h"
 #include "common.h"
 #include "mutil.h"
+
+extern	int	ttyfd;
 
 
 unsigned char readkey(int y, int x, int fg, int bg)

@@ -2,7 +2,7 @@
  *
  * File ..................: jammsg.c 
  * Purpose ...............: JAM message base functions
- * Last modification date : 23-Jun-2001
+ * Last modification date : 03-Aug-2001
  *
  *****************************************************************************
  *
@@ -363,8 +363,6 @@ unsigned long JAM_Highest(void)
 
 int JAM_Lock(unsigned long ulTimeout)
 {
-//	char	*File;
-//	int	fd = -1, Tries = 0;
 	int		Tries = 0;
 	struct flock	fl;
 
@@ -383,23 +381,6 @@ int JAM_Lock(unsigned long ulTimeout)
 		usleep(250000);
 		Syslog('m', "JAM messagebase lock attempt %d", Tries);
 	}
-
-//	File = calloc(PATH_MAX, sizeof(char));
-//	sprintf(File, "%s%s", BaseName, ".LCK");
-
-//	while ((fd = creat(File, 0)) == -1 && errno == EACCES) {
-//		if (++Tries >= ulTimeout) {
-//			free(File);
-//			return FALSE;
-//		}
-//		sleep(1);
-//	}
-//	free(File);
-
-//	if (fd == -1)
-//		return FALSE;
-
-//	close(fd);
 	return TRUE;
 }
 
@@ -1301,15 +1282,6 @@ void JAM_UnLock(void)
 	if (fcntl(fdHdr, F_SETLK, &fl)) {
 		WriteError("$Can't unlock JAM message base");
 	}
-
-//	char	*File;
-
-//	File = calloc(PATH_MAX, sizeof(char));
-//	sprintf(File, "%s%s", BaseName, ".LCK");
-
-//	if (unlink(File) == -1)
-//		WriteError("jammsg: unlock error");
-//	free(File);
 }
 
 

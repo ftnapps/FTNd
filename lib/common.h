@@ -351,8 +351,8 @@ extern struct _pkey {
 extern char SigName[32][16];
 
 
-int	ttyfd;				/* Filedescriptor for raw mode	    */
-struct	termio	tbuf, tbufsav;		/* Structure for raw mode	    */
+int	ttyfd;				/* Filedescriptor for raw mode	*/
+struct	termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
 
 
 
@@ -399,7 +399,7 @@ fidoaddr	str2aka(char *addr);
  * From falists.c
  */
 void		tidy_falist(fa_list **);
-void		fill_list(fa_list **,char *,fa_list **, int);
+void		fill_list(fa_list **,char *,fa_list **);
 void		fill_path(fa_list **,char *);
 void		sort_list(fa_list **);
 void		uniq_list(fa_list **);

@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 AUTOMAKE_OPTIONS = foreign dist-zip no-installinfo no-installman
 EXTRA_DIST = COPYING DEBUG CRON.sh FILE_ID.DIZ.in README README.GoldED SETUP.sh TODO UPGRADE files.css checkbasic
@@ -94,9 +94,9 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -272,6 +272,11 @@ distdir: $(DISTFILES)
 	-rm -rf $(distdir)
 	mkdir $(distdir)
 	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -371,24 +376,90 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 install-exec-local:
 	@./checkbasic
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
-	$(mkinstalldirs) $(prefix)/{bin,etc,etc/maptabs,doc,fdb,home,log,magic,sema,var,tmp}
-	$(mkinstalldirs) $(prefix)/{dutch,dutch/txtfiles,dutch/menus,dutch/macro}
-	$(mkinstalldirs) $(prefix)/{english,english/txtfiles,english/menus,english/macro}
-	$(mkinstalldirs) $(prefix)/{italian,italian/txtfiles,italian/menus,italian/macro}
-	$(mkinstalldirs) $(prefix)/{spanish,spanish/txtfiles,spanish/menus,spanish/macro}
-	chown @OWNER@.@GROUP@ $(prefix)/{bin,etc,etc/maptabs,doc,fdb,home,log,magic,sema,var,tmp}
-	chown @OWNER@.@GROUP@ $(prefix)/{dutch,dutch/txtfiles,dutch/menus,dutch/macro}
-	chown @OWNER@.@GROUP@ $(prefix)/{english,english/txtfiles,english/menus,english/macro}
-	chown @OWNER@.@GROUP@ $(prefix)/{italian,italian/txtfiles,italian/menus,italian/macro}
-	chown @OWNER@.@GROUP@ $(prefix)/{spanish,spanish/txtfiles,spanish/menus,spanish/macro}
-	chmod 777 $(prefix)/{sema,tmp}
-	$(mkinstalldirs) /var/spool/mbse
-	$(mkinstalldirs) /var/spool/mbse/{nodelist,unknown,inbound,outbound,badtic,ticqueue,ftp,mail}
-	chown -R @OWNER@.@GROUP@ /var/spool/mbse
-	chmod -R 755 /var/spool/mbse
+	@if [ ! -d $(prefix)/bin ] ; then \
+		$(mkinstalldirs) $(prefix)/bin ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/bin ; \
+	fi
+	@if [ ! -d $(prefix)/etc ] ; then \
+		$(mkinstalldirs) $(prefix)/etc ; \
+		$(mkinstalldirs) $(prefix)/etc/maptabs ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/etc ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/etc/maptabs ; \
+	fi
+	@if [ ! -d $(prefix)/doc ] ; then \
+		$(mkinstalldirs) $(prefix)/doc ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/doc ; \
+	fi
+	@if [ ! -d $(prefix)/fdb ] ; then \
+		$(mkinstalldirs) $(prefix)/fdb ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/fdb ; \
+	fi
+	@if [ ! -d $(prefix)/log ] ; then \
+		$(mkinstalldirs) $(prefix)/log ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/log ; \
+	fi
+	@if [ ! -d $(prefix)/magic ] ; then \
+		$(mkinstalldirs) $(prefix)/magic ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/magic ; \
+	fi
+	@if [ ! -d $(prefix)/sema ] ; then \
+		$(mkinstalldirs) $(prefix)/sema ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/sema ; \
+		chmod 0777 $(prefix)/sema ; \
+	fi
+	@if [ ! -d $(prefix)/var ] ; then \
+		$(mkinstalldirs) $(prefix)/var ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/var ; \
+	fi
+	@if [ ! -d $(prefix)/tmp ] ; then \
+		$(mkinstalldirs) $(prefix)/tmp ; \
+		${CHOWN} @OWNER@.@GROUP@ $(prefix)/tmp ; \
+		chmod 0777 $(prefix)/tmp ; \
+	fi
+	@if [ ! -d $(prefix)/dutch ] ; then \
+		$(mkinstalldirs) $(prefix)/dutch ; \
+		$(mkinstalldirs) $(prefix)/dutch/txtfiles ; \
+		$(mkinstalldirs) $(prefix)/dutch/menus ; \
+		$(mkinstalldirs) $(prefix)/dutch/macro ; \
+		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/dutch ; \
+	fi
+	@if [ ! -d $(prefix)/english ] ; then \
+		$(mkinstalldirs) $(prefix)/english ; \
+		$(mkinstalldirs) $(prefix)/english/txtfiles ; \
+		$(mkinstalldirs) $(prefix)/english/menus ; \
+		$(mkinstalldirs) $(prefix)/english/macro ; \
+		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/english ; \
+	fi
+	@if [ ! -d $(prefix)/italian ] ; then \
+		$(mkinstalldirs) $(prefix)/italian ; \
+		$(mkinstalldirs) $(prefix)/italian/txtfiles ; \
+		$(mkinstalldirs) $(prefix)/italian/menus ; \
+		$(mkinstalldirs) $(prefix)/italian/macro ; \
+		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/italian ; \
+	fi
+	@if [ ! -d $(prefix)/spanish ] ; then \
+		$(mkinstalldirs) $(prefix)/spanish ; \
+		$(mkinstalldirs) $(prefix)/spanish/txtfiles ; \
+		$(mkinstalldirs) $(prefix)/spanish/menus ; \
+		$(mkinstalldirs) $(prefix)/spanish/macro ; \
+		${CHOWN} -R @OWNER@.@GROUP@ $(prefix)/spanish ; \
+	fi
+	@if [ ! -d /var/spool/mbse ] ; then \
+		$(mkinstalldirs) /var/spool/mbse ; \
+		$(mkinstalldirs) /var/spool/mbse/nodelist ; \
+		$(mkinstalldirs) /var/spool/mbse/unknown ; \
+		$(mkinstalldirs) /var/spool/mbse/inbound ; \
+		$(mkinstalldirs) /var/spool/mbse/outbound ; \
+		$(mkinstalldirs) /var/spool/mbse/badtic ; \
+		$(mkinstalldirs) /var/spool/mbse/ticqueue ; \
+		$(mkinstalldirs) /var/spool/mbse/ftp ; \
+		$(mkinstalldirs) /var/spool/mbse/mail ; \
+		${CHOWN} -R @OWNER@.@GROUP@ /var/spool/mbse ; \
+		chmod -R 0755 /var/spool/mbse ; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

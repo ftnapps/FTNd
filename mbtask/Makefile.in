@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 SUBDIRS = .
 
@@ -80,8 +80,6 @@ noinst_PROGRAMS = mbtask
 
 mbtask_SOURCES = mbtask.c mbtask.h signame.c signame.h taskutil.c taskutil.h taskcomm.c taskcomm.h taskstat.c taskstat.h taskdisk.c taskdisk.h taskregs.c taskregs.h taskinfo.c taskinfo.h outstat.c outstat.h scanout.c scanout.h nodelist.c nodelist.h callstat.c callstat.h libs.h
 
-
-LDADD = ../lib/libmemwatch.a
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -96,7 +94,7 @@ mbtask_OBJECTS =  mbtask.o signame.o taskutil.o taskcomm.o taskstat.o \
 taskdisk.o taskregs.o taskinfo.o outstat.o scanout.o nodelist.o \
 callstat.o
 mbtask_LDADD = $(LDADD)
-mbtask_DEPENDENCIES =  ../lib/libmemwatch.a
+mbtask_DEPENDENCIES = 
 mbtask_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -109,6 +107,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
+DEP_FILES =  .deps/callstat.P .deps/mbtask.P .deps/nodelist.P \
+.deps/outstat.P .deps/scanout.P .deps/signame.P .deps/taskcomm.P \
+.deps/taskdisk.P .deps/taskinfo.P .deps/taskregs.P .deps/taskstat.P \
+.deps/taskutil.P
 SOURCES = $(mbtask_SOURCES)
 OBJECTS = $(mbtask_OBJECTS)
 
@@ -116,9 +118,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps mbtask/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu mbtask/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -131,9 +133,6 @@ clean-noinstPROGRAMS:
 distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -249,6 +248,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = mbtask
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu mbtask/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -269,32 +273,38 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-callstat.o: callstat.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskutil.h callstat.h
-mbtask.o: mbtask.c libs.h ../config.h ../lib/memwatch.h ../lib/structs.h \
-	signame.h taskstat.h taskutil.h taskregs.h taskcomm.h outstat.h \
-	nodelist.h mbtask.h
-nodelist.o: nodelist.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskutil.h nodelist.h
-outstat.o: outstat.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskutil.h scanout.h nodelist.h callstat.h \
-	outstat.h
-scanout.o: scanout.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskutil.h scanout.h
-signame.o: signame.c signame.h
-taskcomm.o: taskcomm.c libs.h ../config.h ../lib/memwatch.h taskstat.h \
-	taskregs.h taskdisk.h taskinfo.h taskutil.h taskcomm.h
-taskdisk.o: taskdisk.c libs.h ../config.h ../lib/memwatch.h taskdisk.h \
-	taskutil.h
-taskinfo.o: taskinfo.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskinfo.h
-taskregs.o: taskregs.c libs.h ../config.h ../lib/memwatch.h taskstat.h \
-	taskregs.h taskutil.h
-taskstat.o: taskstat.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h taskstat.h outstat.h taskutil.h
-taskutil.o: taskutil.c libs.h ../config.h ../lib/memwatch.h \
-	../lib/structs.h signame.h scanout.h taskutil.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -332,23 +342,24 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-generic \
-		mostlyclean-am
+clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-noinstPROGRAMS distclean-compile distclean-tags \
-		distclean-generic clean-am
+		distclean-depend distclean-generic clean-am
 
 distclean: distclean-recursive
 
 maintainer-clean-am:  maintainer-clean-noinstPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -363,20 +374,23 @@ uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck \
-install-exec-local install-exec-am install-exec install-data-am \
-install-data install-am install uninstall-am uninstall all-redirect \
-all-am all installdirs-am installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-local install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+#  LDADD = ../lib/libmemwatch.a
 
 install-exec-local:
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
-	$(INSTALL) -s -o root -g root -m 6711 mbtask $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbtask $(bindir)
 	@if [ -f $(sysconfdir)/mbsed.conf ]; then \
 		rm $(sysconfdir)/mbsed.conf ; \
 	fi

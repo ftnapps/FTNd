@@ -62,7 +62,6 @@ extern	int	do_quiet;
 extern	int	net_in;			/* Netmails received		    */
 extern	int	net_out;		/* Netmails forwarded		    */
 extern	int	net_bad;		/* Bad netmails (tracking errors    */
-extern	char	*subj;			/* Message subject		    */
 extern	char	*msgid;			/* Original message id		    */
 
 

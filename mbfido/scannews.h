@@ -32,7 +32,6 @@ enum { RETVAL_ERROR = -1, RETVAL_OK = 0, RETVAL_NOARTICLES, RETVAL_UNEXPECTEDANS
 
 
 void ScanNews(void);
-int  do_article(FILE *);
 
 
 #endif

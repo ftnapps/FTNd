@@ -2,10 +2,10 @@
  *
  * File ..................: mbcico/openport.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 23-Dec-2000
+ * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -115,12 +115,6 @@ int openport(char *port, int speed)
 			fflush(stderr);
 			close(2);
 		}
-
-//		if (setpgrp() < 0) {
-//			WriteError("$openport: setpgrp failed");
-//			ulock(pname);
-//			return 1;
-//		}
 	}
 	tty_status = 0;
 	hanged_up = 0;
@@ -282,14 +276,15 @@ void sendbrk(void)
 }
 
 
-static struct termios savetios;
-static struct termios tios;
-
 
 char *bstr(speed_t);
 char *bstr(speed_t sp)
 {
+#ifdef CBAUD
 	switch(sp & CBAUD) {
+#else
+	switch(sp) {
+#endif
 		case 0:		return (char *)"0";
 #if defined(B50)
 		case B50:	return (char *)"50";
@@ -386,6 +381,9 @@ char *bstr(speed_t sp)
 }
 
 
+
+static struct termios savetios;
+static struct termios tios;
 
 
 int tty_raw(int speed)

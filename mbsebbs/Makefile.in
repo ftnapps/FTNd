@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 SUBDIRS = .
 noinst_PROGRAMS = mbsebbs mball mblang mbchat mbfbgen mbstat mbtoberep mbuser mbuseradd mbpasswd
@@ -94,7 +94,7 @@ mbuser_SOURCES = mbuser.c mbuser.h
 
 mbuseradd_SOURCES = mbuseradd.c mbuseradd.h
 
-mbpasswd_SOURCES = mbpasswd.c commonio.c pwio.c shadowio.c sgetpwent.c xmalloc.c myname.c rad64.c salt.c getdef.c encrypt.c mbpasswd.h commonio.h pwio.h shadowio.h sgetpwent.h xmalloc.h myname.h rad64.h salt.h getdef.h encrypt.h
+mbpasswd_SOURCES = mbpasswd.c commonio.c pwio.c shadowio.c sgetpwent.c xmalloc.c myname.c rad64.c salt.c getdef.c encrypt.c putpwent.c mbpasswd.h commonio.h pwio.h shadowio.h sgetpwent.h xmalloc.h myname.h rad64.h salt.h getdef.h encrypt.h putpwent.h
 
 
 mbsebbs_LDADD = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libmbinet.a
@@ -157,7 +157,7 @@ mbuseradd_LDADD = $(LDADD)
 mbuseradd_DEPENDENCIES = 
 mbuseradd_LDFLAGS = 
 mbpasswd_OBJECTS =  mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
-xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o
+xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o
 mbpasswd_LDADD = $(LDADD)
 mbpasswd_DEPENDENCIES = 
 mbpasswd_LDFLAGS = 
@@ -172,6 +172,19 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
+DEP_FILES =  .deps/bank.P .deps/bbslist.P .deps/bye.P .deps/change.P \
+.deps/chat.P .deps/commonio.P .deps/email.P .deps/encrypt.P \
+.deps/exitinfo.P .deps/file.P .deps/filesub.P .deps/fsedit.P \
+.deps/funcs.P .deps/funcs4.P .deps/getdef.P .deps/language.P \
+.deps/lineedit.P .deps/mail.P .deps/mball.P .deps/mbchat.P \
+.deps/mbfbgen.P .deps/mblang.P .deps/mbpasswd.P .deps/mbsebbs.P \
+.deps/mbstat.P .deps/mbtoberep.P .deps/mbuser.P .deps/mbuseradd.P \
+.deps/menu.P .deps/misc.P .deps/msgutil.P .deps/myname.P \
+.deps/newuser.P .deps/nextuser.P .deps/offline.P .deps/oneline.P \
+.deps/page.P .deps/pinfo.P .deps/pop3.P .deps/putpwent.P \
+.deps/pwcheck.P .deps/pwio.P .deps/rad64.P .deps/safe.P .deps/salt.P \
+.deps/sgetpwent.P .deps/shadowio.P .deps/timecheck.P .deps/timeout.P \
+.deps/user.P .deps/xmalloc.P
 SOURCES = $(mbsebbs_SOURCES) $(mball_SOURCES) $(mblang_SOURCES) $(mbchat_SOURCES) $(mbfbgen_SOURCES) $(mbstat_SOURCES) $(mbtoberep_SOURCES) $(mbuser_SOURCES) $(mbuseradd_SOURCES) $(mbpasswd_SOURCES)
 OBJECTS = $(mbsebbs_OBJECTS) $(mball_OBJECTS) $(mblang_OBJECTS) $(mbchat_OBJECTS) $(mbfbgen_OBJECTS) $(mbstat_OBJECTS) $(mbtoberep_OBJECTS) $(mbuser_OBJECTS) $(mbuseradd_OBJECTS) $(mbpasswd_OBJECTS)
 
@@ -179,9 +192,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps mbsebbs/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu mbsebbs/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -194,9 +207,6 @@ clean-noinstPROGRAMS:
 distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -348,6 +358,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = mbsebbs
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu mbsebbs/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -368,174 +383,38 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-bank.o: bank.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h \
-	../lib/common.h bank.h funcs4.h language.h funcs.h timeout.h \
-	timecheck.h exitinfo.h
-bbslist.o: bbslist.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/clcomm.h ../lib/common.h bbslist.h \
-	funcs.h funcs4.h language.h
-bye.o: bye.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h \
-	../lib/common.h funcs.h language.h bye.h
-change.o: change.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h change.h \
-	funcs.h funcs4.h language.h misc.h pwcheck.h timeout.h \
-	exitinfo.h bye.h
-chat.o: chat.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h chat.h funcs.h funcs4.h language.h misc.h \
-	exitinfo.h
-commonio.o: commonio.c ../config.h commonio.h
-email.o: email.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/msgtext.h ../lib/msg.h ../lib/common.h \
-	../lib/clcomm.h ../lib/mbinet.h exitinfo.h language.h mail.h \
-	timeout.h msgutil.h funcs4.h email.h
-encrypt.o: encrypt.c ../config.h encrypt.h
-exitinfo.o: exitinfo.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h funcs.h \
-	funcs4.h language.h oneline.h misc.h bye.h timeout.h \
-	timecheck.h exitinfo.h
-file.o: file.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h filesub.h file.h funcs.h funcs4.h language.h \
-	misc.h timeout.h exitinfo.h change.h
-filesub.o: filesub.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h \
-	funcs.h language.h funcs4.h misc.h timeout.h exitinfo.h \
-	change.h
-fsedit.o: fsedit.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/ansi.h ../lib/common.h ../lib/clcomm.h \
-	mail.h funcs4.h language.h timeout.h pinfo.h fsedit.h
-funcs.o: funcs.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/msg.h \
-	../lib/clcomm.h funcs.h language.h funcs4.h oneline.h misc.h \
-	bye.h timeout.h timecheck.h exitinfo.h mail.h email.h
-funcs4.o: funcs4.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/msg.h \
-	funcs4.h misc.h timeout.h language.h
-getdef.o: getdef.c ../config.h getdef.h
-language.o: language.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h funcs4.h \
-	language.h
-lineedit.o: lineedit.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h mail.h \
-	funcs4.h language.h timeout.h lineedit.h
-mail.o: mail.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/msgtext.h ../lib/clcomm.h ../lib/msg.h mail.h funcs.h \
-	funcs4.h language.h misc.h timeout.h oneline.h exitinfo.h \
-	lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h
-mball.o: mball.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/mbse.h \
-	../lib/records.h ../lib/common.h ../lib/dbcfg.h ../lib/clcomm.h \
-	mball.h
-mbchat.o: mbchat.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h
-mbfbgen.o: mbfbgen.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h
-mblang.o: mblang.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h
-mbpasswd.o: mbpasswd.c ../config.h encrypt.h rad64.h myname.h xmalloc.h \
-	pwio.h shadowio.h mbpasswd.h
-mbsebbs.o: mbsebbs.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h \
-	mbsebbs.h user.h funcs.h funcs4.h language.h menu.h misc.h \
-	bye.h timeout.h
-mbstat.o: mbstat.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbstat.h
-mbtoberep.o: mbtoberep.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h
-mbuser.o: mbuser.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbuser.h
-mbuseradd.o: mbuseradd.c ../config.h mbuseradd.h
-menu.o: menu.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h oneline.h mail.h bbslist.h change.h bank.h \
-	chat.h file.h funcs.h funcs4.h misc.h nextuser.h safe.h \
-	timeout.h menu.h page.h pinfo.h bye.h timecheck.h exitinfo.h \
-	language.h offline.h email.h
-misc.o: misc.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h \
-	../lib/common.h funcs.h funcs4.h language.h misc.h timeout.h \
-	exitinfo.h
-msgutil.o: msgutil.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h \
-	../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
-myname.o: myname.c ../config.h
-newuser.o: newuser.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/clcomm.h ../lib/common.h funcs4.h \
-	pwcheck.h newuser.h language.h timeout.h change.h bye.h
-nextuser.o: nextuser.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/ansi.h ../lib/clcomm.h ../lib/common.h \
-	nextuser.h funcs.h funcs4.h language.h timeout.h
-offline.o: offline.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/mbse.h \
-	../lib/records.h ../lib/bluewave.h ../lib/common.h \
-	../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h \
-	funcs4.h language.h file.h filesub.h exitinfo.h timeout.h \
-	msgutil.h pop3.h offline.h
-oneline.o: oneline.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h oneline.h \
-	funcs.h funcs4.h language.h
-page.o: page.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h funcs.h funcs4.h chat.h page.h timeout.h mail.h \
-	language.h
-pinfo.o: pinfo.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h funcs4.h
-pop3.o: pop3.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h \
-	msgutil.h pop3.h
-pwcheck.o: pwcheck.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h pwcheck.h \
-	funcs4.h timeout.h
-pwio.o: pwio.c ../config.h sgetpwent.h commonio.h pwio.h
-rad64.o: rad64.c ../config.h rad64.h
-safe.o: safe.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h \
-	../lib/common.h exitinfo.h funcs.h funcs4.h misc.h safe.h \
-	timeout.h language.h
-salt.o: salt.c ../config.h rad64.h getdef.h
-sgetpwent.o: sgetpwent.c ../config.h sgetpwent.h
-shadowio.o: shadowio.c ../config.h commonio.h shadowio.h
-timecheck.o: timecheck.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/clcomm.h ../lib/common.h timecheck.h \
-	funcs.h funcs4.h misc.h bye.h exitinfo.h language.h
-timeout.o: timeout.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/mbse.h ../lib/structs.h \
-	../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h \
-	timeout.h funcs.h funcs4.h bye.h filesub.h language.h
-user.o: user.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h timeout.h user.h pwcheck.h funcs.h funcs4.h \
-	misc.h bye.h file.h mail.h change.h menu.h exitinfo.h \
-	language.h offline.h statetbl.h email.h newuser.h
-xmalloc.o: xmalloc.c ../config.h xmalloc.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -573,23 +452,24 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-generic \
-		mostlyclean-am
+clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-noinstPROGRAMS distclean-compile distclean-tags \
-		distclean-generic clean-am
+		distclean-depend distclean-generic clean-am
 
 distclean: distclean-recursive
 
 maintainer-clean-am:  maintainer-clean-noinstPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -604,17 +484,18 @@ uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck \
-install-exec-local install-exec-am install-exec install-data-am \
-install-data install-am install uninstall-am uninstall all-redirect \
-all-am all installdirs-am installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-local install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 install-exec-local:
-	@if [ "$(shell whoami)" != "root" ] ; then \
+	@if [ "`id -un`" != "root" ] ; then \
 		echo; echo " Must be root to install!"; echo; exit 3; \
 	fi
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 6711 mbsebbs   $(bindir)
@@ -624,9 +505,9 @@ install-exec-local:
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbfbgen   $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbstat    $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@  -m 0711 mbtoberep $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbuser    $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbuseradd $(bindir)
-	$(INSTALL) -s -g root -o root -m 6711 mbpasswd  $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbuser    $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbuseradd $(bindir)
+	$(INSTALL) -s -o `id -un` -g `id -gn` -m 6711 mbpasswd  $(bindir)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -2,7 +2,7 @@
  *
  * File ..................: mbsebbs/mball.c
  * Purpose ...............: Creates allfiles listings
- * Last modification date : 28-Jun-2001
+ * Last modification date : 09-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -564,7 +564,7 @@ void MakeIndex()
 								if (strlen(file.Desc[z])) {
 									if (z == 0)
 										fprintf(fp, "%-12s %7luK %s ", file.Name, 
-											file.Size / 1024, 
+											(long)(file.Size / 1024), 
 											StrDateDMY(file.UploadDate));
 									else
 										fprintf(fp, "                                 ");
@@ -604,7 +604,8 @@ void MakeIndex()
 									area.Path+strlen(CFG.ftp_base), file.Name, file.Name);
 							}
 							fprintf(fa, "<TD><PRE>%s</PRE></TD>", StrDateDMY(file.FileDate));
-							fprintf(fa, "<TD align=right><PRE>%lu Kb.</PRE></TD>", file.Size / 1024);
+							fprintf(fa, "<TD align=right><PRE>%lu Kb.</PRE></TD>", 
+								(long)(file.Size / 1024));
 							fprintf(fa, "<TD><PRE>%8ld</PRE></TD>", 
 								file.TimesDL + file.TimesFTP + file.TimesReq);
 							fprintf(fa, "<TD><PRE>");
@@ -856,7 +857,7 @@ void Masterlist()
 						if((!file.Deleted) && (!file.Missing)) {
 							New = (((t_start - file.UploadDate) / 84400) <= CFG.newdays);
 							sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
-								file.Name, file.Size / 1024, StrDateDMY(file.UploadDate), 
+								file.Name, (long)(file.Size / 1024), StrDateDMY(file.UploadDate), 
 								file.TimesDL + file.TimesFTP + file.TimesReq, 
 								strlen(file.Uploader)?file.Uploader:"");
 							fprintf(fp, "%s\r\n", temp);

@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 22-jul-2001</h5>
+<h5>Last update 27-jul-2001</h5>
 <P>&nbsp;<P>
 
 <H1>Semafore files with MBSE BBS.</H1>
@@ -19,7 +19,7 @@
 The directory $MBSE_ROOT/sema is the hardcoded semafore directory where all
 semafore's must be created, tested and removed. When the system is booting,
 the init script will erase all semafore's just before the BBS is started.
-This description is valid from MBSE BBS v0.33.17 and newer.
+This description is valid from MBSE BBS v0.33.18 and newer.
 
 <PRE>
 zmh		Purpose: to mark the state of Zone Mail Hour. 
@@ -38,6 +38,18 @@ upsdown		Purpose: Signal that the system will go down on low battery.
 
 newnews		Purpose: Signal that there are new articles on the news server.
 		Checked by mbtask to start news processing.
+		Removed by mbtask as soon as it is detected.
+
+mailout		Purpose: Signal that there is mail posted in the message base.
+		Checked by mbtask to start scan the message base.
+		Removed by mbtask as soon as it is detected.
+
+mailin		Purpose: Signal that there is new mail in the inbound.
+		Checked by mbtask to start the tosser.
+		Removed by mbtask as soon as it is detected.
+
+scanout		Purpose: Signal that the outbound must be rescanned.
+		Checked by mbtask to check the outbound.
 		Removed by mbtask as soon as it is detected.
 
 mbtask.last	Purpose: A timestamp created and touched by "mbtask" every

@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 EXTRA_DIST = README
 SUBDIRS = .
@@ -121,6 +121,17 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
+DEP_FILES =  .deps/answer.P .deps/atoul.P .deps/binkp.P .deps/call.P \
+.deps/callall.P .deps/callstat.P .deps/chat.P .deps/dial.P \
+.deps/dietifna.P .deps/emsi.P .deps/emsidat.P .deps/filelist.P \
+.deps/filetime.P .deps/ftsc.P .deps/hydra.P .deps/lutil.P \
+.deps/m7recv.P .deps/m7send.P .deps/mbcico.P .deps/mbout.P \
+.deps/nlinfo.P .deps/openfile.P .deps/openport.P .deps/opentcp.P \
+.deps/outstat.P .deps/portsel.P .deps/rdoptions.P .deps/recvbark.P \
+.deps/respfreq.P .deps/scanout.P .deps/sendbark.P .deps/session.P \
+.deps/tcp.P .deps/tcpproto.P .deps/ttyio.P .deps/ulock.P .deps/wazoo.P \
+.deps/xmrecv.P .deps/xmsend.P .deps/yoohoo.P .deps/zmmisc.P \
+.deps/zmrecv.P .deps/zmrle.P .deps/zmsend.P
 SOURCES = $(mbcico_SOURCES) $(mbout_SOURCES)
 OBJECTS = $(mbcico_OBJECTS) $(mbout_OBJECTS)
 
@@ -128,9 +139,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps mbcico/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu mbcico/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -143,9 +154,6 @@ clean-noinstPROGRAMS:
 distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -265,6 +273,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = mbcico
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu mbcico/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -285,170 +298,38 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-answer.o: answer.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h lutil.h \
-	session.h config.h answer.h openport.h portsel.h dial.h \
-	rdoptions.h mbcico.h
-atoul.o: atoul.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h atoul.h
-binkp.o: binkp.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/dbnode.h ../lib/clcomm.h ttyio.h \
-	session.h statetbl.h config.h emsi.h openfile.h respfreq.h \
-	filelist.h opentcp.h rdoptions.h lutil.h binkp.h
-call.o: call.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h ../lib/dbnode.h session.h callstat.h call.h \
-	config.h dial.h lutil.h portsel.h openport.h opentcp.h \
-	rdoptions.h
-callall.o: callall.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	config.h ../lib/clcomm.h scanout.h lutil.h callstat.h callall.h
-callstat.o: callstat.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/clcomm.h ../lib/common.h callstat.h
-chat.o: chat.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h config.h portsel.h chat.h ttyio.h
-dial.o: dial.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h ../lib/dbnode.h portsel.h config.h chat.h \
-	ttyio.h session.h dial.h
-dietifna.o: dietifna.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h emsi.h dietifna.h respfreq.h \
-	filelist.h xmrecv.h xmsend.h
-emsi.o: emsi.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/dbnode.h ../lib/clcomm.h ttyio.h session.h statetbl.h \
-	config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h
-emsidat.o: emsidat.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h emsi.h \
-	session.h lutil.h config.h emsidat.h filetime.h
-filelist.o: filelist.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/clcomm.h ../lib/common.h config.h session.h filelist.h
-filetime.o: filetime.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h filetime.h
-ftsc.o: ftsc.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/records.h ../lib/common.h \
-	../lib/clcomm.h session.h ttyio.h statetbl.h config.h ftsc.h \
-	rdoptions.h recvbark.h filelist.h sendbark.h respfreq.h \
-	xmrecv.h xmsend.h
-hydra.o: hydra.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h session.h filelist.h filetime.h ttyio.h \
-	statetbl.h config.h emsi.h openfile.h lutil.h respfreq.h \
-	mbcico.h hydra.h
-lutil.o: lutil.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h lutil.h
-m7recv.o: m7recv.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h statetbl.h ttyio.h m7recv.h
-m7send.o: m7send.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h statetbl.h ttyio.h m7send.h
-mbcico.o: mbcico.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
-	../lib/dbftn.h config.h answer.h portsel.h call.h callall.h \
-	lutil.h mbcico.h session.h
-mbout.o: mbout.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
-	../lib/dbftn.h outstat.h nlinfo.h
-nlinfo.o: nlinfo.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h nlinfo.h
-openfile.o: openfile.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
-	../lib/common.h config.h lutil.h openfile.h
-openport.o: openport.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ulock.h ttyio.h openport.h
-opentcp.o: opentcp.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h session.h \
-	ttyio.h openport.h opentcp.h
-outstat.o: outstat.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
-	../lib/dbftn.h scanout.h callstat.h outstat.h
-portsel.o: portsel.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h portsel.h
-rdoptions.o: rdoptions.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h portsel.h \
-	session.h config.h
-recvbark.o: recvbark.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h statetbl.h recvbark.h \
-	respfreq.h filelist.h
-respfreq.o: respfreq.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h session.h lutil.h config.h \
-	atoul.h respfreq.h filelist.h
-scanout.o: scanout.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ../lib/dbftn.h config.h \
-	scanout.h lutil.h
-sendbark.o: sendbark.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h statetbl.h sendbark.h \
-	xmrecv.h
-session.o: session.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ttyio.h statetbl.h emsi.h \
-	ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h
-tcp.o: tcp.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
-	../lib/structs.h ../lib/common.h ../lib/clcomm.h ttyio.h \
-	session.h statetbl.h config.h emsi.h respfreq.h filelist.h \
-	tcpproto.h tcp.h
-tcpproto.o: tcpproto.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h config.h emsi.h lutil.h \
-	openfile.h filelist.h tcpproto.h
-ttyio.o: ttyio.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/common.h ../lib/clcomm.h ttyio.h lutil.h
-ulock.o: ulock.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/clcomm.h
-wazoo.o: wazoo.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h statetbl.h config.h emsi.h \
-	respfreq.h filelist.h wazoo.h zmodem.h
-xmrecv.o: xmrecv.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h session.h ttyio.h statetbl.h config.h lutil.h \
-	openfile.h m7recv.h xmrecv.h filetime.h
-xmsend.o: xmsend.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h session.h ttyio.h statetbl.h xmsend.h m7send.h \
-	filelist.h filetime.h
-yoohoo.o: yoohoo.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
-	../lib/clcomm.h ../lib/common.h ../lib/dbnode.h statetbl.h \
-	ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h \
-	dietifna.h yoohoo.h
-zmmisc.o: zmmisc.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h zmodem.h
-zmrecv.o: zmrecv.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
-	../lib/common.h lutil.h ttyio.h session.h zmodem.h config.h \
-	emsi.h openfile.h openport.h
-zmrle.o: zmrle.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
-	../lib/common.h ttyio.h session.h zmodem.h
-zmsend.o: zmsend.c ../lib/libs.h ../lib/../config.h \
-	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
-	../lib/clcomm.h ttyio.h session.h zmodem.h lutil.h emsi.h \
-	filelist.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -486,23 +367,24 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-generic \
-		mostlyclean-am
+clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-noinstPROGRAMS distclean-compile distclean-tags \
-		distclean-generic clean-am
+		distclean-depend distclean-generic clean-am
 
 distclean: distclean-recursive
 
 maintainer-clean-am:  maintainer-clean-noinstPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -517,17 +399,17 @@ uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck \
-install-exec-local install-exec-am install-exec install-data-am \
-install-data install-am install uninstall-am uninstall all-redirect \
-all-am all installdirs-am installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-local install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 install-exec-local:
-	$(mkinstalldirs) $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 4751 mbcico $(bindir)
 	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 0711 mbout  $(bindir)
 

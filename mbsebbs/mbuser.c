@@ -2,7 +2,7 @@
  *
  * File ..................: mbuser/mbuser.c
  * Purpose ...............: User Pack Util
- * Last modification date : 01-Jul-2001
+ * Last modification date : 12-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -305,8 +305,13 @@ void UserPack(int days, int level, int pack)
 						WriteError("Cannot setuid(root) or setgid(root)");
 						WriteError("Cannot delete unix account %s", usr.Name);
 					} else {
+#ifndef __FreeBSD__
 						rc = execute((char *)"/usr/sbin/userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+#else
+						rc = execute((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
+							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+#endif
 						if (chdir(CFG.bbs_usersdir) == 0)
 							rc = execute((char *)"/bin/rm -Rf ", usr.Name, NULL,
 								(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");

@@ -1,9 +1,9 @@
 #
 # ~/bin/mbse.start
 # BBS Shutdown script, should be run as BBS owner.
-# Note: this is only used on Slackware systems.
+# Note: this is only used on Slackware and FreeBSD systems.
 #
-# 27-May-2001 MB.
+# 13-Aug-2001 MB.
 
 export PATH="/sbin:/usr/sbin:/bin:/usr/bin:$MBSE_ROOT/bin:"
 

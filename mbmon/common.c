@@ -2,7 +2,7 @@
  *
  * File ..................: mbmon/common.c
  * Purpose ...............: Common utilities
- * Last modification date : 25-May-2001
+ * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -39,6 +39,8 @@ unsigned long	lcrc = 0, tcrc = 1;	/* CRC value of logstring	*/
 int		lcnt = 0;		/* Same message counter		*/
 static char	*pbuff = NULL;
 static int      sock = -1;      	/* TCP/IP socket		*/
+int		ttyfd;			/* Filedescriptor for raw mode	*/
+struct termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
 
 struct sockaddr_un	clntaddr;	/* Client socket address	*/
 struct sockaddr_un	servaddr;	/* Server socket address	*/
@@ -453,25 +455,39 @@ int rawset = FALSE;
  */
 void Setraw()
 {
-	if (ioctl(ttyfd, TCGETA, &tbuf) == -1) {
-		perror("TCGETA Failed");
-		exit(1);  /* ERROR  - could not set get tty ioctl */
+	int	rc;
+
+	if ((rc = tcgetattr(ttyfd, &tbufs))) {
+		perror("");
+		printf("$tcgetattr(0, save) return %d\n", rc);
+		exit(1);
 	}
 
-	tbufsav = tbuf;
-	tbuf.c_iflag &= ~(INLCR | ICRNL | IUCLC | ISTRIP | IXON  );
+//	if (ioctl(ttyfd, TCGETA, &tbuf) == -1) {
+//		perror("TCGETA Failed");
+//		exit(1);  /* ERROR  - could not set get tty ioctl */
+//	}
+
+	tbufsavs = tbufs;
+	tbufs.c_iflag &= ~(INLCR | ICRNL | ISTRIP | IXON  );
 	/*
 	 *  Map CRNL modes strip control characters and flow control
 	 */
-	tbuf.c_oflag &= ~OPOST;   	   /* Don't do ouput character translation */
-	tbuf.c_lflag &= ~(ICANON | ECHO);  /* No canonical input and no echo */
-	tbuf.c_cc[VMIN]  = 1;  		   /* Receive 1 character at a time */
-	tbuf.c_cc[VTIME] = 0;  		   /* No time limit per character */
+	tbufs.c_oflag &= ~OPOST;   	   /* Don't do ouput character translation */
+	tbufs.c_lflag &= ~(ICANON | ECHO);  /* No canonical input and no echo */
+	tbufs.c_cc[VMIN]  = 1;  		   /* Receive 1 character at a time */
+	tbufs.c_cc[VTIME] = 0;  		   /* No time limit per character */
 
-	if (ioctl(ttyfd, TCSETAF, &tbuf) == -1) {
-		perror("TCSETAF failed");
-		exit(1);  /* ERROR - could not set tty ioctl */
+	if ((rc = tcsetattr(ttyfd, TCSADRAIN, &tbufs))) {
+		perror("");
+		printf("$tcsetattr(%d, TCSADRAIN, raw) return %d\n", ttyfd, rc);
+		exit(1);
 	}
+
+//	if (ioctl(ttyfd, TCSETAF, &tbuf) == -1) {
+//		perror("TCSETAF failed");
+//		exit(1);  /* ERROR - could not set tty ioctl */
+//	}
 
 	rawset = TRUE;
 }
@@ -483,13 +499,20 @@ void Setraw()
  */
 void Unsetraw()
 {
+	int	rc;
+
 	/*
 	 * Only unset the mode if it is set to raw mode
 	 */
 	if (rawset == TRUE) {
-		if (ioctl(ttyfd, TCSETAF, &tbufsav) == -1) {
-			perror("TCSETAF Normal Failed");
-			exit(1);  /* ERROR  - could not save original tty ioctl */
+//		if (ioctl(ttyfd, TCSETAF, &tbufsav) == -1) {
+//			perror("TCSETAF Normal Failed");
+//			exit(1);  /* ERROR  - could not save original tty ioctl */
+//		}
+		if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
+			perror("");
+			printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
+			exit(1);
 		}
 	}
 	rawset = FALSE;

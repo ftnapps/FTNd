@@ -2,10 +2,10 @@
  *
  * File ..................: mbaff/filefind.c
  * Purpose ...............: Announce new files and FileFind
- * Last modification date : 25-Aug-2000
+ * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -192,7 +192,7 @@ int StartReply(ff_list *ffl)
 	 *  Start message text including kludges
 	 */
 	Msg_Id(scanmgr.Aka);
-	sprintf(temp, "\001REPLYID: %s", ffl->msgid);
+	sprintf(temp, "\001REPLY: %s", ffl->msgid);
 	MsgText_Add2(temp);
 	Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
 	Msg_Pid();
@@ -408,7 +408,8 @@ void ScanFiles(ff_list *tmp)
 							if (!strcmp(rft->filename, file.Name))
 								break;
 						fclose(pFile);
-						sprintf(temp, "%-12s %5lu Kb. %s", tu(file.Name), file.Size / 1024, To_Low(file.Desc[0],scanmgr.HiAscii));
+						sprintf(temp, "%-12s %5lu Kb. %s", tu(file.Name), (long)(file.Size / 1024), 
+								To_Low(file.Desc[0],scanmgr.HiAscii));
 						MsgText_Add2(temp);
 
 						/*

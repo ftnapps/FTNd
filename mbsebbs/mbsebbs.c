@@ -102,6 +102,13 @@ int main(int argc, char **argv)
 #endif
 		exit(1);
 	}
+//        if (seteuid(pw->pw_uid) == -1) {
+//                perror("Can't seteuid() to \"mbse\" user");
+//#ifdef MEMWATCH
+//                mwTerm();
+//#endif
+//                exit(1);
+//        }
 
 	/* 
 	 * Set local time and statistic indexes.
@@ -158,7 +165,7 @@ int main(int argc, char **argv)
 		sprintf(pTTY, "%s", tty);
 	}
 
-	umask(007);
+	umask(000);
 
 	/* 
 	 * Trap signals

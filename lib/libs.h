@@ -2,7 +2,7 @@
  *
  * File ..................: libs.h
  * Purpose ...............: Libraries include list
- * Last modification date : 23-May-2001
+ * Last modification date : 05-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -55,7 +55,7 @@
 #include <errno.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
-#include <termio.h>	
+#include <termios.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <dirent.h>   
@@ -63,9 +63,13 @@
 #include <stdarg.h>
 #include <pwd.h>
 #include <netdb.h>
+#ifdef	SHADOW_PASSWORD
 #include <shadow.h>
+#endif
 #include <sys/ioctl.h>
+#ifdef	HAVE_SYS_VFS_H
 #include <sys/vfs.h>
+#endif
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/utsname.h>

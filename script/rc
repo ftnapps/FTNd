@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# $MBSE_ROOT/etc/rc:  BBS Startup script for Slackware.
+# $MBSE_ROOT/etc/rc:  BBS Startup script for Slackware and FreeBSD
 #
-# 08-Jul-1999
+# 13-Aug-2001
 
 # Remove stale tempfiles from cron.
 rm -f /tmp/cron.mbse.*

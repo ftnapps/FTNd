@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/forward.c
  * Purpose ...............: File forward to a node
- * Last modification date : 11-Mar-2001
+ * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -133,7 +133,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			fprintf(net, "File        : %s\r", TIC.TicIn.OrgName);
 			fprintf(net, "Description : %s\r", TIC.TicIn.Desc);
 			fprintf(net, "Area        : %s %s\r", TIC.TicIn.Area, TIC.TicIn.AreaDesc);
-			fprintf(net, "Size        : %ld\r", TIC.FileSize);
+			fprintf(net, "Size        : %ld\r", (long)(TIC.FileSize));
 			fprintf(net, "CRC         : %s\r", TIC.TicIn.Crc);
 			fprintf(net, "Origin      : %s\r", TIC.TicIn.Origin);
 			if (strlen(TIC.TicIn.Magic))

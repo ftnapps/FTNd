@@ -2,7 +2,7 @@
  *
  * File ..................: tosser/tosspkt.c
  * Purpose ...............: Toss a single *.pkt file
- * Last modification date : 03-Jun-2001
+ * Last modification date : 03-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -34,9 +34,18 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/msg.h"
+#include "../lib/msgtext.h"
+#include "../lib/dbcfg.h"
 #include "../lib/dbnode.h"
-#include "importmsg.h"
+#include "../lib/dbmsgs.h"
+#include "../lib/dbdupe.h"
+#include "../lib/dbuser.h"
+#include "../lib/dbftn.h"
 #include "tosspkt.h"
+#include "postnetmail.h"
+#include "postecho.h"
+#include "rollover.h"
 
 
 
@@ -44,6 +53,11 @@
  * External declarations
  */
 extern	int	do_quiet;
+extern  int     do_unsec;
+extern  int     check_dupe;
+extern  int     autocrea;
+extern  time_t  t_start;
+extern  int     most_debug;
 
 
 
@@ -68,15 +82,20 @@ int		email_in = 0;		/* Email received		    */
 int		email_imp = 0;		/* Email imported		    */
 int		email_out = 0;		/* Email forwarded		    */
 int		email_bad = 0;		/* Bad email			    */
-char		*toname = NULL;		/* To user			    */
-char		*fromname = NULL;	/* From user			    */
-char		*subj = NULL;		/* Message subject		    */
-extern char	*msgid;
 
 
 static int at_zero = 0;
 
-char *aread(char *, int, FILE *);
+
+/*
+ *  Internal prototypes
+ */
+char	*aread(char *, int, FILE *);
+int     importmsg(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *);
+void    autocreate(char *, faddr *);
+
+
+
 char *aread(char *s, int count, FILE *fp)
 {
 	int i,c,next;
@@ -114,6 +133,220 @@ char *aread(char *s, int count, FILE *fp)
 		}
 	s[i]='\0';
 	return s;
+}
+
+
+
+/*
+ * Import 1 message, forward if needed.
+ * pkt_from, from, to, subj, orig, mdate, flags, cost, file
+ *
+ *  0 - All Seems Well.
+ *  1 - Can't access messagebase.
+ *  2 - Cannot open mareas.data
+ *  3 - Echomail without Origin line.
+ *  4 - Echomail from unknown node, disconnected node.
+ *  5 - Locking error.
+ *
+ */
+int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, 
+		time_t mdate, int flags, int cost, FILE *fp)
+{
+	char		*buf, *marea = NULL;
+	int		echomail = FALSE, rc = 0, bad = FALSE, Known = FALSE, FirstLine;
+	sysconnect	Link;
+
+	if (CFG.slow_util && do_quiet)
+		usleep(1);
+
+	memset(&Link, 0, sizeof(Link));
+
+	/*
+	 * Increase uplink's statistic counter.
+	 */
+	Link.aka.zone  = p_from->zone;
+	Link.aka.net   = p_from->net;
+	Link.aka.node  = p_from->node;
+	Link.aka.point = p_from->point;
+	if (SearchNode(Link.aka)) {
+		StatAdd(&nodes.MailRcvd, 1);
+		UpdateNode();
+		SearchNode(Link.aka);
+		Known = TRUE;
+	}
+
+	buf = calloc(2048, sizeof(char));
+	marea = NULL;
+
+	/*
+	 * First read the message for kludges we need.
+	 */
+	rewind(fp);
+
+	FirstLine = TRUE;
+	while ((fgets(buf, 2048, fp)) != NULL) {
+
+		Striplf(buf);
+
+		/*
+		 * Check if message is echomail and if the areas exists.
+		 */
+		if (FirstLine && (!strncmp(buf, "AREA:", 5))) {
+
+			marea = xstrcpy(tu(buf + 5));
+
+			if (orig == NULL) {
+				Syslog('!', "Echomail without Origin line");
+				echo_bad++;
+				echo_in++;
+				bad = TRUE;
+				free(buf);
+				free(marea);
+				return 3;
+			}
+
+			if (!SearchMsgs(marea)) {
+				WriteError("Unknown echo area %s", marea);
+				if (autocrea) {
+					autocreate(marea, p_from);
+					if (!SearchMsgs(marea)) {
+						WriteError("Autocreate of area %s failed.", area);
+						echo_bad++;
+						echo_in++;
+						bad = TRUE;
+						free(marea);
+						free(buf);
+						return 4;
+					}       
+				} else {
+					echo_bad++;
+					echo_in++;
+					bad = TRUE;
+					free(buf);
+					free(marea);
+					return 4;
+				}
+			}
+			echomail = TRUE;
+			free(marea);
+		}
+		if (*buf != '\001')
+			FirstLine = FALSE;
+	} /* end of checking kludges */
+
+
+	if (echomail)
+		rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
+	else
+		rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE);
+
+	free(buf);
+	return rc;
+}
+
+
+
+/*
+ *  Create echomail area if it doesn't excist and allowed.
+ *  Contributed by Redy Rodriguez.
+ */
+void autocreate(char *marea, faddr *p_from)
+{
+	FILE            *pMsgs;
+	char            temp[250];
+	int             i;
+	struct  _sysconnect syscon;
+
+	if (!SearchMsgs((char *)"DEFAULT")){
+		WriteError("Can't find DEFAULT area, can't autocreate:");
+		autocrea = FALSE;
+		return;
+	}
+	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	if ((pMsgs = fopen(temp, "r+")) == NULL) {
+		WriteError("$Database error: Can't create %s", temp);
+		return;
+	}
+	strncat(msgs.Name,marea,40-strlen(msgs.Name));
+	strncpy(msgs.Tag,marea,50);
+	strncpy(msgs.QWKname,marea,20);
+	strncat(msgs.Base,marea,64-strlen(msgs.Base));
+	fseek(pMsgs, 0, SEEK_END);
+	Syslog('+', "Autocreate area %s", marea);
+
+	memset(&syscon, 0, sizeof(syscon));
+	syscon.aka.zone    = p_from->zone;
+	syscon.aka.node    = p_from->node;
+	syscon.aka.net     = p_from->net;
+	if (SearchFidonet(p_from->zone)) 
+		strcpy(syscon.aka.domain,fidonet.domain);
+	else {
+		WriteError("New area %s from node of unknown zone %d not created.", marea,p_from->zone);
+		fclose(pMsgs);
+		return;
+	}       
+	syscon.sendto      = TRUE;
+	syscon.receivefrom = TRUE;
+	if (msgs.Aka.zone == 0) {
+		for (i = 0; i < 40; i++) {
+			if (CFG.akavalid[i]) { 
+				msgs.Aka.zone=CFG.aka[i].zone;
+				msgs.Aka.net=CFG.aka[i].net;
+				msgs.Aka.node=CFG.aka[i].node;
+				msgs.Aka.point=CFG.aka[i].point;
+				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
+				i=40;
+			}
+		}               
+		for (i = 0; i < 40; i++) {
+			if (CFG.akavalid[i] && (strcmp(CFG.aka[i].domain,msgs.Aka.domain)==0)) {
+				msgs.Aka.zone=CFG.aka[i].zone;
+				msgs.Aka.net=CFG.aka[i].net;
+				msgs.Aka.node=CFG.aka[i].node;
+				msgs.Aka.point=CFG.aka[i].point;
+				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
+				i=40;
+			}
+		}
+		for (i = 0; i < 40; i++) {
+			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone)) {
+				msgs.Aka.zone=CFG.aka[i].zone;
+				msgs.Aka.net=CFG.aka[i].net;
+				msgs.Aka.node=CFG.aka[i].node;
+				msgs.Aka.point=CFG.aka[i].point;
+				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
+				i=40;
+			}
+		}
+		for (i = 0; i < 40; i++) {
+			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone) && (CFG.aka[i].net  == p_from->net)) {
+				msgs.Aka.zone=CFG.aka[i].zone;
+				msgs.Aka.net=CFG.aka[i].net;
+				msgs.Aka.node=CFG.aka[i].node;
+				msgs.Aka.point=CFG.aka[i].point;
+				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
+				i=40;
+			}
+		}
+		for (i = 0; i < 40; i++) {
+			if ((CFG.akavalid[i]) && (CFG.aka[i].zone == p_from->zone) &&
+			    (CFG.aka[i].net  == p_from->net) && (CFG.aka[i].node == p_from->node)) {
+				msgs.Aka.zone=CFG.aka[i].zone;
+				msgs.Aka.net=CFG.aka[i].net;
+				msgs.Aka.node=CFG.aka[i].node;
+				msgs.Aka.point=CFG.aka[i].point;
+				strcpy(msgs.Aka.domain,CFG.aka[i].domain);
+				i=40;
+			}
+		}
+	}
+	fwrite(&msgs, msgshdr.recsize, 1, pMsgs);
+	fwrite(&syscon, sizeof(syscon), 1, pMsgs);
+	memset(&syscon, 0, sizeof(syscon));
+	for (i = 1 ; i < CFG.toss_systems; i++ ) 
+		fwrite(&syscon, sizeof(syscon), 1, pMsgs);
+	fclose(pMsgs);
+	return;
 }
 
 
@@ -198,11 +431,8 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 	time_t		mdate = 0L;
 	FILE		*fp;
 	unsigned char	buffer[0x0e];
-	off_t		orig_off;
+	char		*subj = NULL;
 
-	subj = NULL;
-	toname = NULL;
-	fromname = NULL;
 	result = fread(&buffer, 1, sizeof(buffer), pkt);
 	if (result == 0) {
 		Syslog('m', "Zero bytes message, assume end of pkt");
@@ -259,7 +489,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		if (strlen(buf) > 36)
 			Syslog('!', "to name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
 		t.name = xstrcpy(buf);
-		toname = xstrcpy(buf);
 		if (aread(buf, sizeof(buf)-1, pkt)) {
 			if (*(p=t.name+strlen(t.name)-1) == '\n')
 				 *p = '\0';
@@ -272,7 +501,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		if (strlen(buf) > 36)
 			Syslog('!', "from name too long (%d) \"%s\"", strlen(buf), printable(buf, 0));
 		f.name = xstrcpy(buf);
-		fromname = xstrcpy(buf);
 		if (aread(buf, sizeof(buf)-1, pkt)) {
 			if (*(p=f.name+strlen(f.name)-1) == '\n') 
 				*p = '\0';
@@ -307,7 +535,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		WriteError("$unable to open temporary file");
 		return 4;
 	}
-	orig_off = 0L;
 
 	/*
 	 * Read the text from the .pkt file
@@ -320,7 +547,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		 * Extract info from Origin line if found.
 		 */
 		if (!strncmp(buf," * Origin:",10)) {
-			orig_off = ftell(fp);
 			p=buf+10;
 			while (*p == ' ') p++;
 			if ((l=strrchr(p,'(')) && (r=strrchr(p,')')) && (l < r)) {
@@ -346,7 +572,7 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		}
 	}
 
-	rc = importmsg(p_from, &f,&t,orig,mdate,flags,cost,fp,orig_off);
+	rc = importmsg(p_from, &f,&t,orig,subj,mdate,flags,cost,fp);
 	if (rc)
 		rc+=10;
 	if (rc > maxrc) 
@@ -370,14 +596,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 		free(t.domain); 
 	t.domain=NULL;
 
-	if (fromname)
-		free(fromname);
-	fromname = NULL;
-
-	if (toname)
-		free(toname);
-	toname = NULL;
-
 	if (subj)
 		free(subj);
 	subj = NULL;
@@ -385,10 +603,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 	if (orig)
 		free(orig);
 	orig = NULL;
-
-	if (msgid)
-		free(msgid);
-	msgid = NULL;
 
 	if (feof(pkt) || ferror(pkt)) {
 		WriteError("Unexpected end of packet");

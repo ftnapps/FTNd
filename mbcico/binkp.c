@@ -2,7 +2,7 @@
  *
  * File ....................: mbcico/binkp.c
  * Purpose .................: Fidonet binkd protocol
- * Last modification date ..: 07-Jul-2001
+ * Last modification date ..: 07-Aug-2001
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
@@ -823,7 +823,8 @@ int binkp_batch(file_list *to_send)
 	char		*rname, *lname;
 	long		rsize, roffs, lsize;
 	time_t		rtime, ltime;
-	long		rxbytes, written;
+	off_t		rxbytes;
+	long		written;
 	binkp_list	*bll = NULL, *tmp, *cursend = NULL;
 	file_list	*tsl;
 

@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 AWK = @AWK@
 CC = @CC@
+CHOWN = @CHOWN@
 COMPRESS = @COMPRESS@
 GROUP = @GROUP@
 GZIP = @GZIP@
@@ -70,7 +71,6 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
-YACC = @YACC@
 
 SUBDIRS = .
 
@@ -138,6 +138,20 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
+DEP_FILES =  .deps/attach.P .deps/batchrd.P .deps/charconv.P \
+.deps/charconv_hz.P .deps/charconv_jp.P .deps/charconv_utf.P \
+.deps/charset.P .deps/clcomm.P .deps/client.P .deps/crc.P .deps/dbcfg.P \
+.deps/dbdupe.P .deps/dbftn.P .deps/dbmsgs.P .deps/dbnode.P \
+.deps/dbtic.P .deps/dbuser.P .deps/dostran.P .deps/execute.P \
+.deps/expipe.P .deps/faddr.P .deps/falists.P .deps/ftn.P .deps/ftnmsg.P \
+.deps/ftscprod.P .deps/getheader.P .deps/gmtoffset.P .deps/hdr.P \
+.deps/jammsg.P .deps/mbfile.P .deps/memwatch.P .deps/mime.P .deps/msg.P \
+.deps/msgflags.P .deps/msgtext.P .deps/nntp.P .deps/nodelist.P \
+.deps/nodelock.P .deps/noderecord.P .deps/packet.P .deps/parsedate.P \
+.deps/pktname.P .deps/pop3.P .deps/rawio.P .deps/rfcaddr.P \
+.deps/rfcdate.P .deps/rfcmsg.P .deps/semafore.P .deps/signame.P \
+.deps/smtp.P .deps/strcasestr.P .deps/strutil.P .deps/term.P \
+.deps/unpacker.P
 SOURCES = $(libclcomm_a_SOURCES) $(libcommon_a_SOURCES) $(libdbase_a_SOURCES) $(libmsgbase_a_SOURCES) $(libmbinet_a_SOURCES) $(libmemwatch_a_SOURCES)
 OBJECTS = $(libclcomm_a_OBJECTS) $(libcommon_a_OBJECTS) $(libdbase_a_OBJECTS) $(libmsgbase_a_OBJECTS) $(libmbinet_a_OBJECTS) $(libmemwatch_a_OBJECTS)
 
@@ -145,9 +159,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps lib/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu lib/Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -160,9 +174,6 @@ clean-noinstLIBRARIES:
 distclean-noinstLIBRARIES:
 
 maintainer-clean-noinstLIBRARIES:
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -304,6 +315,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = lib
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu lib/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -324,101 +340,38 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-attach.o: attach.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
-batchrd.o: batchrd.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-charconv.o: charconv.c libs.h ../config.h memwatch.h structs.h records.h \
-	common.h clcomm.h
-charconv_hz.o: charconv_hz.c libs.h ../config.h memwatch.h structs.h \
-	common.h clcomm.h
-charconv_jp.o: charconv_jp.c libs.h ../config.h memwatch.h structs.h \
-	common.h
-charconv_utf.o: charconv_utf.c libs.h ../config.h memwatch.h structs.h \
-	common.h
-charset.o: charset.c libs.h ../config.h memwatch.h structs.h common.h \
-	clcomm.h
-clcomm.o: clcomm.c libs.h ../config.h memwatch.h clcomm.h
-client.o: client.c libs.h ../config.h memwatch.h clcomm.h
-crc.o: crc.c libs.h ../config.h memwatch.h clcomm.h
-dbcfg.o: dbcfg.c libs.h ../config.h memwatch.h mbse.h structs.h \
-	records.h dbcfg.h
-dbdupe.o: dbdupe.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	dbdupe.h
-dbftn.o: dbftn.c libs.h ../config.h memwatch.h structs.h records.h \
-	dbcfg.h dbftn.h
-dbmsgs.o: dbmsgs.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h dbcfg.h dbmsgs.h
-dbnode.o: dbnode.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h dbcfg.h dbnode.h
-dbtic.o: dbtic.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h dbcfg.h dbtic.h
-dbuser.o: dbuser.c libs.h ../config.h memwatch.h structs.h records.h \
-	dbcfg.h dbuser.h
-dostran.o: dostran.c libs.h ../config.h memwatch.h structs.h records.h \
-	common.h
-execute.o: execute.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-expipe.o: expipe.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
-faddr.o: faddr.c libs.h ../config.h memwatch.h structs.h common.h
-falists.o: falists.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-ftn.o: ftn.c libs.h ../config.h memwatch.h structs.h records.h clcomm.h \
-	dbftn.h common.h
-ftnmsg.o: ftnmsg.c libs.h ../config.h memwatch.h structs.h common.h \
-	clcomm.h
-ftscprod.o: ftscprod.c libs.h ../config.h memwatch.h structs.h common.h
-getheader.o: getheader.c libs.h ../config.h memwatch.h structs.h \
-	records.h clcomm.h common.h
-gmtoffset.o: gmtoffset.c libs.h ../config.h memwatch.h structs.h \
-	common.h
-hdr.o: hdr.c libs.h ../config.h memwatch.h structs.h common.h
-jammsg.o: jammsg.c libs.h ../config.h memwatch.h clcomm.h msgtext.h \
-	msg.h jam.h jamsys.h jammsg.h
-mbfile.o: mbfile.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-memwatch.o: memwatch.c ../config.h libs.h memwatch.h memwatch.h
-mime.o: mime.c libs.h ../config.h memwatch.h structs.h clcomm.h common.h
-msg.o: msg.c libs.h ../config.h memwatch.h msgtext.h msg.h jammsg.h
-msgflags.o: msgflags.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-msgtext.o: msgtext.c libs.h ../config.h memwatch.h msgtext.h msg.h
-nntp.o: nntp.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h mbinet.h
-nodelist.o: nodelist.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
-nodelock.o: nodelock.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-noderecord.o: noderecord.c libs.h ../config.h memwatch.h structs.h \
-	records.h dbnode.h common.h
-packet.o: packet.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h dbnode.h
-parsedate.o: parsedate.c libs.h ../config.h memwatch.h structs.h \
-	common.h
-pktname.o: pktname.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
-pop3.o: pop3.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h mbinet.h
-rawio.o: rawio.c libs.h ../config.h memwatch.h structs.h common.h
-rfcaddr.o: rfcaddr.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
-rfcdate.o: rfcdate.c libs.h ../config.h memwatch.h structs.h common.h \
-	clcomm.h
-rfcmsg.o: rfcmsg.c libs.h ../config.h memwatch.h structs.h records.h \
-	common.h clcomm.h
-semafore.o: semafore.c libs.h ../config.h memwatch.h structs.h clcomm.h \
-	common.h
-signame.o: signame.c libs.h ../config.h memwatch.h clcomm.h
-smtp.o: smtp.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h mbinet.h
-strcasestr.o: strcasestr.c libs.h ../config.h memwatch.h
-strutil.o: strutil.c libs.h ../config.h memwatch.h structs.h common.h
-term.o: term.c libs.h ../config.h memwatch.h structs.h ansi.h records.h \
-	common.h
-unpacker.o: unpacker.c libs.h ../config.h memwatch.h structs.h records.h \
-	clcomm.h common.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -457,23 +410,25 @@ distclean-generic:
 maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean-am:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-noinstLIBRARIES clean-compile clean-tags clean-generic \
-		mostlyclean-am
+clean-am:  clean-noinstLIBRARIES clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-noinstLIBRARIES distclean-compile \
-		distclean-tags distclean-generic clean-am
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 
 distclean: distclean-recursive
 
 maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -488,12 +443,14 @@ uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs-am \
-installdirs mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs-am installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
 ftscprod.c:	ftscprod.???

@@ -2,7 +2,7 @@
  *
  * File ..................: libs.h
  * Purpose ...............: Libraries include list
- * Last modification date : 05-jul-2001
+ * Last modification date : 11-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -60,16 +60,22 @@
 #include <stdarg.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#ifdef  HAVE_SYS_VFS_H
 #include <sys/vfs.h>
-#include <wait.h>
+#endif
+#include <sys/param.h>
+#include <sys/mount.h>
+#include <sys/wait.h>
 #include <pwd.h>
 
 #include <stddef.h>
 #include <fcntl.h>
+#ifdef __FreeBSD__
+#include <netinet/in_systm.h>
+#endif
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 
-#include "../lib/memwatch.h"
 
 
 /*
@@ -94,11 +100,15 @@ struct icmp_filter {
 
 
 /* Ancillary data object manipulation macros.  */
+/*
 #  if !defined __STRICT_ANSI__ && defined __GNUC__ && __GNUC__ >= 2
 #   define CMSG_DATA(cmsg) ((cmsg)->__cmsg_data)
 #  else
 #   define CMSG_DATA(cmsg) ((unsigned char *) ((struct cmsghdr *) (cmsg) + 1))
 #  endif
+*/
+
+/*
 #  define CMSG_NXTHDR(mhdr, cmsg) __cmsg_nxthdr (mhdr, cmsg)
 #  define CMSG_FIRSTHDR(mhdr) \
   ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr)                 \
@@ -118,20 +128,21 @@ _EXTERN_INLINE struct cmsghdr *
 __cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
 {
   if ((size_t) __cmsg->cmsg_len < sizeof (struct cmsghdr))
-    /* The kernel header does this so there may be a reason.  */
+*/    /* The kernel header does this so there may be a reason.  */ /*
     return 0;
-
+*/
+/*
   __cmsg = (struct cmsghdr *) ((unsigned char *) __cmsg
                                + CMSG_ALIGN (__cmsg->cmsg_len));
   if ((unsigned char *) (__cmsg + 1) >= ((unsigned char *) __mhdr->msg_control
                                          + __mhdr->msg_controllen)
       || ((unsigned char *) __cmsg + CMSG_ALIGN (__cmsg->cmsg_len)
           >= ((unsigned char *) __mhdr->msg_control + __mhdr->msg_controllen)))
-    /* No more entries.  */
+*/    /* No more entries.  */  /*
     return 0;
   return __cmsg;
 }
-#  endif        /* Use `extern inline'.  */
+#  endif    */    /* Use `extern inline'.  */
 # endif
 
 

@@ -140,12 +140,12 @@ int Notify(char *Options)
 				}
 
 				if (i == 0) {
-					F_Status(fido2faddr(nodes.Aka[i]));
-					A_Status(fido2faddr(nodes.Aka[i]));
+					F_Status(fido2faddr(nodes.Aka[i]), NULL);
+					A_Status(fido2faddr(nodes.Aka[i]), NULL);
 				}
-				F_List(fido2faddr(nodes.Aka[i]), TRUE);
-				A_List(fido2faddr(nodes.Aka[i]), TRUE);
-				A_Flow(fido2faddr(nodes.Aka[i]), TRUE);
+				F_List(fido2faddr(nodes.Aka[i]), NULL, TRUE);
+				A_List(fido2faddr(nodes.Aka[i]), NULL, TRUE);
+				A_Flow(fido2faddr(nodes.Aka[i]), NULL, TRUE);
 				notify++;
 			}
 		}

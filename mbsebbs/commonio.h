@@ -8,9 +8,9 @@
  */
 struct commonio_entry {
 	char *line;
-	int changed;
 	void *entry;  /* struct passwd, struct spwd, ... */
 	struct commonio_entry *prev, *next;
+	int changed:1;
 };
 
 
@@ -85,7 +85,11 @@ struct commonio_db {
 	/*
 	 * Various flags.
 	 */
-	int changed, isopen, locked, readonly;
+        int changed:1;
+        int isopen:1;
+        int locked:1;
+        int readonly:1;
+        int use_lckpwdf:1;
 };
 
 
@@ -93,7 +97,7 @@ struct commonio_db {
 int commonio_setname (struct commonio_db *, const char *);
 int commonio_present (const struct commonio_db *);
 int commonio_lock (struct commonio_db *);
-int commonio_lock_first (struct commonio_db *);
+int commonio_lock_nowait (struct commonio_db *);
 int commonio_open (struct commonio_db *, int);
 const void *commonio_locate (struct commonio_db *, const char *);
 int commonio_update (struct commonio_db *, const void *);

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfile
  * Purpose ...............: Basic File I/O
- * Last modification date : 05-Jul-2001
+ * Last modification date : 12-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -255,14 +255,22 @@ int mkdirs(char *name)
 
 
 
+/*
+ *  Check free diskspace on most filesystems. Exclude check on floppyies,
+ *  CD's and /boot partition. The amount of needed space is given in MBytes.
+ *  Currently only Linux is supported.
+ */
 int diskfree(int needed)
 {
+#ifdef __linux__
 	char		*mtab, *dev, *fs, *type;
 	FILE		*fp;
 	struct statfs	sfs;
 	int		RetVal = TRUE;
 	unsigned long	temp;
+#endif
 
+#ifdef __linux__
 	if (! needed)
 		return TRUE;
 
@@ -283,7 +291,8 @@ int diskfree(int needed)
 			 */
 			if (strncmp((char *)"/dev/fd", dev, 7) && strncmp((char *)"/boot", fs, 5) &&
 			    (!strncmp((char *)"ext2", type, 4) || !strncmp((char *)"reiserfs", type, 8) ||
-			    !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
+			     !strncmp((char *)"ufs", type, 3) ||
+			     !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
 				if (statfs(fs, &sfs) == 0) {
 					temp = (unsigned long)(sfs.f_bsize / 512L);
 					if (((unsigned long)(sfs.f_bavail * temp) / 2048L) < needed) {
@@ -299,6 +308,9 @@ int diskfree(int needed)
 	free(mtab);
 
 	return RetVal;
+#else /* ifdef __linux__ */
+	return TRUE;  /* Assume enough */
+#endif
 }
 
 

@@ -2,7 +2,7 @@
  *
  * File ..................: mbcico/zmsend.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 07-Feb-2001
+ * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -41,7 +41,7 @@
 #include "filelist.h"
 
 static int initsend(void);
-static int sendfile(char*,char*);
+static int sendzfile(char*,char*);
 static int finsend(void);
 
 static int getzrxinit(void);
@@ -102,7 +102,7 @@ int zmsndfiles(file_list *lst)
 
 	for (tmpf = lst; tmpf && (maxrc < 2); tmpf = tmpf->next) {
 		if (tmpf->remote) {
-			rc = sendfile(tmpf->local, tmpf->remote);
+			rc = sendzfile(tmpf->local, tmpf->remote);
 			rc = abs(rc);
 			if (rc > maxrc) 
 				maxrc = rc;
@@ -171,7 +171,7 @@ static int finsend(void)
 
 
 
-static int sendfile(char *ln, char *rn)
+static int sendzfile(char *ln, char *rn)
 {
 	int rc=0;
 	struct stat st;

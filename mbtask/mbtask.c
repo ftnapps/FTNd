@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/mbtask.c
  * Purpose ...............: MBSE BBS Task Manager
- * Last modification date : 09-Jul-2001
+ * Last modification date : 13-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -126,10 +126,12 @@ void load_maincfg(void)
 #ifdef __USE_GNU
                 sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
 #else
+#ifdef __linux__
                 sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
 #endif
-                sprintf(CFG.comment, "MBSE Linux BBS development");
-                sprintf(CFG.origin, "MBSE Linux BBS. Made in the Netherlands");
+#endif
+                sprintf(CFG.comment, "MBSE BBS development");
+                sprintf(CFG.origin, "MBSE BBS. Made in the Netherlands");
                 sprintf(CFG.location, "Earth");
 
                 /*
@@ -391,9 +393,6 @@ void load_maincfg(void)
                 if ((fp = fopen(cfgfn, "a+")) == NULL) {
 			perror("");
                         fprintf(stderr, "Can't create %s\n", cfgfn);
-#ifdef MEMWATCH
-        		mwTerm();
-#endif
                         exit(2);
                 }
                 fwrite(&CFG, sizeof(CFG), 1, fp);
@@ -491,33 +490,21 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
 			tasklog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
-#ifdef MEMWATCH
-        		mwTerm();
-#endif
 			_exit(-1);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
 			tasklog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
-#ifdef MEMWATCH
-        		mwTerm();
-#endif
 			_exit(-1);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
 			tasklog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
-#ifdef MEMWATCH
-        		mwTerm();
-#endif
 			_exit(-1);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
 		tasklog('?', "$Launch: execv \"%s\" failed, returned %d", cmd, rc);
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		_exit(-1);
 	default:
 		/* grandchild's daddy's process */
@@ -697,9 +684,6 @@ void die(int onsig)
 		unlink(spath);
 	}
 	tasklog(' ', "MBTASK finished");
-#ifdef MEMWATCH
-        mwTerm();
-#endif
 	exit(onsig);
 }
 
@@ -774,6 +758,37 @@ void ulocktask(void)
 }
 
 
+/* different names, same thing... be careful, as these are macros... */
+#ifdef __FreeBSD__
+# define icmphdr   icmp
+# define iphdr     ip
+# define ip_saddr  ip_src.s_addr
+# define ip_daddr  ip_dst.s_addr
+#else
+# define ip_saddr  saddr
+# define ip_daddr  daddr
+# define ip_hl     ihl
+# define ip_p      protocol
+#endif
+
+
+#ifdef __linux__
+# define icmp_type  type
+# define icmp_code  code
+# define icmp_cksum checksum
+# define icmp_id    un.echo.id
+# define icmp_seq   un.echo.sequence
+#endif
+
+#ifdef __FreeBSD__
+# define ICMP_DEST_UNREACH   ICMP_UNREACH
+# define ICMP_TIME_EXCEEDED ICMP_TIMXCEED    
+#endif
+
+#define ICMP_BASEHDR_LEN  8
+#define ICMP4_ECHO_LEN    ICMP_BASEHDR_LEN
+
+
 
 /*
  * Takes a packet as send out and a recieved ICMP packet and looks whether the ICMP packet is 
@@ -794,14 +809,14 @@ static int icmp4_errcmp(char *packet, int plen, struct in_addr *to, char *errmsg
 	if (elen < sizeof(struct iphdr))
                 return 0;
 	memcpy(&iph, errmsg, sizeof(iph));
-	if (iph.protocol != IPPROTO_ICMP || elen < iph.ihl * 4 + ICMP_BASEHDR_LEN + sizeof(eiph))
+	if (iph.ip_p != IPPROTO_ICMP || elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + sizeof(eiph))
 		return 0;
-	memcpy(&icmph, errmsg + iph.ihl * 4, ICMP_BASEHDR_LEN);
-	memcpy(&eiph, errmsg + iph.ihl * 4 + ICMP_BASEHDR_LEN, sizeof(eiph));
-	if (elen < iph.ihl * 4 + ICMP_BASEHDR_LEN + eiph.ihl * 4 + 8)
+	memcpy(&icmph, errmsg + iph.ip_hl * 4, ICMP_BASEHDR_LEN);
+	memcpy(&eiph, errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN, sizeof(eiph));
+	if (elen < iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4 + 8)
 		return 0;
-	data = errmsg + iph.ihl * 4 + ICMP_BASEHDR_LEN + eiph.ihl * 4;
-	return icmph.type == errtype && memcmp(&to->s_addr, &eiph.daddr, sizeof(to->s_addr)) == 0 && 
+	data = errmsg + iph.ip_hl * 4 + ICMP_BASEHDR_LEN + eiph.ip_hl * 4;
+	return icmph.icmp_type == errtype && memcmp(&to->s_addr, &eiph.ip_daddr, sizeof(to->s_addr)) == 0 && 
 		memcmp(data, packet, plen < 8 ?plen:8) == 0;
 }
 
@@ -825,14 +840,28 @@ int ping_send(struct in_addr addr)
 {
 	int			len;
 	int			isock;
+#ifdef __linux__
 	struct icmp_filter	f;
+#else
+	struct protoent		*pe;
+	int			SOL_IP;
+#endif
 	unsigned long		sum;
 	unsigned short		*ptr;
+
+#ifndef __linux__
+        if (!(pe = getprotobyname("ip"))) {
+                tasklog('?', "icmp ping: getprotobyname() failed: %s", strerror(errno));
+                return -1;
+        }
+        SOL_IP = pe->p_proto;
+#endif
 
 	isock = ping_isocket;
 	p_sequence = 1;
 	id = (unsigned short)get_rand16(); /* randomize a ping id */
 
+#ifdef __linux__
 	/* Fancy ICMP filering -- only on Linux (as far is I know) */
         
 	/* In fact, there should be macros for treating icmp_filter, but I haven't found them in Linux 2.2.15.
@@ -845,12 +874,13 @@ int ping_send(struct in_addr addr)
 			tasklog('?', "$icmp ping: setsockopt() failed %d", isock);
 		return -1;
 	}
+#endif
 
-	icmpd.type     = ICMP_ECHO;
-	icmpd.code     = 0;
-	icmpd.checksum = 0;
-	icmpd.un.echo.id = htons((short)id);
-	icmpd.un.echo.sequence = htons(p_sequence);
+	icmpd.icmp_type  = ICMP_ECHO;
+	icmpd.icmp_code  = 0;
+	icmpd.icmp_cksum = 0;
+	icmpd.icmp_id    = htons((short)id);
+	icmpd.icmp_seq   = htons(p_sequence);
 
        	/* Checksumming - Algorithm taken from nmap. Thanks... */
 
@@ -862,14 +892,14 @@ int ping_send(struct in_addr addr)
 	}
 	sum = (sum >> 16) + (sum & 0xffff);
 	sum += (sum >> 16);
-	icmpd.checksum = ~sum;
+	icmpd.icmp_cksum = ~sum;
 
 	memset(&to, 0, sizeof(to));
 	to.sin_family = AF_INET;
 	to.sin_port   = 0;
 	to.sin_addr   = addr;
 	SET_SOCKA_LEN4(to);
-	if (sendto(isock, &icmpd, ICMP_BASEHDR_LEN, 0, (struct sockaddr *)&to, sizeof(to)) == -1) {
+	if (sendto(isock, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to)) == -1) {
 		if (icmp_errs < ICMP_MAX_ERRS)
 			tasklog('?', "$icmp ping: sendto()");
 		return -2;
@@ -908,18 +938,18 @@ int ping_receive(struct in_addr addr)
 		if ((len = recvfrom(isock, &buf, sizeof(buf), 0,(struct sockaddr *)&ffrom, &sl)) != -1) {
 			if (len > sizeof(struct iphdr)) {
 				memcpy(&iph, buf, sizeof(iph));
-				if (len - iph.ihl * 4 >= ICMP_BASEHDR_LEN) {
-					memcpy(&icmpp, ((unsigned long int *)buf)+iph.ihl, sizeof(icmpp));
-					if (iph.saddr == addr.s_addr && 
-					    icmpp.type == ICMP_ECHOREPLY &&
-					    ntohs(icmpp.un.echo.id) == id && 
-					    ntohs(icmpp.un.echo.sequence) <= p_sequence) {
+				if (len - iph.ip_hl * 4 >= ICMP_BASEHDR_LEN) {
+					memcpy(&icmpp, ((unsigned long int *)buf)+iph.ip_hl, sizeof(icmpp));
+					if (iph.ip_saddr == addr.s_addr && 
+					    icmpp.icmp_type == ICMP_ECHOREPLY &&
+					    ntohs(icmpp.icmp_id) == id && 
+					    ntohs(icmpp.icmp_seq) <= p_sequence) {
 						return 0;
 					} else {
 						/* No regular echo reply. Maybe an error? */
-						if (icmp4_errcmp((char *)&icmpd, ICMP_BASEHDR_LEN, 
+						if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, 
 						    &to.sin_addr, buf, len, ICMP_DEST_UNREACH) ||
-						    icmp4_errcmp((char *)&icmpd, ICMP_BASEHDR_LEN, 
+						    icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, 
 						    &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED)) {
 							return -4;
 						}
@@ -931,6 +961,21 @@ int ping_receive(struct in_addr addr)
 		}
 	}
 	return -6; /* no answer */
+}
+
+
+
+/*
+ *  External Semafore Checks
+ */
+void test_sema(char *);
+void test_sema(char *sema)
+{
+	if (IsSema(sema)) {
+		RemoveSema(sema);
+		tasklog('s', "Semafore %s detected", sema);
+		sem_set(sema, TRUE);
+	}
 }
 
 
@@ -969,12 +1014,13 @@ void check_sema(void)
 	get_zmh();
 
 	/*
-	 *  Newnews semafore can also be set in the semafore directory.
+	 *  Semafore's that still can be detected, usefull for
+	 *  external programs that create them.
 	 */
-	if (IsSema((char *)"newnews")) {
-		RemoveSema((char *)"newnews");
-		s_newnews = TRUE;
-	}
+	test_sema((char *)"newnews");
+	test_sema((char *)"mailout");
+	test_sema((char *)"mailin");
+	test_sema((char *)"scanout");
 }
 
 
@@ -1227,8 +1273,6 @@ void scheduler(void)
 
 				if (inet_aton(pingaddress, &paddr)) {
 					rc = ping_send(paddr);
-					if (internet)
-						tasklog('p', "ping send %s id=%d rc=%d", pingaddress, id, rc);
 					if (rc) {
 						if (icmp_errs++ < ICMP_MAX_ERRS)
 							tasklog('?', "ping send %s rc=%d", pingaddress, rc);
@@ -1279,8 +1323,6 @@ void scheduler(void)
                                                 if (!rc) {
                                                         pingstate = P_OK;
                                                         pingresult[pingnr] = TRUE;
-							if (internet)
-								tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
                                                 } else {
 							if (rc != -6)
 								tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
@@ -1306,9 +1348,6 @@ int main(int argc, char **argv)
         pid_t           frk;
         FILE            *fp;
 
-#ifdef MEMWATCH
-        mwInit();
-#endif 
        /*
          * Print copyright notices and setup logging.
          */
@@ -1332,9 +1371,6 @@ int main(int argc, char **argv)
 	if ((ping_isocket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1) {
 		perror("");
 		printf("socket init failed, is mbtask not installed setuid root?\n");
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		exit(1);
 	}
 
@@ -1348,27 +1384,18 @@ int main(int argc, char **argv)
 		perror("");
 		printf("can't setuid to mbse\n");
 		close(ping_isocket);
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		exit(1);
 	}
 	if (setgid(pw->pw_gid)) {
 		perror("");
 		printf("can't setgid to bbs\n");
 		close(ping_isocket);
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
 		exit(1);
 	}
 
 	umask(007);
         if (locktask(pw->pw_dir)) {
 		close(ping_isocket);
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
                 exit(1);
         }
 
@@ -1385,6 +1412,13 @@ int main(int argc, char **argv)
 	memset(&reginfo, 0, sizeof(reginfo));
 	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
 
+	/*
+	 * Now that init is complete and this program is locked, it is
+	 * safe to remove a stale socket if it is there after a crash.
+	 */
+        if (!file_exist(spath, R_OK))
+                unlink(spath);
+
         /*
          * Server initialization is complete. Now we can fork the 
          * daemon and return to the user. We need to do a setpgrp
@@ -1394,8 +1428,8 @@ int main(int argc, char **argv)
          * if the child were to open a terminal, it would become
          * associated with that terminal as its control terminal.
          */
-	if ((pgrp = setpgrp()) == -1) {
-		tasklog('?', "$setpgrp failed");
+	if ((pgrp = setpgid(0, 0)) == -1) {
+		tasklog('?', "$setpgid failed");
 		die(0);
 	}
 
@@ -1424,9 +1458,6 @@ int main(int argc, char **argv)
                         fclose(fp);
                 }
                 tasklog('+', "Starting daemon with pid %d", frk);
-#ifdef MEMWATCH
-        	mwTerm();
-#endif
                 exit(0);
         }
 

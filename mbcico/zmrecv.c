@@ -2,10 +2,10 @@
  *
  * File ..................: mbcico/zmrecv.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 27-Nov-2000
+ * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -514,7 +514,7 @@ int procheader(char *Name)
 	strcpy(ctt,date(Modtime));
 	Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
 
-	fout = openfile(Name,Modtime,Bytesleft,&rxbytes,resync);
+	fout = openfile(Name,Modtime,Bytesleft,&(long)(rxbytes),resync);
 	(void)time(&startime);
 	sbytes = rxbytes;
 

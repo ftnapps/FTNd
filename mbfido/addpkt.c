@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/addpkt.c
  * Purpose ...............: Add mail to .pkt
- * Last modification date : 02-Jun-2001
+ * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -198,8 +198,10 @@ int AddMsgHdr(FILE *fp, faddr *f, faddr *t, int flags, int cost, time_t date, ch
 
 	if ((tname == NULL) || (strlen(tname) > 36) ||
 	    (fname == NULL) || (strlen(fname) > 36) ||
-	    (subj  == NULL) || (strlen(subj) > 72))
+	    (subj  == NULL) || (strlen(subj) > 72)) {
+		WriteError("AddMsgHdr() error in To name, From name or Subject field");
 		return 1;
+	}
 
 	buffer[0x00] = 2;
 	buffer[0x01] = 0;

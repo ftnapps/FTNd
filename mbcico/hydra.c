@@ -2,11 +2,11 @@
  *
  * File ..................: mbcico/hydra.c
  * Purpose ...............: Fidonet mailer
- * Last modification date : 30-Dec-2000
+ * Last modification date : 07-Aug-2001
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -530,7 +530,8 @@ int hydra_batch(int role, file_list *to_send)
 	char		*inbuf, *outbuf;
 	int		rxlen, txlen;		/* length of receive/transmit buffer */
 	long		txwindow, rxwindow;	/* window sizes */
-	long		txpos, rxpos;		/* file positions */
+	long		txpos;
+	off_t		rxpos;			/* file positions */
 	long		stxpos, srxpos;
 	long		longnum;
 	int		hdxlink = FALSE;
@@ -865,7 +866,7 @@ int hydra_batch(int role, file_list *to_send)
 				if (to_send) {
 					txlen = sprintf(txbuf, "%08lx%08lx%08lx%08lx%08lx",
 						mtime2sl(txstat.st_mtime+(txstat.st_mtime%2)),
-						txstat.st_size, 0UL, 0UL, 0UL);
+						(long)(txstat.st_size), 0UL, 0UL, 0UL);
 
 					/*
 					 * convert file name to DOS-format

@@ -2,10 +2,10 @@
  *
  * File ..................: mbcico/filelist.c
  * Purpose ...............: fidonet mailer 
- * Last modification date : 23-Dec-2000
+ * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -463,7 +463,13 @@ void execute_disposition(file_list *fl)
 					WriteError("$Error writing '~' to .flo at %lu", (unsigned long)fl->floff);
 				}
 				fflush(fl->flofp);
+#ifdef HAVE_FDATASYNC
 				fdatasync(fileno(fl->flofp));
+#else
+#ifdef HAVE_FSYNC		
+				fsync(fileno(fl->flofp));
+#endif
+#endif
 			} else 
 				WriteError("$error seeking in .flo to %lu", (unsigned long)fl->floff);
 		}

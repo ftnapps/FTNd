@@ -4,7 +4,7 @@
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.
- * Last modification date : 28-Jun-2001
+ * Last modification date : 08-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -615,11 +615,7 @@ void user()
 	} else {
 		Syslog('+', "Unixmode login: %s", sUnixName);
 		if ((pw = getpwnam(sUnixName)))
-		#ifdef linux
 			strcpy(sGetName, pw->pw_gecos);
-		#else
-			strcpy(sGetName, pw->pw_comment);
-		#endif
 
 		/*
 		 * If there are more fields in the passwd gecos field

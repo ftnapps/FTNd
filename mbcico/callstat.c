@@ -2,10 +2,10 @@
  *
  * File ..................: mbcico/callstat.c
  * Purpose ...............: Fidonet mailer
- * Last modification date : 13-Aug-2000
+ * Last modification date : 05-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -73,7 +73,7 @@ void putstatus(faddr *addr, int incr, int sts)
 		fwrite(cst, sizeof(callstat), 1, fp);
 		fclose(fp);
 		if (cst->tryno >= 30)
-			WriteError("Node %s is marked undialble.", ascfnode(addr, 0x1f));
+			WriteError("Node %s is marked undialable.", ascfnode(addr, 0x1f));
 	} else {
 		WriteError("$Cannot create status file for node %s", ascfnode(addr,0x1f));
 	}

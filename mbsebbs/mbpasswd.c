@@ -2,7 +2,7 @@
  *
  * File ..................: mbpasswd.c
  * Purpose ...............: setuid root version of passwd
- * Last modification date : 27-Jun-2001
+ * Last modification date : 10-Aug-2001
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
@@ -32,10 +32,13 @@
 
 #include "../config.h"
 #include <stdio.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
 #include <grp.h>
 #include <pwd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
 #include <string.h>
@@ -43,8 +46,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
+#include <stdlib.h>
 #if defined(SHADOW_PASSWORD)
 #include <shadow.h>
+#endif
+#ifdef HAVE_USERSEC_H
+#include <userpw.h>
+#include <usersec.h>
+#include <userconf.h>
 #endif
 
 #include "encrypt.h"
@@ -107,12 +116,19 @@ static int  force;	/* Force update of locked passwords */
 
 
 
+#ifndef __FreeBSD__
 static void fail_exit(int status)
 {
-	pw_unlock();
-#ifdef SHADOWPWD
-	spw_unlock();
+//	gr_unlock();
+#ifdef SHADOWGRP
+	if (is_shadow_grp)
+		sgr_unlock();
 #endif
+#ifdef SHADOWPWD
+	if (is_shadow_pwd)
+		spw_unlock();
+#endif
+	pw_unlock();
 	exit(status);
 }
 
@@ -121,7 +137,7 @@ static void fail_exit(int status)
 static void oom(void)
 {
 	fprintf(stderr, "mbpasswd: out of memory\n");
-	fail_exit(3);
+	fail_exit(E_FAILURE);
 }
 
 
@@ -130,8 +146,7 @@ static void oom(void)
  * insert_crypt_passwd - add an "old-style" password to authentication string
  * result now malloced to avoid overflow, just in case.  --marekm
  */
-static char *
-insert_crypt_passwd(const char *string, char *passwd)
+static char *insert_crypt_passwd(const char *string, char *passwd)
 {
 #ifdef AUTH_METHODS
         if (string && *string) {
@@ -158,9 +173,10 @@ insert_crypt_passwd(const char *string, char *passwd)
 #endif
         return xstrdup(passwd);
 }
+#endif /* FreeBSD */
 
 
-
+#ifndef __FreeBSD__
 static char *update_crypt_pw(char *cp)
 {
 	if (do_update_pwd)
@@ -168,6 +184,7 @@ static char *update_crypt_pw(char *cp)
 
 	return cp;
 }
+#endif
 
 
 
@@ -178,6 +195,7 @@ static char *update_crypt_pw(char *cp)
  */
 void pwd_init(void)
 {
+#ifdef HAVE_SYS_RESOURCE_H
 	struct rlimit rlim;
 
 #ifdef RLIMIT_CORE
@@ -206,9 +224,14 @@ void pwd_init(void)
 #ifdef RLIMIT_STACK
 	setrlimit(RLIMIT_STACK, &rlim);
 #endif
+#else /* !HAVE_SYS_RESOURCE_H */
+	set_filesize_limit(30000);
+	/* don't know how to set the other limits... */
+#endif /* !HAVE_SYS_RESOURCE_H */
+
 	signal(SIGALRM, SIG_IGN);
-	signal(SIGHUP, SIG_IGN);
-	signal(SIGINT, SIG_IGN);
+	signal(SIGHUP,  SIG_IGN);
+	signal(SIGINT,  SIG_IGN);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
@@ -238,6 +261,12 @@ int isexpired(const struct passwd *pw)
 {
 #endif
         long    now;
+#ifdef  HAVE_USERSEC_H
+        int     minage = 0;
+        int     maxage = 10000;
+        int     curage = 0;
+        struct  userpw  *pu;
+#endif
 
         now = time ((time_t *) 0) / SCALE;
 
@@ -267,24 +296,57 @@ int isexpired(const struct passwd *pw)
         if (sp->sp_lstchg > 0 && sp->sp_max >= 0 && sp->sp_inact >= 0 &&
                         now >= sp->sp_lstchg + sp->sp_max + sp->sp_inact)
                 return 2;
+#endif
+#ifdef  HAVE_USERSEC_H  /*{*/
+        /*
+         * The aging information lives someplace else.  Get it from the
+         * login.cfg file
+         */
+
+        if (getconfattr (SC_SYS_PASSWD, SC_MINAGE, &minage, SEC_INT))
+                minage = -1;
+
+        if (getconfattr (SC_SYS_PASSWD, SC_MAXAGE, &maxage, SEC_INT))
+                maxage = -1;
+
+        pu = getuserpw (pw->pw_name);
+        curage = (time (0) - pu->upw_lastupdate) / (7*86400L);
+
+        if (maxage != -1 && curage > maxage)
+                return 1;
+#else   /*} !HAVE_USERSEC_H */
 
         /*
          * The last and max fields must be present for an account
          * to have an expired password.  A maximum of >10000 days
          * is considered to be infinite.
          */
+
+#ifdef  SHADOWPWD
         if (sp->sp_lstchg == -1 ||
                         sp->sp_max == -1 || sp->sp_max >= (10000L*DAY/SCALE))
                 return 0;
+#endif
+#ifdef  ATT_AGE
+        if (pw->pw_age[0] == '\0' || pw->pw_age[0] == '/')
+                return 0;
+#endif
 
         /*
          * Calculate today's day and the day on which the password
          * is going to expire.  If that date has already passed,
          * the password has expired.
          */
+
+#ifdef  SHADOWPWD
         if (now >= sp->sp_lstchg + sp->sp_max)
                 return 1;
 #endif
+#ifdef  ATT_AGE
+        if (a64l (pw->pw_age + 2) + c64i (pw->pw_age[1]) < now / 7)
+                return 1;
+#endif
+#endif  /*} HAVE_USERSEC_H */
         return 0;
 }
 
@@ -305,6 +367,9 @@ static void check_password(const struct passwd *pw)
 #endif
 	time_t now, last, ok;
 	int exp_status;
+#ifdef HAVE_USERSEC_H
+	struct userpw *pu;
+#endif
 
 #ifdef SHADOW_PASSWORD
 	exp_status = isexpired(pw, sp);
@@ -332,7 +397,7 @@ static void check_password(const struct passwd *pw)
 		fprintf (stderr, "The password for %s cannot be changed.\n", sp->sp_namp);
 		syslog(LOG_WARNING, "password locked for %s", sp->sp_namp);
 		closelog();
-		exit (1);
+		exit (E_NOPERM);
 	}
 
 	/*
@@ -346,16 +411,34 @@ static void check_password(const struct passwd *pw)
 		fprintf (stderr, "The password for %s cannot be changed.\n", pw->pw_name);
 		syslog(LOG_WARNING, "password locked for %s", pw->pw_name);
 		closelog();
-		exit (1);
+		exit (E_NOPERM);
 	}
-	last = 0;
-	ok = 0;
+#ifdef ATT_AGE
+        /*
+         * Can always be changed if there is no age info
+         */
+
+        if (! pw->pw_age[0])
+                return;
+
+        last = a64l (pw->pw_age + 2) * WEEK;
+        ok = last + c64i (pw->pw_age[1]) * WEEK;
+#else   /* !ATT_AGE */
+#ifdef HAVE_USERSEC_H
+        pu = getuserpw(pw->pw_name);
+        last = pu ? pu->upw_lastupdate : 0L;
+        ok = last + (minage > 0 ? minage * WEEK : 0);
+#else
+        last = 0;
+        ok = 0;
+#endif
+#endif /* !ATT_AGE */
 #endif /* !SHADOW_PASSWORD */
 	if (now < ok) {
 		fprintf(stderr, "Sorry, the password for %s cannot be changed yet.\n", pw->pw_name);
 		syslog(LOG_WARNING, "now < minimum age for `%s'", pw->pw_name);
 		closelog();
-		exit (1);
+		exit (E_NOPERM);
 	}
 }
 
@@ -381,12 +464,34 @@ struct spwd *pwd_to_spwd(const struct passwd *pw)
         sp.sp_namp = pw->pw_name;
         sp.sp_pwdp = pw->pw_passwd;
 
+#ifdef ATT_AGE
         /*
-         * Defaults used if there is no pw_age information.
+         * AT&T-style password aging maps the sp_min, sp_max, and
+         * sp_lstchg information from the pw_age field, which appears
+         * after the encrypted password.
          */
-        sp.sp_min = 0;
-        sp.sp_max = (10000L * DAY) / SCALE;
-        sp.sp_lstchg = time((time_t *) 0) / SCALE;
+        if (pw->pw_age[0]) {
+                sp.sp_max = (c64i(pw->pw_age[0]) * WEEK) / SCALE;
+
+                if (pw->pw_age[1])
+                        sp.sp_min = (c64i(pw->pw_age[1]) * WEEK) / SCALE;
+                else
+                        sp.sp_min = (10000L * DAY) / SCALE;
+
+                if (pw->pw_age[1] && pw->pw_age[2])
+                        sp.sp_lstchg = (a64l(pw->pw_age + 2) * WEEK) / SCALE;
+                else
+                        sp.sp_lstchg = time((time_t *) 0) / SCALE;
+        } else
+#endif
+	{
+        	/*
+        	 * Defaults used if there is no pw_age information.
+        	 */
+        	sp.sp_min = 0;
+        	sp.sp_max = (10000L * DAY) / SCALE;
+        	sp.sp_lstchg = time((time_t *) 0) / SCALE;
+	}
 
         /*
          * These fields have no corresponding information in the password
@@ -421,7 +526,7 @@ static int new_password(const struct passwd *pw, char *newpasswd)
 	 * Encrypt the password, then wipe the cleartext password.
 	 */
 	cp = pw_encrypt(pass, crypt_make_salt());
-	bzero(pass, sizeof pass);
+	memset(&pass, 0, sizeof(pass));
 
 #ifdef HAVE_LIBCRACK_HIST
 	HistUpdate(pw->pw_name, crypt_passwd);
@@ -431,11 +536,17 @@ static int new_password(const struct passwd *pw, char *newpasswd)
 }
 
 
+#ifndef __FreeBSD__
 
 static void update_noshadow(int shadow_locked)
 {
-	const struct passwd *pw;
-	struct passwd *npw;
+	const struct passwd	*pw;
+	struct passwd		*npw;
+#ifdef ATT_AGE
+        char			age[5];
+        long			week = time((time_t *) 0) / WEEK;
+        char			*cp;
+#endif
 
 	/*
 	 * call this with shadow_locked != 0 to avoid calling lckpwdf()
@@ -444,38 +555,112 @@ static void update_noshadow(int shadow_locked)
 	 * and call lckpwdf() only before the first lock, and ulckpwdf()
 	 * after the last unlock.
 	 */
-	if (!(shadow_locked ? pw_lock() : pw_lock_first())) {
-	fprintf(stderr, "Cannot lock the password file; try again later.\n");
+	if (!pw_lock()) {
+		fprintf(stderr, "Cannot lock the password file; try again later.\n");
 		syslog(LOG_WARNING, "can't lock password file");
-		exit(5);
+		exit(E_PWDBUSY);
 	}
 	if (!pw_open(O_RDWR)) {
 		fprintf(stderr, "Cannot open the password file.\n");
 		syslog(LOG_ERR, "can't open password file");
-		fail_exit(3);
+		fail_exit(E_MISSING);
 	}
 	pw = pw_locate(name);
 	if (!pw) {
 		fprintf(stderr, "mbpasswd: user %s not found in /etc/passwd\n", name);
-		fail_exit(1);
+		fail_exit(E_NOPERM);
 	}
 	npw = __pw_dup(pw);
 	if (!npw)
 		oom();
 	npw->pw_passwd = update_crypt_pw(npw->pw_passwd);
+#ifdef ATT_AGE
+        memset(age, 0, sizeof(age));
+        STRFCPY(age, npw->pw_age);
+
+        /*
+         * Just changing the password - update the last change date
+         * if there is one, otherwise the age just disappears.
+         */
+        if (do_update_age) {
+                if (strlen(age) > 2) {
+                        cp = l64a(week);
+                        age[2] = cp[0];
+                        age[3] = cp[1];
+                } else {
+                        age[0] = '\0';
+                }
+        }
+
+        if (xflg) {
+                if (age_max > 0)
+                        age[0] = i64c((age_max + 6) / 7);
+                else
+                        age[0] = '.';
+
+                if (age[1] == '\0')
+                        age[1] = '.';
+        }
+        if (nflg) {
+                if (age[0] == '\0')
+                        age[0] = 'z';
+
+                if (age_min > 0)
+                        age[1] = i64c((age_min + 6) / 7);
+                else
+                        age[1] = '.';
+        }
+        /*
+         * The last change date is added by -n or -x if it's
+         * not already there.
+         */
+        if ((nflg || xflg) && strlen(age) <= 2) {
+                cp = l64a(week);
+                age[2] = cp[0];
+                age[3] = cp[1];
+        }
+
+        /*
+         * Force password change - if last change date is
+         * present, it will be set to (today - max - 1 week).
+         * Otherwise, just set min = max = 0 (will disappear
+         * when password is changed).
+         */
+        if (eflg) {
+                if (strlen(age) > 2) {
+                        cp = l64a(week - c64i(age[0]) - 1);
+                        age[2] = cp[0];
+                        age[3] = cp[1];
+                } else {
+                        strcpy(age, "..");
+                }
+        }
+
+        npw->pw_age = age;
+#endif
+
 	if (!pw_update(npw)) {
 		fprintf(stderr, "Error updating the password entry.\n");
 		syslog(LOG_ERR, "error updating password entry");
-		fail_exit(3);
+		fail_exit(E_FAILURE);
 	}
+#ifdef NDBM
+        if (pw_dbm_present() && !pw_dbm_update(npw)) {
+                fprintf(stderr, _("Error updating the DBM password entry.\n"));
+                SYSLOG((LOG_ERR, DBMERROR2));
+                fail_exit(E_FAILURE);
+        }
+        endpwent();
+#endif
 	if (!pw_close()) {
 		fprintf(stderr, "Cannot commit password file changes.\n");
 		syslog(LOG_ERR, "can't rewrite password file");
-		fail_exit(3);
+		fail_exit(E_FAILURE);
 	}
         pw_unlock();
 }
 
+#endif /* Not __FreeBSD__ */
 
 
 #ifdef SHADOW_PASSWORD
@@ -484,28 +669,23 @@ static void update_shadow(void)
         const struct spwd *sp;
         struct spwd *nsp;
 
-        if (!spw_lock_first()) {
+        if (!spw_lock()) {
                 fprintf(stderr, "Cannot lock the password file; try again later.\n");
                 syslog(LOG_WARNING, "can't lock password file");
-                exit(5);
+                exit(E_PWDBUSY);
         }
         if (!spw_open(O_RDWR)) {
                 fprintf(stderr, "Cannot open the password file.\n");
                 syslog(LOG_ERR, "can't open password file");
-                fail_exit(3);
+                fail_exit(E_FAILURE);
         }
         sp = spw_locate(name);
         if (!sp) {
-#if 0
-                fprintf(stderr, "%s: user %s not found in /etc/shadow\n",
-                        Prog, name);
-                fail_exit(1);
-#else
                 /* Try to update the password in /etc/passwd instead.  */
-                spw_unlock();
+                spw_close();
                 update_noshadow(1);
+		spw_unlock();
                 return;
-#endif
         }
         nsp = __spw_dup(sp);
         if (!nsp)
@@ -517,12 +697,20 @@ static void update_shadow(void)
         if (!spw_update(nsp)) {
                 fprintf(stderr, "Error updating the password entry.\n");
                 syslog(LOG_ERR, "error updating password entry");
-                fail_exit(3);
+                fail_exit(E_FAILURE);
         }
+#ifdef NDBM
+        if (sp_dbm_present() && !sp_dbm_update(nsp)) {
+                fprintf(stderr, _("Error updating the DBM password entry.\n"));
+                SYSLOG((LOG_ERR, DBMERROR2));
+                fail_exit(E_FAILURE);
+        }
+        endspent();
+#endif
         if (!spw_close()) {
                 fprintf(stderr, "Cannot commit password file changes.\n");
                 syslog(LOG_ERR, "can't rewrite password file");
-                fail_exit(3);
+                fail_exit(E_FAILURE);
         }
         spw_unlock();
 }
@@ -541,7 +729,11 @@ int main(int argc, char *argv[])
 #ifdef SHADOW_PASSWORD
 	const struct spwd	*sp;
 #endif
-	char		*cp;
+	char			*cp;
+#ifdef __FreeBSD__
+	char			temp[81];
+	char			cmd[256];
+#endif
 
 	/*
 	 * Get my username
@@ -560,11 +752,11 @@ int main(int argc, char *argv[])
 	gr = getgrgid(pw->pw_gid);
 	if (!gr) {
 		fprintf(stderr, "mbpasswd: Cannot determine group name.\n");
-		exit(1);
+		exit(E_NOPERM);
 	}
 	if (strcmp(gr->gr_name, (char *)"bbs")) {
 		fprintf(stderr, "mbpasswd: You are not a member of group \"bbs\".\n");
-		exit(1);
+		exit(E_NOPERM);
 	}
 
 //	NOOT dit programma moet kontroleren of het is aangeroepen door mbsebbs.
@@ -577,7 +769,7 @@ int main(int argc, char *argv[])
 		printf("mbpasswd [-opt] [username] [newpassword]\n");
 		printf("options are:  -n   normal password change\n");
 		printf("              -f   forced password change\n");
-		exit(1);
+		exit(E_FAILURE);
 	}
 
 	if (strncmp(argv[1], "-f", 2) == 0)
@@ -590,17 +782,17 @@ int main(int argc, char *argv[])
 	 */
 	if (strlen(argv[2]) > 16) {
 		fprintf(stderr, "mbpasswd: Username too long\n");
-		exit(1);
+		exit(E_FAILURE);
 	}
 	if (strlen(argv[3]) > 16) {
 		fprintf(stderr, "mbpasswd: Password too long\n");
-		exit(1);
+		exit(E_FAILURE);
 	}
 
 	name = strdup(argv[2]);
 	if ((pw = getpwnam(name)) == NULL) {
 		fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
-		exit(1);
+		exit(E_FAILURE);
 	}
 
 	openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
@@ -627,8 +819,9 @@ int main(int argc, char *argv[])
 
 	if (new_password(pw, argv[3])) {
 		fprintf(stderr, "The password for %s is unchanged.\n", name);
+		syslog(LOG_ERR, "The password for %s is unchanged", name);
 		closelog();
-		exit(1);
+		exit(E_FAILURE);
 	}
 	do_update_pwd = 1;
 	do_update_age = 1;
@@ -645,8 +838,14 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Cannot change ID to root.\n");
 		syslog(LOG_ERR, "can't setuid(0)");
 		closelog();
-		exit(1);
+		exit(E_FAILURE);
 	}
+
+#ifndef __FreeBSD__
+
+#ifdef  HAVE_USERSEC_H
+        update_userpw(pw->pw_passwd);
+#else  /* !HAVE_USERSEC_H */
 
 #ifdef SHADOW_PASSWORD
 	if (spw_file_present())
@@ -654,10 +853,42 @@ int main(int argc, char *argv[])
 	else
 #endif
 		update_noshadow(0);
+#endif /* !HAVE_USERSEC_H */
+
+#else /* __FreeBSD__ */
+
+	/*
+	 *  FreeBSD has no interface (that I know of) to change the users password,
+	 *  but they do have a utility that does it. We will use that.
+	 */
+	if ((access("/usr/bin/chpass", X_OK)) == 0)
+		strcpy(temp, "/usr/bin/chpass");
+	else if ((access("/usr/sbin/chpass", X_OK)) == 0)
+		strcpy(temp, "/usr/sbin/chpass");
+	else if ((access("/bin/chpass", X_OK)) == 0)
+		strcpy(temp, "/bin/chpass");
+	else if ((access("/sbin/chpass", X_OK)) == 0)
+		strcpy(temp, "/sbin/chpass");
+	else {
+		fprintf(stderr, "mbpasswd: Can't find chpass\n");
+		syslog(LOG_INFO, "Can't find chpass");
+		closelog();
+		exit(E_FAILURE);
+	}
+	sprintf(cmd, "%s -p \"%s\" %s", temp, crypt_passwd, name);
+
+	if (system(cmd) != 0) {
+		perror("mbpasswd: failed to change password\n");
+		syslog(LOG_INFO, "password change for `%s' failed", name);
+		closelog();
+		exit(E_FAILURE);
+	}
+
+#endif /* __FreeBSD__ */
 
 	syslog(LOG_INFO, "password for `%s' changed by user `%s'", name, myname);
 	closelog();
-	exit(0);
+	exit(E_SUCCESS);
 }
 
 

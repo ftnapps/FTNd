@@ -2,12 +2,12 @@
  *
  * File ..................: mbuseradd/pwio.c
  * Purpose ...............: MBSE BBS Shadow Password Suite
- * Last modification date : 18-Sep-2000
+ * Last modification date : 09-Aug-2001
  * Original Source .......: Shadow Password Suite
  * Original Copyrioght ...: Julianne Frances Haugh and others.
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,6 +43,9 @@
 #include <string.h>
 #include "sgetpwent.h"
 #include "commonio.h"
+#ifndef	HAVE_PUTPWENT
+#include "putpwent.h"
+#endif
 #include "pwio.h"
 
 
@@ -143,16 +146,17 @@ static struct commonio_ops passwd_ops = {
 
 
 static struct commonio_db passwd_db = {
-	"/etc/passwd",
-	&passwd_ops,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	0,
-	0,
-	0,
-	0
+        PASSWD_FILE,    /* filename */
+        &passwd_ops,    /* ops */
+        NULL,           /* fp */
+        NULL,           /* head */
+        NULL,           /* tail */
+        NULL,           /* cursor */
+        0,              /* changed */
+        0,              /* isopen */
+        0,              /* locked */
+        0,              /* readonly */
+        1               /* use_lckpwdf */
 };
 
 
@@ -167,13 +171,6 @@ int pw_name(const char *filename)
 int pw_lock(void) 
 {
 	return commonio_lock(&passwd_db);
-}
-
-
-
-int pw_lock_first(void)
-{
-	return commonio_lock_first(&passwd_db);
 }
 
 

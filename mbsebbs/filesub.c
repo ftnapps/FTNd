@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/filesub.c
  * Purpose ...............: All the file sub functions. 
- * Last modification date : 28-Jun-2001
+ * Last modification date : 09-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -427,9 +427,9 @@ int ShowOneFile()
 
 		colour(CFG.FilesizeF, CFG.FilesizeB);
 		if(strlen(file.Name) < 25)
-			printf("%10lu ", file.Size);
+			printf("%10lu ", (long)(file.Size));
 		else
-			printf("%25lu ", file.Size);
+			printf("%25lu ", (long)(file.Size));
 
 		colour(CFG.FiledateF, CFG.FiledateB);
 		printf("%-10s  ", StrDateDMY(file.UploadDate));
@@ -813,7 +813,7 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 					x = atoi(token);
 				Size *= i / x;
 				/* You have */  /* extra download KBytes. */
-				printf("%s %ld %s\n", (char *) Language(249), Size / 1024, (char *) Language(250));
+				printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
 	
 				exitinfo.DownloadKToday += (Size / 1024);
 				Syslog('b', "DownloadKToday %d", exitinfo.DownloadKToday);
@@ -891,7 +891,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 
 		memset(&file, 0, sizeof(file));
 		strcpy(file.Name, File);
-		sprintf(temp1,"%ld",statfile.st_size);
+		sprintf(temp1,"%ld",(long)(statfile.st_size));
 		file.Size = atoi(temp1);
 		file.FileDate = statfile.st_mtime;
 		strcpy(file.Uploader, exitinfo.sUserName);
@@ -998,7 +998,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 			fprintf(pPrivate, "****************************************************");
 			fprintf(pPrivate, "\nUser        : %s", file.Uploader);
 			fprintf(pPrivate, "\nFile        : %s", file.Name);
-			fprintf(pPrivate, "\nSize        : %lu", file.Size);
+			fprintf(pPrivate, "\nSize        : %lu", (long)(file.Size));
 			fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(file.UploadDate));
 				
 			for(i = 0; i < iDesc - 1; i++)

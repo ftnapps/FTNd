@@ -1,4 +1,4 @@
-			MBSE BBS V0.33.17 TODO list.
+			MBSE BBS V0.33.18 TODO list.
 			----------------------------
 
 	These are a list of things that must be implemented one way or
@@ -42,8 +42,12 @@ mbsebbs:
 	N: Deleting a line in the FS editor with the BS key gives a SEGFAULT.
 
 mbfido:
+	U: postnetmail doesn't set msgid and reply for storenet.
+
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
+
+        N: Received files not in an archive are not scanned for virusses.
 
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
@@ -55,6 +59,14 @@ mbfido:
 	N: When a news article is received from a mailinglist there is a valid
 	   To: address in the message, the gate doesn't see that and uses the
 	   name to "All".
+
+	U: GoldED netmail from points, FMPT kludge is missing.
+
+	U: GoldED messages to internet becomes null.
+
+	U: E-mail for points get status normal in the outbound.
+
+	N: Wish: internet addresses in the From: field.
 
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.

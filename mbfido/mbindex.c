@@ -2,7 +2,7 @@
  *
  * File ..................: mbindex.c
  * Purpose ...............: Nodelist Compiler
- * Last modification date : 25-May-2001
+ * Last modification date : 08-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -628,20 +628,22 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				*q++ = '\0';
 		}
 		if ((strlen(p) == 3) && (!strcmp(p, "300"))) {
-			if ((strstr(q, (char *)"X75")) ||
-			    (strstr(q, (char *)"V110L")) ||
-			    (strstr(q, (char *)"V110H")) ||
-			    (strstr(q, (char *)"V120L")) ||
-			    (strstr(q, (char *)"V120H")) ||
-			    (strstr(q, (char *)"ISDN")))
-				ndx.pflag |= NL_ISDN;
-			if ((strstr(q, (char *)"IFC")) ||
-			    (strstr(q, (char *)"IBN")) ||
-			    (strstr(q, (char *)"ITN")) ||
-			    (strstr(q, (char *)"IVM")) ||
-			    (strstr(q, (char *)"IFT")) ||
-			    (strstr(q, (char *)"IP")))
-				ndx.pflag |= NL_TCPIP;
+			if (q != NULL) {
+				if ((strstr(q, (char *)"X75")) ||
+				    (strstr(q, (char *)"V110L")) ||
+				    (strstr(q, (char *)"V110H")) ||
+				    (strstr(q, (char *)"V120L")) ||
+				    (strstr(q, (char *)"V120H")) ||
+				    (strstr(q, (char *)"ISDN")))
+					ndx.pflag |= NL_ISDN;
+				if ((strstr(q, (char *)"IFC")) ||
+				    (strstr(q, (char *)"IBN")) ||
+				    (strstr(q, (char *)"ITN")) ||
+				    (strstr(q, (char *)"IVM")) ||
+				    (strstr(q, (char *)"IFT")) ||
+				    (strstr(q, (char *)"IP")))
+					ndx.pflag |= NL_TCPIP;
+			}
 		}
 
 		Syslog('S',"put: %u:%u/%u.%u reg %u upl %u/%u typ %u flg %02X as (%u,%lu)",

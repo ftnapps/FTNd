@@ -5,6 +5,13 @@
 #ifndef SHADOW_FILE
 #define SHADOW_FILE "/etc/shadow"
 #endif
+
+#ifdef SHADOWGRP
+#ifndef SGROUP_FILE
+#define SGROUP_FILE "/etc/gshadow"
+#endif
+#endif
+
 #endif
 
 
@@ -14,7 +21,6 @@ int spw_close (void);
 int spw_file_present (void);
 const struct spwd *spw_locate (const char *);
 int spw_lock (void);
-int spw_lock_first (void);
 int spw_name (const char *);
 const struct spwd *spw_next (void);
 int spw_open (int);

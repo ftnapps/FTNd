@@ -2,7 +2,7 @@
  *
  * File ..................: mbcico/respfreq.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 07-Feb-2001
+ * Last modification date : 08-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -269,6 +269,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 	Area = 0L;
 	free(p);
 
+	Syslog('f', "Start search ...");
 	while (!no_more && (fread(&idx, sizeof(idx), 1, fi) == 1)) {
 		if (re_exec(idx.Name) || re_exec(idx.LName)) {
 			Syslog('f', "Index found %s area %d record %d", idx.LName, idx.AreaNum, idx.Record);
@@ -380,7 +381,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 
  	fclose(fa);
 	fclose(fi);
-	
+
 	if (fl == NULL)
 		add_report((char *)"ER: No matching files found");
 

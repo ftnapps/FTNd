@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/funcs4.c
  * Purpose ...............: Misc functions, also for some utils.
- * Last modification date : 28-Jun-2001
+ * Last modification date : 08-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -834,14 +834,10 @@ int Check4UnixLogin(char *UsersName)
 	struct passwd	*pw;
 
 	while ((pw = getpwent())) {
-		#ifdef linux
-			if(strcmp(pw->pw_gecos, UsersName) == 0) {
-		#else
-			if(strcmp(pw->pw_comment, UsersName) == 0) {
-		#endif
-				UID = pw->pw_uid;
-				break;
-			}
+		if(strcmp(pw->pw_gecos, UsersName) == 0) {
+			UID = pw->pw_uid;
+			break;
+		}
 	}
 
 	return UID;

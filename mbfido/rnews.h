@@ -13,7 +13,7 @@
 #define SMBUF      	256
 
 
-void NewsUUCP(int);
+void NewsUUCP(void);
 
 
 #endif

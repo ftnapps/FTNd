@@ -59,10 +59,6 @@ extern char SigName[32][16];
 
 
 
-int	ttyfd;				/* Filedescriptor for raw mode	    */
-struct	termio	tbuf, tbufsav;		/* Structure for raw mode	    */
-
-
 void		InitClient(char *);
 void		ExitClient(int);
 void		SockS(const char *, ...);
