@@ -41,12 +41,14 @@
 #include "mbfpack.h"
 #include "mbflist.h"
 #include "mbfimport.h"
+#include "mbftoberep.h"
 #include "mbfutil.h"
 #include "mbfile.h"
 
 
 
 extern int	do_quiet;		/* Supress screen output	    */
+int		do_annon = FALSE;	/* Suppress announce on new files   */
 int		do_adopt = FALSE;	/* Adopt a file			    */
 int		do_pack  = FALSE;	/* Pack filebase		    */
 int		do_check = FALSE;	/* Check filebase		    */
@@ -54,6 +56,7 @@ int		do_kill  = FALSE;	/* Kill/move old files		    */
 int		do_index = FALSE;	/* Create request index		    */
 int		do_import= FALSE;	/* Import files in area		    */
 int		do_list  = FALSE;	/* List fileareas		    */
+int		do_tobe  = FALSE;	/* List toberep database	    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -94,9 +97,9 @@ int main(int argc, char **argv)
 	for (i = 1; i < argc; i++) {
 
 		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, tl(argv[i]));
+		cmd = xstrcat(cmd, argv[i]);
 
-		if (!strncmp(argv[i], "a", 1)) {
+		if (!strncasecmp(argv[i], "a", 1)) {
 			do_adopt = TRUE;
 			i++;
 			Area = atoi(argv[i]);
@@ -108,14 +111,26 @@ int main(int argc, char **argv)
 			cmd = xstrcat(cmd, argv[i]);
 			if (argc > (i + 1)) {
 				i++;
-				Description = xstrcpy(argv[i]);
 				cmd = xstrcat(cmd, (char *)" ");
 				cmd = xstrcat(cmd, argv[i]);
+				if (!strncasecmp(argv[i], "-a", 2)) {
+				    do_annon = TRUE;
+				} else {
+				    Description = xstrcpy(argv[i]);
+				    if (argc > (i + 1)) {
+					i++;
+					cmd = xstrcat(cmd, (char *)" ");
+					cmd = xstrcat(cmd, argv[i]);
+					if (!strncasecmp(argv[i], "-a", 2)) {
+					    do_annon = TRUE;
+					}
+				    }
+				}
 			}
 		}
-		if (!strncmp(argv[i], "in", 2))
+		if (!strncasecmp(argv[i], "in", 2))
 			do_index = TRUE;
-		if (!strncmp(argv[i], "im", 2)) {
+		if (!strncasecmp(argv[i], "im", 2)) {
 		    if (argc > (i + 1)) {
 			do_import = TRUE;
 			i++;
@@ -124,7 +139,7 @@ int main(int argc, char **argv)
 			cmd = xstrcat(cmd, argv[i]);
 		    }
 		}
-		if (!strncmp(argv[i], "l", 1)) {
+		if (!strncasecmp(argv[i], "l", 1)) {
 			do_list  = TRUE;
 			if (argc > (i + 1)) {
 			    i++;
@@ -133,17 +148,19 @@ int main(int argc, char **argv)
 			    cmd = xstrcat(cmd, argv[i]);
 			}
 		}
-		if (!strncmp(argv[i], "p", 1))
+		if (!strncasecmp(argv[i], "p", 1))
 			do_pack = TRUE;
-		if (!strncmp(argv[i], "c", 1))
+		if (!strncasecmp(argv[i], "c", 1))
 			do_check = TRUE;
-		if (!strncmp(argv[i], "k", 1))
+		if (!strncasecmp(argv[i], "k", 1))
 			do_kill = TRUE;
-		if (!strncmp(argv[i], "-q", 2))
+		if (!strncasecmp(argv[i], "t", 1))
+			do_tobe = TRUE;
+		if (!strncasecmp(argv[i], "-q", 2))
 			do_quiet = TRUE;
 	}
 
-	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt))
+	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_tobe))
 		Help();
 
 	ProgName();
@@ -182,6 +199,8 @@ int main(int argc, char **argv)
 	if (do_list)
 		ListFileAreas(Area);
 
+	if (do_tobe)
+		ToBeRep();
 	die(0);
 	return 0;
 }

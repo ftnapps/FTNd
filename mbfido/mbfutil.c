@@ -123,9 +123,11 @@ void Help(void)
 //	printf("	m  move <from> <to> <file>	Move file from to area\n");
 	printf("	p  pack				Pack filebase\n");
 //	printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");
+	printf("	t  toberep			Show toberep database\n");
 	colour(LIGHTBLUE, BLACK);
 	printf("\n	Options are:\n\n");
 	colour(CYAN, BLACK);
+	printf("	-a -announce			Supress announce added files\n");
 	printf("	-q -quiet			Quiet mode\n");
 	colour(LIGHTGRAY, BLACK);
 	printf("\n");

@@ -4325,6 +4325,9 @@ v0.33.19        26-Oct-2001
 		same name in upper and lowercase.
 		Implemented "mbfile import" function, this imports complete
 		areas from files.bbs information.
+		Added "mbfile toberep" function, this gives an overview of the
+		toberep database. The program mbtoberep does this as well, but
+		that one gives a complete dump and is for developer use.
 
 	mball:
 		The index function now creates the web pages with the use of

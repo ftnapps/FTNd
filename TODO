@@ -82,12 +82,8 @@ mbcico:
 mbfile:
 	N: Add a check to see if the magic filenames are valid.
 
-	N: Adopt files with check for FILE_ID.DIZ
-
 	N: Export to files.bbs
 	
-	N: Add <area> <file> <uploader> <description>
-
 	N: Update <filespec> <area> <-touch>
 
 	N: Rearc <area>

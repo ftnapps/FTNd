@@ -41,7 +41,7 @@
 
 
 extern int	do_quiet;		/* Supress screen output	    */
-
+extern int	do_annon;		/* Supress announce file	    */
 
 
 void AdoptFile(int Area, char *File, char *Description)
@@ -160,6 +160,8 @@ void AdoptFile(int Area, char *File, char *Description)
         memset(&fdb, 0, sizeof(fdb));
 	strcpy(fdb.Uploader, CFG.sysop_name);
 	fdb.UploadDate = time(NULL);
+	if (do_annon)
+	    fdb.Announced = TRUE;
 	
 	if (UnPacked) {
 	    /*

@@ -41,6 +41,7 @@
 
 
 extern int	do_quiet;		/* Supress screen output	    */
+extern int	do_annon;		/* Supress announce files	    */
 
 
 void ImportFiles(int Area)
@@ -188,6 +189,8 @@ void ImportFiles(int Area)
 		token = strtok(String, " \t");
 		strcpy(fdb.Name, token);
 		strcpy(fdb.LName, tl(token));
+		if (do_annon)
+		    fdb.Announced = TRUE;
 		Syslog('f', "File: %s (%s)", fdb.Name, fdb.LName);
 
 		if (!do_quiet) {

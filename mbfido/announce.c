@@ -447,6 +447,9 @@ int Announce()
 					}
 				}
 				FinishMsg(TRUE);
+			} else {
+			    if (!do_quiet)
+				printf("    No matching groups\n");
 			}
 
 			fseek(fp, filepos, SEEK_SET);
