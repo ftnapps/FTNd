@@ -35,14 +35,13 @@ mbsebbs:
 
 	N: Check for tagged files before logoff
 
-	N: If a message doesn't end with a newline in the FS-editor, the last 
-	   line will dissapear when reading the message.
-
 	N: Can't post messages to users handle.
 
 	L: Implement telnet door.
 
-	N: Deleting a line in the FS editor with the BS key gives a SEGFAULT.
+	L: Spell checker in full screen editor.
+
+	L: Better word wrapping or paragraph justification in editor.
 
 mbfido:
 	U: postnetmail doesn't set msgid and reply for storenet.

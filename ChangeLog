@@ -4166,6 +4166,8 @@ v0.33.18        27-Jul-2001
 		Fixed security problem in Unix username and password entry.
 		Now stoped nicely if started without controling tty.
 		Many bugs fixed in the full screen editor.
+		Last line of message is no longer deleted when saving message.
+		Segfault problem with deleting characters fixed.
 
 	mbuseradd:
 		Ported to work on FreeBSD.
