@@ -109,6 +109,7 @@ extern pp_list		*pl;			/* List of tty ports	*/
 extern int		ipmailers;		/* TCP/IP mail sessions	*/
 extern int		tosswait;		/* Toss wait timer	*/
 extern pid_t		mypid;			/* Pid of daemon	*/
+int			G_Shutdown = FALSE;	/* Global shutdown	*/
 int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 int			nodaemon = FALSE;	/* Run in foreground	*/
 extern int		cmd_run;		/* Cmd running		*/
@@ -649,6 +650,24 @@ int checktasks(int onsig)
 
 
 
+/*
+ * This function triggers the shutdown and is only installed for SIGTERM
+ * and SIGINT. On NetBSD the threads signal handlers cannot be disabled,
+ * so in fact all threads call this function as soon as one of these
+ * signals is received. The first one arrived will initiate the shutdown.
+ */
+void start_shutdown(int onsig)
+{
+    Syslog('+', "Trigger shutdown on signal %s", SigName[onsig]);
+    signal(onsig, SIG_IGN);
+    G_Shutdown = TRUE;
+}
+
+
+
+/*
+ * Normal fatal signal handler, but also used during shutdown.
+ */
 void die(int onsig)
 {
     int	    i, count;
@@ -985,9 +1004,10 @@ void start_scheduler(void)
     /*
      * Sleep until we die
      */
-    while (TRUE) {
+    while (! G_Shutdown) {
 	sleep(1);
     }
+    die(SIGTERM);
 }
 
 
@@ -1378,8 +1398,10 @@ int main(int argc, char **argv)
      *  but that's live. This daemon should only be stopped by SIGTERM.
      */
     for (i = 0; i < NSIG; i++) {
-        if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+        if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
             signal(i, (void (*))die);
+	else if ((i == SIGINT) || (i == SIGTERM))
+	    signal(i, (void (*))start_shutdown);
         else if ((i != SIGKILL) && (i != SIGSTOP))
             signal(i, SIG_IGN);
     }
