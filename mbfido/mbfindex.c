@@ -609,6 +609,7 @@ void Index(void)
 	MacroVars("cd", "ds", Total, linebuf);
 	MacroRead(fi, fm);
 	fclose(fi);
+	MacroClear();
 	fclose(fm);
 	sprintf(linebuf, "%s/index.html", CFG.ftp_base);
 	rename(fn, linebuf);
