@@ -22,8 +22,11 @@ install-exec-local:
 		$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir) ; \
 		echo "$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir)" ; \
 	fi
+	$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0755 bbsdoor.sh  $(bindir)
+	$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0755 mem         $(bindir)
 	@bash ./installinit.sh
 
-EXTRA_DIST = README maint midnight weekly monthly installinit.sh rc rc.shutdown mbse.start mbse.stop
+EXTRA_DIST = README maint midnight weekly monthly installinit.sh rc rc.shutdown \
+mbse.start mbse.stop bbsdoor.sh mem
 
 

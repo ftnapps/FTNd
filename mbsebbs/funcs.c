@@ -290,9 +290,14 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 
 	WhosDoingWhat(DOOR);
 
-	if((strstr(Program, "/A")) != NULL) {
+	if ((strstr(Program, "/N")) != NULL) {
+	    sprintf(temp1, "%d", iNode);
+	    strreplace(Program, (char *)"/N", temp1);
+	}
+
+	if ((strstr(Program, "/A")) != NULL) {
 		colour(3, 0);
-		if((String = strstr(Program, "/T=")) != NULL) {
+		if ((String = strstr(Program, "/T=")) != NULL) {
 			String1 = String + 3;
 			printf("\n%s", String1);
 		} else
@@ -305,9 +310,9 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 		strreplace(Program, (char *)"/A", temp1);
 
 		for(i = 0; i < strlen(Program); i++) {
-			if(*(Program + i) == '\0')
+			if (*(Program + i) == '\0')
 				break;
-			if(*(Program + i) == '/')
+			if (*(Program + i) == '/')
 				*(Program + i) = '\0';
 		}
 	}
@@ -340,7 +345,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 				fprintf(fp, "0\r\n");	/* Effective baudrate	*/
 			}
 			fprintf(fp, "8\r\n");		/* Databits		*/
-			fprintf(fp, "1\r\n");		/* Node number		*/
+			fprintf(fp, "%d\r\n", iNode);	/* Node number		*/
 			if (Comport)
 				fprintf(fp, "115200\r\n");/* Locked baudrate	*/
 			else
@@ -425,6 +430,7 @@ int exec_nosuid(char *mandato)
 
     if (mandato == NULL)
 	return 1;   /* Prevent running a shell  */
+
     Syslog('+', "Execve: /bin/sh -c %s", mandato);
     pid = fork();
     if (pid == -1)

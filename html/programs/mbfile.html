@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,8 +11,8 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 30-Jan-2001</h5>
-<P>&nbsp;<P>
+<h5>Last update 22-Oct-2001</h5>
+<P>
 
 <H1>mbfile - File database maintenance program.</H1>
 <P>
@@ -63,12 +63,6 @@ must exist in the filedatabase is skipped.
 Create fast filerequest index for the <strong>mbcico</strong> filerequest
 processor.
 <P>
-<code><strong>mbfile</strong> pack</code>
-This command will actualy remove the records of files that are marked for
-deletion. If the file is still on disk, it will be removed also. So when
-you delete files with mbsetup, they are still in your database and on disk
-until you run <strong>mbfile pack</strong>.
-<P>
 <code><strong>mbfile</strong> kill</code>
 Delete or move files in areas that have the <strong>download age</strong>
 set or the <strong>filedate age</strong> set. A setting of 0 is ignored.
@@ -77,6 +71,16 @@ If the Move to Area option is set the files are moved to the given area. The
 upload date and download date are reset to the current date and time.
 So if you set in the destination area aging of 14 days, files will stay
 there for 14 days after the move. This is good for automatic "last chance" areas.
+<P>
+<code><strong>mbfile</strong> list</code>
+List all defined file areas, the number of files, the total size of the files
+and the primary group.
+<P>
+<code><strong>mbfile</strong> pack</code>
+This command will actualy remove the records of files that are marked for
+deletion. If the file is still on disk, it will be removed also. So when
+you delete files with mbsetup, they are still in your database and on disk
+until you run <strong>mbfile pack</strong>.
 <P>&nbsp;<P>
 
 <H3>Options.</H3>

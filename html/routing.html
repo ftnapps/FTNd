@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jun-2001</h5>
+<h5>Last update 22-Oct-2001</h5>
 <P>&nbsp;<P>
 
 <h1 ALIGN="CENTER">MBSE BBS Netmail routing behaviour</h1>
@@ -151,7 +151,7 @@ module.
 		       | no			|  Set hub addr. |  v
 		       |			+--------+-------+  |
 		       |				 |	    |
-		       +---------------<-----------------+-----<----+
+		       +---------------&lt;-----------------+-----&lt;----+
 		       |
 	+--------------+--------------+
 	|    Set our region number    |
@@ -164,14 +164,14 @@ module.
 		       | yes					    |
 		       |					    |
 	+--------------+--------------+ 
-        |  Dest region <> our region  | yes			    |
-	|  or Dest zone <> our zone   +------------------+	    |
+        |  Dest region &lt;&gt; our region  | yes			    |
+	|  or Dest zone &lt;&gt; our zone   +------------------+	    |
 	+--------------+--------------+		+--------+-------+  |
 		       | no			|   Dest to RC   |  |
 		       |			|  rc = R_ROUTE  |  |
 		       |			+================+  |
 	+--------------+--------------+ yes			    |
-	|     Dest net <> our net     +------------------+	    |
+	|     Dest net &lt;&gt; our net     +------------------+	    |
 	+--------------+--------------+		+--------+-------+  |
 		       | no			| to host destnet|  |
 		       |			|  rc = R_ROUTE  |  |
@@ -185,7 +185,7 @@ module.
 		|  rc = R_ROUTE |				    |
 		+===============+				    |
 								    |
-		       +------------------------<-------------------+
+		       +------------------------&lt;-------------------+
 	+--------------+--------------+ no
 	|       Hub address set ?     +-----------------+
 	+--------------+--------------+		+-------+--------+

@@ -74,7 +74,8 @@ VERSION = @VERSION@
 
 SUBDIRS = .
 
-EXTRA_DIST = README maint midnight weekly monthly installinit.sh rc rc.shutdown mbse.start mbse.stop
+EXTRA_DIST = README maint midnight weekly monthly installinit.sh rc rc.shutdown mbse.start mbse.stop bbsdoor.sh mem
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -304,6 +305,8 @@ install-exec-local:
 		$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir) ; \
 		echo "$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0711 monthly     $(sysconfdir)" ; \
 	fi
+	$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0755 bbsdoor.sh  $(bindir)
+	$(INSTALL) -o @OWNER@ -g @GROUP@  -m 0755 mem         $(bindir)
 	@bash ./installinit.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 26-Sep-2001</h5>
+<h5>Last update 22-Oct-2001</h5>
 <P>&nbsp;<P>
 
 <h1>MBSE BBS Global Menus</h1>
@@ -67,10 +67,16 @@
  <LI value="7"><strong>Run external program:</strong> This will execute 
     external programs.<br>
    <strong>Optional data:</strong> The full path and filename of the external
-   program. This can be a shell too. Look for a lot of programs, for example
-   if you want to give your users internet mail with elm, the user can get a
-   shell prompt by typing <em>!/bin/sh</em>. If you want this look for
-   anyway you might consider using a restricted shell.<br>
+   program to run. There are a few switches you can give on the commandline:
+   <UL>
+    <LI><b>/N</B> will be replaced by the current nodenumber. The nodenumber is
+    faked by using the record number of the tty lines setup.
+    <LI><b>/A</b> will prompt for a filename to enter. The filename the user
+    enters is then replaced on the commandline. This is a dangerous option!
+    <LI><b>/T=your prompt</b> is an alternate prompt for entering a filename
+    if used together with the <b>/A</b> option.
+   </UL>
+   <br>
    <P>
 
  <LI value="8"><strong>Show product information:</strong> This will show

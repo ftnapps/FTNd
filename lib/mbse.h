@@ -2,10 +2,10 @@
  *
  * File ..................: mbse.h
  * Purpose ...............: Global variables for MBSE BBS
- * Last modification date : 25-Aug-2000
+ * Last modification date : 22-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -108,6 +108,7 @@ int	iUnixMode;		/* Using Unix Accounts			   */
 char	sUnixName[9];		/* Unix login name			   */
 time_t	Time2Go;		/* Calculated time to force logout	   */
 struct	tm *l_date;		/* Structure for Date			   */
+int	iNode;			/* Current node number			   */
 
 time_t	ltime;
 time_t	Time_Now;

@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * File ..................: bbs/mbsebbs.c
+ * File ..................: mbsebbs/mbsebbs.c
  * Purpose ...............: Main startup
- * Last modification date : 28-Jun-2001
+ * Last modification date : 22-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -102,13 +102,6 @@ int main(int argc, char **argv)
 #endif
 		exit(1);
 	}
-//        if (seteuid(pw->pw_uid) == -1) {
-//                perror("Can't seteuid() to \"mbse\" user");
-//#ifdef MEMWATCH
-//                mwTerm();
-//#endif
-//                exit(1);
-//        }
 
 	/* 
 	 * Set local time and statistic indexes.
@@ -214,13 +207,15 @@ int main(int argc, char **argv)
 	 */
 	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 
+	iNode = 0;
 	if ((pTty = fopen(temp, "r")) == NULL) {
 		WriteError("Can't read %s", temp);	
 	} else {
 		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
 
 		while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-			if (strcmp(ttyinfo.tty, pTTY) == 0)
+			iNode++;
+			if (strcmp(ttyinfo.tty, pTTY) == 0) 
 				break;
 		}
 		fclose(pTty);
@@ -230,6 +225,7 @@ int main(int argc, char **argv)
 			printf("No BBS on this port allowed!\n\n");
 			Quick_Bye(0);
 		}
+		Syslog('b', "Node number %d", iNode);
 
 		/* 
 		 * Ask whether to display Connect String 
