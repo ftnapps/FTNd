@@ -56,7 +56,7 @@ LASTLOG_ENAB		yes
 # If defined, this file will be output before each login prompt.
 # Should not be needed, mgetty and getty will do this already.
 #
-#ISSUE_FILE	@prefix@/etc/issue
+ISSUE_FILE	@prefix@/etc/issue
 
 #
 # If defined, name of file whose presence which will inhibit non-root

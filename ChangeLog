@@ -62,6 +62,10 @@ v0.71.0		27-Oct-2004
 		are protected.
 		In file areas, free downloads is now default for new areas.
 
+	mblogin:
+		The file ~/etc/login.defs now has default the issue file 
+		enabled so that it also is displayed for incoming telnet users.
+
 	lang:
 		Changed width of prompt 261.
 		Added prompt 28.
