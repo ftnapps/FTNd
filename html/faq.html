@@ -55,7 +55,8 @@
     <li><a name="_BBSsetup"></a><a href='#4'>BBS Setup</a></li>
     <ol>
       <li><a href='#4.1'>How do I run DOS doors under MBSE BBS?</a></li>
-      <li><a href='#4.2'>How to set up MBSE for ISDN.</a></li>
+      <li><a href='#4.2'>How do I to set up MBSE for ISDN?</a></li>
+      <li><a href='#4.3'>How do I use GoldED together with MBSE?</a></li>
     </ol>
   </ol>
 
@@ -690,6 +691,61 @@ EMSI name    The Wizard's ISDN line 2
 
 </pre>
 T-t-that's all folks :))
+</td></tr></table>
+<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<p>
+
+<table width=100%>
+<tr><td width=50 valign=top><a name="4.3">Q 4.3</a></td><td>
+How do I use GoldED together with MBSE?
+</td></tr>
+<tr><td valign=top>A 4.3</td><td>
+Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used together
+without problems as long as you use it to read the sysop mail. The
+mbsetup program can export a file called /opt/mbse/etc/golded.inc which
+will contain your main Aka's, Aka matching, sysop name and all your mail
+areas. This file is only (re)created if you change the global settings or
+one of the mail areas. The first time you must force this by making a change
+somewhere.
+<p>
+Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+<pre>
+
+; GoldED.cfg
+;
+; Internet Addressing
+;
+INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
+INTERNETGATE UUCP 2:292/875
+;
+;
+OUTBOUNDPATH /opt/mbse/var/bso/outbound
+REPLYLINK chain
+STYLECODES yes
+;
+;
+; MESSAGE READER
+;
+DISPMSGSIZE KBYTES
+DISPATTACHSIZE KBYTES
+DISPLOCALHIGH YES
+DISPPAGEBAR YES
+VIEWHIDDEN YES
+VIEWKLUDGE NO
+VIEWQUOTE YES
+;
+INCLUDE /opt/mbse/etc/golded.inc
+;
+; The end.
+
+</pre>
+Put in /opt/mbse/.profile the following line:
+export GOLDED=$HOME/etc
+<p>
+When you now start GoldED you use it as the sysop. Make sure that the sysop's
+userrecord is the first user in the MBSE BBS userbase. If not, the lastread
+pointers are not right. The GoldED nodelist compiler can be added to the setup
+in menu 18.
 </td></tr></table>
 <a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>

@@ -4611,6 +4611,7 @@ v0.33.20        10-Feb-2002
 		by the macro templates.
 		The rc files for joe, the external editor are now copied to
 		/usr/lib/joe or /etc/joe depending on your distribution.
+		Several readme files are now in a new html file, the FAQ.
 
 	common.a:
 		Added 2 functions to return the OS name and CPU family.
