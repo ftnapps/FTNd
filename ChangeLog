@@ -4242,11 +4242,12 @@ v0.33.19        26-Oct-2001
 		* - - /opt/mbse/bin/mblogin @
 
 	general:
-		Made the Makefile system more simple. The bbs programs now
-		don't run setuid anymore! This makes the system more secure.
+		Made the Makefile system more simple. The bbs program now
+		doesn't run setuid anymore! This makes the system more secure.
 		A new program, mblogin, is written to allow logins with
-		Fidonet style names from mgetty and telnetd.  This is a login
-		replacement for bbs use only. Normal shell users can't login.
+		Fidonet style names from mgetty and telnetd. This is a login
+		replacement for bbs use only. Normal shell users can't login,
+		not even root!
 		On FreeBSD the installed files are not removed anymore from
 		the source tree.
 		Added German language file made by Harald Wuensch.
@@ -4254,7 +4255,8 @@ v0.33.19        26-Oct-2001
 		The sourcetree has now a new subdirectory called unix. Here
 		are all the system specific programs such as mbpasswd,
 		mblogin and mbuseradd.
-		Started NetBSD port. Not working yet but does compile.
+		Started NetBSD port, is in testing fase.
+		Added support for xinetd.
 
 	SETUP.sh:
 		Better grep to check for excisting usernames like bbs, mbse.

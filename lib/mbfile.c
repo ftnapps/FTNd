@@ -237,7 +237,6 @@ int mkdirs(char *name, mode_t mode)
 	while ((q = strchr(p, '/'))) {
 		*q = '\0';
 		rc = mkdir(buf, mode);
-		Syslog('-', "mkdir(%s) rc=%d", buf, rc);
 		last = errno;
 		*q = '/';
 		p = q+1;

@@ -455,6 +455,8 @@ if [ -f /etc/xinetd.conf ]; then
     fi
 cat << EOF >> $XINET
 #:MBSE BBS services are defined here.
+#
+# Author: Michiel Broek <mbse@users.sourceforge.net>, 20-Jan-2002
 
 service binkp
 {
