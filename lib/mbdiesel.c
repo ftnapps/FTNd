@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS functions for TURBODIESEL
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -38,48 +38,48 @@ static int firstrandom = TRUE;
 
 void MacroVars( const char *codes, const char *fmt, ...)
 {
-        char *tmp1, *tmp2;
-        va_list ap;
-        int j;
-        int dieselrc;
-        char *vs;
-        int vd;
-        char vc;
-        double vf;
+    char    *tmp1, *tmp2, *vs, vc;
+    va_list ap;
+    int	    j, dieselrc, vd;
+    double  vf;
 
-        tmp1=calloc(MAXSTR, sizeof(char));
-        tmp2=calloc(MAXSTR, sizeof(char));
+    tmp1 = calloc(MAXSTR, sizeof(char));
+    tmp2 = calloc(MAXSTR, sizeof(char));
 
-        va_start(ap,fmt);
-        for ( j=0; (codes[j] != '\0') && (fmt[j] != '\0') ; j++ ){
-             tmp1[0]='\0';
-             switch(fmt[j]) {
-                   case 's':           /* string */
+    va_start(ap,fmt);
+    for (j = 0; (codes[j] != '\0') && (fmt[j] != '\0') ; j++ ){
+        tmp1[0] = '\0';
+        switch (fmt[j]) {
+	    case 's':   /* string */
                         vs = va_arg(ap, char *);
                         sprintf(tmp1,"@(setvar,%c,\"%s\")",codes[j],vs);
                         break;
-                   case 'd':           /* int */
+	    case 'd':   /* int */
                         vd = va_arg(ap, int);
                         sprintf(tmp1,"@(setvar,%c,%d)",codes[j],vd);
                         break;
-                   case 'c':           /* char */
+            case 'c':   /* char */
                         vc = va_arg(ap, int);
                         sprintf(tmp1,"@(setvar,%c,%c)",codes[j],vc);
                         break;
-                   case 'f':           /* char */
+            case 'f':   /* char */
                         vf = va_arg(ap, double);
                         sprintf(tmp1,"@(setvar,%c,%f)",codes[j],vf);
                         break;
-                   }
-                   dieselrc=diesel(tmp1,tmp2);
-		   if (dieselrc) {
-		       Syslog('!', "MacroVars error %d argument %d, macro %c type %c", dieselrc, j, codes[j], fmt[j]);
-		   }
-        }
-        va_end(ap);
+	}
+        dieselrc = diesel(tmp1,tmp2);
+	if (dieselrc) {
+	    Syslog('!', "MacroVars error %d argument %d, macro %c type %c", dieselrc, j, codes[j], fmt[j]);
+	    if (fmt[j] == 's')
+		Syslogp('!', printable(va_arg(ap, char *), 0));
+	    Syslogp('!', printable(tmp1, 0));
+	    Syslogp('!', printable(tmp2, 0));
+	}
+    }
+    va_end(ap);
 
-        free(tmp1);
-        free(tmp2);
+    free(tmp1);
+    free(tmp2);
 }
 
 
