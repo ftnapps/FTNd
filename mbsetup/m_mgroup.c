@@ -72,7 +72,7 @@ int CountMGroup(void)
 			mgroup.Active = TRUE;
 			fwrite(&mgroup, sizeof(mgroup), 1, fil);
 			fclose(fil);
-			chmod(ffile, 0640);
+			chmod(ffile, 0660);
 			return 2;
 		} else
 			return -1;
@@ -205,7 +205,7 @@ void CloseMGroup(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
-			chmod(fin, 0640);
+			chmod(fin, 0660);
 			disk_reset();
 			Syslog('+', "Updated \"mgroups.data\"");
 			if (!force)
@@ -213,7 +213,7 @@ void CloseMGroup(int force)
 			return;
 		}
 	}
-	chmod(fin, 0640);
+	chmod(fin, 0660);
 	working(1, 0, 0);
 	unlink(fout); 
 }

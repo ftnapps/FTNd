@@ -64,7 +64,7 @@ static int	removereturnto;
  */
 extern	char	*replyaddr;
 extern	int	do_mailout;
-
+extern	int	grecno;
 
 
 /*
@@ -129,6 +129,7 @@ int rfc2ftn(FILE *fp)
     int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
     int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
+    struct tm	    *l_date;
 
     temp = calloc(4097, sizeof(char));
     Syslog('m', "Entering rfc2ftn");
@@ -670,16 +671,52 @@ int rfc2ftn(FILE *fp)
 		Syslog('+', "Msg (%ld) to \"%s\", \"%s\"", Msg.Id, Msg.To, Msg.Subject);
 		do_mailout = TRUE;
 
+		/*
+		 * Create fast scan index
+		 */
 		sprintf(temp, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
 		if ((qfp = fopen(temp, "a")) != NULL) {
 		    fprintf(qfp, "%s %lu\n", msgs.Base, Msg.Id);
 		    fclose(qfp);
 		}
+
+		/*
+		 * Link messages
+		 */
 		rc = Msg_Link(msgs.Base, TRUE, CFG.slow_util);
 		if (rc != -1)
 		    Syslog('+', "Linked %d message%s", rc, (rc != 1) ? "s":"");
 		else
 		    Syslog('+', "Could not link messages");
+
+		/*
+		 * Update statistical counters
+		 */
+		Now = time(NULL);
+		l_date = localtime(&Now);
+		msgs.LastPosted = time(NULL);
+		msgs.Posted.total++;
+		msgs.Posted.tweek++;
+		msgs.Posted.tdow[l_date->tm_wday]++;
+		msgs.Posted.month[l_date->tm_mon]++;
+		mgroup.LastDate = time(NULL);
+		mgroup.MsgsSent.total++;
+		mgroup.MsgsSent.tweek++;
+		mgroup.MsgsSent.tdow[l_date->tm_wday]++;
+		mgroup.MsgsSent.month[l_date->tm_mon]++;
+		UpdateMsgs();
+
+		sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+		if ((qfp = fopen(temp, "r+"))) {
+		    fread(&usrconfighdr, sizeof(usrconfighdr), 1, qfp);
+		    fseek(qfp, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), SEEK_SET);
+		    if (fread(&usrconfig, usrconfighdr.recsize, 1, qfp) == 1) {
+			usrconfig.iPosted++;
+			fseek(qfp, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), SEEK_SET);
+			fwrite(&usrconfig, usrconfighdr.recsize, 1, qfp);
+		    }
+		    fclose(qfp);
+		}
 	    }
 	    Msg_Close();
 	}

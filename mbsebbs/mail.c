@@ -854,6 +854,29 @@ int Save_Msg(int IsReply, faddr *Dest)
 	fclose(fp);
     }
 
+    if (strlen(msgs.Group)) {
+	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "r+")) != NULL) {
+	    fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
+	    while ((fread(&mgroup, mgrouphdr.recsize, 1, fp)) == 1) {
+		if (!strcmp(msgs.Group, mgroup.Name)) {
+		    mgroup.LastDate = time(NULL);
+		    mgroup.MsgsSent.total++;
+		    mgroup.MsgsSent.tweek++;
+		    mgroup.MsgsSent.tdow[l_date->tm_wday]++;
+		    mgroup.MsgsSent.month[l_date->tm_mon]++;
+		    fseek(fp, - mgrouphdr.recsize, SEEK_CUR);
+		    fwrite(&mgroup, mgrouphdr.recsize, 1, fp);
+		    break;
+		}
+	    }
+	    fclose(fp);
+	} else {
+	    WriteError("$Save_Msg(): Can't open %s", temp);
+	}
+    }
+
+
     /*
      * Add quick mailscan info
      */
