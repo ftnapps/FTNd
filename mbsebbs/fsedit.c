@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/fsedit.c
  * Purpose ...............: FullScreen Message editor.
- * Last modification date : 23-Jul-2001
+ * Last modification date : 20-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -44,18 +44,6 @@
 #include "fsedit.h"
 
 
-extern	int	Line;		/* Number of lines + 1			*/
-extern	char	*Message[];	/* TEXTBUFSIZE lines of 80 chars	*/
-
-int		Row;		/* Current row on screen		*/
-int		Col;		/* Current column in text and on screen	*/
-int		TopVisible;	/* First visible line of text		*/
-int		InsMode;	/* Insert mode				*/
-int		CurRow;		/* Current row in buffer		*/
-
-
-
-void Show_Ins(void);
 void Show_Ins(void)
 {
 	locate(1, 70);
@@ -68,8 +56,6 @@ void Show_Ins(void)
 }
 
 
-
-void Top_Help(void);
 void Top_Help() 
 {
 	locate(1,1);
@@ -79,8 +65,6 @@ void Top_Help()
 }
 
 
-
-void Top_Menu(void);
 void Top_Menu(void)
 {
 	locate(1,1);
@@ -90,8 +74,6 @@ void Top_Menu(void)
 }
 
 
-
-void Ls(int, int);
 void Ls(int a, int y)
 {
 	locate(y, 10);
@@ -99,8 +81,6 @@ void Ls(int a, int y)
 }
 
 
-
-void Rs(int);
 void Rs(int a)
 {
 	colour(LIGHTGREEN, BLUE);
@@ -108,8 +88,6 @@ void Rs(int a)
 }
 
 
-
-void Ws(int, int);
 void Ws(int a, int y)
 {
 	int	i;
@@ -121,8 +99,6 @@ void Ws(int a, int y)
 }
 
 
-
-void Hl(int, int, char *);
 void Hl(int a, int y, char *txt)
 {
 	Ls(a, y);
@@ -132,8 +108,6 @@ void Hl(int a, int y, char *txt)
 }
 
 
-
-void Full_Help(void);
 void Full_Help(void)
 {
 	int	a, i;
@@ -178,8 +152,6 @@ void Full_Help(void)
 }
 
 
-
-void Setcursor(void);
 void Setcursor(void)
 {
 	CurRow = Row + TopVisible - 1;
@@ -188,8 +160,6 @@ void Setcursor(void)
 }
 
 
-
-void Beep(void);
 void Beep(void)
 {
 	printf("\007");
@@ -197,11 +167,9 @@ void Beep(void)
 }
 
 
-
 /*
  *  Refresh and rebuild screen in editing mode.
  */
-void Refresh(void);
 void Refresh(void) 
 {
 	int	i, j = 2;
@@ -222,8 +190,6 @@ void Refresh(void)
 }
 
 
-
-void Debug(void);
 void Debug(void)
 {
 	Syslog('B', "Col=%d Row=%d TopVisible=%d Lines=%d CurRow=%d Len=%d", 
@@ -231,8 +197,6 @@ void Debug(void)
 }
 
 
-
-void GetstrLC(char *, int);
 void GetstrLC(char *sStr, int iMaxlen)
 {
 	unsigned char	ch = 0;
@@ -267,6 +231,34 @@ void GetstrLC(char *sStr, int iMaxlen)
 	printf("\n");
 }
 
+
+void ScrollUp()
+{
+	Syslog('b', "Scroll up");
+	if (TopVisible > 12) {
+		TopVisible -= 12;
+		Row += 12;
+	} else {
+		Row += TopVisible;
+		TopVisible = 1;
+	}
+	Refresh();
+	Setcursor();
+	Debug();
+}
+
+
+void ScrollDown()
+{
+	Syslog('b', "Scroll down");
+	if ((TopVisible + 12) <= Line) {
+		Row -= 12;
+		TopVisible += 12;
+	}
+	Refresh();
+	Setcursor();
+	Debug();
+}
 
 
 int Fs_Edit()
@@ -402,15 +394,7 @@ int Fs_Edit()
 				Setcursor();
 				Debug();
 			} else {
-				if (TopVisible > 12) {
-					Syslog('B', "Scroll up");
-					TopVisible -= 12;
-					Row += 12;
-					Refresh();
-					Setcursor();
-					Debug();
-				} else
-					Beep();
+				ScrollUp();
 			}
 			break;
 
@@ -427,12 +411,7 @@ int Fs_Edit()
 					Setcursor();
 					Debug();
 				} else {
-					Syslog('B', "Scroll down");
-					Row -= 12;
-					TopVisible += 12;
-					Refresh();
-					Setcursor();
-					Debug();
+					ScrollDown();
 				}
 			} else
 				Beep();
@@ -440,39 +419,69 @@ int Fs_Edit()
 
 		case KEY_LEFT:
 		case ('S' - 64):
-			Syslog('B', "Cursor left");
+			Syslog('b', "Cursor left Col=%d Row=%d CurRow=%d TopVisible=%d", Col, Row, CurRow, TopVisible);
 			if (Col > 1) {
 				Col--;
 				Setcursor();
 				Debug();
+			} else if (CurRow > 1) {
+				Col = strlen(Message[CurRow-1]) +1;
+				if (Row == 1) ScrollUp();
+				CurRow--;
+				Row--;
+				Setcursor();
+				Debug();
+			} else if (TopVisible > 12) {
+				Refresh();
+				Setcursor();
+				Debug();
 			} else
 				Beep();
+			
 			break;
 
 		case KEY_RIGHT:
 		case ('D' - 64):
+			Syslog('B', "Cursor Right");
 			if (Col <= strlen(Message[CurRow])) {
 				Col++;
 				Setcursor();
 				Debug();
+			} else if (Row < (Line - TopVisible +1)) {
+				Row++;
+				CurRow++;
+				Col = 1;
+				if (Row > (exitinfo.iScreenLen -1)) ScrollDown();
+				Refresh();
+				Setcursor();
+				Debug();
 			} else
 				Beep();
+
 			break;
 
 		case KEY_DEL:
-			Syslog('b', "DEL key");
+			Syslog('b', "DEL key Col=%d Row=%d CurRow=%d", Col, Row, CurRow);
 			if (Col <= strlen(Message[CurRow])) {
-				Syslog('B', "DEL in middle of line");
+				Syslog('b', "DEL Col(%d) <= Length(%d)", Col, strlen(Message[CurRow]));
 				Debug();
 				Setcursor();
 				for (i = Col; i <= strlen(Message[CurRow]); i++) {
-					Syslog('B', "i=%d", i);
+					/* Syslog('b', "i=%d", i); */
 					Message[CurRow][i-1] = Message[CurRow][i];
 					printf("%c", Message[CurRow][i]);
 				}
 				printf(" \b");
-				Message[i-1] = '\0';
+				Message[CurRow][i-1] = '\0';
 				Setcursor();
+			} else if ((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) && (CurRow < Line)) {
+				for (i = 0; i < strlen(Message[CurRow+1]); i++)
+					sprintf(Message[CurRow], "%s%c", Message[CurRow], Message[CurRow+1][i]);
+				for (i = CurRow+1; i < Line; i++)
+					sprintf(Message[i], "%s", Message[i+1]);
+				Message[Line][0] = '\0';
+				Line--;
+				Refresh();
 			} else
                                 Beep();
 
@@ -485,28 +494,38 @@ int Fs_Edit()
 
 		case KEY_BACKSPACE:
 		case KEY_RUBOUT:
-			Syslog('B', "BS at Col=%d Row=%d CurRow=%d", Col, Row, CurRow);
+			Syslog('b', "BS at Col=%d Row=%d CurRow=%d", Col, Row, CurRow);
 			if (Col == 1 && CurRow == 1) {
-				Syslog('B', "BS on first character in message");
+				Syslog('b', "BS on first character in message");
 				Beep();
 			} else if (Col == 1) {
-				if (strlen(Message[CurRow-1]) + strlen(Message[CurRow]) < 75) {
+				Syslog('b', "BS at beginning of line");
+				if ((strlen(Message[CurRow-1]) + strlen(Message[CurRow]) < 75)
+					|| strlen(Message[CurRow]) == 0) {
 					Col = strlen(Message[CurRow-1]) + 1;
 					strcat(Message[CurRow-1], Message[CurRow]);
 					for ( i = CurRow; i < Line; i++)
 						sprintf(Message[i], "%s", Message[i+1]);
 					Message[i+1][0] = '\0';
 					Line--;
+					if (Row == 1) ScrollUp();
 					Row--;
 					CurRow--;
 					Refresh();
 					Setcursor();
 					Debug();
 					Changed = TRUE;
-				} else Beep();
+				} else {
+					i = strlen(Message[CurRow-1]) + strlen(Message[CurRow]);
+					Syslog('b', "BS lines are too big! %d + %d = %d",
+					       strlen(Message[CurRow]),
+					       strlen(Message[CurRow-1]),
+					       i);
+					Beep();
+				}
 			} else {
 				if (Col == strlen(Message[CurRow]) + 1) {
-					Syslog('B', "BS at end of line");
+					Syslog('b', "BS at end of line");
 					Debug();
 					printf("\b \b");
 					fflush(stdout);
@@ -514,12 +533,12 @@ int Fs_Edit()
 					Message[CurRow][Col-1] = '\0';
 					Changed = TRUE;
 				} else {
-					Syslog('B', "BS in middle of line");
+					Syslog('b', "BS in middle of line");
 					Debug();
 					Col--;
 					Setcursor();
-					for (i = Col; i < strlen(Message[CurRow]); i++) {
-						Syslog('B', "i=%d", i);
+					for (i = Col; i <= strlen(Message[CurRow]); i++) {
+						/* Syslog('b', "i=%d", i); */
 						Message[CurRow][i-1] = Message[CurRow][i];
 						printf("%c", Message[CurRow][i]);
 					}
@@ -531,16 +550,13 @@ int Fs_Edit()
 			}
 			break;
 
-		case KEY_INS:
+		case KEY_INS:  /* Toggle Insert Mode */
 		case ('V' - 64):
-			if (InsMode)
-				InsMode = FALSE;
-			else
-				InsMode = TRUE;
+			InsMode = !InsMode;
 			Show_Ins();
 			colour(CFG.TextColourF, CFG.TextColourB);
 			Setcursor();
-			Syslog('B', "InsertMode now %s", InsMode ? "True" : "False");
+			Syslog('b', "InsertMode now %s", InsMode ? "True" : "False");
 			/* 
 			 * Trap the extra code so it isn't
 			 * inserted in the text
@@ -549,7 +565,7 @@ int Fs_Edit()
 			break;
 
 		case ('L' - 64):  /* Refresh screen */
-			Syslog('B', "Refresh()");
+			Syslog('b', "Refresh()");
 			Refresh();
 			Debug();
 			break;
@@ -632,19 +648,19 @@ int Fs_Edit()
 			break;
 
 		case KEY_ESCAPE:  /* Editor menu */
-			Syslog('B', "Escape pressed");
+			Syslog('b', "Escape pressed");
 			Top_Menu();
 
 			ch = toupper(Readkey());
 			if (ch == 'A' || ch == 'S') {
-				Syslog('B', "%s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
+				Syslog('b', "%s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
 				Unsetraw();
 				close(ttyfd);
 				Debug();
 				clear();
 				fflush(stdout);
 				for (i = 1; i <= Line; i++)
-					Syslog('B', "%3d \"%s\"", i, Message[i]);
+					Syslog('b', "%3d \"%s\"", i, Message[i]);
 				if (ch == 'S' && Changed) {
 					Syslog('+', "Message saved");
 					return TRUE;
@@ -655,7 +671,7 @@ int Fs_Edit()
 			}
 
 			if (ch == 'H') {
-				Syslog('B', "User wants help");
+				Syslog('b', "User wants help");
 				Full_Help();
 				ch = Readkey();
 				Refresh();
@@ -688,16 +704,16 @@ int Fs_Edit()
 						 */
 						for (i = Line; i > CurRow; i--) {
 							sprintf(Message[i+1], "%s", Message[i]);
-							Syslog('B', "[WW]-Moving row %d to %d", i, i+1);
+							Syslog('b', "[WW]-Moving row %d to %d", i, i+1);
 						}
 						Message[CurRow+1][0] = '\0';
-						Syslog('B', "[WW]-Clearing row %d", CurRow+1);
+						Syslog('b', "[WW]-Clearing row %d", CurRow+1);
 						Col = 74;
 						while (Message[CurRow][Col] != ' ' && i != 0)
 							Col--;
 						Col++;
 						if (Col <= strlen(Message[CurRow])) {
-							Syslog('B', "[WW]-Move end of line %d to new row %d", CurRow, CurRow+1);
+							Syslog('b', "[WW]-Move end of line %d to new row %d", CurRow, CurRow+1);
 							for (i = Col; i <= strlen(Message[CurRow]); i++) {
 								sprintf(Message[CurRow+1], "%s%c", Message[CurRow+1], Message[CurRow][i]);
 							}
@@ -718,8 +734,8 @@ int Fs_Edit()
 					Syslog('b', "%s in line", InsMode ? "Insert" : "Overwrite");
 					if (InsMode) {
 						if (strlen(Message[CurRow]) < 80) {
-							for (i = strlen(Message[CurRow]); i > (Col-1); i--) {
-								Syslog('B', "(i+1=%d)[%c] = (i=%d)[%c]", i+1, Message[CurRow][i+1], i, Message[CurRow][i]);
+							for (i = strlen(Message[CurRow]); i >= (Col-1); i--) {
+								/* Syslog('b', "(i+1=%d)[%c] = (i=%d)[%c]", i+1, Message[CurRow][i+1], i, Message[CurRow][i]); */
 								Message[CurRow][i+1] = Message[CurRow][i];
 							}
 							Message[CurRow][Col-1] = ch;
