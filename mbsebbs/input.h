@@ -15,5 +15,6 @@ void GetPhone(char *, int);     /* Get telephone number                     */
 void Getpass(char *);		/* Get a password from the user		    */
 void Pause(void);		/* Puts Pause on Screen and halts screen    */
 
+int traduce(char *);
 
 #endif

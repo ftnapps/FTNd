@@ -43,6 +43,22 @@
 
 
 
+int traduce(char *ch)
+{
+   int i;
+   
+   for (i = 0; i < 85; i++){
+       if ( Language(35)[i] == '\0' ) break;
+       if ( *ch == Language(35)[i] ){
+          if ( Language(36)[i] != '\0'){
+               *ch = ( Language(36)[i] ); 
+           }                   
+       return TRUE; 
+       }
+   } 
+   return FALSE;
+}
+
 
 /*
  * Get a character string with cursor position
@@ -73,7 +89,7 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
 		putchar('\007');
 	}
 
-	if (ch > 31 && ch < 127) {
+	if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);

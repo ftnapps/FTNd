@@ -44,7 +44,6 @@
 #include "pinfo.h"
 #include "fsedit.h"
 
-
 void Show_Ins(void)
 {
     locate(1, 70);
@@ -721,7 +720,7 @@ int Fs_Edit()
 			    break;
 			
 	    default:
-			    if (ch > 31 && ch < 127) {
+			    if ((ch > 31 && ch < 127) || traduce(&ch) ) {
 				/*
 				 *  Normal printable characters
 				 */

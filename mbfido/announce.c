@@ -148,6 +148,7 @@ void Uploads()
 			sprintf(T_File.Group, "%s", area.NewGroup);
 			sprintf(T_File.Comment, "%s", area.Name);
 			sprintf(T_File.Name, "%s", file.Name);
+			sprintf(T_File.LName, "%s", file.LName);
 			T_File.Size = file.Size;
 			T_File.SizeKb = file.Size / 1024;
 			T_File.Fdate = file.FileDate;

@@ -2,6 +2,13 @@ $Id$
 
 v0.51.0		09-Feb-2004
 
+	mbaff:
+		Patched to store long filename in the newfiles database
+
+	mbsebbs:
+		Added support for the internal editor for hi-ascii 
+		international character sets.
+
 
 v0.50.0		03-Oct-2003 - 09-Feb-2004
 
