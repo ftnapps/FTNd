@@ -4227,6 +4227,15 @@ v0.33.19        26-Oct-2001
 		After compilation and installation run "mbfile check" to
 		update all file entries in the files database. This give a lot
 		of output in the logfile, don't worry about it.
+		In mbsetup 18 (task manager) set the fields 18, 19 and 20 to
+		the right values of your system. Also consider the setting
+		of field 13, set it to Yes if you cannot have a internet
+		connection at the same time when normal dial to fidonet is
+		needed. All other users, (more modems, cable/ADSL etc) set
+		this to No.
+		Fill in the right IP addresses in fields 11 and 12 of your
+		ISP's nameservers. If you don't have internet, fill these
+		with 192.168.1.1 and 192.168.1.2 as dummy addresses.
 
 	general:
 		Made the Makefile system more simple. The bbs programs now
@@ -4238,6 +4247,7 @@ v0.33.19        26-Oct-2001
 		On FreeBSD the installed files are not removed anymore from
 		the source tree.
 		Added German language file made by Harald Wuensch.
+		The mbtask daemon now handles the calling of Fidonet nodes.
 
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
@@ -4289,7 +4299,7 @@ v0.33.19        26-Oct-2001
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
-		Wordstar) style.
+		Wordstar) style. This has no effect on the editor for now.
 		Added menu 318, change users address.
 		Added control-U 4, ON/OFF for FS edit Emacs shortcut keys.
 		Now updates the lastcaller information when a call is finished
@@ -4357,7 +4367,7 @@ v0.33.19        26-Oct-2001
 		Password change on FreeBSD finally works.
 
 	mbcico:
-		Removed IEMSI support since mbsebbs doesn't support it 
+		Undefined IEMSI support since mbsebbs doesn't support it 
 		anymore.
 		Filerequest responses are now created with long filenames.
 		When sending files, if the remote has the FNC link flag, the
@@ -4371,10 +4381,13 @@ v0.33.19        26-Oct-2001
 		filenames as specified in the specs.
 		Corrected the location of the modem lockfile on FreeBSD.
 		Fixes for Sparc systems.
+		When a session fails, the node status retry time is current
+		time + random dial delay time. Needed for mbtask.
 
 	mbout:
 		Fixes for Sparc systems.
 		The node query now displays the system open times (Txx) flags.
+		The node query now also displays the CM,MO flags etc.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

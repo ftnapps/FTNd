@@ -86,10 +86,6 @@ mbmon:
 mbtask:
 	L: Add chat protocol.
 
-	N: Let mbtask control the mailer and mailer calls.
-
-        N: Implement nodelist Txx flags.
-
 	N: Add events.
 
 mbsetup:

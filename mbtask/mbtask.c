@@ -1017,8 +1017,8 @@ int ping_send(struct in_addr addr)
 	to.sin_addr   = addr;
 	SET_SOCKA_LEN4(to);
 	if (sendto(isock, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to)) == -1) {
-		if (icmp_errs < ICMP_MAX_ERRS)
-			tasklog('?', "$icmp ping: sendto()");
+//		if (icmp_errs < ICMP_MAX_ERRS)
+//			tasklog('?', "$icmp ping: sendto()");
 		return -2;
 	}
 	return 0;
