@@ -754,18 +754,18 @@ struct	sysconfig {
 	char		www_link2ftp[21];	/* Link name to ftp_base    */
 	char		www_url[41];		/* Webserver URL	    */
 	char		www_charset[21];	/* Default characher set    */
-	char		www_tbgcolor[21];	/* Table bgcolor	    */
-	char		www_hbgcolor[21];	/* Header bgcolor	    */
+	char		xwww_tbgcolor[21];
+	char		xwww_hbgcolor[21];
 	char		www_author[41];		/* Author name in pages	    */
 	char		www_convert[81];	/* Graphic Convert command  */
-	char		www_icon_home[21];	/* Icon for Home	    */
-	char		www_name_home[21];	/* String for Home	    */
-	char		www_icon_back[21];	/* Icon for Back	    */
-	char		www_name_back[21];	/* String for Back	    */
-	char		www_icon_prev[21];	/* Icon for previous page   */
-	char		www_name_prev[21];	/* String for previous page */
-	char		www_icon_next[21];	/* Icon for next page	    */
-	char		www_name_next[21];	/* String for next page     */
+	char		xwww_icon_home[21];
+	char		xwww_name_home[21];
+	char		xwww_icon_back[21];
+	char		xwww_name_back[21];
+	char		xwww_icon_prev[21];
+	char		xwww_name_prev[21];
+	char		xwww_icon_next[21];
+	char		xwww_name_next[21];
 	int		www_files_page;		/* Files per webpage	    */
 
 	fidoaddr	EmailFidoAka;		/* Email aka in fidomode    */
@@ -1256,24 +1256,25 @@ struct	_fgroup {
 	unsigned	FileGate	: 1;	/* List is in filegate fmt */
 	unsigned	AutoChange	: 1;	/* Auto add/del areas      */
 	unsigned	UserChange	: 1;	/* User add/del areas      */
-	unsigned	ShowAll		: 1;	/* Show all areas in lists */
 	unsigned	Replace		: 1;	/* Allow replace	   */
 	unsigned	DupCheck	: 1;	/* Dupe Check		   */
 	unsigned	Secure		: 1;	/* Check for secure system */
-	unsigned	NoToch		: 1;	/* Don't touch filedates   */
+	unsigned	NoTouch		: 1;	/* Don't touch filedates   */
 	unsigned	VirScan		: 1;	/* Run Virus scanners	   */
 	unsigned	Announce	: 1;	/* Announce files	   */
 	unsigned	UpdMagic	: 1;	/* Update Magic database   */
 	unsigned	FileId		: 1;	/* Check FILE_ID.DIZ	   */
 	unsigned	ConvertAll	: 1;	/* Convert always	   */
 	unsigned	SendOrg		: 1;	/* Send original file	   */
+	unsigned	xRes6		: 1;
 	unsigned	xRes7		: 1;
 	unsigned	xRes8		: 1;
-	char		BasePath[64];		/* File area base path     */
+	char		BasePath[65];		/* File area base path     */
 	securityrec	DLSec;			/* Download Security	   */
 	securityrec	UPSec;			/* Upload Security	   */
 	securityrec	LTSec;			/* List Security	   */
 	char		BbsGroup[13];		/* BBS Group		   */
+	char		AnnGroup[13];		/* BBS Announce Group	   */
 	unsigned	Upload;			/* Upload area		   */
 };
 

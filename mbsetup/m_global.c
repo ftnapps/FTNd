@@ -1458,61 +1458,31 @@ void e_html(void)
         mvprintw( 8, 2, "2.  Link to ftp");
         mvprintw( 9, 2, "3.  URL name");
         mvprintw(10, 2, "4.  Charset");
-        mvprintw(11, 2, "5.  Table color");
-        mvprintw(12, 2, "6.  Hdr. color");
-        mvprintw(13, 2, "7.  Author name");
-        mvprintw(14, 2, "8.  Convert cmd");
-	mvprintw(15, 2, "9.  Files/page");
-        mvprintw(16, 1,"10.  Icon Home");
-        mvprintw(17, 1,"11.  Text Home");
-        mvprintw(18, 1,"12.  Icon Back");
-        mvprintw(19, 1,"13.  Text Back");
-	mvprintw(16,41,"14.  Icon Prev.");
-	mvprintw(17,41,"15.  Text Prev.");
-	mvprintw(18,41,"16.  Icon Next");
-	mvprintw(19,41,"17.  Text Next");
+        mvprintw(11, 2, "5.  Author name");
+        mvprintw(12, 2, "6.  Convert cmd");
+	mvprintw(13, 2, "7.  Files/page");
 
         set_color(WHITE, BLACK);
         show_str( 7,18,59, CFG.www_root);
         show_str( 8,18,20, CFG.www_link2ftp);
         show_str( 9,18,40, CFG.www_url);
         show_str(10,18,20, CFG.www_charset);
-        show_str(11,18,20, CFG.www_tbgcolor);
-        show_str(12,18,20, CFG.www_hbgcolor);
-        show_str(13,18,40, CFG.www_author);
-        show_str(14,18,59, CFG.www_convert);
-	show_int(15,18,    CFG.www_files_page);
-        show_str(16,18,20, CFG.www_icon_home);
-        show_str(17,18,20, CFG.www_name_home);
-        show_str(18,18,20, CFG.www_icon_back);
-        show_str(19,18,20, CFG.www_name_back);
-	show_str(16,58,20, CFG.www_icon_prev);
-	show_str(17,58,20, CFG.www_name_prev);
-	show_str(18,58,20, CFG.www_icon_next);
-	show_str(19,58,20, CFG.www_name_next);
+        show_str(11,18,40, CFG.www_author);
+        show_str(12,18,59, CFG.www_convert);
+	show_int(13,18,    CFG.www_files_page);
 
         for (;;) {
                 set_color(WHITE, BLACK);
 
-                switch(select_menu(17)) {
+                switch(select_menu(7)) {
                 case 0: return;
                 case 1: E_STR( 7,18,59, CFG.www_root,       "The ^Document root^ of your http server")
                 case 2: E_STR( 8,18,20, CFG.www_link2ftp,   "The ^link^ name from the Document root to the FTP base directory")
                 case 3: E_STR( 9,18,40, CFG.www_url,        "The ^URL^ name of your http server")
                 case 4: E_STR(10,18,20, CFG.www_charset,    "The ^ISO character set^ name to include in the web pages")
-                case 5: E_STR(11,18,20, CFG.www_tbgcolor,   "The ^Tables background color^ to use")
-                case 6: E_STR(12,18,20, CFG.www_hbgcolor,   "The ^Table headers background color^ to use")
-                case 7: E_STR(13,18,40, CFG.www_author,     "The ^Author name^ to include in the http headers")
-                case 8: E_STR(14,18,59, CFG.www_convert,    "The ^convert^ command to create thumbnails")
-		case 9: E_INT(15,18,    CFG.www_files_page, "The number of files on each web page")
-                case 10:E_STR(16,18,20, CFG.www_icon_home,  "The ^Home icon^ filename")
-                case 11:E_STR(17,18,20, CFG.www_name_home,  "The ^Home text^ to appear")
-                case 12:E_STR(18,18,20, CFG.www_icon_back,  "The ^Back icon^ filename")
-                case 13:E_STR(19,18,20, CFG.www_name_back,  "The ^Back text^ to appear")
-		case 14:E_STR(16,58,20, CFG.www_icon_prev,  "The ^Previous page icon^ filename")
-		case 15:E_STR(17,58,20, CFG.www_name_prev,  "The ^Previous page text^ to appear")
-		case 16:E_STR(18,58,20, CFG.www_icon_next,  "The ^Next Page icon^ filename")
-		case 17:E_STR(19,58,20, CFG.www_name_next,  "The ^Next Page text^ to appear")
+                case 5: E_STR(11,18,40, CFG.www_author,     "The ^Author name^ to include in the http headers")
+                case 6: E_STR(12,18,59, CFG.www_convert,    "The ^convert^ command to create thumbnails")
+		case 7: E_INT(13,18,    CFG.www_files_page, "The number of files on each web page")
                 }
         };
 }
@@ -2045,18 +2015,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Link to FTP base   %s\n", CFG.www_link2ftp);
 	fprintf(fp, "      Webserver URL      %s\n", CFG.www_url);
 	fprintf(fp, "      Character set      %s\n", CFG.www_charset);
-	fprintf(fp, "      Table bgcolor      %s\n", CFG.www_tbgcolor);
-	fprintf(fp, "      Header bgcolor     %s\n", CFG.www_hbgcolor);
 	fprintf(fp, "      Author name        %s\n", CFG.www_author);
 	fprintf(fp, "      Convert command    %s\n", CFG.www_convert);
-	fprintf(fp, "      Icon Home          %s\n", CFG.www_icon_home);
-	fprintf(fp, "      String for Home    %s\n", CFG.www_name_home);
-	fprintf(fp, "      Icon Back          %s\n", CFG.www_icon_back);
-	fprintf(fp, "      String for Back    %s\n", CFG.www_name_back);
-        fprintf(fp, "      Icon Previous      %s\n", CFG.www_icon_home);
-        fprintf(fp, "      String for Prev.   %s\n", CFG.www_name_home);
-        fprintf(fp, "      Icon Next          %s\n", CFG.www_icon_back);
-        fprintf(fp, "      String for Next    %s\n", CFG.www_name_back);
 	fprintf(fp, "      File per webpage   %d\n", CFG.www_files_page);
 
 	return page;

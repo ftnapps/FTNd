@@ -378,18 +378,8 @@ void load_maincfg(void)
         	sprintf(CFG.www_link2ftp, "files");
         	sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
         	sprintf(CFG.www_charset, "ISO 8859-1");
-        	sprintf(CFG.www_tbgcolor, "Silver");
-        	sprintf(CFG.www_hbgcolor, "Aqua");
         	sprintf(CFG.www_author, "Your Name");
         	sprintf(CFG.www_convert,"/usr/X11R6/bin/convert -geometry x100");
-        	sprintf(CFG.www_icon_home, "up.gif");
-        	sprintf(CFG.www_name_home, "Home");
-        	sprintf(CFG.www_icon_back, "back.gif");
-        	sprintf(CFG.www_name_back, "Back");
-        	sprintf(CFG.www_icon_prev, "left.gif");
-        	sprintf(CFG.www_name_prev, "Previous page");
-        	sprintf(CFG.www_icon_next, "right.gif");
-        	sprintf(CFG.www_name_next, "Next page");
         	CFG.www_files_page = 10;
 
 		CFG.maxarticles = 500;
