@@ -169,7 +169,7 @@ int unpack(char *fn)
     } else {
 	sync();
 	sleep(1);
-	Syslog('!', "Warning: unpack %s failed, trying again after sync()");
+	Syslog('!', "Warning: unpack %s failed, trying again after sync()", fn);
 	if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
 	    unlink(fn);
 	} else {

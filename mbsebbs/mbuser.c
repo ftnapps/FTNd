@@ -175,6 +175,7 @@ void UserPack(int days, int level, int pack)
 	char	*fnin, *fnout;
 	long	oldsize, curpos;
 	int	updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
+	time_t	Last;
 
 	fnin  = calloc(PATH_MAX, sizeof(char));
 	fnout = calloc(PATH_MAX, sizeof(char));
@@ -258,10 +259,19 @@ void UserPack(int days, int level, int pack)
 
 		while (fread(&usr, sizeof(usr), 1, fout)  == 1) {
 			/*
+			 * New users don't have the last login date set yet,
+			 * use the registration date instead.
+			 */
+			if (usr.iTotalCalls == 0)
+			    Last = usr.tFirstLoginDate;
+			else
+			    Last = usr.tLastLoginDate;
+
+			/*
 			 * Wow, killing on the second exact!. Don't kill
 			 * the guest accounts.
 			 */
-			if ((((t_start - usr.tLastLoginDate) / 86400) > days) &&
+			if ((((t_start - Last) / 86400) > days) &&
 			    (usr.Security.level < level) && (!usr.Guest) &&
 			    (usr.sUserName[0] != '\0') && (!usr.NeverDelete)) {
 				Syslog('+', "Mark user %s", usr.sUserName);
