@@ -45,18 +45,19 @@ case "$1" in
             echo -n " logoff users"
             su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	    kill -15 `cat $MBSE_ROOT/var/run/mbtask`
-	    i=10 
-	    doit=1
-	    while let 'i > 0' && let 'doit != 0'
-	    do
+	    sleep 1
 		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
 		    echo -n "."
 		    sleep 1
-		    let i=i-1
-		else
-		    doit=0
 		fi
-	    done
+		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+			echo -n "."
+			sleep 1
+		fi
+		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+			echo -n "."
+			sleep 1
+		fi
 	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
 		kill -9 `cat $MBSE_ROOT/var/run/mbtask`
 	    fi
