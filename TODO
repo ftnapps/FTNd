@@ -63,6 +63,13 @@ newuser:
 	L: Allow handles to be the same as the unixname.
 
 mbfido:
+	N: Check all .flo files for dead attachments.
+
+	N: Check all .flo files for to old attachments.
+
+	N: If a download file is deleted by keep # then check if the file(s)
+	   are attached to nodes, if so delete the attachments and .tic files.
+
 	N: Count posted messages during mailscan.
 
 	N: Code cleanup and make a structure in this program. Remove duplicate

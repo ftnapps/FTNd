@@ -113,8 +113,23 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
     while (fgets(flofile, PATH_MAX -1, fp) != NULL) {
 	Striplf(flofile);
 	if (strncmp(flofile, thefile, strlen(thefile)) == 0) {
-	    fclose(fp);
 	    Syslog('+', "attach: file %s already attached", ofile);
+	    /*
+	     * If one of the next entries in the .flo file is a .tic file
+	     * pointing to this file, we should remove that .tic file and
+	     * mark the entry in the .flo as sent. For the file with this
+	     * name, a new .tic file will be added.
+	     */
+	    while (fgets(flofile, PATH_MAX -1, fp) != NULL) {
+		Striplf(flofile);
+		if (strstr(flofile, (char *)".tic")) {
+		    /*
+		     * Check this .tic file
+		     */
+		    Syslog('f', "Should check %s to be deleted", flofile);
+		}
+	    }
+	    fclose(fp);
 	    free(flofile);
 	    free(thefile);
 	    return TRUE;
