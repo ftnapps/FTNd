@@ -30,7 +30,7 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
-#if !defined(__FreeBSD__) && !defined(__netBSD__)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__)
 
 #include "../config.h"
 #include <stdio.h>
