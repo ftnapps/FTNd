@@ -34,6 +34,15 @@
 #include "../lib/users.h"
 #include "transfer.h"
 #include "change.h"
+#include "whoson.h"
+#include "funcs.h"
+#include "term.h"
+#include "ttyio.h"
+#include "filesub.h"
+#include "language.h"
+#include "openport.h"
+#include "timeout.h"
+
 
 /*
  
@@ -83,12 +92,18 @@ int ForceProtocol()
  * Download files to the user.
  * Returns:
  *  0 - All seems well
- *  1 - No tranfer protocol selected
+ *  1 - No transfer protocol selected
+ *  2 - No files to download.
  */
 int download(down_list *download_list)
 {
-    down_list	*tmpf;
-    int		rc, maxrc = 0;
+    down_list	    *tmpf;
+    int		    err, maxrc = 0, Count = 0;
+    char	    *temp, *symTo, *symFrom;
+    unsigned long   Size = 0;
+    time_t          ElapstimeStart, ElapstimeFin, iTime;
+    struct dirent   *dp;
+    DIR		    *dirp;
 
     /*
      * If user has no default protocol, make sure he has one.
@@ -97,10 +112,170 @@ int download(down_list *download_list)
 	return 1;
     }
 
-    for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+    /*
+     * Clean users tag directory.
+     */
+    WhosDoingWhat(DOWNLOAD, NULL);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    CheckDir(temp);
+
+    symTo   = calloc(PATH_MAX, sizeof(char));
+    symFrom = calloc(PATH_MAX, sizeof(char));
+    
+    /*
+     * Build symlinks into the users tag directory.
+     */
+    chdir("./tag");
+    for (tmpf = download_list; tmpf; tmpf = tmpf->next) {
+        if (!tmpf->sent && !tmpf->failed) {
+	    unlink(tmpf->remote);
+	    sprintf(symFrom, "%s", tmpf->remote);
+	    sprintf(symTo, "%s", tmpf->local);
+	    if (symlink(symTo, symFrom)) {
+	        WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
+	        tmpf->failed = TRUE;
+	    } else {
+	        Syslog('b', "Created symlink %s -> %s", symFrom, symTo);
+	    }
+	    if ((access(symFrom, R_OK)) != 0) {
+	        /*
+	         * Extra check, is symlink really there?
+	         */
+	        WriteError("Symlink %s check failed, unmarking download", symFrom);
+	        tmpf->failed = TRUE;
+	    } else {
+	        Count++;
+		Size += tmpf->size;
+	    }
+	}
+    }
+    Home();
+
+    if (!Count) {
+        /*
+         * Nothing to download
+         */
+        free(temp);
+        free(symTo);
+        free(symFrom);
+        return 2;
     }
 
-    return 0;
+    clear();
+    /* File(s)     : */
+    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%d", Count);     PUTSTR(temp); Enter(1);
+    /* Size        : */
+    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
+    /* Protocol    : */
+    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
+
+    Syslog('+', "Download tagged files start, protocol: %s", sProtName);
+
+    PUTSTR(sProtAdvice);
+    Enter(2);
+
+    /*
+     * Wait a while before download
+     */
+    sleep(2);
+    
+    if (uProtInternal) {
+	for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+	}
+    } else {
+	ElapstimeStart = time(NULL);
+
+	/*
+	 * Transfer the files. Set the Client/Server time at the maximum
+	 * time the user has plus 10 minutes. The overall timer 10 seconds
+	 * less. Not a nice but working solution.
+	 */
+	alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
+	Altime((exitinfo.iTimeLeft + 10) * 60);
+
+	sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	if ((dirp = opendir(temp)) == NULL) {
+	    WriteError("$Download: Can't open dir: %s", temp);
+	    free(temp);
+	} else {
+	    chdir(temp);
+	    free(temp);
+	    temp = NULL;
+	    while ((dp = readdir(dirp)) != NULL ) {
+		if (*(dp->d_name) != '.') {
+		    if (temp != NULL) {
+			temp = xstrcat(temp, (char *)" ");
+			temp = xstrcat(temp, dp->d_name);
+		    } else {
+			temp = xstrcpy(dp->d_name);
+		    }
+		}
+	    }
+	    if (temp != NULL) {
+		if ((err = execute_str(sProtDn, temp, NULL, NULL, NULL, NULL))) {
+		    WriteError("$Download error %d, prot: %s", err, sProtDn);
+		}
+		/*
+		 * Restore rawport
+		 */
+		rawport();
+		free(temp);
+	    } else {
+		WriteError("No filebatch created");
+	    }
+	    closedir(dirp);
+	}
+	Altime(0);
+	alarm_off();
+	alarm_on();
+	Home();
+	ElapstimeFin = time(NULL);
+
+	/*
+	 * Get time from Before Download and After Download to get
+	 * download time, if the time is zero, it will be one.
+	 */
+	iTime = ElapstimeFin - ElapstimeStart;
+	if (!iTime)
+	    iTime = 1;
+	/*
+	 * Checking the successfull sent files, they are missing from
+	 * the ./tag directory. Failed files are still there.
+	 */
+	Count = Size = 0;
+
+	for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+	    if (!tmpf->sent && !tmpf->failed) {
+		sprintf(symTo, "./tag/%s", tmpf->remote);
+		/*
+		 * If symlink is gone the file is sent.
+		 */
+		if ((access(symTo, R_OK)) != 0) {
+		    Syslog('+', "File %s from area %d sent ok", tmpf->remote, tmpf->area);
+		    tmpf->sent = TRUE;
+		    Size += tmpf->size;
+		    Count++;
+		} else {
+		    Syslog('+', "Failed to sent %s from area %d", Tag.LFile, Tag.Area);
+		}
+	    }
+	}
+
+	/*
+	 * Work out transfer rate in seconds by dividing the
+	 * Size of the File by the amount of time it took to download 
+	 * the file.
+	 */
+	Syslog('+', "Download time %ld seconds (%lu cps), %d files", iTime, Size / iTime, Count);
+    }
+    
+    free(symTo);
+    free(symFrom);
+
+    return maxrc;
 }
 
 

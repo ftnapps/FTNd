@@ -13,10 +13,13 @@ typedef struct _down_list {
 	char			*local;		/* Local filename	*/
 	char			*remote;	/* Remove filename	*/
 	long			cps;		/* CPS after sent	*/
+	long			area;		/* File area or 0	*/
 	unsigned long		size;		/* File size		*/
 	unsigned		kfs	: 1;	/* Kill File Sent	*/
 	unsigned		sent	: 1;	/* File is Sent		*/
+	unsigned		failed	: 1;	/* Transfer failed	*/
 } down_list;
+
 
 
 /*
