@@ -68,6 +68,8 @@ v0.51.4		11-Apr-2004
 		wrong line terminaters (Sempoint).
 		Added new experimental files database code which will only be
                 used if configured with --enable-experiment.
+		The users tag directory wasn't properly cleaned before a new
+		download session.
 
 	mball:
 		Added new experimental files database code which will only be

@@ -224,7 +224,12 @@ void Download(void)
     Enter(2);
     OldArea = iAreaNumber;
     WhosDoingWhat(DOWNLOAD, NULL);
-    execute_pth((char *)"rm", (char *)"-f ./tag/*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "-rf %s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+    CheckDir(temp);
+    free(temp);
 
     if ((tf = fopen("taglist", "r+")) == NULL) {
 	Syslog('+', "Download command but no files marked");
