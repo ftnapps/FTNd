@@ -47,7 +47,6 @@
  */
 #define	MAXTASKS		10
 #define	SLOWRUN			20
-#define	PAUSETIME		3
 #define TMPNAME 		"TMP."
 #define LCKNAME			"LOCKTASK"
 #define ICMP_BASEHDR_LEN	8

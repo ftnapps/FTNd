@@ -1,5 +1,9 @@
+/* $Id$ */
+
 #ifndef _TASKSTAT_H
 #define _TASKSTAT_H
+
+#define PAUSETIME               3
 
 void		status_init(void);	/* Initialize status module	*/
 void		stat_inc_clients(void);	/* Increase connected clients	*/

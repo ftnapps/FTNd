@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/taskstat.c
+ * $Id$
  * Purpose ...............: Keep track of server status 
- * Last modification date : 31-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -49,6 +48,7 @@ int			s_msglink  = FALSE;
 int			s_newnews  = FALSE;
 int			s_bbsopen  = FALSE;
 extern int		UPSalarm;
+extern int		ptimer;
 
 
 
@@ -336,8 +336,6 @@ char *getseq(void)
 
 int sem_set(char *sem, int value)
 {
-	int	rc = TRUE;
-
 	tasklog('s', "sem_set(%s, %s)", sem, value?"TRUE":"FALSE");
 
 	if (!strcmp(sem, "scanout")) {
@@ -358,9 +356,10 @@ int sem_set(char *sem, int value)
 	} else if (!strcmp(sem, "reqindex")) {
 		s_reqindex = value;
 	} else {
-		rc = FALSE;
+		return FALSE;
 	}
-	return rc;
+	ptimer = PAUSETIME;
+	return TRUE;
 }
 
 
