@@ -4692,6 +4692,7 @@ v0.33.20        10-Feb-2002
 		with that node, mbcico stopts the binkp session with an error.
 		Remove some obsolete code that is handled by mbtask.
 		Added some debug logmessages in ttyio.
+		Disabled creation of .spl files dusing mail sessions for test.
 
 	mbout:
 		The status display has now 9 digits for the outbound size.

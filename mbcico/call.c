@@ -55,17 +55,6 @@ extern char		*forcedline;
 extern char		*inetaddr;
 
 
-int checkretry(callstat *);
-int checkretry(callstat *st)
-{
-	Syslog('d', "Checkretry nr %d status %d", st->tryno, st->trystat);
-	if (st->tryno > 30)
-		return 2;
-	return 0;
-	/* check retries and time; rc=1 - not reached, rc=2 - undialable */
-}
-
-
 
 int portopen(faddr *addr)
 {
@@ -111,7 +100,6 @@ int portopen(faddr *addr)
 int call(faddr *addr)
 {
 	int		i, rc = 1;
-	callstat	*st;
 	struct hostent	*he;
 
 	/*
@@ -128,11 +116,11 @@ int call(faddr *addr)
 		putstatus(addr, 0, ST_LOCKED);
 		return ST_LOCKED;
 	}
-	nodeulock(addr);
 
 	if ((nlent = getnlent(addr)) == NULL) {
 		WriteError("Cannot call %s: fatal in nodelist lookup", ascfnode(addr, 0x1f));
 		putstatus(addr,0,ST_LOOKUP);
+		nodeulock(addr);
 		return ST_LOOKUP;
 	}
 
@@ -226,23 +214,6 @@ int call(faddr *addr)
 
 	if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
 		Syslog('?', "Warning: calling MO system outside ZMH");
-	}
-
-	st = getstatus(addr);
-	if ((rc = checkretry(st))) {
-		Syslog('+', "Cannot call %s: %s", ascfnode(addr,0x1f), (rc == 1)?"retry time not reached":"node undialable");
-		return 5;
-	}
-
-	/*
-	 * Over TCP/IP we don't do a delay because the node we are
-	 * connecting can't be busy. Also forced calls don't delay.
-	 */
-
-	if (nodelock(addr)) {
-		Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));
-		putstatus(addr, 0, ST_LOCKED);
-		return ST_LOCKED;
 	}
 
 	if (inbound)
