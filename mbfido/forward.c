@@ -48,14 +48,13 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-	char		*subject = NULL, *temp, *line, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
+	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
 	FILE		*fp, *fi, *net;
 	char		flavor;
 	faddr		*dest, *route, *Fa;
 	int		i, z, n;
 	time_t		now;
 	fa_list		*tmp;
-	long		filepos;
 
 	Syslog('+', "Forward file to %s", aka2str(Node));
 
@@ -137,9 +136,9 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	if (nodes.Message) {
 	    if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
 		if ((fi = OpenMacro("forward.tic", nodes.Language)) != NULL) {
-		    MacroVars("abcfghijmns", "ssdsddsssss", TIC.TicIn.Area, TIC.TicIn.AreaDesc, TIC.FileCost,
+		    MacroVars("abcdfghijmns", "ssdssddsssss", TIC.TicIn.Area, tic.Comment, TIC.FileCost, fgroup.Comment,
 							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
-							    TIC.TicIn.Crc, TIC.TicIn.Origin, " ", TIC.TicIn.LDesc[0], nodes.Sysop);
+							    TIC.TicIn.Crc, TIC.TicIn.Origin, " ", TIC.TicIn.Desc, nodes.Sysop);
 		    if (TIC.SendOrg)
 			MacroVars("e", "s", TIC.RealName);
 		    else
@@ -148,18 +147,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			MacroVars("k", "s", TIC.TicIn.Magic);
 		    if (strlen(TIC.TicIn.Replace))
 			MacroVars("l", "s", TIC.TicIn.Replace);
-		    MacroRead(fi, net);
-		    filepos = ftell(fi);
-		    for (i = 1; i < 25; i++) {
-			fseek(fi, filepos, SEEK_SET);
-			if (strlen(TIC.TicIn.LDesc[i])) {
-			    MacroRead(fi, net);
-			} else {
-			    line = calloc(255, sizeof(char));
-			    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
-			    free(line);
-			}
-		    }
 		    MacroRead(fi, net);
 		    fprintf(net, "%s\r", TearLine());
 		    CloseMail(net, fido2faddr(Node));
