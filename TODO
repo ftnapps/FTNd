@@ -15,9 +15,6 @@ $Id$
 		 X = Will not be done unless it's really needed.
 
 everything:
-	L: Finish big-endian machines porting (low priority because it seems
-	   that I'm the only one using Sun's and HP-PA systems next to Intel).
-
 	L: Consider XML format for databases.
 
 	L: Implement IPv6.
