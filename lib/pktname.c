@@ -130,6 +130,8 @@ char *pktname(faddr *addr, char flavor)
     p = prepbuf(addr);
     if (flavor == 'f') 
 	flavor = 'o';
+    if (flavor == 'i')
+	flavor = 'd';
 
     q = p + strlen(p);
     sprintf(q, "%c%s", flavor, ptyp);
@@ -145,6 +147,9 @@ char *floname(faddr *addr, char flavor)
     p = prepbuf(addr);
     if (flavor == 'o') 
 	flavor = 'f';
+    if (flavor == 'i')
+	flavor = 'd';
+
     q = p + strlen(p);
     sprintf(q, "%c%s", flavor, ftyp);
     return p;

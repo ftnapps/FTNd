@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 27-Jan-2002</h5></div>
+<div align='right'><h5>Last update 11-Jul-2004</h5></div>
 <div align='center'><h1>Binkly style outbound documentation for MBSE BBS.</H1></div>
 
 The MBSE BBS outbound directory structure is BinkleyTerm compatible, with
@@ -23,11 +23,8 @@ domains and point subdirectories (full 5d). There are separate "protected" and
 outbound sessions are always placed in the "protected" inbound directory. Only
 the "protected" inbound directory is processed automatic.
 <P>
-
-<P>
-Note that this is a very simple document and that it is not even finished.
-<P>
 <PRE>
+
 .pol	Poll flag, is handled as crash immediate, the length is always 0 bytes.
 
 	Flow files are files with the full pathnames to the files to send
@@ -39,12 +36,13 @@ Note that this is a very simple document and that it is not even finished.
 	The filenames may be prepended with a special character:
 	#	= Truncate file after sent.
 	- or ^	= Kill file after sent.
-	@	= Leave file after sent, this is the default.
+	@	= Leave file after sent, this is the default. Upto version
+                  0.61.1 this was empty.
 
 .flo	Normal flow file (contains complete filenames to send).
 .clo	Crash flow file.
 .hlo	Hold flow file.
-.ilo	Immediate flow file, overrides CM flag.
+.dlo	Direct flow file, overrides CM flag.
 
 	The following are .pkt files, during the mail session they will be
 	renamed to nnnnnnnn.pkt with an unique name and added to the spool
@@ -54,16 +52,7 @@ Note that this is a very simple document and that it is not even finished.
 .out	Normal .pkt file.
 .cut	Crash .pkt file.
 .hut	Hold .pkt file.
-.iut	Immediate .pkt file.
-
-	It seems that these are subdirectories used by ifpack during packing
-	of mail. These are used for the news/e-mail gate.
-
-.opk
-.cpk
-.hpk
-.ipk
-
+.dut	Immediate .pkt file.
 
 .req	Request file. Contains filenames in ascii with &lt;cr&gt;&lt;lf&gt;.
 
@@ -105,7 +94,6 @@ Note that this is a very simple document and that it is not even finished.
 	node is inserted into this file. All programs of the MBSE BBS package
 	(and ifcico package) check if the pid exists if a .bsy file is found.
 	If there is no pid found, the lock is a stale lock and is removed.
-
 </PRE>
 
 <A HREF="index.htm"><IMG SRC="../images/b_arrow.png" ALT="Back" Border="0">Go Back</A>

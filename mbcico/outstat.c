@@ -291,7 +291,7 @@ int outstat()
     for (tmp = alist; tmp; tmp = tmp->next) {
 	if ((tmp->flavors & F_FREQ) || (tmp->size) || 1) {
 	    strcpy(flstr,"......");
-	    if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
+	    if ((tmp->flavors) & F_IMM   ) flstr[0]='D';
 	    if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
 	    if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
 	    if ((tmp->flavors) & F_HOLD  ) flstr[3]='H';
@@ -389,7 +389,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		for (p = buf; *p && isspace(*p); p++);
 		    if (*p == '~') 
 			continue;
-		if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@')) 
+		if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@') || (*p == '~')) 
 		    p++;
 		if (stat(p, &st) != 0) {
 		    if (strlen(CFG.dospath)) {
