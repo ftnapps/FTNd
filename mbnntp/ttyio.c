@@ -35,7 +35,6 @@ extern	int	hanged_up;
 extern	char	*inetaddr;
 
 #define TT_BUFSIZ	1024
-#define NUMTIMERS	3
 
 
 int		tty_status = 0;
@@ -45,7 +44,6 @@ static	char	*next;
 static	int	left = 0;
 
 
-static	time_t	timer[NUMTIMERS];
 
 char *ttystat[]= {(char *)"Ok", 
 		  (char *)"Error", 
@@ -62,8 +60,7 @@ char *ttystat[]= {(char *)"Ok",
  */
 static int tty_read(char *buf, int size, int tot)
 {
-    time_t	    timeout, now;
-    int		    i, rc;
+    int		    rc;
     fd_set	    readfds, writefds, exceptfds;
     struct timeval  seltimer;
 
@@ -71,30 +68,12 @@ static int tty_read(char *buf, int size, int tot)
 	return 0;
     tty_status = 0;
 
-    now = time(NULL);
-    timeout = (time_t)300; /* maximum of 5 minutes */
-
-    for (i = 0; i < NUMTIMERS; i++) {
-	if (timer[i]) {
-	    if (now >= timer[i]) {
-		tty_status=STAT_TIMEOUT;
-		Syslog('!', "tty_read: timer %d already expired, return", i);
-		return -tty_status;
-	    } else {
-		if (timeout > (timer[i]-now))
-		    timeout=timer[i]-now;
-	    }
-	}
-    }
-    if ((tot != -1) && (timeout > tot))
-	timeout=tot;
-
     FD_ZERO(&readfds);
     FD_ZERO(&writefds);
     FD_ZERO(&exceptfds);
     FD_SET(0,&readfds);
     FD_SET(0,&exceptfds);
-    seltimer.tv_sec=timeout;
+    seltimer.tv_sec=tot;
     seltimer.tv_usec=0;
 
     rc = select(1,&readfds,&writefds,&exceptfds,&seltimer);

@@ -342,6 +342,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		fprintf(ofp, "\001INTL %d:%d/%d %d:%d/%d\n", fmsg->to->zone, fmsg->to->net, fmsg->to->node,
 				fmsg->from->zone, fmsg->from->net, fmsg->from->node);
 	}
+
+	if ((fmsg->msgid_a == NULL) || (fmsg->msgid_n == 0)) {
+	    Syslog('!', "Warning, no MSGID %s %08lx", MBSE_SS(fmsg->msgid_a), fmsg->msgid_n);
+	}
+
 	fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);

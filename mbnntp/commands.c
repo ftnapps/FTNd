@@ -374,9 +374,6 @@ void command_list(char *cmd)
      * No recognized LIST command
      */
     send_nntp("503 Function not available");
-
-    msleep(1);	    /* For the linker only */
-    mbse_colour(0, 0);
 }
 
 

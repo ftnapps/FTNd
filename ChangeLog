@@ -34,6 +34,16 @@ v0.71.1		28-Nov-2004
 		The import command now also figures out the difference between
 		8.3 and long filenames and does the right thing during import.
 
+	mbfido:
+		In rfc2ftn a debug logmessage added to check for unrecognised
+		message ids.
+
+	mbnntp:
+		Removed dead timercode.
+		Code cleanup.
+		When a message is posted without RFC Messageid, a fidonet MSGID
+		is fresh created.
+
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
 		the Spanish menus and txtfiles.

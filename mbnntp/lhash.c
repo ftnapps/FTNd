@@ -449,22 +449,6 @@ static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned long *rhash)
 	return(ret);
 }
 
-/*
-static unsigned long lh_strhash(str)
-char *str;
-	{
-	int i,l;
-	unsigned long ret=0;
-	unsigned short *s;
-
-	if (str == NULL) return(0);
-	l=(strlen(str)+1)/2;
-	s=(unsigned short *)str;
-	for (i=0; i<l; i++)
-		ret^=(s[i]<<(i&0x0f));
-	return(ret);
-	} */
-
 
 
 /* The following hash seems to work very well on normal text strings
@@ -480,11 +464,6 @@ unsigned long lh_strhash(char *c)
 
 	if ((c == NULL) || (*c == '\0'))
 		return(ret);
-/*
-	unsigned char b[16];
-	MD5(c,strlen(c),b);
-	return(b[0]|(b[1]<<8)|(b[2]<<16)|(b[3]<<24)); 
-*/
 
 	n=0x100;
 	while (*c)

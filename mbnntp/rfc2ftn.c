@@ -310,7 +310,12 @@ int rfc2ftn(FILE *fp)
 	}
 
 	fprintf(ofp, "AREA:%s\n", msgs.Tag);
-	fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	if ((fmsg->msgid_a == NULL) && (fmsg->msgid_n == 0)) {
+	    Syslog('n', "No Messageid from poster, creating new MSGID");
+	    fprintf(ofp, "\001MSGID: %s %08lx\n", aka2str(msgs.Aka), sequencer());
+	} else {
+	    fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
+	}
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
 	else if (fmsg->reply_a)

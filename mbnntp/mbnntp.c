@@ -78,7 +78,6 @@ void die(int onsig)
     ExitClient(onsig);
 
     msleep(1);      /* For the linker only */
-    mbse_colour(0, 0);
 }
 
 
