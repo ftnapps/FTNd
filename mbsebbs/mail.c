@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/mail.c
  * Purpose ...............: Message reading and writing.
- * Last modification date : 17-Sep-2001
+ * Last modification date : 26-Oct-2001
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
@@ -70,6 +70,7 @@ int		Line = 1;		/* Line counter in editor	    */
 char		*Message[TEXTBUFSIZE +1];/* Message compose text buffer	    */
 FILE		*qf;			/* Quote file			    */
 extern int	do_mailout;
+extern int	LC_Wrote;		/* Lastcaller info write message    */
 
 
 /*
@@ -594,6 +595,7 @@ int Save_Msg(int IsReply, faddr *Dest)
 	WriteExitinfo();
 
 	do_mailout = TRUE;
+	LC_Wrote = TRUE;
 
 	Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
 

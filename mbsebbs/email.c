@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/email.c
  * Purpose ...............: Internet email
- * Last modification date : 17-Sep-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,7 +53,7 @@ extern FILE		*qf;
 extern char		*Message[];
 extern int		Line;
 extern int		do_mailout;
-
+extern int		LC_Wrote;
 
 
 /*
@@ -331,6 +331,7 @@ int Save_Email(int IsReply)
 	WriteExitinfo();
 
 	do_mailout = TRUE;
+	LC_Wrote = TRUE;
 
 	Syslog('+', "Email (%ld) to \"%s\", \"%s\", in mailbox", Msg.Id, Msg.To, Msg.Subject);
 

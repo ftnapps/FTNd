@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/misc.c
  * Purpose ...............: Misc functions
- * Last modification date : 28-Jun-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -43,7 +43,19 @@
 #include "exitinfo.h"
 
 
-extern pid_t	mypid;		/* Pid of this program			   */
+extern pid_t	mypid;		/* Pid of this program	    */
+extern char	*StartTime;	/* Time user logged in	    */
+
+/*
+ * Last caller action flags
+ */
+int		LC_Download = FALSE;
+int		LC_Upload = FALSE;
+int		LC_Read = FALSE;
+int		LC_Wrote = FALSE;
+int		LC_Chat = FALSE;
+int		LC_Olr = FALSE;
+int		LC_Door = FALSE;
 
 
 int MoreFile(char *filename)
@@ -238,7 +250,7 @@ void Setup(char *Option, char *variable)
 
 
 
-void GetLastCallers()
+void SaveLastCallers()
 {
 	FILE	*pGLC;
 	char	*sFileName;
@@ -284,10 +296,18 @@ void GetLastCallers()
 		memset(&LCALL, 0, sizeof(LCALL));
 		sprintf(LCALL.UserName,"%s", exitinfo.sUserName);
 		sprintf(LCALL.Handle,"%s", exitinfo.sHandle);
-		sprintf(LCALL.TimeOn,"%s", (char *) GetLocalHM());
+		sprintf(LCALL.TimeOn,"%s", StartTime);
 		sprintf(LCALL.Device,"%s", pTTY);
 		LCALL.SecLevel = exitinfo.Security.level;
 		LCALL.Calls  = exitinfo.iTotalCalls;
+		LCALL.CallTime = exitinfo.iConnectTime;
+		LCALL.Download = LC_Download;
+		LCALL.Upload = LC_Upload;
+		LCALL.Read = LC_Read;
+		LCALL.Wrote = LC_Wrote;
+		LCALL.Chat = LC_Chat;
+		LCALL.Olr = LC_Olr;
+		LCALL.Door = LC_Door;
 		sprintf(LCALL.Speed, "%s", ttyinfo.speed);
 
 		/* If true then set hidden so it doesn't display in lastcallers function */

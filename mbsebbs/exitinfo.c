@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/exitinfo.c
  * Purpose ...............: Exitinfo functions
- * Last modification date : 28-Jun-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -45,6 +45,8 @@
 #include "timecheck.h"
 #include "exitinfo.h"
 
+
+extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
 
 
 /*
@@ -291,22 +293,27 @@ void WhosDoingWhat(int iStatus)
 
 		case DOWNLOAD:
 			strcpy(temp, "Downloading");
+			LC_Download = TRUE;
 			break;
 
 		case UPLOAD:
 			strcpy(temp, "Uploading");
+			LC_Upload = TRUE;
 			break;
 
 		case READ_POST:
 			strcpy(temp, "Read/post Messages");
+			LC_Read = TRUE;
 			break;
 
 		case DOOR:
 			strcpy(temp, "External Door");
+			LC_Door = TRUE;
 			break;	
 
 		case SYSOPCHAT:
 			strcpy(temp, "Sysop Chat");
+			LC_Chat = TRUE;
 			break;
 
 		case FILELIST:
@@ -315,10 +322,12 @@ void WhosDoingWhat(int iStatus)
 
 		case TIMEBANK:
 			strcpy(temp, "Time Bank");
+			LC_Door = TRUE;
 			break;
 
 		case SAFE:
 			strcpy(temp, "Safe Cracker");
+			LC_Door = TRUE;
 			break;
 
 		case WHOSON:
@@ -327,6 +336,7 @@ void WhosDoingWhat(int iStatus)
 
 		case OLR:
 			strcpy(temp, "Offline Reader");
+			LC_Olr = TRUE;
 			break;
 	}
 	IsDoing(temp);

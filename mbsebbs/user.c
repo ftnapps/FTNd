@@ -4,7 +4,7 @@
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.
- * Last modification date : 30-Sep-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -58,6 +58,7 @@
 
 extern int	sock;
 extern pid_t	mypid;
+char		*StartTime;
 
 
 /* Non global function prototypes */
@@ -186,7 +187,7 @@ char *AskLogin(void)
 				}
 
 				/* Please enter your Last name: */
-				language(7, 0, 1);
+				language(LIGHTGRAY, BLACK, 1);
 				fflush(stdout);
 				alarm_on();
 				Getname(temp, 34 - strlen(GetName));
@@ -699,7 +700,7 @@ void user()
 		Syslog('+', "Name not in user file");
 		Enter(1);
 		/* Scanning User File */
-		language(7, 0, 3);
+		language(LIGHTGRAY, BLACK, 3);
 		Enter(1);
 
 		usrconfig.GraphMode = FALSE;
@@ -707,10 +708,10 @@ void user()
 
 		Enter(1);
 		/* Name entered: */
-		language(7, 0, 5);
+		language(LIGHTGRAY, BLACK, 5);
 		printf("%s\n\n", UserName);
 		/* Did you spell your name correctly [Y/n] */
-		language(7, 0, 4);
+		language(WHITE, BLACK, 4);
 		fflush(stdout);
 		fflush(stdin);
 		i = toupper(Getone());
@@ -727,7 +728,7 @@ void user()
 					/* If FALSE display hard coded message */
 					Enter(1);
 					/* This is a PRIVATE System, Type "off" to leave */
-					language(7, 0, 6);
+					language(LIGHTRED, BLACK, 6);
 					Enter(2);
 				}
 
@@ -792,21 +793,21 @@ void user()
 			while (TRUE) {
 				Enter(1);
 				/* Your password is expired, enter password: */
-				language(7, 0, 435);
+				language(LIGHTGRAY, BLACK, 435);
 				fflush(stdout);
 				alarm_on();
 				Getpass(temp);
 				if ((x = strlen(temp)) >= CFG.password_length) {
 					Enter(1);
 					/* Please enter password again: */
-					language(7, 0, 40);
+					language(LIGHTGRAY, BLACK, 40);
 					fflush(stdout);
 					alarm_on();
 					Getpass(temp1);
 					if ((i = strcmp(temp, temp1)) != 0) {
 						Enter(2);
 						/* Passwords do not match */
-						language(7,0,41);
+						language(LIGHTRED, BLACK, 41);
 						Enter(1);
 					} else {
 						memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
@@ -830,10 +831,10 @@ void user()
 
 					Enter(2);
 					/* Your password must contain at least */
-					language(7, 0, 42);
+					language(LIGHTRED, BLACK, 42);
 					printf("%d ", CFG.password_length);
 					/* characters! Try again */
-					language(7, 0, 43);
+					language(LIGHTRED, BLACK, 43);
 					Enter(1);
 				}
 			}
@@ -842,7 +843,7 @@ void user()
 				crc = iePassword;
 			} else {
 				/* Pasword: */
-				language(7, 0, 8);
+				language(LIGHTGRAY, BLACK, 8);
 				fflush(stdout);
 				alarm_on();
 				Getpass(sGetPassword);
@@ -1032,7 +1033,7 @@ void user()
 		 */
 		InitExitinfo();
 		GetLastUser();
-		GetLastCallers();
+		StartTime = xstrcpy(GetLocalHM());
 		ChangeHomeDir(exitinfo.Name, exitinfo.Email);
 
 		Syslog('+', "User successfully logged into BBS");
@@ -1143,13 +1144,13 @@ void user()
 		iMaxLogin++;
 		if(iMaxLogin == CFG.max_login + 1) {
 			Enter(2);
-			language(7, 0, 9);
+			language(LIGHTGRAY, BLACK, 9);
 			Enter(1);
 			Syslog('!', "Exceeded maximum login attempts, user disconnected");
 			ExitClient(1);
 		}
 		Enter(2);
-		language(7, 0, 10);
+		language(LIGHTGRAY, BLACK, 10);
 		Enter(2);
 		alarm_on();
 		Pause();
