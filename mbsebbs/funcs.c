@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/funcs.c
  * Purpose ...............: Misc functions
- * Last modification date : 22-Oct-2001
+ * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001 
@@ -53,7 +53,7 @@
 extern long	ActiveMsgs;
 extern time_t	t_start;
 extern int	e_pid;
-
+extern char	**environ;
 
 
 /*

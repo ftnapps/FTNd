@@ -202,7 +202,7 @@ void GetstrU(char *sStr, int iMaxlen)
 				putchar('\007');
 		}
 
-		if (isalnum(ch) || (ch == '@')) {
+		if (isalnum(ch) || (ch == '@') || (ch == '.')) {
 			if (iPos <= iMaxlen) {
 				iPos++;
 				sprintf(sStr, "%s%c", sStr, ch);

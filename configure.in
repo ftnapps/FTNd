@@ -25,6 +25,8 @@ AC_CHECK_PROG(AWK, awk, awk)
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PROG_YACC
+AM_PROG_LEX
 AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
 CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
 

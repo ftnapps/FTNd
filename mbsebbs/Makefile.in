@@ -71,6 +71,7 @@ OWNER = @OWNER@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
+YACC = @YACC@
 
 SUBDIRS = .
 noinst_PROGRAMS = mbsebbs mball mblang mbchat mbfbgen mbstat mbtoberep mbuser mbuseradd mbpasswd
