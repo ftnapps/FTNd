@@ -17,7 +17,7 @@
 
   <div align="Center"><h1>MBSE BBS FAQ and Howto.</h1></div>
   <hr>   
-  <div align="Right"><h5>Last updated 28-Oct-2002</h5></div>
+  <div align="Right"><h5>Last updated 06-Nov-2002</h5></div>
    
   <pre>  Author: P.E. Kimble aka King Kimerud<br>          kimerud@bayhaus.org<br>  </pre>
    Introduction   
@@ -89,10 +89,9 @@ out.</a>
     </li>
      
     <ol>
-       <li><a href="#4.1">How do I to set up MBSE for ISDN?</a>
-      </li>
-       <li><a href="#4.2">How do I use GoldED together with MBSE?</a>
-      </li>
+       <li><a href="#4.1">How do I to set up MBSE for ISDN?</a></li>
+       <li><a href="#4.2">How do I use GoldED together with MBSE?</a></li>
+       <li><a href="#4.3">How do I use MsgEd together with MBSE?</a></li>
      
     </ol>
      
@@ -654,7 +653,31 @@ be added to the setup in menu 18. </p>
  <a href="#_BBSsetup"><img src="images/hand.up.gif" border="0" alt="Up">
   </a>
  </p>
-  <p>  </p>
+ 
+<p>
+<table width="100%">
+<tbody>
+ <tr>
+  <td width="50" valign="Top"><a name="4.3">Q 4.3</a></td>
+  <td> How do I use MsgEd together with MBSE?</td>
+ </tr>  
+ <tr> 
+  <td valign="Top">A 4.3</td>
+  <td>Since MBSE BBS version 0.35.05 MsgEd and MBSE BBS can be used together
+      without problems as long as you use it to read the sysop mail. The
+      mbsetup program can export a file called /opt/mbse/etc/msg.txt which
+      will contain your mail areas setup.
+      This file is only (re)created if you change the global settings or one
+      of the mail areas. The first time you must force this by making a change
+      somewhere.
+  </td>
+ </tr>
+</tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.gif" border="0" alt="Up"></a> 
+</p>
+
+ <p>  </p>
   <hr> 
   <h3><a name="5">5. Doors setup.</a>
   </h3>
