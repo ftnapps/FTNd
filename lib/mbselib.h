@@ -138,7 +138,7 @@ struct termios;
 
 #include <stddef.h>
 #include <fcntl.h>
-#if defined(__FreeBSD__) || defined(__NetBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #include <netinet/in_systm.h>
 #include <libgen.h>
 #endif
