@@ -495,9 +495,9 @@ void fill_arealist(AreaList **fdp, char *tag, int DoDelete)
 int Areas(void)
 {
     FILE	*gp, *ap, *fp;
-    char	*temp, *buf, *tag;
+    char	*temp, *buf, *tag, *desc, *p;
     AreaList	*alist = NULL, *tmp;
-    int		i, Found;
+    int		i, count = 0, Found;
     sysconnect	System;
 
     Syslog('+', "Process areas taglists");
@@ -583,7 +583,9 @@ int Areas(void)
 		    }
 
 		    /*
-		     * Now remove deleted areas
+		     * Now remove deleted areas. If there are messages in the area,
+		     * the area is set to read-only and all links are disconnected.
+		     * If the area is empty, it is removed from the setup.
 		     */
 		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r+")) == NULL) {
@@ -597,20 +599,33 @@ int Areas(void)
 				while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 				    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name)) {
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
-					Syslog('+', "Removing message area %d, %s", 
-					    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1, msgs.Tag);
-					memset(&msgs, 0, sizeof(msgs));
-					msgs.DaysOld = CFG.defdays;
-					msgs.MaxMsgs = CFG.defmsgs;
-					msgs.Type = ECHOMAIL;
-					msgs.MsgKinds = PUBLIC;
-					msgs.UsrDelete = TRUE;
-					msgs.Rfccode = CHRS_DEFAULT_RFC;
-					msgs.Ftncode = CHRS_DEFAULT_FTN;
-					msgs.MaxArticles = CFG.maxarticles;
-					strcpy(msgs.Origin, CFG.origin);
-					memset(&System, 0, sizeof(System));
+					sprintf(temp, "%s.jhr", msgs.Base);
+					if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
+					    Syslog('+', "Marking message area %d, %s read-only",
+						    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1,
+						    msgs.Tag);
+					    msgs.MsgKinds = RONLY;          // Area read-only
+					    sprintf(msgs.Group, "DELETED"); // Make groupname invalid
+					} else {
+					    Syslog('+', "Removing empty message area %d, %s", 
+						((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1, 
+						msgs.Tag);
+					    memset(&msgs, 0, sizeof(msgs));
+					    msgs.DaysOld = CFG.defdays;
+					    msgs.MaxMsgs = CFG.defmsgs;
+					    msgs.Type = ECHOMAIL;
+					    msgs.MsgKinds = PUBLIC;
+					    msgs.UsrDelete = TRUE;
+					    msgs.Rfccode = CHRS_DEFAULT_RFC;
+					    msgs.Ftncode = CHRS_DEFAULT_FTN;
+					    msgs.MaxArticles = CFG.maxarticles;
+					    strcpy(msgs.Origin, CFG.origin);
+					}
 					fwrite(&msgs, msgshdr.recsize, 1, fp);
+					/*
+					 * Always clear all connections, the area doesn't exist anymore.
+					 */
+					memset(&System, 0, sizeof(System));
 					for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
 					    fwrite(&System, sizeof(system), 1, fp);
 					break;
@@ -620,6 +635,7 @@ int Areas(void)
 				}
 			    }
 			}
+			fclose(fp);
 		    }
 		    tidy_arealist(&alist);
 		}
@@ -638,13 +654,183 @@ int Areas(void)
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
 	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile)) {
 		Syslog('+', "Checking tic group %s, file %s", fgroup.Name, fgroup.AreaFile);
+		sprintf(temp, "%s/%s", CFG.alists_path, fgroup.AreaFile);
+		if ((ap = fopen(temp, "r")) == NULL) {
+		    WriteError("Can't open %s", temp);
+		} else {
+		    if (fgroup.FileGate) {
+			/*
+			 * filegate.zxx format
+			 */
+			Found = FALSE;
+			while (fgets(buf, 4096, ap)) {
+			    /*
+			     * Each group starts with % FDN:    FileGroup Descrition
+			     */
+			    if (strlen(buf) && !strncmp(buf, "% FDN:", 6)) {
+				tag = strtok(buf, "\t \r\n\0");
+				p = strtok(NULL, "\t \r\n\0");
+				p = strtok(NULL, "\r\n\0");
+				desc = p;
+				while ((*desc == ' ') || (*desc == '\t'))
+				    desc++;
+				if (!strcmp(desc, fgroup.Comment)) {
+				    Syslog('f', "Start of group \"%s\" found", desc);
+				    while (fgets(buf, 4096, ap)) {
+					if (!strncasecmp(buf, "Area ", 5)) {
+					    Syslog('f', "Area: %s", buf);
+					    tag = strtok(buf, "\t \r\n\0");
+					    tag = strtok(NULL, "\t \r\n\0");
+					    Found = TRUE;
+					    fill_arealist(&alist, tag, FALSE);
+					}
+					if (strlen(buf) && !strncmp(buf, "% FDN:", 6)) {
+					    /*
+					     * All entries in group are seen, the area wasn't there.
+					     */
+					    Syslogp('f', buf);
+					    break;
+					}
+				    }
+				    if (Found)
+					break;
+				}
+			    }
+			}
+		    } else {
+			/*
+			 * Normal taglist format
+			 */
+			while (fgets(buf, 4096, ap)) {
+			    if (strlen(buf) && isalnum(buf[0])) {
+				tag = strtok(buf, "\t \r\n\0");
+				fill_arealist(&alist, tag, FALSE);
+			    }
+			}
+		    }
+		    fclose(ap);
+
+                    /*
+		     * Mark areas already present in the taglist.
+		     */
+		    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		    if ((fp = fopen(temp, "r")) == NULL) {
+			WriteError("Can't open %s", temp);
+			tidy_arealist(&alist);
+			free(buf);
+			free(temp);
+			return FALSE;
+		    }
+		    fread(&tichdr, sizeof(tichdr), 1, fp);
+		    for (tmp = alist; tmp; tmp = tmp->next) {
+			fseek(fp, tichdr.hdrsize, SEEK_SET);
+			while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
+			    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name))
+				tmp->IsPresent = TRUE;
+			    fseek(fp, tichdr.syssize, SEEK_CUR);
+			}
+		    }
+
+                    /*
+		     * Add areas to AreaList not in the taglist, they must be deleted.
+		     */
+		    fseek(fp, tichdr.hdrsize, SEEK_SET);
+		    while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
+			if (tic.Active && !strcmp(tic.Group, fgroup.Name)) {
+			    Found = FALSE;
+			    for (tmp = alist; tmp; tmp = tmp->next) {
+				if (!strcmp(tic.Name, tmp->Name))
+				    Found = TRUE;
+			    }
+			    if (!Found)
+				fill_arealist(&alist, tic.Name, TRUE);
+			}
+			fseek(fp, tichdr.syssize, SEEK_CUR);
+		    }
+		    fclose(fp);
+
+		    /*
+		     * Now we have a list of actions to perform
+		     */
 		    Syslog('f', "Area tag             Oke Del");
 		    for (tmp = alist; tmp; tmp = tmp->next) {
 			Syslog('f', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
 		    }
 		    
-		    tidy_arealist(&alist);
+		    /*
+		     * Make modification, first add missing areas
+		     */
+		    for (tmp = alist; tmp; tmp = tmp->next) {
+			if (!tmp->IsPresent && !tmp->DoDelete)
+			    CheckTicGroup(tmp->Name, TRUE, NULL);
+		    }
 
+		    /*
+		     * Mark TIC areas for deletion. The original file areas
+		     * are not deleted. They probably contain files and we
+		     * may want to keep these. If the area was empty we are
+		     * still warned about that by the "mbfile check" command.
+		     */
+		    Found = FALSE;
+                    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		    if ((fp = fopen(temp, "r+")) == NULL) { 
+			WriteError("Can't open %s for r/w");
+		    } else {
+			fread(&tichdr, sizeof(tichdr), 1, fp);
+			for (tmp = alist; tmp; tmp = tmp->next) {
+			    if (!tmp->IsPresent && tmp->DoDelete) {
+				fseek(fp, tichdr.hdrsize, SEEK_SET);
+				Syslog('f', "Delete %s", tmp->Name);
+				while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
+				    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name)) {
+					fseek(fp, - tichdr.recsize, SEEK_CUR);
+					Syslog('+', "Marked TIC area %s for deletion", tmp->Name);
+					tic.Deleted = TRUE;
+					tic.Active  = FALSE;
+					fwrite(&tic, tichdr.recsize, 1, fp);
+					Found = TRUE;
+				    }
+				    fseek(fp, tichdr.syssize, SEEK_CUR);
+				}
+			    }
+			}
+			fclose(fp);
+		    }
+		    if (Found) {
+			/*
+			 * Purge marked records
+			 */
+			sprintf(buf, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
+			if ((fp = fopen(temp, "r")) == NULL) {
+			    WriteError("Can't open %s", temp);
+			} else if ((ap = fopen(buf, "w")) == NULL) {
+			    WriteError("Can't create %s", buf);
+			    fclose(fp);
+			} else {
+			    fread(&tichdr, tichdr.hdrsize, 1, fp);
+			    fwrite(&tichdr, tichdr.hdrsize, 1, ap);
+			    while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
+				if (tic.Deleted && !tic.Active) {
+				    fseek(fp, tichdr.syssize, SEEK_CUR);
+				    count++;
+				} else {
+				    fwrite(&tic, tichdr.recsize, 1, ap);
+				    for (i = 0; i < (tichdr.syssize / sizeof(System)); i++) {
+					fread(&System, sizeof(System), 1, fp);
+					fwrite(&System, sizeof(System), 1, ap);
+				    }
+				}
+			    }
+			    fclose(fp);
+			    fclose(ap);
+			    unlink(temp);
+			    rename(buf, temp);
+			    Syslog('+', "Purged %d TIC records", count);
+			}
+		    }
+
+		    tidy_arealist(&alist);
+		}
 	    }
 	}
 	fclose(gp);

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: msg.c 
+ * $Id$
  * Purpose ...............: Global message base functions
- * Last modification date : 20-Dec-1998
  *
  *****************************************************************************
- * Copyright (C) 1997-1998
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -128,6 +127,16 @@ int Msg_Delete(unsigned long ulMsg)
 		return FALSE;
 		
 	return JAM_Delete(ulMsg);
+}
+
+
+
+/*
+ * Delete message base
+ */
+void Msg_DeleteMsgBase(char *Base)
+{
+    JAM_DeleteJAM(Base);
 }
 
 

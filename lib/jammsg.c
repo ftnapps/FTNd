@@ -10,7 +10,7 @@
  * MBSE BBS and utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -313,6 +313,28 @@ int JAM_Delete(unsigned long ulMsg)
 
 
 /*
+ * Delete JAM area files
+ */
+void JAM_DeleteJAM(char *Base)
+{
+    char    *temp;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s%s", Base, EXT_HDRFILE);
+    unlink(temp);
+    sprintf(temp, "%s%s", Base, EXT_IDXFILE);
+    unlink(temp);
+    sprintf(temp, "%s%s", Base, EXT_TXTFILE);
+    unlink(temp);
+    sprintf(temp, "%s%s", Base, EXT_LRDFILE);
+    unlink(temp);
+    free(temp);
+    Syslog('+', "JAM deleted %s", Base);
+}
+
+
+
+/*
  * Search for requested LastRead record.
  */
 int JAM_GetLastRead(lastread *LR)
@@ -528,6 +550,7 @@ int JAM_Open(char *Msgbase)
 
 			lseek(fdHdr, 0, SEEK_SET);
 			write(fdHdr, &jamHdrInfo, sizeof(JAMHDRINFO));
+			Syslog('+', "JAM created %s", Msgbase);
 		}
 
 		if (jamHdrInfo.Signature[0] == Signature[0] &&
@@ -552,6 +575,9 @@ int JAM_Open(char *Msgbase)
 
 	Msg.Id = 0L;
 	free(File);
+
+	if (!RetVal)
+	    WriteError("JAM error open %s", Msgbase);
 
 	return RetVal;
 }

@@ -4626,6 +4626,10 @@ v0.33.20        10-Feb-2002
 	diesel.a
 		New library for parsing macro templates.
 
+	msgbase.a:
+		Improved logging for opening message bases.
+		Added function to delete a JAM message base.
+
 	mbsetup:
 		In message groups added default settings for auto area
 		creation.
@@ -4730,6 +4734,12 @@ v0.33.20        10-Feb-2002
 		The mbfido web command now uses macro templates.
 		Areamgr uplink requests the sender name is now set to the
 		sysop's name, so he/she will get to read the responses.
+		New command: areas. This will read all defined area lists for
+		files and mail groups that have the Auto Change set to Yes.
+		Missing areas are created, areas not present anymore are
+		removed if they are empty. Good for bulk areas create.
+		When missing areas are created, uplink requests are sent to
+		connect the areas.
 
 	mbmsg:
 		When creating non-existend message bases, the path is created

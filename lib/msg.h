@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef	_MSG_H
 #define	_MSG_H
 
@@ -117,6 +119,7 @@ long		tell(int);
 int		Msg_AddMsg(void);
 void		Msg_Close(void);
 int		Msg_Delete(unsigned long);
+void		Msg_DeleteMsgBase(char *);
 int		Msg_GetLastRead(lastread *);
 unsigned long	Msg_Highest(void);
 int		Msg_Lock(unsigned long);

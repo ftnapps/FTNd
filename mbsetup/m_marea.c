@@ -304,25 +304,6 @@ void InitMsgRec(void)
 
 
 
-void DeleteJAM(char *);
-void DeleteJAM(char *Base)
-{
-    char    *temp;
-
-    temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s.jdt", Base);
-    unlink(temp);
-    sprintf(temp, "%s.jdx", Base);
-    unlink(temp);
-    sprintf(temp, "%s.jhr", Base);
-    unlink(temp);
-    sprintf(temp, "%s.jlr", Base);
-    unlink(temp);
-    free(temp);
-}
-
-    
-
 int AppendMsgarea(void);
 int AppendMsgarea()
 {
@@ -977,7 +958,7 @@ void MsgGlobal(void)
 								break;
 							case 12:if (msgs.Active) {
 									msgs.Active = FALSE;
-									DeleteJAM(msgs.Base);
+									Msg_DeleteMsgBase(msgs.Base);
 									memset(&msgs, 0, sizeof(msgs));
 									if (SaveMsgRec(marea, FALSE) == 0) {
 										Done++;
@@ -1189,7 +1170,7 @@ int EditMsgRec(int Area)
 				/*
 				 * Make it so
 				 */
-				DeleteJAM(msgs.Base);
+				Msg_DeleteMsgBase(msgs.Base);
 				memset(&System, 0, sizeof(System));
 				fseek(tfil, 0, SEEK_SET);
 				for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef	_JAMMSG_H
 #define	_JAMMSG_H
 
@@ -5,6 +7,7 @@
 int		JAM_AddMsg(void);
 void		JAM_Close(void);
 int		JAM_Delete(unsigned long);
+void		JAM_DeleteJAM(char *);
 int		JAM_GetLastRead(lastread *);
 unsigned long	JAM_Highest(void);
 int		JAM_Lock(unsigned long);
