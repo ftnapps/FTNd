@@ -515,6 +515,7 @@ int get_xoverview(void)
 		}
 
 		if ((tmp = xoverview) != NULL) {
+			most_debug = TRUE;
 			Syslog('N', "--Xoverview.fmt list");
 			while (tmp != NULL) {
 				if (tmp->header != NULL) {
@@ -522,6 +523,7 @@ int get_xoverview(void)
 				}
 				tmp = tmp->next;
 			}
+			most_debug = FALSE;
 		}
 	} else {
 		return 1;
