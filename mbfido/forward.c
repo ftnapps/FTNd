@@ -47,7 +47,7 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX];
+	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
 	FILE		*fp, *net;
 	char		flavor;
 	faddr		*dest, *route, *Fa;
@@ -93,10 +93,13 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	/*
 	 * Create the full filename
 	 */
-	if (TIC.SendOrg)
+	if (TIC.SendOrg) {
 		sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.RealName);
-	else
+		subject = xstrcpy(TIC.RealName);
+	} else {
 		sprintf(fwdfile, "%s/%s", TIC.BBSpath, TIC.NewName);
+		subject = xstrcpy(TIC.NewName);
+	}
 
 	flavor = 'f';
 	if (nodes.Crash) 
@@ -111,20 +114,20 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	dest = fido2faddr(Node);
 	attach(*route, fwdfile, LEAVE, flavor);
 
-	if (strlen(CFG.dospath))
-		subject = xstrcpy(Unix2Dos(fwdfile));
-	else
-		subject = xstrcpy(fwdfile);
+//	if (strlen(CFG.dospath))
+//		subject = xstrcpy(Unix2Dos(fwdfile));
+//	else
+//		subject = xstrcpy(fwdfile);
 
 	ticfile = calloc(PATH_MAX, sizeof(char));
+	ticname = calloc(15, sizeof(char));
 	if (nodes.Tic) {
-		sprintf(ticfile, "%s/%08lx.tic", CFG.ticout, sequencer());
+		sprintf(ticname, "%08lx.tic", sequencer());
 		subject = xstrcat(subject, (char *)" ");
-		if (strlen(CFG.dospath))
-			subject = xstrcat(subject, Unix2Dos(ticfile));
-		else
-			subject = xstrcat(subject, ticfile);
+		subject = xstrcat(subject, ticname);
+		sprintf(ticfile, "%s/%s", CFG.ticout, ticname);
 	}
+	free(ticname);
 
 	/*
 	 *  Send netmail message if the node has it turned on.
