@@ -864,8 +864,6 @@ int hydra_batch(int role, file_list *to_send)
 
 		    Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
 		    Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned long)txstat.st_size, date(txstat.st_mtime));
-		    if (txcompressed)
-			Syslog('+', "Hydra: saved by compression %d bytes", txcompressed);
 		    gettimeofday(&txstarttime, &tz);
 		}
 
@@ -1195,6 +1193,8 @@ int hydra_batch(int role, file_list *to_send)
 
 		    if (txpos >= 0) {
 			stxpos = txpos - stxpos;
+			if (txcompressed && (compstate != HCMP_NONE))
+			    Syslog('+', "Hydra: %s", compress_stat(stxpos, txcompressed));
 			Syslog('+', "Hydra: OK %s", transfertime(txstarttime, txendtime, stxpos, TRUE));
 			execute_disposition(to_send);
 		    } else {
@@ -1642,7 +1642,7 @@ int hydra_batch(int role, file_list *to_send)
 		 * mode we should send ID -1 to instruct the remote to
 		 * stop compression mode.
 		 */
-		if ((compstate != HCMP_NONE) && (rxctries > 4)) {
+		if ((compstate != HCMP_NONE) && (rxctries > 2)) {
 		    Syslog('+', "Hydra: too much compress errors, instructing remote to stop compression");
 		    put_long(txbuf + 8, (long)-1L);
 		} else {

@@ -563,3 +563,13 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
 }
 
 
+
+char *compress_stat(long original, long saved)
+{
+    static char	    resp[81];
+
+    sprintf(resp, "compressed %ld bytes, compression %0.1f%%", saved, ((saved * 100.0) / original));
+    return resp;
+}
+
+

@@ -25,6 +25,7 @@ v0.39.1		22-Oct-2003
 	mbcico:
 		Added hydra rpos id -1 indicator for compression stop that
 		Alex and I agreed to use.
+		Compression log fixed and added percentage compression.
 
 	mbsetup:
 		In node editor, fixed error message when there was no more

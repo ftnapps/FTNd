@@ -10,6 +10,7 @@ file_list *create_freqlist(fa_list *);
 void tidy_filelist(file_list *, int);
 void execute_disposition(file_list *);
 char *transfertime(struct timeval, struct timeval, long, int);
+char *compress_stat(long, long);
 
 #endif
 
