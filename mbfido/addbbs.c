@@ -107,7 +107,6 @@ int Add_BBS()
     }
 
 
-    Syslog('f', "addbbs 1");
     /*
      * Create filedatabase record.
      */
@@ -123,7 +122,6 @@ int Add_BBS()
 	for (i = 0; i < strlen(frec.LName); i++)
 	    frec.LName[i] = tolower(frec.LName[i]);
     }
-    Syslog('f', "addbbs 2");
     frec.TicAreaCRC =  StringCRC32(TIC.TicIn.Area);
     frec.Size = TIC.FileSize;
     frec.Crc32 = TIC.Crc_Int;
@@ -139,7 +137,6 @@ int Add_BBS()
     if (strlen(TIC.TicIn.Magic))
 	sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
 
-    Syslog('f', "addbbs 3");
     sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
     sprintf(temp2, "%s/%s", TIC.BBSpath, frec.Name);
     mkdirs(temp2, 0755);
@@ -155,7 +152,6 @@ int Add_BBS()
 	WriteError("$Create link %s to %s failed", temp2, lname);
     }
     free(lname);
-    Syslog('f', "addbbs 4");
 
     sprintf(fdbtemp, "%s/fdb/fdb%ld.temp", getenv("MBSE_ROOT"), tic.FileArea);
 
@@ -181,7 +177,6 @@ int Add_BBS()
 	tic_imp++;
 	return TRUE;
     }
-    Syslog('f', "addbbs 5");
 
     /*
      * There are already files in the area. We must now see at
@@ -205,7 +200,6 @@ int Add_BBS()
 	}
     } while ((!Found) && (!Done));
 
-    Syslog('f', "addbbs 6");
     if (Found) {
 	if ((fdt = fopen(fdbtemp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", fdbtemp);
@@ -256,7 +250,6 @@ int Add_BBS()
 	}
 	fclose(fdt);
 	fclose(fdb);
-	Syslog('f', "addbbs 7");
 
 	/*
 	 * Now make the changes for real.
@@ -284,7 +277,6 @@ int Add_BBS()
     if ((i = file_rm(temp1)))
 	WriteError("file_rm(%s): %s", temp1, strerror(i));
 
-    Syslog('f', "addbbs 8");
     /*
      * Handle the replace option.
      */
@@ -315,7 +307,6 @@ int Add_BBS()
 	    fclose(fdb);
 	}
     }
-    Syslog('f', "addbbs 9");
 
     /*
      * Handle the Keep number of files option
@@ -345,7 +336,6 @@ int Add_BBS()
 	    }
 	    fclose(fdb);
 	}
-	Syslog('f', "addbbs 10");
 
 	/*
 	 * If there are files to delete, mark them.
@@ -373,7 +363,6 @@ int Add_BBS()
 	}
 	tidy_fdlist(&fdl);
     }
-    Syslog('f', "addbbs 11");
 
     /*
      *  Now realy delete the marked files and clean the file
@@ -407,7 +396,6 @@ int Add_BBS()
 	    DidDelete = FALSE;
 	}
     }
-    Syslog('f', "addbbs 12");
 
     tic_imp++;
     return TRUE;

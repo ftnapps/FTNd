@@ -724,9 +724,7 @@ int ProcessTic(fa_list *sbl)
 	}
     }
 
-    Syslog('f', "Import is done");
     chdir(TIC.Inbound);
-    Syslog('f', "Back in inbound");
 
     /*
      * Create file announce record
@@ -747,9 +745,7 @@ int ProcessTic(fa_list *sbl)
 	strncpy(T_File.LName, TIC.NewFullName, 80);
 	T_File.Fdate = TIC.FileDate;
 	T_File.Cost = TIC.TicIn.Cost;
-	Syslog('f', "Toberep record filled");
 	Add_ToBeRep();
-	Syslog('f', "Added");
     }
 
     if (TIC.SendOrg && !tic.FileArea) {
@@ -763,7 +759,6 @@ int ProcessTic(fa_list *sbl)
 	    Syslog('f', "Deleted %s", temp1);
     }
 
-    Syslog('f', "Prepare forward");
     if (DownLinks) {
 	First = TRUE;
 
@@ -781,7 +776,6 @@ int ProcessTic(fa_list *sbl)
 		tidy_faddr(p_from);
 	    }
 	}
-	Syslog('f', "Seen-by's added");
 
 	/*
 	 * Add seen-by lines for all systems that will receive this file.
@@ -797,7 +791,6 @@ int ProcessTic(fa_list *sbl)
 	}
 	uniq_list(&sbl);
 	sort_list(&sbl);
-	Syslog('f', "More added");
 
 	for (tmp = sbl; tmp; tmp = tmp->next)
 	    Syslog('f', "final SB list %s", ascfnode(tmp->addr, 0x0f));
