@@ -3,7 +3,7 @@
 
 /* $Id$ */
 
-int	zmrcvfiles(void);
+int	zmrcvfiles(int);
 int	putsec(char*,int);
 int	closeit(int);
 

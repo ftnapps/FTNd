@@ -331,6 +331,12 @@ static int wctx(long bytes_total)
 	if (wcputsec(txbuf, ++sectnum, thisblklen) == TERROR)
 	    return TERROR;
 	bytes_sent += thisblklen;
+
+	/*
+	 * Keep connections alive
+	 */
+	Nopper();
+	alarm_on();
     }
     
     fclose(input_f);
@@ -339,7 +345,8 @@ static int wctx(long bytes_total)
     do {
 	purgeline(5);
 	PUTCHAR(EOT);
-	fflush(stdout);
+	ioctl(1, TCFLSH, 0);
+//	fflush(stdout);
 	++attempts;
     } while ((firstch = (GETCHAR(Rxtimeout)) != ACK) && attempts < RETRYMAX);
     if (attempts == RETRYMAX) {
@@ -383,7 +390,8 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 	else
 	    sendline(Checksum);
 
-	fflush(stdout);
+	ioctl(1, TCFLSH, 0);
+//	fflush(stdout);
 	if (Optiong) {
 	    firstsec = FALSE; 
 	    return OK;

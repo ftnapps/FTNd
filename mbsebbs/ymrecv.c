@@ -108,6 +108,13 @@ int wcrx(void)
 	sendline(sendchar);     /* send it now, we're ready! */
 	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
+
+	/*
+	 * Keep connections alive
+	 */
+	Nopper();
+	alarm_on();
+	
 	sectcurr = wcgetsec(&Blklen, secbuf, (unsigned int) ((sectnum & 0177) ? 5 : 13));
 	Syslog('x', "%s: got sector %d", protname(), sectcurr);
 

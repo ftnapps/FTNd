@@ -75,7 +75,7 @@ extern unsigned long	rcvdbytes;
 extern int		zmodem_requested;
 
 
-int zmrcvfiles(void)
+int zmrcvfiles(int want1k)
 {
     int	    rc;
 
@@ -99,7 +99,7 @@ int zmrcvfiles(void)
 		 * Ymodem or Xmodem receive loop
 		 */
 		rxbytes = 0l;
-		if (wcrxpn(secbuf) == TERROR) {
+		if (wcrxpn(secbuf, want1k) == TERROR) {
 		    rc = 2;
 		    goto fubar;
 		}
