@@ -338,8 +338,20 @@ void *ping_thread(void)
     static char     pingaddress[41];
     static time_t   pingsend;
     time_t	    now;
+    sigset_t	    sigset, oldset;
 
     Syslog('+', "Starting ping thread with pid %d", (int)getpid());
+    rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+    if (rc)
+	Syslog('+', "pthread_setcancelstate(PTHREAD_CANCEL_DISABLE) rc=%d", rc);
+
+    rc = sigfillset(&sigset);
+    if (rc)
+	Syslog('+', "sigfillset() rc=%d", rc);
+    rc = pthread_sigmask(SIG_SETMASK, &sigset, &oldset);
+    if (rc)
+	Syslog('+', "pthread_sigmask(SIG_SETMASK) rc=%d", rc);
+
     pingresult[1] = pingresult[2] = FALSE;
     pingnr = 2;
     internet = FALSE;

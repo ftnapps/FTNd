@@ -1007,12 +1007,25 @@ void *scheduler(void)
 #if defined(__linux__)
     FILE            *fp;
 #endif
-    int             call_work = 0;
+    int             call_work = 0, rc;
     static int      call_entry = MAXTASKS;
     double          loadavg[3];
     pp_list         *tpl;
+    sigset_t        sigset, oldset;
 
     Syslog('+', "Starting scheduler thread with pid %d", (int)getpid());
+    rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+    if (rc)
+        Syslog('+', "pthread_setcancelstate(PTHREAD_CANCEL_DISABLE) rc=%d", rc);
+    
+    rc = sigfillset(&sigset);
+    if (rc)
+        Syslog('+', "sigfillset() rc=%d", rc);
+    rc = pthread_sigmask(SIG_SETMASK, &sigset, &oldset);
+    if (rc)
+        Syslog('+', "pthread_sigmask(SIG_SETMASK) rc=%d", rc);
+
+
     sched_run = TRUE;
     pw = getpwuid(getuid());
 
