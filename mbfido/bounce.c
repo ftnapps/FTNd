@@ -79,7 +79,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
 	f->domain = xstrcpy(fidonet.domain);
 
     Syslog('+', "Bounce msg from %s", ascfnode(f, 0xff));
-    Buf = calloc(2049, sizeof(char));
+    Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     rewind(fp);
 
     np = tmpfile();
@@ -100,7 +100,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
      * Add MSGID, REPLY and PID
      */
     fprintf(np, "\001MSGID: %s %08lx\r", ascfnode(from, 0x1f), sequencer());
-    while ((fgets(Buf, 2048, fp)) != NULL) {
+    while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(Buf);
 	if (strncmp(Buf, "\001MSGID:", 7) == 0) {
 	    fprintf(np, "\001REPLY:%s\r", Buf+7);
@@ -115,7 +115,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
     fprintf(np, "======================================================================\r");
 
     rewind(fp);
-    while ((fgets(Buf, 2048, fp)) != NULL) {
+    while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(Buf);
 	if (Buf[0] == '\001') {
 	    fprintf(np, "^a");

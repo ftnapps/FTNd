@@ -2280,7 +2280,7 @@ void QWK_Fetch()
     colour(LIGHTBLUE, BLACK);
     /*      Processing BlueWave reply packet */
     printf("%s\n", (char *)Language(459));
-    temp = calloc(2048, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
     otemp = calloc(PATH_MAX, sizeof(char));
     nWidth = 78;
 

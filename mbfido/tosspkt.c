@@ -174,7 +174,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	Known = TRUE;
     }
 
-    buf = calloc(2049, sizeof(char));
+    buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     marea = NULL;
 
     /*
@@ -183,7 +183,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     rewind(fp);
 
     FirstLine = TRUE;
-    while ((fgets(buf, 2048, fp)) != NULL) {
+    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
 	Striplf(buf);
 
@@ -320,7 +320,7 @@ int TossPkt(char *fn)
  */
 int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 {
-    char	    buf[2048], *orig = NULL, *p, *l, *r, *subj = NULL;
+    char	    buf[MAX_LINE_LENGTH +1], *orig = NULL, *p, *l, *r, *subj = NULL;
     int		    tmp, rc, maxrc = 0, result, flags, cost;
     static faddr    f, t;
     faddr	    *o;

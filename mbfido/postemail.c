@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/mbinet.h"
+#include "../lib/msg.h"
 #include "postemail.h"
 
 
@@ -90,7 +91,7 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
 		return 2;
 	}
 
-	temp = calloc(2048, sizeof(char));
+	temp = calloc(MAX_LINE_LENGTH +1, sizeof(char));
 	sprintf(temp, "MAIL FROM:<%s>\r\n", MailFrom);
 	if (smtp_cmd(temp, 250)) {
 		WriteError("SMTP: refused FROM <%s>", MailFrom);

@@ -410,7 +410,7 @@ void Post_Msg()
 	return;
 	
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-	Message[i] = (char *) calloc(81, sizeof(char));
+	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
     Line = 1;
 
     Msg_New();
@@ -1321,7 +1321,7 @@ void Reply_Msg(int IsReply)
     sLine();
 
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-	Message[i] = (char *) calloc(81, sizeof(char));
+	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
     Msg_New();
 
     strncpy(Msg.Replyid, msgid, 80);

@@ -76,7 +76,7 @@ extern	int	do_learn;
 extern	int	news_in;
 extern	int	email_in;
 extern	char	*replyaddr;
-
+extern	int	most_debug;
 
 
 /*
@@ -835,6 +835,7 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"Precedence")) return 0;
 	if (!strcasecmp(msg->key,"X-Face")) return 0;
 	if (!strcasecmp(msg->key,"X-Accept-Language")) return 0;
+	if (!strncasecmp(msg->key,"X-Spam-", 7)) return 0;
 	/*if (!strcasecmp(msg->key,"")) return ;*/
 	return 1;
 }

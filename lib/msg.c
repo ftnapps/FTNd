@@ -310,8 +310,8 @@ void Msg_Write(FILE *fp)
 	char	*Buf;
 	int	i;
 
-	Buf = calloc(2049, sizeof(char));
-	while ((fgets(Buf, 2048, fp)) != NULL) {
+	Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
+	while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
 		for (i = 0; i < strlen(Buf); i++) {
 			if (*(Buf + i) == '\0')

@@ -1054,10 +1054,10 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	return FALSE;
     }
 
-    Buf = calloc(2049, sizeof(char));
+    Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     rewind(fp);
 
-    while ((fgets(Buf, 2048, fp)) != NULL) {
+    while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
 	/*
 	 * Make sure we have the nodes record loaded
@@ -1150,7 +1150,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	    fprintf(np, "\r");
 	    fseek(tmp, 0, SEEK_SET);
 
-	    while ((fgets(Buf, 2048, tmp)) != NULL) {
+	    while ((fgets(Buf, MAX_LINE_LENGTH, tmp)) != NULL) {
 		while ((Buf[strlen(Buf) - 1]=='\n') || (Buf[strlen(Buf) - 1]=='\r')) {
 		    Buf[strlen(Buf) - 1] = '\0';
 		}

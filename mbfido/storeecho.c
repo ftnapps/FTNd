@@ -152,10 +152,10 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
                  * If not a bad or dupe message, eat the first
                  * line (AREA:tag).
                  */
-		buf = calloc(2049, sizeof(char));
+		buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
                 rewind(fp);
                 if (!dupe && !bad)
-                        fgets(buf , 2048, fp);
+                        fgets(buf , MAX_LINE_LENGTH, fp);
                 Msg_Write(fp);
                 Msg_AddMsg();
                 Msg_UnLock();

@@ -177,7 +177,7 @@ grlist.o: ../config.h ../lib/libs.h ../lib/clcomm.h grlist.h
 maketags.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h maketags.h
 mbmsg.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/dbcfg.h ../lib/mberrors.h post.h mbmsg.h
 newspost.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h newspost.h
-postemail.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h postemail.h
+postemail.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/msg.h postemail.h
 scan.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msg.h ../lib/clcomm.h ../lib/msgtext.h ../lib/dbnode.h ../lib/dbmsgs.h addpkt.h tracker.h ftn2rfc.h rfc2ftn.h rollover.h postemail.h scan.h
 toberep.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h toberep.h
 atoul.o: ../config.h ../lib/libs.h atoul.h
@@ -186,7 +186,7 @@ hash.o: ../config.h ../lib/libs.h hash.h lhash.h
 mbaff.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/mberrors.h announce.h filefind.h mbaff.h
 mbseq.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbseq.h
 notify.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbnode.h filemgr.h areamgr.h sendmail.h mgrutil.h notify.h
-postnetmail.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/common.h ../lib/records.h ../lib/dbcfg.h ../lib/dbuser.h ../lib/dbnode.h ../lib/dbftn.h ../lib/clcomm.h tracker.h addpkt.h storenet.h ftn2rfc.h areamgr.h filemgr.h ping.h bounce.h postemail.h
+postnetmail.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/common.h ../lib/records.h ../lib/dbcfg.h ../lib/dbuser.h ../lib/dbnode.h ../lib/dbftn.h ../lib/clcomm.h ../lib/msg.h tracker.h addpkt.h storenet.h ftn2rfc.h areamgr.h filemgr.h ping.h bounce.h postemail.h
 scannews.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h storeecho.h rfc2ftn.h scannews.h
 tosspkt.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h tosspkt.h postnetmail.h postecho.h rollover.h createm.h
 mbfkill.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbfkill.h mbfutil.h

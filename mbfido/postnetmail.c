@@ -39,6 +39,7 @@
 #include "../lib/dbnode.h"
 #include "../lib/dbftn.h"
 #include "../lib/clcomm.h"
+#include "../lib/msg.h"
 #include "tracker.h"
 #include "addpkt.h"
 #include "storenet.h"
@@ -89,9 +90,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
     /*
      *  Extract MSGID and REPLY kludges from this netmail.
      */
-    buf = calloc(2049, sizeof(char));
+    buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     rewind(fp);
-    while ((fgets(buf, 2048, fp)) != NULL) {
+    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(buf);
 	Syslogp('M', printable(buf, 0));
 	if (!strncmp(buf, "\001MSGID: ", 8)) {
@@ -432,8 +433,8 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     * Copy all text including kludges, when
 	     * finished, insert our ^aVia line.
 	     */
-	    buf = calloc(2048, sizeof(char));
-	    while ((fgets(buf, 2048, fp)) != NULL)
+	    buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
+	    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL)
 		fprintf(net, "%s\r", buf);
 
 	    now = time(NULL);

@@ -36,6 +36,7 @@
 #include "../lib/common.h"
 #include "../lib/nodelist.h"
 #include "../lib/clcomm.h"
+#include "../lib/msg.h"
 #include "session.h"
 #include "lutil.h"
 #include "config.h"
@@ -538,8 +539,8 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 				if ((ft = fopen(tmpfn, "r")) == NULL) {
 					WriteError("$Can't open %s", tmpfn);
 				} else {
-					buf = calloc(2049, sizeof(char));
-					while ((fgets(buf, 2048, ft)) != NULL) {
+					buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
+					while ((fgets(buf, MAX_LINE_LENGTH, ft)) != NULL) {
 						for (i = 0; i < strlen(buf); i++) {
 							if (*(buf + i) == '\0')
 								break;

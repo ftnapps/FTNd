@@ -112,9 +112,9 @@ int EchoOut(fidoaddr aka, char *toname, char *fromname, char *subj, FILE *fp, in
     }
 
     rewind(fp);
-    buf = calloc(2049, sizeof(char));
+    buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
 
-    while ((fgets(buf, 2048, fp)) != NULL) {
+    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(buf);
 	fprintf(qp, "%s\r", buf);
     }
@@ -207,10 +207,10 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     /*
      * Read the message for kludges we need.
      */
-    buf = calloc(2049, sizeof(char));
+    buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     First = TRUE;
     rewind(fp);
-    while ((fgets(buf, 2048, fp)) != NULL) {
+    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
 	Striplf(buf);
 
@@ -264,7 +264,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	     *  dupecheck. Redy Rodriguez.
 	     */
 	    rewind(fp);
-	    while ((fgets(buf, 2048, fp)) != NULL) {
+	    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 		Striplf(buf);
 		if (strncmp(buf, "---", 3) == 0)
 		    break;
@@ -396,7 +396,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     rewind(fp);
     if ((nfp = tmpfile()) == NULL)
 	WriteError("$Unable to open tmpfile");
-    while ((fgets(buf, 2048, fp)) != NULL) {
+    while ((fgets(buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(buf);
 	fprintf(nfp, "%s", buf);
 	/*
@@ -502,7 +502,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     if (strlen(msgs.Newsgroup) && tonews) {
 	rewind(nfp);
 	qp = tmpfile();
-        while ((fgets(buf, 2048, nfp)) != NULL) {
+        while ((fgets(buf, MAX_LINE_LENGTH, nfp)) != NULL) {
 	    Striplf(buf);
 	    if (kludges && (buf[0] != '\001') && strncmp(buf, "AREA:", 5)) {
 		kludges = FALSE;

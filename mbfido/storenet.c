@@ -145,8 +145,8 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 	 *  Check if this is an empty netmail
 	 */
 	rewind(fp);
-	Buf = calloc(2049, sizeof(char));
-	while ((fgets(Buf, 2048, fp)) != NULL) {
+	Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
+	while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 
 	    for (i = 0; i < strlen(Buf); i++) {
 		if (*(Buf + i) == '\0')

@@ -79,7 +79,7 @@ int Ping(faddr *f, faddr *t, FILE *fp, int intransit)
 	f->domain = xstrcpy(fidonet.domain);
 
     Syslog('+', "%s ping msg from %s", intransit ? "Intransit":"Final", ascfnode(f, 0xff));
-    Buf = calloc(2049, sizeof(char));
+    Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
     rewind(fp);
 
     np = tmpfile();
@@ -104,7 +104,7 @@ int Ping(faddr *f, faddr *t, FILE *fp, int intransit)
      * Add MSGID, REPLY and PID
      */
     fprintf(np, "\001MSGID: %s %08lx\r", ascfnode(from, 0x1f), sequencer());
-    while ((fgets(Buf, 2048, fp)) != NULL) {
+    while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(Buf);
 	if (strncmp(Buf, "\001MSGID:", 7) == 0) {
 	    fprintf(np, "\001REPLY:%s\r", Buf+7);
@@ -124,7 +124,7 @@ int Ping(faddr *f, faddr *t, FILE *fp, int intransit)
     fprintf(np, "======================================================================\r");
 
     rewind(fp);
-    while ((fgets(Buf, 2048, fp)) != NULL) {
+    while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
 	Striplf(Buf);
 	if (strncmp(Buf, "\1Via", 4) == 0) {
 	    fprintf(np, "%s\r", Buf+1);

@@ -3,7 +3,11 @@
 #ifndef	_MSG_H
 #define	_MSG_H
 
-#define MAX_LINE_LENGTH	512
+/*
+ * Global maximum line length for all files that do something with
+ * message text.
+ */
+#define MAX_LINE_LENGTH	2048
 
 
 /*
