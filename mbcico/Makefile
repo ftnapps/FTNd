@@ -138,5 +138,5 @@ mbcico.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/recor
 outstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h scanout.h callstat.h outstat.h
 nlinfo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h nlinfo.h
 mbout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h outstat.h nlinfo.h
-mbtelind.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbtelind.h
+mbtelind.o: ../config.h ../lib/libs.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbtelind.h
 # End of generated dependencies
