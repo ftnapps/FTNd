@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/funcs4.c
  * Purpose ...............: Misc functions, also for some utils.
- * Last modification date : 18-Oct-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -202,7 +202,7 @@ void GetstrU(char *sStr, int iMaxlen)
 				putchar('\007');
 		}
 
-		if (isalnum(ch)) {
+		if (isalnum(ch) || (ch == '@')) {
 			if (iPos <= iMaxlen) {
 				iPos++;
 				sprintf(sStr, "%s%c", sStr, ch);
