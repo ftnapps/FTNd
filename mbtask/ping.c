@@ -407,7 +407,8 @@ void check_ping(void)
 				rescan = TRUE;
 			    }
 			}
-			pingstate = P_SENT;
+			pingtime = time(NULL) + 5;      // 5 secs pause until next ping
+			pingstate = P_PAUSE;
 			break;
     }
 }
