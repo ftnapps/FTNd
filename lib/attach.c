@@ -227,7 +227,21 @@ int check_flo(faddr *node, char *filename, char flavor, int fdn)
  */
 void un_attach(faddr *node, char *filename, int fdn)
 {
+    char    *base, *allname;
+
     Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename, fdn ?"FDN":"NOR");
+    allname = xstrcpy(filename);
+    base = basename(allname);
+
+    if ((strlen(base) == 12) && ((strncasecmp(base+8,".su",3) == 0) ||
+	(strncasecmp(base+8,".mo",3) == 0) || (strncasecmp(base+8,".tu",3) == 0) ||
+	(strncasecmp(base+8,".we",3) == 0) || (strncasecmp(base+8,".th",3) == 0) ||
+	(strncasecmp(base+8,".fr",3) == 0) || (strncasecmp(base+8,".sa",3) == 0))) {
+	Syslog('p', "this is arcmail, no un_attach");
+	free(allname);
+	return;
+    }
+    free(allname);
 
     if (check_flo(node, filename, 'h', fdn) == 0)
 	if (check_flo(node, filename, 'f', fdn) == 0)
