@@ -333,6 +333,7 @@ void check_ping(void)
 				/*
 				 * Reply received.
 				 */
+				tasklog('p', "Reply after %d", time(NULL) - (pingtime - 20));
 				pingresult[pingnr] = TRUE;
 				if (pingresult[1] || pingresult[2]) {
 				    if (!internet) {
