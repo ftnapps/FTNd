@@ -80,187 +80,188 @@ static int	tcp_is_open = FALSE;
 
 int opentcp(char *name)
 {
-	struct servent		*se;
-	struct hostent		*he;
-	int			a1,a2,a3,a4;
-	char			*errmsg;
-	char			*portname;
-	int			Fd;
-	short			portnum;
-	struct sockaddr_in	server;
+    struct servent	*se;
+    struct hostent	*he;
+    int			a1, a2, a3, a4, Fd, GotPort = FALSE;
+    char		*errmsg, *portname;
+    short		portnum;
+    struct sockaddr_in	server;
 
-	Syslog('d', "Try open tcp connection to %s",MBSE_SS(name));
+    Syslog('+', "Open TCP connection to \"%s\"", MBSE_SS(name));
 
-	tcp_is_open = FALSE;
-	memset(&telnet_options, 0, sizeof(telnet_options));
-	server.sin_family = AF_INET;
+    tcp_is_open = FALSE;
+    memset(&telnet_options, 0, sizeof(telnet_options));
+    server.sin_family = AF_INET;
 
-	if ((portname = strchr(name,':'))) {
-		*portname++='\0';
-		if ((portnum = atoi(portname)))
-			server.sin_port=htons(portnum);
-		else if ((se = getservbyname(portname, "tcp")))
-			server.sin_port = se->s_port;
-		else 
-			server.sin_port = htons(FIDOPORT);
-	} else {
-		switch (tcp_mode) {
-		case TCPMODE_IFC:	if ((se = getservbyname("fido", "tcp")))
-						server.sin_port = se->s_port;
-					else
-						server.sin_port = htons(FIDOPORT);
-					break;
-		case TCPMODE_ITN:	if ((se = getservbyname("tfido", "tcp")))
-						server.sin_port = se->s_port;
-					else
-						server.sin_port = htons(TELNPORT);
-					break;
-		case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
-						server.sin_port = se->s_port;
-					else
-						server.sin_port = htons(BINKPORT);
-					break;
-		default:		server.sin_port = htons(FIDOPORT);
-		}
+    /*
+     * Get port number from name argument if there is a : part
+     */
+    if ((portname = strchr(name,':'))) {
+	*portname++='\0';
+	if ((portnum = atoi(portname))) {
+	    server.sin_port=htons(portnum);
+	    GotPort = TRUE;
+	} else if ((se = getservbyname(portname, "tcp"))) {
+	    server.sin_port = se->s_port;
+	    GotPort = TRUE;
 	}
+    }
 
-	if (sscanf(name,"%d.%d.%d.%d",&a1,&a2,&a3,&a4) == 4)
-		server.sin_addr.s_addr = inet_addr(name);
-	else if ((he = gethostbyname(name)))
-		memcpy(&server.sin_addr,he->h_addr,he->h_length);
-	else {
-		switch (h_errno) {
-		case HOST_NOT_FOUND:	errmsg=(char *)"Authoritative: Host not found"; break;
-		case TRY_AGAIN:		errmsg=(char *)"Non-Authoritive: Host not found"; break;
-		case NO_RECOVERY:	errmsg=(char *)"Non recoverable errors"; break;
-		default:		errmsg=(char *)"Unknown error"; break;
-		}
-		Syslog('+', "No IP address for %s: %s\n", name, errmsg);
-		return -1;
-	}
-
-	Syslog('d', "Trying %s at port %d",
-		inet_ntoa(server.sin_addr),(int)ntohs(server.sin_port));
-
-	signal(SIGPIPE,linedrop);
-	fflush(stdin);
-	fflush(stdout);
-	setbuf(stdin,NULL);
-	setbuf(stdout,NULL);
-	close(0);
-	close(1);
-	if ((Fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
-		WriteError("$Cannot create socket (got %d, expected 0");
-		open("/dev/null",O_RDONLY);
-		open("/dev/null",O_WRONLY);
-		return -1;
-	}
-	if (dup(Fd) != 1) {
-		WriteError("$Cannot dup socket");
-		open("/dev/null",O_WRONLY);
-		return -1;
-	}
-	clearerr(stdin);
-	clearerr(stdout);
-	if (connect(Fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
-		Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
-		return -1;
-	}
-
-	f_flags=0;
-
+    /*
+     * If not a forced port number, get the defaults.
+     */
+    if (! GotPort) {
 	switch (tcp_mode) {
-	case TCPMODE_ITN:	tel_enter_binary(3);
-				Syslog('+', "Established ITN/TCP connection with %s", inet_ntoa(server.sin_addr));
+	    case TCPMODE_IFC:	if ((se = getservbyname("fido", "tcp")))
+				    server.sin_port = se->s_port;
+				else
+				    server.sin_port = htons(FIDOPORT);
 				break;
-	case TCPMODE_IFC:	Syslog('+', "Established IFC/TCP connection with %s", inet_ntoa(server.sin_addr));
+	    case TCPMODE_ITN:	if ((se = getservbyname("tfido", "tcp")))
+				    server.sin_port = se->s_port;
+				else
+				    server.sin_port = htons(TELNPORT);
 				break;
-	case TCPMODE_IBN:	Syslog('+', "Established IBN/TCP connection with %s", inet_ntoa(server.sin_addr));
+	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
+				    server.sin_port = se->s_port;
+				else
+				    server.sin_port = htons(BINKPORT);
 				break;
-	default:		WriteError("Established TCP connection with unknow protocol");
+	    default:		server.sin_port = htons(FIDOPORT);
 	}
-	c_start = time(NULL);
-	carrier = TRUE;
-	tcp_is_open = TRUE;
-	return 0;
+    }
+
+    /*
+     * Get IP address for the hostname
+     */
+    if (sscanf(name,"%d.%d.%d.%d",&a1,&a2,&a3,&a4) == 4)
+	server.sin_addr.s_addr = inet_addr(name);
+    else if ((he = gethostbyname(name)))
+	memcpy(&server.sin_addr,he->h_addr,he->h_length);
+    else {
+	switch (h_errno) {
+	    case HOST_NOT_FOUND:    errmsg = (char *)"Authoritative: Host not found"; break;
+	    case TRY_AGAIN:	    errmsg = (char *)"Non-Authoritive: Host not found"; break;
+	    case NO_RECOVERY:	    errmsg = (char *)"Non recoverable errors"; break;
+	    default:		    errmsg = (char *)"Unknown error"; break;
+	}
+	Syslog('+', "No IP address for %s: %s\n", name, errmsg);
+	return -1;
+    }
+
+    signal(SIGPIPE,linedrop);
+    fflush(stdin);
+    fflush(stdout);
+    setbuf(stdin,NULL);
+    setbuf(stdout,NULL);
+    close(0);
+    close(1);
+    if ((Fd = socket(AF_INET,SOCK_STREAM,0)) != 0) {
+	WriteError("$Cannot create socket (got %d, expected 0");
+	open("/dev/null",O_RDONLY);
+	open("/dev/null",O_WRONLY);
+	return -1;
+    }
+    if (dup(Fd) != 1) {
+	WriteError("$Cannot dup socket");
+	open("/dev/null",O_WRONLY);
+	return -1;
+    }
+    clearerr(stdin);
+    clearerr(stdout);
+    if (connect(Fd,(struct sockaddr *)&server,sizeof(server)) == -1) {
+	Syslog('+', "Cannot connect %s",inet_ntoa(server.sin_addr));
+	return -1;
+    }
+
+    f_flags=0;
+
+    if (tcp_mode == TCPMODE_ITN)
+	tel_enter_binary(3);
+
+    Syslog('+', "Established %s/TCP connection with %s, port %d", 
+	(tcp_mode == TCPMODE_ITN) ? "ITN":(tcp_mode == TCPMODE_IFC) ? "IFC":(tcp_mode == TCPMODE_IBN) ? "IBN":"Unknown",
+	inet_ntoa(server.sin_addr), (int)ntohs(server.sin_port));
+    c_start = time(NULL);
+    carrier = TRUE;
+    tcp_is_open = TRUE;
+    return 0;
 }
 
 
 
 void closetcp(void)
 {
-	FILE	*fph;
-	char	*tmp;
+    FILE    *fph;
+    char    *tmp;
 
-	if (!tcp_is_open)
-		return;
+    if (!tcp_is_open)
+	return;
 
-	Syslog('d', "Closing TCP connection");
+    if (tcp_mode == TCPMODE_ITN)
+	tel_leave_binary(3);
 
-	if (tcp_mode == TCPMODE_ITN)
-		tel_leave_binary(3);
+    shutdown(fd, 2);
+    signal(SIGPIPE,SIG_DFL);
 
-	shutdown(fd,2);
-	signal(SIGPIPE,SIG_DFL);
-
-	if (carrier) {
-		c_end = time(NULL);
-		online += (c_end - c_start);
-		Syslog('+', "Connection time %s", t_elapsed(c_start, c_end));
-		carrier = FALSE;
-		history.offline = c_end;
-		history.online  = c_start;
-		history.sent_bytes = sentbytes;
-		history.rcvd_bytes = rcvdbytes;
-		history.inbound = ~master;
-		tmp = calloc(128, sizeof(char));
-		sprintf(tmp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
-		if ((fph = fopen(tmp, "a")) == NULL)
-			WriteError("$Can't open %s", tmp);
-		else {
-			fwrite(&history, sizeof(history), 1, fph);
-			fclose(fph);
-		}
-		free(tmp);
-		memset(&history, 0, sizeof(history));
-		if (Loaded) {
-			nodes.LastDate = time(NULL);
-			UpdateNode();
-		}
+    if (carrier) {
+	c_end = time(NULL);
+	online += (c_end - c_start);
+	Syslog('+', "Closing TCP connection, connected %s", t_elapsed(c_start, c_end));
+	carrier = FALSE;
+	history.offline = c_end;
+	history.online  = c_start;
+	history.sent_bytes = sentbytes;
+	history.rcvd_bytes = rcvdbytes;
+	history.inbound = ~master;
+	tmp = calloc(PATH_MAX, sizeof(char));
+	sprintf(tmp, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+	if ((fph = fopen(tmp, "a")) == NULL)
+	    WriteError("$Can't open %s", tmp);
+	else {
+	    fwrite(&history, sizeof(history), 1, fph);
+	    fclose(fph);
 	}
-	tcp_is_open = FALSE;
+	free(tmp);
+	memset(&history, 0, sizeof(history));
+	if (Loaded) {
+	    nodes.LastDate = time(NULL);
+	    UpdateNode();
+	}
+    }
+    tcp_is_open = FALSE;
 }
 
 
 
 void tel_enter_binary(int rw)
 {
-	Syslog('d', "Telnet enter binary %d", rw);
-	if (rw & 1)
-		send_do(TELOPT_BINARY);
-	if (rw & 2)
-		send_will(TELOPT_BINARY);
+    Syslog('d', "Telnet enter binary %d", rw);
+    if (rw & 1)
+	send_do(TELOPT_BINARY);
+    if (rw & 2)
+	send_will(TELOPT_BINARY);
 
-	send_dont(TELOPT_ECHO);
-	send_do(TELOPT_SGA);
-	send_dont(TELOPT_RCTE);
-	send_dont(TELOPT_TTYPE);
+    send_dont(TELOPT_ECHO);
+    send_do(TELOPT_SGA);
+    send_dont(TELOPT_RCTE);
+    send_dont(TELOPT_TTYPE);
 
-	send_wont(TELOPT_ECHO);
-	send_will(TELOPT_SGA);
-	send_wont(TELOPT_RCTE);
-	send_wont(TELOPT_TTYPE);
+    send_wont(TELOPT_ECHO);
+    send_will(TELOPT_SGA);
+    send_wont(TELOPT_RCTE);
+    send_wont(TELOPT_TTYPE);
 }
 
 
 
 void tel_leave_binary(int rw)
 {
-	Syslog('d', "Telnet leave binary %d", rw);
-	if (rw & 1)
-		send_dont(TELOPT_BINARY);
-	if (rw & 2)
-		send_wont(TELOPT_BINARY);
+    Syslog('d', "Telnet leave binary %d", rw);
+    if (rw & 1)
+	send_dont(TELOPT_BINARY);
+    if (rw & 2)
+	send_wont(TELOPT_BINARY);
 }
 
 
@@ -274,29 +275,29 @@ void tel_leave_binary(int rw)
 
 void send_do(register int c)
 {
-	NET2ADD(IAC, DO);
-	NETADD(c);
+    NET2ADD(IAC, DO);
+    NETADD(c);
 }
 
 
 void send_dont(register int c)
 {
-	NET2ADD(IAC, DONT);
-	NETADD(c);
+    NET2ADD(IAC, DONT);
+    NETADD(c);
 }
 
 
 void send_will(register int c)
 {
-	NET2ADD(IAC, WILL);
-	NETADD(c);
+    NET2ADD(IAC, WILL);
+    NETADD(c);
 }
 
 
 void send_wont(register int c)
 {
-	NET2ADD(IAC, WONT);
-	NETADD(c);
+    NET2ADD(IAC, WONT);
+    NETADD(c);
 }
 
 

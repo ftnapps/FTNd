@@ -102,6 +102,9 @@ mbcico:
 
 	N: Implement binkp resync when getting files. Transmit works.
 
+	N: Add better check for stale outbound locks, check if the pid is from
+	   a non-mbse program or add a age check.
+
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
 

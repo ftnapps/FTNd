@@ -32,6 +32,9 @@ v0.35.07	11-Dec-2002
 		The index command displays LFN names in the webpages again.
 		The real download still sends the 8.3 name.
 
+	mbcico:
+		Code cleanup in opentcp, better handling of given ports and
+		better logging.
 
 
 v0.35.06	13-Nov-2002 - 11-Dec-2002
