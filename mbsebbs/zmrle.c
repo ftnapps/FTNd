@@ -43,6 +43,7 @@
 #include "ttyio.h"
 #include "zmodem.h"
 #include "zmrle.h"
+#include "zmmisc.h"
 
 
 /*

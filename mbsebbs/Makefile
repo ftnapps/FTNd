@@ -132,6 +132,6 @@ dispfile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg
 userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h language.h input.h timeout.h term.h ttyio.h
 timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h
 logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
-zmrle.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h zmodem.h zmrle.h
+zmrle.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h zmodem.h zmrle.h zmmisc.h
 zmmisc.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h zmodem.h zmrle.h zmmisc.h
 # End of generated dependencies
