@@ -241,14 +241,16 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 		Syslog('o', "Check address %s", ascfnode(tmpa->addr, 0x1f));
 
 		/*
-		 * Check spool files.
+		 * Check spool files, these are more or less useless but they
+		 * create a filelist of files to send which are never send.
+		 * It gives the transfer protocols something "to do".
 		 */
 		if (strchr(fl, 'o')) {
-			nm=splname(tmpa->addr);
-			if ((fp=fopen(nm,"w"))) 
+			nm = splname(tmpa->addr);
+			if ((fp = fopen(nm, "w"))) 
 				fclose(fp);
-			if ((nm != NULL) && (stat(nm,&stbuf) == 0))
-				add_list(&st,nm,NULL,DSF,0L,NULL,1);
+			if ((nm != NULL) && (stat(nm, &stbuf) == 0))
+				add_list(&st, nm, NULL, DSF, 0L, NULL, 1);
 		}
 
 		/*
@@ -266,42 +268,41 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 			/*
 			 * Check normal mail packets
 			 */
-			nm=pktname(tmpa->addr,flavor);
+			nm = pktname(tmpa->addr,flavor);
 			if ((nm != NULL) && (stat(nm,&stbuf) == 0)) {
 				packets++;
-				add_list(&st,nm,tmpkname(),KFS,0L,NULL,1);
+				add_list(&st, nm, tmpkname(), KFS, 0L, NULL, 1);
 			}
 
 			/*
 			 * Check .flo files for file attaches
 			 */
-			nm=floname(tmpa->addr,flavor);
-			check_flo(&st,nm);
+			nm = floname(tmpa->addr,flavor);
+			check_flo(&st, nm);
 		}
 
 		if ((session_flags & SESSION_WAZOO) &&
-		    ((session_flags & SESSION_HYDRA) == 0) &&
-		    (master || ((session_flags & SESSION_IFNA) == 0))) {
+		    ((session_flags & SESSION_HYDRA) == 0) && (master || ((session_flags & SESSION_IFNA) == 0))) {
 			/*
 			 * we don't distinguish flavoured reqs
 			 */
-			nm=reqname(tmpa->addr);
-			if ((nm != NULL) && (stat(nm,&stbuf) == 0)) {
-				sprintf(tmpreq,"%04X%04X.REQ", tmpa->addr->net,tmpa->addr->node);
-				add_list(&st,nm,tmpreq,DSF,0L,NULL,1);
+			nm = reqname(tmpa->addr);
+			if ((nm != NULL) && (stat(nm, &stbuf) == 0)) {
+				sprintf(tmpreq, "%04X%04X.REQ", tmpa->addr->net, tmpa->addr->node);
+				add_list(&st, nm, tmpreq, DSF, 0L, NULL, 1);
 				made_request = 1;
 			}
 		}
 	}
 
 	if (((st == NULL) && (create > 1)) || ((st != NULL) && (packets == 0) && (create > 0))) {
-		Syslog('o',"Create packet for %s",ascfnode(al->addr,0x1f));
+		Syslog('o', "Create packet for %s", ascfnode(al->addr,0x1f));
 		if ((fp = openpkt(NULL, al->addr, 'o'))) {
 			memset(&buffer, 0, sizeof(buffer));
 			fwrite(buffer, 1, 2, fp);
 			fclose(fp);
 		}
-		add_list(&st,pktname(al->addr,'o'),tmpkname(),KFS,0L,NULL,0);
+		add_list(&st, pktname(al->addr,'o'), tmpkname(), KFS, 0L, NULL, 0);
 	}
 
 	for (tmpf = st; tmpf; tmpf = tmpf->next)
