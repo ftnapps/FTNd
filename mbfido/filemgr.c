@@ -550,7 +550,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     i = metric(b, fido2faddr(fgroup.UseAka));
     Syslog('m', "Aka match level is %d", i);
 
-    if (i > METRIC_POINT) {
+    if (i >= METRIC_NET) {
 	fprintf(tmp, "You may not disconnect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
 	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), fgroup.Name);
 	return;
@@ -630,7 +630,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     i = metric(b, fido2faddr(fgroup.UseAka));
     Syslog('m', "Aka match level is %d", i);
 
-    if (i > METRIC_POINT) {
+    if (i >= METRIC_NET) {
 	fprintf(tmp, "You may not connect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
 	Syslog('+', "  Node %s may not connect to group %s", ascfnode(t, 0x1f), fgroup.Name);
 	return;

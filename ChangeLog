@@ -4637,6 +4637,9 @@ v0.33.20        10-Feb-2002
 		Implemented the FileMgr and AreaMgr pause and resume commands.
 		Changed logging when AreaMgr/FileMgr commands did fail.
 		Some checks improved and fixed some potential sigsegv crashes.
+		Reduced aka match level for (dis)connect areas to zone, net.
+		This should fix problems on systems with multiple aka's when
+		the first aka is not the aka in the areas.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
