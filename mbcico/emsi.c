@@ -77,8 +77,8 @@ int rx_emsi(char *data)
 	Syslog('+', "Start inbound EMSI session");
 
 	emsi_local_lcodes = LCODE_RH1;
-	if (localoptions & NOPUA) 
-		emsi_local_lcodes |= LCODE_PUP;
+//	if (localoptions & NOPUA) 
+//		emsi_local_lcodes |= LCODE_PUP;
 	emsi_remote_lcodes=0;
 
 	emsi_local_protos=LOCAL_PROTOS;
@@ -90,7 +90,7 @@ int rx_emsi(char *data)
 		emsi_local_protos &= ~PROT_JAN;
 	if (localoptions & NOHYDRA) 
 		emsi_local_protos &= ~PROT_HYD;
-	if ((localoptions & NOTCP) || ((session_flags & SESSION_TCP) == 0)) {
+	if ((localoptions & NOITN) || (localoptions & NOIFC) || ((session_flags & SESSION_TCP) == 0)) {
 		emsi_local_protos &= ~PROT_TCP;
 	}
 
@@ -209,10 +209,10 @@ int tx_emsi(char *data)
 
 	Syslog('+', "Start outbound EMSI session");
 	emsi_local_lcodes = LCODE_PUA | LCODE_RH1;
-	if (localoptions & NOPUA) {
-		emsi_local_lcodes |= LCODE_PUP;
-		emsi_local_lcodes &= ~LCODE_PUA;
-	}
+//	if (localoptions & NOPUA) {
+//		emsi_local_lcodes |= LCODE_PUP;
+//		emsi_local_lcodes &= ~LCODE_PUA;
+//	}
 	emsi_remote_lcodes = 0;
 
 	emsi_local_protos=LOCAL_PROTOS;
@@ -224,7 +224,7 @@ int tx_emsi(char *data)
 		emsi_local_protos &= ~PROT_JAN;
 	if (localoptions & NOHYDRA) 
 		emsi_local_protos &= ~PROT_HYD;
-	if ((localoptions & NOTCP) || ((session_flags & SESSION_TCP) == 0)) {
+	if ((localoptions & NOIFC) || (localoptions & NOITN) || ((session_flags & SESSION_TCP) == 0)) {
 		emsi_local_protos &= ~PROT_TCP;
 	}
 	emsi_remote_protos=0;

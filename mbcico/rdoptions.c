@@ -46,15 +46,15 @@ static struct _ktab {
 	int flag;
 } ktab[] = {
 	{(char *)"Call",	NOCALL},
-	{(char *)"Hold",	NOHOLD},
-	{(char *)"PUA",		NOPUA},
 	{(char *)"WaZOO",	NOWAZOO},
 	{(char *)"EMSI",	NOEMSI},
 	{(char *)"Freqs",	NOFREQS},
 	{(char *)"Zmodem",	NOZMODEM},
 	{(char *)"ZedZap",	NOZEDZAP},
 	{(char *)"Hydra",	NOHYDRA},
-	{(char *)"Tcp",		NOTCP},
+	{(char *)"IBN",		NOIBN},
+	{(char *)"ITN",		NOITN},
+	{(char *)"IFC",		NOIFC},
 	{NULL,		0}
 };
 
@@ -85,10 +85,6 @@ void rdoptions(int Loaded)
 		localoptions |= NOFREQS;
 	if (CFG.NoCall)
 		localoptions |= NOCALL;
-	if (CFG.NoHold)
-		localoptions |= NOHOLD;
-	if (CFG.NoPUA)
-		localoptions |= NOPUA;
 	if (CFG.NoEMSI)
 		localoptions |= NOEMSI;
 	if (CFG.NoWazoo)
@@ -99,8 +95,12 @@ void rdoptions(int Loaded)
 		localoptions |= NOZEDZAP;
 	if (CFG.NoHydra)
 		localoptions |= NOHYDRA;
-	if (CFG.NoTCP)
-		localoptions |= NOTCP;
+	if (CFG.NoIBN)
+		localoptions |= NOIBN;
+	if (CFG.NoITN)
+		localoptions |= NOITN;
+	if (CFG.NoIFC)
+		localoptions |= NOIFC;
 
 	if (nodes.Aka[0].zone == 0) {
 		if (Loaded)
@@ -119,18 +119,18 @@ void rdoptions(int Loaded)
 		localoptions |= NOFREQS;
 	if (nodes.NoCall)
 		localoptions |= NOCALL;
-	if (nodes.NoHold)
-		localoptions |= NOHOLD;
-	if (nodes.NoPUA)
-		localoptions |= NOPUA;
 	if (nodes.NoZmodem)
 		localoptions |= NOZMODEM;
 	if (nodes.NoZedzap)
 		localoptions |= NOZEDZAP;
 	if (nodes.NoHydra)
 		localoptions |= NOHYDRA;
-	if (nodes.NoTCP)
-		localoptions |= NOTCP;
+	if (nodes.NoIBN)
+		localoptions |= NOIBN;
+	if (nodes.NoITN)
+		localoptions |= NOITN;
+	if (nodes.NoIFC)
+		localoptions |= NOIFC;
 
 	logoptions();
 }

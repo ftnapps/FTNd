@@ -705,15 +705,19 @@ struct	sysconfig {
 	long		dialdelay;		/* Delay between calls	    */
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
 	unsigned	NoCall		: 1;	/* Don't call		    */
-	unsigned	NoHold		: 1;	/* Don't send hold mail	    */
-	unsigned	NoPUA		: 1;	/* Don't Pickup All	    */
+	unsigned	xNoHold		: 1;
+	unsigned	xNoPUA		: 1;
 	unsigned	NoEMSI		: 1;	/* Don't do EMSI	    */
 	unsigned	NoWazoo		: 1;	/* Don't do Yooho/2U2	    */
 	unsigned	NoZmodem	: 1;	/* Don't do Zmodem	    */
 	unsigned	NoZedzap	: 1;	/* Don't do Zedzap	    */
+
 	unsigned	xNoJanus	: 1;
 	unsigned	NoHydra		: 1;	/* Don't do Hydra	    */
-	unsigned	NoTCP		: 1;	/* Don't do TCP/IP	    */
+	unsigned	NoIBN		: 1;	/* No TCP-IP binkp	    */
+	unsigned	NoITN		: 1;	/* No TCP-IP telnet	    */
+	unsigned	NoIFC		: 1;	/* No TCP-IP ifcico	    */
+
 	char		Phone[21];		/* Default phonenumber	    */
 	unsigned long	Speed;			/* Default linespeed	    */
 	char		Flags[31];		/* Default EMSI flags	    */
@@ -1183,18 +1187,20 @@ struct	_nodes {
 
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	   */
 	unsigned	NoCall		: 1;	/* Don't call this node	   */
-	unsigned	NoHold		: 1;	/* Don't send hold mail	   */
-	unsigned	NoPUA		: 1;	/* Don't pickup all	   */
+	unsigned	xNoHold		: 1;
+	unsigned	xNoPUA		: 1;
 	unsigned	NoZmodem	: 1;	/* Don't use Zmodem	   */
 	unsigned	NoZedzap	: 1;	/* Don't use Zedzap	   */
 	unsigned	xNoJanus	: 1;	/* Don't use Janus	   */
 	unsigned	NoHydra		: 1;	/* Don't use Hydra	   */
 
-	unsigned	NoTCP		: 1;	/* Don't use TCP/IP	   */
+	unsigned	NoIBN		: 1;	/* Don't use TCP-IP binkp  */
 	unsigned	PackNetmail	: 1;	/* Pack netmail		   */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility   */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name */
 	unsigned	FNC		: 1;	/* Node needs 8.3 filenames*/
+	unsigned	NoITN		: 1;	/* Don't use TCP-IP telnet */
+	unsigned	NoIFC		: 1;	/* Don't use TCP-IP ifcico */
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	   */

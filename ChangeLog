@@ -4602,6 +4602,8 @@ v0.33.20        10-Feb-2002
 		Added the turbodiesel macro language so that reports can be
 		customized per language and reports. Thanks to Redy Rodriguez
 		for finding this one and implement it into mbse bbs.
+		Splitted the No TCP settings in No IBN, No IFC and No ITN.
+		Removed settings for Non-hold mail and Pickup Primary.
 
 	common.a:
 		Added 2 functions to return the OS name and CPU family.
@@ -4639,6 +4641,8 @@ v0.33.20        10-Feb-2002
 		during init.
 		When adding a new newfiles or filefind record some defaults
 		are automatic filled in.
+		Splitted no TCP into no IBN, no IFC and no ITN in global and
+		nodes setup.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 
@@ -4726,6 +4730,7 @@ v0.33.20        10-Feb-2002
 		new sessions if the limit from the setup is reached. This will
 		hopefully prevent that mbcico will use too much bandwidth on
 		TCP/IP trafic.
+		Splitted no TCP settings in no IBN, no IFC and no ITN.
 
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.
@@ -4739,6 +4744,8 @@ v0.33.20        10-Feb-2002
 		test now.
 		Registers TCP/IP sessions with mbtask.
 		All filetransfer times and cps rates are calculated in mSecs.
+		Splitted no TCP settings in no IBN, no IFC and no ITN.
+		Removed settings for Non-hold mail and Pickup Primary.
 
 	mbout:
 		The status display has now 9 digits for the outbound size.

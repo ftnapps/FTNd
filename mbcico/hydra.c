@@ -1615,10 +1615,10 @@ int hydra(int role)
 	}
 
 	if (role) {
-		if (localoptions & NOHOLD)
+//		if (localoptions & NOHOLD)
 			nonhold_mail = (char *)ALL_MAIL;
-		else
-			nonhold_mail = (char *)NONHOLD_MAIL;
+//		else
+//			nonhold_mail = (char *)NONHOLD_MAIL;
 	} else {
 		nonhold_mail = (char *)ALL_MAIL;
 	}

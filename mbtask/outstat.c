@@ -388,7 +388,7 @@ int outstat()
 	if ((tmp->flavors) & F_CALL) {
 	    tmp->callmode = CM_NONE;
 
-	    if (TCFG.max_tcp && !nodes.NoTCP &&
+	    if (TCFG.max_tcp && !(nodes.NoIBN && nodes.NoIFC && nodes.NoITN) &&
 		    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
 		inet_calls++;
 		tmp->callmode = CM_INET;

@@ -640,12 +640,12 @@ void NScreen(void)
 	mvprintw(10,51, "20. No YooHoo/2U2");
 	mvprintw(11,51, "21. No Filerequest");
 	mvprintw(12,51, "22. Don't call");
-	mvprintw(13,51, "23. No Hold mail");
-	mvprintw(14,51, "24. Pickup primary");
-	mvprintw(15,51, "25. No Zmodem");
-	mvprintw(16,51, "26. No Zedzap");
-	mvprintw(17,51, "27. No Hydra");
-	mvprintw(18,51, "28. No TCP/IP");
+	mvprintw(13,51, "23. No Zmodem");
+	mvprintw(14,51, "24. No Zedzap");
+	mvprintw(15,51, "25. No Hydra");
+	mvprintw(16,51, "26. No TCP/IP IBN");
+	mvprintw(17,51, "27. No TCP/IP IFC");
+	mvprintw(18,51, "28. No TCP/IP ITN");
 	mvprintw(19,51, "29. 8.3 names");
 }
 
@@ -770,12 +770,12 @@ int EditNodeRec(int Area)
 		show_bool(10,70, nodes.NoWaZOO);
 		show_bool(11,70, nodes.NoFreqs);
 		show_bool(12,70, nodes.NoCall);
-		show_bool(13,70, nodes.NoHold);
-		show_bool(14,70, nodes.NoPUA);
-		show_bool(15,70, nodes.NoZmodem);
-		show_bool(16,70, nodes.NoZedzap);
-		show_bool(17,70, nodes.NoHydra);
-		show_bool(18,70, nodes.NoTCP);
+		show_bool(13,70, nodes.NoZmodem);
+		show_bool(14,70, nodes.NoZedzap);
+		show_bool(15,70, nodes.NoHydra);
+		show_bool(16,70, nodes.NoIBN);
+		show_bool(17,70, nodes.NoIFC);
+		show_bool(18,70, nodes.NoITN);
 		show_bool(19,70, nodes.FNC);
 
 		switch(select_menu(29)) {
@@ -881,12 +881,12 @@ int EditNodeRec(int Area)
 		case 20:E_BOOL(10,70, nodes.NoWaZOO,  "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")
 		case 21:E_BOOL(11,70, nodes.NoFreqs,  "Disallow ^file requests^ from this node")
 		case 22:E_BOOL(12,70, nodes.NoCall,   "Don't ^call^ this node")
-		case 23:E_BOOL(13,70, nodes.NoHold,   "Don't ^hold hold-mail^ when we call (no = only pickup)")
-		case 24:E_BOOL(14,70, nodes.NoPUA,    "Only pickup mail from the ^primary^ address")
-		case 25:E_BOOL(15,70, nodes.NoZmodem, "Disable ^Zmodem^ protocol with this node")
-		case 26:E_BOOL(16,70, nodes.NoZedzap, "Disable ^Zedzap^ protocol with this node")
-		case 27:E_BOOL(17,70, nodes.NoHydra,  "Disable ^Hydra^ protocol with this node")
-		case 28:E_BOOL(18,70, nodes.NoTCP,    "Disable ^TCP/IP^ protocol with this node")
+		case 23:E_BOOL(13,70, nodes.NoZmodem, "Disable ^Zmodem^ protocol with this node")
+		case 24:E_BOOL(14,70, nodes.NoZedzap, "Disable ^Zedzap^ protocol with this node")
+		case 25:E_BOOL(15,70, nodes.NoHydra,  "Disable ^Hydra^ protocol with this node")
+		case 26:E_BOOL(16,70, nodes.NoIBN,    "Disable ^TCP/IP IBN binkp^ protocol with this node")
+		case 27:E_BOOL(17,70, nodes.NoIFC,    "Disable ^TCP/IP IFC ifcico^ protocol with this node")
+		case 28:E_BOOL(18,70, nodes.NoITN,    "Disable ^TCP/IP ITN telnet^ protocol with this node")
 		case 29:E_BOOL(19,70, nodes.FNC,      "Node needs ^DOS 8.3^ filenames")
 		}
 	}
@@ -1185,12 +1185,12 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     No YooHoo/2U2 %s\n", getboolean(nodes.NoWaZOO));
 		fprintf(fp, "     No Requests   %s", getboolean(nodes.NoFreqs));
 		fprintf(fp, "     Don't call    %s", getboolean(nodes.NoCall));
-		fprintf(fp, "     No hold mail  %s\n", getboolean(nodes.NoHold));
-		fprintf(fp, "     No Pickup all %s", getboolean(nodes.NoPUA));
-		fprintf(fp, "     No Zmodem     %s", getboolean(nodes.NoZmodem));
-		fprintf(fp, "     No Zedzap     %s\n", getboolean(nodes.NoZedzap));
+		fprintf(fp, "     No Zmodem     %s\n", getboolean(nodes.NoZmodem));
+		fprintf(fp, "     No Zedzap     %s", getboolean(nodes.NoZedzap));
 		fprintf(fp, "     No Hydra      %s", getboolean(nodes.NoHydra));
-		fprintf(fp, "     No TCP/IP     %s", getboolean(nodes.NoTCP));
+		fprintf(fp, "     No TCP/IP IBN %s\n", getboolean(nodes.NoIBN));
+		fprintf(fp, "     No TCP/IP IFC %s", getboolean(nodes.NoIFC));
+		fprintf(fp, "     No TCP/IP ITN %s", getboolean(nodes.NoITN));
 		fprintf(fp, "     Pack Netmail  %s\n", getboolean(nodes.PackNetmail));
 		fprintf(fp, "     ARCmail comp. %s", getboolean(nodes.ARCmailCompat));
 		fprintf(fp, "     ACRmail a..z  %s", getboolean(nodes.ARCmailAlpha));

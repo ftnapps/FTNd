@@ -1255,15 +1255,15 @@ void s_mailer(void)
 	mvprintw(13, 2, "7.   Dial delay");
 	mvprintw(14, 2, "8.   No Filerequests");
 	mvprintw(15, 2, "9.   No callout");
-	mvprintw(16, 2, "10.  No Hold mail");
-	mvprintw(17, 2, "11.  No pickup all");
+	mvprintw(16, 2, "10.  No EMSI session");
+	mvprintw(17, 2, "11.  No Yooho/2U2");
 
-	mvprintw(12,31, "12.  No EMSI session");
-	mvprintw(13,31, "13.  No Yooho/2U2");
-	mvprintw(14,31, "14.  No Zmodem");
-	mvprintw(15,31, "15.  No Zedzap");
-	mvprintw(16,31, "16.  No Hydra");
-	mvprintw(17,31, "17.  No TCP/IP");
+	mvprintw(12,31, "12.  No Zmodem");
+	mvprintw(13,31, "13.  No Zedzap");
+	mvprintw(14,31, "14.  No Hydra");
+	mvprintw(15,31, "15.  No IBN binkp");
+	mvprintw(16,31, "16.  No IFC ifcico");
+	mvprintw(17,31, "17.  No ITN telnet");
 
 	mvprintw(12,59, "18.  Phonetrans  1-10");
 	mvprintw(13,59, "19.  Phonetrans 11-20");
@@ -1322,15 +1322,15 @@ void e_mailer(void)
 		show_int( 13,23,   CFG.dialdelay);
 		show_bool(14,23,   CFG.NoFreqs);
 		show_bool(15,23,   CFG.NoCall);
-		show_bool(16,23,   CFG.NoHold);
-		show_bool(17,23,   CFG.NoPUA);
+		show_bool(16,23,   CFG.NoEMSI);
+		show_bool(17,23,   CFG.NoWazoo);
 
-		show_bool(12,52, CFG.NoEMSI);
-		show_bool(13,52, CFG.NoWazoo);
-		show_bool(14,52, CFG.NoZmodem);
-		show_bool(15,52, CFG.NoZedzap);
-		show_bool(16,52, CFG.NoHydra);
-		show_bool(17,52, CFG.NoTCP);
+		show_bool(12,52, CFG.NoZmodem);
+		show_bool(13,52, CFG.NoZedzap);
+		show_bool(14,52, CFG.NoHydra);
+		show_bool(15,52, CFG.NoIBN);
+		show_bool(16,52, CFG.NoIFC);
+		show_bool(17,52, CFG.NoITN);
 
 		show_int( 16,75, CFG.Req_Files);
 		show_int( 17,75, CFG.Req_MBytes);
@@ -1346,15 +1346,16 @@ void e_mailer(void)
 		case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")
 		case 8: E_BOOL(14,23,   CFG.NoFreqs,        "Set to true if ^No Filerequests^ are allowed")
 		case 9: E_BOOL(15,23,   CFG.NoCall,         "Set to true if ^No Calls^ are allowed")
-		case 10:E_BOOL(16,23,   CFG.NoHold,         "Set to true if we send ^Hold packets^ when we initiate the session")
-		case 11:E_BOOL(17,23,   CFG.NoPUA,          "Set to true for ^pickup mail^ only from the primary address")
+		case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
+		case 11:E_BOOL(17,23,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
 
-		case 12:E_BOOL(12,52,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
-		case 13:E_BOOL(13,52,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
-		case 14:E_BOOL(14,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
-		case 15:E_BOOL(15,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
-		case 16:E_BOOL(16,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
-		case 17:E_BOOL(17,52,   CFG.NoTCP,          "If set then the ^TCP/IP^ protocol is disabled");
+		case 12:E_BOOL(12,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
+		case 13:E_BOOL(13,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
+		case 14:E_BOOL(14,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
+		case 15:E_BOOL(15,52,   CFG.NoIBN,          "If set then the ^TCP/IP IBN binkp^ protocol is disabled")
+		case 16:E_BOOL(16,52,   CFG.NoIFC,          "If set then the ^TCP/IP IFC ifcico^ protocol is disabled")
+		case 17:E_BOOL(17,52,   CFG.NoITN,          "If set then the ^TCP/IP ITN telnet^ protocol is disabled")
+
 		case 18:e_trans(0);
 			break;
 		case 19:e_trans(10);
@@ -2001,14 +2002,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      TCP/IP flags       %s\n",  CFG.Flags);
 	fprintf(fp, "      No Filerequests    %s\n",  getboolean(CFG.NoFreqs));
 	fprintf(fp, "      No Calls           %s\n",  getboolean(CFG.NoCall));
-	fprintf(fp, "      No Hold            %s\n",  getboolean(CFG.NoHold));
-	fprintf(fp, "      No Pickup All      %s\n",  getboolean(CFG.NoPUA));
 	fprintf(fp, "      No EMSI            %s\n",  getboolean(CFG.NoEMSI));
 	fprintf(fp, "      No YooHoo/2U2      %s\n",  getboolean(CFG.NoWazoo));
 	fprintf(fp, "      No Zmodem          %s\n",  getboolean(CFG.NoZmodem));
 	fprintf(fp, "      No Zedzap          %s\n",  getboolean(CFG.NoZedzap));
 	fprintf(fp, "      No Hydra           %s\n",  getboolean(CFG.NoHydra));
-	fprintf(fp, "      No TCP/IP          %s\n",  getboolean(CFG.NoTCP));
+	fprintf(fp, "      No TCP/IP IBN      %s\n",  getboolean(CFG.NoIBN));
+	fprintf(fp, "      No TCP/IP IFC      %s\n",  getboolean(CFG.NoIFC));
+	fprintf(fp, "      No TCP/IP ITN      %s\n",  getboolean(CFG.NoITN));
 	fprintf(fp, "      Max request files  %d\n",  CFG.Req_Files);
 	fprintf(fp, "      Max request MBytes %d\n",  CFG.Req_MBytes);
 

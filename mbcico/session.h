@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef _SESSION_H
 #define _SESSION_H
 
@@ -29,7 +31,7 @@ typedef struct _file_list {
 
 #define HOLD_MAIL "h"
 #define NONHOLD_MAIL "ico"
-#define ALL_MAIL "coh"
+#define ALL_MAIL "icoh"
 
 extern int session_flags;
 extern int remote_flags;
@@ -49,8 +51,8 @@ extern int remote_flags;
 
 extern int localoptions;
 #define NOCALL   0x0001
-#define NOHOLD   0x0002
-#define NOPUA    0x0004
+// #define NOHOLD   0x0002
+// #define NOPUA    0x0004
 #define NOWAZOO  0x0008
 #define NOEMSI   0x0010
 #define NOFREQS  0x0020
@@ -58,7 +60,9 @@ extern int localoptions;
 #define NOZEDZAP 0x0080
 #define	NOJANUS  0x0100
 #define NOHYDRA  0x0200
-#define NOTCP    0x0400
+#define NOIBN    0x0400
+#define	NOITN	 0x0800
+#define NOIFC	 0x1000
 
 
 struct	_history	history;	/* History record for sessions	*/

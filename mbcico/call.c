@@ -91,7 +91,7 @@ int portopen(faddr *addr)
 		}
 	}
 
-	WriteError("call.c portopen(): should not be here");
+	WriteError("No call method available");
 	return ST_PORTERR;
 }
 
@@ -146,7 +146,7 @@ int call(faddr *addr)
 	 * First see if this node can be reached over the internet and
 	 * that internet calls are allowed.
 	 */
-	if (nlent->iflags && ((localoptions & NOTCP) == 0)) {
+	if (nlent->iflags && ((localoptions & NOIBN & NOITN & NOIFC) == 0)) {
 		if (!inetaddr) {
 			Syslog('d', "Trying to find IP address...");
 			/*
@@ -194,18 +194,20 @@ int call(faddr *addr)
 				 * from the nodelist. If it fails, fallback to dial.
 				 * Priority IBN, IFC, ITN.
 				 */
-				if (nlent->iflags & IP_IBN)
+				if ((nlent->iflags & IP_IBN) && ((localoptions & NOIBN) == 0)) {
 					tcp_mode = TCPMODE_IBN;
-				else if (nlent->iflags & IP_IFC)
+					Syslog('d', "TCP/IP mode set to IBN");
+				} else if ((nlent->iflags & IP_IFC) && ((localoptions & NOIFC) == 0)) {
 					tcp_mode = TCPMODE_IFC;
-				else if (nlent->iflags & IP_ITN)
+					Syslog('d', "TCP/IP mode set to IFC");
+				} else if ((nlent->iflags & IP_ITN) && ((localoptions & NOITN) == 0)) {
 					tcp_mode = TCPMODE_ITN;
-				else {
+					Syslog('d', "TCP/IP mode seto to ITN");
+				} else {
 					Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);
 					free(inetaddr);
 					inetaddr = NULL;
 				}
-				Syslog('d', "TCP mode set to %d", tcp_mode);
 			}
 		} else {
 			WriteError("No IP address, abort call");

@@ -38,7 +38,7 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
 		  images/go_to.gif    images/nodelist3.gif    images/tty2.gif \
 		  images/hatch.gif    images/nodelist4.gif    images/tty3.gif \
 		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
-		  images/larrow.gif   images/nodes.gif        images/users.png \
+		  images/larrow.gif   images/nodes.png        images/users.png \
 		  images/mbse.jpg     images/taskmgr.png      images/mbsebbs.gif \
 		  images/mbsebbs.png  images/users2.png       images/hand.up.gif \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
