@@ -209,8 +209,8 @@ int LoadTic(char *inb, char *tfn)
 		Temp[0] = '\0';
 		j = 0;
 		for (i = 0; i < strlen(Buf); i++)
-			if (isprint(Buf[i])) {
-				Temp[j] = Buf[i];
+			if (isprint(Buf[i] & 0x7f)) {
+				Temp[j] = Buf[i] & 0x7f;
 				j++;
 			}
 		Temp[j] = '\0';

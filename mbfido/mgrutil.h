@@ -4,6 +4,13 @@
 #define	_MGRUTIL_H
 
 
+#define LIST_LIST   0
+#define LIST_NOTIFY 1
+#define LIST_QUERY  2
+#define LIST_UNLINK 3
+
+
+
 /*
  * Linked list for atea areas create
  */

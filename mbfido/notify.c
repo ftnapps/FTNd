@@ -42,6 +42,7 @@
 #include "filemgr.h"
 #include "areamgr.h"
 #include "sendmail.h"
+#include "mgrutil.h"
 #include "notify.h"
 
 
@@ -147,8 +148,8 @@ int Notify(char *Options)
 					F_Status(Tmp, NULL);
 					A_Status(Tmp, NULL);
 				}
-				F_List(Tmp, NULL, TRUE);
-				A_List(Tmp, NULL, TRUE);
+				F_List(Tmp, NULL, LIST_NOTIFY);
+				A_List(Tmp, NULL, LIST_NOTIFY);
 				A_Flow(Tmp, NULL, TRUE);
 				tidy_faddr(Tmp);
 				notify++;

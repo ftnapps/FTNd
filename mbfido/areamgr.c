@@ -51,10 +51,6 @@
 #include "createm.h"
 #include "areamgr.h"
 
-#define LIST_LIST   0
-#define LIST_NOTIFY 1
-#define LIST_QUERY  2
-#define LIST_UNLINK 3
 
 
 
@@ -97,7 +93,10 @@ void A_Help(faddr *t, char *replyid)
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
 	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ) {
 	    ta = bestaka_s(t);
-	    MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(ta, 0xf), nodes.Apasswd );
+	    MacroVars("s", "s", nodes.Sysop);
+	    MacroVars("A", "s", (char *)"Areamgr");
+	    MacroVars("Y", "s", ascfnode(ta, 0xff));
+	    MacroVars("P", "s", nodes.Apasswd);
 	    tidy_faddr(ta);
 	    MacroRead(fi, fp);
 	    fclose(fi);
@@ -136,7 +135,10 @@ void A_List(faddr *t, char *replyid, int Notify)
 
     subject = calloc(255, sizeof(char));
     f = bestaka_s(t);
-    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
+    MacroVars("s", "s", nodes.Sysop);
+    MacroVars("K", "d", Notify);
+    MacroVars("y", "s", ascfnode(t, 0xff));
+    MacroVars("Y", "s", ascfnode(f, 0xff));
 
     switch (Notify) {
 	case LIST_NOTIFY:   Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
@@ -1140,7 +1142,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	A_Query(f, replyid);
 
     if (a_list)
-	A_List(f, replyid, FALSE);
+	A_List(f, replyid, LIST_LIST);
 
     if (a_flow)
 	A_Flow(f, replyid, FALSE);

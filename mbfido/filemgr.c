@@ -50,10 +50,6 @@
 #include "createf.h"
 #include "filemgr.h"
 
-#define LIST_LIST   0
-#define LIST_NOTIFY 1
-#define LIST_QUERY  2
-#define LIST_UNLINK 3
 
 
 /*
@@ -90,7 +86,10 @@ void F_Help(faddr *t, char *replyid)
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
 	if ((fi = OpenMacro("filemgr.help", nodes.Language, FALSE)) != NULL ){
-	    MacroVars("sAYP", "ssss", nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
+	    MacroVars("s", "s", nodes.Sysop);
+	    MacroVars("A", "s", (char *)"Filemgr");
+	    MacroVars("Y", "s", ascfnode(bestaka_s(t), 0xf));
+	    MacroVars("P", "s", nodes.Fpasswd);
 	    MacroRead(fi, fp);
 	    MacroClear();
 	    fclose(fi);
@@ -125,7 +124,10 @@ void F_List(faddr *t, char *replyid, int Notify)
 
     subject = calloc(255, sizeof(char));
     f = bestaka_s(t);
-    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
+    MacroVars("s", "s", nodes.Sysop);
+    MacroVars("K", "d", Notify);
+    MacroVars("y", "s", ascfnode(t, 0xff));
+    MacroVars("Y", "s", ascfnode(f, 0xff));
  
     switch (Notify) {
 	case LIST_NOTIFY:   Syslog('+', "FileMgr: Notify to %s", ascfnode(t, 0xff));
@@ -207,7 +209,9 @@ void F_List(faddr *t, char *replyid, int Notify)
 		if ((!strcmp(fgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
-		    MacroVars("GJI", "sss",fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka) );
+		    MacroVars("G", "s", fgroup.Name);
+		    MacroVars("J", "s", fgroup.Comment);
+		    MacroVars("I", "s", aka2str(fgroup.UseAka));
 		    fsetpos(fi,&fileptr);
 		    MacroRead(fi, qp);
 		    fgetpos(fi,&fileptr1);
@@ -236,13 +240,13 @@ void F_List(faddr *t, char *replyid, int Notify)
 			    if (    (Notify == LIST_LIST)
 			         || (Notify == LIST_NOTIFY)
 			         || ((Notify == LIST_QUERY) && ((Stat[0]=='S') || (Stat[1]=='R')))
-			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){  
- 	    			MacroVars("XDEsrp", "sssddd", 
- 	    			                            Stat, tic.Name, tic.Comment,
- 	    			                            (Stat[0] == 'S'),
- 	    			                            (Stat[1] == 'R'),
- 	    			                            (Stat[2] == 'P')
- 	    			                            );
+			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))) {
+				MacroVars("X", "s", Stat);
+				MacroVars("D", "s", tic.Name);
+				MacroVars("E", "s", tic.Comment);
+				MacroVars("s", "d", (Stat[0] == 'S'));
+				MacroVars("r", "d", (Stat[1] == 'R'));
+				MacroVars("p", "d", (Stat[2] == 'P'));
 				fsetpos(fi,&fileptr1);
 				MacroRead(fi, qp);
 				fgetpos(fi,&fileptr2);
@@ -964,7 +968,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	F_Query(f, replyid);
 
     if (f_list)
-	F_List(f, replyid, FALSE);
+	F_List(f, replyid, LIST_LIST);
 
     if (f_unlnk)
 	F_Unlinked(f, replyid);

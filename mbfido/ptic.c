@@ -603,8 +603,12 @@ int ProcessTic(fa_list *sbl)
 				strcpy(TDesc, TIC.TicIn.Desc);
 				while (strlen(TDesc) > 48) {
 					j = 48;
-					while (TDesc[j] != ' ')
+					while ((TDesc[j] != ' ') && (j > 0))
 						j--;
+					if (j == 0) {
+					    Syslog('f', "Panic, no spaces");
+					    j = 47;
+					}
 					strncpy(TIC.File_Id[TIC.File_Id_Ct], TDesc, j);
 					Syslog('f', "%2d/%2d: \"%s\"", TIC.File_Id_Ct, j, TIC.File_Id[TIC.File_Id_Ct]);
 					TIC.File_Id_Ct++;

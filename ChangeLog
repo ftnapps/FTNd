@@ -51,6 +51,9 @@ v0.35.03	06-Jul-2002
 		Removed debug logline with extract of FILE_ID.DIZ.
 		When a file is imported with a name that is already present,
 		the existing filerecord is updated and not replaced.
+		There are people using M$ wordprocessors to create TIC files,
+		there is now better filtering to get that garbage out of the
+		received tic files. We will forward plain ascii of course.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
