@@ -1963,7 +1963,7 @@ int binkp_poll_frame(void)
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
 #ifdef HAVE_ZLIB_H
-		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK)) {
+		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK) && bp.blklen) {
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
