@@ -358,7 +358,56 @@ struct icmp_filter {
 
 
 
+/*****************************************************************************
+ *
+ *  Supported character sets, only level 2 are defined. Several Level 1
+ *  character sets are supported but only for translating from, so these
+ *  are not defined.
+ */
+#define FTNC_NONE		0	/* Undefined			    */
+#define	FTNC_CP437		1	/* IBM CP 437 (Western Europe)	    */
+#define	FTNC_CP850		2	/* IBM CP 850 (Latin-1)		    */
+#define	FTNC_CP865		3	/* IBM CP 865 (Nordic)		    */
+#define	FTNC_CP866		4	/* IBM CP 866 (Russian)		    */
+#define	FTNC_LATIN_1		5	/* ISO 8859-1 (Western Europe)	    */
+#define	FTNC_LATIN_2		6	/* ISO 8859-2 (Eastern Europe)	    */
+#define	FTNC_LATIN_5		7	/* ISO 8859-5 (Turkish)		    */
+#define	FTNC_MAC		8	/* MacIntosh character set	    */
+#define FTNC_MAXCHARS		8	/* Highest charset number	    */
 
+
+/*
+ *  Mapping:
+ *
+ *  Kludge	    iconv name
+ *  ----------	    ---------------
+ *  ASCII 1	    ISO646-US
+ *  DUTCH 1	
+ *  FINNISH 1	    ISO646-FI
+ *  FRENCH 1	    ISO646-FR
+ *  CANADIAN 1	    ISO646-CA
+ *  GERMAN 1	
+ *  ITALIAN 1	    ISO646-IT
+ *  NORWEIG 1	    ISO646-NO
+ *  PORTU 1	    ISO646-PT
+ *  SPANISH 1	    ISO646-ES
+ *  SWEDISH 1	    ISO646-SE
+ *  SWISS 1
+ *  UK 1	    ISO646-GB
+ *  CP437 2	    CP437
+ *  CP850 2	    CP850
+ *  CP865 2	    CP865
+ *  CP866 2	    CP766
+ *  LATIN-1 2	    ISO8859-1
+ *  LATIN-2 2	    ISO8859-2
+ *  LATIN-5 2	    ISO8859-5
+ *  MAC 2	    MAC
+ *  PC-8	    ISO646-US
+ *  IBMPC 2	    CP437
+ *  UKR 2	    CP866
+ *  +7_FIDO	    CP866
+ *
+ */
 
 /*****************************************************************************
  *
@@ -1263,8 +1312,8 @@ struct msgareas {
 	char		Newsgroup[81];		/* Newsgroup/Mailinglist    */
 	char		Distribution[17];	/* Ng distribution	    */
 	char		xModerator[65];
-	int		Rfccode;		/* RFC characterset	    */
-	int		Ftncode;		/* FTN characterset	    */
+	int		xRfccode;
+	int		Charset;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */
 	securityrec	LinkSec;		/* Link security flags	    */
 };
