@@ -179,15 +179,19 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 				subject = xstrcpy(TIC.RealName);
 			else
 				subject = xstrcpy(TIC.NewName);
+			/*
+			 * Create 8.3 filename if this is a long filename. In normal
+			 * cases mbcico will transmit the long filename to the other
+			 * node. If they can't process the TIC files which has a short
+			 * 8.3 filename and they have a long filename in the inbound
+			 * then in mbsetup these nodes need to be set to 8.3 filenames.
+			 * The mailer will then transmit the file with a 8.3 name.
+			 * Thank the inventors of the 8.3 filenames for this.
+			 */
 			temp = xstrcpy(subject);
-			if (nodes.FNC) {
-			    name_mangle(temp);
-			    fprintf(fp, "File %s\r\n", temp); // mbcico will send the file with this name
-			    fprintf(fp, "Fullname %s\r\n", subject);
-			} else {
-			    fprintf(fp, "File %s\r\n", tu(temp));
-			    fprintf(fp, "Fullname %s\r\n", subject);
-			}
+			name_mangle(temp);
+			fprintf(fp, "File %s\r\n", temp);
+			fprintf(fp, "Fullname %s\r\n", subject);
 			free(temp);
 			free(subject);
 

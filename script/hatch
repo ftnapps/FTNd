@@ -49,12 +49,26 @@ cat <<EOF
    group 'bbs'. They will be removed when they are hatched, so
    this should be a temporary copy of all those files.
    These files must be real files, no symlinks.
+   Long filenames are allowed as long as there are no spaces in
+   the filename. The mbfido program will build the 8.3 filenames
+   when needed.
+   When hatching long filenames and downlinks complain about this,
+   then with mbsetup set these nodes to 8.3 names.
 
 EOF
-echo -n "Enter TIC group to hatch files in (Control-C = stop) "
+
+echo -n "Enter TIC group to hatch files in (Control-C = stop) : "
 read GROUP
-echo -n "Enter the Fidonet aka for this TIC group, ie. 2:280/2802 "
+if [ -z "$GROUP" ]; then
+    exit 0
+fi
+
+echo -n "Enter the Fidonet aka for this TIC group, ie. 2:280/2802 : "
 read AKA
+if [ -z "$AKA" ]; then
+    exit 0
+fi
+
 echo -e "Now scanning directory, add a oneline description for each file\n"
 
 i=0;

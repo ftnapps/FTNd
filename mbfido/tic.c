@@ -398,6 +398,12 @@ int LoadTic(char *inb, char *tfn)
 		tidy_falist(&sbl);
 		return 1;
 	    }
+	    if (!strlen(TIC.TicIn.File)) {
+		strcpy(Temp, TIC.TicIn.FullName);
+		name_mangle(Temp);
+		strncpy(TIC.TicIn.File, Temp, 12);
+		Syslog('f', "Local hatch created 8.3 name %s", Temp);
+	    }
 	} else {
 	    /*
 	     * Find out what the real name of the file is
