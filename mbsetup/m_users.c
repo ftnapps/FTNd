@@ -223,6 +223,7 @@ void Fields1(void)
 {
         char    Date[30];
         struct  tm *ld;
+	time_t	now;
 
         set_color(WHITE, BLACK);
 	show_str( 6,17,35, usrconfig.sUserName);
@@ -231,15 +232,18 @@ void Fields1(void)
 	show_int( 9,17,    usrconfig.ExpirySec.level);
 	show_str(10,17, 8, usrconfig.Name);
 	
-        ld = localtime(&usrconfig.tFirstLoginDate);
+	now = usrconfig.tFirstLoginDate;
+        ld = localtime(&now);
         sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
                 ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
         show_str(11,17,19, Date);
-        ld = localtime(&usrconfig.tLastLoginDate);
+	now = usrconfig.tLastLoginDate;
+        ld = localtime(&now);
         sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
                 ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
         show_str(12,17,19, Date);
-	ld = localtime(&usrconfig.tLastPwdChange);
+	now = usrconfig.tLastPwdChange;
+	ld = localtime(&now);
 	sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
 		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
 	show_str(13,17,19, Date);
