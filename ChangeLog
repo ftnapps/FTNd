@@ -3,6 +3,10 @@ $Id$
 
 v0.61.3		25-Jul-2004
 
+	upgrade:
+		To resinstall the corrected dutch macro templates go into the
+		examples directory and type "make dutch-macros".
+
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 
 		functions, not needed anymore.
