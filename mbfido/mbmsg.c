@@ -425,7 +425,7 @@ void LinkArea(char *Path, long Areanr)
     rc = Msg_Link(Path, do_quiet, CFG.slow_util);
 
     if (rc != -1) {
-	msg_link = rc;
+	msg_link += rc;
 	processed = TRUE;
     }
 }
