@@ -28,6 +28,9 @@ v0.51.3		22-Mar-2003
 		Added more debug info in Add_ToBeRep(), we still see double
 		announces of files like FP-DEF.ZIP.
 
+	mbtask:
+		Fixed crash on NetBSD Sparc when getsysinfo was called.
+
 	mblogin:
 		Changed some defines for NetBSD 1.6.2
 

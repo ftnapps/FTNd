@@ -213,6 +213,7 @@ char *disk_getfs()
 
     if (ans != NULL)
 	free(ans);
+	ans = NULL;
 
     return buf;
 }
@@ -256,10 +257,10 @@ void update_diskstat(void)
  * Add path to table. 
  * Find out if the parameter is a path or a file on a path.
  */
-void add_path(char *path)
+void add_path(char *lpath)
 {
     struct stat	    sb;
-    char	    *p, *fsname, *fstype;
+    char	    *p, fsname[PATH_MAX], fstype[PATH_MAX], *rpath;
 #if defined(__linux__)
     char	    *mtab, *fs;
     FILE	    *fp;
@@ -269,7 +270,7 @@ void add_path(char *path)
     int		    i;
 #endif
 
-    if (strlen(path) == 0) {
+    if (strlen(lpath) == 0) {
 	return;
     }
 
@@ -278,20 +279,25 @@ void add_path(char *path)
      */
     recursecount++;
     if (recursecount > 2) {
-	Syslog('!', "add_path(%s), too many recursive calls", path);
+	Syslog('!', "add_path(%s), too many recursive calls", lpath);
 	recursecount--;
 	return;
     }
 
-    if (lstat(path, &sb) == 0) {
+	rpath = calloc(PATH_MAX, sizeof(char));
+        realpath(lpath, rpath);
+        Syslog('d', "realpath %s", MBSE_SS(rpath));
+
+    if (lstat(rpath, &sb) == 0) {
+
+Syslog('d', "add_path(%s)", rpath);
+
 	if (S_ISDIR(sb.st_mode)) {
 
 #if defined(__linux__)
 
 	    if ((fp = fopen((char *)"/etc/mtab", "r"))) {
 		mtab = calloc(PATH_MAX, sizeof(char));
-		fsname = calloc(PATH_MAX, sizeof(char));
-		fstype = calloc(PATH_MAX, sizeof(char));
 		fsname[0] = '\0';
 
 		while (fgets(mtab, PATH_MAX -1, fp)) {
@@ -301,7 +307,7 @@ void add_path(char *path)
 		     * Overwrite fsname each time a match is found, the last
 		     * mounted filesystem that matches must be the one we seek.
 		     */
-		    if (strncmp(fs, path, strlen(fs)) == 0) {
+		    if (strncmp(fs, rpath, strlen(fs)) == 0) {
 			sprintf(fsname, "%s", fs);
 			fs = strtok(NULL, " \t");
 			sprintf(fstype, "%s", fs);
@@ -310,25 +316,19 @@ void add_path(char *path)
 		fclose(fp);
 		free(mtab);
 		fill_mfslist(&mfs, fsname, fstype);
-		free(fsname);
-		free(fstype);
 	    }
 
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 
 	    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT))) {
-		fsname = calloc(PATH_MAX, sizeof(char));
-		fstype = calloc(PATH_MAX, sizeof(char));
 
 		for (i = 0; i < mntsize; i++) {
-		    if (strncmp(mntbuf[i].f_mntonname, path, strlen(mntbuf[i].f_mntonname)) == 0) {
+		    if (strncmp(mntbuf[i].f_mntonname, rpath, strlen(mntbuf[i].f_mntonname)) == 0) {
 			sprintf(fsname, "%s", mntbuf[i].f_mntonname);
 			sprintf(fstype, "%s", mntbuf[i].f_fstypename);
 		    }
 		}
 		fill_mfslist(&mfs, fsname, fstype);
-		free(fsname);
-		free(fstype);
 	    }
 
 #else
@@ -339,9 +339,9 @@ void add_path(char *path)
 	    /*
 	     * Not a directory, maybe a file.
 	     */
-	    if ((p = strrchr(path, '/')))
+	    if ((p = strrchr(rpath, '/')))
 		*p = '\0';
-	    add_path(path);
+	    add_path(rpath);
 	}
     } else {
 	/*
@@ -349,11 +349,12 @@ void add_path(char *path)
 	 * may not be present because this is a temporary file.
 	 * Strip the last part of the name and try again.
 	 */
-	if ((p = strrchr(path, '/')))
+	if ((p = strrchr(rpath, '/')))
 	    *p = '\0';
-	add_path(path);
+	add_path(rpath);
     }
     recursecount--;
+	free(rpath);
 }
 
 
@@ -569,6 +570,10 @@ void *disk_thread(void)
     disk_run = FALSE;
     Syslog('+', "Disk thread stopped");
     pthread_exit(NULL);
+#if defined(__NetBSD__)
+
+	return NULL;
+#endif
 }
 
 
