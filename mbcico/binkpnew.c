@@ -135,7 +135,6 @@ struct binkprec {
     int			cmd;			/* Frame command flag		    */
     int			blklen;			/* Frame blocklength		    */
     unsigned short	header;			/* Frame header			    */
-    int			messages;		/* Received messages in batch	    */
     int			rc;			/* General return code		    */
 
     long		rsize;			/* Receiver filesize		    */
@@ -159,9 +158,13 @@ struct binkprec {
     struct timeval	txtvend;		/* Transmitter end time		    */
 
     int			local_EOB;		/* Local EOB sent		    */
+    int			local_msgs;		/* Local messages sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
+    int			remote_msgs;		/* Messages received from remote    */
     unsigned long	nethold;		/* Netmail on hold		    */
     unsigned long	mailhold;		/* Packed mail on hold		    */
+
+    int			msgs_on_queue;		/* Messages on the queue	    */
 };
 
 
@@ -182,7 +185,6 @@ int	binkp_recv_command(char *, int *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
 void	binkp_add_message(char *frame);		    /* Add cmd frame to queue	    */
-int	binkp_count_messages(void);		    /* Count commands on the queue  */
 int	binkp_process_messages(void);		    /* Process the queue	    */
 int	binkp_resync(off_t);			    /* File resync		    */
 char	*unix2binkp(char *);			    /* Binkp -> Unix escape	    */
@@ -196,7 +198,6 @@ static int  orgbinkp(void);			    /* Originate session state	    */
 static int  ansbinkp(void);			    /* Answer session state	    */
 static int  file_transfer(void);		    /* File transfer state	    */
 
-#ifndef DOTEST
 
 
 /************************************************************************************/
@@ -224,6 +225,7 @@ int binkp(int role)
     bp.DidSendGET = FALSE;
     bp.local_EOB = FALSE;
     bp.remote_EOB = FALSE;
+    bp.msgs_on_queue = 0;
 
     if (role == 1) {
 	if (orgbinkp()) {
@@ -814,7 +816,7 @@ SM_RETURN
  */
 int file_transfer(void)
 {
-    int	    rc = 0;
+    int	    rc = 0, complete = FALSE;
     TrType  Trc = Ok;
     
     for (;;) {
@@ -824,10 +826,15 @@ int file_transfer(void)
 				bp.RxState = RxWaitF;
 				bp.TxState = TxGNF;
 				bp.FtState = Switch;
-				bp.messages = 0;
+				bp.local_msgs = 0;
+				bp.remote_msgs = 0;
 				break;
 
 	    case Switch:	if ((bp.RxState == RxDone) && (bp.TxState == TxDone)) {
+				    complete = TRUE;
+				}
+
+				if (complete) {
 				    Syslog('+', "Binkp: file transfer complete rc=%d", bp.rc);
 				    bp.FtState = DeinitTransfer;
 				    break;
@@ -868,7 +875,6 @@ int file_transfer(void)
 				break;
 
 	    case Receive:	Trc = binkp_receiver();
-				Syslog('b', "Binkp: receiver rc=%s", trstate[Trc]);
 				if (Trc == Ok) {
 				    binkp_settimer(BINKP_TIMEOUT);
 				    bp.FtState = Switch;
@@ -880,7 +886,6 @@ int file_transfer(void)
 				break;
 
 	    case Transmit:	Trc = binkp_transmitter();
-				Syslog('b', "Binkp: transmitter rc=%s", trstate[Trc]);
 				if (Trc == Ok) {
 				    binkp_settimer(BINKP_TIMEOUT);
 				    bp.FtState = Switch;
@@ -1266,7 +1271,7 @@ TrType binkp_transmitter(void)
 	     * No more files
 	     */
 	
-	    Syslog('b', "Binkp: sending M_EOB");
+	    Syslog('+', "Binkp: sending M_EOB");
 	    rc = binkp_send_command(MM_EOB, "");
 	    bp.TxState = TxWLA;
 	    bp.local_EOB = TRUE;
@@ -1279,8 +1284,7 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxTryR) {
 
-	if (binkp_count_messages() == 0) {
-	    Syslog('b', "The queue is empty");
+	if (bp.msgs_on_queue == 0) {
 	    bp.TxState = TxReadS;
 	    return Continue;
 	} else {
@@ -1340,10 +1344,11 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxWLA) {
 
-	if ((binkp_count_messages() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState >= RxEOB)) {
+	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0) && (bp.RxState >= RxEOB)) {
 	    Syslog('b', "The queue is empty and RxState >= RxEOB");
 	    bp.TxState = TxDone;
-	    Syslog('+', "Binkp: there were %d messages", bp.messages);
+	    Syslog('+', "Binkp: there were %d messages sent", bp.local_msgs);
+	    Syslog('+', "Binkp: there were %d messages received", bp.remote_msgs);
 	    if (bp.local_EOB && bp.remote_EOB) {
 		Syslog('b', "Binkp: transmitter puts receiver state to RxDone");
 		bp.RxState = RxDone;    /* Not in FSP-1018 rev.1 */
@@ -1383,13 +1388,12 @@ TrType binkp_transmitter(void)
 	    return Ok;
 	}
 
-	if ((binkp_count_messages() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState < RxEOB)) {
-	    Syslog('b', "The queue is empty and RxState < RxEOB");
+	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0) && (bp.RxState < RxEOB)) {
 	    bp.TxState = TxWLA;
 	    return Ok;
 	}
 
-	if (binkp_count_messages()) {
+	if (bp.msgs_on_queue) {
 	    if (binkp_process_messages()) {
 		return Failure;
 	    }
@@ -1422,10 +1426,12 @@ int binkp_send_frame(int cmd, char *buf, int len)
     unsigned short  header = 0;
     int		    rc;
 
-    if (cmd)
+    if (cmd) {
 	header = ((BINKP_CONTROL_BLOCK + len) & 0xffff);
-    else
+	bp.local_msgs++;
+    } else {
 	header = ((BINKP_DATA_BLOCK + len) & 0xffff);
+    }
 
     rc = PUTCHAR((header >> 8) & 0x00ff);
     if (!rc)
@@ -1697,7 +1703,7 @@ int binkp_poll_frame(void)
 		    bp.GotFrame = TRUE;
 		    bp.rxbuf[bp.rxlen-1] = '\0';
 		    if (bp.cmd) {
-			bp.messages++;
+			bp.remote_msgs++;
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
 		    } else {
@@ -1714,8 +1720,6 @@ int binkp_poll_frame(void)
     return rc;
 }
 
-
-#endif
 
 
 /*
@@ -1735,25 +1739,8 @@ void binkp_add_message(char *frame)
     (*tmpl)->next = NULL;
     (*tmpl)->cmd  = frame[0];
     (*tmpl)->data = xstrcpy(frame +1);
-}
 
-
-
-/*
- * Get nr of messages on the queue FIXME: Change to static counter.
- */
-int binkp_count_messages(void)
-{
-    the_queue	*tmp;
-    int		count = 0;
-
-    for (tmp = tql; tmp; tmp = tmp->next) {
-	count++;
-	Syslog('b', "Binkp: %02d %s \"%s\"", count, bstate[tmp->cmd], printable(tmp->data, 0));
-    }
-
-    Syslog('b', "Binkp: %d messages on queue", count);
-    return count;
+    bp.msgs_on_queue++;
 }
 
 
@@ -1772,6 +1759,7 @@ int binkp_process_messages(void)
     long	lsize, loffs;
 
     Syslog('b', "Binkp: Process The Messages Queue Start");
+    debug_binkp_list(&bll);
 
     lname = calloc(512, sizeof(char));
 
@@ -1834,17 +1822,16 @@ int binkp_process_messages(void)
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
 		    Found = TRUE;
+		    tmp->state = Got;
 		    if (tmp->state == Sending) {
 			Syslog('+', "Binkp: remote refused %s", tmp->remote);
 			fclose(bp.txfp);
 			bp.txfp = NULL;
-			tmp->state = Got;
+			bp.TxState = TxGNF;
 			cursend = NULL;
 		    } else {
 			Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
-			tmp->state = Got;
 		    }
-		    bp.TxState = TxGNF;
 		    break;
 		}
 	    }
@@ -1889,7 +1876,9 @@ int binkp_process_messages(void)
     }
     tql = NULL;
     free(lname);
+    bp.msgs_on_queue = 0;
 
+    debug_binkp_list(&bll);
     Syslog('b', "Binkp: Process The Messages Queue End");
     return 0;
 }
@@ -1897,15 +1886,14 @@ int binkp_process_messages(void)
 
 
 /*
- *  * Count number of pending files
- *   */
+ * Count number of pending files
+ */
 int binkp_pendingfiles(void)
 {
     binkp_list  *tmpl;
     int         count = 0;
 
     for (tmpl = bll; tmpl; tmpl = tmpl->next) {
-	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
 	if ((tmpl->state != Got) && (tmpl->state != Skipped))
 	    count++;
     }
@@ -1914,7 +1902,7 @@ int binkp_pendingfiles(void)
     return count;
 }
 
-#ifndef DOTEST
+
 
 /*
  * This function is called two times if a partial file exists from openfile.
@@ -1935,7 +1923,6 @@ int binkp_resync(off_t off)
 }
 
 
-#endif
 
 /*
  *  * Translate string to binkp escaped string, unsafe characters are escaped.
@@ -2065,42 +2052,6 @@ void debug_binkp_list(binkp_list **bkll)
     for (tmpl = *bkll; tmpl; tmpl = tmpl->next)
 	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
 }
-
-
-#ifdef DOTEST
-
-int main()
-{
-    char    *frame;
-
-    InitConfig();
-
-    InitClient((char *)"mbse", (char *)"mbcico", CFG.location, CFG.logfile, 
-		            CFG.cico_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
-    Syslog(' ', " ");
-    Syslog(' ', "MBTEST v%s", VERSION);
-
-    frame = xstrcpy((char *)"xSEAP\\x7e2GU.TGZ 338538 1072728016");
-    frame[0] = MM_GOT;
-    binkp_add_message(frame);
-    free(frame);
-    binkp_count_messages();
-
-    frame = xstrcpy((char *)"x39fb3e70.tic 441 1072728026");
-    frame[0] = MM_GOT;
-    binkp_add_message(frame);
-    free(frame);
-    binkp_count_messages();
-
-    binkp_process_messages();
-    binkp_count_messages();
-
-    Syslog(' ', "MBTEST finished");
-    ExitClient(0);
-    return 0;
-}
-
-#endif
 
 
 #endif

@@ -14,8 +14,8 @@ v0.39.5		24-Dec-2003
 	mbcico:
 		Binkp code cleanup.
 		Allow m_file command in binkp during file transfer in progress.
-		Added two temporary binkp sourcefiles for development.
 		Fixed a segfault when a session failed.
+		New binkp driver, not compiled by default yet.
 	
 	mbout:
 		Poll, remove poll and request failed to points which had no
