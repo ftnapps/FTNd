@@ -60,6 +60,8 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
+	U: Add routing table to override standard routing. UNDER TEST NOW!
+
 	N: Add traffic to html.nodes
 
 	N: Add stats for posts made by external programs.
