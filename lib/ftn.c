@@ -5,7 +5,7 @@
  * Remark ................: From ifmail with patches from P.Saratxaga
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,16 +29,11 @@
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-#define	DB_FIDONET
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
+#include "mbselib.h"
 #include "users.h"
-#include "records.h"
-#include "clcomm.h"
-#include "dbftn.h"
-#include "common.h"
+#include "mbsedb.h"
 
 
 #ifndef MAXUSHORT

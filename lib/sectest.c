@@ -29,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
-#include "clcomm.h"
+#include "mbselib.h"
 
 
 /*

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: msgtext.c
+ * $Id$
  * Purpose ...............: Message text memory storage.
- * Last modification date : 18-Dec-1999
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -30,7 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
+#include "mbselib.h"
 #include "msgtext.h"
 #include "msg.h"
 

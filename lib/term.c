@@ -4,7 +4,7 @@
  * Purpose ...............: Terminal output routines.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -28,15 +28,10 @@
  * Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *****************************************************************************/
 
-#define	DB_USERS
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
+#include "mbselib.h"
 #include "users.h"
-#include "ansi.h"
-#include "records.h"
-#include "common.h"
 
 
 int termmode;			/* 0 = tty, 1 = ANSI			   */
@@ -108,32 +103,32 @@ void colour(int fg, int bg)
 	}
 
 	fprintf(stdout, "[");
-	if ( fg > 15) {
+	if ( fg > WHITE) {
 	    fprintf(stdout, "5;");
-	    fg-=16;
+	    fg-= 16;
 	}
-	if (fg > 7) {
+	if (fg > LIGHTGRAY) {
 	    att=1;
 	    fg=fg-8;
 	}
 
-	if      (fg==0) fore=30;
-	else if (fg==1) fore=34;
-	else if (fg==2) fore=32;
-	else if (fg==3) fore=36;
-	else if (fg==4) fore=31;
-	else if (fg==5) fore=35;
-	else if (fg==6) fore=33;
-	else            fore=37;
+	if      (fg == BLACK)   fore=30;
+	else if (fg == BLUE)    fore=34;
+	else if (fg == GREEN)   fore=32;
+	else if (fg == CYAN)    fore=36;
+	else if (fg == RED)     fore=31;
+	else if (fg == MAGENTA) fore=35;
+	else if (fg == BROWN)   fore=33;
+	else                    fore=37;
 
-	if      (bg==1) back=44;
-	else if (bg==2) back=42;
-	else if (bg==3) back=46;
-	else if (bg==4) back=41;
-	else if (bg==5) back=45;
-	else if (bg==6) back=43;
-	else if (bg==7) back=47;
-	else            back=40;
+	if      (bg == BLUE)      back=44;
+	else if (bg == GREEN)     back=42;
+	else if (bg == CYAN)      back=46;
+	else if (bg == RED)       back=41;
+	else if (bg == MAGENTA)   back=45;
+	else if (bg == BROWN)     back=43;
+	else if (bg == LIGHTGRAY) back=47;
+	else                      back=40;
 		
 	fprintf(stdout, "%d;%d;%dm", att, fore, back);
 	fflush(stdout);

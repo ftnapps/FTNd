@@ -29,11 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "clcomm.h"
-#include "mberrors.h"
-#include "dbdupe.h"
+#include "mbselib.h"
+#include "mbse.h"
+#include "users.h"
+#include "mbsedb.h"
 
 
 

@@ -29,11 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "clcomm.h"
-#include "mberrors.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 int	e_pid = 0;		/* Execute child pid	*/
@@ -41,16 +37,16 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 
 int _execute(char *, char *, char *, char *, char *, char *);
-int _execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
+int _execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
     char    *vector[16];
     int	    i, pid, status = 0, rc = 0;
 
     if (pkt == NULL)
-	sprintf(buf, "%s %s", cmd, file);
+	sprintf(buf, "%s %s", cmd, fil);
     else
-	sprintf(buf, "%s %s %s", cmd, file, pkt);
+	sprintf(buf, "%s %s %s", cmd, fil, pkt);
     Syslog('+', "Execute: %s",buf);
 
     memset(vector, 0, sizeof(vector));
@@ -133,7 +129,7 @@ int _execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 
 
 
-int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
+int execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
 {
     int	    rc;
 
@@ -141,7 +137,7 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
     sync();
 #endif
     msleep(300);
-    rc = _execute(cmd, file, pkt, in, out, err);
+    rc = _execute(cmd, fil, pkt, in, out, err);
 #ifdef __linux__
     sync();
 #endif

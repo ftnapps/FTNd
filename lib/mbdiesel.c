@@ -29,13 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "users.h"
-#include "records.h"
-#include "common.h"
-#include "clcomm.h"
+#include "mbselib.h"
 #include "diesel.h"
+
 
 static int firstrandom = TRUE;
 

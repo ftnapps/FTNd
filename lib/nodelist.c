@@ -29,13 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "users.h"
-#include "records.h"
-#include "clcomm.h"
-#include "common.h"
-#include "mberrors.h"
+#include "mbselib.h"
 #include "nodelist.h"
 
 

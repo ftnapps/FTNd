@@ -29,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
-#include "mberrors.h"
+#include "mbselib.h"
 
 
 int rawset = FALSE;

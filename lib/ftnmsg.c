@@ -5,7 +5,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -30,10 +30,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
-#include "clcomm.h"
+#include "mbselib.h"
 
 
 
@@ -62,7 +59,7 @@ char *ftndate(time_t t)
 
 
 
-FILE *ftnmsghdr(ftnmsg *fmsg, FILE *pkt, faddr *route, char flavor, char *Pid)
+FILE *ftnmsghdr(ftnmsg *fmsg, FILE *pkt, faddr *routeaddr, char flavor, char *Pid)
 {
 	unsigned char	buffer[0x0e];
 	time_t		Now;
@@ -73,9 +70,9 @@ FILE *ftnmsghdr(ftnmsg *fmsg, FILE *pkt, faddr *route, char flavor, char *Pid)
 	    (strlen(fmsg->subj) > 72))
 		return NULL;
 
-	if (route == NULL) 
-		route = fmsg->to;
-	pkt = openpkt(pkt, route, flavor, FALSE);
+	if (routeaddr == NULL) 
+		routeaddr = fmsg->to;
+	pkt = openpkt(pkt, routeaddr, flavor, FALSE);
 	if (pkt == NULL) 
 		return NULL;
 

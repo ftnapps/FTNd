@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Execute pipe
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,11 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "clcomm.h"
-#include "mberrors.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 

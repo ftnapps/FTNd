@@ -29,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "clcomm.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 /*
@@ -349,7 +346,7 @@ int diskfree(int needed)
  * directory and return the filename with the correct case. This is
  * to be able to detect filename.ext, FILENAME.EXT and FiLeNaMe.ExT
  */
-int getfilecase(char *path, char *file)
+int getfilecase(char *path, char *fil)
 {
     DIR		    *dp;
     struct dirent   *de;
@@ -361,9 +358,9 @@ int getfilecase(char *path, char *file)
     }
     
     while ((de = readdir(dp))) {
-	if (strcasecmp(de->d_name, file) == 0) {
+	if (strcasecmp(de->d_name, fil) == 0) {
 	    for (i = 0; i < strlen(de->d_name); i++)
-		file[i] = de->d_name[i];
+		fil[i] = de->d_name[i];
 	    rc = TRUE;
 	    break;
 	}

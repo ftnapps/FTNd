@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: hdr.c
+ * $Id$
  * Purpose ...............: Header parser
- * Last modification date : 22-Mar-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -30,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 

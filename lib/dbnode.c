@@ -4,7 +4,7 @@
  * Purpose ...............: Noderecord Access
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,14 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
+#include "mbselib.h"
 #include "users.h"
-#include "records.h"
-#include "clcomm.h"
-#include "dbcfg.h"
-#include "dbnode.h"
+#include "mbsedb.h"
+
 
 
 char		nodes_fil[PATH_MAX];	/* Nodes database filename	    */

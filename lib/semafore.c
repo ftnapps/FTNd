@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: semafore.c
+ * $Id$
  * Purpose ...............: Create, test and remove semafore's
- * Last modification date : 18-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -30,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "clcomm.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 void CreateSema(char *sem)

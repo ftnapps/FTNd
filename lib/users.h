@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Users Database structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -150,6 +150,11 @@ struct	userrec {
 	unsigned	FSemacs		: 1;	/* FSedit uses emacs keys   */
 	char		Password[Max_passlen+1];/* Plain password	    */
 };
+
+
+struct  userhdr         usrconfighdr;           /* Users database          */
+struct  userrec         usrconfig;
+struct  userrec         exitinfo;               /* Users online data       */
 
 
 #endif

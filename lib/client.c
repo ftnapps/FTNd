@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE Deamon Client
  *
  *****************************************************************************
- * Copyright (C) 1993-2003
+ * Copyright (C) 1993-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,8 +29,8 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "clcomm.h"
+#include "mbselib.h"
+
 
 static int		sock = -1;	/* Unix Datagram socket		*/
 struct sockaddr_un      clntaddr;       /* Client socket address        */

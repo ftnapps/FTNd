@@ -4,7 +4,7 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "mberrors.h"
-#include "clcomm.h"
+#include "mbselib.h"
 
 
 int		do_quiet = FALSE;	/* Quiet flag			    */

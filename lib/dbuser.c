@@ -29,12 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
+#include "mbselib.h"
 #include "users.h"
-#include "records.h"
-#include "dbcfg.h"
-#include "dbuser.h"
+#include "mbsedb.h"
 
 
 

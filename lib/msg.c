@@ -4,7 +4,7 @@
  * Purpose ...............: Global message base functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,12 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
+#include "mbselib.h"
 #include "msgtext.h"
 #include "msg.h"
-#include "clcomm.h"
-#include "structs.h"
-#include "common.h"
 #include "jammsg.h"
 
 

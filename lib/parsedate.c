@@ -20,9 +20,7 @@
 /* SUPPRESS 595 on yypvt *//* Automatic variable may be used before set */
 
 #include "../config.h"
-#include "libs.h"
-#include "structs.h"
-#include "common.h"
+#include "mbselib.h"
 
 
 

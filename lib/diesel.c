@@ -4,7 +4,7 @@
  * Purpose ...............: TURBODIESEL Macro language
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -327,7 +327,7 @@ documented above, in outstring.
 */
 
 #include "../config.h"
-#include "libs.h"
+#include "mbselib.h"
 #include "diesel.h"
 
 /* Get(<var>, <structure_type>) allocates a new  <structure_type>  and

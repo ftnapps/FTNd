@@ -35,11 +35,8 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "clcomm.h"
+#include "mbselib.h"
 #include "msgtext.h"
-#include "structs.h"
-#include "common.h"
 #include "msg.h"
 #include "jam.h"
 #include "jammsg.h"
