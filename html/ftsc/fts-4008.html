@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Untitled Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+**********************************************************************<br>
+FTSC FIDONET TECHNICAL STANDARDS COMMITTEE<br>
+**********************************************************************
+<p>Publication: FTS-4008<br>
+  Revision: 2<br>
+  Title: Time zone information (TZUTC)<br>
+  Author: FTSC<br>
+  Issue Date: 16 May 2003<br>
+  Review Date: 16 May 2005<br>
+  Obsoletes: FTS-0010.001<br>
+  ----------------------------------------------------------------------<br>
+  Contents:<br>
+  1. Introduction<br>
+  2. Scope<br>
+  3. Current practice<br>
+  4. Control paragraph specification<br>
+  5. Time zone table<br>
+  6. Examples<br>
+  A. References<br>
+  B. History<br>
+  ----------------------------------------------------------------------</p>
+<p><br>
+  Status of this document<br>
+  -----------------------</p>
+<p> This document is a Fidonet Technical Standard (FTS), issued by the<br>
+  FTSC for the benefit of the Fidonet community.</p>
+<p> This document is based on the FSP-1001 proposal by Odinn Sorensen,<br>
+  2:236/77.<br>
+  <br>
+  This document is released to the public domain, and may be used,<br>
+  copied or modified for any purpose whatsoever.</p>
+<p><br>
+  1. Introduction<br>
+  ---------------</p>
+<p> Current practice in FidoNet is to transmit message times in local<br>
+  time. This document specifies a standard for transmission of time<br>
+  zone information in FidoNet messages, in the form of a control<br>
+  paragraph (also known as a &quot;control line&quot; or &quot;kludge&quot;) named 
+  TZUTC.</p>
+<p><br>
+  2. Scope<br>
+  --------</p>
+<p> This standard is specified for the transmission of FidoNet messages<br>
+  in any form where time zone information is not integrated into the<br>
+  transport format, specifically any form where the information would<br>
+  be lost if not transmitted in a control paragraph, eg. Type 2 packed<br>
+  messages. [1]</p>
+<p><br>
+  3. Current practice<br>
+  -------------------</p>
+<p> Some control paragraphs already exist to specify the time zone of<br>
+  messages, notably &quot;TZUTC&quot; and &quot;TZUTCINFO&quot;. From observations 
+  of<br>
+  these control paragraphs in actual messages, TZUTC and TZUTCINFO are<br>
+  identical except for the name. TZUTCINFO is probably named after<br>
+  the JAM message base's [2] subfield of the same name.</p>
+<p> This document adopts the TZUTC control paragraph because is the<br>
+  shortest (&quot;TZUTC&quot; vs &quot;TZUTCINFO&quot;). However, software<br>
+  implementations should be prepared to read and interpret the<br>
+  TZUTCINFO control paragraph as well.</p>
+<p> The TZUTC control paragraph is inserted before the message body<br>
+  upon initial message creation, or export from a format containing<br>
+  time zone information, such as the aforementioned JAM message base.</p>
+<p><br>
+  4. Control paragraph specification<br>
+  -----------------------------</p>
+<p> Messages which conform to this specification must add the following<br>
+  control paragraph:</p>
+<p> ^aTZUTC: &lt;current offset from UTC&gt;</p>
+<p> Where ^a is ASCII 1, 01h.</p>
+<p> The offset has the format &lt;[-]hhmm&gt;, where hhmm is the number of<br>
+  hours and minutes, zero-padded to two digits each, that local time<br>
+  is offset from UTC. If local time is WEST of UTC, then the offset<br>
+  is NEGATIVE. See the table below for typical offsets.</p>
+<p> Note that the hh in a time zone offset is not limited to a maximum<br>
+  of 12. This is because the International Date Line does not run<br>
+  exactly along the boundary between zone -1200 and +1200. The<br>
+  minutes part is 00 for most time zones.</p>
+<p> All four digits must be present. If the offset is negative, there<br>
+  must be a minus ('-', ASCII 45, 2Dh) in front of the offset.</p>
+<p> Implementations must NOT put a plus ('+', ASCII 43, 2Bh) in front of<br>
+  the offset for positive numbers, but robust implementations should<br>
+  be prepared to find (and ignore) a plus if it exists.</p>
+<p> If local time changes as a result of, for example, daylight savings<br>
+  time, then the offset in the TZUTC control paragraph should change<br>
+  to reflect this.</p>
+<p><br>
+  5. Time zone table<br>
+  ------------------</p>
+<p> This table gives examples of typical time zones.</p>
+<p> -1000 Alaska-Hawaii Standard Time (United States)<br>
+  -0900 Hawaii Daylight Time<br>
+  -0800 Pacific Standard Time<br>
+  -0700 Pacific Daylight Time<br>
+  -0700 Mountain Standard Time<br>
+  -0600 Mountain Daylight Time<br>
+  -0600 Central Standard Time<br>
+  -0500 Central Daylight Time<br>
+  -0500 Eastern Standard Time<br>
+  -0400 Eastern Daylight Time<br>
+  -0400 Atlantic Standard Time<br>
+  -0330 Newfoundland Standard Time<br>
+  -0300 Atlantic Daylight Time<br>
+  -0100 West Africa Time<br>
+  0000 Universal Time Coordinated (UTC)<br>
+  0000 Greenwich Mean Time<br>
+  0100 Central European Time<br>
+  0100 British Summer Time<br>
+  0200 Central European Summer Time<br>
+  0200 Eastern European Time<br>
+  0800 Australian Western Standard Time<br>
+  0800 China Coast Time<br>
+  0900 Japan Standard Time<br>
+  0900 Australian Western Daylight Time<br>
+  0930 Australian Central Standard Time<br>
+  1000 Australian Eastern Standard Time<br>
+  1030 Australian Central Daylight Time<br>
+  1100 Australian Eastern Daylight Time<br>
+  1200 New Zealand Standard Time<br>
+  1300 New Zealand Daylight Time</p>
+<p><br>
+  6. Examples<br>
+  -----------</p>
+<p> ^aTZUTC: 0000<br>
+  ^aTZUTC: 0200<br>
+  ^aTZUTC: -0700</p>
+<p><br>
+  A. References<br>
+  -------------</p>
+<p> [1] &quot;A Basic FidoNet(r) Technical Standard Revision 16&quot;, Randy Bush.<br>
+  September 1995.</p>
+<p> [2] &quot;The JAM message base proposal&quot;, Joaquim Homrighausen, Andrew<br>
+  Milner, Mats Birch and Mats Wallin. July 1993.</p>
+<p><br>
+  B. History<br>
+  ----------</p>
+<p> Rev.1, 20030409: First release (revised from FSP-1001 by FTSC)<br>
+  Rev.2, 20030516: Corrected status; clarified Section 2 on insertion<br>
+  position and export practice; fixed terminology.</p>
+<p>**********************************************************************<br>
+</p>
+</body>
+</html>
