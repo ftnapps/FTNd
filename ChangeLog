@@ -10,12 +10,17 @@ v0.37.5		12-Jul-2003
 	upgrade:
 		Check settings menu 1.5.21 for maximum allowed logins.
 
+	global:
+		Added switches for binkp CRC mode in global and node records.
+
 	common.a:
 		Node locking tests for non-stale lockfiles older then 6 hours.
 		Added general code for prgram locking.
 
 	mbcico:
 		Implemented CRAM rev.4 change in binkp driver.
+		Binkp now reports binkp 1.1, we were 1.1 compatible for a long
+		time already.
 
 	mbsebbs:
 		Added check for maximum simultaneous logins.
@@ -29,6 +34,10 @@ v0.37.5		12-Jul-2003
 		Added menu entry 1.5.21 for setting maximum allowed logins.
 		Added program locking, only one mbsetup can run at the same
 		time.
+		In menu 1.14 added global switch to disable binkp CRC32 file
+		transfers.
+		In menu 7.x.3 added a switch to enable binkp CRC32 file
+		transfers with this node.
 
 	mbtask:
 		On new installations sets max logins to 1.

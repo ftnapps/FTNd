@@ -718,7 +718,7 @@ struct	sysconfig {
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
 	unsigned	NoCall		: 1;	/* Don't call		    */
 	unsigned	NoMD5		: 1;	/* Don't do MD5		    */
-	unsigned	xNoPUA		: 1;
+	unsigned	NoCRC32		: 1;	/* Don't do CRC32	    */
 	unsigned	NoEMSI		: 1;	/* Don't do EMSI	    */
 	unsigned	NoWazoo		: 1;	/* Don't do Yooho/2U2	    */
 	unsigned	NoZmodem	: 1;	/* Don't do Zmodem	    */
@@ -1183,7 +1183,7 @@ struct	_nodes {
 	unsigned	xNoJanus	: 1;	/* Don't use Janus	    */
 	unsigned	NoHydra		: 1;	/* Don't use Hydra	    */
 
-	unsigned	xNoIBN		: 1;
+	unsigned	CRC32		: 1;	/* Allow binkp CRC32	    */
 	unsigned	PackNetmail	: 1;	/* Pack netmail		    */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility    */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */

@@ -425,7 +425,7 @@ void b_banner(void)
     binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
     t = time(NULL);
     binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
-    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.0", VERSION, OsName(), OsCPU());
+    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.1", VERSION, OsName(), OsCPU());
     if (strlen(CFG.Phone))
 	binkp_send_control(MM_NUL,"PHN %s", CFG.Phone);
     if (strlen(CFG.comment))
@@ -481,7 +481,7 @@ void b_nul(char *msg)
 	}
 	if (strstr(msg, (char *)"CRC") != NULL) {
 	    CRCflag = TRUE;
-	    Syslog('+', "Switching to CRC32 mode");
+	    Syslog('+', "Remote supports CRC32 mode");
 	}
     } else
 	Syslog('+', "M_NUL \"%s\"", msg);
@@ -832,7 +832,8 @@ SM_STATE(waitaddr)
 		}
 		if (CRCflag) {
 		    Syslog('b', "Remote supports CRC32");
-		    binkp_send_control(MM_NUL,"OPT CRC");
+		    if (Loaded && nodes.CRC32)
+			binkp_send_control(MM_NUL,"OPT CRC");
 		}
 
 		history.aka.zone  = remote->addr->zone;

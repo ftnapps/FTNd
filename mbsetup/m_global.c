@@ -1225,29 +1225,30 @@ void s_mailer(void)
 	mvprintw(16, 2, "10.  No EMSI session");
 	mvprintw(17, 2, "11.  No Yooho/2U2");
 
-	mvprintw(14,31, "12.  No Zmodem");
-	mvprintw(15,31, "13.  No Zedzap");
-	mvprintw(16,31, "14.  No Hydra");
-	mvprintw(17,31, "15.  No MD5");
+	mvprintw(13,31, "12.  No Zmodem");
+	mvprintw(14,31, "13.  No Zedzap");
+	mvprintw(15,31, "14.  No Hydra");
+	mvprintw(16,31, "15.  No MD5");
+	mvprintw(17,31, "16.  No CRC32");
 
-	mvprintw(12,59, "16.  Phonetrans  1-10");
-	mvprintw(13,59, "17.  Phonetrans 11-20");
-	mvprintw(14,59, "18.  Phonetrans 21-30");
-	mvprintw(15,59, "19.  Phonetrans 31-40");
-	mvprintw(16,59, "20.  Max. files");
-	mvprintw(17,59, "21.  Max. MB.");
+	mvprintw(12,59, "17.  Phonetrans  1-10");
+	mvprintw(13,59, "18.  Phonetrans 11-20");
+	mvprintw(14,59, "19.  Phonetrans 21-30");
+	mvprintw(15,59, "20.  Phonetrans 31-40");
+	mvprintw(16,59, "21.  Max. files");
+	mvprintw(17,59, "22.  Max. MB.");
 }
 
 
 
-void e_trans(int start)
+void e_trans(int start, int item)
 {
 	int	i, j;
 	char	temp[21];
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.14  EDIT PHONE TRANSLATION");
+	mvprintw( 5, 6, "1.14.%d EDIT PHONE TRANSLATION", item);
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 12, "String to match       String to replace");
 	for (i = 0; i < 10; i++) {
@@ -1275,60 +1276,58 @@ void e_trans(int start)
 
 void e_mailer(void)
 {
-	s_mailer();
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_logl( 7,23,   CFG.cico_loglevel);
-		show_str(  8,23,20,CFG.Phone);
-		show_str(  9,23,30,CFG.Flags);
-		show_int( 10,23,   CFG.Speed);
-		show_int( 11,23,   CFG.timeoutreset);
-		show_int( 12,23,   CFG.timeoutconnect);
-		show_int( 13,23,   CFG.dialdelay);
-		show_bool(14,23,   CFG.NoFreqs);
-		show_bool(15,23,   CFG.NoCall);
-		show_bool(16,23,   CFG.NoEMSI);
-		show_bool(17,23,   CFG.NoWazoo);
+    s_mailer();
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_logl( 7,23,   CFG.cico_loglevel);
+	show_str(  8,23,20,CFG.Phone);
+	show_str(  9,23,30,CFG.Flags);
+	show_int( 10,23,   CFG.Speed);
+	show_int( 11,23,   CFG.timeoutreset);
+	show_int( 12,23,   CFG.timeoutconnect);
+	show_int( 13,23,   CFG.dialdelay);
+	show_bool(14,23,   CFG.NoFreqs);
+	show_bool(15,23,   CFG.NoCall);
+	show_bool(16,23,   CFG.NoEMSI);
+	show_bool(17,23,   CFG.NoWazoo);
 
-		show_bool(14,52, CFG.NoZmodem);
-		show_bool(15,52, CFG.NoZedzap);
-		show_bool(16,52, CFG.NoHydra);
-		show_bool(17,52, CFG.NoMD5);
+	show_bool(13,52, CFG.NoZmodem);
+	show_bool(14,52, CFG.NoZedzap);
+	show_bool(15,52, CFG.NoHydra);
+	show_bool(16,52, CFG.NoMD5);
+	show_bool(17,52, CFG.NoCRC32);
 
-		show_int( 16,75, CFG.Req_Files);
-		show_int( 17,75, CFG.Req_MBytes);
+	show_int( 16,75, CFG.Req_Files);
+	show_int( 17,75, CFG.Req_MBytes);
 
-		switch(select_menu(21)) {
-		case 0:	return;
-		case 1: E_LOGL(CFG.cico_loglevel, "1.14.1", s_mailer)
-		case 2: E_STR(  8,23,20,CFG.Phone,          "The mailer default ^phone number^ for this system")
-		case 3: E_STR(  9,23,30,CFG.Flags,          "The mailer ^TCP/IP capability flags^ for this system")
-		case 4: E_INT( 10,23,   CFG.Speed,          "The mailer ^default linespeed^ for this system")
-		case 5: E_INT( 11,23,   CFG.timeoutreset,   "The modem ^reset timeout^ in seconds")
-		case 6: E_INT( 12,23,   CFG.timeoutconnect, "The modem ^wait for connect timeout^ in seconds")
-		case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")
-		case 8: E_BOOL(14,23,   CFG.NoFreqs,        "Set to true if ^No Filerequests^ are allowed")
-		case 9: E_BOOL(15,23,   CFG.NoCall,         "Set to true if ^No Calls^ are allowed")
-		case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
-		case 11:E_BOOL(17,23,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
+	switch(select_menu(22)) {
+	    case 0: return;
+	    case 1: E_LOGL(CFG.cico_loglevel, "1.14.1", s_mailer)
+	    case 2: E_STR(  8,23,20,CFG.Phone,          "The mailer default ^phone number^ for this system")
+	    case 3: E_STR(  9,23,30,CFG.Flags,          "The mailer ^TCP/IP capability flags^ for this system")
+	    case 4: E_INT( 10,23,   CFG.Speed,          "The mailer ^default linespeed^ for this system")
+	    case 5: E_INT( 11,23,   CFG.timeoutreset,   "The modem ^reset timeout^ in seconds")
+	    case 6: E_INT( 12,23,   CFG.timeoutconnect, "The modem ^wait for connect timeout^ in seconds")
+	    case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")
+	    case 8: E_BOOL(14,23,   CFG.NoFreqs,        "Set to true if ^No Filerequests^ are allowed")
+	    case 9: E_BOOL(15,23,   CFG.NoCall,         "Set to true if ^No Calls^ are allowed")
+	    case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
+	    case 11:E_BOOL(17,23,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
 
-		case 12:E_BOOL(14,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
-		case 13:E_BOOL(15,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
-		case 14:E_BOOL(16,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
-		case 15:E_BOOL(17,52,   CFG.NoMD5,          "If set then no ^MD5 crypted^ passwords are used with binkp sessions")
+	    case 12:E_BOOL(13,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
+	    case 13:E_BOOL(14,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
+	    case 14:E_BOOL(15,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
+	    case 15:E_BOOL(16,52,   CFG.NoMD5,          "Disable ^MD5 crypted^ passwords with binkp sessions")
+	    case 16:E_BOOL(17,52,   CFG.NoCRC32,        "Disable ^CRC32^ file transfers with binkp sessions")
 
-		case 16:e_trans(0);
-			break;
-		case 17:e_trans(10);
-			break;
-		case 18:e_trans(20);
-			break;
-		case 19:e_trans(30);
-			break;
-		case 20:E_INT(16,75,    CFG.Req_Files,       "Maximum ^files^ to request, 0 is unlimited")
-		case 21:E_INT(17,75,    CFG.Req_MBytes,      "Maximum ^MBytes^ to request, 0 is unlimited")
-		}
-	};
+	    case 17:e_trans(0, 17);  break;
+	    case 18:e_trans(10, 18); break;
+	    case 19:e_trans(20, 19); break;
+	    case 20:e_trans(30, 20); break;
+	    case 21:E_INT(16,75,    CFG.Req_Files,       "Maximum ^files^ to request, 0 is unlimited")
+	    case 22:E_INT(17,75,    CFG.Req_MBytes,      "Maximum ^MBytes^ to request, 0 is unlimited")
+	}
+    }
 }
 
 
@@ -1912,6 +1911,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      No Zedzap          %s\n",  getboolean(CFG.NoZedzap));
 	fprintf(fp, "      No Hydra           %s\n",  getboolean(CFG.NoHydra));
 	fprintf(fp, "      No MD5 passwords   %s\n",  getboolean(CFG.NoMD5));
+	fprintf(fp, "      No CRC32 transfers %s\n",  getboolean(CFG.NoCRC32));
 	fprintf(fp, "      Max request files  %d\n",  CFG.Req_Files);
 	fprintf(fp, "      Max request MBytes %d\n",  CFG.Req_MBytes);
 
