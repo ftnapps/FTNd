@@ -6,6 +6,8 @@ v0.35.02	22-Jun-2002
 
 	upgrade:
 		Delete ~/etc/lastcall.data
+		If you want to upgrade to the new archiver settings then
+		delete ~/etc/archiver.data and run mbsetup.
 
 	general:
 		Added checks for GoldED in external program checks.
@@ -41,6 +43,7 @@ v0.35.02	22-Jun-2002
 		When reading taglists if there was no description after the
 		tag, mbfido would crash.
 		Filefind netmail replies now set the private flag.
+		Removed debugging messages displaying the incoming tic files.
 
 	mbindex:
 		Fixed a crash when a pointlist contained Point,5,reservered,
