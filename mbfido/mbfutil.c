@@ -314,6 +314,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 	WriteError("Can't move file in place");
 	return FALSE;
     }
+    chmod(DestPath, 0644);
 
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));

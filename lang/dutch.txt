@@ -203,7 +203,7 @@ JN|Wet U het zeker [j/N]:
 |Opslaan bericht op disk 
 |Geef regel # te centreren 
 |De regel is op maximale breedte en kan niet worden gecentreerd.
-|Er zijn geen breichten in dit gebied.
+|Er zijn geen berichten in dit gebied.
 |Datum    : 
 JN=|Meer (J/n/=/Gebied #): 
 |Aan      : 

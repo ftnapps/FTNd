@@ -180,9 +180,9 @@ void ImportFiles(int Area)
 		/*
 		 * Create DOS 8.3 filename
 		 */
-		strcpy(temp, fdb.LName);
-		name_mangle(temp);
-		strcpy(fdb.Name, temp);
+		strcpy(temp2, fdb.LName);
+		name_mangle(temp2);
+		strcpy(fdb.Name, temp2);
 
 		if (do_annon)
 		    fdb.Announced = TRUE;

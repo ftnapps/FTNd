@@ -548,6 +548,7 @@ void Index(void)
 		    }
 		}
 		fclose(fp);
+		chmod(temp, 0644);
 	    }
 
 	    /*
@@ -609,6 +610,8 @@ void Index(void)
 				    if ((j = execute(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
 					Syslog('+', "Failed to create thumbnail for %s, rc=% d", file.LName, j);
+				    } else {
+					chmod(outbuf, 0644);
 				    }
 				}
 				fprintf(fa, "<TD align=center valign=top><A HREF=\"%s/%s%s/%s\">",
@@ -650,6 +653,7 @@ void Index(void)
 		    }
 		    closepage(fa, area.Path, inArea, aTotal);
 		    fclose(fp);
+		    chmod(temp, 0644);
 
 		    /*
 		     * If the time before there were more files in this area then now,

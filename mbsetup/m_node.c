@@ -877,7 +877,7 @@ int EditNodeRec(int Area)
 		case 25:E_BOOL(15,70, nodes.NoZmodem, "Disable ^Zmodem^ protocol with this node")
 		case 26:E_BOOL(16,70, nodes.NoZedzap, "Disable ^Zedzap^ protocol with this node")
 		case 27:E_BOOL(17,70, nodes.NoHydra,  "Disable ^Hydra^ protocol with this node")
-		case 28:E_BOOL(18,70, nodes.NoTCP,    "Disable ^TCP/IP^ protocol whith this node")
+		case 28:E_BOOL(18,70, nodes.NoTCP,    "Disable ^TCP/IP^ protocol with this node")
 		case 29:E_BOOL(19,70, nodes.FNC,      "Node needs ^DOS 8.3^ filenames")
 		}
 	}

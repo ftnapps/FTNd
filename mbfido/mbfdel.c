@@ -101,9 +101,9 @@ void Delete(int UnDel, int Area, char *File)
 	    }
 	    if (!UnDel && !fdb.Deleted) {
 		fdb.Deleted = TRUE;
-		Syslog('+', "Marked file %s in area %d for undeletion", File, Area);
+		Syslog('+', "Marked file %s in area %d for deletion", File, Area);
 		if (!do_quiet)
-		    printf("Marked file %s in area %d for undeletion\n", File, Area);
+		    printf("Marked file %s in area %d for deletion\n", File, Area);
 		rc = TRUE;
 	    }
 	    if (rc) {

@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 		    if (argc > (i + 1)) {
 			i++;
 			Area = atoi(argv[i]);
-			cmd = xstrcat(cmd, argv[i]);
+			cmd = xstrcat(cmd, (char *)" ");
 			cmd = xstrcat(cmd, argv[i]);
 			if (argc > (i + 1)) {
 			    i++;
