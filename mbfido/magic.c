@@ -290,7 +290,7 @@ void Magic_UnpackFile(void)
 	    sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewFile);
 	    if ((unarc = unpacker(Fn)) != NULL) {
 		if (getarchiver(unarc)) {
-		    cmd = xstrcpy(archiver.funarc);
+		    cmd = xstrcpy(archiver.munarc);
 		    if (strlen(cmd)) {
 			rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 			sync();

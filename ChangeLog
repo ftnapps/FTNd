@@ -65,6 +65,9 @@ v0.37.00	26-Dec-2002.
 		Made the incoming tic files complete case insensitive, mixed
 		case is now processed. If such file is received, the LFN will
 		be set to that name.
+		The magic unpack command now uses the mail unpack command
+		instead of file unpack command so that paths in the archive are
+		junked.
 
 	mbsebbs:
 		Changed to use the new nodelist lookup methods.
