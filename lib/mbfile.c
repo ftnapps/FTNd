@@ -4,7 +4,7 @@
  * Purpose ...............: Basic File I/O
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -343,6 +343,37 @@ int diskfree(int needed)
 #endif
 
     return RetVal;
+}
+
+
+
+/*
+ * Give a directory path and a filename, locate that filename in that
+ * directory and return the filename with the correct case. This is
+ * to be able to detect filename.ext, FILENAME.EXT and FiLeNaMe.ExT
+ */
+int getfilecase(char *path, char *file)
+{
+    DIR		    *dp;
+    struct dirent   *de;
+    int		    i, rc = FALSE;
+    
+    if ((dp = opendir(path)) == NULL) {
+	WriteError("$Can't opendir(%s)", path);
+	return rc;
+    }
+    
+    while ((de = readdir(dp))) {
+	if (strcasecmp(de->d_name, file) == 0) {
+	    for (i = 0; i < strlen(de->d_name); i++)
+		file[i] = de->d_name[i];
+	    rc = TRUE;
+	    break;
+	}
+    }
+
+    closedir(dp);
+    return rc;
 }
 
 

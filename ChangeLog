@@ -11,6 +11,11 @@ v0.37.2		23-Feb-2003.
 		System prepared for setting the official FTSC product code,
 		this will be 0x11FF. The code is not yet activated.
 
+	common.a:
+		New function to get the real case of a filename.
+
+	mbfido:
+		Finding the inbound tic file now uses the new function.
 
 
 v0.37.1		14-Jan-2003 - 23-Feb-2003

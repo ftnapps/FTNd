@@ -168,8 +168,8 @@ int LoadTic(char *inb, char *tfn)
     char	    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
     int		    i, j, rc, bufsize, DescCnt = FALSE;
     fa_list	    *sbl = NULL;
-    DIR             *dp;
-    struct dirent   *de;
+//    DIR             *dp;
+//    struct dirent   *de;
 
     if (CFG.slow_util && do_quiet)
 	usleep(1);
@@ -427,27 +427,36 @@ int LoadTic(char *inb, char *tfn)
 	 * Find out what the real name of the file is,
 	 * most likely this is a 8.3 filename.
 	 */
-	if ((dp = opendir(TIC.Inbound)) == NULL) {
-	    WriteError("$Can't opendir(%s)", TIC.Inbound);
-	    return 1;
-	}
-        while ((de = readdir(dp))) {
-	    /*
-	     * Check 8.3 FN
-	     */
-	    if (strcasecmp(de->d_name, TIC.TicIn.File) == 0) {
-		strncpy(RealName, de->d_name, 255);
-		break;
+//	if ((dp = opendir(TIC.Inbound)) == NULL) {
+//	    WriteError("$Can't opendir(%s)", TIC.Inbound);
+//	    return 1;
+//	}
+//        while ((de = readdir(dp))) {
+//	    /*
+//	     * Check 8.3 FN
+//	     */
+//	    if (strcasecmp(de->d_name, TIC.TicIn.File) == 0) {
+//		strncpy(RealName, de->d_name, 255);
+//		break;
+//	    }
+//	    /*
+//	     * Check LFN
+//	     */
+//	    if (strcasecmp(de->d_name, TIC.TicIn.FullName) == 0) {
+//		strncpy(RealName, de->d_name, 255);
+//		break;
+//	    }
+//	}
+//	closedir(dp);
+	strncpy(RealName, TIC.TicIn.File, 255);
+	Syslog('f', "getfilecase(%s, %s)", TIC.Inbound, RealName);
+	if (! getfilecase(TIC.Inbound, RealName)) {
+	    strncpy(RealName, TIC.TicIn.FullName, 255);
+	    Syslog('f', "getfilecase(%s, %s)", TIC.Inbound, RealName);
+	    if (! getfilecase(TIC.Inbound, RealName)) {
+		memset(&RealName, 0, sizeof(RealName));
 	    }
-	    /*
-	     * Check LFN
-	     */
-	    if (strcasecmp(de->d_name, TIC.TicIn.FullName) == 0) {
-		strncpy(RealName, de->d_name, 255);
-		break;
-	    }
 	}
-	closedir(dp);
     }
 
     if (strlen(RealName) == 0) {
@@ -458,6 +467,7 @@ int LoadTic(char *inb, char *tfn)
 	TIC.Orphaned = TRUE;
 	WriteError("Can't find file in inbound");
     } else {
+	Syslog('f', "Returned RealName %s", RealName);
 	/*
 	 * If no LFN received in the ticfile and the file in the inbound is the same as the 8.3 name
 	 * but only the case is different, then treat the real filename as LFN.
