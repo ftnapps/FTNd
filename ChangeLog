@@ -42,7 +42,13 @@ v0.36.00	Pending release.
 		if all the session passwords are still ok. Also check all 
 		nodes if the Pack mail flag is ok, this setting now also 
 		affects echomail!
+		In nodes screen 1, enter item 2: "Outbox dir" to set a outbox
+		directory if you want that. This will propose a directory name,
+		change that if you like to for example to a system or sysop 
+		name. Don't use spaces!
                 Check new settings in nodes setup, screen 6, items 9 and 10.
+		Item 9 does not work if the node uses BBBS and maybe others.
+		If the node uses Allfix or MBSE, 9 and 10 can be Yes.
                 Check TIC magic records (menu 10.4), all filenames tested are
                 now uppercase 8.3 names, adjust your filemasks.
                 In mbsetup enter the Edit Archiver Programs. The new values
