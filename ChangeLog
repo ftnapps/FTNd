@@ -3,10 +3,6 @@ $Id$
 
 v0.51.1		21-Feb-2004
 
-	note:
-		This update may solve kernel 2.6.x problems but still needs a
-		lot of testing.
-
 	upgrade:
 		In all message groups set check/set default character set.
 		In all message areas set the character set to use with the
