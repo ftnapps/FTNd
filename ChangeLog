@@ -25,6 +25,10 @@ v0.37.00	26-Dec-2002.
 		configuration.
 		Debug logging for mail and news now have one setting, the M.
 		Nodelist debug logging now uses the N character.
+		In some makefiles the chown user.group syntax changed to
+		user:group to follow the new POSIX syntax. Please let me know
+		if you are using an older distribution that complains about
+		this. This was needed for FreeBSD 4.7.
 
 	libs:
 		The nodelist lookup functions are now in a separate library.

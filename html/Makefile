@@ -103,14 +103,14 @@ install:
 		@mkdir -p ${PREFIX}/html/misc
 		@mkdir -p ${PREFIX}/html/programs
 		@mkdir -p ${PREFIX}/html/setup
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/ftsc
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/images
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/license
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/menus
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/misc
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/programs
-		@${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/html/setup
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/ftsc
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/images
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/license
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/menus
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/misc
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/programs
+		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/setup
 		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_BASE}    ${PREFIX}/html
 		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_FTSC}    ${PREFIX}/html/ftsc
 		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_IMAGES}  ${PREFIX}/html/images
