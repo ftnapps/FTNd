@@ -4,6 +4,7 @@
 /* $Id$ */
 
 
+char *Basename(char *);
 void flush_queue(void);
 
 

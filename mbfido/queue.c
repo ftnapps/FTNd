@@ -49,7 +49,6 @@ extern	pid_t	mypid;
 /*
  *  Internal version of basename to make this better portable.
  */
-char *Basename(char *);
 char *Basename(char *str)
 {
     char *cp = strrchr(str, '/');

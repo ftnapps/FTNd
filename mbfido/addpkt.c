@@ -297,7 +297,12 @@ int AddMsgHdr(FILE *fp, faddr *f, faddr *t, int flags, int cost, time_t date, ch
 
 	fprintf(fp, "%s%c", tname, '\0');
 	fprintf(fp, "%s%c", fname, '\0');
-	fprintf(fp, "%s%c", subj, '\0');
+	if (flags & M_FILE) {
+	    Syslog('-', "change %s to %s", subj, basename(subj));
+	    fprintf(fp, "%s%c", basename(subj), '\0');
+	} else {
+	    fprintf(fp, "%s%c", subj, '\0');
+	}
 	fsync(fileno(fp));
 	return 0;
 }
