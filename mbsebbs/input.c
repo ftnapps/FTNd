@@ -341,7 +341,7 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
 		PUTCHAR('\007');
 	}
 
-	if ((ch > 31 && ch < 127) || traduce(&ch)) {
+	if ((ch > 31) || traduce(&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);

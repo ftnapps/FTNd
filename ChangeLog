@@ -25,6 +25,9 @@ v0.71.2		16-Jan-2005
 		When a user logs in, the users locale (guessed value from his
 		characterset) is set. Experimental to see if libc functions will
 		support Chinese characters.
+		Allowed hi-ascii input characters in the internal fs editor,
+		the chat input and one general input function. This may have
+		effects for all users not using us-ascii keyboards.
 
 	mbfido:
 		Empty *.msg netmails for our own system are dropped with and

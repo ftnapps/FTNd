@@ -275,10 +275,11 @@ void Chat(char *username, char *channel)
 	    break;
 
         /*
-	 * Check for a pressed key, if so then process it
+	 * Check for a pressed key, if so then process it.
+	 * Allow hi-ascii for multi-language.
 	 */
 	ch = testkey(exitinfo.iScreenLen -1, curpos + 2);
-	if (isprint(ch)) {
+	if (isprint(ch) || (ch > 0x7F)) {
 	    alarm_on();
 	    if (curpos < 77) {
 		PUTCHAR(ch);

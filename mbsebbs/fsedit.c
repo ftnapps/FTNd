@@ -717,9 +717,9 @@ int Fs_Edit()
 			    break;
 			
 	    default:
-			    if ((ch > 31 && ch < 127) || traduce(&ch) ) {
+			    if ((ch > 31) || traduce(&ch) ) {
 				/*
-				 *  Normal printable characters
+				 *  Normal printable characters or hi-ascii
 				 */
 				if (Col == strlen(Message[CurRow]) + 1) {
 				    /*
