@@ -1055,9 +1055,9 @@ int Upload()
 			printf("%d ", File[i]);
 
 		/*
-		 * Check for a space in filename being uploaded
+		 * Check for a space or ; in filename being uploaded
 		 */
-		if ((strchr(File, 32)) != NULL) {
+		if (((strchr(File, 32)) != NULL) || ((strchr(File, ';')) != NULL)) {
 			colour(CFG.HiliteF, CFG.HiliteB);
 			/* Illegal Filename! */
 			printf("\n%s\n\n", (char *) Language(247));
@@ -1126,7 +1126,7 @@ int Upload()
 	 */
 	Altime(7200);
 	alarm_set(7190);
-	if ((err = system(temp)) != 0) {
+	if ((err = system(temp))) {
 		/*
 		 * Log any errors
 		 */
@@ -1158,7 +1158,6 @@ int Upload()
 		return 1;
 	}
 
-	Syslog('b', "Start checking uploaded files");
 	pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"\n\nChecking your upload(s)\n\n");
 
 	while ((dp = readdir(dirp)) != NULL) {
@@ -1173,7 +1172,8 @@ int Upload()
 				 * a textfile or so. Import it direct.
 				 */
 				Syslog('b', "Unknown file type");
-				ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+				if (!ScanDirect(dp->d_name))
+				    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
 			} else {
 				/*
 				 * We figured out the type of the uploaded file.
@@ -1290,8 +1290,8 @@ int DownloadDirect(char *Name, int Wait)
 	ElapstimeStart = time(NULL);
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s %s", sProtDn, symFrom);
-	Syslog('+', "Download command %s", temp);	
+	sprintf(temp, "%s '%s'", sProtDn, symFrom);
+	Syslog('+', "Download command %s", temp);
 	
 	/*
 	 * Transfer the file. Set the Client/Server time at the maximum
@@ -1300,7 +1300,7 @@ int DownloadDirect(char *Name, int Wait)
 	 */
 	alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
 	Altime((exitinfo.iTimeLeft + 10) * 60);
-	if ((err = system(temp)) != 0) {
+	if ((err = system(temp))) {
 		/*
 		 * Only log the error, we might have sent some files
 		 * instead of nothing.

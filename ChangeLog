@@ -4334,6 +4334,8 @@ v0.33.19        26-Oct-2001
 		areas if you want to test the users age. Also the age in the
 		users record is invalid.
 		Fixes for Sparc systems.
+		System calls for archivers and virus scanners are replaced
+		with execute.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new

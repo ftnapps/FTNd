@@ -528,13 +528,13 @@ int ScanDirect(char *fn)
 		while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
 		    if (virscan.available) {
-			sprintf(temp1, "%s %s %s >/dev/null", virscan.scanner, virscan.options, temp);
 			colour(CFG.TextColourF, CFG.TextColourB);
 					      /* Scanning */               /* with */
 			printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 			fflush(stdout);
 
-			if ((err = system(temp1))) {
+			if ((err = execute(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
+					(char *)"/dev/null" , (char *)"/dev/null")) != virscan.error) {
 				WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 				colour(CFG.HiliteF, CFG.HiliteB);
 				/* Possible VIRUS found! */
@@ -566,103 +566,109 @@ int ScanDirect(char *fn)
  */
 int ScanArchive(char *fn, char *ftype)
 {
-	FILE	*fp;
-	int	err, Found = FALSE;
-	char	*temp;
-	char	*cwd = NULL;
+    FILE    *fp;
+    int	    err = 0, Found = FALSE;
+    char    *temp;
+    char    *cwd = NULL;
 
 
-	/*
-	 * First search for the right archiver program
-	 */
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return 3;
+    /*
+     * First search for the right archiver program
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return 3;
+    }
+
+    fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
+
+    while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
+	if ((strcmp(ftype, archiver.name) == 0) && (archiver.available)) {
+	    break;
 	}
+    }
+    fclose(fp);
+    if ((strcmp(ftype, archiver.name)) || (!archiver.available)) {
+	free(temp);
+	return 3;
+    }
 
-	fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
+    cwd = getcwd(cwd, 80);
+    sprintf(temp, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    if (chdir(temp)) {
+	WriteError("$Can't chdir(%s)", temp);
+	free(temp);
+	return 1;
+    }
 
-	while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
-		if ((strcmp(ftype, archiver.name) == 0) && (archiver.available)) {
-			break;
+    colour(CFG.TextColourF, CFG.TextColourB);
+    /* Unpacking archive */
+    printf("%s %s", (char *) Language(201), fn);
+    fflush(stdout);
+
+    if (!strlen(archiver.funarc)) {
+	WriteError("No unarc command available");
+    } else {
+	sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+	if (execute(archiver.funarc, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+	    WriteError("$Failed %s %s", archiver.funarc, temp);
+	    system("rm -f -r ./*");
+	    chdir(cwd);
+	    free(cwd);
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* ERROR */
+	    printf("%s\n", (char *) Language(217));
+	    fflush(stdout);
+	    return 1;
+	}
+    }
+
+    /* Ok */
+    printf("%s\n", (char *) Language(200));
+    fflush(stdout);
+
+    sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+
+    if ((fp = fopen(temp, "r")) != NULL) {
+	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
+	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
+
+	    if (virscan.available) {
+		colour(CFG.TextColourF, CFG.TextColourB);
+				    /* Scanning */		   /* with */
+		printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		fflush(stdout);
+
+		err = execute(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", 
+			(char *)"/dev/null", (char *)"/dev/null");
+		if (err != virscan.error) {
+		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
+		    colour(CFG.HiliteF, CFG.HiliteB);
+		    /* Possible VIRUS found! */
+		    printf("%s\n", (char *) Language(199));
+		    Found = TRUE;
+		} else {
+		    /* Ok */
+		    printf("%s\n", (char *) Language(200));
 		}
+		fflush(stdout);
+		Nopper();
+	    }
 	}
 	fclose(fp);
-	if ((strcmp(ftype, archiver.name)) || (!archiver.available)) {
-		free(temp);
-		return 3;
-	}
+    }
 
-	cwd = getcwd(cwd, 80);
+    system("rm -f -r ./*");
+    chdir(cwd);
+    free(cwd);
+    free(temp);
 
-	sprintf(temp, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
-	if (chdir(temp)) {
-		WriteError("$Can't chdir(%s)", temp);
-		free(temp);
-		return 1;
-	}
-
-	colour(CFG.TextColourF, CFG.TextColourB);
-	/* Unpacking archive */
-	printf("%s %s ", (char *) Language(201), fn);
-	fflush(stdout);
-	sprintf(temp, "%s %s/%s >/dev/null", archiver.funarc, cwd, fn);
-
-	if ((err = system(temp))) {
-		WriteError("$Failed %s", temp);
-		system("rm -f -r *");
-		chdir(cwd);
-		free(cwd);
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* ERROR */
-		printf("%s\n", (char *) Language(217));
-		fflush(stdout);
-		return 1;
-	}
-	/* Ok */
-	printf("%s\n", (char *) Language(200));
-	fflush(stdout);
-
-	sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-
-	if ((fp = fopen(temp, "r")) != NULL) {
-		fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
-
-		while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-
-		    if (virscan.available) {
-			sprintf(temp, "%s %s * >/dev/null", virscan.scanner, virscan.options);
-			colour(CFG.TextColourF, CFG.TextColourB);
-						/* Scanning */		   /* with */
-			printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
-			fflush(stdout);
-
-			if ((err = system(temp))) {
-				WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
-				colour(CFG.HiliteF, CFG.HiliteB);
-				/* Possible VIRUS found! */
-				printf("%s\n", (char *) Language(199));
-				Found = TRUE;
-			} else
-				/* Ok */
-				printf("%s\n", (char *) Language(200));
-			fflush(stdout);
-		    }
-		}
-		fclose(fp);
-	}
-
-	system("rm -f -r *");
-	chdir(cwd);
-	free(cwd);
-	free(temp);
-
-	if (Found)
-		return 2;
-	else
-		return 0;
+    if (Found)
+	return 2;
+    else
+	return 0;
 }
 
 
@@ -733,6 +739,7 @@ char *GetFileType(char *fn)
 	if (memcmp(buf, "THNL", 4) == 0)		return (char *)"ThumbNail";
 	if ((memcmp(buf, "<html>", 6) == 0) ||
 	    (memcmp(buf, "<HTML>", 6) == 0))		return (char *)"HTML";
+	if (memcmp(buf, "BZ", 2) == 0)			return (char *)"BZIP";
 
 	/*
 	 * .COM formats. Should cover about 2/3 of COM files.
@@ -833,8 +840,8 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 int Addfile(char *File, int AreaNum, int fileid)
 {
 	FILE	*id, *pFileDB, *pPrivate;
-	int	err, iDesc = 1, iPrivate = FALSE, GotId = FALSE;
-	char	*Filename, *temp1;
+	int	err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE;
+	char	*Filename, *temp1, *idname = NULL;
 	char	*Desc[26]; 
 	struct	stat statfile; 
 	int	i;
@@ -899,11 +906,20 @@ int Addfile(char *File, int AreaNum, int fileid)
 			 * The right unarchiver is still in memory,
 			 * get the FILE_ID.DIZ if it exists.
 			 */
-			sprintf(temp, "%s %s/%s FILE_ID.DIZ >/dev/null", archiver.iunarc, area.Path, File);
-			if ((err = system(temp))) {
-				WriteError("$Unpack error %s", temp);
+			sprintf(temp, "%s/%s", area.Path, File);
+			if ((err = execute(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
+					(char *)"/dev/null", (char *)"/dev/null"))) {
+			    if ((err = execute(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
+					    (char *)"/dev/null", (char *)"/dev/null"))) {
+				Syslog('+', "No FILE_ID.DIZ found in %s", File);
+			    } else {
+				idname = xstrcpy((char *)"file_id.diz");
+			    }
 			} else {
-				Syslog('+', "Found FILE_ID.DIZ");
+			    idname = xstrcpy((char *)"FILE_ID.DIZ");
+			}
+			if (!err) {
+				Syslog('+', "Found %s", idname);
 				GotId = TRUE;
 				colour(CFG.TextColourF, CFG.TextColourB);
 				/* Found FILE_ID.DIZ in */
@@ -913,7 +929,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 		}
 
 		if (GotId) {
-			if ((id = fopen("FILE_ID.DIZ", "r")) != NULL) {
+			if ((id = fopen(idname, "r")) != NULL) {
 				/*
 				 * Import FILE_ID.DIZ, format to max. 25
 				 * lines, 48 chars width.
@@ -928,7 +944,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 				}
 			}
 			fclose(id);
-			unlink("FILE_ID.DIZ");
+			unlink(idname);
 		} else {
 			/*
 			 * Ask the user for a description.
