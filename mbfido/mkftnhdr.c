@@ -229,6 +229,8 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		if (p == NULL) 
 			p = xstrcpy(hdr((char *)"X-Apparently-To",msg));
 		if (p == NULL)
+			p = xstrcpy(hdr((char *)"Reply-To", msg));
+		if (p == NULL)
 			p = xstrcpy(hdr((char *)"To", msg));  /* 14-Aug-2001 MB */
 		if (p) {
 			Syslog('n', "getting `to' address from: \"%s\"",p);
