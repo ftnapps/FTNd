@@ -1,6 +1,8 @@
 #ifndef	_TERM_H
 #define	_TERM_H
 
+/* $Id$ */
+
 void            TermInit(int, int, int);
 void            Enter(int);
 void            pout(int, int, char *);
