@@ -35,6 +35,28 @@
 #include "transfer.h"
 
 
+/*
+ 
+   Design remarks.
+
+   This entry must accept up and downloads at the same time in case a users
+   wants to download but uses a bidirectional protocol and has something to
+   upload.
+
+   First design fase: support the now used external protocols and link it to
+   the rest of the bbs.
+
+   Second design fase: add build-in zmodem and ymodem-1k.
+
+   To think of:
+    - Drop bidirectional support, is this still in use. No bimodem specs and
+      Hydra seems not implemented in any terminal emulator.
+    - Add sliding kermit? Can still be used externally.
+    - Add special internet protocol and make a module for minicom. No, this
+      would mean only a few users will use it.
+
+*/
+
 int transfer(down_list **download_list, up_list **upload_list, int direction)
 {
     return 0;
