@@ -17,6 +17,10 @@ v0.37.01	14-Jan-2003.
 	mbtask:
 		Added debug logging to find some errors.
 
+	mbfile:
+		In the import function several bugfixes for reading files.bbs.
+		Fixed upper/lowercase filenames bug with import.
+
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003
 

@@ -53,10 +53,12 @@ void ImportFiles(int Area)
 {
     char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
     FILE		*fbbs;
-    int			Append = FALSE, Files = 0, rc, i, j = 0, k = 0, x, Doit;
+    DIR			*dp;
+    int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
     struct FILERecord   fdb;
     struct stat		statfile;
+    struct dirent	*de;
 
     Syslog('-', "Import(%d)", Area);
 
@@ -109,7 +111,7 @@ void ImportFiles(int Area)
 		    Doit = TRUE;
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
-			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
+			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.Name);
 			mkdirs(temp2, 0755);
 			if ((rc = file_cp(temp, temp2))) {
 			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
@@ -170,6 +172,8 @@ void ImportFiles(int Area)
 		    }
 		    Append = FALSE;
 		    Present = FALSE;
+		    line = 0;
+		    pos = 0;
 		}
 
 		/*
@@ -183,33 +187,44 @@ void ImportFiles(int Area)
 		Present = TRUE;
 
 		token = strtok(String, " \t");
-		strncpy(fdb.LName, token, 80);
 
 		/*
 		 * Test filename against name on disk, first normal case,
 		 * then lowercase and finally uppercase.
 		 */
-		sprintf(temp,"%s/%s", pwd, fdb.LName);
-		if (stat(temp,&statfile) != 0) {
-		    strncpy(fdb.LName, tl(token), 80);
-		    sprintf(temp,"%s/%s", pwd, fdb.LName);
-		    if (stat(temp,&statfile) != 0) {
-			strcpy(fdb.LName, tu(token));
-			if (stat(temp,&statfile) != 0) {
-			    WriteError("Can't find file on disk, skipping: %s\n",temp);
-			    Append = FALSE;
-			    Present = FALSE;
-			}
+		if ((dp = opendir(pwd)) == NULL) {
+		    WriteError("$Can't open directory %s", pwd);
+		    die(MBERR_INIT_ERROR);
+		}
+		while ((de = readdir(dp))) {
+		    if (strcasecmp(de->d_name, token) == 0) {
+			/*
+			 * Found the right file.
+			 */
+			strncpy(fdb.LName, token, 80);
+			break;
 		    }
 		}
+		closedir(dp);
 
-		if (Present) {
+		if (strlen(fdb.LName) == 0) {
+		    WriteError("Can't find file on disk, skipping: %s\n", token);
+		    Append = FALSE;
+		    Present = FALSE;
+		} else {
 		    /*
 		     * Create DOS 8.3 filename
 		     */
 		    strcpy(temp2, fdb.LName);
 		    name_mangle(temp2);
 		    strcpy(fdb.Name, temp2);
+
+		    if (strcmp(fdb.LName, fdb.Name) && (rename(fdb.LName, fdb.Name) == 0)) {
+			Syslog('+', "Renamed %s to %s", fdb.LName, fdb.Name);
+		    }
+
+		    sprintf(temp, "%s/%s", pwd, fdb.Name);
+		    stat(temp, &statfile);
 
 		    if (do_annon)
 			fdb.Announced = TRUE;
@@ -225,44 +240,45 @@ void ImportFiles(int Area)
 
 		    token = strtok(NULL, "\0");
 		    i = strlen(token);
-		    j = k = 0;
+		    line = pos = 0;
 		    for (x = 0; x < i; x++) {
 			if ((token[x] == '\n') || (token[x] == '\r'))
 			    token[x] = '\0';
 		    }
+		    i = strlen(token);
 
 		    Doit = FALSE;
 		    for (x = 0; x < i; x++) {
 			if (!Doit) {
-			    if (isalnum(token[x]))
+			    if (!iscntrl(token[x]) && !isblank(token[x]))
 				Doit = TRUE;
 			}
 			if (Doit) {
-			    if (k > 42) {
+			    if (pos > 42) {
 				if (token[x] == ' ') {
-				    fdb.Desc[j][k] = '\0';
-				    j++;
-				    k = 0;
+				    fdb.Desc[line][pos] = '\0';
+				    line++;
+				    pos = 0;
 				} else {
-				    if (k == 49) {
-					fdb.Desc[j][k] = '\0';
-					k = 0;
-					j++;
+				    if (pos == 49) {
+					fdb.Desc[line][pos] = '\0';
+					pos = 0;
+					line++;
 				    }
-				    fdb.Desc[j][k] = token[x];
-				    k++;
+				    fdb.Desc[line][pos] = token[x];
+				    pos++;
 				}
 			    } else {
-				fdb.Desc[j][k] = token[x];
-				k++;
+				fdb.Desc[line][pos] = token[x];
+				pos++;
 			    }
-			    if (j == 25)
+			    if (line == 25)
 				break;
 			}
 		    }
 
-		    sprintf(dest, "%s/%s", area.Path, fdb.LName);
-		    sprintf(lname, "%s/%s", area.Path, fdb.Name);
+		    sprintf(dest, "%s/%s", area.Path, fdb.Name);
+		    sprintf(lname, "%s/%s", area.Path, fdb.LName);
 		    Append = TRUE;
 		    fdb.Size = statfile.st_size;
 		    fdb.FileDate = statfile.st_mtime;
@@ -274,43 +290,45 @@ void ImportFiles(int Area)
 		/*
 		 * Add multiple description lines
 		 */
-		token = strtok(String, "\0");
-		i = strlen(token);
-		j++;
-		k = 0;
-		Doit = FALSE;
-		for (x = 0; x < i; x++) {
-		    if ((token[x] == '\n') || (token[x] == '\r'))
-			token[x] = '\0';
-		}
-		for (x = 0; x < i; x++) {
-		    if (Doit) {
-			if (k > 42) {
-			    if (token[x] == ' ') {
-				fdb.Desc[j][k] = '\0';
-				j++;
-				k = 0;
-			    } else {
-				if (k == 49) {
-				    fdb.Desc[j][k] = '\0';
-				    k = 0;
-				    j++;
+		if (line < 25) {
+		    token = strtok(String, "\0");
+		    i = strlen(token);
+		    line++;
+		    pos = 0;
+		    Doit = FALSE;
+		    for (x = 0; x < i; x++) {
+			if ((token[x] == '\n') || (token[x] == '\r'))
+			    token[x] = '\0';
+		    }
+		    for (x = 0; x < i; x++) {
+			if (Doit) {
+			    if (pos > 42) {
+				if (token[x] == ' ') {
+				    fdb.Desc[line][pos] = '\0';
+				    line++;
+				    pos = 0;
+				} else {
+				    if (pos == 49) {
+					fdb.Desc[line][pos] = '\0';
+					pos = 0;
+					line++;
+				    }
+				    fdb.Desc[line][pos] = token[x];
+				    pos++;
 				}
-				fdb.Desc[j][k] = token[x];
-				k++;
+			    } else {
+				fdb.Desc[line][pos] = token[x];
+				pos++;
 			    }
+			    if (line == 25)
+				break;
 			} else {
-			    fdb.Desc[j][k] = token[x];
-			    k++;
+			    /*
+			     * Skip until + or | is found
+			     */
+			    if ((token[x] == '+') || (token[x] == '|'))
+				Doit = TRUE;
 			}
-			if (j == 25)
-			    break;
-		    } else {
-			/*
-			 * Skip until + or | is found
-			 */
-			if ((token[x] == '+') || (token[x] == '|'))
-			    Doit = TRUE;
 		    }
 		}
 	    } /* End if new file entry found */
