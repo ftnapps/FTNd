@@ -215,10 +215,10 @@ void site_docs(void)
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "21.  CREATING SITEDOCS");
     set_color(CYAN, BLACK);
-    mvprintw( 7,11, (char *)"Erasing directory         %s/doc/html", getenv("MBSE_ROOT"));
+    mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("MBSE_ROOT"));
     fflush(stdout);
 
-    sprintf(temp, "-r -f %s/doc/html", getenv("MBSE_ROOT"));
+    sprintf(temp, "-r -f %s/share/doc/html", getenv("MBSE_ROOT"));
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 
     if ((hp = open_webdoc((char *)"index.html", (char *)"BBS Site Documentation", NULL))) {
@@ -297,7 +297,7 @@ void site_docs(void)
     dotter();
     ol_doc();
     clrtoeol();
-    mvprintw( 8,11, (char *)"Created site documents in %s/doc", getenv("MBSE_ROOT"));
+    mvprintw( 8,11, (char *)"Created site documents in %s/share/doc", getenv("MBSE_ROOT"));
     fflush(stdout);
 
     /*

@@ -212,6 +212,10 @@ install:
 			echo "removed ${BINDIR}/mbtelnetd"; \
 		fi
 		@for d in ${SUBDIRS}; do (cd $$d && ${MAKE} -w $@) || exit; done
+		@if [ -d ${PREFIX}/doc ] ; then \
+			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
+			echo "you may remove that obsolete directory." ; \
+		fi
 
 dist tar:	${TARFILE}
 
