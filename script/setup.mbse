@@ -11,7 +11,7 @@ if [ "$COLOR" = "on" -o -r $TMP/SeTcolor ]; then
   dialog --title "ENABLE MBSE BBS AT BOOT?" --yesno \
  "MBSE BBS is the bulletin board system and Fidonet (r) mailer for Unix." 6 70
   if [ $? = 0 ]; then
-    mkdir -p /etc/rc.d/rc3.d /etc/rc.d/rc3.d
+    mkdir -p /etc/rc.d/rc3.d /etc/rc.d/rc4.d
     ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc3.d/K05mbsed
     ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
     ln -s /etc/rc.d/init.d/mbsed /etc/rc.d/rc4.d/K05mbsed

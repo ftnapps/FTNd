@@ -35,6 +35,11 @@ v0.71.2		16-Jan-2005
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.
 
+	script:
+		Fixed the Slackware setup script that didn't make the startup
+		symlinks in runlevel 4 if the directory /etc/rc.d/rc4.d didn't
+		exist.
+
 
 v0.71.1		28-Nov-2004 - 16-Jan-2005
 
