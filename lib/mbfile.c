@@ -260,54 +260,84 @@ int mkdirs(char *name, mode_t mode)
  */
 int diskfree(int needed)
 {
-	char		*mtab, *dev, *fs, *type;
-	FILE		*fp;
-	struct statfs	sfs;
-	int		RetVal = TRUE;
-	unsigned long	temp;
-
-	if (! needed)
-		return TRUE;
-
-	mtab = calloc(PATH_MAX, sizeof(char));
-#ifdef __linux__
-	if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
-		WriteError("$Can't open /etc/mtab");
-#elif __FreeBSD__ || __NetBSD__
-	if ((fp = fopen((char *)"/etc/fstab", "r")) == 0) {
-		WriteError("$Can't open /etc/fstab");
+    int		    RetVal = TRUE;
+    struct statfs   sfs;
+    unsigned long   temp;
+#if defined(__linux__)
+    char	    *mtab, *dev, *fs, *type;
+    FILE	    *fp;
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+    struct statfs   *mntbuf;
+    long	    mntsize;
+    int		    i;
 #endif
-		return TRUE;
-	}
 
-	while (fgets(mtab, PATH_MAX, fp)) {
-		dev  = strtok(mtab, " \t");
-		fs   = strtok(NULL, " \t");
-		type = strtok(NULL, " \t");
-		if (strncmp((char *)"/dev/", dev, 5) == 0) {
-			/*
-			 *  Filter out unwanted filesystems, floppy.
-			 *  Also filter out the /boot file system.
-			 */
-			if (strncmp((char *)"/dev/fd", dev, 7) && strncmp((char *)"/boot", fs, 5) &&
-			    (!strncmp((char *)"ext2", type, 4) || !strncmp((char *)"reiserfs", type, 8) ||
-			     !strncmp((char *)"ufs", type, 3)  || !strncmp((char *)"ffs", type, 3) ||
-			     !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
-				if (statfs(fs, &sfs) == 0) {
-					temp = (unsigned long)(sfs.f_bsize / 512L);
-					if (((unsigned long)(sfs.f_bavail * temp) / 2048L) < needed) {
-						RetVal = FALSE;
-						WriteError("On \"%s\" only %d kb left, need %d kb", fs, 
-							(sfs.f_bavail * sfs.f_bsize) / 1024, needed * 1024);
-					}
-				}
-			}
+    if (! needed)
+	return TRUE;
+
+#if defined(__linux__)
+
+    if ((fp = fopen((char *)"/etc/mtab", "r")) == 0) {
+	WriteError("$Can't open /etc/mtab");
+	return TRUE;
+    }
+
+    mtab = calloc(PATH_MAX, sizeof(char));
+    while (fgets(mtab, PATH_MAX, fp)) {
+	dev  = strtok(mtab, " \t");
+	fs   = strtok(NULL, " \t");
+	type = strtok(NULL, " \t");
+	if (strncmp((char *)"/dev/", dev, 5) == 0) {
+	    /*
+	     *  Filter out unwanted filesystems, floppy.
+	     *  Also filter out the /boot file system.
+	     */
+	    if (strncmp((char *)"/dev/fd", dev, 7) && strncmp((char *)"/boot", fs, 5) &&
+	        (!strncmp((char *)"ext2", type, 4) || !strncmp((char *)"reiserfs", type, 8) ||
+		 !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
+		if (statfs(fs, &sfs) == 0) {
+		    temp = (unsigned long)(sfs.f_bsize / 512L);
+		    if (((unsigned long)(sfs.f_bavail * temp) / 2048L) < needed) {
+			RetVal = FALSE;
+			WriteError("On \"%s\" only %d kb left, need %d kb", fs, 
+			    (sfs.f_bavail * sfs.f_bsize) / 1024, needed * 1024);
+		    }
 		}
+	    }
 	}
-	fclose(fp);
-	free(mtab);
+    }
+    fclose(fp);
+    free(mtab);
 
-	return RetVal;
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+
+    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT)) == 0) {
+	WriteError("Huh, no filesystems mounted??");
+	return TRUE;
+    }
+
+    for (i = 0; i < mntsize; i++) {
+	/*
+	 *  Don't check kernfs (NetBSD) and procfs (FreeBSD), floppy and CD.
+	 */
+	if ((strncmp(mntbuf[i].f_fstypename, (char *)"kernfs", 6)) &&
+	    (strncmp(mntbuf[i].f_fstypename, (char *)"procfs", 6)) &&
+	    (strncmp(mntbuf[i].f_fsfromname, (char *)"/dev/fd", 7)) &&
+	    (strncmp(mntbuf[i].f_fstypename, (char *)"cd9660", 6)) &&
+	    (strncmp(mntbuf[i].f_fstypename, (char *)"msdos", 5)) &&
+	    (statfs(mntbuf[i].f_mntonname, &sfs) == 0)) {
+	    temp = (unsigned long)(sfs.f_bsize / 512L);
+	    if (((unsigned long)(sfs.f_bavail * temp) / 2048L) < needed) {
+		RetVal = FALSE;
+		WriteError("On \"%s\" only %d kb left, need %d kb", mntbuf[i].f_mntonname,
+		    (sfs.f_bavail * sfs.f_bsize) / 1024, needed * 1024);
+	    }
+	}
+    }
+
+#endif
+
+    return RetVal;
 }
 
 
