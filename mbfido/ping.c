@@ -53,6 +53,7 @@
  * External declarations
  */
 extern	int	do_quiet;
+extern	char	*tearline;
 
 
 
@@ -133,8 +134,7 @@ int Ping(faddr *f, faddr *t, FILE *fp, int intransit)
 	fprintf(np, "======================================================================\r");
 
 	fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
-	fprintf(np, "--- MBSE BBS v%s (Linux)\r", VERSION);
-
+	fprintf(np, "%s\r", tearline);
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	rc = postnetmail(np, from, f, NULL, (char *)"Re: Ping", Now, 0x0000, FALSE);
 	tidy_faddr(from);

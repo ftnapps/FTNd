@@ -45,6 +45,7 @@
 #include "areamgr.h"
 #include "filemgr.h"
 #include "ping.h"
+#include "bounce.h"
 #include "postemail.h"
 
 
@@ -278,6 +279,12 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 					case EMAIL:     most_debug = TRUE;
 							result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
 							most_debug = FALSE;
+							if (result) {
+							    if (result == 2)
+								Bounce(f, t, fp, (char *)"Could not post email");
+							    else
+								Bounce(f, t, fp, (char *)"Could not convert to email");
+							}
 							break;
 					}
 					Syslog('m', "Handled service %s, rc=%d", servrec.Service, result);

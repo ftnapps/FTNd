@@ -41,6 +41,7 @@
 
 
 extern int		do_quiet;		/* Supress screen output    */
+extern char		*tearline;
 
 
 /*
@@ -156,8 +157,7 @@ void Msg_Bot(fidoaddr UseAka, char *Org)
 	sprintf(temp, "With regards, %s", CFG.sysop_name);
 	MsgText_Add2(temp);
 	MsgText_Add2((char *)"");
-	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
-	MsgText_Add2(temp);
+	MsgText_Add2(tearline);
 
 	if (UseAka.point)
 		sprintf(aka, "(%d:%d/%d.%d)", UseAka.zone, UseAka.net, UseAka.node, UseAka.point);

@@ -61,21 +61,40 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
 	char    *temp, *p;
 	char    buf[4096];
 	int	result = 1;
+	faddr	*fa;
 
-	temp = calloc(2048, sizeof(char));
 	rewind(fp);
-
 	Syslog('+', "SMTP: posting email from \"%s\" to \"%s\"", MailFrom, MailTo);
+
+	/*
+	 * If a user forgets the To: line at the start of the FTN
+	 * netmail, we end up here with a UUCP user with a local
+	 * address as the destination.
+	 * We can't deliver this and create a loop if we pass this
+	 * message to SMTP.
+	 */
+	if ((fa = parsefaddr(MailTo))) {
+	    if (is_local(fa)) {
+		WriteError("Destination is a local FTN address");
+		email_bad++;
+		tidy_faddr(fa);
+		return 2;
+	    }
+	    tidy_faddr(fa);
+	}
+
 	if (smtp_connect() == -1) {
 		WriteError("SMTP: connection refused");
 		email_bad++;
 		return 2;
 	}
 
+	temp = calloc(2048, sizeof(char));
 	sprintf(temp, "MAIL FROM:<%s>\r\n", MailFrom);
 	if (smtp_cmd(temp, 250)) {
 		WriteError("SMTP: refused FROM <%s>", MailFrom);
 		email_bad++;
+		free(temp);
 		return 2;
 	}
 
@@ -83,12 +102,14 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
 	if (smtp_cmd(temp, 250)) {
 		WriteError("SMTP: refused TO <%s>", MailTo);
 		email_bad++;
+		free(temp);
 		return 2;
 	}
 
 	if (smtp_cmd((char *)"DATA\r\n", 354)) {
 		WriteError("SMTP refused DATA mode");
 		email_bad++;
+		free(temp);
 		return 2;
 	}
 

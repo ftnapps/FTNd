@@ -41,6 +41,7 @@
 
 
 extern int		do_quiet;		/* Supress screen output    */
+extern char		*tearline;
 
 
 
@@ -210,8 +211,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	 */
 	aka = calloc(40, sizeof(char));
 	MsgText_Add2((char *)"");
-	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
-	MsgText_Add2(temp);
+	MsgText_Add2(tearline);
 
 	if (msgs.Aka.point)
 		sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);

@@ -4516,6 +4516,10 @@ v0.33.19        26-Oct-2001
 		be missing since a while.
 		Fixes for Fido->internet gate for dropped characters during
 		linewrap. Experimental.
+		Added netmail bounce function.
+		Protected the postemail function from posting to local FTN
+		addresses, this will cause a mailloop for undeliverable mail.
+		These mails will be bounced back.
 
 	mbfile:
 		During checks the file databases are reset to filemode 0660.

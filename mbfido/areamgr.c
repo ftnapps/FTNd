@@ -53,6 +53,7 @@
  * External declarations
  */
 extern	int	do_quiet;
+extern	char	*tearline;
 
 
 
@@ -124,8 +125,7 @@ void A_Help(faddr *t, char *replyid)
 		fprintf(fp, "  -GENERAL\r");
 		fprintf(fp, "  %%QUERY\r");
 		fprintf(fp, "  %%LIST\r\r");
-
-		fprintf(fp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(fp, "%s\r", tearline);
 		CloseMail(fp, t);
 		net_out++;
 	} else
@@ -231,7 +231,7 @@ void A_Query(faddr *t, char *replyid)
 		fprintf(qp, " P  - The message area is temporary paused\r");
 		fprintf(qp, " C  - You are cutoff from this area\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(qp, "%s\r", tearline);
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -338,7 +338,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 		fprintf(qp, " P  - The message area is temporary paused\r");
 		fprintf(qp, " C  - You are cutoff from this area\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(qp, "%s\r", tearline);
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -452,7 +452,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 		fprintf(qp, "Con means:\r");
 		fprintf(qp, " C  - You connected to this area\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(qp, "%s\r", tearline);
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -493,7 +493,7 @@ void A_Status(faddr *t, char *replyid)
 
 		fprintf(fp, "\rWith regards, %s\r\r", CFG.sysop_name);
 
-		fprintf(fp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(fp, "%s\r", tearline);
 		CloseMail(fp, t);
 		net_out++;
 	} else
@@ -599,7 +599,7 @@ void A_Unlinked(faddr *t, char *replyid)
 		fprintf(qp, " P  - The message area is temporary paused\r");
 		fprintf(qp, " C  - You are cutoff from this area\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "--- MBSE BBS v%s (Linux)\r", VERSION);
+		fprintf(qp, "%s\r", tearline);
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -1068,7 +1068,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 			}
 
 			fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
-			fprintf(np, "--- MBSE BBS v%s (Linux)\r", VERSION);
+			fprintf(np, "%s\r", tearline);
 			CloseMail(np, t);
 			net_out++;
 		} else

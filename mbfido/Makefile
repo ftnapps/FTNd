@@ -13,7 +13,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c pack.c \
 		  mbmsg.c newspost.c postemail.c scan.c toberep.c atoul.c filemgr.c \
 		  hash.c mbaff.c mbseq.c notify.c postnetmail.c scannews.c tosspkt.c \
 		  mbfkill.c mbfutil.c mbfindex.c mbfcheck.c mbfpack.c mbflist.c mbfadopt.c \
-		  mbfimport.c virscan.c mbftoberep.c mbfmove.c mbfdel.c
+		  mbfimport.c virscan.c mbftoberep.c mbfmove.c mbfdel.c bounce.c
 HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h pack.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
 		  lhash.h mbfido.h mkftnhdr.h paths.h ptic.h sendmail.h tracker.h \
@@ -23,9 +23,9 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h pack.h \
 		  grlist.h maketags.h mbmsg.h newspost.h postecho.h rollover.h tic.h \
 		  atoul.h filemgr.h hash.h mbaff.h mbseq.h notify.h postemail.h scan.h toberep.h \
 		  mbfkill.h mbfutil.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfadopt.h \
-		  mbfimport.h virscan.h mbftoberep.h mbfmove.h mbfdel.h
+		  mbfimport.h virscan.h mbftoberep.h mbfmove.h mbfdel.h bounce.h
 MBFIDO_OBJS	= flock.o tosspkt.o mbfido.o hatch.o maketags.o virscan.o \
-		  tracker.o makestat.o scannews.o lhash.o \
+		  tracker.o makestat.o scannews.o lhash.o bounce.o \
 		  pack.o ulock.o tic.o ptic.o utic.o mover.o hash.o mkftnhdr.o \
 		  addbbs.o magic.o fsort.o toberep.o ftn2rfc.o atoul.o ping.o \
 		  cookie.o forward.o sendmail.o scan.o addpkt.o storenet.o storeecho.o \
@@ -185,7 +185,7 @@ hash.o: ../lib/libs.h hash.h lhash.h
 mbaff.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h announce.h filefind.h mbaff.h
 mbseq.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbseq.h
 notify.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbnode.h filemgr.h areamgr.h sendmail.h notify.h
-postnetmail.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbcfg.h ../lib/dbuser.h ../lib/dbnode.h ../lib/dbftn.h ../lib/common.h ../lib/clcomm.h tracker.h addpkt.h storenet.h ftn2rfc.h areamgr.h filemgr.h ping.h postemail.h
+postnetmail.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbcfg.h ../lib/dbuser.h ../lib/dbnode.h ../lib/dbftn.h ../lib/common.h ../lib/clcomm.h tracker.h addpkt.h storenet.h ftn2rfc.h areamgr.h filemgr.h ping.h bounce.h postemail.h
 scannews.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h rollover.h pack.h storeecho.h rfc2ftn.h scannews.h
 tosspkt.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h tosspkt.h postnetmail.h postecho.h rollover.h
 mbfkill.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfkill.h mbfutil.h
@@ -200,4 +200,5 @@ virscan.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib
 mbftoberep.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbftoberep.h
 mbfmove.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfmove.h
 mbfdel.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfmove.h
+bounce.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbtic.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h sendmail.h mgrutil.h postnetmail.h ping.h
 # End of generated dependencies
