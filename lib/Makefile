@@ -41,7 +41,7 @@ OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJ
 HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} \
 		  ${DIESEL_HDRS} ${MEMWATCH_HDRS} ${OTHER_HDRS}
 OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c \
-		  memwatch.c.org README.diesel README.macro Diesel.doc
+		  memwatch.c.org README.diesel README.macro Diesel.doc nodelist.conf
 TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.a libmemwatch.a
 
 #############################################################################
@@ -83,6 +83,7 @@ libmemwatch.a:	${MEMWATCH_OBJS}
 		${RANLIB} $@
 
 install:	all
+		${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 nodelist.conf ${ETCDIR}
 
 clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ ftscprod.c core filelist Makefile.bak
