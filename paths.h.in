@@ -25,6 +25,13 @@
 
 
 /*
+ * Path to convert, to create thumbnails.
+ */
+#define	_PATH_CONVERT	"@CONVERT@"
+
+
+
+/*
  * Paths to some virus scanners
  */
 #define	_PATH_ANTIVIR	"@ANTIVIR@"

@@ -10,6 +10,14 @@ DO NOT USE THIS VERSION ON PRODUCTION SYSTEMS, ONLY FOR TESTING.
 
 v0.37.00	26-Dec-2002.
 
+	upgrade:
+		In mbsetup 1.17.3 check if you have the XX,CM,IBN,IFC flags,
+		which indicates your TCP/IP capabilities. This is only for
+		systems that use TCP/IP, dialup systems should only have
+		the XX,CM flags. Important: only protocols that you place
+		in this entry are supported, so XX,CM,IBN will let your system
+		only call binkp nodes.
+
 	general:
 		A new developer joined the team, David Gonzalez.
 		The settings to suppres some IP protocols (global and nodes)

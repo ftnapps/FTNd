@@ -92,55 +92,6 @@ struct icmp_filter {
 # ifndef IP_PKTINFO
 #  define IP_PKTINFO 8
 # endif
-# ifndef CMSG_LEN
-/* ---- from glibc 2.1.2 */
-
-
-/* Ancillary data object manipulation macros.  */
-/*
-#  if !defined __STRICT_ANSI__ && defined __GNUC__ && __GNUC__ >= 2
-#   define CMSG_DATA(cmsg) ((cmsg)->__cmsg_data)
-#  else
-#   define CMSG_DATA(cmsg) ((unsigned char *) ((struct cmsghdr *) (cmsg) + 1))
-#  endif
-*/
-
-/*
-#  define CMSG_NXTHDR(mhdr, cmsg) __cmsg_nxthdr (mhdr, cmsg)
-#  define CMSG_FIRSTHDR(mhdr) \
-  ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr)                 \
-   ? (struct cmsghdr *) (mhdr)->msg_control : (struct cmsghdr *) NULL)
-#  define CMSG_ALIGN(len) (((len) + sizeof (size_t) - 1) \
-                         & ~(sizeof (size_t) - 1))
-#  define CMSG_SPACE(len) (CMSG_ALIGN (len) \
-                         + CMSG_ALIGN (sizeof (struct cmsghdr)))
-#  define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
-extern struct cmsghdr *__cmsg_nxthdr __P ((struct msghdr *__mhdr,
-                                           struct cmsghdr *__cmsg));
-#  ifdef __USE_EXTERN_INLINES
-#   ifndef _EXTERN_INLINE
-#    define _EXTERN_INLINE extern __inline
-#   endif
-_EXTERN_INLINE struct cmsghdr *
-__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg) __THROW
-{
-  if ((size_t) __cmsg->cmsg_len < sizeof (struct cmsghdr))
-*/    /* The kernel header does this so there may be a reason.  */ /*
-    return 0;
-*/
-/*
-  __cmsg = (struct cmsghdr *) ((unsigned char *) __cmsg
-                               + CMSG_ALIGN (__cmsg->cmsg_len));
-  if ((unsigned char *) (__cmsg + 1) >= ((unsigned char *) __mhdr->msg_control
-                                         + __mhdr->msg_controllen)
-      || ((unsigned char *) __cmsg + CMSG_ALIGN (__cmsg->cmsg_len)
-          >= ((unsigned char *) __mhdr->msg_control + __mhdr->msg_controllen)))
-*/    /* No more entries.  */  /*
-    return 0;
-  return __cmsg;
-}
-#  endif    */    /* Use `extern inline'.  */
-# endif
 
 
 /* A macro to extract the pointer to the address of a struct sockaddr (_in or _in6) */
@@ -168,6 +119,26 @@ typedef struct _faddr {
 } faddr;
 
 
+
+/*
+ * ANSI colors
+ */
+#define BLACK           0
+#define BLUE            1
+#define GREEN           2
+#define CYAN            3
+#define RED             4
+#define MAGENTA         5
+#define BROWN           6
+#define LIGHTGRAY       7
+#define DARKGRAY        8
+#define LIGHTBLUE       9
+#define LIGHTGREEN      10
+#define LIGHTCYAN       11
+#define LIGHTRED        12
+#define LIGHTMAGENTA    13
+#define YELLOW          14
+#define WHITE           15
 
 
 #endif

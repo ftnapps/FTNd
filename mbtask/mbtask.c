@@ -225,28 +225,28 @@ void load_maincfg(void)
         /*
          * Colors
          */
-        CFG.TextColourF         = 3;
-        CFG.TextColourB         = 0;
-        CFG.UnderlineColourF    = 14;
-        CFG.UnderlineColourB    = 0;
-        CFG.InputColourF        = 11;
-        CFG.InputColourB        = 0;
-        CFG.CRColourF           = 15;
-        CFG.CRColourB           = 0;
-        CFG.MoreF               = 13;
-        CFG.MoreB               = 0;
-        CFG.HiliteF             = 15;
-        CFG.HiliteB             = 0;
-        CFG.FilenameF           = 14;
-        CFG.FilenameB           = 0;
-        CFG.FilesizeF           = 13;
-        CFG.FilesizeB           = 0;
-        CFG.FiledateF           = 10;
-        CFG.FiledateB           = 0;
-        CFG.FiledescF           = 3;
-        CFG.FiledescB           = 0;
-        CFG.MsgInputColourF     = 3;
-        CFG.MsgInputColourB     = 0;
+        CFG.TextColourF         = CYAN;
+        CFG.TextColourB         = BLACK;
+        CFG.UnderlineColourF    = YELLOW;
+        CFG.UnderlineColourB    = BLACK;
+        CFG.InputColourF        = LIGHTCYAN;
+        CFG.InputColourB        = BLACK;
+        CFG.CRColourF           = WHITE;
+        CFG.CRColourB           = BLACK;
+        CFG.MoreF               = LIGHTMAGENTA;
+        CFG.MoreB               = BLACK;
+        CFG.HiliteF             = WHITE;
+        CFG.HiliteB             = BLACK;
+        CFG.FilenameF           = YELLOW;
+        CFG.FilenameB           = BLACK;
+        CFG.FilesizeF           = LIGHTMAGENTA;
+        CFG.FilesizeB           = BLACK;
+        CFG.FiledateF           = LIGHTGREEN;
+        CFG.FiledateB           = BLACK;
+        CFG.FiledescF           = CYAN;
+        CFG.FiledescB           = BLACK;
+        CFG.MsgInputColourF     = CYAN;
+        CFG.MsgInputColourB     = BLACK;
 
         /*
          * NextUser Door
@@ -357,7 +357,7 @@ void load_maincfg(void)
         sprintf(CFG.phonetrans[2].repl, "00");
         CFG.Speed = 9600;
         CFG.dialdelay = 60;
-        sprintf(CFG.Flags, "CM,XX,IBN,IFC,ITN::60177");
+        sprintf(CFG.Flags, "CM,XX");
         CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
 
         /*
@@ -389,7 +389,8 @@ void load_maincfg(void)
         sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
         sprintf(CFG.www_charset, "ISO 8859-1");
         sprintf(CFG.www_author, "Your Name");
-        sprintf(CFG.www_convert,"/usr/X11R6/bin/convert -geometry x100");
+	if (strlen(_PATH_CONVERT))
+	    sprintf(CFG.www_convert,"%s -geometry x100", _PATH_CONVERT);
         CFG.www_files_page = 10;
 
 	CFG.maxarticles = 500;
@@ -429,7 +430,7 @@ void load_taskcfg(void)
 		sprintf(TCFG.cmd_newnews,  "%s/bin/mbfido news web -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_mbindex1, "%s/bin/mbindex -quiet", getenv("MBSE_ROOT"));
 		if (strlen(_PATH_GOLDNODE))
-		    sprintf(TCFG.cmd_mbindex2, "%s/bin/goldnode -f -q", getenv("MBSE_ROOT"));
+		    sprintf(TCFG.cmd_mbindex2, "%s -f -q", _PATH_GOLDNODE);
 		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
 		TCFG.debug    = FALSE;

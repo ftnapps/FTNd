@@ -178,7 +178,7 @@ install:
 dist tar:	${TARFILE}
 
 clean:
-		rm -f .filelist core ${TARFILE}
+		rm -f .filelist core ${TARFILE} paths.h config.h
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done;
 
 ${TARFILE}:	.filelist
