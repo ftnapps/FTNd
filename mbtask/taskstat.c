@@ -143,49 +143,50 @@ void status_init()
 void status_write(void);
 void status_write(void)
 {
-	int	 	d, stat_fd;
-	struct tm	*ttm, *ytm;
-	time_t		temp;
+    int	 	d, stat_fd, yday;
+    struct tm	*ttm;
+    time_t	temp;
 
-	temp = time(NULL);
-	ttm = localtime(&temp);
-	temp = status.daily;	// On a Sparc, first put the time in temp, then pass it to locattime.
-	ytm = localtime(&temp);
+    temp = time(NULL);
+    ttm = localtime(&temp);
+    yday = ttm->tm_yday;
+    temp = status.daily;	// On a Sparc, first put the time in temp, then pass it to locattime.
+    ttm = localtime(&temp);
 
-	/*
-	 * If we passed to the next day, zero the today counters 
-	 */
-	if (ttm->tm_yday != ytm->tm_yday) {
-		Syslog('+', "Last days statistics:");
-		Syslog('+', "Total clients : %lu", status.today.tot_clt);
-		Syslog('+', "Peak clients  : %lu", status.today.peak_clt);
-		Syslog('+', "Syntax errors : %lu", status.today.s_error);
-		Syslog('+', "Comms errors  : %lu", status.today.c_error);
+    /*
+     * If we passed to the next day, zero the today counters 
+     */
+    if (yday != ttm->tm_yday) {
+	Syslog('+', "Last days statistics:");
+	Syslog('+', "Total clients : %lu", status.today.tot_clt);
+	Syslog('+', "Peak clients  : %lu", status.today.peak_clt);
+	Syslog('+', "Syntax errors : %lu", status.today.s_error);
+	Syslog('+', "Comms errors  : %lu", status.today.c_error);
 
-		memset((char *)&status.today, 0, sizeof(cl_stat));
-		status.daily = time(NULL);
-		Syslog('+', "Zeroed todays status counters");
-	}
+	memset((char *)&status.today, 0, sizeof(cl_stat));
+	status.daily = time(NULL);
+	Syslog('+', "Zeroed todays status counters");
+    }
 
-	if ((stat_fd = open(stat_fn, O_RDWR)) == -1) {
-		Syslog('?', "$Error open statusfile %s", stat_fn);
-		return;
-	}
+    if ((stat_fd = open(stat_fn, O_RDWR)) == -1) {
+	Syslog('?', "$Error open statusfile %s", stat_fn);
+	return;
+    }
 
-	if ((d = lseek(stat_fd, 0, SEEK_SET)) != 0) {
-		Syslog('?', "$Error seeking in statusfile");
-		return;
-	}
+    if ((d = lseek(stat_fd, 0, SEEK_SET)) != 0) {
+	Syslog('?', "$Error seeking in statusfile");
+	return;
+    }
 
-	d = write(stat_fd, &status, sizeof(status_r));
-	if (d != sizeof(status_r))
-		Syslog('?', "$Error writing statusfile, only %d bytes", d);
+    d = write(stat_fd, &status, sizeof(status_r));
+    if (d != sizeof(status_r))
+	Syslog('?', "$Error writing statusfile, only %d bytes", d);
 
-	/*
-	 * CLose the statusfile
-	 */
-	if (close(stat_fd) != 0)
-		Syslog('?', "$Error closing statusfile");
+    /*
+     * CLose the statusfile
+     */
+    if (close(stat_fd) != 0)
+	Syslog('?', "$Error closing statusfile");
 }
 
 

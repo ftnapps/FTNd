@@ -29,6 +29,9 @@ v0.37.01	14-Jan-2003.
 		Fixed a bug where one of the nodelists was node closed with
 		each outbound scan and was causing mbtask to stop functioning
 		after a few days.
+		After forking the daemon, the stdin, stdout and stderr are
+		reopend to /dev/null.
+		Zero the daily status counters finally works again.
 
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.

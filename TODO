@@ -93,6 +93,10 @@ mbfido:
 
 	N: Let mbfido areas with a special switch update area descriptions.
 
+	N: Send rulefile via netmail for each new connected mail area.
+
+	N: Send notifications to downlinks about changed areas from uplink.
+
 mbcico:
 	N: Implement MD5 crypt in binkp protocol driver.
 

@@ -1258,126 +1258,138 @@ void scheduler(void)
 
 int main(int argc, char **argv)
 {
-        struct passwd   *pw;
-        int             i;
-        pid_t           frk;
-        FILE            *fp;
+    struct passwd   *pw;
+    int             i;
+    pid_t           frk;
+    FILE            *fp;
 
-       /*
-         * Print copyright notices and setup logging.
-         */
-        printf("MBTASK: MBSE BBS v%s Task Manager Daemon\n", VERSION);
-        printf("        %s\n\n", COPYRIGHT);
+    /*
+     * Print copyright notices and setup logging.
+     */
+    printf("MBTASK: MBSE BBS v%s Task Manager Daemon\n", VERSION);
+    printf("        %s\n\n", COPYRIGHT);
 
-        /*
-         *  Catch all the signals we can, and ignore the rest. Note that SIGKILL can't be ignored
-         *  but that's live. This daemon should only be stopped by SIGTERM.
-         */
-        for(i = 0; i < NSIG; i++) {
-                if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
-                        signal(i, (void (*))die);
-                else
-                        signal(i, SIG_IGN);
-        }
+    /*
+     *  Catch all the signals we can, and ignore the rest. Note that SIGKILL can't be ignored
+     *  but that's live. This daemon should only be stopped by SIGTERM.
+     */
+    for (i = 0; i < NSIG; i++) {
+        if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+            signal(i, (void (*))die);
+        else
+            signal(i, SIG_IGN);
+    }
 
-	init_pingsocket();
+    init_pingsocket();
 
-	/*
-	 *  mbtask is setuid root, drop privileges to user mbse.
-	 *  This will stay forever like this, no need to become
-	 *  root again. The child can't even become root anymore.
-	 */
-        pw = getpwnam((char *)"mbse");
-	if (setuid(pw->pw_uid)) {
-		perror("");
-		printf("can't setuid to mbse\n");
-		close(ping_isocket);
-		exit(MBERR_INIT_ERROR);
-	}
-	if (setgid(pw->pw_gid)) {
-		perror("");
-		printf("can't setgid to bbs\n");
-		close(ping_isocket);
-		exit(MBERR_INIT_ERROR);
-	}
+    /*
+     *  mbtask is setuid root, drop privileges to user mbse.
+     *  This will stay forever like this, no need to become
+     *  root again. The child can't even become root anymore.
+     */
+    pw = getpwnam((char *)"mbse");
+    if (setuid(pw->pw_uid)) {
+	perror("");
+	fprintf(stderr, "can't setuid to mbse\n");
+	close(ping_isocket);
+	exit(MBERR_INIT_ERROR);
+    }
+    if (setgid(pw->pw_gid)) {
+	perror("");
+	fprintf(stderr, "can't setgid to bbs\n");
+	close(ping_isocket);
+	exit(MBERR_INIT_ERROR);
+    }
 
-	umask(007);
-        if (locktask(pw->pw_dir)) {
-		close(ping_isocket);
-                exit(MBERR_NO_PROGLOCK);
-        }
+    umask(007);
+    if (locktask(pw->pw_dir)) {
+	close(ping_isocket);
+        exit(MBERR_NO_PROGLOCK);
+    }
 
-	sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
-	load_maincfg();
+    sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
+    load_maincfg();
 
-        Syslog(' ', " ");
-        Syslog(' ', "MBTASK v%s", VERSION);
-	sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
-        load_taskcfg();
-        status_init();
+    Syslog(' ', " ");
+    Syslog(' ', "MBTASK v%s", VERSION);
+    sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    load_taskcfg();
+    status_init();
 
-        memset(&task, 0, sizeof(task));
-	memset(&reginfo, 0, sizeof(reginfo));
-	memset(&calllist, 0, sizeof(calllist));
-	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
-	sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	initnl();
-	load_ports();
-	check_ports();
+    memset(&task, 0, sizeof(task));
+    memset(&reginfo, 0, sizeof(reginfo));
+    memset(&calllist, 0, sizeof(calllist));
+    sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+    sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    initnl();
+    load_ports();
+    check_ports();
 
-	/*
-	 * Now that init is complete and this program is locked, it is
-	 * safe to remove a stale socket if it is there after a crash.
-	 */
-        if (!file_exist(spath, R_OK))
-                unlink(spath);
+    /*
+     * Now that init is complete and this program is locked, it is
+     * safe to remove a stale socket if it is there after a crash.
+     */
+    if (!file_exist(spath, R_OK))
+        unlink(spath);
 
-        /*
-         * Server initialization is complete. Now we can fork the 
-         * daemon and return to the user. We need to do a setpgrp
-         * so that the daemon will no longer be assosiated with the
-         * users control terminal. This is done before the fork, so
-         * that the child will not be a process group leader. Otherwise,
-         * if the child were to open a terminal, it would become
-         * associated with that terminal as its control terminal.
-         */
-	if ((pgrp = setpgid(0, 0)) == -1) {
-		Syslog('?', "$setpgid failed");
-		die(MBERR_INIT_ERROR);
-	}
+    /*
+     * Server initialization is complete. Now we can fork the 
+     * daemon and return to the user. We need to do a setpgrp
+     * so that the daemon will no longer be assosiated with the
+     * users control terminal. This is done before the fork, so
+     * that the child will not be a process group leader. Otherwise,
+     * if the child were to open a terminal, it would become
+     * associated with that terminal as its control terminal.
+     */
+    if ((pgrp = setpgid(0, 0)) == -1) {
+	Syslog('?', "$setpgid failed");
+	die(MBERR_INIT_ERROR);
+    }
 
-	frk = fork();
-        switch (frk) {
-        case -1:
-                Syslog('?', "$Unable to fork daemon");
-                die(MBERR_INIT_ERROR);
-        case 0:
-                /*
-                 *  Starting the deamon child process here. 
-                 */
-                fclose(stdin);
-		fclose(stdout);
-                fclose(stderr);
-                scheduler();
-		/* Not reached */
-        default:
-                /*
-                 * Here we detach this process and let the child
-                 * run the deamon process. Put the child's pid
-                 * in the lockfile before leaving.
-                 */
-                if ((fp = fopen(lockfile, "w"))) {
-                        fprintf(fp, "%10u\n", frk);
-                        fclose(fp);
-                }
-                Syslog('+', "Starting daemon with pid %d", frk);
-                exit(MBERR_OK);
-        }
+    frk = fork();
+    switch (frk) {
+    case -1:
+            Syslog('?', "$Unable to fork daemon");
+            die(MBERR_INIT_ERROR);
+    case 0:
+            /*
+             *  Starting the deamon child process here. 
+             */
+            fclose(stdin);
+	    if (open("/dev/null", O_RDONLY) != 0) {
+		Syslog('?', "$Reopen of stdin to /dev/null failed");
+		_exit(MBERR_EXEC_FAILED);
+	    }
+	    fclose(stdout);
+	    if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
+		Syslog('?', "$Reopen of stdout to /dev/null failed");
+		_exit(MBERR_EXEC_FAILED);
+	    }
+            fclose(stderr);
+	    if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
+		Syslog('?', "$Reopen of stderr to /dev/null failed");
+		_exit(MBERR_EXEC_FAILED);
+	    }
+            scheduler();
+	    /* Not reached */
+    default:
+            /*
+             * Here we detach this process and let the child
+             * run the deamon process. Put the child's pid
+             * in the lockfile before leaving.
+             */
+            if ((fp = fopen(lockfile, "w"))) {
+                fprintf(fp, "%10u\n", frk);
+                fclose(fp);
+            }
+            Syslog('+', "Starting daemon with pid %d", frk);
+            exit(MBERR_OK);
+    }
 
-        /*
-         *  Not reached
-         */
-        return 0;
+    /*
+     *  Not reached
+     */
+    return 0;
 }
 
 
