@@ -961,22 +961,22 @@ TrType binkp_receiver(void)
             return Ok;
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: rcvd M_EOB");
-//	    if ((bp.Major == 1) && (bp.Minor != 0) && bp.local_EOB && bp.remote_EOB && ((bp.local_msgs + bp.remote_msgs) > 2)) {
-//		Syslog('b', "Binkp: 1.1 mode, stay in RxWaitF");
-//		bp.batchnr++;
-//		bp.local_EOB = FALSE;
-//		bp.remote_EOB = FALSE;
-//		bp.local_msgs = 0;
-//		bp.remote_msgs = 0;
-//		bp.TxState = TxGNF;
-//		bp.RxState = RxWaitF;
-//		Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
-//		binkp_clear_filelist();
-//		return Ok;
-//	    }
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-		Syslog('b', "Binkp/1.1 mode and got M_EOB, just stay in RxWaitF");
-		return Ok;
+		Syslog('b', "Binkp: 1.1 mode and got M_EOB");
+		if (bp.local_EOB && bp.remote_EOB && (bp.messages < 3)) {
+		    Syslog('b', "Binkp: receiver detected end of session, stay in RxWaitF");
+		    return Ok;
+		} else {
+		    bp.batchnr++;
+		    bp.local_EOB = FALSE;
+		    bp.remote_EOB = FALSE;
+		    bp.messages = 0;
+		    bp.TxState = TxGNF;
+		    bp.RxState = RxWaitF;
+		    Syslog('+', "Binkp: receiver starts batch %d", bp.batchnr + 1);
+		    binkp_clear_filelist();
+		    return Ok;
+		}
 	    } else {
 		Syslog('b', "Binkp/1.0 mode and got M_EOB, goto RxEOB");
 		bp.RxState = RxEOB;
@@ -1419,7 +1419,7 @@ TrType binkp_transmitter(void)
 			bp.messages = 0;
 			bp.TxState = TxGNF;
 			bp.RxState = RxWaitF;
-			Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
+			Syslog('+', "Binkp: transmitter starts batch %d", bp.batchnr + 1);
 			binkp_clear_filelist();
 			return Ok; /* Continue is not good here, troubles with binkd on slow links. */
 		    }
