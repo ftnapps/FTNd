@@ -23,7 +23,7 @@
 
 /* protocol version */
 #define	PRTCLNAME "binkp"
-#define PRTCLVER "1.0"
+#define PRTCLVER "1.1"
 
 #define MAX_BLKSIZE 0x7fff	/* Don't change!				*/
 #define	BLK_HDR_SIZE 2		/* 2 bytes header				*/

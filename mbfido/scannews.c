@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for new News
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -251,64 +251,77 @@ void ScanNews(void)
 
 int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 {
-	List	*tmp;
-	char	temp[128], *resp;
-	int	retval, fetched = 0;
-	long	total, start, end;
+    List    *tmp;
+    char    temp[128], *resp;
+    int	    retval, fetched = 0;
+    long    total, start, end;
 
-	Syslog('M', "do_one_group(%s, %s)", grpname, ftntag);
-	IsDoing((char *)"Scan %s", grpname);
-	sprintf(temp, "GROUP %s\r\n", grpname);
+    Syslog('M', "do_one_group(%s, %s)", grpname, ftntag);
+    IsDoing((char *)"Scan %s", grpname);
+    sprintf(temp, "GROUP %s\r\n", grpname);
+    nntp_send(temp);
+    resp = nntp_receive();
+    retval = atoi(strtok(resp, " "));
+    if (retval == 480) {
+	/*
+	 * We must login
+	 */
+	if (nntp_auth() == FALSE) {
+	    WriteError("Authorisation failure");
+	    nntp_close();
+	    return RETVAL_NOAUTH;
+	}
 	nntp_send(temp);
 	resp = nntp_receive();
 	retval = atoi(strtok(resp, " "));
-	if (retval != 211) {
-		if (retval == 411) {
-			WriteError("No such newsgroup: %s", grpname);
-			return RETVAL_UNEXPECTEDANS;
-		}
-		WriteError("Unknown response %d to GROUP command", retval);
-		return RETVAL_ERROR;
+    }
+    if (retval != 211) {
+	if (retval == 411) {
+	    WriteError("No such newsgroup: %s", grpname);
+	    return RETVAL_UNEXPECTEDANS;
 	}
+	WriteError("Unknown response %d to GROUP command", retval);
+	return RETVAL_ERROR;
+    }
 
-	total = atol(strtok(NULL, " "));
-	start = atol(strtok(NULL, " "));
-	end   = atol(strtok(NULL, " '\0'"));
-	Syslog('m', "GROUP total %d, start %d, end %d, max %d", total, start, end, maxarticles);
-	if ((maxarticles) && (total > maxarticles)) {
-	    start = end - maxarticles;
-	    total = maxarticles;
-	    Syslog('m', "NEW:  total %d, start %d, end %d", total, start, end);
-	}
-	if (!total) {
-		Syslog('M', "No articles");
-		return RETVAL_NOARTICLES;
-	}
+    total = atol(strtok(NULL, " "));
+    start = atol(strtok(NULL, " "));
+    end   = atol(strtok(NULL, " '\0'"));
+    Syslog('m', "GROUP total %d, start %d, end %d, max %d", total, start, end, maxarticles);
+    if ((maxarticles) && (total > maxarticles)) {
+	start = end - maxarticles;
+	total = maxarticles;
+	Syslog('m', "NEW:  total %d, start %d, end %d", total, start, end);
+    }
+    if (!total) {
+	Syslog('M', "No articles");
+	return RETVAL_NOARTICLES;
+    }
 
-	retval = get_xover(grpname, start, end, art);
-	if (retval != RETVAL_OK) {
-		tidy_artlist(art);
-		return retval;
-	}
-
-	if (!do_learn) {
-		for (tmp = *art; tmp; tmp = tmp->next) {
-			if (!tmp->isdupe) {
-				/*
-				 *  If the message isn't a dupe, it must be new for us.
-				 */
-				get_article(tmp->msgid, ftntag);
-				fetched++;
-			}
-		}
-	}
-
+    retval = get_xover(grpname, start, end, art);
+    if (retval != RETVAL_OK) {
 	tidy_artlist(art);
+	return retval;
+    }
 
-	if ((maxarticles) && (fetched == maxarticles))
-	    Syslog('!', "Warning: the max. articles value in newsgroup %s might be to low", grpname);
+    if (!do_learn) {
+	for (tmp = *art; tmp; tmp = tmp->next) {
+	    if (!tmp->isdupe) {
+		/*
+		 *  If the message isn't a dupe, it must be new for us.
+		 */
+		get_article(tmp->msgid, ftntag);
+		fetched++;
+	    }
+	}
+    }
 
-	return RETVAL_OK;
+    tidy_artlist(art);
+
+    if ((maxarticles) && (fetched == maxarticles))
+	Syslog('!', "Warning: the max. articles value in newsgroup %s might be to low", grpname);
+
+    return RETVAL_OK;
 }
 
 

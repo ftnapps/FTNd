@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Internet Library
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -44,7 +44,6 @@ struct sockaddr_in	nntp_loc;	/* For local socket address	*/
 struct sockaddr_in	nntp_rem;	/* For remote socket address	*/
 
 
-int nntp_auth(void);
 
 
 int nntp_connect(void)

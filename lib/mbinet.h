@@ -1,6 +1,7 @@
 #ifndef _MBINET_H
 #define	_MBINET_H
 
+/* $Id$ */
 
 int	smtp_connect(void);
 int	smtp_send(char *);
@@ -13,6 +14,7 @@ int     nntp_send(char *);
 char    *nntp_receive(void);
 int     nntp_close(void);
 int     nntp_cmd(char *, int);
+int	nntp_auth(void);
 
 int	pop3_connect(void);
 int	pop3_send(char *);
@@ -21,4 +23,3 @@ int	pop3_close(void);
 int	pop3_cmd(char *);
 
 #endif
-

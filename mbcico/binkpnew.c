@@ -164,6 +164,7 @@ struct binkprec {
     unsigned long	nethold;		/* Netmail on hold		    */
     unsigned long	mailhold;		/* Packed mail on hold		    */
 
+    int			batchnr;
     int			msgs_on_queue;		/* Messages on the queue	    */
 };
 
@@ -192,7 +193,7 @@ char	*binkp2unix(char *);			    /* Unix -> Binkp escape	    */
 void	fill_binkp_list(binkp_list **, file_list *, off_t); /* Build pending files  */
 void	debug_binkp_list(binkp_list **);	    /* Debug pending files list	    */
 int	binkp_pendingfiles(void);		    /* Count pending files	    */
-
+void	binkp_clear_filelist(void);		    /* Clear current filelist	    */
 
 static int  orgbinkp(void);			    /* Originate session state	    */
 static int  ansbinkp(void);			    /* Answer session state	    */
@@ -814,9 +815,8 @@ SM_RETURN
  */
 int file_transfer(void)
 {
-    int		rc = 0, complete = FALSE;
+    int		rc = 0;
     TrType	Trc = Ok;
-    binkp_list	*tmp;
     
     for (;;) {
 	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
@@ -830,10 +830,6 @@ int file_transfer(void)
 				break;
 
 	    case Switch:	if ((bp.RxState == RxDone) && (bp.TxState == TxDone)) {
-				    complete = TRUE;
-				}
-
-				if (complete) {
 				    Syslog('+', "Binkp: file transfer complete rc=%d", bp.rc);
 				    bp.FtState = DeinitTransfer;
 				    break;
@@ -844,9 +840,16 @@ int file_transfer(void)
 				 */
 				rc = binkp_poll_frame();
 				if (rc == -1) {
-				    bp.rc = rc;
-				    bp.FtState = DeinitTransfer;
-				    break;
+				    if (bp.local_EOB && bp.remote_EOB) {
+					Syslog('b', "Binkp: ignore TCP error in EOB state");
+				    } else {
+					/*
+					 * Only check if not in EOB state
+					 */
+					bp.rc = rc;
+					bp.FtState = DeinitTransfer;
+					break;
+				    } 
 				} else if (rc == 1) {
 				    bp.FtState = Receive;
 				    break;
@@ -898,20 +901,7 @@ int file_transfer(void)
 	    case DeinitTransfer:/*
 				 * In case of a transfer error the filelist is not yet cleared
 				 */
-				if (tosend != NULL) {
-				    Syslog('b', "Clear current filelist");
-				    for (tmp = bll; bll; bll = tmp) {
-					tmp = bll->next;
-					if (bll->local)
-					    free(bll->local);
-					if (bll->remote)
-					    free(bll->remote);
-					free(bll);
-				    }
-
-				    tidy_filelist(tosend, TRUE);
-				    tosend = NULL;
-				}
+				binkp_clear_filelist();
 				if (bp.rc)
 				    return MBERR_FTRANSFER;
 				else
@@ -964,8 +954,20 @@ TrType binkp_receiver(void)
             return Ok;
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: got M_EOB");
+	    if ((bp.Major == 1) && (bp.Minor != 0) && bp.local_EOB && bp.remote_EOB && ((bp.local_msgs + bp.remote_msgs) > 2)) {
+		Syslog('b', "Binkp: 1.1 mode, stay in RxWaitF");
+		bp.batchnr++;
+		bp.local_EOB = FALSE;
+		bp.remote_EOB = FALSE;
+		bp.local_msgs = 0;
+		bp.remote_msgs = 0;
+		bp.TxState = TxGNF;
+		bp.RxState = RxWaitF;
+		Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
+		binkp_clear_filelist();
+		return Ok;
+	    }
             bp.RxState = RxEOB;
-	    bp.remote_EOB = TRUE;
             return Ok;
         } else if (bcmd == MM_FILE) {
             bp.RxState = RxAccF;
@@ -1168,6 +1170,7 @@ TrType binkp_receiver(void)
 	    bp.RxState = RxDone;
 	    return Failure;
 	}
+
     } else if (bp.RxState == RxDone) {
 	return Ok;
     }
@@ -1226,10 +1229,12 @@ TrType binkp_transmitter(void)
 	    }
 	    debug_binkp_list(&bll);
 
-	    Syslog('+', "Binkp: mail %ld, files %ld bytes", bp.nethold, bp.mailhold);
-	    if ((rc = binkp_send_command(MM_NUL, "TRF %ld %ld", bp.nethold, bp.mailhold))) {
-		bp.TxState = TxDone;
-		return Failure;
+	    if ((bp.nethold || bp.mailhold) || (bp.batchnr == 0)) {
+		Syslog('+', "Binkp: mail %ld, files %ld bytes", bp.nethold, bp.mailhold);
+		if ((rc = binkp_send_command(MM_NUL, "TRF %ld %ld", bp.nethold, bp.mailhold))) {
+		    bp.TxState = TxDone;
+		    return Failure;
+		}
 	    }
 	}
 	
@@ -1285,11 +1290,9 @@ TrType binkp_transmitter(void)
 	    /*
 	     * No more files
 	     */
-	
 	    Syslog('+', "Binkp: sending M_EOB");
 	    rc = binkp_send_command(MM_EOB, "");
 	    bp.TxState = TxWLA;
-	    bp.local_EOB = TRUE;
 	    if (rc)
 		return Failure;
 	    else
@@ -1359,36 +1362,59 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxWLA) {
 
-	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0) && (bp.RxState >= RxEOB)) {
-	    Syslog('b', "The queue is empty and RxState >= RxEOB");
-	    bp.TxState = TxDone;
-	    Syslog('+', "Binkp: there were %d messages sent", bp.local_msgs);
-	    Syslog('+', "Binkp: there were %d messages received", bp.remote_msgs);
-	    if (bp.local_EOB && bp.remote_EOB) {
-		Syslog('b', "Binkp: transmitter puts receiver state to RxDone");
-		bp.RxState = RxDone;    /* Not in FSP-1018 rev.1 */
-	    }
-	    if (tosend != NULL) {
-		Syslog('b', "Clear current filelist");
+	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0)) {
 
-		for (tmp = bll; bll; bll = tmp) {
-		    tmp = bll->next;
-		    if (bll->local)
-			free(bll->local);
-		    if (bll->remote)
-			free(bll->remote);
-		    free(bll);
+	    if ((bp.RxState >= RxEOB) && (bp.Major == 1) && (bp.Minor == 0)) {
+		bp.TxState = TxDone;
+		if (bp.local_EOB && bp.remote_EOB) {
+		    Syslog('b', "Binkp: binkp/1.0 session seems complete");
+		    bp.RxState = RxDone;    /* Not in FSP-1018 rev.1 */
 		}
 
-		tidy_filelist(tosend, TRUE);
-		tosend = NULL;
+		binkp_clear_filelist();
+		return Ok;
 	    }
-	    return Ok;
-	}
 
-	if ((bp.msgs_on_queue == 0) && (binkp_pendingfiles() == 0) && (bp.RxState < RxEOB)) {
-	    bp.TxState = TxWLA;
-	    return Ok;
+	    if ((bp.RxState < RxEOB) && (bp.Major == 1) && (bp.Minor == 0)) {
+		bp.TxState = TxWLA;
+		return Ok;
+	    }
+
+	    if ((bp.Major == 1) && (bp.Minor != 0)) {
+		Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s local_msgs=%d remote_msgs=%d",
+			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.local_msgs, bp.remote_msgs);
+
+		if (bp.local_EOB && bp.remote_EOB) {
+		    /*
+		     * We did send EOB and got a EOB
+		     */
+		    if ((bp.local_msgs < 2) && (bp.remote_msgs < 2)) {
+			/*
+			 * Nothing sent anymore, finish
+			 */
+			Syslog('b', "Binkp: binkp/1.1 session seems complete");
+			bp.RxState = RxDone;
+			bp.TxState = TxDone;
+		    } else {
+			/*
+			 * Start new batch
+			 */
+			bp.batchnr++;
+			bp.local_EOB = FALSE;
+			bp.remote_EOB = FALSE;
+			bp.local_msgs = 0;
+			bp.remote_msgs = 0;
+			bp.TxState = TxGNF;
+			bp.RxState = RxWaitF;
+			Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
+			binkp_clear_filelist();
+			return Continue;
+		    }
+		}
+
+		binkp_clear_filelist();
+		return Ok;
+	    }
 	}
 
 	if (bp.msgs_on_queue) {
@@ -1429,6 +1455,9 @@ int binkp_send_frame(int cmd, char *buf, int len)
     if (cmd) {
 	header = ((BINKP_CONTROL_BLOCK + len) & 0xffff);
 	bp.local_msgs++;
+	if (buf[0] == MM_EOB) {
+	    bp.local_EOB = TRUE;
+	}
     } else {
 	header = ((BINKP_DATA_BLOCK + len) & 0xffff);
     }
@@ -1704,6 +1733,9 @@ int binkp_poll_frame(void)
 			bp.remote_msgs++;
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
+			if (bcmd == MM_EOB) {
+			    bp.remote_EOB = TRUE;
+			}
 		    }
 		    rc = 1;
 		    break;
@@ -2057,6 +2089,32 @@ void debug_binkp_list(binkp_list **bkll)
 
     for (tmpl = *bkll; tmpl; tmpl = tmpl->next)
 	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
+}
+
+
+
+/*
+ * Clear current filelist
+ */
+void binkp_clear_filelist(void)
+{
+    binkp_list	*tmp;
+
+    if (tosend != NULL) {
+	Syslog('b', "Clear current filelist");
+
+	for (tmp = bll; bll; bll = tmp) {
+	    tmp = bll->next;
+	    if (bll->local)
+		free(bll->local);
+	    if (bll->remote)
+		free(bll->remote);
+	    free(bll);
+	}
+
+	tidy_filelist(tosend, TRUE);
+	tosend = NULL;
+    }
 }
 
 
