@@ -97,12 +97,10 @@
 #include <fcntl.h>
 #if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <netinet/in_systm.h>
+#include <libgen.h>
 #endif
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-#if defined(__NetBSD__)
-#include <libgen.h>
-#endif
 
 
 /*
