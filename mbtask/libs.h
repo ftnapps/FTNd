@@ -64,6 +64,7 @@
 #include <sys/mount.h>
 #include <sys/wait.h>
 #include <pwd.h>
+#include <pthread.h>
 
 #include <stddef.h>
 #include <fcntl.h>

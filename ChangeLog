@@ -13,6 +13,9 @@ v0.39.3		26-Nov-2003
 	mbsetup:
 		Removed binkp CRC settings.
 
+	mbtask:
+		The ping function now runs in a separate thread.
+
 
 v0.39.2		21-Nov-2003 - 26-Nov-2003
 

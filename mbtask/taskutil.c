@@ -148,14 +148,14 @@ void Syslog(int grade, const char *format, ...)
 	
     if (lcnt) {
 	lcnt++;
-        fprintf(debugfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+        fprintf(debugfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), mypid, lcnt);
 	if (!debug)
-	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), mypid, lcnt);
     }
     lcnt = 0;
 
     if (!debug) {
-	fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
+	fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), mypid);
 	fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
 	if (*outstr == '$')
 	    fprintf(logfile, ": %s\n", strerror(errno));
@@ -169,7 +169,7 @@ void Syslog(int grade, const char *format, ...)
 	free(logname);
     }
 
-    fprintf(debugfile, "%c %s mbtask[%d] ", grade, date(), getpid());
+    fprintf(debugfile, "%c %s mbtask[%d] ", grade, date(), mypid);
     fprintf(debugfile, *outstr == '$' ? outstr+1 : outstr);
     if (*outstr == '$')
 	fprintf(debugfile, ": %s\n", strerror(errno));

@@ -48,6 +48,8 @@
 #include "mbtask.h"
 
 
+#define	NUM_THREADS	1			/* Max.	nr of threads	*/
+
 
 /*
  *  Global variables
@@ -106,6 +108,16 @@ extern int		isdn_free;		/* ISDN lines free	*/
 extern pp_list		*pl;			/* List of tty ports	*/
 extern int		ipmailers;		/* TCP/IP mail sessions	*/
 extern int		tosswait;		/* Toss wait timer	*/
+extern pid_t		mypid;			/* Pid of daemon	*/
+
+
+
+/*
+ * Global thread vaiables
+ */
+int		thr_id[NUM_THREADS];		/* thread ID's		*/
+pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
+pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;	/* Ping mutex	*/
 
 
 
@@ -932,7 +944,12 @@ void scheduler(void)
     if (!TCFG.max_tcp && !pots_lines && !isdn_lines) {
 	Syslog('?', "ERROR: this system cannot connect to other systems, check setup");
     }
-	
+
+    /*
+     * Install ping thread
+     */
+    thr_id[0] = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
+
     /*
      * Enter the mainloop (forever)
      */
@@ -1093,7 +1110,7 @@ void scheduler(void)
 	    oldsec = tm->tm_sec;
 	    if (ptimer)
 		ptimer--;
-	    check_ping();
+//	    check_ping();
 	}
 
 	if (Processing) {
@@ -1338,6 +1355,7 @@ int main(int argc, char **argv)
     sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
     load_maincfg();
 
+    mypid = getpid();
     Syslog(' ', " ");
     Syslog(' ', "MBTASK v%s", VERSION);
     sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
@@ -1399,6 +1417,7 @@ int main(int argc, char **argv)
 		Syslog('?', "$Reopen of stderr to /dev/null failed");
 		_exit(MBERR_EXEC_FAILED);
 	    }
+	    mypid = getpid();
             scheduler();
 	    /* Not reached */
     default:
@@ -1415,6 +1434,7 @@ int main(int argc, char **argv)
             }
 	    free(lockfile);
             Syslog('+', "Starting daemon with pid %d", frk);
+	    pthread_exit(NULL);
             exit(MBERR_OK);
     }
 

@@ -1,12 +1,7 @@
-/* $Id$ */
-
 #ifndef _PING_H
-#define	_PING_H
+#define _PING_H
 
-
-typedef enum {P_BOOT, P_PAUSE, P_SENT, P_WAIT, P_ERROR} PINGSTATE;
-
-
+/* $Id$ */
 
 /*
  *  Defines. 
@@ -15,7 +10,7 @@ typedef enum {P_BOOT, P_PAUSE, P_SENT, P_WAIT, P_ERROR} PINGSTATE;
 #define ICMP_MAX_ERRS           5
 #define SET_SOCKA_LEN4(socka)
 
-void		check_ping(void);
-void		init_pingsocket(void);
+void	init_pingsocket(void);
+void	*ping_thread(void);
 
 #endif
