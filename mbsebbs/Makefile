@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-SRCS		= signature.c filesub.c language.c mbtoberep.c \
+SRCS		= signature.c filesub.c language.c \
 		  msgutil.c oneline.c morefile.c \
 		  email.c fsedit.c lineedit.c page.c \
 		  bye.c funcs.c mail.c term.c ttyio.c openport.c \
@@ -94,7 +94,6 @@ depend:
 signature.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h signature.h funcs.h input.h language.h timeout.h term.h ttyio.h
 filesub.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbsedb.h filesub.h funcs.h language.h input.h misc.h timeout.h exitinfo.h change.h term.h ttyio.h
 language.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h term.h ttyio.h
-mbtoberep.o:
 msgutil.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msgtext.h ../lib/msg.h oneline.h msgutil.h
 oneline.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h funcs.h input.h language.h term.h ttyio.h
 morefile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h morefile.h timeout.h term.h ttyio.h
