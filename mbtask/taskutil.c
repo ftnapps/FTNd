@@ -265,7 +265,7 @@ void CreateSema(char *sem)
     char    temp[PATH_MAX];
     int     fd;
 
-    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0)
 	return;
     if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
@@ -281,7 +281,7 @@ void TouchSema(char *sem)
     char    temp[PATH_MAX];
     int     fd;
 
-    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
         close(fd);
     } else
@@ -294,7 +294,7 @@ void RemoveSema(char *sem)
 {
     char    temp[PATH_MAX];
 
-    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK))
 	return;
     if (unlink(temp) == -1)
@@ -307,7 +307,7 @@ int IsSema(char *sem)
 {
     char    temp[PATH_MAX];
 
-    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     return (access(temp, F_OK) == 0);
 }
 

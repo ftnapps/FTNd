@@ -89,7 +89,7 @@ void menu()
 {
     FILE    *pMenuFile;
     int	    iFoundKey = FALSE, Key, IsANSI;
-    char    *Input, *Semfile, *sMenuPathFileName, buf[81];
+    char    *Input, *sMenuPathFileName, buf[81];
 
     Input = calloc(PATH_MAX, sizeof(char));
     sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
@@ -175,17 +175,13 @@ void menu()
 	    /*
 	     * Check the upsdown semafore
 	     */
-	    Semfile = calloc(PATH_MAX, sizeof(char));
-	    sprintf(Semfile, "%s/sema/upsdown", getenv("MBSE_ROOT"));
-	    if (file_exist(Semfile, R_OK) == 0) {
+	    if (IsSema((char *)"upsdown")) {
 		fclose(pMenuFile);
 		Syslog('+', "Kicking user out, upsdown semafore detected");
 		printf("System power failure, closing the bbs\n\n");
-		free(Semfile);
 		sleep(3);
 		Good_Bye(MBERR_OK);
 	    }
-	    free(Semfile);
 
 	    /*
 	     * Check if SysOp wants to chat to user everytime user gets prompt.

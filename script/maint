@@ -14,7 +14,7 @@ fi
       
 # Don't do maintenance if running on UPS battery power.
 #
-if [ -f $MBSE_ROOT/sema/upsalarm ]; then
+if [ -f $MBSE_ROOT/var/sema/upsalarm ]; then
     exit 0
 fi
 

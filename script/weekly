@@ -14,7 +14,7 @@ fi
       
 # While the system is on UPS battery power, don't start maintenance
 #
-while [ -f $MBSE_ROOT/sema/upsalarm ]; do
+while [ -f $MBSE_ROOT/var/sema/upsalarm ]; do
    sleep 60
 done
 

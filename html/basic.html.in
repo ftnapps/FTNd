@@ -62,7 +62,6 @@ layout looks like this:<br>
 /opt/mbse/italian/menus        0750  Italian menu files
 /opt/mbse/italian/txtfiles     0770  Italian ANSI files
 /opt/mbse/log                  0770  MBSE BBS logfiles
-/opt/mbse/sema                 0777  Semafore files
 /opt/mbse/share/doc            0750  Generated sitedocs
 /opt/mbse/share/doc/html       0750  Generated html sitedocs
 /opt/mbse/share/doc/tags       0750  Generated area tags
@@ -88,6 +87,7 @@ layout looks like this:<br>
 /opt/mbse/var/queue            0750  Queue for before outbound
 /opt/mbse/var/rules            0770  Echomail area rules files
 /opt/mbse/var/run              0770  Pid files of running programs
+/opt/mbse/var/sema             0777  Semafore files
 /opt/mbse/var/ticqueue         0750  Queue for TIC files
 /opt/mbse/var/unknown          0750  Unprotected inbound directory
 </pre>

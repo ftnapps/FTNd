@@ -16,7 +16,7 @@
 <body>
 <blockquote>
 <div align="Center"><h1>MBSE BBS FAQ and Howto.</h1></div>
-<div align="Right"><h5>Last updated 11-Aug-2004</h5></div>
+<div align="Right"><h5>Last updated 14-Sep-2004</h5></div>
 
 <pre>
 Authors: P.E. Kimble aka King Kimerud            kimerud@bayhaus.org
@@ -570,7 +570,7 @@ do
     i=60;
     while let 'i &gt; 0' &amp;&amp; let 'connect == 0'
     do
-        if [ -f $MBSE_ROOT/sema/is_inet ]; then
+        if [ -f $MBSE_ROOT/var/sema/is_inet ]; then
             connect=1
             echo "mbtask detected internet"     | $LOGGER
         fi
@@ -580,7 +580,7 @@ do
     #
     # Check if we have a connection
     #
-    if [ ! -f $MBSE_ROOT/sema/is_inet ]; then
+    if [ ! -f $MBSE_ROOT/var/sema/is_inet ]; then
         echo "Failed, 10 seconds pause ..."     | $LOGGER
         sleep 10
     fi
@@ -598,7 +598,7 @@ $MBSE_ROOT/bin/mbout poll f5003.n280.z2 f19.n280.z2 -quiet
 i=25;
 while let 'i &gt; 0'
 do
-    if [ -f $MBSE_ROOT/sema/do_inet ]; then
+    if [ -f $MBSE_ROOT/var/sema/do_inet ]; then
         i=0;
     else
         let i=i-1;
@@ -614,7 +614,7 @@ done
 i=3600;
 while let 'i &gt; 0'
 do
-    if [ ! -f $MBSE_ROOT/sema/do_inet ]; then
+    if [ ! -f $MBSE_ROOT/var/sema/do_inet ]; then
         i=0;
     else
         let i=i-1;

@@ -53,7 +53,6 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/html
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/tags
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/sema
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/tmp
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/home
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch
@@ -117,6 +116,7 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/queue
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/rules
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/run
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/var/sema
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/ticqueue
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/unknown
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
@@ -128,6 +128,8 @@ install:
 			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
 			echo "you may remove that obsolete directory." ; \
 		fi
+		@rm -rf ${PREFIX}/sema
+
 
 dist tar:	${TARFILE}
 

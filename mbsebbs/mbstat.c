@@ -246,8 +246,7 @@ int Wait(void)
 	int	Waiting = 3600;
 	char	buf[PATH_MAX];
 
-	sprintf(buf, "%s/sema/upsdown", getenv("MBSE_ROOT"));
-	if (file_exist(buf, R_OK) == 0)
+	if (IsSema((char *)"upsdown"))
 		Waiting = 30;
 
 	Syslog('+', "Waiting for the BBS to become free, timeout %d seconds", Waiting);

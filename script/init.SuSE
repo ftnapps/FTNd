@@ -32,7 +32,7 @@ case "$1" in
     start)
         echo -n "MBSE BBS starting:"
 	rm -f ${MBSE_ROOT}/var/run/*
-	rm -f ${MBSE_ROOT}/sema/*
+	rm -f ${MBSE_ROOT}/var/sema/*
 	rm -f ${MBSE_ROOT}/var/*.LCK
 	rm -f ${MBSE_ROOT}/tmp/mb*
 	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null

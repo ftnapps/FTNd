@@ -125,8 +125,8 @@ static void die(int onsig)
 		fprintf(fp, "JAMHARDDELETE NO\n\n");
 
 		fprintf(fp, "; Semaphore files\n;\n");
-		fprintf(fp, "SEMAPHORE NETSCAN    %s/sema/mailout\n", getenv("MBSE_ROOT"));
-		fprintf(fp, "SEMAPHORE ECHOSCAN   %s/sema/mailout\n\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "SEMAPHORE NETSCAN    %s/var/sema/mailout\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "SEMAPHORE ECHOSCAN   %s/var/sema/mailout\n\n", getenv("MBSE_ROOT"));
 
 		gold_areas(fp);
 	    }
