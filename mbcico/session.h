@@ -5,9 +5,7 @@
 
 #define TCPMODE_NONE 0
 #define	TCPMODE_IFC 1		/* ifcico native EMSI on raw TCP */
-#ifdef USE_TELNET
 #define	TCPMODE_ITN 2		/* EMSI encapsulation through telnet */
-#endif
 #define	TCPMODE_IBN 3		/* Binkp protocol */
 
 #define SESSION_UNKNOWN 0
