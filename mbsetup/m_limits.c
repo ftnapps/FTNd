@@ -539,6 +539,7 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 {
     char    temp[PATH_MAX];
     FILE    *up, *ip, *no;
+    int	    nr;
 
     sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
@@ -584,10 +585,12 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 	
 	while ((fread(&LIMIT, LIMIThdr.recsize, 1, no)) == 1) {
 	    fseek(up, usrconfighdr.hdrsize, SEEK_SET);
+	    nr = 0;
 	    while (fread(&usrconfig, usrconfighdr.recsize, 1, up) == 1) {
+		nr++;
 		if (strlen(usrconfig.sUserName) && (usrconfig.Security.level == LIMIT.Security)) {
-		    fprintf(ip, "<TR><TD>%ld</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
-			LIMIT.Security, usrconfig.sUserName, usrconfig.sLocation);
+		    fprintf(ip, "<TR><TD>%ld</TD><TD><A HREF=\"user_%d.html\">%s</A></TD><TD>%s</TD></TR>\n", 
+			LIMIT.Security, nr, usrconfig.sUserName, usrconfig.sLocation);
 		}
 	    }
 	}

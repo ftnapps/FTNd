@@ -594,7 +594,8 @@ int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"File specification", hatch.Spec);
-	    add_webtable(wp, (char *)"TIC File area", hatch.Name);
+	    fprintf(wp, "<TR><TH align='left'>TIC File area</TH><TD><A HREF=\"ticarea_%s.html\">%s</A></TD></TR>\n", 
+		    hatch.Name, hatch.Name);
 	    add_webtable(wp, (char *)"Replace file", hatch.Replace);
 	    add_webtable(wp, (char *)"Magic filename", hatch.Magic);
 	    add_webtable(wp, (char *)"File description", hatch.Desc);

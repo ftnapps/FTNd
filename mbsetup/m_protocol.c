@@ -523,45 +523,76 @@ char *PickProtocol(int nr)
 
 int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
-	int	j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *no;
+    int	    j;
 
-	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 8, 5, page, (char *)"BBS Transfer protocols");
-	j = 0;
-	fprintf(fp, "\n\n");
-	fread(&PROThdr, sizeof(PROThdr), 1, no);
+    page = newpage(fp, page);
+    addtoc(fp, toc, 8, 5, page, (char *)"BBS Transfer protocols");
+    j = 0;
+    fprintf(fp, "\n\n");
+    fread(&PROThdr, sizeof(PROThdr), 1, no);
 
-	while ((fread(&PROT, PROThdr.recsize, 1, no)) == 1) {
+    ip = open_webdoc((char *)"protocol.html", (char *)"BBS Transfer Protocols", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+		    
+    while ((fread(&PROT, PROThdr.recsize, 1, no)) == 1) {
 
-		if (j == 4) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "   Selection key    %s\n", PROT.ProtKey);
-		fprintf(fp, "   Protocol name    %s\n", PROT.ProtName);
-		fprintf(fp, "   Upload command   %s\n", PROT.ProtUp);
-		fprintf(fp, "   Download command %s\n", PROT.ProtDn);
-		fprintf(fp, "   Available        %s\n", getboolean(PROT.Available));
-		fprintf(fp, "   Batch protocol   %s\n", getboolean(PROT.Batch));
-		fprintf(fp, "   Bidirectional    %s\n", getboolean(PROT.Bidir));
-		fprintf(fp, "   User advice      %s\n", PROT.Advice);
-		fprintf(fp, "   Efficiency       %d%%\n", PROT.Efficiency);
-		fprintf(fp, "   Security level   %s\n", get_secstr(PROT.Level));
-		fprintf(fp, "\n\n");
-
-		j++;
+	if (j == 4) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	sprintf(temp, "protocol_%s.html", PROT.ProtKey);
+	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, PROT.ProtName);
+	if ((wp = open_webdoc(temp, (char *)"BBS Transfer Protocol", PROT.ProtName))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"protocol.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Selection key", PROT.ProtKey);
+	    add_webtable(wp, (char *)"Protocol name", PROT.ProtName);
+	    add_webtable(wp, (char *)"Upload command", PROT.ProtUp);
+	    add_webtable(wp, (char *)"Download command", PROT.ProtDn);
+	    add_webtable(wp, (char *)"Available", getboolean(PROT.Available));
+	    add_webtable(wp, (char *)"Batch protocol", getboolean(PROT.Batch));
+	    add_webtable(wp, (char *)"Bidirectional", getboolean(PROT.Bidir));
+	    add_webtable(wp, (char *)"User advice", PROT.Advice);
+	    sprintf(temp, "%d%%", PROT.Efficiency);
+	    add_webtable(wp, (char *)"Efficiency", temp);
+	    web_secflags(wp, (char *)"Security level", PROT.Level);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "   Selection key    %s\n", PROT.ProtKey);
+        fprintf(fp, "   Protocol name    %s\n", PROT.ProtName);
+        fprintf(fp, "   Upload command   %s\n", PROT.ProtUp);
+        fprintf(fp, "   Download command %s\n", PROT.ProtDn);
+        fprintf(fp, "   Available        %s\n", getboolean(PROT.Available));
+        fprintf(fp, "   Batch protocol   %s\n", getboolean(PROT.Batch));
+        fprintf(fp, "   Bidirectional    %s\n", getboolean(PROT.Bidir));
+        fprintf(fp, "   User advice      %s\n", PROT.Advice);
+        fprintf(fp, "   Efficiency       %d%%\n", PROT.Efficiency);
+        fprintf(fp, "   Security level   %s\n", get_secstr(PROT.Level));
+        fprintf(fp, "\n\n");
+
+        j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	    
+    fclose(no);
+    return page;
 }
 
 

@@ -524,7 +524,8 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Filemask", magic.Mask);
 	    add_webtable(wp, (char *)"Magic type", getmagictype(magic.Attrib));
 	    add_webtable(wp, (char *)"Active", getboolean(magic.Active));
-	    add_webtable(wp, (char *)"TIC Area", magic.From);
+	    fprintf(wp, "<TR><TH align='left'>TIC Area</TH><TD><A HREF=\"ticarea_%s.html\">%s</A></TD></TR>\n",
+				                    magic.From, magic.From);
 	    fprintf(fp, "   Filemask     %s\n", magic.Mask);
 	    fprintf(fp, "   Type         %s\n", getmagictype(magic.Attrib));
 	    fprintf(fp, "   Active       %s\n", getboolean(magic.Active));
@@ -532,8 +533,9 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 
 	    switch (magic.Attrib) {
 		case MG_ADOPT:
-		case MG_MOVE:	    add_webtable(wp, (char *)"To area", magic.ToArea);
-				    fprintf(fp, "   To area      %s\n", magic.ToArea);
+		case MG_MOVE:	    fprintf(fp, "   To area      %s\n", magic.ToArea);
+				    fprintf(wp, "<TR><TH align='left'>TIC Area</TH><TD><A HREF=\"ticarea_%s.html\">%s</A></TD></TR>\n",
+					    magic.ToArea, magic.ToArea);
 				    break;
 		case MG_EXEC:	    add_webtable(wp, (char *)"Command", magic.Cmd);
 				    add_webtable(wp, (char *)"Compile nodelist", getboolean(magic.Compile));

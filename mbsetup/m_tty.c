@@ -524,47 +524,87 @@ void InitTtyinfo(void)
 
 int tty_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*tty;
-	int	j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *tty;
+    int	    j;
 
-	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	if ((tty = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    if ((tty = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 6, 0, page, (char *)"TTY lines information");
-	j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 6, 0, page, (char *)"TTY lines information");
+    j = 0;
 
-	fprintf(fp, "\n\n");
-	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, tty);
+    fprintf(fp, "\n\n");
+    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, tty);
 
-	while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, tty)) == 1) {
-		if (j == 3) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "     TTY name     %s\n", ttyinfo.comment);
-		fprintf(fp, "     Device name  %s\n", ttyinfo.tty);
-		fprintf(fp, "     Phone or DNS %s\n", ttyinfo.phone);
-		fprintf(fp, "     Line speed   %s\n", ttyinfo.speed);
-		fprintf(fp, "     Fido flags   %s\n", ttyinfo.flags);
-		fprintf(fp, "     Equipment    %s\n", getlinetype(ttyinfo.type));
-		fprintf(fp, "     Available    %s\n", getboolean(ttyinfo.available));
-		fprintf(fp, "     Auth. log    %s\n", getboolean(ttyinfo.authlog));
-		fprintf(fp, "     Honor ZMH    %s\n", getboolean(ttyinfo.honor_zmh));
-		fprintf(fp, "     Callout      %s\n", getboolean(ttyinfo.callout));
-		fprintf(fp, "     Modem type   %s\n", ttyinfo.modem);
-		fprintf(fp, "     Locked speed %ld\n", ttyinfo.portspeed);
-		fprintf(fp, "     EMSI name    %s\n", ttyinfo.name);
-		fprintf(fp, "\n\n");
-		j++;
+    ip = open_webdoc((char *)"ttyinfo.html", (char *)"TTY Lines", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+		    
+    while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, tty)) == 1) {
+	if (j == 3) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(tty);
-	return page;
+	sprintf(temp, "ttyinfo_%s.html", ttyinfo.tty);
+	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, ttyinfo.comment);
+	if ((wp = open_webdoc(temp, (char *)"TTY Line", ttyinfo.comment))) {
+	    /*
+	     * There are devices like pts/1, this will create a subdir for the
+	     * pts lines, we need a different return path.
+	     */
+	    if (strchr(ttyinfo.tty, '/'))
+		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"../ttyinfo.html\">Back</A>\n");
+	    else
+		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"ttyinfo.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"TTY name", ttyinfo.comment);
+	    add_webtable(wp, (char *)"Device name", ttyinfo.tty);
+	    add_webtable(wp, (char *)"Phone or DNS", ttyinfo.phone);
+	    add_webtable(wp, (char *)"Line speed", ttyinfo.speed);
+	    add_webtable(wp, (char *)"Fido flags", ttyinfo.flags);
+	    add_webtable(wp, (char *)"Equipment", getlinetype(ttyinfo.type));
+	    add_webtable(wp, (char *)"Available", getboolean(ttyinfo.available));
+	    add_webtable(wp, (char *)"Auth. log", getboolean(ttyinfo.authlog));
+	    add_webtable(wp, (char *)"Honor ZMH", getboolean(ttyinfo.honor_zmh));
+	    add_webtable(wp, (char *)"Callout", getboolean(ttyinfo.callout));
+	    add_webtable(wp, (char *)"Modem type", ttyinfo.modem);
+	    add_webdigit(wp, (char *)"Locked speed", ttyinfo.portspeed);
+	    add_webtable(wp, (char *)"EMSI name", ttyinfo.name);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "     TTY name     %s\n", ttyinfo.comment);
+	fprintf(fp, "     Device name  %s\n", ttyinfo.tty);
+	fprintf(fp, "     Phone or DNS %s\n", ttyinfo.phone);
+	fprintf(fp, "     Line speed   %s\n", ttyinfo.speed);
+	fprintf(fp, "     Fido flags   %s\n", ttyinfo.flags);
+	fprintf(fp, "     Equipment    %s\n", getlinetype(ttyinfo.type));
+	fprintf(fp, "     Available    %s\n", getboolean(ttyinfo.available));
+	fprintf(fp, "     Auth. log    %s\n", getboolean(ttyinfo.authlog));
+	fprintf(fp, "     Honor ZMH    %s\n", getboolean(ttyinfo.honor_zmh));
+	fprintf(fp, "     Callout      %s\n", getboolean(ttyinfo.callout));
+	fprintf(fp, "     Modem type   %s\n", ttyinfo.modem);
+	fprintf(fp, "     Locked speed %ld\n", ttyinfo.portspeed);
+	fprintf(fp, "     EMSI name    %s\n", ttyinfo.name);
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	    
+    fclose(tty);
+    return page;
 }
 
 

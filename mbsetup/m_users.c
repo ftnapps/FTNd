@@ -662,3 +662,98 @@ void InitUsers(void)
 }
 
 
+
+void users_doc(void)
+{
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *fp;
+    int	    nr = 0;
+
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL)
+	return;
+
+    fread(&usrconfighdr, sizeof(usrconfighdr), 1, fp);
+
+    ip = open_webdoc((char *)"users.html", (char *)"BBS Users", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+		    
+    while (fread(&usrconfig, usrconfighdr.recsize, 1, fp) == 1) {
+	nr++;
+	sprintf(temp, "user_%d.html", nr);
+	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, usrconfig.sUserName);
+	if ((wp = open_webdoc(temp, (char *)"BBS User", usrconfig.sUserName))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"users.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Fidonet Name", usrconfig.sUserName);
+	    add_webtable(wp, (char *)"Unix Name", usrconfig.Name);
+	    web_secflags(wp, (char *)"Security level", usrconfig.Security);
+	    add_webtable(wp, (char *)"Expiry date", usrconfig.sExpiryDate);
+	    web_secflags(wp, (char *)"Expiry security level", usrconfig.ExpirySec);
+	    add_webtable(wp, (char *)"First login date", ctime(&usrconfig.tFirstLoginDate));
+	    add_webtable(wp, (char *)"Last login date", ctime(&usrconfig.tLastLoginDate));
+	    add_webtable(wp, (char *)"Last password change", ctime(&usrconfig.tLastPwdChange));
+	    add_webdigit(wp, (char *)"Credit", usrconfig.Credit);
+	    add_webtable(wp, (char *)"Hidden from lists", getboolean(usrconfig.Hidden));
+	    add_webtable(wp, (char *)"Never delete", getboolean(usrconfig.NeverDelete));
+	    add_webtable(wp, (char *)"Comment", usrconfig.sComment);
+	    add_webtable(wp, (char *)"Locked out", getboolean(usrconfig.LockedOut));
+	    add_webtable(wp, (char *)"Guest user", getboolean(usrconfig.Guest));
+	    add_webtable(wp, (char *)"OLR Extended info", getboolean(usrconfig.OL_ExtInfo));
+	    add_webtable(wp, (char *)"Has e-mail", getboolean(usrconfig.Email));
+	    add_webdigit(wp, (char *)"Total calls", usrconfig.iTotalCalls);
+	    add_webdigit(wp, (char *)"total downloads", usrconfig.Downloads);
+	    add_webdigit(wp, (char *)"Downloaded KBytes", usrconfig.DownloadK);
+	    add_webdigit(wp, (char *)"Total uploads", usrconfig.Uploads);
+	    add_webdigit(wp, (char *)"Uploaded KBytes", usrconfig.UploadK);
+	    add_webdigit(wp, (char *)"Posted messages", usrconfig.iPosted);
+	    add_webdigit(wp, (char *)"Minutes left today", usrconfig.iTimeLeft);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(wp, "<H3>User personal settings</H3>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Handle", usrconfig.sHandle);
+	    add_webtable(wp, (char *)"Location", usrconfig.sLocation);
+	    add_webtable(wp, (char *)"Address", usrconfig.address[0]);
+	    add_webtable(wp, (char *)"Address", usrconfig.address[1]);
+	    add_webtable(wp, (char *)"Address", usrconfig.address[2]);
+	    add_webtable(wp, (char *)"Voice phone", usrconfig.sVoicePhone);
+	    add_webtable(wp, (char *)"Data phone", usrconfig.sDataPhone);
+	    add_webtable(wp, (char *)"Date of birth", usrconfig.sDateOfBirth);
+	    add_webtable(wp, (char *)"Password", usrconfig.Password);
+	    add_webtable(wp, (char *)"Sex", usrconfig.sSex);
+	    add_webtable(wp, (char *)"Protocol", usrconfig.sProtocol);
+	    add_webtable(wp, (char *)"Archiver", usrconfig.Archiver);
+	    add_webtable(wp, (char *)"Character set", getchrs(usrconfig.Charset));
+	    add_webdigit(wp, (char *)"Screen length", usrconfig.iScreenLen);
+	    sprintf(temp, "%c", usrconfig.iLanguage);
+	    add_webtable(wp, (char *)"Language", temp);
+	    add_webtable(wp, (char *)"Use hotkeys", getboolean(usrconfig.HotKeys));
+	    add_webtable(wp, (char *)"ANSI mode", getboolean(usrconfig.GraphMode));
+	    add_webtable(wp, (char *)"Do not disturb", getboolean(usrconfig.DoNotDisturb));
+	    add_webtable(wp, (char *)"Clear Screen", getboolean(usrconfig.Cls));
+	    add_webtable(wp, (char *)"More prompt", getboolean(usrconfig.More));
+	    add_webtable(wp, (char *)"Message editor", getmsgeditor(usrconfig.MsgEditor));
+	    add_webtable(wp, (char *)"Scan new mail", getboolean(usrconfig.MailScan));
+	    add_webtable(wp, (char *)"Display news", getboolean(usrconfig.ieNEWS));
+	    add_webtable(wp, (char *)"Display newfiles", getboolean(usrconfig.ieFILE));
+	    add_webtable(wp, (char *)"Emacs editor keys", getboolean(usrconfig.FSemacs));
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	    
+    fclose(fp);
+}
+
+

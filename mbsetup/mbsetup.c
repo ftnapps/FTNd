@@ -196,7 +196,8 @@ void site_docs(void)
     if (config_read() == -1)
 	return;
 
-    sprintf(temp, "%s/doc/site.doc", getenv("MBSE_ROOT"));
+    sprintf(temp, "%s/share/doc/site.doc", getenv("MBSE_ROOT"));
+    mkdirs(temp, 0755);
     if ((fp = fopen(temp, "w")) == NULL)
 	return;
 
@@ -225,30 +226,30 @@ void site_docs(void)
 	fprintf(hp, " <LI><A HREF=\"global.html\">Global Configuration</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"fidonet.html\">Fido Networks</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"archivers.html\">Archivers</A></LI>\n");
-	fprintf(hp, " <LI>Virus Scaners</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"virscan.html\">Virus Scanners</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"modem.html\">Modem Types</A></LI>\n");
-	fprintf(hp, " <LI>TTY Lines Info</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"ttyinfo.html\">TTY Lines Info</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"nodes.html\">Fidonet Nodes</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"limits.html\">Security Limits</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"language.html\">Language Setup</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"menus.html\">BBS Menus</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"fileareas.html\">File Areas</A></LI>\n");
-	fprintf(hp, " <LI>BBS: <A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
+	fprintf(hp, " <LI>BBS: <A HREF=\"protocol.html\">Transfer Protocols</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
 	fprintf(hp, " <LI>Mail: <A HREF=\"msggroup.html\">Echomail Groups</A></LI>\n");
 	fprintf(hp, " <LI>Mail: <A HREF=\"msgareas.html\">Echomail Areas</A></LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"filegroup.html\">FileEcho Groups</A></LI>\n");
-	fprintf(hp, " <LI>TIC: Fileecho Areas</LI>\n");
+	fprintf(hp, " <LI>TIC: <A HREF=\"ticareas.html\">Fileecho Areas</A></LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"hatch.html\">Hatch Manager</A></LI>\n");
 	fprintf(hp, " <LI>TIC: <A HREF=\"magic.html\">Magic Files</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"newgroup.html\">Newfiles Groups</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"newfiles.html\">Newfiles Reports</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"filefind.html\">Filefind Setup</A></LI>\n");
-	fprintf(hp, " <LI>BBS Users</LI>\n");
-	fprintf(hp, " <LI>Mail Services</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"users.html\">BBS Users</A></LI>\n");
+	fprintf(hp, " <LI><A HREF=\"service.html\">Mail Service Manager</A></LI>\n");
 	fprintf(hp, " <LI><A HREF=\"domain.html\">Domain translation</A></LI>\n");
-	fprintf(hp, " <LI>Task Manager</LI>\n");
-	fprintf(hp, " <LI>Network Routing</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"task.html\">Task Manager</A></LI>\n");
+	fprintf(hp, " <LI><A HREF=\"route.html\">Network Routing</A></LI>\n");
         fprintf(hp, "</UL>\n");
         close_webdoc(hp);
     } else {
@@ -291,6 +292,8 @@ void site_docs(void)
     page = task_doc(fp, toc, page);
     dotter();
     page = route_doc(fp, toc, page);
+    dotter();
+    users_doc();
     dotter();
     ol_doc();
     clrtoeol();

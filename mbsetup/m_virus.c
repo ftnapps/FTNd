@@ -413,39 +413,65 @@ void InitVirus(void)
 
 int virus_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*vir;
-	int	j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *vir;
+    int	    nr = 0, j;
 
-	sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
-	if ((vir = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    if ((vir = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 4, 0, page, (char *)"Virus scanners");
-	j = 0;
-	fprintf(fp, "\n\n");
-	fread(&virscanhdr, sizeof(virscanhdr), 1, vir);
+    page = newpage(fp, page);
+    addtoc(fp, toc, 4, 0, page, (char *)"Virus scanners");
+    j = 0;
+    fprintf(fp, "\n\n");
+    fread(&virscanhdr, sizeof(virscanhdr), 1, vir);
 
-	while ((fread(&virscan, virscanhdr.recsize, 1, vir)) == 1) {
+    ip = open_webdoc((char *)"virscan.html", (char *)"Virus Scanners", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+		    
+    while ((fread(&virscan, virscanhdr.recsize, 1, vir)) == 1) {
 
-		if (j == 5) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "      Scanner name   %s\n", virscan.comment);
-		fprintf(fp, "      Command line   %s\n", virscan.scanner);
-		fprintf(fp, "      Options        %s\n", virscan.options);
-		fprintf(fp, "      Available      %s\n", getboolean(virscan.available));
-		fprintf(fp, "      Errorlevel OK  %d\n", virscan.error); 
-		fprintf(fp, "\n\n\n");
-		j++;
+	if (j == 5) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(vir);
-	return page;
+	nr++;
+	sprintf(temp, "virscan_%d.html", nr);
+	fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, virscan.comment);
+	if ((wp = open_webdoc(temp, (char *)"Virus Scanner", virscan.comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"virscan.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Scanner name", virscan.comment);
+	    add_webtable(wp, (char *)"Command line", virscan.scanner);
+	    add_webtable(wp, (char *)"Options", virscan.options);
+	    add_webtable(wp, (char *)"Available", getboolean(virscan.available));
+	    add_webdigit(wp, (char *)"Errorlevel OK", virscan.error);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "      Scanner name   %s\n", virscan.comment);
+	fprintf(fp, "      Command line   %s\n", virscan.scanner);
+	fprintf(fp, "      Options        %s\n", virscan.options);
+	fprintf(fp, "      Available      %s\n", getboolean(virscan.available));
+	fprintf(fp, "      Errorlevel OK  %d\n", virscan.error); 
+	fprintf(fp, "\n\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	    
+    fclose(vir);
+    return page;
 }
 
 

@@ -1257,73 +1257,230 @@ int NodeInTic(fidoaddr A)
 
 int tic_areas_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX], status[4];
-	FILE		*no;
-	int		i, systems, First = TRUE;
-	sysconnect	System;
+    char	temp[PATH_MAX], status[4];
+    FILE	*ti, *wp, *ip, *no;
+    int		refs, i, k, nr, systems, First = TRUE;
+    sysconnect	System;
 
-	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	fread(&tichdr, sizeof(tichdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&tichdr, tichdr.hdrsize, 1, no);
-	systems = tichdr.syssize / sizeof(sysconnect);
+    fread(&tichdr, sizeof(tichdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&tichdr, tichdr.hdrsize, 1, no);
+    systems = tichdr.syssize / sizeof(sysconnect);
 
-	while ((fread(&tic, tichdr.recsize, 1, no)) == 1) {
+    ip = open_webdoc((char *)"ticareas.html", (char *)"TIC Areas", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&tic, tichdr.recsize, 1, no)) == 1) {
 
-		page = newpage(fp, page);
+	page = newpage(fp, page);
 
-		if (First) {
-			addtoc(fp, toc, 10, 2, page, (char *)"File processing areas");
-			First = FALSE;
-			fprintf(fp, "\n");
-		} else
-			fprintf(fp, "\n\n");
+	if (First) {
+	    addtoc(fp, toc, 10, 2, page, (char *)"File processing areas");
+	    First = FALSE;
+	    fprintf(fp, "\n");
+	} else
+	    fprintf(fp, "\n\n");
 
-		fprintf(fp, "    Area tag    %s\n", tic.Name);
-		fprintf(fp, "    Active      %s\n", getboolean(tic.Active));
-		fprintf(fp, "    Comment     %s\n", tic.Comment);
-		fprintf(fp, "    BBS area    %ld\n", tic.FileArea);
-		fprintf(fp, "    Message     %s\n", tic.Message);
-		fprintf(fp, "    Group       %s\n", tic.Group);
-		fprintf(fp, "    Keep Numbe  %d\n", tic.KeepLatest);
-		fprintf(fp, "    Fido Aka    %s\n", aka2str(tic.Aka));
-		fprintf(fp, "    Convert to  %s\n", tic.Convert);
-		fprintf(fp, "    Convert all %s\n", getboolean(tic.ConvertAll));
-		fprintf(fp, "    Banner file %s\n", tic.Banner);
-		fprintf(fp, "    Security    %s\n", getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
-		fprintf(fp, "    Replace ok. %s\n", getboolean(tic.Replace));
-		fprintf(fp, "    Dupe check  %s\n", getboolean(tic.DupCheck));
-		fprintf(fp, "    Secure      %s\n", getboolean(tic.Secure));
-		fprintf(fp, "    Touch       %s\n", getboolean(tic.Touch));
-		fprintf(fp, "    Virus scan  %s\n", getboolean(tic.VirScan));
-		fprintf(fp, "    Announce    %s\n", getboolean(tic.Announce));
-		fprintf(fp, "    Upd. magic  %s\n", getboolean(tic.UpdMagic));
-		fprintf(fp, "    FILE_ID.DIZ %s\n", getboolean(tic.FileId));
-		fprintf(fp, "    Mandatory   %s\n", getboolean(tic.Mandat));
-		fprintf(fp, "    Upl. discon %s\n", getboolean(tic.UplDiscon));
-		fprintf(fp, "    Notified    %s\n\n", getboolean(tic.Notified));
-
-		for (i = 0; i < systems; i++) {
-			fread(&System, sizeof(sysconnect), 1, no);
-			if (System.aka.zone) {
-				memset(&status, 0, 4);
-				memset(&status, '-', 3);
-				if (System.sendto)
-					status[0] = 'S';
-				if (System.receivefrom)
-					status[1] = 'R';
-				if (System.pause)
-					status[2] = 'P';
-				fprintf(fp, "    Link %2d     %s %s\n", i+1, status, aka2str(System.aka));
-			}
+	sprintf(temp, "ticarea_%s.html", tic.Name);
+	fprintf(ip, " <LI><A HREF=\"%s\">Area %s</A> %s</LI>\n", temp, tic.Name, tic.Comment);
+	if ((wp = open_webdoc(temp, (char *)"TIC Area", tic.Comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"ticareas.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Area tag", tic.Name);
+	    add_webtable(wp, (char *)"Active", getboolean(tic.Active));
+	    add_webtable(wp, (char *)"Comment", tic.Comment);
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&areahdr, sizeof(areahdr), 1, ti);
+		fseek(ti, areahdr.hdrsize + (areahdr.recsize * (tic.FileArea -1)), SEEK_SET);
+		if (fread(&area, areahdr.recsize, 1, ti) == 1) {
+		    fprintf(wp, "<TR><TH align='left'>BBS area</TH><TD>%ld <A HREF=\"filearea_%ld.html\">%s</A></TD></TR>\n",
+			tic.FileArea, tic.FileArea, area.Name);
 		}
+		fclose(ti);
+	    }
+	    add_webtable(wp, (char *)"Message", tic.Message);
+	    fprintf(wp, "<TR><TH align='left'>TIC file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TR>\n",
+		    tic.Group, tic.Group);
+	    add_webdigit(wp, (char *)"Keep Number", tic.KeepLatest);
+	    add_webtable(wp, (char *)"Fido Aka", aka2str(tic.Aka));
+	    add_webtable(wp, (char *)"Convert to", tic.Convert);
+	    add_webtable(wp, (char *)"Convert all", getboolean(tic.ConvertAll));
+	    add_webtable(wp, (char *)"Banner file", tic.Banner);
+	    add_webtable(wp, (char *)"Security", getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
+	    add_webtable(wp, (char *)"Allow replace", getboolean(tic.Replace));
+	    add_webtable(wp, (char *)"Dupe check", getboolean(tic.DupCheck));
+	    add_webtable(wp, (char *)"Secure", getboolean(tic.Secure));
+	    add_webtable(wp, (char *)"Touch filedate", getboolean(tic.Touch));
+	    add_webtable(wp, (char *)"Virus scan", getboolean(tic.VirScan));
+	    add_webtable(wp, (char *)"Announce files", getboolean(tic.Announce));
+	    add_webtable(wp, (char *)"Update magic name", getboolean(tic.UpdMagic));
+	    add_webtable(wp, (char *)"Get FILE_ID.DIZ", getboolean(tic.FileId));
+	    add_webtable(wp, (char *)"Mandatory area", getboolean(tic.Mandat));
+	    add_webtable(wp, (char *)"Uplink disconnect", getboolean(tic.UplDiscon));
+	    add_webtable(wp, (char *)"Notified uplink", getboolean(tic.Notified));
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Area Statistics</H3>\n");
+	    add_statcnt(wp, (char *)"processed files", tic.Files);
+	    add_statcnt(wp, (char *)"processed KBytes", tic.KBytes);
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Connected Systems</H3>\n");
+	}						    
+	    
+	fprintf(fp, "    Area tag    %s\n", tic.Name);
+	fprintf(fp, "    Active      %s\n", getboolean(tic.Active));
+	fprintf(fp, "    Comment     %s\n", tic.Comment);
+	fprintf(fp, "    BBS area    %ld\n", tic.FileArea);
+	fprintf(fp, "    Message     %s\n", tic.Message);
+	fprintf(fp, "    Group       %s\n", tic.Group);
+	fprintf(fp, "    Keep Numbe  %d\n", tic.KeepLatest);
+	fprintf(fp, "    Fido Aka    %s\n", aka2str(tic.Aka));
+	fprintf(fp, "    Convert to  %s\n", tic.Convert);
+	fprintf(fp, "    Convert all %s\n", getboolean(tic.ConvertAll));
+	fprintf(fp, "    Banner file %s\n", tic.Banner);
+	fprintf(fp, "    Security    %s\n", getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
+	fprintf(fp, "    Replace ok. %s\n", getboolean(tic.Replace));
+	fprintf(fp, "    Dupe check  %s\n", getboolean(tic.DupCheck));
+	fprintf(fp, "    Secure      %s\n", getboolean(tic.Secure));
+	fprintf(fp, "    Touch       %s\n", getboolean(tic.Touch));
+	fprintf(fp, "    Virus scan  %s\n", getboolean(tic.VirScan));
+	fprintf(fp, "    Announce    %s\n", getboolean(tic.Announce));
+	fprintf(fp, "    Upd. magic  %s\n", getboolean(tic.UpdMagic));
+	fprintf(fp, "    FILE_ID.DIZ %s\n", getboolean(tic.FileId));
+	fprintf(fp, "    Mandatory   %s\n", getboolean(tic.Mandat));
+	fprintf(fp, "    Upl. discon %s\n", getboolean(tic.UplDiscon));
+	fprintf(fp, "    Notified    %s\n\n", getboolean(tic.Notified));
+
+	refs = 0;
+	for (i = 0; i < systems; i++) {
+	    fread(&System, sizeof(sysconnect), 1, no);
+	    if (System.aka.zone) {
+		if ((refs == 0) && (wp != NULL)) {
+		    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+		    fprintf(wp, "<COL width='20%%'><COL witdh='10%%'><COL width='70%%'>\n");
+		    fprintf(wp, "<TBODY>\n");
+		}
+		refs++;
+		memset(&status, 0, 4);
+		memset(&status, '-', 3);
+		if (System.sendto)
+		    status[0] = 'S';
+		if (System.receivefrom)
+		    status[1] = 'R';
+		if (System.pause)
+		    status[2] = 'P';
+		fprintf(fp, "    Link %2d     %s %s\n", i+1, status, aka2str(System.aka));
+		if (wp != NULL) {
+		    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+		    if ((ti = fopen(temp, "r"))) {
+			fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
+			fseek(ti, 0, SEEK_SET);
+			fread(&nodeshdr, nodeshdr.hdrsize, 1, ti);
+			while ((fread(&nodes, nodeshdr.recsize, 1, ti)) == 1) {
+			    fseek(ti, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+			    for (k = 0; k < 20; k++) {
+				if ((nodes.Aka[k].zone == System.aka.zone) &&
+				    (nodes.Aka[k].net == System.aka.net ) &&
+				    (nodes.Aka[k].node == System.aka.node) &&
+				    (nodes.Aka[k].point == System.aka.point) &&
+				    (strcmp(nodes.Aka[k].domain, System.aka.domain) == 0)) {
+				    fprintf(wp, "<TR><TD><A HREF=\"node_%d_%d_%d_%d_%s.html\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+					    nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node, nodes.Aka[0].point, 
+					    nodes.Aka[0].domain, aka2str(nodes.Aka[0]), status, nodes.Sysop);
+				}
+			    }
+			}
+			fclose(ti);
+		    }
+		}
+	    }
 	}
 
-	fclose(no);
-	return page;
+	if (wp != NULL) {
+	    if (refs == 0)
+		fprintf(wp, "No Nodes References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    
+	    fprintf(wp, "<HR>\n");
+            fprintf(wp, "<H3>Hatch References</H3>\n");
+	    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	    nr = refs = 0;
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&hatchhdr, sizeof(hatchhdr), 1, ti);
+		while ((fread(&hatch, hatchhdr.recsize, 1, ti)) == 1) {
+		    nr++;
+		    if (hatch.Active && (strcmp(tic.Name, hatch.Name) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			refs++;
+			sprintf(temp, "hatch_%d.html", nr);
+			fprintf(wp, "<TR><TD><A HREF=\"%s\">Hatch %d</A></TD><TD>%s</TD></TR>\n",
+				temp, nr, hatch.Spec);
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No Hatch References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Magic References</H3>\n");
+	    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	    nr = refs = 0;
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&magichdr, sizeof(magichdr), 1, ti);
+		while ((fread(&magic, magichdr.recsize, 1, ti)) == 1) {
+		    nr++;
+		    if (magic.Active && (strcmp(tic.Name, magic.From) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			refs++;
+			sprintf(temp, "magic_%d.html", nr);
+			fprintf(wp, "<TR><TD><A HREF=\"%s\">Magic %d</A></TD><TD>(%s) %s</TD></TR>\n",
+				    temp, nr, getmagictype(magic.Attrib), magic.Mask);
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No Magic References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+
+	    close_webdoc(wp);
+	}
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(no);
+    return page;
 }
 
 

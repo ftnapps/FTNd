@@ -152,7 +152,7 @@ FILE *open_webdoc(char *filename, char *title, char *title2)
     time_t  now;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/doc/html/%s", getenv("MBSE_ROOT"), filename);
+    sprintf(temp, "%s/share/doc/html/%s", getenv("MBSE_ROOT"), filename);
     mkdirs(temp, 0755);
 
     if ((fp = fopen(temp, "w+")) == NULL) {

@@ -512,7 +512,7 @@ void InitRoute(void)
 int route_doc(FILE *fp, FILE *toc, int page)
 {
     char    *temp;
-    FILE    *no;
+    FILE    *wp, *no;
     int	    j;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -529,6 +529,14 @@ int route_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "\n\n");
     fread(&routehdr, sizeof(routehdr), 1, no);
 
+    wp = open_webdoc((char *)"route.html", (char *)"Netmail Routing", NULL);
+    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(wp, "<UL>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<TBODY>\n");
+    fprintf(wp, "<TR><TH align='left'>Route mask</TH><TH align='left'>Src username</TH><TH align='left'>Action</TH>");
+    fprintf(wp, "<TH align='left'>Destination</TH><TH align='left'>Dest username</TH><TH align='left'>Active</TH></TR>\n");
+					    
     while ((fread(&route, routehdr.recsize, 1, no)) == 1) {
 
 	if (j == 7) {
@@ -536,7 +544,10 @@ int route_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "\n");
 	    j = 0;
 	}
-
+	
+	fprintf(wp, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n",
+		route.mask, route.sname, get_routetype(route.routetype), 
+		aka2str(route.dest), route.dname, getboolean(route.Active));
 	fprintf(fp, "     Route mask        %s\n", route.mask);
 	fprintf(fp, "     Src username      %s\n", route.sname);
 	fprintf(fp, "     Route action      %s\n", get_routetype(route.routetype));
@@ -546,7 +557,10 @@ int route_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "\n\n");
 	j++;
     }
-
+    
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    close_webdoc(wp);
     fclose(no);
     free(temp);
     return page;

@@ -55,9 +55,13 @@ install:
 		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
 			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
 		fi
-		@if [ ! -d ${PREFIX}/doc ] ; then \
-			mkdir ${PREFIX}/doc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/doc ; \
+		@if [ ! -d ${PREFIX}/share ] ; then \
+			mkdir ${PREFIX}/share ; \
+			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share ; \
+		fi
+		@if [ ! -d ${PREFIX}/share/doc ] ; then \
+			mkdir ${PREFIX}/share/doc ; \
+			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/share/doc ; \
 		fi
 		@if [ ! -d ${PREFIX}/fdb ] ; then \
 			mkdir ${PREFIX}/fdb ; \

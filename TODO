@@ -169,8 +169,3 @@ mbsetup:
 
 	N: When a message area is deleted, delete the rulesfile too.
 
-	X: Generate crossreference document:
-	   Fileechos       <=> Groups
-	   Fileechos       <=> Magic processing
-	   Fileechos       <=> Hatch
-

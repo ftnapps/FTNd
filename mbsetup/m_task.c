@@ -184,40 +184,70 @@ void task_menu(void)
 
 int task_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
+    char    temp[PATH_MAX];
+    FILE    *wp, *no;
 
-	sprintf(temp, "%s/etc/task.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-	fread(&TCFG, sizeof(TCFG), 1, no);
-	fclose(no);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 16, 0, page, (char *)"Task manager");
-
-	fprintf(fp, "\n");
-	fprintf(fp, "     Command on mailout     %s\n", TCFG.cmd_mailout);
-	fprintf(fp, "     Command on mailin      %s\n", TCFG.cmd_mailin);
-	fprintf(fp, "     Command on newnews     %s\n", TCFG.cmd_newnews);
-	fprintf(fp, "     Command on mbindex 1   %s\n", TCFG.cmd_mbindex1);
-	fprintf(fp, "     Command on mbindex 2   %s\n", TCFG.cmd_mbindex2);
-	fprintf(fp, "     Command on mbindex 3   %s\n", TCFG.cmd_mbindex3);
-	fprintf(fp, "     Command on msglink     %s\n", TCFG.cmd_msglink);
-	fprintf(fp, "     Command on reqindex    %s\n\n", TCFG.cmd_reqindex);
-
-	fprintf(fp, "     Zone Mail Hour start   %s\n", TCFG.zmh_start);
-	fprintf(fp, "     Zone Mail Hour end     %s\n\n", TCFG.zmh_end);
-
-	fprintf(fp, "     ISP connect command    %s\n", TCFG.isp_connect);
-	fprintf(fp, "     ISP hangup command     %s\n", TCFG.isp_hangup);
-	fprintf(fp, "     ISP ping host 1        %s\n", TCFG.isp_ping1);
-	fprintf(fp, "     ISP ping host 2        %s\n", TCFG.isp_ping2);
-
-	fprintf(fp, "     Maximum system load    %0.2f\n", TCFG.maxload);
-	fprintf(fp, "     Max TCP/IP connections %d\n", TCFG.max_tcp);
-
+    sprintf(temp, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
 	return page;
+    fread(&TCFG, sizeof(TCFG), 1, no);
+    fclose(no);
+
+    wp = open_webdoc((char *)"task.html", (char *)"Task Manager", NULL);
+    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(wp, "<P>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"Command on mailout", TCFG.cmd_mailout);
+    add_webtable(wp, (char *)"Command on mailin", TCFG.cmd_mailin);
+    add_webtable(wp, (char *)"Command on newnews", TCFG.cmd_newnews);
+    add_webtable(wp, (char *)"Command on mbindex 1", TCFG.cmd_mbindex1);
+    add_webtable(wp, (char *)"Command on mbindex 2", TCFG.cmd_mbindex1);
+    add_webtable(wp, (char *)"Command on mbindex 3", TCFG.cmd_mbindex2);
+    add_webtable(wp, (char *)"Command on msglink", TCFG.cmd_msglink);
+    add_webtable(wp, (char *)"Command on reqindex", TCFG.cmd_reqindex);
+    fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
+    add_webtable(wp, (char *)"Zone Mail Hour start", TCFG.zmh_start);
+    add_webtable(wp, (char *)"Zone Mail Hour end", TCFG.zmh_end);
+    fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
+    add_webtable(wp, (char *)"ISP connect command", TCFG.isp_connect);
+    add_webtable(wp, (char *)"ISP hangup command", TCFG.isp_hangup);
+    add_webtable(wp, (char *)"ISP ping host 1", TCFG.isp_ping1);
+    add_webtable(wp, (char *)"ISP ping host 2", TCFG.isp_ping2);
+    fprintf(wp, "<TR><TD colspan=2>&nbsp;</TD></TR>\n");
+    sprintf(temp, "%0.2f", TCFG.maxload);
+    add_webtable(wp, (char *)"Maximum system load", temp);
+    add_webdigit(wp, (char *)"Max TCP/IP connections", TCFG.max_tcp);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    close_webdoc(wp);
+					
+    page = newpage(fp, page);
+    addtoc(fp, toc, 16, 0, page, (char *)"Task manager");
+
+    fprintf(fp, "\n");
+    fprintf(fp, "     Command on mailout     %s\n", TCFG.cmd_mailout);
+    fprintf(fp, "     Command on mailin      %s\n", TCFG.cmd_mailin);
+    fprintf(fp, "     Command on newnews     %s\n", TCFG.cmd_newnews);
+    fprintf(fp, "     Command on mbindex 1   %s\n", TCFG.cmd_mbindex1);
+    fprintf(fp, "     Command on mbindex 2   %s\n", TCFG.cmd_mbindex2);
+    fprintf(fp, "     Command on mbindex 3   %s\n", TCFG.cmd_mbindex3);
+    fprintf(fp, "     Command on msglink     %s\n", TCFG.cmd_msglink);
+    fprintf(fp, "     Command on reqindex    %s\n\n", TCFG.cmd_reqindex);
+
+    fprintf(fp, "     Zone Mail Hour start   %s\n", TCFG.zmh_start);
+    fprintf(fp, "     Zone Mail Hour end     %s\n\n", TCFG.zmh_end);
+
+    fprintf(fp, "     ISP connect command    %s\n", TCFG.isp_connect);
+    fprintf(fp, "     ISP hangup command     %s\n", TCFG.isp_hangup);
+    fprintf(fp, "     ISP ping host 1        %s\n", TCFG.isp_ping1);
+    fprintf(fp, "     ISP ping host 2        %s\n", TCFG.isp_ping2);
+
+    fprintf(fp, "     Maximum system load    %0.2f\n", TCFG.maxload);
+    fprintf(fp, "     Max TCP/IP connections %d\n", TCFG.max_tcp);
+
+    return page;
 }
 
 

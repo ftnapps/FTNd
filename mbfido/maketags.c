@@ -36,93 +36,90 @@
 
 void MakeTags(void)
 {
-	FILE	*fg, *fd, *td, *ad;
-	char	*gname, *dname, *tname, *aname;
+    FILE    *fg, *fd, *td, *ad;
+    char    *gname, *dname, *tname, *aname;
 
-	Syslog('+', "Start making tagfiles");
-	gname = calloc(128, sizeof(char));
-	dname = calloc(128, sizeof(char));
-	tname = calloc(128, sizeof(char));
-	aname = calloc(128, sizeof(char));
+    Syslog('+', "Start making tagfiles");
+    gname = calloc(PATH_MAX, sizeof(char));
+    dname = calloc(PATH_MAX, sizeof(char));
+    tname = calloc(PATH_MAX, sizeof(char));
+    aname = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(gname, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	sprintf(dname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    sprintf(gname, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    sprintf(dname, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 
-	if (((fg = fopen(gname, "r")) == NULL) ||
-	    ((fd = fopen(dname, "r")) == NULL)) {
-		WriteError("$Can't open data");
-	} else {
-		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fg);
-		fread(&msgshdr, sizeof(msgshdr), 1, fd);
+    if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
+	WriteError("$Can't open data");
+    } else {
+	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fg);
+	fread(&msgshdr, sizeof(msgshdr), 1, fd);
 
-		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
-			if (mgroup.Active) {
-				sprintf(tname, "%s/doc/%s.msgs.tag", getenv("MBSE_ROOT"), mgroup.Name);
-				td = fopen(tname, "w");
-				sprintf(aname, "%s/doc/%s.msgs.are", getenv("MBSE_ROOT"), mgroup.Name);
-				ad = fopen(aname, "w");
-				fprintf(ad, "; Mail areas in group %s\n", mgroup.Name);
-				fprintf(ad, ";\n");
+	while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
+	    if (mgroup.Active) {
+		sprintf(tname, "%s/share/doc/tags/%s.msgs.tag", getenv("MBSE_ROOT"), mgroup.Name);
+		mkdirs(tname, 0755);
+		td = fopen(tname, "w");
+		sprintf(aname, "%s/share/doc/tags/%s.msgs.are", getenv("MBSE_ROOT"), mgroup.Name);
+		ad = fopen(aname, "w");
+		fprintf(ad, "; Mail areas in group %s\n", mgroup.Name);
+		fprintf(ad, ";\n");
 
-				fseek(fd, msgshdr.hdrsize, SEEK_SET);
-				while ((fread(&msgs, msgshdr.recsize, 1, fd)) == 1) {
-					if (msgs.Active && strlen(msgs.Tag) && 
-					    strcmp(mgroup.Name, msgs.Group) == 0) {
-						fprintf(ad, "%-35s %s\n", msgs.Tag, msgs.Name);
-						fprintf(td, "%s\n", msgs.Tag);
-					}
+		fseek(fd, msgshdr.hdrsize, SEEK_SET);
+		while ((fread(&msgs, msgshdr.recsize, 1, fd)) == 1) {
+		    if (msgs.Active && strlen(msgs.Tag) && strcmp(mgroup.Name, msgs.Group) == 0) {
+			fprintf(ad, "%-35s %s\n", msgs.Tag, msgs.Name);
+			fprintf(td, "%s\n", msgs.Tag);
+		    }
 
-					fseek(fd, msgshdr.syssize, SEEK_CUR);
-				}
-				fclose(ad);
-				fclose(td);
-			}
+		    fseek(fd, msgshdr.syssize, SEEK_CUR);
 		}
-		fclose(fg);
-		fclose(fd);
+		fclose(ad);
+		fclose(td);
+	    }
 	}
+	fclose(fg);
+	fclose(fd);
+    }
 
-	sprintf(gname, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	sprintf(dname, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    sprintf(gname, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    sprintf(dname, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 
-	if (((fg = fopen(gname, "r")) == NULL) ||
-	    ((fd = fopen(dname, "r")) == NULL)) {
-		WriteError("$Can't open data");
-	} else {
-		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fg);
-		fread(&tichdr, sizeof(tichdr), 1, fd);
+    if (((fg = fopen(gname, "r")) == NULL) || ((fd = fopen(dname, "r")) == NULL)) {
+	WriteError("$Can't open data");
+    } else {
+	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fg);
+	fread(&tichdr, sizeof(tichdr), 1, fd);
 
-		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
-			if (fgroup.Active) {
-				sprintf(tname, "%s/doc/%s.file.tag", getenv("MBSE_ROOT"), fgroup.Name);
-				td = fopen(tname, "w");
-				sprintf(aname, "%s/doc/%s.file.are", getenv("MBSE_ROOT"), fgroup.Name);
-				ad = fopen(aname, "w");
-				fprintf(ad, "; TIC file areas in group %s\n", fgroup.Name);
-				fprintf(ad, ";\n");
+	while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
+	    if (fgroup.Active) {
+		sprintf(tname, "%s/share/doc/tags/%s.file.tag", getenv("MBSE_ROOT"), fgroup.Name);
+		td = fopen(tname, "w");
+		sprintf(aname, "%s/share/doc/tags/%s.file.are", getenv("MBSE_ROOT"), fgroup.Name);
+		ad = fopen(aname, "w");
+		fprintf(ad, "; TIC file areas in group %s\n", fgroup.Name);
+		fprintf(ad, ";\n");
 
-				fseek(fd, tichdr.hdrsize, SEEK_SET);
-				while ((fread(&tic, tichdr.recsize, 1, fd)) == 1) {
-					if (tic.Active && strlen(tic.Name) &&
-					    strcmp(fgroup.Name, tic.Group) == 0) {
-						fprintf(ad, "%-21s %s\n", tic.Name, tic.Comment);
-						fprintf(td, "%s\n", tic.Name);
-					}
+		fseek(fd, tichdr.hdrsize, SEEK_SET);
+		while ((fread(&tic, tichdr.recsize, 1, fd)) == 1) {
+		    if (tic.Active && strlen(tic.Name) && strcmp(fgroup.Name, tic.Group) == 0) {
+			fprintf(ad, "%-21s %s\n", tic.Name, tic.Comment);
+			fprintf(td, "%s\n", tic.Name);
+		    }
 
-					fseek(fd, tichdr.syssize, SEEK_CUR);
-				}
-				fclose(ad);
-				fclose(td);
-			}
+		    fseek(fd, tichdr.syssize, SEEK_CUR);
 		}
-		fclose(fg);
-		fclose(fd);
+		fclose(ad);
+		fclose(td);
+	    }
 	}
+	fclose(fg);
+	fclose(fd);
+    }
 
-	free(aname);
-	free(tname);
-	free(dname);
-	free(gname);
+    free(aname);
+    free(tname);
+    free(dname);
+    free(gname);
 }
 
 

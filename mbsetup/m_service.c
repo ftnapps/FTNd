@@ -414,39 +414,48 @@ void InitService(void)
 
 int service_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX];
-	FILE		*no;
-	int		j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *no;
+    int	    j;
 
-	sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 14, 0, page, (char *)"Service manager");
-	j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 14, 0, page, (char *)"Service manager");
+    j = 0;
 
-	fprintf(fp, "\n");
-	fprintf(fp, "     Service           Action     Active\n");
-	fprintf(fp, "     ---------------   --------   ------\n");
-	fread(&servhdr, sizeof(servhdr), 1, no);
+    fprintf(fp, "\n");
+    fprintf(fp, "     Service           Action     Active\n");
+    fprintf(fp, "     ---------------   --------   ------\n");
+    fread(&servhdr, sizeof(servhdr), 1, no);
 
-	while ((fread(&servrec, servhdr.recsize, 1, no)) == 1) {
+    wp = open_webdoc((char *)"service.html", (char *)"Mail Service Manager", NULL);
+    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(wp, "<UL>\n");
+    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<TBODY>\n");
+    fprintf(wp, "<TR><TH align='left'>Service</TH><TH align='left'>Action</TH><TH align='left'>Active</TH></TR>\n");
 
-		if (j == 50) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			fprintf(fp, "     Service           Action     Active\n");
-			fprintf(fp, "     ---------------   --------   ------\n");
-			j = 0;
-		}
+    while ((fread(&servrec, servhdr.recsize, 1, no)) == 1) {
 
-		fprintf(fp, "     %-15s   %-8s   %s\n", servrec.Service, getservice(servrec.Action), getboolean(servrec.Active));
-		j++;
+	if (j == 50) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    fprintf(fp, "     Service           Action     Active\n");
+	    fprintf(fp, "     ---------------   --------   ------\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	fprintf(wp, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n",
+		servrec.Service, getservice(servrec.Action), getboolean(servrec.Active));
+	fprintf(fp, "     %-15s   %-8s   %s\n", servrec.Service, getservice(servrec.Action), getboolean(servrec.Active));
+	j++;
+    }
+
+    fclose(no);
+    return page;
 }
 
 

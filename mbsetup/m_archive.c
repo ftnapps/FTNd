@@ -812,8 +812,8 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 		if ((wp = open_webdoc(temp, (char *)"Archiver", archiver.comment))) {
 		    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"archivers.html\">Back</A>\n");
 		    fprintf(wp, "<P>\n");
-		    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
-		    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+		    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+		    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 		    fprintf(wp, "<TBODY>\n");
 		    add_webtable(wp, (char *)"Short name", archiver.name);
 		    add_webtable(wp, (char *)"Available", getboolean(archiver.available));
