@@ -8,5 +8,7 @@ void	Req(void);			/* Check symlinks		*/
 void	Kill(void);			/* Kill/move old files		*/
 void	PackFileBase(void);		/* Pack / Compress File Base	*/
 void	CreateWeb(void);		/* Create WWW pages		*/
+void	ListFileAreas(void);		/* List fileareas		*/
+
 #endif
 

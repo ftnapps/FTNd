@@ -2,7 +2,7 @@
  *
  * File ..................: mbfile/mbfile.c
  * Purpose ...............: File Database Maintenance
- * Last modification date : 25-May-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -44,6 +44,7 @@ int		do_pack  = FALSE;	/* Pack filebase		    */
 int		do_check = FALSE;	/* Check filebase		    */
 int		do_kill  = FALSE;	/* Kill/move old files		    */
 int		do_index = FALSE;	/* Create request index		    */
+int		do_list  = FALSE;	/* List fileareas		    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -148,8 +149,10 @@ int main(int argc, char **argv)
 		cmd = xstrcat(cmd, (char *)" ");
 		cmd = xstrcat(cmd, tl(argv[i]));
 
-		if (!strncmp(argv[i], "i", 1))
+		if (!strncmp(argv[i], "in", 2))
 			do_index = TRUE;
+		if (!strncmp(argv[i], "l", 1))
+			do_list  = TRUE;
 		if (!strncmp(argv[i], "p", 1))
 			do_pack = TRUE;
 		if (!strncmp(argv[i], "c", 1))
@@ -160,7 +163,7 @@ int main(int argc, char **argv)
 			do_quiet = TRUE;
 	}
 
-	if (!(do_pack || do_check || do_kill || do_index))
+	if (!(do_pack || do_check || do_kill || do_index || do_list))
 		Help();
 
 	ProgName();
@@ -190,6 +193,9 @@ int main(int argc, char **argv)
 	if (do_index)
 		Index();
 
+	if (do_list)
+		ListFileAreas();
+
 	die(0);
 	return 0;
 }
@@ -206,14 +212,19 @@ void Help(void)
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
-	printf("	c  check	Check filebase\n");
-	printf("	i  index	Create filerequest index\n");
-	printf("	k  kill		Kill/move old files\n");
-	printf("	p  pack		Pack filebase\n");
+	printf("	c  check			Check filebase\n");
+//	printf("	d  delete <file> <area>		Mark file in area for deletion\n");
+//	printf("        im import <file> <area>		Import file in area\n");
+	printf("	in index			Create filerequest index\n");
+	printf("        k  kill				Kill/move old files\n");
+	printf("	l  list				List file areas\n");
+//	printf("	m  move <file> <from> <to>	Move file from to area\n");
+	printf("	p  pack				Pack filebase\n");
+//	printf("	r  rearc <file> <area> <arc>	Rearc file in area to new archiver\n");
 	colour(9, 0);
 	printf("\n	Options are:\n\n");
 	colour(3, 0);
-	printf("	-q -quiet	Quiet mode\n");
+	printf("	-q -quiet			Quiet mode\n");
 	colour(7, 0);
 	printf("\n");
 	die(0);
@@ -301,11 +312,11 @@ void Kill(void)
 	time_t	Now;
 	int	rc, Killit, FilesLeft;
 	struct	fileareas darea;
-	char	from[128], to[128];
+	char	from[PATH_MAX], to[PATH_MAX];
 
-	sAreas = calloc(81, sizeof(char));
-	fAreas = calloc(81, sizeof(char));
-	sTemp  = calloc(81, sizeof(char));
+	sAreas = calloc(PATH_MAX, sizeof(char));
+	fAreas = calloc(PATH_MAX, sizeof(char));
+	sTemp  = calloc(PATH_MAX, sizeof(char));
 
 	IsDoing("Kill files");
 	if (!do_quiet) {
@@ -576,9 +587,9 @@ void Index(void)
 	Findex	*tmp;
 	struct FILEIndex	idx;
 
-	sAreas = calloc(81, sizeof(char));
-	fAreas = calloc(81, sizeof(char));
-	sIndex = calloc(81, sizeof(char));
+	sAreas = calloc(PATH_MAX, sizeof(char));
+	fAreas = calloc(PATH_MAX, sizeof(char));
+	sIndex = calloc(PATH_MAX, sizeof(char));
 
 	IsDoing("Kill files");
 	if (!do_quiet) {
@@ -715,12 +726,12 @@ void Check(void)
 	DIR	*dp;
 	struct	dirent	*de;
 	int	Found, Update;
-	char	fn[128];
+	char	fn[PATH_MAX];
 	struct	stat stb;
 
-	sAreas = calloc(81, sizeof(char));
-	fAreas = calloc(81, sizeof(char));
-	newdir = calloc(81, sizeof(char));
+	sAreas = calloc(PATH_MAX, sizeof(char));
+	fAreas = calloc(PATH_MAX, sizeof(char));
+	newdir = calloc(PATH_MAX, sizeof(char));
 
 	if (!do_quiet) {
 		colour(3, 0);
@@ -900,11 +911,11 @@ void PackFileBase(void)
 	FILE	*fp, *pAreas, *pFile;
 	int	i, iAreas, iAreasNew = 0;
 	int	iTotal = 0, iRemoved = 0;
-	char	*sAreas, *fAreas, *fTmp, fn[128];
+	char	*sAreas, *fAreas, *fTmp, fn[PATH_MAX];
 
-	sAreas = calloc(81, sizeof(char));
-	fAreas = calloc(81, sizeof(char));
-	fTmp   = calloc(81, sizeof(char));
+	sAreas = calloc(PATH_MAX, sizeof(char));
+	fAreas = calloc(PATH_MAX, sizeof(char));
+	fTmp   = calloc(PATH_MAX, sizeof(char));
 
 	IsDoing("Pack filebase");
 	if (!do_quiet) {
@@ -999,4 +1010,87 @@ void PackFileBase(void)
 	free(fAreas);
 }
 
+
+void ListFileAreas(void)
+{
+    FILE    *pAreas, *pFile;
+    int     i, iAreas, fcount, tcount = 0;
+    int     iTotal = 0;
+    long    fsize, tsize = 0;
+    char    *sAreas, *fAreas;
+
+    sAreas = calloc(PATH_MAX, sizeof(char));
+    fAreas = calloc(PATH_MAX, sizeof(char));
+
+    IsDoing("List fileareas");
+    if (!do_quiet) {
+	colour(3, 0);
+	printf(" Area Files MByte File Group   Area name\n");
+	printf("----- ----- ----- ------------ --------------------------------------------\n");
+	colour(7, 0);
+    }
+
+    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+
+    if ((pAreas = fopen (sAreas, "r")) == NULL) {
+	WriteError("Can't open %s", sAreas);
+	if (!do_quiet)
+	    printf("Can't open %s\n", sAreas);
+	die(0);
+    }
+
+    fread(&areahdr, sizeof(areahdr), 1, pAreas);
+    fseek(pAreas, 0, SEEK_END);
+    iAreas = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
+
+    for (i = 1; i <= iAreas; i++) {
+	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+	fread(&area, areahdr.recsize, 1, pAreas);
+
+	if (area.Available) {
+
+	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+
+	    /*
+	     * Open the file database, create new one if it doesn't excist.
+	     */
+	    if ((pFile = fopen(fAreas, "r+")) == NULL) {
+		Syslog('!', "Creating new %s", fAreas);
+		if ((pFile = fopen(fAreas, "a+")) == NULL) {
+		    WriteError("$Can't create %s", fAreas);
+		    die(0);
+		}
+	    }
+
+	    fcount = 0;
+	    fsize  = 0L;
+	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		fcount++;
+		fsize = fsize + file.Size;
+	    }
+	    fsize = fsize / 1048576;
+	    tcount += fcount;
+	    tsize  += fsize;
+
+	    if (!do_quiet)
+		printf("%5d %5d %5ld %-12s %s\n", i, fcount, fsize, area.BbsGroup, area.Name);
+	    iTotal++;
+	}
+    }
+
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("----- ----- ----- ---------------------------------------------------------\n");
+	printf("%5d %5d %5ld \n", iAreas, tcount, tsize);
+    }
+
+    fclose(pAreas);
+    if (!do_quiet) {
+	printf("\r                                                              \r");
+	fflush(stdout);
+    }
+
+    free(sAreas);
+    free(fAreas);
+}
 

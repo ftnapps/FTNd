@@ -4168,6 +4168,13 @@ v0.33.18        27-Jul-2001
 	mbpasswd:
 		Ported to work on FreeBSD.
 
+	mbfile:
+		All path string variables are now of length PATH_MAX.
+		Added list file areas.
+
+	fbutil:
+		Removed list file areas.
+
 	htmldoc:
 		Upgraded the FTSC documents to the current state.
 
