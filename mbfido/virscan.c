@@ -69,6 +69,7 @@ int VirScan(void)
         fclose(fp);
     }
 
+    free(temp);
     return rc;
 }
 

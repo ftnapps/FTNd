@@ -316,6 +316,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	SearchNode(Node);
 	free(ticfile);
 	free(fwdfile);
+	tidy_faddr(route);
 }
 
 

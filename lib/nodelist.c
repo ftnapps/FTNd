@@ -234,7 +234,7 @@ node *getnlent(faddr *addr)
 	/*
 	 *  First, lookup node in index. NOTE -- NOT 5D YET
 	 */
-	path = calloc(128, sizeof(char));
+	path = calloc(PATH_MAX, sizeof(char));
 	sprintf(path, "%s/%s", CFG.nodelists, "node.index");
 	if ((fp = fopen(path, "r")) == NULL) {
 		WriteError("$Can't open %s", path);
