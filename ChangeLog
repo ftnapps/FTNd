@@ -14,6 +14,7 @@ v0.37.4		10-May-2003
 	mbcico:
 		The binkp transmitter does now escape the unsafe filename
 		characters.
+		The binkp receiver now does process escaped filenames.
 
 
 v0.37.3		09-Apr-2003 - 10-May-2003

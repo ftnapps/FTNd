@@ -1302,7 +1302,7 @@ int binkp_batch(file_list *to_send, int role)
 		Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", 
 			rname, date(rtime), rsize, roffs);
 	    (void)binkp2unix(rname);
-	    rxfp = openfile(rname, rtime, rsize, &rxbytes, resync);
+	    rxfp = openfile(binkp2unix(rname), rtime, rsize, &rxbytes, resync);
 	    gettimeofday(&rxtvstart, &tz);
 	    rxpos = 0;
 	    rxcrc = 0xffffffff;
