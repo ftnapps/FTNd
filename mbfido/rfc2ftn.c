@@ -834,6 +834,8 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	if (!strcasecmp(msg->key,"X-Mailing-List")) return 0;
 	if (!strcasecmp(msg->key,"X-Loop")) return 0;
 	if (!strcasecmp(msg->key,"Precedence")) return 0;
+	if (!strcasecmp(msg->key,"X-Face")) return 0;
+	if (!strcasecmp(msg->key,"X-Accept-Language")) return 0;
 	/*if (!strcasecmp(msg->key,"")) return ;*/
 	return 1;
 }
