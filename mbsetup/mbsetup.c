@@ -42,8 +42,13 @@
 #include "m_farea.h"
 #include "m_fgroup.h"
 #include "m_mail.h"
+#include "m_mgroup.h"
+#include "m_hatch.h"
 #include "m_tic.h"
+#include "m_ticarea.h"
+#include "m_magic.h"
 #include "m_fido.h"
+#include "m_lang.h"
 #include "m_archive.h"
 #include "m_virus.h"
 #include "m_tty.h"
@@ -52,6 +57,8 @@
 #include "m_node.h"
 #include "m_fdb.h"
 #include "m_new.h"
+#include "m_ol.h"
+#include "m_protocol.h"
 #include "m_ff.h"
 #include "m_modem.h"
 #include "m_marea.h"
@@ -321,13 +328,34 @@ void initdatabases(void)
 {
     clr_index();
     working(1, 0, 0);
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "     INIT DATABASES");
     IsDoing("Init Databases");
-    
+    config_read();
+
     InitArchive();
     InitDomain();
     InitFilearea();
     InitFilefind();
     InitFGroup();
+    InitFidonetdb();
+    InitHatch();
+    InitLanguage();
+    InitLimits();
+    InitMagics();
+    InitMsgarea();
+    InitMGroup();
+    InitModem();
+    InitNewfiles();
+    InitNGroup();
+    InitNodes();
+    InitOneline();
+    InitProtocol();
+    InitService();
+    InitTicarea();
+    InitTtyinfo();
+    InitUsers();
+    InitVirus();
 
     working(0, 0, 0);
     clr_index();

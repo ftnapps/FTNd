@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_mgroups.c
  * Purpose ...............: Setup MGroups.
- * Last modification date : 12-Jun-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001 
@@ -55,12 +55,13 @@ int	MGrpUpdated = 0;
 int CountMGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			mgrouphdr.hdrsize = sizeof(mgrouphdr);
 			mgrouphdr.recsize = sizeof(mgroup);
 			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
@@ -87,10 +88,11 @@ int CountMGroup(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenMGroup(void);
 int OpenMGroup(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
@@ -119,6 +121,9 @@ int OpenMGroup(void)
 			mgrouphdr.recsize = sizeof(mgroup);
 			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fout);
 
+			if (MGrpUpdated)
+			    Syslog('+', "Updated %s, format changed", fnin);
+
 			/*
 			 * The datarecord is filled with zero's before each
 			 * read, so if the format changed, the new fields
@@ -141,9 +146,10 @@ int OpenMGroup(void)
 
 
 
-void CloseMGroup(void)
+void CloseMGroup(int);
+void CloseMGroup(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*mgr = NULL, *tmp;
 
@@ -151,7 +157,7 @@ void CloseMGroup(void)
 	sprintf(fout,"%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 
 	if (MGrpUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -186,7 +192,7 @@ void CloseMGroup(void)
 int AppendMGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -339,7 +345,7 @@ void EditMGroup(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -402,7 +408,7 @@ void EditMGroup(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseMGroup();
+			CloseMGroup(FALSE);
 			return;
 		}
 
@@ -431,13 +437,22 @@ void EditMGroup(void)
 
 
 
+void InitMGroup(void)
+{
+    CountMGroup();
+    OpenMGroup();
+    CloseMGroup(TRUE);
+}
+
+
+
 char *PickMGroup(char *shdr)
 {
 	static	char MGrp[21] = "";
 	int	records, i, o = 0, y, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -523,7 +538,7 @@ char *PickMGroup(char *shdr)
 
 int mail_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

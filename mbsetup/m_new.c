@@ -2,10 +2,10 @@
  *
  * File ..................: m_fnewfiles.c
  * Purpose ...............: Newfiles Setup
- * Last modification date : 29-Oct-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -56,12 +56,13 @@ int	NewUpdated = 0;
 int CountNewfiles(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			newfileshdr.hdrsize = sizeof(newfileshdr);
 			newfileshdr.recsize = sizeof(newfiles);
 			newfileshdr.grpsize = CFG.new_groups * 13;
@@ -90,7 +91,7 @@ int CountNewfiles(void)
 int OpenNewfiles(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 	int	i, old_groups;
 	long	oldgroup;
@@ -113,6 +114,11 @@ int OpenNewfiles(void)
 				NewUpdated = 1;
 			else
 				NewUpdated = 0;
+			if (oldsize != sizeof(newfiles))
+			    Syslog('+', "Updated %s, format changed", fnin);
+			else if (CFG.new_groups != old_groups)
+			    Syslog('+', "Updated %s, nr of groups now %d", fnin, CFG.new_groups);
+
 			newfileshdr.hdrsize = sizeof(newfileshdr);
 			newfileshdr.recsize = sizeof(newfiles);
 			newfileshdr.grpsize = CFG.new_groups * 13;
@@ -156,9 +162,9 @@ int OpenNewfiles(void)
 
 
 
-void CloseNewfiles(void)
+void CloseNewfiles(int force)
 {
-	char	fin[81], fout[81], group[13];
+	char	fin[PATH_MAX], fout[PATH_MAX], group[13];
 	FILE	*fi, *fo;
 	st_list	*new = NULL, *tmp;
 	int	i;
@@ -167,7 +173,7 @@ void CloseNewfiles(void)
 	sprintf(fout,"%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
 
 	if (NewUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -208,7 +214,7 @@ void CloseNewfiles(void)
 int AppendNewfiles(void)
 {
 	FILE	*fil;
-	char	ffile[81], group[13];
+	char	ffile[PATH_MAX], group[13];
 	int	i;
 
 	sprintf(ffile, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
@@ -260,7 +266,7 @@ void NewScreen(void)
 int EditNewRec(int Area)
 {
 	FILE		*fil;
-	char		mfile[81], temp1[2];
+	char		mfile[PATH_MAX], temp1[2];
 	long		offset;
 	unsigned long	crc, crc1;
 	gr_list		*fgr = NULL, *tmp;
@@ -303,7 +309,6 @@ int EditNewRec(int Area)
 	for (i = 0; i < groups; i++) {
 		fread(&group, sizeof(group), 1, fil);
 		if (strlen(group)) {
-			Syslog('+', "New group %s", group);
 			for (tmp = fgr; tmp; tmp = tmp->next)
 				if (!strcmp(tmp->group, group))
 					tmp->tagged = TRUE;
@@ -360,7 +365,6 @@ int EditNewRec(int Area)
 							sprintf(group, "%s", tmp->group);
 							fwrite(&group, 13, 1, fil);
 						}
-					Syslog('+', "Written %d out of %d entries", i, groups);
 
 					memset(&group, 0, 13);
 					for (j = i; j < groups; j++)
@@ -406,7 +410,7 @@ void EditNewfiles(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -469,7 +473,7 @@ void EditNewfiles(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseNewfiles();
+			CloseNewfiles(FALSE);
 			return;
 		}
 
@@ -498,9 +502,18 @@ void EditNewfiles(void)
 
 
 
+void InitNewfiles(void)
+{
+    CountNewfiles();
+    OpenNewfiles();
+    CloseNewfiles(TRUE);
+}
+
+
+
 int new_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81], group[13];
+	char		temp[PATH_MAX], group[13];
 	FILE		*no;
 	int		groups, i, j;
 

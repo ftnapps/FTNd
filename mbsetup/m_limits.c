@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_limits.c
  * Purpose ...............: Setup Limits.
- * Last modification date : 30-Sep-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	LimUpdated = 0;
 int CountLimits(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			LIMIThdr.hdrsize = sizeof(LIMIThdr);
 			LIMIThdr.recsize = sizeof(LIMIT);
 			fwrite(&LIMIThdr, sizeof(LIMIThdr), 1, fil);
@@ -147,10 +148,11 @@ int CountLimits(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenLimits(void);
 int OpenLimits(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/limits.data", getenv("MBSE_ROOT"));
@@ -164,9 +166,10 @@ int OpenLimits(void)
 			 * database must always be updated.
 			 */
 			oldsize = LIMIThdr.recsize;
-			if (oldsize != sizeof(LIMIT))
+			if (oldsize != sizeof(LIMIT)) {
 				LimUpdated = 1;
-			else
+				Syslog('+', "Updated %s, format changed");
+			} else
 				LimUpdated = 0;
 			LIMIThdr.hdrsize = sizeof(LIMIThdr);
 			LIMIThdr.recsize = sizeof(LIMIT);
@@ -194,9 +197,10 @@ int OpenLimits(void)
 
 
 
-void CloseLimits(void)
+void CloseLimits(int);
+void CloseLimits(int force)
 {
-	char	fin[81], fout[81], temp[20];
+	char	fin[PATH_MAX], fout[PATH_MAX], temp[20];
 	FILE	*fi, *fo;
 	st_list	*lim = NULL, *tmp;
 
@@ -204,7 +208,7 @@ void CloseLimits(void)
 	sprintf(fout,"%s/etc/limits.temp", getenv("MBSE_ROOT"));
 
 	if (LimUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -241,7 +245,7 @@ void CloseLimits(void)
 int AppendLimits(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -262,7 +266,7 @@ int AppendLimits(void)
 int EditLimRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -351,7 +355,7 @@ void EditLimits(void)
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -409,7 +413,7 @@ void EditLimits(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseLimits();
+			CloseLimits(FALSE);
 			return;
 		}
 
@@ -430,13 +434,22 @@ void EditLimits(void)
 
 
 
+void InitLimits(void)
+{
+    CountLimits();
+    OpenLimits();
+    CloseLimits(TRUE);
+}
+
+
+
 char *PickLimits(int nr)
 {
 	static	char Lim[21] = "";
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -502,7 +515,7 @@ char *PickLimits(int nr)
 
 int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 
 	sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
@@ -531,7 +544,7 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 
 int limit_users_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no, *us;
 	int	line = 0, j;
 

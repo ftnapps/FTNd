@@ -6,6 +6,7 @@
 
 int  CountVirus(void);
 void EditVirus(void);
+void InitVirus(void);
 int  virus_doc(FILE *, FILE *, int);
 
 #endif

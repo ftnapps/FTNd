@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_modem.c
  * Purpose ...............: Setup Modem structure.
- * Last modification date : 24-Jun-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	ModemUpdated = 0;
 int CountModem(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/modem.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			modemhdr.hdrsize = sizeof(modemhdr);
 			modemhdr.recsize = sizeof(modem);
 			fwrite(&modemhdr, sizeof(modemhdr), 1, fil);
@@ -72,22 +73,26 @@ int CountModem(void)
 			sprintf(modem.init[1],     "AT &F &C1 &D2 X4 W2 B0 M0 \\\\V1 \\\\G0 &K3 S37=0\\r");
 			sprintf(modem.ok,          "OK");
 			sprintf(modem.dial,        "ATDT\\T\\r");
-			sprintf(modem.connect[0],  "CONNECT 33600");
-			sprintf(modem.connect[1],  "CONNECT 31200");
-			sprintf(modem.connect[2],  "CONNECT 28800");
-			sprintf(modem.connect[3],  "CONNECT 26400");
-			sprintf(modem.connect[4],  "CONNECT 24000");
-			sprintf(modem.connect[5],  "CONNECT 21600");
-			sprintf(modem.connect[6],  "CONNECT 19200");
-			sprintf(modem.connect[7],  "CONNECT 16800");
-			sprintf(modem.connect[8],  "CONNECT 14400");
-			sprintf(modem.connect[9],  "CONNECT 12000");
-			sprintf(modem.connect[10], "CONNECT 9600");
-			sprintf(modem.connect[11], "CONNECT 7200");
-			sprintf(modem.connect[12], "CONNECT 4800");
-			sprintf(modem.connect[13], "CONNECT 2400");
-			sprintf(modem.connect[14], "CONNECT 1200");
-			sprintf(modem.connect[15], "CONNECT 300");
+			sprintf(modem.connect[0],  "CONNECT 56000");
+			sprintf(modem.connect[1],  "CONNECT 48000");
+			sprintf(modem.connect[2],  "CONNECT 44000");
+			sprintf(modem.connect[3],  "CONNECT 41333");
+			sprintf(modem.connect[4],  "CONNECT 38000");
+			sprintf(modem.connect[5],  "CONNECT 33600");
+			sprintf(modem.connect[6],  "CONNECT 31200");
+			sprintf(modem.connect[7],  "CONNECT 28800");
+			sprintf(modem.connect[8],  "CONNECT 26400");
+			sprintf(modem.connect[9],  "CONNECT 24000");
+			sprintf(modem.connect[10], "CONNECT 21600");
+			sprintf(modem.connect[11], "CONNECT 19200");
+			sprintf(modem.connect[12], "CONNECT 16800");
+			sprintf(modem.connect[13], "CONNECT 14400");
+			sprintf(modem.connect[14], "CONNECT 12000");
+			sprintf(modem.connect[15], "CONNECT 9600");
+			sprintf(modem.connect[16], "CONNECT 7200");
+			sprintf(modem.connect[17], "CONNECT 4800");
+			sprintf(modem.connect[18], "CONNECT 2400");
+			sprintf(modem.connect[19], "CONNECT");
 			sprintf(modem.reset,       "AT&F&C1&D2X4W2B0M0&K3\\r");
 			sprintf(modem.error[0],    "BUSY");
 			sprintf(modem.error[1],    "NO CARRIER");
@@ -160,10 +165,11 @@ int CountModem(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenModem(void);
 int OpenModem(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/modem.data", getenv("MBSE_ROOT"));
@@ -177,9 +183,10 @@ int OpenModem(void)
 			 * database must always be updated.
 			 */
 			oldsize = modemhdr.recsize;
-			if (oldsize != sizeof(modem))
+			if (oldsize != sizeof(modem)) {
 				ModemUpdated = 1;
-			else
+				Syslog('+', "Updated %s, format changed", fnin);
+			} else
 				ModemUpdated = 0;
 			modemhdr.hdrsize = sizeof(modemhdr);
 			modemhdr.recsize = sizeof(modem);
@@ -207,9 +214,10 @@ int OpenModem(void)
 
 
 
-void CloseModem(void)
+void CloseModem(int);
+void CloseModem(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*mdm = NULL, *tmp;
 
@@ -217,7 +225,7 @@ void CloseModem(void)
 	sprintf(fout,"%s/etc/modem.temp", getenv("MBSE_ROOT"));
 
 	if (ModemUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -252,7 +260,7 @@ void CloseModem(void)
 int AppendModem(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -260,22 +268,26 @@ int AppendModem(void)
 		sprintf(modem.init[0], "ATZ\\r");
 		sprintf(modem.ok, "OK");
 		sprintf(modem.dial, "ATDT\\T\\r");
-		sprintf(modem.connect[0], "CONNECT 33600");
-		sprintf(modem.connect[1], "CONNECT 31200");
-		sprintf(modem.connect[2], "CONNECT 28800");
-		sprintf(modem.connect[3], "CONNECT 26400");
-		sprintf(modem.connect[4], "CONNECT 24000");
-		sprintf(modem.connect[5], "CONNECT 21600");
-		sprintf(modem.connect[6], "CONNECT 19200");
-		sprintf(modem.connect[7], "CONNECT 16800");
-		sprintf(modem.connect[8], "CONNECT 14400");
-		sprintf(modem.connect[9], "CONNECT 12000");
-		sprintf(modem.connect[10], "CONNECT 9600");
-		sprintf(modem.connect[11], "CONNECT 7200");
-		sprintf(modem.connect[12], "CONNECT 4800");
-		sprintf(modem.connect[13], "CONNECT 2400");
-		sprintf(modem.connect[14], "CONNECT 1200");
-		sprintf(modem.connect[15], "CONNECT 300");
+		sprintf(modem.connect[0], "CONNECT 56000");
+		sprintf(modem.connect[1], "CONNECT 48000");
+		sprintf(modem.connect[2], "CONNECT 44000");
+		sprintf(modem.connect[3], "CONNECT 41333");
+		sprintf(modem.connect[4], "CONNECT 38000");
+		sprintf(modem.connect[5], "CONNECT 33600");
+		sprintf(modem.connect[6], "CONNECT 31200");
+		sprintf(modem.connect[7], "CONNECT 28800");
+		sprintf(modem.connect[8], "CONNECT 26400");
+		sprintf(modem.connect[9], "CONNECT 24000");
+		sprintf(modem.connect[10], "CONNECT 21600");
+		sprintf(modem.connect[11], "CONNECT 19200");
+		sprintf(modem.connect[12], "CONNECT 16800");
+		sprintf(modem.connect[13], "CONNECT 14400");
+		sprintf(modem.connect[14], "CONNECT 12000");
+		sprintf(modem.connect[15], "CONNECT 9600");
+		sprintf(modem.connect[16], "CONNECT 7200");
+		sprintf(modem.connect[17], "CONNECT 4800");
+		sprintf(modem.connect[18], "CONNECT 2400");
+		sprintf(modem.connect[19], "CONNECT");
 		sprintf(modem.error[0], "BUSY");
 		sprintf(modem.error[1], "NO CARRIER");
 		sprintf(modem.error[2], "NO DIALTONE");
@@ -387,7 +399,7 @@ void EditError(void)
 int EditModemRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -493,7 +505,7 @@ void EditModem(void)
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -552,7 +564,7 @@ void EditModem(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseModem();
+			CloseModem(FALSE);
 			return;
 		}
 
@@ -573,12 +585,21 @@ void EditModem(void)
 
 
 
+void InitModem(void)
+{
+    CountModem();
+    OpenModem();
+    CloseModem(TRUE);
+}
+
+
+
 char *PickModem(char *shdr)
 {
 	int	records, i, o = 0, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 	static char buf[31];
 
@@ -667,7 +688,7 @@ char *PickModem(char *shdr)
 
 int modem_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*mdm;
 	int	i, j;
 

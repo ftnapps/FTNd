@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_protocol.c
  * Purpose ...............: Setup Protocols.
- * Last modification date : 22-Jan-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	ProtUpdated = 0;
 int CountProtocol(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			PROThdr.hdrsize = sizeof(PROThdr);
 			PROThdr.recsize = sizeof(PROT);
 			fwrite(&PROThdr, sizeof(PROThdr), 1, fil);
@@ -127,10 +128,11 @@ int CountProtocol(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenProtocol(void);
 int OpenProtocol(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/protocol.data", getenv("MBSE_ROOT"));
@@ -144,9 +146,10 @@ int OpenProtocol(void)
 			 * database must always be updated.
 			 */
 			oldsize = PROThdr.recsize;
-			if (oldsize != sizeof(PROT))
+			if (oldsize != sizeof(PROT)) {
 				ProtUpdated = 1;
-			else
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			} else
 				ProtUpdated = 0;
 			PROThdr.hdrsize = sizeof(PROThdr);
 			PROThdr.recsize = sizeof(PROT);
@@ -174,9 +177,10 @@ int OpenProtocol(void)
 
 
 
-void CloseProtocol(void)
+void CloseProtocol(int);
+void CloseProtocol(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*pro = NULL, *tmp;
 
@@ -184,7 +188,7 @@ void CloseProtocol(void)
 	sprintf(fout,"%s/etc/protocol.temp", getenv("MBSE_ROOT"));
 
 	if (ProtUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -219,7 +223,7 @@ void CloseProtocol(void)
 int AppendProtocol(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -262,7 +266,7 @@ void s_protrec(void)
 int EditProtRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -350,7 +354,7 @@ void EditProtocol(void)
 	int	records, i, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -405,7 +409,7 @@ void EditProtocol(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseProtocol();
+			CloseProtocol(FALSE);
 			return;
 		}
 
@@ -426,13 +430,22 @@ void EditProtocol(void)
 
 
 
+void InitProtocol(void)
+{
+    CountProtocol();
+    OpenProtocol();
+    CloseProtocol(TRUE);
+}
+
+
+
 char *PickProtocol(int nr)
 {
 	static	char Prot[21] = "";
 	int	records, i, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -494,7 +507,7 @@ char *PickProtocol(int nr)
 
 int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

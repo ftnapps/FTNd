@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_fido.c
  * Purpose ...............: Setup Fidonet structure.
- * Last modification date : 13-Jul-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	FidoUpdated = 0;
 int CountFidonet(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			fidonethdr.hdrsize = sizeof(fidonethdr);
 			fidonethdr.recsize = sizeof(fidonet);
 			fwrite(&fidonethdr, sizeof(fidonethdr), 1, fil);
@@ -108,10 +109,11 @@ int CountFidonet(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenFidonet(void);
 int OpenFidonet(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
@@ -125,9 +127,10 @@ int OpenFidonet(void)
 			 * database must always be updated.
 			 */
 			oldsize = fidonethdr.recsize;
-			if (oldsize != sizeof(fidonet))
+			if (oldsize != sizeof(fidonet)) {
 				FidoUpdated = 1;
-			else
+				Syslog('+', "Updated %s, format changed");
+			} else
 				FidoUpdated = 0;
 			fidonethdr.hdrsize = sizeof(fidonethdr);
 			fidonethdr.recsize = sizeof(fidonet);
@@ -155,9 +158,10 @@ int OpenFidonet(void)
 
 
 
-void CloseFidonet(void)
+void CloseFidonet(int);
+void CloseFidonet(int force)
 {
-	char	fin[81], fout[81], temp[10];
+	char	fin[PATH_MAX], fout[PATH_MAX], temp[10];
 	FILE	*fi, *fo;
 	st_list	*fid = NULL, *tmp;
 
@@ -165,7 +169,7 @@ void CloseFidonet(void)
 	sprintf(fout,"%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 
 	if (FidoUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin, "w");
@@ -203,7 +207,7 @@ void CloseFidonet(void)
 int AppendFidonet(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -224,7 +228,7 @@ int AppendFidonet(void)
 int EditFidoRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81], *temp;
+	char	mfile[PATH_MAX], *temp;
 	long	offset;
 	int	i, j = 0;
 	unsigned long crc, crc1;
@@ -375,7 +379,7 @@ void EditFidonet(void)
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -434,7 +438,7 @@ void EditFidonet(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseFidonet();
+			CloseFidonet(FALSE);
 			return;
 		}
 
@@ -455,9 +459,18 @@ void EditFidonet(void)
 
 
 
+void InitFidonetdb(void)
+{
+    CountFidonet();
+    OpenFidonet();
+    CloseFidonet(TRUE);
+}
+
+
+
 void gold_akamatch(FILE *fp)
 {
-	char    temp[81];
+	char    temp[PATH_MAX];
 	FILE    *fido;
 	faddr	*want;
 	int     i;
@@ -510,7 +523,7 @@ void gold_akamatch(FILE *fp)
 
 int fido_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*fido;
 	int	i, j;
 

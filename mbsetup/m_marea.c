@@ -1,8 +1,8 @@
 /*****************************************************************************
  *
- * File ..................: m_mail.c
- * Purpose ...............: Mail Setup Program 
- * Last modification date : 22-Jan-2001
+ * File ..................: m_marea.c
+ * Purpose ...............: Message Areas Setup
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -57,13 +57,13 @@ FILE		*tfil = NULL;
 int CountMsgarea(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created mareas.data");
+			Syslog('+', "Created new %s", ffile);
 			msgshdr.hdrsize = sizeof(msgshdr);
 			msgshdr.recsize = sizeof(msgs);
 			msgshdr.syssize = CFG.toss_systems * sizeof(sysconnect);
@@ -92,10 +92,11 @@ int CountMsgarea(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenMsgarea(void);
 int OpenMsgarea(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize, oldsys;
 	struct	_sysconnect syscon;
 	int	i, oldsystems;
@@ -104,7 +105,6 @@ int OpenMsgarea(void)
 	sprintf(fnout, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
-			Syslog('+', "Opened \"mareas.data\"");
 			MsgUpdated = 0;
 			fread(&msgshdr, sizeof(msgshdr), 1, fin);
 			fseek(fin, 0, SEEK_SET);
@@ -113,6 +113,7 @@ int OpenMsgarea(void)
 				msgshdr.hdrsize = sizeof(msgshdr);
 				msgshdr.lastupd = time(NULL);
 				MsgUpdated = 1;
+				Syslog('+', "Updated %s, format changed", fnin);
 			}
 
 			/*
@@ -125,7 +126,7 @@ int OpenMsgarea(void)
 			oldsystems = oldsys / sizeof(syscon);
 			if ((oldsize != sizeof(msgs)) || (CFG.toss_systems != oldsystems)) {
 				MsgUpdated = 1;
-				Syslog('+', "\"mareas.data\" nr of systems is changed");
+				Syslog('+', "Updated %s, nr of systems is changed to %d", fnin, CFG.toss_systems);
 			}
 			msgshdr.hdrsize = sizeof(msgshdr);
 			msgshdr.recsize = sizeof(msgs);
@@ -169,9 +170,6 @@ int OpenMsgarea(void)
 
 			fclose(fin);
 			fclose(fout);
-			Syslog('+', "Opended \"mareas.data\"");
-			if (MsgUpdated)
-				Syslog('+', "Updated \"mareas.data\" data format");
 			return 0;
 		} else
 			return -1;
@@ -183,7 +181,7 @@ int OpenMsgarea(void)
 
 void CloseMsgarea(int Force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 
 	sprintf(fin, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	sprintf(fout,"%s/etc/mareas.temp", getenv("MBSE_ROOT"));
@@ -199,7 +197,6 @@ void CloseMsgarea(int Force)
 	}
 	working(1, 0, 0);
 	unlink(fout); 
-	Syslog('+', "No update of \"mareas.data\"");
 }
 
 
@@ -227,7 +224,7 @@ int AppendMsgarea(void);
 int AppendMsgarea()
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	struct	_sysconnect syscon;
 	int	i;
 
@@ -433,7 +430,7 @@ long LoadMsgRec(int, int);
 long LoadMsgRec(int Area, int work)
 {
 	FILE		*fil;
-	char		mfile[81];
+	char		mfile[PATH_MAX];
 	long		offset;
 	sysconnect	System;
 	int		i;
@@ -484,7 +481,7 @@ int SaveMsgRec(int Area, int work)
 	int		i;
 	FILE		*fil;
 	long		offset;
-	char		mfile[81];
+	char		mfile[PATH_MAX];
 	sysconnect	System;
 
 	if (work)
@@ -543,7 +540,7 @@ void MsgGlobal(void);
 void MsgGlobal(void)
 {
 	gr_list		*mgr = NULL, *tmp;
-	char		*p, mfile[128];
+	char		*p, mfile[PATH_MAX];
 	FILE		*fil;
 	fidoaddr	a1, a2;
 	int		menu = 0, marea, Areas, akan = 0, Found;
@@ -1021,7 +1018,7 @@ void EditMsgarea(void)
 	int		records, i, o, y;
 	char		pick[12];
 	FILE		*fil;
-	char		temp[81];
+	char		temp[PATH_MAX];
 	long		offset;
 	int		from, too;
 	sysconnect	System;
@@ -1148,12 +1145,21 @@ void EditMsgarea(void)
 
 
 
+void InitMsgarea(void)
+{
+    CountMsgarea();
+    OpenMsgarea();
+    CloseMsgarea(TRUE);
+}
+
+
+
 char *PickMsgarea(char *shdr)
 {
 	int		records, i, o = 0, x, y;
 	char		pick[12];
 	FILE 		*fil;
-	char		temp[81];
+	char		temp[PATH_MAX];
 	long		offset;
 	static char	Buf[81];
 
@@ -1246,7 +1252,7 @@ int GroupInMarea(char *Group)
 {
 	int	Area = 0, RetVal = 0, systems;
 	FILE	*no;
-	char	temp[128];
+	char	temp[PATH_MAX];
 
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
@@ -1278,7 +1284,7 @@ int NodeInMarea(fidoaddr A)
 {
 	int		i, Area = 0, RetVal = 0, systems;
 	FILE		*no;
-	char		temp[128];
+	char		temp[PATH_MAX];
 	sysconnect	S;
 
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
@@ -1314,7 +1320,7 @@ void gold_areas(FILE *fp)
 	FILE	*no;
 	int	i = 0;
 
-	temp = calloc(128, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((no = fopen(temp, "r")) == NULL)
 		return;
@@ -1362,7 +1368,7 @@ void gold_areas(FILE *fp)
 
 int mail_area_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81], status[5];
+	char		temp[PATH_MAX], status[5];
 	FILE		*no;
 	int		i = 0, j, systems, First = TRUE;
 	sysconnect	System;

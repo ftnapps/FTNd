@@ -4,6 +4,7 @@
 
 int  CountModem(void);
 void EditModem(void);
+void InitModem(void);
 char *PickModem(char *);
 int  modem_doc(FILE *, FILE *, int);
 

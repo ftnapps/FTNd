@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_task.c
  * Purpose ...............: Setup TaskManager.
- * Last modification date : 06-Jul-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -200,7 +200,7 @@ void task_menu(void)
 
 int task_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 
 	sprintf(temp, "%s/etc/task.data", getenv("MBSE_ROOT"));

@@ -4,6 +4,7 @@
 
 int  CountLimits(void);
 void EditLimits(void);
+void InitLimits(void);
 char *PickLimits(int);
 int  bbs_limits_doc(FILE *, FILE *, int);
 int  limit_users_doc(FILE *, FILE *, int);

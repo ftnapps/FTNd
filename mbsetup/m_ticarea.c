@@ -2,10 +2,10 @@
  *
  * File ..................: m_ticareas.c
  * Purpose ...............: TIC Areas Setup Program 
- * Last modification date : 29-Oct-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -60,13 +60,13 @@ FILE		*ttfil = NULL;
 int CountTicarea(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created tic.data");
+			Syslog('+', "Created new %s", ffile);
 			tichdr.hdrsize = sizeof(tichdr);
 			tichdr.recsize = sizeof(tic);
 			tichdr.syssize = CFG.tic_systems * sizeof(sysconnect);
@@ -98,7 +98,7 @@ int CountTicarea(void)
 int OpenTicarea(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize, oldsys;
 	struct	_sysconnect syscon;
 	int	i, oldsystems;
@@ -107,7 +107,6 @@ int OpenTicarea(void)
 	sprintf(fnout, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
-			Syslog('+', "Opened \"tic.data\"");
 			TicUpdated = 0;
 			fread(&tichdr, sizeof(tichdr), 1, fin);
 			fseek(fin, 0, SEEK_SET);
@@ -128,7 +127,10 @@ int OpenTicarea(void)
 			oldsystems = oldsys / sizeof(syscon);
 			if ((oldsize != sizeof(tic)) || (CFG.tic_systems != oldsystems)) {
 				TicUpdated = 1;
-				Syslog('+', "\"tic.data\" nr of systems is changed");
+				if (oldsize != sizeof(tic))
+				    Syslog('+', "Upgraded %s, format changed", fnin);
+				else if (CFG.tic_systems != oldsystems)
+				    Syslog('+', "Upgraded %s, nr of systems now %d", fnin, CFG.tic_systems);
 			}
 			tichdr.hdrsize = sizeof(tichdr);
 			tichdr.recsize = sizeof(tic);
@@ -168,9 +170,6 @@ int OpenTicarea(void)
 
 			fclose(fin);
 			fclose(fout);
-			Syslog('+', "Opened \"tic.data\"");
-			if (TicUpdated)
-				Syslog('+', "Updated \"tic.data\" data format");
 			return 0;
 		} else
 			return -1;
@@ -182,7 +181,7 @@ int OpenTicarea(void)
 
 void CloseTicarea(int Force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*tir = NULL, *tmp;
 	int	i;
@@ -226,7 +225,6 @@ void CloseTicarea(int Force)
 	}
 	working(1, 0, 0);
 	unlink(fout); 
-	Syslog('+', "No update of \"tic.data\"");
 }
 
 
@@ -235,7 +233,7 @@ int AppendTicarea(void);
 int AppendTicarea(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	struct	_sysconnect syscon;
 	int	i;
 
@@ -442,7 +440,7 @@ long LoadTicRec(int, int);
 long LoadTicRec(int Area, int work)
 {
 	FILE            *fil;
-	char            mfile[81];
+	char            mfile[PATH_MAX];
 	long            offset;
 	sysconnect      System;
 	int		i;
@@ -491,7 +489,7 @@ int SaveTicRec(int Area, int work)
 	int             i;
 	FILE            *fil;
 	long            offset;
-	char            mfile[81];
+	char            mfile[PATH_MAX];
 	sysconnect      System;
 
 	if (work)
@@ -548,7 +546,7 @@ void TicGlobal(void);
 void TicGlobal(void)
 {
 	gr_list		*mgr = NULL, *tmp;
-	char		*p, tfile[128];
+	char		*p, tfile[PATH_MAX];
 	FILE		*fil;
 	fidoaddr	a1, a2;
 	int		menu = 0, areanr, Areas, akan = 0, Found;
@@ -929,7 +927,7 @@ void EditTicarea(void)
 	int	records, i, o, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -1027,12 +1025,21 @@ Comment);
 
 
 
+void InitTicarea(void)
+{
+    CountTicarea();
+    OpenTicarea();
+    CloseTicarea(TRUE);
+}
+
+
+
 char *PickTicarea(char *shdr)
 {
 	int		records, i, o = 0, x, y;
 	char		pick[12];
 	FILE		*fil;
-	char		temp[81];
+	char		temp[PATH_MAX];
 	long		offset;
 	static char	Buf[81];
 
@@ -1118,7 +1125,7 @@ char *PickTicarea(char *shdr)
 
 int GroupInTic(char *Group)
 {
-        char            temp[81];
+        char            temp[PATH_MAX];
         FILE            *no;
         int             systems, Area = 0, RetVal = 0;
 
@@ -1152,7 +1159,7 @@ int NodeInTic(fidoaddr A)
 {
 	int		i, Area = 0, RetVal = 0, systems;
 	FILE		*no;
-	char		temp[128];
+	char		temp[PATH_MAX];
 	sysconnect	S;
 
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
@@ -1184,7 +1191,7 @@ int NodeInTic(fidoaddr A)
 
 int tic_areas_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81], status[4];
+	char		temp[PATH_MAX], status[4];
 	FILE		*no;
 	int		i, systems, First = TRUE;
 	sysconnect	System;

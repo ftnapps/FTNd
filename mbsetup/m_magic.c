@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_magic.c
  * Purpose ...............: Edit Magics
- * Last modification date : 18-Mar-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,12 +54,13 @@ int	MagicUpdated = 0;
 int CountMagics(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/magic.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			magichdr.hdrsize = sizeof(magichdr);
 			magichdr.recsize = sizeof(magic);
 			fwrite(&magichdr, sizeof(magichdr), 1, fil);
@@ -84,10 +85,11 @@ int CountMagics(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenMagics(void);
 int OpenMagics(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 	int	FieldPatch = FALSE;
 
@@ -104,6 +106,7 @@ int OpenMagics(void)
 			oldsize = magichdr.recsize;
 			if (oldsize != sizeof(magic)) {
 				MagicUpdated = 1;
+				Syslog('+', "Updated %s, format changed", fnin);
 				if ((oldsize + 16) == sizeof(magic)) {
 					FieldPatch = TRUE;
 					Syslog('?', "Magic: performing FieldPatch");
@@ -140,9 +143,10 @@ int OpenMagics(void)
 
 
 
-void CloseMagics(void)
+void CloseMagics(int);
+void CloseMagics(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*mag = NULL, *tmp;
 
@@ -150,7 +154,7 @@ void CloseMagics(void)
 	sprintf(fout,"%s/etc/magic.temp", getenv("MBSE_ROOT"));
 
 	if (MagicUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -185,7 +189,7 @@ void CloseMagics(void)
 int AppendMagics(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -277,7 +281,7 @@ void FieldsM(void)
 int EditMagicRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j, choices;
 	unsigned long crc, crc1;
@@ -384,7 +388,7 @@ void EditMagics(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -447,7 +451,7 @@ void EditMagics(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseMagics();
+			CloseMagics(FALSE);
 			return;
 		}
 
@@ -476,9 +480,18 @@ void EditMagics(void)
 
 
 
+void InitMagics(void)
+{
+    CountMagics();
+    OpenMagics();
+    CloseMagics(TRUE);
+}
+
+
+
 int tic_magic_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_ngroups.c
  * Purpose ...............: Setup NGroups.
- * Last modification date : 28-Aug-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,12 +53,13 @@ int	NGrpUpdated = 0;
 int CountNGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			ngrouphdr.hdrsize = sizeof(ngrouphdr);
 			ngrouphdr.recsize = sizeof(ngroup);
 			fwrite(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
@@ -85,10 +86,11 @@ int CountNGroup(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenNGroup(void);
 int OpenNGroup(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
@@ -110,8 +112,10 @@ int OpenNGroup(void)
 			 * database must always be updated.
 			 */
 			oldsize = ngrouphdr.recsize;
-			if (oldsize != sizeof(ngroup))
+			if (oldsize != sizeof(ngroup)) {
 				NGrpUpdated = 1;
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			}
 			ngrouphdr.hdrsize = sizeof(ngrouphdr);
 			ngrouphdr.recsize = sizeof(ngroup);
 			fwrite(&ngrouphdr, sizeof(ngrouphdr), 1, fout);
@@ -138,9 +142,10 @@ int OpenNGroup(void)
 
 
 
-void CloseNGroup(void)
+void CloseNGroup(int);
+void CloseNGroup(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*mgr = NULL, *tmp;
 
@@ -148,7 +153,7 @@ void CloseNGroup(void)
 	sprintf(fout,"%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
 
 	if (NGrpUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -183,7 +188,7 @@ void CloseNGroup(void)
 int AppendNGroup(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -218,7 +223,7 @@ void NgScreen(void)
 int EditNGrpRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -292,7 +297,7 @@ void EditNGroup(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -355,7 +360,7 @@ void EditNGroup(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseNGroup();
+			CloseNGroup(FALSE);
 			return;
 		}
 
@@ -384,13 +389,22 @@ void EditNGroup(void)
 
 
 
+void InitNGroup(void)
+{
+    CountNGroup();
+    OpenNGroup();
+    CloseNGroup(TRUE);
+}
+
+
+
 char *PickNGroup(char *shdr)
 {
 	static	char MGrp[21] = "";
 	int	records, i, o = 0, y, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -476,7 +490,7 @@ char *PickNGroup(char *shdr)
 
 int newf_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

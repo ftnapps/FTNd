@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_virus.c
  * Purpose ...............: Setup Virus structure.
- * Last modification date : 22-Jan-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,33 +53,36 @@ int	VirUpdated = 0;
 int CountVirus(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			virscanhdr.hdrsize = sizeof(virscanhdr);
 			virscanhdr.recsize = sizeof(virscan);
 			fwrite(&virscanhdr, sizeof(virscanhdr), 1, fil);
 
 			/*
-			 *  Create some default records
+			 *  Create some default records but don't enable them.
 			 */
 			memset(&virscan, 0, sizeof(virscan));
 			sprintf(virscan.comment, "AntiVir/Linux Scanner");
 			sprintf(virscan.scanner, "/usr/bin/antivir");
 			sprintf(virscan.options, "-allfiles -s -q");
-			virscan.available = TRUE;
-			virscan.error = 0;
+			fwrite(&virscan, sizeof(virscan), 1, fil);
+
+			memset(&virscan, 0, sizeof(virscan));
+			sprintf(virscan.comment, "F-Prot scanner");
+			sprintf(virscan.scanner, "/usr/local/bin/f-prot .");
+			sprintf(virscan.options, "-archive -silent");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
                         memset(&virscan, 0, sizeof(virscan));
                         sprintf(virscan.comment, "McAfee VirusScan for Linux");
                         sprintf(virscan.scanner, "/usr/local/bin/uvscan");
                         sprintf(virscan.options, "--noboot --noexpire -r --secure -");
-                        virscan.available = TRUE;
-                        virscan.error = 0;
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			fclose(fil);
@@ -103,10 +106,11 @@ int CountVirus(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenVirus(void);
 int OpenVirus(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/virscan.data", getenv("MBSE_ROOT"));
@@ -120,9 +124,10 @@ int OpenVirus(void)
 			 * database must always be updated.
 			 */
 			oldsize = virscanhdr.recsize;
-			if (oldsize != sizeof(virscan))
+			if (oldsize != sizeof(virscan)) {
 				VirUpdated = 1;
-			else
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			} else
 				VirUpdated = 0;
 			virscanhdr.hdrsize = sizeof(virscanhdr);
 			virscanhdr.recsize = sizeof(virscan);
@@ -150,9 +155,10 @@ int OpenVirus(void)
 
 
 
-void CloseVirus(void)
+void CloseVirus(int);
+void CloseVirus(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*vir = NULL, *tmp;
 
@@ -160,7 +166,7 @@ void CloseVirus(void)
 	sprintf(fout,"%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 
 	if (VirUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -195,7 +201,7 @@ void CloseVirus(void)
 int AppendVirus(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -216,7 +222,7 @@ int AppendVirus(void)
 int EditVirRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -301,7 +307,7 @@ void EditVirus(void)
 	int	records, i, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -359,7 +365,7 @@ void EditVirus(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseVirus();
+			CloseVirus(FALSE);
 			return;
 		}
 
@@ -379,9 +385,19 @@ void EditVirus(void)
 }
 
 
+
+void InitVirus(void)
+{
+    CountVirus();
+    OpenVirus();
+    CloseVirus(TRUE);
+}
+
+
+
 int virus_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*vir;
 	int	j;
 

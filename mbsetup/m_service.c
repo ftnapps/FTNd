@@ -2,7 +2,7 @@
  *
  * File ..................: m_service.c
  * Purpose ...............: Service Setup
- * Last modification date : 30-Apr-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -52,12 +52,13 @@ int	ServiceUpdated;
 int CountService(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/service.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			servhdr.hdrsize = sizeof(servhdr);
 			servhdr.recsize = sizeof(servrec);
 			servhdr.lastupd = time(NULL);
@@ -102,10 +103,11 @@ int CountService(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenService(void);
 int OpenService(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/service.data", getenv("MBSE_ROOT"));
@@ -119,9 +121,10 @@ int OpenService(void)
 			 * database must always be updated.
 			 */
 			oldsize    = servhdr.recsize;
-			if (oldsize != sizeof(servrec))
+			if (oldsize != sizeof(servrec)) {
 				ServiceUpdated = 1;
-			else
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			} else
 				ServiceUpdated = 0;
 			servhdr.hdrsize = sizeof(servhdr);
 			servhdr.recsize = sizeof(servrec);
@@ -148,9 +151,10 @@ int OpenService(void)
 
 
 
-void CloseService(void)
+void CloseService(int);
+void CloseService(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
@@ -158,7 +162,7 @@ void CloseService(void)
 	sprintf(fout,"%s/etc/service.temp", getenv("MBSE_ROOT"));
 
 	if (ServiceUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -193,7 +197,7 @@ void CloseService(void)
 int AppendService(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/service.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -231,7 +235,7 @@ void ServiceScreen(void)
 int EditServiceRec(int Area)
 {
 	FILE		*fil;
-	char		mfile[81];
+	char		mfile[PATH_MAX];
 	long		offset;
 	unsigned long	crc, crc1;
 
@@ -303,7 +307,7 @@ void EditService(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -366,7 +370,7 @@ void EditService(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseService();
+			CloseService(FALSE);
 			return;
 		}
 
@@ -395,9 +399,18 @@ void EditService(void)
 
 
 
+void InitService(void)
+{
+    CountService();
+    OpenService();
+    CloseService(TRUE);
+}
+
+
+
 int service_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81];
+	char		temp[PATH_MAX];
 	FILE		*no;
 	int		j;
 

@@ -4137,6 +4137,9 @@ v0.33.18        27-Jul-2001
 		Added setup items for the menu Display colors.
 		Added a no suid switch to the menu for doors.
 		Added setup for *.msg directory in menu 1.3.
+		When changing the number of newfiles groups, the newfiles
+		reports database is converted on the fly.
+		All path variables now have a length of PATH_MAX.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a

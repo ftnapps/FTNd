@@ -6,6 +6,7 @@
 
 int  CountUsers(void);
 void EditUsers(void);
+void InitUsers(void);
 
 #endif
 

@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_users.c
  * Purpose ...............: Edit Users
- * Last modification date : 29-Jul-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,12 +54,13 @@ int	UsrUpdated = 0;
 int CountUsers(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			usrconfighdr.hdrsize = sizeof(usrconfighdr);
 			usrconfighdr.recsize = sizeof(usrconfig);
 			fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
@@ -87,10 +88,11 @@ int CountUsers(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenUsers(void);
 int OpenUsers(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/users.data", getenv("MBSE_ROOT"));
@@ -104,9 +106,10 @@ int OpenUsers(void)
 			 * database must always be updated.
 			 */
 			oldsize = usrconfighdr.recsize;
-			if (oldsize != sizeof(usrconfig))
+			if (oldsize != sizeof(usrconfig)) {
 				UsrUpdated = 1;
-			else
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			} else
 				UsrUpdated = 0;
 			usrconfighdr.hdrsize = sizeof(usrconfighdr);
 			usrconfighdr.recsize = sizeof(usrconfig);
@@ -134,15 +137,16 @@ int OpenUsers(void)
 
 
 
-void CloseUsers(void)
+void CloseUsers(int);
+void CloseUsers(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 
 	sprintf(fin, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	sprintf(fout,"%s/etc/users.temp", getenv("MBSE_ROOT"));
 
 	if (UsrUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
@@ -159,7 +163,7 @@ void CloseUsers(void)
 int AppendUsers(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/users.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -291,7 +295,7 @@ void Fields1(void)
 int EditUsrRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j = 0;
 	unsigned long crc, crc1;
@@ -416,7 +420,7 @@ void EditUsers(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -479,7 +483,7 @@ void EditUsers(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseUsers();
+			CloseUsers(FALSE);
 			return;
 		}
 
@@ -504,6 +508,15 @@ void EditUsers(void)
 		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
 			EditUsrRec(atoi(pick));
 	}
+}
+
+
+
+void InitUsers(void)
+{
+    CountUsers();
+    OpenUsers();
+    CloseUsers(TRUE);
 }
 
 

@@ -2,10 +2,10 @@
  *
  * File ..................: m_node.c
  * Purpose ...............: Nodes Setup Program 
- * Last modification date : 30-Aug-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -57,12 +57,13 @@ int CountNoderec(void);
 int CountNoderec(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			nodeshdr.hdrsize = sizeof(nodeshdr);
 			nodeshdr.recsize = sizeof(nodes);
 			nodeshdr.filegrp = CFG.tic_groups * 13;
@@ -95,7 +96,7 @@ int CountNoderec(void)
 int OpenNoderec(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	char	group[13];
 	long	oldsize;
 	int	i, old_fgroups, old_mgroups; 
@@ -105,7 +106,6 @@ int OpenNoderec(void)
 	sprintf(fnout, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 	if ((fin = fopen(fnin, "r")) != NULL) {
 		if ((fout = fopen(fnout, "w")) != NULL) {
-			Syslog('+', "Opened nodes.data");
 			NodeUpdated = 0;
 			fread(&nodeshdr, sizeof(nodeshdr), 1, fin);
 			fseek(fin, 0, SEEK_SET);
@@ -130,7 +130,12 @@ int OpenNoderec(void)
 			    (CFG.tic_groups != old_fgroups) || 
 			    (CFG.toss_groups != old_mgroups))) {
 				NodeUpdated = 1;
-				Syslog('+', "nodes.data nr of groups is changed");
+				if (oldsize != sizeof(nodes))
+					Syslog('+', "Upgraded %s, format changed", fnin);
+				else if (CFG.tic_groups != old_fgroups)
+					Syslog('+', "Upgraded %s, nr of tic groups is now %d", fnin, CFG.tic_groups);
+				else if (CFG.toss_groups != old_mgroups)
+					Syslog('+', "Upgraded %s, nr of mail groups is now %d", fnin, CFG.toss_groups);
 			}
 			nodeshdr.hdrsize = sizeof(nodeshdr);
 			nodeshdr.recsize = sizeof(nodes);
@@ -192,7 +197,7 @@ int OpenNoderec(void)
 
 void CloseNoderec(int Force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	int	i;
 	char	group[13];
@@ -244,7 +249,7 @@ int AppendNoderec(void);
 int AppendNoderec(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	char	group[13];
 	int	i;
 
@@ -278,7 +283,7 @@ int AppendNoderec(void)
 
 int GroupInNode(char *Group, int Mail)
 {
-	char	temp[128], group[13];
+	char	temp[PATH_MAX], group[13];
 	FILE	*no;
 	int	i, groups, Area = 0, RetVal = 0;
 
@@ -493,7 +498,7 @@ fidoaddr e_a(fidoaddr, int);
 fidoaddr e_a(fidoaddr n, int x)
 {
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	int	i;
 
 	for (;;) {
@@ -642,7 +647,7 @@ int EditNodeRec(int);
 int EditNodeRec(int Area)
 {
 	FILE		*fil;
-	char		mfile[81];
+	char		mfile[PATH_MAX];
 	long		offset;
 	unsigned long	crc, crc1;
 	gr_list		*fgr = NULL, *egr = NULL, *tmp;
@@ -883,7 +888,7 @@ void EditNodes(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -975,13 +980,22 @@ void EditNodes(void)
 
 
 
+void InitNodes(void)
+{
+    CountNoderec();
+    OpenNoderec();
+    CloseNoderec(TRUE);
+}
+
+
+
 fidoaddr PullUplink(char *Hdr)
 {
 	static fidoaddr	uplink;
 	int		records, m, i, o, x, y;
 	char		pick[12];
 	FILE		*fil;
-	char		temp[81];
+	char		temp[PATH_MAX];
 	long		offset;
 
 	memset(&uplink, 0, sizeof(uplink));
@@ -1098,7 +1112,7 @@ fidoaddr PullUplink(char *Hdr)
 
 int node_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	groups, i, First = TRUE;
 	char	group[13];

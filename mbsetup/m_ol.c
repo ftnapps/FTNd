@@ -2,10 +2,10 @@
  *
  * File ..................: setup/m_ol.c
  * Purpose ...............: Setup Oneliners.
- * Last modification date : 18-Mar-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -52,12 +52,13 @@ int	OnelUpdated = 0;
 int CountOneline(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "created new %s", ffile);
 			olhdr.hdrsize = sizeof(olhdr);
 			olhdr.recsize = sizeof(ol);
 			fwrite(&olhdr, sizeof(olhdr), 1, fil);
@@ -85,10 +86,11 @@ int CountOneline(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenOneline(void);
 int OpenOneline(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/oneline.data", getenv("MBSE_ROOT"));
@@ -102,9 +104,10 @@ int OpenOneline(void)
 			 * database must always be updated.
 			 */
 			oldsize = olhdr.recsize;
-			if (oldsize != sizeof(ol))
+			if (oldsize != sizeof(ol)) {
 				OnelUpdated = 1;
-			else
+				Syslog('+', "Upgraded %s, format changed", fnin);
+			} else
 				OnelUpdated = 0;
 			olhdr.hdrsize = sizeof(olhdr);
 			olhdr.recsize = sizeof(ol);
@@ -132,15 +135,16 @@ int OpenOneline(void)
 
 
 
-void CloseOneline(void)
+void CloseOneline(int);
+void CloseOneline(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 
 	sprintf(fin, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 	sprintf(fout,"%s/etc/oneline.temp", getenv("MBSE_ROOT"));
 
 	if (OnelUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
@@ -157,7 +161,7 @@ void CloseOneline(void)
 int AppendOneline(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -178,7 +182,7 @@ int AppendOneline(void)
 int EditOnelRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -258,7 +262,7 @@ void EditOneline(void)
 	int	records, i, x, y, o;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[121];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -321,7 +325,7 @@ void EditOneline(void)
 		strcpy(pick, select_record(records,20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseOneline();
+			CloseOneline(FALSE);
 			return;
 		}
 
@@ -350,12 +354,21 @@ void EditOneline(void)
 
 
 
+void InitOneline(void)
+{
+    CountOneline();
+    OpenOneline();
+    CloseOneline(TRUE);
+}
+
+
+
 void PurgeOneline(void)
 {
 	FILE	*pOneline, *fp;
 	int	recno = 0;
 	int	iCount = 0;
-	char	sFileName[81];
+	char	sFileName[PATH_MAX];
 	char	temp[81];
 
 	clr_index();
@@ -416,7 +429,7 @@ void PurgeOneline(void)
 void ImportOneline(void)
 {
 	FILE	*Imp, *pOneline;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	int	recno = 0;
 	struct	tm *l_date;
 	char	buf[12];

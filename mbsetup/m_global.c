@@ -40,6 +40,7 @@
 #include "m_node.h"
 #include "m_marea.h"
 #include "m_ticarea.h"
+#include "m_new.h"
 #include "m_global.h"
 
 
@@ -1082,7 +1083,12 @@ void e_newfiles(void)
 		case 1:	E_PTH(7,16,64, CFG.ftp_base,   "The ^FTP home^ directory to strip of the real directory")
 		case 2:	E_INT(8,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
 		case 3:	E_SEC(9,16,    CFG.security,   "1.14  NEWFILES REPORTS SECURITY", s_newfiles)
-		case 4: E_INT(10,16,   CFG.new_groups, "The maximum of ^newfiles^ groups in the newfiles database")
+		case 4: CFG.new_groups = edit_int(10, 16, CFG.new_groups, 
+				    (char *)"The maximum of ^newfiles^ groups in the newfiles database");
+			if (OpenNewfiles() == 0)
+			    CloseNewfiles(TRUE);
+			working(0, 0, 0);
+			break;
 		}
 	};
 }

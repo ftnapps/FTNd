@@ -2,10 +2,10 @@
  *
  * File ..................: m_hatch.c
  * Purpose ...............: Hatch Setup
- * Last modification date : 18-Mar-2000
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -63,12 +63,13 @@ char	*Month[] = {(char *)"1", (char *)"2", (char *)"3", (char *)"4",
 int CountHatch(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			hatchhdr.hdrsize = sizeof(hatchhdr);
 			hatchhdr.recsize = sizeof(hatch);
 			hatchhdr.lastupd = time(NULL);
@@ -94,10 +95,11 @@ int CountHatch(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenHatch(void);
 int OpenHatch(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 	int	FieldPatch = FALSE;
 
@@ -114,6 +116,7 @@ int OpenHatch(void)
 			oldsize    = hatchhdr.recsize;
 			if (oldsize != sizeof(hatch)) {
 				HatchUpdated = 1;
+				Syslog('+', "Updated %s, format changed", fnin);
 				if ((oldsize + 8) == sizeof(hatch)) {
 					FieldPatch = TRUE;
 					Syslog('?', "Hatch: performing FieldPatch");
@@ -149,9 +152,10 @@ int OpenHatch(void)
 
 
 
-void CloseHatch(void)
+void CloseHatch(int);
+void CloseHatch(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*hat = NULL, *tmp;
 
@@ -159,7 +163,7 @@ void CloseHatch(void)
 	sprintf(fout,"%s/etc/hatch.temp", getenv("MBSE_ROOT"));
 
 	if (HatchUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -194,7 +198,7 @@ void CloseHatch(void)
 int AppendHatch(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	i;
 
 	sprintf(ffile, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
@@ -324,7 +328,7 @@ void EditDays(void)
 int EditHatchRec(int Area)
 {
 	FILE		*fil;
-	char		mfile[81];
+	char		mfile[PATH_MAX];
 	static char	*tmp = NULL;
 	long		offset;
 	unsigned long	crc, crc1;
@@ -450,7 +454,7 @@ void EditHatch(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -513,7 +517,7 @@ void EditHatch(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseHatch();
+			CloseHatch(FALSE);
 			return;
 		}
 
@@ -542,9 +546,18 @@ void EditHatch(void)
 
 
 
+void InitHatch(void)
+{
+    CountHatch();
+    OpenHatch();
+    CloseHatch(TRUE);
+}
+
+
+
 int tic_hatch_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[81], *tmp = NULL;
+	char		temp[PATH_MAX], *tmp = NULL;
 	FILE		*no;
 	int		i, j, All;
 

@@ -6,6 +6,7 @@
 
 int  CountOneline(void);
 void EditOneline(void);
+void InitOneline(void);
 void ol_menu(void);
 
 #endif

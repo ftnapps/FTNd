@@ -4,6 +4,7 @@
 
 int  CountMGroup(void);
 void EditMGroup(void);
+void InitMGroup(void);
 char *PickMGroup(char *);
 int  mail_group_doc(FILE *, FILE *, int);
 

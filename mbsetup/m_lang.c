@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_language.c
  * Purpose ...............: Setup Languages.
- * Last modification date : 25-Jul-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -53,12 +53,13 @@ int	LangUpdated = 0;
 int CountLanguage(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count;
 
 	sprintf(ffile, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Created new %s", ffile);
 			langhdr.hdrsize = sizeof(langhdr);
 			langhdr.recsize = sizeof(lang);
 			fwrite(&langhdr, sizeof(langhdr), 1, fil);
@@ -106,6 +107,16 @@ int CountLanguage(void)
                         lang.Available = TRUE;
                         fwrite(&lang, sizeof(lang), 1, fil);
 
+			memset(&lang, 0, sizeof(lang));
+                        sprintf(lang.Name,      "Galego");
+			sprintf(lang.LangKey,   "G");
+			sprintf(lang.MenuPath,  "%s/galego/menus", getenv("MBSE_ROOT"));
+			sprintf(lang.TextPath,  "%s/galego/txtfiles", getenv("MBSE_ROOT"));
+			sprintf(lang.MacroPath, "%s/galego/macro", getenv("MBSE_ROOT"));
+			sprintf(lang.Filename,  "galego.lang");
+			lang.Available = TRUE;
+			fwrite(&lang, sizeof(lang), 1, fil);
+
 			fclose(fil);
 			return 2;
 		} else
@@ -127,10 +138,11 @@ int CountLanguage(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenLanguage(void);
 int OpenLanguage(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/language.data", getenv("MBSE_ROOT"));
@@ -144,9 +156,10 @@ int OpenLanguage(void)
 			 * database must always be updated.
 			 */
 			oldsize = langhdr.recsize;
-			if (oldsize != sizeof(lang))
+			if (oldsize != sizeof(lang)) {
 				LangUpdated = 1;
-			else
+				Syslog('+', "Updated %s, format changed", fnin);
+			} else
 				LangUpdated = 0;
 			langhdr.hdrsize = sizeof(langhdr);
 			langhdr.recsize = sizeof(lang);
@@ -174,9 +187,10 @@ int OpenLanguage(void)
 
 
 
-void CloseLanguage(void)
+void CloseLanguage(int);
+void CloseLanguage(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*lan = NULL, *tmp;
 
@@ -184,7 +198,7 @@ void CloseLanguage(void)
 	sprintf(fout,"%s/etc/language.temp", getenv("MBSE_ROOT"));
 
 	if (LangUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -219,7 +233,7 @@ void CloseLanguage(void)
 int AppendLanguage(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/language.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -260,7 +274,7 @@ void s_lang(void)
 int EditLangRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -343,7 +357,7 @@ void EditLanguage(void)
 	int	records, i, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -397,7 +411,7 @@ void EditLanguage(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseLanguage();
+			CloseLanguage(FALSE);
 			return;
 		}
 
@@ -418,13 +432,22 @@ void EditLanguage(void)
 
 
 
+void InitLanguage(void)
+{
+    CountLanguage();
+    OpenLanguage();
+    CloseLanguage(TRUE);
+}
+
+
+
 int PickLanguage(char *nr)
 {
 	int	Lang = '\0';
 	int	records, i, x;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 
@@ -485,7 +508,7 @@ int PickLanguage(char *nr)
 
 int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no;
 	int	j;
 

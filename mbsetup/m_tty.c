@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_tty.c
  * Purpose ...............: Setup Ttyinfo structure.
- * Last modification date : 24-Jun-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -54,12 +54,13 @@ int	TtyUpdated = 0;
 int CountTtyinfo(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 	int	count, i;
 
 	sprintf(ffile, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
 		if ((fil = fopen(ffile, "a+")) != NULL) {
+			Syslog('+', "Creaded new %s", ffile);
 			ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
 			ttyinfohdr.recsize = sizeof(ttyinfo);
 			fwrite(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
@@ -101,7 +102,12 @@ int CountTtyinfo(void)
                         for (i = 0; i < 4; i++) {
                                 memset(&ttyinfo, 0, sizeof(ttyinfo));
                                 sprintf(ttyinfo.comment, "ISDN line %d", i+1);
+#ifdef __linux__
                                 sprintf(ttyinfo.tty,     "ttyI%d", i);
+#endif
+#ifdef __FreeBSD__
+				sprintf(ttyinfo.tty,     "cuaia%d", i);
+#endif
                                 sprintf(ttyinfo.speed,   "64 kbits");
 				sprintf(ttyinfo.flags,   "XA,X75,CM");
                                 ttyinfo.type = ISDN;
@@ -115,7 +121,12 @@ int CountTtyinfo(void)
                         for (i = 0; i < 4; i++) {
                                 memset(&ttyinfo, 0, sizeof(ttyinfo));
                                 sprintf(ttyinfo.comment, "Modem line %d", i+1);
+#ifdef __linux__
                                 sprintf(ttyinfo.tty,     "ttyS%d", i);
+#endif
+#ifdef __FreeBSD__
+				sprintf(ttyinfo.tty,     "cuaa%d", i);
+#endif
                                 sprintf(ttyinfo.speed,   "33.6 kbits");
 				sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");
                                 ttyinfo.type = POTS;
@@ -148,10 +159,11 @@ int CountTtyinfo(void)
  * is changed it will be converted on the fly. All editing must be 
  * done on the copied file.
  */
+int OpenTtyinfo(void);
 int OpenTtyinfo(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[81], fnout[81];
+	char	fnin[PATH_MAX], fnout[PATH_MAX];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
@@ -165,9 +177,10 @@ int OpenTtyinfo(void)
 			 * database must always be updated.
 			 */
 			oldsize = ttyinfohdr.recsize;
-			if (oldsize != sizeof(ttyinfo))
+			if (oldsize != sizeof(ttyinfo)) {
 				TtyUpdated = 1;
-			else
+				Syslog('+', "Updated %s, format changed", fnin);
+			} else
 				TtyUpdated = 0;
 			ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
 			ttyinfohdr.recsize = sizeof(ttyinfo);
@@ -195,9 +208,10 @@ int OpenTtyinfo(void)
 
 
 
-void CloseTtyinfo(void)
+void CloseTtyinfo(int);
+void CloseTtyinfo(int force)
 {
-	char	fin[81], fout[81];
+	char	fin[PATH_MAX], fout[PATH_MAX];
 	FILE	*fi, *fo;
 	st_list	*tty = NULL, *tmp;
 
@@ -205,7 +219,7 @@ void CloseTtyinfo(void)
 	sprintf(fout,"%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 
 	if (TtyUpdated == 1) {
-		if (yes_no((char *)"Database is changed, save changes") == 1) {
+		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
 			fi = fopen(fout, "r");
 			fo = fopen(fin,  "w");
@@ -240,7 +254,7 @@ void CloseTtyinfo(void)
 int AppendTtyinfo(void)
 {
 	FILE	*fil;
-	char	ffile[81];
+	char	ffile[PATH_MAX];
 
 	sprintf(ffile, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
@@ -285,7 +299,7 @@ void TtyScreen(void)
 int EditTtyRec(int Area)
 {
 	FILE	*fil;
-	char	mfile[81];
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j;
 	unsigned long crc, crc1;
@@ -378,7 +392,7 @@ void EditTtyinfo(void)
 	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
-	char	temp[81];
+	char	temp[PATH_MAX];
 	long	offset;
 
 	clr_index();
@@ -439,7 +453,7 @@ void EditTtyinfo(void)
 		strcpy(pick, select_record(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseTtyinfo();
+			CloseTtyinfo(FALSE);
 			return;
 		}
 
@@ -470,9 +484,18 @@ void EditTtyinfo(void)
 
 
 
+void InitTtyinfo(void)
+{
+    CountTtyinfo();
+    OpenTtyinfo();
+    CloseTtyinfo(TRUE);
+}
+
+
+
 int tty_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*tty;
 	int	j;
 

@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_menu.c
  * Purpose ...............: Edit BBS menus
- * Last modification date : 17-Oct-2001
+ * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -264,7 +264,7 @@ void Edit_A_Menu(void)
 void EditMenu(char *);
 void EditMenu(char *Name)
 {
-	char		mtemp[81], temp[161];
+	char		mtemp[PATH_MAX], temp[PATH_MAX];
 	FILE		*fil, *tmp;
 	int		records = 0, i, o, y;
 	char		pick[12];
@@ -538,7 +538,7 @@ void EditMenus(void)
 
 int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[81];
+	char	temp[PATH_MAX];
 	FILE	*no, *mn;
 	DIR	*dp;
 	struct	dirent *de;
