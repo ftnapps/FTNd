@@ -112,20 +112,24 @@ void PackFileBase(void)
 
 				iTotal++;
 
-				if ((!file.Deleted) && (strcmp(file.Name, "") != 0)) {
+				if ((!file.Deleted) && (!file.Double) && (strcmp(file.Name, "") != 0)) {
 					fwrite(&file, sizeof(file), 1, fp);
 				} else {
 					iRemoved++;
-					Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
-					sprintf(fn, "%s/%s", area.Path, file.LName);
-					rc = unlink(fn);
-					if (rc)
-					    Syslog('+', "Unlink %s failed, result %d", fn, rc);
-					/*
-					 * If a dotted version (thumbnail) exists, remove it silently
-					 */
-					sprintf(fn, "%s/.%s", area.Path, file.LName);
-					unlink(fn);
+					if (file.Double) {
+					    Syslog('+', "Removed double record file \"%s\" from area %d", file.LName, i);
+					} else {
+					    Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
+					    sprintf(fn, "%s/%s", area.Path, file.LName);
+					    rc = unlink(fn);
+					    if (rc)
+						Syslog('+', "Unlink %s failed, result %d", fn, rc);
+					    /*
+					     * If a dotted version (thumbnail) exists, remove it silently
+					     */
+					    sprintf(fn, "%s/.%s", area.Path, file.LName);
+					    unlink(fn);
+					}
 					do_index = TRUE;
 				}
 			}

@@ -204,8 +204,21 @@ void Check(void)
 							rewind(pFile);
 							while (fread(&file, sizeof(file), 1, pFile) == 1) {
 								if (strcmp(file.LName, de->d_name) == 0) {
+								    if (!Found) {
 									Found = TRUE;
-									break;
+								    } else {
+									/*
+									 * Record has been found before, so this must be
+									 * a double record.
+									 */
+									Syslog('!', "Double file record area %d file %s", 
+										i, file.LName);
+									iErrors++;
+									file.Double = TRUE;
+									do_pack = TRUE;
+									fseek(pFile, - sizeof(file), SEEK_CUR);
+									fwrite(&file, sizeof(file), 1, pFile);
+								    }
 								}
 							}
 							if ((!Found) && 

@@ -424,6 +424,7 @@ struct	FILERecord {
 	unsigned	Missing      : 1;	/* Missing		    */
 	unsigned	NoKill	     : 1;	/* Cannot be deleted        */
 	unsigned	Announced    : 1;	/* File is announced	    */
+	unsigned	Double	     : 1;	/* Double record	    */
 };
 
 
