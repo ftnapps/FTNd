@@ -1,10 +1,65 @@
 $Id$
 
-NOTE: for previous 0.35.06 users, the hard links are now replaced with
-      symbolic links. Run mbfile check to update if you were running
-      a pre 09-12-2002 version. Backup everything!! If all went well the
-      backups should be in size back to normal.
-      If you use web pages of the download areas, run mbfile index.
+
+v0.36.00	Pending release.
+
+	update:
+		These are the total update instructions for the upgrade from
+		v0.33.21 until v0.36.00 (not yet released). Read and perform
+		this upgrade with great care, this one is quite complicated.
+                Make sure you don't have download files with case differences
+                in download directories like FileName.zip and FILENAME.ZIP.
+                With this upgrade files with such names will be deleted!
+                Rename them before you upgrade!
+		Make sure your outbound is empty, "mbout stat" should not show
+		anything in the outbounds. You may delete ~/bin/mbfido before
+		you do this so when you deliver all pending mail no new mail
+		will be tossed. New mail will stay in your inbound now.
+		Now backup your whole bbs and download areas!
+		Compile the new bbs programs, do not yet install them.
+		Shutdown the bbs with "mbstat close". Kill the mbtask daemon.
+		Depending on your distribution as root you can do
+		"/etc/rc.d/init.d/mbsed stop", the location may vary.
+                Delete ~/etc/lastcall.data
+                Delete ~/etc/archiver.data
+                Delete ~/etc/virscan.data
+		Because the macro template files are changed and you may have
+		personalized them, these files are not automatic upgraded. If
+		you want them to be upgraded delete all files in 
+		~/english/macro .
+		Now install all new binaries (su to root, make install).
+		Delete ~/bin/mbfido again (to prevent tossing mail).
+		Back as user mbse again, start mbtask by typing mbtask at the
+		commandline. Now you are ready to check and update the changes.
+                Start mbsetup, enter global configuration and exit and save.
+                This will set defaults for area-/filemgr logging and security.
+                The noderecords are updated with new security flags.
+                This will setup the new outbound queue path, default is
+                /opt/mbse/var/queue.
+                The filegroups, ticgroups, tic areas and message areas are
+                updated with default security flags.
+                In mbsetup enter Edit Fidonet Nodes. You might want to check
+		if all the session passwords are still ok. Also check all 
+		nodes if the Pack mail flag is ok, this setting now also 
+		affects echomail!
+                Check new settings in nodes setup, screen 6, items 9 and 10.
+                Check TIC magic records (menu 10.4), all filenames tested are
+                now uppercase 8.3 names, adjust your filemasks.
+                In mbsetup enter the Edit Archiver Programs. The new values
+                should now be set. Do the same for Virus scanners.
+		This is all for mbsetup.
+                Run "mbfile check". This will create an error in the logfile
+                for each file! It will update the filenames on disk to have
+                both short and long filenames. Just ignore the errors but check
+                for real deleted files.
+		Now you are ready, install the binaries again so that mbfido
+		is present again and you can toss mail. Do this with
+		"mbstat set mailin", after a while all mail and files will be
+		tossed and you are back in bussines again.
+		Have fun.
+
+	changes:
+		See all changes from development version 0.35.01 upto 0.33.07.
 
 
 				MBSEBBS History.
@@ -44,25 +99,6 @@ v0.35.07	11-Dec-2002
 
 
 v0.35.06	13-Nov-2002 - 11-Dec-2002
-
-	update:
-		Make sure you don't have download files with case differences
-		in download directories like FileName.zip and FILENAME.ZIP.
-		With this upgrade files with such names will be deleted!
-		Rename them before you upgrade!
-		Backup your whole bbs, including download files.
-		Before upgrade, close the bbs (mbstat close wait) and make 
-		sure the inbound is empty, toss everything.
-		Install the new binaries.
-		Run "mbfile check". This will create an error in the logfile
-		for each file! It will update the filenames on disk to have
-		both short and long filenames. Just ignore the errors but check
-		for real deleted files.
-		Now stop mbtask and restart it.
-		Start the bbs again (mbstat open).
-		Check new settings in nodes setup, screen 6, items 9 and 10.
-		Check TIC magic records (menu 10.4), all filenames tested are
-		now uppercase 8.3 names, adjust your filemasks.
 
 	templates:
 		The html templates are changed by Joachim Kuwan and now they
@@ -162,12 +198,6 @@ v0.35.06	13-Nov-2002 - 11-Dec-2002
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.
 
-	upgrade:
-		Start mbsetup, go into global configuration, leave it and 
-		save.
-		Start mbsetup, check all nodes if the Pack mail flag is ok,
-		this setting now also affects echomail!
-
 	general:
 		There is now a mberrors.h file that defines all errorcodes
 		returned by all programs.
@@ -264,13 +294,6 @@ v0.35.04	29-Sep-2002 - 19-Oct-2002.
 	general:
 		Added mail and files security flags for nodes.
 
-	upgrade:
-		Start mbsetup, enter global configuration and exit and save.
-		This will set defaults for area-/filemgr logging and security.
-		The noderecords are updated with new security flags.
-		The filegroups, ticgroups, tic areas and message areas are 
-		updated with default security flags.
-
         clcomm.a:
                 Added Mgrlog function, logs default to manager.log. Does also
                 log to Syslog with level '+'.
@@ -312,12 +335,6 @@ v0.35.03	06-Jul-2002 - 29-Sep-2002
 	general:
 		Now compiles and installs on HP-PARISC hardware, tested with
 		Debian 3.0 on a HP 712/80.
-
-	upgrade:
-		After installation restart mbtask.
-		Start mbsetup, enter global configuration and exit and save.
-		This will setup the new outbound queue path, default is
-		/opt/mbse/var/queue.
 
 	common.a:
 		Added nodelist override to the nodelist lookup function.
@@ -434,13 +451,6 @@ v0.35.03	06-Jul-2002 - 29-Sep-2002
 
 v0.35.02	22-Jun-2002 - 06-Jul-2002
 
-	upgrade:
-		Delete ~/etc/lastcall.data
-		Delete ~/etc/archiver.data
-		Delete ~/etc/virscan.data
-		Start mbsetup and enter the Edit Archiver Programs. The new
-		values should now be set. Do the same for Virus scanners.
-
 	general:
 		Added checks for GoldED in external program checks.
 		Added new empty path /opt/mbse/var/boxes.
@@ -522,11 +532,6 @@ v0.35.02	22-Jun-2002 - 06-Jul-2002
 
 
 v0.35.01	05-Jun-2002 - 22-Jun-2002
-
-	upgrade:
-		Start mbsetup and enter Edit Fidonet Nodes. This will upgrade
-		the nodes.data file. You might as well check if all the session
-		passwords are still ok.
 
 	general:
 		Added structures for netmail routing file.
