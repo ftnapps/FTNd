@@ -79,8 +79,6 @@ int toss_msgs(void)
 	Syslog('+',"Processed %d msg messages", files);
     }
 
-    net_msgs += files;
-    net_in += files;
     return files;
 }
 
@@ -108,6 +106,7 @@ int toss_onemsg(char *msgname)
     unsigned short  Attribute = 0;
     struct stat	    sb;
 
+    net_msgs++;
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
     
@@ -369,8 +368,10 @@ int toss_onemsg(char *msgname)
     fclose(fp);
 
     if (rc == 0) {
+	net_in++;
 	sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
-	Syslog('m', "unlink(%s) rc=%d", temp, unlink(temp));
+	if (unlink(temp) != 0)
+	    WriteError("Can't remove %s", temp);
     }
 
     free(temp);
