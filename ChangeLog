@@ -19,6 +19,9 @@ v0.35.05	19-Oct-2002
 		Changed the section about ftp feeds.
 		Added Q&A about failing internet polls.
 
+	mbsebbs:
+		Email posted at the bbs was not signed with the signature.
+
 	mbcico:
 		Fixed crash with incoming YooHoo session with bad password.
 		Still used the phone override fields for hostname override
@@ -54,6 +57,8 @@ v0.35.05	19-Oct-2002
 		Echomail is now also packed or not according to the packmail
 		switch in mbsetup.
 		Statistics count for exported echomail now works.
+		Email posted in the email box in full domain mode was refused
+		by SMTP servers because of bad address formatting.
 
 	mbtask:
 		Removed debug logging of "does" info.

@@ -1109,81 +1109,98 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
  */
 void ExportEmail(unsigned long MsgNum)
 {
-        char	*p;
-	FILE	*qp;
-	int	retval, flags = 0;
-	faddr	*from, *too;
-	int	kludges = TRUE;
+    char    *p;
+    FILE    *qp;
+    int	    retval, flags = 0, kludges = TRUE;
+    faddr   *from, *too;
 
-	Syslog('m', "Export email to %s", Msg.To);
-	Syslog('m', "           from %s", Msg.From);
-	Msg.Sent = TRUE;
-	if (Msg.KillSent)
-		Msg.Deleted = TRUE;
+    Syslog('m', "Export email to %s", Msg.To);
+    Syslog('m', "           from %s", Msg.From);
+    Msg.Sent = TRUE;
+    if (Msg.KillSent)
+	Msg.Deleted = TRUE;
 
-	/*
-	 *  For local scanned messages both addresses are the same.
-	 */
-	from = fido2faddr(CFG.EmailFidoAka);
-	too  = fido2faddr(CFG.EmailFidoAka);
-	qp = tmpfile();
+    /*
+     *  For local scanned messages both addresses are the same.
+     */
+    from = fido2faddr(CFG.EmailFidoAka);
+    too  = fido2faddr(CFG.EmailFidoAka);
+    qp = tmpfile();
 
-        flags |= (Msg.Private)          ? M_PVT   : 0;
-        flags |= (Msg.Crash)            ? M_CRASH : 0;
-        flags |= (Msg.Hold)             ? M_HOLD  : 0;
-        flags |= (Msg.Immediate)        ? M_CRASH : 0;
-        flags |= (Msg.FileRequest)      ? M_REQ   : 0;
-        flags |= (Msg.FileAttach)       ? M_FILE  : 0;
-        flags |= (Msg.ReceiptRequest)   ? M_RRQ   : 0;
-        flags |= (Msg.ConfirmRequest)   ? M_AUDIT : 0;
+    flags |= (Msg.Private)          ? M_PVT   : 0;
+    flags |= (Msg.Crash)            ? M_CRASH : 0;
+    flags |= (Msg.Hold)             ? M_HOLD  : 0;
+    flags |= (Msg.Immediate)        ? M_CRASH : 0;
+    flags |= (Msg.FileRequest)      ? M_REQ   : 0;
+    flags |= (Msg.FileAttach)       ? M_FILE  : 0;
+    flags |= (Msg.ReceiptRequest)   ? M_RRQ   : 0;
+    flags |= (Msg.ConfirmRequest)   ? M_AUDIT : 0;
 
-	Syslog('m', "------------ Scanned message start");
-	if (Msg_Read(MsgNum, 78)) {
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				Syslog('m', "%s", printable(p, 0));
-				/*
-				 *  GoldED places ^A characters in front of the RFC headers, 
-				 *  so does mbsebbs as well.
-				 */
-				if (p[0] == '\001') {
-					fprintf(qp, "%s\n", p+1);
-					if (!strncmp(p, "\001PID:", 5)) {
-						fprintf(qp, "TID: MBSE-FIDO %s\n", VERSION);
-					}
-				} else {
-					if (kludges) {
-						kludges = FALSE;
-						fprintf(qp, "\n");
-					}
-					fprintf(qp, "%s\n", p);
-				}
-			} while ((p = (char *)MsgText_Next()) != NULL);
+    Syslog('m', "------------ Scanned message start");
+    if (Msg_Read(MsgNum, 78)) {
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		Syslog('m', "%s", printable(p, 0));
+		/*
+		 *  GoldED places ^A characters in front of the RFC headers, 
+		 *  so does mbsebbs as well.
+		 */
+		if (p[0] == '\001') {
+		    fprintf(qp, "%s\n", p+1);
+		    if (!strncmp(p, "\001PID:", 5)) {
+			fprintf(qp, "TID: MBSE-FIDO %s\n", VERSION);
+		    }
+		} else {
+		    if (kludges) {
+			kludges = FALSE;
+			fprintf(qp, "\n");
+		    }
+		    fprintf(qp, "%s\n", p);
 		}
+	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
-	Syslog('m', "------------ Scanned message end");
-	rewind(qp);
-	most_debug = TRUE;
+    }
+    Syslog('m', "------------ Scanned message end");
+    rewind(qp);
+    most_debug = TRUE;
 
+    /*
+     *  At this point the message is RFC formatted.
+     */
+    if (CFG.EmailMode != E_NOISP) {
 	/*
-	 *  At this point the message is RFC formatted.
+	 *  Dialup or direct internet connection, send message via MTA.
+	 *  First check if the From and To addresses contain spaces, if
+	 *  so everything after the space is removed.
 	 */
-	if (CFG.EmailMode != E_NOISP) {
-		/*
-		 *  Dialup or direct internet connection, send message via MTA.
-		 */
-		retval = postemail(qp, Msg.From, Msg.To);
-	} else {
-		/*
-		 *  Message goes to UUCP gateway.
-		 */
-		retval = rfc2ftn(qp, too);
+	p = Msg.From;
+	while (*p) {
+	    if (*p == ' ') {
+		*p = '\0';
+		break;
+	    }
+	    p++;
 	}
+	p = Msg.To;
+	while (*p) {
+	    if (*p == ' ') {
+		*p = '\0';
+		break;
+	    }
+	    p++;
+	}
+	retval = postemail(qp, Msg.From, Msg.To);
+    } else {
+	/*
+	 *  Message goes to UUCP gateway.
+	 */
+	retval = rfc2ftn(qp, too);
+    }
 
-	most_debug = FALSE;
-	tidy_faddr(from);
-	tidy_faddr(too);
-	Syslog('m', "posted email rc=%d", retval);
-	email_out++;
+    most_debug = FALSE;
+    tidy_faddr(from);
+    tidy_faddr(too);
+    Syslog('m', "posted email rc=%d", retval);
+    email_out++;
 }
 

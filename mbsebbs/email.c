@@ -255,105 +255,116 @@ int Export_a_Email(unsigned long Num)
  */
 int Save_Email(int IsReply)
 {
-	int             i;
-	char            *p, *temp;
-	unsigned long	crc = -1;
-	long		id;
-	FILE		*fp;
+    int             i;
+    char            *p, *temp;
+    unsigned long   crc = -1;
+    long	    id;
+    FILE	    *fp;
 
-	if (Line < 2)
-		return TRUE;
+    if (Line < 2)
+	return TRUE;
 
-	if (!Open_Msgbase(sMailpath, 'w')) {
-		return FALSE;
+    if (!Open_Msgbase(sMailpath, 'w')) {
+	return FALSE;
+    }
+
+    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+    Msg.Written = Msg.Arrived;
+    Msg.Local = TRUE;
+    Msg.Netmail = TRUE;
+    temp = calloc(PATH_MAX, sizeof(char));
+
+    /*
+     * Add header lines
+     */
+    sprintf(temp, "\001Date: %s", rfcdate(Msg.Written));
+    MsgText_Add2(temp);
+    sprintf(temp, "\001From: %s", Msg.From);
+    MsgText_Add2(temp);
+    sprintf(temp, "\001Subject: %s", Msg.Subject);
+    MsgText_Add2(temp);
+    sprintf(temp, "\001Sender: %s", Msg.From);
+    MsgText_Add2(temp);
+    sprintf(temp, "\001To: %s", Msg.To);
+    MsgText_Add2(temp);
+    MsgText_Add2((char *)"\001MIME-Version: 1.0");
+    MsgText_Add2((char *)"\001Content-Type: text/plain");
+    MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
+    sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
+    MsgText_Add2(temp);
+    p = calloc(81, sizeof(char));
+    id = sequencer();
+    sprintf(p, "<%08lx@%s>", id, CFG.sysdomain);
+    sprintf(temp, "\001Message-id: %s", p);
+    MsgText_Add2(temp);
+    Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
+    free(p);
+
+    if (IsReply) {
+	sprintf(temp, "\001In-reply-to: %s", Msg.Replyid);
+	MsgText_Add2(temp);
+	crc = -1;
+	Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
+    } else
+	Msg.ReplyCRC = 0xffffffff;
+
+    /*
+     * Add message text
+     */
+    for (i = 1; i < Line; i++) {
+	MsgText_Add2(Message[i]);
+    }
+
+    /*
+     * Add signature.
+     */
+    sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, exitinfo.Name);
+    if ((fp = fopen(temp, "r"))) {
+        Syslog('m', "  Add .signature");
+        MsgText_Add2((char *)"");
+        while (fgets(temp, 80, fp)) {
+	    Striplf(temp);
+	    MsgText_Add2(temp);
 	}
+	fclose(fp);
+	MsgText_Add2((char *)"");
+    }
+    MsgText_Add2(TearLine());
 
-	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-	Msg.Written = Msg.Arrived;
-	Msg.Local = TRUE;
-	Msg.Netmail = TRUE;
-	temp = calloc(PATH_MAX, sizeof(char));
+    /*
+     * Save if to disk
+     */
+    Msg_AddMsg();
+    Msg_UnLock();
 
-	/*
-	 * Add header lines
-	 */
-	sprintf(temp, "\001Date: %s", rfcdate(Msg.Written));
-	MsgText_Add2(temp);
-	sprintf(temp, "\001From: %s", Msg.From);
-	MsgText_Add2(temp);
-	sprintf(temp, "\001Subject: %s", Msg.Subject);
-	MsgText_Add2(temp);
-	sprintf(temp, "\001Sender: %s", Msg.From);
-	MsgText_Add2(temp);
-	sprintf(temp, "\001To: %s", Msg.To);
-	MsgText_Add2(temp);
-	MsgText_Add2((char *)"\001MIME-Version: 1.0");
-	MsgText_Add2((char *)"\001Content-Type: text/plain");
-	MsgText_Add2((char *)"\001Content-Transfer-Encoding: 8bit");
-	sprintf(temp, "\001X-Mailreader: MBSE BBS %s", VERSION);
-	MsgText_Add2(temp);
-	p = calloc(81, sizeof(char));
-	id = sequencer();
-	sprintf(p, "<%08lx@%s>", id, CFG.sysdomain);
-	sprintf(temp, "\001Message-id: %s", p);
-	MsgText_Add2(temp);
-//	sprintf(temp, "\001MSGID: %s %08lx", aka2str(CFG.EmailFidoAka), id);
-//	MsgText_Add2(temp);
-	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
-	free(p);
-//	sprintf(temp, "\001PID: MBSE-BBS %s", VERSION);
-//	MsgText_Add2(temp);
+    ReadExitinfo();
+    exitinfo.iPosted++;
+    WriteExitinfo();
 
-	if (IsReply) {
-		sprintf(temp, "\001In-reply-to: %s", Msg.Replyid);
-		MsgText_Add2(temp);
-		crc = -1;
-		Msg.ReplyCRC = upd_crc32(temp, crc, strlen(temp));
-	} else
-		Msg.ReplyCRC = 0xffffffff;
+    do_mailout = TRUE;
+    LC_Wrote = TRUE;
 
-	/*
-	 * Add message text
-	 */
-	for (i = 1; i < Line; i++) {
-		MsgText_Add2(Message[i]);
-	}
-	MsgText_Add2(TearLine());
+    Syslog('+', "Email (%ld) to \"%s\", \"%s\", in mailbox", Msg.Id, Msg.To, Msg.Subject);
 
-	/*
-	 * Save if to disk
-	 */
-	Msg_AddMsg();
-	Msg_UnLock();
+    colour(CFG.HiliteF, CFG.HiliteB);
+    /* Saving message to disk */
+    printf("\n%s(%ld)\n\n", (char *) Language(202), Msg.Id);
+    fflush(stdout);
+    sleep(2);
 
-	ReadExitinfo();
-	exitinfo.iPosted++;
-	WriteExitinfo();
+    /*
+     * Add quick mailscan info
+     */
+    sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "a")) != NULL) {
+	fprintf(fp, "%s/%s/mailbox %lu\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
+	fclose(fp);
+    }
 
-	do_mailout = TRUE;
-	LC_Wrote = TRUE;
+    free(temp);
+    Msg_Close();
 
-	Syslog('+', "Email (%ld) to \"%s\", \"%s\", in mailbox", Msg.Id, Msg.To, Msg.Subject);
-
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Saving message to disk */
-	printf("\n%s(%ld)\n\n", (char *) Language(202), Msg.Id);
-	fflush(stdout);
-	sleep(2);
-
-        /*
-         * Add quick mailscan info
-         */
-	sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "a")) != NULL) {
-		fprintf(fp, "%s/%s/mailbox %lu\n", CFG.bbs_usersdir, exitinfo.Name, Msg.Id);
-		fclose(fp);
-	}
-
-	free(temp);
-	Msg_Close();
-
-        return TRUE;
+    return TRUE;
 }
 
 
