@@ -1317,6 +1317,7 @@ struct msgareas {
 	int		Charset;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */
 	securityrec	LinkSec;		/* Link security flags	    */
+	time_t		Created;		/* Area creation date	    */
 };
 
 

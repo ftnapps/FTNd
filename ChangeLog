@@ -2,6 +2,10 @@ $Id$
 
 v0.51.4		11-Apr-2004
 
+	upgrade:
+		Start mbsetup and leave. This wil update the message area
+		records.
+
 	mbcico:
 		All heavy debug logmessages are now in defines and are only
 		enabled with ./configure --enable-newbinkp
@@ -11,9 +15,16 @@ v0.51.4		11-Apr-2004
 		function is removed, this should be done in the setup for the
 		virus scanners.
 		Added loging of virus scanner results.
+		When a new echomail area is auto created, the creation date and
+		the newsgroup name will be set.
 
 	mbsebbs:
 		Added loging of virus scanner results.
+
+	mbsetup:
+		Added auto setup for message area creation date. Also creates
+		a faked newsgroup name in echomail areas. Both settings are
+		needed for the (upcoming) newsserver.
 
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004

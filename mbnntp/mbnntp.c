@@ -35,6 +35,7 @@
 #include "openport.h"
 #include "ttyio.h"
 #include "auth.h"
+#include "commands.h"
 #include "mbnntp.h"
 
 time_t		    t_start;
@@ -193,15 +194,6 @@ void send_nntp(const char *format, ...)
     PUTSTR(out);
     PUTSTR((char *)"\r\n");
     free(out);
-}
-
-
-
-void command_list(char *cmd)
-{
-    send_nntp("215 List of newsgroups follows");
-
-    send_nntp(".");
 }
 
 

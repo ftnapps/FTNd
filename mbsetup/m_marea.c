@@ -54,108 +54,112 @@ int		MailForced = FALSE;
  */
 int CountMsgarea(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count, i;
-	struct  _sysconnect syscon;
+    FILE		*fil;
+    char		ffile[PATH_MAX];
+    int			count, i;
+    struct _sysconnect	syscon;
 
-	sprintf(ffile, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			msgshdr.hdrsize = sizeof(msgshdr);
-			msgshdr.recsize = sizeof(msgs);
-			msgshdr.syssize = CFG.toss_systems * sizeof(sysconnect);
-			msgshdr.lastupd = time(NULL);
-			fwrite(&msgshdr, sizeof(msgshdr), 1, fil);
-			/*
-			 * Default first message area
-			 */
-			memset(&msgs, 0, sizeof(msgs));
-			sprintf(msgs.Name, "Local users chat");
-			sprintf(msgs.Base, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
-			sprintf(msgs.QWKname, "LOC_USERS");
-			sprintf(msgs.Group, "LOCAL");
-			msgs.Active = TRUE;
-			msgs.Type = LOCALMAIL;
-			msgs.MsgKinds = PUBLIC;
-			msgs.SYSec.level = 32000;
-			msgs.UsrDelete = TRUE;
-			msgs.Aliases = TRUE;
-			msgs.Quotes = TRUE;
-			msgs.DaysOld = CFG.defdays;
-			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Charset = FTNC_NONE;
-			strcpy(msgs.Origin, CFG.origin);
-			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base, 0770);
-			if (Msg_Open(msgs.Base))
-			    Msg_Close();
-			memset(&syscon, 0, sizeof(syscon));
-			for (i = 1; i <= CFG.toss_systems; i++)
-			    fwrite(&syscon, sizeof(syscon), 1, fil);
-			/*
-			 * Default message area for badmail
-			 */
-			memset(&msgs, 0, sizeof(msgs));
-			sprintf(msgs.Name, "Bad mail");
-			sprintf(msgs.Base, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-			sprintf(msgs.QWKname, "BADMAIL");
-			sprintf(msgs.Group, "LOCAL");
-			msgs.Active = TRUE;
-			msgs.Type = LOCALMAIL;
-			msgs.MsgKinds = PUBLIC;
-			msgs.RDSec.level = 32000;
-			msgs.WRSec.level = 32000;
-			msgs.SYSec.level = 32000;
-			msgs.DaysOld = CFG.defdays;
-			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Charset = FTNC_NONE;
-			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base, 0770);
-			if (Msg_Open(msgs.Base))
-			    Msg_Close();
-			for (i = 1; i <= CFG.toss_systems; i++)
-			    fwrite(&syscon, sizeof(syscon), 1, fil);
-			/*
-			 * Default dupemail message area
-			 */
-			memset(&msgs, 0, sizeof(msgs));
-			sprintf(msgs.Name, "Dupe mail");
-			sprintf(msgs.Base, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
-			sprintf(msgs.QWKname, "DUPEMAIL");
-			sprintf(msgs.Group, "LOCAL");
-			msgs.Active = TRUE;
-			msgs.Type = LOCALMAIL;
-			msgs.MsgKinds = PUBLIC;
-			msgs.RDSec.level = 32000;
-			msgs.WRSec.level = 32000;
-			msgs.SYSec.level = 32000;
-			msgs.DaysOld = CFG.defdays;
-			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Charset = FTNC_NONE;
-			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base, 0770);
-			if (Msg_Open(msgs.Base))
-			    for (i = 1; i <= CFG.toss_systems; i++)
-			fwrite(&syscon, sizeof(syscon), 1, fil);
+    sprintf(ffile, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    msgshdr.hdrsize = sizeof(msgshdr);
+	    msgshdr.recsize = sizeof(msgs);
+	    msgshdr.syssize = CFG.toss_systems * sizeof(sysconnect);
+	    msgshdr.lastupd = time(NULL);
+	    fwrite(&msgshdr, sizeof(msgshdr), 1, fil);
+	    /*
+	     * Default first message area
+	     */
+	    memset(&msgs, 0, sizeof(msgs));
+	    sprintf(msgs.Name, "Local users chat");
+	    sprintf(msgs.Base, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+	    sprintf(msgs.QWKname, "LOC_USERS");
+	    sprintf(msgs.Group, "LOCAL");
+	    msgs.Active = TRUE;
+	    msgs.Type = LOCALMAIL;
+	    msgs.MsgKinds = PUBLIC;
+	    msgs.SYSec.level = 32000;
+	    msgs.UsrDelete = TRUE;
+	    msgs.Aliases = TRUE;
+	    msgs.Quotes = TRUE;
+	    msgs.DaysOld = CFG.defdays;
+	    msgs.MaxMsgs = CFG.defmsgs;
+	    msgs.Charset = FTNC_NONE;
+	    strcpy(msgs.Origin, CFG.origin);
+	    msgs.Created = time(NULL);
+	    fwrite(&msgs, sizeof(msgs), 1, fil);
+	    mkdirs(msgs.Base, 0770);
+	    if (Msg_Open(msgs.Base))
+		Msg_Close();
+	    memset(&syscon, 0, sizeof(syscon));
+	    for (i = 1; i <= CFG.toss_systems; i++)
+		fwrite(&syscon, sizeof(syscon), 1, fil);
+	    /*
+	     * Default message area for badmail
+	     */
+	    memset(&msgs, 0, sizeof(msgs));
+	    sprintf(msgs.Name, "Bad mail");
+	    sprintf(msgs.Base, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+	    sprintf(msgs.QWKname, "BADMAIL");
+	    sprintf(msgs.Group, "LOCAL");
+	    msgs.Active = TRUE;
+	    msgs.Type = LOCALMAIL;
+	    msgs.MsgKinds = PUBLIC;
+	    msgs.RDSec.level = 32000;
+	    msgs.WRSec.level = 32000;
+	    msgs.SYSec.level = 32000;
+	    msgs.DaysOld = CFG.defdays;
+	    msgs.MaxMsgs = CFG.defmsgs;
+	    msgs.Charset = FTNC_NONE;
+	    msgs.Created = time(NULL);
+	    fwrite(&msgs, sizeof(msgs), 1, fil);
+	    mkdirs(msgs.Base, 0770);
+	    if (Msg_Open(msgs.Base))
+		Msg_Close();
+	    for (i = 1; i <= CFG.toss_systems; i++)
+		fwrite(&syscon, sizeof(syscon), 1, fil);
+	    /*
+	     * Default dupemail message area
+	     */
+	    memset(&msgs, 0, sizeof(msgs));
+	    sprintf(msgs.Name, "Dupe mail");
+	    sprintf(msgs.Base, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+	    sprintf(msgs.QWKname, "DUPEMAIL");
+	    sprintf(msgs.Group, "LOCAL");
+	    msgs.Active = TRUE;
+	    msgs.Type = LOCALMAIL;
+	    msgs.MsgKinds = PUBLIC;
+	    msgs.RDSec.level = 32000;
+	    msgs.WRSec.level = 32000;
+	    msgs.SYSec.level = 32000;
+	    msgs.DaysOld = CFG.defdays;
+	    msgs.MaxMsgs = CFG.defmsgs;
+	    msgs.Charset = FTNC_NONE;
+	    msgs.Created = time(NULL);
+	    fwrite(&msgs, sizeof(msgs), 1, fil);
+	    mkdirs(msgs.Base, 0770);
+	    if (Msg_Open(msgs.Base))
+		Msg_Close();
+	    for (i = 1; i <= CFG.toss_systems; i++)
+		fwrite(&syscon, sizeof(syscon), 1, fil);
 
-			fclose(fil);
-			exp_golded = TRUE;
-			chmod(ffile, 0660);
-			return 3;
-		} else
-			return -1;
-	}
+	    fclose(fil);
+	    exp_golded = TRUE;
+	    chmod(ffile, 0660);
+	    return 3;
+	} else
+	    return -1;
+    }
 
-	fread(&msgshdr, sizeof(msgshdr), 1, fil);
-	fseek(fil, 0, SEEK_SET);
-	fread(&msgshdr, msgshdr.hdrsize, 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
-	fclose(fil);
+    fread(&msgshdr, sizeof(msgshdr), 1, fil);
+    fseek(fil, 0, SEEK_SET);
+    fread(&msgshdr, msgshdr.hdrsize, 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize);
+    fclose(fil);
 
-	return count;
+    return count;
 }
 
 
@@ -173,6 +177,19 @@ int OpenMsgarea(void)
     long    oldsize, oldsys;
     struct  _sysconnect syscon;
     int	    i, oldsystems;
+    time_t  start = 900000000; /* Faked startdate of 09-07-1998 17:00:00 */
+
+    /*
+     * Find system startdate, we use this to update the area records
+     * if they don't have a creation date. All new areas will get the
+     * right date.
+     */
+    sprintf(fnin,  "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r"))) {
+	fread(&SYSINFO, sizeof(SYSINFO), 1, fin);
+	start = SYSINFO.StartDate;
+	fclose(fin);
+    }
 
     sprintf(fnin,  "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     sprintf(fnout, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
@@ -220,6 +237,18 @@ int OpenMsgarea(void)
 		if ((oldsize != sizeof(msgs)) && !msgs.LinkSec.level) {
 		    msgs.LinkSec.level = 1;
 		    msgs.LinkSec.flags = 1;
+		}
+		if ((int)msgs.Created == 0) {
+		    msgs.Created = start;
+		    if ((strlen(msgs.Newsgroup) == 0) && (msgs.Type == ECHOMAIL) && strlen(msgs.Group)) {
+			sprintf(msgs.Newsgroup, "%s.%s", msgs.Group, msgs.Tag);
+			for (i = 0; i < strlen(msgs.Newsgroup); i++) {
+			    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
+			    if (msgs.Newsgroup[i] == '_')
+				msgs.Newsgroup[i] = '.';
+			}
+			Syslog('+', "Area %s created newsgroup name %s", msgs.Tag, msgs.Newsgroup);
+		    }
 		}
 		fwrite(&msgs, sizeof(msgs), 1, fout);
 		memset(&msgs, 0, sizeof(msgs));
@@ -300,6 +329,7 @@ void InitMsgRec(void)
     strcpy(msgs.Origin, CFG.origin);
     msgs.LinkSec.level = 1;
     msgs.LinkSec.flags = 1;
+    msgs.Created = time(NULL);
 }
 
 
@@ -1844,6 +1874,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 		add_webtable(wp, (char *)"UnSecure toss", getboolean(msgs.UnSecure));
 		add_webtable(wp, (char *)"Last msg rcvd", ctime(&msgs.LastRcvd));
 		add_webtable(wp, (char *)"Last msg posted", ctime(&msgs.LastPosted));
+		add_webtable(wp, (char *)"Area created at", ctime(&msgs.Created));
 		fprintf(wp, "</TBODY>\n");
 		fprintf(wp, "</TABLE>\n");
 		fprintf(wp, "<HR>\n");
@@ -1882,6 +1913,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    UnSecure toss    %s\n", getboolean(msgs.UnSecure));
 	    fprintf(fp, "    Last msg rcvd.   %s",   ctime(&msgs.LastRcvd));
 	    fprintf(fp, "    Last msg posted  %s",   ctime(&msgs.LastPosted));
+	    fprintf(fp, "    Area created at  %s",   ctime(&msgs.Created));
 
 	    refs = 0;
 	    for (j = 0; j < systems; j++) {

@@ -244,11 +244,20 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		msgs.Quotes = mgroup.Quotes;
 		msgs.Charset = mgroup.Charset;
 		msgs.MaxArticles = CFG.maxarticles;
+		msgs.Created = time(NULL);
 		tag = tl(tag);
 		for (i = 0; i < strlen(tag); i++)
 		    if (tag[i] == '.')
 			tag[i] = '/';
 		sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
+		sprintf(msgs.Newsgroup, "%s.%s", msgs.Group, tag);
+		for (i = 0; i < strlen(msgs.Newsgroup); i++) {
+		    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
+		    if (msgs.Newsgroup[i] == '/')
+			msgs.Newsgroup[i] = '.';
+		    if (msgs.Newsgroup[i] == '_')
+			msgs.Newsgroup[i] = '.';
+		}
 		fwrite(&msgs, sizeof(msgs), 1, mp);
 		mkdirs(msgs.Base, 0770);
 		if (Msg_Open(msgs.Base))
