@@ -1590,6 +1590,8 @@ char *getmenutype(int val)
 		case 505:	return (char *)"Print a BBS";
 		case 506:	return (char *)"Search for a BBS";
 
+		case 999:	return (char *)"Display Text Only";
+
 		default:	return (char *)"Unknown menu";
 	}
 }

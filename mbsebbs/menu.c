@@ -133,11 +133,16 @@ void menu()
 			strcpy(Menus[0], CFG.default_menu);
 		} else {
 			/*
-			 * Do all autoexec menus first
+			 * Display Menu Text Fields and Perform all autoexec menus in order of menu file
 			 */
 		        while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
-				if (menus.AutoExec && Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age))
-					DoMenu(menus.MenuType);
+				if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
+					if ( menus.AutoExec ) {
+						DoMenu( menus.MenuType );
+					} else { 
+						DisplayMenu( ); 
+					}
+				}
 			}
 
 			/*
@@ -240,6 +245,9 @@ void DoMenu(int Type)
 	TimeCheck();
 
 	switch(Type) {
+	case 0: /* Display Prompt Line Only */
+		break;
+
 	case 1:
 		/* Goto another menu */
 		strncpy(Menus[MenuLevel], menus.OptionalData, 14);
@@ -670,3 +678,78 @@ void DoMenu(int Type)
 	free(temp);
 }
 
+void DisplayMenu ( void ) {
+	
+	/*
+	* Display the Menu Display Text to the User, 
+	* if the sysop puts a ';' (semicolon) at the end of the menu prompt,
+	* the CR/LR combination will not be sent
+	*/
+
+	int maxdpos;
+	int dpos;
+	int escaped ;
+	int skipCRLF ;
+	int highlight ;
+
+	/* Anything to process, if not; save CPU time, return */
+	if ( strlen( menus.Display ) == 0 ) {
+		return;
+	}
+
+	/* Send Display string, formated with ANSI codes as required */
+	/* --- basically this with brains: printf("%s\n", menus.Display); */
+	maxdpos = strlen(menus.Display);
+	escaped = 0;
+	skipCRLF = 0;
+	highlight = 0;
+
+	colour( menus.ForeGnd, menus.BackGnd );
+
+	for ( dpos = 0; dpos < maxdpos ; dpos++ ){
+
+		switch ( menus.Display[ dpos ] ) {
+
+			case ';':	/* Semicolon, if not escaped and last char, not CRLF at end of line */
+					if ( ( dpos + 1 ) == maxdpos ) {
+						skipCRLF=1;
+					} else {
+						printf("%c",menus.Display[ dpos ]);
+					}
+					break;
+
+			case '\\':	if ( !escaped ) {
+						escaped = 1;
+					} else {
+						escaped = 0;
+						printf("%c",menus.Display[ dpos ]);
+					}
+					break;
+
+			case '^':	/* Highlight Toggle */
+
+					if ( !escaped ) {
+						if ( highlight == 0 ) { 
+							highlight = 1;
+							colour( CFG.HiliteF, CFG.HiliteB );
+						} else {					
+							highlight = 0 ;
+							colour( menus.ForeGnd, menus.BackGnd );
+						}
+					} else {
+						escaped=0;
+						printf("%c",menus.Display[ dpos ]);
+					}
+					break;
+
+			default:	/* all other characters */
+					printf("%c",menus.Display[ dpos ]);
+		}
+
+	}
+
+	if ( !skipCRLF ) {
+		printf("\n");
+	}
+
+}

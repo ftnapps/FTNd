@@ -199,15 +199,17 @@ int GetMenuType(void)
 	mvprintw(10, 6, "4.  User setting menus");
 	mvprintw(11, 6, "5.  Oneliner menus");
 	mvprintw(12, 6, "6.  BBS List menus");
+	mvprintw(13, 6, "7.  Display Text Only");
 
-	switch (select_menu(6)) {
+	switch (select_menu(7)) {
 		case 1:	return GetSubmenu(1, 25);
 		case 2:	return GetSubmenu(101, 19);
 		case 3:	return GetSubmenu(201, 20);
 		case 4:	return GetSubmenu(301, 16);
 		case 5:	return GetSubmenu(401, 5);
 		case 6:	return GetSubmenu(501, 6);
-		default: return 0;
+		case 7: return 999;
+		default: return 0; 
 	}
 }
 
@@ -304,7 +306,7 @@ void EditMenu(char *Name)
 					offset = ((o + i) - 1) * sizeof(menus);
 					fseek(tmp, offset, SEEK_SET);
 					fread(&menus, sizeof(menus), 1, tmp);
-					if ((menus.MenuKey[0]) || menus.AutoExec) {
+					if (menus.MenuType || menus.AutoExec) {
 						set_color(CYAN, BLACK);
 						mvprintw(y, 5, "%3d. ", o + i);
 						if (menus.AutoExec) {
@@ -313,8 +315,12 @@ void EditMenu(char *Name)
 							set_color(CYAN, BLACK);
 						} else
 							mvprintw(y, 10, "%1s", menus.MenuKey);
-						mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, 
-							menus.MenuSecurity.level, menus.OptionalData);
+						if (menus.MenuType == 999 ){
+							mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, 
+								menus.MenuSecurity.level, menus.Display);
+						} else
+							mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, 
+								menus.MenuSecurity.level, menus.OptionalData);
 					} else {
 						set_color(LIGHTBLUE, BLACK);
 						mvprintw(y, 5, "%3d.", o + i);
@@ -337,7 +343,7 @@ void EditMenu(char *Name)
 					} else {
 						fseek(tmp, 0, SEEK_SET);
 						while (fread(&menus, sizeof(menus), 1, tmp) == 1) {
-							if (menus.MenuKey[0] || menus.AutoExec)
+							if (menus.MenuType || menus.AutoExec)
 								fwrite(&menus, sizeof(menus), 1, fil);
 						}
 						fclose(fil);
