@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 12-Jul-2003</h5></div>
+<div align="right"><h5>Last update 29-Jul-2003</h5></div>
 
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 <P>
@@ -118,10 +118,11 @@ files.
 <strong>CrashMail level   </strong>Minimum level to allow sending netmail crash
 <strong>FileAttach level  </strong>Minimum level to allow attach files to netmail
 <strong>Min diskspace MB  </strong>At which low diskspace level utilities should stop working.
+<strong>Simult. logins    </strong>Maximum simultaneous logins allowed, 0 is unlimited, 1 is adviced.
 </pre>
 The minimum diskspace setting is to prevent that files get corrupted if your filesystem
 is full. All drives are checked except CD-roms and floppies and the /boot directory if that
-one is on a separate filesystem. Ext2, reiserfs, msdos and vfat partitions
+one is on a separate filesystem. Ext2, ext3, reiserfs, msdos and vfat partitions
 are checked. The lowest free diskspace found counts. Default is 10 MB.
 <p>
 

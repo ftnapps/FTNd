@@ -333,88 +333,91 @@ void e_global(void)
 
 void b_screen(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.5  EDIT GLOBAL SETTINGS");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.   Exclude Sysop");
-	mvprintw( 8, 2, "2.   Show Connect");
-	mvprintw( 9, 2, "3.   Ask Protocols");
-	mvprintw(10, 2, "4.   Sysop Level");
-	mvprintw(11, 2, "5.   Password Length");
-	mvprintw(12, 2, "6.   Passwd Character");
-	mvprintw(13, 2, "7.   Idle timeout");
-	mvprintw(14, 2, "8.   Login Enters");
-	mvprintw(15, 2, "9.   Homedir Quota");
-	mvprintw(16, 2, "10.  Location length");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "1.5  EDIT GLOBAL SETTINGS");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1.   Exclude Sysop");
+    mvprintw( 8, 2, "2.   Show Connect");
+    mvprintw( 9, 2, "3.   Ask Protocols");
+    mvprintw(10, 2, "4.   Sysop Level");
+    mvprintw(11, 2, "5.   Password Length");
+    mvprintw(12, 2, "6.   Passwd Character");
+    mvprintw(13, 2, "7.   Idle timeout");
+    mvprintw(14, 2, "8.   Login Enters");
+    mvprintw(15, 2, "9.   Homedir Quota");
+    mvprintw(16, 2, "10.  Location length");
+    mvprintw(17, 2, "11.  Show new msgarea");
+	
+    mvprintw( 7,37, "12.  OLR Max. msgs.");
+    mvprintw( 8,37, "13.  OLR Newfile days");
+    mvprintw( 9,37, "14.  OLR Max Filereq");
+    mvprintw(10,37, "15.  BBS Log Level");
+    mvprintw(11,37, "16.  Utils loglevel");
+    mvprintw(12,37, "17.  Utils slowly");
+    mvprintw(13,37, "18.  CrashMail level");
+    mvprintw(14,37, "19.  FileAttach level");
+    mvprintw(15,37, "20.  Min diskspace MB");
+    mvprintw(16,37, "21.  Simult. logins");
 
-	mvprintw( 7,37, "11.  Show new msgarea");
-	mvprintw( 8,37, "12.  OLR Max. msgs.");
-	mvprintw( 9,37, "13.  OLR Newfile days");
-	mvprintw(10,37, "14.  OLR Max Filereq");
-	mvprintw(11,37, "15.  BBS Log Level");
-	mvprintw(12,37, "16.  Utils loglevel");
-	mvprintw(13,37, "17.  Utils slowly");
-	mvprintw(14,37, "18.  CrashMail level");
-	mvprintw(15,37, "19.  FileAttach level");
-	mvprintw(16,37, "20.  Min diskspace MB");
+    set_color(WHITE, BLACK);
+    show_bool( 7,24, CFG.exclude_sysop);
+    show_bool( 8,24, CFG.iConnectString);
+    show_bool( 9,24, CFG.iAskFileProtocols);
+    show_int( 10,24, CFG.sysop_access);
+    show_int( 11,24, CFG.password_length);
+    show_int( 12,24, CFG.iPasswd_Char);
+    show_int( 13,24, CFG.idleout);
+    show_int( 14,24, CFG.iCRLoginCount);
+    show_int( 15,24, CFG.iQuota);
+    show_int( 16,24, CFG.CityLen);
+    show_bool(17,24, CFG.NewAreas);
 
-	set_color(WHITE, BLACK);
-	show_bool( 7,24, CFG.exclude_sysop);
-	show_bool( 8,24, CFG.iConnectString);
-	show_bool( 9,24, CFG.iAskFileProtocols);
-	show_int( 10,24, CFG.sysop_access);
-	show_int( 11,24, CFG.password_length);
-	show_int( 12,24, CFG.iPasswd_Char);
-	show_int( 13,24, CFG.idleout);
-	show_int( 14,24, CFG.iCRLoginCount);
-	show_int( 15,24, CFG.iQuota);
-	show_int( 16,24, CFG.CityLen);
-
-	show_bool( 7,59, CFG.NewAreas);
-	show_int(  8,59, CFG.OLR_MaxMsgs);
-	show_int(  9,59, CFG.OLR_NewFileLimit);
-	show_int( 10,59, CFG.OLR_MaxReq);
-	show_logl(11,59, CFG.bbs_loglevel);
-	show_logl(12,59, CFG.util_loglevel);
-	show_bool(13,59, CFG.slow_util);
-	show_int( 14,59, CFG.iCrashLevel);
-	show_int( 15,59, CFG.iAttachLevel);
-	show_int( 16,59, CFG.freespace);
+    show_int(  7,59, CFG.OLR_MaxMsgs);
+    show_int(  8,59, CFG.OLR_NewFileLimit);
+    show_int(  9,59, CFG.OLR_MaxReq);
+    show_logl(10,59, CFG.bbs_loglevel);
+    show_logl(11,59, CFG.util_loglevel);
+    show_bool(12,59, CFG.slow_util);
+    show_int( 13,59, CFG.iCrashLevel);
+    show_int( 14,59, CFG.iAttachLevel);
+    show_int( 15,59, CFG.freespace);
+    show_int( 16,59, CFG.max_logins);
 }
 
 
 
 void e_bbsglob(void)
 {
-	b_screen();
+    b_screen();
 
-	for (;;) {
-		switch(select_menu(20)) {
-		case 0:	return;
-		case 1:	E_BOOL( 7,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
-		case 2:	E_BOOL( 8,24, CFG.iConnectString,    "Show ^connect string^ at logon")
-		case 3:	E_BOOL( 9,24, CFG.iAskFileProtocols, "Ask ^file protocol^ before every up- download")
-		case 4:	E_INT( 10,24, CFG.sysop_access,      "Sysop ^access level^")
-		case 5: E_INT( 11,24, CFG.password_length,   "Mimimum ^password^ length.")
-		case 6: E_INT( 12,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
-		case 7: E_INT( 13,24, CFG.idleout,           "^Idle timeout^ in minutes")
-		case 8: E_INT( 14,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
-		case 9: E_INT( 15,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
-		case 10:E_INT( 16,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
+    for (;;) {
+	switch(select_menu(21)) {
+	    case 0: return;
+	    case 1: E_BOOL( 7,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
+	    case 2: E_BOOL( 8,24, CFG.iConnectString,    "Show ^connect string^ at logon")
+	    case 3: E_BOOL( 9,24, CFG.iAskFileProtocols, "Ask ^file protocol^ before every up- download")
+	    case 4: E_INT( 10,24, CFG.sysop_access,      "Sysop ^access level^")
+	    case 5: E_INT( 11,24, CFG.password_length,   "Mimimum ^password^ length.")
+	    case 6: E_INT( 12,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
+	    case 7: E_INT( 13,24, CFG.idleout,           "^Idle timeout^ in minutes")
+	    case 8: E_INT( 14,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
+	    case 9: E_INT( 15,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
+	    case 10:E_INT( 16,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
+	    case 11:E_BOOL(17,24, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
 
-		case 11:E_BOOL( 7,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
-		case 12:E_INT(  8,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
-		case 13:E_INT(  9,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
-		case 14:E_INT( 10,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
-		case 15:E_LOGL(CFG.bbs_loglevel, "1.5.15", b_screen)
-		case 16:E_LOGL(CFG.util_loglevel, "1.5.16", b_screen)
-		case 17:E_BOOL(13,59, CFG.slow_util,         "Let background utilities run ^slowly^")
-		case 18:E_INT( 14,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
-		case 19:E_INT( 15,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
-		case 20:E_INT( 16,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
-		}
-	};
+	    case 12:E_INT(  7,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
+	    case 13:E_INT(  8,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
+	    case 14:E_INT(  9,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
+	    case 15:E_LOGL(CFG.bbs_loglevel, "1.5.15", b_screen)
+	    case 16:E_LOGL(CFG.util_loglevel, "1.5.16", b_screen)
+	    case 17:E_BOOL(12,59, CFG.slow_util,         "Let background utilities run ^slowly^")
+	    case 18:E_INT( 13,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
+	    case 19:E_INT( 14,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
+	    case 20:E_INT( 15,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
+	    case 21:E_INT( 16,59, CFG.max_logins,        "Maximum ^simultaneous logins^ allowed, 0 means unlimited")
+	}
+    }
 }
 
 
@@ -1462,26 +1465,6 @@ void global_menu(void)
     crc = 0xffffffff;
     crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
 
-    if (CFG.xmax_login) {
-	/*
-	 *  Do automatic upgrade for unused fields, erase them.
-	 */
-	Syslog('+', "Main config, clearing unused fields");
-	memset(&CFG.alists_path, 0, sizeof(CFG.alists_path));
-	CFG.xmax_login = 0;
-	CFG.xUseSysDomain = FALSE;
-	CFG.xChkMail = FALSE;
-	memset(&CFG.xquotestr, 0, sizeof(CFG.xquotestr));
-	CFG.xNewBytes = FALSE;
-	memset(&CFG.extra4, 0, sizeof(CFG.extra4));
-	memset(&CFG.xmgrname, 0, sizeof(CFG.xmgrname));
-	memset(&CFG.xtoss_log, 0, sizeof(CFG.xtoss_log));
-	memset(&CFG.xareamgr, 0, sizeof(CFG.xareamgr));
-	CFG.xNoJanus = FALSE;
-	memset(&CFG.extra5, 0, sizeof(CFG.extra5));
-	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
-    }
-
     if (strlen(CFG.bbs_macros) == 0) {
 	sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
 	 Syslog('+', "Main config, upgraded default macro path");
@@ -1774,6 +1757,10 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      CrashMail level  %d\n", CFG.iCrashLevel);
 	fprintf(fp, "      FileAttach level %d\n", CFG.iAttachLevel);
 	fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
+	if (CFG.max_logins)
+	    fprintf(fp, "      Simult. logins   %d\n", CFG.max_logins);
+	else
+	    fprintf(fp, "      Simult. logins   unlimited\n");
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");

@@ -16,8 +16,8 @@ HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras:
 |Lector Offline: Informaci¢n extendida ACTIVADA
 |Lector Offline: Informaci¢n extendida DESACTIVADA
 |This is not a plain textfile.
-|
-|
+|You may only login
+|times at the same time
 |
 |
 |

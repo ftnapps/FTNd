@@ -69,7 +69,6 @@ int InitExitinfo()
 
     fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
     offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-    Syslog('b', "InitExitinfo: read users.data offset %ld", offset);
     if (fseek(pUsrConfig, offset, 0) != 0) {
 	WriteError("$Can't move pointer in %s", temp);
 	free(temp);

@@ -16,8 +16,8 @@
 15	change.c			|Offline Reader: Extended Info turned ON
 16	change.c			|Offline Reader: Extended Info turned OFF
 17	file.c				|This is not a plain textfile.
-18	.c				|
-19	.c				|
+18	user.c				|You may only login
+19	user.c				|times at the same time
 20	.c				|
 21	.c				|
 22	.c				|

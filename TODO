@@ -12,6 +12,7 @@ $Id$
 	Classes: U = Urgent.
 		 N = Normal, second priority.
                  L = Cosmetic or nice to have.
+		 X = Will not be done unless it's really needed.
 
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
@@ -22,9 +23,9 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	L: Better word wrapping or paragraph justification in editor.
+	X: Better word wrapping or paragraph justification in editor.
 
-	L: E-mail downloads with e-mail verification.
+	X: E-mail downloads with e-mail verification.
 
 	N: OLR, implement file requests.
 
@@ -32,17 +33,17 @@ mbsebbs:
 
 	L: ChangeHandle, allow own unix name as handle.
 
-	L: OLR: tagged areas must have 3 states, off, on or personal only.
+	X: OLR: tagged areas must have 3 states, off, on or personal only.
 
-	L: OLR: implement limit date function.
+	X: OLR: implement limit date function.
 
-	L: OLR: include private email area in download packets.
+	X: OLR: include private email area in download packets.
 
-	L: OLR: implement some global settings from the offline configuration.
+	X: OLR: implement some global settings from the offline configuration.
 
-	L: OLR: implement keywords and filters.
+	X: OLR: implement keywords and filters.
 
-	L: OLR: check qwke extensions.
+	X: OLR: check qwke extensions.
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
@@ -59,10 +60,10 @@ mbfido:
 
 	N: Count posted messages during mailscan.
 
-	U: Code cleanup and make a structure in this program. Remove duplicate
+	N: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
-	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
+	L: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
 	N: Process GoldED filerequest netmails with the filereq flag set, we
@@ -84,7 +85,7 @@ mbfido:
 
 	L: Maybe store echomail for unknown areas in badmail area.
 
-	N: Make ik possible to only virus scan the complete archives.
+	L: Make ik possible to only virus scan the complete archives.
 
 	N: Force processing of arealists so that all tags are forced to
 	   uppercase. Seems to give problems in some nets.
@@ -99,23 +100,24 @@ mbfido:
 
 mbcico:
 	N: Doesn't poll internet nodes with non-standard ports when the
-	   FQDN:port is in the override field.
+	   FQDN:port is in the override field. -- Check this !
 
 	N: See if it is possible with binkp protocol to resume aborted
-	   transfers.
+	   transfers. -- ND option ??
 
 	N: Implement binkp resync when getting files. Transmit works.
 
 mbfile:
-	N: Add a check to see if the magic filenames are (still) valid.
+	L: Add a check to see if the magic filenames are (still) valid.
 
-	N: Update <filespec> <area> <-touch>
+	L: Update <filespec> <area> <-touch>
 
-	N: Rearc <area>
+	L: Rearc <area>
 
-	N: Possibility to skip file areas from checking and reindexing.
+	L: Possibility to skip file areas from checking and reindexing.
 
 	N: Override timeout during virus scan when files are imported.
+	   -- Check, already done?
 
 	N: Add area sorting
 
@@ -128,21 +130,23 @@ mbaff:
 	L: Add setup parameters for minimum length of keywords.
 
 mbindex:
-	N: Add usernames index.
+	X: Add usernames index.
 
 mbnewusr:
 	N: On NetBSD, supress error message from mbpasswd.
+	   -- Currently no access to my old Sun Sparcstation.
 
 mbsetup:
 	N: Add a check for double areatag names.
 
 	U: PickAka function lets mbsetup crash if domain is 12 characters
+	   -- Check, still so?
 
 	N: Use some sort of sorting for the system aka's and make sure the
 	   main aka with zone's is listed first. Having zone's mixed gives
 	   too high outbound stats and the outbound is scanned multiple times.
 
-	N: Put ZMH fields in the network setup for each zone.
+	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
 
 	N: Add switch for file area to skip checking and indexing.
 
@@ -152,7 +156,7 @@ mbsetup:
 	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
 
-	L: Generate crossreference document:
+	X: Generate crossreference document:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups
 	   Filefind flags  <=> TIC Areas

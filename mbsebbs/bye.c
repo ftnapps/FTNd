@@ -80,10 +80,7 @@ void Good_Bye(int onsig)
 
 	    usrconfig = exitinfo;
 	    fclose(pExitinfo);
-
 	    usrconfig.iLastFileArea = iAreaNumber;
-	    if (!iAreaNumber)
-		WriteError("Setting filearea to zero");
 
 	    /* If time expired, do not say say successful logoff */
 	    if (!iExpired)
@@ -92,8 +89,6 @@ void Good_Bye(int onsig)
 	    usrconfig.iLastMsgArea = iMsgAreaNumber;
 
 	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-	    Syslog('b', "hdrsize=%ld recsize=%ld grecno=%ld", usrconfighdr.hdrsize, usrconfighdr.recsize, grecno);
-	    Syslog('b', "Good_Bye: write users.data at offset %ld", offset);
 	    if (fseek(pUsrConfig, offset, SEEK_SET) != 0) {
 		WriteError("Can't move pointer in file %s", temp);
 		ExitClient(MBERR_GENERAL);
@@ -121,10 +116,9 @@ void Good_Bye(int onsig)
 
     /*
      * Flush all data to the user, wait 5 seconds to
-     * be sure the user received all data, this program
-     * and parent are also finished.
+     * be sure the user received all data.
      */
-    colour(7, 0);
+    colour(LIGHTGRAY, BLACK);
     fflush(stdout);	
     fflush(stdin);
     sleep(5);
@@ -151,7 +145,7 @@ void Quick_Bye(int onsig)
     unlink(temp);
     free(temp);
 
-    colour(7, 0);
+    colour(LIGHTGRAY, BLACK);
     fflush(stdout);
     fflush(stdin);
     sleep(3);

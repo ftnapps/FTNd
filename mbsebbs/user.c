@@ -175,9 +175,9 @@ void SwapDate(char *Date3, char *Date4)
 void user()
 {
     FILE	*pUsrConfig, *pLimits;
-    int		i, x, FoundName = FALSE, iFoundLimit = FALSE, IsNew = FALSE;
+    int		i, x, FoundName = FALSE, iFoundLimit = FALSE, IsNew = FALSE, logins = 0, Start;
     long	l1, l2;
-    char	*token, temp[PATH_MAX], temp1[84], UserName[37];
+    char	*token, temp[PATH_MAX], temp1[84], UserName[37], buf[128], *fullname;
     time_t	LastLogin;
     struct stat st;
 
@@ -256,7 +256,44 @@ void user()
 	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
     else
 	UserCity(mypid, usrconfig.Name, (char *)"N/A");
+    TermInit(usrconfig.GraphMode);
 
+    /*
+     * Count simultaneous logins
+     */
+    Start = TRUE;
+    while (TRUE) {
+	if (Start)
+	    sprintf(buf, "GMON:1,1;");
+	else
+	    sprintf(buf, "GMON:1,0;");
+	Start = FALSE;
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	    if (strncmp(buf, "100:0;", 6) == 0)
+		break;  /* No more data */
+	    if (strstr(buf, "mbsebbs")) {
+		/*
+		 * Only mbsebbs is wanted
+		 */
+		strtok(buf, ",");			/* response */
+		strtok(NULL, ",");			/* pid	    */
+		strtok(NULL, ",");			/* tty	    */
+		fullname = xstrcpy(strtok(NULL, ","));	/* username */
+		if (strcmp(fullname, usrconfig.Name) == 0) {
+		    logins++;
+		}
+		free(fullname);
+	    }
+	}
+    }
+    if (CFG.max_logins && (logins > CFG.max_logins)) {
+	Syslog('+', "User logins %d, allowed %d, disconnecting", logins, CFG.max_logins);
+	colour(LIGHTRED, BLACK);
+	printf("%s %d %s\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
+	Quick_Bye(MBERR_INIT_ERROR);
+    }
+    
     /*
      * Set last file and message area so these numbers are saved when
      * the user hangs up or is logged off before het gets to the main
@@ -283,8 +320,6 @@ void user()
      */
     if (usrconfig.iTotalCalls == 0)
 	IsNew = TRUE;
-
-    TermInit(usrconfig.GraphMode);
 
     /*
      * Pause after logo screen.

@@ -551,7 +551,7 @@ struct	sysconfig {
 	unsigned	leavecase	  : 1;	/* Leave outbound case	    */
 
 						/* BBS Globals		    */
-	int		xmax_login;
+	int		max_logins;		/* Max simult. logins	    */
 	unsigned	NewAreas	  : 1;	/* Notify if new msg areas  */
 	unsigned	xelite_mode       : 1;
 	unsigned	slow_util	  : 1;	/* Run utils slowly	    */

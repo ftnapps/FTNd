@@ -201,6 +201,7 @@ void load_maincfg(void)
         CFG.iCrashLevel = 100;
         CFG.iAttachLevel = 100;
         CFG.new_groups = 25;
+	CFG.max_logins = 1;
 
         CFG.slow_util = TRUE;
         CFG.iCrashLevel = 100;

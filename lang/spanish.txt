@@ -16,8 +16,8 @@ PR|Exportar al directorio (P)ersonal o de (R)eglas:
 |Lector Offline: Informaci¢n extendida ACTIVADA
 |Lector Offline: Informaci¢n extendida DESACTIVADA
 |This is not a plain textfile.
-|
-|
+|You may only login
+|times at the same time
 |
 |
 |

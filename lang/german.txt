@@ -16,8 +16,8 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Offline Reader: Extended Info turned ON
 |Offline Reader: Extended Info turned OFF
 |This is not a plain textfile.
-|
-|
+|You may only login
+|times at the same time
 |
 |
 |
