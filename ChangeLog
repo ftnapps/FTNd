@@ -70,6 +70,8 @@ v0.35.06
 		on the new nodes setting.
 		When writing ticfiles for downlinks, the format of the Seenby
 		lines now depends on the new nodes setting.
+		When adding unpacked mail for a directory node, the mail
+		packets had the wrong filename.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 

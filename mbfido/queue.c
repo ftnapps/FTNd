@@ -458,10 +458,11 @@ void flush_dir(char *ndir)
 	    flavor = 'o';
 
 	if (nodes.Session_out == S_DIR) {
-	    if (noden.point)
-		sprintf(arcfile, "%s/%08x.%cut", nodes.Dir_out_path, noden.point, flavor);
-	    else
-		sprintf(arcfile, "%s/%04x%04x.%cut", nodes.Dir_out_path, noden.net, noden.node, flavor);
+//	    if (noden.point)
+//		sprintf(arcfile, "%s/%08x.%cut", nodes.Dir_out_path, noden.point, flavor);
+//	    else
+//		sprintf(arcfile, "%s/%04x%04x.%cut", nodes.Dir_out_path, noden.net, noden.node, flavor);
+	    sprintf(arcfile, "%s/%08lx.pkt", nodes.Dir_out_path, sequencer());
 	} else {
 	    sprintf(arcfile, "%s", pktname(&noden, flavor));
 	}
