@@ -262,15 +262,16 @@ void s_global(void)
         set_color(CYAN, BLACK);
         mvprintw( 6, 2, "1.  BBS menus");
         mvprintw( 7, 2, "2.  Txtfiles");
-        mvprintw( 8, 2, "3.  Home dirs");
-        mvprintw( 9, 2, "4.  Nodelists");
-        mvprintw(10, 2, "5.  Inbound");
-        mvprintw(11, 2, "6.  Prot inb.");
-        mvprintw(12, 2, "7.  Outbound");
-        mvprintw(13, 2, "8.  *.msgs");
-        mvprintw(14, 2, "9.  Bad TIC's");
-	mvprintw(15, 2, "10. TIC queue");
-        mvprintw(16, 2, "11. Next Screen");
+	mvprintw( 8, 2, "3.  Macro's");
+        mvprintw( 9, 2, "4.  Home dirs");
+        mvprintw(10, 2, "5.  Nodelists");
+        mvprintw(11, 2, "6.  Inbound");
+        mvprintw(12, 2, "7.  Prot inb.");
+        mvprintw(13, 2, "8.  Outbound");
+        mvprintw(14, 2, "9.  *.msgs");
+        mvprintw(15, 2, "10. Bad TIC's");
+	mvprintw(16, 2, "11. TIC queue");
+        mvprintw(17, 2, "12. Next Screen");
 }
 
 
@@ -283,28 +284,30 @@ void e_global(void)
 		set_color(WHITE, BLACK);
 		show_str( 6,16,64, CFG.bbs_menus);
 		show_str( 7,16,64, CFG.bbs_txtfiles);
-		show_str( 8,16,64, CFG.bbs_usersdir);
-		show_str( 9,16,64, CFG.nodelists);
-		show_str(10,16,64, CFG.inbound);
-		show_str(11,16,64, CFG.pinbound);
-		show_str(12,16,64, CFG.outbound);
-		show_str(13,16,64, CFG.msgs_path);
-		show_str(14,16,64, CFG.badtic);
-		show_str(15,16,64, CFG.ticout);
+		show_str( 8,16,64, CFG.bbs_macros);
+		show_str( 9,16,64, CFG.bbs_usersdir);
+		show_str(10,16,64, CFG.nodelists);
+		show_str(11,16,64, CFG.inbound);
+		show_str(12,16,64, CFG.pinbound);
+		show_str(13,16,64, CFG.outbound);
+		show_str(14,16,64, CFG.msgs_path);
+		show_str(15,16,64, CFG.badtic);
+		show_str(16,16,64, CFG.ticout);
 
-		switch(select_menu(11)) {
+		switch(select_menu(12)) {
 		case 0:	return;
 		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.")
 		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.")
-		case 3:	E_PTH( 8,16,64, CFG.bbs_usersdir, "The path to the ^users home^ directories.")
-		case 4:	E_PTH( 9,16,64, CFG.nodelists,    "The path to the ^nodelists^.")
-		case 5:	E_PTH(10,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.")
-		case 6:	E_PTH(11,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.")
-		case 7:	E_PTH(12,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.")
-		case 8: E_PTH(13,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.")
-		case 9: E_PTH(14,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
-		case 10:E_PTH(15,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
-		case 11:e_global2();
+		case 3: E_PTH( 8,16,64, CFG.bbs_macros,   "The path to the ^default macro templates^.")
+		case 4:	E_PTH( 9,16,64, CFG.bbs_usersdir, "The path to the ^users home^ directories.")
+		case 5:	E_PTH(10,16,64, CFG.nodelists,    "The path to the ^nodelists^.")
+		case 6:	E_PTH(11,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.")
+		case 7:	E_PTH(12,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.")
+		case 8:	E_PTH(13,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.")
+		case 9: E_PTH(14,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.")
+		case 10:E_PTH(15,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
+		case 11:E_PTH(16,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
+		case 12:e_global2();
 			s_global();
 			break;
 		}
@@ -1546,6 +1549,10 @@ void global_menu(void)
 		sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
 	}
 
+	if (strlen(CFG.bbs_macros) == 0) {
+	    sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
+	}
+
 	for (;;) {
 
 		clr_index();
@@ -1767,6 +1774,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
 	fprintf(fp, "      Menufiles        %s\n", CFG.bbs_menus);
 	fprintf(fp, "      Textfiles        %s\n", CFG.bbs_txtfiles);
+	fprintf(fp, "      Macros           %s\n", CFG.bbs_macros);
 	fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
 	fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
 	fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);

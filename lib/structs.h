@@ -775,6 +775,7 @@ struct	sysconfig {
 	long		nntpdupes;		/* NNTP dupes database size */
 	int		newsfeed;		/* Newsfeed mode	    */
 	int		maxarticles;		/* Default max articles	    */
+	char		bbs_macros[65];		/* Default macros path	    */
 };
 
 

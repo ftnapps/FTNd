@@ -150,6 +150,7 @@ void load_maincfg(void)
                  */
                 sprintf(CFG.bbs_menus, "%s/english/menus", getenv("MBSE_ROOT"));
                 sprintf(CFG.bbs_txtfiles, "%s/english/txtfiles", getenv("MBSE_ROOT"));
+		sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
                 sprintf(CFG.bbs_usersdir, "%s/home", getenv("MBSE_ROOT"));
                 sprintf(CFG.nodelists, "%s/var/nodelist", getenv("MBSE_ROOT"));
                 sprintf(CFG.inbound, "%s/var/unknown", getenv("MBSE_ROOT"));
