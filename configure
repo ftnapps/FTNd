@@ -844,7 +844,7 @@ Optional Features:
   --enable-experiment     Compile experimental code
   --enable-debugging      Compile for debugging
   --enable-optimize       Enable CPU optimize
-  --enable-newbinkp       Compile New Binkp code
+  --enable-newbinkp       Compile Debugging Binkp code
   --enable-newsgate       Compile with newsgate
 
 Optional Packages:
@@ -3075,16 +3075,6 @@ _ACEOF
 else
   NEWSGATE="No"
 fi
-
-
-cat >>confdefs.h <<_ACEOF
-#define RESTAMP_OLD_POSTINGS 21
-_ACEOF
-
-cat >>confdefs.h <<\_ACEOF
-#define RESTAMP_FUTURE_POSTINGS 1
-_ACEOF
-
 
 echo "$as_me:$LINENO: checking for re_comp in -lcompat" >&5
 echo $ECHO_N "checking for re_comp in -lcompat... $ECHO_C" >&6

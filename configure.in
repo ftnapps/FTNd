@@ -93,7 +93,7 @@ AC_MSG_CHECKING(for cpuflags)
     done
 fi
 
-AC_ARG_ENABLE(newbinkp,  [  --enable-newbinkp       Compile New Binkp code],     [ newbinkp=$enableval ], [ newbinkp=no ])
+AC_ARG_ENABLE(newbinkp,  [  --enable-newbinkp       Compile Debugging Binkp code],     [ newbinkp=$enableval ], [ newbinkp=no ])
 if test "$newbinkp" = "yes"; then
   AC_DEFINE(USE_NEWBINKP)
 fi
@@ -108,13 +108,6 @@ if test "$newsgate" = "yes"; then
 else
   NEWSGATE="No"
 fi
-
-
-dnl
-dnl Defines for MBSE BBS (must use tests or --enable-stuff later)
-dnl
-AC_DEFINE_UNQUOTED(RESTAMP_OLD_POSTINGS, 21)
-AC_DEFINE(RESTAMP_FUTURE_POSTINGS)
 
 dnl
 dnl Checks for libraries and functions.

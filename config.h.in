@@ -27,10 +27,6 @@
 #undef HAVE_DECLARED_TIMEZONE
 #undef HAVE_TM_GMTOFF
 
-/* News postings  */
-#undef RESTAMP_FUTURE_POSTINGS
-#undef RESTAMP_OLD_POSTINGS
-
 /* From unix: */
 #undef SHADOW_PASSWORD
 #undef AGING

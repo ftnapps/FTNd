@@ -1087,7 +1087,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			Send(newsmode, temp);
 			sprintf(temp,"X-Origin-Date: %s\n", rfcdate(mdate));
 			Send(newsmode, temp);
-		} else if ((mdate < now-14*24*60*60) && (mdate > time(&now)-RESTAMP_OLD_POSTINGS*24*60*60)) {
+		} else if ((mdate < now-14*24*60*60) && (mdate > time(&now)-21*24*60*60)) {
 			/*
 			 * Restamp old postings
 			 */
