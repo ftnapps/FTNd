@@ -49,7 +49,7 @@ case "$1" in
 		echo -n "logoff users "
 		su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	fi
-	start-stop-daemon --stop --signal 15 --user mbse
+	kill `pidof mbtask`
 	echo "$NAME done."
 	;;
   force-reload|restart)

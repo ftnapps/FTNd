@@ -9,6 +9,9 @@ v0.37.9		17-Sep-2003
 	mbsetup:
 		Made menus editor work on non-intel platforms.
 
+	script:
+		Fixed debian init script to allow it to run over the network.
+
 
 v0.37.8		14-Sep-2003 - 17-Sep-2003
 
