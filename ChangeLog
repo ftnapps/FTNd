@@ -68,6 +68,10 @@ v0.35.02	22-Jun-2002
 		The display lastcaller list now also supports the /U optional
 		data to display Unix names.
 		Code cleanup in offline reader.
+		Messages posted using BlueWave format now correct the timezone
+		difference.
+		Messages posted using BlueWave now show the tearline of the
+		OLR client if this is present.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it
