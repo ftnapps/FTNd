@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 28-Sep-2002</h5></div>
+<div align="right"><h5>Last update 28-Oct-2002</h5></div>
 
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 <P>
@@ -237,17 +237,19 @@ will be updated automatic.
 <strong>Max. dupes        </strong>The maximum number of entries in dupe database
 <strong>Keep date         </strong>Keep original filedate
 <strong>Keep netm         </strong>Keep sent netmails
-<strong>Res future        </strong>Reset dates in the future
 <strong>Loc resp          </strong>Respond to local created filefind messages
-<strong>Repl ext          </strong>Replace filename extension with .* before filesearch
 <strong>Plus all          </strong>Allow filemgr +all command
 <strong>Notify            </strong>Allow filemgr notify=on/off command
-<strong>Passwd            </strong>Allow filemgr passwd command
+<strong>Passwd            </strong>Allow filemgr/areamgr passwd command
 <strong>Message           </strong>Allow filemgr message=on/off command
 <strong>Tic on/off        </strong>Allow filemgr tic=on/off command
 <strong>Pause             </strong>Allow filemgr pause/resume commands
 </pre><p>
+When you change one of the <b>Allow filemgr</b> settings, you also need to edit
+the file /opt/mbse/english/macro/filemgr.help to reflect the new settings.
+Default all these switches are set to Yes.
 
+<p>
 <h3>1.14. Edit Fidonet mail and echomail processing.</h3>
 <p>
 Note that the first 2 mailboards must also exist in the normal mail areas if
@@ -281,7 +283,15 @@ it is necessary.<br>
 <strong>4d address        </strong>Use 4d. addressing (not needed you only use MBSE BBS)
 <strong>Split at          </strong>Gently split messages after n KBytes (12..60)
 <strong>Force at          </strong>Force split of messages after n KBytes (16..63)
+<strong>Plus all          </strong>Allow areamgr +all command 
+<strong>Notify            </strong>Allow areamgr notify=on/off command
+<strong>Passwd            </strong>Allow areamgr/filemgr passwd command
+<strong>Pause             </strong>Allow areamgr pause/resume commands
 </pre><p>
+When you change one of the <b>Allow areamgr</b> settings, you also need to edit
+the file /opt/mbse/english/macro/areamgr.help to reflect the new settings.
+Default all these switches are set to Yes.
+<P>
 A note about the splitting of messages. Some tossers can't handle 
 messages greater than 16 KBytes, these tossers are rare these days. Most
 tossers can handle messages of 32 KBytes. To set these values on the safe
