@@ -124,8 +124,9 @@ clean:
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done;
 
 ${TARFILE}:	.filelist
-		cd ..; rm -f ${TARFILE}; \
-		${TAR} cvTf ./${PACKAGE}-${VERSION}/.filelist - | bzip2 >${TARFILE}
+		cd ..; ln -s ${PACKAGE} ${PACKAGE}-${VERSION} ; rm -f ${TARFILE}; \
+		${TAR} cvTf ./${PACKAGE}-${VERSION}/.filelist - | bzip2 >${TARFILE} ; \
+		rm -f ${PACKAGE}-${VERSION}
 
 crontab:
 		sh ./CRON.sh
