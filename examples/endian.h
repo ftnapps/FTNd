@@ -1,0 +1,4 @@
+/* $Id$ */
+
+int main(void);
+
