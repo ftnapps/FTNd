@@ -16,6 +16,11 @@ v0.35.07	11-Dec-2002
 		On FreeBSD the lsz and lrz programs are found as alternate for
 		lz and sz.
 
+	common.a:
+		For testing purposes of the ESLF (Extended St. Louis Format)
+		nodelist, debugging is added to show the information in the
+		ESLF lines. Only visible with utilities debug 's'.
+
 	mbsebbs:
 		With menu 201 there is now a new optional data parameter N.
 		When used if a user selects a different message area, areas

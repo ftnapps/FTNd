@@ -174,9 +174,9 @@ int comp_node(struct _nlidx fap1, struct _ixentry fap2)
 
 node *getnlent(faddr *addr)
 {
-    FILE		    *fp;
+    FILE		    *fp, *np;
     static node		    nodebuf;
-    static char		    buf[256], *p, *q;
+    static char		    buf[2048], ebuf[2048], *p, *q;
     struct _ixentry	    xaddr;
     int			    i, j, Found = FALSE, ixflag, stdflag, ndrecord = FALSE;
     char		    *mydomain, *path;
@@ -311,7 +311,6 @@ node *getnlent(faddr *addr)
 	fclose(fp);
 	goto retdummy;
     }
-    fclose(fp);
 
     /*
      * Load noderecord if this node has one, if there is one then
@@ -319,11 +318,11 @@ node *getnlent(faddr *addr)
      * the nodelist entries.
      */
     sprintf(path, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-    if ((fp = fopen(path, "r")) != NULL) {
-	fread(&ndhdr, sizeof(nodeshdr), 1, fp);
+    if ((np = fopen(path, "r")) != NULL) {
+	fread(&ndhdr, sizeof(nodeshdr), 1, np);
 
-	while (fread(&nd, ndhdr.recsize, 1, fp) == 1) {
-	    fseek(fp, ndhdr.filegrp + ndhdr.mailgrp, SEEK_CUR);
+	while (fread(&nd, ndhdr.recsize, 1, np) == 1) {
+	    fseek(np, ndhdr.filegrp + ndhdr.mailgrp, SEEK_CUR);
 	    for (i = 0; i < 20; i++) {
 		if ((addr->zone == nd.Aka[i].zone) && (addr->net == nd.Aka[i].net) &&
 		    (addr->node == nd.Aka[i].node) && (addr->point == nd.Aka[i].point)) {
@@ -336,7 +335,7 @@ node *getnlent(faddr *addr)
 		break;
 	}
 
-	fclose(fp);
+	fclose(np);
     }
     free(path);
     
@@ -357,15 +356,19 @@ node *getnlent(faddr *addr)
 	*q++ = '\0';
 
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     if ((q=strchr(p,','))) 
 	*q++ = '\0';
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     /*
      * Get system name
      */
@@ -377,9 +380,11 @@ node *getnlent(faddr *addr)
     } else
 	nodebuf.name = p;
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     /*
      * Get location
      */
@@ -387,9 +392,11 @@ node *getnlent(faddr *addr)
 	*q++ = '\0';
     nodebuf.location = p;
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     /*
      * Get sysop name
      */
@@ -397,9 +404,11 @@ node *getnlent(faddr *addr)
 	*q++ = '\0';
     nodebuf.sysop = p;
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     /*
      * Get phone number
      */
@@ -410,9 +419,11 @@ node *getnlent(faddr *addr)
     else
 	nodebuf.phone = p;
     p = q;
-    if (p == NULL) 
+    if (p == NULL) {
+	fclose(fp);
 	goto badsyntax;
-
+    }
+    
     /*
      * Get modem speed
      */
@@ -469,6 +480,27 @@ node *getnlent(faddr *addr)
 	    }
 	}
     }
+
+    /*
+     * Now we read the next line from the nodelist and see if this
+     * is a ESLF (Extended St. Louis Format) line. This is for test
+     * and nothing is defined yet. For now, debug logging only.
+     */
+    while (TRUE) {
+	if (fgets(ebuf, sizeof(ebuf)-1, fp) == NULL) {
+	    WriteError("$fgets failed for nodelist entry");
+	    break;
+	}
+	/*
+	 * Linse starting with ;E space are real errors.
+	 */
+	if (strncmp(ebuf, (char *)";E ", 3) == 0)
+	    break;
+	if (strncmp(ebuf, (char *)";E", 2))
+	    break;
+	Syslog('s', "ESLF: \"%s\"", printable(ebuf, 0));
+    }
+    fclose(fp);
 
     nodebuf.addr.name = nodebuf.sysop;
     nodebuf.addr.domain = xstrcpy(fdx.domain);
