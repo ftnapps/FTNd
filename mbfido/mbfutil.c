@@ -311,9 +311,9 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
     FILE    *fp1, *fp2;
     int	    i, rc, Insert, Done = FALSE, Found = FALSE;
 
-    mkdirs(DestPath, 0755);
+    mkdirs(DestPath, 0775);
     if ((rc = file_cp(FromPath, DestPath))) {
-	WriteError("Can't move file in place");
+	WriteError("Can't copy file in place");
 	if (!do_quiet)
 	    printf("Can't copy file to %s, %s\n", DestPath, strerror(rc));
 	return FALSE;
