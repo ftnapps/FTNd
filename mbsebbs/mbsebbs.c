@@ -237,8 +237,9 @@ int main(int argc, char **argv)
     /*
      * Some debugging for me
      */
-    Syslog('b', "setlocale() returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
-    Syslog('b', "nl_langinfo(LC_CTYPE) returns \"%s\"", printable(nl_langinfo(LC_CTYPE), 0));
+//    Syslog('b', "setlocale() returns \"%s\"", printable(setlocale(LC_ALL, NULL), 0));
+    /* Next is not usefull */
+//    Syslog('b', "nl_langinfo(LC_CTYPE) returns \"%s\"", printable(nl_langinfo(LC_CTYPE), 0));
 
     sprintf(sMailbox, "mailbox");
     colour(LIGHTGRAY, BLACK);
