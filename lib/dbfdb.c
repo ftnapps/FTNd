@@ -193,6 +193,8 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
     int	    i, Insert, Done = FALSE, Found = FALSE, rc;
     FILE    *fp;
     
+    Syslog('f', "mbsedb_InsertFDB: \"%s\", magic \"%s\"", frec.LName, frec.Magic);
+
     if (mbsedb_LockFDB(fdb_area, 30) == FALSE)
 	return FALSE;
 
@@ -227,6 +229,8 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 		Insert++;
 	}
     } while ((!Found) && (!Done));
+
+    Syslog('f', "mbsedb_InsertFDB: insertpoint=%d, found=%s, done=%s", Insert, Found?"true":"false", Done?"true":"false");
 
     if (Found) {
 	if ((fp = fopen(temp, "a+")) == NULL) {
