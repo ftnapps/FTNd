@@ -174,39 +174,34 @@ void SwapDate(char *Date3, char *Date4)
 
 void user()
 {
-	FILE		*pUsrConfig, *pLimits;
-	int		i, x;
-	int		FoundName = FALSE, iFoundLimit = FALSE;
-	long		l1, l2;
-	char		*token;
-	char		temp[PATH_MAX];
-	char		temp1[84];
-	time_t		LastLogin;
-	struct stat 	st;
-	char		UserName[37];
-	int		IsNew = FALSE;
+    FILE	*pUsrConfig, *pLimits;
+    int		i, x, FoundName = FALSE, iFoundLimit = FALSE, IsNew = FALSE;
+    long	l1, l2;
+    char	*token, temp[PATH_MAX], temp1[84], UserName[37];
+    time_t	LastLogin;
+    struct stat st;
 
-	grecno = 0;
-	Syslog('+', "Unixmode login: %s", sUnixName);
+    grecno = 0;
+    Syslog('+', "Unixmode login: %s", sUnixName);
 
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
-	    /*
-	     * This should not happen.
-	     */
-	    WriteError("$Can't open %s", temp);
-	    printf("Can't open userfile, run \"newuser\" first");
-	    ExitClient(MBERR_OK);
-	}
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
+	/*
+	 * This should not happen.
+	 */
+	WriteError("$Can't open %s", temp);
+	printf("Can't open userfile, run \"newuser\" first");
+	ExitClient(MBERR_OK);
+    }
 
-	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-	while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
-	    if (strcmp(usrconfig.Name, sUnixName) == 0) {
-		FoundName = TRUE;
-		break;
-	    } else
-		grecno++;
-	}
+    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
+    while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
+	if (strcmp(usrconfig.Name, sUnixName) == 0) {
+	    FoundName = TRUE;
+	    break;
+	} else
+	    grecno++;
+    }
 							
 	if (!FoundName) {
 	    printf("Unknown username: %s\n", sUnixName);
@@ -260,6 +255,14 @@ void user()
 	    UserCity(mypid, usrconfig.sUserName, usrconfig.sLocation);
 	else
 	    UserCity(mypid, usrconfig.sUserName, (char *)"N/A");
+
+	/*
+	 * Set last file and message area so these numbers are saved when
+	 * the user hangs up or is logged off before het gets to the main
+	 * menu. Later in this function the areas are set permanent.
+	 */
+	iAreaNumber = usrconfig.iLastFileArea;
+	iLastMsgArea = usrconfig.iLastMsgArea;
 
 	/*
 	 * See if this user is the Sysop.
