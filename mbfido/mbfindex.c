@@ -316,14 +316,22 @@ void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 void ReqIndex(void);
 void ReqIndex(void)
 {
-    FILE                *pAreas, *pFile, *pIndex, *fp;
+    FILE                *pAreas, *pIndex, *fp;
     unsigned long       i, iAreas, iAreasNew = 0, record;
     int                 iTotal = 0, j, z, x = 0;
     int                 fbAreas = 0, fbFiles = 0;
-    char                *sAreas, *fAreas, *newdir = NULL, *sIndex, *temp;
+    char                *sAreas, *newdir = NULL, *sIndex, *temp;
     Findex              *fdx = NULL;
     Findex              *tmp;
     struct FILEIndex    idx;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	*fdb_area = NULL;
+#else
+    FILE		*pFile;
+    char		*fAreas;
+
+    fAreas = calloc(PATH_MAX, sizeof(char));
+#endif
 
     IsDoing("Index files");
     if (!do_quiet) {
@@ -332,7 +340,6 @@ void ReqIndex(void)
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
-    fAreas = calloc(PATH_MAX, sizeof(char));
     sIndex = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
 
@@ -379,6 +386,10 @@ void ReqIndex(void)
 		newdir = NULL;
 	    }
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
+		die(MBERR_GENERAL);
+#else
 	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 
 	    /*
@@ -397,6 +408,7 @@ void ReqIndex(void)
 	    } else {
 		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
+#endif
 
 	    /*
 	     * Create file request index if requests are allowed in this area.
@@ -406,7 +418,11 @@ void ReqIndex(void)
 		 * Now start creating the unsorted index.
 		 */
 		record = 0;
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		    iTotal++;
 		    if ((iTotal % 10) == 0)
 			Marker();
@@ -431,9 +447,14 @@ void ReqIndex(void)
 	    if ((fp = fopen(temp, "w")) == NULL) {
 		WriteError("$Can't create %s", temp);
 	    } else {
-		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 		fbAreas++;
+#ifdef	USE_EXPERIMENT
+		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
+		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		    if (!fdb.Deleted) {
 			fbFiles++;
 			fprintf(fp, "%-12s [%ld] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
@@ -455,9 +476,13 @@ void ReqIndex(void)
 		if ((fp = fopen(temp, "w")) == NULL) {
 		    WriteError("$Can't create %s", temp);
 		} else {
+#ifdef	USE_EXPERIMENT
+		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
-
 		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 			if (!fdb.Deleted) {
 			    /*
 			     * The next is to reduce system load
@@ -485,8 +510,13 @@ void ReqIndex(void)
 		    chmod(temp, 0644);
 		}
 	    }
+#ifdef	USE_EXPERIMENT
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(pFile);
-	}
+	    free(fAreas);
+#endif
+    	    }
     }
 
     fclose(pAreas);
@@ -501,7 +531,6 @@ void ReqIndex(void)
     Syslog('+', "Files Areas [%5d] Files [%5d]", fbAreas, fbFiles);
 
     free(sAreas);
-    free(fAreas);
     free(sIndex);
     free(temp);
 }
@@ -515,17 +544,23 @@ void ReqIndex(void)
 void HtmlIndex(char *);
 void HtmlIndex(char *Lang)
 {
-    FILE		*pAreas, *pFile, *fa, *fb = NULL, *fm, *fi = NULL;
+    FILE		*pAreas, *fa, *fb = NULL, *fm, *fi = NULL;
     unsigned long	i, iAreas, KSize = 0L, aSize = 0;
     int			AreaNr = 0, j, k, x = 0;
     int			aTotal = 0, inArea = 0, filenr;
-    char		*sAreas, *fAreas, *fn;
+    char		*sAreas, *fn;
     char		linebuf[1024], outbuf[1024], desc[6400];
     time_t		last = 0L, later;
     long		fileptr = 0, fileptr1 = 0;
-
-    sAreas = calloc(PATH_MAX, sizeof(char));
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	*fdb_area = NULL;
+#else
+    FILE		*pFile;
+    char		*fAreas;
+    
     fAreas = calloc(PATH_MAX, sizeof(char));
+#endif
+    sAreas = calloc(PATH_MAX, sizeof(char));
     fn     = calloc(PATH_MAX, sizeof(char));
 
     AreasHtml = 0;
@@ -605,6 +640,10 @@ void HtmlIndex(char *Lang)
 		fflush(stdout);
 	    }
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
+		die(MBERR_GENERAL);
+#else
 	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 
 	    /*
@@ -616,21 +655,33 @@ void HtmlIndex(char *Lang)
 		die(MBERR_GENERAL);
 	    }
 	    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+#endif
 
 	    /*
 	     * Create index.html pages in each available download area.
 	     */
 	    if (!area.CDrom && fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
 
+#ifdef	USE_EXPERIMENT
+		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+#else
 		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
+#endif
 		AreasHtml++;
 		inArea = 0;
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		    if (!fdb.Deleted)
 			inArea++;
 		}
+#ifdef	USE_EXPERIMENT
+		fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+#else
 		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
-
+#endif
 		aSize = 0L;
 		aTotal = 0;
 		last = 0L;
@@ -641,7 +692,11 @@ void HtmlIndex(char *Lang)
 		    fileptr1 = gfilepos;
 		}
 
+#ifdef	USE_EXPERIMENT
+		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		    if (!fdb.Deleted) {
 			/*
 			 * The next is to reduce system load
@@ -750,8 +805,12 @@ void HtmlIndex(char *Lang)
 		fseek(fi, fileptr, SEEK_SET);
 		MacroRead(fi, fm);
 	    }
+#ifdef	USE_EXPERIMENT
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(pFile);
-
+	    free(fAreas);
+#endif
 	} /* if area.Available */
     }
 
@@ -775,7 +834,6 @@ void HtmlIndex(char *Lang)
     }
 
     free(sAreas);
-    free(fAreas);
     free(fn);
     RemoveSema((char *)"reqindex");
 }
