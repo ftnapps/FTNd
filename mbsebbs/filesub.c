@@ -319,14 +319,14 @@ void Mark()
 	i = atoi(temp);
 
 	if ((i > 0) && (i < 100)) {
-		if ((Tagbuf[i].Area) && (strlen(Tagbuf[i].File))) {
+		if ((Tagbuf[i].Area) && (strlen(Tagbuf[i].LFile))) {
 			if (Access(exitinfo.Security, area.DLSec)) {
 				if ((fp = fopen("taglist", "a+")) != NULL) {
 
 					fseek(fp, 0, SEEK_SET);
 					Found = FALSE;
 					while (fread(&Tag, sizeof(Tag), 1, fp) == 1)
-						if ((Tag.Area == Tagbuf[i].Area) && (strcmp(Tag.File, Tagbuf[i].File) == 0)) {
+						if ((Tag.Area == Tagbuf[i].Area) && (strcmp(Tag.LFile, Tagbuf[i].LFile) == 0)) {
 							Found = TRUE;
 							Syslog('b', "Tagbuf[i].File already tagged");
 						}
@@ -336,7 +336,7 @@ void Mark()
 						Tag = Tagbuf[i];
 						Tag.Active = TRUE;
 						fwrite(&Tag, sizeof(Tag), 1, fp);
-						Syslog('+', "Tagged file %s from area %d", Tag.File, Tag.Area);
+						Syslog('+', "Tagged file %s from area %d", Tag.LFile, Tag.Area);
 					}
 
 					fclose(fp);
@@ -416,37 +416,16 @@ int ShowOneFile()
 		printf(" %02d ", Tagnr);
 
 		colour(CFG.FilenameF, CFG.FilenameB);
-		if(strlen(file.Name) < 25)
-	 		printf("%-15s", file.Name);
-		else {
-	 		printf("%-75s", file.Name);
-			if (iLC(1) == 1)
-				return 1;
-		}
+	 	printf("%-12s", file.Name);
 
 		colour(CFG.FilesizeF, CFG.FilesizeB);
-		if(strlen(file.Name) < 25)
-			printf("%10lu ", (long)(file.Size));
-		else
-			printf("%25lu ", (long)(file.Size));
+		printf("%10lu ", (long)(file.Size));
 
 		colour(CFG.FiledateF, CFG.FiledateB);
 		printf("%-10s  ", StrDateDMY(file.UploadDate));
 
 		colour(12, 0);
-		if(file.TimesDL < 10)
-			printf(" ");
-
-		if(file.TimesDL < 100)
-			printf(" ");
-
-		if(file.TimesDL < 1000)
-			printf(" ");
-
-		if(file.TimesDL > 9999)
-			file.TimesDL = 9999;
-
-		printf("[%ld] ", file.TimesDL);
+		printf("[%4ld] ", file.TimesDL);
 
 		if((strcmp(file.Uploader, "")) == 0)
 			strcpy(file.Uploader, "SysOp");
@@ -891,14 +870,17 @@ int Addfile(char *File, int AreaNum, int fileid)
 		}
 
 		memset(&file, 0, sizeof(file));
-		strcpy(file.Name, File);
+		strcpy(file.LName, File);
+		strcpy(temp1, File);
+		name_mangle(temp1);
+		strcpy(file.Name, temp1);
 		sprintf(temp1,"%ld",(long)(statfile.st_size));
 		file.Size = atoi(temp1);
 		file.FileDate = statfile.st_mtime;
 		strcpy(file.Uploader, exitinfo.sUserName);
-		time(&file.UploadDate);
+		file.UploadDate = time(NULL);
 
-		if(area.PwdUP) {
+		if (area.PwdUP) {
 			colour(9,0);
 			/* Do you want to password protect your upload ? [y/N]: */
 			printf("\n%s", (char *) Language(285));
@@ -998,7 +980,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 			iPrivate = TRUE;
 			fprintf(pPrivate, "****************************************************");
 			fprintf(pPrivate, "\nUser        : %s", file.Uploader);
-			fprintf(pPrivate, "\nFile        : %s", file.Name);
+			fprintf(pPrivate, "\nFile        : %s (%s)", file.LName, file.Name);
 			fprintf(pPrivate, "\nSize        : %lu", (long)(file.Size));
 			fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(file.UploadDate));
 				

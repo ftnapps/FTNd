@@ -339,11 +339,11 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 	    if (fread(&file, sizeof(file), 1, fp1) != 1)
 		Done = TRUE;
 	    if (!Done) {
-		if (strcmp(fdb.Name, file.Name) == 0) {
+		if (strcmp(fdb.LName, file.LName) == 0) {
 		    Found = TRUE;
 		    Insert++;
 		} else {
-		    if (strcmp(fdb.Name, file.Name) < 0)
+		    if (strcmp(fdb.LName, file.LName) < 0)
 			Found = TRUE;
 		    else
 			Insert++;
@@ -367,7 +367,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 		 * If we are importing a file with the same name,
 		 * skip the original record and put the new one in place.
 		 */
-		if (strcmp(file.Name, fdb.Name) != 0)
+		if (strcmp(file.LName, fdb.LName) != 0)
 		    fwrite(&file, sizeof(file), 1, fp2);
 	    }
 
@@ -378,7 +378,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 	     * Append the rest of the records
 	     */
 	    while (fread(&file, sizeof(file), 1, fp1) == 1) {
-		if (strcmp(file.Name, fdb.Name) != 0)
+		if (strcmp(file.LName, fdb.LName) != 0)
 		    fwrite(&file, sizeof(file), 1, fp2);
 	    }
 	    if (!area.AddAlpha)

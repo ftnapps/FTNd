@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/addbbs.c
+ * $Id$
  * Purpose ...............: Add TIC file to the BBS
- * Last modification date : 21-Aug-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -54,8 +53,8 @@ int Add_BBS()
 {
 	struct FILERecord	frec;
 	int			i, Insert, Done = FALSE, Found = FALSE;
-	char			fdbname[128], fdbtemp[128];
-	char			temp1[128], temp2[128], *fname;
+	char			fdbname[PATH_MAX], fdbtemp[PATH_MAX];
+	char			temp1[PATH_MAX], temp2[PATH_MAX], *fname;
 	FILE			*fdb, *fdt;
 	int			Keep = 0, DidDelete = FALSE;
 	fd_list			*fdl = NULL;
@@ -64,7 +63,9 @@ int Add_BBS()
 	 * Create filedatabase record.
 	 */
 	memset(&frec, 0, sizeof(frec));
-	strcpy(frec.Name, TIC.NewName);
+	strcpy(temp1, TIC.NewName);
+	name_mangle(temp1);
+	strcpy(frec.Name, temp1);
 	strcpy(frec.LName, TIC.NewName);
 //	strcpy(frec.TicArea, TIC.TicIn.Area); /* TIJDELIJK IVM VELDLENGTE */
 	frec.Size = TIC.FileSize;
@@ -100,6 +101,7 @@ int Add_BBS()
 			WriteError("$Can't create %s", fdbname);
 			return FALSE;
 		}
+		chmod(fdbname, 0660);
 	}
 
 	/*
@@ -129,11 +131,11 @@ int Add_BBS()
 		if (fread(&file, sizeof(file), 1, fdb) != 1)
 			Done = TRUE;
 		if (!Done) {
-			if (strcmp(frec.Name, file.Name) == 0) {
+			if (strcmp(frec.LName, file.LName) == 0) {
 				Found = TRUE;
 				Insert++;
 			} else
-				if (strcmp(frec.Name, file.Name) < 0)
+				if (strcmp(frec.LName, file.LName) < 0)
 					Found = TRUE;
 				else
 					Insert++;
@@ -158,7 +160,7 @@ int Add_BBS()
 			 * name, if so, don't copy the original database
 			 * record. The file is also overwritten.
 			 */
-			if (strcmp(file.Name, frec.Name) != 0)
+			if (strcmp(file.LName, frec.LName) != 0)
 				fwrite(&file, sizeof(file), 1, fdt);
 		}
 
@@ -178,7 +180,7 @@ int Add_BBS()
 			 * then we skip the record what was origionaly
 			 * in the database record.
 			 */
-			if (strcmp(file.Name, frec.Name) != 0)
+			if (strcmp(file.LName, frec.LName) != 0)
 				fwrite(&file, sizeof(file), 1, fdt);
 		}
 
@@ -228,16 +230,16 @@ int Add_BBS()
 		if ((fdb = fopen(fdbname, "r+")) != NULL) {
 
 			while (fread(&file, sizeof(file), 1, fdb) == 1) {
-				if (strlen(file.Name) == strlen(TIC.NewName)) {
-					if (strcasecmp(file.Name, TIC.NewName) != 0) {
+				if (strlen(file.LName) == strlen(TIC.NewName)) {
+					if (strcasecmp(file.LName, TIC.NewName) != 0) {
 						Found = TRUE;
 						for (i = 0; i < strlen(TIC.NewName); i++) {
 							if ((TIC.TicIn.Replace[i] != '?') &&
-							    (toupper(TIC.TicIn.Replace[i]) != toupper(file.Name[i])))
+							    (toupper(TIC.TicIn.Replace[i]) != toupper(file.LName[i])))
 								Found = FALSE;
 						}
 						if (Found) {
-							Syslog('+', "Replace: Deleting: %s", file.Name);
+							Syslog('+', "Replace: Deleting: %s", file.LName);
 							file.Deleted = TRUE;
 							fseek(fdb, - sizeof(file), SEEK_CUR);
 							fwrite(&file, sizeof(file), 1, fdb);
@@ -258,19 +260,19 @@ int Add_BBS()
 
 			while (fread(&file, sizeof(file), 1, fdb) == 1) {
 
-				if ((strlen(file.Name) == strlen(TIC.NewName)) && (!file.Deleted)) {
+				if ((strlen(file.LName) == strlen(TIC.NewName)) && (!file.Deleted)) {
 					Found = TRUE;
 
-					for (i = 0; i < strlen(file.Name); i++) {
+					for (i = 0; i < strlen(file.LName); i++) {
 						if ((TIC.NewName[i] < '0') || (TIC.NewName[i] > '9')) {
-							if (TIC.NewName[i] != file.Name[i]) {
+							if (TIC.NewName[i] != file.LName[i]) {
 								Found = FALSE;
 							}
 						}
 					}
 					if (Found) {
 						Keep++;
-						fill_fdlist(&fdl, file.Name, file.UploadDate);
+						fill_fdlist(&fdl, file.LName, file.UploadDate);
 					}
 				}
 			}
@@ -289,8 +291,8 @@ int Add_BBS()
 					fseek(fdb, 0, SEEK_SET);
 
 					while (fread(&file, sizeof(file), 1, fdb) == 1) {
-						if (strcmp(file.Name, fname) == 0) {
-							Syslog('+', "Keep %d files, deleting: %s", TIC.KeepNum, file.Name);
+						if (strcmp(file.LName, fname) == 0) {
+							Syslog('+', "Keep %d files, deleting: %s", TIC.KeepNum, file.LName);
 							file.Deleted = TRUE;
 							fseek(fdb, - sizeof(file), SEEK_CUR);
 							fwrite(&file, sizeof(file), 1, fdb);
@@ -315,7 +317,7 @@ int Add_BBS()
 					if (!file.Deleted)
 						fwrite(&file, sizeof(file), 1, fdt);
 					else {
-						sprintf(temp2, "%s/%s", area.Path, file.Name);
+						sprintf(temp2, "%s/%s", area.Path, file.LName);
 						if (unlink(temp2) != 0)
 							WriteError("$Can't unlink file %s", temp2);
 					}

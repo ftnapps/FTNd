@@ -44,7 +44,6 @@ int		str_checksum(const char *);
 char		*safe_strcpy(char *, const char *, size_t);
 static void	init_chartest(void);
 static int	is_reserved_msdos(char *);
-static int	is_illegal_name(char *);
 int		is_8_3(char *);
 
 
@@ -162,7 +161,7 @@ char *safe_strcpy(char *dest,const char *src, size_t maxlength)
     len = strlen(src);
 
     if (len > maxlength) {
-            Syslog('f', "ERROR: string overflow by %d in safe_strcpy [%.50s]", (int)(len-maxlength), src);
+            WriteError("ERROR: string overflow by %d in safe_strcpy [%.50s]", (int)(len-maxlength), src);
             len = maxlength;
     }
 
@@ -256,46 +255,6 @@ static int is_reserved_msdos( char *fname )
 
 
 
-/* ************************************************************************** **
- * Determine whether or not a given name contains illegal characters, even
- * long names.
- *
- *  Input:  name  - The name to be tested.
- *
- *  Output: True if an illegal character was found in <name>, else False.
- *
- *  Notes:  This is used to test a name on the host system, long or short,
- *          for characters that would be illegal on most client systems,
- *          particularly DOS and Windows systems.  Unix and AmigaOS, for
- *          example, allow a filenames which contain such oddities as
- *          quotes (").  If a name is found which does contain an illegal
- *          character, it is mangled even if it conforms to the 8.3
- *          format.
- *
- * ************************************************************************** **
- */
-static int is_illegal_name(char *name)
-{
-    unsigned char *s;
-
-    if (!name)
-	return TRUE;
-
-    if (!ct_initialized)
-	init_chartest();
-
-    s = (unsigned char *)name;
-    while (*s) {
-	if (isillegal(*s))
-	    return TRUE;
-	else
-	    s++;
-    }
-
-    return FALSE;
-}
-
-
 
 /* ************************************************************************** **
  * Return True if the name is a valid DOS name in 8.3 DOS format.
@@ -311,48 +270,45 @@ static int is_illegal_name(char *name)
  */
 int is_8_3( char *fname)
 {
-    int   len;
-    int   l;
-    char *p;
-    char *dot_pos;
-    char *slash_pos = strrchr( fname, '/' );
+    int		len;
+    int		l, i;
+    char	*p;
+    char	*dot_pos;
+    char	*slash_pos = strrchr( fname, '/' );
 
     /* If there is a directory path, skip it. */
     if (slash_pos)
 	fname = slash_pos + 1;
     len = strlen(fname);
 
-//    Syslog('f', "Checking %s for 8.3", fname);
+    Syslog('f', "Checking %s for 8.3", fname);
 
     /* Can't be 0 chars or longer than 12 chars */
-    if( (len == 0) || (len > 12) )
+    if ((len == 0) || (len > 12)) {
+	Syslog('f', "filename length not right");
 	return FALSE;
+    }
 
     /* Mustn't be an MS-DOS Special file such as lpt1 or even lpt1.txt */
-    if (is_reserved_msdos(fname))
+    if (is_reserved_msdos(fname)) {
+	Syslog('f', "is reserved msdos name");
 	return FALSE;
+    }
 
-    /* Check that all characters are the correct case, if asked to do so. */
-//    if (strhaslower(fname))
-//	return FALSE;
+    init_chartest();
+    for (i = 0; i < strlen(fname); i++) {
+	if (isillegal(fname[i])) {
+	    Syslog('f', "Illegal character in filename");
+	    return FALSE;
+	}
+    }
 
     /* Can't contain invalid dos chars */
-    /* Windows use the ANSI charset.
-       But filenames are translated in the PC charset.
-       This Translation may be more or less relaxed depending
-       the Windows application. */
-
-    /* %%% A nice improvment to name mangling would be to translate
-       filename to ANSI charset on the smb server host */
-
     p       = fname;
     dot_pos = NULL;
     while (*p) {
 	if (*p == '.' && !dot_pos)
 	    dot_pos = (char *)p;
-//	else
-//	    if (!isdoschar(*p))
-//		return FALSE;
 	p++;
     }
 
@@ -367,23 +323,27 @@ int is_8_3( char *fname)
 	return(0 == strcmp( fname, "." ) || 0 == strcmp( fname, ".." ));
 
     /* base can't be greater than 8 */
-    if (l > 8)
+    if (l > 8) {
+	Syslog('f', "filebase longer then 8 chars");
 	return FALSE;
+    }
 
-    /* see smb.conf(5) for a description of the 'strip dot' parameter. */
-    /* strip_dot defaults to no */
-    if (/* lp_strip_dot() && */ len - l == 1 && !strchr( dot_pos + 1, '.' )) {
+    if (len - l == 1 && !strchr( dot_pos + 1, '.' )) {
 	*dot_pos = 0;
 	return TRUE;
     }
 
     /* extension must be between 1 and 3 */
-    if ((len - l < 2 ) || (len - l > 4))
+    if ((len - l < 2 ) || (len - l > 4)) {
+	Syslog('f', "extension length not right");
 	return FALSE;
+    }
 
     /* extensions may not have a dot */
-    if (strchr( dot_pos+1, '.' ))
+    if (strchr( dot_pos+1, '.' )) {
+	Syslog('f', "extension with a dot in it");
 	return FALSE;
+    }
 
     /* must be in 8.3 format */
     return TRUE;
@@ -398,8 +358,8 @@ int is_8_3( char *fname)
  */
 void mangle_name_83(char *s)
 {
-    int		csum;
-    char	*p;
+    int		csum, i;
+    char	*p, *q;
     char	extension[4];
     char	base[9];
     int		baselen = 0;
@@ -408,6 +368,53 @@ void mangle_name_83(char *s)
     extension[0] = 0;
     base[0] = 0;
 
+    /*
+     * First, convert some common Unix extensions to extensions of 3
+     * characters. If none fits, don't change anything now.
+     */
+    if (strcmp(q = s + strlen(s) - strlen(".tar.gz"), ".tar.gz") == 0) {
+	*q = '\0';
+	q = (char *)"tgz";
+	Syslog('f', "mangle_name_83 tar.gz => tgz");
+    } else if (strcmp(q = s + strlen(s) - strlen(".tar.z"), ".tar.z") == 0) {
+	*q = '\0';
+	q = (char *)"tgz";
+	Syslog('f', "mangle_name_83 tar.z => tgz");
+    } else if (strcmp(q = s + strlen(s) - strlen(".tar.Z"), ".tar.Z") == 0) {
+	*q = '\0';
+	q = (char *)"taz";
+	Syslog('f', "mangle_name_83 tar.Z => taz");
+    } else if (strcmp(q = s + strlen(s) - strlen(".html"), ".html") == 0) {
+	*q = '\0';
+	q = (char *)"htm";
+	Syslog('f', "mangle_name_83 html => htm");
+    } else if (strcmp(q = s + strlen(s) - strlen(".shtml"), ".shtml") == 0) {
+	*q = '\0';
+	q = (char *)"stm";
+	Syslog('f', "mangle_name_83 shtml => stm");
+    } else if (strcmp(q = s + strlen(s) - strlen(".conf"), ".conf") == 0) {
+	*q = '\0';
+	q = (char *)"cnf";
+	Syslog('f', "mangle_name_83 conf => cnf");
+    } else {
+	q = NULL;
+    }
+    
+    if (q) {
+	/*
+	 * Extension is modified, apply changes
+	 */
+	p = s + strlen(s);
+	*p++ = '.';
+	for (i = 0; i < strlen(q); i++)
+	    *p++ = q[i];
+	*p++ = '\0';
+	Syslog('f', "name with new extension => \"%s\"", s);
+    }
+
+    /*
+     * Now start name mangling
+     */
     p = strrchr(s,'.');  
     if (p && (strlen(p+1) < (size_t)4)) {
 	int	all_normal = (!strhaslower(p+1)); /* XXXXXXXXX */
@@ -422,11 +429,10 @@ void mangle_name_83(char *s)
 	csum = str_checksum(s);
 
     tu(s);
-//    Syslog('f', "Mangling name %s to ",s);
 
     if (p) {
-	if( p == s )
-	    safe_strcpy( extension, "___", 3 );
+	if (p == s)
+	    safe_strcpy(extension, "___", 3);
 	else {
 	    *p++ = 0;
 	    while (*p && extlen < 3) {
@@ -447,63 +453,48 @@ void mangle_name_83(char *s)
     }
     base[baselen] = 0;
 
-    csum = csum % (MANGLE_BASE*MANGLE_BASE);
-    sprintf(s, "%s%c%c%c", base, magic_char, mangle(csum/MANGLE_BASE), mangle(csum));
+    csum = csum % (MANGLE_BASE * MANGLE_BASE);
+    sprintf(s, "%s%c%c%c", base, magic_char, mangle(csum / MANGLE_BASE), mangle(csum));
 
     if( *extension ) {
 	(void)strcat(s, ".");
 	(void)strcat(s, extension);
     }
-
-//    Syslog('f', "%s", s);
 }
 
 
 
 /*****************************************************************************
- * Convert a filename to DOS format.  Return True if successful.
+ * Convert a filename to DOS format.
  *
  *  Input:  OutName - Source *and* destination buffer. 
  *
  *                    NOTE that OutName must point to a memory space that
- *                    is at least 13 bytes in size!
- *
- *          need83  - If False, name mangling will be skipped unless the
- *                    name contains illegal characters.  Mapping will still
- *                    be done, if appropriate.  This is probably used to
- *                    signal that a client does not require name mangling,
- *                    thus skipping the name mangling even on shares which
- *                    have name-mangling turned on.
- *
- *  Output: Returns False only if the name wanted mangling but the share does
- *          not have name mangling turned on.
+ *                    is at least 13 bytes in size! That should always be
+ *                    the case of course.
  *
  * ****************************************************************************
  */
-int name_mangle(char *OutName, int need83)
+void name_mangle(char *OutName)
 {
-        Syslog('f', "name_mangle(%s, need83 = %s)", OutName, need83 ? "TRUE" : "FALSE");
+    char    *p;
 
+    p = xstrcpy(OutName);
+    /*
+     * check if it's already in 8.3 format
+     */
+    if (!is_8_3(OutName)) {
+	Syslog('f', "is 8.3 = FALSE");
+	mangle_name_83(OutName);
+    } else {
 	/*
-	 * Check for characters legal in Unix and illegal in DOS/Win
+	 * No mangling needed, convert to uppercase
 	 */
-        if (!need83 && is_illegal_name(OutName))
-            need83 = TRUE;
+	tu(OutName);
+    }
 
-        /*
-	 * check if it's already in 8.3 format
-	 */
-        if (need83 && !is_8_3(OutName)) {
-                mangle_name_83(OutName);
-        } else {
-	    /*
-	     * No mangling needed, convert to uppercase
-	     */
-	    tu(OutName);
-	}
-
-        Syslog('f',"name_mangle() ==> [%s]", OutName);
-        return TRUE;
+    Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
+    free(p);
 }
 
 

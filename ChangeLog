@@ -4224,7 +4224,12 @@ v0.33.19        26-Oct-2001
 		version, or change it by hand.
 
 	general:
-		Made the Makefile system more simple.
+		Made the Makefile system more simple. The bbs programs now
+		don't run setuid anymore! This makes the system more secure
+		but you can't login with Fidonet style names anymore. You
+		can't start the bbs from telnet anymore! With a later release
+		this may change by adding a login wrapper, for now this is how
+		it works now. Take it or leave it.
 
 	lang:
 		Changed language prompts 6, 71, 429.
@@ -4276,7 +4281,7 @@ v0.33.19        26-Oct-2001
 		login. Removed IEMSI support, this has no use anymore. New
 		users need to register with the mbnewuser program, mbsebbs is
 		only for registered users. This should fix all kinds of setuid
-		issues with previous versions.
+		and security problems with previous versions.
 		QuickScan messages in netmail areas now only shows personal
 		messages.
 		The whoson list now uses mbtask to get the information.
@@ -4284,6 +4289,13 @@ v0.33.19        26-Oct-2001
 		with mode 0600.
 		A lot of code rewrites to make it more modular.
 		The bbs datafiles that users create now have mode 0660.
+		The file taglists now work internally with long and short
+		filenames.
+		The file listings are displayed with the short filenames.
+		Download files are sent with short filenames.
+		File search is done on long and short filenames.
+		Uploaded files are accepted with long filenames, the short
+		name is created when the upload is processed.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
@@ -4316,14 +4328,17 @@ v0.33.19        26-Oct-2001
 		the program for 10 minutes before aborting.
 		Fixed the problem that the KillSent flag was set on processed
 		netmail.
+		The tic file import function now sorts and tests on long file-
+		names, with the new mangle function an DOS 8.3 filename is
+		also stored in the file database.
 
 	mbfile:
 		During check the file databases are reset to filemode 0660.
 		Implemented "mbfile adopt" function.
 		Started working on long filename support. The real name on
 		disk is the long filename, the database records also holds
-		an uppercase 8.3 filename. In most cases this is just the
-		same name in upper and lowercase. Name mangling like Win$
+		an uppercase mangled 8.3 filename. In most cases this is just
+		the same name in upper and lowercase. Name mangling like Win$
 		is performed on the long filenames.
 		Implemented "mbfile import" function, this imports complete
 		areas from files.bbs information.

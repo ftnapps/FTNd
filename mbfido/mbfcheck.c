@@ -157,7 +157,7 @@ void Check(void)
 					Update = FALSE;
 
 					strcpy(temp, file.LName);
-				        name_mangle(temp, TRUE);
+				        name_mangle(temp);
 					if (strcmp(file.Name, temp))  {
 						Syslog('!', "Converted %s to %s", file.Name, temp);
 						strncpy(file.Name, temp, 12);

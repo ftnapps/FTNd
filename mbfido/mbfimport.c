@@ -209,7 +209,7 @@ void ImportFiles(int Area)
 		 * Create DOS 8.3 filename
 		 */
 		strcpy(temp, fdb.LName);
-		name_mangle(temp, TRUE);
+		name_mangle(temp);
 		strcpy(fdb.Name, temp);
 
 		if (do_annon)

@@ -277,7 +277,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	 * Convert to 8.3 DOS filename
 	 */
 	strcpy(temp2, File);
-	name_mangle(temp2, TRUE);
+	name_mangle(temp2);
 	strcpy(fdb.Name, temp2);
 	strcpy(fdb.LName, File);
 	fdb.Size = file_size(File);

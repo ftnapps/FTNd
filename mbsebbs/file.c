@@ -57,20 +57,22 @@ int CheckFile(char *, int);
 int CheckFile(char *File, int iArea)
 {
         FILE    *pFileB;
-        int     iFile = FALSE;
         char    *sFileArea;
 
         sFileArea = calloc(PATH_MAX, sizeof(char));
         sprintf(sFileArea,"%s/fdb/fdb%d.dta", getenv("MBSE_ROOT"), iArea); 
 
-        if(( pFileB = fopen(sFileArea,"r+")) == NULL) {
-                mkdir(sFileArea, 755);
+        if ((pFileB = fopen(sFileArea,"r+")) == NULL) {
+                mkdir(sFileArea, 775);
                 return FALSE;
         }
+	free(sFileArea);
 
-        while ( fread(&file, sizeof(file), 1, pFileB) == 1) {
-                if((strcmp(tl(file.Name), tl(File))) == 0) {
-                        iFile = TRUE;
+	/*
+	 * Check long and short filenames, case insensitive
+	 */
+        while (fread(&file, sizeof(file), 1, pFileB) == 1) {
+                if (((strcasecmp(file.Name, File)) == 0) || ((strcasecmp(file.LName, File)) == 0)) {
                         fclose(pFileB);
                         return TRUE;
                 }
@@ -78,11 +80,7 @@ int CheckFile(char *File, int iArea)
         }
 
         fclose(pFileB);
-        free(sFileArea);
-
-        if(!iFile)
-                return FALSE;
-        return 1;
+        return FALSE;
 }
 
 
@@ -128,7 +126,8 @@ void File_List()
 		T.Active = FALSE;
 		T.Cost   = file.Cost;
 		T.Size   = file.Size;
-		sprintf(T.File, "%s", file.Name);
+		strncpy(T.SFile, file.Name, 12);
+		strncpy(T.LFile, file.LName, 80);
 		SetTag(T);
 
 		if (ShowOneFile() == 1) {
@@ -136,13 +135,13 @@ void File_List()
 			return;
 		}
 
-		if(file.Deleted)
+		if (file.Deleted)
 			/* D E L E T E D */ /* Uploaded by: */
-			printf("%-15s     %s     [%ld] %s%s\n", file.Name, (char *) Language(239), file.TimesDL, (char *) Language(238), file.Uploader);
+			printf("%-12s     %s     [%ld] %s%s\n", file.Name, (char *) Language(239), file.TimesDL, (char *) Language(238), file.Uploader);
 
-		if(file.Missing)
+		if (file.Missing)
 			/* M I S S I N G */ /* Uploaded by: */
-			printf("%-15s     %s     [%ld] %s%s\n", file.Name, (char *) Language(240), file.TimesDL, (char *) Language(238), file.Uploader);
+			printf("%-12s     %s     [%ld] %s%s\n", file.Name, (char *) Language(240), file.TimesDL, (char *) Language(238), file.Uploader);
 
 		FileCount++;			/* Increase File Counter by 1 */
 		FileBytes += file.Size;		/* Increase File Byte Count   */
@@ -207,18 +206,18 @@ void Download(void)
 			if ((fp = OpenFileBase(Tag.Area, FALSE)) != NULL) {
 
 				while (fread(&file, sizeof(file), 1, fp) == 1) {
-					if (strcmp(file.Name, Tag.File) == 0)
+					if (strcmp(file.LName, Tag.LFile) == 0)
 						break;
 				}
 				fclose(fp);
 			} 
 
-			if (strcmp(file.Name, Tag.File) == 0) {
-				Syslog('b', "Found file %s in area %d", file.Name, Tag.Area);
+			if (strcmp(file.LName, Tag.LFile) == 0) {
+				Syslog('b', "Found file %s in area %d", file.LName, Tag.Area);
 				if ((file.Deleted) || (file.Missing)) {
 					pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(248));
 					/* Sorry that file is unavailable for download */
-					printf("%s (%s)\n", (char *) Language(248), file.Name);
+					printf("%s (%s)\n", (char *) Language(248), file.LName);
 					Tag.Active = FALSE;
 				}
 
@@ -233,7 +232,7 @@ void Download(void)
 				 */
 				sprintf(symTo, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
 				if ((fd = fopen(symTo, "a")) != NULL) {
-					fprintf(fd, "%s\r\n", file.Name);
+					fprintf(fd, "%s (%s)\r\n", file.LName, file.Name);
 					for (i = 0; i < 25; i++) {
 						if (strlen(file.Desc[i]) > 1)
 							fprintf(fd, "  %s\r\n", file.Desc[i]);
@@ -245,11 +244,12 @@ void Download(void)
 				/*
 				 * Make a symlink to the users download dir.
 				 * First unlink, in case there was an old one.
+				 * The shortname is linked to the original longname.
 				 */
 				chdir("./tag");
-				unlink(Tag.File);
-				sprintf(symFrom, "%s", Tag.File);
-				sprintf(symTo, "%s/%s", sAreaPath, Tag.File);
+				unlink(Tag.SFile);
+				sprintf(symFrom, "%s", Tag.SFile);
+				sprintf(symTo, "%s/%s", sAreaPath, Tag.LFile);
 				if (symlink(symTo, symFrom)) {
 					WriteError("$Can't create symlink %s %s %d", symTo, symFrom, errno);
 					Tag.Active = FALSE;
@@ -392,12 +392,12 @@ void Download(void)
 
 			if (Tag.Active) {
 
-				sprintf(symTo, "./tag/%s", Tag.File);
+				sprintf(symTo, "./tag/%s", Tag.SFile);
 				/*
 				 * If symlink is gone the file is sent.
 				 */
 				if ((access(symTo, R_OK)) != 0) {
-					Syslog('+', "File %s from area %d sent ok", Tag.File, Tag.Area);
+					Syslog('+', "File %s from area %d sent ok", Tag.LFile, Tag.Area);
 					Tag.Active = FALSE;
 					fseek(tf, - sizeof(Tag), SEEK_CUR);
 					fwrite(&Tag, sizeof(Tag), 1, tf);
@@ -409,7 +409,7 @@ void Download(void)
 					SetFileArea(Tag.Area);
 					if ((fp = OpenFileBase(Tag.Area, TRUE)) != NULL) {
 						while (fread(&file, sizeof(file), 1, fp) == 1) {
-							if (strcmp(file.Name, Tag.File) == 0)
+							if (strcmp(file.LName, Tag.LFile) == 0)
 								break;
 						}
 						Size += file.Size;
@@ -421,7 +421,7 @@ void Download(void)
 						Count++;
 					}
 				} else {
-					Syslog('+', "Failed to sent %s from area %d", Tag.File, Tag.Area);
+					Syslog('+', "Failed to sent %s from area %d", Tag.LFile, Tag.Area);
 				}
 			}
 		}
@@ -501,12 +501,12 @@ void File_RawDir(char *OpData)
 
 		 	 if (*(dp->d_name) != '.') {
 				iFileCount++;
-				if(stat(FileName,&statfile) != 0)
-					printf("Can't stat file %s\n",FileName);
+				if (stat(FileName, &statfile) != 0)
+					printf("Can't stat file %s\n", FileName);
 				iBytes += statfile.st_size;
 
 				colour(14,0);
-				printf("%-20s", dp->d_name);
+				printf("%-12s " , dp->d_name);
 
 				colour(13,0);
 				printf("%-12ld", (long)(statfile.st_size));
@@ -566,7 +566,7 @@ int KeywordScan()
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(Name, 80);
 
-	if((strcmp(Name, "")) == 0)
+	if ((strcmp(Name, "")) == 0)
 		return 0;
 
 	strcpy(tmpname, tl(Name));
@@ -625,7 +625,8 @@ int KeywordScan()
 						T.Active = FALSE;
 						T.Cost   = file.Cost;
 						T.Size   = file.Size;
-						sprintf(T.File, "%s", file.Name);
+						strncpy(T.SFile, file.Name, 12);
+						strncpy(T.LFile, file.LName, 80);
 						SetTag(T);
 						Count++;
 						if (ShowOneFile() == 1) {
@@ -681,13 +682,14 @@ int FilenameScan()
 	FILE		*pAreas, *pFile;
 	int		z, y, Found, Count = 0;
 	char		*Name;
-	char		*tmpname;
+	char		*tmpname, *tmpname2;
 	char		temp[81];
 	_Tag		T;
 	unsigned long	OldArea;
 
 	Name     = calloc(81, sizeof(char));
 	tmpname  = calloc(81, sizeof(char));
+	tmpname2 = calloc(81, sizeof(char));
 	OldArea  = iAreaNumber;
 
 	iLineCount = 2; /* Reset Line Counter to Zero */
@@ -730,6 +732,7 @@ int FilenameScan()
 			strcat(Name, temp);
 		}
 	}
+	tl(Name);
 	Syslog('+', "FilenameScan(): \"%s\"", Name);
 
 	clear();
@@ -752,13 +755,17 @@ int FilenameScan()
 
 				while (fread(&file, sizeof(file), 1, pFile) == 1) {
 
-					strcpy(tmpname, tl(file.Name));
-					if ((strstr(tmpname, Name)) != NULL) {
+					strcpy(tmpname, file.Name);
+					strcpy(tmpname2, file.LName);
+					tl(tmpname);
+					tl(tmpname2);
+					if (((strstr(tmpname, Name)) != NULL) || ((strstr(tmpname2, Name)) != NULL)) {
 						if (!Found) {
 							Enter(2);
 							if (iLC(2) == 1) {
 								free(Name);
 								free(tmpname);
+								free(tmpname2);
 								SetFileArea(OldArea);
 								return 1;
 							}
@@ -769,12 +776,14 @@ int FilenameScan()
 						T.Active = FALSE;
 						T.Cost   = file.Cost;
 						T.Size   = file.Size;
-						sprintf(T.File, "%s", file.Name);
+						strncpy(T.SFile, file.Name, 12);
+						strncpy(T.LFile, file.LName, 81);
 						SetTag(T);
 						Count++;
 						if (ShowOneFile() == 1) {
 							free(Name);
 							free(tmpname);
+							free(tmpname2);
 							SetFileArea(OldArea);
 							return 1;
 						}
@@ -788,6 +797,7 @@ int FilenameScan()
 					if (iLC(2) == 1) {
 						free(Name);
 						free(tmpname);
+						free(tmpname2);
 						SetFileArea(OldArea);
 						return 1;
 					}
@@ -803,6 +813,7 @@ int FilenameScan()
 	fclose(pAreas);
 	free(Name);
 	free(tmpname);
+	free(tmpname2);
 	printf("\n");
 	if (Count)
 		Mark();
@@ -912,7 +923,8 @@ int NewfileScan(int AskStart)
 						T.Active = FALSE;
 						T.Cost   = file.Cost;
 						T.Size   = file.Size;
-						sprintf(T.File, "%s", file.Name);
+						strncpy(T.SFile, file.Name, 12);
+						strncpy(T.LFile, file.LName, 80);
 						SetTag(T);
 
 						Count++;
@@ -1056,7 +1068,7 @@ int Upload()
 		/* MOET IN ALLE AREAS ZOEKEN */
 		if (area.Dupes) {
 			x = CheckFile(File, Area);
-			if(x) {
+			if (x) {
 				Enter(1);
 				/* The file already exists on the system */
 				pout(15, 3, (char *) Language(282));
@@ -2008,7 +2020,7 @@ void Copy_Home()
 		return;
 	}
 
-	if(Access(exitinfo.Security, area.DLSec) == FALSE) {
+	if (Access(exitinfo.Security, area.DLSec) == FALSE) {
 		colour(14, 0);
 		printf("\n%s\n", (char *) Language(236));
 		Pause();
@@ -2027,7 +2039,7 @@ void Copy_Home()
 
 	while (fread(&file, sizeof(file), 1, pFile) == 1) {
 
-		if (strcmp(File, file.Name) == 0) {
+		if ((strcasecmp(File, file.Name) == 0) || (strcasecmp(File, file.LName) == 0)) {
 
 			Found = TRUE;
 			if (((file.Size + Quota()) > (CFG.iQuota * 1048576))) {
@@ -2036,7 +2048,7 @@ void Copy_Home()
 				printf("%s\n", (char *) Language(279));
 				Syslog('+', "Copy homedir, not enough quota");
 			} else {
-				sprintf(temp1, "%s/%s", area.Path, File);
+				sprintf(temp1, "%s/%s", area.Path, file.LName); /* Use real longname here */
 				sprintf(temp2, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
 				colour(CFG.TextColourF, CFG.TextColourB);
 				/* Start copy: */
@@ -2130,7 +2142,7 @@ void EditTaglist()
 
 			Fg--;
 			colour(Fg, 0);
-			printf("%-14s", Tag.File);
+			printf("%-12s", Tag.SFile);
 
 			Fg--;
 			colour(Fg, 0);

@@ -917,8 +917,8 @@ char *strcasestr(char *, char *);
 /*
  * mangle.c
  */
-void	mangle_name_83( char *);
-int	name_mangle(char *, int);
+void	mangle_name_83( char *);    /* Mangle name to 8.3 format	*/
+void	name_mangle(char *);	    /* Mangle name or make uppercase	*/
 
 
 #endif
