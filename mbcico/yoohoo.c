@@ -56,6 +56,7 @@
 #include "wazoo.h"
 #include "dietifna.h"
 #include "yoohoo.h"
+#include "inbound.h"
 
 
 /*------------------------------------------------------------------------*/

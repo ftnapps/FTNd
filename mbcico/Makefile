@@ -109,7 +109,7 @@ openfile.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/co
 openport.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ulock.h ttyio.h openport.h
 opentcp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h ttyio.h openport.h opentcp.h
 rdoptions.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h config.h
-yoohoo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/mberrors.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h
+yoohoo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/mberrors.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h
 recvbark.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ttyio.h session.h statetbl.h recvbark.h respfreq.h filelist.h
 respfreq.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h session.h lutil.h config.h atoul.h respfreq.h filelist.h
 sendbark.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ttyio.h session.h statetbl.h sendbark.h xmrecv.h
