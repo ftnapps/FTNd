@@ -1964,7 +1964,6 @@ int binkp_poll_frame(void)
 		    bp.GotFrame = TRUE;
 #ifdef HAVE_ZLIB_H
 		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK)) {
-			Syslog('b', "Binkp: got a compressed block %d bytes", bp.blklen);
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 			zlen = BINKP_PLZ_BLOCK -1;
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
