@@ -71,6 +71,9 @@ v0.37.00	26-Dec-2002.
 		Removed nodes flags No-IBN, IFC and ITN from the setup.
 		removed del/rubout/bs keys logging.
 
+	SETUP.sh
+		Made the script more portable.
+
 
 v0.36.00	26-Dec-2002 - stable release
 
