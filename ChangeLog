@@ -35,7 +35,8 @@ v0.35.05	19-Oct-2002
 		When installing the default unarchivers (new installations)
 		the rar is used to unarchive instead of unrar when available,
 		rar is compiled static and prefered.
-		Added support for the nomarch unarchiver.
+		Added support for the nomarch unarchiver. Files are extracted
+		with the -U switch for nodelists.
 		Removed from Screen 1.13 the unused switches Res Future and
 		Repl ext. Fixed some help texts.
 		Added in screen 1.14 settings for Plus All, Notify, Passwd and

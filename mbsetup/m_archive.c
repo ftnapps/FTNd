@@ -96,7 +96,7 @@ int CountArchive(void)
 			 * Override arc when nomarch is available
 			 */
 			if (strlen(_PATH_NOMARCH)) {
-			    sprintf(archiver.funarc,  "%s", _PATH_NOMARCH);
+			    sprintf(archiver.funarc,  "%s -U", _PATH_NOMARCH);
 			    sprintf(archiver.munarc,  "%s", _PATH_NOMARCH);
 			    sprintf(archiver.iunarc,  "%s", _PATH_NOMARCH);
 			}
