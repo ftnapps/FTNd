@@ -436,8 +436,9 @@ SM_STATE(scan_packet)
 				if (inbound)
 					free(inbound);
 				inbound = xstrcpy(CFG.inbound);
-				sprintf(history.system_name, "%s", nlent->name);
-				sprintf(history.location, "%s", nlent->location);
+				strncpy(history.system_name, nlent->name, 35);
+				strncpy(history.location, nlent->location, 35);
+				strncpy(history.sysop, nlent->sysop, 35);
 			} else {
 				sprintf(history.system_name, "Unknown");
 				sprintf(history.location, "Somewhere");

@@ -441,12 +441,11 @@ int scanemsidat(char *buf)
 		if (strcasecmp(p,"IDENT") == 0) {
 			p=sel_brace(NULL);
 			Syslog('+', "system  : %s",(p=sel_bracket(p)));
-			sprintf(history.system_name, "%s", p);
-			history.system_name[36] = '\0';
+			strncpy(history.system_name, p, 35);
 			Syslog('+', "location: %s",(p=sel_bracket(NULL)));
-			sprintf(history.location, "%s", p);
+			strncpy(history.location, p, 35);
 			Syslog('+', "operator: %s",(p=sel_bracket(NULL)));
-			sprintf(history.sysop, "%s", p);
+			strncpy(history.sysop, p, 35);
 			if (remote && remote->addr)
 				remote->addr->name=xstrcpy(p);
 			Syslog('+', "phone   : %s",sel_bracket(NULL));

@@ -139,7 +139,6 @@ int hangup()
 		free(tmp);
 		memset(&history, 0, sizeof(history));
 		if (Loaded) {
-			Syslog('s', "Updateing noderecord %s", aka2str(nodes.Aka[0]));
 			nodes.LastDate = time(NULL);
 			UpdateNode();
 		}

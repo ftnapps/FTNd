@@ -162,7 +162,7 @@ int rx_yoohoo(void)
 			if (inbound)
 				free(inbound);
 			inbound = xstrcpy(CFG.inbound);
-			sprintf(history.location, "%s", nlent->location);
+			strncpy(history.location, nlent->location, 35);
 		}
 		if (nlent) 
 			rdoptions(Loaded);
@@ -594,10 +594,9 @@ int checkhello(void)
 	else	
 		Syslog('+', "    uses: %s [%04X] version %d.%d", prodnm, hello2.product, majver, minver);
 	Syslog('+', "  system: %s",(char*)hello2.my_name);
-	sprintf(history.system_name, "%s", hello2.my_name);
-	history.system_name[36] = '\0';
+	strncpy(history.system_name, hello2.my_name, 35);
 	Syslog('+', "   sysop: %s",(char*)hello2.sysop);
-	sprintf(history.sysop, "%s", hello2.sysop);
+	strncpy(history.sysop, hello2.sysop, 35);
 	sprintf(history.location, "Somewhere");
 
 	free(prodnm);

@@ -78,6 +78,7 @@ int answer(char *stype)
 		q = strrchr(ttyname(0), '/');
 		if (q)
 			p = q + 1;
+		strncpy(history.tty, p, 6);
 		if (load_port(p))
 			Syslog('d', "Port %s, modem %s", ttyinfo.tty, modem.modem);
 		else
@@ -141,7 +142,7 @@ int answer(char *stype)
 		history.rcvd_bytes = rcvdbytes;
 		history.inbound = TRUE;
 
-		p = calloc(128, sizeof(char));
+		p = calloc(PATH_MAX, sizeof(char));
 		sprintf(p, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
 		if ((fp = fopen(p, "a")) == NULL)
 			WriteError("$Can't open %s", p);
@@ -151,7 +152,6 @@ int answer(char *stype)
 		}
 		free(p);
 		if (Loaded) {
-			Syslog('s', "Updateing noderecord %s", aka2str(nodes.Aka[0]));
 			nodes.LastDate = time(NULL);
 			UpdateNode();
 		}

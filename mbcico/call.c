@@ -75,6 +75,7 @@ int portopen(faddr *addr)
 	if (forcedline) {
 		Syslog('d', "portopen forcedline %s", forcedline);
 		p = forcedline;
+		strncpy(history.tty, p, 6);
 
 		if (load_port(p)) {
 			if ((rc = openport(p, ttyinfo.portspeed))) {
@@ -133,8 +134,9 @@ int call(faddr *addr)
 	/*
 	 * Fill default history info in case we get a FTS0001 session
 	 */
-	sprintf(history.system_name, "%s", nlent->name);
-	sprintf(history.location, "%s", nlent->location);
+	strncpy(history.system_name, nlent->name, 35);
+	strncpy(history.location, nlent->location, 35);
+	strncpy(history.sysop, nlent->sysop, 35);
 	history.aka.zone  = addr->zone;
 	history.aka.net   = addr->net;
 	history.aka.node  = addr->node;

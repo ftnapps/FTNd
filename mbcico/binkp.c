@@ -339,16 +339,13 @@ void b_nul(char *msg)
 {
 	if (strncmp(msg, "SYS ", 4) == 0) {
 		Syslog('+', "System  : %s", msg+4);
-		msg[40] = '\0';
-		sprintf(history.system_name, "%s", msg+4);
+		strncpy(history.system_name, msg+4, 35);
 	} else if (strncmp(msg, "ZYZ ", 4) == 0) {
 		Syslog('+', "Sysop   : %s", msg+4);
-		msg[40] = '\0';
-		sprintf(history.sysop, "%s", msg+4);
+		strncpy(history.sysop, msg+4, 35);
 	} else if (strncmp(msg, "LOC ", 4) == 0) {
 		Syslog('+', "Location: %s", msg+4);
-		msg[40] = '\0';
-		sprintf(history.location, "%s", msg+4);
+		strncpy(history.location, msg+4, 35);
 	} else if (strncmp(msg, "NDL ", 4) == 0)
 		Syslog('+', "Flags   : %s", msg+4);
 	else if (strncmp(msg, "TIME ", 5) == 0)
