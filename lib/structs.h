@@ -138,6 +138,9 @@ typedef struct	_nlusr {
  */
 
 
+#ifndef _SECURITYSTRUCT
+#define _SECURITYSTRUCT
+
 /*
  * Security structure
  */
@@ -147,6 +150,7 @@ typedef struct _security {
 	unsigned long	notflags;		/* No Access flags	   */
 } securityrec;
 
+#endif
 
 
 /* 
@@ -281,90 +285,6 @@ struct	domrec {
         char            intdom[61];             /* Internet domain         */
 	unsigned	Active		: 1;	/* Domain is active	   */
 	unsigned	Deleted		: 1;	/* Domain is deleted	   */
-};
-
-
-
-/*
- * Users Control Structures (users.data)
- */
-struct	userhdr {
-	long		hdrsize;		/* Size of header	    */
-	long		recsize;		/* Size of records	    */
-};
-
-struct	userrec {
-	char		sUserName[36];		/* User First and Last Name */
-	char		Name[9];		/* Unix name		    */
-	unsigned long	xPassword;		/* Users Password (CRC)     */
-	char		sVoicePhone[20];	/* Voice Number             */
-	char		sDataPhone[20];		/* Data/Business Number     */
-	char		sLocation[28];		/* Users Location           */
-	char		address[3][41];		/* Users address	    */
-	char		sDateOfBirth[12];	/* Date of Birth            */
-	time_t		tFirstLoginDate;	/* Date of First Login      */
-	time_t		tLastLoginDate;		/* Date of Last Login       */
-	securityrec	Security;		/* User Security Level      */
-	char		sComment[81];		/* User Comment             */
-	char		sExpiryDate[12];	/* User Expiry Date         */
-	securityrec	ExpirySec;		/* Expiry Security Level    */
-	char		sSex[8];		/* Users Sex                */
-
-	unsigned	Hidden		: 1;	/* Hide User from Lists     */
-	unsigned	HotKeys		: 1;	/* Hot-Keys ON/OFF          */
-	unsigned	GraphMode	: 1;	/* ANSI Mode ON/OFF         */
-	unsigned	Deleted		: 1;	/* Deleted Status           */
-	unsigned	NeverDelete	: 1;	/* Never Delete User        */
-	unsigned	Chat		: 1;	/* Has IEMSI Chatmode	    */
-	unsigned	LockedOut	: 1;	/* User is locked out	    */
-	unsigned	DoNotDisturb	: 1;	/* DoNot disturb	    */
-	unsigned	Cls		: 1;	/* CLS on/off		    */
-	unsigned	More		: 1;	/* More prompt		    */
-	unsigned	FsMsged		: 1;	/* Fullscreen editor	    */
-	unsigned	MailScan	: 1;	/* New Mail scan	    */
-	unsigned	Guest		: 1;	/* Is guest account	    */
-	unsigned	OL_ExtInfo	: 1;	/* OLR extended msg info    */
-	int		iTotalCalls; 		/* Total number of calls    */
-	int		iTimeLeft;              /* Time left today          */
-	int		iConnectTime;           /* Connect time this call   */
-	int		iTimeUsed;              /* Time used today          */
-	int		iScreenLen;             /* User Screen Length       */
-	time_t		tLastPwdChange;         /* Date last password chg   */
-	unsigned	xHangUps;
-	long		Credit;			/* Users credit		    */
-	int		Paged;			/* Times paged today	    */
-	int		xOfflineFmt;
-	int		LastPktNum;		/* Todays Last packet number*/
-	char		Archiver[6];		/* Archiver to use	    */
-
-	int		iLastFileArea;          /* Number of last file area */
-	int		iLastFileGroup;		/* Number of last file group*/
-	char		sProtocol[21];          /* Users default protocol   */
-	unsigned long	Downloads;		/* Total number of d/l's    */
-	unsigned long	Uploads;		/* Total number of uploads  */
-	unsigned long	UploadK;		/* Upload KiloBytes         */
-	unsigned long	DownloadK;		/* Download KiloBytes       */
-	long		DownloadKToday;		/* KB Downloaded today      */
-	long		UploadKToday;		/* KB Uploaded today        */
-	int		iTransferTime;          /* Last file transfer time  */
-	int		iLastMsgArea;           /* Number of last msg area  */
-	int		iLastMsgGroup;		/* Number of last msg group */
-	int		iPosted;                /* Number of msgs posted    */
-	int		iLanguage;              /* Current Language         */
-	char		sHandle[36];            /* Users Handle             */
-	int		iStatus;                /* WhosDoingWhat status	    */
-	int		DownloadsToday;		/* Downloads today	    */
-	int		CrtDef;			/* IEMSI Terminal emulation */
-	int		Protocol;		/* IEMSI protocol	    */
-	unsigned	IEMSI		: 1;	/* Is this a IEMSI session  */
-	unsigned	ieMNU		: 1;	/* Can do ASCII download    */
-	unsigned	ieTAB		: 1;	/* Can handle TAB character */
-	unsigned	ieASCII8	: 1;	/* Can handle 8-bit IBM-PC  */
-	unsigned	ieNEWS		: 1;	/* Show bulletins	    */
-	unsigned	ieFILE		: 1;	/* Check for new files	    */
-	unsigned	Email		: 1;	/* Has private email box    */
-	unsigned	FSemacs		: 1;	/* FSedit uses emacs keys   */
-	char		Password[Max_passlen+1];/* Plain password	    */
 };
 
 
