@@ -112,14 +112,14 @@ newuser.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h inp
 pinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h pinfo.h input.h term.h ttyio.h
 timecheck.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timecheck.h funcs.h bye.h exitinfo.h language.h input.h term.h ttyio.h
 change.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h change.h dispfile.h funcs.h input.h language.h misc.h timeout.h exitinfo.h bye.h term.h ttyio.h
-transfer.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h transfer.h change.h whoson.h funcs.h term.h ttyio.h filesub.h language.h openport.h timeout.h zmsend.h
+transfer.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h transfer.h change.h whoson.h funcs.h term.h ttyio.h filesub.h language.h openport.h timeout.h zmsend.h zmrecv.h
 exitinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
 mbsebbs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h mbsebbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h term.h ttyio.h openport.h
 menu.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h oneline.h mail.h bbslist.h change.h chat.h file.h funcs.h input.h misc.h timeout.h menu.h page.h pinfo.h bye.h timecheck.h whoson.h language.h offline.h email.h door.h dispfile.h userlist.h timestats.h logentry.h morefile.h lastcallers.h signature.h term.h ttyio.h
 pop3.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbinet.h ../lib/msgtext.h ../lib/msg.h msgutil.h pop3.h term.h ttyio.h
 lastcallers.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h input.h language.h lastcallers.h term.h ttyio.h
 timeout.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h term.h
-chat.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h chat.h funcs.h input.h language.h misc.h whoson.h term.h ttyio.h
+chat.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h chat.h funcs.h input.h language.h misc.h whoson.h term.h ttyio.h timeout.h
 file.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbsedb.h filesub.h file.h funcs.h input.h language.h misc.h timeout.h exitinfo.h whoson.h change.h dispfile.h term.h ttyio.h openport.h transfer.h
 misc.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h funcs.h input.h language.h misc.h timeout.h exitinfo.h ttyio.h term.h
 offline.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/bluewave.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h file.h filesub.h exitinfo.h timeout.h msgutil.h pop3.h offline.h whoson.h term.h ttyio.h openport.h transfer.h
@@ -133,7 +133,7 @@ userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h
 timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h
 logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
 zmrle.o: ../config.h ../lib/mbselib.h ttyio.h zmrle.h zmmisc.h
-zmmisc.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h zmrle.h zmmisc.h
+zmmisc.o: ../config.h ../lib/mbselib.h ttyio.h zmrle.h zmmisc.h
 zmsend.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h zmrle.h transfer.h
 zmrecv.o: ../config.h ../lib/mbselib.h ../lib/users.h ttyio.h transfer.h zmmisc.h zmrecv.h
 # End of generated dependencies

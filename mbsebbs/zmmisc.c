@@ -65,7 +65,6 @@ static void garbitch(void);
 
 #include "../config.h"
 #include "../lib/mbselib.h"
-#include "../lib/nodelist.h"
 #include "ttyio.h"
 #include "zmrle.h"
 #include "zmmisc.h"
@@ -75,32 +74,12 @@ static void garbitch(void);
    does timing in whole seconds.
 */
 static int Rxtimeout = 10;	/* Seconds to wait for something */
-int Zctlesc;
 
-/* Globals used by ZMODEM functions */
-int Rxframeind;		/* ZBIN ZBIN32, or ZHEX type of frame */
-int Rxtype;		/* Type of header received */
-int Rxhlen;		/* Length of header received */
-int Rxcount;		/* Count of data bytes received */
-char Rxhdr[ZMAXHLEN];	/* Received header */
-char Txhdr[ZMAXHLEN];	/* Transmitted header */
-long Rxpos;		/* Received file position */
-long Txpos;		/* Transmitted file position */
-int Txfcs32;		/* TRUE means send binary frames with 32 bit FCS */
-int Crc32t;		/* Controls 32 bit CRC being sent */
-			/* 1 == CRC32,  2 == CRC32 + RLE */
-int Crc32r;		/* Indicates/controls 32 bit CRC being received */
-			/* 0 == CRC16,  1 == CRC32,  2 == CRC32 + RLE */
-int Usevhdrs;		/* Use variable length headers */
-int Znulls;		/* Number of nulls to send at beginning of ZDATA hdr */
-char Attn[ZATTNLEN+1];	/* Attention string rx sends to tx on err */
-char *Altcan;		/* Alternate canit string */
-
+int Rxhlen;			/* Length of header received */
 char *txbuf=NULL;
-char *rxbuf=NULL;
+static int lastsent;		/* Last char we sent */
+static int Not8bit;		/* Seven bits seen on header */
 
-static int lastsent;	/* Last char we sent */
-static int Not8bit;	/* Seven bits seen on header */
 
 char *frametypes[] = {
 	(char *)"EMPTY",		/* -16 */
@@ -193,7 +172,8 @@ void zsbhdr(int len, int type, register char *shdr)
 	for (n = Znulls; --n >=0; )
 	    BUFFER_BYTE(0);
 
-    BUFFER_BYTE(ZPAD); BUFFER_BYTE(ZDLE);
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZDLE);
 
     switch (Crc32t=Txfcs32) {
 	case 2:	    zsbh32(len, shdr, type, Usevhdrs?ZVBINR32:ZBINR32);
@@ -235,7 +215,8 @@ void zsbh32(int len, register char *shdr, int type, int flavour)
     if (Usevhdrs) 
 	zsendline(len);
     zsendline(type);
-    crc = 0xFFFFFFFFL; crc = updcrc32(type, crc);
+    crc = 0xFFFFFFFFL; 
+    crc = updcrc32(type, crc);
 
     for (n=len; --n >= 0; ++shdr) {
 	crc = updcrc32((0377 & *shdr), crc);
@@ -258,7 +239,7 @@ void zshhdr(int len, int type, register char *shdr)
     register int	    n;
     register unsigned short crc;
 
-    Syslog('z', "zshhdr: %c %d %s %ld", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
+    Syslog('z', "zshhdr: %c %d %s %lx", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
 
     BUFFER_CLEAR();
 	
@@ -275,7 +256,8 @@ void zshhdr(int len, int type, register char *shdr)
 
     crc = updcrc16(type, 0);
     for (n=len; --n >= 0; ++shdr) {
-	zputhex(*shdr); crc = updcrc16((0377 & *shdr), crc);
+	zputhex(*shdr); 
+	crc = updcrc16((0377 & *shdr), crc);
     }
     crc = updcrc16(0,updcrc16(0,crc));
     zputhex(((int)(crc>>8))); zputhex(crc);
@@ -316,14 +298,16 @@ void zsdata(register char *buf, int length, int frameend)
 		    break;
 	default:    crc = 0;
 		    for (;--length >= 0; ++buf) {
-			zsendline(*buf); crc = updcrc16((0377 & *buf), crc);
+			zsendline(*buf); 
+			crc = updcrc16((0377 & *buf), crc);
 		    }
 		    BUFFER_BYTE(ZDLE); 
 		    BUFFER_BYTE(frameend);
 		    crc = updcrc16(frameend, crc);
 
 		    crc = updcrc16(0,updcrc16(0,crc));
-		    zsendline(((int)(crc>>8))); zsendline(crc);
+		    zsendline(((int)(crc>>8))); 
+		    zsendline(crc);
     }
     if (frameend == ZCRCW)
 	BUFFER_BYTE(XON);
@@ -353,7 +337,8 @@ void zsda32(register char *buf, int length, int frameend)
 
     crc = ~crc;
     for (c=4; --c >= 0;) {
-	zsendline((int)crc);  crc >>= 8;
+	zsendline((int)crc);  
+	crc >>= 8;
     }
 }
 
@@ -371,6 +356,8 @@ int zrdata(register char *buf, int length)
     register char *end;
     register int d;
 
+    Syslog('z', "zrdata: len=%d, Crc32r=%d", length, Crc32r);
+
     switch (Crc32r) {
 	case 1:
 		return zrdat32(buf, length);
@@ -378,7 +365,9 @@ int zrdata(register char *buf, int length)
 		return zrdatr32(buf, length);
     }
 
-    crc = Rxcount = 0;  end = buf + length;
+    crc = Rxcount = 0;  
+    end = buf + length;
+    
     while (buf <= end) {
 	if ((c = zdlread()) & ~0377) {
 crcfoo:
@@ -426,7 +415,10 @@ int zrdat32(register char *buf, int length)
     register char *end;
     register int d;
 
-    crc = 0xFFFFFFFFL;  Rxcount = 0;  end = buf + length;
+    crc = 0xFFFFFFFFL;  
+    Rxcount = 0;  
+    end = buf + length;
+    
     while (buf <= end) {
 	if ((c = zdlread()) & ~0377) {
 crcfoo:
@@ -493,161 +485,170 @@ void garbitch(void)
  */
 int zgethdr(char *shdr)
 {
-	register int c, n, cancount;
-
-	int Zrwindow = 1400;
-	int Baudrate = 9600;
-	n = Zrwindow + Baudrate;
-	Rxframeind = Rxtype = 0;
+    register int    c, n, cancount;
+    int		    Zrwindow = 1400;
+    int		    Baudrate = 9600;
+    
+    n = Zrwindow + Baudrate;
+    Rxframeind = Rxtype = 0;
+    Syslog('z', "zgethdr(%lx)", rclhdr(shdr));
 
 startover:
-	cancount = 5;
+    cancount = 5;
+
 again:
-	/*
-	 * Return immediate ERROR if ZCRCW sequence seen 
-	 */
-	if (((c = GETCHAR(Rxtimeout)) < 0) && (c != TIMEOUT))
-		goto fifi;
-	else switch(c) {
-	case 021: case 0221:
-		goto again;
+    /*
+     * Return immediate ERROR if ZCRCW sequence seen 
+     */
+    if (((c = GETCHAR(Rxtimeout)) < 0) && (c != TIMEOUT))
+	goto fifi;
+    else {
+//	Syslog('z', "Zmodem: Got %c %d", c, c);
+	switch(c) {
+	case 021: 
+	case 0221:	goto again;
 	case HANGUP:
-	case TIMEOUT:
-		goto fifi;
-	case CAN:
+	case TIMEOUT:	goto fifi;
+	case CAN:	
 gotcan:
-		if (--cancount <= 0) {
-			c = ZCAN; goto fifi;
-		}
-		switch (c = GETCHAR(Rxtimeout)) {
-		case TIMEOUT:
-			goto again;
-		case ZCRCW:
-			switch (GETCHAR(Rxtimeout)) {
-			case TIMEOUT:
-				c = TERROR; goto fifi;
-			case HANGUP:
-				goto fifi;
-			default:
-				goto agn2;
-			}
-		case HANGUP:
-			goto fifi;
-		default:
-			break;
-		case CAN:
+			Syslog('z', "zgethdr: got CAN");
 			if (--cancount <= 0) {
-				c = ZCAN; goto fifi;
+			    c = ZCAN; 
+			    goto fifi;
 			}
-			goto again;
-		}
-	/* **** FALL THRU TO **** */
+			switch (c = GETCHAR(Rxtimeout)) {
+			    case TIMEOUT:   goto again;
+			    case ZCRCW:	    switch (GETCHAR(Rxtimeout)) {
+						case TIMEOUT:	c = TERROR; 
+								goto fifi;
+						case HANGUP:	goto fifi;
+						default:	goto agn2;
+					    }
+			    case HANGUP:    goto fifi;
+			    default:	    break;
+			    case CAN:	    if (--cancount <= 0) {
+						c = ZCAN; 
+						goto fifi;
+					    }
+					    goto again;
+			}
+			/* **** FALL THRU TO **** */
 	default:
 agn2:
 #define GCOUNT (-4)
-		if ( --n == 0) {
-			c = GCOUNT; goto fifi;
-		}
-		goto startover;
-	case ZPAD|0200:		/* This is what we want. */
-		Not8bit = c;
-	case ZPAD:		/* This is what we want. */
-		break;
+			if ( --n == 0) {
+			    c = GCOUNT; 
+			    goto fifi;
+			}
+			goto startover;
+	case ZPAD|0200:	/* This is what we want. */
+			Not8bit = c;
+	case ZPAD:	/* This is what we want. */
+//			Syslog('z', "zgethdr: got ZPAD");
+			break;
 	}
-	cancount = 5;
+    }
+    cancount = 5;
+
 splat:
-	switch (c = noxrd7()) {
-	case ZPAD:
-		goto splat;
+    switch (c = noxrd7()) {
+	case ZPAD:	goto splat;
 	case HANGUP:
-	case TIMEOUT:
-		goto fifi;
-	default:
-		goto agn2;
-	case ZDLE:		/* This is what we want. */
-		break;
-	}
+	case TIMEOUT:	goto fifi;
+	default:	goto agn2;
+	case ZDLE:	/* This is what we want. */
+//			Syslog('z', "zgethdr: got ZDLE");
+			break;
+    }
 
 
-	Rxhlen = 4;		/* Set default length */
-	Rxframeind = c = noxrd7();
-	switch (c) {
-	case ZVBIN32:
-		if ((Rxhlen = c = zdlread()) < 0)
-			goto fifi;
-		if (c > ZMAXHLEN)
-			goto agn2;
-		Crc32r = 1;  c = zrbhd32(shdr); break;
-	case ZBIN32:
-		if (Usevhdrs)
-			goto agn2;
-		Crc32r = 1;  c = zrbhd32(shdr); break;
-	case ZVBINR32:
-		if ((Rxhlen = c = zdlread()) < 0)
-			goto fifi;
-		if (c > ZMAXHLEN)
-			goto agn2;
-		Crc32r = 2;  c = zrbhd32(shdr); break;
-	case ZBINR32:
-		if (Usevhdrs)
-			goto agn2;
-		Crc32r = 2;  c = zrbhd32(shdr); break;
+    Rxhlen = 4;		/* Set default length */
+    Rxframeind = c = noxrd7();
+    Syslog('z', "zgethdr: header type %d", c);
+    switch (c) {
+	case ZVBIN32:	if ((Rxhlen = c = zdlread()) < 0)
+			    goto fifi;
+			if (c > ZMAXHLEN)
+			    goto agn2;
+			Crc32r = 1;  
+			c = zrbhd32(shdr); 
+			break;
+	case ZBIN32:	if (Usevhdrs)
+			    goto agn2;
+			Crc32r = 1;  
+			c = zrbhd32(shdr); 
+			break;
+	case ZVBINR32:	if ((Rxhlen = c = zdlread()) < 0)
+			    goto fifi;
+			if (c > ZMAXHLEN)
+			    goto agn2;
+			Crc32r = 2;  
+			c = zrbhd32(shdr); 
+			break;
+	case ZBINR32:	if (Usevhdrs)
+			    goto agn2;
+			Crc32r = 2;  
+			c = zrbhd32(shdr); 
+			break;
 	case HANGUP:
-	case TIMEOUT:
-		goto fifi;
-	case ZVBIN:
-		if ((Rxhlen = c = zdlread()) < 0)
-			goto fifi;
-		if (c > ZMAXHLEN)
-			goto agn2;
-		Crc32r = 0;  c = zrbhdr(shdr); break;
-	case ZBIN:
-		if (Usevhdrs)
-			goto agn2;
-		Crc32r = 0;  c = zrbhdr(shdr); break;
-	case ZVHEX:
-		if ((Rxhlen = c = zgethex()) < 0)
-			goto fifi;
-		if (c > ZMAXHLEN)
-			goto agn2;
-		Crc32r = 0;  c = zrhhdr(shdr); break;
-	case ZHEX:
-		if (Usevhdrs)
-			goto agn2;
-		Crc32r = 0;  c = zrhhdr(shdr); break;
-	case CAN:
-		goto gotcan;
-	default:
-		goto agn2;
-	}
-	for (n = Rxhlen; ++n < ZMAXHLEN; )	/* Clear unused hdr bytes */
-		shdr[n] = 0;
-	Rxpos = shdr[ZP3] & 0377;
-	Rxpos = (Rxpos<<8) + (shdr[ZP2] & 0377);
-	Rxpos = (Rxpos<<8) + (shdr[ZP1] & 0377);
-	Rxpos = (Rxpos<<8) + (shdr[ZP0] & 0377);
+	case TIMEOUT:	goto fifi;
+	case ZVBIN:	if ((Rxhlen = c = zdlread()) < 0)
+			    goto fifi;
+			if (c > ZMAXHLEN)
+			    goto agn2;
+			Crc32r = 0;  
+			c = zrbhdr(shdr); 
+			break;
+	case ZBIN:	if (Usevhdrs)
+			    goto agn2;
+			Crc32r = 0;  
+			c = zrbhdr(shdr); 
+			break;
+	case ZVHEX:	if ((Rxhlen = c = zgethex()) < 0)
+			    goto fifi;
+			if (c > ZMAXHLEN)
+			    goto agn2;
+			Crc32r = 0;  
+			c = zrhhdr(shdr); 
+			break;
+	case ZHEX:	if (Usevhdrs)
+			    goto agn2;
+			Crc32r = 0;  
+			c = zrhhdr(shdr); 
+			break;
+	case CAN:	goto gotcan;
+	default:	goto agn2;
+    }
+
+    for (n = Rxhlen; ++n < ZMAXHLEN; )	/* Clear unused hdr bytes */
+	shdr[n] = 0;
+    Rxpos = shdr[ZP3] & 0377;
+    Rxpos = (Rxpos<<8) + (shdr[ZP2] & 0377);
+    Rxpos = (Rxpos<<8) + (shdr[ZP1] & 0377);
+    Rxpos = (Rxpos<<8) + (shdr[ZP0] & 0377);
 fifi:
-	switch (c) {
-	case GOTCAN:
-		c = ZCAN;
+    Syslog('z', "Zmodem: at fifi Got %d", c);
+    switch (c) {
+	case GOTCAN:	c = ZCAN;
 	/* **** FALL THRU TO **** */
 	case ZNAK:
 	case ZCAN:
 	case TERROR:
 	case TIMEOUT:
-	case HANGUP:
-		Syslog('+', "Zmodem: Got %s", frametypes[c+FTOFFSET]);
-	/* **** FALL THRU TO **** */
-	default:
-		if (c >= -FTOFFSET && c <= FRTYPES)
-			Syslog('z', "zgethdr: %c %d %s %ld", Rxframeind, Rxhlen, frametypes[c+FTOFFSET], Rxpos);
-		else
-			Syslog('z', "zgethdr: %c %d %ld", Rxframeind, c, Rxpos);
-	}
-	/* Use variable length headers if we got one */
-	if (c >= 0 && c <= FRTYPES && Rxframeind & 040)
-		Usevhdrs = 1;
-	return c;
+	case HANGUP:	Syslog('+', "Zmodem: Got %s", frametypes[c+FTOFFSET]);
+			/* **** FALL THRU TO **** */
+	default:	if (c >= -FTOFFSET && c <= FRTYPES)
+			    Syslog('z', "zgethdr: %c %d %s %lx", Rxframeind, Rxhlen, frametypes[c+FTOFFSET], Rxpos);
+			else
+			    Syslog('z', "zgethdr: %d %d %ld", Rxframeind, c, Rxpos);
+    }
+	
+    /* Use variable length headers if we got one */
+    if (c >= 0 && c <= FRTYPES && Rxframeind & 040) {
+	Usevhdrs = 1;
+	Syslog('z', "zgethdr: Usevhdrs");
+    }
+    return c;
 }
 
 
@@ -657,31 +658,31 @@ fifi:
  */
 int zrbhdr(register char *shdr)
 {
-	register int c, n;
-	register unsigned short crc;
+    register int c, n;
+    register unsigned short crc;
 
-	if ((c = zdlread()) & ~0377)
-		return c;
-	Rxtype = c;
-	crc = updcrc16(c, 0);
+    if ((c = zdlread()) & ~0377)
+	return c;
+    Rxtype = c;
+    crc = updcrc16(c, 0);
 
-	for (n=Rxhlen; --n >= 0; ++shdr) {
-		if ((c = zdlread()) & ~0377)
-			return c;
-		crc = updcrc16(c, crc);
-		*shdr = c;
-	}
+    for (n=Rxhlen; --n >= 0; ++shdr) {
 	if ((c = zdlread()) & ~0377)
-		return c;
+	    return c;
 	crc = updcrc16(c, crc);
-	if ((c = zdlread()) & ~0377)
-		return c;
-	crc = updcrc16(c, crc);
-	if (crc & 0xFFFF) {
-		Syslog('+', "Zmodem zrbhdr: Bad CRC");
-		return TERROR;
-	}
-	return Rxtype;
+	*shdr = c;
+    }
+    if ((c = zdlread()) & ~0377)
+	return c;
+    crc = updcrc16(c, crc);
+    if ((c = zdlread()) & ~0377)
+	return c;
+    crc = updcrc16(c, crc);
+    if (crc & 0xFFFF) {
+	Syslog('+', "Zmodem zrbhdr: Bad CRC");
+	return TERROR;
+    }
+    return Rxtype;
 }
 
 
@@ -691,30 +692,30 @@ int zrbhdr(register char *shdr)
  */
 int zrbhd32(register char *shdr)
 {
-	register int c, n;
-	register unsigned long crc;
+    register int c, n;
+    register unsigned long crc;
 
+    if ((c = zdlread()) & ~0377)
+	return c;
+    Rxtype = c;
+    crc = 0xFFFFFFFFL; crc = updcrc32(c, crc);
+
+    for (n=Rxhlen; --n >= 0; ++shdr) {
 	if ((c = zdlread()) & ~0377)
-		return c;
-	Rxtype = c;
-	crc = 0xFFFFFFFFL; crc = updcrc32(c, crc);
-
-	for (n=Rxhlen; --n >= 0; ++shdr) {
-		if ((c = zdlread()) & ~0377)
-			return c;
-		crc = updcrc32(c, crc);
-		*shdr = c;
-	}
-	for (n=4; --n >= 0;) {
-		if ((c = zdlread()) & ~0377)
-			return c;
-		crc = updcrc32(c, crc);
-	}
-	if (crc != 0xDEBB20E3) {
-		Syslog('+', "Zmodem zrbhd32: Bad CRC");
-		return TERROR;
-	}
-	return Rxtype;
+	    return c;
+	crc = updcrc32(c, crc);
+	*shdr = c;
+    }
+    for (n=4; --n >= 0;) {
+	if ((c = zdlread()) & ~0377)
+	    return c;
+	crc = updcrc32(c, crc);
+    }
+    if (crc != 0xDEBB20E3) {
+	Syslog('+', "Zmodem zrbhd32: Bad CRC");
+	return TERROR;
+    }
+    return Rxtype;
 }
 
 
@@ -724,45 +725,43 @@ int zrbhd32(register char *shdr)
  */
 int zrhhdr(char *shdr)
 {
-	register int c;
-	register unsigned short crc;
-	register int n;
+    register int c;
+    register unsigned short crc;
+    register int n;
 
-	if ((c = zgethex()) < 0)
-		return c;
-	Rxtype = c;
-	crc = updcrc16(c, 0);
+    if ((c = zgethex()) < 0)
+	return c;
+    Rxtype = c;
+    crc = updcrc16(c, 0);
 
-	for (n=Rxhlen; --n >= 0; ++shdr) {
-		if ((c = zgethex()) < 0)
-			return c;
-		crc = updcrc16(c, crc);
-		*shdr = c;
-	}
+    for (n=Rxhlen; --n >= 0; ++shdr) {
 	if ((c = zgethex()) < 0)
-		return c;
+	    return c;
 	crc = updcrc16(c, crc);
-	if ((c = zgethex()) < 0)
-		return c;
-	crc = updcrc16(c, crc);
-	if (crc & 0xFFFF) {
-		Syslog('+', "Zmodem zrhhdr: Bad CRC"); 
-		return TERROR;
-	}
-	switch (c = GETCHAR(Rxtimeout)) {
-	case 0215:
-		Not8bit = c;
-		/* **** FALL THRU TO **** */
-	case 015:
-	 	/* Throw away possible cr/lf */
-		switch (c = GETCHAR(Rxtimeout)) {
-		case 012:
-			Not8bit |= c;
-		}
-	}
-	if (c < 0)
-		return c;
-	return Rxtype;
+	*shdr = c;
+    }
+    if ((c = zgethex()) < 0)
+	return c;
+    crc = updcrc16(c, crc);
+    if ((c = zgethex()) < 0)
+	return c;
+    crc = updcrc16(c, crc);
+    if (crc & 0xFFFF) {
+	Syslog('+', "Zmodem zrhhdr: Bad CRC"); 
+	return TERROR;
+    }
+	
+    switch (c = GETCHAR(Rxtimeout)) {
+	case 0215:  Not8bit = c;
+		    /* **** FALL THRU TO **** */
+	case 015:   /* Throw away possible cr/lf */
+		    switch (c = GETCHAR(Rxtimeout)) {
+			case 012:   Not8bit |= c;
+		    }
+    }
+    if (c < 0)
+	return c;
+    return Rxtype;
 }
 
 
@@ -772,10 +771,10 @@ int zrhhdr(char *shdr)
  */
 void zputhex(register int c)
 {
-	static char	digits[]	= "0123456789abcdef";
+    static char	digits[]	= "0123456789abcdef";
 
-	BUFFER_BYTE(digits[(c&0xF0)>>4]);
-	BUFFER_BYTE(digits[(c)&0xF]);
+    BUFFER_BYTE(digits[(c&0xF0)>>4]);
+    BUFFER_BYTE(digits[(c)&0xF]);
 }
 
 
@@ -786,39 +785,35 @@ void zputhex(register int c)
  */
 void zsendline(int c)
 {
-	/* Quick check for non control characters */
-	if (c & 0140)
-		BUFFER_BYTE(lastsent = c);
-	else {
-		switch (c &= 0377) {
-		case ZDLE:
-			BUFFER_BYTE(ZDLE);
+    /* Quick check for non control characters */
+    if (c & 0140)
+	BUFFER_BYTE(lastsent = c);
+    else {
+	switch (c &= 0377) {
+	    case ZDLE:	BUFFER_BYTE(ZDLE);
 			BUFFER_BYTE (lastsent = (c ^= 0100));
 			break;
-		case 015:
-		case 0215:
-			if (!Zctlesc && (lastsent & 0177) != '@')
-				goto sendit;
-		/* **** FALL THRU TO **** */
-		case 020:
-		case 021:
-		case 023:
-		case 0220:
-		case 0221:
-		case 0223:
-			BUFFER_BYTE(ZDLE);
+	    case 015:
+	    case 0215:	if (!Zctlesc && (lastsent & 0177) != '@')
+			    goto sendit;
+			/* **** FALL THRU TO **** */
+	    case 020:
+	    case 021:
+	    case 023:
+	    case 0220:
+	    case 0221:
+	    case 0223:	BUFFER_BYTE(ZDLE);
 			c ^= 0100;
-	sendit:
+sendit:
 			BUFFER_BYTE(lastsent = c);
 			break;
-		default:
-			if (Zctlesc && ! (c & 0140)) {
-				BUFFER_BYTE(ZDLE);
-				c ^= 0100;
+	    default:	if (Zctlesc && ! (c & 0140)) {
+			    BUFFER_BYTE(ZDLE);
+			    c ^= 0100;
 			}
 			BUFFER_BYTE(lastsent = c);
-		}
 	}
+    }
 }
 
 
@@ -826,34 +821,34 @@ void zsendline(int c)
 /* Decode two lower case hex digits into an 8 bit byte value */
 int zgethex(void)
 {
-	register int c;
+    register int c;
 
-	c = zgeth1();
-	return c;
+    c = zgeth1();
+    return c;
 }
 
 
 
 int zgeth1(void)
 {
-	register int c, n;
+    register int c, n;
 
-	if ((c = noxrd7()) < 0)
-		return c;
-	n = c - '0';
-	if (n > 9)
-		n -= ('a' - ':');
-	if (n & ~0xF)
-		return TERROR;
-	if ((c = noxrd7()) < 0)
-		return c;
-	c -= '0';
-	if (c > 9)
-		c -= ('a' - ':');
-	if (c & ~0xF)
-		return TERROR;
-	c += (n<<4);
+    if ((c = noxrd7()) < 0)
 	return c;
+    n = c - '0';
+    if (n > 9)
+	n -= ('a' - ':');
+    if (n & ~0xF)
+	return TERROR;
+    if ((c = noxrd7()) < 0)
+	return c;
+    c -= '0';
+    if (c > 9)
+	c -= ('a' - ':');
+    if (c & ~0xF)
+	return TERROR;
+    c += (n<<4);
+    return c;
 }
 
 
@@ -864,62 +859,57 @@ int zgeth1(void)
  */
 int zdlread(void)
 {
-	register int c;
+    register int c;
 
 again:
-	/* Quick check for non control characters */
-	if ((c = GETCHAR(Rxtimeout)) & 0140)
-		return c;
-	switch (c) {
-	case ZDLE:
-		break;
+    /* Quick check for non control characters */
+    if ((c = GETCHAR(Rxtimeout)) & 0140)
+	return c;
+
+    switch (c) {
+	case ZDLE:  break;
 	case 023:
 	case 0223:
 	case 021:
-	case 0221:
-		goto again;
-	default:
-		if (Zctlesc && !(c & 0140)) {
+	case 0221:  goto again;
+	default:    if (Zctlesc && !(c & 0140)) {
 			goto again;
-		}
-		return c;
-	}
+		    }
+		    return c;
+    }
+
 again2:
-	if ((c = GETCHAR(Rxtimeout)) < 0)
-		return c;
-	if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
-		return c;
-	if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
-		return c;
-	if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
-		return c;
-	switch (c) {
-	case CAN:
-		return GOTCAN;
+    if ((c = GETCHAR(Rxtimeout)) < 0)
+	return c;
+    if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
+	return c;
+    if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
+	return c;
+    if (c == CAN && (c = GETCHAR(Rxtimeout)) < 0)
+	return c;
+	
+    switch (c) {
+	case CAN:   return GOTCAN;
 	case ZCRCE:
 	case ZCRCG:
 	case ZCRCQ:
-	case ZCRCW:
-		return (c | GOTOR);
-	case ZRUB0:
-		return 0177;
-	case ZRUB1:
-		return 0377;
+	case ZCRCW: return (c | GOTOR);
+	case ZRUB0: return 0177;
+	case ZRUB1: return 0377;
 	case 023:
 	case 0223:
 	case 021:
-	case 0221:
-		goto again2;
-	default:
-		if (Zctlesc && ! (c & 0140)) {
+	case 0221:  goto again2;
+	default:    if (Zctlesc && ! (c & 0140)) {
 			goto again2;
-		}
-		if ((c & 0140) ==  0100)
+		    }
+		    if ((c & 0140) ==  0100)
 			return (c ^ 0100);
-		break;
-	}
-	Syslog('+', "Zmodem: Bad escape sequence 0x%x", c);
-	return TERROR;
+		    break;
+    }
+	
+    Syslog('+', "Zmodem: Bad escape sequence 0x%x", c);
+    return TERROR;
 }
 
 
@@ -930,24 +920,22 @@ again2:
  */
 int noxrd7(void)
 {
-	register int c;
+    register int c;
 
-	for (;;) {
-		if ((c = GETCHAR(Rxtimeout)) < 0)
-			return c;
-		switch (c &= 0177) {
-		case XON:
-		case XOFF:
-			continue;
-		default:
-			if (Zctlesc && !(c & 0140))
-				continue;
-		case '\r':
-		case '\n':
-		case ZDLE:
-			return c;
-		}
+    for (;;) {
+	if ((c = GETCHAR(Rxtimeout)) < 0)
+	    return c;
+		
+	switch (c &= 0177) {
+	    case XON:
+	    case XOFF:	continue;
+	    default:	if (Zctlesc && !(c & 0140))
+			    continue;
+	    case '\r':
+	    case '\n':
+	    case ZDLE:	return c;
 	}
+    }
 }
 
 
@@ -957,10 +945,10 @@ int noxrd7(void)
  */
 void stohdr(long pos)
 {
-	Txhdr[ZP0] = pos;
-	Txhdr[ZP1] = pos>>8;
-	Txhdr[ZP2] = pos>>16;
-	Txhdr[ZP3] = pos>>24;
+    Txhdr[ZP0] = pos;
+    Txhdr[ZP1] = pos>>8;
+    Txhdr[ZP2] = pos>>16;
+    Txhdr[ZP3] = pos>>24;
 }
 
 
@@ -970,13 +958,13 @@ void stohdr(long pos)
  */
 long rclhdr(register char *shdr)
 {
-	register long l;
+    register long l;
 
-	l = (shdr[ZP3] & 0377);
-	l = (l << 8) | (shdr[ZP2] & 0377);
-	l = (l << 8) | (shdr[ZP1] & 0377);
-	l = (l << 8) | (shdr[ZP0] & 0377);
-	return l;
+    l = (shdr[ZP3] & 0377);
+    l = (l << 8) | (shdr[ZP2] & 0377);
+    l = (l << 8) | (shdr[ZP1] & 0377);
+    l = (l << 8) | (shdr[ZP0] & 0377);
+    return l;
 }
 
 /* End of zmmisc.c */

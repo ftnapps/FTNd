@@ -40,6 +40,7 @@
 #include "whoson.h"
 #include "term.h"
 #include "ttyio.h"
+#include "timeout.h"
 
 
 int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
@@ -278,6 +279,7 @@ void Chat(char *username, char *channel)
 	 */
 	ch = testkey(exitinfo.iScreenLen -1, curpos + 2);
 	if (isprint(ch)) {
+	    alarm_on();
 	    if (curpos < 77) {
 		PUTCHAR(ch);
 		sbuf[curpos] = ch;
@@ -286,6 +288,7 @@ void Chat(char *username, char *channel)
 		PUTCHAR(7);
 	    }
 	} else if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
+	    alarm_on();
 	    if (curpos) {
 		curpos--;
 		sbuf[curpos] = '\0';
@@ -294,6 +297,7 @@ void Chat(char *username, char *channel)
 		PUTCHAR(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
+	    alarm_on();
 	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
 	    Syslog('c', "> %s", buf);
 	    if (socket_send(buf) == 0) {

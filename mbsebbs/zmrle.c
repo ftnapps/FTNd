@@ -44,6 +44,9 @@
 #include "zmmisc.h"
 
 
+extern char *Zendnames[];
+
+
 /*
  * Send data subpacket RLE encoded with 32 bit FCS
  */
@@ -52,11 +55,15 @@ void zsdar32(char *buf, int length, int frameend)
     register int	    c, l, n;
     register unsigned long  crc;
 
-    crc = 0xFFFFFFFFL;  l = *buf++ & 0377;
+    crc = 0xFFFFFFFFL;  
+    l = *buf++ & 0377;
+    
     if (length == 1) {
-	zsendline(l); crc = updcrc32(l, crc);
+	zsendline(l); 
+	crc = updcrc32(l, crc);
 	if (l == ZRESC) {
-	    zsendline(1); crc = updcrc32(1, crc);
+	    zsendline(1); 
+	    crc = updcrc32(1, crc);
 	}
     } else {
 	for (n = 0; --length >= 0; ++buf) {
@@ -67,35 +74,46 @@ void zsdar32(char *buf, int length, int frameend)
 		case 0:	    zsendline(l);
 			    crc = updcrc32(l, crc);
 			    if (l == ZRESC) {
-				zsendline(0100); crc = updcrc32(0100, crc);
+				zsendline(0100); 
+				crc = updcrc32(0100, crc);
 			    }
 			    l = c; break;
 		case 1:	    if (l != ZRESC) {
-				zsendline(l); zsendline(l);
+				zsendline(l); 
+				zsendline(l);
 				crc = updcrc32(l, crc);
 				crc = updcrc32(l, crc);
-				n = 0; l = c; break;
+				n = 0; 
+				l = c; 
+				break;
 			    }
 			    /* **** FALL THRU TO **** */
 		default:    zsendline(ZRESC); crc = updcrc32(ZRESC, crc);
 			    if (l == 040 && n < 34) {
 				n += 036;
-				zsendline(n); crc = updcrc32(n, crc);
+				zsendline(n); 
+				crc = updcrc32(n, crc);
 			    } else {
 				n += 0101;
-				zsendline(n); crc = updcrc32(n, crc);
-				zsendline(l); crc = updcrc32(l, crc);
+				zsendline(n); 
+				crc = updcrc32(n, crc);
+				zsendline(l); 
+				crc = updcrc32(l, crc);
 			    }
-			    n = 0; l = c; break;
+			    n = 0; 
+			    l = c; 
+			    break;
 	    }
 	}
     }
-    PUTCHAR(ZDLE); PUTCHAR(frameend);
+    PUTCHAR(ZDLE); 
+    PUTCHAR(frameend);
     crc = updcrc32(frameend, crc);
 
     crc = ~crc;
     for (length=4; --length >= 0;) {
-	zsendline((int)crc);  crc >>= 8;
+	zsendline((int)crc);  
+	crc >>= 8;
     }
 }
 
@@ -110,7 +128,9 @@ int zrdatr32(register char *buf, int length)
     register char	    *end;
     register int	    d;
 
-    crc = 0xFFFFFFFFL;  Rxcount = 0;  end = buf + length;
+    crc = 0xFFFFFFFFL;  
+    Rxcount = 0;  
+    end = buf + length;
     d = 0;	/* Use for RLE decoder state */
     while (buf <= end) {
 	if ((c = zdlread()) & ~0377) {
@@ -119,7 +139,8 @@ crcfoo:
 		case GOTCRCE:
 		case GOTCRCG:
 		case GOTCRCQ:
-		case GOTCRCW:	d = c;  c &= 0377;
+		case GOTCRCW:	d = c;  
+				c &= 0377;
 				crc = updcrc32(c, crc);
 				if ((c = zdlread()) & ~0377)
 				    goto crcfoo;
@@ -153,17 +174,23 @@ crcfoo:
 	crc = updcrc32(c, crc);
 	switch (d) {
 	    case 0:	if (c == ZRESC) {
-			    d = -1;  continue;
+			    d = -1;  
+			    continue;
 			}
-			*buf++ = c;  continue;
+			*buf++ = c;  
+			continue;
 	    case -1:	if (c >= 040 && c < 0100) {
-			    d = c - 035; c = 040;  goto spaces;
+			    d = c - 035; 
+			    c = 040;  
+			    goto spaces;
 			}
 			if (c == 0100) {
 			    d = 0;
-			    *buf++ = ZRESC;  continue;
+			    *buf++ = ZRESC;  
+			    continue;
 			}
-			d = c;  continue;
+			d = c;  
+			continue;
 	    default:	d -= 0100;
 			if (d < 1)
 			    goto badpkt;
@@ -172,7 +199,8 @@ spaces:
 			    goto badpkt;
 			while ( --d >= 0)
 			    *buf++ = c;
-			d = 0;  continue;
+			d = 0;  
+			continue;
 	}
     }
 

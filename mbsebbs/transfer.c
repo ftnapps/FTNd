@@ -43,6 +43,7 @@
 #include "openport.h"
 #include "timeout.h"
 #include "zmsend.h"
+#include "zmrecv.h"
 
 
 /*
@@ -422,6 +423,51 @@ int upload(up_list **upload_list)
     sleep(2);
 
     if (uProtInternal) {
+	if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+	    rc = zmrcvfiles();
+	    Syslog('b', "Begin dir processing");
+	    if ((dirp = opendir(".")) == NULL) {
+	        WriteError("$Upload: can't open ./upl");
+	        Home();
+	        rc = 1;
+	    } else {
+	        while ((dp = readdir(dirp)) != NULL) {
+		    if (*(dp->d_name) != '.') {
+			if (rc == 0) {
+			    stat(dp->d_name, &statfile);
+			    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+			    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, dp->d_name);
+			    chmod(temp, 0660);
+
+			    /*
+			     * Add uploaded file to the list
+			     */
+			    tmp = (up_list *)malloc(sizeof(up_list));
+			    tmp->next = NULL;
+			    tmp->filename = xstrcpy(temp);
+			    tmp->size = Size;
+			    if (*upload_list == NULL) {
+				*upload_list = tmp;
+			    } else {
+				for (ta = *upload_list; ta; ta = ta->next) {
+				    if (ta->next == NULL) {
+					ta->next = (up_list *)tmp;
+					break;
+				    }
+				}
+			    }
+			} else {
+			    Syslog('+', "Remove failed %s result %d", dp->d_name, unlink(dp->d_name));
+			}
+		    }
+		}
+		closedir(dirp);
+	    }
+	} else {
+	    Syslog('!', "Internal protocol %s not supported", sProtName);
+	    free(temp);
+	    return 1;
+	}
     } else {
 	/*
 	 * External protocol
@@ -487,6 +533,7 @@ int upload(up_list **upload_list)
 	}
     }
     free(temp);
+    Syslog('b', "Done, return rc=%d", rc);
 
     return rc;
 }

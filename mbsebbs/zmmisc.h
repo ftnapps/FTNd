@@ -137,31 +137,24 @@
 /* Parameters for ZCOMMAND frame ZF0 (otherwise 0) */
 #define ZCACK1  1       /* Acknowledge, then do command */
 
-long rclhdr(register char *);
 
 /* Globals used by ZMODEM functions */
-extern int  Rxframeind;         /* ZBIN ZBIN32, or ZHEX type of frame */
-extern int  Rxtype;             /* Type of header received */
-extern int  Rxcount;            /* Count of data bytes received */
-extern int  long Rxpos;         /* Received file position */
-extern int  long Txpos;         /* Transmitted file position */
-extern int  Txfcs32;            /* TURE means send binary frames with 32 bit FCS */
-extern int  Crc32t;             /* Display flag indicating 32 bit CRC being sent */
-extern int  Crc32r;             /* Display flag indicating 32 bit CRC being received */
-extern int  Crc32;              /* Display flag indicating 32 bit CRC being received */
-extern int  Znulls;             /* Number of nulls to send at beginning of ZDATA hdr */
-extern char Rxhdr[];
-extern char Txhdr[];
-extern char Attn[ZATTNLEN+1];   /* Attention string rx sends to tx on err */
-extern char *Altcan;            /* Alternate canit string */
-extern char *Zendnames[];
-extern char *txbuf;
-extern char *rxbuf;
-
-char Zsendmask[33];             /* Additional control characters to mask */
-
-extern int  Zctlesc;
-extern char *frametypes[];
+int  Rxframeind;        /* ZBIN ZBIN32, or ZHEX type of frame */
+int  Rxtype;            /* Type of header received */
+int  Rxcount;           /* Count of data bytes received */
+int  long Rxpos;        /* Received file position */
+int  long Txpos;        /* Transmitted file position */
+int  Txfcs32;           /* TURE means send binary frames with 32 bit FCS */
+int  Crc32t;            /* Display flag indicating 32 bit CRC being sent */
+int  Crc32r;            /* Display flag indicating 32 bit CRC being received */
+int  Znulls;            /* Number of nulls to send at beginning of ZDATA hdr */
+char Rxhdr[ZMAXHLEN];	/* Received header */
+char Txhdr[ZMAXHLEN];	/* Transmitted header */
+char Attn[ZATTNLEN+1];  /* Attention string rx sends to tx on err */
+char *Altcan;           /* Alternate canit string */
+char Zsendmask[33];     /* Additional control characters to mask */
+int  Zctlesc;
+int  Usevhdrs;          /* Use variable length headers */
 
 
 void	get_frame_buffer(void);

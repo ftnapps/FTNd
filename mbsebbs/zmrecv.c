@@ -40,7 +40,6 @@
 static FILE *fout = NULL;
 char	    *curfile = NULL;
 
-static int Usevhdrs;
 static off_t rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
@@ -52,13 +51,8 @@ struct timezone tz;
 static long Bytesleft;		/* number of bytes of incoming file left */
 static long Modtime;		/* Unix style mod time for incoming file */
 static int Filemode;		/* Unix style mode for incoming file */
-
-static int Thisbinary;		/* current file is to be received in bin mode */
-char Lzconv;			/* Local ZMODEM file conversion request */
-char Lzmanag;			/* Local file management request */
-
-static char *secbuf=0;
-
+static int Thisbinary = TRUE;	/* current file is to be received in bin mode */
+static char *secbuf=0;		/* "sector" buffer */
 static int tryzhdrtype;
 static char zconv;		/* ZMODEM file conversion request */
 static char zmanag;		/* ZMODEM file management request */
@@ -75,45 +69,44 @@ static int ackbibi(void);
 static long getfree(void);
 
 
-void get_frame_buffer(void);
-void free_frame_buffer(void);
-
 extern unsigned long	rcvdbytes;
 
 
 
 int zmrcvfiles(void)
 {
-	int rc;
+    int rc;
 
-	Syslog('+', "Zmodem: start Zmodem receive");
+    Syslog('+', "Zmodem: start Zmodem receive");
 
-	get_frame_buffer();
+    get_frame_buffer();
 
-	if (secbuf == NULL) 
-		secbuf = malloc(MAXBLOCK+1);
-	tryzhdrtype = ZRINIT;
-	if ((rc = tryz()) < 0) {
-		Syslog('+', "Zmodem: could not initiate receive, rc=%d",rc);
-	} else
-		switch (rc) {
-			case ZCOMPL:	rc = 0; break;
-			case ZFILE:	rc = rzfiles(); break;
-		}
-
-	if (fout) {
-		if (closeit(0)) {
-			WriteError("Zmodem: Error closing file");
-		}
+    if (secbuf == NULL) 
+	secbuf = malloc(MAXBLOCK+1);
+    tryzhdrtype = ZRINIT;
+    if ((rc = tryz()) < 0) {
+	Syslog('+', "Zmodem: could not initiate receive, rc=%d",rc);
+    } else
+	switch (rc) {
+	    case ZCOMPL:    rc = 0; 
+			    break;
+	    case ZFILE:	    rc = rzfiles(); 
+			    break;
 	}
 
-	if (secbuf)
-		free(secbuf);
-	secbuf = NULL;
-	free_frame_buffer();
+    if (fout) {
+	if (closeit(0)) {
+	    WriteError("Zmodem: Error closing file");
+	}
+    }
 
-	Syslog('z', "Zmodem: receive rc=%d",rc);
-	return abs(rc);
+    if (secbuf)
+	free(secbuf);
+    secbuf = NULL;
+    free_frame_buffer();
+
+    Syslog('z', "Zmodem: receive rc=%d",rc);
+    return abs(rc);
 }
 
 
@@ -126,87 +119,96 @@ int zmrcvfiles(void)
  */
 int tryz(void)
 {
-	int	c, n;
-	int	cmdzack1flg;
+    int	    c, n;
+    int	    cmdzack1flg;
 
-	for (n = 15; --n >= 0; ) {
-		/*
-		 * Set buffer length (0) and capability flags
-		 */
-		Syslog('z', "tryz attempt %d", n);
-		stohdr(0L);
-		Txhdr[ZF0] = CANFC32|CANFDX|CANOVIO;
-		if (Zctlesc)
-			Txhdr[ZF0] |= TESCCTL;
-		Txhdr[ZF0] |= CANRLE;
-		Txhdr[ZF1] = CANVHDR;
-		zshhdr(4, tryzhdrtype, Txhdr);
-		if (tryzhdrtype == ZSKIP)       /* Don't skip too far */
-			tryzhdrtype = ZRINIT;   /* CAF 8-21-87 */
+    for (n = 15; --n >= 0; ) {
+	/*
+	 * Set buffer length (0) and capability flags
+	 */
+	Syslog('z', "tryz attempt %d", n);
+	stohdr(0L);
+//	Txhdr[ZF0] = CANFC32|CANFDX|CANOVIO;
+	Txhdr[ZF0] = CANFC32;
+	if (Zctlesc)
+	    Txhdr[ZF0] |= TESCCTL;
+//	Txhdr[ZF0] |= CANRLE;
+	Txhdr[ZF1] = CANVHDR;
+	zshhdr(4, tryzhdrtype, Txhdr);
+	if (tryzhdrtype == ZSKIP)       /* Don't skip too far */
+	    tryzhdrtype = ZRINIT;	/* CAF 8-21-87 */
 again:
-		switch (zgethdr(Rxhdr)) {
-		case ZRQINIT:
-			if (Rxhdr[ZF3] & 0x80)
+	switch (zgethdr(Rxhdr)) {
+	    case ZRQINIT:   if (Rxhdr[ZF3] & 0x80)
 				Usevhdrs = TRUE; /* we can var header */
-			continue;
-		case ZEOF:
-			continue;
-		case TIMEOUT:
-			Syslog('+', "Zmodem: tryz() timeout attempt %d", n);
-			continue;
-		case ZFILE:
-			zconv = Rxhdr[ZF0];
-			zmanag = Rxhdr[ZF1];
-			ztrans = Rxhdr[ZF2];
-			if (Rxhdr[ZF3] & ZCANVHDR)
+			    continue;
+	    case ZEOF:	    continue;
+	    case TIMEOUT:   Syslog('+', "Zmodem: tryz() timeout attempt %d", n);
+			    continue;
+	    case ZFILE:	    zconv = Rxhdr[ZF0];
+			    if (!zconv) {
+				Syslog('z', "*** !zconv %d", zconv);
+			    }
+			    zmanag = Rxhdr[ZF1];
+			    ztrans = Rxhdr[ZF2];
+			    if (Rxhdr[ZF3] & ZCANVHDR)
 				Usevhdrs = TRUE;
-			tryzhdrtype = ZRINIT;
-			c = zrdata(secbuf, MAXBLOCK);
-			if (c == GOTCRCW)
+			    tryzhdrtype = ZRINIT;
+			    c = zrdata(secbuf, MAXBLOCK);
+			    if (c == GOTCRCW) {
+				Syslog('z', "tryz return ZFILE");
 				return ZFILE;
-			zshhdr(4,ZNAK, Txhdr);
-			goto again;
-		case ZSINIT:
-			Zctlesc = TESCCTL & Rxhdr[ZF0];
-			if (zrdata(Attn, ZATTNLEN) == GOTCRCW) {
+			    }
+			    zshhdr(4,ZNAK, Txhdr);
+			    goto again;
+	    case ZSINIT:    /* this once was:
+			     * Zctlesc = TESCCTL & Rxhdr[ZF0];
+			     * trouble: if rz get --escape flag:
+			     * - it sends TESCCTL to sz, 
+			     *   get a ZSINIT _without_ TESCCTL (yeah - sender didn't know), 
+			     *   overwrites Zctlesc flag ...
+			     * - sender receives TESCCTL and uses "|=..."
+			     * so: sz escapes, but rz doesn't unescape ... not good.
+			     */
+			    Zctlesc |= TESCCTL & Rxhdr[ZF0];
+			    if (zrdata(Attn, ZATTNLEN) == GOTCRCW) {
 				stohdr(1L);
 				zshhdr(4,ZACK, Txhdr);
 				goto again;
-			}
-			zshhdr(4,ZNAK, Txhdr);
-			goto again;
-		case ZFREECNT:
-			stohdr(getfree());
-			zshhdr(4,ZACK, Txhdr);
-			goto again;
-		case ZCOMMAND:
-			cmdzack1flg = Rxhdr[ZF0];
-			if (zrdata(secbuf, MAXBLOCK) == GOTCRCW) {
+			    }
+			    zshhdr(4,ZNAK, Txhdr);
+			    goto again;
+	    case ZFREECNT:  stohdr(getfree());
+			    zshhdr(4,ZACK, Txhdr);
+			    goto again;
+	    case ZCOMMAND:  cmdzack1flg = Rxhdr[ZF0];
+			    if (zrdata(secbuf, MAXBLOCK) == GOTCRCW) {
 				if (cmdzack1flg & ZCACK1)
-					stohdr(0L);
+				    stohdr(0L);
 				else
-					Syslog('+', "Zmodem: request for command \"%s\" ignored", printable(secbuf,-32));
+				    Syslog('+', "Zmodem: request for command \"%s\" ignored", printable(secbuf,-32));
 				stohdr(0L);
 				do {
-					zshhdr(4,ZCOMPL, Txhdr);
+				    zshhdr(4,ZCOMPL, Txhdr);
 				} while (++errors<20 && zgethdr(Rxhdr) != ZFIN);
 				return ackbibi();
-			}
-			zshhdr(4,ZNAK, Txhdr); goto again;
-		case ZCOMPL:
-			goto again;
-		case ZRINIT:
-		case ZFIN: /* do not beleive in first ZFIN */
-			ackbibi(); return ZCOMPL;
-		case TERROR:
-		case HANGUP:
-		case ZCAN:
-			return TERROR;
-		default:
-			continue;
-		}
+			    }
+			    zshhdr(4,ZNAK, Txhdr); 
+			    goto again;
+	    case ZCOMPL:    goto again;
+	    case ZRINIT:    Syslog('z', "tryz: got ZRINIT");
+			    return TERROR;
+	    case ZFIN:	    /* do not beleive in first ZFIN */
+			    ackbibi(); 
+			    return ZCOMPL;
+	    case TERROR:
+	    case HANGUP:
+	    case ZCAN:	    return TERROR;
+	    default:	    continue;
 	}
-	return 0;
+    }
+    Syslog('z', "tryz return 0");
+    return 0;
 }
 
 
@@ -216,31 +218,25 @@ again:
  */
 int rzfiles(void)
 {
-	int c;
+    int c;
 
-	Syslog('z', "rzfiles");
+    Syslog('z', "rzfiles");
 
-	for (;;) {
-		switch (c = rzfile()) {
-			case ZEOF:
-			case ZSKIP:
-			case ZFERR:
-				switch (tryz()) {
-					case ZCOMPL:
-						return OK;
-					default:
-						return TERROR;
-					case ZFILE:
-						break;
-					}
-					continue;
-			default:
-				return c;
-			case TERROR:
-				return TERROR;
-		}
+    for (;;) {
+	switch (c = rzfile()) {
+	    case ZEOF:
+	    case ZSKIP:
+	    case ZFERR:	    switch (tryz()) {
+				case ZCOMPL:	return OK;
+				default:	return TERROR;
+				case ZFILE:	break;
+			    }
+			    continue;
+	    default:	    return c;
+	    case TERROR:    return TERROR;
 	}
-	/* NOTREACHED */
+    }
+    /* NOTREACHED */
 }
 
 
@@ -251,50 +247,45 @@ int rzfiles(void)
  */
 int rzfile(void)
 {
-	int	c, n;
+    int	c, n;
 
-	Syslog('z', "rzfile");
+    Syslog('z', "rzfile");
 
-	Eofseen=FALSE;
-	rxbytes = 0l;
-	if ((c = procheader(secbuf))) {
-		return (tryzhdrtype = c);
-	}
+    Eofseen=FALSE;
+    rxbytes = 0l;
+    if ((c = procheader(secbuf))) {
+	return (tryzhdrtype = c);
+    }
 
-	n = 20;
+    n = 20;
 
-	for (;;) {
-		stohdr(rxbytes);
-		zshhdr(4,ZRPOS, Txhdr);
+    for (;;) {
+	Syslog('z', "rxbytes %ld", rxbytes);
+	stohdr(rxbytes);
+	zshhdr(4,ZRPOS, Txhdr);
 nxthdr:
-		switch (c = zgethdr(Rxhdr)) {
-		default:
-			Syslog('z', "rzfile: Wrong header %d", c);
-			if ( --n < 0) {
+	switch (c = zgethdr(Rxhdr)) {
+	    default:	    Syslog('z', "rzfile: Wrong header %d", c);
+			    if ( --n < 0) {
 				Syslog('+', "Zmodem: wrong header %d", c);
 				return TERROR;
-			}
-			continue;
-		case ZCAN:
-			Syslog('+', "Zmodem: sender CANcelled");
-			return TERROR;
-		case ZNAK:
-			if ( --n < 0) {
+			    }
+			    continue;
+	    case ZCAN:	    Syslog('+', "Zmodem: sender CANcelled");
+			    return TERROR;
+	    case ZNAK:	    if ( --n < 0) {
 				Syslog('+', "Zmodem: Got ZNAK");
 				return TERROR;
-			}
-			continue;
-		case TIMEOUT:
-			if ( --n < 0) {
+			    }
+			    continue;
+	    case TIMEOUT:   if ( --n < 0) {
 				Syslog('+', "Zmodem: TIMEOUT");
 				return TERROR;
-			}
-			continue;
-		case ZFILE:
-			zrdata(secbuf, MAXBLOCK);
-			continue;
-		case ZEOF:
-			if (rclhdr(Rxhdr) != rxbytes) {
+			    }
+			    continue;
+	    case ZFILE:	    zrdata(secbuf, MAXBLOCK);
+			    continue;
+	    case ZEOF:	    if (rclhdr(Rxhdr) != rxbytes) {
 				/*
 				 * Ignore eof if it's at wrong place - force
 				 *  a timeout because the eof might have gone
@@ -302,90 +293,81 @@ nxthdr:
 				 */
 				errors = 0;
 				goto nxthdr;
-			}
-			if (closeit(1)) {
+			    }
+			    if (closeit(1)) {
 				tryzhdrtype = ZFERR;
 				Syslog('+', "Zmodem: error closing file");
 				return TERROR;
-			}
-			fout=NULL;
-			Syslog('z', "rzfile: normal EOF");
-			return c;
-		case HANGUP:
-			Syslog('+', "Zmodem: Lost Carrier");
-			return TERROR;
-		case TERROR:	/* Too much garbage in header search error */
-			if (--n < 0) {
+			    }
+			    fout = NULL;
+			    Syslog('z', "rzfile: normal EOF");
+			    return c;
+	    case HANGUP:    Syslog('+', "Zmodem: Lost Carrier");
+			    return TERROR;
+	    case TERROR:    /* Too much garbage in header search error */
+			    if (--n < 0) {
 				Syslog('+', "Zmodem: Too many errors");
 				return TERROR;
-			}
-			zmputs(Attn);
-			continue;
-		case ZSKIP:
-			Modtime = 1;
-			closeit(1);
-			Syslog('+', "Zmodem: Sender SKIPPED file");
-			return c;
-		case ZDATA:
-			if (rclhdr(Rxhdr) != rxbytes) {
+			    }
+			    zmputs(Attn);
+			    continue;
+	    case ZSKIP:	    Modtime = 1;
+			    closeit(1);
+			    Syslog('+', "Zmodem: Sender SKIPPED file");
+			    return c;
+	    case ZDATA:	    if (rclhdr(Rxhdr) != rxbytes) {
 				if ( --n < 0) {
-					Syslog('+', "Zmodem: Data has bad address");
-					return TERROR;
+				    Syslog('+', "Zmodem: Data has bad address");
+				    return TERROR;
 				}
-				zmputs(Attn);  continue;
-			}
+				zmputs(Attn);  
+				continue;
+			    }
 moredata:
-				Syslog('z', "%7ld ZMODEM%s    ",
-				  rxbytes, Crc32r?" CRC-32":"");
-			Nopper();
-			switch (c = zrdata(secbuf, MAXBLOCK)) {
-			case ZCAN:
-				Syslog('+', "Zmodem: sender CANcelled");
-				return TERROR;
-			case HANGUP:
-				Syslog('+', "Zmodem: Lost Carrier");
-				return TERROR;
-			case TERROR:	/* CRC error */
-				if (--n < 0) {
-					Syslog('+', "Zmodem: Too many errors");
-					return TERROR;
-				}
-				zmputs(Attn);
-				continue;
-			case TIMEOUT:
-				if ( --n < 0) {
-					Syslog('+', "Zmodem: TIMEOUT");
-					return TERROR;
-				}
-				continue;
-			case GOTCRCW:
-				n = 20;
-				putsec(secbuf, Rxcount);
-				rxbytes += Rxcount;
-				stohdr(rxbytes);
-				PUTCHAR(XON);
-				zshhdr(4,ZACK, Txhdr);
-				goto nxthdr;
-			case GOTCRCQ:
-				n = 20;
-				putsec(secbuf, Rxcount);
-				rxbytes += Rxcount;
-				stohdr(rxbytes);
-				zshhdr(4,ZACK, Txhdr);
-				goto moredata;
-			case GOTCRCG:
-				n = 20;
-				putsec(secbuf, Rxcount);
-				rxbytes += Rxcount;
-				goto moredata;
-			case GOTCRCE:
-				n = 20;
-				putsec(secbuf, Rxcount);
-				rxbytes += Rxcount;
-				goto nxthdr;
-			}
-		}
+			    Syslog('z', "%7ld ZMODEM%s    ", rxbytes, Crc32r?" CRC-32":"");
+			    Nopper();
+			    switch (c = zrdata(secbuf, MAXBLOCK)) {
+				case ZCAN:	Syslog('+', "Zmodem: sender CANcelled");
+						return TERROR;
+				case HANGUP:	Syslog('+', "Zmodem: Lost Carrier");
+						return TERROR;
+				case TERROR:	/* CRC error */
+						if (--n < 0) {
+						    Syslog('+', "Zmodem: Too many errors");
+						    return TERROR;
+						}
+						zmputs(Attn);
+						continue;
+				case TIMEOUT:	if ( --n < 0) {
+						    Syslog('+', "Zmodem: TIMEOUT");
+						    return TERROR;
+						}
+						continue;
+				case GOTCRCW:	n = 20;
+						putsec(secbuf, Rxcount);
+						rxbytes += Rxcount;
+						Syslog('z', "rxbytes %ld, will ACK", rxbytes);
+						stohdr(rxbytes);
+						PUTCHAR(XON);
+						zshhdr(4,ZACK, Txhdr);
+						goto nxthdr;
+				case GOTCRCQ:	n = 20;
+						putsec(secbuf, Rxcount);
+						rxbytes += Rxcount;
+						stohdr(rxbytes);
+						zshhdr(4,ZACK, Txhdr);
+						goto moredata;
+				case GOTCRCG:	n = 20;
+						putsec(secbuf, Rxcount);
+						rxbytes += Rxcount;
+						goto moredata;
+				case GOTCRCE:	n = 20;
+						putsec(secbuf, Rxcount);
+						rxbytes += Rxcount;
+						goto nxthdr;
+			    }
 	}
+    }
 }
 
 
@@ -396,22 +378,21 @@ moredata:
  */
 void zmputs(char *s)
 {
-	int c;
+    int c;
 
-	Syslog('z', "zmputs: \"%s\"", printable(s, strlen(s)));
+    Syslog('z', "zmputs: \"%s\"", printable(s, strlen(s)));
 
-	while (*s) {
-		switch (c = *s++) {
-			case '\336':
-					Syslog('z', "zmputs: sleep(1)");
-					sleep(1); continue;
-			case '\335':
-					Syslog('z', "zmputs: send break");
-					sendbrk(); continue;
-			default:
-					PUTCHAR(c);
-		}
+    while (*s) {
+	switch (c = *s++) {
+	    case '\336':    Syslog('z', "zmputs: sleep(1)");
+			    sleep(1); 
+			    continue;
+	    case '\335':    Syslog('z', "zmputs: send break");
+			    sendbrk(); 
+			    continue;
+	    default:	    PUTCHAR(c);
 	}
+    }
 }
 
 
@@ -420,6 +401,13 @@ int closeit(int success)
 {
     struct utimbuf  ut;
     int		    rc;
+
+    Syslog('z', "closeit(%d)", success);
+    
+    if ((fout == NULL) || (curfile == NULL)) {
+	Syslog('+', "closeit(), nothing to close");
+	return 1;
+    }
 
     rc = fclose(fout);
     fout = NULL;
@@ -450,29 +438,28 @@ int closeit(int success)
  */
 int ackbibi(void)
 {
-	int n;
-	int c;
+    int n;
+    int c;
 
-	Syslog('z', "ackbibi:");
-	stohdr(0L);
-	for (n=3; --n>=0; ) {
-		zshhdr(4,ZFIN, Txhdr);
-		switch ((c=GETCHAR(10))) {
-		case 'O':
-			GETCHAR(1);	/* Discard 2nd 'O' */
-			Syslog('z', "Zmodem: ackbibi complete");
-			return ZCOMPL;
-		case TERROR:
-		case HANGUP:
-			Syslog('z', "Zmodem: ackbibi got %d, ignore",c);
-			return 0;
-		case TIMEOUT:
-		default:
-			Syslog('z', "Zmodem: ackbibi got '%s', continue", printablec(c));
-			break;
-		}
+    Syslog('z', "ackbibi:");
+    stohdr(0L);
+	
+    for (n=3; --n>=0; ) {
+	zshhdr(4,ZFIN, Txhdr);
+		
+	switch ((c = GETCHAR(10))) {
+	    case 'O':	    GETCHAR(1);	/* Discard 2nd 'O' */
+			    Syslog('z', "Zmodem: ackbibi complete");
+			    return ZCOMPL;
+	    case TERROR:
+	    case HANGUP:    Syslog('z', "Zmodem: ackbibi got %d, ignore",c);
+			    return 0;
+	    case TIMEOUT:
+	    default:	    Syslog('z', "Zmodem: ackbibi got '%s', continue", printablec(c));
+			    break;
 	}
-	return ZCOMPL;
+    }
+    return ZCOMPL;
 }
 
 
@@ -490,18 +477,29 @@ int procheader(char *Name)
     /* set default parameters and overrides */
     openmode = (char *)"w";
 
+    Syslog('z', "zmanag=%d", zmanag);
+    Syslog('z', "zconv=%d", zconv);
+
     /*
      *  Process ZMODEM remote file management requests
      */
-    Thisbinary = (zconv != ZCNL);	/* Remote ASCII override */
+    if (!Thisbinary && zconv == ZCNL)	/* Remote ASCII override */
+	Thisbinary = FALSE;
+    if (zconv == ZCBIN)			/* Remote Binary override */
+	Thisbinary = TRUE;
     if (zmanag == ZMAPND)
 	openmode = (char *)"a";
+
+    Syslog('z', "Thisbinary %s", Thisbinary ?"TRUE":"FALSE");
 
     Bytesleft = DEFBYTL; 
     Filemode = 0; 
     Modtime = 0L;
+    Eofseen = FALSE;
 
     p = Name + 1 + strlen(Name);
+    // FIXME: Here we must add code that checks the Name for slashes, spaces and other
+    // illegal characters in the filename.
     sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
     strcpy(ctt, rfcdate(Modtime));
     Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
@@ -515,9 +513,15 @@ int procheader(char *Name)
     curfile = xstrcat(curfile, exitinfo.Name);
     curfile = xstrcat(curfile, (char *)"/upl/");
     curfile = xstrcat(curfile, Name);
-    fout = fopen(curfile, openmode);
+    Syslog('z', "try open %s mode \"%s\"", curfile, openmode);
+    if ((fout = fopen(curfile, openmode)) == NULL) {
+	WriteError("$Can't open %s mode %s", curfile, openmode);
+    }
+
     gettimeofday(&starttime, &tz);
-    sbytes = rxbytes;
+    sbytes = rxbytes = 0;
+
+    Syslog('z', "result %s", fout ? "Ok":"Failed");
 
 /*  if (Bytesleft == rxbytes) { FIXME: if file already received, use this.
 	Syslog('+', "Zmodem: Skipping %s", Name);
@@ -538,28 +542,30 @@ int procheader(char *Name)
  */
 int putsec(char *buf, int n)
 {
-	register char *p;
+    register char *p;
 
-	if (n == 0)
-		return OK;
+    Syslog('z', "putsec %d characters %s mode", n, Thisbinary ? "binary":"ascii");
 
-	if (Thisbinary) {
-		for (p = buf; --n>=0; )
-			putc( *p++, fout);
-	} else {
-		if (Eofseen)
-			return OK;
-		for (p = buf; --n>=0; ++p ) {
-			if ( *p == '\r')
-				continue;
-			if (*p == SUB) {
-				Eofseen=TRUE; 
-				return OK;
-			}
-			putc(*p ,fout);
-		}
-	}
+    if (n == 0)
 	return OK;
+
+    if (Thisbinary) {
+	for (p = buf; --n>=0; )
+	    putc( *p++, fout);
+    } else {
+	if (Eofseen)
+	    return OK;
+	for (p = buf; --n>=0; ++p ) {
+	    if ( *p == '\r')
+		continue;
+	    if (*p == SUB) {
+		Eofseen=TRUE; 
+		return OK;
+	    }
+	    putc(*p ,fout);
+	}
+    }
+    return OK;
 }
 
 

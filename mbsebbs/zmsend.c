@@ -50,13 +50,11 @@ void initzsendmsk(char *);
 static FILE *in;
 static int Eofseen;		/* EOF seen on input set by zfilbuf */
 static int Rxflags = 0;
-static int Usevhdrs;
 static int Wantfcs32=TRUE;	/* Want to send 32 bit FCS */
 static int Rxbuflen;
 static unsigned Txwindow;	/* Control the size of the transmitted window */
 static unsigned Txwspac;	/* Spacing between zcrcq requests */
 static unsigned Txwcnt;		/* Counter used to space ack requests */
-//static long Tframlen = 0;	/* Override for tx frame length */
 static int blklen = 128;	/* Length of transmitted records */
 static int blkopt;		/* Override value for zmodem blklen */
 static int errors;
@@ -75,8 +73,9 @@ struct timezone	tz;
 
 extern unsigned long	sentbytes;
 extern int Rxhlen;
-extern void get_frame_buffer(void);
-extern void free_frame_buffer(void);
+
+extern char *txbuf;
+extern char *frametypes[];
 
 
 int zmsndfiles(down_list *lst)
