@@ -470,6 +470,7 @@ struct	lastcallershdr {
 struct  lastcallers {  
 	char		UserName[36];		/* User Name                */
 	char		Handle[36];		/* User Handle              */
+	char		Name[9];		/* Unix Name		    */
 	char		TimeOn[6];		/* Time user called bbs     */
 	int		CallTime;		/* Time this call	    */
 	char		Device[10];		/* Device user used         */

@@ -19,8 +19,6 @@ mbsebbs:
 	   mail, must be user selectable. see remarks of William McBrine.
 	   The default is oke now.
 
-	N: The whosin display doesn't honnor the /H switch.
-
 	N: Rewrite chat to use "mbtask". Write chat functions into "mbmon"
 
 	N: Implement session and time/day limits.
@@ -28,10 +26,6 @@ mbsebbs:
 	N: Display textfiles and archives.
 
 	N: Check for tagged files before logoff
-
-	L: Implement telnet door.
-
-	L: Spell checker in full screen editor.
 
 	L: Better word wrapping or paragraph justification in editor.
 
@@ -80,7 +74,7 @@ mbfido:
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
-	   option.
+	   option. Info received that this may be done using mgetty logs.
 
 	N: Implement MD5 crypt in binkp protocol driver.
 

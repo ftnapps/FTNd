@@ -86,7 +86,7 @@ int CheckName(char *Name)
 	struct	userhdr	ushdr;
 	struct	userrec	us;
 
-	temp   = calloc(81, sizeof(char));
+	temp   = calloc(PATH_MAX, sizeof(char));
 	temp1  = calloc(81, sizeof(char));
 
 	strcpy(temp1, tl(Name));

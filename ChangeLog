@@ -4,6 +4,9 @@ $Id$
 
 v0.35.02	22-Jun-2002
 
+	upgrade:
+		Delete ~/etc/lastcall.data
+
 	general:
 		Added checks for GoldED in external program checks.
 		Added new empty path /opt/mbse/var/boxes.
@@ -44,10 +47,18 @@ v0.35.02	22-Jun-2002
 		The email address in new created .signature files is only
 		added if global Give Email is true and in the userecord the
 		email is also enabled.
+		The whoson list now supports the /H and /U optional data to
+		display handles or unix names.
+		The send online message now supports the /H and /U optional
+		data to use handles or unix names.
+		The display userlist function now supports the /H and /U
+		optional data to use handles or unix names.
+		The display lastcaller list now also supports the /U optional
+		data to display Unix names.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it
-		excists in the mbtask configuration.
+		exists in the mbtask configuration.
 		Implemented nodes special outbound boxes.
 
 

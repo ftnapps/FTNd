@@ -192,6 +192,7 @@ void SaveLastCallers()
 		memset(&LCALL, 0, sizeof(LCALL));
 		sprintf(LCALL.UserName,"%s", exitinfo.sUserName);
 		sprintf(LCALL.Handle,"%s", exitinfo.sHandle);
+		sprintf(LCALL.Name, "%s", exitinfo.Name);
 		sprintf(LCALL.TimeOn,"%s", StartTime);
 		sprintf(LCALL.Device,"%s", pTTY);
 		LCALL.SecLevel = exitinfo.Security.level;

@@ -59,95 +59,94 @@ extern int	LC_Door;
  */
 void LastCallers(char *OpData)
 {
-	FILE	*pLC;
-	int	LineCount = 5;
-	int	count = 0;
-	char	*sFileName;
-	char	*Heading;
-	char	*Underline;
-	int	i, x;
-	struct	lastcallers lcall;
-	struct	lastcallershdr lcallhdr;
+    FILE		    *pLC;
+    int			    LineCount = 5, count = 0, i, x;
+    char		    *sFileName, *Heading, *Underline;
+    struct lastcallers	    lcall;
+    struct lastcallershdr   lcallhdr;
 
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	Heading   = calloc(81, sizeof(char));
-	Underline = calloc(81, sizeof(char));
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    Heading   = calloc(81, sizeof(char));
+    Underline = calloc(81, sizeof(char));
 
-	clear();
+    clear();
 
-	sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-	if((pLC = fopen(sFileName,"r")) == NULL) 
-		WriteError("$LastCallers: Can't open %s", sFileName);
-	else {
-		fread(&lcallhdr, sizeof(lcallhdr), 1, pLC);
-		colour(15, 0);
-		/* Todays callers to */
-		sprintf(Heading, "%s%s", (char *) Language(84), CFG.bbs_name);
-		Center(Heading);
+    sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
+    if ((pLC = fopen(sFileName,"r")) == NULL) 
+	WriteError("$LastCallers: Can't open %s", sFileName);
+    else {
+	fread(&lcallhdr, sizeof(lcallhdr), 1, pLC);
+	colour(WHITE, BLACK);
+	/* Todays callers to */
+	sprintf(Heading, "%s%s", (char *) Language(84), CFG.bbs_name);
+	Center(Heading);
 
-		x = strlen(Heading);
+	x = strlen(Heading);
 
-		for(i = 0; i < x; i++)
-       			sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
+	for(i = 0; i < x; i++)
+	    sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
 
-		colour(12, 0);
-		Center(Underline);
+	colour(LIGHTRED, BLACK);
+	Center(Underline);
 
-		printf("\n");
+	printf("\n");
 
-		/* #  User Name               Device  timeOn  Calls Location */
-		pout(10, 0, (char *) Language(85));
-		Enter(1);
+	/* #  User Name               Device  timeOn  Calls Location */
+	pout(LIGHTGREEN, BLACK, (char *) Language(85));
+	Enter(1);
 
-		colour(2, 0);
-		fLine(79);
+	colour(GREEN, BLACK);
+	fLine(79);
 		
-		while (fread(&lcall, lcallhdr.recsize, 1, pLC) == 1) {
-			if(!lcall.Hidden) {
-				count++;
+	while (fread(&lcall, lcallhdr.recsize, 1, pLC) == 1) {
+	    if (!lcall.Hidden) {
+		count++;
 
-				colour(15,0);
-				printf("%-5d", count);
+		colour(WHITE, BLACK);
+		printf("%-5d", count);
 
-				colour(11, 0);
-				if((strcmp(OpData, "/H")) == 0) {
-					if((strcmp(lcall.Handle, "") != 0 && *(lcall.Handle) != ' '))
-						printf("%-20s", lcall.Handle);
-					else
-						printf("%-20s", lcall.UserName);
-				} else
-					printf("%-20s", lcall.UserName);
-
-				colour(9, 0);
-				printf("%-8s", lcall.Device);
-
-				colour(13, 0);
-				printf("%-8s", lcall.TimeOn);
-
-				colour(14, 0);
-				printf("%-7d", lcall.Calls);
-
-				colour(12, 0);
-				printf("%-32s\n", lcall.Location);
-
-				LineCount++;
-				if (LineCount == exitinfo.iScreenLen) {
-					Pause();
-					LineCount = 0;
-				}
-			} /* End of check if user is sysop */
+		colour(LIGHTCYAN, BLACK);
+		if ((strcasecmp(OpData, "/H")) == 0) {
+		    if ((strcmp(lcall.Handle, "") != 0 && *(lcall.Handle) != ' '))
+			printf("%-20s", lcall.Handle);
+		    else
+			printf("%-20s", lcall.UserName);
+		} else if (strcasecmp(OpData, "/U") == 0) {
+		    printf("%-20s", lcall.Name);
+		} else {
+		    printf("%-20s", lcall.UserName);
 		}
 
-		colour(2, 0);
-		fLine(79);
+		colour(LIGHTBLUE, BLACK);
+		printf("%-8s", lcall.Device);
 
-		fclose(pLC);
-		printf("\n");
-		Pause();
+		colour(LIGHTMAGENTA, BLACK);
+		printf("%-8s", lcall.TimeOn);
+
+		colour(YELLOW, BLACK);
+		printf("%-7d", lcall.Calls);
+
+		colour(LIGHTRED, BLACK);
+		printf("%-32s\n", lcall.Location);
+
+		LineCount++;
+		if (LineCount == exitinfo.iScreenLen) {
+		    Pause();
+		    LineCount = 0;
+		}
+	    } /* End of check if user is hidden */
 	}
-	free(sFileName);
-	free(Heading);
-	free(Underline);
+
+	colour(GREEN, BLACK);
+	fLine(79);
+
+	fclose(pLC);
+	printf("\n");
+	Pause();
+    }
+    free(sFileName);
+    free(Heading);
+    free(Underline);
 }
 
 
