@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+#  $Id$
+#
 #  Initialize DOS environment before starting a bbs door.
 #  Parameters: $1 = name of the door
 #	       $2 = the nodenumber for this session

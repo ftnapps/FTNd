@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# $Id$
+#
 # rundoor.sh - Never call this script directly, create a symlink
 #              to this file with the name of the door. For example
 #              tu run the door ilord do:
