@@ -1580,7 +1580,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 					}
 				}
 			}
-			if (strncmp(buf, ".\r\n", 3))
+			if ((strncmp(buf, ".\r\n", 3)) && (strncmp(buf, ".\n", 2)))
 				q = xstrcpy(buf);
 			else
 				q = xstrcpy((char *)" .\n");
