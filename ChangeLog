@@ -15,6 +15,10 @@ v0.37.01	14-Jan-2003.
 		if you need to downgrade.
 		Spanish templates and macros added to the examples.
 
+	common.a:
+		Remove a bug which very seldom crashed mbfido with charset
+		translation. Do we really need charset conversion?
+
 	mbtask:
 		Arcmail for non-CM nodes and Txx nodes is now sent during the
 		node's opening hours or ZMH.

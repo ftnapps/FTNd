@@ -139,29 +139,27 @@ char *strnkconv(const char *src, int incode, int outcode, int n)
 
 char *strkconv(const char *src, int incode, int outcode)
 {
-	static char *dest;
+    static char *dest;
+    int		bytes = 1;
 
-	if ((incode==outcode) && (incode!=CHRS_NOTSET) && (incode!=CHRS_AUTODETECT))
-		return (char *)src;
+    if ((incode==outcode) && (incode!=CHRS_NOTSET) && (incode!=CHRS_AUTODETECT))
+	return (char *)src;
 
-	if (!src)
-		return NULL;
+    if (!src)
+	return NULL;
 
-	if((incode == CHRS_AUTODETECT) || (incode == CHRS_NOTSET)) {
-		if (LANG_BITS == 16) {
-			incode = iso2022_detectcode((char *)src,incode);
-		}
+    if((incode == CHRS_AUTODETECT) || (incode == CHRS_NOTSET)) {
+	if (LANG_BITS == 16) {
+	    bytes = 2;
+	    incode = iso2022_detectcode((char *)src,incode);
 	}
+    }
 
-	if(dest)
-		free(dest);
-	/* FIXME: should be 
-	 * dest = (char *)malloc((strlen(src) + 1) + (6 * "number of \n + 1"));
-	 */
-	dest = (char *)malloc(((strlen(src) + 1) * 2) + 6 );
-
-	kconv((char *)src, &dest, incode, outcode);
-	return dest;
+    if(dest)
+	free(dest);
+    dest = (char *)malloc((strlen(src) + 1) + ((6 * bytes) + 1));
+    kconv((char *)src, &dest, incode, outcode);
+    return dest;
 }
 
 

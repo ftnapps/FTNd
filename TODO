@@ -43,6 +43,8 @@ mbsebbs:
 	N: If a new mailcheck takes longer then the idle timeout, the user is 
 	   disconnected as soon as the mailcheck is ready.
 
+	N: In mail areas for only Alias names, the normal usernames show up.
+
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.

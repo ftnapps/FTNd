@@ -500,11 +500,13 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 	}
 
-	hdrsize += 8 + strlen(getchrs(outcode));
-	fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
-	if (html_message) {
-	    hdrsize += 9;
-	    fprintf(ofp, "\1HTML: 5\n");
+	if (getchrs(outcode) != NULL) {
+	    hdrsize += 8 + strlen(getchrs(outcode));
+	    fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
+	    if (html_message) {
+		hdrsize += 9;
+		fprintf(ofp, "\1HTML: 5\n");
+	    }
 	}
 
 	if (CFG.allowcontrol && (!hdr((char *)"X-FTN-ACUPDATE",msg)) && (p=hdr((char *)"Control",msg))) {
@@ -531,6 +533,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);
 	}
+
 	if ((splitpart == 0) || (hdrsize < MAXHDRSIZE)) {
 	    for (tmp = msg; tmp; tmp = tmp->next) {
 	 	if ((!strncmp(tmp->key,"X-Fsc-",6)) || (!strncmp(tmp->key,"X-FTN-",6) &&
@@ -573,6 +576,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		    }
 		}
 	    }
+
 	    /* ZConnect are X-ZC-*: in usenet, \1ZC-*: in FTN */
 	    for (tmp=msg;tmp;tmp=tmp->next)
 		if ((!strncmp(tmp->key,"X-ZC-",5))) {
@@ -625,6 +629,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		    charwrite(hdrconv(tmp->val, incode, outcode),ofp);
 		}
 	    }
+
 	    if (rfcheaders) 
 		charwrite((char *)"\n",ofp);
 	    if ((hdr((char *)"X-FTN-SOT",msg)) || (sot_kludge))
