@@ -218,7 +218,7 @@ int resync(off_t off)
 
 
 /*
- * Translate filename to binkp filename, unsafe characters are escaped.
+ * Translate string to binkp escaped string, unsafe characters are escaped.
  */
 char *unix2binkp(char *fn)
 {
@@ -248,7 +248,7 @@ char *unix2binkp(char *fn)
 
 
 /*
- * Translate escaped binkp filename to unix.
+ * Translate escaped binkp string to normal string.
  */
 char *binkp2unix(char *fn)
 {
@@ -263,12 +263,28 @@ char *binkp2unix(char *fn)
     while (*p) {
 	if (p[0] == '\\') {
 	    p++;
-	    hex[0] = *p++;
-	    hex[1] = *p;
-	    hex[2] = '\0';
-	    sscanf(hex, "%2x", &c);
-	    *q++ = c;
-	    *q = '\0';
+	    if (*p == '\\') {
+		/*
+		 * A backslash is transmitted
+		 */
+		*q++ = '\\';
+		*q = '\0';
+	    } else {
+		/*
+		 * If remote sends \x0a method instead of \0a, eat the x character
+		 */
+		if ((*p == 'x') || (*p == 'X'))
+		    p++;
+		/*
+		 * Decode hex characters
+		 */
+		hex[0] = *p++;
+		hex[1] = *p;
+		hex[2] = '\0';
+		sscanf(hex, "%2x", &c);
+		*q++ = c;
+		*q = '\0';
+	    }
 	} else {
 	    *q++ = *p;
 	    *q = '\0';
@@ -880,7 +896,7 @@ SM_STATE(pwdack)
 		if (inbound)
 		    free(inbound);
 		inbound = xstrcpy(CFG.pinbound);
-		binkp_send_control(MM_OK, "");
+		binkp_send_control(MM_OK, "secure");
 		SM_SUCCESS;
 	    }
 	} else {
