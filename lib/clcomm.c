@@ -485,7 +485,6 @@ int enoughspace(unsigned long needed)
 	rc = atoi(res);
     }
 
-    Syslog('s', "enoughspace() rc=%d", rc);
     return rc;
 }
 

@@ -305,7 +305,7 @@ void add_path(char *path)
 		    }
 		}
 		Syslog('d', "Should be on \"%s\" \"%s\"", fsname, fstype);
-		fill_mfslist(&mfs, fsname);
+		fill_mfslist(&mfs, fsname, fstype);
 		free(fsname);
 		free(fstype);
 	    }

@@ -330,7 +330,7 @@ void disk_stat(void)
 {
     int		    ch, i;
     char	    buf[1024], *cnt, *type, *fs, *p, sign;
-    unsigned long   last[10], size, used, perc;
+    unsigned long   last[10], size, used, perc, avail;
 
     clr_index();
     set_color(WHITE, BLACK);
@@ -356,8 +356,8 @@ void disk_stat(void)
 		for (i = 0; i < atoi(cnt); i++) {
 		    p = strtok(NULL, " ");
 		    size = atoi(p);
-		    p = strtok(NULL, " ");
-		    used = size - atoi(p);
+		    avail = atoi(strtok(NULL, " "));
+		    used = size - avail;
 		    perc = (used * 100) / size;
 		    sign = ' ';
 		    fs = strtok(NULL, " ");
@@ -373,12 +373,15 @@ void disk_stat(void)
 		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, used);
 		    set_color(WHITE, BLACK);
 		    printf("%c  ", sign);
-		    set_color(CYAN, BLACK);
 		    if (strstr(type, "iso") == NULL) {
-			if (perc >= 95)
+			if (avail <= CFG.freespace)
 			    set_color(LIGHTRED, BLACK);
-			else if (perc >= 80)
+			else if (avail <= (CFG.freespace * 4))
 			    set_color(YELLOW, BLACK);
+			else
+			    set_color(CYAN, BLACK);
+		    } else {
+			set_color(CYAN, BLACK);
 		    }
 		    printf("%3lu", perc);
 		    putchar('%');
