@@ -30,6 +30,8 @@
 
 #include "../config.h"
 #include "mbselib.h"
+#include "users.h"
+#include "mbsedb.h"
 
 
 #ifndef PATH_MAX
@@ -70,12 +72,9 @@ char *prepbuf(faddr *addr)
 	 */
 	if (addr && addr->domain && strlen(addr->domain)) {
 	    domain = xstrcpy(addr->domain);
-	} else
-	    for (i = 0; i < 40; i++)
-		if (CFG.aka[i].zone == addr->zone) {
-		    domain = xstrcpy(CFG.aka[i].domain);
-		    break;
-		}
+	} else {
+	    domain = xstrcpy(GetFidoDomain(addr->zone));
+	}
 
 	if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) && (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
 	    if ((p = strrchr(buf,'/'))) 

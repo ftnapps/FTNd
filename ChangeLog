@@ -11,6 +11,8 @@ v0.61.3		25-Jul-2004
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 
 		functions, not needed anymore.
+		Fixed function to return full 5d address in the outbound when
+		the address is in a different zone then our own zone.
 
 	libnodelist.a:
 		Fixed IP port override if there is a port added to a protocol.
