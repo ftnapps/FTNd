@@ -4249,6 +4249,10 @@ v0.33.19        26-Oct-2001
 		simple one will be created.
 		If a user saves a new message at the bbs, the message will be
 		signed using the .signature file.
+		Patches from Bobby Cabral:
+		- Fixed display file with more that stopped after every line.
+		- Added display file "mainlogo" before the "welcome" file.
+		- Added display files "welcome2..9" after "welcome1" file.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

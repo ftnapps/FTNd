@@ -1,10 +1,9 @@
 /*****************************************************************************
  *
- * File ..................: bbs/user.c
+ * $Id$
  * Purpose ...............: Main user login procedure.  Checks for limits, 
  *                          new ratio's cats all the welcome screens, and 
  *                          does a lot of checking in general.
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1042,6 +1041,7 @@ void user()
 		Time2Go += usrconfig.iTimeLeft * 60;
 		iUserTimeLeft = usrconfig.iTimeLeft;
 
+		DisplayFile((char *)"mainlogo");
 		DisplayFile((char *)"welcome");
 
 		/*
@@ -1050,6 +1050,14 @@ void user()
 		 */
 		if (exitinfo.ieNEWS) {
 			DisplayFile((char *)"welcome1");
+			DisplayFile((char *)"welcome2");
+			DisplayFile((char *)"welcome3");
+			DisplayFile((char *)"welcome4");
+			DisplayFile((char *)"welcome5");
+			DisplayFile((char *)"welcome6");
+			DisplayFile((char *)"welcome7");
+			DisplayFile((char *)"welcome8");
+			DisplayFile((char *)"welcome9");
 
 			sprintf(temp, "%s", (char *) GetDateDMY() );
 			if ((strcmp(usrconfig.sDateOfBirth, temp)) == 0)

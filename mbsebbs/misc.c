@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/misc.c
+ * $Id$
  * Purpose ...............: Misc functions
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -60,7 +59,7 @@ int		LC_Door = FALSE;
 
 int MoreFile(char *filename)
 {
-	char	Buf[80];
+	char	Buf[81];
 	static	FILE *fptr;
 	int	lines;
 	int	input;
@@ -77,7 +76,7 @@ int MoreFile(char *filename)
 	printf("\n");
 
 	while (fgets(Buf,80,fptr) != NULL) {
-		if ( (lines != 0) || (ignore) ) {
+		if ((lines != 0) || (ignore)) {
 			lines--;
 			printf("%s",Buf);
 		}
@@ -107,9 +106,8 @@ int MoreFile(char *filename)
 			else
 				lines  = maxlines;
 		}
-		printf("\n\n");
-		Pause();
 	}
+	Pause();
 	fclose(fptr);
 	return 1;
 }
