@@ -39,6 +39,75 @@ extern int	    T_Shutdown;			/* Program shutdown	*/
 int		    disk_run = FALSE;		/* Thread running	*/
 
 
+typedef struct _mfs_list {
+    struct _mfs_list	*next;			/* Linked list		*/
+    char		*mountpoint;		/* Mountpoint		*/
+    char		*fstype;		/* FS type		*/
+    unsigned long	size;			/* Size in MB		*/
+    unsigned long	avail;			/* Available in MB	*/
+} mfs_list;
+
+mfs_list	    *mfs = NULL;		/* List of filesystems	*/
+
+
+/*
+ * Internal prototypes
+ */
+void tidy_mfslist(mfs_list **);
+int  in_mfslist(char *, mfs_list **);
+void fill_mfslist(mfs_list **, char *, char *);
+void update_diskstat(void);
+void add_path(char *);
+
+
+
+/*
+ * Reset mounted filesystems array
+ */
+void tidy_mfslist(mfs_list **fap)
+{
+    mfs_list	*tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp->mountpoint);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+int in_mfslist(char *mountpoint, mfs_list **fap)
+{
+    mfs_list	*tmp;
+
+    for (tmp = *fap; tmp; tmp = tmp->next)
+	if (strcmp(tmp->mountpoint, mountpoint) == 0)
+	    return TRUE;
+
+    return FALSE;
+}
+
+
+
+void fill_mfslist(mfs_list **fap, char *mountpoint, char *fstype)
+{
+    mfs_list	*tmp;
+
+    if (in_mfslist(mountpoint, fap))
+	return;
+
+    tmp = (mfs_list *)malloc(sizeof(mfs_list));
+    tmp->next = *fap;
+    tmp->mountpoint = xstrcpy(mountpoint);
+    tmp->fstype = xstrcpy(fstype);
+    tmp->size = 0L;
+    tmp->avail = 0L;
+    *fap = tmp;
+}
+
+
 
 /*
  * This function signals the diskwatcher to reread the tables.
@@ -55,13 +124,49 @@ char *disk_reset(void)
 
 
 /*
- * This function checks if enough diskspace is available.  (0=No, 1=Yes, 2=Unknown, 3=Error).
+ * Check free diskspace on all by mbse used filesystems.
+ * The amount of needed space is given in MBytes.
  */
-char *disk_free(void)
+char *disk_check(char *token)
 {
-    static char	buf[20];
+    static char	    buf[SS_BUFSIZE];
+    mfs_list	    *tmp;
+    unsigned long   needed;
 
-    sprintf(buf, "100:1,2;");
+    strtok(token, ",");
+    needed = atol(strtok(NULL, ";"));
+    Syslog('d', "disk_check(%ld)", needed);
+
+    if (! needed) {
+	/*
+	 * Answer enough space
+	 */
+	sprintf(buf, "100:1,1");
+	return buf;
+    }
+
+    if (mfs == NULL) {
+	/*
+	 * Answer Error
+	 */
+	sprintf(buf, "100:1,3");
+	return buf;
+    }
+
+    for (tmp = mfs; tmp; tmp = tmp->next) {
+	if (tmp->avail < needed) {
+	    /*
+	     * Answer Not enough space
+	     */
+	    sprintf(buf, "100:1,0");
+	    return buf;
+	}
+    }
+
+    /*
+     * Enough space
+     */
+    sprintf(buf, "100:1,1");
     return buf;
 }
 
@@ -74,103 +179,58 @@ char *disk_free(void)
 char *disk_getfs()
 {
     static char	    buf[SS_BUFSIZE];
-    char	    *tmp = NULL;
-    char	    tt[80];
-    struct statfs   sfs;
-    unsigned long   temp;
-#if defined(__linux__)
-    char            *mtab, *dev, *fs, *type;
-    FILE            *fp;
-    int             i = 0;
-#elif defined(__FreeBSD__) || (__NetBSD__)
-    struct statfs   *mntbuf;
-    long            mntsize;
-    int		    i, j = 0;
-#endif
+    char	    tt[80], *ans = NULL;
+    mfs_list	    *tmp;
+    int		    i = 0;
 
     buf[0] = '\0';
-
-#if defined (__linux__)
-
-    if ((fp = fopen((char *)"/etc/mtab", "r")) == NULL) {
+    if (mfs == NULL) {
 	sprintf(buf, "100:0;");
 	return buf;
     }
 
-    mtab = calloc(PATH_MAX, sizeof(char));
-    while (fgets(mtab, PATH_MAX - 1, fp)) {
-	dev  = strtok(mtab, " \t");
-	fs   = strtok(NULL, " \t");
-	type = strtok(NULL, " \t");
-	if (strncmp((char *)"/dev/", dev, 5) == 0) {
-	    if (statfs(fs, &sfs) == 0) {
-		i++;
-		if (tmp == NULL)
-		    tmp = xstrcpy((char *)",");
-		else
-		    tmp = xstrcat(tmp, (char *)",");
-		tt[0] = '\0';
-		temp = (unsigned long)(sfs.f_bsize / 512L);
-		sprintf(tt, "%lu %lu %s %s", 
-			(unsigned long)(sfs.f_blocks * temp) / 2048L,
-			(unsigned long)(sfs.f_bavail * temp) / 2048L,
-			fs, type);
-		tmp = xstrcat(tmp, tt);
-	    }
-	    if (i == 10) /* No more then 10 filesystems */
-		break;
-	}
+    for (tmp = mfs; tmp; tmp = tmp->next) {
+	i++;
+	if (ans == NULL)
+	    ans = xstrcpy((char *)",");
+	else
+	    ans = xstrcat(ans, (char *)",");
+	tt[0] = '\0';
+	sprintf(tt, "%lu %lu %s %s", tmp->size, tmp->avail, tmp->mountpoint, tmp->fstype);
+	ans = xstrcat(ans, tt);
+	if (i == 10) /* No more then 10 filesystems */
+	    break;
     }
-    fclose(fp);
-    free(mtab);
 
-    if (strlen(tmp) > (SS_BUFSIZE - 8))
+    if (strlen(ans) > (SS_BUFSIZE - 8))
 	sprintf(buf, "100:0;");
     else
-	sprintf(buf, "100:%d%s;", i, tmp);
+	sprintf(buf, "100:%d%s;", i, ans);
 
-#elif defined(__FreeBSD__) || (__NetBSD__)
-
-    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT)) == 0) {
-	sprintf(buf, "100:0;");
-	return buf;
-    }
-
-    for (i = 0; i < mntsize; i++) {
-	if ((strncmp(mntbuf[i].f_fstypename, (char *)"kernfs", 6)) && 
-	    (strncmp(mntbuf[i].f_fstypename, (char *)"procfs", 6)) &&
-	    (statfs(mntbuf[i].f_mntonname, &sfs) == 0)) {
-	    if (tmp == NULL)
-		tmp = xstrcpy((char *)",");
-	    else
-		tmp = xstrcat(tmp, (char *)",");
-	    tt[0] = '\0';
-	    temp = (unsigned long)(sfs.f_bsize / 512L);
-	    sprintf(tt, "%lu %lu %s %s",
-		    (unsigned long)(sfs.f_blocks * temp) / 2048L,
-		    (unsigned long)(sfs.f_bavail * temp) / 2048L,
-		    mntbuf[i].f_mntonname, mntbuf[i].f_fstypename);
-	    tmp = xstrcat(tmp, tt);
-	    j++;
-	    if (j == 10) /* No more then 10 filesystems */
-		break;
-	}
-    }
-    if (strlen(tmp) > (SS_BUFSIZE - 8))
-	sprintf(buf, "100:0;");
-    else
-	sprintf(buf, "100:%d%s;", j, tmp);
-#else
-    /*
-     * Not supported, so return nothing usefull.
-     */
-    sprintf(buf, "100:0;");
-#endif
-
-    if (tmp != NULL)
-	free(tmp);
+    if (ans != NULL)
+	free(ans);
 
     return buf;
+}
+
+
+
+/*
+ * Update disk useage status.
+ */
+void update_diskstat(void)
+{
+    struct statfs   sfs;
+    unsigned long   temp;
+    mfs_list        *tmp;
+
+    for (tmp = mfs; tmp; tmp = tmp->next) {
+        if (statfs(tmp->mountpoint, &sfs) == 0) {
+            temp = (unsigned long)(sfs.f_bsize / 512L);
+	    tmp->size  = (unsigned long)(sfs.f_blocks * temp) / 2048L;
+	    tmp->avail = (unsigned long)(sfs.f_bavail * temp) / 2048L;
+        }
+    }
 }
 
 
@@ -182,7 +242,7 @@ char *disk_getfs()
 void add_path(char *path)
 {
     struct stat	    sb;
-    char	    *p, *fsname;
+    char	    *p, *fsname, *fstype;
 #if defined(__linux__)
     char	    *mtab, *fs;
     FILE	    *fp;
@@ -205,6 +265,7 @@ void add_path(char *path)
 	    if ((fp = fopen((char *)"/etc/mtab", "r"))) {
 		mtab = calloc(PATH_MAX, sizeof(char));
 		fsname = calloc(PATH_MAX, sizeof(char));
+		fstype = calloc(PATH_MAX, sizeof(char));
 		fsname[0] = '\0';
 
 		while (fgets(mtab, PATH_MAX -1, fp)) {
@@ -217,27 +278,36 @@ void add_path(char *path)
 		    if (strncmp(fs, path, strlen(fs)) == 0) {
 			Syslog('d', "Found fs %s", fs);
 			sprintf(fsname, "%s", fs);
+			fs = strtok(NULL, " \t");
+			sprintf(fstype, "%s", fs);
 		    }
 		}
 		fclose(fp);
 		free(mtab);
-		Syslog('d', "Should be on \"%s\"", fsname);
+		Syslog('d', "Should be on \"%s\" \"%s\"", fsname, fstype);
+		fill_mfslist(&mfs, fsname, fstype);
 		free(fsname);
+		free(fstype);
 	    }
 
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 
 	    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT))) {
 		fsname = calloc(PATH_MAX, sizeof(char));
+		fstype = calloc(PATH_MAX, sizeof(char));
+
 		for (i = 0; i < mntsize; i++) {
 		    Syslog('d', "Check fs %s", mntbuf[i].f_mntonname);
 		    if (strncmp(mntbuf[i].f_mntonname, path, strlen(mntbuf[i].f_mntonname)) == 0) {
 			Syslog('d', "Found fs %s", mntbuf[i].f_mntonname);
 			sprintf(fsname, "%s", mntbuf[i].f_mntonname);
+			sprintf(fstype, "%s", mntbuf[i].f_fstypename);
 		    }
 		}
-		Syslog('d', "Should be on \"%s\"", fsname);
+		Syslog('d', "Should be on \"%s\" \"%s\"", fsname, fstype);
+		fill_mfslist(&mfs, fsname);
 		free(fsname);
+		free(fstype);
 	    }
 
 #endif
@@ -265,8 +335,9 @@ void add_path(char *path)
  */
 void *disk_thread(void)
 {
-    FILE    *fp;
-    char    *temp;
+    FILE	*fp;
+    char	*temp;
+    mfs_list	*tmp;
 
     Syslog('+', "Start disk thread");
     disk_run = TRUE;
@@ -277,6 +348,8 @@ void *disk_thread(void)
 	if (disk_reread) {
 	    disk_reread = FALSE;
 	    Syslog('+', "Reread disk filesystems");
+	    tidy_mfslist(&mfs);
+
 	    add_path(getenv("MBSE_ROOT"));
 	    add_path(CFG.bbs_menus);
 	    add_path(CFG.bbs_txtfiles);
@@ -412,8 +485,13 @@ void *disk_thread(void)
 	    }
 	    free(temp);
 	    Syslog('d', "All directories added");
+
+	    for (tmp = mfs; tmp; tmp = tmp->next) {
+		Syslog('+', "%s %s %ld %ld", tmp->mountpoint, tmp->fstype, tmp->size, tmp->avail);
+	    }
 	}
 
+	update_diskstat();
 	sleep(1);
     }
 

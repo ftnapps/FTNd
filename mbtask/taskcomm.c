@@ -377,14 +377,14 @@ char *exe_cmd(char *in)
     }
     
     /*
-     *  DSPC:0;             Enough free diskspace.
+     *  DSPC:1,n;           Check free space in MBytes
      *  100:1,0;            No
      *  100:1,1;            Yes
      *  100:1,2;            Unknown
      *  100:1,3;            Error
      */
     if (strncmp(cmd, "DSPC", 4) == 0) {
-	return disk_free();
+	return disk_check(token);
     }
     
     /*

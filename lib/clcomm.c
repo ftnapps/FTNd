@@ -469,13 +469,13 @@ unsigned long sequencer()
  * Check enough diskspace.
  * return 0=No, 1=Yes, 2=Unknown, 3=Error
  */
-int enoughspace(void)
+int enoughspace(unsigned long needed)
 {
     char    *buf, *res;
     int	    rc = 3;
 
     buf = calloc(SS_BUFSIZE, sizeof(char));
-    sprintf(buf, "DSPC:0;");
+    sprintf(buf, "DSPC:1,%ld;", needed);
 
     if (socket_send(buf) == 0) {
 	free(buf);
