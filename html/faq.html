@@ -478,9 +478,21 @@ MSN/EAZ the device should listen to. This should for an MSN be your telephone
 number <b>with</b> the area code but <b>without</b> the leading 0. For an
 EAZ the last digit of your EAZ. 
         <p> The ISDN ports </p>
-        <pre>port ttyI0<br>modem-type data<br>init-chat "" ATZ OK AT&amp;E714015437&amp;W0 OK AT&amp;B512 OK<br><br>port ttyI1<br>modem-type data<br>init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK<br><br></pre>
- From the mbsetup menu #5 "Edit Modem types" configure the ISDN modem type. 
-        <pre>
+<pre>
+port ttyI0
+modem-type data
+init-chat "" ATZ OK
+AT&amp;E714015437&amp;W0 OK 
+AT&amp;B512 OK
+
+port ttyI1
+modem-type data
+init-chat "" ATZ OK 
+AT&amp;E714017198&amp;W0 OK 
+AT&amp;B512 OK
+</pre>
+From the mbsetup menu #5 "Edit Modem types" configure the ISDN modem type. 
+<pre>
 Modem type   ISDN Linux
 Init string  ATZ\r
 Init string

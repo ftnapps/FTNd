@@ -12,10 +12,9 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 28-Jun-2002</h5>
-<P>&nbsp;<P>
+<div align=right><h5>Last update 13-Jul-2002</h5></div>
 
-<H1>MBSE BBS Setup - Fidonet nodes.</H1>
+<div align=center><H1>MBSE BBS Setup - Fidonet nodes.</H1></div>
 <P>
 
 <h3>Introduction</H3>
@@ -33,28 +32,44 @@ This screen has the general information for the node. The contact info fields ar
 just for private use, these fields are only used in this screen. The Outbox dir is for
 files to sent to the node, all file you put in there will be sent to the remote if
 user mbse has read/write access to the file. Only real files are allowed, not symlinks etc.
-<pre>
-<strong>Sysop name       </strong>The name of the system operator.
-<strong>Outbox dir       </strong>Private extra outbound directory for this node.
-<strong>Pvt. phone       </strong>Contact info, node private phone.
-<strong>Pvt. fax         </strong>Contact info, node private fax.
-<strong>Pvt. cellphone   </strong>Contact info, node cellphone (GSM).
-<strong>Pvt. e-mail      </strong>Contact info, node e-mail address.
-<strong>Pvt. remark      </strong>Contact info, node remark.
-<strong>Route via        </strong>A route via Fido address. All mail for this
-                 node will be send via this Aka, even mail 
-                 and files for other networks. This can be
-                 usefull if this node has internet access
-                 so you can send everything to this node
-                 over the internet.
-<strong>Netmail direct   </strong>Set "direct" flag in netmail to this node.
-<strong>Netmail crash    </strong>Send netmail always "crash" to this node.
-<strong>Netmail hold     </strong>Put mail on "hold" for this node.
-<strong>Pack netmail     </strong>Should netmail be packed in arcmail archives.
-<strong>Send notify      </strong>Send automatic generated notify messages.
-<strong>Language         </strong>The language to use for areamgr msgs.
-<strong>Deleted          </strong>If this node must be deleted.
-</pre>
+<p><table>
+<tr><th nowrap align=left valign=top>Sysop name</th><td>The name of the system
+operator. The name entered here is used in Areamgr and Filemgr messages etc.</td></tr>
+<tr><th nowrap align=left valign=top>Outbox dir</th><td>Private extra outbound
+directory for this node. Any file dropped into this directory will be sent to
+the node and removed after it is sent.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. phone</th><td>Contact info, node private
+phone.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. fax</th><td>Contact info, node private
+fax.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. cellphone</th><td>Contact info, node
+cellphone (GSM).</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. e-mail</th><td>Contact info, node e-mail
+address.</td></tr>
+<tr><th nowrap align=left valign=top>Pvt. remark</th><td>Contact info, node
+remark.</td></tr>
+<tr><th nowrap align=left valign=top>Route via</th><td>A route via Fido address. All
+mail for this node will be send via this Aka, even mail and files for other
+networks. This can be usefull if this node has internet access so you can send
+everything to this node over the internet. Note that to force calling this node
+via internetr, ISDN or pots can also be done by using nodelist flags override. See
+section 3. This setting is more usefull to force routing via another node or
+aka.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail direct</th><td>Set "direct" flag in
+netmail to this node.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail crash</th><td>Send netmail always "crash"
+to this node.</td></tr>
+<tr><th nowrap align=left valign=top>Netmail hold</th><td>Put mail on "hold" for this
+node.</td></tr>
+<tr><th nowrap align=left valign=top>Pack netmail</th><td>Should netmail be packed in
+arcmail archives.</td></tr>
+<tr><th nowrap align=left valign=top>Send notify</th><td>Send automatic generated
+notify messages.</td></tr>
+<tr><th nowrap align=left valign=top>Language</th><td>The language to use for areamgr
+msgs.</td></tr>
+<tr><th nowrap align=left valign=top>Deleted</th><td>If this node must be
+deleted.</td></tr>
+</table>
 <P>
 <IMG SRC="../images/nodes1.png">
 <P>&nbsp;<p>
@@ -68,32 +83,32 @@ In this screen you can setup 20 aka's for the node.
 
 <H3>Edit node session</H3>
 <p>
-In this screen you can setup the session defaults. Items 5/8 will be added later.
-<pre>
-<strong>Session passwd   </strong>This is the mailer session password.
-<strong>Dial command     </strong>You can put an override here for the normal
-                 dial command. If you leave this empty the
-                 command from the modem setup is used.
-<strong>Phone number 1   </strong>An alternative phone number/ip address to dial.
-<strong>Phone number 2   </strong>An alternative phone number/ip address to dial.
-                 Use these above commands if the node has
-                 another phone number as mentioned in the
-                 nodelist. If you call this node via TCP/IP
-                 and the IP address can't be resolved by
-                 the nodelist, you may enter an IP address
-                 or hostname here.
-<strong>No EMSI          </strong>Disable EMSI handshake.
-<strong>No YooHoo/2U2    </strong>Disable FTSC-0006 handshake.
-<strong>No Filerequest   </strong>Disable filerquest from this node.
-<strong>Don't call       </strong>Do not call this node.
-<strong>8.3 names        </strong>Set this if the node only accepts 8.3 filenames.
-<strong>No Zmodem        </strong>Disable Zmodem protocol.
-<strong>No Zedzap        </strong>Disable Zedzap protocol.
-<strong>No Hydra         </strong>Disable Hydra protocol.
-<strong>No TCP/IP IBN    </strong>Disbale TCP/IP IBN (binkp) protocol.
-<strong>No TCP/IP IFC    </strong>Disable TCP/IP IFC (ifcico) protocol.
-<strong>No TCP/IP ITN    </strong>Disable TCP/IP ITN (telnet) protocol.
-</pre>
+In this screen you can setup the session defaults. Items 7 and 8 will be added later.
+<p><table>
+<tr><th nowrap align=left valign=top>Session passwd</th><td>This is the mailer session password.
+<tr><th nowrap align=left valign=top>Dial command</th><td>You can put an override here for the normal dial command. If you leave this empty the command from the modem setup is used.
+<tr><th nowrap align=left valign=top>Phone number 1</th><td>An alternative phone number/ip address to dial.
+<tr><th nowrap align=left valign=top>Phone number 2</th><td>An alternative phone number/ip address to dial.  Use these above commands if the node has another phone number as mentioned in the nodelist.
+<tr><th nowrap align=left valign=top>Nodelist flags</th><td>Override for the
+nodelist flags, the nodelist flags are completly ignored if you enter something
+here so make sure all flags you need are here. All aka's of this node will use
+the same flags. This can be usefull to force calling this node via the internet.
+<tr><th nowrap align=left valign=top>Inet hostname</th><td>The FQDN hostname or
+IP address of this node. This replaces the original system name from the
+nodelist and this is then used to make the internet TCP/IP connection. This can
+be usefull if the FQDN is not present in the nodelist.
+<tr><th nowrap align=left valign=top>No EMSI</th><td>Disable EMSI handshake.
+<tr><th nowrap align=left valign=top>No YooHoo/2U2</th><td>Disable FTSC-0006 handshake.
+<tr><th nowrap align=left valign=top>No Filerequest</th><td>Disable filerequest from this node.
+<tr><th nowrap align=left valign=top>Don't call</th><td>Do not call this node.
+<tr><th nowrap align=left valign=top>8.3 names</th><td>Set this if the node only accepts 8.3 filenames.
+<tr><th nowrap align=left valign=top>No Zmodem</th><td>Disable Zmodem protocol.
+<tr><th nowrap align=left valign=top>No Zedzap</th><td>Disable Zedzap protocol.
+<tr><th nowrap align=left valign=top>No Hydra</th><td>Disable Hydra protocol.
+<tr><th nowrap align=left valign=top>No TCP/IP IBN</th><td>Disbale TCP/IP IBN (binkp) protocol.
+<tr><th nowrap align=left valign=top>No TCP/IP IFC</th><td>Disable TCP/IP IFC (ifcico) protocol.
+<tr><th nowrap align=left valign=top>No TCP/IP ITN</th><td>Disable TCP/IP ITN (telnet) protocol.
+</table>
 <p>
 <IMG SRC="../images/nodes3.png">
 <P>&nbsp;<p>
@@ -101,19 +116,15 @@ In this screen you can setup the session defaults. Items 5/8 will be added later
 
 <H3>Edit node - mail processing</H3>
 <P>
-<pre>
-<strong>PKT password     </strong>The password to insert in .pkt files.
-<strong>Check PKT pwd    </strong>Check password in received .pkt files. If not,
-                 errors or missing passwords are only logged.
-                 If set, errors or missing password are refused
-                 and the .pkt files are renamed to .bad
-<strong>UplMgr program   </strong>The name of the Areamgr program of this node.
-                 This could be AreaFix, AreaMgr etc.
-<strong>UplMgr passwd    </strong>The password for the Areamgr of this node.
-<strong>Mail forward     </strong>Not in use yet.
-<strong>ARCmail comp.    </strong>Use ARCmail 0.60 file naming convention for out of zone mail.
-<strong>ARCmail a..z     </strong>Allow a..z last character for ARCmail filenames.
-</pre>
+<p><table>
+<tr><th nowrap align=left valign=top>PKT password</th><td>The password to insert in .pkt files.
+<tr><th nowrap align=left valign=top>Check PKT pwd</th><td>Check password in received .pkt files. If not, errors or missing passwords are only logged.  If set, errors or missing password are refused and the .pkt files are renamed to .bad
+<tr><th nowrap align=left valign=top>UplMgr program</th><td>The name of the Areamgr program of this node.  This could be AreaFix, AreaMgr etc.
+<tr><th nowrap align=left valign=top>UplMgr passwd</th><td>The password for the Areamgr of this node.
+<tr><th nowrap align=left valign=top>Mail forward</th><td>Not in use yet.
+<tr><th nowrap align=left valign=top>ARCmail comp.</th><td>Use ARCmail 0.60 file naming convention for out of zone mail.
+<tr><th nowrap align=left valign=top>ARCmail a..z</th><td>Allow a..z last character for ARCmail filenames.
+</table>
 <P>
 <IMG SRC="../images/nodes4.gif">
 <P>&nbsp;<p>
@@ -129,25 +140,24 @@ carefull not to allow a node to connect areas from networks he has no aka in.
 
 <H3>File setup</H3>
 <P>
-<pre>
-<strong>Files password   </strong>The password for .tic files.
-<strong>Mgr password     </strong>The password for the Areamgr and Filemgr.
-<strong>UplMgr program   </strong>The name of the Filemgr progrom of this node.
-                 This could be FileMgr, Allfix, Raid etc.
-<strong>UplMgr passwd    </strong>The password of the Filemgr if this node.
-<strong>UplMgr Add +     </strong>Add a "+" in the command to connect areas.
-<strong>Incl. message    </strong>Send a netmail message for each file to send.
-<strong>Send TIC file    </strong>Send .tic file to this node.
-<strong>Advanced TIC     </strong>Send advanced or standard .tic files.
-<strong>File forward     </strong>Forward TIC files for this node (not yet).
-<strong>Billing          </strong>Is Costsharing active for this node.
-<strong>Bill direct      </strong>Send the bill direct or on command.
-<strong>Credit           </strong>The credit this node has in units.
-<strong>Debet            </strong>The debet we have with this node (informational).
-<strong>Add              </strong>Add (or substract) factor to the bill.
-<strong>Warn level       </strong>The debet level when to write a warning mesage.
-<strong>Stop level       </strong>The debet level when to stop sending files.
-</pre>
+<p><table>
+<tr><th nowrap align=left valign=top>Files password</th><td>The password for .tic files.
+<tr><th nowrap align=left valign=top>Mgr password</th><td>The password for the Areamgr and Filemgr.
+<tr><th nowrap align=left valign=top>UplMgr program</th><td>The name of the Filemgr progrom of this node. This could be FileMgr, Allfix, Raid etc.
+<tr><th nowrap align=left valign=top>UplMgr passwd</th><td>The password of the Filemgr if this node.
+<tr><th nowrap align=left valign=top>UplMgr Add +</th><td>Add a "+" in the command to connect areas.
+<tr><th nowrap align=left valign=top>Incl. message</th><td>Send a netmail message for each file to send.
+<tr><th nowrap align=left valign=top>Send TIC file</th><td>Send .tic file to this node.
+<tr><th nowrap align=left valign=top>Advanced TIC</th><td>Send advanced or standard .tic files.
+<tr><th nowrap align=left valign=top>File forward</th><td>Forward TIC files for this node (not yet).
+<tr><th nowrap align=left valign=top>Billing</th><td>Is Costsharing active for this node.
+<tr><th nowrap align=left valign=top>Bill direct</th><td>Send the bill direct or on command.
+<tr><th nowrap align=left valign=top>Credit</th><td>The credit this node has in units.
+<tr><th nowrap align=left valign=top>Debet</th><td>The debet we have with this node (informational).
+<tr><th nowrap align=left valign=top>Add</th><td>Add (or substract) factor to the bill.
+<tr><th nowrap align=left valign=top>Warn level</th><td>The debet level when to write a warning mesage.
+<tr><th nowrap align=left valign=top>Stop level</th><td>The debet level when to stop sending files.
+</table>
 <P>
 <IMG SRC="../images/nodes6.gif">
 <P>&nbsp;<p>

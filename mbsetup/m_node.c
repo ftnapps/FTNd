@@ -752,8 +752,8 @@ void SessionScreen(void)
     mvprintw( 8, 6, "2.   Dial command");
     mvprintw( 9, 6, "3.   Phone number 1");
     mvprintw(10, 6, "4.   Phone number 2");
-//  mvprintw(11, 6, "5.   Nodelist flags");
-//  mvprintw(12, 6, "6.   Inet hostname");
+    mvprintw(11, 6, "5.   Nodelist flags");
+    mvprintw(12, 6, "6.   Inet hostname");
 //  mvprintw(13, 6, "7.   Outbound sess.");
 //  mvprintw(14, 6, "8.   Inbound sess.");
     mvprintw(15, 6, "9.   No EMSI");
@@ -805,8 +805,8 @@ void SessionEdit(void)
 	case 2: E_STR(  8,26,40, nodes.dial,        "If needed, give a special modem ^dial command^ for this node")
 	case 3: E_STR(  9,26,20, nodes.phone[0],    "Enter ^phone number^ to override the nodelist")
 	case 4: E_STR( 10,26,20, nodes.phone[1],    "Enter ^phone number^ to override the nodelist")
-//	case 5: E_STR( 11,26,54, nodes.Nl_flags,    "^Nodelist flags^ override")
-//	case 6: E_STR( 12,26,40, nodes.Nl_hostname, "Node internet ^hostname/IP address^ override")
+	case 5: E_STR( 11,26,54, nodes.Nl_flags,    "^Nodelist flags^ override")
+	case 6: E_STR( 12,26,40, nodes.Nl_hostname, "Node internet ^hostname/IP address^ override")
 
 	case 9: E_BOOL(15,26,    nodes.NoEMSI,      "Disable ^EMSI handshake^ with this node")
 	case 10:E_BOOL(16,26,    nodes.NoWaZOO,     "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")

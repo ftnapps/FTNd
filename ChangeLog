@@ -4,11 +4,18 @@ $Id$
 
 v0.35.03	06-Jul-2002
 
+	common.a:
+		Added nodelist override to the nodelist lookup function.
+
 	lang:
 		Corrected a spelling error in the Dutch language file.
 
 	mbcico:
 		Changed IsDoing information.
+		Makes use of the node nodelist override settings.
+
+	mbout:
+		Makes use of the node nodelist override settings.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
@@ -26,6 +33,10 @@ v0.35.03	06-Jul-2002
 		Now forces callmode to None if the callflag was cleared.
 		The test to add a node to the calllist now also checks the
 		internal call flag.
+		Makes use of the node nodelist override settings.
+
+	mbsetup:
+		Enabled setting of nodelist override settings in menu 7.x.3
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
