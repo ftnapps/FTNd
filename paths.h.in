@@ -19,6 +19,7 @@
 #define	_PATH_ZIP	"@ZIP@"
 #define	_PATH_UNZIP	"@UNZIP@"
 #define	_PATH_ZOO	"@ZOO@"
+#define _PATH_HA	"@HA@"
 
 
 

@@ -305,9 +305,31 @@ int CountArchive(void)
 			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
+			memset(&archiver, 0, sizeof(archiver));
+			sprintf(archiver.comment, "HA Harri Hirvola");
+			sprintf(archiver.name,    "HA");
+			if (strlen(_PATH_HA)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s a21rq", _PATH_HA);
+			    sprintf(archiver.marc,    "%s a21q", _PATH_HA);
+			    sprintf(archiver.tarc,    "%s t", _PATH_HA);
+			    sprintf(archiver.funarc,  "%s eyq", _PATH_HA);
+			    sprintf(archiver.munarc,  "%s eyq", _PATH_HA);
+			    sprintf(archiver.iunarc,  "%s eyq", _PATH_HA);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/usr/bin/ha a21rq");
+			    sprintf(archiver.marc,    "/usr/bin/ha a21q");
+			    sprintf(archiver.tarc,    "/usr/bin/ha t");
+			    sprintf(archiver.funarc,  "/usr/bin/ha eyq");
+			    sprintf(archiver.munarc,  "/usr/bin/ha eyq");
+			    sprintf(archiver.iunarc,  "/usr/bin/ha eyq");
+			}
+			fwrite(&archiver, sizeof(archiver), 1, fil);
+
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 8;
+			return 11;
 		} else
 			return -1;
 	}

@@ -82,6 +82,7 @@ v0.35.03	06-Jul-2002
 		Added setup for nodes connected via directories (we are the
 		FTP server side).
 		Added setup setting for outbound queue in global setup.
+		Added support for default setup of the HA archiver.
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
