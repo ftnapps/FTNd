@@ -2,7 +2,7 @@
  *
  * File ..................: m_global.c
  * Purpose ...............: Global Setup Program 
- * Last modification date : 05-Jul-2001
+ * Last modification date : 11-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1660,7 +1660,9 @@ int global_doc(FILE *fp, FILE *toc, int page)
 #ifdef __USE_GNU
 		fprintf(fp, "      Domain name      %s\n", utsbuf.domainname);
 #else
+#ifdef __linux__
 		fprintf(fp, "      Domain name      %s\n", utsbuf.__domainname);
+#endif
 #endif
 		fprintf(fp, "      Operating system %s %s\n", utsbuf.sysname, utsbuf.release);
 		fprintf(fp, "      Kernel version   %s\n", utsbuf.version);
