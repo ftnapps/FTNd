@@ -615,9 +615,10 @@ SM_STATE(waitaddr)
 SM_STATE(sendpass)
 
     if (MD_challenge && strlen(nodes.Spasswd) && CRAMflag) {
+	char	*pw = NULL, *tp = NULL;
 	Syslog('b', "MD_challenge is set, building digest");
-	char *pw = xstrcpy(nodes.Spasswd);
-	char *tp = MD_buildDigest(pw, MD_challenge);
+	pw = xstrcpy(nodes.Spasswd);
+	tp = MD_buildDigest(pw, MD_challenge);
 	if (!tp) {
 	    Syslog('!', "Unable to build MD5 digest");
 	    SM_ERROR;
