@@ -1,12 +1,15 @@
 $Id$
 
-v0.39.5		24-Dec-2003
+v0.39.6		11-Jan-2004
+
+
+v0.39.5		24-Dec-2003 - 11-Jan-2004
 
 	general:
-		Added code for new binkp development, the code is disabled by
-		default and can only be used with the right configure option.
 		Upgraded to new released ftscprod.008
 		Added setup option per node to disable the binkp/1.1 protocol.
+		Added new binkp/1.1 driver, the code is disabled by default
+		and can only be used with the right configure option.
 		If you want to try the new binkp code, then run ./configure
 		with the --enable-newbinkp option. And if you are brave and
 		do this, please give some feedback about failed sessions with
@@ -29,9 +32,6 @@ v0.39.5		24-Dec-2003
 		Allow m_file command in binkp during file transfer in progress.
 		Fixed a segfault when a session failed.
 		New binkp/1.1 driver, not compiled by default yet.
-		- Changed testing EOB to prevent out-of-sync batches.
-		- Changed EOB handling some more.
-		- Added freqs
 
 	mbout:
 		Poll, remove poll and request failed to points which had no
@@ -58,6 +58,10 @@ v0.39.5		24-Dec-2003
 		All init scripts now clean the ~/var/run directory and start
 		the bbs allways so that the bbs will try to start after a power
 		failure.
+
+	html:
+		Removed the outdated ftsc documents, www.ftsc.org is the place
+		to look for them
 
 
 v0.39.4		08-Dec-2003 - 24-Dec-2003
