@@ -8,7 +8,7 @@ SRCS		= signature.c filesub.c language.c mbtoberep.c \
 		  msgutil.c oneline.c bbslist.c morefile.c \
 		  email.c fsedit.c lineedit.c mblang.c mbuser.c page.c \
 		  bye.c funcs.c mail.c term.c ttyio.c openport.c \
-		  newuser.c pinfo.c timecheck.c change.c \
+		  newuser.c pinfo.c timecheck.c change.c transfer.c \
 		  exitinfo.c mball.c mbsebbs.c menu.c pop3.c lastcallers.c \
 		  timeout.c chat.c file.c mbstat.c misc.c \
 		  offline.c user.c mbnewusr.c input.c whoson.c \
@@ -18,11 +18,11 @@ HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  mbstat.h msgutil.h oneline.h user.h bye.h morefile.h \
 		  funcs.h mail.h mbuser.h page.h term.h ttyio.h openport.h \
 		  change.h exitinfo.h mball.h newuser.h \
-		  pinfo.h chat.h file.h menu.h \
+		  pinfo.h chat.h file.h menu.h transfer.h \
 		  pop3.h timecheck.h mbnewusr.h input.h whoson.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h
 MBSEBBS_OBJS	= signature.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
-		  misc.o pinfo.o oneline.o page.o fsedit.o \
+		  misc.o pinfo.o oneline.o page.o fsedit.o transfer.o \
 		  bye.o change.o mbsebbs.o timeout.o user.o timecheck.o \
 		  exitinfo.o filesub.o lineedit.o offline.o language.o msgutil.o \
 		  pop3.o email.o input.o whoson.o door.o dispfile.o userlist.o timestats.o \
@@ -142,6 +142,7 @@ newuser.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h inp
 pinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h pinfo.h input.h term.h ttyio.h
 timecheck.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timecheck.h funcs.h bye.h exitinfo.h language.h input.h term.h ttyio.h
 change.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h change.h dispfile.h funcs.h input.h language.h misc.h timeout.h exitinfo.h bye.h term.h ttyio.h
+transfer.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h transfer.h
 exitinfo.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h funcs.h input.h language.h oneline.h misc.h bye.h timeout.h timecheck.h exitinfo.h
 mball.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/mbsedb.h mball.h
 mbsebbs.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg.h mbsebbs.h user.h dispfile.h language.h menu.h misc.h bye.h timeout.h funcs.h term.h ttyio.h openport.h
