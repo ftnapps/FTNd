@@ -4310,4 +4310,6 @@ v0.33.19        26-Oct-2001
 		Fixed the problem that the KillSent flag was set on processed
 		netmail.
 
+	mbfile:
+		During check the file databases are reset to filemode 0660.
 
