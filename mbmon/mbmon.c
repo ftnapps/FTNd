@@ -373,7 +373,7 @@ void disk_stat(void)
 		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, used);
 		    set_color(WHITE, BLACK);
 		    printf("%c  ", sign);
-		    if (strstr(type, "iso") == NULL) {
+		    if ((strstr(type, "iso") == NULL) && (strstr(type, "9660") == NULL)) {
 			if (avail <= CFG.freespace)
 			    set_color(LIGHTRED, BLACK);
 			else if (avail <= (CFG.freespace * 4))

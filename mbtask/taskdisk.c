@@ -244,7 +244,8 @@ void update_diskstat(void)
 	     */
 	    tmp->ro = (strstr(tmp->fstype, "iso") != NULL);
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
-	    Syslog('-', "%s %d", tmp->mountpoint, sfs.f_flags);
+		tmp->ro = (sfs.f_flags & MNT_RDONLY);
+//	    Syslog('-', "%s %d %d", tmp->mountpoint, sfs.f_flags, sfs.f_flags & MNT_RDONLY);
 #endif
         }
     }
