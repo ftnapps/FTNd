@@ -150,8 +150,12 @@ int OpenNoderec(void)
 			 */
 			memset(&nodes, 0, sizeof(nodes));
 			while (fread(&nodes, oldsize, 1, fin) == 1) {
+				if (oldsize != sizeof(nodes)) {
+				    strcpy(nodes.Spasswd, nodes.Epasswd);
+				}
 				fwrite(&nodes, sizeof(nodes), 1, fout);
 				memset(&nodes, 0, sizeof(nodes));
+
 				/*
 				 * Copy the existing file groups
 				 */
@@ -361,32 +365,35 @@ void E_Mail(void)
 	mvprintw( 5, 6, "7.14  EDIT NODE - MAIL PROCESSING");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.  Session pwd");
-	mvprintw( 8, 6, "2.  Check PKT pwd");
-	mvprintw( 9, 6, "3.  UplMgr program");
-	mvprintw(10, 6, "4.  UplMgr passwd");
-	mvprintw(11, 6, "5.  Mail forward");
-	mvprintw(12, 6, "6.  ARCmail comp.");
-	mvprintw(13, 6, "7.  ARCmail a..z");
+	mvprintw( 8, 6, "2.  PKT password");
+	mvprintw( 9, 6, "3.  Check PKT pwd");
+	mvprintw(10, 6, "4.  UplMgr program");
+	mvprintw(11, 6, "5.  UplMgr passwd");
+	mvprintw(12, 6, "6.  Mail forward");
+	mvprintw(13, 6, "7.  ARCmail comp.");
+	mvprintw(14, 6, "8.  ARCmail a..z");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
 		show_str( 7,25,15, (char *)"***************");
-		show_bool(8,25, nodes.MailPwdCheck);
-		show_str( 9,25, 8, nodes.UplAmgrPgm);
-		show_str(10,25,15, (char *)"***************");
-		show_bool(11,25, nodes.MailFwd);
-		show_bool(12,25, nodes.ARCmailCompat);
-		show_bool(13,25, nodes.ARCmailAlpha);
+		show_str( 8,25,15, (char *)"***************");
+		show_bool(9,25, nodes.MailPwdCheck);
+		show_str(10,25, 8, nodes.UplAmgrPgm);
+		show_str(11,25,15, (char *)"***************");
+		show_bool(12,25, nodes.MailFwd);
+		show_bool(13,25, nodes.ARCmailCompat);
+		show_bool(14,25, nodes.ARCmailAlpha);
 
-		switch(select_menu(7)) {
+		switch(select_menu(8)) {
 		case 0:	return;
-		case 1:	E_STR(  7,25,15,nodes.Epasswd,       "The ^Session/Mail password^ for this node")
-		case 2:	E_BOOL( 8,25,   nodes.MailPwdCheck,  "Check the ^mail PKT^ password")
-		case 3:	E_STR(  9,25, 8,nodes.UplAmgrPgm,    "Name of the uplink ^areamanager program^")
-		case 4:	E_STR( 10,25,15,nodes.UplAmgrPass,   "Uplink ^areamanager password^ for this node")
-		case 5:	E_BOOL(11,25,   nodes.MailFwd,       "^Forward^ echomail for this node")
-		case 6: E_BOOL(12,25,   nodes.ARCmailCompat, "Use ^ARCmail 0.60^ file naming convention for out of zone mail")
-		case 7: E_BOOL(13,25,   nodes.ARCmailAlpha,  "Allow ^0..9 and a..z^ filename extensions for ARCmail archives")
+		case 1:	E_STR(  7,25,15,nodes.Spasswd,       "The ^Session password^ for this node")
+		case 2: E_STR(  8,25,15,nodes.Epasswd,       "The ^Mail (.pkt)^ password^ for this node")
+		case 3:	E_BOOL( 9,25,   nodes.MailPwdCheck,  "Check the ^mail PKT^ password")
+		case 4:	E_STR( 10,25, 8,nodes.UplAmgrPgm,    "Name of the uplink ^areamanager program^")
+		case 5:	E_STR( 11,25,15,nodes.UplAmgrPass,   "Uplink ^areamanager password^ for this node")
+		case 6:	E_BOOL(12,25,   nodes.MailFwd,       "^Forward^ echomail for this node")
+		case 7: E_BOOL(13,25,   nodes.ARCmailCompat, "Use ^ARCmail 0.60^ file naming convention for out of zone mail")
+		case 8: E_BOOL(14,25,   nodes.ARCmailAlpha,  "Allow ^0..9 and a..z^ filename extensions for ARCmail archives")
 		}
 	}
 }
@@ -1162,7 +1169,8 @@ int node_doc(FILE *fp, FILE *toc, int page)
 
 		fprintf(fp, "     Language      %c\n", nodes.Language);
 		fprintf(fp, "     Files passwd  %s\n", nodes.Fpasswd);
-		fprintf(fp, "     Session pwd   %s\n", nodes.Epasswd);
+		fprintf(fp, "     Session pwd   %s\n", nodes.Spasswd);
+		fprintf(fp, "     PKT password  %s\n", nodes.Epasswd);
 		fprintf(fp, "     Areamgr pwd   %s\n\n", nodes.Apasswd);
 
 		fprintf(fp, "     Uplink mgrs   Program   Password\n");

@@ -34,6 +34,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../paths.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -69,19 +70,37 @@ int CountVirus(void)
 			 */
 			memset(&virscan, 0, sizeof(virscan));
 			sprintf(virscan.comment, "AntiVir/Linux Scanner");
-			sprintf(virscan.scanner, "/usr/bin/antivir");
+			if (strlen(_PATH_ANTIVIR)) {
+			    sprintf(virscan.scanner, "%s", _PATH_ANTIVIR);
+			    virscan.available = TRUE;
+			} else {
+			    sprintf(virscan.scanner, "/usr/bin/antivir");
+			    virscan.available = FALSE;
+			}
 			sprintf(virscan.options, "-allfiles -s -q");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			memset(&virscan, 0, sizeof(virscan));
 			sprintf(virscan.comment, "F-Prot scanner");
-			sprintf(virscan.scanner, "/usr/local/bin/f-prot .");
+			if (strlen(_PATH_FPROT)) {
+			    sprintf(virscan.scanner, "%s .", _PATH_FPROT);
+			    virscan.available = TRUE;
+			} else {
+			    sprintf(virscan.scanner, "/usr/local/bin/f-prot .");
+			    virscan.available = FALSE;
+			}
 			sprintf(virscan.options, "-archive -silent");
 			fwrite(&virscan, sizeof(virscan), 1, fil);
 
                         memset(&virscan, 0, sizeof(virscan));
                         sprintf(virscan.comment, "McAfee VirusScan for Linux");
-                        sprintf(virscan.scanner, "/usr/local/bin/uvscan");
+			if (strlen(_PATH_UVSCAN)) {
+			    sprintf(virscan.scanner, "%s", _PATH_UVSCAN);
+			    virscan.available = TRUE;
+			} else {
+			    sprintf(virscan.scanner, "/usr/local/bin/uvscan");
+			    virscan.available = FALSE;
+			}
                         sprintf(virscan.options, "--noboot --noexpire -r --secure -");
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 

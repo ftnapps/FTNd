@@ -34,6 +34,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../paths.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -64,101 +65,198 @@ int CountArchive(void)
 			archiverhdr.recsize = sizeof(archiver);
 			fwrite(&archiverhdr, sizeof(archiverhdr), 1, fil);
 			/*
-			 *  Create default records
+			 *  Create default records. Archivers found during configure
+			 *  and installing this software are automatic enabled with the
+			 *  right paths. Others are meant as examples.
 			 */
 			memset(&archiver, 0, sizeof(archiver));
 			sprintf(archiver.comment, "ARC Version 5.21");
 			sprintf(archiver.name,    "ARC");
-			archiver.available = FALSE;
-			sprintf(archiver.marc,    "/usr/bin/arc anw");
-			sprintf(archiver.tarc,    "/usr/bin/arc tnw");
-			sprintf(archiver.funarc,  "/usr/bin/arc xnw");
-			sprintf(archiver.munarc,  "/usr/bin/arc enw");
-			sprintf(archiver.iunarc,  "/usr/bin/arc enw");
+			if (strlen(_PATH_ARC)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.marc,    "%s anw", _PATH_ARC);
+			    sprintf(archiver.tarc,    "%s tnw", _PATH_ARC);
+			    sprintf(archiver.funarc,  "%s xnw", _PATH_ARC);
+			    sprintf(archiver.munarc,  "%s enw", _PATH_ARC);
+			    sprintf(archiver.iunarc,  "%s enw", _PATH_ARC);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.marc,    "/usr/bin/arc anw");
+			    sprintf(archiver.tarc,    "/usr/bin/arc tnw");
+			    sprintf(archiver.funarc,  "/usr/bin/arc xnw");
+			    sprintf(archiver.munarc,  "/usr/bin/arc enw");
+			    sprintf(archiver.iunarc,  "/usr/bin/arc enw");
+			}
 			fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "LHarc");
                         sprintf(archiver.name,    "LHA");
-                        archiver.available = FALSE;
-                        sprintf(archiver.marc,    "/usr/bin/lha aq");
-                        sprintf(archiver.tarc,    "/usr/bin/lha tq");
-                        sprintf(archiver.funarc,  "/usr/bin/lha xqf");
-                        sprintf(archiver.munarc,  "/usr/bin/lha eqf");
-                        sprintf(archiver.iunarc,  "/usr/bin/lha eqf");
+			if (strlen(_PATH_LHA)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.marc,    "%s aq", _PATH_LHA);
+			    sprintf(archiver.tarc,    "%s tq", _PATH_LHA);
+			    sprintf(archiver.funarc,  "%s xqf", _PATH_LHA);
+			    sprintf(archiver.munarc,  "%s eqf", _PATH_LHA);
+			    sprintf(archiver.iunarc,  "%s eqf", _PATH_LHA);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.marc,    "/usr/bin/lha aq");
+			    sprintf(archiver.tarc,    "/usr/bin/lha tq");
+			    sprintf(archiver.funarc,  "/usr/bin/lha xqf");
+			    sprintf(archiver.munarc,  "/usr/bin/lha eqf");
+			    sprintf(archiver.iunarc,  "/usr/bin/lha eqf");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "RAR by Eugene Roshal");
                         sprintf(archiver.name,    "RAR");
-                        archiver.available = FALSE;
-                        sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
-                        sprintf(archiver.marc,    "/usr/bin/rar a -y");
-                        sprintf(archiver.barc,    "/usr/bin/rar c -y");
-                        sprintf(archiver.tarc,    "/usr/bin/rar t -y");
-                        sprintf(archiver.funarc,  "/usr/bin/unrar x -o+ -y -r");
-                        sprintf(archiver.munarc,  "/usr/bin/unrar e -o+ -y");
-                        sprintf(archiver.iunarc,  "/usr/bin/unrar e");
+			if (strlen(_PATH_RAR) && strlen(_PATH_UNRAR))
+			    archiver.available = TRUE;
+			else
+			    archiver.available = FALSE;
+			if (strlen(_PATH_RAR)) {
+			    sprintf(archiver.farc,    "%s a -y -r", _PATH_RAR);
+			    sprintf(archiver.marc,    "%s a -y", _PATH_RAR);
+			    sprintf(archiver.barc,    "%s c -y", _PATH_RAR);
+			    sprintf(archiver.tarc,    "%s t -y", _PATH_RAR);
+			} else {
+			    sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
+			    sprintf(archiver.marc,    "/usr/bin/rar a -y");
+			    sprintf(archiver.barc,    "/usr/bin/rar c -y");
+			    sprintf(archiver.tarc,    "/usr/bin/rar t -y");
+			}
+			if (strlen(_PATH_UNRAR)) {
+			    sprintf(archiver.funarc,  "%s x -o+ -y -r", _PATH_UNRAR);
+			    sprintf(archiver.munarc,  "%s e -o+ -y", _PATH_UNRAR);
+			    sprintf(archiver.iunarc,  "%s e", _PATH_UNRAR);
+			} else {
+			    sprintf(archiver.funarc,  "/usr/bin/unrar x -o+ -y -r");
+			    sprintf(archiver.munarc,  "/usr/bin/unrar e -o+ -y");
+			    sprintf(archiver.iunarc,  "/usr/bin/unrar e");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "TAR the GNU version");
                         sprintf(archiver.name,    "TAR");
-                        archiver.available = TRUE;
-                        sprintf(archiver.farc,    "/bin/tar cfz");
-                        sprintf(archiver.marc,    "/bin/tar Afz");
-                        sprintf(archiver.tarc,    "/bin/tar tfz");
-                        sprintf(archiver.funarc,  "/bin/tar xfz");
-                        sprintf(archiver.munarc,  "/bin/tar xfz");
-                        sprintf(archiver.iunarc,  "/bin/tar xfz");
+			if (strlen(_PATH_TAR)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s cfz", _PATH_TAR);
+			    sprintf(archiver.marc,    "%s Afz", _PATH_TAR);
+			    sprintf(archiver.tarc,    "%s tfz", _PATH_TAR);
+			    sprintf(archiver.funarc,  "%s xfz", _PATH_TAR);
+			    sprintf(archiver.munarc,  "%s xfz", _PATH_TAR);
+			    sprintf(archiver.iunarc,  "%s xfz", _PATH_TAR);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/bin/tar cfz");
+			    sprintf(archiver.marc,    "/bin/tar Afz");
+			    sprintf(archiver.tarc,    "/bin/tar tfz");
+			    sprintf(archiver.funarc,  "/bin/tar xfz");
+			    sprintf(archiver.munarc,  "/bin/tar xfz");
+			    sprintf(archiver.iunarc,  "/bin/tar xfz");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "UNARJ by Robert K Jung");
                         sprintf(archiver.name,    "ARJ");
-                        archiver.available = FALSE;
-                        sprintf(archiver.tarc,    "/usr/bin/unarj t");
-                        sprintf(archiver.funarc,  "/usr/bin/unarj x");
-                        sprintf(archiver.munarc,  "/usr/bin/unarj e");
-                        sprintf(archiver.iunarc,  "/usr/bin/unarj e");
+			/*
+			 * Even if it is found, we won't enable unarj if the
+			 * Russion arj is found since that is more complete.
+			 */
+			if (strlen(_PATH_UNARJ) && (! strlen(_PATH_ARJ)))
+			    archiver.available = TRUE;
+			else
+			    archiver.available = FALSE;
+			if (strlen(_PATH_UNARJ)) {
+			    sprintf(archiver.tarc,    "%s t", _PATH_UNARJ);
+			    sprintf(archiver.funarc,  "%s x", _PATH_UNARJ);
+			    sprintf(archiver.munarc,  "%s e", _PATH_UNARJ);
+			    sprintf(archiver.iunarc,  "%s e", _PATH_UNARJ);
+			} else {
+			    sprintf(archiver.tarc,    "/usr/bin/unarj t");
+			    sprintf(archiver.funarc,  "/usr/bin/unarj x");
+			    sprintf(archiver.munarc,  "/usr/bin/unarj e");
+			    sprintf(archiver.iunarc,  "/usr/bin/unarj e");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
 			memset(&archiver, 0, sizeof(archiver));
 			sprintf(archiver.comment, "ARJ from ARJ Software Russia");
 			sprintf(archiver.name,    "ARJ");
-			archiver.available = FALSE;
-			sprintf(archiver.farc,    "/usr/bin/arj -2d -y -r a");
-			sprintf(archiver.marc,    "/usr/bin/arj -2d -y -e a");
-			sprintf(archiver.barc,    "/usr/bin/arj -2d -y c");
-			sprintf(archiver.tarc,    "/usr/bin/arj -y t");
-			sprintf(archiver.funarc,  "/usr/bin/arj -y x");
-			sprintf(archiver.munarc,  "/usr/bin/arj -y e");
-			sprintf(archiver.iunarc,  "/usr/bin/arj -y e");
+			if (strlen(_PATH_ARJ)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s -2d -y -r a", _PATH_ARJ);
+			    sprintf(archiver.marc,    "%s -2d -y -e a", _PATH_ARJ);
+			    sprintf(archiver.barc,    "%s -2d -y c", _PATH_ARJ);
+			    sprintf(archiver.tarc,    "%s -y t", _PATH_ARJ);
+			    sprintf(archiver.funarc,  "%s -y x", _PATH_ARJ);
+			    sprintf(archiver.munarc,  "%s -y e", _PATH_ARJ);
+			    sprintf(archiver.iunarc,  "%s -y e", _PATH_ARJ);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/usr/bin/arj -2d -y -r a");
+			    sprintf(archiver.marc,    "/usr/bin/arj -2d -y -e a");
+			    sprintf(archiver.barc,    "/usr/bin/arj -2d -y c");
+			    sprintf(archiver.tarc,    "/usr/bin/arj -y t");
+			    sprintf(archiver.funarc,  "/usr/bin/arj -y x");
+			    sprintf(archiver.munarc,  "/usr/bin/arj -y e");
+			    sprintf(archiver.iunarc,  "/usr/bin/arj -y e");
+			}
 			fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "ZIP and UNZIP by Info-ZIP");
                         sprintf(archiver.name,    "ZIP");
-                        archiver.available = TRUE;
-                        sprintf(archiver.farc,    "/usr/bin/zip -r -q");
-                        sprintf(archiver.marc,    "/usr/bin/zip -q");
-                        sprintf(archiver.barc,    "/usr/bin/zip -z");
-                        sprintf(archiver.tarc,    "/usr/bin/zip -T");
-                        sprintf(archiver.funarc,  "/usr/bin/unzip -o -q");
-                        sprintf(archiver.munarc,  "/usr/bin/unzip -o -j -L");
-                        sprintf(archiver.iunarc,  "/usr/bin/unzip -o -j");
+			if (strlen(_PATH_ZIP) && strlen(_PATH_UNZIP))
+			    archiver.available = TRUE;
+			else
+			    archiver.available = FALSE;
+			if (strlen(_PATH_ZIP)) {
+			    sprintf(archiver.farc,    "%s -r -q", _PATH_ZIP);
+			    sprintf(archiver.marc,    "%s -q", _PATH_ZIP);
+			    sprintf(archiver.barc,    "%s -z", _PATH_ZIP);
+			    sprintf(archiver.tarc,    "%s -T", _PATH_ZIP);
+			} else {
+			    sprintf(archiver.farc,    "/usr/bin/zip -r -q");
+			    sprintf(archiver.marc,    "/usr/bin/zip -q");
+			    sprintf(archiver.barc,    "/usr/bin/zip -z");
+			    sprintf(archiver.tarc,    "/usr/bin/zip -T");
+			}
+			if (strlen(_PATH_UNZIP)) {
+			    sprintf(archiver.funarc,  "%s -o -q", _PATH_UNZIP);
+			    sprintf(archiver.munarc,  "%s -o -j -L", _PATH_UNZIP);
+			    sprintf(archiver.iunarc,  "%s -o -j", _PATH_UNZIP);
+			} else {
+			    sprintf(archiver.funarc,  "/usr/bin/unzip -o -q");
+			    sprintf(archiver.munarc,  "/usr/bin/unzip -o -j -L");
+			    sprintf(archiver.iunarc,  "/usr/bin/unzip -o -j");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "ZOO archiver");
                         sprintf(archiver.name,    "ZOO");
-                        archiver.available = FALSE;
-                        sprintf(archiver.farc,    "/usr/bin/zoo aq");
-                        sprintf(archiver.marc,    "/usr/bin/zoo aq:O");
-                        sprintf(archiver.barc,    "/usr/bin/zoo aqC");
-                        sprintf(archiver.funarc,  "/usr/bin/zoo xqO");
-                        sprintf(archiver.munarc,  "/usr/bin/zoo eq:O");
-                        sprintf(archiver.iunarc,  "/usr/bin/zoo eqO");
+			if (strlen(_PATH_ZOO)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s aq", _PATH_ZOO);
+			    sprintf(archiver.marc,    "%s aq:O", _PATH_ZOO);
+			    sprintf(archiver.barc,    "%s aqC", _PATH_ZOO);
+			    sprintf(archiver.funarc,  "%s xqO", _PATH_ZOO);
+			    sprintf(archiver.munarc,  "%s eq:O", _PATH_ZOO);
+			    sprintf(archiver.iunarc,  "%s eqO", _PATH_ZOO);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/usr/bin/zoo aq");
+			    sprintf(archiver.marc,    "/usr/bin/zoo aq:O");
+			    sprintf(archiver.barc,    "/usr/bin/zoo aqC");
+			    sprintf(archiver.funarc,  "/usr/bin/zoo xqO");
+			    sprintf(archiver.munarc,  "/usr/bin/zoo eq:O");
+			    sprintf(archiver.iunarc,  "/usr/bin/zoo eqO");
+			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
 			fclose(fil);

@@ -34,6 +34,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../paths.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -67,10 +68,16 @@ int CountProtocol(void)
 			memset(&PROT, 0, sizeof(PROT));
 			sprintf(PROT.ProtKey,      "1");
 			sprintf(PROT.ProtName,     "Ymodem");
-			sprintf(PROT.ProtUp,       "/usr/bin/rb -v");
-			sprintf(PROT.ProtDn,       "/usr/bin/sb -v -u");
+			if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
+			    sprintf(PROT.ProtUp,       "%s -v", _PATH_RB);
+			    sprintf(PROT.ProtDn,       "%s -v -u", _PATH_SB);
+			    PROT.Available = TRUE;
+			} else {
+			    sprintf(PROT.ProtUp,       "/usr/bin/rb -v");
+			    sprintf(PROT.ProtDn,       "/usr/bin/sb -v -u");
+			    PROT.Available = FALSE;
+			}
 			sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-			PROT.Available = TRUE;
 			PROT.Batch = TRUE;
 			PROT.Efficiency = 92;
 			fwrite(&PROT, sizeof(PROT), 1, fil);
@@ -81,6 +88,7 @@ int CountProtocol(void)
                         sprintf(PROT.ProtUp,       "%s/bin/rf", getenv("MBSE_ROOT"));
                         sprintf(PROT.ProtDn,       "%s/bin/sf", getenv("MBSE_ROOT"));
                         sprintf(PROT.Advice,       "It goes before you know");
+			PROT.Available = FALSE;
                         PROT.Efficiency = 100;
 			PROT.Batch = TRUE;
                         fwrite(&PROT, sizeof(PROT), 1, fil);
@@ -88,10 +96,16 @@ int CountProtocol(void)
                         memset(&PROT, 0, sizeof(PROT));
                         sprintf(PROT.ProtKey,      "Y");
                         sprintf(PROT.ProtName,     "Ymodem 1K");
-                        sprintf(PROT.ProtUp,       "/usr/bin/rb -k -v");
-                        sprintf(PROT.ProtDn,       "/usr/bin/sb -k -v -u");
+			if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
+			    sprintf(PROT.ProtUp,       "%s -k -v", _PATH_RB);
+			    sprintf(PROT.ProtDn,       "%s -k -v -u", _PATH_SB);
+			    PROT.Available = TRUE;
+			} else {
+			    sprintf(PROT.ProtUp,       "/usr/bin/rb -k -v");
+			    sprintf(PROT.ProtDn,       "/usr/bin/sb -k -v -u");
+			    PROT.Available = FALSE;
+			}
                         sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-                        PROT.Available = TRUE;
 			PROT.Batch = TRUE;
                         PROT.Efficiency = 95;
                         fwrite(&PROT, sizeof(PROT), 1, fil);
@@ -99,10 +113,16 @@ int CountProtocol(void)
                         memset(&PROT, 0, sizeof(PROT));
                         sprintf(PROT.ProtKey,      "Z");
                         sprintf(PROT.ProtName,     "Zmodem");
-                        sprintf(PROT.ProtUp,       "/usr/bin/rz -p -v");
-                        sprintf(PROT.ProtDn,       "/usr/bin/sz -b -q -r -u");
+			if (strlen(_PATH_SZ) && strlen(_PATH_RZ)) {
+			    sprintf(PROT.ProtUp,       "%s -p -v", _PATH_RZ);
+			    sprintf(PROT.ProtDn,       "%s -b -q -r -u", _PATH_SZ);
+			    PROT.Available = TRUE;
+			} else {
+			    sprintf(PROT.ProtUp,       "/usr/bin/rz -p -v");
+			    sprintf(PROT.ProtDn,       "/usr/bin/sz -b -q -r -u");
+			    PROT.Available = FALSE;
+			}
                         sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-                        PROT.Available = TRUE;
 			PROT.Batch = TRUE;
                         PROT.Efficiency = 98;
                         fwrite(&PROT, sizeof(PROT), 1, fil);

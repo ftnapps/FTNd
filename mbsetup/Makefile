@@ -76,7 +76,7 @@ m_fgroup.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../li
 m_lang.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_lang.h
 m_marea.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h screen.h mutil.h ledit.h grlist.h m_global.h m_node.h m_mgroup.h m_marea.h
 m_new.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h grlist.h m_new.h m_lang.h m_marea.h m_ngroup.h
-m_protocol.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h screen.h mutil.h ledit.h stlist.h m_global.h m_protocol.h
+m_protocol.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_protocol.h
 m_ticarea.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h grlist.h m_global.h m_node.h m_fgroup.h m_farea.h m_archive.h m_ticarea.h
 mbsetup.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_bbs.h m_farea.h m_fgroup.h m_mail.h m_mgroup.h m_hatch.h m_tic.h m_ticarea.h m_magic.h m_fido.h m_lang.h m_archive.h m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h m_ol.h m_bbslist.h m_safe.h m_protocol.h m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h m_task.h
 ledit.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h screen.h mutil.h ledit.h
@@ -88,7 +88,7 @@ m_ngroup.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../li
 m_service.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_service.h
 m_tty.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_modem.h m_global.h m_tty.h
 mutil.o: ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h
-m_archive.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_archive.h
+m_archive.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_archive.h
 m_fdb.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_farea.h m_fdb.h
 m_global.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_global.h
 m_magic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_ticarea.h m_global.h m_magic.h
@@ -104,7 +104,7 @@ m_mail.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/
 m_modem.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_modem.h
 m_ol.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_ol.h
 m_tic.o: ../lib/libs.h ../lib/structs.h ../lib/common.h screen.h mutil.h ledit.h m_fgroup.h m_ticarea.h m_magic.h m_hatch.h m_tic.h
-m_virus.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h screen.h mutil.h ledit.h stlist.h m_global.h m_virus.h
+m_virus.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_virus.h
 stlist.o: ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h stlist.h
 m_bbslist.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_bbslist.h
 m_safe.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_safe.h
