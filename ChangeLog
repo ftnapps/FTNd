@@ -43,6 +43,9 @@ v0.35.05	19-Oct-2002
 		The AreaMgr reuqests now honor the setting of the switches
 		Plus All, Notify, Passwd and Pause.
 
+	mbtask:
+		Removed debug logging of "does" info.
+
 
 v0.35.04	29-Sep-2002 - 19-Oct-2002.
 

@@ -199,7 +199,6 @@ int reg_doing(char *data)
 		return -1;
 
 	strncpy(reginfo[rec].doing, line, 35);
-	tasklog('d', "%s (%s) does \"%s\"", reginfo[rec].prg, pid, line);
 	reginfo[rec].lastcon = time(NULL);
 	return 0;
 }
