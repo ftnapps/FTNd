@@ -252,9 +252,9 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
      * rescanning software changes the seconds of a message. Do the
      * timestamp check without the seconds.
      */
-    tm = gmtime(&mdate);
-    memset(&datestr, 0, sizeof(datestr));
-    sprintf(datestr, "%04d%02d%02d%02d%02d", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
+//    tm = gmtime(&mdate);
+//    memset(&datestr, 0, sizeof(datestr));
+//    sprintf(datestr, "%04d%02d%02d%02d%02d", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
 //    crc = upd_crc32(datestr, crc, strlen(datestr));
 //  NOT ACTIVATED BEFORE A LOT OF DUPES AT MY HUB ARE PROCESSED
 
