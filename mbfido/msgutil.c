@@ -120,7 +120,6 @@ void Msg_Macro(FILE *fi)
 		 * Empty lines are just written
 		 */
 		MsgText_Add2((char *)"");
-		Syslog('-', " ");
 	    } else {
 		strncpy(temp, ParseMacro(line,&res), 254);
 		if (res)
@@ -130,7 +129,6 @@ void Msg_Macro(FILE *fi)
 		 */
 		if (strlen(temp)) {
 		    MsgText_Add2(temp);
-		    Syslog('-', "%s", temp);
 		}
 	    }
 	}
