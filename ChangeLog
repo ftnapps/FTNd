@@ -43,6 +43,7 @@ v0.37.7		09-Sep-2003
 		If doesn't do Multiple Batch mode anymore against binkp/1.1
 		mailers.
 		File resync during receive finally works.
+		In binkp we don't send a empty dataframe after a file anymore.
 
 	mbtask:
 		Added support for debug logfile. Dropped the debug switch for

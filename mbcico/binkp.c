@@ -1389,7 +1389,7 @@ int binkp_batch(file_list *to_send)
 		/*
 		 * Send empty dataframe, most binkp mailers need it to detect EOF.
 		 */
-		binkp_send_data(txbuf, 0);
+//		binkp_send_data(txbuf, 0);
 
 		/*
 		 * calculate time needed and bytes transferred
@@ -1466,7 +1466,11 @@ int binkp_batch(file_list *to_send)
 				    if (strcasecmp(tmpg->remote, bp.gname) == 0) {
 					tmpg->state = NoState;
 					tmpg->offset = bp.goffset;
-					Syslog('+', "Remote wants %s again, offset %ld", bp.gname, bp.goffset);
+					if (bp.goffset) {
+					    Syslog('+', "Remote wants %s for resync at offset %ld", bp.gname, bp.goffset);
+					} else {
+					    Syslog('+', "Remote wants %s again", bp.gname);
+					}
 					bp.TxState = TxGetNextFile;
 				    }
 				}
