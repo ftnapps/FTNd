@@ -1,14 +1,14 @@
-#!/bin/sh
 #
 # Installation script to install bootscripts.
 #
-# (C) Michiel Broek, v0.21 27-May-2001
+# (C) Michiel Broek, v0.23 25-Aug-2001
 #
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:$MBSE_ROOT/bin
 DISTNAME=
 DISTVERS=
 DISTINIT=
 SU="su"
+OSTYPE=`uname -s`
 
 #------------------------------------------------------------------------
 #
@@ -73,52 +73,60 @@ fi
 
 # First do various tests to see which Linux distribution this is.
 #
-if [ -f /etc/slackware-version ]; then
-    # Slackware 7.0 and later
-    DISTNAME="Slackware"
-    DISTVERS=`cat /etc/slackware-version`
-else
-    if [ -f /etc/debian_version ]; then
-	# Debian, at least since version 2.2
-	DISTNAME="Debian"
-	DISTVERS=`cat /etc/debian_version`
+if [ "$OSTYPE" = "Linux" ]; then
+    if [ -f /etc/slackware-version ]; then
+    	# Slackware 7.0 and later
+    	DISTNAME="Slackware"
+    	DISTVERS=`cat /etc/slackware-version`
     else
-	if [ -f /etc/SuSE-release ]; then
-	    DISTNAME="SuSE"
-	    DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
-	else
-	    if [ -f /etc/redhat-release ]; then
-		DISTNAME="RedHat"
-		DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+    	if [ -f /etc/debian_version ]; then
+	    # Debian, at least since version 2.2
+	    DISTNAME="Debian"
+	    DISTVERS=`cat /etc/debian_version`
+    	else
+	    if [ -f /etc/SuSE-release ]; then
+	    	DISTNAME="SuSE"
+	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
 	    else
-		if [ -f /etc/mandrake-release ]; then
-		    DISTNAME="Mandrake"
-		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
-		else
-		    if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
-		    	# If Slackware wasn't detected yet it is version 4.0 or older.
-		    	DISTNAME="Slackware"
-		    	DISTVERS="Old"
+	    	if [ -f /etc/redhat-release ]; then
+		    DISTNAME="RedHat"
+		    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+	        else
+		    if [ -f /etc/mandrake-release ]; then
+		    	DISTNAME="Mandrake"
+		    	# Format: Linux Mandrake release 8.0 (Cooker) for i586
+		    	DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
 		    else
-		    	DISTNAME="Unknown"
-		    	log "!" "unknown distribution, collecting data"
-                    	log "-" "`uname -a`"
-                    	log "-" "`ls -la /etc`"
-		    	echo "Failed to install bootscripts, unknown Linux distribution."
-		    	echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
-		    	echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
-                    	echo "Add information about the distribution you use in the message."
-		    	exit 1;
+		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
+		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
+		    	    DISTNAME="Slackware"
+		    	    DISTVERS="Old"
+		    	else
+		    	    DISTNAME="Unknown"
+		    	    log "!" "unknown distribution, collecting data"
+                    	    log "-" "`uname -a`"
+                    	    log "-" "`ls -la /etc`"
+		    	    echo "Failed to install bootscripts, unknown Linux distribution."
+		    	    echo "Please mail the file `pwd`/script/installinit.log to mbroek@users.sourceforge.net"
+		    	    echo "or send it as file attach to Michiel Broek at 2:280/2802@Fidonet."
+                    	    echo "Add information about the distribution you use in the message."
+		    	    exit 1;
+		    	fi
 		    fi
-		fi
+	    	fi
 	    fi
-	fi
+    	fi
     fi
+fi
+if [ "$OSTYPE" = "FreeBSD" ]; then
+    DISTNAME="FreeBSD"
+    DISTVERS=`uname -r`
+    DISTVERS=${DISTVERS:0:3}
+    PW="pw "
 fi
 
 
-log "+" "Distribution $DISTNAME $DISTVERS"
+log "+" "Distribution $OSTYPE $DISTNAME $DISTVERS"
 
 
 #--------------------------------------------------------------------------
@@ -162,6 +170,7 @@ case "\$1" in
         echo -n "MBSE BBS starting:"
         rm -f \$MBSE_ROOT/sema/*
         rm -f \$MBSE_ROOT/var/*.LCK
+	rm -f \$MBSE_ROOT/tmp/mb*
         $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
         echo -n " mbtask"
         if [ -f \$MBSE_ROOT/etc/config.data ]; then
@@ -257,6 +266,8 @@ if [ "$DISTNAME" = "Slackware" ]; then
 cat << EOF >$DISTINIT
 #!/bin/sh
 #
+# description: Starts and stops MBSE BBS. 
+#
 # Author: Michiel Broek <mbse@users.sourceforge.net>, 23-May-2001
 #
 # $DISTINIT for Slackware
@@ -285,6 +296,7 @@ case "\$1" in
         echo -n "MBSE BBS starting:"
         rm -f \$MBSE_ROOT/sema/*
         rm -f \$MBSE_ROOT/var/*.LCK
+	rm -f \$MBSE_ROOT/tmp/mb*
         $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
         echo -n " mbtask"
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
@@ -429,6 +441,7 @@ case "\$1" in
 	echo -n "Starting MBSE BBS: "
 	rm -f \$MBSE_ROOT/sema/*
 	rm -f \$MBSE_ROOT/var/*.LCK
+	rm -f \$MBSE_ROOT/tmp/mb*
 	$SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
 	echo -n "mbtask "
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
@@ -517,6 +530,7 @@ case "\$1" in
 	echo -n "Starting \$DESC: "
 	rm -f \$MBSE_ROOT/sema/*
 	rm -f \$MBSE_ROOT/var/*.LCK
+	rm -f \$MBSE_ROOT/tmp/mb*
 	su mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
 	echo -n "mbtask "
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
@@ -550,6 +564,42 @@ EOF
 	echo "Debian install ready."
         log "+" "Debian SystemV init script installed"
 fi
+
+
+#--------------------------------------------------------------------------
+#
+#  Adding scripts for FreeBSD
+#
+#
+if [ "$DISTNAME" = "FreeBSD" ]; then
+    #
+    # FreeBSD init
+    #
+    DISTINIT="$MBSE_ROOT/etc/rc"
+    echo "Adding FreeBSD style MBSE BBS start/stop scripts"
+    log "+" "Adding FreeBSD style MBSE BBS start/stop scripts"
+    if [ "`grep MBSE /etc/rc.local`" = "" ]; then
+        log "+" "Adding $MBSE_ROOT/etc/rc to /etc/rc.local"
+        mv /etc/rc.local /etc/rc.local.mbse
+        cat /etc/rc.local.mbse >/etc/rc.local
+        echo "# Start MBSE BBS" >>/etc/rc.local
+        echo "$MBSE_ROOT/etc/rc" >>/etc/rc.local
+        chmod 644 /etc/rc.local
+        echo "   Added $MBSE_ROOT/etc/rc to /etc/rc.local"
+        echo "   /etc/rc.local.mbse is a backup file."
+        echo ""
+    fi
+    cp mbse.start   $MBSE_ROOT/bin
+    cp mbse.stop    $MBSE_ROOT/bin
+    cp rc           $MBSE_ROOT/etc
+    cp rc.shutdown  $MBSE_ROOT/etc
+    chown mbse.bbs  $MBSE_ROOT/bin/mbse.start $MBSE_ROOT/bin/mbse.stop
+    chmod 755       $MBSE_ROOT/bin/mbse.start $MBSE_ROOT/bin/mbse.stop
+    chown `id -un`.`id -gn` $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
+    chmod 744       $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
+fi
+
+
 
 echo
 echo "Please note, your MBSE BBS startup file is \"$DISTINIT\""
