@@ -112,7 +112,12 @@ mbfido:
 	N: Implement areamgr/filemgr %avail command to list available areas
 	   from areas files.
 
-	M: Add switch to tic areas that new links connect SR to the area.
+	N: Add switch to tic areas that new links connect SR to the area.
+
+	N: When messages are deleted in the middel (not the highest message),
+	   after a pack the lastread pointer is too high and users won't see
+	   any new mail until the number of messages becomes higher then the
+	   position of the lastread pointer.
 
 mbcico:
 	L: Implement binkp option ND.
@@ -140,6 +145,8 @@ mbfile:
 	   need cd-rom support with current hd prices?
 
 	N: The adopt command switches the LFN and 8.3 name.
+
+	N: The import command doesn't work with long filenames.
 
 mbtask:
 	U: During chat when one of the users is disconnected for some reason
