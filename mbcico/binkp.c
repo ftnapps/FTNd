@@ -577,6 +577,7 @@ SM_STATE(Opts)
 //	Syslog('b', "MBflag WeCan => WeWant");
 //	binkp_send_command(MM_NUL, "OPT MB");
 //    }
+    IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
     SM_SUCCESS;
 
 SM_END
@@ -861,6 +862,7 @@ SM_STATE(PwdAck)
 
 SM_STATE(Opts)
 
+    IsDoing("Binkp from %s", ascfnode(remote->addr, 0xf));
     SM_SUCCESS;
 
 SM_END
