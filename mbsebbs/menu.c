@@ -93,6 +93,7 @@ void menu()
 
     Input = calloc(PATH_MAX, sizeof(char));
     sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
+    Syslog('+', "Starting menu loop");
 
     /* 
      * Loop forever, this is what a BBS should do until a user logs out.
@@ -110,9 +111,9 @@ void menu()
 	    sprintf(sMenuPathFileName,"%s/%s", CFG.bbs_menus, Menus[MenuLevel]);
 	    pMenuFile = fopen(sMenuPathFileName,"r");
 	    if (pMenuFile != NULL)
-		Syslog('+', "Menu %s (Default)", Menus[MenuLevel]);
+		Syslog('b', "Menu %s (Default)", Menus[MenuLevel]);
 	} else {
-	    Syslog('+', "Menu %s (%s)", Menus[MenuLevel], lang.Name);
+	    Syslog('b', "Menu %s (%s)", Menus[MenuLevel], lang.Name);
 	}
 
 	if (pMenuFile == NULL) {
@@ -224,7 +225,7 @@ void menu()
 		 
 		    if ((strcmp(tu(Input), menus.MenuKey)) == 0) {
 			if ((Le_Access(exitinfo.Security, menus.MenuSecurity)) && (UserAge >= le_int(menus.Age))) {
-			    Syslog('b', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, le_int(menus.MenuType), 
+			    Syslog('+', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, le_int(menus.MenuType), 
 					menus.TypeDesc, menus.OptionalData);
 			    if (le_int(menus.MenuType) == 13) {
 				/*

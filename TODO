@@ -25,6 +25,8 @@ everything:
 
 	N: Increase size of Unix usernames > 8.
 
+	N: Add personal message area.
+
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
@@ -113,6 +115,11 @@ mbfido:
 	N: Reimplement characterset conversion again on the gateway.
 
 	N: Hatch statistics are not updated.
+
+	N: Copy personal mail to a personal message area.
+
+	N: Implement areamgr/filemgr %avail command to list available areas
+	   from areas files.
 
 mbcico:
 	L: Implement binkp option ND.
