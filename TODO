@@ -74,6 +74,9 @@ mbfido:
 
 	N: Implement file requests for directory nodes.
 
+	N: Long email gated to netmail and splitted in several messages, the
+	   second and higher messages get the wrong flavor.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
