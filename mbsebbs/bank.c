@@ -4,7 +4,7 @@
  * Purpose ...............: Time/Bytes Bank
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -31,6 +31,7 @@
 #include "../lib/libs.h"
 #include "../lib/mbse.h"  
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"

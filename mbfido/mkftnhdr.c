@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Mail Gate
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -43,6 +43,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

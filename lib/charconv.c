@@ -4,7 +4,7 @@
  * Purpose ...............: Common utilities - character set conversion
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -30,6 +30,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
 #include "records.h"
 #include "common.h"
 #include "clcomm.h"

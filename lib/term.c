@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: term.c
+ * $Id$
  * Purpose ...............: Terminal output routines.
- * Last modification date : 03-Feb-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -33,6 +32,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
 #include "ansi.h"
 #include "records.h"
 #include "common.h"

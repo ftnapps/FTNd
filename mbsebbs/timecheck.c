@@ -4,7 +4,7 @@
  * Purpose ...............: Timecheck functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
@@ -31,12 +31,12 @@
 #include "../lib/libs.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "timecheck.h"
 #include "funcs.h"
-//#include "misc.h"
 #include "bye.h"
 #include "exitinfo.h"
 #include "language.h"

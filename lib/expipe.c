@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: expipe.c
+ * $Id$
  * Purpose ...............: MBSE BBS Execute pipe
- * Last modification date : 22-Apr-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,7 +30,6 @@
 
 #include "libs.h"
 #include "structs.h"
-#include "records.h"
 #include "clcomm.h"
 #include "common.h"
 

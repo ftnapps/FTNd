@@ -1,12 +1,11 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/rnews.c
+ * $Id$
  * Purpose ...............: rnews function
- * Last modification date : 14-Aug-2001
  * Remarks ...............: Most of these functions are borrowed from inn.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -32,6 +31,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

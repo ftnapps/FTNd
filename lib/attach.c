@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: common/attach.c
+ * $Id$
  * Purpose ...............: Attach files to outbound
- * Last modification date : 25-Jul-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -31,6 +30,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
 #include "records.h"
 #include "clcomm.h"
 #include "common.h"

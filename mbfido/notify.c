@@ -1,14 +1,13 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/notify.c
+ * $Id$
  * Purpose ...............: Write notify messages.
- * Last modification date : 28-Nov-1999
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2002
  *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
  *
@@ -31,6 +30,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/maketags.c
+ * $Id$
  * Purpose ...............: Make tag files
- * Last modification date : 20-Nov-1999
  *
  *****************************************************************************
  * Copyright (C) 1997-1999
@@ -31,6 +30,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

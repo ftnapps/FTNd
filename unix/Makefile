@@ -98,7 +98,7 @@ mbuseradd.o: ../config.h mbuseradd.h
 rad64.o: ../config.h rad64.h
 getdef.o: ../config.h getdef.h
 pw_util.o: pw_util.h
-mblogin.o: ../config.h mblogin.h getdef.h env.h chowntty.h basename.h shell.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h setupenv.h sub.h log.h setugid.h
+mblogin.o: ../config.h mblogin.h ../lib/users.h getdef.h env.h chowntty.h basename.h shell.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h setupenv.h sub.h log.h setugid.h
 env.o: ../config.h mblogin.h xmalloc.h
 chowntty.o: ../config.h mblogin.h getdef.h chowntty.h
 shell.o: ../config.h mblogin.h basename.h shell.h

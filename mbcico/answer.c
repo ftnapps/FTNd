@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/answer.c
- * Purpose ...............: Fidonet mailer 
- * Last modification date : 04-Oct-2001
+ * $Id$
+ * Purpose ...............: Fidonet mailer - awnser a call
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -31,6 +30,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

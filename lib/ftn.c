@@ -1,12 +1,11 @@
 /*****************************************************************************
  *
- * File ..................: ftn.c
+ * $Id$
  * Purpose ...............: Fidonet Technology Network functions
- * Last modification date : 25-Mar-2001
  * Remark ................: From ifmail with patches from P.Saratxaga
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -34,6 +33,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
 #include "records.h"
 #include "clcomm.h"
 #include "dbftn.h"

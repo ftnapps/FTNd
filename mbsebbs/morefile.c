@@ -4,7 +4,7 @@
  * Purpose ...............: Display file with more
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,30 +31,15 @@
 #include "../lib/libs.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
-//#include "funcs.h"
 #include "input.h"
 #include "language.h"
 #include "morefile.h"
 #include "timeout.h"
-//#include "exitinfo.h"
 
-
-//extern pid_t	mypid;		/* Pid of this program	    */
-//extern char	*StartTime;	/* Time user logged in	    */
-
-/*
- * Last caller action flags
- */
-//int		LC_Download = FALSE;
-//int		LC_Upload = FALSE;
-//int		LC_Read = FALSE;
-//int		LC_Wrote = FALSE;
-//int		LC_Chat = FALSE;
-//int		LC_Olr = FALSE;
-//int		LC_Door = FALSE;
 
 
 int MoreFile(char *filename)

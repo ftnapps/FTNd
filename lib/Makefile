@@ -109,22 +109,22 @@ client.o: libs.h clcomm.h
 crc.o: libs.h clcomm.h
 semafore.o: libs.h structs.h clcomm.h common.h
 signame.o: libs.h clcomm.h
-attach.o: libs.h structs.h records.h clcomm.h common.h
+attach.o: libs.h structs.h users.h records.h clcomm.h common.h
 charconv_utf.o: libs.h structs.h common.h
 falists.o: libs.h structs.h clcomm.h common.h
 hdr.o: libs.h structs.h common.h
 msgflags.o: libs.h structs.h clcomm.h common.h
 parsedate.o: libs.h structs.h common.h
-rfcmsg.o: libs.h structs.h records.h common.h clcomm.h
-unpacker.o: libs.h structs.h records.h clcomm.h common.h
+rfcmsg.o: libs.h structs.h users.h records.h common.h clcomm.h
+unpacker.o: libs.h structs.h users.h records.h clcomm.h common.h
 batchrd.o: libs.h structs.h clcomm.h common.h
 charset.o: libs.h structs.h common.h clcomm.h
-ftn.o: libs.h structs.h records.h clcomm.h dbftn.h common.h
-nodelist.o: libs.h structs.h records.h clcomm.h common.h
-pktname.o: libs.h structs.h records.h clcomm.h common.h
+ftn.o: libs.h structs.h users.h records.h clcomm.h dbftn.h common.h
+nodelist.o: libs.h structs.h users.h records.h clcomm.h common.h
+pktname.o: libs.h structs.h users.h records.h clcomm.h common.h
 mangle.o: libs.h structs.h clcomm.h common.h
-charconv.o: libs.h structs.h records.h common.h clcomm.h
-dostran.o: libs.h structs.h records.h common.h
+charconv.o: libs.h structs.h users.h records.h common.h clcomm.h
+dostran.o: libs.h structs.h users.h records.h common.h
 ftnmsg.o: libs.h structs.h common.h clcomm.h
 mbfile.o: libs.h structs.h clcomm.h common.h
 nodelock.o: libs.h structs.h clcomm.h common.h
@@ -132,31 +132,31 @@ rawio.o: libs.h structs.h common.h
 strcasestr.o: libs.h
 charconv_hz.o: libs.h structs.h common.h clcomm.h
 execute.o: libs.h structs.h clcomm.h common.h
-expipe.o: libs.h structs.h records.h clcomm.h common.h
-getheader.o: libs.h structs.h records.h clcomm.h common.h
+expipe.o: libs.h structs.h clcomm.h common.h
+getheader.o: libs.h structs.h users.h records.h clcomm.h common.h
 mime.o: libs.h structs.h clcomm.h common.h
-noderecord.o: libs.h structs.h records.h dbnode.h common.h
-rfcaddr.o: libs.h structs.h records.h clcomm.h common.h
+noderecord.o: libs.h structs.h users.h records.h dbnode.h common.h
+rfcaddr.o: libs.h structs.h users.h records.h clcomm.h common.h
 strutil.o: libs.h structs.h common.h
 charconv_jp.o: libs.h structs.h common.h
 faddr.o: libs.h structs.h common.h
 gmtoffset.o: libs.h structs.h common.h
-packet.o: libs.h structs.h records.h clcomm.h common.h dbnode.h
+packet.o: libs.h structs.h users.h records.h clcomm.h common.h dbnode.h
 rfcdate.o: libs.h structs.h common.h clcomm.h
-term.o: libs.h structs.h ansi.h records.h common.h
-dbcfg.o: libs.h mbse.h structs.h records.h dbcfg.h
+term.o: libs.h structs.h users.h ansi.h records.h common.h
+dbcfg.o: libs.h mbse.h structs.h users.h records.h dbcfg.h
 dbdupe.o: libs.h structs.h clcomm.h dbdupe.h
-dbftn.o: libs.h structs.h records.h dbcfg.h dbftn.h
-dbmsgs.o: libs.h structs.h records.h clcomm.h dbcfg.h dbmsgs.h
-dbnode.o: libs.h structs.h records.h clcomm.h dbcfg.h dbnode.h
-dbtic.o: libs.h structs.h records.h clcomm.h dbcfg.h dbtic.h
-dbuser.o: libs.h structs.h records.h dbcfg.h dbuser.h
+dbftn.o: libs.h structs.h users.h records.h dbcfg.h dbftn.h
+dbmsgs.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbmsgs.h
+dbnode.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbnode.h
+dbtic.o: libs.h structs.h users.h records.h clcomm.h dbcfg.h dbtic.h
+dbuser.o: libs.h structs.h users.h records.h dbcfg.h dbuser.h
 jammsg.o: libs.h clcomm.h msgtext.h msg.h jam.h jammsg.h
 msg.o: libs.h msgtext.h msg.h jammsg.h
 msgtext.o: libs.h msgtext.h msg.h
-nntp.o: libs.h structs.h records.h clcomm.h mbinet.h
-pop3.o: libs.h structs.h records.h clcomm.h mbinet.h
-smtp.o: libs.h structs.h records.h clcomm.h mbinet.h
+nntp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
+pop3.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
+smtp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 memwatch.o: ../config.h ../config.h libs.h memwatch.h
 ftscprod.o: libs.h structs.h common.h
 # End of generated dependencies

@@ -31,6 +31,7 @@
 
 #include "../config.h"
 #include "mblogin.h"
+#include "../lib/users.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
@@ -428,7 +429,7 @@ int main(int argc, char **argv)
 	    /*
 	     * Only show this before a prompt from telnetd
 	     */
-	    printf("\nMBSE BBS v%s\n", VERSION);
+	    printf("\nMBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
 	    printf("%s\n\n", COPYRIGHT);
 	}
 

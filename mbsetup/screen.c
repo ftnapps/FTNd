@@ -4,7 +4,7 @@
  * Purpose ...............: Screen functions for setup. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10

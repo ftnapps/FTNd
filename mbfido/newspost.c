@@ -1,13 +1,12 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/newspost.c
+ * $Id$
  * Purpose ...............: Post newsarticles in temp newsfile.
- * Last modification date : 21-May-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
- * Michiel Broek		FIDO:		2:280/2801
+ * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
  * 1971 BV IJmuiden
  * the Netherlands
@@ -31,6 +30,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

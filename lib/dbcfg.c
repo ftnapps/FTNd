@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: dbcfg.c
+ * $Id$
  * Purpose ...............: Config Database.
- * Last modification date : 25-Aug-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -32,6 +31,7 @@
 #include "libs.h"
 #include "mbse.h"
 #include "structs.h"
+#include "users.h"
 #include "records.h"
 #include "dbcfg.h"
 

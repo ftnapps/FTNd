@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: dbftn.c
+ * $Id$
  * Purpose ...............: Fidonetrecord Access
- * Last modification date : 18-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,6 +30,7 @@
 
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
 #include "records.h"
 #include "dbcfg.h"
 #include "dbftn.h"

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/call.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 22-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -31,6 +30,7 @@
 
 #include "../lib/libs.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

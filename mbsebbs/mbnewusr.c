@@ -4,7 +4,7 @@
  * Purpose ...............: New user registration
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,6 +31,7 @@
 #include "../lib/libs.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
+#include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
@@ -60,7 +61,7 @@ int main(int argc, char **argv)
 #ifdef MEMWATCH
 	mwInit();
 #endif
-	printf("Loading MBSE BBS New User Registration ...\n");
+	printf("\n\nLoading MBSE BBS New User Registration ...\n\n");
  	pTTY = calloc(15, sizeof(char));
 	tty = ttyname(1);
 
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
 	if ((p = getenv("CONNECT")) != NULL)
 		Syslog('+', "CONNECT %s", p);
 	if ((p = getenv("CALLER_ID")) != NULL)
-		if (!strncmp(p, "none", 4))
+		if (strncmp(p, "none", 4))
 			Syslog('+', "CALLER  %s", p);
 
 	sUnixName[0] = '\0';
@@ -167,9 +168,6 @@ int main(int argc, char **argv)
 		Syslog('+', "Kicking user out, the BBS is closed");
 		Fast_Bye(0);
 	}
-
-	clear();
-	DisplayLogo();
 
 	colour(YELLOW, BLACK);
 	printf("MBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
