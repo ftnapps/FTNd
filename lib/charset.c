@@ -127,6 +127,38 @@ char *getchrs(int val)
 }
 
 
+
+/*
+ * Experimental table that should translate from the user selected
+ * charset to a locale. This is not the right way to do, the best
+ * thing is to store each bbs users locale instead and then lookup
+ * his characterset using standard library calls.
+ *
+ * This is one of the things the bbs world never saw coming, in the
+ * "good" old days bbses were almost allways called local. Thanks
+ * to the internet bbs users are now all over the world.
+ */
+char *getlocale(int val)
+{
+    switch (val) {
+	case FTNC_NONE:	    return (char *)"C";
+	case FTNC_CP437:    return (char *)"en_US";
+	case FTNC_CP850:    return (char *)"en_US";
+	case FTNC_CP865:    return (char *)"sv_SE";
+	case FTNC_CP866:    return (char *)"ru_RU";
+	case FTNC_CP852:    return (char *)"cs_CZ";
+	case FTNC_CP895:    return (char *)"cs_CZ";
+	case FTNC_LATIN_1:  return (char *)"en_US";
+	case FTNC_LATIN_2:  return (char *)"cs_CZ";
+	case FTNC_MAC:	    return (char *)"en_US";
+	case FTNC_KOI8_R:   return (char *)"ru_RU.koi8r";
+	case FTNC_CP936:    return (char *)"zh_CN.gbk";
+	default:	    return (char *)"C";
+    }
+}
+
+
+
 char *getchrsdesc(int val)
 {
     switch (val) {

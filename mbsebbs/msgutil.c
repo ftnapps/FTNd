@@ -219,7 +219,12 @@ void Add_Headkludges(faddr *dest, int IsReply)
 			break;
     }
 
-    if (msgs.Charset != FTNC_NONE) {
+    /*
+     * Set the right charset kludge
+     */
+    if (exitinfo.Charset != FTNC_NONE) {
+	sprintf(temp, "\001CHRS: %s", getchrs(exitinfo.Charset));
+    } else if (msgs.Charset != FTNC_NONE) {
 	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
     } else {
 	sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));

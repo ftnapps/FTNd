@@ -93,6 +93,8 @@
 #if !defined(__ppc__)
 #include <sys/poll.h>
 #endif
+#include <locale.h>
+#include <langinfo.h>
 
 /* used to use #elif, but native braindead hpux 9.00 c compiler didn't 
  *  * understand it */
@@ -2538,6 +2540,7 @@ typedef struct st_charset_table {
 
 
 char    *getchrs(int);                  /* Return characterset name         */
+char	*getlocale(int);		/* Return locale name		    */
 char    *getchrsdesc(int);              /* Return characterset description  */
 CharsetTable *charset_table_new(void);	/* Add table to linked list	    */
 CharsetAlias *charset_alias_new(void);	/* Add alias to linked list	    */

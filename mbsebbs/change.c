@@ -1052,6 +1052,8 @@ void Chg_Charset()
 	    exitinfo.Charset = i;
 	    Syslog('+', "New character set %s", getchrs(exitinfo.Charset));
 	    WriteExitinfo();
+	    setlocale(LC_CTYPE, getlocale(exitinfo.Charset));
+	    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
 	    Enter(2);
 	    colour(LIGHTGREEN, BLACK);
 	    /* Character set now set to: */

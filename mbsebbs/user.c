@@ -53,6 +53,7 @@
 #include "ttyio.h"
 
 
+
 extern int	sock;
 extern pid_t	mypid;
 char		*StartTime = NULL;
@@ -462,6 +463,9 @@ void user()
     if (exitinfo.Charset == FTNC_NONE) {
 	Chg_Charset();
     }
+
+    setlocale(LC_CTYPE, getlocale(exitinfo.Charset));
+    Syslog('b', "setlocale(LC_CTYPE, NULL) returns \"%s\"", printable(setlocale(LC_CTYPE, NULL), 0));
 
     GetLastUser();
     StartTime = xstrcpy(GetLocalHM());
