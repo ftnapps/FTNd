@@ -252,6 +252,7 @@ void UserPack(int days, int level, int pack)
 		memset(&usr, 0, sizeof(usr));
 		if (CFG.slow_util && do_quiet)
 			usleep(1);
+		Nopper();
 	}
 	fclose(fin);
 	delete = 0;
@@ -311,6 +312,7 @@ void UserPack(int days, int level, int pack)
 			if (CFG.slow_util && do_quiet)
 				usleep(1);
 
+			Nopper();
 			if (usr.Deleted) {
 				if (!do_quiet) {
 					printf("Delete user %s\n", usr.Name);
@@ -371,6 +373,7 @@ void UserPack(int days, int level, int pack)
 		record = 0;
 
 		while (fread(&usr, sizeof(usr), 1,fout) == 1) {
+			Nopper();
 			record++;
 			fwrite(&usr, sizeof(usr), 1, fin);
 			if (record >= highest)

@@ -4,7 +4,7 @@
  * Purpose ...............: Hangup functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -51,117 +51,117 @@ int			do_mailout = FALSE;
 
 void Good_Bye(int onsig)
 {
-	FILE	*pUsrConfig, *pExitinfo;
-	char	*temp;
-	long	offset;
-	time_t	t_end;
+    FILE    *pUsrConfig, *pExitinfo;
+    char    *temp;
+    long    offset;
+    time_t  t_end;
 
-	IsDoing("Hangup");
-	temp = calloc(PATH_MAX, sizeof(char));
-	Syslog('+', "Good_Bye()");
+    IsDoing("Hangup");
+    temp = calloc(PATH_MAX, sizeof(char));
+    Syslog('+', "Good_Bye()");
 
-	if (onsig != SIGHUP)
-		DisplayFile((char *)"goodbye");
+    if (onsig != SIGHUP)
+	DisplayFile((char *)"goodbye");
 
-	if (do_mailout)
-		CreateSema((char *)"mailout");
+    if (do_mailout)
+	CreateSema((char *)"mailout");
 
-	SaveLastCallers();
+    SaveLastCallers();
 
-	/*
-	 * Update the users database record.
-	 */
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((pUsrConfig = fopen(temp,"r+b")) != NULL) {
-		sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
-		if ((pExitinfo = fopen(temp,"rb")) != NULL) {
-			fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-			offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-
-			fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
-
-			usrconfig = exitinfo;
-			fclose(pExitinfo);
-
-			usrconfig.iLastFileArea = iAreaNumber;
-			if (!iAreaNumber)
-				WriteError("Setting filearea to zero");
-
-			/* If time expired, do not say say successful logoff */
-			if(!iExpired)
-				Syslog('+', "User successfully logged off BBS");
-
-			usrconfig.iLastMsgArea = iMsgAreaNumber;
-
-			offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-			if(fseek(pUsrConfig, offset, 0) != 0) {
-				WriteError("Can't move pointer in file %s", temp);
-				ExitClient(MBERR_GENERAL);
-			}
-
-			fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
-			fclose(pUsrConfig);
-		}
-	}
-
-	t_end = time(NULL);
-	Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
-
-	/*
-	 * Start shutting down this session
-	 */
-	socket_shutdown(mypid);
-	sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
-	unlink(temp);
-
+    /*
+     * Update the users database record.
+     */
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((pUsrConfig = fopen(temp,"r+b")) != NULL) {
 	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
-	unlink(temp);
-	free(temp);
-	unlink("taglist");
+	if ((pExitinfo = fopen(temp,"rb")) != NULL) {
+	    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
+	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
+	    fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
 
-	/*
-	 * Flush all data to the user, wait 5 seconds to
-	 * be sure the user received all data, this program
-	 * and parent are also finished.
-	 */
-	colour(7, 0);
-	fflush(stdout);	
-	fflush(stdin);
-	sleep(5);
+	    usrconfig = exitinfo;
+	    fclose(pExitinfo);
 
-	Unsetraw();
-	Free_Language();
-	free(pTTY);
+	    usrconfig.iLastFileArea = iAreaNumber;
+	    if (!iAreaNumber)
+		WriteError("Setting filearea to zero");
+
+	    /* If time expired, do not say say successful logoff */
+	    if (!iExpired)
+		Syslog('+', "User successfully logged off BBS");
+
+	    usrconfig.iLastMsgArea = iMsgAreaNumber;
+
+	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
+	    Syslog('b', "Good_Bye: write users.data at offset %ld", offset);
+	    if (fseek(pUsrConfig, offset, 0) != 0) {
+		WriteError("Can't move pointer in file %s", temp);
+		ExitClient(MBERR_GENERAL);
+	    }
+
+	    fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
+	    fclose(pUsrConfig);
+	}
+    }
+
+    t_end = time(NULL);
+    Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
+
+    /*
+     * Start shutting down this session
+     */
+    socket_shutdown(mypid);
+    sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    unlink(temp);
+
+    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp);
+    free(temp);
+    unlink("taglist");
+
+    /*
+     * Flush all data to the user, wait 5 seconds to
+     * be sure the user received all data, this program
+     * and parent are also finished.
+     */
+    colour(7, 0);
+    fflush(stdout);	
+    fflush(stdin);
+    sleep(5);
+
+    Unsetraw();
+    Free_Language();
+    free(pTTY);
 #ifdef MEMWATCH
-	mwTerm();
+    mwTerm();
 #endif
-	exit(onsig);
+    exit(onsig);
 }
 
 
 
 void Quick_Bye(int onsig)
 {
-	char	*temp;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	Syslog('+', "Quick_Bye");
-	socket_shutdown(mypid);
-	sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
-	unlink(temp);
-	free(temp);
+    temp = calloc(PATH_MAX, sizeof(char));
+    Syslog('+', "Quick_Bye");
+    socket_shutdown(mypid);
+    sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    unlink(temp);
+    free(temp);
 
-	colour(7, 0);
-	fflush(stdout);
-	fflush(stdin);
-	sleep(3);
+    colour(7, 0);
+    fflush(stdout);
+    fflush(stdin);
+    sleep(3);
 
-	Free_Language();
-	free(pTTY);
+    Free_Language();
+    free(pTTY);
 #ifdef MEMWATCH
-	mwTerm();
+    mwTerm();
 #endif
-	exit(MBERR_OK);
+    exit(MBERR_OK);
 }
 
 

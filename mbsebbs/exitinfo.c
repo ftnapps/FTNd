@@ -54,45 +54,46 @@
  */
 int InitExitinfo()
 {
-	FILE	*pUsrConfig, *pExitinfo;
-	char	*temp;
-	long	offset;
+    FILE    *pUsrConfig, *pExitinfo;
+    char    *temp;
+    long    offset;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
 
-	if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
-		WriteError("$Can't open %s for writing", temp);
-		free(temp);
-		return FALSE;
-	}
-
-	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-	offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-	if(fseek(pUsrConfig, offset, 0) != 0) {
-		WriteError("$Can't move pointer in %s", temp);
-		free(temp);
-		return FALSE;
-	}
-
-	fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
-
-	exitinfo = usrconfig;
-	fclose(pUsrConfig);
-
-	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, usrconfig.Name);
-	if ((pExitinfo = fopen(temp, "w+b")) == NULL) {
-		WriteError("$Can't open %s for writing", temp);
-		free(temp);
-		return FALSE;
-	} else {
-		fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
-		fclose(pExitinfo);
-		if (chmod(temp, 0600))
-		    WriteError("$Can't chmod 0600 %s", temp);
-	}
+    if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
+	WriteError("$Can't open %s for writing", temp);
 	free(temp);
-	return TRUE;
+	return FALSE;
+    }
+
+    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
+    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
+    Syslog('b', "InitExitinfo: read users.data offset %ld", offset);
+    if (fseek(pUsrConfig, offset, 0) != 0) {
+	WriteError("$Can't move pointer in %s", temp);
+	free(temp);
+	return FALSE;
+    }
+
+    fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
+
+    exitinfo = usrconfig;
+    fclose(pUsrConfig);
+
+    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, usrconfig.Name);
+    if ((pExitinfo = fopen(temp, "w+b")) == NULL) {
+	WriteError("$Can't open %s for writing", temp);
+	free(temp);
+	return FALSE;
+    } else {
+	fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
+	fclose(pExitinfo);
+	if (chmod(temp, 0600))
+	    WriteError("$Can't chmod 0600 %s", temp);
+    }
+    free(temp);
+    return TRUE;
 }
 
 
@@ -103,20 +104,20 @@ int InitExitinfo()
  */
 void ReadExitinfo()
 {
-	FILE *pExitinfo;
-	char *temp;
+    FILE *pExitinfo;
+    char *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
-	mkdirs(temp, 0770);
-	if ((pExitinfo = fopen(temp,"r+b")) == NULL)
-		InitExitinfo();
-	else {
-		fflush(stdin);
-		fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
-		fclose(pExitinfo);
-	}
-	free(temp);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
+    mkdirs(temp, 0770);
+    if ((pExitinfo = fopen(temp,"r+b")) == NULL)
+	InitExitinfo();
+    else {
+	fflush(stdin);
+	fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
+	fclose(pExitinfo);
+    }
+    free(temp);
 }
 
 
@@ -127,19 +128,19 @@ void ReadExitinfo()
  */
 void WriteExitinfo()
 {
-	FILE *pExitinfo;
-	char *temp;
+    FILE *pExitinfo;
+    char *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
-	if ((pExitinfo = fopen(temp,"w+b")) == NULL)
-		WriteError("$WriteExitinfo() failed");
-	else {
-		fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
-		fclose(pExitinfo);
-	}
-	free(temp);
+    sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
+    if ((pExitinfo = fopen(temp,"w+b")) == NULL)
+	WriteError("$WriteExitinfo() failed");
+    else {
+	fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
+	fclose(pExitinfo);
+    }
+    free(temp);
 }
 
 

@@ -20,6 +20,9 @@ v0.37.3		09-Apr-2003.
 		Added menu function display file.
 		Display ascii textfiles now uses the More Y/n/= prompt.
 
+	mbuser:
+		Added nopper code during pack.
+
 	mbcico:
 		Removed some heavy debug code from ttyio functions to increase
 		throughput.
