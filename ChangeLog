@@ -7,6 +7,7 @@ v0.61.2		11-Jul-2004
 	upgrade:
 		Make sure that /opt/mbse/queue is empty, then close the
 		bbs with "mbstat close wait". Then do the upgrade.
+		In mbsetup menu 1.14 update the TCP/IP connection details.
 
 	general:
 		Added -fno-strict-aliasing switch to gcc to prevent some
@@ -48,9 +49,15 @@ v0.61.2		11-Jul-2004
 	mbout:
 		Changed to use direct instead of immediate mail.
 
+	mbaff:
+		In newfiles and filefind reports with the tty info lines, also
+		display TCP/IP connection details.
+
 	mbsetup:
 		In menu 2, added 3 checks to see if enough info is entered to
 		make a valid network setup.
+		Changed in menu 1.14 some labels and help messages for TCP/IP
+		global settings.
 
 	mbtask:
 		Changed to use direct instead of immediate mail.

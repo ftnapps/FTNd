@@ -337,9 +337,9 @@ void load_maincfg(void)
         sprintf(CFG.phonetrans[1].match, "31-");
         sprintf(CFG.phonetrans[1].repl, "0");
         sprintf(CFG.phonetrans[2].repl, "00");
-        CFG.Speed = 9600;
+        CFG.IP_Speed = 256000;
         CFG.dialdelay = 60;
-        sprintf(CFG.Flags, "CM,XX");
+        sprintf(CFG.IP_Flags, "ICM,XX,IBN");
         CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
 
 	/*

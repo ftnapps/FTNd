@@ -165,8 +165,8 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
 
 	    MacroVars("pqrf", "dsss", 0, "", "", "");
-	    if (strlen(CFG.Flags)) {
-		MacroVars("pqrf", "dsds", 2, CFG.Phone, CFG.Speed, CFG.Flags);
+	    if (strlen(CFG.IP_Flags) && strlen(CFG.IP_Phone)) {
+		MacroVars("pqrf", "dsds", 2, CFG.IP_Phone, CFG.IP_Speed, CFG.IP_Flags);
 		fseek(fi, fileptr, SEEK_SET);
 		Msg_Macro(fi);
 	    }

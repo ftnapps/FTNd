@@ -219,8 +219,8 @@ char *mkemsidat(int caller)
     p=xstrcat(p,(char *)"][");
     p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
     p=xstrcat(p,(char *)"][");
-    if (CFG.Speed) 
-	sprintf(cbuf,"%ld",CFG.Speed);
+    if ((CFG.IP_Speed) && (emsi_local_protos & PROT_TCP))
+	sprintf(cbuf,"%ld",CFG.IP_Speed);
     else 
 	strcpy(cbuf,"9600");
     p=xstrcat(p,cbuf);

@@ -276,8 +276,8 @@ int main(int argc, char *argv[])
     inbound	= xstrcpy(CFG.inbound);
     uxoutbound	= xstrcpy(CFG.uxpath);
     name	= xstrcpy(CFG.bbs_name);
-    phone	= xstrcpy(CFG.Phone);
-    flags	= xstrcpy(CFG.Flags);
+    phone	= xstrcpy(CFG.IP_Phone);
+    flags	= xstrcpy(CFG.IP_Flags);
 
     while (argv[optind]) {
 

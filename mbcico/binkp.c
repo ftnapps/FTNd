@@ -1758,7 +1758,7 @@ int binkp_banner(void)
     if (!rc)
 	rc = binkp_send_command(MM_NUL,"LOC %s", CFG.location);
     if (!rc)
-	rc = binkp_send_command(MM_NUL,"NDL %s", CFG.Flags);
+	rc = binkp_send_command(MM_NUL,"NDL %s", CFG.IP_Flags);
     t = time(NULL);
     if (!rc)
 	rc = binkp_send_command(MM_NUL,"TIME %s", rfcdate(t));
@@ -1768,8 +1768,8 @@ int binkp_banner(void)
 	else
 	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
     }
-    if (strlen(CFG.Phone) && !rc)
-	rc = binkp_send_command(MM_NUL,"PHN %s", CFG.Phone);
+    if (strlen(CFG.IP_Phone) && !rc)
+	rc = binkp_send_command(MM_NUL,"PHN %s", CFG.IP_Phone);
     if (strlen(CFG.comment) && !rc)
 	rc = binkp_send_command(MM_NUL,"OPM %s", CFG.comment);
 

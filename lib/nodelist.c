@@ -468,7 +468,7 @@ int initnl(void)
      *  Read all our TCP/IP capabilities and set the global flag.
      */
     if (TCFG.max_tcp) {
-	sprintf(buf, "%s", CFG.Flags);
+	sprintf(buf, "%s", CFG.IP_Flags);
 	q = buf;
 	for (p = q; p; p = q) {
 	    if ((q = strchr(p, ',')))

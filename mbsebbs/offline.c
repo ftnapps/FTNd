@@ -2129,7 +2129,7 @@ void OLR_DownQWK(void)
     if ((fp = fopen(Temp, "w+")) != NULL) {
 	fprintf(fp, "%s\n", CFG.bbs_name);
 	fprintf(fp, "%s\n", CFG.location);
-	fprintf(fp, "%s\n", CFG.Phone);
+	fprintf(fp, "-Unpublished-\n");
 	fprintf(fp, "%s\n", CFG.sysop_name);
 	fprintf(fp, "00000,%s\n", CFG.bbsid);
 		

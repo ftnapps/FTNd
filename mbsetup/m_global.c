@@ -1231,9 +1231,9 @@ void s_mailer(void)
 	mvprintw( 5, 2, "1.14 EDIT MAILER SETTINGS");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.   Mailer logl.");
-	mvprintw( 8, 2, "2.   Default phone");
+	mvprintw( 8, 2, "2.   TCP/IP \"phone\"");
 	mvprintw( 9, 2, "3.   TCP/IP flags");
-	mvprintw(10, 2, "4.   Default speed");
+	mvprintw(10, 2, "4.   TCP/IP speed");
 	mvprintw(11, 2, "5.   Timeout reset");
 	mvprintw(12, 2, "6.   Timeout connect");
 	mvprintw(13, 2, "7.   Dial delay");
@@ -1297,9 +1297,9 @@ void e_mailer(void)
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_logl( 7,23,   CFG.cico_loglevel);
-	show_str(  8,23,20,CFG.Phone);
-	show_str(  9,23,30,CFG.Flags);
-	show_int( 10,23,   CFG.Speed);
+	show_str(  8,23,20,CFG.IP_Phone);
+	show_str(  9,23,30,CFG.IP_Flags);
+	show_int( 10,23,   CFG.IP_Speed);
 	show_int( 11,23,   CFG.timeoutreset);
 	show_int( 12,23,   CFG.timeoutconnect);
 	show_int( 13,23,   CFG.dialdelay);
@@ -1320,9 +1320,9 @@ void e_mailer(void)
 	switch(select_menu(22)) {
 	    case 0: return;
 	    case 1: E_LOGL(CFG.cico_loglevel, "1.14.1", s_mailer)
-	    case 2: E_STR(  8,23,20,CFG.Phone,          "The mailer default ^phone number^ for this system")
-	    case 3: E_STR(  9,23,30,CFG.Flags,          "The mailer ^TCP/IP capability flags^ for this system")
-	    case 4: E_INT( 10,23,   CFG.Speed,          "The mailer ^default linespeed^ for this system")
+	    case 2: E_STR(  8,23,20,CFG.IP_Phone,       "The mailer ^TCP/IP \"phone\" number^ for this system, empty is no TCP/IP")
+	    case 3: E_STR(  9,23,30,CFG.IP_Flags,       "The mailer ^TCP/IP capability flags^ for this system")
+	    case 4: E_INT( 10,23,   CFG.IP_Speed,       "The mailer ^TCP/IP linespeed^ for this system")
 	    case 5: E_INT( 11,23,   CFG.timeoutreset,   "The modem ^reset timeout^ in seconds")
 	    case 6: E_INT( 12,23,   CFG.timeoutconnect, "The modem ^wait for connect timeout^ in seconds")
 	    case 7: E_INT( 13,23,   CFG.dialdelay,      "The ^random dialdelay^ in seconds ((^n^ <= delay) and (^n^ > (delay / 10)))")
@@ -2163,9 +2163,9 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webdigit(wp, (char *)"Reset modem timeout", CFG.timeoutreset);
     add_webdigit(wp, (char *)"Connect timeout", CFG.timeoutconnect);
     add_webdigit(wp, (char *)"Random dialdelay", CFG.dialdelay);
-    add_webtable(wp, (char *)"Default phone number", CFG.Phone);
-    add_webdigit(wp, (char *)"Default linespeed", CFG.Speed);
-    add_webtable(wp, (char *)"TCP/IP flags", CFG.Flags);
+    add_webtable(wp, (char *)"TCP/IP \"phone\" number", CFG.IP_Phone);
+    add_webdigit(wp, (char *)"TCP/IP linespeed", CFG.IP_Speed);
+    add_webtable(wp, (char *)"TCP/IP flags", CFG.IP_Flags);
     add_webtable(wp, (char *)"No Filerequests", getboolean(CFG.NoFreqs));
     add_webtable(wp, (char *)"No Calls", getboolean(CFG.NoCall));
     add_webtable(wp, (char *)"No EMSI", getboolean(CFG.NoEMSI));
@@ -2187,9 +2187,9 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(fp, "      Res. modem timeout %ld\n", CFG.timeoutreset);
     fprintf(fp, "      Connect timeout    %ld\n", CFG.timeoutconnect);
     fprintf(fp, "      Random dialdelay   %ld\n", CFG.dialdelay);
-    fprintf(fp, "      Default phone nr.  %s\n",  CFG.Phone);
-    fprintf(fp, "      Default speed      %lu\n", CFG.Speed);
-    fprintf(fp, "      TCP/IP flags       %s\n",  CFG.Flags);
+    fprintf(fp, "      TCP/IP phone nr.   %s\n",  CFG.IP_Phone);
+    fprintf(fp, "      TCP/IP speed       %lu\n", CFG.IP_Speed);
+    fprintf(fp, "      TCP/IP flags       %s\n",  CFG.IP_Flags);
     fprintf(fp, "      No Filerequests    %s\n",  getboolean(CFG.NoFreqs));
     fprintf(fp, "      No Calls           %s\n",  getboolean(CFG.NoCall));
     fprintf(fp, "      No EMSI            %s\n",  getboolean(CFG.NoEMSI));
