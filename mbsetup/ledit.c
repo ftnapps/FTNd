@@ -493,32 +493,33 @@ char *select_pick(int max, int items)
 
 
 
-/* Select menu, max is the highest item to pick. Returns zero if
- * "-" (previous level) is selected.
+/* 
+ * Select menu, max is the highest item to pick. Returns zero if
+ * "-" (previous level) is selected, -2 and -1 for the N and P keys.
  */
-int select_menu_sub(int, char *);
+int select_menu_sub(int, int, char *);
 
 int select_menu(int max)
 {
-	return select_menu_sub(max, (char *)"Select menu item");
+	return select_menu_sub(max, 50, (char *)"Select menu item");
 }
 
 int select_tag(int max)
 {
-	return select_menu_sub(max, (char *)"Toggle item");
+	return select_menu_sub(max, 40, (char *)"Toggle item");
 }
 
 
-int select_menu_sub(int max, char *hlp)
+int select_menu_sub(int max, int items, char *hlp)
 {
-	static char *menu=(char *)"-";
-	char help[80];
-	int pick;
+	static char	*menu=(char *)"-";
+	char		help[81];
+	int		pick;
 
 	if (max == 0)
 	    sprintf(help, "Select ^\"-\"^ for previous level");
 	else
-	    if (max > 40)
+	    if (max > items)
 		sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
 	    else
 		sprintf(help, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
@@ -537,7 +538,7 @@ int select_menu_sub(int max, char *hlp)
 		if (strncmp(menu, "-", 1) == 0) 
 			return 0;
 
-		if (max > 40) {
+		if (max > items) {
 		    if (strncmp(menu, "N", 1) == 0)
 			return -1;
 		    if (strncmp(menu, "P", 1) == 0)

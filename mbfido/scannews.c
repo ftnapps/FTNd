@@ -224,6 +224,10 @@ void ScanNews(void)
 			Nopper();
 			if (do_one_group(&art, Msgs.Newsgroup, Msgs.Tag, Msgs.MaxArticles) == RETVAL_ERROR)
 				break;
+			/*
+			 * To be safe, update the dupes database after each area.
+			 */
+			CloseDupes();
 		}
 	}
 	fclose(pAreas);
