@@ -35,7 +35,6 @@
 #include "callstat.h"
 #include "outstat.h"
 #include "mbtask.h"
-#include "ports.h"
 #include "calllist.h"
 
 
@@ -46,12 +45,11 @@
 tocall			calllist[MAXTASKS];	/* Array with calllist	*/
 extern int		internet;		/* Internet is down	*/
 extern int		s_scanout;		/* Scan outbound sema	*/
-extern int		s_do_inet;		/* Internet wanted	*/
 extern _alist_l		*alist;			/* Nodes to call list	*/
 extern int		pots_calls;
 extern int		isdn_calls;
 extern int		inet_calls;
-
+extern struct taskrec	TCFG;
 
 
 
@@ -83,13 +81,17 @@ int check_calllist(void)
 	}
     }
 
-    check_ports();
-
     if (pots_calls || isdn_calls || inet_calls) {
 	call_work = 0;
 	for (tmp = alist; tmp; tmp = tmp->next) {
-	    if (tmp->callmode != CM_NONE) {
+	    if (((tmp->callmode == CM_INET) && TCFG.max_tcp) ||
+		((tmp->callmode == CM_ISDN) && TCFG.max_isdn) ||
+		((tmp->callmode == CM_POTS) && TCFG.max_pots)) {
 		call_work++;
+
+		/*
+		 * Check if node is already in the list of systems to call.
+		 */
 		found = FALSE;
 		for (i = 0; i < MAXTASKS; i++) {
 		    if ((calllist[i].addr.zone  == tmp->addr.zone) && (calllist[i].addr.net   == tmp->addr.net) &&
@@ -101,6 +103,10 @@ int check_calllist(void)
 			calllist[i].cst = tmp->cst;
 		    }
 		}
+
+		/*
+		 * Node not in the calllist, add node.
+		 */
 		if (!found) {
 		    for (i = 0; i < MAXTASKS; i++) {
 			if (!calllist[i].addr.zone) {
@@ -121,17 +127,6 @@ int check_calllist(void)
     } else {
 	if (s_scanout)
 	    sem_set((char *)"scanout", FALSE);
-    }
-
-    /*
-     * Check if we need to remove the do_inet semafore
-     */
-    if (!inet_calls && internet && s_do_inet) {
-	tasklog('c', "Removing do_inet semafore");
-	s_do_inet = FALSE;
-	if (IsSema((char *)"do_inet")) {
-	    RemoveSema((char *)"do_inet");
-	}
     }
 
     call_work = 0;

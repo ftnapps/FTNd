@@ -84,7 +84,7 @@ taskcomm.o: libs.h ../lib/structs.h taskstat.h taskregs.h taskdisk.h taskinfo.h 
 taskinfo.o: libs.h ../lib/structs.h taskinfo.h
 taskstat.o: libs.h ../lib/structs.h taskstat.h callstat.h outstat.h taskutil.h
 mbtask.o: libs.h ../lib/structs.h signame.h taskstat.h taskutil.h taskregs.h taskcomm.h callstat.h outstat.h nodelist.h ports.h calllist.h ping.h mbtask.h
-outstat.o: libs.h ../lib/structs.h taskutil.h taskstat.h scanout.h nodelist.h callstat.h ports.h outstat.h
+outstat.o: libs.h ../lib/structs.h taskutil.h taskstat.h scanout.h nodelist.h callstat.h outstat.h
 signame.o: signame.h
 taskdisk.o: libs.h ../lib/structs.h taskdisk.h taskutil.h
 taskregs.o: libs.h ../lib/structs.h taskstat.h taskregs.h taskutil.h

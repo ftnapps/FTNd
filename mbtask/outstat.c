@@ -35,7 +35,6 @@
 #include "scanout.h"
 #include "nodelist.h"
 #include "callstat.h"
-#include "ports.h"
 #include "outstat.h"
 
 
@@ -47,7 +46,6 @@ int			nxt_hour, nxt_min;  /* Time of next event	*/
 int			inet_calls;	    /* Internet calls to make	*/
 int			isdn_calls;	    /* ISDN calls to make	*/
 int			pots_calls;	    /* POTS calls to make	*/
-extern pp_list		*pl;		    /* Portlist			*/
 _alist_l		*alist = NULL;	    /* Nodes to call list	*/
 extern int		s_do_inet;	    /* Internet wanted		*/
 
@@ -172,276 +170,282 @@ char *callmode(int mode)
 
 
 
+/*
+ * Scan outbound, the call status is set in three counters: internet,
+ * ISDN and POTS (analogue modems).
+ * For all systems the CM and Txx flags are checked and for official
+ * FidoNet nodes the Zone Mail Hour wich belongs to the destination
+ * zone.
+ * All nodes are qualified, if there is a way to call them or not on
+ * this moment.
+ * The method how to call a node is decided as well.
+ */
 int outstat()
 {
-	int		rc, first = TRUE, T_window, iszmh = FALSE;
-	struct _alist	*tmp, *old;
-	char		flstr[13];
-	char		temp[81];
-	char		as[6], be[6], utc[6];
-	time_t		now;
-	struct tm	*tm;
-	int		uhour, umin, thour, tmin;
-	pp_list		*tpl;
+    int		    rc, first = TRUE, T_window, iszmh = FALSE;
+    struct _alist   *tmp, *old;
+    char	    flstr[13];
+    char	    temp[81];
+    char	    as[6], be[6], utc[6];
+    time_t	    now;
+    struct tm	    *tm;
+    int		    uhour, umin, thour, tmin;
 
-	now = time(NULL);
-	tm = gmtime(&now); /* UTC time */
-	uhour = tm->tm_hour;
-	umin  = tm->tm_min;
-	sprintf(utc, "%02d:%02d", uhour, umin);
-	tasklog('+', "Scanning outbound at %s UTC.", utc);
-	nxt_hour = 24;
-	nxt_min  = 0;
-	inet_calls = isdn_calls = pots_calls = 0;
+    now = time(NULL);
+    tm = gmtime(&now); /* UTC time */
+    uhour = tm->tm_hour;
+    umin  = tm->tm_min;
+    sprintf(utc, "%02d:%02d", uhour, umin);
+    tasklog('+', "Scanning outbound at %s UTC.", utc);
+    nxt_hour = 24;
+    nxt_min  = 0;
+    inet_calls = isdn_calls = pots_calls = 0;
 
-	/*
-	 *  Clear current table
-	 */
-        for (tmp = alist; tmp; tmp = old) {
-                old = tmp->next;
-                free(tmp);
-        }
-        alist = NULL;
+    /*
+     *  Clear current table
+     */
+    for (tmp = alist; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    alist = NULL;
 
-	if ((rc = scanout(each))) {
-		tasklog('?', "Error scanning outbound, aborting");
-		return rc;
+    if ((rc = scanout(each))) {
+	tasklog('?', "Error scanning outbound, aborting");
+	return rc;
+    }
+
+    /*
+     * During processing the outbound list, determine when the next event will occur,
+     * ie. the time when the callout status of a node changes because of starting a
+     * ZMH, or changeing the time window for Txx flags.
+     */
+    for (tmp = alist; tmp; tmp = tmp->next) {
+	if (first) {
+	    tasklog('+', "Flavor Out       Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
+	    first = FALSE;
 	}
 
+	rc = load_node(tmp->addr);
+	tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
+		    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
+
 	/*
-	 * During processing the outbound list, determine when the next event will occur,
-	 * ie. the time when the callout status of a node changes because of starting a
-	 * ZMH, or changeing the time window for Txx flags.
+	 * Zone Mail Hours, only use Fidonet Hours.
+	 * Other nets use your default ZMH.
 	 */
-	for (tmp = alist; tmp; tmp = tmp->next) {
-		if (first) {
-			tasklog('+', "Flavor Out       Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
-			first = FALSE;
-		}
+	T_window = iszmh = FALSE;
+	switch (tmp->addr.zone) {
+	    case 1:	if (uhour == 9)
+			    iszmh = TRUE;
+			set_next(9, 0);
+			set_next(10, 0);
+			break;
+	    case 2:	if (((uhour == 2) && (umin >= 30)) || ((uhour == 3) && (umin < 30)))
+			    iszmh = TRUE;
+			set_next(2, 30);
+			set_next(3, 30);
+			break;
+	    case 3:	if (uhour == 18)
+			    iszmh = TRUE;
+			set_next(18, 0);
+			set_next(19, 0);
+			break;
+	    case 4:	if (uhour == 8)
+			    iszmh = TRUE;
+			set_next(8, 0);
+			set_next(9, 0);
+			break;
+	    case 5:	if (uhour == 1)
+			    iszmh = TRUE;
+			set_next(1, 0);
+			set_next(2, 0);
+			break;
+	    case 6:	if (uhour == 20)
+			    iszmh = TRUE;
+			set_next(20, 0);
+			set_next(21, 0);
+			break;
+	    default:	if (get_zmh())
+			    iszmh = TRUE;
+			break;
+	}
 
-		rc = load_node(tmp->addr);
-		tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
-			    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
-
+	if (tmp->t1 && tmp->t2) {
+	    /*
+	     * Txx flags, check callwindow
+	     */
+	    thour = toupper(tmp->t1) - 'A';
+	    if (isupper(tmp->t1))
+		tmin = 0;
+	    else
+		tmin = 30;
+	    sprintf(as, "%02d:%02d", thour, tmin);
+	    set_next(thour, tmin);
+	    thour = toupper(tmp->t2) - 'A';
+	    if (isupper(tmp->t2))
+		tmin = 0;
+	    else
+		tmin = 30;
+	    sprintf(be, "%02d:%02d", thour, tmin);
+	    set_next(thour, tmin);
+	    if (strcmp(as, be) > 0) {
 		/*
-		 * Zone Mail Hours, only use Fidonet Hours.
-		 * Other nets use your default ZMH.
+		 * Time window is passing midnight
 		 */
-		T_window = iszmh = FALSE;
-		switch (tmp->addr.zone) {
-		    case 1:	if (uhour == 9)
-				    iszmh = TRUE;
-				set_next(9, 0);
-				set_next(10, 0);
-				break;
-		    case 2:	if (((uhour == 2) && (umin >= 30)) || ((uhour == 3) && (umin < 30)))
-				    iszmh = TRUE;
-				set_next(2, 30);
-				set_next(3, 30);
-				break;
-		    case 3:	if (uhour == 18)
-				    iszmh = TRUE;
-				set_next(18, 0);
-				set_next(19, 0);
-				break;
-		    case 4:	if (uhour == 8)
-				    iszmh = TRUE;
-				set_next(8, 0);
-				set_next(9, 0);
-				break;
-		    case 5:	if (uhour == 1)
-				    iszmh = TRUE;
-				set_next(1, 0);
-				set_next(2, 0);
-				break;
-		    case 6:	if (uhour == 20)
-				    iszmh = TRUE;
-				set_next(20, 0);
-				set_next(21, 0);
-				break;
-		    default:	if (get_zmh())
-				    iszmh = TRUE;
-				break;
-		}
-
-		if (tmp->t1 && tmp->t2) {
-		    /*
-		     * Txx flags, check callwindow
-		     */
-		    thour = toupper(tmp->t1) - 'A';
-		    if (isupper(tmp->t1))
-			tmin = 0;
-		    else
-			tmin = 30;
-		    sprintf(as, "%02d:%02d", thour, tmin);
-		    set_next(thour, tmin);
-		    thour = toupper(tmp->t2) - 'A';
-		    if (isupper(tmp->t2))
-			tmin = 0;
-		    else
-			tmin = 30;
-		    sprintf(be, "%02d:%02d", thour, tmin);
-		    set_next(thour, tmin);
-		    if (strcmp(as, be) > 0) {
-			/*
-			 * Time window is passing midnight
-			 */
-			if ((strcmp(utc, as) >= 0) || (strcmp(utc, be) < 0))
-			    T_window = TRUE;
-		    } else {
-			/*
-			 * Time window is not passing midnight
-			 */
-			if ((strcmp(utc, as) >= 0) && (strcmp(utc, be) < 0))
-			    T_window = TRUE;
-		    }
-		}
-		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
-		strcpy(flstr,"...... ... ..");
+		if ((strcmp(utc, as) >= 0) || (strcmp(utc, be) < 0))
+		    T_window = TRUE;
+	    } else {
 		/*
-		 * If the node has internet and we have internet available, check if we can send
-		 * immediatly.
+		 * Time window is not passing midnight
 		 */
-		if (TCFG.max_tcp && 
-			(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
-			((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
-		    /*
-		     * If connection available, set callflag
-		     */
-		    if (internet)
-			tmp->flavors |= F_CALL;
-		}
-		if ((tmp->flavors) & F_IMM   ) {
-		    flstr[0]='I';
-		    /*
-		     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
-		     */
-		    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
-			tmp->flavors |= F_CALL;
-		    }
-		}
-		if ((tmp->flavors) & F_CRASH ) {
-		    flstr[1]='C';
-		    /*
-		     * Crash mail, send if node is CM or is in a Txx window or is in ZMH.
-		     */
-		    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
-			tmp->flavors |= F_CALL;
-		    }
-		}
-		if ((tmp->flavors) & F_NORMAL)
-		    flstr[2]='N';
-		if ((tmp->flavors) & F_HOLD  ) 
-		    flstr[3]='H';
-		if ((tmp->flavors) & F_FREQ  ) 
-		    flstr[4]='R';
-		if ((tmp->flavors) & F_POLL  ) {
-		    flstr[5]='P';
-		    tmp->flavors |= F_CALL;
-		}
-		if ((tmp->flavors) & F_ISPKT ) { 
-		    flstr[7]='M';
-		    /*
-		     * Normal mail, send during ZMH or if node has a Txx window.
-		     */
-		    if (iszmh || T_window) {
-			tmp->flavors |= F_CALL;
-		    }
-		}
-		if ((tmp->flavors) & F_ISFLO ) 
-		    flstr[8]='F';
-		if (tmp->cst.tryno >= 30) {
-		    /*
-		     * Node is undialable, clear callflag
-		     */
-		    tmp->flavors &= ~F_CALL;
-		}
-		if ((tmp->flavors) & F_CALL) 
-		    flstr[9]='C';
-		if (tmp->t1) 
-		    flstr[11] = tmp->t1;
-		if (tmp->t2) 
-		    flstr[12] = tmp->t2;
+		if ((strcmp(utc, as) >= 0) && (strcmp(utc, be) < 0))
+		    T_window = TRUE;
+	    }
+	}
+	tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+	strcpy(flstr,"...... ... ..");
 
+	/*
+	 * If the node has internet and we have internet configured, 
+	 * check if we can send immediatly.
+	 */
+	if (TCFG.max_tcp && (tmp->olflags & OL_CM) &&
+		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
+		((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+	    tmp->flavors |= F_CALL;
+	}
+
+	if ((tmp->flavors) & F_IMM) {
+	    flstr[0]='I';
+	    /*
+	     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
+	     */
+	    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
+		tmp->flavors |= F_CALL;
+	    }
+	}
+
+	if ((tmp->flavors) & F_CRASH ) {
+	    flstr[1]='C';
+	    /*
+	     * Crash mail, send if node is CM or is in a Txx window or is in ZMH.
+	     */
+	    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
+		tmp->flavors |= F_CALL;
+	    }
+	}
+
+	if ((tmp->flavors) & F_NORMAL)
+	    flstr[2]='N';
+	if ((tmp->flavors) & F_HOLD  ) 
+	    flstr[3]='H';
+	if ((tmp->flavors) & F_FREQ  ) 
+	    flstr[4]='R';
+	if ((tmp->flavors) & F_POLL  ) {
+	    flstr[5]='P';
+	    tmp->flavors |= F_CALL;
+	}
+	if ((tmp->flavors) & F_ISPKT ) { 
+	    flstr[7]='M';
+	    /*
+	     * Normal mail, send during ZMH or if node has a Txx window.
+	     */
+	    if (iszmh || T_window) {
+		tmp->flavors |= F_CALL;
+	    }
+	}
+	if ((tmp->flavors) & F_ISFLO ) 
+	    flstr[8]='F';
+
+	if (tmp->cst.tryno >= 30) {
+	    /*
+	     * Node is undialable, clear callflag
+	     */
+	    tmp->flavors &= ~F_CALL;
+	}
+	if ((tmp->flavors) & F_CALL) 
+	    flstr[9]='C';
+	if (tmp->t1) 
+	    flstr[11] = tmp->t1;
+	if (tmp->t2) 
+	    flstr[12] = tmp->t2;
+
+	/*
+	 * If forbidden to call from setup, clear callflag.
+	 */
+	if (nodes.NoCall)
+	    tmp->flavors &= ~F_CALL;
+
+	/*
+	 * If we must call this node, figure out how to call this node.
+	 */
+	if ((tmp->flavors) & F_CALL) {
+	    tmp->callmode = CM_NONE;
+
+	    if (TCFG.max_tcp && !nodes.NoTCP &&
+		    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+		inet_calls++;
+		tmp->callmode = CM_INET;
+	    }
+
+	    if ((tmp->callmode == CM_NONE) && TCFG.max_isdn) {
 		/*
-		 * If forbidden to call from setup, clear callflag.
+		 * ISDN node
 		 */
-		if (nodes.NoCall)
-		    tmp->flavors &= ~F_CALL;
+		isdn_calls++;
+		tmp->callmode = CM_ISDN;
+		break;
+	    }
 
+	    if ((tmp->callmode == CM_NONE) && TCFG.max_pots) {
 		/*
-		 * If we must call this node, figure out how to call this node.
+		 * POTS node
 		 */
-		if ((tmp->flavors) & F_CALL) {
-		    /*
-		     * Get options for this node
-		     */
-
-
-		    tmp->callmode = CM_NONE;
-		    if (internet && TCFG.max_tcp && !nodes.NoTCP &&
-			    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
-			inet_calls++;
-			tmp->callmode = CM_INET;
-		    }
-		    if (!TCFG.ipblocks || (TCFG.ipblocks && !internet)) {
-			/*
-			 * If TCP/IP blocks other trafic, (you only have one dialup line),
-			 * then don't add normal dial trafic. If not blocking, add lines.
-			 */
-			if ((tmp->callmode == CM_NONE) && TCFG.max_isdn) {
-			    /*
-			     * ISDN node, check available dialout ports
-			     */
-			    for (tpl = pl; tpl; tpl = tpl->next) {
-				if (tpl->dflags & tmp->diflags) {
-				    isdn_calls++;
-				    tmp->callmode = CM_ISDN;
-				    break;
-				}
-			    }
-			}
-			if ((tmp->callmode == CM_NONE) && TCFG.max_pots) {
-			    /*
-			     * POTS node, check available modems
-			     */
-			    for (tpl = pl; tpl; tpl = tpl->next) {
-				if (tpl->mflags & tmp->moflags) {
-				    pots_calls++;
-				    tmp->callmode = CM_POTS;
-				    break;
-				}
-			    }
-			}
-		    }
-		}
-		sprintf(temp, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
-			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
-			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
-			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
-		tasklog('+', "%s", temp);
+		pots_calls++;
+		tmp->callmode = CM_POTS;
+		break;
+	    }
 	}
 	
-	if (nxt_hour == 24) {
-	    /*
-	     * 24:00 hours doesn't exist
-	     */
-	    nxt_hour = 0;
-	    nxt_min  = 0;
-	}
-
 	/*
-	 * Always set semafore do_inet if internet is needed.
+	 * Show callresult for this node.
 	 */
-	if (!s_do_inet && inet_calls) {
-	    CreateSema((char *)"do_inet");
-	    s_do_inet = TRUE;
-	    tasklog('c', "Created semafore do_inet");
-	}
+	sprintf(temp, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
+		(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
+		(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
+		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
+	tasklog('+', "%s", temp);
 
-	tasklog('o', "Call inet=%d, isdn=%d, pots=%d", inet_calls, isdn_calls, pots_calls);
-	tasklog('+', "Next event at %02d:%02d UTC", nxt_hour, nxt_min);
-	return 0;
+    } /* All nodes scanned. */
+	
+    if (nxt_hour == 24) {
+	/*
+	 * 24:00 hours doesn't exist
+	 */
+	nxt_hour = 0;
+	nxt_min  = 0;
+    }
+
+    /*
+     * Always set/reset semafore do_inet if internet is needed.
+     */
+    if (!IsSema((char *)"do_inet") && inet_calls) {
+	CreateSema((char *)"do_inet");
+	s_do_inet = TRUE;
+	tasklog('c', "Created semafore do_inet");
+    } else if (IsSema((char *)"do_inet") && !inet_calls) {
+	RemoveSema((char *)"do_inet");
+	s_do_inet = FALSE;
+	tasklog('c', "Removed semafore do_inet");
+    }
+
+    /*
+     * Log results
+     */
+    tasklog('+', "Inet=%d, ISDN=%d, POTS=%d, Next event at %02d:%02d UTC", 
+	    inet_calls, isdn_calls, pots_calls, nxt_hour, nxt_min);
+    return 0;
 }
 
 

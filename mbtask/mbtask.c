@@ -85,7 +85,6 @@ extern int		s_index;		/* Compile nl semafore	*/
 extern int		s_newnews;		/* New news semafore	*/
 extern int		s_reqindex;		/* Create req index sem */
 extern int		s_msglink;		/* Messages link sem	*/
-extern int		s_do_inet;		/* Internet wanted	*/
 extern int		pingresult[2];		/* Ping results		*/
 int			masterinit = FALSE;	/* Master init needed	*/
 int			ptimer = PAUSETIME;	/* Pause timer		*/
@@ -943,6 +942,7 @@ void scheduler(void)
 	 */
 	reg_check();
 	check_sema();
+	check_ports();
 
 	/*
 	 * Check the systems load average.
