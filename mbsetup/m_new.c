@@ -55,8 +55,8 @@ int	NewUpdated = 0;
 int CountNewfiles(void)
 {
 	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+	char	ffile[PATH_MAX], group[13];
+	int	count, i;
 
 	sprintf(ffile, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
@@ -66,9 +66,26 @@ int CountNewfiles(void)
 			newfileshdr.recsize = sizeof(newfiles);
 			newfileshdr.grpsize = CFG.new_groups * 13;
 			fwrite(&newfileshdr, sizeof(newfileshdr), 1, fil);
+			memset(&newfiles, 0, sizeof(newfiles));
+
+			sprintf(newfiles.Comment, "General newfiles announce");
+			sprintf(newfiles.Area, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+			sprintf(newfiles.Origin, "%s", CFG.origin);
+			sprintf(newfiles.From, "Sysop");
+			sprintf(newfiles.Too, "All");
+			sprintf(newfiles.Subject, "New files found");
+			newfiles.Language = 'E';
+			newfiles.Active = TRUE;
+			newfiles.HiAscii = TRUE;
+			fwrite(&newfiles, sizeof(newfiles), 1, fil);
+			sprintf(group, "LOCAL");
+			fwrite(&group, 13, 1, fil);
+			memset(&group, 0, sizeof(group));
+			for (i = 1; i < CFG.new_groups; i++)
+			    fwrite(&group, 13, 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 0;
+			return 1;
 		} else
 			return -1;
 	}

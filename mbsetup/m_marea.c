@@ -33,6 +33,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "../lib/msg.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -58,7 +59,8 @@ int CountMsgarea(void)
 {
 	FILE	*fil;
 	char	ffile[PATH_MAX];
-	int	count;
+	int	count, i;
+	struct  _sysconnect syscon;
 
 	sprintf(ffile, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
@@ -69,10 +71,85 @@ int CountMsgarea(void)
 			msgshdr.syssize = CFG.toss_systems * sizeof(sysconnect);
 			msgshdr.lastupd = time(NULL);
 			fwrite(&msgshdr, sizeof(msgshdr), 1, fil);
+			/*
+			 * Default first message area
+			 */
+			memset(&msgs, 0, sizeof(msgs));
+			sprintf(msgs.Name, "Local users chat");
+			sprintf(msgs.Base, "%s/var/mail/local/users", getenv("MBSE_ROOT"));
+			sprintf(msgs.QWKname, "LOC_USERS");
+			sprintf(msgs.Group, "LOCAL");
+			msgs.Active = TRUE;
+			msgs.Type = LOCALMAIL;
+			msgs.MsgKinds = PUBLIC;
+			msgs.SYSec.level = 32000;
+			msgs.UsrDelete = TRUE;
+			msgs.Aliases = TRUE;
+			msgs.Quotes = TRUE;
+			msgs.DaysOld = CFG.defdays;
+			msgs.MaxMsgs = CFG.defmsgs;
+			msgs.Rfccode = CHRS_DEFAULT_RFC;
+			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			strcpy(msgs.Origin, CFG.origin);
+			fwrite(&msgs, sizeof(msgs), 1, fil);
+			mkdirs(msgs.Base);
+			if (Msg_Open(msgs.Base))
+			    Msg_Close();
+			memset(&syscon, 0, sizeof(syscon));
+			for (i = 1; i <= CFG.toss_systems; i++)
+			    fwrite(&syscon, sizeof(syscon), 1, fil);
+			/*
+			 * Default message area for badmail
+			 */
+			memset(&msgs, 0, sizeof(msgs));
+			sprintf(msgs.Name, "Bad mail");
+			sprintf(msgs.Base, "/opt/mbse/var/mail/badmail");
+			sprintf(msgs.QWKname, "BADMAIL");
+			sprintf(msgs.Group, "LOCAL");
+			msgs.Active = TRUE;
+			msgs.Type = LOCALMAIL;
+			msgs.MsgKinds = PUBLIC;
+			msgs.RDSec.level = 32000;
+			msgs.WRSec.level = 32000;
+			msgs.SYSec.level = 32000;
+			msgs.DaysOld = CFG.defdays;
+			msgs.MaxMsgs = CFG.defmsgs;
+			msgs.Rfccode = CHRS_DEFAULT_RFC;   
+			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			fwrite(&msgs, sizeof(msgs), 1, fil);
+			mkdirs(msgs.Base);
+			if (Msg_Open(msgs.Base))
+			    Msg_Close();
+			for (i = 1; i <= CFG.toss_systems; i++)
+			    fwrite(&syscon, sizeof(syscon), 1, fil);
+			/*
+			 * Default dupemail message area
+			 */
+			memset(&msgs, 0, sizeof(msgs));
+			sprintf(msgs.Name, "Dupe mail");
+			sprintf(msgs.Base, "/opt/mbse/var/mail/dupemail");
+			sprintf(msgs.QWKname, "DUPEMAIL");
+			sprintf(msgs.Group, "LOCAL");
+			msgs.Active = TRUE;
+			msgs.Type = LOCALMAIL;
+			msgs.MsgKinds = PUBLIC;
+			msgs.RDSec.level = 32000;
+			msgs.WRSec.level = 32000;
+			msgs.SYSec.level = 32000;
+			msgs.DaysOld = CFG.defdays;
+			msgs.MaxMsgs = CFG.defmsgs;
+			msgs.Rfccode = CHRS_DEFAULT_RFC;
+			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			fwrite(&msgs, sizeof(msgs), 1, fil);
+			mkdirs(msgs.Base);
+			if (Msg_Open(msgs.Base))
+			    for (i = 1; i <= CFG.toss_systems; i++)
+			fwrite(&syscon, sizeof(syscon), 1, fil);
+
 			fclose(fil);
 			exp_golded = TRUE;
 			chmod(ffile, 0660);
-			return 0;
+			return 3;
 		} else
 			return -1;
 	}

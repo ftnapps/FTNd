@@ -64,9 +64,24 @@ int CountFilearea(void)
 			areahdr.hdrsize = sizeof(areahdr);
 			areahdr.recsize = sizeof(area);
 			fwrite(&areahdr, sizeof(areahdr), 1, fil);
+			memset(&area, 0, sizeof(area));
+			sprintf(area.Name, "Local general files");
+			area.New       = TRUE;
+			area.Dupes     = TRUE;
+			area.FileFind  = TRUE;
+			area.AddAlpha  = TRUE;
+			area.FileReq   = TRUE;
+			area.Available = TRUE;
+			area.FileFind  = TRUE;
+			sprintf(area.BbsGroup, "LOCAL");
+			sprintf(area.NewGroup, "LOCAL");
+			sprintf(area.Path, "%s/local/common", CFG.ftp_base);
+			fwrite(&area, sizeof(area), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 0;
+			sprintf(ffile, "%s/foobar", area.Path);
+			mkdirs(ffile);
+			return 1;
 		} else
 			return -1;
 	}

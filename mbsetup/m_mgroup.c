@@ -64,9 +64,19 @@ int CountMGroup(void)
 			mgrouphdr.hdrsize = sizeof(mgrouphdr);
 			mgrouphdr.recsize = sizeof(mgroup);
 			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
+			memset(&mgroup, 0, sizeof(mgroup));
+			sprintf(mgroup.Name, "NOGROUP");
+			sprintf(mgroup.Comment, "Dummy group for badmail, dupemail");
+			mgroup.Active = TRUE;
+			fwrite(&mgroup, sizeof(mgroup), 1, fil);
+			memset(&mgroup, 0, sizeof(mgroup));
+			sprintf(mgroup.Name, "LOCAL");
+			sprintf(mgroup.Comment, "Local mail areas");
+			mgroup.Active = TRUE;
+			fwrite(&mgroup, sizeof(mgroup), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 0;
+			return 2;
 		} else
 			return -1;
 	}

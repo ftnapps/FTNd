@@ -53,6 +53,13 @@ int CountOneline(void)
 	FILE	*fil;
 	char	ffile[PATH_MAX];
 	int	count;
+        struct  tm *l_date;
+	char    buf[12];
+	time_t  Time;
+
+	Time = time(NULL);
+	l_date = localtime(&Time);
+	sprintf(buf, "%02d-%02d-%04d", l_date->tm_mday, l_date->tm_mon+1, l_date->tm_year+1900);
 
 	sprintf(ffile, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "r")) == NULL) {
@@ -61,9 +68,33 @@ int CountOneline(void)
 			olhdr.hdrsize = sizeof(olhdr);
 			olhdr.recsize = sizeof(ol);
 			fwrite(&olhdr, sizeof(olhdr), 1, fil);
+			memset(&ol, 0, sizeof(ol));
+			sprintf(ol.UserName, "Sysop");
+			sprintf(ol.DateOfEntry, "%s", buf);
+			ol.Available = TRUE;
+			sprintf(ol.Oneline, "\"640K ought to be enough for anybody.\" Bill Gates '81");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "\"Build a watch in 179 easy steps\" by C. Forsberg.");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "\"Keyboard?  How quaint!\" - Scotty");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "\"Luke... Luke... Use the MOUSE, Luke\" - Obi Wan Gates");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "\"Suicide Hotline...please hold.\"");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "(A)bort, (R)etry, (P)retend this never happened...");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "A Smith & Wesson *ALWAYS* beats 4 Aces.");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "A dirty book is rarely dusty.");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "An Elephant;  A Mouse built to government specifications.");
+			fwrite(&ol, sizeof(ol), 1, fil);
+			sprintf(ol.Oneline, "At a store: In God we trust; all others pay cash.");
+			fwrite(&ol, sizeof(ol), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0660);
-			return 0;
+			return 10;
 		} else
 			return -1;
 	}

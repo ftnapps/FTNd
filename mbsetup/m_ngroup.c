@@ -62,9 +62,19 @@ int CountNGroup(void)
 			ngrouphdr.hdrsize = sizeof(ngrouphdr);
 			ngrouphdr.recsize = sizeof(ngroup);
 			fwrite(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
+			memset(&ngroup, 0, sizeof(ngroup));
+			sprintf(ngroup.Name, "DONT");
+			sprintf(ngroup.Comment, "Do NOT announce");
+			ngroup.Active = TRUE;
+			fwrite(&ngroup, sizeof(ngroup), 1, fil);
+			memset(&ngroup, 0, sizeof(ngroup));
+			sprintf(ngroup.Name, "LOCAL");
+			sprintf(ngroup.Comment, "Local file areas");
+			ngroup.Active = TRUE;
+			fwrite(&ngroup, sizeof(ngroup), 1, fil);
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 0;
+			return 2;
 		} else
 			return -1;
 	}

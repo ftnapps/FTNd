@@ -398,12 +398,12 @@ int main(int argc, char *argv[])
 	    exit(1);
 	}
 
-	InitClient(pw->pw_name, (char *)"mbsetup", (char *)"nowhere", (char *)"mbsetup.log", 0x1f, (char *)"error.log");
-
 	/*
-	 * Read the global configuration data 
+	 * Read the global configuration data, registrate connection
 	 */
 	config_check(getenv("MBSE_ROOT"));
+	config_read();
+	InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log);
 
 	/*
 	 * Setup several signals so when the program terminate's it
