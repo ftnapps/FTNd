@@ -190,6 +190,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			free(temp);
 			free(subject);
 
+			fprintf(fp, "Size %ld\r\n", (long)(TIC.FileSize));
 			fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 			fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
 			if (nodes.AdvTic) {
