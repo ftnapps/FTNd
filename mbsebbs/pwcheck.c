@@ -2,13 +2,13 @@
  *
  * File ..................: bbs/pwcheck.c
  * Purpose ...............: Password checking routines
- * Last modification date : 08-Feb-1999
+ * Last modification date : 18-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2001
  *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10		Internet:	mbroek@users.sourceforge.net
  * 1971 BV IJmuiden
  * the Netherlands
  *
@@ -44,7 +44,7 @@
  * Open up /dev/tty to get the password from the user 
  * because this is done in raw mode, it makes life a bit
  * more difficult. 
- * This function gets a password from a user, upto CFG.max_passlen set above 
+ * This function gets a password from a user, upto Max_passlen
  */
 int Getpass(char *theword)
 {
@@ -69,37 +69,32 @@ int Getpass(char *theword)
 	 * Till the user presses ENTER or reaches the maximum length allowed
 	 */
 	while ((c != 13) && (counter < Max_passlen )) {
+
+		fflush(stdout);
 		c = Readkey();  /* Reads a character from the raw device */
 
 		if (((c == 8) || (c == KEY_DEL) || (c == 127)) && (counter != 0 )) { /* If its a BACKSPACE */
 			counter--;
 			password[counter] = '\0';
 			printf("\x008 \x008");
-			fflush(stdout);
 			continue;
 		}  /* Backtrack to fix the BACKSPACE */
 
 		if (((c == 8) || (c == KEY_DEL) || (c == 127)) && (counter == 0) ) {
 			printf("\x007");
-			fflush(stdout);
 			continue;
 		} /* Don't Backtrack as we are at the begining of the passwd field */
 
-		password[counter] = c;
-		counter++;
-
-		if (c > 32 && c < 127) { /* If its a normal character, display a .  */
+		if (isalnum(c)) {
+			password[counter] = c;
+			counter++;
 			printf("%c", CFG.iPasswd_Char);
-			fflush(stdout);
 		}
 	}
 	Unsetraw();  /* Go normal */
 	close(ttyfd);
 
-	if (counter == Max_passlen)
-		password[counter] = '\0';  /* Make sure the string has a NULL at the end*/
-	else
-		password[counter-1] ='\0';
+	password[counter] = '\0';  /* Make sure the string has a NULL at the end*/
 	strcpy(theword,password);
 
 	return(0);

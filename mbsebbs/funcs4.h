@@ -1,6 +1,7 @@
 #ifndef _FUNCS4_H
 #define _FUNCS4_H
 
+
 void UserSilent(int);		/* Update users silent flag info	    */
 int  CheckStatus(void);		/* Check BBS open status		    */
 void GetstrU(char *, int);	/* Get string, forbid spaces		    */

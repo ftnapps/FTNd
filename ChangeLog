@@ -4158,6 +4158,7 @@ v0.33.18        27-Jul-2001
 		The written door.sys file now has a : after the comport.
 		Executing doors in nosuid mode (as real user) is now possible.
 		The can be switched on using mbsetup.
+		Fixed security problem in Unix username and password entry.
 
 	mbuseradd:
 		Ported to work on FreeBSD.
