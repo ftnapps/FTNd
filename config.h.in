@@ -250,3 +250,5 @@
 /* Define if machine is bigendian */
 #undef WORDS_BIGENDIAN
 
+/* Define if Del != 207 */
+#define GBK_DEL @GBK_DEL@

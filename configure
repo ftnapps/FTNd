@@ -846,6 +846,7 @@ Optional Features:
   --enable-optimize       Enable CPU optimize
   --enable-newbinkp       Compile Debugging Binkp code
   --enable-newsgate       Compile with newsgate
+  --enable-gbkdel         Delete key is 126 (default is 207)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3075,6 +3076,7 @@ _ACEOF
 else
   NEWSGATE="No"
 fi
+
 
 echo "$as_me:$LINENO: checking for re_comp in -lcompat" >&5
 echo $ECHO_N "checking for re_comp in -lcompat... $ECHO_C" >&6
@@ -8929,6 +8931,27 @@ echo "${ECHO_T}no" >&6
 fi
 
 
+# Check whether --enable-gbkdel or --disable-gbkdel was given.
+if test "${enable_gbkdel+set}" = set; then
+  enableval="$enable_gbkdel"
+   gbkdel=$enableval
+else
+   gbkdel=no
+fi;
+if test "$gbkdel" = "yes"; then
+  GBK_DEL=126
+  DEL=$GBK_DEL
+  echo "checking delete key... changed into $DEL"
+else
+  DEL="default"
+  GBK_DEL=0
+  echo "checking delete key... default"
+fi
+cat >>confdefs.h <<_ACEOF
+#define GBK_DEL $GBK_DEL
+_ACEOF
+
+
 
 # Check whether --with-log-compress or --without-log-compress was given.
 if test "${with_log_compress+set}" = set; then
@@ -10336,6 +10359,7 @@ echo "$as_me:$LINENO: result:
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
     Full newsgate : ............... ${NEWSGATE}
+    Delete key : .................. ${DEL}
 
 " >&5
 echo "${ECHO_T}
@@ -10346,6 +10370,7 @@ echo "${ECHO_T}
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
     Full newsgate : ............... ${NEWSGATE}
+    Delete key : .................. ${DEL}
 
 " >&6
 

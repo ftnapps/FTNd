@@ -212,7 +212,7 @@ void GetstrLC(char *sStr, int iMaxlen)
 	    }
 	}
 
-	if (ch > 31 && ch < 127) {
+	if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);

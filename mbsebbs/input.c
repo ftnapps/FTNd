@@ -295,7 +295,7 @@ int traduce(char *ch)
 {
    int i;
    
-   for (i = 0; i < 85; i++){
+   for (i = 0; i < 81; i++){
        if ( Language(35)[i] == '\0' ) break;
        if ( *ch == Language(35)[i] ){
           if ( Language(36)[i] != '\0'){
@@ -303,7 +303,17 @@ int traduce(char *ch)
            }                   
        return TRUE; 
        }
+   }
+   for (i = 0; i < 81; i++){
+       if ( Language(33)[i] == '\0' ) break;
+       if ( *ch == Language(33)[i] ){
+          if ( Language(34)[i] != '\0'){
+               *ch = ( Language(34)[i] ); 
+           }                   
+       return TRUE; 
+       }
    } 
+  
    return FALSE;
 }
 
@@ -332,16 +342,15 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
     while (ch != KEY_ENTER) {
 
 	ch = Readkey();
-
 	if ((ch == KEY_BACKSPACE) || (ch == KEY_DEL) || (ch == KEY_RUBOUT)) {
 	    if (iPos > 0) {
 		BackErase();
 		sStr[--iPos] = '\0';
 	    } else
 		PUTCHAR('\007');
-	}
 
-	if ((ch > 31) || traduce(&ch)) {
+	    /* if 13 < DEL < 127 , should not output again */
+	} else if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);

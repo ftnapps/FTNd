@@ -279,21 +279,22 @@ void Chat(char *username, char *channel)
 	 * Allow hi-ascii for multi-language.
 	 */
 	ch = testkey(exitinfo.iScreenLen -1, curpos + 2);
-	if (isprint(ch) || (ch > 0x7F)) {
-	    alarm_on();
-	    if (curpos < 77) {
-		PUTCHAR(ch);
-		sbuf[curpos] = ch;
-		curpos++;
-	    } else {
-		PUTCHAR(7);
-	    }
-	} else if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
+	if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
 	    alarm_on();
 	    if (curpos) {
 		curpos--;
 		sbuf[curpos] = '\0';
 		BackErase();
+	    } else {
+		PUTCHAR(7);
+	    }
+	/* if KEY_DEL isprint, do no output again */
+	} else if (isprint(ch) || traduce(&ch)) {
+	    alarm_on();
+	    if (curpos < 77) {
+		PUTCHAR(ch);
+		sbuf[curpos] = ch;
+		curpos++;
 	    } else {
 		PUTCHAR(7);
 	    }

@@ -28,6 +28,7 @@ v0.71.2		16-Jan-2005
 		Allowed hi-ascii input characters in the internal fs editor,
 		the chat input and one general input function. This may have
 		effects for all users not using us-ascii keyboards.
+		Added more support for Chinese using the traduce function.
 
 	mbfido:
 		Empty *.msg netmails for our own system are dropped with and
@@ -50,8 +51,14 @@ v0.71.2		16-Jan-2005
 		The created semafore files are now world readable so that low
 		privileged users like nobody can check the semafore's.
 
+	mbsetup:
+		Added langugae defaults for Chinese.
+
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.
+
+	lang:
+		Added Chinese language.
 
 	script:
 		Fixed the Slackware setup script that didn't make the startup

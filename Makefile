@@ -54,6 +54,10 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/tmp
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/home
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/chinese
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/chinese/txtfiles
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/chinese/menus
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/chinese/macro
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/dutch/txtfiles
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/dutch/menus

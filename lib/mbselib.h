@@ -293,7 +293,11 @@ struct icmp_filter {
 #define KEY_HOME        204
 #define KEY_END         205
 #define KEY_INS         206
+#if GBK_DEL
+#define KEY_DEL         GBK_DEL 
+#else
 #define KEY_DEL         207
+#endif
 #define KEY_PGUP        208
 #define KEY_PGDN        209
 #define	KEY_F10		210

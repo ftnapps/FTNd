@@ -133,6 +133,16 @@ int CountLanguage(void)
 			lang.Available = TRUE;  
 			fwrite(&lang, sizeof(lang), 1, fil);
 
+                        memset(&lang, 0, sizeof(lang));
+			sprintf(lang.Name,      "Chinese");
+			sprintf(lang.LangKey,   "C");
+			sprintf(lang.MenuPath,  "%s/chinese/menus", getenv("MBSE_ROOT"));
+			sprintf(lang.TextPath,  "%s/chinese/txtfiles", getenv("MBSE_ROOT"));
+			sprintf(lang.MacroPath, "%s/chinese/macro", getenv("MBSE_ROOT"));
+			sprintf(lang.Filename,  "chinese.lang");
+			lang.Available = TRUE;  
+			fwrite(&lang, sizeof(lang), 1, fil);
+
 			fclose(fil);
 			chmod(ffile, 0640);
 			return 6;
