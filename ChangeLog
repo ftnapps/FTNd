@@ -46,6 +46,9 @@ v0.37.01	14-Jan-2003.
 		After forking the daemon, the stdin, stdout and stderr are
 		reopend to /dev/null.
 		Zero the daily status counters finally works again.
+		Added experimental code where tossing mail is not started as
+		long as there are mailers running, but not longer as 30 mins.
+		This should make the whole system less nervous.
 
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.

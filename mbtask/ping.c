@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - ping functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -101,7 +101,6 @@ int             ping_receive(struct in_addr);
 #define ICMP4_ECHO_LEN    ICMP_BASEHDR_LEN
 
 
-// short                   p_sequence = 0;
 short			p_sequence = 10;
 unsigned short          id;
 struct icmphdr          icmpd;
@@ -176,7 +175,6 @@ int ping_send(struct in_addr addr)
     SOL_IP = pe->p_proto;
 #endif
 
-//    p_sequence++;
     id = (unsigned short)get_rand16(); /* randomize a ping id */
 
 #ifdef __linux__
@@ -317,13 +315,11 @@ void check_ping(void)
 			pingresult[1] = pingresult[2] = internet = FALSE;
 			break;
 			
-	case P_PAUSE:	// Syslog('p', "PAUSE:");
-			if (time(NULL) >= pingtime)
+	case P_PAUSE:	if (time(NULL) >= pingtime)
 			    pingstate = P_SENT;
 			break;
 			
-	case P_WAIT:	// Syslog('p', "WAIT:");
-			if (time(NULL) >= pingtime) {
+	case P_WAIT:	if (time(NULL) >= pingtime) {
 			    pingstate = P_ERROR;
 			    if (icmp_errs < ICMP_MAX_ERRS)
 				Syslog('?', "ping: to %s timeout", pingaddress);
@@ -338,8 +334,8 @@ void check_ping(void)
 				 * Reply received.
 				 */
 				rc = time(NULL) - (pingtime - 20);
-				if (rc > 2)
-				    Syslog('p', "ping: reply after %d seconds", rc);
+				if (rc > 10)
+				    Syslog('+', "Ping: slow reply after %d seconds", rc);
 				pingresult[pingnr] = TRUE;
 				if (pingresult[1] || pingresult[2]) {
 				    if (!internet) {
@@ -362,8 +358,7 @@ void check_ping(void)
 			}
 			break;
 			
-	case P_SENT:	// Syslog('p', "SENT:");
-			pingtime = time(NULL) + 10;	// 10 secs timeout for pause.
+	case P_SENT:	pingtime = time(NULL) + 10;	// 10 secs timeout for pause.
 			if (pingnr == 1) {
 			    pingnr = 2;
 			    if (strlen(TCFG.isp_ping2)) {
@@ -384,7 +379,6 @@ void check_ping(void)
 			    }
 			}
 			pingtime = time(NULL) + 20;	// 20 secs timeout for a real ping
-			// Syslog('p', "nr %d address %s", pingnr, pingaddress);
 			if (inet_aton(pingaddress, &paddr)) {
 			    rc = ping_send(paddr);
 			    if (rc) {
@@ -402,8 +396,7 @@ void check_ping(void)
 			}
 			break;
 			
-	case P_ERROR:	// Syslog('p', "ERROR:");
-			pingresult[pingnr] = FALSE;
+	case P_ERROR:	pingresult[pingnr] = FALSE;
 			if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
 			    icmp_errs++;
 			    if (internet) {

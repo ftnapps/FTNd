@@ -149,10 +149,6 @@ mbtask:
 mbnewusr:
 	N: On NetBSD, supress error message from mbpasswd.
 
-mbtask:
-	U: When a new user registers and presses enter on the name prompt
-	   and then hangs up (at least with telnet), mbtask aborts.
-
 mbsetup:
 	N: Add a check for double areatag names.
 

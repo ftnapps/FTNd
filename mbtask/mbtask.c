@@ -586,12 +586,12 @@ int checktasks(int onsig)
 
 	    if (first && task[i].rc) {
 		first = FALSE;
-		Syslog('t', "Task             Type      pid stat    rc");
-		Syslog('t', "---------------- ------- ----- ---- -----");
+		Syslog('t', "Task             Type      pid stat");
+		Syslog('t', "---------------- ------- ----- ----");
 		for (j = 0; j < MAXTASKS; j++)
 		    if (strlen(task[j].name))
-			Syslog('t', "%-16s %s %5d %s %5d", task[j].name, callmode(task[j].tasktype), 
-				task[j].pid, task[j].running?"runs":"stop", task[j].rc);
+			Syslog('t', "%-16s %s %5d %s", task[j].name, callmode(task[j].tasktype), 
+				task[j].pid, task[j].running?"runs":"stop");
 	    }
 
 	    switch (task[i].rc) {
@@ -650,57 +650,57 @@ int checktasks(int onsig)
 
 void die(int onsig)
 {
-	int	i, count;
+    int	i, count;
 
-	signal(onsig, SIG_IGN);
-	if (onsig == SIGTERM)
-	    Syslog('+', "Starting normal shutdown");
-	else
-	    Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
+    signal(onsig, SIG_IGN);
+    if (onsig == SIGTERM)
+        Syslog('+', "Starting normal shutdown");
+    else
+        Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
 
-	/*
-	 *  First check if there are tasks running, if so try to stop them
-	 */
-	if ((count = checktasks(0))) {
-		Syslog('+', "There are %d tasks running, sending SIGTERM", count);
-		checktasks(SIGTERM);
-		for (i = 0; i < 15; i++) {
-			sleep(1);
-			count = checktasks(0);
-			if (count == 0)
-				break;
-		}
-		if (count) {
-			/*
-			 *  There are some diehards running...
-			 */
-			Syslog('+', "There are %d tasks running, sending SIGKILL", count);
-			count = checktasks(SIGKILL);
-		}
-		if (count) {
-			sleep(1);
-			count = checktasks(0);
-			if (count)
-				Syslog('?', "Still %d tasks running, giving up", count);
-		}
+    /*
+     *  First check if there are tasks running, if so try to stop them
+     */
+    if ((count = checktasks(0))) {
+	Syslog('+', "There are %d tasks running, sending SIGTERM", count);
+	checktasks(SIGTERM);
+	for (i = 0; i < 15; i++) {
+	    sleep(1);
+	    count = checktasks(0);
+	    if (count == 0)
+		break;
 	}
-
-	if ((count = checktasks(0)))
-	    Syslog('?', "Shutdown with %d tasks still running", count);
-	else
-	    Syslog('+', "Good, no more tasks running");
-
-	deinitnl();
-	ulocktask();
-	if (sock != -1)
-		close(sock);
-	if (ping_isocket != -1)
-		close(ping_isocket);
-	if (!file_exist(spath, R_OK)) {
-		unlink(spath);
+	if (count) {
+	    /*
+	     *  There are some diehards running...
+	     */
+	    Syslog('+', "There are %d tasks running, sending SIGKILL", count);
+	    count = checktasks(SIGKILL);
 	}
-	Syslog(' ', "MBTASK finished");
-	exit(onsig);
+	if (count) {
+	    sleep(1);
+	    count = checktasks(0);
+	    if (count)
+		Syslog('?', "Still %d tasks running, giving up", count);
+	}
+    }
+
+    if ((count = checktasks(0)))
+	Syslog('?', "Shutdown with %d tasks still running", count);
+    else
+	Syslog('+', "Good, no more tasks running");
+
+    deinitnl();
+    ulocktask();
+    if (sock != -1)
+	close(sock);
+    if (ping_isocket != -1)
+	close(ping_isocket);
+    if (!file_exist(spath, R_OK)) {
+	unlink(spath);
+    }
+    Syslog(' ', "MBTASK finished");
+    exit(onsig);
 }
 
 
@@ -781,11 +781,11 @@ void ulocktask(void)
 void test_sema(char *);
 void test_sema(char *sema)
 {
-	if (IsSema(sema)) {
-		RemoveSema(sema);
-		Syslog('s', "Semafore %s detected", sema);
-		sem_set(sema, TRUE);
-	}
+    if (IsSema(sema)) {
+	RemoveSema(sema);
+	Syslog('s', "Semafore %s detected", sema);
+	sem_set(sema, TRUE);
+    }
 }
 
 
@@ -797,40 +797,40 @@ void test_sema(char *sema)
 void check_sema(void);
 void check_sema(void)
 {
+    /*
+     * Check UPS status.
+     */
+    if (IsSema((char *)"upsalarm")) {
+        if (!UPSalarm)
+            Syslog('!', "UPS: power failure");
+	UPSalarm = TRUE;
+    } else {
+        if (UPSalarm)
+            Syslog('!', "UPS: the power is back");
+	UPSalarm = FALSE; 
+    }
+    if (IsSema((char *)"upsdown")) {
+	Syslog('!', "UPS: power failure, starting shutdown");
 	/*
-	 * Check UPS status.
+	 *  Since the upsdown semafore is permanent, the system WILL go down
+	 *  there is no point for this program to stay. Signal all tasks and stop.
 	 */
-        if (IsSema((char *)"upsalarm")) {
-                if (!UPSalarm)
-                        Syslog('!', "UPS: power failure");
-		UPSalarm = TRUE;
-	} else {
-                if (UPSalarm)
-                        Syslog('!', "UPS: the power is back");
-		UPSalarm = FALSE; 
-	}
-	if (IsSema((char *)"upsdown")) {
-		Syslog('!', "UPS: power failure, starting shutdown");
-		/*
-		 *  Since the upsdown semafore is permanent, the system WILL go down
-		 *  there is no point for this program to stay. Signal all tasks and stop.
-		 */
-		die(MBERR_UPS_ALARM);
-	}
+	die(MBERR_UPS_ALARM);
+    }
 
-	/*
-	 *  Check Zone Mail Hour
-	 */
-	get_zmh();
+    /*
+     *  Check Zone Mail Hour
+     */
+    get_zmh();
 
-	/*
-	 *  Semafore's that still can be detected, usefull for
-	 *  external programs that create them.
-	 */
-	test_sema((char *)"newnews");
-	test_sema((char *)"mailout");
-	test_sema((char *)"mailin");
-	test_sema((char *)"scanout");
+    /*
+     *  Semafore's that still can be detected, usefull for
+     *  external programs that create them.
+     */
+    test_sema((char *)"newnews");
+    test_sema((char *)"mailout");
+    test_sema((char *)"mailin");
+    test_sema((char *)"scanout");
 }
 
 
@@ -839,7 +839,7 @@ void scheduler(void)
 {
     struct passwd   *pw;
     int		    running = 0, rc, i, rlen, found;
-    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
+    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70, tosswait = TOSSWAIT_TIME;
     char            *cmd = NULL, opts[41], port[21];
     static char	    doing[32], buf[2048];
     time_t          now;
@@ -1010,6 +1010,8 @@ void scheduler(void)
 	    /*
 	     * Each minute we execute this part
 	     */
+	    if (tosswait)
+		tosswait--;
 	    olddo = tm->tm_min;
 	    TouchSema((char *)"mbtask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
@@ -1083,9 +1085,27 @@ void scheduler(void)
 	    }
 
 	    if (s_mailin && (!ptimer) && (!runtasktype(MBFIDO))) {
-		launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-		running = checktasks(0);
-		s_mailin = FALSE;
+		/*
+		 * Here we should check if no mailers are running. Only start
+		 * processing the inbound if no mailers are running, but on busy
+		 * systems this may hardly be the case. So we wait for 30 minutes
+		 * and if there are still mailers running, mbfido is started
+		 * anyway.
+		 */
+		if ((ipmailers + runtasktype(CM_ISDN) + runtasktype(CM_POTS)) == 0) {
+		    Syslog('i', "Mailin, no mailers running, start direct");
+		    tosswait = TOSSWAIT_TIME;
+		    launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		    running = checktasks(0);
+		    s_mailin = FALSE;
+		} else {
+		    Syslog('i', "Mailin, tosswait=%d", tosswait);
+		    if (tosswait == 0) {
+			launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+			running = checktasks(0);
+			s_mailin = FALSE;
+		    }
+		}
 	    }
 
 	    if (s_newnews && (!ptimer) && (!runtasktype(MBFIDO))) {
