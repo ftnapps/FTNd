@@ -32,8 +32,8 @@ v0.61.4		11-Aug-2004
 		The files database is moved from ~/fdb to ~/var/fdb.
 		Added debug logging to dbfdb to find the problem with not
 		cleaned magic aliases.
-		Possible fix for not closing the temp file with several 
-		functions. Under test!
+		Fixed a problem with the files database were the temp file used
+		for sorting and inserting files didn't close the temp file.
 
 	mbcico:
 		Removed a little debug logging.
