@@ -418,7 +418,11 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 }
 
 
-// mbsedb_SortFDB
+
+int mbsedb_SortFDB(struct _fdbarea *fdb_area)
+{
+}
+
 
 
 #endif

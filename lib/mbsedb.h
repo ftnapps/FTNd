@@ -150,6 +150,7 @@ int mbsedb_LockFDB(struct _fdbarea *, int);
 int mbsedb_UnlockFDB(struct _fdbarea *);
 int mbsedb_InsertFDB(struct _fdbarea *, struct FILE_record, int);
 int mbsedb_PackFDB(struct _fdbarea *);
+int mbsedb_SortFDB(struct _fdbarea *);
 
 #endif
 
