@@ -1,6 +1,9 @@
 $Id$
 
-v0.51.3		22-Mar-2003
+v0.51.4		11-Apr-2004
+
+
+v0.51.3		22-Mar-2003 - 11-Apr-2004
 
 	general:
 		Removed one setup entry for check for free diskspace, there
@@ -9,6 +12,8 @@ v0.51.3		22-Mar-2003
 		Moved doc directory from /opt/mbse/doc to /opt/mbse/share/doc.
 		Added configure test for CPU optimization flags. Use with
 		./configure --enable-optimize.
+		Added charset kludges for CP852 2 and CP895 2, Czech Latin-2
+		and Kamenicky. There are no mapping tables available.
 
 	mbtask:
 		Signal handler for sigchld set to sig_dfl, test for Fedora.

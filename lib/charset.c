@@ -114,6 +114,8 @@ char *getchrs(int val)
         case FTNC_CP850:    return (char *)"CP850 2";
         case FTNC_CP865:    return (char *)"CP865 2";
         case FTNC_CP866:    return (char *)"CP866 2";
+	case FTNC_CP852:    return (char *)"CP852 2";
+	case FTNC_CP895:    return (char *)"CP895 2";
         case FTNC_LATIN_1:  return (char *)"LATIN-1 2";
         case FTNC_LATIN_2:  return (char *)"LATIN-2 2";
         case FTNC_LATIN_5:  return (char *)"LATIN-5 2";
@@ -131,6 +133,8 @@ char *getchrsdesc(int val)
         case FTNC_CP850:    return (char *)"IBM codepage 850 (Latin-1)";
         case FTNC_CP865:    return (char *)"IBM codepage 865 (Nordic)";
         case FTNC_CP866:    return (char *)"IBM codepage 866 (Russian)";
+	case FTNC_CP852:    return (char *)"IBM codepage 852 (Czech, Latin-1)";
+	case FTNC_CP895:    return (char *)"IBM codepage 895 (Czech, Kamenicky)";
         case FTNC_LATIN_1:  return (char *)"ISO 8859-1 (Western European)";
         case FTNC_LATIN_2:  return (char *)"ISO 8859-2 (Eastern European)";
         case FTNC_LATIN_5:  return (char *)"ISO 8859-5 (Turkish)";

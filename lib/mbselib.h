@@ -370,7 +370,9 @@ struct icmp_filter {
 #define	FTNC_LATIN_2		6	/* ISO 8859-2 (Eastern Europe)	    */
 #define	FTNC_LATIN_5		7	/* ISO 8859-5 (Turkish)		    */
 #define	FTNC_MAC		8	/* MacIntosh character set	    */
-#define FTNC_MAXCHARS		8	/* Highest charset number	    */
+#define FTNC_CP852		9	/* IBM CP 852 (Czech, Latin-2)	    */
+#define	FTNC_CP895		10	/* IBM CP 895 (Czech, Kamenicky)    */
+#define FTNC_MAXCHARS		10	/* Highest charset number	    */
 
 
 /*****************************************************************************
