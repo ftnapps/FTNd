@@ -124,36 +124,7 @@ char *frametypes[] = {
 };
 
 
-/***** Hack by mj ***********************************************************/
-/*
- * Buffer for outgoing frames. Sending them with single character write()'s
- * is a waste of processor time and causes severe performance degradation
- * on TCP and ISDN connections.
- */
-#define FRAME_BUFFER_SIZE	16384
-static char *frame_buffer=NULL;
-static int  frame_length = 0;
-
-#define BUFFER_CLEAR()	do { frame_length=0; } while(0)
-#define BUFFER_BYTE(c)	do { frame_buffer[frame_length++]=(c); } while(0)
-#define BUFFER_FLUSH()	do { PUT(frame_buffer, frame_length); \
-				 frame_length=0; } while(0);
 /****************************************************************************/
-
-void get_frame_buffer(void)
-{
-    if (frame_buffer == NULL) 
-	frame_buffer = malloc(FRAME_BUFFER_SIZE);
-}
-
-
-void free_frame_buffer(void)
-{
-    if (frame_buffer)
-	free(frame_buffer);
-    frame_buffer = NULL;
-}
-
 
 
 /*
@@ -166,35 +137,31 @@ void zsbhdr(int type, char *shdr)
 
     Syslog('z', "zsbhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
-    BUFFER_CLEAR();
-	
     if (type == ZDATA)
 	for (n = Znulls; --n >=0; )
-	    BUFFER_BYTE(0);
+	    PUTCHAR(0);
 
-    BUFFER_BYTE(ZPAD); 
-    BUFFER_BYTE(ZDLE);
+    PUTCHAR(ZPAD); 
+    PUTCHAR(ZDLE);
 
-    switch (Crc32t=Txfcs32) {
-	case 2:	    zsbh32(shdr, type);
-		    BUFFER_FLUSH(); 
-		    break;
-        case 1:	    zsbh32(shdr, type);  
-		    break;
-	default:    BUFFER_BYTE(ZBIN);
-		    zsendline(type);
-		    crc = updcrc16(type, 0);
+    if ((Crc32t = Txfcs32))
+	zsbh32(shdr, type);
+    else {
+	PUTCHAR(ZBIN);
+	zsendline(type);
+	crc = updcrc16(type, 0);
 
-		    for (n=4; --n >= 0; ++shdr) {
-			zsendline(*shdr);
-			crc = updcrc16((0377& *shdr), crc);
-		    }
-		    crc = updcrc16(0,updcrc16(0,crc));
-		    zsendline(((int)(crc>>8)));
-		    zsendline(crc);
+        for (n=4; --n >= 0; ++shdr) {
+	    zsendline(*shdr);
+	    crc = updcrc16((0377& *shdr), crc);
+	}
+        crc = updcrc16(0,updcrc16(0,crc));
+        zsendline(((int)(crc>>8)));
+        zsendline(crc);
     }
 
-    BUFFER_FLUSH();
+    if (type != ZDATA)
+	fflush(stdout);
 }
 
 
@@ -207,7 +174,7 @@ void zsbh32(char *shdr, int type)
     register int	    n;
     register unsigned long  crc;
 
-    BUFFER_BYTE(ZBIN32); 
+    PUTCHAR(ZBIN32); 
     zsendline(type);
     crc = 0xFFFFFFFFL; 
     crc = updcrc32(type, crc);
@@ -235,12 +202,10 @@ void zshhdr(int type, register char *shdr)
 
     Syslog('z', "zshhdr: %s %lx", frametypes[type+FTOFFSET], rclhdr(shdr));
 
-    BUFFER_CLEAR();
-	
-    BUFFER_BYTE(ZPAD); 
-    BUFFER_BYTE(ZPAD); 
-    BUFFER_BYTE(ZDLE);
-    BUFFER_BYTE(ZHEX);
+    PUTCHAR(ZPAD); 
+    PUTCHAR(ZPAD); 
+    PUTCHAR(ZDLE);
+    PUTCHAR(ZHEX);
     zputhex(type & 0x7f);
     Crc32t = 0;
 
@@ -256,16 +221,16 @@ void zshhdr(int type, register char *shdr)
     /*
      * Make it printable on remote machine
      */
-    BUFFER_BYTE(015); 
-    BUFFER_BYTE(0212);
+    PUTCHAR(015); 
+    PUTCHAR(0212);
 
     /*
      * Uncork the remote in case a fake XOFF has stopped data flow
      */
     if (type != ZFIN && type != ZACK)
-	BUFFER_BYTE(021);
+	PUTCHAR(021);
 
-    BUFFER_FLUSH();
+    fflush(stdout);
 }
 
 
@@ -280,8 +245,6 @@ void zsdata(register char *buf, int length, int frameend)
 
     Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 
-    BUFFER_CLEAR();
-    
     if (Crc32t)
 	zsda32(buf, length, frameend);
     else {
@@ -290,8 +253,8 @@ void zsdata(register char *buf, int length, int frameend)
 	    zsendline(*buf); 
 	    crc = updcrc16((0377 & *buf), crc);
 	}
-	BUFFER_BYTE(ZDLE); 
-        BUFFER_BYTE(frameend);
+	PUTCHAR(ZDLE); 
+        PUTCHAR(frameend);
         crc = updcrc16(frameend, crc);
 
         crc = updcrc16(0,updcrc16(0,crc));
@@ -299,10 +262,10 @@ void zsdata(register char *buf, int length, int frameend)
         zsendline(crc);
     }
 
-    if (frameend == ZCRCW)
-	BUFFER_BYTE(XON);
-
-    BUFFER_FLUSH();
+    if (frameend == ZCRCW) {
+	PUTCHAR(XON);
+	fflush(stdout);
+    }
 }
 
 
@@ -316,13 +279,13 @@ void zsda32(register char *buf, int length, int frameend)
     for (;--length >= 0; ++buf) {
 	c = *buf & 0377;
 	if (c & 0140)
-	    BUFFER_BYTE(lastsent = c);
+	    PUTCHAR(lastsent = c);
 	else
 	    zsendline(c);
 	crc = updcrc32(c, crc);
     }
-    BUFFER_BYTE(ZDLE); 
-    BUFFER_BYTE(frameend);
+    PUTCHAR(ZDLE); 
+    PUTCHAR(frameend);
     crc = updcrc32(frameend, crc);
 
     crc = ~crc;
@@ -476,7 +439,6 @@ int zgethdr(char *shdr)
     
     n = Zrwindow + Baudrate;
     Rxframeind = Rxtype = 0;
-//    Syslog('z', "zgethdr(%lx)", rclhdr(shdr));
 
 startover:
     cancount = 5;
@@ -582,11 +544,7 @@ fifi:
 			else
 			    Syslog('z', "zgethdr: %d %d %lx", Rxframeind, c, Rxpos);
     }
-	
-    /* Use variable length headers if we got one */
-    if (c >= 0 && c <= FRTYPES && Rxframeind & 040) {
-	Syslog('z', "zgethdr: Usevhdrs");
-    }
+
     return c;
 }
 
@@ -621,6 +579,8 @@ int zrbhdr(register char *shdr)
 	Syslog('+', "Zmodem zrbhdr: Bad CRC");
 	return TERROR;
     }
+
+    protocol = ZM_ZMODEM;
     return Rxtype;
 }
 
@@ -654,6 +614,8 @@ int zrbhd32(register char *shdr)
 	Syslog('+', "Zmodem zrbhd32: Bad CRC");
 	return TERROR;
     }
+
+    protocol = ZM_ZMODEM;
     return Rxtype;
 }
 
@@ -700,6 +662,8 @@ int zrhhdr(char *shdr)
     }
     if (c < 0)
 	return c;
+
+    protocol = ZM_ZMODEM;
     return Rxtype;
 }
 
@@ -712,8 +676,8 @@ void zputhex(register int c)
 {
     static char	digits[]	= "0123456789abcdef";
 
-    BUFFER_BYTE(digits[(c&0xF0)>>4]);
-    BUFFER_BYTE(digits[(c)&0xF]);
+    PUTCHAR(digits[(c&0xF0)>>4]);
+    PUTCHAR(digits[(c)&0xF]);
 }
 
 
@@ -726,11 +690,11 @@ void zsendline(int c)
 {
     /* Quick check for non control characters */
     if (c & 0140)
-	BUFFER_BYTE(lastsent = c);
+	PUTCHAR(lastsent = c);
     else {
 	switch (c &= 0377) {
-	    case ZDLE:	BUFFER_BYTE(ZDLE);
-			BUFFER_BYTE (lastsent = (c ^= 0100));
+	    case ZDLE:	PUTCHAR(ZDLE);
+			PUTCHAR(lastsent = (c ^= 0100));
 			break;
 	    case 015:
 	    case 0215:	if (!Zctlesc && (lastsent & 0177) != '@')
@@ -741,16 +705,16 @@ void zsendline(int c)
 	    case 023:
 	    case 0220:
 	    case 0221:
-	    case 0223:	BUFFER_BYTE(ZDLE);
+	    case 0223:	PUTCHAR(ZDLE);
 			c ^= 0100;
 sendit:
-			BUFFER_BYTE(lastsent = c);
+			PUTCHAR(lastsent = c);
 			break;
 	    default:	if (Zctlesc && ! (c & 0140)) {
-			    BUFFER_BYTE(ZDLE);
+			    PUTCHAR(ZDLE);
 			    c ^= 0100;
 			}
-			BUFFER_BYTE(lastsent = c);
+			PUTCHAR(lastsent = c);
 	}
     }
 }

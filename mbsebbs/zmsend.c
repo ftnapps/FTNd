@@ -89,13 +89,11 @@ int zmsndfiles(down_list *lst)
 
     Syslog('+', "Zmodem: start Zmodem send");
 
-    get_frame_buffer();
-
+    protocol = ZM_ZMODEM;
     if ((rc = initsend())) {
 	if (txbuf)
 	    free(txbuf);
 	txbuf = NULL;
-	free_frame_buffer();
 	return abs(rc);
     }
 
@@ -127,7 +125,6 @@ int zmsndfiles(down_list *lst)
     if (txbuf)
 	free(txbuf);
     txbuf = NULL;
-    free_frame_buffer();
     io_mode(0, 1);
 
     Syslog('z', "Zmodem: send rc=%d", maxrc);
@@ -237,7 +234,7 @@ static int sendzfile(char *rn)
 /*
  * Get the receiver's init parameters
  */
-int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
+int getzrxinit(void)
 {
     int	n;
 
@@ -423,7 +420,8 @@ again:
 			return zsendfdata();
 	}
     }
-    fclose(in); return TERROR;
+    fclose(in); 
+    return TERROR;
 }
 
 

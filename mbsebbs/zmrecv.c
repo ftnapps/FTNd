@@ -83,21 +83,25 @@ int zmrcvfiles(void)
 
     Syslog('+', "Zmodem: start Zmodem receive");
 
-    get_frame_buffer();
-
     if (secbuf == NULL) 
 	secbuf = malloc(MAXBLOCK+1);
     tryzhdrtype = ZRINIT;
+    protocol = ZM_ZMODEM;
+
     if ((rc = tryz()) < 0) {
 	Syslog('+', "Zmodem: could not initiate receive, rc=%d",rc);
-    } else
+    } else {
+	if (rc == 0) {
+	    /* Check for ymodem sector */
+	}
 	switch (rc) {
 	    case ZCOMPL:    rc = 0; 
 			    break;
 	    case ZFILE:	    rc = rzfiles(); 
 			    break;
 	}
-
+    }
+    
     if (fout) {
 	if (closeit(0)) {
 	    WriteError("Zmodem: Error closing file");
@@ -107,18 +111,17 @@ int zmrcvfiles(void)
     if (secbuf)
 	free(secbuf);
     secbuf = NULL;
-    free_frame_buffer();
 
     io_mode(0, 1);  /* Normal raw mode */
     /*
-     * Some programs (Dynacom) send some garbage after the transfer
+     * Some programs send some garbage after the transfer, eat these.
      */
-    Syslog('z', "zmrcvfiles: garbage check");
     do {
 	c = Waitchar(&ch, 100);
 	count++;
     } while (c == 1);
-    Syslog('z', "zmrcvfiles: purged %d garbage characters", count);
+    if (count)
+	Syslog('z', "zmrcvfiles: purged %d garbage characters", count);
     
     Syslog('z', "Zmodem: receive rc=%d",rc);
     return abs(rc);
@@ -136,6 +139,9 @@ int tryz(void)
 {
     int	    c, n;
     int	    cmdzack1flg;
+
+    if (protocol != ZM_ZMODEM)
+	return 0;
 
     for (n = 15; --n >= 0; ) {
 	/*
@@ -548,8 +554,6 @@ int procheader(char *Name)
 int putsec(char *buf, int n)
 {
     register char *p;
-
-   // Syslog('z', "putsec %d characters %s mode", n, Thisbinary ? "binary":"ascii");
 
     if (n == 0)
 	return OK;
