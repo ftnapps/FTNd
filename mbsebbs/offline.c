@@ -1823,7 +1823,7 @@ void BlueWave_Fetch()
 			        buffer=b;
 				while (isspace(buffer[0]))
 				    buffer++;
-//				Syslog('+', "Reading: %s ", buffer);
+				Syslog('m', "Reading: %s ", buffer);
 				if ( ( strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ){
 				   OLC_head=TRUE;
 				   continue;
@@ -1941,12 +1941,12 @@ void BlueWave_Fetch()
 				   || (strncasecmp(buffer,"Pers",4)==0)){
 				   	if ( HEAD_written == FALSE ){
 				      		fwrite(&Pdh,sizeof(PDQ_HEADER),1,tp);
-//				      		Syslog('+', "Writting PDQ header...");
+				      		Syslog('m', "Writting PDQ header...");
 				      		HEAD_written = TRUE;
 				   	}
 				        if (strlen(Pdr.echotag) > 0){
 					   fwrite(&Pdr,sizeof(PDQ_REC),1,tp);
-//					   Syslog('+', "Writting PDQ record: %s", Pdr.echotag);
+					   Syslog('m', "Writting PDQ record: %s", Pdr.echotag);
 					   memset(&Pdr,0,sizeof(PDQ_REC));
 				        }
 				   }
