@@ -22,6 +22,9 @@ v0.61.4		11-Aug-2004
 		Can now send (hopefully) valid uplink requests to BBBS systems.
 		Removed some debug logging from un_attach, made one into a
 		normal logmessage.
+		The postemail and scanemail functions are changed so that
+		Outlook email addresses are parsed so that we can reply via
+		smtp.
 
 	mbindex:
 		Fixed compiling pointlists where on the Boss line there is no

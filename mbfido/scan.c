@@ -1085,7 +1085,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
  */
 void ExportEmail(unsigned long MsgNum)
 {
-    char    *p;
+    char    *p, *q, MailFrom[128], MailTo[128];
     FILE    *qp;
     int	    retval, flags = 0, kludges = TRUE;
     faddr   *from, *too;
@@ -1146,26 +1146,35 @@ void ExportEmail(unsigned long MsgNum)
     if (CFG.EmailMode != E_NOISP) {
 	/*
 	 *  Dialup or direct internet connection, send message via MTA.
-	 *  First check if the From and To addresses contain spaces, if
-	 *  so everything after the space is removed.
+	 *  Reformat the addresses for SMTP.
 	 */
 	p = Msg.From;
-	while (*p) {
-	    if (*p == ' ') {
-		*p = '\0';
-		break;
-	    }
-	    p++;
+	if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
+	    q = strtok(p, "<");
+	    q = strtok(NULL, ">");
+	    sprintf(MailFrom, "%s", q);
+	} else if (Msg.From[0] == ' ') {
+	    q = strtok(p, " ");
+	    q = strtok(NULL, " \n\r\t");
+	    sprintf(MailFrom, "%s", q);
+	} else {
+	    sprintf(MailFrom, "%s", Msg.From);
 	}
-	p = Msg.To;
-	while (*p) {
-	    if (*p == ' ') {
-		*p = '\0';
-		break;
-	    }
-	    p++;
+
+        p = Msg.To;
+	if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
+	    q = strtok(p, "<");
+	    q = strtok(NULL, ">");
+	    sprintf(MailTo, "%s", q);
+	} else if (Msg.To[0] == ' ') {
+	    q = strtok(p, " ");
+	    q = strtok(NULL, " \n\r\t");
+	    sprintf(MailTo, "%s", q);
+	} else {
+	    sprintf(MailTo, "%s", Msg.To);
 	}
-	retval = postemail(qp, Msg.From, Msg.To);
+
+	retval = postemail(qp, MailFrom, MailTo);
     } else {
 	/*
 	 *  Message goes to UUCP gateway.

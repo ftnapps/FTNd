@@ -56,90 +56,97 @@ extern	int	email_bad;		/* Bad netmails			    */
  */
 int postemail(FILE *fp, char *MailFrom, char *MailTo)
 {
-	char    *temp, *p;
-	char    buf[4096];
-	int	result = 1;
-	faddr	*fa;
+    char	*temp, *p, buf[4096];
+    int		result = 1;
+    faddr	*fa;
+    parsedaddr	rfcaddr;
+    
+    rewind(fp);
+    Syslog('+', "SMTP: posting email from \"%s\" to \"%s\"", MailFrom, MailTo);
 
-	rewind(fp);
-	Syslog('+', "SMTP: posting email from \"%s\" to \"%s\"", MailFrom, MailTo);
-
-	/*
-	 * If a user forgets the To: line at the start of the FTN
-	 * netmail, we end up here with a UUCP user with a local
-	 * address as the destination.
-	 * We can't deliver this and create a loop if we pass this
-	 * message to SMTP.
-	 */
-	if ((fa = parsefaddr(MailTo))) {
-	    if (is_local(fa)) {
-		WriteError("Destination is a local FTN address");
-		email_bad++;
-		tidy_faddr(fa);
-		return 2;
-	    }
+    /*
+     * If a user forgets the To: line at the start of the FTN
+     * netmail, we end up here with a UUCP user with a local
+     * address as the destination.
+     * We can't deliver this and create a loop if we pass this
+     * message to SMTP.
+     */
+    if ((fa = parsefaddr(MailTo))) {
+	if (is_local(fa)) {
+	    WriteError("Destination is a local FTN address");
+	    email_bad++;
 	    tidy_faddr(fa);
+	    return 2;
 	}
+	tidy_faddr(fa);
+    }
 
-	if (smtp_connect() == -1) {
-		WriteError("SMTP: connection refused");
-		email_bad++;
-		return 2;
-	}
+    if (smtp_connect() == -1) {
+	WriteError("SMTP: connection refused");
+	email_bad++;
+	return 2;
+    }
 
-	temp = calloc(MAX_LINE_LENGTH +1, sizeof(char));
-	sprintf(temp, "MAIL FROM:<%s>\r\n", MailFrom);
-	if (smtp_cmd(temp, 250)) {
-		WriteError("SMTP: refused FROM <%s>", MailFrom);
-		email_bad++;
-		free(temp);
-		return 2;
-	}
+    temp = calloc(MAX_LINE_LENGTH +1, sizeof(char));
 
-	sprintf(temp, "RCPT TO:<%s>\r\n", MailTo);
-	if (smtp_cmd(temp, 250)) {
-		WriteError("SMTP: refused TO <%s>", MailTo);
-		email_bad++;
-		free(temp);
-		return 2;
-	}
-
-	if (smtp_cmd((char *)"DATA\r\n", 354)) {
-		WriteError("SMTP refused DATA mode");
-		email_bad++;
-		free(temp);
-		return 2;
-	}
-
-	while ((fgets(buf, sizeof(buf)-2, fp)) != NULL) {
-		if (strncmp(buf, ".\r\n", 3)) {
-			p = buf+strlen(buf)-1;
-			if (*p == '\n') {
-				*p++ = '\r';
-				*p++ = '\n';
-				*p = '\0';
-			}
-			smtp_send(buf);
-		} else {
-			sprintf(temp, " .\r\n");
-			smtp_send(temp);
-		}
-	}
-
-	email_in++;
-	if (smtp_cmd((char *)".\r\n", 250) == 0) {
-		Syslog('+', "SMTP: Message accepted");
-		result = 0;
-		email_imp++;
-	} else {
-		WriteError("SMTP: refused message");
-		email_bad++;
-	}
-
+    rfcaddr = parserfcaddr(MailFrom);
+    sprintf(temp, "MAIL FROM:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+    Syslog('m', "%s", printable(temp, 0));
+    if (smtp_cmd(temp, 250)) {
+	WriteError("SMTP: refused FROM <%s@%s>", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+	email_bad++;
 	free(temp);
-	smtp_close();
+	return 2;
+    }
+    tidyrfcaddr(rfcaddr);
 
-	return result;
+    rfcaddr = parserfcaddr(MailTo);
+    sprintf(temp, "RCPT TO:<%s@%s>\r\n", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+    Syslog('m', "%s", printable(temp, 0));
+    if (smtp_cmd(temp, 250)) {
+	WriteError("SMTP: refused TO <%s@%s>", MBSE_SS(rfcaddr.remainder), MBSE_SS(rfcaddr.target));
+	email_bad++;
+	free(temp);
+	return 2;
+    }
+    tidyrfcaddr(rfcaddr);
+
+    if (smtp_cmd((char *)"DATA\r\n", 354)) {
+	WriteError("SMTP refused DATA mode");
+	email_bad++;
+	free(temp);
+	return 2;
+    }
+
+    while ((fgets(buf, sizeof(buf)-2, fp)) != NULL) {
+	if (strncmp(buf, ".\r\n", 3)) {
+	    p = buf+strlen(buf)-1;
+	    if (*p == '\n') {
+		*p++ = '\r';
+		*p++ = '\n';
+		*p = '\0';
+	    }
+	    smtp_send(buf);
+	} else {
+	    sprintf(temp, " .\r\n");
+	    smtp_send(temp);
+	}
+    }
+
+    email_in++;
+    if (smtp_cmd((char *)".\r\n", 250) == 0) {
+	Syslog('+', "SMTP: Message accepted");
+	result = 0;
+	email_imp++;
+    } else {
+	WriteError("SMTP: refused message");
+	email_bad++;
+    }
+
+    free(temp);
+    smtp_close();
+
+    return result;
 }
 
 

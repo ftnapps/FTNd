@@ -2448,6 +2448,7 @@ void CheckMail()
 		     * Only check the received status of the email. The mail
 		     * may not be direct addressed to this user (aliases database)
 		     * but if it is in his mailbox it is always for the user.
+		     * FIXME: mail writte by the user is shown as new too.
 		     */
 		    if (!Msg.Received) {
 			/*
