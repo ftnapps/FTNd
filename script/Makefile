@@ -5,7 +5,7 @@ include ../Makefile.global
 
 OTHER		= Makefile README maint midnight weekly monthly installinit.sh rc rc.shutdown \
 		  mbse.start mbse.stop bbsdoor.sh rundoor.sh init.Debian init.RedHat \
-		  init.Slackware init.SuSE
+		  init.Slackware init.SuSE hatch
 
 ####################################################################################################
 
@@ -33,6 +33,10 @@ install:
 		@if [ ! -x ${ETCDIR}/monthly ]; then \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0711 monthly     ${ETCDIR}" ; \
+		fi
+		@if [ ! -x ${BINDIR}/hatch ]; then \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR}" ; \
 		fi
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}
