@@ -448,14 +448,42 @@ int EditUsrRec2(void)
 }
 
 
+void Reset_Time(void);
+void Reset_Time(void)
+{
+	char	*temp;
+	FILE	*pLimits;
+
+temp = calloc(PATH_MAX, sizeof(char));
+sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+if ((pLimits = fopen(temp,"r")) == NULL) {
+WriteError("$Can't open %s", temp);
+} else {
+fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
+while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
+if (LIMIT.Security == usrconfig.Security.level) {
+if (LIMIT.Time)
+usrconfig.iTimeLeft = LIMIT.Time;
+else
+usrconfig.iTimeLeft = 86400;
+usrconfig.iTimeUsed = 0;
+break;
+}
+}
+fclose(pLimits);
+}
+free(temp);
+}
+
+
 
 /*
  * Edit one record, return -1 if there are errors, 0 if ok.
  */
 int EditUsrRec(int Area)
 {
-	FILE	*fil, *pLimits;
-	char	mfile[PATH_MAX], *temp;
+	FILE	*fil;
+	char	mfile[PATH_MAX];
 	long	offset;
 	int	j = 0;
 	unsigned long crc, crc1;
@@ -522,25 +550,7 @@ int EditUsrRec(int Area)
 		case 13:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
 		case 14:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
 		case 15:if (yes_no((char *)"Reset time left for today") == 1) {
-			    temp = calloc(PATH_MAX, sizeof(char));
-			    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
-			    if ((pLimits = fopen(temp,"r")) == NULL) {
-				WriteError("$Can't open %s", temp);
-			    } else {
-				fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
-				while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
-				    if (LIMIT.Security == usrconfig.Security.level) {
-					if (LIMIT.Time)
-					    usrconfig.iTimeLeft = LIMIT.Time;
-					else
-					    usrconfig.iTimeLeft = 86400;
-					usrconfig.iTimeUsed = 0;
-					break;
-				    }
-				}
-				fclose(pLimits);
-			    }
-			    free(temp);
+				Reset_Time();
 			}
 			break;
 		case 16:EditUsrRec2();
