@@ -385,7 +385,7 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
     fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-	if (!fdb.Deleted)
+	if ((!fdb.Deleted) && (!fdb.Double) && (strcmp(fdb.Name, "") != 0))
 	    fwrite(&fdb, fdbhdr.recsize, 1, fp);
 	else
 	    count++;
