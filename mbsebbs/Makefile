@@ -133,6 +133,6 @@ userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h
 timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h
 logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
 zmmisc.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h
-zmsend.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h transfer.h openport.h
-zmrecv.o: ../config.h ../lib/mbselib.h ../lib/users.h ttyio.h transfer.h zmmisc.h zmrecv.h openport.h
+zmsend.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h transfer.h openport.h timeout.h
+zmrecv.o: ../config.h ../lib/mbselib.h ../lib/users.h ttyio.h transfer.h zmmisc.h zmrecv.h openport.h timeout.h input.h
 # End of generated dependencies

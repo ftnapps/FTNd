@@ -34,6 +34,7 @@
 #include "zmmisc.h"
 #include "transfer.h"
 #include "openport.h"
+#include "timeout.h"
 
 
 static int initsend(void);
@@ -514,6 +515,7 @@ to:
 	    e = ZCRCG;
 	Syslog('Z', "%7ld ZMODEM%s    ", Txpos, Crc32t?" CRC-32":"");
 	Nopper();
+	alarm_on();
 	zsdata(txbuf, n, e);
 	bytcnt = Txpos += n;
 

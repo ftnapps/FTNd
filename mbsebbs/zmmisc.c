@@ -69,12 +69,11 @@ static void garbitch(void);
 #include "zmmisc.h"
 
 
-/* Original zm.c timing was in tenths of seconds, but our current ttyio driver
-   does timing in whole seconds.
-*/
+/* 
+ * Original zm.c timing was in tenths of seconds, but our current ttyio driver
+ * does timing in whole seconds.
+ */
 static int Rxtimeout = 10;	/* Seconds to wait for something */
-
-// int Rxhlen;			/* Length of header received */
 char *txbuf=NULL;
 static int lastsent;		/* Last char we sent */
 static int Not8bit;		/* Seven bits seen on header */
@@ -347,7 +346,7 @@ int zrdata(register char *buf, int length)
     register char *end;
     register int d;
 
-    Syslog('z', "zrdata: len=%d, Crc32r=%s", length, Crc32r ? "true":"false");
+    Syslog('Z', "zrdata: len=%d, Crc32r=%s", length, Crc32r ? "true":"false");
 
     if (Crc32r)
 	return zrdat32(buf, length);
@@ -374,7 +373,7 @@ crcfoo:
 				    return TERROR;
 				}
 				Rxcount = length - (end - buf);
-				Syslog('z', "zrdata: %d  %s", Rxcount, Zendnames[(d-GOTCRCE)&3]);
+				Syslog('z', "zrdata: %d %s", Rxcount, Zendnames[(d-GOTCRCE)&3]);
 				return d;
 		case GOTCAN:	Syslog('+', "Zmodem: Sender Canceled");
 				return ZCAN;

@@ -36,6 +36,8 @@
 #include "zmmisc.h"
 #include "zmrecv.h"
 #include "openport.h"
+#include "timeout.h"
+#include "input.h"
 
 
 static FILE *fout = NULL;
@@ -76,7 +78,8 @@ extern unsigned long	rcvdbytes;
 
 int zmrcvfiles(void)
 {
-    int rc;
+    int rc, c, count = 0;
+    unsigned char ch = 0;
 
     Syslog('+', "Zmodem: start Zmodem receive");
 
@@ -106,7 +109,17 @@ int zmrcvfiles(void)
     secbuf = NULL;
     free_frame_buffer();
 
-    io_mode(0, 1);
+    io_mode(0, 1);  /* Normal raw mode */
+    /*
+     * Some programs (Dynacom) send some garbage after the transfer
+     */
+    Syslog('z', "zmrcvfiles: garbage check");
+    do {
+	c = Waitchar(&ch, 100);
+	count++;
+    } while (c == 1);
+    Syslog('z', "zmrcvfiles: purged %d garbage characters", count);
+    
     Syslog('z', "Zmodem: receive rc=%d",rc);
     return abs(rc);
 }
@@ -131,19 +144,14 @@ int tryz(void)
 	Syslog('z', "tryz attempt %d", n);
 	stohdr(0L);
 	Txhdr[ZF0] = CANFC32|CANFDX|CANOVIO;
-//	Txhdr[ZF0] = CANFC32;
 	if (Zctlesc)
 	    Txhdr[ZF0] |= TESCCTL;
-//	Txhdr[ZF0] |= CANRLE;
-//	Txhdr[ZF1] = CANVHDR;
 	zshhdr(tryzhdrtype, Txhdr);
 	if (tryzhdrtype == ZSKIP)       /* Don't skip too far */
 	    tryzhdrtype = ZRINIT;	/* CAF 8-21-87 */
 again:
 	switch (zgethdr(Rxhdr)) {
-	    case ZRQINIT:   // if (Rxhdr[ZF3] & 0x80)
-				// Usevhdrs = TRUE; /* we can var header */
-			    continue;
+	    case ZRQINIT:   continue;
 	    case ZEOF:	    continue;
 	    case TIMEOUT:   Syslog('+', "Zmodem: tryz() timeout attempt %d", n);
 			    continue;
@@ -154,8 +162,6 @@ again:
 			    }
 			    zmanag = Rxhdr[ZF1];
 			    ztrans = Rxhdr[ZF2];
-//			    if (Rxhdr[ZF3] & ZCANVHDR)
-//				Usevhdrs = TRUE;
 			    tryzhdrtype = ZRINIT;
 			    c = zrdata(secbuf, MAXBLOCK);
 			    io_mode(0, 3);
@@ -211,7 +217,6 @@ again:
 	    default:	    continue;
 	}
     }
-    Syslog('z', "tryz return 0");
     return 0;
 }
 
@@ -223,8 +228,6 @@ again:
 int rzfiles(void)
 {
     int c;
-
-    Syslog('z', "rzfiles");
 
     for (;;) {
 	switch (c = rzfile()) {
@@ -252,8 +255,6 @@ int rzfiles(void)
 int rzfile(void)
 {
     int	c, n;
-
-    Syslog('z', "rzfile");
 
     Eofseen=FALSE;
     rxbytes = 0l;
@@ -328,8 +329,9 @@ nxthdr:
 				continue;
 			    }
 moredata:
-			    Syslog('z', "%7ld ZMODEM%s    ", rxbytes, Crc32r?" CRC-32":"");
+			    Syslog('Z', "%7ld ZMODEM%s    ", rxbytes, Crc32r?" CRC-32":"");
 			    Nopper();
+			    alarm_on();
 			    switch (c = zrdata(secbuf, MAXBLOCK)) {
 				case ZCAN:	Syslog('+', "Zmodem: sender CANcelled");
 						return TERROR;
@@ -350,7 +352,6 @@ moredata:
 				case GOTCRCW:	n = 20;
 						putsec(secbuf, Rxcount);
 						rxbytes += Rxcount;
-						Syslog('z', "rxbytes %ld, will ACK", rxbytes);
 						stohdr(rxbytes);
 						PUTCHAR(XON);
 						zshhdr(ZACK, Txhdr);
@@ -556,8 +557,6 @@ int putsec(char *buf, int n)
     if (Thisbinary) {
 	if (fwrite(buf, n, 1, fout) != 1)
 	    return ERROR;
-//	for (p = buf; --n>=0; )
-//	    putc( *p++, fout);
     } else {
 	if (Eofseen)
 	    return OK;
