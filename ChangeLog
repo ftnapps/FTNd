@@ -1,7 +1,9 @@
 $Id$
 
+v0.51.3		22-Mar-2003
 
-v0.51.2		06-Mar-2004
+
+v0.51.2		06-Mar-2004 - 22-Mar-2003
 
 	upgrade:
 		Before upgrade announce all new files!
@@ -126,8 +128,7 @@ v0.51.2		06-Mar-2004
 		for only the filesystems that are used by mbse.
 
 	mbuseradd:
-		Fixed removing of a OS created homedir. This may solve problems
-		on RH and Fedora (under test).
+		Fixed removing of a OS created homedir.
 		Added msleep delay in execute child process.
 
 	mbpasswd:
