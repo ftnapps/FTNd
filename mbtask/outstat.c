@@ -347,83 +347,96 @@ int outstat()
      * Start checking T-Mail fileboxes
      */
     if (strlen(CFG.tmailshort) && (dp = opendir(CFG.tmailshort))) {
-        while ((de = readdir(dp))) {
-            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-                sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
-                if (stat(temp, &sb) == 0) {
-                    if (S_ISDIR(sb.st_mode)) {
-                        fa = (faddr*)malloc(sizeof(faddr));
-                        fa->name = NULL;
-                        fa->domain = NULL;
-                        memset(&digit, 0, sizeof(digit));
-                        digit[0] = de->d_name[0];
-                        digit[1] = de->d_name[1];
-                        fa->zone = strtol(digit, NULL, 32);
-                        memset(&digit, 0, sizeof(digit));
-                        digit[0] = de->d_name[2];
-                        digit[1] = de->d_name[3];
-                        digit[2] = de->d_name[4];
-                        fa->net = strtol(digit, NULL, 32);
-                        memset(&digit, 0, sizeof(digit));
-                        digit[0] = de->d_name[5];
-                        digit[1] = de->d_name[6];
-                        digit[2] = de->d_name[7];
-                        fa->node = strtol(digit, NULL, 32);
-                        memset(&digit, 0, sizeof(digit));
-                        digit[0] = de->d_name[9];
-                        digit[1] = de->d_name[10];
-                        fa->point = strtol(digit, NULL, 32);
-                        if (SearchFidonet(fa->zone)) {
-                            fa->domain = xstrcpy(fidonet.domain);
-                        }
-                        if ((strlen(de->d_name) == 12) && (tolower(de->d_name[11]) == 'h'))
-                            flavor = 'h';
-                        else
-                            flavor = 'o';
-                        checkdir(temp, fa, flavor);
+	Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		    if (S_ISDIR(sb.st_mode)) {
+			int i;
+			char b=0;
+			for (i=0; (i<8) && (!b); ++i) {
+			    char c = tolower(de->d_name[i]);
+			    if ( (c<'0') || (c>'v') || ((c>'9') && (c<'a')) ) b=1;
+			}
+			if (de->d_name[8]!='.') b=1;
+			for (i=9; (i<11) && (!b); ++i) {
+			    char c = tolower(de->d_name[i]);
+			    if ( (c<'0') || (c>'v') || ((c>'9') && (c<'a')) ) b=1;
+			}
+			if (b) continue;
+			if (de->d_name[11]==0) flavor='o';
+			else if ((tolower(de->d_name[11])=='h') && (de->d_name[12]==0)) flavor='h';
+			else continue;
+			fa = (faddr*)malloc(sizeof(faddr));
+			fa->name = NULL;
+			fa->domain = NULL;
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[0];
+			digit[1] = de->d_name[1];
+			fa->zone = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[2];
+			digit[1] = de->d_name[3];
+			digit[2] = de->d_name[4];
+			fa->net = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[5];
+			digit[1] = de->d_name[6];
+			digit[2] = de->d_name[7];
+			fa->node = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[9];
+			digit[1] = de->d_name[10];
+			fa->point = strtol(digit, NULL, 32);
+			if (SearchFidonet(fa->zone)) {
+			    fa->domain = xstrcpy(fidonet.domain);
+			}
+			checkdir(temp, fa, flavor);
 			if (fa->domain)
 			    free(fa->domain);
 			free(fa);
-                    }
-                }
-            }
-        }
-        closedir(dp);
+		    }
+		}
+	    }
+	}
+	closedir(dp);
     }
     if (strlen(CFG.tmaillong) && (dp = opendir(CFG.tmaillong))) {
-        temp2 = calloc(PATH_MAX, sizeof(char));
-        while ((de = readdir(dp))) {
-            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-                sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
-                if (stat(temp, &sb) == 0) {
-                    if (S_ISDIR(sb.st_mode)) {
-                        sprintf(temp2, "%s", de->d_name);
-                        fa = (faddr*)malloc(sizeof(faddr));
-                        fa->name = NULL;
-                        fa->domain = NULL;
-                        fa->zone = atoi(strtok(temp2, ".\n\r\0"));
-                        fa->net = atoi(strtok(NULL, ".\n\r\0"));
-                        fa->node = atoi(strtok(NULL, ".\n\r\0"));
-                        fa->point = atoi(strtok(NULL, ".\n\r\0"));
-                        if (SearchFidonet(fa->zone)) {
-                            fa->domain = xstrcpy(fidonet.domain);
-                        }
-                        if (tolower(de->d_name[strlen(de->d_name) -1]) == 'h')
-                            flavor = 'h';
-                        else
-                            flavor = 'o';
-                        checkdir(temp, fa, flavor);
+	temp2 = calloc(PATH_MAX, sizeof(char));
+	Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		    if (S_ISDIR(sb.st_mode)) {
+			char c, d;
+			int n;
+			sprintf(temp2, "%s", de->d_name);
+			fa = (faddr*)malloc(sizeof(faddr));
+			fa->name = NULL;
+			fa->domain = NULL;
+			n = sscanf(temp2, "%u.%u.%u.%u.%c%c", &(fa->zone), &(fa->net), &(fa->node), &(fa->point), &c, &d);
+			if ((n==4) || ((n==5) && (tolower(c)=='h'))) {
+			    if (SearchFidonet(fa->zone)) {
+				fa->domain = xstrcpy(fidonet.domain);
+			    }
+			    if (n==4) flavor = 'o';
+			    else flavor = 'h';
+			    checkdir(temp, fa, flavor);
+			}
 			if (fa->domain)
 			    free(fa->domain);
 			free(fa);
-                    }   
-                }
-            }
-        }
-        closedir(dp);
-        free(temp2);
+		    }	
+		}
+	    }
+	}
+	closedir(dp);
+	free(temp2);
     }
-
 
     /*
      * During processing the outbound list, determine when the next event will occur,

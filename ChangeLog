@@ -17,6 +17,7 @@ v0.39.7		14-Jan-2004
 		Removed the check to disable calling points. 
 		Added a check to see if we get a URL to call other systems.
 		If nodelist info fails, increase error counter in steps of 10.
+		Merged tmail patches from Przemyslaw Kwiatkowski.
 
 	mbfido:
 		Removed sync calls that are now in execute.
@@ -29,6 +30,7 @@ v0.39.7		14-Jan-2004
 
 	mbtask:
 		Will call points if a call method is available.
+		Merged tmail patches from Przemyslaw Kwiatkowski.
 
 	script:
 		New scripts are installed with an extension of .new, you need

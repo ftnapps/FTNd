@@ -37,7 +37,6 @@
 #include "../lib/common.h"
 #include "../lib/nodelist.h"
 #include "config.h"
-#include "shortbox.h"
 #include "session.h"
 #include "filelist.h"
 
@@ -288,11 +287,15 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 {
     file_list	    *st = NULL, *tmpf;
     fa_list	    *tmpa;
-    char	    flavor, *tmpfl, *nm, *temp, tmpreq[13];
+    char	    flavor, *tmpfl, *nm, *temp, tmpreq[13], digit[6], *temp2;
     struct stat	    stbuf;
     int		    packets = 0;
     FILE	    *fp;
     unsigned char   buffer[2];
+    faddr	    *fa;
+    DIR		    *dp = NULL;
+    struct dirent   *de;
+    struct stat     sb;
 
     Syslog('o', "Create_filelist(%s,\"%s\",%d)", al?ascfnode(al->addr,0x1f):"<none>", MBSE_SS(fl), create);
     made_request = 0;
@@ -308,30 +311,6 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	    (tmpa->addr->node == nodes.Aka[0].node) && (tmpa->addr->point == nodes.Aka[0].point)) {
 	    check_filebox(nodes.OutBox, st);
 	}
-
-	/*
-	 * Check T-Mail style fileboxes
-	 */
-	temp = calloc(PATH_MAX, sizeof(char));
-	if (strlen(CFG.tmailshort)) {
-	    sprintf(temp, "%s/%s", CFG.tmailshort, shortboxname(tmpa->addr));
-	    check_filebox(temp, st);
-	    if (strchr(fl, 'h')) {
-		sprintf(temp, "%s/%sh", CFG.tmailshort, shortboxname(tmpa->addr));
-		check_filebox(temp, st);
-	    }
-	}
-	if (strlen(CFG.tmaillong)) {
-	    sprintf(temp, "%s/%d.%d.%d.%d", CFG.tmaillong, tmpa->addr->zone, 
-		    tmpa->addr->net, tmpa->addr->node, tmpa->addr->point);
-	    check_filebox(temp, st);
-	    if (strchr(fl, 'h')) {
-		sprintf(temp, "%s/%d.%d.%d.%d.h", CFG.tmaillong, tmpa->addr->zone, 
-			tmpa->addr->net, tmpa->addr->node, tmpa->addr->point);
-		check_filebox(temp, st);
-	    }
-	}
-	free(temp);
 
 	/*
 	 * Check spool files, these are more or less useless but they
@@ -390,6 +369,114 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	    }
 	}
     }
+
+    /*
+     * Check T-Mail style fileboxes
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    if (strlen(CFG.tmailshort) && (dp = opendir(CFG.tmailshort))) {
+       Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
+       while ((de = readdir(dp))) {
+           if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+               sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+               if (stat(temp, &sb) == 0) {
+                   Syslog('o' ,"checking \"%s\"", de->d_name);
+                   if (S_ISDIR(sb.st_mode)) {
+                       int i;
+                       char b=0;
+                       for (i=0; (i<8) && (!b); ++i) {
+                           char c = tolower(de->d_name[i]);
+                           if ( (c<'0') || (c>'v') || ((c>'9') && (c<'a')) ) 
+			       b=1;
+                       }
+                       if (de->d_name[8]!='.') 
+			   b=1;
+                       for (i=9; (i<11) && (!b); ++i) {
+                           char c = tolower(de->d_name[i]);
+                           if ( (c<'0') || (c>'v') || ((c>'9') && (c<'a')) ) 
+			       b=1;
+                       }
+                       if (b) 
+			   continue;
+                       if (de->d_name[11]==0) 
+			   flavor='o';
+                       else if ((tolower(de->d_name[11])=='h') && (de->d_name[12]==0)) 
+			   flavor='h';
+                       else 
+			   continue;
+                       fa = (faddr*)malloc(sizeof(faddr));
+                       fa->name = NULL;
+                       fa->domain = NULL;
+                       memset(&digit, 0, sizeof(digit));
+                       digit[0] = de->d_name[0];
+                       digit[1] = de->d_name[1];
+                       fa->zone = strtol(digit, NULL, 32);
+                       memset(&digit, 0, sizeof(digit));
+                       digit[0] = de->d_name[2];
+                       digit[1] = de->d_name[3];
+                       digit[2] = de->d_name[4];
+                       fa->net = strtol(digit, NULL, 32);
+                       memset(&digit, 0, sizeof(digit));
+                       digit[0] = de->d_name[5];
+                       digit[1] = de->d_name[6];
+                       digit[2] = de->d_name[7];
+                       fa->node = strtol(digit, NULL, 32);
+                       memset(&digit, 0, sizeof(digit));
+                       digit[0] = de->d_name[9];
+                       digit[1] = de->d_name[10];
+                       fa->point = strtol(digit, NULL, 32);
+                       for (tmpa = al; tmpa; tmpa = tmpa->next) {
+                           if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
+			       (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
+			       strchr(fl, flavor)) 
+			       check_filebox(temp, st);
+                       }
+                       tidy_faddr(fa);
+                   }
+               }
+           }
+       }
+       closedir(dp);
+    }
+
+    if (strlen(CFG.tmaillong) && (dp = opendir(CFG.tmaillong))) {
+       temp2 = calloc(PATH_MAX, sizeof(char));
+       Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
+       while ((de = readdir(dp))) {
+           if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+               sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+               if (stat(temp, &sb) == 0) {
+                   Syslog('o' ,"checking \"%s\"", de->d_name);
+                   if (S_ISDIR(sb.st_mode)) {
+                       char c, d;
+                       int n;
+                       sprintf(temp2, "%s", de->d_name);
+                       fa = (faddr*)malloc(sizeof(faddr));
+                       fa->name = NULL;
+                       fa->domain = NULL;
+                       n = sscanf(temp2, "%u.%u.%u.%u.%c%c", &(fa->zone), &(fa->net), &(fa->node), &(fa->point), &c, &d);
+                       if ((n==4) || ((n==5) && (tolower(c)=='h'))) {
+                           if (n==4) 
+			       flavor = 'o';
+                           else 
+			       flavor = 'h';
+                           for (tmpa = al; tmpa; tmpa = tmpa->next) {
+                               if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
+				    (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
+				    strchr(fl, flavor)) 
+				   check_filebox(temp, st);
+                           }
+                       }
+                       tidy_faddr(fa);
+                   }   
+               }
+           }
+       }
+       closedir(dp);
+       free(temp2);
+    }
+    free(temp);
+
 
     Syslog('o', "B4 FTS-0001 checkpoint");
     /*
