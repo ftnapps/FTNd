@@ -46,6 +46,7 @@
 static char lockfile[81];
 
 extern int do_quiet;
+static int is_locked = FALSE;
 
 
 /*
@@ -72,6 +73,7 @@ int lockunpack(void)
 	while (1) {
 		if (link(Tmpfile, lockfile) == 0) {
 			unlink(Tmpfile);
+			is_locked = TRUE;
 			return 0;
 		}
 		if ((fp = fopen(lockfile, "r")) == NULL) {
@@ -108,7 +110,7 @@ int lockunpack(void)
 
 void ulockunpack(void)
 {
-	if (lockfile)
+	if (is_locked && lockfile)
 		(void)unlink(lockfile);
 }
 
