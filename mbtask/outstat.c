@@ -31,6 +31,7 @@
 #include "libs.h"
 #include "../lib/structs.h"
 #include "taskutil.h"
+#include "taskstat.h"
 #include "scanout.h"
 #include "nodelist.h"
 #include "callstat.h"
@@ -38,25 +39,18 @@
 
 
 extern int		do_quiet;
-extern struct sysconfig	CFG;
+extern int		internet;	    /* Internet status		*/
+extern struct sysconfig	CFG;		    /* Main configuration	*/
+extern struct taskrec	TCFG;		    /* Task configuration	*/
+extern char		ttyfn[];	    /* TTY file name		*/
+extern time_t		tty_time;	    /* TTY update time		*/
+int			nxt_hour, nxt_min;  /* Time of next event	*/
+int			inet_calls;	    /* Internet calls to make	*/
+int			isdn_calls;	    /* ISDN calls to make	*/
+int			pots_calls;	    /* POTS calls to make	*/
+pp_list			*pl = NULL;	    /* Portlist			*/
+_alist_l		*alist = NULL;	    /* Nodes to call list	*/
 
-
-
-static struct _alist
-{
-	struct		_alist *next;	/* Next entry			*/
-	faddr		addr;		/* Node address			*/
-	int		flavors;	/* ORed flavors of mail/files	*/
-	time_t		time;		/* Date/time of mail/files	*/
-	off_t		size;		/* Total size of mail/files	*/
-	callstat	cst;		/* Last call status		*/
-	unsigned long	olflags;	/* Nodelist online flags	*/
-	unsigned long	moflags;	/* Nodelist modem flags		*/
-	unsigned long	diflags;	/* Nodelist ISDN flags		*/
-	unsigned long	ipflags;	/* Nodelist TCP/IP flags	*/
-	int		t1;		/* First Txx flag		*/
-	int		t2;		/* Second Txx flag		*/
-} *alist = NULL;
 
 
 #define F_NORMAL 0x0001
@@ -67,16 +61,93 @@ static struct _alist
 #define	F_POLL   0x0020
 #define	F_ISFLO	 0x0040
 #define	F_ISPKT	 0x0080
+#define	F_CALL	 0x0100
+
+
+void set_next(int, int);
+void set_next(int hour, int min)
+{
+    time_t	now;
+    struct tm	*etm;
+    int		uhour, umin;
+
+    now = time(NULL);
+    etm = gmtime(&now);
+    uhour = etm->tm_hour; /* For some reason, these intermediate integers are needed */
+    umin  = etm->tm_min;
+
+    if ((hour > uhour) || ((hour == uhour) && (min > umin))) {
+	if (hour < nxt_hour) {
+	    nxt_hour = hour;
+	    nxt_min  = min;
+	    tasklog('o', "set_next(%02d:%02d), next event setting %02d:%02d", hour, min, nxt_hour, nxt_min);
+	} else if ((hour == nxt_hour) && (min < nxt_min)) {
+	    nxt_hour = hour;
+	    nxt_min  = min;
+	    tasklog('o', "set_next(%02d:%02d), next event setting %02d:%02d", hour, min, nxt_hour, nxt_min);
+	}
+    }
+}
+
+
+
+char *callstatus(int);
+char *callstatus(int status)
+{
+    switch (status) {
+	case 0:	    return (char *)"Ok     ";
+	case 1:	    return (char *)"tty err";
+	case 2:	    return (char *)"No conn";
+	case 3:	    return (char *)"Mdm err";
+	case 4:	    return (char *)"Locked ";
+	case 5:	    return (char *)"unknown";
+	case 6:	    return (char *)"Unlist ";
+	case 7:	    return (char *)"error 7";
+	case 8:	    return (char *)"error 8";
+	case 9:	    return (char *)"No tty ";
+	case 10:    return (char *)"No ZMH ";
+	case 30:    return (char *)"Badsess";
+	default:    return (char *)"ERROR  ";
+    }
+}
+
+
+
+char *callmode(int mode)
+{
+    switch (mode) {
+	case CM_NONE:	return (char *)"None";
+	case CM_INET:	return (char *)"Inet";
+	case CM_ISDN:	return (char *)"ISDN";
+	case CM_POTS:	return (char *)"POTS";
+	default:	return (char *)"None";
+    }
+}
+
 
 
 int outstat()
 {
-	int		rc, first = TRUE;
+	int		rc, first = TRUE, T_window, iszmh = FALSE, pass_midnight;
 	struct _alist	*tmp, *old;
 	char		flstr[13];
 	char		temp[81];
+	char		as[6], be[6], utc[6];
+	time_t		now;
+	struct tm	*tm;
+	int		uhour, umin, thour, tmin;
+	pp_list		*tpl;
 
-	tasklog('+', "Scanning outbound");
+	now = time(NULL);
+	tm = gmtime(&now); /* UTC time */
+	uhour = tm->tm_hour;
+	umin  = tm->tm_min;
+	sprintf(utc, "%02d:%02d", uhour, umin);
+	tasklog('+', "Scanning outbound at %s UTC.", utc);
+	nxt_hour = 24;
+	nxt_min  = 0;
+	inet_calls = isdn_calls = pots_calls = 0;
+
 	/*
 	 *  Clear current table
 	 */
@@ -92,30 +163,208 @@ int outstat()
 		return rc;
 	}
 
+	/*
+	 * During processing the outbound list, determine when the next event will occur,
+	 * ie. the time when the callout status of a node changes because of starting a
+	 * ZMH, or changeing the time window for Txx flags.
+	 */
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
+			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status  Mode Address");
 			first = FALSE;
 		}
-		strcpy(flstr,"...... ... ..");
-		if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
-		if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
-		if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
-		if ((tmp->flavors) & F_HOLD  ) flstr[3]='H';
-		if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
-		if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
-		if ((tmp->flavors) & F_ISPKT ) flstr[7]='M';
-		if ((tmp->flavors) & F_ISFLO ) flstr[8]='F';
-		if (tmp->t1) flstr[11] = tmp->t1;
-		if (tmp->t2) flstr[12] = tmp->t2;
 
-		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %6d %s", flstr, (long)tmp->size, 
-			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags, 
-			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags, 
-			tmp->cst.tryno, tmp->cst.trystat, ascfnode(&(tmp->addr), 0x1f));
+		/*
+		 * Zone Mail Hours, only use Fidonet Hours.
+		 * Other nets use your default ZMH.
+		 */
+		T_window = iszmh = FALSE;
+		switch (tmp->addr.zone) {
+		    case 1:	if (uhour == 9)
+				    iszmh = TRUE;
+				set_next(9, 0);
+				set_next(10, 0);
+				break;
+		    case 2:	if (((uhour >= 2) && (umin >= 30)) && ((uhour <= 3) && (umin < 30)))
+				    iszmh = TRUE;
+				set_next(2, 30);
+				set_next(3, 30);
+				break;
+		    case 3:	if (uhour == 18)
+				    iszmh = TRUE;
+				set_next(18, 0);
+				set_next(19, 0);
+				break;
+		    case 4:	if (uhour == 8)
+				    iszmh = TRUE;
+				set_next(8, 0);
+				set_next(9, 0);
+				break;
+		    case 5:	if (uhour == 1)
+				    iszmh = TRUE;
+				set_next(1, 0);
+				set_next(2, 0);
+				break;
+		    case 6:	if (uhour == 20)
+				    iszmh = TRUE;
+				set_next(20, 0);
+				set_next(21, 0);
+				break;
+		    default:	if (get_zmh())
+				    iszmh = TRUE;
+				break;
+		}
+
+		if (tmp->t1 && tmp->t2) {
+		    /*
+		     * Txx flags, check callwindow
+		     */
+		    thour = toupper(tmp->t1) - 'A';
+		    if (isupper(tmp->t1))
+			tmin = 0;
+		    else
+			tmin = 30;
+		    sprintf(as, "%02d:%02d", thour, tmin);
+		    set_next(thour, tmin);
+		    thour = toupper(tmp->t2) - 'A';
+		    if (isupper(tmp->t2))
+			tmin = 0;
+		    else
+			tmin = 30;
+		    sprintf(be, "%02d:%02d", thour, tmin);
+		    set_next(thour, tmin);
+		    if (strcmp(as, be) > 0)
+			pass_midnight = TRUE;
+		    else
+			pass_midnight = FALSE;
+		    tasklog('o', "window %s - %s, pass midnight=%s, %d", as, be, pass_midnight?"true":"false", strcmp(as, be));
+		    if (pass_midnight) {
+			tasklog('o', "strcmp(utc, as)=%d strcmp(utc, be)=%d", strcmp(utc, as), strcmp(utc, be));
+			if ((strcmp(utc, as) >= 0) || (strcmp(utc, be) < 0))
+			    T_window = TRUE;
+		    } else {
+			tasklog('o', "strcmp(utc, as)=%d strcmp(utc, be)=%d", strcmp(utc, as), strcmp(utc, be));
+			if ((strcmp(utc, as) >= 0) && (strcmp(utc, be) < 0))
+			    T_window = TRUE;
+		    }
+		}
+		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+		strcpy(flstr,"...... ... ..");
+		if ((tmp->flavors) & F_IMM   ) {
+		    flstr[0]='I';
+		    /*
+		     * Immediate mail, send if node is CM.
+		     */
+		    if ((tmp->olflags & OL_CM) || T_window) {
+			tmp->flavors |= F_CALL;
+		    }
+		}
+		if ((tmp->flavors) & F_CRASH ) {
+		    flstr[1]='C';
+		    /*
+		     * Crash mail, send if node is CM.
+		     */
+		    if ((tmp->olflags & OL_CM) || T_window) {
+			tmp->flavors |= F_CALL;
+		    }
+		}
+		if ((tmp->flavors) & F_NORMAL) {
+		    flstr[2]='N';
+		    /*
+		     * Normal mail, send during ZMH or if node has a Txx window.
+		     * Also if node has TCP/IP capability and internet is ready.
+		     */
+		    if (iszmh || T_window || (internet && TCFG.max_tcp && 
+				((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN)))) {
+			tmp->flavors |= F_CALL;
+		    }
+		}
+		if ((tmp->flavors) & F_HOLD  ) 
+		    flstr[3]='H';
+		if ((tmp->flavors) & F_FREQ  ) 
+		    flstr[4]='R';
+		if ((tmp->flavors) & F_POLL  ) {
+		    flstr[5]='P';
+		    tmp->flavors |= F_CALL;
+		}
+		if ((tmp->flavors) & F_ISPKT ) 
+		    flstr[7]='M';
+		if ((tmp->flavors) & F_ISFLO ) 
+		    flstr[8]='F';
+		if (tmp->cst.tryno >= 30) {
+		    /*
+		     * Node is undialable, clear callflag
+		     */
+		    tmp->flavors &= ~F_CALL;
+		}
+		if ((tmp->flavors) & F_CALL  ) 
+		    flstr[9]='C';
+		if (tmp->t1) 
+		    flstr[11] = tmp->t1;
+		if (tmp->t2) 
+		    flstr[12] = tmp->t2;
+
+		/*
+		 * If we must call this node, figure out how to call this node.
+		 */
+		if ((tmp->flavors) & F_CALL) {
+		    /*
+		     * Get options for this node
+		     */
+
+
+		    tmp->callmode = CM_NONE;
+		    if (internet && TCFG.max_tcp && 
+			    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+			inet_calls++;
+			tmp->callmode = CM_INET;
+			tasklog('o', "Call over internet");
+		    }
+		    if (!TCFG.ipblocks || (TCFG.ipblocks && !internet)) {
+			/*
+			 * If TCP/IP blocks other trafic, (you only have one dialup line),
+			 * then don't add normal dial trafic. If not blocking, add lines.
+			 */
+			if ((tmp->callmode == CM_NONE) && TCFG.max_isdn) {
+			    /*
+			     * Dialup node, check available dialout ports
+			     */
+			    for (tpl = pl; tpl; tpl = tpl->next) {
+				if (tpl->dflags & tmp->diflags) {
+				    isdn_calls++;
+				    tmp->callmode = CM_ISDN;
+				    break;
+				}
+			    }
+			}
+			if ((tmp->callmode == CM_NONE) && TCFG.max_pots) {
+			    for (tpl = pl; tpl; tpl = tpl->next) {
+				if (tpl->mflags & tmp->moflags) {
+				    pots_calls++;
+				    tmp->callmode = CM_POTS;
+				    break;
+				}
+			    }
+			}
+		    }
+		}
+		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %s %s %s", flstr, (long)tmp->size,
+			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
+			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
+			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(&(tmp->addr), 0x1f));
 		tasklog('+', "%s", temp);
 	}
+	
+	if (nxt_hour == 24) {
+	    /*
+	     * 24:00 hours doesn't exist
+	     */
+	    nxt_hour = 0;
+	    nxt_min  = 0;
+	}
 
+	tasklog('o', "Call inet=%d, isdn=%d, pots=%d", inet_calls, isdn_calls, pots_calls);
+	tasklog('+', "Next event at %02d:%02d UTC", nxt_hour, nxt_min);
 	return 0;
 }
 
@@ -256,6 +505,102 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	}
 
 	return 0;
+}
+
+
+
+/*
+ * Tidy the portlist
+ */
+void tidy_portlist(pp_list **);
+void tidy_portlist(pp_list ** fdp)
+{
+    pp_list *tmp, *old;
+
+    tasklog('p', "tidy_portlist");
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fdp = NULL;
+}
+
+
+
+/*
+ * Add a port to the portlist
+ */
+void fill_portlist(pp_list **, pp_list *);
+void fill_portlist(pp_list **fdp, pp_list *new)
+{
+    pp_list *tmp, *ta;
+
+    tmp = (pp_list *)malloc(sizeof(pp_list));
+    tmp->next = NULL;
+    strncpy(tmp->tty, new->tty, 6);
+    tmp->mflags = new->mflags;
+    tmp->dflags = new->dflags;
+
+    if (*fdp == NULL) {
+	*fdp = tmp;
+    } else {
+	for (ta = *fdp; ta; ta = ta->next)
+	    if (ta->next == NULL) {
+		ta->next = (pp_list *)tmp;
+		break;
+	    }
+    }
+}
+
+
+
+/*
+ * Build a list of available dialout ports.
+ */
+void load_ports()
+{
+    FILE    *fp;
+    pp_list new;
+    int	    count = 0, j, stdflag;
+    char    *p, *q;
+
+    tidy_portlist(&pl);
+    if ((fp = fopen(ttyfn, "r")) == NULL) {
+	tasklog('?', "$Can't open %s", ttyfn);
+	return;
+    }
+    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
+    
+    tasklog('p', "Building portlist...");
+    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
+	if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
+	    memset(&new, 0, sizeof(new));
+	    strncpy(new.tty, ttyinfo.tty, 6);
+
+	    stdflag = TRUE;
+	    q = xstrcpy(ttyinfo.flags);
+	    for (p = q; p; p = q) {
+		if ((q = strchr(p, ',')))
+		    *q++ = '\0';
+		if ((strncasecmp(p, "U", 1) == 0) && (strlen(p) == 1)) {
+		    stdflag = FALSE;
+		} else {
+		    for (j = 0; fkey[j].key; j++)
+			if (strcasecmp(p, fkey[j].key) == 0)
+			    new.mflags |= fkey[j].flag;
+		    for (j = 0; dkey[j].key; j++)
+			if (strcasecmp(p, dkey[j].key) == 0)
+			    new.dflags |= dkey[j].flag;
+		}
+	    }
+	    tasklog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
+	    fill_portlist(&pl, &new);
+	    count++;
+	}
+    }
+    fclose(fp);
+    tty_time = file_time(ttyfn);
+    tasklog('p', "make_portlist %d ports", count);
 }
 
 

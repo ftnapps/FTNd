@@ -31,6 +31,7 @@
 #include "libs.h"
 #include "../lib/structs.h"
 #include "taskstat.h"
+#include "callstat.h"
 #include "outstat.h"
 #include "taskutil.h"
 
@@ -207,14 +208,12 @@ int get_zmh()
 	if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
 		if (!ZMH) {
 			CreateSema((char *)"zmh");
-			sem_set((char *)"scanout", TRUE);
 			tasklog('!', "Start of Zone Mail Hour");
 			ZMH = TRUE;
 		}
 	} else {
 		if (ZMH) {
 			RemoveSema((char *)"zmh");
-			sem_set((char *)"scanout", TRUE);
 			tasklog('!', "End of Zone Mail Hour");
 			ZMH = FALSE;
 		}

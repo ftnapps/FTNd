@@ -4388,6 +4388,9 @@ v0.33.19        26-Oct-2001
 		are present.
 		When the internet connection status changes, the outbound is
 		rescanned.
+		Implemented Txx nodelist flags, FSC-0062.
+		Added code to see which nodes could be called depending on
+		outbound status, nodelist flags etc. Experimental.
 
 	mbmon:
 		Changed the lastcaller screen to display the External Door

@@ -35,6 +35,7 @@
 #include "taskutil.h"
 #include "taskregs.h"
 #include "taskcomm.h"
+#include "callstat.h"
 #include "outstat.h"
 #include "nodelist.h"
 #include "mbtask.h"
@@ -79,8 +80,10 @@ struct _fidonethdr	fidonethdr;		/* Fidonet header rec.	*/
 struct _fidonet		fidonet;		/* Fidonet data record	*/
 time_t			tcfg_time;		/* Config record time	*/
 time_t			cfg_time;		/* Config record time	*/
+time_t			tty_time;		/* TTY config time	*/
 char			tcfgfn[PATH_MAX];	/* Config file name	*/
 char			cfgfn[PATH_MAX];	/* Config file name	*/
+char			ttyfn[PATH_MAX];	/* TTY file name	*/
 int     		ping_isocket;		/* Ping socket		*/
 int     		icmp_errs = 0;		/* ICMP error counter	*/
 int			internet = FALSE;	/* Internet is down	*/
@@ -103,6 +106,8 @@ char			pingaddress[41];	/* Ping current address	*/
 int			masterinit = FALSE;	/* Master init needed	*/
 int			ptimer = PAUSETIME;	/* Pause timer		*/
 int			tflags = FALSE;		/* if nodes with Txx	*/
+extern int		nxt_hour;		/* Next event hour	*/
+extern int		nxt_min;		/* Next event minute	*/
 
 
 
@@ -1049,7 +1054,7 @@ void scheduler(void)
     char            *cmd = NULL;
     static char	    doing[32], buf[2048];
     time_t          now;
-    struct tm       *tm;
+    struct tm       *tm, *utm;
     FILE	    *fp;
     float	    lavg1, lavg2, lavg3;
     struct pollfd   pfd;
@@ -1189,23 +1194,33 @@ void scheduler(void)
 	 */
 	now = time(NULL);
 	tm = localtime(&now);
+	utm = gmtime(&now);
 	if (tm->tm_min != olddo) {
 	    olddo = tm->tm_min;
 	    TouchSema((char *)"mbtask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
 		tasklog('+', "Task configuration changed, reloading");
 		load_taskcfg();
+		sem_set((char *)"scanout", TRUE);
 	    }
 	    if (file_time(cfgfn) != cfg_time) {
 		tasklog('+', "Main configuration changed, reloading");
 		load_maincfg();
-	    }
-	    /*
-	     * If there is mail or files in the outbound for nodes with
-	     * the Txx flag, then scan the outbound each half hour.
-	     */
-	    if (tflags && ((tm->tm_min == 0) || (tm->tm_min == 30)))
 		sem_set((char *)"scanout", TRUE);
+	    }
+	    if (file_time(ttyfn) != tty_time) {
+		tasklog('+', "Ports configuration changed, reloading");
+		load_ports();
+		sem_set((char *)"scanout", TRUE);
+	    }
+
+	    /*
+	     * If the next event time is reached, rescan the outbound
+	     */
+	    if ((utm->tm_hour == nxt_hour) && (utm->tm_min == nxt_min)) {
+		tasklog('o', "Next event time reached %02d:%02d %02d:%02d", tm->tm_hour, tm->tm_min, utm->tm_hour, utm->tm_min);
+		sem_set((char *)"scanout", TRUE);
+	    }
 	}
 
 	if (s_bbsopen && !UPSalarm && !LOADhi) {
@@ -1461,6 +1476,9 @@ int main(int argc, char **argv)
         memset(&task, 0, sizeof(task));
 	memset(&reginfo, 0, sizeof(reginfo));
 	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
+
+	sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	load_ports();
 
 	/*
 	 * Now that init is complete and this program is locked, it is
