@@ -42,10 +42,15 @@ extern int	do_quiet;		/* Suppress screen output	    */
 
 void ListFileAreas(int Area)
 {
-    FILE    *pAreas, *pFile, *pTic;
+    FILE    *pAreas, *pTic;
     int     i, iAreas, fcount, tcount = 0, iTotal = 0, columns = 80;
     long    fsize, tsize = 0;
     char    *sAreas, *fAreas, *sTic, flags[6], *ticarea;
+#ifdef  USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE    *pFile;
+#endif
 
     /*
      * If nothing to display allowed, return at once.
@@ -103,6 +108,12 @@ void ListFileAreas(int Area)
 
 	if (area.Available) {
 
+#ifdef  USE_EXPERIMENT
+	    /*
+	     * Open the file database.
+	     */
+	    fdb_area = mbsedb_OpenFDB(Area, 30);
+#else
 	    /*
 	     * Open the file database, create new one if it doesn't exist.
 	     */
@@ -119,6 +130,7 @@ void ListFileAreas(int Area)
 	    } else {
 		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
+#endif
 
             fcount = 0;
 	    fsize  = 0L;
@@ -132,7 +144,11 @@ void ListFileAreas(int Area)
 
 	    colour(LIGHTGRAY, BLACK);
 
+#ifdef  USE_EXPERIMENT
+	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		sprintf(flags, "---");
 		if (fdb.Deleted)
 		    flags[0] = 'D';
@@ -155,7 +171,11 @@ void ListFileAreas(int Area)
 		printf("-");
 	    printf("\n");
 	    printf("%d file%s, %ld Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);
+#ifdef  USE_EXPERIMENT
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(pFile);
+#endif
 
 	} else {
 	    WriteError("Area %d is not available", Area);
@@ -184,6 +204,9 @@ void ListFileAreas(int Area)
 
 	if (area.Available) {
 
+#ifdef  USE_EXPERIMENT
+	    fdb_area = mbsedb_OpenFDB(i, 30);
+#else
 	    /*
 	     * Open the file database, create new one if it doesn't exist.
 	     */
@@ -200,10 +223,15 @@ void ListFileAreas(int Area)
 	    } else {
 		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
+#endif
 
 	    fcount = 0;
 	    fsize  = 0L;
+#ifdef  USE_EXPERIMENT
+	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		fcount++;
 		fsize = fsize + fdb.Size;
 	    }
@@ -213,7 +241,11 @@ void ListFileAreas(int Area)
 
 	    printf("%5d %5d %5ld %-12s %s\n", i, fcount, fsize, area.BbsGroup, area.Name);
 	    iTotal++;
+#ifdef  USE_EXPERIMENT
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(pFile);
+#endif
 	}
     }
 

@@ -204,6 +204,14 @@ int main(int argc, char **argv)
 	    do_pack = TRUE;
 	} else if (!strncasecmp(argv[i], "c", 1)) {
 	    do_check = TRUE;
+	    if (argc > (i + 1)) {
+		Area = atoi(argv[i+1]);
+		if (Area) {
+		    i++;
+		    cmd = xstrcat(cmd, (char *)" ");
+		    cmd = xstrcat(cmd, argv[i]);
+		}
+	    }
 	} else if (!strncasecmp(argv[i], "k", 1)) {
 	    do_kill = TRUE;
 	} else if (!strncasecmp(argv[i], "t", 1)) {
@@ -261,8 +269,9 @@ int main(int argc, char **argv)
     if (do_sort)
 	SortFileBase(Area);
 
-    if (do_check)
-	Check();
+    if (do_check) {
+	Check(Area);
+    }
 
     if (do_rearc) {
 	ReArc(Area, FileName);

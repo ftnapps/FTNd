@@ -113,7 +113,7 @@ void Help(void)
     printf("	Commands are:\n\n");
     colour(CYAN, BLACK);
     printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
-    printf("	c  check			Check filebase\n");
+    printf("	c  check [area]			Check filebase\n");
     printf("	d  delete <area> \"<filemask>\"	Mark file(s) in area for deletion\n");
     printf("	im import <area>		Import files in current dir to area\n");
     printf("	in index			Create filerequest index\n");

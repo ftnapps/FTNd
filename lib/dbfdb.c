@@ -47,16 +47,19 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
     char	    *temp;
     struct _fdbarea *fdb_area = NULL;
     int		    Tries = 0;
+    FILE	    *fp;
 
     Syslog('f', "OpenFDB area %ld, timeout %d", Area, Timeout);
 
     temp = calloc(PATH_MAX, sizeof(char));
+    fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
+
     sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, if it's locked, just wait.
      */
-    while (((fdb_area->fp = fopen(temp, "r+")) == NULL) && ((errno == EACCES) || (errno == EAGAIN))) {
+    while (((fp = fopen(temp, "r+")) == NULL) && ((errno == EACCES) || (errno == EAGAIN))) {
 	if (++Tries >= (Timeout * 4)) {
 	    WriteError("Can't open file area %ld, timeout", Area);
 	    free(temp);
@@ -65,12 +68,12 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
 	msleep(250);
 	Syslog('f', "Open file area %ld, try %d", Area, Tries);
     }
-    if (fdb_area->fp == NULL) {
+    if (fp == NULL) {
 	WriteError("$Can't open %s", temp);
 	free(temp);
 	return NULL;
     }
-    fread(&fdbhdr, sizeof(fdbhdr), 1, fdb_area->fp);
+    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 
     /*
      * Fix attributes if needed
@@ -84,17 +87,18 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
 	return NULL;
     }
 
-    fseek(fdb_area->fp, 0, SEEK_END);
-    if ((ftell(fdb_area->fp) - fdbhdr.hdrsize) % fdbhdr.recsize) {
+    fseek(fp, 0, SEEK_END);
+    if ((ftell(fp) - fdbhdr.hdrsize) % fdbhdr.recsize) {
 	WriteError("Files database area %ld is corrupt, unalligned records", Area);
-	fclose(fdb_area->fp);
+	fclose(fp);
 	return NULL;
     }
 
     /*
      * Point to the first record
      */
-    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+    fseek(fp, fdbhdr.hdrsize, SEEK_SET);
+    fdb_area->fp = fp;
     fdb_area->locked = 0;
     fdb_area->area = Area;
     Syslog('f', "OpenFDB success");
@@ -116,6 +120,8 @@ int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
 	mbsedb_UnlockFDB(fdb_area);
     }
     fclose(fdb_area->fp);
+
+    free(fdb_area);
     return TRUE;
 }
 

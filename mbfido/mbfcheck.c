@@ -41,6 +41,12 @@ extern int	do_quiet;		/* Suppress screen output	    */
 extern int	do_pack;		/* Pack filebase		    */
 
 
+int	iErrors = 0;
+int	iTotal = 0;
+int	iAreasNew = 0;
+
+void    CheckArea(long);                /* Check a single area          */
+
 
 /*
  *  Check file database integrity, all files in the file database must
@@ -57,31 +63,28 @@ extern int	do_pack;		/* Pack filebase		    */
  *  Remarks:  Maybe if the crc check fails, and the date and time are
  *            ok, the file is damaged and must be made unavailable.
  */
-void Check(void)
+void Check(long AreaNr)
 {
     FILE		*pAreas, *pFile;
-    int			i, j, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0, rc;
-    char		*sAreas, *fAreas, *newdir, *temp, *mname, *tname;
+    char		*sAreas, *fAreas, *newdir, *temp, *mname;
+    long		i, iAreas;
     DIR			*dp;
     struct dirent	*de;
-    int			Found, Update;
-    char		fn[PATH_MAX];
-    struct stat		stb;
-    struct passwd	*pw;
-    struct group	*gr;
-    struct FILEIndex	idx;
+    int			Found;
+    struct FILEIndex    idx;
 
     sAreas = calloc(PATH_MAX, sizeof(char));
     fAreas = calloc(PATH_MAX, sizeof(char));
-    newdir = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
     mname  = calloc(PATH_MAX, sizeof(char));
-
+    newdir = calloc(PATH_MAX, sizeof(char));
+    
     if (!do_quiet) {
 	colour(3, 0);
 	printf("Checking file database...\n");
     }
 
+    iAreasNew = iTotal = iErrors = 0;
     sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
     if ((pAreas = fopen (sAreas, "r")) == NULL) {
@@ -93,87 +96,200 @@ void Check(void)
     fseek(pAreas, 0, SEEK_END);
     iAreas = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
 
-    for (i = 1; i <= iAreas; i++) {
-
-	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+    if (AreaNr) {
+	fseek(pAreas, ((AreaNr-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	fread(&area, areahdr.recsize, 1, pAreas);
 
 	if (area.Available) {
+	    Syslog('+', "Checking file area %ld", AreaNr);
+	    CheckArea(AreaNr);
+	}
 
-	    IsDoing("Check area %d", i);
+    } else {
+	/*
+	 * Do all areas
+	 */
+	for (i = 1; i <= iAreas; i++) {
 
-	    if (!do_quiet) {
-		printf("\r%4d => %-44s    \b\b\b\b", i, area.Name);
-		fflush(stdout);
-	    }
+	    fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+	    fread(&area, areahdr.recsize, 1, pAreas);
 
-	    /*
-	     * Check if download directory exists, 
-	     * if not, create the directory.
-	     */
-	    if (access(area.Path, R_OK) == -1) {
-		Syslog('!', "No dir: %s", area.Path);
-		sprintf(newdir, "%s/foobar", area.Path);
-		mkdirs(newdir, 0775);
-	    }
+	    if (area.Available) {
+		CheckArea(i);
 
-	    if (stat(area.Path, &stb) == 0) {
-		/*
-		 * Very extended directory check
-		 */
-		Fix = FALSE;
-		if ((stb.st_mode & S_IRUSR) == 0) {
-		    Fix = TRUE;
-		    WriteError("No owner read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
-		}
-		if ((stb.st_mode & S_IWUSR) == 0) {
-		    Fix = TRUE;
-		    WriteError("No owner write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
-		}
-		if ((stb.st_mode & S_IRGRP) == 0) {
-		    Fix = TRUE;
-		    WriteError("No group read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
-		}
-		if ((stb.st_mode & S_IWGRP) == 0) {
-		    Fix = TRUE;
-		    WriteError("No group write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
-		}
-		if ((stb.st_mode & S_IROTH) == 0) {
-		    Fix = TRUE;
-		    WriteError("No others read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
-		}
-		if (Fix) {
-		    iErrors++;
-		    if (chmod(area.Path, 0775))
-			WriteError("Could not set mode to 0775");
-		    else
-			Syslog('+', "Corrected directory mode to 0775");
-		}
-		Fix = FALSE;
-		pw = getpwuid(stb.st_uid);
-		if (strcmp(pw->pw_name, (char *)"mbse")) {
-		    WriteError("Directory %s not owned by user mbse", area.Path);
-		    Fix = TRUE;
-		}
-		gr = getgrgid(stb.st_gid);
-		if (strcmp(gr->gr_name, (char *)"bbs")) {
-		    WriteError("Directory %s not owned by group bbs", area.Path);
-		    Fix = TRUE;
-		}
-		if (Fix) {
-		    iErrors++;
-		    pw = getpwnam((char *)"mbse");
-		    gr = getgrnam((char *)"bbs");
-		    if (chown(area.Path, pw->pw_gid, gr->gr_gid))
-			WriteError("Could not set owner to mbse.bbs");
-		    else
-			Syslog('+', "Corrected directory owner to mbse.bbs");
-		}
 	    } else {
-		WriteError("Can't stat %s", area.Path);
-	    }
 
-	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
+		if (strlen(area.Name) == 0) {
+		    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
+		    if (unlink(fAreas) == 0) {
+			Syslog('+', "Removed obsolete %s", fAreas);
+		    }
+		}
+	    } /* if area.Available */
+	}
+	fclose(pAreas);
+    }
+
+    if (! AreaNr) {
+	/*
+	 * Only if we check all areas, check magic filenames.
+	 */
+	if (!do_quiet) {
+	    printf("\rChecking magic alias names ...                                    \r");
+	    fflush(stdout);
+	}
+
+	if (!strlen(CFG.req_magic)) {
+	    WriteError("No magic filename path configured");
+	} else {
+	    if ((dp = opendir(CFG.req_magic)) == NULL) {
+		WriteError("$Can't open directory %s", CFG.req_magic);
+	    } else {
+		while ((de = readdir(dp))) {
+		    if (de->d_name[0] != '.') {
+			sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
+			if (file_exist(temp, X_OK) == 0) {
+			    Syslog('f', "%s is executable", temp);
+			} else if (file_exist(temp, R_OK) == 0) {
+			    if ((pFile = fopen(temp, "r"))) {
+				fgets(mname, PATH_MAX -1, pFile);
+				fclose(pFile);
+				Striplf(mname);
+				sprintf(newdir, "%s/etc/request.index", getenv("MBSE_ROOT"));
+				Found = FALSE;
+				if ((pFile = fopen(newdir, "r"))) {
+				    while (fread(&idx, sizeof(idx), 1, pFile)) {
+					if ((strcmp(idx.Name, mname) == 0) || (strcmp(idx.LName, mname) == 0)) {
+					    Found = TRUE;
+					    break;
+					}
+				    }
+				    fclose(pFile);
+				}
+				if (!Found) {
+				    Syslog('+', "Error: magic alias %s (%s) is invalid, removed", de->d_name, mname);
+				    iErrors++;
+				    unlink(temp);
+				}
+			    }
+			} else {
+			    Syslog('f', "%s cannot be", temp);
+			}
+		    }
+		}
+		closedir(dp);
+	    }
+	}
+    }
+
+    if (!do_quiet) {
+	printf("\r                                                                  \r");
+	fflush(stdout);
+    }
+
+    free(mname);
+    free(temp);
+    free(newdir);
+    free(sAreas);
+    free(fAreas);
+
+    Syslog('+', "Check Areas [%5d] Files [%5d]  Errors [%5d]", iAreasNew, iTotal, iErrors);
+}
+
+
+
+void CheckArea(long Area)
+{
+    FILE		*pFile;
+    int			j, Fix, inArea, rc;
+    char		*fAreas, *newdir, *temp, *mname, *tname;
+    DIR			*dp;
+    struct dirent	*de;
+    int			Found, Update;
+    char		fn[PATH_MAX];
+    struct stat		stb;
+    struct passwd	*pw;
+    struct group	*gr;
+
+    fAreas = calloc(PATH_MAX, sizeof(char));
+    newdir = calloc(PATH_MAX, sizeof(char));
+    temp   = calloc(PATH_MAX, sizeof(char));
+    mname  = calloc(PATH_MAX, sizeof(char));
+
+    IsDoing("Check area %ld", Area);
+
+    if (!do_quiet) {
+	printf("\r%4ld => %-44s    \b\b\b\b", Area, area.Name);
+	fflush(stdout);
+    }
+
+    /*
+     * Check if download directory exists, 
+     * if not, create the directory.
+     */
+    if (access(area.Path, R_OK) == -1) {
+	Syslog('!', "No dir: %s", area.Path);
+	sprintf(newdir, "%s/foobar", area.Path);
+	mkdirs(newdir, 0775);
+    }
+
+    if (stat(area.Path, &stb) == 0) {
+	/*
+	 * Very extended directory check
+	 */
+	Fix = FALSE;
+	if ((stb.st_mode & S_IRUSR) == 0) {
+	    Fix = TRUE;
+	    WriteError("No owner read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+	}
+	if ((stb.st_mode & S_IWUSR) == 0) {
+	    Fix = TRUE;
+	    WriteError("No owner write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+	}
+	if ((stb.st_mode & S_IRGRP) == 0) {
+	    Fix = TRUE;
+	    WriteError("No group read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+	}
+	if ((stb.st_mode & S_IWGRP) == 0) {
+	    Fix = TRUE;
+	    WriteError("No group write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+	}
+	if ((stb.st_mode & S_IROTH) == 0) {
+	    Fix = TRUE;
+	    WriteError("No others read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+	}
+	if (Fix) {
+	    iErrors++;
+	    if (chmod(area.Path, 0775))
+		WriteError("Could not set mode to 0775");
+	    else
+		Syslog('+', "Corrected directory mode to 0775");
+	}
+	Fix = FALSE;
+	pw = getpwuid(stb.st_uid);
+	if (strcmp(pw->pw_name, (char *)"mbse")) {
+	    WriteError("Directory %s not owned by user mbse", area.Path);
+	    Fix = TRUE;
+	}
+	gr = getgrgid(stb.st_gid);
+	if (strcmp(gr->gr_name, (char *)"bbs")) {
+	    WriteError("Directory %s not owned by group bbs", area.Path);
+	    Fix = TRUE;
+	}
+	if (Fix) {
+	    iErrors++;
+	    pw = getpwnam((char *)"mbse");
+	    gr = getgrnam((char *)"bbs");
+	    if (chown(area.Path, pw->pw_gid, gr->gr_gid))
+		WriteError("Could not set owner to mbse.bbs");
+	    else
+		Syslog('+', "Corrected directory owner to mbse.bbs");
+	}
+    } else {
+	WriteError("Can't stat %s", area.Path);
+    }
+
+	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
 	    /*
 	     * Open the file database, if it doesn't exist,
@@ -217,7 +333,7 @@ void Check(void)
 		sprintf(mname,  "%s/%s", area.Path, fdb.Name);
 
 		if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
-		    Syslog('+', "File %s area %d not on disk.", newdir, i);
+		    Syslog('+', "File %s area %ld not on disk.", newdir, Area);
 		    if (!fdb.NoKill) {
 			fdb.Deleted = TRUE;
 			do_pack = TRUE;
@@ -353,19 +469,19 @@ void Check(void)
 
 
 		    if (file_time(newdir) != fdb.FileDate) {
-			Syslog('!', "Date mismatch area %d file %s", i, fdb.LName);
+			Syslog('!', "Date mismatch area %ld file %s", Area, fdb.LName);
 			fdb.FileDate = file_time(newdir);
 			iErrors++;
 			Update = TRUE;
 		    }
 		    if (file_size(newdir) != fdb.Size) {
-			Syslog('!', "Size mismatch area %d file %s", i, fdb.LName);
+			Syslog('!', "Size mismatch area %ld file %s", Area, fdb.LName);
 			fdb.Size = file_size(newdir);
 			iErrors++;
 			Update = TRUE;
 		    }
 		    if (file_crc(newdir, CFG.slow_util && do_quiet) != fdb.Crc32) {
-			Syslog('!', "CRC error area %d, file %s", i, fdb.LName);
+			Syslog('!', "CRC error area %ld, file %s", Area, fdb.LName);
 			fdb.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
 			iErrors++;
 			Update = TRUE;
@@ -379,7 +495,7 @@ void Check(void)
 		if (strlen(fdb.Magic)) {
 		    rc = magic_check(fdb.Magic, fdb.Name);
 		    if (rc == -1) {
-			Syslog('+', "Area %d magic alias %s file %s is invalid", i, fdb.Magic, fdb.Name);
+			Syslog('+', "Area %ld magic alias %s file %s is invalid", Area, fdb.Magic, fdb.Name);
 			memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
 			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
@@ -388,7 +504,7 @@ void Check(void)
 		}
 	    }
 	    if (inArea == 0)
-		Syslog('+', "Warning: area %d (%s) is empty", i, area.Name);
+		Syslog('+', "Warning: area %ld (%s) is empty", Area, area.Name);
 
 	    /*
 	     * Check files in the directory against the database.
@@ -410,7 +526,7 @@ void Check(void)
 					 * Record has been found before, so this must be
 					 * a double record.
 					 */
-					Syslog('!', "Double file record area %d file %s", i, fdb.LName);
+					Syslog('!', "Double file record area %ld file %s", Area, fdb.LName);
 					iErrors++;
 					fdb.Double = TRUE;
 					do_pack = TRUE;
@@ -447,81 +563,11 @@ void Check(void)
 	    fclose(pFile);
 	    chmod(fAreas, 0660);
 	    iAreasNew++;
-
-	} else {
-		    
-	    if (strlen(area.Name) == 0) {
-		sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
-		if (unlink(fAreas) == 0) {
-		    Syslog('+', "Removed obsolete %s", fAreas);
-		}
-	    }
-
-	} /* if area.Available */
-    }
-
-    fclose(pAreas);
-
-    if (!do_quiet) {
-	printf("\rChecking magic alias names ...                                    \r");
-	fflush(stdout);
-    }
-
-    if (!strlen(CFG.req_magic)) {
-	WriteError("No magic filename path configured");
-    } else {
-	if ((dp = opendir(CFG.req_magic)) == NULL) {
-	    WriteError("$Can't open directory %s", CFG.req_magic);
-	} else {
-	    while ((de = readdir(dp))) {
-		if (de->d_name[0] != '.') {
-		    sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
-		    if (file_exist(temp, X_OK) == 0) {
-			Syslog('f', "%s is executable", temp);
-		    } else if (file_exist(temp, R_OK) == 0) {
-			if ((pFile = fopen(temp, "r"))) {
-			    fgets(mname, PATH_MAX -1, pFile);
-			    fclose(pFile);
-			    Striplf(mname);
-			    sprintf(newdir, "%s/etc/request.index", getenv("MBSE_ROOT"));
-			    Found = FALSE;
-			    if ((pFile = fopen(newdir, "r"))) {
-				while (fread(&idx, sizeof(idx), 1, pFile)) {
-				    if ((strcmp(idx.Name, mname) == 0) || (strcmp(idx.LName, mname) == 0)) {
-					Found = TRUE;
-					break;
-				    }
-				}
-				fclose(pFile);
-			    }
-			    if (!Found) {
-				Syslog('+', "Error: magic alias %s (%s) is invalid, removed", de->d_name, mname);
-				iErrors++;
-				unlink(temp);
-			    }
-			}
-		    } else {
-			Syslog('f', "%s cannot be", temp);
-		    }
-		}
-	    }
-	    closedir(dp);
-	}
-    }
-
-    if (!do_quiet) {
-	printf("\r                                                                  \r");
-	fflush(stdout);
-    }
-
-    free(mname);
-    free(temp);
-    free(newdir);
-    free(sAreas);
+    
     free(fAreas);
-
-    Syslog('+', "Check Areas [%5d] Files [%5d]  Errors [%5d]", iAreasNew, iTotal, iErrors);
+    free(newdir);
+    free(temp);
+    free(mname);
 }
-
 
 
