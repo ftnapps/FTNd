@@ -4528,6 +4528,7 @@ v0.33.19        26-Oct-2001
 
 	mbaff:
 		Fixes for Sparc systems.
+		Fix for large filebases, could not run longer then 10 minutes.
 
 	mbindex:
 		Fixes for Sparc systems.

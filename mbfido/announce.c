@@ -129,6 +129,7 @@ void Uploads()
 		if (CFG.slow_util && do_quiet)
 			usleep(1);
 
+		Nopper();
 		if ((area.Available) && strlen(area.NewGroup)) {
 
 			if (!do_quiet) {

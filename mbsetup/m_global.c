@@ -299,7 +299,7 @@ void b_screen(void)
 	mvprintw(11,37, "16.  BBS Log Level");
 	mvprintw(12,37, "17.  Utils loglevel");
 	mvprintw(13,37, "18.  Utils slowly");
-	mvprintw(14,37, "29.  CrashMail level");
+	mvprintw(14,37, "19.  CrashMail level");
 	mvprintw(15,37, "20.  FileAttach level");
 	mvprintw(16,37, "21.  Min diskspace MB");
 
