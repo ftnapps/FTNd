@@ -50,12 +50,15 @@ int	reg_nop(char *);
 int	reg_timer(int, char *);
 int	reg_tty(char *);
 int	reg_user(char *);
-int	reg_silent(char *);
-char	*reg_ipm(char *);
-int	reg_spm(char *);
-char	*reg_fre(void);
-char	*get_reginfo(int);
-int	reg_sysop(char *);
+int	reg_silent(char *);	    /* Set/Reset do not disturb	    */
+char	*reg_ipm(char *);	    /* Check for personal/chat msg  */
+int	reg_spm(char *);	    /* Send personal/chat message   */
+char	*reg_fre(void);		    /* Check if system is free	    */
+char	*get_reginfo(int);	    /* Get registration info	    */
+int	reg_sysop(char *);	    /* Registrate sysop presence    */
+int	reg_page(char *);	    /* Page sysop for chat	    */
+int	reg_cancel(char *);	    /* Cancel sysop page	    */
+char	*reg_checkpage(char *);	    /* Check paging status	    */
 
 #endif
 

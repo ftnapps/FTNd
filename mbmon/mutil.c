@@ -41,39 +41,39 @@ int		bbs_free;
 
 unsigned char readkey(int y, int x, int fg, int bg)
 {
-	int		rc = -1, i;
-	unsigned char 	ch = 0;
+    int		rc = -1, i;
+    unsigned char 	ch = 0;
 
-	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open /dev/tty");
-		exit(MBERR_TTYIO_ERROR);
-	}
-	Setraw();
+    if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
+	perror("open /dev/tty");
+	exit(MBERR_TTYIO_ERROR);
+    }
+    Setraw();
 
-	i = 0;
-	while (rc == -1) {
-		if ((i % 10) == 0)
-			show_date(fg, bg, 0, 0);
+    i = 0;
+    while (rc == -1) {
+	if ((i % 10) == 0)
+	    show_date(fg, bg, 0, 0);
 
-		locate(y, x);
-		fflush(stdout);
-		rc = Waitchar(&ch, 5);
-		if ((rc == 1) && (ch != KEY_ESCAPE))
-			break;
+	locate(y, x);
+	fflush(stdout);
+        rc = Waitchar(&ch, 5);
+        if ((rc == 1) && (ch != KEY_ESCAPE))
+	   break;
 
-		if ((rc == 1) && (ch == KEY_ESCAPE))
-			rc = Escapechar(&ch);
+	if ((rc == 1) && (ch == KEY_ESCAPE))
+	    rc = Escapechar(&ch);
 
-		if (rc == 1)
-			break;
-		i++;
-		Nopper();
-	}
+	if (rc == 1)
+	    break;
+	i++;
+	Nopper();
+    }
 
-	Unsetraw();
-	close(ttyfd);
+    Unsetraw();
+    close(ttyfd);
 
-	return ch;
+    return ch;
 }
 
 
@@ -369,48 +369,79 @@ void set_color(int f, int b)
 static time_t lasttime;
 
 /*
- * Show the current date & time in the second status row
+ *  Show the current date & time in the second status row.
+ *  Show user paging status in third screen row.
  */
 void show_date(int fg, int bg, int y, int x)
 {
-	time_t	now;
-	char	*p, buf[128];
+    time_t	now;
+    char	*p, buf[128], *pid, *page, *reason;
 
-	now = time(NULL);
-	if (now != lasttime) {
-		lasttime = now;
-		set_color(LIGHTGREEN, BLUE);
-		p = ctime(&now);
-		Striplf(p);
-		mvprintw(1, 44, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
-		p = asctime(gmtime(&now));
-		Striplf(p);
-		mvprintw(2, 44, (char *)"%s UTC", p);
+    now = time(NULL);
+    if (now != lasttime) {
+	lasttime = now;
+	set_color(LIGHTGREEN, BLUE);
+	p = ctime(&now);
+	Striplf(p);
+	mvprintw(1, 44, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
+	p = asctime(gmtime(&now));
+	Striplf(p);
+	mvprintw(2, 44, (char *)"%s UTC", p);
 
-		/*
-		 * Indicator if bbs is free
-		 */
-		strcpy(buf, SockR("SFRE:0;"));
-		if (strncmp(buf, "100:0;", 6) == 0) {
-		    strcpy(buf, SockR("SBBS:0;"));
-		    if (strncmp(buf, "100:2,1", 7) == 0) {
-			set_color(WHITE, RED);
-			mvprintw(2,74, (char *)" Down ");
-		    } else {
-			set_color(WHITE, BLUE);
-			mvprintw(2,74, (char *)" Free ");
-		    }
-		    bbs_free = TRUE;
-		} else {
-		    set_color(WHITE, RED);
-		    mvprintw(2,74, (char *)" Busy ");
-		    bbs_free = FALSE;
-		}
-
-		if (y && x)
-			locate(y, x);
-		set_color(fg, bg);
+	/*
+	 * Indicator if bbs is free
+	 */
+	strcpy(buf, SockR("SFRE:0;"));
+	if (strncmp(buf, "100:0;", 6) == 0) {
+	    strcpy(buf, SockR("SBBS:0;"));
+	    if (strncmp(buf, "100:2,1", 7) == 0) {
+		set_color(WHITE, RED);
+		mvprintw(2,74, (char *)" Down ");
+	    } else {
+		set_color(WHITE, BLUE);
+		mvprintw(2,74, (char *)" Free ");
+	    }
+	    bbs_free = TRUE;
+	} else {
+	    set_color(WHITE, RED);
+	    mvprintw(2,74, (char *)" Busy ");
+	    bbs_free = FALSE;
 	}
+
+	/*
+	 * Check paging status
+	 */
+	strcpy(buf, SockR("CCKP:0;"));
+	if (strcmp(buf, "100:0;") == 0) {
+	    locate(3, 1);
+	    set_color(LIGHTGRAY, BLACK);
+	    clrtoeol();
+	} else {
+	    pid = strtok(buf, ",");
+	    pid = strtok(NULL, ",");
+	    page = strtok(NULL, ",");
+	    reason = strtok(NULL, "\0");
+	    reason[strlen(reason)-1] = '\0';
+	    if (strlen(reason) > 60)
+		reason[60] = '\0';
+
+	    locate(3, 1);
+	    if (strcmp(page, "1")) {
+		set_color(RED, BLACK);
+		mvprintw(3, 1, "   Old page (%s) %-60s", pid, reason);
+		if ((now % 10) == 0)	/* Every 10 seconds */
+		    putchar(7);
+	    } else {
+		set_color(LIGHTRED, BLACK);
+		mvprintw(3, 1, " Sysop page (%s) %-60s", pid, reason);
+		putchar(7);		/* Each second	    */
+	    }
+	}
+
+	if (y && x)
+	    locate(y, x);
+	set_color(fg, bg);
+    }
 }
 
 
@@ -528,13 +559,13 @@ void working(int txno, int y, int x)
  */
 void clr_index()
 {
-	int i;
+    int i;
 
-	set_color(LIGHTGRAY, BLACK);
-	for (i = 3; i <= (LINES - 1); i++) {
-		locate(i, 1);
-		clrtoeol();
-	}
+    set_color(LIGHTGRAY, BLACK);
+    for (i = 4; i <= (LINES - 1); i++) {
+	locate(i, 1);
+	clrtoeol();
+    }
 }
 
 

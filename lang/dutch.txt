@@ -150,7 +150,7 @@ JN|berichten, nu de post lezen? [J/n]:
 |Gebruikersnaam bestaat al
 |Even in Uw postbus kijken ...
 |     MBSE BBS Kletsen
-|De Sysop is nu even met iemand anders in gesprek op
+|De Sysop is nu even met iemand anders in gesprek.
 |Probeer het opnieuw in enkele minuten ...
 |U heeft de Sysop meer dan het maximaal aantal keren geroepen.
 |De Sysop is niet aanwezig ... laat een bericht achter

@@ -150,9 +150,9 @@
 149	newuser.c			|User name already exists
 150	mail.c				|Checking your mail box ...
 151	page.c				|     MBSE BBS Chat
-152	page.c				|The SysOp is currently speaking to somebody else on 
+152	page.c				|The SysOp is currently speaking to somebody else.
 153	page.c				|Try paging him again in a few minutes ...
-154	page.c				||You have paged the Sysop the maximum times allowed.
+154	page.c				|You have paged the Sysop the maximum times allowed.
 155	page.c				|Sysop currently is not available ... please leave a comment
 156	mail.c				|Posting message in area: 
 157	mail.c				|From     : 

@@ -36,6 +36,7 @@
 #include "taskutil.h"
 
 extern reg_info		reginfo[MAXCLIENT];     /* Array with clients   */
+extern struct sysconfig	CFG;			/* System config	*/
 static int 		entrypos = 0;		/* Status pointer	*/
 static int		mailers = 0;		/* Registered mailers	*/
 static int		sysop_present = 0;	/* Sysop present	*/
@@ -193,19 +194,19 @@ void reg_check(void)
  */
 int reg_doing(char *data)
 {
-	char	*cnt, *pid, *line;
-	int	rec;
+    char    *cnt, *pid, *line;
+    int	    rec;
 
-	cnt = strtok(data, ",");
-	pid = strtok(NULL, ",");
-	line = strtok(NULL, ";");
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ",");
+    line = strtok(NULL, ";");
 
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	strncpy(reginfo[rec].doing, line, 35);
-	reginfo[rec].lastcon = time(NULL);
-	return 0;
+    strncpy(reginfo[rec].doing, line, 35);
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
 }
 
 
@@ -238,16 +239,16 @@ int reg_ip(char *data)
  */
 int reg_nop(char *data)
 {
-	char	*cnt, *pid;
-	int	rec;
+    char    *cnt, *pid;
+    int	    rec;
 
-	cnt = strtok(data, ",");
-	pid = strtok(NULL, ";");
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ";");
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	reginfo[rec].lastcon = time(NULL);
-	return 0;
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
 }
 
 
@@ -257,31 +258,31 @@ int reg_nop(char *data)
  */
 int reg_timer(int Set, char *data)
 {
-	char	*pid;
-	int	cnt, rec, val;
+    char    *pid;
+    int	    cnt, rec, val;
 
-	cnt = atoi(strtok(data, ","));
-	if (Set) {
-		if (cnt != 2)
-			return -1;
-		pid = strtok(NULL, ",");
-		val = atoi(strtok(NULL, ";"));
-		if (val < 600)
-			val = 600;
-	} else {
-		if (cnt != 1)
-			return -1;
-		pid = strtok(NULL, ";");
-		val = 600;
-	}
+    cnt = atoi(strtok(data, ","));
+    if (Set) {
+	if (cnt != 2)
+	    return -1;
+	pid = strtok(NULL, ",");
+	val = atoi(strtok(NULL, ";"));
+	if (val < 600)
+	    val = 600;
+    } else {
+	if (cnt != 1)
+	    return -1;
+	pid = strtok(NULL, ";");
+	val = 600;
+    }
 
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	reginfo[rec].altime = val;
-	reginfo[rec].lastcon = time(NULL);
-	Syslog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
-	return 0;
+    reginfo[rec].altime = val;
+    reginfo[rec].lastcon = time(NULL);
+    Syslog('r', "Set timeout value for %d to %d", reginfo[rec].pid, val);
+    return 0;
 }
 
 
@@ -291,19 +292,19 @@ int reg_timer(int Set, char *data)
  */
 int reg_tty(char *data)
 {
-	char	*cnt, *pid, *tty;
-	int	rec;
+    char    *cnt, *pid, *tty;
+    int	    rec;
 
-	cnt = strtok(data, ",");
-	pid = strtok(NULL, ",");
-	tty = strtok(NULL, ";");
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ",");
+    tty = strtok(NULL, ";");
 
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	strncpy((char *)&reginfo[rec].tty, tty, 6);
-	reginfo[rec].lastcon = time(NULL);
-	return 0;
+    strncpy((char *)&reginfo[rec].tty, tty, 6);
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
 }
 
 
@@ -313,19 +314,19 @@ int reg_tty(char *data)
  */
 int reg_silent(char *data)
 {
-	char	*cnt, *pid, *line;
-	int	rec;
+    char    *cnt, *pid, *line;
+    int	    rec;
 
-	cnt = strtok(data, ",");
-	pid = strtok(NULL, ",");
-	line = strtok(NULL, ";");
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ",");
+    line = strtok(NULL, ";");
 
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	reginfo[rec].silent = atoi(line);
-	reginfo[rec].lastcon = time(NULL);
-	return 0;
+    reginfo[rec].silent = atoi(line);
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
 }
 
 
@@ -335,21 +336,21 @@ int reg_silent(char *data)
  */
 int reg_user(char *data)
 {
-	char	*cnt, *pid, *user, *city;
-	int	rec;
+    char    *cnt, *pid, *user, *city;
+    int	    rec;
 
-	cnt  = strtok(data, ",");
-	pid  = strtok(NULL, ",");
-	user = strtok(NULL, ",");
-	city = strtok(NULL, ";");
+    cnt  = strtok(data, ",");
+    pid  = strtok(NULL, ",");
+    user = strtok(NULL, ",");
+    city = strtok(NULL, ";");
 
-	if ((rec = reg_find(pid)) == -1)
-		return -1;
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
 
-	strncpy((char *)&reginfo[rec].uname, user, 35);
-	strncpy((char *)&reginfo[rec].city,  city, 35);
-	reginfo[rec].lastcon = time(NULL);
-	return 0;
+    strncpy((char *)&reginfo[rec].uname, user, 35);
+    strncpy((char *)&reginfo[rec].city,  city, 35);
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
 }
 
 
@@ -413,36 +414,41 @@ char *reg_ipm(char *data)
  */
 int reg_spm(char *data)
 {
-    char    *cnt, *from, *too, *txt;
-    int	    ch, i;
+    char    *cnt, *ch, *from, *too, *txt, *log;
+    int	    i;
 
     cnt  = strtok(data, ",");
-    ch   = atoi(strtok(NULL, ","));
+    ch   = strtok(NULL, ",");
     from = strtok(NULL, ",");
     too  = strtok(NULL, ",");
     txt  = strtok(NULL, "\0");
     txt[strlen(txt)-1] = '\0';
 
     Syslog('-', "SIPM:%s,%d,%s,%s,%s;", cnt, ch, from, too, txt);
-    
+    log = calloc(PATH_MAX, sizeof(char));
+    sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
+
     for (i = 0; i < MAXCLIENT; i++) {
 	/*
 	 *  Personal messages and sysop/user chat messages.
 	 */
-	if (reginfo[i].pid && (strcasecmp(reginfo[i].uname, too) == 0) && ((ch == -1) || (ch == 0)) && (ch == reginfo[i].channel)) {
+	if (reginfo[i].pid && (strcasecmp(reginfo[i].uname, too) == 0) && 
+		    ((atoi(ch) == -1) || (atoi(ch) == 0)) && (atoi(ch) == reginfo[i].channel)) {
 	    /*
 	     *  If the in and out pointers are the same and the 
 	     *  message present flag is still set, then this user
 	     *  can't get anymore new messages.
 	     */
 	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
+		free(log);
 		return 2;
 	    }
 
 	    /*
 	     *  If user has the "do not distrurb" flag set, but the sysop ignore's this.
 	     */
-	    if (reginfo[i].silent && (ch == -1)) {
+	    if (reginfo[i].silent && (atoi(ch) == -1)) {
+		free(log);
 		return 1;
 	    }
 
@@ -457,14 +463,19 @@ int reg_spm(char *data)
 		reginfo[i].ptr_in = 0;
 	    reginfo[i].ismsg = TRUE;
 
+	    if (CFG.iAutoLog && strlen(CFG.chat_log)) {
+		ulog(log, (char *)"+", from, ch, txt);
+	    }
+
 	    Syslog('+', "reg_spm: in=%d out=%d ismsg=%d", reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
+	    free(log);
 	    return 0;
 	}
 
 	/*
 	 *  Chat messages, they are send to each user that is chatting in the right channel.
 	 */
-	if (reginfo[i].pid && reginfo[i].chatting && reginfo[i].channel == ch) {
+	if (reginfo[i].pid && reginfo[i].chatting && reginfo[i].channel == atoi(ch)) {
 	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
 		Syslog('!', "reg_spm: buffer full for %s", reginfo[i].uname);
 	    } else {
@@ -475,13 +486,19 @@ int reg_spm(char *data)
 		else
 		    reginfo[i].ptr_in = 0;
 		reginfo[i].ismsg = TRUE;
+
+		if (CFG.iAutoLog && strlen(CFG.chat_log)) {
+		    ulog(log, (char *)"+", from, ch, txt);
+		}
+
 		Syslog('+', "reg_spm: user=%s in=%d out=%d ismsg=%d", reginfo[i].uname, reginfo[i].ptr_in, 
 			reginfo[i].ptr_out, reginfo[i].ismsg);
 	    }
 	}
     }
 
-    if ((ch == -1) || (ch == 0))
+    free(log);
+    if ((atoi(ch) == -1) || (atoi(ch) == 0))
 	return 3;   // Error
     return 0;	    // Ok
 }
@@ -490,37 +507,37 @@ int reg_spm(char *data)
 
 char *reg_fre(void)
 {
-	static char	buf[80];
-	int		i, users = 0, utils = 0;
+    static char	buf[80];
+    int		i, users = 0, utils = 0;
 
-	buf[0] = '\0';
+    buf[0] = '\0';
 
-	for (i = 1; i < MAXCLIENT; i++) {
-		if (reginfo[i].pid) {
-			if ((!strncmp(reginfo[i].prg, "mbsebbs", 7)) ||
-			    (!strncmp(reginfo[i].prg, "mbnewusr", 8)) ||
-			    (!strncmp(reginfo[i].prg, "mbftpd", 6)))
-				users++;
+    for (i = 1; i < MAXCLIENT; i++) {
+	if (reginfo[i].pid) {
+	    if ((!strncmp(reginfo[i].prg, "mbsebbs", 7)) ||
+		(!strncmp(reginfo[i].prg, "mbnewusr", 8)) ||
+		(!strncmp(reginfo[i].prg, "mbftpd", 6)))
+		users++;
 
-			if ((!strncmp(reginfo[i].prg, "mbfido", 6)) ||
-			    (!strncmp(reginfo[i].prg, "mbmail", 6)) ||
-			    (!strncmp(reginfo[i].prg, "mball", 5)) ||
-			    (!strncmp(reginfo[i].prg, "mbaff", 5)) ||
-			    (!strncmp(reginfo[i].prg, "mbcico", 6)) ||
-			    (!strncmp(reginfo[i].prg, "mbfile", 6)) ||
-			    (!strncmp(reginfo[i].prg, "mbmsg", 5)) ||
-			    (!strncmp(reginfo[i].prg, "mbindex", 7)) ||
-			    (!strncmp(reginfo[i].prg, "mbdiff", 6)) ||
-			    (!strncmp(reginfo[i].prg, "mbuser", 6)))
-				utils++;
-		}
+	    if ((!strncmp(reginfo[i].prg, "mbfido", 6)) ||
+		(!strncmp(reginfo[i].prg, "mbmail", 6)) ||
+		(!strncmp(reginfo[i].prg, "mball", 5)) ||
+	        (!strncmp(reginfo[i].prg, "mbaff", 5)) ||
+	        (!strncmp(reginfo[i].prg, "mbcico", 6)) ||
+	        (!strncmp(reginfo[i].prg, "mbfile", 6)) ||
+	        (!strncmp(reginfo[i].prg, "mbmsg", 5)) ||
+	        (!strncmp(reginfo[i].prg, "mbindex", 7)) ||
+	        (!strncmp(reginfo[i].prg, "mbdiff", 6)) ||
+	        (!strncmp(reginfo[i].prg, "mbuser", 6)))
+		utils++;
 	}
+    }
 
-	if (users || utils)
-		sprintf(buf, "100:1,Running utilities: %02d  Active users: %02d;", utils, users);
-	else
-		sprintf(buf, "100:0;");
-	return buf;
+    if (users || utils)
+	sprintf(buf, "100:1,Running utilities: %02d  Active users: %02d;", utils, users);
+    else
+	sprintf(buf, "100:0;");
+    return buf;
 }
 
 
@@ -532,35 +549,131 @@ char *reg_fre(void)
  */
 char *get_reginfo(int first)
 {
-	static char	buf[256];
+    static char	buf[256];
 
-	memset(&buf, 0, sizeof(buf));
-	sprintf(buf, "100:0;");
+    memset(&buf, 0, sizeof(buf));
+    sprintf(buf, "100:0;");
 
-	/*
-	 * Loop forever until an error occours, eof is reached or
-	 * the data is valid. Only in the last case valid data is
-	 * returned to the caller.
-	 */
-	for (;;) {
-		if (first == 1)
-			entrypos = 0;
-		else
-			entrypos++;
+    /*
+     * Loop forever until an error occours, eof is reached or
+     * the data is valid. Only in the last case valid data is
+     * returned to the caller.
+     */
+    for (;;) {
+	if (first == 1)
+	    entrypos = 0;
+	else
+	    entrypos++;
 
-		if (entrypos == MAXCLIENT)
-			return buf;
+	if (entrypos == MAXCLIENT)
+	    return buf;
 
-		if ((int)reginfo[entrypos].pid != 0) {
-			sprintf(buf, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
+	if ((int)reginfo[entrypos].pid != 0) {
+	    sprintf(buf, "100:7,%d,%s,%s,%s,%s,%s,%d;", 
 				reginfo[entrypos].pid, reginfo[entrypos].tty,
 				reginfo[entrypos].uname, reginfo[entrypos].prg,
 				reginfo[entrypos].city, reginfo[entrypos].doing,
 				(int)reginfo[entrypos].started);
-			return buf;
-		}
+	    return buf;
 	}
-	/* never reached */
+    }
+    /* never reached */
+}
+
+
+
+/*
+ * Page sysop for a chat
+ */
+int reg_page(char *data)
+{
+    char    *cnt, *pid, *reason;
+    int     i, rec;
+	        
+    cnt    = strtok(data, ",");
+    pid    = strtok(NULL, ",");
+    reason = strtok(NULL, "\0");
+    reason[strlen(reason)-1] = '\0';
+
+    Syslog('+', "reg_page: pid=%d, reason=\"%s\"", pid, reason);
+
+    if (!sysop_present)
+	return 2;
+
+    /*
+     * Check if another user is pagin the sysop or is already
+     * chatting with the sysop, if so, mark sysop busy.
+     */
+    for (i = 1; i < MAXCLIENT; i++) {
+	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].channel == 0) && (reginfo[i].chatting))
+	    return 1;
+	if (reginfo[i].pid && (reginfo[i].pid != atoi(pid)) && (reginfo[i].paging))
+	    return 1;
+    }
+
+    if ((rec = reg_find(pid)) == -1)
+	return 3;
+
+    /*
+     * All seems well, accept the page
+     */
+    reginfo[rec].paging = TRUE;
+    reginfo[rec].channel = 0;
+    strncpy(reginfo[rec].reason, reason, 80);
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
+}
+
+
+
+/*
+ * Cancel page sysop for a chat
+ */
+int reg_cancel(char *data)
+{
+    char    *cnt, *pid;
+    int     rec;
+
+    cnt = strtok(data, ",");
+    pid = strtok(NULL, ";");
+
+    Syslog('+', "reg_cancel: pid=%d", pid);
+
+    if ((rec = reg_find(pid)) == -1)
+	return -1;
+
+    if (reginfo[rec].paging) {
+	reginfo[rec].paging = FALSE;
+	reginfo[rec].haspaged = TRUE;
+	reginfo[rec].channel = -1;
+    }
+    reginfo[rec].lastcon = time(NULL);
+    return 0;
+}
+
+
+
+/*
+ * Check paging status for from mbmon
+ */
+char *reg_checkpage(char *data)
+{
+    static char	buf[128];
+    int		i;
+
+    memset(&buf, 0, sizeof(buf));
+    for (i = 1; i < MAXCLIENT; i++) {
+	if (reginfo[i].pid && reginfo[i].paging) {
+	    sprintf(buf, "100:3,%d,1,%s;", reginfo[i].pid, reginfo[i].reason);
+	    return buf;
+	}
+	if (reginfo[i].pid && reginfo[i].haspaged) {
+	    sprintf(buf, "100:3,%d,0,%s;", reginfo[i].pid, reginfo[i].reason);
+	    return buf;
+	}
+    }
+    sprintf(buf, "100:0;");
+    return buf;
 }
 
 

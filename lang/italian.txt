@@ -150,7 +150,7 @@ SN|nuovi messaggi, vuoi leggere la posta ora? [S/n]:
 |Nome utente gia' in uso
 |Sto controllando la tua mail box ...
 |     MBSE BBS Chat
-|Il SysOp sta parlando con un altro utente su 
+|Il SysOp sta parlando con un altro utente.
 |Prova a chiamarlo di nuovo fra pochi minuti ...
 |Hai gia' chiamato il SysOp per il massimo numero di volte consentito.
 |Il SysOp non e' al momento disponibile ... lascia un messaggio

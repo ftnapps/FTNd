@@ -196,8 +196,8 @@ void menu()
 	     * before calling chat(). Make sure if a second user
 	     * logs in, that .BusyChatting does exist.
 	     */
-	    if(CFG.iChatPromptChk && (access("/tmp/chatdev", R_OK) == 0) && (access("/tmp/.BusyChatting", F_OK) != 0))
-		Chat();
+	    if (CFG.iChatPromptChk && (access("/tmp/chatdev", R_OK) == 0) && (access("/tmp/.BusyChatting", F_OK) != 0))
+		Chat(0);
 
 	    /*
 	     * Check users timeleft

@@ -150,7 +150,7 @@ SN|mensaxes, ¨Queres lelas agora? [S/n]:
 |O nome xa existe
 |Buscando correo novo ...
 |     Charla de MBSE BBS
-|O Sysop est  falando con outro usuario en  
+|O Sysop est  falando con outro usuario.
 |Intenta chamalo de novo dentro de un pouco ...
 |Xa chamacves moitas veces. 
 |O SysOp non est  ... ¨por que non lle deixas unha mensaxe?

@@ -49,9 +49,7 @@
 #define DEVICE "/tmp/chatdev"
 
 
-
-
-void Chat(void)
+void Chat(int channel)
 {
 	FILE	*pGetDev, *pLog, *pBusy, *pChat;
 	int	ch;
@@ -60,7 +58,7 @@ void Chat(void)
 	char	*sLog = NULL;
 	char	temp[81] = "";
 
-	if(CFG.iAutoLog)
+	if (CFG.iAutoLog)
 		sLog = calloc(56, sizeof(char));
 
 	WhosDoingWhat(SYSOPCHAT);

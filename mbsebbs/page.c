@@ -47,19 +47,22 @@
 #include "language.h"
 
 
+extern    pid_t           mypid;
+
+
 /*
  * Function to Page Sysop
  */
 void Page_Sysop(char *String)
 {
-    FILE    *pWritingDevice;
-    int	    i, iOpenDevice = FALSE; /* Flag to check if you can write to CFG.sChatDevice */
-    char    *Reason, temp[81];
+    int		i;
+    char	*Reason, temp[81];
+    static char buf[128];
 
     Reason = calloc(81, sizeof(char));
 
     clear();
-    colour(12, 0);
+    colour(LIGHTRED, BLACK);
     /* MBSE BBS Chat */
     Center((char *) Language(151));
 
@@ -99,24 +102,10 @@ void Page_Sysop(char *String)
 
 	Syslog('+', "Chat Reason: %s", temp);
 	strcpy(Reason, temp);
+    } else {
+	sprintf(Reason, "User want's to chat");
     }
 
-//  if (access("/tmp/.BusyChatting", F_OK) == 0) {
-//	if((pBusy = fopen("/tmp/.BusyChatting", "r")) == NULL)
-//	    WriteError("Unable to open BusyChatting file", pTTY);
-//	else {
-//	    fscanf(pBusy, "%10s", temp); 
-//	    fclose(pBusy);
-//	}
-//	colour(13, 0);
-//	printf("%s%s\n", (char *) Language(152), temp);
-//	pout(10, 0, (char *) Language(153));
-//	Enter(2);
-//	Syslog('+', "SysOp was busy chatting to user on %s", temp);
-//	Pause();
-//	free(Reason);
-//	return;
-//  }
 
     CFG.iMaxPageTimes--;
 
@@ -124,69 +113,105 @@ void Page_Sysop(char *String)
 	if (!DisplayFile((char *)"maxpage")) {
 	    /* If i is FALSE display hard coded message */
 	    Enter(1);
+	    /* You have paged the Sysop the maximum times allowed. */
 	    pout(WHITE, BLACK, (char *) Language(154));
 	    Enter(2);
 	}
 
 	Syslog('!', "Attempted to page Sysop, above maximum page limit.");
 	Pause();
-    } else {
-	locate(14, ((80 - strlen(String) ) / 2 - 2));
-	pout(WHITE, BLACK, (char *)"[");
-	pout(LIGHTGRAY, BLACK, String);
-	pout(WHITE, BLACK, (char *)"]");
+	free(Reason);
+	return;
+    }
+	
+    locate(14, ((80 - strlen(String) ) / 2 - 2));
+    pout(WHITE, BLACK, (char *)"[");
+    pout(LIGHTGRAY, BLACK, String);
+    pout(WHITE, BLACK, (char *)"]");
 
-	locate(16, ((80 - CFG.iPageLength) / 2 - 2));
-	pout(WHITE, BLACK, (char *)"[");
-	colour(BLUE, BLACK);
-	for (i = 0; i < CFG.iPageLength; i++)
-	    printf("%c", 176);
-	pout(WHITE, BLACK, (char *)"]");
+    locate(16, ((80 - CFG.iPageLength) / 2 - 2));
+    pout(WHITE, BLACK, (char *)"[");
+    colour(BLUE, BLACK);
+    for (i = 0; i < CFG.iPageLength; i++)
+	printf("%c", 176);
+    pout(WHITE, BLACK, (char *)"]");
 
-	locate(16, ((80 - CFG.iPageLength) / 2 - 2) + 1);
+    locate(16, ((80 - CFG.iPageLength) / 2 - 2) + 1);
 
-	if ((pWritingDevice = fopen(CFG.sChatDevice, "w")) != NULL) {
-	    fprintf(pWritingDevice, "\n\n\n%s is trying to page you on %s.\n", \
-	    usrconfig.sUserName, pTTY);
+    sprintf(buf, "CPAG:2,%d,%s;", mypid, Reason);
+    if (socket_send(buf)) {
+	Syslog('+', "Failed to send message to mbtask");
+	free(Reason);
+	return;
+    }
+    strcpy(buf, socket_receive());
 
-	    fprintf(pWritingDevice, "Type: '%s/bin/schat %s' to talk to him, you have", \
-	    getenv("MBSE_ROOT"), pTTY);
-	    fprintf(pWritingDevice, "\n%d seconds to respond!\n\n", CFG.iPageLength);
-	    fprintf(pWritingDevice, "%s\n", temp);
-	    iOpenDevice = TRUE;
-	}
+    /*
+     * Check if sysop is busy
+     */
+    if (strcmp(buf, "100:1,1;") == 0) {
+	/* The SysOp is currently speaking to somebody else */
+	pout(LIGHTMAGENTA, BLACK, (char *) Language(152));
+	/* Try paging him again in a few minutes ... */
+	pout(LIGHTGREEN, BLACK, (char *) Language(153));
+	Enter(2);
+	Syslog('+', "SysOp was busy chatting with another user");
+	Pause();
+	free(Reason);
+	return;
+    }
 
+    /*
+     * Check if sysop is not available
+     */
+    if (strcmp(buf, "100:1,2;") == 0) {
+	Syslog('+', "Sysop is not available for chat");
+    }
+
+    /*
+     * Check for other errors
+     */
+    if (strcmp(buf, "100:1,3;") == 0) {
+	colour(LIGHTRED, BLACK);
+	printf("Internal system error, the sysop is informed");
+	Enter(2);
+	Syslog('!', "Got error on page sysop command");
+	Pause();
+	free(Reason);
+	return;
+    }
+
+    if (strcmp(buf, "100:0;") == 0) {
+	/*
+	 * Page accpeted, wait until sysop responds
+	 */
 	colour(LIGHTBLUE, BLACK);
 	for (i = 0; i < CFG.iPageLength; i++) {
-	    printf("\x07");
-	    /* If there weren't any problems opening the writing device */
-	    if (iOpenDevice) {
-		fprintf(pWritingDevice, "\x07");
-		fflush(pWritingDevice);
-	    }
 	    printf("%c", 219);
 	    fflush(stdout);
 	    sleep(1);
-	    if (access("/tmp/chatdev", R_OK) == 0) {
-		fclose(pWritingDevice);
-		Chat();
-		free(Reason);
-		return;
-	    }
+
+	    // if drop into chat
+	    //	Chat();
+	    //	free(Reason);
+	    //	return;
 	}
 
-	if (iOpenDevice) {
-	    fclose(pWritingDevice);
-	    iOpenDevice = 0;
-	}
-	PageReason();
-	printf("\n\n\n");
-	Pause();
-	if (strlen(Reason))
-	    SysopComment(Reason);
-	else
-	    SysopComment((char *)"Failed chat");
+	/*
+	 * Cancel page request
+	 */
+	sprintf(buf, "CCAN:1,%d", mypid);
+	socket_send(buf);
+	strcpy(buf, socket_receive());
     }
+
+    PageReason();
+    printf("\n\n\n");
+    Pause();
+    if (strlen(Reason))
+	SysopComment(Reason);
+    else
+	SysopComment((char *)"Failed chat");
 
     free(Reason);
     Pause();

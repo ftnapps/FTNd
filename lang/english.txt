@@ -150,7 +150,7 @@ YN|messages, read your mail now? [Y/n]:
 |User name already exists
 |Checking your mail box ...
 |     MBSE BBS Chat
-|The SysOp is currently speaking to somebody else on 
+|The SysOp is currently speaking to somebody else.
 |Try paging him again in a few minutes ...
 |You have paged the Sysop the maximum times allowed.
 |Sysop currently is not available ... please leave a comment

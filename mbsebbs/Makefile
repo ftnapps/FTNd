@@ -10,7 +10,7 @@ SRCS		= signature.c filesub.c language.c mbtoberep.c \
 		  bye.c funcs.c mail.c \
 		  newuser.c pinfo.c timecheck.c change.c \
 		  exitinfo.c mball.c mbsebbs.c menu.c pop3.c lastcallers.c \
-		  timeout.c chat.c file.c mbchat.c mbstat.c misc.c \
+		  timeout.c chat.c file.c mbstat.c misc.c \
 		  offline.c user.c mbnewusr.c input.c whoson.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c
 HDRS		= signature.h filesub.h language.h mbsebbs.h misc.h offline.h \
@@ -38,8 +38,6 @@ MBALL_OBJS	= mball.o
 MBALL_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBLANG_OBJS	= mblang.o
 MBLANG_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
-MBCHAT_OBJS	= mbchat.o
-MBCHAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBSTAT_OBJS	= mbstat.o
 MBSTAT_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBTOBE_OBJS	= mbtoberep.o
@@ -47,7 +45,7 @@ MBTOBE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/
 MBUSER_OBJS	= mbuser.o
 MBUSER_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 OTHER		= Makefile
-TARGET		= mbsebbs mbnewusr mball mblang mbchat mbstat mbtoberep mbuser
+TARGET		= mbsebbs mbnewusr mball mblang mbstat mbtoberep mbuser
 
 #############################################################################################################
 
@@ -75,10 +73,6 @@ mblang:		${MBLANG_OBJS} ${MBLANG_LIBS}
 		${CC} -o mblang  ${MBLANG_OBJS} ${LIBS} ${MBLANG_LIBS}
 		strip mblang
 
-mbchat:		${MBCHAT_OBJS} ${MBCHAT_LIBS}
-		${CC} -o mbchat  ${MBCHAT_OBJS} ${LIBS} ${MBCHAT_LIBS}
-		strip mbchat
-
 mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
 		${CC} -o mbstat ${MBSTAT_OBJS} ${LIBS} ${MBSTAT_LIBS}
 		strip mbstat
@@ -99,11 +93,10 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 6711 mbnewusr  ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mball     ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mblang    ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbchat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbstat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbtoberep ${BINDIR}
 		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbuser    ${BINDIR}
-		@rm -f mbuseradd mbpasswd mblogin
+		@rm -f mbuseradd mbpasswd mblogin mbchat
 
 filelist:	Makefile
 		BASE=`pwd`; \
@@ -164,7 +157,6 @@ lastcallers.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/
 timeout.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h timeout.h funcs.h bye.h filesub.h language.h
 chat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h chat.h funcs.h input.h language.h misc.h whoson.h
 file.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h filesub.h file.h funcs.h input.h language.h misc.h timeout.h exitinfo.h whoson.h change.h
-mbchat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h
 mbstat.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbstat.h
 misc.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h funcs.h input.h language.h misc.h timeout.h exitinfo.h
 offline.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/mbse.h ../lib/users.h ../lib/records.h ../lib/bluewave.h ../lib/common.h ../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h file.h filesub.h exitinfo.h timeout.h msgutil.h pop3.h offline.h whoson.h

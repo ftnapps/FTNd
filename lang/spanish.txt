@@ -150,7 +150,7 @@ SN|mensajes, ¨Quieres leerlos ahora? [S/n]:
 |El nombre ya existe
 |Buscando correo nuevo ...
 |     Charla de mbsebbs
-|El Sysop est  hablando con otro usuario en  
+|El Sysop est  hablando con otro usuario.
 |Intenta llamarlo de nuevo dentro de un rato ...
 |Ya has llamado muchas veces. 
 |El SysOp no est  ... ¨por que no le dejas un mensaje?

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Daemon
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -241,7 +241,7 @@ char *exe_cmd(char *in)
     /*
      *  The chat commands
      *
-     *  Used channels:  -1	    Personal messages between ordinary users.
+     *  Used channels:  -1  Personal messages between ordinary users.
      *		    0	    Sysop/user chat
      *		    1..99   Chatting channels
      *
@@ -259,11 +259,9 @@ char *exe_cmd(char *in)
      * 100:0;
      */
     if (strncmp(cmd, "CSPM", 4) == 0) {
-	if ((result = reg_spm(token))) {
+	if ((result = reg_spm(token)))
 	    sprintf(obuf, "100:1,%d;", result);
-	    return obuf;
-	} else
-	    return obuf;
+	return obuf;
     }
 
     /*
@@ -276,6 +274,31 @@ char *exe_cmd(char *in)
 	return obuf;
     }
 
+    /*
+     * CPAG:2,pid,reason;   Page sysop for a chat
+     * 100:1,n;		    1=busy, 2=sysop not available, 3=error
+     * 100:0;		    Ok
+     */
+    if (strncmp(cmd, "CPAG", 4) == 0) {
+	if ((result = reg_page(token))) {
+	    sprintf(obuf, "100:1,%d;", result);
+	    Syslog('+', "%s", obuf);
+	}
+	return obuf;
+    }
+
+    /*
+     * CCAN:1,pid;	    Cancel sysop page
+     * 100:0;		    Always Ok
+     */
+    if (strncmp(cmd, "CCAN", 4) == 0) {
+	reg_cancel(token);
+	return obuf;
+    }
+
+    if (strncmp(cmd, "CCKP", 4) == 0) {
+	return reg_checkpage(token);
+    }
 
     /*
      * The G(lobal) commands.
@@ -364,125 +387,122 @@ char *exe_cmd(char *in)
     }
 
 
-	/*
-	 * The (S)tatus commands.
-	 *
-	 *  SBBS:0;
-	 *  100:2,n,status message;
-	 */
-	if (strncmp(cmd, "SBBS", 4) == 0) {
-		switch(stat_bbs_stat()) {
-			case 0:
-				sprintf(obuf, "100:2,0,The system is open for use;");
-				break;
-			case 1:
-				sprintf(obuf, "100:2,1,The system is closed right now!;");
-				break;
-			case 2:
-				sprintf(obuf, "100:2,2,The system is closed for Zone Mail Hour!;");
-				break;
-		}
-		return obuf;
+    /*
+     * The (S)tatus commands.
+     *
+     *  SBBS:0;
+     *  100:2,n,status message;
+     */
+    if (strncmp(cmd, "SBBS", 4) == 0) {
+	switch(stat_bbs_stat()) {
+	    case 0: sprintf(obuf, "100:2,0,The system is open for use;");
+		    break;
+	    case 1: sprintf(obuf, "100:2,1,The system is closed right now!;");
+		    break;
+	    case 2: sprintf(obuf, "100:2,2,The system is closed for Zone Mail Hour!;");
+		    break;
 	}
+	return obuf;
+    }
 
-	/*
-	 *  SOPE:0;
-	 *  100:0;
-	 */
-	if (strncmp(cmd, "SOPE", 4) == 0) {
-		stat_set_open(1);
-		return obuf;
-	}
+    /*
+     *  SOPE:0;
+     *  100:0;
+     */
+    if (strncmp(cmd, "SOPE", 4) == 0) {
+	stat_set_open(1);
+	return obuf;
+    }
 
-	/*
-	 *  SCLO:1,message;
-	 *  100:0;
-	 */
-	if (strncmp(cmd, "SCLO", 4) == 0) {
-		stat_set_open(0);
-		return obuf;
-	}
+    /*
+     *  SCLO:1,message;
+     *  100:0;
+     */
+    if (strncmp(cmd, "SCLO", 4) == 0) {
+	stat_set_open(0);
+	return obuf;
+    }
 
-	/*
-	 *  SFRE:0;
-	 *  100:1,Running utilities: n  Active users: n;
-	 *  100:0;
-	 *  201:1,16;
-	 */
-	if (strncmp(cmd, "SFRE", 4) == 0) {
-		return reg_fre();
-	}
+    /*
+     *  SFRE:0;
+     *  100:1,Running utilities: n  Active users: n;
+     *  100:0;
+     *  201:1,16;
+     */
+    if (strncmp(cmd, "SFRE", 4) == 0) {
+	return reg_fre();
+    }
 
-	/*
-	 *  SSEQ:0;
-	 *  100:1,number;
-	 *  200:1,16;
-	 */
-	if (strncmp(cmd, "SSEQ", 4) == 0) {
-		return getseq();
-	}
+    /*
+     *  SSEQ:0;
+     *  100:1,number;
+     *  200:1,16;
+     */
+    if (strncmp(cmd, "SSEQ", 4) == 0) {
+	return getseq();
+    }
 
-	/*
-	 *  SEST:1,semafore;   Get status of semafore
-	 *  100:1,n;           1 = set, 0 = not set
-	 *  200:1,16;
-	 */
-	if (strncmp(cmd, "SEST", 4) == 0) {
-		return sem_status(token);
-	}
+    /*
+     *  SEST:1,semafore;   Get status of semafore
+     *  100:1,n;           1 = set, 0 = not set
+     *  200:1,16;
+     */
+    if (strncmp(cmd, "SEST", 4) == 0) {
+	return sem_status(token);
+    }
 
-	/*
-	 *  SECR:1,semafore;   Set semafore
-	 *  100:0;
-	 *  200:1,16;
-	 */
-	if (strncmp(cmd, "SECR", 4) == 0) {
-		return sem_create(token);
-	}
+    /*
+     *  SECR:1,semafore;   Set semafore
+     *  100:0;
+     *  200:1,16;
+     */
+    if (strncmp(cmd, "SECR", 4) == 0) {
+	return sem_create(token);
+    }
 
-	/*
-	 *  SERM:1,semafore;   Remove semafore
-	 *  100:0;
-	 *  200:1,16;
-	 */
-	if (strncmp(cmd, "SERM", 4) == 0) {
-		return sem_remove(token);
-	}
+    /*
+     *  SERM:1,semafore;   Remove semafore
+     *  100:0;
+     *  200:1,16;
+     */
+    if (strncmp(cmd, "SERM", 4) == 0) {
+	return sem_remove(token);
+    }
 
 
-	/*
-	 * If we got this far, there must be an error.
-	 */
-	stat_inc_serr();
-	return ebuf;
+    /*
+     * If we got this far, there must be an error.
+     */
+    stat_inc_serr();
+    return ebuf;
 }
 
 
 
 void do_cmd(char *cmd)
 {
-	char	buf[SS_BUFSIZE];
-	int	slen, tries = 0;
+    char    buf[SS_BUFSIZE];
+    int	    slen, tries = 0;
 
-	if (logtrans)
-		Syslog('-', "< %s", cmd);
-	sprintf(buf, "%s", exe_cmd(cmd));
-	if (logtrans)
-		Syslog('-', "> %s", buf);
+    if (logtrans)
+	Syslog('-', "< %s", cmd);
+    sprintf(buf, "%s", exe_cmd(cmd));
+    if (logtrans)
+	Syslog('-', "> %s", buf);
 
-	for (;;) {
-		slen = sendto(sock, buf, strlen(buf), 0, &from, fromlen);
-		if (slen == -1)
-			Syslog('?', "$do_cmd(): sendto error %d %s", tries, from.sun_path);
-		else if (slen != strlen(buf))
-			Syslog('?', "do_cmd(): send %d of %d bytes, try=%d", slen, strlen(buf), tries);
-		else
-			return;
-		tries++;
-		if (tries == 3)
-			return;
-		sleep(1);
-	}
+    for (;;) {
+	slen = sendto(sock, buf, strlen(buf), 0, &from, fromlen);
+	if (slen == -1)
+	    Syslog('?', "$do_cmd(): sendto error %d %s", tries, from.sun_path);
+	else if (slen != strlen(buf))
+	    Syslog('?', "do_cmd(): send %d of %d bytes, try=%d", slen, strlen(buf), tries);
+	else
+	    return;
+	tries++;
+	if (tries == 3)
+	    return;
+	sleep(1);
+    }
 }
 
 

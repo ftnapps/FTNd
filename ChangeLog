@@ -4,6 +4,8 @@ $Id$
 	menus do not work.
 	All other users on Intel machines (99,9% I think) can use this version.
 
+	WARNING, sysop chat doesn't work right now.
+
 
 v0.37.2		23-Feb-2003.
 
@@ -49,10 +51,14 @@ v0.37.2		23-Feb-2003.
 		Added email reply when reading new (e)mail.
 		With the CIPM and CSPM mbtask commands added the parameter for
 		the chat channel.
+		To page the sysop, the CPAG and CCAN commands to mbtask are now
+		used.
 
 	mbmon:
 		Reports sysop available or left the system when mbmon starts
 		or stops.
+		Reports a page from a user in row 3 of the screen (but doesn't
+		do chat right now).
 
 	mbtask:
 		Safer logging of user log messages.
@@ -61,9 +67,12 @@ v0.37.2		23-Feb-2003.
 		In personal message text the text after a ; character is not
 		ignored anymore.
 		Added CSYS command to report if sysop is available.
+		Added CPAG command to page the sysop.
+		Added CCAN command to cancel the sysop page.
+		Added CCKP command to check for a page.
 
 	lang:
-		Changed language prompts 15 and 16.
+		Changed language prompts 15, 16 and 152.
 
 
 v0.37.1		14-Jan-2003 - 23-Feb-2003
