@@ -57,6 +57,8 @@ mbfido:
 	N: Process GoldED filerequest netmails with the filereq flag set, we
 	   should create a .req file with the contents of the subject line.
 
+	N: Process To: and Cc: lines in messages gated from Fido to Internet.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
@@ -70,6 +72,10 @@ mbfile:
 	N: Update <filespec> <area> <-touch>
 
 	N: Rearc <area>
+
+	N: Possibility to skip file areas from checking and reindexing.
+
+	N: Override timeout during virus scan when files are imported.
 
 mbaff:
 	L: Add setup parameters for minimum length of keywords.
@@ -96,6 +102,8 @@ mbsetup:
 	U: When moving an JAM messagebase, check filefind records.
 
 	N: Put ZMH fields in the network setup for each zone.
+
+	N: Add switch for file area to skip checking and indexing.
 
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups
