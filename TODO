@@ -30,6 +30,13 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
+	U: When the bbs times out during login, the GoodBye functions goes
+	   into a loop.
+
+	N: Add switch for single user doors.
+
+	N: Send the doorname instead of "external door" to mbtask.
+
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.
@@ -115,6 +122,8 @@ mbcico:
 	N: Support binkp Argus freqs (Radius too?).
 
 	U: Fix binkp file resume when mbcico silently dies.
+
+	N: Add zlib compression to Hydra (Alex Shakhaylo).
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
