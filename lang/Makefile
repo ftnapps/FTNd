@@ -5,8 +5,8 @@
 include ../Makefile.global
 
 OTHER		= Makefile README Language.xref
-SDAT		= english.txt  dutch.txt  italian.txt  spanish.txt  galego.txt  german.txt  germandu.txt  french.txt
-LDAT		= english.lang dutch.lang italian.lang spanish.lang galego.lang german.lang germandu.lang french.lang
+SDAT		= english.txt  dutch.txt  italian.txt  spanish.txt  galego.txt  german.txt  germandu.txt  french.txt chinese.txt
+LDAT		= english.lang dutch.lang italian.lang spanish.lang galego.lang german.lang germandu.lang french.lang chinese.lang
 
 all:		${LDAT}
 
@@ -39,6 +39,9 @@ germandu.lang:	germandu.txt
 
 french.lang:	french.txt
 		../mbutils/mblang french.lang french.txt
+
+chinese.lang:	chinese.txt
+		../mbutils/mblang chinese.lang chinese.txt
 
 filelist:	Makefile
 		BASE=`pwd`; \
