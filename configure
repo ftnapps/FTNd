@@ -1275,7 +1275,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="51"
-REVISION="0"
+REVISION="1"
 VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2004 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2004 M. Broek"
@@ -5373,7 +5373,8 @@ done
 
 
 
-for ac_header in sys/resource.h usersec.h gshadow.h shadow.h
+
+for ac_header in sys/resource.h usersec.h gshadow.h shadow.h iconv.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then

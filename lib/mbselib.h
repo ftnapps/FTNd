@@ -92,6 +92,9 @@
 #endif
 #include <pthread.h>
 #include <sys/poll.h>
+#ifdef  HAVE_ICONV_H
+#include <iconv.h>
+#endif
 
 #include <stddef.h>
 #include <fcntl.h>

@@ -1,6 +1,9 @@
 $Id$
 
-v0.51.0		09-Feb-2004
+
+v0.51.1		21-Feb-2004
+
+v0.51.0		09-Feb-2004 - 21-Feb-2004
 
 	general:
 		Reorganized the library header files. This will make it easier

@@ -182,6 +182,9 @@
 /* Define if you have the <utmpx.h> header file.  */
 #undef HAVE_UTMPX_H
 
+/* Define if you have the <iconv.h> header file.  */
+#undef HAVE_ICONV_H
+
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
 
@@ -236,6 +239,6 @@
 /* Define if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
 
-/* Defile if machine is bigendian */
+/* Define if machine is bigendian */
 #undef WORDS_BIGENDIAN
 
