@@ -73,10 +73,10 @@ crontab - << EOF
 # Midnight event at 00:00.
 00 00 * * *	$MHOME/etc/midnight
 
-# Weekly event at Sunday 00:05.
+# Weekly event at Sunday 00:15.
 15 00 * * 0	$MHOME/etc/weekly
 
-# Monthly event at the 1st day of the month at 00:10.
+# Monthly event at the 1st day of the month at 00:30.
 30 00 1 * *	$MHOME/etc/monthly
 
 #-----------------------------------------------------------------------------

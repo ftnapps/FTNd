@@ -2,12 +2,16 @@
 #
 # $Id$
 #
-# MBSE BBS Maintenance - Should be run from cron.
+# MBSE BBS Maintenance - Should be run from user 'mbse' crontab.
 
 if [ -z "$MBSE_ROOT" ]; then
     export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
 fi
-
+if [ "`id -un`" != "mbse" ] ; then
+    echo "Must be run by user 'mbse'"
+    exit 1
+fi
+      
 # Don't do maintenance if running on UPS battery power.
 #
 if [ -f $MBSE_ROOT/sema/upsalarm ]; then

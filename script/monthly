@@ -7,6 +7,10 @@
 if [ "$MBSE_ROOT" = "" ]; then
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
 fi
+if [ "`id -un`" != "mbse" ] ; then
+   echo "Must be run by user 'mbse'"
+   exit 1
+fi
 
 # While the system is on UPS battery power, don't start maintenance
 #
