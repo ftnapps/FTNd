@@ -16,7 +16,7 @@
 <body>
 <blockquote>
 <div align="Center"><h1>MBSE BBS FAQ and Howto.</h1></div>
-<div align="Right"><h5>Last updated 14-Sep-2004</h5></div>
+<div align="Right"><h5>Last updated 31-Jan-2005</h5></div>
 
 <pre>
 Authors: P.E. Kimble aka King Kimerud            kimerud@bayhaus.org
@@ -71,6 +71,7 @@ MBSE up &amp; running.
   <li><a href="#4.1">How do I to set up MBSE for ISDN?</a></li>
   <li><a href="#4.2">How do I use GoldED together with MBSE?</a></li>
   <li><a href="#4.3">How do I use MsgEd together with MBSE?</a></li>
+  <li><a href="#4.4">How do I adopt a directory full of files to the bbs?</a></li>
  </ol>
  <p></li>
  <li><a name="_Doors"></a><a href="#5">Doors Setup</a><p>
@@ -887,7 +888,58 @@ INCLUDE /opt/mbse/etc/golded.inc
  </tbody>
 </table>
 <a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
-  
+
+<table width="100%">
+ <tbody>
+  <tr>
+   <td width="50" valign="Top"><a name="4.4">Q 4.4</a> </td>
+   <td> How do I adopt (batch upload) a directory full of files to my BBS'es file base?</td>
+  </tr>
+  <tr>
+   <td valign="Top">A 4.4</td>
+   <td>Written by: Russell Tiedt.
+       <p>
+       Easy using the script below, provided the file archives (*.zip, *.rar, *.arc, 
+       *.lha, etc.) all contain "file_id.diz" files.
+       <p>
+       Sort the files in tempory directries that correspond to the filebase area, ie. 
+       /dos4 (DOS files - filebase area no 4)
+       <p>
+       Then copy the script below to the directory, edit the number of the filebase 
+       that the files must be batch uploaded to, to the number that corresponds to 
+       the required filebase. (On my BBS system the DOS file section corresponds to 
+       the number 4, hence the name above for the tempory directory used above) I 
+       copy all files to be batch uploaded to the DOS file section, to the /dos4 
+       directory, copy the script below to the /dos4 directory, edit the script so 
+       that it uploads to the DOS filebase (4) and run it.
+<pre>
+for file in `ls` ; do
+  mbfile adopt 4 $file "Dummy description"
+done
+</pre>
+       NOTE: the 4 in the script above, indicates the filebase/filearea that the 
+       files will be batch uploaded to.
+
+       For archives that have/contain a file_id.diz file, "Dummy description" will be 
+       replaced with the content of the "file_id.diz file of that archive, if no 
+       file_id.diz exists in the archive, then "Dummy descrition" will appear in the 
+       description field of the files.bbs file for the file area it gets uploaded to.
+       <p>
+       If the files don't have/contain file_id.diz files, then create and insert in 
+       the archive, a file_id.diz file having a suitable description of the content 
+       of the archive, then follow the instructions above.
+       <p>
+       For *.exe and *.com files, as well as other files that are not archived ie. in 
+       *.zip/*.rar/*.arc/*.lha/*.lhz/*.zoo etc. Create a file_id.diz file for the 
+       file, then make an archive using the archiver of your choice containing the 
+       file and the file_id.diz you created for it, then follow the instructions 
+       above.
+   </td>
+  </tr>
+ </tbody>
+</table>
+<a href="#_BBSsetup"><img src="images/hand.up.png" border="0" alt="Up"></a>
+
 <hr>
 <h3><a name="5">5. Doors setup.</a></h3>
   

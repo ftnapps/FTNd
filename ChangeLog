@@ -16,6 +16,9 @@ v0.71.2		16-Jan-2005
 		Does now send the right mime headers recognised by new clients.
 		Fixed compile problem with some compilers.
 
+	html:
+		Added batch file upload written by Russell Tiedt to the faq.
+
 
 v0.71.1		28-Nov-2004 - 16-Jan-2005
 
