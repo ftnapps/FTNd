@@ -1278,7 +1278,17 @@ struct	menufile {
 	unsigned int	xMaxSecurity;
 	char		DoorName[15];		/* Door name		    */
 	char		TypeDesc[30];		/* Menu Type Description    */
-#ifdef __i386__
+#ifdef WORDS_BIGENDIAN
+						/* All bits swapped         */
+	unsigned        HideDoor        : 1;    /* Hide door from lists     */
+	unsigned        SingleUser      : 1;    /* Single user door         */
+	unsigned        NoPrompt        : 1;    /* No prompt after door     */
+	unsigned        NoSuid          : 1;    /* Execute noduid           */
+	unsigned        Comport         : 1;    /* Vmodem comport mode      */
+	unsigned        Y2Kdoorsys      : 1;    /* Write Y2K style door.sys */
+	unsigned        NoDoorsys       : 1;    /* Suppress door.sys        */
+	unsigned        AutoExec        : 1;    /* Auto Exec Menu Type      */
+#else
 	unsigned	AutoExec	: 1;	/* Auto Exec Menu Type      */
 	unsigned	NoDoorsys	: 1;	/* Suppress door.sys	    */
 	unsigned	Y2Kdoorsys	: 1;	/* Write Y2K style door.sys */
@@ -1287,16 +1297,6 @@ struct	menufile {
 	unsigned	NoPrompt	: 1;	/* No prompt after door	    */
 	unsigned	SingleUser	: 1;	/* Single user door	    */
 	unsigned	HideDoor	: 1;	/* Hide door from lists	    */
-#else
-						/* All bits swapped	    */
-	unsigned        HideDoor	: 1;	/* Hide door from lists	    */
-	unsigned        SingleUser	: 1;	/* Single user door	    */
-	unsigned        NoPrompt        : 1;	/* No prompt after door	    */
-	unsigned        NoSuid          : 1;	/* Execute noduid	    */
-	unsigned        Comport         : 1;	/* Vmodem comport mode      */
-	unsigned        Y2Kdoorsys      : 1;	/* Write Y2K style door.sys */
-	unsigned        NoDoorsys       : 1;	/* Suppress door.sys        */
-	unsigned        AutoExec        : 1;	/* Auto Exec Menu Type      */
 #endif
 	long		xUnused;
 	int		HiForeGnd;		/* High ForeGround color    */

@@ -406,30 +406,35 @@ void soft_info(void)
 
 	clr_index();
 	set_color(YELLOW, BLACK);
-#ifdef __linux__
+
+#if defined(__linux__)
 	p = xstrcpy((char *)"MBSE BBS (GNU/Linux");
-#elif __FreeBSD__
+#elif defined(__FreeBSD__)
 	p = xstrcpy((char *)"MBSE BBS (FreeBSD");
-#elif __NetBSD__
+#elif defined(__NetBSD__)
 	p = xstrcpy((char *)"MBSE BBS (NetBSD");
-#elif __OpenBSD__
+#elif defined(__OpenBSD__)
 	p = xstrcpy((char *)"MBSE BBS (OpenBSD");
 #else
-	p = xstrcpy((char *)"MBSE BBS (Unknown");
+#error "Unknown OS"
 #endif
-#ifdef __i386__
+
+#if defined(__i386__)
 	p = xstrcat(p, (char *)" i386)");
-#elif __PPC__
+#elif defined(__x86_64__)
+	p = xstrcat(p, (char *)" x86-64");
+#elif defined(__PPC__) || defined(__ppc__)
 	p = xstrcat(p, (char *)" PPC)");
-#elif __sparc__
+#elif defined(__sparc__)
 	p = xstrcat(p, (char *)" Sparc)");
-#elif __alpha__
+#elif defined(__alpha__)
 	p = xstrcat(p, (char *)" Alpha)");
-#elif __hppa__
+#elif defined(__hppa__)
 	p = xstrcat(p, (char *)" HPPA)");
 #else
-	p = xstrcat(p, (char *)" Unknown)");
+#error "Unknown CPU"
 #endif
+
 	center_addstr( 6, p);
 	free(p);
 	set_color(WHITE, BLACK);

@@ -1691,14 +1691,14 @@ int global_doc(FILE *fp, FILE *toc, int page)
     if (uname(&utsbuf) == 0) {
 	add_webtable(wp, (char *)"Node name", utsbuf.nodename);
 	fprintf(fp, "      Node name        %s\n", utsbuf.nodename);
-#ifdef __USE_GNU
+#if defined(__USE_GNU)
 	add_webtable(wp, (char *)"Domain name", utsbuf.domainname);
 	fprintf(fp, "      Domain name      %s\n", utsbuf.domainname);
-#else
-#ifdef __linux__
+#elif defined(__linux__)
 	add_webtable(wp, (char *)"Domain name", utsbuf.__domainname);
 	fprintf(fp, "      Domain name      %s\n", utsbuf.__domainname);
-#endif
+#else
+#error "Don't know utsbuf.domainname on this OS"
 #endif
 	sprintf(temp, "%s %s", utsbuf.sysname, utsbuf.release);
 	add_webtable(wp, (char *)"Operating system", temp);

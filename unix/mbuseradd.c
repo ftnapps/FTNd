@@ -221,8 +221,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 #else
-    syslog(LOG_WARNING, "Don't know how to add a user on this OS");
-    exit(1);
+#error "Don't know how to add a user on this OS"
 #endif
 
     sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
@@ -239,8 +238,7 @@ int main(int argc, char *argv[])
     args[8] = shell;
     args[9] = argv[2];
     args[10] = NULL;
-#endif
-#if defined(__NetBSD__) || defined(__OpenBSD__)
+#elif defined(__NetBSD__) || defined(__OpenBSD__)
     args[1] = (char *)"-c";
     args[2] = argv[3];
     args[3] = (char *)"-d";
@@ -252,8 +250,7 @@ int main(int argc, char *argv[])
     args[9] = (char *)"-m";
     args[10] = argv[2];
     args[11] = NULL;
-#endif
-#ifdef __FreeBSD__
+#elif defined(__FreeBSD__)
     args[1] = (char *)"useradd";
     args[2] = argv[2];
     args[3] = (char *)"-c";
@@ -265,6 +262,8 @@ int main(int argc, char *argv[])
     args[9] = (char *)"-s";
     args[10] = shell;
     args[11] = NULL;
+#else
+#error "Don't know how to add a user on this OS"
 #endif
 
     if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {

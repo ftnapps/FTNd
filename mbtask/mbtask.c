@@ -149,12 +149,12 @@ void load_maincfg(void)
          */
         sprintf(CFG.bbs_name, "MBSE BBS");
         uname((struct utsname *)&un); 
-#ifdef __USE_GNU
+#if defined(__USE_GNU)
         sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
-#else
-#ifdef __linux__
+#elif defined(__linux__)
         sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
-#endif
+#else
+#error "Don't know un.domainname on this OS"
 #endif
         sprintf(CFG.comment, "MBSE BBS development");
         sprintf(CFG.origin, "MBSE BBS. Made in the Netherlands");
@@ -1107,6 +1107,8 @@ void *scheduler(void)
 	    }
 	    fclose(fp);
 	}
+#else
+#error "Don't know how to get the loadaverage on this OS"
 #endif
 	if (Load >= TCFG.maxload) {
 	    if (!LOADhi) {

@@ -140,17 +140,16 @@ int CountTtyinfo(void)
             for (i = 0; i < 4; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
                 sprintf(ttyinfo.comment, "ISDN line %d", i+1);
-#ifdef __linux__
+#if defined(__linux__)
                 sprintf(ttyinfo.tty,     "ttyI%d", i);
-#endif
-#ifdef __FreeBSD__
+#elif defined(__FreeBSD__)
 		sprintf(ttyinfo.tty,     "cuaia%d", i);
-#endif
-#ifdef __NetBSD__
+#elif defined(__NetBSD__)
 		sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
-#endif
-#ifdef __OpenBSD__
+#elif defined(__OpenBSD__)
 		sprintf(ttyinfo.tty,     "cuaia%d", i);	// I think this is wrong!
+#else
+#error "Don't know the tty name for ISDN on this OS"
 #endif
                 sprintf(ttyinfo.speed,   "64 kbits");
 		sprintf(ttyinfo.flags,   "XA,X75,CM");
@@ -166,17 +165,16 @@ int CountTtyinfo(void)
             for (i = 0; i < 4; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
                 sprintf(ttyinfo.comment, "Modem line %d", i+1);
-#ifdef __linux__
+#if defined(__linux__)
 		sprintf(ttyinfo.tty,     "ttyS%d", i);
-#endif
-#ifdef __FreeBSD__
+#elif defined(__FreeBSD__)
 		sprintf(ttyinfo.tty,     "cuaa%d", i);
-#endif
-#ifdef __NetBSD__
+#elif defined(__NetBSD__)
 		sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
-#endif
-#ifdef __OpenBSD__
+#elif defined(__OpenBSD__)
 		sprintf(ttyinfo.tty,	"tty0%d", i);
+#else
+#error "Don't know the tty name of the serial ports on this OS"
 #endif
                 sprintf(ttyinfo.speed,   "33.6 kbits");
 		sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");

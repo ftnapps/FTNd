@@ -363,6 +363,8 @@ void update_diskstat(void)
 	     * XxxxBSD has the info in the statfs structure.
 	     */
 	    tmp->ro = (sfs.f_flags & MNT_RDONLY);
+#else
+#error "Don't know how to get sfs read-only status"
 #endif
         }
     }
@@ -385,6 +387,8 @@ void add_path(char *lpath)
     struct statfs   *mntbuf;
     long	    mntsize;
     int		    i;
+#else
+#error "Don't know how to get mount paths"
 #endif
 
     if (strlen(lpath) == 0) {

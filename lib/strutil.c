@@ -344,7 +344,7 @@ char *OsName()
 #elif __OpenBSD__
     return (char *)"OpenBSD";
 #else
-    return (char *)"Unknown";
+#error "Unknown target OS"
 #endif
 }
 
@@ -365,7 +365,7 @@ char *OsCPU()
 #elif __hppa__
     return (char *)"HPPA";
 #else
-    return (char *)"Unknown";
+#error "Unknown CPU"
 #endif
 }
 

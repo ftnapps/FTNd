@@ -49,7 +49,7 @@ char	SigName[32][16] = {	"NOSIGNAL",
 		"SIGIO",	"SIGPWR",	"SIGUNUSED"};
 
 
-#elif defined(__PPC__)
+#elif defined(__PPC__) || defined(__ppc__)
 
 char    SigName[32][16] = {     "NOSIGNAL",
                 "SIGHUP",       "SIGINT",       "SIGQUIT",      "SIGILL",
