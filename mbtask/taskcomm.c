@@ -583,9 +583,10 @@ void *cmd_thread(void)
     int		    rlen, rc;
     struct pollfd   pfd;
     static char	    buf[2048];
-    sigset_t        sigset, oldset;
+//    sigset_t        sigset, oldset;
 
     Syslog('+', "Starting cmd thread with pid %d", (int)getpid());
+/*
     rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
     if (rc)
         Syslog('+', "pthread_setcancelstate(PTHREAD_CANCEL_DISABLE) rc=%d", rc);
@@ -596,7 +597,7 @@ void *cmd_thread(void)
     rc = pthread_sigmask(SIG_SETMASK, &sigset, &oldset);
     if (rc)
         Syslog('+', "pthread_sigmask(SIG_SETMASK) rc=%d", rc);
-
+*/
     cmd_run = TRUE;
 
     while (! T_Shutdown) {
