@@ -72,7 +72,7 @@ void		show_magictype(int, int, int);
 int		edit_magictype(int, int, int);
 char		*get_asktype(int);
 void		show_asktype(int, int, int);
-int		edit_asktype(int, int, int);
+int		edit_asktype(int, int, int, char *);
 char		*get_sessiontype(int);
 void		show_sessiontype(int, int, int);
 int		edit_sessiontype(int, int, int);

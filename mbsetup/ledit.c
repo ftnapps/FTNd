@@ -1920,11 +1920,11 @@ void show_asktype(int y, int x, int val)
 
 
 
-int edit_asktype(int y, int x, int val)
+int edit_asktype(int y, int x, int val, char *help)
 {
     int ch;
 
-    showhelp((char *)"Toggle ^Question mode^ with spacebar, press <Enter> whene done.");
+    showhelp(help);
     do {
 	set_color(YELLOW, BLUE);
 	show_asktype(y, x, val);

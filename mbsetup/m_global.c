@@ -498,10 +498,10 @@ void e_newuser(void)
 		case 13:E_BOOL(10,68, CFG.AskAddress, "Ask users ^home address^ in 3 lines")
 		case 14:E_BOOL(11,68, CFG.GiveEmail, "Give new users an ^private email^ box")
 		case 15:E_BOOL(12,68, CFG.AskScreenlen, "Ask new user to set the ^screen length^")
-		case 16:CFG.AskNewmail = 
-			edit_asktype(13,68,CFG.AskNewmail, "Set ^new mail^ check at login, toggle wit space, Enter when done");
-		case 17:CFG.AskNewfiles =
-			edit_asktype(13,68,CFG.AskNewfiles, "Set ^new files^ check at login, toggle wit space, Enter when done");
+		case 16:CFG.AskNewmail = edit_asktype(13,68,CFG.AskNewmail, 
+				(char *)"Set ^new mail^ check at login, toggle wit space, Enter when done");
+		case 17:CFG.AskNewfiles = edit_asktype(13,68,CFG.AskNewfiles, 
+				(char *)"Set ^new files^ check at login, toggle wit space, Enter when done");
 		}
 	};
 }
