@@ -58,34 +58,34 @@ int	NodeUpdated = 0;
 int CountNoderec(void);
 int CountNoderec(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    count;
 
-	sprintf(ffile, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			nodeshdr.hdrsize = sizeof(nodeshdr);
-			nodeshdr.recsize = sizeof(nodes);
-			nodeshdr.filegrp = CFG.tic_groups * 13;
-			nodeshdr.mailgrp = CFG.toss_groups * 13;
-			fwrite(&nodeshdr, sizeof(nodeshdr), 1, fil);
-			fclose(fil);
-			chmod(ffile, 0640);
-			return 0;
-		} else
-			return -1;
-	}
+    sprintf(ffile, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    nodeshdr.hdrsize = sizeof(nodeshdr);
+	    nodeshdr.recsize = sizeof(nodes);
+	    nodeshdr.filegrp = CFG.tic_groups * 13;
+	    nodeshdr.mailgrp = CFG.toss_groups * 13;
+	    fwrite(&nodeshdr, sizeof(nodeshdr), 1, fil);
+	    fclose(fil);
+	    chmod(ffile, 0640);
+	    return 0;
+	} else
+	    return -1;
+    }
 
-	fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
-	fseek(fil, 0, SEEK_SET);
-	fread(&nodeshdr, nodeshdr.hdrsize, 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - nodeshdr.hdrsize) / (nodeshdr.recsize + nodeshdr.filegrp + nodeshdr.mailgrp);
-	fclose(fil);
+    fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
+    fseek(fil, 0, SEEK_SET);
+    fread(&nodeshdr, nodeshdr.hdrsize, 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - nodeshdr.hdrsize) / (nodeshdr.recsize + nodeshdr.filegrp + nodeshdr.mailgrp);
+    fclose(fil);
 
-	return count;
+    return count;
 }
 
 
@@ -97,167 +97,176 @@ int CountNoderec(void)
  */
 int OpenNoderec(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	char	group[13];
-	long	oldsize;
-	int	i, old_fgroups, old_mgroups; 
-	long	oldfilegrp, oldmailgrp;
+    FILE    *fin, *fout;
+    char    *fnin, *fnout, group[13];
+    int	    i, old_fgroups, old_mgroups; 
+    long    oldsize, oldfilegrp, oldmailgrp;
 
-	sprintf(fnin,  "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			NodeUpdated = 0;
-			fread(&nodeshdr, sizeof(nodeshdr), 1, fin);
-			fseek(fin, 0, SEEK_SET);
-			fread(&nodeshdr, nodeshdr.hdrsize, 1, fin);
-			if (nodeshdr.hdrsize != sizeof(nodeshdr)) {
-				nodeshdr.hdrsize = sizeof(nodeshdr);
-				nodeshdr.lastupd = time(NULL);
-				NodeUpdated = 1;
-			}
+    fnin  = calloc(PATH_MAX, sizeof(char));
+    fnout = calloc(PATH_MAX, sizeof(char));
+    sprintf(fnin,  "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    sprintf(fnout, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 
-			/*
-			 * In case we are automatic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize    = nodeshdr.recsize;
-			oldfilegrp = nodeshdr.filegrp;
-			oldmailgrp = nodeshdr.mailgrp;
-			old_fgroups = oldfilegrp / 13;
-			old_mgroups = oldmailgrp / 13;
-			if ((oldsize != sizeof(nodes) || 
-			    (CFG.tic_groups != old_fgroups) || 
-			    (CFG.toss_groups != old_mgroups))) {
-				NodeUpdated = 1;
-				if (oldsize != sizeof(nodes))
-					Syslog('+', "Upgraded %s, format changed", fnin);
-				else if (CFG.tic_groups != old_fgroups)
-					Syslog('+', "Upgraded %s, nr of tic groups is now %d", fnin, CFG.tic_groups);
-				else if (CFG.toss_groups != old_mgroups)
-					Syslog('+', "Upgraded %s, nr of mail groups is now %d", fnin, CFG.toss_groups);
-			}
-			nodeshdr.hdrsize = sizeof(nodeshdr);
-			nodeshdr.recsize = sizeof(nodes);
-			nodeshdr.filegrp = CFG.tic_groups * 13;
-			nodeshdr.mailgrp = CFG.toss_groups * 13;
-			fwrite(&nodeshdr, sizeof(nodeshdr), 1, fout);
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    NodeUpdated = 0;
+	    fread(&nodeshdr, sizeof(nodeshdr), 1, fin);
+	    fseek(fin, 0, SEEK_SET);
+	    fread(&nodeshdr, nodeshdr.hdrsize, 1, fin);
+	    if (nodeshdr.hdrsize != sizeof(nodeshdr)) {
+		nodeshdr.hdrsize = sizeof(nodeshdr);
+		nodeshdr.lastupd = time(NULL);
+		NodeUpdated = 1;
+	    }
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&nodes, 0, sizeof(nodes));
-			while (fread(&nodes, oldsize, 1, fin) == 1) {
-				if (oldsize != sizeof(nodes)) {
-				    strcpy(nodes.Spasswd, nodes.Epasswd);
-				}
-				fwrite(&nodes, sizeof(nodes), 1, fout);
-				memset(&nodes, 0, sizeof(nodes));
+	    /*
+	     * In case we are automatic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize    = nodeshdr.recsize;
+	    oldfilegrp = nodeshdr.filegrp;
+	    oldmailgrp = nodeshdr.mailgrp;
+	    old_fgroups = oldfilegrp / 13;
+	    old_mgroups = oldmailgrp / 13;
+	    if ((oldsize != sizeof(nodes) || (CFG.tic_groups != old_fgroups) || (CFG.toss_groups != old_mgroups))) {
+		NodeUpdated = 1;
+		if (oldsize != sizeof(nodes))
+		    Syslog('+', "Upgraded %s, format changed", fnin);
+		else if (CFG.tic_groups != old_fgroups)
+		    Syslog('+', "Upgraded %s, nr of tic groups is now %d", fnin, CFG.tic_groups);
+		else if (CFG.toss_groups != old_mgroups)
+		    Syslog('+', "Upgraded %s, nr of mail groups is now %d", fnin, CFG.toss_groups);
+	    }
+	    nodeshdr.hdrsize = sizeof(nodeshdr);
+	    nodeshdr.recsize = sizeof(nodes);
+	    nodeshdr.filegrp = CFG.tic_groups * 13;
+	    nodeshdr.mailgrp = CFG.toss_groups * 13;
+	    fwrite(&nodeshdr, sizeof(nodeshdr), 1, fout);
 
-				/*
-				 * Copy the existing file groups
-				 */
-				for (i = 1; i <= old_fgroups; i++) {
-					fread(&group, 13, 1, fin);
-					if (i <= CFG.tic_groups)
-						fwrite(&group, 13, 1, fout);
-				}
-				if (old_fgroups < CFG.tic_groups) {
-					/*
-					 * The size increased, fill with
-					 * blank records
-					 */
-					memset(&group, 0, 13);
-					for (i = (old_fgroups + 1); i <= CFG.tic_groups; i++)
-						fwrite(&group, 13, 1, fout);
-				}
-				/*
-				 * Copy the existing mail groups
-				 */
-				for (i = 1; i <= old_mgroups; i++) {
-					fread(&group, 13, 1, fin);
-					if (i <= CFG.toss_groups)
-						fwrite(&group, 13, 1, fout);
-				}
-				if (old_mgroups < CFG.toss_groups) {
-					memset(&group, 0, 13);
-					for (i = (old_mgroups + 1); i <= CFG.toss_groups; i++)
-						fwrite(&group, 13, 1, fout);
-				}
-			}
+	    /*
+	     * The datarecord is filled with zero's before each read,
+	     * so if the format changed, the new fields will be empty.
+	     */
+	    memset(&nodes, 0, sizeof(nodes));
+	    while (fread(&nodes, oldsize, 1, fin) == 1) {
+		if (oldsize != sizeof(nodes)) {
+		    strcpy(nodes.Spasswd, nodes.Epasswd);
+		}
+		fwrite(&nodes, sizeof(nodes), 1, fout);
+		memset(&nodes, 0, sizeof(nodes));
 
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+		/*
+		 * Copy the existing file groups
+		 */
+		for (i = 1; i <= old_fgroups; i++) {
+		    fread(&group, 13, 1, fin);
+		    if (i <= CFG.tic_groups)
+			fwrite(&group, 13, 1, fout);
+		}
+		if (old_fgroups < CFG.tic_groups) {
+		    /*
+		     * The size increased, fill with blank records
+		     */
+		    memset(&group, 0, 13);
+		    for (i = (old_fgroups + 1); i <= CFG.tic_groups; i++)
+			fwrite(&group, 13, 1, fout);
+		}
+		/*
+		 * Copy the existing mail groups
+		 */
+		for (i = 1; i <= old_mgroups; i++) {
+		    fread(&group, 13, 1, fin);
+		    if (i <= CFG.toss_groups)
+			fwrite(&group, 13, 1, fout);
+		}
+		if (old_mgroups < CFG.toss_groups) {
+		    memset(&group, 0, 13);
+		    for (i = (old_mgroups + 1); i <= CFG.toss_groups; i++)
+			fwrite(&group, 13, 1, fout);
+		}
+	    }
+
+	    fclose(fin);
+	    fclose(fout);
+	    free(fnin);
+	    free(fnout);
+	    return 0;
+	} else
+	    return -1;
+    }
+
+    free(fnin);
+    free(fnout);
+    return -1;
 }
 
 
 
 void CloseNoderec(int Force)
 {
-	char	fin[PATH_MAX], fout[PATH_MAX];
-	FILE	*fi, *fo;
-	int	i;
-	char	group[13];
-	st_list	*nod = NULL, *tmp;
-	unsigned long	crc1, crc2;
+    char	    *fin, *fout, group[13];
+    FILE	    *fi, *fo;
+    int		    i;
+    st_list	    *nod = NULL, *tmp;
+    unsigned long   crc1, crc2;
 
-	sprintf(fin, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+    fin  = calloc(PATH_MAX, sizeof(char));
+    fout = calloc(PATH_MAX, sizeof(char));
+    sprintf(fin, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    sprintf(fout,"%s/etc/nodes.temp", getenv("MBSE_ROOT"));
 
-	if (NodeUpdated == 1) {
-		if (Force || (yes_no((char *)"Nodes database is changed, save changes") == 1)) {
-			working(1, 0, 0);
-			fi = fopen(fout, "r");
-			fo = fopen(fin,  "w");
-			fread(&nodeshdr, nodeshdr.hdrsize, 1, fi);
-			fwrite(&nodeshdr, nodeshdr.hdrsize, 1, fo);
+    if (NodeUpdated == 1) {
+	if (Force || (yes_no((char *)"Nodes database is changed, save changes") == 1)) {
+	    working(1, 0, 0);
+	    fi = fopen(fout, "r");
+	    fo = fopen(fin,  "w");
+	    fread(&nodeshdr, nodeshdr.hdrsize, 1, fi);
+	    fwrite(&nodeshdr, nodeshdr.hdrsize, 1, fo);
 
-			while (fread(&nodes, nodeshdr.recsize, 1, fi) == 1) {
-				if (!nodes.Deleted)
-					fill_stlist(&nod, nodes.Sysop, ftell(fi) - nodeshdr.recsize);
-				fseek(fi, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
-			}
-			sort_stlist(&nod);
+	    while (fread(&nodes, nodeshdr.recsize, 1, fi) == 1) {
+		if (!nodes.Deleted)
+		    fill_stlist(&nod, nodes.Sysop, ftell(fi) - nodeshdr.recsize);
+		fseek(fi, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+	    }
+	    sort_stlist(&nod);
 
-			crc1 = crc2 = 0xffffffff;
-			for (tmp = nod; tmp; tmp = tmp->next) {
-				fseek(fi, tmp->pos, SEEK_SET);
-				fread(&nodes, nodeshdr.recsize, 1, fi);
-				crc2 = upd_crc32((char *)&nodes, crc2, 100);
-				if (crc2 == crc1)
-				    WriteError("Removing double noderecord %s %s", nodes.Sysop, aka2str(nodes.Aka[0]));
-				else {
-				    fwrite(&nodes, nodeshdr.recsize, 1, fo);
-				    for (i = 0; i < ((nodeshdr.filegrp + nodeshdr.mailgrp) / sizeof(group)); i++) {
-					fread(&group, sizeof(group), 1, fi);
-				    	fwrite(&group, sizeof(group), 1, fo);
-				    }
-				}
-				crc1 = crc2;
-				crc2 = 0xffffffff;
-			}
-
-			tidy_stlist(&nod);
-			fclose(fi);
-			fclose(fo);
-			unlink(fout);
-			chmod(fin, 0640);
-			Syslog('+', "Updated \"nodes.data\"");
-			return;
+	    crc1 = crc2 = 0xffffffff;
+	    for (tmp = nod; tmp; tmp = tmp->next) {
+		fseek(fi, tmp->pos, SEEK_SET);
+		fread(&nodes, nodeshdr.recsize, 1, fi);
+		crc2 = upd_crc32((char *)&nodes, crc2, 100);
+		if (crc2 == crc1)
+		    WriteError("Removing double noderecord %s %s", nodes.Sysop, aka2str(nodes.Aka[0]));
+		else {
+		    fwrite(&nodes, nodeshdr.recsize, 1, fo);
+		    for (i = 0; i < ((nodeshdr.filegrp + nodeshdr.mailgrp) / sizeof(group)); i++) {
+			fread(&group, sizeof(group), 1, fi);
+			fwrite(&group, sizeof(group), 1, fo);
+		    }
 		}
+		crc1 = crc2;
+		crc2 = 0xffffffff;
+	    }
+
+	    tidy_stlist(&nod);
+	    fclose(fi);
+	    fclose(fo);
+	    unlink(fout);
+	    chmod(fin, 0640);
+	    free(fin);
+	    free(fout);
+	    Syslog('+', "Updated \"nodes.data\"");
+	    CreateSema((char *)"scanout");
+	    return;
 	}
-	chmod(fin, 0640);
-	working(1, 0, 0);
-	unlink(fout); 
+    }
+
+    chmod(fin, 0640);
+    working(1, 0, 0);
+    free(fin);
+    free(fout);
+    unlink(fout); 
 }
 
 
@@ -265,78 +274,86 @@ void CloseNoderec(int Force)
 int AppendNoderec(void);
 int AppendNoderec(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	char	group[13];
-	int	i;
+    FILE    *fil;
+    char    *ffile, group[13];
+    int	    i;
 
-	sprintf(ffile, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "a")) != NULL) {
-		memset(&nodes, 0, sizeof(nodes));
-		/*
-		 * Fill in the defaults
-		 */
-		nodes.Tic = TRUE;
-		nodes.Notify = FALSE;
-		nodes.AdvTic = FALSE;
-		nodes.Hold = TRUE;
-		nodes.ARCmailCompat = TRUE;
-		nodes.ARCmailAlpha = TRUE;
-		nodes.StartDate = time(NULL);
-		fwrite(&nodes, sizeof(nodes), 1, fil);
-		memset(&group, 0, 13);
-		for (i = 1; i <= CFG.tic_groups; i++)
-			fwrite(&group, 13, 1, fil);
-		for (i = 1; i <= CFG.toss_groups; i++)
-			fwrite(&group, 13, 1, fil);
-		fclose(fil);
-		NodeUpdated = 1;
-		return 0;
-	} else
-		return -1;
+    ffile = calloc(PATH_MAX, sizeof(char));
+    sprintf(ffile, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
+
+    if ((fil = fopen(ffile, "a")) != NULL) {
+	memset(&nodes, 0, sizeof(nodes));
+	/*
+	 * Fill in the defaults
+	 */
+	nodes.Tic = TRUE;
+	nodes.Notify = FALSE;
+	nodes.AdvTic = FALSE;
+	nodes.Hold = TRUE;
+	nodes.ARCmailCompat = TRUE;
+	nodes.ARCmailAlpha = TRUE;
+	nodes.StartDate = time(NULL);
+	fwrite(&nodes, sizeof(nodes), 1, fil);
+	memset(&group, 0, 13);
+	for (i = 1; i <= CFG.tic_groups; i++)
+	    fwrite(&group, 13, 1, fil);
+	for (i = 1; i <= CFG.toss_groups; i++)
+	    fwrite(&group, 13, 1, fil);
+	fclose(fil);
+	NodeUpdated = 1;
+	free(ffile);
+	return 0;
+    }
+
+    free(ffile);
+    return -1;
 }
 
 
 
 int GroupInNode(char *Group, int Mail)
 {
-	char	temp[PATH_MAX], group[13];
-	FILE	*no;
-	int	i, groups, RetVal = 0;
+    char    *temp, group[13];
+    FILE    *no;
+    int	    i, groups, RetVal = 0;
 
-	sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return 0;
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
+	free(temp);
+	return 0;
+    }
+    free(temp);
 
-	fread(&nodeshdr, sizeof(nodeshdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&nodeshdr, nodeshdr.hdrsize, 1, no);
+    fread(&nodeshdr, sizeof(nodeshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&nodeshdr, nodeshdr.hdrsize, 1, no);
 
-	while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
-		groups = nodeshdr.filegrp / sizeof(group);
-		for (i = 0; i < groups; i++) {
-			fread(&group, sizeof(group), 1, no);
-			if (strlen(group) && !Mail) {
-				if (!strcmp(group, Group)) {
-					RetVal++;
-					Syslog('-', "File group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
-				}
-			}
+    while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
+	groups = nodeshdr.filegrp / sizeof(group);
+	for (i = 0; i < groups; i++) {
+	    fread(&group, sizeof(group), 1, no);
+	    if (strlen(group) && !Mail) {
+		if (!strcmp(group, Group)) {
+		    RetVal++;
+		    Syslog('-', "File group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
 		}
-		groups = nodeshdr.mailgrp / sizeof(group);
-		for (i = 0; i < groups; i++) {
-			fread(&group, sizeof(group), 1, no);
-			if (strlen(group) && Mail) {
-				if (!strcmp(group, Group)) {
-					RetVal++;
-					Syslog('-', "Mail group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
-				}
-			}
-		}
+	    }
 	}
+	groups = nodeshdr.mailgrp / sizeof(group);
+	for (i = 0; i < groups; i++) {
+	    fread(&group, sizeof(group), 1, no);
+	    if (strlen(group) && Mail) {
+		if (!strcmp(group, Group)) {
+		    RetVal++;
+		    Syslog('-', "Mail group %s found in node setup %s", Group, aka2str(nodes.Aka[0]));
+		}
+	    }
+	}
+    }
 
-	fclose(no);
-	return RetVal;
+    fclose(no);
+    return RetVal;
 }
 
 
@@ -344,17 +361,18 @@ int GroupInNode(char *Group, int Mail)
 int CheckAka(fidoaddr);
 int CheckAka(fidoaddr A)
 {
-	int	mcnt, tcnt;
+    int	mcnt, tcnt;
 
-	working(1, 0, 0);
-	mcnt = NodeInMarea(A);
-	tcnt = NodeInTic(A);
-	working(0, 0, 0);
-	if (mcnt || tcnt) {
-		errmsg((char *)"Error aka connected to %d message and/or %d tic areas", mcnt, tcnt);
-		return TRUE;
-	}
-	return FALSE;
+    working(1, 0, 0);
+    mcnt = NodeInMarea(A);
+    tcnt = NodeInTic(A);
+    working(0, 0, 0);
+    if (mcnt || tcnt) {
+	errmsg((char *)"Error aka connected to %d message and/or %d tic areas", mcnt, tcnt);
+	return TRUE;
+    }
+
+    return FALSE;
 }
 
 

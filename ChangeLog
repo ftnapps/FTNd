@@ -37,6 +37,7 @@ v0.35.03	06-Jul-2002
 
 	mbsetup:
 		Enabled setting of nodelist override settings in menu 7.x.3
+		After nodes setup edit the semafore scanout is set.
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
