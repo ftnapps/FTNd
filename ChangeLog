@@ -30,7 +30,8 @@ v0.35.06
 		the wrong filetime in the files database. The mbfile check
 		command would detect and correct this.
 		TIC files added to the bbs will now also have a 8.3 hard link.
-
+		With TIC file attaches, the filename attached is the 8.3 name.
+	
 	mbcico:
 		With filetransfer errors, the attempts counter was not 
 		increased.

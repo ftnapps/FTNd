@@ -102,12 +102,18 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     /*
      * Create the full filename
      */
-    if (TIC.SendOrg) {
+    if (TIC.PassThru || TIC.SendOrg) {
 	sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.RealName);
 	subject = xstrcpy(TIC.RealName);
     } else {
-	sprintf(fwdfile, "%s/%s", TIC.BBSpath, TIC.NewName);
-	subject = xstrcpy(TIC.NewName);
+	/*
+	 * Make sure the file attach is the 8.3 filename
+	 */
+	temp = xstrcpy(TIC.NewName);
+	name_mangle(temp);
+	sprintf(fwdfile, "%s/%s", TIC.BBSpath, temp);
+	subject = xstrcpy(temp);
+	free(temp);
     }
 
     flavor = 'f';
