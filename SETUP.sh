@@ -281,6 +281,8 @@ export GOLDED=\$HOME/etc
 # For xterm on the Gnome desktop:
 cd \$HOME
 EOF
+chown mbse $MHOME/.profile
+chgrp bbs $MHOME/.profile
 echo ""
 log "+" "Created $MHOME/.profile"
 
