@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 25-Dec-2001</h5>
+<h5>Last update 07-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Global Setup</H1>
@@ -74,17 +74,16 @@ Here you can enter 40 fidonet addresses. These are 5d addresses.
 <strong>Unix path         </strong>The Translated DOS path in real
 <strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
 </pre>
-The DOS path and Unix path are translated for in and outbound mail sessions,
-so the outside world will be happy. The DOS path is a fake, you can put 
-anything you like in there, but "C:\OUT" is a good choice. Note that
-the TIC queue must be somewere in the Unix path, otherwise it is
+If you fill in the DOS path then the DOS path and Unix path are translated
+to DOS paths in the flo files for outbound mail sessions. You only need this if
+another mailer uses the outbound that doesn't understand Unix paths.
+The DOS path is a fake, but it must match the other mailer.
+Note that the TIC queue must be somewere in the Unix path, otherwise it is
 impossible to create a DOS path from the path to the TIC files in that
 directory. To set this up correctly is also important if you use other mailers
 as well, for example binkd, or even a DOS binkly-style mailer running from
 a network. All those mailer must "see" the same file attaches in the .flo
-files. If you leave the DOS path empty, no translation will be performed
-and the Unix paths will be stored in the .flo files. This is the best setting
-if mbsebbs is the only mailer running on your system and is the default.
+files. 
 <P>
 
 <h3>1.5. Edit BBS Configuration</H3>
@@ -310,12 +309,12 @@ can set with 1.14.11:
       define the mailer of your ISP as Smarthost. Incoming email will still come
       from the UUCP gate. Users have email addresses like
       <strong>user@f2802.m280.z2.fidonet.org</strong> Note, the username is their
-      Unix name.
+      Unix name. If you have your own maildomain, don't use this option, use the
+      next option:
   <li><strong>Perm ISP</strong>. If you are permanent connected to the internet
       either with a static or dynamic IP address use this option. Use this option
-      also if you have an UUCP domain and hav a dialup UUCP connection. You need to
-      register a DNS name and MX record for your system, if you don't you won't be able to
-      receive email from the internet and must use the previous Dial mode.
+      also if you have an UUCP domain and have a dialup UUCP connection. Also
+      you can use this for dialup if you have your own maildomain.
       If you have a dynamic IP address you can still get a DNS name from for
       example <A HREF="http://www.dynip.com">dynip.com</A>
       Incoming email will come directly from the internet, but if someone sends
@@ -455,9 +454,9 @@ there is no user authentication yet available.
 </pre>
 <P>
 
-<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" align="bottom" width="40" height="30">  Back to index</A>
-<BR>
-<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" align="bottom" width="33" height="35">  Back to main index</A>
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" align="bottom">Back to index</A>
+&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" align="bottom">Back to main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 31-Jan-2001</h5>
+<h5>Last update 07-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbpasswd - The password wrapper.</H1>
@@ -27,13 +27,15 @@
 <strong>mbpasswd</strong> is the wrapper for the <strong>passwd</strong> program
 is present on all Linux systems. To use <b>passwd</b> to change the password of 
 another user is only allowed by <b>root</b>. The mbpasswd program overcomes this limitation.
-The wrapper <b>mbpasswd</b> is run from the bbs by user <b>mbse</b> when an ordinary 
-user is logged in the bbs. The program is called when a new user logs in the bbs or 
-when an existing user changes his password. His password under Unix is then always the same as his
-password in the bbs program. This is necessary for the user to be able to get
-his email using the pop3 protocol.<P> 
+The wrapper <b>mbpasswd</b> is run from the bbs by user <b>mbse</b> when a new
+user is being registered to set his password. It can also be started from the
+bbs when an existing user changes his password. If you as sysop use
+<strong>mbsetup</strong> to change a users password it will be used too.
+His password under Unix is then always the same as his password in the bbs program. 
+This is necessary for the user to be able to get his email using the pop3 protocol.<P> 
 You never need to run <strong>mbpasswd</strong> by hand, in fact it is protected so that only
-members of group <b>bbs</b> are allowed to use it.
+members of group <b>bbs</b> are allowed to use it. User <b>mbse</b> can use thsi
+program and if you do, the password for a user are not in sync anymore.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>
@@ -51,15 +53,15 @@ members of group <b>bbs</b> are allowed to use it.
 mbpasswd -f michiel secret
 </pre>
 Valid options are <strong>-f</strong> (forced), this will also change locked passwords,
-this has only effect if your system uses shadow passwords. If you use
-<strong>-n</strong> as option, locked passwords cannot be changed. For a new user the
-<b>-f</b> option is used by <b>mbsebbs</b>, when a user changes his own password the
-<b>-n</b> option is used.
+this has only effect if your system uses shadow passwords. This is used for new
+users or from the <b>mbsetup</b> program to reset users passwords.<br>
+If you use <strong>-n</strong> as option, locked passwords cannot be changed.
+This mode is used when a user changes his password from the bbs.
 <P>
 
 
-<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0">Back to Main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

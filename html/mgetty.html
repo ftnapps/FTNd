@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 09-Dec-2001</h5>
+<h5>Last update 07-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1 ALIGN="CENTER">Setup mgetty for MBSE BBS</H1>
@@ -135,8 +135,9 @@ init-chat "" ATZ OK AT&E714017198&W0 OK AT&B512 OK
 #  entry here, otherwise /bin/login will fail!
 #  This entry isn't really necessary: if it's missing, the built-in
 #  default will do exactly this.
+#  Here we replace the standard login with MBSE BBS login:
 #
-*	-	-	/bin/login @
+*	-	-	/opt/mbse/bin/mblogin @
 #
 #
 # end of login.config
@@ -144,12 +145,11 @@ init-chat "" ATZ OK AT&E714017198&W0 OK AT&B512 OK
 <HR>
 
 <P>
-Because we use /bin/login the users can get confused by the Unix login prompt.
-Most of them are used to DOS based bbs systems and will try to login with
-two names which won't work of course. For this reason I have added the
-<strong>-i /opt/mbse/etc/issue</strong> options to the <strong>mgetty</strong>
-line in /etc/inittab. The file /opt/mbse/etc/issue is a plain textfile
-explaining users how to login to start the bbs. It could look like this:<br>
+I have added the <strong>-i /opt/mbse/etc/issue</strong> options to the 
+<strong>mgetty</strong> line in /etc/inittab. 
+The file /opt/mbse/etc/issue is a plain textfile to give a small banner just
+before the login prompt. 
+It could look like this:<br>
 <pre>
 
       .--.     Welcome at MBSE BBS Development.
@@ -161,15 +161,11 @@ explaining users how to login to start the bbs. It could look like this:<br>
   \___)=(___/  
 Powered by Linux.
 
-To register as a new user login with the name "bbs" without quotes.
-Existing users must login with their unix name (one word).
-Nieuwe gebruikers kunnen inloggen met "bbs" zonder aanhalingstekens.
-Bestaande gebruikers moeten inloggen met hun unix naam (een woord).
 </pre>
 There is a default /opt/mbse/etc/issue installed by the installation script.
 You need to edit this to insert your bbs name in it or even completely replace
 this file for a nicer one. Don't make it too big, don't put control characters
-in it as this may prevent some mailers to connect to your system.
+or ANSI sequences in it as this may prevent some mailers to connect to your system.
 <p>
 I discovered that some systems don't have the right permissions on the serial
 port for MBSE BBS. To fix this type the following commands:
@@ -185,7 +181,7 @@ solution. If youre system allows it, try to add the the user <b>mbse</b> as
 a legal user of your serial ports. Most distributions have some tool for this.
 <p>
 
-<A HREF="index.htm"><IMG SRC="images/b_arrow.gif" ALT="Back" Border="0">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

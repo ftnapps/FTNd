@@ -56,7 +56,7 @@ H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
 
 H_PROGS		= programs/import.html     programs/mbchat.html \
 		  programs/mbfido.html     programs/mbmon.html \
-		  programs/mbtoberep.html \
+		  programs/mbtoberep.html  programs/mblogin.html \
 		  programs/index.htm       programs/mbcico.html \
 		  programs/mbfile.html     programs/mbmsg.html \
 		  programs/mbseq.html      programs/mbuser.html \

@@ -72,8 +72,13 @@ A: tail -f /opt/mbse/log/system.log or start mbmon.
 
 1.6 How to start mbsebbs from inetd?
 
-A: This is not possible anymore from version 0.33.19 and later.
-
+A: You need to change the file /etc/inetd.conf. Change the line with
+telnetd on it, on Linux:
+telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/mbse/bin/mblogin
+on FreeBSD:
+telnet stream tcp nowait root /usr/libexec/telnetd telnetd -p /opt/mbse/bin/mblogin
+It may differ on some systems. After changing this file do a kill -HUP to
+the inetd process and try.
 
 
 FIDONET SETUP
