@@ -29,8 +29,8 @@ if [ "$1" != "" ]; then
 	    touch $HOME/.dosemu/disclaimer
 	fi
 	# For dosemu 1.2.0 and later, create a link to the drive
-	if [ ! -f $HOME/.dosemu/drives/c ]; then
-	    ln -s $DOSDRIVE $HOME/.dosemu/drives/c
-	fi
+#	if [ ! -f $HOME/.dosemu/drives/c ]; then
+#	    ln -s $DOSDRIVE $HOME/.dosemu/drives
+#	fi
     fi
 fi
