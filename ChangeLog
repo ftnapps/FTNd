@@ -64,6 +64,8 @@ v0.61.4		11-Aug-2004
 	mbsetup:
 		Changed nodes screens to have a separate uplink managers setup
 		screen, and added switches for BBBS uplinks.
+		If the convert program is found and was not found before, the
+		defaults are set in menu 1.15.6.
 
 	script:
 		In the editor script (that calls joe) made a fix for screens
