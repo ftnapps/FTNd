@@ -487,13 +487,14 @@ void fillhello(unsigned short capabilities, char *password)
 
 	sscanf(VERSION,"%hd.%hd", &majver, &minver);
 	memset(&hello, 0, sizeof(hello));
-	hello.data[0] = 'o';		/* signal         */
-	hello.data[2] = 1;		/* hello-version  */
-	hello.data[4] = PRODCODE;	/* product        */
-	hello.data[6] = majver&0xff;	/* prod-ver-major */
-	hello.data[7] = majver>>8;	/* prod-ver-major */
-	hello.data[8] = minver&0xff;	/* prod-ver-minor */
-	hello.data[9] = minver>>8;	/* prod-ver-minor */
+	hello.data[0] = 'o';				/* signal         */
+	hello.data[2] = 1;				/* hello-version  */
+	hello.data[4] = (PRODCODE & 0x00ff);		/* product code   */
+	hello.data[5] = (PRODCODE & 0xff00) >> 8;	/* product code	  */
+	hello.data[6] = (VERSION_MAJOR & 0x00ff);	/* prod-ver-major */
+	hello.data[7] = (VERSION_MAJOR & 0xff00) >> 8;	/* prod-ver-major */
+	hello.data[8] = (VERSION_MINOR & 0x00ff);	/* prod-ver-minor */
+	hello.data[9] = (VERSION_MINOR & 0xff00) >> 8;	/* prod-ver-minor */
 	strncpy((char*)hello.data+10, name?name:"Unavailable",59); /* name */
 	if (name) {
 		hello.data[10+strlen(name)] = '\0';

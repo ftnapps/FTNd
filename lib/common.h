@@ -7,6 +7,9 @@
 
 #pragma pack(1)
 
+#define	PRODCODE    0x00fe		    /* Unasigned 16 bits product code	*/
+// #define	PRODCODE    0x11ff	    /* Official MBSE FTSC product code	*/
+
 #define	LEAVE	0
 #define	KFS	1
 #define	TFS	2

@@ -1,7 +1,7 @@
-#define PRODCODE 0xfe	/* product code for ifcico */
-
 #ifndef EMSI_H
 #define EMSI_H
+
+/* $Id$ */
 
 #define LCODE_PUA 0x0001
 #define LCODE_PUP 0x0002

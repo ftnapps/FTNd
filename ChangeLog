@@ -5,7 +5,15 @@ $Id$
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
-v0.37.01	14-Jan-2003.
+v0.37.2		23-Feb-2003.
+
+	general:
+		System prepared for setting the official FTSC product code,
+		this will be 0x11FF. The code is not yet activated.
+
+
+
+v0.37.1		14-Jan-2003 - 23-Feb-2003
 
 	upgrade:
 		After installing the binaries, start mbsetup, enter menu 1 and
@@ -64,6 +72,10 @@ v0.37.01	14-Jan-2003.
 		This should make the whole system less nervous.
 		Modified this code, didn't work, the toss was always started
 		at once.
+
+	mbcico:
+		YooHoo transmitter prepared for transmitting 16 bits product
+		codes.
 
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.

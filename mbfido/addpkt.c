@@ -139,7 +139,8 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
     buffer[0x15] = (Orig.net & 0xff00) >> 8;
     buffer[0x16] = (Dest.net & 0x00ff);
     buffer[0x17] = (Dest.net & 0xff00) >> 8;
-    buffer[0x18] = 0xfe;
+    buffer[0x18] = (PRODCODE & 0x00ff);
+    buffer[0x19] = (VERSION_MAJOR & 0x00ff);
 
     memset(&str, 0, 8);		/* Packet password	*/
     if (SearchNode(Dest)) {
@@ -149,13 +150,15 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
     }
 
     for (i = 0; i < 8; i++)
-	buffer[0x1a + i] = str[i];
+	buffer[0x1a + i] = toupper(str[i]);	/* FSC-0039 only talks about A-Z, 0-9, so force uppercase */
 
     buffer[0x22] = (Orig.zone & 0x00ff);
     buffer[0x23] = (Orig.zone & 0xff00) >> 8;
     buffer[0x24] = (Dest.zone & 0x00ff);
     buffer[0x25] = (Dest.zone & 0xff00) >> 8;
     buffer[0x29] = 1;
+    buffer[0x2a] = (PRODCODE & 0xff00) >> 8;
+    buffer[0x2b] = (VERSION_MINOR & 0x00ff);
     buffer[0x2c] = 1;
     buffer[0x2e] = buffer[0x22];
     buffer[0x2f] = buffer[0x23];

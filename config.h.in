@@ -3,6 +3,9 @@
 
 #undef SHORTRIGHT
 #undef COPYRIGHT
+#undef VERSION_MAJOR
+#undef VERSION_MINOR
+#undef VERSION_REVISION
 #undef VERSION
 
 /* Memory debugging  */

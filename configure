@@ -1196,7 +1196,10 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 
 
 PACKAGE="mbsebbs"
-VERSION="0.37.01"
+MAJOR="0"
+MINOR="37"
+REVISION="2"
+VERSION="$MAJOR.$MINOR.$REVISION"
 COPYRIGHT="Copyright (C) 1997-2003 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2003 M. Broek"
 GROUP="bbs"
@@ -1207,8 +1210,22 @@ OWNER="mbse"
 
 
 
+
+
 cat >>confdefs.h <<_ACEOF
 #define VERSION "$VERSION"
+_ACEOF
+
+cat >>confdefs.h <<_ACEOF
+#define VERSION_MAJOR $MAJOR
+_ACEOF
+
+cat >>confdefs.h <<_ACEOF
+#define VERSION_MINOR $MINOR
+_ACEOF
+
+cat >>confdefs.h <<_ACEOF
+#define VERSION_REVISION $REVISION
 _ACEOF
 
 cat >>confdefs.h <<_ACEOF
@@ -8748,7 +8765,9 @@ s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@SUBDIRS@,$SUBDIRS,;t t
 s,@PACKAGE@,$PACKAGE,;t t
-s,@VERSION@,$VERSION,;t t
+s,@MAJOR@,$MAJOR,;t t
+s,@MINOR@,$MINOR,;t t
+s,@REVISION@,$REVISION,;t t
 s,@COPYRIGHT@,$COPYRIGHT,;t t
 s,@GROUP@,$GROUP,;t t
 s,@OWNER@,$OWNER,;t t

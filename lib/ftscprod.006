@@ -287,3 +287,7 @@
 0DFF,Nice_Tosser,DOS/OS2/Win32,Tosser,Robert_Agababyan,2:5020/234.1,19990518
 0EFF,LuckyGate,DOS/OS2/Linux,Packer,Pavel_Gulchouck,2:463/68,19990709
 0FFF,McMail,DOS,Mailer,Simon_Slater,2:443/777,20000102
+10FF,HPT,DOS/OS2/Win32/Unix/BeOS,Packer,Dmitry_Sergienko,2:464/910,20030215
+11FF,MBSEBBS,Linux/FreeBSD/NetBSD,Mailer/Packer,Michiel_Broek,2:280/2802,20030215
+12FF,SBBSecho,DOS/OS2/Win32/Linux/FreeBSD/OpenBSD/Solaris,Packer,Rob_Swindell,1:103/705,20030215
+13FF,binkd,DOS/OS2/Win32/Unix,Mailer,Pavel_Gulchouck,2:463/68,20030215
