@@ -36,6 +36,9 @@ libmsgbase.a:
 	   messages in the area.
 
 mbsebbs:
+	U: If a users homedir is missing, the users sees a wrong error message
+	   before the connection is terminated.
+
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.
