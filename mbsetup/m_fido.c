@@ -55,56 +55,49 @@ extern int  exp_golded;
  */
 int CountFidonet(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    count;
 
-	sprintf(ffile, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			fidonethdr.hdrsize = sizeof(fidonethdr);
-			fidonethdr.recsize = sizeof(fidonet);
-			fwrite(&fidonethdr, sizeof(fidonethdr), 1, fil);
-			/*
-			 * Fill in the defaults
-			 */
-			memset(&fidonet, 0, sizeof(fidonet));
-			sprintf(fidonet.comment,  "Fidonet network");
-			sprintf(fidonet.domain,   "fidonet");
-			sprintf(fidonet.nodelist, "NODELIST");
-			sprintf(fidonet.seclist[0].nodelist, "REGION28");
-			fidonet.seclist[0].zone = 2;
-			fidonet.seclist[0].net = 28;
-			fidonet.zone[0] = 2;
-			fidonet.zone[1] = 1;
-			fidonet.zone[2] = 3;
-			fidonet.zone[3] = 4;
-			fidonet.zone[4] = 5;
-			fidonet.zone[5] = 6;
-			fidonet.available = TRUE;
-			fwrite(&fidonet, sizeof(fidonet), 1, fil);
-			memset(&fidonet, 0, sizeof(fidonet));
-			sprintf(fidonet.comment,  "Virus network");
-			sprintf(fidonet.domain,   "virnet");
-			sprintf(fidonet.nodelist, "VIRNODES");
-			fidonet.zone[0] = 9;
-			fidonet.available = TRUE;
-			fwrite(&fidonet, sizeof(fidonet), 1, fil);
-			fclose(fil);
-			exp_golded = TRUE;
-			chmod(ffile, 0640);
-			return 2;
-		} else
-			return -1;
-	}
+    sprintf(ffile, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    fidonethdr.hdrsize = sizeof(fidonethdr);
+	    fidonethdr.recsize = sizeof(fidonet);
+	    fwrite(&fidonethdr, sizeof(fidonethdr), 1, fil);
+	    /*
+	     * Fill in the defaults
+	     */
+	    memset(&fidonet, 0, sizeof(fidonet));
+	    sprintf(fidonet.comment,  "Fidonet network");
+	    sprintf(fidonet.domain,   "fidonet");
+	    sprintf(fidonet.nodelist, "NODELIST");
+	    sprintf(fidonet.seclist[0].nodelist, "REGION28");
+	    fidonet.seclist[0].zone = 2;
+	    fidonet.seclist[0].net = 28;
+	    fidonet.zone[0] = 2;
+	    fidonet.zone[1] = 1;
+	    fidonet.zone[2] = 3;
+	    fidonet.zone[3] = 4;
+	    fidonet.zone[4] = 5;
+	    fidonet.zone[5] = 6;
+	    fidonet.available = TRUE;
+	    fwrite(&fidonet, sizeof(fidonet), 1, fil);
+	    fclose(fil);
+	    exp_golded = TRUE;
+	    chmod(ffile, 0640);
+	    return 1;
+	} else
+	    return -1;
+    }
 
-	fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - fidonethdr.hdrsize) / fidonethdr.recsize;
-	fclose(fil);
+    fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - fidonethdr.hdrsize) / fidonethdr.recsize;
+    fclose(fil);
 
-	return count;
+    return count;
 }
 
 

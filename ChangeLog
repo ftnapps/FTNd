@@ -15,6 +15,10 @@ v0.35.05	19-Oct-2002
 		There is now a mberrors.h file that defines all errorcodes
 		returned by all programs.
 
+	faq:
+		Changed the section about ftp feeds.
+		Added Q&A about failing internet polls.
+
 	mbcico:
 		Fixed crash with incoming YooHoo session with bad password.
 
@@ -30,6 +34,7 @@ v0.35.05	19-Oct-2002
 		Repl ext. Fixed some help texts.
 		Added in screen 1.14 settings for Plus All, Notify, Passwd and
 		Pause.
+		Removed the default Virnet record from the fidonet setup.
 
 	mbfido:
 		With ticfile processing, the KeepDate setup setting now works.
