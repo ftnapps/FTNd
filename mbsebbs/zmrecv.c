@@ -516,6 +516,21 @@ int procheader(char *Name)
     /* set default parameters and overrides */
     openmode = (char *)"w";
 
+    /*
+     * Check slashes in the name
+     */
+    p = strrchr(Name,'/');
+    if (p) {
+	p++;
+	if (!*p) {
+	    /* alert - file name ended in with a / */
+	    Syslog('!', "%s: file name ends with a /, skipped: %s", protname(), Name);
+	    return ERROR;
+	}
+	Name = p;
+	Syslog('z', "filename converted to \"%s\"", MBSE_SS(Name));
+    }
+
     Syslog('z', "zmanag=%d", zmanag);
     Syslog('z', "zconv=%d", zconv);
 
@@ -537,10 +552,12 @@ int procheader(char *Name)
     Eofseen = FALSE;
 
     p = Name + 1 + strlen(Name);
-    // FIXME: Here we must add code that checks the Name for slashes, spaces and other
-    // illegal characters in the filename.
-    sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
-    strcpy(ctt, rfcdate(Modtime));
+    if (*p) { /* file coming from Unix or DOS system */
+	sscanf(p, "%ld%lo%o%o%d%d%d%d", &Bytesleft, &Modtime, &Filemode, &dummy, &dummy, &dummy, &dummy, &dummy);
+	strcpy(ctt, rfcdate(Modtime));
+    } else {
+	Syslog('z', "File coming from a CP/M system");
+    }
     Syslog('+', "%s: \"%s\" %ld bytes, %s mode %o", protname(), Name, Bytesleft, ctt, Filemode);
 
     if (curfile)
