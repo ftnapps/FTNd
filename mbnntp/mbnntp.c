@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
-	    PUTSTR((char *)"Hello\r\n");
+	    PUTSTR((char *)"Hello there\r\n");
 	}
     }
 
