@@ -1,32 +1,42 @@
 dnl Process this file with autoconf to produce a configure script.
+dnl $Id:
+
 AC_INIT(lib/libs.h)
 AM_CONFIG_HEADER(config.h)
-SUBDIRS=". lib mbcico mbfido mbmon mbsebbs mbtask mbsetup fbutil import lang examples html script"
+SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup fbutil import lang examples html script"
 AC_SUBST(SUBDIRS)
 
 dnl General settings for MBSE BBS
-MBSE_PACKAGE=mbsebbs
-MBSE_VERSION=0.33.19
-AC_SUBST(PACKAGE, $MBSE_PACKAGE)
-AC_SUBST(VERSION, $MBSE_VERSION)
-AM_INIT_AUTOMAKE($MBSE_PACKAGE, $MBSE_VERSION)
-AC_PREFIX_DEFAULT(/opt/mbse)
+PACKAGE="mbsebbs"
+VERSION="0.33.19"
+COPYRIGHT="Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
 GROUP="bbs"
 OWNER="mbse"
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+AC_SUBST(COPYRIGHT)
 AC_SUBST(GROUP)
 AC_SUBST(OWNER)
+AC_PREFIX_DEFAULT(/opt/mbse)
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+AC_DEFINE_UNQUOTED(COPYRIGHT, "$COPYRIGHT")
 
 dnl Checks for programs.
 AC_PROG_CC
-dnl ALternate awk check, I skip mawk because it doesn't work for MBSE.
+dnl Alternate awk check, I skip mawk because it doesn't work for MBSE.
 AC_CHECK_PROG(AWK, gawk, gawk)
 AC_CHECK_PROG(AWK, nawk, nawk)
 AC_CHECK_PROG(AWK, awk, awk)
-AC_PROG_INSTALL
+dnl Try to find GNU install
+AC_CHECK_PROG(INSTALL, ginstall, ginstall)
+AC_CHECK_PROG(INSTALL, install, install)
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
-AM_PROG_LEX
+AC_PROG_LEX
+AC_CHECK_PROG(TAR, tar, tar)
+AC_CHECK_PROG(ZIP, zip, zip)
+dnl AM_PROG_LEX
 AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
 CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
 
@@ -100,8 +110,9 @@ if test "$result" = "yes"; then
 fi
 
 dnl Checks for header files.
-AC_HEADER_DIRENT
 AC_HEADER_STDC
+AC_HEADER_DIRENT
+AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(sys/resource.h usersec.h utime.h ulimit.h gshadow.h shadow.h)
@@ -116,7 +127,6 @@ AC_TYPE_MODE_T
 AC_TYPE_SIZE_T
 AC_STRUCT_ST_BLKSIZE
 AC_HEADER_STAT
-AC_HEADER_TIME
 AC_STRUCT_TM
 
 dnl Checks for library functions.
@@ -153,21 +163,8 @@ AC_SUBST(LOG_COMPRESSEXT)
 dnl
 
 AC_OUTPUT(
-	Makefile 
-	lib/Makefile 
-	mbcico/Makefile 
-	mbfido/Makefile 
+	Makefile.global
 	mbfido/paths.h
-	mbmon/Makefile 
-	mbsebbs/Makefile 
-	mbtask/Makefile 
-	mbsetup/Makefile 
-	fbutil/Makefile 
-	script/Makefile 
-	import/Makefile 
-	lang/Makefile 
-	examples/Makefile 
-	html/Makefile 
 	INSTALL 
 	FILE_ID.DIZ
 )

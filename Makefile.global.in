@@ -1,0 +1,31 @@
+# Compile-time configuration for MBSE FidoNet/Internet BBS
+#
+VERSION		= @VERSION@
+PACKAGE		= @PACKAGE@
+
+# for make install, where to put binaries and what owner to set
+SUBDIRS		= @SUBDIRS@
+PREFIX		= @prefix@
+BINDIR		= @prefix@/bin
+ETCDIR		= @prefix@/etc
+DOCDIR		= @prefix@/doc
+OWNER		= @OWNER@
+GROUP		= @GROUP@
+MODE		= 0711
+SMODE		= 6711
+
+CHOWN		= @CHOWN@
+INSTALL		= @INSTALL@
+RANLIB		= @RANLIB@
+SHELL		= /bin/sh
+ECHO		= echo -e
+CC		= @CC@
+YACC		= @YACC@
+LEX		= @LEX@
+AWK		= @AWK@
+TAR		= @TAR@
+ZIP		= @ZIP@
+
+CFLAGS		= -O2 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe
+LIBS		= @LIBS@
+

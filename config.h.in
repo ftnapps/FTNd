@@ -1,7 +1,7 @@
-/* config.h.in.  Generated automatically from configure.in by autoheader.  */
-/*  acconfig.h for the MBSE BBS package  */
+/* config.h.in.  */
 
-#define AUTHOR @COPYRIGHT@
+#undef COPYRIGHT
+#undef VERSION
 
 /* Memory debugging  */
 #undef MEMWATCH
@@ -292,9 +292,6 @@
 
 /* Define if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
-
-/* Version number of package */
-#undef VERSION
 
 /* Define if `lex' declares `yytext' as a `char *' by default, not a `char[]'.
    */
