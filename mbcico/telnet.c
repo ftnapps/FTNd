@@ -106,7 +106,7 @@ void telout_filter(int fdi, int fdo)
     while ((rc = read(fdi, &ch, 1)) > 0) {
 	c = (int)ch & 0xff;
 	if (c == IAC) {
-	    Syslog('s', "telout_filter: got IAC");
+	    Syslog('s', "telout_filter: got IAC sending twice");
 	    /*
 	     * Escape IAC characters by sending it twice.
 	     */
@@ -163,8 +163,9 @@ void telin_filter(int fdo, int fdi)
 			    m = (int)ch & 0xff;
 			    Syslog('s', "Telnet: recv DONT %d", m);
 			    break;
-		case IAC:   ch = (char)m & 0xff;
+		case IAC:   ch = (char)m;
 			    rc = write(fdo, &ch, 1);
+			    Syslog('s', "Telnet: got escaped IAC");
 			    break;
 		default:    Syslog('s', "Telnet: recv IAC %d, not good", m);
 			    break;
