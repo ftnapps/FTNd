@@ -362,7 +362,7 @@ faddr *parsefaddr(char *s)
 			}
 		}
 		if (strspn(p," ") != strlen(p)) 
-			freename = xstrcpy(qp_decode(p));
+			freename = xstrcpy(p);
 	}
 
 	tmpaddr=(faddr*)malloc(sizeof(faddr));
@@ -411,7 +411,7 @@ char *ascinode(faddr *a, int fl)
 	}
 
 	if ((fl & 0x40) && (a->name)) {
-		f = qp_encode(a->name, 0);
+		f = a->name;
 		t = buf + strlen(buf);
 		skip = 0;
 		if ((!strchr(f,'@')) && ((strchr(f,BLANK_SUBS)) || (strchr(f,'.')) || (strchr(f,'_')))) { 

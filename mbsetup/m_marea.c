@@ -91,8 +91,8 @@ int CountMsgarea(void)
 			msgs.Quotes = TRUE;
 			msgs.DaysOld = CFG.defdays;
 			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Rfccode = CHRS_DEFAULT_RFC;
-			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+			msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 			strcpy(msgs.Origin, CFG.origin);
 			fwrite(&msgs, sizeof(msgs), 1, fil);
 			mkdirs(msgs.Base, 0770);
@@ -117,8 +117,8 @@ int CountMsgarea(void)
 			msgs.SYSec.level = 32000;
 			msgs.DaysOld = CFG.defdays;
 			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Rfccode = CHRS_DEFAULT_RFC;   
-			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;   
+			msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 			fwrite(&msgs, sizeof(msgs), 1, fil);
 			mkdirs(msgs.Base, 0770);
 			if (Msg_Open(msgs.Base))
@@ -141,8 +141,8 @@ int CountMsgarea(void)
 			msgs.SYSec.level = 32000;
 			msgs.DaysOld = CFG.defdays;
 			msgs.MaxMsgs = CFG.defmsgs;
-			msgs.Rfccode = CHRS_DEFAULT_RFC;
-			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+			msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 			fwrite(&msgs, sizeof(msgs), 1, fil);
 			mkdirs(msgs.Base, 0770);
 			if (Msg_Open(msgs.Base))
@@ -227,8 +227,8 @@ int OpenMsgarea(void)
 	    memset(&msgs, 0, sizeof(msgs));
 	    while (fread(&msgs, oldsize, 1, fin) == 1) {
 		if ((oldsize != sizeof(msgs)) && !msgs.Rfccode) {
-		    msgs.Rfccode = CHRS_DEFAULT_RFC;
-		    msgs.Ftncode = CHRS_DEFAULT_FTN;
+		    msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+		    msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 		}
 		if ((oldsize != sizeof(msgs)) && !msgs.LinkSec.level) {
 		    msgs.LinkSec.level = 1;
@@ -305,8 +305,8 @@ void InitMsgRec(void)
     msgs.Type = ECHOMAIL;
     msgs.MsgKinds = PUBLIC;
     msgs.UsrDelete = TRUE;
-    msgs.Rfccode = CHRS_DEFAULT_RFC;
-    msgs.Ftncode = CHRS_DEFAULT_FTN;
+    msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+    msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
     msgs.MaxArticles = CFG.maxarticles;
     strcpy(msgs.Origin, CFG.origin);
     msgs.LinkSec.level = 1;
@@ -1040,8 +1040,8 @@ int EditMsgRec(int Area)
 	show_str(14,16,16, msgs.Distribution);
 	show_msgtype(15,16, msgs.Type);
 	show_msgkinds(16,16, msgs.MsgKinds);
-	show_str(17,16,16, printable(getchrs(msgs.Ftncode), 0));
-	show_str(18,16,16, printable(getchrs(msgs.Rfccode), 0));
+//	show_str(17,16,16, printable(getchrs(msgs.Ftncode), 0));
+//	show_str(18,16,16, printable(getchrs(msgs.Rfccode), 0));
 	show_bool(19,16,   msgs.Active);
 
 	show_int( 13,50, msgs.DaysOld);
@@ -1129,8 +1129,8 @@ int EditMsgRec(int Area)
 			msgs.NetReply = mgroup.NetReply;
 			msgs.Quotes = mgroup.Quotes;
 			msgs.MaxArticles = CFG.maxarticles;
-			msgs.Rfccode = CHRS_DEFAULT_RFC;
-			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+			msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 			strncpy(msgs.Origin, CFG.origin, 50);
 			msgs.LinkSec = mgroup.LinkSec;
 
@@ -1792,8 +1792,8 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, "    Offline name     %s\n", msgs.QWKname);
 	    fprintf(fp, "    Area type        %s\n", getmsgtype(msgs.Type));
 	    fprintf(fp, "    Messages type    %s\n", getmsgkinds(msgs.MsgKinds));
-	    fprintf(fp, "    FTN charset      %s\n", printable(getchrs(msgs.Ftncode), 0));
-	    fprintf(fp, "    RFC charset      %s\n", printable(getchrs(msgs.Rfccode), 0));
+//	    fprintf(fp, "    FTN charset      %s\n", printable(getchrs(msgs.Ftncode), 0));
+//	    fprintf(fp, "    RFC charset      %s\n", printable(getchrs(msgs.Rfccode), 0));
 	    fprintf(fp, "    Days old msgs.   %d\n", msgs.DaysOld);
 	    fprintf(fp, "    Maximum msgs.    %d\n", msgs.MaxMsgs);
 	    fprintf(fp, "    Max articles     %d\n", msgs.MaxArticles);

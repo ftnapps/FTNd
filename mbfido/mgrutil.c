@@ -678,8 +678,8 @@ int Areas(void)
 					    msgs.Type = ECHOMAIL;
 					    msgs.MsgKinds = PUBLIC;
 					    msgs.UsrDelete = TRUE;
-					    msgs.Rfccode = CHRS_DEFAULT_RFC;
-					    msgs.Ftncode = CHRS_DEFAULT_FTN;
+					    msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
+					    msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
 					    msgs.MaxArticles = CFG.maxarticles;
 					    strcpy(msgs.Origin, CFG.origin);
 					}

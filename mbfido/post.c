@@ -196,8 +196,8 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	Msg.ReplyCRC = 0xffffffff;
 	sprintf(temp, "\001PID: MBSE-FIDO %s", VERSION);
 	MsgText_Add2(temp);
-	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
-	MsgText_Add2(temp);
+//	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
+//	MsgText_Add2(temp);
 	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
 	MsgText_Add2(temp);
 

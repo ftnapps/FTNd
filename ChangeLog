@@ -5,23 +5,20 @@ v0.37.01	14-Jan-2003.
 
 	general:
 		This version may be used on production systems, but be 
-		carefull and check your logs. Before I make any changes that
-		make it more difficult to downgrade I will wait a few days.
-		Things to watch out for:
-		   Messages in the logs about too many open files.
-		   Systems not being called or called with wrong protols.
-		Let me know if something goes wrong.
-		Make sure you have a copy of the previous sources available
-		if you need to downgrade.
+		carefull and check your logs.
 		Spanish templates and macros added to the examples.
+		In several messages handling functions the international 
+		charset translations are removed because of several bugs. They
+		will be replaced by standard library functions. Right now the
+		messages are 8 bit clean and there is no translation on the
+		gateway.
 
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default
 		domain method. This is not the final implementation yet!
 
 	common.a:
-		Remove a bug which very seldom crashed mbfido with charset
-		translation. Do we really need charset conversion?
+		Removed charset conversion/translation.
 
 	mbtask:
 		Arcmail for non-CM nodes and Txx nodes is now sent during the
@@ -36,6 +33,9 @@ v0.37.01	14-Jan-2003.
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.
 		Fixed upper/lowercase filenames bug with import.
+
+	mbfido:
+		Removed all code for charset translation.
 
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003

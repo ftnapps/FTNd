@@ -68,7 +68,6 @@ static int	removesupersedes;
 static int	removeapproved;
 static int	removereplyto;
 static int	removereturnto;
-static int	dirtyoutcode = CHRS_NOTSET;
 
 
 
@@ -135,15 +134,15 @@ int kludgewrite(char *s, FILE *fp)
 int rfc2ftn(FILE *fp, faddr *recipient)
 {
     char            sbe[16], *p, *q, *temp, *origin, newsubj[4 * (MAXSUBJ+1)], *oldsubj, *acup_a = NULL;
-    int             i, rc, incode, outcode, pgpsigned, newsmode, seenlen, oldnet;
+    int             i, rc, newsmode, seenlen, oldnet;
     rfcmsg          *msg = NULL, *tmsg, *tmp;
     ftnmsg          *fmsg = NULL;
     FILE            *ofp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
     unsigned long   svmsgid, svreply, acup_n = 0;
-    int             sot_kludge = FALSE, eot_kludge = FALSE, qp_or_base64 = FALSE, tinyorigin = FALSE;
-    int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders, html_message = FALSE;
+    int             sot_kludge = FALSE, eot_kludge = FALSE, tinyorigin = FALSE;
+    int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
     time_t          Now;
 
     temp = calloc(4097, sizeof(char));
@@ -158,8 +157,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 //  Syslog('m', "========== RFC end");
 //  rewind(fp);
     msg = parsrfc(fp);
-    incode = outcode = CHRS_NOTSET;
-    pgpsigned = FALSE;
 
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
     Syslog('m', "RFC message is %s", newsmode ? "news article":"e-mail message");
@@ -169,30 +166,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     else
 	email_in++;
 
-    p = hdr((char *)"Content-Type",msg);
-    if (p)
-	incode = readcharset(p);
-    if (incode == CHRS_NOTSET) {
-	p = hdr((char *)"X-FTN-CHRS",msg);
-	if (p == NULL) 
-	    p = hdr((char *)"X-FTN-CHARSET", msg);
-	if (p == NULL) 
-	    p = hdr((char *)"X-FTN-CODEPAGE", msg);
-	if (p) 
-	    incode = readchrs(p);
-    }
-
-    if ((p = hdr((char *)"Content-Type",msg)) && ((strcasestr(p,(char *)"multipart/signed")) || 
-	      (strcasestr(p,(char *)"application/pgp")))) {
-	pgpsigned = TRUE; 
-	outcode = incode; 
-    } else if ((p = hdr((char *)"X-FTN-ORIGCHRS", msg))) 
-	outcode = readchrs(p);
-    else if (dirtyoutcode != CHRS_NOTSET)
-	outcode = dirtyoutcode;
-    else 
-	outcode = getoutcode(incode);
-
     if (!CFG.allowcontrol) {
 	if (hdr((char *)"Control",msg)) {
 	    Syslog('+', "Control message skipped");
@@ -201,7 +174,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	}
     }
 
-    if ((fmsg = mkftnhdr(msg, incode, outcode, newsmode, recipient)) == NULL) {
+    if ((fmsg = mkftnhdr(msg, newsmode, recipient)) == NULL) {
 	WriteError("Unable to create FTN headers from RFC ones, aborting");
 	tidyrfc(msg);
 	return 1;
@@ -229,20 +202,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	}
     }
 
-    if (incode == CHRS_NOTSET && newsmode)
-	incode = msgs.Rfccode;
-    if (outcode == CHRS_NOTSET) {
-	if (newsmode)
-	    outcode = msgs.Ftncode;
-	else
-	    outcode = CHRS_DEFAULT_FTN;
-    }
-    if ((incode == CHRS_NOTSET) && (hdr((char *)"Message-ID",msg))) {
-	if (chkftnmsgid(hdr((char *)"Message-ID",msg)))
-	    incode = CHRS_DEFAULT_FTN;
-	else
-	    incode = CHRS_DEFAULT_RFC;
-    }
+    chkftnmsgid(hdr((char *)"Message-ID",msg)); // ??
     removemime       = FALSE;
     removemsgid      = FALSE;
     removeref        = FALSE;
@@ -252,10 +212,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     removereplyto    = TRUE;
     removereturnto   = TRUE;
     ftnorigin = fmsg->ftnorigin;
-    if ((hdr((char *)"X-PGP-Signed",msg)))
-	pgpsigned = TRUE;
-    if (pgpsigned)
-	Syslog('m', "pgpsigned = %s", pgpsigned ? "True":"False");
 
     q = hdr((char *)"Content-Transfer-Encoding",msg);
     if (q) 
@@ -268,38 +224,14 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    p++;
 
 	/*
-	 * turn the quoted-printable decode mode on; remember FTN is virtually 8-bit clean
+	 * Check for mime to remove.
 	 */
-	if ((strncasecmp(p, "text/plain", 10) == 0) && (strncasecmp(q, "quoted-printable", 16) == 0))
-	    qp_or_base64 = 1;
-	/*
-	 * turn the base64 decode mode on
-	 */
-	else if ((strncasecmp(p, "text/plain", 10) == 0) && (strncasecmp(q, "base64", 6) == 0))
-	    qp_or_base64 = 2;
-
-	/* 
-	 * text/html support from FSC-HTML 001 proposal of Odinn Sorensen (2:236/77)
-	 */ 
-	if (strncasecmp(p, "text/html", 9) == 0)
-	    html_message = TRUE;
-	for (tmp = msg; tmp; tmp = tmp->next)
-	    if (((strcasecmp(tmp->key,"X-FTN-KLUDGE") == 0) && (strcasecmp(tmp->val,"FSCHTML") == 0)) ||
-			     (strcasecmp(tmp->key,"X-FTN-HTML") == 0))
-		html_message = FALSE;
-
-	if ((readcharset(p) != CHRS_NOTSET ) && ((q == NULL) || (strncasecmp(q,"7bit",4) == 0) ||
-		    ((!pgpsigned) && (qp_or_base64==1)) || ((!pgpsigned) && (qp_or_base64==2)) || (strncasecmp(q,"8bit",4) == 0)))
+	if ((strncasecmp(p, "text/plain", 10) == 0) && ((q == NULL) || 
+		    (strncasecmp(q,"7bit",4) == 0) || (strncasecmp(q,"8bit",4) == 0)))
 	    removemime=1; /* no need in MIME headers */
-	/*
-	 * some old MUA puts "text" instead of "text/plain; charset=..."
-	 */
-	else if ((strcasecmp(p,"text\n") == 0))
-	    removemime = TRUE;
     }
-    if (removemime || qp_or_base64 || html_message)
-	Syslog('m', "removemime=%s, qp_or_base64 = %d, html_message=%s", removemime ? "True":"False", qp_or_base64,
-			html_message ? "True":"False");
+    if (removemime)
+	Syslog('m', "removemime=%s", removemime ? "True":"False");
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
@@ -412,7 +344,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	} else {
 	    strncpy(newsubj,fmsg->subj,MAXSUBJ);
 	}
-	strcpy(newsubj, hdrnconv(newsubj, incode, outcode, MAXSUBJ));
 	newsubj[MAXSUBJ]='\0';
 
 	if (splitpart) {
@@ -500,14 +431,14 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 	}
 
-	if (getchrs(outcode) != NULL) {
-	    hdrsize += 8 + strlen(getchrs(outcode));
-	    fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
-	    if (html_message) {
-		hdrsize += 9;
-		fprintf(ofp, "\1HTML: 5\n");
-	    }
-	}
+//	if (getchrs(outcode) != NULL) {
+//	    hdrsize += 8 + strlen(getchrs(outcode));
+//	    fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
+//	    if (html_message) {
+//		hdrsize += 9;
+//		fprintf(ofp, "\1HTML: 5\n");
+//	    }
+//	}
 
 	if (CFG.allowcontrol && (!hdr((char *)"X-FTN-ACUPDATE",msg)) && (p=hdr((char *)"Control",msg))) {
 	    if (strstr(p,"cancel")) {
@@ -593,6 +524,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		    kludgewrite(tmp->val,ofp);
 		}
 
+
 	    /*
 	     *  Add the Received: header from this system to the mesage.
 	     */
@@ -611,7 +543,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			hdrsize += strlen(tmp->key)+strlen(tmp->val);
 			fprintf(ofp,"\1RFC-%s:",tmp->key);
 		    }
-		    kludgewrite(hdrconv(tmp->val, incode, outcode),ofp);
+//		    kludgewrite(hdrconv(tmp->val, incode, outcode),ofp);
+		    kludgewrite(tmp->val, ofp);
 		}
 	    }
 
@@ -626,7 +559,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			hdrsize += strlen(tmp->key)+strlen(tmp->val);
 			fprintf(ofp,"%s:",tmp->key);
 		    }
-		    charwrite(hdrconv(tmp->val, incode, outcode),ofp);
+		    charwrite(tmp->val, ofp);
+//		    charwrite(hdrconv(tmp->val, incode, outcode),ofp);
 		}
 	    }
 
@@ -634,8 +568,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		charwrite((char *)"\n",ofp);
 	    if ((hdr((char *)"X-FTN-SOT",msg)) || (sot_kludge))
 		fprintf(ofp,"\1SOT:\n");
-	    if ((splitpart == 0) && (hdr((char *)"X-PGP-Signed",msg)))
-		fprintf(ofp,PGP_SIGNED_BEGIN"\n");
+//	    if ((splitpart == 0) && (hdr((char *)"X-PGP-Signed",msg)))
+//		fprintf(ofp,PGP_SIGNED_BEGIN"\n");
 	}
 	if (replyaddr) {
 	    replyaddr = NULL;
@@ -646,47 +580,57 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    needsplit = FALSE;
 	} else if ((p=hdr((char *)"X-Body-Start",msg))) {
 	    datasize += strlen(p);
-	    if (qp_or_base64==1)
-		charwrite(strkconv(qp_decode(p), incode, outcode), ofp);
-	    else if (qp_or_base64==2)
-		charwrite(strkconv(b64_decode(p), incode, outcode), ofp);
-	    else
-		charwrite(strkconv(p, incode, outcode), ofp);
+	    charwrite(p, ofp);
+//	    if (qp_or_base64==1)
+//		charwrite(strkconv(qp_decode(p), incode, outcode), ofp);
+//	    else if (qp_or_base64==2)
+//		charwrite(strkconv(b64_decode(p), incode, outcode), ofp);
+//	    else
+//		charwrite(strkconv(p, incode, outcode), ofp);
 	}
+//Syslog('-', "14");
 	while (!(needsplit=(!forbidsplit) && (((splitpart && (datasize > (CFG.new_split * 1024))) ||
 		      (!splitpart && ((datasize+hdrsize) > (CFG.new_split * 1024)))))) && (bgets(temp,4096-1,fp))) {
+//	    Striplf(temp);
+	    Syslog('-', "%d", strlen(temp));
+//	    if (*(temp + strlen(temp)) != '\0') {
+		Syslog('-', "%d", (*(temp + strlen(temp))));
+//	    }
+	    Syslog('-', "14a \"%s\"", temp);
 	    datasize += strlen(temp);
-	    if (qp_or_base64==1)
-		charwrite(strkconv(qp_decode(temp), incode, outcode), ofp);
-	    else if (qp_or_base64==2)
-		charwrite(strkconv(b64_decode(temp), incode, outcode), ofp);
-	    else
-		charwrite(strkconv(temp, incode, outcode), ofp);
+	    charwrite(temp, ofp);
+//	    if (qp_or_base64==1)
+//		charwrite(strkconv(qp_decode(temp), incode, outcode), ofp);
+//	    else if (qp_or_base64==2)
+//		charwrite(strkconv(b64_decode(temp), incode, outcode), ofp);
+//	    else
+//		charwrite(strkconv(temp, incode, outcode), ofp);
 	}
+//Syslog('-', "15");
 	if (needsplit) {
 	    fprintf(ofp,"\n * Message split, to be continued *\n");
 	    splitpart++;
-	} else if ((p=hdr((char *)"X-PGP-Signed",msg))) {
-	    fprintf(ofp,PGP_SIG_BEGIN"\n");
-	    if ((q=hdr((char *)"X-PGP-Version",msg))) {
-		fprintf(ofp,"Version:");
-		charwrite(q,ofp);
-	    }
-	    if ((q=hdr((char *)"X-PGP-Charset",msg))) {
-		fprintf(ofp,"Charset:");
-		charwrite(q,ofp);
-	    }
-	    if ((q=hdr((char *)"X-PGP-Comment",msg))) {
-		fprintf(ofp,"Comment:");
-		charwrite(q,ofp);
-	    }
-	    fprintf(ofp,"\n");
-	    p=xstrcpy(p);
-	    q=strtok(p," \t\n");
-	    fprintf(ofp,"%s\n",q);
-	    while ((q=(strtok(NULL," \t\n"))))
-		fprintf(ofp,"%s\n",q);
-	    fprintf(ofp,PGP_SIG_END"\n");
+//	} else if ((p=hdr((char *)"X-PGP-Signed",msg))) {
+//	    fprintf(ofp,PGP_SIG_BEGIN"\n");
+//	    if ((q=hdr((char *)"X-PGP-Version",msg))) {
+//		fprintf(ofp,"Version:");
+//		charwrite(q,ofp);
+//	    }
+//	    if ((q=hdr((char *)"X-PGP-Charset",msg))) {
+//		fprintf(ofp,"Charset:");
+//		charwrite(q,ofp);
+//	    }
+//	    if ((q=hdr((char *)"X-PGP-Comment",msg))) {
+//		fprintf(ofp,"Comment:");
+//		charwrite(q,ofp);
+//	    }
+//	    fprintf(ofp,"\n");
+//	    p=xstrcpy(p);
+//	    q=strtok(p," \t\n");
+//	    fprintf(ofp,"%s\n",q);
+//	    while ((q=(strtok(NULL," \t\n"))))
+//		fprintf(ofp,"%s\n",q);
+//	    fprintf(ofp,PGP_SIG_END"\n");
 	}
 	if ((p=hdr((char *)"X-FTN-EOT",msg)) || (eot_kludge))
 	    fprintf(ofp,"\1EOT:\n");
@@ -704,11 +648,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    if (*(q=p+strlen(p)-1) == '\n') 
 		*q='\0';
 	    origin = xstrcpy((char *)" * Origin: ");
-	    origin = xstrcat(origin, hdrconv(p, incode, outcode));
+	    origin = xstrcat(origin, p);
 	} else {
 	    origin = xstrcpy((char *)" * Origin: ");
 	    if (fmsg->origin)
-		origin = xstrcat(origin, hdrconv(fmsg->origin, incode, outcode));
+		origin = xstrcat(origin, fmsg->origin);
 	    else
 		origin = xstrcat(origin, CFG.origin);
 	    origin = xstrcat(origin, (char *)" (");

@@ -3,7 +3,7 @@
 
 
 int ftnmsgid(char *,char **,unsigned long *,char *);
-ftnmsg *mkftnhdr(rfcmsg *, int, int, int, faddr *);
+ftnmsg *mkftnhdr(rfcmsg *, int, faddr *);
 
 
 #endif

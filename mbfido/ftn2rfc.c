@@ -308,20 +308,18 @@ void Send(int newsmode, char *outstr)
 int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int flags, FILE *pkt)
 {
 	int		rrq, result = 1, modtype = 0;
-	int		incode = CHRS_NOTSET, outcode = CHRS_NOTSET;
-	int             waskludge = FALSE, badkludge, pgpsigned = FALSE;
+	int             waskludge = FALSE, badkludge;
 	int             bNeedToGetAddressFromMsgid = (int)NULL;
 	int             newsmode = 0, lines, pass, count, first;
 	char		*newsgroup = NULL, *distribution = NULL, *moderator = NULL;
 	char            *temp, *p, *q, *r, *l, *b;
-	char            *To = NULL, buf[4096], *charset, c;
+	char            *To = NULL, buf[4096], c;
 	time_t		now;
 	rfcmsg		*kmsg = NULL, **tmsg, *qmsg, *msg = NULL;
 	off_t		endmsg_off, tear_off, orig_off, via_off;
 	faddr		*o, *bestaka, *ta, *tfaddr;
 	FILE		*fp;
 	fa_list		*rlist, *tfa, *ftnpath = NULL;
-	int		dirtyoutcode = CHRS_NOTSET;
 	struct  utsname utsbuf;
 	char		MailFrom[128], MailTo[128];
 
@@ -416,9 +414,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			if (waskludge && (isspace(buf[0])))
 				fputs("\n",fp); /* first body line is not RFC hdr */
 			waskludge=0;
-			if (!strncmp(buf,PGP_SIGNED_BEGIN, strlen(PGP_SIGNED_BEGIN)))
-				pgpsigned = TRUE;
-			else if ((!strncmp(buf,"---",3)) && ((buf[3] == '\r') || (buf[3] == ' ') || (buf[3] == '\n'))) {
+			if ((!strncmp(buf,"---",3)) && (buf[3] != '-')) {
 				tear_off=ftell(fp);
 				if ((hdr((char *)"Tearline",kmsg) == NULL)) {
 					*tmsg=(rfcmsg *)malloc(sizeof(rfcmsg));
@@ -523,46 +519,46 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	bestaka = bestaka_s(f);
 	rewind(fp);
 
-	p = hdr((char *)"CHRS", kmsg);
-	if (p == NULL)
-		p = hdr((char *)"CHARSET", kmsg);
-	if (p == NULL)
-		p = hdr((char *)"CODEPAGE", kmsg);
-	if (p)
-		outcode = readchrs(p);
-	else {
-		p=hdr((char *)"Content-Type",msg);
-		if (p == NULL)
-			p=hdr((char *)"RFC-Content-Type",kmsg);
-		if (p == NULL)
-			p=hdr((char *)"Content-Type",kmsg);
-		if (p)
-			outcode=readcharset(p);
-		else {
-			q = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
-			if ((hdr((char *)"Message-ID",msg)) || (hdr((char *)"RFC-Message-ID",kmsg)) || 
-			    (hdr((char *)"Message-ID",kmsg)) || (hdr((char *)"RFCID",kmsg)) || 
-			    (hdr((char *)"ORIGID",kmsg)) || ((hdr((char *)"MSGID",kmsg)) && (!chkftnmsgid(q))))
-				outcode = defaultrfcchar;
-			else 
-				outcode = defaultftnchar;
-			if (q)
-				free(q);
-			q = NULL;
-		}
-	}
+//	p = hdr((char *)"CHRS", kmsg);
+//	if (p == NULL)
+//		p = hdr((char *)"CHARSET", kmsg);
+//	if (p == NULL)
+//		p = hdr((char *)"CODEPAGE", kmsg);
+//	if (p)
+//		outcode = readchrs(p);
+//	else {
+//		p=hdr((char *)"Content-Type",msg);
+//		if (p == NULL)
+//			p=hdr((char *)"RFC-Content-Type",kmsg);
+//		if (p == NULL)
+//			p=hdr((char *)"Content-Type",kmsg);
+//		if (p)
+//			outcode=readcharset(p);
+//		else {
+//			q = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
+//			if ((hdr((char *)"Message-ID",msg)) || (hdr((char *)"RFC-Message-ID",kmsg)) || 
+//			    (hdr((char *)"Message-ID",kmsg)) || (hdr((char *)"RFCID",kmsg)) || 
+//			    (hdr((char *)"ORIGID",kmsg)) || ((hdr((char *)"MSGID",kmsg)) && (!chkftnmsgid(q))))
+//				outcode = defaultrfcchar;
+//			else 
+//				outcode = defaultftnchar;
+//			if (q)
+//				free(q);
+//			q = NULL;
+//		}
+//	}
 
 	/*
 	 * A hack for TerMail
 	 */
-	p = hdr((char *)"PID", kmsg);
-	if ((p) && (!strncmp(p, "TerMail", 7)) && (outcode == defaultrfcchar))
-		outcode = defaultftnchar;
+//	p = hdr((char *)"PID", kmsg);
+//	if ((p) && (!strncmp(p, "TerMail", 7)) && (outcode == defaultrfcchar))
+//		outcode = defaultftnchar;
 
-	if (dirtyoutcode != CHRS_NOTSET)
-		outcode = dirtyoutcode;
-	if (pgpsigned) 
-		incode = outcode;
+//	if (dirtyoutcode != CHRS_NOTSET)
+//		outcode = dirtyoutcode;
+//	if (pgpsigned) 
+//		incode = outcode;
 
 	if (kmsg && !strcmp(kmsg->key,"AREA")) {
 		/*
@@ -585,20 +581,20 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		newsmode = FALSE;
 	Syslog('m', "Got %s message", newsmode?"echo":"netmail");
 
-	if ((outcode == CHRS_NOTSET) && (hdr((char *)"MSGID", kmsg))) {
-		p = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
-		if ((hdr((char *)"Message-ID",msg)) || (hdr((char *)"RFC-Message-ID",kmsg)) ||
-		    (hdr((char *)"Message-ID",kmsg)) || (hdr((char *)"RFCID",kmsg)) ||
-		    (hdr((char *)"ORIGID",kmsg)) || ((hdr((char *)"MSGID",kmsg)) && (!chkftnmsgid(p))))
-			outcode = defaultrfcchar;
-		else 
-			outcode = defaultftnchar;
-		free(p);
-	}
-	if (pgpsigned) 
-		incode = outcode;
-	else if (incode == CHRS_NOTSET) 
-		incode = getincode(outcode);
+//	if ((outcode == CHRS_NOTSET) && (hdr((char *)"MSGID", kmsg))) {
+//		p = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
+//		if ((hdr((char *)"Message-ID",msg)) || (hdr((char *)"RFC-Message-ID",kmsg)) ||
+//		    (hdr((char *)"Message-ID",kmsg)) || (hdr((char *)"RFCID",kmsg)) ||
+//		    (hdr((char *)"ORIGID",kmsg)) || ((hdr((char *)"MSGID",kmsg)) && (!chkftnmsgid(p))))
+//			outcode = defaultrfcchar;
+//		else 
+//			outcode = defaultftnchar;
+//		free(p);
+//	}
+//	if (pgpsigned) 
+//		incode = outcode;
+//	else if (incode == CHRS_NOTSET) 
+//		incode = getincode(outcode);
 
 
 	/*
@@ -857,7 +853,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		if (p == NULL)
 			p=hdr((char *)"To",msg);
 		if ((p) && (strcasecmp(p,"All\n"))) {
-			sprintf(temp,"X-Comment-To:%s",hdrconv(p,outcode,incode));
+			sprintf(temp,"X-Comment-To:%s", p);
 			Send(newsmode, temp);
 		} else {
 			if (p == NULL) 
@@ -867,10 +863,10 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			if (p == NULL) 
 				p=hdr((char *)"RFC-To",kmsg);
 			if ((p) && (strcasecmp(p,"All\n"))) {
-				sprintf(temp,"X-Comment-To: %s",hdrconv(p,outcode,incode));
+				sprintf(temp,"X-Comment-To: %s", p);
 				Send(newsmode, temp);
 			} else if ((t) && (t->name) && (strcasecmp(t->name,"All"))) {
-				sprintf(temp,"X-Comment-To: %s\n",hdrconv(t->name,outcode,incode));
+				sprintf(temp,"X-Comment-To: %s\n", t->name);
 				Send(newsmode, temp);
 			} else {
 				sprintf(temp,"X-Comment-To: All\n");
@@ -991,22 +987,22 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
 
 	if ((p = hdr((char *)"From",msg))) {
-		sprintf(temp, "From:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From:%s", p);
 		Send(newsmode, temp);
 	} else if ((p = hdr((char *)"RFC-From",kmsg))) {
 		Syslog('m', "b");
-		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From: %s", p);
 		Send(newsmode, temp);
 	} else if ((p = hdr((char *)"From\n",kmsg))) {
 		Syslog('m', "c");
-		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "From: %s", p);
 		Send(newsmode, temp);
         } else if ((p = hdr((char *)"X-PcBoard-FROM",msg))) {
                 if (f->name) {
                         while (isspace(*p)) 
 				p++;
                         p[strlen(p)-1] = '\0';
-                        sprintf(temp,"From: %s <%s>\n", hdrconv(f->name,outcode,incode), p);
+                        sprintf(temp,"From: %s <%s>\n", f->name, p);
                 } else {
 			sprintf(temp,"From:%s\n", p);
 		}
@@ -1035,12 +1031,12 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				*r--='\0';
 			}
 			Syslog('m', "d");
-			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(l,outcode,incode),p);
+			sprintf(temp,"From: \"%s\" <%s>\n", l, p);
 			Send(newsmode, temp);
 			free(q);
 		} else if (f->name) {
 			Syslog('m', "e");
-			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(f->name,outcode,incode),p);
+			sprintf(temp,"From: \"%s\" <%s>\n", f->name, p);
 			Send(newsmode, temp);
 		} else {
 			Syslog('m', "f");
@@ -1051,9 +1047,9 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
 
 	if (p) 
-		sprintf(temp,"X-FTN-Sender: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
+		sprintf(temp,"X-FTN-Sender: %s\n", ascinode(f,0xff));
 	else 
-		sprintf(temp,"From: %s\n",hdrconv(ascinode(f,0xff),outcode,incode));
+		sprintf(temp,"From: %s\n", ascinode(f,0xff));
 	Send(newsmode, temp);
 
 	if ((p=hdr((char *)"Reply-To",msg))) {
@@ -1117,15 +1113,15 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
 
 	if ((p = hdr((char *)"Subject",msg))) 
-		sprintf(temp, "Subject:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject:%s", p);
 	else if ((p = hdr((char *)"RFC-Subject",kmsg))) 
-		sprintf(temp, "Subject: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject: %s", p);
 	else if ((p = hdr((char *)"Subject",kmsg))) 
-		sprintf(temp, "Subject: %s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject: %s", p);
 	else if ((p = hdr((char *)"X-PcBoard-SUBJECT",msg))) 
-		sprintf(temp, "Subject:%s", hdrconv(p,outcode,incode));
+		sprintf(temp, "Subject:%s", p);
 	else if (subj && (strspn(subj," \t\n\r") != strlen(subj)))
-		sprintf(temp, "Subject: %s\n", hdrconv(subj,outcode,incode));
+		sprintf(temp, "Subject: %s\n", subj);
 	else 
 		sprintf(temp, "Subject: <none>\n");
 	Send(newsmode, temp);
@@ -1200,25 +1196,25 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	}
 
 	if ((p=hdr((char *)"Organization",msg))) {
-		sprintf(temp,"Organization:%s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization:%s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"Organisation",msg))) {
-		sprintf(temp,"Organization:%s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization:%s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"RFC-Organization",kmsg))) {
-		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization: %s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"RFC-Organisation",kmsg))) {
-		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization: %s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"Organization",kmsg))) {
-		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization: %s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"Organisation",kmsg))) {
-		sprintf(temp,"Organization: %s",hdrconv(p,outcode,incode));
+		sprintf(temp,"Organization: %s",p);
 		Send(newsmode, temp);
 	} else if (origline) {
-		sprintf(temp,"Organization: %s\n",hdrconv(origline,outcode,incode));
+		sprintf(temp,"Organization: %s\n",origline);
 		Send(newsmode, temp);
 	}
 	
@@ -1256,13 +1252,13 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		}
 	}
 
-	sprintf(temp, "X-FTN-CHRS: %s\n", getchrs(incode));
-	Send(newsmode, temp);
-	if (incode != outcode) {
-		sprintf(temp, "X-FTN-ORIGCHRS: %s\n", getchrs(outcode));
-		Send(newsmode, temp);
-	}
-	charset = getcharset(incode);
+//	sprintf(temp, "X-FTN-CHRS: %s\n", getchrs(incode));
+//	Send(newsmode, temp);
+//	if (incode != outcode) {
+//		sprintf(temp, "X-FTN-ORIGCHRS: %s\n", getchrs(outcode));
+//		Send(newsmode, temp);
+//	}
+//	charset = getcharset(incode);
 
 	if ((p=hdr((char *)"Mime-Version",msg))) {
 		sprintf(temp,(char *)"Mime-Version:%s",p);
@@ -1273,9 +1269,9 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	} else if ((p=hdr((char *)"Mime-Version",kmsg))) {
 		sprintf(temp,(char *)"Mime-Version: %s",p);
 		Send(newsmode, temp);
-	} else if ((charset) && (incode != CHRS_NOTSET)) {
-		sprintf(temp,"Mime-Version: 1.0\n");
-		Send(newsmode, temp);
+//	} else if ((charset) && (incode != CHRS_NOTSET)) {
+//		sprintf(temp,"Mime-Version: 1.0\n");
+//		Send(newsmode, temp);
 	}
 
 	if ((p=hdr((char *)"Content-Type",msg))) {
@@ -1287,12 +1283,12 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	} else if ((p=hdr((char *)"Content-Type",kmsg))) {
 		sprintf(temp,"Content-Type: %s",p);
 		Send(newsmode, temp);
-	} else if ((charset) && (incode != CHRS_NOTSET)) {
-		if ((p=hdr((char *)"FSCHTML",kmsg)) || (p=hdr((char *)"HTML",kmsg)))
-			sprintf(temp,"Content-Type: text/html; charset=%s\n",charset);
-		else
-			sprintf(temp,"Content-Type: text/plain; charset=%s\n",charset);
-		Send(newsmode, temp);
+//	} else if ((charset) && (incode != CHRS_NOTSET)) {
+//		if ((p=hdr((char *)"FSCHTML",kmsg)) || (p=hdr((char *)"HTML",kmsg)))
+//			sprintf(temp,"Content-Type: text/html; charset=%s\n",charset);
+//		else
+//			sprintf(temp,"Content-Type: text/plain; charset=%s\n",charset);
+//		Send(newsmode, temp);
 	}
 
 	if ((p=hdr((char *)"Content-Length",msg))) {
@@ -1313,16 +1309,16 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		sprintf(temp,"Content-Transfer-Encoding: %s",p);
 	else if ((p=hdr((char *)"Content-Transfer-Encoding",kmsg))) 
 		sprintf(temp,"Content-Transfer-Encoding: %s",p);
-	else if ((charset) && (incode == CHRS_ISO_8859_1_QP)) 
-		sprintf(temp,"Content-Transfer-Encoding: quoted-printable\n");
-	else if ((charset) && (incode != CHRS_NOTSET)) { 
-		if ((incode == CHRS_ASCII || incode == CHRS_UTF_7)) 
-			sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
-		else if (strncasecmp(charset,"iso-2022-",9) == 0) 
-			sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
-		else 
-			sprintf(temp,"Content-Transfer-Encoding: 8bit\n"); /* all others are 8 bit */
-	}
+//	else if ((charset) && (incode == CHRS_ISO_8859_1_QP)) 
+//		sprintf(temp,"Content-Transfer-Encoding: quoted-printable\n");
+//	else if ((charset) && (incode != CHRS_NOTSET)) { 
+//		if ((incode == CHRS_ASCII || incode == CHRS_UTF_7)) 
+//			sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
+//		else if (strncasecmp(charset,"iso-2022-",9) == 0) 
+//			sprintf(temp,"Content-Transfer-Encoding: 7bit\n");
+//		else 
+//			sprintf(temp,"Content-Transfer-Encoding: 8bit\n"); /* all others are 8 bit */
+//	}
 	if (temp[0])
 		Send(newsmode, temp);
 
@@ -1388,7 +1384,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
                     strcasecmp(qmsg->key,"Distribution") &&
                     strcasecmp(qmsg->key,"Approved") &&
                     strcasecmp(qmsg->key,"Message-ID")) {
-			sprintf(temp,"%s:%s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+			sprintf(temp,"%s:%s",qmsg->key,qmsg->val);
 			Send(newsmode, temp);
 		}
 	}
@@ -1468,16 +1464,16 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
                     strcasecmp(qmsg->key,"RFC-Approved") &&
                     strcasecmp(qmsg->key,"RFC-Message-ID")) {
 			if (!strncmp(qmsg->key,"RFC-",4)) {
-				sprintf(temp,"%s: %s",qmsg->key+4,hdrconv(qmsg->val,outcode,incode));
+				sprintf(temp,"%s: %s",qmsg->key+4,qmsg->val);
 				Send(newsmode, temp);
 			} else if ((!strncasecmp(qmsg->key,"X-",2)) || (!strncasecmp(qmsg->key,"NNTP-",5))) {
-				sprintf(temp,"%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+				sprintf(temp,"%s: %s",qmsg->key,qmsg->val);
 				Send(newsmode, temp);
 			} else if ((!strncasecmp(qmsg->key,"ZC-",3))) {
 				sprintf(temp,"X-%s: %s",qmsg->key,qmsg->val);
 				Send(newsmode, temp);
 			} else if ((!strcasecmp(qmsg->key,"Origin")) || (!strcasecmp(qmsg->key,"MOOD"))) {
-				sprintf(temp,"X-FTN-%s: %s",qmsg->key,hdrconv(qmsg->val,outcode,incode));
+				sprintf(temp,"X-FTN-%s: %s",qmsg->key,qmsg->val);
 				Send(newsmode, temp);
 			} else {
 				sprintf(temp,"X-FTN-%s: %s",qmsg->key,qmsg->val);
@@ -1560,7 +1556,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
 			if ((p=hdr((char *)"X-Body-Start",msg))) {
 				lines++;
-				q = xstrcpy(strkconv(p, outcode, incode));
+				q = xstrcpy(p);
 				Send(newsmode, q);
 				free(q);
 			}
@@ -1578,7 +1574,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 					case ' ':       b=p-1; break;
 					case '\n':      b=NULL; count=0; lines++; break;
 				}
-				if ((count++ > BOUNDARY) && (!pgpsigned)) {
+				if ((count++ > BOUNDARY) /* && (!pgpsigned) */ ) {
 					if (b) {
 //						*b++='\r';
 //						*b = '\n';
@@ -1592,7 +1588,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				}
 			}
 			if (strncmp(buf, ".\r\n", 3))
-				q = xstrcpy(strkconv(buf, outcode, incode));
+				q = xstrcpy(buf);
 			else
 				q = xstrcpy((char *)" .\n");
 			Send(newsmode, q);

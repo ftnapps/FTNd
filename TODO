@@ -165,6 +165,12 @@ mbsetup:
 
 	N: Add switch for file area to skip checking and indexing.
 
+	N: Add menu switches in nodes/groups to select/deselect all groups
+	   at once.
+
+	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
+	   data.
+
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups

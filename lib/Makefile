@@ -7,16 +7,16 @@ include ../Makefile.global
 CLCOMM_SRCS	= clcomm.c client.c crc.c semafore.c signame.c 
 CLCOMM_OBJS	= clcomm.o client.o crc.o semafore.o signame.o
 CLCOMM_HDRS	= clcomm.h
-COMMON_SRCS	= attach.c charconv_utf.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
+COMMON_SRCS	= attach.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
 		  batchrd.c charset.c ftn.c pktname.c mangle.c sectest.c \
-		  charconv.c dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
-		  charconv_hz.c execute.c expipe.c getheader.c mime.c noderecord.c rfcaddr.c strutil.c \
-		  charconv_jp.c faddr.c gmtoffset.c packet.c rfcdate.c term.c 
-COMMON_OBJS	= ftscprod.o attach.o charconv_utf.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
-		  batchrd.o charset.o ftn.o pktname.o mangle.o sectest.o \
-		  charconv.o dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
-		  charconv_hz.o execute.o expipe.o getheader.o mime.o noderecord.o rfcaddr.o strutil.o \
-		  charconv_jp.o faddr.o gmtoffset.o packet.o rfcdate.o term.o
+		  dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
+		  execute.c expipe.c getheader.c noderecord.c rfcaddr.c strutil.c \
+		  faddr.c gmtoffset.c packet.c rfcdate.c term.c 
+COMMON_OBJS	= ftscprod.o attach.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
+		  batchrd.o ftn.o pktname.o mangle.o sectest.o \
+		  dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
+		  execute.o expipe.o getheader.o noderecord.o rfcaddr.o strutil.o \
+		  faddr.o gmtoffset.o packet.o rfcdate.o term.o
 COMMON_HDRS	= common.h
 NODELIST_SRCS	= nodelist.c
 NODELIST_OBJS	= nodelist.o
@@ -130,34 +130,29 @@ crc.o: ../config.h libs.h memwatch.h clcomm.h
 semafore.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 signame.o: ../config.h libs.h memwatch.h clcomm.h
 attach.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
-charconv_utf.o: ../config.h libs.h memwatch.h structs.h common.h
 falists.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 hdr.o: ../config.h libs.h memwatch.h structs.h common.h
 parsedate.o: ../config.h libs.h memwatch.h structs.h common.h
 rfcmsg.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h clcomm.h
 unpacker.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 batchrd.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
-charset.o: ../config.h libs.h memwatch.h structs.h common.h clcomm.h
+charset.o:
 ftn.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h dbftn.h common.h
 pktname.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 mangle.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 sectest.o: ../config.h libs.h structs.h common.h clcomm.h
-charconv.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h clcomm.h
 dostran.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h
 ftnmsg.o: ../config.h libs.h memwatch.h structs.h common.h clcomm.h
 mbfile.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 nodelock.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 rawio.o: ../config.h libs.h memwatch.h structs.h common.h mberrors.h
 strcasestr.o: ../config.h libs.h memwatch.h
-charconv_hz.o: ../config.h libs.h memwatch.h structs.h common.h clcomm.h
 execute.o: ../config.h libs.h memwatch.h structs.h clcomm.h mberrors.h common.h
 expipe.o: ../config.h libs.h memwatch.h structs.h clcomm.h mberrors.h common.h
 getheader.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
-mime.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
 noderecord.o: ../config.h libs.h memwatch.h structs.h common.h users.h records.h dbnode.h common.h
 rfcaddr.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 strutil.o: ../config.h libs.h memwatch.h structs.h common.h
-charconv_jp.o: ../config.h libs.h memwatch.h structs.h common.h
 faddr.o: ../config.h libs.h memwatch.h structs.h common.h
 gmtoffset.o: ../config.h libs.h memwatch.h structs.h common.h
 packet.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h dbnode.h

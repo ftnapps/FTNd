@@ -216,8 +216,8 @@ void Add_Headkludges(faddr *dest, int IsReply)
 				break;
 	}
 
-	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
-	MsgText_Add2(temp);
+//	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
+//	MsgText_Add2(temp);
 	sprintf(temp, "\001MSGID: %s %08lx", aka2str(msgs.Aka), sequencer());
 	MsgText_Add2(temp);
 	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
