@@ -59,9 +59,6 @@ struct timezone tz;
 static long Bytesleft;		/* number of bytes of incoming file left */
 static long Modtime;		/* Unix style mod time for incoming file */
 static int Filemode;		/* Unix style mode for incoming file */
-#ifndef PATH_MAX
-#define PATH_MAX 512
-#endif
 
 static int Thisbinary;		/* current file is to be received in bin mode */
 char Lzconv;			/* Local ZMODEM file conversion request */

@@ -40,10 +40,6 @@
 #include "scanout.h"
 #include "lutil.h"
 
-#ifndef PATH_MAX
-#define PATH_MAX 512
-#endif
-
 
 static faddr addr = {
 	NULL,
