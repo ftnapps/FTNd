@@ -823,6 +823,22 @@ void ControlCodeU(int ch)
 		printf("%s", exitinfo.FsMsged ? (char *) Language(147) : (char *) Language(148));
 		break;
 
+	case '4':
+		printf("%s", exitinfo.FSemacs ? (char *) Language(147) : (char *) Language(148));
+		break;
+
+	case '5':
+		printf(exitinfo.address[0]);
+		break;
+
+	case '6':
+		printf(exitinfo.address[1]);
+		break;
+
+	case '7':
+		printf(exitinfo.address[2]);
+		break;
+
 	default:
 		printf(" ");
 	}
