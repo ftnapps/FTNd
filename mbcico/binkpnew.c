@@ -114,10 +114,11 @@ file_list	    *tosend = NULL;		/* Files to send		    */
 file_list	    *respond = NULL;		/* Requests honored		    */
 binkp_list	    *bll = NULL;		/* Files to send with status	    */
 static binkp_list   *cursend = NULL;		/* Current file being transmitted   */
-    struct timeval      txtvstart;              /* Transmitter start time           */
-    struct timeval      txtvend;                /* Transmitter end time             */
-    struct timeval      rxtvstart;              /* Receiver start time              */
-    struct timeval      rxtvend;                /* Receiver end time                */
+struct timeval      txtvstart;			/* Transmitter start time           */
+struct timeval      txtvend;			/* Transmitter end time             */
+struct timeval      rxtvstart;			/* Receiver start time              */
+struct timeval      rxtvend;			/* Receiver end time                */
+
 
 struct binkprec {
     int			Role;			/* 1=orig, 0=answer		    */
@@ -848,20 +849,9 @@ int file_transfer(void)
 				 */
 				rc = binkp_poll_frame();
 				if (rc == -1) {
-				    if (bp.local_EOB && bp.remote_EOB) {
-					Syslog('b', "Binkp: ignore TCP error in EOB state");
-					rc = 0;
-					bp.rc = 0;
-					bp.FtState = Transmit;	/* Go once more through transmitter to cleanup */
-					break;
-				    } else {
-					/*
-					 * Only check if not in EOB state
-					 */
-					bp.rc = rc;
-					bp.FtState = DeinitTransfer;
-					break;
-				    } 
+				    bp.rc = rc;
+				    bp.FtState = DeinitTransfer;
+				    break;
 				} else if (rc == 1) {
 				    bp.FtState = Receive;
 				    break;
@@ -1012,11 +1002,10 @@ TrType binkp_receiver(void)
     } else if (bp.RxState == RxAccF) {
         Syslog('b', "Binkp: got M_FILE \"%s\"", printable(bp.rxbuf +1, 0));
 	if (strlen(bp.rxbuf) < 512) {
-//	    sscanf(bp.rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
-		sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
-		bp.rsize = atoi(strtok(NULL, " \n\r"));
-		bp.rtime = atoi(strtok(NULL, " \n\r"));
-		bp.roffs = atoi(strtok(NULL, " \n\r"));
+	    sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
+	    bp.rsize = atoi(strtok(NULL, " \n\r"));
+	    bp.rtime = atoi(strtok(NULL, " \n\r"));
+	    bp.roffs = atoi(strtok(NULL, " \n\r"));
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
@@ -1161,7 +1150,6 @@ TrType binkp_receiver(void)
 	    closefile();
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
 	    gettimeofday(&rxtvend, &bp.tz);
-Syslog('b', "4");
 	    Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, bp.rxpos, FALSE));
 	    rcvdbytes += bp.rxpos;
 	    bp.RxState = RxWaitF;
@@ -1810,7 +1798,10 @@ int binkp_process_messages(void)
     for (tmpq = tql; tmpq; tmpq = tmpq->next) {
 	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
-	    sscanf(tmpq->data, "%s %ld %ld %ld", lname, &lsize, &ltime, &loffs);
+	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    lsize = atoi(strtok(NULL, " \n\r"));
+	    ltime = atoi(strtok(NULL, " \n\r"));
+	    loffs = atoi(strtok(NULL, " \n\r"));
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
@@ -1861,7 +1852,13 @@ int binkp_process_messages(void)
 		}
 	    }
 	} else if (tmpq->cmd == MM_GOT) {
-	    sscanf(tmpq->data, "%s %ld %ld", lname, &lsize, &ltime);
+	    Syslog('b', "1");
+	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    Syslog('b', "2");
+	    lsize = atoi(strtok(NULL, " \n\r"));
+	    Syslog('b', "3");
+	    ltime = atoi(strtok(NULL, " \n\r"));
+	    Syslog('b', "4");
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
@@ -1892,7 +1889,9 @@ int binkp_process_messages(void)
 		Syslog('+', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else if (tmpq->cmd == MM_SKIP) {
-	    sscanf(tmpq->data, "%s %ld %ld", lname, &lsize, &ltime);
+	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
+	    lsize = atoi(strtok(NULL, " \n\r"));
+	    ltime = atoi(strtok(NULL, " \n\r"));
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
