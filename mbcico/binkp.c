@@ -456,8 +456,11 @@ SM_STATE(sendpass)
 	if (strlen(nodes.Epasswd)) {
 		SendPass = TRUE;
 		binkp_send_control(MM_PWD, "%s", nodes.Epasswd);
-	} else
+		Syslog('-', "Password from setup sent");
+	} else { 
 		binkp_send_control(MM_PWD, "-");
+		Syslog('-', "Blank password - sent");
+	}
 
 	SM_PROCEED(waitaddr)
 
@@ -737,6 +740,7 @@ SM_STATE(waitpwd)
 	}
 
 SM_STATE(pwdack)
+	Syslog('-', "pwdack '%s' Loaded=%s strlen(nodes.Epasswd)=%d", &rbuf[1], Loaded?"true":"false", strlen(nodes.Epasswd));
         if ((strcmp(&rbuf[1], "-") == 0) && (!Loaded && !strlen(nodes.Epasswd))) {
 		Syslog('+', "No password, unprotected BINKP session");
 		binkp_send_control(MM_OK, "");
