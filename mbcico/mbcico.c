@@ -39,9 +39,7 @@
 #include "../lib/dbftn.h"
 #include "config.h"
 #include "answer.h"
-#include "portsel.h"
 #include "call.h"
-#include "callall.h"
 #include "lutil.h"
 #include "mbcico.h"
 #include "session.h"
@@ -82,7 +80,6 @@ void usage(void)
 	fprintf(stderr,"ifcico; (c) Eugene G. Crosser, 1993-1997\n");
 	fprintf(stderr,"mbcico ver. %s; (c) %s\n\n", VERSION, SHORTRIGHT);
 	fprintf(stderr,"-r<role> -a<inetaddr> <node> ...\n");
-	fprintf(stderr,"-r 0|1		1 - master, 0 - slave	[0]\n");
 	fprintf(stderr,"-n<phone>	forced phone number\n");
 	fprintf(stderr,"-l<ttydevice>	forced tty device\n");
 	fprintf(stderr,"-t<tcpmode>	must be one of ifc|itn|ibn, forces TCP/IP\n");
@@ -201,8 +198,7 @@ int main(int argc, char *argv[])
 	 * Catch all signals we can, and handle the rest.
 	 */
 	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGINT) || (i == SIGBUS) ||
-		    (i == SIGFPE) || (i == SIGSEGV)) {
+		if ((i == SIGINT) || (i == SIGBUS) || (i == SIGFPE) || (i == SIGSEGV)) {
 			signal(i, (void (*))die);
 		} else
 			signal(i, SIG_DFL);
@@ -242,12 +238,7 @@ int main(int argc, char *argv[])
 
 	while ((c=getopt(argc,argv,"r:n:l:t:a:I:h")) != -1)
 		switch (c) {
-			case 'r':	master = atoi(optarg);
-					if ((master != 0) && (master != 1)) {
-						usage();
-						die(101);
-					}
-					WriteError("commandline option -r is obsolete");
+			case 'r':	WriteError("commandline option -r is obsolete");
 					break;
 
 			case 'l':	forcedline = optarg; 
@@ -377,7 +368,6 @@ int main(int argc, char *argv[])
 			WriteError("Calling mbcico without node address not supported anymore");
 			die(101);
 		}
-//			callist = callall();
 
 		for (tmpl = &callist; *tmpl; tmpl = &((*tmpl)->next)) {
 			callno++;

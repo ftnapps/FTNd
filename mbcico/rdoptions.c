@@ -35,7 +35,6 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
-#include "portsel.h"
 #include "session.h"
 #include "config.h"
 

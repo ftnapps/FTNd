@@ -35,7 +35,6 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbnode.h"
-#include "portsel.h"
 #include "config.h"
 #include "chat.h"
 #include "ttyio.h"

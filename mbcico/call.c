@@ -71,7 +71,6 @@ int portopen(faddr *addr)
 {
 	char	*p;
 	int	rc;
-	pp_list	*pl = NULL, *tmp;
 
 	if (inetaddr) {
 		Syslog('d', "portopen inetaddr %s", inetaddr);
@@ -104,30 +103,6 @@ int portopen(faddr *addr)
 	}
 
 	WriteError("call.c portopen(): should not be here");
-
-	if (make_portlist(nlent, &pl) == 0) {
-		WriteError("No matching ports defined");
-		nodeulock(addr);
-		putstatus(addr, 10, ST_NOPORT);
-		return ST_NOPORT;
-	}
-
-	for (tmp = pl; tmp; tmp = tmp->next) {
-		if (load_port(tmp->tty)) {
-			Syslog('+', "Port %s at %ld, modem %s", ttyinfo.tty, ttyinfo.portspeed, modem.modem);
-			p = xstrcpy(tmp->tty);
-			rc = openport(p, ttyinfo.portspeed);
-			free(p);
-			if (rc == 0) {
-				tidy_pplist(&pl);
-				return 0;
-			}
-		}
-	}
-
-	tidy_pplist(&pl);
-	nodeulock(addr);
-	putstatus(addr, 0, ST_PORTERR);
 	return ST_PORTERR;
 }
 
@@ -250,12 +225,6 @@ int call(faddr *addr)
 	}
 
 	if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
-//		if (!forcedcalls) {
-//			Syslog('d', "Node is ZMH only and it is not ZMH");
-//			nodeulock(addr);
-//			putstatus(addr,0,ST_NOTZMH);
-//			return ST_NOTZMH;
-//		}
 		Syslog('?', "Warning: calling MO system outside ZMH");
 	}
 
@@ -269,26 +238,6 @@ int call(faddr *addr)
 	 * Over TCP/IP we don't do a delay because the node we are
 	 * connecting can't be busy. Also forced calls don't delay.
 	 */
-//	Syslog('d', "delay=%d inetaddr=%s immediatecall=%s", 
-//			CFG.dialdelay, inetaddr?"true":"false", immediatecall?"true":"false");
-//	if ((CFG.dialdelay > 10) && (!inetaddr) && (!immediatecall)) {
-//		/*
-//		 *  Generate a random number between CFG.dialdelay and
-//		 *  CFG.dialdelay / 10, minimum value is 10.
-//		 */
-//		srand(getpid());
-//		while (TRUE) {
-//			j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
-//			if ((j > (CFG.dialdelay / 10)) && (j > 9))
-//				break;
-//		}
-//		Syslog('d', "Dial delay %d seconds", j);
-//
-//		for (i = j; i > 0; i--) {
-//			IsDoing("Delay %d seconds", i);
-//			sleep(1);
-//		}
-//	}
 
 	if (nodelock(addr)) {
 		Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));
@@ -308,8 +257,8 @@ int call(faddr *addr)
 	 * and
 	 *  nocall is false
 	 */
-	if ((nlent->phone || forcedphone || inetaddr ) && ((forcedcalls || (nlent->oflags & OL_CM)) ||
-	     (((nlent->pflag & (NL_DUMMY|NL_DOWN|NL_HOLD|NL_PVT)) == 0) && ((localoptions & NOCALL) == 0)))) {
+	if ((nlent->phone || forcedphone || inetaddr ) && 
+	     (forcedcalls || (((nlent->pflag & (NL_DUMMY|NL_DOWN|NL_HOLD|NL_PVT)) == 0) && ((localoptions & NOCALL) == 0)))) {
 		Syslog('+', "Calling %s (%s, phone %s)",ascfnode(addr,0x1f), nlent->name,nlent->phone?nlent->phone:forcedphone);
 		IsDoing("Call %s", ascfnode(addr, 0x0f));
 		rc = portopen(addr);
