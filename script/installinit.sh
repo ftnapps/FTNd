@@ -121,9 +121,13 @@ fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
     DISTNAME="FreeBSD"
     DISTVERS=`uname -r`
-    DISTVERS=${DISTVERS:0:3}
     PW="pw "
 fi
+if [ "$OSTYPE" = "NetBSD" ]; then
+    DISTNAME="NetBSD"
+    DISTVERS=`uname -r`
+fi
+
 
 
 log "+" "Distribution $OSTYPE $DISTNAME $DISTVERS"
@@ -572,16 +576,16 @@ fi
 
 #--------------------------------------------------------------------------
 #
-#  Adding scripts for FreeBSD
+#  Adding scripts for FreeBSD and NetBSD
 #
 #
-if [ "$DISTNAME" = "FreeBSD" ]; then
+if [ "$DISTNAME" = "FreeBSD" ] || [ "$DISTNAME" = "NetBSD" ]; then
     #
     # FreeBSD init
     #
     DISTINIT="$MBSE_ROOT/etc/rc"
-    echo "Adding FreeBSD style MBSE BBS start/stop scripts"
-    log "+" "Adding FreeBSD style MBSE BBS start/stop scripts"
+    echo "Adding $DISTNAME style MBSE BBS start/stop scripts"
+    log "+" "Adding $DISTNAME style MBSE BBS start/stop scripts"
     if [ -f /etc/rc.local ]; then
 	if [ "`grep MBSE /etc/rc.local`" = "" ]; then
 	    log "+" "Adding $MBSE_ROOT/etc/rc to existing /etc/rc.local"

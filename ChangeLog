@@ -4254,10 +4254,11 @@ v0.33.19        26-Oct-2001
 		The sourcetree has now a new subdirectory called unix. Here
 		are all the system specific programs such as mbpasswd,
 		mblogin and mbuseradd.
+		Started NetBSD port. Not working yet but does compile.
 
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
-		Prepared for the NetBSD port.
+		Ported to NetBSD.
 
 	libcommon.a:
 		When adding seenby entries, the zone number is copied from the
@@ -4400,7 +4401,7 @@ v0.33.19        26-Oct-2001
 		time + random dial delay time. Needed for mbtask.
 
 	mbout:
-		Fixes for Sparc systems.
+		Fixes for Linux Sparc systems.
 		The node query now displays the system open times (Txx) flags.
 		The node query now also displays the CM,MO flags etc.
 
