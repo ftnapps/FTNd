@@ -470,18 +470,21 @@ void gold_akamatch(FILE *fp)
     fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
     while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
 
-        for (i = 0; i < 6; i++)
-            if (fidonet.zone[i]) {
-		want->zone   = fidonet.zone[0];
-		want->net    = 0;
-		want->node   = 0;
-		want->point  = 0;
-		want->name   = NULL;
-		want->domain = NULL;
-		ta = bestaka_s(want);
-		fprintf(fp, "AKAMATCH %d:* %s\n", fidonet.zone[i], ascfnode(ta, 0xf));
-		tidy_faddr(ta);
+	if (fidonet.available) {
+	    for (i = 0; i < 6; i++) {
+		if (fidonet.zone[i]) {
+		    want->zone   = fidonet.zone[0];
+		    want->net    = 0;
+		    want->node   = 0;
+		    want->point  = 0;
+		    want->name   = NULL;
+		    want->domain = NULL;
+		    ta = bestaka_s(want);
+		    fprintf(fp, "AKAMATCH %d:* %s\n", fidonet.zone[i], ascfnode(ta, 0xf));
+		    tidy_faddr(ta);
+		}
 	    }
+	}
     }
 
     free(want);
@@ -494,10 +497,12 @@ void gold_akamatch(FILE *fp)
     fprintf(fp, "NODEPATH %s/\n", CFG.nodelists);
     fseek(fido, fidonethdr.hdrsize, SEEK_SET);
     while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
-	fprintf(fp, "NODELIST %s.*\n", fidonet.nodelist);
-	for (i = 0; i < 6; i++)
-	    if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone)
-		fprintf(fp, "NODELIST %s.*\n", fidonet.seclist[i].nodelist);
+	if (fidonet.available) {
+	    fprintf(fp, "NODELIST %s.*\n", fidonet.nodelist);
+	    for (i = 0; i < 6; i++)
+		if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone)
+		    fprintf(fp, "NODELIST %s.*\n", fidonet.seclist[i].nodelist);
+	}
     }
 //  fprintf(fp, "USERLIST golded.lst\n");
     fprintf(fp, "LOOKUPNET   YES\n");
