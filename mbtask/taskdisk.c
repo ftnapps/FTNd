@@ -188,6 +188,7 @@ void add_path(char *path)
     FILE	    *fp;
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
     struct statfs   *mntbuf;
+    long	    mntsize;
     int		    i;
 #endif
 
@@ -231,8 +232,8 @@ void add_path(char *path)
 		for (i = 0; i < mntsize; i++) {
 		    Syslog('d', "Check fs %s", mntbuf[i].f_mntonname);
 		    if (strncmp(mntbuf[i].f_mntonname, path, strlen(mntbuf[i].f_mntonname)) == 0) {
-			Syslog('d', "Found fs %s", fs);
-			sprintf(fsname, "%s", fs);
+			Syslog('d', "Found fs %s", mntbuf[i].f_mntonname);
+			sprintf(fsname, "%s", mntbuf[i].f_mntonname);
 		    }
 		}
 		Syslog('d', "Should be on \"%s\"", fsname);
