@@ -30,6 +30,7 @@ v0.37.6		10-Aug-2003
 		binkp long filenames escape method for Argus and Irex nodes.
 		Activated the productcode for mbse that is published in the
 		ftscprod.007
+		Changed the website address in several sources.
 
 	nodelist.a:
 		Removed some of the debug logging.

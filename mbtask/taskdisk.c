@@ -7,7 +7,7 @@
  * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
- * Beekmansbos 10		Internet:	mbse@user.sourceforge.net
+ * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
  *

@@ -4,7 +4,7 @@
  * Purpose ...............: Product information
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -117,7 +117,7 @@ void cr(void)
 	rs(a);
 	wl(a);
 	ls(a);
-	pout(15, 0, (char *)"Available from http://mbse.sourceforge.net or 2:280/2802                    ");
+	pout(15, 0, (char *)"Available from http://www.mbse.dds.nl or 2:280/2802                         ");
 	rs(a);
 	wl(a);
 	ls(a);
