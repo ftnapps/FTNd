@@ -47,13 +47,13 @@ log "+" "Current directory is `pwd`"
 
 # Check the OS type, only Linux for now.
 #
-if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ] && [ "$OSTYPE" != "NetBSD" ] && [ "$OSTYPE" != "Darwin" ]; then
+if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ] && [ "$OSTYPE" != "NetBSD" ] && [ "$OSTYPE" != "OpenBSD" ] && [ "$OSTYPE" != "Darwin" ]; then
 
     cat << EOF
 
 Your are trying to install MBSE BBS on a $OSTYPE system, however
-at this time only Linux, FreeBSD, NetBSD and Darwin (OS X) is supported.
-
+at this time only Linux, FreeBSD, NetBSD, OpenBSD and Darwin (OS X)
+are supported.
 
 EOF
     log "!" "Aborted, OS is $OSTYPE"
@@ -114,6 +114,10 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
 fi
 if [ "$OSTYPE" = "NetBSD" ]; then
     DISTNAME="NetBSD"
+    DISTVERS=`uname -r`
+fi
+if [ "$OSTYPE" = "OpenBSD" ]; then
+    DISTNAME="OpenBSD"
     DISTVERS=`uname -r`
 fi
 if [ "$OSTYPE" = "Darwin" ]; then
@@ -177,9 +181,9 @@ if [ "$OSTYPE" = "Linux" ]; then
     fi
 fi
 
-if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
+if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "OpenBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
     #
-    #  FreeBSD/NetBSD/Darwin uses /usr/local for extra packages
+    #  FreeBSD/NetBSD/OpenBSD/Darwin uses /usr/local for extra packages
     #  and doesn't use /opt.
     #  Also using /opt means that we are in the root partition which
     #  by default is very small. We put everything in /usr/local/opt
@@ -257,6 +261,9 @@ fi
 if [ "$OSTYPE" = "NetBSD" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/pkg/bin/bash mbse
 fi
+if [ "$OSTYPE" = "OpenBSD" ]; then
+    useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash mbse
+fi
 if [ "$OSTYPE" = "Darwin" ]; then
     useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -s /bin/bash
 fi
@@ -311,6 +318,10 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
     log "+" "[$?] Added user bbs"
 fi
 if [ "$OSTYPE" = "NetBSD" ]; then
+    useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -m -g bbs -s $MHOME/bin/mbnewusr bbs
+    log "+" "[$?] Added user bbs"
+fi
+if [ "$OSTYPE" = "OpenBSD" ]; then
     useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -m -g bbs -s $MHOME/bin/mbnewusr bbs
     log "+" "[$?] Added user bbs"
 fi
@@ -376,7 +387,7 @@ if [ "$OSTYPE" = "Linux" ]; then
     fi
     rm /etc/passwd.lock
 fi
-if [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
+if [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "OpenBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
 cat << EOF
 
 READ THIS CAREFULLY NOW   READ THIS CAREFULLY NOW
@@ -559,7 +570,7 @@ cat << EOF
      Then issue (as root of course) the following commands:
 
 EOF
-if [ "$OSTYPE" = "Linux" ] || [ "$OSTYPE" = "NetBSD" ]; then
+if [ "$OSTYPE" = "Linux" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "OpenBSD" ]; then
     echo "     userdel bbs"
     echo "     userdel -r mbse"
     echo "     groupdel bbs"
