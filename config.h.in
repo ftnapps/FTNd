@@ -14,24 +14,11 @@
 /* Compile experimental code (may not be present) */
 #undef USE_EXPERIMENT
 
-/* Define if you have the snprintf function.  */
-#undef HAVE_SNPRINTF
-
 /* Has strcasestr function  */
 #undef HAVE_STRCASESTR
 
 /* If you have gettimeofday function  */
-#undef HAVE_DECLARED_TIMEZONE
 #undef HAVE_TM_GMTOFF
-
-/* If you don't have pid_t  */
-#undef DONT_HAVE_PID_T
-
-/* NOPROTO in lhash.h ??? */
-#undef NOPROTO
-
-/* No Hash Comp function  */
-#undef NO_HASH_COMP
 
 /* News postings  */
 #undef RESTAMP_FUTURE_POSTINGS
@@ -116,9 +103,6 @@
 /* Define if you have the `c64i' function. */
 #undef HAVE_C64I
 
-/* Define if you have the <crypt.h> header file. */
-#undef HAVE_CRYPT_H
-
 /* Define if you have the <dirent.h> header file, and it defines `DIR'. */
 #undef HAVE_DIRENT_H
 
@@ -131,32 +115,17 @@
 /* Define if you have the `fdatasync' function. */
 #undef HAVE_FDATASYNC
 
-/* Define if your system has a working `fnmatch' function. */
-#undef HAVE_FNMATCH
-
 /* Define if you have the `fsync' function. */
 #undef HAVE_FSYNC
 
 /* Define if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
-/* Define if you have the `getwd' function. */
-#undef HAVE_GETWD
-
 /* Define if you have the <gshadow.h> header file. */
 #undef HAVE_GSHADOW_H
 
-/* Define if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
-
 /* Define if you have the `lckpwdf' function. */
 #undef HAVE_LCKPWDF
-
-/* Define if you have the <malloc.h> header file. */
-#undef HAVE_MALLOC_H
-
-/* Define if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
@@ -173,35 +142,11 @@
 /* Define if you have the <shadow.h> header file. */
 #undef HAVE_SHADOW_H
 
-/* Define if you have the `socket' function. */
-#undef HAVE_SOCKET
-
-/* Define if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
-
-/* Define if you have the `strcasestr' function. */
-#undef HAVE_STRCASESTR
-
-/* Define if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
-
-/* Define if you have the <string.h> header file. */
-#undef HAVE_STRING_H
-
 /* Define if `tm_zone' is member of `struct tm'. */
 #undef HAVE_STRUCT_TM_TM_ZONE
 
-/* Define if you have the <syslog.h> header file. */
-#undef HAVE_SYSLOG_H
-
 /* Define if you have the <sys/dir.h> header file, and it defines `DIR'. */
 #undef HAVE_SYS_DIR_H
-
-/* Define if you have the <sys/file.h> header file. */
-#undef HAVE_SYS_FILE_H
-
-/* Define if you have the <sys/ioctl.h> header file. */
-#undef HAVE_SYS_IOCTL_H
 
 /* Define if you have the <sys/ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_SYS_NDIR_H
@@ -221,35 +166,17 @@
 /* Define if you have the <termios.h> header file. */
 #undef HAVE_TERMIOS_H
 
-/* Define if you have the <ulimit.h> header file. */
-#undef HAVE_ULIMIT_H
-
-/* Define if you have the `uname' function. */
-#undef HAVE_UNAME
-
 /* Define if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
 /* Define if you have the <usersec.h> header file. */
 #undef HAVE_USERSEC_H
 
-/* Define if you have the <utime.h> header file. */
-#undef HAVE_UTIME_H
-
-/* Define if `utime(file, NULL)' sets file's timestamp to the present. */
-#undef HAVE_UTIME_NULL
-
 /* Define if you have the <utmp.h> header file.  */
 #undef HAVE_UTMP_H
 
 /* Define if you have the <utmpx.h> header file.  */
 #undef HAVE_UTMPX_H
-
-/* Define if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
-
-/* Define if you have the `vprintf' function. */
-#undef HAVE_VPRINTF
 
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
@@ -262,9 +189,6 @@
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
-
-/* Define if the `setpgrp' function takes no argument. */
-#undef SETPGRP_VOID
 
 /* Define if the `S_IS*' macros in <sys/stat.h> do not work properly. */
 #undef STAT_MACROS_BROKEN

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -42,10 +42,6 @@
 
 #define LCKPREFIX LOCKDIR"/LCK.."
 #define LCKTMP LOCKDIR"/TMP."
-
-//#ifdef DONT_HAVE_PID_T
-//#define pid_t int
-//#endif
 
 
 

@@ -141,7 +141,6 @@ fi
 AC_CHECK_LIB(crypt,crypt,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lcrypt"
-  AC_CHECK_HEADERS(crypt.h)
 fi
 
 AC_CHECK_LIB(util,login,result=yes,result=no)
@@ -199,10 +198,10 @@ AC_HEADER_STDC
 AC_HEADER_DIRENT
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h)
-AC_CHECK_HEADERS(sys/resource.h usersec.h utime.h ulimit.h gshadow.h shadow.h)
+AC_CHECK_HEADERS(sys/time.h termios.h sys/vfs.h unistd.h netinet/in.h regex.h)
+AC_CHECK_HEADERS(sys/resource.h usersec.h gshadow.h shadow.h)
 AC_CHECK_HEADERS(limits.h utmp.h utmpx.h lastlog.h rpc/key_prot.h)
-AC_STRUCT_TIMEZONE
+dnl AC_STRUCT_TIMEZONE
 
 dnl
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -223,12 +222,9 @@ dnl
 AC_CHECK_FUNCS(c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr putpwent)
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
-AC_FUNC_SETPGRP
 AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
-AC_FUNC_VFORK
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(gettimeofday re_comp select socket uname)
+AC_CHECK_FUNCS(gettimeofday re_comp select)
 AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
 
 dnl

@@ -26,9 +26,7 @@
 
 
 
-#if !defined(HAVE_STRUCT_TM_TM_ZONE) && !defined(_TIMEZONE) && !defined(HAVE_DECLARED_TIMEZONE)
 extern time_t timezone;
-#endif
 
 #define yylhs		date_yylhs
 #define yylen		date_yylen
