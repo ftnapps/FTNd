@@ -4614,6 +4614,7 @@ v0.33.20        10-Feb-2002
 		If changing the path in an existing file area, the files in
 		that area are moved to the new path.
 		It is now possible to move file areas.
+		It is now possible to move JAM message bases.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 

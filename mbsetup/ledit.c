@@ -668,6 +668,7 @@ void test_jam(char *base)
     if (access(temp, W_OK)) {
 	if (mkdirs(base, 0770)) {
 	    if (yes_no((char *)"Messagebase doesn't exist, create")) {
+		Syslog('+', "Created JAM base %s", base);
 		if (Msg_Open(base))
 		    Msg_Close();
 	    }
@@ -682,11 +683,83 @@ void test_jam(char *base)
 
 char *edit_jam(int y, int x, int l, char *line, char *help)
 {
-	static	char s[256];
+	static char s[256];
+	char	    *from, *too;
+	int	    rc = 0;
 
 	showhelp(help);
 	memset((char *)s, 0, 256);
 	strcpy(s, edit_field(y, x, l, 'X', line));
+	if (strlen(s) && strlen(line) && strcmp(s, line)) {
+	    /*
+	     * Old and new paths did exist and are different.
+	     * Test if we are doing a message base move.
+	     */
+	    from = calloc(PATH_MAX, sizeof(char));
+	    too  = calloc(PATH_MAX, sizeof(char));
+	    sprintf(from, "%s.jhr", line);
+	    if (access(from, R_OK | W_OK) == 0) {
+		/*
+		 * Old message base does exist, copy message base.
+		 */
+		if (mkdirs(s, 0770)) {
+		    sprintf(too, "%s.jhr", s);
+		    rc = file_cp(from, too);
+		    if (rc == 0) {
+			sprintf(from, "%s.jdt", line);
+			sprintf(too,  "%s.jdt", s);
+			rc = file_cp(from, too);
+		    }
+		    if (rc == 0) {
+			sprintf(from, "%s.jdx", line);
+			sprintf(too,  "%s.jdx", s);
+			rc = file_cp(from, too);
+		    }
+		    if (rc == 0) {
+			sprintf(from, "%s.jlr", line);
+			sprintf(too,  "%s.jlr", s);
+			rc = file_cp(from, too);
+		    }
+		    if (rc == 0) {
+			/*
+			 * All files copied successfull
+			 */
+			file_rm(from);
+			sprintf(from, "%s.jdx", line);
+			file_rm(from);
+			sprintf(from, "%s.jdt", line);
+			file_rm(from);
+			sprintf(from, "%s.jhr", line);
+			file_rm(from);
+			Syslog('+', "JAM message base moved to %s", s);
+		    } else {
+			/*
+			 * Copy failed
+			 */
+			file_rm(too);
+			sprintf(too, "%s.jdx", s);
+			file_rm(too);
+			sprintf(too, "%s.jdt", s);
+			file_rm(too);
+			sprintf(too, "%s.jhr", s);
+			file_rm(too);
+			errmsg((char *)"Can't move JAM message base");
+			strcpy(s, line);
+		    }
+		} else {
+		    errmsg((char *)"Can't create destination directory");
+		    strcpy(s, line);
+		}
+	    }
+	    free(from);
+	    free(too);
+	} else if (strlen(s) == 0) {
+	    /*
+	     * If no new path, report
+	     */
+	    errmsg((char *)"Empty path for JAM messagebase");
+	}
+
 	test_jam(s);
 	set_color(WHITE, BLACK);
 	show_str(y, x, l, s);

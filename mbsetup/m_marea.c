@@ -49,7 +49,7 @@ int		MsgUpdated = 0;
 unsigned long	MsgCrc;
 FILE		*tfil = NULL;
 extern int	exp_golded;
-
+int		MailForced = FALSE;
 
 
 /*
@@ -1013,7 +1013,7 @@ int EditMsgRec(int);
 int EditMsgRec(int Area)
 {
 	unsigned long	crc1;
-	int		tmp, i, connections = 0, changed = FALSE, Active;
+	int		tmp, i, connections = 0, changed = FALSE, Active, Forced = FALSE;
 	sysconnect	System;
 	char		*temp;
 
@@ -1092,7 +1092,7 @@ int EditMsgRec(int Area)
 				       (msgs.Type == ECHOMAIL || msgs.Type == NEWS || msgs.Type == LIST)) {
 				errmsg((char *)"Message area has no group assigned");
 				break;
-			    } else if (yes_no((char *)"Record is changed, save") == 1) {
+			    } else if (Forced || yes_no((char *)"Record is changed, save") == 1) {
 				if (SaveMsgRec(Area, TRUE) == -1)
 				    return -1;
 				MsgUpdated = 1;
@@ -1152,7 +1152,10 @@ int EditMsgRec(int Area)
 			SetScreen(); 
 			break;
 		case 4: E_STR(  9,16,64,msgs.Newsgroup,  "The ^Newsgroup^ name of this area")
-		case 5: E_JAM( 10,16,64,msgs.Base,       "The path to the ^JAM Message Base^")
+		case 5: strcpy(msgs.Base, edit_jam(10,16,64,msgs.Base ,(char *)"The path to the ^JAM Message Base^"));
+			Forced = TRUE;
+			MailForced = TRUE;
+			break;
 		case 6: E_STR( 11,16,64,msgs.Origin,     "The ^Origin line^ to append to Echomail messages")
 		case 7: tmp = PickAka((char *)"9.2.7", TRUE);
 			if (tmp != -1)
@@ -1313,7 +1316,7 @@ void EditMsgarea(void)
 		strcpy(pick, select_area(records, 10));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseMsgarea(FALSE);
+			CloseMsgarea(MailForced);
 			return;
 		}
 
