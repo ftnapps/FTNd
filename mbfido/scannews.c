@@ -68,7 +68,6 @@ int		marker = 0;
  */
 extern	int	do_quiet;
 extern	int	do_learn;
-extern	int	most_debug;
 extern	int	news_in;
 extern	int	news_imp;
 extern	int	news_dupe;
@@ -299,9 +298,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 				/*
 				 *  If the message isn't a dupe, it must be new for us.
 				 */
-				most_debug = TRUE;
 				get_article(tmp->msgid, ftntag);
-				most_debug = FALSE;
 				fetched++;
 			}
 		}

@@ -79,6 +79,8 @@ v0.35.06
 		Changed some logging to debug with auto create areas.
 		Request messages sent to the uplinks are now logged in the
 		manager logfile.
+		Removed heavy debugging on some parts of RFC message 
+		processing.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 

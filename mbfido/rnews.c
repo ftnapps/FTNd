@@ -96,7 +96,6 @@ static HEADER   RequiredHeaders[] = {
  *  External variables
  */
 extern	int	do_quiet;
-extern	int	most_debug;
 extern	int	news_in;
 extern	int	news_dupe;
 extern	int	check_dupe;
@@ -556,9 +555,7 @@ void NewsUUCP(void)
 		printf("Process UUCP Newsbatch\n");
 	}
 
-	most_debug = TRUE;
 	rc = UnpackOne(&fd, &i);
-	most_debug = FALSE;
 	WaitForChildren(i);
 	Syslog('+', "End of UUCP batch, rc=%d", rc);
 	do_flush = TRUE;

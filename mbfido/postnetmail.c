@@ -59,7 +59,6 @@ extern	int	net_in;			/* Total netmails processed	*/
 extern	int	net_out;		/* Netmails exported		*/
 extern	int	net_imp;		/* Netmails imported            */
 extern	int	net_bad;		/* Bad netmails			*/
-extern	int	most_debug;		/* Headvy debugging flag	*/
 
 
 
@@ -244,9 +243,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 			/*
 			 * Send this netmail via ftn2rfc -> postemail.
 			 */
-			most_debug = TRUE;
 			result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
-			most_debug = FALSE;
 			return result;
 		}
 
@@ -278,9 +275,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 							break;
 					case FILEMGR:   result = FileMgr(f, t, msgid, subject, mdate, flags, fp);
 							break;
-					case EMAIL:     most_debug = TRUE;
-							result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
-							most_debug = FALSE;
+					case EMAIL:     result = ftn2rfc(f, t, subject, orig, mdate, flags, fp);
 							if (result) {
 							    if (result == 2)
 								Bounce(f, t, fp, (char *)"Could not post email");
