@@ -169,7 +169,7 @@ int check_flo(faddr *node, char *filename, char flavor)
     ticfile = calloc(PATH_MAX, sizeof(char));
 
     sprintf(flofile, "%s", floname(node, flavor));
-    Syslog('p', "%s", flofile);
+    Syslog('p', "check_flo: %s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;
 	while (fgets(buf, PATH_MAX +2, fp)) {
@@ -177,9 +177,7 @@ int check_flo(faddr *node, char *filename, char flavor)
 	    Striplf(buf);
 	    if (buf[strlen(buf)-1] == '\r')
 		buf[strlen(buf)-1] = '\0';
-	    Syslog('p',  "hlo: \"%s\"", printable(buf, 0));
 	    if (((strcmp(buf, filename) == 0) || (strcmp(buf+1, filename) == 0)) && (buf[0] != '~')) {
-		Syslog('p', "Found");
 		fseek(fp, filepos, SEEK_SET);
 		fwrite(&tpl, 1, 1, fp);
 		fflush(fp);
@@ -194,12 +192,13 @@ int check_flo(faddr *node, char *filename, char flavor)
 			fseek(fp, filepos, SEEK_SET);
 			fwrite(&tpl, 1, 1, fp);
 			fflush(fp);
-			Syslog('p', "Removed old %s and %s for %s", basename(filename), basename(buf+1), ascfnode(node, 0x1f));
+			Syslog('+', "Removed old %s and %s for %s from outbound", 
+				basename(filename), basename(buf+1), ascfnode(node, 0x1f));
 		    } else {
-			Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(node, 0x1f));
+			Syslog('+', "Removed old %s for %s from outbound", basename(filename), ascfnode(node, 0x1f));
 		    }
 		} else {
-		    Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(node, 0x1f));
+		    Syslog('+', "Removed old %s for %s from outbound", basename(filename), ascfnode(node, 0x1f));
 		}
 		rc = 1;
 		break;
@@ -225,7 +224,7 @@ void un_attach(faddr *node, char *filename)
 {
     char    *base, *allname;
 
-    Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename);
+    Syslog('p', "un_attach: %s %s", ascfnode(node, 0x1f), filename);
     allname = xstrcpy(filename);
     base = basename(allname);
 
@@ -234,7 +233,6 @@ void un_attach(faddr *node, char *filename)
 	(strncasecmp(base+8,".we",3) == 0) || (strncasecmp(base+8,".th",3) == 0) ||
 	(strncasecmp(base+8,".fr",3) == 0) || (strncasecmp(base+8,".sa",3) == 0) ||
 	(strncasecmp(base+8,".tic",4) == 0))) {
-	Syslog('p', "this is arcmail or tic, no un_attach");
 	free(allname);
 	return;
     }

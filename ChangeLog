@@ -14,6 +14,8 @@ v0.61.4		11-Aug-2004
 		Echomail received from not connected nodes is stored in the
 		badmail area unless the area allowes it.
 		Can now send (hopefully) valid uplink requests to BBBS systems.
+		Removed some debug logging from un_attach, made one into a
+		normal logmessage.
 
 	mbmsg:
 		Fixed counter in log that should show the number of linked 
