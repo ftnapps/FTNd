@@ -795,7 +795,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	    if ((mgroup.UseAka.zone == t->zone) && (mgroup.UseAka.net == t->net) && mgroup.UpLink.zone &&
 		strlen(mgroup.AreaFile) && mgroup.Active && mgroup.UserChange) {
 		if (CheckEchoGroup(Area, TRUE, t) == 0) {
-		    fprintf(tmp, "Area %s not available, requested from uplink %s", Area, aka2str(mgroup.UpLink));
+		    fprintf(tmp, "Area %s not available, requested from uplink %s\n", Area, aka2str(mgroup.UpLink));
 		    break;
 		}
 	    }
