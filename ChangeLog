@@ -55,6 +55,8 @@ v0.61.4		11-Aug-2004
 		During scan the Msg_Read function is now called with a width
 		of 79 characters instead of 78. This fixes the missing address
 		on Origin lines of 79 characters long.
+		The *.msg function now uses Fgets instead of fgets to read the
+		message.
 
 	mbfile:
 		The html index now uses html named character entities on the

@@ -136,10 +136,10 @@ int toss_onemsg(char *msgname)
     strncpy(subject, buf+0x48, 72);
     strncpy(DateTime, buf+0x90, 20);
 
-    Syslog('m', "\"%s\"", printable(fromUserName, 0));
-    Syslog('m', "\"%s\"", printable(toUserName, 0));
-    Syslog('m', "\"%s\"", printable(subject, 0));
-    Syslog('m', "\"%s\"", printable(DateTime, 0));
+    Syslog('m', "From \"%s\"", printable(fromUserName, 0));
+    Syslog('m', "To   \"%s\"", printable(toUserName, 0));
+    Syslog('m', "Subj \"%s\"", printable(subject, 0));
+    Syslog('m', "Date \"%s\"", printable(DateTime, 0));
  
     destNode  = (buf[0xa7] << 8) + buf[0xa6];
     origNode  = (buf[0xa9] << 8) + buf[0xa8];
@@ -153,11 +153,8 @@ int toss_onemsg(char *msgname)
  
     Syslog('m', "From %d:%d/%d.%d to %d:%d/%d.%d", origZone, origNet, origNode, origPoint, destZone, destNet, destNode, destPoint);
 
-    while (fgets(temp, PATH_MAX-1, fp)) {
-	Striplf(temp);
-	if (temp[strlen(temp)-1] == '\r')
-	    temp[strlen(temp)-1] = '\0';
-	Syslogp('m', printable(temp, 0));
+    while (Fgets(temp, PATH_MAX-1, fp)) {
+	Syslog('m', "Line \"%s\"", printable(temp, 0));
 	if (!strncmp(temp, "\001MSGID: ", 8)) {
 	    msgid = xstrcpy(temp + 8);
 	    /*
