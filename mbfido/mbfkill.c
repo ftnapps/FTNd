@@ -51,14 +51,21 @@ extern int	do_pack;		/* Perform pack			    */
  */
 void Kill(void)
 {
-    FILE		*pAreas, *pFile, *pDest, *pTemp;
+    FILE		*pAreas;
     int			i, iAreas, iAreasNew = 0, iTotal = 0, iKilled =  0, iMoved = 0, rc, Killit;
-    char		*sAreas, *fAreas, *newdir = NULL, *sTemp, from[PATH_MAX], to[PATH_MAX];
+    char		*sAreas, *newdir = NULL, *sTemp, from[PATH_MAX], to[PATH_MAX];
     time_t		Now;
     struct fileareas	darea;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	*fdb_area = NULL, *dst_area = NULL;
+#else
+    FILE		*pFile, *pDest, *pTemp;
+    char		*fAreas;
 
-    sAreas = calloc(PATH_MAX, sizeof(char));
     fAreas = calloc(PATH_MAX, sizeof(char));
+#endif
+    
+    sAreas = calloc(PATH_MAX, sizeof(char));
     sTemp  = calloc(PATH_MAX, sizeof(char));
 
     IsDoing("Kill files");
@@ -106,6 +113,10 @@ void Kill(void)
 		newdir = NULL;
 	    }
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
+		die(MBERR_GENERAL);
+#else
 	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 
 	    /*
@@ -124,12 +135,17 @@ void Kill(void)
 	    } else {
 		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
+#endif
 
 	    /*
 	     * Now start checking the files in the filedatabase
 	     * against the contents of the directory.
 	     */
+#ifdef	USE_EXPERIMENT
+	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 		iTotal++;
 		Marker();
 
@@ -168,6 +184,14 @@ void Kill(void)
 			sprintf(to,   "%s/%s", darea.Path, fdb.Name);
 			if ((rc = file_mv(from, to)) == 0) {
 			    Syslog('+', "Move %s, area %d => %d", fdb.Name, i, area.MoveArea);
+#ifdef	USE_EXPERIMENT
+			    if ((dst_area = mbsedb_OpenFDB(area.MoveArea, 30))) {
+				fdb.UploadDate = time(NULL);
+				fdb.LastDL = time(NULL);
+				mbsedb_InsertFDB(dst_area, fdb, FALSE);
+				mbsedb_CloseFDB(dst_area);
+			    }
+#else
 			    sprintf(to, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), area.MoveArea);
 			    if ((pDest = fopen(to, "a+")) != NULL) {
 				fseek(pDest, 0, SEEK_END);
@@ -180,6 +204,7 @@ void Kill(void)
 				fwrite(&fdb, fdbhdr.recsize, 1, pDest);
 				fclose(pDest);
 			    }
+#endif
 
 			    /*
 			     * Now again if there is a dotted version (thumbnail) of this file.
@@ -203,8 +228,16 @@ void Kill(void)
 			    symlink(from, to);
 
 			    fdb.Deleted = TRUE;
+#ifdef	USE_EXPERIMENT
+			    if (mbsedb_LockFDB(fdb_area, 30)) {
+				fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+				fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+				mbsedb_UnlockFDB(fdb_area);
+			    }
+#else
 			    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
 			    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
 			    iMoved++;
 			} else {
 			    WriteError("Move %s to area %d failed, %s", fdb.Name, area.MoveArea, strerror(rc));
@@ -212,8 +245,16 @@ void Kill(void)
 		    } else {
 			Syslog('+', "Delete %s, area %d", fdb.LName, i);
 			fdb.Deleted = TRUE;
+#ifdef	USE_EXPERIMENT
+			if (mbsedb_LockFDB(fdb_area, 30)) {
+			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+			    mbsedb_UnlockFDB(fdb_area);
+			}
+#else
 			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
 			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
+#endif
 			iKilled++;
 			sprintf(from, "%s/%s", area.Path, fdb.LName);
 			unlink(from);
@@ -229,6 +270,10 @@ void Kill(void)
 	     * Now we must pack this area database otherwise
 	     * we run into trouble later on.
 	     */
+#ifdef	USE_EXPERIMENT
+	    mbsedb_PackFDB(fdb_area);
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 	    sprintf(sTemp, "%s/fdb/filetmp.data", getenv("MBSE_ROOT"));
 
@@ -248,7 +293,8 @@ void Kill(void)
 		}
 	    } else 
 		fclose(pFile);
-
+	    free(fAreas);
+#endif
 	    iAreasNew++;
 
 	} /* if area.Available */
@@ -265,7 +311,6 @@ void Kill(void)
 
     free(sTemp);
     free(sAreas);
-    free(fAreas);
 }
 
 
