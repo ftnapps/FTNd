@@ -12,6 +12,9 @@ v0.71.0		27-Oct-2004
 		switches, these are no longer needed.
 		Added new subdirectory mbutils. Some sources from the mbsebbs
 		subdirectory are moved there.
+		Changed the CFLAGS back from -O3 to -O2 since there seem some
+		stablity problems and I want to rule out the possibility that
+		this is caused by bad gcc optimisation.
 
 	mbsebbs:
 		In change handle the first character of the name is not 
