@@ -78,39 +78,33 @@ int CheckStatus()
 
 
 /*
- * Function to check if UserName exists and returns a 0 or 1
+ * Function to check if UserName/Handle  exists and returns a 0 or 1
  */
 int CheckName(char *Name)
 {
-	FILE	*fp;
-	int	Status = FALSE;
-	char	*temp, *temp1;
-	struct	userhdr	ushdr;
-	struct	userrec	us;
+    FILE	    *fp;
+    int		    Status = FALSE;
+    char	    *temp;
+    struct userhdr  ushdr;
+    struct userrec  us;
 
-	temp   = calloc(PATH_MAX, sizeof(char));
-	temp1  = calloc(81, sizeof(char));
+    temp   = calloc(PATH_MAX, sizeof(char));
 
-	strcpy(temp1, tl(Name));
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp,"rb")) != NULL) {
+	fread(&ushdr, sizeof(ushdr), 1, fp);
 
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp,"rb")) != NULL) {
-		fread(&ushdr, sizeof(ushdr), 1, fp);
+ 	while (fread(&us, ushdr.recsize, 1, fp) == 1) {
+	    if ((strcasecmp(Name, us.sUserName) == 0) || (strcasecmp(Name, us.sHandle) == 0)) {
+		Status = TRUE;
+		break;
+	    }
+ 	}
+	fclose(fp);
+    }
 
- 		while (fread(&us, ushdr.recsize, 1, fp) == 1) {
-			strcpy(temp, tl(us.sUserName));
-
-			if((strcmp(temp, temp1)) == 0) {
-				Status = TRUE;
-				break;
-			}
- 		}
-		fclose(fp);
-	}
-
-	free(temp);
-	free(temp1);
-	return Status;
+    free(temp);
+    return Status;
 }
 
 

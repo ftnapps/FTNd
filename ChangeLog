@@ -4,12 +4,28 @@ $Id$
 
 v0.35.03	06-Jul-2002
 
+	lang:
+		Corrected a spelling error in the Dutch language file.
+
 	mbcico:
 		Changed IsDoing information.
+
+	newuser:
+		Check for Unix accounts is now case sensitive.
+		Check existing usernames now also checks handles.
+
+	mbsebbs:
+		Check existing usernames now also checks handles.
+		When a user paged the sysop for a chat, after the timer was
+		expired, the bbs crashed.
 
 	mbtask:
 		Changed logging of multiple logmessages that are equal.
 		Changed semafore debug logmessages.
+		Fixed log problem not always showing the Call flag.
+		Now forces callmode to None if the callflag was cleared.
+		The test to add a node to the calllist now also checks the
+		internal call flag.
 
 
 v0.35.02	22-Jun-2002 - 06-Jul-2002

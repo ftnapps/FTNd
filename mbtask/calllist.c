@@ -87,8 +87,9 @@ int check_calllist(void)
     if (pots_calls || isdn_calls || inet_calls) {
 	call_work = 0;
 	for (tmp = alist; tmp; tmp = tmp->next) {
-	    if (((tmp->callmode == CM_INET) && TCFG.max_tcp && internet) ||
-		((tmp->callmode == CM_ISDN) && isdn_lines) || ((tmp->callmode == CM_POTS) && pots_lines)) {
+	    if ((((tmp->callmode == CM_INET) && TCFG.max_tcp && internet) ||
+		 ((tmp->callmode == CM_ISDN) && isdn_lines) || ((tmp->callmode == CM_POTS) && pots_lines)) &&
+		((tmp->flavors) & F_CALL)) {
 		call_work++;
 
 		/*

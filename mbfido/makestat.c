@@ -101,7 +101,7 @@ char *adate(time_t now)
 	struct tm	ptm;
 
 	if (now == 0L) {
-		sprintf(buf, "N/A");
+		sprintf(buf, "&nbsp;");
 	} else {
 		ptm = *localtime(&now);
 		sprintf(buf, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900,
@@ -148,7 +148,7 @@ void MakeStat(void)
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "s", mgroup.Name);
 			MacroVars("c", "s", mgroup.Comment);
-			MacroVars("d", "s", aka2str(mgroup.UseAka));
+			MacroVars("d", "s", mgroup.UseAka.zone ? aka2str(mgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(mgroup.LastDate));
 			MacroVars("f", "d", mgroup.MsgsRcvd.lweek);
 			MacroVars("g", "d", mgroup.MsgsRcvd.month[Lm]);
@@ -227,7 +227,7 @@ void MakeStat(void)
 			fseek(fi, fileptr, SEEK_SET);
 			MacroVars("b", "s", fgroup.Name);
 			MacroVars("c", "s", fgroup.Comment);
-			MacroVars("d", "s", aka2str(fgroup.UseAka));
+			MacroVars("d", "s", fgroup.UseAka.zone ? aka2str(fgroup.UseAka):"&nbsp;");
 			MacroVars("e", "s", adate(fgroup.LastDate));
 			MacroVars("f", "d", fgroup.Files.lweek);
 			MacroVars("g", "d", fgroup.KBytes.lweek);
@@ -343,7 +343,7 @@ void MakeStat(void)
 		    fseek(fi, fileptr, SEEK_SET);
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
-		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"N/A");
+		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"&nbsp;");
 		    MacroVars("d", "s", hist.system_name);
 		    MacroVars("e", "s", hist.sysop);
 		    MacroVars("f", "s", hist.location);

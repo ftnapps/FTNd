@@ -460,8 +460,6 @@ int outstat()
 	     */
 	    tmp->flavors &= ~F_CALL;
 	}
-	if ((tmp->flavors) & F_CALL) 
-	    flstr[10]='C';
 	if (tmp->t1) 
 	    flstr[12] = tmp->t1;
 	if (tmp->t2) 
@@ -519,6 +517,14 @@ int outstat()
 		tmp->flavors &= ~F_CALL;
 	    }
 	}
+
+	if ((tmp->flavors) & F_CALL)
+	    flstr[10]='C';
+	else
+	    /*
+	     * Safety, clear callmode.
+	     */
+	    tmp->callmode = CM_NONE;
 	
 	/*
 	 * Show callresult for this node.

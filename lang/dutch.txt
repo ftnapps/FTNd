@@ -380,7 +380,7 @@ JN|Zeker weten? [J/n]:
 |Kies taal: 
 |De taal is nu: 
 |Het systeem zal nu een "Unix gebruikersnaam" vragen
-|Uw "Unix gerbuikersnaam" is gemaakt, U kunt dit de volgende keer gebruiken.
+|Uw "Unix gebruikersnaam" is gemaakt, U kunt dit de volgende keer gebruiken.
 |Geef een inlog naam (Maximaal 8 karakters, kleine letters)
 |bv. Piet Snot, login = psnot
 |login > 
