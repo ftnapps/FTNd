@@ -66,7 +66,10 @@
 
 */
 
-char *transfertime(struct timeval, struct timeval, long bytes, int);
+
+int	sentbytes = 0;
+int	rcvdbytes = 0;
+
 
 
 int ForceProtocol()

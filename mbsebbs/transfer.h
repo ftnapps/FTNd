@@ -38,6 +38,6 @@ void	tidy_download(down_list **);
 int	download(down_list *);
 void	tidy_upload(up_list **);
 int	upload(up_list **);
-
+char	*transfertime(struct timeval, struct timeval, long bytes, int);
 
 #endif
