@@ -149,10 +149,6 @@ mbaff:
 mbindex:
 	X: Add usernames index.
 
-mbnewusr:
-	L: On NetBSD, supress error message from mbpasswd.
-	   -- Currently no access to my old Sun Sparcstation.
-
 mbsetup:
 	N: Add a check for double areatag names.
 

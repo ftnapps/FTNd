@@ -29,6 +29,10 @@ v0.51.3		22-Mar-2003
 	mblogin:
 		Changed some defines for NetBSD 1.6.2
 
+	mbuseradd:
+		On NetBSD fixed the errormessage when a new user is
+		created.
+
 
 v0.51.2		06-Mar-2004 - 22-Mar-2003
 

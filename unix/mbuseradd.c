@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
     sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
     sprintf(homedir, "%s/%s", argv[4], argv[2]);
 
-#if defined(__linux__) || defined(__NetBSD__)
+#if defined(__linux__)
     args[1] = (char *)"-c";
     args[2] = argv[3];
     args[3] = (char *)"-d";
@@ -239,6 +239,19 @@ int main(int argc, char *argv[])
     args[8] = shell;
     args[9] = argv[2];
     args[10] = NULL;
+#endif
+#if defined(__NetBSD__)
+    args[1] = (char *)"-c";
+    args[2] = argv[3];
+    args[3] = (char *)"-d";
+    args[4] = homedir;
+    args[5] = (char *)"-g";
+    args[6] = argv[1];
+    args[7] = (char *)"-s";
+    args[8] = shell;
+    args[9] = (char *)"-m";
+    args[10] = argv[2];
+    args[11] = NULL;
 #endif
 #ifdef __FreeBSD__
     args[1] = (char *)"useradd";
