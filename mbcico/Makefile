@@ -106,7 +106,7 @@ dietifna.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/no
 emsidat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h emsi.h session.h lutil.h config.h emsidat.h filetime.h
 filelist.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h config.h session.h filelist.h
 openfile.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/common.h ../lib/users.h ../lib/records.h config.h lutil.h openfile.h
-openport.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ulock.h ttyio.h openport.h
+openport.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ulock.h ttyio.h mbcico.h openport.h
 opentcp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h ttyio.h openport.h opentcp.h
 rdoptions.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h config.h
 yoohoo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/mberrors.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h

@@ -189,13 +189,13 @@ int main(int argc, char *argv[])
     Syslog(' ', "MBCICO v%s", VERSION);
 
     /*
-     * Catch all signals we can, and handle the rest.
+     * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGFPE) || (i == SIGSEGV)) {
+	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL)) {
 	    signal(i, (void (*))die);
 	} else {
-	    signal(i, SIG_DFL);
+	    signal(i, SIG_IGN);
 	}
     }
 

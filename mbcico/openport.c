@@ -1,11 +1,11 @@
 /*****************************************************************************
  *
+ * $Id$
  * File ..................: mbcico/openport.c
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -36,6 +36,7 @@
 #include "../lib/clcomm.h"
 #include "ulock.h"
 #include "ttyio.h"
+#include "mbcico.h"
 #include "openport.h"
 
 
@@ -49,142 +50,140 @@ int		hanged_up = 0;
 
 void linedrop(int sig)
 {
-	Syslog('+', "openport: Lost Carrier");
-	hanged_up=1;
-	return;
+    Syslog('+', "openport: Lost Carrier");
+    hanged_up=1;
+    return;
 }
 
 
 
 void sigpipe(int sig)
 {
-	Syslog('+', "openport: Got SIGPIPE");
-	hanged_up=1;
-	return;
+    Syslog('+', "openport: Got SIGPIPE");
+    hanged_up=1;
+    return;
 }
 
 
 
 void interrupt(int sig)
 {
-	Syslog('+', "openport: Got SIGINT");
-	signal(SIGINT,interrupt);
-	return;
+    Syslog('+', "openport: Got SIGINT");
+    signal(SIGINT,interrupt);
+    return;
 }
 
 
 
 int openport(char *port, int speed)
 {
-	int rc, rc2;
-	char *errtty=NULL;
-	int fd;
-	int outflags;
+    int	    rc, rc2, fd, outflags;
+    char    *errtty=NULL;
 
-	Syslog('t', "Try opening port \"%s\" at %d",MBSE_SS(port),speed);
-	if (openedport) 
-		free(openedport);
+    Syslog('t', "Try opening port \"%s\" at %d",MBSE_SS(port),speed);
+    if (openedport) 
+	free(openedport);
+    openedport = NULL;
+    if (port[0] == '/') 
+	openedport = xstrcpy(port);
+    else {
+	openedport = xstrcpy((char *)"/dev/");
+	openedport = xstrcat(openedport, port);
+    }
+    pname = strrchr(openedport, '/');
+
+    if ((rc = lock(pname))) {
+	Syslog('+', "Port %s is locked (rc = %d)", port, rc);
+	free(openedport);
 	openedport = NULL;
-	if (port[0] == '/') 
-		openedport = xstrcpy(port);
-	else {
-		openedport = xstrcpy((char *)"/dev/");
-		openedport = xstrcat(openedport, port);
-	}
-	pname = strrchr(openedport, '/');
-
-	if ((rc = lock(pname))) {
-		Syslog('+', "Port %s is locked (rc = %d)", port, rc);
-		free(openedport);
-		openedport = NULL;
-		return rc;
-	}
-
-	if (need_detach) {
-		fflush(stdin);
-		fflush(stdout);
-		setbuf(stdin, NULL);
-		setbuf(stdout, NULL);
-		close(0);
-		close(1);
-
-		/*
-		 * If we were manual started the error tty must be closed.
-		 */
-		if ((errtty = ttyname(2))) {
-			Syslog('t', "openport: stderr was on \"%s\", closing",errtty);
-			fflush(stderr);
-			close(2);
-		}
-	}
-	tty_status = 0;
-	hanged_up = 0;
-	signal(SIGHUP, linedrop);
-	signal(SIGPIPE, sigpipe);
-	signal(SIGINT, interrupt);
-	rc = 0;
-	rc2 = 0;
-
-	Syslog('T', "Try open %s", MBSE_SS(openedport));
-	if ((fd = open(openedport,O_RDONLY|O_NONBLOCK)) != 0) {
-		rc = 1;
-		Syslog('+', "$Cannot open \"%s\" as stdin",MBSE_SS(openedport));
-		fd = open("/dev/null",O_RDONLY);
-	}
-
-	if ((fd = open(openedport,O_WRONLY|O_NONBLOCK)) != 1) {
-		rc = 1;
-		Syslog('+', "$Cannot open \"%s\" as stdout",MBSE_SS(openedport));
-		fd = open("/dev/null",O_WRONLY);
-	}
-
-	clearerr(stdin);
-	clearerr(stdout);
-	if (need_detach) {
-#ifdef TIOCSCTTY
-		if ((rc2 = ioctl(0,TIOCSCTTY,1L)) < 0) {
-			Syslog('t', "$TIOCSCTTY failed rc = %d", rc2);
-		}
-#endif
-		if (errtty) {
-			rc = rc || (open(errtty,O_WRONLY) != 2);
-		}
-		need_detach=0;
-	}
-
-	Syslog('T', "after open rc=%d",rc);
-
-	if (rc) 
-		Syslog('+', "cannot switch i/o to port \"%s\"",MBSE_SS(openedport));
-	else {
-		if (tty_raw(speed)) {
-			WriteError("$cannot set raw mode for \"%s\"",MBSE_SS(openedport));
-			rc=1;
-		}
-
-		if (((f_flags = fcntl(0, F_GETFL, 0L)) == -1) || ((outflags = fcntl(1, F_GETFL, 0L)) == -1)) {
-			rc = 1;
-			WriteError("$GETFL error");
-			f_flags = 0;
-			outflags = 0;
-		} else {
-			Syslog('t', "Return to blocking mode");
-			f_flags &= ~O_NONBLOCK;
-			outflags &= ~O_NONBLOCK;
-			if ((fcntl(0, F_SETFL, f_flags) != 0) || (fcntl(1, F_SETFL, outflags) != 0)) {
-				rc = 1;
-				WriteError("$SETFL error");
-			}
-		}
-		Syslog('T', "File flags: stdin: 0x%04x, stdout: 0x%04x", f_flags,outflags);
-	}
-
-	if (rc) 
-		closeport();
-	else
-		SetTTY(port);
-
 	return rc;
+    }
+
+    if (need_detach) {
+	fflush(stdin);
+	fflush(stdout);
+	setbuf(stdin, NULL);
+	setbuf(stdout, NULL);
+	close(0);
+	close(1);
+
+	/*
+	 * If we were manual started the error tty must be closed.
+	 */
+	if ((errtty = ttyname(2))) {
+	    Syslog('t', "openport: stderr was on \"%s\", closing",errtty);
+	    fflush(stderr);
+	    close(2);
+	}
+    }
+    tty_status = 0;
+    hanged_up = 0;
+    Syslog('t', "SIGHUP => linedrop()");
+    signal(SIGHUP, linedrop);
+    Syslog('t', "SIGPIPE => sigpipe()");
+    signal(SIGPIPE, sigpipe);
+    Syslog('t', "SIGINT => interrupt()");
+    signal(SIGINT, interrupt);
+    rc = 0;
+    rc2 = 0;
+
+    if ((fd = open(openedport,O_RDONLY|O_NONBLOCK)) != 0) {
+	rc = 1;
+	Syslog('+', "$Cannot open \"%s\" as stdin",MBSE_SS(openedport));
+	fd = open("/dev/null",O_RDONLY);
+    }
+
+    if ((fd = open(openedport,O_WRONLY|O_NONBLOCK)) != 1) {
+	rc = 1;
+	Syslog('+', "$Cannot open \"%s\" as stdout",MBSE_SS(openedport));
+	fd = open("/dev/null",O_WRONLY);
+    }
+
+    clearerr(stdin);
+    clearerr(stdout);
+    if (need_detach) {
+#ifdef TIOCSCTTY
+	if ((rc2 = ioctl(0,TIOCSCTTY,1L)) < 0) {
+	    Syslog('t', "$TIOCSCTTY failed rc = %d", rc2);
+	}
+#endif
+	if (errtty) {
+	    rc = rc || (open(errtty,O_WRONLY) != 2);
+	}
+	need_detach=0;
+    }
+
+    if (rc) 
+	Syslog('+', "cannot switch i/o to port \"%s\"",MBSE_SS(openedport));
+    else {
+	if (tty_raw(speed)) {
+	    WriteError("$cannot set raw mode for \"%s\"",MBSE_SS(openedport));
+	    rc=1;
+	}
+
+	if (((f_flags = fcntl(0, F_GETFL, 0L)) == -1) || ((outflags = fcntl(1, F_GETFL, 0L)) == -1)) {
+	    rc = 1;
+	    WriteError("$GETFL error");
+	    f_flags = 0;
+	    outflags = 0;
+	} else {
+	    Syslog('t', "Return to blocking mode");
+	    f_flags &= ~O_NONBLOCK;
+	    outflags &= ~O_NONBLOCK;
+	    if ((fcntl(0, F_SETFL, f_flags) != 0) || (fcntl(1, F_SETFL, outflags) != 0)) {
+		rc = 1;
+		WriteError("$SETFL error");
+	    }
+	}
+	Syslog('t', "File flags: stdin: 0x%04x, stdout: 0x%04x", f_flags,outflags);
+    }
+
+    if (rc) 
+	closeport();
+    else
+	SetTTY(port);
+
+    return rc;
 }
 
 
@@ -194,77 +193,87 @@ int openport(char *port, int speed)
  */
 void localport(void)
 {
-	Syslog('t', "Setting port \"%s\" local",MBSE_SS(openedport));
-	signal(SIGHUP,SIG_IGN);
-	signal(SIGPIPE,SIG_IGN);
-	if (isatty(0)) 
-		tty_local();
-	return;
+    Syslog('t', "Setting port \"%s\" local",MBSE_SS(openedport));
+    Syslog('t', "SIGHUP => SIG_IGN");
+    signal(SIGHUP, SIG_IGN);
+    Syslog('t', "SIGPIPE => SIG_IGN");
+    signal(SIGPIPE, SIG_IGN);
+    
+    if (isatty(0)) 
+	tty_local();
+    
+    return;
 }
 
 
 
 void nolocalport(void)
 {
-	Syslog('t', "Setting port \"%s\" non-local",MBSE_SS(openedport));
-	if (isatty(0)) 
-		tty_nolocal();
-	return;
+    Syslog('t', "Setting port \"%s\" non-local",MBSE_SS(openedport));
+    if (isatty(0)) 
+	tty_nolocal();
+    
+    return;
 }
 
 
 
 int rawport(void)
 {
-	tty_status = 0;
-	signal(SIGHUP,linedrop);
-	signal(SIGPIPE,sigpipe);
+    tty_status = 0;
+    Syslog('t', "SIGHUP => linedrop()");
+    signal(SIGHUP, linedrop);
+    Syslog('t', "SIGPIPE => sigpipe()");
+    signal(SIGPIPE, sigpipe);
 
-	if (isatty(0)) 
-		return tty_raw(0);
-	else 
-		return 0;
+    if (isatty(0)) 
+	return tty_raw(0);
+    else 
+	return 0;
 }
 
 
 
 int cookedport(void)
 {
-	signal(SIGHUP,SIG_IGN);
-	signal(SIGPIPE,SIG_IGN);
-	if (isatty(0)) 
-		return tty_cooked();
-	else 
-		return 0;
+    Syslog('t', "SIGHUP => SIG_IGN");
+    signal(SIGHUP, SIG_IGN);
+    Syslog('t', "SIGHUP => SIG_IGN");
+    signal(SIGPIPE, SIG_IGN);
+    if (isatty(0)) 
+	return tty_cooked();
+    else 
+	return 0;
 }
 
 
 
 void closeport(void)
 {
-	if (openedport == NULL)
-		return;
-
-	Syslog('t', "Closing port \"%s\"",MBSE_SS(openedport));
-	fflush(stdin);
-	fflush(stdout);
-	tty_cooked();
-	close(0);
-	close(1);
-	ulock(pname);
-	if (openedport) 
-		free(openedport);
-	openedport = NULL;
-	SetTTY((char *)"-");
+    if (openedport == NULL)
 	return;
+
+    Syslog('t', "Closing port \"%s\"",MBSE_SS(openedport));
+    fflush(stdin);
+    fflush(stdout);
+    tty_cooked();
+    close(0);
+    close(1);
+    ulock(pname);
+    if (openedport) 
+	free(openedport);
+    openedport = NULL;
+    SetTTY((char *)"-");
+    return;
 }
 
 
 
 void sendbrk(void)
 {
-	Syslog('t', "Send break");
-	if (isatty(0))
+    Syslog('t', "Send break");
+    
+    if (isatty(0)) {
 #if (defined(TIOCSBRK))
 	Syslog('t', "TIOCSBRK");
 	ioctl(0, TIOCSBRK, 0L);
@@ -274,6 +283,7 @@ void sendbrk(void)
 #else /* any ideas about BSD? */
 	;
 #endif
+    }
 }
 
 
@@ -389,119 +399,118 @@ static struct termios tios;
 
 int tty_raw(int speed)
 {
-	int	rc;
-	speed_t	tspeed, is, os;
+    int	    rc;
+    speed_t tspeed, is, os;
 
-	Syslog('t', "Set tty raw");
-	tspeed = transpeed(speed);
+    Syslog('t', "Set tty raw");
+    tspeed = transpeed(speed);
 
-	if ((rc = tcgetattr(0,&savetios))) {
-		WriteError("$tcgetattr(0,save) return %d",rc);
-		return rc;
-	} else {
-		Syslog('T', "savetios.c_iflag=0x%08x",savetios.c_iflag);
-		Syslog('T', "savetios.c_oflag=0x%08x",savetios.c_oflag);
-		Syslog('T', "savetios.c_cflag=0x%08x",savetios.c_cflag);
-		Syslog('T', "savetios.c_lflag=0x%08x",savetios.c_lflag);
-		Syslog('T', "savetios.c_cc=\"%s\"",printable(savetios.c_cc,NCCS));
-		Syslog('T', "file flags: stdin: 0x%04x, stdout: 0x%04x", fcntl(0,F_GETFL,0L),fcntl(1,F_GETFL,0L));
-	}
-
-	tios = savetios;
-	tios.c_iflag = 0;
-	tios.c_oflag = 0;
-	tios.c_cflag &= ~(CSTOPB | PARENB | PARODD);
-	tios.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
-	tios.c_lflag = 0;
-	tios.c_cc[VMIN] = 1;
-	tios.c_cc[VTIME] = 0;
-
-	if (tspeed) {
-		cfsetispeed(&tios,tspeed);
-		cfsetospeed(&tios,tspeed);
-	}
-
-	if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
-		WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
-
-	is = cfgetispeed(&tios);
-	os = cfgetospeed(&tios);
-
+    if ((rc = tcgetattr(0,&savetios))) {
+	WriteError("$tcgetattr(0,save) return %d",rc);
 	return rc;
+    } else {
+	Syslog('T', "savetios.c_iflag=0x%08x",savetios.c_iflag);
+	Syslog('T', "savetios.c_oflag=0x%08x",savetios.c_oflag);
+	Syslog('T', "savetios.c_cflag=0x%08x",savetios.c_cflag);
+	Syslog('T', "savetios.c_lflag=0x%08x",savetios.c_lflag);
+	Syslog('T', "savetios.c_cc=\"%s\"",printable(savetios.c_cc,NCCS));
+	Syslog('T', "file flags: stdin: 0x%04x, stdout: 0x%04x", fcntl(0,F_GETFL,0L),fcntl(1,F_GETFL,0L));
+    }
+
+    tios = savetios;
+    tios.c_iflag = 0;
+    tios.c_oflag = 0;
+    tios.c_cflag &= ~(CSTOPB | PARENB | PARODD);
+    tios.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
+    tios.c_lflag = 0;
+    tios.c_cc[VMIN] = 1;
+    tios.c_cc[VTIME] = 0;
+
+    if (tspeed) {
+	cfsetispeed(&tios,tspeed);
+	cfsetospeed(&tios,tspeed);
+    }
+
+    if ((rc = tcsetattr(0,TCSADRAIN,&tios)))
+	WriteError("$tcsetattr(0,TCSADRAIN,raw) return %d",rc);
+
+    is = cfgetispeed(&tios);
+    os = cfgetospeed(&tios);
+
+    return rc;
 }
 
 
 
 int tty_local(void)
 {
-	struct termios	Tios;
-	tcflag_t	cflag;
-	speed_t		ispeed, ospeed;
-	int		rc;
+    struct termios  Tios;
+    tcflag_t	    cflag;
+    speed_t	    ispeed, ospeed;
+    int		    rc;
 
-	if ((rc = tcgetattr(0,&Tios))) {
-		WriteError("$tcgetattr(0,save) return %d",rc);
-		return rc;
-	}
-	Syslog('-', "Dropping DTR");
-
-	cflag = Tios.c_cflag | CLOCAL;
-
-	ispeed = cfgetispeed(&tios);
-	ospeed = cfgetospeed(&tios);
-	cfsetispeed(&Tios,0);
-	cfsetospeed(&Tios,0);
-	if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
-		WriteError("$tcsetattr(0,TCSADRAIN,hangup) return %d",rc);
-
-	sleep(1); /* as far as I notice, DTR goes back high on next op. */
-
-	Tios.c_cflag = cflag;
-	cfsetispeed(&Tios,ispeed);
-	cfsetospeed(&Tios,ospeed);
-	if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
-		Syslog('t', "$tcsetattr(0,TCSADRAIN,clocal) return %d",rc);
+    if ((rc = tcgetattr(0,&Tios))) {
+	WriteError("$tcgetattr(0,save) return %d",rc);
 	return rc;
+    }
+    Syslog('-', "Dropping DTR");
+
+    cflag = Tios.c_cflag | CLOCAL;
+
+    ispeed = cfgetispeed(&tios);
+    ospeed = cfgetospeed(&tios);
+    cfsetispeed(&Tios,0);
+    cfsetospeed(&Tios,0);
+    if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
+	WriteError("$tcsetattr(0,TCSADRAIN,hangup) return %d",rc);
+
+    sleep(1); /* as far as I notice, DTR goes back high on next op. */
+
+    Tios.c_cflag = cflag;
+    cfsetispeed(&Tios,ispeed);
+    cfsetospeed(&Tios,ospeed);
+    if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
+	Syslog('t', "$tcsetattr(0,TCSADRAIN,clocal) return %d",rc);
+    return rc;
 }
 
 
 
 int tty_nolocal(void)
 {
-	struct termios	Tios;
-	int		rc;
+    struct termios  Tios;
+    int		    rc;
 
-	if ((rc = tcgetattr(0,&Tios))) {
-		WriteError("$tcgetattr(0,save) return %d",rc);
-		return rc;
-	}
-	Tios.c_cflag &= ~CLOCAL;
-	Tios.c_cflag |= CRTSCTS;
-
-	if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
-		Syslog('t', "$tcsetattr(0,TCSADRAIN,clocal) return %d",rc);
+    if ((rc = tcgetattr(0,&Tios))) {
+	WriteError("$tcgetattr(0,save) return %d",rc);
 	return rc;
+    }
+    Tios.c_cflag &= ~CLOCAL;
+    Tios.c_cflag |= CRTSCTS;
+
+    if ((rc = tcsetattr(0,TCSADRAIN,&Tios)))
+	Syslog('t', "$tcsetattr(0,TCSADRAIN,clocal) return %d",rc);
+    return rc;
 }
 
 
 
 int tty_cooked(void)
 {
-	int rc;
+    int	    rc;
 
-	if ((rc = tcsetattr(0,TCSAFLUSH,&savetios)))
-		Syslog('t', "$tcsetattr(0,TCSAFLUSH,save) return %d",rc);
-	return rc;
+    if ((rc = tcsetattr(0,TCSAFLUSH,&savetios)))
+	Syslog('t', "$tcsetattr(0,TCSAFLUSH,save) return %d",rc);
+    return rc;
 }
 
 
 
 speed_t transpeed(int speed)
 {
-	speed_t tspeed;
+    speed_t tspeed;
 
-	switch (speed)
-	{
+    switch (speed) {
 	case 0:		tspeed=0; break;
 #if defined(B50)
 	case 50:	tspeed=B50; break;
@@ -608,9 +617,9 @@ speed_t transpeed(int speed)
 #endif
 	default:	WriteError("requested invalid speed %d",speed);
 			tspeed=0; break;
-	}
+    }
 
-	return tspeed;
+    return tspeed;
 }
 
 

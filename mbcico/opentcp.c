@@ -149,7 +149,10 @@ int opentcp(char *name)
 	return -1;
     }
 
-    signal(SIGPIPE,linedrop);
+    Syslog('d', "SIGPIPE => sigpipe()");
+    signal(SIGPIPE, sigpipe);
+    Syslog('d', "SIGHUP => linedrop()");
+    signal(SIGHUP, linedrop);
     fflush(stdin);
     fflush(stdout);
     setbuf(stdin,NULL);
@@ -202,7 +205,10 @@ void closetcp(void)
 	tel_leave_binary(3);
 
     shutdown(fd, 2);
-    signal(SIGPIPE,SIG_DFL);
+    Syslog('d', "SIGHUP => SIG_IGN");
+    signal(SIGHUP, SIG_IGN);
+    Syslog('d', "SIGPIPE => SIG_IGN");
+    signal(SIGPIPE, SIG_IGN);
 
     if (carrier) {
 	c_end = time(NULL);

@@ -1,9 +1,11 @@
 #ifndef	_OPENPORT_H
 #define	_OPENPORT_H
 
+/* $Id$ */
 
 void	linedrop(int);
 void	interrupt(int);
+void	sigpipe(int);
 #ifdef TIOCWONLINE
 void	alarmsig(int);
 #endif

@@ -24,6 +24,7 @@ v0.39.0		09-Oct-2003
 		Shakhaylo. This is experimental and looks compatible with
 		mailers that don't support this option. The compression will
 		transfer some files about twice as fast as without compression.
+		Changed signal handlers to better detect broken TCP links.
 
 	lang:
 		Added language prompt 20.
