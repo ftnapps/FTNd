@@ -156,7 +156,11 @@ int main(int argc, char **argv)
 		
 	i = getpid();
 
-	tty = ttyname(0);
+	if ((tty = ttyname(0)) == NULL) {
+		WriteError("Not at a tty");
+		Quick_Bye(0);
+	}
+
 	if (strncmp("/dev/", tty, 5) == 0)
 		sprintf(pTTY, "%s", tty+5);
 	else if (*tty == '/') {

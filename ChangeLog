@@ -4164,6 +4164,7 @@ v0.33.18        27-Jul-2001
 		Executing doors in nosuid mode (as real user) is now possible.
 		The can be switched on using mbsetup.
 		Fixed security problem in Unix username and password entry.
+		Now stoped nicely if started without controling tty.
 
 	mbuseradd:
 		Ported to work on FreeBSD.
