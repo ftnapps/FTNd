@@ -46,11 +46,16 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void Move(int From, int To, char *File)
 {
-    char		    *frompath, *topath, *temp1, *temp2, *fromlink, *tolink, *fromthumb, *tothumb;
-    struct FILE_recordhdr   f_dbhdr;
+    char		    *frompath, *topath, *temp1, *fromlink, *tolink, *fromthumb, *tothumb;
     struct FILE_record	    f_db;
-    FILE		    *fp1, *fp2;
     int			    rc = FALSE, Found = FALSE;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	    *src_area = NULL;
+#else
+    struct FILE_recordhdr   f_dbhdr;
+    FILE                    *fp1, *fp2;
+    char		    *temp2;
+#endif
 
     IsDoing("Move file");
     colour(LIGHTRED, BLACK);
@@ -87,6 +92,18 @@ void Move(int From, int To, char *File)
     /*
      * Find the file in the "from" area, check LFN and 8.3 names.
      */
+#ifdef	USE_EXPERIMENT
+    if ((src_area = mbsedb_OpenFDB(From, 30)) == NULL)
+	die(MBERR_GENERAL);
+
+    while (fread(&f_db, fdbhdr.recsize, 1, src_area->fp) == 1) {
+	if ((strcmp(f_db.LName, File) == 0) || strcmp(f_db.Name, File) == 0) {
+	    Found = TRUE;
+	    break;
+	}
+    }
+    temp1 = calloc(PATH_MAX, sizeof(char)); // not serious
+#else
     temp1 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp1, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), From);
     if ((fp1 = fopen(temp1, "r")) == NULL)
@@ -100,6 +117,7 @@ void Move(int From, int To, char *File)
 	}
     }
     fclose(fp1);
+#endif
     if (!Found) {
 	WriteError("File %s not found in area %d", File, From);
 	if (!do_quiet)
@@ -156,7 +174,29 @@ void Move(int From, int To, char *File)
 	    printf("File %s already exists in area %d\n", File, To);
 	die(MBERR_COMMANDLINE);
     }
-	
+
+#ifdef	USE_EXPERIMENT
+    rc = AddFile(f_db, To, topath, frompath, tolink);
+    if (rc) {
+	unlink(fromlink);
+	unlink(frompath);
+	/*
+	 * Try to move thumbnail if it exists
+	 */
+	if (file_exist(fromthumb, R_OK) == 0) {
+	    file_mv(fromthumb, tothumb);
+	}
+    }
+    if (mbsedb_LockFDB(src_area, 30)) {
+	f_db.Deleted = TRUE;
+	fseek(src_area->fp, - fdbhdr.recsize, SEEK_CUR);
+	fwrite(&f_db, fdbhdr.recsize, 1, src_area->fp);
+	mbsedb_UnlockFDB(src_area);
+    }
+    mbsedb_PackFDB(src_area);
+    mbsedb_CloseFDB(src_area);
+    colour(CYAN, BLACK);
+#else
     temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp2, "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), From);
 
@@ -215,13 +255,14 @@ void Move(int From, int To, char *File)
 	 */
 	unlink(temp2);
     }
+    free(temp2);
+#endif
 
     Syslog('+', "Move %s from %d to %d %s", File, From, To, rc ? "successfull":"failed");
     if (!do_quiet)
 	printf("Move %s from %d to %d %s\n", File, From, To, rc ? "successfull":"failed");
 
     free(temp1);
-    free(temp2);
     free(frompath);
     free(fromlink);
     free(fromthumb);
