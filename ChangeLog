@@ -7,6 +7,10 @@ v0.39.5		24-Dec-2003
 		default and can only be used with the right configure option.
 		Upgraded to new released ftscprod.008
 		Added setup option per node to disable the binkp/1.1 protocol.
+		If you want to try the new binkp code, then run ./configure
+		with the --enable-newbinkp option. And if you are brave and
+		do this, please give some feedback about failed sessions with
+		certain mailers. Watch out: debug.log grows very very fast!
 
 	upgrade:
 		Check setting 7.x.3.18 for each node. If you know the node uses
@@ -25,6 +29,7 @@ v0.39.5		24-Dec-2003
 		Allow m_file command in binkp during file transfer in progress.
 		Fixed a segfault when a session failed.
 		New binkp/1.1 driver, not compiled by default yet.
+		- Changed testing EOB to prevent out-of-sync batches.
 	
 	mbout:
 		Poll, remove poll and request failed to points which had no

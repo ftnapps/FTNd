@@ -158,9 +158,8 @@ struct binkprec {
     struct timeval	txtvend;		/* Transmitter end time		    */
 
     int			local_EOB;		/* Local EOB sent		    */
-    int			local_msgs;		/* Local messages sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
-    int			remote_msgs;		/* Messages received from remote    */
+    int			messages;		/* Messages sent + rcvd		    */
     unsigned long	nethold;		/* Netmail on hold		    */
     unsigned long	mailhold;		/* Packed mail on hold		    */
 
@@ -830,8 +829,7 @@ int file_transfer(void)
 				bp.RxState = RxWaitF;
 				bp.TxState = TxGNF;
 				bp.FtState = Switch;
-				bp.local_msgs = 0;
-				bp.remote_msgs = 0;
+				bp.messages = 0;
 				break;
 
 	    case Switch:	if ((bp.RxState == RxDone) && (bp.TxState == TxDone)) {
@@ -962,21 +960,27 @@ TrType binkp_receiver(void)
             return Ok;
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: rcvd M_EOB");
-	    if ((bp.Major == 1) && (bp.Minor != 0) && bp.local_EOB && bp.remote_EOB && ((bp.local_msgs + bp.remote_msgs) > 2)) {
-		Syslog('b', "Binkp: 1.1 mode, stay in RxWaitF");
-		bp.batchnr++;
-		bp.local_EOB = FALSE;
-		bp.remote_EOB = FALSE;
-		bp.local_msgs = 0;
-		bp.remote_msgs = 0;
-		bp.TxState = TxGNF;
-		bp.RxState = RxWaitF;
-		Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
-		binkp_clear_filelist();
+//	    if ((bp.Major == 1) && (bp.Minor != 0) && bp.local_EOB && bp.remote_EOB && ((bp.local_msgs + bp.remote_msgs) > 2)) {
+//		Syslog('b', "Binkp: 1.1 mode, stay in RxWaitF");
+//		bp.batchnr++;
+//		bp.local_EOB = FALSE;
+//		bp.remote_EOB = FALSE;
+//		bp.local_msgs = 0;
+//		bp.remote_msgs = 0;
+//		bp.TxState = TxGNF;
+//		bp.RxState = RxWaitF;
+//		Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
+//		binkp_clear_filelist();
+//		return Ok;
+//	    }
+	    if ((bp.Major == 1) && (bp.Minor != 0)) {
+		Syslog('b', "Binkp/1.1 mode and got M_EOB, just stay in RxWaitF");
+		return Ok;
+	    } else {
+		Syslog('b', "Binkp/1.0 mode and got M_EOB, goto RxEOB");
+		bp.RxState = RxEOB;
 		return Ok;
 	    }
-            bp.RxState = RxEOB;
-            return Ok;
         } else if (bcmd == MM_FILE) {
             bp.RxState = RxAccF;
             return Continue;
@@ -1390,14 +1394,14 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-		Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s local_msgs=%d remote_msgs=%d",
-			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.local_msgs, bp.remote_msgs);
+		Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 
 		if (bp.local_EOB && bp.remote_EOB) {
 		    /*
 		     * We did send EOB and got a EOB
 		     */
-		    if ((bp.local_msgs < 2) && (bp.remote_msgs < 2)) {
+		    if (bp.messages < 3) {
 			/*
 			 * Nothing sent anymore, finish
 			 */
@@ -1411,8 +1415,7 @@ TrType binkp_transmitter(void)
 			bp.batchnr++;
 			bp.local_EOB = FALSE;
 			bp.remote_EOB = FALSE;
-			bp.local_msgs = 0;
-			bp.remote_msgs = 0;
+			bp.messages = 0;
 			bp.TxState = TxGNF;
 			bp.RxState = RxWaitF;
 			Syslog('+', "Binkp: start batch %d", bp.batchnr + 1);
@@ -1463,7 +1466,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
 
     if (cmd) {
 	header = ((BINKP_CONTROL_BLOCK + len) & 0xffff);
-	bp.local_msgs++;
+	bp.messages++;
 	if (buf[0] == MM_EOB) {
 	    bp.local_EOB = TRUE;
 	}
@@ -1715,7 +1718,7 @@ int binkp_poll_frame(void)
 		    bp.GotFrame = TRUE;
 		    bp.rxbuf[bp.rxlen-1] = '\0';
 		    if (bp.cmd) {
-			bp.remote_msgs++;
+			bp.messages++;
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
 			if (bcmd == MM_EOB) {
