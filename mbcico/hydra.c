@@ -109,15 +109,14 @@ static int txoptions, rxoptions;
 
 static char *put_long(char *buffer, long val)
 {
-#if defined(__i386__)
-    *(unsigned long *) buffer = (unsigned long) val;
-#else
+#ifdef WORDS_BIGENDIAN
     buffer[0] =  (unsigned long) val & 0xff;
     buffer[1] = ((unsigned long) val >> 8) & 0xff;
     buffer[2] = ((unsigned long) val >> 16) & 0xff;
     buffer[3] = ((unsigned long) val >> 24) & 0xff;
+#else
+    *(unsigned long *) buffer = (unsigned long) val;
 #endif
-
     return buffer;
 }
 
@@ -125,11 +124,11 @@ static char *put_long(char *buffer, long val)
 
 static long get_long(char *buffer)
 {
-#if defined(__i386__)
-    return *(long *) buffer;
-#else
+#ifdef WORDS_BIGENDIAN
     return ((unsigned long) ((unsigned char) buffer[0])) | ((unsigned long) ((unsigned char) buffer[1]) << 8) |
 	   ((unsigned long) ((unsigned char) buffer[2]) << 16) | ((unsigned long) ((unsigned char) buffer[3]) << 24);
+#else
+    return *(long *) buffer;
 #endif
 }
 

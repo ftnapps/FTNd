@@ -169,7 +169,7 @@ While in mbse's home directory (/opt/mbse) unpack the distribution archives:
 tar xfvz /path/to/mbsebbs-@VERSION@.tar.bz2
 </pre>
 You now have the subdirectory with sources in the right place. 
-Next build the binaries and install them using the folowing commands:
+Next build the binaries and install them using the following commands:
 <pre>
 cd ~/mbsebbs-@VERSION@
 ./configure

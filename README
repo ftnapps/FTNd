@@ -5,7 +5,7 @@ $Id$
 
 Distribution naming scheme:
 
-mbsebbs-0.33.18.tar.gz
+mbsebbs-0.33.18.tar.bz2
   |     | |  |
   |     | |  +-------- minor patchlevel 
   |     | +----------- minor version
@@ -21,5 +21,8 @@ these will not be released anymore but are only available via cvs.
 The even minor version numbers will be stable releases, they will be available
 at http://www.mbse.dds.nl and at 2:280/2802. The first version using this
 scheme is 0.36.00
+
+For first time installing, see the file INSTALL. After installation, the html
+guide is installed in /opt/mbse/html.
 
 

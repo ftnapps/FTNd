@@ -41,22 +41,11 @@
  */
 int le_int(int val)
 {
-#ifdef BYTE_ORDER
-    if (BYTE_ORDER == 1234) {
-	return val;
-    } else if (BYTE_ORDER == 4321) {
+#ifdef WORDS_BIGENDIAN
 	return ((val & 0xff) << 24) | (((val >> 8) & 0xff) << 16) | (((val >> 16) & 0xff) << 8) | ((val >> 24) & 0xff);
-    } else {
-#endif
-#ifdef __i386__
-	return val;
 #else
-	return ((val & 0xff) << 24) | (((val >> 8) & 0xff) << 16) | (((val >> 16) & 0xff) << 8) | ((val >> 24) & 0xff);
+	return val;
 #endif
-#ifdef BYTE_ORDER
-    }
-#endif
-    return val;
 }
 
 
