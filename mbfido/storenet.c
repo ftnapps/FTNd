@@ -2,7 +2,7 @@
  *
  * File ..................: tosser/storenet.c
  * Purpose ...............: Import a netmail message
- * Last modification date : 04-Oct-2001
+ * Last modification date : 22-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -110,7 +110,7 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 			Msg.Gate           =                          flag_on((char *)"ZON", flagstr);
 			Msg.TruncFile      =                          flag_on((char *)"TFS", flagstr);
 			Msg.KillFile       =                          flag_on((char *)"KFS", flagstr);
-			Msg.ConfirmRequest = ((flags * M_AUDIT)    || flag_on((char *)"CFM", flagstr));
+			Msg.ConfirmRequest = ((flags & M_AUDIT)    || flag_on((char *)"CFM", flagstr));
 			Msg.Orphan         = ((flags & M_ORPHAN));
 
 			if (Msg.ReceiptRequest) {
