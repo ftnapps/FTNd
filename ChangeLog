@@ -15,6 +15,10 @@ v0.37.01	14-Jan-2003.
 		if you need to downgrade.
 		Spanish templates and macros added to the examples.
 
+	nodelist.a:
+		Added experimental support for IP nodes lookup using a default
+		domain method. This is not the final implementation yet!
+
 	common.a:
 		Remove a bug which very seldom crashed mbfido with charset
 		translation. Do we really need charset conversion?
@@ -22,6 +26,9 @@ v0.37.01	14-Jan-2003.
 	mbtask:
 		Arcmail for non-CM nodes and Txx nodes is now sent during the
 		node's opening hours or ZMH.
+		Fixed a bug where one of the nodelists was node closed with
+		each outbound scan and was causing mbtask to stop functioning
+		after a few days.
 
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.

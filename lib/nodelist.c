@@ -456,7 +456,6 @@ int initnl(void)
 		v++;
 
 	    if ((*k == '\0') || (*k == '#')) {
-//		Syslog('n', "\"%s\" \"%s\" - ignore", MBSE_SS(k), MBSE_SS(v));
 		continue;
 	    }
 	    
@@ -660,7 +659,6 @@ node *getnlent(faddr *addr)
 	if ((highest - lowest) <= 1)
 	    break;
     }
-
     fclose(fp);
 
     if (!Found) {
@@ -1013,11 +1011,11 @@ node *getnlent(faddr *addr)
 				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 				    if ((*tmpd)->zone == nodebuf.addr.zone) {
 					if (*r++ == '\0')
-					    sprintf(tbuf, "f%d.n%d.z%d.%s", nodebuf.addr.node, nodebuf.addr.net,
-						    nodebuf.addr.zone, (*tmpd)->name);
+					    sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
 					else
-					    sprintf(tbuf, "f%d.n%d.z%d.%s%s", nodebuf.addr.node, nodebuf.addr.net,
-						    nodebuf.addr.zone, (*tmpd)->name, r);
+					    sprintf(tbuf, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
+						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name, r);
 					Syslog('n', "Will try default domain \"%s\"", tbuf);
 					nodebuf.url = xstrcat(nodebuf.url, tbuf);
 					break;
@@ -1038,10 +1036,25 @@ node *getnlent(faddr *addr)
 		    if (strlen(tbuf))
 			break;
 		    Syslog('n', "Field8 is not usable");
+		    memset(&tbuf, 0, sizeof(tbuf));
+		} else if (strcasecmp((*tmpa)->name, "defdomain") == 0) {
+		    Syslog('n', "Trying default domain");
+		    for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
+			if ((*tmpd)->zone == nodebuf.addr.zone) {
+			    sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
+				    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
+			    Syslog('n', "Will try default domain \"%s\"", tbuf);
+			    nodebuf.url = xstrcat(nodebuf.url, tbuf);
+			    break;
+			}
+		    }
+		    if (strlen(tbuf))
+			break;
+		    Syslog('n', "No matching default domain found for zone %d", nodebuf.addr.zone);
+		    memset(&tbuf, 0, sizeof(tbuf));
 		}
 	    }
 	}
-	fclose(fp);
 
 	if (strlen(tbuf) == 0) {
 	    Syslog('n', "No FQDN found, cannot call");
@@ -1065,7 +1078,8 @@ node *getnlent(faddr *addr)
 	nodebuf.url = xstrcpy((char *)"pots://");
 	nodebuf.url = xstrcat(nodebuf.url, nodebuf.phone);
     }
-    
+    fclose(fp);
+
     nodebuf.addr.name = nodebuf.sysop;
     nodebuf.addr.domain = xstrcpy(fdx.domain);
     nodebuf.upnet  = ndx.upnet;
