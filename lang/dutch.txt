@@ -436,7 +436,7 @@ JN|Wilt U deze berichten downloaden [J/n]?
 |Uw wachtwoord is verlopen, geef nieuw wachtwoord: 
 |Toets ENTER voor doorgaan 
 |Plaatsen berichten niet toegestaan, dit gebied is alleen lezen!
-|Antwoorden is niet toegestaan in dit gebied!
+12|Kies: 1) Regel editer, 2) Volle scherm editer
 |Offline Reader Upload
 |Ongeldig pakket ontvangen
 |Onbekende compressie methode

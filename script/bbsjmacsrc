@@ -1,7 +1,7 @@
  $Id$
 
                          Initialization file for JOE
-                                Gnu-Emacs Joe
+                                BBS Emacs Joe
 
  JOE looks for this file in:
 	1 - .jmacsrc
@@ -24,7 +24,7 @@
 
 -mid		Cursor is recentered when scrolling is necessary
  -marking	Text between ^KB and cursor is highlighted
- -asis		Characters 128 - 255 shown as-is
+-asis		Characters 128 - 255 shown as-is
 -force		Force final newline when files are saved
 -nobackups	If you don't want backup files to be created
  -lightoff	Turn off highlighting after block copy or move
@@ -32,8 +32,8 @@
 -beep		Beep on errors and when cursor goes past extremes
  -nosta		Disable top-most status line
  -keepup	%k and %c status line escape sequences updated frequently
- -pg 1		No. lines to keep for PgUp/PgDn
- -csmode		^KF after a pervious search does a ^L instead
+-pg 1		No. lines to keep for PgUp/PgDn
+-csmode		^KF after a pervious search does a ^L instead
  -backpath path Directory to store backup files
 -nonotice	Disable copyright notice
  -noxon		Attempt to turn off ^S/^Q processing
@@ -44,7 +44,7 @@
  -baud nnn	Set baud rate for terminal optimizations
  -columns nnn	Set no. screen columns
 --help		Start with help on
- -skiptop nnn	Don't use top nnn lines of the screen
+-skiptop 4	Don't use top nnn lines of the screen
 
  Status line definition strings.  -lmsg defines the left-justified string and
  -rmsg defines the right-justified string.  The first character of -rmsg is
@@ -81,7 +81,7 @@
   \d  Dim
   \f  Blink
 
--lmsg \i%k%T%W%I%X %n %m%R %M
+-lmsg \i%k%T%W%I%X %* [%n] %M
 -rmsg  %S Row %r Col %c %t  Ctrl-X H for help
 
  SECOND SECTION: File name dependant local option settings:
@@ -125,7 +125,6 @@
 -wordwrap
 
 *.c
--mnew rtn,"/* This is a C file */",rtn
 -autoindent
 
 *.h
@@ -153,11 +152,11 @@
 \i \i\uCURSOR\u           \uGO TO\u           \uUNDO\u      \uMISC\u        \uREGION\u     \uEXIT\u       \i \i
 \i \i^B left ^F right ^[V prev screen ^XU undo  ^[^[ option ^@  mark   ^XK  quit  \i \i
 \i \i^P up   ^N down  ^V  next screen ^^  redo  ^[Q format  ^W  cut    ^X^C save  \i \i
-\i \i^[B prev. word   ^A  beg of line \uDELETE\u    ^L  refresh ^Y  paste  \uFILE\u       \i \i
-\i \i^[F next word    ^E  end of line ^D  char  ^[$ spell   ^[Y switch ^X^W save  \i \i
-\i \i\uSEARCH\u           ^[< top of file ^K  >line ^[M math    ^XA save   ^XI  insert\i \i
-\i \i^S  forward      ^[> end of file ^[D >word ^[% query   ^[| filter ^X^F load  \i \i
-\i \i^R  backward     ^[G to line No. ^[ DEL word<  replace ^XX swap   ^X^B switch\i \i
+\i \i^[B prev. word   ^A  beg of line \uDELETE\u    ^L  refresh ^Y  paste             \i \i
+\i \i^[F next word    ^E  end of line ^D  char  ^[$ spell   ^[Y switch            \i \i
+\i \i\uSEARCH\u           ^[< top of file ^K  >line ^[M math    ^XX swap              \i \i
+\i \i^S  forward      ^[> end of file ^[D >word ^[% query            \uMODE\u         \i \i
+\i \i^R  backward     ^[G to line No. ^[ DEL word<  replace      ^[I Ins/Ovr      \i \i
 }
 
 {Editing 
@@ -293,8 +292,8 @@ query		^X q		Query insert
 record,"0"	^X (		Record macro
 retype		^L		Refresh screen
 rtn		^M		Return
-shell		^Z		Suspend
-shell		^[ s		Suspend (uemacs)
+ shell		^Z		Suspend
+ shell		^[ s		Suspend (uemacs)
 stop		^X )		Stop recording macro
 
 :main			Text editing window
@@ -304,8 +303,14 @@ stop		^X )		Stop recording macro
 
 :def spellfile filt,"cat >ispell.tmp;ispell ispell.tmp </dev/tty >/dev/tty;cat ispell.tmp;/bin/rm ispell.tmp",rtn,retype
 :def spellword psh,nextword,markk,prevword,markb,filt,"cat >ispell.tmp;ispell ispell.tmp </dev/tty >/dev/tty;tr -d <ispell.tmp '\\012';/bin/rm ispell.tmp",rtn,retype,nextword
+:def toggleinsert mode,"T"  
 
 spellword	^[ $
+toggleinsert    ^[ I
+toggleinsert    ^[ ^I
+toggleinsert    ^[ i
+
+
 
 ctrl		^Q		Quote Ctrl chars
 ctrl		`		Quote Ctrl chars
@@ -342,22 +347,22 @@ stop,msg,"Abort",rtn	^G			Abort message
 stop,msg,"Abort",rtn	^[ ^G			Abort message
 stop,msg,"Abort",rtn	^X ^G			Abort message
 psh,markk,blkdel	^W			Cut
-save,rtn		^X ^S			Save file
-ask			^X s
+ save,rtn		^X ^S			Save file
+ ask			^X s
 drop,msg,"Mark set",rtn	^@			Drop anchor
-nextw,pgdn,prevw	^[ ^V			Scroll other window down
-nextw,pgup,prevw	^[ ^Z			Scroll other window up
+ nextw,pgdn,prevw	^[ ^V			Scroll other window down
+ nextw,pgup,prevw	^[ ^Z			Scroll other window up
  bol,nedge,pedge	^[ m			Gnu-emacs goto indentation
-nextw,nbuf,prevw	^X 4 b			Switch buffers other window
-nextw,edit,query,prevw	^X 4 f			Find file other window
-nextw,edit,query,prevw	^X 4 ^F
-nextw,tag,query,prevw	^X 4 .			Find tag other window
+ nextw,nbuf,prevw	^X 4 b			Switch buffers other window
+ nextw,edit,query,prevw	^X 4 f			Find file other window
+ nextw,edit,query,prevw	^X 4 ^F
+ nextw,tag,query,prevw	^X 4 .			Find tag other window
  ask,query,lose,query,abortbuf	^X ^C		Gnu-emacs: Abort buffer in window
 exsave			^X ^C			Save file and exit
 lose,query,abortbuf	^X k			Kill buffer in window
-lose,query,edit		^X ^V			Edit a file: no orphaned buffers
+ lose,query,edit	^X ^V			Edit a file: no orphaned buffers
 psh,drop,fwrdc,query,markk,blkdel	^[ z	Cut to char
-psh,markk,blksave,">>",query	^X a		Append region to file
+ psh,markk,blksave,">>",query	^X a		Append region to file
 retype,
 arg,"top+height/2-line",rtn,upslide	^L	Recenter
 arg,"top+height/2-line",rtn,dnarw	^[ r	Move to center line
@@ -366,9 +371,9 @@ swap,msg,math,"line-z",rtn,
 " lines in region",rtn			^[ =	Count lines region
 mode,"O"				^X ^Q	Toggle read-only
 
-edit,rtn,filt,query,parserr		^X c	Compile
-nxterr					^X n
-prverr					^X p
+ edit,rtn,filt,query,parserr		^X c	Compile
+ nxterr					^X n
+ prverr					^X p
 
 backs		^?		Backspace
 backs		^H
@@ -378,11 +383,9 @@ bknd		^X '		Shell window (joe)
 bof		^[ <		Goto beginning of file
 bol		.kh		Goto beginning of line
 bol		^A
-bol		^[ [ H
-bol		^[ [ 1 ~
 bop		^[ p		(uemacs)
-bufed		^X b
-bknd		^[ '		Shell window
+ bufed		^X b
+ bknd		^[ '		Shell window
 crawlr		^X >		Scroll to the right
 crawll		^X <		Scroll to the left
 delch		.kD		Delete character
@@ -394,33 +397,31 @@ dnarw		^N
 dnarw		^[ O B
 dnarw		^[ [ B
 dnslide		^X ^N		Slide down (uemacs)
-edit		^X ^F		Edit a file: creates orphaned buffers
+ edit		^X ^F		Edit a file: creates orphaned buffers
 eof		^[ >		Go to end of file
 eol		.kH		Go to end of line
 eol		^E
-eol		^[ [ F
-eol		^[ [ 4 ~
 eop		^[ n		(uemacs)
-execmd		^[ x
+ execmd		^[ x
 insc		^C		(uemacs)
  ffirst		^S		Search forward
 isrch		^S
 ffirst		^\
-psh,markk,filt,query	^[ |		Filter block
+ psh,markk,filt,query	^[ |		Filter block
 format		^[ q		Format paragraph
 gomark		^X /		Goto bookmark
 groww		^X ^		Enlarge window
 groww		^X z		(uemacs)
-insf		^X i		Insert a file
+ insf		^X i		Insert a file
 yapp		^[ ^W		Append next kill
 line		^[ g		Goto line (uemacs)
 ltarw		.kl		Go left
 ltarw		^B
 ltarw		^[ O D
 ltarw		^[ [ D
-mode		^[ ^[		Change modes
-nbuf		^X ^B		Next buffer in current window
-nbuf		^X x		(uemacs)
+ mode		^[ ^[		Change modes
+ nbuf		^X ^B		Next buffer in current window
+ nbuf		^X x		(uemacs)
  nextpos		^K =		Goto next position in position history
 nextword	^[ f		Goto next word
 notmod		^[ ~		Not modified
@@ -441,8 +442,8 @@ rtarw		.kr		Go right
 rtarw		^F
 rtarw		^[ O C
 rtarw		^[ [ C
-run		^[ !
-save		^X ^W		Write file
+ run		^[ !
+ save		^X ^W		Write file
 setmark		^X j		Set bookmark
 shrinkw		^X ^Z		(uemacs)
 splitw		^X 2		Split window

@@ -436,7 +436,7 @@ SN|¨Queres descargar estas mensaxes [S/N]?
 |A tua password caducou, nova password : 
 |Pulsa ENTER para seguir 
 |Non podes escribir, ­esta  rea es S¢ Lectura!
-|!Non se permite responder nesta  rea!
+12|Select: 1) Line editor, 2) Fullscreen editor
 |Upload de correo Off-Line
 |O paquete recibido non ‚ v lido
 |Comprimido con un compresor desco¤ecido

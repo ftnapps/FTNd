@@ -74,7 +74,7 @@ case $BBSLANGUAGE in
 	 ;;
 
      ## Languages not set defaults to english.
-     else
+     *)
          LANGAREA='AREA'
          LANGFROM='FROM    '
            LANGTO='TO      '

@@ -410,7 +410,12 @@ void Chg_FsMsged()
     pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
     Enter(1);
 
-    pout(WHITE, BLACK, (char *)Language(373));
+    if (strlen(CFG.externaleditor))
+	/* Select: 1) Line editor, 2) Fullscreen editor, 3) External editor */
+	pout(WHITE, BLACK, (char *)Language(373));
+    else
+	/* Select: 1) Line editor, 2) Fullscreen editor */
+	pout(WHITE, BLACK, (char *)Language(438));
     fflush(stdout);
     alarm_on();
     z = toupper(Getone());
@@ -421,7 +426,7 @@ void Chg_FsMsged()
     } else if (z == Keystroke(373, 1)) {
 	exitinfo.MsgEditor = FSEDIT;
 	Syslog('+', "User selected fullscreen editor");
-    } else if (z == Keystroke(373, 2)) {
+    } else if ((z == Keystroke(373, 2) && strlen(CFG.externaleditor))) {
 	exitinfo.MsgEditor = EXTEDIT;
 	Syslog('+', "User selected external editor");
     }

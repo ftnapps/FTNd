@@ -436,7 +436,7 @@
 435	user.c				|Your password is expired, new password : 
 436	funcs.c				|Press ENTER to continue 
 437	mail.c				|Posting not allowed, this area is Read Only!
-438					|notdefined
+438	change.c			12|Select: 1) Line editer, 2) Fullscreen editer
 439	offline.c			|Offline Reader Upload
 440	offline.c			|Invalid packet received
 441	offline.c			|Unknown compression type

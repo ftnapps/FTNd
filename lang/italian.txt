@@ -436,7 +436,7 @@ SN|Vuoi scaricare questi messaggi [S/n]?
 |La tua password e' scaduta, nuova password : 
 |Premi INVIO per continuare 
 |Posting non consentito, quest'area e' in sola lettura!
-|Non e' consentito rispondere in quest'area!
+12|Select: 1) Line editor, 2) Fullscreen editor
 |Offline Reader Upload
 |Ricevuto pacchetto non valido
 |Algoritmo di compressione sconosciuto

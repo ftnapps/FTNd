@@ -436,7 +436,7 @@ YN|Do you want to download these messages [Y/n]?
 |Your password is expired, new password : 
 |Press ENTER to continue 
 |Posting not allowed, this area is Read Only!
-|Replies are not allowed in this area!
+12|Select: 1) Line editor, 2) Fullscreen editor
 |Offline Reader Upload
 |Invalid packet received
 |Unknown compression type

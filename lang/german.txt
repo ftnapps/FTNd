@@ -436,7 +436,7 @@ JN|Moechten Sie diese Mitteilungen herunterladen [J/n]?
 |Ihr Passwort ist abgelaufen, neues Passwort: 
 |Druecken Sie <Enter> um fortzufahren 
 |Kein Senden moeglich, diese Area ist "Nur lesen"!
-|In dieser Area sind Antworten nicht zugelassen!
+12|Auswahl: 1) Zeilen-Editor, 2) Vollbild-Editor
 |"Offline Reader" Paket heraufladen 
 |Kein oder fehlerhaftes Paket erhalten
 |Unbekannter Datenkompressionstyp

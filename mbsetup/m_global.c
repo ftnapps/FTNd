@@ -246,7 +246,8 @@ void e_global2(void)
                 case 4: E_BOOL(19,16,   CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
 		case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory")
 		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.")
-		case 7: E_STR(12,16,64, CFG.externaleditor, "The full path and filename to the ^external message editor^")
+		case 7: E_STR(12,16,64, CFG.externaleditor, 
+				"The full path and filename to the ^external message editor^ (blank=disable)")
                 }
         };
 }

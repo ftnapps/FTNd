@@ -4596,7 +4596,7 @@ v0.33.20        10-Feb-2002
 		Updated German, Spanish and Galego languages.
 		The location of the sourcefiles is not important anymore.
 		Added detection of vpopmail in default installation path.
-		Changed language prompts 372, 373, 387, 388, 389 and 390.
+		Changed language prompts 372, 373, 387, 388, 389, 390 and 438.
 
 	common.a:
 		Added 2 functions to return the OS name and CPU family.
