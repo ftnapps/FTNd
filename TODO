@@ -117,9 +117,6 @@ mbcico:
 	U: Fix binkp file resume when mbcico silently dies.
 
 mbfile:
-	U: With file move and file already exists, there is an error
-	   cannot create symbolic link <name>, unknown error 4294968295.
-
 	L: Add a check to see if the magic filenames are (still) valid.
 
 	L: Update <filespec> <area> <-touch>

@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - Move a file
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -152,6 +152,15 @@ void Move(int From, int To, char *File)
     tothumb = xstrcat(tothumb, (char *)"/.");
     tothumb = xstrcat(tothumb, fdb.Name);
 
+    if (file_exist(topath, F_OK) == 0) {
+	Syslog('-', "%s", topath);
+	Syslog('-', "%d", file_exist(topath, F_OK));
+	WriteError("File %s already exists in area %d", File, To);
+	if (!do_quiet)
+	    printf("File %s already exists in area %d\n", File, To);
+	die(MBERR_COMMANDLINE);
+    }
+	
     temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), From);
 
