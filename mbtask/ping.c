@@ -367,6 +367,7 @@ void *ping_thread(void)
 		if (icmp_errs++ < ICMP_MAX_ERRS)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
 		pingresult[pingnr] = FALSE;
+		sleep(10);
 	    } else {
 		pingsend = time(NULL);
 
