@@ -33,14 +33,14 @@ mbsebbs:
 
 	L: Better word wrapping or paragraph justification in editor.
 
+	L: E-mail downloads with e-mail verification.
+
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
-
-	N: Implement long filename support from .tic files (testing fase).
 
 	N: When a news article is received from a mailinglist there is a valid
 	   To: address in the message, the gate doesn't see that and uses the
