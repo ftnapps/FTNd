@@ -37,7 +37,6 @@
 #include "toberep.h"
 #include "tic.h"
 #include "utic.h"
-#include "addbbs.h"
 #include "magic.h"
 #include "forward.h"
 #include "rollover.h"
@@ -46,6 +45,8 @@
 #include "createf.h"
 #include "virscan.h"
 #include "qualify.h"
+#include "addbbs.h"
+
 
 
 #define	UNPACK_FACTOR	300
@@ -649,7 +650,7 @@ int ProcessTic(fa_list *sbl)
     if (tic.FileArea) {
 
 	Syslog('+', "Import: %s (%s) Area: %s", TIC.NewFile, TIC.NewFullName, TIC.TicIn.Area);
-	BBS_Imp = Add_BBS();
+	BBS_Imp = Add_BBS(&qal);
 
 	if (!BBS_Imp) {
 	    Bad((char *)"File Import Error");

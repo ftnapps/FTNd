@@ -49,7 +49,7 @@ extern	int	tic_imp;
  *  files database will be packed if necessary. All modifications are
  *  done on temp files first.
  */
-int Add_BBS()
+int Add_BBS(qualify **qal)
 {
     struct FILE_record	    frec;
     int			    rc, i, Found = FALSE, Keep = 0, DidDelete = FALSE;
@@ -57,6 +57,7 @@ int Add_BBS()
     fd_list		    *fdl = NULL;
     struct _fdbarea	    *fdb_area = NULL;
     qualify		    *tmpq;
+    faddr		    *taka;
 
     /*
      * First check for an existing record with the same filename,
@@ -281,13 +282,19 @@ int Add_BBS()
 		    if (unlink(temp2) != 0)
 		        WriteError("$Can't unlink file %s", temp2);
 		    sprintf(temp2, "%s/%s", area.Path, fdb.Name);
+
 		    /*
 		     * With the path to the 8.3 name, we can check if this file
 		     * is attached for any possible downlink.
 		     * We must get the qualify list passed so we have a quick systems list.
 		     */
-
-
+		    for (tmpq = *qal; tmpq; tmpq = tmpq->next) {
+			if (tmpq->send) {
+			    taka = fido2faddr(tmpq->aka);
+			    un_attach(*(taka), temp2);
+			    tidy_faddr(taka);
+			}
+		    }
 
 		    if (unlink(temp2) != 0)
 		        WriteError("$Can't unlink file %s", temp2);

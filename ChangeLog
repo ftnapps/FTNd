@@ -33,6 +33,11 @@ v0.61.2		11-Jul-2004
 		continuous calling.
 		Changed to use direct instead of immediate mail.
 
+	mbfido:
+		Added experimental code to un_attach files during tic import
+		that are deleted from the system by replace, or keep # magic
+		actions.
+
 	mbout:
 		Changed to use direct instead of immediate mail.
 
