@@ -2,6 +2,8 @@ $Id$
 
 v0.39.4		08-Dec-2003
 
+		Added --enable-experiment mbtask debugging code for Hans.
+
 	general:
 		Added French language file created by Francois Thunus. This
 		translation is not yet complete.

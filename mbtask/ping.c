@@ -347,6 +347,9 @@ void *ping_thread(void)
 
     while (! T_Shutdown) {
 
+#ifdef USE_EXPERMIMENT
+	Syslog('p', "ping_thread loop start");
+#endif
 	/*
 	 * Select new address to ping
 	 */
@@ -368,6 +371,9 @@ void *ping_thread(void)
 
 	if (inet_aton(pingaddress, &paddr)) {
 	    rc = ping_send(paddr);
+#ifdef USE_EXPERIMENT
+	    Syslog('p', "ping_send(%s) rc=%d", pingaddress, rc);
+#endif
 	    if (rc) {
 		if (icmp_errs++ < ICMP_MAX_ERRS)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
@@ -397,6 +403,9 @@ void *ping_thread(void)
 			 * packets and empty results (packet still underway).
 			 */
 			while ((rc = ping_receive(paddr)) == -1);
+#ifdef USE_EXPERIMENT
+			Syslog('p', "ping_receive() rc=%d", rc);
+#endif
 			if (!rc) {
 			    /*
 			     * Reply received.

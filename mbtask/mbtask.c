@@ -979,12 +979,19 @@ void scheduler(void)
      * Install threads
      */
     thr_id[0] = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
+    Syslog('l', "pthread_create ping_thread rc=%d", thr_id[0]);
     thr_id[1] = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL);
+    Syslog('l', "pthread_create cmd_thread rc=%d", thr_id[1]);
+
+    Syslog('l', "Entering scheduler loop");
 
     /*
      * Enter the mainloop (forever)
      */
     do {
+#ifdef USE_EXPERIMENT
+	Syslog('l', "Starting scheduler loop");
+#endif
 	sleep(1);
 
 	/*
