@@ -328,10 +328,10 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
     }
     chmod(DestPath, 0644);
     if (LinkPath) {
-	if ((rc = link(DestPath, LinkPath))) {
-	    WriteError("Can't create link %s", LinkPath);
+	if ((rc = symlink(DestPath, LinkPath))) {
+	    WriteError("Can't create symbolic link %s", LinkPath);
 	    if (!do_quiet)
-		printf("Can't create link %s, %s\n", LinkPath, strerror(rc));
+		printf("Can't create symbolic link %s, %s\n", LinkPath, strerror(rc));
 	    unlink(DestPath);
 	    return FALSE;
 	}

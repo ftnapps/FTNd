@@ -52,7 +52,7 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void Move(int From, int To, char *File)
 {
-    char		*frompath, *topath, *temp1, *temp2, *fromlink, *tolink;
+    char		*frompath, *topath, *temp1, *temp2, *fromlink, *tolink, *fromthumb, *tothumb;
     struct FILERecord	fdb;
     FILE		*fp1, *fp2;
     int			rc = FALSE, Found = FALSE;
@@ -113,10 +113,13 @@ void Move(int From, int To, char *File)
 
     frompath = xstrcpy(area.Path);
     frompath = xstrcat(frompath, (char *)"/");
-    frompath = xstrcat(frompath, fdb.LName);
+    frompath = xstrcat(frompath, fdb.Name);
     fromlink = xstrcpy(area.Path);
     fromlink = xstrcat(fromlink, (char *)"/");
-    fromlink = xstrcat(fromlink, fdb.Name);
+    fromlink = xstrcat(fromlink, fdb.LName);
+    fromthumb = xstrcpy(area.Path);
+    fromthumb = xstrcat(fromthumb, (char *)"/.");
+    fromthumb = xstrcat(fromthumb, fdb.Name);
 
     /*
      * Check Destination area
@@ -142,10 +145,13 @@ void Move(int From, int To, char *File)
 
     topath = xstrcpy(area.Path);
     topath = xstrcat(topath, (char *)"/");
-    topath = xstrcat(topath, fdb.LName);
+    topath = xstrcat(topath, fdb.Name);
     tolink = xstrcpy(area.Path);
     tolink = xstrcat(tolink, (char *)"/");
-    tolink = xstrcat(tolink, fdb.Name);
+    tolink = xstrcat(tolink, fdb.LName);
+    tothumb = xstrcpy(area.Path);
+    tothumb = xstrcat(tothumb, (char *)"/.");
+    tothumb = xstrcat(tothumb, fdb.Name);
 
     temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), From);
@@ -164,30 +170,16 @@ void Move(int From, int To, char *File)
 	if (strcmp(fdb.LName, File) && strcmp(fdb.Name, File))
 	    fwrite(&fdb, sizeof(fdb), 1, fp2);
 	else {
-	    if (strcmp(fdb.Name, fdb.LName))
-		rc = AddFile(fdb, To, topath, frompath, tolink);
-	    else
-		rc = AddFile(fdb, To, topath, frompath, NULL);
+	    rc = AddFile(fdb, To, topath, frompath, tolink);
 	    if (rc) {
-		/*
-		 * Remove old 8.3 name
-		 */
-		if (strcmp(fdb.Name, fdb.LName))
-		    unlink(fromlink);
+		unlink(fromlink);
+		unlink(frompath);
+
 		/*
 		 * Try to move thumbnail if it exists
 		 */
-		unlink(frompath);
-		free(frompath);
-		free(topath);
-		frompath = xstrcpy(area.Path);
-		frompath = xstrcat(frompath, (char *)"/.");
-		frompath = xstrcat(frompath, File);
-		topath = xstrcpy(area.Path);
-		topath = xstrcat(topath, (char *)"/.");
-		topath = xstrcat(topath, File);
-		if (file_exist(frompath, R_OK) == 0) {
-		    file_mv(frompath, topath);
+		if (file_exist(fromthumb, R_OK) == 0) {
+		    file_mv(fromthumb, tothumb);
 		}
 	    }
 	}
@@ -226,8 +218,10 @@ void Move(int From, int To, char *File)
     free(temp2);
     free(frompath);
     free(fromlink);
+    free(fromthumb);
     free(topath);
     free(tolink);
+    free(tothumb);
 }
 
 
