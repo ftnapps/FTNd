@@ -7,6 +7,7 @@ v0.35.01	05-Jun-2002
 	mbtask:
 		Removed some debug logging and corrected some spelling.
 		The ping test now also works if operations are suspended.
+		Rewrote the ping state machine.
 
 
 v0.33.21	04-Jun-2002
