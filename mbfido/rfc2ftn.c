@@ -398,7 +398,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		fprintf(ofp, "\1PID:");
 		kludgewrite(p, ofp);
 	    } else {
-		fprintf(ofp, "\001PID: MBSE-FIDO %s\n", VERSION);
+		fprintf(ofp, "\001PID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
 	    }
 	}
 
@@ -421,7 +421,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    }
 	}
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
-	    sprintf(temp, " MBSE-FIDO %s", VERSION);
+	    sprintf(temp, " MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	    hdrsize += 4 + strlen(temp);
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);

@@ -87,7 +87,7 @@ void Msg_Pid(void)
 	time_t	tt;
 
 	temp = calloc(81, sizeof(char));
-	sprintf(temp, "\001PID: MBSE-FIDO %s", VERSION);
+	sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	MsgText_Add2(temp);
 	if (msgs.Charset != FTNC_NONE) {
 	    sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));

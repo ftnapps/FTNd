@@ -97,7 +97,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
 	    fprintf(np, "\001REPLY:%s\r", Buf+7);
 	}
     }
-    fprintf(np, "\001PID: MBSE-FIDO %s\r", VERSION);
+    fprintf(np, "\001PID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
     fprintf(np, "\001TZUTC: %s\r", gmtoffset(Now));
 
     fprintf(np, "     Dear %s\r\r", MBSE_SS(f->name));

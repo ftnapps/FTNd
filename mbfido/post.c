@@ -189,7 +189,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	MsgText_Add2(temp);
 	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 	Msg.ReplyCRC = 0xffffffff;
-	sprintf(temp, "\001PID: MBSE-FIDO %s", VERSION);
+	sprintf(temp, "\001PID: MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
 	MsgText_Add2(temp);
 	if (msgs.Charset != FTNC_NONE) {
 	    sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));

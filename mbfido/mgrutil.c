@@ -388,7 +388,7 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
      * Add MSGID, REPLY and PID
      */
     fprintf(qp, "\001MSGID: %s %08lx\r", aka2str(Orig), sequencer());
-    fprintf(qp, "\001PID: MBSE-FIDO %s\r", VERSION);
+    fprintf(qp, "\001PID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
     fprintf(qp, "\001TZUTC: %s\r", gmtoffset(Now));
 
     /*

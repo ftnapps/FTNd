@@ -119,7 +119,7 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	fprintf(qp, "\001MSGID: %s %08lx\r", aka2str(Orig), sequencer());
 	if (reply != NULL)
 		fprintf(qp, "\001REPLY: %s\r", reply);
-	fprintf(qp, "\001PID: MBSE-FIDO %s\r", VERSION);
+	fprintf(qp, "\001PID: MBSE-FIDO %s (%s-%s)\r", VERSION, OsName(), OsCPU());
 	fprintf(qp, "\001TZUTC: %s\r", gmtoffset(Now));
 	return qp;
 }

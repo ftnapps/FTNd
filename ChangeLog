@@ -24,12 +24,18 @@ v0.51.1		21-Feb-2004
 
 	mbsebbs:
 		Writes the ^aCHRS: kludge again in new created messages.
+		Changed ^aPID to include OS and CPU.
 
 	mbmsg:
 		Writes the ^aCHRS: kludge again in new created messages.
+		Changed ^aPID to include OS and CPU.
 
 	mbaff:
 		Writes the ^aCHRS: kludge again in new created messages.
+		Changed ^aPID to include OS and CPU.
+
+	mbfido:
+		Changed ^aTID to include OS and CPU.
 
 
 v0.51.0		09-Feb-2004 - 21-Feb-2004
