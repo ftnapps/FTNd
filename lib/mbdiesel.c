@@ -233,8 +233,9 @@ FILE *OpenMacro(const char *filename, int Language)
 	WriteError("OpenMacro(%s, %c): not found", filename, Language);
     else {
 	Syslog('d', "OpenMacro(%s, %c): using %s", filename, Language, temp);
-	MacroVars("HLMNSTUYZ", "ssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name,
-					    CFG.sysop_name, CFG.comment, CFG.sysop, aka2str(CFG.aka[0]), 0);
+	sprintf(temp, "%s-%s", OsName(), OsCPU());
+	MacroVars("HLMNOSTUVYZ", "ssssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name, temp,
+					    CFG.sysop_name, CFG.comment, CFG.sysop, VERSION, aka2str(CFG.aka[0]), 0);
     }
 
     free(temp);
