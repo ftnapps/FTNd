@@ -11,11 +11,14 @@
 					FTN	|		|--> Outbound
 					------->|  postnetmail	|--> MsgBase
 						|		|--> mkrfcmsg --> postemail
+						|  check PING	|--> AreaMgr  --> reply
+						|		|--> FileMgr  --> reply
+						|		|--> UUCP --> ftn2rfc --> postemail
 						+---------------+
 
 						+---------------+
 					FTN     |		|--> Outbound
 					------->|   postecho	|--> MsgBase
-						|		|--> mkrfcmsg --> spool --> newspost
+						|		|--> ftn2rfc --> spool --> newspost
 						+---------------+
 
