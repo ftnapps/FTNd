@@ -99,9 +99,6 @@ mbfido:
 	N: Add statistic mail messages.
 
 mbcico:
-	N: Doesn't poll internet nodes with non-standard ports when the
-	   FQDN:port is in the override field. -- Check this !
-
 	N: See if it is possible with binkp protocol to resume aborted
 	   transfers. -- ND option ??
 
@@ -115,9 +112,6 @@ mbfile:
 	L: Rearc <area>
 
 	L: Possibility to skip file areas from checking and reindexing.
-
-	N: Override timeout during virus scan when files are imported.
-	   -- Check, already done?
 
 	N: Add area sorting
 

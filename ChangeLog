@@ -19,6 +19,8 @@ v0.37.5		12-Jul-2003
 	mbsebbs:
 		Added check for maximum simultaneous logins.
 		Removed debug logging for userrecord i/o
+		During virusscan of file uploads, the mbtask timeout timer is
+		set to one hour to support very long scans.
 
 	mbsetup:
 		Added menu entry 1.5.21 for setting maximum allowed logins.

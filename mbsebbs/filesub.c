@@ -411,58 +411,58 @@ int iLC(int Lines)
  */
 int ShowOneFile()
 {
-	int	y, z, fg, bg;
+    int	y, z, fg, bg;
 
-	if ((!file.Deleted) && (!file.Missing)) {
+    if ((!file.Deleted) && (!file.Missing)) {
 
-		colour(7, 0);
-		printf(" %02d ", Tagnr);
+	colour(7, 0);
+	printf(" %02d ", Tagnr);
 
-		colour(CFG.FilenameF, CFG.FilenameB);
-	 	printf("%-12s", file.Name);
+	colour(CFG.FilenameF, CFG.FilenameB);
+	printf("%-12s", file.Name);
 
-		colour(CFG.FilesizeF, CFG.FilesizeB);
-		printf("%10lu ", (long)(file.Size));
+	colour(CFG.FilesizeF, CFG.FilesizeB);
+	printf("%10lu ", (long)(file.Size));
 
-		colour(CFG.FiledateF, CFG.FiledateB);
-		printf("%-10s  ", StrDateDMY(file.UploadDate));
+	colour(CFG.FiledateF, CFG.FiledateB);
+	printf("%-10s  ", StrDateDMY(file.UploadDate));
 
-		colour(12, 0);
-		printf("[%4ld] ", file.TimesDL);
+	colour(12, 0);
+	printf("[%4ld] ", file.TimesDL);
 
-		if((strcmp(file.Uploader, "")) == 0)
-			strcpy(file.Uploader, "SysOp");
+	if ((strcmp(file.Uploader, "")) == 0)
+	    strcpy(file.Uploader, "SysOp");
 
-		colour(CFG.HiliteF, CFG.HiliteB);
-		printf("%s%s\n", (char *) Language(238), file.Uploader);
+	colour(CFG.HiliteF, CFG.HiliteB);
+	printf("%s%s\n", (char *) Language(238), file.Uploader);
+
+	if (iLC(1) == 1) 
+	    return 1;
+
+	for (z = 0; z <= 25; z++) {
+	    if ((y = strlen(file.Desc[z])) > 1) {
+		if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
+		    /*
+		     *  Color formatted description lines.
+		     */
+		    if (file.Desc[z][3] > '9')
+			fg = (int)file.Desc[z][3] - 55;
+		    else
+			fg = (int)file.Desc[z][3] - 48;
+		    bg = (int)file.Desc[z][2] - 48;
+		    colour(fg, bg);
+		    printf("    %s\n",file.Desc[z]+4);
+		} else {
+		    colour(CFG.FiledescF, CFG.FiledescB);
+		    printf("    %s\n",file.Desc[z]);
+		}
 
 		if (iLC(1) == 1) 
-			return 1;
-
-		for(z = 0; z <= 25; z++) {
-			if ((y = strlen(file.Desc[z])) > 1) {
-				if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
-					/*
-					 *  Color formatted description lines.
-					 */
-					if (file.Desc[z][3] > '9')
-						fg = (int)file.Desc[z][3] - 55;
-					else
-						fg = (int)file.Desc[z][3] - 48;
-					bg = (int)file.Desc[z][2] - 48;
-					colour(fg, bg);
-					printf("    %s\n",file.Desc[z]+4);
-				} else {
-					colour(CFG.FiledescF, CFG.FiledescB);
-					printf("    %s\n",file.Desc[z]);
-				}
-
-				if (iLC(1) == 1) 
-					return 1;
-		   	}
-		}
+		    return 1;
+	    }
 	}
-	return 0;
+    }
+    return 0;
 }
 
 
@@ -501,12 +501,12 @@ int CheckBytesAvailable(long CostSize)
  */
 void Home()
 {
-	char	*temp;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
-	chdir(temp);
-	free(temp);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s", CFG.bbs_usersdir, exitinfo.Name);
+    chdir(temp);
+    free(temp);
 }
 
 
@@ -516,45 +516,48 @@ void Home()
  */
 int ScanDirect(char *fn)
 {
-	FILE	*fp;
-	int	err, Found = FALSE;
-	char	*temp, *temp1;
+    FILE    *fp;
+    int	    err, Found = FALSE;
+    char    *temp, *temp1;
 
-	temp  = calloc(PATH_MAX, sizeof(char));
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
-	sprintf(temp1, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    temp  = calloc(PATH_MAX, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    sprintf(temp1, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
-	if ((fp = fopen(temp1, "r")) != NULL) {
-		fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
+    if ((fp = fopen(temp1, "r")) != NULL) {
+	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
 
-		while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
+	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
-		    if (virscan.available) {
-			colour(CFG.TextColourF, CFG.TextColourB);
-					      /* Scanning */               /* with */
-			printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
-			fflush(stdout);
+	    if (virscan.available) {
+		colour(CFG.TextColourF, CFG.TextColourB);
+				      /* Scanning */               /* with */
+		printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		fflush(stdout);
 
-			if ((err = execute(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
+		Altime(3600);
+		if ((err = execute(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
 					(char *)"/dev/null" , (char *)"/dev/null")) != virscan.error) {
-				WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
-				colour(CFG.HiliteF, CFG.HiliteB);
-				/* Possible VIRUS found! */
-				printf("%s\n", (char *) Language(199));
-				Found = TRUE;
-			} else
-				/* Ok */
-				printf("%s\n", (char *) Language(200));
-			fflush(stdout);
-		    }
+		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
+		    colour(CFG.HiliteF, CFG.HiliteB);
+		    /* Possible VIRUS found! */
+		    printf("%s\n", (char *) Language(199));
+		    Found = TRUE;
+		} else {
+		    /* Ok */
+		    printf("%s\n", (char *) Language(200));
 		}
-		fclose(fp);
+		Altime(0);
+		fflush(stdout);
+	    }
 	}
+	fclose(fp);
+    }
 
-	free(temp);
-	free(temp1);
-	return Found;
+    free(temp);
+    free(temp1);
+    return Found;
 }
 
 
@@ -644,6 +647,7 @@ int ScanArchive(char *fn, char *ftype)
 		printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 		fflush(stdout);
 
+		Altime(3600);
 		err = execute(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null");
 		if (err != virscan.error) {
@@ -657,6 +661,7 @@ int ScanArchive(char *fn, char *ftype)
 		    printf("%s\n", (char *) Language(200));
 		}
 		fflush(stdout);
+		Altime(0);
 		Nopper();
 	    }
 	}
@@ -762,77 +767,52 @@ char *GetFileType(char *fn)
  */
 int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 {
-	char	*temp, *temp1;
-//	int	i, x;
-//	char	*token;
+    char    *temp, *temp1;
 
-	temp  = calloc(PATH_MAX, sizeof(char));
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/%s", area.Path, fn);
-	sprintf(temp1, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    temp  = calloc(PATH_MAX, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s", area.Path, fn);
+    sprintf(temp1, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
 
-	if ((file_mv(temp1, temp))) {
-		WriteError("$Can't move %s to %s", fn, area.Path);
-	} else {
-		chmod(temp, 0664);
-		if (Addfile(fn, Area, fileid)) {
+    if ((file_mv(temp1, temp))) {
+	WriteError("$Can't move %s to %s", fn, area.Path);
+    } else {
+	chmod(temp, 0664);
+	if (Addfile(fn, Area, fileid)) {
 
-			ReadExitinfo();
+	    ReadExitinfo();
 
-			/*
-			 * If Size is equal to Zero, don't increase file counters else
-			 * Increase file counters if any other size
-			 */
-			if (Size) {
-				exitinfo.Uploads++;
-				exitinfo.UploadK += (Size / 1024);
-				exitinfo.UploadKToday += (Size / 1024);
-				Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, 
-						exitinfo.UploadK, exitinfo.UploadKToday);
+	    /*
+	     * If Size is equal to Zero, don't increase file counters else
+	     * Increase file counters if any other size
+	     */
+	    if (Size) {
+		exitinfo.Uploads++;
+		exitinfo.UploadK += (Size / 1024);
+		exitinfo.UploadKToday += (Size / 1024);
+		Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, exitinfo.UploadK, exitinfo.UploadKToday);
+		/* You have */  /* extra download KBytes. */
+		printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
 	
-				/*
-				 * Give back the user his bytes from the upload
-				 * Work out byte ratio, then give time back to user
-				 */
-//				strcpy(temp, CFG.sByteRatio);
-//				token = strtok(temp, ":");
-//			 	i = atoi(token);
-//			 	token = strtok(NULL, "\0");
-//				x = atoi(token);
-//				Size *= i / x;
-				/* You have */  /* extra download KBytes. */
-				printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
-	
-				exitinfo.DownloadKToday += (Size / 1024);
-				Syslog('b', "DownloadKToday %d", exitinfo.DownloadKToday);
-			}
+		exitinfo.DownloadKToday += (Size / 1024);
+		Syslog('b', "DownloadKToday %d", exitinfo.DownloadKToday);
+	    }
 
-			/*
-			 * Give back the user his time that he used to upload
-			 * Work out time ratio, then give time back to user
-			 * Ratio 3:1, Upload time: times by 3 / 1
-			 */
-//			strcpy(temp, CFG.sTimeRatio);
-//			token = strtok(temp, ":");
-//		 	i = atoi(token);
-//		  	token = strtok(NULL, "\0");
-//			x = atoi(token);
+	    iTime /= 60; /* Divide Seconds by 60 to give minutes */
+	    /* You have */ /* extra minutes. */
+	    printf("%s %ld %s\n", (char *) Language(249), iTime, (char *) Language(259));
+	    exitinfo.iTimeLeft += iTime;
 
-//			iTime *= i / x;
-			iTime /= 60; /* Divide Seconds by 60 to give minutes */
-			/* You have */ /* extra minutes. */
-			printf("%s %ld %s\n", (char *) Language(249), iTime, (char *) Language(259));
-	
-			exitinfo.iTimeLeft += iTime;
-
-			WriteExitinfo();
-			return TRUE;
-		}
+	    WriteExitinfo();
+	    free(temp);
+	    free(temp1);
+	    return TRUE;
 	}
+    }
 
-	free(temp);
-	free(temp1);
-	return FALSE;
+    free(temp);
+    free(temp1);
+    return FALSE;
 }
 
 
@@ -1072,75 +1052,78 @@ int Addfile(char *File, int AreaNum, int fileid)
  */
 void SetFileArea(unsigned long AreaNum)
 {
-	FILE	*pArea;
-	long	offset;
+    FILE    *pArea;
+    long    offset;
 
-	memset(&area, 0, sizeof(area));
+    memset(&area, 0, sizeof(area));
 
-	if ((pArea = OpenFareas(FALSE)) == NULL)
-		return;
+    if ((pArea = OpenFareas(FALSE)) == NULL)
+	return;
 
-	offset = areahdr.hdrsize + ((AreaNum - 1) * areahdr.recsize);
-	if (fseek(pArea, offset, 0) != 0) {
-		WriteError("$Seek error in fareas.data, area %ld", AreaNum);
-		return;
-	}
+    offset = areahdr.hdrsize + ((AreaNum - 1) * areahdr.recsize);
+    if (fseek(pArea, offset, 0) != 0) {
+	WriteError("$Seek error in fareas.data, area %ld", AreaNum);
+	return;
+    }
 
-	fread(&area, areahdr.recsize, 1, pArea);
-	strcpy(sAreaDesc, area.Name);
-	strcpy(sAreaPath, area.Path);
-	iAreaNumber = AreaNum;
-	fclose(pArea);
+    fread(&area, areahdr.recsize, 1, pArea);
+    strcpy(sAreaDesc, area.Name);
+    strcpy(sAreaPath, area.Path);
+    iAreaNumber = AreaNum;
+    fclose(pArea);
 }
 
 
 
+/*
+ * Return size in bytes of all files in the users wrk directory.
+ */
 unsigned long Quota()
 {
-	DIR		*dirp;
-	char		*FileName, *temp;
-	unsigned long	Bytes = 0;
-	struct dirent	*dp;
-	struct stat	statfile;
+    DIR		    *dirp;
+    char	    *FileName, *temp;
+    unsigned long   Bytes = 0;
+    struct dirent   *dp;
+    struct stat	    statfile;
 
-	FileName = calloc(PATH_MAX, sizeof(char));
-	temp	 = calloc(PATH_MAX, sizeof(char));
+    FileName = calloc(PATH_MAX, sizeof(char));
+    temp     = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
 
-	if ((dirp = opendir(temp)) == NULL) {
-		WriteError("$Can't open dir %s", temp);
-	} else {
-		while ((dp = readdir(dirp)) != NULL) {
-			sprintf(FileName, "%s/%s", temp, dp->d_name);
+    if ((dirp = opendir(temp)) == NULL) {
+	WriteError("$Can't open dir %s", temp);
+    } else {
+	while ((dp = readdir(dirp)) != NULL) {
+	    sprintf(FileName, "%s/%s", temp, dp->d_name);
 
-			if (*(dp->d_name) != '.')
-				if (stat(FileName, &statfile) == 0)
-					Bytes += statfile.st_size;
-		}
-
-		closedir(dirp);
+	    if (*(dp->d_name) != '.')
+		if (stat(FileName, &statfile) == 0)
+		    Bytes += statfile.st_size;
 	}
 
-	free(FileName);
-	free(temp);
-	return Bytes;
+	closedir(dirp);
+    }
+
+    free(FileName);
+    free(temp);
+    return Bytes;
 }
 
 
 
 void ImportHome(char *fn)
 {
-	char	*temp1, *temp2;
+    char    *temp1, *temp2;
 
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	temp2 = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp1, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
-	sprintf(temp2, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp1, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
+    sprintf(temp2, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
 
-	Syslog('+', "Move %s to home, result %d", fn, file_mv(temp2, temp1));
-	free(temp1);
-	free(temp2);
+    Syslog('+', "Move %s to home, result %d", fn, file_mv(temp2, temp1));
+    free(temp1);
+    free(temp2);
 }
 
 
