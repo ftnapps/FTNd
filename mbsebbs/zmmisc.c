@@ -53,14 +53,15 @@
 static void zputhex(int);
 static void zsbh32(int,char*,int,int);
 static void zsda32(char*,int,int);
-static int zrdat32(char*,int);
-static int noxrd7(void);
-static int zrbhd32(char*);
-static int zrbhdr(char*);
-static int zrhhdr(char*);
-static int zgethex(void);
-static int zgeth1(void);
+static int  zrdat32(char*,int);
+static int  noxrd7(void);
+static int  zrbhd32(char*);
+static int  zrbhdr(char*);
+static int  zrhhdr(char*);
+static int  zgethex(void);
+static int  zgeth1(void);
 static void garbitch(void);
+
 
 #include "../config.h"
 #include "../lib/mbselib.h"
@@ -163,16 +164,16 @@ static int  frame_length = 0;
 
 void get_frame_buffer(void)
 {
-	if (frame_buffer == NULL) 
-		frame_buffer = malloc(FRAME_BUFFER_SIZE);
+    if (frame_buffer == NULL) 
+	frame_buffer = malloc(FRAME_BUFFER_SIZE);
 }
 
 
 void free_frame_buffer(void)
 {
-	if (frame_buffer)
-		free(frame_buffer);
-	frame_buffer = NULL;
+    if (frame_buffer)
+	free(frame_buffer);
+    frame_buffer = NULL;
 }
 
 
@@ -182,45 +183,43 @@ void free_frame_buffer(void)
  */
 void zsbhdr(int len, int type, register char *shdr)
 {
-	register int		n;
-	register unsigned short	crc;
+    register int	    n;
+    register unsigned short crc;
 
-	Syslog('z', "zsbhdr: %c %d %s %lx", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
+    Syslog('z', "zsbhdr: %c %d %s %lx", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
 
-	BUFFER_CLEAR();
+    BUFFER_CLEAR();
 	
-	if (type == ZDATA)
-		for (n = Znulls; --n >=0; )
-			BUFFER_BYTE(0);
+    if (type == ZDATA)
+	for (n = Znulls; --n >=0; )
+	    BUFFER_BYTE(0);
 
-	BUFFER_BYTE(ZPAD); BUFFER_BYTE(ZDLE);
+    BUFFER_BYTE(ZPAD); BUFFER_BYTE(ZDLE);
 
-	switch (Crc32t=Txfcs32) {
-	case 2:
-		zsbh32(len, shdr, type, Usevhdrs?ZVBINR32:ZBINR32);
-		BUFFER_FLUSH(); break;
-        case 1:
-                zsbh32(len, shdr, type, Usevhdrs?ZVBIN32:ZBIN32);  break;
-	default:
-		if (Usevhdrs) {
+    switch (Crc32t=Txfcs32) {
+	case 2:	    zsbh32(len, shdr, type, Usevhdrs?ZVBINR32:ZBINR32);
+		    BUFFER_FLUSH(); 
+		    break;
+        case 1:	    zsbh32(len, shdr, type, Usevhdrs?ZVBIN32:ZBIN32);  
+		    break;
+	default:    if (Usevhdrs) {
 			BUFFER_BYTE(ZVBIN);
 			zsendline(len);
-		}
-		else
+		    } else
 			BUFFER_BYTE(ZBIN);
-		zsendline(type);
-		crc = updcrc16(type, 0);
+		    zsendline(type);
+		    crc = updcrc16(type, 0);
 
-		for (n=len; --n >= 0; ++shdr) {
+		    for (n=len; --n >= 0; ++shdr) {
 			zsendline(*shdr);
 			crc = updcrc16((0377& *shdr), crc);
-		}
-		crc = updcrc16(0,updcrc16(0,crc));
-		zsendline(((int)(crc>>8)));
-		zsendline(crc);
-	}
+		    }
+		    crc = updcrc16(0,updcrc16(0,crc));
+		    zsendline(((int)(crc>>8)));
+		    zsendline(crc);
+    }
 
-	BUFFER_FLUSH();
+    BUFFER_FLUSH();
 }
 
 
@@ -230,24 +229,24 @@ void zsbhdr(int len, int type, register char *shdr)
  */
 void zsbh32(int len, register char *shdr, int type, int flavour)
 {
-	register int n;
-	register unsigned long crc;
+    register int	    n;
+    register unsigned long  crc;
 
-	BUFFER_BYTE(flavour); 
-	if (Usevhdrs) 
-		zsendline(len);
-	zsendline(type);
-	crc = 0xFFFFFFFFL; crc = updcrc32(type, crc);
+    BUFFER_BYTE(flavour); 
+    if (Usevhdrs) 
+	zsendline(len);
+    zsendline(type);
+    crc = 0xFFFFFFFFL; crc = updcrc32(type, crc);
 
-	for (n=len; --n >= 0; ++shdr) {
-		crc = updcrc32((0377 & *shdr), crc);
-		zsendline(*shdr);
-	}
-	crc = ~crc;
-	for (n=4; --n >= 0;) {
-		zsendline((int)crc);
-		crc >>= 8;
-	}
+    for (n=len; --n >= 0; ++shdr) {
+	crc = updcrc32((0377 & *shdr), crc);
+	zsendline(*shdr);
+    }
+    crc = ~crc;
+    for (n=4; --n >= 0;) {
+	zsendline((int)crc);
+	crc >>= 8;
+    }
 }
 
 
@@ -257,45 +256,44 @@ void zsbh32(int len, register char *shdr, int type, int flavour)
  */
 void zshhdr(int len, int type, register char *shdr)
 {
-	register int n;
-	register unsigned short crc;
+    register int	    n;
+    register unsigned short crc;
 
-	Syslog('z', "zshhdr: %c %d %s %ld", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
+    Syslog('z', "zshhdr: %c %d %s %ld", Usevhdrs?'v':'f', len, frametypes[type+FTOFFSET], rclhdr(shdr));
 
-	BUFFER_CLEAR();
+    BUFFER_CLEAR();
 	
-	BUFFER_BYTE(ZPAD); 
-	BUFFER_BYTE(ZPAD); 
-	BUFFER_BYTE(ZDLE);
-	if (Usevhdrs) {
-		BUFFER_BYTE(ZVHEX);
-		zputhex(len);
-	}
-	else
-		BUFFER_BYTE(ZHEX);
-	zputhex(type);
-	Crc32t = 0;
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZPAD); 
+    BUFFER_BYTE(ZDLE);
+    if (Usevhdrs) {
+	BUFFER_BYTE(ZVHEX);
+	zputhex(len);
+    } else
+	BUFFER_BYTE(ZHEX);
+    zputhex(type);
+    Crc32t = 0;
 
-	crc = updcrc16(type, 0);
-	for (n=len; --n >= 0; ++shdr) {
-		zputhex(*shdr); crc = updcrc16((0377 & *shdr), crc);
-	}
-	crc = updcrc16(0,updcrc16(0,crc));
-	zputhex(((int)(crc>>8))); zputhex(crc);
+    crc = updcrc16(type, 0);
+    for (n=len; --n >= 0; ++shdr) {
+	zputhex(*shdr); crc = updcrc16((0377 & *shdr), crc);
+    }
+    crc = updcrc16(0,updcrc16(0,crc));
+    zputhex(((int)(crc>>8))); zputhex(crc);
 
-	/*
-	 * Make it printable on remote machine
-	 */
-	BUFFER_BYTE(015); 
-	BUFFER_BYTE(0212);
+    /*
+     * Make it printable on remote machine
+     */
+    BUFFER_BYTE(015); 
+    BUFFER_BYTE(0212);
 
-	/*
-	 * Uncork the remote in case a fake XOFF has stopped data flow
-	 */
-	if (type != ZFIN && type != ZACK)
-		BUFFER_BYTE(021);
+    /*
+     * Uncork the remote in case a fake XOFF has stopped data flow
+     */
+    if (type != ZFIN && type != ZACK)
+	BUFFER_BYTE(021);
 
-	BUFFER_FLUSH();
+    BUFFER_FLUSH();
 }
 
 
@@ -306,58 +304,58 @@ void zshhdr(int len, int type, register char *shdr)
 char *Zendnames[] = {(char *)"ZCRCE",(char *)"ZCRCG",(char *)"ZCRCQ",(char *)"ZCRCW"};
 void zsdata(register char *buf, int length, int frameend)
 {
-	register unsigned short crc;
+    register unsigned short crc;
 
-	Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
+    Syslog('z', "zsdata: %d %s", length, Zendnames[(frameend-ZCRCE)&3]);
 
-	BUFFER_CLEAR();
+    BUFFER_CLEAR();
 	
-	switch (Crc32t) {
-        case 1:
-                zsda32(buf, length, frameend);  break;
-        case 2:
-                zsdar32(buf, length, frameend);  break;
-	default:
-		crc = 0;
-		for (;--length >= 0; ++buf) {
+    switch (Crc32t) {
+        case 1:	    zsda32(buf, length, frameend);  
+		    break;
+        case 2:	    zsdar32(buf, length, frameend);  
+		    break;
+	default:    crc = 0;
+		    for (;--length >= 0; ++buf) {
 			zsendline(*buf); crc = updcrc16((0377 & *buf), crc);
-		}
-		BUFFER_BYTE(ZDLE); BUFFER_BYTE(frameend);
-		crc = updcrc16(frameend, crc);
+		    }
+		    BUFFER_BYTE(ZDLE); 
+		    BUFFER_BYTE(frameend);
+		    crc = updcrc16(frameend, crc);
 
-		crc = updcrc16(0,updcrc16(0,crc));
-		zsendline(((int)(crc>>8))); zsendline(crc);
-	}
-	if (frameend == ZCRCW)
-		BUFFER_BYTE(XON);
+		    crc = updcrc16(0,updcrc16(0,crc));
+		    zsendline(((int)(crc>>8))); zsendline(crc);
+    }
+    if (frameend == ZCRCW)
+	BUFFER_BYTE(XON);
 
-	BUFFER_FLUSH();
+    BUFFER_FLUSH();
 }
 
 
 
 void zsda32(register char *buf, int length, int frameend)
 {
-	register int c;
-	register unsigned long crc;
+    register int	    c;
+    register unsigned long  crc;
 
-	crc = 0xFFFFFFFFL;
-	for (;--length >= 0; ++buf) {
-		c = *buf & 0377;
-		if (c & 0140)
-			BUFFER_BYTE(lastsent = c);
-		else
-			zsendline(c);
-		crc = updcrc32(c, crc);
-	}
-	BUFFER_BYTE(ZDLE); 
-	BUFFER_BYTE(frameend);
-	crc = updcrc32(frameend, crc);
+    crc = 0xFFFFFFFFL;
+    for (;--length >= 0; ++buf) {
+	c = *buf & 0377;
+	if (c & 0140)
+	    BUFFER_BYTE(lastsent = c);
+	else
+	    zsendline(c);
+	crc = updcrc32(c, crc);
+    }
+    BUFFER_BYTE(ZDLE); 
+    BUFFER_BYTE(frameend);
+    crc = updcrc32(frameend, crc);
 
-	crc = ~crc;
-	for (c=4; --c >= 0;) {
-		zsendline((int)crc);  crc >>= 8;
-	}
+    crc = ~crc;
+    for (c=4; --c >= 0;) {
+	zsendline((int)crc);  crc >>= 8;
+    }
 }
 
 
@@ -491,7 +489,7 @@ crcfoo:
 
 void garbitch(void)
 {
-	Syslog('+', "Zmodem: Garbled data subpacket");
+    Syslog('+', "Zmodem: Garbled data subpacket");
 }
 
 
