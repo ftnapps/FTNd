@@ -164,7 +164,7 @@ user.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h 
 mbnewusr.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h mbnewusr.h funcs.h input.h language.h misc.h timeout.h newuser.h
 input.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/mberrors.h input.h timeout.h language.h
 whoson.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h input.h language.h exitinfo.h whoson.h
-door.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h input.h timeout.h exitinfo.h whoson.h door.h
+door.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h language.h input.h timeout.h exitinfo.h whoson.h door.h
 dispfile.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/msg.h ../lib/clcomm.h funcs.h language.h oneline.h misc.h timeout.h timecheck.h exitinfo.h mail.h email.h input.h dispfile.h filesub.h
 userlist.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h userlist.h language.h input.h timeout.h
 timestats.o: ../config.h ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h timestats.h funcs.h language.h input.h exitinfo.h

@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/mberrors.h"
+#include "language.h"
 #include "input.h"
 #include "timeout.h"
 #include "exitinfo.h"

@@ -229,7 +229,7 @@ int put_hexbyte(char *outbuf, char c)
 /* TODO: error handling */
 enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 {
-    static char	rxencbuf[H_BUFLEN];
+    static char	rxencbuf[H_ZIPBUFLEN];
     static enum HyPktTypes pkttype = H_NOPKT;
     static char *inbuf = rxencbuf, *outbuf;
     int		c, i, n;
@@ -357,7 +357,7 @@ enum HyPktTypes hyrxpkt(char *rxbuf, int *rxlen, int tot)
 /* TODO: support packet prefix string */
 void hytxpkt(enum HyPktTypes pkttype, char *txbuf, int txlen)
 {
-    static char txencbuf[H_BUFLEN];
+    static char txencbuf[H_ZIPBUFLEN];
     char	*outbuf, *inbuf;
     enum	HyPktFormats format;
 
@@ -529,12 +529,14 @@ int resync(off_t off)
 
 int hydra_batch(int role, file_list *to_send)
 {
-    static char	    txbuf[H_BUFLEN], rxbuf[H_BUFLEN];
+    static char	    txbuf[H_ZIPBUFLEN], rxbuf[H_ZIPBUFLEN];
+    static char	    txzbuf[H_ZIPBUFLEN], rxzbuf[H_ZIPBUFLEN];
     struct stat	    txstat;			/* file stat being transmitted */
     FILE	    *txfp = NULL;		/* file currently being transmitted */
     FILE	    *rxfp = NULL;		/* file currently being received */
     char	    *inbuf, *outbuf;
     int		    rxlen, txlen;		/* length of receive/transmit buffer */
+    unsigned long   rxzlen, txzlen;		/* length of receive/transmit compressed buffer */
     long	    txwindow, rxwindow;		/* window sizes */
     long	    txpos;
     off_t	    rxpos;			/* file positions */
@@ -558,6 +560,7 @@ int hydra_batch(int role, file_list *to_send)
     struct timeval  rxstarttime, rxendtime;
     struct timezone tz;
     int		    sverr;
+    int		    rcz;
 
     Syslog('h', "Hydra: resettimers");
     RESETTIMERS();
@@ -1009,12 +1012,45 @@ int hydra_batch(int role, file_list *to_send)
 			}
 		    } else {
 			// FIXME: Here we must add the compression code
+#ifdef HAVE_ZLIB_H
+			if (txoptions & HOPT_CANPLZ) {
+			    txzlen = H_ZIPBUFLEN;
+			    rcz = compress(txzbuf, &txzlen, txbuf, txlen);
+			    if (rcz == Z_OK) {
+				Syslog('h', "Compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
+					(txzlen < txlen) ?"yes":"no");
+				if (txzlen < txlen) {
+				    txpos += txlen;
+				    sentbytes += txlen;
+				    goodbytes += txlen;
+				    txzlen += 4;
+				    hytxpkt(HPKT_ZIPDATA, txzbuf, txzlen);
+				} else {
+				    txpos += txlen;
+				    sentbytes += txlen;
+				    goodbytes += txlen;
+				    txlen += 4;
+				    hytxpkt(HPKT_DATA, txbuf, txlen);
+				}
+			    } else {
+				/*
+				 * Compress failed, send data uncompressed
+				 */
+				Syslog('h', "Compress error");
+				txpos += txlen;
+				sentbytes += txlen;
+				goodbytes += txlen;
+				txlen += 4;
+				hytxpkt(HPKT_DATA, txbuf, txlen);
+			    }
+			}
+#else
 			txpos += txlen;
 			sentbytes += txlen;
 			goodbytes += txlen;
 			txlen += 4;
 			hytxpkt(HPKT_DATA, txbuf, txlen);
-
+#endif
 			if (goodbytes > goodneeded) {
 			    blksize *= 2;
 			    if (blksize > H_MAXBLKLEN) {
@@ -1241,7 +1277,7 @@ int hydra_batch(int role, file_list *to_send)
 		     */
 		    txoptions = rxoptions;
 		    put_flags(txbuf, rxoptions);
-		    Syslog('h', "Hydra: options: %s (%08lx)", txbuf, rxoptions);
+		    Syslog('+', "Hydra: options: %s (%08lx)", txbuf, rxoptions);
 
 		    /*
  		     * get desired window sizes
@@ -1383,13 +1419,35 @@ int hydra_batch(int role, file_list *to_send)
 
 	    case HRX_DATA: 
 		Syslog('h', "SM 'HRX' entering 'DATA'");
-		// FIXME: Here the zlib extensions.
+#ifdef HAVE_ZLIB_H
+		if (((pkttype == HPKT_DATA) || (pkttype == HPKT_ZIPDATA)) && (rxlen > 4)) {
+		    longnum = get_long(rxbuf);
+		    Syslog('h', "Hydra: rcvd %sDATA (0x%08lx, 0x%08lx) %lu", (pkttype == HPKT_ZIPDATA) ? "ZIP":"",
+			    longnum, rxpos, rxlen-4);
+#else
 		if ((pkttype == HPKT_DATA) && (rxlen > 4)) {
 		    longnum = get_long(rxbuf);
 		    Syslog('h', "Hydra: rcvd DATA (0x%08lx, 0x%08lx) %lu", longnum, rxpos, rxlen-4);
+#endif
 		    Nopper();
-
 		    if (longnum == rxpos) {
+#ifdef HAVE_ZLIB_H
+			if (pkttype == HPKT_ZIPDATA) {
+			    rxzlen = H_ZIPBUFLEN;
+			    rcz = uncompress(rxzbuf, &rxzlen, rxbuf + 4, rxlen - 4);
+			    if (rcz == Z_OK) {
+				/*
+				 * Uncompress data and put the data into the normal
+				 * receive buffer.
+				 */
+				Syslog('h', "uncompressed size %d => %d", rxlen -4, rxzlen);
+				memcpy(rxbuf + 4, rxzbuf, rxzlen);
+				rxlen = rxzlen + 4;
+			    } else {
+				Syslog('h', "Uncompress error, fatal what should we do");
+			    }
+			}
+#endif
 			if (fwrite(rxbuf + 4, 1, rxlen - 4, rxfp) != (rxlen - 4)) {
 			    WriteError("$Hydra: error writing to file");
 			    rxpos = -2;
@@ -1636,6 +1694,8 @@ int hydra(int role)
 
     if (session_flags & SESSION_WAZOO)
         request = create_freqlist(remote);
+
+    Syslog('h', "H_BUFLEN=%d H_ZIPBUFLEN=%d", H_BUFLEN, H_ZIPBUFLEN);
 
 
     /*

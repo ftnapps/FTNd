@@ -80,6 +80,7 @@
 #define H_OVERHEAD	8		/* Max. no. control bytes in a pkt   */
 #define H_MAXPKTLEN  ((H_MAXBLKLEN + H_OVERHEAD + 5) * 3)     /* Encoded pkt */
 #define H_BUFLEN     (H_MAXPKTLEN + 16) /* Buffer sizes: max.enc.pkt + slack */
+#define	H_ZIPBUFLEN  (((H_BUFLEN * 11) / 10) + 12) /* Compressed data pkt    */
 #define H_PKTPREFIX    31		/* Max length of pkt prefix string   */
 #define H_FLAGLEN	3		/* Length of a flag field	     */
 #define H_RETRIES      10		/* No. retries in case of an error   */

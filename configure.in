@@ -126,7 +126,7 @@ fi
 AC_CHECK_LIB(z,compress,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
-  AC_CHECK_HEADERS(zlib.h)
+  dnl AC_CHECK_HEADERS(zlib.h)
 fi
 
 dnl Checks for header files.
@@ -137,7 +137,6 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(sys/resource.h usersec.h utime.h ulimit.h gshadow.h shadow.h)
 AC_CHECK_HEADERS(limits.h utmp.h utmpx.h lastlog.h rpc/key_prot.h)
-dnl AC_CHECK_HEADERS(zlib.h) FIXME: enable when ready for endusers.
 AC_CHECK_HEADERS(iconv.h)
 AC_STRUCT_TIMEZONE
 
