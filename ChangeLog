@@ -4602,8 +4602,10 @@ v0.33.20        10-Feb-2002
 		creation.
 		Added servicename filemgr to the filemgr services.
 		When adding or deleting a message area, several extra checks
-		are done.
+		are done. The JAM base is also removed when deleting.
 		Layout for message area editor changed, more logical now.
+		If selecting a file/mailgroup in node edit that is outside the
+		visible range of groups, the view is adjusted.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 

@@ -186,6 +186,17 @@ int E_Group(gr_list **fdp, char *title)
 						tmp->tagged = TRUE;
 					}
 				    }
+				    if (o != ((i -1) / 40) * 40) {
+					/*
+					 * If a group is selected outside the visible
+					 * range, change the groupview.
+					 */
+					o = ((i -1) / 40) * 40;
+					clr_index();
+					set_color(WHITE, BLACK);
+					mvprintw(5, 5, (char *)"%s", title);
+					set_color(CYAN, BLACK);
+				    }
 				}
 				break;
 		}
