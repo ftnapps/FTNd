@@ -53,6 +53,9 @@ v0.51.1		21-Feb-2004
 
 	mbfido:
 		Changed ^aTID to include OS and CPU.
+		For the tic area create and message area create the check is
+		now case insensitive, also the area tagnames are forced to
+		uppercase. This should solve the problems with Linuxnet.
 
 	mbfile:
 		For creating www pages of the download areas, the new mapping

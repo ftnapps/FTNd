@@ -87,7 +87,7 @@ int SearchTic(char *Area)
 		tic_pos = ftell(fil) - tichdr.recsize;
 		sysstart = ftell(fil);
 		fseek(fil, tichdr.syssize, SEEK_CUR);
-		if (!strcmp(Area, tic.Name) && tic.Active) {
+		if (!strcasecmp(Area, tic.Name) && tic.Active) {
 			sysrecord = 0;
 			fclose(fil);
 			tic_crc = 0xffffffff;

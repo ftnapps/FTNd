@@ -111,7 +111,13 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 	    desc = p;
 	    while ((*desc == ' ') || (*desc == '\t'))
 		desc++;
-	    if (strcmp(tag, Area) == 0) {
+	    if (strcasecmp(tag, Area) == 0) {
+		/*
+		 * Make sure the tag is uppercase
+		 */
+		for (i = 0; i < strlen(tag); i++)
+		    tag[i] = toupper(tag[i]);
+
 		Syslog('m', "Found tag \"%s\" desc \"%s\"", tag, desc);
 
 		/*
@@ -119,7 +125,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 * If needed, connect at uplink.
 		 */
 		if (SendUplink) {
-		    sprintf(temp, "+%s", Area);
+		    sprintf(temp, "+%s", tag);
 		    From = fido2faddr(mgroup.UseAka);
 		    To   = fido2faddr(mgroup.UpLink);
 		    if (UplinkRequest(To, From, FALSE, temp)) {

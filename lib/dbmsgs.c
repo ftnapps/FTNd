@@ -86,7 +86,7 @@ int smsgarea(char *what, int newsgroup)
 	msgs_pos = ftell(fil) - msgshdr.recsize;
 	sysstart = ftell(fil);
 	fseek(fil, msgshdr.syssize, SEEK_CUR);
-	if (((!strcmp(what, msgs.Tag) && !newsgroup) || (!strcmp(what, msgs.Newsgroup) && newsgroup)) && msgs.Active) {
+	if (((!strcasecmp(what, msgs.Tag) && !newsgroup) || (!strcmp(what, msgs.Newsgroup) && newsgroup)) && msgs.Active) {
 	    sysrecord = 0;
 	    fclose(fil);
 	    msgs_crc = 0xffffffff;

@@ -118,14 +118,11 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 		while ((*desc == ' ') || (*desc == '\t'))
 		    desc++;
 		if (!strcmp(desc, fgroup.Comment)) {
-//		    Syslog('f', "Start of group \"%s\" found", desc);
 		    while (fgets(buf, 4096, ap)) {
 			if (!strncasecmp(buf, "Area ", 5)) {
-//			    Syslog('f', "Area: %s", buf);
 			    tag = strtok(buf, "\t \r\n\0");
 			    tag = strtok(NULL, "\t \r\n\0");
-//			    Syslog('f', "Tag: \"%s\"", tag);
-			    if (!strcmp(tag, Area)) {
+			    if (!strcasecmp(tag, Area)) {
 				raid = strtok(NULL, "\t \r\n\0");
 				flow = strtok(NULL, "\t \r\n\0");
 				p = strtok(NULL, "\r\n\0");
@@ -141,7 +138,6 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 			    /*
 			     * All entries in group are seen, the area wasn't there.
 			     */
-//			    Syslogp('f', buf);
 			    break;
 			}
 		    }
@@ -163,7 +159,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 		desc = p;
 		while ((*desc == ' ') || (*desc == '\t'))
 		    desc++;
-		if (strcmp(tag, Area) == 0) {
+		if (strcasecmp(tag, Area) == 0) {
 		    Syslog('f', "Found tag \"%s\" desc \"%s\"", tag, desc);
 		    Found = TRUE;
 		    break;
@@ -179,6 +175,12 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 	return 1;
     }
 
+    /*
+     * Some peaple write taglists with lowercase tagnames...
+     */
+    for (i = 0; i < strlen(tag); i++)
+	tag[i] = toupper(tag[i]);
+
     Syslog('m', "Found tag \"%s\" desc \"%s\"", tag, desc);
 
     /*
@@ -186,7 +188,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      * If needed, connect at uplink.
      */
     if (SendUplink) {
-	sprintf(temp, "+%s", Area);
+	sprintf(temp, "+%s", tag);
 
 	From = fido2faddr(fgroup.UseAka);
 	To   = fido2faddr(fgroup.UpLink);
