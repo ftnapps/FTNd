@@ -105,8 +105,28 @@ Lh C:\DOS\DOSKEY /INSERT
 Lh C:\DOS\SHARE
 </pre>
 Now we are ready to try it, type <code>mbsedos</code> and the dos emulator
-should start. 
+should start. You can leave dosemu with the command <code>exitemu</code>.
 <p>&nbsp;</P>
+
+<h3>Installing a door</h3>
+<p>
+All doors are started using the script <code>~/bin/rundoor.sh</code>. This script
+is never started directly, you should make a copy of that with the name of the
+door, but the best solution is to make a symlink with the name of the door. For
+example:<br>
+<pre>
+mbse@seaport$ cd ~/bin
+mbse@seaport:~bin$ ln -s rundoor.sh ilord
+</pre>
+See also inside <code>rundoor.sh</code> for the instructions. This file does
+several things, first it prepares the users home directory with the dosemu
+environment so that dosemu will run for the user. Then it creates a node
+directory in the dos C: drive and copies the door dropfiles into that node
+directory. Finally it starts dosemu in virtual comport mode and inserts the
+commands in dos to start the door.<br>
+But before we can run the door, the door itself must be installed in the dos
+partition.
+<p>&nbsp;<p>
 
 <h3>What if I don't upgrade</h3>
 <p>
