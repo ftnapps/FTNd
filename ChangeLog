@@ -27,6 +27,9 @@ v0.39.2		21-Nov-2003
 	html:
 		Added mbtelnetd page.
 
+	examples:
+		Updated file menus, added View File command.
+
 
 v0.39.1		22-Oct-2003 - 21-Nov-2003
 
