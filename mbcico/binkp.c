@@ -2,7 +2,7 @@
  *
  * File ....................: mbcico/binkp.c
  * Purpose .................: Fidonet binkd protocol
- * Last modification date ..: 04-Oct-2001
+ * Last modification date ..: 17-Oct-2001
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
@@ -856,6 +856,7 @@ int binkp_batch(file_list *to_send)
 
 	while ((RxState != RxDone) || (TxState != TxDone)) {
 
+		Nopper();
 		if (binkp_expired()) {
 			Syslog('!', "Binkp: Transfer timeout");
 			Syslog('b', "Binkp: TxState=%d, RxState=%d, rxlen=%d", TxState, RxState, rxlen);
@@ -978,7 +979,6 @@ int binkp_batch(file_list *to_send)
 			break;
 
 		case TxReadSend:
-			Nopper();
 			fseek(txfp, txpos, SEEK_SET);
 			txlen = fread(txbuf, 1, SND_BLKSIZE, txfp);
 
