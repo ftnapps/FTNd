@@ -130,16 +130,24 @@ if test "$result" = "yes"; then
   AC_CHECK_HEADERS(sys/types.h)
 fi
 
+ZLIBSUP=No
 AC_CHECK_LIB(z,compress2,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
   AC_CHECK_HEADERS(zlib.h,ZLIBSUP=Yes,ZLIBSUP=No)
 fi
 
+PTHREADS=No
 AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lpthread"
   AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
+else
+  AC_CHECK_LIB(c_r,pthread_create,result=yes,result=no)
+  if test "$result" = "yes"; then
+    LIBS="$LIBS -lc_r"
+    AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
+  fi
 fi
 
 dnl Checks for header files.
