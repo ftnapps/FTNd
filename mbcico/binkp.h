@@ -58,6 +58,7 @@
 #define BINKP_DATA_BLOCK	0x0000
 #define BINKP_CONTROL_BLOCK	0x8000
 #define	BINKP_PLZ_BLOCK		0x4000
+#define BINKP_ZIPBUFLEN		(((BINKP_PLZ_BLOCK * 11) / 10) + 12)
 
 
 typedef struct _binkp_frame {

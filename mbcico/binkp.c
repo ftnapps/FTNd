@@ -149,6 +149,7 @@ struct binkprec {
     FILE		*rxfp;			/* Receiver file		    */
     off_t		rxbytes;		/* Receiver bytecount		    */
     int			rxpos;			/* Receiver position		    */
+    int			rxcompressed;		/* Receiver compressed bytes	    */
     struct timezone	tz;			/* Timezone			    */
     int			DidSendGET;		/* Receiver send GET status	    */
 
@@ -157,6 +158,7 @@ struct binkprec {
     FILE		*txfp;			/* Transmitter file		    */
     int			txpos;			/* Transmitter position		    */
     int			stxpos;			/* Transmitter start position	    */
+    int			txcompressed;		/* Transmitter compressed bytes	    */
 
     int			local_EOB;		/* Local EOB sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
@@ -1545,6 +1547,18 @@ int binkp_send_frame(int cmd, char *buf, int len)
 {
     unsigned short  header = 0;
     int		    rc, id;
+#ifdef HAVE_ZLIB_H
+    int		    rcz;
+    unsigned long   zlen;
+    char	    *zbuf;
+#endif
+
+#ifdef HAVE_ZLIB_H
+    if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZflag == Active)) {
+	WriteError("Can't send block of %d bytes in PLZ mode", len);
+	return 1;
+    }
+#endif
 
     if (cmd) {
 	header = ((BINKP_CONTROL_BLOCK + len) & 0xffff);
@@ -1562,11 +1576,58 @@ int binkp_send_frame(int cmd, char *buf, int len)
 	Syslog('b', "Binkp: send data (%d)", len);
     }
 
+#ifdef HAVE_ZLIB_H
+    if ((bp.PLZflag == Active) && (len > 20)) {
+	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
+	rcz = compress2(zbuf, &zlen, buf, len, 9);
+	if (rcz == Z_OK) {
+	    Syslog('b', "Binkp: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", 
+		    len, zlen, (zlen < len) ?"yes":"no");
+	    if (zlen < len) {
+		bp.txcompressed += (len - zlen);
+		/*
+		 * Rebuild header for compressed block
+		 */
+		if (cmd) {
+		    header = ((BINKP_CONTROL_BLOCK + BINKP_PLZ_BLOCK + zlen) & 0xffff);
+		} else {
+		    header = ((BINKP_DATA_BLOCK + BINKP_PLZ_BLOCK + zlen) & 0xffff);
+		}
+		rc = PUTCHAR((header >> 8) & 0x00ff);
+		if (!rc)
+		    rc = PUTCHAR(header & 0x00ff);
+		if (zlen && !rc)
+		    rc = PUT(zbuf, zlen);
+	    } else {
+		rc = PUTCHAR((header >> 8) & 0x00ff);
+		if (!rc)
+		    rc = PUTCHAR(header & 0x00ff);
+		if (len && !rc)
+		    rc = PUT(buf, len);
+	    }
+	} else {
+	    rc = PUTCHAR((header >> 8) & 0x00ff);
+	    if (!rc)
+		rc = PUTCHAR(header & 0x00ff);
+	    if (len && !rc)
+		rc = PUT(buf, len);
+	}
+	free(zbuf);
+    } else {
+	rc = PUTCHAR((header >> 8) & 0x00ff);
+	if (!rc)
+	    rc = PUTCHAR(header & 0x00ff);
+	if (len && !rc)
+	    rc = PUT(buf, len);
+    }
+#else
     rc = PUTCHAR((header >> 8) & 0x00ff);
     if (!rc)
 	rc = PUTCHAR(header & 0x00ff);
     if (len && !rc)
 	rc = PUT(buf, len);
+#endif
+
     FLUSHOUT();
     binkp_settimer(BINKP_TIMEOUT);
     return rc;
@@ -1704,7 +1765,7 @@ int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
     if (plz) {
 	*len = (b0 & 0x3f) << 8;
 
-	zbuf = calloc(*len +1, sizeof(char));
+	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	GET(zbuf, *len, BINKP_TIMEOUT / 2);
 	zlen = *len;
 	rc = uncompress(buf, len, zbuf, zlen);
@@ -1804,9 +1865,11 @@ void parse_m_nul(char *msg)
 		    binkp_send_command(MM_NUL,"OPT PLZ");
 		    Syslog('b', "PLZflag TheyWant => Active");
 		    bp.PLZflag = Active;
+		    Syslog('+', "        : zlib compression active");
 		} else if (bp.PLZflag == WeWant) {
 		    bp.PLZflag = Active;
 		    Syslog('b', "PLZflag WeWant => Active");
+		    Syslog('+', "        : zlib compression active");
 		} else {
 		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
 		}
@@ -1882,17 +1945,21 @@ int binkp_poll_frame(void)
 		}
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
+		    Syslog('b', "Binkp: got a complete %s frame, mode %scompressed", bp.cmd?"CMD":"DATA", plz?"":"un");
 #ifdef HAVE_ZLIB_H
 		    if (plz) {
 			Syslog('b', "Binkp: rcvd compressed block %d bytes", bp.rxlen -1);
-			zbuf = calloc(bp.rxlen, sizeof(char));
-			strncpy(zbuf, bp.rxbuf, bp.rxlen -1);
+			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
+			memmove(zbuf, bp.rxbuf, bp.rxlen -1);
+			zlen = 0;
 			rc = uncompress(bp.rxbuf, &zlen, zbuf, bp.rxlen -1);
 			free(zbuf);
 			Syslog('b', "Binkp: uncompress rc=%d %d => %d", rc, bp.rxlen -1, zlen);
 			bp.rxlen = zlen +1;
+			bp.blklen = zlen;
 		    }
 #endif
+		    Syslog('b', "Binkp: bp.rxlen=%d bp.blklen=%d", bp.rxlen, bp.blklen);
 		    bp.rxbuf[bp.rxlen-1] = '\0';
 		    if (bp.cmd) {
 			bp.messages++;
