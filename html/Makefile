@@ -21,27 +21,27 @@ H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
 		  ftsc/fts-4009.html  ftsc/fsp-1011.html  ftsc/ftscprod.html \
 		  ftsc/fsc-0088.html  ftsc/fts-4001.html  ftsc/fts-5001.html
 
-H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
-		  images/connec.gif   images/mbsetup0.gif     images/nodes2.png \
-		  images/domains.gif  images/mbsetup1.6.S.gif images/nodes3.png \
-		  images/e_menu.png   images/mbsetup1.6.gif   images/nodes4.gif \
-		  images/emareas.gif  images/mbsetup2.gif     images/nodes5.gif \
-		  images/nodes6.gif   images/nodes7.png       images/nodes8.png \
+H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
+		  images/connec.png   images/mbsetup0.png     images/nodes2.png \
+		  images/domains.png  images/mbsetup1.6.S.png images/nodes3.png \
+		  images/e_menu.png   images/mbsetup1.6.png   images/nodes4.png \
+		  images/emareas.png  images/mbsetup2.png     images/nodes5.png \
+		  images/nodes6.png   images/nodes7.png       images/nodes8.png \
 		  images/nodes9.png   images/nodes10.png \
-		  images/emgroup.gif  images/modems0.gif      images/oneliner.gif \
-		  images/fdb.gif      images/newfiles.gif     images/protocol.gif \
-		  images/fegroup.gif  images/newgroups.gif    images/rarrow.gif \
-		  images/fileecho.gif images/nodelist.gif     images/security.gif \
-		  images/filefind.gif images/nodelist1.gif    images/tty.gif \
-		  images/files.gif    images/nodelist2.gif    images/tty1.gif \
-		  images/go_to.gif    images/nodelist3.gif    images/tty2.gif \
-		  images/hatch.gif    images/nodelist4.gif    images/tty3.gif \
-		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
-		  images/larrow.gif   images/users.png \
-		  images/mbse.jpg     images/taskmgr.png      images/mbsebbs.gif \
-		  images/mbsebbs.png  images/users2.png       images/hand.up.gif \
+		  images/emgroup.png  images/modems0.png      images/oneliner.png \
+		  images/fdb.png      images/newfiles.png     images/protocol.png \
+		  images/fegroup.png  images/newgroups.png    images/rarrow.png \
+		  images/fileecho.png images/nodelist.png     images/security.png \
+		  images/filefind.png images/nodelist1.png    images/tty.png \
+		  images/files.png    images/nodelist2.png    images/tty1.png \
+		  images/go_to.png    images/nodelist3.png    images/tty2.png \
+		  images/hatch.png    images/nodelist4.png    images/tty3.png \
+		  images/language.png images/nodelist5.png    images/uarrow.png \
+		  images/larrow.png   images/users.png \
+		  images/mbse.png     images/taskmgr.png      images/mbsebbs-s.png \
+		  images/mbsebbs.png  images/users2.png       images/hand.up.png \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
-		  images/tdream1.gif  images/tdream2.gif      images/tdream3.gif \
+		  images/tdream1.png  images/tdream2.png      images/tdream3.png \
 		  images/route1.png   images/route2.png
 
 H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
