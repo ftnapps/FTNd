@@ -154,6 +154,14 @@ install:
 		fi
 		@chmod 0770 ${PREFIX}/var
 		@chmod 0770 ${PREFIX}/var/mail
+		@if [ -x ${BINDIR}/mbfbgen ]; then \
+			rm ${BINDIR}/mbfbgen; \
+			echo "removed ${BINDIR}/mbfbgen"; \
+		fi
+		@if [ -x ${BINDIR}/fbutil ]; then \
+			rm ${BINDIR}/fbutil ; \
+			echo "removed ${BINDIR}/fbutil "; \
+		fi
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
 
 dist tar:	${TARFILE}

@@ -103,7 +103,6 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbstat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbtoberep ${BINDIR}
 		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbuser    ${BINDIR}
-		@rm -f ${BINDIR}/mbfbgen
 		@rm -f mbuseradd mbpasswd mblogin
 
 filelist:	Makefile
