@@ -86,6 +86,9 @@ mbtask:
 
 	N: Add events.
 
+mbnewusr:
+	N: On NetBSD, supress error message from mbpasswd.
+
 mbsetup:
 	U: PickAka function lets mbsetup crash if domain is 12 characters
 
