@@ -520,6 +520,15 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	else 
 		tmsg->date = time((time_t *)NULL);
 
+	/*
+	 * SunMail 1.0 creates invalid date formats like: Wed, 19 Jun 2002 18:21:07 GMT-08:00
+	 *                                                                                ^---- not allowed.
+	 */
+	if (tmsg->date == -1) {
+	    Syslog('!', "Parsing date \"%s\" failed, using current date", p);
+	    tmsg->date = time((time_t *)NULL);
+	}
+	
 	if ((p = hdr((char *)"X-FTN-MSGID", msg))) {
 		tmsg->ftnorigin &= 1;
 		while (isspace(*p)) 
