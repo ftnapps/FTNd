@@ -615,9 +615,8 @@ struct	sysconfig {
 	int		MsgInputColourF;        /* MsgInput Filename Colour */
 	int		MsgInputColourB;        /* MsgInput Filename Colour */
 
-						/* Next User Door	    */
-	char		sNuScreen[50];          /* Next user txtfile        */
-	char		sNuQuote[81];           /* next user quote          */
+	char		xNuScreen[50];          /* Obsolete Next User Door  */
+	char		xNuQuote[81];
 
 						/* Safe Cracker Door	    */
 	int		iSafeFirstDigit;        /* Safe Door First Digit    */
@@ -648,16 +647,15 @@ struct	sysconfig {
 						/* Mail Options		    */
 	char		xquotestr[11];		/* Quote String		    */
 
-						/* Time Bank Door	    */
-	int		iMaxTimeBalance;        /* Users Time Balance       */
-	int		iMaxTimeWithdraw;       /* Max Time WithDrawel      */
-	int		iMaxTimeDeposit;        /* Max Time Deposit Per day */
-	int		iMaxByteBalance;        /* Users Time Balance       */
-	int		iMaxByteWithdraw;       /* Max Time WithDrawel      */
-	int		iMaxByteDeposit;        /* Max Time Deposit Per dat */
+	int		xMaxTimeBalance;	/* Obsolete Time Bank Door  */
+	int		xMaxTimeWithdraw;
+	int		xMaxTimeDeposit;
+	int		xMaxByteBalance;
+	int		xMaxByteWithdraw;
+	int		xMaxByteDeposit;
 	unsigned	xNewBytes	: 1;
-	char		sTimeRatio[7];          /* User Time Ratio,Returned */
-	char		sByteRatio[7];          /* User Time Ratio,Returned */
+	char		xTimeRatio[7];
+	char		xByteRatio[7];
 
 	long		new_groups;		/* Maximum newfiles groups  */
 	int		new_split;		/* Split reports at KB.	    */
@@ -805,6 +803,8 @@ struct	sysconfig {
 	unsigned	ca_Passwd	: 1;	/* Areamgr: Passwd change   */
 	unsigned	ca_Pause	: 1;	/* Areamgr: Allow Pause     */
 	unsigned	ca_Check	: 1;	/* Flag for upgrade check   */
+
+	char		rulesdir[65];		/* Area rules directory	    */
 };
 
 
@@ -926,27 +926,6 @@ struct msgareas {
 	int		Ftncode;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */
 	securityrec	LinkSec;		/* Link security flags	    */
-};
-
-
-
-/* 
- * System Bank Control Structure (bank.data) 
- */
-struct	timebankhdr {
-	long		hdrsize;		/* Size of header	   */
-	long		recsize;		/* Size of records	   */
-};
-
-struct	timebank {
-	char		Name[36];		/* Account Name		   */
-	char		Date[12];		/* Current Date		   */
-	int		TimeDeposit;		/* Time deposited today	   */
-	int		KByteDeposit;		/* Bytes deposited today   */
-	int		TimeWithdraw;		/* Time withdrawn today	   */
-	int		KByteWithdraw;		/* Bytes withdrawn today   */
-	int		TimeBalance;		/* Current Time Balance	   */
-	int		KByteBalance;		/* Current Byte Balance	   */
 };
 
 

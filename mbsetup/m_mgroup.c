@@ -517,7 +517,7 @@ void EditMGroup(void)
 		    working(2, 0, 0);
 		working(0, 0, 0);
 	    } else {
-		errmsg("Cannot add group, change global setting in menu 1.14.12");
+		errmsg("Cannot add group, change global setting in menu 1.12.12");
 	    }
 	}
 	

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Global records structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -73,9 +73,6 @@ struct	msgareashdr	msgshdr;		/* Messages configuration  */
 struct	msgareas	msgs;
 struct	_mgrouphdr	mgrouphdr;		/* Message groups	   */
 struct	_mgroup		mgroup;
-
-struct	timebankhdr	bankhdr;		/* Timebank structure	   */
-struct	timebank	bank;
 
 struct	languagehdr	langhdr;		/* Language data	   */
 struct	language	lang;			  			  

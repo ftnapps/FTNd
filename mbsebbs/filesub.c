@@ -763,8 +763,8 @@ char *GetFileType(char *fn)
 int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 {
 	char	*temp, *temp1;
-	int	i, x;
-	char	*token;
+//	int	i, x;
+//	char	*token;
 
 	temp  = calloc(PATH_MAX, sizeof(char));
 	temp1 = calloc(PATH_MAX, sizeof(char));
@@ -794,12 +794,12 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 				 * Give back the user his bytes from the upload
 				 * Work out byte ratio, then give time back to user
 				 */
-				strcpy(temp, CFG.sByteRatio);
-				token = strtok(temp, ":");
-			 	i = atoi(token);
-			 	token = strtok(NULL, "\0");
-				x = atoi(token);
-				Size *= i / x;
+//				strcpy(temp, CFG.sByteRatio);
+//				token = strtok(temp, ":");
+//			 	i = atoi(token);
+//			 	token = strtok(NULL, "\0");
+//				x = atoi(token);
+//				Size *= i / x;
 				/* You have */  /* extra download KBytes. */
 				printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
 	
@@ -812,13 +812,13 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 			 * Work out time ratio, then give time back to user
 			 * Ratio 3:1, Upload time: times by 3 / 1
 			 */
-			strcpy(temp, CFG.sTimeRatio);
-			token = strtok(temp, ":");
-		 	i = atoi(token);
-		  	token = strtok(NULL, "\0");
-			x = atoi(token);
+//			strcpy(temp, CFG.sTimeRatio);
+//			token = strtok(temp, ":");
+//		 	i = atoi(token);
+//		  	token = strtok(NULL, "\0");
+//			x = atoi(token);
 
-			iTime *= i / x;
+//			iTime *= i / x;
 			iTime /= 60; /* Divide Seconds by 60 to give minutes */
 			/* You have */ /* extra minutes. */
 			printf("%s %ld %s\n", (char *) Language(249), iTime, (char *) Language(259));

@@ -166,6 +166,7 @@ void load_maincfg(void)
         sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
 	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
 	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
+	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));
 	CFG.leavecase = TRUE;
 
         /*
@@ -249,12 +250,6 @@ void load_maincfg(void)
         CFG.MsgInputColourB     = BLACK;
 
         /*
-         * NextUser Door
-         */
-        sprintf(CFG.sNuScreen, "welcome");
-        sprintf(CFG.sNuQuote, "Please press [ENTER] to continue: ");
-
-        /*
          * Safe Door
          */
         CFG.iSafeFirstDigit     = 1;
@@ -284,18 +279,6 @@ void load_maincfg(void)
 	    sprintf(CFG.cStartTime[i], "18:00");
             sprintf(CFG.cStopTime[i], "23:59");
         }
-
-        /*
-         * Time Bank
-         */
-        CFG.iMaxTimeBalance     = 200;
-        CFG.iMaxTimeWithdraw    = 100;
-        CFG.iMaxTimeDeposit     = 60;
-        CFG.iMaxByteBalance     = 500;
-        CFG.iMaxByteWithdraw    = 300;
-        CFG.iMaxByteDeposit     = 150;
-        strcpy(CFG.sTimeRatio, "3:1");
-        strcpy(CFG.sByteRatio, "3:1");
 
         /*
          * Fill ticconf defaults

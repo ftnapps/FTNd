@@ -58,8 +58,6 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	N: Add traffic to html.nodes
-
 	N: Add macro's for stats of all months.
 
 	L: Implement netmail K/S flag to mark netmail Deleted.

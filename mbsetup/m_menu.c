@@ -4,7 +4,7 @@
  * Purpose ...............: Edit BBS menus
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -186,26 +186,26 @@ int GetSubmenu(int Base, int Max)
 int GetMenuType(void);
 int GetMenuType(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Global system menus");
-	mvprintw( 8, 6, "2.  File areas menus");
-	mvprintw( 9, 6, "3.  Message areas menus");
-	mvprintw(10, 6, "4.  User setting menus");
-	mvprintw(11, 6, "5.  Oneliner menus");
-	mvprintw(12, 6, "6.  BBS List menus");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.  Global system menus");
+    mvprintw( 8, 6, "2.  File areas menus");
+    mvprintw( 9, 6, "3.  Message areas menus");
+    mvprintw(10, 6, "4.  User setting menus");
+    mvprintw(11, 6, "5.  Oneliner menus");
+    mvprintw(12, 6, "6.  BBS List menus");
 
-	switch (select_menu(6)) {
-		case 1:	return GetSubmenu(1, 25);
-		case 2:	return GetSubmenu(101, 19);
-		case 3:	return GetSubmenu(201, 20);
-		case 4:	return GetSubmenu(301, 18);
-		case 5:	return GetSubmenu(401, 5);
-		case 6:	return GetSubmenu(501, 6);
-		default: return 0; 
-	}
+    switch (select_menu(6)) {
+	case 1:	    return GetSubmenu(1, 25);
+	case 2:	    return GetSubmenu(101, 19);
+	case 3:	    return GetSubmenu(201, 20);
+	case 4:	    return GetSubmenu(301, 19);
+	case 5:	    return GetSubmenu(401, 5);
+	case 6:	    return GetSubmenu(501, 6);
+	default:    return 0; 
+    }
 }
 
 

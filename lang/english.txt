@@ -105,7 +105,7 @@ YN|Do you want to open the safe ? [Y/n]:
 |has cracked the safe.
 |The safe will remain locked until the sysop rewards the user.
 |Maximum trys per day Exceeded!
-|Message to Nextuser Door
+|Edit message signature
 |The FROM, TO and SUBJECT fields are optional.
 |   From: 
 |     To: 

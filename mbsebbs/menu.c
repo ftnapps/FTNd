@@ -4,7 +4,7 @@
  * Purpose ...............: Display and handle the menus.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -42,13 +42,11 @@
 #include "mail.h"
 #include "bbslist.h"
 #include "change.h"
-#include "bank.h"
 #include "chat.h"
 #include "file.h"
 #include "funcs.h"
 #include "input.h"
 #include "misc.h"
-#include "nextuser.h"
 #include "safe.h"
 #include "timeout.h"
 #include "menu.h"
@@ -67,6 +65,7 @@
 #include "logentry.h"
 #include "morefile.h"
 #include "lastcallers.h"
+#include "signature.h"
 
 
 
@@ -419,19 +418,7 @@ void DoMenu(int Type)
 		/* display menuline only */
 		break;
 
-	case 22:
-		/* nextuser door */
-		nextuser();
-		break;
-
-	case 23:
-		/* timebank door */
-		Bank();
-		break;
-
-	case 24:
-		/* voting door Not anymore */
-		break;
+		/* Menus 22, 23 and 24 were obsolete doors */
 
 	case 25:
 		/* safe cracker door */
@@ -659,6 +646,10 @@ void DoMenu(int Type)
 
 	case 318:
 		Chg_Address();
+		break;
+
+	case 319:
+		signature();
 		break;
 
 	case 401:

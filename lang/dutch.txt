@@ -105,7 +105,7 @@ JN|Wilt U de kluis openenen ? [J/n]:
 |heeft de kluis grkraakt.
 |De kluis blijft op slot tot de sysop de gebruiker beloond heeft.
 |Maximaal aantal pogingen perdag bereikt!
-|Bericht naar volgende gebruiker
+|Wijzig berichten handtekening
 |De VAN, AAN en ONDERWERP velden zijn opties.
 |      Van: 
 |      Aan: 

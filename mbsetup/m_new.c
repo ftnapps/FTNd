@@ -515,7 +515,7 @@ void EditNewfiles(void)
 		    working(2, 0, 0);
 		working(0, 0, 0);
 	    } else {
-		errmsg("Cannot add, change global setting in menu 1.16.3");
+		errmsg("Cannot add, change global setting in menu 1.14.3");
 	    }
 	}
 

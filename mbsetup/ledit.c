@@ -2086,8 +2086,6 @@ char *getmenutype(int val)
 		case 19:	return (char *)"Display textfile with more";
 		case 20:	return (char *)"Display .A?? file with Enter";
 		case 21:	return (char *)"Display Text Only";
-		case 22:	return (char *)"Message to nextuser door";
-		case 23:	return (char *)"Time banking system";
 
 		case 25:	return (char *)"Safe cracker door";
 
@@ -2150,6 +2148,7 @@ char *getmenutype(int val)
 		case 316:	return (char *)"Change fullscreen editor";
 		case 317:	return (char *)"Change FS edit shortcut keys";
 		case 318:	return (char *)"Change address";
+		case 319:	return (char *)"Change .signature file";
 
 		case 401:	return (char *)"Add oneliner";
 		case 402:	return (char *)"List oneliners";

@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 06-Jan-2003</h5></div>
+<div align="right"><h5>Last update 02-Feb-2003</h5></div>
 
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 <P>
@@ -159,17 +159,7 @@ menu.
 <IMG SRC="../images/mbsetup1.6.S.gif" width="589" height="343">
 <P>
 
-<h3>1.9. Next User Door.</h3>
-<p>
-This is a "message to nextuser" door I found in RapidBBS. It allows a user
-to write a message to the next BBS user.
-<pre>
-<strong>Text file         </strong>The textfile to display
-<strong>Quote             </strong>The prompt to show
-</pre>
-<p>
-
-<h3>1.10. Safe cracker door.</h3>
+<h3>1.9. Safe cracker door.</h3>
 <p>
 This is a door I found in RapidBBS, it is a simple number guessing game.
 <pre>
@@ -185,26 +175,7 @@ This is a door I found in RapidBBS, it is a simple number guessing game.
 </pre>
 <p>
 
-<h3>1.11. Time Bank Door.</h3>
-<p>
-This is the timebank door I found in RapidBBS. It allows a user to deposit
-time or download kilobytes on his bank account so when he needs it for
-big downloads he can use his savings for extra large downloads. Anyway,
-I haven't figured this one out completly for myself, so the meaning of all
-these settings are not well explained right now.
-<pre>
-<strong>Time balance      </strong>Maximum time balance
-<strong>Max time withdraw </strong>Maximum time to withdraw
-<strong>Max time deposit  </strong>Maximum time to deposit
-<strong>Kb. balance       </strong>Maximum Kilobytes balance
-<strong>Max Kb. withdraw  </strong>Maximum Kilobytes to withdraw
-<strong>Max Kb. deposit   </strong>Maximum Kilobytes to deposit
-<strong>Users time ratio  </strong>Time ratio
-<strong>Users Kb. ratio   </strong>Kilobytes ratio
-</pre>
-<p>
-
-<h3>1.12. Sysop paging</h3>
+<h3>1.10. Sysop paging</h3>
 <p>
 For sysop chat we use a program that will connect to the users tty. This is 
 not a nice solution because it will not work over a network, but at least
@@ -224,7 +195,7 @@ it works.
 <strong>Sunday..Saturday  </strong>The times the Sysop is normal available
 </pre><p>
 
-<h3>1.13. Fileecho Processing.</h3>
+<h3>1.11. Fileecho Processing.</h3>
 <p>
 A note, when you change the number of Systems or Groups, the databases affected
 will be updated automatic.
@@ -250,7 +221,7 @@ the file /opt/mbse/english/macro/filemgr.help to reflect the new settings.
 Default all these switches are set to Yes.
 
 <p>
-<h3>1.14. Edit Fidonet mail and echomail processing.</h3>
+<h3>1.12. Edit Fidonet mail and echomail processing.</h3>
 <p>
 Note that the first 2 mailboards must also exist in the normal mail areas if
 you want to see what is in them. Here they are defined for quick access of the
@@ -307,7 +278,7 @@ if they are larger then 32 KBytes. Splitting is used for newfiles reports
 and gated news articles to Fidonet.
 <P>
 
-<h3>1.15. Edit Internet mail and news processing.</h3>
+<h3>1.13. Edit Internet mail and news processing.</h3>
 <p>
 Email and news is setup here. There are three possible configurations which you
 can set with 1.15.11:
@@ -376,7 +347,7 @@ In UUCP mode the NNTP entries are replaced by:
 
 
 <P>
-<h3>1.16. Allfiles and Newfiles lists.</h3>
+<h3>1.14. Allfiles and Newfiles lists.</h3>
 <p>
 These are the settings that affect the generation of newfiles and allfiles reports.
 <pre>
@@ -385,7 +356,7 @@ These are the settings that affect the generation of newfiles and allfiles repor
 <strong>Groups            </strong>The number of newfile groups the newfiles database can hold
 </pre><p>
 
-<h3>1.17. Mailer Setup.</h3>
+<h3>1.15. Mailer Setup.</h3>
 <p>
 Note that you can't disable FTS-0001 sessions as that is a mandatory session
 protocol in Fidonet. There are 40 phonenumber translations present, this is for
@@ -414,7 +385,7 @@ XX,CM and TCP/IP systems (internet) should use the XX,CM,IBN,IFC flags.
 <strong>Max. MBytes       </strong>Maximum MBytes to request, 0 is unlimited
 </pre>
 
-<h3>1.18. FTPD Settings.</h3>
+<h3>1.16. FTPD Settings.</h3>
 <p>
 A new program is <strong>mbftpd</strong>. This is a replacement for the normal
 ftp server for Linux with special futures for MBSE BBS. This is not working
@@ -440,7 +411,7 @@ yet and is not included in the distribution. Setting it up is adviced.
 <strong>User mbse         </strong>If user <strong>mbse</strong> is allowed. Dangerous!
 </pre>
 
-<h3>1.19. Edit HTML pages setup.</h3>
+<h3>1.17. Edit HTML pages setup.</h3>
 <p>
 Here you setup the HTML pages that can be created with the <strong>
 mbfile web</strong> command. These are HTML pages of your download
@@ -473,7 +444,7 @@ there is no user authentication yet available.
 </pre>
 <P>
 
-<h3>1.20. Manager flag Descriptions.</h3>
+<h3>1.18. Manager flag Descriptions.</h3>
 <p>
 In this menu you can give the 32 area-/filemgr flags a meaningfull description.
 <p>

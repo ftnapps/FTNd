@@ -5,6 +5,7 @@ v0.37.01	14-Jan-2003.
 
 	upgrade:
 		After upgrade you may remove ~/etc/maptabs and it's contents.
+		After upgrade you may remove ~/etc/bank.data.
 
 	general:
 		This version may be used on production systems, but be 
@@ -15,6 +16,12 @@ v0.37.01	14-Jan-2003.
 		will be replaced by standard library functions. Right now the
 		messages are 8 bit clean and there is no translation on the
 		gateway. The maptabs are removed.
+		Menu items 22 and 23 are removed, menu 319 is added. You may 
+		want to replace the default txtfiles and menus, upgraded
+		versions are in the distribution but are not automatic
+		installed.
+		Documented menu 318, was present for a long time, just not in
+		the html docs.
 
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default
@@ -48,6 +55,7 @@ v0.37.01	14-Jan-2003.
 		global settings.
 		When moving a message area to area zero mbsetup doesn't crash
 		anymore.
+		Added new menu item 319, remove menu items 22 and 23.
 
 	mbsebbs:
 		It will now refuse to up/download OLR packets when the system
@@ -57,10 +65,15 @@ v0.37.01	14-Jan-2003.
 		When a reply is made on a message in a newsgroup and your
 		systems has a permanent mail domain the email address is used
 		as from name.
+		Removed timebank and nextuser doors.
+		Added editing of user's signature file. New menu item 319.
 
 	examples:
 		The English and Dutch templates are updated to show the new
 		nodes flow counters (html.nodes).
+
+	lang:
+		Changed english and dutch language prompts 107.
 
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003

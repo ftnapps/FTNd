@@ -9,32 +9,32 @@
 8	user.c filesub.c		|Password: 
 9	user.c				|Maximum login attempts have been exceeded ...
 10	user.c				|Either your NAME or PASSWORD is incorrect
-11	bank.c				|                              MBSE BBS System Bank                              
-12	bank.c				|Bank Account: 
-13	bank.c				|Time in account                    
-14	bank.c				|Bytes in account                   
-15	bank.c				|Time deposited today               
-16	bank.c				|Bytes deposited today              
-17	bank.c				|Time withdrawn today               
-18	bank.c				|Bytes withdrawn today              
-19	bank.c				DWQ|(D)eposit, (W)ithdraw, (Q)uit: 
-20	bank.c				|Bank > 
-21	bank.c				TBQ|(T)ime, (B)ytes, (Q)uit : 
-22	bank.c				|You must have at least 5 minutes remaining to deposit
-23	bank.c				|How much time. Minutes available to you is 
-24	bank.c				|You have tried to deposit more than the maximum limit today.
-25	bank.c				|Maximum allowed minutes to deposit per day: 
-26	bank.c				|You have exeeded your account balance.
-27	bank.c				|Maximum allowable minutes in bank account is: 
-28	bank.c				|You are allowed to deposit: 
-29	bank.c				|You have tried to withdraw more than the maximum limit today.
-30	bank.c				|Maximum allowed to withdraw per day: 
-31	bank.c				|You have tried to withdraw more time than is in your bank account.
-32	bank.c				|Current bank balance: 
-33	bank.c				|Maximum allowed kilobytes to deposit per day: 
-34	bank.c				|You have exeeded your account balance.
-35	bank.c				|Maximum allowable kilobytes in bank account is: 
-36	bank.c				|How many kilobytes. KBytes available to you is 
+11	.c				|
+12	.c				|
+13	.c				|
+14	.c				|
+15	.c				|
+16	.c				|
+17	.c				|
+18	.c				|
+19	.c				|
+20	.c				|
+21	.c				|
+22	.c				|
+23	.c				|
+24	.c				|
+25	.c				|
+26	.c				|
+27	.c				|
+28	.c				|
+29	.c				|
+30	.c				|
+31	.c				|
+32	.c				|
+33	.c				|
+34	.c				|
+35	.c				|
+36	.c				|
 37	newuser.c			|MBSE Bulletin Board System - NEW USER REGISTRATION
 38	newuser.c			|Use this name: 
 39	newuser.c			|Please enter new password   : 
@@ -105,19 +105,19 @@
 104	safe.c				|has cracked the safe.
 105	safe.c				|The safe will remain locked until the sysop rewards the user.
 106	safe.c				|Maximum trys per day Exceeded!
-107	nextuser.c			|Message to Nextuser Door
-108	nextuser.c			|The FROM, TO and SUBJECT fields are optional.
-109	nextuser.c			|   From: 
-110	nextuser.c			|     To: 
-111	nextuser.c			|Subject: 
-112	nextuser.c			|  Type up to 10 lines 74 Characters per line
-113	nextuser.c			|Functions available:
-114	nextuser.c			LREAS|(L)ist, (R)eplace text, (E)dit line, (A)bort, (S)ave
-115	nextuser.c			|Select: 
-116	nextuser.c file.c		|Aborting...
-117	nextuser.c			|Returning to 
-118	nextuser.c			|Edit which line: 
-119	nextuser.c			|Line does not exist.
+107	signature.c			|Edit message signature
+108	.c				|The FROM, TO and SUBJECT fields are optional.
+109	.c				|   From: 
+110	.c				|     To: 
+111	.c				|Subject: 
+112	.c				|  Type up to 4 lines 74 Characters per line
+113	signature.c			|Functions available:
+114	signature.c			LREAS|(L)ist, (R)eplace text, (E)dit line, (A)bort, (S)ave
+115	signature.c			|Select: 
+116	signature.c file.c		|Aborting...
+117	signature.c			|Returning to 
+118	signature.c			|Edit which line: 
+119	signature.c			|Line does not exist.
 120	change.c			|Old Password: 
 121	change.c			|New password: 
 122	change.c			|Confirm new password: 
@@ -184,7 +184,7 @@
 183	lineedit.c			|Enter line # to insert text before 
 184	lineedit.c			|List
 185	lineedit.c			|Enter line # to replace 
-186	lineedit.c nextuser.c		|Line reads:
+186	lineedit.c signature.c		|Line reads:
 187	lineedit.c			|Unchanged.
 188	lineedit.c			|Line now reads:
 189	lineedit.c mail.c		|Quit
@@ -193,8 +193,8 @@
 192	lineedit.c			|No
 193	lineedit.c			|Text Edit
 194	lineedit.c			|Enter line # to edit 
-195	lineedit.c nextuser.c		|Text to replace  : 
-196	lineedit.c nextuser.c		|Replacement text : 
+195	lineedit.c signature.c		|Text to replace  : 
+196	lineedit.c signature.c		|Replacement text : 
 197	lineedit.c			|Line now reads: 
 198	lineedit.c			|Save
 199	filesub.c			|Possible VIRUS found!
@@ -338,7 +338,7 @@
 337	bbslist.c			|seen you have marked a record for deletion.
 338	offline.c			|Total messages found:
 339	menu.c				|Unknown Menu Command!
-340	nextuser.c			|Saving...
+340	signature.c			|Saving...
 341	oneline.c			|MBSE BBS Oneliners will randomly appear on the main menu.
 342	oneline.c			|Obscene or libellous oneliners will be deleted!!
 343	oneline.c			|Please enter your oneliner below. You have 75 characters.

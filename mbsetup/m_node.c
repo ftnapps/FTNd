@@ -1262,9 +1262,9 @@ void EditNodes(void)
 		working(0, 0, 0);
 	    } else {
 		if ((records + 1) > CFG.toss_systems) {
-		    errmsg("Cannot add node, change global setting in menu 1.14.11");
+		    errmsg("Cannot add node, change global setting in menu 1.12.11");
 		} else {
-		    errmsg("Cannot add node, change global setting in menu 1.13.4");
+		    errmsg("Cannot add node, change global setting in menu 1.11.4");
 		}
 	    }
 	}
