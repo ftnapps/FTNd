@@ -164,10 +164,12 @@ int Tic()
  */
 int LoadTic(char *inb, char *tfn)
 {
-    FILE    *tfp;
-    char    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
-    int	    i, j, rc, bufsize, DescCnt = FALSE;
-    fa_list *sbl = NULL;
+    FILE	    *tfp;
+    char	    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
+    int		    i, j, rc, bufsize, DescCnt = FALSE;
+    fa_list	    *sbl = NULL;
+    DIR             *dp;
+    struct dirent   *de;
 
     if (CFG.slow_util && do_quiet)
 	usleep(1);
@@ -425,47 +427,27 @@ int LoadTic(char *inb, char *tfn)
 	 * Find out what the real name of the file is,
 	 * most likely this is a 8.3 filename.
 	 */
-	sprintf(Temp2, "%s", TIC.TicIn.File);
-	sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-	if (file_exist(Temp, R_OK) == 0) {
-	    strcpy(RealName, Temp2);
-	} else {
-	    tu(Temp2);
-	    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-	    if (file_exist(Temp, R_OK) == 0) {
-		strcpy(RealName, Temp2);
-	    } else {
-		tl(Temp2);
-		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-		if (file_exist(Temp, R_OK) == 0) {
-		    strcpy(RealName, Temp2);
-		}
+	if ((dp = opendir(TIC.Inbound)) == NULL) {
+	    WriteError("$Can't opendir(%s)", TIC.Inbound);
+	    return 1;
+	}
+        while ((de = readdir(dp))) {
+	    /*
+	     * Check 8.3 FN
+	     */
+	    if (strcasecmp(de->d_name, TIC.TicIn.File) == 0) {
+		strncpy(RealName, de->d_name, 255);
+		break;
+	    }
+	    /*
+	     * Check LFN
+	     */
+	    if (strcasecmp(de->d_name, TIC.TicIn.FullName) == 0) {
+		strncpy(RealName, de->d_name, 255);
+		break;
 	    }
 	}
-
-	/*
-	 * If the above didn't find the file and we got a LFN
-	 * the search again.
-	 */
-	if (strlen(TIC.TicIn.FullName) && (strlen(RealName) == 0)) {
-	    sprintf(Temp2, "%s", TIC.TicIn.FullName);
-	    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-	    if (file_exist(Temp, R_OK) == 0) {
-		strcpy(RealName, Temp2);
-	    } else {
-		tu(Temp2);
-		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-		if (file_exist(Temp, R_OK) == 0) {
-		    strcpy(RealName, Temp2);
-		} else {
-		    tl(Temp2);
-		    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
-		    if (file_exist(Temp, R_OK) == 0) {
-			strcpy(RealName, Temp2);
-		    }
-		}
-	    }
-	}
+	closedir(dp);
     }
 
     if (strlen(RealName) == 0) {
@@ -476,6 +458,14 @@ int LoadTic(char *inb, char *tfn)
 	TIC.Orphaned = TRUE;
 	WriteError("Can't find file in inbound");
     } else {
+	/*
+	 * If no LFN received in the ticfile and the file in the inbound is the same as the 8.3 name
+	 * but only the case is different, then treat the real filename as LFN.
+	 */
+	if ((strlen(TIC.TicIn.FullName) == 0) && strcmp(TIC.TicIn.File, RealName) && (strcasecmp(TIC.TicIn.File, RealName) == 0)) {
+	    Syslog('f', "Real filename possible LFN, faking it");
+	    strcpy(TIC.TicIn.FullName, RealName);
+	}
 	Syslog('f', "Real filename in inbound is \"%s\"", RealName);
 	Syslog('+', "8.3 name \"%s\", LFN \"%s\"", TIC.TicIn.File, TIC.TicIn.FullName);
 	if (strcmp(RealName, TIC.TicIn.File)) {

@@ -82,9 +82,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
     time_t	now;
     struct tm	*tm;
 
-    Syslog('M', "Post netmail from: %s", ascfnode(f, 0xff));
-    Syslog('M', "Post netmail to  : %s", ascfnode(t, 0xff));
-    Syslog('M', "Post netmail subj: %s", MBSE_SS(subject));
+    Syslog('m', "Post netmail from: %s", ascfnode(f, 0xff));
+    Syslog('m', "Post netmail to  : %s", ascfnode(t, 0xff));
+    Syslog('m', "Post netmail subj: %s", MBSE_SS(subject));
     net_in++;
 
     /*
@@ -106,6 +106,22 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		if (ta->net == f->net && ta->node == f->node && !fmpt && ta->point) {
 		    Syslog('m', "Setting pointinfo (%d) from MSGID", ta->point);
 		    fmpt = f->point = ta->point;
+		}
+		if ((ta->net == f->net) && (ta->node == f->node) && (f->zone == 0)) {
+		    /*
+		     * Missing zone info, maybe later we will see a INTL kludge or so, but for
+		     * now, just in case we fix it. And we need that for some Aka collecting
+		     * sysop who doesn't know how to configure his system right.
+		     */
+		    Syslog('m', "No from zone set, setting zone %d from MSGID", ta->zone);
+		    f->zone = ta->zone;
+		    /*
+		     * 99.9 % chance that the destination zone is also missing.
+		     */
+		    if (t->zone == 0) {
+			t->zone = ta->zone;
+			Syslog('m', "No dest zone set, setting zone %d from MSGID", ta->zone);
+		    }
 		}
 		tidy_faddr(ta);
 	    }

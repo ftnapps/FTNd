@@ -196,11 +196,11 @@ int Crash_Option(faddr *Dest)
     if (exitinfo.Security.level < CFG.iCrashLevel)
 	return 0;
 
-    cmmask = getCMmask();
     point = Dest->point;
     Dest->point = 0;
 
     if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
+	cmmask = getCMmask();
 	if (Nlent->oflags & cmmask) {
 	    /* Crash [y/N]: */
 	    pout(CYAN, BLACK, (char *)Language(461));

@@ -19,9 +19,9 @@ v0.37.00	26-Dec-2002.
 		only call binkp nodes.
 
 	general:
-		A new developer joined the team, David Gonzalez.
+		A new developer/translator joined the team, David Gonzalez.
 		The settings to suppres some IP protocols (global and nodes)
-		are removed, this behaviour can be set using nodelist flags 
+		are removed, this behaviour must be set using nodelist flags 
 		configuration.
 		Debug logging for mail and news now have one setting, the M.
 		Nodelist debug logging now uses the N character.
@@ -56,6 +56,15 @@ v0.37.00	26-Dec-2002.
 		Echomail from other zones showed the address of your own zone.
 		Added logging when other errors are found.
 		At zonegates, the seenby lines were twice stripped.
+		Another patch to compensate for sysops that pack pascalnet
+		files in fidonet packets and send these messages into the world
+		without zone information.
+		Made the incoming tic files complete case insensitive, mixed
+		case is now processed. If such file is received, the LFN will
+		be set to that name.
+
+	mbsebbs:
+		Changed to use the new nodelist lookup methods.
 
 	mbsetup:
 		Removed global flags No-IBN, IFC and ITN from the setup.
