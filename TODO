@@ -138,6 +138,17 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
+mbnntp:
+	U: fetched mail doesn't get the status Rcvd if it was for the user.
+
+	N: Do a better job for message linking by newsclients.
+
+	N: Lastread pointers are not updated.
+
+	N: Check if it's possible with followup messages to find the sender
+	   name of the original sender in case the client doesn't set the
+           apperantly-to: header.
+
 mbtask:
 	U: During chat when one of the users is disconnected for some reason
 	   mbtask crashes when trying to send a message to the pid that is no
