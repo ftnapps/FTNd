@@ -24,6 +24,10 @@ v0.61.4		11-Aug-2004
 	mbuser:
 		Fixed permissions.
 
+	mbtask:
+		Tried to call nodes during ZMH or during a Tyx window when mail
+		was on hold.
+
 	mbsetup:
 		Changed nodes screens to have a separate uplink managers setup
 		screen, and added switches for BBBS uplinks.

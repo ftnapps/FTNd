@@ -591,7 +591,7 @@ int outstat()
 	    /*
 	     * Arcmail and maybe file attaches, send during ZMH or if node has a Txx window.
 	     */
-	    if (iszmh || T_window) {
+	    if ((iszmh || T_window) && !((tmp->flavors) & F_HOLD)) {
 		tmp->flavors |= F_CALL;
 	    }
 	}
@@ -601,10 +601,11 @@ int outstat()
 	    /*
 	     * Normal mail, send during ZMH or if node has a Txx window.
 	     */
-	    if (iszmh || T_window) {
+	    if ((iszmh || T_window) && !((tmp->flavors) & F_HOLD)) {
 		tmp->flavors |= F_CALL;
 	    }
 	}
+
 	if ((tmp->flavors) & F_ISFLO ) 
 	    flstr[9]='F';
 
