@@ -249,7 +249,6 @@ binkpend:
     /*
      * Deinit
      */
-    Syslog('b', "Binkp: deinit start");
     if (bp.rname)
 	free(bp.rname);
     if (bp.MD_Challenge)
@@ -258,7 +257,6 @@ binkpend:
 	free(bp.rxbuf);
     if (bp.txbuf)
 	free(bp.txbuf);
-    Syslog('b', "Binkp: deinit end");
     rc = abs(rc);
     Syslog('b', "Binkp: rc=%d", rc);
     return rc;
@@ -1440,8 +1438,6 @@ int binkp_send_frame(int cmd, char *buf, int len)
 	rc = PUT(buf, len);
     FLUSHOUT();
     binkp_settimer(BINKP_TIMEOUT);
-
-    Syslog('b', "Binkp: send %s frame, len=%d rc=%d", cmd?"CMD":"DATA", len, rc);
     return rc;
 }
 
@@ -1706,8 +1702,6 @@ int binkp_poll_frame(void)
 			bp.remote_msgs++;
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
-		    } else {
-			Syslog('b', "Binkp: got data frame %d bytes", bp.rxlen);
 		    }
 		    rc = 1;
 		    break;
@@ -1822,7 +1816,6 @@ int binkp_process_messages(void)
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
 		    Found = TRUE;
-		    tmp->state = Got;
 		    if (tmp->state == Sending) {
 			Syslog('+', "Binkp: remote refused %s", tmp->remote);
 			fclose(bp.txfp);
@@ -1832,6 +1825,7 @@ int binkp_process_messages(void)
 		    } else {
 			Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
 		    }
+		    tmp->state = Got;
 		    break;
 		}
 	    }

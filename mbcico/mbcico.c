@@ -4,7 +4,7 @@
  * Purpose: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -138,15 +138,15 @@ void die(int onsig)
     if (gotfiles)
 	CreateSema((char *)"mailin");
 
-    t_end = time(NULL);
-    Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
-    
     /*
      * Free memory
      */
     free_mem();
     deinitnl();
     
+    t_end = time(NULL);
+    Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
+
     if (envptr)
 	free(envptr);
     ExitClient(onsig);
