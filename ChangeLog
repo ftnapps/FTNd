@@ -4218,9 +4218,10 @@ v0.33.19        26-Oct-2001
 		Change the file /opt/mbse/etc/issue like the example in the
 		subdirectory mbtask.
 		Change the shell for user mbse to /opt/mbse/bin/mbnewusr
-
 		The make install fixes several permissions that are wrong for
 		the new style (not setuid) of mbsebbs.
+		Remove /opt/mbse/etc/maint to let it replace with a new
+		version, or change it by hand.
 
 	general:
 		Made the Makefile system more simple.
@@ -4328,11 +4329,13 @@ v0.33.19        26-Oct-2001
 		Added "mbfile toberep" function, this gives an overview of the
 		toberep database. The program mbtoberep does this as well, but
 		that one gives a complete dump and is for developer use.
+		The "mbfile index" function now also writes files.bbs files,
+		the index.html files for http download and 00index files in
+		all available areas.
 
 	mball:
-		The index function now creates the web pages with the use of
-		the long filenames instead of the uppercase dos 8.3 filenames.
-		Fixed html output for Konqueror browser.
+		The index function is now obsolete, this is added to mbfile.
+		You may need to adjust your scripts that call "mball index".
 
 	mbfbgen:
 		Obsolete and removed from the distribution. The function is

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# MBSE BBS Maintenance - Should be run from cron.
+# $Id$
 #
-# 18-Mar-2000 MB.
+# MBSE BBS Maintenance - Should be run from cron.
 
 if [ -z "$MBSE_ROOT" ]; then
     export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
@@ -17,10 +17,8 @@ fi
 $MBSE_ROOT/bin/mbuser pack kill 180 50 -quiet
 $MBSE_ROOT/bin/mbmsg kill pack link -quiet
 $MBSE_ROOT/bin/mbfile kill check pack index -quiet
-# $MBSE_ROOT/bin/mbfile kill check pack index web -quiet
-$MBSE_ROOT/bin/mbtoberep >$MBSE_ROOT/doc/toberep.doc
 $MBSE_ROOT/bin/mbaff announce filefind -quiet
 
 cd $MBSE_ROOT/tmp
-$MBSE_ROOT/bin/mball list index -zip -quiet
+$MBSE_ROOT/bin/mball list -zip -quiet
 
