@@ -11,8 +11,12 @@ fi
 UMASK=`umask`
 umask 007
 
-# Run DOS in X
-dosemu.bin -X -f $MBSE_ROOT/etc/dosemu/dosemu.conf
+# Run DOS
+if [ "$TERM" == "linux" ]; then
+    dosemu.bin -f $MBSE_ROOT/etc/dosemu/dosemu.conf
+else
+    dosemu.bin -X -f $MBSE_ROOT/etc/dosemu/dosemu.conf
+fi
 
 # Restore umask
 umask $UMASK
