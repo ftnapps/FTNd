@@ -146,8 +146,6 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
-	N: The adopt command switches the LFN and 8.3 name.
-
 	N: The import command doesn't work with long filenames.
 
 	N: Several import commands shoudlcheck ownership of the files before

@@ -18,6 +18,10 @@ v0.71.1		28-Nov-2004
 	mbnewuser:
 		During hangup we set sighup to ignore.
 
+	mbfile:
+		The adopt command now first checks if the filename is 8.3 or a
+		long filename and the correct format for import is then set.
+
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
 		the Spanish menus and txtfiles.

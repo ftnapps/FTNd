@@ -257,16 +257,34 @@ void AdoptFile(int Area, char *File, char *Description)
 	chdir(pwd);
 	DeleteVirusWork();
 	/*
-	 * Convert to 8.3 DOS filename
+	 * Work out the kind of filename, is it a long filename
+	 * or a 8.3 DOS filename. The file on disk must become
+	 * 8.3 for import.
 	 */
-	strcpy(temp2, File);
-	name_mangle(temp2);
-	strcpy(f_db.Name, temp2);
-	strcpy(f_db.LName, File);
-	f_db.Size = file_size(File);
-	f_db.Crc32 = file_crc(File, TRUE);
-	f_db.FileDate = file_time(File);
-	sprintf(temp2, "%s/%s", area.Path, File);
+	if (is_real_8_3(File)) {
+	    Syslog('f', "Adopt, file is 8.3");
+	    strcpy(f_db.Name, File);
+	    strcpy(f_db.LName, File);
+	    for (i = 0; i < strlen(File); i++)
+		if (isupper(f_db.LName[i]))
+		    f_db.LName[i] = tolower(f_db.LName[i]);
+	} else {
+	    Syslog('f', "Adopt, file is LFN");
+	    strcpy(temp2, File);
+	    name_mangle(temp2);
+	    if (rename(File, temp2)) {
+		Syslog('+', "Can't rename %s to %s", File, temp2);
+		if (!do_quiet)
+		    printf("\nCan't rename %s to %s\n", File, temp2);
+		die(MBERR_GENERAL);
+	    }
+	    strcpy(f_db.Name, temp2);
+	    strcpy(f_db.LName, File);
+	}
+	f_db.Size = file_size(f_db.Name);
+	f_db.Crc32 = file_crc(f_db.Name, TRUE);
+	f_db.FileDate = file_time(f_db.Name);
+	sprintf(temp2, "%s/%s", area.Path, f_db.Name);
 
 	if (!do_quiet) {
 	    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
@@ -275,8 +293,8 @@ void AdoptFile(int Area, char *File, char *Description)
 
 	if (strcmp(f_db.Name, f_db.LName)) {
 	    lname = calloc(PATH_MAX, sizeof(char));
-	    sprintf(lname, "%s/%s", area.Path, f_db.Name);
-	    if (AddFile(f_db, Area, temp2, File, lname) == FALSE) {
+	    sprintf(lname, "%s/%s", area.Path, f_db.LName);
+	    if (AddFile(f_db, Area, temp2, f_db.Name, lname) == FALSE) {
 		die(MBERR_GENERAL);
 	    }
 	    free(lname);

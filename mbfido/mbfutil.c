@@ -307,6 +307,11 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     int	    rc;
     struct _fdbarea *fdb_area = NULL;
 
+    Syslog('f', "AddFile Area    : %d", Area);
+    Syslog('f', "AddFile DestPath: %s", MBSE_SS(DestPath));
+    Syslog('f', "AddFile FromPath: %s", MBSE_SS(FromPath));
+    Syslog('f', "AddFile LinkPath: %s", MBSE_SS(LinkPath));
+
     /*
      * Copy file to the final destination and make a hard link with the
      * 8.3 filename to the long filename.
@@ -441,4 +446,17 @@ int LoadAreaRec(int Area)
     return TRUE;
 }
 
+
+
+int is_real_8_3(char *File)
+{
+    int	    i;
+
+    if (! is_8_3(File))
+	return FALSE;
+    for (i = 0; i < strlen(File); i++)
+	if (isalpha(File[i]) && islower(File[i]))
+	    return FALSE;
+    return TRUE;
+}
 
