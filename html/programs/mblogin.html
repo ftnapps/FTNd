@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jan-2002</h5>
+<h5>Last update 27-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mblogin - Unix login replacement for MBSE BBS.</H1>
@@ -41,6 +42,45 @@ login, not even root. If you change it in the file
 <code>/opt/mbse/etc/login.defs</code> you may allow user <strong>mbse</strong>
 to login. I advice against it, you should use <strong>ssh</strong> if you want
 remote access to do maintenance.
+<P>&nbsp;<P>
+
+<H3>How to use from telnetd.</H3>
+<P>
+If your system is connected to the internet you may want to let users login
+using telnet. The changes you need to make are different for each operating
+system mbse supports.
+I will only describe how to use it from inetd, not xinetd. 
+When you make changes to your system to
+change the telnet login, make sure you are already logged into your system as root
+from another terminal. If you make a mistake and can't login anymore you will be
+glad that you are still logged in on another terminal. Here are the tested
+setups:
+<UL>
+ <LI>Linux: edit the telnet line in /etc/inetd.conf:<BR>
+ <code>telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/mbse/bin/mblogin</code><br>
+ After changing this file do a <b>kill -HUP pid</b> where pid is the pid of the
+ inetd process.
+ <LI>FreeBSD: edit the telnet line in /etc/inetd.conf:<BR>
+ <code>telnet stream tcp nowait root /usr/libexec/telnetd telnetd -p /opt/mbse/bin/mblogin</code><br>
+ After changing this file do a <b>kill -HUP pid</b> where pid is the pid of the
+ inetd process.
+ <LI>NetBSD: append a line in /etc/gettytab just below the line with the default
+ entry:<br>
+ <code>mbsebbs:cd:ck:np:lo=/opt/mbse/bin/mblogin:sp#38400:</code><br>
+ The speed entry 38400 doesn't seem to be important.
+ Then edit the telnet line in /etc/inetd.conf:<BR>
+ <code>telnetd stream tcp nowait root /usr/libexec/telnetd telnetd -g mbsebbs</code><br>
+ After changing this file do a <b>kill -HUP pid</b> where pid is the pid of the
+  inetd process.
+</UL>
+Now you can test it with <code>telnet localhost</code> or from another machine
+with <code>telnet your.machine.com</code>. Check if you can still do other
+logins such as ssh, rlogin and login on local consoles.
+<P>&nbsp;<p>
+
+<H3>How to use from mgetty</H3>
+<P>
+This is described with the setup for <A HREF="../mgetty.html">mgetty</A>.
 <P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;

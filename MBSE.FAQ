@@ -23,7 +23,7 @@ MBSE Installation
  1.3 Will MBSE BBS ever be ported to DOS/Windows or OS/2?
  1.4 What does the guest switch in BBS user setup mean?
  1.5 How do I monitor as the things happen?
- 1.6 How to start mbsebbs from inetd.
+ 1.6 How to start mbsebbs from inetd?
 
 FidoNet Setup
 2.1 The nodelist compiler crashes 
@@ -72,13 +72,8 @@ A: tail -f /opt/mbse/log/system.log or start mbmon.
 
 1.6 How to start mbsebbs from inetd?
 
-A: You need to change the file /etc/inetd.conf. Change the line with
-telnetd on it, on Linux:
-telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/mbse/bin/mblogin
-on FreeBSD:
-telnet stream tcp nowait root /usr/libexec/telnetd telnetd -p /opt/mbse/bin/mblogin
-It may differ on some systems. After changing this file do a kill -HUP to
-the inetd process and try.
+A: This is described in the documentation of the mblogin program.
+
 
 
 FIDONET SETUP

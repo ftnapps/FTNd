@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 22-Oct-2001</h5>
+<h5>Last update 27-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>BBS doors dropfiles.</H1>
@@ -20,7 +21,8 @@
 <h3>Dropfiles for Unix BBS systems.</h3>
 <p>
 Not all options that are available under DOS or OS/2 can be used with Unix
-BBS systems and must be faked.
+BBS systems and must be faked. The doorfile is written in the users
+homedirectory when the user starts a door.
 <p>&nbsp;<P>
 
 <h3>DOOR.SYS format.</h3>
@@ -31,23 +33,23 @@ dates instead of the MM-DD-YY style. Newer doors sometimes need that.
 <pre>
 Line	Description
 -----	-----------------------------------------------------------------
-1	Port, 5 characters in DOS format, p.e. COM1:
-2	Effective Baudrate
-3	Databits
+1	Port, 5 characters in DOS format, COM1: or COM0:
+2	Effective Baudrate, 19200 or 0 for COM0:
+3	Databits, always 8
 4	Nodenumber, 1..9999
-5	Locked baudrate
-6	Screen display, Y=snoop on, N=snoop off. On Linux allways N.
-7	Printer Y=on N=off
-8	Page Bell Y=on N=off
-9	Caller alarm Y=on N=off
+5	Locked baudrate, 19200 or tty portspeed for COM0:
+6	Screen display, Y=snoop on, N=snoop off, on Unix allways Y.
+7	Printer Y=on N=off, on Unix always N
+8	Page Bell Y=on N=off, on Unix allways Y
+9	Caller alarm Y=on N=off, on Unix allways Y
 10	Users first name and lastname
 11	Users location
 12	Voice/Home phone
 13	Work/Dataphone
-14	Password, empty if not available (stored coded).
+14	Users password.
 15	Security level, 0..32768
 16	Users number of calls
-17	Users last call date MM-DD-YY
+17	Users last call date MM-DD-YY or MM-DD-YYYY
 18	Seconds remaining this call
 19	Time left in minutes
 20	ANSI, "GR" is yes, otherwise ?
@@ -55,25 +57,25 @@ Line	Description
 22	User mode, always N
 23	Always blank
 24	Always blank
-25	Subscription expire date MM-DD-YY
+25	Subscription expire date MM-DD-YY or MM-DD-YYYY
 26	Users record number
 27	Default protocol
 28	Users total number of uploads
 29	Users total number of downloads
 30	Users daily download kilobytes total
 31	Daily download kilobyte limit
-32	Users date of birth MM-DD-YY
-33	Path to users database files   Cannot be used on Linux.
-34	Path to message database files
+32	Users date of birth MM-DD-YY or MM-DD-YYYY
+33	Path to users database files, cannot be used on Unix
+34	Path to message database files, cannot be used on Unix
 35	Sysop first and last name
 36	Users handle
 37	Next event starting time or "none"
-38	Error-free connection Y=Yes or N=No
+38	Error-free connection Y=Yes or N=No, always Y
 39	Always set to N
 40	Always set to Y
 41	Text color as defined in setup 7 = gray.
 42	Always 0
-43	Last new files scan date MM-DD-YY
+43	Last new files scan date MM-DD-YY or MM-DD-YYYY
 44	Time of this call HH:MM
 45	Time of last call HH:MM
 46	Always set to 32768
@@ -86,31 +88,7 @@ Line	Description
 </pre>
 <P>&nbsp;<P>
 
-<h3>DORINFOn.DEF dropfile.</H3>
-<P>
-The DORINFOn.DEF file is a 12 lines ascii textfile, each line terminated with
-a cr/lf pair. All characters in the file are uppercase. The n in the filename
-represents the current line number and will be between 1 and 9. Using number
-1 seems always fine.
-<pre>
-Line	Description
-------	------------------------------------------------------------------
-1	System name
-2	Sysop's first name
-3	Sysop's last name
-4	Port name, like COM1, COM2 etc. COM0 = local
-5	Baudrate format: "19200 BAUD-R,N,8,1"
-6	Always 0
-7	Users firstname
-8	Users lastname
-9	Users location
-10	Graphics mode: 0=no, 1=ANSI, 2=Avatar, 3=ANSI+Avatar
-11	Security level, 0..32767
-12	Time left in minutes
-</pre>
-<p>
-
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>
