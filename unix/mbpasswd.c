@@ -732,6 +732,7 @@ int main(int argc, char *argv[])
 	int			pfd, tfd;
 #endif
 	char			*cp;
+	char			temp[128];
 
 	/*
 	 * Init $MBSE_ROOT/etc/login.defs file before the *pw gets overwritten.
@@ -910,6 +911,17 @@ int main(int argc, char *argv[])
 
 #endif /* __FreeBSD__ */
 
+#ifdef _VPOPMAIL_PATH
+	sprintf(temp, "%s/vpasswd %s %s", _VPOPMAIL_PATH, argv[2], argv[3]);
+	fflush(stdout);
+	fflush(stdin);
+
+	if (system(temp) != 0) {
+	    perror("mbpasswd: Failed to change vpopmail password\n");
+	    syslog(LOG_ERR, "Failed to change vpopmail password");
+	}
+#endif
+	
 	syslog(LOG_NOTICE, "password for `%s' changed by user `%s'", name, myname);
 	closelog();
 	exit(E_SUCCESS);

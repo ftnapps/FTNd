@@ -105,6 +105,9 @@
 /* Define to support /etc/login.access login access control.  */
 #undef LOGIN_ACCESS
 
+/* Path to vpopmail.  */
+#undef _VPOPMAIL_PATH
+
 /* Path for wtmp file.  */
 #undef _WTMP_FILE
 

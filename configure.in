@@ -38,10 +38,8 @@ AC_CHECK_PROG(INSTALL, install, install)
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
-dnl AC_PROG_LEX
 AC_CHECK_PROG(TAR, tar, tar)
 AC_CHECK_PROG(ZIP, zip, zip)
-dnl AM_PROG_LEX
 AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
 CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 
@@ -198,6 +196,16 @@ for logdir in /var/log /var/adm /usr/adm /etc; do
         fi
 done
 
+AC_MSG_CHECKING(location of vpopmail)
+for vpop in /var/qmail/vpopmail/bin NONE; do
+	if test "$vpop" = "NONE"; then
+		AC_MSG_RESULT(not found)
+	elif test -x $vpop/vadduser; then
+		AC_DEFINE_UNQUOTED(_VPOPMAIL_PATH, "$vpop")
+		AC_MSG_RESULT($vpop)
+		break
+	fi
+done
 
 
 AC_OUTPUT(

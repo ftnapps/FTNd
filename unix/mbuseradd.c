@@ -267,6 +267,16 @@ int main(int argc, char *argv[])
 	sprintf(temp, "%s/%s/Maildir/tmp", argv[4], argv[2]);
 	makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
 
+#ifdef _VPOPMAIL_PATH
+	sprintf(temp, "%s/vadduser %s %s", _VPOPMAIL_PATH, argv[2], argv[2]);
+	fflush(stdout);
+	fflush(stdin);
+
+	if (system(temp) != 0) {
+	    perror("mbuseradd: Failed to create vpopmail account\n");
+	}
+#endif
+
 	free(shell);
 	free(PassEnt);
 	free(temp);
