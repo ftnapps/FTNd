@@ -135,21 +135,8 @@ mbfile:
 
 	L: Possibility to skip file areas from checking and reindexing.
 
-	N: The import function does not create long filenames.
-
-	N: The import function doesn't strip the [0] from the files.bbs
-	   when importing the description.
-
-	N: The import function has troubles when there is nothing behind
-	   the filename.
-
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
-
-	N: The import command doesn't work with long filenames.
-
-	N: Several import commands shoudlcheck ownership of the files before
-	   processing them to prevent problems later.
 
 mbtask:
 	U: During chat when one of the users is disconnected for some reason

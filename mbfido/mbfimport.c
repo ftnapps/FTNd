@@ -48,16 +48,27 @@ void ImportFiles(int Area)
     char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
     FILE		*fbbs;
     DIR			*dp;
-    int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, Doit;
+    int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, y, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
     struct FILE_record  f_db;
     struct stat		statfile;
     struct dirent	*de;
 
-    Syslog('f', "Import(%d)", Area);
-
     if (!do_quiet)
 	mbse_colour(CYAN, BLACK);
+
+    temp   = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "xxxxx%d", getpid());
+    if ((fbbs = fopen(temp, "a+")) == NULL) {
+	WriteError("$Can't write to directory");
+	if (!do_quiet)
+	    printf("\nCan't write to this directory, cannot import\n");
+	free(temp);
+	die(MBERR_INIT_ERROR);
+    }
+    fclose(fbbs);
+    unlink(temp);
+    free(temp);
 
     if (LoadAreaRec(Area) == FALSE)
 	die(MBERR_INIT_ERROR);
@@ -79,20 +90,20 @@ void ImportFiles(int Area)
 	IsDoing("Import files");
 
 	/*
-	 * Find files.bbs
+	 * Find and open files.bbs
 	 */
 	sprintf(temp, "FILES.BBS");
+	if (getfilecase(area.Path, temp) == FALSE) {
+	    WriteError("Can't find files.bbs anywhere");
+	    if (!do_quiet)
+		printf("Can't find files.bbs anywhere\n");
+	    die(MBERR_INIT_ERROR);
+	}
 	if ((fbbs = fopen(temp, "r")) == NULL) {
-	    sprintf(temp, "files.bbs");
-	    if ((fbbs = fopen(temp, "r")) == NULL) {
-		sprintf(temp, "%s", area.FilesBbs);
-		if ((fbbs = fopen(temp, "r")) == NULL) {
-		    WriteError("Can't find files.bbs anywhere");
-		    if (!do_quiet)
-			printf("Can't find files.bbs anywhere\n");
-		    die(MBERR_INIT_ERROR);
-		}
-	    }
+	    WriteError("Can't open files.bbs");
+	    if (!do_quiet)
+		printf("Can't open files.bbs\n");
+	    die(MBERR_INIT_ERROR);
 	}
 	
 	while (fgets(String, 4095, fbbs) != NULL) {
@@ -180,7 +191,7 @@ void ImportFiles(int Area)
 		memset(&f_db, 0, sizeof(f_db));
 		Present = TRUE;
 
-		token = strtok(String, " \t");
+		token = strtok(String, " \t\r\n\0");
 
 		/*
 		 * Test filename against name on disk, first normal case,
@@ -188,6 +199,8 @@ void ImportFiles(int Area)
 		 */
 		if ((dp = opendir(pwd)) == NULL) {
 		    WriteError("$Can't open directory %s", pwd);
+		    if (!do_quiet)
+			printf("\nCan't open directory %s: %s\n", pwd, strerror(errno));
 		    die(MBERR_INIT_ERROR);
 		}
 		while ((de = readdir(dp))) {
@@ -195,26 +208,35 @@ void ImportFiles(int Area)
 			/*
 			 * Found the right file.
 			 */
-			strncpy(f_db.LName, token, 80);
+			strncpy(temp2, de->d_name, 80);
 			break;
 		    }
 		}
 		closedir(dp);
 
-		if (strlen(f_db.LName) == 0) {
-		    WriteError("Can't find file on disk, skipping: %s\n", token);
+		if (strlen(temp2) == 0) {
+		    WriteError("Can't find file on disk, skipping: %s", temp2);
+		    if (!do_quiet)
+			printf("\nCan't find file on disk, skipping: %s\n", temp2);
 		    Append = FALSE;
 		    Present = FALSE;
 		} else {
 		    /*
-		     * Create DOS 8.3 filename
+		     * Check type of filename and set the right values.
 		     */
-		    strcpy(temp2, f_db.LName);
-		    name_mangle(temp2);
-		    strcpy(f_db.Name, temp2);
-
-		    if (strcmp(f_db.LName, f_db.Name) && (rename(f_db.LName, f_db.Name) == 0)) {
-			Syslog('+', "Renamed %s to %s", f_db.LName, f_db.Name);
+		    if (is_real_8_3(temp2)) {
+			Syslog('f', "%s is 8.3", temp2);
+			strcpy(f_db.Name, temp2);
+			tl(temp2);
+			strcpy(f_db.LName, temp2);
+		    } else {
+			Syslog('f', "%s is LFN", temp2);
+			strcpy(f_db.LName, temp2);
+			name_mangle(temp2);
+			strcpy(f_db.Name, temp2);
+			if (strcmp(f_db.LName, f_db.Name) && (rename(f_db.LName, f_db.Name) == 0)) {
+			    Syslog('+', "Renamed %s to %s", f_db.LName, f_db.Name);
+			}
 		    }
 
 		    sprintf(temp, "%s/%s", pwd, f_db.Name);
@@ -233,42 +255,60 @@ void ImportFiles(int Area)
 		    IsDoing("Import %s", f_db.Name);
 
 		    token = strtok(NULL, "\0");
-		    i = strlen(token);
-		    line = pos = 0;
-		    for (x = 0; x < i; x++) {
-			if ((token[x] == '\n') || (token[x] == '\r'))
-			    token[x] = '\0';
-		    }
-		    i = strlen(token);
-
-		    Doit = FALSE;
-		    for (x = 0; x < i; x++) {
-			if (!Doit) {
-			    if (!iscntrl(token[x]) && !isblank(token[x]))
-				Doit = TRUE;
+		    if (token) {
+			i = strlen(token);
+			line = pos = 0;
+			for (x = 0; x < i; x++) {
+			    if ((token[x] == '\n') || (token[x] == '\r'))
+				token[x] = '\0';
 			}
-			if (Doit) {
-			    if (pos > 42) {
-				if (token[x] == ' ') {
-				    f_db.Desc[line][pos] = '\0';
-				    line++;
-				    pos = 0;
-				} else {
-				    if (pos == 49) {
+			i = strlen(token);
+			y = 0;
+
+			if (token[0] == '[') {
+			    /*
+			     * Skip over download counter
+			     */
+			    while (token[y] != ']')
+				y++;
+			    y += 2;
+			}
+
+			Doit = FALSE;
+			for (x = y; x < i; x++) {
+			    if (!Doit) {
+				if (!iscntrl(token[x]) && !isblank(token[x]))
+				    Doit = TRUE;
+			    }
+			    if (Doit) {
+				if (pos > 42) {
+				    if (token[x] == ' ') {
 					f_db.Desc[line][pos] = '\0';
-					pos = 0;
 					line++;
+					pos = 0;
+				    } else {
+					if (pos == 49) {
+					    f_db.Desc[line][pos] = '\0';
+					    pos = 0;
+					    line++;
+					}
+					f_db.Desc[line][pos] = token[x];
+					pos++;
 				    }
+				} else {
 				    f_db.Desc[line][pos] = token[x];
 				    pos++;
 				}
-			    } else {
-				f_db.Desc[line][pos] = token[x];
-				pos++;
+				if (line == 25)
+				    break;
 			    }
-			    if (line == 25)
-				break;
 			}
+		    } else {
+			/*
+			 * No file description
+			 */
+			Syslog('+', "No file description in files.bbs for %s", f_db.LName);
+			strcpy(f_db.Desc[0], "No description");
 		    }
 
 		    sprintf(dest, "%s/%s", area.Path, f_db.Name);

@@ -343,12 +343,10 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     }
 
     if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
-	Syslog('f', "opened");
 	rc = mbsedb_InsertFDB(fdb_area, f_db, TRUE);
 	mbsedb_CloseFDB(fdb_area);
 	return rc;
     } else {
-	Syslog('f', "not opened");
 	return FALSE;
     }
 }

@@ -21,6 +21,17 @@ v0.71.1		28-Nov-2004
 	mbfile:
 		The adopt command now first checks if the filename is 8.3 or a
 		long filename and the correct format for import is then set.
+		With mbfile import, download counters in files.bbs are skipped.
+		When the file description was missing in files.bbs with the
+		import command, mbfile would crash. Now a dummy description is
+		inserted.
+		The directory from which the import is done is first tested for
+		write access, if forbidden then no import is done. This also
+		means you cannot import directly from CD's but that you need
+		to copy the CD contents first to a harddisk.
+		Better error reporting if something is wrong.
+		The import command now also figures out the difference between
+		8.3 and long filenames and does the right thing during import.
 
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
