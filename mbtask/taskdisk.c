@@ -101,7 +101,9 @@ char *get_diskstat()
 	mntsize = getmntinfo(&mntbuf, MNT_NOWAIT);
 
 	for (i = 0; i < mntsize; i++) {
-		if ((strncmp(mntbuf[i].f_fstypename, (char *)"kernfs", 6)) && (statfs(mntbuf[i].f_mntonname, &sfs) == 0)) {
+		if ((strncmp(mntbuf[i].f_fstypename, (char *)"kernfs", 6)) && 
+		    (strncmp(mntbuf[i].f_fstypename, (char *)"procfs", 6)) &&
+		    (statfs(mntbuf[i].f_mntonname, &sfs) == 0)) {
 			if (tmp == NULL)
 				tmp = xstrcpy((char *)",");
 			else
