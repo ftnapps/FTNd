@@ -57,18 +57,19 @@ void Good_Bye(int onsig)
 
     IsDoing("Hangup");
     temp = calloc(PATH_MAX, sizeof(char));
-    Syslog('+', "Good_Bye()");
+    Syslog('+', "Good_Bye(%d)", onsig);
 
-    if (onsig != SIGHUP)
+    /*
+     * Don't display goodbye screen on SIGHUP and idle timeout.
+     * With idle timeout this will go into a loop.
+     */
+    if ((onsig != SIGHUP) && (onsig != SIGALRM) && (onsig != MBERR_TIMEOUT))
 	DisplayFile((char *)"goodbye");
-
-    Syslog('b', "goodbye displayed");
 
     if (do_mailout)
 	CreateSema((char *)"mailout");
 
     SaveLastCallers();
-    Syslog('b', "Lastcallers written");
 
     /*
      * Update the users database record.

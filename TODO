@@ -30,9 +30,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	U: When the bbs times out during login, the GoodBye functions goes
-	   into a loop.
-
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.

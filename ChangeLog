@@ -11,6 +11,10 @@ v0.39.1		22-Oct-2003
 		~/etc/archiver.data and start mbsetup to recreate the
 		archivers setup.
 
+	mbsebbs:
+		Fixed a bug where the bbs goes into a loop after idle timeout
+		during login (and maybe in other situations).
+
 	mbsetup:
 		In node editor, fixed error message when there was no more
 		room for new nodes to point to the right menus.
