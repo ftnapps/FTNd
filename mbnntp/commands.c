@@ -226,6 +226,7 @@ void command_abhs(char *buf)
 	    if ((p = (char *)MsgText_First()) != NULL) {
 		do {
 		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
+			Syslog('n', "%s", printablec(p, 0));
 			if (p[0] == '\001') {
 			    send_nntp("X-FTN-%s", p+1);
 			} else {
