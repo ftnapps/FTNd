@@ -304,10 +304,10 @@ int Add_BBS(qualify **qal)
 		    sprintf(temp2, "%s/.%s", area.Path, fdb.Name);
 		    unlink(temp2); /* Thumbnail, no logging if there is an error */
 		}
-		mbsedb_PackFDB(fdb_area);
-		mbsedb_CloseFDB(fdb_area);
-		DidDelete = FALSE;
 	    }
+	    mbsedb_PackFDB(fdb_area);
+	    mbsedb_CloseFDB(fdb_area);
+	    DidDelete = FALSE;
 	}
     }
 
