@@ -167,7 +167,7 @@ void load_maincfg(void)
                 sprintf(CFG.pinbound, "%s/var/inbound", getenv("MBSE_ROOT"));
                 sprintf(CFG.outbound, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
 		sprintf(CFG.msgs_path, "%s/var/msgs", getenv("MBSE_ROOT"));
-                sprintf(CFG.uxpath, "%s/var", getenv("MBSE_ROOT"));
+                sprintf(CFG.uxpath, "%s", getenv("MBSE_ROOT"));
                 sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
                 sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
                 sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
