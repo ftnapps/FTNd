@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 27-Jan-2002</h5>
+<h5>Last update 09-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>How to setup an FTP server to work with MBSE BBS.</H1>
@@ -22,8 +22,9 @@ In order to let MBSE BBS and your FTP server to both function together you must
 organize a special file structure. Note that even if you don't setup an FTP
 server you must still create a structure like this for the fidonet mailer,
 if you don't, <strong>mail and files will get lost!</strong>
-Note that this description is written for wu-ftpd, on your distribution there
+This description is written for ProFTPD, on your distribution there
 may be another ftpd installed. <font color=red><u>Don't use mbftpd yet!</u></font>
+Read the section for the <A HREF="webserver.html">webserver</A> as well.
 <P>
 <H4>The filestructure I used is as follows:</H4>
 <PRE>
@@ -31,21 +32,28 @@ may be another ftpd installed. <font color=red><u>Don't use mbftpd yet!</u></fon
          |   |   |        /dos_disk
          |   |   |        /dos_file
          |   |   /virnet/mcafee
-         |   |          /win16
-         |   |          /win32
-         |   /bin			- FTP bin directory
-         |   /etc			- FTP etc directory
+         |   |   |      /win16
+         |   |   |      /win32
+	 |   |   /css/files.css         - Stylesheet for http download
          |   /incoming			- FTP public upload.
          /var/bso/outbound		- Your default outbound
              |   /outbound.009		- Outbound Zone 9
-             |   /inbound		- Inbound directory
+             /inbound		        - Inbound directory
              /private/upload		- Non-public download areas
              |       /sysop
              |       /logfiles
              /tic_queue			- Queue for .tic files.
 
 </PRE>
+To let this work you need to change the default anonymous directory of the
+ftp server to /opt/mbse/pub. As root, edit /etc/passwd with the <b>vipw</b>
+command. Look for the entry of the ftp user and change his homedirectory to
+/opt/mbse/ftp. You may also use the command <b>usermod -d /opt/mbse/ftp ftp</b>
+to do the same. For a start the default configuration file for ProFTPD will do
+fine. If you want to let users upload into the incoming directory, you need to
+change /etc/proftpd.conf file to allow that.
 
+<P>
 If another DOS/Windows style mailer has access to your MBSE outbound you must
 set the DOS path and Unix path in <strong>mbsetup</strong> (1.4.12 and 1.4.13) to 
 <strong>"m:"</strong> and <strong>"/opt/mbse"</strong>. Note that to get 
@@ -64,22 +72,16 @@ users have <b>mbsebbs</b> as their shell and this shell is not in the file
 <b>/etc/shells</b> the ftp daemon will not let the bbs users in. So even
 your own bbs users must login as anonymous to get files from the ftp server.
 <P>
-Note the following directory permissions MUST BE SET!!!!::: See also
-the man pages for the DARPA ftpd server.
+The following is a list of file permissions when using ProFTPD:
 <P>
 
 <PRE>
 Directory               	owner group mode perms
 ------------------------------- ----- ----- ---- ----------
-/opt/mbse			mbse  bbs   0755 drwxr-xr-x
-/opt/mbse/ftp			root  wheel 0555 dr-xr-xr-x
-/opt/mbse/ftp/bin		root  wheel 0555 dr-xr-xr-x
-/opt/mbse/ftp/bin/ls		root  bin   0111 ---x--x--x
-/opt/mbse/ftp/etc		root  root  0555 dr-xr-xr-x
-/opt/mbse/ftp/etc/passwd	root  root  0444 -r--r--r--
-/opt/mbse/ftp/etc/group		root  root  0444 -r--r--r--
-/opt/mbse/ftp/pub		mbse  bbs   0775 drwxrwxr-x
-/opt/mbse/ftp/incoming   	ftp   users 0755 drwxr-xr-x
+/opt/mbse			mbse  bbs   0775 drwxrxxr-x
+/opt/mbse/ftp			root  root  0755 drxxr-xr-x
+/opt/mbse/ftp/pub		mbse  bbs   0755 drwxr-xr-x
+/opt/mbse/ftp/incoming   	ftp   ftp   0755 drwxr-xr-x
 
 </PRE>
 Note that all subdirectories under ../pub also must be owned by <strong>mbse

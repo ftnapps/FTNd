@@ -52,7 +52,7 @@ H_MENUS		= menus/control.html  menus/index.htm     menus/menu100.html \
 H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
 		  misc/jam.html        misc/semafore.html   misc/filefind.html \
 		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
-		  misc/usleep.html
+		  misc/usleep.html     misc/webserver.html
 
 H_PROGS		= programs/import.html     programs/mbchat.html \
 		  programs/mbfido.html     programs/mbmon.html \
