@@ -294,7 +294,8 @@ int diskfree(int needed)
 	     */
 	    if (strncmp((char *)"/dev/fd", dev, 7) && strncmp((char *)"/boot", fs, 5) &&
 	        (!strncmp((char *)"ext2", type, 4) || !strncmp((char *)"reiserfs", type, 8) ||
-		 !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
+		 !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5) ||
+		 !strncmp((char *)"ext3", type, 4))) {
 		if (statfs(fs, &sfs) == 0) {
 		    temp = (unsigned long)(sfs.f_bsize / 512L);
 		    if (((unsigned long)(sfs.f_bavail * temp) / 2048L) < needed) {
