@@ -2,6 +2,11 @@ $Id$
 
 v0.39.9		29-Jan-2004
 
+	general:
+		Changed first time installation to install mbcico itself again
+		to handle incoming telnet sessions at port 60177. The program
+		mbtelind is obsolete, this was a temporary hack.
+
 	mbcico:
 		Added experimental code for telnet outbound connections. This
 		code is not compiled by default so don't worry or bother.

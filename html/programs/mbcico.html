@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 08-Nov-2003</h5></div>
+<div align="right"><h5>Last update 01-Feb-2004</h5></div>
 <div align="center"><H1>mbcico - The Fidonet mailer.</H1></div>
 
 This is work in progress....
@@ -55,16 +55,17 @@ Password protected requests and update requests are implemented.
 There is also a special protocol optimized to use over TCP/IP connections,
 contributed by Stanislav Voronyi &lt;stas@uanet.kharkov.ua&gt;, it is
 identified by EMSI proto code TCP (not registered) and nodelist flag IFC.
-The default port is 60179.
+The default port is 60179. A telnet variant is installed at port 60177, the
+nodelist flag is ITN:60177. The port number is needed because the default port
+in the nodelist is port 23.
 <P>
-There is also a <strong>Binkp/1.0</strong> implementation, this is a 
+There is also a <strong>Binkp/1.1</strong> implementation, this is a 
 bi-directional TCP/IP protocol. 
 This protocol is prefferred over the IFC protocol because it is
 more efficient. Nodelist flag is IBN, the default port is 24554, and the
-nodelist request flag is XX. This Binkp implementation supports multiple
-batches, however this is only tested against another <strong>mbcico.</strong>
-I don't know if any other mailer supports this option, but it is documented 
-in the spec's. (Irex uses it).
+nodelist request flag is XX. This binkp implementation uses zlib packet
+compression opt PLZ (FSP-xxxx) to increase the transfer speed and to lower
+the network bandwith usage.
 <P>
 Outbound directory structure is BinkleyTerm compatible, with domains and
 point subdirectories (full 5d). There are separate "protected" and
@@ -146,6 +147,7 @@ To answer TCP/IP calls the following lines should be added to /etc/inetd.conf:
 <P><PRE>
 binkd   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ibn
 fido    stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ifc
+tfido   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn	
 </PRE><P>
 If your system uses xinetd the file /etc/xinetd.d/mbsebbs could be:
 <P><PRE>
@@ -188,7 +190,7 @@ In the file /etc/services the following lines must be present:
 <P><PRE>
 binkd           24554/tcp               # mbcico IBN mode
 fido            60179/tcp               # mbcico IFC mode
-mbse            60180/tcp               # MBSE BBS deamon
+tfido           60177/tcp               # mbcico ITN mode
 </PRE>
 <P>&nbsp;<P>
 

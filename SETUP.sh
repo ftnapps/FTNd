@@ -435,7 +435,7 @@ cat << EOF >>/etc/inetd.conf
 #:MBSE-BBS: bbs service
 binkp	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ibn
 fido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ifc
-tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbtelind	mbtelind
+tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t itn
 
 EOF
 	chmod 644 /etc/inetd.conf
@@ -462,7 +462,7 @@ if [ -f /etc/xinetd.conf ]; then
 cat << EOF >> $XINET
 #:MBSE BBS services are defined here.
 #
-# Author: Michiel Broek <mbse@mbse.dds.nl>, 26-Nov-2003
+# Author: Michiel Broek <mbse@mbse.dds.nl>, 01-Feb-2004
 
 service binkp
 {
@@ -493,7 +493,8 @@ service tfido
 	wait            = no
 	user            = mbse
 	instances       = 10
-	server          = $MHOME/bin/mbtelind
+	server          = $MHOME/bin/mbcico
+	server_args	= -t itn
 }
 EOF
 

@@ -55,7 +55,7 @@ H_PROGS		= programs/mbfido.html     programs/mbmon.html \
 		  programs/mbaff.html      programs/mbdiff.html \
 		  programs/mbindex.html    programs/mbout.html \
 		  programs/mbsetup.html    programs/mbuseradd.html \
-		  programs/mball.html	   programs/mbtelind.html \
+		  programs/mball.html	   \
 		  programs/mblang.html     programs/mbsebbs.html \
 		  programs/mbstat.html     programs/mbpasswd.html \
 		  programs/mbtask.html
