@@ -13,6 +13,7 @@ typedef struct _down_list {
 	char			*local;		/* Local filename	*/
 	char			*remote;	/* Remove filename	*/
 	long			cps;		/* CPS after sent	*/
+	unsigned long		size;		/* File size		*/
 	unsigned		kfs	: 1;	/* Kill File Sent	*/
 	unsigned		sent	: 1;	/* File is Sent		*/
 } down_list;
@@ -29,9 +30,10 @@ typedef struct _up_list {
 	unsigned		success	: 1;	/* If received Ok.	*/
 } up_list;
 
+int             ForceProtocol(void);
 
-int download(down_list **);
-int upload(up_list **);
+int download(down_list *);
+int upload(up_list *);
 
 
 #endif

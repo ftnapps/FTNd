@@ -89,26 +89,6 @@ void SetTag(_Tag tag)
 
 
 
-int ForceProtocol()
-{
-    /*
-     * If user has no default protocol, make sure he has one.
-     */
-    if (strcmp(sProtName, "") == 0) {
-	Chg_Protocol();
-
-	/*
-	 * If the user didn't pick a protocol, quit.
-	 */
-	if (strcmp(sProtName, "") == 0) {
-	    return FALSE;
-	}
-    }
-    return TRUE;
-}
-
-
-
 /*
  * Get string, no newline afterwards.
  */

@@ -33,7 +33,7 @@
 #include "../lib/mbse.h"
 #include "../lib/users.h"
 #include "transfer.h"
-
+#include "change.h"
 
 /*
  
@@ -57,14 +57,69 @@
 
 */
 
-int download(down_list **download_list)
+
+
+int ForceProtocol()
 {
+    /*
+     * If user has no default protocol, make sure he has one.
+     */
+    if (strcmp(sProtName, "") == 0) {
+	Chg_Protocol();
+
+	/*
+	 * If the user didn't pick a protocol, quit.
+	 */
+	if (strcmp(sProtName, "") == 0) {
+	    return FALSE;
+	}
+    }
+    return TRUE;
+}
+
+
+
+/*
+ * Download files to the user.
+ * Returns:
+ *  0 - All seems well
+ *  1 - No tranfer protocol selected
+ */
+int download(down_list *download_list)
+{
+    down_list	*tmpf;
+    int		rc, maxrc = 0;
+
+    /*
+     * If user has no default protocol, make sure he has one.
+     */
+    if (!ForceProtocol()) {
+	return 1;
+    }
+
+    for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
+    }
+
     return 0;
 }
 
 
-int upload(up_list **upload_list)
+
+/*
+ * Upload files from the user.
+ * Returns:
+ *  0 - All seems well
+ *  1 - No transfer protocol selected.
+ */
+int upload(up_list *upload_list)
 {
+    /*
+     * If user has no default protocol, make sure he has one.
+     */
+    if (!ForceProtocol()) {
+	return 1;
+    }
+
     return 0;
 }
 

@@ -50,6 +50,7 @@
 #include "term.h"
 #include "ttyio.h"
 #include "openport.h"
+#include "transfer.h"
 
 
 

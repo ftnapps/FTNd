@@ -4,7 +4,6 @@
 /* $Id$ */
 
 FILE		*OpenFareas(int);
-int		ForceProtocol(void);
 int		CheckBytesAvailable(long);
 int		iLC(int);
 void		Header(void);
