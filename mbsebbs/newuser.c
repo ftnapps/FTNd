@@ -136,7 +136,7 @@ int newuser()
 	 * Check name, duplicate names, unwanted names, single names, they all get
 	 * the same errormessage.
 	 */
-	badname = (BadNames(temp) || (CheckName(temp) || (strchr(temp, ' ') == NULL)));
+	badname = (BadNames(temp) || CheckName(temp) || ((strchr(temp, ' ') == NULL) && !CFG.iOneName));
 	if (badname) {
 	    /* That login name already exists, please choose another one. */
 	    language(LIGHTRED, BLACK, 386);

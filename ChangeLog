@@ -53,6 +53,7 @@ v0.35.03	06-Jul-2002
 		Check for existing Unix names now also includes the name ping
 		and services names.
 		Check for handle now also checks Unix names.
+		The setting for single usernames does work again.
 
 	mbsebbs:
 		Check existing usernames now also checks handles.
