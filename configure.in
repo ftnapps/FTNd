@@ -305,20 +305,20 @@ fi
 AC_DEFINE_UNQUOTED(GBK_DEL,$GBK_DEL)
 
 dnl
-AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
-case "$LOG_COMPRESS" in
-gzip)
-        LOG_COMPRESS=$GZIP
-        LOG_COMPRESSEXT=".gz" ;;
-compress)
-        LOG_COMPRESS=$COMPRESS
-        LOG_COMPRESSEXT=".Z" ;;
-*)
-        LOG_COMPRESS=$LOG_COMPRESS
-        LOG_COMPRESSEXT=".unknown" ;;
-esac
-AC_SUBST(LOG_COMPRESS)
-AC_SUBST(LOG_COMPRESSEXT)
+dnl AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
+dnl case "$LOG_COMPRESS" in
+dnl gzip)
+dnl         LOG_COMPRESS=$GZIP
+dnl         LOG_COMPRESSEXT=".gz" ;;
+dnl compress)
+dnl         LOG_COMPRESS=$COMPRESS
+dnl         LOG_COMPRESSEXT=".Z" ;;
+dnl *)
+dnl         LOG_COMPRESS=$LOG_COMPRESS
+dnl         LOG_COMPRESSEXT=".unknown" ;;
+dnl esac
+dnl AC_SUBST(LOG_COMPRESS)
+dnl AC_SUBST(LOG_COMPRESSEXT)
 dnl
 
 AC_MSG_CHECKING(location of joe editor)

@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER ROWNER RGROUP VERSION MAKE AWK INSTALL CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE RANLIB ac_ct_RANLIB LN_S TAR ZIP CHOWN CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN CLAMAV RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT LOG_COMPRESS LOG_COMPRESSEXT joebin joelib LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER ROWNER RGROUP VERSION MAKE AWK INSTALL CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT SET_MAKE RANLIB ac_ct_RANLIB LN_S TAR ZIP CHOWN CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN CLAMAV RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT joebin joelib LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -847,11 +847,6 @@ Optional Features:
   --enable-newbinkp       Compile Debugging Binkp code
   --enable-newsgate       Compile with newsgate
   --enable-gbkdel         Delete key is 126 (default is 207)
-
-Optional Packages:
-  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
-  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-log-compress=METHOD   Log compression method (default gzip)
 
 Some influential environment variables:
   CC          C compiler command
@@ -8953,27 +8948,6 @@ _ACEOF
 
 
 
-# Check whether --with-log-compress or --without-log-compress was given.
-if test "${with_log_compress+set}" = set; then
-  withval="$with_log_compress"
-  LOG_COMPRESS=$with_log_compress
-else
-  LOG_COMPRESS=gzip
-fi;
-case "$LOG_COMPRESS" in
-gzip)
-        LOG_COMPRESS=$GZIP
-        LOG_COMPRESSEXT=".gz" ;;
-compress)
-        LOG_COMPRESS=$COMPRESS
-        LOG_COMPRESSEXT=".Z" ;;
-*)
-        LOG_COMPRESS=$LOG_COMPRESS
-        LOG_COMPRESSEXT=".unknown" ;;
-esac
-
-
-
 echo "$as_me:$LINENO: checking location of joe editor" >&5
 echo $ECHO_N "checking location of joe editor... $ECHO_C" >&6
 for joebin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
@@ -9739,8 +9713,6 @@ s,@SZ@,$SZ,;t t
 s,@GOLDEDBIN@,$GOLDEDBIN,;t t
 s,@GOLDNODE@,$GOLDNODE,;t t
 s,@CONVERT@,$CONVERT,;t t
-s,@LOG_COMPRESS@,$LOG_COMPRESS,;t t
-s,@LOG_COMPRESSEXT@,$LOG_COMPRESSEXT,;t t
 s,@joebin@,$joebin,;t t
 s,@joelib@,$joelib,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
