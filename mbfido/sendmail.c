@@ -42,6 +42,8 @@
 
 
 
+extern int	net_out;
+
 /*
  *  Start a netmail to one of our nodes in the setup.
  *  Return a file descriptor if success else NULL.
@@ -142,6 +144,7 @@ void CloseMail(FILE *qp, faddr *t)
 
 	putc(0, qp);
 	fclose(qp);
+	net_out++;
 }
 
 

@@ -58,14 +58,7 @@ extern	int	do_quiet;
 /*
  * Global variables
  */
-extern	int	net_in;			/* Netmails received		    */
-extern	int	net_out;		/* Netmails forwarded		    */
 extern	int	net_bad;		/* Bad netmails (tracking errors    */
-extern	int	echo_in;		/* Echomail received		    */
-extern	int	echo_imp;		/* Echomail imported		    */
-extern	int	echo_out;		/* Echomail forwarded		    */
-extern	int	echo_bad;		/* Bad fileecho			    */
-extern	int	echo_dupe;		/* Dupe fileecho		    */
 
 int	filemgr = 0;			/* Nr of FileMgr messages	    */
 int	f_help  = FALSE;		/* Send FileMgr help		    */
@@ -125,7 +118,6 @@ void F_Help(faddr *t, char *replyid)
 
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -233,7 +225,6 @@ void F_Query(faddr *t, char *replyid)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", replyid);
                         msgptr = ftell(qp);
                     }
@@ -251,7 +242,6 @@ void F_Query(faddr *t, char *replyid)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -356,7 +346,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 			fprintf(qp, "To be continued....\r\r");
 			Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
 			CloseMail(qp, t);
-			net_out++;
 			qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", replyid);
 			msgptr = ftell(qp);
 		    }
@@ -374,7 +363,6 @@ void F_List(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -427,7 +415,6 @@ void F_Status(faddr *t, char *replyid)
 
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -531,7 +518,6 @@ void F_Unlinked(faddr *t, char *replyid)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", replyid);
                         msgptr = ftell(qp);
                     }
@@ -549,7 +535,6 @@ void F_Unlinked(faddr *t, char *replyid)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -1046,7 +1031,6 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	    fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
 	    fprintf(np, "%s\r", TearLine());
 	    CloseMail(np, t);
-	    net_out++;
 	} else 
 	    WriteError("Can't create netmail");
     }

@@ -60,14 +60,7 @@ extern	int	do_quiet;
 /*
  * Global variables
  */
-extern	int	net_in;			/* Netmails received		    */
-extern	int	net_out;		/* Netmails forwarded		    */
 extern	int	net_bad;		/* Bad netmails (tracking errors    */
-extern	int	echo_in;		/* Echomail received		    */
-extern	int	echo_imp;		/* Echomail imported		    */
-extern	int	echo_out;		/* Echomail forwarded		    */
-extern	int	echo_bad;		/* Bad echomail			    */
-extern	int	echo_dupe;		/* Dupe echomail		    */
 
 int		areamgr = 0;		/* Nr of AreaMgr messages	    */
 int		a_help	= FALSE;	/* Send AreaMgr help		    */
@@ -127,7 +120,6 @@ void A_Help(faddr *t, char *replyid)
 	fprintf(fp, "  %%LIST\r\r");
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -234,7 +226,6 @@ void A_Query(faddr *t, char *replyid)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", replyid);
                         msgptr = ftell(qp);
                     }
@@ -254,7 +245,6 @@ void A_Query(faddr *t, char *replyid)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -362,7 +352,6 @@ void A_List(faddr *t, char *replyid, int Notify)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", replyid);
                         msgptr = ftell(qp);
                     }
@@ -382,7 +371,6 @@ void A_List(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -497,7 +485,6 @@ void A_Flow(faddr *t, char *replyid, int Notify)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", replyid);
                         msgptr = ftell(qp);
                     }
@@ -513,7 +500,6 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -555,7 +541,6 @@ void A_Status(faddr *t, char *replyid)
 
 	fprintf(fp, "%s\r", TearLine());
 	CloseMail(fp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -666,7 +651,6 @@ void A_Unlinked(faddr *t, char *replyid)
                         fprintf(qp, "To be continued....\r\r");
                         Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
                         CloseMail(qp, t);
-                        net_out++;
                         qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", replyid);
                         msgptr = ftell(qp);
                     }
@@ -685,7 +669,6 @@ void A_Unlinked(faddr *t, char *replyid)
 	fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
-	net_out++;
     } else
 	WriteError("Can't create netmail");
 }
@@ -1213,7 +1196,6 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 	    fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
 	    fprintf(np, "%s\r", TearLine());
 	    CloseMail(np, t);
-	    net_out++;
 	} else
 	    WriteError("Can't create netmail");
     }

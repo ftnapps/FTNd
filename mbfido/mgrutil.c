@@ -42,6 +42,9 @@
 
 
 
+extern int	net_out;
+
+
 
 /*
  * Write Echomail groups list to tempfile
@@ -360,6 +363,7 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
     free(mgrname);
     free(bymgr);
     free(subj);
+    net_out++;
     return 0;
 }
 
