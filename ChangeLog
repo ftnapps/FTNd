@@ -28,6 +28,10 @@ v0.61.0		06-Jun-2004.
 		The filenames in the html pages are now the long filenames.
 		This fixes download problems with some mangled 8.3 filenames.
 
+	mbsetup:
+		In mail and files group edit screens, to make an area active
+		existing connections check is skipped.
+
 
 v0.60.0         09-Feb-2004 - 04-Jun-2004
 

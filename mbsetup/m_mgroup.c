@@ -405,7 +405,7 @@ int EditMGrpRec(int Area)
 	    case 10:E_BOOL(16,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
 	    case 11:E_BOOL(17,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
 	    case 12:E_BOOL(18,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
-	    case 13:if (CheckMgroup())
+	    case 13:if (mgroup.Active && CheckMgroup())
 		        break;
 		    E_BOOL(19,16,    mgroup.Active,     "Is this message group ^active^")
 	    case 14:if (CheckMgroup())

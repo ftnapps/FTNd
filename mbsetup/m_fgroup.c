@@ -434,7 +434,7 @@ int EditFGrpRec(int Area)
 		case 11:strncpy(fgroup.AnnGroup, PickNGroup((char *)"8.4.18"), 12);
 			FgScreen();
 			break;
-		case 12:if (CheckFgroup())
+		case 12:if (fgroup.Active && CheckFgroup())
 			    break;
 			E_BOOL(17,16,   fgroup.Active,     "Is this file group ^active^")
 		case 13:if (CheckFgroup())
