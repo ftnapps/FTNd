@@ -74,7 +74,6 @@ extern int	gotfiles;
 extern int	mypid;
 
 
-
 void usage(void)
 {
 	fprintf(stderr,"ifcico; (c) Eugene G. Crosser, 1993-1997\n");
