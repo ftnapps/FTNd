@@ -5,7 +5,7 @@
 include ../Makefile.global
 
 H_BASE		= basic.html date.html dist.html manual.css \
-		  flow.html postfix.html gwnews.html index.htm ups.html \
+		  flow.html postfix.html index.htm ups.html \
 		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
@@ -56,7 +56,7 @@ H_MISC		= misc/dropfile.html   misc/fileid.html     misc/index.htm \
 		  misc/ftpserver.html  misc/ipmailer.html   misc/outbound.html \
 		  misc/usleep.html     misc/webserver.html
 
-H_PROGS		= programs/import.html     programs/mbchat.html \
+H_PROGS		= programs/mbchat.html \
 		  programs/mbfido.html     programs/mbmon.html \
 		  programs/mbtoberep.html  programs/mblogin.html \
 		  programs/index.htm       programs/mbcico.html \

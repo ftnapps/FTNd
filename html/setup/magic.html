@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 30-Jan-2001</h5>
+<h5>Last update 10-May-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - File Echo's Setup - Magics Files Setup.</H1>
@@ -28,6 +28,8 @@ delete file (don't process it further) and execute a command. The edit screen
 is different for all kinds of actions you select. More than one magic record
 may exist for each area. With all these actions you can for example can setup 
 processing of nodediff's and unpacking nodelists in the nodelist directory.
+If you use the execute command, you can only execute commands that are in the
+directory $MBSE_ROOT/bin, ie. /opt/mbse/bin.
 <P>&nbsp;<P>
 
 <H3>Magics Setup.</H3>
@@ -35,7 +37,8 @@ processing of nodediff's and unpacking nodelists in the nodelist directory.
 <pre>
 <strong>Magic     </strong>The action to perform, select with the spacebar.
 <strong>Filemask  </strong>The filemask to scan for. "?" Matches all characters,
-          "#" matches any digit and "@" any alpha character.
+          "#" matches any digit and "@" any upper or lowercase letter.
+	  Except for the "@" the test is case sensitive.
 <strong>Active    </strong>If this magic is active.
 <strong>Deleted   </strong>If this magic must be deleted.
 <strong>Area      </strong>The area in which this magic is found.
@@ -63,7 +66,7 @@ parts of the commandline. The following macro's are defined:
 </pre>
 
 <P>
-<IMG SRC="../images/magic.gif" width="589" height="343">
+<IMG SRC="../images/magic.gif">
 <P>
 
 <A HREF="tic.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
