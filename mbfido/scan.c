@@ -925,7 +925,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
     if (Msg.Crash || Msg.Direct || Msg.FileAttach || Msg.Immediate) {
 	memset(&ext, 0, sizeof(ext));
 	if (Msg.Immediate)
-	    sprintf(ext, (char *)"iii");
+	    sprintf(ext, (char *)"ddd");
 	else if (Msg.Crash)
 	    sprintf(ext, (char *)"ccc");
 	else

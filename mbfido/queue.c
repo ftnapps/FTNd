@@ -454,8 +454,8 @@ void flush_dir(char *ndir)
 
 	sprintf(pktfile, "%s/%s", temp, fname);
 
-	if (strstr(fname, ".iii"))
-	    flavor = 'i';
+	if (strstr(fname, ".ddd"))
+	    flavor = 'd';
 	else if (strstr(fname, ".ccc"))
 	    flavor = 'c';
 	else if (strstr(fname, ".hhh"))

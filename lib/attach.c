@@ -139,7 +139,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
  */
 int un_attach(faddr node, char *filename)
 {
-    Syslog('p', "un_attach: %s %s", fido2faddr(node), filename);
+    Syslog('p', "un_attach: %s %s", ascfnode(&node, 0x1f), filename);
 
     return TRUE;
 }
