@@ -58,6 +58,7 @@ v0.37.00	26-Dec-2002.
 	mbfile:
 		Move old files to another area failed, only the symbolic link
 		was moved.
+		Prepared for multilanguage html pages creation.
 
 	mbfido:
 		Echomail from other zones showed the address of your own zone.
