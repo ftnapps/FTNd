@@ -89,11 +89,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     type = tp;
     nlent = nl;
 
-    if (role)
-	Syslog('+', "Start outbound %s session with %s", typestr(type), ascfnode(a,0x1f));
-    else
-	Syslog('+', "Start inbound %s session", typestr(type));
-
     if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
 	Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 			addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
@@ -147,6 +142,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
     if (role) {
 	if (type == SESSION_UNKNOWN) 
 	    (void)tx_define_type();
+	Syslog('+', "Start outbound %s session with %s", typestr(type), ascfnode(a,0x1f));
 	switch(type) {
 	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = tx_ftsc(); break;
@@ -159,6 +155,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    session_flags |= FTSC_XMODEM_CRC;
 	if (type == SESSION_UNKNOWN) 
 	    (void)rx_define_type();
+	Syslog('+', "Start inbound %s session", typestr(type));
 	switch(type) {
 	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
 	    case SESSION_FTSC:	    rc = rx_ftsc(); break;
@@ -200,189 +197,190 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 
 SM_DECL(tx_define_type,(char *)"tx_define_type")
 SM_STATES
-	skipjunk,
-	wake,
-	waitchar,
-	nextchar,
-	checkintro,
-	sendinq
+    skipjunk,
+    wake,
+    waitchar,
+    nextchar,
+    checkintro,
+    sendinq
 SM_NAMES
-	(char *)"skipjunk",
-	(char *)"wake",
-	(char *)"waitchar",
-	(char *)"nextchar",
-	(char *)"checkintro",
-	(char *)"sendinq"
+    (char *)"skipjunk",
+    (char *)"wake",
+    (char *)"waitchar",
+    (char *)"nextchar",
+    (char *)"checkintro",
+    (char *)"sendinq"
 SM_EDECL
-	int c=0;
-	int count=0;
-	char buf[256],*p;
-	char ebuf[13],*ep;
-	int standby=0;
+    int	    c = 0;
+    char    buf[256], *p;
+    char    ebuf[13], *ep;
+    int	    standby = 0;
+    
+    int	    maybeftsc=0;
+    int	    maybeyoohoo=0;
 
-	int maybeftsc=0;
-	int maybeyoohoo=0;
-
-	type=SESSION_UNKNOWN;
-	ebuf[0]='\0';
-	ep=ebuf;
-	buf[0]='\0';
-	p=buf;
+    type = SESSION_UNKNOWN;
+    ebuf[0] = '\0';
+    ep = ebuf;
+    buf[0] = '\0';
+    p = buf;
 
 SM_START(skipjunk)
 
 SM_STATE(skipjunk)
 
-	Syslog('S', "tx_define_type SKIPJUNK");
-	while ((c = GETCHAR(1)) >= 0) /*nothing*/ ;
-	if (c == TIMEOUT) {
-		SM_PROCEED(wake);
-	} else {
-		SM_ERROR;
-	}
+    Syslog('s', "tx_define_type SKIPJUNK");
+    while ((c = GETCHAR(1)) >= 0) /*nothing*/ ;
+    if (c == TIMEOUT) {
+	RESETTIMERS();
+	SETTIMER(0, 60);    /* 60 second master timer */
+	SM_PROCEED(wake);
+    } else {
+	SM_ERROR;
+    }
 
 SM_STATE(wake)
 
-	Syslog('S', "tx_define_type WAKE");
-	if (count++ > 20) {
-		Syslog('+', "Remote did not respond");
-		SM_ERROR;
-	}
+    Syslog('s', "tx_define_type WAKE");
+    if (EXPIRED(0)) {
+	Syslog('+', "Remote did not respond");
+	SM_ERROR;
+    }
 
-	p=buf;
-	PUTCHAR('\r');
-	if ((c = GETCHAR(2)) == TIMEOUT) {
-		SM_PROCEED(wake);
-	} else if (c < 0) {
-		WriteError("Error while waking remote");
-		SM_ERROR;
-	} else {
-		count = 0;
-		Syslog('S', "Got %c wakeup", c);
-		SM_PROCEED(nextchar);
-	}
+    p = buf;
+    PUTCHAR('\r');
+    if ((c = GETCHAR(2)) == TIMEOUT) {
+	SM_PROCEED(wake);
+    } else if (c < 0) {
+	WriteError("Error while waking remote");
+	SM_ERROR;
+    } else {
+	SETTIMER(0, 60);
+	Syslog('S', "Got %c wakeup", c);
+	SM_PROCEED(nextchar);
+    }
 
 SM_STATE(waitchar)
 
-	Syslog('S', "tx_define_type WAITCHAR");
-	if ((c = GETCHAR(2)) == TIMEOUT) { /* Was 4 seconds */
-		standby = 0;
-		ep = ebuf;
-		ebuf[0] = '\0';
-		if (count++ > 30) { /* Was 8 loops */
-			Syslog('+', "Too many tries waking remote");
-			SM_ERROR;
-		}
-		SM_PROCEED(sendinq);
-	} else if (c < 0) {
-		Syslog('+', "Error while getting intro from remote");
-		SM_ERROR;
-	} else {
-		SM_PROCEED(nextchar);
+    Syslog('s', "tx_define_type WAITCHAR");
+    if ((c = GETCHAR(2)) == TIMEOUT) {
+	standby = 0;
+	ep = ebuf;
+	ebuf[0] = '\0';
+	if (EXPIRED(0)) {
+	    Syslog('+', "Too many tries waking remote");
+	    SM_ERROR;
 	}
+	SM_PROCEED(sendinq);
+    } else if (c < 0) {
+	Syslog('+', "Error while getting intro from remote");
+	SM_ERROR;
+    } else {
+	SM_PROCEED(nextchar);
+    }
 
 SM_STATE(nextchar)
 
-	Syslog('S', "tx_define_type NEXTCHAR");
-	if (c == 'C') {
-		session_flags |= FTSC_XMODEM_CRC;
-		maybeftsc++;
-	} 
-	if (c == NAK) {
-		session_flags &= ~FTSC_XMODEM_CRC;
-		maybeftsc++;
-	} 
-	if (c == ENQ) 
-		maybeyoohoo++;
+    if (c == 'C') {
+	session_flags |= FTSC_XMODEM_CRC;
+	maybeftsc++;
+    } 
+    if (c == NAK) {
+	session_flags &= ~FTSC_XMODEM_CRC;
+	maybeftsc++;
+    } 
+    if (c == ENQ) 
+	maybeyoohoo++;
 
-	if (((localoptions & NOWAZOO) == 0) && (maybeyoohoo > 1)) {
-		type = SESSION_YOOHOO;
-		SM_SUCCESS;
+    if (((localoptions & NOWAZOO) == 0) && (maybeyoohoo > 1)) {
+	type = SESSION_YOOHOO;
+	SM_SUCCESS;
+    }
+
+    if (maybeftsc > 1) {
+	type = SESSION_FTSC;
+	SM_SUCCESS;
+    }
+
+    if ((c >= ' ') && (c <= '~')) {
+	if (c != 'C') 
+	    maybeftsc = 0;
+	maybeyoohoo = 0;
+
+	if ((p-buf) < (sizeof(buf)-1)) {
+	    *p++ = c;
+	    *p = '\0';
 	}
 
-	if (maybeftsc > 1) {
-		type = SESSION_FTSC;
-		SM_SUCCESS;
+	if (c == '*') {
+	    standby = 1;
+	    ep = ebuf;
+	    buf[0] = '\0';
+	} else if (standby) {
+	    if ((ep - ebuf) < (sizeof(ebuf) - 1)) {
+		*ep++ = c;
+		*ep = '\0';
+	    } 
+	    if ((ep - ebuf) >= (sizeof(ebuf) - 1)) {
+		standby = 0;
+		SM_PROCEED(checkintro);
+	    }
 	}
-
-	if ((c >= ' ') && (c <= '~')) {
-		if (c != 'C') 
-			maybeftsc = 0;
-		maybeyoohoo = 0;
-
-		if ((p-buf) < (sizeof(buf)-1)) {
-			*p++ = c;
-			*p = '\0';
-		}
-
-		if (c == '*') {
-			standby = 1;
-			ep = ebuf;
-			buf[0] = '\0';
-		} else if (standby) {
-			if ((ep - ebuf) < (sizeof(ebuf) - 1)) {
-				*ep++ = c;
-				*ep = '\0';
-			} 
-			if ((ep - ebuf) >= (sizeof(ebuf) - 1)) {
-				standby = 0;
-				SM_PROCEED(checkintro);
-			}
-		}
-	} else switch (c) {
-	case DC1:	break;
-	case '\r':
-	case '\n':	standby = 0;
+    } else { 
+	switch (c) {
+	    case DC1:	break;
+	    case '\r':
+	    case '\n':	standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (buf[0]) 
-				Syslog('+', "Intro: \"%s\"", printable(buf, 0));
+			    Syslog('+', "Intro: \"%s\"", printable(buf, 0));
 			p = buf;
 			buf[0] = '\0';
 			break;
-	default:	standby = 0;
+	    default:	standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			Syslog('i', "Got '%s' reading intro", printablec(c));
 			break;
 	}
-
-	SM_PROCEED(waitchar);
+    }
+    SM_PROCEED(waitchar);
 
 SM_STATE(checkintro)
 
-	Syslog('S', "tx_define_type CHECKINTRO");
-	Syslog('i', "Check \"%s\" for being EMSI request",ebuf);
+    Syslog('s', "tx_define_type CHECKINTRO");
+    Syslog('i', "Check \"%s\" for being EMSI request",ebuf);
 
-	if (((localoptions & NOEMSI) == 0) && (strncasecmp(ebuf,"EMSI_REQA77E",12) == 0)) {
-		type = SESSION_EMSI;
-		data = xstrcpy((char *)"**EMSI_REQA77E");
-		Syslog('i', "Sending **EMSI_INQC816 (2 times)");
-		PUTSTR((char *)"\r**EMSI_INQC816\r**EMSI_INQC816\r\021");
-		SM_SUCCESS;
-	} else {
-		p = buf;
-		buf[0] = '\0';
-		SM_PROCEED(waitchar);
-	}
+    if (((localoptions & NOEMSI) == 0) && (strncasecmp(ebuf,"EMSI_REQA77E",12) == 0)) {
+	type = SESSION_EMSI;
+	data = xstrcpy((char *)"**EMSI_REQA77E");
+	Syslog('i', "Sending **EMSI_INQC816 (2 times)");
+	PUTSTR((char *)"\r**EMSI_INQC816\r**EMSI_INQC816\r\021");
+	SM_SUCCESS;
+    } else {
+	p = buf;
+	buf[0] = '\0';
+	SM_PROCEED(waitchar);
+    }
 
 SM_STATE(sendinq)
 
-	Syslog('S', "tx_define_type SENDINQ");
-	PUTCHAR(DC1);
-	if ((localoptions & NOEMSI) == 0) {
-		Syslog('S', "send **EMSI_INQC816 (2 times)");
-		PUTSTR((char *)"\r**EMSI_INQC816**EMSI_INQC816");
-	}
-	if ((localoptions & NOWAZOO) == 0) {
-		Syslog('S', "send YOOHOO char");
-		PUTCHAR(YOOHOO);
-	}
-	Syslog('S', "send TSYNC char");
-	PUTCHAR(TSYNC);
-	if ((localoptions & NOEMSI) == 0)
-		PUTSTR((char *)"\r\021");
-	SM_PROCEED(waitchar);
+    Syslog('s', "tx_define_type SENDINQ");
+    PUTCHAR(DC1);
+    if ((localoptions & NOEMSI) == 0) {
+	Syslog('S', "send **EMSI_INQC816 (2 times)");
+	PUTSTR((char *)"\r**EMSI_INQC816\r**EMSI_INQC816");
+    }
+    if ((localoptions & NOWAZOO) == 0) {
+	Syslog('S', "send YOOHOO char");
+	PUTCHAR(YOOHOO);
+    }
+    Syslog('S', "send TSYNC char");
+    PUTCHAR(TSYNC);
+    if ((localoptions & NOEMSI) == 0)
+	PUTSTR((char *)"\r\021");
+    SM_PROCEED(waitchar);
 
 SM_END
 SM_RETURN
@@ -391,186 +389,201 @@ SM_RETURN
 
 SM_DECL(rx_define_type,(char *)"rx_define_type")
 SM_STATES
-	sendintro,
-	waitchar,
-	nextchar,
-	checkemsi,
-	getdat
+    sendintro,
+    waitchar,
+    nextchar,
+    checkemsi,
+    getdat
 SM_NAMES
-	(char *)"sendintro",
-	(char *)"waitchar",
-	(char *)"nextchar",
-	(char *)"checkemsi",
-	(char *)"getdat"
+    (char *)"sendintro",
+    (char *)"waitchar",
+    (char *)"nextchar",
+    (char *)"checkemsi",
+    (char *)"getdat"
 SM_EDECL
-	int count=0;
-	int c=0;
-	int maybeftsc=0,maybeyoohoo=0;
-	char ebuf[13],*ep;
-	char *p;
-	int standby=0;
-	int datasize;
+    int count=0;
+    int c=0;
+    int maybeftsc=0,maybeyoohoo=0;
+    char ebuf[13],*ep;
+    char *p;
+    int standby=0;
+    int datasize;
 
-	type=SESSION_UNKNOWN;
-	session_flags|=FTSC_XMODEM_CRC;
-	ebuf[0]='\0';
-	ep=ebuf;
-	Syslog('S', "rxdefine_type INIT");
+    type=SESSION_UNKNOWN;
+    session_flags|=FTSC_XMODEM_CRC;
+    ebuf[0]='\0';
+    ep=ebuf;
+    RESETTIMERS();
+    SETTIMER(0, 60);
+    Syslog('s', "rxdefine_type INIT");
 
 SM_START(sendintro)
 
 SM_STATE(sendintro)
 
-	Syslog('S', "rxdefine_type SENDINTRO");
-	if (count++ > 6) {  /* Was 16, is 6 according to the EMSI spec */
-		Syslog('+', "Too many tries to get anything from the caller");
-		SM_ERROR;
-	}
+    Syslog('s', "rxdefine_type SENDINTRO");
+    if (count++ > 6) {
+	Syslog('+', "Too many tries to get anything from the caller");
+	SM_ERROR;
+    }
 
-	standby = 0;
-	ep = ebuf;
-	ebuf[0] = '\0';
+    standby = 0;
+    ep = ebuf;
+    ebuf[0] = '\0';
 
-	if ((localoptions & NOEMSI) == 0) {
-		PUTSTR((char *)"**EMSI_REQA77E\r\021");
-	}
-	PUTSTR((char *)"\r\rAddress: ");
-	PUTSTR(aka2str(CFG.aka[0]));
-	PUTSTR((char *)" using mbcico ");
-	PUTSTR((char *)VERSION);
-	switch (tcp_mode) {
-	case TCPMODE_IFC:	PUTSTR((char *)"; IFC");
-				break;
-	case TCPMODE_ITN:	PUTSTR((char *)"; ITN");
-				break;
-	case TCPMODE_IBN:	PUTSTR((char *)"; IBN");
-				break;
-	}
-	PUTCHAR('\r');
-	if (STATUS) {
-		SM_ERROR;
-	} else {
-		SM_PROCEED(waitchar);
-	}
+    if ((localoptions & NOEMSI) == 0) {
+	PUTSTR((char *)"**EMSI_REQA77E\r\021");
+    }
+    PUTSTR((char *)"\r\rAddress: ");
+    PUTSTR(aka2str(CFG.aka[0]));
+    PUTSTR((char *)" using mbcico ");
+    PUTSTR((char *)VERSION);
+    switch (tcp_mode) {
+	case TCPMODE_IFC:   PUTSTR((char *)"; IFC");
+			    break;
+	case TCPMODE_ITN:   PUTSTR((char *)"; ITN");
+			    break;
+	case TCPMODE_IBN:   PUTSTR((char *)"; IBN");
+			    break;
+    }
+    PUTCHAR('\r');
+    if (STATUS) {
+	SM_ERROR;
+    } else {
+	SM_PROCEED(waitchar);
+    }
 
 SM_STATE(waitchar)
 
-	Syslog('S', "rxdefine_type WAITCHAR");
-	if ((c=GETCHAR(20)) == TIMEOUT) { /* Timeout was 8, must be 20. */
-		SM_PROCEED(sendintro);
-	} else if (c < 0) {
-		Syslog('+', "EMSI error while getting from caller");
-		SM_ERROR;
-	} else {
-		SM_PROCEED(nextchar);
-	}
+    Syslog('s', "rxdefine_type WAITCHAR");
+
+    if (EXPIRED(0)) {
+        Syslog('+', "Timeout session handshake with the caller");
+        SM_ERROR;
+    }
+
+    if ((c = GETCHAR(20)) == TIMEOUT) {
+	SM_PROCEED(sendintro);
+    } else if (c < 0) {
+	Syslog('+', "EMSI error while getting from caller");
+	SM_ERROR;
+    } else {
+	SM_PROCEED(nextchar);
+    }
 
 SM_STATE(nextchar)
 
-	Syslog('S', "rxdefine_type NEXTCHAR");
-	if ((c >= ' ') && (c <= 'z')) {
-		if (c == '*') {
-			standby = 1;
-			ep = ebuf;
-			ebuf[0] = '\0';
-		} else if (standby) {
-			if ((ep - ebuf) < (sizeof(ebuf) - 1)) {
-				*ep++ = c;
-				*ep = '\0';
-			}
-			if ((ep - ebuf) >= (sizeof(ebuf) - 1)) {
-				standby = 0;
-				SM_PROCEED(checkemsi);
-			}
-		}
-		SM_PROCEED(waitchar);
-	} else switch (c) {
-	case DC1:	SM_PROCEED(waitchar);
+    Syslog('s', "rxdefine_type NEXTCHAR");
+    if ((c >= ' ') && (c <= 'z')) {
+	if (c == '*') {
+	    standby = 1;
+	    ep = ebuf;
+	    ebuf[0] = '\0';
+	} else if (standby) {
+	    if ((ep - ebuf) < (sizeof(ebuf) - 1)) {
+		*ep++ = c;
+		*ep = '\0';
+	    }
+	    if ((ep - ebuf) >= (sizeof(ebuf) - 1)) {
+		standby = 0;
+		SM_PROCEED(checkemsi);
+	    }
+	}
+	SM_PROCEED(waitchar);
+    } else {
+	switch (c) {
+	    case DC1:	SM_PROCEED(waitchar);
 			break;
-	case TSYNC:	standby = 0;
+	    case TSYNC:	standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (++maybeftsc > 1) {
-				type = SESSION_FTSC;
-				SM_SUCCESS;
+			    type = SESSION_FTSC;
+			    SM_SUCCESS;
 			} else {
-				SM_PROCEED(waitchar);
+			    SM_PROCEED(waitchar);
 			}
 			break;
-	case YOOHOO:	standby = 0;
+	    case YOOHOO:standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (++maybeyoohoo > 1) {
-				type = SESSION_YOOHOO;
-				SM_SUCCESS;
+			    type = SESSION_YOOHOO;
+			    SM_SUCCESS;
 			} else {
-				SM_PROCEED(waitchar);
+			    SM_PROCEED(waitchar);
 			}
 			break;
-	case '\r':
-	case '\n':	standby = 0;
+	    case '\r':
+	    case '\n':	standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			if (ebuf[0]) {
-				SM_PROCEED(checkemsi);
+			    SM_PROCEED(checkemsi);
 			} else {
-				SM_PROCEED(sendintro);
+			    SM_PROCEED(sendintro);
 			}
 			break;
-	default:	standby = 0;
+	    default:	standby = 0;
 			ep = ebuf;
 			ebuf[0] = '\0';
 			Syslog('i', "Got '%s' from remote", printablec(c));
 			SM_PROCEED(waitchar);
 			break;
 	}
+    }
 
 SM_STATE(checkemsi)
 
-	Syslog('S', "rxdefine_type CHECKEMSI");
-	Syslog('i', "check \"%s\" for being EMSI inquery or data",ebuf);
+    Syslog('s', "rxdefine_type CHECKEMSI");
+    Syslog('i', "check \"%s\" for being EMSI inquery or data",ebuf);
 
-	if (localoptions & NOEMSI) {
-		SM_PROCEED(sendintro);
-	}
+    if (localoptions & NOEMSI) {
+	SM_PROCEED(sendintro);
+    }
 
-	if (strncasecmp(ebuf, "EMSI_INQC816", 12) == 0) {
-		type = SESSION_EMSI;
-		data = xstrcpy((char *)"**EMSI_INQC816");
-		SM_SUCCESS;
-	} else if (strncasecmp(ebuf, "EMSI_DAT", 8) == 0) {
-		SM_PROCEED(getdat);
-	} else {
-		SM_PROCEED(sendintro);
-	}
+    if (strncasecmp(ebuf, "EMSI_INQC816", 12) == 0) {
+	type = SESSION_EMSI;
+	data = xstrcpy((char *)"**EMSI_INQC816");
+	SM_SUCCESS;
+    } else if (strncasecmp(ebuf, "EMSI_HBT", 8) == 0) {
+	standby = 0;
+        ep = ebuf;
+	ebuf[0] = '\0';
+	SM_PROCEED(waitchar);
+    } else if (strncasecmp(ebuf, "EMSI_DAT", 8) == 0) {
+	SM_PROCEED(getdat);
+    } else {
+	SM_PROCEED(sendintro);
+    }
 
 SM_STATE(getdat)
 
-	Syslog('S', "rxdefine_type GETDAT");
-	Syslog('i', "Try get emsi_dat packet starting with \"%s\"",ebuf);
+    Syslog('s', "rxdefine_type GETDAT");
+    Syslog('i', "Try get emsi_dat packet starting with \"%s\"",ebuf);
 
-	if (sscanf(ebuf+8, "%04x", &datasize) != 1) {
-		SM_PROCEED(sendintro);
-	}
+    if (sscanf(ebuf+8, "%04x", &datasize) != 1) {
+	SM_PROCEED(sendintro);
+    }
 
-	datasize += 18; /* strlen("**EMSI_DATxxxxyyyy"), include CRC */
-	data=malloc(datasize+1);
-	strcpy(data,"**");
-	strcat(data, ebuf);
-	p = data + strlen(data);
+    datasize += 18; /* strlen("**EMSI_DATxxxxyyyy"), include CRC */
+    data=malloc(datasize+1);
+    strcpy(data,"**");
+    strcat(data, ebuf);
+    p = data + strlen(data);
 
-	while (((p - data) < datasize) && ((c = GETCHAR(8)) >= 0)) {
-		*p++ = c;
-		*p= '\0';
-	}
-	if (c == TIMEOUT) {
-		SM_PROCEED(sendintro);
-	} else if (c < 0) {
-		Syslog('+', "Error while reading EMSI_DAT from the caller");
-		SM_ERROR;
-	}
-	type = SESSION_EMSI;
-	SM_SUCCESS;
+    while (((p - data) < datasize) && ((c = GETCHAR(8)) >= 0)) {
+	*p++ = c;
+	    *p= '\0';
+    }
+    if (c == TIMEOUT) {
+	SM_PROCEED(sendintro);
+    } else if (c < 0) {
+	Syslog('+', "Error while reading EMSI_DAT from the caller");
+	SM_ERROR;
+    }
+    type = SESSION_EMSI;
+    SM_SUCCESS;
 
 SM_END
 SM_RETURN

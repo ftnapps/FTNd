@@ -118,7 +118,6 @@ int inbound_close(int success)
 	sprintf(source, "%s/%s", tempinbound, de->d_name);
 	sprintf(dest, "%s/%s", inbound, de->d_name);
 	if ((lstat(source, &stb) == 0) && (S_ISREG(stb.st_mode))) {
-	    Syslog('s', "Regular file");
 	    if (file_exist(dest, F_OK) == 0) {
 		Syslog('!', "Cannot move %s to %s, file exists", de->d_name, inbound);
 	    } else {
@@ -129,8 +128,6 @@ int inbound_close(int success)
 		    gotfiles = TRUE;
 		}
 	    }
-	} else {
-	    Syslog('s', "Not a regular file");
 	}
     }
 
@@ -144,7 +141,10 @@ int inbound_close(int success)
      */
     if ((rc = rmdir(tempinbound))) {
 	WriteError("Can't remove %s: %s", tempinbound, strerror(rc));
+    } else {
+	Syslog('s', "Removed %s", tempinbound);
     }
+
     free(tempinbound);
     tempinbound = NULL;
 
