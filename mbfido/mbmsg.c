@@ -168,7 +168,8 @@ int main(int argc, char **argv)
     }
 
     if (do_post) {
-	Post(too, tarea, subj, mfile, flavor);
+	if (Post(too, tarea, subj, mfile, flavor))
+	    die(MBERR_GENERAL);
     }
 
     die(MBERR_OK);

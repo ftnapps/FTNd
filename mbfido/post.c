@@ -41,7 +41,7 @@ extern int		do_quiet;		/* Suppress screen output    */
 
 
 
-void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
+int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 {
     int		    i, rc = FALSE;
     char	    *aka, *temp, *sAreas;
@@ -63,7 +63,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	WriteError("$Can't open %s", File);
 	if (!do_quiet)
 	    printf("Can't open \"%s\"\n", File);
-	return;
+	return -1;
     }
 
     sAreas = calloc(PATH_MAX, sizeof(char));
@@ -72,7 +72,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
 	fclose(tp);
-	return;
+	return -1;
     }
 
     fread(&msgshdr, sizeof(msgshdr), 1, fp);
@@ -90,14 +90,14 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     if (rc == FALSE) {
 	fclose(fp);
 	fclose(tp);
-	return;
+	return -1;
     }
 
     if (!msgs.Active) {
 	WriteError("Area %s not active", msgs.Name);
 	fclose(fp);
 	fclose(tp);
-	return;
+	return -1;
     }
 
     /*
@@ -112,7 +112,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 		printf("No address in \"%s\" and area is netmail\n", To);
 	    fclose(fp);
 	    fclose(tp);
-	    return;
+	    return -1;
 	}
     } else {
 	if ((strchr(To, '@')) || (strstr(To, (char *)".n")) || (strstr(To, (char *)".z"))) {
@@ -121,7 +121,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 		printf("Address present in \"%s\" and area is not netmail\n", To);
 	    fclose(fp);
 	    fclose(tp);
-	    return;
+	    return -1;
 	}
     }
 
@@ -129,7 +129,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	WriteError("Can't open %s", msgs.Base);
 	fclose(fp);
 	fclose(tp);
-	return;
+	return -1;
     }
 
     if (!Msg_Lock(30L)) {
@@ -137,7 +137,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 	Msg_Close();
 	fclose(fp);
 	fclose(tp);
-	return;
+	return -1;
     }
 
     tt = time(NULL);
@@ -268,7 +268,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     free(temp);
     Msg_Close();
 
-    return;
+    return 0;
 }
 
 
