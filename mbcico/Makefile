@@ -12,7 +12,7 @@ SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c md5b.c \
 		  filetime.c ftsc.c atoul.c portsel.c \
 		  ttyio.c lutil.c scanout.c emsi.c ulock.c \
 		  callstat.c session.c call.c mbcico.c \
-		  outstat.c nlinfo.c mbout.c 
+		  outstat.c nlinfo.c mbout.c mbtelnetd.c
 HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  xmsend.h xmrecv.h m7recv.h m7send.h hydra.h inbound.h \
 		  answer.h chat.h dial.h dietifna.h emsidat.h filelist.h \
@@ -21,7 +21,7 @@ HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  filetime.h ftsc.h atoul.h portsel.h \
 		  ttyio.h lutil.h scanout.h emsi.h ulock.h \
 		  callstat.h session.h call.h mbcico.h \
-		  outstat.h nlinfo.h
+		  outstat.h nlinfo.h mbtelnetd.h
 MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  xmsend.o xmrecv.o m7recv.o m7send.o hydra.o inbound.o \
 		  answer.o chat.o dial.o dietifna.o emsidat.o filelist.o \
@@ -31,10 +31,11 @@ MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  ttyio.o lutil.o scanout.o emsi.o ulock.o \
 		  callstat.o session.o call.o mbcico.o
 MBOUT_OBJS	= outstat.o nlinfo.o mbout.o scanout.o callstat.o
+MBTEL_OBJS	= mbtelnetd.o
 LIBS		+= ../lib/libclcomm.a ../lib/libcommon.a \
 		  ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libnodelist.a
 OTHER		= Makefile README
-TARGET		= mbcico mbout
+TARGET		= mbcico mbout mbtelnetd
 
 #############################################################################
 
@@ -47,8 +48,9 @@ clean:
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak
 
 install:	all
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 4751 mbcico ${BINDIR}
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbout  ${BINDIR}
+		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 4751 mbcico    ${BINDIR}
+		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbout     ${BINDIR}
+		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbtelnetd ${BINDIR}
 
 mbcico:		${MBCICO_OBJS} ${LIBS}
 		${CC} -o mbcico ${MBCICO_OBJS} ${LIBS}
@@ -57,6 +59,10 @@ mbcico:		${MBCICO_OBJS} ${LIBS}
 mbout:		${MBOUT_OBJS} ${LIBS}
 		${CC} -o mbout ${MBOUT_OBJS} ${LIBS}
 		strip mbout
+
+mbtelnetd:	${MBTEL_OBJS} ${LIBS}
+		${CC} -o mbtelnetd ${MBTEL_OBJS} ${LIBS}
+		strip mbtelnetd
 
 filelist:	Makefile
 		BASE=`pwd`; \
@@ -126,10 +132,11 @@ scanout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/reco
 emsi.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/clcomm.h ../lib/mberrors.h ttyio.h session.h statetbl.h config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h inbound.h
 ulock.o: ../config.h ../lib/libs.h ../lib/clcomm.h
 callstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h callstat.h
-session.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/mberrors.h ttyio.h statetbl.h emsi.h ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h inbound.h
+session.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/mberrors.h ttyio.h statetbl.h emsi.h ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h inbound.h opentcp.h
 call.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbnode.h ../lib/mberrors.h session.h callstat.h call.h config.h dial.h lutil.h portsel.h openport.h opentcp.h rdoptions.h inbound.h
 mbcico.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h config.h answer.h call.h lutil.h mbcico.h session.h
 outstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h scanout.h callstat.h outstat.h
 nlinfo.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h nlinfo.h
 mbout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h outstat.h nlinfo.h
+mbtelnetd.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/mberrors.h mbtelnetd.h
 # End of generated dependencies

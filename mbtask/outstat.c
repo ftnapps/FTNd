@@ -203,7 +203,7 @@ int outstat()
     struct dirent   *de;
     struct stat	    sb;
     struct passwd   *pw;
-    unsigned long   cmmask, ibnmask = 0, ifcmask = 0;
+    unsigned long   cmmask, ibnmask = 0, ifcmask = 0, itnmask = 0;
     nodelist_modem  **tmpm;
 
     cmmask = getCMmask();
@@ -212,6 +212,10 @@ int outstat()
 	    ibnmask = (*tmpm)->mask;
 	if (strcmp((*tmpm)->name, "IFC") == 0)
 	    ifcmask = (*tmpm)->mask;
+#ifdef USE_TELNET
+	if (strcmp((*tmpm)->name, "ITN") == 0)
+	    itnmask = (*tmpm)->mask;
+#endif
     }
     now = time(NULL);
     tm = gmtime(&now); /* UTC time */
@@ -334,7 +338,7 @@ int outstat()
 
 	rc = load_node(tmp->addr);
 //	Syslog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", fido2str(tmp->addr, 0x0f), rc?"true":"false",
-//		    nodes.NoCall?"True":"False", (ibnmask + ifcmask)?"False":"True");
+//		    nodes.NoCall?"True":"False", (itnmask + ibnmask + ifcmask)?"False":"True");
 
 	/*
 	 * Zone Mail Hours, only use Fidonet Hours.
@@ -418,7 +422,11 @@ int outstat()
 	 */
 	if (TCFG.max_tcp && (tmp->olflags & cmmask) &&
 		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
-		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) )) {
+#ifdef USE_TELNET
+		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
+#else
+		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask))) {
+#endif
 	    tmp->flavors |= F_CALL;
 	}
 
@@ -497,7 +505,11 @@ int outstat()
 	if ((tmp->flavors) & F_CALL) {
 	    tmp->callmode = CM_NONE;
 
+#ifdef USE_TELNET
+	    if (TCFG.max_tcp && ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
+#else
 	    if (TCFG.max_tcp && ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask))) {
+#endif
 		inet_calls++;
 		tmp->callmode = CM_INET;
 	    }

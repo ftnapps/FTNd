@@ -837,6 +837,11 @@ if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
 
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-telnet         Compile experimental telnet code
+
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
@@ -1776,6 +1781,21 @@ echo "${ECHO_T}no" >&6
 fi
 
 CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
+
+# Check whether --enable-telnet or --disable-telnet was given.
+if test "${enable_telnet+set}" = set; then
+  enableval="$enable_telnet"
+   telnet=$enableval
+else
+   telnet=no
+fi;
+
+if test "$telnet" = "yes"; then
+  cat >>confdefs.h <<\_ACEOF
+#define USE_TELNET 1
+_ACEOF
+
+fi
 
 cat >>confdefs.h <<_ACEOF
 #define RESTAMP_OLD_POSTINGS 21

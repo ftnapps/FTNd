@@ -414,7 +414,8 @@ if [ "$FIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
 		echo "binkp		24554/tcp		# mbcico IBN mode">>/etc/services
 	fi
 	if [ "$FIDO" = "TRUE" ]; then
-		echo -n ", fido at port 60179"
+		echo -n ", fido at ports 60177, 60179"
+		echo "tfido		60177/tcp		# mbtelnetd ITN proxy">>/etc/services
 		echo "fido		60179/tcp		# mbcico IFC mode">>/etc/services
 	fi
 	chmod 644 /etc/services
@@ -434,6 +435,7 @@ cat << EOF >>/etc/inetd.conf
 #:MBSE-BBS: bbs service
 binkp	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ibn
 fido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ifc
+tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbtelnetd	mbtelnetd
 
 EOF
 	chmod 644 /etc/inetd.conf
@@ -460,7 +462,7 @@ if [ -f /etc/xinetd.conf ]; then
 cat << EOF >> $XINET
 #:MBSE BBS services are defined here.
 #
-# Author: Michiel Broek <mbse@users.sourceforge.net>, 20-Jan-2002
+# Author: Michiel Broek <mbse@mbse.dds.nl>, 22-Nov-2003
 
 service binkp
 {
@@ -482,6 +484,16 @@ service fido
 	instances	= 10
 	server		= $MHOME/bin/mbcico
 	server_args	= -t ifc
+}
+
+service tfido
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = $MHOME/bin/mbtelnetd
 }
 EOF
 

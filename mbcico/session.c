@@ -47,9 +47,13 @@
 #include "binkp.h"
 #include "callstat.h"
 #include "inbound.h"
+#include "opentcp.h"
 
 
 extern	int	tcp_mode;
+#ifdef USE_TELNET
+extern	int	telnet;
+#endif
 
 
 node	*nlent;
@@ -99,6 +103,11 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	    } else if (tcp_mode == TCPMODE_IFC) {
 		Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
 		IsDoing("Incoming IFC/TCP");
+#ifdef USE_TELNET
+	    } else if (tcp_mode == TCPMODE_ITN) {
+		Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		IsDoing("Incoming ITN/TCP");
+#endif
 	    } else if (tcp_mode == TCPMODE_NONE) {
 		WriteError("Unknown TCP connection, parameter missing");
 		die(MBERR_COMMANDLINE);
@@ -106,6 +115,10 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	}
 	session_flags |= SESSION_TCP;
     }
+#ifdef USE_TELNET
+    if (telnet && (session_flags & SESSION_TCP))
+	telnet_init();
+#endif
 
     if (data)
 	free(data);

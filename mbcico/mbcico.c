@@ -65,6 +65,7 @@ unsigned long	sentbytes = 0;
 unsigned long	rcvdbytes = 0;
 int		tcp_mode = TCPMODE_NONE;
 int		Loaded = FALSE;
+int		telnet = FALSE;
 
 
 extern char	*myname;
@@ -85,7 +86,11 @@ void usage(void)
     fprintf(stderr,"-a<inetaddr> <node>\n");
     fprintf(stderr,"-n<phone>	forced phone number\n");
     fprintf(stderr,"-l<ttydevice>	forced tty device\n");
+#ifdef USE_TELNET
+    fprintf(stderr,"-t<tcpmode> must be one of ifc|itn|ibn, forces TCP/IP\n");
+#else
     fprintf(stderr,"-t<tcpmode>	must be one of ifc|ibn, forces TCP/IP\n");
+#endif
     fprintf(stderr,"-a<inetaddr>	supply internet hostname if not in nodelist\n");
     fprintf(stderr,"  <node>	should be in domain form, e.g. f11.n22.z3\n");
     fprintf(stderr,"		(this implies master mode)\n");
@@ -246,6 +251,10 @@ int main(int argc, char *argv[])
 			} else if (strncmp(p, "ibn", 3) == 0) {
 			    tcp_mode = TCPMODE_IBN;
 			    protocol = xstrcpy((char *)"binkp");
+			} else if (strncmp(p, "itn", 3) == 0) {
+			    tcp_mode = TCPMODE_ITN;
+			    protocol = xstrcpy((char *)"tfido");
+			    telnet = TRUE;
 			} else {
 			    usage();
 			    die(MBERR_COMMANDLINE);
@@ -355,6 +364,11 @@ int main(int argc, char *argv[])
 	if (rc > maxrc) 
 	    maxrc=rc;
     } else {
+	if (telnet) {
+	    WriteError("Incoming telnet call is not supported anymore");
+	    WriteError("Install mbtelnetd to handle telnet inbound traffic");
+	    die(MBERR_COMMANDLINE);
+	}
 	/* slave */
 	if (!answermode && tcp_mode == TCPMODE_IBN)
 	    answermode = xstrcpy((char *)"ibn");

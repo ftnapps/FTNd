@@ -44,7 +44,7 @@
 
 
 #define	BINKPORT 24554
-// #define	TELNPORT 23
+#define	TELNPORT 23
 #define FIDOPORT 60179		/* Eugene G. Crossers birthday */
 
 
@@ -103,6 +103,13 @@ int opentcp(char *name)
 				else
 				    server.sin_port = htons(FIDOPORT);
 				break;
+#ifdef USE_TELNET
+	    case TCPMODE_ITN:   if ((se = getservbyname("tfido", "tcp")))
+				    server.sin_port = se->s_port;
+				else
+				    server.sin_port = htons(TELNPORT);
+				break;
+#endif
 	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
 				    server.sin_port = se->s_port;
 				else
@@ -213,4 +220,43 @@ void closetcp(void)
     tcp_is_open = FALSE;
 }
 
+
+#ifdef USE_TELNET
+
+#define WILL            251
+#define WONT            252
+#define DO              253
+#define DONT            254
+#define IAC             255
+
+#define TOPT_BIN        0
+#define TOPT_ECHO       1
+#define TOPT_SUPP       3
+
+
+static void telnet_answer(int tag, int opt)
+{
+    char buf[3];
+
+    Syslog('s', "telnet_answer(%d, %d)", tag, opt);
+    buf[0]=IAC;
+    buf[1]=tag;
+    buf[2]=opt;
+    tty_put(buf, 3);
+}
+
+
+void telnet_init(void)
+{
+    Syslog('s', "telnet_init()");
+    telnet_answer(DO,TOPT_SUPP);
+    telnet_answer(WILL,TOPT_SUPP);
+    telnet_answer(DO,TOPT_BIN);
+    telnet_answer(WILL,TOPT_BIN);
+    telnet_answer(DO,TOPT_ECHO);
+    telnet_answer(WILL,TOPT_ECHO);
+}
+
+
+#endif
 

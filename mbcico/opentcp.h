@@ -6,5 +6,8 @@
 int  opentcp(char *);
 void closetcp(void);
 
+#ifdef USE_TELNET
+void telnet_init(void);
+#endif
 
 #endif

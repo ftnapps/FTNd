@@ -3,6 +3,30 @@ $Id$
 
 v0.39.2		21-Nov-2003
 
+	general:
+		With the use of a proxy based on the iftelnetd from the ifmail
+		package incoming telnet sessions are now supported. Outgoing
+		telnet still doesn't work.
+
+	upgrade:
+		See mbtelnetd.html how to install mbtelnetd.
+
+	mbcico:
+		If called by inetd with the -t itn parameters, mbcico aborts
+		and writes a short instruction in the log to install mbtelnetd.
+
+	mbtelnetd:
+		New program, a proxy to handle incoming telnet/vmodem sessions.
+		Based on the work of Serge Terekhov, 2:5000/13@fidonet and
+		Vadim Kurland, vadim@gu.kiev.ua and Vadim Zaliva, 
+		lord@crocodile.kiev.ua.
+
+	SETUP.sh:
+		Added installation of mbtelnetd for new systems.
+
+	html:
+		Added mbtelnetd page.
+
 
 v0.39.1		22-Oct-2003 - 21-Nov-2003
 

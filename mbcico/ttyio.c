@@ -178,7 +178,7 @@ static int tty_read(char *buf, int size, int tot)
     now = time(NULL);
     timeout = (time_t)300; /* maximum of 5 minutes */
 
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < NUMTIMERS; i++) {
 	if (timer[i]) {
 	    if (now >= timer[i]) {
 		tty_status=STAT_TIMEOUT;
