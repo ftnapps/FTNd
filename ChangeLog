@@ -4681,6 +4681,7 @@ v0.33.20        10-Feb-2002
 		lines are free to use for dialout.
 		For ISDN and POTS calls, mbtask now decides which tty to use,
 		mbcico gets the tty to use as option on the commandline.
+		Keeps track of the number of mailers running.
 
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.

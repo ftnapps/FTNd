@@ -36,6 +36,7 @@
 
 extern reg_info		reginfo[MAXCLIENT];     /* Array with clients   */
 static int 		entrypos = 0;		/* Status pointer	*/
+static int		mailers = 0;		/* Registered mailers	*/
 
 
 /***********************************************************************
@@ -100,8 +101,10 @@ int reg_newcon(char *data)
 	 */
 	reginfo[retval].silent = 1;
 
-	tasklog('-', "Registered client pgm \"%s\", pid %s, slot %d", prg, pid, retval);
 	stat_inc_clients();
+	if (strcmp(prg, (char *)"mbcico") == 0)
+	    mailers++;
+	tasklog('-', "Registered client pgm \"%s\", pid %s, slot %d, mailers %d", prg, pid, retval, mailers);
 	return retval;
 }
 
@@ -117,7 +120,9 @@ int reg_closecon(char *data)
 	if ((rec = reg_find(pid)) == -1)
 		return -1;
 
-	tasklog('-', "Unregistered client pgm \"%s\", pid %s, slot %d", reginfo[rec].prg, pid, rec);
+	if (strcmp(reginfo[rec].prg, (char *)"mbcico") == 0)
+	    mailers--;
+	tasklog('-', "Unregistered client pgm \"%s\", pid %s, slot %d, mailers %d", reginfo[rec].prg, pid, rec, mailers);
 	memset(&reginfo[rec], 0, sizeof(reg_info)); 
 	stat_dec_clients();
 	return 0;
@@ -138,7 +143,10 @@ void reg_check(void)
 		if (reginfo[i].pid) {
 			if (kill(reginfo[i].pid, 0) == -1) {
 				if (errno == ESRCH) {
-					tasklog('?', "Stale registration found for pid %d (%s)", reginfo[i].pid, reginfo[i].prg);
+					if (strcmp(reginfo[i].prg, (char *)"mbcico") == 0)
+					    mailers--;
+					tasklog('?', "Stale registration found for pid %d (%s), mailers now %d", 
+						reginfo[i].pid, reginfo[i].prg, mailers);
 					memset(&reginfo[i], 0, sizeof(reg_info));
 					stat_dec_clients();
 				}
