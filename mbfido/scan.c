@@ -488,84 +488,82 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
 //            1 -> Unknown area
 //            2 -> Node cant rescan this area
 {
-        unsigned long   Total, MsgNum, Area = 0;
-        fa_list         *sbl = NULL;
-        fidoaddr        *l;
-        int             First, Found;
-        unsigned long   rescanned;
-        sysconnect      Link;
+    unsigned long   Total, MsgNum, Area = 0;
+    fa_list         *sbl = NULL;
+    fidoaddr        *l;
+    int             First, Found;
+    unsigned long   rescanned;
+    sysconnect      Link;
 
-        IsDoing("ReScan mail");
+    IsDoing("ReScan mail");
 
+    if (!do_quiet) {
+        colour(9, 0);
+        printf("ReScan mail\n");
+        colour(3, 0);
+        fflush(stdout);
+    }
+
+    l = faddr2fido( L );
+    rescanned = 0L;
+    if (!SearchMsgs(marea)) {
+        Mgrlog("ReScan of unknown echo area %s", marea);
+        return 1;
+    }
+
+    First = TRUE;
+    Found = FALSE;
+    while (GetMsgSystem(&Link, First)) {
+        First = FALSE;
+        if ((l->zone == Link.aka.zone) && (l->net  == Link.aka.net) && (l->node == Link.aka.node) && (l->point == Link.aka.point)) {
+            Found = TRUE;
+            break;
+        }
+    }
+    if (!Found) {
+        Mgrlog("Node %s can't Rescan area %s", L, marea);
+        return 2;
+    }
+
+    if ((msgs.Active) && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST))) {
         if (!do_quiet) {
-                colour(9, 0);
-                printf("ReScan mail\n");
-                colour(3, 0);
-                fflush(stdout);
-        }
+            colour(3, 0);
+            printf("\r%5ld .. %-40s", Area, msgs.Name);
+            colour(13, 0);
+	    fflush(stdout);
+	}
 
-        l = faddr2fido( L );
-        rescanned = 0L;
-        if (!SearchMsgs(marea)) {
-                syslog('+',"ReScan of unknown echo area %s", marea);
-                return 1;
-        }
+        if (Msg_Open(msgs.Base)) {
+            Total = Msg_Number();
+            MsgNum = 1;
+            if (Num!=0 && Num<Total)
+		MsgNum = (Total + 1 - Num);
 
-        First = TRUE;
-        Found = FALSE;
-        while (GetMsgSystem(&Link, First)) {
-                First = FALSE;
-                if ((l->zone == Link.aka.zone) &&
-                    (l->net  == Link.aka.net) &&
-                    (l->node == Link.aka.node) &&
-                    (l->point == Link.aka.point)) {
-                        Found = TRUE;
-                        break;
+            while (MsgNum<=Total){
+                if (Msg_ReadHeader(MsgNum)) {
+                    if (Msg_Lock(15L)) {
+                        fill_list(&sbl, aka2str(msgs.Aka), NULL);
+                        fill_list(&sbl, aka2str(Link.aka), NULL);
+                        sort_list(&sbl);
+                        ExportEcho(Link, MsgNum, &sbl);
+                        tidy_falist(&sbl);
+                        Msg_UnLock();
+                        rescanned++;
+                    }
                 }
+                MsgNum++;
+            }
+            Msg_Close();
         }
-        if (!Found) {
-                Syslog('+',"Node %s can't Rescan area %s", L, marea);
-                return 2;
-        }
+    }
 
-        if ((msgs.Active) && (msgs.Type == ECHOMAIL)) {
-                if (!do_quiet) {
-                        colour(3, 0);
-                        printf("\r%5ld .. %-40s", Area, msgs.Name);
-                        colour(13, 0);
-                        fflush(stdout);
-                }
+    if (!do_quiet) {
+        printf("\r                                                        \r");
+        fflush(stdout);
+    }
 
-                if (Msg_Open(msgs.Base)) {
-                        Total = Msg_Number();
-                        MsgNum = 1;
-                        if (Num!=0 && Num<Total)
-                        MsgNum = (Total + 1 - Num);
-
-                        while (MsgNum<=Total){
-                                if (Msg_ReadHeader(MsgNum)) {
-                                        if (Msg_Lock(15L)) {
-                                                fill_list(&sbl, aka2str(msgs.Aka), NULL);
-                                                fill_list(&sbl, aka2str(Link.aka), NULL);
-                                                sort_list(&sbl);
-                                                ExportEcho(Link, MsgNum, &sbl);
-                                                tidy_falist(&sbl);
-                                                Msg_UnLock();
-                                                rescanned++;
-                                        }
-                                }
-                                MsgNum++;
-                        }
-                        Msg_Close();
-                }
-        }
-
-        if (!do_quiet) {
-                printf("\r                                                        \r");
-                fflush(stdout);
-        }
-        Syslog('+',"Rescan OK. %ul messages rescanned", rescanned);
-        return 0;
+    Mgrlog("Rescan OK. %ul messages rescanned", rescanned);
+    return 0;
 }
 
 

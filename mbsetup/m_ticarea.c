@@ -287,7 +287,7 @@ void EditTicSystem(sysconnect *Sys)
 		if (refresh) {
 			clr_index();
 			set_color(WHITE, BLACK);
-			mvprintw( 5,6, "10.2.25 EDIT CONNECTION");
+			mvprintw( 5,6, "10.2.26 EDIT CONNECTION");
 			set_color(CYAN, BLACK);
 			mvprintw( 7,6, "1.      Aka");
 			mvprintw( 8,6, "2.      Send to");
@@ -307,7 +307,7 @@ void EditTicSystem(sysconnect *Sys)
 		switch(select_menu(5)) {
 			case 0:	(* Sys) = S;
 				return;
-			case 1:	S.aka = PullUplink((char *)"10.2.25");
+			case 1:	S.aka = PullUplink((char *)"10.2.26");
 				refresh = TRUE;
 				break;
 			case 2: E_BOOL( 8,24, S.sendto,      "^Send^ files ^to^ this node")
@@ -347,7 +347,7 @@ int EditTicConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 5, "10.2.25 TIC AREA CONNECTIONS");
+		mvprintw( 5, 5, "10.2.26 TIC AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -884,7 +884,7 @@ int EditTicRec(int Area)
 	}
 	show_int( 15,74,   connections);
 		
-	switch(select_menu(25)) {
+	switch(select_menu(26)) {
 	    case 0:
 		    crc1 = 0xffffffff;
 		    crc1 = upd_crc32((char *)&tic, crc1, tichdr.recsize);

@@ -222,14 +222,16 @@ void A_List(faddr *t, char *replyid, int Notify)
 		if ((!strcmp(mgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
-		    MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+		    MacroVars("G", "s", mgroup.Name);
+		    MacroVars("J", "s", mgroup.Comment);
+		    MacroVars("I", "s", aka2str(mgroup.UseAka) );
 		    fsetpos(fi,&fileptr);
 		    MacroRead(fi, qp);
 		    fgetpos(fi,&fileptr1);
 		    fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		    while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
-			if (!strcmp(Group, msgs.Group) && msgs.Active) {
+			if (!strcmp(Group, msgs.Group) && msgs.Active && Access(nodes.Security, msgs.LinkSec)) {
 			    memset(&Stat, ' ', sizeof(Stat));
 			    Stat[sizeof(Stat)-1] = '\0';
 
@@ -252,14 +254,14 @@ void A_List(faddr *t, char *replyid, int Notify)
 			    }
 			    if (    (Notify == LIST_LIST) || (Notify == LIST_NOTIFY)
 			         || ((Notify == LIST_QUERY) && ((Stat[0]=='S') || (Stat[1]=='R')))
-			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){  
-				MacroVars("XDEsrpc", "sssdddd", 
- 	    			                            Stat, msgs.Tag, msgs.Name,
- 	    			                            (Stat[0] == 'S'),
- 	    			                            (Stat[1] == 'R'),
- 	    			                            (Stat[2] == 'P'),
- 	    			                            (Stat[3] == 'C')
- 	    			                            );
+			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){
+				MacroVars("X", "s", Stat);
+				MacroVars("D", "s", msgs.Tag);
+				MacroVars("E", "s", msgs.Name);
+				MacroVars("s", "d", (Stat[0] == 'S'));
+				MacroVars("r", "d", (Stat[1] == 'R'));
+				MacroVars("p", "d", (Stat[2] == 'P'));
+				MacroVars("c", "d", (Stat[3] == 'C'));
 				fsetpos(fi,&fileptr1);
 				MacroRead(fi, qp);
 				fgetpos(fi,&fileptr2);
@@ -324,14 +326,17 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 
     subject = calloc(255, sizeof(char));
     f = bestaka_s(t);
-    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
+    MacroVars("s", "s", nodes.Sysop);
+    MacroVars("K", "d", Notify);
+    MacroVars("y", "s", ascfnode(t, 0xff));
+    MacroVars("Y", "s", ascfnode(f, 0xff));
 
-    if (Notify){
+    if (Notify) {
 	Mgrlog("AreaMgr: Flow report to %s", ascfnode(t, 0xff));
         sprintf(subject,"AreaMgr Notify Flow Report");
         GetRpSubject("areamgr.notify.flow",subject);
 	fi = OpenMacro("areamgr.notify.flow", nodes.Language, FALSE);
-    }else{
+    } else {
 	Mgrlog("AreaMgr: Flow report");
         sprintf(subject,"AreaMgr Flow Report");
         GetRpSubject("areamgr.flow",subject);
@@ -394,14 +399,16 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 		if ((!strcmp(mgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 
-		    MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+		    MacroVars("G", "s", mgroup.Name);
+		    MacroVars("J", "s", mgroup.Comment);
+		    MacroVars("I", "s", aka2str(mgroup.UseAka));
 		    fsetpos(fi,&fileptr);
 		    MacroRead(fi, qp);
 		    fgetpos(fi,&fileptr1);
 		    fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		    while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
-			if (!strcmp(Group, msgs.Group) && msgs.Active) {
+			if (!strcmp(Group, msgs.Group) && msgs.Active && Access(nodes.Security, msgs.LinkSec)) {
 			    memset(&Stat, ' ', sizeof(Stat));
 			    Stat[sizeof(Stat)-1] = '\0';
 
@@ -416,17 +423,15 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 					Stat[0] = 'C';
 				}
 			    }
-			   MacroVars("XAPQRpqrx", "csddddddd", 
- 	    			                        Stat[0], 
- 	    			                        msgs.Tag, 
- 	    			                        msgs.Received.lweek, 
- 	    			                        msgs.Received.month[lmonth],
- 	    			                        msgs.Received.total,
- 	    			                        msgs.Posted.lweek,
- 	    			                        msgs.Posted.month[lmonth],
- 	    			                        msgs.Posted.total,
- 	    			                        (Stat[0] == 'C')
- 	    			                        );
+			    MacroVars("X", "c", Stat[0]);
+			    MacroVars("A", "s", msgs.Tag);
+			    MacroVars("P", "d", msgs.Received.lweek);
+			    MacroVars("Q", "d", msgs.Received.month[lmonth]);
+			    MacroVars("R", "d", msgs.Received.total);
+			    MacroVars("p", "d", msgs.Posted.lweek);
+			    MacroVars("q", "d", msgs.Posted.month[lmonth]);
+			    MacroVars("r", "d", msgs.Posted.total);
+			    MacroVars("x", "d", (Stat[0] == 'C'));
 			    fsetpos(fi,&fileptr1);
 			    MacroRead(fi, qp);
 			    fgetpos(fi,&fileptr2);
@@ -713,6 +718,18 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	return;
     }
 
+    if (! Access(nodes.Security, msgs.LinkSec)) {
+	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
+	/*
+	 * If node has no access by flags, we lie and say "Area not found"
+	 */
+	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
+	MsgResult("areamgr.responses",tmp);
+	Mgrlog("  %s has no access to %s", ascfnode(t, 0x1f), Area);
+	MacroClear();
+	return;
+    }
+	
     memset(&Sys, 0, sizeof(Sys));
     memcpy(&Sys.aka, faddr2fido(t), sizeof(fidoaddr));
     Sys.sendto      = TRUE;
@@ -812,7 +829,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 		    Temp = fido2faddr(msgs.Aka);
 		    if ((!strcmp(Group, msgs.Group)) && (msgs.Active) && (!msgs.Mandatory) && strlen(msgs.Tag) &&
 			    ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST)) &&
-			    (metric(Temp, f) < METRIC_NET)) {
+			    (metric(Temp, f) < METRIC_NET) && Access(nodes.Security, msgs.LinkSec)) {
 
 			if (Connect) {
 			    Link = FALSE;
@@ -1003,13 +1020,14 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (SearchFidonet(f->zone))
 	f->domain = xstrcpy(fidonet.domain);
 
-    Mgrlog("AreaMgr request from %s", ascfnode(f, 0xff));
+    Mgrlog("AreaMgr request from %s start", ascfnode(f, 0xff));
 
     /*
      * If the password failed, we return silently and don't respond.
      */
     if ((!strlen(subj)) || (strcasecmp(subj, nodes.Apasswd))) {
 	WriteError("AreaMgr: password expected \"%s\", got \"%s\"", nodes.Apasswd, subj);
+	Mgrlog("AreaMgr request from %s finished", ascfnode(f, 0xff));
 	net_bad++;
 	return FALSE;
     }
@@ -1153,6 +1171,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (a_help)
 	A_Help(f, replyid);
 
+    Mgrlog("AreaMgr request from %s finished", ascfnode(f, 0xff));
     return rc;
 }
 

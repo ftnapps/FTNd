@@ -218,7 +218,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 		    fseek(fp, tichdr.hdrsize, SEEK_SET);
 
 		    while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
-			if (!strcmp(Group, tic.Group) && tic.Active) {
+			if (!strcmp(Group, tic.Group) && tic.Active && Access(nodes.Security, tic.LinkSec)) {
 			    memset(&Stat, ' ', sizeof(Stat));
 			    Stat[sizeof(Stat)-1] = '\0';
 
@@ -301,30 +301,28 @@ void F_Status(faddr *t, char *replyid)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("ABCDEfGIJabcdefghijkls", "ddddddddddddddddddddds", 	
- 	    					nodes.Message,
- 	    					nodes.Tic,
- 	    					nodes.AdvTic,
- 	    					nodes.Notify,
- 	    					nodes.Billing,
- 	    					nodes.BillDirect,
- 	    					nodes.Debet,
- 	    					nodes.Credit,
- 	    					nodes.WarnLevel,
- 	    					nodes.FilesSent.lweek,
- 	    					nodes.FilesSent.month[i],
- 	    					nodes.FilesSent.total,
- 	    					nodes.F_KbSent.lweek,
- 	    					nodes.F_KbSent.month[i],
- 	    					nodes.F_KbSent.total,
- 	    					nodes.FilesRcvd.lweek,
- 	    					nodes.FilesRcvd.month[i],
- 	    					nodes.FilesRcvd.total,
- 	    					nodes.F_KbRcvd.lweek,
- 	    					nodes.F_KbRcvd.month[i],
- 	    					nodes.F_KbRcvd.total,
- 	    					nodes.Sysop
- 	    					);
+    MacroVars("A", "d", nodes.Message);
+    MacroVars("B", "d", nodes.Tic);
+    MacroVars("C", "d", nodes.AdvTic);
+    MacroVars("D", "d", nodes.Notify);
+    MacroVars("E", "d", nodes.Billing);
+    MacroVars("f", "d", nodes.BillDirect);
+    MacroVars("G", "d", nodes.Debet);
+    MacroVars("I", "d", nodes.Credit);
+    MacroVars("J", "d", nodes.WarnLevel);
+    MacroVars("a", "d", nodes.FilesSent.lweek);
+    MacroVars("b", "d", nodes.FilesSent.month[i]);
+    MacroVars("c", "d", nodes.FilesSent.total);
+    MacroVars("d", "d", nodes.F_KbSent.lweek);
+    MacroVars("e", "d", nodes.F_KbSent.month[i]);
+    MacroVars("f", "d", nodes.F_KbSent.total);
+    MacroVars("g", "d", nodes.FilesRcvd.lweek);
+    MacroVars("h", "d", nodes.FilesRcvd.month[i]);
+    MacroVars("i", "d", nodes.FilesRcvd.total);
+    MacroVars("j", "d", nodes.F_KbRcvd.lweek);
+    MacroVars("k", "d", nodes.F_KbRcvd.month[i]);
+    MacroVars("l", "d", nodes.F_KbRcvd.total);
+    MacroVars("s", "s", nodes.Sysop);
     GetRpSubject("filemgr.status",subject);
 
     if ((fi = OpenMacro("filemgr.status", nodes.Language, FALSE)) == NULL ) {
@@ -464,7 +462,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (!SearchTic(Area)) {
 	/*
-	 * Close noderecord, atocreate will destroy it.
+	 * Close noderecord, autocreate will destroy it.
 	 */
 	UpdateNode();
 
@@ -535,6 +533,18 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("RABCDE", "ssssss","ERR_CONN_BADADD",Area,ascfnode(t, 0x1f),"","","");
 	MsgResult("filemgr.responses",tmp);
 	Mgrlog("  Node %s may not connect to group %s", ascfnode(t, 0x1f), fgroup.Name);
+	MacroClear();
+	return;
+    }
+
+    if (! Access(nodes.Security, tic.LinkSec)) {
+	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
+	/*
+	 * If node has no access by flags, we lie and say "Area not found"
+	 */
+	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
+	MsgResult("filemgr.responses",tmp);
+	Mgrlog("  %s has no access to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
     }
@@ -632,7 +642,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 
 		    Temp = fido2faddr(tic.Aka);
 		    if ((!strcmp(Group, tic.Group)) && tic.Active && strlen(tic.Name) &&
-			(metric(Temp, f) < METRIC_NET)) {
+			(metric(Temp, f) < METRIC_NET) && Access(nodes.Security, tic.LinkSec)) {
 
 			if (Connect) {
 			    Link = FALSE;
@@ -834,7 +844,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (SearchFidonet(f->zone))
 	f->domain = xstrcpy(fidonet.domain);
 
-    Mgrlog("FileMgr request from %s", ascfnode(f, 0xff));
+    Mgrlog("FileMgr request from %s start", ascfnode(f, 0xff));
 
     /*
      * If the password failed, we return silently and don't respond.
@@ -842,6 +852,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if ((!strlen(subj)) || (strcasecmp(subj, nodes.Fpasswd))) {
 	WriteError("FileMgr: password expected \"%s\", got \"%s\"", nodes.Fpasswd, subj);
 	Mgrlog("FileMgr: password expected \"%s\", got \"%s\"", nodes.Fpasswd, subj);
+	Mgrlog("FileMgr request from %s finished", ascfnode(f, 0xff));
 	net_bad++;
 	return FALSE;
     }
@@ -977,6 +988,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (f_help)
 	F_Help(f, replyid);
 
+    Mgrlog("FileMgr request from %s finished", ascfnode(f, 0xff));
     return rc;
 }
 
