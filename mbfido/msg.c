@@ -100,7 +100,7 @@ int toss_onemsg(char *msgname)
     char	    fromUserName[36], toUserName[36], subject[72], DateTime[20];
     FILE	    *fp, *np;
     faddr	    *ta;
-    unsigned char   buf[0xbd];
+    unsigned char   buf[0xbe];
     unsigned short  destNode = 0, destNet = 0, destZone = 0, destPoint = 0;
     unsigned short  origNode = 0, origNet = 0, origZone = 0, origPoint = 0;
     unsigned short  Attribute = 0;

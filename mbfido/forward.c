@@ -199,7 +199,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    subject = ctime(&now);
 	    Striplf(subject);
 	    ba = bestaka_s(dest);
-	    fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(ba, 0x1f), mktime(localtime(&now)), subject, tzname[0]);
+	    fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(ba, 0x1f), (long)mktime(localtime(&now)), subject, tzname[0]);
 	    tidy_faddr(ba);
 
 	    if (nodes.TIC_AdvSB) {

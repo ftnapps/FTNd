@@ -222,7 +222,7 @@ static int wctxpn(char *fname)
      * int. But i believe sending %lo instead of %o _could_ break compatability
      */
     if ((input_f != stdin) && *fname)
-	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, f.st_mtime,
+	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, (long) f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
 
     Totalleft -= f.st_size;
