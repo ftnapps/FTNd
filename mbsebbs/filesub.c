@@ -717,6 +717,7 @@ char *GetFileType(char *fn)
 	if (memcmp(buf, "ZOO", 3) == 0)			return (char *)"ZOO";
 	if (memcmp(buf, "`\352", 2) == 0)		return (char *)"ARJ";
 	if (memcmp(buf, "Rar!", 4) == 0)		return (char *)"RAR";
+	if (memcmp(buf, "HA", 2) == 0)			return (char *)"HA";
 	if (memcmp(buf, "MZ", 2) == 0)			return (char *)"EXE";
 	if (memcmp(buf, "\000\000\001\263", 4) == 0)	return (char *)"MPEG";
 	if (memcmp(buf, "MOVI", 4) == 0)		return (char *)"MOVI";

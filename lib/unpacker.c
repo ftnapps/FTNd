@@ -64,6 +64,7 @@ char *unpacker(char *fn)
 	if (memcmp(buf,"ZOO",3) == 0)		return (char *)"ZOO";
 	if (memcmp(buf,"`\352",2) == 0)		return (char *)"ARJ";
 	if (memcmp(buf,"Rar!",4) == 0)		return (char *)"RAR";
+	if (memcmp(buf,"HA",2) == 0)		return (char *)"HA";
 	if (memcmp(buf,"UC2\0x1a",4) == 0)	return (char *)"UC2";
 	if (memcmp(buf,"BZ",2) == 0)		return (char *)"BZIP";
 	if (memcmp(buf,"MSCF",4) == 0)		return (char *)"CAB";   /* M$ CAB files	    */
