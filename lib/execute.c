@@ -4,7 +4,7 @@
  * Purpose ...............: Execute subprogram
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -42,7 +42,7 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 {
-    char    buf[512];
+    char    buf[PATH_MAX];
     char    *vector[16];
     int	    i, pid, status = 0, rc = 0;
 
@@ -52,6 +52,13 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 	sprintf(buf, "%s %s %s", cmd, file, pkt);
     Syslog('+', "Execute: %s",buf);
 
+#ifdef __linux__
+    /*
+     * Linux has async diskwrites by default.
+     */
+    sync();
+#endif
+    
     memset(vector, 0, sizeof(vector));
     i = 0;
     vector[i++] = strtok(buf," \t\n");
@@ -103,6 +110,11 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
 
     setpriority(PRIO_PROCESS, 0, 0);
+
+#ifdef __linux__
+    sync();
+#endif
+    
     switch (rc) {
 	case -1:
 		WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
@@ -140,6 +152,10 @@ int execsh(char *cmd, char *in, char *out, char *err)
     Syslog('+', "Execute shell: %s", MBSE_SS(cmd));
     fflush(stdout);
     fflush(stderr);
+
+#ifdef __linux__
+    sync();
+#endif
 
     if ((pid = fork()) == 0) {
 	if (in) {
@@ -184,6 +200,10 @@ int execsh(char *cmd, char *in, char *out, char *err)
 	WriteError("$Wait returned %d, status %d,%d", rc, status >> 8, status & 0xff);
 	return MBERR_EXEC_FAILED;
     }
+
+#ifdef __linux__
+    sync();
+#endif
 
     return status;
 }

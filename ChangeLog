@@ -2,6 +2,11 @@ $Id$
 
 v0.39.7		14-Jan-2004
 
+	libcommon.a:
+		In execute and execsh on Linux systems sync() is called before
+		and after running the external program to make sure diskbuffers
+		are committed.
+
 
 v0.39.6		11-Jan-2004 - 14-Jan-2004
 
