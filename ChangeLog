@@ -4323,7 +4323,8 @@ v0.33.19        26-Oct-2001
 		Started working on long filename support. The real name on
 		disk is the long filename, the database records also holds
 		an uppercase 8.3 filename. In most cases this is just the
-		same name in upper and lowercase.
+		same name in upper and lowercase. Name mangling like Win$
+		is performed on the long filenames.
 		Implemented "mbfile import" function, this imports complete
 		areas from files.bbs information.
 		Added "mbfile toberep" function, this gives an overview of the
@@ -4333,6 +4334,9 @@ v0.33.19        26-Oct-2001
 		the index.html files for http download and 00index files in
 		all available areas. The files.bbs files have download
 		counters included.
+		The mbfile check function now converts the short filenames
+		to DOS 8.3 filenames. (The first time this logs lots of
+		errors).
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.

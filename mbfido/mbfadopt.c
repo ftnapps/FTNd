@@ -273,16 +273,12 @@ void AdoptFile(int Area, char *File, char *Description)
 	 */
 	chdir(pwd);
 	DeleteVirusWork();
-	if (strlen(File) < 13) {
-	    strcpy(fdb.Name, File);
-	    for (i = 0; i < strlen(File); i++)
-		fdb.Name[i] = toupper(fdb.Name[i]);
-	} else {
-	    WriteError("Long filename conversion not supported");
-	    if (!do_quiet)
-		printf("Long filename conversion not supported\n");
-	    die(0);
-	}
+	/*
+	 * Convert to 8.3 DOS filename
+	 */
+	strcpy(temp2, File);
+	name_mangle(temp2, TRUE);
+	strcpy(fdb.Name, temp2);
 	strcpy(fdb.LName, File);
 	fdb.Size = file_size(File);
 	fdb.Crc32 = file_crc(File, TRUE);

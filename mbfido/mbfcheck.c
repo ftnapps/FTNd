@@ -64,7 +64,7 @@ void Check(void)
 	FILE	*pAreas, *pFile;
 	int	i, iAreas, iAreasNew = 0;
 	int	iTotal = 0, iErrors =  0;
-	char	*sAreas, *fAreas, *newdir;
+	char	*sAreas, *fAreas, *newdir, *temp;
 	DIR	*dp;
 	struct	dirent	*de;
 	int	Found, Update;
@@ -74,6 +74,7 @@ void Check(void)
 	sAreas = calloc(PATH_MAX, sizeof(char));
 	fAreas = calloc(PATH_MAX, sizeof(char));
 	newdir = calloc(PATH_MAX, sizeof(char));
+	temp   = calloc(PATH_MAX, sizeof(char));
 
 	if (!do_quiet) {
 		colour(3, 0);
@@ -154,6 +155,15 @@ void Check(void)
 					 */
 					Marker();
 					Update = FALSE;
+
+					strcpy(temp, file.LName);
+				        name_mangle(temp, TRUE);
+					if (strcmp(file.Name, temp))  {
+						Syslog('!', "Converted %s to %s", file.Name, temp);
+						strncpy(file.Name, temp, 12);
+						iErrors++;
+						Update = TRUE;
+					}
 					if (file_time(newdir) != file.FileDate) {
 						Syslog('!', "Date mismatch area %d file %s", i, file.LName);
 						file.FileDate = file_time(newdir);
@@ -236,6 +246,7 @@ void Check(void)
 		fflush(stdout);
 	}
 
+	free(temp);
 	free(newdir);
 	free(sAreas);
 	free(fAreas);

@@ -912,5 +912,14 @@ int	flag_on(char *,char *);
 char *strcasestr(char *, char *);
 #endif
 
+
+
+/*
+ * mangle.c
+ */
+void	mangle_name_83( char *);
+int	name_mangle(char *, int);
+
+
 #endif
 

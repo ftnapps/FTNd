@@ -187,8 +187,31 @@ void ImportFiles(int Area)
 		memset(&fdb, 0, sizeof(fdb));
 
 		token = strtok(String, " \t");
-		strcpy(fdb.Name, token);
-		strcpy(fdb.LName, tl(token));
+		strcpy(fdb.LName, token);
+		/*
+		 * Test filename against name on disk, first normal case,
+		 * then lowercase and finally uppercase.
+		 */
+		sprintf(temp,"%s/%s", pwd, fdb.LName);
+		if (stat(temp,&statfile) != 0) {
+		    strcpy(fdb.LName, tl(token));
+		    sprintf(temp,"%s/%s", pwd, fdb.LName);
+		    if (stat(temp,&statfile) != 0) {
+			strcpy(fdb.LName, tu(token));
+			if (stat(temp,&statfile) != 0) {
+			    WriteError("Cannot locate file on disk! Skipping... -> %s\n",temp);
+			    Append = FALSE;
+			}
+		    }
+		}
+
+		/*
+		 * Create DOS 8.3 filename
+		 */
+		strcpy(temp, fdb.LName);
+		name_mangle(temp, TRUE);
+		strcpy(fdb.Name, temp);
+
 		if (do_annon)
 		    fdb.Announced = TRUE;
 		Syslog('f', "File: %s (%s)", fdb.Name, fdb.LName);
@@ -237,14 +260,6 @@ void ImportFiles(int Area)
 		    }
 		}
 
-		sprintf(temp,"%s/%s", pwd, fdb.LName);
-		if (stat(temp,&statfile) != 0) {
-		    sprintf(temp,"%s/%s", pwd, fdb.Name);
-		    if (stat(temp,&statfile) != 0) {
-			WriteError("Cannot locate file on disk! Skipping... -> %s\n",temp);
-			Append = FALSE;
-		    }
-		}
 		sprintf(dest, "%s/%s", area.Path, fdb.LName);
 		Append = TRUE;
 		fdb.Size = statfile.st_size;
