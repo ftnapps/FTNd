@@ -5,7 +5,10 @@ $Id$
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
-v0.37.2		23-Feb-2003.
+v0.37.3		09-Apr-2003.
+
+
+v0.37.2		23-Feb-2003 - 09-Apr-2003
 
 	general:
 		System prepared for setting the official FTSC product code,
@@ -14,6 +17,8 @@ v0.37.2		23-Feb-2003.
 		chat stuff that is of no use anymore. The sysop shows his
 		presence by running mbmon. The mbchat program is obsolete.
 		Menu item 22 is added, this is user chat session.
+		For chat (and sysop/user paging chat) works now using the
+		mbtask daemon.
 
 	common.a:
 		New function to get the real case of a filename.
@@ -83,9 +88,9 @@ v0.37.2		23-Feb-2003.
 		Added CPAG command to page the sysop.
 		Added CCAN command to cancel the sysop page.
 		Added CCKP command to check for a page.
-		Added CCON, CCLO, CPUT and CGET commands for chatserver. The
-		chatserver commands will be added and are in development.
-		Basic chatting now works.
+		Added CCON, CCLO, CPUT and CGET commands for chatserver. 
+		Implemented a chatserver, this looks like a simple IRC server
+		to the users.
 
 	lang:
 		Changed language prompts 15, 16 and 152.

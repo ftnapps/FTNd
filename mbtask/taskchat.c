@@ -183,17 +183,17 @@ void chat_help(pid_t pid)
     system_msg(pid, (char *)"                     Help topics available:");
     system_msg(pid, (char *)"");
     system_msg(pid, (char *)" /BYE              - Exit from chatserver");
-//  system_msg(pid, (char *)" /ECHO <message>   - Echo message to yourself");
+    system_msg(pid, (char *)" /ECHO <message>   - Echo message to yourself");
     system_msg(pid, (char *)" /EXIT             - Exit from chatserver");
     system_msg(pid, (char *)" /JOIN #channel    - Join or create a channel");
     system_msg(pid, (char *)" /J #channel       - Join or create a channel");
 //  system_msg(pid, (char *)" /KICK <nick>      - Kick nick out of the channel");
     system_msg(pid, (char *)" /LIST             - List active channels");
-//  system_msg(pid, (char *)" /NAMES            - List nicks in current channel");
+    system_msg(pid, (char *)" /NAMES            - List nicks in current channel");
     system_msg(pid, (char *)" /NICK <name>      - Set new nickname");
     system_msg(pid, (char *)" /PART             - Leave current channel");
     system_msg(pid, (char *)" /QUIT             - Exit from chatserver");
-//  system_msg(pid, (char *)" /TOPIC <topic>    - Set topic for current channel");
+    system_msg(pid, (char *)" /TOPIC <topic>    - Set topic for current channel");
     system_msg(pid, (char *)"");
     system_msg(pid, (char *)" All other input (without a starting /) is sent to the channel.");
 }
@@ -328,7 +328,11 @@ int part(pid_t pid, char *reason)
 
 void chat_init(void)
 {
+    int	    i;
+    
     memset(&chat_users, 0, sizeof(chat_users));
+    for (i = 0; i < MAXCLIENT; i++)
+	chat_users[i].channel = -1;
     memset(&chat_messages, 0, sizeof(chat_messages));
     memset(&chat_channels, 0, sizeof(chat_channels));
 }
@@ -453,6 +457,7 @@ char *chat_close(char *data)
 	if (chat_users[i].pid == atoi(pid)) {
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
+	    chat_users[i].channel = -1;
 	    sprintf(buf, "100:0;");
 	    return buf;
 	}
@@ -468,7 +473,7 @@ char *chat_put(char *data)
 {
     static char buf[200];
     char	*pid, *msg, *cmd;
-    int		i, j, first;
+    int		i, j, first, count;
 
     Syslog('-', "CPUT:%s", data);
     memset(&buf, 0, sizeof(buf));
@@ -497,6 +502,10 @@ char *chat_put(char *data)
 		if (strncasecmp(msg, "/help", 5) == 0) {
 		    chat_help(atoi(pid));
 		    goto ack;
+		} else if (strncasecmp(msg, "/echo", 5) == 0) {
+		    sprintf(buf, "%s", msg);
+		    system_msg(chat_users[i].pid, buf);
+		    goto ack;
 		} else if ((strncasecmp(msg, "/exit", 5) == 0) || 
 		    (strncasecmp(msg, "/quit", 5) == 0) ||
 		    (strncasecmp(msg, "/bye", 4) == 0)) {
@@ -511,10 +520,10 @@ char *chat_put(char *data)
 		    cmd = strtok(NULL, "\0");
 		    Syslog('-', "\"%s\"", cmd);
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
-			sprintf(buf, "Try /join #channel");
+			sprintf(buf, "** Try /join #channel");
 			system_msg(chat_users[i].pid, buf);
 		    } else if (chat_users[i].channel != -1) {
-			sprintf(buf, "Cannot join while in a channel");
+			sprintf(buf, "** Cannot join while in a channel");
 			system_msg(chat_users[i].pid, buf);
 		    } else {
 			Syslog('-', "Trying to join channel %s", cmd);
@@ -542,11 +551,31 @@ char *chat_put(char *data)
 			system_msg(chat_users[i].pid, buf);
 		    }
 		    goto ack;
+		} else if (strncasecmp(msg, "/names", 6) == 0) {
+		    if (chat_users[i].channel != -1) {
+			sprintf(buf, "Present in this channel:");
+			system_msg(chat_users[i].pid, buf);
+			count = 0;
+			for (j = 0; j < MAXCLIENT; j++) {
+			    if ((chat_users[j].channel == chat_users[i].channel) && chat_users[j].pid) {
+				sprintf(buf, "%s %s", chat_users[j].name, 
+					chat_users[j].chanop ?"(chanop)": chat_users[j].sysop ?"(sysop)":"");
+				system_msg(chat_users[i].pid, buf);
+				count++;
+			    }
+			}
+			sprintf(buf, "%d user%s in this channel", count, (count == 1) ?"":"s");
+			system_msg(chat_users[i].pid, buf);
+		    } else {
+			sprintf(buf, "** Not in a channel");
+			system_msg(chat_users[i].pid, buf);
+		    }
+		    goto ack;
 		} else if (strncasecmp(msg, "/nick", 5) == 0) {
 		    cmd = strtok(msg, " \0");
 		    cmd = strtok(NULL, "\0");
 		    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 36)) {
-			sprintf(buf, "Nickname must be between 1 and 36 characters");
+			sprintf(buf, "** Nickname must be between 1 and 36 characters");
 		    } else {
 			strncpy(chat_users[i].name, cmd, 36);
 			sprintf(buf, "Nick set to \"%s\"", cmd);
@@ -560,9 +589,29 @@ char *chat_put(char *data)
 		    cmd = strtok(NULL, "\0");
 		    Syslog('-', "\"%s\"", cmd);
 		    if (part(chat_users[i].pid, cmd) == FALSE) {
-			sprintf(buf, "Not in a channel");
+			sprintf(buf, "** Not in a channel");
 			system_msg(chat_users[i].pid, buf);
 		    }
+		    chat_dump();
+		    goto ack;
+		} else if (strncasecmp(msg, "/topic", 6) == 0) {
+		    if (chat_users[i].channel != -1) {
+			if (chat_channels[chat_users[i].channel].owner == chat_users[i].pid) {
+			    cmd = strtok(msg, " \0");
+			    cmd = strtok(NULL, "\0");
+			    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 36)) {
+				sprintf(buf, "** Topic must be between 1 and 54 characters");
+			    } else {
+				strncpy(chat_channels[chat_users[i].channel].topic, cmd, 54);
+				sprintf(buf, "Topic set to \"%s\"", cmd);
+			    }
+			} else {
+			    sprintf(buf, "** You are not the channel owner");
+			}
+		    } else {
+			sprintf(buf, "** Not in a channel");
+		    }
+		    system_msg(chat_users[i].pid, buf);
 		    chat_dump();
 		    goto ack;
 		} else {
@@ -579,7 +628,7 @@ char *chat_put(char *data)
 		/*
 		 * Trying messages while not in a channel
 		 */
-		sprintf(buf, "No channel joined. Try /join #channel");
+		sprintf(buf, "** No channel joined. Try /join #channel");
 		system_msg(chat_users[i].pid, buf);
 		chat_dump();
 		goto ack;
