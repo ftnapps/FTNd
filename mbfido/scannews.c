@@ -408,7 +408,6 @@ int get_xover(char *grpname, long startnr, long endnr, List **art)
 	if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
 	    done = TRUE;
 	} else {
-	    Syslogp('n', printable(resp, 0));
 	    Marker();
 	    Nopper();
 	    pov = xoverview;

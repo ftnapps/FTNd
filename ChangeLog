@@ -25,6 +25,8 @@ v0.51.4		11-Apr-2004
 		You may need to edit or remove /opt/mbse/tmp/newsout to remove
 		postings for the remote newsserver with echomail messages.
 		Fixed a bug that no news was fetched at all.
+		Fixed a bug that tossed echomail was attempted to post to the
+		ISP newsserver (that didn't accept it).
 
 	mbnntp:
 		New program, news server to read echomail with a news client.

@@ -261,7 +261,10 @@ void command_group(char *cmd)
     if ((fp = fopen(temp, "r"))) {
 	fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
-	    if (msgs.Active && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Newsgroup) &&
+	    /*
+	     * Only echomail areas with a valid newsgroup name to which the user has access.
+	     */
+	    if (msgs.Active && (msgs.Type == ECHOMAIL) && strlen(msgs.Newsgroup) &&
 		    (strcasecmp(opt, msgs.Newsgroup) == 0) && Access(usrconfig.Security, msgs.RDSec)) {
 		if (Msg_Open(msgs.Base)) {
 		    Msg_Number();
@@ -313,8 +316,11 @@ void command_list(char *cmd)
 	if ((fp = fopen(temp, "r"))) {
 	    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 	    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
-		if (msgs.Active && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS)) && strlen(msgs.Newsgroup) && 
-			Access(usrconfig.Security, msgs.RDSec)) {
+		/*
+		 * Only list echomail areas. If a user wants news, he should get that from
+		 * a real newsserver to prevent problems.
+		 */
+		if (msgs.Active && (msgs.Type == ECHOMAIL) && strlen(msgs.Newsgroup) && Access(usrconfig.Security, msgs.RDSec)) {
 		    if (Access(usrconfig.Security, msgs.WRSec))
 			rw = 'y';
 		    else
@@ -340,6 +346,9 @@ void command_list(char *cmd)
 	return;
     }
 
+    /*
+     * Standard list, most clients don't need it, but it's adviced to have.
+     */
     if (opt && (strcasecmp(opt, "OVERVIEW.FMT") == 0)) {
 	send_nntp("215 Order of fields in overview database");
 	send_nntp("Subject:");
@@ -349,7 +358,6 @@ void command_list(char *cmd)
 	send_nntp("References:");
 	send_nntp("Bytes:");
 	send_nntp("Lines:");
-//	send_nntp("Xref:full");
 	send_nntp(".");
 	return;
     }
@@ -372,7 +380,7 @@ void command_xover(char *cmd)
 {
     char	    *opt, *p, msgid[100], reply[100];
     unsigned long   i, start, end;
-    int		    refs, bytecount, linecount;
+    int		    bytecount, linecount;
 
     IsDoing("Xover");
     opt = strtok(cmd, " \0");
@@ -416,15 +424,14 @@ void command_xover(char *cmd)
     send_nntp("224 Overview information follows");
     for (i = start; i <= end; i++) {
 	if (Msg_ReadHeader(i)) {
-	    bytecount = linecount = refs = 0;
-	    if (Msg.Original)
-		refs++;
-	    if (Msg.Reply)
-		refs++;
+	    bytecount = linecount = 0;
 	    if (Msg_Read(i, 80)) {
 		if ((p = (char *)MsgText_First()) != NULL) {
 		    do {
-			if (p[0] != '\001') {
+			if ((p[0] != '\001') && (strncmp(p, "SEEN-BY:", 8)) && (strncmp(p, "AREA:", 5))) {
+			    /*
+			     * Only count lines and bytes we should send
+			     */
 			    linecount++;
 			    bytecount += strlen(p);
 			}
