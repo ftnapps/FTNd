@@ -60,8 +60,6 @@ typedef struct _binkp_frame {
 /*
  *  Linked list of files to send and responses from the receiver.
  */
-typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
-
 typedef struct _binkp_list {
 	struct _binkp_list	*next;
 	char			*remote;	/* Remote filename		*/

@@ -66,6 +66,11 @@ mbtelind:	${MBTELIND_OBJS} ${LIBS}
 mbtelout:	${MBTELOUT_OBJS} ${LIBS}
 		${CC} -o mbtelout ${MBTELOUT_OBJS} ${LDFLAGS} ${LIBS}
 
+mbtest:		binkpnew.o
+		rm -f binkpnew.o
+		${CC} -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT  ${INCLUDES} ${DEFINES} -DDOTEST -c binkpnew.c
+		${CC} -o mbtest binkpnew.o ${LDFLAGS} ${LIBS}
+
 filelist:	Makefile
 		BASE=`pwd`; \
 		BASE=`basename $${BASE}`; \
