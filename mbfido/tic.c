@@ -163,7 +163,7 @@ int Tic()
 int LoadTic(char *inb, char *tfn)
 {
 	FILE	*tfp;
-	char	*Temp, *Buf, *Log = NULL;
+	char	*Temp, *Temp2, *Buf, *Log = NULL;
 	int	i, j, rc;
 	fa_list	*sbl = NULL;
 	int	DescCnt = FALSE;
@@ -174,9 +174,8 @@ int LoadTic(char *inb, char *tfn)
 	memset(&TIC, 0, sizeof(TIC));
 	memset(&T_File, 0, sizeof(T_File));
 
-	sprintf(TIC.Inbound, "%s/", inb);
-	sprintf(TIC.FilePath, "%s/", inb);
-	strcpy(TIC.TicName, tfn);
+	sprintf(TIC.Inbound, "%s", inb);
+	strncpy(TIC.TicName, tfn, 12);
 
 	chdir(inb);
 	if ((tfp = fopen(tfn, "r")) == NULL) {
@@ -184,8 +183,8 @@ int LoadTic(char *inb, char *tfn)
 		return 1;
 	}
 
-	Temp = calloc(256, sizeof(char));
-	Buf  = calloc(256, sizeof(char));
+	Temp = calloc(PATH_MAX, sizeof(char));
+	Buf  = calloc(257, sizeof(char));
 
 	while ((fgets(Buf, 256, tfp)) != NULL) {
 		/*
@@ -200,17 +199,12 @@ int LoadTic(char *inb, char *tfn)
 			}
 		Temp[j] = '\0';
 
+		Syslog('f', "TIC: %s", Temp);
 		if (strncasecmp(Temp, "hatch", 5) == 0) {
 			TIC.TicIn.Hatch = TRUE;
 
 		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "pth ", 4) == 0)) {
-			sprintf(TIC.TicIn.Pth, "%s/", Temp+4);
-
-		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "nomove", 6) == 0)) {
-			TIC.TicIn.NoMove = TRUE;
-
-		} else if (TIC.TicIn.Hatch && (strncasecmp(Temp, "hatchnew", 8) == 0)) {
-			TIC.TicIn.HatchNew = TRUE;
+			strncpy(TIC.TicIn.Pth, Temp+4, PATH_MAX);
 
 		} else if (strncasecmp(Temp, "area ", 5) == 0) {
 			strncpy(TIC.TicIn.Area, Temp+5, 20);
@@ -229,7 +223,7 @@ int LoadTic(char *inb, char *tfn)
 
 		} else if (strncasecmp(Temp, "fullname ", 9) == 0) {
 			strncpy(TIC.TicIn.FullName, Temp+9, 80);
-			Syslog('f', "Long filename: %s", TIC.TicIn.LName);
+			Syslog('f', "Long filename: %s", TIC.TicIn.FullName);
 
 		} else if (strncasecmp(Temp, "created ", 8) == 0) {
 			strncpy(TIC.TicIn.Created, Temp+8, 80);
@@ -337,7 +331,7 @@ int LoadTic(char *inb, char *tfn)
 		printf("\r");
 		for (i = 0; i < 79; i++)
 			printf(" ");
-		printf("\rTic: %12s  File: %-14s Area: %-12s ", TIC.TicName, TIC.TicIn.OrgName, TIC.TicIn.Area);
+		printf("\rTic: %12s  File: %-14s Area: %-12s ", TIC.TicName, TIC.TicIn.File, TIC.TicIn.Area);
 		fflush(stdout);
 	}
 
@@ -365,7 +359,7 @@ int LoadTic(char *inb, char *tfn)
 		Log = NULL;
 	}
 
-	strcpy(Temp, TIC.TicIn.From);
+	strcpy(Temp, TIC.TicIn.Origin);
 	TIC.Aka.zone = atoi(strtok(Temp, ":"));
 	TIC.Aka.net  = atoi(strtok(NULL, "/"));
 	TIC.Aka.node = atoi(strtok(NULL, "@\0"));
@@ -377,6 +371,81 @@ int LoadTic(char *inb, char *tfn)
 	TIC.OrgAka.node = atoi(strtok(NULL, "@\0"));
 	if (SearchFidonet(TIC.OrgAka.zone))
 		strcpy(TIC.OrgAka.domain, fidonet.domain);
+
+	Temp2 = calloc(PATH_MAX, sizeof(char));
+
+	if (TIC.TicIn.Hatch) {
+	    /*
+	     * Try to move the hatched file to the inbound
+	     */
+	    sprintf(Temp, "%s/%s", TIC.TicIn.Pth, TIC.TicIn.FullName);
+	    if (file_exist(Temp, R_OK) == 0) {
+		strcpy(TIC.RealName, TIC.TicIn.FullName);
+	    } else {
+		WriteError("Can't find %s", Temp);
+		tidy_falist(&sbl);
+		return 2;
+	    }
+	    sprintf(Temp2, "%s/%s", TIC.Inbound, TIC.TicIn.FullName);
+	    if (file_mv(Temp, Temp2)) {
+		WriteError("Can't move %s to inbound", Temp);
+		tidy_falist(&sbl);
+		return 1;
+	    }
+	} else {
+	    /*
+	     * Find out what the real name of the file is
+	     */
+	    sprintf(Temp2, "%s", TIC.TicIn.File);
+	    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+	    if (file_exist(Temp, R_OK) == 0) {
+		strcpy(TIC.RealName, Temp2);
+	    } else {
+		tu(Temp2);
+		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+		if (file_exist(Temp, R_OK) == 0) {
+		    strcpy(TIC.RealName, Temp2);
+		} else {
+		    tl(Temp2);
+		    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+		    if (file_exist(Temp, R_OK) == 0) {
+			strcpy(TIC.RealName, Temp2);
+		    }
+		}
+	    }
+	    if (strlen(TIC.TicIn.FullName) && (strlen(TIC.RealName) == 0)) {
+		sprintf(Temp2, "%s", TIC.TicIn.FullName);
+		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+		if (file_exist(Temp, R_OK) == 0) {
+		    strcpy(TIC.RealName, Temp2);
+		} else {
+		    tu(Temp2);
+		    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+		    if (file_exist(Temp, R_OK) == 0) {
+			strcpy(TIC.RealName, Temp2);
+		    } else {
+			tl(Temp2);
+			sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
+			if (file_exist(Temp, R_OK) == 0) {
+			    strcpy(TIC.RealName, Temp2);
+			}
+		    }
+		}
+	    }
+	}
+
+	if (strlen(TIC.RealName) == 0) {
+	    /*
+	     * We leave RealName empty, the ProcessTic function
+	     * will handle this orphaned tic file.
+	     */
+	    WriteError("Can't find file in inbound");
+	} else {
+	    Syslog('f', "Real filename in inbound is \"%s\"", TIC.RealName);
+	    strncpy(TIC.NewName, TIC.RealName, 80);
+	}
+
+	free(Temp2);
 	free(Temp);
 	free(Buf);
 

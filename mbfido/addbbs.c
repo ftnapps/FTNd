@@ -82,7 +82,7 @@ int Add_BBS()
 	if (strlen(TIC.TicIn.Magic))
 		sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
 
-	sprintf(temp1, "%s%s", TIC.FilePath, TIC.NewName);
+	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
 	sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
 	mkdirs(temp2);
 
@@ -113,8 +113,7 @@ int Add_BBS()
 	if (ftell(fdb) == 0) {
 		fwrite(&frec, sizeof(frec), 1, fdb);
 		fclose(fdb);
-		if (!TIC.NoMove)
-			file_rm(temp1);
+		file_rm(temp1);
 		tic_imp++;
 		return TRUE;
 	}
@@ -216,10 +215,8 @@ int Add_BBS()
 	/*
 	 * Delete file from the inbound
 	 */
-	if (!TIC.NoMove) {
-		if ((i = file_rm(temp1)))
-			WriteError("$ %d = file_rm(%s)", i, temp1);
-	}
+	if ((i = file_rm(temp1)))
+		WriteError("$ %d = file_rm(%s)", i, temp1);
 
 	/*
 	 * Handle the replace option.

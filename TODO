@@ -66,6 +66,8 @@ mbfido:
 	N: Also check for file_id.diz filenames.
 
 mbcico:
+	U: Implement nodes FNC flag for sending files.
+
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
 	   option.

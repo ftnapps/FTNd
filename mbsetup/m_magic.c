@@ -229,11 +229,9 @@ void ScreenM(void)
 				break;
 
 		case MG_COPY:
-		case MG_OTHER:
 		case MG_UNPACK:
 				mvprintw(12, 2, "6.   To path");
-				if (magic.Attrib != MG_OTHER)
-					mvprintw(13, 2, "7.   Compile");
+				mvprintw(13, 2, "7.   Compile");
 				break;
 
 		case MG_KEEPNUM:
@@ -265,7 +263,6 @@ void FieldsM(void)
 		case MG_UNPACK:
 		case MG_COPY:
 				show_bool(13,16, magic.Compile);
-		case MG_OTHER:
 				show_str(12,16,64, magic.Path);
 				break;
 		case MG_KEEPNUM:
@@ -364,7 +361,6 @@ int EditMagicRec(int Area)
 						break;
 
 				case MG_COPY:
-				case MG_OTHER:
 				case MG_UNPACK:
 						E_PTH(12,16,64, magic.Path,   "The ^path^ to use")
 
@@ -532,7 +528,6 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 			case MG_UNPACK:
 			case MG_COPY:
 					fprintf(fp, "   Compile NL   %s\n", getboolean(magic.Compile));
-			case MG_OTHER:
 					fprintf(fp, "   Path         %s\n", magic.Path);
 					break;
 

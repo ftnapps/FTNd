@@ -1421,7 +1421,6 @@ char *getmagictype(int val)
 		case MG_MOVE:		return (char *)"Move file   "; 
 		case MG_UPDALIAS:	return (char *)"Update alias";
 		case MG_ADOPT:		return (char *)"Adopt file  ";
-		case MG_OTHER:		return (char *)"Other path  ";
 		case MG_DELETE:		return (char *)"Delete file ";
 		default:		return NULL;
 	}

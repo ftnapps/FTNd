@@ -108,7 +108,7 @@ int Rearc(char *unarc)
 		WriteError("Rearc(): No arc command available");
 		return FALSE;
 	} else {
-		sprintf(temp, "%s%s .", TIC.Inbound, TIC.NewName);
+		sprintf(temp, "%s/%s .", TIC.Inbound, TIC.NewName);
 		if (execute(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			/* MUST SET TIC.FileDate to NEW ARCHIVE */
 			return TRUE;
@@ -171,14 +171,20 @@ void ReCalcCrc(char *fn)
 
 int Get_File_Id()
 {
-	char	temp[81];
+	char	*temp;
 	char	Desc[256];
 	FILE	*fp;
 	int	i, j, lines = 0;
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/tmp/FILE_ID.DIZ", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL)
+	if ((fp = fopen(temp, "r")) == NULL) {
+	    sprintf(temp, "%s/tmp/file_id.diz", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r")) == NULL) {
+		free(temp);
 		return FALSE;
+	    }
+	}
 
 	/*
 	 * Read no more then 25 lines.
@@ -197,6 +203,7 @@ int Get_File_Id()
 			TIC.File_Id_Ct = 0;
 			Syslog('f', "FILE_ID.DIZ line %d is %d chars", lines, strlen(Desc));
 			Syslog('!', "Trashing illegal formatted FILE_ID.DIZ");
+			free(temp);
 			return FALSE;
 		}
 
@@ -219,6 +226,7 @@ int Get_File_Id()
 	}
 	fclose(fp);
 	unlink(temp);
+	free(temp);
 
 	/*
 	 * Strip empty lines at end of FILE_ID.DIZ

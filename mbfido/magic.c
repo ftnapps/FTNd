@@ -211,7 +211,7 @@ int Magic_MoveFile(void)
 {
 	if (GetMagicRec(MG_MOVE, TRUE)) {
 		strcpy(TIC.TicIn.Area, magic.ToArea);
-		MagicResult((char *)"Move %s to Area %s", TIC.TicIn.OrgName, TIC.TicIn.Area);
+		MagicResult((char *)"Move %s to Area %s", TIC.RealName, TIC.TicIn.Area);
 		return TRUE;	
 	} else
 		return FALSE;
@@ -289,21 +289,6 @@ void Magic_CopyFile(void)
 
 	free(From);
 	free(To);
-}
-
-
-
-void Magic_OtherPath(void)
-{
-	if (GetMagicRec(MG_OTHER, TRUE)) {
-		if (access(magic.Path, W_OK) == 0) {
-			strcpy(TIC.BBSpath, magic.Path);
-			MagicResult((char *)"Otherpath %s", TIC.BBSpath);
-			TIC.OtherPath = TRUE;
-		} else {
-			WriteError("$Magic: otherpath \"%s\" no access", magic.Path);
-		}
-	}
 }
 
 

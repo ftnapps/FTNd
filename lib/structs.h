@@ -1401,7 +1401,6 @@ typedef enum {
 	MG_MOVE,				/* Move to other area	   */
 	MG_UPDALIAS,				/* Update alias		   */
 	MG_ADOPT,				/* Adopt file		   */
-	MG_OTHER,				/* Store in other path	   */
 	MG_DELETE				/* Delete file		   */
 } MAGICTYPE;
 

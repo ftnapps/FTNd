@@ -7,7 +7,6 @@ void	MagicResult(char *, ...);
 int	Magic_MoveFile(void);
 void	Magic_ExecCommand(void);
 void	Magic_CopyFile(void);
-void	Magic_OtherPath(void);
 void	Magic_UnpackFile(void);
 void	Magic_Keepnum(void);
 void	Magic_UpDateAlias(void);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/mover.c
+ * $Id$
  * Purpose ...............: Bad file mover
- * Last modification date : 02-Nov-1999
  *
  *****************************************************************************
  * Copyright (C) 1997-1999
@@ -39,15 +38,15 @@
 
 
 
-void mover(char *srcdir, char *fn)
+void mover(char *fn)
 {
 	char	*From, *To;
 
-	From = calloc(128, sizeof(char));
-	To   = calloc(128, sizeof(char));
+	From = calloc(PATH_MAX, sizeof(char));
+	To   = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(From, "%s%s", srcdir, fn);
-	sprintf(To,   "%s/%s", CFG.badtic, fn);
+	sprintf(From, "%s/%s", TIC.Inbound, fn);
+	sprintf(To,   "%s/%s", TIC.Inbound, fn);
 	Syslog('!', "Moving %s to %s", From, To);
 
 	if (mkdirs(To)) {
@@ -66,8 +65,8 @@ void mover(char *srcdir, char *fn)
  */
 void MoveBad()
 {
-	mover(TIC.Inbound, TIC.TicName);
-	mover(TIC.FilePath, TIC.TicIn.OrgName);
+	mover(TIC.TicName);
+	mover(TIC.RealName);
 }
 
 

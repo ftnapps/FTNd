@@ -88,7 +88,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 * Create the full filename
 	 */
 	if (TIC.SendOrg)
-		sprintf(fwdfile, "%s/%s", TIC.FilePath, TIC.TicIn.OrgName);
+		sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.RealName);
 	else
 		sprintf(fwdfile, "%s/%s", TIC.BBSpath, TIC.NewName);
 
@@ -129,7 +129,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			fprintf(net, "\r");
 			fprintf(net, "I sent the following file to your system:\r");
 			fprintf(net, "\r");
-			fprintf(net, "File        : %s\r", TIC.TicIn.OrgName);
+			fprintf(net, "File        : %s\r", TIC.RealName);
 			fprintf(net, "Description : %s\r", TIC.TicIn.Desc);
 			fprintf(net, "Area        : %s %s\r", TIC.TicIn.Area, TIC.TicIn.AreaDesc);
 			fprintf(net, "Size        : %ld\r", (long)(TIC.FileSize));
@@ -167,7 +167,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			if (strlen(TIC.TicIn.Magic))
 				fprintf(fp, "Magic %s\r\n", TIC.TicIn.Magic);
 			if ((TIC.PassThru) || (TIC.SendOrg))
-				subject = xstrcpy(TIC.TicIn.OrgName);
+				subject = xstrcpy(TIC.RealName);
 			else
 				subject = xstrcpy(TIC.NewName);
 			if (nodes.FNC) {

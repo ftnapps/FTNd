@@ -6,10 +6,8 @@
 
 typedef	struct	_tic_in {
 	unsigned	Hatch		: 1;	/* Hatch keyword	    */
-	unsigned	NoMove		: 1;	/* Nomove keyword	    */
-	unsigned	HatchNew	: 1;	/* Hatchnew keyword	    */
 	unsigned	PathError	: 1;	/* Our system is in path    */
-	char		Pth[PATH_MAX];		/* Path to hatched file	    */
+	char		Pth[PATH_MAX+1];	/* Path to hatched file	    */
 	char		Area[21];		/* Area name		    */
 	char		Origin[81];		/* Origin address	    */
 	char		From[81];		/* From name		    */
@@ -36,7 +34,7 @@ typedef	struct	_tic_in {
 
 
 typedef	struct	_TICrec {
-	char		Inbound[PATH_MAX];	/* Inbound directory	    */
+	char		Inbound[PATH_MAX+1];	/* Inbound directory	    */
 	char		TicName[13];		/* Name of .TIC file	    */
 	Tic_in		TicIn;			/* Original TIC record	    */
 	fidoaddr	OrgAka;			/* Origin address	    */
@@ -50,11 +48,6 @@ typedef	struct	_TICrec {
 	off_t		FileSize;		/* Size of file		    */
 	time_t		FileDate;		/* Date of file		    */
 	time_t		UpLoadDate;		/* Upload date of file	    */
-	char		FilePath[PATH_MAX];	/* Path to the file	    */
-	unsigned        PathErr         : 1;    /* If path error            */
-	unsigned        OtherPath       : 1;    /* If otherpath is true     */
-	unsigned	NoMove		: 1;	/* No move magic	    */
-	unsigned	HatchNew	: 1;	/* Hatch in new areas	    */
 	unsigned	SendOrg		: 1;	/* Send original file	    */
 	unsigned	Charge		: 1;	/* Charge for this file	    */
 	unsigned	PassThru	: 1;	/* PassThru file	    */
