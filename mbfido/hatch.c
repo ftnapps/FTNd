@@ -41,198 +41,180 @@
 
 
 extern int	do_quiet;
+int		Days[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+int		Hatched = 0;
 
-int Days[] = {31,28,31,30,31,30,31,31,30,31,30,31};
-int	Hatched = 0;
 
 int CheckHatch(char *);
 
 
 void Hatch()
 {
-	char		*temp;
-	FILE		*fp;
-	struct tm	*Tm;
-	time_t		Now;
-	int		LastDay;
-	int		HatchToday;
+    char	*temp;
+    FILE	*fp;
+    struct tm	*Tm;
+    time_t	Now;
+    int		LastDay;
+    int		HatchToday;
 
-	temp = calloc(128, sizeof(char));
-	Syslog('+', "Pass: hatch files");
-	Now = time(NULL);
-	Tm = localtime(&Now);
+    temp = calloc(PATH_MAX, sizeof(char));
+    Syslog('+', "Pass: hatch files");
+    Now = time(NULL);
+    Tm = localtime(&Now);
 
-	LastDay = Days[Tm->tm_mon];
-	if (Tm->tm_mon == 1) {
-		/*
-		 *  Note that with this method each century change is a leapyear, 
-		 *  but take in mind that fidonet will no longer exist in 2100.
-		 */
-		if (!(Tm->tm_year % 4))
-			LastDay++;
-	}
+    LastDay = Days[Tm->tm_mon];
+    if (Tm->tm_mon == 1) {
+	/*
+	 *  Note that with this method each century change is a leapyear, 
+	 *  but take in mind that fidonet will no longer exist in 2100.
+	 */
+	if (!(Tm->tm_year % 4))
+	    LastDay++;
+    }
 
-	sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) == NULL) {
-		WriteError("$Can't open %s", temp);
-		free(temp);
-		return;
-	}
-
-	fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
-
-	while (fread(&hatch, hatchhdr.recsize, 1, fp) == 1) {
-		if (hatch.Active) {
-			HatchToday = FALSE;
-			if (hatch.Days[Diw])
-				HatchToday = TRUE;
-			if ((hatch.Month[Tm->tm_mday -1]) ||
-			    (hatch.Month[31] && (LastDay == Tm->tm_mday)))
-				HatchToday = TRUE;
-			sprintf(temp, "%s", hatch.Spec);
-
-			if (HatchToday)
-				CheckHatch(temp);
-		}
-	}
-
-	fclose(fp);
+    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
 	free(temp);
+	return;
+    }
+
+    fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
+
+    while (fread(&hatch, hatchhdr.recsize, 1, fp) == 1) {
+	if (hatch.Active) {
+	    HatchToday = FALSE;
+	    if (hatch.Days[Diw])
+		HatchToday = TRUE;
+	    if ((hatch.Month[Tm->tm_mday -1]) || (hatch.Month[31] && (LastDay == Tm->tm_mday)))
+		HatchToday = TRUE;
+	    sprintf(temp, "%s", hatch.Spec);
+
+	    if (HatchToday)
+		CheckHatch(temp);
+	}
+    }
+
+    fclose(fp);
+    free(temp);
 }
 
 
 
 int CheckHatch(char *temp)
 {
-	DIR		*dp;
-	struct dirent	*de;
-	char		*fn, tf[81], tmp[4], *temp2;
-	int		i, Match, hatched = FALSE;
-	char		*Temp, *p, *q, mask[256];
-	FILE		*Tf;
+    DIR		    *dp;
+    struct dirent   *de;
+    char	    *fn, *tf, tmp[4], *temp2;
+    int		    i, hatched = FALSE;
+    char	    *p, *q, mask[256];
+    FILE	    *Tf;
 
-	fn = xstrcpy(strrchr(temp, '/') + 1);
+    fn = xstrcpy(strrchr(temp, '/') + 1);
 
-	while (temp[strlen(temp) -1] != '/')
-		temp[strlen(temp) -1] = '\0';
+    while (temp[strlen(temp) -1] != '/')
 	temp[strlen(temp) -1] = '\0';
+    temp[strlen(temp) -1] = '\0';
 
-	if (chdir(temp)) {
-		WriteError("$Can't chdir(%s)", temp);
-		return FALSE;
-	}
-
-	if ((dp = opendir(temp)) == NULL) {
-		WriteError("$Can't opendir(%s)", temp);
-		return FALSE;
-	}
-
-	Temp = xstrcpy(fn);
-	p = tl(Temp);
-	q = mask;
-	*q++ = '^';
-	while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-	    switch(*p) {
-		case '\\':  *q++ = '\\'; *q++ = '\\'; break;
-		case '?':   *q++ = '.'; break;
-		case '.':   *q++ = '\\'; *q++ = '.'; break;
-		case '+':   *q++ = '\\'; *q++ = '+'; break;
-		case '*':   *q++ = '.'; *q++ = '*'; break;
-		case '@':   sprintf(q, "[A-Za-z]"); while (*q) q++; break;
-		case '#':   sprintf(q, "[0-9]"); while (*q) q++; break;
-		default:    *q++ = *p; break;
-	    }
-	    p++;
-	}
-	*q++ = '$';
-	*q = '\0';
-	Syslog('f', "Hatch mask \"%s\" -> \"%s\"", MBSE_SS(Temp), MBSE_SS(mask));
-	if ((re_comp(mask)) == NULL)
-	    Syslog('f', "re_comp() accepted");
-	else
-	    Syslog('f', "re_comp() returned NULL");
-	
-	while ((de = readdir(dp))) {
-		Match = FALSE;
-		if (strlen(fn) == strlen(de->d_name)) {
-			Match = TRUE;
-			for (i = 0; i < strlen(fn); i++) {
-				switch(fn[i]) {
-					case '?' :	break;
-					case '#' :	if (!isdigit(de->d_name[i]))
-								Match = FALSE;
-							break;
-					case '@' :	if (!isalpha(de->d_name[i]))
-								Match = FALSE;
-							break;
-					default  :	if (fn[i] != de->d_name[i])
-								Match = FALSE;
-				}
-			}
-		}
-
-		if (re_exec(de->d_name))
-		    Syslog('f', "%s matched using regexp", de->d_name);
-		else
-		    Syslog('f', "%s no match using regexp", de->d_name);
-
-		if (Match) {
-			hatched = TRUE;
-			Syslog('+', "Hatch %s in area %s", de->d_name, hatch.Name);
-			sprintf(tf, "%s/%s", CFG.pinbound, MakeTicName());
-			if ((Tf = fopen(tf, "a+")) == NULL)
-				WriteError("Can't create %s", tf);
-			else {
-				fprintf(Tf, "Hatch\r\n");
-				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
-				fprintf(Tf, "Area %s\r\n", hatch.Name);
-				if (SearchTic(hatch.Name)) {
-					fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));
-					fprintf(Tf, "From %s\r\n", aka2str(tic.Aka));
-				} else {
-					fprintf(Tf, "Origin %s\r\n", aka2str(CFG.aka[0]));
-					fprintf(Tf, "From %s\r\n", aka2str(CFG.aka[0]));
-					Syslog('?', "Warning: TIC group not found");
-				}
-				if (strlen(hatch.Replace))
-					fprintf(Tf, "Replaces %s\r\n", hatch.Replace);
-				if (strlen(hatch.Magic))
-					fprintf(Tf, "Magic %s\r\n", hatch.Magic);
-				temp2 = calloc(strlen(de->d_name) + 1, sizeof(char));
-				sprintf(temp2, "%s", de->d_name);
-				name_mangle(temp2);
-				fprintf(Tf, "File %s\r\n", temp2);
-				free(temp2);
-				fprintf(Tf, "Fullname %s\r\n", de->d_name);
-				fprintf(Tf, "Pth %s\r\n", temp);
-				fprintf(Tf, "Desc ");
-				for (i = 0; i < strlen(hatch.Desc); i++) {
-					if (hatch.Desc[i] != '%') {
-						fprintf(Tf, "%c", hatch.Desc[i]);
-					} else {
-						i++;
-						memset(&tmp, 0, sizeof(tmp));
-						if (isdigit(hatch.Desc[i]))
-							tmp[0] = hatch.Desc[i];
-						if (isdigit(hatch.Desc[i+1])) {
-							tmp[1] = hatch.Desc[i+1];
-							i++;
-						}
-						fprintf(Tf, "%c", de->d_name[atoi(tmp) -1]);
-					}
-				}
-				fprintf(Tf, "\r\n");
-				fprintf(Tf, "Crc %08lx\r\n", file_crc(de->d_name, CFG.slow_util && do_quiet));
-				fprintf(Tf, "Pw %s\r\n", CFG.hatchpasswd);
-				fclose(Tf);
-				Hatched++;
-				StatAdd(&hatch.Hatched , 1);
-			}
-		}
-	}
-	closedir(dp);
+    if (chdir(temp)) {
+	WriteError("$Can't chdir(%s)", temp);
 	free(fn);
-	return hatched;
+	return FALSE;
+    }
+
+    if ((dp = opendir(temp)) == NULL) {
+	WriteError("$Can't opendir(%s)", temp);
+	free(fn);
+	return FALSE;
+    }
+
+    memset(&mask, 0, sizeof(mask));
+    p = fn;
+    q = mask;
+    *q++ = '^';
+    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
+	switch(*p) {
+	    case '\\':  *q++ = '\\'; *q++ = '\\'; break;
+	    case '?':   *q++ = '.'; break;
+	    case '.':   *q++ = '\\'; *q++ = '.'; break;
+	    case '+':   *q++ = '\\'; *q++ = '+'; break;
+	    case '*':   *q++ = '.'; *q++ = '*'; break;
+	    case '@':   sprintf(q, "[A-Za-z]"); while (*q) q++; break;
+	    case '#':   sprintf(q, "[0-9]"); while (*q) q++; break;
+	    default:    *q++ = *p; break;
+	}
+	p++;
+    }
+    *q++ = '$';
+    *q = '\0';
+    Syslog('f', "Hatch mask \"%s\" -> \"%s\"", MBSE_SS(fn), MBSE_SS(mask));
+
+    if ((re_comp(mask)) == NULL) {
+	tf = calloc(PATH_MAX, sizeof(char));
+	while ((de = readdir(dp))) {
+	    if (re_exec(de->d_name)) {
+		hatched = TRUE;
+		Syslog('+', "Hatch %s in area %s", de->d_name, hatch.Name);
+		sprintf(tf, "%s/%s", CFG.pinbound, MakeTicName());
+
+		if ((Tf = fopen(tf, "a+")) == NULL) {
+		    WriteError("Can't create %s", tf);
+		} else {
+		    fprintf(Tf, "Hatch\r\n");
+		    fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
+		    fprintf(Tf, "Area %s\r\n", hatch.Name);
+		    if (SearchTic(hatch.Name)) {
+			fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));
+			fprintf(Tf, "From %s\r\n", aka2str(tic.Aka));
+		    } else {
+			fprintf(Tf, "Origin %s\r\n", aka2str(CFG.aka[0]));
+			fprintf(Tf, "From %s\r\n", aka2str(CFG.aka[0]));
+			Syslog('?', "Warning: TIC group not found");
+		    }
+		    if (strlen(hatch.Replace))
+			fprintf(Tf, "Replaces %s\r\n", hatch.Replace);
+		    if (strlen(hatch.Magic))
+			fprintf(Tf, "Magic %s\r\n", hatch.Magic);
+		    temp2 = calloc(strlen(de->d_name) + 1, sizeof(char));
+		    sprintf(temp2, "%s", de->d_name);
+		    name_mangle(temp2);
+		    fprintf(Tf, "File %s\r\n", temp2);
+		    free(temp2);
+		    fprintf(Tf, "Fullname %s\r\n", de->d_name);
+		    fprintf(Tf, "Pth %s\r\n", temp);
+		    fprintf(Tf, "Desc ");
+		    for (i = 0; i < strlen(hatch.Desc); i++) {
+			if (hatch.Desc[i] != '%') {
+			    fprintf(Tf, "%c", hatch.Desc[i]);
+			} else {
+			    i++;
+			    memset(&tmp, 0, sizeof(tmp));
+			    if (isdigit(hatch.Desc[i]))
+				tmp[0] = hatch.Desc[i];
+			    if (isdigit(hatch.Desc[i+1])) {
+				tmp[1] = hatch.Desc[i+1];
+				i++;
+			    }
+			    fprintf(Tf, "%c", de->d_name[atoi(tmp) -1]);
+			}
+		    }
+		    fprintf(Tf, "\r\n");
+		    fprintf(Tf, "Crc %08lx\r\n", file_crc(de->d_name, CFG.slow_util && do_quiet));
+		    fprintf(Tf, "Pw %s\r\n", CFG.hatchpasswd);
+		    fclose(Tf);
+		    Hatched++;
+		    StatAdd(&hatch.Hatched , 1);
+		}
+	    }
+	}
+	free(tf);
+    } else {
+	WriteError("Could not create regexp from %s", fn);
+    }
+
+    closedir(dp);
+    free(fn);
+    return hatched;
 }
 
 

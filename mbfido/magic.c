@@ -100,8 +100,7 @@ char *Magic_Macro(int C)
 
 int GetMagicRec(int Typ, int First)
 {
-    int	    Eof = FALSE, DoMagic = TRUE;
-    int	    i;
+    int	    Eof = FALSE;
     char    *temp, *p, *q, mask[256];
     FILE    *FeM;
 
@@ -154,44 +153,15 @@ int GetMagicRec(int Typ, int First)
 		*q++ = '$';
 		*q = '\0';
 		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(magic.Mask), MBSE_SS(mask));
+
 		if ((re_comp(mask)) == NULL) {
-		    if (re_exec(TIC.NewName))
-			Syslog('f', "Should matched using regexp");
-		    else
-			Syslog('f', "No match using regexp");
-		} else {
-		    Syslog('f', "re_comp() failed");
-		}
-
-		/*
-		 * Comparing of the filename must be done in 
-		 * two parts, before and after the dot.
-		 */
-		if (strlen(magic.Mask) == strlen(TIC.NewName)) {
-		    for (i = 0; i < strlen(magic.Mask); i++) {
-			switch (magic.Mask[i]) {
-			    case '?':	break;
-			    case '@':	if (!isalpha(TIC.NewName[i]))
-					    DoMagic = FALSE;
-					break;
-			    case '#':	if (!isdigit(TIC.NewName[i]))
-					    DoMagic = FALSE;
-					break;
-
-			    default:	if (toupper(TIC.NewName[i]) != toupper(magic.Mask[i]))
-					    DoMagic = FALSE;
-			}
+		    if (re_exec(TIC.NewName)) {
+			fclose(FeM);
+			free(temp);
+			return TRUE;
 		    }
 		} else {
-		    DoMagic = FALSE;
-		}
-
-		Syslog('f', "Old test, found %s", DoMagic ? "True":"False");
-
-		if (DoMagic) {
-		    fclose(FeM);
-		    free(temp);
-		    return TRUE;
+		    WriteError("Magic: re_comp(%s) failed", mask);
 		}
 	    }
 
