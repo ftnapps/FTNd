@@ -497,7 +497,7 @@ char *printable(char *s, int l)
 		case '\n': *p++='\\'; *p++='n'; break;
 		case '\t': *p++='\\'; *p++='t'; break;
 		case '\b': *p++='\\'; *p++='b'; break;
-		default:   sprintf(p,"\\%02x",*s); p+=3; break;
+		default:   sprintf(p,"\\%02x", (*s & 0xff)); p+=3; break;
 	    }
 	    s++;
     }

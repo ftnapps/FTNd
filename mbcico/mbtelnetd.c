@@ -55,34 +55,18 @@
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
 #include "../lib/mberrors.h"
+#include "hydra.h"
+#include "telnio.h"
 #include "mbtelnetd.h"
 
 
-#define MBT_BUFSIZ  8192 
 #define MBT_TIMEOUT 3600
 
 
 void die(int);
-int  init_telnet(void);
-void answer(int, int);
-int  read0(char *, int);
-int  write1(char *, int);
 void com_gw(int);
 
 
-#define WILL		      251
-#define WONT		      252
-#define DO		      253
-#define DONT		      254
-#define IAC		      255
-
-#define TN_TRANSMIT_BINARY	0
-#define	TN_ECHO			1
-#define TN_SUPPRESS_GA		3
-
-
-
-static int	tellen;
 char		*envptr = NULL;
 time_t		t_start, t_end;
 
@@ -200,11 +184,11 @@ int main(int ac, char **av)
 	die(MBERR_INIT_ERROR);
     }
 
-    init_telnet();
+    telnet_init();
 
     tmp = calloc(81, sizeof(char ));
     sprintf(tmp, "mbtelnetd v%s\r\n", VERSION);
-    write1(tmp, strlen(tmp));
+    telnet_write(tmp, strlen(tmp));
     free(tmp);
 
     com_gw(s);
@@ -218,139 +202,12 @@ int main(int ac, char **av)
 
 
 
-/* --- This is an artwork of serge terekhov, 2:5000/13@fidonet :) --- */
-
-void answer (int tag, int opt)
-{
-    char    buf[3];
-    char    *r = (char *)"???";
-	
-    switch (tag) {
-	case WILL:
-	    r = (char *)"WILL";
-	    break;
-	case WONT:
-	    r = (char *)"WONT";
-	    break;
-	case DO:
-	    r = (char *)"DO";
-	    break;
-	case DONT:
-	    r = (char *)"DONT";
-	    break;
-    }
-    Syslog('s', "TELNET send %s %d", r, opt);
-
-    buf[0] = IAC;
-    buf[1] = tag;
-    buf[2] = opt;
-    if (write (1, buf, 3) != 3)
-	WriteError("$answer cant send");
-}
-
-
-
-int init_telnet(void)
-{
-    tellen = 0;
-    answer (DO, TN_SUPPRESS_GA);
-    answer (WILL, TN_SUPPRESS_GA);
-    answer (DO, TN_TRANSMIT_BINARY);
-    answer (WILL, TN_TRANSMIT_BINARY);
-    answer (DO, TN_ECHO);
-    answer (WILL, TN_ECHO);
-    return 1;
-}
-
-
-
-int read0 (char *buf, int len)
-{
-    int		n = 0, m;
-    char	*q, *p;
-    static char	telbuf[4];
-
-    while ((n == 0) && (n = read (0, buf + tellen, MBT_BUFSIZ - tellen)) > 0) {
-	if (tellen) {
-	    memcpy(buf, telbuf, tellen);
-	    n += tellen;
-	    tellen = 0;
-	}
-
-	if (memchr (buf, IAC, n)) {
-	    for (p = q = buf; n--; )
-		if ((m = (unsigned char)*q++) != IAC)
-		    *p++ = m;
-		else {
-		    if (n < 2) {
-			memcpy (telbuf, q - 1, tellen = n + 1);
-			break;
-		    }
-		    --n;
-		    switch (m = (unsigned char)*q++) {
-			case WILL:  m = (unsigned char)*q++; --n;
-				    Syslog('s', "TELNET: recv WILL %d", m);
-				    if (m != TN_TRANSMIT_BINARY && m != TN_SUPPRESS_GA && m != TN_ECHO)
-					answer (DONT, m);
-				    break;
-			case WONT:  m = *q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv WONT %d", m);
-				    break;
-			case DO:    m = (unsigned char)*q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv DO %d", m);
-				    if (m != TN_TRANSMIT_BINARY && m != TN_SUPPRESS_GA && m != TN_ECHO)
-					answer (WONT, m);
-				    break;
-			case DONT:  m = (unsigned char)*q++; 
-				    --n;
-				    Syslog('s', "TELNET: recv DONT %d", m);
-				    break;
-			case IAC:   *p++ = IAC;
-				    break;
-			default:    Syslog('s', "TELNET: recv IAC %d", m);
-				    break;
-		    }
-		}
-	    n = p - buf;
-	}
-    }
-
-    return n;
-}
-
-
-
-int write1 (char *buf, int len)
-{
-    char    *q;
-    int	    k, l;
-    
-    l = len;
-    while ((len > 0) && (q = memchr(buf, IAC, len))) {
-	k = (q - buf) + 1;
-	if ((write (1, buf, k) != k) || (write (1, q, 1) != 1)) {
-	    return -1;
-	}
-	buf += k;
-	len -= k;
-    }
-
-    if ((len > 0) && write (1, buf, len) != len) {
-	return -1;
-    }
-    return l;
-}
-
-
-
 void com_gw(int in)
 {
     fd_set		    fds;
     int			    n, fdsbits;
     static struct timeval   tout = { MBT_TIMEOUT, 0 };
-    unsigned char	    buf[MBT_BUFSIZ];
+    unsigned char	    buf[H_ZIPBUFLEN];
 
     alarm(0);
     fdsbits = in + 1;
@@ -366,7 +223,7 @@ void com_gw(int in)
         if ((n = select(fdsbits, &fds, NULL, NULL, &tout)) > 0) {
             if (FD_ISSET(in, &fds)) {
                 if ((n = read(in, buf, sizeof buf)) > 0) {
-                    if (write1(buf, n) < 0) {
+                    if (telnet_write(buf, n) < 0) {
 			goto bad;
 		    }
                 } else {
@@ -374,7 +231,7 @@ void com_gw(int in)
 		}
             }
             if (FD_ISSET(0, &fds)) {
-                if ((n = read0(buf, sizeof buf)) > 0) {
+                if ((n = telnet_read(buf, sizeof buf)) > 0) {
                     if (write(in, buf, n) < 0) goto bad;
                 } else {
 		    goto bad;

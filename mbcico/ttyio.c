@@ -38,14 +38,17 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
+#include "telnio.h"
 #include "ttyio.h"
 #include "lutil.h"
 
 extern	int	hanged_up;
+extern	int	telnet;
+extern	int	master;
 extern	char	*inetaddr;
 
-#define TT_BUFSIZ 1024
-#define NUMTIMERS 3
+#define TT_BUFSIZ	1024
+#define NUMTIMERS	3
 
 
 int		tty_status = 0;
@@ -241,6 +244,10 @@ static int tty_read(char *buf, int size, int tot)
 	    Syslog('!', "tty_read: error flag");
 	}
 	rc=-tty_status;
+    } else {
+	if (master && telnet) {
+	    rc = telnet_buffer(buf, rc);
+	}
     }
 
     return rc;
@@ -253,7 +260,10 @@ int tty_write(char *buf, int size)
     int result;
 
     tty_status=0;
-    result = write(1,buf,size);
+    if (telnet && master)
+	result = telnet_write(buf, size);
+    else
+	result = write(1, buf, size);
 
     if (result != size) {
 	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
@@ -461,135 +471,141 @@ int tty_getc(int tot)
 
 int tty_get(char *buf, int size, int tot)
 {
-	int result=0;
+    int result=0;
 
-	if (left >= size) {
-		memcpy(buf,next,size);
-		next += size;
-		left -= size;
-		return 0;
-	}
+    if (left >= size) {
+	memcpy(buf,next,size);
+	next += size;
+	left -= size;
+	return 0;
+    }
 
-	if (left > 0) {
-		memcpy(buf,next,left);
-		buf += left;
-		next += left;
-		size -= left;
-		left=0;
-	}
+    if (left > 0) {
+	memcpy(buf,next,left);
+	buf += left;
+	next += left;
+	size -= left;
+	left=0;
+    }
 
-	while ((result=tty_read(buf,size,tot)) > 0) {
-		buf += result;
-		size -= result;
-	}
+    while ((result=tty_read(buf,size,tot)) > 0) {
+	buf += result;
+	size -= result;
+    }
 
-	return result;
+    return result;
 }
 
 
 
 int tty_putc(int c)
 {
-	char	buf = c;
+    char    buf = c;
 
-	return tty_write(&buf,1);
+    return tty_write(&buf,1);
 }
 
 
 
 int tty_put(char *buf, int size)
 {
-	return tty_write(buf,size);
+    return tty_write(buf,size);
 }
 
 
 
 int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
 {
-	time_t	timeout, now;
-	int	i, rc;
-	fd_set	readfds, writefds, exceptfds;
-	struct	timeval seltimer;
+    time_t	    timeout, now;
+    int		    i, rc;
+    fd_set	    readfds, writefds, exceptfds;
+    struct timeval  seltimer;
 
-	tty_status = 0;
-	now = time(NULL);
-	timeout = (time_t)300; /* maximum of 5 minutes */
+    tty_status = 0;
+    now = time(NULL);
+    timeout = (time_t)300; /* maximum of 5 minutes */
 
-	for (i = 0; i < NUMTIMERS; i++) {
-		if (timer[i]) {
-			if (now >= timer[i]) {
-				tty_status = STAT_TIMEOUT;
-				WriteError("tty_putget: timer %d already expired, return",i);
-				return -tty_status;
-			} else {
-				if (timeout > (timer[i]-now))
-					timeout=timer[i]-now;
-			}
-		}
+    for (i = 0; i < NUMTIMERS; i++) {
+	if (timer[i]) {
+	    if (now >= timer[i]) {
+		tty_status = STAT_TIMEOUT;
+		WriteError("tty_putget: timer %d already expired, return",i);
+		return -tty_status;
+	    } else {
+		if (timeout > (timer[i]-now))
+		    timeout=timer[i]-now;
+	    }
 	}
+    }
 
-	Syslog('t', "tty_putget: timeout=%d",timeout);
+    Syslog('t', "tty_putget: timeout=%d",timeout);
 
-	FD_ZERO(&readfds);
-	FD_ZERO(&writefds);
-	FD_ZERO(&exceptfds);
-	FD_SET(0,&readfds);
-	FD_SET(1,&writefds);
-	FD_SET(0,&exceptfds);
-	FD_SET(1,&exceptfds);
-	seltimer.tv_sec=timeout;
-	seltimer.tv_usec=0;
+    FD_ZERO(&readfds);
+    FD_ZERO(&writefds);
+    FD_ZERO(&exceptfds);
+    FD_SET(0,&readfds);
+    FD_SET(1,&writefds);
+    FD_SET(0,&exceptfds);
+    FD_SET(1,&exceptfds);
+    seltimer.tv_sec=timeout;
+    seltimer.tv_usec=0;
 
-	rc=select(2,&readfds,&writefds,&exceptfds,&seltimer);
-	if (rc < 0) {
-		if (hanged_up) {
-			tty_status=STAT_HANGUP;
-			WriteError("tty_putget: hanged_up flag");
-		} else {
-			WriteError("$tty_putget: select failed");
-			tty_status=STAT_ERROR;
-		}
-	} else if (rc == 0) {
-		tty_status=STAT_TIMEOUT;
+    rc=select(2,&readfds,&writefds,&exceptfds,&seltimer);
+    if (rc < 0) {
+	if (hanged_up) {
+	    tty_status=STAT_HANGUP;
+	    WriteError("tty_putget: hanged_up flag");
 	} else {
-		/* rc > 0 */
-		if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
-			WriteError("$tty_putget: exeption error");
-			tty_status=STAT_ERROR;
-		}
+	    WriteError("$tty_putget: select failed");
+	    tty_status=STAT_ERROR;
 	}
-
-	if (tty_status) {
-		Syslog('t', "tty_putget: return after select status %s",ttystat[tty_status]);
-		return -tty_status;
+    } else if (rc == 0) {
+	tty_status=STAT_TIMEOUT;
+    } else {
+	/* rc > 0 */
+	if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
+	    WriteError("$tty_putget: exeption error");
+	    tty_status=STAT_ERROR;
 	}
+    }
 
-	if (FD_ISSET(0,&readfds) && *isize) {
-		rc=read(0,*ibuf,*isize);
-		if (rc < 0) {
-			WriteError("$tty_putget: read failed");
-			tty_status=STAT_ERROR;
-		} else {
-			(*ibuf)+=rc;
-			(*isize)-=rc;
-		}
+    if (tty_status) {
+	Syslog('t', "tty_putget: return after select status %s",ttystat[tty_status]);
+	return -tty_status;
+    }
+
+    if (FD_ISSET(0,&readfds) && *isize) {
+	rc = read(0, *ibuf, *isize);
+	if (rc < 0) {
+	    WriteError("$tty_putget: read failed");
+	    tty_status=STAT_ERROR;
+	} else {
+	    if (master && telnet) {
+		rc = telnet_buffer(*ibuf, rc);
+	    }
+	    (*ibuf)+=rc;
+	    (*isize)-=rc;
 	}
+    }
 
-	if (FD_ISSET(1,&writefds) && *osize) {
-		rc=write(1,*obuf,*osize);
-		if (rc < 0) {
-			WriteError("$tty_putget: write failed");
-			tty_status=STAT_ERROR;
-		} else {
-			(*obuf)+=rc;
-			(*osize)-=rc;
-		}
+    if (FD_ISSET(1,&writefds) && *osize) {
+	if (telnet && master)
+	    rc = telnet_write(*obuf,*osize);
+	else
+	    rc=write(1,*obuf,*osize);
+	if (rc < 0) {
+	    WriteError("$tty_putget: write failed");
+	    tty_status=STAT_ERROR;
+	} else {
+	    (*obuf)+=rc;
+	    (*osize)-=rc;
 	}
+    }
 
-	if (tty_status) 
-		return -tty_status;
-	else 
-		return ((*isize == 0) | ((*osize == 0) << 1));
+    if (tty_status) 
+	return -tty_status;
+    else 
+	return ((*isize == 0) | ((*osize == 0) << 1));
 }
 
 
