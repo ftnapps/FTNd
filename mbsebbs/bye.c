@@ -120,7 +120,10 @@ void Good_Bye(int onsig)
     if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
     	cookedport();
     }
-Syslog('b', "Will hangup");
+
+    /*
+     * Ignore SIGHUP during hangup.
+     */
     signal(SIGHUP, SIG_IGN);
     hangup();
 
@@ -128,7 +131,6 @@ Syslog('b', "Will hangup");
 	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, SIG_DFL);
     }
-Syslog('b', "Restored signals");
     
     if (do_mailout)
 	CreateSema((char *)"mailout");

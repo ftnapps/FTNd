@@ -242,7 +242,7 @@ int download(down_list *download_list)
     if (uProtInternal) {
 	sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
 	chdir(temp);
-	if (strncasecmp(sProtName, "zmodem 8k", 9) == 0) {
+	if (strncasecmp(sProtName, "zmodem-8k", 9) == 0) {
 	    maxrc = zmsndfiles(download_list, TRUE);
 	    Home();
 	} else if (strncasecmp(sProtName, "zmodem", 6) == 0) {
