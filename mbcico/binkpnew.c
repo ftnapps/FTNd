@@ -251,6 +251,12 @@ int binkp(int role)
         bp.Minor = 0;
     }
 
+    if (localoptions & NOFREQS)
+	session_flags &= ~SESSION_WAZOO;
+    else
+	session_flags |= SESSION_WAZOO;
+    Syslog('b', "Binkp: WAZOO requests: %s", (session_flags & SESSION_WAZOO) ? "True":"False");
+
     bp.FtState = InitTransfer;
     rc = file_transfer();
 

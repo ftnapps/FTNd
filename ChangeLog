@@ -31,6 +31,7 @@ v0.39.5		24-Dec-2003
 		New binkp/1.1 driver, not compiled by default yet.
 		- Changed testing EOB to prevent out-of-sync batches.
 		- Changed EOB handling some more.
+		- Added freqs
 
 	mbout:
 		Poll, remove poll and request failed to points which had no
