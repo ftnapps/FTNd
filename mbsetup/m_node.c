@@ -493,7 +493,7 @@ void S_Stat(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.8  NODE STATISTICS");
+	mvprintw( 5, 6, "7.9  NODE STATISTICS");
 	set_color(CYAN, BLACK);
 	mvprintw( 8,18, " This week  Last week This month Last month      Total");
 	mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");

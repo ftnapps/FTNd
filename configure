@@ -7844,7 +7844,7 @@ echo "${ECHO_T}$joebin" >&6
 done
 echo "$as_me:$LINENO: checking location of joe rc files" >&5
 echo $ECHO_N "checking location of joe rc files... $ECHO_C" >&6
-for joelib in /etc/joe /usr/lib/joe /usr/local/etc/joe /usr/local/lib/joe /usr/pkg/lib /usr/pkg/etc NONE; do
+for joelib in /etc/joe /usr/lib/joe /usr/local/etc /usr/local/etc/joe /usr/local/lib/joe /usr/pkg/lib /usr/pkg/etc NONE; do
 	if test "$joelib" = "NONE"; then
 		echo "$as_me:$LINENO: result: not found" >&5
 echo "${ECHO_T}not found" >&6
