@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -74,83 +74,79 @@ char *ttystat[]= {(char *)"Ok",
 
 int tty_resettimer(int tno)
 {
-	if (tno >= NUMTIMERS) {
-		errno = EINVAL;
-		WriteError("$ttyio: invalid timer No for resettimer()");
-		return -1;
-	}
+    if (tno >= NUMTIMERS) {
+	errno = EINVAL;
+	WriteError("ttyio: invalid timer No for resettimer(%d)", tno);
+	return -1;
+    }
 
-	Syslog('T', "ttyio: resettimer(%d)", tno);
-	timer[tno] = (time_t) 0;
-	return 0;
+    timer[tno] = (time_t) 0;
+    return 0;
 }
 
 
 
 void tty_resettimers(void)
 {
-	int i;
+    int i;
 
-	Syslog('T', "ttyio: resettimers");
-	for (i = 0; i < NUMTIMERS; i++) 
-		timer[i] = (time_t)0;
+    for (i = 0; i < NUMTIMERS; i++) 
+	timer[i] = (time_t)0;
 }
 
 
 
 int tty_settimer(int tno, int interval)
 {
-	if (tno >= NUMTIMERS) {
-		errno = EINVAL;
-		WriteError("$ttyio: invalid timer No for settimer()");
-		return -1;
-	}
+    if (tno >= NUMTIMERS) {
+	errno = EINVAL;
+	WriteError("ttyio: invalid timer No for settimer(%d)", tno);
+	return -1;
+    }
 
-	Syslog('T', "ttyio: settimer(%d,%d)",tno,interval);
-	timer[tno]=time((time_t*)NULL)+interval;
-	return 0;
+    timer[tno]=time((time_t*)NULL)+interval;
+    return 0;
 }
 
 
 
 int tty_expired(int tno)
 {
-	time_t	now;
+    time_t	now;
 
-	if (tno >= NUMTIMERS) {
-		errno = EINVAL;
-		WriteError("$ttyio: invalid timer No for expired(%d)", tno);
-		return -1;
-	}
+    if (tno >= NUMTIMERS) {
+	errno = EINVAL;
+	WriteError("ttyio: invalid timer No for expired(%d)", tno);
+	return -1;
+    }
 
-	/*
-	 * Check if timer is running
-	 */
-	if (timer[tno] == (time_t) 0)
-		return 0;
+    /*
+     * Check if timer is running
+     */
+    if (timer[tno] == (time_t) 0)
+	return 0;
 
-	now = time(NULL);
-	Syslog('T', "ttyio: expired(%d) now=%lu,timer=%lu,return %s", tno,now,timer[tno],(now >= timer[tno])?"yes":"no");
-	return (now >= timer[tno]);
+    now = time(NULL);
+    return (now >= timer[tno]);
 }
 
 
 
 int tty_running(int tno)
 {
-	if (tno > NUMTIMERS) {
-		errno = EINVAL;
-		WriteError("$ttyio: invalid timer for tty_running(%d)", tno);
-		return -1;
-	}
+    if (tno > NUMTIMERS) {
+	errno = EINVAL;
+	WriteError("ttyio: invalid timer for tty_running(%d)", tno);
+	return -1;
+    }
 
-	/*
-	 * check if timer is running
-	 */
-	if (timer[tno] == (time_t) 0)
-		return 0;
-	else
-		return 1;
+    /*
+     * check if timer is running
+     */
+    if (timer[tno] == (time_t) 0)
+	return 0;
+    else
+	return 1;
 }
 
 
@@ -161,302 +157,295 @@ int tty_running(int tno)
 
 static int tty_read(char *buf, int size, int tot)
 {
-	time_t	timeout, now;
-	int	i, rc;
-	fd_set	readfds, writefds, exceptfds;
-	struct	timeval seltimer;
+    time_t	    timeout, now;
+    int		    i, rc;
+    fd_set	    readfds, writefds, exceptfds;
+    struct timeval  seltimer;
 
-	Syslog('T', "tty_read: (%08lx,%d,%d)",buf,size,tot);
-	if (size == 0) 
-		return 0;
-	tty_status = 0;
+    if (size == 0) 
+	return 0;
+    tty_status = 0;
 
-	now = time(NULL);
-	timeout = (time_t)300; /* maximum of 5 minutes */
+    now = time(NULL);
+    timeout = (time_t)300; /* maximum of 5 minutes */
 
-	for (i = 0; i < TIMERNO_TX; i++) {
-		if (timer[i]) {
-			if (now >= timer[i]) {
-				tty_status=STAT_TIMEOUT;
-				Syslog('-', "tty_read: timer %d already expired, return",i);
-			//	Syslog('t', "tty_read: timer %d already expired, return",i);
-				return -tty_status;
-			} else {
-				if (timeout > (timer[i]-now))
-					timeout=timer[i]-now;
-			}
-		}
-	}
-	if ((tot != -1) && (timeout > tot))
-		timeout=tot;
-
-	Syslog('T', "tty_read: timeout = %d", timeout);
-
-	FD_ZERO(&readfds);
-	FD_ZERO(&writefds);
-	FD_ZERO(&exceptfds);
-	FD_SET(0,&readfds);
-	FD_SET(0,&exceptfds);
-	seltimer.tv_sec=timeout;
-	seltimer.tv_usec=0;
-
-	rc = select(1,&readfds,&writefds,&exceptfds,&seltimer);
-
-	if (rc < 0) {
-		if (hanged_up) {
-			tty_status=STAT_HANGUP;
-			WriteError("$tty_read: hanged_up flag");
-		} else {
-			WriteError("$tty_read: select for read failed");
-			tty_status = STAT_ERROR;
-		}
-	} else if (rc == 0) {
-		tty_status = STAT_TIMEOUT;
-	} else { /* rc > 0 */
-		if (FD_ISSET(0,&exceptfds)) {
-			Syslog('+', "$tty_read: exeption error");
-			tty_status = STAT_ERROR;
-		}
-	}
-
-	if (tty_status) {
-		Syslog('T', "tty_read: return after select: %s",ttystat[tty_status]);
+    for (i = 0; i < TIMERNO_TX; i++) {
+	if (timer[i]) {
+	    if (now >= timer[i]) {
+		tty_status=STAT_TIMEOUT;
+		Syslog('!', "tty_read: timer %d already expired, return", i);
 		return -tty_status;
+	    } else {
+		if (timeout > (timer[i]-now))
+		    timeout=timer[i]-now;
+	    }
 	}
+    }
+    if ((tot != -1) && (timeout > tot))
+	timeout=tot;
 
-	if (!FD_ISSET(0,&readfds)) {
-		WriteError("tty_read: Cannot be: select returned but read fd not set");
-		tty_status = STAT_ERROR;
-		return -tty_status;
+    FD_ZERO(&readfds);
+    FD_ZERO(&writefds);
+    FD_ZERO(&exceptfds);
+    FD_SET(0,&readfds);
+    FD_SET(0,&exceptfds);
+    seltimer.tv_sec=timeout;
+    seltimer.tv_usec=0;
+
+    rc = select(1,&readfds,&writefds,&exceptfds,&seltimer);
+
+    if (rc < 0) {
+	if (hanged_up) {
+	    tty_status=STAT_HANGUP;
+	    WriteError("tty_read: hanged_up flag");
+	} else {
+	    WriteError("$tty_read: select for read failed");
+	    tty_status = STAT_ERROR;
 	}
+    } else if (rc == 0) {
+	tty_status = STAT_TIMEOUT;
+    } else { /* rc > 0 */
+	if (FD_ISSET(0,&exceptfds)) {
+	    Syslog('!', "$tty_read: exeption error");
+	    tty_status = STAT_ERROR;
+	}
+    }
 
-	rc = read(0,buf,size);
-	if (rc <= 0) {
-		Syslog('t', "tty_read: return %d",rc);
-		if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
-			tty_status = STAT_HANGUP;
-			WriteError("$tty_read: hanged_up flag");
-		} else {
-			tty_status = STAT_ERROR;
-			Syslog('-', "tty_read: error flag");
-		}
-		rc=-tty_status;
-	} else 
-		Syslog('T', "tty_read: %s %d characters", printable(buf, rc), rc);
-	return rc;
+    if (tty_status) {
+	return -tty_status;
+    }
+
+    if (!FD_ISSET(0,&readfds)) {
+	WriteError("tty_read: Cannot be: select returned but read fd not set");
+	tty_status = STAT_ERROR;
+	return -tty_status;
+    }
+
+    rc = read(0,buf,size);
+    if (rc <= 0) {
+	Syslog('t', "tty_read: return %d",rc);
+	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
+	    tty_status = STAT_HANGUP;
+	    WriteError("tty_read: hanged_up flag");
+	} else {
+	    tty_status = STAT_ERROR;
+	    Syslog('!', "tty_read: error flag");
+	}
+	rc=-tty_status;
+    }
+
+    return rc;
 }
 
 
 
 int tty_write(char *buf, int size)
 {
-	int result;
+    int result;
 
-	Syslog('T', "tty_write(%08lx,%d)",buf,size);
+    tty_status=0;
+    result = write(1,buf,size);
 
-	tty_status=0;
-	result = write(1,buf,size);
-
-	if (result != size) {
-		if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
-			tty_status = STAT_HANGUP;
-			WriteError("$tty_write: hanged_up flag");
-		} else {
-			tty_status=STAT_ERROR;
-			Syslog('-', "tty_write: error flag");
-		}
+    if (result != size) {
+	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
+	    tty_status = STAT_HANGUP;
+	    WriteError("tty_write: hanged_up flag");
+	} else {
+	    tty_status=STAT_ERROR;
+	    Syslog('!', "tty_write: error flag");
 	}
-	if (tty_status)
-		Syslog('t', "tty_write: error %s", ttystat[tty_status]);
+    }
+    if (tty_status)
+	Syslog('t', "tty_write: error %s", ttystat[tty_status]);
 
-	return -tty_status;
+    return -tty_status;
 }
 
 
 
 /* public r/w functions */
 
-/**
+/*
  * Check if there is data available on stdin.
  */
 int tty_check(void)
 {
-	int rc;
+    int rc;
 
-	// try to read available (timeout = 0) data if we have no data in
-	// our buffer
+    // try to read available (timeout = 0) data if we have no data in
+    // our buffer
 
-	if (!left) {
-		rc = tty_read(buffer, TT_BUFSIZ, 0);
-		if (rc > 0) {
-			left = rc;
-		}
+    if (!left) {
+	rc = tty_read(buffer, TT_BUFSIZ, 0);
+	if (rc > 0) {
+	    left = rc;
 	}
+    }
 
-	return (left > 0);
+    return (left > 0);
 }
 
 
 
 int tty_putcheck(int size)
 {
-	fd_set set;
-	struct timeval timeout;
+    fd_set	    set;
+    struct timeval  timeout;
      
-	/*
-	 * Initialize the file descriptor set. 
-	 */
-	FD_ZERO(&set);
-	FD_SET(1, &set);
+    /*
+     * Initialize the file descriptor set. 
+     */
+    FD_ZERO(&set);
+    FD_SET(1, &set);
      
-	/*
-	 * Initialize the timeout data structure. 
-	 */
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
+    /*
+     * Initialize the timeout data structure. 
+     */
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
      
-	/*
-	 * `select' returns 0 if timeout, 1 if input available, -1 if error. 
-	 */
-	return select(FD_SETSIZE, NULL, &set, NULL, &timeout);
+    /*
+     * `select' returns 0 if timeout, 1 if input available, -1 if error. 
+     */
+    return select(FD_SETSIZE, NULL, &set, NULL, &timeout);
 }
 
 
 
 int tty_waitputget(int tot)
 {
-	int	i, rc;
-	time_t	timeout, now;
-	fd_set	readfds, writefds, exceptfds;
-	struct	timeval seltimer;
+    int		    i, rc;
+    time_t	    timeout, now;
+    fd_set	    readfds, writefds, exceptfds;
+    struct timeval  seltimer;
 
-	tty_status=0;
-	now = time(NULL);
-	timeout=(time_t)300; /* maximum of 5 minutes */
+    tty_status=0;
+    now = time(NULL);
+    timeout=(time_t)300; /* maximum of 5 minutes */
 
-	for (i = 0; i < NUMTIMERS; i++) {
-		if (timer[i]) {
-			if (now >= timer[i]) {
-				tty_status = STAT_TIMEOUT;
-				WriteError("tty_waitputget: timer %d already expired, return",i);
-				return -tty_status;
-			} else {
-				if (timeout > (timer[i]-now))
-					timeout = timer[i]-now;
-			}
-		}
-	}
-	if ((tot != -1) && (timeout > tot))
-		timeout=tot;
-	Syslog('t', "tty_waitputget: timeout=%d",timeout);
-
-	/*
-	 * Initialize the file descriptor set. 
-	 */
-	FD_ZERO(&readfds);
-	FD_ZERO(&writefds);
-	FD_ZERO(&exceptfds);
-
-	FD_SET(0, &readfds);
-	FD_SET(1, &writefds);
-	FD_SET(0, &exceptfds);
-	FD_SET(1, &exceptfds);
-     
-	/*
-	 * Initialize the timeout data structure. 
-	 */
-	seltimer.tv_sec = timeout;
-	seltimer.tv_usec = 0;
-     
-	/*
-	 * `select' returns 0 if timeout, 1 if input available, -1 if error. 
-	 */
-	rc = select(FD_SETSIZE, &readfds, &writefds, &exceptfds, &seltimer);
-
-	if (rc < 0) {
-		if (hanged_up) {
-			tty_status=STAT_HANGUP;
-			WriteError("tty_waitputget: hanged_up flag");
-		} else {
-			WriteError("$tty_waitputget: select failed");
-			tty_status=STAT_ERROR;
-		}
-	} else if (rc == 0) {
-		tty_status=STAT_TIMEOUT;
-	} else { 
-		/* rc > 0 */
-		if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
-			WriteError("$tty_waitputget: exeption error");
-			tty_status=STAT_ERROR;
-		}
-	}
-
-	if (tty_status) {
-		Syslog('t', "tty_waitputget: return after select status %s",ttystat[tty_status]);
+    for (i = 0; i < NUMTIMERS; i++) {
+	if (timer[i]) {
+	    if (now >= timer[i]) {
+		tty_status = STAT_TIMEOUT;
+		WriteError("tty_waitputget: timer %d already expired, return",i);
 		return -tty_status;
+	    } else {
+		if (timeout > (timer[i]-now))
+		    timeout = timer[i]-now;
+	    }
 	}
+    }
+    if ((tot != -1) && (timeout > tot))
+	timeout=tot;
+    Syslog('t', "tty_waitputget: timeout=%d",timeout);
 
-	rc = 0;
+    /*
+     * Initialize the file descriptor set. 
+     */
+    FD_ZERO(&readfds);
+    FD_ZERO(&writefds);
+    FD_ZERO(&exceptfds);
 
-	if (FD_ISSET(0,&readfds))
-		rc |= 1;
+    FD_SET(0, &readfds);
+    FD_SET(1, &writefds);
+    FD_SET(0, &exceptfds);
+    FD_SET(1, &exceptfds);
+     
+    /*
+     * Initialize the timeout data structure. 
+     */
+    seltimer.tv_sec = timeout;
+    seltimer.tv_usec = 0;
+     
+    /*
+     * `select' returns 0 if timeout, 1 if input available, -1 if error. 
+     */
+    rc = select(FD_SETSIZE, &readfds, &writefds, &exceptfds, &seltimer);
 
-	if (FD_ISSET(1,&writefds))
-		rc |= 2;
+    if (rc < 0) {
+	if (hanged_up) {
+	    tty_status=STAT_HANGUP;
+	    WriteError("tty_waitputget: hanged_up flag");
+	} else {
+	    WriteError("$tty_waitputget: select failed");
+	    tty_status=STAT_ERROR;
+	}
+    } else if (rc == 0) {
+	tty_status=STAT_TIMEOUT;
+    } else { 
+	/* rc > 0 */
+	if ((FD_ISSET(0,&exceptfds)) || (FD_ISSET(1,&exceptfds))) {
+	    WriteError("$tty_waitputget: exeption error");
+	    tty_status=STAT_ERROR;
+	}
+    }
 
-	return rc;
+    if (tty_status) {
+	Syslog('t', "tty_waitputget: return after select status %s",ttystat[tty_status]);
+	return -tty_status;
+    }
+
+    rc = 0;
+
+    if (FD_ISSET(0,&readfds))
+	rc |= 1;
+
+    if (FD_ISSET(1,&writefds))
+	rc |= 2;
+
+    return rc;
 }
 
 
 
 void tty_flushin(void)
 {
-	tcflush(0, TCIFLUSH);
+    tcflush(0, TCIFLUSH);
 }
 
 
 
 void tty_flushout(void)
 {
-	tcflush(1, TCOFLUSH);
+    tcflush(1, TCOFLUSH);
 }
 
 
 
 int tty_ungetc(int c)
 {
-	if (next == buffer) {
-		if (left >= TT_BUFSIZ) {
-			return -1;
-		}
-
-		next = buffer + TT_BUFSIZ - left;
-		memcpy(next, buffer, left);
+    if (next == buffer) {
+	if (left >= TT_BUFSIZ) {
+	    return -1;
 	}
 
-	next--;
-	*next = c;
-	left++;
+	next = buffer + TT_BUFSIZ - left;
+	memcpy(next, buffer, left);
+    }
 
-	return 0;
+    next--;
+    *next = c;
+    left++;
+
+    return 0;
 }
 
 
 
 int tty_getc(int tot)
 {
-	if (!left) {
-		left=tty_read(buffer,TT_BUFSIZ,tot);
-		next=buffer;
-	}
+    if (!left) {
+	left=tty_read(buffer,TT_BUFSIZ,tot);
+	next=buffer;
+    }
 
-	if (left <= 0) {
-		left=0;
-		return -tty_status;
-	} else {
-		left--;
-		return (*next++)&0xff;
-	}
+    if (left <= 0) {
+	left=0;
+	return -tty_status;
+    } else {
+	left--;
+	return (*next++)&0xff;
+    }
 }
 
 
