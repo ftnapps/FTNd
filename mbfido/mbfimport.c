@@ -94,7 +94,7 @@ void ImportFiles(int Area)
 	
 	while (fgets(String, 4095, fbbs) != NULL) {
 
-	    if ((String[0] != ' ') && (String[0] != 't')) {
+	    if ((String[0] != ' ') && (String[0] != '\t')) {
 		/*
 		 * New file entry, check if there has been a file that is not yet saved.
 		 */
