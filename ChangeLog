@@ -11,6 +11,7 @@ v0.39.4		08-Dec-2003
 		Revised configure and all Makefiles for better support of
 		linking with threads libraries.
 		Changed endian tests using the configure script.
+		Changed compiler flags for threads.
 
 	upgrade:
 		If you didn't change anything of the language defaults then

@@ -2877,9 +2877,9 @@ else
    debugging=no
 fi;
 if test "$debugging" = "yes"; then
-    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
+    CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS"
 else
-    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
+    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS"
 fi
 
 
