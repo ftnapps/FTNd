@@ -10,18 +10,6 @@ typedef	struct	_fd_list {
 } fd_list;
 
 
-typedef struct _nodelist_modem {
-    struct _nodelist_modem  *next;
-    char                    *name;
-    unsigned long           mask;
-    unsigned long           value;
-} nodelist_modem;
-
-
-nodelist_modem	    *nl_isdn;
-nodelist_modem	    *nl_tcpip;
-
-
 int	lockindex(void);
 void	ulockindex(void);
 void	Help(void);

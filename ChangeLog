@@ -12,13 +12,22 @@ v0.61.1		20-Jun-2004.
 		Added compile directive for full newsgate. If this switch is
 		used then mbfido behaves like it did upto version 0.50.0 and
 		mbnntp is disabled.
+		Added define for nodelist line length for all programs.
 
 	libmsgbase.a:
 		If a message area becomes empty after a pack, all lastread
 		pointers are reset to zero.
 
+	mbout:
+		Code cleanup for nodelist processing.
+
 	mbfido:
 		Added compile directive for full newsgate.
+
+	mbindex:
+		Code cleanup for nodelist processing.
+		Added a extra check to see if nodelist datalines are valid to
+		prevent segfaults on Skynet nodelists.
 
 	mbnntp:
 		If compiled in full newsmode, this program acts like a dummy.

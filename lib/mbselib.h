@@ -455,7 +455,10 @@ typedef struct	_nlidx {
  */
 typedef struct	_nlusr {
 	char		user[36];		/* User name		*/
-	long		record;			/* Record in index	*/
+	unsigned short	zone;			/* Zone number		*/
+	unsigned short	net;			/* Net number		*/
+	unsigned short	node;			/* Node number		*/
+	unsigned short	point;			/* Point number		*/
 } nlusr;
 
 

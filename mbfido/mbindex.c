@@ -48,9 +48,6 @@ long		total = 0, entries = 0;
 int		filenr = 0;
 unsigned short	regio;
 nl_list		*nll = NULL;
-static char     *k, *v;
-static int      linecnt = 0;
-static char     *nlpath = NULL;
 
 
 extern		int do_quiet;		/* Quiet flag			    */
@@ -58,82 +55,6 @@ extern		int show_log;		/* Show logging on screen	    */
 time_t		t_start;		/* Start time			    */
 time_t		t_end;			/* End time			    */
 
-
-static int      getmdm(char**);
-
-
-
-/*
- * Table to parse the ~/etc/nodelist.conf file
- */
-static struct _keytab {
-    char    *key;
-    int     (*prc)(char **);
-    char**  dest;
-} keytab[] = {
-    {(char *)"isdn",        getmdm,         (char **)&nl_isdn},
-    {(char *)"tcpip",       getmdm,         (char **)&nl_tcpip},
-    {NULL,                  NULL,           NULL}
-};
-
-
-
-
-/*
- * Get a keyword, string, unsigned long, unsigned long
- */
-static int getmdm(char **dest)
-{
-    char            *p, *q;
-    unsigned long   tmp1, tmp2;
-    nodelist_modem  **tmpm;
-
-    for (p = v; *p && !isspace(*p); p++);
-	if (*p)
-	    *p++ = '\0';
-    while (*p && isspace(*p))
-	p++;
-    if (*p == '\0') {
-	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
-    }
-
-    for (q = p; *q && !isspace(*q); q++);
-	if (*q)
-	    *q++ = '\0';
-    while (*q && isspace(*q))
-	q++;
-    if (*q == '\0') {
-	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
-	return MBERR_INIT_ERROR;
-    }
-
-    for (tmpm = (nodelist_modem**)dest; *tmpm; tmpm=&((*tmpm)->next));
-    (*tmpm) = (nodelist_modem *) xmalloc(sizeof(nodelist_modem));
-    (*tmpm)->next = NULL;
-    (*tmpm)->name = xstrcpy(v);
-    tmp1 = strtoul(p, NULL, 0);
-    tmp2 = strtoul(q, NULL, 0);
-    (*tmpm)->mask = tmp1;
-    (*tmpm)->value = tmp2;
-
-    return 0;
-}
-
-
-void tidy_nl_modem(nodelist_modem **);
-void tidy_nl_modem(nodelist_modem **fap)
-{
-    nodelist_modem  *tmp, *old;
-
-    for (tmp = *fap; tmp; tmp = old) {
-	old = tmp->next;
-	if (tmp->name)
-	    free(tmp->name);
-	free(tmp);
-    }
-    *fap = NULL;
-}
 
 
 
@@ -391,7 +312,6 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
     FILE	    *nl;
     struct _nlidx   ndx;
     struct _nlusr   udx;
-    nodelist_modem  **tmpm;
 
     if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
 	WriteError("$Can't open %s", fullpath(nlname));
@@ -599,7 +519,6 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	}
 
 	memset(&udx, 0, sizeof(udx));
-	udx.record = total;
 
 	/*
 	 *  Read nodelist line and extract username.
@@ -614,12 +533,16 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 		q = p;
 	}
 	if (strlen(p) > 35)
-	    p[35] = '\0';
-	sprintf(udx.user, "%s", p);
+	    p[36] = '\0';
+	strcpy(udx.user, p);
+	udx.zone  = ndx.zone;
+	udx.net   = ndx.net;
+	udx.node  = ndx.node;
+	udx.point = ndx.point;
+	// FIXME: the record is filled, now do something with it!
 
 	/*
-	 *  Now search for the baudrate field, 300 means it's
-	 *  and ISDN or TCP/IP only node which is a special case.
+	 *  Now search for the baudrate field, just to check if it's there.
 	 */
 	for (i = 0; i < 2; i++) {
 	    p = q;
@@ -629,14 +552,6 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 		*q++ = '\0';
 	    if (q == NULL)
 		q = p;
-	}
-	if ((strlen(p) == 3) && (!strcmp(p, "300")) && (q != NULL)) {
-	    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
-		if (strstr(q, (*tmpm)->name))
-		    ndx.pflag |= NL_ISDN;
-	    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
-		if (strstr(q, (*tmpm)->name))
-		    ndx.pflag |= NL_TCPIP;
 	}
 
 	/*
@@ -851,9 +766,9 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 int nodebld(void)
 {
     int		    rc = 0, i;
-    char	    *im, *fm, *um, *old, *new, *p, buf[256];
+    char	    *im, *fm, *um, *old, *new;
     struct _nlfil   fdx;
-    FILE	    *fp, *dbf;
+    FILE	    *fp;
     nl_list	    *tmp;
 
     memset(&fdx, 0, sizeof(fdx));
@@ -885,95 +800,31 @@ int nodebld(void)
 	printf("\n");
     }
 
-    nl_isdn = NULL;
-    nl_tcpip = NULL;
+    if ((fp = fopen(fidonet_fil, "r")) == 0)
+	rc = MBERR_GENERAL;
+    else {
+	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 
-    /*
-     * Read and parse ~/etc/nodelist.conf
-     */
-    nlpath = calloc(PATH_MAX, sizeof(char));
-    sprintf(nlpath, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
-    if ((dbf = fopen(nlpath, "r")) == NULL) {
-	WriteError("$Can't open %s", nlpath);
-	fclose(ifp);
-	unlink(im);
-	fclose(ufp);
-	unlink(um);
-	fclose(ffp);
-	unlink(fm);
-	free(nlpath);
-	return MBERR_GENERAL;
-    } else {
-	while (fgets(buf, sizeof(buf) -1, dbf)) {
-	    linecnt++;
-	    if (*(p = buf + strlen(buf) -1) != '\n') {
-		WriteError("%s(%d): \"%s\" - line too long", nlpath, linecnt, buf);
-		rc = MBERR_GENERAL;
-		break;
-	    }
-
-	    *p-- = '\0';
-	    while ((p >= buf) && isspace(*p))
-		*p-- = '\0';
-	    k = buf;
-	    while (*k && isspace(*k))
-		k++;
-	    p = k;
-	    while (*p && !isspace(*p))
-		p++;
-	    *p++='\0';
-	    v = p;
-	    while (*v && isspace(*v)) 
-		v++;
-
-	    if ((*k == '\0') || (*k == '#')) {
-		continue;
-	    }
-	    for (i = 0; keytab[i].key; i++)
-		if (strcasecmp(k,keytab[i].key) == 0)
+	while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
+	    if (fidonet.available) {
+		rc = makelist(fidonet.nodelist, 0, 0, 0);
+	        if (rc)
 		    break;
 
-//	    if (keytab[i].key != NULL) {
-//		WriteError("%s(%d): %s %s - unknown keyword", nlpath, linecnt, MBSE_SS(k), MBSE_SS(v));
-//		rc = MBERR_GENERAL;
-//		break;
-//	    } else 
-	    if ((keytab[i].prc(keytab[i].dest))) {
-		rc = MBERR_GENERAL;
-		break;
-	    }
-	}
-	fclose(dbf);
-    }
-    free(nlpath);
-
-    if (rc == 0) {
-	if ((fp = fopen(fidonet_fil, "r")) == 0)
-	    rc = MBERR_GENERAL;
-	else {
-	    fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
-
-	    while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
-		if (fidonet.available) {
-		    rc = makelist(fidonet.nodelist, 0, 0, 0);
-		    if (rc)
-			break;
-
-		    for (i = 0; i < 6; i++) {
-			if (fidonet.seclist[i].zone) {
-			    rc = makelist(fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
+		for (i = 0; i < 6; i++) {
+		    if (fidonet.seclist[i].zone) {
+		        rc = makelist(fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
 							fidonet.seclist[i].net, fidonet.seclist[i].node);
-			    if (rc)
-				break;
-			}
+		        if (rc)
+		    	break;
 		    }
-		    if (rc)
-			break;
 		}
+	        if (rc)
+		    break;
 	    }
-
-	    fclose(fp);
 	}
+
+	fclose(fp);
     }
 
     fclose(ufp);
@@ -1028,8 +879,6 @@ int nodebld(void)
     free(fm);
     free(um);
     tidy_nllist(&nll);
-    tidy_nl_modem(&nl_isdn);
-    tidy_nl_modem(&nl_tcpip);
 
     return rc;
 }
