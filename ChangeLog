@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.61.2		11-Jul-2004
+v0.61.3		25-Jul-2004
+
+v0.61.2		11-Jul-2004 - 25-Jul-2004
 
 	upgrade:
 		Check if /opt/mbse/var/msgs is empty before using this version.
