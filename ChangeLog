@@ -3,6 +3,9 @@ $Id$
 
 v0.61.5		25-Sep-2004
 
+	general:
+		In SETUP.sh better xinetd.d system detection.
+
 
 v0.61.4		11-Aug-2004 - 25-Sep-2004
 

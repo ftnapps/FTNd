@@ -2,7 +2,7 @@ $Id$
 
 Unlike most distributions, Gentoo doesn't install programs that may be usefull
 for mbsebbs by default. Before you run ./configure emerge the following
-programs to make mbsebbs run with features:
+programs to make mbsebbs run with most features:
 
-zip (includes unzip),
+zip (includes unzip), arj, unarj, rar, lha, zoo, lrzsz.
 

@@ -459,8 +459,8 @@ EOF
     fi
 fi
 
-if [ -f /etc/xinetd.conf ]; then
-    log "+" "/etc/xinetd.conf found, xinetd system"
+if [ -f /etc/xinetd.conf ] || [ -d /etc/xinetd.d ]; then
+    log "+" "/etc/xinetd.conf or /etc/xinetd.d found, xinetd system"
     if [ -d /etc/xinetd.d ]; then
 	log "+" "has xinetd.d subdir, writing files"
 	XINET="/etc/xinetd.d/mbsebbs"
