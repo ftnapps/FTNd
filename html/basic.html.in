@@ -175,13 +175,20 @@ You now have the subdirectory with sources in the right place.
 Next build the binaries and install them using the following commands:
 <pre>
 cd ~/mbsebbs-@VERSION@
-./configure [--enable-optimize]
+./configure [--enable-optimize] [--enable-newsgate]
 make
 su        <b>important, do not use "su -"</b>
 password: <em>enter root password here</em>
 make install
 exit
 </pre>
+<b>Important:</b> it seems logical to use the <code>--enable-newsgate</code> option
+but it isn't. When you do, the mbnntp program is disabled and you cannot serve
+echomail as news to your users via internet. But you can gate echomail to the
+internet. Independant of your choice, you can allways make internet news available 
+for your bbs users. Only use --enable-newsgate if you really need to gate echomail
+to the internet.
+<p>
 The last part of the installation procedure shows you the location of the bbs
 startup script that is added to your system. Remember this one for a moment.
 Because this is your first
