@@ -469,29 +469,29 @@ int ShowOneFile()
 
 int CheckBytesAvailable(long CostSize)
 {
-	if (LIMIT.DownK || LIMIT.DownF) {
-		if ((exitinfo.DownloadKToday <= 0) || ((CostSize / 1024) > exitinfo.DownloadKToday)) {
+    if (LIMIT.DownK) {
+	if ((exitinfo.DownloadKToday <= 0) || ((CostSize / 1024) > exitinfo.DownloadKToday)) {
 	
-			/* You do not have enough bytes to download \" */
-			pout(12, 0, (char *) Language(252));
-			Enter(1);
-			Syslog('+', "Not enough bytes to download %ld", CostSize);
+	    /* You do not have enough bytes to download \" */
+	    pout(LIGHTRED, BLACK, (char *) Language(252));
+	    Enter(1);
+	    Syslog('+', "Not enough bytes to download %ld", CostSize);
 
-			colour(15, 0);
-			/* You must upload before you can download. */
-			pout(12, 0, (char *) Language(253));
-			Enter(2);
+	    colour(WHITE, BLACK);
+	    /* You must upload before you can download. */
+	    pout(LIGHTRED, BLACK, (char *) Language(253));
+	    Enter(2);
 
-			colour(14, 0);
-			/* Kilobytes currently available: */
-			printf("%s%lu Kbytes.\n\n", (char *) Language(254), exitinfo.DownloadKToday);
+	    colour(YELLOW, BLACK);
+	    /* Kilobytes currently available: */
+	    printf("%s%lu Kbytes.\n\n", (char *) Language(254), exitinfo.DownloadKToday);
 
-			Pause();
-			return FALSE;
-		}
+	    Pause();
+	    return FALSE;
 	}
+    }
 	
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -887,7 +887,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	file.UploadDate = time(NULL);
 	if (strcmp(file.Name, file.LName)) {
 	    sprintf(lname, "%s/%s", area.Path, file.Name);
-	    if (link(Filename, lname)) {
+	    if (symlink(Filename, lname)) {
 		WriteError("$Can't create link %s to %s", lname, Filename);
 	    }
 	}
