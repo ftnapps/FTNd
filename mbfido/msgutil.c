@@ -89,7 +89,12 @@ void Msg_Pid(void)
 	temp = calloc(81, sizeof(char));
 	sprintf(temp, "\001PID: MBSE-FIDO %s", VERSION);
 	MsgText_Add2(temp);
-//	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
+	if (msgs.Charset != FTNC_NONE) {
+	    sprintf(temp, "\001CHRS: %s", getchrs(msgs.Charset));
+	} else {
+	    sprintf(temp, "\001CHRS: %s", getchrs(FTNC_LATIN_1));
+	}
+	MsgText_Add2(temp);
 	tt = time(NULL);
 	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
 	MsgText_Add2(temp);

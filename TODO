@@ -58,7 +58,9 @@ mbsebbs:
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
-	N: Reimplememnt CHRS kludge.
+	N: Translate characterset of messages to the users preferred characterset.
+
+	N: Add menu setup to set users preffered character set.
 
 	N: There are some bugs in the bbs list menu. Make it a door?
 
@@ -67,6 +69,7 @@ newuser:
 
 	L: Allow handles to be the same as the unixname.
 
+	N: Add menu setup to set users preffered character set.
 
 mbtask:
 	N: Add a thread that keeps track of disk usage of all partitions used
@@ -125,6 +128,9 @@ mbfido:
 	N: When a file with the same name is received in a tic area more than
 	   once (virus defs for example) the file is written multiple times
 	   in the toberep database and will be multiple times announced.
+
+	N: Reimplement characterset conversion again on the gateway using the
+	   iconv library.
 
 mbcico:
 	N: Further investigate binkp tty_error hangup.

@@ -5,13 +5,13 @@
 include ../Makefile.global
 
 
-COMMON_SRCS	= clcomm.c client.c crc.c semafore.c signame.c \
+COMMON_SRCS	= clcomm.c client.c crc.c semafore.c signame.c charset.c \
 		  attach.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
 		  batchrd.c ftn.c pktname.c mangle.c sectest.c proglock.c \
 		  dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  execute.c expipe.c getheader.c noderecord.c rfcaddr.c strutil.c \
 		  faddr.c gmtoffset.c packet.c rfcdate.c term.c endian.c timers.c
-COMMON_OBJS	= clcomm.o client.o crc.o semafore.o signame.o \
+COMMON_OBJS	= clcomm.o client.o crc.o semafore.o signame.o charset.o \
 		  ftscprod.o attach.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
 		  batchrd.o ftn.o pktname.o mangle.o sectest.o proglock.o \
 		  dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \

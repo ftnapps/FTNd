@@ -2190,24 +2190,6 @@ char *getmenutype(int val)
 
 
 
-char *getchrs(int val)
-{
-    switch (val) {
-	case FTNC_NONE:	    return (char *)"Undefined";
-	case FTNC_CP437:    return (char *)"CP437";
-	case FTNC_CP850:    return (char *)"CP850";
-	case FTNC_CP865:    return (char *)"CP865";
-	case FTNC_CP866:    return (char *)"CP866";
-	case FTNC_LATIN_1:  return (char *)"Latin-1";
-	case FTNC_LATIN_2:  return (char *)"Latin-2";
-	case FTNC_LATIN_5:  return (char *)"Latin-5";
-	case FTNC_MAC:	    return (char *)"Mac";
-	default:	    return (char *)"ERROR";
-    }
-}
-
-
-
 void show_charset(int y, int x, int val)
 {
     show_str(y, x, 9, getchrs(val));

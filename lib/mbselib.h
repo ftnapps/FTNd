@@ -2118,30 +2118,38 @@ struct	termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
 /*
  * From endian.c
  */
-int le_int(int);
+int	le_int(int);
 
 
 
 /*
  * From attach.c
  */
-int		attach(faddr, char *, int, char);
+int	attach(faddr, char *, int, char);
+
+
+
+/*
+ * From charset.c
+ */
+char	*getchrs(int);			/* Return characterset name	    */
+char	*getchrsdesc(int);		/* Return characterset description  */
 
 
 
 /*
  * From dostran.c
  */
-char		*Dos2Unix(char *);
-char		*Unix2Dos(char *);
+char	*Dos2Unix(char *);
+char	*Unix2Dos(char *);
 
 
 
 /*
  * From execute.c
  */
-int		execute(char *, char *, char *, char *, char *, char *);
-int		execsh(char *, char *, char *, char *);
+int	execute(char *, char *, char *, char *, char *, char *);
+int	execsh(char *, char *, char *, char *);
 
 
 

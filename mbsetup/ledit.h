@@ -80,7 +80,6 @@ void		show_aka(int, int, fidoaddr);
 void		edit_color(int *, int *, char *, char *);
 char		*get_color(int);
 char		*getmenutype(int);
-char		*getchrs(int);
 void		show_charset(int, int, int);
 int		edit_charset(int, int, int);
 

@@ -294,11 +294,7 @@ void InitMsgRec(void)
     msgs.Type = ECHOMAIL;
     msgs.MsgKinds = PUBLIC;
     msgs.UsrDelete = TRUE;
-#ifdef HAVE_ICONV_H
     msgs.Charset = FTNC_LATIN_1;
-#else
-    msgs.Charset = FTNC_NONE;
-#endif
     msgs.MaxArticles = CFG.maxarticles;
     strcpy(msgs.Origin, CFG.origin);
     msgs.LinkSec.level = 1;
