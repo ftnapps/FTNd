@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -40,6 +40,7 @@
 #include "session.h"
 #include "ttyio.h"
 #include "openport.h"
+#include "telnet.h"
 #include "opentcp.h"
 
 
@@ -61,12 +62,6 @@ extern long	rcvdbytes;
 extern int	Loaded;
 static int	tcp_is_open = FALSE;
 
-#ifdef USE_EXPERIMENT
-void telnet_init(int);
-void telnet_answer(int, int, int);
-void telout_filter(int [], int);
-void telin_filter(int [], int);
-#endif
 
 
 /* opentcp() was rewritten by Martin Junius */
@@ -145,14 +140,14 @@ int opentcp(char *name)
 	return -1;
     }
 
+    Syslog('d', "SIGPIPE => sigpipe()");
+    signal(SIGPIPE, sigpipe);
+    Syslog('d', "SIGHUP => linedrop()");
+    signal(SIGHUP, linedrop);
+
 #ifdef USE_EXPERIMENT
     if (tcp_mode == TCPMODE_ITN) {
 	Syslog('s', "Installing telnet filter...");
-
-	Syslog('d', "SIGPIPE => sigpipe()");
-	signal(SIGPIPE, sigpipe);
-	Syslog('d', "SIGHUP => linedrop()");
-	signal(SIGHUP, linedrop);
 
 	/*
 	 * Create TCP socket and open
@@ -167,6 +162,10 @@ int opentcp(char *name)
 	}
 	Syslog('s', "socket %d", Fdo);
 
+	/*
+	 * Close stdin and stdout so that when we create the pipes to
+	 * the telnet filter they get stdin and stdout as file descriptors.
+	 */
 	fflush(stdin);
 	fflush(stdout);
 	setbuf(stdin,NULL);
@@ -175,13 +174,12 @@ int opentcp(char *name)
 	close(1);
 
 	/*
-	 * Create output pipe
+	 * Create output pipe and start output filter.
 	 */
 	if ((rc = pipe(output_pipe)) == -1) {
 	    WriteError("$could not create output_pipe");
 	    return -1;
 	}
-
 	fpid = fork();
 	switch (fpid) {
 	    case -1:    WriteError("fork for telout_filter failed");
@@ -190,7 +188,7 @@ int opentcp(char *name)
 			    WriteError("$error close output_pipe[1]");
 			    return -1;
 			}
-			telout_filter(output_pipe, Fdo);
+			telout_filter(output_pipe[0], Fdo);
 			/* NOT REACHED */
 	}
 	if (close(output_pipe[0] == -1)) {
@@ -200,16 +198,12 @@ int opentcp(char *name)
 	Syslog('s', "telout_filter forked with pid %d", fpid);
 
 	/*
-	 * Create input pipe
+	 * Create input pipe and start input filter
 	 */
 	if ((rc = pipe(input_pipe)) == -1) {
 	    WriteError("$could not create input_pipe");
 	    return -1;
 	}
-
-	/*
-	 * Fork input filter
-	 */
 	fpid = fork();
 	switch (fpid) {
 	    case -1:    WriteError("fork for telin_filter failed");
@@ -218,7 +212,7 @@ int opentcp(char *name)
 			    WriteError("$error close input_pipe[0]");
 			    return -1;
 			}
-			telin_filter(input_pipe, Fdo);
+			telin_filter(input_pipe[1], Fdo);
 			/* NOT REACHED */
 	}
 	if (close(input_pipe[1]) == -1) {
@@ -226,10 +220,11 @@ int opentcp(char *name)
 	    return -1;
 	}
 	Syslog('s', "telin_filter forked with pid %d", fpid);
+
 	Syslog('s', "stdout = %d", output_pipe[1]);
 	Syslog('s', "stdin  = %d", input_pipe[0]);
 
-	telnet_init(Fdo);
+	telnet_init(Fdo); /* Do we need that as originating system? */
 	f_flags=0;
 
     } else {
@@ -237,10 +232,6 @@ int opentcp(char *name)
 	/*
 	 * Transparant 8 bits connection
 	 */
-	Syslog('d', "SIGPIPE => sigpipe()");
-	signal(SIGPIPE, sigpipe);
-	Syslog('d', "SIGHUP => linedrop()");
-	signal(SIGHUP, linedrop);
 	fflush(stdin);
 	fflush(stdout);
 	setbuf(stdin,NULL);
@@ -333,135 +324,3 @@ void closetcp(void)
 }
 
 
-
-#ifdef USE_EXPERIMENT
-
-
-void telnet_init(int Fd)
-{
-    Syslog('s', "telnet_init(%d)", Fd);
-    telnet_answer(DO, TOPT_SUPP, Fd);
-    telnet_answer(WILL, TOPT_SUPP, Fd);
-    telnet_answer(DO, TOPT_BIN, Fd);
-    telnet_answer(WILL, TOPT_BIN, Fd);
-    telnet_answer(DO, TOPT_ECHO, Fd);
-    telnet_answer(WILL, TOPT_ECHO, Fd);
-}
-
-
-
-void telnet_answer(int tag, int opt, int Fd)
-{
-    char    buf[3];
-    char    *r = (char *)"???";
-	            
-    switch (tag) {
-	case WILL:  r = (char *)"WILL";
-		    break;
-	case WONT:  r = (char *)"WONT";
-		    break;
-	case DO:    r = (char *)"DO";
-		    break;
-	case DONT:  r = (char *)"DONT";
-		    break;
-    }
-    Syslog('s', "Telnet: send %s %d", r, opt);
-
-    buf[0] = IAC;
-    buf[1] = tag;
-    buf[2] = opt;
-    if (write (Fd, buf, 3) != 3)
-	WriteError("$answer cant send");
-}
-
-
-
-void telout_filter(int output_pipe[], int Fd)
-{
-    int	    rc, c;
-    char    ch;
-
-    Syslog('s', "telout_filter: in=%d out=%d", output_pipe[0], Fd);
-
-    while (read(output_pipe[0], &ch, 1) > 0) {
-	c = (int)ch & 0xff;
-//	Syslog('s', "telout_filter: ch=%s", printablec(c));
-	if (c == IAC) {
-	    Syslog('s', "telout_filter: got IAC");
-	    /*
-	     * Escape IAC characters
-	     */
-	    rc = write(Fd, &ch, 1);
-	}
-	/* write translated character back to user_handler. */
-	rc = write(Fd, &ch, 1);
-	if (rc == -1) { /* write failed - notify user and exit. */
-	    Syslog('s', "$telout_filter: write to Fd failed");
-	    exit(1);
-	}
-    }
-    Syslog('s', "$telout_filter: read error");
-
-    exit(0);
-}
-
-
-void telin_filter(int input_pipe[], int Fd)
-{
-    int     rc, c, m;
-    char    ch;
-
-    Syslog('s', "telin_filter: in=%d out=%d", Fd, input_pipe[1]);
-    Syslog('s', "telin_filter: IAC=%s %d", printablec(IAC), IAC);
-
-    while (read(Fd, &ch, 1) > 0) {
-	c = (int)ch & 0xff;
-//	Syslog('s', "telin_filter: ch=%s", printablec(c));
-	if (c == IAC) {
-	    Syslog('s', "got IAC");
-	    if ((read(Fd, &ch, 1) < 0))
-		break;
-	    m = (int)ch & 0xff;
-	    switch (m) {
-		case WILL:  read(Fd, &ch, 1);
-			    m = (int)ch & 0xff;
-			    Syslog('s', "Telnet: recv WILL %d", m);
-			    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-				telnet_answer(DONT, m, input_pipe[1]);
-			    break;
-		case WONT:  read(Fd, &ch, 1);
-			    m = (int)ch & 0xff;
-			    Syslog('s', "Telnet: recv WONT %d", m);
-			    break;
-		case DO:    read(Fd, &ch, 1);
-			    m = (int)ch & 0xff;
-			    Syslog('s', "Telnet: recv DO %d", m);
-			    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-				telnet_answer(WONT, m, input_pipe[1]);
-			    break;
-		case DONT:  read(Fd, &ch, 1);
-			    m = (int)ch & 0xff;
-			    Syslog('s', "Telnet: recv DONT %d", m);
-			    break;
-		case IAC:   ch = (char)m & 0xff;
-			    rc = write(input_pipe[1], &ch, 1);
-			    break;
-		default:    Syslog('s', "Telnet: recv IAC %d, not good", m);
-			    break;
-	    }
-	} else {
-//	    Syslog('s', "Telnet: normal");
-	    ch = (char)c;
-	    rc = write(input_pipe[1], &ch, 1);
-	    if (rc == -1) { /* write failed - notify user and exit. */
-		Syslog('s', "$telin_filter: write to input_pipe[1] failed");
-		exit(1);
-	    }
-	}
-    }
-    Syslog('s', "$telin_filter: read error");
-
-    exit(0);
-}
-
-#endif
