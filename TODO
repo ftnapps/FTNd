@@ -114,8 +114,6 @@ mbfido:
 
 	N: After readalias we need to free the alias list when mbfido ends.
 
-	N: Tic, scan tests with valgrind.
-
 mbcico:
 	N: Upgrade binkp protocol to 1.1.
 
@@ -128,9 +126,6 @@ mbcico:
 
 	U: Fix binkp file resume when mbcico silently dies.
 
-mbout:
-	N: Fix prepbuf in libcommon so that valgind can test this.
-
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 
@@ -139,8 +134,6 @@ mbfile:
 	L: Rearc <area>
 
 	L: Possibility to skip file areas from checking and reindexing.
-
-	N: Test with valgrind.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

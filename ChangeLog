@@ -2,7 +2,6 @@ $Id$
 
 v0.39.3		26-Nov-2003
 
-	WARNING: DO NOT USE, PROBLEMS EXIST IN THIS CVS VERSION !!!!!!!!!!!!
 	general:
 		Since this version Posix threads are being used, please let
 		me know if this doesn't compile on you system.
@@ -10,7 +9,8 @@ v0.39.3		26-Nov-2003
 		are stripped during make install only. This allows to run the
 		not yet installed binaries under debuggers.
 		The configure script has a --enable-debugging option so that
-		all code can be compiled to let it run under debuggers.
+		all code can be compiled to let it run under debuggers. Not
+		usefull for production systems.
 		This version had a lot of testing using valgrind. Most errors
 		were minor problems.
 
@@ -24,20 +24,28 @@ v0.39.3		26-Nov-2003
 
 	libmsgbase:
 		In JAM_Open replaced a strcpy with memmove.
+		Fixed invalid memory read/write in Msg_Link.
 
 	libdbase:
 		Code cleanup in dbdupe.
+
+	libnodelist:
+		Fixed a small memeory leak.
 
 	mbcico:
 		Dropped binkp CRC support because it will be incompatible with
 		future extensions.
 		Fixed a small memory leak.
 
+	mbout:
+		Fixed several memory leaks.
+
 	mbfido:
 		Fixed a some small memory leaks.
 
 	mbfile:
 		Fixed a uninitialized memory pointer in the index command.
+		Fixed a 3 forgotten file closes in mbfile list.
 
 	mbindex:
 		Fixed a forgotten file close.
@@ -75,7 +83,7 @@ v0.39.3		26-Nov-2003
 	script:
 		Changed all init scripts to allow the slower stopping of mbtask
 		For the latest Slackware distros a setup script for pkgtool is
-		added.
+		added. Most other distro's don't need this.
 
 
 v0.39.2		21-Nov-2003 - 26-Nov-2003

@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Outbound Manager - show node info
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -135,6 +135,8 @@ int nlinfo(faddr *addr)
 
     if (nlent->addr.domain)
 	free(nlent->addr.domain);
+    if (nlent->url)
+	free(nlent->url);
 
     return 0;
 }

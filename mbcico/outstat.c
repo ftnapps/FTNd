@@ -439,6 +439,8 @@ int poll(faddr *addr, int stop)
 	    }
 	    CreateSema((char *)"scanout");
 	}
+	if (nlent->url)
+	    free(nlent->url);
     }
 
     free(pol);

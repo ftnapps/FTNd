@@ -4,7 +4,7 @@
  * Purpose ...............: Global message base functions
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -363,8 +363,8 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
 
     if ((Total = Msg_Number()) != 0L) {
 	if (Msg_Lock(30L)) {
-	    if ((Link = (MSGLINK *)malloc(Total * sizeof(MSGLINK))) != NULL) {
-		memset(Link, 0, Total * sizeof(MSGLINK));
+	    if ((Link = (MSGLINK *)malloc((Total + 1) * sizeof(MSGLINK))) != NULL) {
+		memset(Link, 0, (Total + 1) * sizeof(MSGLINK));
 		Number = Msg_Lowest();
 		i = 0;
 		do {

@@ -1088,6 +1088,8 @@ node *getnlent(faddr *addr)
     fclose(fp);
 
     nodebuf.addr.name = nodebuf.sysop;
+    if (nodebuf.addr.domain)
+	free(nodebuf.addr.domain);
     nodebuf.addr.domain = xstrcpy(fdx.domain);
     nodebuf.upnet  = ndx.upnet;
     nodebuf.upnode = ndx.upnode;

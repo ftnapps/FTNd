@@ -104,6 +104,10 @@ void free_mem(void)
 	free(flags);
     if (uxoutbound)
 	free(uxoutbound);
+    if (protocol)
+	free(protocol);
+    if ((nlent) && (nlent->url))
+	free(nlent->url);
 }
 
 
@@ -137,6 +141,9 @@ void die(int onsig)
     t_end = time(NULL);
     Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
     
+    /*
+     * Free memory
+     */
     free_mem();
     deinitnl();
     

@@ -54,8 +54,8 @@ extern int	tcp_mode;
 extern pid_t	mypid;
 
 
-node	*nlent;
-fa_list *remote=NULL;
+node	*nlent = NULL;
+fa_list *remote = NULL;
 int	session_flags;
 int	remote_flags;
 

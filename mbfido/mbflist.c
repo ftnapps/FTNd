@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - List areas and totals
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -169,6 +169,7 @@ void ListFileAreas(int Area)
 		printf("-");
 	    printf("\n");
 	    printf("%d file%s, %ld Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);
+	    fclose(pFile);
 
 	} else {
 	    WriteError("Area %d is not available", Area);
@@ -176,6 +177,7 @@ void ListFileAreas(int Area)
 	    return;
 	}
 
+	fclose(pAreas);
 	fclose(pTic);
 	free(ticarea);
 	free(sAreas);
@@ -220,6 +222,7 @@ void ListFileAreas(int Area)
 
 	    printf("%5d %5d %5ld %-12s %s\n", i, fcount, fsize, area.BbsGroup, area.Name);
 	    iTotal++;
+	    fclose(pFile);
 	}
     }
 

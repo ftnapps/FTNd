@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
      * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
-	else
+	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
 
@@ -274,6 +274,7 @@ int main(int argc, char *argv[])
     }
 
     if (do_poll || do_stop) {
+	tidy_faddr(addr);
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
@@ -288,6 +289,7 @@ int main(int argc, char *argv[])
     }
 
     if (do_reset) {
+	tidy_faddr(addr);
 	for (i = 3; i <= argc; i++) {
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
@@ -314,6 +316,13 @@ int main(int argc, char *argv[])
 	}
 
 	nlent = getnlent(addr);
+	if (nlent->addr.domain)
+	    free(nlent->addr.domain);
+	nlent->addr.domain = NULL;
+	if (nlent->url)
+	    free(nlent->url);
+	nlent->url = NULL;
+
 	cmmask = getCMmask();
 	if (nlent->pflag == NL_DUMMY)
 	    Fatal((char *)"Node is not in nodelist", MBERR_NODE_NOT_IN_LIST);
@@ -359,6 +368,7 @@ int main(int argc, char *argv[])
 		    break;
 	    }
 	}
+	tidy_faddr(addr);
 	die(rc);
     }
 

@@ -701,7 +701,7 @@ int Fs_Edit()
 				clear();
 				fflush(stdout);
 				if (ch == 'S' && Changed) {
-				    Syslog('+', "FSEDIT: Message saved");
+				    Syslog('+', "FSEDIT: Message will be saved");
 				    return TRUE;
 				} else {
 				    Syslog('+', "FSEDIT: Message aborted");

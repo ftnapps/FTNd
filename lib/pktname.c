@@ -285,6 +285,7 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 		}
 	}
 
+	tidy_faddr(bestaka);
 	Syslog('O', "Arc file name is \"%s\"", buf);
 	return buf;
 }

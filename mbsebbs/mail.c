@@ -773,11 +773,15 @@ int Save_Msg(int IsReply, faddr *Dest)
     char    *temp;
     FILE    *fp;
 
-    if ((Line < 2) || (Dest == NULL))
+    Syslog('b', "Entering Save_Msg() Line=%d, Dest=%s", Line, (Dest == NULL)?"NULL":"valid");
+
+    if (Line < 2)
 	return TRUE;
 
-    if (!Open_Msgbase(msgs.Base, 'w'))
+    if (!Open_Msgbase(msgs.Base, 'w')) {
+	WriteError("Failed to open msgbase \"%s\"", msgs.Base);
 	return FALSE;
+    }
 
     Msg.Written = Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
     Msg.Local = TRUE;
