@@ -226,9 +226,9 @@ extern char *strerror();
 # endif
 #endif
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+// #ifndef HAVE_SNPRINTF
+// #include "snprintf.h"
+// #endif
 
 /*
  * string to use for the pw_passwd field in /etc/passwd when using

@@ -13,7 +13,7 @@ SRCS		= bank.c commonio.c filesub.c language.c mbtoberep.c \
 		  safe.c timeout.c chat.c file.c getdef.c mbchat.c mbstat.c misc.c \
 		  offline.c putpwent.c salt.c user.c mbnewusr.c input.c whoson.c \
 		  door.c dispfile.c userlist.c timestats.c logentry.c pw_util.c \
-		  mblogin.c env.c snprintf.c chowntty.c ttytype.c shell.c basename.c \
+		  mblogin.c env.c chowntty.c ttytype.c shell.c basename.c \
 		  failure.c pwdcheck.c pwauth.c loginprompt.c utmp.c limits.c \
 		  setupenv.c sub.c ulimit.c log.c tz.c setugid.c
 HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
@@ -24,7 +24,7 @@ HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  pinfo.h rad64.h chat.h file.h getdef.h mbpasswd.h menu.h \
 		  nextuser.h pop3.h safe.h timecheck.h mbnewusr.h input.h whoson.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h pw_util.h \
-		  mblogin.h env.h snprintf.h chowntty.h ttytype.h shell.h basename.h \
+		  mblogin.h env.h chowntty.h ttytype.h shell.h basename.h \
 		  failure.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h \
 		  setupenv.h sub.h ulimit.h log.h tz.h setugid.h
 MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
@@ -55,7 +55,7 @@ MBUSER_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/
 MBUSERADD_OBJS	= mbuseradd.o
 MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
 		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o pw_util.o
-MBLOGIN_OBJS	= getdef.o env.o snprintf.o chowntty.o ttytype.o shell.o basename.o failure.o \
+MBLOGIN_OBJS	= getdef.o env.o chowntty.o ttytype.o shell.o basename.o failure.o \
 		  pwdcheck.o pwauth.o encrypt.o loginprompt.o utmp.o limits.o setupenv.o sub.o \
 		  xmalloc.o ulimit.o log.o tz.o setugid.o mblogin.o
 OTHER		= Makefile
@@ -222,7 +222,6 @@ logentry.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib
 pw_util.o: pw_util.h
 mblogin.o: ../config.h mblogin.h getdef.h env.h chowntty.h ttytype.h basename.h shell.h failure.h pwdcheck.h pwauth.h loginprompt.h utmp.h limits.h setupenv.h sub.h ulimit.h log.h tz.h setugid.h
 env.o: ../config.h mblogin.h xmalloc.h
-snprintf.o: snprintf.h
 chowntty.o: ../config.h mblogin.h getdef.h chowntty.h
 ttytype.o: ../config.h mblogin.h getdef.h env.h ttytype.h
 shell.o: ../config.h mblogin.h basename.h shell.h

@@ -536,7 +536,7 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	printf("[%s]\n", username);
+//	printf("[%s]\n", username);
 
 #ifdef SVR4
 	/*
@@ -625,7 +625,7 @@ top:
 		    fclose(ufp);
 		}
 
-		if (! (pwd = getpwnam(username))) {
+		if ((! (pwd = getpwnam(username))) || (FoundName == 0)) {
 			pwent.pw_name = username;
 			strcpy(temp_pw, "!");
 			pwent.pw_passwd = temp_pw;
