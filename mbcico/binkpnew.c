@@ -845,6 +845,7 @@ int file_transfer(void)
 				    if (bp.local_EOB && bp.remote_EOB) {
 					Syslog('b', "Binkp: ignore TCP error in EOB state");
 					rc = 0;
+					bp.rc = 0;
 					bp.FtState = Transmit;	/* Go once more through transmitter to cleanup */
 					break;
 				    } else {
