@@ -156,3 +156,7 @@ mbsetup:
 	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.
 
+	N: See if a check can be made in file groups setup for the areas file
+	   format, if a filegate list is installed and the filegate switch
+	   setting is wrong, a lot of wrong areas will be created.
+
