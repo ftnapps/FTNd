@@ -61,7 +61,7 @@ static int  zrhhdr(char*);
 static int  zgethex(void);
 static int  zgeth1(void);
 static void garbitch(void);
-
+static inline void zsendline_s(const char *, int);
 
 #include "../config.h"
 #include "../lib/mbselib.h"
@@ -278,12 +278,9 @@ void zsda32(register char *buf, int length, int frameend)
     register unsigned long  crc;
 
     crc = 0xFFFFFFFFL;
+    zsendline_s(buf, length);
     for (;--length >= 0; ++buf) {
 	c = *buf & 0377;
-	if (c & 0140)
-	    PUTCHAR(lastsent = c);
-	else
-	    zsendline(c);
 	crc = updcrc32(c, crc);
     }
     PUTCHAR(ZDLE); 
@@ -294,6 +291,11 @@ void zsda32(register char *buf, int length, int frameend)
     for (c=4; --c >= 0;) {
 	zsendline((int)crc);  
 	crc >>= 8;
+    }
+
+    if (frameend == ZCRCW) {
+	PUTCHAR(XON);
+	fflush(stdout);
     }
 }
 
@@ -708,6 +710,53 @@ void zsendline(int c)
 		    PUTCHAR(lastsent = c);
 		}
 		break;
+    }
+}
+
+
+
+static inline void zsendline_s(const char *s, int count) 
+{
+    const char	*end = s + count;
+
+    while (s != end) {
+	int	    last_esc = 0;
+	const char  *t = s;
+
+	while (t != end) {
+	    last_esc = zsendline_tab[(unsigned) ((*t) & 0377)];
+	    if (last_esc) 
+		break;
+	    t++;
+	}
+	if (t != s) {
+	    PUT((char *)s, (t-s));
+	    lastsent = t[-1];
+	    s = t;
+	}
+	if (last_esc) {
+	    int c = *s;
+	    switch (last_esc) {
+		case 0: 
+			PUTCHAR(lastsent = c); 
+			break;
+		case 1:
+			PUTCHAR(ZDLE);
+			c ^= 0100;
+			PUTCHAR(lastsent = c);
+			break;
+		case 2:
+			if ((lastsent & 0177) != '@') {
+			    PUTCHAR(lastsent = c);
+			} else {
+			    PUTCHAR(ZDLE);
+			    c ^= 0100;
+			    PUTCHAR(lastsent = c);
+			}
+			break;
+	    }
+	    s++;
+	}
     }
 }
 
