@@ -4604,3 +4604,7 @@ v0.33.20        10-Feb-2002
 		In AreaMgr and FileMgr changed aka matching for area 
 		connections. Code cleanups.
 
+	mball:
+		Will not crash anymore when it needs more then 10 minutes to
+		create the allfiles and newfiles lists.
+

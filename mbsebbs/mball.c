@@ -266,206 +266,206 @@ void BotBox(FILE *fp, int doit)
 
 void Masterlist()
 {
-	FILE		*fp, *np, *pAreas, *pFile, *pHeader;
-	int		AreaNr = 0, z, x = 0, New;
-	unsigned long	AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
-	unsigned long	AllAreaFiles, AllAreaBytes, popdown, down;
-	unsigned long	NewAreaFiles, NewAreaBytes;
-	char		*sAreas, *fAreas;
-	char		temp[81], pop[81];
+    FILE	    *fp, *np, *pAreas, *pFile, *pHeader;
+    int		    AreaNr = 0, z, x = 0, New;
+    unsigned long   AllFiles = 0, AllKBytes = 0, NewFiles = 0, NewKBytes = 0;
+    unsigned long   AllAreaFiles, AllAreaBytes, popdown, down;
+    unsigned long   NewAreaFiles, NewAreaBytes;
+    char	    *sAreas, *fAreas;
+    char	    temp[81], pop[81];
 
-	sAreas	= calloc(PATH_MAX, sizeof(char));
-	fAreas	= calloc(PATH_MAX, sizeof(char));
+    sAreas	= calloc(PATH_MAX, sizeof(char));
+    fAreas	= calloc(PATH_MAX, sizeof(char));
 
-	IsDoing("Create Allfiles list");
+    IsDoing("Create Allfiles list");
 
-	sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
-	if(( pAreas = fopen (sAreas, "r")) == NULL) {
-		WriteError("Can't open File Areas File: %s", sAreas);
-		colour(7,0);
-		die(1);
-	}
-	fread(&areahdr, sizeof(areahdr), 1, pAreas);
+    if(( pAreas = fopen (sAreas, "r")) == NULL) {
+	WriteError("Can't open File Areas File: %s", sAreas);
+	colour(7,0);
+	die(1);
+    }
+    fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
-	if (!do_quiet)
-		printf("Processing file areas\n");
+    if (!do_quiet)
+	printf("Processing file areas\n");
 
-	if ((fp = fopen("allfiles.tmp", "a+")) == NULL) {
-	 	WriteError("$Can't open allfiles.tmp");
-		die(1);
-	}
-	if ((np = fopen("newfiles.tmp", "a+")) == NULL) {
-		WriteError("$Can't open newfiles.tmp");
-		fclose(fp);
-		die(1);
-	}
-
-	TopBox(fp, TRUE);
-	TopBox(np, TRUE);
-	sprintf(temp, "All available files at %s", CFG.bbs_name);
-	MidLine(temp, fp, TRUE);
-	sprintf(temp, "New available files since %d days at %s", CFG.newdays, CFG.bbs_name);
-	MidLine(temp, np, TRUE);
-	BotBox(fp, TRUE);
-	BotBox(np, TRUE);
-
-	sprintf(temp, "%s/etc/header.txt", getenv("MBSE_ROOT"));
-	if(( pHeader = fopen(temp, "r")) != NULL) {
-		Syslog('+', "Inserting %s", temp);
-
-		while( fgets(temp, 80 ,pHeader) != NULL) {
-			Striplf(temp);
-			fprintf(fp, "%s\r\n", temp);
-			fprintf(np, "%s\r\n", temp);
-		}
-	}
-
-	while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
-		AreaNr++;
-		AllAreaFiles = 0;
-		AllAreaBytes = 0;
-		NewAreaFiles = 0;
-		NewAreaBytes = 0;
-
-		if (area.Available && (area.LTSec.level <= CFG.security.level)) {
-
-			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), AreaNr);
-
-			if ((pFile = fopen (fAreas, "r")) == NULL) {
-				WriteError("$Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
-			} else {
-				popdown = 0;
-				while (fread(&file, sizeof(file), 1, pFile) == 1) {
-					if ((!file.Deleted) && (!file.Missing)) {
-						/*
-						 * The next is to reduce system
-						 * loading.
-						 */
-						x++;
-						if (CFG.slow_util && do_quiet && ((x % 3) == 0))
-							usleep(1);
-						AllFiles++;
-						AllAreaFiles++;
-						AllAreaBytes += file.Size;
-						down = file.TimesDL + file.TimesFTP + file.TimesReq;
-						if (down > popdown) {
-							popdown = down;
-							sprintf(pop, "%s", file.Name);
-						}
-						if (((t_start - file.UploadDate) / 84400) <= CFG.newdays) {
-							NewFiles++;
-							NewAreaFiles++;
-							NewAreaBytes += file.Size;
-						}
-					}
-				}
-
-				AllKBytes += AllAreaBytes / 1024;
-				NewKBytes += NewAreaBytes / 1024;
-				
-				/*
-				 * If there are files to report do it.
-				 */
-				if (AllAreaFiles) {
-					TopBox(fp, TRUE);
-					TopBox(np, NewAreaFiles);
-
-					sprintf(temp, "Area %d - %s", AreaNr, area.Name);
-					MidLine(temp, fp, TRUE);
-					MidLine(temp, np, NewAreaFiles);
-
-					sprintf(temp, "File Requests allowed");
-					MidLine(temp, fp, area.FileReq);
-					MidLine(temp, np, area.FileReq && NewAreaFiles);
-
-					sprintf(temp, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
-					MidLine(temp, fp, TRUE);
-					sprintf(temp, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
-					MidLine(temp, np, NewAreaFiles);
-					if (popdown) {
-						sprintf(temp, "Most popular file is %s", pop);
-						MidLine(temp, fp, TRUE);
-					}
-
-					BotBox(fp, TRUE);
-					BotBox(np, NewAreaFiles);
-
-					fseek(pFile, 0, SEEK_SET);
-					while (fread(&file, sizeof(file), 1, pFile) == 1) {
-						if((!file.Deleted) && (!file.Missing)) {
-							New = (((t_start - file.UploadDate) / 84400) <= CFG.newdays);
-							sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
-								file.Name, (long)(file.Size / 1024), StrDateDMY(file.UploadDate), 
-								file.TimesDL + file.TimesFTP + file.TimesReq, 
-								strlen(file.Uploader)?file.Uploader:"");
-							fprintf(fp, "%s\r\n", temp);
-							if (New)
-								fprintf(np, "%s\r\n", temp);
-	
-							for (z = 0; z <= 25; z++) {
-								if (strlen(file.Desc[z])) {
-									if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
-										fprintf(fp, "                         %s\r\n",file.Desc[z]+4);
-										if (New)
-											fprintf(np, "                         %s\r\n",file.Desc[z]+4);
-									} else {
-										fprintf(fp, "                         %s\r\n",file.Desc[z]);
-										if (New)
-											fprintf(np, "                         %s\r\n",file.Desc[z]);
-									}
-								}
-						   	}
-					  	}
-					}
-				}
-				fclose(pFile);
-			}
-		}
-	} /* End of While Loop Checking for Areas Done */
-
-	fclose(pAreas);
-
-	TopBox(fp, TRUE);
-	TopBox(np, TRUE);
-	sprintf(temp, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
-	MidLine(temp, fp, TRUE);
-	sprintf(temp, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
-	MidLine(temp, np, TRUE);
-
-	MidLine((char *)"", fp, TRUE);
-	MidLine((char *)"", np, TRUE);
-
-	sprintf(temp, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
-	MidLine(temp, fp, TRUE);
-	MidLine(temp, np, TRUE);
-
-	BotBox(fp, TRUE);
-	BotBox(np, TRUE);
-
-	sprintf(temp, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
-	if(( pHeader = fopen(temp, "r")) != NULL) {
-		Syslog('+', "Inserting %s", temp);
-
-		while( fgets(temp, 80 ,pHeader) != NULL) {
-			Striplf(temp);
-			fprintf(fp, "%s\r\n", temp);
-			fprintf(np, "%s\r\n", temp);
-		}
-	}
-
+    if ((fp = fopen("allfiles.tmp", "a+")) == NULL) {
+ 	WriteError("$Can't open allfiles.tmp");
+	die(1);
+    }
+    if ((np = fopen("newfiles.tmp", "a+")) == NULL) {
+	WriteError("$Can't open newfiles.tmp");
 	fclose(fp);
-	fclose(np);
+	die(1);
+    }
 
-	if ((rename("allfiles.tmp", "allfiles.txt")) == 0)
-		unlink("allfiles.tmp");
-	if ((rename("newfiles.tmp", "newfiles.txt")) == 0)
-		unlink("newfiles.tmp");
+    TopBox(fp, TRUE);
+    TopBox(np, TRUE);
+    sprintf(temp, "All available files at %s", CFG.bbs_name);
+    MidLine(temp, fp, TRUE);
+    sprintf(temp, "New available files since %d days at %s", CFG.newdays, CFG.bbs_name);
+    MidLine(temp, np, TRUE);
+    BotBox(fp, TRUE);
+    BotBox(np, TRUE);
 
-	Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllKBytes / 1024);
-	Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewKBytes / 1024);
-	free(sAreas);
-	free(fAreas);
+    sprintf(temp, "%s/etc/header.txt", getenv("MBSE_ROOT"));
+    if (( pHeader = fopen(temp, "r")) != NULL) {
+	Syslog('+', "Inserting %s", temp);
+
+	while( fgets(temp, 80 ,pHeader) != NULL) {
+	Striplf(temp);
+	fprintf(fp, "%s\r\n", temp);
+	fprintf(np, "%s\r\n", temp);
+	}
+    }
+
+    while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
+	AreaNr++;
+	AllAreaFiles = 0;
+	AllAreaBytes = 0;
+	NewAreaFiles = 0;
+	NewAreaBytes = 0;
+
+	if (area.Available && (area.LTSec.level <= CFG.security.level)) {
+
+	    Nopper();
+	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), AreaNr);
+
+	    if ((pFile = fopen (fAreas, "r")) == NULL) {
+		WriteError("$Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
+	    } else {
+		popdown = 0;
+		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		    if ((!file.Deleted) && (!file.Missing)) {
+			/*
+			 * The next is to reduce system load.
+			 */
+			x++;
+			if (CFG.slow_util && do_quiet && ((x % 3) == 0))
+			    usleep(1);
+			AllFiles++;
+			AllAreaFiles++;
+			AllAreaBytes += file.Size;
+			down = file.TimesDL + file.TimesFTP + file.TimesReq;
+			if (down > popdown) {
+			    popdown = down;
+			    sprintf(pop, "%s", file.Name);
+			}
+			if (((t_start - file.UploadDate) / 84400) <= CFG.newdays) {
+			    NewFiles++;
+			    NewAreaFiles++;
+			    NewAreaBytes += file.Size;
+			}
+		    }
+		}
+
+		AllKBytes += AllAreaBytes / 1024;
+		NewKBytes += NewAreaBytes / 1024;
+				
+		/*
+		 * If there are files to report do it.
+		 */
+		if (AllAreaFiles) {
+		    TopBox(fp, TRUE);
+		    TopBox(np, NewAreaFiles);
+
+		    sprintf(temp, "Area %d - %s", AreaNr, area.Name);
+		    MidLine(temp, fp, TRUE);
+		    MidLine(temp, np, NewAreaFiles);
+
+		    sprintf(temp, "File Requests allowed");
+		    MidLine(temp, fp, area.FileReq);
+		    MidLine(temp, np, area.FileReq && NewAreaFiles);
+
+		    sprintf(temp, "%ld KBytes in %ld files", AllAreaBytes / 1024, AllAreaFiles);
+		    MidLine(temp, fp, TRUE);
+		    sprintf(temp, "%ld KBytes in %ld files", NewAreaBytes / 1024, NewAreaFiles);
+		    MidLine(temp, np, NewAreaFiles);
+		    if (popdown) {
+			sprintf(temp, "Most popular file is %s", pop);
+			MidLine(temp, fp, TRUE);
+		    }
+
+		    BotBox(fp, TRUE);
+		    BotBox(np, NewAreaFiles);
+
+		    fseek(pFile, 0, SEEK_SET);
+		    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+			if((!file.Deleted) && (!file.Missing)) {
+			    New = (((t_start - file.UploadDate) / 84400) <= CFG.newdays);
+			    sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
+				file.Name, (long)(file.Size / 1024), StrDateDMY(file.UploadDate), 
+				file.TimesDL + file.TimesFTP + file.TimesReq, 
+				strlen(file.Uploader)?file.Uploader:"");
+			    fprintf(fp, "%s\r\n", temp);
+			    if (New)
+				fprintf(np, "%s\r\n", temp);
+	
+			    for (z = 0; z <= 25; z++) {
+				if (strlen(file.Desc[z])) {
+				    if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
+					fprintf(fp, "                         %s\r\n",file.Desc[z]+4);
+					if (New)
+					    fprintf(np, "                         %s\r\n",file.Desc[z]+4);
+				    } else {
+					fprintf(fp, "                         %s\r\n",file.Desc[z]);
+					if (New)
+					    fprintf(np, "                         %s\r\n",file.Desc[z]);
+				    }
+				}
+			    }
+			}
+		    }
+		}
+		fclose(pFile);
+	    }
+	}
+    } /* End of While Loop Checking for Areas Done */
+
+    fclose(pAreas);
+
+    TopBox(fp, TRUE);
+    TopBox(np, TRUE);
+    sprintf(temp, "Total %ld files, %ld KBytes", AllFiles, AllKBytes);
+    MidLine(temp, fp, TRUE);
+    sprintf(temp, "Total %ld files, %ld KBytes", NewFiles, NewKBytes);
+    MidLine(temp, np, TRUE);
+
+    MidLine((char *)"", fp, TRUE);
+    MidLine((char *)"", np, TRUE);
+
+    sprintf(temp, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
+    MidLine(temp, fp, TRUE);
+    MidLine(temp, np, TRUE);
+
+    BotBox(fp, TRUE);
+    BotBox(np, TRUE);
+
+    sprintf(temp, "%s/etc/footer.txt", getenv("MBSE_ROOT"));
+    if(( pHeader = fopen(temp, "r")) != NULL) {
+	Syslog('+', "Inserting %s", temp);
+
+	while( fgets(temp, 80 ,pHeader) != NULL) {
+	    Striplf(temp);
+	    fprintf(fp, "%s\r\n", temp);
+	    fprintf(np, "%s\r\n", temp);
+	}
+    }
+
+    fclose(fp);
+    fclose(np);
+
+    if ((rename("allfiles.tmp", "allfiles.txt")) == 0)
+	unlink("allfiles.tmp");
+    if ((rename("newfiles.tmp", "newfiles.txt")) == 0)
+	unlink("newfiles.tmp");
+
+    Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllKBytes / 1024);
+    Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewKBytes / 1024);
+    free(sAreas);
+    free(fAreas);
 }
 
 
@@ -486,12 +486,14 @@ void MakeArc()
 		return;
 	}
 
+	Nopper();
 	if (!do_quiet)
 		printf("Creating allfiles.zip\n");
 	if (!execute(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null") == 0)
 		WriteError("Create allfiles.zip failed");
 
+	Nopper();
 	if (!do_quiet)
 		printf("Creating newfiles.zip\n");
 	if (!execute(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
