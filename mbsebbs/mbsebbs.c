@@ -146,6 +146,25 @@ int main(int argc, char **argv)
 	sprintf(pTTY, "%s", tty);
     }
 
+    /*
+     * Now that we have all terminal information, we close the tty and
+     * reopen the default tty so that doors will work.
+     */
+//    cookedport();
+//    close(0);
+//    close(1);
+//    if ((i = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
+//	perror("open 0");
+//	exit(MBERR_TTYIO_ERROR);
+//    }
+//    Syslog('t', "new fd %d", i);
+//    if ((i = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
+//	perror("open 1");
+//	exit(MBERR_TTYIO_ERROR);
+//    }
+//    Syslog('t', "new fd %d", i);
+//    rawport();
+
     umask(007);
 
     /* 

@@ -80,10 +80,12 @@ void die(int onsig)
 	} else if (onsig == SIGALRM) {
 	    Syslog('+', "User inactivity timeout");
 	} else {
-	    if (onsig <= NSIG)
+	    if (onsig <= NSIG) {
+		hanged_up = 1;
 		WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-	    else
+	    } else {
 		WriteError("Terminated with error %d", onsig);
+	    }
 	}
     } else {
 	Syslog(' ', "Terminated by user");

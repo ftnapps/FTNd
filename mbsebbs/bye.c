@@ -66,7 +66,7 @@ void Good_Bye(int onsig)
      * Don't display goodbye screen on SIGHUP and idle timeout.
      * With idle timeout this will go into a loop.
      */
-    if ((onsig != SIGHUP) && (onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0))
+    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0))
 	DisplayFile((char *)"goodbye");
 
     if (do_mailout)

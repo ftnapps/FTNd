@@ -7,7 +7,7 @@ v0.71.0		27-Oct-2004
 	mbsebbs:
 		In change handle the first character of the name is not 
 		capitalized.
-		Changed layout of raw directory listing to support long
+		Changed layout of raw directory listing to support longer
 		filenames.
 		Rewrote terminal i/o.
 		If a user pages the sysop a hint is displayed to fill in the
@@ -24,6 +24,7 @@ v0.71.0		27-Oct-2004
  
 	examples:
 		Fixed logo display.
+		Fixed Spanish txtfiles to leave out an old support bbs.
 
 
 v0.70.0		06-Jun-2004 - 26-Oct-2004.

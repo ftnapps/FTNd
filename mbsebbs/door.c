@@ -291,14 +291,14 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     }
 
     clear();
-    PUTSTR((char *)"Loading ...");
+    PUTSTR((char *)"Loading, please wait ...");
     Enter(2);
 
     /*
      * Put terminal back in cooked mode, prefered by some doors.
      */
     cookedport();
-    
+
     if (NoSuid) 
 	rc = exec_nosuid(Program);
     else
