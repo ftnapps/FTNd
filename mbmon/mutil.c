@@ -29,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/mberrors.h"
-#include "../lib/structs.h"
-#include "common.h"
+#include "../lib/mbselib.h"
 #include "mutil.h"
 
 
@@ -462,6 +459,7 @@ void screen_start(char *name)
 {
     int	i;
 
+    TermInit(1);
     /*
      *  Overwrite screen the first time, if user had it black on white
      *  it will change to white on black. clear() won't do the trick.

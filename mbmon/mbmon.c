@@ -4,7 +4,7 @@
  * Purpose ...............: Monitor Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,10 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/mberrors.h"
-#include "../lib/structs.h"
-#include "common.h"
+#include "../lib/mbselib.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "proglock.h"
 #include "mutil.h"
 
@@ -705,25 +704,21 @@ int main(int argc, char *argv[])
     int		    rc;
     FILE	    *fp;
 
-    /*
-     * Read configuration
-     */
-    temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/etc/config.data", getenv("MBSE_ROOT"));
-    if ((fp = fopen(temp, "r")) == NULL) {
-	perror("\n\nFATAL ERROR: ");
-	printf(" Can't open %s", temp);
-	exit(1);
-    }
-    fread(&CFG, sizeof(CFG), 1, fp);
-    fclose(fp);
-    free(temp);
 
     /*
      * Find out who is on the keyboard or automated the keyboard.
      */
-    pw = getpwuid(getuid());
-    InitClient(pw->pw_name);
+    pw = getpwuid(geteuid());
+    if (strcmp(pw->pw_name, (char *)"mbse")) {
+	printf("ERROR: only user \"mbse\" may use this program\n");
+	exit(MBERR_INIT_ERROR);
+    }
+
+    /*
+     * Read the global configuration data, registrate connection
+     */
+    InitConfig();
+    InitClient(pw->pw_name, (char *)"mbmon", CFG.location, (char *)"mbmon.log", CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', "MBMON Started by %s", pw->pw_name);
     bbs_free = FALSE;
 
