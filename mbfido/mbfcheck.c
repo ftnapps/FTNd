@@ -460,6 +460,14 @@ void CheckArea(long Area)
     		iErrors++;
     		Update = TRUE;
     	    }
+	    if (stat(newdir, &stb) == 0) {
+		if (stb.st_mode != 0100644) {
+		    if (chmod(newdir, 0644) == 0) {
+			 Syslog('!', "Fixed filemode area %ld, file %s", Area, fdb.LName);
+			 iErrors++;
+		    }
+		}
+	    }
     	    Marker();
     	    if (Update) {
 		if (mbsedb_LockFDB(fdb_area, 30)) {

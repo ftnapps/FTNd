@@ -58,6 +58,10 @@ v0.71.0		27-Oct-2004
 	mbnewusr:
 		Rewrote terminal i/o.
 
+	mbfile:
+		In mbfile check added a check for the filemode of the real file
+		in the download area, if it's not 0644 it will be corrected.
+
 	mbsetup:
 		In file transfers edit, removed switches for batch and bidirect
 		protocols, added a switch for internal protocols.
