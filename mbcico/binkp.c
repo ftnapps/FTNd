@@ -124,11 +124,11 @@ static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (cha
 static time_t	Timer;
 static int	CRAMflag = FALSE;		/* CRAM option flag		    */
 static int	Secure = FALSE;			/* Secure session		    */
-unsigned long	nethold, mailhold;		/* Trafic for the remote	    */
 int		transferred = FALSE;		/* Anything transferred in batch    */
-int		batchnr = 0;
 unsigned char	*MD_challenge = NULL;		/* Received CRAM challenge data	    */
 int		ext_rand = 0;
+
+
 
 struct binkprec {
     int			role;			/* 1=orig, 0=answer		    */
@@ -149,6 +149,29 @@ struct binkprec {
     int			MBflag;			/* MB option flag                   */
     int			Major;			/* Remote major protocol version    */
     int			Minor;			/* Remote minor protocol version    */
+    int			rc;			/* Protocol return code		    */
+    int			rxlen;			/* Receive buffer length	    */
+    int			txlen;			/* Length of transmitted data block */
+    char		*txbuf;			/* Transmitter buffer		    */
+    char		*rxbuf;			/* Receiver buffer		    */
+    FILE		*txfp;			/* File in transmitter		    */
+    FILE		*rxfp;			/* File in receiver		    */
+    int			txpos;			/* Transmitter position		    */
+    int			rxpos;			/* Receiver position		    */
+    int			stxpos;			/* Start transmitter position	    */
+    int			cmd;			/* Command flag			    */
+    int			GotFrame;		/* Got Frame flag		    */
+    unsigned short	header;			/* Frame header			    */
+    int			blklen;			/* Block length			    */
+    off_t		rxbytes;		/* Receiver bytecount		    */
+    struct timeval	rxtvstart;		/* Receive file start		    */
+    struct timeval	rxtvend;		/* Receiver file end		    */
+    struct timeval	txtvstart;		/* Transmit file start		    */
+    struct timeval	txtvend;		/* Transmit file end		    */
+    struct timezone	tz;			/* Timezone			    */
+    unsigned long	nethold;		/* Netmail on hold		    */
+    unsigned long	mailhold;		/* Packed mail (files) on hold	    */
+    int			batchnr;		/* Batch number			    */
 };
 
 struct binkprec	bp;				/* Global structure		    */
@@ -164,6 +187,19 @@ void binkp_init(void)
     bp.Major = 1;
     bp.Minor = 0;
     bp.DidSendGET = FALSE;
+    bp.rc = 0;
+    bp.rxlen = 0;
+    bp.txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
+    bp.rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
+    bp.txfp = NULL;
+    bp.rxfp = NULL;
+    bp.txpos = 0;
+    bp.rxpos = 0;
+    bp.stxpos = 0;
+    bp.cmd = FALSE;
+    bp.GotFrame = FALSE;
+    bp.header = 0;
+    bp.batchnr = 0;
 }
 
 
@@ -175,6 +211,10 @@ void binkp_deinit(void)
 	free(bp.lname);
     if (bp.gname)
 	free(bp.gname);
+    if (bp.txbuf)
+	free(bp.txbuf);
+    if (bp.rxbuf)
+	free(bp.rxbuf);
 }
 
 
@@ -1115,9 +1155,9 @@ void fill_binkp_list(binkp_list **bll, file_list *fal, off_t offs)
 	return;
     }
     if (strstr(fal->remote, (char *)".pkt"))
-	nethold += tstat.st_size;
+	bp.nethold += tstat.st_size;
     else
-	mailhold += tstat.st_size;
+	bp.mailhold += tstat.st_size;
 	
     for (tmpl = bll; *tmpl; tmpl = &((*tmpl)->next));
     *tmpl = (binkp_list *)malloc(sizeof(binkp_list));
@@ -1154,39 +1194,79 @@ void debug_binkp_list(binkp_list **bll)
 }
 
 
+/*
+ * Get a fram for the batch
+ */
+void batch_receive_frame(void);
+void batch_receive_frame(void)
+{
+    int	    c;
+
+    for (;;) {
+	if (bp.GotFrame) {
+	    Syslog('b', "Binkp: WARNING: frame not processed");
+	    break;
+	} else {
+	    c = GETCHAR(0);
+	    if (c < 0) {
+		c = -c;
+		if (c == STAT_TIMEOUT) {
+		    usleep(1);
+		    break;
+		}
+		Syslog('?', "Binkp: receiver status %s", ttystat[c]);
+		bp.TxState = TxDone;
+		bp.RxState = RxDone;
+		bp.rc = (MBERR_TTYIO + (-c));
+		break;
+	    } else {
+		switch (bp.rxlen) {
+		    case 0: bp.header = c << 8;
+			    break;
+		    case 1: bp.header += c;
+			    break;
+		    default:bp.rxbuf[bp.rxlen-2] = c;
+		}
+		if (bp.rxlen == 1) {
+		    bp.cmd = bp.header & 0x8000;
+		    bp.blklen = bp.header & 0x7fff;
+		}
+		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
+		    bp.GotFrame = TRUE;
+		    binkp_settimer(BINKP_TIMEOUT);
+		    bp.rxbuf[bp.rxlen-1] = '\0';
+		    break;
+		}
+		bp.rxlen++;
+	    }
+	}
+    }
+}
+
+
 
 int binkp_batch(file_list *to_send)
 {
-    int		    rc = 0, NotDone, rxlen = 0, txlen = 0, rxerror = FALSE;
-    static char	    *txbuf, *rxbuf;
-    FILE	    *txfp = NULL, *rxfp = NULL;
-    long	    txpos = 0, rxpos = 0, stxpos = 0, written;
-    int		    sverr, cmd = FALSE, GotFrame = FALSE, blklen = 0, c, Found = FALSE;
-    unsigned short  header = 0;
+    int		    NotDone, written, Found = FALSE;
     off_t	    rxbytes;
     binkp_list	    *bll = NULL, *tmp, *tmpg, *cursend = NULL;
     file_list	    *tsl;
-    struct timeval  rxtvstart, rxtvend;
-    struct timeval  txtvstart, txtvend;
-    struct timezone tz;
     struct statfs   sfs;
 
-    rxtvstart.tv_sec = rxtvstart.tv_usec = 0;
-    rxtvend.tv_sec   = rxtvend.tv_usec   = 0;
-    txtvstart.tv_sec = txtvstart.tv_usec = 0;
-    txtvend.tv_sec   = txtvend.tv_usec   = 0;
-    tz.tz_minuteswest = tz.tz_dsttime = 0;
+    bp.rxtvstart.tv_sec = bp.rxtvstart.tv_usec = 0;
+    bp.rxtvend.tv_sec   = bp.rxtvend.tv_usec   = 0;
+    bp.txtvstart.tv_sec = bp.txtvstart.tv_usec = 0;
+    bp.txtvend.tv_sec   = bp.txtvend.tv_usec   = 0;
+    bp.tz.tz_minuteswest = bp.tz.tz_dsttime = 0;
 
-    batchnr++;
-    Syslog('+', "Binkp: starting batch %d", batchnr);
+    bp.batchnr++;
+    Syslog('+', "Binkp: starting batch %d", bp.batchnr);
     IsDoing("Binkp %s %s", (bp.role == 1)?"out":"inb", ascfnode(remote->addr, 0xf));
-    txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
-    rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
 //    TfState = Switch;
     bp.RxState = RxWaitFile;
     bp.TxState = TxGetNextFile;
     binkp_settimer(BINKP_TIMEOUT);
-    nethold = mailhold = 0L;
+    bp.nethold = bp.mailhold = 0L;
     transferred = FALSE;
 
     /*
@@ -1199,64 +1279,26 @@ int binkp_batch(file_list *to_send)
     }
     debug_binkp_list(&bll);
 
-    Syslog('+', "Binkp: mail %ld, files %ld bytes", nethold, mailhold);
-    binkp_send_control(MM_NUL, "TRF %ld %ld", nethold, mailhold);
+    Syslog('+', "Binkp: mail %ld, files %ld bytes", bp.nethold, bp.mailhold);
+    binkp_send_control(MM_NUL, "TRF %ld %ld", bp.nethold, bp.mailhold);
 
     while ((bp.RxState != RxDone) || (bp.TxState != TxDone)) {
 
 	Nopper();
 	if (binkp_expired()) {
 	    Syslog('!', "Binkp: Transfer timeout");
-	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[bp.TxState], rxstate[bp.RxState], rxlen);
+	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[bp.TxState], rxstate[bp.RxState], bp.rxlen);
 	    bp.RxState = RxDone;
 	    bp.TxState = TxDone;
 	    binkp_send_control(MM_ERR, "Transfer timeout");
-	    rc = MBERR_FTRANSFER;
+	    bp.rc = MBERR_FTRANSFER;
 	    break;
 	}
 
 	/*
 	 * Receiver binkp frame
 	 */
-	for (;;) {
-	    if (GotFrame) {
-		Syslog('b', "Binkp: WARNING: frame not processed");
-		break;
-	    } else {
-		c = GETCHAR(0);
-		if (c < 0) {
-		    c = -c;
-		    if (c == STAT_TIMEOUT) {
-			usleep(1);
-			break;
-		    }
-		    Syslog('?', "Binkp: receiver status %s", ttystat[c]);
-		    bp.TxState = TxDone;
-		    bp.RxState = RxDone;
-		    rc = (MBERR_TTYIO + (-c));
-		    break;
-		} else {
-		    switch (rxlen) {
-			case 0: header = c << 8;
-				break;
-			case 1: header += c;
-				break;
-			default:rxbuf[rxlen-2] = c;
-		    }
-		    if (rxlen == 1) {
-			cmd = header & 0x8000;
-			blklen = header & 0x7fff;
-		    }
-		    if ((rxlen == (blklen + 1) && (rxlen >= 1))) {
-			GotFrame = TRUE;
-			binkp_settimer(BINKP_TIMEOUT);
-			rxbuf[rxlen-1] = '\0';
-			break;
-		    }
-		    rxlen++;
-		}
-	    }
-	}
+	batch_receive_frame();
 
 	/*
 	 * Transmitter state machine
@@ -1275,10 +1317,9 @@ int binkp_batch(file_list *to_send)
 		    txflock.l_start  = 0L;
 		    txflock.l_len    = 0L;
 
-		    txfp = fopen(tmp->local, "r");
-		    if (txfp == NULL) {
-			sverr = errno;
-			if ((sverr == ENOENT) || (sverr == EINVAL)) {
+		    bp.txfp = fopen(tmp->local, "r");
+		    if (bp.txfp == NULL) {
+			if ((errno == ENOENT) || (errno == EINVAL)) {
 			    Syslog('+', "Binkp: file %s doesn't exist, removing", MBSE_SS(tmp->local));
 			    tmp->state = Got;
 			} else {
@@ -1288,19 +1329,20 @@ int binkp_batch(file_list *to_send)
 			break;
 		    }
 
-		    if (fcntl(fileno(txfp), F_SETLK, &txflock) != 0) {
+		    if (fcntl(fileno(bp.txfp), F_SETLK, &txflock) != 0) {
 			WriteError("$Binkp: can't lock file %s, skipping", MBSE_SS(tmp->local));
-			fclose(txfp);
+			fclose(bp.txfp);
+			bp.txfp = NULL;
 			tmp->state = Skipped;
 			break;
 		    }
 
-		    txpos = stxpos = tmp->offset;
+		    bp.txpos = bp.stxpos = tmp->offset;
 		    Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
 		    Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 		    binkp_send_control(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
 			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
-		    gettimeofday(&txtvstart, &tz);
+		    gettimeofday(&bp.txtvstart, &bp.tz);
 		    tmp->state = Sending;
 		    cursend = tmp;
 		    bp.TxState = TxTryRead;
@@ -1327,12 +1369,12 @@ int binkp_batch(file_list *to_send)
 	    break;
 
 	case TxReadSend:
-	    fseek(txfp, txpos, SEEK_SET);
-	    txlen = fread(txbuf, 1, SND_BLKSIZE, txfp);
+	    fseek(bp.txfp, bp.txpos, SEEK_SET);
+	    bp.txlen = fread(bp.txbuf, 1, SND_BLKSIZE, bp.txfp);
 
-	    if (txlen == 0) {
+	    if (bp.txlen == 0) {
 
-		if (ferror(txfp)) {
+		if (ferror(bp.txfp)) {
 		    WriteError("$Binkp: error reading from file");
 		    bp.TxState = TxGetNextFile;
 		    cursend->state = Skipped;
@@ -1341,34 +1383,30 @@ int binkp_batch(file_list *to_send)
 		}
 
 		/*
-		 * Send empty dataframe, most binkp mailers need it to detect EOF.
-		 */
-//		binkp_send_data(txbuf, 0);
-
-		/*
 		 * calculate time needed and bytes transferred
 		 */
-		gettimeofday(&txtvend, &tz);
+		gettimeofday(&bp.txtvend, &bp.tz);
 
 		/*
 		 * Close transmitter file
 		 */
-		fclose(txfp);
+		fclose(bp.txfp);
+		bp.txfp = NULL;
 
-		if (txpos >= 0) {
-		   stxpos = txpos - stxpos;
-		    Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, stxpos, TRUE));
+		if (bp.txpos >= 0) {
+		   bp.stxpos = bp.txpos - bp.stxpos;
+		    Syslog('+', "Binkp: OK %s", transfertime(bp.txtvstart, bp.txtvend, bp.stxpos, TRUE));
 		} else {
-		    Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txtvend.tv_sec - txtvstart.tv_sec);
+		    Syslog('+', "Binkp: transmitter skipped file after %ld seconds", bp.txtvend.tv_sec - bp.txtvstart.tv_sec);
 		}
 
 		cursend->state = IsSent;
 		bp.TxState = TxGetNextFile;
 		break;
 	    } else {
-		txpos += txlen;
-		sentbytes += txlen;
-		binkp_send_data(txbuf, txlen);
+		bp.txpos += bp.txlen;
+		sentbytes += bp.txlen;
+		binkp_send_data(bp.txbuf, bp.txlen);
 	    }
 
 	    bp.TxState = TxTryRead;
@@ -1396,26 +1434,26 @@ int binkp_batch(file_list *to_send)
 	/*
 	 * Process received frame
 	 */
-	if (GotFrame) {
-	    if (cmd) {
-		switch (rxbuf[0]) {
-		case MM_ERR:    Syslog('+', "Binkp: got ERR: %s", rxbuf+1);
+	if (bp.GotFrame) {
+	    if (bp.cmd) {
+		switch (bp.rxbuf[0]) {
+		case MM_ERR:    Syslog('+', "Binkp: got ERR: %s", bp.rxbuf+1);
 				bp.RxState = RxDone;
 				bp.TxState = TxDone;
-				rc = MBERR_FTRANSFER;
+				bp.rc = MBERR_FTRANSFER;
 				break;
 
-		case MM_BSY:	Syslog('+', "Binkp: got BSY: %s", rxbuf+1);
+		case MM_BSY:	Syslog('+', "Binkp: got BSY: %s", bp.rxbuf+1);
 				bp.RxState = RxDone;
 				bp.TxState = TxDone;
-				rc = MBERR_FTRANSFER;
+				bp.rc = MBERR_FTRANSFER;
 				break;
 
-		case MM_SKIP:   Syslog('+', "Binkp: got SKIP: %s", rxbuf+1);
+		case MM_SKIP:   Syslog('+', "Binkp: got SKIP: %s", bp.rxbuf+1);
 				break;
 
-		case MM_GET:    Syslog('+', "Binkp: got GET: %s", rxbuf+1);
-				sscanf(rxbuf+1, "%s %ld %ld %ld", bp.gname, &bp.gsize, &bp.gtime, &bp.goffset);
+		case MM_GET:    Syslog('+', "Binkp: got GET: %s", bp.rxbuf+1);
+				sscanf(bp.rxbuf+1, "%s %ld %ld %ld", bp.gname, &bp.gsize, &bp.gtime, &bp.goffset);
 				for (tmpg = bll; tmpg; tmpg = tmpg->next) {
 				    if (strcasecmp(tmpg->remote, bp.gname) == 0) {
 					tmpg->state = NoState;
@@ -1430,8 +1468,8 @@ int binkp_batch(file_list *to_send)
 				}
 				break;
 
-		case MM_GOT:    Syslog('+', "Binkp: got GOT: %s", rxbuf+1);
-				sscanf(rxbuf+1, "%s %ld %ld", bp.lname, &bp.lsize, &bp.ltime);
+		case MM_GOT:    Syslog('+', "Binkp: got GOT: %s", bp.rxbuf+1);
+				sscanf(bp.rxbuf+1, "%s %ld %ld", bp.lname, &bp.lsize, &bp.ltime);
 				Found = FALSE;
 				for (tmp = bll; tmp; tmp = tmp->next)
 				    if ((strcmp(bp.lname, tmp->remote) == 0) && (bp.lsize == tmp->size) && 
@@ -1441,52 +1479,52 @@ int binkp_batch(file_list *to_send)
 					Found = TRUE;
 				    }
 				if (!Found) {
-				    Syslog('!', "Binkp: unexpected GOT \"%s\"", rxbuf+1);
+				    Syslog('!', "Binkp: unexpected GOT \"%s\"", bp.rxbuf+1);
 				}
 				break;
 
-		case MM_NUL:    b_nul(rxbuf+1);
+		case MM_NUL:    b_nul(bp.rxbuf+1);
 				break;
 
 		case MM_EOB:    Syslog('+', "Binkp: got EOB");
 				bp.RxState = RxEndOfBatch;
 				break;
 
-		case MM_FILE:   Syslog('b', "Binkp: got FILE: %s", rxbuf+1);
+		case MM_FILE:   Syslog('b', "Binkp: got FILE: %s", bp.rxbuf+1);
 				if ((bp.RxState == RxWaitFile) || (bp.RxState == RxEndOfBatch)) {
 				    bp.RxState = RxAcceptFile;
 				    /*
 				     * Check against buffer overflow
 				     */
-				    if (strlen(rxbuf) < 512) {
-					sscanf(rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
+				    if (strlen(bp.rxbuf) < 512) {
+					sscanf(bp.rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
 				    } else {
-					Syslog('+', "Binkp: got corrupted FILE frame, size %d bytes", strlen(rxbuf));
+					Syslog('+', "Binkp: got corrupted FILE frame, size %d bytes", strlen(bp.rxbuf));
 				    }
 				} else {
-				    Syslog('+', "Binkp: got unexpected FILE frame %s", rxbuf+1);
+				    Syslog('+', "Binkp: got unexpected FILE frame %s", bp.rxbuf+1);
 				}
 				break;
 
-		default:        Syslog('+', "Binkp: Unexpected frame %d \"%s\"", rxbuf[0], printable(rxbuf+1, 0));
+		default:        Syslog('+', "Binkp: Unexpected frame %d \"%s\"", bp.rxbuf[0], printable(bp.rxbuf+1, 0));
 		}
 	    } else {
-		if (blklen) {
+		if (bp.blklen) {
 		    if (bp.RxState == RxReceData) {
-			written = fwrite(rxbuf, 1, blklen, rxfp);
-			if (!written && blklen) {
+			written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
+			if (!written && bp.blklen) {
 			    Syslog('+', "Binkp: file write error");
 			    bp.RxState = RxDone;
 			}
-			rxpos += written;
-			if (rxpos == bp.rsize) {
+			bp.rxpos += written;
+			if (bp.rxpos == bp.rsize) {
 			    bp.RxState = RxWaitFile;
 			    binkp_send_control(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 			    closefile();
-			    rxpos = rxpos - rxbytes;
-			    gettimeofday(&rxtvend, &tz);
-			    Syslog('+', "Binkp: %s %s", rxerror?"ERROR":"OK", transfertime(rxtvstart, rxtvend, rxpos, FALSE));
-			    rcvdbytes += rxpos;
+			    bp.rxpos = bp.rxpos - rxbytes;
+			    gettimeofday(&bp.rxtvend, &bp.tz);
+			    Syslog('+', "Binkp: OK %s", transfertime(bp.rxtvstart, bp.rxtvend, bp.rxpos, FALSE));
+			    rcvdbytes += bp.rxpos;
 			    bp.RxState = RxWaitFile;
 			    transferred = TRUE;
 			}
@@ -1496,15 +1534,15 @@ int binkp_batch(file_list *to_send)
 			     * Do not log after a GET command, there will be data packets
 			     * in the pipeline that must be ignored.
 			     */
-			    Syslog('+', "Binkp: unexpected DATA frame %d", rxbuf[0]);
+			    Syslog('+', "Binkp: unexpected DATA frame %d", bp.rxbuf[0]);
 			}
 		    }
 		}
 	    }
-	    GotFrame = FALSE;
-	    rxlen = 0;
-	    header = 0;
-	    blklen = 0;
+	    bp.GotFrame = FALSE;
+	    bp.rxlen = 0;
+	    bp.header = 0;
+	    bp.blklen = 0;
 	}
 
 	/*
@@ -1517,7 +1555,7 @@ int binkp_batch(file_list *to_send)
 	case RxAcceptFile:
 	    Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
 	    (void)binkp2unix(bp.rname);
-	    rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, resync);
+	    bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, resync);
 
 	    if (bp.DidSendGET) {
 		/*
@@ -1529,16 +1567,15 @@ int binkp_batch(file_list *to_send)
 		break;
 	    }
 
-	    gettimeofday(&rxtvstart, &tz);
-	    rxpos = bp.roffs;
-	    rxerror = FALSE;
+	    gettimeofday(&bp.rxtvstart, &bp.tz);
+	    bp.rxpos = bp.roffs;
 
 	    if (!diskfree(CFG.freespace)) {
 		Syslog('+', "Binkp: low diskspace, sending BSY");
 		binkp_send_control(MM_BSY, "Low diskspace, try again later");
 		bp.RxState = RxDone;
 		bp.TxState = TxDone;
-		rc = MBERR_FTRANSFER;
+		bp.rc = MBERR_FTRANSFER;
 		break;
 	    }
 
@@ -1549,7 +1586,7 @@ int binkp_batch(file_list *to_send)
 		    Syslog('!', "Only %lu blocks free (need %lu) in %s", sfs.f_bfree, 
 			    (unsigned long)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
 		    closefile();
-		    rxfp = NULL; /* Force SKIP command	*/
+		    bp.rxfp = NULL; /* Force SKIP command	*/
 		}
 	    }
 
@@ -1561,8 +1598,8 @@ int binkp_batch(file_list *to_send)
 		Syslog('+', "Binkp: already got %s, sending GOT", bp.rname);
 		binkp_send_control(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 		bp.RxState = RxWaitFile;
-		rxfp = NULL;
-	    } else if (!rxfp) {
+		bp.rxfp = NULL;
+	    } else if (!bp.rxfp) {
 		/*
 		 * Some error, request to skip it
 		 */
@@ -1614,19 +1651,16 @@ int binkp_batch(file_list *to_send)
 	free(bll);
     }
 
-    free(txbuf);
-    free(rxbuf);
-
     /*
      * If there was an error, try to close a possible incomplete file in
      * the temp inbound so we can resume the next time we have a session
      * with this node.
      */
-    if (rc)
+    if (bp.rc)
 	closefile();
 
-    Syslog('+', "Binkp: batch %d completed rc=%d", batchnr, rc);
-    return rc;
+    Syslog('+', "Binkp: batch %d completed rc=%d", bp.batchnr, bp.rc);
+    return bp.rc;
 }
 
 

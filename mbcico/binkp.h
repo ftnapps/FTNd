@@ -20,7 +20,11 @@
 
 /* protocol version */
 #define	PRTCLNAME "binkp"
+#ifdef USE_EXPERIMENT
 #define PRTCLVER "1.0"
+#else
+#define PRTCLVER "1.0"
+#endif
 
 #define MAX_BLKSIZE 0x7fff	/* Don't change!				*/
 #define	BLK_HDR_SIZE 2		/* 2 bytes header				*/

@@ -3,6 +3,12 @@ $Id$
 v0.39.5		24-Dec-2003
 
 
+	mbcico:
+		Binkp code cleanup.
+
+	script:
+		Fixed NetBSD init script
+
 v0.39.4		08-Dec-2003 - 24-Dec-2003
 
 	general:
