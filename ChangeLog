@@ -60,6 +60,9 @@ v0.35.03	06-Jul-2002
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
 		if they were not installed before.
 
+	examples:
+		With the aid of a little utility (endian) the right menus are
+		now installed on little or big endian machines.
 
 
 v0.35.02	22-Jun-2002 - 06-Jul-2002

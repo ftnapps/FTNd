@@ -29,21 +29,17 @@ install:	all
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR}" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/menus/main.mnu ]; then \
-		    if [ "${HOSTTYPE}" = "i386" ] || [ "${MACHTYPE}" = "i386" ]; then \
-			tar xfC menus-le.tar ${PREFIX}/english/menus ; \
-			echo "Installing default english menus for a Little-Endian (i386) system" ; \
-		    else  \
-			tar xfC menus-be.tar ${PREFIX}/english/menus ; \
-			echo "Installing default english menus for a Big-Endian (Alpha/Sparc etc.) system" ; \
-		    fi  \
+			tar xfC menus-`./endian`.tar ${PREFIX}/english/menus ; \
+			echo "tar xfC menus-`./endian`.tar ${PREFIX}/english/menus" ; \
+			echo "Installed default english menus" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then \
 			tar xfC txtfiles.tar ${PREFIX}/english/txtfiles ; \
-			echo "Installing default english txtfiles" ; \
+			echo "Installed default english txtfiles" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/macro/html.tic ]; then \
 			tar xfC templates.tar ${PREFIX}/english/macro ; \
-			echo "Installing default english macro files" ; \
+			echo "Installed default english macro files" ; \
 		fi
 
 clean:
@@ -52,7 +48,7 @@ clean:
 filelist:	Makefile
 		BASE=`pwd`; \
 		BASE=`basename $${BASE}`; \
-		(for f in ${OTHER} ;do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; done) >filelist
+		(for f in ${SRCS} ${HDRS} ${OTHER} ;do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; done) >filelist
 
 depend:
 	@rm -f Makefile.bak; \

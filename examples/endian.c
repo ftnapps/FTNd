@@ -36,20 +36,24 @@
 int main(void)
 {
 
+    /*
+     * First test BYTE_ORDER
+     */
+    if (BYTE_ORDER == 1234) {
+	printf("le");
+    } else if (BYTE_ORDER == 4321) {
+	printf("be");
+    } else {
+	/*
+	 * If it failed do a simple CPU test
+	 */
 #ifdef __i386__
-printf("le");
+	printf("le");
 #else
-printf("be");
+	printf("be");
 #endif
+    }
 
-#ifdef __BIG_ENDIAN
-printf("__BIG_ENDIAN %d\n", __BIG_ENDIAN);
-#endif
-#ifdef BIG_ENDIAN
-printf("BIG_ENDIAN %d\n", BIG_ENDIAN);
-#endif
-printf("BYTE_ORDER %d\n", BYTE_ORDER);
-
-return 0;
+    return 0;
 }
 
