@@ -142,6 +142,8 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
+	N: mbfile k p i doesn't run index and doesn't give an error message.
+
 mbaff:
 	L: Rewrite filefind search algorithm.
 
