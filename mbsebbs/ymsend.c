@@ -56,7 +56,7 @@ int		Optiong;		/* Let it rip no wait for sector ACK's */
 int		Totsecs;		/* total number of sectors this file */
 char		*txbuf;
 size_t		blklen = 128;		/* length of transmitted records */
-int		zmodem_requested = 0;
+int		zmodem_requested = FALSE;
 static int	no_unixmode;
 struct timeval  starttime, endtime;
 struct timezone	tz;
@@ -189,7 +189,7 @@ static int wctxpn(char *fname)
 	f.st_mode = 0;
     }
 
-//    if (!zmodem_requested)
+    if (!zmodem_requested)
 	if (getnak()) {
 	    PUTSTR((char *)"getnak failed");
 	    Syslog('+', "%s/%s: getnak failed", MBSE_SS(fname), protname());

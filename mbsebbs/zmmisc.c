@@ -82,6 +82,7 @@ static int Not8bit;		/* Seven bits seen on header */
 static char zsendline_tab[256];
 
 extern unsigned	Baudrate;
+extern int	zmodem_requested;
 
 
 char *frametypes[] = {
@@ -585,6 +586,7 @@ int zrbhdr(register char *shdr)
 	return TERROR;
     }
 
+    zmodem_requested = TRUE;
     protocol = ZM_ZMODEM;
     return Rxtype;
 }
@@ -620,6 +622,7 @@ int zrbhd32(register char *shdr)
 	return TERROR;
     }
 
+    zmodem_requested = TRUE;
     protocol = ZM_ZMODEM;
     return Rxtype;
 }
@@ -668,6 +671,7 @@ int zrhhdr(char *shdr)
     if (c < 0)
 	return c;
 
+    zmodem_requested = TRUE;
     protocol = ZM_ZMODEM;
     return Rxtype;
 }
@@ -977,6 +981,20 @@ void purgeline(int howlong)
     } while (c == 1);
     if (count)
 	Syslog('z', "purgeline: purged %d characters", count);
+}
+
+
+/* 
+ * send cancel string to get the other end to shut up 
+ */
+void canit(int fd)
+{
+    static char canistr[] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0 };
+
+    ioctl(fd, TCFLSH, 0);
+    write(fd, canistr, strlen(canistr));
+    if (fd == 0)
+	write(1, canistr, strlen(canistr));
 }
 
 

@@ -35,6 +35,7 @@
 #include "transfer.h"
 #include "zmmisc.h"
 #include "zmrecv.h"
+#include "ymrecv.h"
 #include "openport.h"
 #include "timeout.h"
 #include "input.h"
@@ -73,7 +74,7 @@ static long getfree(void);
 
 
 extern unsigned long	rcvdbytes;
-
+extern int		zmodem_requested;
 
 
 int zmrcvfiles(void)
@@ -92,8 +93,31 @@ int zmrcvfiles(void)
 	Syslog('+', "Zmodem: could not initiate receive, rc=%d",rc);
     } else {
 	if (rc == 0) {
-	    /* Check for ymodem sector */
+	    if (wcrxpn(secbuf) == TERROR) {
+		rc = 2;
+		goto fubar;
+	    }
+	    /*
+	     * Enter X/Y modem receive loop
+	     */
+	    for (;;) {
+		if (secbuf[0] == 0) {
+		    Syslog('z', "%s: seems complete", protname());
+		    goto fubar;
+		}
+		if (procheader(secbuf) == ZFERR) {
+		    rc = 2;
+		    goto fubar;
+		}
+		if (wcrx() == TERROR) {
+		    rc = 2;
+		    goto fubar;
+		}
+	    }
 	}
+	/*
+	 * Zmodem receiver
+	 */
 	switch (rc) {
 	    case ZCOMPL:    rc = 0; 
 			    break;
@@ -102,6 +126,7 @@ int zmrcvfiles(void)
 	}
     }
     
+fubar:
     if (fout) {
 	if (closeit(0)) {
 	    WriteError("Zmodem: Error closing file");
@@ -138,7 +163,7 @@ int tryz(void)
     if (protocol != ZM_ZMODEM)
 	return 0;
 
-    for (n = 15; --n >= 0; ) {
+    for (n = zmodem_requested ?15:5; --n >= 0; ) {
 	/*
 	 * Set buffer length (0) and capability flags
 	 */
