@@ -173,7 +173,6 @@ mbsetup:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups
 	   Filefind flags  <=> TIC Areas
-	   Echomail        <=> Mail groups
 	   Echomail        <=> Nodes
 	   Fileechos       <=> Groups
 	   Fileechos       <=> Nodes
@@ -182,5 +181,4 @@ mbsetup:
 	   Newfiles        <=> BBS Areas
 	   Newfiles        <=> Newfiles groups
 	   Echomail groups <=> Nodes
-	   Echomail groups <=> Areas
 
