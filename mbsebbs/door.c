@@ -170,7 +170,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 				fprintf(fp, "19200\r\n");/* Locked baudrate	*/
 			else
 				fprintf(fp, "%ld\r\n", ttyinfo.portspeed); /* Locked baudrate */
-			fprintf(fp, "Y\r\n");		/* Screen display	*/
+			fprintf(fp, "Y\r\n");		/* Screen snoop		*/
 			fprintf(fp, "N\r\n");		/* Printer on		*/
 			fprintf(fp, "Y\r\n");		/* Page bell		*/
 			fprintf(fp, "Y\r\n");		/* Caller alarm		*/
@@ -182,9 +182,9 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 			fprintf(fp, "%d\r\n", exitinfo.Security.level);
 			fprintf(fp, "%d\r\n", exitinfo.iTotalCalls);
 			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);
-			fprintf(fp, "GR\r\n");		/* ANSI graphics	*/
+			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Seconds	*/
+			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft / 60);	/* Minutes	*/
+			fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics	*/
 			fprintf(fp, "%d\r\n", exitinfo.iScreenLen);
 			fprintf(fp, "N\r\n");		/* User mode, always N	*/
 			fprintf(fp, "\r\n");		/* Always blank		*/
@@ -194,7 +194,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 			fprintf(fp, "%s\r\n", exitinfo.sProtocol);
 			fprintf(fp, "%ld\r\n", exitinfo.Uploads);
 			fprintf(fp, "%ld\r\n", exitinfo.Downloads);
-			fprintf(fp, "%ld\r\n", LIMIT.DownK);
+			fprintf(fp, "%ld\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
 			fprintf(fp, "%ld\r\n", LIMIT.DownK);
 			fprintf(fp, "%s\r\n", Rdate(exitinfo.sDateOfBirth, Y2Kdoorsys));
 			fprintf(fp, "\r\n");		/* Path to userbase	*/
@@ -207,9 +207,9 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 			fprintf(fp, "Y\r\n");		/* Always Y		*/
 			fprintf(fp, "7\r\n");		/* Default textcolor	*/
 			fprintf(fp, "0\r\n");		/* Always 0		*/
-			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
-			fprintf(fp, "%s\r\n", StrTimeHM(t_start));
-			fprintf(fp, "%s\r\n", LastLoginTime);
+			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys)); /* Last newfiles scan date */
+			fprintf(fp, "%s\r\n", StrTimeHM(t_start));  /* Time of this call    */
+			fprintf(fp, "%s\r\n", LastLoginTime);	    /* Time of last call    */
 			fprintf(fp, "32768\r\n");	/* Always 32768		*/
 			fprintf(fp, "%d\r\n", exitinfo.DownloadsToday);
 			fprintf(fp, "%ld\r\n", exitinfo.UploadK);
