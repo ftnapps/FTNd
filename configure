@@ -4780,8 +4780,7 @@ fi
 
 
 
-
-for ac_header in fcntl.h malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h
+for ac_header in malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -6160,8 +6159,7 @@ fi
 
 
 
-
-for ac_func in c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr mkstemp putpwent
+for ac_func in c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr putpwent
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -6243,79 +6241,6 @@ _ACEOF
 
 fi
 done
-
-echo "$as_me:$LINENO: checking for working POSIX fnmatch" >&5
-echo $ECHO_N "checking for working POSIX fnmatch... $ECHO_C" >&6
-if test "${ac_cv_func_fnmatch_works+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  # Some versions of Solaris, SCO, and the GNU C Library
-   # have a broken or incompatible fnmatch.
-   # So we run a test program.  If we are cross-compiling, take no chance.
-   # Thanks to John Oleynick, Franc,ois Pinard, and Paul Eggert for this test.
-   if test "$cross_compiling" = yes; then
-  ac_cv_func_fnmatch_works=cross
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <fnmatch.h>
-#	   define y(a, b, c) (fnmatch (a, b, c) == 0)
-#	   define n(a, b, c) (fnmatch (a, b, c) == FNM_NOMATCH)
-
-int
-main ()
-{
-exit
-	   (!(y ("a*", "abc", 0)
-	      && n ("d*/*1", "d/s/1", FNM_PATHNAME)
-	      && y ("a\\\\bc", "abc", 0)
-	      && n ("a\\\\bc", "abc", FNM_NOESCAPE)
-	      && y ("*x", ".x", 0)
-	      && n ("*x", ".x", FNM_PERIOD)
-	      && 1));
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_fnmatch_works=yes
-else
-  echo "$as_me: program exited with status $ac_status" >&5
-echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-( exit $ac_status )
-ac_cv_func_fnmatch_works=no
-fi
-rm -f core core.* *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
-fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_fnmatch_works" >&5
-echo "${ECHO_T}$ac_cv_func_fnmatch_works" >&6
-if test $ac_cv_func_fnmatch_works = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_FNMATCH 1
-_ACEOF
-
-fi
-
-
 
 if test $ac_cv_c_compiler_gnu = yes; then
     echo "$as_me:$LINENO: checking whether $CC needs -traditional" >&5
@@ -6568,154 +6493,6 @@ cat >>confdefs.h <<_ACEOF
 #define RETSIGTYPE $ac_cv_type_signal
 _ACEOF
 
-
-
-for ac_func in strftime
-do
-as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_func" >&5
-echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
-if eval "test \"\${$as_ac_var+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $ac_func (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char $ac_func ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
-choke me
-#else
-char (*f) () = $ac_func;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != $ac_func;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_var=yes"
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-eval "$as_ac_var=no"
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
-if test `eval echo '${'$as_ac_var'}'` = yes; then
-  cat >>confdefs.h <<_ACEOF
-#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-else
-  # strftime is in -lintl on SCO UNIX.
-echo "$as_me:$LINENO: checking for strftime in -lintl" >&5
-echo $ECHO_N "checking for strftime in -lintl... $ECHO_C" >&6
-if test "${ac_cv_lib_intl_strftime+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lintl  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char strftime ();
-int
-main ()
-{
-strftime ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_lib_intl_strftime=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_lib_intl_strftime=no
-fi
-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-echo "$as_me:$LINENO: result: $ac_cv_lib_intl_strftime" >&5
-echo "${ECHO_T}$ac_cv_lib_intl_strftime" >&6
-if test $ac_cv_lib_intl_strftime = yes; then
-  cat >>confdefs.h <<\_ACEOF
-#define HAVE_STRFTIME 1
-_ACEOF
-
-LIBS="-lintl $LIBS"
-fi
-
-fi
-done
 
 echo "$as_me:$LINENO: checking whether utime accepts a null argument" >&5
 echo $ECHO_N "checking whether utime accepts a null argument... $ECHO_C" >&6
@@ -7413,23 +7190,7 @@ done
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-for ac_func in getcwd gethostname gettimeofday getwd mkdir mktime putenv re_comp regcmp regcomp rmdir select socket strcspn strdup strerror strspn strstr strtol strtoul uname
+for ac_func in gettimeofday re_comp select socket uname
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -7516,8 +7277,7 @@ done
 
 
 
-
-for ac_func in getspnam getutent initgroups updwtmp updwtmpx
+for ac_func in getspnam initgroups updwtmp updwtmpx
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

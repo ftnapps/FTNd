@@ -132,7 +132,7 @@ AC_HEADER_STDC
 AC_HEADER_DIRENT
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(fcntl.h malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h)
+AC_CHECK_HEADERS(malloc.h sys/file.h sys/ioctl.h sys/time.h termios.h syslog.h sys/vfs.h unistd.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(sys/resource.h usersec.h utime.h ulimit.h gshadow.h shadow.h)
 AC_CHECK_HEADERS(limits.h utmp.h utmpx.h lastlog.h rpc/key_prot.h)
 AC_CHECK_HEADERS(iconv.h)
@@ -150,18 +150,16 @@ AC_HEADER_STAT
 AC_STRUCT_TM
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr mkstemp putpwent)
-AC_FUNC_FNMATCH
+AC_CHECK_FUNCS(c64i a64l fchmod fchown fdatasync fsync lckpwdf strcasestr putpwent)
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MEMCMP
 AC_FUNC_SETPGRP
 AC_TYPE_SIGNAL
-AC_FUNC_STRFTIME
 AC_FUNC_UTIME_NULL
 AC_FUNC_VFORK
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(getcwd gethostname gettimeofday getwd mkdir mktime putenv re_comp regcmp regcomp rmdir select socket strcspn strdup strerror strspn strstr strtol strtoul uname)
-AC_CHECK_FUNCS(getspnam getutent initgroups updwtmp updwtmpx)
+AC_CHECK_FUNCS(gettimeofday re_comp select socket uname)
+AC_CHECK_FUNCS(getspnam initgroups updwtmp updwtmpx)
 
 dnl Check for external programs
 AC_PATH_PROG(COMPRESS,compress,no-compress-found-during-configure)

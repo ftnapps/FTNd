@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -45,10 +45,6 @@
 #include "filelist.h"
 #include "openport.h"
 
-
-#ifndef BELEIVE_ZFIN
-#define BELEIVE_ZFIN 2
-#endif
 
 static FILE *fout=NULL;
 
