@@ -34,17 +34,17 @@
 #include "../lib/mbsedb.h"
 #include "openport.h"
 #include "ttyio.h"
+#include "auth.h"
 #include "mbnntp.h"
 
 time_t		    t_start;
 time_t		    t_end;
 char		    *envptr = NULL;
 struct sockaddr_in  peeraddr;
+pid_t		    mypid;
 
 extern char	    *ttystat[];
-
-
-void send_nntp(const char *, ...);
+extern int	    authorized;
 
 
 void die(int onsig)
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	envptr = xstrcat(envptr, pw->pw_dir);
 	putenv(envptr);
     }
-
+    mypid = getpid();
 
     /*
      * Read the global configuration data, registrate connection
@@ -97,11 +97,13 @@ int main(int argc, char *argv[])
     InitUser();
     InitFidonet();
     umask(002);
+    memset(&usrconfig, 0, sizeof(usrconfig));
 
     t_start = time(NULL);
     InitClient(pw->pw_name, (char *)"mbnntp", CFG.location, CFG.logfile, 
 	    CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     Syslog(' ', "MBNNTP v%s", VERSION);
+    IsDoing("Loging in");
 
     /*
      * Catch all the signals we can, and ignore the rest.
@@ -123,7 +125,7 @@ int main(int argc, char *argv[])
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
-	    send_nntp("200 Welcome to MBNNTP v%s (posting may or may not be allowed, try your luck)", VERSION);
+	    send_nntp("200 MBNNTP v%s server ready -- no posting allowed", VERSION);
 	    nntp();
 	}
     }
@@ -132,6 +134,46 @@ int main(int argc, char *argv[])
 
     die(0);
     return 0;
+}
+
+
+
+/*
+ * Get command from the client.
+ * return  < 0: error
+ * return >= 0: size of buffer
+ */
+int get_nntp(char *buf, int max)
+{
+    int	    c, len;
+
+    len = 0;
+    memset(buf, 0, sizeof(buf));
+    while (TRUE) {
+	c = tty_getc(180);
+	if (c <= 0) {
+	    if (c == -2) {
+		/*
+		 * Timeout
+		 */
+		send_nntp("400 Service discontinued");
+	    }
+	    Syslog('+', "Receiver status %s", ttystat[- c]);
+	    return c;
+	}
+	if ((c == '\r') || (c == '\n'))
+	    return len;
+	else {
+	    buf[len] = c;
+	    len++;
+	    buf[len] = '\0';
+	}
+	if (len >= max) {
+	    WriteError("Input buffer full");
+	    return len;
+	}
+    }
+    return 0;	/* Not reached */
 }
 
 
@@ -155,7 +197,7 @@ void send_nntp(const char *format, ...)
 
 
 
-void command_list(void)
+void command_list(char *cmd)
 {
     send_nntp("215 List of newsgroups follows");
 
@@ -167,36 +209,14 @@ void command_list(void)
 void nntp(void)
 {
     char    buf[4096];
-    int	    len, c;
+    int	    len;
     
     while (TRUE) {
-	len = 0;
-	memset(&buf, 0, sizeof(buf));
-	while (TRUE) {
-	    c = tty_getc(180);
-	    if (c <= 0) {
-		if (c == -2) {
-		    /*
-		     * Timeout
-		     */
-		    send_nntp("500 Timeout");
-		}
-		Syslog('+', "Receiver status %s", ttystat[- c]);
-		return;
-	    }
-	    if ((c == '\r') || (c == '\n'))
-		break;
-	    else {
-		buf[len] = c;
-		len++;
-		buf[len] = '\0';
-	    }
-	    if (len == sizeof(buf)) {
-		WriteError("Input buffer full");
-		break;
-	    }
-	}
-	if (strlen(buf) == 0)
+
+	len = get_nntp(buf, sizeof(buf) -1);
+	if (len < 0)
+	    return;
+	if (len == 0)
 	    continue;
 
 	/*
@@ -206,8 +226,13 @@ void nntp(void)
 	if (strncasecmp(buf, "QUIT", 4) == 0) {
 	    send_nntp("205 Goodbye\r\n");
 	    return;
+	} else if (strncasecmp(buf, "AUTHINFO USER", 13) == 0) {
+	    auth_user(buf);
+	} else if (strncasecmp(buf, "AUTHINFO PASS", 13) == 0) {
+	    auth_pass(buf);
 	} else if (strncasecmp(buf, "LIST", 4) == 0) {
-	    command_list();
+	    if (check_auth(buf))
+		command_list(buf);
 	} else if (strncasecmp(buf, "IHAVE", 5) == 0) {
 	    send_nntp("435 Article not wanted - do not send it");
 	} else if (strncasecmp(buf, "NEWGROUPS", 9) == 0) {
@@ -217,11 +242,23 @@ void nntp(void)
 	    send_nntp("230 Warning: NEWNEWS not implemented, returning empty list");
 	    send_nntp(".");
 	} else if (strncasecmp(buf, "SLAVE", 5) == 0) {
-	    send_nntp("202 Slave status noted (but ignored)");
+	    send_nntp("202 Slave status noted");
+	} else if (strncasecmp(buf, "MODE READER", 11) == 0) {
+	    if (authorized)
+		send_nntp("200 Server ready, posting allowed");
+	    else
+		send_nntp("201 Server ready, no posting allowed");
 	} else if (strncasecmp(buf, "HELP", 4) == 0) {
 	    send_nntp("100 Help text follows");
 	    send_nntp("Recognized commands:");
+	    send_nntp("");
+	    send_nntp("AUTHINFO");
+	    send_nntp("IHAVE (not implemented, messages are always rejected)");
+	    send_nntp("LIST");
+	    send_nntp("NEWGROUPS (not implemented, always returns an empty list)");
+	    send_nntp("NEWNEWS (not implemented, always returns an empty list)");
 	    send_nntp("QUIT");
+	    send_nntp("SLAVE (has no effect)");
 	    send_nntp("");
 	    send_nntp("MBNNTP supports most of RFC-977 and also has support for AUTHINFO and");
 	    send_nntp("limited XOVER support (RFC-2980)");
