@@ -78,6 +78,16 @@ void send_xlat(char *inp)
 
 
 
+char *make_msgid(unsigned long nr, unsigned long crc)
+{
+    static char	buf[100];
+
+    sprintf(buf, "<%lu$%8lx@%s>", nr, crc, CFG.sysdomain);
+    return buf;
+}
+
+
+
 /*
  * ARTICLE
  * BODY
@@ -135,7 +145,7 @@ void command_abhs(char *buf)
     }
 
     if (strcasecmp(cmd, "STAT") == 0) {
-	send_nntp("223 %lu <%lu$%s@MBNNTP> Article retrieved", art, art, currentgroup);
+	send_nntp("223 %lu %s Article retrieved", art, make_msgid(art, StringCRC32(Msg.Msgid)));
 	return;
     }
 
@@ -147,11 +157,11 @@ void command_abhs(char *buf)
     if (Msg_Read(art, 75)) {
 
 	if (strcasecmp(cmd, "ARTICLE") == 0)
-	    send_nntp("220 %ld <%ld$%s@MBNNTP> Article retrieved - Head and body follow", art, art, currentgroup);
+	    send_nntp("220 %ld %s Article retrieved - Head and body follow", art, make_msgid(art, StringCRC32(Msg.Msgid)));
 	if (strcasecmp(cmd, "HEAD") == 0)
-	    send_nntp("221 %ld <%ld$%s@MBNNTP> Article retrieved - Head follows", art, art, currentgroup);
+	    send_nntp("221 %ld %s Article retrieved - Head follows", art, make_msgid(art, StringCRC32(Msg.Msgid)));
 	if (strcasecmp(cmd, "BODY") == 0)
-	    send_nntp("222 %ld <%ld$%s@MBNNTP> Article retrieved - Body follows", art, art, currentgroup);
+	    send_nntp("222 %ld %s Article retrieved - Body follows", art, make_msgid(art, StringCRC32(Msg.Msgid)));
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
@@ -160,9 +170,9 @@ void command_abhs(char *buf)
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    send_nntp("Subject: %s", Msg.Subject);
 	    send_nntp("Date: %s", rfcdate(Msg.Written));
-	    send_nntp("Message-ID: <%lu$%s@MBNNTP>", art, currentgroup);
-	    if (Msg.Reply)
-		send_nntp("References: <%lu$%s@MBNNTP>", Msg.Reply, currentgroup);
+	    send_nntp("Message-ID: %s", make_msgid(art, StringCRC32(Msg.Msgid)));
+	    if (strlen(Msg.Replyid))
+		send_nntp("References: %s", make_msgid(Msg.Reply, StringCRC32(Msg.Replyid)));
 	    send_nntp("X-JAM-From: %s <%s>", Msg.From, Msg.FromAddress);
 	    if (strlen(Msg.To))
 		send_nntp("X-JAM-To: %s", Msg.To);
@@ -407,10 +417,10 @@ void command_xover(char *cmd)
 		    } while ((p = (char *)MsgText_Next()) != NULL);
 		}
 	    }
-	    sprintf(msgid, "<%ld$%s@MBNNTP>", i, currentgroup);
+	    sprintf(msgid, "%s", make_msgid(i, StringCRC32(Msg.Msgid)));
 	    reply[0] = 0;
-	    if (Msg.Reply)
-		sprintf(reply, "<%ld$%s@MBNNTP>", Msg.Reply, currentgroup);
+	    if (strlen(Msg.Replyid))
+		sprintf(reply, "%s", make_msgid(Msg.Reply, StringCRC32(Msg.Replyid)));
 	    send_nntp("%lu\t%s\t%s <%s>\t%s\t%s\t%s\t%d\t%d", i, Msg.Subject, Msg.From, Msg.FromAddress, 
 		    rfcdate(Msg.Written), msgid, reply, bytecount, linecount);
 	}
