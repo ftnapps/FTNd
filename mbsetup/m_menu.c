@@ -262,32 +262,32 @@ void Edit_A_Menu(void)
 			temp = le_int(menus.NoDoorsys);
 			temp = edit_bool(13,58, temp, (char *)"Suppress writing ^door.sys^ dropfile");
 			menus.NoDoorsys = le_int(temp);
-		    } else
-			break;
+		    }
+		    break;
 	    case 12:if (le_int(menus.MenuType) == 7) {
 			temp = le_int(menus.Y2Kdoorsys);
 			temp = edit_bool(14,58, temp, (char *)"Create ^door.sys^ with 4 digit yearnumbers");
 			menus.Y2Kdoorsys = le_int(temp);
-		    } else
-			break;
+		    }
+		    break;
 	    case 13:if (le_int(menus.MenuType) == 7) {
 			temp = le_int(menus.Comport);
 			temp = edit_bool(15,58, temp, (char *)"Write real ^COM port^ in door.sys for Vmodem patch");
 			menus.Comport = le_int(temp);
-		    } else
-			break;
+		    }
+		    break;
 	    case 14:if (le_int(menus.MenuType) == 7) {
 			temp = le_int(menus.NoSuid);
 			temp = edit_bool(16,58, temp, (char *)"Run the door as ^real user (nosuid)^");
 			menus.NoSuid = le_int(temp);
-		    } else
-			break;
+		    }
+		    break;
 	    case 15:if (le_int(menus.MenuType) == 7) {
 			temp = le_int(menus.NoPrompt);
 			temp = edit_bool(17,58, temp, (char *)"^Don't display prompt^ when door is finished");
 			menus.NoPrompt = le_int(temp);
-		    } else
-			break;
+		    }
+		    break;
 	}
     }
 }
