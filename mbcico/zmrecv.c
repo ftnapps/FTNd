@@ -39,6 +39,7 @@
 #include "config.h"
 #include "emsi.h"
 #include "openfile.h"
+#include "filelist.h"
 #include "openport.h"
 
 
@@ -52,8 +53,9 @@ static int Usevhdrs;
 static long rxbytes;
 static int Eofseen;		/* indicates cpm eof (^Z) has been received */
 static int errors;
-static time_t startime,etime;
 static long sbytes;
+struct timeval starttime, endtime;
+struct timezone tz;
 
 #define DEFBYTL 2000000000L	/* default rx file size */
 static long Bytesleft;		/* number of bytes of incoming file left */
@@ -441,11 +443,11 @@ int closeit(int success)
 	rc = closefile(success);
 	fout = NULL;
 	sbytes = rxbytes - sbytes;
-	etime = time(NULL);
-	if ((startime = etime - startime) == 0L) 
-		startime = 1L;
-	Syslog('+', "Zmodem: %s %lu bytes in %s (%ld cps)", success?"OK":"dropped after",
-		sbytes, str_time(startime), sbytes / startime);
+	gettimeofday(&endtime, &tz);
+	if (success)
+	    Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, sbytes, FALSE));
+	else
+	    Syslog('+', "Zmodem: dropped after %lu bytes", sbytes);
 	rcvdbytes += sbytes;
 	return rc;
 }
@@ -514,7 +516,7 @@ int procheader(char *Name)
 	Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
 
 	fout = openfile(Name,Modtime,Bytesleft,&(long)(rxbytes),resync);
-	startime = time(NULL);
+	gettimeofday(&starttime, &tz);
 	sbytes = rxbytes;
 
 	if (Bytesleft == rxbytes) {

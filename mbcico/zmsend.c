@@ -73,8 +73,9 @@ static int Lskipnocor=0;
 static int Lzconv=0;
 static int Beenhereb4;
 static char Myattn[]={0};
-static long startime,endtime;
 static long skipsize;
+struct timeval	starttime, endtime;
+struct timezone	tz;
 
 extern unsigned long	sentbytes;
 extern int Rxhlen;
@@ -211,7 +212,7 @@ static int sendzfile(char *ln, char *rn)
 
 	Syslog('+', "Zmodem: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
 	Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
-	startime = time(NULL);
+	gettimeofday(&starttime, &tz);
 
 	sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2), st.st_mode);
 	bufl = strlen(txbuf);
@@ -223,11 +224,8 @@ static int sendzfile(char *ln, char *rn)
 		Syslog('+', "Zmodem: remote skipped %s, is OK",MBSE_SS(ln));
 		return 0;
 	} else if ((rc == OK) && (st.st_size - skipsize)) {
-		endtime = time(NULL);
-		if ((startime = endtime - startime) == 0) 
-			startime = 1;
-		Syslog('+', "Zmodem: OK %lu bytes in %s (%ld cps)", (unsigned long)st.st_size - skipsize, str_time(startime),
-			(long)(st.st_size-skipsize) / startime);
+		gettimeofday(&endtime, &tz);
+		Syslog('+', "Zmodem: OK %s", transfertime(starttime, endtime, (unsigned long)st.st_size - skipsize, TRUE));
 		sentbytes += (unsigned long)st.st_size - skipsize;
 		return 0;
 	} else 

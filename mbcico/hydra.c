@@ -32,9 +32,6 @@
 /*
  * ifcico v3.0.cm - hydra protocol module
  * Copyright (C) 1996-98  Christof Meerwald.
- *
- * $RCSfile$ - $Author$
- * $Revision$ - $Date$
  */
 
 /*
@@ -546,8 +543,9 @@ int hydra_batch(int role, file_list *to_send)
 	int		txwaitpkt, rxwaitpkt;
 	enum		HyPktTypes pkttype;
 	int		waitputget = 0;
-	time_t		rxstarttime, rxendtime;
-	time_t		txstarttime, txendtime;
+	struct timeval	txstarttime, txendtime;
+	struct timeval	rxstarttime, rxendtime;
+	struct timezone	tz;
 	int		sverr;
 
 	Syslog('h', "Hydra: resettimers");
@@ -566,8 +564,9 @@ int hydra_batch(int role, file_list *to_send)
 	SETTIMER(TIMERNO_BRAIN, H_BRAINDEAD);
 	txstate = HTX_START;
 	txoptions = HTXI_OPTIONS;
-	rxstarttime = txstarttime = time(NULL);
-
+	txstarttime.tv_sec = txstarttime.tv_usec = txendtime.tv_sec = txendtime.tv_usec = 0;
+	rxstarttime.tv_sec = rxstarttime.tv_usec = rxendtime.tv_sec = rxendtime.tv_usec = 0;
+	tz.tz_minuteswest = tz.tz_dsttime = 0;
 	rxstate = HRX_INIT;
 	rxoptions = HRXI_OPTIONS;
 
@@ -839,7 +838,7 @@ int hydra_batch(int role, file_list *to_send)
 
 				Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
 				Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned long)txstat.st_size, date(txstat.st_mtime));
-				txstarttime = time(NULL);
+				gettimeofday(&txstarttime, &tz);
 			}
 
 			txstate = HTX_ToFName;
@@ -1116,22 +1115,18 @@ int hydra_batch(int role, file_list *to_send)
 				/*
 				 * calculate time needed and bytes transferred
 				 */
-				txendtime = time(NULL);
-				txstarttime = txendtime - txstarttime;
-
-				if (txstarttime <= 0L)
-					txstarttime = 1L;
+				gettimeofday(&txendtime, &tz);
 
 				/* close transmitter file */
 				fclose(txfp);
 
 				if (txpos >= 0) {
 					stxpos = txpos - stxpos;
-					Syslog('+', "Hydra: OK %lu bytes in %s (%ld cps)",
-						stxpos, str_time(txstarttime), stxpos/txstarttime);
+					Syslog('+', "Hydra: OK %s", transfertime(txstarttime, txendtime, stxpos, TRUE));
 					execute_disposition(to_send);
 				} else {
-					Syslog('+', "Hydra: transmitter skipped file after %ld seconds", txstarttime);
+					Syslog('+', "Hydra: transmitter skipped file after %ld seconds", 
+						txendtime.tv_sec - txstarttime.tv_sec);
 				}
 
 				to_send = to_send->next;
@@ -1325,7 +1320,7 @@ int hydra_batch(int role, file_list *to_send)
 							Name, filesize, date(timestamp));
 
 					rxfp = openfile(Name, timestamp, filesize, &rxpos, resync);
-					rxstarttime = time(NULL);
+					gettimeofday(&rxstarttime, &tz);
 
 					/* check for error opening file */
 					if (rxfp) {
@@ -1415,19 +1410,15 @@ int hydra_batch(int role, file_list *to_send)
 					/*
 					 * calculate time and CPU usage needed
 					 */
-					rxendtime = time(NULL);
+					gettimeofday(&rxendtime, &tz);
 	
 					if (rxpos >= 0) {
 						rxfp = NULL;
 						if (!closefile(1)) {
 							srxpos = rxpos - srxpos;
 
-							rxstarttime = rxendtime - rxstarttime;
-							if (rxstarttime <= 0)
-								rxstarttime = 1L;
-
-							Syslog('+', "Hydra: OK %lu bytes in %s (%ld cps)",
-								     srxpos, str_time(rxstarttime), srxpos/rxstarttime);
+							Syslog('+', "Hydra: OK %s", 
+								transfertime(rxstarttime, rxendtime, srxpos, FALSE));
 
 							rxstate = HRX_OkEOF;
 						} else {
@@ -1442,7 +1433,7 @@ int hydra_batch(int role, file_list *to_send)
 						}
 					} else {
 						Syslog('+', "Hydra: receiver skipped file after %ld seconds",
-						rxendtime - rxstarttime);
+						rxendtime.tv_sec - rxstarttime.tv_sec);
 
 						if (rxfp) {
 							closefile(0);

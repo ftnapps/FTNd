@@ -40,6 +40,7 @@
 #include "openfile.h"
 #include "m7recv.h"
 #include "xmrecv.h"
+#include "filelist.h"
 #include "filetime.h"
 
 
@@ -54,7 +55,8 @@ static char	*recvname=NULL;
 static char	*fpath=NULL;
 static FILE	*fp=NULL;
 static int	last;
-static time_t	stm,etm;
+struct timeval	starttime, endtime;
+struct timezone	tz;
 static off_t	startofs;
 static long	recv_blk;
 
@@ -88,11 +90,11 @@ int closeit(int success)
 	off_t	endofs;
 
 	endofs = recv_blk*XMBLKSIZ;
-	etm = time(NULL);
-	if (etm == stm) 
-		etm++;
-	Syslog('+', "Xmodem %s %lu bytes in %s (%lu cps)", success?"received":"dropped after",
-		(unsigned long)(endofs-startofs),str_time(etm-stm), (unsigned long)(endofs-startofs)/(etm-stm));
+	gettimeofday(&endtime, &tz);
+	if (success)
+	    Syslog('+', "Xmodem: OK %s", transfertime(starttime, endtime, endofs-startofs, FALSE));
+	else
+	    Syslog('+', "Xmodem: dropped after %ld bytes", endofs-startofs);
 	rcvdbytes += (unsigned long)(endofs-startofs);
 	fp = NULL;
 	return closefile(success);
@@ -146,7 +148,7 @@ SM_EDECL
 	int		goteot = FALSE;
 
 	Syslog('x', "xmrecv INIT");
-	stm = time(NULL);
+	gettimeofday(&starttime, &tz);
 	recv_blk=-1L;
 
 	memset(&tmpfname, 0, sizeof(tmpfname));

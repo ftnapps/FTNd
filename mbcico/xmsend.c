@@ -97,7 +97,8 @@ SM_EDECL
 	int		a,a1,a2;
 	int		i;
 	time_t		seatime;
-	time_t		stm,etm;
+	struct timeval	starttime, endtime;
+	struct timezone	tz;
 	unsigned char	header=SOH;
 	struct _xmblk {
 		unsigned char	n1;
@@ -122,7 +123,7 @@ SM_EDECL
 	fl.l_len=0L;
 
 	Syslog('x', "xmsend INIT");
-	stm = time(NULL);
+	gettimeofday(&starttime, &tz);
 
 	/* if we got 'C' than hopefully remote is sealink capable... */
 
@@ -235,11 +236,8 @@ SM_STATE(sendblk)
 		} else if (ackd_blk < last_blk) {
 			SM_PROCEED(waitack);
 		} else {
-			etm = time(NULL);
-			if (etm == stm) 
-				etm++;
-			Syslog('+', "sent %lu bytes in %s (%lu cps)", (unsigned long)st.st_size,str_time(etm-stm),
-				(unsigned long)st.st_size/(etm-stm));
+			gettimeofday(&endtime, &tz);
+			Syslog('+', "Xmodem: OK %s", transfertime(starttime, endtime, st.st_size, TRUE));
 			sentbytes += (unsigned long)st.st_size;
 			fclose(fp);
 			SM_SUCCESS;

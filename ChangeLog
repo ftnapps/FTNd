@@ -4738,7 +4738,7 @@ v0.33.20        10-Feb-2002
 		Added experimental support for binkp GET command frame, under
 		test now.
 		Registers TCP/IP sessions with mbtask.
-		Experimental: binkp filetransfer times are calculated in mSec.
+		All filetransfer times and cps rates are calculated in mSecs.
 
 	mbout:
 		The status display has now 9 digits for the outbound size.

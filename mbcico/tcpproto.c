@@ -54,7 +54,9 @@ static FILE 	*in;
 static char 	txbuf[2048];
 static char 	rxbuf[2048];
 static int  	rx_type;
-static long 	startime,endtime,sbytes;
+static long 	sbytes;
+struct timeval	starttime, endtime;
+struct timezone	tz;
 static off_t	rxbytes;
 
 static int	sendtfile(char *,char *);
@@ -197,7 +199,7 @@ static int sendtfile(char *ln, char *rn)
 	if (st.st_size > 0) {
 		Syslog('+', "TCP send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
 		Syslog('+', "TCP size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
-		startime = time(NULL);
+		gettimeofday(&starttime, &tz);
 	} else {
 		Syslog('+', "File \"%s\" has 0 size, skiped",ln);
 		return 0;
@@ -239,15 +241,9 @@ static int sendtfile(char *ln, char *rn)
 	}
 
 	if (rc == 0 && strncmp(rxbuf,"FOK",3) == 0) {
-		endtime = time(NULL);
-
-		if ((startime=endtime-startime) == 0) 
-			startime = 1;
+		gettimeofday(&endtime, &tz);
 		Syslog('a', "st_size %d, offset %d",st.st_size,offset);
-		Syslog('+', "Sent %lu bytes in %s (%ld cps)",
-			(unsigned long)st.st_size-offset,
-			str_time(startime),
-			(long)(st.st_size-offset)/startime);
+		Syslog('+', "TCP: OK %s", transfertime(starttime, endtime, st.st_size-offset, TRUE));
 		sentbytes += (unsigned long)st.st_size - offset;
 		return 0;
 	} else if(strncmp(rxbuf,"FERROR",6) == 0){
@@ -274,13 +270,12 @@ static int closeit(int success)
 	rc = closefile(success);
 	fout = NULL;
 	sbytes = rxbytes - sbytes;
-	endtime = time(NULL);
+	gettimeofday(&endtime, &tz);
 
-	if ((startime = endtime - startime) == 0L) 
-		startime = 1L;
-	Syslog('+', "%s %lu bytes in %s (%ld cps)",
-		success?"OK":"dropped after",
-		sbytes, str_time(startime), sbytes / startime);
+	if (success)
+	    Syslog('+', "TCP: OK %s", transfertime(starttime, endtime, sbytes, FALSE));
+	else
+	    Syslog('+', "TCP: dropped after %ld bytes", sbytes);
 	rcvdbytes += sbytes;
 	return rc;
 }
@@ -311,7 +306,7 @@ static int receivefile(char *fn, time_t ft, off_t fs)
 	Syslog('+', "TCP receive \"%s\" (%lu bytes) dated %s",fn,fs,date(ft));
 	strcpy(txbuf,"ROK");
 	fout = openfile(fn, ft, fs, &rxbytes, resync);
-	startime = time(NULL);
+	gettimeofday(&starttime, &tz);
 	sbytes = rxbytes;
 
 	if (fs == rxbytes) {
