@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 01-May-2002</h5>
+<h5>Last update 29-Jun-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbfido, the fidonet mail and files processor.</H1>
@@ -187,10 +187,11 @@ It is wise to do this sometimes, on my bbs I run this once a day.
 The command will create tag- and areas files in the doc directory for each group of
 mail and files.
 <P>
-<code><strong>mbfido</strong> test</code>
-This is for testing of the mail routing. In the source "tracker.c" I have
-included a list of nodes that will be tested. This is for development only,
-but it might be handy for you to test your netmail routing.
+<code><strong>mbfido</strong> test &lt;node&gt;</code>
+This is for testing of the mail routing. The node on the commandline must be in
+the format f28.n280.z2 etc. The results are printed on the tty. If you have
+debug logging on in menu 1.5.16 items 17 and 18, then all needed debug
+information is written to the logfile. You can use this to debug your routing.
 <P>
 <code><strong>mbfido</strong> tic</code>
 Process incoming files accompanied with .tic control files. Several actions can

@@ -125,7 +125,7 @@ void Help(void)
 	printf("	r    roll			Rollover statistic counters\n");
 	printf("	s    scan			Scan outgoing Fido mail\n");
 	printf("	ta   tag			Create taglists\n");
-	printf("	te   test			Do some testing\n");
+	printf("	te   test <node>		Do routing test for node\n");
 	printf("	ti   tic			Process .tic files\n");
 	printf("	to   toss			Toss incoming Fido mail\n");
 	printf("	u    uucp	 		Process UUCP batchfile\n");
@@ -254,7 +254,7 @@ int main(int argc, char **argv)
 	struct	passwd *pw;
 	struct	tm *t;
 	fa_list	**envrecip, *envrecip_start = NULL;
-	faddr	*taddr;
+	faddr	*taddr = NULL;
 	int	envrecip_count = 0;
 	FILE	*ofp;
 
@@ -362,9 +362,15 @@ int main(int argc, char **argv)
 			do_tags = TRUE;
 		else if (strncmp(tl(argv[i]), "ti", 2) == 0)
 			do_tic = TRUE;
-		else if (strncmp(tl(argv[i]), "te", 2) == 0)
+		else if (strncmp(tl(argv[i]), "te", 2) == 0) {
 			do_test = TRUE;
-		else if (strncmp(tl(argv[i]), "to", 2) == 0) 
+			if ((i + 1) < argc) {
+			    if ((taddr = parsefaddr(argv[i + 1])) == NULL) {
+				Help();
+			    }
+			    i++;
+			}
+		} else if (strncmp(tl(argv[i]), "to", 2) == 0) 
 			do_toss = TRUE;
 		else if (strncmp(tl(argv[i]), "u", 1) == 0)
 			do_uucp = TRUE;
@@ -526,8 +532,12 @@ int main(int argc, char **argv)
 	}
 	if (!do_uucp)
 		newspost();
-	if (do_test)
-		TestTracker();
+	if (do_test) {
+	    if (taddr == NULL)
+		Help();
+	    TestTracker(taddr);
+	    tidy_faddr(taddr);
+	}
 	if (do_tags)
 		MakeTags();
 	if (do_stat)

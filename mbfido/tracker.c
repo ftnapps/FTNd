@@ -190,6 +190,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	}
 	best = bestaka_s(dest);
 	Syslog('r', "Get route for: %s", ascfnode(dest, 0xff));
+	Syslog('r', "Our best aka is: %s", ascfnode(best, 0xff));
 
 	/*
 	 * Check if the destination is ourself.
@@ -221,6 +222,7 @@ int GetRoute(char *ftn, fidoaddr *res)
                  *  We are a point, so don't bother the rest of the tests, route
                  *  to our boss.
                  */
+		Syslog('r', "We are a point");
                 res->zone = best->zone;
                 res->net  = best->net;
                 res->node = best->node;
@@ -243,6 +245,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	/*
 	 * First direct match
 	 */
+	Syslog('r', "Checking for a direct link, 4d");
 	if (SearchNode(dir)) {
 		for (i = 0; i < 20; i++) {
 			if ((dir.zone  == nodes.Aka[i].zone) &&
@@ -261,6 +264,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	/*
 	 * Again, but now for points
 	 */
+	Syslog('r', "Checking for a direct link, 3d");
 	dir.point = 0;
 	if (SearchNode(dir)) {
 		for (i = 0; i < 20; i++) {
@@ -280,6 +284,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	/*
 	 * Check if we know the uplink, but first check if the node is listed.
 	 */
+	Syslog('r', "Checking for a known uplink");
 	dnlent = (node *)malloc(sizeof(node));
 	memcpy(dnlent, getnlent(dest), sizeof(node));
 	if (dnlent->addr.domain)
@@ -314,6 +319,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 		me_hub = AreWeHub(dest);
 	bnlent = getnlent(best);
 	myregion = bnlent->region;
+	Syslog('r', "We are in region %d", myregion);
 
 	/*
 	 *  This is default routing for hosts:
@@ -323,6 +329,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	 *   4.  The rest goes to the hubs.
 	 */
 	if (me_host != -1) {
+		Syslog('r', "We are a host");
 		sprintf(res->domain, "%s", CFG.aka[me_host].domain);
 		if (((myregion != dnlent->region) && (!(dnlent->pflag & NL_DUMMY))) ||
 		     (CFG.aka[me_host].zone != dest->zone)) {
@@ -377,6 +384,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	 *   2.  Kick everything else to the host.
 	 */
 	if (me_hub != -1) {
+		Syslog('r', "We are a hub");
 		sprintf(res->domain, "%s", CFG.aka[me_hub].domain);
 		if ((dnlent->upnode == CFG.aka[me_hub].node) &&
 		    (dnlent->upnet  == CFG.aka[me_hub].net) &&
@@ -410,6 +418,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 	 *  Routing for normal nodes, everything goes to the hub or host.
 	 */
 	if ((me_hub == -1) && (me_host == -1)) {
+		Syslog('r', "We are a normal node");
 		if (bnlent->pflag != NL_DUMMY) {
 			res->zone = bnlent->addr.zone;
 			res->net  = bnlent->upnet;
@@ -430,6 +439,7 @@ int GetRoute(char *ftn, fidoaddr *res)
 		 *  If the above failed, we are probably a new node without
 		 *  a nodelist entry. We will switch to plan B.
 		 */
+		Syslog('r', "Plan B, we are a unlisted node");
 		if ((fil = fopen(nodes_fil, "r")) != NULL) {
 			fread(&nodeshdr, sizeof(nodeshdr), 1, fil);
 			nodes_pos = -1;
@@ -470,49 +480,51 @@ int GetRoute(char *ftn, fidoaddr *res)
 
 void TestRoute(char *dest)
 {
-	fidoaddr	result;
-	int		rc;
+    fidoaddr    result;
+    int		rc;
+    char	*res;
 
-	
-	rc = GetRoute(dest, &result);
-	if (rc == R_NOROUTE)
-		printf("Route %d %23s => no route\n", rc, dest);
-	else if (rc == R_UNLISTED)
-		printf("Route %d %23s => unlisted node\n", rc, dest);
+    rc = GetRoute(dest, &result);
+    switch (rc) {
+	case R_NOROUTE:	    res = xstrcpy((char *)"No Route");
+			    break;
+	case R_LOCAL:	    res = xstrcpy((char *)"Local address");
+			    break;
+	case R_DIRECT:	    res = xstrcpy((char *)"Direct link");
+			    break;
+	case R_ROUTE:	    res = xstrcpy((char *)"Routed");
+			    break;
+	case R_UNLISTED:    res = xstrcpy((char *)"Unlisted node");
+			    break;
+	default:	    res = xstrcpy((char *)"Internal error");
+    }
+
+    printf("Route %s => %s, route result: %s\n", dest, aka2str(result), res);
+    free(res);
+
+    if ((rc == R_NOROUTE) || (rc == R_UNLISTED) || (rc == R_LOCAL))
+	return;
+
+    if (SearchNode(result)) {
+	if (nodes.RouteVia.zone)
+	    printf("Node is in the setup, route via is %s\n", aka2str(nodes.RouteVia));
 	else
-		printf("Route %d %23s => %s\n", rc, dest, aka2str(result));
+	    printf("Node is in the setup, no route via address\n");
+    } else {
+	printf("Node is not in the setup\n");
+    }
 }
 
 
 
-void TestTracker(void)
+void TestTracker(faddr *dest)
 {
-	colour(7, 0);
-	TestRoute((char *)"2:2801/16@fidonet");
-	TestRoute((char *)"2:2801/16.1");
-	TestRoute((char *)"2:2801/805.3");
-	TestRoute((char *)"2:2801/899.1@fidonet");
-	TestRoute((char *)"2:2801/890@fidonet");
-	TestRoute((char *)"2:2801/1008");
-	TestRoute((char *)"2:2801/21");
-	TestRoute((char *)"2:2801/899@fidonet");
-	TestRoute((char *)"2:2801/807");
-	TestRoute((char *)"92:100/0@bibnet");
-	TestRoute((char *)"92:100/5@bibnet");
-	TestRoute((char *)"92:100/45");
-	TestRoute((char *)"2:28/0");
-	TestRoute((char *)"2:2801/1002@fidonet");
-	TestRoute((char *)"2:2801/206");
-	TestRoute((char *)"2:2/0@fidonet");
-	TestRoute((char *)"2:2/3001");
-	TestRoute((char *)"2:2801/28");
-	TestRoute((char *)"2:2801/307.50");
-	TestRoute((char *)"2:280/901");
-	TestRoute((char *)"2:280/9");
-	TestRoute((char *)"2:203/111");
-	TestRoute((char *)"1:213/350");
-	TestRoute((char *)"9:314/8@virnet");
-	TestRoute((char *)"9:314/8.1@virnet");
+    char    *addr;
+
+    colour(7, 0);
+    addr = ascfnode(dest, 0x2f);
+    Syslog('+', "Search route for %s", addr);
+    TestRoute(addr);
 }
 
 

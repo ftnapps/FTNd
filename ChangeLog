@@ -44,6 +44,9 @@ v0.35.02	22-Jun-2002
 		tag, mbfido would crash.
 		Filefind netmail replies now set the private flag.
 		Removed debugging messages displaying the incoming tic files.
+		The mbfid test command now needs a extra parameter, the final
+		destination to test. It doesn't use the internal fixed table
+		anymore.
 
 	mbindex:
 		Fixed a crash when a pointlist contained Point,5,reservered,

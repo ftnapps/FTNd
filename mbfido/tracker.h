@@ -10,7 +10,7 @@
 
 int	TrackMail(fidoaddr, fidoaddr *);
 int	GetRoute(char *, fidoaddr *);
-void	TestTracker(void);
+void	TestTracker(faddr *);
 
 #endif
 
