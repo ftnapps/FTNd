@@ -37,25 +37,14 @@ v0.71.0		27-Oct-2004
 		troubles to implement right then it's worth these days. This
 		is caused by telnet connections when we never know what the
 		real linespeed is with to/from the user.
-		Added internal zmodem download and upload protocol. Not yet
-		enabled for public use, this will be done when it's ready.
-		The receiver will accept non-standard zmodem 8k blocks. The
-		sender is normal zmodem or zmodem-8K.
-		TODO: uploads smaller then blocksize seems to fail with
-		Dynacomm.
-		With user chat, the timeout timer wasn't refreshed.
-		Rewrote the rewritten terminal i/o to get zmodem upload to
-		work.
-		Added ymodem and xmodem download protocols, both with option
-		for 1k blocks. Not yet enabled for public use also.
+		Added the following internal file transfer protocols: Xmodem,
+		Ymodem, Ymodem-1K, Ymodem-G, Zmodem and Zmodem-8K (aka ZedZap).
+		Xmodem should not be used, but is available because Ymodem is
+		available. 
+		For mode information see the manual setup/protocol.html.
 		After upload, files are now stored correctly in the filebase.
 		In change protocol, changed the colors.
-
-		Note: you could enable the internal protocols by adding these
-		to the protocol setup. But I recommend against it because not
-		yet all safety checks for uploads are installed. When the time
-		is right I will change mbsetup so that these protocols will be
-		automatic added.
+		With user chat, the timeout timer wasn't refreshed.
 
 	mbnewusr:
 		Rewrote terminal i/o.
@@ -67,6 +56,9 @@ v0.71.0		27-Oct-2004
 	mbsetup:
 		In file transfers edit, removed switches for batch and bidirect
 		protocols, added a switch for internal protocols.
+		New internal protocols are automatic added and the external
+		protocols are disabled. Some fields of the internal protocols
+		are protected.
 		In file areas, free downloads is now default for new areas.
 
 	lang:

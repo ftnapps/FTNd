@@ -41,6 +41,8 @@
 
 
 int	ProtUpdated = 0;
+int	ProtRecords = 0;
+
 
 
 /*
@@ -49,89 +51,120 @@ int	ProtUpdated = 0;
  */
 int CountProtocol(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count;
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    count;
 
-	sprintf(ffile, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Created new %s", ffile);
-			PROThdr.hdrsize = sizeof(PROThdr);
-			PROThdr.recsize = sizeof(PROT);
-			fwrite(&PROThdr, sizeof(PROThdr), 1, fil);
+    sprintf(ffile, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Created new %s", ffile);
+	    PROThdr.hdrsize = sizeof(PROThdr);
+	    PROThdr.recsize = sizeof(PROT);
+	    fwrite(&PROThdr, sizeof(PROThdr), 1, fil);
 
-			memset(&PROT, 0, sizeof(PROT));
-			sprintf(PROT.ProtKey,      "1");
-			sprintf(PROT.ProtName,     "Ymodem");
-			if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
-			    sprintf(PROT.ProtUp,       "%s -v", _PATH_RB);
-			    sprintf(PROT.ProtDn,       "%s -v -u", _PATH_SB);
-			    PROT.Available = TRUE;
-			} else {
-			    sprintf(PROT.ProtUp,       "/usr/bin/rb -v");
-			    sprintf(PROT.ProtDn,       "/usr/bin/sb -v -u");
-			    PROT.Available = FALSE;
-			}
-			sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-			PROT.Efficiency = 92;
-			fwrite(&PROT, sizeof(PROT), 1, fil);
+	    /*
+	     * Write default set of protocols
+	     */
+	    memset(&PROT, 0, sizeof(PROT));
+	    sprintf(PROT.ProtKey,      "A");
+	    sprintf(PROT.ProtName,     "Ymodem");
+	    if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
+		sprintf(PROT.ProtUp,       "%s -v", _PATH_RB);
+		sprintf(PROT.ProtDn,       "%s -v -u", _PATH_SB);
+	    } else {
+		sprintf(PROT.ProtUp,       "/usr/bin/rb -v");
+		sprintf(PROT.ProtDn,       "/usr/bin/sb -v -u");
+	    }
+	    PROT.Available = FALSE;
+	    sprintf(PROT.Advice,       "Press Ctrl-X to abort");
+	    PROT.Efficiency = 75;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-                        memset(&PROT, 0, sizeof(PROT));
-                        sprintf(PROT.ProtKey,      "L");
-                        sprintf(PROT.ProtName,     "Local disk");
-                        sprintf(PROT.ProtUp,       "%s/bin/rf", getenv("MBSE_ROOT"));
-                        sprintf(PROT.ProtDn,       "%s/bin/sf", getenv("MBSE_ROOT"));
-                        sprintf(PROT.Advice,       "It goes before you know");
-			PROT.Available = FALSE;
-                        PROT.Efficiency = 100;
-                        fwrite(&PROT, sizeof(PROT), 1, fil);
+	    sprintf(PROT.ProtKey,      "B");
+	    sprintf(PROT.ProtName,     "Ymodem-1K");
+	    if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
+		sprintf(PROT.ProtUp,       "%s -k -v", _PATH_RB);
+		sprintf(PROT.ProtDn,       "%s -k -v -u", _PATH_SB);
+	    } else {
+		sprintf(PROT.ProtUp,       "/usr/bin/rb -k -v");
+		sprintf(PROT.ProtDn,       "/usr/bin/sb -k -v -u");
+	    }
+	    PROT.Efficiency = 82;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-                        memset(&PROT, 0, sizeof(PROT));
-                        sprintf(PROT.ProtKey,      "Y");
-                        sprintf(PROT.ProtName,     "Ymodem 1K");
-			if (strlen(_PATH_SB) && strlen(_PATH_RB)) {
-			    sprintf(PROT.ProtUp,       "%s -k -v", _PATH_RB);
-			    sprintf(PROT.ProtDn,       "%s -k -v -u", _PATH_SB);
-			    PROT.Available = TRUE;
-			} else {
-			    sprintf(PROT.ProtUp,       "/usr/bin/rb -k -v");
-			    sprintf(PROT.ProtDn,       "/usr/bin/sb -k -v -u");
-			    PROT.Available = FALSE;
-			}
-                        sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-                        PROT.Efficiency = 95;
-                        fwrite(&PROT, sizeof(PROT), 1, fil);
+	    sprintf(PROT.ProtKey,      "C");
+	    sprintf(PROT.ProtName,     "Zmodem");
+	    if (strlen(_PATH_SZ) && strlen(_PATH_RZ)) {
+		sprintf(PROT.ProtUp,       "%s -p -v", _PATH_RZ);
+		sprintf(PROT.ProtDn,       "%s -b -q -r -u", _PATH_SZ);
+	    } else {
+		sprintf(PROT.ProtUp,       "/usr/bin/rz -p -v");
+		sprintf(PROT.ProtDn,       "/usr/bin/sz -b -q -r -u");
+	    }
+	    PROT.Efficiency = 98;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-                        memset(&PROT, 0, sizeof(PROT));
-                        sprintf(PROT.ProtKey,      "Z");
-                        sprintf(PROT.ProtName,     "Zmodem");
-			if (strlen(_PATH_SZ) && strlen(_PATH_RZ)) {
-			    sprintf(PROT.ProtUp,       "%s -p -v", _PATH_RZ);
-			    sprintf(PROT.ProtDn,       "%s -b -q -r -u", _PATH_SZ);
-			    PROT.Available = TRUE;
-			} else {
-			    sprintf(PROT.ProtUp,       "/usr/bin/rz -p -v");
-			    sprintf(PROT.ProtDn,       "/usr/bin/sz -b -q -r -u");
-			    PROT.Available = FALSE;
-			}
-                        sprintf(PROT.Advice,       "Press Ctrl-X to abort");
-                        PROT.Efficiency = 98;
-                        fwrite(&PROT, sizeof(PROT), 1, fil);
+            sprintf(PROT.ProtKey,      "L");
+	    sprintf(PROT.ProtName,     "Local disk");
+	    sprintf(PROT.ProtUp,       "%s/bin/rf", getenv("MBSE_ROOT"));
+	    sprintf(PROT.ProtDn,       "%s/bin/sf", getenv("MBSE_ROOT"));
+	    sprintf(PROT.Advice,       "It goes before you know");
+	    PROT.Level.level = 32000;
+	    PROT.Efficiency = 100;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
 
-			fclose(fil);
-			chmod(ffile, 0640);
-			return 4;
-		} else
-			return -1;
+	    memset(&PROT, 0, sizeof(PROT));
+	    PROT.Internal = TRUE;
+	    PROT.Available = TRUE;
+	    sprintf(PROT.Advice,       "Press Ctrl-X to abort");
+            sprintf(PROT.ProtKey,      "1");
+	    sprintf(PROT.ProtName,     "Ymodem-1K");
+	    PROT.Efficiency = 82;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    sprintf(PROT.ProtKey,      "8");
+	    sprintf(PROT.ProtName,     "Zmodem-8K (ZedZap)");
+	    PROT.Efficiency = 99;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    sprintf(PROT.ProtKey,      "G");
+	    sprintf(PROT.ProtName,     "Ymodem-G");
+	    PROT.Efficiency = 90;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    PROT.Available = FALSE;
+	    sprintf(PROT.ProtKey,      "X");
+	    sprintf(PROT.ProtName,     "Xmodem");
+	    PROT.Efficiency = 75;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    PROT.Available = TRUE;
+	    sprintf(PROT.ProtKey,      "Y");
+	    sprintf(PROT.ProtName,     "Ymodem");
+	    PROT.Efficiency = 75;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    sprintf(PROT.ProtKey,      "Z");
+	    sprintf(PROT.ProtName,     "Zmodem");
+	    PROT.Efficiency = 92;
+	    fwrite(&PROT, sizeof(PROT), 1, fil);
+
+	    fclose(fil);
+	    chmod(ffile, 0640);
+	    ProtUpdated = 1;
+	    return 10;
+	} else {
+	    return -1;
 	}
-
+    } else {
 	fread(&PROThdr, sizeof(PROThdr), 1, fil);
 	fseek(fil, 0, SEEK_END);
 	count = (ftell(fil) - PROThdr.hdrsize) / PROThdr.recsize;
 	fclose(fil);
+    }
 
-	return count;
+    return count;
 }
 
 
@@ -144,48 +177,125 @@ int CountProtocol(void)
 int OpenProtocol(void);
 int OpenProtocol(void)
 {
-	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
-	long	oldsize;
+    FILE    *fin, *fout;
+    char    fnin[PATH_MAX], fnout[PATH_MAX], newkey = 'A', *usedkeys;
+    long    oldsize;
+    int	    AddInt = TRUE;
 
-	sprintf(fnin,  "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-	sprintf(fnout, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
-	if ((fin = fopen(fnin, "r")) != NULL) {
-		if ((fout = fopen(fnout, "w")) != NULL) {
-			fread(&PROThdr, sizeof(PROThdr), 1, fin);
-			/*
-			 * In case we are automaic upgrading the data format
-			 * we save the old format. If it is changed, the
-			 * database must always be updated.
-			 */
-			oldsize = PROThdr.recsize;
-			if (oldsize != sizeof(PROT)) {
-				ProtUpdated = 1;
-				Syslog('+', "Upgraded %s, format changed", fnin);
-			} else
-				ProtUpdated = 0;
-			PROThdr.hdrsize = sizeof(PROThdr);
-			PROThdr.recsize = sizeof(PROT);
-			fwrite(&PROThdr, sizeof(PROThdr), 1, fout);
+    sprintf(fnin,  "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    sprintf(fnout, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    if ((fin = fopen(fnin, "r")) != NULL) {
+	if ((fout = fopen(fnout, "w")) != NULL) {
+	    fread(&PROThdr, sizeof(PROThdr), 1, fin);
+	    usedkeys = xstrcpy((char *)"18GXYZ");
 
-			/*
-			 * The datarecord is filled with zero's before each
-			 * read, so if the format changed, the new fields
-			 * will be empty.
-			 */
-			memset(&PROT, 0, sizeof(PROT));
-			while (fread(&PROT, oldsize, 1, fin) == 1) {
-				fwrite(&PROT, sizeof(PROT), 1, fout);
-				memset(&PROT, 0, sizeof(PROT));
-			}
+	    /*
+	     * In case we are automaic upgrading the data format
+	     * we save the old format. If it is changed, the
+	     * database must always be updated.
+	     */
+	    oldsize = PROThdr.recsize;
+	    if (oldsize != sizeof(PROT)) {
+		ProtUpdated = 1;
+		Syslog('+', "Upgraded %s, format changed", fnin);
+	    }
 
-			fclose(fin);
-			fclose(fout);
-			return 0;
-		} else
-			return -1;
-	}
-	return -1;
+	    /*
+	     * First check if the database needs upgrade with internal
+	     * protocols.
+	     */
+	    while (fread(&PROT, oldsize, 1, fin) == 1) {
+		if (PROT.Internal) {
+		    AddInt = FALSE;
+		    usedkeys = xstrcat(usedkeys, PROT.ProtKey);
+		}
+	    }
+	    fseek(fin, PROThdr.hdrsize, SEEK_SET);
+	    if (AddInt)
+		Syslog('+', "Will add new internal transfer protocols");
+
+	    PROThdr.hdrsize = sizeof(PROThdr);
+	    PROThdr.recsize = sizeof(PROT);
+	    fwrite(&PROThdr, sizeof(PROThdr), 1, fout);
+				    
+	    /*
+	     * The datarecord is filled with zero's before each
+	     * read, so if the format changed, the new fields
+	     * will be empty.
+	     */
+	    memset(&PROT, 0, sizeof(PROT));
+	    while (fread(&PROT, oldsize, 1, fin) == 1) {
+		if (!PROT.Internal) {
+		    /*
+		     * Check selection key, if it is one of the new
+		     * internal ones, change the key. Also disable
+		     * the external protocols.
+		     */
+		    if (strstr(usedkeys, PROT.ProtKey)) {
+			Syslog('+', "Change external protocol %s key %s to %c", PROT.ProtName, PROT.ProtKey, newkey);
+			sprintf(PROT.ProtKey, "%c", newkey);
+			newkey++;
+			ProtUpdated = 1;
+		    }
+		    if (AddInt && PROT.Available) {
+			Syslog('+', "Disable external protocol %s", PROT.ProtName);
+			PROT.Available = FALSE;
+			ProtUpdated = 1;
+		    }
+		}
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+		memset(&PROT, 0, sizeof(PROT));
+	    }
+
+	    if (AddInt) {
+		Syslog('+', "Adding new internal protocols");
+		memset(&PROT, 0, sizeof(PROT));
+		PROT.Internal = TRUE;
+		PROT.Available = TRUE;
+		sprintf(PROT.Advice,       "Press Ctrl-X to abort");
+		sprintf(PROT.ProtKey,      "1");
+		sprintf(PROT.ProtName,     "Ymodem-1K");
+		PROT.Efficiency = 82;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+												            
+		sprintf(PROT.ProtKey,      "8");
+		sprintf(PROT.ProtName,     "Zmodem-8K (ZedZap)");
+		PROT.Efficiency = 99;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+
+		sprintf(PROT.ProtKey,      "G");
+		sprintf(PROT.ProtName,     "Ymodem-G");
+		PROT.Efficiency = 90;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+
+		PROT.Available = FALSE;
+		sprintf(PROT.ProtKey,      "X");
+		sprintf(PROT.ProtName,     "Xmodem");
+		PROT.Efficiency = 75;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+
+		PROT.Available = TRUE;
+		sprintf(PROT.ProtKey,      "Y");
+		sprintf(PROT.ProtName,     "Ymodem");
+		PROT.Efficiency = 75;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+
+		sprintf(PROT.ProtKey,      "Z");
+		sprintf(PROT.ProtName,     "Zmodem");
+		PROT.Efficiency = 92;
+		fwrite(&PROT, sizeof(PROT), 1, fout);
+		ProtRecords += 6;
+		ProtUpdated = 1;
+	    }
+
+	    fclose(fin);
+	    fclose(fout);
+	    free(usedkeys);
+	    return 0;
+	} else
+	    return -1;
+    }
+    return -1;
 }
 
 
@@ -193,64 +303,65 @@ int OpenProtocol(void)
 void CloseProtocol(int);
 void CloseProtocol(int force)
 {
-	char	fin[PATH_MAX], fout[PATH_MAX];
-	FILE	*fi, *fo;
-	st_list	*pro = NULL, *tmp;
+    char    fin[PATH_MAX], fout[PATH_MAX];
+    FILE    *fi, *fo;
+    st_list *pro = NULL, *tmp;
 
-	sprintf(fin, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-	sprintf(fout,"%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    sprintf(fin, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    sprintf(fout,"%s/etc/protocol.temp", getenv("MBSE_ROOT"));
 
-	if (ProtUpdated == 1) {
-		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
-			working(1, 0, 0);
-			fi = fopen(fout, "r");
-			fo = fopen(fin,  "w");
-			fread(&PROThdr, PROThdr.hdrsize, 1, fi);
-			fwrite(&PROThdr, PROThdr.hdrsize, 1, fo);
+    if (ProtUpdated == 1) {
+	if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
+	    working(1, 0, 0);
+	    fi = fopen(fout, "r");
+	    fo = fopen(fin,  "w");
+	    fread(&PROThdr, PROThdr.hdrsize, 1, fi);
+	    fwrite(&PROThdr, PROThdr.hdrsize, 1, fo);
 
-			while (fread(&PROT, PROThdr.recsize, 1, fi) == 1)
-				if (!PROT.Deleted)
-					fill_stlist(&pro, PROT.ProtKey, ftell(fi) - PROThdr.recsize);
-			sort_stlist(&pro);
+	    while (fread(&PROT, PROThdr.recsize, 1, fi) == 1)
+		if (!PROT.Deleted)
+		    fill_stlist(&pro, PROT.ProtName, ftell(fi) - PROThdr.recsize);
+	    sort_stlist(&pro);
 
-			for (tmp = pro; tmp; tmp = tmp->next) {
-				fseek(fi, tmp->pos, SEEK_SET);
-				fread(&PROT, PROThdr.recsize, 1, fi);
-				fwrite(&PROT, PROThdr.recsize, 1, fo);
-			}
+	    for (tmp = pro; tmp; tmp = tmp->next) {
+	        fseek(fi, tmp->pos, SEEK_SET);
+	        fread(&PROT, PROThdr.recsize, 1, fi);
+	        fwrite(&PROT, PROThdr.recsize, 1, fo);
+	    }
 
-			fclose(fi);
-			fclose(fo);
-			unlink(fout);
-			chmod(fin, 0640);
-			tidy_stlist(&pro);
-			Syslog('+', "Updated \"protocol.data\"");
-			if (!force)
-			    working(6, 0, 0);
-			return;
-		}
+	    fclose(fi);
+	    fclose(fo);
+	    unlink(fout);
+	    chmod(fin, 0640);
+	    tidy_stlist(&pro);
+	    Syslog('+', "Updated \"protocol.data\"");
+	    if (!force)
+	        working(6, 0, 0);
+	    ProtUpdated = 0;
+	    return;
 	}
-	chmod(fin, 0640);
-	working(1, 0, 0);
-	unlink(fout); 
+    }
+    chmod(fin, 0640);
+    working(1, 0, 0);
+    unlink(fout); 
 }
 
 
 
 int AppendProtocol(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
+    FILE	*fil;
+    char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "a")) != NULL) {
-		memset(&PROT, 0, sizeof(PROT));
-		fwrite(&PROT, sizeof(PROT), 1, fil);
-		fclose(fil);
-		ProtUpdated = 1;
-		return 0;
-	} else
-		return -1;
+    sprintf(ffile, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "a")) != NULL) {
+	memset(&PROT, 0, sizeof(PROT));
+	fwrite(&PROT, sizeof(PROT), 1, fil);
+	fclose(fil);
+	ProtUpdated = 1;
+	return 0;
+    } else
+	return -1;
 }
 
 
@@ -258,20 +369,20 @@ int AppendProtocol(void)
 void s_protrec(void);
 void s_protrec(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "8.5 EDIT PROTOCOL");
-	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.  Select Key");
-	mbse_mvprintw( 8, 6, "2.  Name");
-	mbse_mvprintw( 9, 6, "3.  Upload");
-	mbse_mvprintw(10, 6, "4.  Download");
-	mbse_mvprintw(11, 6, "5.  Available");
-	mbse_mvprintw(12, 6, "6.  Internal");
-	mbse_mvprintw(13, 6, "7.  Advice");
-	mbse_mvprintw(14, 6, "8.  Efficiency");
-	mbse_mvprintw(15, 6, "9.  Deleted");
-	mbse_mvprintw(16, 6, "10. Sec. level");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mbse_mvprintw( 5, 6, "8.5 EDIT PROTOCOL");
+    set_color(CYAN, BLACK);
+    mbse_mvprintw( 7, 6, "1.  Select Key");
+    mbse_mvprintw( 8, 6, "2.  Name");
+    mbse_mvprintw( 9, 6, "3.  Upload");
+    mbse_mvprintw(10, 6, "4.  Download");
+    mbse_mvprintw(11, 6, "5.  Available");
+    mbse_mvprintw(12, 6, "6.  Internal");
+    mbse_mvprintw(13, 6, "7.  Advice");
+    mbse_mvprintw(14, 6, "8.  Efficiency");
+    mbse_mvprintw(15, 6, "9.  Deleted");
+    mbse_mvprintw(16, 6, "10. Sec. level");
 }
 
 
@@ -323,6 +434,15 @@ int EditProtRec(int Area)
 	show_bool(15,21,    PROT.Deleted);
 	show_sec( 16,21,    PROT.Level);
 
+	if (PROT.Internal) {
+	    set_color(BLUE, BLACK);
+	    show_str(  8,21,20, PROT.ProtName);
+	    show_bool(12,21,    PROT.Internal);
+	    show_str( 13,21,30, PROT.Advice);
+	    show_int( 14,21,    PROT.Efficiency);
+	    show_bool(15,21,    PROT.Deleted);
+	}
+	
 	j = select_menu(10);
 	switch(j) {
 	    case 0: crc1 = 0xffffffff;
@@ -344,14 +464,35 @@ int EditProtRec(int Area)
 		    IsDoing("Browsing Menu");
 		    return 0;
 	    case 1: E_UPS(  7,21,1, PROT.ProtKey,   "The ^Key^ to select this protocol")
-	    case 2: E_STR(  8,21,20,PROT.ProtName,  "The ^name^ of this protocol")
-	    case 3: E_STR(  9,21,50,PROT.ProtUp,    "The ^Upload^ path, binary and parameters")
-	    case 4: E_STR( 10,21,50,PROT.ProtDn,    "The ^Download^ path, binary and parameters")
+	    case 2: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_STR(  8,21,20,PROT.ProtName,  "The ^name^ of this protocol")
+	    case 3: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_STR(  9,21,50,PROT.ProtUp,    "The ^Upload^ path, binary and parameters")
+	    case 4: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_STR( 10,21,50,PROT.ProtDn,    "The ^Download^ path, binary and parameters")
 	    case 5: E_BOOL(11,21,   PROT.Available, "Is this protocol ^available^")
-	    case 6: E_BOOL(12,21,   PROT.Internal,  "Is this a ^internal^ transfer protocol")
-	    case 7: E_STR( 13,21,30,PROT.Advice,    "A small ^advice^ to the user, eg \"Press Ctrl-X to abort\"")
-	    case 8: E_INT( 14,21,   PROT.Efficiency,"The ^efficiency^ in % of this protocol")
-	    case 9: E_BOOL(15,21,   PROT.Deleted,   "Is this protocol ^Deleted^")
+	    case 6: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_BOOL(12,21,   PROT.Internal,  "Is this a ^internal^ transfer protocol")
+	    case 7: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_STR( 13,21,30,PROT.Advice,    "A small ^advice^ to the user, eg \"Press Ctrl-X to abort\"")
+	    case 8: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_INT( 14,21,   PROT.Efficiency,"The ^efficiency^ in % of this protocol")
+	    case 9: if (PROT.Internal)
+			errmsg((char *)"Editing not allowd with internal protocol");
+		    else
+			E_BOOL(15,21,   PROT.Deleted,   "Is this protocol ^Deleted^")
 	    case 10:E_SEC( 16,21,   PROT.Level,     "8.5.11  PROTOCOL SECURITY LEVEL", s_protrec)
 	}
     }
@@ -363,79 +504,93 @@ int EditProtRec(int Area)
 
 void EditProtocol(void)
 {
-	int	records, i, x;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+    int	    i, o = 0, y;
+    char    pick[12];
+    FILE    *fil;
+    char    temp[PATH_MAX];
+    long    offset;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    ProtRecords = CountProtocol();
+    if (ProtRecords == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenProtocol() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountProtocol();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenProtocol() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mbse_mvprintw( 5, 6, "8.5 PROTOCOL SETUP");
+	set_color(WHITE, BLACK);
+	mbse_mvprintw( 5, 6, "8.5 PROTOCOL SETUP");
+	set_color(CYAN, BLACK);
+	if (ProtRecords != 0) {
+	    sprintf(temp, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&PROThdr, sizeof(PROThdr), 1, fil);
+		y = 7;
 		set_color(CYAN, BLACK);
-		if (records != 0) {
-			sprintf(temp, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&PROThdr, sizeof(PROThdr), 1, fil);
-				x = 4;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= records; i++) {
-					offset = sizeof(PROThdr) + ((i - 1) * PROThdr.recsize);
-					fseek(fil, offset, 0);
-					fread(&PROT, PROThdr.recsize, 1, fil);
-					if (i == 11)
-						x = 44;
-					if (PROT.Available)
-						set_color(CYAN, BLACK);
-					else
-						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
-					temp[37] = '\0';
-					mbse_mvprintw(i + 6, x, temp);
-				}
-				fclose(fil);
-			}
-			/* Show records here */
+		for (i = 1; i <= 10; i++) {
+		    if ((o + i) <= ProtRecords) {
+			offset = sizeof(PROThdr) + (((o + i) - 1) * PROThdr.recsize);
+			fseek(fil, offset, 0);
+			fread(&PROT, PROThdr.recsize, 1, fil);
+			if (PROT.Deleted)
+			    set_color(LIGHTRED, BLACK);
+			else if (PROT.Available)
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			sprintf(temp, "%3d.  %1s %-20s %s %3d %-30s %5d", i, PROT.ProtKey, PROT.ProtName, 
+				PROT.Internal?"Int":"Ext", PROT.Efficiency, PROT.Advice, PROT.Level.level);
+			mbse_mvprintw(y, 4, temp);
+			y++;
+		    }
 		}
-		strcpy(pick, select_record(records, 20));
-		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseProtocol(FALSE);
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendProtocol() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-		}
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
-			EditProtRec(atoi(pick));
+		fclose(fil);
+	    }
+	    /* Show records here */
 	}
+	strcpy(pick, select_record(ProtRecords, 10));
+		
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseProtocol(FALSE);
+	    return;
+	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    working(1, 0, 0);
+	    if (AppendProtocol() == 0) {
+		ProtRecords++;
+		working(1, 0, 0);
+	    } else
+		working(2, 0, 0);
+	}
+
+	if (strncmp(pick, "N", 1) == 0) 
+	    if ((o + 10) < ProtRecords) 
+		o = o + 10;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 10) >= 0)
+		o = o - 10;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= ProtRecords)) {
+	    EditProtRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 10) * 10;
+	}
+    }
 }
 
 
@@ -451,65 +606,73 @@ void InitProtocol(void)
 
 char *PickProtocol(int nr)
 {
-	static	char Prot[21] = "";
-	int	records, i, x;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+    static char	Prot[21] = "";
+    int		o = 0, i, x, y;
+    char	pick[12];
+    FILE	*fil;
+    char	temp[PATH_MAX];
+    long	offset;
 
-
-	clr_index();
-	working(1, 0, 0);
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return Prot;
-	}
-
-	records = CountProtocol();
-	if (records == -1) {
-		working(2, 0, 0);
-		return Prot;
-	}
-
-
-	clr_index();
-	set_color(WHITE, BLACK);
-	sprintf(temp, "%d.  PROTOCOL SELECT", nr);
-	mbse_mvprintw( 5, 4, temp);
-	set_color(CYAN, BLACK);
-	if (records != 0) {
-		sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
-		if ((fil = fopen(temp, "r")) != NULL) {
-			fread(&PROThdr, sizeof(PROThdr), 1, fil);
-			x = 2;
-			set_color(CYAN, BLACK);
-			for (i = 1; i <= records; i++) {
-				offset = sizeof(PROThdr) + ((i - 1) * PROThdr.recsize);
-				fseek(fil, offset, 0);
-				fread(&PROT, PROThdr.recsize, 1, fil);
-				if (i == 11)
-					x = 42;
-				if (PROT.Available)
-					set_color(CYAN, BLACK);
-				else
-					set_color(LIGHTBLUE, BLACK);
-				sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
-				temp[37] = '\0';
-				mbse_mvprintw(i + 6, x, temp);
-			}
-			strcpy(pick, select_pick(records, 20));
-
-			if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-				offset = sizeof(PROThdr) + ((atoi(pick) - 1) * PROThdr.recsize);
-				fseek(fil, offset, 0);
-				fread(&PROT, PROThdr.recsize, 1, fil);
-				strcpy(Prot, PROT.ProtName);
-			}
-			fclose(fil);
-		}
-	}
+    clr_index();
+    working(1, 0, 0);
+    if (config_read() == -1) {
+	working(2, 0, 0);
 	return Prot;
+    }
+
+    ProtRecords = CountProtocol();
+    if (ProtRecords == -1) {
+	working(2, 0, 0);
+	return Prot;
+    }
+
+    clr_index();
+    set_color(WHITE, BLACK);
+    sprintf(temp, "%d.  PROTOCOL SELECT", nr);
+    mbse_mvprintw( 5, 4, temp);
+    set_color(CYAN, BLACK);
+    if (ProtRecords) {
+	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+	working(1, 0, 0);
+	if ((fil = fopen(temp, "r")) != NULL) {
+	    fread(&PROThdr, sizeof(PROThdr), 1, fil);
+	    x = 2;
+	    y = 7;
+	    set_color(CYAN, BLACK);
+	    for (i = 1; i <= 20; i++) {
+		if (i == 11) {
+		    x = 42;
+		    y = 7;
+		}
+		if ((o + i) <= ProtRecords) {
+		    offset = sizeof(PROThdr) + (((o + i) - 1) * PROThdr.recsize);
+		    fseek(fil, offset, 0);
+		    fread(&PROT, PROThdr.recsize, 1, fil);
+		    if (PROT.Available)
+			set_color(CYAN, BLACK);
+		    else
+			set_color(LIGHTBLUE, BLACK);
+		    sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
+		    temp[37] = '\0';
+		    mbse_mvprintw(i + 6, x, temp);
+		    y++;
+		}
+	    }
+	    strcpy(pick, select_pick(ProtRecords, 20));
+
+	    if ((atoi(pick) >= 1) && (atoi(pick) <= ProtRecords)) {
+		offset = sizeof(PROThdr) + ((atoi(pick) - 1) * PROThdr.recsize);
+		fseek(fil, offset, 0);
+		fread(&PROT, PROThdr.recsize, 1, fil);
+		if (PROT.Available)
+		    strcpy(Prot, PROT.ProtName);
+		else
+		    errmsg((char *)"This protocol is not available");
+	    }
+	    fclose(fil);
+	}
+    }
+    return Prot;
 }
 
 
@@ -551,8 +714,10 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 	    fprintf(wp, "<TBODY>\n");
 	    add_webtable(wp, (char *)"Selection key", PROT.ProtKey);
-	    add_webtable(wp, (char *)"Protocol name", PROT.ProtName);
-	    add_webtable(wp, (char *)"Upload command", PROT.ProtUp);
+	    if (!PROT.Internal) {
+		add_webtable(wp, (char *)"Protocol name", PROT.ProtName);
+		add_webtable(wp, (char *)"Upload command", PROT.ProtUp);
+	    }
 	    add_webtable(wp, (char *)"Download command", PROT.ProtDn);
 	    add_webtable(wp, (char *)"Available", getboolean(PROT.Available));
 	    add_webtable(wp, (char *)"Internal protocol", getboolean(PROT.Internal));
@@ -567,8 +732,10 @@ int bbs_prot_doc(FILE *fp, FILE *toc, int page)
 
 	fprintf(fp, "   Selection key     %s\n", PROT.ProtKey);
         fprintf(fp, "   Protocol name     %s\n", PROT.ProtName);
-        fprintf(fp, "   Upload command    %s\n", PROT.ProtUp);
-        fprintf(fp, "   Download command  %s\n", PROT.ProtDn);
+	if (!PROT.Internal) {
+	    fprintf(fp, "   Upload command    %s\n", PROT.ProtUp);
+	    fprintf(fp, "   Download command  %s\n", PROT.ProtDn);
+	}
         fprintf(fp, "   Available         %s\n", getboolean(PROT.Available));
         fprintf(fp, "   Internal protocol %s\n", getboolean(PROT.Internal));
         fprintf(fp, "   User advice       %s\n", PROT.Advice);
