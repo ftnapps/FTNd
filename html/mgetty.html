@@ -1,9 +1,10 @@
-<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.0 Transitional//EN'>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 <!-- $Id$ -->
 <HEAD>
-<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
@@ -13,11 +14,9 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jan-2002</h5>
-<P>&nbsp;<P>
+<div align='right'><h5>Last update 07-Jan-2002</h5></div>
+<div align='center'><H1>Setup mgetty for MBSE BBS</H1></div>
 
-<H1 ALIGN="CENTER">Setup mgetty for MBSE BBS</H1>
-<P>
 To handle incoming calls you can use <strong>mgetty</strong> written by
 Gert Doering, (gert@greenie.muc.de). Others may work. You have to compile
 <strong>mgetty</strong> with the -DFIDO flag to accept Fidonet mailer calls.
@@ -83,22 +82,22 @@ port ttyS0
 speed 57600
 switchbd 19200
 modem-type cls2
-init-chat "" \d\dAT&F&C1&D3X4W2B0M0Q0V1H0&K3S0=0 OK
+init-chat "" \d\dAT&amp;F&amp;C1&amp;D3X4W2B0M0Q0V1H0&amp;K3S0=0 OK
 #
 #
 # ISDN ports.
-# With AT&E you set the MSN/EAZ the device should listen to.
+# With AT&amp;E you set the MSN/EAZ the device should listen to.
 # This should for an MSN be your telephone number _with_ the area
 # code but _without_ the leading 0.  
 # For an EAZ the last digit of your EAZ.
 #
 port ttyI0
 modem-type data
-init-chat "" ATZ OK AT&E714015437&W0 OK AT&B512 OK
+init-chat "" ATZ OK AT&amp;E714015437&amp;W0 OK AT&amp;B512 OK
 #
 port ttyI1
 modem-type data
-init-chat "" ATZ OK AT&E714017198&W0 OK AT&B512 OK
+init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
 #
 # end of mgetty.config
 </PRE>
@@ -187,4 +186,3 @@ a legal user of your serial ports. Most distributions have some tool for this.
 </BLOCKQUOTE>
 </BODY>
 </HTML>
-
