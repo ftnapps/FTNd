@@ -12,10 +12,10 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Jun-2002</h5>
-<P>&nbsp;<P>
+<div align=right><h5>Last update 07-Aug-2002</h5></div>
+<P>
 
-<H1>mbfido, the fidonet mail and files processor.</H1>
+<div align=center><H1>mbfido, the fidonet mail and files processor.</H1></div>
 <P>
 
 <h3>Synopsis.</H3>
@@ -102,20 +102,21 @@ After that is the message will be forwarded to downlinks
 by adding the message to the mailqueue.
 <P>&nbsp;<P>
 
-<h3>Adding mail to the outbound.</h3>
+<h3>Adding mail and files to the outbound.</h3>
 <P>
-Adding mail to the outbound is done in two passes. The first pass is to put all
-outgoing mail into the ~/tmp directory, these files are named z.n.n.p.ext 
+Adding mail and file to the outbound is done in two passes. The first pass is to put all
+outgoing mail into the ~/var/queue/z.n.n.p directory, the last letters are
+replaced by the digits of the nodenumber.
 The extension can be qqq for packed mail, nnn for normal unpacked mail, hhh for
-hold unpacked mail and ccc for crash unpacked mail. Adding mail to this tmp
-directory can allways be done, even if one of the nodes you are adding mail
+hold unpacked mail and ccc for crash unpacked mail. Adding mail and files to
+this directory can allways be done, even if one of the nodes you are adding mail
 for is having a mail session with your system. This is a safe operation.<br>
 In the second pass, these temp files are really added to the outbound, but
 only if the destination node is not locked, ie. there is no current mailsession
 with that node. If there is a mail session going, these temp files will stay in
 the temp directory and are added to the outbound in a later run of
 <strong>mbfido</strong>. If adding the mail to the outbound succeeds
-the temporary file is removed.
+the temporary files and directory is removed.
 <P>&nbsp;<P>
 
 <H3>Alias file.</H3>

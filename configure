@@ -7794,8 +7794,8 @@ echo "$as_me:$LINENO: checking location of joe editor" >&5
 echo $ECHO_N "checking location of joe editor... $ECHO_C" >&6
 for joebin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
 	if test "$joebin" = "NONE"; then
-		{ echo "$as_me:$LINENO: WARNING: not found" >&5
-echo "$as_me: WARNING: not found" >&2;}
+		echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
 	elif test -x $joebin/joe; then
 
 		echo "$as_me:$LINENO: result: $joebin" >&5
@@ -7807,8 +7807,8 @@ echo "$as_me:$LINENO: checking location of joe rc files" >&5
 echo $ECHO_N "checking location of joe rc files... $ECHO_C" >&6
 for joelib in /etc/joe /usr/lib/joe /usr/local/etc/joe /usr/local/lib/joe /usr/pkg/lib /usr/pkg/etc NONE; do
 	if test "$joelib" = "NONE"; then
-		{ echo "$as_me:$LINENO: WARNING: not found" >&5
-echo "$as_me: WARNING: not found" >&2;}
+		echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
 	elif test -f $joelib/joerc; then
 
 		echo "$as_me:$LINENO: result: $joelib" >&5

@@ -198,7 +198,7 @@ dnl
 AC_MSG_CHECKING(location of joe editor)
 for joebin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
 	if test "$joebin" = "NONE"; then
-		AC_MSG_WARN(not found)
+		AC_MSG_RESULT(not found)
 	elif test -x $joebin/joe; then
 		AC_SUBST(joebin)
 		AC_MSG_RESULT($joebin)
@@ -208,7 +208,7 @@ done
 AC_MSG_CHECKING(location of joe rc files)
 for joelib in /etc/joe /usr/lib/joe /usr/local/etc/joe /usr/local/lib/joe /usr/pkg/lib /usr/pkg/etc NONE; do
 	if test "$joelib" = "NONE"; then
-		AC_MSG_WARN(not found)
+		AC_MSG_RESULT(not found)
 	elif test -f $joelib/joerc; then
 		AC_SUBST(joelib)
 		AC_MSG_RESULT($joelib)
