@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
- * Last modification date : 14-Aug-2001
+ * Last modification date : 17-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -354,8 +354,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		if (strlen(buf) > 200) {
 			Syslog('m', "Next line should be %d characters", strlen(buf));
 			Syslogp('m', printable(buf, 200));
-//		} else {
-//			Syslogp('m', printable(buf, 0));
+		} else {
+			Syslogp('m', printable(buf, 0));
 		}
 		if ((buf[0] == '\1') || !strncmp(buf,"AREA:",5) || !strncmp(buf,"SEEN-BY",7)) { /* This is a kluge line */
 			waskludge = TRUE;
@@ -707,10 +707,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		substitute(buf);
 		Syslog('+', "mail from %s to %s",ascfnode(f,0x7f),buf);
 		To = xstrcpy(buf);
-	}
 
-
-	if (!newsmode) {
 		Syslog('m', "Preparing email");
 //		if (p)
 //			free(p);
@@ -720,6 +717,8 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			p=hdr((char *)"RFC-Return-Path",kmsg);
 		if (p == NULL) 
 			p=hdr((char *)"Return-Path",kmsg);
+		if ((CFG.EmailMode == E_PRMISP) && (p == NULL))
+			p=hdr((char *)"From",msg);
 		if (p)
 			sprintf(MailFrom, "%s", p);
 		else

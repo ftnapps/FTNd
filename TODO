@@ -68,6 +68,8 @@ mbfido:
 
 	N: Wish: internet addresses in the From: field.
 
+	N: Also check for file_id.diz filenames.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

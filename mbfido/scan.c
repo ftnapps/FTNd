@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/scan.h
  * Purpose ...............: Scan for outgoing mail.
- * Last modification date : 13-Aug-2001
+ * Last modification date : 17-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -42,6 +42,7 @@
 #include "pack.h"
 #include "tracker.h"
 #include "ftn2rfc.h"
+#include "rfc2ftn.h"
 #include "postemail.h"
 #include "scan.h"
 
@@ -1044,6 +1045,7 @@ void ExportEmail(unsigned long MsgNum)
 	int	kludges = TRUE;
 
 	Syslog('m', "Export email to %s", Msg.To);
+	Syslog('m', "           from %s", Msg.From);
 	Msg.Sent = TRUE;
 	if (Msg.KillSent)
 		Msg.Deleted = TRUE;
@@ -1064,9 +1066,15 @@ void ExportEmail(unsigned long MsgNum)
         flags |= (Msg.ReceiptRequest)   ? M_RRQ   : 0;
         flags |= (Msg.ConfirmRequest)   ? M_AUDIT : 0;
 
+	Syslog('m', "------------ Scanned message start");
 	if (Msg_Read(MsgNum, 78)) {
 		if ((p = (char *)MsgText_First()) != NULL) {
 			do {
+				Syslog('m', "%s", printable(p, 0));
+				/*
+				 *  GoldED places ^A characters in front of the RFC headers, 
+				 *  so does mbsebbs as well.
+				 */
 				if (p[0] == '\001') {
 					fprintf(qp, "%s\n", p+1);
 					if (!strncmp(p, "\001PID:", 5)) {
@@ -1082,11 +1090,29 @@ void ExportEmail(unsigned long MsgNum)
 			} while ((p = (char *)MsgText_Next()) != NULL);
 		}
 	}
+	Syslog('m', "------------ Scanned message end");
 	rewind(qp);
 	most_debug = TRUE;
-	retval = ftn2rfc(from, too, Msg.Subject, NULL, Msg.Written, flags, qp);
+
+	/*
+	 *  At this point the message is RFC formatted.
+	 */
+	if (CFG.EmailMode != E_NOISP) {
+		/*
+		 *  Dialup or direct internet connection, send message via MTA.
+		 */
+		retval = postemail(qp, Msg.From, Msg.To);
+	} else {
+		/*
+		 *  Message goes to UUCP gateway.
+		 */
+		retval = rfc2ftn(qp, too);
+	}
+
 	most_debug = FALSE;
-	Syslog('m', "ftn2rfc rc=%d", retval);
+	tidy_faddr(from);
+	tidy_faddr(too);
+	Syslog('m', "posted email rc=%d", retval);
 	email_out++;
 }
 

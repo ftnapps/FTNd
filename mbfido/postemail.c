@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/postemail.c
  * Purpose ...............: Post Email message from temp file
- * Last modification date : 06-May-2001
+ * Last modification date : 17-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -65,26 +65,30 @@ int postemail(FILE *fp, char *MailFrom, char *MailTo)
 	temp = calloc(2048, sizeof(char));
 	rewind(fp);
 
-	Syslog('+', "SMTP: posting from %s to %s", MailFrom, MailTo);
+	Syslog('+', "SMTP: posting email from \"%s\" to \"%s\"", MailFrom, MailTo);
 	if (smtp_connect() == -1) {
 		WriteError("SMTP: connection refused");
+		email_bad++;
 		return 2;
 	}
 
-	sprintf(temp, "MAIL FROM: <%s>\r\n", MailFrom);
+	sprintf(temp, "MAIL FROM:<%s>\r\n", MailFrom);
 	if (smtp_cmd(temp, 250)) {
 		WriteError("SMTP: refused FROM <%s>", MailFrom);
+		email_bad++;
 		return 2;
 	}
 
-	sprintf(temp, "RCPT TO: <%s>\r\n", MailTo);
+	sprintf(temp, "RCPT TO:<%s>\r\n", MailTo);
 	if (smtp_cmd(temp, 250)) {
 		WriteError("SMTP: refused TO <%s>", MailTo);
+		email_bad++;
 		return 2;
 	}
 
 	if (smtp_cmd((char *)"DATA\r\n", 354)) {
 		WriteError("SMTP refused DATA mode");
+		email_bad++;
 		return 2;
 	}
 

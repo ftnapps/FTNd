@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/mail.c
  * Purpose ...............: Message reading and writing.
- * Last modification date : 28-Jun-2001
+ * Last modification date : 17-Sep-2001
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
@@ -377,21 +377,15 @@ void Post_Msg()
 	pout(14, 0, (char *) Language(157));
 
 	if (msgs.Type == NEWS) {
-		if (CFG.EmailMode != E_PRMISP) {
+		if (CFG.EmailMode == E_NOISP) {
 			/*
-			 * If not permanent connected to the internet, use Fido style addressing.
+			 * If not connected to the internet, use Fido style addressing.
 			 */
 			Dest = fido2faddr(CFG.EmailFidoAka);
 			strcpy(Msg.From, exitinfo.sUserName);
 			tlcap(Msg.From);
 		} else {
-			sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, CFG.sysdomain, exitinfo.sUserName);
-			for (i = 0; i < strlen(Msg.From); i++) {
-				if (Msg.From[i] == ' ')
-					Msg.From[i] = '_';
-				if (Msg.From[i] == '@')
-					break;
-			}
+			sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 		}
 	} else {
 		strcpy(Msg.From, exitinfo.sUserName);

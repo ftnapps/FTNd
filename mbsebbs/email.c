@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/email.c
  * Purpose ...............: Internet email
- * Last modification date : 28-Jun-2001
+ * Last modification date : 17-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -294,12 +294,12 @@ int Save_Email(int IsReply)
 	sprintf(p, "<%08lx@%s>", id, CFG.sysdomain);
 	sprintf(temp, "\001Message-id: %s", p);
 	MsgText_Add2(temp);
-	sprintf(temp, "\001MSGID: %s %08lx", aka2str(CFG.EmailFidoAka), id);
-	MsgText_Add2(temp);
+//	sprintf(temp, "\001MSGID: %s %08lx", aka2str(CFG.EmailFidoAka), id);
+//	MsgText_Add2(temp);
 	Msg.MsgIdCRC = upd_crc32(temp, crc, strlen(temp));
 	free(p);
-	sprintf(temp, "\001PID: MBSE-BBS %s", VERSION);
-	MsgText_Add2(temp);
+//	sprintf(temp, "\001PID: MBSE-BBS %s", VERSION);
+//	MsgText_Add2(temp);
 
 	if (IsReply) {
 		sprintf(temp, "\001In-reply-to: %s", Msg.Replyid);
@@ -831,7 +831,7 @@ void Write_Email(void)
 		Dest = fido2faddr(CFG.EmailFidoAka);
 		sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
 	} else
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, CFG.sysdomain, exitinfo.sUserName);
+		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
         for (i = 0; i < strlen(Msg.From); i++) {
                 if (Msg.From[i] == ' ')
                         Msg.From[i] = '_';

@@ -62,8 +62,9 @@ Compile instructions for GoldED 3.0.1 written by Johannes Beekhuizen, 2:280/1018
 *  Build the program 'gbuild':
 	cd <basedir>/gbuild
 	make lnx
-	cp gbldnx /opt/mbse/bin
-   The location of gbldlnx is not important, as long as it is in your PATH.
+	cp gbldlnx /opt/mbse/bin/gbuild
+   The location of gbldlnx is not important, as long as it is in your PATH and
+   as long as it is called gbuild.
 *  Create the directories needed for compilation and installation:
 	cd <basedir>/goldlib
 	make install
