@@ -4642,7 +4642,10 @@ v0.33.20        10-Feb-2002
 
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.
-
+		Temporary added extra password handling logs.
+		If a binkp session comes in and there already is a session
+		with that node, mbcico stopts the binkp session with an error.
+		
 	mbsebbs:
 		On some systems the download taglists contained garbage after
 		the short filename causing wrong filenames at the users side.

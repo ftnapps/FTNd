@@ -398,14 +398,12 @@ SM_STATES
 	sendpass,
 	waitaddr,
 	authremote,
-	ifsecure,
 	waitok
 SM_NAMES
 	(char *)"waitconn",
 	(char *)"sendpass",
 	(char *)"waitaddr",
 	(char *)"authremote",
-	(char *)"ifsecure",
 	(char *)"waitok"
 SM_EDECL
 	faddr	*primary;
@@ -436,12 +434,13 @@ SM_STATE(waitconn)
 	primary = bestaka_s(remote->addr);
 	p = xstrcpy(ascfnode(primary, 0x1f));
 
+	/*
+	 * Add all other aka's exept primary aka.
+	 */
 	for (i = 0; i < 40; i++)
 		if ((CFG.aka[i].zone) && (CFG.akavalid[i]) &&
-		    ((CFG.aka[i].zone != primary->zone) ||
-		     (CFG.aka[i].net  != primary->net)  ||
-		     (CFG.aka[i].node != primary->node) ||
-		     (CFG.aka[i].point!= primary->point))) {
+		    ((CFG.aka[i].zone != primary->zone) || (CFG.aka[i].net  != primary->net)  ||
+		     (CFG.aka[i].node != primary->node) || (CFG.aka[i].point!= primary->point))) {
 			p = xstrcat(p, (char *)" ");
 			p = xstrcat(p, aka2str(CFG.aka[i]));
 		}
@@ -494,6 +493,7 @@ SM_STATE(waitaddr)
 					Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
 					if (nodelock(tmpa->addr)) {
 						binkp_send_control(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
+						SM_ERROR;
 					}
 
 					/*
@@ -541,19 +541,12 @@ SM_STATE(authremote)
 	}
 
 	if (rc) {
-		SM_PROCEED(ifsecure)
+		SM_PROCEED(waitok)
 	} else {
 		Syslog('!', "Error: the wrong node is reached");
 		binkp_send_control(MM_ERR, "No AKAs in common or all AKAs busy");
 		SM_ERROR;
 	}
-
-SM_STATE(ifsecure)
-
-//	if (SendPass) {
-		SM_PROCEED(waitok)
-//	}
-//	SM_SUCCESS;
 
 SM_STATE(waitok)
 
@@ -597,13 +590,11 @@ SM_DECL(ansbinkp, (char *)"ansbinkp")
 SM_STATES
 	waitconn,
 	waitaddr,
-	ispasswd,
 	waitpwd,
 	pwdack
 SM_NAMES
 	(char *)"waitconn",
 	(char *)"waitaddr",
-	(char *)"ispasswd",
 	(char *)"waitpwd",
 	(char *)"pwdack"
 
@@ -661,6 +652,7 @@ SM_STATE(waitaddr)
 					Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
 					if (nodelock(tmpa->addr)) {
 						binkp_send_control(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
+						SM_ERROR;
 					}
 
 					/*
@@ -697,7 +689,7 @@ SM_STATE(waitaddr)
 				history.aka.point = remote->addr->point;
 				sprintf(history.aka.domain, "%s", remote->addr->domain);
 
-				SM_PROCEED(ispasswd)
+				SM_PROCEED(waitpwd)
 
 			} else if (rbuf[0] == MM_ERR) {
 				Syslog('!', "Remote error: %s", &rbuf[1]);
@@ -708,14 +700,6 @@ SM_STATE(waitaddr)
 			}
 		}
 	}
-
-SM_STATE(ispasswd)
-
-//	if (!Loaded && !strlen(nodes.Epasswd)) {
-//		Syslog('+', "Unprotected session");
-//		SM_SUCCESS;
-//	}
-	SM_PROCEED(waitpwd)
 
 SM_STATE(waitpwd)
 
@@ -741,11 +725,15 @@ SM_STATE(waitpwd)
 
 SM_STATE(pwdack)
 	Syslog('-', "pwdack '%s' Loaded=%s strlen(nodes.Epasswd)=%d", &rbuf[1], Loaded?"true":"false", strlen(nodes.Epasswd));
-        if ((strcmp(&rbuf[1], "-") == 0) && (!Loaded && !strlen(nodes.Epasswd))) {
-		Syslog('+', "No password, unprotected BINKP session");
+        if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
+		Syslog('+', "Node not in setup, unprotected BINKP session");
 		binkp_send_control(MM_OK, "");
 		SM_SUCCESS;
-	} else if (strcmp(&rbuf[1], nodes.Epasswd) == 0) {
+	} else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Epasswd)) {
+		Syslog('+', "Node in setup but no session password, unprotected BINKP session");
+		binkp_send_control(MM_OK, "");
+		SM_SUCCESS;
+	} else if ((strcmp(&rbuf[1], nodes.Epasswd) == 0) && Loaded) {
 		Syslog('+', "Password OK, protected BINKP session");
 		if (inbound)
 			free(inbound);
@@ -759,7 +747,6 @@ SM_STATE(pwdack)
 	}
 
 SM_END
-
 SM_RETURN
 
 
@@ -1053,8 +1040,6 @@ int binkp_batch(file_list *to_send)
 				TxState = TxDone;
 				binkp_send_control(MM_EOB, "");
 				Syslog('+', "Binkp: sending EOB");
-//			} else {
-//				Syslog('b', "tmp != NULL");
 			}
 			break;
 

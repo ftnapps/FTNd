@@ -61,7 +61,7 @@ int load_node(fidoaddr n)
 {
     char    *temp;
     FILE    *fp;
-    int	    i;
+    int	    i, j = 0;
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
@@ -74,11 +74,13 @@ int load_node(fidoaddr n)
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     while (fread(&nodes, nodeshdr.recsize, 1, fp) == 1) {
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+	j++;
 	for (i = 0; i < 20; i++) {
 	    if ((n.zone == nodes.Aka[i].zone) || (n.net == nodes.Aka[i].net) ||
 		(n.node == nodes.Aka[i].node) || (n.point == nodes.Aka[i].point)) {
 		fclose(fp);
 		free(temp);
+		tasklog('-' , "Node record %d, aka nr %d", j, i+1);
 		return TRUE;
 	    }
 	}
@@ -88,6 +90,21 @@ int load_node(fidoaddr n)
     memset(&nodes, 0, sizeof(nodes));
     free(temp);
     return FALSE;    
+}
+
+
+
+char *size_str(long);
+char *size_str(long size)
+{
+    static char	fmt[25];
+    
+    if (size > 1048575) {
+	sprintf(fmt, "%ldK", size / 1024);
+    } else {
+	sprintf(fmt, "%ld ", size);
+    }
+    return fmt;
 }
 
 
@@ -198,12 +215,12 @@ int outstat()
 	 */
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
+			tasklog('+', "Flavor Out       Size    Online    Modem     ISDN   TCP/IP Calls Status  Mode    Address");
 			first = FALSE;
 		}
 
-		if (load_node(tmp->addr))
-		    tasklog('o', "Loaded node %s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), 
+		rc = load_node(tmp->addr);
+		tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
 			    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
 
 		/*
@@ -406,7 +423,7 @@ int outstat()
 			}
 		    }
 		}
-		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %s %s %s", flstr, (long)tmp->size,
+		sprintf(temp, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
 			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
 			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
