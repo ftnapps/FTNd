@@ -4,6 +4,13 @@ $Id$
 v0.61.4		11-Aug-2004
 
 	upgrade:
+		If you run a version older then 0.60.0, first upgrade to 0.60.0
+		If you run a version older then 0.60.0, first upgrade to 0.60.0
+		(That was twice).
+		Don't forget to backup /opt/mbse.
+		Before upgrade (make install) stop the bbs with "mbstat c w".
+		This is important because the files database moves to a new
+		location (~/var/fdb).
 		If you have BBBS uplinks and use automatic uplink requests then
 		change the setup of these nodes in screen 7.10.
 		Run "mbfile check" and then "mbfile index". This fixes the
@@ -16,6 +23,9 @@ v0.61.4		11-Aug-2004
 
 	libnodelist.a:
 		Removed some debug logging.
+
+	libdbase.a:
+		The files database is moved from ~/fdb to ~/var/fdb.
 
 	mbcico:
 		Removed a little debug logging.
@@ -85,6 +95,7 @@ v0.61.4		11-Aug-2004
 		screen, and added switches for BBBS uplinks.
 		If the convert program is found and was not found before, the
 		defaults are set in menu 1.15.6.
+		The files database is moved from ~/fdb to ~/var/fdb.
 
 	script:
 		In the editor script (that calls joe) made a fix for screens

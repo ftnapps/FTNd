@@ -118,7 +118,7 @@ void E_F(long areanr)
 
     clr_index();
 
-    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
+    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
     if ((fil = fopen(temp, "r+")) == NULL) {
 	working(2, 0, 0);
 	return;
@@ -374,12 +374,12 @@ void InitFDB(void)
 	while (fread(&area, areahdr.recsize, 1, fil)) {
 	    Area++;
 	    if (area.Available) {
-		sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		sprintf(temp, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
 		if ((fp1 = fopen(temp, "r")) != NULL) {
 		    /*
 		     * Old area available, upgrade.
 		     */
-		    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+		    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 		    if ((fp2 = fopen(temp, "w+")) == NULL) {
 			WriteError("$Can't create %s", temp);
 		    } else {
@@ -450,7 +450,7 @@ void InitFDB(void)
 			Syslog('+', "Upgraded file area database %d", Area);
 		    }
 		    fclose(fp1);
-		    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		    sprintf(temp, "%s/var/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
 		    unlink(temp);
 		} // Old area type upgrade.
 

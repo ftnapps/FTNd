@@ -52,7 +52,6 @@ install:
 		fi
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/html
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/tags
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/fdb
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/magic
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/sema
@@ -97,6 +96,13 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/boxes
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/dosemu
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/dosemu/c
+		@if [ ! -d ${PREFIX}/var/fdb ] && [ -d ${PREFIX}/fdb ]; then \
+			echo "Migrate files database..." ; \
+			${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/fdb ; \
+			mv ${PREFIX}/fdb/file*.data ${PREFIX}/var/fdb ; \
+			echo "...done. You may remove ${PREFIX}/fdb" ; \
+		fi
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/fdb
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/hatch
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/inbound
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/mail

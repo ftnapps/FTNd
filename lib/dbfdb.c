@@ -50,7 +50,7 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
     temp = calloc(PATH_MAX, sizeof(char));
     fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
 
-    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, if it's locked, just wait.
@@ -211,7 +211,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
      */
     temp = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
     Insert = 0;
     do {
@@ -300,12 +300,12 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	 * we will give that a new name on disk. Then we move the temp in place.
 	 * Finaly remove the old (still locked) original file.
 	 */
-	sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-	sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+	sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
+	sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = rename(temp2, temp);
-	sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+	sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = rename(temp, temp2);
-	sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+	sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
 	rc = unlink(temp);
 
 	fdb_area->fp = fp;
@@ -348,7 +348,7 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
      */
     temp = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
 	WriteError("$Can't create %s", temp);
 	mbsedb_UnlockFDB(fdb_area);
@@ -369,12 +369,12 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
      * we will give that a new name on disk. Then we move the temp in place.
      * Finaly remove the old (still locked) original file.
      */
-    sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
     rename(temp2, temp);
-    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     rename(temp, temp2);
-    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
     unlink(temp);
 
     fdb_area->fp = fp;
@@ -497,7 +497,7 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     }
     
     temp  = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     if ((fp = fopen(temp, "a+")) == NULL) {
         WriteError("$Can't create %s", temp);
         mbsedb_UnlockFDB(fdb_area);
@@ -522,12 +522,12 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
      * Finaly remove the old (still locked) original file.
      */
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
-    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp2, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
     rename(temp2, temp);
-    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
     rename(temp, temp2);
-    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/var/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
     unlink(temp);
 
     fdb_area->fp = fp;
