@@ -36,10 +36,10 @@
 
 #include "../config.h"
 #include <stdio.h>
-#include <grp.h>
 #include <syslog.h>
 #include "mblogin.h"
 #include <pwd.h>
+#include <grp.h>
 #include "getdef.h"
 #include "setugid.h"
 
