@@ -399,7 +399,7 @@ void E_Files(void)
 	mvprintw(13, 6, "7.  Send TIC file");
 	mvprintw(14, 6, "8.  Advanced TIC");
 	mvprintw(15, 6, "9.  File forward");
-	mvprintw(16, 6, "10. Billing");
+	mvprintw(16, 6, "10. Billing (CSO)");
 	mvprintw( 7,46, "11. Bill direct");
 	mvprintw( 8,46, "12. Credit");
 	mvprintw( 9,46, "13. Debet");
@@ -437,7 +437,7 @@ void E_Files(void)
 		case 7:	E_BOOL(13,25,   nodes.Tic,        "Send ^TIC^ files to this node")
 		case 8:	E_BOOL(14,25,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
 		case 9:	E_BOOL(15,25,   nodes.FileFwd,    "^Forward TIC^ files for this node")
-		case 10:E_BOOL(16,25,   nodes.Billing,    "Send ^bills^ to this node")
+		case 10:E_BOOL(16,25,   nodes.Billing,    "Send ^bills^ to this node, Costsharing is active")
 		case 11:E_BOOL( 7,65,   nodes.BillDirect, "Send bills ^direct^ after file processing")
 		case 12:E_INT(  8,65,   nodes.Credit,     "The ^credit^ this node has for costsharing")
 		case 13:E_INT(  9,65,   nodes.Debet,      "The ^debet^ in cents we have credit from this node")

@@ -4281,6 +4281,7 @@ v0.33.19        26-Oct-2001
 		On new systems it will now also create one filearea, three
 		default mail areas, a newfilereport and the groups belonging
 		to these areas. Also 10 oneliners are installed.
+		Changed help for nodes billing flag.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
@@ -4413,6 +4414,8 @@ v0.33.19        26-Oct-2001
 		Implemented long filenames with hatch. Now uses ticfile key-
 		word Fullname for the long filename.
 		Fixes for Sparc systems.
+		File forwarding now really depends on the downlink billing
+		flag.
 
 	mbfile:
 		During check the file databases are reset to filemode 0660.

@@ -343,7 +343,7 @@ int ProcessTic(fa_list *sbl)
 	 */
 	Kb = TIC.FileSize / 1024;
 	if (SearchNode(TIC.Aka)) {
-		if (TIC.TicIn.Cost) {
+		if (TIC.TicIn.Cost && nodes.Billing) {
 			nodes.Debet -= TIC.TicIn.Cost;
 			Syslog('f', "Uplink cost %ld, debet %ld", TIC.TicIn.Cost, nodes.Debet);
 		}

@@ -66,21 +66,25 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 */
 
 	/*
-	 * Check if this node has enough credits for this file.
+	 * If Costsharing active for this node
 	 */
-	T_File.Cost = TIC.FileCost + (TIC.FileCost * nodes.AddPerc / 1000);
-	if ((nodes.Credit < (nodes.StopLevel + T_File.Cost))  && (!TIC.Charge)) {
+	if (nodes.Billing) {
+	    /*
+	     * Check if this node has enough credits for this file.
+	     */
+	    T_File.Cost = TIC.FileCost + (TIC.FileCost * nodes.AddPerc / 1000);
+	    if ((nodes.Credit < (nodes.StopLevel + T_File.Cost))  && (!TIC.Charge)) {
 		Syslog('!', "No forward to %s, not enough credit left", aka2str(Node));
 		exit;
-	}
+	    }
 
-	/*
-	 * Check if we are passing the warning level
-	 */
-	if ((nodes.Credit > nodes.WarnLevel) && 
-	    ((nodes.Credit - T_File.Cost) <= nodes.WarnLevel)) {
+	    /*
+	     * Check if we are passing the warning level
+	     */
+	    if ((nodes.Credit > nodes.WarnLevel) && ((nodes.Credit - T_File.Cost) <= nodes.WarnLevel)) {
 		Syslog('+', "Low credit warning to %s", aka2str(Node));
 		/* CREATE NETMAIL */
+	    }
 	}
 
 	fwdfile = calloc(PATH_MAX, sizeof(char));
@@ -195,7 +199,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 				 * According to Harald Harms this field must
 				 * be multiplied with 100.
 				 */
-				if (TIC.FileCost) 
+				if (TIC.FileCost && nodes.Billing) 
 					fprintf(fp, "Cost %ld.00\r\n", T_File.Cost);
 				if (TIC.TicIn.TotLDesc)
 					for (i = 0; i < TIC.TicIn.TotLDesc; i++)
@@ -274,7 +278,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		}
 	}
 
-	if (TIC.Charge) {
+	if (TIC.Charge && nodes.Billing) {
 		nodes.Credit -= TIC.FileCost;
 		Syslog('-', "Cost: %d  Left: %d", TIC.FileCost, nodes.Credit);
 
