@@ -47,6 +47,7 @@
  */
 #define	MAXTASKS		10
 #define	SLOWRUN			20
+#define	PAUSETIME		3
 #define TMPNAME 		"TMP."
 #define LCKNAME			"LOCKTASK"
 #define ICMP_BASEHDR_LEN	8
@@ -101,6 +102,8 @@ int			pingnr = 1;		/* Ping #, 1 or 2	*/
 int			pingresult[2];		/* Ping results		*/
 char			pingaddress[41];	/* Ping current address	*/
 int			masterinit = FALSE;	/* Master init needed	*/
+int			ptimer = PAUSETIME;	/* Pause timer		*/
+
 
 
 /*
@@ -452,7 +455,7 @@ void load_taskcfg(void)
 /*
  *  Launch an external program in the background.
  *  On success add it to the tasklist and return
- *  the pid.
+ *  the pid. Set the pause timer.
  */
 pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 {
@@ -531,6 +534,8 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		}
 	}
 
+	ptimer = PAUSETIME;
+
 	if (opts)
 		tasklog('+', "Launch: task %d \"%s %s\" success, pid=%d", i, cmd, opts, pid);
 	else
@@ -580,6 +585,7 @@ int checktasks(int onsig)
 				task[i].running = FALSE;
 				if (task[i].tasktype == CALL_POTS || task[i].tasktype == CALL_ISDN || task[i].tasktype == CALL_IP)
 					do_outstat = TRUE;
+				ptimer = PAUSETIME;
 			}
 
 			if (first && task[i].rc) {
@@ -1035,332 +1041,344 @@ void check_sema(void)
 
 void scheduler(void)
 {
-	struct passwd   *pw;
-	int		running = 0, rc, rlen;
-	int             LOADhi = FALSE, oldmin = 70, olddo = 70;
-	char            *cmd = NULL;
-	static char	doing[32], buf[2048];
-	time_t          now;
-	struct tm       *tm;
-	FILE		*fp;
-	float		lavg1, lavg2, lavg3;
-	struct pollfd	pfd;
-	struct in_addr	paddr;
+    struct passwd   *pw;
+    int		    running = 0, rc, rlen;
+    static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
+    char            *cmd = NULL;
+    static char	    doing[32], buf[2048];
+    time_t          now;
+    struct tm       *tm;
+    FILE	    *fp;
+    float	    lavg1, lavg2, lavg3;
+    struct pollfd   pfd;
+    struct in_addr  paddr;
 
-	InitFidonet();
+    InitFidonet();
 
+    /*
+     * Registrate this server for mbmon in slot 0.
+     */
+    reginfo[0].pid = getpid();
+    strcpy(reginfo[0].tty,   "-");
+    strcpy(reginfo[0].uname, "mbse");
+    strcpy(reginfo[0].prg,   "mbtask");
+    strcpy(reginfo[0].city,  "localhost");
+    strcpy(reginfo[0].doing, "Start");
+    reginfo[0].started = time(NULL);
+
+    Processing = TRUE;
+    TouchSema((char *)"mbtask.last");
+    pw = getpwuid(getuid());
+
+    /*
+     * Setup UNIX Datagram socket
+     */
+    if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
+	tasklog('?', "$Can't create socket");
+	die(1);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sun_family = AF_UNIX;
+    strcpy(servaddr.sun_path, spath);
+
+    if (bind(sock, &servaddr, sizeof(servaddr)) < 0) {
+	close(sock);
+	sock = -1;
+	tasklog('?', "$Can't bind socket %s", spath);
+	die(1);
+    }
+
+    pingresult[1] = TRUE;
+    pingresult[2] = TRUE;
+
+    /*
+     * The flag masterinit is set if a new config.data is created, this
+     * is true if mbtask is started the very first time. Then we run
+     * mbsetup init to create the default databases.
+     */
+    if (masterinit) {
+	cmd = xstrcpy(pw->pw_dir);
+	cmd = xstrcat(cmd, (char *)"/bin/mbsetup");
+	launch(cmd, (char *)"init", (char *)"mbsetup", MBINIT);
+	free(cmd);
+	sleep(2);
+	masterinit = FALSE;
+    }
+
+    initnl();
+    sem_set((char *)"scanout", TRUE);
+	
+    do {
 	/*
-	 * Registrate this server for mbmon in slot 0.
+	 *  Poll UNIX Datagram socket until the defined timeout.
 	 */
-	reginfo[0].pid = getpid();
-	sprintf(reginfo[0].tty,   "-");
-	sprintf(reginfo[0].uname, "mbse");
-	sprintf(reginfo[0].prg,   "mbtask");
-	sprintf(reginfo[0].city,  "localhost");
-	sprintf(reginfo[0].doing, "Start");
-	reginfo[0].started = time(NULL);
-
-	Processing = TRUE;
-	TouchSema((char *)"mbtask.last");
-	pw = getpwuid(getuid());
-
-        /*
-         * Setup UNIX Datagram socket
-         */
-        if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
-                tasklog('?', "$Can't create socket");
-                die(1);
-        }
-
-        memset(&servaddr, 0, sizeof(servaddr));
-        servaddr.sun_family = AF_UNIX;
-        strcpy(servaddr.sun_path, spath);
-
-        if (bind(sock, &servaddr, sizeof(servaddr)) < 0) {
-                close(sock);
-		sock = -1;
-                tasklog('?', "$Can't bind socket %s", spath);
-                die(1);
-        }
-
-	pingresult[1] = TRUE;
-	pingresult[2] = TRUE;
-
-	/*
-	 * The flag masterinit is set if a new config.data is created, this
-	 * is true if mbtask is started the very first time. Then we run
-	 * mbsetup init to create the default databases.
-	 */
-	if (masterinit) {
-	    cmd = xstrcpy(pw->pw_dir);
-	    cmd = xstrcat(cmd, (char *)"/bin/mbsetup");
-	    launch(cmd, (char *)"init", (char *)"mbsetup", MBINIT);
-	    free(cmd);
-	    sleep(2);
-	    masterinit = FALSE;
+	pfd.fd = sock;
+	pfd.events = POLLIN | POLLPRI;
+	pfd.revents = 0;
+	rc = poll(&pfd, 1, 1000);
+	if (rc == -1) {
+	    /*
+	     *  Poll can be interrupted by a finished child so that's not a real error.
+	     */
+	    if (errno != EINTR) {
+		tasklog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
+	    }
+	} else if (rc) {
+	    if (pfd.revents & POLLIN) {
+		memset(&buf, 0, sizeof(buf));
+		fromlen = sizeof(from);
+		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, &from, &fromlen);
+		do_cmd(buf);
+	    } else {
+		tasklog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
+	    }
 	}
 
-	initnl();
-	sem_set((char *)"scanout", TRUE);
-	
-        do {
-		/*
-		 *  Poll UNIX Datagram socket until the defined timeout.
-		 */
-		pfd.fd = sock;
-		pfd.events = POLLIN | POLLPRI;
-		pfd.revents = 0;
-		rc = poll(&pfd, 1, 1000);
-		if (rc == -1) {
-			/*
-			 *  Poll can be interrupted by a finished child so that's not a real error.
-			 */
-			if (errno != EINTR) {
-				tasklog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
-			}
-		} else if (rc) {
-			if (pfd.revents & POLLIN) {
-				memset(&buf, 0, sizeof(buf));
-				fromlen = sizeof(from);
-				rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, &from, &fromlen);
-				do_cmd(buf);
-			} else {
-				tasklog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
-			}
-		}
+	/*
+	 * Check all registered connections and semafore's
+	 */
+	reg_check();
+	check_sema();
 
-		/*
-		 * Check all registered connections and semafore's
-		 */
-		reg_check();
-		check_sema();
-
-		/*
-		 * Check the systems load average.
-		 */
-		if ((fp = fopen((char *)"/proc/loadavg", "r"))) {
-			if (fscanf(fp, "%f %f %f", &lavg1, &lavg2, &lavg3) == 3) {
-				Load = lavg1;
-				if (lavg1 >= TCFG.maxload) {
-					if (!LOADhi) {
-						tasklog('!', "System load too high: %2.2f (%2.2f)", lavg1, TCFG.maxload);
-						LOADhi = TRUE;
-					}
-				} else {
-					if (LOADhi) {
-						tasklog('!', "System load normal: %2.2f (%2.2f)", lavg1, TCFG.maxload);
-						LOADhi = FALSE;
-					}
-				}
-			}
-			fclose(fp);
-		}
-
-		/*
-		 * Report to the system monitor. 
-		 */
-		memset(&doing, 0, sizeof(doing));
-		if ((running = checktasks(0)))
-			sprintf(doing, "Run %d tasks", running);
-		else if (UPSalarm)
-			sprintf(doing, "UPS alarm");
-		else if (!s_bbsopen)
-			sprintf(doing, "BBS is closed");
-		else if (Processing)
-			sprintf(doing, "Waiting (%d)", oldmin);
-		else
-			sprintf(doing, "Overload %2.2f", lavg1);
-
-		sprintf(reginfo[0].doing, "%s", doing);
-		reginfo[0].lastcon = time(NULL);
-
-		/*
-		 *  Touch the mbtask.last semafore to prove this daemon
-		 *  is actually running.
-		 *  Reload configuration data if the file is changed.
-		 */
-		now = time(NULL);
-		tm = localtime(&now);
-		if (tm->tm_min != olddo) {
-			olddo = tm->tm_min;
-			TouchSema((char *)"mbtask.last");
-			if (file_time(tcfgfn) != tcfg_time) {
-				tasklog('+', "Task configuration changed, reloading");
-				load_taskcfg();
-			}
-                        if (file_time(cfgfn) != cfg_time) {
-                                tasklog('+', "Main configuration changed, reloading");
-                                load_maincfg();
-                        }
-		}
-
-		if (s_bbsopen && !UPSalarm && !LOADhi) {
-
-			if (!Processing) {
-				tasklog('+', "Resuming normal operations");
-				Processing = TRUE;
-			}
-
-			/*
-			 *  Here we run all normal operations.
-			 */
-			if (s_mailout && (!runtasktype(MBFIDO))) {
-				launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
-				running = checktasks(0);
-				s_mailout = FALSE; 
-			}
-
-			if (s_mailin && (!runtasktype(MBFIDO))) {
-				launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
-				running = checktasks(0);
-				s_mailin = FALSE;
-			}
-
-			if (s_newnews && (!runtasktype(MBFIDO))) {
-				launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
-				running = checktasks(0);
-				s_newnews = FALSE; 
-			}
-
-			/*
-			 *  Only run the nodelist compiler if nothing else
-			 *  is running. There's no hurry to compile the
-			 *  new lists. If more then one compiler is defined,
-			 *  start them in parallel.
-			 */
-			if (s_index && (!running)) {
-				if (strlen(TCFG.cmd_mbindex1))
-					launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
-				if (strlen(TCFG.cmd_mbindex2))
-					launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
-				if (strlen(TCFG.cmd_mbindex3))
-					launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
-				running = checktasks(0);
-				s_index = FALSE;
-			}
-
-			/*
-			 *  Linking messages is also only done when there is
-			 *  nothing else to do.
-			 */
-			if (s_msglink && (!running)) {
-				launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
-				running = checktasks(0);
-				s_msglink = FALSE;
-			}
-
-			/*
-			 *  Creating filerequest indexes.
-			 */
-			if (s_reqindex && (!running)) {
-				launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
-				running = checktasks(0);
-				s_reqindex = FALSE;
-			}
-
-			if ((tm->tm_sec / SLOWRUN) != oldmin) {
-
-				/*
-				 *  These tasks run once per 20 seconds.
-				 */
-				oldmin = tm->tm_sec / SLOWRUN;
-
-				/*
-				 *  If the previous pingstat is still P_SENT, the we now consider it a timeout.
-				 */
-				if (pingstate == P_SENT) {
-					pingresult[pingnr] = FALSE;
-					icmp_errs++;
-					if (icmp_errs < ICMP_MAX_ERRS)
-						tasklog('p', "ping %s seq=%d timeout", pingaddress, p_sequence);
-				}
-
-				/*
-				 *  Check internet connection with ICMP ping
-				 */
-				rc = 0;
-				if (pingnr == 1) {
-					pingnr = 2;
-					if (strlen(TCFG.isp_ping2)) {
-						sprintf(pingaddress, "%s", TCFG.isp_ping2);
-					} else {
-						pingstate = P_NONE;
-					}
-				} else {
-					pingnr = 1;
-					if (strlen(TCFG.isp_ping1)) {
-						sprintf(pingaddress, "%s", TCFG.isp_ping1);
-                                        } else {
-                                                pingstate = P_NONE;
-                                        }
-				}
-
-				if (inet_aton(pingaddress, &paddr)) {
-					rc = ping_send(paddr);
-					if (rc) {
-						if (icmp_errs++ < ICMP_MAX_ERRS)
-							tasklog('?', "ping send %s rc=%d", pingaddress, rc);
-						pingstate = P_FAIL;
-						pingresult[pingnr] = FALSE;
-					} else {
-						pingstate = P_SENT;
-					}
-				} else {
-					if (icmp_errs++ < ICMP_MAX_ERRS)
-						tasklog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
-					pingstate = P_NONE;
-				}
-
-				if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
-					icmp_errs++;
-					if (internet) {
-						tasklog('!', "Internet connection is down");
-						internet = FALSE;
-					}
-				} else {
-					if (!internet) {
-						tasklog('!', "Internet connection is up");
-						internet = TRUE;
-					}
-					icmp_errs = 0;
-				}
-
-				/*
-				 *  Run the mailer if something to do. For now we run just
-				 *  one task and lock it with CALL_POTS.
-				 *  Later tasks for different calltypes should run parallel.
-				 */
-				if (s_scanout && !runtasktype(CALL_POTS)) {
-					cmd = xstrcpy(pw->pw_dir);
-					cmd = xstrcat(cmd, (char *)"/bin/mbcico");
-					launch(cmd, (char *)"-r1", (char *)"mbcico", CALL_POTS);
-					running = checktasks(0);
-					free(cmd);
-					cmd = NULL;
-				}
-			}
-
-                        switch (pingstate) {
-                                case P_NONE:    pingresult[pingnr] = TRUE;
-                                                break;
-                                case P_SENT:    rc = ping_receive(paddr);
-                                                if (!rc) {
-                                                        pingstate = P_OK;
-                                                        pingresult[pingnr] = TRUE;
-                                                } else {
-							if (rc != -6)
-								tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
-						}
-                                                break;
-                        }
-
+	/*
+	 * Check the systems load average. FIXME: doesn't work in FreeBSD !!!
+	 */
+	if ((fp = fopen((char *)"/proc/loadavg", "r"))) {
+	    if (fscanf(fp, "%f %f %f", &lavg1, &lavg2, &lavg3) == 3) {
+		Load = lavg1;
+		if (lavg1 >= TCFG.maxload) {
+		    if (!LOADhi) {
+			tasklog('!', "System load too high: %2.2f (%2.2f)", lavg1, TCFG.maxload);
+			LOADhi = TRUE;
+		    }
 		} else {
-			if (Processing) {
-				tasklog('+', "Suspending operations");
-				Processing = FALSE;
-			}
+		    if (LOADhi) {
+			tasklog('!', "System load normal: %2.2f (%2.2f)", lavg1, TCFG.maxload);
+			LOADhi = FALSE;
+		    }
 		}
-        } while (TRUE);
+	    }
+	    fclose(fp);
+	}
+
+	/*
+	 * Report to the system monitor. 
+	 */
+	memset(&doing, 0, sizeof(doing));
+	if ((running = checktasks(0)))
+	    sprintf(doing, "Run %d tasks", running);
+	else if (UPSalarm)
+	    sprintf(doing, "UPS alarm");
+	else if (!s_bbsopen)
+	    sprintf(doing, "BBS is closed");
+	else if (Processing)
+	    sprintf(doing, "Waiting (%d)", oldmin);
+	else
+	    sprintf(doing, "Overload %2.2f", lavg1);
+
+	sprintf(reginfo[0].doing, "%s", doing);
+	reginfo[0].lastcon = time(NULL);
+
+	/*
+	 *  Touch the mbtask.last semafore to prove this daemon
+	 *  is actually running.
+	 *  Reload configuration data if the file is changed.
+	 */
+	now = time(NULL);
+	tm = localtime(&now);
+	if (tm->tm_min != olddo) {
+	    olddo = tm->tm_min;
+	    TouchSema((char *)"mbtask.last");
+	    if (file_time(tcfgfn) != tcfg_time) {
+		tasklog('+', "Task configuration changed, reloading");
+		load_taskcfg();
+	    }
+	    if (file_time(cfgfn) != cfg_time) {
+		tasklog('+', "Main configuration changed, reloading");
+		load_maincfg();
+	    }
+	}
+
+	if (s_bbsopen && !UPSalarm && !LOADhi) {
+
+	    /*
+	     * Check Pause Timer, make sure it's only checked
+	     * once each second.
+	     */
+	    if (tm->tm_sec != oldsec) {
+		oldsec = tm->tm_sec;
+		if (ptimer) {
+		    ptimer--;
+		    tasklog('t', "Set ptimer to %d", ptimer);
+		}
+	    }
+
+	    if (!Processing) {
+		tasklog('+', "Resuming normal operations");
+		Processing = TRUE;
+	    }
+
+	    /*
+	     *  Here we run all normal operations.
+	     */
+	    if (s_mailout && (!ptimer) && (!runtasktype(MBFIDO))) {
+		launch(TCFG.cmd_mailout, NULL, (char *)"mailout", MBFIDO);
+		running = checktasks(0);
+		s_mailout = FALSE; 
+	    }
+
+	    if (s_mailin && (!ptimer) && (!runtasktype(MBFIDO))) {
+		launch(TCFG.cmd_mailin, NULL, (char *)"mailin", MBFIDO);
+		running = checktasks(0);
+		s_mailin = FALSE;
+	    }
+
+	    if (s_newnews && (!ptimer) && (!runtasktype(MBFIDO))) {
+		launch(TCFG.cmd_newnews, NULL, (char *)"newnews", MBFIDO);
+		running = checktasks(0);
+		s_newnews = FALSE; 
+	    }
+
+	    /*
+	     *  Only run the nodelist compiler if nothing else
+	     *  is running. There's no hurry to compile the
+	     *  new lists. If more then one compiler is defined,
+	     *  start them in parallel.
+	     */
+	    if (s_index && (!ptimer) && (!running)) {
+		if (strlen(TCFG.cmd_mbindex1))
+		    launch(TCFG.cmd_mbindex1, NULL, (char *)"compiler 1", MBINDEX);
+		if (strlen(TCFG.cmd_mbindex2))
+		    launch(TCFG.cmd_mbindex2, NULL, (char *)"compiler 2", MBINDEX);
+		if (strlen(TCFG.cmd_mbindex3))
+		    launch(TCFG.cmd_mbindex3, NULL, (char *)"compiler 3", MBINDEX);
+		running = checktasks(0);
+		s_index = FALSE;
+	    }
+
+	    /*
+	     *  Linking messages is also only done when there is
+	     *  nothing else to do.
+	     */
+	    if (s_msglink && (!ptimer) && (!running)) {
+		launch(TCFG.cmd_msglink, NULL, (char *)"msglink", MBFIDO);
+		running = checktasks(0);
+		s_msglink = FALSE;
+	    }
+
+	    /*
+	     *  Creating filerequest indexes.
+	     */
+	    if (s_reqindex && (!ptimer) && (!running)) {
+		launch(TCFG.cmd_reqindex, NULL, (char *)"reqindex", MBFILE);
+		running = checktasks(0);
+		s_reqindex = FALSE;
+	    }
+
+	    if ((tm->tm_sec / SLOWRUN) != oldmin) {
+
+		/*
+		 *  These tasks run once per 20 seconds.
+		 */
+		oldmin = tm->tm_sec / SLOWRUN;
+
+		/*
+		 *  If the previous pingstat is still P_SENT, the we now consider it a timeout.
+		 */
+		if (pingstate == P_SENT) {
+		    pingresult[pingnr] = FALSE;
+		    icmp_errs++;
+		    if (icmp_errs < ICMP_MAX_ERRS)
+			tasklog('p', "ping %s seq=%d timeout", pingaddress, p_sequence);
+		}
+
+		/*
+		 *  Check internet connection with ICMP ping
+		 */
+		rc = 0;
+		if (pingnr == 1) {
+		    pingnr = 2;
+		    if (strlen(TCFG.isp_ping2)) {
+			sprintf(pingaddress, "%s", TCFG.isp_ping2);
+		    } else {
+			pingstate = P_NONE;
+		    }
+		} else {
+		    pingnr = 1;
+		    if (strlen(TCFG.isp_ping1)) {
+			sprintf(pingaddress, "%s", TCFG.isp_ping1);
+		    } else {
+			pingstate = P_NONE;
+		    }
+		}
+
+		if (inet_aton(pingaddress, &paddr)) {
+		    rc = ping_send(paddr);
+		    if (rc) {
+			if (icmp_errs++ < ICMP_MAX_ERRS)
+			    tasklog('?', "ping send %s rc=%d", pingaddress, rc);
+			pingstate = P_FAIL;
+			pingresult[pingnr] = FALSE;
+		    } else {
+			pingstate = P_SENT;
+		    }
+		} else {
+		    if (icmp_errs++ < ICMP_MAX_ERRS)
+			tasklog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
+		    pingstate = P_NONE;
+		}
+
+		if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
+		    icmp_errs++;
+		    if (internet) {
+			tasklog('!', "Internet connection is down");
+			internet = FALSE;
+		    }
+		} else {
+		    if (!internet) {
+			tasklog('!', "Internet connection is up");
+			internet = TRUE;
+		    }
+		    icmp_errs = 0;
+		}
+
+		/*
+		 *  Run the mailer if something to do. For now we run just
+		 *  one task and lock it with CALL_POTS.
+		 *  Later tasks for different calltypes should run parallel.
+		 */
+		if (s_scanout && !runtasktype(CALL_POTS)) {
+		    cmd = xstrcpy(pw->pw_dir);
+		    cmd = xstrcat(cmd, (char *)"/bin/mbcico");
+		    launch(cmd, (char *)"-r1", (char *)"mbcico", CALL_POTS);
+		    running = checktasks(0);
+		    free(cmd);
+		    cmd = NULL;
+		}
+	    }
+
+            switch (pingstate) {
+		case P_NONE:    pingresult[pingnr] = TRUE;
+				break;
+		case P_SENT:    rc = ping_receive(paddr);
+				if (!rc) {
+				    pingstate = P_OK;
+				    pingresult[pingnr] = TRUE;
+				} else {
+				    if (rc != -6)
+					tasklog('p', "ping recv %s id=%d rc=%d", pingaddress, id, rc);
+				}
+				break;
+            }
+
+	} else {
+	    if (Processing) {
+		tasklog('+', "Suspending operations");
+		Processing = FALSE;
+	    }
+	}
+    } while (TRUE);
 }
 
 

@@ -4350,12 +4350,15 @@ v0.33.19        26-Oct-2001
 		option is set for the remote node in the setup.
 		The hydra driver now sends 8.3 mangled filenames and long
 		filenames as specified in the specs.
+		Corrected the location of the modem lockfile on FreeBSD.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
 		information.
 		On new systems, ~/etc/config.data and ~/etc/task.data are
 		created with mode 0640.
+		Starting utilities is now more relaxed using a 3 seconds
+		pause timer. Fixed some potential Sparc problems.
 
 	mbmon:
 		Changed the lastcaller screen to display the External Door

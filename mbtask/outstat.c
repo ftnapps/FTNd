@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/outstat.c
- * Purpose ...............: Scan mail outbound status
- * Last modification date : 08-Jul-2001
+ * $Id$
+ * Purpose ...............: mbtask - Scan mail outbound status
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -157,7 +156,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 			(*tmp)->diflags = 0L;
 			(*tmp)->ipflags = 0L;
 		}
-		time(&((*tmp)->time));
+		(*tmp)->time = time(NULL);
 		(*tmp)->size = 0L;
 	}
 
@@ -178,8 +177,8 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 
 	if (stat(fname,&st) != 0) {
 		tasklog('?', "$Can't stat %s", fname);
-		st.st_size = 0L;
-		(void)time(&st.st_mtime);
+		st.st_size  = 0L;
+		st.st_mtime = time(NULL);
 	}
 
 	/*
@@ -210,13 +209,13 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 							 * the node doesn't poll enough and
 							 * is losing mail or files.
 							 */
-							st.st_size = 0L;
-							(void)time(&st.st_mtime);
+							st.st_size  = 0L;
+							st.st_mtime = time(NULL);
 						}
 					} else {
 						if (stat(p, &st) != 0) {
-							st.st_size = 0L;
-							(void)time(&st.st_mtime);
+							st.st_size  = 0L;
+							st.st_mtime = time(NULL);
 						}
 					}
 				}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/taskutil.c
+ * $Id$
  * Purpose ...............: MBSE BBS Task Manager, utilities
- * Last modification date : 06-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -396,7 +395,7 @@ char *dayname(void)
         struct tm	*ptm;
 	static char	buf[3];
 
-        (void)time(&tt);
+	tt  = time(NULL);
         ptm = localtime(&tt);
         sprintf(buf, "%s", dow[ptm->tm_wday]);
 
