@@ -359,7 +359,7 @@ int LoadTic(char *inb, char *tfn)
 		Log = NULL;
 	}
 
-	strcpy(Temp, TIC.TicIn.Origin);
+	strcpy(Temp, TIC.TicIn.From);
 	TIC.Aka.zone = atoi(strtok(Temp, ":"));
 	TIC.Aka.net  = atoi(strtok(NULL, "/"));
 	TIC.Aka.node = atoi(strtok(NULL, "@\0"));

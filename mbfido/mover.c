@@ -46,7 +46,7 @@ void mover(char *fn)
 	To   = calloc(PATH_MAX, sizeof(char));
 
 	sprintf(From, "%s/%s", TIC.Inbound, fn);
-	sprintf(To,   "%s/%s", TIC.Inbound, fn);
+	sprintf(To,   "%s/%s", CFG.badtic, fn);
 	Syslog('!', "Moving %s to %s", From, To);
 
 	if (mkdirs(To)) {
