@@ -87,6 +87,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		   (strcasecmp(de->d_name+8,".cut") == 0) ||
 		   (strcasecmp(de->d_name+8,".hut") == 0) ||
 		   (strcasecmp(de->d_name+8,".iut") == 0) ||
+		   (strcasecmp(de->d_name+8,".dut") == 0) ||
 		   (strcasecmp(de->d_name+8,".opk") == 0) ||
 		   (strcasecmp(de->d_name+8,".cpk") == 0) ||
 		   (strcasecmp(de->d_name+8,".hpk") == 0) ||
@@ -95,6 +96,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		   (strcasecmp(de->d_name+8,".clo") == 0) ||
 		   (strcasecmp(de->d_name+8,".hlo") == 0) ||
 		   (strcasecmp(de->d_name+8,".ilo") == 0) ||
+		   (strcasecmp(de->d_name+8,".dlo") == 0) ||
 		   (strcasecmp(de->d_name+8,".req") == 0) ||
 		   (strcasecmp(de->d_name+8,".pol") == 0)) {
 	    if (ispoint)
@@ -103,7 +105,9 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		sscanf(de->d_name,"%04x%04x", &addr.net,&addr.node);
 	    flavor = tolower(de->d_name[9]);
 	    if (flavor == 'f') 
-		flavor='o';
+		flavor = 'o';
+	    if (flavor == 'i')
+		flavor = 'd';
 	    if (strcasecmp(de->d_name+10,"ut") == 0)
 		isflo=OUT_PKT;
 	    else if (strcasecmp(de->d_name+10,"pk") == 0)

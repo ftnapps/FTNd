@@ -542,7 +542,7 @@ int outstat()
 	 * Immediate Mail check
 	 */
 	if ((tmp->flavors) & F_IMM) {
-	    flstr[0]='I';
+	    flstr[0]='D';
 	    /*
 	     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
 	     */
@@ -791,7 +791,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
     if ((isflo == OUT_FLO) || (isflo == OUT_PKT) || (isflo == OUT_FIL)) 
 	switch (flavor) {
 	    case '?':	break;
-	    case 'i':	(*tmp)->flavors |= F_IMM; break;
+	    case 'd':	(*tmp)->flavors |= F_IMM; break;
 	    case 'o':	(*tmp)->flavors |= F_NORMAL; break;
 	    case 'c':	(*tmp)->flavors |= F_CRASH; break;
 	    case 'h':	(*tmp)->flavors |= F_HOLD; break;

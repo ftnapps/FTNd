@@ -14,6 +14,12 @@ v0.61.2		11-Jul-2004
 		with other mailers. Russell??
 		If you only use mbcico there will be no problems.
 
+	mbout:
+		Changed to use direct instead of immediate mail.
+
+	mbtask:
+		Changed to use direct instead of immediate mail.
+
 
 v0.61.1		20-Jun-2004 - 11-Jul-2004
 
