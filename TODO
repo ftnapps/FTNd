@@ -83,7 +83,7 @@ mbfido:
 
 	L: Add %from command to areamgr/filemgr.
 
-	N: Add a flag for areas to make the area unavailable for downlinks.
+	N: Add areas security with flags.
 
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
@@ -163,4 +163,8 @@ mbsetup:
 	   Fileecho groups <=> File echos
 	   Fileecho groups <=> Newfile reports
 	   Fileecho groups <=> BBS Areas
+
+	N: Add areas security flags.
+
+	N: Add backspace test and store result in global setup.
 
