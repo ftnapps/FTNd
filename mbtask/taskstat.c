@@ -338,9 +338,6 @@ int sem_set(char *sem, int value)
 	tasklog('s', "sem_set(%s, %s)", sem, value?"TRUE":"FALSE");
 
 	if (!strcmp(sem, "scanout")) {
-		if (value && !s_scanout) {
-			outstat();
-		}
 		s_scanout = value;
 	} else if (!strcmp(sem, "mailout")) {
 		s_mailout = value;
