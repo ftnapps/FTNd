@@ -159,17 +159,18 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 	MacroVars("Y", "s", aka2str(aka));
 	Msg_Macro(fi);
 	fileptr = ftell(fi);
-    
+
+	MacroVars("pqrf", "dsss", 0, "", "", "");
+	if (strlen(CFG.IP_Flags) && strlen(CFG.IP_Phone)) {
+	    MacroVars("pqrf", "dsds", 2, CFG.IP_Phone, CFG.IP_Speed, CFG.IP_Flags);
+	    fseek(fi, fileptr, SEEK_SET);
+	    Msg_Macro(fi);
+	    hasmodems = TRUE;
+	}
+
 	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) != NULL) {
 	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
-
-	    MacroVars("pqrf", "dsss", 0, "", "", "");
-	    if (strlen(CFG.IP_Flags) && strlen(CFG.IP_Phone)) {
-		MacroVars("pqrf", "dsds", 2, CFG.IP_Phone, CFG.IP_Speed, CFG.IP_Flags);
-		fseek(fi, fileptr, SEEK_SET);
-		Msg_Macro(fi);
-	    }
 	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && ttyinfo.available && strlen(ttyinfo.phone)) {
 		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);

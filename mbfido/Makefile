@@ -201,5 +201,5 @@ msgflags.o: ../config.h ../lib/mbselib.h msgflags.h
 dirsession.o: ../config.h ../lib/mbselib.h dirsession.h
 queue.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h fsort.h dirsession.h queue.h
 dirlock.o: ../config.h ../lib/mbselib.h flock.h dirlock.h
-msg.o: ../config.h ../lib/mbselib.h msg.h
+msg.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msgtext.h ../lib/msg.h msgflags.h msg.h
 # End of generated dependencies

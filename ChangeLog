@@ -36,6 +36,7 @@ v0.61.2		11-Jul-2004
 		removed. With nodes that were marked crash, this will prevent
 		continuous calling.
 		Changed to use direct instead of immediate mail.
+		Changed binkp IsDoing info.
 
 	mbfido:
 		Added code to un_attach files during tic import that are
@@ -48,6 +49,11 @@ v0.61.2		11-Jul-2004
 		seems solved.
 		In rfc2ftn added check for ".\n" to change to " .\n" instead of
 		only check for ".\r\n".
+		Added support for *.msg files. If any are found, they are
+		processed and put in a netmail area. From there the mbfido scan
+		function is automatic called so that the message is sent out or
+		stays in the area if it has a local destination. File attaches
+		are supported.
 
 	mbout:
 		Changed to use direct instead of immediate mail.

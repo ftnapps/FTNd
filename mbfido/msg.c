@@ -30,10 +30,19 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
+#include "../lib/msgtext.h"
+#include "../lib/msg.h"
+#include "msgflags.h"
 #include "msg.h"
 
 
 extern int	net_msgs;
+extern int	do_scan;
+
+
+int toss_onemsg(char *);
 
 
 int toss_msgs(void)
@@ -58,8 +67,8 @@ int toss_msgs(void)
 	    }
 
 	    Syslog('m', "Process %s", de->d_name);
+	    toss_onemsg(de->d_name);
 	    files++;
-
 	}
     }
     closedir(dp);
@@ -70,6 +79,279 @@ int toss_msgs(void)
 
     net_msgs += files;
     return files;
+}
+
+
+
+/*
+ * Toss one message and post into a JAM messagebase. Returns:
+ *  0 = Ok
+ *  1 = Can't open *.msg
+ *  2 = Can't read message
+ *  3 = Missing zone info
+ *  4 = No ftn network or netmailboard in setup
+ *  5 = Can't open JAM area
+ */
+int toss_onemsg(char *msgname)
+{
+    int		    rc = 0;
+    char	    *temp, *dospath, *flagstr = NULL, *l, *r, *msgid = NULL; 
+    char	    fromUserName[36], toUserName[36], subject[72], DateTime[20];
+    FILE	    *fp, *np;
+    faddr	    *ta;
+    unsigned char   buf[0xbd];
+    unsigned short  destNode = 0, destNet = 0, destZone = 0, destPoint = 0;
+    unsigned short  origNode = 0, origNet = 0, origZone = 0, origPoint = 0;
+    unsigned short  Attribute = 0;
+    struct stat	    sb;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
+    
+    if ((fp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return 1;
+    }
+    
+    /*
+     * First read message header information we need.
+     */
+    memset(&fromUserName, 0, sizeof(fromUserName));
+    memset(&toUserName, 0, sizeof(toUserName));
+    memset(&subject, 0, sizeof(subject));
+    memset(&DateTime, 0, sizeof(DateTime));
+
+    if (fread(&buf, 1, 0xbe, fp) != 0xbe) {
+	WriteError("$Could not read header (%s)", temp);
+	fclose(fp);
+	free(temp);
+	return 2;
+    }
+    
+    strncpy(fromUserName, buf, 36);
+    strncpy(toUserName, buf+0x24, 36);
+    strncpy(subject, buf+0x48, 72);
+    strncpy(DateTime, buf+0x90, 20);
+
+    Syslog('m', "\"%s\"", printable(fromUserName, 0));
+    Syslog('m', "\"%s\"", printable(toUserName, 0));
+    Syslog('m', "\"%s\"", printable(subject, 0));
+    Syslog('m', "\"%s\"", printable(DateTime, 0));
+ 
+    destNode  = (buf[0xa7] << 8) + buf[0xa6];
+    origNode  = (buf[0xa9] << 8) + buf[0xa8];
+    origNet   = (buf[0xad] << 8) + buf[0xac];
+    destNet   = (buf[0xaf] << 8) + buf[0xae];
+    destZone  = (buf[0xb1] << 8) + buf[0xb0];
+    origZone  = (buf[0xb3] << 8) + buf[0xb2];
+    destPoint = (buf[0xb5] << 8) + buf[0xb4];
+    origPoint = (buf[0xb7] << 8) + buf[0xb6];
+    Attribute = (buf[0xbb] << 8) + buf[0xba];
+ 
+    Syslog('m', "From %d:%d/%d.%d to %d:%d/%d.%d", origZone, origNet, origNode, origPoint, destZone, destNet, destNode, destPoint);
+
+    while (fgets(temp, PATH_MAX-1, fp)) {
+	Striplf(temp);
+	if (temp[strlen(temp)-1] == '\r')
+	    temp[strlen(temp)-1] = '\0';
+	Syslogp('m', printable(temp, 0));
+	if (!strncmp(temp, "\001MSGID: ", 8)) {
+	    msgid = xstrcpy(temp + 8);
+	    /*
+	     *  Extra test to see if the mail comes from a pointaddress.
+	     */
+	    l = strtok(temp," \0");
+	    l = strtok(NULL," \0");
+	    if ((ta = parsefnode(l))) {
+		if (ta->net == origNet && ta->node == origNode && !origPoint && ta->point) {
+		    Syslog('m', "Setting pointinfo (%d) from MSGID", ta->point);
+		    origPoint = ta->point;
+		}
+		if ((ta->net == origNet) && (ta->node == origNode) && (origZone == 0) && ta->zone) {
+		    /*
+		     * Missing zone info, maybe later we will see a INTL kludge or so, but for
+		     * now, just in case we fix it. And we need that for some Aka collecting
+		     * sysop who doesn't know how to configure his system right.
+		     */
+		    Syslog('m', "No from zone set, setting zone %d from MSGID", ta->zone);
+		    origZone = ta->zone;
+		    /*
+		     * 99.9 % chance that the destination zone is also missing.
+		     */
+		    if (destZone == 0) {
+			destZone = ta->zone;
+			Syslog('m', "No dest zone set, setting zone %d from MSGID", ta->zone);
+		    }
+		}
+		tidy_faddr(ta);
+	    }
+	    if (msgid)
+		free(msgid);
+	    msgid = NULL;
+	}
+	if (!strncmp(temp, "\001FMPT", 5)) {
+	    l = strtok(temp, " \0");
+	    l = strtok(NULL, " \0");
+	    origPoint = atoi(l);
+	}
+	if (!strncmp(temp, "\001TOPT", 5)) {
+	    l = strtok(temp, " \0");
+	    l = strtok(NULL, " \0");
+	    destPoint = atoi(l);
+	}
+	if (!strncmp(temp, "\001INTL", 5)) {
+	    Syslog('m', "Setting addresses from INTL kludge");
+	    l = strtok(temp," \0");
+	    l = strtok(NULL," \0");
+	    r = strtok(NULL," \0");
+	    if ((ta = parsefnode(l))) {
+		destPoint = ta->point;
+		destNode  = ta->node;
+		destNet   = ta->net;
+		destZone  = ta->zone;
+		tidy_faddr(ta);
+	    }
+	    if ((ta = parsefnode(r))) {
+		origPoint = ta->point;
+		origNode  = ta->node;
+		origNet   = ta->net;
+		origZone  = ta->zone;
+		tidy_faddr(ta);
+	    }
+	}
+	/*
+	 * Check FLAGS kludge
+	 */
+	if (!strncmp(buf, "\001FLAGS ", 7)) {
+	    flagstr = xstrcpy(buf + 7);
+	    Syslog('m', "^aFLAGS %s", flagstr);
+	}
+	if (!strncmp(buf, "\001FLAGS: ", 8)) {
+	    flagstr = xstrcpy(buf + 8);
+	    Syslog('m', "^aFLAGS: %s", flagstr);
+	}
+    }
+
+    Syslog('m', "From %d:%d/%d.%d to %d:%d/%d.%d", origZone, origNet, origNode, origPoint, destZone, destNet, destNode, destPoint);
+    
+    if ((origZone == 0) || (destZone == 0)) {
+	WriteError("No zone info in %s/%s", CFG.msgs_path, msgname);
+	fclose(fp);
+	free(temp);
+	return 3;
+    }
+
+    if (SearchFidonet(origZone) == FALSE) {
+	WriteError("Can't find network for zone %d", origZone);
+	fclose(fp);
+	free(temp);
+	return 4;
+    }
+
+    if (SearchNetBoard(origZone, origNet) == FALSE) {
+	WriteError("Can't find netmail board for zone:net %d:%d", origZone, origNet);
+	fclose(fp);
+	free(temp);
+	return 4;
+    }
+
+    if (Msg_Open(msgs.Base) && Msg_Lock(30L)) {
+	Msg_New();
+	strcpy(Msg.From, fromUserName);
+	strcpy(Msg.To, toUserName);
+	strcpy(Msg.Subject, subject);
+	if (Attribute & M_FILE) {
+	    if ((stat(subject, &sb) == 0) && (S_ISREG(sb.st_mode))) {
+		dospath = xstrcpy(Unix2Dos(subject));
+		Syslog('+', "Fileattach %s in message %s", subject, msgname);
+		if (strlen(CFG.dospath))
+		    strcpy(Msg.Subject, dospath);
+		Msg.FileAttach = TRUE;
+		free(dospath);
+	    } else {
+		WriteError("Fileattach %s in message %s not found", subject, msgname);
+	    }
+	}
+	Msg.Written = parsefdate(DateTime, NULL);
+	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+	Msg.Local = TRUE;
+
+	Msg.KillSent       = ((Attribute & M_KILLSENT));
+	Msg.Hold           = ((Attribute & M_HOLD));
+	Msg.Crash          = ((Attribute & M_CRASH)    || flag_on((char *)"CRA", flagstr));
+	Msg.ReceiptRequest = ((Attribute & M_RRQ)      || flag_on((char *)"RRQ", flagstr));
+	Msg.Orphan         = ((Attribute & M_ORPHAN));
+	Msg.Intransit      = ((Attribute & M_TRANSIT));
+	Msg.FileRequest    = ((Attribute & M_REQ)      || flag_on((char *)"FRQ", flagstr));
+	Msg.ConfirmRequest = ((Attribute & M_AUDIT)    || flag_on((char *)"CFM", flagstr));
+	Msg.Immediate      =                              flag_on((char *)"IMM", flagstr);
+	Msg.Direct         =                              flag_on((char *)"DIR", flagstr);
+	Msg.Gate           =                              flag_on((char *)"ZON", flagstr);
+
+	Msg.Private = TRUE;
+
+	if (origPoint)
+	    sprintf(Msg.FromAddress, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
+	else
+	    sprintf(Msg.FromAddress, "%d:%d/%d@%s", origZone, origNet, origNode, fidonet.domain);
+	if (SearchFidonet(destZone)) {
+	    if (destPoint)
+		sprintf(Msg.ToAddress, "%d:%d/%d.%d@%s", destZone, destNet, destNode, destPoint, fidonet.domain);
+	    else
+		sprintf(Msg.ToAddress, "%d:%d/%d@%s", destZone, destNet, destNode, fidonet.domain);
+	} else {
+	    if (destPoint)
+		sprintf(Msg.ToAddress, "%d:%d/%d.%d", destZone, destNet, destNode, destPoint);
+	    else
+		sprintf(Msg.ToAddress, "%d:%d/%d", destZone, destNet, destNode);
+	}
+	
+	/*
+	 * Add original message text
+	 */
+	fseek(fp, 0xbe, SEEK_SET);
+	while (fgets(temp, PATH_MAX-1, fp)) {
+	    Striplf(temp);
+	    if (temp[strlen(temp)-1] == '\r')
+		temp[strlen(temp)-1] = '\0';
+	    MsgText_Add2(temp);
+	}
+	
+	Msg_AddMsg();
+	Msg_UnLock();
+	Syslog('+', "%s => %s (%ld) to \"%s\", \"%s\"", msgname, msgs.Name, Msg.Id, Msg.To, Msg.Subject);
+
+	msgs.LastPosted = time(NULL);
+	msgs.Posted.total++;
+	msgs.Posted.tweek++;
+	msgs.Posted.tdow[Diw]++;
+	msgs.Posted.month[Miy]++;
+	UpdateMsgs();
+
+	do_scan = TRUE;
+	sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	if ((np = fopen(temp, "a")) != NULL) {
+	    fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
+	    fclose(np);
+	}
+
+	Msg_Close();
+
+    } else {
+	WriteError("Can't open JAM %s", msgs.Base);
+	rc = 5;
+    }
+
+    fclose(fp);
+
+    if (rc == 0) {
+	sprintf(temp, "%s/%s", CFG.msgs_path, msgname);
+	Syslog('m', "unlink(%s) rc=%d", temp, unlink(temp));
+    }
+
+    free(temp);
+    return rc;
 }
 
 

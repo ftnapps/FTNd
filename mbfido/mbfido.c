@@ -521,6 +521,8 @@ int main(int argc, char **argv)
 	if (Notify(Options)) {
 	    do_flush = TRUE;
 	}
+    if (do_tic || do_toss)
+	toss_msgs();
     if (do_tic) {
 	if (IsSema((char *)"mailin"))
 	    RemoveSema((char *)"mailin");
