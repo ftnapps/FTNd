@@ -39,8 +39,8 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
-
+extern int	do_quiet;		/* Supress screen output	*/
+extern int	do_index;		/* Reindex filebases		*/
 
 
 /*
@@ -92,7 +92,7 @@ void PackFileBase(void)
 			Marker();
 
 			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
-			sprintf(fTmp,   "%s/fdb/fdbtmp.data", getenv("MBSE_ROOT"));
+			sprintf(fTmp,   "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), i);
 
 			if ((pFile = fopen(fAreas, "r")) == NULL) {
 				Syslog('!', "Creating new %s", fAreas);
@@ -115,16 +115,17 @@ void PackFileBase(void)
 					fwrite(&file, sizeof(file), 1, fp);
 				} else {
 					iRemoved++;
-					Syslog('+', "Removed file \"%s\" from area %d", file.Name, i);
-					sprintf(fn, "%s/%s", area.Path, file.Name);
+					Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
+					sprintf(fn, "%s/%s", area.Path, file.LName);
 					rc = unlink(fn);
 					if (rc)
-					    Syslog('+', "Unlink %s result %d", fn, rc);
+					    Syslog('+', "Unlink %s failed, result %d", fn, rc);
 					/*
 					 * If a dotted version (thumbnail) exists, remove it silently
 					 */
-					sprintf(fn, "%s/.%s", area.Path, file.Name);
+					sprintf(fn, "%s/.%s", area.Path, file.LName);
 					unlink(fn);
+					do_index = TRUE;
 				}
 			}
 

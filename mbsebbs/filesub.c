@@ -527,15 +527,15 @@ int ScanDirect(char *fn)
 
 		while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
+		    if (virscan.available) {
 			sprintf(temp1, "%s %s %s >/dev/null", virscan.scanner, virscan.options, temp);
 			colour(CFG.TextColourF, CFG.TextColourB);
 					      /* Scanning */               /* with */
 			printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 			fflush(stdout);
-			Syslog('b', "%s ", temp1);
 
 			if ((err = system(temp1))) {
-				Syslog('?', "VIRUS ALERT: Result %d", err);
+				WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 				colour(CFG.HiliteF, CFG.HiliteB);
 				/* Possible VIRUS found! */
 				printf("%s\n", (char *) Language(199));
@@ -544,6 +544,7 @@ int ScanDirect(char *fn)
 				/* Ok */
 				printf("%s\n", (char *) Language(200));
 			fflush(stdout);
+		    }
 		}
 		fclose(fp);
 	}
@@ -594,10 +595,7 @@ int ScanArchive(char *fn, char *ftype)
 		return 3;
 	}
 
-	Syslog('b', "Archiver %s", archiver.comment);
-
 	cwd = getcwd(cwd, 80);
-	Syslog('b', "Current directory is %s", cwd);
 
 	sprintf(temp, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
 	if (chdir(temp)) {
@@ -611,7 +609,6 @@ int ScanArchive(char *fn, char *ftype)
 	printf("%s %s ", (char *) Language(201), fn);
 	fflush(stdout);
 	sprintf(temp, "%s %s/%s >/dev/null", archiver.funarc, cwd, fn);
-	Syslog('b', "Unarc %s", temp);
 
 	if ((err = system(temp))) {
 		WriteError("$Failed %s", temp);
@@ -635,15 +632,15 @@ int ScanArchive(char *fn, char *ftype)
 
 		while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
+		    if (virscan.available) {
 			sprintf(temp, "%s %s * >/dev/null", virscan.scanner, virscan.options);
 			colour(CFG.TextColourF, CFG.TextColourB);
 						/* Scanning */		   /* with */
 			printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
 			fflush(stdout);
-			Syslog('b', "%s ", temp);
 
 			if ((err = system(temp))) {
-				Syslog('?', "VIRUS ALERT: Result %d", err);
+				WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 				colour(CFG.HiliteF, CFG.HiliteB);
 				/* Possible VIRUS found! */
 				printf("%s\n", (char *) Language(199));
@@ -652,6 +649,7 @@ int ScanArchive(char *fn, char *ftype)
 				/* Ok */
 				printf("%s\n", (char *) Language(200));
 			fflush(stdout);
+		    }
 		}
 		fclose(fp);
 	}
@@ -697,8 +695,6 @@ char *GetFileType(char *fn)
 		else
 			sprintf((char*)dbuf+strlen(dbuf), " %02x", buf[i]);
 
-	Syslog('b', "file head: %s", dbuf);
-
 	/*
 	 * Various expected uploads. Not that the standard MS-DOS archivers
 	 * must return the exact format, ie "ZIP" for PKZIP. These strings
@@ -724,7 +720,7 @@ char *GetFileType(char *fn)
 	if (memcmp(buf, "RIFF", 4) == 0)		return (char *)"WAV";
 	if (memcmp(buf, "EMOD", 4) == 0)		return (char *)"MOD";
 	if (memcmp(buf, "MTM", 3) == 0)			return (char *)"MTM";
-	if (memcmp(buf, "#/bin/", 6) == 0)		return (char *)"UNIX script";
+	if (memcmp(buf, "#!/bin/", 7) == 0)		return (char *)"UNIX script";
 	if (memcmp(buf, "\037\235", 2) == 0)		return (char *)"Compressed data";
 	if (memcmp(buf, "\037\213", 2) == 0)		return (char *)"gzip compress";
 	if (memcmp(buf, "\177ELF", 4) == 0)		return (char *)"ELF";
@@ -763,7 +759,6 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 	sprintf(temp, "%s/%s", area.Path, fn);
 	sprintf(temp1, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
 
-	Syslog('b', "Move %s to %s", temp1, temp);
 	if ((file_mv(temp1, temp))) {
 		WriteError("$Can't move %s to %s", fn, area.Path);
 	} else {
@@ -788,9 +783,9 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 				 */
 				strcpy(temp, CFG.sByteRatio);
 				token = strtok(temp, ":");
-			  		i = atoi(token);
+			 	i = atoi(token);
 			 	token = strtok(NULL, "\0");
-					x = atoi(token);
+				x = atoi(token);
 				Size *= i / x;
 				/* You have */  /* extra download KBytes. */
 				printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
@@ -808,7 +803,7 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 			token = strtok(temp, ":");
 		 	i = atoi(token);
 		  	token = strtok(NULL, "\0");
-				x = atoi(token);
+			x = atoi(token);
 
 			iTime *= i / x;
 			iTime /= 60; /* Divide Seconds by 60 to give minutes */
@@ -874,9 +869,9 @@ int Addfile(char *File, int AreaNum, int fileid)
 		strcpy(temp1, File);
 		name_mangle(temp1);
 		strcpy(file.Name, temp1);
-		sprintf(temp1,"%ld",(long)(statfile.st_size));
-		file.Size = atoi(temp1);
+		file.Size = (long)(statfile.st_size);
 		file.FileDate = statfile.st_mtime;
+		file.Crc32 = file_crc(Filename, TRUE);
 		strcpy(file.Uploader, exitinfo.sUserName);
 		file.UploadDate = time(NULL);
 
@@ -899,13 +894,12 @@ int Addfile(char *File, int AreaNum, int fileid)
 			}
 		}
 
-		if (fileid) {
+		if (fileid && strlen(archiver.iunarc)) {
 			/*
 			 * The right unarchiver is still in memory,
 			 * get the FILE_ID.DIZ if it exists.
 			 */
 			sprintf(temp, "%s %s/%s FILE_ID.DIZ >/dev/null", archiver.iunarc, area.Path, File);
-			Syslog('b', "%s", temp);
 			if ((err = system(temp))) {
 				WriteError("$Unpack error %s", temp);
 			} else {

@@ -1201,9 +1201,11 @@ int Upload()
 
 					case 3:
 						/*
-						 * No valid unarchiver found, just import
+						 * No valid unarchiver found, just import after scanning,
+						 * may catch macro viri.
 						 */
-						ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+						if (!ScanDirect(dp->d_name))
+						    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
 						break;
 					}
 				}

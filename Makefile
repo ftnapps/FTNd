@@ -51,6 +51,7 @@ install:
 			mkdir ${PREFIX}/log ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/log ; \
 		fi
+		@chmod 0775 ${PREFIX}/log
 		@if [ ! -d ${PREFIX}/magic ] ; then \
 			mkdir ${PREFIX}/magic ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/magic ; \

@@ -4303,6 +4303,11 @@ v0.33.19        26-Oct-2001
 		File search is done on long and short filenames.
 		Uploaded files are accepted with long filenames, the short
 		name is created when the upload is processed.
+		The virus scan after files upload tried also to use scanners
+		that were not available.
+		The upload virus file scan now also scans files that are not
+		known archives. Should catch macro viri and worms.
+		The file CRC is now set when importing an uploaded file.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
