@@ -1670,8 +1670,8 @@ int binkp_send_frame(int cmd, char *buf, int len)
 	if (!cmd)
 	    bp.cmpblksize = SND_BLKSIZE;
     }
-    if (!cmd && (last != bp.cmpblksize))
-	Syslog('b', "Binkp: adjusting next blocksize to %d bytes", bp.cmpblksize);
+//    if (!cmd && (last != bp.cmpblksize))
+//	Syslog('b', "Binkp: adjusting next blocksize to %d bytes", bp.cmpblksize);
 #else
     rc = PUTCHAR((header >> 8) & 0x00ff);
     if (!rc)

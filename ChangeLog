@@ -7,6 +7,12 @@ v0.61.4		11-Aug-2004
 		If you have BBBS uplinks and use automatic uplink requests then
 		change the setup of these nodes in screen 7.10.
 
+	libnodelist.a:
+		Removed some debug logging.
+
+	mbcico:
+		Removed a little debug logging.
+
 	mbfido:
 		No help was displayed when no valid command was given.
 		Echomail for non-existing areas now finally is stored in the

@@ -915,15 +915,15 @@ node *getnlent(faddr *addr)
      */
     if (nodebuf.iflags & mytcpip) {
 	memset(&tbuf, 0, sizeof(tbuf));
-	Syslog('n', "getnlent: node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
+//	Syslog('n', "getnlent: node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
 	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
 	    if ((*tmpm)->mask & nodebuf.iflags) {
-		Syslog('n', "getnlent: best flag is %s", (*tmpm)->name);
+//		Syslog('n', "getnlent: best flag is %s", (*tmpm)->name);
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
 			sprintf(tbuf, "%s", (*tmps)->service);
 			tport = (*tmps)->tmpport;
-			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->tmpport);
+//			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->tmpport);
 		    }
 		}
 	    }
@@ -1084,7 +1084,7 @@ node *getnlent(faddr *addr)
 	     * for this protocol.
 	     */
 	    sprintf(tbuf, ":%lu", tport);
-	    Syslog('n', "getnlent: adding port %s", tbuf);
+//	    Syslog('n', "getnlent: adding default port %s", tbuf);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 

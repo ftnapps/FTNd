@@ -115,11 +115,8 @@ int openport(char *port, int speed)
     }
     tty_status = 0;
     hanged_up = 0;
-    Syslog('t', "SIGHUP => linedrop()");
     signal(SIGHUP, linedrop);
-    Syslog('t', "SIGPIPE => sigpipe()");
     signal(SIGPIPE, sigpipe);
-    Syslog('t', "SIGINT => interrupt()");
     signal(SIGINT, interrupt);
     rc = 0;
     rc2 = 0;
@@ -191,9 +188,7 @@ int openport(char *port, int speed)
 void localport(void)
 {
     Syslog('t', "Setting port \"%s\" local",MBSE_SS(openedport));
-    Syslog('t', "SIGHUP => SIG_IGN");
     signal(SIGHUP, SIG_IGN);
-    Syslog('t', "SIGPIPE => SIG_IGN");
     signal(SIGPIPE, SIG_IGN);
     
     if (isatty(0)) 
@@ -218,9 +213,7 @@ void nolocalport(void)
 int rawport(void)
 {
     tty_status = 0;
-    Syslog('t', "SIGHUP => linedrop()");
     signal(SIGHUP, linedrop);
-    Syslog('t', "SIGPIPE => sigpipe()");
     signal(SIGPIPE, sigpipe);
 
     if (isatty(0)) 
@@ -233,9 +226,7 @@ int rawport(void)
 
 int cookedport(void)
 {
-    Syslog('t', "SIGHUP => SIG_IGN");
     signal(SIGHUP, SIG_IGN);
-    Syslog('t', "SIGPIPE => SIG_IGN");
     signal(SIGPIPE, SIG_IGN);
     if (isatty(0)) 
 	return tty_cooked();
