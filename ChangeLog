@@ -1,451 +1,330 @@
 $Id$
 
-v0.51.5		19-May-2004
+
+v0.60.0         09-Feb-2004 - 04-Jun-2004
 
 
-	mbfido:
-		When a bbs created file attach is created, the subject line is
-		converted so that the path information is removed, this is to
-		keep programs like FD (and maybe others) happy.
+        upgrade:
+		Before upgrade announce all new files!
+                Compile all programs.
+                Close the system with mbstat close.
+                Install programs as root (as usual).
+                Start mbsetup, this can take a while on a system with lots of
+                files, during startup the files database will be converted.
+                After the menu appears, enter global setup, exit and save.
+		This will also update the message area records and the message
+		group permission.
+                Now stop and restart mbtask.
+                Open the system with mbstat open.
+                In all message groups set check/set default character set.
+                In all message areas set the character set to use with the
+                global editor (to CP437 for example). Local and netmail
+                areas must be done by hand because they are most likely not
+                in a group.
+                The macro templates are updated, you MUST install the newfiles
+                macro template at least because the format changed!
+                Type "make help" in the examples subdirectory to see how.
 
-	mbaff:
-		Fixed a bug that crashed mbaff when new files are found in the
-		files database (uploads).
 
-	script:
+        general:
+                Reorganized the library header files. This will make it easier
+                to switch to dynamic libraries so other apps can link to mbse.
+                Updated to a new files database structure that allows for
+                expanding the records like most other databases to allow new
+                features.
+                Removed all references to costsharing for ticfiles which wasn't
+                fully implemented.
+                Added setup items for subprocess priority and sync filesystem.
+                Added setup parameter for filefind keyword length.
+                Removed one setup entry for check for free diskspace, there
+                were two different values for the same purpose. The removed
+                one was not used.
+                Moved doc directory from /opt/mbse/doc to /opt/mbse/share/doc.
+                Added configure test for CPU optimization flags. Use with
+                ./configure --enable-optimize.
+                Added charset kludges for CP852 2 and CP895 2, Czech Latin-2
+                and Kamenicky. There are no mapping tables available.
+                Added new location of joerc files for FreeBSD 4.9
+
+        SETUP.sh:
+                Changed to support Darwin (OS X). Note that in earlier days
+                mbse did compile under OS X, but things are different since
+                then. Work is underway to let it compile and run again.
+		To better support Darwin (OS X) a hardware sponsor is needed.
+
+        libmbse.a:
+                Changed the execute function so it will work on 2.6.x kernels
+                and fast cpu's.
+                Added execute_str function for compatibility with the older
+                api. Added execute_pth function to execute programs in the
+                path.
+                Moved the initial delay in the execute functions to the child
+                process. This solved the "lost child messages".
+                Added enoughspace function to check diskspace.
+
+        libmsgbase.a:
+                With JAM_Readheader the Msg.Replyid field wasn't filled.
+
+        libdbase.a:
+                Added new Files DataBase functions that will handle FDB io
+                with locking.
+
+        mbaff:
+                Patched to store long filename in the newfiles database
+                Writes the ^aCHRS: kludge again in new created messages.
+                Changed ^aPID to include OS and CPU.
+                Added macro "u" that holds the magic filerequest name.
+                When scanning for uploads, files which were hatched now have
+                the right tic area name instead of AREA n in the announce
+                record. They also contain the used magic filename if this is
+                known.
+                The scan for new uploads function is updated to the new files
+                database structure.
+                The filefind function is updated to the new files database
+                structure.
+                Updated to use new disk watcher.
+                Now uses new FDB functions.
+
+        mbsebbs:
+                Added support for the internal editor for hi-ascii
+                international character sets.
+                The screenlength is now really set to the users screenlength.
+        mbsebbs:
+                Writes the ^aCHRS: kludge again in new created messages.
+                Changed ^aPID to include OS and CPU.
+                Added user selecting a character set, menu 321.
+                Added login check to see if user has a valid character set.
+                Added Control-U 9 to display file to show the users character
+                set in the menus screens.
+                Added experimental characterset translation to message read.
+                This will translate the message character set used to the users
+                character set. Code is used from Martin Junius Fidogate 
+		package. (A better solution may follow in a next release).
+                In delete file in home directory the Y/N keys were read from
+                the wrong language prompt.
+                Replaced system() call with execute.
+                Updated to the new files database structure.
+                Fixed SIGCHLD logmessages on Fedora.
+                Added logging of virus scanner results.
+                Patches for offline reader programs that create messages with
+                wrong line terminaters (Sempoint).
+                Now uses new FDB functions.
+                The users tag directory wasn't properly cleaned before a new
+                download session.
+                The message group stat counters were not updated when a user
+                posted a message at the bbs.
+
+        mbnewusr:
+                Replaced system() call with execute.
+                Fixed SIGCHLD logmessages on Fedora.
+
+        mbout:
+                Replaced system() call with execute.
+                In check for T-Mail fileboxes added condition that the zone
+                must exist in the setup.
+
+        mbfido:
+                Changed ^aTID to include OS and CPU.
+                For the tic area create and message area create the check is
+                now case insensitive, also the area tagnames are forced to
+                uppercase. This should solve the problems with Linuxnet.
+                Replaced system() call with execute.
+                New files who already in the toberep database will not be
+                added again, but may be updated with newer info.
+                When removing files during tic import due to replace or maximum
+                files, thumbnails are now also removed from disk.
+                Updated tic file import function to the new files database
+                structure. 
+                Fixed a bug in mbfile kill that destroyed the filebase when a
+                file was deleted or moved.
+                Doesn't write Magic Request into files description anymore,
+                this is now handled outsite the description lines.
+                Updated to use new disk watcher.
+                The area tags are now created in /opt/mbse/share/doc/tags.
+                Fixed SIGCHLD logmessages on Fedora.
+                The last argument '*' which was hardcoded in the virusscan
+                function is removed, this should be done in the setup for the
+                virus scanners.
+                Added loging of virus scanner results.
+                When a new echomail area is auto created, the creation date and
+                the newsgroup name will be set.
+                Fixed news command, only real newsgroup areas are fetched from
+                the remote newsserver.
+                Now uses new FDB functions.
+                When a bbs created file attach is created, the subject line is
+                converted so that the path information is removed, this is to
+                keep programs like FD (and maybe others) happy.
+
+        mbsetup:
+                In edit message groups added setup for default character set.
+                In edit message areas added setup for character set for the
+                area. Also added global edit for character set.
+                In several places where groups need to be tagged, there is now
+                a switch (*) to select/deselect all groups at once.
+                In the user editor the sex is now changed with the spacebar to
+                prevent typing errors.
+                In the user editor added character set edit in the second
+                screen.
+                Removed users fullscreen chat setting, not used.
+                Added menu setup for change character set, menu 321.
+                Replaced system() call with execute.
+                Added auto upgrade for the files database.
+                Changed menus 14, 7.n.6, 10.1 and 8.4.
+                Changed default charset for new mailgroups and message areas
+                to CP437.
+                Added setup for filefind keyword length in menu 13.
+                Added setup items in menu 1.5 for child priority and filesystem
+                sync calls.
+                In several menus that can change paths, a command to mbtask is
+                given to reread filesystem tables when something is changed.
+                Fixed error if a file area is deleted that has an empty files
+                database.
+                Added html sitedocs creation. The advantage of html over the
+                old plain doc is to easy see crossreferences using hyperlinks.
+                The html files are created in /opt/mbse/share/doc/html.
+                The ~/doc/xref.doc and ~/doc/stat.doc are not created anymore,
+                there was nothing in it yet.
+                Removed setup for the unused free diskspace parameter.
+                In nodes edit aka's it was not possible to delete aka's.
+                Added auto setup for message area creation date. Also creates
+                a faked newsgroup name in echomail areas. Both settings are
+                needed for the newsserver.
+                It wasn't possible anymore to change the number of systems in
+                menu 1.11.11
+                Fixed a header include.
+                Now uses new FDB functions.
+                Message group setup now sets mode 660 for ~/etc/mgroups.data.
+                In menu 1.2 removed Omen Id that was not used.
+                In menu 18 removed settings for ISP connect and hangup.
+
+        mbcico:
+                Updated file request function to new files database structure.
+                Fixed a compile problem on FreeBSD 5.1
+                Fixed a bug when a m_get was received with file offset = file
+                size that would log a negative transfer time and transfer rate.
+                Fixed a bug when a m_get message was received with the current
+                file with offset = file size to properly close the file and
+                unlink from the outbound queue.
+                Fixed a bug when a m_get message was received on a file that
+                was already transmitted to remove that file from the outbound
+                queue.
+                Removed some debug logging from inbound handler.
+                Updated to use new disk watcher.
+                All heavy debug logmessages are now in defines and are only
+                enabled with ./configure --enable-newbinkp
+                In check for T-Mail fileboxes added condition that the zone
+                must exist in the setup.
+                Added protection against empty domain names received from
+                remote systems.
+                Now uses new FDB functions.
+
+        mball:
+                Replaced system() call with execute.
+                Added support for files database Magic request field.
+                Fixed SIGCHLD logmessages on Fedora.
+                Now uses new FDB functions.
+
+        mbfile:
+                For creating www pages of the download areas, the new mapping
+                tables are used to translate from ibmpc characters to
+                iso-8859-1.
+                Replaced system() call with execute.
+                Updated kill, index, check, pack, list, adopt, import, move,
+                delete and sort to the new files database structure.
+                The file delete function in kill didn't delete the thumbnail.
+                The mbfile del and undel commands accept wildcards in the
+                filename.
+                Fixed an error in check when a mangled 8.3 filename was changed
+                and the symbolic link was not adjusted.
+                Added rearc command.
+                The check command does now also check if the magic alias file
+                request names are valid and removes the invalid entries.
+                Updated to use new disk watcher.
+                Fixed SIGCHLD logmessages on Fedora.
+                The toberep command now logs the toberep.data in the debug
+                logfile.
+                Mbfile check will abort if a header of a files database is
+                corrupt.
+                Mbfile check will now accept an area number to just check one
+                single area. 
+                Now uses new FDB functions.
+
+        mbmsg:
+                Writes the ^aCHRS: kludge again in new created messages.
+                Changed ^aPID to include OS and CPU.
+                Updated to use new disk watcher.
+
+        mbdiff:
+                Replaced system() call with execute.
+                Updated to use new disk watcher.
+                Fixed SIGCHLD logmessages on Fedora.
+
+        mbuseradd:
+                Uses the execv instead of system to call the systems useradd
+                program.
+                Fixed removing of a OS created homedir.
+                Added msleep delay in execute child process.
+                On NetBSD fixed the errormessage when a new user is
+                created.
+
+        mbpasswd:
+                Uses the execv instead of system to call the systems vpassswd
+                program if needed.
+                Added msleep delay in execute child process.
+
+        mbindex:
+                Updated to use new disk watcher.
+
+        mbuser:
+                Updated to use new disk watcher.
+
+        mbmon:
+                Switched to use new filesystems command.
+                On screen 2 added disk status.
+                On screen 3, the warning colors for diskspace are now triggered
+                by the global config setting, red for the upper limit, and
+                yellow for the upper limit * 4. Added RO/RW status indicator.
+
+        mbtask:
+                Added communication commands for disk watch thread.
+                Added disk watch thread, this will monitor filesystems usage
+                for only the filesystems that are used by mbse.
+                Signal handler for sigchld set to sig_dfl, for Fedora.
+                Removed setup for old diskspace parameter.
+                Fixed crash on NetBSD Sparc when getsysinfo was called.
+                Fixed SIGCHLD logmessages on Fedora.
+                Added mbnntp to the taskregs to count as a user program.
+                In check for T-Mail fileboxes added condition that the zone
+                must exist in the setup.
+
+        mblogin:
+                Changed some defines for NetBSD 1.6.2
+
+        mbnntp:
+                New program, news server to read/write echomail with a news
+                client. Users must be registered bbs users.
+
+        examples:
+                Added change character set in English menus and textfiles.
+                Updated all newfiles macro template to include the magic file-
+                request macro (English, German, Spanish and Dutch).
+                Updated English, German, Spanish and Dutch macro files:
+                html.nodes and filemgr.status.
+
+        lang:
+                Added language prompts 23, 24 and 25.
+                removed obsolete prompt 240.
+                Updated germandu.txt (by Malte Tychsen).
+
+        script:
+                In the maint script removed the check option from the mbfile
+                command so it will not run every day.
 		Updated maintenace scripts to check that they are run by user
 		mbse. The new scripts are not automatic installed, in the ~/etc
 		directory you will find these scripts with the extension .new
 		You may need to manually update the scripts before you install
 		the new scripts manually.
 
-
-v0.51.4		11-Apr-2004 - 19-May-2004
-
-	upgrade:
-		Start mbsetup and leave. This wil update the message area
-		records and the message group permission.
-
-	general:
-		Added new location of joerc files for FreeBSD 4.9
-
-	libmsgbase.a:
-		With JAM_Readheader the Msg.Replyid field wasn't filled.
-
-	libdbase.a:
-		Added new Files DataBase functions that will handle FDB io
-		with locking.
-
-	mbcico:
-		All heavy debug logmessages are now in defines and are only
-		enabled with ./configure --enable-newbinkp
-		In check for T-Mail fileboxes added condition that the zone	
-		must exist in the setup.
-		Added protection against empty domain names received from
-		remote systems.
-		Now uses new FDB functions.
-
-	mbout:
-		In check for T-Mail fileboxes added condition that the zone
-		must exist in the setup.
-
-	mbfido:
-		The last argument '*' which was hardcoded in the virusscan
-		function is removed, this should be done in the setup for the
-		virus scanners.
-		Added loging of virus scanner results.
-		When a new echomail area is auto created, the creation date and
-		the newsgroup name will be set.
-		Fixed news command, only real newsgroup areas are fetched from
-		the remote newsserver.
-		You may need to edit or remove /opt/mbse/tmp/newsout to remove
-		postings for the remote newsserver with echomail messages.
-		Fixed a bug that no news was fetched at all.
-		Fixed a bug that tossed echomail was attempted to post to the
-		ISP newsserver (that didn't accept it).
-		More debug logging info added for double filename announces.
-		Now uses new FDB functions.
-		Another small change for double filename announces.
-		Changed file open mode for double filename announces.
-		Fixed create if toberep.data doesn't exist.
-
-	mbfile:
-		The toberep command now logs the toberep.data in the debug
-		logfile.
-		Mbfile check will abort if a header of a files database is 
-		corrupt.
-		Mbfile check will now accept an area number to just check one
-		single area.
-		Now uses new FDB functions.
-
-	mbaff:
-		Now uses new FDB functions.
-
-	mbnntp:
-		New program, news server to read/write echomail with a news 
-		client. Users must be registered bbs users.
-
-	mbsebbs:
-		Added logging of virus scanner results.
-		Patches for offline reader programs that create messages with
-		wrong line terminaters (Sempoint).
-		Now uses new FDB functions.
-		The users tag directory wasn't properly cleaned before a new
-		download session.
-		The message group stat counters were not updated when a user
-		posted a message at the bbs.
-
-	mball:
-		Now uses new FDB functions.
-
-	mbsetup:
-		Added auto setup for message area creation date. Also creates
-		a faked newsgroup name in echomail areas. Both settings are
-		needed for the newsserver.
-		It wasn't possible anymore to change the number of systems in
-		menu 1.11.11
-		Fixed a header include.
-		Fixed an error where new created file areas were created
-		without a file header.
-		Now uses new FDB functions.
-		Message group setup now sets mode 660 for ~/etc/mgroups.data.
-		In menu 1.2 removed Omen Id that was not used.
-		In menu 18 removed settings for ISP connect and hangup.
-
-	mbtask:
-		Removed debug logging for the disk thread.
-		Added mbnntp to the taskregs to count as a user program.
-		In check for T-Mail fileboxes added condition that the zone
-		must exist in the setup.
-
-	script:
-		In the maint script removed the check option from the mbfile
-		command so it will not run every day.
-
-
-v0.51.3		22-Mar-2003 - 11-Apr-2004
-
-	general:
-		Removed one setup entry for check for free diskspace, there
-		were two different values for the same purpose. The removed
-		one was not used.
-		Moved doc directory from /opt/mbse/doc to /opt/mbse/share/doc.
-		Added configure test for CPU optimization flags. Use with
-		./configure --enable-optimize.
-		Added charset kludges for CP852 2 and CP895 2, Czech Latin-2
-		and Kamenicky. There are no mapping tables available.
-
-	mbtask:
-		Signal handler for sigchld set to sig_dfl, test for Fedora.
-		Removed setup for old diskspace parameter.
-
-	mbsetup:
-		Added html sitedocs creation. The advantage of html over the
-		old plain doc is to easy see crossreferences using hyperlinks.
-		The html files are created in /opt/mbse/share/doc/html.
-		The ~/doc/xref.doc and ~/doc/stat.doc are not created anymore,
-		there was nothing in it yet.
-		Removed setup for the unused free diskspace parameter.
-		In nodes edit aka's it was not possible to delete aka's.
-		Added nodes private data in the html sitedoc.
-
-	mbfido:
-		The area tags are now created in /opt/mbse/share/doc/tags.
-		Added more debug info in Add_ToBeRep(), we still see double
-		announces of files like FP-DEF.ZIP.
-		Fixed (I hope for real now) the double announce of the files
-		like FP-DEF.ZIP received twice a day.
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mbfile:
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mbdiff:
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mbtask:
-		Fixed crash on NetBSD Sparc when getsysinfo was called.
-		Fixed disk search check when /opt/mbse is a symlink on a non-
-		root disk to display the correct partition.
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mbsebbs:
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mbnewusr:
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mball:
-		Fixed SIGCHLD logmessages on Fedora.
-
-	mblogin:
-		Changed some defines for NetBSD 1.6.2
-
-	mbuseradd:
-		On NetBSD fixed the errormessage when a new user is
-		created.
-
-
-v0.51.2		06-Mar-2004 - 22-Mar-2003
-
-	upgrade:
-		Before upgrade announce all new files!
-		Compile all programs.
-		Close the system with mbstat close.
-		Install programs as root (as usual).
-		Start mbsetup, this can take a while on a system with lots of
-		files, during startup the files database will be converted.
-		After the menu appears, enter global setup, exit and save.
-		Now stop and restart mbtask.
-		Open the system with mbstat open.
-
-	general:
-		Updated to a new files database structure that allows for
-		expanding the records like most other databases to allow new
-		features.
-		Removed all references to costsharing for ticfiles which wasn't
-		fully implemented.
-		Added setup items for subprocess priority and sync filesystem.
-		Added setup parameter for filefind keyword length.
-
-	libcommon.a:
-		Moved the initial delay in the execute functions to the child
-		process, that may be the trick to work around the lost child
-		messages.
-		Added enoughspace function to check diskspace.
-
-	mbcico:
-		Updated file request function to new files database structure.
-		Fixed a compile problem on FreeBSD 5.1
-		To test 3 bugfixes:
-		Fixed a bug when a m_get was received with file offset = file
-		size that would log a negative transfer time and transfer rate.
-		Fixed a bug when a m_get message was received with the current
-		file with offset = file size to properly close the file and
-		unlink from the outbound queue.
-		Fixed a bug when a m_get message was received on a file that
-		was already transmitted to remove that file from the outbound
-		queue.
-		Removed some debug logging from inbound handler.
-		Updated to use new disk watcher.
-
-	mbfido:
-		When removing files during tic import due to replace or maximum
-		files, thumbnails are now also removed from disk.
-		Updated tic file import function to the new files database
-		structure.
-		Added more checks and logging for adding new file announce 
-		records. Newer files will replace the older record so the last
-		one will be announced.
-		Fixed a bug in mbfile kill that destroyed the filebase when a
-		file was deleted or moved.
-		Doesn't write Magic Request into files description anymore,
-		this is now handled outsite the description lines.
-		Updated to use new disk watcher.
-
-	mbfile:
-		Updated kill, index, check, pack, list, adopt, import, move,
-		delete and sort to the new files database structure.
-		The file delete function in kill didn't delete the thumbnail.
-		The mbfile del and undel commands accept wildcards in the 
-		filename.
-		Fixed an error in check when a mangled 8.3 filename was changed
-		and the symbolic link was not adjusted.
-		Added rearc command.
-		The check command does now also check if the magic alias file
-		request names are valid and removes the invalid entries.
-		Updated to use new disk watcher.
-
-	mbaff:
-		When scanning for uploads, files which were hatched now have
-		the right tic area name instead of AREA n in the announce
-		record. They also contain the used magic filename if this is
-		known.
-		The scan for new uploads function is updated to the new files
-		database structure.
-		The filefind function is updated to the new files database
-		structure.
-		Updated to use new disk watcher.
-
-	mbindex:
-		Updated to use new disk watcher.
-
-	mbdiff:
-		Updated to use new disk watcher.
-
-	mbmsg:
-		Updated to use new disk watcher.
-
-	mbsebbs:
-		Updated to the new files database structure.
-
-	mball:
-		Added support for files database Magic request field.
-
-	mbuser:
-		Updated to use new disk watcher.
-
-	mbsetup:
-		Added auto upgrade for the files database.
-		Changed menus 14, 7.n.6, 10.1 and 8.4.
-		Changed default charset for new mailgroups and message areas
-		to CP437.
-		Added setup for filefind keyword length in menu 13.
-		Added setup items in menu 1.5 for child priority and filesystem
-		sync calls.
-		In several menus that can change paths, a command to mbtask is
-		given to reread filesystem tables when something is changed.
-		Fixed error if a file area is deleted that has an empty files
-		database.
-
-	mbmon:
-		Switched to use new filesystems command.
-		On screen 2 added disk status.
-		On screen 3, the warning colors for diskspace are now triggered
-		by the global config setting, red for the upper limit, and
-		yellow for the upper limit * 4. Added RO/RW status indicator.
-
-	mbtask:
-		Added communication commands for disk watch thread.
-		Added disk watch thread, this will monitor filesystems usage
-		for only the filesystems that are used by mbse.
-
-	mbuseradd:
-		Fixed removing of a OS created homedir.
-		Added msleep delay in execute child process.
-
-	mbpasswd:
-		Added msleep delay in execute child process.
-
-	examples:
-		Updated English, German, Spanish and Dutch macro files:
-		html.nodes and filemgr.status.
-
-	lang:
-		removed obsolete prompt 240.
-		Updated germandu.txt (by Malte Tychsen).
-
-
-v0.51.1		21-Feb-2004 - 06-Mar-2004
-
-	upgrade:
-		In all message groups set check/set default character set.
-		In all message areas set the character set to use with the
-		global editor (to CP437 for example). Local and netmail
-		areas must be done by hand because they are most likely not
-		in a group.
-		The macro templates are updated, you MUST install the newfiles
-		macro template at least because the format changed!
-		Type "make help" in the examples subdirectory to see how.
-
-	SETUP.sh:
-		Changed to support Darwin (OS X). Note that in earlier days
-		mbse did compile under OS X, but things are different since
-		then. Work is underway to let it compile and run again.
-	
-	libmbse.a:
-		Changed the execute function so it will work on 2.6.x kernels
-		and fast cpu's.
-		Added execute_str function for compatibility with the older
-		api. Added execute_pth function to execute programs in the
-		path.
-	
-	mbout:
-		Replaced system() call with execute.
-
-	mbsetup:
-		In edit message groups added setup for default character set.
-		In edit message areas added setup for character set for the
-		area. Also added global edit for character set.
-		In several places where groups need to be tagged, there is now
-		a switch (*) to select/deselect all groups at once.
-		In the user editor the sex is now changed with the spacebar to
-		prevent typing errors.
-		In the user editor added character set edit in the second
-		screen.
-		Removed users fullscreen chat setting, not used.
-		Added menu setup for change character set, menu 321.
-		Replaced system() call with execute.
-
-	mbsebbs:
-		Writes the ^aCHRS: kludge again in new created messages.
-		Changed ^aPID to include OS and CPU.
-		Added user selecting a character set, menu 321.
-		Added login check to see if user has a valid character set.
-		Added Control-U 9 to display file to show the users character
-		set in the menus screens.
-		Added experimental characterset translation to message read.
-		This will translate the message character set used to the users
-		character set. When translation is impossible a ? is printed.
-		After problems with iconv, switched to use code from Martin
-		Junius Fidogate package.
-		In delete file in home directory the Y/N keys were read from
-		the wrong language prompt.
-		Replaced system() call with execute.
-
-	mbnewusr:
-		Replaced system() call with execute.
-
-	mball:
-		Replaced system() call with execute.
-
-	mbmsg:
-		Writes the ^aCHRS: kludge again in new created messages.
-		Changed ^aPID to include OS and CPU.
-
-	mbaff:
-		Writes the ^aCHRS: kludge again in new created messages.
-		Changed ^aPID to include OS and CPU.
-		Added macro "u" that holds the magic filerequest name.
-
-	mbfido:
-		Changed ^aTID to include OS and CPU.
-		For the tic area create and message area create the check is
-		now case insensitive, also the area tagnames are forced to
-		uppercase. This should solve the problems with Linuxnet.
-		Replaced system() call with execute.
-		New files with already in the toberep database will not be
-		added again.
-
-	mbdiff:
-		Replaced system() call with execute.
-
-	mbfile:
-		For creating www pages of the download areas, the new mapping
-		tables are used to translate from ibmpc characters to 
-		iso-8859-1.
-		Replaced system() call with execute.
-
-	examples:
-		Added change character set in English menus and textfiles.
-		Updated all newfiles macro template to include the magic file-
-		request macro (English, German, Spanish and Dutch).
-
-	mbuseradd:
-		Uses the execv instead of system to call the systems useradd
-		program.
-
-	mbpasswd:
-		Uses the execv instead of system to call the systems vpassswd
-		program if needed.
-
-	lang:
-		Added language prompts 23, 24 and 25.
-
-
-v0.51.0		09-Feb-2004 - 21-Feb-2004
-
-	general:
-		Reorganized the library header files. This will make it easier
-		to switch to dynamic libraries so other apps can link to mbse.
-
-	mbaff:
-		Patched to store long filename in the newfiles database
-
-	mbsebbs:
-		Added support for the internal editor for hi-ascii 
-		international character sets.
-		The screenlength is now really set to the users screenlength.
 
 
 v0.50.0		03-Oct-2003 - 09-Feb-2004
