@@ -26,6 +26,8 @@ v0.37.4		10-May-2003
 		5 years to find them! If you want to check, call 5:5/0
 		Fixed compiler warning in network code.
 		printable function now escapes all non-printable characters.
+		In rfcmsg function the Cc: header is now treated as any other
+		header to prevent a SIGSEGV when the headerline is empty.
 
 	mbcico:
 		The binkp transmitter does now escape the unsafe filename

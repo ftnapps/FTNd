@@ -418,7 +418,7 @@ typedef struct _rfcmsg {
 
 rfcmsg *parsrfc(FILE *);
 void tidyrfc(rfcmsg *);
-void dumpmsg(rfcmsg *,FILE *);
+
 
 
 /*
