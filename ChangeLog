@@ -22,6 +22,8 @@ v0.35.03	06-Jul-2002
 	mbcico:
 		Changed IsDoing information.
 		Makes use of the node nodelist override settings.
+		Fixed a bug that mbcico refused to do internet calls when one
+		of the No IBN, No ITN or No IFC flags was set.
 
 	mbout:
 		Makes use of the node nodelist override settings.

@@ -150,7 +150,7 @@ int call(faddr *addr)
      * First see if this node can be reached over the internet and
      * that internet calls are allowed.
      */
-    if (nlent->iflags && ((localoptions & (NOIBN | NOITN | NOIFC)) == 0)) {
+    if (nlent->iflags && ((localoptions & (NOIBN & NOITN & NOIFC)) == 0)) {
 	if (!inetaddr) {
 	    Syslog('d', "Trying to find IP address...");
 	    /*
