@@ -108,14 +108,14 @@ install:
 		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/misc
 		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/programs
 		@${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/html/setup
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_BASE}    ${PREFIX}/html
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_FTSC}    ${PREFIX}/html/ftsc
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_IMAGES}  ${PREFIX}/html/images
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_LICENSE} ${PREFIX}/html/license
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_MENUS}   ${PREFIX}/html/menus
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_MISC}    ${PREFIX}/html/misc
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_PROGS}   ${PREFIX}/html/programs
-		@${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_SETUP}   ${PREFIX}/html/setup
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_BASE}    ${PREFIX}/html
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_FTSC}    ${PREFIX}/html/ftsc
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_IMAGES}  ${PREFIX}/html/images
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_LICENSE} ${PREFIX}/html/license
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_MENUS}   ${PREFIX}/html/menus
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_MISC}    ${PREFIX}/html/misc
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_PROGS}   ${PREFIX}/html/programs
+		@${INSTALL} -p -c -o ${OWNER} -g ${GROUP} -m 0444 ${H_SETUP}   ${PREFIX}/html/setup
 
 clean:
 		rm -f filelist
