@@ -134,51 +134,107 @@ int attach(faddr noden, char *ofile, int mode, char flavor, int fdn)
 
 
 
+int is_my_tic(char *, char *);
+int is_my_tic(char *filename, char *ticfile)
+{
+    FILE    *fp;
+    char    *buf;
+    int	    Found = FALSE;
+
+    buf = calloc(81, sizeof(char));
+
+    Syslog('p', "is_my_tic(%s, %s)", filename, ticfile);
+
+    if ((fp = fopen(ticfile, "r"))) {
+	while (fgets(buf, 80, fp)) {
+	    if (strstr(buf, filename)) {
+		Found = TRUE;
+		break;
+	    }
+	}
+	fclose(fp);
+    }
+
+    Syslog('p', "Found=%s", Found ?"True":"False");
+    return Found;
+}
+
+
+
+/*
+ * The real unatach function, return 1 if a file is removed.
+ */
+int check_flo(faddr, char *, char);
+int check_flo(faddr node, char *filename, char flavor)
+{
+    char    *flofile, *ticfile, *buf;
+    FILE    *fp;
+    long    filepos, newpos;
+    char    tpl = '~';
+    int	    rc = 0;
+
+    buf = calloc(PATH_MAX+3, sizeof(char));
+    flofile = calloc(PATH_MAX, sizeof(char));
+    ticfile = calloc(PATH_MAX, sizeof(char));
+
+    sprintf(flofile, "%s", floname(&node, flavor));
+    Syslog('p', "%s", flofile);
+    if ((fp = fopen(flofile, "r+"))) {
+	filepos = 0;
+	while (fgets(buf, PATH_MAX +2, fp)) {
+	    newpos = ftell(fp);
+	    Striplf(buf);
+	    if (buf[strlen(buf)-1] == '\r')
+		buf[strlen(buf)-1] = '\0';
+//	    Syslog('p',  "hlo: \"%s\"", printable(buf, 0));
+	    if (strstr(buf, filename) && (buf[0] != '~')) {
+//		Syslog('p', "Found");
+		fseek(fp, filepos, SEEK_SET);
+		fwrite(&tpl, 1, 1, fp);
+		fflush(fp);
+		fseek(fp, newpos, SEEK_SET);
+		filepos = newpos;
+		if (fgets(buf, PATH_MAX +2, fp)) {
+		    Striplf(buf);
+		    if (buf[strlen(buf)-1] == '\r')
+			buf[strlen(buf)-1] = '\0';
+		    if (strstr(buf, ".tic") && is_my_tic(basename(filename), buf+1)) {
+			unlink(buf+1);
+			fseek(fp, filepos, SEEK_SET);
+			fwrite(&tpl, 1, 1, fp);
+			fflush(fp);
+			Syslog('p', "Removed old %s and %s for %s", basename(filename), basename(buf+1), ascfnode(&node, 0x1f));
+		    } else {
+			Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(&node, 0x1f));
+		    }
+		}
+		rc = 1;
+		break;
+	    }
+	    filepos = ftell(fp);
+	}
+	fclose(fp);
+    }
+
+    free(ticfile);
+    free(flofile);
+    free(buf);
+
+    return rc;
+}
+
+
+
 /*
  * Remove a file from the flofile, also search for a .tic file.
  */
 int un_attach(faddr node, char *filename)
 {
-    char    *flofile, *buf;
-    FILE    *fp;
-
     Syslog('p', "un_attach: %s %s", ascfnode(&node, 0x1f), filename);
 
-    buf = calloc(PATH_MAX+3, sizeof(char));
-    flofile = calloc(PATH_MAX, sizeof(char));
-
-    sprintf(flofile, "%s", floname(&node, 'h'));
-    if ((fp = fopen(flofile, "r+"))) {
-	while (fgets(buf, sizeof(buf -1), fp)) {
-	    Striplf(buf);
-	    Syslog('p',  "hlo: \"%s\"", buf);
-	    
-	}
-	fclose(fp);
-    }
-
-    sprintf(flofile, "%s", floname(&node, 'c'));
-    if ((fp = fopen(flofile, "r+"))) {
-	while (fgets(buf, sizeof(buf -1), fp)) {
-	    Striplf(buf);
-	    Syslog('p',  "clo: \"%s\"", buf);
-
-	}
-	fclose(fp);
-    }
-    
-    sprintf(flofile, "%s", floname(&node, 'f'));
-    if ((fp = fopen(flofile, "r+"))) {
-	while (fgets(buf, sizeof(buf -1), fp)) {
-	    Striplf(buf);
-	    Syslog('p',  "flo: \"%s\"", buf);
-
-	}
-	fclose(fp);
-    }
-    
-    free(flofile);
-    free(buf);
+    if (check_flo(node, filename, 'h') == 0)
+	if (check_flo(node, filename, 'f') == 0)
+	    check_flo(node, filename, 'c');
 
     return TRUE;
 }

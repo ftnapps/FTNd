@@ -34,9 +34,12 @@ v0.61.2		11-Jul-2004
 		Changed to use direct instead of immediate mail.
 
 	mbfido:
-		Added experimental code to un_attach files during tic import
-		that are deleted from the system by replace, or keep # magic
-		actions.
+		Added code to un_attach files during tic import that are
+		deleted from the system by replace, or keep # magic actions,
+		but also for files with the same name that are replaced.
+		Currently tested: duplicate names - works.
+				  keep #          -
+				  replace	  -
 
 	mbout:
 		Changed to use direct instead of immediate mail.

@@ -560,7 +560,7 @@ void flush_dir(char *ndir)
 	    p = strchr(p, ' ');
 	    p++;
 
-	    Syslog('p', "File attach (fdn=%s) %s", fdn?"True":"False", p);
+	    Syslog('p', "File attach (fdn=%s) %s to %s", fdn?"True":"False", p, ascfnode(&noden, 0x1f));
 	    if (nodes.Session_out == S_DIRECT) {
 		attach(noden, p, mode, flavor, fdn);
 	    } else if (nodes.Session_out == S_DIR) {
