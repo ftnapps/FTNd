@@ -76,8 +76,11 @@ case $OS in
 		    1.1*)	FLAGS='-march=1.1'	;;
 		    2.0*)       FLAGS='-march=2.0'      ;;
 		esac
+		case "`egrep 'cpu	' /proc/cpuinfo  | cut -d ' ' -f 2`" in
+		    PA7100LC)   FLAGS=${FLAGS}' -mschedule=7100LC'	;;
+		esac
 		;;
-
+		
 	    i386)
 		FLAGS='-march=i386'
 		;;

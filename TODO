@@ -117,6 +117,8 @@ mbfido:
 	N: Implement areamgr/filemgr %avail command to list available areas
 	   from areas files.
 
+	M: Add switch to tic areas that new links connect SR to the area.
+
 mbcico:
 	L: Implement binkp option ND.
 

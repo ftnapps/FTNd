@@ -260,7 +260,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 
     Syslog('f', "mbsedb_InsertFDB: insertpoint=%d, found=%s, done=%s", Insert, Found?"true":"false", Done?"true":"false");
 
-    if (Found) {
+//    if (Found) {
 	if ((fp = fopen(temp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", temp);
 	    mbsedb_UnlockFDB(fdb_area);
@@ -333,13 +333,13 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	mbsedb_Temp2Data(fdb_area->area);
 	fdb_area->fp = fp;
 	fdb_area->locked = 0;
-    } else {
+//    } else {
 	/*
 	 * Append new entry
 	 */
-	fseek(fdb_area->fp, 0, SEEK_END);
-	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-    }
+//	fseek(fdb_area->fp, 0, SEEK_END);
+//	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
+//    }
 
     free(temp);
 
