@@ -2,7 +2,7 @@
  *
  * File ..................: structs.h
  * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 17-Oct-2001
+ * Last modification date : 24-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -376,6 +376,7 @@ struct	userrec {
 	unsigned	ieNEWS		: 1;	/* Show bulletins	    */
 	unsigned	ieFILE		: 1;	/* Check for new files	    */
 	unsigned	Email		: 1;	/* Has private email box    */
+	unsigned	FSemacs		: 1;	/* FSedit uses emacs keys   */
 	char		Password[15];		/* Plain password	    */
 };
 
