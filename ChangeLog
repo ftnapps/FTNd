@@ -1,12 +1,12 @@
 $Id$
 
 
-v0.36.00	Pending release.
+v0.36.00	26-Dec-2002.
 
 	update:
 		These are the total update instructions for the upgrade from
-		v0.33.21 until v0.36.00 (not yet released). Read and perform
-		this upgrade with great care, this one is quite complicated.
+		v0.33.21 until v0.36.00. Read and perform this upgrade with 
+		great care, this one is quite complicated.
                 Make sure you don't have download files with case differences
                 in download directories like FileName.zip and FILENAME.ZIP.
                 With this upgrade files with such names will be deleted!
@@ -70,10 +70,9 @@ v0.36.00	Pending release.
 
 				MBSEBBS History.
 
-v0.35.07	11-Dec-2002
+v0.35.07	11-Dec-2002 - 26-Dec-2002
 
 	general:
-		This may become release 0.36.00 (again).
 		On FreeBSD the lsz and lrz programs are found as alternate for
 		lz and sz.
 
@@ -98,6 +97,8 @@ v0.35.07	11-Dec-2002
 		was stored in a netmail packet of a different network and the
 		netmail misses a lot of kludges. Better logging of processed
 		netmails.
+		If a TIC file woth lowercase 8.3 filename is received the name
+		is forced to uppercase 8.3.
 
 	mbcico:
 		Code cleanup in opentcp, better handling of given ports and

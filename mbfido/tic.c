@@ -235,7 +235,9 @@ int LoadTic(char *inb, char *tfn)
 
 	} else if (strncasecmp(Temp, "file ", 5) == 0) {
 	    strncpy(TIC.TicIn.File, Temp+5, 80);
-
+	    for (i = 0; i < strlen(TIC.TicIn.File); i++)
+		TIC.TicIn.File[i] = toupper(TIC.TicIn.File[i]);
+	    
 	} else if (strncasecmp(Temp, "fullname ", 9) == 0) {
 	    strncpy(TIC.TicIn.FullName, Temp+9, 80);
 

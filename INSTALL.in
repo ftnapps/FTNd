@@ -20,7 +20,7 @@ Login as root and type the following commands to do the basic install:
 cd /tmp
 tar xfvz /pathtopackage/@PACKAGE@-@VERSION@.tar.gz
 cd @PACKAGE@-@VERSION@ 
-sh ./SETUP.sh
+bash ./SETUP.sh
 
 This will setup a new directory structure @prefix@ and create's some 
 necessary users. If this in successfull, logout and login as user "mbse".
@@ -37,6 +37,7 @@ make install
 exit
 @prefix@/bin/mbtask
 
+Note: On XxxBSD systems, use gmake instead of make.
 The next step is to read the documentation in @prefix@/html with a browser.
 After your system is configured and tested type "sh ./CRON.sh" to install
 a default crontab for the bbs.
