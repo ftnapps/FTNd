@@ -41,7 +41,6 @@
 #include "input.h"
 #include "language.h"
 #include "misc.h"
-#include "pwcheck.h"
 #include "timeout.h"
 #include "exitinfo.h"
 #include "bye.h"
@@ -65,7 +64,7 @@ int Chg_Language(int NewMode)
 			printf("\nFATAL: Can't open language file\n\n");
 			Pause();
 			free(temp);
-			Quick_Bye(0);
+			return 0;
 		}
 		fread(&langhdr, sizeof(langhdr), 1, pLang);
 

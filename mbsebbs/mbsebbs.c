@@ -46,7 +46,6 @@
 #include "timeout.h"
 
 extern	int	do_quiet;	/* Logging quiet flag */
-extern	char	*Passwd;
 time_t		t_start;
 
 
@@ -211,7 +210,6 @@ int main(int argc, char **argv)
 
 	sprintf(sMailbox, "mailbox");
 	colour(LIGHTGRAY, BLACK);
-	Passwd = calloc(16, sizeof(char));
 	user();
 	return 0;
 }

@@ -476,6 +476,66 @@ void GetnameNE(char *sStr, int iMaxlen)
 
 
 
+/*
+ * Open up /dev/tty to get the password from the user 
+ * because this is done in raw mode, it makes life a bit
+ * more difficult. 
+ * This function gets a password from a user, upto Max_passlen
+ */
+void Getpass(char *theword)
+{
+        unsigned char   c = 0;
+        int             counter = 0;
+        char            password[Max_passlen+1];
+
+        /* 
+         * Open the device that we want to read the password from, you can't use
+         * stdin as this might change in a pipe
+         */
+        if ((ttyfd = open ("/dev/tty", O_RDWR)) < 0) {
+                perror("open 7");
+                ExitClient(1);
+        }
+
+        /* Set Raw mode so that the characters don't echo */
+        Setraw();
+        alarm_on();
+
+        /* 
+         * Till the user presses ENTER or reaches the maximum length allowed
+         */
+        while ((c != 13) && (counter < Max_passlen )) {
+
+                fflush(stdout);
+                c = Readkey();  /* Reads a character from the raw device */
+
+                if (((c == 8) || (c == KEY_DEL) || (c == 127)) && (counter != 0 )) { /* If its a BACKSPACE */
+                        counter--;
+                        password[counter] = '\0';
+                        printf("\x008 \x008");
+                        continue;
+                }  /* Backtrack to fix the BACKSPACE */
+
+                if (((c == 8) || (c == KEY_DEL) || (c == 127)) && (counter == 0) ) {
+                        printf("\x007");
+                        continue;
+                } /* Don't Backtrack as we are at the begining of the passwd field */
+
+                if (isalnum(c)) {
+                        password[counter] = c;
+                        counter++;
+                        printf("%c", CFG.iPasswd_Char);
+                }
+        }
+        Unsetraw();  /* Go normal */
+        close(ttyfd);
+
+        password[counter] = '\0';  /* Make sure the string has a NULL at the end*/
+        strcpy(theword,password);
+}
+
+
+
 void Pause()
 {
 	int	i, x;

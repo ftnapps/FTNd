@@ -177,6 +177,10 @@ void Add_Headkludges(faddr *dest, int IsReply)
 
 				break;
 
+		case LIST:	Msg.Echomail = TRUE;
+				sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
+				break;
+
 		case ECHOMAIL:	Msg.Echomail = TRUE;
 				sprintf(Msg.FromAddress, "%s", aka2str(msgs.Aka));
 				break;
@@ -279,7 +283,7 @@ void Add_Footkludges(int Quote)
 #endif
 	MsgText_Add2(temp);
 
-	if (msgs.Type == ECHOMAIL) {
+	if ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
 		/* RANDOM ORIGIN LINES IMPLEMENTEREN */
 		if (msgs.Aka.point)
 			sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);

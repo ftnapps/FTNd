@@ -573,6 +573,7 @@ void New_Area(long Area)
 				break;
 		case NETMAIL:	printf(Language(393)); /* Netmail  */
 				break;
+		case LIST:
 		case ECHOMAIL:	printf(Language(394)); /* Echomail */
 				break;
 		case NEWS:	printf(Language(395)); /* News     */
@@ -1458,6 +1459,7 @@ void OLR_DownBW()
 				case NETMAIL:	AreaInf.area_flags |= (INF_ECHO+INF_NETMAIL+INF_HASFILE);
 						break;
 
+				case LIST:
 				case ECHOMAIL:	AreaInf.area_flags |= INF_ECHO;
 						break;
 

@@ -51,7 +51,7 @@
 /*
  * Copy usersrecord into ~/tmp/.bbs-exitinfo.tty
  */
-void InitExitinfo()
+int InitExitinfo()
 {
 	FILE	*pUsrConfig, *pExitinfo;
 	char	*temp;
@@ -63,7 +63,7 @@ void InitExitinfo()
 	if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
 		WriteError("$Can't open %s for writing", temp);
 		free(temp);
-		return;
+		return FALSE;
 	}
 
 	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
@@ -71,7 +71,7 @@ void InitExitinfo()
 	if(fseek(pUsrConfig, offset, 0) != 0) {
 		WriteError("$Can't move pointer in %s", temp);
 		free(temp);
-		Good_Bye(1); 
+		return FALSE;
 	}
 
 	fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
@@ -81,13 +81,16 @@ void InitExitinfo()
 
 	sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
 	mkdirs(temp);
-	if ((pExitinfo = fopen(temp, "w+b")) == NULL)
+	if ((pExitinfo = fopen(temp, "w+b")) == NULL) {
 		WriteError("$Can't open %s for writing", temp);
-	else {
+		free(temp);
+		return FALSE;
+	} else {
 		fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
 		fclose(pExitinfo);
 	}
 	free(temp);
+	return TRUE;
 }
 
 

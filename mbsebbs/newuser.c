@@ -35,15 +35,12 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
-//#include "funcs.h"
 #include "funcs4.h"
 #include "input.h"
-#include "pwcheck.h"
 #include "newuser.h"
 #include "language.h"
 #include "timeout.h"
 #include "change.h"
-#include "bye.h"
 #include "dispfile.h"
 
 
@@ -52,7 +49,8 @@ extern	int	do_quiet;		/* No logging to the screen	*/
 extern	pid_t	mypid;			/* Pid of this program		*/
 char		UnixName[9];		/* Unix Name			*/
 extern	char	*ieHandle;		/* Users Handle			*/
-
+extern  time_t  t_start;		/* Program starttime		*/
+int		do_mailout = FALSE;	/* Just for linking		*/
 
 
 int newuser()
@@ -71,7 +69,8 @@ int newuser()
 	Syslog('+', "Newuser registration");
 	clear();
 	DisplayFile((char *)"newuser");
-	iLang = Chg_Language(TRUE);
+	if ((iLang = Chg_Language(TRUE)) == 0)
+	    Fast_Bye(1);
 
 	Enter(1);
 	/* MBSE BBS - NEW USER REGISTRATION */
@@ -105,7 +104,7 @@ int newuser()
 	     */
 	    if ((strcasecmp(temp, "off")) == 0) {
 		Syslog('+', "Quick \"off\" logout");
-		Quick_Bye(0);
+		Fast_Bye(0);
 	    }
 
 	    Count++;
@@ -115,7 +114,7 @@ int newuser()
 		language(CFG.HiliteF, CFG.HiliteB, 2);
 		Enter(2);
 		Syslog('!', "Exceeded maximum login attempts");
-		Quick_Bye(0);
+		Fast_Bye(0);
 	    }
 
 	    /*
@@ -376,8 +375,6 @@ int newuser()
 		iLang = atoi(temp2) + 1900;
 		sprintf(temp2, "%04d", iLang);
 
-		Syslog('-', "DOB: test %s %s", temp1, temp2);
-
 		if ((strcmp(temp1,temp2)) == 0) {
 			Enter(1);
 			/* Sorry you entered this year by mistake. */
@@ -445,6 +442,7 @@ int newuser()
 
 	usrconfig.tLastPwdChange  = ltime; /* Days Since Last Password Change */
 	usrconfig.iLastFileArea   = 1;
+	usrconfig.iLastMsgArea    = 1;
 
 	sprintf(usrconfig.sProtocol, "%s", (char *) Language(65));
 	usrconfig.DoNotDisturb = FALSE;
@@ -533,6 +531,46 @@ int newuser()
 	alarm_off();
 	printf("\n");
 	return 0;
+}
+
+
+
+void Fast_Bye(int onsig)
+{
+        char    *temp;
+	time_t	t_end;
+
+        time(&t_end);
+        Syslog(' ', "MBNEWUSR finished in %s", t_elapsed(t_start, t_end));
+        socket_shutdown(mypid);
+	
+	temp = calloc(PATH_MAX, sizeof(char));
+        sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+        unlink(temp);
+        free(temp);
+
+        colour(7, 0);
+        fflush(stdout);
+        fflush(stdin);
+        sleep(3);
+
+        Free_Language();
+        free(pTTY);
+#ifdef MEMWATCH
+        mwTerm();
+#endif
+        exit(0);
+}
+
+
+
+/*
+ * This function is the same as Fast_Bye(), it's here
+ * to link the other modules properly.
+ */
+void Good_Bye(int onsig)
+{
+    Fast_Bye(onsig);
 }
 
 

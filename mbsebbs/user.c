@@ -38,7 +38,6 @@
 #include "../lib/clcomm.h"
 #include "timeout.h"
 #include "user.h"
-#include "pwcheck.h"
 #include "dispfile.h"
 #include "funcs4.h"
 #include "input.h"
@@ -65,9 +64,6 @@ char		*StartTime;
  * Non global function prototypes
  */
 void SwapDate(char *, char *);              /* Swap two Date strings around     */
-
-
-char	*Passwd = NULL;
 
 
 
@@ -121,60 +117,54 @@ void user()
 	FILE		*pUsrConfig, *pLimits;
 	int		i, x;
 	int		FoundName = FALSE, iFoundLimit = FALSE;
-	register int 	recno;
-	int		lrecno = 0;
 	long		l1, l2;
-	unsigned 	crc = 0;
 	char		*token;
 	char		temp[PATH_MAX];
 	char		temp1[84];
-	char		sGetName[84];
-	char		*FileName;
-	char		*handle;
-	struct passwd	*pw;
-	char		*sGetPassword;
-	long		offset;
 	time_t		LastLogin;
 	struct stat 	st;
-	char		UserName[36];
+	char		UserName[37];
 	int		IsNew = FALSE;
 
-
-	recno=0;
-
+	grecno = 0;
 	Syslog('+', "Unixmode login: %s", sUnixName);
-	if ((pw = getpwnam(sUnixName)))
-		strcpy(sGetName, pw->pw_gecos);
 
-	/*
-	 * If there are more fields in the passwd gecos field
-	 * then only get the first field.
-	 */
-	if (strchr(sGetName, ',') != NULL)
-		strcpy(sGetName, strtok(sGetName, ","));
-
-	if (!(CheckName(sGetName))) {
-		printf("Unknown username: %s\n", sGetName);
-		/* FATAL ERROR: You are not in the BBS users file.*/
-		printf("%s\n", (char *) Language(389));
-		/* Please run 'newuser' to create an account */
-		printf("%s\n", (char *) Language(390));
-		Syslog('?', "FATAL: Could not find user in BBS users file.");
-		Syslog('?', "       and system is using unix accounts\n");
-		free(Passwd);
-		ExitClient(0);
+	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
+	    /*
+	     * This should not happen.
+	     */
+	    WriteError("$Can't open %s", temp);
+	    printf("Can't open userfile, run \"newuser\" first");
+	    ExitClient(0);
 	}
 
-	if (CFG.iCapUserName || SYSOP)
-		strcpy(sGetName, tlcap(sGetName));
+	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
+	while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
+	    if (strcmp(usrconfig.Name, sUnixName) == 0) {
+		FoundName = TRUE;
+		break;
+	    } else
+		grecno++;
+	}
+							
+	if (!FoundName) {
+	    printf("Unknown username: %s\n", sUnixName);
+	    /* FATAL ERROR: You are not in the BBS users file.*/
+	    printf("%s\n", (char *) Language(389));
+	    /* Please run 'newuser' to create an account */
+	    printf("%s\n", (char *) Language(390));
+	    Syslog('?', "FATAL: Could not find user in BBS users file.");
+	    Syslog('?', "       and system is using unix accounts\n");
+	    ExitClient(0);
+	}
 
 	/*
 	 * Copy username, split first and lastname.
 	 */
-	strcpy(UserName, tlcap(sGetName));
-
-	if ((strchr(sGetName,' ') == NULL && !CFG.iOneName)) {
-		token = strtok(sGetName, " ");
+	strcpy(UserName, usrconfig.sUserName);
+	if ((strchr(UserName,' ') == NULL && !CFG.iOneName)) {
+		token = strtok(UserName, " ");
   		strcpy(FirstName, token);
   		token = strtok(NULL, "\0");
 		i = strlen(token);
@@ -184,74 +174,15 @@ void user()
 		}
 	 	strcpy(LastName, token);
 	} else
-		strcpy(FirstName, sGetName);
-
+		strcpy(FirstName, UserName);
+	strcpy(UserName, usrconfig.sUserName);
 	Syslog('+', "%s On-Line at %s", UserName, ttyinfo.comment);
+	IsDoing("Just Logged In");
 
 	/*
 	 * Check some essential files, create them if they don't exist.
 	 */
  	ChkFiles();
-
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT")); 
-	if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
-		/*
-		 * This should only happen once, when you build the BBS
-		 */
-		WriteError("Can't open users file: %s", temp);
-		printf("Can't open userfile, run \"newuser\" first");
-		free(Passwd);
-		ExitClient(0);
-	}
-
-	handle = calloc(40, sizeof(char));
-	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-	strcpy(temp1, UserName);
-	while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
-		strcpy(temp, usrconfig.sUserName);
-		strcpy(handle, usrconfig.sHandle);
-
-		if ((strcasecmp(temp, temp1) == 0 || strcasecmp(handle, temp1) == 0)) {
-			FoundName = TRUE;
-			break;
-		} else
-			recno++;
-	}
-	free(handle);
-
-	if (!FoundName) {
-		Syslog('+', "Name not in user file");
-		Enter(1);
-		/* Scanning User File */
-		language(LIGHTGRAY, BLACK, 3);
-		Enter(1);
-
-		usrconfig.GraphMode = FALSE;
-		DisplayFile((char *)"notfound");
-
-		Enter(1);
-		/* Name entered: */
-		language(LIGHTGRAY, BLACK, 5);
-		printf("%s\n\n", UserName);
-		/* Did you spell your name correctly [Y/n] */
-		language(WHITE, BLACK, 4);
-		fflush(stdout);
-		fflush(stdin);
-		i = toupper(Getone());
-		if (i == Keystroke(4, 0) || i == '\r') {
-				/*
-				 * Here we run newuser.
-				 */
-				Syslog('+', "Creating user ...");
-//				recno = newuser(UserName);
-				Quick_Bye(0);
-				IsNew = TRUE;
-		} else {
-			Enter(1);
-			Syslog('+', "User spelt his/her name incorrectly");
-			user();
-		}
-	}
 
 	/*
 	 * Setup users favourite language.
@@ -270,10 +201,13 @@ void user()
 	 */
 	strcpy(temp, UserName);
 	strcpy(temp1, CFG.sysop_name);
-	if ((strcasecmp(temp1, temp)) == 0)
-		SYSOP = TRUE; /* If login name is sysop, set SYSOP true */
-
-	grecno = recno;
+	if ((strcasecmp(CFG.sysop_name, UserName)) == 0) {
+		/*
+		 * If login name is sysop, set SYSOP true 
+		 */
+		SYSOP = TRUE;
+		Syslog('+', "Sysop is online");
+	}
 
 	/*
 	 * Is this a new user?
@@ -281,22 +215,11 @@ void user()
 	if (usrconfig.iTotalCalls == 0)
 	    IsNew = TRUE;
 
-	offset = usrconfighdr.hdrsize + (recno * usrconfighdr.recsize);
-	if (fseek(pUsrConfig, offset, 0) != 0) {
-		printf("Can't move pointer there."); 
-		getchar();
-		free(Passwd);
-		ExitClient(1);
-	}
-
-	fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
 	TermInit(usrconfig.GraphMode);
-        sGetPassword = malloc(Max_passlen+1);
-	crc = usrconfig.iPassword;
-	sprintf(Passwd, "%s", usrconfig.Password);
 
-	IsDoing("Just Logged In");
-
+	/*
+	 * Pause after logo screen.
+	 */
 	alarm_on();
 	Pause();
 
@@ -306,10 +229,6 @@ void user()
 		usrconfig.Archiver[2] = 'P';
 		Syslog('+', "Setup default archiver ZIP");
 	}
-
-	recno = 0;
-	free(sGetPassword);
-
 
 	/*
 	 * Check users date format. We do it strict as we
@@ -332,7 +251,7 @@ void user()
 	l1 = atol(Date1);
 	l2 = atol(Date2);
 
-	if(l1 >= l2 && l2 != 0) {
+	if (l1 >= l2 && l2 != 0) {
 		/* 
 		 * If Expiry Date is the same as today expire to 
 		 * Expire Sec level
@@ -351,12 +270,10 @@ void user()
 	/* 
 	 * Copy limits.data into memory
 	 */
-	FileName = calloc(84, sizeof(char));
-	sprintf(FileName, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+	sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
 
-	if(( pLimits = fopen(FileName,"rb")) == NULL) {
-		perror("");
-		WriteError("Can't open file: %s", FileName);
+	if ((pLimits = fopen(temp,"rb")) == NULL) {
+		WriteError("$Can't open %s", temp);
 	} else {
 		fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
 
@@ -364,15 +281,13 @@ void user()
  			if (LIMIT.Security == usrconfig.Security.level) {
 				iFoundLimit = TRUE;
 				break;
-			} else
-				lrecno++;
+			}
 		}
 		fclose(pLimits);
 	}
-	free(FileName);
 
-	if(!iFoundLimit) {
-		Syslog('?', "Unknown Security Level in limits.data");
+	if (!iFoundLimit) {
+		WriteError("Unknown Security Level in limits.data");
 		usrconfig.iTimeLeft = 0; /* Could not find limit, so set to Zero */
 		usrconfig.iTimeUsed = 0; /* Set to Zero as well  */
 	} else {
@@ -416,23 +331,24 @@ void user()
 	LastLogin = usrconfig.tLastLoginDate;
 	usrconfig.tLastLoginDate = ltime; /* Set current login to current date */
 	usrconfig.iTotalCalls++;
-	memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
-	sprintf(usrconfig.Password, "%s", Passwd);
 
 	/*
 	 * Update user record.
 	 */
-	if (fseek(pUsrConfig, offset, 0) != 0)
-		WriteError("Can't move pointer in file: %s", temp);
-	else {
+	if (fseek(pUsrConfig, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), 0) != 0) {
+		WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
+	} else {
 		fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
 		fclose(pUsrConfig);
 	}
 
 	/*
-	 * Write users structure to tmp file in ~/tmp
+	 * Write users structure to tmp file in ~/tmp/.bbs-exitinfo.ttyxx
+	 * A copy of the userrecord is also in the variable exitinfo.
 	 */
-	InitExitinfo();
+	if (! InitExitinfo())
+	    Good_Bye(1);
+
 	GetLastUser();
 	StartTime = xstrcpy(GetLocalHM());
 	ChangeHomeDir(exitinfo.Name, exitinfo.Email);
@@ -442,7 +358,7 @@ void user()
 		usrconfig.Security.level, LIMIT.Description, usrconfig.iTimeLeft, pTTY);
 	time(&Time2Go);
 	Time2Go += usrconfig.iTimeLeft * 60;
-	iUserTimeLeft = usrconfig.iTimeLeft;
+	iUserTimeLeft = exitinfo.iTimeLeft;
 
 	DisplayFile((char *)"mainlogo");
 	DisplayFile((char *)"welcome");
@@ -463,7 +379,7 @@ void user()
 		DisplayFile((char *)"welcome9");
 
 		sprintf(temp, "%s", (char *) GetDateDMY() );
-		if ((strcmp(usrconfig.sDateOfBirth, temp)) == 0)
+		if ((strcmp(exitinfo.sDateOfBirth, temp)) == 0)
 			DisplayFile((char *)"birthday");
 
 		/*
@@ -478,7 +394,7 @@ void user()
 		/*
 		 * Displays users security file if it exists
 		 */
-		sprintf(temp, "sec%d", usrconfig.Security.level);
+		sprintf(temp, "sec%d", exitinfo.Security.level);
 		DisplayFile(temp);
 
 		/*
@@ -492,7 +408,7 @@ void user()
 	 * file, search order is the same as in DisplayFile()
 	 */
 	st.st_mtime = 0;
-	if (usrconfig.GraphMode) {
+	if (exitinfo.GraphMode) {
 		sprintf(temp, "%s/onceonly.ans", lang.TextPath);
 		stat(temp, &st);
 		if (st.st_mtime == 0) {
@@ -514,21 +430,19 @@ void user()
 	
 	OLR_SyncTags();
 
-	if (usrconfig.MailScan)
+	if (exitinfo.MailScan)
 		CheckMail();
 
 	/*
-	 * We don't show new files to new users, their lastlogin
-	 * date is not yet set so they would see all the files
-	 * which can be boring...
+	 * We don't show new files to new users.
 	 */
-	if (usrconfig.ieFILE && (!IsNew))
+	if (exitinfo.ieFILE && (!IsNew))
 		NewfileScan(FALSE);
 
 	/* 
 	 * Copy last file Area in to current Area 
 	 */
-	SetFileArea(usrconfig.iLastFileArea);
+	SetFileArea(exitinfo.iLastFileArea);
 
 	/*
 	 * Copy Last Message Area in to Current Msg Area
@@ -543,10 +457,8 @@ void user()
 	UserSilent(usrconfig.DoNotDisturb);
 
 	/*
-	 * Start the menu, but first, wipe the password.
+	 * Start the menu.
 	 */
-	memset(Passwd, 0, sizeof(Passwd));
-	free(Passwd);
        	menu();
 }
 

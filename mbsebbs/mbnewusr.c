@@ -40,7 +40,6 @@
 #include "input.h"
 #include "language.h"
 #include "misc.h"
-#include "bye.h"
 #include "timeout.h"
 #include "newuser.h"
 
@@ -48,7 +47,7 @@
 
 extern	int	do_quiet;	/* Logging quiet flag */
 time_t		t_start;
-char             *StartTime;
+char            *StartTime;
 
 
 int main(int argc, char **argv)
@@ -132,7 +131,7 @@ int main(int argc, char **argv)
 
 	if ((tty = ttyname(0)) == NULL) {
 		WriteError("Not at a tty");
-		Quick_Bye(0);
+		Fast_Bye(0);
 	}
 
 	if (strncmp("/dev/", tty, 5) == 0)
@@ -168,7 +167,7 @@ int main(int argc, char **argv)
 	 */
 	if (CheckStatus() == FALSE) {
 		Syslog('+', "Kicking user out, the BBS is closed");
-		Quick_Bye(0);
+		Fast_Bye(0);
 	}
 
 	clear();
@@ -184,14 +183,12 @@ int main(int argc, char **argv)
 	 */
 	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
 
-	iNode = 0;
 	if ((pTty = fopen(temp, "r")) == NULL) {
 		WriteError("Can't read %s", temp);	
 	} else {
 		fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, pTty);
 
 		while (fread(&ttyinfo, ttyinfohdr.recsize, 1, pTty) == 1) {
-			iNode++;
 			if (strcmp(ttyinfo.tty, pTTY) == 0) 
 				break;
 		}
@@ -200,9 +197,8 @@ int main(int argc, char **argv)
 		if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 			Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
 			printf("No BBS on this port allowed!\n\n");
-			Quick_Bye(0);
+			Fast_Bye(0);
 		}
-		Syslog('b', "Node number %d", iNode);
 
 		/* 
 		 * Ask whether to display Connect String 
@@ -220,7 +216,7 @@ int main(int argc, char **argv)
 	Pause();
 
 	newuser();
-	Quick_Bye(0);
+	Fast_Bye(0);
 	return 0;
 }
 

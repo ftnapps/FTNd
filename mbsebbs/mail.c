@@ -471,7 +471,7 @@ void Post_Msg()
 			/*
 			 * Localmail and Echomail may be addressed to All
 			 */
-			if ((msgs.Type == LOCALMAIL) || (msgs.Type == ECHOMAIL)) {
+			if ((msgs.Type == LOCALMAIL) || (msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
 				if (strcasecmp(Msg.To, "all") == 0) 
 					x = TRUE;
 				else {
@@ -672,7 +672,8 @@ int Save_Msg(int IsReply, faddr *Dest)
 	 * Add quick mailscan info
 	 */
 	if (msgs.Type != LOCALMAIL) {
-		sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), (msgs.Type == ECHOMAIL)? "echo" : "net");
+		sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), 
+			((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
 		if ((fp = fopen(temp, "a")) != NULL) {
 			fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
 			fclose(fp);
@@ -1413,7 +1414,8 @@ void QuickScan_Msgs()
 
 	if (Msg_Open(sMsgAreaBase)) {
 		for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
-			if (Msg_ReadHeader(i)) {
+			if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
+				    ((msgs.Type == NETMAIL) && ((IsMe(Msg.From)) || (IsMe(Msg.To)))))) {
 				
 				colour(WHITE, BLACK);
 				printf("%-6lu", Msg.Id);
@@ -2120,6 +2122,7 @@ void MailStatus()
 					printf(" Net  ");
 					break;
 
+				case LIST:
 				case ECHOMAIL:
 					printf(" Echo ");
 					break;
