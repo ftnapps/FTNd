@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.61.1 TODO list.
+			MBSE BBS V0.61.2 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -30,9 +30,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	U: If a users homedir is missing, the users sees a wrong error message
-	   before the connection is terminated.
-
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.
@@ -98,7 +95,7 @@ mbfido:
 
 	N: Send notifications to downlinks about changed areas from uplink.
 
-	N: Add statistic mail messages.
+	N: Add statistic mail messages. Via AMC??
 
 	N: With auto created areas golded.inc is not adjusted to the new
 	   setup.
