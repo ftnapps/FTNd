@@ -134,12 +134,12 @@ void Help()
 	printf("	n   node  <node>			Show nodelist information\n");
 	printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
 	printf("	req req   <node> <file> [file..file]	Request file(s) from node\n");
-	printf("	res reset <node>			Reset node(s) \"try\" counter\n");
+	printf("	res reset <node> [node..node]		Reset node(s) \"try\" counter\n");
 	printf("	sta stat				Show outbound status\n");
-	printf("	sto stop <node> [node..node]		Stop polling node(s)\n");
+	printf("	sto stop  <node> [node..node]		Stop polling node(s)\n");
 	printf("\n");
-	printf("	<node>	 Should be in domain form, e.g. f16.n2801.z2.domain\n");
-	printf("	<flavor> Flavor's are: crash | immediate | normal | hold\n");
+	printf("	<node>	  Should be in domain form, e.g. f16.n2801.z2.domain\n");
+	printf("	<flavor>  Flavor's are: crash | immediate | normal | hold\n");
 	colour(9, 0);
 	printf("\n	Options are:\n\n");
 	colour(3, 0);
@@ -286,11 +286,19 @@ int main(int argc, char *argv[])
 	}
 
 	if (do_reset) {
-		rc = reset(addr);
-		tidy_faddr(addr);
-		if (rc)
-		    rc += 100;
-		die(rc);
+	    for (i = 3; i <= argc; i++) {
+		if (strncasecmp(argv[i-1], "-q", 2)) {
+		    if ((addr = parsefaddr(argv[i-1])) == NULL)
+			Fatal((char *)"Unrecognizable address");
+		    j = reset(addr);
+		    tidy_faddr(addr);
+		    if (j > rc)
+			rc = j;
+		}
+	    }
+	    if (rc)
+		rc = 100;
+	    die(rc);
 	}
 
 	if (do_attach) {

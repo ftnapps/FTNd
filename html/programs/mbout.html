@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 31-Jan-2001</h5>
+<h5>Last update 17-Mar-2001</h5>
 <P>&nbsp;<P>
 
 <H1>mbout - The Outbound Manager</H1>
@@ -72,6 +72,11 @@ command does not call a node, you need to create a poll request to make the
 actual call. This is also practical if you want some files from your uplink,
 just make the requests and the actual request is send when your normal 
 scheduled poll to your uplink is processed.
+<P>
+<code><strong>mbout</strong> reset [node..node]</code> resets the nodes "try"
+counter to zero. So if a node is undiable, the counter is 30 or more, then by
+resetting this counter that node will be called again. The outbound is rescanned
+after this command so that calling will start immediatly.
 <P>
 <code><strong>mbout</strong> stat</code> shows the status of the mailer outbound. 
 This status is also written to the logfile.

@@ -330,6 +330,9 @@ int reset(faddr *addr)
 	return 0;
 
     putstatus(addr, 0, 0);
+    Syslog('+', "Reset try-counter for %s", ascfnode(addr, 0x1f));
+    if (!do_quiet)
+	printf("Reset try-counter for %s\n", ascfnode(addr, 0x1f));
     CreateSema((char *)"scanout");
 
     return 0;
