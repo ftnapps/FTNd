@@ -455,15 +455,11 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	    /*
 	     * Extra check for valid datalines, there should be at least one comma.
 	     */
-	    WriteError("%s(%u): invalid dataline", nlname,lineno);
+	    WriteError("%s(%u): invalid dataline 1", nlname,lineno);
 	    continue;
 	}
 	if ((q = strchr(p, ','))) 
 	    *q++ = '\0';
-	else {
-	    WriteError("%s(%u): invalid dataline", nlname,lineno);
-	    continue;
-	}
 
 	ndx.type = NL_NONE;
 	ndx.pflag = 0;
@@ -602,7 +598,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	for (i = 0; i < 3; i++) {
 	    p = q;
 	    if (p == NULL) {
-		WriteError("%s(%u): invalid dataline", nlname,lineno);
+		WriteError("%s(%u): invalid dataline 3", nlname,lineno);
 		continue;
 	    }
 	    if ((q = strchr(p, ',')))
@@ -624,7 +620,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	for (i = 0; i < 2; i++) {
 	    p = q;
 	    if (p == NULL) {
-		WriteError("%s(%u): invalid dataline", nlname,lineno);
+		WriteError("%s(%u): invalid dataline 4", nlname,lineno);
 		continue;
 	    }
 	    if ((q = strchr(p, ',')))

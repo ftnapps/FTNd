@@ -23,6 +23,10 @@ v0.61.4		11-Aug-2004
 		Removed some debug logging from un_attach, made one into a
 		normal logmessage.
 
+	mbindex:
+		Fixed compiling pointlists where on the Boss line there is no
+		last comma on the line.
+
 	mbmsg:
 		Fixed counter in log that should show the number of linked 
 		messages.
