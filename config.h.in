@@ -8,8 +8,8 @@
 #undef VERSION_REVISION
 #undef VERSION
 
-/* Compile experimental telnet code */
-#undef USE_TELNET
+/* Compile experimental code (may not be present) */
+#undef USE_EXPERIMENT
 
 /* Define if you have the snprintf function.  */
 #undef HAVE_SNPRINTF

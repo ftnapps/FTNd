@@ -1,11 +1,8 @@
 $Id$
 
+v0.39.3		26-Nov-2003
 
-v0.39.2		21-Nov-2003
-
-	NOTE:	Don't use this version yet, mbtelnetd might be removed again!
-		Well, almost certain that it will be removed. This version is
-		in cvs because I need to test it on several machines at once.
+v0.39.2		21-Nov-2003 - 26-Nov-2003
 
 	general:
 		Incoming telnet mailer connections are handled using a telnet
@@ -21,6 +18,7 @@ v0.39.2		21-Nov-2003
 		because we now default to telnet port 23 for ITN calls.
 		Incoming calls using the -t itn commandline parameters are not
 		supported anymore, they need to go via mbtelind.
+		Outgoing telnet doesn't work!
 
 	mbtelind:
 		New program, a incoming telnet proxy daemon to accept incoming
