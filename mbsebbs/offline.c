@@ -1981,7 +1981,7 @@ void BlueWave_Fetch()
 	 *  the active areas back on.
 	 */
 	if (Pdh.flags & PDQ_AREA_CHANGES) {
-	    Syslog('m', "  New Area Configuration present");
+	    Syslog('+', "  New Area Configuration present");
 	    i = 0;
 
 	    sprintf(temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
@@ -2024,6 +2024,7 @@ void BlueWave_Fetch()
 		    colour(3, 0);
 		    /*         Message areas selected */
 		    printf("%d %s\n", i, (char *)Language(456));
+		    Syslog('+', "  %d active message areas.", i);
 		}
 		fclose(up);
 	    }

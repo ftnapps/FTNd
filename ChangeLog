@@ -77,6 +77,8 @@ v0.35.02	22-Jun-2002
 		OLR client if this is present.
 		When messages are uploaded with BlueWave or QWK the netmail.jam
 		or echomail.jam is updated.
+		With QWK messages upload, if a tearline is already present, it
+		will not be added again.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it
