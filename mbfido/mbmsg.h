@@ -5,10 +5,10 @@ void	ProgName(void);
 void	Help(void);
 void	die(int);
 void	DoMsgBase(void);
-void	PackArea(char *);
-void	LinkArea(char *);
-void	IndexArea(char *);
-void	KillArea(char *, char *, int, int);
+void	PackArea(char *, long);
+void	LinkArea(char *, long);
+void	IndexArea(char *, long);
+void	KillArea(char *, char *, int, int, long);
 
 #endif
 

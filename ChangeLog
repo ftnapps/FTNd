@@ -2,7 +2,10 @@ $Id$
 
 				MBSEBBS History.
 
-v0.35.02	22-Jun-2002
+v0.35.03	06-Jul-2002
+
+
+v0.35.02	22-Jun-2002 - 06-Jul-2002
 
 	upgrade:
 		Delete ~/etc/lastcall.data
@@ -80,10 +83,14 @@ v0.35.02	22-Jun-2002
 		With QWK messages upload, if a tearline is already present, it
 		will not be added again.
 
+	mbmsg:
+		The isdoing messages now has the area number included.
+
 	mbtask:
 		When first run the goldnode command is only filled in if it
 		exists in the mbtask configuration.
 		Implemented nodes special outbound boxes.
+		Added debug info for isdoing messages.
 
 
 v0.35.01	05-Jun-2002 - 22-Jun-2002

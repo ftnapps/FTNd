@@ -199,6 +199,7 @@ int reg_doing(char *data)
 		return -1;
 
 	strncpy(reginfo[rec].doing, line, 35);
+	tasklog('d', "%s (%s) does \"%s\"", reginfo[rec].prg, pid, line);
 	reginfo[rec].lastcon = time(NULL);
 	return 0;
 }
@@ -222,7 +223,7 @@ int reg_ip(char *data)
     reginfo[rec].istcp = TRUE;
     reginfo[rec].lastcon = time(NULL);
     ipmailers++;
-    tasklog('?', "TCP/IP session registered, now %d sessions", ipmailers);
+    tasklog('?', "TCP/IP session registered (%s), now %d sessions", pid, ipmailers);
     return 0;
 }
 

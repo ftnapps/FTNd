@@ -296,13 +296,13 @@ void DoMsgBase()
 				are_tot++;
 				mkdirs(msgs.Base, 0770);
 				if (do_kill)
-					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs);
+					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs, do_area);
 				if (do_pack || msg_del)
-					PackArea(msgs.Base);
+					PackArea(msgs.Base, do_area);
 				if (do_index)
-					IndexArea(msgs.Base);
+					IndexArea(msgs.Base, do_area);
 				if (do_link)
-					LinkArea(msgs.Base);
+					LinkArea(msgs.Base, do_area);
 				if (processed)
 					are_proc++;
 			}
@@ -327,15 +327,15 @@ void DoMsgBase()
 				mkdirs(msgs.Base, 0770);
 				processed = FALSE;
 				if (do_kill)
-					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs);
+					KillArea(msgs.Base, msgs.Name, msgs.DaysOld, msgs.MaxMsgs, arearec);
 				if (do_pack || (Del != msg_del)) {
-					PackArea(msgs.Base);
+					PackArea(msgs.Base, arearec);
 				}
 				Del = msg_del;
 				if (do_index)
-					IndexArea(msgs.Base);
+					IndexArea(msgs.Base, arearec);
 				if (do_link)
-					LinkArea(msgs.Base);
+					LinkArea(msgs.Base, arearec);
 				if (processed)
 					are_proc++;
 			}
@@ -364,15 +364,15 @@ void DoMsgBase()
 				are_tot++;
 				processed = FALSE;
 				if (do_kill)
-					KillArea(sAreas, Name, 0, CFG.defmsgs);
+					KillArea(sAreas, Name, 0, CFG.defmsgs, 0);
 				if (do_pack || (Del != msg_del)) {
-					PackArea(sAreas);
+					PackArea(sAreas, 0);
 				}
 				Del = msg_del;
 				if (do_index)
-					IndexArea(sAreas);
+					IndexArea(sAreas, 0);
 				if (do_link)
-					LinkArea(sAreas);
+					LinkArea(sAreas, 0);
 				if (processed)
 					are_proc++;
 				sprintf(sAreas, "%s/%s/archive", CFG.bbs_usersdir, usrconfig.Name);
@@ -380,14 +380,14 @@ void DoMsgBase()
 				are_tot++;
 				processed = FALSE;
 				if (do_kill)
-					KillArea(sAreas, Name, 0, CFG.defmsgs);
+					KillArea(sAreas, Name, 0, CFG.defmsgs, 0);
 				if (do_pack || (Del != msg_del))
-					PackArea(sAreas);
+					PackArea(sAreas, 0);
 				Del = msg_del;
 				if (do_index)
-					IndexArea(sAreas);
+					IndexArea(sAreas, 0);
 				if (do_link)
-					LinkArea(sAreas);
+					LinkArea(sAreas, 0);
 				if (processed)
 					are_proc++;
 				sprintf(sAreas, "%s/%s/trash", CFG.bbs_usersdir, usrconfig.Name);
@@ -395,14 +395,14 @@ void DoMsgBase()
 				are_tot++;
 				processed = FALSE;
 				if (do_kill)
-					KillArea(sAreas, Name, CFG.defdays, CFG.defmsgs);
+					KillArea(sAreas, Name, CFG.defdays, CFG.defmsgs, 0);
 				if (do_pack || (Del != msg_del))
-					PackArea(sAreas);
+					PackArea(sAreas, 0);
 				Del = msg_del;
 				if (do_index)
-					IndexArea(sAreas);
+					IndexArea(sAreas, 0);
 				if (do_link)
-					LinkArea(sAreas);
+					LinkArea(sAreas, 0);
 				if (processed)
 					are_proc++;
 
@@ -429,14 +429,14 @@ typedef struct {
 
 
 
-void LinkArea(char *Path)
+void LinkArea(char *Path, long Areanr)
 {
 	int		i, m;
 	unsigned long	Number, Prev, Next, Crc, Total;
 	char		Temp[128], *p;
 	MSGLINK		*Link;
 	
-	IsDoing("Linking");
+	IsDoing("Linking %ld", Areanr);
 
 	if (Msg_Open(Path)) {
 		if (!do_quiet) {
@@ -550,13 +550,13 @@ void LinkArea(char *Path)
 /*
  * Kill messages according to age and max messages.
  */
-void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs)
+void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 {
 	unsigned long	Number, TotalMsgs = 0, Highest, *Active, Counter = 0;
 	int		i, DelCount = 0, DelAge = 0, Done;
 	time_t		Today, MsgDate;
 
-	IsDoing("Killing");
+	IsDoing("Killing %ld", Areanr);
 	Today = time(NULL) / 86400L;
 
 	if (Msg_Open(Path)) {
@@ -665,7 +665,7 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs)
 
 
 
-void IndexArea(char *Path)
+void IndexArea(char *Path, long Areanr)
 {
 }
 
@@ -674,9 +674,9 @@ void IndexArea(char *Path)
 /*
  * Pack message area if there are deleted messages.
  */
-void PackArea(char *Path)
+void PackArea(char *Path, long Areanr)
 {
-	IsDoing("Packing");
+	IsDoing("Packing %ld", Areanr);
 	if (Msg_Open(Path)) {
 
 		if (!do_quiet) {
