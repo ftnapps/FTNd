@@ -1391,144 +1391,368 @@ fidoaddr PullUplink(char *Hdr)
 
 int node_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*no;
-	int	groups, i, First = TRUE;
-	char	group[13];
+    char	temp[PATH_MAX];
+    FILE	*ti, *wp, *ip, *no;
+    int		systems, groups, nr, refs, i, j, k, First = TRUE;
+    char	group[13];
+    sysconnect	System;
 
-	sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-
-	fread(&nodeshdr, sizeof(nodeshdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&nodeshdr, nodeshdr.hdrsize, 1, no);
-
-	while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
-
-		page = newpage(fp, page);
-
-		if (First) {
-			addtoc(fp, toc, 7, 0, page, (char *)"Fidonet nodes");
-			First = FALSE;
-			fprintf(fp, "\n");
-		} else
-			fprintf(fp, "\n\n");
-
-		fprintf(fp, "     Sysop          %s\n", nodes.Sysop);
-		if (strlen(nodes.OutBox))
-		    fprintf(fp, "     Outbox dir     %s\n", nodes.OutBox);
-		fprintf(fp, "     First date     %s", ctime(&nodes.StartDate));
-		fprintf(fp, "     Last date      %s", ctime(&nodes.LastDate));
-		for (i = 0; i < 20; i++)
-			if (nodes.Aka[i].zone)
-				fprintf(fp, "     Aka %2d         %s\n", i+1, aka2str(nodes.Aka[i]));
-		if (nodes.RouteVia.zone)
-			fprintf(fp, "     Route via      %s\n", aka2str(nodes.RouteVia));
-
-		fprintf(fp, "     Session pwd    %s\n", nodes.Spasswd);
-		if (strlen(nodes.dial))
-		    fprintf(fp, "     Dial command   %s\n", nodes.dial);
-		if (strlen(nodes.phone[0]) || strlen(nodes.phone[1]))
-		    fprintf(fp, "     Phone numbers  %s %s\n", nodes.phone[0], nodes.phone[1]);
-		if (strlen(nodes.Nl_flags))
-		    fprintf(fp, "     Nodelist flags %s\n", nodes.Nl_flags);
-		if (strlen(nodes.Nl_hostname))
-		    fprintf(fp, "     Hostname       %s\n", nodes.Nl_hostname);
-		fprintf(fp, "     PKT password   %s\n", nodes.Epasswd);
-		fprintf(fp, "     Files passwd   %s\n", nodes.Fpasswd);
-		fprintf(fp, "     Areamgr pwd    %s\n\n", nodes.Apasswd);
-
-		fprintf(fp, "     Mail direct    %s", getboolean(nodes.Direct));
-		fprintf(fp, "     Mail crash     %s", getboolean(nodes.Crash));
-		fprintf(fp, "     Mail hold      %s\n", getboolean(nodes.Hold));
-		fprintf(fp, "     Pack mail      %s", getboolean(nodes.PackNetmail));
-		fprintf(fp, "     Send notify    %s", getboolean(nodes.Notify));
-		fprintf(fp, "     Language       %c\n", nodes.Language);
-		fprintf(fp, "     No EMSI        %s", getboolean(nodes.NoEMSI));
-		fprintf(fp, "     No YooHoo/2U2  %s", getboolean(nodes.NoWaZOO));
-		fprintf(fp, "     No Requests    %s\n", getboolean(nodes.NoFreqs));
-		fprintf(fp, "     Don't call     %s", getboolean(nodes.NoCall));
-		fprintf(fp, "     8.3 filenames  %s", getboolean(nodes.FNC));
-		fprintf(fp, "     No Zmodem      %s\n", getboolean(nodes.NoZmodem));
-		fprintf(fp, "     No Zedzap      %s", getboolean(nodes.NoZedzap));
-		fprintf(fp, "     No Hydra       %s", getboolean(nodes.NoHydra));
-		fprintf(fp, "     binkp old esc  %s\n", getboolean(nodes.WrongEscape));
-		fprintf(fp, "     No binkp/1.1   %s", getboolean(nodes.NoBinkp11));
-		fprintf(fp, "     Mail forward   %s", getboolean(nodes.MailFwd));
-		fprintf(fp, "     Check mailpwd  %s\n", getboolean(nodes.MailPwdCheck));
-		fprintf(fp, "     ARCmail comp.  %s", getboolean(nodes.ARCmailCompat));
-		fprintf(fp, "     ACRmail a..z   %s", getboolean(nodes.ARCmailAlpha));
-		fprintf(fp, "     Send message   %s\n", getboolean(nodes.Message));
-		fprintf(fp, "     Send .TIC      %s", getboolean(nodes.Tic));
-		fprintf(fp, "     File forward   %s", getboolean(nodes.FileFwd));
-		fprintf(fp, "     Advanced TIC   %s\n", getboolean(nodes.AdvTic));
-		fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
-		fprintf(fp, "     Sent To lines  %s", getboolean(nodes.TIC_To));
-		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
-		fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
-
-		fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));
-		if (nodes.Session_out == S_DIR) {
-		    fprintf(fp, "     Path           %s\n", nodes.Dir_out_path);
-		    fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_out_chklck));
-		    fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_out_waitclr));
-		    if (nodes.Dir_out_chklck)
-			fprintf(fp, "     File to check  %s\n", nodes.Dir_out_clock);
-		    fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_out_mklck));
-		    if (nodes.Dir_out_mklck)
-			fprintf(fp, "     File to create %s\n", nodes.Dir_out_mlock);
-		}
-		fprintf(fp, "     Inb session    %s\n", get_sessiontype(nodes.Session_in));
-		if (nodes.Session_in == S_DIR) {
-		    fprintf(fp, "     Path           %s\n", nodes.Dir_in_path);
-		    fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_in_chklck));
-		    fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_in_waitclr));
-		    if (nodes.Dir_in_chklck)
-			fprintf(fp, "     File to check  %s\n", nodes.Dir_in_clock);
-		    fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_in_mklck));
-		    if (nodes.Dir_in_mklck)
-			fprintf(fp, "     File to create %s\n", nodes.Dir_in_mlock);
-		}
-		fprintf(fp, "\n");
-
-		fprintf(fp, "     Uplink mgrs    Program   Password\n");
-		fprintf(fp, "     ------------   --------- ---------------\n");
-		fprintf(fp, "     Files          %s %s\n", padleft(nodes.UplFmgrPgm, 9, ' '), nodes.UplFmgrPass);
-		fprintf(fp, "     Mail           %s %s\n\n", padleft(nodes.UplAmgrPgm, 9, ' '), nodes.UplAmgrPass);
-
-		fprintf(fp, "     Statistics     Send     KBytes   Received KBytes\n");
-		fprintf(fp, "     ------------   -------- -------- -------- --------\n");
-		fprintf(fp, "     Total files    %-8lu %-8lu %-8lu %-8lu\n", nodes.FilesSent.total, nodes.F_KbSent.total, nodes.FilesRcvd.total, nodes.F_KbSent.total);
-		fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
-
-		fprintf(fp, "     File groups:\n      ");
-		groups = nodeshdr.filegrp / sizeof(group);
-		for (i = 0; i < groups; i++) {
-			fread(&group, sizeof(group), 1, no);
-			if (strlen(group)) {
-				fprintf(fp, "%-12s ", group);
-				if (((i+1) % 5) == 0)
-					fprintf(fp, "\n      ");
-			}
-		}
-		if ((i+1) % 5)
-			fprintf(fp, "\n");
-		fprintf(fp, "\n     Mail groups:\n      ");
-		groups = nodeshdr.mailgrp / sizeof(group);
-		for (i = 0; i < groups; i++) {
-			fread(&group, sizeof(group), 1, no);
-			if (strlen(group)) {
-				fprintf(fp, "%-12s ", group);
-				if (((i+1) % 5) == 0)
-					fprintf(fp, "\n      ");
-			}
-		}
-		fprintf(fp, "\n");
-	}
-
-	fclose(no);
+    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
 	return page;
+
+    fread(&nodeshdr, sizeof(nodeshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&nodeshdr, nodeshdr.hdrsize, 1, no);
+
+    ip = open_webdoc((char *)"nodes.html", (char *)"Fidonet Nodes", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&nodes, nodeshdr.recsize, 1, no)) == 1) {
+
+	page = newpage(fp, page);
+
+	if (First) {
+	    addtoc(fp, toc, 7, 0, page, (char *)"Fidonet nodes");
+	    First = FALSE;
+	    fprintf(fp, "\n");
+	} else
+	    fprintf(fp, "\n\n");
+
+	sprintf(temp, "node_%d_%d_%d_%d_%s.html", nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node,
+		nodes.Aka[0].point, nodes.Aka[0].domain);
+	fprintf(ip, " <LI><A HREF=\"%s\">Node %s</A> %s</LI>\n", temp, aka2str(nodes.Aka[0]), nodes.Sysop);
+	if ((wp = open_webdoc(temp, (char *)"Fidonet node", aka2str(nodes.Aka[0])))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"nodes.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Sysop", nodes.Sysop);
+	    fprintf(fp, "     Sysop          %s\n", nodes.Sysop);
+	    if (strlen(nodes.OutBox)) {
+		fprintf(fp, "     Outbox dir     %s\n", nodes.OutBox);
+		add_webtable(wp, (char *)"Outbox directory", nodes.OutBox);
+	    }
+	    fprintf(fp, "     First date     %s", ctime(&nodes.StartDate));
+	    add_webtable(wp, (char *)"First date", ctime(&nodes.StartDate));
+	    fprintf(fp, "     Last date      %s", ctime(&nodes.LastDate));
+	    add_webtable(wp, (char *)"Last date", ctime(&nodes.LastDate));
+	    for (i = 0; i < 20; i++)
+		if (nodes.Aka[i].zone) {
+		    fprintf(fp, "     Aka %2d         %s\n", i+1, aka2str(nodes.Aka[i]));
+		    sprintf(temp, "Aka %d", i+1);
+		    add_webtable(wp, temp, aka2str(nodes.Aka[i]));
+		}
+	    if (nodes.RouteVia.zone) {
+		fprintf(fp, "     Route via      %s\n", aka2str(nodes.RouteVia));
+		add_webtable(wp, (char *)"Route via", aka2str(nodes.RouteVia));
+	    }
+	    fprintf(fp, "     Session pwd    %s\n", nodes.Spasswd);
+	    add_webtable(wp, (char *)"Session password", nodes.Spasswd);
+	    if (strlen(nodes.dial)) {
+		fprintf(fp, "     Dial command   %s\n", nodes.dial);
+		add_webtable(wp, (char *)"Dial command", nodes.dial);
+	    }
+	    if (strlen(nodes.phone[0]) || strlen(nodes.phone[1])) {
+	        fprintf(fp, "     Phone numbers  %s %s\n", nodes.phone[0], nodes.phone[1]);
+		sprintf(temp, "%s %s", nodes.phone[0], nodes.phone[1]);
+		add_webtable(wp, (char *)"Phone numbers", temp);
+	    }
+	    if (strlen(nodes.Nl_flags)) {
+	        fprintf(fp, "     Nodelist flags %s\n", nodes.Nl_flags);
+		add_webtable(wp, (char *)"Nodelist flags", nodes.Nl_flags);
+	    }
+	    if (strlen(nodes.Nl_hostname)) {
+	        fprintf(fp, "     Hostname       %s\n", nodes.Nl_hostname);
+		add_webtable(wp, (char *)"Hostname", nodes.Nl_hostname);
+	    }
+	    fprintf(fp, "     PKT password   %s\n", nodes.Epasswd);
+	    add_webtable(wp, (char *)"PKT password", nodes.Epasswd);
+	    fprintf(fp, "     Files passwd   %s\n", nodes.Fpasswd);
+	    add_webtable(wp, (char *)"Files passwd", nodes.Fpasswd);
+	    fprintf(fp, "     Areamgr pwd    %s\n\n", nodes.Apasswd);
+	    add_webtable(wp, (char *)"Areamgr pwd", nodes.Apasswd);
+	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");
+
+	    fprintf(fp, "     Mail direct    %s", getboolean(nodes.Direct));
+	    add_webtable(wp, (char *)"Mail direct", getboolean(nodes.Direct));
+	    fprintf(fp, "     Mail crash     %s", getboolean(nodes.Crash));
+	    add_webtable(wp, (char *)"Mail crash", getboolean(nodes.Crash));
+	    fprintf(fp, "     Mail hold      %s\n", getboolean(nodes.Hold));
+	    add_webtable(wp, (char *)"Mail hold", getboolean(nodes.Hold));
+	    fprintf(fp, "     Pack mail      %s", getboolean(nodes.PackNetmail));
+	    add_webtable(wp, (char *)"Pack mail", getboolean(nodes.PackNetmail));
+	    fprintf(fp, "     Send notify    %s", getboolean(nodes.Notify));
+	    add_webtable(wp, (char *)"Send notify messages", getboolean(nodes.Notify));
+	    fprintf(fp, "     Language       %c\n", nodes.Language);
+	    sprintf(temp, "%c", nodes.Language);
+	    add_webtable(wp, (char *)"Language", temp);
+	    fprintf(fp, "     No EMSI        %s", getboolean(nodes.NoEMSI));
+	    add_webtable(wp, (char *)"No EMSI", getboolean(nodes.NoEMSI));
+	    fprintf(fp, "     No YooHoo/2U2  %s", getboolean(nodes.NoWaZOO));
+	    add_webtable(wp, (char *)"No YooHoo/2U2", getboolean(nodes.NoWaZOO));
+	    fprintf(fp, "     No Requests    %s\n", getboolean(nodes.NoFreqs));
+	    add_webtable(wp, (char *)"No File Requests", getboolean(nodes.NoFreqs));
+	    fprintf(fp, "     Don't call     %s", getboolean(nodes.NoCall));
+	    add_webtable(wp, (char *)"Don't call", getboolean(nodes.NoCall));
+	    fprintf(fp, "     8.3 filenames  %s", getboolean(nodes.FNC));
+	    add_webtable(wp, (char *)" 8.3 filenames", getboolean(nodes.FNC));
+	    fprintf(fp, "     No Zmodem      %s\n", getboolean(nodes.NoZmodem));
+	    add_webtable(wp, (char *)"No Zmodem", getboolean(nodes.NoZmodem));
+	    fprintf(fp, "     No Zedzap      %s", getboolean(nodes.NoZedzap));
+	    add_webtable(wp, (char *)"No Zedzap", getboolean(nodes.NoZedzap));
+	    fprintf(fp, "     No Hydra       %s", getboolean(nodes.NoHydra));
+	    add_webtable(wp, (char *)"No Hydra", getboolean(nodes.NoHydra));
+	    fprintf(fp, "     binkp old esc  %s\n", getboolean(nodes.WrongEscape));
+	    add_webtable(wp, (char *)"Binkp old esc method", getboolean(nodes.WrongEscape));
+	    fprintf(fp, "     No binkp/1.1   %s", getboolean(nodes.NoBinkp11));
+	    add_webtable(wp, (char *)"No binkp/1.1 sessions", getboolean(nodes.NoBinkp11));
+	    fprintf(fp, "     Mail forward   %s", getboolean(nodes.MailFwd));
+	    add_webtable(wp, (char *)"Mail forward", getboolean(nodes.MailFwd));
+	    fprintf(fp, "     Check mailpwd  %s\n", getboolean(nodes.MailPwdCheck));
+	    add_webtable(wp, (char *)"Check mailpassword", getboolean(nodes.MailPwdCheck));
+	    fprintf(fp, "     ARCmail comp.  %s", getboolean(nodes.ARCmailCompat));
+	    add_webtable(wp, (char *)" ARCmail compatibility", getboolean(nodes.ARCmailCompat));
+	    fprintf(fp, "     ACRmail a..z   %s", getboolean(nodes.ARCmailAlpha));
+	    add_webtable(wp, (char *)"ACRmail a..z", getboolean(nodes.ARCmailAlpha));
+	    fprintf(fp, "     Send message   %s\n", getboolean(nodes.Message));
+	    add_webtable(wp, (char *)"Send netmail with files", getboolean(nodes.Message));
+	    fprintf(fp, "     Send .TIC      %s", getboolean(nodes.Tic));
+	    add_webtable(wp, (char *)"Send .TIC files", getboolean(nodes.Tic));
+	    fprintf(fp, "     File forward   %s", getboolean(nodes.FileFwd));
+	    add_webtable(wp, (char *)"File forward", getboolean(nodes.FileFwd));
+	    fprintf(fp, "     Advanced TIC   %s\n", getboolean(nodes.AdvTic));
+	    add_webtable(wp, (char *)"Advanced TIC files", getboolean(nodes.AdvTic));
+	    fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
+	    add_webtable(wp, (char *)" Advanded SB lines in .TIC", getboolean(nodes.TIC_AdvSB));
+	    fprintf(fp, "     Sent To line   %s", getboolean(nodes.TIC_To));
+	    add_webtable(wp, (char *)"Sent 'To' lines in .TIC", getboolean(nodes.TIC_To));
+	    fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
+	    add_webtable(wp, (char *)" Uplink add +", getboolean(nodes.AddPlus));
+	    fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
+	    add_webtable(wp, (char *)"Security flags", getflag(nodes.Security.flags, nodes.Security.notflags));
+	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");
+
+	    fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));
+	    add_webtable(wp, (char *)"Outbound session", get_sessiontype(nodes.Session_out));
+	    if (nodes.Session_out == S_DIR) {
+		fprintf(fp, "     Path           %s\n", nodes.Dir_out_path);
+		add_webtable(wp, (char *)"Path", nodes.Dir_out_path);
+	        fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_out_chklck));
+		add_webtable(wp, (char *)"Check lock", getboolean(nodes.Dir_out_chklck));
+	        fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_out_waitclr));
+		add_webtable(wp, (char *)"Wait clear lock", getboolean(nodes.Dir_out_waitclr));
+	        if (nodes.Dir_out_chklck) {
+		    fprintf(fp, "     File to check  %s\n", nodes.Dir_out_clock);
+		    add_webtable(wp, (char *)"File to check", nodes.Dir_out_clock);
+		}
+		fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_out_mklck));
+		add_webtable(wp, (char *)"Create lock", getboolean(nodes.Dir_out_mklck));
+	        if (nodes.Dir_out_mklck) {
+		    fprintf(fp, "     File to create %s\n", nodes.Dir_out_mlock);
+		    add_webtable(wp, (char *)"File to create", nodes.Dir_out_mlock);
+		}
+	    }
+	    fprintf(fp, "     Inb session    %s\n", get_sessiontype(nodes.Session_in));
+	    add_webtable(wp, (char *)"Inbound session", get_sessiontype(nodes.Session_in));
+	    if (nodes.Session_in == S_DIR) {
+	        fprintf(fp, "     Path           %s\n", nodes.Dir_in_path);
+		add_webtable(wp, (char *)"Path", nodes.Dir_in_path);
+	        fprintf(fp, "     Check lock     %s", getboolean(nodes.Dir_in_chklck));
+		add_webtable(wp, (char *)"Check lock", getboolean(nodes.Dir_in_chklck));
+	        fprintf(fp, "     Wait clear lck %s\n", getboolean(nodes.Dir_in_waitclr));
+		add_webtable(wp, (char *)"Wait clear lock", getboolean(nodes.Dir_in_waitclr));
+	        if (nodes.Dir_in_chklck) {
+		    fprintf(fp, "     File to check  %s\n", nodes.Dir_in_clock);
+		    add_webtable(wp, (char *)"File to check", nodes.Dir_in_clock);
+		}
+		fprintf(fp, "     Create lock    %s\n", getboolean(nodes.Dir_in_mklck));
+		add_webtable(wp, (char *)"Create lock", getboolean(nodes.Dir_in_mklck));
+	        if (nodes.Dir_in_mklck) {
+		    fprintf(fp, "     File to create %s\n", nodes.Dir_in_mlock);
+		    add_webtable(wp, (char *)"File to create", nodes.Dir_in_mlock);
+		}
+	    }
+	    fprintf(fp, "\n");
+	    fprintf(wp, "</TBODY>\n");
+            fprintf(wp, "</TABLE>\n");
+
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='30%%'><COL width='40%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    fprintf(wp, "<TR><TH align='left'>Uplink mgrs</TH><TH align='left'>Program</TH><TH align='left'>Password</TH></TR>\n");
+	    fprintf(wp, "<TR><TH align='left'>Files</TH><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplFmgrPgm, nodes.UplFmgrPass);
+	    fprintf(wp, "<TR><TH align='left'>Mail</TH><TD>%s</TD><TD>%s</TD></TR>\n", nodes.UplAmgrPgm, nodes.UplAmgrPass);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    fprintf(fp, "     Uplink mgrs    Program   Password\n");
+	    fprintf(fp, "     ------------   --------- ---------------\n");
+	    fprintf(fp, "     Files          %s %s\n", padleft(nodes.UplFmgrPgm, 9, ' '), nodes.UplFmgrPass);
+	    fprintf(fp, "     Mail           %s %s\n\n", padleft(nodes.UplAmgrPgm, 9, ' '), nodes.UplAmgrPass);
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Node Statistics</H3>\n");
+	    add_statcnt(wp, (char *)"sent files", nodes.FilesSent);
+	    add_statcnt(wp, (char *)"KBytes files", nodes.F_KbSent);
+	    add_statcnt(wp, (char *)"received messages", nodes.MailRcvd); 
+	    add_statcnt(wp, (char *)"sent messages", nodes.MailSent);
+	    fprintf(fp, "     Statistics     Send     KBytes   Received KBytes\n");
+	    fprintf(fp, "     ------------   -------- -------- -------- --------\n");
+	    fprintf(fp, "     Total files    %-8lu %-8lu %-8lu %-8lu\n", nodes.FilesSent.total, nodes.F_KbSent.total, 
+		    nodes.FilesRcvd.total, nodes.F_KbSent.total);
+	    fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>File Groups</H3>\n");
+	    fprintf(wp, "<PRE>\n");
+	    fprintf(wp, "      ");
+	    fprintf(fp, "     File groups:\n      ");
+	    groups = nodeshdr.filegrp / sizeof(group);
+	    for (i = 0; i < groups; i++) {
+		fread(&group, sizeof(group), 1, no);
+		if (strlen(group)) {
+		    fprintf(fp, "%-12s ", group);
+		    fprintf(wp, "<A HREF=\"filegroup_%s.html\">%s</A>", group, group);
+		    for (j = 0; j < (13 - strlen(group)); j++)
+			fprintf(wp, " ");
+		    if (((i+1) % 5) == 0) {
+			fprintf(fp, "\n      ");
+			fprintf(wp, "\n      ");
+		    }
+		}
+	    }
+	    if ((i+1) % 5) {
+		fprintf(fp, "\n");
+		fprintf(wp, "\n");
+	    }
+	    fprintf(wp, "</PRE>\n");
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Mail Groups</H3>\n");
+	    fprintf(wp, "<PRE>\n");
+	    fprintf(wp, "      ");
+	    fprintf(fp, "\n     Mail groups:\n      ");
+	    groups = nodeshdr.mailgrp / sizeof(group);
+	    for (i = 0; i < groups; i++) {
+		fread(&group, sizeof(group), 1, no);
+		if (strlen(group)) {
+		    fprintf(fp, "%-12s ", group);
+		    fprintf(wp, "<A HREF=\"msggroup_%s.html\">%s</A>", group, group);
+		    for (j = 0; j < (13 - strlen(group)); j++)
+			fprintf(wp, " ");
+		    if (((i+1) % 5) == 0) {
+			fprintf(fp, "\n      ");
+			fprintf(wp, "\n      ");
+		    }
+		}
+	    }
+	    if ((i+1) % 5) {
+		fprintf(fp, "\n");
+		fprintf(wp, "\n");
+	    }
+	    fprintf(wp, "</PRE>\n");
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>TIC Areas</H3>\n");
+	    refs = 0;
+	    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&tichdr, tichdr.hdrsize, 1, ti);
+		systems = tichdr.syssize / sizeof(sysconnect);
+		while ((fread(&tic, tichdr.recsize, 1, ti)) == 1) {
+		    for (i = 0; i < systems; i++) {
+			fread(&System, sizeof(sysconnect), 1, ti);
+			for (k = 0; k < 20; k++) {
+			    if (nodes.Aka[k].zone && tic.Active &&
+				    (System.aka.zone == nodes.Aka[k].zone) && (System.aka.net == nodes.Aka[k].net) && 
+				    (System.aka.node == nodes.Aka[k].node) && (System.aka.point == nodes.Aka[k].point) && 
+				    (strcmp(System.aka.domain, nodes.Aka[k].domain) == 0)) {
+				sprintf(temp, "---");
+				if (System.sendto)
+				    temp[0] = 'S';
+				if (System.receivefrom)
+				    temp[1] = 'R';
+				if (System.pause)
+				    temp[2] = 'P';
+				if (refs == 0) {
+				    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+				    fprintf(wp, "<COL width='20%%'><COL width='10%%'><COL width='70%%'>\n");
+				    fprintf(wp, "<TBODY>\n");
+				}
+				refs++;
+				fprintf(wp, "<TR><TD><A HREF=\"tic_%s.html\">%s</A></TD><TD>%s</TD><TD>%s</TD></TR>\n",
+					tic.Name, tic.Name, temp, tic.Comment);
+			    }
+			}
+		    }
+		}
+		fclose(ti);
+	    }
+	    if (refs) {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    } else {
+		fprintf(wp, "No TIC area references");
+	    }
+
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Message Areas</H3>\n");
+            nr = refs = 0;
+            sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+            if ((ti = fopen(temp, "r"))) {
+                fread(&msgshdr, msgshdr.hdrsize, 1, ti);
+                systems = msgshdr.syssize / sizeof(sysconnect);
+                while ((fread(&msgs, msgshdr.recsize, 1, ti)) == 1) {
+		    nr++;
+                    for (i = 0; i < systems; i++) {
+                        fread(&System, sizeof(sysconnect), 1, ti);
+                        for (k = 0; k < 20; k++) {
+                            if (nodes.Aka[k].zone && msgs.Active &&
+                                    (System.aka.zone == nodes.Aka[k].zone) && (System.aka.net == nodes.Aka[k].net) &&
+                                    (System.aka.node == nodes.Aka[k].node) && (System.aka.point == nodes.Aka[k].point) &&
+                                    (strcmp(System.aka.domain, nodes.Aka[k].domain) == 0)) {
+                                sprintf(temp, "----");
+                                if (System.sendto)
+                                    temp[0] = 'S';
+                                if (System.receivefrom)
+                                    temp[1] = 'R';
+                                if (System.pause)
+                                    temp[2] = 'P';
+				if (System.cutoff)
+				    temp[3] = 'C';
+                                if (refs == 0) {
+                                    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+                                    fprintf(wp, "<COL width='20%%'><COL width='10%%'><COL width='70%%'>\n");
+                                    fprintf(wp, "<TBODY>\n");
+                                }
+                                refs++;
+                                fprintf(wp, "<TR><TD><A HREF=\"msgarea_%d.html\">Area %d</A></TD><TD>%s</TD><TD>%s</TD></TR>\n",
+                                        nr, nr, temp, msgs.Name);
+                            }
+                        }
+                    }
+                }
+                fclose(ti);
+            }
+            if (refs) {
+                fprintf(wp, "</TBODY>\n");
+                fprintf(wp, "</TABLE>\n");
+            } else {
+                fprintf(wp, "No Message Area references");
+            }
+
+	    close_webdoc(wp);
+	}
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(no);
+    return page;
 }
 
 

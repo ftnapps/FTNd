@@ -601,10 +601,10 @@ int new_doc(FILE *fp, FILE *toc, int page)
 		fread(&group, sizeof(group), 1, no);
 		if (strlen(group)) {
 		    if (i)
-			fprintf(wp, "<TR><TH>&nbsp;</TH><TD><A HREF=\"newgroup_%s.html\">%s</A></TD></TR>\n", group, group);
+			fprintf(wp, "<TR><TH>&nbsp;</TH><TD><A HREF=\"newgroup.html\">%s</A></TD></TR>\n", group);
 		    else
-			fprintf(wp, "<TR><TH align='left'>File groups</TH><TD><A HREF=\"newgroup_%s.html\">%s</A></TD></TR>\n", 
-				group, group);
+			fprintf(wp, "<TR><TH align='left'>New groups</TH><TD><A HREF=\"newgroup.html\">%s</A></TD></TR>\n", 
+				group);
 		    fprintf(fp, "%-12s ", group);
 		    if (((i+1) %5) == 0)
 			fprintf(fp, "\n     ");

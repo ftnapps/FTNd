@@ -171,10 +171,7 @@ mbsetup:
 
 	X: Generate crossreference document:
 	   Filefind flags  <=> TIC Areas
-	   Echomail        <=> Nodes
 	   Fileechos       <=> Groups
-	   Fileechos       <=> Nodes
 	   Fileechos       <=> Magic processing
 	   Fileechos       <=> Hatch
-	   Newfiles        <=> Newfiles groups
 

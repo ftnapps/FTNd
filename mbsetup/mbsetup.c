@@ -238,7 +238,7 @@ void site_docs(void)
 	fprintf(hp, " <LI>Virus Scaners</LI>\n");
 	fprintf(hp, " <LI><A HREF=\"modem.html\">Modem Types</A></LI>\n");
 	fprintf(hp, " <LI>TTY Lines Info</LI>\n");
-	fprintf(hp, " <LI>Fidonet Nodes</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"nodes.html\">Fidonet Nodes</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"limits.html\">Security Limits</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"language.html\">Language Setup</A></LI>\n");
 	fprintf(hp, " <LI>BBS: <A HREF=\"menus.html\">BBS Menus</A></LI>\n");

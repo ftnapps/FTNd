@@ -496,9 +496,9 @@ char *PickNGroup(char *shdr)
 
 int newf_group_doc(FILE *fp, FILE *toc, int page)
 {
-    char    *temp;
+    char    *temp, group[13];
     FILE    *ip, *wp, *no;
-    int	    refs, nr;
+    int	    i, groups, refs, nr;
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
@@ -572,6 +572,31 @@ int newf_group_doc(FILE *fp, FILE *toc, int page)
 		    refs++;
 		    fprintf(wp, "<TR><TD><A HREF=\"filegroup_%s.html\">File group %s</A></TD><TD>%s</TD></TR>\n", 
 			    fgroup.Name, fgroup.Name, fgroup.Comment);
+		}
+	    }
+	    fclose(ip);
+	}
+	sprintf(temp, "%s/etc/newfiles.data", getenv("MBSE_ROOT"));
+	if ((ip = fopen(temp, "r"))) {
+	    fread(&newfileshdr, sizeof(newfileshdr), 1, ip);
+	    nr = 0;
+	    while ((fread(&newfiles, newfileshdr.recsize, 1, ip)) == 1) {
+		nr++;
+		groups = newfileshdr.grpsize / sizeof(group);
+		for (i = 0; i < groups; i++) {
+		    fread(&group, sizeof(group), 1, ip);
+		    if (newfiles.Active && strlen(group) && (strcmp(ngroup.Name, group) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<HR>\n");
+			    fprintf(wp, "<H3>References for group %s</H3>\n", ngroup.Name);
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			refs++;
+			fprintf(wp, "<TR><TD><A HREF=\"newfiles_%d.html\">Report %d</A></TD><TD>%s</TD></TR>\n",
+			    nr, nr, newfiles.Comment);
+		    }
 		}
 	    }
 	    fclose(ip);
