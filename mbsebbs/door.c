@@ -304,10 +304,6 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     else
 	rc = execute_str((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
 
-    /*
-     * Restore raw mode if needed, some doors put the terminal
-     * back in cooked mode.
-     */
     rawport();
 
     Altime(0);

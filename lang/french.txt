@@ -26,7 +26,7 @@ YN| Is this correct [y/N]:
 |Character set now set to: 
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
-|
+|Enter a short reason for chat
 |
 |
 |
@@ -149,7 +149,7 @@ ON|messages, les lire maintenant? [O/n]:
 |Inactif
 |Ce nom existe déjà
 |Vérification de la BAL ...
-|     MBSE BBS Chat
+|MBSE BBS Chat
 |Le SysOp parle a quelqu'un d'autre.
 |Essayez de le rappeller dans quelques minutes ...
 |Vous avez appellé le Sysop le maximum de fois permises.

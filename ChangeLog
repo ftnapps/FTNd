@@ -10,13 +10,18 @@ v0.71.0		27-Oct-2004
 		Changed layout of raw directory listing to support long
 		filenames.
 		Rewrote terminal i/o.
+		If a user pages the sysop a hint is displayed to fill in the
+		reason to chat, language prompt 28.
+		After forced chat, redisplay the last menu.
 
 	mbnewusr:
 		Rewrote terminal i/o.
 
 	lang:
 		Changed width of prompt 261.
-
+		Added prompt 28.
+		Removed leading spaces of prompt 151.
+ 
 	examples:
 		Fixed logo display.
 

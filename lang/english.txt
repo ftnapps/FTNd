@@ -26,7 +26,7 @@ YN| Is this correct [y/N]:
 |Character set now set to: 
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
-|
+|Enter a short reason for chat
 |
 |
 |
@@ -149,7 +149,7 @@ YN|messages, read your mail now? [Y/n]:
 |Off
 |User name already exists
 |Checking your mail box ...
-|     MBSE BBS Chat
+|MBSE BBS Chat
 |The SysOp is currently speaking to somebody else.
 |Try paging him again in a few minutes ...
 |You have paged the Sysop the maximum times allowed.

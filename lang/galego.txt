@@ -26,7 +26,7 @@ SN| ‚ correcto [s/N]:
 |Character set now set to: 
 YN|Check for new mail at login [Y/n]: 
 YN|Check for new files at login [Y/n]: 
-|
+|Enter a short reason for chat
 |
 |
 |
@@ -149,7 +149,7 @@ SN|mensaxes, ¨Queres lelas agora? [S/n]:
 |Des
 |O nome xa existe
 |Buscando correo novo ...
-|     Charla de MBSE BBS
+|Charla de MBSE BBS
 |O Sysop est  falando con outro usuario.
 |Intenta chamalo de novo dentro de un pouco ...
 |Xa chamacves moitas veces. 

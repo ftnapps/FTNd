@@ -198,6 +198,7 @@ void menu()
 		    if (strcmp(buf, "100:1,1;") == 0) {
 			Syslog('+', "Forced sysop/user chat");
 			Chat(exitinfo.Name, (char *)"#sysop");
+			continue;
 		    }
 		}
 	    }

@@ -59,12 +59,15 @@ void Page_Sysop(char *String)
     Reason = calloc(81, sizeof(char));
 
     clear();
-    colour(LIGHTRED, BLACK);
     /* MBSE BBS Chat */
-    Center((char *) Language(151));
+    poutCenter(LIGHTRED, BLACK, (char *) Language(151));
 
     if (CFG.iAskReason) {
-	locate(6, 0);
+	locate(4, 0);
+	/* Enter a short reason for chat */
+	poutCenter(GREEN, BLACK, (char *)Language(28));
+
+	locate(6,0);
 	colour(BLUE, BLACK);
 	PUTCHAR(213);
 	for (i = 0; i < 78; i++) 
@@ -72,6 +75,7 @@ void Page_Sysop(char *String)
 	PUTCHAR(184);
 	Enter(1);
 
+	PUTCHAR(' ');
 	colour(LIGHTGRAY, BLACK);
 	for (i = 0; i < 78; i++) 
 	    PUTCHAR(250);
@@ -87,13 +91,6 @@ void Page_Sysop(char *String)
 	locate(7, 2);
 	colour(LIGHTGRAY, BLACK);
 	GetPageStr(temp, 76);
-
-	colour(BLUE, BLACK);
-	PUTCHAR(212);
-	for (i = 0; i < 78; i++) 
-	    PUTCHAR(205);
-	PUTCHAR(190);
-	Enter(1);
 
 	if ((strcmp(temp, "")) == 0)
 	    return;

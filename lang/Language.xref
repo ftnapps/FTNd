@@ -26,7 +26,7 @@
 25	change.c			|Character set now set to: 
 26	newuser.c			YN|Check for new mail at login [Y/n]: 
 27	newuser.c			YN|Check for new files at login [Y/n]: 
-28	.c				|
+28	page.c				|Enter a short reason for chat
 29	.c				|
 30	.c				|
 31	.c				|
@@ -149,7 +149,7 @@
 148	funcs.c				|Off
 149	newuser.c			|User name already exists
 150	mail.c				|Checking your mail box ...
-151	page.c				|     MBSE BBS Chat
+151	page.c				|MBSE BBS Chat
 152	page.c				|The SysOp is currently speaking to somebody else.
 153	page.c				|Try paging him again in a few minutes ...
 154	page.c				|You have paged the Sysop the maximum times allowed.
