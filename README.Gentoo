@@ -4,5 +4,16 @@ Unlike most distributions, Gentoo doesn't install programs that may be usefull
 for mbsebbs by default. Before you run ./configure emerge the following
 programs to make mbsebbs run with most features:
 
-xinetd, zip (includes unzip), arj, unarj, rar, lha, zoo, lrzsz.
+Package		Provides
+--------------	--------------------------------------------------------------
+xinetd		Icoming TCP/IP networking.
+netkit-telnetd	Telnet sessions to the bbs.
+zip		Includes unzip. The default archiver.
+arj		ARJ archiver.
+unarj		UnARJ archiver.
+rar		RAR archiver.
+lha		LHArc archiver.
+arc		Arc archiver.
+zoo		ZOO archiver.
+lrzsz		Zmodem, Ymodem file transfers for the bbs.
 
