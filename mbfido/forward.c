@@ -58,7 +58,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	Syslog('+', "Forward file to %s", aka2str(Node));
 
 	if (!SearchNode(Node)) {
-		WriteError("No forward, node %s not known", Node);
+		WriteError("Database corrupt, node %s not in setup", aka2str(Node));
 		return;
 	}
 
