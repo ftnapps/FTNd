@@ -15,7 +15,7 @@
 <blockquote>
   <div align=center><h1>MBSE BBS FAQ and Howto.</h1></div>
   <hr>
-  <div align=right><h5>Last updated 11-May-2002</h5></div>
+  <div align=right><h5>Last updated 09-Jun-2002</h5></div>
   <pre>
   Author: P.E. Kimble aka King Kimerud
           kimerud@bayhaus.org
@@ -54,9 +54,16 @@
     <p>&nbsp;</p>
     <li><a name="_BBSsetup"></a><a href='#4'>BBS Setup</a></li>
     <ol>
-      <li><a href='#4.1'>How do I run DOS doors under MBSE BBS?</a></li>
-      <li><a href='#4.2'>How do I to set up MBSE for ISDN?</a></li>
-      <li><a href='#4.3'>How do I use GoldED together with MBSE?</a></li>
+      <li><a href='#4.1'>How do I to set up MBSE for ISDN?</a></li>
+      <li><a href='#4.2'>How do I use GoldED together with MBSE?</a></li>
+    </ol>
+    <p>&nbsp;</p>
+    <li><a name="_Doors"></a><a href='#5'>Doors Setup</a></li>
+    <ol>
+      <li><a href='#5.1'>How do I run DOS doors under MBSE BBS?</a></li>
+      <li><a href='#5.2'>Dosemu compile tips</a></li>
+      <li><a href='#5.3'>Setting up for InterBBS games.</a></li>
+      <li><a href='#5.4'>Door Maintenance.</a></li>
     </ol>
   </ol>
 
@@ -288,10 +295,175 @@ responsiblity of the system administrator!
 <h3><a name="4">4. BBS setup.</h3>
 
 <table width=100%>
-<tr><td width=50 valign=top><a name="4.1">Q 4.1</a></td><td>
-How do I run DOS doors under MBSE BBS?
+<tr><td width=50 valign=top><a name="4.2">Q 4.1</a></td><td>
+How to set up MBSE for ISDN.
 </td></tr>
 <tr><td valign=top>A 4.1</td><td>
+Contributed by: J. Beekhuizen, 2:280/1018
+<p>
+Of course, you have to configure and build your kernel for ISDN support
+and the correct drivers for your card.  It is beyond the scope of this
+document to explain how to do that.
+<p>
+To your /etc/inittab file add the following lines for your ISDN devices
+ttyI0 and ttyI1.
+<pre>
+# ISDN lines
+I1:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI0
+I2:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI1
+
+</pre>
+To your mgetty.config file
+[/usr/local/etc/mgetty_sendfax/mgetty.config on my system]
+set up the ttyI0 and ttyI1 ports.  With AT&amp;E you set the
+MSN/EAZ the device should listen to. This should for an MSN be
+your telephone number <b>with</b> the area code but
+<b>without</b> the leading 0. For an EAZ the last digit of your EAZ.
+<p>
+The ISDN ports
+<pre>
+port ttyI0
+modem-type data
+init-chat "" ATZ OK AT&amp;E714015437&amp;W0 OK AT&amp;B512 OK
+
+port ttyI1
+modem-type data
+init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
+
+</pre>
+From the mbsetup menu #5 "Edit Modem types" configure the ISDN modem
+type.
+<pre>
+
+Modem type   ISDN Linux
+Init string  ATZ\r
+Init string
+Init string
+OK string    OK
+Hangup       \d\p\p\p+++\d\p\p\pATH0\r
+Info command ATI2\r
+Dial command ATD\T\r
+Connect      CONNECT 64000
+Connect      CONNECT
+[...]
+Reset cmd    ATZ\r
+Error string BUSY
+Error string NO CARRIER
+Error string NO DIALTONE
+Error string NO ANSWER
+Error string RING\r
+Error string ERROR
+Error string
+Error string
+Error string
+Error string
+Cost offset  0
+EMSI speed   28800                   ! not relevant for ISDN
+Strip dashes No
+Available    Yes
+
+</pre>
+And from #6 "Edit TTY lines info" the ISDN lines
+<pre>
+
+TTY name     ISDN Line 1
+Device name  ttyI0
+Phone or DNS 31-71-4015437
+Line speed   64 kbits
+Fido flags   CM,XA,MO,X75
+Equipment    ISDN
+Available    Yes
+Auth. log    No
+Honor ZMH    Yes
+Callout      Yes
+Modem type   ISDN Linux
+Locked speed 0                                 ! not relevant for ISDN
+EMSI name    The Wizard's ISDN line 1
+
+TTY name     ISDN Line 2
+Device name  ttyI1
+Phone or DNS 31-71-4017198
+Line speed   64 kbits
+Fido flags   CM,XA,MO,X75
+Equipment    ISDN
+Available    Yes
+Auth. log    No
+Honor ZMH    Yes
+Callout      Yes
+Modem type   ISDN Linux
+Locked speed 0
+EMSI name    The Wizard's ISDN line 2
+
+</pre>
+T-t-that's all folks :))
+</td></tr></table>
+<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<p>
+
+
+<table width=100%>
+<tr><td width=50 valign=top><a name="4.2">Q 4.2</a></td><td>
+How do I use GoldED together with MBSE?
+</td></tr>
+<tr><td valign=top>A 4.2</td><td>
+Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used together
+without problems as long as you use it to read the sysop mail. The
+mbsetup program can export a file called /opt/mbse/etc/golded.inc which
+will contain your main Aka's, Aka matching, sysop name and all your mail
+areas. This file is only (re)created if you change the global settings or
+one of the mail areas. The first time you must force this by making a change
+somewhere.
+<p>
+Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+<pre>
+
+; GoldED.cfg
+;
+; Internet Addressing
+;
+INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
+INTERNETGATE UUCP 2:292/875
+;
+;
+OUTBOUNDPATH /opt/mbse/var/bso/outbound
+REPLYLINK chain
+STYLECODES yes
+;
+;
+; MESSAGE READER
+;
+DISPMSGSIZE KBYTES
+DISPATTACHSIZE KBYTES
+DISPLOCALHIGH YES
+DISPPAGEBAR YES
+VIEWHIDDEN YES
+VIEWKLUDGE NO
+VIEWQUOTE YES
+;
+INCLUDE /opt/mbse/etc/golded.inc
+;
+; The end.
+
+</pre>
+Put in /opt/mbse/.profile the following line:
+export GOLDED=$HOME/etc
+<p>
+When you now start GoldED you use it as the sysop. Make sure that the sysop's
+userrecord is the first user in the MBSE BBS userbase. If not, the lastread
+pointers are not right. The GoldED nodelist compiler can be added to the setup
+in menu 18.
+</td></tr></table>
+<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<p>
+
+<hr>
+<h3><a name="5">5. Doors setup.</h3>
+
+<table width=100%>
+<tr><td width=50 valign=top><a name="5.1">Q 5.1</a></td><td>
+How do I run DOS doors under MBSE BBS?
+</td></tr>
+<tr><td valign=top>A 5.1</td><td>
 <pre>Written by: Redy Rodriguez, sysop of Parolas BBS 2:348/609
 Fidonet:    Redy rodriguez 2:348/609
 Email:      redy@users.sourceforge.net
@@ -473,7 +645,7 @@ in /opt/mbse/bin:
 # by Redy Rodriguez and Michiel Broek.
 #
 DOOR=`basename $0`
-COMMANDO="\"door $DOOR $*\r\""
+COMMANDO="\" door $DOOR $*\r\""
 
 /usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1
 /usr/bin/sudo /opt/dosemu/bin/dosemu.bin \
@@ -586,168 +758,233 @@ Now we execute mbsetup and enter the menu setup to add an entrance like this
 </pre>
 And that is everything...
 </td></tr></table>
-<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<a href='#_Doors'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>
 
 <table width=100%>
-<tr><td width=50 valign=top><a name="4.2">Q 4.2</a></td><td>
-How to set up MBSE for ISDN.
+<tr><td width=50 valign=top><a name="5.2">Q 5.2</a></td><td>
+Dosemu compile tips
 </td></tr>
-<tr><td valign=top>A 4.2</td><td>
-Contributed by: J. Beekhuizen, 2:280/1018
+<tr><td valign=top>A 5.2</td><td>
+Dosemu still exhibits some file locking behaviour and this needs to be
+overcome, especially if you are running multinode door games. The
+following information was written by Bob Newell of Chung Kuo BBS (telnet
+chungkuo.org) and I reiterate it here.
 <p>
-Of course, you have to configure and build your kernel for ISDN support
-and the correct drivers for your card.  It is beyond the scope of this
-document to explain how to do that.
+There is an issue in that Linux file locking does not map precisely to 
+DOS file locking. You need to patch DOSEMU and build a special version 
+to deal with this problem. Find the file "dosext/mfs/mfs.c" in your 
+DOSEMU source tree. Locate the following lines:
+<pre>
+case DENY_ANY:
+    fl.l_type = F_RDLCK;
+
+Change the second line to 
+    fl.l_type = !writing ? F_RDLCK : F_WRLCK;
+
+</pre>
+and build a new version of DOSEMU.
 <p>
-To your /etc/inittab file add the following lines for your ISDN devices
-ttyI0 and ttyI1.
+To solve a problem of slow screen painting, locate "base/async/int.c" 
+in your source tree. Locate
 <pre>
-# ISDN lines
-I1:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI0
-I2:23:respawn:/usr/local/sbin/mgetty -x 4 -i /opt/mbse/etc/issue ttyI1
+case 0x2C:
+
+and just below, comment out or delete the line
+
+usleep(INT2F_IDLE_USECS);
 
 </pre>
-To your mgetty.config file 
-[/usr/local/etc/mgetty_sendfax/mgetty.config on my system] 
-set up the ttyI0 and ttyI1 ports.  With AT&amp;E you set the
-MSN/EAZ the device should listen to. This should for an MSN be
-your telephone number <b>with</b> the area code but 
-<b>without</b> the leading 0. For an EAZ the last digit of your EAZ.
-<p>
-The ISDN ports
-<pre>
-port ttyI0
-modem-type data
-init-chat "" ATZ OK AT&amp;E714015437&amp;W0 OK AT&amp;B512 OK
+and rebuild your DOSEMU.
 
-port ttyI1
-modem-type data
-init-chat "" ATZ OK AT&amp;E714017198&amp;W0 OK AT&amp;B512 OK
-
-</pre>
-From the mbsetup menu #5 "Edit Modem types" configure the ISDN modem
-type.
-<pre>
-
-Modem type   ISDN Linux
-Init string  ATZ\r
-Init string  
-Init string  
-OK string    OK
-Hangup       \d\p\p\p+++\d\p\p\pATH0\r
-Info command ATI2\r
-Dial command ATD\T\r
-Connect      CONNECT 64000
-Connect      CONNECT
-[...]
-Reset cmd    ATZ\r
-Error string BUSY
-Error string NO CARRIER
-Error string NO DIALTONE
-Error string NO ANSWER
-Error string RING\r
-Error string ERROR
-Error string 
-Error string 
-Error string 
-Error string 
-Cost offset  0
-EMSI speed   28800                   ! not relevant for ISDN  
-Strip dashes No 
-Available    Yes
-
-</pre>
-And from #6 "Edit TTY lines info" the ISDN lines
-<pre>
-
-TTY name     ISDN Line 1
-Device name  ttyI0
-Phone or DNS 31-71-4015437
-Line speed   64 kbits
-Fido flags   CM,XA,MO,X75
-Equipment    ISDN   
-Available    Yes
-Auth. log    No 
-Honor ZMH    Yes
-Callout      Yes
-Modem type   ISDN Linux
-Locked speed 0                                 ! not relevant for ISDN
-EMSI name    The Wizard's ISDN line 1
-
-TTY name     ISDN Line 2
-Device name  ttyI1
-Phone or DNS 31-71-4017198
-Line speed   64 kbits
-Fido flags   CM,XA,MO,X75
-Equipment    ISDN   
-Available    Yes
-Auth. log    No 
-Honor ZMH    Yes
-Callout      Yes
-Modem type   ISDN Linux
-Locked speed 0
-EMSI name    The Wizard's ISDN line 2
-
-</pre>
-T-t-that's all folks :))
 </td></tr></table>
-<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<a href='#_Doors'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<p>
+
+
+<table width=100%>
+<tr><td width=50 valign=top><a name="5.3">Q 5.3</a></td><td>
+Setting up for InterBBS games.
+</td></tr>
+<tr><td valign=top>A 5.3</td><td>
+With most BBS games you will need 2 directories in your dos filesystem
+area. One for the inbound packets and one for netmail messages door
+games produce to send outbound packets.
+<p>
+The easiest way to solve this is by creating symlinks from your MBSE
+directories into the directory where your dos doors live (c:\doors). The
+2 directories you wish to link are /opt/mbse/var/inbound and
+/opt/mbse/var/msgs - link them into your dos directories doors directory
+with the same names ie: "inbound" and "msgs". Now according to dosemu
+you will have a c:\doors\inbound and a c:\doors\msgs
+<p>
+For my example I will use the InterBBS dos door game called Barren
+Realms Elite (BRE for short).
+<p>
+3a. I install Bre in c:\doors\bre and setup the necessary files for its
+execution as a dos door from MBSE as per the dos doors faq.
+<p>
+3b. I tell Bre (in its BBS.CFG) that the path for inbound packets is
+c:\doors\inbound and the netmail path is c:\doors\msgs
+Bre will now automatically process all inbound packets it finds in the
+inbound directory for itself. It needs no assistance as it merely
+searches for the correct filename in the directory.
+<p>
+3c. We need a script to process the Bre outbound packets and add them to
+MBSE's outbound path so they are sent. A perl script on how to do this 
+follows (with comments ).
+<p>
+This script should be owned by user "mbse" and have the permissions
+(chmod 755) -rwxr-xr-x. It is best kept in /opt/mbse/bin with your dos
+game executing scripts. I call this script "dos_poll"
+<pre>
+------------------------------------------------------------------------
+#!/usr/bin/perl -U
+use File::Basename;
+
+
+# Define the variable for the outbound file that this script
+# must create. See Note 1.
+$bre48_file = "/opt/mbse/var/bso/outbound/028003ba.flo";
+# Define the linux path to Bre's outbound directory
+$bre48_path = "/opt/mbse/dos/doors/bre48/OUTBOUND";
+# Define the linux path to the "msgs" directory
+$msg_path = "/opt/mbse/var/msgs";
+
+  opendir(DIR, "$bre48_path") || die;
+  @dirlist = readdir(DIR);
+  closedir(DIR);
+
+  foreach $filename (@dirlist){
+        ($filenameOnly, $pathname, $fileExtension) = fileparse($filename, '\..*');
+
+# Below '048b0201' is the packet name Bre creates. You can find out what
+# your packet name is by running BRE PLANETARY and then checking inside
+# the Bre OUTBOUND directory - note no ext on name.
+
+    if($filenameOnly eq "048b0201") {
+                $bre48 = "^$bre48_path/$filename";
+                open(FILE, ">>$bre48_file");
+                print FILE "$bre48\n";
+                close(FILE);
+   }
+                chmod 0664, "$bre48_file";
+  }
+
+  opendir(DIR, "$msg_path") || die;
+  @dirlist1 = readdir(DIR);
+  closedir(DIR);
+
+  foreach $filename (@dirlist1){
+        ($filenameOnly, $pathname, $fileExtension) = fileparse($filename, '\..*');
+    if($fileExtension eq ".msg") {
+        unlink "$msg_path/$filename";
+   }
+  }
+system "touch /opt/mbse/sema/scanout";
+
+------------------------------------------------------------------------
+
+</pre>
+Note 1. To find out what the outbound file is simply send a netmail
+attach via MBSE to your uplink system for the Bre game. MBSE will create
+a file in your outbound directory as a series of numbers with the
+extension .flo (or hlo). Inside this file will merely be the path to the
+file attached, but it is the name of the flo file that we require. No
+matter what file you attach or when you attach it, the outbound flo file
+will always have the same name as it represents the node number it is
+being sent to. Thus if you were file attaching to 3:640/954 your flo
+file would be "028003ba.flo" as in the example. Once you find out the
+filename substitute it in the script above.
+<p>
+What the above script does:
+<p>
+The perl script merely reads the Bre outbound directory and looks for
+files with the name of the that you tell it (sample one is 048b0201).
+The script removes the extension from the filenames to get a match.
+If it finds a match it creates a file, the "$bre48_file", which is the
+.flo you specified in the correct outbound directory. Inside this file
+it merely gives the path to the Bre outbound attach file and adds a ^
+before it (so MBSE deletes it after sending).
+<p>
+Then it goes into your "msgs" directory and deletes everything in there.
+It does not use the netmails written by the games at all, it just
+deletes them to stop them filling up your hard drive.
+<p>
+Then it tells MBSE to scan the outbound. If it created a flo file and
+that system is a direct or crash link MBSE will poll and send the file
+straight away.
+<p>
+If you have more InterBBS games the procedure is the same, just copy and
+edit the first part (relating to BRE) and add new variables for other
+games. The script only needs to clear the msgs directory once and to
+scan the outbound once. You only need one script to service a multitude
+of games.
+</td></tr></table>
+<a href='#_Doors'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>
 
 <table width=100%>
-<tr><td width=50 valign=top><a name="4.3">Q 4.3</a></td><td>
-How do I use GoldED together with MBSE?
+<tr><td width=50 valign=top><a name="5.4">Q 5.4</a></td><td>
+Door Maintenance.
 </td></tr>
-<tr><td valign=top>A 4.3</td><td>
-Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used together
-without problems as long as you use it to read the sysop mail. The
-mbsetup program can export a file called /opt/mbse/etc/golded.inc which
-will contain your main Aka's, Aka matching, sysop name and all your mail
-areas. This file is only (re)created if you change the global settings or
-one of the mail areas. The first time you must force this by making a change
-somewhere.
-<p>
-Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+<tr><td valign=top>A 5.4</td><td>
+Ok, so you can setup doors, run inbound and outbound for interbbs games.
+So how do you do maintenance?
+<br>
+Again by scripts. Again I will use BRE as an example. First I create a
+maintenance batch file in my C: root directory. I have called it
+maint.bat and for the bre game it looks like this:
 <pre>
 
-; GoldED.cfg
-;
-; Internet Addressing
-;
-INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
-INTERNETGATE UUCP 2:292/875
-;
-;
-OUTBOUNDPATH /opt/mbse/var/bso/outbound
-REPLYLINK chain
-STYLECODES yes
-;
-;
-; MESSAGE READER
-;
-DISPMSGSIZE KBYTES
-DISPATTACHSIZE KBYTES
-DISPLOCALHIGH YES
-DISPPAGEBAR YES
-VIEWHIDDEN YES
-VIEWKLUDGE NO
-VIEWQUOTE YES
-;
-INCLUDE /opt/mbse/etc/golded.inc
-;
-; The end.
+cd \doors\bre
+BRE INBOUND
+BRE SCORES
+BRE REQUEST
+BRE PLANETARY
+exitemu
 
 </pre>
-Put in /opt/mbse/.profile the following line:
-export GOLDED=$HOME/etc
+if you are familiar with Bre you will know this to be a standard sort of
+maintenance except for the "exitemu" at the end. That is there because
+we are going to use a script to start dosemu and call the maint.bat - so
+afterwards we need it to exit dosemu.
+<br>
+Now a maintenance script to be called from your cron or whatever else
+you are using to execute events on your system. I call this script
+"dos_maint" and it also lives in /opt/mbse/bin
+<pre>
+
+#!/bin/sh
+#
+COMMANDO="\" maint \r\""
+
+/usr/bin/sudo dosemu -dumb -E dir > /opt/mbse/log/dos.log -quiet -I "`echo keystroke $COMMANDO`"
+
+
+/opt/mbse/bin/dos_poll
+
+</pre>
+You will notice this script starts dosemu and calls maint.bat, and then
+when its finished there it calls the dos_poll script discussed earlier.
+Please note the second line is all ONE line, it has most probably
+wrapped here.
 <p>
-When you now start GoldED you use it as the sysop. Make sure that the sysop's
-userrecord is the first user in the MBSE BBS userbase. If not, the lastread
-pointers are not right. The GoldED nodelist compiler can be added to the setup
-in menu 18.
+You will notice that the script calls dosemu and not dosemu.bin, this is
+because we need to tell dosemu to open a dumb terminal and not display
+to a console or screen. By use of the redirection we redirect the normal
+console output to a file, here I have used /opt/mbse/log/dos/log as that
+is where all of MBSE's other logs reside.
+<p>
+Once "dos_maint" is run via the cron it will run maintenance on your dos
+doors, process inbound/outbound interBBS game packets and get MBSE to
+poll to send packets. Thats about all ther is to do :)
+<p>
+Have fun!
+<p>
+Rick Van Ruth 3:640/954 (ricta@ricta.net)
 </td></tr></table>
-<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<a href='#_Doors'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>
 
 <!-- Empty reply block for cut & paste:
@@ -758,7 +995,7 @@ Question?
 <tr><td valign=top>A 4.1</td><td>
 Answer
 </td></tr></table>
-<a href='#_BBSsetup'><img src='images/hand.up.gif' border=0 alt='Up'></a>
+<a href='#_Doors'><img src='images/hand.up.gif' border=0 alt='Up'></a>
 <p>
 -->
 
