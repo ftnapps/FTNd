@@ -71,6 +71,10 @@ mbfido:
 
 	N: Add traffic to html.nodes
 
+	N: Add stats for posts made by external programs.
+
+	N: Add macro's for stats of all months.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
