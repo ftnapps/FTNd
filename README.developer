@@ -1,3 +1,5 @@
+$Id$
+
 			README.developer for MBSE BBS
 
 This file is only available on CVS, not in the distribution. This file will
@@ -13,3 +15,4 @@ mbsebbs-0_33_17		17-Aug-2001 Initial CVS import by Ken.
 mbsebbs-0_33_18_current	25-Aug-2001 Upgraded to 0.33.18 current development.
 mbsebbs-0_33_18_final	02-Nov-2001 Version 0.33.18 released.
 mbsebbs-0_33_19_current 02-Nov-2001 Start 0.33.19 current development.
+mbsebbs-0_33_19_final	10-Feb-2002 Version 0.33.19 released.
