@@ -336,14 +336,14 @@ Date:     03-May-1991
     =====================================================================
 
     =====================================================================
-    EMSI Inquiry                                    **EMSI_INQ<crc16><CR>
+    EMSI Inquiry                                    **EMSI_INQ&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI Inquiry is transmitted by the calling system to identify it as
     EMSI capable. If an EMSI_REQ sequence is received in response, it is
     safe to assume the answering system to be EMSI capable.
 
     =====================================================================
-    EMSI Request                                    **EMSI_REQ<crc16><CR>
+    EMSI Request                                    **EMSI_REQ&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI Request is transmitted by the answering system in response to an
     EMSI Inquiry sequence. It should also be transmitted prior to or
@@ -353,7 +353,7 @@ Date:     03-May-1991
     answering system is EMSI capable.
     
     =====================================================================
-    EMSI Client                                     **EMSI_CLI<crc16><CR>
+    EMSI Client                                     **EMSI_CLI&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI Client is used by terminal emulation software to force a mailer
     front-end to bypass any unnecessary mail session negotiation and
@@ -363,7 +363,7 @@ Date:     03-May-1991
     system.
 
     =====================================================================
-    EMSI Heartbeat                                  **EMSI_HBT<crc16><CR>
+    EMSI Heartbeat                                  **EMSI_HBT&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI Heartbeat is used to prevent unnecessary timeouts from occurring
     while attempting to handshake. It is most commonly used when the
@@ -373,21 +373,21 @@ Date:     03-May-1991
     answering system is processing the recently received EMSI_DAT packet.
 
     =====================================================================
-    EMSI Data                      **EMSI_DAT<len16><data_pkt><crc16><CR>
+    EMSI Data                      **EMSI_DAT&lt;len16&gt;&lt;data_pkt&gt;&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI Data is transmitted by both the calling and answering system at
     the appropriate time to exchange system information. Following the
-    header is a four byte number representing the length of <data_pkt>
-    excluding the CRC and terminating <CR>.
+    header is a four byte number representing the length of &lt;data_pkt&gt;
+    excluding the CRC and terminating &lt;CR&gt;.
 
     The EMSI_DAT packet is a variable length packet. Since this is a
     synchronous protocol, the inbound data buffer should be purged
-    between transmission of the <data_pkt> and <crc16> fields to prevent
+    between transmission of the &lt;data_pkt&gt; and &lt;crc16&gt; fields to prevent
     accidental EMSI_NAK sequences, etc.
 
 
     =====================================================================
-    EMSI ACK                                        **EMSI_ACK<crc16><CR>
+    EMSI ACK                                        **EMSI_ACK&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI ACK is transmitted by either system as a positive
     acknowledgement of the valid receipt of a EMSI_DAT packet. This should
@@ -395,7 +395,7 @@ Date:     03-May-1991
     Redundant EMSI_ACK sequences should be ignored.
 
     =====================================================================
-    EMSI NAK                                        **EMSI_NAK<crc16><CR>
+    EMSI NAK                                        **EMSI_NAK&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI NAK is transmitted by either system as a negative
     acknowledgement of the valid receipt of a EMSI_DAT packet. This
@@ -623,7 +623,7 @@ Date:     03-May-1991
                             should be stripped from the city code,
                             ie. Stockholm (Sweden) has a city code of 08,
                             included in an EMSI packet, it would read
-                            46-8-<number>.
+                            46-8-&lt;number&gt;.
 
         BAUD_RATE           The maximum baud rate supported by the
                             system. This is NOT necessarily the same as
@@ -664,7 +664,7 @@ Date:     03-May-1991
     +-+------------------------------------------------------------------+
     :3: T1=20 seconds, increment Tries                                   :
     : :                                                                  :
-    : : Tries>3?                        Discontinue IEMSI negotiation.   :
+    : : Tries&gt;3?                        Discontinue IEMSI negotiation.   :
     +-+------------------------------------------------------------------+
     :4: Wait for EMSI_ICI packet until any of the timers have expired.   :
     : :                                                                  :
@@ -688,7 +688,7 @@ Date:     03-May-1991
     +-+------------------------------------------------------------------+
     :7: T1=20 seconds, increment Tries                                   :
     : :                                                                  :
-    : : Tries>3?                        Discontinue IEMSI negotiation.   :
+    : : Tries&gt;3?                        Discontinue IEMSI negotiation.   :
     +-+------------------------------------------------------------------+
     :8: Wait for EMSI_ACK/EMSI_NAK until any of the timers have expired. :
     : :                                                                  :
@@ -729,7 +729,7 @@ Date:     03-May-1991
     +-+------------------------------------------------------------------+
     :3: T1=20 seconds, increment Tries                                   :
     +-+------------------------------------------------------------------+
-    :5: Tries>3 or T2 expired?            Discontinue IEMSI negotiation. :
+    :5: Tries&gt;3 or T2 expired?            Discontinue IEMSI negotiation. :
     : +------------------------------------------------------------------+
     : : If T1 has expired, go to step 2.                                 :
     : +------------------------------------------------------------------+
@@ -760,7 +760,7 @@ Date:     03-May-1991
     =====================================================================
 
     =====================================================================
-    EMSI ACK                                        **EMSI_ACK<crc16><CR>
+    EMSI ACK                                        **EMSI_ACK&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI ACK is transmitted by either Client or Server as a positive
     acknowledgement of the valid receipt of an IEMSI packet such as
@@ -769,7 +769,7 @@ Date:     03-May-1991
     packets. Redundant EMSI_ACK sequences should be ignored.
 
     =====================================================================
-    EMSI NAK                                        **EMSI_NAK<crc16><CR>
+    EMSI NAK                                        **EMSI_NAK&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     EMSI NAK is transmitted by either Client or Server as a negative
     acknowledgement of the valid receipt of an IEMSI packet such as
@@ -778,7 +778,7 @@ Date:     03-May-1991
     packets. Redundant EMSI_NAK sequences should be ignored.
 
     =====================================================================
-    EMSI IRQ                                        **EMSI_IRQ<crc16><CR>
+    EMSI IRQ                                        **EMSI_IRQ&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     Similar to EMSI_REQ which is used by mailer software to negotiate a
     mail session. IRQ identifies the Server as being capable of
@@ -787,7 +787,7 @@ Date:     03-May-1991
     session.
 
     =====================================================================
-    EMSI IIR                                        **EMSI_IIR<crc16><CR>
+    EMSI IIR                                        **EMSI_IIR&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The IIR (Interactive Interrupt Request) sequence is used by either
     Client or Server to abort the current negotiation. This could be
@@ -795,21 +795,21 @@ Date:     03-May-1991
     between the Client and the Server.
 
     =====================================================================
-    EMSI ICI                             **EMSI_ICI<len><data><crc32><CR>
+    EMSI ICI                             **EMSI_ICI&lt;len&gt;&lt;data&gt;&lt;crc32&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The ICI packet is used by the Client to transmit its configuration
     and Server-related information to the Server. It contains Server
     parameters, Client options, and Client capabilities.
 
     =====================================================================
-    EMSI ISI                             **EMSI_ISI<len><data><crc32><CR>
+    EMSI ISI                             **EMSI_ISI&lt;len&gt;&lt;data&gt;&lt;crc32&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The ISI packet is used by the Server to transmit its configuration
     and Client-related information to the Client. It contains Server data
     and capabilities.
 
     =====================================================================
-    EMSI ISM                             **EMSI_ISM&lt;len&gt;&lt;data&gt;&lt;lt;crc32&gt;&lt;lt;CR&gt;
+    EMSI ISM                             **EMSI_ISM&lt;len&gt;&lt;data&gt;&lt;crc32&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The ISM packet is used to transfer ASCII images from the Server to
     the Client. These images can then be recalled by the Client when
