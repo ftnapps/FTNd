@@ -40,7 +40,7 @@ int _execute(char **, char *, char *, char *);
 int _execute(char **args, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
-    int	    i, pid, terrno = 0, status = 0, rc = 0;
+    int	    i, pid, status = 0, rc = 0;
 
     memset(&buf, 0, sizeof(buf));
     for (i = 0; i < 16; i++) {
@@ -86,13 +86,10 @@ int _execute(char **args, char *in, char *out, char *err)
 	errno = 0;
 	if (CFG.priority) {
 	    rc = getpriority(PRIO_PROCESS, 0);
-	    Syslog('e', "getpriority in child %d", rc);
 	    if (errno == 0) {
 		rc = setpriority(PRIO_PROCESS, 0, CFG.priority);
 		if (rc)
 		    WriteError("$execv can't set priority to %d", CFG.priority);
-		rc = getpriority(PRIO_PROCESS, 0);
-		Syslog('e', "getpriority in set to %d", rc);
 	    }
 	}
 	rc = execv(args[0],args);
@@ -106,14 +103,6 @@ int _execute(char **args, char *in, char *out, char *err)
 	rc = wait(&status);
 	e_pid = 0;
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
-
-    terrno = errno;
-    if (CFG.priority) {
-	rc = getpriority(PRIO_PROCESS, 0);
-	Syslog('e', "getpriority in parent %d", rc);
-	setpriority(PRIO_PROCESS, 0, 0);
-    }
-    errno = terrno;
 
     switch (rc) {
 	case -1:
