@@ -12,7 +12,7 @@ SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c md5b.c \
 		  filetime.c ftsc.c atoul.c portsel.c telnet.c \
 		  ttyio.c lutil.c scanout.c emsi.c ulock.c \
 		  callstat.c session.c call.c mbcico.c \
-		  outstat.c nlinfo.c mbout.c mbtelind.c mbtelout.c
+		  outstat.c nlinfo.c mbout.c
 HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  xmsend.h xmrecv.h m7recv.h m7send.h hydra.h inbound.h \
 		  answer.h chat.h dial.h dietifna.h emsidat.h filelist.h \
@@ -21,7 +21,7 @@ HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  filetime.h ftsc.h atoul.h portsel.h telnet.h \
 		  ttyio.h lutil.h scanout.h emsi.h ulock.h \
 		  callstat.h session.h call.h mbcico.h \
-		  outstat.h nlinfo.h mbtelind.h mbtelout.h
+		  outstat.h nlinfo.h
 MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  xmsend.o xmrecv.o m7recv.o m7send.o hydra.o inbound.o \
 		  answer.o chat.o dial.o dietifna.o emsidat.o filelist.o \
@@ -31,12 +31,10 @@ MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  ttyio.o lutil.o scanout.o emsi.o ulock.o \
 		  callstat.o session.o call.o mbcico.o
 MBOUT_OBJS	= outstat.o nlinfo.o mbout.o scanout.o callstat.o
-MBTELIND_OBJS	= mbtelind.o
-MBTELOUT_OBJS	= mbtelout.o
 LIBS		+= ../lib/libclcomm.a ../lib/libcommon.a \
 		  ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libnodelist.a
 OTHER		= Makefile README
-TARGET		= mbcico mbout mbtelind mbtelout
+TARGET		= mbcico mbout
 
 #############################################################################
 
@@ -51,20 +49,12 @@ clean:
 install:	all
 		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 4751 mbcico    ${BINDIR}
 		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbout     ${BINDIR}
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbtelind  ${BINDIR}
-		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbtelout  ${BINDIR}
 
 mbcico:		${MBCICO_OBJS} ${LIBS}
 		${CC} -o mbcico ${MBCICO_OBJS} ${LDFLAGS} ${LIBS}
 
 mbout:		${MBOUT_OBJS} ${LIBS}
 		${CC} -o mbout ${MBOUT_OBJS} ${LDFLAGS} ${LIBS}
-
-mbtelind:	${MBTELIND_OBJS} ${LIBS}
-		${CC} -o mbtelind ${MBTELIND_OBJS} ${LDFLAGS} ${LIBS}
-
-mbtelout:	${MBTELOUT_OBJS} ${LIBS}
-		${CC} -o mbtelout ${MBTELOUT_OBJS} ${LDFLAGS} ${LIBS}
 
 filelist:	Makefile
 		BASE=`pwd`; \
