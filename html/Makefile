@@ -29,7 +29,8 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
 		  images/domains.gif  images/mbsetup1.6.S.gif images/nodes3.png \
 		  images/e_menu.png   images/mbsetup1.6.gif   images/nodes4.gif \
 		  images/emareas.gif  images/mbsetup2.gif     images/nodes5.gif \
-		  images/nodes6.gif   images/nodes7.png       images/nodes8.gif \
+		  images/nodes6.gif   images/nodes7.png       images/nodes8.png \
+		  images/nodes9.png  \
 		  images/emgroup.gif  images/modems0.gif      images/oneliner.gif \
 		  images/fdb.gif      images/newfiles.gif     images/protocol.gif \
 		  images/fegroup.gif  images/newgroups.gif    images/rarrow.gif \
