@@ -164,7 +164,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
     MacroRead(fi, fp);
     fgetpos(fi,&fileptr);
 
-    temp = calloc(128, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	
     if ((gp = fopen(temp, "r")) == NULL) {
