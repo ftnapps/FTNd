@@ -920,7 +920,6 @@ int binkp_batch(file_list *to_send)
 			tcrc = file_crc(tmp->local, FALSE);
 		    else
 			tcrc = 0;
-		    Syslog('b', "File CRC is %lx %ld", tcrc, tcrc);
 
 		    txfp = fopen(tmp->local, "r");
 		    if (txfp == NULL) {
@@ -1055,18 +1054,19 @@ int binkp_batch(file_list *to_send)
 		case MM_ERR:    Syslog('+', "Binkp: got ERR: %s", rxbuf+1);
 				RxState = RxDone;
 				TxState = TxDone;
+				rc = -10;
 				break;
 
 		case MM_BSY:	Syslog('+', "Binkp: got BSY: %s", rxbuf+1);
 				RxState = RxDone;
 				TxState = TxDone;
+				rc = -11;
 				break;
 
-		case MM_SKIP:   Syslog('+', "Got SKIP frame");
-				Syslogp('+', printable(rxbuf+1, 0));
+		case MM_SKIP:   Syslog('+', "Binkp: got SKIP: %s", rxbuf+1);
 				break;
 
-		case MM_GET:    Syslog('+', "Got GET frame");
+		case MM_GET:    Syslog('+', "Binkp: got GET: %s", rxbuf+1);
 				sscanf(rxbuf+1, "%s %ld %ld %ld", gname, &gsize, &gtime, &goffset);
 				for (tmpg = bll; tmpg; tmpg = tmpg->next) {
 				    if (strcasecmp(tmpg->remote, gname) == 0) {
@@ -1078,7 +1078,8 @@ int binkp_batch(file_list *to_send)
 				}
 				break;
 
-		case MM_GOT:    sscanf(rxbuf+1, "%s %ld %ld", lname, &lsize, &ltime);
+		case MM_GOT:    Syslog('+', "Binkp: got GOT: %s", rxbuf+1);
+				sscanf(rxbuf+1, "%s %ld %ld", lname, &lsize, &ltime);
 				Found = FALSE;
 				for (tmp = bll; tmp; tmp = tmp->next)
 				    if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
@@ -1094,13 +1095,13 @@ int binkp_batch(file_list *to_send)
 		case MM_NUL:    b_nul(rxbuf+1);
 				break;
 
-		case MM_EOB:    Syslog('+', "Binkp: received EOB");
+		case MM_EOB:    Syslog('+', "Binkp: got EOB");
 				RxState = RxEndOfBatch;
 				break;
 
-		case MM_FILE:   if ((RxState == RxWaitFile) || (RxState == RxEndOfBatch)) {
+		case MM_FILE:   Syslog('b', "Binkp: got FILE: %s", rxbuf+1);
+				if ((RxState == RxWaitFile) || (RxState == RxEndOfBatch)) {
 				    RxState = RxAcceptFile;
-				    Syslog('b', "MM_FILE %s", rxbuf+1);
 				    if (strlen(rxbuf) < 512) {
 					/*
 					 * Check against buffer overflow
@@ -1111,7 +1112,6 @@ int binkp_batch(file_list *to_send)
 					} else {
 					    sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
 					}
-					Syslog('b', "Expecting CRC %lx", rcrc);
 				    } else {
 					Syslog('+', "Got corrupted FILE frame, size %d bytes", strlen(rxbuf));
 				    }
@@ -1134,30 +1134,32 @@ int binkp_batch(file_list *to_send)
 			}
 			rxpos += written;
 			if (rxpos == rsize) {
+			    RxState = RxWaitFile;
 			    if (CRCflag && rcrc) {
 				rxcrc = rxcrc ^ 0xffffffff;
-				Syslog('b', "File received crc %lx, expected %lx", rxcrc, rcrc);
 				if (rcrc == rxcrc) {
 				    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+				    closefile(TRUE);
 				} else {
 				    rxerror = TRUE;
 				    crc_errors++;
-				    if (crc_errors < 3) {
-					binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
-					WriteError("File CRC error nr %d, sending SKIP frame", crc_errors);
-				    } else {
+				    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+				    Syslog('+', "File CRC error nr %d, sending SKIP frame", crc_errors);
+				    if (crc_errors >= 3) {
 					WriteError("File CRC error nr %d, aborting session", crc_errors);
 					binkp_send_control(MM_ERR, "Too much CRC errors, aborting session");
 					RxState = RxDone;
+					rc = -12;
 				    }
+				    closefile(FALSE);
 				}
 			    } else {
 				/*
 				 * ACK without CRC check
 				 */
 				binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
+				closefile(TRUE);
 			    }
-			    closefile(TRUE);
 			    rxpos = rxpos - rxbytes;
 			    gettimeofday(&rxtvend, &tz);
 			    Syslog('+', "Binkp: %s %s", rxerror?"ERROR":"OK", transfertime(rxtvstart, rxtvend, rxpos, FALSE));
@@ -1201,6 +1203,7 @@ int binkp_batch(file_list *to_send)
 		binkp_send_control(MM_BSY, "Low diskspace, try again later");
 		RxState = RxDone;
 		TxState = TxDone;
+		rc = -13;
 		break;
 	    }
 
@@ -1210,7 +1213,7 @@ int binkp_batch(file_list *to_send)
 		 * be deleted at the remote.
 		 */
 		Syslog('+', "Binkp: already got %s, sending GOT", rname);
-		if (CRCflag &rcrc)
+		if (CRCflag && rcrc)
 		    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
 		else
 		    binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
