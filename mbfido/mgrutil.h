@@ -25,7 +25,7 @@ void CleanBuf(char *);
 void ShiftBuf(char *, int);
 void MgrPasswd(faddr *, char *, FILE *, int, int);
 void MgrNotify(faddr *, char *, FILE *, int);
-int  UplinkRequest(faddr *, int, char *);
+int  UplinkRequest(faddr *, faddr *, int, char *);
 int  Areas(void);
 
 

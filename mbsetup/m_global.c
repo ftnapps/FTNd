@@ -1187,55 +1187,103 @@ void e_aka(int Area)
 
 void e_fidoakas(void)
 {
-	int	i, x, y, o;
-	char	pick[12];
-	char	temp[121];
+    int		i, j, k, x, y, o = 0, error, from, too;
+    char	pick[12];
+    char	temp[121];
 
-	o = 0;
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "1.1   EDIT FIDONET AKA'S");
-		set_color(CYAN, BLACK);
-		x = 2;
+    for (;;) {
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 2, "1.1   EDIT FIDONET AKA'S");
+	set_color(CYAN, BLACK);
+	x = 2;
+	y = 7;
+	set_color(CYAN, BLACK);
+	for (i = 1; i <= 20; i++) {
+	    if (i == 11) {
+		x = 42;
 		y = 7;
-		set_color(CYAN, BLACK);
-		for (i = 1; i <= 20; i++) {
-			if (i == 11) {
-				x = 42;
-				y = 7;
-			}
-			if ((o + i) <= 40) {
-				if (CFG.akavalid[o+i-1])
-					set_color(CYAN, BLACK);
-				else
-					set_color(LIGHTBLUE, BLACK);
-				if (CFG.akavalid[o+i-1]) {
-					sprintf(temp, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
-					temp[38] = '\0';
-				} else
-					sprintf(temp, "%3d", o+i);
-				mvprintw(y, x, temp);
-				y++;
-			}
-		}
-		strcpy(pick, select_pick(40, 20));
-		
-		if (strncmp(pick, "-", 1) == 0) {
-			return;
-		}
-
-		if (strncmp(pick, "N", 1) == 0)
-			if ((o + 20) < 40)
-				o = o + 20;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 20) >= 0)
-				o = o - 20;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= 40))
-			e_aka(atoi(pick)-1);
+	    }
+	    if ((o + i) <= 40) {
+		if (CFG.akavalid[o+i-1])
+		    set_color(CYAN, BLACK);
+		else
+		    set_color(LIGHTBLUE, BLACK);
+		if (CFG.akavalid[o+i-1]) {
+		    sprintf(temp, "%3d   %s", o+i, aka2str(CFG.aka[o+i-1]));
+		    temp[38] = '\0';
+		} else
+		    sprintf(temp, "%3d", o+i);
+		mvprintw(y, x, temp);
+		y++;
+	    }
 	}
+	strcpy(pick, select_aka(40, 20));
+		
+	if (strncmp(pick, "-", 1) == 0) {
+	    error = FALSE;
+	    /*
+	     * Various checks on the system aka's.
+	     */
+	    if ((! CFG.aka[0].zone) && (! CFG.akavalid[0])) {
+		errmsg("First aka (main aka) must be valid");
+		error = TRUE;
+	    }
+	    if (error == FALSE) {
+		/*
+		 * Check if aka's are in one continues block
+		 */
+		k = 0;
+		for (j = 0; j < 40; j++)
+		    if (CFG.akavalid[j] && CFG.aka[j].zone)
+			k++;
+		for (j = k; j < 40; j++)
+		    if (CFG.akavalid[j] || CFG.aka[j].zone)
+			error = TRUE;
+		if (error)
+		    errmsg("All aka's must be in one continues block");
+	    }
+	    if (! error)
+		return;
+	}
+
+	if (strncmp(pick, "N", 1) == 0)
+	    if ((o + 20) < 40)
+		o = o + 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o = o - 20;
+
+	if (strncmp(pick, "M", 1) == 0) {
+	    from = too = 0;
+	    mvprintw(LINES -3, 6, "Enter aka number (1..40) to move >");
+	    from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
+	    locate(LINES -3, 6);
+	    clrtoeol();
+	    mvprintw(LINES -3, 6, "Enter new position (1..40) >");
+	    too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number");
+	    if ((from == too) || (from == 0) || (too == 0) || (from > 40) || (too > 40)) {
+		errmsg("That makes no sense");
+	    } else if (CFG.akavalid[from - 1] == FALSE) {
+		errmsg("Origin aka is invalid");
+	    } else if (CFG.akavalid[too - 1]) {
+		errmsg("Destination record is in use");
+	    } else if (yes_no((char *)"Proceed move")) {
+		CFG.aka[too -1].zone   = CFG.aka[from -1].zone;
+		CFG.aka[too -1].net    = CFG.aka[from -1].net;
+		CFG.aka[too -1].node   = CFG.aka[from -1].node;
+		CFG.aka[too -1].point  = CFG.aka[from -1].point;
+		strcpy(CFG.aka[too -1].domain, CFG.aka[from -1].domain);
+		CFG.akavalid[too -1] = TRUE;
+		CFG.akavalid[from -1] = FALSE;
+		memset(&CFG.aka[from -1], 0, sizeof(fidoaddr));
+	    }
+	}
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= 40))
+	    e_aka(atoi(pick)-1);
+    }
 }
 
 

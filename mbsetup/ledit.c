@@ -584,6 +584,53 @@ char *select_pick(int max, int items)
 
 
 
+char *select_aka(int max, int items)
+{
+        static  char s[12];
+        static  char *menu=(char *)"-";
+        char    help[81];
+        int     pick;
+
+        memset((char *)s, 0, 12);
+
+        if (max == 0)
+                sprintf(help, "Select ^\"-\"^ for previous level");
+        else
+                if (max > items)
+                        sprintf(help, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page, ^\"M\"^ move aka", max);
+                else
+                        sprintf(help, "Select record (1..%d), ^\"-\"^ for previous level ^\"M\"^ move aka", max);
+        showhelp(help);
+
+        /*
+         * Loop until the answer is right
+         */
+        for (;;) {
+                mvprintw(LINES - 3, 6, "Enter your choice >");
+                menu = (char *)"-";
+                menu = edit_field(LINES - 3, 26, 6, '!', menu);
+                locate(LINES - 3, 6);
+                clrtoeol();
+
+                if (strncmp(menu, "-", 1) == 0)
+                        break;
+                if (max > items) {
+                        if (strncmp(menu, "N", 1) == 0)
+                                break;
+                        if (strncmp(menu, "P", 1) == 0)
+                                break;
+                }
+		if (strncmp(menu, "M", 1) == 0)
+			break;
+                pick = atoi(menu);
+                if ((pick >= 1) && (pick <= max))
+                        break;
+        }
+
+        return menu;
+}
+
+
 
 /* 
  * Select menu, max is the highest item to pick. Returns zero if

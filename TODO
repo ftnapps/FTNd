@@ -42,6 +42,9 @@ mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
+	U: AreaMgr uplink mails use the default best aka instead of the aka
+	   defined in that specific group.
+
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
@@ -115,7 +118,7 @@ mbnewusr:
 mbsetup:
 	U: PickAka function lets mbsetup crash if domain is 12 characters
 
-	U: Use some sort of sorting for the system aka's and make sure the
+	N: Use some sort of sorting for the system aka's and make sure the
 	   main aka with zone's is listed first. Having zone's mixed gives
 	   too high outbound stats and the outbound is scanned multiple times.
 

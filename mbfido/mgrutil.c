@@ -296,24 +296,22 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
  *  3   - No uplink password in setup
  *  4   - Can't add mail to outbound
  */
-int UplinkRequest(faddr *t, int FileMgr, char *cmd)
+int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
 {
     FILE	*qp;
     time_t	Now;
     struct tm	*tm;
     fidoaddr	Orig, Dest;
-    faddr	From;
     unsigned	flags = M_PVT;
     char	ext[4], *mgrname, *subj;
     int		i;
 
-    From = *bestaka_s(t);
     memset(&Orig, 0, sizeof(Orig));
-    Orig.zone  = From.zone;
-    Orig.net   = From.net;
-    Orig.node  = From.node;
-    Orig.point = From.point;
-    sprintf(Orig.domain, "%s", From.domain);
+    Orig.zone  = From->zone;
+    Orig.net   = From->net;
+    Orig.node  = From->node;
+    Orig.point = From->point;
+    sprintf(Orig.domain, "%s", From->domain);
 
     memset(&Dest, 0, sizeof(Dest));
     Dest.zone  = t->zone;
@@ -373,7 +371,7 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
     if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
 	return 4;
 
-    if (AddMsgHdr(qp, &From, t, flags, 0, Now, mgrname, CFG.sysop_name, subj)) {
+    if (AddMsgHdr(qp, From, t, flags, 0, Now, mgrname, CFG.sysop_name, subj)) {
 	fclose(qp);
 	return 4;
     }
@@ -687,7 +685,7 @@ int Areas(void)
 			 * Sent one uplink command with additions and deletions
 			 */
 			if (mgroup.UpLink.zone) {
-			    if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, cmd)) {
+			    if (UplinkRequest(fido2faddr(mgroup.UpLink), fido2faddr(mgroup.UseAka), FALSE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
 				Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
@@ -941,7 +939,7 @@ int Areas(void)
 			 * Sent one uplink command with additions and deletions
 			 */
 			if (fgroup.UpLink.zone) {
-			    if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, cmd)) {
+			    if (UplinkRequest(fido2faddr(fgroup.UpLink), fido2faddr(fgroup.UseAka), TRUE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
 				Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));

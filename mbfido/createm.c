@@ -121,7 +121,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 */
 		if (SendUplink) {
 		    sprintf(temp, "+%s", Area);
-		    if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, temp)) {
+		    if (UplinkRequest(fido2faddr(mgroup.UpLink), fido2faddr(mgroup.UseAka), FALSE, temp)) {
 			WriteError("Can't send netmail to uplink");
 			fclose(ap);
 			free(buf);

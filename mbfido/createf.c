@@ -188,7 +188,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      */
     if (SendUplink) {
 	sprintf(temp, "+%s", Area);
-	if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, temp)) {
+	if (UplinkRequest(fido2faddr(fgroup.UpLink), fido2faddr(fgroup.UseAka), TRUE, temp)) {
 	    WriteError("Can't send netmail to uplink");
 	    fclose(ap);
 	    free(buf);

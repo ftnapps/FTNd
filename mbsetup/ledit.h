@@ -14,6 +14,7 @@ char		*select_record(int, int);
 char		*select_filearea(int, int);
 char		*select_area(int, int);
 char		*select_pick(int, int);
+char		*select_aka(int, int);
 char		*select_show(int);
 int 		select_menu(int);
 int		select_tag(int);
