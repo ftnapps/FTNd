@@ -33,17 +33,24 @@
 #include "virscan.h"
 
 
+extern pid_t	mypid;
+
 /*
  * Check for known viri, optional in a defined path.
  */
 int VirScan(char *path)
 {
-    char    *pwd, *temp, *cmd = NULL;
-    FILE    *fp;
-    int	    rc = FALSE, has_scan = FALSE;
+    char    *pwd, *temp, *cmd = NULL, *stdlog, *errlog, buf[256];
+    FILE    *fp, *lp;
+    int	    vrc, rc = FALSE, has_scan = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
+    stdlog = calloc(PATH_MAX, sizeof(char));
+    errlog = calloc(PATH_MAX, sizeof(char));
+    
     sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    sprintf(stdlog, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    sprintf(errlog, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 
     if ((fp = fopen(temp, "r")) == NULL) {
 	WriteError("No virus scanners defined");
@@ -80,8 +87,30 @@ int VirScan(char *path)
             cmd = xstrcpy(virscan.scanner);
             cmd = xstrcat(cmd, (char *)" ");
             cmd = xstrcat(cmd, virscan.options);
-            if (execute_str(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", 
-			     (char *)"/dev/null" , (char *)"/dev/null") != virscan.error) {
+	    vrc = execute_str(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", stdlog, errlog);
+	    if (file_size(stdlog)) {
+		Syslog('-', "%s contains data", stdlog);
+		if ((lp = fopen(stdlog, "r"))) {
+		    while (fgets(buf, sizeof(buf) -1, lp)) {
+			Striplf(buf);
+			Syslog('-', "stdout: \"%s\"", printable(buf, 0));
+		    }
+		    fclose(lp);
+		}
+	    }
+	    if (file_size(errlog)) {
+		Syslog('-', "%s contains data", errlog);
+		if ((lp = fopen(errlog, "r"))) {
+		    while (fgets(buf, sizeof(buf) -1, lp)) {
+			Striplf(buf);
+			Syslog('-', "stderr: \"%s\"", printable(buf, 0));
+		    }
+		    fclose(lp);
+		}
+	    }
+	    unlink(stdlog);
+	    unlink(errlog);
+            if (vrc != virscan.error) {
                 Syslog('!', "Virus found by %s", virscan.comment);
 		rc = TRUE;
             }
@@ -97,6 +126,8 @@ int VirScan(char *path)
 
     free(pwd);
     free(temp);
+    free(stdlog);
+    free(errlog);
     return rc;
 }
 

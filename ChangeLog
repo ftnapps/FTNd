@@ -6,6 +6,9 @@ v0.51.4		11-Apr-2004
 		All heavy debug logmessages are now in defines and are only
 		enabled with ./configure --enable-newbinkp
 
+	mbfido:
+		Added experimental logging of virus scanner messages.
+
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
 
