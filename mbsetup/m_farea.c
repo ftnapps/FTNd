@@ -226,10 +226,11 @@ void FileScreen(void)
  */
 int EditFileRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
+	FILE	*fil, *fp;
+	char	mfile[PATH_MAX], *temp;
 	long	offset;
 	unsigned long crc, crc1;
+	int	Available, files;
 
 	clr_index();
 	working(1, 0, 0);
@@ -312,7 +313,48 @@ int EditFileRec(int Area)
 		case 4:	E_SEC(  9,16,    area.UPSec,     "8.4.4  UPLOAD SECURITY", FileScreen)
 		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
 		case 6:	E_STR( 11,16,64, area.FilesBbs,  "The path and name of \"files.bbs\" if area is on CDROM")
-		case 7:	E_BOOL(12,16,    area.Available, "Is this area ^available^")
+		case 7:	Available = edit_bool(12, 16, area.Available, (char *)"Is this area ^available^");
+			if (area.Available && !Available) {
+			    /*
+			     * Attempt to disable this area, but check first.
+			     */
+			    temp = calloc(PATH_MAX, sizeof(char));
+			    sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+			    if ((fp = fopen(temp, "r"))) {
+				fseek(fp, 0, SEEK_END);
+				files = ftell(fp) / sizeof(file);
+				if (files) {
+				    errmsg("There are stil %d files in this area", files);
+				    Available = TRUE;
+				}
+				fclose(fp);
+			    }
+			    if (!Available) {
+				/*
+				 * Make it so
+				 */
+				unlink(temp);
+				sprintf(temp, "rm -r -f %s", area.Path);
+				system(temp);
+				memset(&area, 0, sizeof(area));
+				/*
+				 * Fill in default values
+				 */
+				area.New      = TRUE;
+				area.Dupes    = TRUE;
+				area.FileFind = TRUE;
+				area.AddAlpha = TRUE;
+				area.FileReq  = TRUE;
+				Syslog('+', "Removed file area %d", Area);
+			    }
+			    free(temp);
+			    area.Available = Available;
+			    FileScreen();
+			} 
+			if (!area.Available && Available) {
+			    area.Available = TRUE;
+			}
+			break;
 		case 8:	E_BOOL(13,16,    area.New,       "Include this area in ^new files^ check")
 		case 9:	E_BOOL(14,16,    area.Dupes,     "Check this area for ^duplicates^ during upload")
 		case 10:E_BOOL(15,16,    area.Free,      "Are all files ^free^ in this area")

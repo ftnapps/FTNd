@@ -237,6 +237,15 @@ void Check(void)
 			chmod(fAreas, 0660);
 			iAreasNew++;
 
+		} else {
+		    
+		    if (strlen(area.Name) == 0) {
+			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+			if (unlink(fAreas) == 0) {
+			    Syslog('+', "Removed obsolete %s", fAreas);
+			}
+		    }
+
 		} /* if area.Available */
 	}
 

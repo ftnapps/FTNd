@@ -4260,6 +4260,9 @@ v0.33.19        26-Oct-2001
 		need to be rewritten by users, they have mode 0660.
 		In the file database editor the default choice was 0 in stead
 		of -.
+		When a file area is made unavailable in menu 8.4, first the
+		files in that area area checked. If there are none, the area
+		is completly removed, including paths, indexes and database.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
@@ -4381,6 +4384,7 @@ v0.33.19        26-Oct-2001
 		Implemented "mbfile move" command. You can only move one file
 		at the same time.
 		Implemented "mbfile delete" and "mbfile undelete" commands.
+		The command mbfile check now removes obsolete file databases.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.
