@@ -120,6 +120,10 @@ int OpenFilefind(void)
 			 */
 			memset(&scanmgr, 0, sizeof(scanmgr));
 			while (fread(&scanmgr, oldsize, 1, fin) == 1) {
+				if (!strlen(scanmgr.template)) {
+				    sprintf(scanmgr.template, "filefind");
+				    FilefindUpdated = 1;
+				}
 				fwrite(&scanmgr, sizeof(scanmgr), 1, fout);
 				memset(&scanmgr, 0, sizeof(scanmgr));
 			}
@@ -190,6 +194,9 @@ int AppendFilefind(void)
 		/*
 		 * Fill in default values
 		 */
+		scanmgr.Language = 'E';
+		sprintf(scanmgr.template, "filefind");
+		strncpy(scanmgr.Origin, CFG.origin, 50);
 		fwrite(&scanmgr, sizeof(scanmgr), 1, fil);
 		fclose(fil);
 		FilefindUpdated = 1;

@@ -149,6 +149,10 @@ int OpenNewfiles(void)
 			 */
 			memset(&newfiles, 0, sizeof(newfiles));
 			while (fread(&newfiles, oldsize, 1, fin) == 1) {
+				if (!strlen(newfiles.Template)) {
+				    sprintf(newfiles.Template, "newfiles");
+				    NewUpdated = 1;
+				}
 				fwrite(&newfiles, sizeof(newfiles), 1, fout);
 				memset(&newfiles, 0, sizeof(newfiles));
 				/*
@@ -244,6 +248,9 @@ int AppendNewfiles(void)
 		 * Fill in default values
 		 */
 		sprintf(newfiles.From, "%s", CFG.sysop_name);
+		newfiles.Language = 'E';
+		sprintf(newfiles.Template, "newfiles");
+		strncpy(newfiles.Origin, CFG.origin, 50);
 		fwrite(&newfiles, sizeof(newfiles), 1, fil);
 		memset(&group, 0, 13);
 		for (i = 1; i <= CFG.new_groups; i++)

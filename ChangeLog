@@ -4635,6 +4635,10 @@ v0.33.20        10-Feb-2002
 		Corrected screen layout in menu 1.4.11.
 		When editing analogue modem lines, the locked portspeed was
 		in a lot of cases set to 0.
+		In newfiles and filefind reports sets default template files
+		during init.
+		When adding a new newfiles or filefind record some defaults
+		are automatic filled in.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 
