@@ -3,6 +3,9 @@ $Id$
 
 v0.37.01	14-Jan-2003.
 
+	upgrade:
+		After upgrade you may remove ~/etc/maptabs and it's contents.
+
 	general:
 		This version may be used on production systems, but be 
 		carefull and check your logs.
@@ -11,7 +14,7 @@ v0.37.01	14-Jan-2003.
 		charset translations are removed because of several bugs. They
 		will be replaced by standard library functions. Right now the
 		messages are 8 bit clean and there is no translation on the
-		gateway.
+		gateway. The maptabs are removed.
 
 	nodelist.a:
 		Added experimental support for IP nodes lookup using a default

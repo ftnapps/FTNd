@@ -34,9 +34,7 @@ install:
 		fi
 		@if [ ! -d ${PREFIX}/etc ] ; then \
 			mkdir ${PREFIX}/etc ; \
-			mkdir ${PREFIX}/etc/maptabs ; \
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc ; \
-			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc/maptabs ; \
 		fi
 		@chmod 0775 ${PREFIX}/etc
 		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
