@@ -455,3 +455,47 @@ int CheckFDB(int Area, char *Path)
 }
 
 
+
+/*
+ * Load Area Record
+ */
+int LoadAreaRec(int Area)
+{
+    FILE    *pAreas;
+    char    *sAreas;
+
+    sAreas = calloc(PATH_MAX, sizeof(char));
+
+    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    if ((pAreas = fopen (sAreas, "r")) == NULL) {
+        WriteError("$Can't open %s", sAreas);
+        if (!do_quiet)
+            printf("Can't open %s\n", sAreas);
+        return FALSE;
+    }
+
+    fread(&areahdr, sizeof(areahdr), 1, pAreas);
+    if (fseek(pAreas, ((Area - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET)) {
+        WriteError("$Can't seek record %d in %s", Area, sAreas);
+        if (!do_quiet)
+            printf("Can't seek record %d in %s\n", Area, sAreas);
+        fclose(pAreas);
+        free(sAreas);
+        return FALSE;
+    }
+
+    if (fread(&area, areahdr.recsize, 1, pAreas) != 1) {
+        WriteError("$Can't read record %d in %s", Area, sAreas);
+        if (!do_quiet)
+            printf("Can't read record %d in %s\n", Area, sAreas);
+        fclose(pAreas);
+        free(sAreas);
+        return FALSE;
+    }
+
+    fclose(pAreas);
+    free(sAreas);
+    return TRUE;
+}
+
+

@@ -46,8 +46,8 @@ extern int	do_annon;		/* Supress announce file	    */
 
 void AdoptFile(int Area, char *File, char *Description)
 {
-    FILE		*pAreas, *fp;
-    char		*sAreas, *temp, *temp2, *unarc, *pwd;
+    FILE		*fp;
+    char		*temp, *temp2, *unarc, *pwd;
     char		Desc[256], TDesc[256];
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
@@ -59,34 +59,8 @@ void AdoptFile(int Area, char *File, char *Description)
     if (!do_quiet)
 	colour(CYAN, BLACK);
 
-    sAreas = calloc(PATH_MAX, sizeof(char));
-
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-    if ((pAreas = fopen (sAreas, "r")) == NULL) {
-	WriteError("$Can't open %s", sAreas);
-	if (!do_quiet)
-	    printf("Can't open %s\n", sAreas);
+    if (LoadAreaRec(Area) == FALSE)
 	die(0);
-    }
-
-    fread(&areahdr, sizeof(areahdr), 1, pAreas);
-    if (fseek(pAreas, ((Area - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET)) {
-	WriteError("$Can't seek record %d in %s", Area, sAreas);
-	if (!do_quiet)
-	    printf("Can't seek record %d in %s\n", Area, sAreas);
-	fclose(pAreas);
-	free(sAreas);
-	die(0);
-    }
-
-    if (fread(&area, areahdr.recsize, 1, pAreas) != 1) {
-	WriteError("$Can't read record %d in %s", Area, sAreas);
-	if (!do_quiet)
-	    printf("Can't read record %d in %s\n", Area, sAreas);
-	fclose(pAreas);
-	free(sAreas);
-	die(0);
-    }
 
     if (area.Available) {
 	temp   = calloc(PATH_MAX, sizeof(char));
@@ -308,12 +282,9 @@ void AdoptFile(int Area, char *File, char *Description)
 	    printf("Area %d is not available\n", Area);
     }
 
-    fclose(pAreas);
     if (!do_quiet) {
 	printf("\r                                                              \r");
 	fflush(stdout);
     }
-
-    free(sAreas);
 }
 

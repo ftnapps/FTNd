@@ -137,11 +137,11 @@ void File_List()
 
 		if (file.Deleted)
 			/* D E L E T E D */ /* Uploaded by: */
-			printf("%-12s     %s     [%ld] %s%s\n", file.Name, (char *) Language(239), file.TimesDL, (char *) Language(238), file.Uploader);
+			printf(" -- %-12s     %s     [%4ld] %s%s\n", file.Name, (char *) Language(239), file.TimesDL, (char *) Language(238), file.Uploader);
 
 		if (file.Missing)
 			/* M I S S I N G */ /* Uploaded by: */
-			printf("%-12s     %s     [%ld] %s%s\n", file.Name, (char *) Language(240), file.TimesDL, (char *) Language(238), file.Uploader);
+			printf(" -- %-12s     %s     [%4ld] %s%s\n", file.Name, (char *) Language(240), file.TimesDL, (char *) Language(238), file.Uploader);
 
 		FileCount++;			/* Increase File Counter by 1 */
 		FileBytes += file.Size;		/* Increase File Byte Count   */

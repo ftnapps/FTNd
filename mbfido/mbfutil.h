@@ -11,5 +11,6 @@ void	DeleteVirusWork(void);		/* Delete unarc directory	*/
 int	UnpackFile(char *File);		/* Unpack archive		*/
 int	AddFile(struct FILERecord, int, char *, char *);
 int	CheckFDB(int, char *);		/* Check FDB of area		*/
+int	LoadAreaRec(int);		/* Load Area record		*/
 
 #endif

@@ -46,8 +46,8 @@ extern int	do_annon;		/* Supress announce files	    */
 
 void ImportFiles(int Area)
 {
-    char		*sAreas, *pwd, *temp, *temp2, *String, *token, *dest, *unarc;
-    FILE		*pAreas, *fbbs;
+    char		*pwd, *temp, *temp2, *String, *token, *dest, *unarc;
+    FILE		*fbbs;
     int			Append = FALSE, Files = 0, i, j = 0, k = 0, x, Doit;
     int			Imported = 0, Errors = 0;
     struct FILERecord   fdb;
@@ -58,37 +58,8 @@ void ImportFiles(int Area)
     if (!do_quiet)
 	colour(CYAN, BLACK);
 
-    sAreas = calloc(PATH_MAX, sizeof(char));
-
-    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-    if ((pAreas = fopen (sAreas, "r")) == NULL) {
-	WriteError("$Can't open %s", sAreas);
-	if (!do_quiet)
-	    printf("Can't open %s\n", sAreas);
+    if (LoadAreaRec(Area) == FALSE)
 	die(0);
-    }
-
-    fread(&areahdr, sizeof(areahdr), 1, pAreas);
-    if (fseek(pAreas, ((Area - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET)) {
-        WriteError("$Can't seek record %d in %s", Area, sAreas);
-        if (!do_quiet)
-            printf("Can't seek record %d in %s\n", Area, sAreas);
-        fclose(pAreas);
-        free(sAreas);
-        die(0);
-    }
-
-    if (fread(&area, areahdr.recsize, 1, pAreas) != 1) {
-        WriteError("$Can't read record %d in %s", Area, sAreas);
-        if (!do_quiet)
-            printf("Can't read record %d in %s\n", Area, sAreas);
-        fclose(pAreas);
-        free(sAreas);
-        die(0);
-    }
-
-    fclose(pAreas);
-    free(sAreas);
 
     if (area.Available && !area.CDrom) {
         temp   = calloc(PATH_MAX, sizeof(char));

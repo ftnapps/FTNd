@@ -119,20 +119,11 @@ int main(int argc, char **argv)
 				    do_annon = TRUE;
 				} else {
 				    Description = xstrcpy(argv[i]);
-				    if (argc > (i + 1)) {
-					i++;
-					cmd = xstrcat(cmd, (char *)" ");
-					cmd = xstrcat(cmd, argv[i]);
-					if (!strncasecmp(argv[i], "-a", 2)) {
-					    do_annon = TRUE;
-					}
-				    }
 				}
 			}
-		}
-		if (!strncasecmp(argv[i], "in", 2))
+		} else if (!strncasecmp(argv[i], "in", 2)) {
 			do_index = TRUE;
-		if (!strncasecmp(argv[i], "im", 2)) {
+		} else if (!strncasecmp(argv[i], "im", 2)) {
 		    if (argc > (i + 1)) {
 			do_import = TRUE;
 			i++;
@@ -140,8 +131,7 @@ int main(int argc, char **argv)
 			cmd = xstrcat(cmd, (char *)" ");
 			cmd = xstrcat(cmd, argv[i]);
 		    }
-		}
-		if (!strncasecmp(argv[i], "l", 1)) {
+		} else if (!strncasecmp(argv[i], "l", 1)) {
 			do_list  = TRUE;
 			if (argc > (i + 1)) {
 			    i++;
@@ -149,8 +139,7 @@ int main(int argc, char **argv)
 			    cmd = xstrcat(cmd, (char *)" ");
 			    cmd = xstrcat(cmd, argv[i]);
 			}
-		}
-		if (!strncasecmp(argv[i], "m", 1)) {
+		} else if (!strncasecmp(argv[i], "m", 1)) {
 		    if (argc > (i + 1)) {
 			i++;
 			Area = atoi(argv[i]);
@@ -170,20 +159,22 @@ int main(int argc, char **argv)
 			    }
 			}
 		    }
-		}
-		if (!strncasecmp(argv[i], "p", 1))
+		} else if (!strncasecmp(argv[i], "p", 1)) {
 			do_pack = TRUE;
-		if (!strncasecmp(argv[i], "c", 1))
+		} else if (!strncasecmp(argv[i], "c", 1)) {
 			do_check = TRUE;
-		if (!strncasecmp(argv[i], "k", 1))
+		} else if (!strncasecmp(argv[i], "k", 1)) {
 			do_kill = TRUE;
-		if (!strncasecmp(argv[i], "t", 1))
+		} else if (!strncasecmp(argv[i], "t", 1)) {
 			do_tobe = TRUE;
-		if (!strncasecmp(argv[i], "-q", 2))
+		} else if (!strncasecmp(argv[i], "-q", 2)) {
 			do_quiet = TRUE;
+		} else if (!strncasecmp(argv[i], "-a", 2)) {
+			do_annon = TRUE;
+		}
 	}
 
-	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_tobe))
+	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt || do_move || do_tobe))
 		Help();
 
 	ProgName();
