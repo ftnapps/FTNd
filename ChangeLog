@@ -42,9 +42,12 @@ v0.35.01	05-Jun-2002
 		When creating uplink area requests the from aka used is now
 		the aka defined in the group.
 		Removed several memory leaks again.
+		Fixed a bug when a news article was received with a header
+		line without a key value such as created by wrong configured
+		newsreaders.
 
 	mbfile:
-		Added -v commandline switch to supress virus checking for the
+		Added -v commandline switch to suppress virus checking for the
 		adopt and import commands. Use with great care.
 
 	mbsebbs:
@@ -242,7 +245,7 @@ v0.33.20        10-Feb-2002 - 04-Jun-2002
 		anymore.
 		When a converted email to news listserver message is processed
 		that has a header line starting with X-MS-, the headerline is
-		supressed because there is no key for this header. This looks
+		suppressed because there is no key for this header. This looks
 		like a new kind of M$ standard. mbnews crashed on this one.
 		Fixed a small problem in magic filename testing.
 		In rfc2ftn the Approved: header now becomes a kludge instead

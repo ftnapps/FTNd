@@ -120,6 +120,13 @@ rfcmsg *parsrfc(FILE *fp)
 					 */
 					cur->key = xstrcpy(buffer);
 					cur->val = xstrcpy((char *)" ");
+				} else if ((p=strchr(buffer,':')) && (p > buffer)) {
+					/*
+					 * Header line without information, don't add this one.
+					 */
+					Syslog('!', "Header line %s without key value", buffer);
+					cur->key = xstrcpy(buffer);
+					cur->val = xstrcpy((char *)" ");
 				} else {
 					Syslog('M', "Non-header line: \"%s\"",buffer);
 					cur->key = xstrcpy((char *)"X-Body-Start");

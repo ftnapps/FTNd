@@ -435,8 +435,13 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			return 1;
 		}
 
+//	Syslog('-', "1");
+
 		if (newsmode) {
+
+//	Syslog('-', "1a");
 			fprintf(ofp, "AREA:%s\n", msgs.Tag);
+//	Syslog('-', "1b");
 		} else {
 			if (fmsg->to->point != 0)
 				fprintf(ofp, "\001TOPT %d\n", fmsg->to->point);
@@ -445,6 +450,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			fprintf(ofp, "\001INTL %d:%d/%d %d:%d/%d\n", fmsg->to->zone, fmsg->to->net, fmsg->to->node,
 				fmsg->from->zone, fmsg->from->net, fmsg->from->node);
 		}
+//	Syslog('-', "1c");
 		fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 		if (fmsg->reply_s) 
 			fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
@@ -454,16 +460,17 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		fprintf(ofp, "\001TZUTC: %s\n", gmtoffset(Now));
 		fmsg->subj = oldsubj;
 		if ((p = hdr((char *)"X-FTN-REPLYADDR",msg))) {
-//			Syslog('n', "replyaddr 1 %s", p);
+//	Syslog('n', "replyaddr 1 %s", p);
 			hdrsize += 10+strlen(p);
 			fprintf(ofp,"\1REPLYADDR:");
 			kludgewrite(p,ofp);
 		} else if (replyaddr) {
-//			Syslog('n', "replyaddr 2");
+//	Syslog('n', "replyaddr 2");
 			hdrsize += 10+strlen(replyaddr);
 			fprintf(ofp,"\1REPLYADDR: ");
 			kludgewrite(replyaddr,ofp);
 		}
+//	Syslog('-', "2");
 		if ((p = hdr((char *)"X-FTN-REPLYTO",msg))) {
 			hdrsize += 8+strlen(p);
 			fprintf(ofp,"\1REPLYTO:");
@@ -506,7 +513,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 				fprintf(ofp, "\001PID: MBSE-FIDO %s\n", VERSION);
 			}
 		}
-
+//    Syslog('-', "3");
 		hdrsize += 8 + strlen(getchrs(outcode));
 		fprintf(ofp, "\001CHRS: %s\n", getchrs(outcode));
 		if (html_message) {
@@ -597,6 +604,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 					kludgewrite(tmp->val,ofp);
 				}
 
+//	    Syslog('-', "4");
 			/*
 			 *  Add the Received: header from this system to the mesage.
 			 */
@@ -618,7 +626,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 					kludgewrite(hdrconv(tmp->val, incode, outcode),ofp);
 				}
 			}
-
+// Syslog('-', "5");  
 			rfcheaders=0;
 			for (tmp=msg;tmp;tmp=tmp->next) {
 				if ((needputrfc(tmp) > 1)) {
@@ -644,6 +652,8 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 //			free(replyaddr); /* Gives SIGSEGV */
 			replyaddr = NULL;
 		}
+
+//	Syslog('-', "6");
 		if (needsplit) {
 			fprintf(ofp," * Continuation %d of a split message *\n\n", splitpart);
 			needsplit = FALSE;

@@ -44,9 +44,6 @@ mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
-	U: AreaMgr uplink mails use the default best aka instead of the aka
-	   defined in that specific group.
-
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
