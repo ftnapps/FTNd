@@ -162,6 +162,8 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
 		tag = strtok(buf, "\t \r\n\0");
 		p = strtok(NULL, "\r\n\0");
 		desc = p;
+		while ((*desc == ' ') || (*desc == '\t'))
+		    desc++;
 		if (strcmp(tag, Area) == 0) {
 		    Syslog('f', "Found tag \"%s\" desc \"%s\"", tag, desc);
 		    Found = TRUE;
