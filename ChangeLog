@@ -1,12 +1,14 @@
 $Id$
 
 
-v0.39.0		09-Oct-2003
+v0.39.1		22-Oct-2003
+
+
+v0.39.0		09-Oct-2003 - 22-Oct-2003
 
 	general:
 		Added menu setup switches for doors: Singe user door and
 		hidden from lists.
-		Added configure settings for zlib, disabled for endusers.
 
 	mbsebbs:
 		The whoson list displays the doorname if set in the menus.
@@ -27,6 +29,10 @@ v0.39.0		09-Oct-2003
 		Changed signal handlers to better detect broken TCP links.
 		Added logging to show compressed bytes and switched to compress
 		level 9 compression instead of 6.
+		Prepared hydra for large compressed data blocks. In the next
+		developmement version we will actually start using these
+		large blocks, this change is to give all beta testers the
+		chance to upgrade.
 
 	lang:
 		Added language prompt 20.

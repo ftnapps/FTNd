@@ -75,8 +75,13 @@
 #define XOFF	     ('S' - '@')	/* Ctrl-S (^S) xmit-off character    */
 #endif
 #define H_DLE	     ('X' - '@')	/* Ctrl-X (^X) HYDRA DataLinkEscape  */
+#define H_UNCBLKLEN  2048		/* Max. uncompressed blocklen	     */
 #define H_MINBLKLEN    64		/* Min. length of a HYDRA data block */
-#define H_MAXBLKLEN  2048		/* Max. length of a HYDRA data block */
+#define H_MAXBLKLEN  8192		/* Max. length of a HYDRA data block */
+					/* NB: official is 2048, here we use */
+					/* this to prepare for receive large */
+					/* compressed blocks. Uncompressed   */
+					/* we still use 2048 maximum.	     */
 #define H_OVERHEAD	8		/* Max. no. control bytes in a pkt   */
 #define H_MAXPKTLEN  ((H_MAXBLKLEN + H_OVERHEAD + 5) * 3)     /* Encoded pkt */
 #define H_BUFLEN     (H_MAXPKTLEN + 16) /* Buffer sizes: max.enc.pkt + slack */

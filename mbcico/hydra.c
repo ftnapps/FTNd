@@ -1064,10 +1064,11 @@ int hydra_batch(int role, file_list *to_send)
 			txlen += 4;
 			hytxpkt(HPKT_DATA, txbuf, txlen);
 #endif
+// FIXME: here to decide in PLZ mode to use larger blocks.
 			if (goodbytes > goodneeded) {
 			    blksize *= 2;
-			    if (blksize > H_MAXBLKLEN) {
-				blksize = H_MAXBLKLEN;
+			    if (blksize > H_UNCBLKLEN) {
+				blksize = H_UNCBLKLEN;
 			    }
 			}
 		    }
