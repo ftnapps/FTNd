@@ -339,7 +339,7 @@ JN|Bekijk dit BBS? [J/n]:
 |Totaal aantal berichten gevonden:
 |Onbekend menu kommando!
 |Bewaren ...
-|MBSE BBS Spreuken kunne willekeurig verschijnen.
+|MBSE BBS Spreuken kunnen willekeurig verschijnen.
 |Obscene en racistische opmerkingen worden verwijderd!!
 |Geef hieronder Uw spreuk. U heeft 75 karakters.
 |Spreuk toegevoegd
@@ -470,3 +470,8 @@ JN|Bestand meesturen [j/N]:
 |trash    - De vuilnisbak, oude email.
 |Gebied # 
 |minuten.
+|Schermgestuurde Tekstverwerker sneltoetsen ingesteld als Emacs
+|Schermgestuurde Tekstverwerker sneltoetsen ingesteld als Wordstar
+|Geef adres, maximaal 3 regels (alleen zichtbaar voor de sysop):
+|U moet hier Uw adres opgeven
+|Oude adres:

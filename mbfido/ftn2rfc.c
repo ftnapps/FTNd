@@ -2,6 +2,7 @@
  *
  * File ..................: mbfido/ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
+ * Last modification date : 29-Oct-2001
  * Last modification date : 30-Oct-2001
  *
  *****************************************************************************

@@ -69,7 +69,7 @@ YN|Would you like Hot-Keyed menus? [Y/n]:
 |Login Name : 
 |Password   : 
 |not displayed
-|Login to the BBS with the above name
+|New user registration completed.
 |Could not find 
 |Old Location: 
 |Please enter a longer location (min 
@@ -470,3 +470,8 @@ YN|Attach file [y/N]:
 |trash    - Trashcan, your old email
 |Area # 
 |minutes.
+|Fullscreen Editor shortcut keys set to Emacs
+|Fullscreen Editor shortcut keys set to Wordstar
+|Your address, maximum 3 lines (only visible for the sysop):
+|You need to enter your address here
+|Old address:

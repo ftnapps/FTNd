@@ -2,9 +2,8 @@
  *
  * File ..................: mbmon/mbmon.c
  * Purpose ...............: Monitor Program 
- * Last modification date : 11-Aug-2001
- * Todo ..................: Trace logfiles
- *                          Chat with user via server
+ * Last modification date : 26-Oct-2001
+ * Todo ..................: Chat with user via server
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -35,10 +34,7 @@
 #include "common.h"
 #include "mutil.h"
 
-
-extern char	*version;
-extern char	*copyright;
-
+#define Copyright  "Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
 
 
 static void die(int onsig)
@@ -61,7 +57,7 @@ void ShowSysinfo(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "5.   SHOW BBS SYSTEM INFO");
+	mvprintw( 5, 6, "4.   SHOW BBS SYSTEM INFO");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.   Total calls");
 	mvprintw( 8, 6, "2.   Pots calls");
@@ -104,9 +100,9 @@ void ShowLastcaller(void)
 	
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 6, "6.    SHOW BBS LASTCALLERS");
+	mvprintw( 4, 6, "5.    SHOW BBS LASTCALLERS");
 	set_color(YELLOW, RED);
-	mvprintw( 6, 1, "Nr Username       Location     Level Device Time   Mins Calls Speed     Actions");
+	mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
 	set_color(CYAN, BLACK);
 	center_addstr(LINES - 4, (char *)"Press any key");
 	IsDoing("View Lastcallers");
@@ -126,7 +122,7 @@ void ShowLastcaller(void)
 		if (records) {
 			y = 7;
 			if (records > 10)
-				o = records -10;
+				o = records - 10;
 			else
 				o = 1;
 			set_color(CYAN, BLACK);
@@ -136,16 +132,23 @@ void ShowLastcaller(void)
 					sprintf(buf, "%s", socket_receive());
 					if (strncmp(buf, "100:9,", 6) == 0) {
 						cnt = strtok(buf, ",");
+						if (records > 10) {
+						    /*
+						     * Only clear line if there's a change to scroll
+						     */
+						    locate(y, 1);
+						    clrtoeol();
+						}
 						mvprintw(y, 1, "%2d", i);
 						mvprintw(y, 4, "%s", strtok(NULL, ","));
 						mvprintw(y,19, "%s", strtok(NULL, ","));
 						mvprintw(y,32, "%s", strtok(NULL, ","));
 						mvprintw(y,38, "%s", strtok(NULL, ","));
-						mvprintw(y,45, "%s", str_time(atoi(strtok(NULL, ","))));
-						mvprintw(y,52, "%s", strtok(NULL, ","));
-						mvprintw(y,57, "%s", strtok(NULL, ","));
-						mvprintw(y,63, "%s", strtok(NULL, ","));
-						mvprintw(y,73, "%s", strtok(NULL, ";"));
+						mvprintw(y,45, "%s", strtok(NULL, ","));
+						mvprintw(y,51, "%s", strtok(NULL, ","));
+						mvprintw(y,56, "%s", strtok(NULL, ","));
+						mvprintw(y,62, "%s", strtok(NULL, ","));
+						mvprintw(y,72, "%s", strtok(NULL, ";"));
 						y++;
 					}
 				}
@@ -364,22 +367,37 @@ void disk_stat(void)
 
 void soft_info(void)
 {
+	char	temp[81];
+
 	clr_index();
 	set_color(YELLOW, BLACK);
 #ifdef __linux__
-	center_addstr( 7, (char *)"MBSE BBS (Linux)");
+	center_addstr( 6, (char *)"MBSE BBS (Linux)");
 #elif __FreeBSD__
-	center_addstr( 7, (char *)"MBSE BBS (FreeBSD)");
+	center_addstr( 6, (char *)"MBSE BBS (FreeBSD)");
 #else
-	center_addstr( 7, (char *)"MBSE BBS (Unknown)");
+	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
 #endif
 	set_color(WHITE, BLACK);
-	center_addstr( 9, (char *)"(c) Michiel Broek");
+	center_addstr( 8, (char *)Copyright);
 	set_color(YELLOW, BLACK);
-	center_addstr(11, (char *)"Made in the Netherlands");
+	center_addstr(10, (char *)"Made in the Netherlands.");
+	set_color(WHITE, BLACK);
+#ifdef __GLIBC__
+	sprintf(temp, "Compiled on glibc v%d.%d", __GLIBC__, __GLIBC_MINOR__);
+#else
+#ifdef __GNU_LIBRARY__
+	sprintf(temp, "Compiled on libc v%d", __GNU_LIBRARY__);
+#else
+	sprintf(temp, "Compiled on unknown library");
+#endif
+#endif
+	center_addstr(12, temp);
+	set_color(LIGHTCYAN, BLACK);
+	center_addstr(14, (char *)"http://mbse.sourceforge.net or 2:280/2802");
 	set_color(LIGHTGREEN, BLACK);
-	center_addstr(LINES -8, (char *)"This is free software; released under the terms of the GNU General");
-	center_addstr(LINES -7, (char *)"Public License as published by the Free Software Foundation.");
+	center_addstr(LINES -7, (char *)"This is free software; released under the terms of the GNU General");
+	center_addstr(LINES -6, (char *)"Public License as published by the Free Software Foundation.");
 	set_color(CYAN, BLACK);
 	center_addstr(LINES -4, (char *)"Press any key");
 	readkey(LINES - 4, COLS / 2 + 8, LIGHTGRAY, BLACK);
@@ -424,12 +442,11 @@ int main(int argc, char *argv[])
 		mvprintw( 7, 6, "1.    View Server Clients");
 		mvprintw( 8, 6, "2.    View Server Statistics");
 		mvprintw( 9, 6, "3.    View Filesystem Usage");
-		mvprintw(10, 6, "4.    View System Logfiles");
-		mvprintw(11, 6, "5.    View BBS System Information");
-		mvprintw(12, 6, "6.    View BBS Lastcallers List");
-		mvprintw(13, 6, "7.    View Software Information");
+		mvprintw(10, 6, "4.    View BBS System Information");
+		mvprintw(11, 6, "5.    View BBS Lastcallers List");
+		mvprintw(12, 6, "6.    View Software Information");
 
-		switch(select_menu(7)) {
+		switch(select_menu(6)) {
 		case 0:
 			die(0);
 			break;
@@ -442,13 +459,13 @@ int main(int argc, char *argv[])
 		case 3:
 			disk_stat();
 			break;
-		case 5:
+		case 4:
 			ShowSysinfo();
 			break;
-		case 6:
+		case 5:
 			ShowLastcaller();
 			break;
-		case 7:
+		case 6:
 			soft_info();
 			break;
 		}

@@ -470,3 +470,8 @@
 469	email.c				|trash    - Trashcan, your old email
 470	email.c				|Area # 
 471	funcs.c				|minutes.
+472	change.c			|Fullscreen Editor shortcut keys set to Emacs
+473	change.c			|Fullscreen Editor shortcut keys set to Wordstar
+474	newuser.c change.c		|Your address, maximum 3 lines (only visible for the sysop):
+475	newuser.c change.c		|You need to enter your address here
+476	change.c			|Old address:

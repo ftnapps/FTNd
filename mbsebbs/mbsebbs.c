@@ -2,7 +2,7 @@
  *
  * File ..................: mbsebbs/mbsebbs.c
  * Purpose ...............: Main startup
- * Last modification date : 22-Oct-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -197,9 +197,9 @@ int main(int argc, char **argv)
 	clear();
 	DisplayLogo();
 
-	colour(14, 0);
+	colour(YELLOW, BLACK);
 	printf("MBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
-	colour(15, 0);
+	colour(WHITE, BLACK);
 	printf("%s\n\n", Copyright);
  
 	/*
@@ -230,9 +230,9 @@ int main(int argc, char **argv)
 		/* 
 		 * Ask whether to display Connect String 
 		 */
-		if(CFG.iConnectString) {
+		if (CFG.iConnectString) {
 			/* Connected on port */
-			colour(3, 0);
+			colour(CYAN, BLACK);
 			printf("%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
 			/* on */
 			printf("%s %s\n", (char *) Language(135), ctime(&ltime));
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 	}
 
 	sprintf(sMailbox, "mailbox");
-	colour(7, 0);
+	colour(LIGHTGRAY, BLACK);
 	Passwd = calloc(16, sizeof(char));
 	user();
 	return 0;

@@ -69,7 +69,7 @@ SN|¨Quieres men£s r pidos? [S/n]:
 |Nombre de Login : 
 |Password        : 
 |no visualizable
-|Puedes entrar en la BBS con el nombre anterior 
+|New user registration completed.
 |No encuentro 
 |Localidad anterior : 
 |Localidad demasiado corta: (min. 
@@ -470,3 +470,8 @@ YN|Adjuntar fichero [s/N]:
 |papelera - Papelera, Email borrado
 |Area # 
 |minutos.
+|Fullscreen Editor shortcut keys set to Emacs
+|Fullscreen Editor shortcut keys set to Wordstar
+|Your address, maximum 3 lines (only visible for the sysop):
+|You need to enter your address here
+|Old address:

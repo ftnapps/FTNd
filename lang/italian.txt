@@ -69,7 +69,7 @@ SN|Vuoi abilitare le Hot-Key? [S/n]:
 |Nome utente : 
 |Password    : 
 |riservato
-|Loggati nella BBS usando il nome utente sopra riportato.
+|New user registration completed.
 |Non trovo 
 |Vecchia Localita': 
 |Per favore inserisci un nome piu' lungo (almeno 
@@ -470,3 +470,8 @@ SN|Allega file [s/N]:
 |trash    - Cestino, la tua posta vecchia
 |Area # 
 |minuti.
+|Fullscreen Editor shortcut keys set to Emacs
+|Fullscreen Editor shortcut keys set to Wordstar
+|Your address, maximum 3 lines (only visible for the sysop):
+|You need to enter your address here
+|Old address:

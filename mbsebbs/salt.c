@@ -41,6 +41,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef TIME_WITH_SYS_TIME
+#include <time.h>
+#endif
 #include <sys/time.h>
 #include "rad64.h"
 

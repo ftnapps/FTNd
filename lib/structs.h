@@ -2,7 +2,7 @@
  *
  * File ..................: structs.h
  * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 24-Oct-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -343,10 +343,10 @@ struct	userrec {
 	int		iTimeUsed;              /* Time used today          */
 	int		iScreenLen;             /* User Screen Length       */
 	time_t		tLastPwdChange;         /* Date last password chg   */
-	unsigned	iHangUps;               /* Total improper hangups   */
+	unsigned	xHangUps;
 	long		Credit;			/* Users credit		    */
 	int		Paged;			/* Times paged today	    */
-	int		OfflineFmt;		/* Offline Reader format    */
+	int		xOfflineFmt;
 	int		LastPktNum;		/* Todays Last packet number*/
 	char		Archiver[6];		/* Archiver to use	    */
 
@@ -571,6 +571,7 @@ struct  lastcallers {
 	unsigned	Wrote	   : 1;		/* If wrote a message	    */
 	unsigned	Chat	   : 1;		/* If did chat		    */
 	unsigned	Olr	   : 1;		/* If used Offline Reader   */
+	unsigned	Door	   : 1;		/* If used a Door	    */
 	char		Location[28];		/* User Location            */
 };
 
