@@ -255,7 +255,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if ((hdr((char *)"X-PGP-Signed",msg)))
 	pgpsigned = TRUE;
     if (pgpsigned)
-	Syslog('n', "pgpsigned = %s", pgpsigned ? "True":"False");
+	Syslog('m', "pgpsigned = %s", pgpsigned ? "True":"False");
 
     q = hdr((char *)"Content-Transfer-Encoding",msg);
     if (q) 
@@ -298,14 +298,14 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    removemime = TRUE;
     }
     if (removemime || qp_or_base64 || html_message)
-	Syslog('n', "removemime=%s, qp_or_base64 = %d, html_message=%s", removemime ? "True":"False", qp_or_base64,
+	Syslog('m', "removemime=%s, qp_or_base64 = %d, html_message=%s", removemime ? "True":"False", qp_or_base64,
 			html_message ? "True":"False");
 
     if ((p = hdr((char *)"Message-ID",msg))) {
 	if (!removemsgid)
 	    removemsgid = chkftnmsgid(p);
     }
-    Syslog('n', "removemsgid = %s", removemsgid ? "True":"False");
+    Syslog('m', "removemsgid = %s", removemsgid ? "True":"False");
 
     if ((!removeref) && (p = hdr((char *)"References",msg))) {
 	p = xstrcpy(p);
@@ -315,12 +315,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	free(p);
     }
     if (removeref)
-	Syslog('n', "removeref = %s", removeref ? "True":"False");
+	Syslog('m', "removeref = %s", removeref ? "True":"False");
 
     if ((p = hdr((char *)"Supersedes",msg)))
 	removesupersedes = chkftnmsgid(p);
     if (removesupersedes)
-	Syslog('n', "removesupersedes = %s", removesupersedes ? "True":"False");
+	Syslog('m', "removesupersedes = %s", removesupersedes ? "True":"False");
 
     if ((p = hdr((char *)"Approved",msg))) {
 	while (*p && isspace(*p)) 
@@ -333,7 +333,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	    *q='\n';
     }
     if (removeapproved)
-	Syslog('n', "removeapproved = %s", removeapproved ? "True":"False");
+	Syslog('m', "removeapproved = %s", removeapproved ? "True":"False");
 
     if ((p = hdr((char *)"Reply-To",msg))) {
 	removereplyto = FALSE;
@@ -349,7 +349,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 		removereplyto = TRUE;
 	}
     }
-    Syslog('n', "removereplyto = %s", removereplyto ? "True":"False");
+    Syslog('m', "removereplyto = %s", removereplyto ? "True":"False");
 
     if ((p = hdr((char *)"Return-Receipt-To",msg))) {
 	removereturnto = FALSE;
@@ -367,7 +367,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	}
     }
     if (!removereturnto)
-	Syslog('n', "removereturnto = %s", removereturnto ? "True":"False");
+	Syslog('m', "removereturnto = %s", removereturnto ? "True":"False");
 
     p = ascfnode(fmsg->from,0x1f);
     i = 79-11-3-strlen(p);
@@ -384,12 +384,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
            al long as X-FTN-Origin is used now */
 
 	p = ascfnode(fmsg->from,0x0f);
-	Syslog('n', "checkorigin 3");
+	Syslog('m', "checkorigin 3");
 	i = 79-11-3-strlen(p);
 	tinyorigin = TRUE;
     }
     if (tinyorigin)
-	Syslog('n', "tinyorigin = %s", tinyorigin ? "True":"False");
+	Syslog('m', "tinyorigin = %s", tinyorigin ? "True":"False");
 
     if ((fmsg->origin) && (strlen(fmsg->origin) > i))
 	fmsg->origin[i]='\0';
@@ -403,7 +403,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
     if (fmsg->to)
 	hdrsize += (fmsg->to->name)?strlen(fmsg->to->name):0;
     do {
-	Syslog('n', "split loop, splitpart = %d", splitpart);
+	Syslog('m', "split loop, splitpart = %d", splitpart);
 	datasize = 0;
 
 	if (splitpart) {
@@ -804,17 +804,17 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	fflush(ofp);
 	rewind(ofp);
 
-	Syslog('n', "========== Fido start");
+	Syslog('m', "========== Fido start");
 	while (fgets(temp, 4096, ofp) != NULL) {
 	    /*
 	     *  Only log kludges, skip the body
 	     */
 	    if ((temp[0] == '\001') || !strncmp(temp, "AREA:", 5) || !strncmp(temp, "SEEN-BY", 7)) {
 		Striplf(temp);
-		Syslogp('n', printable(temp, 0));
+		Syslogp('m', printable(temp, 0));
 	    }
 	}
-	Syslog('n', "========== Fido end");
+	Syslog('m', "========== Fido end");
 
 	if (newsmode)
 	    rc = postecho(NULL, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, fmsg->flags, 0, ofp, FALSE);

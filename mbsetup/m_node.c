@@ -796,12 +796,12 @@ void SessionScreen(void)
     mvprintw(15, 6, "9.   No EMSI");
     mvprintw(16, 6, "10.  No YooHoo/2U2");
     mvprintw(17, 6, "11.  No Filerequest");
-    mvprintw(18, 6, "12.  Don't call");
-    mvprintw(19, 6, "13.  8.3 names");
 
-    mvprintw(14,41, "14.  No Zmodem");
-    mvprintw(15,41, "15.  No Zedzap");
-    mvprintw(16,41, "16.  No Hydra");
+    mvprintw(13,41, "12.  Don't call");
+    mvprintw(14,41, "13.  8.3 names");
+    mvprintw(15,41, "14.  No Zmodem");
+    mvprintw(16,41, "15.  No Zedzap");
+    mvprintw(17,41, "16.  No Hydra");
 }
 
 
@@ -824,12 +824,12 @@ void SessionEdit(void)
 	show_bool(15,26,    nodes.NoEMSI);
 	show_bool(16,26,    nodes.NoWaZOO);
 	show_bool(17,26,    nodes.NoFreqs);
-	show_bool(18,26,    nodes.NoCall);
-	show_bool(19,26,    nodes.FNC);
 
-	show_bool(14,61,    nodes.NoZmodem);
-	show_bool(15,61,    nodes.NoZedzap);
-	show_bool(16,61,    nodes.NoHydra);
+	show_bool(13,61,    nodes.NoCall);
+	show_bool(14,61,    nodes.FNC);
+	show_bool(15,61,    nodes.NoZmodem);
+	show_bool(16,61,    nodes.NoZedzap);
+	show_bool(17,61,    nodes.NoHydra);
 
 	switch(select_menu(16)) {
 	case 0: return;
@@ -846,12 +846,12 @@ void SessionEdit(void)
 	case 9: E_BOOL(15,26,    nodes.NoEMSI,      "Disable ^EMSI handshake^ with this node")
 	case 10:E_BOOL(16,26,    nodes.NoWaZOO,     "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")
 	case 11:E_BOOL(17,26,    nodes.NoFreqs,     "Disallow ^file requests^ from this node")
-	case 12:E_BOOL(18,26,    nodes.NoCall,      "Don't ^call^ this node")
-	case 13:E_BOOL(19,26,    nodes.FNC,         "Node needs ^DOS 8.3^ filenames")
 
-	case 14:E_BOOL(14,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
-	case 15:E_BOOL(15,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
-	case 16:E_BOOL(16,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
+	case 12:E_BOOL(13,61,    nodes.NoCall,      "Don't ^call^ this node")
+	case 13:E_BOOL(14,61,    nodes.FNC,         "Node needs ^DOS 8.3^ filenames")
+	case 14:E_BOOL(15,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
+	case 15:E_BOOL(16,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
+	case 16:E_BOOL(17,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
 	}
     }
 }

@@ -118,7 +118,7 @@ static int getkwd(char **dest)
     (*tmpm)->name = xstrcpy(v);
     tmp = strtoul(p, NULL, 0);
     (*tmpm)->value = tmp;
-//  Syslog('s', "getkwd: %s(%d): \"%s\" \"%s\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name, (*tmpm)->value);
+//  Syslog('n', "getkwd: %s(%d): \"%s\" \"%s\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name, (*tmpm)->value);
     
     return 0;
 }
@@ -162,7 +162,7 @@ static int getmdm(char **dest)
     tmp2 = strtoul(q, NULL, 0);
     (*tmpm)->mask = tmp1;
     (*tmpm)->value = tmp2;
-//  Syslog('s', "getmdm: %s(%d): \"%s\" \"%s\" \"%08x\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), 
+//  Syslog('n', "getmdm: %s(%d): \"%s\" \"%s\" \"%08x\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), 
 //	    (*tmpm)->name, (*tmpm)->mask, (*tmpm)->value);
 
     return 0;
@@ -186,7 +186,7 @@ static int getarr(char **dest)
     (*tmpm) = (nodelist_array *) xmalloc(sizeof(nodelist_array));
     (*tmpm)->next = NULL;
     (*tmpm)->name = xstrcpy(v);
-//  Syslog('s', "getarr: %s(%d): \"%s\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name);
+//  Syslog('n', "getarr: %s(%d): \"%s\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name);
     return 0;
 }
 
@@ -217,7 +217,7 @@ static int getdom(char **dest)
     tmp = strtod(v, NULL);
     (*tmpm)->zone = tmp;
     (*tmpm)->name = xstrcpy(p);
-//  Syslog('s', "getdom: %s(%d): \"%s\" \"%d\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->zone, (*tmpm)->name);
+//  Syslog('n', "getdom: %s(%d): \"%s\" \"%d\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->zone, (*tmpm)->name);
 
     return 0;
 }
@@ -260,7 +260,7 @@ static int getsrv(char **dest)
     (*tmpm)->service = xstrcpy(p);
     tmp = strtoul(q, NULL, 0);
     (*tmpm)->port = tmp;
-//  Syslog('s', "getsrv: %s(%d): \"%s\" \"%s\" \"%s\" \"%d\"", nlpath, linecnt, MBSE_SS(k),
+//  Syslog('n', "getsrv: %s(%d): \"%s\" \"%s\" \"%s\" \"%d\"", nlpath, linecnt, MBSE_SS(k),
 //	    (*tmpm)->flag, (*tmpm)->service, (*tmpm)->port);
     return 0;
 }
@@ -357,7 +357,7 @@ void deinitnl(void)
     if (!nlinitdone)
 	return;
 
-    Syslog('s', "De-init nodelists");
+    Syslog('n', "De-init nodelists");
 
     tidy_nl_flag(&nl_online);
     tidy_nl_flag(&nl_request);
@@ -370,7 +370,7 @@ void deinitnl(void)
     tidy_nl_domsuf(&nl_domsuffix);
     tidy_nl_service(&nl_service);
 
-    Syslog('s', "De-init done");
+    Syslog('n', "De-init done");
     nlinitdone = FALSE;
 }
 
@@ -537,8 +537,8 @@ int initnl(void)
     }
 
     free(nlpath);
-    Syslog('s', "mypots %08x myisdn %08x mytcpip %08x", mypots, myisdn, mytcpip);
-    Syslog('s', "Nodelists initialize complete, rc=%d", rc);
+    Syslog('n', "mypots %08x myisdn %08x mytcpip %08x", mypots, myisdn, mytcpip);
+    Syslog('n', "Nodelists initialize complete, rc=%d", rc);
     nlinitdone = TRUE;
     return rc;
 }
@@ -567,7 +567,7 @@ node *getnlent(faddr *addr)
     static char		    buf[2048], ebuf[2048], *p, *q, tbuf[256];
     struct _ixentry	    xaddr;
     int			    i, Found = FALSE, ixflag, stdflag, ndrecord = FALSE;
-    char		    *mydomain, *path;
+    char		    *mydomain, *path, *r;
     struct _nlfil	    fdx;
     struct _nlidx	    ndx;
     long		    lowest, highest, current;
@@ -577,9 +577,10 @@ node *getnlent(faddr *addr)
     nodelist_flag	    **tmpf;
     nodelist_service	    **tmps;
     nodelist_array	    **tmpa;
+    nodelist_domsuf	    **tmpd;
     unsigned long	    tport = 0;
     
-    Syslog('s', "getnlent: %s", ascfnode(addr,0xff));
+    Syslog('n', "getnlent: %s", ascfnode(addr,0xff));
 
     mydomain = xstrcpy(CFG.aka[0].domain);
     if (mydomain == NULL) 
@@ -705,7 +706,7 @@ node *getnlent(faddr *addr)
 	fclose(fp);
 	goto retdummy;
     }
-    Syslog('s', "getnlent: %s", buf);
+    Syslog('n', "getnlent: %s", buf);
 
     /*
      * Load noderecord if this node has one, if there is one then
@@ -722,7 +723,7 @@ node *getnlent(faddr *addr)
 		if ((addr->zone == nd.Aka[i].zone) && (addr->net == nd.Aka[i].net) &&
 		    (addr->node == nd.Aka[i].node) && (addr->point == nd.Aka[i].point)) {
 		    ndrecord = TRUE;
-		    Syslog('s', "getnlent: node record is present");
+		    Syslog('n', "getnlent: node record is present");
 		    break;
 		}
 	    }
@@ -770,7 +771,7 @@ node *getnlent(faddr *addr)
     if ((q=strchr(p,','))) 
 	*q++ = '\0';
     if (ndrecord && strlen(nd.Nl_hostname)) {
-	Syslog('s', "getnlent: system name override with %s", nd.Nl_hostname);
+	Syslog('n', "getnlent: system name override with %s", nd.Nl_hostname);
 	nodebuf.name = nd.Nl_hostname;
     } else
 	nodebuf.name = p;
@@ -830,7 +831,7 @@ node *getnlent(faddr *addr)
      * Process the nodelist flags.
      */
     if (ndrecord && strlen(nd.Nl_flags)) {
-	Syslog('s', "getnlent: flags override %s", nd.Nl_flags);
+	Syslog('n', "getnlent: flags override %s", nd.Nl_flags);
 	q = nd.Nl_flags;
     }
     ixflag = 0;
@@ -893,9 +894,8 @@ node *getnlent(faddr *addr)
 	    break;
 	if (strncmp(ebuf, (char *)";E", 2))
 	    break;
-	Syslog('s', "ESLF: \"%s\"", printable(ebuf, 0));
+	Syslog('n', "ESLF: \"%s\"", printable(ebuf, 0));
     }
-    fclose(fp);
 
     /*
      * Build the connection URL
@@ -903,15 +903,16 @@ node *getnlent(faddr *addr)
      * If the node has some IP flags and we allow TCP, then search the best protocol.
      */
     if (nodebuf.iflags & mytcpip) {
-	Syslog('s', "node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
+	memset(&tbuf, 0, sizeof(tbuf));
+	Syslog('n', "node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
 	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
 	    if ((*tmpm)->mask & nodebuf.iflags) {
-		Syslog('s', "Setting %s", (*tmpm)->name);
+		Syslog('n', "Setting %s", (*tmpm)->name);
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
 			sprintf(tbuf, "%s", (*tmps)->service);
 			tport = (*tmps)->port;
-			Syslog('s', "Setting %s %d", (*tmps)->service, (*tmps)->port);
+			Syslog('n', "Setting %s %d", (*tmps)->service, (*tmps)->port);
 		    }
 		}
 	    }
@@ -929,44 +930,132 @@ node *getnlent(faddr *addr)
 	 */
 	memset(&tbuf, 0, sizeof(tbuf));
 	if (ndrecord && strlen(nd.Nl_hostname)) {
-	    Syslog('s', "Using override %s for FQDN", nd.Nl_hostname);
+	    Syslog('n', "Using override %s for FQDN", nd.Nl_hostname);
 	    sprintf(tbuf, nodebuf.name);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	} else {
 	    for (tmpa = &nl_search; *tmpa; tmpa=&((*tmpa)->next)) {
-		Syslog('s', "Search FQDN method %s", (*tmpa)->name);
+		Syslog('n', "Search FQDN method %s", (*tmpa)->name);
 		if (strcasecmp((*tmpa)->name, "field3") == 0) {
 		    sprintf(tbuf, nodebuf.name);
 		    if (strchr(tbuf, '.')) {
 			/*
 			 * Okay, there are dots, this can be a FQDN or IP address.
 			 */
-			Syslog('s', "Using field3 \"%s\"", tbuf);
+			Syslog('n', "Using field3 \"%s\"", tbuf);
 			nodebuf.url = xstrcat(nodebuf.url, tbuf);
 			break;
+		    } else {
+			memset(&tbuf, 0, sizeof(tbuf));
+			Syslog('n', "Field3 is not usable");
 		    }
 		} else if (strcasecmp((*tmpa)->name, "field6") == 0) {
 		    if (nodebuf.phone && strncmp(nodebuf.phone, "000-", 4) == 0) {
-			Syslog('s', "Found 000- prefix");
+			Syslog('n', "Found 000- prefix");
 			sprintf(tbuf, "%s", nodebuf.phone+4);
 			for (i = 0; i < strlen(tbuf); i++)
 			    if (tbuf[i] == '-')
 				tbuf[i] = '.';
-			Syslog('s', "Using field6 \"%s\"", tbuf);
+			Syslog('n', "Using field6 \"%s\"", tbuf);
 			nodebuf.url = xstrcat(nodebuf.url, tbuf);
 			break;
+		    } else {
+			memset(&tbuf, 0, sizeof(tbuf));
+			Syslog('n', "Field6 is not usable");
 		    }
+		} else if (strcasecmp((*tmpa)->name, "field8") == 0) {
+		    /*
+		     * Read nodelist line again in another buffer, the original
+		     * buffer is divided into pieces by all previous actions.
+		     */
+		    memset(&tbuf, 0, sizeof(tbuf));
+		    if (fseek(fp, ndx.offset, SEEK_SET) != 0) {
+			WriteError("$Seek failed for nodelist entry");
+			fclose(fp);
+			goto retdummy;
+		    }
+		    if (fgets(ebuf, sizeof(ebuf)-1, fp) == NULL) {
+			WriteError("$fgets failed for nodelist entry");
+			fclose(fp);
+			goto retdummy;
+		    }
+		    if (*(p = ebuf + strlen(ebuf) -1) == '\n')
+			*p = '\0';
+		    if (*(p = ebuf + strlen(ebuf) -1) == '\r')
+			*p = '\0';
+		    p = ebuf;
+		    /*
+		     * Shift to field 8
+		     */
+		    for (i = 0; i < 7; i++) {
+			if ((q = strchr(p,',')))
+			    *q++ = '\0';
+			p = q;
+			if (p == NULL) {
+			    fclose(fp);
+			    goto badsyntax;
+			}
+		    }
+		    for (p = q; p; p = q) {
+			if ((q = strchr(p, ',')))
+		            *q++ = '\0';
+			Syslog('n', "\"%s\"", MBSE_SS(p));
+			if ((r = strchr(p, ':'))) {
+			    r++;
+			    /*
+			     * If there is a user@domain then strip the userpart.
+			     */
+			    if (strchr(r, '@')) {
+				r = strchr(r, '@');
+				r++;
+			    }
+			    if (*r == '*') {
+				Syslog('n', "Possible default domain marking \"%s\"", MBSE_SS(r));
+				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
+				    if ((*tmpd)->zone == nodebuf.addr.zone) {
+					if (*r++ == '\0')
+					    sprintf(tbuf, "f%d.n%d.z%d.%s", nodebuf.addr.node, nodebuf.addr.net,
+						    nodebuf.addr.zone, (*tmpd)->name);
+					else
+					    sprintf(tbuf, "f%d.n%d.z%d.%s%s", nodebuf.addr.node, nodebuf.addr.net,
+						    nodebuf.addr.zone, (*tmpd)->name, r);
+					Syslog('n', "Will try default domain \"%s\"", tbuf);
+					nodebuf.url = xstrcat(nodebuf.url, tbuf);
+					break;
+				    }
+				}
+				if (strlen(tbuf))
+				    break;
+				Syslog('n', "No matching default domain found for zone %d", nodebuf.addr.zone);
+			    }
+			    if (strchr(r, '.')) {
+				Syslog('n', "Found a FQDN \"%s\"", MBSE_SS(r));
+				sprintf(tbuf, "%s", r);
+				nodebuf.url = xstrcat(nodebuf.url, tbuf);
+				break;
+			    }
+			}
+		    }
+		    if (strlen(tbuf))
+			break;
+		    Syslog('n', "Field8 is not usable");
 		}
 	    }
 	}
+	fclose(fp);
 
-	if (strchr(tbuf, ':') == NULL) {
+	if (strlen(tbuf) == 0) {
+	    Syslog('n', "No FQDN found, cannot call");
+	    if (nodebuf.url)
+		free(nodebuf.url);
+	    nodebuf.url = NULL;
+	} else if (strchr(tbuf, ':') == NULL) {
 	    /*
 	     * No optional port number, add one from the default
 	     * for this protocol.
 	     */
 	    sprintf(tbuf, ":%lu", tport);
-	    Syslog('s', "Adding default port %s", tbuf);
+	    Syslog('n', "Adding default port %s", tbuf);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 
@@ -986,9 +1075,9 @@ node *getnlent(faddr *addr)
     if (addr->domain == NULL) 
 	addr->domain = xstrcpy(nodebuf.addr.domain);
 
-    Syslog('s', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
-    Syslog('s', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
-    Syslog('s', "getnlent: URL     %s", printable(nodebuf.url, 0));
+    Syslog('n', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
+    Syslog('n', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
+    Syslog('n', "getnlent: URL     %s", printable(nodebuf.url, 0));
     moflags(nodebuf.mflags);
     diflags(nodebuf.dflags);
     ipflags(nodebuf.iflags);
@@ -1030,7 +1119,7 @@ void olflags(unsigned long flags)
 	    t = xstrcat(t, (*tmpm)->name);
 	}
     }
-    Syslog('s', "%s", t);
+    Syslog('n', "%s", t);
     free(t);
 }
 
@@ -1055,7 +1144,7 @@ void rqflags(unsigned long flags)
 	    t = xstrcat(t, (char *)")");
 	}
     }
-    Syslog('s', "%s", t);
+    Syslog('n', "%s", t);
     free(t);
 }
 
@@ -1075,7 +1164,7 @@ void moflags(unsigned long flags)
 	    t = xstrcat(t, (*tmpm)->name);
 	}
     }
-    Syslog('s', "%s", t);
+    Syslog('n', "%s", t);
     free(t);
 }
 
@@ -1095,7 +1184,7 @@ void diflags(unsigned long flags)
 	    t = xstrcat(t, (*tmpm)->name);
 	}
     }
-    Syslog('s', "%s", t);
+    Syslog('n', "%s", t);
     free(t);
 }
 
@@ -1115,7 +1204,7 @@ void ipflags(unsigned long flags)
 	    t = xstrcat(t, (*tmpm)->name);
 	}
     }
-    Syslog('s', "%s", t);
+    Syslog('n', "%s", t);
     free(t);
 }
 

@@ -1348,9 +1348,9 @@ void s_mailer(void)
 	mvprintw(16, 2, "10.  No EMSI session");
 	mvprintw(17, 2, "11.  No Yooho/2U2");
 
-	mvprintw(12,31, "12.  No Zmodem");
-	mvprintw(13,31, "13.  No Zedzap");
-	mvprintw(14,31, "14.  No Hydra");
+	mvprintw(15,31, "12.  No Zmodem");
+	mvprintw(16,31, "13.  No Zedzap");
+	mvprintw(17,31, "14.  No Hydra");
 
 	mvprintw(12,59, "18.  Phonetrans  1-10");
 	mvprintw(13,59, "19.  Phonetrans 11-20");
@@ -1412,9 +1412,9 @@ void e_mailer(void)
 		show_bool(16,23,   CFG.NoEMSI);
 		show_bool(17,23,   CFG.NoWazoo);
 
-		show_bool(12,52, CFG.NoZmodem);
-		show_bool(13,52, CFG.NoZedzap);
-		show_bool(14,52, CFG.NoHydra);
+		show_bool(15,52, CFG.NoZmodem);
+		show_bool(16,52, CFG.NoZedzap);
+		show_bool(17,52, CFG.NoHydra);
 
 		show_int( 16,75, CFG.Req_Files);
 		show_int( 17,75, CFG.Req_MBytes);
@@ -1433,9 +1433,9 @@ void e_mailer(void)
 		case 10:E_BOOL(16,23,   CFG.NoEMSI,         "If set then ^EMSI handshake^ is diabled")
 		case 11:E_BOOL(17,23,   CFG.NoWazoo,        "If set then ^YooHoo/2U2^ (FTSC-0006) is disabled")
 
-		case 12:E_BOOL(12,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
-		case 13:E_BOOL(13,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
-		case 14:E_BOOL(14,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
+		case 12:E_BOOL(15,52,   CFG.NoZmodem,       "If set then the ^Zmodem^ protocol is disabled")
+		case 13:E_BOOL(16,52,   CFG.NoZedzap,       "If set then the ^Zedzap^ protocol is disabled")
+		case 14:E_BOOL(17,52,   CFG.NoHydra,        "If set then the ^Hydra^ protocol is disabled")
 
 		case 18:e_trans(0);
 			break;

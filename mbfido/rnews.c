@@ -179,7 +179,7 @@ static int StartChild(int fd, char *path, char *argv[])
 	    WriteError("$Cant fork %s -- spooling", path);
 	    return -1;
 	}
-	Syslog('n', "Cant fork %s -- waiting", path);
+	Syslog('m', "Cant fork %s -- waiting", path);
 	(void)sleep(60);
     }
 
@@ -205,7 +205,7 @@ static int StartChild(int fd, char *path, char *argv[])
 	    (void)close(pan[PIPE_WRITE]);
 	}
 
-	Syslog('n', "execv %s %s", MBSE_SS(path), MBSE_SS(argv[1]));
+	Syslog('m', "execv %s %s", MBSE_SS(path), MBSE_SS(argv[1]));
 	(void)execv(path, argv);
 	WriteError("$Cant execv %s", path);
 	_exit(MBERR_EXEC_FAILED);
@@ -519,7 +519,7 @@ static int UnpackOne(int *fdp, int *countp)
 			return FALSE;
 
 		if (strcmp(buff, "#! cunbatch") == 0) {
-			Syslog('n', "Compressed newsbatch");
+			Syslog('m', "Compressed newsbatch");
 			if (SawCunbatch) {
 				WriteError("Nested_cunbatch");
 				return FALSE;
@@ -592,7 +592,7 @@ void ProcessOne(FILE *fp)
 			strtok(buf, " ");
 			while ((group = strtok(NULL, ",\n"))) {
 				if (SearchMsgsNews(group)) {
-					Syslog('n', "Add group %s (%s)", msgs.Newsgroup, msgs.Tag);
+					Syslog('m', "Add group %s (%s)", msgs.Newsgroup, msgs.Tag);
 					groups[nrofgroups] = xstrcpy(group);
 					nrofgroups++;
 				} else {
@@ -606,7 +606,7 @@ void ProcessOne(FILE *fp)
 			 */
 			mbuf = xstrcpy(buf+13);
 			mbuf[strlen(mbuf)-2] = '\0';
-			Syslog('n', "Message ID \"%s\"", printable(mbuf, 0));
+			Syslog('m', "Message ID \"%s\"", printable(mbuf, 0));
 		}
 	}
 
@@ -617,7 +617,7 @@ void ProcessOne(FILE *fp)
 	} else {
 		IsDoing("Article %d", (news_in + 1));
 		for (i = 0; i < nrofgroups; i++) {
-			Syslog('n', "Process %s", groups[i]);
+			Syslog('m', "Process %s", groups[i]);
 			p = xstrcpy(mbuf);
 			p = xstrcat(p, groups[i]);
 			crc = str_crc32(p);

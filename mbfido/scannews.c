@@ -111,7 +111,7 @@ void fill_artlist(List **fdp, char *id, long nr, int dupe)
 {
 	List	**tmp;
 
-	Syslog('N', "Fill %s %ld %s", id, nr, dupe ? "Dupe":"New msg");
+	Syslog('M', "Fill %s %ld %s", id, nr, dupe ? "Dupe":"New msg");
 
 	for (tmp = fdp; *tmp; tmp = &((*tmp)->next));
 	*tmp = (List *)malloc(sizeof(List));
@@ -217,7 +217,7 @@ void ScanNews(void)
 				Syslog('+', "Detected upsalarm semafore, aborting newsscan");
 				break;
 			}
-			Syslog('n', "Scan newsgroup: %s", Msgs.Newsgroup);
+			Syslog('m', "Scan newsgroup: %s", Msgs.Newsgroup);
 			if (!do_quiet) {
 				colour(3, 0);
 				printf("\r%-40s", Msgs.Newsgroup);
@@ -257,7 +257,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	int	retval, fetched = 0;
 	long	total, start, end;
 
-	Syslog('N', "do_one_group(%s, %s)", grpname, ftntag);
+	Syslog('M', "do_one_group(%s, %s)", grpname, ftntag);
 	IsDoing((char *)"Scan %s", grpname);
 	sprintf(temp, "GROUP %s\r\n", grpname);
 	nntp_send(temp);
@@ -275,14 +275,14 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	total = atol(strtok(NULL, " "));
 	start = atol(strtok(NULL, " "));
 	end   = atol(strtok(NULL, " '\0'"));
-	Syslog('n', "GROUP total %d, start %d, end %d, max %d", total, start, end, maxarticles);
+	Syslog('m', "GROUP total %d, start %d, end %d, max %d", total, start, end, maxarticles);
 	if ((maxarticles) && (total > maxarticles)) {
 	    start = end - maxarticles;
 	    total = maxarticles;
-	    Syslog('n', "NEW:  total %d, start %d, end %d", total, start, end);
+	    Syslog('m', "NEW:  total %d, start %d, end %d", total, start, end);
 	}
 	if (!total) {
-		Syslog('N', "No articles");
+		Syslog('M', "No articles");
 		return RETVAL_NOARTICLES;
 	}
 
@@ -321,7 +321,7 @@ int get_article(char *msgid, char *ftntag)
 	FILE	*fp = NULL, *dp;
 	char	dpath[PATH_MAX];
 
-	Syslog('n', "Get article %s, %s", msgid, ftntag);
+	Syslog('m', "Get article %s, %s", msgid, ftntag);
 	if (!SearchMsgs(ftntag)) {
 		WriteError("Search message area %s failed", ftntag);
 		return RETVAL_ERROR;
@@ -392,7 +392,7 @@ int get_xover(char *grpname, long startnr, long endnr, List **art)
 				WriteError("Permission denied");
 				return RETVAL_NOXOVER;
 			case 420:
-				Syslog('n', "No articles in group %s", grpname);
+				Syslog('m', "No articles in group %s", grpname);
 				return RETVAL_OK;
 		}
 	}
@@ -470,7 +470,7 @@ int get_xoverview(void)
 	char		*resp;
 	POverview	tmp, curptr = NULL;
 
-	Syslog('n', "Getting overview format list");
+	Syslog('m', "Getting overview format list");
 	if ((retval = nntp_cmd((char *)"LIST overview.fmt\r\n", 215)) == 0) {
 		while (done == FALSE) {
 			resp = nntp_receive();
@@ -512,10 +512,10 @@ int get_xoverview(void)
 		}
 
 		if ((tmp = xoverview) != NULL) {
-			Syslog('N', "--Xoverview.fmt list");
+			Syslog('M', "--Xoverview.fmt list");
 			while (tmp != NULL) {
 				if (tmp->header != NULL) {
-					Syslog('N', "item = %s -- full = %s", tmp->header, tmp->full ? "True":"False");
+					Syslog('M', "item = %s -- full = %s", tmp->header, tmp->full ? "True":"False");
 				}
 				tmp = tmp->next;
 			}

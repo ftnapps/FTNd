@@ -261,71 +261,71 @@ void Syslog(int level, const char *format, ...)
  */
 void Syslogp(int level, char *outstr)
 {
-	long	mask = 0;
-	int	i, upper;
+    long    mask = 0;
+    int	    i, upper;
 
-	upper = isupper(level);
-	switch(tolower(level)) {
-		case ' ' : mask = DLOG_ALLWAYS;	break;
-		case '?' : mask = DLOG_ERROR;	break;	
-		case '!' : mask = DLOG_ATTENT;	break;
-		case '+' : mask = DLOG_NORMAL;	break;
-		case '-' : mask = DLOG_VERBOSE;	break;
-		case 'a' : mask = DLOG_TCP;	break;
-		case 'b' : mask = DLOG_BBS;	break;
-		case 'c' : mask = DLOG_CHAT;	break;
-		case 'd' : mask = DLOG_DEVIO;	break;
-		case 'e' : mask = DLOG_EXEC;	break;
-		case 'f' : mask = DLOG_FILEFWD;	break;
-		case 'h' : mask = DLOG_HYDRA;	break;
-		case 'i' : mask = DLOG_IEMSI;	break;
-		case 'l' : mask = DLOG_LOCK;	break;
-		case 'm' : mask = DLOG_MAIL;	break;
-		case 'n' : mask = DLOG_NEWS;	break;
-		case 'o' : mask = DLOG_OUTSCAN;	break;
-		case 'p' : mask = DLOG_PACK;	break;
-		case 'r' : mask = DLOG_ROUTE;	break;
-		case 's' : mask = DLOG_SESSION;	break;
-		case 't' : mask = DLOG_TTY;	break;
-		case 'x' : mask = DLOG_XMODEM;	break;
-		case 'z' : mask = DLOG_ZMODEM;	break;
+    upper = isupper(level);
+    switch(tolower(level)) {
+	case ' ' : mask = DLOG_ALLWAYS;	    break;
+	case '?' : mask = DLOG_ERROR;	    break;	
+	case '!' : mask = DLOG_ATTENT;	    break;
+	case '+' : mask = DLOG_NORMAL;	    break;
+	case '-' : mask = DLOG_VERBOSE;	    break;
+	case 'a' : mask = DLOG_TCP;	    break;
+	case 'b' : mask = DLOG_BBS;	    break;
+	case 'c' : mask = DLOG_CHAT;	    break;
+	case 'd' : mask = DLOG_DEVIO;	    break;
+	case 'e' : mask = DLOG_EXEC;	    break;
+	case 'f' : mask = DLOG_FILEFWD;	    break;
+	case 'h' : mask = DLOG_HYDRA;	    break;
+	case 'i' : mask = DLOG_IEMSI;	    break;
+	case 'l' : mask = DLOG_LOCK;	    break;
+	case 'm' : mask = DLOG_MAIL;	    break;
+	case 'n' : mask = DLOG_NODELIST;    break;
+	case 'o' : mask = DLOG_OUTSCAN;	    break;
+	case 'p' : mask = DLOG_PACK;	    break;
+	case 'r' : mask = DLOG_ROUTE;	    break;
+	case 's' : mask = DLOG_SESSION;	    break;
+	case 't' : mask = DLOG_TTY;	    break;
+	case 'x' : mask = DLOG_XMODEM;	    break;
+	case 'z' : mask = DLOG_ZMODEM;	    break;
+    }
+
+    if (((loggrade | DLOG_ALLWAYS | DLOG_ERROR) & mask) == 0)
+	return;
+
+    /*
+     * Don't log uppercase debug levels when most_debug is FALSE
+     */
+    if (upper && !most_debug)
+	return;
+
+    for (i = 0; i < strlen(outstr); i++)
+	if (outstr[i] == '\r' || outstr[i] == '\n')
+	    outstr[i] = ' ';
+    if (strlen(outstr) > (SS_BUFSIZE - 64))
+	outstr[SS_BUFSIZE - 64] = '\0';
+
+    tcrc = StringCRC32(outstr);
+    if (tcrc == lcrc) {
+	lcnt++;
+	return;
+    } else {
+	lcrc = tcrc;
+	if (lcnt) {
+	    lcnt++;
+	    SockS("ALOG:5,%s,%s,%d,%c,Last message repeated %d times;", logfile, progname, mypid, level, lcnt);
 	}
+	lcnt = 0;
+    }
 
-	if (((loggrade | DLOG_ALLWAYS | DLOG_ERROR) & mask) == 0)
-		return;
+    if (show_log)
+	printf("%c %s\n", level, outstr);
 
-	/*
-	 * Don't log uppercase debug levels when most_debug is FALSE
-	 */
-	if (upper && !most_debug)
-		return;
-
-	for (i = 0; i < strlen(outstr); i++)
-		if (outstr[i] == '\r' || outstr[i] == '\n')
-			outstr[i] = ' ';
-	if (strlen(outstr) > (SS_BUFSIZE - 64))
-		outstr[SS_BUFSIZE - 64] = '\0';
-
-	tcrc = StringCRC32(outstr);
-	if (tcrc == lcrc) {
-		lcnt++;
-		return;
-	} else {
-		lcrc = tcrc;
-		if (lcnt) {
-			lcnt++;
-			SockS("ALOG:5,%s,%s,%d,%c,Last message repeated %d times;", logfile, progname, mypid, level, lcnt);
-		}
-		lcnt = 0;
-	}
-
-	if (show_log)
-		printf("%c %s\n", level, outstr);
-
-	if (*outstr == '$')
-		SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
-	else
-		SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
+    if (*outstr == '$')
+	SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
+    else
+	SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
 }
 
 

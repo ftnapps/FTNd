@@ -168,8 +168,8 @@ void Kill(void)
 					if (area.MoveArea) {
 						fseek(pAreas, ((area.MoveArea -1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 						fread(&darea, areahdr.recsize, 1, pAreas);
-						sprintf(from, "%s/%s", area.Path, file.LName);
-						sprintf(to,   "%s/%s", darea.Path, file.LName);
+						sprintf(from, "%s/%s", area.Path, file.Name);
+						sprintf(to,   "%s/%s", darea.Path, file.Name);
 						if ((rc = file_mv(from, to)) == 0) {
 							Syslog('+', "Move %s, area %d => %d", file.Name, i, area.MoveArea);
 							sprintf(to, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), area.MoveArea);
@@ -179,13 +179,28 @@ void Kill(void)
 								fwrite(&file, sizeof(file), 1, pDest);
 								fclose(pDest);
 							}
+
 							/*
 							 * Now again if there is a dotted version (thumbnail) of this file.
 							 */
-							sprintf(from, "%s/.%s", area.Path, file.LName);
-							sprintf(to,   "%s/.%s", darea.Path, file.LName);
+							sprintf(from, "%s/.%s", area.Path, file.Name);
+							sprintf(to,   "%s/.%s", darea.Path, file.Name);
 							if (file_exist(from, R_OK) == 0)
 								file_mv(from, to);
+
+							/*
+							 * Unlink the old symbolic link
+							 */
+							sprintf(from, "%s/%s", area.Path, file.LName);
+							unlink(from);
+
+							/*
+							 * Create the new symbolic link
+							 */
+							sprintf(from, "%s/%s", darea.Path, file.Name);
+							sprintf(to,   "%s/%s", darea.Path, file.LName);
+							symlink(from, to);
+
 							file.Deleted = TRUE;
 							fseek(pFile, - sizeof(file), SEEK_CUR);
 							fwrite(&file, sizeof(file), 1, pFile);

@@ -119,7 +119,7 @@ int newspost(void)
 	 *  Create newsbatch file.
 	 */
 	if ((CFG.newsfeed == FEEDUUCP) || (CFG.newsfeed == FEEDRNEWS)) {
-		Syslog('n', "Building uncompressed batchfile");
+		Syslog('m', "Building uncompressed batchfile");
 		sprintf(buf, "%s/tmp/newsbatch", getenv("MBSE_ROOT"));
 		if ((ofp = fopen(buf, "w+")) == NULL) {
 			WriteError("$Can't create %s", buf);

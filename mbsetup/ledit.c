@@ -922,33 +922,33 @@ int edit_bool(int y, int x, int val, char *help)
 
 char *getloglevel(long val)
 {
-	char	*p;
+    char	*p;
 
-	p = xstrcpy((char *)"?");
+    p = xstrcpy((char *)"?");
 
-	if (val & DLOG_ATTENT)	p = xstrcat(p, (char *)"!");
-	if (val & DLOG_NORMAL)	p = xstrcat(p, (char *)"+");
-	if (val & DLOG_VERBOSE)	p = xstrcat(p, (char *)"-");
-	if (val & DLOG_TCP)	p = xstrcat(p, (char *)"A");
-	if (val & DLOG_BBS)	p = xstrcat(p, (char *)"B");
-	if (val & DLOG_CHAT)	p = xstrcat(p, (char *)"C");
-	if (val & DLOG_DEVIO)	p = xstrcat(p, (char *)"D");
-	if (val & DLOG_EXEC)	p = xstrcat(p, (char *)"E");
-	if (val & DLOG_FILEFWD)	p = xstrcat(p, (char *)"F");
-	if (val & DLOG_HYDRA)	p = xstrcat(p, (char *)"H");
-	if (val & DLOG_IEMSI)	p = xstrcat(p, (char *)"I");
-	if (val & DLOG_LOCK)	p = xstrcat(p, (char *)"L");
-	if (val & DLOG_MAIL)	p = xstrcat(p, (char *)"M");
-	if (val & DLOG_NEWS)	p = xstrcat(p, (char *)"N");
-	if (val & DLOG_OUTSCAN)	p = xstrcat(p, (char *)"O");
-	if (val & DLOG_PACK)	p = xstrcat(p, (char *)"P");
-	if (val & DLOG_ROUTE)	p = xstrcat(p, (char *)"R");
-	if (val & DLOG_SESSION)	p = xstrcat(p, (char *)"S");
-	if (val & DLOG_TTY)	p = xstrcat(p, (char *)"T");
-	if (val & DLOG_XMODEM)	p = xstrcat(p, (char *)"X");
-	if (val & DLOG_ZMODEM)	p = xstrcat(p, (char *)"Z");
+    if (val & DLOG_ATTENT)	p = xstrcat(p, (char *)"!");
+    if (val & DLOG_NORMAL)	p = xstrcat(p, (char *)"+");
+    if (val & DLOG_VERBOSE)	p = xstrcat(p, (char *)"-");
+    if (val & DLOG_TCP)		p = xstrcat(p, (char *)"A");
+    if (val & DLOG_BBS)		p = xstrcat(p, (char *)"B");
+    if (val & DLOG_CHAT)	p = xstrcat(p, (char *)"C");
+    if (val & DLOG_DEVIO)	p = xstrcat(p, (char *)"D");
+    if (val & DLOG_EXEC)	p = xstrcat(p, (char *)"E");
+    if (val & DLOG_FILEFWD)	p = xstrcat(p, (char *)"F");
+    if (val & DLOG_HYDRA)	p = xstrcat(p, (char *)"H");
+    if (val & DLOG_IEMSI)	p = xstrcat(p, (char *)"I");
+    if (val & DLOG_LOCK)	p = xstrcat(p, (char *)"L");
+    if (val & DLOG_MAIL)	p = xstrcat(p, (char *)"M");
+    if (val & DLOG_NODELIST)	p = xstrcat(p, (char *)"N");
+    if (val & DLOG_OUTSCAN)	p = xstrcat(p, (char *)"O");
+    if (val & DLOG_PACK)	p = xstrcat(p, (char *)"P");
+    if (val & DLOG_ROUTE)	p = xstrcat(p, (char *)"R");
+    if (val & DLOG_SESSION)	p = xstrcat(p, (char *)"S");
+    if (val & DLOG_TTY)		p = xstrcat(p, (char *)"T");
+    if (val & DLOG_XMODEM)	p = xstrcat(p, (char *)"X");
+    if (val & DLOG_ZMODEM)	p = xstrcat(p, (char *)"Z");
 
-	return p;
+    return p;
 }
 
 
@@ -984,8 +984,8 @@ long edit_logl(long val, char *txt)
 	mvprintw(16, 5, "10. H Hydra debug");
 	mvprintw(17, 5, "11. I EMSI debug");
 	mvprintw( 7,45, "12. L Locking");
-	mvprintw( 8,45, "13. M Mail debug");
-	mvprintw( 9,45, "14. N News debug");
+	mvprintw( 8,45, "13. M Mail/News");
+	mvprintw( 9,45, "14. N Nodelist");
 	mvprintw(10,45, "15. O Outboundscan");
 	mvprintw(11,45, "16. P Packing");
 	mvprintw(12,45, "17. R Routing");
@@ -1010,7 +1010,7 @@ long edit_logl(long val, char *txt)
 		show_lbit(17,24, val, DLOG_IEMSI);
 		show_lbit( 7,64, val, DLOG_LOCK);
 		show_lbit( 8,64, val, DLOG_MAIL);
-		show_lbit( 9,64, val, DLOG_NEWS);
+		show_lbit( 9,64, val, DLOG_NODELIST);
 		show_lbit(10,64, val, DLOG_OUTSCAN);
 		show_lbit(11,64, val, DLOG_PACK);
 		show_lbit(12,64, val, DLOG_ROUTE);
@@ -1034,7 +1034,7 @@ long edit_logl(long val, char *txt)
 		case 11:val ^= DLOG_IEMSI;	break;
 		case 12:val ^= DLOG_LOCK;	break;
 		case 13:val ^= DLOG_MAIL;	break;
-		case 14:val ^= DLOG_NEWS;	break;
+		case 14:val ^= DLOG_NODELIST;	break;
 		case 15:val ^= DLOG_OUTSCAN;	break;
 		case 16:val ^= DLOG_PACK;	break;
 		case 17:val ^= DLOG_ROUTE;	break;

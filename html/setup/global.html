@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 28-Oct-2002</h5></div>
+<div align="right"><h5>Last update 31-Dec-2002</h5></div>
 
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 <P>
@@ -390,7 +390,10 @@ These are the settings that affect the generation of newfiles and allfiles repor
 Note that you can't disable FTS-0001 sessions as that is a mandatory session
 protocol in Fidonet. There are 40 phonenumber translations present, this is for
 countries with lots of telephone operators with all kind of prefixes for
-carrier select functions.
+carrier select functions. The setting of TCP/IP flags is important too, this
+gives the information what this system will do. If you only enter IBN as TCP/IP
+flags then the system will only call IBN nodes (binkp). The default is
+XX,IBN,IFC,ITN::60177
 <pre>
 <strong>Mailer logl.      </strong>The logging level for mailer sessions
 <strong>Default phone     </strong>The default phonenumber for EMSI sessions
@@ -406,9 +409,6 @@ carrier select functions.
 <strong>No Zmodem         </strong>Disable zmodem protocol
 <strong>No Zedzap         </strong>Disable zedzap protocol
 <strong>No Hydra          </strong>Disable Hydra protocol
-<strong>No TCP/IP IBN     </strong>Disable TCP/IP IBN (binkp) protocol.
-<strong>No TCP/IP IFC     </strong>Disable TCP/IP IFC (ifcico) protocol.
-<strong>No TCP/IP ITN     </strong>Disable TCP/IP ITN (telnet) protocol.
 <strong>Phonetrans 1..40  </strong>Maximum 40 phone number translations
 <strong>Max. files        </strong>Maximum files to request, 0 is unlimited 
 <strong>Max. MBytes       </strong>Maximum MBytes to request, 0 is unlimited

@@ -357,7 +357,7 @@ void load_maincfg(void)
         sprintf(CFG.phonetrans[2].repl, "00");
         CFG.Speed = 9600;
         CFG.dialdelay = 60;
-        sprintf(CFG.Flags, "CM,XX,IBN,IFC,ITN");
+        sprintf(CFG.Flags, "CM,XX,IBN,IFC,ITN::60177");
         CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
 
         /*
@@ -1031,11 +1031,15 @@ void scheduler(void)
 	    if (file_time(tcfgfn) != tcfg_time) {
 		Syslog('+', "Task configuration changed, reloading");
 		load_taskcfg();
+		deinitnl();
+		initnl();
 		sem_set((char *)"scanout", TRUE);
 	    }
 	    if (file_time(cfgfn) != cfg_time) {
 		Syslog('+', "Main configuration changed, reloading");
 		load_maincfg();
+		deinitnl();
+		initnl();
 		sem_set((char *)"scanout", TRUE);
 	    }
 	    if (file_time(ttyfn) != tty_time) {

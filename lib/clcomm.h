@@ -1,6 +1,8 @@
 #ifndef _CLCOMM_H
 #define	_CLCOMM_H
 
+/* $Id$ */
+
 
 #pragma pack(1)
 
@@ -31,7 +33,7 @@
 #define	DLOG_IEMSI	0x00002000
 #define	DLOG_LOCK	0x00010000
 #define	DLOG_MAIL	0x00020000
-#define	DLOG_NEWS	0x00040000
+#define	DLOG_NODELIST	0x00040000
 #define	DLOG_OUTSCAN	0x00080000
 #define	DLOG_PACK	0x00100000
 #define	DLOG_ROUTE	0x00400000
