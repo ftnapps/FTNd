@@ -12,10 +12,9 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 16-Feb-2002</h5>
-<P>&nbsp;<P>
+<div align="right"><h5>Last update 30-Sep-2002</h5></div>
 
-<H1>MBSE BBS Setup - Mail Setup -> Mail Areas.</H1>
+<div align="center"><H1>MBSE BBS Setup - Mail Setup -> Mail Areas.</H1></div>
 <P>
 
 <H3>Introduction.</H3>
@@ -67,6 +66,7 @@ change netmail reply board and delete message area.
 <strong>OLR Default </strong>Switch area default on for OLR users.
 <strong>OLR Forced  </strong>Area is always on for OLR users.
 <strong>Connections </strong>This will take you to the screen to edit up and downlinks.
+<strong>Security    </strong>The security flags for downlinks to access this area.
 </pre>
 <P>
 
@@ -87,10 +87,10 @@ change netmail reply board and delete message area.
 A note about the excluded switch. This can be used to disconnect a node
 from the area by moderator request. AreaMgr requests from that node
 for this area are not processed anymore, he cannot disconnect this area
-and reconnect. If you want to prevent a node to connect the area while
-he is not connected, you should manually connect the node and then set
-the Excluded flag to yes. However, the status of this flag is reported to the
-node in the notify messages, so this action is not invisible.
+and reconnect. 
+If you want to block access to the area in a certain group for a node who has
+access to the group you should use the Security flags and also set the correct
+security flags for the node.
 <P>&nbsp;<P>
 
 
@@ -105,7 +105,8 @@ From menu 9.2 you can enter the global commands menu. In this menu you can:
  <li>Change days old
  <li>Change max. messages
  <li>Change max. articles
- <li>Change security
+ <li>Change bbs security
+ <li>Change link security
  <li>Change aka to use
  <li>Change origin line
  <li>Change netmail reply

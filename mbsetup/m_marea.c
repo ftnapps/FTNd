@@ -501,34 +501,34 @@ void SetScreen()
     mvprintw(18, 2, "13. RFC chars");
     mvprintw(19, 2, "14. Active");
 
-    mvprintw(13,36, "15. Days Old");
-    mvprintw(14,36, "16. Max. Msgs");
+    mvprintw(13,34, "15. Days Old");
+    mvprintw(14,34, "16. Max. Msgs");
     switch (msgs.Type) {
-	case ECHOMAIL:  mvprintw(15,36, "17. Netreply");
+	case ECHOMAIL:  mvprintw(15,34, "17. Netreply");
 			break;
-	case NEWS:	mvprintw(15,36, "17. Articles");
+	case NEWS:	mvprintw(15,34, "17. Articles");
 			break;
-	default:	mvprintw(15,36, "17. N/A");
+	default:	mvprintw(15,34, "17. N/A");
 			break;
     }
-    mvprintw(16,36, "18. Read Sec.");
-    mvprintw(17,36, "19. Write Sec.");
-    mvprintw(18,36, "20. Sysop Sec.");
-    mvprintw(19,36, "21. User Del.");
+    mvprintw(16,34, "18. Read Sec.");
+    mvprintw(17,34, "19. Write Sec.");
+    mvprintw(18,34, "20. Sysop Sec.");
+    mvprintw(19,34, "21. User Del.");
 	
-    mvprintw(12,60, "22. Aliases");
-    mvprintw(13,60, "23. Quotes");
-    mvprintw(14,60, "24. Mandatory");
-    mvprintw(15,60, "25. UnSecure");
-    mvprintw(16,60, "26. OLR Default");
-    mvprintw(17,60, "27. OLR Forced");
+    mvprintw(12,58, "22. Aliases");
+    mvprintw(13,58, "23. Quotes");
+    mvprintw(14,58, "24. Mandatory");
+    mvprintw(15,58, "25. UnSecure");
+    mvprintw(16,58, "26. OLR Default");
+    mvprintw(17,58, "27. OLR Forced");
     switch (msgs.Type) {
 	case ECHOMAIL:
 	case NEWS:
-	case LIST:  mvprintw(18,60, "28. Connections");
+	case LIST:  mvprintw(18,58, "28. Connections");
 		    break;
     }
-    mvprintw(19,60, "29. Security");
+    mvprintw(19,58, "29. Security");
 } 
 
 
@@ -1044,25 +1044,25 @@ int EditMsgRec(int Area)
 	show_str(18,16,16, printable(getchrs(msgs.Rfccode), 0));
 	show_bool(19,16,   msgs.Active);
 
-	show_int( 13,52, msgs.DaysOld);
-	show_int( 14,52, msgs.MaxMsgs);
+	show_int( 13,50, msgs.DaysOld);
+	show_int( 14,50, msgs.MaxMsgs);
 	switch (msgs.Type) {
-	    case ECHOMAIL:  show_int( 15,52, msgs.NetReply);
+	    case ECHOMAIL:  show_int( 15,50, msgs.NetReply);
 			    break;
-	    case NEWS:	    show_int( 15,52, msgs.MaxArticles);
+	    case NEWS:	    show_int( 15,50, msgs.MaxArticles);
 			    break;
 	}
-	show_int( 16,52, msgs.RDSec.level);
-	show_int( 17,52, msgs.WRSec.level);
-	show_int( 18,52, msgs.SYSec.level);
-	show_bool(19,52, msgs.UsrDelete);
+	show_int( 16,50, msgs.RDSec.level);
+	show_int( 17,50, msgs.WRSec.level);
+	show_int( 18,50, msgs.SYSec.level);
+	show_bool(19,50, msgs.UsrDelete);
 
-	show_bool(12,76, msgs.Aliases);
-	show_bool(13,76, msgs.Quotes);
-	show_bool(14,76, msgs.Mandatory);
-	show_bool(15,76, msgs.UnSecure);
-	show_bool(16,76, msgs.OLR_Default);
-	show_bool(17,76, msgs.OLR_Forced);
+	show_bool(12,74, msgs.Aliases);
+	show_bool(13,74, msgs.Quotes);
+	show_bool(14,74, msgs.Mandatory);
+	show_bool(15,74, msgs.UnSecure);
+	show_bool(16,74, msgs.OLR_Default);
+	show_bool(17,74, msgs.OLR_Forced);
 	connections = 0;
 	switch (msgs.Type) {
 	    case ECHOMAIL:
@@ -1071,7 +1071,7 @@ int EditMsgRec(int Area)
 			while (fread(&System, sizeof(System), 1, tfil) == 1)
 			    if (System.aka.zone)
 				connections++;
-			show_int(18,76, connections);
+			show_int(18,74, connections);
 			break;
 	}
 
@@ -1271,28 +1271,28 @@ int EditMsgRec(int Area)
 			msgs.Active = TRUE;
 		    SetScreen();
 		    break;
-	    case 15:E_INT( 13,52,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")
-	    case 16:E_INT( 14,52,   msgs.MaxMsgs,       "The ^maximum^ amount of messages in this area")
+	    case 15:E_INT( 13,50,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")
+	    case 16:E_INT( 14,50,   msgs.MaxMsgs,       "The ^maximum^ amount of messages in this area")
 	    case 17:switch (msgs.Type) {
-			case ECHOMAIL:	msgs.NetReply = edit_int(15,52,msgs.NetReply,
+			case ECHOMAIL:	msgs.NetReply = edit_int(15,50,msgs.NetReply,
 						    (char *)"The ^Area Number^ for netmail replies");
 					break;
-			case NEWS:      msgs.MaxArticles = edit_int(15,52,msgs.MaxArticles,
+			case NEWS:      msgs.MaxArticles = edit_int(15,50,msgs.MaxArticles,
 						    (char *)"The ^maximum news articles^ to fetch");
 					break;
 		    }
 		    break;
-	    case 18:E_SEC( 16,52,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
-	    case 19:E_SEC( 17,52,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
-	    case 20:E_SEC( 18,52,   msgs.SYSec,         "9.2 EDIT SYSOP SECURITY", SetScreen)
-	    case 21:E_BOOL(19,52,   msgs.UsrDelete,     "Allow users to ^Delete^ their messages")
+	    case 18:E_SEC( 16,50,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
+	    case 19:E_SEC( 17,50,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
+	    case 20:E_SEC( 18,50,   msgs.SYSec,         "9.2 EDIT SYSOP SECURITY", SetScreen)
+	    case 21:E_BOOL(19,50,   msgs.UsrDelete,     "Allow users to ^Delete^ their messages")
 
-	    case 22:E_BOOL(12,76,   msgs.Aliases,       "Allow ^aliases^ or real names only")
-	    case 23:E_BOOL(13,76,   msgs.Quotes,        "Add random ^quotes^ to new messages")
-	    case 24:E_BOOL(14,76,   msgs.Mandatory,     "Is this area ^mandatory^ for nodes")
-	    case 25:E_BOOL(15,76,   msgs.UnSecure,      "Toss messages ^UnSecure^, ie: no originating check")
-	    case 26:E_BOOL(16,76,   msgs.OLR_Default,   "Area is ^default^ for ^offline^ users.")
-	    case 27:E_BOOL(17,76,   msgs.OLR_Forced,    "Area is ^always on^ for ^offline^ users.")
+	    case 22:E_BOOL(12,74,   msgs.Aliases,       "Allow ^aliases^ or real names only")
+	    case 23:E_BOOL(13,74,   msgs.Quotes,        "Add random ^quotes^ to new messages")
+	    case 24:E_BOOL(14,74,   msgs.Mandatory,     "Is this area ^mandatory^ for nodes")
+	    case 25:E_BOOL(15,74,   msgs.UnSecure,      "Toss messages ^UnSecure^, ie: no originating check")
+	    case 26:E_BOOL(16,74,   msgs.OLR_Default,   "Area is ^default^ for ^offline^ users.")
+	    case 27:E_BOOL(17,74,   msgs.OLR_Forced,    "Area is ^always on^ for ^offline^ users.")
 	    case 28:switch (msgs.Type) {
 			case ECHOMAIL:
 			case NEWS:

@@ -438,13 +438,13 @@ void SetTicScreen(void)
     mvprintw(15,41, "18. File_id");
     mvprintw(16,41, "19. Conv.all");
 
-    mvprintw( 9,63, "20. Send org.");
-    mvprintw(10,63, "21. Mandatory");
-    mvprintw(11,63, "22. Notified");
-    mvprintw(12,63, "23. Upl discon");
-    mvprintw(13,63, "24. Deleted");
-    mvprintw(14,63, "25. Active");
-    mvprintw(15,63, "26. Systems");
+    mvprintw( 9,60, "20. Send org.");
+    mvprintw(10,60, "21. Mandatory");
+    mvprintw(11,60, "22. Notified");
+    mvprintw(12,60, "23. Upl discon");
+    mvprintw(13,60, "24. Deleted");
+    mvprintw(14,60, "25. Active");
+    mvprintw(15,60, "26. Systems");
 } 
 
 
@@ -870,19 +870,19 @@ int EditTicRec(int Area)
 	show_bool(15,55,   tic.FileId);
 	show_bool(16,55,   tic.ConvertAll);
 	
-	show_bool( 9,77,   tic.SendOrg);
-	show_bool(10,77,   tic.Mandat);
-	show_bool(11,77,   tic.Notified);
-	show_bool(12,77,   tic.UplDiscon);
-	show_bool(13,77,   tic.Deleted);
-	show_bool(14,77,   tic.Active);
+	show_bool( 9,74,   tic.SendOrg);
+	show_bool(10,74,   tic.Mandat);
+	show_bool(11,74,   tic.Notified);
+	show_bool(12,74,   tic.UplDiscon);
+	show_bool(13,74,   tic.Deleted);
+	show_bool(14,74,   tic.Active);
 	fseek(ttfil, 0, SEEK_SET);
 	connections = 0;
 	while (fread(&System, sizeof(System), 1, ttfil) == 1) {
 	    if (System.aka.zone)
 		connections++;
 	}
-	show_int( 15,77,   connections);
+	show_int( 15,74,   connections);
 		
 	switch(select_menu(25)) {
 	    case 0:
@@ -980,12 +980,12 @@ int EditTicRec(int Area)
 		    else
 			tic.ConvertAll = tmp;
 		    break;
-	    case 20:E_BOOL( 9,77, tic.SendOrg,    "^Send original^ file to downlinks");
-	    case 21:E_BOOL(10,77, tic.Mandat,     "Is this area ^mandatory^");
-	    case 22:E_BOOL(11,77, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
-	    case 23:E_BOOL(12,77, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
-	    case 24:E_BOOL(13,77, tic.Deleted,    "Is this area ^deleted^");
-	    case 25:E_BOOL(14,77, tic.Active,     "Is this area ^active^");
+	    case 20:E_BOOL( 9,74, tic.SendOrg,    "^Send original^ file to downlinks");
+	    case 21:E_BOOL(10,74, tic.Mandat,     "Is this area ^mandatory^");
+	    case 22:E_BOOL(11,74, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
+	    case 23:E_BOOL(12,74, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
+	    case 24:E_BOOL(13,74, tic.Deleted,    "Is this area ^deleted^");
+	    case 25:E_BOOL(14,74, tic.Active,     "Is this area ^active^");
 	    case 26:if (EditTicConnections(ttfil))
 			changed = TRUE;
 		    SetTicScreen();
