@@ -242,6 +242,7 @@ int OpenMsgarea(void)
 		}
 		if ((int)msgs.Created == 0) {
 		    msgs.Created = start;
+#ifndef	USE_NEWSGATE
 		    if ((strlen(msgs.Newsgroup) == 0) && (msgs.Type == ECHOMAIL) && strlen(msgs.Group)) {
 			sprintf(msgs.Newsgroup, "%s.%s", GetFidoDomain(msgs.Aka.zone), msgs.Tag);
 			for (i = 0; i < strlen(msgs.Newsgroup); i++) {
@@ -251,6 +252,7 @@ int OpenMsgarea(void)
 			}
 			Syslog('+', "Area %s created newsgroup name %s", msgs.Tag, msgs.Newsgroup);
 		    }
+#endif
 		}
 		fwrite(&msgs, sizeof(msgs), 1, fout);
 		memset(&msgs, 0, sizeof(msgs));
