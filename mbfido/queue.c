@@ -315,10 +315,14 @@ void flush_dir(char *ndir)
 		/*
 		 * Increase filename extension if there is a truncated file of today.
 		 */
-		nr++;
-		if (nr == ('9' +1))
-		    nr = 'a';
-		arcfile[strlen(arcfile) -1] = nr;
+		if (nr < maxnr) {
+		    nr++;
+		    if (nr == ('9' +1))
+			nr = 'a';
+		    arcfile[strlen(arcfile) -1] = nr;
+		} else {
+		    break;
+		}
 	    } else if (CFG.maxarcsize && (fsize > (CFG.maxarcsize * 1024)) && (nr < maxnr)) {
 		/*
 		 * Use a new ARCmail file if the last one is too big.

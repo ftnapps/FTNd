@@ -299,6 +299,7 @@ int AppendNoderec(void)
 	nodes.Notify = FALSE;
 	nodes.AdvTic = FALSE;
 	nodes.Hold = TRUE;
+	nodes.PackNetmail = TRUE;
 	nodes.ARCmailCompat = TRUE;
 	nodes.ARCmailAlpha = TRUE;
 	nodes.StartDate = time(NULL);

@@ -9,6 +9,8 @@ v0.35.05	19-Oct-2002
 	upgrade:
 		Start mbsetup, go into global configuration, leave it and 
 		save.
+		Start mbsetup, check all nodes if the Pack mail flag is ok,
+		this setting now also affects echomail!
 
 	general:
 		This may become release 0.36.00
@@ -46,7 +48,7 @@ v0.35.05	19-Oct-2002
 		Pause.
 		Removed the default Virnet record from the fidonet setup.
 		In node setup the pack netmail switch is renamed and is now 
-		for all mail.
+		for all mail. Default for new records is Yes.
 		Added length check when importing taglines.
 
 	mbfido:
@@ -60,6 +62,8 @@ v0.35.05	19-Oct-2002
 		Statistics count for exported echomail now works.
 		Email posted in the email box in full domain mode was refused
 		by SMTP servers because of bad address formatting.
+		Addex extra check to prevent overflow of arcmail packets
+		extension.
 
 	mbtask:
 		Removed debug logging of "does" info.
