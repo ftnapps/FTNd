@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Dec-2001</h5>
+<h5>Last update 21-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>Running a BBS under Unix.</H1>
@@ -75,12 +76,13 @@ the session is ended and mgetty takes over the line again.
 Note that they never can get a Unix shell unless you install a <b>door</b> 
 in the bbs that calls a shell for them.
 <P>
-There are probably more accounts on your system that can callin, <b>mbse</b> is 
-such an account, this is the MBSE BBS maintenance account. This user will
-get the shell prompt. Use good passwords for shell accounts, and never change
-your setup so that the <b>root</b> user can directly login except from the console.
-If you need root access, login as <b>mbse</b> and type <b>su</b> at the prompt to become
-root. You might consider installing SSH on your system for remote maintenance.
+Because for dialin with mgetty the mblogin program is used and not the normal
+login program, only bbs users can login. All other users including <b>root</b> are
+denied access.
+You might consider installing SSH on your system for remote maintenance.
+<p>
+It is also possible to install the mblogin program as the login program for
+telnet users if you are directly connected to the internet.
 <P>&nbsp;<P>
 
 <H3>A PPP call is detected.</H3>
@@ -165,7 +167,7 @@ If you want to use X11 on your bbs, you need more ram and a faster CPU or a
 separate machine via a lan and export the display to that machine.
 <P>&nbsp;<P>
 
-<A HREF="index.htm"><IMG SRC="images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

@@ -1,8 +1,9 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content=Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 09-Nov-2001</h5>
+<h5>Last update 21-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbsebbs - The main BBS program</H1>
@@ -43,18 +44,8 @@ If this tty is not available or is not in your setup, the user is kicked
 out. If he is allowed to login, a message is shown at which port he is on,
 unless you have turned this feature off in the setup.
 <P>
-If a user logs in the first check is if he/she has a Unix account or not.
-Unix users bypass the login prompt. Other users will get the normal prompt
-the same way DOS based bbs programs do. At that time it is checked if the
-user has IEMSI capabilities, if that is true, IEMSI login will be tried.
-If the user is not known, the newuser procedure begins. 
-<P>
 If the user login is successfull, his favourite language will be loaded.
 Then it is checked if the user is the Sysop, if so, the Sysop flag is set.
-If the user has a blank password, he is asked to create a new password.
-Next it is checked if the user has an Unix account, if not he is forced to
-create a Unix account. This situation can exist after switching to MBSE BBS
-and you have converted your old userbase to the userbase for MBSE BBS.
 If the users Date of Birth is invalid, he is forced to enter the right
 Date of Birth.
 The next check is to see if the user has passed the expiry date, this is a 
@@ -139,19 +130,13 @@ will be made with the connect speed.
 If the environment variable <strong>CALLER_ID</strong> is present, a log entry
 will be made with the caller id.
 <P>
-If the environment variable <strong>LOGNAME</strong> is present and it is not
-<strong>bbs</strong> then it is assumed that it is a Unixmode login of the
-user who's Unixname is in the <strong>LOGNAME</strong> environment variable.
-This variable is set by the /bin/login program, so users that telnet to your
-bbs or login via <strong>mgetty</strong> and login with their Unixname will
-set this. If the <strong>LOGNAME</strong> is <strong>bbs</strong> then the
-user is prompted to enter his Fidonet style name. By the way, you can change
-that default <b>bbs</b> username with <b>mbsetup</b>.
+The environment variable <strong>LOGNAME</strong> must contain the unix
+username. This is set by the <b>mblogin</b> program.
 <P>&nbsp;<P>
 
 
-<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0">Back to Main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

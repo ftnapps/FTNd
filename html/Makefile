@@ -6,7 +6,7 @@ include ../Makefile.global
 
 H_BASE		= basic.html date.html dist.html manual.css \
 		  flow.html postfix.html gwnews.html index.htm ups.html \
-		  install.html intergate.html intro.html invoking.html \
+		  intergate.html intro.html invoking.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
 H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
@@ -63,10 +63,10 @@ H_PROGS		= programs/import.html     programs/mbchat.html \
 		  programs/mbaff.html      programs/mbdiff.html \
 		  programs/mbindex.html    programs/mbout.html \
 		  programs/mbsetup.html    programs/mbuseradd.html \
-		  programs/mball.html      programs/mbfbgen.html \
+		  programs/mball.html \
 		  programs/mblang.html     programs/mbsebbs.html \
 		  programs/mbstat.html     programs/mbpasswd.html \
-		  programs/mbtask.html     programs/mbmail.html
+		  programs/mbtask.html
 
 H_SETUP		= setup/archiver.html  setup/index.htm     setup/bbs.html \
 		  setup/bbslist.html   setup/language.html setup/oneliner.html \

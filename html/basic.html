@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -118,11 +119,13 @@ easy to guess of course. The script will then continue again:
  <li>The password will be removed from user <strong>bbs</strong> This action
 will make changes in /etc/shadow (if you have that) otherwise in /etc/passwd.
 On FreeBSD it uses other tools to modify the master database.
+On NetBSD you have to do that manually, there are no tools to do that.
  <li>If they don't exist in the file /etc/services the services fido, tfido
-and binkp will be added.
+and binkp will be added. 
  <li>If they don't exist in the file /etc/inetd.conf the internet protocols
 for the mailer will be added. The <strong>inetd</strong> is restarted to
-activate the changes.
+activate the changes. If your distribution uses xinetd instead of inetd, an
+include file for xinetd is added instead.
 </ol>
 <p>&nbsp;<p>
 
@@ -132,6 +135,7 @@ The last screen of the script is about sanity checks. Perform those checks!
 If something is wrong, now is the time to fix it. Don't panic and remember
 the backups of the system files that are changed are in /etc with the 
 extension <strong>.mbse</strong> i.e: those were the original files.
+The installation logfile is copied to /opt/mbse.
 If everythings is allright, then remove the directory /tmp/mbsebbs-0.33.nn:
 <pre>
 cd /tmp
@@ -142,7 +146,7 @@ rm -Rf mbsebbs-0.33.nn
 <h3>Step 4: Install the basic packages.</h3>
 <p>
 Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
-While in the home directory unpack the distribution archives:
+While in mbse's home directory (/opt/mbse) unpack the distribution archives:
 <pre>
 tar xfvz /path/to/mbsebbs-0.33.nn.tar.gz
 </pre>
@@ -158,17 +162,23 @@ make install
 exit
 </pre>
 The last part of the installation procedure shows you the location of the bbs
-startup script that is added to your system.  Because this is your first
-time installation, example menus, textfiles and some databases are installed. 
+startup script that is added to your system. Remember this one for a moment.
+Because this is your first
+time installation, example menus and example textfiles are installed. 
 If they already exist on your systems (when you do an upgrade) they
 will not be installed again.
 <p>
-Now you must start the <b>mbtask</b> daemon by hand by typing <b>/opt/mbse/bin/mbtask</b>.
-Check the file <b>/opt/mbse/log/mbtask.log</b> for startup problems. You may notice that
-the program <b>mbcico</b> is started everytime, this is not a problem, it simply doesn't work right
-now because you haven't configured anything yet. The first time <b>mbtask</b> is
-started on your system it will create a lot of new configuration files with
-default settings.
+Now start the bbs for the first time (still as root) by executing the startup
+script you just saw on the screen followed by a space and the word <b>start</b>.
+For example:
+<pre>
+/etc/rc.d/init.d/mbsed start
+</pre>
+This will start the <b>mbtask</b> daemon.
+After that the bbs will be opened for use.
+Check the file <b>/opt/mbse/log/mbtask.log</b> for startup problems.
+The first time <b>mbtask</b> is started on your system it will create a 
+lot of new configuration files with default settings.
 <p>&nbsp;<p>
 
 <h3>Step 5: (RedHat) startup problems.</h3>
@@ -182,13 +192,34 @@ that other new distributions also need the extra minus sign. If that's the
 case, please let me know and tell me how I can test what version it is. 
 <p>&nbsp;<p>
 
-<h3>Step 6: ready.</h3>
+<h3>Step 6: Ready.</h3>
 <p>
-Now the basic environment is finished, the next thing is to <a href="install.html">install</a>
-the scripts, examples and configuration.
+Now you have shell scripts in ~/etc, most of them are called by cron, some
+are called during system startup and shutdown. You also have some default
+configuration files, these are ttyinfo, modems, fidonet networks. In the
+default (english) directory you now have default menu datafiles and ansi
+screens. These are copies of my test system so you have to edit them to
+build your own bbs.<br>
+Editing ansi screens can be done on a Linux system with
+<strong>duhdraw</strong>, 
+this is available from 2:280/2802 as <strong>duhdraw.tgz</strong> (68 Kbytes). 
+The binaries are included in this archive, if you compile it yourself 
+it may give trouble so if the binaries work, use these.<br>
+Another editor is available from 
+<A HREF="http://www.drastic.net/bmdraw/">http://www.drastic.net/bmdraw/</A>,
+you can find the tar.gz file in <A
+HREF="http://www.drastic.net/bmdraw/files/bmd022.tgz">
+http://www.drastic.net/bmdraw/files/bmd022.tgz</A>, it's about 36 Kbytes. 
+This is also a thedraw clone for Linux. Note, at my system I needed to run it as
+root.<br>
+You may also want to edit ~/etc/header.txt and ~/etc/footer.txt, these
+files are the top and bottom of the newfiles/allfiles listings.
+<P>
+Now the basic environment is finished, the next thing to do is
+<a href="setup/index.htm">configure the bbs</a>.
 <P>&nbsp;<P>
-<a href="index.htm"><img SRC="images/b_arrow.gif" ALT="Back to Index" BORDER=0 width="33" height="35" ></a>
-<a href="index.htm">Back to Index</a>
+
+<a href="index.htm"><img SRC="images/b_arrow.gif" ALT="Back to Index" BORDER=0>Back to Index</a>
 
 </blockquote>
 </body>

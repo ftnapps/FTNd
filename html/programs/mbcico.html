@@ -1,8 +1,9 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 30-Jan-2001</h5>
+<h5>Last update 21-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbcico - The Fidonet mailer.</H1>
@@ -111,6 +112,43 @@ binkd   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ibn
 tfido   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn
 fido    stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ifc
 </PRE><P>
+If your system uses xinetd the file /etc/xinetd.d/mbsebbs could be:
+<P><PRE>
+#:MBSE BBS services are defined here.
+
+service binkp
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbcico
+	server_args     = -t ibn
+}
+
+service tfido
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbcico
+	server_args     = -t itn
+}
+
+service fido
+{
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = mbse
+	instances       = 10
+	server          = /opt/mbse/bin/mbcico
+	server_args     = -t ifc
+}
+</PRE><P>
 In the file /etc/services the following lines must be present:
 <P><PRE>
 binkd           24554/tcp               # mbcico IBN mode
@@ -140,6 +178,9 @@ poll for that node to really start the request. You can also force a call
 by entering <strong>mbcico f2802.n280.z2</strong> on the commandline.
 Only one call is made then and there is no dial delay. If <b>mbcico -r1</b> is
 called a random dialdelay is used with each call except for internet calls.
+<P><B>Note:</B> you should not call nodes with mbcico directly, let
+<b>mbtask</b> do the calling. 
+If you want to call a node make a <a href="mbout.html">poll</a> command.
 <P>&nbsp;<P>
 
 <h3>Environment.</H3>
@@ -183,7 +224,7 @@ of ".sts". These are small datafiles containing three decimal numbers.
 <h3>Configuration.</H3>
 <P>
 The behaviour of mbcico can be configured with <strong>mbsetup</strong>,
-section 1.16 If something doesn't do what you want, set the debug on for
+section 1.17 If something doesn't do what you want, set the debug on for
 that problem. This will produce huge logfiles, but also a lot of information.
 Important flags are Device IO, EMSI debug, File forward, Locking, Outboundscan
 and Session.
@@ -214,8 +255,8 @@ Michiel Broek                             Rewrite for MBSE BBS.
 </pre>
 <P>
 
-<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0">Back to Main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

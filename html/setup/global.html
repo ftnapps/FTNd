@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jan-2002</h5>
+<h5>Last update 21-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Global Setup</H1>
@@ -286,14 +287,14 @@ split will be forced right after the file that passes the 31 KBytes limit.
 I use values of 1 KBytes below maximum for overhead such as SEEN-BY and
 PATH lines. Values larger then 32 KBytes is not a good idea, recent tests
 in May 1999 have shown that your messages will not reach all systems
-if they are larger then 32 KBytes. Splitting is used for newsfiles reports
+if they are larger then 32 KBytes. Splitting is used for newfiles reports
 and gated news articles to Fidonet.
 <P>
 
 <h3>1.15. Edit Internet mail and news processing.</h3>
 <p>
 Email and news is setup here. There are three possible configurations which you
-can set with 1.14.11:
+can set with 1.15.11:
 <ul>
   <li><strong>No ISP</strong>. If you don't have any connection to the internet
       use this setting. Email will come from the default Fidonet UUCP gate and will be send out
@@ -314,7 +315,9 @@ can set with 1.14.11:
   <li><strong>Perm ISP</strong>. If you are permanent connected to the internet
       either with a static or dynamic IP address use this option. Use this option
       also if you have an UUCP domain and have a dialup UUCP connection. Also
-      you can use this for dialup if you have your own maildomain.
+      you can use this for dialup if you have your own maildomain without UUCP,
+      you will then fetch the mail from a multidrop mailbox (POP or IMAP) and
+      send the mail using SMTP via the SMTP mailer of your provider.<br>
       If you have a dynamic IP address you can still get a DNS name from for
       example <A HREF="http://www.dynip.com">dynip.com</A>
       Incoming email will come directly from the internet, but if someone sends
@@ -322,6 +325,8 @@ can set with 1.14.11:
       <strong>user@yourbbs.domain.org</strong>. Note, the username is their
       Unix name.
 </ul>
+Note: the terms <b>Dial ISP</b> and <b>Perm ISP</b> are not correct, it doesn't
+matter how you are connected, it only matters if you have a maildomain or not.
 Another word of wisdom from my side, configuration of the internet, ppp, sendmail etc. is not discussed
 here, see the HOWTO's and other documentation that exists at <A HREF="http://www.linuxdoc.org">
 www.linuxdoc.org</A>, it's all there.
@@ -338,6 +343,7 @@ www.linuxdoc.org</A>, it's all there.
 <strong>UUCP aka          </strong>The default Fidonet UUCP gate, 2:292/875@fidonet
 <strong>Emailmode         </strong>The email mode, discussed above
 <strong>News mode         </strong>Newsfeed mode, INN, rnews or UUCP.
+<strong>Articles          </strong>The default maximum newsarticles to fetch per group.
 <strong>Split at          </strong>Gently split newfiles reports after n KBytes (12..60)
 <strong>Force at          </strong>Force split of newfiles reports after n KBytes (16..63)
 <strong>Control ok        </strong>Allow news control messages to be gated

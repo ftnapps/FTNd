@@ -1,8 +1,9 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 30-Jan-2001</h5>
+<h5>Last update 21-Jan-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - File Echo's Setup - Hatch Manager.</H1>
@@ -27,7 +28,11 @@ in this setup. If such a file is found, a special .tic file is written and
 stored in the mailers inbound directory. When the <strong>mbfido</strong>
 starts processing .tic files, that new hatched file will be processed as if
 it was received form another system. To let this work, you obviously need
-an existing TIC area.
+an existing TIC area.<P>
+The filenames to hatch may be long filenames as long as there are no spaces in
+it. In the TIC file a short filename will be created for the old style tic
+processors. The long filename is inserted in the TIC file as well. The short
+filenames are created in the same way as windows does.
 <P>&nbsp;<P>
 
 <H3>Hatch Manager Setup.</H3>
@@ -49,12 +54,12 @@ an existing TIC area.
 </pre>
 <P>
 
-<IMG SRC="../images/hatch.gif" width="589" height="343">
+<IMG SRC="../images/hatch.gif">
 <P>
 
-<A HREF="tic.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to File Echo's Setup</A>&nbsp;
-<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+<A HREF="tic.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0">Back to main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>
