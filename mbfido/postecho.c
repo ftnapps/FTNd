@@ -144,7 +144,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 {
     char	    *buf, *msgid = NULL, *reply = NULL, *p, *q, sbe[16];
     int		    First = TRUE, rc = 0, i, kludges = TRUE, dupe = FALSE, bad = TRUE, seenlen, oldnet;
-    faddr	    *Faddr;
+    faddr	    *Faddr, *ta;
     unsigned long   crc;
     sysconnect	    Link;
     fa_list	    *sbl = NULL, *ptl = NULL, *tmpl;
@@ -224,8 +224,18 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	    crc = upd_crc32(buf, crc, strlen(buf));
 	    First = FALSE;
 	}
-	if (!strncmp(buf, "\001MSGID: ", 8))
+	if (!strncmp(buf, "\001MSGID: ", 8)) {
 	    msgid = xstrcpy(buf + 8);
+	    /*
+	     * Extra test to see if the mail comes from a pointaddress.
+	     */
+	    p = strtok(buf, " \n");
+	    p = strtok(NULL, " \n");
+	    if ((ta = parsefnode(p))) {
+		Syslog('m', "MSGID aka is %d", ascfnode(ta, 0x1f));
+		tidy_faddr(ta);
+	    }
+	}
 	if (!strncmp(buf, "\001REPLY: ", 8))
 	    reply = xstrcpy(buf + 8);
 	if (!strncmp(buf, "SEEN-BY:", 8)) {
