@@ -5,7 +5,7 @@ include ../Makefile.global
 
 OTHER		= Makefile README maint midnight weekly monthly installinit.sh rc rc.shutdown \
 		  mbse.start mbse.stop bbsdoor.sh rundoor.sh init.Debian init.RedHat \
-		  init.Slackware init.SuSE hatch
+		  init.Slackware init.SuSE hatch editor bbsjoerc bbsjmacsrc
 
 ####################################################################################################
 
