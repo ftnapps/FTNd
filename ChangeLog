@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.61.4		11-Aug-2004
+v0.61.5		25-Sep-2004
+
+
+v0.61.4		11-Aug-2004 - 25-Sep-2004
 
 	upgrade:
 		If you run a version older then 0.60.0, first upgrade to 0.60.0

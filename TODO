@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.61.4 TODO list.
+			MBSE BBS V0.61.5 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -15,8 +15,6 @@ $Id$
 		 X = Will not be done unless it's really needed.
 
 everything:
-	L: Consider XML format for databases.
-
 	L: Implement IPv6.
 
 	L: Document error return codes in the manual.
