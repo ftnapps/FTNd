@@ -670,7 +670,7 @@ int ProcessTic(fa_list *sbl)
 	 * received file as the file creation date.
 	 */
 	if (MustRearc || DidBanner) {
-		if ((!tic.NoTouch) && (tic.FileArea)) {
+		if ((tic.Touch) && (tic.FileArea)) {
 			ut.actime = mktime(localtime(&TIC.FileDate));
 			ut.modtime = mktime(localtime(&TIC.FileDate));
 			sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewName);

@@ -345,7 +345,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     tic.Replace = fgroup.Replace;
     tic.DupCheck = fgroup.DupCheck;
     tic.Secure = fgroup.Secure;
-    tic.NoTouch = fgroup.NoTouch;
+    tic.Touch = fgroup.Touch;
     tic.VirScan = fgroup.VirScan;
     tic.Announce = fgroup.Announce;
     tic.UpdMagic = fgroup.UpdMagic;

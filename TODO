@@ -61,6 +61,11 @@ mbfido:
 
 	N: Must be able to use more nodelist override's from the setup.
 
+	U: Add routing table to override standard routing.
+
+	N: The first file received in a not yet created tic area is refused
+	   after the area is created: node xxx not connected to area xxx.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

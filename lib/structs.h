@@ -1127,7 +1127,7 @@ struct	_tic {
 	unsigned	Replace		: 1;	/* Allow Replace	   */
 	unsigned	DupCheck	: 1;	/* Dupe Check		   */
 	unsigned	Secure		: 1;	/* Check for secure system */
-	unsigned	NoTouch		: 1;	/* Don't touch filedate    */
+	unsigned	Touch		: 1;	/* Touch filedate	   */
 	unsigned	VirScan 	: 1;	/* Run Virus scanners	   */
 	unsigned	Announce	: 1;	/* Announce files	   */
 	unsigned	UpdMagic	: 1;	/* Update Magic database   */
@@ -1259,7 +1259,7 @@ struct	_fgroup {
 	unsigned	Replace		: 1;	/* Allow replace	   */
 	unsigned	DupCheck	: 1;	/* Dupe Check		   */
 	unsigned	Secure		: 1;	/* Check for secure system */
-	unsigned	NoTouch		: 1;	/* Don't touch filedates   */
+	unsigned	Touch		: 1;	/* Touch filedates	   */
 	unsigned	VirScan		: 1;	/* Run Virus scanners	   */
 	unsigned	Announce	: 1;	/* Announce files	   */
 	unsigned	UpdMagic	: 1;	/* Update Magic database   */

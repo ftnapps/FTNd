@@ -288,7 +288,7 @@ void FgScreen(void)
 	mvprintw(18,32, "22. Dupecheck");
 	mvprintw(19,32, "23. Secure");
 
-	mvprintw( 9,56, "24. No touch");
+	mvprintw( 9,56, "24. Touch");
 	mvprintw(10,56, "25. Virscan");
 	mvprintw(11,56, "26. Announce");
 	mvprintw(12,56, "27. Upd magic");
@@ -364,7 +364,7 @@ int EditFGrpRec(int Area)
 		show_bool(18,46,    fgroup.DupCheck);
 		show_bool(19,46,    fgroup.Secure);
 
-		show_bool( 9,70,    fgroup.NoTouch);
+		show_bool( 9,70,    fgroup.Touch);
 		show_bool(10,70,    fgroup.VirScan);
 		show_bool(11,70,    fgroup.Announce);
 		show_bool(12,70,    fgroup.UpdMagic);
@@ -464,7 +464,7 @@ int EditFGrpRec(int Area)
 		case 22:E_BOOL(18,46,   fgroup.DupCheck,   "Set ^Dupe check^ in new created tic areas")
 		case 23:E_BOOL(19,46,   fgroup.Secure,     "Set ^Secure^ tic processing in new created tic areas")
 
-		case 24:E_BOOL( 9,70,   fgroup.NoTouch,    "Set ^Don't touch filedate^ in new created tic areas")
+		case 24:E_BOOL( 9,70,   fgroup.Touch,      "Set ^Touch filedate^ in new created tic areas")
 		case 25:E_BOOL(10,70,   fgroup.VirScan,    "Set ^Virus scanner^ in new created tic areas")
 		case 26:E_BOOL(11,70,   fgroup.Announce,   "Set ^Announce files^ in new created tic areas")
 		case 27:E_BOOL(12,70,   fgroup.UpdMagic,   "Set ^Update magic^ in new created tic areas")
@@ -737,7 +737,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Allow replace  %s\n", getboolean(fgroup.Replace));
 		fprintf(fp, "    Dupe checking  %s\n", getboolean(fgroup.DupCheck));
 		fprintf(fp, "    Secure         %s\n", getboolean(fgroup.Secure));
-		fprintf(fp, "    No touch dates %s\n", getboolean(fgroup.NoTouch));
+		fprintf(fp, "    Touch dates    %s\n", getboolean(fgroup.Touch));
 		fprintf(fp, "    Virus scan     %s\n", getboolean(fgroup.VirScan));
 		fprintf(fp, "    Announce       %s\n", getboolean(fgroup.Announce));
 		fprintf(fp, "    Update magics  %s\n", getboolean(fgroup.UpdMagic));

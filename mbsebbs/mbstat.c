@@ -259,7 +259,7 @@ int Wait(void)
 	if (file_exist(buf, R_OK) == 0)
 		Waiting = 30;
 
-	Syslog('+', "Waiting for the BBS to become free, timout %d seconds", Waiting);
+	Syslog('+', "Waiting for the BBS to become free, timeout %d seconds", Waiting);
 	while (Waiting) {
 		strcpy(buf, SockR("SFRE:0;"));
 		if (strncmp(buf, "100:0;", 6) == 0) {

@@ -421,7 +421,7 @@ void SetTicScreen(void)
 
 	mvprintw( 7,41, "11. Dupecheck");
 	mvprintw( 8,41, "12. Secure");
-	mvprintw( 9,41, "13. No touch");
+	mvprintw( 9,41, "13. Touch");
 	mvprintw(10,41, "14. Virus sc.");
 	mvprintw(11,41, "15. Announce");
 	mvprintw(12,41, "16. Upd magic");
@@ -840,7 +840,7 @@ int EditTicRec(int Area)
 
 		show_bool( 7,55,   tic.DupCheck);
 		show_bool( 8,55,   tic.Secure);
-		show_bool( 9,55,   tic.NoTouch);
+		show_bool( 9,55,   tic.Touch);
 		show_bool(10,55,   tic.VirScan);
 		show_bool(11,55,   tic.Announce);
 		show_bool(12,55,   tic.UpdMagic);
@@ -902,7 +902,7 @@ int EditTicRec(int Area)
 				tic.Replace = fgroup.Replace;
 				tic.DupCheck = fgroup.DupCheck;
 				tic.Secure = fgroup.Secure;
-				tic.NoTouch = fgroup.NoTouch;
+				tic.Touch = fgroup.Touch;
 				tic.VirScan = fgroup.VirScan;
 				tic.Announce = fgroup.Announce;
 				tic.UpdMagic = fgroup.UpdMagic;
@@ -942,7 +942,7 @@ int EditTicRec(int Area)
 		case 10:E_BOOL(15,16, tic.Replace,    "Allow ^Replace^ files command");
 		case 11:E_BOOL( 7,55, tic.DupCheck,   "Check for ^duplicates^ in received files");
 		case 12:E_BOOL( 8,55, tic.Secure,     "Check for ^secure^ systems");
-		case 13:E_BOOL( 9,55, tic.NoTouch,    "Don't ^touch^ filedate");
+		case 13:E_BOOL( 9,55, tic.Touch,      "^Touch filedate^ on rearchived files to the origininal filedate");
 		case 14:E_BOOL(10,55, tic.VirScan,    "Check received files for ^virusses^");
 		case 15:E_BOOL(11,55, tic.Announce,   "^Announce^ received files");
 		case 16:E_BOOL(12,55, tic.UpdMagic,   "Update files ^magic^ names");
@@ -1282,7 +1282,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Replace ok. %s\n", getboolean(tic.Replace));
 		fprintf(fp, "    Dupe check  %s\n", getboolean(tic.DupCheck));
 		fprintf(fp, "    Secure      %s\n", getboolean(tic.Secure));
-		fprintf(fp, "    No touch    %s\n", getboolean(tic.NoTouch));
+		fprintf(fp, "    Touch       %s\n", getboolean(tic.Touch));
 		fprintf(fp, "    Virus scan  %s\n", getboolean(tic.VirScan));
 		fprintf(fp, "    Announce    %s\n", getboolean(tic.Announce));
 		fprintf(fp, "    Upd. magic  %s\n", getboolean(tic.UpdMagic));
