@@ -62,21 +62,16 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
 
     if (pkt == NULL) {
 	if (pktfp) {
-	    Syslog('P', "packet opened, check address");
 	    if (metric(addr,&pktroute) == 0) {
 		if ((CFG.maxpktsize == 0L) || ((fstat(fileno(pktfp),&st) == 0) && (st.st_size < CFG.maxpktsize))) {
-		    Syslog('P', "return existing fp");
 		    return pktfp;
 		}
-		Syslog('P', "packet too big, open new");
 		closepkt();
 	    } else {
-		Syslog('P', "address changed, closing fp");
 		closepkt();
 	    }
 	}
 
-	Syslog('P', "open new packet file");
 	pktroute.zone   = addr->zone;
 	pktroute.net    = addr->net;
 	pktroute.node   = addr->node;
@@ -109,8 +104,6 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
 
     pos = ftell(pkt);
     if (pos <= 0L) {
-	Syslog('P', "creating new .pkt");
-	Syslog('s', "openpkt() create .pkt in %s mode", session?"session":"mail");
 
 	/*
 	 * Write .PKT header, see FSC-0039 rev. 4
@@ -121,60 +114,60 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor, int session)
 	if (ptm->tm_sec > 59)
 	    ptm->tm_sec = 59;
 
-	    bestaka = bestaka_s(addr);
-	    buffer[0x00] = (bestaka->node & 0x00ff);
-	    buffer[0x01] = (bestaka->node & 0xff00) >> 8;
-	    buffer[0x02] = (addr->node & 0x00ff);
-	    buffer[0x03] = (addr->node & 0xff00) >> 8;
-	    buffer[0x04] = ((ptm->tm_year + 1900) & 0x00ff);
-	    buffer[0x05] = ((ptm->tm_year + 1900) & 0xff00) >> 8;
-	    buffer[0x06] = ptm->tm_mon;
-	    buffer[0x08] = ptm->tm_mday;
-	    buffer[0x0a] = ptm->tm_hour;
-	    buffer[0x0c] = ptm->tm_min;
-	    buffer[0x0e] = ptm->tm_sec;
-	    buffer[0x12] = 2;
-	    buffer[0x14] = (bestaka->net & 0x00ff);
-	    buffer[0x15] = (bestaka->net & 0xff00) >> 8;
-	    buffer[0x16] = (addr->net & 0x00ff);
-	    buffer[0x17] = (addr->net & 0xff00) >> 8;
-	    buffer[0x18] = (PRODCODE & 0x00ff);
-	    buffer[0x19] = (VERSION_MAJOR & 0x00ff);
+	bestaka = bestaka_s(addr);
+	buffer[0x00] = (bestaka->node & 0x00ff);
+        buffer[0x01] = (bestaka->node & 0xff00) >> 8;
+        buffer[0x02] = (addr->node & 0x00ff);
+        buffer[0x03] = (addr->node & 0xff00) >> 8;
+        buffer[0x04] = ((ptm->tm_year + 1900) & 0x00ff);
+        buffer[0x05] = ((ptm->tm_year + 1900) & 0xff00) >> 8;
+        buffer[0x06] = ptm->tm_mon;
+        buffer[0x08] = ptm->tm_mday;
+        buffer[0x0a] = ptm->tm_hour;
+        buffer[0x0c] = ptm->tm_min;
+        buffer[0x0e] = ptm->tm_sec;
+        buffer[0x12] = 2;
+        buffer[0x14] = (bestaka->net & 0x00ff);
+        buffer[0x15] = (bestaka->net & 0xff00) >> 8;
+        buffer[0x16] = (addr->net & 0x00ff);
+        buffer[0x17] = (addr->net & 0xff00) >> 8;
+        buffer[0x18] = (PRODCODE & 0x00ff);
+        buffer[0x19] = (VERSION_MAJOR & 0x00ff);
 
-	    memset(&str, 0, 8);
-	    if (session) {
-		if (noderecord(addr) && strlen(nodes.Epasswd))
-		    sprintf(str, "%s", nodes.Spasswd);
-	    } else {
-		if (noderecord(addr) && strlen(nodes.Epasswd))
-		    sprintf(str, "%s", nodes.Epasswd);
-	    }
-	    for (i = 0; i < 8; i++)
-		buffer[0x1a + i] = toupper(str[i]);	 /* FSC-0039 only talks about A-Z, 0-9, so force uppercase */
+        memset(&str, 0, 8);
+        if (session) {
+	   if (noderecord(addr) && strlen(nodes.Spasswd))
+	        sprintf(str, "%s", nodes.Spasswd);
+	} else {
+	    if (noderecord(addr) && strlen(nodes.Epasswd))
+	        sprintf(str, "%s", nodes.Epasswd);
+	}
+	for (i = 0; i < 8; i++)
+	    buffer[0x1a + i] = toupper(str[i]);	 /* FSC-0039 only talks about A-Z, 0-9, so force uppercase */
 
-	    buffer[0x22] = (bestaka->zone & 0x00ff);
-	    buffer[0x23] = (bestaka->zone & 0xff00) >> 8;
-	    buffer[0x24] = (addr->zone & 0x00ff);
-	    buffer[0x25] = (addr->zone & 0xff00) >> 8;
-	    buffer[0x29] = 1;
-	    buffer[0x2a] = (PRODCODE & 0xff00) >> 8;
-	    buffer[0x2b] = (VERSION_MINOR & 0x00ff);
-	    buffer[0x2c] = 1;
-	    buffer[0x2e] = buffer[0x22];
-	    buffer[0x2f] = buffer[0x23];
-	    buffer[0x30] = buffer[0x24];
-	    buffer[0x31] = buffer[0x25];
-	    buffer[0x32] = (bestaka->point & 0x00ff);
-	    buffer[0x33] = (bestaka->point & 0xff00) >> 8;
-	    buffer[0x34] = (addr->point & 0x00ff);
-	    buffer[0x35] = (addr->point & 0xff00) >> 8;
-	    buffer[0x36] = 'm';
-	    buffer[0x37] = 'b';
-	    buffer[0x38] = 's';
-	    buffer[0x39] = 'e';
+	buffer[0x22] = (bestaka->zone & 0x00ff);
+        buffer[0x23] = (bestaka->zone & 0xff00) >> 8;
+        buffer[0x24] = (addr->zone & 0x00ff);
+        buffer[0x25] = (addr->zone & 0xff00) >> 8;
+        buffer[0x29] = 1;
+        buffer[0x2a] = (PRODCODE & 0xff00) >> 8;
+        buffer[0x2b] = (VERSION_MINOR & 0x00ff);
+        buffer[0x2c] = 1;
+        buffer[0x2e] = buffer[0x22];
+        buffer[0x2f] = buffer[0x23];
+        buffer[0x30] = buffer[0x24];
+        buffer[0x31] = buffer[0x25];
+        buffer[0x32] = (bestaka->point & 0x00ff);
+        buffer[0x33] = (bestaka->point & 0xff00) >> 8;
+        buffer[0x34] = (addr->point & 0x00ff);
+        buffer[0x35] = (addr->point & 0xff00) >> 8;
+        buffer[0x36] = 'm';
+        buffer[0x37] = 'b';
+        buffer[0x38] = 's';
+        buffer[0x39] = 'e';
 
-	    fseek(pkt, 0L, SEEK_SET);
-	    fwrite(buffer, 1, 0x3a, pkt);
+        fseek(pkt, 0L, SEEK_SET);
+        fwrite(buffer, 1, 0x3a, pkt);
     }
 
     return pkt;
@@ -186,7 +179,6 @@ void closepkt(void)
 {
     unsigned char	buffer[2];
 
-    Syslog('P', "closepkt entered");
     memset(&buffer, 0, sizeof(buffer));
 
     if (pktfp) {

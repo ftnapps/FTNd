@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 21-Jan-2002</h5>
+<h5>Last update 24-Aug-2003</h5>
 <P>&nbsp;<P>
 <H1>MBSE BBS - Known bugs.</H1>
 <P>
@@ -28,6 +28,11 @@ slow links and over PPP. This is not a MBSE BBS problem.
 <LI>Problems with D'Bridge [1a] mailers.
 
 <LI>mbsetup crashes at several places if in system aka's the domain name is 12 characters long.
+
+<LI>If you have regular sessions with a node wich only supports FTS-0001
+sessions and you use a session password you <b>must</b> also set a mail password
+and these passwords must be the same. This is a side effect of the way FTS-0001
+handshake works, by sending a small mail packet wich contains the password.
 </UL>
 
 <A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>

@@ -328,11 +328,14 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	 */
 	tmpfl = fl;
 	while ((flavor = *tmpfl++)) {
+
+	    Syslog('o', "Check flavor %c", flavor);
 	    /*
 	     * Check normal mail packets
 	     */
 	    nm = pktname(tmpa->addr,flavor);
 	    if ((nm != NULL) && (stat(nm,&stbuf) == 0)) {
+		Syslog('o', "found %s", nm);
 		packets++;
 		add_list(&st, nm, tmpkname(), KFS, 0L, NULL, 1);
 	    }
@@ -358,6 +361,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	}
     }
 
+    Syslog('o', "B4 FTS-0001 checkpoint");
     /*
      * For FTS-0001 we need to create at least one packet.
      */

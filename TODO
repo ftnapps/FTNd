@@ -109,11 +109,7 @@ mbcico:
 	   transfers. Changes are under test now. Feedback needed!
 
 	N: Implement binkp resync when getting files. Transmit works.
-
-	N: FTS-0001 sessions always are secure, the password check is not
-	   good.
-
-	N: The FTS-0001 incoming hello packet is not after a session.
+	   Under test now!
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
