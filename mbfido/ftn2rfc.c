@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
- * Last modification date : 17-Sep-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -343,19 +343,19 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		return 4;
 	}
 
-	Syslog('m', "Message input start =============");
+	Syslog('M', "Message input start =============");
 	rewind(pkt);
 	while ((fgets(buf, sizeof(buf)-2, pkt)) != NULL) {
 		/*
 		 *  Simple test to see how large the buffer must be. 2048 bytes has been seen.
 		 */
 		if (strlen(buf) > (sizeof(buf) /2))
-		Syslog('+', "Possible bufferoverflow: line read %d bytes", strlen(buf));
+		    Syslog('+', "FTN: Possible bufferoverflow: line read %d bytes", strlen(buf));
 		if (strlen(buf) > 200) {
-			Syslog('m', "Next line should be %d characters", strlen(buf));
+			Syslog('m', "FTN: Next line should be %d characters", strlen(buf));
 			Syslogp('m', printable(buf, 200));
 		} else {
-			Syslogp('m', printable(buf, 0));
+			Syslogp('M', printable(buf, 0));
 		}
 		if ((buf[0] == '\1') || !strncmp(buf,"AREA:",5) || !strncmp(buf,"SEEN-BY",7)) { /* This is a kluge line */
 			waskludge = TRUE;
@@ -488,7 +488,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		}
 
 	}
-	Syslog('m', "Message input end ===============");
+	Syslog('M', "Message input end ===============");
 
 	if (bNeedToGetAddressFromMsgid && (p = hdr((char *)"MSGID", kmsg))) {
 		Syslog('m', "Need To Get Address From Msgid start...");
@@ -547,7 +547,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			outcode=readcharset(p);
 		else {
 			q = rfcmsgid(hdr((char *)"MSGID",kmsg),bestaka);
-			Syslog('m', "start headers checking 1j");
 			if ((hdr((char *)"Message-ID",msg)) || (hdr((char *)"RFC-Message-ID",kmsg)) || 
 			    (hdr((char *)"Message-ID",kmsg)) || (hdr((char *)"RFCID",kmsg)) || 
 			    (hdr((char *)"ORIGID",kmsg)) || ((hdr((char *)"MSGID",kmsg)) && (!chkftnmsgid(q))))
@@ -707,10 +706,9 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		substitute(buf);
 		Syslog('+', "mail from %s to %s",ascfnode(f,0x7f),buf);
 		To = xstrcpy(buf);
-
-		Syslog('m', "Preparing email");
 //		if (p)
 //			free(p);
+
 		p = NULL;
 		p = hdr((char *)"Return-Path",msg);
 		if (p == NULL) 
