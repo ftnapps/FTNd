@@ -61,8 +61,8 @@ v0.51.4		11-Apr-2004
                 used if configured with --enable-experiment.
 
 	mbnntp:
-		New program, news server to read echomail with a news client.
-		Reading news works, posts partial tested.
+		New program, news server to read/write echomail with a news 
+		client. Users must be registered bbs users.
 
 	mbsebbs:
 		Added logging of virus scanner results.

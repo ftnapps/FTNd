@@ -134,12 +134,6 @@ int rfc2ftn(FILE *fp)
     temp = calloc(4097, sizeof(char));
     Syslog('m', "Entering rfc2ftn");
     rewind(fp);
-    Syslog('m', "========== RFC Start");
-    while ((fgets(temp, 4095, fp)) != NULL) {
-	Syslogp('m', printable(temp, 0));
-    }
-    Syslog('m', "========== RFC end");
-    rewind(fp);
     msg = parsrfc(fp);
 
     newsmode = hdr((char *)"Newsgroups", msg) ?TRUE:FALSE;
@@ -314,16 +308,7 @@ int rfc2ftn(FILE *fp)
 	    return 1;
 	}
 
-	if (newsmode) {
-	    fprintf(ofp, "AREA:%s\n", msgs.Tag);
-	} else {
-	    if (fmsg->to->point != 0)
-		fprintf(ofp, "\001TOPT %d\n", fmsg->to->point);
-	    if (fmsg->from->point != 0)
-		fprintf(ofp, "\001FMPT %d\n", fmsg->from->point);
-		fprintf(ofp, "\001INTL %d:%d/%d %d:%d/%d\n", fmsg->to->zone, fmsg->to->net, fmsg->to->node,
-				fmsg->from->zone, fmsg->from->net, fmsg->from->node);
-	}
+	fprintf(ofp, "AREA:%s\n", msgs.Tag);
 	fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 	if (fmsg->reply_s) 
 	    fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
@@ -449,16 +434,6 @@ int rfc2ftn(FILE *fp)
 		    fprintf(ofp,"\1%s:",tmp->key+1);
 		    kludgewrite(tmp->val,ofp);
 		}
-
-
-	    /*
-	     *  Add the Received: header from this system to the mesage.
-	     */
-	    if (!newsmode) {
-		Now = time(NULL);
-		fprintf(ofp, "\1RFC-Received: by %s (mbfido) via RFC2FTN; %s\n", CFG.sysdomain, rfcdate(Now));
-		hdrsize += 72+strlen(CFG.sysdomain);
-	    }
 
 	    for (tmp = msg; tmp; tmp = tmp->next) {
 		if ((needputrfc(tmp, newsmode) == 1)) {

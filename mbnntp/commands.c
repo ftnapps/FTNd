@@ -192,7 +192,7 @@ void command_abhs(char *buf)
 	    send_nntp("From: %s <%s>", Msg.From, Msg.FromAddress);
 	    send_nntp("Newsgroups: %s", currentgroup);
 	    send_nntp("Subject: %s", Msg.Subject);
-	    send_nntp("Date: %s", rfcdate(Msg.Written));
+	    send_nntp("Date: %s", rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)));
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
 		send_nntp("References: %s", make_msgid(Msg.Replyid));
@@ -211,7 +211,6 @@ void command_abhs(char *buf)
 		} while ((p = (char *)MsgText_Next()) != NULL);
 	    }
 	    
-//	    send_nntp("X-JAM-Attributes:");
 	    send_nntp("MIME-Version: 1.0");
 	    send_nntp("Content-Type: text/plain; charset=iso-8859-1; format=fixed");
 	    send_nntp("Content-Transfer-Encoding: 8bit");
@@ -590,7 +589,7 @@ void command_xover(char *cmd)
 	    if (strlen(Msg.Replyid))
 		sprintf(reply, "%s", make_msgid(Msg.Replyid));
 	    send_nntp("%lu\t%s\t%s <%s>\t%s\t%s\t%s\t%d\t%d", i, Msg.Subject, Msg.From, Msg.FromAddress, 
-		    rfcdate(Msg.Written), msgid, reply, bytecount, linecount);
+		    rfcdate(Msg.Written + (gmt_offset((time_t)0) * 60)), msgid, reply, bytecount, linecount);
 	}
     }
     send_nntp(".");

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 13-Apr-2004</h5></div>
+<div align="right"><h5>Last update 11-May-2004</h5></div>
 <div align="center"><H1>mbnntp - News server</H1></div>
 
 <H3>Synopsis.</H3>
@@ -29,7 +29,7 @@ commandline, instead it should be run by <b>inetd</b> or <b>xinetd</b>.
 the bbs echomail and news areas. To use the server, the user must login in the
 news server with his bbs unix name and password, thus the user must exist on the
 bbs. The access to the areas is the same as if the user would be logged into the
-bbs.
+bbs. Only echomail areas are available to the user as newsgroups.
 <P>&nbsp;<P>
 
 <H3>Installation.</H3>
@@ -44,7 +44,6 @@ nntp    stream  tcp     nowait  mbse    /opt/mbse/bin/mbnntp    mbnntp
 
 <H3>Bugs.</H3>
 <P>
-POST not yet implemented.<br>
 Maybe a lot, this is a new program.
 <P>
 
