@@ -133,7 +133,7 @@ void Uploads()
 			if (mbsedb_LockFDB(fdb_area, 30)) {
 			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-			    mbsedb_CloseFDB(fdb_area);
+			    mbsedb_UnlockFDB(fdb_area);
 			}
 		    }
 		}

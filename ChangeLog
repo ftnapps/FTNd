@@ -8,6 +8,10 @@ v0.51.5		19-May-2004
 		converted so that the path information is removed, this is to
 		keep programs like FD (and maybe others) happy.
 
+	mbaff:
+		Fixed a bug that crashed mbaff when new files are found in the
+		files database (uploads).
+
 
 v0.51.4		11-Apr-2004 - 19-May-2004
 
