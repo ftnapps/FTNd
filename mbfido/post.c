@@ -51,7 +51,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     struct tm	    *t;
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Post \"%s\" to \"%s\" in area %ld\n", File, To, Area);
     }
 

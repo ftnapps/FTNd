@@ -44,7 +44,7 @@
 #include "whoson.h"
 #include "change.h"
 #include "dispfile.h"
-
+#include "term.h"
 
 
 extern	long	arecno;		/* File area number in xxxScan() functions   */

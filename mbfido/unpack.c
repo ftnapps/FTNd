@@ -70,7 +70,7 @@ int unpack(char *fn)
     int		rc = 0, ld;
 
     if (!do_quiet) {
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("Unpacking file %s\n", fn);
     }
 

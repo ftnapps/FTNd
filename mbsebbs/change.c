@@ -41,6 +41,7 @@
 #include "timeout.h"
 #include "exitinfo.h"
 #include "bye.h"
+#include "term.h"
 
 
 int Chg_Language(int NewMode)

@@ -110,11 +110,11 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    colour(LIGHTCYAN, BLACK);
+    mbse_colour(LIGHTCYAN, BLACK);
     printf("\nUsage: mbfido [command(s)] <options>\n\n");
-    colour(LIGHTBLUE, BLACK);
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("	a    areas			Process Areas taglists\n");
     printf("	m    mail <recipient> ...	MTA Mail mode\n");
     printf("	ne   news			Scan for new news\n");
@@ -127,9 +127,9 @@ void Help(void)
     printf("	to   toss			Toss incoming Fido mail\n");
     printf("	u    uucp	 		Process UUCP batchfile\n");
     printf("	w    web			Create WWW statistics\n\n");
-    colour(LIGHTBLUE, BLACK);
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("	-f   -full			Full Mailscan\n");
     printf("	-l   -learn			Learn News dupes\n");
     printf("	-noc -nocrc			Skip CRC checking\n");
@@ -137,7 +137,7 @@ void Help(void)
     printf("	-q   -quiet			Quiet mode\n");
     printf("	-uns -unsecure			Toss unsecure\n");
     printf("	-unp -unprotect			Toss unprotected inbound\n");
-    colour(LIGHTGRAY, BLACK);
+    mbse_colour(LIGHTGRAY, BLACK);
     ExitClient(MBERR_COMMANDLINE);
 }
 
@@ -151,9 +151,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    colour(WHITE, BLACK);
+    mbse_colour(WHITE, BLACK);
     printf("\nMBFIDO: MBSE BBS %s - Fidonet File and Mail processor\n", VERSION);
-    colour(YELLOW, BLACK);
+    mbse_colour(YELLOW, BLACK);
     printf("        %s\n", COPYRIGHT);
 }
 
@@ -196,7 +196,7 @@ void die(int onsig)
 
     if (!do_quiet) {
 	show_log = TRUE;
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
     }
 
     if (onsig) {
@@ -246,7 +246,7 @@ void die(int onsig)
     Syslog(' ', "MBFIDO finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet)
-	colour(LIGHTGRAY, BLACK);
+	mbse_colour(LIGHTGRAY, BLACK);
     ExitClient(onsig);
 }
 
@@ -298,7 +298,7 @@ int main(int argc, char **argv)
     InitTic();
     InitUser();
     InitFidonet();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     t = localtime(&t_start);
     Diw = t->tm_wday;
@@ -608,7 +608,7 @@ int main(int argc, char **argv)
 	NewsUUCP();
     if (do_areas) {
 	if (!do_quiet) {
-	    colour(LIGHTGREEN, BLACK);
+	    mbse_colour(LIGHTGREEN, BLACK);
 	    printf("Are you sure to process all area lists [y/N] ");
 	    fflush(stdout);
 	    x = Getone();

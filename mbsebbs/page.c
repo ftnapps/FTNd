@@ -40,6 +40,7 @@
 #include "timeout.h"
 #include "mail.h"
 #include "language.h"
+#include "term.h"
 
 
 extern    pid_t           mypid;

@@ -218,28 +218,28 @@ int EditBBSlistRec(int Area)
 	crc = upd_crc32((char *)&bbs, crc, sizeof(bbs));
 
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 1, "8.6.1   EDIT BBSLIST");
+	mbse_mvprintw( 4, 1, "8.6.1   EDIT BBSLIST");
 	set_color(CYAN, BLACK);
 
-	mvprintw( 6, 1, " 1. BBS");
-	mvprintw( 7, 1, " 2. Desc.");
-	mvprintw( 8, 1, " 3. Desc.");
-	mvprintw( 9, 1, " 4. Phn 1");
-	mvprintw(10, 1, " 5. Phn 2");
-	mvprintw(11, 1, " 6. Phn 3");
-	mvprintw(12, 1, " 7. Phn 4");
-	mvprintw(13, 1, " 8. Phn 5");
-	mvprintw(14, 1, " 9. TCPIP");
-	mvprintw(15, 1, "10. Name");
-	mvprintw(16, 1, "11. Sysop");
-	mvprintw(17, 1, "12. Date");
-	mvprintw(18, 1, "13. Lines");
-	mvprintw(19, 1, "14. Open");
+	mbse_mvprintw( 6, 1, " 1. BBS");
+	mbse_mvprintw( 7, 1, " 2. Desc.");
+	mbse_mvprintw( 8, 1, " 3. Desc.");
+	mbse_mvprintw( 9, 1, " 4. Phn 1");
+	mbse_mvprintw(10, 1, " 5. Phn 2");
+	mbse_mvprintw(11, 1, " 6. Phn 3");
+	mbse_mvprintw(12, 1, " 7. Phn 4");
+	mbse_mvprintw(13, 1, " 8. Phn 5");
+	mbse_mvprintw(14, 1, " 9. TCPIP");
+	mbse_mvprintw(15, 1, "10. Name");
+	mbse_mvprintw(16, 1, "11. Sysop");
+	mbse_mvprintw(17, 1, "12. Date");
+	mbse_mvprintw(18, 1, "13. Lines");
+	mbse_mvprintw(19, 1, "14. Open");
 	
-	mvprintw(16,46, "15. Verified");
-	mvprintw(17,46, "16. Available");
-	mvprintw(18,46, "17. Software");
-	mvprintw(19,46, "18. Storage");
+	mbse_mvprintw(16,46, "15. Verified");
+	mbse_mvprintw(17,46, "16. Available");
+	mbse_mvprintw(18,46, "17. Software");
+	mbse_mvprintw(19,46, "18. Storage");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -352,7 +352,7 @@ void EditBBSlist(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "8.6.1 BBS LISTS SETUP");
+		mbse_mvprintw( 5, 2, "8.6.1 BBS LISTS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/bbslist.temp", getenv("MBSE_ROOT"));
@@ -377,7 +377,7 @@ void EditBBSlist(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, bbs.BBSName);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -436,7 +436,7 @@ void PurgeBBSlist(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.6.2   BBS LISTS PURGE");
+	mbse_mvprintw( 5, 6, "8.6.2   BBS LISTS PURGE");
 	set_color(CYAN, BLACK);
 	working(1, 0, 0);
 
@@ -461,9 +461,9 @@ void PurgeBBSlist(void)
 	}
 
 	sprintf(temp, "%d records, %d records to purge", recno, iCount);
-	mvprintw(7, 6, temp);
+	mbse_mvprintw(7, 6, temp);
 	if (iCount == 0) {
-		mvprintw(9, 6, "Press any key");
+		mbse_mvprintw(9, 6, "Press any key");
 		readkey(9, 20, LIGHTGRAY, BLACK);
 		return;
 	}
@@ -492,10 +492,10 @@ void bbslist_menu(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.6   BBS LISTS SETUP");
+		mbse_mvprintw( 5, 6, "8.6   BBS LISTS SETUP");
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit BBS lists");
-		mvprintw( 8, 6, "2.    Purge BBS lists");
+		mbse_mvprintw( 7, 6, "1.    Edit BBS lists");
+		mbse_mvprintw( 8, 6, "2.    Purge BBS lists");
 
 		switch(select_menu(2)) {
 		case 0:

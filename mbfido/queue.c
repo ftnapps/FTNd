@@ -620,9 +620,9 @@ void flush_queue(void)
 
     IsDoing("Flush queue");
     if (!do_quiet) {
-	colour(LIGHTBLUE, BLACK);
+	mbse_colour(LIGHTBLUE, BLACK);
 	printf("Flushing outbound queue\n");
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
     }
     
     temp = calloc(PATH_MAX, sizeof(char));

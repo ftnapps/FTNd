@@ -42,6 +42,7 @@
 #include "bye.h"
 #include "timeout.h"
 #include "funcs.h"
+#include "term.h"
 
 #include <locale.h>
 #include <langinfo.h>

@@ -94,11 +94,11 @@ void ScanArea(ff_list **ffl)
     unsigned long	Number, Highest;
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("\r  %-40s", scanmgr.Comment);
-	colour(12, 0);
+	mbse_colour(12, 0);
 	printf(" (Scanning) ");
-	colour(13, 0);
+	mbse_colour(13, 0);
 	fflush(stdout);
     }
     Syslog('+', "Scanning %s", scanmgr.Comment);
@@ -267,12 +267,12 @@ void ScanFiles(ff_list *tmp)
     Syslog('+', "ff: %s [%s]", temp, tmp->subject);
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	temp[40] = '\0';
 	printf("\r  %-40s", temp);
-	colour(12, 0);
+	mbse_colour(12, 0);
 	printf(" (Searching)");
-	colour(13, 0);
+	mbse_colour(13, 0);
 	fflush(stdout);
     }
 
@@ -363,7 +363,7 @@ void ScanFiles(ff_list *tmp)
 
     if (found) {
 	if (!do_quiet) {
-	    colour(14, 0);
+	    mbse_colour(14, 0);
 	    printf(" (Replying)");
 	    fflush(stdout);
 	}
@@ -488,7 +488,7 @@ int Filefind()
     IsDoing("FileFind");
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Processing FileFind requests\n");
     }
     Syslog('+', "Processing FileFind requests");
@@ -520,7 +520,7 @@ int Filefind()
 	if (Replies)
 	    rc = TRUE;
 	if (!do_quiet) {
-	    colour(3, 0);
+	    mbse_colour(3, 0);
 	    printf("Processed %d requests, created %d replies\n", Requests, Replies);
 	}
     }

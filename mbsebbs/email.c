@@ -43,7 +43,7 @@
 #include "input.h"
 #include "email.h"
 #include "whoson.h"
-
+#include "term.h"
 
 extern unsigned long	LastNum;
 extern int		Kludges;

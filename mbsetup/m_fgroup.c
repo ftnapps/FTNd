@@ -263,41 +263,41 @@ void FgScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "10.1 EDIT FILE GROUP");
+	mbse_mvprintw( 4, 2, "10.1 EDIT FILE GROUP");
 	set_color(CYAN, BLACK);
-	mvprintw( 6, 2, "1.  Name");
-	mvprintw( 7, 2, "2.  Comment");
-	mvprintw( 8, 2, "3.  Base path");
-	mvprintw( 9, 2, "4.  Use Aka");
-	mvprintw(10, 2, "5.  Uplink");
-	mvprintw(11, 2, "6.  Areas");
-	mvprintw(12, 2, "7.  Filegate");
-	mvprintw(13, 2, "8.  Banner");
-	mvprintw(14, 2, "9.  Convert");
-	mvprintw(15, 2, "10. BBS group");
-	mvprintw(16, 2, "11. New group");
-	mvprintw(17, 2, "12. Active");
-	mvprintw(18, 2, "13. Deleted");
-	mvprintw(19, 2, "14. Start at");
+	mbse_mvprintw( 6, 2, "1.  Name");
+	mbse_mvprintw( 7, 2, "2.  Comment");
+	mbse_mvprintw( 8, 2, "3.  Base path");
+	mbse_mvprintw( 9, 2, "4.  Use Aka");
+	mbse_mvprintw(10, 2, "5.  Uplink");
+	mbse_mvprintw(11, 2, "6.  Areas");
+	mbse_mvprintw(12, 2, "7.  Filegate");
+	mbse_mvprintw(13, 2, "8.  Banner");
+	mbse_mvprintw(14, 2, "9.  Convert");
+	mbse_mvprintw(15, 2, "10. BBS group");
+	mbse_mvprintw(16, 2, "11. New group");
+	mbse_mvprintw(17, 2, "12. Active");
+	mbse_mvprintw(18, 2, "13. Deleted");
+	mbse_mvprintw(19, 2, "14. Start at");
 
-	mvprintw(12,32, "15. Auto chng");
-	mvprintw(13,32, "16. User chng");
-	mvprintw(14,32, "17. Replace");
-	mvprintw(15,32, "18. Dupecheck");
-	mvprintw(16,32, "19. Secure");
-	mvprintw(17,32, "20. Touch");
-	mvprintw(18,32, "21. Virscan");
-	mvprintw(19,32, "22. Announce");
+	mbse_mvprintw(12,32, "15. Auto chng");
+	mbse_mvprintw(13,32, "16. User chng");
+	mbse_mvprintw(14,32, "17. Replace");
+	mbse_mvprintw(15,32, "18. Dupecheck");
+	mbse_mvprintw(16,32, "19. Secure");
+	mbse_mvprintw(17,32, "20. Touch");
+	mbse_mvprintw(18,32, "21. Virscan");
+	mbse_mvprintw(19,32, "22. Announce");
 
-	mvprintw(11,56, "23. Upd magic");
-	mvprintw(12,56, "24. File ID");
-	mvprintw(13,56, "25. Conv. all");
-	mvprintw(14,56, "26. Send orig");
-	mvprintw(15,56, "27. DL sec");
-	mvprintw(16,56, "28. UP sec");
-	mvprintw(17,56, "29. LT sec");
-	mvprintw(18,56, "30. Upl. area");
-	mvprintw(19,56, "31. Link sec");
+	mbse_mvprintw(11,56, "23. Upd magic");
+	mbse_mvprintw(12,56, "24. File ID");
+	mbse_mvprintw(13,56, "25. Conv. all");
+	mbse_mvprintw(14,56, "26. Send orig");
+	mbse_mvprintw(15,56, "27. DL sec");
+	mbse_mvprintw(16,56, "28. UP sec");
+	mbse_mvprintw(17,56, "29. LT sec");
+	mbse_mvprintw(18,56, "30. Upl. area");
+	mbse_mvprintw(19,56, "31. Link sec");
 }
 
 
@@ -512,7 +512,7 @@ void EditFGroup(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 4, "10.1 FILE GROUPS SETUP");
+	mbse_mvprintw( 5, 4, "10.1 FILE GROUPS SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
@@ -537,7 +537,7 @@ void EditFGroup(void)
 			    set_color(LIGHTBLUE, BLACK);
 			sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
 			temp[38] = '\0';
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -619,7 +619,7 @@ char *PickFGroup(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  FILE GROUP SELECT", shdr);
-		mvprintw( 5, 4, temp);
+		mbse_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
@@ -644,7 +644,7 @@ char *PickFGroup(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

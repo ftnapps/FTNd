@@ -52,7 +52,7 @@ void Move(int From, int To, char *File)
     struct _fdbarea	    *src_area = NULL;
 
     IsDoing("Move file");
-    colour(LIGHTRED, BLACK);
+    mbse_colour(LIGHTRED, BLACK);
 
     if (From == To) {
 	WriteError("Area numbers are the same");
@@ -172,7 +172,7 @@ void Move(int From, int To, char *File)
     }
     mbsedb_PackFDB(src_area);
     mbsedb_CloseFDB(src_area);
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
 
     Syslog('+', "Move %s from %d to %d %s", File, From, To, rc ? "successfull":"failed");
     if (!do_quiet)

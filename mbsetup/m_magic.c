@@ -210,33 +210,33 @@ void ScreenM(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "10.4. EDIT MAGIC");
+	mbse_mvprintw( 5, 2, "10.4. EDIT MAGIC");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.   Magic");
-	mvprintw( 8, 2, "2.   Filemask");
-	mvprintw( 9, 2, "3.   Active");
-	mvprintw(10, 2, "4.   Deleted");
-	mvprintw(11, 2, "5.   Area");
+	mbse_mvprintw( 7, 2, "1.   Magic");
+	mbse_mvprintw( 8, 2, "2.   Filemask");
+	mbse_mvprintw( 9, 2, "3.   Active");
+	mbse_mvprintw(10, 2, "4.   Deleted");
+	mbse_mvprintw(11, 2, "5.   Area");
 
 	switch(magic.Attrib) {
 		case MG_ADOPT:
 		case MG_MOVE:
-				mvprintw(12, 2, "6.   To Area");
+				mbse_mvprintw(12, 2, "6.   To Area");
 				break;
 
 		case MG_EXEC:
-				mvprintw(12, 2, "6.   Command");
-				mvprintw(13, 2, "7.   Compile");
+				mbse_mvprintw(12, 2, "6.   Command");
+				mbse_mvprintw(13, 2, "7.   Compile");
 				break;
 
 		case MG_COPY:
 		case MG_UNPACK:
-				mvprintw(12, 2, "6.   To path");
-				mvprintw(13, 2, "7.   Compile");
+				mbse_mvprintw(12, 2, "6.   To path");
+				mbse_mvprintw(13, 2, "7.   Compile");
 				break;
 
 		case MG_KEEPNUM:
-				mvprintw(12, 2, "6.   Keep Num");
+				mbse_mvprintw(12, 2, "6.   Keep Num");
 				break;
 	}
 }
@@ -411,7 +411,7 @@ void EditMagics(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "10.4.  MAGICS EDITOR");
+		mbse_mvprintw( 5, 2, "10.4.  MAGICS EDITOR");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/magic.temp", getenv("MBSE_ROOT"));
@@ -436,7 +436,7 @@ void EditMagics(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %s %s", o + i, getmagictype(magic.Attrib), magic.Mask);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

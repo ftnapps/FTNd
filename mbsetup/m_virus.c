@@ -280,14 +280,14 @@ int EditVirRec(int Area)
 	crc = upd_crc32((char *)&virscan, crc, sizeof(virscan));
 
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "4.  EDIT VIRUS SCANNER");
+	mbse_mvprintw( 5, 2, "4.  EDIT VIRUS SCANNER");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Comment");
-	mvprintw( 8, 2, "2.  Command");
-	mvprintw( 9, 2, "3.  Options");
-	mvprintw(10, 2, "4.  Available");
-	mvprintw(11, 2, "5.  Deleted");
-	mvprintw(12, 2, "6.  Error lvl");
+	mbse_mvprintw( 7, 2, "1.  Comment");
+	mbse_mvprintw( 8, 2, "2.  Command");
+	mbse_mvprintw( 9, 2, "3.  Options");
+	mbse_mvprintw(10, 2, "4.  Available");
+	mbse_mvprintw(11, 2, "5.  Deleted");
+	mbse_mvprintw(12, 2, "6.  Error lvl");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -362,7 +362,7 @@ void EditVirus(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "4.  VIRUS SCANNERS SETUP");
+		mbse_mvprintw( 5, 4, "4.  VIRUS SCANNERS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/virscan.temp", getenv("MBSE_ROOT"));
@@ -385,7 +385,7 @@ void EditVirus(void)
 						set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.  %-32s", i, virscan.comment);
 					temp[37] = 0;
-					mvprintw(y, x, temp);
+					mbse_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);

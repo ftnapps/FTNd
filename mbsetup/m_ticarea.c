@@ -281,13 +281,13 @@ void EditTicSystem(sysconnect *Sys)
 		if (refresh) {
 			clr_index();
 			set_color(WHITE, BLACK);
-			mvprintw( 5,6, "10.2.26 EDIT CONNECTION");
+			mbse_mvprintw( 5,6, "10.2.26 EDIT CONNECTION");
 			set_color(CYAN, BLACK);
-			mvprintw( 7,6, "1.      Aka");
-			mvprintw( 8,6, "2.      Send to");
-			mvprintw( 9,6, "3.      Recv from");
-			mvprintw(10,6, "4.      Pause");
-			mvprintw(11,6, "5.      Delete");
+			mbse_mvprintw( 7,6, "1.      Aka");
+			mbse_mvprintw( 8,6, "2.      Send to");
+			mbse_mvprintw( 9,6, "3.      Recv from");
+			mbse_mvprintw(10,6, "4.      Pause");
+			mbse_mvprintw(11,6, "5.      Delete");
 			refresh = FALSE;
 		}
 
@@ -341,7 +341,7 @@ int EditTicConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 5, "10.2.26 TIC AREA CONNECTIONS");
+		mbse_mvprintw( 5, 5, "10.2.26 TIC AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -372,7 +372,7 @@ int EditTicConnections(FILE *fil)
 					set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.", o+i);
 				}
-				mvprintw(y, x, temp);
+				mbse_mvprintw(y, x, temp);
 				y++;
 			}
 		}
@@ -408,37 +408,37 @@ void SetTicScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 4, 2, "10.2 EDIT TIC AREA");
+    mbse_mvprintw( 4, 2, "10.2 EDIT TIC AREA");
     set_color(CYAN, BLACK);
     
-    mvprintw( 6, 2, "1.  Comment");
-    mvprintw( 7, 2, "2.  Area tag");
-    mvprintw( 8, 2, "3.  Security");
-    mvprintw( 9, 2, "4.  BBS area");
-    mvprintw(10, 2, "5.  Message");
-    mvprintw(11, 2, "6.  Group");
-    mvprintw(12, 2, "7.  Keep #");
-    mvprintw(13, 2, "8.  Fido aka");
-    mvprintw(14, 2, "9.  Convert");
-    mvprintw(15, 2, "10. Banner");
-    mvprintw(16, 2, "11. Replace");
+    mbse_mvprintw( 6, 2, "1.  Comment");
+    mbse_mvprintw( 7, 2, "2.  Area tag");
+    mbse_mvprintw( 8, 2, "3.  Security");
+    mbse_mvprintw( 9, 2, "4.  BBS area");
+    mbse_mvprintw(10, 2, "5.  Message");
+    mbse_mvprintw(11, 2, "6.  Group");
+    mbse_mvprintw(12, 2, "7.  Keep #");
+    mbse_mvprintw(13, 2, "8.  Fido aka");
+    mbse_mvprintw(14, 2, "9.  Convert");
+    mbse_mvprintw(15, 2, "10. Banner");
+    mbse_mvprintw(16, 2, "11. Replace");
 
-    mvprintw( 9,41, "12. Dupecheck");
-    mvprintw(10,41, "13. Secure");
-    mvprintw(11,41, "14. Touch");
-    mvprintw(12,41, "15. Virus sc.");
-    mvprintw(13,41, "16. Announce");
-    mvprintw(14,41, "17. Upd magic");
-    mvprintw(15,41, "18. File_id");
-    mvprintw(16,41, "19. Conv.all");
+    mbse_mvprintw( 9,41, "12. Dupecheck");
+    mbse_mvprintw(10,41, "13. Secure");
+    mbse_mvprintw(11,41, "14. Touch");
+    mbse_mvprintw(12,41, "15. Virus sc.");
+    mbse_mvprintw(13,41, "16. Announce");
+    mbse_mvprintw(14,41, "17. Upd magic");
+    mbse_mvprintw(15,41, "18. File_id");
+    mbse_mvprintw(16,41, "19. Conv.all");
 
-    mvprintw( 9,60, "20. Send org.");
-    mvprintw(10,60, "21. Mandatory");
-    mvprintw(11,60, "22. Notified");
-    mvprintw(12,60, "23. Upl discon");
-    mvprintw(13,60, "24. Deleted");
-    mvprintw(14,60, "25. Active");
-    mvprintw(15,60, "26. Systems");
+    mbse_mvprintw( 9,60, "20. Send org.");
+    mbse_mvprintw(10,60, "21. Mandatory");
+    mbse_mvprintw(11,60, "22. Notified");
+    mbse_mvprintw(12,60, "23. Upl discon");
+    mbse_mvprintw(13,60, "24. Deleted");
+    mbse_mvprintw(14,60, "25. Active");
+    mbse_mvprintw(15,60, "26. Systems");
 } 
 
 
@@ -532,10 +532,10 @@ void ShowTicStatus(sysconnect S)
 {
 	clr_index();
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "Aka");
-	mvprintw( 8, 6, "Send to");
-	mvprintw( 9, 6, "Recv from");
-	mvprintw(10, 6, "Pause");
+	mbse_mvprintw( 7, 6, "Aka");
+	mbse_mvprintw( 8, 6, "Send to");
+	mbse_mvprintw( 9, 6, "Recv from");
+	mbse_mvprintw(10, 6, "Pause");
 	set_color(WHITE, BLACK);
 	show_str(  7,16,23, aka2str(S.aka));
 	show_bool( 8,16, S.sendto);
@@ -586,15 +586,15 @@ void TicGlobal(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
+	mbse_mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.   Delete connection");
-	mvprintw( 8, 6, "2.   Add new connection");
-	mvprintw( 9, 6, "3.   Replace connection");
-	mvprintw(10, 6, "4.   Change connection status");
-	mvprintw(11, 6, "5.   Change aka to use");
-	mvprintw(12, 6, "6.   Change security flags");
-	mvprintw(13, 6, "7.   Delete TIC area");
+	mbse_mvprintw( 7, 6, "1.   Delete connection");
+	mbse_mvprintw( 8, 6, "2.   Add new connection");
+	mbse_mvprintw( 9, 6, "3.   Replace connection");
+	mbse_mvprintw(10, 6, "4.   Change connection status");
+	mbse_mvprintw(11, 6, "5.   Change aka to use");
+	mbse_mvprintw(12, 6, "6.   Change security flags");
+	mbse_mvprintw(13, 6, "7.   Delete TIC area");
 
 	memset(&a1, 0, sizeof(fidoaddr));
 	memset(&a2, 0, sizeof(fidoaddr));
@@ -628,25 +628,25 @@ void TicGlobal(void)
 	 * Show settings before proceeding
 	 */
 	switch (menu) {
-	    case 1: mvprintw(7, 6, "Delete aka %s", aka2str(a1));
+	    case 1: mbse_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
 		    break;
-	    case 2: mvprintw(7, 6, "Add aka %s", aka2str(a2));
+	    case 2: mbse_mvprintw(7, 6, "Add aka %s", aka2str(a2));
 		    break;
 	    case 3: p = xstrcpy(aka2str(a1));
-		    mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
+		    mbse_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
 		    free(p);
 		    break;
 	    case 4: ShowTicStatus(S);
-		    mvprintw(14, 6, "Change the link status");
+		    mbse_mvprintw(14, 6, "Change the link status");
 	    case 5: if (akan != -1)
-			mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
+			mbse_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
 		    break;
 	    case 6: set_color(CYAN, BLACK);
-		    mvprintw(7, 6, "Link security");
+		    mbse_mvprintw(7, 6, "Link security");
 		    set_color(WHITE, BLACK);
-		    mvprintw(7,21, getflag(as.flags, as.notflags));
+		    mbse_mvprintw(7,21, getflag(as.flags, as.notflags));
 		    break;
-	    case 7: mvprintw(7, 6, "Delete TIC areas");
+	    case 7: mbse_mvprintw(7, 6, "Delete TIC areas");
 		    break;
 	}
 
@@ -789,7 +789,7 @@ void TicGlobal(void)
 		    fclose(ttfil);
 	    }
 
-	    mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
+	    mbse_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
 		TicUpdated = TRUE;
@@ -840,7 +840,7 @@ int EditTicRec(int Area)
 	set_color(WHITE, BLACK);
 	show_str( 6,16,55, tic.Comment);
 	show_str( 7,16,20, tic.Name);
-	mvprintw( 8,16,    getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
+	mbse_mvprintw( 8,16,    getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
 	show_str( 9,16,24, temp);
 	show_str(10,16,14, tic.Message);
 	show_str(11,16,12, tic.Group);
@@ -1022,7 +1022,7 @@ void EditTicarea(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 3, "10.2 TIC AREA SETUP");
+		mbse_mvprintw( 5, 3, "10.2 TIC AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/tic.temp", getenv("MBSE_ROOT"));
@@ -1044,7 +1044,7 @@ Comment);
 							set_color(LIGHTBLUE, BLACK);
 							sprintf(temp, "%3d.", o + i);
 						}
-						mvprintw(y, 2, temp);
+						mbse_mvprintw(y, 2, temp);
 						y++;
 					}
 				}
@@ -1129,7 +1129,7 @@ char *PickTicarea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  TIC AREA SELECT", shdr);
-		mvprintw(5, 3, temp);
+		mbse_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
@@ -1150,7 +1150,7 @@ char *PickTicarea(char *shdr)
 						else
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-20s %-40s", o + i, tic.Name, tic.Comment);
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

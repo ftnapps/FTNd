@@ -38,6 +38,7 @@
 #include "exitinfo.h"
 #include "language.h"
 #include "input.h"
+#include "term.h"
 
 
 extern pid_t    mypid;		    /* Pid of this program	    */

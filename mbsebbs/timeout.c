@@ -38,6 +38,7 @@
 #include "bye.h"
 #include "filesub.h"
 #include "language.h"
+#include "term.h"
 
 
 extern	int e_pid;			/* Pid of external program	     */

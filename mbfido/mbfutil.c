@@ -50,9 +50,9 @@ void ProgName(void)
 	if (do_quiet)
 		return;
 
-	colour(WHITE, BLACK);
+	mbse_colour(WHITE, BLACK);
 	printf("\nMBFILE: MBSE BBS %s File maintenance utility\n", VERSION);
-	colour(YELLOW, BLACK);
+	mbse_colour(YELLOW, BLACK);
 	printf("        %s\n", COPYRIGHT);
 }
 
@@ -94,7 +94,7 @@ void die(int onsig)
     Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	colour(LIGHTGRAY, BLACK);
+	mbse_colour(LIGHTGRAY, BLACK);
 	fflush(stdout);
     }
     ExitClient(onsig);
@@ -107,11 +107,11 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    colour(LIGHTCYAN, BLACK);
+    mbse_colour(LIGHTCYAN, BLACK);
     printf("Usage:	mbfile [command] <options>\n\n");
-    colour(LIGHTBLUE, BLACK);
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("	Commands are:\n\n");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
     printf("	c  check [area]			Check filebase\n");
     printf("	d  delete <area> \"<filemask>\"	Mark file(s) in area for deletion\n");
@@ -125,9 +125,9 @@ void Help(void)
     printf("	s  sort <area>			Sort files in a file area\n");
     printf("	t  toberep			Show toberep database\n");
     printf("	u  undelete <area> \"<filemask>\"	Mark file(s) in area for undeletion\n");
-    colour(LIGHTBLUE, BLACK);
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("\n	Options are:\n\n");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("	-a -announce			Suppress announce added files\n");
     printf("	-q -quiet			Quiet mode\n");
     printf("	-v -virus			Suppress virus scanning, use with care\n");

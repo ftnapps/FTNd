@@ -397,15 +397,15 @@ void E_UplMgr(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "7.10 EDIT NODE - UPLINK MANAGERS");
+    mbse_mvprintw( 5, 6, "7.10 EDIT NODE - UPLINK MANAGERS");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.   Uplink AreaMgr program");
-    mvprintw( 8, 6, "2.   Uplink AreaMgr password");
-    mvprintw( 9, 6, "3.   Uplink AreaMgr is BBBS");
-    mvprintw(10, 6, "4.   Uplink FileMgr program");
-    mvprintw(11, 6, "5.   Uplink FileMgr password");
-    mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
-    mvprintw(13, 6, "7.   Our Area/Filemgr passwd");
+    mbse_mvprintw( 7, 6, "1.   Uplink AreaMgr program");
+    mbse_mvprintw( 8, 6, "2.   Uplink AreaMgr password");
+    mbse_mvprintw( 9, 6, "3.   Uplink AreaMgr is BBBS");
+    mbse_mvprintw(10, 6, "4.   Uplink FileMgr program");
+    mbse_mvprintw(11, 6, "5.   Uplink FileMgr password");
+    mbse_mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
+    mbse_mvprintw(13, 6, "7.   Our Area/Filemgr passwd");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -437,13 +437,13 @@ void E_Mail(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
+    mbse_mvprintw( 5, 6, "7.4  EDIT NODE - MAIL PROCESSING");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.   PKT password");
-    mvprintw( 8, 6, "2.   Check PKT pwd");
-    mvprintw( 9, 6, "3.   Mail forward");
-    mvprintw(10, 6, "4.   ARCmail comp.");
-    mvprintw(11, 6, "5.   ARCmail a..z");
+    mbse_mvprintw( 7, 6, "1.   PKT password");
+    mbse_mvprintw( 8, 6, "2.   Check PKT pwd");
+    mbse_mvprintw( 9, 6, "3.   Mail forward");
+    mbse_mvprintw(10, 6, "4.   ARCmail comp.");
+    mbse_mvprintw(11, 6, "5.   ARCmail a..z");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -471,15 +471,15 @@ void E_Files(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "7.6  EDIT NODE - FILES PROCESSING");
+    mbse_mvprintw( 5, 6, "7.6  EDIT NODE - FILES PROCESSING");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.   Files password");
-    mvprintw( 8, 6, "2.   Incl. message");
-    mvprintw( 9, 6, "3.   Send TIC file");
-    mvprintw(10, 6, "4.   Advanced TIC");
-    mvprintw(11, 6, "5.   Advanced SB");
-    mvprintw(12, 6, "6.   To line in TIC");
-    mvprintw(13, 6, "7.   File forward");
+    mbse_mvprintw( 7, 6, "1.   Files password");
+    mbse_mvprintw( 8, 6, "2.   Incl. message");
+    mbse_mvprintw( 9, 6, "3.   Send TIC file");
+    mbse_mvprintw(10, 6, "4.   Advanced TIC");
+    mbse_mvprintw(11, 6, "5.   Advanced SB");
+    mbse_mvprintw(12, 6, "6.   To line in TIC");
+    mbse_mvprintw(13, 6, "7.   File forward");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -515,16 +515,16 @@ void S_Stat(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.11 NODE STATISTICS");
+	mbse_mvprintw( 5, 6, "7.11 NODE STATISTICS");
 	set_color(CYAN, BLACK);
-	mvprintw( 8,18, " This week  Last week This month Last month      Total");
-	mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
-	mvprintw(10,6, "Files sent");
-	mvprintw(11,6, "Kbytes sent");
-	mvprintw(12,6, "Files rcvd");
-	mvprintw(13,6, "Kbytes rcvd");
-	mvprintw(14,6, "Mail sent");
-	mvprintw(15,6, "Mail rcvd");
+	mbse_mvprintw( 8,18, " This week  Last week This month Last month      Total");
+	mbse_mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
+	mbse_mvprintw(10,6, "Files sent");
+	mbse_mvprintw(11,6, "Kbytes sent");
+	mbse_mvprintw(12,6, "Files rcvd");
+	mbse_mvprintw(13,6, "Kbytes rcvd");
+	mbse_mvprintw(14,6, "Mail sent");
+	mbse_mvprintw(15,6, "Mail rcvd");
 	set_color(WHITE, BLACK);
 
 	Now = time(NULL);
@@ -537,17 +537,17 @@ void S_Stat(void)
 	else
 		LMiy = Miy - 1;
 
-	mvprintw(10,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesSent.tweek, 
+	mbse_mvprintw(10,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesSent.tweek, 
 		nodes.FilesSent.lweek, nodes.FilesSent.month[Miy], nodes.FilesSent.month[LMiy], nodes.FilesSent.total);
-	mvprintw(11,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbSent.tweek, 
+	mbse_mvprintw(11,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbSent.tweek, 
 		nodes.F_KbSent.lweek, nodes.F_KbSent.month[Miy], nodes.F_KbSent.month[LMiy], nodes.F_KbSent.total);
-	mvprintw(12,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesRcvd.tweek, 
+	mbse_mvprintw(12,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.FilesRcvd.tweek, 
 		nodes.FilesRcvd.lweek, nodes.FilesRcvd.month[Miy], nodes.FilesRcvd.month[LMiy], nodes.FilesRcvd.total);
-	mvprintw(13,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbRcvd.tweek, 
+	mbse_mvprintw(13,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.F_KbRcvd.tweek, 
 		nodes.F_KbRcvd.lweek, nodes.F_KbRcvd.month[Miy], nodes.F_KbRcvd.month[LMiy], nodes.F_KbRcvd.total);
-	mvprintw(14,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailSent.tweek, 
+	mbse_mvprintw(14,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailSent.tweek, 
 		nodes.MailSent.lweek, nodes.MailSent.month[Miy], nodes.MailSent.month[LMiy], nodes.MailSent.total);
-	mvprintw(15,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailRcvd.tweek, 
+	mbse_mvprintw(15,18, (char *)"%10lu %10lu %10lu %10lu %10lu", nodes.MailRcvd.tweek, 
 		nodes.MailRcvd.lweek, nodes.MailRcvd.month[Miy], nodes.MailRcvd.month[LMiy], nodes.MailRcvd.total);
 	set_color(CYAN, BLACK);
 	center_addstr(LINES - 4, (char *)"Press any key");
@@ -566,14 +566,14 @@ fidoaddr e_a(fidoaddr n, int x)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, (char *)"7.%d EDIT AKA", x);
+		mbse_mvprintw( 5, 6, (char *)"7.%d EDIT AKA", x);
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.  Zone");
-		mvprintw( 8, 6, "2.  Net");
-		mvprintw( 9, 6, "3.  Node");
-		mvprintw(10, 6, "4.  Point");
-		mvprintw(11, 6, "    Domain");
-		mvprintw(12, 6, "5.  Delete");
+		mbse_mvprintw( 7, 6, "1.  Zone");
+		mbse_mvprintw( 8, 6, "2.  Net");
+		mbse_mvprintw( 9, 6, "3.  Node");
+		mbse_mvprintw(10, 6, "4.  Point");
+		mbse_mvprintw(11, 6, "    Domain");
+		mbse_mvprintw(12, 6, "5.  Delete");
 		set_color(WHITE, BLACK);
 		show_int( 7,17, n.zone);
 		show_int( 8,17, n.net);
@@ -620,16 +620,16 @@ void N_Akas(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "7.2  EDIT NODES AKA'S");
+		mbse_mvprintw( 5, 6, "7.2  EDIT NODES AKA'S");
 		set_color(CYAN, BLACK);
 		y = 7; x = 6;
 		for (i = 0; i < 20; i++) {
 			if (i == 10) {
 				y = 7; x = 46;
 			}
-			mvprintw( y, x, (char *)"%d.", i + 1);
+			mbse_mvprintw( y, x, (char *)"%d.", i + 1);
 			if (nodes.Aka[i].zone)
-				mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
+				mbse_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
 			y++;
 		}
 
@@ -668,24 +668,24 @@ void GeneralScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "7.1  EDIT NODE GENERAL");
+    mbse_mvprintw( 5, 2, "7.1  EDIT NODE GENERAL");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 2, "1.   Sysop name");
-    mvprintw( 8, 2, "2.   Outbox dir");
-    mvprintw( 9, 2, "3.   Pvt. phone");
-    mvprintw(10, 2, "4.   Pvt. fax");
-    mvprintw(11, 2, "5.   Pvt. Cellphone");
-    mvprintw(12, 2, "6.   Pvt. e-mail");
-    mvprintw(13, 2, "7.   Pvt. remark");
-    mvprintw(14, 2, "8.   Route via");
-    mvprintw(15, 2, "9.   Netmail direct");
-    mvprintw(16, 2, "10.  Netmail crash");
-    mvprintw(17, 2, "11.  Netmail hold");
-    mvprintw(18, 2, "12.  Pack mail");
+    mbse_mvprintw( 7, 2, "1.   Sysop name");
+    mbse_mvprintw( 8, 2, "2.   Outbox dir");
+    mbse_mvprintw( 9, 2, "3.   Pvt. phone");
+    mbse_mvprintw(10, 2, "4.   Pvt. fax");
+    mbse_mvprintw(11, 2, "5.   Pvt. Cellphone");
+    mbse_mvprintw(12, 2, "6.   Pvt. e-mail");
+    mbse_mvprintw(13, 2, "7.   Pvt. remark");
+    mbse_mvprintw(14, 2, "8.   Route via");
+    mbse_mvprintw(15, 2, "9.   Netmail direct");
+    mbse_mvprintw(16, 2, "10.  Netmail crash");
+    mbse_mvprintw(17, 2, "11.  Netmail hold");
+    mbse_mvprintw(18, 2, "12.  Pack mail");
 
-    mvprintw(16,42, "13.  Send notify");
-    mvprintw(17,42, "14.  Language");
-    mvprintw(18,42, "15.  Deleted");
+    mbse_mvprintw(16,42, "13.  Send notify");
+    mbse_mvprintw(17,42, "14.  Language");
+    mbse_mvprintw(18,42, "15.  Deleted");
 }
 
 
@@ -786,28 +786,28 @@ void SessionScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "7.3  EDIT NODE SESSION");
+    mbse_mvprintw( 5, 6, "7.3  EDIT NODE SESSION");
     set_color(CYAN, BLACK);
 
-    mvprintw( 7, 6, "1.   Session passwd");
-    mvprintw( 8, 6, "2.   Dial command");
-    mvprintw( 9, 6, "3.   Phone number 1");
-    mvprintw(10, 6, "4.   Phone number 2");
-    mvprintw(11, 6, "5.   Nodelist flags");
-    mvprintw(12, 6, "6.   Inet hostname");
-    mvprintw(13, 6, "7.   Outbound sess.");
-    mvprintw(14, 6, "8.   Inbound sess.");
-    mvprintw(15, 6, "9.   No EMSI");
-    mvprintw(16, 6, "10.  No YooHoo/2U2");
-    mvprintw(17, 6, "11.  No Filerequest");
-    mvprintw(18, 6, "12.  Don't call");
-    mvprintw(19, 6, "13.  8.3 names");
+    mbse_mvprintw( 7, 6, "1.   Session passwd");
+    mbse_mvprintw( 8, 6, "2.   Dial command");
+    mbse_mvprintw( 9, 6, "3.   Phone number 1");
+    mbse_mvprintw(10, 6, "4.   Phone number 2");
+    mbse_mvprintw(11, 6, "5.   Nodelist flags");
+    mbse_mvprintw(12, 6, "6.   Inet hostname");
+    mbse_mvprintw(13, 6, "7.   Outbound sess.");
+    mbse_mvprintw(14, 6, "8.   Inbound sess.");
+    mbse_mvprintw(15, 6, "9.   No EMSI");
+    mbse_mvprintw(16, 6, "10.  No YooHoo/2U2");
+    mbse_mvprintw(17, 6, "11.  No Filerequest");
+    mbse_mvprintw(18, 6, "12.  Don't call");
+    mbse_mvprintw(19, 6, "13.  8.3 names");
 
-    mvprintw(15,41, "14.  No Zmodem");
-    mvprintw(16,41, "15.  No Zedzap");
-    mvprintw(17,41, "16.  No Hydra");
-    mvprintw(18,41, "17.  Binkp old esc");
-    mvprintw(19,41, "18.  No binkp/1.1");
+    mbse_mvprintw(15,41, "14.  No Zmodem");
+    mbse_mvprintw(16,41, "15.  No Zedzap");
+    mbse_mvprintw(17,41, "16.  No Hydra");
+    mbse_mvprintw(18,41, "17.  Binkp old esc");
+    mbse_mvprintw(19,41, "18.  No binkp/1.1");
 }
 
 
@@ -873,25 +873,25 @@ void DirectoryScreen(void)
 {   
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "7.8  EDIT NODE DIRECTORY SESSION");
-    mvprintw( 7, 2, "     Outbound settings");
+    mbse_mvprintw( 5, 2, "7.8  EDIT NODE DIRECTORY SESSION");
+    mbse_mvprintw( 7, 2, "     Outbound settings");
     set_color(CYAN, BLACK);
-    mvprintw( 8, 2, "1.   Files path");
-    mvprintw( 9, 2, "2.   Check for lock");
-    mvprintw( 9,41, "3.   Wait clear lock");
-    mvprintw(10, 2, "4.   Check lockfile");
-    mvprintw(11, 2, "5.   Create lock");
-    mvprintw(12, 2, "6.   Create lockfile");
+    mbse_mvprintw( 8, 2, "1.   Files path");
+    mbse_mvprintw( 9, 2, "2.   Check for lock");
+    mbse_mvprintw( 9,41, "3.   Wait clear lock");
+    mbse_mvprintw(10, 2, "4.   Check lockfile");
+    mbse_mvprintw(11, 2, "5.   Create lock");
+    mbse_mvprintw(12, 2, "6.   Create lockfile");
 
     set_color(WHITE, BLACK);
-    mvprintw(14, 2, "     Inbound settings");
+    mbse_mvprintw(14, 2, "     Inbound settings");
     set_color(CYAN, BLACK);
-    mvprintw(15, 2, "7.   Files path");
-    mvprintw(16, 2, "8.   Check for lock");
-    mvprintw(16,41, "9.   Wait clear lock");
-    mvprintw(17, 2, "10.  Check lockfile");
-    mvprintw(18, 2, "11.  Create lock");
-    mvprintw(19, 2, "12.  Create lockfile");
+    mbse_mvprintw(15, 2, "7.   Files path");
+    mbse_mvprintw(16, 2, "8.   Check for lock");
+    mbse_mvprintw(16,41, "9.   Wait clear lock");
+    mbse_mvprintw(17, 2, "10.  Check lockfile");
+    mbse_mvprintw(18, 2, "11.  Create lock");
+    mbse_mvprintw(19, 2, "12.  Create lockfile");
 }
 
 
@@ -1095,19 +1095,19 @@ int EditNodeRec(int Area)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-        mvprintw( 5, 6, "7.   EDIT NODE -  %s, %s", nodes.Sysop, aka2str(nodes.Aka[0]));
+        mbse_mvprintw( 5, 6, "7.   EDIT NODE -  %s, %s", nodes.Sysop, aka2str(nodes.Aka[0]));
         set_color(CYAN, BLACK);
-        mvprintw( 7, 6, "1.   General setup");
-	mvprintw( 8, 6, "2.   Aka's setup");
-	mvprintw( 9, 6, "3.   Session setup");
-	mvprintw(10, 6, "4.   Mail setup");
-	mvprintw(11, 6, "5.   Mail groups");
-	mvprintw(12, 6, "6.   Files setup");
-	mvprintw(13, 6, "7.   Files groups");
-	mvprintw(14, 6, "8.   Directory session");
-	mvprintw(15, 6, "9.   Security flags");
-	mvprintw(16, 6, "10.  Area/File managers");
-	mvprintw(17, 6, "11.  Statistics");
+        mbse_mvprintw( 7, 6, "1.   General setup");
+	mbse_mvprintw( 8, 6, "2.   Aka's setup");
+	mbse_mvprintw( 9, 6, "3.   Session setup");
+	mbse_mvprintw(10, 6, "4.   Mail setup");
+	mbse_mvprintw(11, 6, "5.   Mail groups");
+	mbse_mvprintw(12, 6, "6.   Files setup");
+	mbse_mvprintw(13, 6, "7.   Files groups");
+	mbse_mvprintw(14, 6, "8.   Directory session");
+	mbse_mvprintw(15, 6, "9.   Security flags");
+	mbse_mvprintw(16, 6, "10.  Area/File managers");
+	mbse_mvprintw(17, 6, "11.  Statistics");
 
 	switch(select_menu(11)) {
 	case 0:	crc1 = 0xffffffff;
@@ -1222,7 +1222,7 @@ void EditNodes(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.  NODES SETUP");
+	mbse_mvprintw( 5, 6, "7.  NODES SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/nodes.temp", getenv("MBSE_ROOT"));
@@ -1247,7 +1247,7 @@ void EditNodes(void)
 			    set_color(LIGHTBLUE, BLACK); 
 			sprintf(temp, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 			temp[37] = 0;
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -1333,7 +1333,7 @@ fidoaddr PullUplink(char *Hdr)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "%s.  UPLINK SELECT", Hdr);
+		mbse_mvprintw( 5, 4, "%s.  UPLINK SELECT", Hdr);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
@@ -1358,7 +1358,7 @@ fidoaddr PullUplink(char *Hdr)
 							set_color(LIGHTBLUE, BLACK); 
 						sprintf(temp, "%3d.  %s (%s)", o + i, nodes.Sysop, strtok(aka2str(nodes.Aka[0]), "@"));
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -1393,16 +1393,16 @@ fidoaddr PullUplink(char *Hdr)
 				for (;;) {
 					clr_index();
 					set_color(WHITE, BLACK);
-					mvprintw( 5, 6, "%s.  SELECT NODE AKA", Hdr);
+					mbse_mvprintw( 5, 6, "%s.  SELECT NODE AKA", Hdr);
 					set_color(CYAN, BLACK);
 					y = 7; x = 6;
 					for (i = 0; i < 20; i++) {
 						if (i == 10) {
 							y = 7; x = 46;
 						}
-						mvprintw( y, x, (char *)"%d.", i + 1);
+						mbse_mvprintw( y, x, (char *)"%d.", i + 1);
 						if (nodes.Aka[i].zone)
-							mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
+							mbse_mvprintw(y, x + 5, (char *)"%s", aka2str(nodes.Aka[i]));
 						y++;
 					}
 

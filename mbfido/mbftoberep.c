@@ -55,7 +55,7 @@ void ToBeRep(void)
 
     IsDoing("Toberep");
 
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
@@ -65,7 +65,7 @@ void ToBeRep(void)
 	//      12345678901234567890123456789012345678901234567890123456789012345678901234567890
 	printf("     File echo           Group       File name    Kbyte     Date     Announce\n");
 	printf("--------------------  ------------  ------------  -----  ----------  --------\n");
-	colour(LIGHTGRAY, BLACK);
+	mbse_colour(LIGHTGRAY, BLACK);
 	
 	while (fread(&rep, sizeof(rep), 1, fp) == 1) {
 	    printf("%-20s  %-12s  %-12s  %5ld  %s     %s\n", 

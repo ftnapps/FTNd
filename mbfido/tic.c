@@ -355,7 +355,7 @@ int LoadTic(char *inb, char *tfn)
      * Show on screen what we are doing
      */
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("\r");
 	for (i = 0; i < 79; i++)
 	    printf(" ");

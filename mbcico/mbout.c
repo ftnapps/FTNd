@@ -59,9 +59,9 @@ void ProgName()
 	if (do_quiet)
 		return;
 
-	colour(15, 0);
+	mbse_colour(15, 0);
 	printf("\nMBOUT: MBSE BBS %s Outbound Manager\n", VERSION);
-	colour(14, 0);
+	mbse_colour(14, 0);
 	printf("       %s\n", COPYRIGHT);
 }
 
@@ -97,7 +97,7 @@ void die(int onsig)
 	do_quiet = FALSE;
 
     if (!do_quiet)
-	colour(3, 0);
+	mbse_colour(3, 0);
 
     if (onsig) {
 	if (onsig <= NSIG)
@@ -110,7 +110,7 @@ void die(int onsig)
     Syslog(' ', "MBOUT finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	colour(7, 0);
+	mbse_colour(7, 0);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -124,11 +124,11 @@ void Help()
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\nUsage:	mbout [command] <params> <options>\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Commands are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	a   att   <node> <flavor> <file>	Attach a file to a node\n");
 	printf("	n   node  <node>			Show nodelist information\n");
 	printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
@@ -139,11 +139,11 @@ void Help()
 	printf("\n");
 	printf("	<node>	  Should be in domain form, e.g. f16.n2801.z2.domain\n");
 	printf("	<flavor>  Flavor's are: crash | immediate | normal | hold\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("\n	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-quiet					Quiet mode\n");
-	colour(7, 0);
+	mbse_colour(7, 0);
 	die(MBERR_OK);
 }
 
@@ -154,7 +154,7 @@ void Fatal(char *msg, int error)
 {
     show_log = TRUE;
     if (!do_quiet) {
-	colour(12, 0);
+	mbse_colour(12, 0);
 	printf("%s\n", msg);
     }
     WriteError(msg);
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
     InitConfig();
     InitNode();
     InitFidonet();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     free(cmd);
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("\n");
     }
 

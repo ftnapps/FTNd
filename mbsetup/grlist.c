@@ -123,7 +123,7 @@ int E_Group(gr_list **fdp, char *title)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw(5, 6, (char *)"%s", title);
+    mbse_mvprintw(5, 6, (char *)"%s", title);
     set_color(CYAN, BLACK);
 
     for (tmp = *fdp; tmp; tmp = tmp->next)
@@ -139,9 +139,9 @@ int E_Group(gr_list **fdp, char *title)
 	    j++;
 	    if ((j >= (o + 1)) && (j < (o + 41))) {
 		if (tmp->tagged)
-		    mvprintw(y, x, (char *)"%2d. + %s", j, tmp->group);
+		    mbse_mvprintw(y, x, (char *)"%2d. + %s", j, tmp->group);
 		else
-		    mvprintw(y, x, (char *)"%2d.   %s", j, tmp->group);
+		    mbse_mvprintw(y, x, (char *)"%2d.   %s", j, tmp->group);
 		y++;
 		if (y == 17) {
 		    y = 7;
@@ -159,7 +159,7 @@ int E_Group(gr_list **fdp, char *title)
 	    case -2:if ((o - 40) >= 0) {
 			clr_index();
 		        set_color(WHITE, BLACK);
-		        mvprintw(5, 5, (char *)"%s", title);
+		        mbse_mvprintw(5, 5, (char *)"%s", title);
 		        set_color(CYAN, BLACK);
 		        o -= 40;
 		    }
@@ -167,7 +167,7 @@ int E_Group(gr_list **fdp, char *title)
 	    case -1:if ((o + 40) < n) {
 		        clr_index();
 			set_color(WHITE, BLACK);
-		        mvprintw(5, 5, (char *)"%s", title);
+		        mbse_mvprintw(5, 5, (char *)"%s", title);
 		        set_color(CYAN, BLACK);
 		        o += 40;
 		    }
@@ -197,7 +197,7 @@ int E_Group(gr_list **fdp, char *title)
 			    o = ((i -1) / 40) * 40;
 			    clr_index();
 			    set_color(WHITE, BLACK);
-			    mvprintw(5, 5, (char *)"%s", title);
+			    mbse_mvprintw(5, 5, (char *)"%s", title);
 			    set_color(CYAN, BLACK);
 		        }
 		    }

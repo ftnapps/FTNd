@@ -62,9 +62,9 @@ int Notify(char *Options)
 	Syslog('+', "Notify \"%s\"", Options);
 
 	if (!do_quiet) {
-		colour(9, 0);
+		mbse_colour(9, 0);
 		printf("Writing notify messages\n");
-		colour(3, 0);
+		mbse_colour(3, 0);
 	}
 
 	if (strlen(Options)) {

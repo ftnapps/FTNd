@@ -39,7 +39,7 @@
 #include "funcs.h"
 #include "input.h"
 #include "language.h"
-
+#include "term.h"
 
 
 void BBS_Add(void)

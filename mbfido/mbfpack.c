@@ -57,7 +57,7 @@ void PackFileBase(void)
 
     IsDoing("Pack filebase");
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Packing file database...\n");
     }
 

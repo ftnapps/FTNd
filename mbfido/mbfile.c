@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     struct  passwd *pw;
 
     InitConfig();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 

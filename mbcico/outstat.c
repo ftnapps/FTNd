@@ -282,9 +282,9 @@ int outstat()
     }
 
     if (!do_quiet) {
-	colour(10, 0);
+	mbse_colour(10, 0);
 	printf("flavor try      size age    address\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
     }
 
     Syslog('+', "Flavor Try      Size Age    Address");

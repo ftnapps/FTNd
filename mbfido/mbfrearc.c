@@ -53,7 +53,7 @@ void ReArc(int Area, char *File)
     struct _fdbarea *fdb_area = NULL;
 
     IsDoing("ReArc file(s)");
-    colour(LIGHTRED, BLACK);
+    mbse_colour(LIGHTRED, BLACK);
 
     /*
      * Check area
@@ -88,7 +88,7 @@ void ReArc(int Area, char *File)
     if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
 	die(MBERR_GENERAL);
 
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     strcpy(mask, re_mask(File, FALSE));
     if (re_comp(mask))
 	die(MBERR_GENERAL);
@@ -105,7 +105,7 @@ void ReArc(int Area, char *File)
 		 * Success, update the file entry
 		 */
     		if (!do_quiet) {
-		    colour(9, 0);
+		    mbse_colour(9, 0);
 		    printf("\r   Update file %s   ", temp);
 		    fflush(stdout);
 		}
@@ -203,7 +203,7 @@ void ReArc(int Area, char *File)
 		break; // stop when something goes wrong
 	    }
 	    if (!do_quiet) {
-		colour(7, 0);
+		mbse_colour(7, 0);
 		printf("\r");
 		for (i = 0; i < (strlen(temp) + 20); i++)
 		    printf(" ");

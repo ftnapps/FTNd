@@ -54,7 +54,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 	if ((i % 10) == 0)
 	    show_date(fg, bg, 0, 0);
 
-	locate(y, x);
+	mbse_locate(y, x);
 	fflush(stdout);
         rc = Waitchar(&ch, 5);
         if ((rc == 1) && (ch != KEY_ESCAPE))
@@ -83,7 +83,7 @@ unsigned char testkey(int y, int x)
 	unsigned char	ch = 0;
 
 	Nopper();
-	locate(y, x);
+	mbse_locate(y, x);
 	fflush(stdout);
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
@@ -111,7 +111,7 @@ unsigned char testkey(int y, int x)
 
 void show_field(int y, int x, char *str, int length, int fill)
 {
-    mvprintw(y, x, padleft(str, length, fill));
+    mbse_mvprintw(y, x, padleft(str, length, fill));
 }
 
 
@@ -122,9 +122,9 @@ void newinsert(int i, int fg, int bg)
     insertflag = i;
     set_color(YELLOW, RED);
     if (insertflag != 0) {
-	mvprintw(2,36," INS ");
+	mbse_mvprintw(2,36," INS ");
     } else {
-	mvprintw(2,36," OVR ");
+	mbse_mvprintw(2,36," OVR ");
     }
     set_color(fg, bg);
 }
@@ -147,7 +147,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 	do {
 		set_color(YELLOW, BLUE);
 		show_field(y, x, s, w, '_');
-		locate(y, x + curpos);
+		mbse_locate(y, x + curpos);
 		do {
 			ch = readkey(y, x + curpos, YELLOW, BLUE);
 			set_color(YELLOW, BLUE);
@@ -281,7 +281,7 @@ char *edit_field(int y, int x, int w, int p, char *s_)
 	} while ((ch != KEY_ENTER) && (ch != KEY_LINEFEED) && (ch != KEY_ESCAPE));
 
 	set_color(LIGHTGRAY, BLUE);
-	mvprintw(2,36, "     ");
+	mbse_mvprintw(2,36, "     ");
 	set_color(LIGHTGRAY, BLACK);
 	return s;
 }
@@ -305,10 +305,10 @@ int select_menu(int max)
      * Loop forever until it's right.
      */
     for (;;) {
-	mvprintw(lines - 2, 6, "Enter your choice >");
+	mbse_mvprintw(lines - 2, 6, "Enter your choice >");
 	menu = (char *)"-";
 	menu = edit_field(lines - 2, 26, 3, '9', menu);
-	locate(lines -2, 6);
+	mbse_locate(lines -2, 6);
 	clrtoeol();
 
 	if (strncmp(menu, "-", 1) == 0) 
@@ -342,7 +342,7 @@ void hor_lin(int y, int x, int len)
 {
     int	i;
 
-    locate(y, x);
+    mbse_locate(y, x);
     for (i = 0; i < len; i++)
 	putchar('-');
     fflush(stdout);
@@ -358,7 +358,7 @@ void set_color(int f, int b)
     if ((f != old_f) || (b != old_b)) {
 	old_f = f;
 	old_b = b;
-	colour(f, b);
+	mbse_colour(f, b);
 	fflush(stdout);
     }
 }
@@ -382,10 +382,10 @@ void show_date(int fg, int bg, int y, int x)
 	set_color(LIGHTGREEN, BLUE);
 	p = ctime(&now);
 	Striplf(p);
-	mvprintw(1, columns - 36, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
+	mbse_mvprintw(1, columns - 36, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
 	p = asctime(gmtime(&now));
 	Striplf(p);
-	mvprintw(2, columns - 36, (char *)"%s UTC", p);
+	mbse_mvprintw(2, columns - 36, (char *)"%s UTC", p);
 
 	/*
 	 * Indicator if bbs is free
@@ -395,15 +395,15 @@ void show_date(int fg, int bg, int y, int x)
 	    strcpy(buf, SockR("SBBS:0;"));
 	    if (strncmp(buf, "100:2,1", 7) == 0) {
 		set_color(WHITE, RED);
-		mvprintw(2,columns - 6, (char *)" Down ");
+		mbse_mvprintw(2,columns - 6, (char *)" Down ");
 	    } else {
 		set_color(WHITE, BLUE);
-		mvprintw(2,columns - 6, (char *)" Free ");
+		mbse_mvprintw(2,columns - 6, (char *)" Free ");
 	    }
 	    bbs_free = TRUE;
 	} else {
 	    set_color(WHITE, RED);
-	    mvprintw(2,columns - 6, (char *)" Busy ");
+	    mbse_mvprintw(2,columns - 6, (char *)" Busy ");
 	    bbs_free = FALSE;
 	}
 
@@ -412,7 +412,7 @@ void show_date(int fg, int bg, int y, int x)
 	 */
 	strcpy(buf, SockR("CCKP:0;"));
 	if (strcmp(buf, "100:0;") == 0) {
-	    locate(3, 1);
+	    mbse_locate(3, 1);
 	    set_color(LIGHTGRAY, BLACK);
 	    clrtoeol();
 	} else {
@@ -424,21 +424,21 @@ void show_date(int fg, int bg, int y, int x)
 	    if (strlen(reason) > 60)
 		reason[60] = '\0';
 
-	    locate(3, 1);
+	    mbse_locate(3, 1);
 	    if (strcmp(page, "1")) {
 		set_color(RED, BLACK);
-		mvprintw(3, 1, "   Old page (%s) %-60s", pid, reason);
+		mbse_mvprintw(3, 1, "   Old page (%s) %-60s", pid, reason);
 		if ((now % 10) == 0)	/* Every 10 seconds */
 		    putchar(7);
 	    } else {
 		set_color(LIGHTRED, BLACK);
-		mvprintw(3, 1, " Sysop page (%s) %-60s", pid, reason);
+		mbse_mvprintw(3, 1, " Sysop page (%s) %-60s", pid, reason);
 		putchar(7);		/* Each second	    */
 	    }
 	}
 
 	if (y && x)
-	    locate(y, x);
+	    mbse_locate(y, x);
 	set_color(fg, bg);
     }
 }
@@ -447,7 +447,7 @@ void show_date(int fg, int bg, int y, int x)
 
 void center_addstr(int y, char *s)
 {
-    mvprintw(y, (columns / 2) - (strlen(s) / 2), s);
+    mbse_mvprintw(y, (columns / 2) - (strlen(s) / 2), s);
 }
 
 
@@ -459,16 +459,16 @@ void screen_start(char *name)
 {
     int	i;
 
-    TermInit(1, columns, lines);
+    mbse_TermInit(1, columns, lines);
     /*
      *  Overwrite screen the first time, if user had it black on white
      *  it will change to white on black. clear() won't do the trick.
      */
     set_color(LIGHTGRAY, BLUE);
-    locate(1, 1);
+    mbse_locate(1, 1);
     for (i = 0; i < lines; i++) {
 	if (i == 3)
-	    colour(LIGHTGRAY, BLACK);
+	    mbse_colour(LIGHTGRAY, BLACK);
 	clrtoeol();
 	if (i < lines)
 	    printf("\n");
@@ -476,10 +476,10 @@ void screen_start(char *name)
     fflush(stdout);
 
     set_color(WHITE, BLUE);
-    locate(1, 1);
+    mbse_locate(1, 1);
     printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
     set_color(YELLOW, BLUE);
-    locate(2, 1);
+    mbse_locate(2, 1);
     printf((char *)SHORTRIGHT);
     set_color(LIGHTGRAY, BLACK);
     show_date(LIGHTGRAY, BLACK, 0, 0);
@@ -494,7 +494,7 @@ void screen_start(char *name)
 void screen_stop()
 {
     set_color(LIGHTGRAY, BLACK);
-    clear();
+    mbse_clear();
     fflush(stdout);
 }
 
@@ -521,11 +521,11 @@ void working(int txno, int y, int x)
 	set_color(LIGHTGRAY, BLACK);
 
     switch (txno) {
-	case 0: mvprintw(4, columns - 14, (char *)"             ");
+	case 0: mbse_mvprintw(4, columns - 14, (char *)"             ");
 		break;
-	case 1: mvprintw(4, columns - 14, (char *)"Working . . .");
+	case 1: mbse_mvprintw(4, columns - 14, (char *)"Working . . .");
 		break;
-	case 2:	mvprintw(4, columns - 14, (char *)">>> ERROR <<<");
+	case 2:	mbse_mvprintw(4, columns - 14, (char *)">>> ERROR <<<");
 		for (i = 1; i <= 5; i++) {
 		    putchar(7);
 		    fflush(stdout);
@@ -533,12 +533,12 @@ void working(int txno, int y, int x)
 		}
 		msleep(550);
 		break;
-	case 3: mvprintw(4, columns - 14, (char *)"Form inserted");
+	case 3: mbse_mvprintw(4, columns - 14, (char *)"Form inserted");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
 		break;
-	case 4: mvprintw(4, columns - 14, (char *)"Form deleted ");
+	case 4: mbse_mvprintw(4, columns - 14, (char *)"Form deleted ");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
@@ -548,7 +548,7 @@ void working(int txno, int y, int x)
     show_date(LIGHTGRAY, BLACK, 0, 0);
     set_color(LIGHTGRAY, BLACK);
     if (y && x)
-	locate(y, x);
+	mbse_locate(y, x);
     fflush(stdout);
 }
 
@@ -563,7 +563,7 @@ void clr_index()
 
     set_color(LIGHTGRAY, BLACK);
     for (i = 4; i <= (lines); i++) {
-	locate(i, 1);
+	mbse_locate(i, 1);
 	clrtoeol();
     }
 }
@@ -578,7 +578,7 @@ void showhelp(char *T)
     int f, i, x, forlim;
 
     f = FALSE;
-    locate(lines, 1);
+    mbse_locate(lines, 1);
     set_color(WHITE, RED);
     clrtoeol();
     x = 0;

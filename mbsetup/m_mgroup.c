@@ -246,30 +246,30 @@ void MgScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
+    mbse_mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 2, "1.  Name");
-    mvprintw( 8, 2, "2.  Comment");
-    mvprintw( 9, 2, "3.  Base path");
-    mvprintw(10, 2, "4.  Read sec");
-    mvprintw(11, 2, "5.  Write sec");
-    mvprintw(12, 2, "6.  Sysop sec");
-    mvprintw(13, 2, "7.  Link sec");
-    mvprintw(14, 2, "8.  Start at");
-    mvprintw(15, 2, "9.  Net reply");
-    mvprintw(16, 2, "10. Users del");
-    mvprintw(17, 2, "11. Aliases");
-    mvprintw(18, 2, "12. Quotes");
-    mvprintw(19, 2, "13. Active");
+    mbse_mvprintw( 7, 2, "1.  Name");
+    mbse_mvprintw( 8, 2, "2.  Comment");
+    mbse_mvprintw( 9, 2, "3.  Base path");
+    mbse_mvprintw(10, 2, "4.  Read sec");
+    mbse_mvprintw(11, 2, "5.  Write sec");
+    mbse_mvprintw(12, 2, "6.  Sysop sec");
+    mbse_mvprintw(13, 2, "7.  Link sec");
+    mbse_mvprintw(14, 2, "8.  Start at");
+    mbse_mvprintw(15, 2, "9.  Net reply");
+    mbse_mvprintw(16, 2, "10. Users del");
+    mbse_mvprintw(17, 2, "11. Aliases");
+    mbse_mvprintw(18, 2, "12. Quotes");
+    mbse_mvprintw(19, 2, "13. Active");
 
-    mvprintw(14,26, "14. Deleted");
-    mvprintw(15,26, "15. Auto change");
-    mvprintw(16,26, "16. User change");
-    mvprintw(17,26, "17. Use Aka");
-    mvprintw(18,26, "18. Uplink");
-    mvprintw(19,26, "19. Areas");
+    mbse_mvprintw(14,26, "14. Deleted");
+    mbse_mvprintw(15,26, "15. Auto change");
+    mbse_mvprintw(16,26, "16. User change");
+    mbse_mvprintw(17,26, "17. Use Aka");
+    mbse_mvprintw(18,26, "18. Uplink");
+    mbse_mvprintw(19,26, "19. Areas");
 
-    mvprintw(14,54, "20. Charset");
+    mbse_mvprintw(14,54, "20. Charset");
 }
 
 
@@ -335,7 +335,7 @@ int EditMGrpRec(int Area)
 	show_sec( 10,16,    mgroup.RDSec);
 	show_sec( 11,16,    mgroup.WRSec);
 	show_sec( 12,16,    mgroup.SYSec);
-	mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+	mbse_mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
 	show_int( 14,16,    mgroup.StartArea);
 	show_int( 15,16,    mgroup.NetReply);
 	show_bool(16,16,    mgroup.UsrDelete);
@@ -469,7 +469,7 @@ void EditMGroup(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
+	mbse_mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
@@ -494,7 +494,7 @@ void EditMGroup(void)
 			    set_color(LIGHTBLUE, BLACK);
 			sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 			temp[38] = '\0';
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}
@@ -577,7 +577,7 @@ char *PickMGroup(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  MESSAGE GROUP SELECT", shdr);
-		mvprintw( 5, 4, temp);
+		mbse_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
@@ -602,7 +602,7 @@ char *PickMGroup(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

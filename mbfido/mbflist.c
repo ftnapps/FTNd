@@ -63,7 +63,7 @@ void ListFileAreas(int Area)
 	    columns = i;
     }
 
-    colour(LIGHTRED, BLACK);
+    mbse_colour(LIGHTRED, BLACK);
     sAreas  = calloc(PATH_MAX, sizeof(char));
     fAreas  = calloc(PATH_MAX, sizeof(char));
     sTic    = calloc(PATH_MAX, sizeof(char));
@@ -110,7 +110,7 @@ void ListFileAreas(int Area)
 	    fdb_area = mbsedb_OpenFDB(Area, 30);
             fcount = 0;
 	    fsize  = 0L;
-	    colour(CYAN, BLACK);
+	    mbse_colour(CYAN, BLACK);
 	    printf("File listing of area %d, %s\n\n", Area, area.Name);
 	    printf("Short name     Kb. File date  Down Flg TIC Area             Long name\n");
 	    printf("------------ ----- ---------- ---- --- -------------------- ");
@@ -118,7 +118,7 @@ void ListFileAreas(int Area)
 		printf("-");
 	    printf("\n");
 
-	    colour(LIGHTGRAY, BLACK);
+	    mbse_colour(LIGHTGRAY, BLACK);
 
 	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 		sprintf(flags, "---");
@@ -137,7 +137,7 @@ void ListFileAreas(int Area)
 	    }
 	    fsize = fsize / 1024;
 
-	    colour(CYAN, BLACK);
+	    mbse_colour(CYAN, BLACK);
 	    printf("------------------------------------------------------------");
 	    for (i = 60; i < columns; i++)
 		printf("-");
@@ -161,10 +161,10 @@ void ListFileAreas(int Area)
     }
 
     IsDoing("List fileareas");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf(" Area Files MByte File Group   Area name\n");
     printf("----- ----- ----- ------------ --------------------------------------------\n");
-    colour(LIGHTGRAY, BLACK);
+    mbse_colour(LIGHTGRAY, BLACK);
 
     for (i = 1; i <= iAreas; i++) {
 	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
@@ -189,7 +189,7 @@ void ListFileAreas(int Area)
 	}
     }
 
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("----- ----- ----- ---------------------------------------------------------\n");
     printf("%5d %5d %5ld \n", iTotal, tcount, tsize);
     fclose(pAreas);

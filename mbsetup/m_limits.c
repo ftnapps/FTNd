@@ -295,15 +295,15 @@ int EditLimRec(int Area)
 	crc = upd_crc32((char *)&LIMIT, crc, sizeof(LIMIT));
 
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.1 EDIT SECURITY LIMIT");
+	mbse_mvprintw( 5, 6, "8.1 EDIT SECURITY LIMIT");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Access Level");
-	mvprintw( 8, 6, "2.  Maximum Time");
-	mvprintw( 9, 6, "3.  Download Kb.");
-	mvprintw(10, 6, "4.  Download Files");
-	mvprintw(11, 6, "5.  Description");
-	mvprintw(12, 6, "6.  Available");
-	mvprintw(13, 6, "7.  Deleted");
+	mbse_mvprintw( 7, 6, "1.  Access Level");
+	mbse_mvprintw( 8, 6, "2.  Maximum Time");
+	mbse_mvprintw( 9, 6, "3.  Download Kb.");
+	mbse_mvprintw(10, 6, "4.  Download Files");
+	mbse_mvprintw(11, 6, "5.  Description");
+	mbse_mvprintw(12, 6, "6.  Available");
+	mbse_mvprintw(13, 6, "7.  Deleted");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -380,7 +380,7 @@ void EditLimits(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 7, "8.1 LIMITS SETUP");
+		mbse_mvprintw( 5, 7, "8.1 LIMITS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/limits.temp", getenv("MBSE_ROOT"));
@@ -403,7 +403,7 @@ void EditLimits(void)
 						set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
 					temp[37] = '\0';
-					mvprintw(y, x, temp);
+					mbse_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);
@@ -468,7 +468,7 @@ char *PickLimits(int nr)
 	clr_index();
 	set_color(WHITE, BLACK);
 	sprintf(temp, "%d.  LIMITS SELECT", nr);
-	mvprintw( 5, 4, temp);
+	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 		sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
@@ -491,7 +491,7 @@ char *PickLimits(int nr)
 					set_color(LIGHTBLUE, BLACK);
 				sprintf(temp, "%3d.  %-6ld %-40s", i, LIMIT.Security, LIMIT.Description);
 				temp[37] = '\0';
-				mvprintw(y, x, temp);
+				mbse_mvprintw(y, x, temp);
 				y++;
 			}
 			strcpy(pick, select_pick(records, 20));

@@ -312,26 +312,26 @@ void Modem_Screen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "5.  EDIT MODEM TYPE");
+	mbse_mvprintw( 5, 2, "5.  EDIT MODEM TYPE");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Type");
-	mvprintw( 8, 2, "2.  Init 1");
-	mvprintw( 9, 2, "3.  Init 2");
-	mvprintw(10, 2, "4.  Init 3");
-	mvprintw(11, 2, "5.  Reset");
-	mvprintw(12, 2, "6.  Hangup");
-	mvprintw(13, 2, "7.  Dial");
-	mvprintw(14, 2, "8.  Info");
-	mvprintw(15, 2, "9.  Ok");
-	mvprintw(16, 2, "10. Offset");
-	mvprintw(17, 2, "11. Speed");
+	mbse_mvprintw( 7, 2, "1.  Type");
+	mbse_mvprintw( 8, 2, "2.  Init 1");
+	mbse_mvprintw( 9, 2, "3.  Init 2");
+	mbse_mvprintw(10, 2, "4.  Init 3");
+	mbse_mvprintw(11, 2, "5.  Reset");
+	mbse_mvprintw(12, 2, "6.  Hangup");
+	mbse_mvprintw(13, 2, "7.  Dial");
+	mbse_mvprintw(14, 2, "8.  Info");
+	mbse_mvprintw(15, 2, "9.  Ok");
+	mbse_mvprintw(16, 2, "10. Offset");
+	mbse_mvprintw(17, 2, "11. Speed");
 
-	mvprintw(15,30, "12. Available");
-	mvprintw(16,30, "13. Deleted");
-	mvprintw(17,30, "14. Stripdash");
+	mbse_mvprintw(15,30, "12. Available");
+	mbse_mvprintw(16,30, "13. Deleted");
+	mbse_mvprintw(17,30, "14. Stripdash");
 
-	mvprintw(15,58, "15. Connect strings");
-	mvprintw(16,58, "16. Error strings");
+	mbse_mvprintw(15,58, "15. Connect strings");
+	mbse_mvprintw(16,58, "16. Error strings");
 }
 
 
@@ -342,12 +342,12 @@ void EditConnect(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "5.15  EDIT MODEM CONNECT STRINGS");
+	mbse_mvprintw( 5, 2, "5.15  EDIT MODEM CONNECT STRINGS");
 	set_color(CYAN, BLACK);
 
 	for (i = 0; i < 10; i++) {
-		mvprintw( 7+i, 2, (char *)"%2d.", i+1);
-		mvprintw( 7+i,42, (char *)"%2d.", i+11);
+		mbse_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
+		mbse_mvprintw( 7+i,42, (char *)"%2d.", i+11);
 	}
 
 	for (;;) {
@@ -375,11 +375,11 @@ void EditError(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "5.16  EDIT MODEM ERROR STRINGS");
+	mbse_mvprintw( 5, 2, "5.16  EDIT MODEM ERROR STRINGS");
 	set_color(CYAN, BLACK);
 
 	for (i = 0; i < 10; i++) {
-		mvprintw( 7+i, 2, (char *)"%2d.", i+1);
+		mbse_mvprintw( 7+i, 2, (char *)"%2d.", i+1);
 	}
 
 	for (;;) {
@@ -529,7 +529,7 @@ void EditModem(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "5.  MODEM TYPES SETUP");
+		mbse_mvprintw( 5, 4, "5.  MODEM TYPES SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/modem.temp", getenv("MBSE_ROOT"));
@@ -552,7 +552,7 @@ void EditModem(void)
 						set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.  %-30s", i, modem.modem);
 					temp[37] = 0;
-					mvprintw(y, x, temp);
+					mbse_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);
@@ -618,7 +618,7 @@ char *PickModem(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  MODEM SELECT", shdr);
-		mvprintw(5,3,temp);
+		mbse_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
 			sprintf(temp, "%s/etc/modem.data", getenv("MBSE_ROOT"));
@@ -643,7 +643,7 @@ char *PickModem(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-31s", o + i, modem.modem);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

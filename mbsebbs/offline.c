@@ -47,7 +47,7 @@
 #include "pop3.h"
 #include "offline.h"
 #include "whoson.h"
-
+#include "term.h"
 
 
 long		Total, TotalPersonal, Current, Personal;

@@ -56,7 +56,7 @@ void AdoptFile(int Area, char *File, char *Description)
     Syslog('f', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
 
     if (!do_quiet)
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
 
     if (LoadAreaRec(Area) == FALSE)
 	die(MBERR_INIT_ERROR);

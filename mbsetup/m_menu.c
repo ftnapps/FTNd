@@ -58,10 +58,10 @@ char *select_menurec(int max)
     showhelp(help);
 
     for (;;) {
-	mvprintw(LINES - 3, 6, "Enter your choice >");
+	mbse_mvprintw(LINES - 3, 6, "Enter your choice >");
 	menu = (char *)"-";
 	menu = edit_field(LINES - 3, 26, 6, '!', menu);
-	locate(LINES -3, 6);
+	mbse_locate(LINES -3, 6);
 	clrtoeol();
 
 	if (strncmp(menu, "A", 1) == 0)
@@ -95,26 +95,26 @@ void Show_A_Menu(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
+    mbse_mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 2, "1.  Sel. key");
-    mvprintw( 8, 2, "2.  Type nr.");
-    mvprintw( 9, 2, "3.  Opt. data");
-    mvprintw(11, 2, "4.  Display");
-    mvprintw(12, 2, "5.  Security");
-    mvprintw(13, 2, "6.  Min. age");
-    mvprintw(14, 2, "7.  Lo-colors");
-    mvprintw(15, 2, "8.  Hi-colors");
-    mvprintw(16, 2, "9.  Autoexec");
+    mbse_mvprintw( 7, 2, "1.  Sel. key");
+    mbse_mvprintw( 8, 2, "2.  Type nr.");
+    mbse_mvprintw( 9, 2, "3.  Opt. data");
+    mbse_mvprintw(11, 2, "4.  Display");
+    mbse_mvprintw(12, 2, "5.  Security");
+    mbse_mvprintw(13, 2, "6.  Min. age");
+    mbse_mvprintw(14, 2, "7.  Lo-colors");
+    mbse_mvprintw(15, 2, "8.  Hi-colors");
+    mbse_mvprintw(16, 2, "9.  Autoexec");
     if (le_int(menus.MenuType) == 7) {
-	mvprintw(17, 2, "10. Door Name");
-	mvprintw(18, 2, "11. Y2K style");
-	mvprintw(13,42, "12. No door.sys");
-	mvprintw(14,42, "13. Use COMport");
-	mvprintw(15,42, "14. Run nosuid");
-	mvprintw(16,42, "15. No Prompt");
-	mvprintw(17,42, "16. Single User");
-	mvprintw(18,42, "17. Hidden door");
+	mbse_mvprintw(17, 2, "10. Door Name");
+	mbse_mvprintw(18, 2, "11. Y2K style");
+	mbse_mvprintw(13,42, "12. No door.sys");
+	mbse_mvprintw(14,42, "13. Use COMport");
+	mbse_mvprintw(15,42, "14. Run nosuid");
+	mbse_mvprintw(16,42, "15. No Prompt");
+	mbse_mvprintw(17,42, "16. Single User");
+	mbse_mvprintw(18,42, "17. Hidden door");
     }
 
     set_color(WHITE, BLACK);
@@ -151,14 +151,14 @@ int GetSubmenu(int Base, int Max)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
+    mbse_mvprintw( 4, 2, "8.3 EDIT MENU - SELECT MENUTYPE");
     set_color(CYAN, BLACK);
     y = 6;
     x = 2;
 
     for (i = 1; i <= Max; i++) {
 	sprintf(temp, "%2d. %s", i, getmenutype(i - 1 + Base));
-	mvprintw(y, x, temp);
+	mbse_mvprintw(y, x, temp);
 	y++;
 	if ((i % 13) == 0) {
 	    y = 6;
@@ -180,14 +180,14 @@ int GetMenuType(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
+    mbse_mvprintw( 5, 6, "8.3 EDIT MENU - SELECT MENUTYPE");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.  Global system menus");
-    mvprintw( 8, 6, "2.  File areas menus");
-    mvprintw( 9, 6, "3.  Message areas menus");
-    mvprintw(10, 6, "4.  User setting menus");
-    mvprintw(11, 6, "5.  Oneliner menus");
-    mvprintw(12, 6, "6.  BBS List menus");
+    mbse_mvprintw( 7, 6, "1.  Global system menus");
+    mbse_mvprintw( 8, 6, "2.  File areas menus");
+    mbse_mvprintw( 9, 6, "3.  Message areas menus");
+    mbse_mvprintw(10, 6, "4.  User setting menus");
+    mbse_mvprintw(11, 6, "5.  Oneliner menus");
+    mbse_mvprintw(12, 6, "6.  BBS List menus");
 
     switch (select_menu(6)) {
 	case 1:	    return GetSubmenu(1, 22);
@@ -335,7 +335,7 @@ void EditMenu(char *Name)
 	clr_index();
 	working(1, 0, 0);
 	sprintf(temp, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
-	mvprintw( 5, 6, tu(temp));
+	mbse_mvprintw( 5, 6, tu(temp));
 	set_color(CYAN, BLACK);
 	fseek(tmp, 0, SEEK_SET);
 
@@ -348,13 +348,13 @@ void EditMenu(char *Name)
 		    fread(&menus, sizeof(menus), 1, tmp);
 		    if (menus.MenuKey[0] || menus.AutoExec) {
 			set_color(CYAN, BLACK);
-			mvprintw(y, 5, "%3d. ", o + i);
+			mbse_mvprintw(y, 5, "%3d. ", o + i);
 			if (menus.AutoExec) {
 			    set_color(LIGHTRED, BLACK);
-			    mvprintw(y, 10,  "a");
+			    mbse_mvprintw(y, 10,  "a");
 			    set_color(CYAN, BLACK);
 			} else {
-			    mvprintw(y, 10, "%1s", menus.MenuKey);
+			    mbse_mvprintw(y, 10, "%1s", menus.MenuKey);
 			}
 			if (le_int(menus.MenuType) == 999 ) {
 			    sprintf(temp, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.Display);
@@ -362,10 +362,10 @@ void EditMenu(char *Name)
 			    sprintf(temp, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.OptionalData);
 			}
 			temp[68] = '\0';
-			mvprintw(y, 12, temp);
+			mbse_mvprintw(y, 12, temp);
 		    } else {
 			set_color(LIGHTBLUE, BLACK);
-			mvprintw(y, 5, "%3d.", o + i);
+			mbse_mvprintw(y, 5, "%3d.", o + i);
 		    }
 		    y++;
 		}
@@ -410,7 +410,7 @@ void EditMenu(char *Name)
 	}
 
 	if (strncmp(pick, "D", 1) == 0) {
-	    mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
+	    mbse_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
 	    y = 0;
 	    y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
 	    if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
@@ -427,11 +427,11 @@ void EditMenu(char *Name)
 
 	if (strncmp(pick, "M", 1) == 0) {
 	    from = too = 0;
-	    mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
+	    mbse_mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
 	    from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-	    locate(LINES -3, 6);
+	    mbse_locate(LINES -3, 6);
 	    clrtoeol();
- 	    mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
+ 	    mbse_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
 	    too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
 	    if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
 		errmsg("That makes no sense");
@@ -521,7 +521,7 @@ void EditMenus(void)
 	}
 
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
+	mbse_mvprintw( 5, 6, "8.3 MENU EDIT: %s", lang.Name);
 	set_color(CYAN, BLACK);
 		
 	if (mcount) {
@@ -530,7 +530,7 @@ void EditMenus(void)
 	    set_color(CYAN, BLACK);
 	    for (i = 1; i <= mcount; i++) {
 		sprintf(temp, "%2d. %s", i, menuname[i-1]);
-		mvprintw(y, x, temp);
+		mbse_mvprintw(y, x, temp);
 		y++;
 		if ((i % 10) == 0) {
 		    x+=15;
@@ -547,7 +547,7 @@ void EditMenus(void)
 
 	if (strncmp(pick, "A", 1) == 0) {
 	    set_color(WHITE, BLACK);
-	    mvprintw(LINES -3, 6, (char *)"New menu name >");
+	    mbse_mvprintw(LINES -3, 6, (char *)"New menu name >");
 	    memset(&temp, 0, sizeof(temp));
 	    strcpy(temp, edit_str(LINES -3, 22, 10, temp, (char *)"Enter a new ^menu^ name without extension"));
 	    if (strlen(temp)) {

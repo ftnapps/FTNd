@@ -67,7 +67,7 @@ void Uploads()
     IsDoing("Check uploads");
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("  Checking uploads...\n");
     }
 
@@ -373,7 +373,7 @@ int Announce()
     int		i, groups, any;
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Announce new files\n");
     }
 

@@ -36,6 +36,7 @@
 #include "language.h"
 #include "exitinfo.h"
 #include "whoson.h"
+#include "term.h"
 
 
 extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;

@@ -268,7 +268,7 @@ int TossPkt(char *fn)
 	FILE		*pkt;
 
 	if (!do_quiet) {
-		colour(10, 0);
+		mbse_colour(10, 0);
 		printf("Tossing packet %s\n", fn);
 	}
 

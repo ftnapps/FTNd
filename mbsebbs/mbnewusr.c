@@ -39,6 +39,7 @@
 #include "misc.h"
 #include "timeout.h"
 #include "newuser.h"
+#include "term.h"
 
 
 

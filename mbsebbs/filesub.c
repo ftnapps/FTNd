@@ -41,6 +41,7 @@
 #include "timeout.h"
 #include "exitinfo.h"
 #include "change.h"
+#include "term.h"
 
 
 extern pid_t	    mypid;

@@ -376,7 +376,7 @@ void command_list(char *cmd)
     send_nntp("503 Function not available");
 
     msleep(1);	    /* For the linker only */
-    colour(0, 0);
+    mbse_colour(0, 0);
 }
 
 

@@ -290,15 +290,15 @@ void RouteScreen(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 5, "19. EDIT ROUTING TABLE");
+    mbse_mvprintw( 5, 5, "19. EDIT ROUTING TABLE");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 5, "1.  Mask");
-//  mvprintw( 8, 5, "2.  Src name");
-    mvprintw( 9, 5, "3.  Action");
-    mvprintw(10, 5, "4.  Dest addr");
-//  mvprintw(11, 5, "5.  Dest name");
-    mvprintw(12, 5, "6.  Active");
-    mvprintw(13, 5, "7.  Deleted");
+    mbse_mvprintw( 7, 5, "1.  Mask");
+//  mbse_mvprintw( 8, 5, "2.  Src name");
+    mbse_mvprintw( 9, 5, "3.  Action");
+    mbse_mvprintw(10, 5, "4.  Dest addr");
+//  mbse_mvprintw(11, 5, "5.  Dest name");
+    mbse_mvprintw(12, 5, "6.  Active");
+    mbse_mvprintw(13, 5, "7.  Deleted");
 }
 
 
@@ -436,7 +436,7 @@ void EditRoute(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 4, "19. ROUTING TABLE");
+	mbse_mvprintw( 5, 4, "19. ROUTING TABLE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/route.temp", getenv("MBSE_ROOT"));
@@ -459,7 +459,7 @@ void EditRoute(void)
 			    set_color(LIGHTBLUE, BLACK);
 			sprintf(temp, "%3d.  %-25s %s %s", o + i, route.mask, get_routetype(route.routetype), aka2str(route.dest));
 //			temp[37] = 0;
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}

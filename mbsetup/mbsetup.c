@@ -215,9 +215,9 @@ void site_docs(void)
     Syslog('+', "Start creating sitedocs");
 
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "21.  CREATING SITEDOCS");
+    mbse_mvprintw( 5, 6, "21.  CREATING SITEDOCS");
     set_color(CYAN, BLACK);
-    mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("MBSE_ROOT"));
+    mbse_mvprintw( 7,11, (char *)"Erasing directory         %s/share/doc/html", getenv("MBSE_ROOT"));
     fflush(stdout);
 
     sprintf(temp, "-r -f %s/share/doc/html", getenv("MBSE_ROOT"));
@@ -258,7 +258,7 @@ void site_docs(void)
         Syslog('+', "Can't create html documentation");
     }
 
-    mvprintw(8,11, (char *)"Creating site documents");
+    mbse_mvprintw(8,11, (char *)"Creating site documents");
     fflush(stdout);
     horiz = 35;
     page = global_doc(fp, toc, page);
@@ -299,7 +299,7 @@ void site_docs(void)
     dotter();
     ol_doc();
     clrtoeol();
-    mvprintw( 8,11, (char *)"Created site documents in %s/share/doc", getenv("MBSE_ROOT"));
+    mbse_mvprintw( 8,11, (char *)"Created site documents in %s/share/doc", getenv("MBSE_ROOT"));
     fflush(stdout);
 
     /*
@@ -348,7 +348,7 @@ void initdatabases(void)
 	clr_index();
 	working(1, 0, 0);
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "     INIT DATABASES");
+	mbse_mvprintw( 5, 6, "     INIT DATABASES");
 	IsDoing("Init Databases");
     }
 
@@ -448,29 +448,29 @@ int main(int argc, char *argv[])
 	    IsDoing("Browsing Menu");
 	    clr_index();
 	    set_color(WHITE, BLACK);
-	    mvprintw( 5, 6, "0.    MAIN SETUP");
+	    mbse_mvprintw( 5, 6, "0.    MAIN SETUP");
 	    set_color(CYAN, BLACK);
-	    mvprintw( 7, 6, "1.    Edit Global configuration");
-	    mvprintw( 8, 6, "2.    Edit Fido Networks");
-	    mvprintw( 9, 6, "3.    Edit Archiver Programs");
-	    mvprintw(10, 6, "4.    Edit Virus Scanners");
-	    mvprintw(11, 6, "5.    Edit Modem types");
-	    mvprintw(12, 6, "6.    Edit TTY lines info");
-	    mvprintw(13, 6, "7.    Edit Fidonet Nodes");
-	    mvprintw(14, 6, "8.    Edit BBS Setup");
-	    mvprintw(15, 6, "9.    Edit Mail Setup");
-	    mvprintw(16, 6, "10.   Edit File Echo's setup");
-	    mvprintw(17, 6, "11.   Edit Newfiles Groups");
-	    mvprintw( 7,46, "12.   Edit Newfiles Reports");
-	    mvprintw( 8,46, "13.   Edit FileFind Setup");
-	    mvprintw( 9,46, "14.   Edit Files Database");
-	    mvprintw(10,46, "15.   Edit BBS Users");
-	    mvprintw(11,46, "16.   Edit Services");
-	    mvprintw(12,46, "17.   Edit Domains");
-	    mvprintw(13,46, "18.   Edit Task Manager");
-	    mvprintw(14,46, "19.   Edit Routing Table");
-	    mvprintw(15,46, "20.   Show software information");
-	    mvprintw(16,46, "21.   Create site documents");
+	    mbse_mvprintw( 7, 6, "1.    Edit Global configuration");
+	    mbse_mvprintw( 8, 6, "2.    Edit Fido Networks");
+	    mbse_mvprintw( 9, 6, "3.    Edit Archiver Programs");
+	    mbse_mvprintw(10, 6, "4.    Edit Virus Scanners");
+	    mbse_mvprintw(11, 6, "5.    Edit Modem types");
+	    mbse_mvprintw(12, 6, "6.    Edit TTY lines info");
+	    mbse_mvprintw(13, 6, "7.    Edit Fidonet Nodes");
+	    mbse_mvprintw(14, 6, "8.    Edit BBS Setup");
+	    mbse_mvprintw(15, 6, "9.    Edit Mail Setup");
+	    mbse_mvprintw(16, 6, "10.   Edit File Echo's setup");
+	    mbse_mvprintw(17, 6, "11.   Edit Newfiles Groups");
+	    mbse_mvprintw( 7,46, "12.   Edit Newfiles Reports");
+	    mbse_mvprintw( 8,46, "13.   Edit FileFind Setup");
+	    mbse_mvprintw( 9,46, "14.   Edit Files Database");
+	    mbse_mvprintw(10,46, "15.   Edit BBS Users");
+	    mbse_mvprintw(11,46, "16.   Edit Services");
+	    mbse_mvprintw(12,46, "17.   Edit Domains");
+	    mbse_mvprintw(13,46, "18.   Edit Task Manager");
+	    mbse_mvprintw(14,46, "19.   Edit Routing Table");
+	    mbse_mvprintw(15,46, "20.   Show software information");
+	    mbse_mvprintw(16,46, "21.   Create site documents");
  
 	    switch(select_menu(21)) {
 		case 0:

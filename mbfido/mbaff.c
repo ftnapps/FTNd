@@ -53,9 +53,9 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    colour(15, 0);
+    mbse_colour(15, 0);
     printf("\nMBAFF: MBSE BBS %s Announce new files and FileFind\n", VERSION);
-    colour(14, 0);
+    mbse_colour(14, 0);
     printf("       %s\n", COPYRIGHT);
 }
 
@@ -77,7 +77,7 @@ void die(int onsig)
     Syslog(' ', "MBAFF finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet) {
-	colour(7, 0);
+	mbse_colour(7, 0);
 	printf("\n");
     }
     ExitClient(onsig);
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     struct tm	    *t;
 
     InitConfig();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     t = localtime(&t_start);
     Diw = t->tm_wday;
@@ -178,18 +178,18 @@ void Help(void)
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\nUsage:	mbaff [command] <options>\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Commands are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	a  announce	Announce new files\n");
 	printf("	f  filefind	FileFind service\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("\n	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-q -quiet	Quiet mode\n");
-	colour(7, 0);
+	mbse_colour(7, 0);
 	printf("\n");
 	die(MBERR_COMMANDLINE);
 }

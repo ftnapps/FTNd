@@ -59,6 +59,7 @@
 #include "morefile.h"
 #include "lastcallers.h"
 #include "signature.h"
+#include "term.h"
 
 
 extern pid_t	mypid;

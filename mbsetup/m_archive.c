@@ -535,20 +535,20 @@ int EditArchRec(int Area)
     crc = upd_crc32((char *)&archiver, crc, sizeof(archiver));
 
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "3.  EDIT ARCHIVER");
+    mbse_mvprintw( 5, 2, "3.  EDIT ARCHIVER");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 2, "1.  Comment");
-    mvprintw( 8, 2, "2.  Name");
-    mvprintw( 9, 2, "3.  Available");
-    mvprintw(10, 2, "4.  Deleted");
-    mvprintw(11, 2, "5.  Arc files");
-    mvprintw(12, 2, "6.  Arc mail");
-    mvprintw(13, 2, "7.  Banners");
-    mvprintw(14, 2, "8.  Arc test");
-    mvprintw(15, 2, "9.  Un. files");
-    mvprintw(16, 2, "10. Un. mail");
-    mvprintw(17, 2, "11. FILE_ID");
-    mvprintw(18, 2, "12. List arc");
+    mbse_mvprintw( 7, 2, "1.  Comment");
+    mbse_mvprintw( 8, 2, "2.  Name");
+    mbse_mvprintw( 9, 2, "3.  Available");
+    mbse_mvprintw(10, 2, "4.  Deleted");
+    mbse_mvprintw(11, 2, "5.  Arc files");
+    mbse_mvprintw(12, 2, "6.  Arc mail");
+    mbse_mvprintw(13, 2, "7.  Banners");
+    mbse_mvprintw(14, 2, "8.  Arc test");
+    mbse_mvprintw(15, 2, "9.  Un. files");
+    mbse_mvprintw(16, 2, "10. Un. mail");
+    mbse_mvprintw(17, 2, "11. FILE_ID");
+    mbse_mvprintw(18, 2, "12. List arc");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -636,7 +636,7 @@ void EditArchive(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "3.  ARCHIVER SETUP");
+		mbse_mvprintw( 5, 4, "3.  ARCHIVER SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/archiver.temp", getenv("MBSE_ROOT"));
@@ -660,7 +660,7 @@ void EditArchive(void)
 						set_color(LIGHTBLUE, BLACK);
 					    sprintf(temp, "%3d. %-5s %-26s", i, archiver.name, archiver.comment);
 					    temp[38] = 0;
-					    mvprintw(y, x, temp);
+					    mbse_mvprintw(y, x, temp);
 					    y++;
 					}
 				}
@@ -737,7 +737,7 @@ char *PickArchive(char *shdr)
 	clr_index();
 	set_color(WHITE, BLACK);
 	sprintf(temp, "%s.  ARCHIVER SELECT", shdr);
-	mvprintw( 5, 4, temp);
+	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 		sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
@@ -760,7 +760,7 @@ char *PickArchive(char *shdr)
 					set_color(LIGHTBLUE, BLACK);
 				sprintf(temp, "%3d.  %-32s", i, archiver.comment);
 				temp[37] = 0;
-				mvprintw(y, x, temp);
+				mbse_mvprintw(y, x, temp);
 				y++;
 			}
 			strcpy(pick, select_pick(records, 20));

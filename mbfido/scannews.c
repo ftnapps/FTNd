@@ -191,7 +191,7 @@ void ScanNews(void)
     }
 
     if (!do_quiet) {
-	colour(10, 0);
+	mbse_colour(10, 0);
 	printf("Scan for new news articles\n");
     }
 
@@ -216,7 +216,7 @@ void ScanNews(void)
 	    }
 	    Syslog('m', "Scan newsgroup: %s", Msgs.Newsgroup);
 	    if (!do_quiet) {
-		colour(3, 0);
+		mbse_colour(3, 0);
 		printf("\r%-40s", Msgs.Newsgroup);
 		fflush(stdout);
 	    }

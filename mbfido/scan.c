@@ -148,9 +148,9 @@ void ScanFull()
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("Scanning mail\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	fflush(stdout);
     }
 
@@ -164,9 +164,9 @@ void ScanFull()
 
 		Nopper();
 		if (!do_quiet) {
-		    colour(3, 0);
+		    mbse_colour(3, 0);
 		    printf("\r%8s %-40s", usrconfig.Name, usrconfig.sUserName);
-		    colour(13, 0);
+		    mbse_colour(13, 0);
 		    fflush(stdout);
 		}
 
@@ -228,9 +228,9 @@ void ScanFull()
 
 	    Nopper();
 	    if (!do_quiet) {
-		colour(3, 0);
+		mbse_colour(3, 0);
 		printf("\r%5ld .. %-40s", arearec, msgs.Name);
-		colour(13, 0);
+		mbse_colour(13, 0);
 		fflush(stdout);
 	    }
 
@@ -343,9 +343,9 @@ void ScanOne(char *path, unsigned long MsgNum)
     IsDoing("Scanning mail");
 
     if (!do_quiet) {
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("Scanning mail\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	fflush(stdout);
     }
 
@@ -396,9 +396,9 @@ void ScanOne(char *path, unsigned long MsgNum)
 
     if ((msgs.Active) && (msgs.Type == ECHOMAIL || msgs.Type == NETMAIL || msgs.Type == NEWS)) {
 	if (!do_quiet) {
-	    colour(3, 0);
+	    mbse_colour(3, 0);
 	    printf("\r%5ld .. %-40s", Area, msgs.Name);
-	    colour(13, 0);
+	    mbse_colour(13, 0);
 	    fflush(stdout);
 	}
 
@@ -491,9 +491,9 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
     IsDoing("ReScan mail");
 
     if (!do_quiet) {
-        colour(9, 0);
+        mbse_colour(9, 0);
         printf("ReScan mail\n");
-        colour(3, 0);
+        mbse_colour(3, 0);
         fflush(stdout);
     }
 
@@ -520,9 +520,9 @@ int RescanOne(faddr *L, char *marea, unsigned long Num)
 
     if ((msgs.Active) && ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST))) {
         if (!do_quiet) {
-            colour(3, 0);
+            mbse_colour(3, 0);
             printf("\r%5ld .. %-40s", Area, msgs.Name);
-            colour(13, 0);
+            mbse_colour(13, 0);
 	    fflush(stdout);
 	}
 

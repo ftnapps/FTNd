@@ -264,19 +264,19 @@ void s_protrec(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.5 EDIT PROTOCOL");
+	mbse_mvprintw( 5, 6, "8.5 EDIT PROTOCOL");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Select Key");
-	mvprintw( 8, 6, "2.  Name");
-	mvprintw( 9, 6, "3.  Upload");
-	mvprintw(10, 6, "4.  Download");
-	mvprintw(11, 6, "5.  Available");
-	mvprintw(12, 6, "6.  Batching");
-	mvprintw(13, 6, "7.  Bi direct");
-	mvprintw(14, 6, "8.  Advice");
-	mvprintw(15, 6, "9.  Efficiency");
-	mvprintw(16, 6, "10. Deleted");
-	mvprintw(17, 6, "11. Sec. level");
+	mbse_mvprintw( 7, 6, "1.  Select Key");
+	mbse_mvprintw( 8, 6, "2.  Name");
+	mbse_mvprintw( 9, 6, "3.  Upload");
+	mbse_mvprintw(10, 6, "4.  Download");
+	mbse_mvprintw(11, 6, "5.  Available");
+	mbse_mvprintw(12, 6, "6.  Batching");
+	mbse_mvprintw(13, 6, "7.  Bi direct");
+	mbse_mvprintw(14, 6, "8.  Advice");
+	mbse_mvprintw(15, 6, "9.  Efficiency");
+	mbse_mvprintw(16, 6, "10. Deleted");
+	mbse_mvprintw(17, 6, "11. Sec. level");
 }
 
 
@@ -398,7 +398,7 @@ void EditProtocol(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.5 PROTOCOL SETUP");
+		mbse_mvprintw( 5, 6, "8.5 PROTOCOL SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/protocol.temp", getenv("MBSE_ROOT"));
@@ -418,7 +418,7 @@ void EditProtocol(void)
 						set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
 					temp[37] = '\0';
-					mvprintw(i + 6, x, temp);
+					mbse_mvprintw(i + 6, x, temp);
 				}
 				fclose(fil);
 			}
@@ -483,7 +483,7 @@ char *PickProtocol(int nr)
 	clr_index();
 	set_color(WHITE, BLACK);
 	sprintf(temp, "%d.  PROTOCOL SELECT", nr);
-	mvprintw( 5, 4, temp);
+	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 		sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
@@ -503,7 +503,7 @@ char *PickProtocol(int nr)
 					set_color(LIGHTBLUE, BLACK);
 				sprintf(temp, "%3d.  %s %-30s", i, PROT.ProtKey, PROT.ProtName);
 				temp[37] = '\0';
-				mvprintw(i + 6, x, temp);
+				mbse_mvprintw(i + 6, x, temp);
 			}
 			strcpy(pick, select_pick(records, 20));
 

@@ -242,12 +242,12 @@ int EditOnelRec(int Area)
 	crc = upd_crc32((char *)&ol, crc, sizeof(ol));
 
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
+	mbse_mvprintw( 5, 2, "8.7.1   EDIT ONELINER");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Text");
-	mvprintw( 8, 2, "2.  User");
-	mvprintw( 9, 2, "3.  Date");
-	mvprintw(10, 2, "4.  Avail");
+	mbse_mvprintw( 7, 2, "1.  Text");
+	mbse_mvprintw( 8, 2, "2.  User");
+	mbse_mvprintw( 9, 2, "3.  Date");
+	mbse_mvprintw(10, 2, "4.  Avail");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -319,7 +319,7 @@ void EditOneline(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "8.7.1 ONELINERS SETUP");
+		mbse_mvprintw( 5, 2, "8.7.1 ONELINERS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/oneline.temp", getenv("MBSE_ROOT"));
@@ -344,7 +344,7 @@ void EditOneline(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, ol.Oneline);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -401,7 +401,7 @@ void PurgeOneline(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
+    mbse_mvprintw( 5, 6, "8.7.2   ONELINERS PURGE");
     set_color(CYAN, BLACK);
     working(1, 0, 0);
 
@@ -428,9 +428,9 @@ void PurgeOneline(void)
     }
 
     sprintf(temp, "%d records, %d records to purge", recno, iCount);
-    mvprintw(7, 6, temp);
+    mbse_mvprintw(7, 6, temp);
     if (iCount == 0) {
-	mvprintw(9, 6, "Press any key");
+	mbse_mvprintw(9, 6, "Press any key");
 	readkey(9, 20, LIGHTGRAY, BLACK);
 	free(sFileName);
 	return;
@@ -471,7 +471,7 @@ void ImportOneline(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
+    mbse_mvprintw(5, 6, "8.7.3  IMPORT ONELINERS");
     set_color(CYAN, BLACK);
     temp = calloc(PATH_MAX, sizeof(char));
     memset(temp, 0, sizeof(temp));
@@ -490,7 +490,7 @@ void ImportOneline(void)
 
     if ((Imp = fopen(temp, "r")) == NULL) {
 	working(2, 0, 0);
-	mvprintw(21, 6, temp);
+	mbse_mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
 	free(temp);
 	return;
@@ -517,7 +517,7 @@ void ImportOneline(void)
     if ((pOneline = fopen(temp, "a+")) == NULL) {
 	working(2, 0, 0);
 	fclose(Imp);
-	mvprintw(21, 6, temp);
+	mbse_mvprintw(21, 6, temp);
 	readkey(22, 6, LIGHTGRAY, BLACK);
 	free(temp);
 	return;
@@ -547,7 +547,7 @@ void ImportOneline(void)
 
     sprintf(temp, "Imported %d oneliners, skipped %d long/empty lines", recno, skipped);
     Syslog('+', temp);
-    mvprintw(21, 6, temp);
+    mbse_mvprintw(21, 6, temp);
     readkey(21, 7 + strlen(temp), LIGHTGRAY, BLACK);
     free(temp);
 }
@@ -559,11 +559,11 @@ void ol_menu(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "8.7   ONELINER SETUP");
+	mbse_mvprintw( 5, 6, "8.7   ONELINER SETUP");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.    Edit Oneliners");
-	mvprintw( 8, 6, "2.    Purge Oneliners");
-	mvprintw( 9, 6, "3.    Import Oneliners");
+	mbse_mvprintw( 7, 6, "1.    Edit Oneliners");
+	mbse_mvprintw( 8, 6, "2.    Purge Oneliners");
+	mbse_mvprintw( 9, 6, "3.    Import Oneliners");
 
 	switch(select_menu(3)) {
 	    case 0: return;

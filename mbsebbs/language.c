@@ -34,7 +34,7 @@
 #include "../lib/users.h"
 #include "input.h"
 #include "language.h"
-
+#include "term.h"
 
 
 

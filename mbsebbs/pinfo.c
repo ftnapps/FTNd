@@ -34,7 +34,7 @@
 #include "../lib/users.h"
 #include "pinfo.h"
 #include "input.h"
-
+#include "term.h"
 
 
 void ls(int a)

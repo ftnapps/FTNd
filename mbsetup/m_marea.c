@@ -374,14 +374,14 @@ void EditSystem(sysconnect *Sys)
 		if (refresh) {
 			clr_index();
 			set_color(WHITE, BLACK);
-			mvprintw( 5,6, "9.2.26 EDIT CONNECTION");
+			mbse_mvprintw( 5,6, "9.2.26 EDIT CONNECTION");
 			set_color(CYAN, BLACK);
-			mvprintw( 7,6, "1.     Aka");
-			mvprintw( 8,6, "2.     Send to");
-			mvprintw( 9,6, "3.     Recv from");
-			mvprintw(10,6, "4.     Pause");
-			mvprintw(11,6, "5.     Excluded");
-			mvprintw(12,6, "6.     Delete");
+			mbse_mvprintw( 7,6, "1.     Aka");
+			mbse_mvprintw( 8,6, "2.     Send to");
+			mbse_mvprintw( 9,6, "3.     Recv from");
+			mbse_mvprintw(10,6, "4.     Pause");
+			mbse_mvprintw(11,6, "5.     Excluded");
+			mbse_mvprintw(12,6, "6.     Delete");
 			refresh = FALSE;
 		}
 		set_color(WHITE, BLACK);
@@ -437,7 +437,7 @@ int EditConnections(FILE *fil)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 5, "9.2.29  MESSAGE AREA CONNECTIONS");
+		mbse_mvprintw( 5, 5, "9.2.29  MESSAGE AREA CONNECTIONS");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 2;
@@ -471,7 +471,7 @@ int EditConnections(FILE *fil)
 					set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.", o+i);
 				}
-				mvprintw(y, x, temp);
+				mbse_mvprintw(y, x, temp);
 				y++;
 			}
 		}
@@ -507,50 +507,50 @@ void SetScreen()
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 4, 2, "9.2 EDIT MESSAGE AREA");
+    mbse_mvprintw( 4, 2, "9.2 EDIT MESSAGE AREA");
     set_color(CYAN, BLACK);
-    mvprintw( 6, 2, "1.  Area Name");
-    mvprintw( 7, 2, "2.  FTN area");
-    mvprintw( 8, 2, "3.  Group");
-    mvprintw( 9, 2, "4.  Newsgroup");
-    mvprintw(10, 2, "5.  JAM base");
-    mvprintw(11, 2, "6.  Origin");
-    mvprintw(12, 2, "7.  Fido Aka");
-    mvprintw(13, 2, "8.  QWK name");
-    mvprintw(14, 2, "9.  Distrib.");
-    mvprintw(15, 2, "10. Area Type");
-    mvprintw(16, 2, "11. Msg Kinds");
-    mvprintw(17, 2, "12. Charset");
-    mvprintw(18, 2, "13. Active");
-    mvprintw(19, 2, "14. Days Old");
+    mbse_mvprintw( 6, 2, "1.  Area Name");
+    mbse_mvprintw( 7, 2, "2.  FTN area");
+    mbse_mvprintw( 8, 2, "3.  Group");
+    mbse_mvprintw( 9, 2, "4.  Newsgroup");
+    mbse_mvprintw(10, 2, "5.  JAM base");
+    mbse_mvprintw(11, 2, "6.  Origin");
+    mbse_mvprintw(12, 2, "7.  Fido Aka");
+    mbse_mvprintw(13, 2, "8.  QWK name");
+    mbse_mvprintw(14, 2, "9.  Distrib.");
+    mbse_mvprintw(15, 2, "10. Area Type");
+    mbse_mvprintw(16, 2, "11. Msg Kinds");
+    mbse_mvprintw(17, 2, "12. Charset");
+    mbse_mvprintw(18, 2, "13. Active");
+    mbse_mvprintw(19, 2, "14. Days Old");
 
-    mvprintw(13,34, "15. Max. Msgs");
+    mbse_mvprintw(13,34, "15. Max. Msgs");
     switch (msgs.Type) {
-	case ECHOMAIL:  mvprintw(14,34, "16. Netreply");
+	case ECHOMAIL:  mbse_mvprintw(14,34, "16. Netreply");
 			break;
-	case NEWS:	mvprintw(14,34, "16. Articles");
+	case NEWS:	mbse_mvprintw(14,34, "16. Articles");
 			break;
-	default:	mvprintw(14,34, "16. N/A");
+	default:	mbse_mvprintw(14,34, "16. N/A");
 			break;
     }
-    mvprintw(15,34, "17. Read Sec.");
-    mvprintw(16,34, "18. Write Sec.");
-    mvprintw(17,34, "19. Sysop Sec.");
-    mvprintw(18,34, "20. User Del.");
-    mvprintw(19,34, "21. Aliases");
+    mbse_mvprintw(15,34, "17. Read Sec.");
+    mbse_mvprintw(16,34, "18. Write Sec.");
+    mbse_mvprintw(17,34, "19. Sysop Sec.");
+    mbse_mvprintw(18,34, "20. User Del.");
+    mbse_mvprintw(19,34, "21. Aliases");
 
-    mvprintw(13,58, "22. Quotes");
-    mvprintw(14,58, "23. Mandatory");
-    mvprintw(15,58, "24. UnSecure");
-    mvprintw(16,58, "25. OLR Default");
-    mvprintw(17,58, "26. OLR Forced");
+    mbse_mvprintw(13,58, "22. Quotes");
+    mbse_mvprintw(14,58, "23. Mandatory");
+    mbse_mvprintw(15,58, "24. UnSecure");
+    mbse_mvprintw(16,58, "25. OLR Default");
+    mbse_mvprintw(17,58, "26. OLR Forced");
     switch (msgs.Type) {
 	case ECHOMAIL:
 	case NEWS:
-	case LIST:  mvprintw(18,58, "27. Connections");
+	case LIST:  mbse_mvprintw(18,58, "27. Connections");
 		    break;
     }
-    mvprintw(19,58, "28. Security");
+    mbse_mvprintw(19,58, "28. Security");
 } 
 
 
@@ -685,11 +685,11 @@ void ShowStatus(sysconnect S)
 {
 	clr_index();
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "Aka");
-	mvprintw( 8, 6, "Send to");
-	mvprintw( 9, 6, "Recv from");
-	mvprintw(10, 6, "Pause");
-	mvprintw(11, 6, "Excluded");
+	mbse_mvprintw( 7, 6, "Aka");
+	mbse_mvprintw( 8, 6, "Send to");
+	mbse_mvprintw( 9, 6, "Recv from");
+	mbse_mvprintw(10, 6, "Pause");
+	mbse_mvprintw(11, 6, "Excluded");
 	set_color(WHITE, BLACK);
 	show_str(  7,16,23, aka2str(S.aka));
 	show_bool( 8,16, S.sendto);
@@ -750,22 +750,22 @@ void MsgGlobal(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "9.2 GLOBAL EDIT MESSAGE AREAS");
+	mbse_mvprintw( 5, 6, "9.2 GLOBAL EDIT MESSAGE AREAS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Delete connection");
-	mvprintw( 8, 6, "2.  Add new connection");
-	mvprintw( 9, 6, "3.  Replace connection");
-	mvprintw(10, 6, "4.  Change connection status");
-	mvprintw(11, 6, "5.  Change days old");
-	mvprintw(12, 6, "6.  Change max. messages");
-	mvprintw(13, 6, "7.  Change max. articles");
-	mvprintw(14, 6, "8.  Change bbs security");
-	mvprintw(15, 6, "9.  Change link security");
-	mvprintw(16, 6, "10. Change aka to use");
-	mvprintw( 7,41, "11. Change origin line");
-	mvprintw( 8,41, "12. Change netmail reply");
-	mvprintw( 9,41, "13. Change character set");
-	mvprintw(10,41, "14. Delete message area");
+	mbse_mvprintw( 7, 6, "1.  Delete connection");
+	mbse_mvprintw( 8, 6, "2.  Add new connection");
+	mbse_mvprintw( 9, 6, "3.  Replace connection");
+	mbse_mvprintw(10, 6, "4.  Change connection status");
+	mbse_mvprintw(11, 6, "5.  Change days old");
+	mbse_mvprintw(12, 6, "6.  Change max. messages");
+	mbse_mvprintw(13, 6, "7.  Change max. articles");
+	mbse_mvprintw(14, 6, "8.  Change bbs security");
+	mbse_mvprintw(15, 6, "9.  Change link security");
+	mbse_mvprintw(16, 6, "10. Change aka to use");
+	mbse_mvprintw( 7,41, "11. Change origin line");
+	mbse_mvprintw( 8,41, "12. Change netmail reply");
+	mbse_mvprintw( 9,41, "13. Change character set");
+	mbse_mvprintw(10,41, "14. Delete message area");
 
 	memset(&a1, 0, sizeof(fidoaddr));
 	memset(&a2, 0, sizeof(fidoaddr));
@@ -788,11 +788,11 @@ void MsgGlobal(void)
 		    S.pause = edit_bool(10,16,S.pause, (char *)"Is this node ^paused^");
 		    S.cutoff = edit_bool(11,16,S.cutoff, (char *)"Is this node ^excluded^");
 		    break;
-	    case 5: mvprintw(LINES -3, 5, "Days old");
+	    case 5: mbse_mvprintw(LINES -3, 5, "Days old");
 		    E_INT(LINES -3, 14, daysold, (char *)"Enter new number of ^days old^")
-	    case 6: mvprintw(LINES -3, 5, "Max. messages");
+	    case 6: mbse_mvprintw(LINES -3, 5, "Max. messages");
 		    E_INT(LINES -3, 19, maxmsgs, (char *)"Enter ^maximum messages^")
-	    case 7: mvprintw(LINES -3, 6, "Max. articles");
+	    case 7: mbse_mvprintw(LINES -3, 6, "Max. articles");
 		    E_INT(LINES -3, 19, maxarticles, (char *)"Enter ^maximum news articles^ to fetch")
 	    case 8: rs = edit_sec(6, 5, rs, (char *)"9.2.8 READ SECURITY");
 		    ws = edit_sec(7, 5, ws, (char *)"9.2.8 WRITE SECURITY");
@@ -803,9 +803,9 @@ void MsgGlobal(void)
 	    case 10:akan = PickAka((char *)"9.2.8", TRUE);
 		    break;
 	    case 11:E_STR(LINES -3, 5, 64, mfile, "Enter new ^origin^ line");
-	    case 12:mvprintw(LINES -3, 5, "Netmail reply board");
+	    case 12:mbse_mvprintw(LINES -3, 5, "Netmail reply board");
 		    E_INT(LINES -3, 25, netbrd, (char *)"The ^netmail reply^ board number")
-	    case 13:mvprintw(LINES -3, 5, "Character set to set");
+	    case 13:mbse_mvprintw(LINES -3, 5, "Character set to set");
 		    charset = edit_charset(LINES -3,26, charset);
 		    break;
 	}
@@ -816,47 +816,47 @@ void MsgGlobal(void)
 	 * Show settings before proceeding
 	 */
 	switch (menu) {
-	    case 1: mvprintw(7, 6, "Delete aka %s", aka2str(a1));
+	    case 1: mbse_mvprintw(7, 6, "Delete aka %s", aka2str(a1));
 		    break;
-	    case 2: mvprintw(7, 6, "Add aka %s", aka2str(a2));
+	    case 2: mbse_mvprintw(7, 6, "Add aka %s", aka2str(a2));
 		    break;
 	    case 3: p = xstrcpy(aka2str(a1));
-		    mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
+		    mbse_mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
 		    free(p);
 		    break;
 	    case 4: ShowStatus(S);
-		    mvprintw(14, 6, "Change the link status");
+		    mbse_mvprintw(14, 6, "Change the link status");
 		    break;
-	    case 5: mvprintw(7, 6, "Change days old to %d", daysold);
+	    case 5: mbse_mvprintw(7, 6, "Change days old to %d", daysold);
 		    break;
-	    case 6: mvprintw(7, 6, "Change maximum messages to %d", maxmsgs);
+	    case 6: mbse_mvprintw(7, 6, "Change maximum messages to %d", maxmsgs);
 		    break;
-	    case 7: mvprintw(7, 6, "Change maximum news articles to fetch to %d", maxarticles);
+	    case 7: mbse_mvprintw(7, 6, "Change maximum news articles to fetch to %d", maxarticles);
 		    break;
 	    case 8: set_color(CYAN, BLACK);
-		    mvprintw(7, 6, "Read security");
-		    mvprintw(8, 6, "Write security");
-		    mvprintw(9, 6, "Sysop security");
+		    mbse_mvprintw(7, 6, "Read security");
+		    mbse_mvprintw(8, 6, "Write security");
+		    mbse_mvprintw(9, 6, "Sysop security");
 		    set_color(WHITE, BLACK);
 		    show_sec(7, 21, rs);
 		    show_sec(8, 21, ws);
 		    show_sec(9, 21, ss);
 		    break;
 	    case 9: set_color(CYAN, BLACK);
-		    mvprintw(7, 6, "Link security");
+		    mbse_mvprintw(7, 6, "Link security");
 		    set_color(WHITE, BLACK);
-		    mvprintw(7,21, getflag(as.flags, as.notflags));
+		    mbse_mvprintw(7,21, getflag(as.flags, as.notflags));
 		    break;
 	    case 10:if (akan != -1)
-			mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
+			mbse_mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
 		    break;
-	    case 11:mvprintw(7, 6, "Origin: %s", mfile);
+	    case 11:mbse_mvprintw(7, 6, "Origin: %s", mfile);
 		    break;
-	    case 12:mvprintw(7, 6, "New netmail reply board %d", netbrd);
+	    case 12:mbse_mvprintw(7, 6, "New netmail reply board %d", netbrd);
 		    break;
-	    case 13:mvprintw(7, 6, "New character set %s", getchrs(charset));
+	    case 13:mbse_mvprintw(7, 6, "New character set %s", getchrs(charset));
 		    break;
-	    case 14:mvprintw(7, 6, "Delete message areas");
+	    case 14:mbse_mvprintw(7, 6, "Delete message areas");
 		    break;
 	}
 
@@ -1067,7 +1067,7 @@ void MsgGlobal(void)
 		tfil = NULL;
 	    }
 
-	    mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
+	    mbse_mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
 	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
 	    if (Done)
 		MsgUpdated = TRUE;
@@ -1441,7 +1441,7 @@ void EditMsgarea(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
+	mbse_mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
@@ -1462,7 +1462,7 @@ void EditMsgarea(void)
 			    set_color(LIGHTBLUE, BLACK);
 			    sprintf(temp, "%3d.", o+i);
 			}
-			mvprintw(y, 2, temp);
+			mbse_mvprintw(y, 2, temp);
 			y++;
 		    }
 		}
@@ -1500,9 +1500,9 @@ void EditMsgarea(void)
 
 	if (strncmp(pick, "M", 1) == 0) {
 	    from = too = 0;
-	    mvprintw(LINES -3, 5, "From");
+	    mbse_mvprintw(LINES -3, 5, "From");
 	    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
-	    mvprintw(LINES -3,15, "To");
+	    mbse_mvprintw(LINES -3,15, "To");
 	    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 	    rc = 0;
 
@@ -1600,7 +1600,7 @@ char *PickMsgarea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  MESSAGE AREA SELECT", shdr);
-		mvprintw(5, 3, temp);
+		mbse_mvprintw(5, 3, temp);
 		set_color(CYAN, BLACK);
 
 		if (records) {
@@ -1626,7 +1626,7 @@ char *PickMsgarea(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-31s", o + i, msgs.Name);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

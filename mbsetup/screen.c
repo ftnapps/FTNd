@@ -61,7 +61,7 @@ void hor_lin(int y, int x, int len)
 {
     int	i;
 
-    locate(y, x);
+    mbse_locate(y, x);
     for (i = 0; i < len; i++)
 	fputc('-', stdout);
     fflush(stdout);
@@ -80,7 +80,7 @@ void set_color(int f, int b)
     if ((f != old_f) || (b != old_b)) {
 	old_f = f;
 	old_b = b;
-	colour(f, b);
+	mbse_colour(f, b);
 	fflush(stdout);
     }
 }
@@ -103,10 +103,10 @@ void show_date(int fg, int bg, int y, int x)
 	set_color(LIGHTGREEN, BLUE);
 	p = ctime(&now);
 	Striplf(p);
-	mvprintw(1, 44, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
+	mbse_mvprintw(1, 44, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
 	p = asctime(gmtime(&now));
 	Striplf(p);
-	mvprintw(2, 44, (char *)"%s UTC", p);
+	mbse_mvprintw(2, 44, (char *)"%s UTC", p);
 
 	/*
 	 * Indicator if bbs is free
@@ -116,20 +116,20 @@ void show_date(int fg, int bg, int y, int x)
 	    strcpy(buf, SockR("SBBS:0;"));
 	    if (strncmp(buf, "100:2,1", 7) == 0) {
 		set_color(WHITE, RED);
-		mvprintw(2,74, (char *)" Down ");
+		mbse_mvprintw(2,74, (char *)" Down ");
 	    } else {
 		set_color(WHITE, BLUE);
-		mvprintw(2,74, (char *)" Free ");
+		mbse_mvprintw(2,74, (char *)" Free ");
 	    }
 	    bbs_free = TRUE;
 	} else {
 	    set_color(WHITE, RED);
-	    mvprintw(2,74, (char *)" Busy ");
+	    mbse_mvprintw(2,74, (char *)" Busy ");
 	    bbs_free = FALSE;
 	}
 
 	if (y && x)
-	    locate(y, x);
+	    mbse_locate(y, x);
 	set_color(fg, bg);
     }
 }
@@ -138,7 +138,7 @@ void show_date(int fg, int bg, int y, int x)
 
 void center_addstr(int y, char *s)
 {
-    mvprintw(y, (COLS / 2) - (strlen(s) / 2), s);
+    mbse_mvprintw(y, (COLS / 2) - (strlen(s) / 2), s);
 }
 
 
@@ -150,16 +150,16 @@ void screen_start(char *name)
 {
     int	i;
 
-    TermInit(1, COLS, LINES);
+    mbse_TermInit(1, COLS, LINES);
     /*
      *  Overwrite screen the first time, if user had it black on white
      *  it will change to white on black. clear() won't do the trick.
      */
     set_color(LIGHTGRAY, BLUE);
-    locate(1, 1);
+    mbse_locate(1, 1);
     for (i = 0; i < LINES; i++) {
 	if (i == 3)
-	    colour(LIGHTGRAY, BLACK);
+	    mbse_colour(LIGHTGRAY, BLACK);
 	clrtoeol();
 	if (i < LINES)
 	    fprintf(stdout, "\n");
@@ -167,10 +167,10 @@ void screen_start(char *name)
     fflush(stdout);
 
     set_color(WHITE, BLUE);
-    locate(1, 1);
+    mbse_locate(1, 1);
     printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
     set_color(YELLOW, BLUE);
-    locate(2, 1);
+    mbse_locate(2, 1);
     printf((char *)SHORTRIGHT);
     set_color(LIGHTGRAY, BLACK);
     show_date(LIGHTGRAY, BLACK, 0, 0);
@@ -185,7 +185,7 @@ void screen_start(char *name)
 void screen_stop()
 {
     set_color(LIGHTGRAY, BLACK);
-    clear();
+    mbse_clear();
     fflush(stdout);
 }
 
@@ -215,11 +215,11 @@ void working(int txno, int y, int x)
 	set_color(LIGHTGRAY, BLACK);
 
     switch (txno) {
-	case 0: mvprintw(4, 66, (char *)"             ");
+	case 0: mbse_mvprintw(4, 66, (char *)"             ");
 		break;
-	case 1: mvprintw(4, 66, (char *)"Working . . .");
+	case 1: mbse_mvprintw(4, 66, (char *)"Working . . .");
 		break;
-	case 2:	mvprintw(4, 66, (char *)">>> ERROR <<<");
+	case 2:	mbse_mvprintw(4, 66, (char *)">>> ERROR <<<");
 		for (i = 1; i <= 5; i++) {
 		    fputc(7, stdout);
 		    fflush(stdout);
@@ -227,19 +227,19 @@ void working(int txno, int y, int x)
 		}
 		msleep(550);
 		break;
-	case 3: mvprintw(4, 66, (char *)"Form inserted");
+	case 3: mbse_mvprintw(4, 66, (char *)"Form inserted");
 		fputc(7, stdout);
 		fflush(stdout);
 		sleep(1);
 		break;
-	case 4: mvprintw(4, 66, (char *)"Form deleted ");
+	case 4: mbse_mvprintw(4, 66, (char *)"Form deleted ");
 		fputc(7, stdout);
 		fflush(stdout);
 		sleep(1);
 		break;
-	case 5: mvprintw(4, 66, (char *)"Moving . . . ");
+	case 5: mbse_mvprintw(4, 66, (char *)"Moving . . . ");
 		break;
-	case 6:	mvprintw(4, 66, (char *)"Data updated ");
+	case 6:	mbse_mvprintw(4, 66, (char *)"Data updated ");
 		fputc(7, stdout);
 		fflush(stdout);
 		sleep(1);
@@ -249,7 +249,7 @@ void working(int txno, int y, int x)
     show_date(LIGHTGRAY, BLACK, 0, 0);
     set_color(LIGHTGRAY, BLACK);
     if (y && x)
-	locate(y, x);
+	mbse_locate(y, x);
     fflush(stdout);
 }
 
@@ -264,7 +264,7 @@ void clr_index()
 
     set_color(LIGHTGRAY, BLACK);
     for (i = 3; i <= (LINES - 1); i++) {
-	locate(i, 1);
+	mbse_locate(i, 1);
 	clrtoeol();
     }
 }
@@ -279,7 +279,7 @@ void showhelp(char *T)
     int f, i, x, forlim;
 
     f = FALSE;
-    locate(LINES-1, 1);
+    mbse_locate(LINES-1, 1);
     set_color(WHITE, RED);
     clrtoeol();
     x = 0;

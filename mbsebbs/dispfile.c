@@ -46,7 +46,7 @@
 #include "input.h"
 #include "dispfile.h"
 #include "filesub.h"
-
+#include "term.h"
 
 
 /*

@@ -44,14 +44,14 @@ int rearc(char *filename, char *arctype, int do_quiet)
     Syslog('f', "rearc(%s, %s)", filename, arctype);
 
     if (!do_quiet) {
-        colour(12, 0);
+        mbse_colour(12, 0);
         printf("    ReArc file %s   ", filename);
 	fflush(stdout);
     }
 
     if (strchr(filename, '/') == NULL) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no path in filename\n");
 	}
 	Syslog('+', "rearc(%s, %s), no path in filename", filename, arctype);
@@ -60,7 +60,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if ((unarc = unpacker(filename)) == NULL) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" unknown archive type\n");
 	}
         return -1;
@@ -68,7 +68,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!getarchiver(unarc)) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no unarchiver available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no unarchiver available", filename, arctype);
@@ -78,7 +78,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     uncmd = xstrcpy(archiver.funarc);
     if ((uncmd == NULL) || (uncmd == "")) {
         if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no unarchive command available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no unarchive command available", filename, arctype);
@@ -93,7 +93,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!getarchiver(arctype)) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no archiver available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no archiver available", filename, arctype);
@@ -104,7 +104,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (strcmp(unarc, archiver.name) == 0) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" already in %s format\n", arctype);
 	}
 	Syslog('+', "rearc(%s, %s), already in %s format", filename, arctype, arctype);
@@ -119,7 +119,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     arccmd = xstrcpy(archiver.farc);
     if ((arccmd == NULL) || (arccmd == "")) {
 	if (!do_quiet) {
-	    colour(LIGHTRED, BLACK);
+	    mbse_colour(LIGHTRED, BLACK);
 	    printf(" no archive command available\n");
 	}
 	Syslog('+', "rearc(%s, %s), no archive command available", filename, arctype);
@@ -145,7 +145,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\rUnpacking file %s   ", filename);
 	fflush(stdout);
     }
@@ -165,7 +165,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
     }
 
     if (!do_quiet) {
-	colour(10, 0);
+	mbse_colour(10, 0);
 	printf("\r  Packing file %s   ", newname);
     }
 

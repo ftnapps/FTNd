@@ -543,7 +543,7 @@ void NewsUUCP(void)
 	IsDoing((char *)"UUCP Batch");
 
 	if (!do_quiet) {
-		colour(10, 0);
+		mbse_colour(10, 0);
 		printf("Process UUCP Newsbatch\n");
 	}
 

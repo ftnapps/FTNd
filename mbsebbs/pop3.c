@@ -37,7 +37,7 @@
 #include "../lib/msg.h"
 #include "msgutil.h"
 #include "pop3.h"
-
+#include "term.h"
 
 
 void error_popmail(char *);

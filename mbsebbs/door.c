@@ -38,6 +38,7 @@
 #include "exitinfo.h"
 #include "whoson.h"
 #include "door.h"
+#include "term.h"
 
 
 extern time_t	t_start;

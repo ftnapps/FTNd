@@ -266,21 +266,21 @@ void NewScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "12. EDIT NEW FILES REPORTS");
+	mbse_mvprintw( 5, 2, "12. EDIT NEW FILES REPORTS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Comment");
-	mvprintw( 8, 2, "2.  Msg area");
-	mvprintw( 9, 2, "3.  Origin line");
-	mvprintw(10, 2, "4.  From name");
-	mvprintw(11, 2, "5.  To name");
-	mvprintw(12, 2, "6.  Subject");
-	mvprintw(13, 2, "7.  Language");
-	mvprintw(14, 2, "8.  Template");
-	mvprintw(15, 2, "9.  Aka to use");
-	mvprintw(16, 2, "10. Active");
-	mvprintw(17, 2, "11. Deleted");
-	mvprintw(16,42, "12. High ASCII");
-	mvprintw(17,42, "13. New groups");
+	mbse_mvprintw( 7, 2, "1.  Comment");
+	mbse_mvprintw( 8, 2, "2.  Msg area");
+	mbse_mvprintw( 9, 2, "3.  Origin line");
+	mbse_mvprintw(10, 2, "4.  From name");
+	mbse_mvprintw(11, 2, "5.  To name");
+	mbse_mvprintw(12, 2, "6.  Subject");
+	mbse_mvprintw(13, 2, "7.  Language");
+	mbse_mvprintw(14, 2, "8.  Template");
+	mbse_mvprintw(15, 2, "9.  Aka to use");
+	mbse_mvprintw(16, 2, "10. Active");
+	mbse_mvprintw(17, 2, "11. Deleted");
+	mbse_mvprintw(16,42, "12. High ASCII");
+	mbse_mvprintw(17,42, "13. New groups");
 }
 
 
@@ -459,7 +459,7 @@ void EditNewfiles(void)
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 4, "12. NEWFILES REPORTS");
+	mbse_mvprintw( 5, 4, "12. NEWFILES REPORTS");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
@@ -484,7 +484,7 @@ void EditNewfiles(void)
 			    set_color(LIGHTBLUE, BLACK);
 			sprintf(temp, "%3d.  %-32s", o + i, newfiles.Comment);
 			temp[37] = 0;
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}

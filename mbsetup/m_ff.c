@@ -214,20 +214,20 @@ void FFScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "13. EDIT FILEFIND AREAS");
+	mbse_mvprintw( 5, 2, "13. EDIT FILEFIND AREAS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Comment");
-	mvprintw( 8, 2, "2.  Origin");
-	mvprintw( 9, 2, "3.  Aka to use");
-	mvprintw(10, 2, "4.  Scan area");
-	mvprintw(11, 2, "5.  Reply area");
-	mvprintw(12, 2, "6.  Language");
-	mvprintw(13, 2, "7.  Template");
-	mvprintw(14, 2, "8.  Active");
-	mvprintw(15, 2, "9.  Deleted");
-	mvprintw(16, 2, "10. Net. reply");
-	mvprintw(17, 2, "11. Hi Ascii");
-	mvprintw(18, 2, "12. Keywrd len");
+	mbse_mvprintw( 7, 2, "1.  Comment");
+	mbse_mvprintw( 8, 2, "2.  Origin");
+	mbse_mvprintw( 9, 2, "3.  Aka to use");
+	mbse_mvprintw(10, 2, "4.  Scan area");
+	mbse_mvprintw(11, 2, "5.  Reply area");
+	mbse_mvprintw(12, 2, "6.  Language");
+	mbse_mvprintw(13, 2, "7.  Template");
+	mbse_mvprintw(14, 2, "8.  Active");
+	mbse_mvprintw(15, 2, "9.  Deleted");
+	mbse_mvprintw(16, 2, "10. Net. reply");
+	mbse_mvprintw(17, 2, "11. Hi Ascii");
+	mbse_mvprintw(18, 2, "12. Keywrd len");
 }
 
 
@@ -356,7 +356,7 @@ void EditFilefind(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "13. FILEFIND AREAS");
+		mbse_mvprintw( 5, 4, "13. FILEFIND AREAS");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/scanmgr.temp", getenv("MBSE_ROOT"));
@@ -381,7 +381,7 @@ void EditFilefind(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, scanmgr.Comment);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

@@ -80,7 +80,7 @@ void Check(long AreaNr)
     newdir = calloc(PATH_MAX, sizeof(char));
     
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Checking file database...\n");
     }
 

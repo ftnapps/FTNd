@@ -103,23 +103,23 @@ int EditTask()
 	IsDoing("Edit Taskmanager");
 
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 1, "18.  EDIT TASK MANAGER");
+	mbse_mvprintw( 4, 1, "18.  EDIT TASK MANAGER");
 	set_color(CYAN, BLACK);
-	mvprintw( 6, 1, " 1.  Mailout");
-	mvprintw( 7, 1, " 2.  Mailin");
-	mvprintw( 8, 1, " 3.  Newnews");
-	mvprintw( 9, 1, " 4.  Index 1");
-	mvprintw(10, 1, " 5.  Index 2");
-	mvprintw(11, 1, " 6.  Index 3");
-	mvprintw(12, 1, " 7.  Msglink");
-	mvprintw(13, 1, " 8.  Reqindex");
-	mvprintw(14, 1, " 9.  Ping #1");
-	mvprintw(15, 1, "10.  Ping #2");
-	mvprintw(16, 1, "11.  Max TCP");
-	mvprintw(17, 1, "12.  Max Load");
+	mbse_mvprintw( 6, 1, " 1.  Mailout");
+	mbse_mvprintw( 7, 1, " 2.  Mailin");
+	mbse_mvprintw( 8, 1, " 3.  Newnews");
+	mbse_mvprintw( 9, 1, " 4.  Index 1");
+	mbse_mvprintw(10, 1, " 5.  Index 2");
+	mbse_mvprintw(11, 1, " 6.  Index 3");
+	mbse_mvprintw(12, 1, " 7.  Msglink");
+	mbse_mvprintw(13, 1, " 8.  Reqindex");
+	mbse_mvprintw(14, 1, " 9.  Ping #1");
+	mbse_mvprintw(15, 1, "10.  Ping #2");
+	mbse_mvprintw(16, 1, "11.  Max TCP");
+	mbse_mvprintw(17, 1, "12.  Max Load");
 
-	mvprintw(16,41, "13.  ZMH start");
-	mvprintw(17,41, "14.  ZMH end");
+	mbse_mvprintw(16,41, "13.  ZMH start");
+	mbse_mvprintw(17,41, "14.  ZMH end");
 
 
 	for (;;) {

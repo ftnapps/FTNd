@@ -38,6 +38,7 @@
 #include "language.h"
 #include "misc.h"
 #include "whoson.h"
+#include "term.h"
 
 
 int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/

@@ -218,12 +218,12 @@ void NgScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "9.1 EDIT NEWFILES GROUP");
+	mbse_mvprintw( 5, 6, "9.1 EDIT NEWFILES GROUP");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Name");
-	mvprintw( 8, 6, "2.  Comment");
-	mvprintw( 9, 6, "3.  Active");
-	mvprintw(10, 6, "4.  Deleted");
+	mbse_mvprintw( 7, 6, "1.  Name");
+	mbse_mvprintw( 8, 6, "2.  Comment");
+	mbse_mvprintw( 9, 6, "3.  Active");
+	mbse_mvprintw(10, 6, "4.  Deleted");
 }
 
 
@@ -332,7 +332,7 @@ void EditNGroup(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "11. NEWFILES GROUPS SETUP");
+		mbse_mvprintw( 5, 4, "11. NEWFILES GROUPS SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/ngroups.temp", getenv("MBSE_ROOT"));
@@ -357,7 +357,7 @@ void EditNGroup(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-12s %-18s", o + i, ngroup.Name, ngroup.Comment);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -434,7 +434,7 @@ char *PickNGroup(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  NEWFILES GROUP SELECT", shdr);
-		mvprintw( 5, 4, temp);
+		mbse_mvprintw( 5, 4, temp);
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
@@ -459,7 +459,7 @@ char *PickNGroup(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-12s %-18s", o + i, ngroup.Name, ngroup.Comment);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

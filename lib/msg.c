@@ -325,6 +325,55 @@ typedef struct {
 
 
 /*
+ * Changes ansi background and foreground color
+ */
+void msg_colour(int, int);
+void msg_colour(int fg, int bg)
+{
+    int att=0, fore=37, back=40;
+
+    if (fg<0 || fg>31 || bg<0 || bg>7) {
+	fprintf(stdout, "ANSI: Illegal colour specified: %i, %i\n", fg, bg);
+	fflush(stdout);
+	return; 
+    }
+    fprintf(stdout, "ESC[");
+
+    if ( fg > WHITE) {
+	fprintf(stdout, "5;");
+	fg-= 16;
+    }
+    if (fg > LIGHTGRAY) {
+	att=1;
+	fg=fg-8;
+    }
+
+    if      (fg == BLACK)   fore=30;
+    else if (fg == BLUE)    fore=34;
+    else if (fg == GREEN)   fore=32;
+    else if (fg == CYAN)    fore=36;
+    else if (fg == RED)     fore=31;
+    else if (fg == MAGENTA) fore=35;
+    else if (fg == BROWN)   fore=33;
+    else                    fore=37;
+
+    if      (bg == BLUE)      back=44;
+    else if (bg == GREEN)     back=42;
+    else if (bg == CYAN)      back=46;
+    else if (bg == RED)       back=41;
+    else if (bg == MAGENTA)   back=45;
+    else if (bg == BROWN)     back=43;
+    else if (bg == LIGHTGRAY) back=47;
+    else                      back=40;
+
+    fprintf(stdout, "%d;%d;%dm", att, fore, back);
+    fflush(stdout);
+}
+
+
+
+
+/*
  * Link messages in one area.
  * Returns -1 if error, else the number of linked messages.
  */
@@ -340,9 +389,9 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
     }
 
     if (!do_quiet) {
-	colour(12, 0);
+	msg_colour(12, 0);
 	printf(" (linking)");
-	colour(13, 0);
+	msg_colour(13, 0);
 	fflush(stdout);
     }
 
@@ -438,6 +487,8 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
     }
     return msg_link;
 }
+
+
 
 /*
  * Fgets() is like fgets() but never returns the line terminator

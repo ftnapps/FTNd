@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     InitConfig();
     InitNode();
     InitFidonet();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = c_start = c_end = time(NULL);
 
     InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, 

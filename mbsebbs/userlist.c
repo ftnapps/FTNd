@@ -36,7 +36,7 @@
 #include "language.h"
 #include "input.h"
 #include "timeout.h"
-
+#include "term.h"
 
 
 void UserList(char *OpData)

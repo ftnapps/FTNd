@@ -50,7 +50,7 @@ int nlinfo(faddr *addr)
     nlent = getnlent(addr);
 
     if (nlent->pflag != NL_DUMMY) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("System      : %s\n", nlent->name);
 	printf("Sysop       : %s@%s\n", nlent->sysop, ascinode(addr, 0x3f));
 	printf("Location    : %s\n", nlent->location);

@@ -58,7 +58,7 @@
 #include "email.h"
 #include "door.h"
 #include "whoson.h"
-
+#include "term.h"
 
 
 /*

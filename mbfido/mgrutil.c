@@ -535,7 +535,7 @@ int Areas(void)
     Mgrlog("Process areas taglists");
 
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Processing areas taglists...\n");
     }
 
@@ -552,7 +552,7 @@ int Areas(void)
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
 	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile) && mgroup.UpLink.zone && SearchNode(mgroup.UpLink)) {
 		if (!do_quiet) {
-		    colour(CYAN, BLACK);
+		    mbse_colour(CYAN, BLACK);
 		    printf("\rEcho group %-12s ", mgroup.Name);
 		    fflush(stdout);
 		}
@@ -573,7 +573,7 @@ int Areas(void)
 		     * Mark areas already present in the taglist.
 		     */
 		    if (!do_quiet) {
-			colour(LIGHTRED, BLACK);
+			mbse_colour(LIGHTRED, BLACK);
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
@@ -750,7 +750,7 @@ int Areas(void)
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
 	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile) && fgroup.UpLink.zone && SearchNode(fgroup.UpLink)) {
 		if (!do_quiet) {
-		    colour(CYAN, BLACK);
+		    mbse_colour(CYAN, BLACK);
 		    printf("\r TIC group %-12s ", fgroup.Name);
 		    fflush(stdout);
 		}
@@ -815,7 +815,7 @@ int Areas(void)
 		     * Mark areas already present in the taglist.
 		     */
 		    if (!do_quiet) {
-			colour(LIGHTRED, BLACK);
+			mbse_colour(LIGHTRED, BLACK);
 			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }

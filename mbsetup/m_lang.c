@@ -274,17 +274,17 @@ void s_lang(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "8.2 EDIT LANGUAGE");
+	mbse_mvprintw( 5, 2, "8.2 EDIT LANGUAGE");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Select");
-	mvprintw( 8, 2, "2.  Name");
-	mvprintw( 9, 2, "3.  Menupath");
-	mvprintw(10, 2, "4.  Textpath");
-	mvprintw(11, 2, "5.  Macropath");
-	mvprintw(12, 2, "6.  Available");
-	mvprintw(13, 2, "7.  Datafile");
-	mvprintw(14, 2, "8.  Security");
-	mvprintw(15, 2, "9.  Deleted");
+	mbse_mvprintw( 7, 2, "1.  Select");
+	mbse_mvprintw( 8, 2, "2.  Name");
+	mbse_mvprintw( 9, 2, "3.  Menupath");
+	mbse_mvprintw(10, 2, "4.  Textpath");
+	mbse_mvprintw(11, 2, "5.  Macropath");
+	mbse_mvprintw(12, 2, "6.  Available");
+	mbse_mvprintw(13, 2, "7.  Datafile");
+	mbse_mvprintw(14, 2, "8.  Security");
+	mbse_mvprintw(15, 2, "9.  Deleted");
 }
 
 
@@ -402,7 +402,7 @@ void EditLanguage(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.2 LANGUAGE SETUP");
+		mbse_mvprintw( 5, 6, "8.2 LANGUAGE SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/language.temp", getenv("MBSE_ROOT"));
@@ -421,7 +421,7 @@ void EditLanguage(void)
 					else
 						set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.  %s %-30s", i, lang.LangKey, lang.Name);
-					mvprintw(i + 6, x, temp);
+					mbse_mvprintw(i + 6, x, temp);
 				}
 				fclose(fil);
 			}
@@ -486,7 +486,7 @@ int PickLanguage(char *nr)
 	clr_index();
 	set_color(WHITE, BLACK);
 	sprintf(temp, "%s.  LANGUAGE SELECT", nr);
-	mvprintw( 5, 4, temp);
+	mbse_mvprintw( 5, 4, temp);
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 		sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
@@ -505,7 +505,7 @@ int PickLanguage(char *nr)
 				else
 					set_color(LIGHTBLUE, BLACK);
 				sprintf(temp, "%3d.  %s %-28s", i, lang.LangKey, lang.Name);
-				mvprintw(i + 6, x, temp);
+				mbse_mvprintw(i + 6, x, temp);
 			}
 			strcpy(pick, select_pick(records, 20));
 

@@ -36,6 +36,7 @@
 #include "funcs.h"
 #include "input.h"
 #include "language.h"
+#include "term.h"
 
 
 char	sOneliner[81];

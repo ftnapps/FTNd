@@ -35,7 +35,7 @@
 #include "input.h"
 #include "language.h"
 #include "lastcallers.h"
-
+#include "term.h"
 
 
 /*

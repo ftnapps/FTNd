@@ -712,7 +712,7 @@ void TestTracker(faddr *dest)
     addr.node  = dest->node;
     addr.point = dest->point;
 
-    colour(7, 0);
+    mbse_colour(7, 0);
     Syslog('+', "Test route to %s", aka2str(addr));
 
     rc = TrackMail(addr, &result);

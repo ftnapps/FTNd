@@ -37,6 +37,7 @@
 #include "language.h"
 #include "timeout.h"
 #include "lineedit.h"
+#include "term.h"
 
 
 extern	int	Line;

@@ -67,11 +67,11 @@ void ProgName()
 	if (do_quiet)
 		return;
 
-	colour(15, 0);
+	mbse_colour(15, 0);
 	printf("\nMBMSG: MBSE BBS %s - Message Base Maintenance Utility\n", VERSION);
-	colour(14, 0);
+	mbse_colour(14, 0);
 	printf("       %s\n", COPYRIGHT);
-	colour(7, 0);
+	mbse_colour(7, 0);
 }
 
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 
 
     InitConfig();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     oldmask = umask(007);
     t_start = time(NULL);
 
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 
     if (!do_quiet) {
 	printf("\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
     }
 
     if (do_index || do_link || do_kill || do_pack) {
@@ -183,19 +183,19 @@ void Help()
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(12, 0);
+	mbse_colour(12, 0);
 	printf("\n	Usage: mbmsg [command(s)] <options>\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Commands are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 //	printf("	i  index				Create new index files\n");
 	printf("	l  link					Link messages by subject\n");
 	printf("	k  kill					Kill messages (age & count)\n");
 	printf("	pa pack					Pack deleted messages\n");
 	printf("	po post <to> <#> <subj> <file> <flavor>	Post file in message area #\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-a -area <#>				Process area <#> only\n");
 	printf("	-q -quiet				Quiet mode\n");
 
@@ -210,7 +210,7 @@ void die(int onsig)
 	signal(onsig, SIG_IGN);
 	if (!do_quiet) {
 		printf("\r");
-		colour(3, 0);
+		mbse_colour(3, 0);
 	}
 
 	if (MsgBase.Locked)
@@ -238,7 +238,7 @@ void die(int onsig)
 
 	umask(oldmask);
 	if (!do_quiet) {
-		colour(7, 0);
+		mbse_colour(7, 0);
 		printf("\r                                                          \n");
 	}
 	ExitClient(onsig);
@@ -284,7 +284,7 @@ void DoMsgBase()
 					die(MBERR_DISK_FULL);
 
 				if (!do_quiet) {
-					colour(3, 0);
+					mbse_colour(3, 0);
 					printf("\r%5ld .. %-40s", do_area, msgs.Name);
 					fflush(stdout);
 				}
@@ -314,7 +314,7 @@ void DoMsgBase()
 
 				Nopper();
 				if (!do_quiet) {
-					colour(3, 0);
+					mbse_colour(3, 0);
 					printf("\r%5ld .. %-40s", arearec, msgs.Name);
 					fflush(stdout);
 				}
@@ -351,7 +351,7 @@ void DoMsgBase()
 				Nopper();
 				sprintf(Name, "User %s email area: mailbox", usrconfig.Name);
 				if (!do_quiet) {
-					colour(3, 0);
+					mbse_colour(3, 0);
 					printf("\r      .. %-40s", Name);
 					fflush(stdout);
 				}
@@ -447,9 +447,9 @@ void KillArea(char *Path, char *Name, int DaysOld, int MaxMsgs, long Areanr)
 	if (Msg_Open(Path)) {
 
 		if (!do_quiet) {
-			colour(12, 0);
+			mbse_colour(12, 0);
 			printf(" (Killing)");
-			colour(13, 0);
+			mbse_colour(13, 0);
 			fflush(stdout);
 		}
 
@@ -565,7 +565,7 @@ void PackArea(char *Path, long Areanr)
 	if (Msg_Open(Path)) {
 
 		if (!do_quiet) {
-			colour(12, 0);
+			mbse_colour(12, 0);
 			printf(" (Packing)");
 			fflush(stdout);
 		}

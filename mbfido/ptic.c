@@ -91,7 +91,7 @@ int ProcessTic(fa_list *sbl)
     Temp = calloc(PATH_MAX, sizeof(char));
 
     if (!do_quiet) {
-	colour(10, 0);
+	mbse_colour(10, 0);
 	printf("Checking  \b\b\b\b\b\b\b\b\b\b");
 	fflush(stdout);
     }

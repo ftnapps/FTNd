@@ -35,6 +35,7 @@
 #include "input.h"
 #include "timeout.h"
 #include "language.h"
+#include "term.h"
 
 
 

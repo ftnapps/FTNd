@@ -216,12 +216,12 @@ void DomainScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "17.  EDIT DOMAINS");
+	mbse_mvprintw( 5, 2, "17.  EDIT DOMAINS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Fidonet");
-	mvprintw( 8, 2, "2.  Internet");
-	mvprintw( 9, 2, "3.  Active");
-	mvprintw(10, 2, "4.  Deleted");
+	mbse_mvprintw( 7, 2, "1.  Fidonet");
+	mbse_mvprintw( 8, 2, "2.  Internet");
+	mbse_mvprintw( 9, 2, "3.  Active");
+	mbse_mvprintw(10, 2, "4.  Deleted");
 }
 
 
@@ -332,7 +332,7 @@ void EditDomain(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "17.   DOMAIN MANAGER");
+		mbse_mvprintw( 5, 4, "17.   DOMAIN MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/domain.temp", getenv("MBSE_ROOT"));
@@ -354,7 +354,7 @@ void EditDomain(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-31s  %-31s", o+i, domtrans.ftndom, domtrans.intdom);
 						temp[75] = 0;
-						mvprintw(y, 3, temp);
+						mbse_mvprintw(y, 3, temp);
 						y++;
 					}
 				}
@@ -379,7 +379,7 @@ void EditDomain(void)
 		}
 
 		if (strncmp(pick, "D", 1) == 0) {
-			mvprintw(LINES -3, 6, "Enter domain number (1..%d) to delete >", records);
+			mbse_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to delete >", records);
 			y = 0;
 			y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
 			if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
@@ -399,11 +399,11 @@ void EditDomain(void)
 
 		if (strncmp(pick, "M", 1) == 0) {
 			from = too = 0;
-			mvprintw(LINES -3, 6, "Enter domain number (1..%d) to move >", records);
+			mbse_mvprintw(LINES -3, 6, "Enter domain number (1..%d) to move >", records);
 			from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-			locate(LINES -3, 6);
+			mbse_locate(LINES -3, 6);
 			clrtoeol();
-			mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
+			mbse_mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
 			too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
 			if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
 				errmsg("That makes no sense");

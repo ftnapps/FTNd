@@ -30,8 +30,9 @@
 
 
 #include "../config.h"
-#include "mbselib.h"
-#include "users.h"
+#include "../lib/mbselib.h"
+#include "../lib/users.h"
+#include "term.h"
 
 
 int termmode;			/* 0 = tty, 1 = ANSI			   */
@@ -39,7 +40,7 @@ int termx = 80;
 int termy = 24;
 
 
-void mbse_TermInit(int mode, int x, int y)
+void TermInit(int mode, int x, int y)
 {
     termmode = mode;
     termx = x;
@@ -49,9 +50,51 @@ void mbse_TermInit(int mode, int x, int y)
 
 
 /*
+ * Function will print about of enters specified
+ */
+void Enter(int num)
+{
+    int i;
+
+    for (i = 0; i < num; i++)
+	fprintf(stdout, "\n");
+    fflush(stdout);
+}
+
+
+
+
+void pout(int fg, int bg, char *Str)
+{
+    colour(fg, bg);
+    fprintf(stdout, Str);
+    fflush(stdout);
+}
+
+
+
+void poutCenter(int fg, int bg, char *Str)
+{
+    colour(fg, bg);
+    Center(Str);
+}
+
+
+
+void poutCR(int fg, int bg, char *Str)
+{
+    colour(fg, bg);
+    fputs(Str, stdout);
+    fprintf(stdout, "\n");
+    fflush(stdout);
+}
+
+
+
+/*
  * Changes ansi background and foreground color
  */
-void mbse_colour(int fg, int bg)
+void colour(int fg, int bg)
 {
     if (termmode == 1) {
   
@@ -98,16 +141,42 @@ void mbse_colour(int fg, int bg)
 
 
 
-void mbse_clear()
+void Center(char *string)
+{
+    int	    Strlen;
+    int	    Maxlen = termx;
+    int	    i, x, z;
+    char    *Str;
+
+    Str = calloc(1024, sizeof(char));
+    Strlen = strlen(string);
+
+    if (Strlen == Maxlen)
+	fprintf(stdout, "%s\n", string);
+    else {
+	x = Maxlen - Strlen;
+	z = x / 2;
+	for (i = 0; i < z; i++)
+	    strcat(Str, " ");
+	strcat(Str, string);
+	fprintf(stdout, "%s\n", Str);
+    }
+
+    fflush(stdout);
+    free(Str);
+}
+
+
+
+void clear()
 {
     if (termmode == 1) {
-	mbse_colour(LIGHTGRAY, BLACK);
+	colour(LIGHTGRAY, BLACK);
 	fprintf(stdout, ANSI_HOME);
 	fprintf(stdout, ANSI_CLEAR);
-    } else {
-	fprintf(stdout, "\n");
-    }
-    fflush(stdout);
+	fflush(stdout);
+    } else
+	Enter(1); 
 }
 
 
@@ -115,7 +184,7 @@ void mbse_clear()
 /*
  * Moves cursor to specified position
  */
-void mbse_locate(int y, int x)
+void locate(int y, int x)
 {
     if (termmode > 0) {
 	if (y > termy || x > termx) {
@@ -130,10 +199,36 @@ void mbse_locate(int y, int x)
 
 
 
+void fLine(int	Len)
+{
+    int	x;
+
+    if (termmode == 0)
+	for (x = 0; x < Len; x++)
+	    fprintf(stdout, "-");
+
+    if (termmode == 1)
+	for (x = 0; x < Len; x++)
+	    fprintf(stdout, "%c", 196);
+
+    fprintf(stdout, " \n");
+    fflush(stdout);
+}
+
+
+
+
+void  sLine()
+{
+    fLine(termx -1);
+}
+
+
+
 /*
  * curses compatible functions
  */
-void mbse_mvprintw(int y, int x, const char *format, ...)
+void mvprintw(int y, int x, const char *format, ...)
 {
     char	*outputstr;
     va_list	va_ptr;
@@ -144,10 +239,11 @@ void mbse_mvprintw(int y, int x, const char *format, ...)
     vsprintf(outputstr, format, va_ptr);
     va_end(va_ptr);
 
-    mbse_locate(y, x);
+    locate(y, x);
     fprintf(stdout, outputstr);
     free(outputstr);
     fflush(stdout);
 }
+
 
 

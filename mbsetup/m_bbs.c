@@ -51,15 +51,15 @@ void bbs_menu(void)
 
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "8.    BBS SETUP");
+		mbse_mvprintw( 5, 6, "8.    BBS SETUP");
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Security Limits");
-		mvprintw( 8, 6, "2.    Edit Language Setup");
-		mvprintw( 9, 6, "3.    Edit BBS Menus");
-		mvprintw(10, 6, "4.    Edit File Areas");
-		mvprintw(11, 6, "5.    Edit Transfer Protocols");
-		mvprintw(12, 6, "6.    Edit BBS List Data");
-		mvprintw(13, 6, "7.    Edit Oneliners");
+		mbse_mvprintw( 7, 6, "1.    Edit Security Limits");
+		mbse_mvprintw( 8, 6, "2.    Edit Language Setup");
+		mbse_mvprintw( 9, 6, "3.    Edit BBS Menus");
+		mbse_mvprintw(10, 6, "4.    Edit File Areas");
+		mbse_mvprintw(11, 6, "5.    Edit Transfer Protocols");
+		mbse_mvprintw(12, 6, "6.    Edit BBS List Data");
+		mbse_mvprintw(13, 6, "7.    Edit Oneliners");
 
 		switch(select_menu(7)) {
 		case 0: return;

@@ -225,12 +225,12 @@ void ServiceScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "16.  EDIT SERVICES");
+	mbse_mvprintw( 5, 2, "16.  EDIT SERVICES");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Name");
-	mvprintw( 8, 2, "2.  Type");
-	mvprintw( 9, 2, "3.  Active");
-	mvprintw(10, 2, "4.  Deleted");
+	mbse_mvprintw( 7, 2, "1.  Name");
+	mbse_mvprintw( 8, 2, "2.  Type");
+	mbse_mvprintw( 9, 2, "3.  Active");
+	mbse_mvprintw(10, 2, "4.  Deleted");
 }
 
 
@@ -338,7 +338,7 @@ void EditService(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "16.   SERVICE MANAGER");
+		mbse_mvprintw( 5, 4, "16.   SERVICE MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/service.temp", getenv("MBSE_ROOT"));
@@ -363,7 +363,7 @@ void EditService(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-15s %s", o+i, servrec.Service, getservice(servrec.Action));
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

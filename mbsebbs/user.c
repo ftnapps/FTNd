@@ -49,7 +49,7 @@
 #include "language.h"
 #include "offline.h"
 #include "email.h"
-
+#include "term.h"
 
 
 extern int	sock;

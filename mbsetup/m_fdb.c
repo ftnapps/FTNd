@@ -48,23 +48,23 @@ void FHeader(void)
 {
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 2, "14. EDIT FILE");
+    mbse_mvprintw( 5, 2, "14. EDIT FILE");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 2, "    FileName");
-    mvprintw( 8, 2, "    Long fn");
-    mvprintw( 9, 2, "    FileSize");
-    mvprintw(10, 2, "    FileDate");
-    mvprintw(11, 2, "    Last DL.");
-    mvprintw(12, 2, "    Upl.Date");
-    mvprintw(13, 2, "    TIC area");
-    mvprintw(14, 2, "    Magic");
-    mvprintw(15, 2, "1.  Uploader");
-    mvprintw(16, 2, "2.  Times DL");
-    mvprintw(17, 2, "3.  Password");
+    mbse_mvprintw( 7, 2, "    FileName");
+    mbse_mvprintw( 8, 2, "    Long fn");
+    mbse_mvprintw( 9, 2, "    FileSize");
+    mbse_mvprintw(10, 2, "    FileDate");
+    mbse_mvprintw(11, 2, "    Last DL.");
+    mbse_mvprintw(12, 2, "    Upl.Date");
+    mbse_mvprintw(13, 2, "    TIC area");
+    mbse_mvprintw(14, 2, "    Magic");
+    mbse_mvprintw(15, 2, "1.  Uploader");
+    mbse_mvprintw(16, 2, "2.  Times DL");
+    mbse_mvprintw(17, 2, "3.  Password");
 
-    mvprintw(15,61, "4.  Deleted");
-    mvprintw(16,61, "5.  No Kill");
-    mvprintw(17,61, "6.  Announced");
+    mbse_mvprintw(15,61, "4.  Deleted");
+    mbse_mvprintw(16,61, "5.  No Kill");
+    mbse_mvprintw(17,61, "6.  Announced");
 }
 
 
@@ -78,9 +78,9 @@ void EditFile()
 	show_str( 7,16,12, fdb.Name);
 	show_str( 8,16,64, fdb.LName);
 	show_int( 9,16,    fdb.Size);
-	mvprintw(10,16, (char *)"%s %s", StrDateDMY(fdb.FileDate), StrTimeHM(fdb.FileDate));
-	mvprintw(11,16, (char *)"%s %s", StrDateDMY(fdb.LastDL), StrTimeHM(fdb.LastDL));
-	mvprintw(12,16, (char *)"%s %s", StrDateDMY(fdb.UploadDate), StrTimeHM(fdb.UploadDate));
+	mbse_mvprintw(10,16, (char *)"%s %s", StrDateDMY(fdb.FileDate), StrTimeHM(fdb.FileDate));
+	mbse_mvprintw(11,16, (char *)"%s %s", StrDateDMY(fdb.LastDL), StrTimeHM(fdb.LastDL));
+	mbse_mvprintw(12,16, (char *)"%s %s", StrDateDMY(fdb.UploadDate), StrTimeHM(fdb.UploadDate));
 	show_str(13,16,20, fdb.TicArea);
 	show_str(14,16,20, fdb.Magic);
 	show_str(15,16,36, fdb.Uploader);
@@ -135,13 +135,13 @@ void E_F(long areanr)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw(5, 4, "14.  EDIT FILES DATABASE");
+	mbse_mvprintw(5, 4, "14.  EDIT FILES DATABASE");
 
 	y = 8;
 	working(1, 0, 0);
 
 	set_color(YELLOW, BLUE);
-	mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
+	mbse_mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
 /*                      1234   12345678901234 12345678 12-34-1998 12:45 123456789012345678901234567890*/
 	set_color(CYAN, BLACK);
 
@@ -152,7 +152,7 @@ void E_F(long areanr)
 		fread(&fdb, fdbhdr.recsize, 1, fil);
 
 		set_color(WHITE, BLACK);
-		mvprintw(y, 1, (char *)"%4d.", o + i);
+		mbse_mvprintw(y, 1, (char *)"%4d.", o + i);
 
 		sprintf(temp, "%s/%s", area.Path, fdb.LName);
 		Ondisk = ((stat(temp, &statfile)) != -1);
@@ -163,27 +163,27 @@ void E_F(long areanr)
 		    set_color(CYAN, BLACK);
 		else
 		    set_color(LIGHTRED, BLACK);
-		mvprintw(y, 8, (char *)"%-14s", fdb.Name);
+		mbse_mvprintw(y, 8, (char *)"%-14s", fdb.Name);
 
 		if (Ondisk) {
 		    if (fdb.Size == statfile.st_size)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
-		    mvprintw(y,23, (char *)"%8ld", fdb.Size);
+		    mbse_mvprintw(y,23, (char *)"%8ld", fdb.Size);
 
 		    if (fdb.FileDate == statfile.st_mtime)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
 		    Time = fdb.FileDate;
-		    mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
+		    mbse_mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
 		}
 
 		set_color(CYAN, BLACK);
 		sprintf(temp, "%s", fdb.Desc[0]);
 		temp[30] = '\0';
-		mvprintw(y,49, (char *)"%s", temp);
+		mbse_mvprintw(y,49, (char *)"%s", temp);
 		y++;
 	    }
 	}
@@ -199,10 +199,10 @@ void E_F(long areanr)
 	showhelp(help);
 
 	while(TRUE) {
-	    mvprintw(LINES - 4, 6, "Enter your choice >");
+	    mbse_mvprintw(LINES - 4, 6, "Enter your choice >");
 	    menu = (char *)"-";
 	    menu = edit_field(LINES - 4, 26, 6, '!', menu);
-	    locate(LINES - 4, 6);
+	    mbse_locate(LINES - 4, 6);
 	    clrtoeol();
 
 	    if (strncmp(menu, "-", 1) == 0) {
@@ -282,7 +282,7 @@ void EditFDB()
     for (;;) {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 4, "14. EDIT FILES DATABSE");
+	mbse_mvprintw( 5, 4, "14. EDIT FILES DATABSE");
 	set_color(CYAN, BLACK);
 	if (records != 0) {
 	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
@@ -307,7 +307,7 @@ void EditFDB()
 			    set_color(LIGHTBLUE, BLACK);
 			sprintf(temp, "%3d.  %-32s", o + i, area.Name);
 			temp[37] = 0;
-			mvprintw(y, x, temp);
+			mbse_mvprintw(y, x, temp);
 			y++;
 		    }
 		}

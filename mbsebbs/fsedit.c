@@ -38,6 +38,8 @@
 #include "timeout.h"
 #include "pinfo.h"
 #include "fsedit.h"
+#include "term.h"
+
 
 void Show_Ins(void)
 {

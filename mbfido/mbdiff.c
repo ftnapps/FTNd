@@ -58,9 +58,9 @@ void ProgName(void)
 	if (do_quiet)
 		return;
 
-	colour(15, 0);
+	mbse_colour(15, 0);
 	printf("\nMBDIFF: MBSE BBS %s Nodelist diff processor\n", VERSION);
-	colour(14, 0);
+	mbse_colour(14, 0);
 	printf("        %s\n", COPYRIGHT);
 }
 
@@ -100,7 +100,7 @@ void die(int onsig)
 	Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
 
 	if (!do_quiet) {
-		colour(7, 0);
+		mbse_colour(7, 0);
 		printf("\n");
 	}
 	ExitClient(onsig);
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
     struct dirent   *de;
 
     InitConfig();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     free(cmd);
 
     if (!do_quiet) {
-	colour(12, 0);
+	mbse_colour(12, 0);
 	printf("\n");
     }
 
@@ -363,7 +363,7 @@ int main(int argc, char **argv)
 
     Syslog('+', "Apply %s with %s to %s", onl, ond, nn);
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Apply %s with %s to %s\n", onl, ond, nn);
     }
     rc = apply(onl, ond, nn);
@@ -433,20 +433,20 @@ void Help(void)
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\nUsage:	mbdiff [nodelist] [nodediff] <options>\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	The nodelist must be the full path and filename\n");
 	printf("	without the dot and daynumber digits to the working\n");
 	printf("	directory of that nodelist.\n");
 	printf("	The nodediff must be the full path and filename\n");
 	printf("	to the (compressed) nodediff file in the download\n");
 	printf("	directory.\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("\n	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-quiet		Quiet mode\n");
-	colour(7, 0);
+	mbse_colour(7, 0);
 	printf("\n");
 	die(MBERR_COMMANDLINE);
 }
@@ -539,7 +539,7 @@ int apply(char *nl, char *nd, char *nn)
 
     if ((rc != 0) && !do_quiet) {
 	show_log = TRUE;
-	colour(12, 0);
+	mbse_colour(12, 0);
     }
 
     if ((rc == 0) && (mycrc != theircrc)) 

@@ -54,10 +54,10 @@ void mail_menu(void)
 
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "9.    MAIL PROCESSING");
+		mbse_mvprintw( 5, 6, "9.    MAIL PROCESSING");
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Echomail Groups");
-		mvprintw( 8, 6, "2.    Edit Echomail Areas");
+		mbse_mvprintw( 7, 6, "1.    Edit Echomail Groups");
+		mbse_mvprintw( 8, 6, "2.    Edit Echomail Areas");
 
 		switch(select_menu(2)) {
 		case 0:

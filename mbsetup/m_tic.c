@@ -46,12 +46,12 @@ void tic_menu(void)
 
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "10.   FILEECHO SETUP");
+		mbse_mvprintw( 5, 6, "10.   FILEECHO SETUP");
 		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Fileecho Groups");
-		mvprintw( 8, 6, "2.    Edit Fileecho Areas");
-		mvprintw( 9, 6, "3.    Edit Hatch Manager");
-		mvprintw(10, 6, "4.    Edit Magic files");
+		mbse_mvprintw( 7, 6, "1.    Edit Fileecho Groups");
+		mbse_mvprintw( 8, 6, "2.    Edit Fileecho Areas");
+		mbse_mvprintw( 9, 6, "3.    Edit Hatch Manager");
+		mbse_mvprintw(10, 6, "4.    Edit Magic files");
 
 		switch(select_menu(4)) {
 		case 0:

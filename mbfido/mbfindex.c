@@ -328,7 +328,7 @@ void ReqIndex(void)
 
     IsDoing("Index files");
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("Create index files...\n");
     }
 
@@ -516,7 +516,7 @@ void HtmlIndex(char *Lang)
 
     IsDoing("Create html");
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("\rCreate html pages...                                      \n");
     }
 

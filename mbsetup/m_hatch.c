@@ -226,18 +226,18 @@ void HatchScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "10.3 EDIT HATCH MANAGER");
+	mbse_mvprintw( 5, 2, "10.3 EDIT HATCH MANAGER");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Mask");
-	mvprintw( 8, 2, "2.  Area");
-	mvprintw( 9, 2, "3.  Replace");
-	mvprintw(10, 2, "4.  Magic");
-	mvprintw(11, 2, "5.  Desc");
-	mvprintw(12, 2, "6.  Dupe");
-	mvprintw(13, 2, "7.  Active");
-	mvprintw(14, 2, "8.  Deleted");
-	mvprintw(15, 2, "9.  Days");
-	mvprintw(16, 2, "10. Month");
+	mbse_mvprintw( 7, 2, "1.  Mask");
+	mbse_mvprintw( 8, 2, "2.  Area");
+	mbse_mvprintw( 9, 2, "3.  Replace");
+	mbse_mvprintw(10, 2, "4.  Magic");
+	mbse_mvprintw(11, 2, "5.  Desc");
+	mbse_mvprintw(12, 2, "6.  Dupe");
+	mbse_mvprintw(13, 2, "7.  Active");
+	mbse_mvprintw(14, 2, "8.  Deleted");
+	mbse_mvprintw(15, 2, "9.  Days");
+	mbse_mvprintw(16, 2, "10. Month");
 }
 
 
@@ -250,12 +250,12 @@ void EditDates(void)
 	clr_index();
 	for (;;) {
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "10.3.9 EDIT DATES IN MONTH");
+		mbse_mvprintw( 5, 6, "10.3.9 EDIT DATES IN MONTH");
 		set_color(CYAN, BLACK);
 		y = 7;
 		x = 5;
 		for (i = 0; i < 32; i++) {
-			mvprintw(y, x, (char *)"%2d.  %s", i+1, Month[i]);
+			mbse_mvprintw(y, x, (char *)"%2d.  %s", i+1, Month[i]);
 			y++;
 			if (y == 17) {
 				y = 7;
@@ -307,10 +307,10 @@ void EditDays(void)
 	clr_index();
 	for (;;) {
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "10.3.8 EDIT DAYS IN WEEK");
+		mbse_mvprintw( 5, 6, "10.3.8 EDIT DAYS IN WEEK");
 		set_color(CYAN, BLACK);
 		for (i = 0; i < 7; i++)
-			mvprintw(7+i, 6, (char *)"%d.  %s", i+1, Days[i]);
+			mbse_mvprintw(7+i, 6, (char *)"%d.  %s", i+1, Days[i]);
 		set_color(WHITE, BLACK);
 		for (i = 0; i < 7; i++)
 			show_bool(7+i,14, hatch.Days[i]);
@@ -481,7 +481,7 @@ void EditHatch(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "10.3. HATCH MANAGER");
+		mbse_mvprintw( 5, 4, "10.3. HATCH MANAGER");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/hatch.temp", getenv("MBSE_ROOT"));
@@ -506,7 +506,7 @@ void EditHatch(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, hatch.Spec);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

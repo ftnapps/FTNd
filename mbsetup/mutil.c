@@ -54,7 +54,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 		if ((i % 10) == 0)
 			show_date(fg, bg, 0, 0);
 
-		locate(y, x);
+		mbse_locate(y, x);
 		fflush(stdout);
 		rc = Waitchar(&ch, 5);
 		if ((rc == 1) && (ch != KEY_ESCAPE))
@@ -82,7 +82,7 @@ unsigned char testkey(int y, int x)
 	int		rc;
 	unsigned char	ch = 0;
 
-	locate(y, x);
+	mbse_locate(y, x);
 	fflush(stdout);
 
 	if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
@@ -267,7 +267,7 @@ int horiz;
 void dotter(void)
 {
     Nopper();
-    mvprintw(8, horiz++, (char *)".");
+    mbse_mvprintw(8, horiz++, (char *)".");
     fflush(stdout);
 }
 

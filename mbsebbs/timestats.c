@@ -37,7 +37,7 @@
 #include "language.h"
 #include "input.h"
 #include "exitinfo.h"
-
+#include "term.h"
 
 
 void TimeStats()

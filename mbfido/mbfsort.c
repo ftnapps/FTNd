@@ -56,7 +56,7 @@ void SortFileBase(int Area)
 
     IsDoing("Sort filebase");
     if (!do_quiet) {
-	colour(3, 0);
+	mbse_colour(3, 0);
     }
 
     sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));

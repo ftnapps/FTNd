@@ -44,20 +44,20 @@ void Help(void)
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\nUsage:	mbstat [command] <options>\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Commands are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	c  close	Close the BBS for users\n");
 	printf("	o  open		Open the BBS for users\n");
 	printf("	s  set semafore Set named semafore\n");
 	printf("	w  wait		Wait until the BBS is free\n\n");
-	colour(9,0);
+	mbse_colour(9,0);
 	printf("	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-q -quiet	Quiet, no screen output\n");
-	colour(7, 0);
+	mbse_colour(7, 0);
 	die(MBERR_COMMANDLINE);
 }
 
@@ -68,11 +68,11 @@ void ProgName(void)
 	if (do_quiet)
 		return;
 
-	colour(15, 0);
+	mbse_colour(15, 0);
 	printf("\nMBSTAT: MBSE BBS %s Status Changer\n", VERSION);
-	colour(14, 0);
+	mbse_colour(14, 0);
 	printf("        %s\n", COPYRIGHT);
-	colour(3, 0);
+	mbse_colour(3, 0);
 }
 
 
@@ -85,7 +85,7 @@ void die(int onsig)
 		WriteError("Terminated on signal %d", onsig);
 
 	if (!do_quiet) {
-		colour(7, 0);
+		mbse_colour(7, 0);
 		printf("\n");
 	}
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	struct	passwd *pw;
 
 	InitConfig();
-	TermInit(1, 80, 24);
+	mbse_TermInit(1, 80, 24);
 	t_start = time(NULL);
 
 	/*
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 	free(cmd);
 
 	if (!do_quiet) {
-		colour(3, 0);
+		mbse_colour(3, 0);
 		printf("\n");
 	}
 

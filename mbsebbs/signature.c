@@ -37,6 +37,7 @@
 #include "input.h"
 #include "language.h"
 #include "timeout.h"
+#include "term.h"
 
 
 #define	MAXSIGLINES	4

@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    TermInit(1, 80, 24);
+    mbse_TermInit(1, 80, 24);
     Days = 0;
     Level = 0;
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
     oldmask = umask(027);
     if (!do_quiet)
-	colour(3, 0);
+	mbse_colour(3, 0);
     UserPack(Days, Level, pack);
     umask(oldmask);
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
     Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
 
     if (!do_quiet)
-	colour(7, 0);
+	mbse_colour(7, 0);
     ExitClient(MBERR_OK);
     return 0;
 }
@@ -135,11 +135,11 @@ void ProgName(void)
 	if (do_quiet)
 		return;
 
-	colour(15, 0);
+	mbse_colour(15, 0);
 	printf("\nMBUSER: MBSE BBS %s - User maintenance utility\n", VERSION);
-	colour(14, 0);
+	mbse_colour(14, 0);
 	printf("        %s\n\n", COPYRIGHT);
-	colour(7, 0);
+	mbse_colour(7, 0);
 }
 
 
@@ -149,19 +149,19 @@ void Help(void)
 	do_quiet = FALSE;
 	ProgName();
 
-	colour(11, 0);
+	mbse_colour(11, 0);
 	printf("\nUsage:	mbuser [commands] <options>\n\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("	Commands are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	kill [n] [l]	Kill users not called in \"n\" days below level \"l\"\n");
 	printf("	pack		Pack the userbase\n");
-	colour(9, 0);
+	mbse_colour(9, 0);
 	printf("\n	Options are:\n\n");
-	colour(3, 0);
+	mbse_colour(3, 0);
 	printf("	-quiet		Quiet mode, (no screen output)\n\n");
 
-	colour(7, 0);
+	mbse_colour(7, 0);
 	printf("\n");
 	ExitClient(MBERR_COMMANDLINE);
 }

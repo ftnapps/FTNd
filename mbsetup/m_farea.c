@@ -208,35 +208,35 @@ void FileScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "8.4 EDIT FILE AREA");
+	mbse_mvprintw( 4, 2, "8.4 EDIT FILE AREA");
 	set_color(CYAN, BLACK);
-	mvprintw( 6, 2, "1.  Area Name");
-	mvprintw( 7, 2, "2.  Path");
-	mvprintw( 8, 2, "3.  Down Sec.");
-	mvprintw( 9, 2, "4.  Upl. Sec.");
-	mvprintw(10, 2, "5.  List Sec.");
-	mvprintw(11, 2, "6.  Files.bbs");
-	mvprintw(12, 2, "7.  Available");
-	mvprintw(13, 2, "8.  Check new");
-	mvprintw(14, 2, "9.  Dupecheck");
-	mvprintw(15, 2, "10. Free area");
-	mvprintw(16, 2, "11. Direct DL");
-	mvprintw(17, 2, "12. Pwd upl.");
-	mvprintw(18, 2, "13. Filefind");
+	mbse_mvprintw( 6, 2, "1.  Area Name");
+	mbse_mvprintw( 7, 2, "2.  Path");
+	mbse_mvprintw( 8, 2, "3.  Down Sec.");
+	mbse_mvprintw( 9, 2, "4.  Upl. Sec.");
+	mbse_mvprintw(10, 2, "5.  List Sec.");
+	mbse_mvprintw(11, 2, "6.  Files.bbs");
+	mbse_mvprintw(12, 2, "7.  Available");
+	mbse_mvprintw(13, 2, "8.  Check new");
+	mbse_mvprintw(14, 2, "9.  Dupecheck");
+	mbse_mvprintw(15, 2, "10. Free area");
+	mbse_mvprintw(16, 2, "11. Direct DL");
+	mbse_mvprintw(17, 2, "12. Pwd upl.");
+	mbse_mvprintw(18, 2, "13. Filefind");
 
-	mvprintw(12,30, "14. Add alpha");
-	mvprintw(13,30, "15. CDrom");
-	mvprintw(14,30, "16. File req.");
-	mvprintw(15,30, "17. BBS Group");
-	mvprintw(16,30, "18. New group");
-	mvprintw(17,30, "19. Min. age");
-	mvprintw(18,30, "20. Password");
+	mbse_mvprintw(12,30, "14. Add alpha");
+	mbse_mvprintw(13,30, "15. CDrom");
+	mbse_mvprintw(14,30, "16. File req.");
+	mbse_mvprintw(15,30, "17. BBS Group");
+	mbse_mvprintw(16,30, "18. New group");
+	mbse_mvprintw(17,30, "19. Min. age");
+	mbse_mvprintw(18,30, "20. Password");
 
-	mvprintw(12,59, "21. DL days");
-	mvprintw(13,59, "22. FD days");
-	mvprintw(14,59, "23. Move area");
-	mvprintw(15,59, "24. Archiver");
-	mvprintw(16,59, "25. Upload");
+	mbse_mvprintw(12,59, "21. DL days");
+	mbse_mvprintw(13,59, "22. FD days");
+	mbse_mvprintw(14,59, "23. Move area");
+	mbse_mvprintw(15,59, "24. Archiver");
+	mbse_mvprintw(16,59, "25. Upload");
 }
 
 
@@ -485,7 +485,7 @@ void EditFilearea(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "8.4 FILE AREA SETUP");
+		mbse_mvprintw( 5, 4, "8.4 FILE AREA SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
@@ -510,7 +510,7 @@ void EditFilearea(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, area.Name);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}
@@ -536,9 +536,9 @@ void EditFilearea(void)
 
 		if (strncmp(pick, "M", 1) == 0) {
 		    from = too = 0;
-		    mvprintw(LINES -3, 5, "From");
+		    mbse_mvprintw(LINES -3, 5, "From");
 		    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
-		    mvprintw(LINES -3,15, "To");
+		    mbse_mvprintw(LINES -3,15, "To");
 		    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
 
 		    sprintf(temp, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
@@ -679,7 +679,7 @@ long PickFilearea(char *shdr)
 		clr_index();
 		set_color(WHITE, BLACK);
 		sprintf(temp, "%s.  FILE AREA SELECT", shdr);
-		mvprintw(5,3,temp);
+		mbse_mvprintw(5,3,temp);
 		set_color(CYAN, BLACK);
 		if (records) {
 			sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
@@ -704,7 +704,7 @@ long PickFilearea(char *shdr)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-31s", o + i, area.Name);
 						temp[38] = '\0';
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

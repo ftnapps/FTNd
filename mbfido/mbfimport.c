@@ -57,7 +57,7 @@ void ImportFiles(int Area)
     Syslog('f', "Import(%d)", Area);
 
     if (!do_quiet)
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
 
     if (LoadAreaRec(Area) == FALSE)
 	die(MBERR_INIT_ERROR);

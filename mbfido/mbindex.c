@@ -73,13 +73,13 @@ void Help(void)
     do_quiet = FALSE;
     ProgName();
 
-    colour(LIGHTCYAN, BLACK);
+    mbse_colour(LIGHTCYAN, BLACK);
     printf("\nUsage: mbindex <options>\n\n");
-    colour(LIGHTBLUE, BLACK);
+    mbse_colour(LIGHTBLUE, BLACK);
     printf("	Options are:\n\n");
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     printf("	-quiet		Quiet mode\n");
-    colour(LIGHTGRAY, BLACK);
+    mbse_colour(LIGHTGRAY, BLACK);
     printf("\n");
     die(MBERR_COMMANDLINE);
 }
@@ -94,11 +94,11 @@ void ProgName(void)
     if (do_quiet)
 	return;
 
-    colour(WHITE, BLACK);
+    mbse_colour(WHITE, BLACK);
     printf("\nMBINDEX: MBSE BBS %s Nodelist Index Compiler\n", VERSION);
-    colour(YELLOW, BLACK);
+    mbse_colour(YELLOW, BLACK);
     printf("         %s\n", COPYRIGHT);
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
 }
 
 
@@ -111,7 +111,7 @@ void die(int onsig)
     ulockprogram((char *)"mbindex");
 
     if (!do_quiet) {
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
 	show_log = TRUE;
     }
 
@@ -129,7 +129,7 @@ void die(int onsig)
     Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
 	
     if (!do_quiet)
-	colour(LIGHTGRAY, BLACK);
+	mbse_colour(LIGHTGRAY, BLACK);
 
     ExitClient(onsig);
 }
@@ -144,7 +144,7 @@ int main(int argc,char *argv[])
 
     InitConfig();
     InitFidonet();
-    TermInit(1, 80, 25);
+    mbse_TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -873,7 +873,7 @@ int nodebld(void)
     }
 
     if (!do_quiet) {
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
 	printf("\n");
     }
 

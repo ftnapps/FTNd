@@ -84,15 +84,15 @@ void ShowSysinfo(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "4.   SHOW BBS SYSTEM INFO");
+    mbse_mvprintw( 5, 6, "4.   SHOW BBS SYSTEM INFO");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.   Total calls");
-    mvprintw( 8, 6, "2.   Pots calls");
-    mvprintw( 9, 6, "3.   ISDN calls");
-    mvprintw(10, 6, "4.   Network calls");
-    mvprintw(11, 6, "5.   Local calls");
-    mvprintw(12, 6, "6.   Date started");
-    mvprintw(13, 6, "7.   Last caller");
+    mbse_mvprintw( 7, 6, "1.   Total calls");
+    mbse_mvprintw( 8, 6, "2.   Pots calls");
+    mbse_mvprintw( 9, 6, "3.   ISDN calls");
+    mbse_mvprintw(10, 6, "4.   Network calls");
+    mbse_mvprintw(11, 6, "5.   Local calls");
+    mbse_mvprintw(12, 6, "6.   Date started");
+    mbse_mvprintw(13, 6, "7.   Last caller");
     center_addstr(lines - 3, (char *)"Press any key");
     IsDoing("View System Info");
 
@@ -104,13 +104,13 @@ void ShowSysinfo(void)
 	    sprintf(buf, "%s", socket_receive());
 	    if (strncmp(buf, "100:7,", 6) == 0) {
 		cnt = strtok(buf, ",");
-		mvprintw( 7,26, "%s", strtok(NULL, ","));
-		mvprintw( 8,26, "%s", strtok(NULL, ","));
-		mvprintw( 9,26, "%s", strtok(NULL, ","));
-		mvprintw(10,26, "%s", strtok(NULL, ","));
-		mvprintw(11,26, "%s", strtok(NULL, ","));
-		mvprintw(12,26, "%s", strtok(NULL, ","));
-		mvprintw(13,26, "%s", strtok(NULL, ";"));
+		mbse_mvprintw( 7,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw( 8,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw( 9,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw(10,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw(11,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw(12,26, "%s", strtok(NULL, ","));
+		mbse_mvprintw(13,26, "%s", strtok(NULL, ";"));
 		fflush(stdout);
 	    }
 	}
@@ -127,9 +127,9 @@ void ShowLastcaller(void)
 	
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 4, 6, "5.    SHOW BBS LASTCALLERS");
+    mbse_mvprintw( 4, 6, "5.    SHOW BBS LASTCALLERS");
     set_color(YELLOW, RED);
-    mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
+    mbse_mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
     set_color(CYAN, BLACK);
     center_addstr(lines - 1, (char *)"Press any key");
     IsDoing("View Lastcallers");
@@ -160,16 +160,16 @@ void ShowLastcaller(void)
 		    sprintf(buf, "%s", socket_receive());
 		    if (strncmp(buf, "100:9,", 6) == 0) {
 			cnt = strtok(buf, ",");
-			mvprintw(y, 1, "%2d", i);
-			mvprintw(y, 4, "%s", strtok(NULL, ","));
-			mvprintw(y,19, "%s", strtok(NULL, ","));
-			mvprintw(y,32, "%s", strtok(NULL, ","));
-			mvprintw(y,38, "%s", strtok(NULL, ","));
-			mvprintw(y,45, "%s", strtok(NULL, ","));
-			mvprintw(y,51, "%s", strtok(NULL, ","));
-			mvprintw(y,56, "%s", strtok(NULL, ","));
-			mvprintw(y,62, "%s", strtok(NULL, ","));
-			mvprintw(y,72, "%s", strtok(NULL, ";"));
+			mbse_mvprintw(y, 1, "%2d", i);
+			mbse_mvprintw(y, 4, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,19, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,32, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,38, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,45, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,51, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,56, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,62, "%s", strtok(NULL, ","));
+			mbse_mvprintw(y,72, "%s", strtok(NULL, ";"));
 			y++;
 		    }
 		}
@@ -189,9 +189,9 @@ void system_moni(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "1.    SERVER CLIENTS");
+    mbse_mvprintw( 5, 6, "1.    SERVER CLIENTS");
     set_color(YELLOW, RED);
-    mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
+    mbse_mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
     set_color(CYAN, BLACK);
     center_addstr(lines - 1, (char *)"Press any key");
     IsDoing("System Monitor");
@@ -210,7 +210,7 @@ void system_moni(void)
 	    if (eof == 0) {
 		if (socket_send(buf) == 0) {
 		    strcpy(buf, socket_receive());
-		    locate(y, 1);
+		    mbse_locate(y, 1);
 		    clrtoeol();
 		    if (strncmp(buf, "100:0;", 6) == 0) {
 			/*
@@ -219,22 +219,22 @@ void system_moni(void)
 			eof = 1;
 		    } else {
 			cnt = strtok(buf, ",");
-			mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
-			mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
-			mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
-			mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
-			mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
-			mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
+			mbse_mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
+			mbse_mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
+			mbse_mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
+			mbse_mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
+			mbse_mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
+			mbse_mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
 			start = atoi(strtok(NULL, ";"));
 			now = time(NULL);
-			mvprintw(y,75, (char *)"%s", t_elapsed(start, now));
+			mbse_mvprintw(y,75, (char *)"%s", t_elapsed(start, now));
 		    }
 		}
 	    } else {
 		/*
 		 *  If no valid data, clear line
 		 */
-		locate(y, 1);
+		mbse_locate(y, 1);
 		clrtoeol();
 	    }
 	} /* for () */
@@ -253,28 +253,28 @@ void system_stat(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "2.    SERVER STATISTICS");
+    mbse_mvprintw( 5, 6, "2.    SERVER STATISTICS");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "First date started");
-    mvprintw( 7,62, "BBS Open");
-    mvprintw( 8, 6, "Last date started");
-    mvprintw( 8,62, "ZMH");
-    mvprintw( 9, 6, "Total server starts");
-    mvprintw( 9,62, "Internet");
-    mvprintw(10, 6, "Connected clients");
-    mvprintw(10,62, "Need inet");
-    mvprintw(11,62, "Running");
-    mvprintw(12,30, "Total          Today");
-    mvprintw(12,62, "Load avg");
+    mbse_mvprintw( 7, 6, "First date started");
+    mbse_mvprintw( 7,62, "BBS Open");
+    mbse_mvprintw( 8, 6, "Last date started");
+    mbse_mvprintw( 8,62, "ZMH");
+    mbse_mvprintw( 9, 6, "Total server starts");
+    mbse_mvprintw( 9,62, "Internet");
+    mbse_mvprintw(10, 6, "Connected clients");
+    mbse_mvprintw(10,62, "Need inet");
+    mbse_mvprintw(11,62, "Running");
+    mbse_mvprintw(12,30, "Total          Today");
+    mbse_mvprintw(12,62, "Load avg");
     hor_lin(13,30,8);
     hor_lin(13,45,8);
-    mvprintw(13,62, "Diskspace");
-    mvprintw(14, 6, "Client connects");
-    mvprintw(15, 6, "Peak connections");
-    mvprintw(16, 6, "Protocol syntax errors");
-    mvprintw(17, 6, "Communication errors");
-    mvprintw(19, 6, "Next sequence number");
-    mvprintw(19,62, "Press any key");
+    mbse_mvprintw(13,62, "Diskspace");
+    mbse_mvprintw(14, 6, "Client connects");
+    mbse_mvprintw(15, 6, "Peak connections");
+    mbse_mvprintw(16, 6, "Protocol syntax errors");
+    mbse_mvprintw(17, 6, "Communication errors");
+    mbse_mvprintw(19, 6, "Next sequence number");
+    mbse_mvprintw(19,62, "Press any key");
     IsDoing("System Statistics");
 
     do {
@@ -286,37 +286,37 @@ void system_stat(void)
 	    set_color(LIGHTGRAY, BLACK);
 	    cnt = strtok(buf, ",");
 	    now = atoi(strtok(NULL, ","));
-	    mvprintw(7, 30, "%s", ctime(&now));
+	    mbse_mvprintw(7, 30, "%s", ctime(&now));
 	    now = atoi(strtok(NULL, ","));
-	    mvprintw(8, 30, "%s", ctime(&now));
+	    mbse_mvprintw(8, 30, "%s", ctime(&now));
 	    cnt = strtok(NULL, ",");
-	    mvprintw(9, 30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(10,30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(14,30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(15,30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(16,30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(17,30, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(14,45, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(15,45, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(16,45, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(17,45, (char *)"%s ", strtok(NULL, ","));
-	    mvprintw(7,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-	    mvprintw(8,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-	    mvprintw(9,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-	    mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-	    mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-	    mvprintw(12,72, "%s ", strtok(NULL, ","));
-	    mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
+	    mbse_mvprintw(9, 30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(10,30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(14,30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(15,30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(16,30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(17,30, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(14,45, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(15,45, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(16,45, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(17,45, (char *)"%s ", strtok(NULL, ","));
+	    mbse_mvprintw(7,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mbse_mvprintw(8,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mbse_mvprintw(9,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mbse_mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mbse_mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mbse_mvprintw(12,72, "%s ", strtok(NULL, ","));
+	    mbse_mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
 	}
 
 	switch (enoughspace(CFG.freespace)) {
-	    case 0: mvprintw(13, 72, "Full ");
+	    case 0: mbse_mvprintw(13, 72, "Full ");
 		    break;
-	    case 1: mvprintw(13, 72, "Ok   ");
+	    case 1: mbse_mvprintw(13, 72, "Ok   ");
 		    break;
-	    case 2: mvprintw(13, 72, "N/A  ");
+	    case 2: mbse_mvprintw(13, 72, "N/A  ");
 		    break;
-	    case 3: mvprintw(13, 72, "Error");
+	    case 3: mbse_mvprintw(13, 72, "Error");
 		    break;
 	}
 
@@ -334,11 +334,11 @@ void disk_stat(void)
 
     clr_index();
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
+    mbse_mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
     set_color(YELLOW, RED);
-    mvprintw( 7, 1, " Size MB   Free MB     Used  FS-Type   St Mountpoint                          ");
+    mbse_mvprintw( 7, 1, " Size MB   Free MB     Used  FS-Type   St Mountpoint                          ");
     set_color(CYAN, BLACK);
-    mvprintw(lines - 2, 6, "Press any key");
+    mbse_mvprintw(lines - 2, 6, "Press any key");
     IsDoing("Filesystem Usage");
     for (i = 0; i < 10; i++)
 	last[i] = 0;
@@ -371,7 +371,7 @@ void disk_stat(void)
 			sign = ' ';
 		    last[i] = used;
 		    set_color(CYAN, BLACK);
-		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, avail);
+		    mbse_mvprintw(i+8, 1, "%8lu  %8lu  ", size, avail);
 		    set_color(WHITE, BLACK);
 		    printf("%c  ", sign);
 		    if (ro == 0) {
@@ -389,7 +389,7 @@ void disk_stat(void)
 		    set_color(CYAN, BLACK);
 		    printf("  %-8s  %s %-37s", type, ro ?"RO":"RW", fs);
 		}
-		locate(i+8, 1);
+		mbse_locate(i+8, 1);
 		clrtoeol();
 	    }
 	}
@@ -466,25 +466,25 @@ void Showline(int y, int x, char *msg)
 
     if (strlen(msg)) {
 	if (msg[0] == '<') {
-	    locate(y, x);
-	    colour(LIGHTCYAN, BLACK);
+	    mbse_locate(y, x);
+	    mbse_colour(LIGHTCYAN, BLACK);
 	    putchar('<');
-	    colour(LIGHTBLUE, BLACK);
+	    mbse_colour(LIGHTBLUE, BLACK);
 	    for (i = 1; i < strlen(msg); i++) {
 		if (msg[i] == '>') {
-		    colour(LIGHTCYAN, BLACK);
+		    mbse_colour(LIGHTCYAN, BLACK);
 		    putchar(msg[i]);
-		    colour(CYAN, BLACK);
+		    mbse_colour(CYAN, BLACK);
 		} else {
 		    putchar(msg[i]);
 		}
 	    }
 	} else if (msg[0] == '*') {
-	    colour(LIGHTRED, BLACK);
-	    mvprintw(y, x, msg);
+	    mbse_colour(LIGHTRED, BLACK);
+	    mbse_mvprintw(y, x, msg);
 	} else {
-	    colour(GREEN, BLACK);
-	    mvprintw(y, x, msg);
+	    mbse_colour(GREEN, BLACK);
+	    mbse_mvprintw(y, x, msg);
 	}
     }
 }
@@ -506,7 +506,7 @@ void DispMsg(char *msg)
 	 * Scroll buffer
 	 */
 	for (i = 0; i <= rsize; i++) {
-	    locate(i+4,1);
+	    mbse_locate(i+4,1);
 	    clrtoeol();
 	    sprintf(rbuf[i], "%s", rbuf[i+1]);
 	    Showline(i+4, 1, rbuf[i]);
@@ -543,7 +543,7 @@ void Chat(int sysop)
 	    msg = strtok(NULL, "\0");
 	    msg[strlen(msg)-1] = '\0';
 	    set_color(LIGHTRED, BLACK);
-	    mvprintw(4, 1, msg);
+	    mbse_mvprintw(4, 1, msg);
 	    working(2, 0, 0);
 	    working(0, 0, 0);
 	    center_addstr(lines -4, (char *)"Press any key");
@@ -552,13 +552,13 @@ void Chat(int sysop)
 	}
     }
 
-    locate(lines - 2, 1);
+    mbse_locate(lines - 2, 1);
     set_color(WHITE, BLUE);
     clrtoeol();
-    mvprintw(lines - 2, 2, "Chat, type \"/EXIT\" to exit");
+    mbse_mvprintw(lines - 2, 2, "Chat, type \"/EXIT\" to exit");
 
     set_color(WHITE, BLACK);
-    mvprintw(lines - 1, 1, ">");
+    mbse_mvprintw(lines - 1, 1, ">");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
 
@@ -660,10 +660,10 @@ void Chat(int sysop)
 	    }
 	    curpos = 0;
 	    memset(&sbuf, 0, sizeof(sbuf));
-	    locate(lines - 1, 2);
+	    mbse_locate(lines - 1, 2);
 	    clrtoeol();
 	    set_color(WHITE, BLACK);
-	    mvprintw(lines - 1, 1, ">");
+	    mbse_mvprintw(lines - 1, 1, ">");
 	}
     }
 
@@ -782,16 +782,16 @@ int main(int argc, char *argv[])
 	IsDoing("Browsing Menu");
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "0.    MBSE BBS MONITOR");
+	mbse_mvprintw( 5, 6, "0.    MBSE BBS MONITOR");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.    View Server Clients");
-	mvprintw( 8, 6, "2.    View Server Statistics");
-	mvprintw( 9, 6, "3.    View Filesystem Usage");
-	mvprintw(10, 6, "4.    View BBS System Information");
-	mvprintw(11, 6, "5.    View BBS Lastcallers List");
-	mvprintw(12, 6, "6.    Chat with any user");
-	mvprintw(13, 6, "7.    Respond to sysop page");
-	mvprintw(14, 6, "8.    View Software Information");
+	mbse_mvprintw( 7, 6, "1.    View Server Clients");
+	mbse_mvprintw( 8, 6, "2.    View Server Statistics");
+	mbse_mvprintw( 9, 6, "3.    View Filesystem Usage");
+	mbse_mvprintw(10, 6, "4.    View BBS System Information");
+	mbse_mvprintw(11, 6, "5.    View BBS Lastcallers List");
+	mbse_mvprintw(12, 6, "6.    Chat with any user");
+	mbse_mvprintw(13, 6, "7.    Respond to sysop page");
+	mbse_mvprintw(14, 6, "8.    View Software Information");
 
 	switch(select_menu(8)) {
 	    case 0:

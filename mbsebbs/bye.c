@@ -37,6 +37,7 @@
 #include "misc.h"
 #include "language.h"
 #include "bye.h"
+#include "term.h"
 
 
 extern	pid_t		mypid;

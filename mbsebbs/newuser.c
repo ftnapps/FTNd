@@ -40,6 +40,7 @@
 #include "timeout.h"
 #include "change.h"
 #include "dispfile.h"
+#include "term.h"
 
 
 /*

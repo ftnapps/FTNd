@@ -283,23 +283,23 @@ void TtyScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "6.  EDIT TTY LINE");
+	mbse_mvprintw( 5, 6, "6.  EDIT TTY LINE");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Comment");
-	mvprintw( 8, 6, "2.  TTY Device");
-	mvprintw( 9, 6, "3.  Phone nr.");
-	mvprintw(10, 6, "4.  Line Speed");
-	mvprintw(11, 6, "5.  Fido Flags");
-	mvprintw(12, 6, "6.  Line Type");
-	mvprintw(13, 6, "7.  Available");
-	mvprintw(14, 6, "8.  Auth. log");
-	mvprintw(15, 6, "9.  Honor ZMH");
-	mvprintw(16, 6, "10. Deleted");
-	mvprintw(17, 6, "11. Callout");
+	mbse_mvprintw( 7, 6, "1.  Comment");
+	mbse_mvprintw( 8, 6, "2.  TTY Device");
+	mbse_mvprintw( 9, 6, "3.  Phone nr.");
+	mbse_mvprintw(10, 6, "4.  Line Speed");
+	mbse_mvprintw(11, 6, "5.  Fido Flags");
+	mbse_mvprintw(12, 6, "6.  Line Type");
+	mbse_mvprintw(13, 6, "7.  Available");
+	mbse_mvprintw(14, 6, "8.  Auth. log");
+	mbse_mvprintw(15, 6, "9.  Honor ZMH");
+	mbse_mvprintw(16, 6, "10. Deleted");
+	mbse_mvprintw(17, 6, "11. Callout");
 
-	mvprintw(15,31, "12. Portspeed");
-	mvprintw(16,31, "13. Modemtype");
-	mvprintw(17,31, "14. EMSI name");
+	mbse_mvprintw(15,31, "12. Portspeed");
+	mbse_mvprintw(16,31, "13. Modemtype");
+	mbse_mvprintw(17,31, "14. EMSI name");
 }
 
 
@@ -449,7 +449,7 @@ void EditTtyinfo(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "6.  TTY LINES SETUP");
+		mbse_mvprintw( 5, 4, "6.  TTY LINES SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/ttyinfo.temp", getenv("MBSE_ROOT"));
@@ -473,7 +473,7 @@ void EditTtyinfo(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-6s %-25s", o+i, ttyinfo.tty, ttyinfo.comment);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

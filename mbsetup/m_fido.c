@@ -252,25 +252,25 @@ int EditFidoRec(int Area)
     crc = upd_crc32((char *)&fidonet, crc, sizeof(fidonet));
 
     set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
+    mbse_mvprintw( 5, 6, "2.  EDIT FIDONET NETWORK");
     set_color(CYAN, BLACK);
-    mvprintw( 7, 6, "1.  Comment");
-    mvprintw( 8, 6, "2.  Domain name");
-    mvprintw( 9, 6, "3.  Available");
-    mvprintw(10, 6, "4.  Deleted");
-    mvprintw(11, 6, "5.  Main Nodelist");
-    mvprintw(12, 6, "6.  Merge list #1");
-    mvprintw(13, 6, "7.  Merge list #2");
-    mvprintw(14, 6, "8.  Merge list #3");
-    mvprintw(15, 6, "9.  Merge list #4");
-    mvprintw(16, 6, "10. Merge list #5");
-    mvprintw(17, 6, "11. Merge list #6");
-    mvprintw(12,55, "12. Primary zone");
-    mvprintw(13,55, "13. Zone number #2");
-    mvprintw(14,55, "14. Zone number #3");
-    mvprintw(15,55, "15. Zone number #4");
-    mvprintw(16,55, "16. Zone number #5");
-    mvprintw(17,55, "17. Zone number #6");
+    mbse_mvprintw( 7, 6, "1.  Comment");
+    mbse_mvprintw( 8, 6, "2.  Domain name");
+    mbse_mvprintw( 9, 6, "3.  Available");
+    mbse_mvprintw(10, 6, "4.  Deleted");
+    mbse_mvprintw(11, 6, "5.  Main Nodelist");
+    mbse_mvprintw(12, 6, "6.  Merge list #1");
+    mbse_mvprintw(13, 6, "7.  Merge list #2");
+    mbse_mvprintw(14, 6, "8.  Merge list #3");
+    mbse_mvprintw(15, 6, "9.  Merge list #4");
+    mbse_mvprintw(16, 6, "10. Merge list #5");
+    mbse_mvprintw(17, 6, "11. Merge list #6");
+    mbse_mvprintw(12,55, "12. Primary zone");
+    mbse_mvprintw(13,55, "13. Zone number #2");
+    mbse_mvprintw(14,55, "14. Zone number #3");
+    mbse_mvprintw(15,55, "15. Zone number #4");
+    mbse_mvprintw(16,55, "16. Zone number #5");
+    mbse_mvprintw(17,55, "17. Zone number #6");
     temp = calloc(18, sizeof(char));
 
     for (;;) {
@@ -405,7 +405,7 @@ void EditFidonet(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "2.  FIDONET SETUP");
+		mbse_mvprintw( 5, 4, "2.  FIDONET SETUP");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/fidonet.temp", getenv("MBSE_ROOT"));
@@ -428,7 +428,7 @@ void EditFidonet(void)
 					}
 					sprintf(temp, "%3d.  z%d: %-32s", i, fidonet.zone[0], fidonet.comment);
 					temp[38] = 0;
-					mvprintw(y, x, temp);
+					mbse_mvprintw(y, x, temp);
 					y++;
 				}
 				fclose(fil);

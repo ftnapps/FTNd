@@ -195,34 +195,34 @@ void Screen1(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 4, 2, "15. EDIT USER");
+        mbse_mvprintw( 4, 2, "15. EDIT USER");
         set_color(CYAN, BLACK);
-        mvprintw( 6, 2, "1.  Full Name");
-        mvprintw( 7, 2, "2.  Security");
-        mvprintw( 8, 2, "3.  Expirydate");
-        mvprintw( 9, 2, "4.  Expiry Sec");
-        mvprintw(10, 2, "5.  Unix name");
-	mvprintw(11, 2, "    1st login");
-	mvprintw(12, 2, "    Last login");
-	mvprintw(13, 2, "    Pwdchange");
-        mvprintw(14, 2, "6.  Credit");
-        mvprintw(15, 2, "7.  Hidden");
-	mvprintw(16, 2, "8.  Deleted");
-	mvprintw(17, 2, "9.  No Kill");
-	mvprintw(18, 2, "10. Comment");
+        mbse_mvprintw( 6, 2, "1.  Full Name");
+        mbse_mvprintw( 7, 2, "2.  Security");
+        mbse_mvprintw( 8, 2, "3.  Expirydate");
+        mbse_mvprintw( 9, 2, "4.  Expiry Sec");
+        mbse_mvprintw(10, 2, "5.  Unix name");
+	mbse_mvprintw(11, 2, "    1st login");
+	mbse_mvprintw(12, 2, "    Last login");
+	mbse_mvprintw(13, 2, "    Pwdchange");
+        mbse_mvprintw(14, 2, "6.  Credit");
+        mbse_mvprintw(15, 2, "7.  Hidden");
+	mbse_mvprintw(16, 2, "8.  Deleted");
+	mbse_mvprintw(17, 2, "9.  No Kill");
+	mbse_mvprintw(18, 2, "10. Comment");
 
-        mvprintw( 6,54, "11. Locked");
-        mvprintw( 7,54, "12. Guest");
-        mvprintw( 8,54, "13. Ext Info");
-        mvprintw( 9,54, "14. Email");
-	mvprintw(10,54, "    Calls");
-	mvprintw(11,54, "    Downlds");
-	mvprintw(12,54, "    Down Kb");
-	mvprintw(13,54, "    Uploads");
-	mvprintw(14,54, "    Upload Kb");
-	mvprintw(15,54, "    Posted");
-	mvprintw(16,54, "15. Time left");
-	mvprintw(17,54, "16. Screen 2");
+        mbse_mvprintw( 6,54, "11. Locked");
+        mbse_mvprintw( 7,54, "12. Guest");
+        mbse_mvprintw( 8,54, "13. Ext Info");
+        mbse_mvprintw( 9,54, "14. Email");
+	mbse_mvprintw(10,54, "    Calls");
+	mbse_mvprintw(11,54, "    Downlds");
+	mbse_mvprintw(12,54, "    Down Kb");
+	mbse_mvprintw(13,54, "    Uploads");
+	mbse_mvprintw(14,54, "    Upload Kb");
+	mbse_mvprintw(15,54, "    Posted");
+	mbse_mvprintw(16,54, "15. Time left");
+	mbse_mvprintw(17,54, "16. Screen 2");
 }
 
 
@@ -281,34 +281,34 @@ void Screen2(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "15. EDIT USER PRIVATE SETTINGS");
+	mbse_mvprintw( 4, 2, "15. EDIT USER PRIVATE SETTINGS");
 	set_color(CYAN, BLACK);
-	mvprintw( 6, 2, "1.  Handle");
-	mvprintw( 7, 2, "2.  Location");
-	mvprintw( 8, 2, "3.  Address 1");
-	mvprintw( 9, 2, "4.  Address 2");
-	mvprintw(10, 2, "5.  Address 3");
-	mvprintw(11, 2, "6.  Voicephone");
-	mvprintw(12, 2, "7.  Dataphone");
-	mvprintw(13, 2, "8.  Birthdate");
-	mvprintw(14, 2, "9.  Password");
-	mvprintw(15, 2, "10. Sex");
-	mvprintw(16, 2, "11. Protocol");
-	mvprintw(17, 2, "12. Archiver");
-	mvprintw(18, 2, "13. Charset");
+	mbse_mvprintw( 6, 2, "1.  Handle");
+	mbse_mvprintw( 7, 2, "2.  Location");
+	mbse_mvprintw( 8, 2, "3.  Address 1");
+	mbse_mvprintw( 9, 2, "4.  Address 2");
+	mbse_mvprintw(10, 2, "5.  Address 3");
+	mbse_mvprintw(11, 2, "6.  Voicephone");
+	mbse_mvprintw(12, 2, "7.  Dataphone");
+	mbse_mvprintw(13, 2, "8.  Birthdate");
+	mbse_mvprintw(14, 2, "9.  Password");
+	mbse_mvprintw(15, 2, "10. Sex");
+	mbse_mvprintw(16, 2, "11. Protocol");
+	mbse_mvprintw(17, 2, "12. Archiver");
+	mbse_mvprintw(18, 2, "13. Charset");
 
-	mvprintw( 7,63, "14. Screenlen");
-	mvprintw( 8,63, "15. Language");
-	mvprintw( 9,63, "16. Hotkeys");
-	mvprintw(10,63, "17. Color");
-	mvprintw(11,63, "18. Silent");
-	mvprintw(12,63, "19. CLS");
-	mvprintw(13,63, "20. More");
-	mvprintw(14,63, "21. Editor");
-	mvprintw(15,63, "22. MailScan");
-	mvprintw(16,63, "23. ShowNews");
-	mvprintw(17,63, "24. NewFiles");
-	mvprintw(18,63, "25. Emacs");
+	mbse_mvprintw( 7,63, "14. Screenlen");
+	mbse_mvprintw( 8,63, "15. Language");
+	mbse_mvprintw( 9,63, "16. Hotkeys");
+	mbse_mvprintw(10,63, "17. Color");
+	mbse_mvprintw(11,63, "18. Silent");
+	mbse_mvprintw(12,63, "19. CLS");
+	mbse_mvprintw(13,63, "20. More");
+	mbse_mvprintw(14,63, "21. Editor");
+	mbse_mvprintw(15,63, "22. MailScan");
+	mbse_mvprintw(16,63, "23. ShowNews");
+	mbse_mvprintw(17,63, "24. NewFiles");
+	mbse_mvprintw(18,63, "25. Emacs");
 }
 
 
@@ -605,7 +605,7 @@ void EditUsers(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 3, "15.  USERS EDITOR");
+		mbse_mvprintw( 5, 3, "15.  USERS EDITOR");
 		set_color(CYAN, BLACK);
 		if (records != 0) {
 			sprintf(temp, "%s/etc/users.temp", getenv("MBSE_ROOT"));
@@ -630,7 +630,7 @@ void EditUsers(void)
 							set_color(LIGHTBLUE, BLACK);
 						sprintf(temp, "%3d.  %-32s", o + i, usrconfig.sUserName);
 						temp[37] = 0;
-						mvprintw(y, x, temp);
+						mbse_mvprintw(y, x, temp);
 						y++;
 					}
 				}

@@ -121,7 +121,7 @@ void MakeStat(void)
     }
 
     if (!do_quiet) {
-	colour(CYAN, BLACK);
+	mbse_colour(CYAN, BLACK);
 	printf("\rMaking statistical HTML pages");
 	fflush(stdout);
     }

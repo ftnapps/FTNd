@@ -54,7 +54,7 @@ void Delete(int UnDel, int Area, char *File)
 	IsDoing("Undelete file");
     else
 	IsDoing("Delete file");
-    colour(LIGHTRED, BLACK);
+    mbse_colour(LIGHTRED, BLACK);
 
     /*
      * Check area
@@ -80,7 +80,7 @@ void Delete(int UnDel, int Area, char *File)
 	die(MBERR_GENERAL);
 
 
-    colour(CYAN, BLACK);
+    mbse_colour(CYAN, BLACK);
     strcpy(mask, re_mask(File, FALSE));
     if (re_comp(mask))
 	die(MBERR_GENERAL);
