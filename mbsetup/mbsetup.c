@@ -100,6 +100,8 @@ static void die(int onsig)
 	 */
 	sprintf(temp, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
+	    fprintf(fp, "; msg.txt -- Automatic created by mbsetup %s -- Do not edit!\n;\n", VERSION);
+	    fprintf(fp, "; Mail areas for MsgEd.\n;\n");
 	    msged_areas(fp);
 	    fclose(fp);
 	    Syslog('+', "Created new %s", temp);
@@ -113,7 +115,7 @@ static void die(int onsig)
 	sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "w")) != NULL) {
 	    fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
-	    fprintf(fp, "; Basic information\n;\n");
+	    fprintf(fp, "; Basic information.\n;\n");
 	    if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
 		fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
 		fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
@@ -133,6 +135,7 @@ static void die(int onsig)
 
 		gold_areas(fp);
 	    }
+	    fclose(fp);
 	    Syslog('+', "Created new %s", temp);
 	} else {
 	    WriteError("$Could not create %s", temp);

@@ -1663,7 +1663,6 @@ void msged_areas(FILE *fp)
 
     fclose(no);
     free(temp);
-    fprintf(fp, "\n");
 }
 
 
