@@ -56,12 +56,11 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	time_t		now;
 	fa_list		*tmp;
 
-	Syslog('+', "Forward file to %s, %s netmail", aka2str(Node), nodes.Message?"with":"whithout");
-
 	if (!SearchNode(Node)) {
 		WriteError("TIC forward in %s, node %s not in setup but defined in area setup", TIC.TicIn.Area, aka2str(Node));
 		return;
 	}
+	Syslog('+', "Forward file to %s, %s netmail", aka2str(Node), nodes.Message?"with":"whithout");
 
 	/*
 	 * Hier moet een nieuwe SEEN-BY check komen, maar dan wel zo dat
