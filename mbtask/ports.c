@@ -183,11 +183,12 @@ void check_ports(void)
 	if ((lf = fopen(lckname, "r")) == NULL) {
 	    if (tpl->locked) {
 		tpl->locked = 0;
-		tasklog('+', "Port %s is now free", tpl->tty);
-		/*
-		 * Good, set master rescan flag
-		 */
-		changed = TRUE;
+		tasklog('+', "Port %s is now free after %d seconds", tpl->tty, tpl->locktime);
+		if (tpl->locktime > 4)
+		    /*
+		     * Good, set master rescan flag if longer then 4 seconds locked.
+		     */
+		    changed = TRUE;
 	    }
 	} else {
 	    fscanf(lf, "%d", &tmppid);
@@ -200,8 +201,17 @@ void check_ports(void)
 	    } else {
 		if (!tpl->locked) {
 		    tpl->locked = rempid;
+		    tpl->locktime = 0;
 		    tasklog('+', "Port %s locked, pid %d", tpl->tty, rempid);
-		    changed = TRUE;
+		} else {
+		    /*
+		     * Count locktime
+		     */
+		    tpl->locktime++;
+		    if (tpl->locktime == 5) {
+			changed = TRUE;
+			tasklog('+', "Port %s locked for 5 seconds, forcing scan", tpl->tty);
+		    }
 		}
 	    }
 	}

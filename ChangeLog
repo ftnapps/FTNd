@@ -4811,7 +4811,9 @@ v0.33.20        10-Feb-2002
 		Removed some debug logging.
 		Creates the semafore is_inet when the internet connections is
 		available, and removes it when it is down.
-		Added test for ISDN/modem lines in use.
+		Added test for ISDN/modem lines in use. If a line status 
+		change lasted 5 seconds or longer, the oubound will be
+		rescanned.
 		Lots of code cleanup.
 		No setup setting anymore for maximum POTS and ISDN lines, this
 		is now automatic.

@@ -14,6 +14,7 @@ typedef struct _pp_list {
     unsigned long   mflags;	/* Analogue modem flags		*/
     unsigned long   dflags;	/* ISDN flags			*/
     int		    locked;	/* If port is locked		*/
+    long	    locktime;	/* Time it is locked		*/
 } pp_list;
 
 
