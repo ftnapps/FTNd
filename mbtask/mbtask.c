@@ -537,14 +537,14 @@ int check_calllist(void)
     /*
      * Check if we need to remove the do_inet semafore
      */
-    if (!inet_calls && s_do_inet) {
+    if (!inet_calls && internet && s_do_inet) {
 	tasklog('c', "Removing do_inet semafore");
 	s_do_inet = FALSE;
 	if (IsSema((char *)"do_inet")) {
 	    RemoveSema((char *)"do_inet");
 	}
     }
-    
+
     call_work = 0;
     for (i = 0; i < MAXTASKS; i++) {
 	if (calllist[i].addr.zone) {
