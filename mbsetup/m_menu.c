@@ -200,7 +200,7 @@ int GetMenuType(void)
     switch (select_menu(6)) {
 	case 1:	    return GetSubmenu(1, 25);
 	case 2:	    return GetSubmenu(101, 19);
-	case 3:	    return GetSubmenu(201, 20);
+	case 3:	    return GetSubmenu(201, 21);
 	case 4:	    return GetSubmenu(301, 19);
 	case 5:	    return GetSubmenu(401, 5);
 	case 6:	    return GetSubmenu(501, 6);

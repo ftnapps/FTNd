@@ -11,7 +11,7 @@ JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
 |Entweder Ihr NAME oder Ihr PASSWORT wurden falsch eingegeben
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
-|Kontostand Zeit (min) . . . . . . : 
+|No rules found for this area
 |Kontostand Daten (KBytes) . . . . : 
 |Heute gesparte Zeit . . . . . . . : 
 |Heute gesparte KBytes . . . . . . : 

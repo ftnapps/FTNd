@@ -11,7 +11,7 @@ YN|Did you spell your name correctly? [Y/n]
 |Either your NAME or PASSWORD is incorrect
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
-|Time in account                    
+|No rules found for this area
 |Bytes in account                   
 |Time deposited today               
 |Bytes deposited today              

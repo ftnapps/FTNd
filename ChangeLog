@@ -66,6 +66,7 @@ v0.37.01	14-Jan-2003.
 		anymore.
 		Added new menu item 319, removed menu items 22 and 23.
 		Added setup for rules directory.
+		Added setup for menu 221. Changed description of menu 103.
 
 	mbsebbs:
 		It will now refuse to up/download OLR packets when the system
@@ -83,13 +84,19 @@ v0.37.01	14-Jan-2003.
 		have the filename of the area tag. Normal users can only export
 		to their private directory. Sysops: now you can start 
 		collecting area rules!
+		New menu 221, display arearules. This function tries to find
+		the arearules in the rules directory and if found displays
+		this to the user.
 
 	examples:
 		The English and Dutch templates are updated to show the new
 		nodes flow counters (html.nodes).
+		English textfiles and menus are updated to show the new menu
+		functions.
 
 	lang:
-		Changed english and dutch language prompts 11, 12 and 107.
+		Changed english and dutch language prompts 11, 12, 13 and 107.
+		Changed in other languages as well, but in English.
 
 
 v0.37.00	26-Dec-2002 - 14-Jan-2003

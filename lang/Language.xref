@@ -11,7 +11,7 @@
 10	user.c				|Either your NAME or PASSWORD is incorrect
 11	mail.c email.c			HR|Export to (H)ome or (R)ules directory: 
 12	mail.c email.c			|Message exported to rules directory as 
-13	.c				|
+13	dispfile.c			|No rules found for this area
 14	.c				|
 15	.c				|
 16	.c				|

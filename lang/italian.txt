@@ -11,7 +11,7 @@ SN|Hai scritto il tuo nome e cognome correttamente? [S/n]
 |Hai inserito un NOME o una PASSWORD errata
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
-|Tempo disponibile    :              
+|No rules found for this area
 |Byte disponibili     :
 |Tempo depositato oggi:
 |Byte depositati oggi :

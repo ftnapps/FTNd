@@ -11,7 +11,7 @@ JN|Is Uw naam juist gespeld? [J/n]
 |Of Uw NAAM of Uw WACHTWOORD is fout
 HR|Exporteer naar (H)ome of (R)egels directory: 
 |Bericht geexporteerd naar rules directory als 
-|Tijd op de rekening                
+|Geen regels gevonden voor dit gebied
 |Bytes op de rekening               
 |Tijd gestort vandaag               
 |Bytes gestort vandaag              

@@ -48,6 +48,7 @@
 #include "exitinfo.h"
 #include "mail.h"
 #include "email.h"
+#include "input.h"
 #include "dispfile.h"
 
 
@@ -81,6 +82,129 @@ int TotalUsers(void)
         free(temp);
 
         return ch;
+}
+
+
+
+/*
+ * Function will display a aras rulefile to the user.
+ * Searches in rules directory first for a file with
+ * the full name of the area, then the fule name of the
+ * area with a .rul suffix, and finally for the first
+ * 8 characters of the areaname with a .rul suffix.
+ * The search is case insensitive.
+ *
+ * Menu 221.
+ */
+void DisplayRules(void)
+{
+    DIR		    *dp;
+    struct dirent   *de;
+    int		    Found = FALSE;
+    char	    temp[128];
+
+    if ((dp = opendir(CFG.rulesdir)) == NULL) {
+	WriteError("$Can't open directory %s", CFG.rulesdir);
+	/* Can't open directory for listing: */
+	printf("\n%s\n\n", (char *) Language(290));
+	Pause();
+	return;
+    }
+
+    while ((de = readdir(dp))) {
+	if (de->d_name[0] != '.') {
+	    strcpy(temp, msgs.Tag);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		Found = TRUE;
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		break;
+	    }
+	    sprintf(temp, "%s.rul", temp);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		Found = TRUE;
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		break;
+	    }
+	    memset(&temp, 0, sizeof(temp));
+	    strncpy(temp, msgs.Tag, 8);
+	    sprintf(temp, "%s.rul", temp);
+	    if (strcasecmp(de->d_name, temp) == 0) {
+		Found = TRUE;
+		sprintf(temp, "%s/%s", CFG.rulesdir, de->d_name);
+		break;
+	    }
+	}
+    }
+    closedir(dp);
+
+    if (Found) {
+	Syslog('+', "Display rules: %s", temp);
+	DisplayTextFile(temp);
+    } else {
+	Syslog('+', "Display rules for %s failed, not found", msgs.Tag);
+	Enter(1);
+	colour(LIGHTRED, BLACK);
+	/* No rules found for this area */
+	printf("\n%s\n\n", (char *) Language(13));
+	Pause();
+    }
+}
+
+
+
+/*
+ * Function will display a flat ascii textfile to the
+ * user without control codes. This is used to display
+ * area rules, but is also called from the menu function
+ * that will display a textfile or the contents of a archive.
+ */
+int DisplayTextFile(char *filename)
+{
+    FILE    *fp;
+    char    *buf;
+    int	    i, x, c, lc = 0;
+
+    if ((fp = fopen(filename, "r")) == NULL) {
+	WriteError("$DisplayTextFile(%s) failed");
+	return FALSE;
+    }
+
+    buf = calloc(81, sizeof(char));
+    clear();
+    colour(CFG.TextColourF, CFG.TextColourB);
+
+    while (fgets(buf, 79, fp)) {
+	i = strlen(buf);
+
+	for (x = 0; x < i; x++) {
+	    c = (*(buf + x));
+	    if (isprint(c))
+		printf("%c", c);
+	}
+
+	printf("\n");
+	fflush(stdout);
+	lc++;
+
+	if (lc == exitinfo.iScreenLen) {
+	    Pause();
+	    lc = 0;
+	    colour(CFG.TextColourF, CFG.TextColourB);
+	}
+    }
+
+    fclose(fp);
+    free(buf);
+
+    Enter(1);
+    /* Press ENTER to continue */
+    language(LIGHTMAGENTA, BLACK, 436);
+    fflush(stdout);
+    fflush(stdin);
+    alarm_on();
+    Getone();
+
+    return TRUE;
 }
 
 

@@ -2091,7 +2091,7 @@ char *getmenutype(int val)
 
 		case 101:	return (char *)"Select new file area";
 		case 102:	return (char *)"List files in current area";
-		case 103:	return (char *)"View a textfile";
+		case 103:	return (char *)"View file contents";
 		case 104:	return (char *)"Download tagged files";
 		case 105:	return (char *)"Raw directory listing";
 		case 106:	return (char *)"Search file on keyword";
@@ -2129,6 +2129,7 @@ char *getmenutype(int val)
 		case 218:	return (char *)"Trash email";
 		case 219:	return (char *)"Choose mailbox";
 		case 220:	return (char *)"Quick-scan email's";
+		case 221:	return (char *)"Show area rules";
 
 		case 301:	return (char *)"Change transfer protocol";
 		case 302:	return (char *)"Change password";

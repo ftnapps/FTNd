@@ -11,7 +11,7 @@ SN|¨Escribiche-lo teu nome correctamente? [S/n]
 |O teu nome ou a tua PASSWORD son incorrectos
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
-|Tempo na conta           : 
+|No rules found for this area
 |Bytes na cuenta          : 
 |Tempo depositado hoxe    : 
 |Bytes depositados hoxe   : 

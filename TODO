@@ -28,8 +28,6 @@ mbsebbs:
 
 	N: Display textfiles and archives.
 
-	N: Check for tagged files before logoff
-
 	L: Better word wrapping or paragraph justification in editor.
 
 	L: E-mail downloads with e-mail verification.

@@ -79,13 +79,13 @@ int	MenuError;
 
 void InitMenu()
 {
-	int	i;
+    int	i;
 
-	for (i = 0; i < 50; i++) 
-		memset(Menus[i], 0, 51);
-	MenuLevel = 0;
-	MenuError = 0;
-	sprintf(Menus[0], "%s", CFG.default_menu);
+    for (i = 0; i < 50; i++) 
+	memset(Menus[i], 0, 51);
+    MenuLevel = 0;
+    MenuError = 0;
+    sprintf(Menus[0], "%s", CFG.default_menu);
 }
 
 
@@ -252,20 +252,16 @@ void menu()
 
 void DoMenu(int Type)
 {
-	int	Strlen, i, x;
-	char	*DisplayF;
-	char	*sPrompt;
-	char	*sPromptBak;
-	char	*temp;
+    int	    Strlen, i, x;
+    char    *sPrompt, *sPromptBak, *temp;
 
-	DisplayF   = calloc(81, sizeof(char));
-	sPrompt    = calloc(81, sizeof(char));
-	sPromptBak = calloc(81, sizeof(char));
-	temp       = calloc(81, sizeof(char));
+    sPrompt    = calloc(81, sizeof(char));
+    sPromptBak = calloc(81, sizeof(char));
+    temp       = calloc(81, sizeof(char));
 
-	TimeCheck();
+    TimeCheck();
 
-	switch(Type) {
+    switch(Type) {
 	case 0: /* Display Prompt Line Only */
 		break;
 
@@ -277,16 +273,16 @@ void DoMenu(int Type)
 	case 2:
 		/* Gosub another menu */
 		if (MenuLevel < 49) {
-			MenuLevel++;
-			strncpy(Menus[MenuLevel], menus.OptionalData, 14);
+		    MenuLevel++;
+		    strncpy(Menus[MenuLevel], menus.OptionalData, 14);
 		} else
-			Syslog('?', "More than 50 menu levels");
+		    Syslog('?', "More than 50 menu levels");
 		break;
 
 	case 3:
 		/* Return from gosub */
 		if (MenuLevel > 0) 
-			MenuLevel--;
+		    MenuLevel--;
 		break;
 
 	case 4:
@@ -302,36 +298,33 @@ void DoMenu(int Type)
 	case 6:
 		/* Show menu prompt */
 		Strlen = strlen(menus.OptionalData);
-		for(x = 0; x < Strlen; x++) {
-			if( menus.OptionalData[x] == '~') {
-				strcat(sPrompt, sUserTimeleft);
-			} else {
-			 	sprintf(temp, "%c", menus.OptionalData[x]);
-				strcat(sPrompt, temp);
-			}
+		for (x = 0; x < Strlen; x++) {
+		    if (menus.OptionalData[x] == '~') {
+			strcat(sPrompt, sUserTimeleft);
+		    } else {
+			sprintf(temp, "%c", menus.OptionalData[x]);
+			strcat(sPrompt, temp);
+		    }
 		}
 		strcpy(sPromptBak, sPrompt);
 		strcpy(sPrompt, "");
 		Strlen = strlen(sPromptBak);
-		for(x = 0; x < Strlen; x++) {
-			if( *(sPromptBak + x) == '@')
-				strcat(sPrompt, sAreaDesc);
-			else 
-				if ( *(sPromptBak + x) == '^')
-					strcat(sPrompt, sMsgAreaDesc);
-				else 
-					if ( *(sPromptBak + x) == '#')
-						sprintf(sPrompt, "%s%s", sPrompt, (char *) GetLocalHM()); 
-
-					else  {
-						sprintf(temp, "%c", *(sPromptBak + x));
-						strcat(sPrompt, temp);
-					}
+		for (x = 0; x < Strlen; x++) {
+		    if (*(sPromptBak + x) == '@')
+			strcat(sPrompt, sAreaDesc);
+		    else if (*(sPromptBak + x) == '^')
+			strcat(sPrompt, sMsgAreaDesc);
+		    else if (*(sPromptBak + x) == '#')
+			sprintf(sPrompt, "%s%s", sPrompt, (char *) GetLocalHM()); 
+		    else {
+			sprintf(temp, "%c", *(sPromptBak + x));
+			strcat(sPrompt, temp);
+		    }
 		}
 		if (menus.ForeGnd || menus.BackGnd)
 		    pout(menus.ForeGnd, menus.BackGnd, sPrompt);
 		else
-		    pout(15, 0, sPrompt);
+		    pout(WHITE, BLACK, sPrompt);
 		break;
 
 	case 7:
@@ -366,7 +359,6 @@ void DoMenu(int Type)
 
 	case 13:
 		/* terminate call */
-		free(DisplayF);
 		free(sPrompt);
 		free(sPromptBak);
 		free(temp);
@@ -381,10 +373,10 @@ void DoMenu(int Type)
 	case 15:
 		/* print text to screen */
 		if (exitinfo.Security.level >= menus.MenuSecurity.level) {
-			for(i = 0; i < strlen(menus.OptionalData); i++)
-				if(*(menus.OptionalData + i) == '@')
-				 	*(menus.OptionalData + i) = '\n';
-			printf("%s\n", menus.OptionalData);
+		    for (i = 0; i < strlen(menus.OptionalData); i++)
+			if (*(menus.OptionalData + i) == '@')
+			    *(menus.OptionalData + i) = '\n';
+		    printf("%s\n", menus.OptionalData);
 		}
 		break;
 
@@ -576,6 +568,10 @@ void DoMenu(int Type)
 		QuickScan_Email();
 		break;
 
+	case 221:
+		DisplayRules();
+		break;
+
 	case 301:
 		Chg_Protocol();
 		break;
@@ -700,84 +696,79 @@ void DoMenu(int Type)
 		Pause();
 	}
 
-	free(DisplayF);
 	free(sPrompt);
 	free(sPromptBak);
 	free(temp);
 }
 
-void DisplayMenu ( void ) {
+
 	
-	/*
-	* Display the Menu Display Text to the User, 
-	* if the sysop puts a ';' (semicolon) at the end of the menu prompt,
-	* the CR/LR combination will not be sent
-	*/
+/*
+ * Display the Menu Display Text to the User, 
+ * if the sysop puts a ';' (semicolon) at the end of the menu prompt,
+ * the CR/LR combination will not be sent
+ */
+void DisplayMenu(void) 
+{
+    int	    maxdpos, dpos, escaped, skipCRLF, highlight;
 
-	int maxdpos;
-	int dpos;
-	int escaped ;
-	int skipCRLF ;
-	int highlight ;
+    /* Anything to process, if not; save CPU time, return */
+    if (( strlen( menus.Display ) == 0 ) && (menus.MenuType != 21)) {
+	return;
+    }
 
-	/* Anything to process, if not; save CPU time, return */
-	if (( strlen( menus.Display ) == 0 ) && (menus.MenuType != 21)) {
-		return;
+    /* Send Display string, formated with ANSI codes as required */
+    /* --- basically this with brains: printf("%s\n", menus.Display); */
+    maxdpos = strlen(menus.Display);
+    escaped = 0;
+    skipCRLF = 0;
+    highlight = 0;
+
+    colour( menus.ForeGnd, menus.BackGnd );
+
+    for ( dpos = 0; dpos < maxdpos ; dpos++ ){
+	switch ( menus.Display[ dpos ] ) {
+	    case ';':	/* Semicolon, if not escaped and last char, not CRLF at end of line */
+			if ( ( dpos + 1 ) == maxdpos ) {
+			    skipCRLF=1;
+			} else {
+			    printf("%c",menus.Display[ dpos ]);
+			}
+			break;
+
+	    case '\\':	if ( !escaped ) {
+			    escaped = 1;
+			} else {
+			    escaped = 0;
+			    printf("%c",menus.Display[ dpos ]);
+			}
+			break;
+
+	    case '^':	/* Highlight Toggle */
+
+			if ( !escaped ) {
+			    if ( highlight == 0 ) { 
+				highlight = 1;
+				colour( menus.HiForeGnd, menus.HiBackGnd);
+			    } else {					
+				highlight = 0 ;
+				colour( menus.ForeGnd, menus.BackGnd );
+			    }
+			} else {
+			    escaped=0;
+			    printf("%c",menus.Display[ dpos ]);
+			}
+			break;
+
+	    default:	/* all other characters */
+			printf("%c",menus.Display[ dpos ]);
 	}
+    }
 
-	/* Send Display string, formated with ANSI codes as required */
-	/* --- basically this with brains: printf("%s\n", menus.Display); */
-	maxdpos = strlen(menus.Display);
-	escaped = 0;
-	skipCRLF = 0;
-	highlight = 0;
-
-	colour( menus.ForeGnd, menus.BackGnd );
-
-	for ( dpos = 0; dpos < maxdpos ; dpos++ ){
-
-		switch ( menus.Display[ dpos ] ) {
-
-			case ';':	/* Semicolon, if not escaped and last char, not CRLF at end of line */
-					if ( ( dpos + 1 ) == maxdpos ) {
-						skipCRLF=1;
-					} else {
-						printf("%c",menus.Display[ dpos ]);
-					}
-					break;
-
-			case '\\':	if ( !escaped ) {
-						escaped = 1;
-					} else {
-						escaped = 0;
-						printf("%c",menus.Display[ dpos ]);
-					}
-					break;
-
-			case '^':	/* Highlight Toggle */
-
-					if ( !escaped ) {
-						if ( highlight == 0 ) { 
-							highlight = 1;
-							colour( menus.HiForeGnd, menus.HiBackGnd);
-						} else {					
-							highlight = 0 ;
-							colour( menus.ForeGnd, menus.BackGnd );
-						}
-					} else {
-						escaped=0;
-						printf("%c",menus.Display[ dpos ]);
-					}
-					break;
-
-			default:	/* all other characters */
-					printf("%c",menus.Display[ dpos ]);
-		}
-
-	}
-
-	if ( !skipCRLF ) {
-		printf("\n");
-	}
-
+    if ( !skipCRLF ) {
+	printf("\n");
+    }
 }
+
+
+

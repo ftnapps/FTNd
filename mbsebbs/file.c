@@ -2213,7 +2213,7 @@ void EditTaglist()
 
 
 /*
- * View a file in the current area.
+ * View a file in the current area, menu 103.
  */
 void ViewFile()
 {
