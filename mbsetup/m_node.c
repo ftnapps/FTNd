@@ -444,14 +444,17 @@ void E_Files(void)
     mvprintw(12, 6, "6.   Incl. message");
     mvprintw(13, 6, "7.   Send TIC file");
     mvprintw(14, 6, "8.   Advanced TIC");
-    mvprintw(15, 6, "9.   File forward");
-    mvprintw(16, 6, "10.  Billing (CSO)");
-    mvprintw( 7,46, "11.  Bill direct");
-    mvprintw( 8,46, "12.  Credit");
-    mvprintw( 9,46, "13.  Debet");
-    mvprintw(10,46, "14.  Add %");
-    mvprintw(11,46, "15.  Warn level");
-    mvprintw(12,46, "16.  Stop level");
+    mvprintw(15, 6, "9.   Advanced SB");
+    mvprintw(16, 6, "10.  To line in TIC");
+
+    mvprintw( 7,46, "11.  File forward");
+    mvprintw( 8,46, "12.  Billing (CSO)");
+    mvprintw( 9,46, "13.  Bill direct");
+    mvprintw(10,46, "14.  Credit");
+    mvprintw(11,46, "15.  Debet");
+    mvprintw(12,46, "16.  Add %");
+    mvprintw(13,46, "17.  Warn level");
+    mvprintw(14,46, "18.  Stop level");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -463,16 +466,18 @@ void E_Files(void)
 	show_bool(12,26,    nodes.Message);
 	show_bool(13,26,    nodes.Tic);
 	show_bool(14,26,    nodes.AdvTic);
-	show_bool(15,26,    nodes.FileFwd);
-	show_bool(16,26,    nodes.Billing);
-	show_bool( 7,65,    nodes.BillDirect);
-	show_int(  8,65,    nodes.Credit);
-	show_int(  9,65,    nodes.Debet);
-	show_int( 10,65,    nodes.AddPerc);
-	show_int( 11,65,    nodes.WarnLevel);
-	show_int( 12,65,    nodes.StopLevel);
+	show_bool(15,26,    nodes.TIC_AdvSB);
+	show_bool(16,26,    nodes.TIC_To);
+	show_bool( 7,66,    nodes.FileFwd);
+	show_bool( 8,66,    nodes.Billing);
+	show_bool( 9,66,    nodes.BillDirect);
+	show_int( 10,66,    nodes.Credit);
+	show_int( 11,66,    nodes.Debet);
+	show_int( 12,66,    nodes.AddPerc);
+	show_int( 13,66,    nodes.WarnLevel);
+	show_int( 14,66,    nodes.StopLevel);
 
-	switch(select_menu(16)) {
+	switch(select_menu(18)) {
 	case 0:	return;
 	case 1:	E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
 	case 2:	E_STR(  8,26,15,nodes.Apasswd,    "The filemanager ^password^ for this node")
@@ -482,14 +487,16 @@ void E_Files(void)
 	case 6:	E_BOOL(12,26,   nodes.Message,    "Send ^messages^ with files send to this node")
 	case 7:	E_BOOL(13,26,   nodes.Tic,        "Send ^TIC^ files to this node")
 	case 8:	E_BOOL(14,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
-	case 9:	E_BOOL(15,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
-	case 10:E_BOOL(16,26,   nodes.Billing,    "Send ^bills^ to this node, Costsharing is active")
-	case 11:E_BOOL( 7,65,   nodes.BillDirect, "Send bills ^direct^ after file processing")
-	case 12:E_INT(  8,65,   nodes.Credit,     "The ^credit^ this node has for costsharing")
-	case 13:E_INT(  9,65,   nodes.Debet,      "The ^debet^ in cents we have credit from this node")
-	case 14:E_INT( 10,65,   nodes.AddPerc,    "The + or - ^promille^ factor for this node")
-	case 15:E_INT( 11,65,   nodes.WarnLevel,  "Credit level in cents to ^Warn^ node for low credit")
-	case 16:E_INT( 12,65,   nodes.StopLevel,  "Credit level in cents to ^Stop^ sending files")
+	case 9: E_BOOL(15,26,	nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
+	case 10:E_BOOL(16,26,	nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
+	case 11:E_BOOL( 7,66,   nodes.FileFwd,    "^Forward TIC^ files for this node")
+	case 12:E_BOOL( 8,66,   nodes.Billing,    "Send ^bills^ to this node, Costsharing is active")
+	case 13:E_BOOL( 9,66,   nodes.BillDirect, "Send bills ^direct^ after file processing")
+	case 14:E_INT( 10,66,   nodes.Credit,     "The ^credit^ this node has for costsharing")
+	case 15:E_INT( 11,66,   nodes.Debet,      "The ^debet^ in cents we have credit from this node")
+	case 16:E_INT( 12,66,   nodes.AddPerc,    "The + or - ^promille^ factor for this node")
+	case 17:E_INT( 13,66,   nodes.WarnLevel,  "Credit level in cents to ^Warn^ node for low credit")
+	case 18:E_INT( 14,66,   nodes.StopLevel,  "Credit level in cents to ^Stop^ sending files")
 	}
     }
 }
@@ -1487,8 +1494,10 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Send .TIC      %s", getboolean(nodes.Tic));
 		fprintf(fp, "     File forward   %s\n", getboolean(nodes.FileFwd));
 		fprintf(fp, "     Advanced TIC   %s", getboolean(nodes.AdvTic));
+		fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
+		fprintf(fp, "     Sen To lines   %s\n", getboolean(nodes.TIC_To));
 		fprintf(fp, "     Billing        %s", getboolean(nodes.Billing));
-		fprintf(fp, "     Bill direct    %s\n", getboolean(nodes.BillDirect));
+		fprintf(fp, "     Bill direct    %s", getboolean(nodes.BillDirect));
 		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
 		fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 

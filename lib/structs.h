@@ -1214,8 +1214,8 @@ struct	_nodes {
 
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
 	unsigned	NoCall		: 1;	/* Don't call this node	    */
-	unsigned	xNoHold		: 1;
-	unsigned	xNoPUA		: 1;
+	unsigned	TIC_AdvSB	: 1;	/* Advanced tic SB lines    */
+	unsigned	TIC_To		: 1;	/* Add To line to ticfile   */
 	unsigned	NoZmodem	: 1;	/* Don't use Zmodem	    */
 	unsigned	NoZedzap	: 1;	/* Don't use Zedzap	    */
 	unsigned	xNoJanus	: 1;	/* Don't use Janus	    */

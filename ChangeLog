@@ -19,6 +19,7 @@ v0.35.06
 		both short and long filenames. Just ignore the errors but check
 		for real deleted files.
 		Start the bbs again (mbstat open).
+		Check new settings in nodes setup, screen 6, items 9 and 10.
 
 	templates:
 		The html templates are changed by Joachim Kuwan and now they
@@ -61,6 +62,10 @@ v0.35.06
 		With TIC file attaches, the filename attached is the 8.3 name.
 		TIC processing completly modified to make better LFN support,
 		internal everything works on the 8.3 filename.
+		When writing ticfiles for downlinks, the To line now depends
+		on the new nodes setting.
+		When writing ticfiles for downlinks, the format of the Seenby
+		lines now depends on the new nodes setting.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 
@@ -77,7 +82,8 @@ v0.35.06
 	mbsetup:
 		In filedatabase editor, if a file is deleted the name is
 		displayed in light blue.
-
+		Added setup switches in nodes setup, files, to toggle sending
+		advanced seen-by lines and the To line in ticfiles.
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.
 

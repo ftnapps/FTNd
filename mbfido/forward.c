@@ -207,8 +207,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    fprintf(fp, "Size %ld\r\n", (long)(TIC.FileSize));
 	    fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 	    fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
-	    if (nodes.AdvTic) {
+	    if (nodes.TIC_To) {
 		fprintf(fp, "To %s, %s\r\n", nodes.Sysop, ascfnode(dest, 0x1f));
+	    }
+	    if (nodes.AdvTic) {
 		fprintf(fp, "Areadesc %s\r\n", tic.Comment);
 		fprintf(fp, "Fdn %s\r\n", fgroup.Comment);
 		/*
@@ -235,7 +237,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(ba, 0x1f), mktime(localtime(&now)), subject, tzname[0]);
 	    tidy_faddr(ba);
 
-	    if (nodes.AdvTic) {
+	    if (nodes.TIC_AdvSB) {
 		/*
 		 * In advanced TIC mode we send multiple seenby
 		 * addresses on one line in stead of one line
