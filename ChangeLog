@@ -28,6 +28,9 @@ v0.39.9		29-Jan-2004
 	script:
 		Dropped support for RedHat and Mandrake pre 6.1.
 
+	examples:
+		Fixed a small bug in the dutch newfiles template.
+
 
 v0.39.8		26-Jan-2004 - 29-Jan-2004
 
