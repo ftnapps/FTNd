@@ -39,6 +39,7 @@
 #include "language.h"
 #include "input.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern pid_t    mypid;		    /* Pid of this program	    */
@@ -53,7 +54,7 @@ void Check_PM(void);
 void Check_PM(void)
 {
     static char buf[200];
-    char        resp[128];
+    char        resp[128], msg[81];
 
     sprintf(buf, "CIPM:1,%d;", mypid);
     if (socket_send(buf) == 0) {
@@ -64,12 +65,17 @@ void Check_PM(void)
         strncpy(resp, strtok(buf, ":"), 5);	/* Should be 100	*/
 	strncpy(resp, strtok(NULL, ","), 3);	/* Should be 2		*/
 	strncpy(resp, strtok(NULL, ","), 36);	/* From Name		*/
+
+	Enter(2);
+	PUTCHAR('\007');
         colour(CYAN, BLACK);
         /* ** Message ** from */
-        printf("\n\n\007%s %s:\n", (char *)Language(434), resp);
+        sprintf(msg, "%s %s:", (char *)Language(434), resp);
+	poutCR(CYAN, BLACK, msg);
 	strncpy(resp, strtok(NULL, "\0"), 80);   /* The real message	*/
 	resp[strlen(resp)-1] = '\0';
-        printf("%s\n", resp);
+        PUTSTR(resp);
+	Enter(1);
         Pause();
     }
 }
@@ -110,7 +116,8 @@ void TimeCheck(void)
     }
 
     if (exitinfo.iTimeLeft <= 0) {
-	printf("\n%s\n", (char *) Language(130));
+	Enter(1);
+	poutCR(YELLOW, BLACK, (char *) Language(130));
 	sleep(3);
 	Syslog('!', "Users time limit exceeded ... user disconnected!");
 	iExpired = TRUE;

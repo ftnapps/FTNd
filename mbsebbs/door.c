@@ -39,6 +39,8 @@
 #include "whoson.h"
 #include "door.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
 
 
 extern time_t	t_start;
@@ -128,9 +130,10 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 		    strtok(NULL, ",");  /* location         */
 		    if (strcmp(strtok(NULL, ","), menus.DoorName) == 0) {
 			Syslog('+', "User tried single user door %s, but door is in use", menus.DoorName);
-			colour(LIGHTRED, BLACK);
+			Enter(1);
 			/* The door is in use by another user, try again later */
-			printf("\n%s\n\n", (char *) Language(20));
+			pout(LIGHTRED, BLACK, (char *) Language(20));
+			Enter(2);
 			Pause();
 			free(temp1);
 			free(String);
@@ -149,14 +152,14 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     }
 
     if ((strstr(Program, "/A")) != NULL) {
+	Enter(1);
 	colour(3, 0);
 	if ((String = strstr(Program, "/T=")) != NULL) {
 	    String1 = String + 3;
-	    printf("\n%s", String1);
+	    PUTSTR(String1);
 	} else
-	    printf("\nPlease enter filename: ");
+	    PUTSTR((char *)"Please enter filename: ");
 
-	fflush(stdout);
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(temp1, 80);
 
@@ -288,11 +291,24 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     }
 
     clear();
-    printf("Loading ...\n\n");
+    PUTSTR((char *)"Loading ...");
+    Enter(2);
+
+    /*
+     * Put terminal back in cooked mode, prefered by some doors.
+     */
+    cookedport();
+    
     if (NoSuid) 
 	rc = exec_nosuid(Program);
     else
 	rc = execute_str((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
+
+    /*
+     * Restore raw mode if needed, some doors put the terminal
+     * back in cooked mode.
+     */
+    rawport();
 
     Altime(0);
     alarm_off();
@@ -300,7 +316,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     Syslog('+', "Door end, rc=%d", rc);
 
     free(temp1);
-    printf("\n\n");
+    Enter(2);
 
     if (!NoPrompt)
 	Pause();

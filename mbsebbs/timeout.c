@@ -41,93 +41,96 @@
 #include "term.h"
 
 
-extern	int e_pid;			/* Pid of external program	     */
-
+extern	int e_pid;			/* Pid of external program	*/
+extern	int hanged_up;			/* Hanged up status		*/
 
 
 void die(int onsig)
 {
-	/*
-	 * First check if there is a child running, if so, kill it.
-	 */
-	if (e_pid) {
-		if ((kill(e_pid, SIGTERM)) == 0)
-			Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
-		else {
-			if ((kill(e_pid, SIGKILL)) == 0)
-				Syslog('+', "SIGKILL to pid %d succeeded", e_pid);
-			else
-				WriteError("Failed to kill pid %d", e_pid);
-		}
-
-		/*
-		 * In case the child had the tty in raw mode, reset the tty
-		 */
-		execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
-	}
-
-	if (MsgBase.Locked)
-		Msg_UnLock();
-	if (MsgBase.Open)
-		Msg_Close();
-
-	Home();
+    if (onsig <= NSIG)
 	signal(onsig, SIG_IGN);
-	if (onsig)
-		if (onsig == SIGHUP) {
-			Syslog('+', "Lost Carrier");
-		} else if (onsig == SIGALRM) {
-			Syslog('+', "User inactivity timeout");
-		} else {
-			if (onsig <= NSIG)
-				WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-			else
-				WriteError("Terminated with error %d", onsig);
-		}
-	else
-		Syslog(' ', "Terminated by user");
-
-	if (onsig == SIGSEGV) {
-		Syslog('+', "Last msg area %s", msgs.Name);
+     
+    /*
+     * First check if there is a child running, if so, kill it.
+     */
+    if (e_pid) {
+	if ((kill(e_pid, SIGTERM)) == 0)
+	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
+	else {
+	    if ((kill(e_pid, SIGKILL)) == 0)
+		Syslog('+', "SIGKILL to pid %d succeeded", e_pid);
+	    else
+		WriteError("Failed to kill pid %d", e_pid);
 	}
+    }
 
-	Good_Bye(onsig);
+    if (MsgBase.Locked)
+	Msg_UnLock();
+    if (MsgBase.Open)
+	Msg_Close();
+
+    Home();
+    if (onsig) {
+	if (onsig == SIGHUP) {
+	    hanged_up = 1;
+	    Syslog('+', "Lost Carrier");
+	} else if (onsig == SIGPIPE) {
+	    hanged_up = 1;
+	    Syslog('+', "Broken Pipe");
+	} else if (onsig == SIGALRM) {
+	    Syslog('+', "User inactivity timeout");
+	} else {
+	    if (onsig <= NSIG)
+		WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	    else
+		WriteError("Terminated with error %d", onsig);
+	}
+    } else {
+	Syslog(' ', "Terminated by user");
+    }
+
+    if (onsig == SIGSEGV) {
+	Syslog('+', "Last msg area %s", msgs.Name);
+    }
+
+    Good_Bye(onsig);
 }
 
 
 
 void alarm_sig()
 {
-	colour(LIGHTRED, BLACK);
-	/* Autologout: idletime reached.*/
-	printf("\r\n%s\r\n", (char *) Language(410));
+    Enter(2);
+    /* Autologout: idletime reached.*/
+    pout(LIGHTRED, BLACK, (char *) Language(410));
+    Enter(2);
 
-	Syslog('!', "Autologout: idletime reached");
-	die(SIGALRM);
+    Syslog('!', "Autologout: idletime reached");
+    die(SIGALRM);
 }
 
 
 
 void alarm_set(int val)
 {
-	signal(SIGALRM, (void (*))alarm_sig);
-	alarm(val);
-	Syslog('S', "Alarm set for %d seconds", val);
+    signal(SIGALRM, (void (*))alarm_sig);
+    alarm(val);
+    Syslog('S', "Alarm set for %d seconds", val);
 }
 
 
 
 void alarm_on()
 {
-	alarm_set(60 * CFG.idleout);
+    alarm_set(60 * CFG.idleout);
 }
 
 
 
 void alarm_off()
 {
-	alarm(0);
-	signal(SIGALRM, SIG_IGN);
-	Syslog('S', "Alarm is off");
+    alarm(0);
+    signal(SIGALRM, SIG_IGN);
+    Syslog('S', "Alarm is off");
 }
 

@@ -38,6 +38,7 @@
 #include "language.h"
 #include "timeout.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 #define	MAXSIGLINES	4
@@ -83,8 +84,9 @@ void toprow(void)
 
     pout(YELLOW, BLACK, (char *)" Õ");
     for (i = 0; i < LENSIGLINES; i++)
-	printf("Í");
-    printf("¸\n");
+	PUTCHAR('Í');
+    PUTCHAR('¸');
+    Enter(1);
 }
 
 
@@ -96,8 +98,9 @@ void botrow(void)
 
     pout(YELLOW, BLACK, (char *)" Ô");
     for (i = 0; i < LENSIGLINES; i++)
-	printf("Í");
-    printf("¾\n");
+	PUTCHAR('Í');
+    PUTCHAR('¾');
+    Enter(1);
 }
 
 
@@ -139,11 +142,9 @@ int loadsignature(void)
 
     toprow();
     for (i = 0; i < MAXSIGLINES; i++) {
-	colour(LIGHTRED, BLACK);
-	printf("%d:", i+1);
-	colour(CFG.MoreF, CFG.MoreB);
-	printf("%s\n", sLiNE[i]);
-	fflush(stdout);
+	sprintf(temp, "%d:", i+1);
+	pout(LIGHTRED, BLACK, temp);
+	poutCR(CFG.MoreF, CFG.MoreB, sLiNE[i]);
     }
     botrow();
 
@@ -176,10 +177,9 @@ int editsignature(void)
 
 	/* Select: */
   	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(115));
-	fflush(stdout);
 
 	alarm_on();
-	i = toupper(Getone());
+	i = toupper(Readkey());
 	Enter(1);
 
 	if (i == Keystroke(114, 3)) {
@@ -191,9 +191,10 @@ int editsignature(void)
 	    return TRUE;
 
 	} else if (i == Keystroke(114, 2)) {
+	    Enter(1);
 	    /* Edit which line: */
-	    colour(CFG.HiliteF, CFG.HiliteB);
-	    printf("\n %s", (char *) Language(118));
+	    sprintf(temp, " %s", (char *) Language(118));
+	    pout(CFG.HiliteF, CFG.HiliteB, temp);
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    GetstrC(temp, 3);
 
@@ -202,27 +203,25 @@ int editsignature(void)
 
 	    i = atoi(temp);
 	    if ((i < 1) || (i > MAXSIGLINES)) {
+		Enter(1);
 		/* Line does not exist. */
-		printf("%s\n", (char *) Language(119));
+		poutCR(LIGHTRED, BLACK, (char *) Language(119));
 		break;
 	    }
 
 	    x = strlen(sLiNE[i-1]);
-	    colour(LIGHTRED, BLACK);
-	    printf("%d:", i);
-	    colour(CFG.InputColourF, CFG.InputColourB);
-	    printf("%s", sLiNE[i-1]);
-	    fflush(stdout);
+	    sprintf(temp, "%d:", i);
+	    pout(LIGHTRED, BLACK, temp);
+	    pout(CFG.InputColourF, CFG.InputColourB, sLiNE[i-1]);
 	    GetstrP(sLiNE[i-1], LENSIGLINES-1, x);
 
 	} else if (i == Keystroke(114, 0)) {
 	    /* List lines */
 	    toprow();
 	    for (i = 0; i < MAXSIGLINES; i++) {
-		colour(LIGHTRED, BLACK);
-		printf("%d:", i+1);
-		colour(CFG.MoreF, CFG.MoreB);
-		printf("%s\n", sLiNE[i]);
+		sprintf(temp, "%d:", i+1);
+		pout(LIGHTRED, BLACK, temp);
+		poutCR(CFG.MoreF, CFG.MoreB, sLiNE[i]);
 	    }
 	    botrow();
 
@@ -251,9 +250,9 @@ int editsignature(void)
 	    return TRUE;
 
 	} else if (i == Keystroke(114, 1)) {
+	    Enter(1);
 	    /* Edit which line: */
-	    colour(CFG.HiliteF, CFG.HiliteB);
-	    printf("\n%s", (char *) Language(118));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(118));
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    GetstrC(temp, 3);
 
@@ -263,15 +262,17 @@ int editsignature(void)
 	    i = atoi(temp);
 
 	    if ((i < 1) || (i > MAXSIGLINES)) {
+		Enter(1);
 		/* Line does not exist. */
-		printf("\n%s", (char *) Language(119));
+		poutCR(LIGHTRED, BLACK, (char *) Language(119));
 		break;
 	    }
 
 	    Enter(1);
 	    /* Line reads: */
 	    poutCR(CFG.MoreF, CFG.MoreB, (char *) Language(186));
-	    printf("%d:%s\n", i, sLiNE[i-1]);
+	    sprintf(temp, "%d:%s", i, sLiNE[i-1]);
+	    poutCR(CFG.MoreF, CFG.MoreB, temp);
 
 	    Enter(1);
 	    /* Text to replace: */
@@ -292,7 +293,7 @@ int editsignature(void)
 	    strreplace(sLiNE[i-1], temp, temp1);
 
 	} else
-	    printf("\n");
+	    Enter(1);
     }
 
     free(temp);

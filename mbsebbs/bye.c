@@ -38,12 +38,14 @@
 #include "language.h"
 #include "bye.h"
 #include "term.h"
+#include "openport.h"
+#include "ttyio.h"
 
 
 extern	pid_t		mypid;
 extern	time_t		t_start;
 extern	char		*StartTime;
-
+extern	int		hanged_up;
 
 int			do_mailout = FALSE;
 
@@ -54,6 +56,7 @@ void Good_Bye(int onsig)
     char    *temp;
     long    offset;
     time_t  t_end;
+    int	    i;
 
     IsDoing("Hangup");
     temp = calloc(PATH_MAX, sizeof(char));
@@ -63,7 +66,7 @@ void Good_Bye(int onsig)
      * Don't display goodbye screen on SIGHUP and idle timeout.
      * With idle timeout this will go into a loop.
      */
-    if ((onsig != SIGHUP) && (onsig != SIGALRM) && (onsig != MBERR_TIMEOUT))
+    if ((onsig != SIGHUP) && (onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0))
 	DisplayFile((char *)"goodbye");
 
     if (do_mailout)
@@ -86,7 +89,7 @@ void Good_Bye(int onsig)
 	    usrconfig.iLastFileArea = iAreaNumber;
 
 	    /* If time expired, do not say say successful logoff */
-	    if (!iExpired)
+	    if (!iExpired && !hanged_up)
 		Syslog('+', "User successfully logged off BBS");
 
 	    usrconfig.iLastMsgArea = iMsgAreaNumber;
@@ -102,8 +105,24 @@ void Good_Bye(int onsig)
 	}
     }
 
+    /*
+     * Flush all data to the user, wait 5 seconds to
+     * be sure the user received all data.
+     */
+    if (! hanged_up) {
+	colour(LIGHTGRAY, BLACK);
+	sleep(4);
+    }
+
+    for (i = 0; i < NSIG; i++)
+	signal(i, SIG_IGN);
+
+    cookedport();
+    hangup();
+
     t_end = time(NULL);
     Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
+    sleep(1);
 
     /*
      * Start shutting down this session
@@ -117,16 +136,6 @@ void Good_Bye(int onsig)
     free(temp);
     unlink("taglist");
 
-    /*
-     * Flush all data to the user, wait 5 seconds to
-     * be sure the user received all data.
-     */
-    colour(LIGHTGRAY, BLACK);
-    fflush(stdout);	
-    fflush(stdin);
-    sleep(5);
-
-    Unsetraw();
     Free_Language();
     free(pTTY);
     if (StartTime)
@@ -156,9 +165,10 @@ void Quick_Bye(int onsig)
 	signal(i, SIG_DFL);
 
     colour(LIGHTGRAY, BLACK);
-    fflush(stdout);
-    fflush(stdin);
     sleep(3);
+
+    cookedport();
+    hangup();
 
     free(pTTY);
     if (StartTime)

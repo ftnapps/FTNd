@@ -41,6 +41,9 @@
 #include "change.h"
 #include "dispfile.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
+
 
 
 /*
@@ -105,7 +108,6 @@ int newuser()
 
 	/* Please enter your First and Last name: */
 	language(CYAN, BLACK, 0);
-	fflush(stdout);
 	alarm_on();
 	Getname(temp, 35);
 	strcpy(FullName, tlcap(temp));
@@ -148,14 +150,12 @@ int newuser()
 	Enter(1);
 	/* Please enter new password   : */
 	language(LIGHTCYAN, BLACK, 39);
-	fflush(stdout);
 	alarm_on();
 	Getpass(temp1);
 	if ((x = strlen(temp1)) >= CFG.password_length) {
 	    Enter(1);
 	    /* Please enter password again : */
 	    language(LIGHTCYAN, BLACK, 40);
-	    fflush(stdout);
 	    alarm_on();
 	    Getpass(temp2);
 	    if ((i = strcmp(temp1,temp2)) != 0) {
@@ -171,7 +171,8 @@ int newuser()
 	    Enter(2);
 	    /* Your password must contain at least */
 	    language(LIGHTRED, BLACK, 42);
-	    printf("%d ", CFG.password_length);
+	    sprintf(temp, "%d ", CFG.password_length);
+	    PUTSTR(temp);
 	    /* characters! Try again. */
 	    language(WHITE, BLACK, 43);
 	    Enter(1);
@@ -218,7 +219,6 @@ int newuser()
 
 	    pout(LIGHTGREEN, BLACK, (char *)": ");
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    alarm_on();
 	    GetPhone(temp, 16);
 
@@ -269,7 +269,7 @@ int newuser()
     } /* End of if Statement */
 
     if (!CFG.iDataPhone)
-	printf("\n");
+	Enter(1);
 
     if (CFG.iLocation) {
 	while (TRUE) {
@@ -279,7 +279,6 @@ int newuser()
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    alarm_on();
 	    if (CFG.iCapLocation) { /* Cap Location is turned on, Capitalise first letter */
-		fflush(stdout);
 		GetnameNE(temp, 24);
 	    } else
 		GetstrC(temp, 80);
@@ -289,7 +288,8 @@ int newuser()
 		/* Please enter a longer location */
 		language(LIGHTRED, BLACK, 50);
 		Enter(1);
-		printf("%s%d)", (char *) Language(74), CFG.CityLen);
+		sprintf(temp, "%s%d)", (char *) Language(74), CFG.CityLen);
+		PUTSTR(temp);
 		Enter(1);
 	    } else {
 		strcpy(usrconfig.sLocation, temp);
@@ -306,10 +306,9 @@ int newuser()
 	    language(LIGHTMAGENTA, BLACK, 474);
 	    Enter(1);
 	    for (i = 0; i < 3; i++) {
-		colour(YELLOW, BLACK);
-		printf("%d: ", i+1);
+		sprintf(temp, "%d: ", i+1);
+		pout(YELLOW, BLACK, temp);
 		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
 		alarm_on();
 		GetstrC(usrconfig.address[i], 40);
 	    }
@@ -328,7 +327,6 @@ int newuser()
 	    /* Enter a handle (Enter to Quit): */
 	    language(LIGHTRED, BLACK, 412);
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    alarm_on();
 	    Getname(temp, 34);
 
@@ -356,9 +354,8 @@ int newuser()
 	    /* What is your sex? (M)ale or (F)emale: */
 	    language(LIGHTBLUE, BLACK, 51);
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    alarm_on();
-	    i = toupper(Getone());
+	    i = toupper(Readkey());
 
 	    if (i == Keystroke(51, 0)) {
 		/* Male */
@@ -388,7 +385,6 @@ int newuser()
 	    /* Please enter your Date of Birth DD-MM-YYYY: */
 	    pout(CYAN, BLACK, (char *) Language(56));
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    alarm_on();
 	    GetDate(temp, 10);
 
@@ -454,7 +450,6 @@ int newuser()
 	/* Please enter your Screen Length [24]: */
 	pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
 	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
 	alarm_on();
 	Getnum(temp, 3);
 
@@ -572,15 +567,16 @@ int newuser()
     /* Login Name : */
     pout(LIGHTBLUE, BLACK, (char *) Language(68));
     colour(CYAN, BLACK);
-    printf("%s (%s)\n", UnixName, FullName);
+    sprintf(temp, "%s (%s)", UnixName, FullName);
+    PUTSTR(temp);
+    Enter(1);
     /* Password   : */
     pout(LIGHTBLUE, BLACK, (char *) Language(69));
     pout(CYAN, BLACK, (char *)"<");
     /* not displayed */
     pout(WHITE, BLACK, (char *) Language(70));
-    pout(CYAN, BLACK, (char *)">\n\n");
-    fflush(stdout);
-    fflush(stdin);
+    pout(CYAN, BLACK, (char *)">");
+    Enter(2);
  
     if (CFG.iVoicePhone && TelephoneScan(Phone1, FullName))
 	Syslog('!', "Duplicate phone numbers found");
@@ -597,8 +593,7 @@ int newuser()
 
     Syslog('+', "Completed new-user procedure");
     /* New user registration completed. */
-    pout(LIGHTGREEN, BLACK, (char *) Language(71));
-    Enter(1);
+    poutCR(LIGHTGREEN, BLACK, (char *) Language(71));
     /* You need to login again with the name: */
     pout(LIGHTRED, BLACK, (char *) Language(5));
     pout(YELLOW, BLACK, UnixName);
@@ -606,7 +601,7 @@ int newuser()
     alarm_on();
     Pause();
     alarm_off();
-    printf("\n");
+    Enter(1);
     return 0;
 }
 
@@ -615,7 +610,7 @@ int newuser()
 void Fast_Bye(int onsig)
 {
     char    *temp;
-    time_t	t_end;
+    time_t  t_end;
 
     t_end = time(NULL);
     Syslog(' ', "MBNEWUSR finished in %s", t_elapsed(t_start, t_end));
@@ -627,9 +622,10 @@ void Fast_Bye(int onsig)
     free(temp);
 
     colour(LIGHTGRAY, BLACK);
-    fflush(stdout);
-    fflush(stdin);
     sleep(3);
+
+    cookedport();
+    hangup();
 
     Free_Language();
     free(pTTY);
@@ -661,24 +657,22 @@ char *NameGen(char *FidoName)
     Syslog('+', "NameGen(%s)", FidoName);
 
     while ((strcmp(sUserName, "") == 0) || (CheckUnixNames(sUserName)) || (strlen(sUserName) < 3)) {
-	colour(LIGHTRED, BLACK);
-	printf("\n%s\n\n", (char *) Language(381));
-	colour(WHITE, BLACK);
+	Enter(1);
+	pout(LIGHTRED, BLACK, (char *) Language(381));
+	Enter(2);
 	/* Please enter a login name (Maximum 8 characters) */
-	printf("\n%s\n", (char *) Language(383));
+	poutCR(WHITE, BLACK, (char *) Language(383));
 	/* ie. John Doe, login = jdoe */
-	printf("%s\n", (char *) Language(384));
-	colour(LIGHTGREEN, BLACK);
+	poutCR(WHITE, BLACK, (char *) Language(384));
+
 	/* login > */
-	printf("%s", (char *) Language(385));
-	fflush(stdout);
-	fflush(stdin);
+	pout(LIGHTGREEN, BLACK, (char *) Language(385));
 	GetstrU(sUserName, 7);
 
 	if (CheckUnixNames(sUserName)) {
+	    Enter(1);
 	    /* That login name already exists, please choose another one. */
-	    colour(LIGHTRED, BLACK);
-	    printf("\n%s\n", (char *) Language(386));
+	    poutCR(LIGHTRED, BLACK, (char *) Language(386));
 	    Syslog('+', "Users tried to use \"%s\" as Unix name", MBSE_SS(sUserName));
 	}
     }
@@ -705,8 +699,6 @@ char *NameCreate(char *Name, char *Comment, char *Password)
      */
     sprintf(progname, "%s/bin/mbuseradd", getenv("MBSE_ROOT"));
     sprintf(gidstr, "%d", getgid());
-    fflush(stdout);
-    fflush(stdin);
     args[0] = progname;
     args[1] = gidstr;
     args[2] = Name;
@@ -729,8 +721,6 @@ char *NameCreate(char *Name, char *Comment, char *Password)
     args[2] = Name;
     args[3] = Password;
     args[4] = NULL;
-    fflush(stdout);
-    fflush(stdin);
 
     if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
         WriteError("Failed to set unix password");
@@ -738,9 +728,9 @@ char *NameCreate(char *Name, char *Comment, char *Password)
         ExitClient(MBERR_GENERAL);
     }
 
-    colour(YELLOW, BLACK);
+    Enter(1);
     /* Your "Unix Account" is created, you may use it the next time you call */
-    printf("\n%s\n", (char *) Language(382));
+    poutCR(YELLOW, BLACK, (char *) Language(382));
     Syslog('+', "Created Unix account %s for %s", Name, Comment);
 
     free(progname);
@@ -770,7 +760,9 @@ int BadNames(char *Username)
             strcpy(String, tl(String));
             Striplf(String);
             if ((strstr(User, String)) != NULL) {
-                printf("\nSorry that name is not acceptable on this system\n");
+		Enter(1);
+                pout(LIGHTRED, BLACK, (char *)"Sorry that name is not acceptable on this system");
+		Enter(1);
 		Syslog('+', "User tried username \"%s\", found in %s", Username, temp);
                 iFoundName = TRUE;
                 break;

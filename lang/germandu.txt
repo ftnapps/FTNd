@@ -259,7 +259,7 @@ JN|Adresse unbekannt, dennoch fortfahren [<j>a/<N>ein]:
 |Es sind keine Dateien zum Herunterladen markiert.
 |extra Minuten.
 |Du hast folgende Bereiche fuer den "Offline Reader" markiert:
-|Dateiname           Groesse     Datum
+|Dateiname                                              Groesse     Datum
 |Protokoll: Protokolldatei kann nicht geoeffnet werden.
 |Auswahl des bevorzugten Protokolls
 |Bitte Protokoll auswaehlen (frei lassen um abzubrechen): 

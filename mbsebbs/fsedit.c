@@ -39,46 +39,54 @@
 #include "pinfo.h"
 #include "fsedit.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 void Show_Ins(void)
 {
     locate(1, 70);
     colour(YELLOW, BLUE);
-    printf("%s", InsMode ? "INS": "OVR");
-    fflush(stdout);
+    if (InsMode)
+	PUTSTR((char *)"INS");
+    else
+	PUTSTR((char *)"OVR");
 }
 
 
 void Top_Help() 
 {
+    char    temp[81];
+
     locate(1,1);
     colour(YELLOW, BLUE);
-    printf("%s", padleft((char *)"Press ESC for menu, other keys is edit text", 80, ' '));
+    sprintf(temp, "%s", padleft((char *)"Press ESC for menu, other keys is edit text", 79, ' '));
+    PUTSTR(temp);
     Show_Ins();
 }
 
 
 void Top_Menu(void)
 {
+    char    temp[81];
+
     locate(1,1);
     colour(WHITE, RED);
-    printf("%s", padleft((char *)"(A)bort (H)elp (S)ave - Any other key is continue edit", 80, ' '));
-    fflush(stdout);
+    sprintf(temp, "%s", padleft((char *)"(A)bort (H)elp (S)ave - Any other key is continue edit", 79, ' '));
+    PUTSTR(temp);
 }
 
 
 void Ls(int a, int y)
 {
     locate(y, 10);
-    printf("%c ", a ? 179 : '|');
+    PUTCHAR(a ? 179 : '|');
 }
 
 
 void Rs(int a)
 {
     colour(LIGHTGREEN, BLUE);
-    printf("%c", a ? 179 : '|');
+    PUTCHAR(a ? 179 : '|');
 }
 
 
@@ -87,8 +95,8 @@ void Ws(int a, int y)
     int	i;
 
     Ls(a, y);
-    for (i = 0; i < 57; i++)
-	printf(" ");
+    for (i = 0; i < 58; i++)
+	PUTCHAR(' ');
     Rs(a);
 }
 
@@ -97,7 +105,7 @@ void Hl(int a, int y, char *txt)
 {
     Ls(a, y);
     colour(WHITE, BLUE);
-    printf("%s", padleft(txt, 57, ' '));
+    PUTSTR(padleft(txt, 58, ' '));
     Rs(a);
 }
 
@@ -112,16 +120,16 @@ void Full_Help(void)
 
     /* Top row */
     locate(1, 10);
-    printf("%c", a ? 213 : '+');
+    PUTCHAR(a ? 213 : '+');
     for (i = 0; i < 58; i++)
-	printf("%c", a ? 205 : '=');
-    printf("%c", a ? 184 : '+');
+	PUTCHAR(a ? 205 : '=');
+    PUTCHAR(a ? 184 : '+');
 
     Ws(a, 2);
 
     Ls(a, 3);
     colour(YELLOW, BLUE);
-    printf("%s", padleft((char *)"                  Editor Help", 57, ' '));
+    PUTSTR(padleft((char *)"                  Editor Help", 58, ' '));
     Rs(a);
 
     Ws(a,  4);
@@ -138,26 +146,24 @@ void Full_Help(void)
     Ws(a, 15);
 
     locate(16,10);
-    printf("%c", a ? 212 : '+');
+    PUTCHAR(a ? 212 : '+');
     for (i = 0; i < 58; i++)
-	printf("%c", a ? 205 : '=');
-    printf("%c", a ? 190 : '+');
-    fflush(stdout);
+	PUTCHAR(a ? 205 : '=');
+    PUTCHAR(a ? 190 : '+');
 }
+
 
 
 void Setcursor(void)
 {
     CurRow = Row + TopVisible - 1;
     locate(Row + 1, Col);
-    fflush(stdout);
 }
 
 
 void Beep(void)
 {
-    printf("\007");
-    fflush(stdout);
+    PUTCHAR('\007');
 }
 
 
@@ -177,7 +183,7 @@ void Refresh(void)
 	if ((i >= TopVisible) && (i < (TopVisible + exitinfo.iScreenLen -1))) {
 	    locate(j, 1);
 	    j++;
-	    printf("%s", Message[i]);
+	    PUTSTR(Message[i]);
 	}
     }
     Setcursor();
@@ -195,12 +201,11 @@ void GetstrLC(char *sStr, int iMaxlen)
 
     while (ch != 13) {
 
-	fflush(stdout);
 	ch = Readkey();
 
 	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
 	    if (iPos > 0) {
-		printf("\b \b");
+		BackErase();
 		sStr[--iPos] = '\0';
 	    } else {
 		Beep();
@@ -211,14 +216,14 @@ void GetstrLC(char *sStr, int iMaxlen)
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);
-		printf("%c", ch);
+		PUTCHAR(ch);
 	    } else {
 		Beep();
 	    }
 	}
     }
 
-    printf("\n");
+    Enter(1);
 }
 
 
@@ -403,12 +408,6 @@ int Fs_Edit()
 
     Syslog('b', "FSEDIT: Entering FullScreen editor");
     clear();
-    fflush(stdout);
-    if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	WriteError("$Can't open tty");
-	return FALSE;
-    }
-    Setraw();
     InsMode = TRUE;
     TopVisible = 1;
     Col = 1;
@@ -521,9 +520,10 @@ int Fs_Edit()
 				Setcursor();
 				for (i = Col; i <= strlen(Message[CurRow]); i++) {
 				    Message[CurRow][i-1] = Message[CurRow][i];
-				    printf("%c", Message[CurRow][i]);
+				    PUTCHAR(Message[CurRow][i]);
 				}
-				printf(" \b");
+				PUTCHAR(' ');
+				PUTCHAR('\b');
 				Message[CurRow][i-1] = '\0';
 				Setcursor();
 			    } else if (((strlen(Message[CurRow]) + strlen(Message[CurRow+1]) < 75) 
@@ -572,8 +572,7 @@ int Fs_Edit()
 			    } else {
 				if (Col == strlen(Message[CurRow]) + 1) {
 				    /* BS at end of line */
-				    printf("\b \b");
-				    fflush(stdout);
+				    BackErase();
 				    Col--;
 				    Message[CurRow][Col-1] = '\0';
 				    Changed = TRUE;
@@ -583,9 +582,10 @@ int Fs_Edit()
 				    Setcursor();
 				    for (i = Col; i <= strlen(Message[CurRow]); i++) {
 					Message[CurRow][i-1] = Message[CurRow][i];
-					printf("%c", Message[CurRow][i]);
+					PUTCHAR(Message[CurRow][i]);
 				    }
-				    printf(" \b");
+				    PUTCHAR(' ');
+				    PUTCHAR('\b');
 				    Message[CurRow][strlen(Message[CurRow])] = '\0';
 				    Setcursor();
 				    Changed = TRUE;
@@ -617,16 +617,17 @@ int Fs_Edit()
 			    tmpname = calloc(PATH_MAX, sizeof(char));
 			    filname = calloc(PATH_MAX, sizeof(char));
 
-			    colour(14, 0);
+			    Enter(1);
 			    /* Please enter filename: */
-			    printf("\n%s", (char *) Language(245));
+			    pout(YELLOW, BLACK, (char *) Language(245));
 			    colour(CFG.InputColourF, CFG.InputColourB);
 			    GetstrLC(filname, 80);
 
 			    if ((strcmp(filname, "") == 0)) {
-				colour(CFG.HiliteF, CFG.HiliteB);
+				Enter(2);
 				/* No filename entered, aborting */
-				printf("\n\n%s\n", (char *) Language(246));
+				pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(246));
+				Enter(1);
 				Pause();
 				free(filname);
 				free(tmpname);
@@ -635,9 +636,10 @@ int Fs_Edit()
 			    }
 
 			    if (*(filname) == '/' || *(filname) == ' ') {
-				colour(CFG.HiliteF, CFG.HiliteB);
+				Enter(2);
 				/* Illegal filename */
-				printf("\n\n%s\n", (char *) Language(247));
+				pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+				Enter(1);
 				Pause();
 				free(tmpname);
 				free(filname);
@@ -648,9 +650,10 @@ int Fs_Edit()
 			    sprintf(tmpname, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, filname);
 			    if ((fd = fopen(tmpname, "r")) == NULL) {
 				WriteError("$Can't open %s", tmpname);
-				colour(CFG.HiliteF, CFG.HiliteB);
+				Enter(2);
 				/* File does not exist, please try again */
-				printf("\n\n%s\n", (char *) Language(296));
+				pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(296));
+				Enter(1);
 				Pause();
 			    } else {
 				while ((fgets(filname, 80, fd)) != NULL) {
@@ -692,10 +695,7 @@ int Fs_Edit()
 			    ch = toupper(Readkey());
 			    if (ch == 'A' || ch == 'S') {
 				Syslog('b', "FSEDIT: %s message (%c)", (ch == 'S' && Changed) ? "Saving" : "Aborting", ch);
-				Unsetraw();
-				close(ttyfd);
 				clear();
-				fflush(stdout);
 				if (ch == 'S' && Changed) {
 				    Syslog('+', "FSEDIT: Message will be saved");
 				    return TRUE;
@@ -732,8 +732,7 @@ int Fs_Edit()
 					Refresh();
 				    } else {
 					Col++;
-					printf("%c", ch);
-					fflush(stdout);
+					PUTCHAR(ch);
 				    }
 				    Changed = TRUE;
 				} else {
@@ -763,14 +762,13 @@ int Fs_Edit()
 						Refresh();
 					} else {
 					    locate(Row + 1, 1);
-					    printf(Message[CurRow]);
+					    PUTSTR(Message[CurRow]);
 					    Setcursor();
 					}
 					Changed = TRUE;
 				    } else {
 					Message[CurRow][Col-1] = ch;
-					printf("%c", ch);
-					fflush(stdout);
+					PUTCHAR(ch);
 					Col++;
 					Changed = TRUE;
 				    }
@@ -780,8 +778,6 @@ int Fs_Edit()
     }
 
     WriteError("FsEdit(): Impossible to be here");
-    Unsetraw();
-    close(ttyfd);
     return FALSE;
 }
 

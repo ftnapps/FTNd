@@ -1,7 +1,24 @@
 $Id$
 
+!!!! DON'T USE, THIS VERSION HAS LOTS OF BUGS !!!!
 
 v0.71.0		27-Oct-2004
+
+	mbsebbs:
+		In change handle the first character of the name is not 
+		capitalized.
+		Changed layout of raw directory listing to support long
+		filenames.
+		Rewrote terminal i/o.
+
+	mbnewusr:
+		Rewrote terminal i/o.
+
+	lang:
+		Changed width of prompt 261.
+
+	examples:
+		Fixed logo display.
 
 
 v0.70.0		06-Jun-2004 - 26-Oct-2004.

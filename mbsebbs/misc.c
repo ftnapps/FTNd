@@ -32,12 +32,15 @@
 #include "../lib/mbselib.h"
 #include "../lib/mbse.h"
 #include "../lib/users.h"
+#include "../lib/msg.h"
 #include "funcs.h"
 #include "input.h"
 #include "language.h"
 #include "misc.h"
 #include "timeout.h"
 #include "exitinfo.h"
+#include "ttyio.h"
+#include "term.h"
 
 
 extern char	*StartTime;	/* Time user logged in	    */
@@ -113,14 +116,17 @@ void DisplayLogo()
     char	*sString, *temp;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sString = calloc(81, sizeof(char));
+    sString = calloc(1024, sizeof(char));
 
     sprintf(temp, "%s/%s", CFG.bbs_txtfiles, CFG.welcome_logo);
     if ((pLogo = fopen(temp,"rb")) == NULL)
 	WriteError("$DisplayLogo: Can't open %s", temp);
     else {
-	while (fgets(sString, 80, pLogo) != NULL)
-	    printf("%s", sString);
+	while (Fgets(sString, 1023, pLogo) != NULL) {
+//	    Striplf(sString);
+	    PUTSTR(sString);
+	    Enter(1);
+	}
 	fclose(pLogo);
     }
     free(sString);

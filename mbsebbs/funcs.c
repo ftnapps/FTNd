@@ -35,6 +35,8 @@
 #include "../lib/msgtext.h"
 #include "../lib/msg.h"
 #include "funcs.h"
+#include "term.h"
+#include "ttyio.h"
 
 
 extern	pid_t mypid;		/* Original pid				   */
@@ -54,20 +56,23 @@ void UserSilent(int flag)
  */
 int CheckStatus()
 {
-	static	char buf[81];
+    static	char buf[81], msg[81];
 
-	sprintf(buf, "SBBS:0;");
-	if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
-		if (strncmp(buf, "100:2,0", 7) == 0)
-			return TRUE;
-		if ((strncmp(buf, "100:2,2", 7) == 0) && (!ttyinfo.honor_zmh))
-			return TRUE;
-		buf[strlen(buf) -1] = '\0';
-		printf("\n\n\007*** %s ***\n\n\n", buf+8);
-		fflush(stdout);
-	}
-	return FALSE;
+    sprintf(buf, "SBBS:0;");
+    if (socket_send(buf) == 0) {
+	strcpy(buf, socket_receive());
+	if (strncmp(buf, "100:2,0", 7) == 0)
+	    return TRUE;
+	if ((strncmp(buf, "100:2,2", 7) == 0) && (!ttyinfo.honor_zmh))
+	    return TRUE;
+	buf[strlen(buf) -1] = '\0';
+	Enter(2);
+	PUTCHAR('\007');
+	sprintf(msg, "*** %s ***", buf+8);
+	PUTSTR(msg);
+	Enter(3);
+    }
+    return FALSE;
 }
 
 

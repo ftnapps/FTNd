@@ -48,6 +48,9 @@
 #include "offline.h"
 #include "whoson.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
+
 
 
 long		Total, TotalPersonal, Current, Personal;
@@ -100,7 +103,6 @@ void AddArc(char *Temp, char *Pktname)
     execute_str((char *)archiver.marc, Pktname, Temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     unlink(Temp);
     printf(".");
-    fflush(stdout);
 }
 
 
@@ -140,14 +142,12 @@ void UpdateLR(msg_high *mhl, FILE *mf)
     char	*p;
     msg_high	*tmp;
 
-    colour(YELLOW, BLACK);
     /*      Updating lastread pointer */
-    printf("%s\n", (char *)Language(449));
+    poutCR(YELLOW, BLACK, (char *)Language(449));
     colour(LIGHTMAGENTA, BLACK);
         
     for (tmp = mhl; tmp; tmp = tmp->next) {
-	printf(".");
-	fflush(stdout);
+	PUTCHAR('.');
 	fseek(mf, ((tmp->Area -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET);
 	fread(&msgs, msgshdr.recsize, 1, mf);
 	if (Msg_Open(msgs.Base)) {
@@ -224,7 +224,7 @@ void OLR_TagArea()
 {
     char    *Msgname, *Tagname;
     FILE    *ma, *tf;
-    char    *buf;
+    char    *buf, msg[81];
     long    total, Offset, Area;
     int	    lines, input, ignore = FALSE, maxlines;
 
@@ -238,22 +238,20 @@ void OLR_TagArea()
     sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
-    colour(YELLOW, BLACK);
     /*      Tag Offline Reader message areas */
-    printf("%s\n", (char *)Language(66));
+    poutCR(YELLOW, BLACK, (char *)Language(66));
 
     do {
-	colour(WHITE, BLACK);
+	Enter(1);
 	/*        Enter the name of the conference, or ? for a list: */
-	printf("\n%s", (char *)Language(228));
+	pout(WHITE, BLACK, (char *)Language(228));
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(buf, 20);
 
 	if (buf[0] == '?') {
 	    maxlines = lines = exitinfo.iScreenLen - 1;
-	    colour(LIGHTCYAN, BLACK);
 	    /*      Conference           Area  Msgs   Description */
-	    printf("%s\n", (char *)Language(229));
+	    poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, ma);
 		Area = 0;
@@ -267,21 +265,20 @@ void OLR_TagArea()
 			    Msg_Close();
 			} else
 			    total = 0;
-			colour(CYAN, BLACK);
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && (!olrtagrec.Tagged) && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+				sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
-				fflush(stdin);
-				colour(WHITE, BLACK);
 				/* More (Y/n/=) */
-				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-				fflush(stdout);
+				sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				pout(WHITE, BLACK, msg);
 				alarm_on();
-				input = toupper(Getone());
-				printf("%c\r",input);
+				input = toupper(Readkey());
+				PUTCHAR(input);
+				PUTCHAR('\r');
 				if ((input == Keystroke(61, 0)) || (input == '\r'))
 				    lines = maxlines;
 
@@ -366,7 +363,7 @@ void OLR_TagArea()
  */
 void OLR_UntagArea()
 {
-    char    *Msgname, *Tagname, *buf;
+    char    *Msgname, *Tagname, *buf, msg[81];
     FILE    *ma, *tf;
     long    total, Offset, Area;
     int     lines, input, ignore = FALSE, maxlines;
@@ -381,22 +378,20 @@ void OLR_UntagArea()
     sprintf(Tagname, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
 
     clear();
-    colour(YELLOW, BLACK);
     /*      Untag Offline Reader message areas */
-    printf("%s\n", (char *)Language(256));
+    poutCR(YELLOW, BLACK, (char *)Language(256));
 
     do {
-	colour(WHITE, BLACK);
+	Enter(1);
 	/*        Enter the name of the conference, or ? for a list:  */
-	printf("\n%s", (char *)Language(228));
+	pout(WHITE, BLACK, (char *)Language(228));
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(buf, 20);
 
 	if (buf[0] == '?') {
 	    maxlines = lines = exitinfo.iScreenLen - 1;
-	    colour(LIGHTCYAN, BLACK);
 	    /*      Conference           Area  Msgs   Description */
-	    printf("%s\n", (char *)Language(229));
+	    poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
 	    if ((ma = fopen(Msgname, "r")) != NULL) {
 		fread(&msgshdr, sizeof(msgshdr), 1, ma);
 		Area = 0;
@@ -410,21 +405,20 @@ void OLR_UntagArea()
 			    Msg_Close();
 			} else
 			    total = 0;
-			colour(CYAN, BLACK);
 			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && olrtagrec.Tagged && strlen(msgs.QWKname)) {
 			    if ( (lines != 0) || (ignore) ) {
 				lines--;
-				printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+				sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+				poutCR(CYAN, BLACK, msg);
 			    }
 			    if (lines == 0) {
-				fflush(stdin);
-				colour(WHITE, BLACK);
 				/* More (Y/n/=) */
-				printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-				fflush(stdout);
+				sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+				pout(WHITE, BLACK, msg);
 				alarm_on();
-				input = toupper(Getone());
-				printf("%c\r",input);
+				input = toupper(Readkey());
+				PUTCHAR(input);
+				PUTCHAR('\r');
 				if ((input == Keystroke(61, 0)) || (input == '\r'))
 				    lines = maxlines;
 
@@ -485,7 +479,7 @@ void OLR_UntagArea()
 				    fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
 				    if (olrtagrec.Tagged) {
 					if (msgs.OLR_Forced) {
-					    printf("Area cannot be switched off\n");
+					    poutCR(LIGHTRED, BLACK, (char *)"Area cannot be switched off");
 					} else {
 					    olrtagrec.Tagged = FALSE;
 					    fseek(tf, - sizeof(olrtagrec), SEEK_CUR);
@@ -523,11 +517,12 @@ void New_Hdr()
     /* New or deleted mail areas at */
     sprintf(temp, "%s%s", (char *) Language(364), CFG.bbs_name);
     Center(temp);
-    free(temp);
-    printf("\n");
+    Enter(1);
     colour(WHITE, BLUE);
     /* Area  State  Type     Description */
-    printf("%-79s\n", (char *) Language(365));
+    sprintf(temp, "%-79s", (char *) Language(365));
+    poutCR(WHITE, BLUE, temp);
+    free(temp);
 }
 
 
@@ -535,21 +530,25 @@ void New_Hdr()
 void New_Area(long);
 void New_Area(long Area)
 {
-    colour(LIGHTCYAN, BLACK);
+    char    msg[81];
+
     	/*    New    */
-    printf("%4ld  %s", Area, (char *)Language(391));
+    sprintf(msg, "%4ld  %s", Area, (char *)Language(391));
+    pout(LIGHTCYAN, BLACK, msg);
+
     switch (msgs.Type) {
-	case LOCALMAIL:	printf(Language(392)); /* Local    */
+	case LOCALMAIL:	PUTSTR((char *)Language(392)); /* Local    */
 			break;
-	case NETMAIL:	printf(Language(393)); /* Netmail  */
+	case NETMAIL:	PUTSTR((char *)Language(393)); /* Netmail  */
 			break;
 	case LIST:
-	case ECHOMAIL:	printf(Language(394)); /* Echomail */
+	case ECHOMAIL:	PUTSTR((char *)Language(394)); /* Echomail */
 			break;
-	case NEWS:	printf(Language(395)); /* News     */
+	case NEWS:	PUTSTR((char *)Language(395)); /* News     */
 			break;
     }
-    printf("%s\n", msgs.Name);
+    PUTSTR(msgs.Name);
+    Enter(1);
 }
 
 
@@ -557,9 +556,11 @@ void New_Area(long Area)
 void Old_Area(long);
 void Old_Area(long Area)
 {
-    colour(LIGHTRED, BLACK);
+    char    msg[81];
+
     /*            Del */
-    printf("%4ld  %s\n", Area, (char *)Language(397));
+    sprintf(msg, "%4ld  %s", Area, (char *)Language(397));
+    poutCR(LIGHTRED, BLACK, msg);
 }
 
 
@@ -710,7 +711,7 @@ void OLR_SyncTags()
  */
 void OLR_ViewTags()
 {
-    char    *Tagname, *Msgname;
+    char    *Tagname, *Msgname, msg[81];
     FILE    *tf, *ma;
     long    total, Area = 0;
     int     lines, input, ignore = FALSE, maxlines;
@@ -739,14 +740,12 @@ void OLR_ViewTags()
     fread(&msgshdr, sizeof(msgshdr), 1, ma);
 
     clear();
-    colour(YELLOW, BLACK);
     /*       You have selected the following Conference(s): */
-    printf ("%s\n", (char *)Language(260));
-    colour(LIGHTCYAN, BLACK);
+    poutCR(YELLOW, BLACK, (char *)Language(260));
+    Enter(1);
     /*         Conference           Area  Msgs   Description */
-    printf ("\n%s\n", (char *)Language(229));
+    poutCR(LIGHTCYAN, BLACK, (char *)Language(229));
     colour(CYAN, BLACK);
-    fflush(stdout);
     maxlines = lines = exitinfo.iScreenLen - 1;
 
     while (fread(&msgs, msgshdr.recsize, 1, ma) == 1) {
@@ -762,17 +761,18 @@ void OLR_ViewTags()
 		total = 0;
 	    if ( (lines != 0) || (ignore) ) {
 		lines--;
-		printf("%-20.20s %-5ld %-5ld  %s\n", msgs.QWKname, Area, total, msgs.Name);
+		sprintf(msg, "%-20.20s %-5ld %-5ld  %s", msgs.QWKname, Area, total, msgs.Name);
+		PUTSTR(msg);
+		Enter(1);
 	    }
 	    if (lines == 0) {
-		fflush(stdin);
-		colour(WHITE, BLACK);
 		/* More (Y/n/=) */
-		printf("%s%c\x08", (char *) Language(61),Keystroke(61,0));
-		fflush(stdout);
+		sprintf(msg, "%s%c\x08", (char *) Language(61),Keystroke(61,0));
+		pout(WHITE, BLACK, msg);
 		alarm_on();
-		input = toupper(Getone());
-		printf("%c\r",input);
+		input = toupper(Readkey());
+		PUTCHAR(input);
+		PUTCHAR('\r');
 		if ((input == Keystroke(61, 0)) || (input == '\r'))
 		    lines = maxlines;
 
@@ -785,7 +785,6 @@ void OLR_ViewTags()
 		    lines  = maxlines;
 		colour(CYAN, BLACK);
 	    }
-	    fflush(stdout);
 	}
     }
 
@@ -805,16 +804,15 @@ int OLR_Prescan()
 {
     unsigned short  RetVal = FALSE, Areas;
     unsigned long   Number;
-    char	    *Temp;
+    char	    *Temp, msg[81];
     FILE	    *mf, *tf;
     int		    x;
 
     WhosDoingWhat(OLR, NULL);
     clear();
-    colour(LIGHTMAGENTA, BLACK);
     /*      Offline Reader Download */
-    printf("%s\n\n", (char *)Language(277));
-    fflush(stdout);
+    pout(LIGHTMAGENTA, BLACK, (char *)Language(277));
+    Enter(2);
 
     if (exitinfo.Email)
 	check_popmail(exitinfo.Name, exitinfo.Password);
@@ -828,9 +826,10 @@ int OLR_Prescan()
     tf = fopen(Temp, "r");
     Total = TotalPersonal = Areas = 0;
 
+    Enter(1);
     colour(WHITE, BLUE);
     /*        Forum                Description                               Msgs. Pers.   */
-    printf("\n%s\n", (char *)Language(297));
+    poutCR(WHITE, BLUE, (char *)Language(297));
 
     while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
 	fseek(mf, msgshdr.syssize, SEEK_CUR);
@@ -840,9 +839,8 @@ int OLR_Prescan()
 	    if (Msg_Open(msgs.Base)) {
 		Areas++;
 		Current = Personal = 0;
-		colour(LIGHTCYAN, BLACK);
-		printf("%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
-		fflush(stdout);
+		sprintf(msg, "%-20.20s %-41.41s ", msgs.QWKname, msgs.Name);
+		pout(LIGHTCYAN, BLACK, msg);
 
 		memset(&LR, 0, sizeof(LR));
 		LR.UserID = grecno;
@@ -867,9 +865,8 @@ int OLR_Prescan()
 		    } while (Msg_Next(&Number));
 		}
 
-		colour(LIGHTGREEN, BLACK);
-		printf("%5lu %5lu\n", Current, Personal);
-		fflush(stdout);
+		sprintf(msg, "%5lu %5lu", Current, Personal);
+		poutCR(LIGHTGREEN, BLACK, msg);
 		Msg_Close();
 	    }
 	}
@@ -877,27 +874,30 @@ int OLR_Prescan()
 
     Syslog('+', "OLR Prescan: %u Areas, %lu Messages", Areas, Total);
 
-    colour(LIGHTBLUE, BLACK);
+    Enter(1);
     /*        Total messages found: */
-    printf("\n%s %lu\n\n", (char *)Language(338), Total);
+    sprintf(msg, "%s %lu", (char *)Language(338), Total);
+    pout(LIGHTBLUE, BLACK, msg);
+    Enter(2);
+
     if (Total == 0L) {
-	colour(YELLOW, BLACK);
 	/*      No messages found to download! */
-	printf("%s\n\007", (char *)Language(374));
+	poutCR(YELLOW, BLACK, (char *)Language(374));
+	PUTCHAR('\007');
 	Pause();
     } else {
 	if (CFG.OLR_MaxMsgs != 0 && Total > CFG.OLR_MaxMsgs) {
 	    /*      Too much messages. Only the first    will be packed! */
-	    printf("%s %d %s\n\n\007", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
+	    sprintf(msg, "%s %d %s", (char *)Language(377), CFG.OLR_MaxMsgs, (char *)Language(411));
+	    PUTCHAR('\007');
+	    Enter(2);
 	    Total = CFG.OLR_MaxMsgs;
 	}
 
-	colour(CFG.HiliteF, CFG.HiliteB);
 	/*      Do you want to download these messages [Y/n]? */
-	printf("%s", (char *)Language(425));
-	fflush(stdout);
+	pout(CFG.HiliteF, CFG.HiliteB, (char *)Language(425));
 	alarm_on();
-	x = toupper(Getone());
+	x = toupper(Readkey());
 
 	if (x != Keystroke(425, 1)) {
 	    RetVal = TRUE;
@@ -922,13 +922,16 @@ int OLR_Prescan()
  */
 void DrawBar(char *Pktname)
 {
-    colour(YELLOW, BLACK);
+    char    msg[81];
+
+    Enter(1);
     /*        Preparing packet */
-    printf("\n%s %s...\n\n", (char *)Language(445), Pktname);
-    colour(LIGHTGREEN, BLACK);
-    printf("0%%    10%%  20%%   30%%   40%%   50%%   60%%   70%%   80%%   90%%   100%%\n");
-    printf("|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|\r");
-    fflush(stdout);
+    sprintf(msg, "%s %s...", (char *)Language(445), Pktname);
+    pout(YELLOW, BLACK, msg);
+    Enter(2);
+    poutCR(LIGHTGREEN, BLACK, (char *)"0%%    10%%  20%%   30%%   40%%   50%%   60%%   70%%   80%%   90%%   100%%");
+    PUTSTR((char *)"|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|");
+    PUTCHAR('\r');
 }
 
 
@@ -937,7 +940,8 @@ void OLR_RestrictDate()
 {
     WhosDoingWhat(OLR, NULL);
 
-    printf("Not Yet Implemented\n");
+    PUTSTR((char *)"Not Yet Implemented");
+    Enter(1);
     Pause();
 }
 
@@ -1006,13 +1010,14 @@ USHORT TOffline::TooOld (ULONG Restrict, class TMsgBase *Msg)
  */
 void OLR_Upload(void)
 {
-    char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81];
+    char	*File, *temp, *Arc, Dirpath[PATH_MAX], Filename[81], msg[81];
     time_t	ElapstimeStart, ElapstimeFin, iTime;
     int		err, Strlen, RetVal = FALSE;
     FILE	*fp;
 
     if (strlen(CFG.bbsid) == 0) {
-	printf("System configuration error, inform sysop\n");
+	PUTSTR((char *)"System configuration error, inform sysop");
+	Enter(1);
 	WriteError("Config OLR bbsid not configured");
 	Pause();
 	return;
@@ -1020,9 +1025,8 @@ void OLR_Upload(void)
 
     WhosDoingWhat(OLR, NULL);
     clear();
-    colour(LIGHTMAGENTA, BLACK);
     /*      Offline Reader Upload */
-    printf("%s\n", (char *)Language(439));
+    poutCR(LIGHTMAGENTA, BLACK, (char *)Language(439));
 
     if (!ForceProtocol())
 	return;
@@ -1044,9 +1048,10 @@ void OLR_Upload(void)
 	    return;
 
 	if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    return;
 	}
@@ -1055,26 +1060,30 @@ void OLR_Upload(void)
 	Strlen--;
 
 	if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal Filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    return;
 	}
 
 	if (strncasecmp(File, CFG.bbsid, strlen(CFG.bbsid))) {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    return;
 	}
 	Syslog('+', "Filename accepted");
     }
 
-    colour(CFG.HiliteF, CFG.HiliteB);
+    Enter(1);
     /* Please start your upload now */
-    printf("\n%s, %s\n\n", sProtAdvice, (char *) Language(283));
+    sprintf(msg, "%s, %s", sProtAdvice, (char *) Language(283));
+    pout(CFG.HiliteF, CFG.HiliteB, msg);
+    Enter(2);
     if (uProtBatch)
 	Syslog('+', "Upload using %s", sProtName);
     else
@@ -1087,8 +1096,6 @@ void OLR_Upload(void)
 	return;
     }
 
-    fflush(stdout);
-    fflush(stdin);
     sleep(2);
     ElapstimeStart = time(NULL);
 
@@ -1097,16 +1104,18 @@ void OLR_Upload(void)
      */
     Altime(7200);
     alarm_set(7190);
-    if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
-	colour(CFG.HiliteF, CFG.HiliteB);
+    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
+    if (rawport() != 0) {
+	WriteError("Unable to set raw mode");
+    }
+    if (err) {
 	WriteError("$Upload error %d, prot: %s", err, sProtUp);
     }
     Altime(0);
     alarm_off();
     alarm_on();
-    printf("\n");
-    fflush(stdout);
-    fflush(stdin);
+
+    Enter(1);
     ElapstimeFin = time(NULL);
 
     /*
@@ -1136,7 +1145,8 @@ void OLR_Upload(void)
     if (RetVal == FALSE) {
 	WriteError("Invalid OLR packed received");
 	/*      Invalid packet received */
-	printf("%s\n\n", (char *)Language(440));
+	pout(LIGHTRED, BLACK, (char *)Language(440));
+	Enter(2);
 	sleep(2);
 	return;
     }
@@ -1146,7 +1156,7 @@ void OLR_Upload(void)
 
     if ((Arc = GetFileType(File)) == NULL) {
 	/*      Unknown compression type */
-	printf("%s\n", (char *)Language(441));
+	poutCR(LIGHTRED, BLACK, (char *)Language(441));
 	Syslog('+', "Unknown compression type");
 	Pause();
 	return;
@@ -1169,7 +1179,7 @@ void OLR_Upload(void)
     if (strcmp(Arc, archiver.name) || (!archiver.available)) {
 	Syslog('+', "Archiver %s not available", Arc);
 	/*      Archiver not available */
-	printf("%s\n", (char *)Language(442));
+	poutCR(LIGHTRED, BLACK, (char *)Language(442));
 	Pause();
 	return;
     }
@@ -1178,24 +1188,27 @@ void OLR_Upload(void)
 
     colour(CFG.TextColourF, CFG.TextColourB);
     /* Unpacking archive */
-    printf("%s ", (char *) Language(201));
-    fflush(stdout);
+    pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(201));
+    PUTCHAR(' ');
     sprintf(temp, "%s %s", archiver.funarc, File);
     Syslog('m', "Unarc %s", temp);
     colour(CFG.HiliteF, CFG.HiliteB);
 
-    if ((err = execute_str(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
+    err = execute_str(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    if (rawport() != 0) {
+	WriteError("Unable to set raw mode");
+    }
+    if (err) {
 	WriteError("$Failed %s", temp);
 	/* ERROR */
-	printf("%s\n", (char *) Language(217));
-	fflush(stdout);
+	poutCR(LIGHTRED, BLACK, (char *) Language(217));
 	Pause();
 	return;
     }
 
     /* Ok */
-    printf("%s\n", (char *) Language(200));
-    fflush(stdout);
+    PUTSTR((char *) Language(200));
+    Enter(1);
     unlink(File);
 
     /*
@@ -1244,7 +1257,7 @@ void OLR_Upload(void)
 
     WriteError("OLR_Upload: Garbage in mailpacket, clean directory!");
     /*      Unknown type mailpacket */
-    printf("%s\n", (char *)Language(443));
+    poutCR(LIGHTRED, BLACK, (char *)Language(443));
     Pause();
     free(File);
     free(temp);
@@ -1281,7 +1294,8 @@ void OLR_DownBW()
     msg_high	    *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
-	printf("System configuration error, inform sysop\n");
+	PUTSTR((char *)"System configuration error, inform sysop");
+	Enter(1);
 	WriteError("Config OLR bbsid not configured");
 	Pause();
 	return;
@@ -1292,9 +1306,8 @@ void OLR_DownBW()
 
     Total = TotalPersonal = 0;
     clear();
-    colour(LIGHTBLUE, BLACK);
     /*      BlueWave Offline download */
-    printf("%s\n", (char *)Language(444));
+    poutCR(LIGHTBLUE, BLACK, (char *)Language(444));
 
     Work = calloc(PATH_MAX, sizeof(char));
     Temp = calloc(PATH_MAX, sizeof(char));
@@ -1476,14 +1489,17 @@ void OLR_DownBW()
 
     if (Total) {
 	/*        Packing with */
-	printf("\n%s ", (char *)Language(446));
+	Enter(1);
+	PUTSTR((char *)Language(446));
+	PUTCHAR(' ');
 	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
 		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
 		    Syslog('+', "Archiver %s", archiver.comment);
-		    printf("%s ", archiver.comment);
+		    PUTSTR(archiver.comment);
+		    PUTCHAR(' ');
 		    sprintf(Temp, "%s/%s.DAT", Work, CFG.bbsid);
 		    AddArc(Temp, Pktname);
 		    alarm_on();
@@ -1503,15 +1519,15 @@ void OLR_DownBW()
 	}
     }
 
-    colour(CFG.HiliteF, CFG.HiliteB);
     if (rc == FALSE) {
 	Syslog('+', "BlueWave download failed");
 	/*      Download failed */
-	printf("%s", (char *)Language(447));
+	poutCR(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));
     } else {
 	Syslog('+', "BlueWave download successfull");
+	PUTCHAR('\r');
 	/*        Download successfull */
-	printf("\r%s\n", (char *)Language(448));
+	poutCR(CFG.HiliteF, CFG.HiliteB, (char *)Language(448));
 
 	if (mhl != NULL)
 	    UpdateLR(mhl, mf);
@@ -1522,7 +1538,7 @@ void OLR_DownBW()
 
     free(Temp);
     free(Work);
-    printf("\n\n");
+    Enter(2);
     Pause();
 }
 
@@ -1543,9 +1559,8 @@ void BlueWave_Fetch()
     time_t	now;
     struct tm	*tm;
 
-    colour(LIGHTBLUE, BLACK);
     /*      Processing BlueWave reply packet */
-    printf("%s\n", (char *)Language(450));
+    poutCR(LIGHTBLUE, BLACK, (char *)Language(450));
     temp = calloc(PATH_MAX, sizeof(char));
     b = calloc(256, sizeof(char));
     buffer = b;
@@ -1568,7 +1583,7 @@ void BlueWave_Fetch()
 	    fclose(up);
 	    free(temp);
 	    /*      ERROR in packet */
-	    printf("%s\n", (char *)Language(451));
+	    poutCR(LIGHTRED, BLACK, (char *)Language(451));
 	    Pause();
 	    return;
 	}
@@ -1581,15 +1596,14 @@ void BlueWave_Fetch()
 
 	colour(CFG.TextColourF, CFG.TextColourB);
 	/*      Import messages  */
-	printf("%s ", (char *)Language(452));
+	pout(CFG.TextColourF, CFG.TextColourB, (char *)Language(452));
+	PUTCHAR(' ');
 	colour(CFG.HiliteF, CFG.HiliteB);
-	fflush(stdout);
 	i = 0;
 
 	memset(&Upr, 0, sizeof(UPL_REC));
 	while (fread(&Upr, Uph.upl_rec_len, 1, up) == 1) {
-	    printf(".");
-	    fflush(stdout);
+	    PUTCHAR('.');
 	    Syslog('m', "  From  : %s", Upr.from);
 	    Syslog('m', "  To    : %s", Upr.to);
 	    Syslog('m', "  Subj  : %s", Upr.subj);
@@ -1692,8 +1706,10 @@ void BlueWave_Fetch()
 			    Close_Msgbase(msgs.Base);
 			}
 		    } else {
+			Enter(1);
 			/*        No Write access to area */
-			printf("\n%s %s\n", (char *)Language(453), msgs.Name);
+			sprintf(temp, "%s %s", (char *)Language(453), msgs.Name);
+			poutCR(LIGHTRED, BLACK, temp);
 			WriteError("No Write Access to area %s", msgs.Name);
 		    }
 		}
@@ -1701,17 +1717,16 @@ void BlueWave_Fetch()
 	    }
 	    memset(&Upr, 0, sizeof(UPL_REC));
 	}
-	printf("\n");
-	colour(CFG.TextColourF, CFG.TextColourB);
+	Enter(1);
 	if (i) {
 	    /*         Messages imported */
-	    printf("%d %s\n", i, (char *)Language(454));
+	    sprintf(temp, "%d %s", i, (char *)Language(454));
+	    poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	    ReadExitinfo();
 	    exitinfo.iPosted += i;
 	    WriteExitinfo();
 	    do_mailout = TRUE;
 	}
-	fflush(stdout);
 	fclose(up);
 	sprintf(temp, "%s/%s", Dirpath, Filename);
 	unlink(temp);
@@ -1731,9 +1746,8 @@ void BlueWave_Fetch()
 	iol = fopen(temp, "r");
     }
     if (iol != NULL) {
-	colour(LIGHTBLUE, BLACK);
 	/*      Processing Offline Configuration */
-	printf("%s\n", (char *)Language(455));
+	poutCR(LIGHTBLUE, BLACK, (char *)Language(455));
 	Syslog('+', "Processing BlueWave v3 configuration file \"%s\"", Filename);
 	OLC_head = FALSE;
 	
@@ -1869,9 +1883,9 @@ void BlueWave_Fetch()
 	fclose(iol);
 	sprintf(temp, "%s/%s", Dirpath, Filename);
 	unlink(temp);
-	colour(CYAN, BLACK);
 	/*         Message areas selected */
-	printf("%d %s\n", i, (char *)Language(456));
+	sprintf(temp, "%d %s", i, (char *)Language(456));
+	poutCR(CYAN, BLACK, temp);
 	Syslog('+', "  %d active message areas.", i);
     }
 
@@ -1891,12 +1905,11 @@ void BlueWave_Fetch()
 
 	while (fread(&Req, sizeof(REQ_REC), 1, tp) == 1) {
 	    Syslog('m', "  File %s", Req.filename);
-	    colour(CFG.TextColourF, CFG.TextColourB);
-	    printf("%-12s ", Req.filename);
+	    sprintf(temp, "%-12s ", Req.filename);
+	    pout(CFG.TextColourF, CFG.TextColourB, temp);
 	    colour(CFG.HiliteF, CFG.HiliteB);
-	    fflush(stdout);
 
-	    printf("\n");
+	    Enter(1);
 	}
 
 	fclose(tp);
@@ -1915,7 +1928,7 @@ void BlueWave_Fetch()
 unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 {
     FILE	    *fdm, *fdfti, *fdmix;
-    char	    *Temp, *Text;
+    char	    *Temp, *Text, msg[81];
     unsigned long   Number;
     MIX_REC	    Mix;
     FTI_REC	    Fti;
@@ -1998,9 +2011,8 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 
 		if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 		    BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-		    colour(CYAN, BLACK);
-		    printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
-		    fflush(stdout);
+		    sprintf(msg, "\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+		    pout(CYAN, BLACK, msg);
 		}
 	    } while (Msg_Next(&Number));
 	}
@@ -2044,7 +2056,7 @@ void OLR_DownQWK(void)
     msg_high	    *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
-	printf("System configuration error, inform sysop\n");
+	poutCR(LIGHTRED, BLACK, (char *)"System configuration error, inform sysop");
 	WriteError("Config OLR bbsid not configured");
 	Pause();
 	return;
@@ -2055,9 +2067,8 @@ void OLR_DownQWK(void)
 
     Total = TotalPersonal = 0L;
     clear();
-    colour(LIGHTBLUE, BLACK);
     /*      QWK Offline Download */
-    printf("%s\n", (char *)Language(458));
+    poutCR(LIGHTBLUE, BLACK, (char *)Language(458));
 
     Work = calloc(PATH_MAX, sizeof(char));
     Temp = calloc(PATH_MAX, sizeof(char));
@@ -2199,15 +2210,18 @@ void OLR_DownQWK(void)
     fclose(tf);
 
     if (Total) {
+	Enter(1);
 	/*        Packing with */
-	printf("\n%s ", (char *)Language(446));
+	PUTSTR((char *)Language(446));
+	PUTCHAR(' ');
 	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
 		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
 		    Syslog('+', "Archiver %s", archiver.comment);
-		    printf("%s ", archiver.comment);
+		    PUTSTR(archiver.comment);
+		    PUTCHAR(' ');
 		    sprintf(Temp, "%s/CONTROL.DAT", Work);
 		    AddArc(Temp, Pktname);
 		    alarm_on();
@@ -2237,15 +2251,15 @@ void OLR_DownQWK(void)
 	}
     }
 
-    colour(CFG.HiliteF, CFG.HiliteB);
     if (rc == FALSE) {
 	Syslog('+', "QWK download failed");
 	/*      Download failed */
-	printf("%s", (char *)Language(447));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));
     } else {
 	Syslog('+', "QWK download successfull");
+	PUTCHAR('\r');
 	/*        Download successfull */
-	printf("\r%s\n", (char *)Language(448));
+	poutCR(CFG.HiliteF, CFG.HiliteB, (char *)Language(448));
 
 	if (mhl != NULL)
 	    UpdateLR(mhl, mf);
@@ -2255,7 +2269,7 @@ void OLR_DownQWK(void)
 
     free(Temp);
     free(Work);
-    printf("\n\n");
+    Enter(2);
     Pause();
 }
 
@@ -2274,9 +2288,8 @@ void QWK_Fetch()
     fidoaddr	    dest;
     int		    HasTear;
 
-    colour(LIGHTBLUE, BLACK);
     /*      Processing BlueWave reply packet */
-    printf("%s\n", (char *)Language(459));
+    poutCR(LIGHTBLUE, BLACK, (char *)Language(459));
     temp = calloc(PATH_MAX, sizeof(char));
     otemp = calloc(PATH_MAX, sizeof(char));
     nWidth = 78;
@@ -2298,7 +2311,7 @@ void QWK_Fetch()
 	    fclose(up);
 	    unlink(temp);
 	    /*      ERROR in packet */
-	    printf("%s\n", (char *)Language(451));
+	    poutCR(LIGHTRED, BLACK, (char *)Language(451));
 	    free(temp);
 	    free(otemp);
 	    Pause();
@@ -2509,17 +2522,16 @@ void QWK_Fetch()
 	fclose(up);
     }
 
-    printf("\n");
-    colour(CFG.TextColourF, CFG.TextColourB);
+    Enter(1);
     if (nPosted) {
 	/*         Messages imported */
-	printf("%d %s\n", nPosted, (char *)Language(454));
+	sprintf(temp, "%d %s", nPosted, (char *)Language(454));
+	poutCR(CFG.TextColourF, CFG.TextColourB, temp);
 	ReadExitinfo();
 	exitinfo.iPosted += nPosted;
 	WriteExitinfo();
 	do_mailout = TRUE;
     }
-    fflush(stdout);
     sprintf(temp, "%s/%s", Dirpath, Filename);
     Syslog('m', "Unlink %s rc=%d", temp, unlink(temp));
     free(temp);
@@ -2575,7 +2587,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 {
     FILE	    *fdm, *fdi, *fdp;
     float	    out, in;
-    char	    *Work, *Temp, *Text;
+    char	    *Work, *Temp, *Text, msg[81];
     unsigned long   Number, Pos, Size, Blocks;
     int		    Pack = FALSE;
     struct tm	    *tp;
@@ -2695,9 +2707,9 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-			colour(CYAN, BLACK);
-			printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
-			fflush(stdout);
+			PUTCHAR('\r');
+			sprintf(msg, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+			pout(CYAN, BLACK, msg);
 		    }
 		}
 	    } while (Msg_Next(&Number));
@@ -2754,7 +2766,7 @@ void OLR_DownASCII(void)
     msg_high        *tmp, *mhl = NULL;
 
     if (strlen(CFG.bbsid) == 0) {
-	printf("System configuration error, inform sysop\n");
+	poutCR(LIGHTRED, BLACK, (char *)"System configuration error, inform sysop");
 	WriteError("Config OLR bbsid not configured");
 	Pause();
 	return;
@@ -2765,9 +2777,8 @@ void OLR_DownASCII(void)
 
     Total = TotalPersonal = 0L;
     clear();
-    colour(LIGHTBLUE, BLACK);
     /*      ASCII Offline Download */
-    printf("%s\n", (char *)Language(460));
+    poutCR(LIGHTBLUE, BLACK, (char *)Language(460));
 
     Work = calloc(PATH_MAX, sizeof(char));
     Temp = calloc(PATH_MAX, sizeof(char));
@@ -2829,15 +2840,18 @@ void OLR_DownASCII(void)
     }
 
     if (Total) {
+	Enter(1);
 	/*        Packing with */
-	printf("\n%s ", (char *)Language(446));
+	PUTSTR((char *)Language(446));
+	PUTCHAR(' ');
 	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((af = fopen(Temp, "r")) != NULL) {
 	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
 	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
 		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
 		    Syslog('+', "Archiver %s", archiver.comment);
-		    printf("%s ", archiver.comment);
+		    PUTSTR(archiver.comment);
+		    PUTCHAR(' ');
 		    alarm_on();
 
 		    for (tmp = mhl; tmp; tmp = tmp->next) {
@@ -2853,15 +2867,15 @@ void OLR_DownASCII(void)
 	}
     }
 
-    colour(CFG.HiliteF, CFG.HiliteB);
     if (rc == FALSE) {
 	Syslog('+', "ASCII download failed");
 	/*      Download failed */
-	printf("%s", (char *)Language(447));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *)Language(447));
     } else {
 	Syslog('+', "ASCII download successfull");
+	PUTCHAR('\r');
 	/*        Download successfull */
-	printf("\r%s\n", (char *)Language(448));
+	poutCR(CFG.HiliteF, CFG.HiliteB, (char *)Language(448));
 
 	if (mhl != NULL)
 	    UpdateLR(mhl, mf);
@@ -2870,7 +2884,7 @@ void OLR_DownASCII(void)
     tidy_high(&mhl);
     free(Temp);
     free(Work);
-    printf("\n\n");
+    Enter(2);
     Pause();
 }
 
@@ -2882,7 +2896,7 @@ void OLR_DownASCII(void)
 unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 {
     FILE            *fp;
-    char            *Work, *Temp, *Text;
+    char            *Work, *Temp, *Text, msg[81];
     unsigned long   Number;
     int             Pack = FALSE;
     struct tm       *tp;
@@ -2938,9 +2952,9 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 
 		    if (BarWidth != (unsigned short)((Total * 61L) / TotalPack)) {
 			BarWidth = (unsigned short)((Total * 61L) / TotalPack);
-			colour(CYAN, BLACK);
-			printf("\r%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
-			fflush(stdout);
+			PUTCHAR('\r');
+			sprintf(msg, "%.*s", BarWidth, "ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл");
+			pout(CYAN, BLACK, msg);
 		    }
 		}
 	    } while (Msg_Next(&Number));

@@ -41,6 +41,7 @@
 #include "mail.h"
 #include "language.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern    pid_t           mypid;
@@ -65,33 +66,34 @@ void Page_Sysop(char *String)
     if (CFG.iAskReason) {
 	locate(6, 0);
 	colour(BLUE, BLACK);
-	printf("%c", 213);
+	PUTCHAR(213);
 	for (i = 0; i < 78; i++) 
-	    printf("%c", 205);
-	printf("%c\n", 184);
+	    PUTCHAR(205);
+	PUTCHAR(184);
+	Enter(1);
 
 	colour(LIGHTGRAY, BLACK);
 	for (i = 0; i < 78; i++) 
-	    printf("%c", 250);
-	printf("\n");
+	    PUTCHAR(250);
+	Enter(1);
 
 	colour(BLUE, BLACK);
-	printf("%c", 212);
+	PUTCHAR(212);
 	for (i = 0; i < 78; i++) 
-	    printf("%c", 205);
-	printf("%c\n", 190);
+	    PUTCHAR(205);
+	PUTCHAR(190);
+	Enter(1);
 
 	locate(7, 2);
-
 	colour(LIGHTGRAY, BLACK);
-	fflush(stdout);
 	GetPageStr(temp, 76);
 
 	colour(BLUE, BLACK);
-	printf("%c", 212);
+	PUTCHAR(212);
 	for (i = 0; i < 78; i++) 
-	    printf("%c", 205);
-	printf("%c\n", 190);
+	    PUTCHAR(205);
+	PUTCHAR(190);
+	Enter(1);
 
 	if ((strcmp(temp, "")) == 0)
 	    return;
@@ -101,7 +103,6 @@ void Page_Sysop(char *String)
     } else {
 	sprintf(Reason, "User want's to chat");
     }
-
 
     CFG.iMaxPageTimes--;
 
@@ -129,7 +130,7 @@ void Page_Sysop(char *String)
     pout(WHITE, BLACK, (char *)"[");
     colour(BLUE, BLACK);
     for (i = 0; i < CFG.iPageLength; i++)
-	printf("%c", 176);
+	PUTCHAR(176);
     pout(WHITE, BLACK, (char *)"]");
 
     locate(16, ((80 - CFG.iPageLength) / 2 - 2) + 1);
@@ -168,8 +169,7 @@ void Page_Sysop(char *String)
      * Check for other errors
      */
     if (strcmp(buf, "100:1,3;") == 0) {
-	colour(LIGHTRED, BLACK);
-	printf("Internal system error, the sysop is informed");
+	pout(LIGHTRED, BLACK, (char *)"Internal system error, the sysop is informed");
 	Enter(2);
 	Syslog('!', "Got error on page sysop command");
 	Pause();
@@ -183,8 +183,7 @@ void Page_Sysop(char *String)
 	 */
 	colour(LIGHTBLUE, BLACK);
 	for (i = 0; i < CFG.iPageLength; i++) {
-	    printf("%c", 219);
-	    fflush(stdout);
+	    PUTCHAR(219);
 	    sleep(1);
 
 	    sprintf(buf, "CISC:1,%d", mypid);
@@ -214,7 +213,7 @@ void Page_Sysop(char *String)
     }
 
     PageReason();
-    printf("\n\n\n");
+    Enter(3);
     Pause();
     if (strlen(Reason))
 	SysopComment(Reason);
@@ -235,12 +234,6 @@ void GetPageStr(char *sStr, int iMaxlen)
     unsigned char   ch = 0; 
     int		    iPos = 0;
 
-    if ((ttyfd = open ("/dev/tty", O_RDWR)) < 0) {
-	perror("open 6");
-	return;
-    }
-    Setraw();
-
     strcpy(sStr, "");
 
     alarm_on();
@@ -248,8 +241,9 @@ void GetPageStr(char *sStr, int iMaxlen)
 	ch = Readkey();
 
 	if (((ch == 8) || (ch == KEY_DEL) || (ch == 127)) && (iPos > 0)) {
-	    printf("\b%c\b", 250);
-	    fflush(stdout);
+	    PUTCHAR('\b');
+	    PUTCHAR(250);
+	    PUTCHAR('\b');
 	    sStr[--iPos]='\0';
 	}
 
@@ -257,16 +251,14 @@ void GetPageStr(char *sStr, int iMaxlen)
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);
-		printf("%c", ch);
+		PUTCHAR(ch);
 		fflush(stdout);
 	    } else
 		ch=13;
 	}
     }
 
-    Unsetraw();
-    close(ttyfd);
-    printf("\n");
+    Enter(1);
 }
 
 
@@ -309,9 +301,9 @@ void PageReason()
 	    if (Lines == j) {
 		Striplf(String);
 		locate(18, ((78 - strlen(String) ) / 2));
-		pout(15, 0, (char *)"[");
-		pout(9, 0, String);
-		pout(15, 0, (char *)"]");
+		pout(WHITE, BLACK, (char *)"[");
+		pout(LIGHTBLUE, BLACK, String);
+		pout(WHITE, BLACK, (char *)"]");
 		iFoundString = TRUE;
 	    }
 
@@ -323,9 +315,9 @@ void PageReason()
 	/* Sysop currently is not available ... please leave a comment */
 	sprintf(String, "%s", (char *) Language(155));
 	locate(18, ((78 - strlen(String) ) / 2));
-	pout(15, 0, (char *)"[");
-	pout(9, 0, String);
-	pout(15, 0, (char *)"]");
+	pout(WHITE, BLACK, (char *)"[");
+	pout(LIGHTBLUE, BLACK, String);
+	pout(WHITE, BLACK, (char *)"]");
     }
 
     free(temp);

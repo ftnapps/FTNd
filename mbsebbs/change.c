@@ -42,101 +42,109 @@
 #include "exitinfo.h"
 #include "bye.h"
 #include "term.h"
-
+#include "ttyio.h"
 
 int Chg_Language(int NewMode)
 {
-	FILE	*pLang;
-	int	iLang, iFoundLang = FALSE;
-	char	*temp;
+    FILE    *pLang;
+    int	    iLang, iFoundLang = FALSE;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	if (!NewMode)
-		ReadExitinfo();
+    if (!NewMode)
+	ReadExitinfo();
 
-	while(TRUE) {
-		sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
-		if(( pLang = fopen(temp, "r")) == NULL) {
-			WriteError("$Can't open %s", temp);
-			printf("\nFATAL: Can't open language file\n\n");
-			Pause();
-			free(temp);
-			return 0;
-		}
-		fread(&langhdr, sizeof(langhdr), 1, pLang);
-
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Select your preferred language */
-		printf("\n%s\n\n", (char *) Language(378));
-
-		iLang = 6;
-		colour(9,0);
-		while (fread(&lang, langhdr.recsize, 1, pLang) == 1)
-			if (lang.Available) {
-				colour(13, 0);
-			   	printf("(%s)", lang.LangKey);
-   				colour(8,0);
-   				printf(" %c ", 46);
-   				colour(3,0);
-		   		printf("%-29s    ", lang.Name);
-
-				iLang++;
-				if ((iLang % 2) == 0)
-					printf("\n");
-			}
-		Enter(1);
-
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Select language: */
-		printf("\n%s", (char *) Language(379));
-
-		fflush(stdout);
-		alarm_on();
-		iLang = toupper(Getone());
-
-		printf("%c", iLang);
-
-		fseek(pLang, langhdr.hdrsize, 0);
-
-		while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
-			strcpy(lang.LangKey,tu(lang.LangKey));
-			if ((lang.LangKey[0] == iLang) && (lang.Available)) {
-				strcpy(CFG.current_language, lang.Filename);
-				iFoundLang = TRUE;
-				break;
-			}
-		}
-	
-		fclose(pLang);
-
-		if(!iFoundLang) {
-			Enter(2);
-			/* Invalid selection, please try again! */
-			pout(10, 0, (char *) Language(265));
-			Enter(2);
-		} else {
-			exitinfo.iLanguage = iLang;
-			strcpy(CFG.current_language, lang.Filename);
-			Free_Language();
-			InitLanguage();
-
-			colour(10, 0);
-			/* Language now set to" */
-			printf("\n\n%s%s\n\n", (char *) Language(380), lang.Name);
-
-			if (!NewMode) {
-				Syslog('+', "Changed language to %s", lang.Name);
-				WriteExitinfo();
-				Pause();
-			}
-			break;
-		}
+    while(TRUE) {
+	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	if(( pLang = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    sprintf(temp, "\nFATAL: Can't open language file\n\n");
+	    PUTSTR(temp);
+	    Pause();
+	    free(temp);
+	    return 0;
 	}
+	fread(&langhdr, sizeof(langhdr), 1, pLang);
 
-	free(temp);
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/* Select your preferred language */
+	sprintf(temp, "\r\n%s\r\n\r\n", (char *) Language(378));
+	PUTSTR(temp);
+
+	iLang = 6;
+	colour(9,0);
+	while (fread(&lang, langhdr.recsize, 1, pLang) == 1)
+	    if (lang.Available) {
+		colour(13, 0);
+		sprintf(temp, "(%s)", lang.LangKey);
+		PUTSTR(temp);
+   		colour(8,0);
+   		sprintf(temp, " %c ", 46);
+		PUTSTR(temp);
+   		colour(3,0);
+		sprintf(temp, "%-29s    ", lang.Name);
+		PUTSTR(temp);
+
+		iLang++;
+		if ((iLang % 2) == 0) {
+		    PUTCHAR('\r');
+		    PUTCHAR('\n');
+		}
+	    }
 	Enter(1);
-	return iLang;
+
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/* Select language: */
+        sprintf(temp, "\n%s", (char *) Language(379));
+	PUTSTR(temp);
+
+	alarm_on();
+	iLang = toupper(Readkey());
+
+	PUTCHAR(iLang);
+
+	fseek(pLang, langhdr.hdrsize, 0);
+
+	while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
+	    strcpy(lang.LangKey,tu(lang.LangKey));
+	    if ((lang.LangKey[0] == iLang) && (lang.Available)) {
+		strcpy(CFG.current_language, lang.Filename);
+		iFoundLang = TRUE;
+		break;
+	    }
+	}
+	
+	fclose(pLang);
+
+	if(!iFoundLang) {
+	    Enter(2);
+	    /* Invalid selection, please try again! */
+	    pout(10, 0, (char *) Language(265));
+	    Enter(2);
+	} else {
+	    exitinfo.iLanguage = iLang;
+	    strcpy(CFG.current_language, lang.Filename);
+	    Free_Language();
+	    InitLanguage();
+
+	    colour(10, 0);
+	    /* Language now set to" */
+	    sprintf(temp, "\r\n\r\n%s%s\r\n\r\n", (char *) Language(380), lang.Name);
+	    PUTSTR(temp);
+
+	    if (!NewMode) {
+		Syslog('+', "Changed language to %s", lang.Name);
+		WriteExitinfo();
+		Pause();
+	    }
+	    break;
+	}
+    }
+
+    free(temp);
+    Enter(1);
+    return iLang;
 }
 
 
@@ -154,7 +162,6 @@ void Chg_Password()
     Enter(1);
     /* Old password: */
     language(15, 0, 120);
-    fflush(stdout);
     colour(CFG.InputColourF, CFG.InputColourB);
     Getpass(temp1);
 
@@ -163,7 +170,6 @@ void Chg_Password()
 	    Enter(1);
 	    /* New password: */
 	    language(9, 0, 121);
-	    fflush(stdout);
 	    colour(CFG.InputColourF, CFG.InputColourB);
 	    Getpass(temp1);
 	    if((strlen(temp1)) >= CFG.password_length) {
@@ -171,7 +177,6 @@ void Chg_Password()
 		/* Confirm new password: */
 		language(9, 0, 122);
 		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
 		Getpass(temp2);
 		if(( strcmp(temp1,temp2)) != 0) {
 		    /* Passwords do not match! */
@@ -179,14 +184,13 @@ void Chg_Password()
 		    language(12, 0, 123);
 		    Enter(1);
 		} else {
-		    fflush(stdout);
-		    fflush(stdin);
 		    break;
 		}
 	    } else {
 		colour(12, 0);
 		/* Your password must contain at least %d characters! Try again.*/
-		printf("\n%s%d %s\n\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
+		sprintf(temp2, "\r\n%s%d %s\r\n\r\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
+		PUTSTR(temp2);
 	    }
 	}
 
@@ -275,8 +279,7 @@ void Chg_Handle()
 	/* Enter a handle (Enter to Quit): */
 	pout(9, 0, (char *) Language(412));
 	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
-	Getname(temp, 34);
+	GetstrC(temp, 34);
 
 	if ((strcmp(temp, "")) == 0) {
 	    free(Handle);
@@ -286,14 +289,14 @@ void Chg_Handle()
 	strcpy(Handle, tlcap(temp));
 
 	if (CheckHandle(Handle) || CheckUnixNames(Handle)) {
-	    pout(12, 0, (char *)"\nThat handle is already been used\n");
+	    pout(12, 0, (char *)"\r\nThat handle is already been used\r\n");
 	} else if (CheckName(Handle)) {
-	    pout(12, 0, (char *)"\nThat name is already been used\n");
-	} else if((strcmp(Handle, "sysop")) == 0) {
-	    pout(12, 0, (char *)"\nYou cannot use Sysop as a handle\n");
+	    pout(12, 0, (char *)"\r\nThat name is already been used\r\n");
+	} else if((strcasecmp(Handle, "sysop")) == 0) {
+	    pout(12, 0, (char *)"\r\nYou cannot use Sysop as a handle\r\n");
 	} else if(strcmp(temp, "") != 0) {
 	    Setup(exitinfo.sHandle, temp);
-	    pout(10, 0, (char *)"\nHandle Changed!\n\n");
+	    pout(10, 0, (char *)"\r\nHandle Changed!\r\n\r\n");
 	    Syslog('+', "New handle \"%s\"", exitinfo.sHandle);
 	    break;
 	}
@@ -311,23 +314,23 @@ void Chg_Handle()
  */
 void Chg_Hotkeys()
 {
-	ReadExitinfo();
-	Enter(2);
+    ReadExitinfo();
+    Enter(2);
 
-	if (exitinfo.HotKeys) {
-		exitinfo.HotKeys = FALSE;
-		/* Hotkeys are now OFF */
-		pout(10, 0, (char *) Language(146));
-	} else {
-		exitinfo.HotKeys = TRUE;
-		/* Hotkeys are now ON */
-		pout(10, 0, (char *) Language(145));
-	}
+    if (exitinfo.HotKeys) {
+	exitinfo.HotKeys = FALSE;
+	/* Hotkeys are now OFF */
+	pout(10, 0, (char *) Language(146));
+    } else {
+	exitinfo.HotKeys = TRUE;
+	/* Hotkeys are now ON */
+	pout(10, 0, (char *) Language(145));
+    }
 
-	Enter(2);
-	sleep(2);
-	Syslog('+', "Hotkeys changed to %s", exitinfo.HotKeys?"True":"False");
-	WriteExitinfo();
+    Enter(2);
+    sleep(2);
+    Syslog('+', "Hotkeys changed to %s", exitinfo.HotKeys?"True":"False");
+    WriteExitinfo();
 }
 
 
@@ -337,23 +340,23 @@ void Chg_Hotkeys()
  */
 void Chg_MailCheck()
 {
-	ReadExitinfo();
-	Enter(2);
+    ReadExitinfo();
+    Enter(2);
 
-	if (exitinfo.MailScan) {
-		exitinfo.MailScan = FALSE;
-		/* New Mail check is now OFF */
-		pout(10, 0, (char *) Language(367));
-	} else {
-		exitinfo.MailScan = TRUE;
-		/* New Mail check is now ON */
-		pout(10, 0, (char *) Language(366));
-	}
+    if (exitinfo.MailScan) {
+	exitinfo.MailScan = FALSE;
+	/* New Mail check is now OFF */
+	pout(10, 0, (char *) Language(367));
+    } else {
+	exitinfo.MailScan = TRUE;
+	/* New Mail check is now ON */
+	pout(10, 0, (char *) Language(366));
+    }
 
-	Enter(2);
-	sleep(2);
-	Syslog('+', "New Mail Check changed to %s", exitinfo.MailScan ?"True":"False");
-	WriteExitinfo();
+    Enter(2);
+    sleep(2);
+    Syslog('+', "New Mail Check changed to %s", exitinfo.MailScan ?"True":"False");
+    WriteExitinfo();
 }
 
 
@@ -363,23 +366,23 @@ void Chg_MailCheck()
  */
 void Chg_FileCheck()
 {
-	ReadExitinfo();
-	Enter(2);
+    ReadExitinfo();
+    Enter(2);
 
-	if (exitinfo.ieFILE) {
-		exitinfo.ieFILE = FALSE;
-		/* New Files check is now OFF */
-		pout(10, 0, (char *) Language(371));
-	} else {
-		exitinfo.ieFILE = TRUE;
-		/* New Files check is now ON */
-		pout(10, 0, (char *) Language(370));
-	}
+    if (exitinfo.ieFILE) {
+	exitinfo.ieFILE = FALSE;
+	/* New Files check is now OFF */
+	pout(10, 0, (char *) Language(371));
+    } else {
+	exitinfo.ieFILE = TRUE;
+	/* New Files check is now ON */
+	pout(10, 0, (char *) Language(370));
+    }
 
-	Enter(2);
-	sleep(2);
-	Syslog('+', "Check New Files changed to %s", exitinfo.ieFILE ?"True":"False");
-	WriteExitinfo();
+    Enter(2);
+    sleep(2);
+    Syslog('+', "Check New Files changed to %s", exitinfo.ieFILE ?"True":"False");
+    WriteExitinfo();
 }
 
 
@@ -390,6 +393,7 @@ void Chg_FileCheck()
 void Chg_FsMsged()
 {
     int	    z;
+    char    temp[81];
 
     ReadExitinfo();
     Enter(2);
@@ -398,7 +402,8 @@ void Chg_FsMsged()
     pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
     /*                 Line/Fullscreen/External    */
     colour(LIGHTCYAN, BLACK);
-    printf(" %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    sprintf(temp, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    PUTSTR(temp);
     /*                                      Editor */
     pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
     Enter(1);
@@ -409,9 +414,8 @@ void Chg_FsMsged()
     else
 	/* Select: 1) Line editor, 2) Fullscreen editor */
 	pout(WHITE, BLACK, (char *)Language(438));
-    fflush(stdout);
     alarm_on();
-    z = toupper(Getone());
+    z = toupper(Readkey());
 
     if (z == Keystroke(373, 0)) {
 	exitinfo.MsgEditor = LINEEDIT;
@@ -430,7 +434,8 @@ void Chg_FsMsged()
     pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
     /*                 Line/Fullscreen/External    */
     colour(LIGHTCYAN, BLACK);
-    printf(" %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    sprintf(temp, " %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    PUTSTR(temp);
     /*                                      Editor */
     pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
 
@@ -471,71 +476,70 @@ void Chg_FsMsgedKeys()
  */
 void Chg_Disturb()
 {
-	ReadExitinfo();
-	colour(10, 0);
+    ReadExitinfo();
+    Enter(2);
 
-	if(exitinfo.DoNotDisturb) {
-		exitinfo.DoNotDisturb = FALSE;
-		/* Do not disturb turned OFF */
-		printf("\n%s\n", (char *) Language(416));
-	} else {
-		exitinfo.DoNotDisturb = TRUE;
-		/* Do not disturb turned ON */
-		printf("\n%s\n", (char *) Language(417));
-	}
+    if(exitinfo.DoNotDisturb) {
+	exitinfo.DoNotDisturb = FALSE;
+	/* Do not disturb turned OFF */
+	pout(10, 0, (char *) Language(416));
+    } else {
+	exitinfo.DoNotDisturb = TRUE;
+	/* Do not disturb turned ON */
+	pout(10, 0, (char *) Language(417));
+    }
 
-	Syslog('+', "Do not disturb now %s", exitinfo.DoNotDisturb?"True":"False");
-	UserSilent(exitinfo.DoNotDisturb);
-	sleep(2);
-	WriteExitinfo();
+    Enter(2);
+    Syslog('+', "Do not disturb now %s", exitinfo.DoNotDisturb?"True":"False");
+    UserSilent(exitinfo.DoNotDisturb);
+    sleep(2);
+    WriteExitinfo();
 }
 
 
 
 void Chg_Location()
 {
-	char	temp[81];
+    char    temp[81];
 
-	ReadExitinfo();
-	Syslog('+', "Old location \"%s\"", exitinfo.sLocation);
+    ReadExitinfo();
+    Syslog('+', "Old location \"%s\"", exitinfo.sLocation);
 
-	while (TRUE) {
-		/* Old Location: */
-		Enter(1);
-		/* Old location: */
-		pout(15, 0, (char *) Language(73));
-		colour(9, 0);
-		printf("%s\n", exitinfo.sLocation);
-		Enter(1);
-		/* Please enter your location: */
-		pout(14, 0, (char *) Language(49));
+    while (TRUE) {
+	/* Old Location: */
+	Enter(1);
+	/* Old location: */
+	pout(15, 0, (char *) Language(73));
+	pout(9, 0, exitinfo.sLocation);
+	Enter(2);
+	/* Please enter your location: */
+	pout(14, 0, (char *) Language(49));
 
-		if(CFG.iCapLocation) {
-			colour(CFG.InputColourF, CFG.InputColourB);
-			fflush(stdout);
-			GetnameNE(temp, 24);
-		} else {
-			colour(CFG.InputColourF, CFG.InputColourB);      			
-			GetstrC(temp, 80);
-		}
-
-		if((strcmp(temp, "")) == 0)
-			break;
-
-		if(( strlen(temp)) < CFG.CityLen) {
-			Enter(1);
-			/* Please enter a longer location (min */
-			colour(12, 0);
-			printf("%s%d)", (char *) Language(74), CFG.CityLen);
-			Enter(1);
-		} else {
-			Setup(exitinfo.sLocation,temp);
-			break;
-		}
+	colour(CFG.InputColourF, CFG.InputColourB);
+	if (CFG.iCapLocation) {
+	    GetnameNE(temp, 24);
+	} else {
+	    GetstrC(temp, 80);
 	}
 
-	Syslog('+', "New location \"%s\"", exitinfo.sLocation);
-	WriteExitinfo();
+	if((strcmp(temp, "")) == 0)
+	    break;
+
+	if(( strlen(temp)) < CFG.CityLen) {
+	    Enter(1);
+	    /* Please enter a longer location (min */
+	    colour(12, 0);
+	    sprintf(temp, "%s%d)", (char *) Language(74), CFG.CityLen);
+	    PUTSTR(temp);
+	    Enter(1);
+	} else {
+	    Setup(exitinfo.sLocation,temp);
+	    break;
+	}
+    }
+
+    Syslog('+', "New location \"%s\"", exitinfo.sLocation);
+    WriteExitinfo();
 }
 
 
@@ -556,10 +560,12 @@ void Chg_Address()
 	pout(WHITE, BLACK, (char *) Language(476));
 	Enter(1);
 	colour(LIGHTBLUE, BLACK);
-	printf("%s\n", exitinfo.address[0]);
-	printf("%s\n", exitinfo.address[1]);
-	printf("%s\n", exitinfo.address[2]);
+	PUTSTR(exitinfo.address[0]);
 	Enter(1);
+	PUTSTR(exitinfo.address[1]);
+	Enter(1);
+	PUTSTR(exitinfo.address[2]);
+	Enter(2);
 	/* Your address, maximum 3 lines (only visible for the sysop): */
 	pout(YELLOW, BLACK, (char *) Language(474));
 	Enter(1);
@@ -568,7 +574,6 @@ void Chg_Address()
 	    colour(YELLOW, BLACK);
 	    printf("%d: ", i+1);
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    alarm_on();
 	    GetstrC(temp, 40);
 	    if (strcmp(temp, ""))
@@ -597,145 +602,145 @@ void Chg_Address()
  */
 void Chg_Graphics()
 {
-	ReadExitinfo();
-	Enter(2);
+    ReadExitinfo();
+    Enter(2);
 
-	if (exitinfo.GraphMode) {
-		exitinfo.GraphMode = FALSE;
-		/* Ansi Mode turned OFF */
-		pout(15, 0, (char *) Language(76));
-	} else {
-		exitinfo.GraphMode = TRUE;
-		/* Ansi Mode turned ON */
-		pout(15, 0, (char *) Language(75));
-	}
+    if (exitinfo.GraphMode) {
+	exitinfo.GraphMode = FALSE;
+	/* Ansi Mode turned OFF */
+	pout(15, 0, (char *) Language(76));
+    } else {
+	exitinfo.GraphMode = TRUE;
+	/* Ansi Mode turned ON */
+	pout(15, 0, (char *) Language(75));
+    }
 
-	Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
-	Enter(2);
-	TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
-	WriteExitinfo();
-	sleep(2);
+    Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
+    Enter(2);
+    TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
+    WriteExitinfo();
+    sleep(2);
 }
 
 
 
 void Chg_VoicePhone()
 {
-	char	temp[81];
+    char	temp[81];
 
-	ReadExitinfo();
-	Syslog('+', "Old voice phone \"%s\"", exitinfo.sVoicePhone);
+    ReadExitinfo();
+    Syslog('+', "Old voice phone \"%s\"", exitinfo.sVoicePhone);
 
-	while (TRUE) {
-		Enter(1);
-		/* Please enter you Voice Number */
-		pout(10, 0, (char *) Language(45));
-		Enter(1);
-		pout(10, 0, (char *)": ");
-		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
-		GetPhone(temp, 16);
+    while (TRUE) {
+	Enter(1);
+	/* Please enter you Voice Number */
+	pout(10, 0, (char *) Language(45));
+	Enter(1);
+	pout(10, 0, (char *)": ");
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetPhone(temp, 16);
 
-		if (strlen(temp) < 6) {
-			Enter(1);
-			/* Please enter a proper phone number */
-			pout(12, 0, (char *) Language(47));
-			Enter(1);
-		} else {
-			strcpy(exitinfo.sVoicePhone, temp);
-			break;
-		}
+	if (strlen(temp) < 6) {
+	    Enter(1);
+	    /* Please enter a proper phone number */
+	    pout(12, 0, (char *) Language(47));
+	    Enter(1);
+	} else {
+	    strcpy(exitinfo.sVoicePhone, temp);
+	    break;
 	}
+    }
 
-	Syslog('+', "New voice phone \"%s\"", exitinfo.sVoicePhone);
-	WriteExitinfo();
+    Syslog('+', "New voice phone \"%s\"", exitinfo.sVoicePhone);
+    WriteExitinfo();
 }
 
 
 
 void Chg_DataPhone()
 {
-	char	temp[81];
+    char	temp[81];
 
-	ReadExitinfo();
-	Syslog('+', "Old data phone \"%s\"", exitinfo.sDataPhone);
+    ReadExitinfo();
+    Syslog('+', "Old data phone \"%s\"", exitinfo.sDataPhone);
 
-	while (1) {
-		Enter(1);
-		/* Please enter you Data Number */
-		pout(10, 0, (char *) Language(48));
-		Enter(1);
-		pout(10, 0, (char *)": ");
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetPhone(temp, 16);
+    while (1) {
+	Enter(1);
+	/* Please enter you Data Number */
+	pout(10, 0, (char *) Language(48));
+	Enter(1);
+	pout(10, 0, (char *)": ");
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetPhone(temp, 16);
 
-		if( strlen(temp) < 6) {
-			Enter(1);
-			/* Please enter a proper phone number */
-			pout(12, 0, (char *) Language(47));
-			Enter(1);
-		} else {
-			strcpy(exitinfo.sDataPhone, temp);
-			break;
-		}
+	if( strlen(temp) < 6) {
+	    Enter(1);
+	    /* Please enter a proper phone number */
+	    pout(12, 0, (char *) Language(47));
+	    Enter(1);
+	} else {
+	    strcpy(exitinfo.sDataPhone, temp);
+	    break;
 	}
+    }
 
-	Syslog('+', "New data phone \"%s\"", exitinfo.sDataPhone);
-	WriteExitinfo();
+    Syslog('+', "New data phone \"%s\"", exitinfo.sDataPhone);
+    WriteExitinfo();
 }
 
 
 
 void Chg_News()
 {
-	ReadExitinfo();
+    ReadExitinfo();
+    Enter(2);
 
-	if (exitinfo.ieNEWS) {
-		exitinfo.ieNEWS = FALSE;
-		/* News bulletins turned OFF */
-		printf("\n\n%s\n\n", (char *) Language(79));
-	} else {
-		exitinfo.ieNEWS = TRUE;
-		/* News bulletins turned ON */
-		printf("\n\n%s\n\n", (char *) Language(78));
-	}
+    if (exitinfo.ieNEWS) {
+	exitinfo.ieNEWS = FALSE;
+	/* News bulletins turned OFF */
+	pout(10, 0, (char *) Language(79));
+    } else {
+	exitinfo.ieNEWS = TRUE;
+	/* News bulletins turned ON */
+	pout(10, 0, (char *) Language(78));
+    }
 
-	Syslog('+', "News bullentins now %s", exitinfo.ieNEWS?"True":"False");
-	sleep(2);
-	WriteExitinfo();
+    Enter(2);
+    Syslog('+', "News bullentins now %s", exitinfo.ieNEWS?"True":"False");
+    sleep(2);
+    WriteExitinfo();
 }
 
 
 
 void Chg_ScreenLen()
 {
-	char	*temp;
+    char	*temp;
 
-	ReadExitinfo();
-	temp = calloc(81, sizeof(char));
-	Syslog('+', "Old screenlen %d", exitinfo.iScreenLen);
-	fflush(stdin);
+    ReadExitinfo();
+    temp = calloc(81, sizeof(char));
+    Syslog('+', "Old screenlen %d", exitinfo.iScreenLen);
 
-	Enter(1);
-	/* Please enter your Screen Length? [24]: */
-	pout(13, 0, (char *) Language(64));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
-	Getnum(temp, 2);
+    Enter(1);
+    /* Please enter your Screen Length? [24]: */
+    pout(13, 0, (char *) Language(64));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    Getnum(temp, 2);
 
-	if((strcmp(temp, "")) == 0) {
-		exitinfo.iScreenLen = 24;
-		printf("\n%s\n\n", (char *) Language(80));
-	} else {
-		exitinfo.iScreenLen = atoi(temp);
-		printf("\n%s%d\n\n", (char *) Language(81), exitinfo.iScreenLen);
-	}
+    if((strcmp(temp, "")) == 0) {
+	exitinfo.iScreenLen = 24;
+	sprintf(temp, "\r\n%s\r\n\r\n", (char *) Language(80));
+    } else {
+	exitinfo.iScreenLen = atoi(temp);
+	sprintf(temp, "\r\n%s%d\r\n\r\n", (char *) Language(81), exitinfo.iScreenLen);
+    }
+    PUTSTR(temp);
 
-	TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
-	Syslog('+', "New screenlen %d", exitinfo.iScreenLen);
-	WriteExitinfo();
-	Pause();
-	free(temp);
+    TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
+    Syslog('+', "New screenlen %d", exitinfo.iScreenLen);
+    WriteExitinfo();
+    Pause();
+    free(temp);
 }
 
 
@@ -745,89 +750,90 @@ void Chg_ScreenLen()
  */
 int Test_DOB(char *DOB)
 {
-	int	tyear, year, month, day;
-	char	temp[40], temp1[40];
+    int	    tyear, year, month, day;
+    char    temp[40], temp1[40];
 
-	/*
-	 * If Ask Date of Birth is off, assume users age is
-	 * zero, and this check is ok.
-	 */
-	if (!CFG.iDOB) {
-	    UserAge = 0;
-	    return TRUE;
-	}
+    /*
+     * If Ask Date of Birth is off, assume users age is
+     * zero, and this check is ok.
+     */
+    if (!CFG.iDOB) {
+        UserAge = 0;
+        return TRUE;
+    }
 
-	/*
-	 *  First check length of string 
-	 */
-	if (strlen(DOB) != 10) {
-		Syslog('!', "Date format length %d characters", strlen(DOB));
-		/* Please enter the correct date format */
-		language(14, 0, 83);
-		return FALSE;
-	}
-	/*
-	 * Split the date into pieces
-	 */
-	strcpy(temp1, DOB);
-	strcpy(temp, strtok(temp1, "-"));
-	day = atoi(temp);
-	strcpy(temp, strtok(NULL, "-"));
-	month = atoi(temp);
-	strcpy(temp, strtok(NULL, ""));
-	year = atoi(temp);
-	tyear = l_date->tm_year + 1900;
+    /*
+     *  First check length of string 
+     */
+    if (strlen(DOB) != 10) {
+	Syslog('!', "Date format length %d characters", strlen(DOB));
+	/* Please enter the correct date format */
+	language(14, 0, 83);
+	return FALSE;
+    }
+	
+    /*
+     * Split the date into pieces
+     */
+    strcpy(temp1, DOB);
+    strcpy(temp, strtok(temp1, "-"));
+    day = atoi(temp);
+    strcpy(temp, strtok(NULL, "-"));
+    month = atoi(temp);
+    strcpy(temp, strtok(NULL, ""));
+    year = atoi(temp);
+    tyear = l_date->tm_year + 1900;
 
-	if (((tyear - year) < 10) || ((tyear - year) > 95)) {
-		Syslog('!', "DOB: Year error: %d", tyear - year);
-		return FALSE;
-	}
-	if ((month < 1) || (month > 12)) {
-		Syslog('!', "DOB: Month error: %d", month);
-		return FALSE;
-	}
-	if ((day < 1) || (day > 31)) {
-		Syslog('!', "DOB: Day error: %d", day);
-		return FALSE;
-	}
+    if (((tyear - year) < 10) || ((tyear - year) > 95)) {
+	Syslog('!', "DOB: Year error: %d", tyear - year);
+	return FALSE;
+    }
+    if ((month < 1) || (month > 12)) {
+	Syslog('!', "DOB: Month error: %d", month);
+	return FALSE;
+    }
+    if ((day < 1) || (day > 31)) {
+	Syslog('!', "DOB: Day error: %d", day);
+	return FALSE;
+    }
 
-	UserAge = tyear - year;
-	if ((l_date->tm_mon + 1) < month)
-		UserAge--;
-	if (((l_date->tm_mon + 1) == month) && (l_date->tm_mday < day))
-		UserAge--; 
-	Syslog('B', "DOB: Users age %d year", UserAge);
-	return TRUE;
+    UserAge = tyear - year;
+    if ((l_date->tm_mon + 1) < month)
+	UserAge--;
+    if (((l_date->tm_mon + 1) == month) && (l_date->tm_mday < day))
+	UserAge--; 
+    Syslog('B', "DOB: Users age %d year", UserAge);
+    return TRUE;
 }
 
 
 
 void Chg_DOB()
 {
-	char	*temp;
+    char	*temp;
 
-	if (!CFG.iDOB)
-	    return;
+    if (!CFG.iDOB)
+	return;
 
-	temp  = calloc(81, sizeof(char));
-	ReadExitinfo();
-	Syslog('+', "Old DOB %s", exitinfo.sDateOfBirth);
+    temp  = calloc(81, sizeof(char));
+    ReadExitinfo();
+    Syslog('+', "Old DOB %s", exitinfo.sDateOfBirth);
 
-	while (TRUE) {
-		Enter(1);
-		/* Please enter your Date of Birth DD-MM-YYYY: */
-		pout(3, 0, (char *) Language(56));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetDate(temp, 10);
-		if (Test_DOB(temp)) {
-			Setup(exitinfo.sDateOfBirth, temp);
-			break;
-		}
+    while (TRUE) {
+	Enter(1);
+	/* Please enter your Date of Birth DD-MM-YYYY: */
+	pout(3, 0, (char *) Language(56));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetDate(temp, 10);
+	if (Test_DOB(temp)) {
+	    Setup(exitinfo.sDateOfBirth, temp);
+	    break;
 	}
+    }
 
-	Syslog('+', "New DOB %s", exitinfo.sDateOfBirth);
-	WriteExitinfo();
-	free(temp);
+    Syslog('+', "New DOB %s", exitinfo.sDateOfBirth);
+    WriteExitinfo();
+    free(temp);
 }
 
 
@@ -837,130 +843,137 @@ void Chg_DOB()
  */
 void Chg_Protocol()
 {
-	FILE	*pProtConfig;
-	int	iProt, iFoundProt = FALSE;
-	int	precno = 0;
-	char	*temp;
-	char	Prot[2];
+    FILE    *pProtConfig;
+    int	    iProt, iFoundProt = FALSE, precno = 0;
+    char    *temp, Prot[2];
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	ReadExitinfo();
-	Syslog('+', "Old protocol %s", sProtName);
+    temp = calloc(PATH_MAX, sizeof(char));
+    ReadExitinfo();
+    Syslog('+', "Old protocol %s", sProtName);
 
-	while(TRUE) {
-		sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    while(TRUE) {
+	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 	
-		if ((pProtConfig = fopen(temp, "r")) == NULL) {
-			WriteError("$Can't open %s", temp);
-			/* Protocol: Can't open protocol file. */
-			printf("\n%s\n\n", (char *) Language(262));
-			Pause();
-			free(temp);
-			fclose(pProtConfig);
-			return;
-		}
-		fread(&PROThdr, sizeof(PROThdr), 1, pProtConfig);
+	if ((pProtConfig = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    /* Protocol: Can't open protocol file. */
+	    Enter(1);
+	    PUTSTR((char *) Language(262));
+	    Enter(2);
+	    Pause();
+	    free(temp);
+	    fclose(pProtConfig);
+	    return;
+	}
+	fread(&PROThdr, sizeof(PROThdr), 1, pProtConfig);
 
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Select your preferred protocol */
-		printf("\n%s\n\n", (char *) Language(263));
+	Enter(1);
+	/* Select your preferred protocol */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(263));
+	Enter(2);
 
-		colour(9,0);
-		while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1)
-			if (PROT.Available && Access(exitinfo.Security, PROT.Level))
-			   	printf("(%s)  %-20s Efficiency %3d %%\n", PROT.ProtKey, PROT.ProtName, PROT.Efficiency);
+	colour(9,0);
+	while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
+	    if (PROT.Available && Access(exitinfo.Security, PROT.Level)) {
+		sprintf(temp, "(%s)  %-20s Efficiency %3d %%\r\n", PROT.ProtKey, PROT.ProtName, PROT.Efficiency);
+		PUTSTR(temp);
+	    }
+	}
+	
+	Enter(1);
+        pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(264));
 
-		colour(CFG.HiliteF, CFG.HiliteB);
-		printf("\n%s", (char *) Language(264));
+        alarm_on();
+        iProt = toupper(Readkey());
 
-		fflush(stdout);
-		alarm_on();
-		iProt = toupper(Getone());
+        PUTCHAR(iProt);
+        sprintf(Prot, "%c", iProt);
 
-		printf("%c", iProt);
-		sprintf(Prot, "%c", iProt);
-
-		fseek(pProtConfig, PROThdr.hdrsize, 0);
-		while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
-			if ((strncmp(PROT.ProtKey, Prot, 1) == 0) &&
-			    PROT.Available && Access(exitinfo.Security, PROT.Level)) {
-				strcpy(sProtName, PROT.ProtName);
-				strcpy(sProtUp, PROT.ProtUp);
-				strcpy(sProtDn, PROT.ProtDn);
-				strcpy(sProtAdvice, PROT.Advice);
-				uProtBatch = PROT.Batch;
-				uProtBidir = PROT.Bidir;
-				iProtEfficiency = PROT.Efficiency;
-				iFoundProt = TRUE;
-			} else
-				precno++;
-		}
-
-		fclose(pProtConfig);
-
-		if (iProt == 13) {
-			free(temp);
-			return;
-		} else 
-			if (!iFoundProt) {
-				Enter(2);
-				pout(10, 0, (char *) Language(265));
-				Enter(2);
-				/* Loop for new attempt */
-			} else {
-				Setup(exitinfo.sProtocol, sProtName);
-				colour(10,0);
-				/* Protocol now set to: */
-				printf("\n\n%s%s\n\n", (char *) Language(266), sProtName);
-				Pause();
-				break;
-			}
+        fseek(pProtConfig, PROThdr.hdrsize, 0);
+        while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
+	    if ((strncmp(PROT.ProtKey, Prot, 1) == 0) && PROT.Available && Access(exitinfo.Security, PROT.Level)) {
+	        strcpy(sProtName, PROT.ProtName);
+	        strcpy(sProtUp, PROT.ProtUp);
+	        strcpy(sProtDn, PROT.ProtDn);
+	        strcpy(sProtAdvice, PROT.Advice);
+	        uProtBatch = PROT.Batch;
+	        uProtBidir = PROT.Bidir;
+	        iProtEfficiency = PROT.Efficiency;
+	        iFoundProt = TRUE;
+	    } else
+	        precno++;
 	}
 
-	Syslog('+', "New protocol %s", sProtName);
-	WriteExitinfo();
-	free(temp);
+        fclose(pProtConfig);
+
+        if (iProt == 13) {
+	    free(temp);
+	    return;
+	} else {
+	    if (!iFoundProt) {
+	        Enter(2);
+	        pout(10, 0, (char *) Language(265));
+	        Enter(2);
+	        /* Loop for new attempt */
+	    } else {
+	        Setup(exitinfo.sProtocol, sProtName);
+	        Enter(1);
+	        /* Protocol now set to: */
+	        pout(10, 0, (char *) Language(266));
+		PUTSTR(sProtName);
+	        Enter(2);
+	        Pause();
+	        break;
+	    }
+	}
+    }
+
+    Syslog('+', "New protocol %s", sProtName);
+    WriteExitinfo();
+    free(temp);
 }
 
 
 
 void Set_Protocol(char *Protocol)
 {
-	FILE	*pProtConfig;
-	int	precno = 0;
-	char	*temp;
+    FILE    *pProtConfig;
+    int	    precno = 0;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
+    sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 
-	if(( pProtConfig = fopen(temp, "rb")) == NULL) {
-		WriteError("$Can't open %s", temp);
-		/* Protocol: Can't open protocol file. */
-		printf("\n%s\n\n", (char *) Language(262));
-		Pause();
-		free(temp);
-		return;
-	}
+    if(( pProtConfig = fopen(temp, "rb")) == NULL) {
+	WriteError("$Can't open %s", temp);
+        Enter(1);
+        /* Protocol: Can't open protocol file. */
+        pout(LIGHTRED, BLACK, (char *) Language(262));
+        Enter(2);
+        Pause();
+        free(temp);
+        return;
+    }
 
-	fread(&PROThdr, sizeof(PROThdr), 1, pProtConfig);
+    fread(&PROThdr, sizeof(PROThdr), 1, pProtConfig);
 
-	while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
-		if ((strcmp(PROT.ProtName, Protocol)) == 0) {
-			tlf(sProtName);
-			strcpy(sProtName, PROT.ProtName);
-			strcpy(sProtUp, PROT.ProtUp);
-			strcpy(sProtDn, PROT.ProtDn);
-			strcpy(sProtAdvice, PROT.Advice);
-			uProtBatch = PROT.Batch;
-			uProtBidir = PROT.Bidir;
-			iProtEfficiency = PROT.Efficiency;
-		} else
-			precno++;
-	}
+    while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
+	if ((strcmp(PROT.ProtName, Protocol)) == 0) {
+	    tlf(sProtName);
+	    strcpy(sProtName, PROT.ProtName);
+	    strcpy(sProtUp, PROT.ProtUp);
+	    strcpy(sProtDn, PROT.ProtDn);
+	    strcpy(sProtAdvice, PROT.Advice);
+	    uProtBatch = PROT.Batch;
+	    uProtBidir = PROT.Bidir;
+	    iProtEfficiency = PROT.Efficiency;
+	} else
+	    precno++;
+    }
 
-	free(temp);
-	fclose(pProtConfig);
+    free(temp);
+    fclose(pProtConfig);
 }
 
 
@@ -968,16 +981,19 @@ void Set_Protocol(char *Protocol)
 void Chg_OLR_ExtInfo()
 {
     ReadExitinfo();
+    Enter(2);
 
     if (exitinfo.OL_ExtInfo) {
 	exitinfo.OL_ExtInfo = FALSE;
 	/* Offline Reader: Extended Info turned OFF */
-	printf("\n\n%s\n\n", (char *) Language(16));
+	pout(GREEN, BLACK, (char *) Language(16));
     } else {
 	exitinfo.OL_ExtInfo = TRUE;
 	/* Offline Reader: Extended Info turned ON */
-	printf("\n\n%s\n\n", (char *) Language(15));
+	pout(GREEN, BLACK, (char *) Language(15));
     }
+
+    Enter(2);
     Syslog('+', "OLR Extended Info now %s", exitinfo.OL_ExtInfo?"True":"False");
     sleep(2);
     WriteExitinfo();
@@ -998,25 +1014,28 @@ void Chg_Charset()
     Syslog('+', "Old character set %s", getchrs(exitinfo.Charset));
 
     while(TRUE) {
-        colour(CFG.HiliteF, CFG.HiliteB);
+	Enter(1);
         /* Select your preferred character set */
-        printf("\n%s\n\n", (char *) Language(23));
+        pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(23));
+	Enter(2);
 
         colour(LIGHTBLUE, BLACK);
 	for (i = (FTNC_NONE + 1); i <= FTNC_MAXCHARS; i++) {
 	    colour(LIGHTBLUE, BLACK);
-	    printf("%2d ", i);
+	    sprintf(temp, "%2d ", i);
+	    PUTSTR(temp);
 	    colour(LIGHTCYAN, BLACK);
-	    printf("%-9s ", getchrs(i));
+	    sprintf(temp, "%-9s ", getchrs(i));
+	    PUTSTR(temp);
 	    colour(LIGHTMAGENTA, BLACK);
-	    printf("%s\n", getchrsdesc(i));
+	    sprintf(temp, "%s\r\n", getchrsdesc(i));
+	    PUTSTR(temp);
 	}
 
-        colour(CFG.HiliteF, CFG.HiliteB);
+	Enter(1);
 	/* Select character set  (Enter to Quit): */
-        printf("\n%s", (char *) Language(24));
+        pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(24));
 
-        fflush(stdout);
 	Getnum(temp, 2);
 
 	if (((strcmp(temp, "")) == 0) && (exitinfo.Charset != FTNC_NONE)) {
@@ -1030,10 +1049,13 @@ void Chg_Charset()
 	    exitinfo.Charset = i;
 	    Syslog('+', "New character set %s", getchrs(exitinfo.Charset));
 	    WriteExitinfo();
-	    free(temp);
+	    Enter(2);
 	    colour(LIGHTGREEN, BLACK);
 	    /* Character set now set to: */
-	    printf("\n\n%s%s\n\n", (char *) Language(25), getchrs(i));
+	    sprintf(temp, "%s%s", (char *) Language(25), getchrs(i));
+	    PUTSTR(temp);
+	    free(temp);
+	    Enter(2);
 	    Pause();
 	    return;
 	}

@@ -36,62 +36,61 @@
 #include "language.h"
 #include "morefile.h"
 #include "timeout.h"
-
+#include "term.h"
+#include "ttyio.h"
 
 
 int MoreFile(char *filename)
 {
-	char	Buf[81];
-	static	FILE *fptr;
-	int	lines;
-	int	input;
-	int	ignore = FALSE;
-	int	maxlines;
+    char	Buf[81];
+    static FILE	*fptr;
+    int		lines, input, ignore = FALSE, maxlines;
 
-	maxlines = lines = exitinfo.iScreenLen - 2;
+    maxlines = lines = exitinfo.iScreenLen - 2;
 
-	if ((fptr =  fopen(filename,"r")) == NULL) {
-		printf("%s%s\n", (char *) Language(72), filename);
+    if ((fptr =  fopen(filename,"r")) == NULL) {
+	sprintf(Buf, "%s%s", (char *) Language(72), filename);
+	pout(LIGHTRED, BLACK, Buf);
+	Enter(2);
+	return(0);
+    }
+
+    Enter(1);
+
+    while (fgets(Buf,80,fptr) != NULL) {
+	if ((lines != 0) || (ignore)) {
+	    lines--;
+	    PUTSTR(Buf);
+	}
+
+	if (strlen(Buf) == 0) {
+	    fclose(fptr);
+	    return(0);
+	}
+	if (lines == 0) {
+	    /* More (Y/n/=) */
+	    sprintf(Buf, " %sY\x08", (char *) Language(61));
+	    PUTSTR(Buf);
+	    alarm_on();
+	    input = toupper(getchar());
+
+	    if ((input == Keystroke(61, 0)) || (input == '\r'))
+		lines = maxlines;
+
+	    if (input == Keystroke(61, 1)) {
+		fclose(fptr);
 		return(0);
+	    }
+
+	    if (input == Keystroke(61, 2))
+		ignore = TRUE;
+	    else
+		lines  = maxlines;
 	}
-
-	printf("\n");
-
-	while (fgets(Buf,80,fptr) != NULL) {
-		if ((lines != 0) || (ignore)) {
-			lines--;
-			printf("%s",Buf);
-		}
-
-		if (strlen(Buf) == 0) {
-			fclose(fptr);
-			return(0);
-		}
-		if (lines == 0) {
-			fflush(stdin);
-			/* More (Y/n/=) */
-			printf(" %sY\x08", (char *) Language(61));
-			fflush(stdout);
-			alarm_on();
-			input = toupper(getchar());
-
-			if ((input == Keystroke(61, 0)) || (input == '\r'))
-				lines = maxlines;
-
-			if (input == Keystroke(61, 1)) {
-				fclose(fptr);
-				return(0);
-			}
-
-			if (input == Keystroke(61, 2))
-				ignore = TRUE;
-			else
-				lines  = maxlines;
-		}
-	}
-	Pause();
-	fclose(fptr);
-	return 1;
+    }
+    Pause();
+    fclose(fptr);
+    return 1;
 }
 
 

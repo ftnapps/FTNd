@@ -259,7 +259,7 @@ JN|Node onbekend, toch doorgaan [j/N]:
 |Geen bestanden gemarkeerd voor download.
 |extra minuten.
 |De volgende conferentie(s) zijn geselecteerd:
-|Bestand             Grootte     Datum
+|Bestand                                                Grootte     Datum
 |Protocol: Kan protocollen bestand niet openen.
 |Kies Uw favourite overdracht protocol
 |Kies Protocol (Enter is Stop): 

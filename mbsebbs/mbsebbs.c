@@ -43,6 +43,8 @@
 #include "timeout.h"
 #include "funcs.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
 
 #include <locale.h>
 #include <langinfo.h>
@@ -57,10 +59,9 @@ int main(int argc, char **argv)
 {
     FILE	*pTty;
     char	*p, *tty, temp[PATH_MAX];
-    int		i;
+    int		i, rc;
     struct stat	sb;
 
-    printf("Loading MBSE BBS ...\n");
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);
 
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
     } else if (getenv("USER") != NULL) {
 	strcpy(sUnixName, getenv("USER"));
     } else {
-        WriteError("No username in environment");
+        fprintf(stderr, "No username in environment\n");
         Quick_Bye(MBERR_OK);
     }
 
@@ -104,9 +105,17 @@ int main(int argc, char **argv)
     InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, 
 	    CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
     IsDoing("Loging in");
-
     Syslog(' ', " ");
     Syslog(' ', "MBSEBBS v%s", VERSION);
+
+    if ((rc = rawport()) != 0) {
+	WriteError("Unable to set raw mode");
+	Quick_Bye(MBERR_OK);;
+    }
+
+    PUTSTR((char *)"Loading MBSE BBS ...");
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 
     if ((p = getenv("CONNECT")) != NULL)
 	Syslog('+', "CONNECT %s", p);
@@ -142,8 +151,8 @@ int main(int argc, char **argv)
     /* 
      * Trap signals
      */
-    for(i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
@@ -156,7 +165,7 @@ int main(int argc, char **argv)
      * is in color, the user will see color no mather what.
      */
     TermInit(1, 80, 24);
-		
+
     /*
      * Now it's time to check if the bbs is open. If not, we 
      * log the user off.
@@ -170,10 +179,10 @@ int main(int argc, char **argv)
     clear();
     DisplayLogo();
 
-    colour(YELLOW, BLACK);
-    printf("MBSE BBS v%s (Release: %s) on %s/%s\n", VERSION, ReleaseDate, OsName(), OsCPU());
-    colour(WHITE, BLACK);
-    printf("%s\n\n", COPYRIGHT);
+    sprintf(temp, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
+    poutCR(YELLOW, BLACK, temp);
+    pout(WHITE, BLACK, (char *)COPYRIGHT);
+    Enter(2);
  
     /*
      * Check users homedirectory, some *nix systems let users in if no
@@ -181,7 +190,8 @@ int main(int argc, char **argv)
      */
     sprintf(temp, "%s/%s", CFG.bbs_usersdir, sUnixName);
     if (stat(temp, &sb)) {
-	printf("No homedirectory\n\n");
+	sprintf(temp, "No homedirectory\r\n\r\n");
+	PUTSTR(temp);
 	WriteError("homedirectory %s doesn't exist", temp);
 	Quick_Bye(MBERR_OK);
     }
@@ -204,7 +214,8 @@ int main(int argc, char **argv)
 
 	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-	    printf("No BBS on this port allowed!\n\n");
+	    sprintf(temp, "No BBS on this port allowed!\r\n\r\n");
+	    PUTSTR(temp);
 	    Free_Language();
 	    Quick_Bye(MBERR_OK);
 	}
@@ -214,10 +225,12 @@ int main(int argc, char **argv)
 	 */
 	if (CFG.iConnectString) {
 	    /* Connected on port */
-	    colour(CYAN, BLACK);
-	    printf("%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    sprintf(temp, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    pout(CYAN, BLACK, temp);
 	    /* on */
-	    printf("%s %s\n", (char *) Language(135), ctime(&ltime));
+	    sprintf(temp, "%s %s", (char *) Language(135), ctime(&ltime));
+	    PUTSTR(temp);
+	    Enter(1);
 	}
     }
 

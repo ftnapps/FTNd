@@ -35,7 +35,7 @@
 #include "input.h"
 #include "language.h"
 #include "term.h"
-
+#include "ttyio.h"
 
 
 /*
@@ -84,30 +84,32 @@ int Keystroke(int lRecord, int Pos)
  */
 void Set_Language(int iLanguage)
 {
-	FILE	*pLang;
-	char	*temp;
+    FILE    *pLang;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
 
-	if ((pLang = fopen(temp, "rb")) == NULL) {
-		WriteError("Language: Can't open file: %s", temp);
-		printf("\nLanguage: Can't open language file\n\n");
-		free(temp);
-		Pause();
-		return;
-	}
-
-	fread(&langhdr, sizeof(langhdr), 1, pLang);
-	while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
-		if ((lang.LangKey[0] == iLanguage) && (lang.Available)) {
-			strcpy(CFG.current_language, lang.Filename);
-			break;
-		}
-	}
-
+    if ((pLang = fopen(temp, "rb")) == NULL) {
+	WriteError("Language: Can't open file: %s", temp);
+	Enter(1);
+	PUTSTR((char *)"Language: Can't open language file");
+	Enter(2);
 	free(temp);
-	fclose(pLang);
+	Pause();
+	return;
+    }
+
+    fread(&langhdr, sizeof(langhdr), 1, pLang);
+    while (fread(&lang, langhdr.recsize, 1, pLang) == 1) {
+	if ((lang.LangKey[0] == iLanguage) && (lang.Available)) {
+	    strcpy(CFG.current_language, lang.Filename);
+	    break;
+	}
+    }
+
+    free(temp);
+    fclose(pLang);
 }
 
 
@@ -118,34 +120,36 @@ void Set_Language(int iLanguage)
  */
 void InitLanguage()
 {
-	FILE	*pLang;
-	int	iLang = 0;
- 	char	*temp;
+    FILE    *pLang;
+    int	    iLang = 0;
+    char    *temp;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
-	if ((pLang = fopen(temp, "rb")) == NULL) {
-		WriteError("$FATAL: Can't open %s", temp);
-		ExitClient(MBERR_INIT_ERROR);
+    sprintf(temp, "%s/etc/%s", getenv("MBSE_ROOT"), CFG.current_language);
+    if ((pLang = fopen(temp, "rb")) == NULL) {
+	WriteError("$FATAL: Can't open %s", temp);
+	ExitClient(MBERR_INIT_ERROR);
+    }
+
+    while (fread(&ldata, sizeof(ldata), 1, pLang) == 1) {
+	*(mLanguage + iLang) = (char *) calloc(strlen(ldata.sString) + 1, sizeof(char));
+	*(mKeystroke + iLang) = (char *) calloc(strlen(ldata.sKey) + 1, sizeof(char));  
+	strcpy(mLanguage[iLang], ldata.sString);
+	strcpy(mKeystroke[iLang], ldata.sKey);
+	iLang++;
+
+	if (iLang >= LANG) {
+	    Enter(1);
+	    PUTSTR((char *)"FATAL: Language file has to many lines in it");
+	    Enter(2);
+	    ExitClient(MBERR_INIT_ERROR);
 	}
+    }
 
-	while (fread(&ldata, sizeof(ldata), 1, pLang) == 1) {
-		*(mLanguage + iLang) = (char *) calloc(strlen(ldata.sString) + 1, sizeof(char));
-		*(mKeystroke + iLang) = (char *) calloc(strlen(ldata.sKey) + 1, sizeof(char));  
-		strcpy(mLanguage[iLang], ldata.sString);
-		strcpy(mKeystroke[iLang], ldata.sKey);
-		iLang++;
-
-		if(iLang >= LANG) {
-			printf("FATAL: Language file has to many lines in it");
-			ExitClient(MBERR_INIT_ERROR);
-		}
-	}
-
-	fclose(pLang);
-	Syslog('b', "%d language lines read (%s)", iLang, CFG.current_language);
-	free(temp);
+    fclose(pLang);
+    Syslog('b', "%d language lines read (%s)", iLang, CFG.current_language);
+    free(temp);
 }
 
 

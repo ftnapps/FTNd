@@ -38,15 +38,14 @@
 #include "msgutil.h"
 #include "pop3.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 void error_popmail(char *);
 void error_popmail(char *umsg)
 {
     pop3_close();
-    colour(LIGHTRED, BLACK);
-    printf("%s\r\n", umsg);
-    fflush(stdout);
+    poutCR(LIGHTRED, BLACK, umsg);
 }
 
 
@@ -185,9 +184,9 @@ void check_popmail(char *user, char *pass)
 		    /*
 		     *  Show progress
 		     */
-		    colour(color, BLACK);
-		    printf("\rFetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
-		    fflush(stdout);
+		    PUTCHAR('\r');
+		    sprintf(temp, "Fetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
+		    pout(color, BLACK, temp);
 		    if (color < WHITE)
 			color++;
 		    else
@@ -197,16 +196,16 @@ void check_popmail(char *user, char *pass)
 		fclose(tp);
 	    }
 	}
-	fflush(stdout);
     }
 
     pop3_cmd((char *)"QUIT\r\n");
     pop3_close();
 
     if (tmsgs) {
+	PUTCHAR('\r');
 	colour(LIGHTMAGENTA, BLACK);
-	printf("\r                                                \r");
-	fflush(stdout);
+	pout(LIGHTMAGENTA, BLACK, (char *)"                                                ");
+	PUTCHAR('\r');
     }
 }
 

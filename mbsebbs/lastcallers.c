@@ -36,6 +36,7 @@
 #include "language.h"
 #include "lastcallers.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 /*
@@ -86,7 +87,7 @@ void LastCallers(char *OpData)
 	colour(LIGHTRED, BLACK);
 	Center(Underline);
 
-	printf("\n");
+	Enter(1);
 
 	/* #  User Name               Device  timeOn  Calls Location */
 	pout(LIGHTGREEN, BLACK, (char *) Language(85));
@@ -100,31 +101,34 @@ void LastCallers(char *OpData)
 		count++;
 
 		colour(WHITE, BLACK);
-		printf("%-5d", count);
+		sprintf(Heading, "%-5d", count);
+		PUTSTR(Heading);
 
 		colour(LIGHTCYAN, BLACK);
 		if ((strcasecmp(OpData, "/H")) == 0) {
 		    if ((strcmp(lcall.Handle, "") != 0 && *(lcall.Handle) != ' '))
-			printf("%-20s", lcall.Handle);
+			sprintf(Heading, "%-20s", lcall.Handle);
 		    else
-			printf("%-20s", lcall.UserName);
+			sprintf(Heading, "%-20s", lcall.UserName);
 		} else if (strcasecmp(OpData, "/U") == 0) {
-		    printf("%-20s", lcall.Name);
+		    sprintf(Heading, "%-20s", lcall.Name);
 		} else {
-		    printf("%-20s", lcall.UserName);
+		    sprintf(Heading, "%-20s", lcall.UserName);
 		}
+		PUTSTR(Heading);
 
-		colour(LIGHTBLUE, BLACK);
-		printf("%-8s", lcall.Device);
+		sprintf(Heading, "%-8s", lcall.Device);
+		pout(LIGHTBLUE, BLACK, Heading);
 
-		colour(LIGHTMAGENTA, BLACK);
-		printf("%-8s", lcall.TimeOn);
+		sprintf(Heading, "%-8s", lcall.TimeOn);
+		pout(LIGHTMAGENTA, BLACK, Heading);
 
-		colour(YELLOW, BLACK);
-		printf("%-7d", lcall.Calls);
+		sprintf(Heading, "%-7d", lcall.Calls);
+		pout(YELLOW, BLACK, Heading);
 
-		colour(LIGHTRED, BLACK);
-		printf("%-32s\n", lcall.Location);
+		sprintf(Heading, "%-32s", lcall.Location);
+		pout(LIGHTRED, BLACK, Heading);
+		Enter(1);
 
 		LineCount++;
 		if (LineCount == exitinfo.iScreenLen) {
@@ -138,7 +142,7 @@ void LastCallers(char *OpData)
 	fLine(79);
 
 	fclose(pLC);
-	printf("\n");
+	Enter(1);
 	Pause();
     }
     free(sFileName);

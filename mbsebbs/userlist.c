@@ -37,13 +37,14 @@
 #include "input.h"
 #include "timeout.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 void UserList(char *OpData)
 {                                                                        
     FILE	    *pUsrConfig;
     int		    LineCount = 2, iFoundName = FALSE, iNameCount = 0;
-    char	    *Name, *sTemp, *User, *temp;
+    char	    *Name, *sTemp, *User, *temp, msg[81];
     struct userhdr  uhdr;
     struct userrec  u;
 
@@ -93,16 +94,18 @@ void UserList(char *OpData)
 		if ((!u.Hidden) && (!u.Deleted)) {
 		    if ((strcasecmp(OpData, "/H")) == 0) {
 			if ((strcmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-			    printf("%-25s", u.sHandle);
+			    sprintf(msg, "%-25s", u.sHandle);
 			else
-			    printf("%-25s", u.sUserName);
+			    sprintf(msg, "%-25s", u.sUserName);
 		    } else if (strcasecmp(OpData, "/U") == 0) {
-			printf("%-25s", u.Name);
+			sprintf(msg, "%-25s", u.Name);
 		    } else {
-			printf("%-25s", u.sUserName);
+			sprintf(msg, "%-25s", u.sUserName);
 		    }
+		    PUTSTR(msg);
 
-		    printf("%-30s%-14s%-11d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+		    sprintf(msg, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+		    PUTSTR(msg);
 		    iFoundName = TRUE;
 		    LineCount++;
 		    iNameCount++; 
@@ -112,16 +115,18 @@ void UserList(char *OpData)
 	} else if ((!u.Hidden) && (!u.Deleted) && (strlen(u.sUserName) > 0)) {
 	    if ((strcmp(OpData, "/H")) == 0) {
 		if ((strcasecmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-		    printf("%-25s", u.sHandle);
+		    sprintf(msg, "%-25s", u.sHandle);
 		else
-		    printf("%-25s", u.sUserName);
+		    sprintf(msg, "%-25s", u.sUserName);
 	    } else if (strcasecmp(OpData, "/U") == 0) {
-		printf("%-25s", u.Name);
+		sprintf(msg, "%-25s", u.Name);
 	    } else {
-		printf("%-25s", u.sUserName);
+		sprintf(msg, "%-25s", u.sUserName);
 	    }
-
-	    printf("%-30s%-14s%-11d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+	    PUTSTR(msg);
+	    
+	    sprintf(msg, "%-30s%-14s%-10d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
+	    PUTSTR(msg);
 	    iFoundName = TRUE;
 	    LineCount++;
 	    iNameCount++;

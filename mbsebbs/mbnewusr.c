@@ -40,7 +40,8 @@
 #include "timeout.h"
 #include "newuser.h"
 #include "term.h"
-
+#include "ttyio.h"
+#include "openport.h"
 
 
 extern	int	do_quiet;	/* Logging quiet flag */
@@ -52,10 +53,9 @@ int main(int argc, char **argv)
 {
     char	    *p, *tty, temp[PATH_MAX];
     FILE            *pTty;
-    int             i;
+    int             i, rc = 0;
     struct passwd   *pw;
 
-    printf("\n\nLoading MBSE BBS New User Registration ...\n\n");
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);
 
@@ -105,6 +105,15 @@ int main(int argc, char **argv)
     Syslog(' ', " ");
     Syslog(' ', "MBNEWUSR v%s", VERSION);
 
+    if ((rc = rawport()) != 0) {
+	WriteError("Unable to set raw mode");
+	Fast_Bye(MBERR_OK);;
+    }
+
+    Enter(2);
+    PUTSTR((char *)"Loading MBSE BBS New User Registration ...");
+    Enter(2);
+    
     if ((p = getenv("CONNECT")) != NULL)
 	Syslog('+', "CONNECT %s", p);
     if ((p = getenv("CALLER_ID")) != NULL)
@@ -137,7 +146,7 @@ int main(int argc, char **argv)
      * Trap signals
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
@@ -160,10 +169,10 @@ int main(int argc, char **argv)
 	Fast_Bye(MBERR_OK);
     }
 
-    colour(YELLOW, BLACK);
-    printf("MBSE BBS v%s (Release: %s) on %s/%s\n", VERSION, ReleaseDate, OsName(), OsCPU());
-    colour(WHITE, BLACK);
-    printf("%s\n\n", COPYRIGHT);
+    sprintf(temp, "MBSE BBS v%s (Release: %s) on %s/%s", VERSION, ReleaseDate, OsName(), OsCPU());
+    poutCR(YELLOW, BLACK, temp);
+    pout(WHITE, BLACK, (char *)COPYRIGHT);
+    Enter(2);
  
     /*
      * Check if this port is available.
@@ -183,7 +192,8 @@ int main(int argc, char **argv)
 
 	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
-	    printf("No BBS on this port allowed!\n\n");
+	    PUTSTR((char *)"No BBS on this port allowed!");
+	    Enter(2);
 	    Fast_Bye(MBERR_OK);
 	}
 
@@ -192,10 +202,12 @@ int main(int argc, char **argv)
 	 */
 	if (CFG.iConnectString) {
 	    /* Connected on port */
-	    colour(CYAN, BLACK);
-	    printf("%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    sprintf(temp, "%s\"%s\" ", (char *) Language(348), ttyinfo.comment);
+	    pout(CYAN, BLACK, temp);
 	    /* on */
-	    printf("%s %s\n", (char *) Language(135), ctime(&ltime));
+	    sprintf(temp, "%s %s", (char *) Language(135), ctime(&ltime));
+	    PUTSTR(temp);
+	    Enter(1);
 	}
     }
 

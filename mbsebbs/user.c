@@ -50,6 +50,7 @@
 #include "offline.h"
 #include "email.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern int	sock;
@@ -184,7 +185,8 @@ void user()
 	 * This should not happen.
 	 */
 	WriteError("$Can't open %s", temp);
-	printf("Can't open userfile, run \"newuser\" first");
+	PUTSTR((char *)"Can't open userfile, run \"newuser\" first");
+	Enter(1);
 	ExitClient(MBERR_OK);
     }
 
@@ -199,11 +201,14 @@ void user()
 							
     if (!FoundName) {
 	fclose(pUsrConfig);
-	printf("Unknown username: %s\n", sUnixName);
+	sprintf(temp, "Unknown username: %s\r\n", sUnixName);
+	PUTSTR(temp);
 	/* FATAL ERROR: You are not in the BBS users file.*/
-	printf("%s\n", (char *) Language(389));
+	sprintf(temp, "%s\r\n", (char *) Language(389));
+	PUTSTR(temp);
 	/* Please run 'newuser' to create an account */
-	printf("%s\n", (char *) Language(390));
+	sprintf(temp, "%s\r\n", (char *) Language(390));
+	PUTSTR(temp);
 	Syslog('?', "FATAL: Could not find user in BBS users file.");
 	Syslog('?', "       and system is using unix accounts\n");
 	Free_Language();
@@ -285,7 +290,8 @@ void user()
     if (CFG.max_logins && (logins > CFG.max_logins)) {
 	Syslog('+', "User logins %d, allowed %d, disconnecting", logins, CFG.max_logins);
 	colour(LIGHTRED, BLACK);
-	printf("%s %d %s\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
+	sprintf(temp, "%s %d %s\r\n", (char *) Language(18), CFG.max_logins, (char *) Language(19));
+	PUTSTR(temp);
 	Quick_Bye(MBERR_INIT_ERROR);
     }
     

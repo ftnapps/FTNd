@@ -42,6 +42,7 @@
 #include "exitinfo.h"
 #include "change.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern pid_t	    mypid;
@@ -62,13 +63,13 @@ _Tag	Tagbuf[100];
  */
 void InitTag()
 {
-	int	i;
+    int	i;
 
-	Tagnr = 0;
+    Tagnr = 0;
 
-	for (i = 0; i < 100; i++) {
-		memset(&Tagbuf[i], 0, sizeof(_Tag));
-	}
+    for (i = 0; i < 100; i++) {
+	memset(&Tagbuf[i], 0, sizeof(_Tag));
+    }
 }
 
 
@@ -78,32 +79,32 @@ void InitTag()
  */
 void SetTag(_Tag tag)
 {
-	if (Tagnr < 99)
-		Tagnr++;
-	else
-		Tagnr = 1;
+    if (Tagnr < 99)
+	Tagnr++;
+    else
+	Tagnr = 1;
 
-	Tagbuf[Tagnr] = tag;
+    Tagbuf[Tagnr] = tag;
 }
 
 
 
 int ForceProtocol()
 {
+    /*
+     * If user has no default protocol, make sure he has one.
+     */
+    if (strcmp(sProtName, "") == 0) {
+	Chg_Protocol();
+
 	/*
-	 * If user has no default protocol, make sure he has one.
+	 * If the user didn't pick a protocol, quit.
 	 */
 	if (strcmp(sProtName, "") == 0) {
-		Chg_Protocol();
-
-		/*
-		 * If the user didn't pick a protocol, quit.
-		 */
-		if (strcmp(sProtName, "") == 0) {
-			return FALSE;
-		}
+	    return FALSE;
 	}
-	return TRUE;
+    }
+    return TRUE;
 }
 
 
@@ -113,41 +114,29 @@ int ForceProtocol()
  */
 void GetstrD(char *sStr, int iMaxlen)
 {
-	unsigned char	ch = 0;
-	int		iPos = 0;
+    unsigned char   ch = 0;
+    int		    iPos = 0;
 
-	fflush(stdout);
+    strcpy(sStr, "");
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR)) < 0) {
-		perror("open 6");
-		return;
-	}
-	Setraw();
-	strcpy(sStr, "");
+    alarm_on();
+    while (ch != 13) {
+	ch = Readkey();
 
-	alarm_on();
-	while (ch != 13) {
-		ch = Readkey();
-
-		if (((ch == 8) || (ch == KEY_DEL) || (ch == 127)) && (iPos > 0)) {
-			printf("\b \b");
-			fflush(stdout);
-			sStr[--iPos]='\0';
-		}
-
-		if (ch > 31 && ch < 127) {
-			if (iPos <= iMaxlen) {
-				iPos++;
-				sprintf(sStr, "%s%c", sStr, ch);
-				printf("%c", ch);
-				fflush(stdout);
-			} else
-				ch=07;
-		}
+	if (((ch == 8) || (ch == KEY_DEL) || (ch == 127)) && (iPos > 0)) {
+	    BackErase();
+	    sStr[--iPos]='\0';
 	}
 
-	Unsetraw();
-	close(ttyfd);
+	if (ch > 31 && ch < 127) {
+	    if (iPos <= iMaxlen) {
+		iPos++;
+		sprintf(sStr, "%s%c", sStr, ch);
+		PUTCHAR(ch);
+	    } else
+		PUTCHAR(7);
+	}
+    }
 }
 
 
@@ -159,27 +148,28 @@ void GetstrD(char *sStr, int iMaxlen)
  */
 FILE *OpenFareas(int Write)
 {
-	FILE	*pAreas;
-	char	*FileArea;
+    FILE	*pAreas;
+    char	*FileArea;
 
-	FileArea = calloc(PATH_MAX, sizeof(char));
-	sprintf(FileArea, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    FileArea = calloc(PATH_MAX, sizeof(char));
+    sprintf(FileArea, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 		
-	if (Write)
-		pAreas = fopen(FileArea, "r+");
-	else
-		pAreas = fopen(FileArea, "r");
+    if (Write)
+	pAreas = fopen(FileArea, "r+");
+    else
+	pAreas = fopen(FileArea, "r");
 		
-	if (pAreas == NULL) {
-		WriteError("$Can't open FileBase %s", FileArea);
-		/* FATAL: Unable to open areas database */
-		printf("%s\n\n", (char *) Language(243));
-		sleep(2);
-	} else
-	 	fread(&areahdr, sizeof(areahdr), 1, pAreas);
+    if (pAreas == NULL) {
+	WriteError("$Can't open FileBase %s", FileArea);
+	/* FATAL: Unable to open areas database */
+	pout(LIGHTRED, BLACK, (char *) Language(243));
+	Enter(2);
+	sleep(2);
+    } else
+	fread(&areahdr, sizeof(areahdr), 1, pAreas);
 
-	free(FileArea); 	
- 	return pAreas;
+    free(FileArea); 	
+    return pAreas;
 }
 
 
@@ -189,17 +179,19 @@ FILE *OpenFareas(int Write)
  */
 void Header()
 {
-	colour(4, 7);
-	printf(" Area ");
+    char    temp[81];
+	
+    pout(RED, LIGHTGRAY, (char *)" Area ");
 
-	colour(4, 7);
-	printf("%-5d   ", iAreaNumber);
+    sprintf(temp, "%-5d   ", iAreaNumber);
+    pout(RED, LIGHTGRAY, temp);
 
-	colour(1,7);
-	printf("%-65s\n", sAreaDesc);
+    sprintf(temp, "%-65s", sAreaDesc);
+    pout(BLUE, LIGHTGRAY, temp);
+    Enter(1);
 
-	colour(15,0);
-	fLine(79);
+    colour(15,0);
+    fLine(79);
 }
 
 
@@ -209,20 +201,21 @@ void Header()
  */
 void Sheader()
 {
-	colour(Hcolor, 0);
-	printf("\r  %-4ld", arecno);
+    char    temp[81];
 
-	colour(9, 0);
-	printf(" ... ");
+    PUTCHAR('\r');
+    sprintf(temp, "  %-4ld", arecno);
+    pout(Hcolor, BLACK, temp);
 
-	colour(Hcolor, 0);
-	printf("%-44s", area.Name);
-	fflush(stdout);
+    pout(LIGHTBLUE, BLACK, (char *)" ... ");
 
-	if (Hcolor < 15)
-		Hcolor++;
-	else
-		Hcolor = 9;
+    sprintf(temp, "%-44s", area.Name);
+    pout(Hcolor, BLACK, temp);
+
+    if (Hcolor < WHITE)
+	Hcolor++;
+    else
+	Hcolor = LIGHTBLUE;
 }
 
 
@@ -232,16 +225,15 @@ void Sheader()
  */
 void Blanker(int count)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < count; i++)
-		printf("\b");
+    for (i = 0; i < count; i++)
+	PUTCHAR('\b');
 
-	for (i = 0; i < count; i++)
-		printf(" ");
+    for (i = 0; i < count; i++)
+	PUTCHAR(' ');
 
-	printf("\r");
-	fflush(stdout);
+    PUTCHAR('\r');
 }
 
 
@@ -252,80 +244,77 @@ void Blanker(int count)
  */
 void Mark()
 {
-	char	*temp;
-	FILE	*fp;
-	int	i, Found;
-	int	Count, Size;
+    char    *temp;
+    FILE    *fp;
+    int	    i, Found, Count, Size;
 
-	temp = calloc(81, sizeof(char));
+    temp = calloc(81, sizeof(char));
 
-	/*
-	 * First count the already tagged files.
-	 */
-	Count = Size = 0;
-	if ((fp = fopen("taglist", "r")) != NULL) {
-		while (fread(&Tag, sizeof(Tag), 1, fp) == 1) {
-			if (Tag.Active) {
-				Count++;
-				Size += (Tag.Size / 1024);
-			}
-		}
-		fclose(fp);
+    /*
+     * First count the already tagged files.
+     */
+    Count = Size = 0;
+    if ((fp = fopen("taglist", "r")) != NULL) {
+	while (fread(&Tag, sizeof(Tag), 1, fp) == 1) {
+	    if (Tag.Active) {
+		Count++;
+		Size += (Tag.Size / 1024);
+	    }
 	}
+	fclose(fp);
+    }
 
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Marked: */
-	printf("%s%d, %dK; ", (char *) Language(360), Count, Size);
+    /* Marked: */
+    sprintf(temp, "%s%d, %dK; ", (char *) Language(360), Count, Size);
+    pout(CFG.HiliteF, CFG.HiliteB, temp);
 
-	/* Mark file number of press <Enter> to stop */
-	printf("%s", (char *) Language(7));
+    /* Mark file number of press <Enter> to stop */
+    PUTSTR((char *) Language(7));
 
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrD(temp, 10);
-	Blanker(strlen(Language(7)) + strlen(temp));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrD(temp, 10);
+    Blanker(strlen(Language(7)) + strlen(temp));
 
-	if (strlen(temp) == 0) {
-		free(temp);
-		return;
-	}
-
-	i = atoi(temp);
-
-	if ((i > 0) && (i < 100)) {
-		if ((Tagbuf[i].Area) && (strlen(Tagbuf[i].LFile))) {
-			if (Access(exitinfo.Security, area.DLSec)) {
-				if ((fp = fopen("taglist", "a+")) != NULL) {
-
-					fseek(fp, 0, SEEK_SET);
-					Found = FALSE;
-					while (fread(&Tag, sizeof(Tag), 1, fp) == 1)
-						if ((Tag.Area == Tagbuf[i].Area) && (strcmp(Tag.LFile, Tagbuf[i].LFile) == 0)) {
-							Found = TRUE;
-							Syslog('b', "Tagbuf[i].File already tagged");
-						}
-
-					if (!Found) {
-						memset(&Tag, 0, sizeof(Tag));
-						Tag = Tagbuf[i];
-						Tag.Active = TRUE;
-						fwrite(&Tag, sizeof(Tag), 1, fp);
-						Syslog('+', "Tagged file %s from area %d", Tag.LFile, Tag.Area);
-					}
-
-					fclose(fp);
-				}
-			} else {
-				colour(12, 0);
-				/* You do not have enough access to download from this area. */
-				printf("%s", (char *) Language(244));
-				fflush(stdout);
-				sleep(3);
-				Blanker(strlen(Language(244)));
-			}
-		}
-	}
-
+    if (strlen(temp) == 0) {
 	free(temp);
+	return;
+    }
+
+    i = atoi(temp);
+
+    if ((i > 0) && (i < 100)) {
+	if ((Tagbuf[i].Area) && (strlen(Tagbuf[i].LFile))) {
+	    if (Access(exitinfo.Security, area.DLSec)) {
+		if ((fp = fopen("taglist", "a+")) != NULL) {
+
+		    fseek(fp, 0, SEEK_SET);
+		    Found = FALSE;
+		    while (fread(&Tag, sizeof(Tag), 1, fp) == 1)
+			if ((Tag.Area == Tagbuf[i].Area) && (strcmp(Tag.LFile, Tagbuf[i].LFile) == 0)) {
+			    Found = TRUE;
+			    Syslog('b', "Tagbuf[i].File already tagged");
+			}
+
+		    if (!Found) {
+			memset(&Tag, 0, sizeof(Tag));
+			Tag = Tagbuf[i];
+			Tag.Active = TRUE;
+			fwrite(&Tag, sizeof(Tag), 1, fp);
+			Syslog('+', "Tagged file %s from area %d", Tag.LFile, Tag.Area);
+		    }
+
+		    fclose(fp);
+		}
+	    } else {
+		/* You do not have enough access to download from this area. */
+		pout(LIGHTRED, BLACK, (char *) Language(244));
+		sleep(3);
+		Blanker(strlen(Language(244)));
+	    }
+	}
+    }
+
+    free(temp);
 }
 
 
@@ -335,43 +324,42 @@ void Mark()
  */
 int iLC(int Lines)
 {
-	int	x, z;
+    int	x, z;
 
-	x = strlen(Language(131));
-	iLineCount += Lines;
+    x = strlen(Language(131));
+    iLineCount += Lines;
  
-	if ((iLineCount >= exitinfo.iScreenLen) && (iLineCount < 1000)) {
-		iLineCount = 0;
+    if ((iLineCount >= exitinfo.iScreenLen) && (iLineCount < 1000)) {
+	iLineCount = 0;
 
-		while(TRUE) {
-			/* More (Y/n/=) M=Mark */
-			pout(CFG.MoreF, CFG.MoreB, (char *) Language(131));
+	while (TRUE) {
+	    /* More (Y/n/=) M=Mark */
+	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(131));
 
-			fflush(stdout);
-			alarm_on();
-			z = toupper(Getone());
-			Blanker(x);
+	    alarm_on();
+	    z = toupper(Readkey());
+	    Blanker(x);
 
-			if (z == Keystroke(131, 1)) {
-				printf("\n");
-				return 1;
-			}
+	    if (z == Keystroke(131, 1)) {
+		Enter(1);
+		return 1;
+	    }
 
-			if (z == Keystroke(131, 2)) {
-				iLineCount = 1000;
-				return 0;
-			}
+	    if (z == Keystroke(131, 2)) {
+		iLineCount = 9000;
+		return 0;
+	    }
 
-			if ((z == Keystroke(131, 0)) || (z == '\r') || (z == '\n')) {
-				return 0;
-			}
+	    if ((z == Keystroke(131, 0)) || (z == '\r') || (z == '\n')) {
+		return 0;
+	    }
 
-			if (z == Keystroke(131, 3)) {
-				Mark();
-			}
-		}
+	    if (z == Keystroke(131, 3)) {
+		Mark();
+	    }
 	}
-	return 0;
+    }
+    return 0;
 }
 
 
@@ -381,30 +369,32 @@ int iLC(int Lines)
  */
 int ShowOneFile()
 {
-    int	y, z, fg, bg;
+    int	    y, z, fg, bg;
+    char    temp[81];
 
     if (!fdb.Deleted) {
 
-	colour(7, 0);
-	printf(" %02d ", Tagnr);
+	sprintf(temp, " %02d ", Tagnr);
+	pout(LIGHTGRAY, BLACK, temp);
 
-	colour(CFG.FilenameF, CFG.FilenameB);
-	printf("%-12s", fdb.Name);
+	sprintf(temp, "%-12s", fdb.Name);
+	pout(CFG.FilenameF, CFG.FilenameB, temp);
 
-	colour(CFG.FilesizeF, CFG.FilesizeB);
-	printf("%10lu ", (long)(fdb.Size));
+	sprintf(temp, "%10lu ", (long)(fdb.Size));
+	pout(CFG.FilesizeF, CFG.FilesizeB, temp);
 
-	colour(CFG.FiledateF, CFG.FiledateB);
-	printf("%-10s  ", StrDateDMY(fdb.UploadDate));
+	sprintf(temp, "%-10s  ", StrDateDMY(fdb.UploadDate));
+	pout(CFG.FiledateF, CFG.FiledateB, temp);
 
-	colour(12, 0);
-	printf("[%4ld] ", fdb.TimesDL);
+	sprintf(temp, "[%4ld] ", fdb.TimesDL);
+	pout(LIGHTRED, BLACK, temp);
 
 	if ((strcmp(fdb.Uploader, "")) == 0)
 	    strcpy(fdb.Uploader, "SysOp");
 
-	colour(CFG.HiliteF, CFG.HiliteB);
-	printf("%s%s\n", (char *) Language(238), fdb.Uploader);
+	sprintf(temp, "%s%s", (char *) Language(238), fdb.Uploader);
+	pout(CFG.HiliteF, CFG.HiliteB, temp);
+	Enter(1);
 
 	if (iLC(1) == 1) 
 	    return 1;
@@ -420,12 +410,13 @@ int ShowOneFile()
 		    else
 			fg = (int)fdb.Desc[z][3] - 48;
 		    bg = (int)fdb.Desc[z][2] - 48;
-		    colour(fg, bg);
-		    printf("    %s\n",fdb.Desc[z]+4);
+		    sprintf(temp, "    %s",fdb.Desc[z]+4);
+		    pout(fg, bg, temp);
 		} else {
-		    colour(CFG.FiledescF, CFG.FiledescB);
-		    printf("    %s\n",fdb.Desc[z]);
+		    sprintf(temp, "    %s",fdb.Desc[z]);
+		    pout(CFG.FiledescF, CFG.FiledescB, temp);
 		}
+		Enter(1);
 
 		if (iLC(1) == 1) 
 		    return 1;
@@ -439,6 +430,8 @@ int ShowOneFile()
 
 int CheckBytesAvailable(long CostSize)
 {
+    char    temp[81];
+
     if (LIMIT.DownK) {
 	if ((exitinfo.DownloadKToday <= 0) || ((CostSize / 1024) > exitinfo.DownloadKToday)) {
 	
@@ -447,14 +440,14 @@ int CheckBytesAvailable(long CostSize)
 	    Enter(1);
 	    Syslog('+', "Not enough bytes to download %ld", CostSize);
 
-	    colour(WHITE, BLACK);
 	    /* You must upload before you can download. */
 	    pout(LIGHTRED, BLACK, (char *) Language(253));
 	    Enter(2);
 
-	    colour(YELLOW, BLACK);
 	    /* Kilobytes currently available: */
-	    printf("%s%lu Kbytes.\n\n", (char *) Language(254), exitinfo.DownloadKToday);
+	    sprintf(temp, "%s%lu Kbytes.", (char *) Language(254), exitinfo.DownloadKToday);
+	    pout(YELLOW, BLACK, temp);
+	    Enter(2);
 
 	    Pause();
 	    return FALSE;
@@ -488,7 +481,7 @@ int ScanDirect(char *fn)
 {
     FILE    *fp, *lp;
     int	    err, Found = FALSE;
-    char    *temp, *temp1, *stdlog, *errlog, buf[256];
+    char    *temp, *temp1, *stdlog, *errlog, buf[256], msg[81];
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
@@ -506,10 +499,9 @@ int ScanDirect(char *fn)
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
 	    if (virscan.available) {
-		colour(CFG.TextColourF, CFG.TextColourB);
 				      /* Scanning */               /* with */
-		printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
-		fflush(stdout);
+		sprintf(msg, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		pout(CFG.TextColourF, CFG.TextColourB, msg);
 
 		Altime(3600);
 		err = execute_str(virscan.scanner, virscan.options, temp, (char *)"/dev/null", stdlog, errlog);
@@ -535,17 +527,18 @@ int ScanDirect(char *fn)
 		unlink(errlog);
 		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
-		    colour(CFG.HiliteF, CFG.HiliteB);
 		    /* Possible VIRUS found! */
-		    printf("%s\n", (char *) Language(199));
+		    sprintf(msg, "%s", (char *) Language(199));
+		    pout(CFG.HiliteF, CFG.HiliteB, msg);
 		    Found = TRUE;
 		} else {
 		    /* Ok */
-		    printf("%s\n", (char *) Language(200));
+		    sprintf(msg, "%s", (char *) Language(200));
+		    PUTSTR(msg);
 		}
+		Enter(1);
 		Altime(0);
 		Nopper();
-		fflush(stdout);
 	    }
 	}
 	fclose(fp);
@@ -572,7 +565,7 @@ int ScanArchive(char *fn, char *ftype)
 {
     FILE    *fp, *lp;
     int	    err = 0, Found = FALSE;
-    char    *temp, *stdlog, *errlog, buf[256];
+    char    *temp, *stdlog, *errlog, buf[256], msg[81];
     char    *cwd = NULL;
 
 
@@ -613,10 +606,9 @@ int ScanArchive(char *fn, char *ftype)
 	return 1;
     }
 
-    colour(CFG.TextColourF, CFG.TextColourB);
     /* Unpacking archive */
-    printf("%s %s ", (char *) Language(201), fn);
-    fflush(stdout);
+    sprintf(msg, "%s %s ", (char *) Language(201), fn);
+    pout(CFG.TextColourF, CFG.TextColourB, msg);
 
     if (!strlen(archiver.funarc)) {
 	WriteError("No unarc command available");
@@ -627,17 +619,16 @@ int ScanArchive(char *fn, char *ftype)
 	    execute_pth((char *)"rm", (char *)"-r -f ./*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	    chdir(cwd);
 	    free(cwd);
-	    colour(CFG.HiliteF, CFG.HiliteB);
 	    /* ERROR */
-	    printf("%s\n", (char *) Language(217));
-	    fflush(stdout);
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(217));
+	    Enter(1);
 	    return 1;
 	}
     }
 
     /* Ok */
-    printf("%s\n", (char *) Language(200));
-    fflush(stdout);
+    PUTSTR((char *) Language(200));
+    Enter(1);
 
     sprintf(temp, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
@@ -646,10 +637,9 @@ int ScanArchive(char *fn, char *ftype)
 	while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
 
 	    if (virscan.available) {
-		colour(CFG.TextColourF, CFG.TextColourB);
 				    /* Scanning */		   /* with */
-		printf("%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
-		fflush(stdout);
+		sprintf(msg, "%s %s %s %s ", (char *) Language(132), fn, (char *) Language(133), virscan.comment);
+		pout(CFG.TextColourF, CFG.TextColourB, msg);
 
 		Altime(3600);
 		err = execute_str(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", stdlog, errlog);
@@ -675,15 +665,14 @@ int ScanArchive(char *fn, char *ftype)
 		unlink(errlog);
 		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
-		    colour(CFG.HiliteF, CFG.HiliteB);
 		    /* Possible VIRUS found! */
-		    printf("%s\n", (char *) Language(199));
+		    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(199));
 		    Found = TRUE;
 		} else {
 		    /* Ok */
-		    printf("%s\n", (char *) Language(200));
+		    PUTSTR((char *) Language(200));
 		}
-		fflush(stdout);
+		Enter(1);
 		Altime(0);
 		Nopper();
 	    }
@@ -792,7 +781,7 @@ char *GetFileType(char *fn)
  */
 int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 {
-    char    *temp, *temp1;
+    char    *temp, *temp1, msg[81];
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
@@ -817,7 +806,9 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 		exitinfo.UploadKToday += (Size / 1024);
 		Syslog('b', "Uploads %d, Kb %d, Kb today %d", exitinfo.Uploads, exitinfo.UploadK, exitinfo.UploadKToday);
 		/* You have */  /* extra download KBytes. */
-		printf("%s %ld %s\n", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
+		sprintf(msg, "%s %ld %s", (char *) Language(249), (long)(Size / 1024), (char *) Language(250));
+		PUTSTR(msg);
+		Enter(1);
 	
 		exitinfo.DownloadKToday += (Size / 1024);
 		Syslog('b', "DownloadKToday %d", exitinfo.DownloadKToday);
@@ -825,7 +816,9 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 
 	    iTime /= 60; /* Divide Seconds by 60 to give minutes */
 	    /* You have */ /* extra minutes. */
-	    printf("%s %ld %s\n", (char *) Language(249), iTime, (char *) Language(259));
+	    sprintf(msg, "%s %ld %s", (char *) Language(249), iTime, (char *) Language(259));
+	    PUTSTR(msg);
+	    Enter(1);
 	    exitinfo.iTimeLeft += iTime;
 
 	    WriteExitinfo();
@@ -852,7 +845,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 {
     FILE    *id, *pPrivate;
     int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
-    char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[81]; 
+    char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[81], msg[81]; 
     struct  stat statfile; 
     struct _fdbarea *fdb_area = NULL;
 
@@ -870,9 +863,12 @@ int Addfile(char *File, int AreaNum, int fileid)
 	 */
 	if (stat(Filename, &statfile) != 0) {
 
+	    Enter(1);
 	    colour(10, 0);
 	    /* Upload was unsuccessful for: */
-	    printf("\n%s%s\n\n", (char *) Language(284), File);
+	    sprintf(msg, "%s%s", (char *) Language(284), File);
+	    pout(LIGHTGREEN, BLACK, msg);
+	    Enter(2);
 
 	    mbsedb_CloseFDB(fdb_area);
 	    free(Filename);
@@ -899,20 +895,17 @@ int Addfile(char *File, int AreaNum, int fileid)
 	}
 
 	if (area.PwdUP) {
-	    colour(9,0);
+	    Enter(1);
 	    /* Do you want to password protect your upload ? [y/N]: */
-	    printf("\n%s", (char *) Language(285));
-	    fflush(stdout);
+	    pout(LIGHTBLUE, BLACK, (char *) Language(285));
 
-	    if (toupper(Getone()) == Keystroke(285, 0)) {
-		colour(10, 0);
+	    if (toupper(Readkey()) == Keystroke(285, 0)) {
+		Enter(1);
 		/* REMEMBER: Passwords are "CaSe SeNsITiVe!" */
-		printf("\n%s\n", (char *) Language(286));
-		colour(14,0);
+		pout(LIGHTGREEN, BLACK, (char *) Language(286));
+		Enter(1);
 		/* Password: */
-		printf("%s", (char *) Language(8));
-		fflush(stdout);
-		fflush(stdin);
+		pout(YELLOW, BLACK, (char *) Language(8));
 		GetstrC(fdb.Password, 20);
 	    }
 	}
@@ -994,10 +987,10 @@ int Addfile(char *File, int AreaNum, int fileid)
 		}
 		if (lines) {
 		    Syslog('+', "Using %d FILE_ID.DIZ lines for description", lines);
-		    colour(CFG.TextColourF, CFG.TextColourB);
 		    /* Found FILE_ID.DIZ in */
-		    printf("%s %s\n", (char *) Language(257), File);
-		    fflush(stdout);
+		    sprintf(msg, "%s %s", (char *) Language(257), File);
+		    pout(CFG.TextColourF, CFG.TextColourB, msg);
+		    Enter(1);
 		} else {
 		    Syslog('!', "No FILE_ID.DIZ lines left to use");
 		    GotId = FALSE;
@@ -1012,15 +1005,16 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    for (i = 0; i < 26; i++)
 		*(Desc + i) = (char *) calloc(49, sizeof(char));
 
-	    colour(12,0);
+	    Enter(1);
 	    /* Please enter description of file */
-	    printf("\n%s %s\n\n", (char *) Language(287), File);
-	    while (TRUE) {
-		colour(10,0);
-		printf("%2d> ", iDesc);
-		fflush(stdout);
-		colour(CFG.InputColourF, CFG.InputColourB);
+	    sprintf(msg, "%s %s", (char *) Language(287), File);
+	    pout(LIGHTRED, BLACK, msg);
+	    Enter(2);
 
+	    while (TRUE) {
+		sprintf(msg, "%2d> ", iDesc);
+		pout(LIGHTGREEN, BLACK, msg);
+		colour(CFG.InputColourF, CFG.InputColourB);
 		GetstrC(*(Desc + iDesc), 47);
 
 		if ((strcmp(*(Desc + iDesc), "")) == 0) 
@@ -1061,7 +1055,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 
 	Enter(1);
 	/* Your upload time has been returned to you. Thank you for your upload! */
-	pout(10, 0, (char *) Language(288));
+	pout(LIGHTGREEN, BLACK, (char *) Language(288));
 	Enter(1);
     }
 

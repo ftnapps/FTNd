@@ -39,6 +39,7 @@
 #include "misc.h"
 #include "whoson.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 int		chat_with_sysop = FALSE;    /* Global sysop chat flag	*/
@@ -63,21 +64,12 @@ unsigned char testkey(int y, int x)
 
     Nopper();
     locate(y, x);
-    fflush(stdout);
-
-    if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	perror("open /dev/tty");
-	exit(MBERR_TTYIO_ERROR);
-    }
-    Setraw();
 
     rc = Waitchar(&ch, 50);
     if (rc == 1) {
 	if (ch == KEY_ESCAPE)
 	rc = Escapechar(&ch);
     }
-    Unsetraw();
-    close(ttyfd);
     if (rc == 1)
 	return ch;
     else
@@ -97,15 +89,15 @@ void Showline(int y, int x, char *msg)
 	if (msg[0] == '<') {
 	    locate(y, x);
 	    colour(LIGHTCYAN, BLACK);
-	    putchar('<');
+	    PUTCHAR('<');
 	    colour(LIGHTBLUE, BLACK);
 	    for (i = 1; i < strlen(msg); i++) {
 		if (msg[i] == '>') {
 		    colour(LIGHTCYAN, BLACK);
-		    putchar(msg[i]);
+		    PUTCHAR(msg[i]);
 		    colour(CYAN, BLACK);
 		} else {
-		    putchar(msg[i]);
+		    PUTCHAR(msg[i]);
 		}
 	    }
 	} else if (msg[0] == '*') {
@@ -142,7 +134,6 @@ void DispMsg(char *msg)
     } else {
 	rpointer++;
     }
-    fflush(stdout);
 }
 
 
@@ -152,7 +143,7 @@ void DispMsg(char *msg)
  */
 void clrtoeol(void)
 {
-    fprintf(stdout, ANSI_CLREOL);
+    PUTSTR((char *)ANSI_CLREOL);
 }
 
 
@@ -178,15 +169,14 @@ void Chat(char *username, char *channel)
     
     if (username && channel) {
 	colour(LIGHTGREEN, BLACK);
+	PUTCHAR('\007');
 	/* *** Sysop is starting chat *** */
-	printf("\007%s\n\r", (char *) Language(59));
-	fflush(stdout);
+	pout(LIGHTGREEN, BLACK, (char *) Language(59));
+	Enter(1);
 	sleep(1);
-	printf("\007");
-	fflush(stdout);
+	PUTCHAR('\007');
 	sleep(1);
-	printf("\007");
-	fflush(stdout);
+	PUTCHAR('\007');
 	Syslog('+', "Sysop chat started");
 	chat_with_sysop = TRUE;
     } else {
@@ -200,7 +190,8 @@ void Chat(char *username, char *channel)
     locate(1, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    mvprintw(1, 2, "MBSE BBS Chat Server");
+    sprintf(buf, "%-*s", 79, " MBSE BBS Chat Server");
+    mvprintw(1, 1, buf);
 
     sprintf(buf, "CCON,3,%d,%s,0;", mypid, exitinfo.Name);
     Syslog('c', "> %s", buf);
@@ -223,7 +214,8 @@ void Chat(char *username, char *channel)
     locate(exitinfo.iScreenLen - 2, 1);
     colour(WHITE, BLUE);
     clrtoeol();
-    mvprintw(exitinfo.iScreenLen - 2, 2, "Chat, type \"/EXIT\" to exit");
+    sprintf(buf, "%-*s", 79, " Chat, type \"/EXIT\" to exit or \"/HELP\" for help");
+    mvprintw(exitinfo.iScreenLen - 2, 1, buf);
 
     colour(LIGHTGRAY, BLACK);
     mvprintw(exitinfo.iScreenLen - 1, 1, ">");
@@ -287,21 +279,19 @@ void Chat(char *username, char *channel)
 	ch = testkey(exitinfo.iScreenLen -1, curpos + 2);
 	if (isprint(ch)) {
 	    if (curpos < 77) {
-		putchar(ch);
-		fflush(stdout);
+		PUTCHAR(ch);
 		sbuf[curpos] = ch;
 		curpos++;
 	    } else {
-		putchar(7);
-		fflush(stdout);
+		PUTCHAR(7);
 	    }
 	} else if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
 	    if (curpos) {
 		curpos--;
 		sbuf[curpos] = '\0';
-		printf("\b \b");
+		BackErase();
 	    } else {
-		putchar(7);
+		PUTCHAR(7);
 	    }
 	} else if ((ch == '\r') && curpos) {
 	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);

@@ -47,6 +47,7 @@
 #include "dispfile.h"
 #include "filesub.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 /*
@@ -55,28 +56,28 @@
 int TotalUsers(void);
 int TotalUsers(void)
 {
-        FILE    *pUsrConfig;
-        int     ch = 0;
-        char    *temp;
-        struct  userhdr uhdr;
-        struct  userrec u;
+    FILE    *pUsrConfig;
+    int     ch = 0;
+    char    *temp;
+    struct  userhdr uhdr;
+    struct  userrec u;
 
-        temp = calloc(PATH_MAX, sizeof(char));
-        sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-        if(( pUsrConfig = fopen(temp,"rb")) == NULL)
-                WriteError("ControlCodeK: Can't open users file %s for reading", temp);
-        else {
-                fread(&uhdr, sizeof(uhdr), 1, pUsrConfig);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if(( pUsrConfig = fopen(temp,"rb")) == NULL)
+        WriteError("ControlCodeK: Can't open users file %s for reading", temp);
+    else {
+        fread(&uhdr, sizeof(uhdr), 1, pUsrConfig);
 
-                while (fread(&u, uhdr.recsize, 1, pUsrConfig) == 1)
-                        if ((!u.Deleted) && (strlen(u.sUserName) > 0))
-                                ch++;
+        while (fread(&u, uhdr.recsize, 1, pUsrConfig) == 1)
+            if ((!u.Deleted) && (strlen(u.sUserName) > 0))
+		ch++;
 
-                fclose(pUsrConfig);
-        }
-        free(temp);
+        fclose(pUsrConfig);
+    }
+    free(temp);
 
-        return ch;
+    return ch;
 }
 
 
@@ -100,8 +101,10 @@ void DisplayRules(void)
 
     if ((dp = opendir(CFG.rulesdir)) == NULL) {
 	WriteError("$Can't open directory %s", CFG.rulesdir);
+	Enter(1);
 	/* Can't open directory for listing: */
-	printf("\n%s\n\n", (char *) Language(290));
+	pout(LIGHTRED, BLACK, (char *) Language(290));
+	Enter(2);
 	Pause();
 	return;
     }
@@ -138,9 +141,9 @@ void DisplayRules(void)
     } else {
 	Syslog('+', "Display rules for %s failed, not found", msgs.Tag);
 	Enter(1);
-	colour(LIGHTRED, BLACK);
 	/* No rules found for this area */
-	printf("\n%s\n\n", (char *) Language(13));
+	pout(LIGHTRED, BLACK, (char *) Language(13));
+	Enter(2);
 	Pause();
     }
 }
@@ -155,9 +158,10 @@ void DisplayRules(void)
  */
 int DisplayTextFile(char *filename)
 {
-    FILE    *fp;
-    char    *buf;
-    int	    i, x, c, z, lc = 0;
+    FILE	    *fp;
+    char	    *buf;
+    int		    i, x, z, lc = 0;
+    unsigned char   c;
 
     if ((fp = fopen(filename, "r")) == NULL) {
 	WriteError("$DisplayTextFile(%s) failed");
@@ -172,26 +176,23 @@ int DisplayTextFile(char *filename)
 	i = strlen(buf);
 
 	for (x = 0; x < i; x++) {
-	    c = (*(buf + x));
+	    c = (*(buf + x) & 0xff);
 	    if (isprint(c))
-		printf("%c", c);
+		PUTCHAR(c);
 	}
 
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
 	lc++;
 
 	if ((lc >= exitinfo.iScreenLen) && (lc < 1000)) {
 	    lc = 0;
 	    /* More (Y/n/=) */
 	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
-	    fflush(stdout);
 	    alarm_on();
-	    z = toupper(Getone());
+	    z = toupper(Readkey());
 
 	    if (z == Keystroke(61, 1)) {
-		printf("\n");
-		fflush(stdout);
+		Enter(1);
 		fclose(fp);
 		free(buf);
 		return TRUE;
@@ -211,10 +212,8 @@ int DisplayTextFile(char *filename)
     Enter(1);
     /* Press ENTER to continue */
     language(CFG.MoreF, CFG.MoreB, 436);
-    fflush(stdout);
-    fflush(stdin);
     alarm_on();
-    Getone();
+    Readkey();
 
     return TRUE;
 }
@@ -228,11 +227,12 @@ int DisplayTextFile(char *filename)
  */
 int DisplayFile(char *filename)
 {
-    FILE    *pFileName;
-    long    iSec = 0;
-    char    *sFileName, *tmp, *tmp1, newfile[PATH_MAX];
-    int	    i, x;
-
+    FILE	    *pFileName;
+    long	    iSec = 0;
+    char	    *sFileName, *tmp, *tmp1, newfile[PATH_MAX];
+    int		    i, x;
+    unsigned char   c;
+    
     sFileName = calloc(16385, sizeof(char));
     tmp       = calloc(PATH_MAX, sizeof(char));
     tmp1      = calloc(PATH_MAX, sizeof(char));
@@ -272,7 +272,8 @@ int DisplayFile(char *filename)
 	i = fread(sFileName, sizeof(char), 16384, pFileName);
 
 	for (x = 0; x < i; x++) {
-	    switch(*(sFileName + x)) {
+	    c = *(sFileName + x) & 0xff;
+	    switch (c) {
 		case '':  ControlCodeU(sFileName[++x]);
 			    break;
 
@@ -282,10 +283,8 @@ int DisplayFile(char *filename)
 		case '':  ControlCodeK(sFileName[++x]);
 			    break;
 
-		case '':  fflush(stdout);
-			    fflush(stdin);
-			    alarm_on();
-			    Getone();
+		case '':  alarm_on();
+			    Readkey();
 			    break;
 
 		case '':  /*
@@ -306,16 +305,20 @@ int DisplayFile(char *filename)
 			    iSec = atoi(tmp1);
 			    while ((x <= i) && (*(sFileName + x) != '')) {
 				if (exitinfo.Security.level >= iSec)
-				    printf("%c", *(sFileName + x));
+				    PUTCHAR(*(sFileName + x));
 				x++;
 			    } 
 			    break;
 
-		case '':  fflush(stdout);
-			    sleep(1);
+		case '':  sleep(1);
 			    break;
 
-		default:    printf("%c", *(sFileName + x));
+		case '\n':  Enter(1);  /* Insert <cr>, we are in raw mode */
+			    break;
+
+		case '\r':  break;  /* If the file has <cr> chars (DOS), eat them */
+
+		default:    PUTCHAR(*(sFileName + x));
 
 	    } /* switch */
 	} /* for */
@@ -338,10 +341,8 @@ int DisplayFileEnter(char *File)
     Enter(1);
     /* Press ENTER to continue */
     language(13, 0, 436);
-    fflush(stdout);
-    fflush(stdin);
     alarm_on();
-    Getone();
+    Readkey();
     return rc;
 }
 
@@ -349,325 +350,333 @@ int DisplayFileEnter(char *File)
 
 void ControlCodeF(int ch)
 {
-	/* Update user info */
-	ReadExitinfo();
+    char    temp[81];
+    
+    /* Update user info */
+    ReadExitinfo();
 
-	switch (toupper(ch)) {
+    switch (toupper(ch)) {
 	case '!':
-		printf(exitinfo.sProtocol);
+		sprintf(temp, "%s", exitinfo.sProtocol);
 		break;
 	case 'A':
-		printf("%ld", exitinfo.Uploads);
+		sprintf(temp, "%ld", exitinfo.Uploads);
 		break;
 
 	case 'B':
-		printf("%ld", exitinfo.Downloads);
+		sprintf(temp, "%ld", exitinfo.Downloads);
 		break;
 
 	case 'C':
-		printf("%lu", exitinfo.DownloadK);
+		sprintf(temp, "%lu", exitinfo.DownloadK);
 		break;
 
 	case 'D':
-		printf("%lu", exitinfo.UploadK);
+		sprintf(temp, "%lu", exitinfo.UploadK);
 		break;
 
 	case 'E':
-		printf("%lu", exitinfo.DownloadK + exitinfo.UploadK);
+		sprintf(temp, "%lu", exitinfo.DownloadK + exitinfo.UploadK);
 		break;
 
 	case 'F':
-		printf("%lu", LIMIT.DownK); 
+		sprintf(temp, "%lu", LIMIT.DownK); 
 		break;
 
 	case 'G':
-		printf("%d", exitinfo.iTransferTime);
+		sprintf(temp, "%d", exitinfo.iTransferTime);
 		break;
 
 	case 'H':
-		printf("%d", iAreaNumber);
+		sprintf(temp, "%d", iAreaNumber);
 		break;
 
 	case 'I':
-		printf(sAreaDesc);
+		sprintf(temp, "%s", sAreaDesc);
 		break;
 
 	case 'J':
-		printf("%u", LIMIT.DownF);
+		sprintf(temp, "%u", LIMIT.DownF);
 		break;
 
 	case 'K':
-		printf("%s", LIMIT.Description);
+		sprintf(temp, "%s", LIMIT.Description);
 		break;
 
 	default:
-		printf(" ");
-	}
+		sprintf(temp, " ");
+    }
+    PUTSTR(temp);
 }
 
 
 
 void ControlCodeU(int ch)
 {
-	/*
-	 * Update user info
-	 */
-	TimeCheck();
-	ReadExitinfo();
+    char    temp[81];
+    
+    /*
+     * Update user info
+     */
+    TimeCheck();
+    ReadExitinfo();
 
-	switch (toupper(ch)) {
+    switch (toupper(ch)) {
 	case 'A':
-		printf("%s", exitinfo.sUserName);
+		sprintf(temp, "%s", exitinfo.sUserName);
 		break;
 
 	case 'B':
-		printf(exitinfo.sLocation);
+		sprintf(temp, "%s", exitinfo.sLocation);
 		break;
 
 	case 'C':
-		printf(exitinfo.sVoicePhone);
+		sprintf(temp, "%s", exitinfo.sVoicePhone);
 		break;
 
 	case 'D':
-		printf(exitinfo.sDataPhone);
+		sprintf(temp, "%s", exitinfo.sDataPhone);
 		break;
 
 	case 'E':
-		printf(LastLoginDate);
+		sprintf(temp, "%s", LastLoginDate);
 		break;
 
 	case 'F':
-		printf("%s %s", StrDateDMY(exitinfo.tFirstLoginDate), StrTimeHMS(exitinfo.tFirstLoginDate));
+		sprintf(temp, "%s %s", StrDateDMY(exitinfo.tFirstLoginDate), StrTimeHMS(exitinfo.tFirstLoginDate));
 		break;
 		
 	case 'G':
-		printf(LastLoginTime);
+		sprintf(temp, "%s", LastLoginTime);
 		break;
 
 	case 'H':
-		printf("%d", exitinfo.Security.level);
+		sprintf(temp, "%d", exitinfo.Security.level);
 		break;
 		
 	case 'I':
-		printf("%d",  exitinfo.iTotalCalls);
+		sprintf(temp, "%d",  exitinfo.iTotalCalls);
 		break;
 
 	case 'J':
-		printf("%d", exitinfo.iTimeUsed);
+		sprintf(temp, "%d", exitinfo.iTimeUsed);
 		break;
 
 	case 'K':
-		printf("%d", exitinfo.iConnectTime);
+		sprintf(temp, "%d", exitinfo.iConnectTime);
 		break;
 
 	case 'L':
-		printf("%d", exitinfo.iTimeLeft);
+		sprintf(temp, "%d", exitinfo.iTimeLeft);
 		break;
 
 	case 'M':
-		printf("%d", exitinfo.iScreenLen);
+		sprintf(temp, "%d", exitinfo.iScreenLen);
 		break;
 
 	case 'N':
-		printf(FirstName);
+		sprintf(temp, "%s", FirstName);
 		break;
 
 	case 'O':
-		printf(LastName);
+		sprintf(temp, "%s", LastName);
 		break;
 
 	case 'Q':
-	 	printf("%s", exitinfo.ieNEWS ? (char *) Language(147) : (char *) Language(148));
+	 	sprintf(temp, "%s", exitinfo.ieNEWS ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'P':
-		printf("%s", exitinfo.GraphMode ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.GraphMode ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'R':
-		printf("%s", exitinfo.HotKeys ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.HotKeys ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case 'S':
-		printf("%d", exitinfo.iTimeUsed + exitinfo.iTimeLeft);
+		sprintf(temp, "%d", exitinfo.iTimeUsed + exitinfo.iTimeLeft);
 		break;
 
 	case 'T':
-		printf(exitinfo.sDateOfBirth);
+		sprintf(temp, "%s", exitinfo.sDateOfBirth);
 		break;
 
 	case 'U':
-		printf("%d", exitinfo.iPosted);
+		sprintf(temp, "%d", exitinfo.iPosted);
 		break;
 
 	case 'X':
-		printf(lang.Name);
+		sprintf(temp, "%s", lang.Name);
 		break;
 
 	case 'Y':
-		printf(exitinfo.sHandle);
+		sprintf(temp, "%s", exitinfo.sHandle);
 		break;
 
 	case 'Z':
-	 	printf("%s", exitinfo.DoNotDisturb ? (char *) Language(147) : (char *) Language(148));
+	 	sprintf(temp, "%s", exitinfo.DoNotDisturb ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '1':
-		printf("%s", exitinfo.MailScan ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.MailScan ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '2':
-		printf("%s", exitinfo.ieFILE ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.ieFILE ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '3':
 		switch(exitinfo.MsgEditor) {
-		    case LINEEDIT:  printf(Language(387));
+		    case LINEEDIT:  sprintf(temp, "%s", Language(387));
 				    break;
-		    case FSEDIT:    printf(Language(388));
+		    case FSEDIT:    sprintf(temp, "%s", Language(388));
 				    break;
-		    case EXTEDIT:   printf(Language(389));
+		    case EXTEDIT:   sprintf(temp, "%s", Language(389));
 				    break;
-		    default:	    printf("?");
+		    default:	    sprintf(temp, "?");
 		}	    
 		break;
 
 	case '4':
-		printf("%s", exitinfo.FSemacs ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.FSemacs ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '5':
-		printf(exitinfo.address[0]);
+		sprintf(temp, "%s", exitinfo.address[0]);
 		break;
 
 	case '6':
-		printf(exitinfo.address[1]);
+		sprintf(temp, "%s", exitinfo.address[1]);
 		break;
 
 	case '7':
-		printf(exitinfo.address[2]);
+		sprintf(temp, "%s", exitinfo.address[2]);
 		break;
 
 	case '8':
-		printf("%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
+		sprintf(temp, "%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
 		break;
 
 	case '9':
-		printf("%s", getchrs(exitinfo.Charset));
+		sprintf(temp, "%s", getchrs(exitinfo.Charset));
 		break;
 
 	default:
-		printf(" ");
-	}
+		sprintf(temp, " ");
+    }
+    PUTSTR(temp);
 }
 
 
 
 void ControlCodeK(int ch)
 {
-	FILE		*pCallerLog;
-	char		sDataFile[PATH_MAX];
-	lastread	LR;
+    FILE	*pCallerLog;
+    char	sDataFile[PATH_MAX], temp[81];
+    lastread	LR;
 
-	switch (toupper(ch)) {
+    switch (toupper(ch)) {
 	case 'A':
-		printf("%s", (char *) GetDateDMY());
+		sprintf(temp, "%s", (char *) GetDateDMY());
 		break;
 
 	case 'B':
-		printf("%s", (char *) GetLocalHMS());
+		sprintf(temp, "%s", (char *) GetLocalHMS());
 		break;
 
 	case 'C':
-		printf("%s", (char *) GLCdate());
+		sprintf(temp, "%s", (char *) GLCdate());
 		break;
 
 	case 'D':
-		printf("%s", (char *) GLCdateyy());
+		sprintf(temp, "%s", (char *) GLCdateyy());
 		break;
 
 	case 'E':
-		printf("%ld", Speed());
+		sprintf(temp, "%ld", Speed());
 		break;
 
 	case 'F':
-	  	printf("%s", LastCaller);
+	  	sprintf(temp, "%s", LastCaller);
 		break;
 
 	case 'G':
-		printf("%d", TotalUsers());
+		sprintf(temp, "%d", TotalUsers());
 		break;
 
 	case 'H':
 		sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 		if((pCallerLog = fopen(sDataFile, "rb")) != NULL) {
-			fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-			printf("%ld", SYSINFO.SystemCalls);
-			fclose(pCallerLog);
+		    fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
+		    sprintf(temp, "%ld", SYSINFO.SystemCalls);
+		    fclose(pCallerLog);
 		}
 		break;
 
 	case 'I':
-		printf("%d", iMsgAreaNumber + 1);
+		sprintf(temp, "%d", iMsgAreaNumber + 1);
 		break;
 
 	case 'J':
-		printf(sMsgAreaDesc);
+		sprintf(temp, "%s", sMsgAreaDesc);
 		break;
 
 	case 'K':
-		printf("%s", Oneliner_Get());
+		sprintf(temp, "%s", Oneliner_Get());
 		break;
 
 	case 'L':
 		SetMsgArea(iMsgAreaNumber);
-		printf("%ld", MsgBase.Total);
+		sprintf(temp, "%ld", MsgBase.Total);
 		break;
 
 	case 'M':
 		LR.UserID = grecno;
 		if (Msg_Open(sMsgAreaBase)) {
-			if (Msg_GetLastRead(&LR) == TRUE) {
-				if (LR.HighReadMsg > MsgBase.Highest)
-					LR.HighReadMsg = MsgBase.Highest;
-				printf("%ld", LR.HighReadMsg);
-			} else
-				printf("?");
-			Msg_Close();
+		    if (Msg_GetLastRead(&LR) == TRUE) {
+			if (LR.HighReadMsg > MsgBase.Highest)
+			    LR.HighReadMsg = MsgBase.Highest;
+			sprintf(temp, "%ld", LR.HighReadMsg);
+		    } else
+			sprintf(temp, "?");
+		    Msg_Close();
 		}
 		break;
 
 	case 'N':
-		printf("%s", sMailbox);
+		sprintf(temp, "%s", sMailbox);
 		break;
 
 	case 'O':
 		SetEmailArea(sMailbox);
-		printf("%ld", EmailBase.Total);
+		sprintf(temp, "%ld", EmailBase.Total);
 		break;
 
 	case 'P':
 		sprintf(sDataFile, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, sMailbox);
 		LR.UserID = grecno;
 		if (Msg_Open(sDataFile)) {
-			if (Msg_GetLastRead(&LR) == TRUE) {
-				if (LR.HighReadMsg > EmailBase.Highest)
-					LR.HighReadMsg = EmailBase.Highest;
-				printf("%ld", LR.HighReadMsg);
-			} else
-				printf("?");
-			Msg_Close();
+		    if (Msg_GetLastRead(&LR) == TRUE) {
+			if (LR.HighReadMsg > EmailBase.Highest)
+			    LR.HighReadMsg = EmailBase.Highest;
+			sprintf(temp, "%ld", LR.HighReadMsg);
+		    } else
+			sprintf(temp, "?");
+		    Msg_Close();
 		}
 		break;
 
 	case 'Q':
-		printf("%s %s", StrDateDMY(LastCallerTime), StrTimeHMS(LastCallerTime));
+		sprintf(temp, "%s %s", StrDateDMY(LastCallerTime), StrTimeHMS(LastCallerTime));
 		break;
 
 	default:
-		printf(" ");
+		sprintf(temp, " ");
 
-	}
+    }
+
+    PUTSTR(temp);
 }
 
 

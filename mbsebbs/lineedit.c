@@ -38,6 +38,7 @@
 #include "timeout.h"
 #include "lineedit.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern	int	Line;
@@ -60,516 +61,516 @@ void	Line_Edit_Center(void);		/* Center a line		     */
 
 void Line_Edit_Append()
 {
-	if((Line - 1) == TEXTBUFSIZE) {
-		Enter(1);
-		/* Maximum message length exceeded */
-		pout(3, 0, (char *) Language(166));
-		Enter(1);
-		return;
+    char    msg[41];
+
+    if ((Line - 1) == TEXTBUFSIZE) {
+	Enter(1);
+	/* Maximum message length exceeded */
+	pout(CYAN, BLACK, (char *) Language(166));
+	Enter(1);
+	return;
+    }
+
+    while (TRUE) {
+	sprintf(msg, "%-2d : ", Line);
+	pout(LIGHTGREEN, BLACK, msg);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	alarm_on();
+	GetstrP(Message[Line], 72, 0);
+
+	if ((strcmp(Message[Line], "")) == 0)
+	    return;
+
+	Line++;
+	if ((Line - 1) == TEXTBUFSIZE) {
+	    Enter(1);
+	    /* Maximum message length exceeded */
+	    pout(LIGHTRED, BLACK, (char *) Language(166));
+	    Enter(1);
+	    return;
 	}
-
-	while (TRUE) {
-		colour(10, 0);
-		printf("%-2d : ", Line);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		fflush(stdout);
-		alarm_on();
-		GetstrP(Message[Line], 72, 0);
-
-		if((strcmp(Message[Line], "")) == 0)
-			return;
-
-		Line++;
-		if((Line - 1) == TEXTBUFSIZE) {
-			Enter(1);
-			/* Maximum message length exceeded */
-			pout(12, 0, (char *) Language(166));
-			Enter(1);
-			return;
-		}
-	}
+    }
 }
 
 
 
 void Line_Edit_Delete()
 {
-	int	i, start, end = 0, total;
-	int	Loop;
-	char	temp[81];
+    int	    i, start, end = 0, total, Loop;
+    char    temp[81];
 
-	while (TRUE) {
-		colour(10, 0);
-		/* Delete starting at line */
-		printf("\n\n%s#(1 - %d): ", (char *) Language(176), (Line - 1) );
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-		if((strcmp(temp, "")) == 0) {
-			/* Aborted. */
-			pout(15, 0, (char *) Language(177));
-			Enter(1);
-			return;
-		}
+    while (TRUE) {
+	Enter(2);
+	/* Delete starting at line */
+	sprintf(temp, "%s#(1 - %d): ", (char *) Language(176), (Line - 1) );
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 80);
+	if ((strcmp(temp, "")) == 0) {
+	    /* Aborted. */
+	    pout(WHITE, BLACK, (char *) Language(177));
+	    Enter(1);
+	    return;
+	}
 		
-		start = atoi(temp);
-		colour(10, 0);
-		if(start > (Line - 1) )
-			/* Please enter a number in the range of */
-			printf("\n%s(1 - %d)", (char *) Language(178), (Line - 1) );
-		else
-			break;
+	start = atoi(temp);
+	if (start > (Line - 1)) {
+	    Enter(1);
+	    /* Please enter a number in the range of */
+	    sprintf(temp, "%s(1 - %d)", (char *) Language(178), (Line - 1) );
+	    pout(LIGHTGREEN, BLACK, temp);
+	} else
+	    break;
+    }
+
+    while (TRUE) {
+	/* Delete ending   at line */
+	sprintf(temp, "%s# (1 - %d): ", (char *) Language(179), (Line - 1) );
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 80);
+	if ((strcmp(temp, "")) == 0) {
+	    /* Aborted. */
+	    pout(WHITE, BLACK, (char *) Language(176));
+	    Enter(1);
+	    return;
 	}
 
-	while (TRUE) {
-		colour(10, 0);
-		/* Delete ending   at line */
-		printf("%s# (1 - %d): ", (char *) Language(179), (Line - 1) );
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-		if((strcmp(temp, "")) == 0) {
-			/* Aborted. */
-			pout(15, 0, (char *) Language(176));
-			Enter(1);
-			return;
-		}
+	end = atoi(temp);
 
-		end = atoi(temp);
+	if(end > (Line - 1)) {
+	    Enter(1);
+	    /* Please enter a number in the range of */
+	    sprintf(temp, "%s(1 - %d)", (char *) Language(179), (Line - 1) );
+	    pout(LIGHTGREEN, BLACK, temp);
+	    Enter(2);
+	} else
+	    break;
+    }
 
-		colour(10, 0);
-		if(end > (Line - 1))
-			/* Please enter a number in the range of */
-			printf("\n%s(1 - %d)\n\n", (char *) Language(179), (Line - 1) );
-		else
-			break;
+    /* Get total by minusing the end line from the start line  */
+    /* and + 1 will give you total lines between start and end */
+    total = (end - start) + 1;
 
-	}
+    /* Define loop by minusing total lines from end which will */
+    /* do a loop for only the amount of lines left after the   */
+    /* end line */
+    Loop = Line - end++;
 
-	/* Get total by minusing the end line from the start line  */
-	/* and + 1 will give you total lines between start and end */
-	total = (end - start) + 1;
+    /* Minus the total amount of deleted lines from the current */
+    /* amount of lines to keep track of how many lines you are  */
+    /* working with                                             */
+    Line -= total;
 
-	/* Define loop by minusing total lines from end which will */
-	/* do a loop for only the amount of lines left after the   */
-	/* end line */
-	Loop = Line - end++;
+    /* Do loop to copy the current message over the deleted lines */
 
-	/* Minus the total amount of deleted lines from the current */
-	/* amount of lines to keep track of how many lines you are  */
-	/* working with                                             */
-	Line -= total;
-
-	/* Do loop to copy the current message over the deleted lines */
-
-	for (i = 0; i < Loop; i++)
-		strcpy(*(Message + start++), *(Message + end++));
+    for (i = 0; i < Loop; i++)
+	strcpy(*(Message + start++), *(Message + end++));
 }
 
 
 
 void Line_Edit_Edit()
 {
-	int	j, edit;
-	char	temp[81];
+    int	    j, edit;
+    char    temp[81];
 
+    while (TRUE) {
 	while (TRUE) {
-		while (TRUE) {
-			colour(10, 0);
-			/* Enter line # to edit */
-			printf("\n%s(1 - %d): ", (char *) Language(181), (Line - 1) );
-			colour(CFG.InputColourF, CFG.InputColourB);
-			GetstrC(temp, 80);
-			if((strcmp(temp, "")) == 0)
-				return;
+	    Enter(1);
+	    /* Enter line # to edit */
+	    sprintf(temp, "%s(1 - %d): ", (char *) Language(181), (Line - 1) );
+	    pout(LIGHTGREEN, BLACK, temp);
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    GetstrC(temp, 80);
+	    if ((strcmp(temp, "")) == 0)
+		return;
 
-			edit = atoi(temp);
+	    edit = atoi(temp);
 
-			colour(10, 0);
-			if(edit > Line)
-				/* Please enter a number in the range of */
-				printf("\n%s(1 - %d) ", (char *) Language(178), (Line - 1) );
-			else
-				break;
-		}
-
-		colour(10, 0);
-		printf("\n%d : ", edit);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		printf("%s", Message[edit]);
-		fflush(stdout);
-		j = strlen(Message[edit]);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		alarm_on();
-		GetstrP(Message[edit], 81, j);
+	    if (edit > Line) {
+		Enter(1);
+		/* Please enter a number in the range of */
+		sprintf(temp, "%s(1 - %d) ", (char *) Language(178), (Line - 1) );
+		pout(LIGHTGREEN, BLACK, temp);
+	    } else
+		break;
 	}
+
+	Enter(1);
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	PUTSTR(Message[edit]);
+	j = strlen(Message[edit]);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	alarm_on();
+	GetstrP(Message[edit], 80, j);
+    }
 }
 
 
 
 void Line_Edit_Insert()
 {
-	int	i, j, start, end = 0, total;
-	char	temp[81];
+    int	    i, j, start, end = 0, total;
+    char    temp[81];
 
-	if((Line - 1) == TEXTBUFSIZE) {
-		Enter(1);
-		/* Maximum message length exceeded */
-		pout(3, 0, (char *) Language(166));
-		Enter(1);
-		return;
-	}
+    if ((Line - 1) == TEXTBUFSIZE) {
+	Enter(1);
+	/* Maximum message length exceeded */
+	pout(CYAN, BLACK, (char *) Language(166));
+	Enter(1);
+	return;
+    }
 
-	while (TRUE) {
-		colour(10, 0);
-		/* Enter line # to insert text before */
-		printf("\n\n%s(1 - %d): ", (char *) Language(183), (Line - 1));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-		if((strcmp(temp, "")) == 0) {
-			/* Aborted. */
-			pout(15, 0, (char *) Language(177));
-			return;
-		}
-
-		start = atoi(temp);
-
-		colour(10, 0);
-		if(start > (Line - 1))
-			/* Please enter a number in the range of */
-			printf("\n%s(1 - %d)", (char *) Language(178), (Line - 1));
-		else
-			break;
- 	}
-
-	j = start;
-	colour(10, 0);
-	printf("\n%-2d : ", start);
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    while (TRUE) {
+	Enter(2);
+	/* Enter line # to insert text before */
+	sprintf(temp, "%s(1 - %d): ", (char *) Language(183), (Line - 1));
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(temp, 80);
-
-	if((strcmp(temp, "")) == 0)
-		return;
-
-	total = Line - start;
-	end = Line;
-	Line++;
-	start = Line;
-
-	for (i = 0; i < total + 1; i++) {
-		strcpy(Message[start], Message[end]);
-		start--;
-		end--;
+	if ((strcmp(temp, "")) == 0) {
+	    /* Aborted. */
+	    pout(WHITE, BLACK, (char *) Language(177));
+	    return;
 	}
 
-	strcpy(Message[j], temp);
+	start = atoi(temp);
+
+	if (start > (Line - 1)) {
+	    Enter(1);
+	    /* Please enter a number in the range of */
+	    sprintf(temp, "%s(1 - %d)", (char *) Language(178), (Line - 1));
+	    pout(LIGHTGREEN, BLACK, temp);
+	} else
+	    break;
+    }
+
+    Enter(1);
+    j = start;
+    sprintf(temp, "%-2d : ", start);
+    pout(LIGHTGREEN, BLACK, temp);
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    GetstrC(temp, 80);
+
+    if ((strcmp(temp, "")) == 0)
+	return;
+
+    total = Line - start;
+    end = Line;
+    Line++;
+    start = Line;
+
+    for (i = 0; i < total + 1; i++) {
+	strcpy(Message[start], Message[end]);
+	start--;
+	end--;
+    }
+
+    strcpy(Message[j], temp);
 }
 
 
 
 void Line_Edit_Replace()
 {
-	int	edit;
-	char	temp[81];
+    int	    edit;
+    char    temp[81];
 
+    while (TRUE) {
 	while (TRUE) {
-		while (TRUE) {
-			colour(10, 0);
-			/* Enter line # to replace */
-			printf("\n\n%s(1 - %d): ", (char *) Language(185), (Line - 1) );
-			colour(CFG.InputColourF, CFG.InputColourB);
-			GetstrC(temp, 80);
-			if((strcmp(temp, "")) == 0)
-				return;
+	    Enter(2);
+	    /* Enter line # to replace */
+	    sprintf(temp, "%s(1 - %d): ", (char *) Language(185), (Line - 1) );
+	    pout(LIGHTGREEN, BLACK, temp);
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    GetstrC(temp, 80);
+	    if ((strcmp(temp, "")) == 0)
+		return;
 
-			edit = atoi(temp);
+	    edit = atoi(temp);
 
-			colour(10, 0);
-			if(edit > Line)
-				/* Please enter a number in the range of */
-				printf("\n%s(1 - %d) ", (char *) Language(178), (Line - 1));
-			else
-				break;
-		}
-
+	    if (edit > Line) {
 		Enter(1);
-		/* Line reads: */
-		pout(15, 0, (char *) Language(186));
-		Enter(1);
-
-		colour(10, 0);
-		printf("%d : ", edit);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		printf("%s\n\n", Message[edit]);
-
-		colour(10, 0);
-		printf("%d : ", edit);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		GetstrC(temp, 80);
-		if((strcmp(temp, "")) == 0) {
-			Enter(1);
-			/* Unchanged. */
-			pout(15, 0, (char *) Language(187));
-			Enter(1);
-		} else
-			strcpy(Message[edit], temp);
-
-		Enter(1);
-		/* Line now reads: */
-		pout(15, 0, (char *) Language(188));
-		Enter(1);
-
-		colour(10, 0);
-		printf("%d : ", edit);
-
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		printf("%s", Message[edit]);
+		/* Please enter a number in the range of */
+		sprintf(temp, "%s(1 - %d) ", (char *) Language(178), (Line - 1));
+		pout(LIGHTGREEN, BLACK, temp);
+	    } else
+		break;
 	}
+
+	Enter(1);
+	/* Line reads: */
+	pout(WHITE, BLACK, (char *) Language(186));
+	Enter(1);
+
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	PUTSTR(Message[edit]);
+	Enter(2);
+
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	GetstrC(temp, 80);
+	if ((strcmp(temp, "")) == 0) {
+	    Enter(1);
+	    /* Unchanged. */
+	    pout(WHITE, BLACK, (char *) Language(187));
+	    Enter(1);
+	} else
+	    strcpy(Message[edit], temp);
+
+	Enter(1);
+	/* Line now reads: */
+	pout(WHITE, BLACK, (char *) Language(188));
+	Enter(1);
+
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	PUTSTR(Message[edit]);
+    }
 }
 
 
 
 void Line_Edit_Text()
 {
-	int	edit;
-	char	temp[81];
-	char	temp1[81];
+    int	    edit;
+    char    temp[81], temp1[81];
 
+    while (TRUE) {
 	while (TRUE) {
-		while (TRUE) {
-			colour(10, 0);
-			/* Enter line # to edit */
-			printf("\n\n%s(1 - %d): ", (char *) Language(194), (Line - 1));
-			colour(CFG.InputColourF, CFG.InputColourB);
-			GetstrC(temp, 80);
-			if((strcmp(temp, "")) == 0)
-				return;
+	    Enter(2);
+	    /* Enter line # to edit */
+	    sprintf(temp, "%s(1 - %d): ", (char *) Language(194), (Line - 1));
+	    pout(LIGHTGREEN, BLACK, temp);
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    GetstrC(temp, 80);
+	    if ((strcmp(temp, "")) == 0)
+		return;
 
-			edit = atoi(temp);
+	    edit = atoi(temp);
 
-			colour(10, 0);
-			if(edit > Line)
-				/* Please enter a number in the range of */
-				printf("\n%s(1 - %d) ", (char *) Language(178), (Line - 1) );
-			else
-				break;
-		}
-
+	    if (edit > Line) {
 		Enter(1);
-		/* Line reads: */
-		pout(15, 0, (char *) Language(186));
-		Enter(1);
-		colour(10, 0);
-		printf("%d : ", edit);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		printf("%s\n\n", Message[edit]);
-
-		/* Text to replace: */
-		pout(10, 0, (char *) Language(195));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-		/* Replacement text: */
-		pout(10, 0, (char *) Language(196));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp1, 80);
-
-		strreplace(Message[edit], temp, temp1);
-
-		Enter(1);
-		/* Line now reads: */
-		pout(15, 0, (char *) Language(197));
-		Enter(1);
-		colour(10, 0);
-		printf("%d : ", edit);
-		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-		printf("%s", Message[edit]);
+		/* Please enter a number in the range of */
+		sprintf(temp, "%s(1 - %d) ", (char *) Language(178), (Line - 1) );
+		pout(LIGHTGREEN, BLACK, temp);
+	    } else
+		break;
 	}
+
+	Enter(1);
+	/* Line reads: */
+	pout(WHITE, BLACK, (char *) Language(186));
+	Enter(1);
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	PUTSTR(Message[edit]);
+	Enter(2);
+
+	/* Text to replace: */
+	pout(LIGHTGREEN, BLACK, (char *) Language(195));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 80);
+	/* Replacement text: */
+	pout(LIGHTGREEN, BLACK, (char *) Language(196));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp1, 80);
+
+	strreplace(Message[edit], temp, temp1);
+
+	Enter(1);
+	/* Line now reads: */
+	pout(WHITE, BLACK, (char *) Language(197));
+	Enter(1);
+	sprintf(temp, "%d : ", edit);
+	pout(LIGHTGREEN, BLACK, temp);
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	PUTSTR(Message[edit]);
+    }
 }
 
 
 
 void Line_Edit_Center()
 {
-	int	i, j, z, center;
-	int	maxlen = 78;
-	char	*CEnter;
-	char	temp[81];
+    int	    i, j, z, center, maxlen = 78;
+    char    *CEnter, temp[81];
 
-	colour(15, 0);
-	/* Enter line # to center */
-	printf("\n\n%s(1 - %d): ", (char *) Language(203), (Line - 1));
-	fflush(stdout);
-	GetstrC(temp, 80);
-	if((strcmp(temp, "")) == 0)
-		return;
+    Enter(2);
+    /* Enter line # to center */
+    sprintf(temp, "%s(1 - %d): ", (char *) Language(203), (Line - 1));
+    pout(WHITE, BLACK, temp);
+    GetstrC(temp, 80);
+    if ((strcmp(temp, "")) == 0)
+	return;
 
-	CEnter = calloc(81, sizeof(char));
-	center = atoi(temp);
-	j = strlen(Message[center]);
-	if (j >= maxlen)
-		/* Line is maximum length and cannot be centered */
-		printf("\n%s\n", (char *) Language(204));
-	else {
-		z = 35 - (j / 2);
+    CEnter = calloc(81, sizeof(char));
+    center = atoi(temp);
+    j = strlen(Message[center]);
+    if (j >= maxlen) {
+	Enter(1);
+	/* Line is maximum length and cannot be centered */
+	pout(LIGHTGREEN, BLACK, (char *) Language(204));
+	Enter(1);
+    } else {
+	z = 35 - (j / 2);
 
-		for(i = 0; i < z; i++)
-			strcat(CEnter," ");
-		strcat(CEnter, Message[center]);
-		strcpy(Message[center], CEnter);
-	}
+	for (i = 0; i < z; i++)
+	    strcat(CEnter," ");
+	strcat(CEnter, Message[center]);
+	strcpy(Message[center], CEnter);
+    }
 
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	printf("\n%s\n", Message[center]);
-	free(CEnter);
+    Enter(1);
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    PUTSTR(Message[center]);
+    Enter(1);
+    free(CEnter);
 }
 
 
 
 int Line_Edit()
 {
-	int	i, j;
+    int	    i, j;
+    char    msg[81];
 
-	clear();
-	colour(12, 0);
-	/* Begin your message now, Blank line to end */
-	Center((char *) Language(164));
-	/* Maximum of TEXTBUFSIZE lines, 73 chars per line */
-	Center((char *) Language(165));
-	colour(14, 0);
-	printf("   (");
-	for (i = 0; i < 74; i++)
-		printf("-");
-	printf(")\n");
+    clear();
+    colour(LIGHTRED, BLACK);
+    /* Begin your message now, Blank line to end */
+    Center((char *) Language(164));
+    /* Maximum of TEXTBUFSIZE lines, 73 chars per line */
+    Center((char *) Language(165));
+    colour(YELLOW, BLACK);
+    PUTSTR((char *)"   (");
+    for (i = 0; i < 74; i++)
+	PUTSTR((char *)"-");
+    PUTSTR((char *)")");
+    Enter(1);
 
-	Line_Edit_Append();
+    Line_Edit_Append();
 	
-	while (TRUE) {
-		colour(14, 0);
-		/* Functions available: (Current Message: */
-		printf("\n%s%d ", (char *) Language(167), (Line - 1));
-		/* Lines) */
-		printf("%s\n\n", (char *) Language(168));
-		colour(11, 0);
-		/* L - List message      S - Save message      C - Continue message */
-		printf("%s\n", (char *) Language(169));
+    while (TRUE) {
+	Enter(1);
+	/* Functions available: (Current Message: */                    /* Lines) */
+	sprintf(msg, "%s%d %s", (char *) Language(167), (Line - 1), (char *) Language(168));
+	pout(YELLOW, BLACK, msg);
+	Enter(2);
 
-		/* Q - Quit message      D - Delete line       I - Insert line  */
-		printf("%s\n", (char *) Language(170));
+	/* L - List message      S - Save message      C - Continue message */
+	pout(LIGHTCYAN, BLACK, (char *) Language(169));
+	Enter(1);
 
-		/* T - Text edit         E - Edit line         R - Replace line */
-		printf("%s\n", (char *) Language(171));
+	/* Q - Quit message      D - Delete line       I - Insert line  */
+	pout(LIGHTCYAN, BLACK, (char *) Language(170));
+	Enter(1);
 
-		/* Z - Center line                                              */
-		printf("%s\n", (char *) Language(172));
+	/* T - Text edit         E - Edit line         R - Replace line */
+	pout(LIGHTCYAN, BLACK, (char *) Language(171));
+	Enter(1);
 
-		colour(15, 0);
-		printf("\n%s [", (char *) Language(173));
-		for (i = 0; i < 10; i++)
-			putchar(Keystroke(172, i));
-		printf("]: ");
-		fflush(stdout);
+	/* Z - Center line                                              */
+	pout(LIGHTCYAN, BLACK, (char *) Language(172));
+	Enter(2);
 
-		alarm_on();
-		j = toupper(Getone());
+	sprintf(msg, "%s [", (char *) Language(173));
+	pout(WHITE, BLACK, msg);
+	for (i = 0; i < 10; i++)
+	    PUTCHAR(Keystroke(172, i));
+	PUTSTR((char *)"]: ");
 
-		if (j == Keystroke(172, 2)) {
-			/* Continue */
-			pout(15, 0, (char *) Language(174));
-			Enter(1);
-			Line_Edit_Append();
-		} else
+	alarm_on();
+	j = toupper(Readkey());
 
-		if (j == Keystroke(172, 4)) {
-			/* Delete */
-			pout(15, 0, (char *) Language(175));
-			Enter(1);
-			Line_Edit_Delete();
-		} else
+	if (j == Keystroke(172, 2)) {
+	    /* Continue */
+	    pout(WHITE, BLACK, (char *) Language(174));
+	    Enter(1);
+	    Line_Edit_Append();
+	} else if (j == Keystroke(172, 4)) {
+	    /* Delete */
+	    pout(WHITE, BLACK, (char *) Language(175));
+	    Enter(1);
+	    Line_Edit_Delete();
+	} else if (j == Keystroke(172, 7)) {
+	    /* Edit */
+	    pout(WHITE, BLACK, (char *) Language(180));
+	    Enter(1);
+	    Line_Edit_Edit();
+	} else if (j == Keystroke(172, 5)) {
+	    /* Insert */
+  	    pout(WHITE, BLACK, (char *) Language(182));
+  	    Enter(1);
+	    Line_Edit_Insert();
+	} else if (j == Keystroke(172, 0)) {
+	    pout(WHITE, BLACK, (char *) Language(184));
+	    Enter(2);
 
-		if (j == Keystroke(172, 7)) {
-			/* Edit */
-			pout(15, 0, (char *) Language(180));
-			Enter(1);
-			Line_Edit_Edit();
-		} else
+	    for (i = 1; i < Line; i++) {
+		sprintf(msg, "%d: ", i);
+		pout(LIGHTGREEN, BLACK, msg);
+		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+		PUTSTR(Message[i]);
+		Enter(1);
+	    }
+	} else if (j == Keystroke(172, 8)) {
+	    /* Replace */
+	    pout(WHITE, BLACK, (char *) Language(362));
+	    Enter(1);
+	    Line_Edit_Replace();
+	} else if (j == Keystroke(172, 3)) {
+	    /* Quit */
+	    pout(WHITE, BLACK, (char *) Language(189));
+	    Enter(2);
 
-		if (j == Keystroke(172, 5)) {
-			/* Insert */
-  			pout(15, 0, (char *) Language(182));
-  			Enter(1);
-			Line_Edit_Insert();
-		} else
+	    /* Are you sure [y/N] */
+	    PUTSTR((char *) Language(190));
+	    alarm_on();
 
-		if (j == Keystroke(172, 0)) {
-			pout(15, 0, (char *) Language(184));
-			Enter(2);
+	    if (toupper(Readkey()) == Keystroke(190, 0)) {
+		/* Yes */
+		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(356));
+		Enter(1);
+		/* Message aborted. */
+		pout(WHITE, BLACK, (char *) Language(191));
+		Enter(2);
 
-			for(i = 1; i < Line; i++) {
-				colour(10, 0);
-				printf("%d: ", i);
-				colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-				printf("%s\n", Message[i]);
-			}
-		} else
+		sleep(1);
+		return FALSE;
+	    } 
 
-		if (j == Keystroke(172, 8)) {
-			/* Replace */
-			pout(15, 0, (char *) Language(362));
-			Enter(1);
-			Line_Edit_Replace();
-		} else
+	    /* No */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(192));
+	    Enter(1);
+	} else if (j == Keystroke(172, 6)) {
+	    /* Text Edit */
+	    pout(WHITE, BLACK, (char *) Language(193));
+	    Line_Edit_Text();
+	} else if (j == Keystroke(172, 1)) {
+	    /* Save */
+	    pout(WHITE, BLACK, (char *) Language(198));
+	    Enter(1);
 
-		if (j == Keystroke(172, 3)) {
-			/* Quit */
-			pout(15, 0, (char *) Language(189));
-			Enter(2);
-
-			/* Are you sure [y/N] */
-			printf("%s", (char *) Language(190));
-			fflush(stdout);
-			alarm_on();
-
-			if (toupper(Getone()) == Keystroke(190, 0)) {
-				/* Yes */
-				pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(356));
-				Enter(1);
-				/* Message aborted. */
-				pout(15, 0, (char *) Language(191));
-				Enter(2);
-
-				fflush(stdout);				
-				sleep(1);
-				return FALSE;
-			} 
-
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* No */
-			printf("%s\n", (char *) Language(192));
-		} else
-
-		if (j == Keystroke(172, 6)) {
-			/* Text Edit */
-			pout(15, 0, (char *) Language(193));
-			Line_Edit_Text();
-		} else
-
-		if (j == Keystroke(172, 1)) {
-			/* Save */
-			pout(15, 0, (char *) Language(198));
-			Enter(1);
-			fflush(stdout);
-
-			if (Line > 1)
-				return TRUE;
+	    if (Line > 1)
+		return TRUE;
 			
-			return FALSE;
-		} else
-
-		if (j == Keystroke(172, 9)) {
-			/* Center */
-			pout(15, 0, (char *) Language(376));
-			Enter(1);
-			Line_Edit_Center();
-		}
+	    return FALSE;
+	} else if (j == Keystroke(172, 9)) {
+	    /* Center */
+	    pout(WHITE, BLACK, (char *) Language(376));
+	    Enter(1);
+	    Line_Edit_Center();
 	}
+    }
 }
 
 

@@ -60,6 +60,7 @@
 #include "lastcallers.h"
 #include "signature.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern pid_t	mypid;
@@ -90,7 +91,7 @@ void menu()
 {
     FILE    *pMenuFile;
     int	    iFoundKey = FALSE, Key, IsANSI;
-    char    *Input, *sMenuPathFileName, buf[81];
+    char    temp[81], *Input, *sMenuPathFileName, buf[81];
 
     Input = calloc(PATH_MAX, sizeof(char));
     sMenuPathFileName = calloc(PATH_MAX, sizeof(char));
@@ -127,7 +128,8 @@ void menu()
 	     */
 	    if (MenuError == 10) {
 		WriteError("FATAL ERROR: Too many menu errors");
-		printf("Too many menu errors, notifying Sysop\n\n");
+		sprintf(temp, "Too many menu errors, notifying Sysop\r\n\r\n");
+		PUTSTR(temp);
 		sleep(3);
 		die(MBERR_CONFIG_ERROR);
 	    }
@@ -179,7 +181,9 @@ void menu()
 	    if (IsSema((char *)"upsdown")) {
 		fclose(pMenuFile);
 		Syslog('+', "Kicking user out, upsdown semafore detected");
-		printf("System power failure, closing the bbs\n\n");
+		sprintf(temp, "System power failure, closing the bbs");
+		PUTSTR(temp);
+		Enter(2);
 		sleep(3);
 		Good_Bye(MBERR_OK);
 	    }
@@ -205,10 +209,9 @@ void menu()
 	    alarm_on();
 
 	    if (exitinfo.HotKeys) {
-		fflush(stdout);
-		Key = Getone();
+		Key = Readkey();
 		sprintf(Input, "%c", Key);
-		printf("\n");
+		Enter(1);
 	    } else {
 		colour(CFG.InputColourF, CFG.InputColourB);
 		GetstrC(Input, 80);
@@ -381,7 +384,8 @@ void DoMenu(int Type)
 		    for (i = 0; i < strlen(menus.OptionalData); i++)
 			if (*(menus.OptionalData + i) == '@')
 			    *(menus.OptionalData + i) = '\n';
-		    printf("%s\n", menus.OptionalData);
+		    sprintf(temp, "%s\r\n", menus.OptionalData);
+		    PUTSTR(temp);
 		}
 		break;
 
@@ -743,7 +747,7 @@ void DisplayMenu(void)
 			if ( ( dpos + 1 ) == maxdpos ) {
 			    skipCRLF=1;
 			} else {
-			    printf("%c",menus.Display[ dpos ]);
+			    PUTCHAR(menus.Display[ dpos ]);
 			}
 			break;
 
@@ -751,7 +755,7 @@ void DisplayMenu(void)
 			    escaped = 1;
 			} else {
 			    escaped = 0;
-			    printf("%c",menus.Display[ dpos ]);
+			    PUTCHAR(menus.Display[ dpos ]);
 			}
 			break;
 
@@ -767,17 +771,17 @@ void DisplayMenu(void)
 			    }
 			} else {
 			    escaped=0;
-			    printf("%c",menus.Display[ dpos ]);
+			    PUTCHAR(menus.Display[ dpos ]);
 			}
 			break;
 
 	    default:	/* all other characters */
-			printf("%c",menus.Display[ dpos ]);
+			PUTCHAR(menus.Display[ dpos ]);
 	}
     }
 
     if ( !skipCRLF ) {
-	printf("\n");
+	Enter(1);
     }
 }
 

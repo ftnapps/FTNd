@@ -47,7 +47,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 		perror("open 9");
 		exit(MBERR_TTYIO_ERROR);
 	}
-	Setraw();
+	mbse_Setraw();
 
 	i = 0;
 	while (rc == -1) {
@@ -56,12 +56,12 @@ unsigned char readkey(int y, int x, int fg, int bg)
 
 		mbse_locate(y, x);
 		fflush(stdout);
-		rc = Waitchar(&ch, 5);
+		rc = mbse_Waitchar(&ch, 5);
 		if ((rc == 1) && (ch != KEY_ESCAPE))
 			break;
 
 		if ((rc == 1) && (ch == KEY_ESCAPE))
-			rc = Escapechar(&ch);
+			rc = mbse_Escapechar(&ch);
 
 		if (rc == 1)
 			break;
@@ -69,7 +69,7 @@ unsigned char readkey(int y, int x, int fg, int bg)
 		Nopper();
 	}
 
-	Unsetraw();
+	mbse_Unsetraw();
 	close(ttyfd);
 
 	return ch;
@@ -89,15 +89,15 @@ unsigned char testkey(int y, int x)
 		perror("open 9");
 		exit(MBERR_TTYIO_ERROR);
 	}
-	Setraw();
+	mbse_Setraw();
 
-	rc = Waitchar(&ch, 100);
+	rc = mbse_Waitchar(&ch, 100);
 	if (rc == 1) {
 		if (ch == KEY_ESCAPE)
-			rc = Escapechar(&ch);
+			rc = mbse_Escapechar(&ch);
 	}
 
-	Unsetraw();
+	mbse_Unsetraw();
 	close(ttyfd);
 
 	if (rc == 1)

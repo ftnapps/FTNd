@@ -4,6 +4,13 @@
 #define _INPUT_H
 
 
+long		Speed(void);			/* Get (locked) tty speed   */
+int		Waitchar(unsigned char *, int);	/* Wait n* 10mSec for char  */
+int		Escapechar(unsigned char *);	/* Escape sequence test	    */
+unsigned char	Readkey(void);			/* Read a translated key    */
+
+
+void BackErase(void);		/* Send backspace with erase		    */
 void GetstrU(char *, int);	/* Get string, forbid spaces		    */
 void GetstrP(char *, int, int); /* Get string with cursor position	    */
 void GetstrC(char *, int);      /* Get string, length, clear string         */

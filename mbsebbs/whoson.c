@@ -37,6 +37,7 @@
 #include "exitinfo.h"
 #include "whoson.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
@@ -50,7 +51,7 @@ extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
 void WhosOn(char *OpData)
 {
     char	    buf[128], *Heading, *Underline, *cnt, *isdoing, *location, *device;
-    char	    *fullname, *temp;
+    char	    *fullname, *temp, msg[81];
     int		    i, x, Start = TRUE;
     FILE	    *fp;
     struct userhdr  ushdr;
@@ -73,7 +74,7 @@ void WhosOn(char *OpData)
 	sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
     colour(LIGHTRED, BLACK);
     Center(Underline);
-    printf("\n");
+    Enter(1);
 
     /* Name                          Device   Status         Location */
     pout(LIGHTGREEN, BLACK, (char *) Language(415));
@@ -126,51 +127,51 @@ void WhosOn(char *OpData)
 		    }
 		    free(temp);
 		}
-		colour(LIGHTCYAN, BLACK);
-		printf("%-30s", fullname);
+		sprintf(msg, "%-30s", fullname);
+		pout(LIGHTCYAN, BLACK, msg);
 		free(fullname);
 
-		colour(LIGHTBLUE, BLACK);
-		printf("%-9s", device);
+		sprintf(msg, "%-9s", device);
+		pout(LIGHTBLUE, BLACK, msg);
 		free(device);
+
 		strtok(NULL, ",");
 		location = xstrcpy(strtok(NULL, ","));
 		isdoing  = xstrcpy(strtok(NULL, ","));
 
-		colour(WHITE, BLACK);
 		if (strstr(isdoing, "Browsing"))
 		    /* Browseng */
-		    printf("%-15s", (char *) Language(418));
+		    sprintf(msg, "%-15s", (char *) Language(418));
 		else if (strstr(isdoing, "Downloading"))
 		    /* Downloading */
-		    printf("%-15s", (char *) Language(419));
+		    sprintf(msg, "%-15s", (char *) Language(419));
 		else if (strstr(isdoing, "Uploading"))
 		    /* Uploading */
-		    printf("%-15s", (char *) Language(420));
+		    sprintf(msg, "%-15s", (char *) Language(420));
 		else if (strstr(isdoing, "Read"))
 		    /* Msg Section */
-		    printf("%-15s", (char *) Language(421));
+		    sprintf(msg, "%-15s", (char *) Language(421));
 		else if (strstr(isdoing, "External"))
 		    /* External Door */
-		    printf("%-15s", (char *) Language(422));
+		    sprintf(msg, "%-15s", (char *) Language(422));
 		else if (strstr(isdoing, "Chat"))
 		    /* Chatting */
-		    printf("%-15s", (char *) Language(423));
+		    sprintf(msg, "%-15s", (char *) Language(423));
 		else if (strstr(isdoing, "Files"))
 		    /* Listing Files */
-		    printf("%-15s", (char *) Language(424));
+		    sprintf(msg, "%-15s", (char *) Language(424));
 		else if (strstr(isdoing, "Time"))
 		    /* Banking Door */
-		    printf("%-15s", (char *) Language(426));
+		    sprintf(msg, "%-15s", (char *) Language(426));
 		else if (strstr(isdoing, "Safe"))
 		    /* Safe Door */
-		    printf("%-15s", (char *) Language(427));
+		    sprintf(msg, "%-15s", (char *) Language(427));
 		else if (strstr(isdoing, "Whoson"))
 		    /* WhosOn List */
-		    printf("%-15s", (char *) Language(428));
+		    sprintf(msg, "%-15s", (char *) Language(428));
 		else if (strstr(isdoing, "Offline"))
 		    /* Offline Reader */
-		    printf("%-15s", (char *) Language(429));
+		    sprintf(msg, "%-15s", (char *) Language(429));
 		else {
 		    /* 
 		     * This is default when nothing matches, with doors this
@@ -178,11 +179,13 @@ void WhosOn(char *OpData)
 		     */
 		    if (strlen(isdoing) > 15)
 			isdoing[15] = '\0';
-		    printf("%-15s", isdoing);
+		    sprintf(msg, "%-15s", isdoing);
 		}
+		pout(WHITE, BLACK, msg);
 
-		colour(LIGHTRED, BLACK);
-		printf("%-25s\n", location);
+		sprintf(msg, "%-25s", location);
+		pout(LIGHTRED, BLACK, msg);
+		Enter(1);
 		free(location);
 		free(isdoing);
 	    }
@@ -194,8 +197,7 @@ void WhosOn(char *OpData)
 
     free(Underline);
     free(Heading);
-
-    printf("\n");
+    Enter(1);
 }
 
 
@@ -277,20 +279,19 @@ void SendOnlineMsg(char *OpData)
     /* Please enter username to send message to: */
     pout(CYAN, BLACK, (char *) Language(430));
     colour(CFG.InputColourF, CFG.InputColourB);
-    fflush(stdout);
     GetstrC(User, 35);
     if (!strcmp(User, "")) {
 	free(User);
 	free(String);
 	return;
     }
+    temp = calloc(PATH_MAX, sizeof(char));
 
     /*
      * If we were displaying handles or real names, then lookup the 
      * users unix name to send to mbtask.
      */
     if ((strcasecmp(OpData, "/H") == 0) || (strlen(OpData) == 0)) {
-	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "rb")) != NULL) {
 	    fread(&ushdr, sizeof(ushdr), 1, fp);
@@ -307,14 +308,13 @@ void SendOnlineMsg(char *OpData)
 	    }
 	    fclose(fp);
 	}
-	free(temp);
     }
 
     /* Please enter message to send (Max 76 Characters) */
     pout(LIGHTGREEN, BLACK, (char *)Language(433));
-    pout(LIGHTGREEN, BLACK, (char *)"\n> ");
+    Enter(1);
+    pout(LIGHTGREEN, BLACK, (char *)"> ");
     colour(CFG.InputColourF, CFG.InputColourB);
-    fflush(stdout);
     GetstrC(String, 76);
 
     if ((strcmp(String, "")) != 0) {
@@ -330,24 +330,33 @@ void SendOnlineMsg(char *OpData)
 	    strcpy(buf, socket_receive());
 
 	    if (strncmp(buf, "100:1,3;", 8) == 0) {
+		Enter(1);
 		/* Sorry, there is no user on */
-		printf("\n%s %s\n\n", (char *) Language(431), User);
+		sprintf(temp, "%s %s", (char *) Language(431), User);
+		PUTSTR(temp);
+		Enter(1);
 	    }
 	    if (strncmp(buf, "100:1,2;", 8) == 0) {
-		printf("\nNo more room in users message buffer\n\n");
+		Enter(1);
+		PUTSTR((char *)"No more room in users message buffer");
+		Enter(2);
 	    }
 	    if (strncmp(buf, "100:1,1;", 8) == 0) {
-		colour(LIGHTRED, BLACK);
+		Enter(1);
 		/* doesn't wish to be disturbed */
-		printf("\n%s %s\n", User, (char *) Language(432));
+		sprintf(temp, "%s %s", User, (char *) Language(432));
+		pout(LIGHTRED, BLACK, temp);
+		Enter(1);
 	    }
 	    if (strncmp(buf, "100:0;", 6) == 0) {
-		printf("Message Sent!\n");
+		PUTSTR((char *)"Message Sent!");
+		Enter(1);
 		Syslog('+', "Online msg to %s: \"%s\"", User, String);
 	    }
 	}
     }
 
+    free(temp);
     free(User);
     free(String);
     Pause();

@@ -2240,13 +2240,13 @@ char		*arcname(faddr *, unsigned short, int);
 /*
  * From rawio.c
  */
-void		Setraw(void);			/* Set raw mode		    */
-void		Unsetraw(void);			/* Unset raw mode	    */
-unsigned char	Getone(void);			/* Get one raw character    */
-long		Speed(void);			/* Get (locked) tty speed   */
-int		Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
-int		Escapechar(unsigned char *);	/* Escape sequence test	    */
-unsigned char	Readkey(void);			/* Read a translated key    */
+void		mbse_Setraw(void);			/* Set raw mode		    */
+void		mbse_Unsetraw(void);			/* Unset raw mode	    */
+unsigned char	mbse_Getone(void);			/* Get one raw character    */
+long		mbse_Speed(void);			/* Get (locked) tty speed   */
+int		mbse_Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
+int		mbse_Escapechar(unsigned char *);	/* Escape sequence test	    */
+unsigned char	mbse_Readkey(void);			/* Read a translated key    */
 
 
 

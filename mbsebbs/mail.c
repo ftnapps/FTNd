@@ -59,6 +59,9 @@
 #include "door.h"
 #include "whoson.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
+
 
 
 /*
@@ -105,12 +108,11 @@ int LC(int Lines)
 	iLineCount = 1;
 
 	pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
-	fflush(stdout);
 	alarm_on();
-	z = toupper(Getone());
+	z = toupper(Readkey());
 
 	if (z == Keystroke(61, 1)) {
-	    printf("\n");
+	    Enter(1);
 	    return(1);
 	}
 
@@ -134,7 +136,6 @@ int Post_Allowed(void)
     if (msgs.MsgKinds == RONLY) {
 	/* Message area is Readonly */
 	pout(LIGHTRED, BLACK, (char *) Language(437));
-	fflush(stdout);
 	sleep(3);
 	return FALSE;
     }
@@ -163,16 +164,14 @@ int Alias_Option(void)
     /* YN|) to post this message [Y/n]: */
     pout(CYAN, BLACK, (char *)Language(478));
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-    fflush(stdout);
     alarm_on();
-    if (toupper(Getone()) == Keystroke(478, 1)) {
+    if (toupper(Readkey()) == Keystroke(478, 1)) {
 	rc = FALSE;
-	printf("%c", Keystroke(478, 1));
+	PUTCHAR(Keystroke(478, 1));
     } else {
-	printf("%c", Keystroke(478, 0));
+	PUTCHAR(Keystroke(478, 0));
     }
     Enter(2);
-    fflush(stdout);
     return rc;
 }
 
@@ -199,26 +198,23 @@ int Crash_Option(faddr *Dest)
 	    /* Crash [y/N]: */
 	    pout(CYAN, BLACK, (char *)Language(461));
 	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	    fflush(stdout);
 	    alarm_on();
-	    if (toupper(Getone()) == Keystroke(461, 0)) {
+	    if (toupper(Readkey()) == Keystroke(461, 0)) {
 		rc = 1;
-		printf("%c", Keystroke(461, 0));
+		PUTCHAR(Keystroke(461, 0));
 	    } else
-		printf("%c", Keystroke(461, 1));
+		PUTCHAR(Keystroke(461, 1));
 	} else {
 	    /* Warning: node is not CM, send Immediate [y/N]: */
 	    pout(CYAN, BLACK, (char *)Language(462));
 	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	    fflush(stdout);
 	    alarm_on();
-	    if (toupper(Getone()) == Keystroke(462, 0)) {
+	    if (toupper(Readkey()) == Keystroke(462, 0)) {
 		rc = 2;
-		printf("%c", Keystroke(462, 0));
+		PUTCHAR(Keystroke(462, 0));
 	    } else
-		printf("%c", Keystroke(462, 1));
+		PUTCHAR(Keystroke(462, 1));
 	}
-	fflush(stdout);
 
 	if (Nlent->addr.domain)
 	    free(Nlent->addr.domain);
@@ -250,15 +246,13 @@ int IsPrivate(void)
         Enter(1);
         /* Private [y/N]: */
         pout(CYAN, BLACK, (char *) Language(163));
-        fflush(stdout);
         alarm_on();
-        if (toupper(Getone()) == Keystroke(163, 0)) {
+        if (toupper(Readkey()) == Keystroke(163, 0)) {
             rc = TRUE;
-	    printf("%c", Keystroke(163, 0));
+	    PUTCHAR(Keystroke(163, 0));
 	} else {
-	    printf("%c", Keystroke(163, 1));
+	    PUTCHAR(Keystroke(163, 1));
 	}
-	fflush(stdout);
     }
 
     /*
@@ -275,77 +269,73 @@ int IsPrivate(void)
 void Check_Attach(void);
 void Check_Attach(void)
 {
-	char		*Attach, *dospath;
-	struct stat	sb;
+    char	*Attach, *dospath, msg[81];
+    struct stat	sb;
 
-	/*
-	 * This is a dangerous option! Every file on the system to which the
-	 * bbs has read access and is in the range of paths translatable by
-	 * Unix to DOS can be attached to the netmail.
-	 */
-	if ((msgs.Type == NETMAIL) && (exitinfo.Security.level >= CFG.iAttachLevel)) {
+    /*
+     * This is a dangerous option! Every file on the system to which the
+     * bbs has read access and is in the range of paths translatable by
+     * Unix to DOS can be attached to the netmail.
+     */
+    if ((msgs.Type == NETMAIL) && (exitinfo.Security.level >= CFG.iAttachLevel)) {
 
-		Attach = calloc(PATH_MAX, sizeof(char));
-		while (TRUE) {
+	Attach = calloc(PATH_MAX, sizeof(char));
+	while (TRUE) {
+	    Enter(1);
+	    /* Attach file [y/N]: */
+	    pout(CYAN, BLACK, (char *)Language(463));
+	    alarm_on();
+	    if (toupper(Readkey()) == Keystroke(463, 0)) {
+
+		PUTCHAR(Keystroke(463, 0));
+		Enter(1);
+		/* Please enter filename: */
+		pout(YELLOW, BLACK, (char *)Language(245));
+		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+		alarm_on();
+		sprintf(Attach, "%s/", CFG.uxpath);
+		PUTSTR(Attach);
+		GetstrP(Attach, 71, strlen(Attach));
+		if (strcmp(Attach, "") == 0)
+		    break;
+
+		if ((stat(Attach, &sb) == 0) && (S_ISREG(sb.st_mode))) {
+		    dospath = xstrcpy(Unix2Dos(Attach));
+		    if (strncasecmp(Attach, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
+			Syslog('+', "FileAttach \"%s\"", Attach);
+			if (strlen(CFG.dospath))
+			    strcpy(Msg.Subject, dospath);
+			else
+			    sprintf(Msg.Subject, "%s", Attach);
+			Msg.FileAttach = TRUE;
 			Enter(1);
-			/* Attach file [y/N]: */
-			pout(CYAN, BLACK, (char *)Language(463));
-			fflush(stdout);
-			alarm_on();
-			if (toupper(Getone()) == Keystroke(463, 0)) {
-
-				printf("%c", Keystroke(463, 0));
-				Enter(1);
-				/* Please enter filename: */
-				pout(YELLOW, BLACK, (char *)Language(245));
-				colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-				fflush(stdout);
-				alarm_on();
-				sprintf(Attach, "%s/", CFG.uxpath);
-				printf("%s", Attach);
-				fflush(stdout);
-				GetstrP(Attach, 71, strlen(Attach));
-				if (strcmp(Attach, "") == 0)
-					break;
-
-				if ((stat(Attach, &sb) == 0) && (S_ISREG(sb.st_mode))) {
-					dospath = xstrcpy(Unix2Dos(Attach));
-					if (strncasecmp(Attach, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
-						Syslog('+', "FileAttach \"%s\"", Attach);
-						if (strlen(CFG.dospath))
-							strcpy(Msg.Subject, dospath);
-						else
-							sprintf(Msg.Subject, "%s", Attach);
-						Msg.FileAttach = TRUE;
-						Enter(1);
-						colour(11, 0);
-						/* File */ /* will be attached */
-						printf("%s %s %s", (char *)Language(464), Msg.Subject, Language(465));
-						Enter(1);
-						fflush(stdout);
-						sleep(2);
-						break;
-					} else {
-						Enter(1);
-						colour(10, 0);
-						/* File not within */
-						printf("%s \"%s\"", Language(466), CFG.uxpath);
-						Enter(1);
-						Pause();
-					}
-				} else {
-					Enter(1);
-					/* File does not exist, please try again ... */
-					pout(10, 0, (char *)Language(296));
-					Enter(1);
-					Pause();
-				}
-			} else {
-				break;
-			} /* if attach */
-		} /* while true */
-		free(Attach);
-	}
+			/* File */ /* will be attached */
+			sprintf(msg, "%s %s %s", (char *)Language(464), Msg.Subject, Language(465));
+			pout(LIGHTCYAN, BLACK, msg);
+			Enter(1);
+			sleep(2);
+			break;
+		    } else {
+			Enter(1);
+			/* File not within */
+			sprintf(msg, "%s \"%s\"", Language(466), CFG.uxpath);
+			pout(LIGHTGREEN, BLACK, msg);
+			Enter(1);
+			Pause();
+		    }
+		} else {
+		    Enter(1);
+		    /* File does not exist, please try again ... */
+		    pout(LIGHTGREEN, BLACK, (char *)Language(296));
+		    Enter(1);
+		    Pause();
+		}
+	    } else {
+		break;
+	    } /* if attach */
+	} /* while true */
+	free(Attach);
+    }
 }
 
 
@@ -401,7 +391,7 @@ int Edit_Msg()
 void Post_Msg()
 {
     int		    i, x, cc;
-    char	    *FidoNode;
+    char	    *FidoNode, msg[81];
     faddr	    *Dest = NULL;
     node	    *Nlent = NULL;
     unsigned short  point;
@@ -420,9 +410,11 @@ void Post_Msg()
 
     Msg_New();
 
-    colour(LIGHTBLUE, BLACK);
+    Enter(1);
     /* Posting message in area: */
-    printf("\n%s\"%s\"\n", (char *) Language(156), sMsgAreaDesc);
+    sprintf(msg, "%s\"%s\"", (char *) Language(156), sMsgAreaDesc);
+    pout(LIGHTBLUE, BLACK, msg);
+    Enter(1);
 
     if (Alias_Option()) {
 	/*
@@ -518,19 +510,18 @@ void Post_Msg()
 
 			colour(YELLOW, BLACK);
 			if (point)
-			    printf("Boss     : ");
+			    PUTSTR((char *)"Boss     : ");
 			else
-			    printf("Node     : ");
+			    PUTSTR((char *)"Node     : ");
 			Dest->point = point;
-			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-			printf("%s in %s", Nlent->name, Nlent->location);
+			sprintf(msg, "%s in %s", Nlent->name, Nlent->location);
+			pout(CFG.MsgInputColourF, CFG.MsgInputColourB, msg);
 			/* " Is this correct [y/N]: " */
 			pout(YELLOW, BLACK, (char *)Language(21));
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-			fflush(stdout);
 			alarm_on();
 
-			if (toupper(Getone()) == Keystroke(21, 0)) {
+			if (toupper(Readkey()) == Keystroke(21, 0)) {
 			    Enter(1);
 			    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
 			    x = TRUE;
@@ -543,12 +534,11 @@ void Post_Msg()
 			}
 		    } else {
 			Dest->point = point;
-			printf("\r");
+			PUTCHAR('\r');
 			/* Node not known, continue anayway [y/N]: */
 			pout(CYAN, BLACK, (char *) Language(241));
-			fflush(stdout);
 			alarm_on();
-			if (toupper(Getone()) == Keystroke(241, 0)) {
+			if (toupper(Readkey()) == Keystroke(241, 0)) {
 			    x = TRUE;
 			    Syslog('+', "Node %s not found, forced continue", FidoNode);
 			}
@@ -562,7 +552,7 @@ void Post_Msg()
 	    }
 
 	    if(!x) {
-		printf("\r");
+		PUTCHAR('\r');
 		/* User not found. Try again, or (Enter) to quit */
 		pout(CYAN, BLACK, (char *) Language(160));
 	    } else
@@ -574,7 +564,6 @@ void Post_Msg()
     /* Subject  :  */
     pout(YELLOW, BLACK, (char *) Language(161));
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-    fflush(stdout);
     alarm_on();
     GetstrP(Msg.Subject, 65, 0);
 
@@ -582,10 +571,9 @@ void Post_Msg()
 	Enter(1);
 	/* Abort Message [y/N] ?: */
 	pout(CYAN, BLACK, (char *) Language(162));
-	fflush(stdout);
 	alarm_on();
 
-	if (toupper(Getone()) == Keystroke(162, 0)) {
+	if (toupper(Readkey()) == Keystroke(162, 0)) {
 	    for(i = 0; i < (TEXTBUFSIZE + 1); i++)
 		free(Message[i]);
 	    tidy_faddr(Dest);
@@ -603,8 +591,7 @@ void Post_Msg()
     Check_Attach();
 
     if (Edit_Msg()) {
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
 	if (msgs.Type == NETMAIL) {
 	    /*
 	     * Check for Carbon Copy lines, process them if present.
@@ -647,8 +634,7 @@ void Post_Msg()
 	} else {
 	    Save_Msg(FALSE, Dest);
 	}
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
 	sleep(3);
     }
     
@@ -667,7 +653,7 @@ int Save_CC(int IsReply, char *ccline)
 {
     faddr	    *Dest = NULL;
     int		    i, j, x, rc = FALSE;
-    char	    *p, *username;
+    char	    *p, *username, msg[81];
     unsigned short  point;
     node	    *Nlent;
     
@@ -685,9 +671,10 @@ int Save_CC(int IsReply, char *ccline)
     Syslog('b', "i=%d, j=%d", i, j);
     if (j <= i) {
 	Syslog('+', "Could not parse %s", printable(ccline, 0));
-	colour(LIGHTRED, BLACK);
 	/* Could not parse */
-	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	pout(LIGHTRED, BLACK, msg);
+	Enter(1);
 	Pause();
 	return FALSE;
     }
@@ -701,26 +688,30 @@ int Save_CC(int IsReply, char *ccline)
     
     if (strlen(username) == 0) {
 	Syslog('+', "Could not extract username from %s", printable(ccline, 0));
-	colour(LIGHTRED, BLACK);
 	/* Could not parse */
-	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	pout(LIGHTRED, BLACK, msg);
+	Enter(1);
 	Pause();
 	return FALSE;
     }
 
     if ((Dest = parsefnode(ccline + j)) == NULL) {
 	Syslog('+', "Could not extract address from %s", printable(ccline, 0));
-	colour(LIGHTRED, BLACK);
 	/* Could not parse */
-	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	sprintf(msg, "%s \"%s\"", Language(22), printable(ccline, 0));
+	pout(LIGHTRED, BLACK, msg);
+	Enter(1);
 	Pause();
 	return FALSE;
     }
 
     Dest->name = tlcap(printable(username, 0));
     Syslog('b', "Dest %s", ascfnode(Dest, 0xff));
-    colour(LIGHTMAGENTA, BLACK);
-    printf("\nConfirm CC to %s\n", ascfnode(Dest, 0xff));
+    Enter(1);
+    sprintf(msg, "Confirm CC to %s", ascfnode(Dest, 0xff));
+    pout(LIGHTMAGENTA, BLACK, msg);
+    Enter(1);
 
     x = FALSE;
     point = Dest->point;
@@ -728,19 +719,18 @@ int Save_CC(int IsReply, char *ccline)
     if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
 	colour(YELLOW, BLACK);
 	if (point)
-	    printf("Boss     : ");
+	    PUTSTR((char *)"Boss     : ");
 	else
-	    printf("Node     : ");
+	    PUTSTR((char *)"Node     : ");
 	Dest->point = point;
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	printf("%s in %s", Nlent->name, Nlent->location);
+	sprintf(msg, "%s in %s", Nlent->name, Nlent->location);
+	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, msg);
 	/* " Is this correct [y/N]: " */
 	pout(YELLOW, BLACK, (char *)Language(21));
 	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	fflush(stdout);
 	alarm_on();
     
-	if (toupper(Getone()) == Keystroke(21, 0)) {
+	if (toupper(Readkey()) == Keystroke(21, 0)) {
 	    Enter(1);
 	    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
 	    x = TRUE;
@@ -753,20 +743,18 @@ int Save_CC(int IsReply, char *ccline)
 	}
     } else {
 	Dest->point = point;
-	printf("\n");
+	Enter(1);
 	/* Node not known, continue anayway [y/N]: */
 	pout(CYAN, BLACK, (char *) Language(241));
-	fflush(stdout);
 	alarm_on();
-	if (toupper(Getone()) == Keystroke(241, 0)) {
+	if (toupper(Readkey()) == Keystroke(241, 0)) {
 	    x = TRUE;
 	    Syslog('+', "Node %s not found, forced continue", ascfnode(Dest, 0x0f));
 	}
     }
 
     if (x) {
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
 	rc = Save_Msg(IsReply, Dest);
     }
     
@@ -836,10 +824,10 @@ int Save_Msg(int IsReply, faddr *Dest)
 
     Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
 
-    colour(CFG.HiliteF, CFG.HiliteB);
     /* Saving message to disk */
-    printf("%s(%ld)\n", (char *) Language(202), Msg.Id);
-    fflush(stdout);
+    sprintf(temp, "%s(%ld)", (char *) Language(202), Msg.Id);
+    pout(CFG.HiliteF, CFG.HiliteB, temp);
+    Enter(1);
 
     msgs.LastPosted = time(NULL);
     msgs.Posted.total++;
@@ -903,106 +891,111 @@ int Save_Msg(int IsReply, faddr *Dest)
  */
 void ShowMsgHdr()
 {
-	static char	Buf1[35], Buf2[35], Buf3[81];
-	struct tm	*tm;
-	time_t		now;
-	int		color;
+    static char	Buf1[35], Buf2[35], Buf3[81];
+    char	msg[81];
+    struct tm	*tm;
+    time_t	now;
+    int		color;
 
-	Buf1[0] = '\0';
-	Buf2[0] = '\0';
-	Buf3[0] = '\0';
+    Buf1[0] = '\0';
+    Buf2[0] = '\0';
+    Buf3[0] = '\0';
 
-  	clear();
-	colour(BLUE, LIGHTGRAY);
-	printf("   %-70s", sMsgAreaDesc);
+    clear();
+    sprintf(msg, "   %-70s", sMsgAreaDesc);
+    pout(BLUE, LIGHTGRAY, msg);
 
-	colour(RED, LIGHTGRAY);
-	printf("#%-5lu\n", Msg.Id);
+    sprintf(msg, "#%-5lu", Msg.Id);
+    pout(RED, LIGHTGRAY, msg);
+    Enter(1);
 
-	/* Date     : */
-	pout(YELLOW, BLACK, (char *) Language(206));
-	colour(GREEN, BLACK);
-	/* Use intermediate variable to prevent SIGBUS on Sparc's */
-	now = Msg.Written;
-	tm = gmtime(&now);
-	printf("%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
+    /* Date     : */
+    pout(YELLOW, BLACK, (char *) Language(206));
+    colour(GREEN, BLACK);
+    /* Use intermediate variable to prevent SIGBUS on Sparc's */
+    now = Msg.Written;
+    tm = gmtime(&now);
+    sprintf(msg, "%02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
 		tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
-	colour(LIGHTRED, BLACK);
-	if (Msg.Local)		printf(" Local");
-	if (Msg.Intransit)	printf(" Transit");
-	if (Msg.Private)	printf(" Priv.");
-	if (Msg.Received)	printf(" Rcvd");
-	if (Msg.Sent)		printf(" Sent");
-	if (Msg.KillSent)	printf(" KillSent");
-	if (Msg.ArchiveSent)	printf(" ArchiveSent");
-	if (Msg.Hold)		printf(" Hold");
-	if (Msg.Crash)		printf(" Crash");
-	if (Msg.Immediate)	printf(" Imm.");
-	if (Msg.Direct)		printf(" Dir");
-	if (Msg.Gate)		printf(" Gate");
-	if (Msg.FileRequest)	printf(" Freq");
-	if (Msg.FileAttach)	printf(" File");
-	if (Msg.TruncFile)	printf(" TruncFile");
-	if (Msg.KillFile)	printf(" KillFile");
-	if (Msg.ReceiptRequest)	printf(" RRQ");
-	if (Msg.ConfirmRequest)	printf(" CRQ");
-	if (Msg.Orphan)		printf(" Orphan");
-	if (Msg.Encrypt)	printf(" Crypt");
-	if (Msg.Compressed)	printf(" Comp");
-	if (Msg.Escaped)	printf(" 7bit");
-	if (Msg.ForcePU)	printf(" FPU");
-	if (Msg.Localmail)	printf(" Localmail");
-	if (Msg.Netmail)	printf(" Netmail");
-	if (Msg.Echomail)	printf(" Echomail");
-	if (Msg.News)		printf(" News");
-	if (Msg.Email)		printf(" E-mail");
-	if (Msg.Nodisplay)	printf(" Nodisp");
-	if (Msg.Locked)		printf(" LCK");
-	if (Msg.Deleted)	printf(" Del");
-	printf("\n");
+    PUTSTR(msg);
 
-	/* From    : */
-	pout(YELLOW, BLACK, (char *) Language(209));
-	if (IsMe(Msg.From))
-	    color = LIGHTGREEN;
-	else
-	    color = GREEN;
-	colour(color++, BLACK);
-	printf("%s ", Msg.From);
-	if (iMsgAreaType != LOCALMAIL) {
-		colour(color, BLACK);
-		printf("(%s)", Msg.FromAddress);
-	}
-	printf("\n");
+    colour(LIGHTRED, BLACK);
+    if (Msg.Local)	    PUTSTR((char *)" Local");
+    if (Msg.Intransit)	    PUTSTR((char *)" Transit");
+    if (Msg.Private)	    PUTSTR((char *)" Priv.");
+    if (Msg.Received)	    PUTSTR((char *)" Rcvd");
+    if (Msg.Sent)	    PUTSTR((char *)" Sent");
+    if (Msg.KillSent)	    PUTSTR((char *)" KillSent");
+    if (Msg.ArchiveSent)    PUTSTR((char *)" ArchiveSent");
+    if (Msg.Hold)	    PUTSTR((char *)" Hold");
+    if (Msg.Crash)	    PUTSTR((char *)" Crash");
+    if (Msg.Immediate)	    PUTSTR((char *)" Imm.");
+    if (Msg.Direct)	    PUTSTR((char *)" Dir");
+    if (Msg.Gate)	    PUTSTR((char *)" Gate");
+    if (Msg.FileRequest)    PUTSTR((char *)" Freq");
+    if (Msg.FileAttach)	    PUTSTR((char *)" File");
+    if (Msg.TruncFile)	    PUTSTR((char *)" TruncFile");
+    if (Msg.KillFile)	    PUTSTR((char *)" KillFile");
+    if (Msg.ReceiptRequest) PUTSTR((char *)" RRQ");
+    if (Msg.ConfirmRequest) PUTSTR((char *)" CRQ");
+    if (Msg.Orphan)	    PUTSTR((char *)" Orphan");
+    if (Msg.Encrypt)	    PUTSTR((char *)" Crypt");
+    if (Msg.Compressed)	    PUTSTR((char *)" Comp");
+    if (Msg.Escaped)	    PUTSTR((char *)" 7bit");
+    if (Msg.ForcePU)	    PUTSTR((char *)" FPU");
+    if (Msg.Localmail)	    PUTSTR((char *)" Localmail");
+    if (Msg.Netmail)	    PUTSTR((char *)" Netmail");
+    if (Msg.Echomail)	    PUTSTR((char *)" Echomail");
+    if (Msg.News)	    PUTSTR((char *)" News");
+    if (Msg.Email)	    PUTSTR((char *)" E-mail");
+    if (Msg.Nodisplay)	    PUTSTR((char *)" Nodisp");
+    if (Msg.Locked)	    PUTSTR((char *)" LCK");
+    if (Msg.Deleted)	    PUTSTR((char *)" Del");
+    Enter(1);
 
-	/* To      : */
-	pout(YELLOW, BLACK, (char *) Language(208));
-	if (IsMe(Msg.To))
-	    color = LIGHTGREEN;
-	else
-	    color = GREEN;
-	colour(color++, BLACK);
-	printf("%s ", Msg.To);
-	if (iMsgAreaType == NETMAIL) {
-		colour(color, BLACK);
-		printf("(%s)", Msg.ToAddress);
-	}
-	printf("\n");
+    /* From    : */
+    pout(YELLOW, BLACK, (char *) Language(209));
+    if (IsMe(Msg.From))
+	color = LIGHTGREEN;
+    else
+        color = GREEN;
+    colour(color++, BLACK);
+    PUTSTR(Msg.From);
+    if (iMsgAreaType != LOCALMAIL) {
+	sprintf(msg, " (%s)", Msg.FromAddress);
+	pout(color, BLACK, msg);
+    }
+    Enter(1);
 
-	/* Subject : */
-	pout(YELLOW, BLACK, (char *) Language(210));
-	colour(GREEN, BLACK);
-	printf("%s\n", Msg.Subject);
+    /* To      : */
+    pout(YELLOW, BLACK, (char *) Language(208));
+    if (IsMe(Msg.To))
+        color = LIGHTGREEN;
+    else
+        color = GREEN;
+    colour(color++, BLACK);
+    PUTSTR(Msg.To);
+    if (iMsgAreaType == NETMAIL) {
+	sprintf(msg, " (%s)", Msg.ToAddress);
+	pout(color, BLACK, msg);
+    }
+    Enter(1);
 
-	colour(CFG.HiliteF, CFG.HiliteB);
-	colour(YELLOW, BLUE);
-	if (Msg.Reply)
-		sprintf(Buf1, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
-	if (Msg.Original)
-		sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
-	sprintf(Buf3, "%s%s ", Buf1, Buf2);
-	colour(YELLOW, BLUE);
-	printf("%78s  \n", Buf3);
+    /* Subject : */
+    pout(YELLOW, BLACK, (char *) Language(210));
+    pout(GREEN, BLACK, Msg.Subject);
+    Enter(1);
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    colour(YELLOW, BLUE);
+    if (Msg.Reply)
+	sprintf(Buf1, "\"+\" %s %lu", (char *)Language(211), Msg.Reply);
+    if (Msg.Original)
+	sprintf(Buf2, "   \"-\" %s %lu", (char *)Language(212), Msg.Original);
+    sprintf(Buf3, "%s%s ", Buf1, Buf2);
+    sprintf(msg, "%77s  ", Buf3);
+    pout(YELLOW, BLUE, msg);
+    Enter(1);
 }
 
 
@@ -1012,7 +1005,7 @@ void ShowMsgHdr()
  */
 int Export_a_Msg(unsigned long Num)
 {
-    char    *p;
+    char    *p, msg[81];
     int     ShowMsg = TRUE, z, homedir = TRUE;
 
     LastNum = Num;
@@ -1028,15 +1021,14 @@ int Export_a_Msg(unsigned long Num)
 	    /* Export to (H)ome or (R)ules directory: */
 	    pout(WHITE, RED, (char *) Language(11));
 	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	    fflush(stdout);
 	    alarm_on();
-	    z = toupper(Getone());
+	    z = toupper(Readkey());
 	    if (z == Keystroke(11, 0)) {
-		printf("%c", Keystroke(478, 0));
+		PUTCHAR(Keystroke(478, 0));
 		break;
 	    }
 	    if (z == Keystroke(11, 1)) {
-		printf("%c", Keystroke(478, 1));
+		PUTCHAR(Keystroke(478, 1));
 		homedir = FALSE;
 		break;
 	    }
@@ -1049,9 +1041,10 @@ int Export_a_Msg(unsigned long Num)
      * The area data is already set, so we can do the next things
      */
     if (MsgBase.Total == 0) {
-	colour(WHITE, BLACK);
+	Enter(1);
 	/* There are no messages in this area */
-	printf("\n%s\n\n", (char *) Language(205));
+	pout(WHITE, BLACK, (char *) Language(205));
+	Enter(2);
 	Syslog('+', "No messages in area");
 	sleep(3);
 	return FALSE;
@@ -1063,10 +1056,10 @@ int Export_a_Msg(unsigned long Num)
     }
 
     if (!Msg_ReadHeader(Num)) {
-	perror("");
-	colour(WHITE, BLACK);
+	Enter(1);
 	/* Message doesn't exist */
-	printf("\n%s\n\n", (char *)Language(77));
+	pout(WHITE, BLACK, (char *)Language(77));
+	Enter(2);
 	Msg_Close();
 	sleep(3);
 	return FALSE;
@@ -1081,8 +1074,10 @@ int Export_a_Msg(unsigned long Num)
     }
 
     if (!ShowMsg) {
+	Enter(1);
 	/* Private message, not owner */
-	printf("\n%s\n\n", (char *) Language(82));
+	pout(WHITE, BLACK, (char *) Language(82));
+	Enter(2);
 	Msg_Close();
 	sleep(3);
 	return FALSE;
@@ -1136,18 +1131,18 @@ int Export_a_Msg(unsigned long Num)
     /*
      * Report the result.
      */
-    colour(CFG.TextColourF, CFG.TextColourB);
+    Enter(2);
     if (homedir) {
 	/* Message exported to your private directory as: */
-	printf("\n\n%s", (char *) Language(46));
-	colour(CFG.HiliteF, CFG.HiliteB);
-	printf("%d_%lu.msg\n\n", iMsgAreaNumber + 1, Num);
+	pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(46));
+	sprintf(msg, "%d_%lu.msg", iMsgAreaNumber + 1, Num);
+	pout(CFG.HiliteF, CFG.HiliteB, msg);
     } else {
 	/* Message exported to rules directory as */
-	printf("\n\n%s", (char *) Language(12));
-	colour(CFG.HiliteF, CFG.HiliteB);
-	printf("%s\n\n", msgs.Tag);
+	pout(CFG.TextColourF, CFG.TextColourB, (char *) Language(12));
+	pout(CFG.HiliteF, CFG.HiliteB, msgs.Tag);
     }
+    Enter(2);
     Pause();
     return TRUE;
 }
@@ -1172,9 +1167,10 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
      * The area data is already set, so we can do the next things
      */
     if (MsgBase.Total == 0) {
-	colour(WHITE, BLACK);
+	Enter(1);
 	/* There are no messages in this area */
-	printf("\n%s\n\n", (char *) Language(205));
+	pout(WHITE, BLACK, (char *) Language(205));
+	Enter(2);
 	sleep(3);
 	return FALSE;
     }
@@ -1185,9 +1181,9 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
     }
 
     if (!Msg_ReadHeader(Num)) {
-	perror("");
-	colour(WHITE, BLACK);
-	printf("\n%s\n\n", (char *)Language(77));
+	Enter(1);
+	pout(WHITE, BLACK, (char *)Language(77));
+	Enter(2);
 	Msg_Close();
 	sleep(3);
 	return FALSE;
@@ -1201,7 +1197,9 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	    ShowMsg = TRUE;
     } 
     if (!ShowMsg) {
-	printf("\n%s\n\n", (char *) Language(82));
+	Enter(1);
+	pout(WHITE, BLACK, (char *) Language(82));
+	Enter(2);
 	Msg_Close();
 	sleep(3);
 	return FALSE;
@@ -1272,8 +1270,8 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	    do {
 		if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
 		    if (Kludges) {
-			colour(7, 0);
-			printf("%s\n", p);
+			pout(LIGHTGRAY, BLACK, p);
+			Enter(1);
 			if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			    break;
 		    }
@@ -1287,11 +1285,12 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 			 * Try to translate character sets
 			 */
 			for (i = 0; i < strlen(p); i++) {
-			    printf("%s", charset_map_c(p[i], FALSE));
+			    PUTSTR(charset_map_c(p[i], FALSE));
 			}
-			printf("\n");
+			Enter(1);
 		    } else {
-			printf("%s\n", p);
+			PUTSTR(p);
+			Enter(1);
 		    }
 
 		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
@@ -1313,7 +1312,6 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
      */
     if ((!Msg.Received) && (strlen(Msg.To) > 0) &&
 	    ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(exitinfo.sHandle, Msg.To) == 0))) {
-	Syslog('m', "Marking message received");
 	Msg.Received = TRUE;
 	Msg.Read = time(NULL) - (gmt_offset((time_t)0) * 60);
 	if (Msg_Lock(30L)) {
@@ -1363,55 +1361,59 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
  */
 void Read_Msgs()
 {
-	char		*temp;
-	unsigned long	Start;
-	lastread	LR;
+    char	    *temp;
+    unsigned long   Start;
+    lastread	    LR;
 
-	colour(CFG.TextColourF, CFG.TextColourB);
+    temp = calloc(81, sizeof(char));
+    Enter(1);
 	/* Message area \"%s\" contains %lu messages. */
-	printf("\n%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
+    sprintf(temp, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc, 
 		(char *) Language(222), MsgBase.Total, (char *) Language(223));
+    pout(CFG.TextColourF, CFG.TextColourB, temp);
 
+    /*
+     * Check for lastread pointer, suggest lastread number for start.
+     */
+    Start = MsgBase.Lowest;
+    if (Msg_Open(sMsgAreaBase)) {
+	LR.UserID = grecno;
+	if (Msg_GetLastRead(&LR))
+	    Start = LR.HighReadMsg + 1;
+	else
+	    Start = 1;
+	Msg_Close();
 	/*
-	 * Check for lastread pointer, suggest lastread number for start.
+	 * If we already have read the last message, the pointer is
+	 * higher then HighMsgNum, we set it at HighMsgNum to prevent
+	 * errors and read that message again.
 	 */
-	Start = MsgBase.Lowest;
-	if (Msg_Open(sMsgAreaBase)) {
-		LR.UserID = grecno;
-		if (Msg_GetLastRead(&LR))
-			Start = LR.HighReadMsg + 1;
-		else
-			Start = 1;
-		Msg_Close();
-		/*
-		 * If we already have read the last message, the pointer is
-		 * higher then HighMsgNum, we set it at HighMsgNum to prevent
-		 * errors and read that message again.
-		 */
-		if (Start > MsgBase.Highest)
-			Start = MsgBase.Highest;
-	}
+	if (Start > MsgBase.Highest)
+	    Start = MsgBase.Highest;
+    }
 
-	colour(WHITE, BLACK);
-	/* Please enter a message between */
-	printf("\n%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
-	/* Message number [ */
-	printf("\n%s%lu]: ", (char *) Language(225), Start);
+    Enter(1);
+    /* Please enter a message between */
+    sprintf(temp, "%s(%lu - %lu)", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    pout(WHITE, BLACK, temp);
+    Enter(1);
+    /* Message number [ */
+    sprintf(temp, "%s%lu]: ", (char *) Language(225), Start);
+    PUTSTR(temp);
 
-	temp = calloc(81, sizeof(char));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(temp, 80);
-	if ((strcmp(temp, "")) != 0)
-		Start = atoi(temp);
-	free(temp);
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(temp, 80);
+    if ((strcmp(temp, "")) != 0)
+	Start = atoi(temp);
+    free(temp);
 
-	if (!Read_a_Msg(Start, TRUE))
-		return;
+    if (!Read_a_Msg(Start, TRUE))
+	return;
 
-	if (MsgBase.Total == 0)
-		return;
+    if (MsgBase.Total == 0)
+	return;
 
-	while(ReadPanel()) {}
+    while(ReadPanel()) {}
 }
 
 
@@ -1425,7 +1427,6 @@ int ReadPanel()
 
     WhosDoingWhat(READ_POST, NULL);
 
-    colour(WHITE, RED);
     /*
      * The writer of the message, sysops, and who has sysop rights to the message area
      * are allowed to delete messages.
@@ -1433,19 +1434,18 @@ int ReadPanel()
     if ((msgs.UsrDelete && IsMe(Msg.From)) || (exitinfo.Security.level >= CFG.sysop_access) ||
 	    Access(exitinfo.Security, msgs.SYSec)) {
 	/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port */
-	printf("%s", (char *) Language(214));
+	pout(WHITE, RED, (char *) Language(214));
     } else {
 	/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (Q)uit, e(X)port */
-	printf("%s", (char *) Language(215));
+	pout(WHITE, RED, (char *) Language(215));
     }
     if ((exitinfo.Security.level >= CFG.sysop_access) || Access(exitinfo.Security, msgs.SYSec))
-	printf(", (!)");
+	PUTSTR((char *)", (!)");
 
-    printf(": ");
+    PUTSTR((char *)": ");
 
-    fflush(stdout);
     alarm_on();
-    input = toupper(Getone());
+    input = toupper(Readkey());
 
     if (input == '!') { /* ! Toggle kludges display */
 	if ((exitinfo.Security.level >= CFG.sysop_access) || Access(exitinfo.Security, msgs.SYSec)) {
@@ -1474,7 +1474,8 @@ int ReadPanel()
 
     } else if (input == Keystroke(214, 5)) { /* (Q)uit */
 	/* Quit */
-	printf("%s\n", (char *) Language(189));
+	pout(WHITE, BLACK, (char *) Language(189));
+	Enter(1);
 	return FALSE;
 
     } else if (input == Keystroke(214, 7)) { /* e(X)port */
@@ -1528,7 +1529,7 @@ int ReadPanel()
 void Reply_Msg(int IsReply)
 {
     int	    i, j, x, cc;
-    char    to[65], from[65], subj[73], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[6];
+    char    to[65], from[65], subj[73], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[6], msg[81];
     faddr   *Dest = NULL;
 
     if (!Post_Allowed())
@@ -1563,10 +1564,11 @@ void Reply_Msg(int IsReply)
     x = 0;
     WhosDoingWhat(READ_POST, NULL);
     clear();
-    colour(BLUE, LIGHTGRAY);
-    printf("   %-71s", sMsgAreaDesc);
-    colour(RED, LIGHTGRAY);
-    printf("#%-5lu", MsgBase.Highest + 1);
+    sprintf(msg, "   %-71s", sMsgAreaDesc);
+    pout(BLUE, LIGHTGRAY, msg);
+    sprintf(msg, "#%-5lu", MsgBase.Highest + 1);
+    pout(RED, LIGHTGRAY, msg);
+    Enter(1);
 
     colour(CFG.HiliteF, CFG.HiliteB);
     sLine();
@@ -1621,10 +1623,8 @@ void Reply_Msg(int IsReply)
     pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
 
     x = strlen(subj);
-    fflush(stdout);
     colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
     GetstrP(subj, 50, x);
-    fflush(stdout);
 
     if (strlen(subj))
 	strcpy(Msg.Subject, subj);
@@ -1644,9 +1644,8 @@ void Reply_Msg(int IsReply)
 	    case -1:printf("\r");
 		    /* Node not known, continue anayway [y/N]: */
 		    pout(CYAN, BLACK, (char *) Language(241));
-		    fflush(stdout);
 		    alarm_on();
-		    if (toupper(Getone()) == Keystroke(241, 0)) {
+		    if (toupper(Readkey()) == Keystroke(241, 0)) {
 			Syslog('+', "Node not found, forced continue");
 		    } else {
 			for (i = 0; i < (TEXTBUFSIZE + 1); i++)
@@ -1703,8 +1702,7 @@ void Reply_Msg(int IsReply)
     }
 
     if (Edit_Msg()) {
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
         if (msgs.Type == NETMAIL) {
 	    /*
 	     * Check for Carbon Copy lines, process them if present.
@@ -1747,8 +1745,7 @@ void Reply_Msg(int IsReply)
 	} else {
 	    Save_Msg(IsReply, Dest);
 	}
-	printf("\n");
-	fflush(stdout);
+	Enter(1);
 	sleep(3);
     }
 
@@ -1760,33 +1757,33 @@ void Reply_Msg(int IsReply)
 
 int IsMe(char *Name)
 {
-	char	*p, *q;
-	int	i, rc = FALSE;
+    char    *p, *q;
+    int	    i, rc = FALSE;
 
-	if (strlen(Name) == 0)
-		return FALSE;
+    if (strlen(Name) == 0)
+	return FALSE;
 
-	if (strcasecmp(Name, exitinfo.sUserName) == 0)
-		rc = TRUE;
+    if (strcasecmp(Name, exitinfo.sUserName) == 0)
+	rc = TRUE;
 
-	if (strcasecmp(Name, exitinfo.sHandle) == 0)
-		rc = TRUE;
+    if (strcasecmp(Name, exitinfo.sHandle) == 0)
+	rc = TRUE;
 
-	q = xstrcpy(Name);
-	if (strstr(q, (char *)"@")) {
-		p = strtok(q, "@");
-		for (i = 0; i < strlen(p); i++)
-			if (p[i] == '_')
-				p[i] = ' ';
-		if (strcasecmp(p, exitinfo.sUserName) == 0)
-			rc = TRUE;
-		if (strcasecmp(p, exitinfo.sHandle) == 0)
-			rc = TRUE;
-		if (strcasecmp(p, exitinfo.Name) == 0)
-			rc = TRUE; 
-	}
-	free(q);
-	return rc ;  	
+    q = xstrcpy(Name);
+    if (strstr(q, (char *)"@")) {
+	p = strtok(q, "@");
+	for (i = 0; i < strlen(p); i++)
+	    if (p[i] == '_')
+		p[i] = ' ';
+	if (strcasecmp(p, exitinfo.sUserName) == 0)
+	    rc = TRUE;
+	if (strcasecmp(p, exitinfo.sHandle) == 0)
+	    rc = TRUE;
+	if (strcasecmp(p, exitinfo.Name) == 0)
+	    rc = TRUE; 
+    }
+    free(q);
+    return rc ;  	
 }
 
 
@@ -1795,6 +1792,7 @@ void QuickScan_Msgs()
 {
     int	    FoundMsg  = FALSE;
     long    i;
+    char    msg[81];
 
     iLineCount = 2;
     WhosDoingWhat(READ_POST, NULL);
@@ -1817,23 +1815,22 @@ void QuickScan_Msgs()
 	    if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
 				    ((msgs.Type == NETMAIL) && ((IsMe(Msg.From)) || (IsMe(Msg.To)))))) {
 				
-		colour(WHITE, BLACK);
-		printf("%-6lu", Msg.Id);
+		sprintf(msg, "%-6lu", Msg.Id);
+		pout(WHITE, BLACK, msg);
+		sprintf(msg, "%s ", padleft(Msg.From, 20, ' '));
 		if (IsMe(Msg.From))
-		    colour(LIGHTCYAN, BLACK);
+		    pout(LIGHTCYAN, BLACK, msg);
 		else
-		    colour(CYAN, BLACK);
-		printf("%s ", padleft(Msg.From, 20, ' '));
+		    pout(CYAN, BLACK, msg);
 
+		sprintf(msg, "%s ", padleft(Msg.To, 20, ' '));
 		if (IsMe(Msg.To))
-		    colour(LIGHTGREEN, BLACK);
+		    pout(LIGHTGREEN, BLACK, msg);
 		else
-		    colour(GREEN, BLACK);
-		printf("%s ", padleft(Msg.To, 20, ' '));
-		colour(MAGENTA, BLACK);
-		printf("%s", padleft(Msg.Subject, 31, ' '));
-		printf("\n");
-		fflush(stdout);
+		    pout(GREEN, BLACK, msg);
+		sprintf(msg, "%s", padleft(Msg.Subject, 31, ' '));
+		pout(MAGENTA, BLACK, msg);
+		Enter(1);
 		FoundMsg = TRUE;
 		if (LC(1))
 		    break;
@@ -1870,23 +1867,26 @@ void Delete_Msg()
      * The area data is already set, so we can do the next things
      */
     if (MsgBase.Total == 0) {
-	colour(WHITE, BLACK);
+	Enter(1);
 	/* There are no messages in this area */
-	printf("\n%s\n\n", (char *) Language(205));
+	pout(WHITE, BLACK, (char *) Language(205));
+	Enter(2);
 	sleep(3);
 	return;
     }
 
-    colour(CFG.TextColourF, CFG.TextColourB);
-    /* Message area \"%s\" contains %lu messages. */
-    printf("\n%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
-	    (char *) Language(222), MsgBase.Total, (char *) Language(223));
-
-    colour(WHITE, BLACK);
-    /* Please enter a message between */
-    printf("\n%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
-
     temp = calloc(81, sizeof(char));
+    Enter(1);
+    /* Message area \"%s\" contains %lu messages. */
+    sprintf(temp, "%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
+	    (char *) Language(222), MsgBase.Total, (char *) Language(223));
+    pout(CFG.TextColourF, CFG.TextColourB, temp);
+
+    Enter(1);
+    /* Please enter a message between */
+    sprintf(temp, "%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+    pout(WHITE, BLACK, temp);
+
     colour(CFG.InputColourF, CFG.InputColourB);
     GetstrC(temp, 10);
     if ((strcmp(temp, "")) != 0)
@@ -1899,10 +1899,10 @@ void Delete_Msg()
     }
 
     if (!Msg_ReadHeader(Msgnum)) {
-	perror("");
-	colour(WHITE, BLACK);
+	Enter(1);
 	/* Message doesn't exist */
-	printf("\n%s\n\n", (char *)Language(77));
+	pout(WHITE, BLACK, (char *)Language(77));
+	Enter(2);
 	Msg_Close();
 	sleep(3);
 	return;
@@ -1916,8 +1916,9 @@ void Delete_Msg()
 	                Access(exitinfo.Security, msgs.SYSec)) {
 	Delete_MsgNum(Msgnum);
     } else {
-	colour(LIGHTRED, BLACK);
-	printf("\n%s\n\n", (char *)Language(14));
+	Enter(1);
+	pout(LIGHTRED, BLACK, (char *)Language(14));
+	Enter(2);
     }
 
     sleep(3);
@@ -1931,45 +1932,35 @@ void Delete_Msg()
  */
 int CheckLine(int FG, int BG, int Email)
 {
-	int	i, x, z;
+    int	    x, z;
 
-	x = strlen(Language(61));
-	iLineCount++;
+    x = strlen(Language(61));
+    iLineCount++;
 
-	if ((iLineCount >= (exitinfo.iScreenLen -1)) && (iLineCount < 1000)) {
-		iLineCount = 7;
+    if ((iLineCount >= (exitinfo.iScreenLen -1)) && (iLineCount < 1000)) {
+	iLineCount = 7;
 
-		DoNop();
-		pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
+	DoNop();
+	pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
 
-		fflush(stdout);
-		alarm_on();
-		z = tolower(Getone());
+	alarm_on();
+	z = tolower(Readkey());
 
-		for (i = 0; i < x; i++)
-			putchar('\b');
-		for (i = 0; i < x; i++)
-			putchar(' ');
-		for (i = 0; i < x; i++)
-			putchar('\b');
-		fflush(stdout);
+	Blanker(x);
 	
-		switch(z) {
-
-		case 'n':
-			printf("\n");
+	switch(z) {
+	    case 'n':	Enter(1);
 			return TRUE;
 			break;
-		case '=':
-			iLineCount = 1000;
-		}
-		if (Email)
-			ShowEmailHdr();
-		else
-			ShowMsgHdr();
-		colour(FG, BG);
+	    case '=':	iLineCount = 1000;
 	}
-	return FALSE;
+	if (Email)
+	    ShowEmailHdr();
+	else
+	    ShowMsgHdr();
+	colour(FG, BG);
+    }
+    return FALSE;
 }
 
 
@@ -1984,7 +1975,7 @@ void MsgArea_List(char *Option)
     int		iGotArea = FALSE; /* Flag to check if user typed in area */
     int		iCheckNew = FALSE; /* Flag to check for new mail in area */
     long	offset;
-    char	*temp;
+    char	*temp, msg[81];
     lastread	LR;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -2161,8 +2152,8 @@ void MsgArea_List(char *Option)
 	if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active)) {
 	    msgs.Name[31] = '\0';
 
-	    colour(WHITE, BLACK);
-	    printf("%5d", Recno + 1);
+	    sprintf(msg, "%5d", Recno + 1);
+	    pout(WHITE, BLACK, msg);
 
 	    colour(LIGHTBLUE, BLACK);
 	    /* Check for New Mail if N was put on option data */
@@ -2176,25 +2167,25 @@ void MsgArea_List(char *Option)
 		    if (MsgBase.Highest > LR.HighReadMsg ) {
 			pout(YELLOW, BLACK, (char *)" * ");
 		    } else {
-			printf(" . ");
+			PUTSTR((char *)" . ");
 		    }
 		    Msg_Close();
 		} else {
-		    printf(" . ");
+		    PUTSTR((char *)" . ");
 		}
 	    } else {
-		printf(" . ");
+		PUTSTR((char *)" . ");
 	    }
 
-	    colour(CYAN, BLACK);
-	    printf("%-31s", msgs.Name);
+	    sprintf(msg, "%-31s", msgs.Name);
+	    pout(CYAN, BLACK, msg);
 
 	    iAreaCount++;
 
 	    if ((iAreaCount % 2) == 0)
-		printf("\n");
+		Enter(1);
 	    else
-		printf(" ");
+		PUTCHAR(' ');
 	}
 
 	Recno++;
@@ -2206,7 +2197,6 @@ void MsgArea_List(char *Option)
 	     * Ask user for Area or enter to continue
 	     */
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    GetstrC(temp, 7);
 
 	    if (toupper(temp[0]) == Keystroke(207, 1))
@@ -2286,7 +2276,6 @@ void MsgArea_List(char *Option)
 	Enter(2);
 	/* Please enter Area Password: */
 	pout(WHITE, BLACK, (char *) Language(233));
-	fflush(stdout);
 	colour(CFG.InputColourF, CFG.InputColourB);
 	GetstrC(temp, 20);
 
@@ -2340,46 +2329,45 @@ void Delete_MsgNum(unsigned long MsgNum)
  */
 int CheckUser(char *To)
 {
-	FILE		*pUsrConfig;
-	int		Found = FALSE;
-	char		*temp;
-	long		offset;
-	unsigned long	Crc;
+    FILE	    *pUsrConfig;
+    int		    Found = FALSE;
+    char	    *temp;
+    long	    offset;
+    unsigned long   Crc;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((pUsrConfig = fopen(temp,"rb")) == NULL) {
-		perror("");
-		WriteError("Can't open file %s for reading", temp);
-		Pause();
-		free(temp);
-		return FALSE;
-	}
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((pUsrConfig = fopen(temp,"rb")) == NULL) {
+	WriteError("$Can't open file %s for reading", temp);
+	Pause();
 	free(temp);
-	fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-	Crc = StringCRC32(tl(To));
+	return FALSE;
+    }
+    free(temp);
+    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
+    Crc = StringCRC32(tl(To));
 
-	while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
-		if (StringCRC32(tl(usrconfig.sUserName)) == Crc) {
-			Found = TRUE;
-			break;
-		}
+    while (fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig) == 1) {
+	if (StringCRC32(tl(usrconfig.sUserName)) == Crc) {
+	    Found = TRUE;
+	    break;
 	}
+    }
 
-	if (!Found)
-		Syslog('!', "User attempted to mail unknown user: %s", tlcap(To));
+    if (!Found)
+	Syslog('!', "User attempted to mail unknown user: %s", tlcap(To));
 
-	/*
-	 * Restore users record
-	 */
-	offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
-	if (fseek(pUsrConfig, offset, 0) != 0)
-		printf("Can't move pointer there.");
-	else
-		fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
-	fclose(pUsrConfig);
+    /*
+     * Restore users record
+     */
+    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
+    if (fseek(pUsrConfig, offset, 0) != 0)
+	WriteError("$Can't move pointer there.");
+    else
+	fread(&usrconfig, usrconfighdr.recsize, 1, pUsrConfig);
+    fclose(pUsrConfig);
 
-	return Found;
+    return Found;
 }
 
 
@@ -2391,7 +2379,7 @@ void CheckMail()
 {
     FILE		*pMsgArea, *Tmp;
     int			x, Found = 0, Color, Count = 0, Reading, OldMsgArea;
-    char		*temp, *sFileName;
+    char		*temp, *sFileName, msg[81];
     unsigned long	i, Start;
     typedef struct	_Mailrec {
 	long		Area;
@@ -2409,7 +2397,6 @@ void CheckMail()
     language(LIGHTGREEN, BLACK, 150);
     Enter(2);
     Color = LIGHTBLUE;
-    fflush(stdout);
 
     /*
      * Open temporary file
@@ -2426,8 +2413,8 @@ void CheckMail()
     if (exitinfo.Email && strlen(exitinfo.Password)) {
 	check_popmail(exitinfo.Name, exitinfo.Password);
 	colour(Color++, BLACK);
-	printf("\re-mail  Private e-mail mailbox");
-	fflush(stdout);
+	PUTCHAR('\r');
+	PUTSTR((char *)"e-mail  Private e-mail mailbox");
 	Count = 0;
 	sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
 	SetEmailArea((char *)"mailbox");
@@ -2448,7 +2435,7 @@ void CheckMail()
 		     * Only check the received status of the email. The mail
 		     * may not be direct addressed to this user (aliases database)
 		     * but if it is in his mailbox it is always for the user.
-		     * FIXME: mail writte by the user is shown as new too.
+		     * FIXME: mail written by the user is shown as new too.
 		     */
 		    if (!Msg.Received) {
 			/*
@@ -2465,9 +2452,11 @@ void CheckMail()
 	    Msg_Close();
 	}
 	if (Count) {
-	    colour(CFG.TextColourF, CFG.TextColourB);
+	    Enter(2);
 	    /* messages in */
-	    printf("\n\n%d %s private e-mail mailbox\n\n", Count, (char *)Language(213));
+	    sprintf(temp, "%d %s private e-mail mailbox", Count, (char *)Language(213));
+	    pout(CFG.TextColourF, CFG.TextColourB, temp);
+	    Enter(2);
 	    Syslog('m', "  %d messages in private e-mail mailbox", Count);
 	}
     }
@@ -2493,13 +2482,13 @@ void CheckMail()
 	if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
 	    SetMsgArea(iMsgAreaNumber);
 	    sprintf(temp, "%d", iMsgAreaNumber + 1);
-	    colour(Color, 0);
 	    if (Color < WHITE)
 		Color++;
 	    else
 		Color = LIGHTBLUE;
-	    printf("\r%6s  %-40s", temp, sMsgAreaDesc);
-	    fflush(stdout);
+	    PUTCHAR('\r');
+	    sprintf(msg, "%6s  %-40s", temp, sMsgAreaDesc);
+	    pout(Color, BLACK, msg);
 	    Count = 0;
 	    /*
 	     * Refresh timers
@@ -2536,9 +2525,11 @@ void CheckMail()
 		Msg_Close();
 	    }
 	    if (Count) {
-		colour(CFG.TextColourF, CFG.TextColourB);
+		Enter(2);
 		/* messages in */
-		printf("\n\n%d %s %s\n\n", Count, (char *)Language(213), sMsgAreaDesc);
+		sprintf(msg, "%d %s %s", Count, (char *)Language(213), sMsgAreaDesc);
+		pout(CFG.TextColourF, CFG.TextColourB, msg);
+		Enter(2);
 		Syslog('m', "  %d messages in %s", Count, sMsgAreaDesc);
 	    }
 	}
@@ -2546,21 +2537,20 @@ void CheckMail()
     }
 
     fclose(pMsgArea);
-    putchar('\r');
+    PUTCHAR('\r');
     for (i = 0; i < 48; i++)
-	putchar(' ');
-    putchar('\r');
+	PUTCHAR(' ');
+    PUTCHAR('\r');
 
     if (Found) {
-	colour(YELLOW, BLACK);
+	Enter(1);
 	/* You have messages, read your mail now? [Y/n]: */
-	printf("\n%s%d %s", (char *) Language(142), Found, (char *) Language(143));
+	sprintf(msg, "%s%d %s", (char *) Language(142), Found, (char *) Language(143));
+	pout(YELLOW, BLACK, msg);
 	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
-	fflush(stdin);
 	alarm_on();
 
-	if (toupper(Getone()) != Keystroke(143,1)) {
+	if (toupper(Readkey()) != Keystroke(143,1)) {
 	    rewind(Tmp);
 	    Reading = TRUE;
 
@@ -2576,10 +2566,8 @@ void CheckMail()
 		}
 		/* (R)eply, (N)ext, (Q)uit */
 		pout(CFG.CRColourF, CFG.CRColourB, (char *)Language(218));
-		fflush(stdout);
-		fflush(stdin);
 		alarm_on();
-		x = toupper(Getone());
+		x = toupper(Readkey());
 
 		if (x == Keystroke(218, 0)) {
 		    Syslog('m', "  Reply!");
@@ -2594,7 +2582,7 @@ void CheckMail()
 		    iMsgAreaNumber = OldMsgArea;
 		    fclose(Tmp);
 		    SetMsgArea(OldMsgArea);
-		    printf("\n\n");
+		    Enter(2);
 		    free(temp);
 		    free(sFileName);
 		    return;
@@ -2610,7 +2598,7 @@ void CheckMail()
     iMsgAreaNumber = OldMsgArea;
     fclose(Tmp);
     SetMsgArea(OldMsgArea);
-    printf("\n\n");
+    Enter(2);
     free(temp);
     free(sFileName);
 }
@@ -2622,125 +2610,118 @@ void CheckMail()
  */
 void MailStatus()
 {
-	FILE		*pMsgArea;
-	int		Count = 0;
-	int		OldMsgArea;
-	char		temp[81];
-	char		*sFileName;
-	unsigned long	i;
+    FILE	    *pMsgArea;
+    int		    Count = 0;
+    int		    OldMsgArea;
+    char	    temp[81], msg[81];
+    char	    *sFileName;
+    unsigned long   i;
 
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	OldMsgArea = iMsgAreaNumber;
-	iMsgAreaNumber = 0;
-	clear();
-	colour(YELLOW, BLUE);
-	/* Area Type Description                                   Messages Personal */
-	printf("%-79s", (char *)Language(226));
-	Enter(1);
-	iLineCount = 2;
-	fflush(stdout);
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    OldMsgArea = iMsgAreaNumber;
+    iMsgAreaNumber = 0;
+    clear();
+    /* Area Type Description                                   Messages Personal */
+    sprintf(msg, "%-79s", (char *)Language(226));
+    pout(YELLOW, BLUE, msg);
+    Enter(1);
+    iLineCount = 2;
 
-	if (exitinfo.Email) {
-		sprintf(temp, "%s", sMailbox);
-		for (i = 0; i < 3; i++) {
-			switch (i) {
-				case 0:	SetEmailArea((char *)"mailbox");
-					break;
-				case 1:	SetEmailArea((char *)"archive");
-					break;
-				case 2:	SetEmailArea((char *)"trash");
-					break;
-			}
-			colour(LIGHTRED, BLACK);
-			printf("      Email");
-			colour(LIGHTCYAN, BLACK);
-			printf(" %-40s", Language(467 + i));
-			colour(YELLOW, BLACK);
-			if (EmailBase.Highest)
-				printf(" %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
-			else
-				printf("        0");
-			colour(LIGHTBLUE, BLACK);
-			if (EmailBase.Highest)
-				printf(" %8lu\n", EmailBase.Highest - EmailBase.Lowest + 1);
-			else
-				printf("        0\n");
-		}
-		iLineCount = 5;
-		SetEmailArea(temp);
+    if (exitinfo.Email) {
+	sprintf(temp, "%s", sMailbox);
+	for (i = 0; i < 3; i++) {
+	    switch (i) {
+		case 0:	SetEmailArea((char *)"mailbox");
+			break;
+		case 1:	SetEmailArea((char *)"archive");
+			break;
+		case 2:	SetEmailArea((char *)"trash");
+			break;
+	    }
+	    pout(LIGHTRED, BLACK, (char *)"      Email");
+	    sprintf(msg, " %-40s", Language(467 + i));
+	    pout(LIGHTCYAN, BLACK, msg);
+	    if (EmailBase.Highest)
+		sprintf(msg, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+	    else
+		sprintf(msg, "        0");
+	    pout(YELLOW, BLACK, msg);
+	    if (EmailBase.Highest)
+		sprintf(msg, " %8lu", EmailBase.Highest - EmailBase.Lowest + 1);
+	    else
+		sprintf(msg, "        0");
+	    pout(LIGHTBLUE, BLACK, msg);
+	    Enter(1);
 	}
+	iLineCount = 5;
+	SetEmailArea(temp);
+    }
 
-	/*
-	 * Open the message base configuration
-	 */
-	sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
-		WriteError("Can't open file: %s", sFileName);
-		free(sFileName);
-		return;
-	}
-	fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
-
-	/*
-	 * Check all areas one by one
-	 */
-	while (fread(&msgs, msgshdr.recsize, 1, pMsgArea) == 1) {
-		fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
-		if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
-			SetMsgArea(iMsgAreaNumber);
-			sprintf(temp, "%d", iMsgAreaNumber + 1);
-			colour(WHITE, BLACK);
-			printf("%5s", temp);
-			colour(LIGHTRED, BLACK);
-			switch(msgs.Type) {
-				case LOCALMAIL:
-					printf(" Local");
-					break;
-
-				case NETMAIL:
-					printf(" Net  ");
-					break;
-
-				case LIST:
-				case ECHOMAIL:
-					printf(" Echo ");
-					break;
-
-				case NEWS:
-					printf(" News ");
-					break;
-			}
-			colour(LIGHTCYAN, BLACK);
-			printf(" %-40s", sMsgAreaDesc);
-			Count = 0;
-
-			if (Msg_Open(sMsgAreaBase)) {
-				for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
-					if (Msg_ReadHeader(i)) {
-						if (IsMe(Msg.To) || IsMe(Msg.From))
-							Count++;
-					}
-				}
-				Msg_Close();
-			} else
-				WriteError("Error open JAM %s", sMsgAreaBase);
-			colour(YELLOW, BLACK);
-			if (MsgBase.Highest)
-				printf(" %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
-			else
-				printf("        0");
-			colour(LIGHTBLUE, BLACK);
-			printf(" %8d\n", Count);
-			if (LC(1))
-				break;
-		}
-		iMsgAreaNumber++;
-	}
-
-	fclose(pMsgArea);
-	SetMsgArea(OldMsgArea);
+    /*
+     * Open the message base configuration
+     */
+    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
+	WriteError("Can't open file: %s", sFileName);
 	free(sFileName);
-	Pause();
+	return;
+    }
+    fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
+
+    /*
+     * Check all areas one by one
+     */
+    while (fread(&msgs, msgshdr.recsize, 1, pMsgArea) == 1) {
+	fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
+	if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
+	    SetMsgArea(iMsgAreaNumber);
+	    sprintf(temp, "%d", iMsgAreaNumber + 1);
+	    sprintf(msg, "%5s", temp);
+	    pout(WHITE, BLACK, msg);
+	    colour(LIGHTRED, BLACK);
+	    switch(msgs.Type) {
+		case LOCALMAIL:	PUTSTR((char *)" Local");
+				break;
+		case NETMAIL:	PUTSTR((char *)" Net  ");
+				break;
+		case LIST:
+		case ECHOMAIL:	PUTSTR((char *)" Echo ");
+				break;
+		case NEWS:	PUTSTR((char *)" News ");
+				break;
+	    }
+	    sprintf(msg, " %-40s", sMsgAreaDesc);
+	    pout(LIGHTCYAN, BLACK, msg);
+	    Count = 0;
+
+	    if (Msg_Open(sMsgAreaBase)) {
+		for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
+		    if (Msg_ReadHeader(i)) {
+			if (IsMe(Msg.To) || IsMe(Msg.From))
+			    Count++;
+		    }
+		}
+		Msg_Close();
+	    } else
+		WriteError("Error open JAM %s", sMsgAreaBase);
+	    if (MsgBase.Highest)
+		sprintf(msg, " %8lu", MsgBase.Highest - MsgBase.Lowest + 1);
+	    else
+		sprintf(msg, "        0");
+	    pout(YELLOW, BLACK, msg);
+	    sprintf(msg, " %8d", Count);
+	    pout(LIGHTBLUE, BLACK, msg);
+	    Enter(1);
+	    if (LC(1))
+		break;
+	}
+	iMsgAreaNumber++;
+    }
+
+    fclose(pMsgArea);
+    SetMsgArea(OldMsgArea);
+    free(sFileName);
+    Pause();
 }
 
 
@@ -2750,49 +2731,49 @@ void MailStatus()
  */
 void SetMsgArea(unsigned long AreaNum)
 {
-	FILE	*pMsgArea;
-	long	offset;
-	char	*sFileName;
+    FILE    *pMsgArea;
+    long    offset;
+    char    *sFileName;
 
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	memset(&msgs, 0, sizeof(msgs));
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    memset(&msgs, 0, sizeof(msgs));
 
-	if((pMsgArea = fopen(sFileName, "r")) == NULL) {
-		WriteError("$Can't open file: %s", sFileName);
-		free(sFileName);
-		return;
-	}
-
-	fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
-	offset = msgshdr.hdrsize + (AreaNum * (msgshdr.recsize + msgshdr.syssize));
-	if(fseek(pMsgArea, offset, 0) != 0) {
-		WriteError("$Can't move pointer in %s",sFileName);
-		free(sFileName);
-		return;
-	}
-
-	fread(&msgs, msgshdr.recsize, 1, pMsgArea);
-	strcpy(sMsgAreaDesc, msgs.Name);
-	strcpy(sMsgAreaBase, msgs.Base);
-	iMsgAreaNumber = AreaNum;
-	iMsgAreaType = msgs.Type;
-
-	fclose(pMsgArea);
-
-	/*
-	 * Get information from the message base
-	 */
-
-	if (Msg_Open(sMsgAreaBase)) {
-
-		MsgBase.Lowest  = Msg_Lowest();
-		MsgBase.Highest = Msg_Highest();
-		MsgBase.Total   = Msg_Number();
-		Msg_Close();
-	} else
-		WriteError("Error open JAM %s", sMsgAreaBase);
+    if ((pMsgArea = fopen(sFileName, "r")) == NULL) {
+	WriteError("$Can't open file: %s", sFileName);
 	free(sFileName);
+	return;
+    }
+
+    fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
+    offset = msgshdr.hdrsize + (AreaNum * (msgshdr.recsize + msgshdr.syssize));
+    if (fseek(pMsgArea, offset, 0) != 0) {
+	WriteError("$Can't move pointer in %s",sFileName);
+	free(sFileName);
+	return;
+    }
+
+    fread(&msgs, msgshdr.recsize, 1, pMsgArea);
+    strcpy(sMsgAreaDesc, msgs.Name);
+    strcpy(sMsgAreaBase, msgs.Base);
+    iMsgAreaNumber = AreaNum;
+    iMsgAreaType = msgs.Type;
+
+    fclose(pMsgArea);
+
+    /*
+     * Get information from the message base
+     */
+
+    if (Msg_Open(sMsgAreaBase)) {
+
+	MsgBase.Lowest  = Msg_Lowest();
+	MsgBase.Highest = Msg_Highest();
+	MsgBase.Total   = Msg_Number();
+	Msg_Close();
+    } else
+	WriteError("Error open JAM %s", sMsgAreaBase);
+    free(sFileName);
 }
 
 
@@ -2839,6 +2820,9 @@ int Ext_Edit()
 	fclose(fd);
 	stat( tmpname, &st1 );
 	ExtDoor(CFG.externaleditor,FALSE,TRUE,TRUE,FALSE,TRUE, FALSE, (char *)"Write message");
+	if (rawport() != 0) {
+	    WriteError("Unable to set raw mode");
+	}
 	stat( tmpname, &st2 );
     }
     

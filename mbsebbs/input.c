@@ -36,6 +36,243 @@
 #include "timeout.h"
 #include "language.h"
 #include "term.h"
+#include "ttyio.h"
+
+
+
+
+/*
+ *  Wait for a character for a maximum of wtime * 10 mSec.
+ */
+int Waitchar(unsigned char *ch, int wtime)
+{
+    int	i, rc = TIMEOUT;
+
+    for (i = 0; i < wtime; i++) {
+	rc = GETCHAR(0);
+//	Syslog('t', "Waitchar(): after GETCHAR() tty_status = %d, rc = %d", tty_status, rc);
+	if (tty_status == STAT_SUCCESS) {
+//	    Syslog('t', "Waitchar(): return %d", rc);
+	    memcpy(ch, &rc, sizeof(unsigned char));
+	    return 1;
+	}
+	if (tty_status != STAT_TIMEOUT) {
+	    Syslog('t', "Waitchar(): error rc=%d", rc);
+	    return rc;
+	}
+	msleep(10);
+    }
+  //  Syslog('t', "Waitchar() timeout returns %d", rc);
+    return rc;
+}
+
+
+
+int Escapechar(unsigned char *ch)
+{
+    int             rc;
+    unsigned char   c;
+	            
+    /* 
+     * Escape character, if nothing follows within 
+     * 50 mSec, the user really pressed <esc>.
+     */
+    if ((rc = Waitchar(ch, 5)) == TIMEOUT)
+	return rc;
+
+    if (*ch == '[') {
+	/*
+         *  Start of CSI sequence. If nothing follows,
+         *  return immediatly.
+         */
+	if ((rc = Waitchar(ch, 5)) == TIMEOUT)
+	    return rc;
+
+        /*
+         *  Test for the most important keys. Note
+         *  that only the cursor movement keys are
+         *  guaranteed to work with PC-clients.
+         */
+        c = *ch;
+        if (c == 'A')
+	    c = KEY_UP;
+	if (c == 'B')
+	    c = KEY_DOWN;
+	if (c == 'C')
+	    c = KEY_RIGHT;
+	if (c == 'D')
+	    c = KEY_LEFT;
+	if ((c == '1') || (c == 'H') || (c == 0))
+	    c = KEY_HOME;
+	if ((c == '4') || (c == 'K') || (c == 101) || (c == 144))
+	    c = KEY_END;
+	if (c == '2')
+	    c = KEY_INS;
+	if (c == '3')
+	    c = KEY_DEL;
+	if (c == '5')
+	    c = KEY_PGUP;
+	if (c == '6')
+	    c = KEY_PGDN;
+	memcpy(ch, &c, sizeof(unsigned char));
+	return rc;
+    }
+
+    return -1;
+}
+
+
+
+/*
+ *  This next function will detect the grey keys on the keyboard for
+ *  VT100, VT220, Xterm, PC-ANSI, and Linux console. Works with 
+ *  several terminals on serial lines (tested 1200 bps).
+ *  If for example cursur keys are detected, this function returns
+ *  a translated value.
+ */
+unsigned char Readkey(void)
+{
+    unsigned char   ch = 0;
+    int             rc = TIMEOUT;
+
+    Syslog('t', "Readkey()");
+    while (rc == TIMEOUT) {
+	rc = Waitchar(&ch, 5);
+//	Syslog('t', "rc = %d, ch = %d", rc, ch);
+
+	/*
+         * If the character is not an Escape character,
+         * then this function is finished.
+         */
+        if ((rc == 1) && (ch != KEY_ESCAPE)) {
+	    Syslog('t', "Readkey() returns %d", ch);
+	    return ch;
+	}
+
+	if ((rc == 1) && (ch == KEY_ESCAPE)) {
+	    rc = Escapechar(&ch);
+	    if (rc == 1) {
+		Syslog('t', "Readkey() returns %d", ch);
+		return ch;
+	    } else {
+		Syslog('t', "Readkey() returns %d", KEY_ESCAPE);
+		return KEY_ESCAPE;
+	    }
+	}
+    }
+    Syslog('t', "Readkey() returns %d", rc);
+    return rc;
+}
+
+
+
+/*
+ * Read the (locked) speed from the tty
+ */
+long Speed(void)
+{
+    speed_t	mspeed;
+
+    mspeed = cfgetospeed(&tbufs);
+#ifdef CBAUD
+    switch (mspeed & CBAUD) {
+#else
+    switch (mspeed) {
+#endif
+	case B0:        return 0;
+#if defined(B50)
+	case B50:       return 50;
+#endif
+#if defined(B75)
+	case B75:       return 75;
+#endif
+#if defined(B110)
+	case B110:      return 110;
+#endif
+#if defined(B134)
+	case B134:      return 134;
+#endif
+#if defined(B150)
+	case B150:      return 150;
+#endif
+#if defined(B200)
+	case B200:      return 200;
+#endif
+#if defined(B300)
+	case B300:      return 300;
+#endif
+#if defined(B600)
+	case B600:      return 600;
+#endif
+#if defined(B1200)
+	case B1200:     return 1200;
+#endif
+#if defined(B1800)
+	case B1800:     return 1800;
+#endif
+#if defined(B2400)
+	case B2400:     return 2400;
+#endif
+#if defined(B4800)
+	case B4800:     return 4800;
+#endif
+#if defined(B9600)
+	case B9600:     return 9600;
+#endif
+#if defined(B19200)
+	case B19200:    return 19200;
+#endif
+#if defined(B38400)
+	case B38400:    return 38400;
+#endif
+#if defined(B57600)
+	case B57600:    return 57600;
+#endif
+#if defined(B115200)
+	case B115200:   return 115200;
+#endif
+#if defined(B230400)
+	case B230400:   return 203400;
+#endif
+#if defined(B460800)
+	case B460800:   return 460800;
+#endif
+#if defined(B500000)
+	case B500000:   return 500000;
+#endif
+#if defined(B576000)
+	case B576000:   return 576000;
+#endif
+#if defined(B921600)
+	case B921600:   return 921600;
+#endif
+#if defined(B1000000)
+	case B1000000:  return 1000000;
+#endif
+#if defined(B1152000)
+	case B1152000:  return 1152000;
+#endif
+#if defined(B1500000)
+	case B1500000:  return 1500000;
+#endif
+#if defined(B2000000)
+	case B2000000:  return 2000000;
+#endif
+#if defined(B2500000)
+	case B2500000:  return 2500000;
+#endif
+#if defined(B3000000)
+	case B3000000:  return 3000000;
+#endif
+#if defined(B3500000)
+	case B3500000:  return 3500000;
+#endif
+#if defined(B4000000)
+	case B4000000:  return 4000000;
+#endif
+	default:        return 9600;
+    }
+}
 
 
 
@@ -56,6 +293,16 @@ int traduce(char *ch)
 }
 
 
+
+void BackErase(void)
+{
+    PUTCHAR('\b');
+    PUTCHAR(' ');
+    PUTCHAR('\b');
+}
+
+
+
 /*
  * Get a character string with cursor position
  */
@@ -64,40 +311,34 @@ void GetstrP(char *sStr, int iMaxLen, int Position)
     unsigned char   ch = 0;
     int		    iPos = Position;
 
-    if ((ttyfd = open("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	perror("open 1");
-	return;
-    }
-    Setraw();
-
+    FLUSHIN();
     alarm_on();
 
     while (ch != KEY_ENTER) {
 
-	fflush(stdout);
 	ch = Readkey();
 
 	if ((ch == KEY_BACKSPACE) || (ch == KEY_DEL) || (ch == KEY_RUBOUT)) {
 	    if (iPos > 0) {
-		printf("\b \b");
+		BackErase();
 		sStr[--iPos] = '\0';
 	    } else
-		putchar('\007');
+		PUTCHAR('\007');
 	}
 
 	if ((ch > 31 && ch < 127) || traduce(&ch)) {
 	    if (iPos <= iMaxLen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);
-		printf("%c", ch);
-	    } else
-		putchar('\007');
+		PUTCHAR(ch);
+	    } else {
+		PUTCHAR('\007');
+	    }
 	}
     }
 
-    Unsetraw();
-    close(ttyfd);
-    printf("\n");
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -110,42 +351,34 @@ void GetstrC(char *sStr, int iMaxlen)
     unsigned char   ch = 0;
     int		    iPos = 0;
 
-    fflush(stdout);
-    if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	perror("open 6");
-	return;
-    }
-    Setraw();
-
+    FLUSHIN();
     strcpy(sStr, "");
     alarm_on();
 
     while (ch != 13) {
 
-	fflush(stdout);
 	ch = Readkey();
 
 	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
 	    if (iPos > 0) {
-		printf("\b \b");
+		BackErase();
 		sStr[--iPos] = '\0';
 	    } else
-		putchar('\007');
+		PUTCHAR('\007');
 	}
 
 	if ((ch > 31) && (ch < 127) && (ch != ',')) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);
-		printf("%c", ch);
+		PUTCHAR(ch);
 	    } else
-		putchar('\007');
+		PUTCHAR('\007');
 	}
     }
 
-    Unsetraw();
-    close(ttyfd);
-    printf("\n");
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -158,42 +391,34 @@ void GetstrU(char *sStr, int iMaxlen)
     unsigned char   ch = 0;
     int		    iPos = 0;
 
-    fflush(stdout);
-    if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	perror("open 6");
-	return;
-    }
-    Setraw();
-
+    FLUSHIN();
     strcpy(sStr, "");
     alarm_on();
 
     while (ch != 13) {
 
-	fflush(stdout);
 	ch = Readkey();
 
 	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
 	    if (iPos > 0) {
-		printf("\b \b");
+		BackErase();
 		sStr[--iPos] = '\0';
 	    } else
-		putchar('\007');
+		PUTCHAR('\007');
 	}
 
 	if (isalnum(ch) || (ch == '@') || (ch == '.') || (ch == '-') || (ch == '_')) {
 	    if (iPos <= iMaxlen) {
 		iPos++;
 		sprintf(sStr, "%s%c", sStr, ch);
-		printf("%c", ch);
+		PUTCHAR(ch);
 	    } else
-		putchar('\007');
+		PUTCHAR('\007');
 	}
     }
 
-    Unsetraw();
-    close(ttyfd);
-    printf("\n");
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -203,46 +428,38 @@ void GetstrU(char *sStr, int iMaxlen)
  */
 void GetPhone(char *sStr, int iMaxlen)
 {
-	unsigned char	ch = 0; 
-	int		iPos = 0;
+    unsigned char   ch = 0; 
+    int		    iPos = 0;
 
-	fflush(stdout);
+    FLUSHIN();
+    
+    strcpy(sStr, "");
+    alarm_on();
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 5");
-		return;
-	}
-	Setraw();
+    while (ch != 13) {
 
-	strcpy(sStr, "");
-	alarm_on();
+	ch = Readkey();
 
-	while (ch != 13) {
-
-		fflush(stdout);
-		ch = Readkey();
-
-		if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) { 
-			if (iPos > 0) {
-				printf("\b \b");
-				sStr[--iPos]='\0';
-			} else
-				putchar('\007');
-		}
-
-		if ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == '+')) {
-			if (iPos <= iMaxlen) {
-				iPos++;
-				sprintf(sStr, "%s%c", sStr, ch);
-				printf("%c", ch);
-			} else 
-				putchar('\007');
-		}
+	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) { 
+	    if (iPos > 0) {
+		BackErase();
+		sStr[--iPos]='\0';
+	    } else
+		PUTCHAR('\007');
 	}
 
-	Unsetraw();                                           
-	close(ttyfd);
-	printf("\n");
+	if ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == '+')) {
+	    if (iPos <= iMaxlen) {
+		iPos++;
+		sprintf(sStr, "%s%c", sStr, ch);
+		PUTCHAR(ch);
+	    } else 
+		PUTCHAR('\007');
+	}
+    }
+
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -252,48 +469,39 @@ void GetPhone(char *sStr, int iMaxlen)
  */
 void Getnum(char *sStr, int iMaxlen)
 {
-	unsigned char	ch = 0; 
-	int		iPos = 0;
+    unsigned char   ch = 0; 
+    int		    iPos = 0;
 
-	fflush(stdout);
+    FLUSHIN();
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 5");
-		return;
-	}
-	Setraw();
+    strcpy(sStr, "");
+    alarm_on();
 
-	strcpy(sStr, "");
-	alarm_on();
+    while (ch != 13) {
 
-	while (ch != 13) {
+	ch = Readkey();
 
-		fflush(stdout);
-		ch = Readkey();
-
-		if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
-			if (iPos > 0) {
-				printf("\b \b");
-				sStr[--iPos]='\0';
-			} else
-				putchar('\007');
-		}
-
-		if ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == ' ') \
-		     || (ch == ',') || (ch == '.')) {
-
-			if (iPos <= iMaxlen) {
-				iPos++;
-				sprintf(sStr, "%s%c", sStr, ch);
-				printf("%c", ch);
-			} else
-				putchar('\007');
-		}
+	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
+	    if (iPos > 0) {
+		BackErase();
+		sStr[--iPos]='\0';
+	    } else
+		PUTCHAR('\007');
 	}
 
-	Unsetraw();
-	close(ttyfd);
-	printf("\n");
+	if ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == ' ') || (ch == ',') || (ch == '.')) {
+
+	    if (iPos <= iMaxlen) {
+		iPos++;
+		sprintf(sStr, "%s%c", sStr, ch);
+		PUTCHAR(ch);
+	    } else
+		PUTCHAR('\007');
+	}
+    }
+
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -304,57 +512,48 @@ void Getnum(char *sStr, int iMaxlen)
  */
 void GetDate(char *sStr, int iMaxlen)
 {
-	unsigned char	ch = 0; 
-	int		iPos = 0;
+    unsigned char	ch = 0; 
+    int		iPos = 0;
 
-	fflush(stdout);
+    FLUSHIN();
+    strcpy(sStr, "");
 
-	strcpy(sStr, "");
+    alarm_on();
+    while (ch != 13) {
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 4");
-		return;
-	}
-	Setraw();
+	ch = Readkey();
 
-	alarm_on();
-	while (ch != 13) {
+	if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
+	    if (iPos > 0)
+		BackErase();
+	    else
+		PUTCHAR('\007');
 
-		fflush(stdout);
-		ch = Readkey();
+	    if (iPos == 3 || iPos == 6) {
+		BackErase();
+		--iPos;
+	    }
 
-		if ((ch == 8) || (ch == KEY_DEL) || (ch == 127)) {
-			if (iPos > 0)
-				printf("\b \b");
-			else
-				putchar('\007');
-
-			if (iPos == 3 || iPos == 6) {
-				printf("\b \b"); 
-				--iPos;
-			}
-
-			sStr[--iPos]='\0';
-		}
-
-		if (ch >= '0' && ch <= '9') {
-			if (iPos < iMaxlen) {
-				iPos++;
-				sprintf(sStr, "%s%c", sStr, ch);
-				printf("%c", ch);
-				if (iPos == 2 || iPos == 5) {
-					printf("-");
-					sprintf(sStr, "%s-", sStr);
-					iPos++;
-				}
-			} else
-				putchar('\007');
-		}
+	    sStr[--iPos]='\0';
 	}
 
-	Unsetraw();
-	close(ttyfd);
-	printf("\n");
+	if (ch >= '0' && ch <= '9') {
+	    if (iPos < iMaxlen) {
+		iPos++;
+		sprintf(sStr, "%s%c", sStr, ch);
+		PUTCHAR(ch);
+		if (iPos == 2 || iPos == 5) {
+		    PUTCHAR('-');
+		    sprintf(sStr, "%s-", sStr);
+		    iPos++;
+		}
+	    } else
+		PUTCHAR('\007');
+	}
+    }
+
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -371,11 +570,6 @@ void Getname(char *sStr, int iMaxlen)
 
 	strcpy(sStr, "");
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 2");
-		return;
-	}
-	Setraw();
 	alarm_on();
 
 	while (ch != 13) {
@@ -418,8 +612,6 @@ void Getname(char *sStr, int iMaxlen)
 		}
 	}
 
-	Unsetraw();
-	close(ttyfd);
 	printf("\n");
 }
 
@@ -438,11 +630,6 @@ void GetnameNE(char *sStr, int iMaxlen)
 
     strcpy(sStr, "");
 
-    if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-	perror("open 2");
-	return;
-    }
-    Setraw();
     alarm_on();
 
     while (ch != 13) {
@@ -485,8 +672,6 @@ void GetnameNE(char *sStr, int iMaxlen)
 	}
     }
 
-    Unsetraw();
-    close(ttyfd);
     printf("\n");
 }
 
@@ -504,17 +689,6 @@ void Getpass(char *theword)
         int             counter = 0;
         char            password[Max_passlen+1];
 
-        /* 
-         * Open the device that we want to read the password from, you can't use
-         * stdin as this might change in a pipe
-         */
-        if ((ttyfd = open ("/dev/tty", O_RDWR)) < 0) {
-                perror("open 7");
-                ExitClient(MBERR_TTYIO_ERROR);
-        }
-
-        /* Set Raw mode so that the characters don't echo */
-        Setraw();
         alarm_on();
 
         /* 
@@ -543,8 +717,6 @@ void Getpass(char *theword)
                         printf("%c", CFG.iPasswd_Char);
                 }
         }
-        Unsetraw();  /* Go normal */
-        close(ttyfd);
 
         password[counter] = '\0';  /* Make sure the string has a NULL at the end*/
         strcpy(theword,password);
@@ -554,33 +726,30 @@ void Getpass(char *theword)
 
 void Pause()
 {
-	int	i, x;
-	char	*string;
+    int	    i, x;
+    char    *string;
 
-	string = malloc(81);
+    string = malloc(81);
 
-	/* Press (Enter) to continue: */
-	sprintf(string, "\r%s", (char *) Language(375));
-	colour(CFG.CRColourF, CFG.CRColourB);
-	printf(string);
-	
-	do {
-		fflush(stdout);
-		fflush(stdin);
-		alarm_on();
-		i = Getone();
-	} while ((i != '\r') && (i != '\n'));
+    /* Press (Enter) to continue: */
+    sprintf(string, "\r%s", (char *) Language(375));
+    colour(CFG.CRColourF, CFG.CRColourB);
+    PUTSTR(string);
+    
+    do {
+	alarm_on();
+	i = Readkey();
+    } while ((i != '\r') && (i != '\n'));
 
-	x = strlen(string);
-	for(i = 0; i < x; i++)
-		printf("\b");
-	for(i = 0; i < x; i++)
-		printf(" ");
-	for(i = 0; i < x; i++)
-		printf("\b");
-	fflush(stdout);
+    x = strlen(string);
+    for(i = 0; i < x; i++)
+	PUTCHAR('\b');
+    for(i = 0; i < x; i++)
+	PUTCHAR(' ');
+    for(i = 0; i < x; i++)
+	PUTCHAR('\b');
 
-	free(string);
+    free(string);
 }
 
 

@@ -35,31 +35,33 @@
 #include "pinfo.h"
 #include "input.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 void ls(int a)
 {
-	printf("%c ", a ? 179 : '|');
+    PUTCHAR(a ? 179 : '|');
 }
 
 
 
 void rs(int a)
 {
-	colour(8, 0);
-	printf("%c\n", a ? 179 : '|');
+    colour(DARKGRAY, BLACK);
+    PUTCHAR(a ? 179 : '|');
+    Enter(1);
 }
 
 
 
 void wl(int a)
 {
-	int	i;
+    int	i;
 
-	ls(a);
-	for(i = 0; i < 76; i++)
-		printf(" ");
-	rs(a);
+    ls(a);
+    for(i = 0; i < 76; i++)
+	PUTCHAR(' ');
+    rs(a);
 }
 
 
@@ -69,80 +71,81 @@ void wl(int a)
  */
 void cr(void)
 {
-	int	a, i;
-	char	*string, *temp;
+    int	    a, i;
+    char    *string, *temp;
 
-	a = exitinfo.GraphMode;
+    a = exitinfo.GraphMode;
 
-	string     = calloc(81, sizeof(char));
-	temp       = calloc(81, sizeof(char));
+    string     = calloc(81, sizeof(char));
+    temp       = calloc(81, sizeof(char));
 
-	clear();
-	colour(8, 0);
+    clear();
+    colour(DARKGRAY, BLACK);
 
-	/* Print top row */
-	printf("%c", a ? 213 : '+');
-	for(i = 0; i < 77; i++)
-		printf("%c", a ? 205 : '=');
-	printf("%c\n", a ? 184 : '+');
+    /* Print top row */
+    PUTCHAR(a ? 213 : '+');
+    for (i = 0; i < 76; i++)
+	PUTCHAR(a ? 205 : '=');
+    PUTCHAR(a ? 184 : '+');
+    Enter(1);
 
-	wl(a);
-	ls(a);
-	sprintf(temp, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
-	pout(14, 0, padleft(temp, 76, ' '));
-	rs(a);
-	wl(a);
-	ls(a);
-	sprintf(temp, "%s", COPYRIGHT);
-	pout(11, 0, padleft(temp, 76, ' '));
-	rs(a);
-	wl(a);
-	ls(a);
-	sprintf(temp, "Compiled on %s at %s", __DATE__, __TIME__);
-	pout(14, 0, padleft(temp, 76, ' '));
-	rs(a);
-	wl(a);
-	ls(a);
-	pout(11, 0, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given ");
-	rs(a);
-	ls(a);
-	pout(11, 0, (char *)"valuable time in the form of new ideas and suggestions on how to make MBSE  ");
-	rs(a);
-	ls(a);
-	pout(11, 0, (char *)"BBS a better BBS                                                            ");
-	rs(a);
-	wl(a);
-	ls(a);
-	pout(15, 0, (char *)"Available from http://www.mbse.dds.nl or 2:280/2802                         ");
-	rs(a);
-	wl(a);
-	ls(a);
-	pout(12, 0, (char *)"JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner,              ");
-	rs(a);
-	ls(a);
-	pout(12, 0, (char *)"                          Mats Birch, Mats Wallin.                          ");
-	rs(a);
-	ls(a);
-	pout(12, 0, (char *)"                          ALL RIGHTS RESERVED.                              ");
-	rs(a);
-	wl(a);
-	ls(a);
-	pout(9, 0,  (char *)"This is free software; released under the terms of the GNU General Public   ");
-	rs(a);
-	ls(a);
-	pout(9, 0,  (char *)"License as published by the Free Software Foundation.                       ");
-	rs(a);
-	wl(a);
+    wl(a);
+    ls(a);
+    sprintf(temp, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
+    pout(YELLOW, BLACK, padleft(temp, 76, ' '));
+    rs(a);
+    wl(a);
+    ls(a);
+    sprintf(temp, "%s", COPYRIGHT);
+    pout(LIGHTCYAN, BLACK, padleft(temp, 76, ' '));
+    rs(a);
+    wl(a);
+    ls(a);
+    sprintf(temp, "Compiled on %s at %s", __DATE__, __TIME__);
+    pout(LIGHTRED, BLACK, padleft(temp, 76, ' '));
+    rs(a);
+    wl(a);
+    ls(a);
+    pout(LIGHTCYAN, BLACK, (char *)"MBSE has been written and designed by Michiel Broek. Many others have given ");
+    rs(a);
+    ls(a);
+    pout(LIGHTCYAN, BLACK, (char *)"valuable time in the form of new ideas and suggestions on how to make MBSE  ");
+    rs(a);
+    ls(a);
+    pout(LIGHTCYAN, BLACK, (char *)"BBS a better BBS                                                            ");
+    rs(a);
+    wl(a);
+    ls(a);
+    pout(WHITE, BLACK, (char *)"Available from http://www.mbse.dds.nl or 2:280/2802                         ");
+    rs(a);
+    wl(a);
+    ls(a);
+    pout(LIGHTRED, BLACK, (char *)"JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner,              ");
+    rs(a);
+    ls(a);
+    pout(LIGHTRED, BLACK, (char *)"                          Mats Birch, Mats Wallin.                          ");
+    rs(a);
+    ls(a);
+    pout(LIGHTRED, BLACK, (char *)"                          ALL RIGHTS RESERVED.                              ");
+    rs(a);
+    wl(a);
+    ls(a);
+    pout(LIGHTBLUE, BLACK,  (char *)"This is free software; released under the terms of the GNU General Public   ");
+    rs(a);
+    ls(a);
+    pout(LIGHTBLUE, BLACK,  (char *)"License as published by the Free Software Foundation.                       ");
+    rs(a);
+    wl(a);
 
-	printf("%c", a ? 212 : '+');
-	for(i = 0; i < 77; i++)
-		printf("%c", a ? 205 : '=');
-  	printf("%c", a ? 190 : '+');
+    PUTCHAR(a ? 212 : '+');
+    for (i = 0; i < 76; i++)
+	PUTCHAR(a ? 205 : '=');
+    PUTCHAR(a ? 190 : '+');
   
-	free(string);
-	free(temp);
-  	printf("\n");
-  	Pause();
+    free(string);
+    free(temp);
+    Enter(1);
+    Pause();
 }
 
 

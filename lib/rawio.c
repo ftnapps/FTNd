@@ -38,7 +38,7 @@ int rawset = FALSE;
 /*
  * Sets raw mode and saves the terminal setup
  */
-void Setraw()
+void mbse_Setraw()
 {
     int	rc;
 
@@ -72,7 +72,7 @@ void Setraw()
 /*
  * Unsets raw mode and returns state of terminal
  */
-void Unsetraw()
+void mbse_Unsetraw()
 {
     int	rc;
 
@@ -95,21 +95,21 @@ void Unsetraw()
  * This function is used to get a single character from a user ie for a 
  * menu option
  */
-unsigned char Getone()
+unsigned char mbse_Getone()
 {
-	unsigned char	c = 0;
+    unsigned char   c = 0;
 
-	if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
-		perror("open 8");
-		exit(MBERR_TTYIO_ERROR);
-	}
-	Setraw();
+    if ((ttyfd = open ("/dev/tty", O_RDWR|O_NONBLOCK)) < 0) {
+	perror("open 8");
+	exit(MBERR_TTYIO_ERROR);
+    }
+    mbse_Setraw();
 
-	c = Readkey();
+    c = mbse_Readkey();
 
-	Unsetraw();
-	close(ttyfd);
-	return(c);
+    mbse_Unsetraw();
+    close(ttyfd);
+    return(c);
 }
 
 
@@ -117,7 +117,7 @@ unsigned char Getone()
 /*
  * Read the (locked) speed from the tty
  */
-long Speed(void)
+long mbse_Speed(void)
 {
 	speed_t		mspeed;
 
@@ -227,7 +227,7 @@ long Speed(void)
 /*
  *  Wait for a character for a maximum of wtime * 10 mSec.
  */
-int Waitchar(unsigned char *ch, int wtime)
+int mbse_Waitchar(unsigned char *ch, int wtime)
 {
 	int	i, rc = -1;
 
@@ -242,56 +242,56 @@ int Waitchar(unsigned char *ch, int wtime)
 
 
 
-int Escapechar(unsigned char *ch)
+int mbse_Escapechar(unsigned char *ch)
 {
-	int		rc;
-	unsigned char	c;
+    int		    rc;
+    unsigned char   c;
 	
-	/* 
-	 * Escape character, if nothing follows within 
-	 * 50 mSec, the user really pressed <esc>.
+    /* 
+     * Escape character, if nothing follows within 
+     * 50 mSec, the user really pressed <esc>.
+     */
+    if ((rc = mbse_Waitchar(ch, 5)) == -1)
+	return rc;
+
+    if (*ch == '[') {
+	/*
+	 *  Start of CSI sequence. If nothing follows,
+	 *  return immediatly.
 	 */
-	if ((rc = Waitchar(ch, 5)) == -1)
-		return rc;
+	if ((rc = mbse_Waitchar(ch, 5)) == -1)
+	    return rc;
 
-	if (*ch == '[') {
-		/*
-		 *  Start of CSI sequence. If nothing follows,
-		 *  return immediatly.
-		 */
-		if ((rc = Waitchar(ch, 5)) == -1)
-			return rc;
-
-		/*
-		 *  Test for the most important keys. Note
-		 *  that only the cursor movement keys are
-		 *  guaranteed to work with PC-clients.
-		 */
-		c = *ch;
-		if (c == 'A')
-			c = KEY_UP;
-		if (c == 'B')
-			c = KEY_DOWN;
-		if (c == 'C')
-			c = KEY_RIGHT;
-		if (c == 'D')
-			c = KEY_LEFT;
-		if ((c == '1') || (c == 'H') || (c == 0))
-			c = KEY_HOME;
-		if ((c == '4') || (c == 'K') || (c == 101) || (c == 144))
-			c = KEY_END;
-		if (c == '2')
-			c = KEY_INS;
-		if (c == '3')
-			c = KEY_DEL;
-		if (c == '5')
-			c = KEY_PGUP;
-		if (c == '6')
-			c = KEY_PGDN;
-		memcpy(ch, &c, sizeof(unsigned char));
-		return rc;
-	}
-	return -1;
+	/*
+	 *  Test for the most important keys. Note
+	 *  that only the cursor movement keys are
+	 *  guaranteed to work with PC-clients.
+	 */
+	c = *ch;
+	if (c == 'A')
+	    c = KEY_UP;
+	if (c == 'B')
+	    c = KEY_DOWN;
+	if (c == 'C')
+	    c = KEY_RIGHT;
+	if (c == 'D')
+	    c = KEY_LEFT;
+	if ((c == '1') || (c == 'H') || (c == 0))
+	    c = KEY_HOME;
+	if ((c == '4') || (c == 'K') || (c == 101) || (c == 144))
+	    c = KEY_END;
+	if (c == '2')
+	    c = KEY_INS;
+	if (c == '3')
+	    c = KEY_DEL;
+	if (c == '5')
+	    c = KEY_PGUP;
+	if (c == '6')
+	    c = KEY_PGDN;
+	memcpy(ch, &c, sizeof(unsigned char));
+	return rc;
+    }
+    return -1;
 }
 
 
@@ -303,31 +303,31 @@ int Escapechar(unsigned char *ch)
  *  If for example cursur keys are detected, this function returns
  *  a translated value.
  */
-unsigned char Readkey(void)
+unsigned char mbse_Readkey(void)
 {
-	unsigned char	ch = 0;
-	int		rc = -1;
+    unsigned char   ch = 0;
+    int		    rc = -1;
 
-	while (rc == -1) {
-		rc = Waitchar(&ch, 5);
+    while (rc == -1) {
+	rc = mbse_Waitchar(&ch, 5);
 
-		/*
-		 * If the character is not an Escape character,
-		 * then this function is finished.
-		 */
-		if ((rc == 1) && (ch != KEY_ESCAPE))
-			return ch;
+	/*
+	 * If the character is not an Escape character,
+	 * then this function is finished.
+	 */
+	if ((rc == 1) && (ch != KEY_ESCAPE))
+	    return ch;
 
-		if ((rc == 1) && (ch == KEY_ESCAPE)) {
-			rc = Escapechar(&ch);
-			if (rc == 1)
-				return ch;
-			else
-				return KEY_ESCAPE;
-		}
+	if ((rc == 1) && (ch == KEY_ESCAPE)) {
+	    rc = mbse_Escapechar(&ch);
+	    if (rc == 1)
+		return ch;
+	    else
+		return KEY_ESCAPE;
 	}
+    }
 
-	return(ch);
+    return(ch);
 }
 
 

@@ -259,7 +259,7 @@ SN|Nodo sconosciuto, continua lo stesso [s/N]:
 |Nessun file selezionato per il download.
 |minuti extra.
 |Hai selezionato le seguenti Conferenze:
-|Filename            Dimensione  Data
+|Filename                                               Dimensione  Data
 |Protocollo: Non posso aprire il file del protocollo.
 |Seleziona il tuo protocollo di trasferimento preferito
 |Seleziona Protocollo (Invio per uscire): 

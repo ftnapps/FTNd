@@ -124,6 +124,8 @@ mbcico:
 
 	N: Make workaround for binkp bug in Irex 2.24 upto 2.29
 
+	U: See whathappens if we remove FLUSHOUT(), this may give troubles.
+
 mbfile:
 	L: Update <filespec> <area> <-touch>
 

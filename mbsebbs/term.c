@@ -33,6 +33,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/users.h"
 #include "term.h"
+#include "ttyio.h"
 
 
 int termmode;			/* 0 = tty, 1 = ANSI			   */
@@ -56,9 +57,10 @@ void Enter(int num)
 {
     int i;
 
-    for (i = 0; i < num; i++)
-	fprintf(stdout, "\n");
-    fflush(stdout);
+    for (i = 0; i < num; i++) {
+	PUTCHAR('\r');
+	PUTCHAR('\n');
+    }
 }
 
 
@@ -67,8 +69,7 @@ void Enter(int num)
 void pout(int fg, int bg, char *Str)
 {
     colour(fg, bg);
-    fprintf(stdout, Str);
-    fflush(stdout);
+    PUTSTR(Str);
 }
 
 
@@ -84,9 +85,9 @@ void poutCenter(int fg, int bg, char *Str)
 void poutCR(int fg, int bg, char *Str)
 {
     colour(fg, bg);
-    fputs(Str, stdout);
-    fprintf(stdout, "\n");
-    fflush(stdout);
+    PUTSTR(Str);
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
 
 
@@ -96,19 +97,21 @@ void poutCR(int fg, int bg, char *Str)
  */
 void colour(int fg, int bg)
 {
+    char    temp[61];
+
     if (termmode == 1) {
   
 	int att=0, fore=37, back=40;
 
 	if (fg<0 || fg>31 || bg<0 || bg>7) {
-	    fprintf(stdout, "ANSI: Illegal colour specified: %i, %i\n", fg, bg);
-	    fflush(stdout);
+	    sprintf(temp, "ANSI: Illegal colour specified: %i, %i\n", fg, bg);
+	    PUTSTR(temp);
 	    return; 
 	}
 
-	fprintf(stdout, "[");
+	PUTSTR((char *)"[");
 	if ( fg > WHITE) {
-	    fprintf(stdout, "5;");
+	    PUTSTR((char *)"5;");
 	    fg-= 16;
 	}
 	if (fg > LIGHTGRAY) {
@@ -134,8 +137,8 @@ void colour(int fg, int bg)
 	else if (bg == LIGHTGRAY) back=47;
 	else                      back=40;
 		
-	fprintf(stdout, "%d;%d;%dm", att, fore, back);
-	fflush(stdout);
+	sprintf(temp, "%d;%d;%dm", att, fore, back);
+	PUTSTR(temp);
     }
 }
 
@@ -152,17 +155,17 @@ void Center(char *string)
     Strlen = strlen(string);
 
     if (Strlen == Maxlen)
-	fprintf(stdout, "%s\n", string);
+	PUTSTR(string);
     else {
 	x = Maxlen - Strlen;
 	z = x / 2;
 	for (i = 0; i < z; i++)
 	    strcat(Str, " ");
 	strcat(Str, string);
-	fprintf(stdout, "%s\n", Str);
+	PUTSTR(Str);
     }
-
-    fflush(stdout);
+    PUTCHAR('\r');
+    PUTCHAR('\n');
     free(Str);
 }
 
@@ -172,9 +175,8 @@ void clear()
 {
     if (termmode == 1) {
 	colour(LIGHTGRAY, BLACK);
-	fprintf(stdout, ANSI_HOME);
-	fprintf(stdout, ANSI_CLEAR);
-	fflush(stdout);
+	PUTSTR((char *)ANSI_HOME);
+	PUTSTR((char *)ANSI_CLEAR);
     } else
 	Enter(1); 
 }
@@ -186,14 +188,15 @@ void clear()
  */
 void locate(int y, int x)
 {
+    char    temp[61];
+
     if (termmode > 0) {
 	if (y > termy || x > termx) {
-	    fprintf(stdout, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
-	    fflush(stdout);
-	    return; 
+	    sprintf(temp, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
+	} else {
+	    sprintf(temp, "\x1B[%i;%iH", y, x);
 	}
-	fprintf(stdout, "\x1B[%i;%iH", y, x);
-	fflush(stdout);
+	PUTSTR(temp);
     }
 }
 
@@ -205,16 +208,15 @@ void fLine(int	Len)
 
     if (termmode == 0)
 	for (x = 0; x < Len; x++)
-	    fprintf(stdout, "-");
+	    PUTCHAR('-');
 
     if (termmode == 1)
 	for (x = 0; x < Len; x++)
-	    fprintf(stdout, "%c", 196);
+	    PUTCHAR(196);
 
-    fprintf(stdout, " \n");
-    fflush(stdout);
+    PUTCHAR('\r');
+    PUTCHAR('\n');
 }
-
 
 
 
@@ -240,9 +242,8 @@ void mvprintw(int y, int x, const char *format, ...)
     va_end(va_ptr);
 
     locate(y, x);
-    fprintf(stdout, outputstr);
+    PUTSTR(outputstr);
     free(outputstr);
-    fflush(stdout);
 }
 
 

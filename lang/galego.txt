@@ -259,7 +259,7 @@ SN|Nodo desco¤ecido. ¨Continuar? [s/N]:
 |Non hai ficheiros marcados.
 |minutos extra.
 |Escolleche-las seguintes  reas: 
-|Ficheiro            Tama¤o      Fecha
+|Ficheiro                                               Tama¤o      Fecha
 |Protocolo: Non podo abrir ficheiro de protocolos.
 |Escolle o protocolo de transferencia predeterminado 
 |Escolle Protocolo (Enter para sair): 

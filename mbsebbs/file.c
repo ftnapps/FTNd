@@ -45,6 +45,9 @@
 #include "change.h"
 #include "dispfile.h"
 #include "term.h"
+#include "ttyio.h"
+#include "openport.h"
+
 
 
 extern	long	arecno;		/* File area number in xxxScan() functions   */
@@ -82,10 +85,11 @@ int CheckFile(char *File, int iArea)
  */
 void File_List()
 {
-    int		FileCount = 0;
-    unsigned	FileBytes = 0;
-    _Tag	T;
+    int		    FileCount = 0;
+    unsigned	    FileBytes = 0;
+    _Tag	    T;
     struct _fdbarea *fdb_area = NULL;
+    char	    temp[81];
 
     iLineCount = 0;
     WhosDoingWhat(FILELIST, NULL);
@@ -93,9 +97,10 @@ void File_List()
     Syslog('+', "Listing File Area # %d", iAreaNumber);
 
     if (Access(exitinfo.Security, area.LTSec) == FALSE) {
-	colour(14, 0);
+	Enter(1);
 	/* You don't have enough security to list this area */
-	printf("\n%s\n", (char *) Language(236));
+	pout(YELLOW, BLACK, (char *) Language(236));
+	Enter(2);
 	Pause();
 	return;
     }
@@ -126,10 +131,12 @@ void File_List()
 	    return;
 	}
 
-	if (fdb.Deleted)
+	if (fdb.Deleted) {
 	    /* D E L E T E D */ /* Uploaded by: */
-	    printf(" -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
+	    sprintf(temp, " -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
 				fdb.TimesDL, (char *) Language(238), fdb.Uploader);
+	    PUTSTR(temp);
+	}
 
 	FileCount++;			/* Increase File Counter by 1 */
 	FileBytes += fdb.Size;		/* Increase File Byte Count   */
@@ -137,9 +144,11 @@ void File_List()
 
     Mark();
 	
-    colour(11,0);
+    Enter(1);
     /* Total Files: */
-    printf("\n%s%d / %d bytes\n\n", (char *) Language(242), FileCount, FileBytes);
+    sprintf(temp, "%s%d / %d bytes", (char *) Language(242), FileCount, FileBytes);
+    pout(LIGHTCYAN, BLACK, temp);
+    Enter(2);
 
     iLineCount = 0;
     mbsedb_CloseFDB(fdb_area);
@@ -156,10 +165,8 @@ void Download(void)
     DIR		    *dirp;
     struct dirent   *dp;
     FILE	    *tf, *fd;
-    int		    i, err, Count = 0;
-    int		    OldArea;
-    char	    *symTo, *symFrom;
-    char	    *temp;
+    int		    i, err, Count = 0, OldArea;
+    char	    *symTo, *symFrom, *temp;
     long	    Size = 0, CostSize = 0;
     time_t	    ElapstimeStart, ElapstimeFin, iTime;
     long	    iTransfer = 0;
@@ -173,22 +180,22 @@ void Download(void)
     execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
     CheckDir(temp);
-    free(temp);
 
     if ((tf = fopen("taglist", "r+")) == NULL) {
 	Syslog('+', "Download command but no files marked");
 	/* No files marked for download. */
-	pout(12, 0, (char *) Language(258));
+	pout(LIGHTRED, BLACK, (char *) Language(258));
 	Enter(2);
 	Pause();
+	free(temp);
 	return;
     }
 
     symTo   = calloc(PATH_MAX, sizeof(char));
     symFrom = calloc(PATH_MAX, sizeof(char));
-    colour(13, 0);
     /* Checking your marked downloads, please wait... */
-    printf("%s\n\n", (char *) Language(255));
+    pout(LIGHTMAGENTA, BLACK, (char *) Language(255));
+    Enter(2);
 
     ReadExitinfo();
     while (fread(&Tag, sizeof(Tag), 1, tf) == 1) {
@@ -211,9 +218,9 @@ void Download(void)
 	    if (strcmp(fdb.LName, Tag.LFile) == 0) {
 		Syslog('b', "Found file %s in area %d", fdb.LName, Tag.Area);
 		if (fdb.Deleted) {
-		    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(248));
 		    /* Sorry that file is unavailable for download */
-		    printf("%s (%s)\n", (char *) Language(248), fdb.LName);
+		    sprintf(temp, "%s (%s)", (char *) Language(248), fdb.LName);
+		    poutCR(CFG.HiliteF, CFG.HiliteB, temp);
 		    Tag.Active = FALSE;
 		    Syslog('+', "File %s in area %d unavailable for download, deleted", fdb.LName, Tag.Area);
 		}
@@ -293,18 +300,20 @@ void Download(void)
 	SetFileArea(OldArea);
 	unlink("taglist");
 	/* No files marked for download */
-	pout(12, 0, (char *) Language(258));
+	pout(LIGHTRED, BLACK, (char *) Language(258));
 	Enter(2);
 	Pause();
 	free(symTo);
 	free(symFrom);
+	free(temp);
 	Syslog('+', "No files left to download");
 	return;
     }
 
-    colour(14, 0);
     /* You have */ /* files( */ /* bytes) marked for download */
-    printf("%s %d %s%ld %s\n\n", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
+    sprintf(temp, "%s %d %s%ld %s", (char *) Language(249), Count, (char *) Language(280), Size, (char *) Language(281));
+    pout(YELLOW, BLACK, temp);
+    Enter(2);
 
     /*
      * If user has no default protocol, make sure he has one.
@@ -313,6 +322,7 @@ void Download(void)
 	SetFileArea(OldArea);
 	free(symTo);
 	free(symFrom);
+	free(temp);
 	return;
     }
 
@@ -320,6 +330,7 @@ void Download(void)
 	SetFileArea(OldArea);
 	free(symTo);
 	free(symFrom);
+	free(temp);
 	return;
     }
 
@@ -327,17 +338,16 @@ void Download(void)
 
     clear();
     /* File(s)     : */
-    pout(14, 0, (char *) Language(349)); printf("%d\n", Count);
+    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%d", Count);     PUTSTR(temp); Enter(1);
     /* Size        : */
-    pout( 3, 0, (char *) Language(350)); printf("%lu\n", Size);
+    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
     /* Protocol    : */
-    pout( 3, 0, (char *) Language(351)); printf("%s\n", sProtName);
+    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
 
     Syslog('+', "Download tagged files start, protocol: %s", sProtName);
 
-    printf("%s\n\n", sProtAdvice);
-    fflush(stdout);
-    fflush(stdin);
+    PUTSTR(sProtAdvice);
+    Enter(2);
 
     /*
      * Wait a while before download
@@ -353,7 +363,6 @@ void Download(void)
     alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
     Altime((exitinfo.iTimeLeft + 10) * 60);
 
-    temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
     if ((dirp = opendir(temp)) == NULL) {
 	WriteError("$Download: Can't open dir: %s", temp);
@@ -374,10 +383,12 @@ void Download(void)
 	}
 	if (temp != NULL) {
 	    if ((err = execute_str(sProtDn, temp, NULL, NULL, NULL, NULL))) {
-		perror("");
-		colour(CFG.HiliteF, CFG.HiliteB);
-		WriteError("Download error %d, prot: %s", err, sProtDn);
+		WriteError("$Download error %d, prot: %s", err, sProtDn);
 	    }
+	    /*
+	     * Restore rawport
+	     */
+	    rawport();
 	    free(temp);
 	} else {
 	    WriteError("No filebatch created");
@@ -387,8 +398,6 @@ void Download(void)
     Altime(0);
     alarm_off();
     alarm_on();
-    fflush(stdout);
-    fflush(stdin);
     Home();
     ElapstimeFin = time(NULL);
 
@@ -404,10 +413,10 @@ void Download(void)
      * Checking the successfull sent files, they are missing from
      * the ./tag directory. Failed files are still there.
      */
-    colour(11, 0);
+    PUTCHAR('\r');
     /* Updating download counters, please wait ... */
-    printf("\r%s\n\n", (char *) Language(352));
-    fflush(stdout);
+    pout(LIGHTCYAN, BLACK, (char *) Language(352));
+    Enter(2);
     Count = Size = 0; 
 
     if ((tf = fopen("taglist", "r+")) != NULL) {
@@ -459,7 +468,6 @@ void Download(void)
     iTransfer = Size / iTime;
     Syslog('+', "Download time %ld seconds (%lu cps), %d files", iTime, iTransfer, Count);
 
-
     /*
      * Update the users record.
      */
@@ -491,70 +499,77 @@ void Download(void)
  */
 void File_RawDir(char *OpData)
 {
-	DIR	*dirp;
-	char	*FileName, *temp;
-	int	iFileCount = 0;
-	int	LineCount = 2;
-	int	iBytes = 0;
-	struct	dirent *dp;
-	struct	stat statfile;
+    DIR		    *dirp;
+    char	    *FileName, *temp, temp2[81];
+    int		    iFileCount = 0, LineCount = 2, iBytes = 0;
+    struct dirent   *dp;
+    struct stat	    statfile;
 
-	FileName = calloc(PATH_MAX, sizeof(char));
-	temp     = calloc(PATH_MAX, sizeof(char));
+    FileName = calloc(PATH_MAX, sizeof(char));
+    temp     = calloc(PATH_MAX, sizeof(char));
 
-	if((strcmp(OpData, "/F")) == 0)
-		strcpy(temp, sAreaPath);
-	else
-		strcpy(temp, OpData);
+    if ((strcmp(OpData, "/F")) == 0)
+	strcpy(temp, sAreaPath);
+    else
+	strcpy(temp, OpData);
 
-	if ((dirp = opendir(temp)) == NULL) {
-		clear();
-		WriteError("$RawDir: Can't open dir: %s", temp);
-		printf("\nCan't open directory for raw listing!\n\n");
-		Pause();
-	} else {
-		clear();
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Filename            Size        Date */
-		printf("%s\n", (char *) Language(261));
-		fLine(42);
+    if ((dirp = opendir(temp)) == NULL) {
+	clear();
+	WriteError("$RawDir: Can't open dir: %s", temp);
+	Enter(1);
+	pout(LIGHTRED, BLACK, (char *)"Can't open directory for raw listing!");
+	Enter(2);
+	Pause();
+    } else {
+	clear();
+	/* Filename                                   Size        Date */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(261));
+	Enter(1);
+	fLine(78);
 
-		while ((dp = readdir( dirp )) != NULL ) {
-			 sprintf(FileName, "%s/%s", temp, dp->d_name);
+	while ((dp = readdir( dirp )) != NULL ) {
+	    sprintf(FileName, "%s/%s", temp, dp->d_name);
 
-		 	 if (*(dp->d_name) != '.') {
-				iFileCount++;
-				if (stat(FileName, &statfile) != 0)
-					printf("Can't stat file %s\n", FileName);
-				iBytes += statfile.st_size;
+	    if (*(dp->d_name) != '.') {
+		iFileCount++;
+		if (stat(FileName, &statfile) != 0) {
+		    pout(LIGHTRED, BLACK, (char *)"Can't stat file ");
+		    PUTSTR(FileName);
+		} else {
+		    iBytes += statfile.st_size;
 
-				colour(14,0);
-				printf("%-12s " , dp->d_name);
+		    sprintf(temp2, "%-54s " , dp->d_name);
+		    pout(YELLOW, BLACK, temp2);
 
-				colour(13,0);
-				printf("%-12ld", (long)(statfile.st_size));
+		    sprintf(temp2, "%-12ld", (long)(statfile.st_size));
+		    pout(LIGHTMAGENTA, BLACK, temp2);
 
-				colour(10,0);
-				printf("%-10s\n", StrDateDMY(statfile.st_mtime));
-
-				LineCount++;
-				if (LineCount == exitinfo.iScreenLen) {
-					Pause();
-					LineCount = 0;
-				}
-			}
+		    sprintf(temp2, "%-10s", StrDateDMY(statfile.st_mtime));
+		    pout(LIGHTGREEN, BLACK, temp2);
 		}
+		Enter(1);
 
-		colour(CFG.HiliteF, CFG.HiliteB);
-		fLine(42);
-		/* Total Files: */ /* Bytes */
-		printf("%s %d, %d %s\n\n", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
-
-		Pause();
-		closedir(dirp);
+		LineCount++;
+		if (LineCount == exitinfo.iScreenLen) {
+		    Pause();
+		    LineCount = 0;
+		}
+	    }
 	}
-	free(temp);
-	free(FileName);
+
+	colour(CFG.HiliteF, CFG.HiliteB);
+	fLine(78);
+	/* Total Files: */ /* Bytes */
+	sprintf(temp2, "%s %d, %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
+	pout(LIGHTGREEN, BLACK, temp2);
+	Enter(2);
+
+	Pause();
+	closedir(dirp);
+    }
+
+    free(temp);
+    free(FileName);
 }
 
 
@@ -581,7 +596,7 @@ int KeywordScan()
 
     Enter(2);
     /* Enter keyword to use for Search: */
-    pout(11, 0, (char *) Language(267));
+    pout(LIGHTCYAN, BLACK, (char *) Language(267));
 
     colour(CFG.InputColourF, CFG.InputColourB);
     GetstrC(Name, 80);
@@ -602,7 +617,7 @@ int KeywordScan()
 
     clear();
     /* File search by keyword */
-    pout(15, 0, (char *) Language(268));
+    pout(WHITE, BLACK, (char *) Language(268));
     Enter(1);
     InitTag();
 
@@ -678,7 +693,7 @@ int KeywordScan()
     free(Name);
     free(tmpname);
     fclose(pAreas);
-    printf("\n");
+    Enter(1);
     if (Count)
 	Mark();
     else
@@ -710,11 +725,11 @@ int FilenameScan()
 
     Enter(2);
     /* Accepts wildcards such as : *.zip, *.gz, *.* */
-    pout(15, 0, (char *) Language(269));
+    pout(WHITE, BLACK, (char *) Language(269));
 
     Enter(2);
     /* Enter filename to search for : */
-    pout(11, 0, (char *) Language(271));
+    pout(LIGHTCYAN, BLACK, (char *) Language(271));
 
     colour(CFG.InputColourF, CFG.InputColourB);
     GetstrC(Name, 80);
@@ -731,7 +746,7 @@ int FilenameScan()
 
     clear();
     /* File Search by Filename */
-    pout(15, 0, (char *) Language(272));
+    pout(WHITE, BLACK, (char *) Language(272));
     Enter(1);
     InitTag();
 
@@ -790,7 +805,7 @@ int FilenameScan()
 
     Syslog('+', "Found %d files", Count);
     fclose(pAreas);
-    printf("\n");
+    Enter(1);
     if (Count)
 	Mark();
     else
@@ -822,26 +837,26 @@ int NewfileScan(int AskStart)
     if (AskStart) {
 	Enter(2);
 	/* Search for new since your last call [Y/n]: */
-	pout(11, 0, (char *) Language(273));
+	pout(LIGHTCYAN, BLACK, (char *) Language(273));
 	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
 
-	if (toupper(Getone()) == Keystroke(273, 1)) {
+	if (toupper(Readkey()) == Keystroke(273, 1)) {
 	    Enter(1);
 	    /* Enter new date to search for [DD-MM-YYYY]: */
-	    pout(2, 0, (char *) Language(274));
+	    pout(GREEN, BLACK, (char *) Language(274));
 	    colour(CFG.InputColourF, CFG.InputColourB);
-	    fflush(stdout);
 	    GetDate(temp, 10);
-	} else
+	} else {
 	    strcpy(temp, LastLoginDate);
-    } else
+	}
+    } else {
 	strcpy(temp, LastLoginDate);
+    }
 
     Syslog('+', "NewfileScan() since %s", temp);
     clear();
     /* File Search by Date */
-    pout(15, 0, (char *) Language(275));
+    pout(WHITE, BLACK, (char *) Language(275));
     Enter(2);
 
     Date[0] = temp[6];	/* Swap the date around      */
@@ -885,7 +900,7 @@ int NewfileScan(int AskStart)
 
 		    if (ifDate >= itDate) {
 			if (!Found) {
-			    printf("\n\n");
+			    Enter(2);
 			    if (iLC(2) == 1) {
 				free(Date);
 				free(temp);
@@ -912,7 +927,6 @@ int NewfileScan(int AskStart)
 			    fclose(pAreas);
 			    return 1;
 			}
-
 		    } /* End of if */
 		} /* End of while */
 
@@ -922,7 +936,7 @@ int NewfileScan(int AskStart)
 		 * Add 2 blank lines after found files.
 		 */
 		if (Found) {
-		    printf("\n\n");
+		    Enter(2);
 		    if (iLC(2) == 1) {
 			free(Date);
 			free(temp);
@@ -935,13 +949,12 @@ int NewfileScan(int AskStart)
 
 	} /* End of check new files scan */
 	arecno++; /* Go to next file area */
-
     } /* End of Main */
 
     if (Count)
 	Syslog('+', "Found %d new files", Count);
     fclose(pAreas);
-    printf("\n");
+    Enter(1);
     if (Count)
 	Mark();
     else
@@ -959,243 +972,240 @@ int NewfileScan(int AskStart)
  */
 int Upload()
 {
-	char		File[81], temp[81];
-	int		Area, x = 0;
-	int		i, err;
-	unsigned long	OldArea;
-	time_t		ElapstimeStart, ElapstimeFin, iTime;
-	DIR		*dirp;
-	struct dirent	*dp;
-	struct stat	statfile;
-	char		*arc;
+    char	    File[81], temp[81];
+    int		    Area, x = 0, err;
+    unsigned long   OldArea;
+    time_t	    ElapstimeStart, ElapstimeFin, iTime;
+    DIR		    *dirp;
+    struct dirent   *dp;
+    struct stat	    statfile;
+    char	    *arc;
 
 
-	WhosDoingWhat(UPLOAD, NULL); 
+    WhosDoingWhat(UPLOAD, NULL); 
 
-	/*
-	 * Select default protocol if users hasn't any.
-	 */
-	if (!ForceProtocol())
-		return 0;
+    /*
+     * Select default protocol if users hasn't any.
+     */
+    if (!ForceProtocol())
+	return 0;
 
-	Enter(1);
-	Area = OldArea = iAreaNumber;
+    Enter(1);
+    Area = OldArea = iAreaNumber;
 
-	/*
-	 * If there is a special upload area for the current area
-	 * then select it.
-	 */
-	if (area.Upload)
-		Area = area.Upload;
-	SetFileArea(Area);
+    /*
+     * If there is a special upload area for the current area
+     * then select it.
+     */
+    if (area.Upload)
+	Area = area.Upload;
+    SetFileArea(Area);
 
-	/*
-	 * Only ask for a filename for non-batching protocols,
-	 * ie. the stone age Xmodem for example.
-	 */
-	if (!uProtBatch) {
-		/* Please enter file to upload: */
-		pout(14, 0, (char *) Language(276));
+    /*
+     * Only ask for a filename for non-batching protocols,
+     * ie. the stone age Xmodem for example.
+     */
+    if (!uProtBatch) {
+	/* Please enter file to upload: */
+	pout(YELLOW, BLACK, (char *) Language(276));
 
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(File, 80);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(File, 80);
 
-		if((strcmp(File, "")) == 0)
-			return 0;
+	if ((strcmp(File, "")) == 0)
+	    return 0;
 
-		if (*(File) == '.' || *(File) == '*' || *(File) == ' ' || *(File) == '/') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return 0;
-		}
+	if (*(File) == '.' || *(File) == '*' || *(File) == ' ' || *(File) == '/') {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Pause();
+	    return 0;
+	}
+	
+	Strlen = strlen(File);
+	Strlen--;
 
-		Strlen = strlen(File);
-		Strlen--;
-
-		if (*(File + Strlen) == '.' || *(File + Strlen) == '/' || *(File + Strlen) == ' ') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return 0;
-		}
-
-		if ((!strcmp(File, "files.bbs")) || (!strcmp(File, "00index")) || (strstr(File, (char *)".html"))) {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Syslog('!', "Attempted to upload %s", File);
-			Pause();
-			return 0;
-		}
-
-		for (i = 0; i < strlen(File); i++)
-			printf("%d ", File[i]);
-
-		/*
-		 * Check for a space or ; in filename being uploaded
-		 */
-		if (((strchr(File, 32)) != NULL) || ((strchr(File, ';')) != NULL)) {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-			return 0;
-		}
-
-		/* MOET IN ALLE AREAS ZOEKEN */
-		if (area.Dupes) {
-			x = CheckFile(File, Area);
-			if (x) {
-				Enter(1);
-				/* The file already exists on the system */
-				pout(15, 3, (char *) Language(282));
-				Enter(2);
-				SetFileArea(OldArea);
-				Pause();
-				return 0;
-			}
-		}
-		SetFileArea(OldArea);
+	if (*(File + Strlen) == '.' || *(File + Strlen) == '/' || *(File + Strlen) == ' ') {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Pause();
+	    return 0;
 	}
 
-	SetFileArea(Area);
-	Syslog('+', "Upload area is %d %s", Area, area.Name);
+	if ((!strcmp(File, "files.bbs")) || (!strcmp(File, "00index")) || (strstr(File, (char *)".html"))) {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Syslog('!', "Attempted to upload %s", File);
+	    Pause();
+	    return 0;
+	}
 
 	/*
-	 * Check upload access for the real upload directory.
+	 * Check for a space or ; in filename being uploaded
 	 */
-	if (!Access(exitinfo.Security, area.UPSec)) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* You do not have enough access to upload to this area */
-		printf("\n%s\n\n", (char *) Language(278));
+	if (((strchr(File, 32)) != NULL) || ((strchr(File, ';')) != NULL)) {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Pause();
+	    return 0;
+	}
+
+	/* MOET IN ALLE AREAS ZOEKEN */
+	if (area.Dupes) {
+	    x = CheckFile(File, Area);
+	    if (x) {
+		Enter(1);
+		/* The file already exists on the system */
+		pout(WHITE, CYAN, (char *) Language(282));
+		Enter(2);
 		SetFileArea(OldArea);
 		Pause();
 		return 0;
+	    }
 	}
+	SetFileArea(OldArea);
+    }
 
-	clear();
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Please start your upload now ...*/
-	printf("\n\n%s, %s\n\n", sProtAdvice, (char *) Language(283));
-	if (uProtBatch)
-		Syslog('+', "Upload using %s", sProtName);
-	else
-		Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+    SetFileArea(Area);
+    Syslog('+', "Upload area is %d %s", Area, area.Name);
 
-	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-	if (chdir(temp)) {
-		WriteError("$Can't chdir to %s", temp);
-		SetFileArea(OldArea);
-		return 0;
-	}
-
-	fflush(stdout);
-	fflush(stdin);
-	sleep(2);
-	ElapstimeStart = time(NULL);
-	
-	/*
-	 * Get the file(s). Set the Client/Server time to 2 hours.
-	 * This is not a nice solution, at least it works and prevents
-	 * that the bbs will hang.
-	 */
-	Altime(7200);
-	alarm_set(7190);
-	if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
-		/*
-		 * Log any errors
-		 */
-		colour(CFG.HiliteF, CFG.HiliteB);
-		WriteError("$Upload error %d, prot: %s", err, sProtUp);
-	}
-	Altime(0);
-	alarm_off();
-	alarm_on();
-	printf("\n\n\n");
-	fflush(stdout);
-	fflush(stdin);
-	ElapstimeFin = time(NULL);
-
-	/*
-	 * Get time from Before Upload and After Upload to get
-	 * upload time, if the time is zero, it will be one.
-	 */
-	iTime = ElapstimeFin - ElapstimeStart;
-	if (!iTime)
-		iTime = 1;
-
-	Syslog('b', "Transfer time %ld", iTime);
-
-	if ((dirp = opendir(".")) == NULL) {
-		WriteError("$Upload: can't open ./upl");
-		Home();
-		SetFileArea(OldArea);
-		return 1;
-	}
-
-	pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"\n\nChecking your upload(s)\n\n");
-
-	while ((dp = readdir(dirp)) != NULL) {
-
-		if (*(dp->d_name) != '.') {
-			stat(dp->d_name, &statfile);
-			Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
-
-			if ((arc = GetFileType(dp->d_name)) == NULL) {
-				/*
-				 * If the filetype is unknown, it is probably 
-				 * a textfile or so. Import it direct.
-				 */
-				Syslog('b', "Unknown file type");
-				if (!ScanDirect(dp->d_name))
-				    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
-			} else {
-				/*
-				 * We figured out the type of the uploaded file.
-				 */
-				Syslog('b', "File type is %s", arc);
-
-				/*
-				 * MS-DOS executables are handled direct.
-				 */
-				if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
-					if (!ScanDirect(dp->d_name)) 
-						ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
-				} else {
-					switch(ScanArchive(dp->d_name, arc)) {
-
-					case 0:
-						ImportFile(dp->d_name, Area, TRUE, iTime, statfile.st_size);
-						break;
-
-					case 1:
-						break;
-
-					case 2:
-						break;
-
-					case 3:
-						/*
-						 * No valid unarchiver found, just import after scanning,
-						 * may catch macro viri.
-						 */
-						if (!ScanDirect(dp->d_name))
-						    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
-						break;
-					}
-				}
-			}
-		}
-	}
-	closedir(dirp);
-
-	Home();
+    /*
+     * Check upload access for the real upload directory.
+     */
+    if (!Access(exitinfo.Security, area.UPSec)) {
+	Enter(1);
+	/* You do not have enough access to upload to this area */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(278));
+	Enter(2);
 	SetFileArea(OldArea);
 	Pause();
+	return 0;
+    }
+
+    clear();
+    Enter(2);
+    colour(CFG.HiliteF, CFG.HiliteB);
+    /* Please start your upload now ...*/
+    pout(CFG.HiliteF, CFG.HiliteB, sProtAdvice);
+    PUTCHAR(' ');
+    PUTSTR((char *) Language(283));
+    Enter(2);
+
+    if (uProtBatch)
+	Syslog('+', "Upload using %s", sProtName);
+    else
+	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
+
+    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    if (chdir(temp)) {
+	WriteError("$Can't chdir to %s", temp);
+	SetFileArea(OldArea);
+	return 0;
+    }
+
+    sleep(2);
+    ElapstimeStart = time(NULL);
+	
+    /*
+     * Get the file(s). Set the Client/Server time to 2 hours.
+     * This is not a nice solution, at least it works and prevents
+     * that the bbs will hang.
+     */
+    Altime(7200);
+    alarm_set(7190);
+    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
+    rawport();
+
+    if (err) {
+	/*
+	 * Log any errors
+	 */
+	WriteError("$Upload error %d, prot: %s", err, sProtUp);
+    }
+    Altime(0);
+    alarm_off();
+    alarm_on();
+    Enter(3);
+    ElapstimeFin = time(NULL);
+
+    /*
+     * Get time from Before Upload and After Upload to get
+     * upload time, if the time is zero, it will be one.
+     */
+    iTime = ElapstimeFin - ElapstimeStart;
+    if (!iTime)
+	iTime = 1;
+
+    Syslog('b', "Transfer time %ld", iTime);
+
+    if ((dirp = opendir(".")) == NULL) {
+	WriteError("$Upload: can't open ./upl");
+	Home();
+	SetFileArea(OldArea);
 	return 1;
+    }
+
+    Enter(2);
+    pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"Checking your upload(s)");
+    Enter(1);
+
+    while ((dp = readdir(dirp)) != NULL) {
+	if (*(dp->d_name) != '.') {
+	    stat(dp->d_name, &statfile);
+	    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+
+	    if ((arc = GetFileType(dp->d_name)) == NULL) {
+		/*
+		 * If the filetype is unknown, it is probably 
+		 * a textfile or so. Import it direct.
+		 */
+		Syslog('b', "Unknown file type");
+		if (!ScanDirect(dp->d_name))
+		    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+	    } else {
+		/*
+		 * We figured out the type of the uploaded file.
+		 */
+		Syslog('b', "File type is %s", arc);
+
+		/*
+		 * MS-DOS executables are handled direct.
+		 */
+		if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
+		    if (!ScanDirect(dp->d_name)) 
+			ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+		} else {
+		    switch (ScanArchive(dp->d_name, arc)) {
+			case 0:	ImportFile(dp->d_name, Area, TRUE, iTime, statfile.st_size);
+				break;
+			case 1: break;
+			case 2: break;
+			case 3: /*
+				 * No valid unarchiver found, just import after scanning,
+			         * may catch macro viri.
+			         */
+			        if (!ScanDirect(dp->d_name))
+				    ImportFile(dp->d_name, Area, FALSE, iTime, statfile.st_size);
+				break;
+		    }
+		}
+	    }
+	}
+    }
+    closedir(dirp);
+
+    Home();
+    SetFileArea(OldArea);
+    Pause();
+    return 1;
 }
 
 
@@ -1205,126 +1215,124 @@ int Upload()
  */
 int DownloadDirect(char *Name, int Wait)
 {
-	int	err, rc;
-	char	*symTo, *symFrom;
-	long	Size;
-	time_t	ElapstimeStart, ElapstimeFin, iTime;
-	long	iTransfer = 0;
+    int	    err, rc;
+    char    *symTo, *symFrom, temp[81];
+    long    Size;
+    time_t  ElapstimeStart, ElapstimeFin, iTime;
+    long    iTransfer = 0;
 
-	if ((Size = file_size(Name)) == -1) {
-		WriteError("No file %s", Name);
-		colour(CFG.HiliteF, CFG.HiliteB);
-		printf("File not found\n\n");
-		Pause();
-	}
+    if ((Size = file_size(Name)) == -1) {
+	WriteError("No file %s", Name);
+	pout(CFG.HiliteF, CFG.HiliteB, (char *)"File not found");
+	Enter(2);
+	Pause();
+    }
 
-	/*
-	 * Make a symlink to the users tmp dir.
-	 */
-	symTo = calloc(PATH_MAX, sizeof(char));
-	symFrom = calloc(PATH_MAX, sizeof(char));
-	sprintf(symFrom, "%s/%s/tmp%s", CFG.bbs_usersdir, exitinfo.Name, strrchr(Name, '/'));
-	sprintf(symTo, "%s", Name);
+    /*
+     * Make a symlink to the users tmp dir.
+     */
+    symTo = calloc(PATH_MAX, sizeof(char));
+    symFrom = calloc(PATH_MAX, sizeof(char));
+    sprintf(symFrom, "%s/%s/tmp%s", CFG.bbs_usersdir, exitinfo.Name, strrchr(Name, '/'));
+    sprintf(symTo, "%s", Name);
 
-	if (symlink(symTo, symFrom)) {
-		WriteError("$Can't create symlink %s %s", symTo, symFrom);
-		free(symTo);
-		free(symFrom);
-		return FALSE;
-	}
-
-	/*
-	 * If user has no default protocol, make sure he has one.
-	 */
-	if (!ForceProtocol()) {
-		unlink(symFrom);
-		free(symTo);
-		free(symFrom);
-		return FALSE;
-	}
-
-	WhosDoingWhat(DOWNLOAD, NULL);
-	ReadExitinfo();
-
-	clear();
-	/* File(s)    : */
-	pout(14, 0, (char *) Language(349)); printf("%s\n", symFrom);
-	/* Size       : */
-	pout( 3, 0, (char *) Language(350)); printf("%lu\n", Size);
-	/* Protocol   : */
-	pout( 3, 0, (char *) Language(351)); printf("%s\n", sProtName);
-
-	Syslog('+', "Download direct start %s", Name);
-
-	printf("%s\n\n", sProtAdvice);
-	fflush(stdout);
-	fflush(stdin);
-
-	/*
-	 * Wait a while before download
-	 */
-	sleep(2);
-	ElapstimeStart = time(NULL);
-
-	/*
-	 * Transfer the file. Set the Client/Server time at the maximum
-	 * time the user has plus 10 minutes. The overall timer 10 seconds
-	 * less.
-	 */
-	alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
-	Altime((exitinfo.iTimeLeft + 10) * 60);
-	if ((err = execute_str(sProtDn, symFrom, NULL, NULL, NULL, NULL))) {
-		/*
-		 * Only log the error, we might have sent some files
-		 * instead of nothing.
-		 */
-		perror("");
-		colour(CFG.HiliteF, CFG.HiliteB);
-		WriteError("Download error %d, prot: %s", err, sProtDn);
-	}
-	Altime(0);
-	alarm_off();
-	alarm_on();
-	fflush(stdout);
-	fflush(stdin);
-	ElapstimeFin = time(NULL);
-
-	/*
-	 * Get time from Before Download and After Download to get
-	 * download time, if the time is zero, it will be one.
-	 */
-	iTime = ElapstimeFin - ElapstimeStart;
-	if (!iTime)
-		iTime = 1;
-
-	if ((access(symFrom, R_OK)) != 0) {
-
-		/*
-		 * Work out transfer rate in seconds by dividing the
-		 * Size of the File by the amount of time it took to download 
-		 * the file.
-		 */
-		iTransfer = Size / iTime;
-		Syslog('+', "Download ok, time %ld seconds (%lu cps)", iTime, iTransfer);
-
-		/*
-		 * Update the users record. The file is free, so only statistics.
-		 */
-		ReadExitinfo();
-		exitinfo.Downloads++;    /* Increase download counter */
-		exitinfo.iTransferTime = iTransfer;
-		WriteExitinfo();
-		rc = TRUE;
-	} else {
-		Syslog('+', "Download failed to sent file");
-		unlink(symFrom);
-		rc = FALSE;
-	}
-	if (Wait)
-		Pause();
+    if (symlink(symTo, symFrom)) {
+	WriteError("$Can't create symlink %s %s", symTo, symFrom);
 	free(symTo);
 	free(symFrom);
-	return rc;
+	return FALSE;
+    }
+
+    /*
+     * If user has no default protocol, make sure he has one.
+     */
+    if (!ForceProtocol()) {
+	unlink(symFrom);
+	free(symTo);
+	free(symFrom);
+	return FALSE;
+    }
+
+    WhosDoingWhat(DOWNLOAD, NULL);
+    ReadExitinfo();
+
+    clear();
+    /* File(s)    : */
+    pout(YELLOW, BLACK, (char *) Language(349)); sprintf(temp, "%s", symFrom);   PUTSTR(temp); Enter(1);
+    /* Size       : */
+    pout(  CYAN, BLACK, (char *) Language(350)); sprintf(temp, "%lu", Size);     PUTSTR(temp); Enter(1);
+    /* Protocol   : */
+    pout(  CYAN, BLACK, (char *) Language(351)); sprintf(temp, "%s", sProtName); PUTSTR(temp); Enter(1);
+
+    Syslog('+', "Download direct start %s", Name);
+
+    PUTSTR(sProtAdvice);
+    Enter(2);
+
+    /*
+     * Wait a while before download
+     */
+    sleep(2);
+    ElapstimeStart = time(NULL);
+
+    /*
+     * Transfer the file. Set the Client/Server time at the maximum
+     * time the user has plus 10 minutes. The overall timer 10 seconds
+     * less.
+     */
+    alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
+    Altime((exitinfo.iTimeLeft + 10) * 60);
+    err = execute_str(sProtDn, symFrom, NULL, NULL, NULL, NULL);
+    rawport();
+    if (err) {
+	/*
+	 * Only log the error, we might have sent some files
+	 * instead of nothing.
+	 */
+	WriteError("$Download error %d, prot: %s", err, sProtDn);
+    }
+	
+    Altime(0);
+    alarm_off();
+    alarm_on();
+    ElapstimeFin = time(NULL);
+
+    /*
+     * Get time from Before Download and After Download to get
+     * download time, if the time is zero, it will be one.
+     */
+    iTime = ElapstimeFin - ElapstimeStart;
+    if (!iTime)
+	iTime = 1;
+
+    if ((access(symFrom, R_OK)) != 0) {
+
+	/*
+	 * Work out transfer rate in seconds by dividing the
+	 * Size of the File by the amount of time it took to download 
+	 * the file.
+	 */
+	iTransfer = Size / iTime;
+	Syslog('+', "Download ok, time %ld seconds (%lu cps)", iTime, iTransfer);
+
+	/*
+	 * Update the users record. The file is free, so only statistics.
+	 */
+	ReadExitinfo();
+	exitinfo.Downloads++;    /* Increase download counter */
+	exitinfo.iTransferTime = iTransfer;
+	WriteExitinfo();
+	rc = TRUE;
+    } else {
+	Syslog('+', "Download failed to sent file");
+	unlink(symFrom);
+	rc = FALSE;
+    }
+    if (Wait)
+	Pause();
+    free(symTo);
+    free(symFrom);
+    return rc;
 }
 
 
@@ -1334,72 +1342,73 @@ int DownloadDirect(char *Name, int Wait)
  */
 void List_Home()
 {
-	DIR		*dirp;
-	char		*FileName, *temp;
-	int		iFileCount = 0;
-	int		iBytes = 0;
-	struct dirent	*dp;
-	struct stat	statfile;
+    DIR		    *dirp;
+    char	    *FileName, *temp;
+    int		    iFileCount = 0, iBytes = 0;
+    struct dirent   *dp;
+    struct stat	    statfile;
 
-	FileName = calloc(PATH_MAX, sizeof(char));
-	temp     = calloc(PATH_MAX, sizeof(char));
+    FileName = calloc(PATH_MAX, sizeof(char));
+    temp     = calloc(PATH_MAX, sizeof(char));
 
-	iLineCount = 2;
-	clear();
-	sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+    iLineCount = 2;
+    clear();
+    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
 
-	if ((dirp = opendir(temp)) == NULL) {
-		WriteError("$List_Home: Can't open dir: %s", temp);
-		/* Can't open directory for listing: */
-		printf("\n%s\n\n", (char *) Language(290));
-		Pause();
-	} else {
-		colour(1, 7);
-		/* Home directory listing for */
-		printf(" %s", (char *) Language(291));
-		colour(4, 7);
-		printf("%-51s\n", exitinfo.sUserName);
+    if ((dirp = opendir(temp)) == NULL) {
+	WriteError("$List_Home: Can't open dir: %s", temp);
+	Enter(1);
+	/* Can't open directory for listing: */
+	pout(LIGHTRED, BLACK, (char *) Language(290));
+	Enter(2);
+	Pause();
+    } else {
+	/* Home directory listing for */
+	sprintf(temp, " %s", (char *) Language(291));
+	pout(BLUE, LIGHTGRAY, temp);
+	sprintf(temp, "%-51s", exitinfo.sUserName);
+	pout(RED, LIGHTGRAY, temp);
+	Enter(1);
 
-		while ((dp = readdir( dirp )) != NULL ) {
-			sprintf(FileName, "%s/%s", temp, dp->d_name);
-			/*
-			 * Check first letter of file for a ".", do not display hidden files
-			 * This includes the current directory and parent directory . & ..
-			 */
-			if (*(dp->d_name) != '.') {
-				iFileCount++;
-				if(stat(FileName, &statfile) != 0)
-					WriteError("$Can't stat file %s",FileName);
-				iBytes += statfile.st_size;
-
-				colour(14,0);
-				printf("%-20s", dp->d_name);
-
-				colour(13,0);
-				printf("%-12ld", (long)(statfile.st_size));
-
-				colour(10,0);
-				printf("%s  ", StrDateDMY(statfile.st_mtime));
-
-				colour(11,0);
-				printf("%s", StrTimeHMS(statfile.st_mtime));
-
-				printf("\n");
-			}
-			if (iLC(1) == 1)
-				return;
+	while ((dp = readdir( dirp )) != NULL ) {
+	    sprintf(temp, "%s/%s/wrk", CFG.bbs_usersdir, exitinfo.Name);
+	    sprintf(FileName, "%s/%s", temp, dp->d_name);
+	    /*
+	     * Check first letter of file for a ".", do not display hidden files
+	     * This includes the current directory and parent directory . & ..
+	     */
+	    if (*(dp->d_name) != '.') {
+		iFileCount++;
+		if (stat(FileName, &statfile) != 0) {
+		    WriteError("$Can't stat file %s",FileName);
+		} else {
+		    iBytes += statfile.st_size;
+		    sprintf(temp, "%-20s", dp->d_name);
+		    pout(YELLOW, BLACK, temp);
+		    sprintf(temp, "%-12ld", (long)(statfile.st_size));
+		    pout(LIGHTMAGENTA, BLACK, temp);
+		    sprintf(temp, "%s  ", StrDateDMY(statfile.st_mtime));
+		    pout(LIGHTGREEN, BLACK, temp);
+		    sprintf(temp, "%s", StrTimeHMS(statfile.st_mtime));
+		    pout(LIGHTCYAN, BLACK, temp);
+		    Enter(1);
 		}
-
-		colour(11,0);
-		/* Total Files: */ /* Bytes */
-		printf("\n\n%s%d / %d %s\n", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
-
-		Pause();
-		closedir(dirp);
+	    }
+	    if (iLC(1) == 1)
+		return;
 	}
 
-	free(temp);
-	free(FileName);
+	Enter(2);
+	/* Total Files: */ /* Bytes */
+	sprintf(temp, "%s%d / %d %s", (char *) Language(242), iFileCount, iBytes, (char *) Language(354));
+	pout(LIGHTCYAN, BLACK, temp);
+	Enter(1);
+	Pause();
+	closedir(dirp);
+    }
+
+    free(temp);
+    free(FileName);
 }
 
 
@@ -1409,69 +1418,67 @@ void List_Home()
  */
 void Delete_Home()
 {
-	char	*temp, *temp1;
-	int	i;
+    char    *temp, *temp1;
+    int	i;
 
-	temp  = calloc(PATH_MAX, sizeof(char));
-	temp1 = calloc(PATH_MAX, sizeof(char));
+    temp  = calloc(PATH_MAX, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/%s/wrk/", CFG.bbs_usersdir, exitinfo.Name);
+    sprintf(temp, "%s/%s/wrk/", CFG.bbs_usersdir, exitinfo.Name);
 
-	Enter(1);
-	/* Please enter filename to delete: */
-	pout(9, 0, (char *) Language(292));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	fflush(stdout);
-	GetstrC(temp1, 80);
+    Enter(1);
+    /* Please enter filename to delete: */
+    pout(9, 0, (char *) Language(292));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(temp1, 80);
 
-
-	if(strcmp(temp1, "") == 0) {
-		free(temp);
-		free(temp1);
-		return;
-	}
-
-	if(temp1[0] == '.') {
-		Enter(1);
-		/* Sorry you may not delete hidden files ...*/
-		pout(12, 0, (char *) Language(293));
-	} else {
-		strcat(temp, temp1);
-
-		if ((access(temp, R_OK)) == 0) {
-			colour(10, 0);
-			/* Delete file: */ /* Are you Sure? [Y/n]: */
-			printf("\n%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
-			fflush(stdout);
-			i = toupper(Getone());
-
-			if (i == Keystroke(369, 0) || i == 13) {
-				i = unlink(temp);
-
-				if (i == -1) {
-					Enter(1);
-					/* Unable to delete file ... */
-					pout(12, 0, (char *) Language(294));
-				} else {
-					Syslog('+', "Delete %s from homedir", temp1);
-				}
-			} else {
-				Enter(2);
-				/* Aborting ... */
-				pout(8, 0, (char *) Language(116));
-			}
-		} else {
-			Enter(1);
-			/*  Invalid filename, please try again ... */
-			pout(12, 0, (char *) Language(295));
-		}
-
-	}
-
+    if (strcmp(temp1, "") == 0) {
 	free(temp);
 	free(temp1);
-	printf("\n");
-	Pause();
+	return;
+    }
+
+    if (temp1[0] == '.') {
+	Enter(1);
+	/* Sorry you may not delete hidden files ...*/
+	pout(12, 0, (char *) Language(293));
+    } else {
+	strcat(temp, temp1);
+
+	if ((access(temp, R_OK)) == 0) {
+	    Enter(1);
+	    /* Delete file: */ /* Are you Sure? [Y/n]: */
+	    sprintf(temp1, "%s %s, %s", (char *) Language(368), temp1, (char *) Language(369));
+	    pout(LIGHTGREEN, BLACK, temp1);
+	    i = toupper(Readkey());
+
+	    if (i == Keystroke(369, 0) || i == 13) {
+		i = unlink(temp);
+
+		if (i == -1) {
+		    Enter(1);
+		    /* Unable to delete file ... */
+		    pout(LIGHTRED, BLACK, (char *) Language(294));
+		} else {
+		    Syslog('+', "Delete %s from homedir", temp1);
+				}
+	    } else {
+		Enter(2);
+		/* Aborting ... */
+		pout(DARKGRAY, BLACK, (char *) Language(116));
+	    }
+	} else {
+	    Enter(1);
+	    /*  Invalid filename, please try again ... */
+	    pout(LIGHTRED, BLACK, (char *) Language(295));
+	}
+
+    }
+
+    Enter(2);
+    free(temp);
+    free(temp1);
+    Pause();
 }
 
 
@@ -1482,62 +1489,64 @@ void Delete_Home()
  */
 int Download_Home()
 {
-	char	*temp, *File;
-	struct	stat statfile;
-	int	rc;
+    char	*temp, *File;
+    struct stat statfile;
+    int		rc;
 
-	File  = calloc(PATH_MAX, sizeof(char));
-	temp  = calloc(PATH_MAX, sizeof(char));
+    File  = calloc(PATH_MAX, sizeof(char));
+    temp  = calloc(PATH_MAX, sizeof(char));
 
-	WhosDoingWhat(DOWNLOAD, NULL);
+    WhosDoingWhat(DOWNLOAD, NULL);
 
-	colour(14,0);
-	/* Please enter filename: */
-	printf("\n%s", (char *) Language(245));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(File, 80);
+    Enter(1);
+    /* Please enter filename: */
+    pout(YELLOW, BLACK, (char *) Language(245));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(File, 80);
 
-	if(( strcmp(File, "")) == 0) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* No filename entered, Aborting. */
-		printf("\n\n%s\n", (char *) Language(246));
-		Pause();
-		free(File);
-		free(temp);
-		return FALSE;
-	}
-
-	if( *(File) == '/' || *(File) == ' ') {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Illegal Filename! */
-		printf("\n%s\n\n", (char *) Language(247));
-		Pause();
-		free(File);
-		free(temp);
-		return FALSE;
-	}
-
-	/*
-	 * Get path for users home directory
-	 */
-	sprintf(temp, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
-
-	if (stat(temp, &statfile) != 0) {
-		Enter(1);
-		/* File does not exist, please try again ...*/
-  		pout(12, 0, (char *) Language(296));
-		Enter(2);
-		Pause();
-		free(File);
-		free(temp);
-		return FALSE;
-	}
-
-	rc = DownloadDirect(temp, TRUE);
-
+    if (( strcmp(File, "")) == 0) {
+	Enter(2);
+	/* No filename entered, Aborting. */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(246));
+	Enter(2);
+	Pause();
 	free(File);
 	free(temp);
-	return rc;
+	return FALSE;
+    }
+
+    if (*(File) == '/' || *(File) == ' ') {
+	Enter(2);
+	/* Illegal Filename! */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	Enter(2);
+	Pause();
+	free(File);
+	free(temp);
+	return FALSE;
+    }
+
+    /*
+     * Get path for users home directory
+     */
+    sprintf(temp, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
+
+    if (stat(temp, &statfile) != 0) {
+	Enter(2);
+	/* File does not exist, please try again ...*/
+  	pout(LIGHTRED, BLACK, (char *) Language(296));
+	Enter(2);
+	Pause();
+	free(File);
+	free(temp);
+	return FALSE;
+    }
+
+    rc = DownloadDirect(temp, TRUE);
+
+    free(File);
+    free(temp);
+    return rc;
 }
 
 
@@ -1547,192 +1556,189 @@ int Download_Home()
  */
 int Upload_Home()
 {
-	DIR		*dirp;
-	struct dirent	*dp;
-	char		*File, *sFileName, *temp, *arc;
-	time_t		ElapstimeStart, ElapstimeFin, iTime;
-	int		err;
-	struct stat	statfile;
+    DIR		    *dirp;
+    struct dirent   *dp;
+    char	    *File, *sFileName, *temp, *arc;
+    time_t	    ElapstimeStart, ElapstimeFin, iTime;
+    int		    err;
+    struct stat	    statfile;
 	
-	WhosDoingWhat(UPLOAD, NULL);
-	if (!ForceProtocol())
-		return 0;
+    WhosDoingWhat(UPLOAD, NULL);
+    if (!ForceProtocol())
+	return 0;
 
-        File      = calloc(PATH_MAX, sizeof(char));
-        sFileName = calloc(PATH_MAX, sizeof(char));
-        temp      = calloc(PATH_MAX, sizeof(char));
+    File      = calloc(PATH_MAX, sizeof(char));
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    temp      = calloc(PATH_MAX, sizeof(char));
 
-	if (!uProtBatch) {
+    if (!uProtBatch) {
 
-		Enter(1);
-		/* Please enter file to upload: */
-		pout(14, 0, (char *) Language(276));
+	Enter(1);
+	/* Please enter file to upload: */
+	pout(YELLOW, BLACK, (char *) Language(276));
 
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(File, 80);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(File, 80);
 
-		if((strcmp(File, "")) == 0) {
-			free(File);
-			free(sFileName);
-			free(temp);
-			return 0;
-		}
-
-		if(File[0] == '.' || File[0] == '*' || File[0] == ' ') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-                        free(File);
-                        free(sFileName);
-                        free(temp);
-			return 0;
-		}
-
-		Strlen = strlen(File);
-		Strlen--;
-
-		if(File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
-			colour(CFG.HiliteF, CFG.HiliteB);
-			/* Illegal Filename! */
-			printf("\n%s\n\n", (char *) Language(247));
-			Pause();
-                        free(File);
-                        free(sFileName);
-                        free(temp);
-			return 0;
-		}
-
+	if ((strcmp(File, "")) == 0) {
+	    free(File);
+	    free(sFileName);
+	    free(temp);
+	    return 0;
 	}
 
-	clear();
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Please start your upload now ...*/
-	printf("\n\n%s, %s\n\n", sProtAdvice, (char *) Language(283));
-	if (uProtBatch)
-		Syslog('+', "Upload using %s", sProtName);
-	else
-		Syslog('+', "Upload \"%s\" using %s", File, sProtName);
-
-	sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
-	if (chdir(temp)) {
-		WriteError("$Can't chdir to %s", temp);
-		free(File);
-		free(sFileName);
-		free(temp);
-		return 0;
+	if (File[0] == '.' || File[0] == '*' || File[0] == ' ') {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Pause();
+            free(File);
+            free(sFileName);
+            free(temp);
+	    return 0;
 	}
 
-	fflush(stdout);
-	fflush(stdin);
-	sleep(2);
-	ElapstimeStart = time(NULL);
-	
-	/*
-	 * Get the file(s). Set the Client/Server time to 2 hours.
-	 * This is not a nice solution, at least it works and prevents
-	 * that the bbs will hang.
-	 */
-	Altime(7200);
-	alarm_set(7190);
-	if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
-		/*
-		 * Log any errors
-		 */
-		colour(CFG.HiliteF, CFG.HiliteB);
-		WriteError("$Upload error %d, prot: %s", err, sProtUp);
+	Strlen = strlen(File);
+	Strlen--;
+
+	if (File[Strlen] == '.' || File[Strlen] == '/' || File[Strlen] == ' ') {
+	    Enter(1);
+	    /* Illegal Filename! */
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
+	    Pause();
+            free(File);
+            free(sFileName);
+            free(temp);
+	    return 0;
 	}
-	Altime(0);
-	alarm_off();
-	alarm_on();
-	printf("\n\n\n");
-	fflush(stdout);
-	fflush(stdin);
-	ElapstimeFin = time(NULL);
+    }
 
-	/*
-	 * Get time from Before Upload and After Upload to get
-	 * upload time, if the time is zero, it will be one.
-	 */
-	iTime = ElapstimeFin - ElapstimeStart;
-	if (!iTime)
-		iTime = 1;
+    clear();
+    Enter(2);
+    /* Please start your upload now ...*/
+    sprintf(temp, "%s, %s", sProtAdvice, (char *) Language(283));
+    pout(CFG.HiliteF, CFG.HiliteB, temp);
+    Enter(2);
+    if (uProtBatch)
+	Syslog('+', "Upload using %s", sProtName);
+    else
+	Syslog('+', "Upload \"%s\" using %s", File, sProtName);
 
-	Syslog('b', "Transfer time %ld", iTime);
-
-	if ((dirp = opendir(".")) == NULL) {
-		WriteError("$Upload: can't open ./upl");
-		Home();
-                free(File);
-                free(sFileName);
-                free(temp);
-		return 1;
-	}
-
-	Syslog('b', "Start checking uploaded files");
-	pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"\n\nChecking your upload(s)\n\n");
-
-	while ((dp = readdir(dirp)) != NULL) {
-
-		if (*(dp->d_name) != '.') {
-			stat(dp->d_name, &statfile);
-			Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
-
-			if ((arc = GetFileType(dp->d_name)) == NULL) {
-				/*
-				 * If the filetype is unknown, it is probably 
-				 * a textfile or so. Import it direct.
-				 */
-				Syslog('b', "Unknown file type");
-				ImportHome(dp->d_name);
-			} else {
-				/*
-				 * We figured out the type of the uploaded file.
-				 */
-				Syslog('b', "File type is %s", arc);
-
-				/*
-				 * MS-DOS executables are handled direct.
-				 */
-				if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
-					if (!ScanDirect(dp->d_name)) 
-						ImportHome(dp->d_name);
-				} else {
-					switch(ScanArchive(dp->d_name, arc)) {
-
-					case 0:
-						ImportHome(dp->d_name);
-						break;
-
-					case 1:
-						break;
-
-					case 2:
-						break;
-
-					case 3:
-						/*
-						 * No valid unarchiver found, just import
-						 */
-						ImportHome(dp->d_name);
-						break;
-					}
-				}
-			}
-		}
-	}
-	closedir(dirp);
-	Home();
-
-	ReadExitinfo();
-	exitinfo.Uploads++;
-	WriteExitinfo();	
-
-	Pause();
+    sprintf(temp, "%s/%s/upl", CFG.bbs_usersdir, exitinfo.Name);
+    if (chdir(temp)) {
+	WriteError("$Can't chdir to %s", temp);
 	free(File);
 	free(sFileName);
 	free(temp);
+	return 0;
+    }
+
+    sleep(2);
+    ElapstimeStart = time(NULL);
+	
+    /*
+     * Get the file(s). Set the Client/Server time to 2 hours.
+     * This is not a nice solution, at least it works and prevents
+     * that the bbs will hang.
+     */
+    Altime(7200);
+    alarm_set(7190);
+    err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL);
+    rawport();
+
+    if (err) {
+	/*
+	 * Log any errors
+	 */
+	WriteError("$Upload error %d, prot: %s", err, sProtUp);
+    }
+    
+    Altime(0);
+    alarm_off();
+    alarm_on();
+    Enter(3);
+    ElapstimeFin = time(NULL);
+
+    /*
+     * Get time from Before Upload and After Upload to get
+     * upload time, if the time is zero, it will be one.
+     */
+    iTime = ElapstimeFin - ElapstimeStart;
+    if (!iTime)
+	iTime = 1;
+
+    Syslog('b', "Transfer time %ld", iTime);
+
+    if ((dirp = opendir(".")) == NULL) {
+	WriteError("$Upload: can't open ./upl");
+	Home();
+        free(File);
+        free(sFileName);
+        free(temp);
 	return 1;
+    }
+
+    Syslog('b', "Start checking uploaded files");
+    Enter(2);
+    pout(CFG.UnderlineColourF, CFG.UnderlineColourB, (char *)"Checking your upload(s)");
+    Enter(2);
+
+    while ((dp = readdir(dirp)) != NULL) {
+
+	if (*(dp->d_name) != '.') {
+	    stat(dp->d_name, &statfile);
+	    Syslog('+', "Uploaded \"%s\", %ld bytes", dp->d_name, statfile.st_size);
+
+	    if ((arc = GetFileType(dp->d_name)) == NULL) {
+		/*
+		 * If the filetype is unknown, it is probably 
+		 * a textfile or so. Import it direct.
+		 */
+		Syslog('b', "Unknown file type");
+		ImportHome(dp->d_name);
+	    } else {
+		/*
+		 * We figured out the type of the uploaded file.
+		 */
+		Syslog('b', "File type is %s", arc);
+
+		/*
+		 * MS-DOS executables are handled direct.
+		 */
+		if ((strcmp("EXE", arc) == 0) || (strcmp("COM", arc) == 0)) {
+		    if (!ScanDirect(dp->d_name)) 
+			ImportHome(dp->d_name);
+		} else {
+		    switch(ScanArchive(dp->d_name, arc)) {
+			case 0: ImportHome(dp->d_name);
+				break;
+			case 1: break;
+			case 2: break;
+			case 3: /*
+				 * No valid unarchiver found, just import
+				 */
+				ImportHome(dp->d_name);
+				break;
+		    }
+		}
+	    }
+	}
+    }
+	
+    closedir(dirp);
+    Home();
+
+    ReadExitinfo();
+    exitinfo.Uploads++;
+    WriteExitinfo();	
+
+    Pause();
+    free(File);
+    free(sFileName);
+    free(temp);
+    return 1;
 }
 
 
@@ -1742,211 +1748,206 @@ int Upload_Home()
  */
 void FileArea_List(char *Option)
 {
-	FILE	*pAreas;
-	int	iAreaCount = 6, Recno = 1;
-	int	iOldArea, iAreaNum = 0;
-	int	iGotArea = FALSE; /* Flag to check if user typed in area */
-	long	offset;
-	char 	*temp;
+    FILE    *pAreas;
+    int	    iAreaCount = 6, Recno = 1, iOldArea, iAreaNum = 0;
+    int	    iGotArea = FALSE; /* Flag to check if user typed in area */
+    long    offset;
+    char    *temp;
 
-	/*
-	 * Save old area, incase he picks a invalid area
-	 */
-	iOldArea = iAreaNumber;
-	if ((pAreas = OpenFareas(FALSE)) == NULL)
-		return;
+    /*
+     * Save old area, incase he picks a invalid area
+     */
+    iOldArea = iAreaNumber;
+    if ((pAreas = OpenFareas(FALSE)) == NULL)
+	return;
 
-	/*
-	 * Count howmany records there are
-	 */
-	fseek(pAreas, 0, SEEK_END);
-	iAreaNum = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
+    /*
+     * Count howmany records there are
+     */
+    fseek(pAreas, 0, SEEK_END);
+    iAreaNum = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
 
-	/*
-	 * If there are menu options, select area direct.
-	 */
-	if (strlen(Option) != 0) {
+    /*
+     * If there are menu options, select area direct.
+     */
+    if (strlen(Option) != 0) {
 
-		if (strcmp(Option, "F+") == 0)
-			while(TRUE) {
-				iAreaNumber++;
-				if (iAreaNumber > iAreaNum)
-					iAreaNumber = 1;
+	if (strcmp(Option, "F+") == 0) {
+	    while (TRUE) {
+		iAreaNumber++;
+		if (iAreaNumber > iAreaNum)
+		    iAreaNumber = 1;
 
-				offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize);
-				if (fseek(pAreas, offset, 0) != 0) {
-					printf("Can't move pointer here");
-				}
-
-				fread(&area, areahdr.recsize, 1, pAreas);
-				if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0))
-					break;
-			}
-
-		if (strcmp(Option, "F-") == 0)
-			while(TRUE) {
-				iAreaNumber--;
-				if (iAreaNumber < 1)
-					iAreaNumber = iAreaNum;
-
-				offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize);
-				if (fseek(pAreas, offset, 0) != 0) {
-					printf("Can't move pointer here");
-				}
-
-				fread(&area, areahdr.recsize, 1, pAreas);
-				if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0))
-					break;
-			}
-		SetFileArea(iAreaNumber);
-		Syslog('+', "File area %lu %s", iAreaNumber, sAreaDesc);
-		fclose(pAreas);
-		return;
-	}
-
-	/*
-	 * Interactive mode
-	 */
-	clear();
-	Enter(1);
-	/* File Areas */
-	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(298));
-	Enter(2);
-	temp = calloc(81, sizeof(char));
-
-	fseek(pAreas, areahdr.hdrsize, 0);
-
-	while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
-
-		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available)) {
-			area.Name[31] = '\0';
-
-			colour(15,0);
-			printf("%5d", Recno);
-
-			colour(9,0);
-			printf(" %c ", 46);
-
-			colour(3,0);
-			printf("%-31s", area.Name);
-
-			iAreaCount++;
-
-			if ((iAreaCount % 2) == 0)
-				printf("\n");
-			else
-				printf(" ");
+		offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize);
+		if (fseek(pAreas, offset, 0) != 0) {
+		    printf("Can't move pointer here");
 		}
 
-		Recno++; 
-
-		if ((iAreaCount / 2) == exitinfo.iScreenLen) {
-			/* More (Y/n/=/Area #): */
-			pout(CFG.MoreF, CFG.MoreB, (char *) Language(207)); 
-			/*
-			 * Ask user for Area or enter to continue
-			 */
-			colour(CFG.InputColourF, CFG.InputColourB);
-			fflush(stdout); 
-			GetstrC(temp, 7);
-
-			if (toupper(*(temp)) == Keystroke(207, 1))
-				break;
-
-			if ((strcmp(temp, "")) != 0) {
-				iGotArea = TRUE;
-				break;
-			}
-
-			iAreaCount = 2;
-		}
-	}
-
-	/*
-	 * If user type in area above during area listing
-	 * don't ask for it again
-	 */
-	if (!iGotArea) {
-		Enter(1);
-		/* Select Area: */
-		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(232));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 80);
-	} 
-
-	/*
-	 * Check if user pressed ENTER
-	 */
-	if((strcmp(temp, "")) == 0) {
-		fclose(pAreas);
-		return;
-	}
-
-	iAreaNumber = atoi(temp);
-
-	/*
-	 * Do a check in case user enters a negative value
-	 */
-	if (iAreaNumber < 1) 
-		iAreaNumber = 1;
-
-	offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize); 
-	if(fseek(pAreas, offset, 0) != 0) 
-		printf("Can't move pointer there."); 
-	else
 		fread(&area, areahdr.recsize, 1, pAreas);
-
-	/*
-	 * Do a check if area is greater or less number than allowed,
-	 * security access level, is oke, and the area is active.
-	 */
-	if (iAreaNumber > iAreaNum || iAreaNumber < 1 || 
-	    (Access(exitinfo.Security, area.LTSec) == FALSE) || 
-	    (strlen(area.Name) == 0)) {
-		Enter(1);
-		/* Invalid area specified - Please try again ...*/
-		pout(12, 0, (char *) Language(233));
-		Enter(2);
-		Pause();
-		fclose(pAreas);
-		iAreaNumber = iOldArea;
-		SetFileArea(iAreaNumber);
-		free(temp);
-		return;
+		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0))
+		    break;
+	    }
 	}
+	
+	if (strcmp(Option, "F-") == 0) {
+	    while (TRUE) {
+		iAreaNumber--;
+		if (iAreaNumber < 1)
+		    iAreaNumber = iAreaNum;
 
+		offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize);
+		if (fseek(pAreas, offset, 0) != 0) {
+		    printf("Can't move pointer here");
+		}
+
+		fread(&area, areahdr.recsize, 1, pAreas);
+		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0))
+		    break;
+	    }
+	}
+	    
 	SetFileArea(iAreaNumber);
 	Syslog('+', "File area %lu %s", iAreaNumber, sAreaDesc);
-
-	/*
-	 * Check if file area has a password, if it does ask user for it
-	 */ 
-	if((strlen(area.Password)) > 2) {
-		Enter(2);
-		/* Please enter Area Password: */
-		pout(15, 0, (char *) Language(299));
-		fflush(stdout);
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp, 20);
-
-		if((strcmp(temp, area.Password)) != 0) { 
-			Enter(1);
-			/* Password is incorrect */
-			pout(15, 0, (char *) Language(234));
-			Enter(2);
-			Syslog('!', "Incorrect File Area # %d password given: %s", iAreaNumber, temp);
-			SetFileArea(iOldArea);
-		} else {
-			Enter(1);
-			/* Password is correct */
-			pout(15, 0, (char *) Language(235));
-			Enter(2);
-		}
-		Pause();
-	} 
-
-	free(temp);
 	fclose(pAreas);
+	return;
+    }
+
+    /*
+     * Interactive mode
+     */
+    clear();
+    Enter(1);
+    /* File Areas */
+    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(298));
+    Enter(2);
+    temp = calloc(81, sizeof(char));
+
+    fseek(pAreas, areahdr.hdrsize, 0);
+
+    while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
+
+	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available)) {
+	    area.Name[31] = '\0';
+	    sprintf(temp, "%5d", Recno);
+	    pout(WHITE, BLACK, temp);
+	    sprintf(temp, " %c ", 46);
+	    pout(LIGHTBLUE, BLACK, temp);
+	    sprintf(temp, "%-31s", area.Name);
+	    pout(CYAN, BLACK, temp);
+	    iAreaCount++;
+
+	    if ((iAreaCount % 2) == 0) {
+		Enter(1);
+	    } else {
+		PUTCHAR(' ');
+	    }
+	}
+
+	Recno++; 
+
+	if ((iAreaCount / 2) == exitinfo.iScreenLen) {
+	    /* More (Y/n/=/Area #): */
+	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(207)); 
+	    /*
+	     * Ask user for Area or enter to continue
+	     */
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    GetstrC(temp, 7);
+
+	    if (toupper(*(temp)) == Keystroke(207, 1))
+		break;
+
+	    if ((strcmp(temp, "")) != 0) {
+		iGotArea = TRUE;
+		break;
+	    }
+
+	    iAreaCount = 2;
+	}
+    }
+
+    /*
+     * If user type in area above during area listing
+     * don't ask for it again
+     */
+    if (!iGotArea) {
+	Enter(1);
+	/* Select Area: */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(232));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 80);
+    } 
+
+    /*
+     * Check if user pressed ENTER
+     */
+    if ((strcmp(temp, "")) == 0) {
+	fclose(pAreas);
+	return;
+    }
+
+    iAreaNumber = atoi(temp);
+
+    /*
+     * Do a check in case user enters a negative value
+     */
+    if (iAreaNumber < 1) 
+	iAreaNumber = 1;
+
+    offset = areahdr.hdrsize + ((iAreaNumber - 1) * areahdr.recsize); 
+    if (fseek(pAreas, offset, 0) != 0) 
+	printf("Can't move pointer there."); 
+    else
+	fread(&area, areahdr.recsize, 1, pAreas);
+
+    /*
+     * Do a check if area is greater or less number than allowed,
+     * security access level, is oke, and the area is active.
+     */
+    if (iAreaNumber > iAreaNum || iAreaNumber < 1 || 
+	    (Access(exitinfo.Security, area.LTSec) == FALSE) || 
+	    (strlen(area.Name) == 0)) {
+	Enter(1);
+	/* Invalid area specified - Please try again ...*/
+	pout(LIGHTRED, BLACK, (char *) Language(233));
+	Enter(2);
+	Pause();
+	fclose(pAreas);
+	iAreaNumber = iOldArea;
+	SetFileArea(iAreaNumber);
+	free(temp);
+	return;
+    }
+
+    SetFileArea(iAreaNumber);
+    Syslog('+', "File area %lu %s", iAreaNumber, sAreaDesc);
+
+    /*
+     * Check if file area has a password, if it does ask user for it
+     */ 
+    if ((strlen(area.Password)) > 2) {
+	Enter(2);
+	/* Please enter Area Password: */
+	pout(WHITE, BLACK, (char *) Language(299));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp, 20);
+	Enter(1);
+
+	if ((strcmp(temp, area.Password)) != 0) { 
+	    /* Password is incorrect */
+	    pout(LIGHTRED, BLACK, (char *) Language(234));
+	    Syslog('!', "Incorrect File Area # %d password given: %s", iAreaNumber, temp);
+	    SetFileArea(iOldArea);
+	} else {
+	    /* Password is correct */
+	    pout(WHITE, BLACK, (char *) Language(235));
+	}
+	Enter(2);
+	Pause();
+    } 
+
+    free(temp);
+    fclose(pAreas);
 }
 
 
@@ -1964,16 +1965,17 @@ void Copy_Home()
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
 	
-    colour(14,0);
+    Enter(1);
     /* Please enter filename: */
-    printf("\n%s", (char *) Language(245));
+    pout(YELLOW, BLACK, (char *) Language(245));
     colour(CFG.InputColourF, CFG.InputColourB);
     GetstrC(File, 80);
+    Enter(2);
 
     if ((strcmp(File, "")) == 0) {
-	colour(CFG.HiliteF, CFG.HiliteB);
 	/* No filename entered, Aborting. */
-	printf("\n\n%s\n", (char *) Language(246));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(246));
+	Enter(2);
 	Pause();
 	free(File);
 	free(temp1);
@@ -1982,9 +1984,9 @@ void Copy_Home()
     }
 
     if (*(File) == '/' || *(File) == ' ') {
-	colour(CFG.HiliteF, CFG.HiliteB);
 	/* Illegal Filename! */
-	printf("\n%s\n\n", (char *) Language(247));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	Enter(2);
 	Pause();
         free(File);
         free(temp1);
@@ -1993,8 +1995,8 @@ void Copy_Home()
     }
 
     if (Access(exitinfo.Security, area.DLSec) == FALSE) {
-	colour(14, 0);
-	printf("\n%s\n", (char *) Language(236));
+	pout(YELLOW, BLACK, (char *) Language(236));
+	Enter(2);
 	Pause();
         free(File);
         free(temp1);
@@ -2014,40 +2016,41 @@ void Copy_Home()
 
 	    Found = TRUE;
 	    if (((fdb.Size + Quota()) > (CFG.iQuota * 1048576))) {
-		colour(CFG.HiliteF, CFG.HiliteB);
 		/* You have not enough diskspace free to copy this file */
-		printf("%s\n", (char *) Language(279));
+		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(279));
+		Enter(1);
 		Syslog('+', "Copy homedir, not enough quota");
 	    } else {
 		sprintf(temp1, "%s/%s", area.Path, fdb.LName); /* Use real longname here */
 		sprintf(temp2, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
 		colour(CFG.TextColourF, CFG.TextColourB);
 		/* Start copy: */
-		printf("%s%s ", (char *) Language(289), File);
-		fflush(stdout);
+		pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(289));
+		PUTSTR(File);
+		PUTCHAR(' ');
 
 		Syslog('b', "Copy from : %s", temp1);
 		Syslog('b', "Copy to   : %s", temp2);
 
 		if ((err = file_cp(temp1, temp2))) {
-		    colour(CFG.HiliteF, CFG.HiliteB);
 		    /* Failed! */
-		    printf("%s\n", (char *) Language(353));
+		    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(353));
 		    WriteError("Copy %s to homedir failed, code %d", File, err);
 		} else {
 		    /* Ok */
-		    printf("%s\n", (char *) Language(200));
+		    PUTSTR((char *) Language(200));
 		    Syslog('+', "Copied %s from area %d to homedir", File, iAreaNumber);
 		}
+		Enter(1);
 	    }
 	}
     }
     mbsedb_CloseFDB(fdb_area);
 
     if (!Found) {
-	colour(CFG.HiliteF, CFG.HiliteB);
 	/* File does not exist, please try again ... */
-	printf("%s\n", (char *) Language(296));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(296));
+	Enter(1);
     }
 
     Pause();
@@ -2063,115 +2066,114 @@ void Copy_Home()
  */
 void EditTaglist()
 {
-	FILE	*tf;
-	int	i, x, Fg, Count;
-	char	*temp;
+    FILE    *tf;
+    int	    i, x, Fg, Count;
+    char    *temp;
 
-	if ((tf = fopen("taglist", "r+")) == NULL) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* No files tagged. */
-		printf("\n%s\n\n", (char *) Language(361));
-		Pause();
-		return;
+    if ((tf = fopen("taglist", "r+")) == NULL) {
+	Enter(1);
+	/* No files tagged. */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(361));
+	Enter(2);
+	Pause();
+	return;
+    }
+
+    temp = calloc(81, sizeof(char));
+
+    while (TRUE) {
+	clear();
+	fseek(tf, 0, SEEK_SET);
+	Count = 0;
+	/* #  Area  Active  File               Size  Cost */
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(355));
+	Enter(1);
+	colour(LIGHTGREEN, BLACK);
+	fLine(48);
+
+	while ((fread(&Tag, sizeof(Tag), 1, tf) == 1)) {
+	    Count++;
+
+	    if (Tag.Active)
+		Fg = WHITE;
+	    else
+		Fg = LIGHTGRAY;
+
+	    sprintf(temp, "%3d ", Count);
+	    pout(Fg, BLACK, temp);
+
+	    Fg--;
+	    sprintf(temp, "%5ld  ", Tag.Area);
+	    pout(Fg, BLACK, temp);
+
+	    Fg--;
+	    if (Tag.Active)
+		/* Yes */
+		sprintf(temp, "%-6s  ", (char *) Language(356));
+	    else
+		/* No */
+		sprintf(temp, "%-6s  ", (char *) Language(357));
+	    pout(Fg, BLACK, temp);
+
+	    Fg--;
+	    sprintf(temp, "%-12s", Tag.SFile);
+	    pout(Fg, BLACK, temp);
+
+	    Fg--;
+	    sprintf(temp, " %8ld", (long)(Tag.Size));
+	    pout(Fg, BLACK, temp);
+
+	    Fg--;
+	    sprintf(temp, " %5d", Tag.Cost);
+	    pout(Fg, BLACK, temp);
+	    Enter(1);
+	}
+	colour(LIGHTGREEN, BLACK);
+	fLine(48);
+
+	/* (T)oggle active, (E)rase all, (ENTER) to continue: */
+	pout(WHITE, RED, (char *) Language(358));
+
+	i = toupper(Readkey());
+	colour(CFG.CRColourF, CFG.CRColourB);
+
+	if (i == Keystroke(358, 0)) {
+	    Enter(2);
+	    /* Enter file number, 1.. */
+	    sprintf(temp, "%s%d ", (char *) Language(359), Count);
+	    PUTSTR(temp);
+
+	    GetstrC(temp, 5);
+	    x = atoi(temp);
+
+	    if ((x > 0) && (x <= Count)) {
+		if (fseek(tf, (x - 1) * sizeof(Tag), SEEK_SET) == 0) {
+		    if (fread(&Tag, sizeof(Tag), 1, tf) == 1) {
+			if (Tag.Active)
+			    Tag.Active = FALSE;
+			else
+			    Tag.Active = TRUE;
+
+			fseek(tf,(x - 1) * sizeof(Tag), SEEK_SET);
+			fwrite(&Tag, sizeof(Tag), 1, tf);
+		    }
+		}
+	    }
 	}
 
-	temp = calloc(81, sizeof(char));
-
-	while (TRUE) {
-		clear();
-		fseek(tf, 0, SEEK_SET);
-		Count = 0;
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* #  Area  Active  File               Size  Cost */
-		printf("%s\n", (char *) Language(355));
-		colour(10, 0);
-		fLine(48);
-
-		while ((fread(&Tag, sizeof(Tag), 1, tf) == 1)) {
-			Count++;
-
-			if (Tag.Active)
-				Fg = 15;
-			else
-				Fg = 7;
-
-			colour(Fg, 0);
-			printf("%3d ", Count);
-
-			Fg--;
-			colour(Fg, 0);
-			printf("%5ld  ", Tag.Area);
-
-			Fg--;
-			colour(Fg, 0);
-			if (Tag.Active)
-				/* Yes */
-				printf("%-6s  ", (char *) Language(356));
-			else
-				/* No */
-				printf("%-6s  ", (char *) Language(357));
-
-			Fg--;
-			colour(Fg, 0);
-			printf("%-12s", Tag.SFile);
-
-			Fg--;
-			colour(Fg, 0);
-			printf(" %8ld", (long)(Tag.Size));
-
-			Fg--;
-			colour(Fg, 0);
-			printf(" %5d\n", Tag.Cost);
-		}
-		colour(10, 0);
-		fLine(48);
-
-		colour(15, 4);
-		/* (T)oggle active, (E)rase all, (ENTER) to continue: */
-		printf("\n%s", (char *) Language(358));
-		fflush(stdout);
-		fflush(stdin);
-
-		i = toupper(Getone());
-		colour(CFG.CRColourF, CFG.CRColourB);
-
-		if (i == Keystroke(358, 0)) {
-			/* Enter file number, 1.. */
-			printf("\n\n%s%d ", (char *) Language(359), Count);
-			fflush(stdout);
-			fflush(stdin);
-
-			GetstrC(temp, 5);
-			x = atoi(temp);
-
-			if ((x > 0) && (x <= Count)) {
-				if (fseek(tf, (x - 1) * sizeof(Tag), SEEK_SET) == 0) {
-					if (fread(&Tag, sizeof(Tag), 1, tf) == 1) {
-						if (Tag.Active)
-							Tag.Active = FALSE;
-						else
-							Tag.Active = TRUE;
-
-						fseek(tf,(x - 1) * sizeof(Tag), SEEK_SET);
-						fwrite(&Tag, sizeof(Tag), 1, tf);
-					}
-				}
-			}
-		}
-
-		if (i == Keystroke(358, 1)) {
-			fclose(tf);
-			unlink("taglist");
-			free(temp);
-			return;
-		}
-
-		if ((i == '\r') || (i == '\n')) {
-			fclose(tf);
-			free(temp);
-			return;
-		}
+	if (i == Keystroke(358, 1)) {
+	    fclose(tf);
+	    unlink("taglist");
+	    free(temp);
+	    return;
 	}
+
+	if ((i == '\r') || (i == '\n')) {
+	    fclose(tf);
+	    free(temp);
+	    return;
+	}
+    }
 }
 
 
@@ -2191,9 +2193,10 @@ void ViewFile(char *name)
     Syslog('+', "ViewFile(%s)", printable(name, 0));
 
     if (Access(exitinfo.Security, area.LTSec) == FALSE) {
-	colour(YELLOW, BLACK);
+	Enter(1);
 	/* You don't have enough security to list this area */
-	printf("\n%s\n", (char *) Language(236));
+	pout(YELLOW, BLACK, (char *) Language(236));
+	Enter(2);
 	Pause();
 	return;
     }
@@ -2215,9 +2218,10 @@ void ViewFile(char *name)
 	}
 	
 	if (*(File) == '.' || *(File) == '*' || *(File) == ' ' || *(File) == '/') {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal Filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    free(File);
 	    return;
@@ -2227,18 +2231,20 @@ void ViewFile(char *name)
 	Strlen--;
 
 	if (*(File + Strlen) == '.' || *(File + Strlen) == '/' || *(File + Strlen) == ' ') {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal Filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    free(File);
 	    return;
 	}
 
 	if ((!strcmp(File, "files.bbs")) || (!strcmp(File, "00index")) || (strstr(File, (char *)".html"))) {
-	    colour(CFG.HiliteF, CFG.HiliteB);
+	    Enter(1);
 	    /* Illegal Filename! */
-	    printf("\n%s\n\n", (char *) Language(247));
+	    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(247));
+	    Enter(2);
 	    Pause();
 	    free(File);
 	    return;
@@ -2262,9 +2268,10 @@ void ViewFile(char *name)
     mbsedb_CloseFDB(fdb_area);
 
     if (!found) {
-	colour(YELLOW, BLACK);
+	Enter(1);
 	/* File does not exist, please try again ... */
-	printf("\n%s\n\n", (char *) Language(296));
+	pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(296));
+	Enter(2);
 	free(File);
 	Pause();
 	return;
@@ -2292,9 +2299,10 @@ void ViewFile(char *name)
 
 	if (!found || (strlen(archiver.varc) == 0)) {
 	    Syslog('+', "No archiver view for %s available", File);
-	    colour(YELLOW, BLACK);
+	    Enter(1);
 	    /* Archiver not available */
-	    printf("\n%s\n\n", Language(442));
+	    pout(CFG.HiliteF, CFG.HiliteB, Language(442));
+	    Enter(2);
 	    free(File);
 	    free(temp);
 	    Pause();
@@ -2329,7 +2337,9 @@ void ViewFile(char *name)
 	}
 	if (((count * 10) / total) < 8) {
 	    Syslog('+', "This is not a ASCII textfile");
-	    printf("\n%s\n\n", Language(17));
+	    Enter(1);
+	    pout(CFG.HiliteF, CFG.HiliteB, Language(17));
+	    Enter(2);
 	    Pause();
 	    free(File);
 	    return;

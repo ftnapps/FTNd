@@ -611,7 +611,7 @@ int main(int argc, char **argv)
 	    mbse_colour(LIGHTGREEN, BLACK);
 	    printf("Are you sure to process all area lists [y/N] ");
 	    fflush(stdout);
-	    x = Getone();
+	    x = mbse_Getone();
 	    printf("\r                                             \r");
 	    fflush(stdout);
 	    if (toupper(x) != 'Y')

@@ -42,49 +42,56 @@
 
 void TimeStats()
 {
-	char	Logdate[15];
+    char    Logdate[21], msg[81];
 
-        Time_Now = time(NULL);
-        l_date = localtime(&Time_Now);
-        sprintf(Logdate,"%02d-%s %02d:%02d:%02d", l_date->tm_mday, GetMonth(l_date->tm_mon+1),
+    Time_Now = time(NULL);
+    l_date = localtime(&Time_Now);
+    sprintf(Logdate, "%02d-%s %02d:%02d:%02d", l_date->tm_mday, GetMonth(l_date->tm_mon+1),
                         l_date->tm_hour, l_date->tm_min, l_date->tm_sec);
 
-	clear();
-	ReadExitinfo();
+    clear();
+    ReadExitinfo();
 
-	colour(15, 0);
-	/* TIME STATISTICS for */
-	printf("\n%s%s ", (char *) Language(134), exitinfo.sUserName);
-	/* on */
-	printf("%s %s\n", (char *) Language(135), Logdate);
+    Enter(1);
+    /* TIME STATISTICS for */
+    sprintf(msg, "%s%s ", (char *) Language(134), exitinfo.sUserName);
+    pout(WHITE, BLACK, msg);
+    /* on */
+    sprintf(msg, "%s %s", (char *) Language(135), Logdate);
+    poutCR(WHITE, BLACK, msg);
 
-	colour(12, 0);
-	fLine(79);
+    colour(LIGHTRED, BLACK);
+    fLine(79);
 
-	printf("\n");
+    Enter(1);
 	
-	colour(10, 0);
+    /* Current Time */
+    sprintf(msg, "%s %s", (char *) Language(136), (char *) GetLocalHMS());
+    poutCR(LIGHTGREEN, BLACK, msg);
 
-	/* Current Time */
-	printf("%s %s\n", (char *) Language(136), (char *) GetLocalHMS());
+    /* Current Date */
+    sprintf(msg, "%s %s", (char *) Language(137), (char *) GLCdateyy());
+    poutCR(LIGHTGREEN, BLACK, msg);
+    Enter(1);
 
-	/* Current Date */
-	printf("%s %s\n\n", (char *) Language(137), (char *) GLCdateyy());
-
-	/* Connect time */
-	printf("%s %d %s\n", (char *) Language(138), exitinfo.iConnectTime, (char *) Language(471));
-
-	/* Time used today */
-	printf("%s %d %s\n", (char *) Language(139), exitinfo.iTimeUsed, (char *) Language(471));
-
-	/* Time remaining today */
-	printf("%s %d %s\n", (char *) Language(140), exitinfo.iTimeLeft, (char *) Language(471));
-
-	/* Daily time limit */
-	printf("%s %d %s\n", (char *) Language(141), exitinfo.iTimeUsed + exitinfo.iTimeLeft, (char *) Language(471));
-
-	printf("\n");
-	Pause();
+    /* Connect time */
+    sprintf(msg, "%s %d %s", (char *) Language(138), exitinfo.iConnectTime, (char *) Language(471));
+    poutCR(LIGHTGREEN, BLACK, msg);
+    
+    /* Time used today */
+    sprintf(msg, "%s %d %s", (char *) Language(139), exitinfo.iTimeUsed, (char *) Language(471));
+    poutCR(LIGHTGREEN, BLACK, msg);
+    
+    /* Time remaining today */
+    sprintf(msg, "%s %d %s", (char *) Language(140), exitinfo.iTimeLeft, (char *) Language(471));
+    poutCR(LIGHTGREEN, BLACK, msg);
+    
+    /* Daily time limit */
+    sprintf(msg, "%s %d %s", (char *) Language(141), exitinfo.iTimeUsed + exitinfo.iTimeLeft, (char *) Language(471));
+    poutCR(LIGHTGREEN, BLACK, msg);
+    
+    Enter(1);
+    Pause();
 }
 
 
