@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "libs.h"
 #include "../lib/structs.h"
+#include "../lib/mberrors.h"
 #include "taskutil.h"
 #include "taskstat.h"
 #include "scanout.h"
@@ -139,19 +140,20 @@ void set_next(int hour, int min)
 char *callstatus(int status)
 {
     switch (status) {
-	case 0:	    return (char *)"Ok     ";
-	case 1:	    return (char *)"tty err";
-	case 2:	    return (char *)"No conn";
-	case 3:	    return (char *)"Mdm err";
-	case 4:	    return (char *)"Locked ";
-	case 5:	    return (char *)"unknown";
-	case 6:	    return (char *)"Unlist ";
-	case 7:	    return (char *)"error 7";
-	case 8:	    return (char *)"error 8";
-	case 9:	    return (char *)"No tty ";
-	case 10:    return (char *)"No ZMH ";
-	case 30:    return (char *)"Badsess";
-	default:    return (char *)"ERROR  ";
+	case MBERR_OK:			return (char *)"Ok     ";
+	case MBERR_TTYIO_ERROR:		return (char *)"tty err";
+	case MBERR_NO_CONNECTION:	return (char *)"No conn";
+	case MBERR_MODEM_ERROR:		return (char *)"Mdm err";
+	case MBERR_NODE_LOCKED:		return (char *)"Locked ";
+	case MBERR_UNKNOWN_SESSION:	return (char *)"unknown";
+	case MBERR_NODE_NOT_IN_LIST:	return (char *)"Unlist ";
+	case MBERR_NODE_MAY_NOT_CALL:	return (char *)"Forbid ";
+	case MBERR_FTRANSFER:		return (char *)"Transf.";
+	case MBERR_NO_PORT_AVAILABLE:	return (char *)"No tty ";
+	case MBERR_NOT_ZMH:		return (char *)"No ZMH ";
+	case MBERR_SESSION_ERROR:	return (char *)"Badsess";
+	default:			tasklog('-', "callstatus(%d), unknown", status);
+					return (char *)"ERROR  ";
     }
 }
 

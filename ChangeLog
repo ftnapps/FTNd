@@ -18,6 +18,7 @@ v0.35.06
 		for each file! It will update the filenames on disk to have
 		both short and long filenames. Just ignore the errors but check
 		for real deleted files.
+		Now stop mbtask and restart it.
 		Start the bbs again (mbstat open).
 		Check new settings in nodes setup, screen 6, items 9 and 10.
 		Check TIC magic records (menu 10.4), all filenames tested are
@@ -90,6 +91,10 @@ v0.35.06
 		displayed in light blue.
 		Added setup switches in nodes setup, files, to toggle sending
 		advanced seen-by lines and the To line in ticfiles.
+
+	mbtask:
+		The outbound status didn't show the new error codes.
+
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.
 
