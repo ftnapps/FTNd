@@ -137,6 +137,7 @@ install:
 			mkdir ${PREFIX}/var/nodelist ; \
 			mkdir ${PREFIX}/var/bso ; \
 			mkdir ${PREFIX}/var/bso/outbound ; \
+			mkdir ${PREFIX}/var/queue ; \
 			mkdir ${PREFIX}/var/msgs; \
 			mkdir ${PREFIX}/var/badtic ; \
 			mkdir ${PREFIX}/var/ticqueue ; \

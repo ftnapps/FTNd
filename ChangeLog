@@ -1,9 +1,16 @@
 $Id$
 
+WARNING, OUTBOUND QUEUE MAY NOT WORK WITH THIS VERSION, DO NOT USE !!!!!!!!
 
 				MBSEBBS History.
 
 v0.35.03	06-Jul-2002
+
+	upgrade:
+		After installation restart mbtask.
+		Start mbsetup, enter global configuration and exit and save.
+		This will setup the new outbound queue path, default is
+		/opt/mbse/var/queue.
 
 	common.a:
 		Added nodelist override to the nodelist lookup function.
@@ -55,6 +62,7 @@ v0.35.03	06-Jul-2002
 		The test to add a node to the calllist now also checks the
 		internal call flag.
 		Makes use of the node nodelist override settings.
+		Added default setting for outbound queue.
 
 	mbsetup:
 		Enabled setting of nodelist override settings in menu 7.x.3
@@ -66,6 +74,7 @@ v0.35.03	06-Jul-2002
 		Corrected several page layouts for printing on A4 paper.
 		Added setup for nodes connected via directories (we are the
 		FTP server side).
+		Added setup setting for outbound queue in global setup.
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed

@@ -270,10 +270,11 @@ void s_global(void)
         mvprintw(11, 2, "6.  Inbound");
         mvprintw(12, 2, "7.  Prot inb.");
         mvprintw(13, 2, "8.  Outbound");
-        mvprintw(14, 2, "9.  *.msgs");
-        mvprintw(15, 2, "10. Bad TIC's");
-	mvprintw(16, 2, "11. TIC queue");
-        mvprintw(17, 2, "12. Next Screen");
+	mvprintw(14, 2, "9.  Out queue");
+        mvprintw(15, 2, "10. *.msgs");
+        mvprintw(16, 2, "11. Bad TIC's");
+	mvprintw(17, 2, "12. TIC queue");
+        mvprintw(18, 2, "13. Next Screen");
 }
 
 
@@ -292,11 +293,12 @@ void e_global(void)
 		show_str(11,16,64, CFG.inbound);
 		show_str(12,16,64, CFG.pinbound);
 		show_str(13,16,64, CFG.outbound);
-		show_str(14,16,64, CFG.msgs_path);
-		show_str(15,16,64, CFG.badtic);
-		show_str(16,16,64, CFG.ticout);
+		show_str(14,16,64, CFG.out_queue);
+		show_str(15,16,64, CFG.msgs_path);
+		show_str(16,16,64, CFG.badtic);
+		show_str(17,16,64, CFG.ticout);
 
-		switch(select_menu(12)) {
+		switch(select_menu(13)) {
 		case 0:	return;
 		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.", 0750)
 		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.", 0750)
@@ -306,10 +308,11 @@ void e_global(void)
 		case 6:	E_PTH(11,16,64, CFG.inbound,      "The path to the ^inbound^ for unknown systems.", 0750)
 		case 7:	E_PTH(12,16,64, CFG.pinbound,     "The path to the ^nodelists^ for protected systems.", 0750)
 		case 8:	E_PTH(13,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.", 0750)
-		case 9: E_PTH(14,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.", 0750)
-		case 10:E_PTH(15,16,64, CFG.badtic,       "The path to the ^bad tic files^.", 0750)
-		case 11:E_PTH(16,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.", 0750)
-		case 12:e_global2();
+		case 9: E_PTH(14,16,64, CFG.out_queue,    "The path to the ^temp outbound queue^ directory.", 0750)
+		case 10:E_PTH(15,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.", 0750)
+		case 12:E_PTH(16,16,64, CFG.badtic,       "The path to the ^bad tic files^.", 0750)
+		case 13:E_PTH(17,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.", 0750)
+		case 14:e_global2();
 			s_global();
 			break;
 		}
@@ -1577,6 +1580,10 @@ void global_menu(void)
 	    sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
 	}
 
+	if (strlen(CFG.out_queue) == 0) {
+	    sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
+	}
+
 	for (;;) {
 
 		clr_index();
@@ -1804,6 +1811,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
 	fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);
 	fprintf(fp, "      Known inbound    %s\n", CFG.pinbound);
+	fprintf(fp, "      Outbound         %s\n", CFG.outbound);
+	fprintf(fp, "      Out queue        %s\n", CFG.out_queue);
 	fprintf(fp, "      *.msgs path      %s\n", CFG.msgs_path);
 	fprintf(fp, "      Bad TIC's        %s\n", CFG.badtic);
 	fprintf(fp, "      TIC queue        %s\n", CFG.ticout);

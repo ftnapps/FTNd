@@ -795,6 +795,7 @@ struct	sysconfig {
 	int		newsfeed;		/* Newsfeed mode	    */
 	int		maxarticles;		/* Default max articles	    */
 	char		bbs_macros[65];		/* Default macros path	    */
+	char		out_queue[65];		/* Outbound queue path	    */
 };
 
 
