@@ -46,6 +46,7 @@ struct sockaddr_in  peeraddr;
 pid_t		    mypid;
 unsigned long	    rcvdbytes = 0L;
 unsigned long	    sentbytes = 0L;
+int		    do_mailout = FALSE;
 
 extern char	    *ttystat[];
 extern int	    authorized;
@@ -63,6 +64,9 @@ void die(int onsig)
 	else
 	    WriteError("Terminated with error %d", onsig);
     }
+
+    if (do_mailout)
+	CreateSema((char *)"mailout");
 
     t_end = time(NULL);
     Syslog('+', "Send [%6lu] Received [%6lu]", sentbytes, rcvdbytes);

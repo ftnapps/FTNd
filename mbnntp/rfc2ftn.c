@@ -37,7 +37,6 @@
 #include "../lib/msgtext.h"
 #include "mkftnhdr.h"
 #include "hash.h"
-#include "postecho.h"
 #include "msgflags.h"
 #include "rfc2ftn.h"
 
@@ -64,6 +63,8 @@ static int	removereturnto;
  *  External variables
  */
 extern	char	*replyaddr;
+extern	int	do_mailout;
+
 
 
 /*
@@ -121,7 +122,7 @@ int rfc2ftn(FILE *fp)
     int             i, rc, newsmode, seenlen, oldnet;
     rfcmsg          *msg = NULL, *tmsg, *tmp;
     ftnmsg          *fmsg = NULL;
-    FILE            *ofp;
+    FILE            *ofp, *qfp;
     fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
     faddr           *ta, *fta;
     unsigned long   svmsgid, svreply;
@@ -645,8 +646,44 @@ int rfc2ftn(FILE *fp)
 	}
 	Syslog('m', "========== Fido end");
 
-	rc = postecho(NULL, fmsg->from, fmsg->to, origin, fmsg->subj, fmsg->date, fmsg->flags, 0, ofp, FALSE);
+	if (!Msg_Open(msgs.Base)) {
+	    WriteError("Failed to open msgbase \"%s\"", msgs.Base);
+	} else {
+	    if (!Msg_Lock(30L)) {
+		WriteError("Can't lock %s", msgs.Base);
+	    } else {
+		Msg_New();
+		strcpy(Msg.From, fmsg->from->name);
+		strcpy(Msg.To, fmsg->to->name);
+		strcpy(Msg.FromAddress, ascfnode(fmsg->from,0x1f));
+		strcpy(Msg.Subject, fmsg->subj);
+		Msg.Written = Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+		Msg.Local = TRUE;
+		rewind(ofp);
+		while (fgets(temp, 4096, ofp) != NULL) {
+		    Striplf(temp);
+		    MsgText_Add2(temp);
+		}
 
+		Msg_AddMsg();
+		Msg_UnLock();
+		Syslog('+', "Msg (%ld) to \"%s\", \"%s\"", Msg.Id, Msg.To, Msg.Subject);
+		do_mailout = TRUE;
+
+		sprintf(temp, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+		if ((qfp = fopen(temp, "a")) != NULL) {
+		    fprintf(qfp, "%s %lu\n", msgs.Base, Msg.Id);
+		    fclose(qfp);
+		}
+		rc = Msg_Link(msgs.Base, TRUE, CFG.slow_util);
+		if (rc != -1)
+		    Syslog('+', "Linked %d message%s", rc, (rc != 1) ? "s":"");
+		else
+		    Syslog('+', "Could not link messages");
+	    }
+	    Msg_Close();
+	}
+	
 	free(origin);
         fclose(ofp);
     } while (needsplit);

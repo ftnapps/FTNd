@@ -4,14 +4,11 @@
 include ../Makefile.global
 
 SRCS		= mbnntp.c openport.c ttyio.c auth.c commands.c rfc2ftn.c \
-		  hash.c lhash.c msgflags.c postecho.c addpkt.c qualify.c \
-		  storeecho.c rollover.c mkftnhdr.c atoul.c
+		  hash.c lhash.c msgflags.c mkftnhdr.c atoul.c
 HDRS		= mbnntp.h openport.h ttyio.h auth.h commands.h rfc2ftn.h \
-		  hash.h lhash.h msgflags.h postecho.h addpkt.h qualify.h \
-		  storeecho.h rollover.h mkftnhdr.h atoul.h
+		  hash.h lhash.h msgflags.h mkftnhdr.h atoul.h
 OBJS		= mbnntp.o openport.o ttyio.o auth.o commands.o rfc2ftn.o \
-		  hash.o lhash.o msgflags.o postecho.o addpkt.o qualify.o \
-		  storeecho.o rollover.o mkftnhdr.o atoul.o
+		  hash.o lhash.o msgflags.o mkftnhdr.o atoul.o
 LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a
 OTHER		= Makefile
 
@@ -65,16 +62,11 @@ mbnntp.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg
 openport.o: ../config.h ../lib/mbselib.h ttyio.h openport.h
 ttyio.o: ../config.h ../lib/mbselib.h ttyio.h
 auth.o: ../config.h ../lib/mbselib.h ../lib/users.h mbnntp.h auth.h
-commands.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ttyio.h mbnntp.h rfc2ftn.h commands.h
-rfc2ftn.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h postecho.h msgflags.h rfc2ftn.h
+commands.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h ttyio.h mbnntp.h rfc2ftn.h commands.h
+rfc2ftn.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h mkftnhdr.h hash.h msgflags.h rfc2ftn.h
 hash.o: ../config.h ../lib/mbselib.h hash.h lhash.h
 lhash.o: ../config.h ../lib/mbselib.h lhash.h
 msgflags.o: ../config.h ../lib/mbselib.h msgflags.h
-postecho.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h postecho.h storeecho.h addpkt.h rollover.h qualify.h
-addpkt.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h addpkt.h
-qualify.o: ../config.h ../lib/mbselib.h qualify.h
-storeecho.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h rollover.h storeecho.h
-rollover.o: ../config.h ../lib/mbselib.h rollover.h
 mkftnhdr.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h atoul.h hash.h msgflags.h mkftnhdr.h
 atoul.o: ../config.h ../lib/mbselib.h atoul.h
 # End of generated dependencies
