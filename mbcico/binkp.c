@@ -811,8 +811,6 @@ int binkp_batch(file_list *to_send)
 	int		rxlen = 0, txlen = 0;
 	long		txpos = 0, rxpos = 0;
 	long		stxpos = 0;
-	time_t		rxstarttime, rxendtime;
-	time_t		txstarttime, txendtime;
 	int		sverr, cmd = FALSE, GotFrame = FALSE;
 	int		blklen = 0, c, Found = FALSE;
 	unsigned short	header = 0;
@@ -823,6 +821,15 @@ int binkp_batch(file_list *to_send)
 	long		written;
 	binkp_list	*bll = NULL, *tmp, *tmpg, *cursend = NULL;
 	file_list	*tsl;
+	struct timeval	rxtvstart, rxtvend;
+	struct timeval	txtvstart, txtvend;
+	struct timezone	tz;
+
+	rxtvstart.tv_sec = rxtvstart.tv_usec = 0;
+	rxtvend.tv_sec   = rxtvend.tv_usec   = 0;
+	txtvstart.tv_sec = txtvstart.tv_usec = 0;
+	txtvend.tv_sec   = txtvend.tv_usec   = 0;
+	tz.tz_minuteswest = tz.tz_dsttime = 0;
 
 	batchnr++;
 	Syslog('+', "Binkp: starting batch %d", batchnr);
@@ -837,7 +844,6 @@ int binkp_batch(file_list *to_send)
 	binkp_settimer(BINKP_TIMEOUT);
 	nethold = mailhold = 0L;
 	transferred = FALSE;
-	rxstarttime = txstarttime = time(NULL);
 
 	/*
 	 *  Build a new filelist from the existing filelist.
@@ -950,7 +956,7 @@ int binkp_batch(file_list *to_send)
 					Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 					binkp_send_control(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
 						(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
-					txstarttime = time(NULL);
+					gettimeofday(&txtvstart, &tz);
 					tmp->state = Sending;
 					cursend = tmp;
 					TxState = TxTryRead;
@@ -998,10 +1004,7 @@ int binkp_batch(file_list *to_send)
 				/*
 				 * calculate time needed and bytes transferred
 				 */
-				txendtime = time(NULL);
-				txstarttime = txendtime - txstarttime;
-				if (txstarttime <= 0L)
-					txstarttime = 1L;
+				gettimeofday(&txtvend, &tz);
 
 				/*
 				 * Close transmitter file
@@ -1010,10 +1013,10 @@ int binkp_batch(file_list *to_send)
 
 				if (txpos >= 0) {
 					stxpos = txpos - stxpos;
-					Syslog('+', "Binkp: OK %lu bytes send in %s (%ld cps)",
-						stxpos, str_time(txstarttime), stxpos/txstarttime);
+					Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, stxpos, TRUE));
 				} else {
-					Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txstarttime);
+					Syslog('+', "Binkp: transmitter skipped file after %ld seconds", 
+						txtvend.tv_sec - txtvstart.tv_sec);
 				}
 
 				cursend->state = IsSent;
@@ -1124,11 +1127,8 @@ int binkp_batch(file_list *to_send)
 							binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
 							closefile(TRUE);
 							rxpos = rxpos - rxbytes;
-							rxendtime = time(NULL);
-							if ((rxstarttime = rxendtime - rxstarttime) == 0L)
-								rxstarttime = 1L;
-							Syslog('+', "Binkp: received OK %lu bytes in %s (%ld cps)",
-							rxpos, str_time(rxstarttime), rxpos / rxstarttime);
+							gettimeofday(&rxtvend, &tz);
+							Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, rxpos, FALSE));
 							rcvdbytes += rxpos;
 							RxState = RxWaitFile;
 							transferred = TRUE;
@@ -1151,7 +1151,7 @@ int binkp_batch(file_list *to_send)
 		case RxAcceptFile:
 			Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", rname, date(rtime), rsize, roffs);
 			rxfp = openfile(rname, rtime, rsize, &rxbytes, resync);
-			rxstarttime = time(NULL);
+			gettimeofday(&rxtvstart, &tz);
 			rxpos = 0;
 
 			if (!diskfree(CFG.freespace)) {

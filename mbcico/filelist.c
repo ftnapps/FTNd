@@ -474,3 +474,21 @@ void execute_disposition(file_list *fl)
 }
 
 
+
+char *transfertime(struct timeval start, struct timeval end, long bytes, int sent)
+{
+    static char	resp[81];
+    long	startms, endms, elapsed;
+
+    memset(&resp, 0, sizeof(resp));
+    startms = (start.tv_sec * 1000) + (start.tv_usec / 1000);
+    endms = (end.tv_sec * 1000) + (end.tv_usec / 1000);
+    elapsed = endms - startms;
+    if (!elapsed)
+	elapsed = 1L;
+    sprintf(resp, "%ld bytes %s in %0.3f seconds (%ld cps)", 
+	    bytes, sent?"sent":"received", elapsed / 1000.000, (bytes * 1000) / elapsed);   
+    return resp;
+}
+
+
