@@ -8,8 +8,8 @@ HDRS		= endian.h
 OBJS		= endian.o
 OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar \
 		  txtfiles-en.tar templates-en.tar \
-		  txtfiles-es.tar templates-es.tar \
-		  menus-es.tar menus-en.tar \
+		  menus-es.tar txtfiles-es.tar templates-es.tar \
+		  menus-en.tar \
 		  templates-de.tar \
 		  templates-nl.tar
 
@@ -36,7 +36,7 @@ install:	all
 		@if [ ! -f ${PREFIX}/english/menus/main.mnu ]; then \
 			tar xfC menus-`./endian`.tar ${PREFIX}/english/menus ; \
 			echo "tar xfC menus-`./endian`.tar ${PREFIX}/english/menus" ; \
-			echo "Installed default english menus" ; \
+			echo "Installed default English menus" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then \
 			tar xfC txtfiles-en.tar ${PREFIX}/english/txtfiles ; \
@@ -53,6 +53,11 @@ install:	all
 		@if [ ! -f ${PREFIX}/spanish/macro/html.tic ]; then \
 			tar xfC templates-es.tar ${PREFIX}/spanish/macro ; \
 			echo "Installed default Spanish macro files" ; \
+		fi
+		@if [ ! -f ${PREFIX}/spanish/menus/main.mnu ]; then \
+			tar xfC menus-es.tar ${PREFIX}/spanish/menus ; \
+			echo "tar xfC menus-es.tar ${PREFIX}/spanish/menus" ; \
+			echo "Installed default Spanish menus" ; \
 		fi
 		@if [ ! -f ${PREFIX}/german/macro/html.tic ]; then \
 			tar xfC templates-de.tar ${PREFIX}/german/macro ; \
