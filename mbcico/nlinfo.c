@@ -99,16 +99,12 @@ int nlinfo(faddr *addr)
 	 * Show P flags
 	 */
 	printf("P Flag      :");
-	if (nlent->pflag & 0x01)
+	if (nlent->pflag & NL_DOWN)
 	    printf(" Down");
-	if (nlent->pflag & 0x02)
+	if (nlent->pflag & NL_HOLD)
 	    printf(" Hold");
-	if (nlent->pflag & 0x04)
+	if (nlent->pflag & NL_PVT)
 	    printf(" Pvt");
-	if (nlent->pflag & 0x10)
-	    printf(" ISDN");
-	if (nlent->pflag & 0x20)
-	    printf(" TCP/IP");
 	printf("\n");
 	if (nlent->t1) {
 	    printf("System open : ");

@@ -1,12 +1,25 @@
 #ifndef	_MBINDEX_H
 #define	_MBINDEX_H
 
+/* $Id$ */
 
 typedef	struct	_fd_list {
-	struct _fd_list	*next;
-	char		fname[65];
-	time_t		fdate;
+    struct _fd_list	*next;
+    char		fname[65];
+    time_t		fdate;
 } fd_list;
+
+
+typedef struct _nodelist_modem {
+    struct _nodelist_modem  *next;
+    char                    *name;
+    unsigned long           mask;
+    unsigned long           value;
+} nodelist_modem;
+
+
+nodelist_modem	    *nl_isdn;
+nodelist_modem	    *nl_tcpip;
 
 
 int	lockindex(void);

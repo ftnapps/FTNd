@@ -481,8 +481,6 @@ typedef struct	_nlusr {
 #define NL_HOLD		0x02			/* Node is Hold		*/
 #define	NL_PVT		0x04			/* Private node		*/
 #define NL_DUMMY	0x08			/* Dummy entry		*/
-#define	NL_ISDN		0x10			/* ISDN Only node	*/
-#define	NL_TCPIP	0x20			/* TCP/IP Only node	*/
 
 
 /************************************************************************

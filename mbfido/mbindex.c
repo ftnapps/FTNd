@@ -48,12 +48,92 @@ long		total = 0, entries = 0;
 int		filenr = 0;
 unsigned short	regio;
 nl_list		*nll = NULL;
+static char     *k, *v;
+static int      linecnt = 0;
+static char     *nlpath = NULL;
 
 
 extern		int do_quiet;		/* Quiet flag			    */
 extern		int show_log;		/* Show logging on screen	    */
 time_t		t_start;		/* Start time			    */
 time_t		t_end;			/* End time			    */
+
+
+static int      getmdm(char**);
+
+
+
+/*
+ * Table to parse the ~/etc/nodelist.conf file
+ */
+static struct _keytab {
+    char    *key;
+    int     (*prc)(char **);
+    char**  dest;
+} keytab[] = {
+    {(char *)"isdn",        getmdm,         (char **)&nl_isdn},
+    {(char *)"tcpip",       getmdm,         (char **)&nl_tcpip},
+    {NULL,                  NULL,           NULL}
+};
+
+
+
+
+/*
+ * Get a keyword, string, unsigned long, unsigned long
+ */
+static int getmdm(char **dest)
+{
+    char            *p, *q;
+    unsigned long   tmp1, tmp2;
+    nodelist_modem  **tmpm;
+
+    for (p = v; *p && !isspace(*p); p++);
+	if (*p)
+	    *p++ = '\0';
+    while (*p && isspace(*p))
+	p++;
+    if (*p == '\0') {
+	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (q = p; *q && !isspace(*q); q++);
+	if (*q)
+	    *q++ = '\0';
+    while (*q && isspace(*q))
+	q++;
+    if (*q == '\0') {
+	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (tmpm = (nodelist_modem**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_modem *) xmalloc(sizeof(nodelist_modem));
+    (*tmpm)->next = NULL;
+    (*tmpm)->name = xstrcpy(v);
+    tmp1 = strtoul(p, NULL, 0);
+    tmp2 = strtoul(q, NULL, 0);
+    (*tmpm)->mask = tmp1;
+    (*tmpm)->value = tmp2;
+
+    return 0;
+}
+
+
+void tidy_nl_modem(nodelist_modem **);
+void tidy_nl_modem(nodelist_modem **fap)
+{
+    nodelist_modem  *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->name)
+	    free(tmp->name);
+	free(tmp);
+    }
+    *fap = NULL;
+}
 
 
 
@@ -304,18 +384,18 @@ int comp_node(nl_list **fap1, nl_list **fap2)
 
 int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short no)
 {
-    int		    num, i, rc = 0, lineno, boss = FALSE, bossvalid = FALSE;
+    int		    num, i, lineno, boss = FALSE, bossvalid = FALSE;
     unsigned short  upnet, upnode;
     char	    buf[MAXNLLINELEN], *p, *q;
     faddr	    *tmpa;
     FILE	    *nl;
     struct _nlidx   ndx;
     struct _nlusr   udx;
+    nodelist_modem  **tmpm;
 
-    rc = 0;
     if ((nl = fopen(fullpath(nlname), "r")) == NULL) {
 	WriteError("$Can't open %s", fullpath(nlname));
-	return 102;
+	return MBERR_INIT_ERROR;
     }
 
     Syslog('+', "Compiling \"%s\" (%d)", nlname, filenr);
@@ -357,104 +437,116 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 	    continue;
 	}
 
-		if (*(p=buf+strlen(buf) -1) == '\n') 
-			*p-- = '\0';
-		if (*p == '\r') 
-			*p = '\0';
-		if ((buf[0] == ';') || (buf[0] == '\032') || (buf[0] == '\0'))
-			continue;
+	if (*(p=buf+strlen(buf) -1) == '\n') 
+	    *p-- = '\0';
+	if (*p == '\r') 
+	    *p = '\0';
+	if ((buf[0] == ';') || (buf[0] == '\032') || (buf[0] == '\0'))
+	    continue;
 
-		if (CFG.slow_util && do_quiet) {
-			if (zo) {
-				msleep(1);
-			} else {
-				if ((lineno % 40) == 0)
-					msleep(1);
-			}
+	if (CFG.slow_util && do_quiet) {
+	    if (zo) {
+		msleep(1);
+	    } else {
+		if ((lineno % 40) == 0)
+		    msleep(1);
+	    }
+	}
+
+	if ((p = strchr(buf, ','))) 
+	    *p++ = '\0';
+	else {
+	    /*
+	     * Extra check for valid datalines, there should be at least one comma.
+	     */
+	    WriteError("%s(%u): invalid dataline", nlname,lineno);
+	    continue;
+	}
+	if ((q = strchr(p, ','))) 
+	    *q++ = '\0';
+	else {
+	    WriteError("%s(%u): invalid dataline", nlname,lineno);
+	    continue;
+	}
+
+	ndx.type = NL_NONE;
+	ndx.pflag = 0;
+
+	if (buf[0] == '\0') {
+	    if (boss)
+		ndx.type = NL_POINT;
+	    else
+		ndx.type = NL_NODE;
+	} else {
+	    if (strcasecmp(buf,"Boss") == 0) {
+		ndx.type = NL_POINT;
+		bossvalid = FALSE;
+		if ((tmpa=parsefnode(p)) == NULL) {
+		    WriteError("%s(%u): unparsable Boss addr \"%s\"", nlname,lineno,p);
+		    continue;
 		}
-
-		if ((p = strchr(buf, ','))) 
-			*p++ = '\0';
-		if ((q = strchr(p, ','))) 
-			*q++ = '\0';
-
+		boss = TRUE;
+		if (tmpa->zone) 
+		    ndx.zone = tmpa->zone;
+		ndx.net   = tmpa->net;
+		ndx.node  = tmpa->node;
+		ndx.point = 0;
+		tidy_faddr(tmpa);
 		ndx.type = NL_NONE;
-		ndx.pflag = 0;
 
-		if (buf[0] == '\0') {
-			if (boss)
-				ndx.type = NL_POINT;
-			else
-				ndx.type = NL_NODE;
-		} else 
-		if (strcasecmp(buf,"Boss") == 0) {
-			ndx.type = NL_POINT;
-			bossvalid = FALSE;
-			if ((tmpa=parsefnode(p)) == NULL) {
-				WriteError("%s(%u): unparsable Boss addr \"%s\"", nlname,lineno,p);
-				continue;
-			}
-			boss = TRUE;
-			if (tmpa->zone) 
-				ndx.zone = tmpa->zone;
-			ndx.net   = tmpa->net;
-			ndx.node  = tmpa->node;
-			ndx.point = 0;
-			tidy_faddr(tmpa);
-			ndx.type = NL_NONE;
-
-			if (in_nllist(ndx, &nll, FALSE)) {
-				bossvalid = TRUE;
-			}
-			continue; /* no further processing */
-		} else {
-			boss = FALSE;
-			ndx.type = NL_NONE;
-			if (!strcasecmp(buf, "Down")) {
-				ndx.pflag |= NL_DOWN;
-				ndx.type = NL_NODE;
-			}
-			if (!strcasecmp(buf, "Hold")) {
-				ndx.pflag |= NL_HOLD;
-				ndx.type = NL_NODE;
-			}
-			if (!strcasecmp(buf, "Pvt")) {
-				ndx.pflag |= NL_PVT;
-				ndx.type = NL_NODE;
-			}
-
-			if (!strcasecmp(buf, "Zone"))
-				ndx.type = NL_ZONE;
-			if (!strcasecmp(buf, "Region"))
-				ndx.type = NL_REGION;
-			if (!strcasecmp(buf, "Host"))
-				ndx.type = NL_HOST;
-			if (!strcasecmp(buf, "Hub"))
-				ndx.type = NL_HUB;
-			if (!strcasecmp(buf, "Point")) {
-				ndx.type = NL_POINT;
-				bossvalid = TRUE;
-			}
+		if (in_nllist(ndx, &nll, FALSE)) {
+		    bossvalid = TRUE;
+		}
+		continue; /* no further processing */
+	    } else {
+		boss = FALSE;
+		ndx.type = NL_NONE;
+		if (!strcasecmp(buf, "Down")) {
+		    ndx.pflag |= NL_DOWN;
+		    ndx.type = NL_NODE;
+		}
+		if (!strcasecmp(buf, "Hold")) {
+		    ndx.pflag |= NL_HOLD;
+		    ndx.type = NL_NODE;
+		}
+		if (!strcasecmp(buf, "Pvt")) {
+		    ndx.pflag |= NL_PVT;
+		    ndx.type = NL_NODE;
 		}
 
-		if (ndx.type == NL_NONE) {
-			for (q = buf; *q; q++) 
-				if (*q < ' ') 
-					*q='.';
-			WriteError("%s(%u): unidentified entry \"%s\"", nlname, lineno, buf);
-			continue;
+		if (!strcasecmp(buf, "Zone"))
+		    ndx.type = NL_ZONE;
+		if (!strcasecmp(buf, "Region"))
+		    ndx.type = NL_REGION;
+		if (!strcasecmp(buf, "Host"))
+		    ndx.type = NL_HOST;
+		if (!strcasecmp(buf, "Hub"))
+		    ndx.type = NL_HUB;
+		if (!strcasecmp(buf, "Point")) {
+		    ndx.type = NL_POINT;
+		    bossvalid = TRUE;
 		}
+	    }
+	}
 
-		if ((num=atoi(p)) == 0) {
-			WriteError("%s(%u): bad numeric \"%s\"", nlname,lineno,p);
-			continue;
-		}
+	if (ndx.type == NL_NONE) {
+	    for (q = buf; *q; q++) 
+		if (*q < ' ') 
+		    *q='.';
+	    WriteError("%s(%u): unidentified entry \"%s\"", nlname, lineno, buf);
+	    continue;
+	}
 
-		/*
-		 * now update the current address
-		 */
-		switch (ndx.type) {
-		case NL_REGION:	ndx.net   = num;
+	if ((num=atoi(p)) == 0) {
+	    WriteError("%s(%u): bad numeric \"%s\"", nlname,lineno,p);
+	    continue;
+	}
+
+	/*
+	 * now update the current address
+	 */
+	switch (ndx.type) {
+	    case NL_REGION:	ndx.net   = num;
 				ndx.node  = 0;
 				ndx.point = 0;
 				ndx.upnet = ndx.zone;
@@ -463,7 +555,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				upnet     = num;
 				upnode    = 0;
 				break;
-		case NL_ZONE:	ndx.zone  = num;
+	    case NL_ZONE:	ndx.zone  = num;
 				ndx.net   = num;
 				ndx.node  = 0;
 				ndx.point = 0;
@@ -473,7 +565,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				upnet     = num;
 				upnode    = 0;
 				break;
-		case NL_HOST:	ndx.net   = num;
+	    case NL_HOST:	ndx.net   = num;
 				ndx.node  = 0;
 				ndx.point = 0;
 				ndx.upnet = ndx.region;
@@ -481,107 +573,99 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				upnet     = num;
 				upnode    = 0;
 				break;
-		case NL_HUB:	ndx.node  = num;
+	    case NL_HUB:	ndx.node  = num;
 				ndx.point = 0;
 				ndx.upnet = ndx.net;
 				ndx.upnode= 0;
 				upnet     = ndx.net;
 				upnode    = num;
 				break;
-		case NL_NODE:	ndx.node  = num;
+	    case NL_NODE:	ndx.node  = num;
 				ndx.point = 0;
 				ndx.upnet = upnet;
 				ndx.upnode= upnode;
 				break;
-		case NL_POINT:	ndx.point = num;
+	    case NL_POINT:	ndx.point = num;
 				ndx.upnet = ndx.net;
 				ndx.upnode= ndx.node;
 				if ((!ndx.region) && bossvalid)
-					ndx.region = regio;
+				    ndx.region = regio;
 				break;
-		}
-		if (!do_quiet) {
-			printf("\rZone %-6uRegion %-6uNet %-6uNode %-6uPoint %-6u", 
-				ndx.zone, ndx.region, ndx.net, ndx.node, ndx.point);
-			fflush(stdout);
-		}
-
-		memset(&udx, 0, sizeof(udx));
-		udx.record = total;
-
-		/*
-		 *  Read nodelist line and extract username.
-		 */
-		for (i = 0; i < 3; i++) {
-			p = q;
-			if (p == NULL)
-				continue;
-			if ((q = strchr(p, ',')))
-				*q++ = '\0';
-			if (q == NULL)
-			    q = p;
-		}
-		if (strlen(p) > 35)
-			p[35] = '\0';
-		sprintf(udx.user, "%s", p);
-
-		/*
-		 *  Now search for the baudrate field, 300 means it's
-		 *  and ISDN or TCP/IP only node which is a special case.
-		 */
-		for (i = 0; i < 2; i++) {
-			p = q;
-			if (p == NULL)
-				continue;
-			if ((q = strchr(p, ',')))
-				*q++ = '\0';
-			if (q == NULL)
-				q = p;
-		}
-		if ((strlen(p) == 3) && (!strcmp(p, "300")) && (q != NULL)) {
-			if ((strstr(q, (char *)"X75")) ||
-			    (strstr(q, (char *)"V110L")) ||
-			    (strstr(q, (char *)"V110H")) ||
-			    (strstr(q, (char *)"V120L")) ||
-			    (strstr(q, (char *)"V120H")) ||
-			    (strstr(q, (char *)"ISDN")))
-				ndx.pflag |= NL_ISDN;
-			if ((strstr(q, (char *)"IFC")) ||
-			    (strstr(q, (char *)"IBN")) ||
-			    (strstr(q, (char *)"ITN")) ||
-			    (strstr(q, (char *)"IVM")) ||
-			    (strstr(q, (char *)"IFT")) ||
-			    (strstr(q, (char *)"IP")))
-				ndx.pflag |= NL_TCPIP;
-		}
-
-		/*
-		 *  If zone, net and node given, then this list is an
-		 *  overlay so we will call in_list() to replace the
-		 *  existing records, or append them if they don't exist.
-		 *  Also, only points with a valid boss will be added.
-		 */
-		if (zo) {
-			if (!(in_nllist(ndx, &nll, TRUE))) {
-				if (ndx.point && bossvalid) {
-					fill_nllist(ndx, &nll);
-				}
-				if (!ndx.point)
-					fill_nllist(ndx, &nll);
-			}
-		} else
-			fill_nllist(ndx, &nll);
 	}
-
-	fclose(nl);
-	Syslog('+', "%d entries", entries);
-
 	if (!do_quiet) {
-		printf(" %ld entries\n", entries);
-		fflush(stdout);
+	    printf("\rZone %-6uRegion %-6uNet %-6uNode %-6uPoint %-6u", 
+			ndx.zone, ndx.region, ndx.net, ndx.node, ndx.point);
+	    fflush(stdout);
 	}
 
-	return rc;
+	memset(&udx, 0, sizeof(udx));
+	udx.record = total;
+
+	/*
+	 *  Read nodelist line and extract username.
+	 */
+	for (i = 0; i < 3; i++) {
+	    p = q;
+	    if (p == NULL)
+		continue;
+	    if ((q = strchr(p, ',')))
+		*q++ = '\0';
+	    if (q == NULL)
+		q = p;
+	}
+	if (strlen(p) > 35)
+	    p[35] = '\0';
+	sprintf(udx.user, "%s", p);
+
+	/*
+	 *  Now search for the baudrate field, 300 means it's
+	 *  and ISDN or TCP/IP only node which is a special case.
+	 */
+	for (i = 0; i < 2; i++) {
+	    p = q;
+	    if (p == NULL)
+		continue;
+	    if ((q = strchr(p, ',')))
+		*q++ = '\0';
+	    if (q == NULL)
+		q = p;
+	}
+	if ((strlen(p) == 3) && (!strcmp(p, "300")) && (q != NULL)) {
+	    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
+		if (strstr(q, (*tmpm)->name))
+		    ndx.pflag |= NL_ISDN;
+	    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+		if (strstr(q, (*tmpm)->name))
+		    ndx.pflag |= NL_TCPIP;
+	}
+
+	/*
+	 *  If zone, net and node given, then this list is an
+	 *  overlay so we will call in_list() to replace the
+	 *  existing records, or append them if they don't exist.
+	 *  Also, only points with a valid boss will be added.
+	 */
+	if (zo) {
+	    if (!(in_nllist(ndx, &nll, TRUE))) {
+		if (ndx.point && bossvalid) {
+		    fill_nllist(ndx, &nll);
+		}
+		if (!ndx.point)
+		    fill_nllist(ndx, &nll);
+	    }
+	} else
+	    fill_nllist(ndx, &nll);
+    }
+
+    fclose(nl);
+    Syslog('+', "%d entries", entries);
+
+    if (!do_quiet) {
+	printf(" %ld entries\n", entries);
+	fflush(stdout);
+    }
+
+    return 0;
 }
 
 
@@ -591,13 +675,13 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
  */
 void tidy_fdlist(fd_list **fdp)
 {
-	fd_list	*tmp, *old;
+    fd_list	*tmp, *old;
 
-	for (tmp = *fdp; tmp; tmp = old) {
-		old = tmp->next;
-		free(tmp);
-	}
-	*fdp = NULL;
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fdp = NULL;
 }
 
 
@@ -607,13 +691,13 @@ void tidy_fdlist(fd_list **fdp)
  */
 void fill_fdlist(fd_list **fdp, char *filename, time_t filedate)
 {
-	fd_list	*tmp;
+    fd_list	*tmp;
 
-	tmp = (fd_list *)malloc(sizeof(fd_list));
-	tmp->next = *fdp;
-	sprintf(tmp->fname, "%s", filename);
-	tmp->fdate = filedate;
-	*fdp = tmp;
+    tmp = (fd_list *)malloc(sizeof(fd_list));
+    tmp->next = *fdp;
+    sprintf(tmp->fname, "%s", filename);
+    tmp->fdate = filedate;
+    *fdp = tmp;
 }
 
 
@@ -766,124 +850,188 @@ int makelist(char *base, unsigned short zo, unsigned short ne, unsigned short no
 
 int nodebld(void)
 {
-	int		rc = 0, i;
-	char		*im, *fm, *um, *old, *new;
-	struct _nlfil	fdx;
-	FILE		*fp;
-	nl_list		*tmp;
+    int		    rc = 0, i;
+    char	    *im, *fm, *um, *old, *new, *p, buf[256];
+    struct _nlfil   fdx;
+    FILE	    *fp, *dbf;
+    nl_list	    *tmp;
 
-	memset(&fdx, 0, sizeof(fdx));
-	im = xstrcpy(fullpath((char *)"temp.index"));
-	fm = xstrcpy(fullpath((char *)"temp.files"));
-	um = xstrcpy(fullpath((char *)"temp.users"));
+    memset(&fdx, 0, sizeof(fdx));
+    im = xstrcpy(fullpath((char *)"temp.index"));
+    fm = xstrcpy(fullpath((char *)"temp.files"));
+    um = xstrcpy(fullpath((char *)"temp.users"));
 
-	if ((ifp = fopen(im, "w+")) == NULL) {
-		WriteError("$Can't create %s",MBSE_SS(im));
-		return 101;
-	}
-	if ((ufp = fopen(um, "w+")) == NULL) {
-		WriteError("$Can't create %s", MBSE_SS(um));
-		fclose(ifp);
-		unlink(im);
-		return 101;
-	}
-	if ((ffp = fopen(fm, "w+")) == NULL) {
-		WriteError("$Can't create %s", MBSE_SS(fm));
-		fclose(ifp);
-		unlink(im);
-		fclose(ufp);
-		unlink(um);
-		return 101;
-	}
-
-	if (!do_quiet) {
-		colour(3, 0);
-		printf("\n");
-	}
-
-	if ((fp = fopen(fidonet_fil, "r")) == 0)
-		rc = 102;
-	else {
-		fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
-
-		while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
-			if (fidonet.available) {
-				rc = makelist(fidonet.nodelist, 0, 0, 0);
-				if (rc)
-					break;
-
-				for (i = 0; i < 6; i++) {
-					if (fidonet.seclist[i].zone) {
-						rc = makelist(fidonet.seclist[i].nodelist,
-							fidonet.seclist[i].zone,
-							fidonet.seclist[i].net, 
-							fidonet.seclist[i].node);
-						if (rc)
-							break;
-					}
-				}
-				if (rc)
-					break;
-			}
-		}
-
-		fclose(fp);
-	}
-
+    if ((ifp = fopen(im, "w+")) == NULL) {
+	WriteError("$Can't create %s",MBSE_SS(im));
+	return MBERR_GENERAL;
+    }
+    if ((ufp = fopen(um, "w+")) == NULL) {
+	WriteError("$Can't create %s", MBSE_SS(um));
+	fclose(ifp);
+	unlink(im);
+	return MBERR_GENERAL;
+    }
+    if ((ffp = fopen(fm, "w+")) == NULL) {
+	WriteError("$Can't create %s", MBSE_SS(fm));
+	fclose(ifp);
+	unlink(im);
 	fclose(ufp);
+	unlink(um);
+	return MBERR_GENERAL;
+    }
+
+    if (!do_quiet) {
+	colour(CYAN, BLACK);
+	printf("\n");
+    }
+
+    nl_isdn = NULL;
+    nl_tcpip = NULL;
+
+    /*
+     * Read and parse ~/etc/nodelist.conf
+     */
+    nlpath = calloc(PATH_MAX, sizeof(char));
+    sprintf(nlpath, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    if ((dbf = fopen(nlpath, "r")) == NULL) {
+	WriteError("$Can't open %s", nlpath);
+	fclose(ifp);
+	unlink(im);
+	fclose(ufp);
+	unlink(um);
 	fclose(ffp);
+	unlink(fm);
+	free(nlpath);
+	return MBERR_GENERAL;
+    } else {
+	while (fgets(buf, sizeof(buf) -1, dbf)) {
+	    linecnt++;
+	    if (*(p = buf + strlen(buf) -1) != '\n') {
+		WriteError("%s(%d): \"%s\" - line too long", nlpath, linecnt, buf);
+		rc = MBERR_GENERAL;
+		break;
+	    }
 
-	if (rc == 0) {
-		IsDoing("Sorting nodes");
-		sort_nllist(&nll);
+	    *p-- = '\0';
+	    while ((p >= buf) && isspace(*p))
+		*p-- = '\0';
+	    k = buf;
+	    while (*k && isspace(*k))
+		k++;
+	    p = k;
+	    while (*p && !isspace(*p))
+		p++;
+	    *p++='\0';
+	    v = p;
+	    while (*v && isspace(*v)) 
+		v++;
 
-		IsDoing("Writing files");
-		for (tmp = nll; tmp; tmp = tmp->next)
-			fwrite(&tmp->idx, sizeof(struct _nlidx), 1, ifp);
-		fclose(ifp);
+	    if ((*k == '\0') || (*k == '#')) {
+		continue;
+	    }
+	    for (i = 0; keytab[i].key; i++)
+		if (strcasecmp(k,keytab[i].key) == 0)
+		    break;
 
-		Syslog('+', "Compiled %d entries", total);
-
-		/*
-		 *  Rename existing files to old.*, they stay on disk in
-		 *  case they are open by some program. The temp.* files
-		 *  are then renamed to node.*
-		 */
-		old = xstrcpy(fullpath((char *)"old.index"));
-		new = xstrcpy(fullpath((char *)"node.index"));
-		unlink(old);
-		rename(new, old);
-		rename(im, new);
-		free(old);
-		free(new);
-		old = xstrcpy(fullpath((char *)"old.users"));
-		new = xstrcpy(fullpath((char *)"node.users"));
-		unlink(old);
-		rename(new, old);
-		rename(um, new);
-		free(old);
-		free(new);
-		old = xstrcpy(fullpath((char *)"old.files"));
-		new = xstrcpy(fullpath((char *)"node.files"));
-		unlink(old);
-		rename(new, old);
-		rename(fm, new);
-		free(old);
-		free(new);
-	} else {
-		fclose(ifp);
-		Syslog('+', "Compile failed, rc=%d", rc);
-		unlink(im);
-		unlink(fm);
-		unlink(um);
+//	    if (keytab[i].key != NULL) {
+//		WriteError("%s(%d): %s %s - unknown keyword", nlpath, linecnt, MBSE_SS(k), MBSE_SS(v));
+//		rc = MBERR_GENERAL;
+//		break;
+//	    } else 
+	    if ((keytab[i].prc(keytab[i].dest))) {
+		rc = MBERR_GENERAL;
+		break;
+	    }
 	}
+	fclose(dbf);
+    }
+    free(nlpath);
 
-	free(im);
-	free(fm);
-	free(um);
-	tidy_nllist(&nll);
+    if (rc == 0) {
+	if ((fp = fopen(fidonet_fil, "r")) == 0)
+	    rc = MBERR_GENERAL;
+	else {
+	    fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 
-	return rc;
+	    while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
+		if (fidonet.available) {
+		    rc = makelist(fidonet.nodelist, 0, 0, 0);
+		    if (rc)
+			break;
+
+		    for (i = 0; i < 6; i++) {
+			if (fidonet.seclist[i].zone) {
+			    rc = makelist(fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
+							fidonet.seclist[i].net, fidonet.seclist[i].node);
+			    if (rc)
+				break;
+			}
+		    }
+		    if (rc)
+			break;
+		}
+	    }
+
+	    fclose(fp);
+	}
+    }
+
+    fclose(ufp);
+    fclose(ffp);
+
+    if (rc == 0) {
+	IsDoing("Sorting nodes");
+	sort_nllist(&nll);
+
+	IsDoing("Writing files");
+	for (tmp = nll; tmp; tmp = tmp->next)
+	    fwrite(&tmp->idx, sizeof(struct _nlidx), 1, ifp);
+	fclose(ifp);
+
+	Syslog('+', "Compiled %d entries", total);
+
+	/*
+	 *  Rename existing files to old.*, they stay on disk in
+	 *  case they are open by some program. The temp.* files
+	 *  are then renamed to node.*
+	 */
+	old = xstrcpy(fullpath((char *)"old.index"));
+	new = xstrcpy(fullpath((char *)"node.index"));
+	unlink(old);
+	rename(new, old);
+	rename(im, new);
+	free(old);
+	free(new);
+	old = xstrcpy(fullpath((char *)"old.users"));
+	new = xstrcpy(fullpath((char *)"node.users"));
+	unlink(old);
+	rename(new, old);
+	rename(um, new);
+	free(old);
+	free(new);
+	old = xstrcpy(fullpath((char *)"old.files"));
+	new = xstrcpy(fullpath((char *)"node.files"));
+	unlink(old);
+	rename(new, old);
+	rename(fm, new);
+	free(old);
+	free(new);
+    } else {
+	fclose(ifp);
+	Syslog('+', "Compile failed, rc=%d", rc);
+	unlink(im);
+	unlink(fm);
+	unlink(um);
+    }
+
+    free(im);
+    free(fm);
+    free(um);
+    tidy_nllist(&nll);
+    tidy_nl_modem(&nl_isdn);
+    tidy_nl_modem(&nl_tcpip);
+
+    return rc;
 }
 
 
