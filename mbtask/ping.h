@@ -4,7 +4,7 @@
 #define	_PING_H
 
 
-typedef enum {P_INIT, P_SENT, P_FAIL, P_OK, P_ERROR, P_NONE} PINGSTATE;
+typedef enum {P_BOOT, P_PAUSE, P_SENT, P_WAIT, P_ERROR} PINGSTATE;
 
 
 
@@ -16,7 +16,6 @@ typedef enum {P_INIT, P_SENT, P_FAIL, P_OK, P_ERROR, P_NONE} PINGSTATE;
 #define SET_SOCKA_LEN4(socka)
 
 void		check_ping(void);
-void		state_ping(void);
 void		init_pingsocket(void);
 
 #endif

@@ -46,10 +46,7 @@ int     		ping_isocket;		/* Ping socket		*/
 int     		icmp_errs = 0;		/* ICMP error counter	*/
 extern int		internet;		/* Internet is down	*/
 extern int		rescan;			/* Master rescan flag	*/
-int			pingstate = P_INIT;	/* Ping state		*/
-int			pingnr = 1;		/* Ping #, 1 or 2	*/
-int			pingresult[2];		/* Ping results		*/
-char			pingaddress[41];	/* Ping current address	*/
+int			pingstate = P_BOOT;	/* Ping state		*/
 struct in_addr		paddr;			/* Current ping address	*/
 
 
@@ -306,98 +303,111 @@ int ping_receive(struct in_addr addr)
 
 void check_ping(void)
 {
-    int	    rc = 0;
+    int		    rc = 0;
+    static int	    pingnr, pingresult[2];
+    static char	    pingaddress[41];
+    static time_t   pingtime;
 
-    /*
-     *  If the previous pingstat is still P_SENT, then we now consider it a timeout.
-     */
-    if (pingstate == P_SENT) {
-	pingresult[pingnr] = FALSE;
-	icmp_errs++;
-	if (icmp_errs < ICMP_MAX_ERRS)
-	    tasklog('p', "ping: %s seq=%d timeout", pingaddress, p_sequence);
-    }
-
-    /*
-     *  Check internet connection with ICMP ping
-     */
-    if (pingnr == 1) {
-	pingnr = 2;
-	if (strlen(TCFG.isp_ping2)) {
-	    sprintf(pingaddress, "%s", TCFG.isp_ping2);
-	} else {
-	    pingstate = P_NONE;
-	}
-    } else {
-	pingnr = 1;
-	if (strlen(TCFG.isp_ping1)) {
-	    sprintf(pingaddress, "%s", TCFG.isp_ping1);
-	} else {
-	    pingstate = P_NONE;
-	}
-    }
-
-    if (inet_aton(pingaddress, &paddr)) {
-	rc = ping_send(paddr);
-	if (rc) {
-	    if (icmp_errs++ < ICMP_MAX_ERRS)
-		tasklog('?', "ping: to %s rc=%d", pingaddress, rc);
-	    pingstate = P_FAIL;
-	    pingresult[pingnr] = FALSE;
-	} else {
-	    pingstate = P_SENT;
-	}
-    } else {
-	if (icmp_errs++ < ICMP_MAX_ERRS)
-	    tasklog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
-	pingstate = P_NONE;
-    }
-
-    if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
-	icmp_errs++;
-	if (internet) {
-	    tasklog('!', "Internet connection is down");
-	    internet = FALSE;
-	    sem_set((char *)"scanout", TRUE);
-	    RemoveSema((char *)"is_inet");
-	    rescan = TRUE;
-	}
-    } else {
-	if (!internet) {
-	    tasklog('!', "Internet connection is up");
-	    internet = TRUE;
-	    sem_set((char *)"scanout", TRUE);
-	    CreateSema((char *)"is_inet");
-	    rescan = TRUE;
-	}
-	icmp_errs = 0;
-    }
-}
-
-
-
-void state_ping(void)
-{
-    int	    rc;
-
-    /*
-     * PING state changes
-     */
     switch (pingstate) {
-	case P_NONE:    pingresult[pingnr] = TRUE;
+	case P_BOOT:	pingnr = 2;
+			pingstate = P_SENT;
+			pingresult[1] = pingresult[2] = internet = FALSE;
 			break;
-	case P_SENT:    /*
-			 * Quickly eat all packets not for us, we only want our
-			 * packets and empty results (packet still underway).
-			 */
-			while ((rc = ping_receive(paddr)) == -1);
-			if (!rc) {
-			    pingstate = P_OK;
-			    pingresult[pingnr] = TRUE;
+			
+	case P_PAUSE:	// tasklog('p', "PAUSE:");
+			if (time(NULL) >= pingtime)
+			    pingstate = P_SENT;
+			break;
+			
+	case P_WAIT:	// tasklog('p', "WAIT:");
+			if (time(NULL) >= pingtime) {
+			    pingstate = P_ERROR;
+			    tasklog('p', "timeout");
 			} else {
-			    if (rc != -6)
-				tasklog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
+			    /*
+			     * Quickly eat all packets not for us, we only want our
+			     * packets and empty results (packet still underway).
+			     */
+			    while ((rc = ping_receive(paddr)) == -1);
+			    if (!rc) {
+				/*
+				 * Reply received.
+				 */
+				pingresult[pingnr] = TRUE;
+				if (pingresult[1] || pingresult[2]) {
+				    if (!internet) {
+					tasklog('!', "Internet connection is up");
+					internet = TRUE;
+					sem_set((char *)"scanout", TRUE);
+					CreateSema((char *)"is_inet");
+					rescan = TRUE;
+				    }
+				    icmp_errs = 0;
+				}
+				pingtime = time(NULL) + 5;      // 5 secs pause until next ping
+				pingstate = P_PAUSE;
+			    } else {
+				if (rc != -6) {
+				    tasklog('p', "ping: recv %s id=%d rc=%d", pingaddress, id, rc);
+				    pingstate = P_ERROR;
+				}
+			    }
 			}
+			break;
+			
+	case P_SENT:	tasklog('p', "SENT:");
+			pingtime = time(NULL) + 10;	// 10 secs timeout for pause.
+			if (pingnr == 1) {
+			    pingnr = 2;
+			    if (strlen(TCFG.isp_ping2)) {
+				sprintf(pingaddress, "%s", TCFG.isp_ping2);
+			    } else {
+				pingresult[2] = FALSE;
+				pingstate = P_PAUSE;
+				break;
+			    }
+			} else {
+			    pingnr = 1;
+			    if (strlen(TCFG.isp_ping1)) {
+				sprintf(pingaddress, "%s", TCFG.isp_ping1);
+			    } else {
+				pingresult[1] = FALSE;
+				pingstate = P_PAUSE;
+				break;
+			    }
+			}
+			pingtime = time(NULL) + 20;	// 20 secs timeout for a real ping
+			tasklog('p', "nr %d address %s", pingnr, pingaddress);
+			if (inet_aton(pingaddress, &paddr)) {
+			    rc = ping_send(paddr);
+			    if (rc) {
+				if (icmp_errs++ < ICMP_MAX_ERRS)
+				    tasklog('?', "ping: to %s rc=%d", pingaddress, rc);
+				pingstate = P_ERROR;
+				pingresult[pingnr] = FALSE;
+			    } else {
+				pingstate = P_WAIT;
+			    }
+			} else {
+			    if (icmp_errs++ < ICMP_MAX_ERRS)
+				tasklog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
+			    pingstate = P_PAUSE;
+			}
+			break;
+			
+	case P_ERROR:	tasklog('p', "ERROR:");
+			pingresult[pingnr] = FALSE;
+			if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
+			    icmp_errs++;
+			    if (internet) {
+				tasklog('!', "Internet connection is down");
+				internet = FALSE;
+				sem_set((char *)"scanout", TRUE);
+				RemoveSema((char *)"is_inet");
+				rescan = TRUE;
+			    }
+			}
+			pingstate = P_SENT;
 			break;
     }
 }

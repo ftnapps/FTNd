@@ -85,7 +85,6 @@ extern int		s_index;		/* Compile nl semafore	*/
 extern int		s_newnews;		/* New news semafore	*/
 extern int		s_reqindex;		/* Create req index sem */
 extern int		s_msglink;		/* Messages link sem	*/
-extern int		pingresult[2];		/* Ping results		*/
 int			masterinit = FALSE;	/* Master init needed	*/
 int			ptimer = PAUSETIME;	/* Pause timer		*/
 int			tflags = FALSE;		/* if nodes with Txx	*/
@@ -886,9 +885,6 @@ void scheduler(void)
 	die(1);
     }
 
-    pingresult[1] = TRUE;
-    pingresult[2] = TRUE;
-
     /*
      * The flag masterinit is set if a new config.data is created, this
      * is true if mbtask is started the very first time. Then we run
@@ -1053,18 +1049,18 @@ void scheduler(void)
 	    }
 	}
 
+	/*
+	 * Check Pause Timer, make sure it's only checked
+	 * once each second. Also do pingcheck.
+	 */
+	if (tm->tm_sec != oldsec) {
+	    oldsec = tm->tm_sec;
+	    if (ptimer)
+		ptimer--;
+	    check_ping();
+	}
 
 	if (Processing) {
-	    /*
-	     * Check Pause Timer, make sure it's only checked
-	     * once each second.
-	     */
-	    if (tm->tm_sec != oldsec) {
-		oldsec = tm->tm_sec;
-		if (ptimer)
-		    ptimer--;
-	    }
-
 	    /*
 	     *  Here we run all normal operations.
 	     */
@@ -1132,7 +1128,6 @@ void scheduler(void)
 	     *  These tasks run once per 20 seconds.
 	     */
 	    oldmin = tm->tm_sec / SLOWRUN;
-	    check_ping();
 
 	    if (Processing) {
 
@@ -1227,12 +1222,6 @@ void scheduler(void)
 		    }
 		}
 	    } /* if (Processing) */
-
-	    /*
-	     * PING state changes
-	     */
-	    state_ping();
-
 	} /* if ((tm->tm_sec / SLOWRUN) != oldmin) */
 
     } while (TRUE);
