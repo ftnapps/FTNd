@@ -9,7 +9,7 @@ AC_SUBST(SUBDIRS)
 dnl General settings for MBSE BBS
 dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
-VERSION="0.33.20"
+VERSION="0.33.21"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
