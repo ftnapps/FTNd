@@ -75,6 +75,8 @@ static char *bstate[] = {
 /*
  * Local prototypes
  */
+void		binkp_init(void);
+void		binkp_deinit(void);
 char		*unix2binkp(char *);
 char		*binkp2unix(char *);
 int		binkp_expired(void);
@@ -89,7 +91,7 @@ void		binkp_settimer(int);
 int		resync(off_t);
 static int	orgbinkp(void);
 static int	ansbinkp(void);
-static int	binkp_batch(file_list *, int);
+static int	binkp_batch(file_list *);
 
 
 extern char	*ttystat[];
@@ -117,15 +119,9 @@ static char *txstate[] = { (char *)"TxGetNextFile", (char *)"TryRread", (char *)
 static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
 
 
-static int	RxState;			/* Receiver state		    */
-static int	TxState;			/* Transmitter state		    */
 //static int	TfState;
 static time_t	Timer;
-static int	MBflag = No;			/* MB option flag		    */
 static int	CRAMflag = FALSE;		/* CRAM option flag		    */
-static int	CRCflag = No;			/* CRC option flag		    */
-static int	Major = 1;			/* Remote major protocol version    */
-static int	Minor = 0;			/* Remote minor protocol version    */
 static int	Secure = FALSE;			/* Secure session		    */
 unsigned long	nethold, mailhold;		/* Trafic for the remote	    */
 int		transferred = FALSE;		/* Anything transferred in batch    */
@@ -133,12 +129,57 @@ int		batchnr = 0, crc_errors = 0;
 unsigned char	*MD_challenge = NULL;		/* Received CRAM challenge data	    */
 int		ext_rand = 0;
 
-long		rsize;				/* Receiver filesize		    */
-long		roffs;				/* Receiver offset		    */
-char		*rname;				/* Receiver filename		    */
-time_t		rtime;				/* Receiver filetime		    */
-unsigned long	rcrc;				/* Receiver crc			    */
+struct binkprec {
+    int			role;			/* 1=orig, 0=answer		    */
+    int			RxState;		/* Receiver state		    */
+    int			TxState;		/* Transmitter state		    */
+    long		rsize;			/* Receiver filesize		    */
+    long		roffs;			/* Receiver offset		    */
+    char		*rname;			/* Receiver filename		    */
+    time_t		rtime;			/* Receiver filetime		    */
+    unsigned long	rcrc;			/* Receiver crc			    */
+    long		lsize;			/* Local filesize		    */
+    char		*lname;			/* Local filename		    */
+    time_t		ltime;			/* Local filetime		    */
+    unsigned long	tcrc;			/* Transmitter crc		    */
+    long		gsize;			/* GET filesize			    */
+    long		goffset;		/* GET offset			    */
+    char		*gname;			/* GET filename			    */
+    time_t		gtime;			/* GET filetime			    */
+    int			MBflag;			/* MB option flag                   */
+    int			CRCflag;		/* CRC option flag		    */
+    int			Major;			/* Remote major protocol version    */
+    int			Minor;			/* Remote minor protocol version    */
+};
 
+struct binkprec	bp;				/* Global structure		    */
+
+
+
+void binkp_init(void)
+{
+    bp.rname = calloc(512, sizeof(char));
+    bp.lname = calloc(512, sizeof(char));
+    bp.gname = calloc(512, sizeof(char));
+    bp.MBflag = WeCan;
+    if (CFG.NoCRC32)
+	bp.CRCflag = No;
+    else
+	bp.CRCflag = WeCan;
+    bp.Major = 1;
+    bp.Minor = 0;
+}
+
+
+void binkp_deinit(void)
+{
+    if (bp.rname)
+	free(bp.rname);
+    if (bp.lname)
+	free(bp.lname);
+    if (bp.gname)
+	free(bp.gname);
+}
 
 
 int binkp(int role)
@@ -148,11 +189,7 @@ int binkp(int role)
     file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
     char	*nonhold_mail;
 
-    MBflag = WeCan;
-    if (CFG.NoCRC32)
-	CRCflag = No;
-    else
-	CRCflag = WeCan;
+    binkp_init();
 
     most_debug = TRUE;
     if (role == 1) {
@@ -167,6 +204,7 @@ int binkp(int role)
 	
     if (rc) {
 	Syslog('!', "Binkp: session failed");
+	binkp_deinit();
 	return rc;
     }
 
@@ -197,11 +235,11 @@ int binkp(int role)
 	request = NULL;
     }
 
-    rc = binkp_batch(tosend, role);
+    rc = binkp_batch(tosend);
     tidy_filelist(tosend, (rc == 0));
     tosend = NULL;
 
-    if ((rc == 0) && transferred && (MBflag == Active)) {
+    if ((rc == 0) && transferred && (bp.MBflag == Active)) {
 	/*
 	 * Running Multiple Batch, only if last batch actually
 	 * did transfer some data.
@@ -214,16 +252,16 @@ int binkp(int role)
 	tosend = create_filelist(eff_remote, nonhold_mail, 0);
 	for (tmpfl = tosend; tmpfl->next; tmpfl = tmpfl->next);
 	tmpfl->next = respond;
-	rc = binkp_batch(tosend, role);
+	rc = binkp_batch(tosend);
 	tmpfl->next = NULL;
     }
 
     Syslog('+', "Binkp: end transfer rc=%d", rc);
     closetcp();
 
-    Syslog('b', "2nd batch or not, MB flag =%d", MBflag);
+    Syslog('b', "2nd batch or not, MB flag is %s", opstate[bp.MBflag]);
 
-    if (MBflag != Active) {
+    if (bp.MBflag != Active) {
 	/*
 	 *  In singe batch mode we process filerequests after the batch.
 	 *  The results will be put on hold for the calling node.
@@ -245,6 +283,7 @@ int binkp(int role)
     tidy_filelist(tosend, (rc == 0));
     tidy_filelist(respond, 0);
 
+    binkp_deinit();
     rc = abs(rc);
     return rc;
 }
@@ -406,10 +445,10 @@ void binkp_send_control(int id,...)
 int resync(off_t off)
 {
     Syslog('b', "Binkp: resync(%d)", off);
-    if (CRCflag == Active) {
-	binkp_send_control(MM_GET, "%s %ld %ld %ld %lx", rname, &rsize, &rtime, &roffs, &rcrc);
+    if (bp.CRCflag == Active) {
+	binkp_send_control(MM_GET, "%s %ld %ld %ld %lx", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs, &bp.rcrc);
     } else {
-	binkp_send_control(MM_GET, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
+	binkp_send_control(MM_GET, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
     }
     return 0; 
 }
@@ -509,9 +548,16 @@ void b_nul(char *msg)
     else if (strncmp(msg, "VER ", 4) == 0) {
 	Syslog('+', "Uses    : %s", msg+4);
 	if ((p = strstr(msg+4, PRTCLNAME "/")) && (q = strstr(p, "."))) {
-	    Major = atoi(p + 6);
-	    Minor = atoi(q + 1);
-	    Syslog('b', "Remote protocol version %d.%d", Major, Minor);
+	    bp.Major = atoi(p + 6);
+	    bp.Minor = atoi(q + 1);
+	    Syslog('b', "Remote protocol version %d.%d", bp.Major, bp.Minor);
+	    /*
+	     * Disable MB if protocol > 1.0 and MB was not yet active.
+	     */
+	    if ((bp.MBflag != Active) && (((bp.Major * 10) + bp.Minor) > 10)) {
+		Syslog('b', "MBflag %s => No", opstate[bp.MBflag]);
+		bp.MBflag = No;
+	    }
 	}
     }
     else if (strncmp(msg, "PHN ", 4) == 0)
@@ -523,15 +569,18 @@ void b_nul(char *msg)
     else if (strncmp(msg, "OPT ", 4) == 0) {
 	Syslog('+', "Options : %s", msg+4);
 	if (strstr(msg, (char *)"MB") != NULL) {
-	    Syslog('b', "Remote requests MB, current state = %d", MBflag);
-	    if (MBflag == WeCan) {	    /* Answering session and do binkp/1.0   */
-		MBflag = TheyWant;
+	    Syslog('b', "Remote requests MB, current state = %s", opstate[bp.MBflag]);
+	    if ((bp.MBflag == WeCan) && (bp.Major == 1) && (bp.Minor == 0)) {	/* Answering session and do binkp/1.0   */
+		bp.MBflag = TheyWant;
 		Syslog('b', "MBflag WeCan => TheyWant");
-	    } else if (MBflag == WeWant) {  /* Originating session and do binkp/1.0 */
-		MBflag = Active;
+		binkp_send_control(MM_NUL,"OPT MB");
+		Syslog('b', "MBflag TheyWant => Active");
+		bp.MBflag = Active;
+	    } else if ((bp.MBflag == WeWant) && (bp.Major == 1) && (bp.Minor == 0)) {  /* Originating session and do binkp/1.0 */
+		bp.MBflag = Active;
 		Syslog('b', "MBflag WeWant => Active");
 	    } else {
-		Syslog('b', "MBflag is %s and received MB option", opstate[MBflag]);
+		Syslog('b', "MBflag is %s and received MB option", opstate[bp.MBflag]);
 	    }
 	}
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
@@ -544,14 +593,14 @@ void b_nul(char *msg)
 	    }
 	}
 	if (strstr(msg, (char *)"CRC") != NULL) {
-	    if (CRCflag == WeCan) {
-		CRCflag = TheyWant;
+	    if (bp.CRCflag == WeCan) {
+		bp.CRCflag = TheyWant;
 		Syslog('b', "CRCflag WeCan => TheyWant");
-	    } else if (CRCflag == WeWant) {
-		CRCflag = Active;
+	    } else if (bp.CRCflag == WeWant) {
+		bp.CRCflag = Active;
 		Syslog('b', "CRCflag WeWant => Active");
 	    } else {
-		Syslog('b', "CRCflag is %s and received CRC option", opstate[CRCflag]);
+		Syslog('b', "CRCflag is %s and received CRC option", opstate[bp.CRCflag]);
 	    }
 	}
     } else
@@ -605,14 +654,9 @@ SM_STATE(WaitConn)
      * Build options we want
      */
     p = xstrcpy((char *)"OPT");
-    if (MBflag == WeCan) {
-	p = xstrcat(p, (char *)" MB");
-	MBflag = WeWant;
-	Syslog('b', "MBflag WeCan => WeWant");
-    }
-    if ((noderecord(remote->addr)) && nodes.CRC32 && (CRCflag == WeCan)) {
+    if ((noderecord(remote->addr)) && nodes.CRC32 && (bp.CRCflag == WeCan)) {
 	p = xstrcat(p, (char *)" CRC");
-	CRCflag = WeWant;
+	bp.CRCflag = WeWant;
 	Syslog('b', "CRCflag WeCan => WeWant");
     }
     if (strcmp(p, (char *)"OPT"))
@@ -818,6 +862,11 @@ SM_STATE(Opts)
      * When we are binkp/1.1 and remote is 1.0 we should
      * negotiate MB mode here.
      */
+    if (bp.MBflag == WeCan) {
+	bp.MBflag = WeWant;
+	Syslog('b', "MBflag WeCan => WeWant");
+	binkp_send_control(MM_NUL, "OPT MB");
+    }
     SM_SUCCESS;
 
 SM_END
@@ -950,19 +999,19 @@ SM_STATE(WaitAddr)
 		if (nlent)
 		    rdoptions(Loaded);
 
-		if (MBflag == TheyWant) {
-		    Syslog('b', "Binkp: remote supports MB");
-		    binkp_send_control(MM_NUL,"OPT MB");
-		    MBflag = Active;
-		}
-		if (CRCflag == TheyWant) {
+//		if (bp.MBflag == TheyWant) {
+//		    Syslog('b', "Binkp: remote supports MB");
+//		    binkp_send_control(MM_NUL,"OPT MB");
+//		    bp.MBflag = Active;
+//		}
+		if (bp.CRCflag == TheyWant) {
 		    if (Loaded && nodes.CRC32 && !CFG.NoCRC32) {
 			binkp_send_control(MM_NUL,"OPT CRC");
 			Syslog('+', "Binkp: using file transfers with CRC32 checking");
-			CRCflag = Active;
+			bp.CRCflag = Active;
 		    } else {
 			Syslog('b', "Binkp: CRC32 support is diabled here");
-			CRCflag = No;
+			bp.CRCflag = No;
 		    }
 		}
 
@@ -1126,17 +1175,15 @@ void debug_binkp_list(binkp_list **bll)
 
 
 
-int binkp_batch(file_list *to_send, int role)
+int binkp_batch(file_list *to_send)
 {
     int		    rc = 0, NotDone, rxlen = 0, txlen = 0, rxerror = FALSE;
     static char	    *txbuf, *rxbuf;
     FILE	    *txfp = NULL, *rxfp = NULL;
-    long	    txpos = 0, rxpos = 0, stxpos = 0, written, lsize, gsize, goffset;
+    long	    txpos = 0, rxpos = 0, stxpos = 0, written;
     int		    sverr, cmd = FALSE, GotFrame = FALSE, blklen = 0, c, Found = FALSE;
     unsigned short  header = 0;
-    char	    *lname, *gname;
-    time_t	    ltime, gtime;
-    unsigned long   tcrc = 0, rxcrc = 0;
+    unsigned long   rxcrc = 0;
     off_t	    rxbytes;
     binkp_list	    *bll = NULL, *tmp, *tmpg, *cursend = NULL;
     file_list	    *tsl;
@@ -1149,19 +1196,17 @@ int binkp_batch(file_list *to_send, int role)
     txtvstart.tv_sec = txtvstart.tv_usec = 0;
     txtvend.tv_sec   = txtvend.tv_usec   = 0;
     tz.tz_minuteswest = tz.tz_dsttime = 0;
-    rcrc = 0;
+    bp.rcrc = 0;
+    bp.tcrc = 0;
 
     batchnr++;
     Syslog('+', "Binkp: starting batch %d", batchnr);
-    IsDoing("Binkp %s %s", (role == 1)?"out":"inb", ascfnode(remote->addr, 0xf));
+    IsDoing("Binkp %s %s", (bp.role == 1)?"out":"inb", ascfnode(remote->addr, 0xf));
     txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
-    rname = calloc(512, sizeof(char));
-    lname = calloc(512, sizeof(char));
-    gname = calloc(512, sizeof(char));
 //    TfState = Switch;
-    RxState = RxWaitFile;
-    TxState = TxGetNextFile;
+    bp.RxState = RxWaitFile;
+    bp.TxState = TxGetNextFile;
     binkp_settimer(BINKP_TIMEOUT);
     nethold = mailhold = 0L;
     transferred = FALSE;
@@ -1179,14 +1224,14 @@ int binkp_batch(file_list *to_send, int role)
     Syslog('+', "Binkp: mail %ld, files %ld bytes", nethold, mailhold);
     binkp_send_control(MM_NUL, "TRF %ld %ld", nethold, mailhold);
 
-    while ((RxState != RxDone) || (TxState != TxDone)) {
+    while ((bp.RxState != RxDone) || (bp.TxState != TxDone)) {
 
 	Nopper();
 	if (binkp_expired()) {
 	    Syslog('!', "Binkp: Transfer timeout");
-	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[TxState], rxstate[RxState], rxlen);
-	    RxState = RxDone;
-	    TxState = TxDone;
+	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[bp.TxState], rxstate[bp.RxState], rxlen);
+	    bp.RxState = RxDone;
+	    bp.TxState = TxDone;
 	    binkp_send_control(MM_ERR, "Transfer timeout");
 	    rc = MBERR_FTRANSFER;
 	    break;
@@ -1208,8 +1253,8 @@ int binkp_batch(file_list *to_send, int role)
 			break;
 		    }
 		    Syslog('?', "Binkp: receiver status %s", ttystat[c]);
-		    TxState = TxDone;
-		    RxState = RxDone;
+		    bp.TxState = TxDone;
+		    bp.RxState = RxDone;
 		    rc = (MBERR_TTYIO + (-c));
 		    break;
 		} else {
@@ -1238,7 +1283,7 @@ int binkp_batch(file_list *to_send, int role)
 	/*
 	 * Transmitter state machine
 	 */
-	switch (TxState) {
+	switch (bp.TxState) {
 	case TxGetNextFile:
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if (tmp->state == NoState) {
@@ -1252,10 +1297,10 @@ int binkp_batch(file_list *to_send, int role)
 		    txflock.l_start  = 0L;
 		    txflock.l_len    = 0L;
 
-		    if (CRCflag == Active)
-			tcrc = file_crc(tmp->local, FALSE);
+		    if (bp.CRCflag == Active)
+			bp.tcrc = file_crc(tmp->local, FALSE);
 		    else
-			tcrc = 0;
+			bp.tcrc = 0;
 
 		    txfp = fopen(tmp->local, "r");
 		    if (txfp == NULL) {
@@ -1279,10 +1324,10 @@ int binkp_batch(file_list *to_send, int role)
 
 		    txpos = stxpos = tmp->offset;
 		    Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
-		    if ((CRCflag == Active) && tcrc) {
-			Syslog('+', "Binkp: size %lu bytes, dated %s, crc %lx", (unsigned long)tmp->size, date(tmp->date), tcrc);
+		    if ((bp.CRCflag == Active) && bp.tcrc) {
+			Syslog('+', "Binkp: size %lu bytes, dated %s, crc %lx", (unsigned long)tmp->size, date(tmp->date), bp.tcrc);
 			binkp_send_control(MM_FILE, "%s %lu %ld %ld %lx", MBSE_SS(tmp->remote),
-			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, tcrc);
+			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, bp.tcrc);
 		    } else {
 			Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 			binkp_send_control(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
@@ -1291,7 +1336,7 @@ int binkp_batch(file_list *to_send, int role)
 		    gettimeofday(&txtvstart, &tz);
 		    tmp->state = Sending;
 		    cursend = tmp;
-		    TxState = TxTryRead;
+		    bp.TxState = TxTryRead;
 		    transferred = TRUE;
 		    break;
 		} /* if state == NoState */
@@ -1301,7 +1346,7 @@ int binkp_batch(file_list *to_send, int role)
 		/*
 		 * No more files to send
 		 */
-		TxState = TxWaitLastAck;
+		bp.TxState = TxWaitLastAck;
 		Syslog('b', "Binkp: transmitter to WaitLastAck");
 	    }
 	    break;
@@ -1311,7 +1356,7 @@ int binkp_batch(file_list *to_send, int role)
 	     * Check if there is room in the output buffer
 	     */
 	    if ((WAITPUTGET(-1) & 2) != 0)
-		TxState = TxReadSend;
+		bp.TxState = TxReadSend;
 	    break;
 
 	case TxReadSend:
@@ -1322,7 +1367,7 @@ int binkp_batch(file_list *to_send, int role)
 
 		if (ferror(txfp)) {
 		    WriteError("$Binkp: error reading from file");
-		    TxState = TxGetNextFile;
+		    bp.TxState = TxGetNextFile;
 		    cursend->state = Skipped;
 		    debug_binkp_list(&bll);
 		    break;
@@ -1351,7 +1396,7 @@ int binkp_batch(file_list *to_send, int role)
 		}
 
 		cursend->state = IsSent;
-		TxState = TxGetNextFile;
+		bp.TxState = TxGetNextFile;
 		break;
 	    } else {
 		txpos += txlen;
@@ -1359,7 +1404,7 @@ int binkp_batch(file_list *to_send, int role)
 		binkp_send_data(txbuf, txlen);
 	    }
 
-	    TxState = TxTryRead;
+	    bp.TxState = TxTryRead;
 	    break;
 
 	case TxWaitLastAck:
@@ -1371,7 +1416,7 @@ int binkp_batch(file_list *to_send, int role)
 		    break;
 		}
 	    if (tmp == NULL) {
-		TxState = TxDone;
+		bp.TxState = TxDone;
 		binkp_send_control(MM_EOB, "");
 		Syslog('b', "Binkp: sending EOB");
 	    }
@@ -1388,14 +1433,14 @@ int binkp_batch(file_list *to_send, int role)
 	    if (cmd) {
 		switch (rxbuf[0]) {
 		case MM_ERR:    Syslog('+', "Binkp: got ERR: %s", rxbuf+1);
-				RxState = RxDone;
-				TxState = TxDone;
+				bp.RxState = RxDone;
+				bp.TxState = TxDone;
 				rc = MBERR_FTRANSFER;
 				break;
 
 		case MM_BSY:	Syslog('+', "Binkp: got BSY: %s", rxbuf+1);
-				RxState = RxDone;
-				TxState = TxDone;
+				bp.RxState = RxDone;
+				bp.TxState = TxDone;
 				rc = MBERR_FTRANSFER;
 				break;
 
@@ -1403,22 +1448,23 @@ int binkp_batch(file_list *to_send, int role)
 				break;
 
 		case MM_GET:    Syslog('+', "Binkp: got GET: %s", rxbuf+1);
-				sscanf(rxbuf+1, "%s %ld %ld %ld", gname, &gsize, &gtime, &goffset);
+				sscanf(rxbuf+1, "%s %ld %ld %ld", bp.gname, &bp.gsize, &bp.gtime, &bp.goffset);
 				for (tmpg = bll; tmpg; tmpg = tmpg->next) {
-				    if (strcasecmp(tmpg->remote, gname) == 0) {
+				    if (strcasecmp(tmpg->remote, bp.gname) == 0) {
 					tmpg->state = NoState;
-					tmpg->offset = goffset;
-					Syslog('+', "Remote wants %s again, offset %ld", gname, goffset);
-					TxState = TxGetNextFile;
+					tmpg->offset = bp.goffset;
+					Syslog('+', "Remote wants %s again, offset %ld", bp.gname, bp.goffset);
+					bp.TxState = TxGetNextFile;
 				    }
 				}
 				break;
 
 		case MM_GOT:    Syslog('+', "Binkp: got GOT: %s", rxbuf+1);
-				sscanf(rxbuf+1, "%s %ld %ld", lname, &lsize, &ltime);
+				sscanf(rxbuf+1, "%s %ld %ld", bp.lname, &bp.lsize, &bp.ltime);
 				Found = FALSE;
 				for (tmp = bll; tmp; tmp = tmp->next)
-				    if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
+				    if ((strcmp(bp.lname, tmp->remote) == 0) && (bp.lsize == tmp->size) && 
+					    (bp.ltime == tmp->date)) {
 					Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
 					tmp->state = Got;
 					Found = TRUE;
@@ -1432,21 +1478,21 @@ int binkp_batch(file_list *to_send, int role)
 				break;
 
 		case MM_EOB:    Syslog('+', "Binkp: got EOB");
-				RxState = RxEndOfBatch;
+				bp.RxState = RxEndOfBatch;
 				break;
 
 		case MM_FILE:   Syslog('b', "Binkp: got FILE: %s", rxbuf+1);
-				if ((RxState == RxWaitFile) || (RxState == RxEndOfBatch)) {
-				    RxState = RxAcceptFile;
+				if ((bp.RxState == RxWaitFile) || (bp.RxState == RxEndOfBatch)) {
+				    bp.RxState = RxAcceptFile;
 				    if (strlen(rxbuf) < 512) {
 					/*
 					 * Check against buffer overflow
 					 */
-					rcrc = 0;
-					if (CRCflag == Active) {
-					    sscanf(rxbuf+1, "%s %ld %ld %ld %lx", rname, &rsize, &rtime, &roffs, &rcrc);
+					bp.rcrc = 0;
+					if (bp.CRCflag == Active) {
+					    sscanf(rxbuf+1, "%s %ld %ld %ld %lx", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs, &bp.rcrc);
 					} else {
-					    sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
+					    sscanf(rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
 					}
 				    } else {
 					Syslog('+', "Binkp: got corrupted FILE frame, size %d bytes", strlen(rxbuf));
@@ -1460,31 +1506,31 @@ int binkp_batch(file_list *to_send, int role)
 		}
 	    } else {
 		if (blklen) {
-		    if (RxState == RxReceData) {
+		    if (bp.RxState == RxReceData) {
 			written = fwrite(rxbuf, 1, blklen, rxfp);
-			if (CRCflag == Active)
+			if (bp.CRCflag == Active)
 			    rxcrc = upd_crc32(rxbuf, rxcrc, blklen);
 			if (!written && blklen) {
 			    Syslog('+', "Binkp: file write error");
-			    RxState = RxDone;
+			    bp.RxState = RxDone;
 			}
 			rxpos += written;
-			if (rxpos == rsize) {
-			    RxState = RxWaitFile;
-			    if ((CRCflag == Active) && rcrc) {
+			if (rxpos == bp.rsize) {
+			    bp.RxState = RxWaitFile;
+			    if ((bp.CRCflag == Active) && bp.rcrc) {
 				rxcrc = rxcrc ^ 0xffffffff;
-				if (rcrc == rxcrc) {
-				    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+				if (bp.rcrc == rxcrc) {
+				    binkp_send_control(MM_GOT, "%s %ld %ld %lx", bp.rname, bp.rsize, bp.rtime, bp.rcrc);
 				    closefile();
 				} else {
 				    rxerror = TRUE;
 				    crc_errors++;
-				    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+				    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", bp.rname, bp.rsize, bp.rtime, bp.rcrc);
 				    Syslog('+', "Binkp: file CRC error nr %d, sending SKIP frame", crc_errors);
 				    if (crc_errors >= 3) {
 					WriteError("Binkp: file CRC error nr %d, aborting session", crc_errors);
 					binkp_send_control(MM_ERR, "Too much CRC errors, aborting session");
-					RxState = RxDone;
+					bp.RxState = RxDone;
 					rc = MBERR_FTRANSFER;
 				    }
 				    closefile();
@@ -1493,14 +1539,14 @@ int binkp_batch(file_list *to_send, int role)
 				/*
 				 * ACK without CRC check
 				 */
-				binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
+				binkp_send_control(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 				closefile();
 			    }
 			    rxpos = rxpos - rxbytes;
 			    gettimeofday(&rxtvend, &tz);
 			    Syslog('+', "Binkp: %s %s", rxerror?"ERROR":"OK", transfertime(rxtvstart, rxtvend, rxpos, FALSE));
 			    rcvdbytes += rxpos;
-			    RxState = RxWaitFile;
+			    bp.RxState = RxWaitFile;
 			    transferred = TRUE;
 			}
 		    } else {
@@ -1517,19 +1563,19 @@ int binkp_batch(file_list *to_send, int role)
 	/*
 	 * Receiver state machine
 	 */
-	switch (RxState) {
+	switch (bp.RxState) {
 	case RxWaitFile:
 	    break;
 
 	case RxAcceptFile:
-	    if (CRCflag == Active)
+	    if (bp.CRCflag == Active)
 		Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld crc %lx", 
-			rname, date(rtime), rsize, roffs, rcrc);
+			bp.rname, date(bp.rtime), bp.rsize, bp.roffs, bp.rcrc);
 	    else
 		Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", 
-			rname, date(rtime), rsize, roffs);
-	    (void)binkp2unix(rname);
-	    rxfp = openfile(binkp2unix(rname), rtime, rsize, &rxbytes, resync);
+			bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
+	    (void)binkp2unix(bp.rname);
+	    rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, resync);
 	    gettimeofday(&rxtvstart, &tz);
 	    rxpos = 0;
 	    rxcrc = 0xffffffff;
@@ -1538,37 +1584,37 @@ int binkp_batch(file_list *to_send, int role)
 	    if (!diskfree(CFG.freespace)) {
 		Syslog('+', "Binkp: low diskspace, sending BSY");
 		binkp_send_control(MM_BSY, "Low diskspace, try again later");
-		RxState = RxDone;
-		TxState = TxDone;
+		bp.RxState = RxDone;
+		bp.TxState = TxDone;
 		rc = MBERR_FTRANSFER;
 		break;
 	    }
 
-	    if (rsize == rxbytes) {
+	    if (bp.rsize == rxbytes) {
 		/*
 		 * We already got this file, send GOT so it will
 		 * be deleted at the remote.
 		 */
-		Syslog('+', "Binkp: already got %s, sending GOT", rname);
-		if ((CRCflag == Active) && rcrc)
-		    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+		Syslog('+', "Binkp: already got %s, sending GOT", bp.rname);
+		if ((bp.CRCflag == Active) && bp.rcrc)
+		    binkp_send_control(MM_GOT, "%s %ld %ld %lx", bp.rname, bp.rsize, bp.rtime, bp.rcrc);
 		else
-		    binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
-		RxState = RxWaitFile;
+		    binkp_send_control(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
+		bp.RxState = RxWaitFile;
 		rxfp = NULL;
 	    } else if (!rxfp) {
 		/*
 		 * Some error, request to skip it
 		 */
-		Syslog('+', "Binkp: error file %s, sending SKIP", rname);
-		if ((CRCflag == Active) && rcrc)
-		    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
+		Syslog('+', "Binkp: error file %s, sending SKIP", bp.rname);
+		if ((bp.CRCflag == Active) && bp.rcrc)
+		    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", bp.rname, bp.rsize, bp.rtime, bp.rcrc);
 		else
-		    binkp_send_control(MM_SKIP, "%s %ld %ld", rname, rsize, rtime);
-		RxState = RxWaitFile;
+		    binkp_send_control(MM_SKIP, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
+		bp.RxState = RxWaitFile;
 	    } else {
-		Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", rsize, rxbytes, roffs);
-		RxState = RxReceData;
+		Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", bp.rsize, rxbytes, bp.roffs);
+		bp.RxState = RxReceData;
 	    }
 	    break;
 
@@ -1576,8 +1622,8 @@ int binkp_batch(file_list *to_send, int role)
 	    break;
 
 	case RxEndOfBatch:
-	    if (TxState == TxDone)
-		RxState = RxDone;
+	    if (bp.TxState == TxDone)
+		bp.RxState = RxDone;
 	    break;
 
 	case RxDone:
@@ -1613,9 +1659,6 @@ int binkp_batch(file_list *to_send, int role)
 
     free(txbuf);
     free(rxbuf);
-    free(rname);
-    free(lname);
-    free(gname);
 
     /*
      * If there was an error, try to close a possible incomplete file in

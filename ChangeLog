@@ -2,11 +2,10 @@ $Id$
 
 	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
 
-	Inbound file handling is changed, this version is under test and should NOT
-	be used on production systems if you don't want to help debugging.
-	Handshake and EMSI is changed, please run this version with debugging on,
-	mbsetup 1.14.1 turn 5, 11 and 18 on at least. Report any problems and include
-	a piece of the (debug)logfile.
+	Inbound file handling is changed, this is safe to use now.
+	Please run this version with debugging on, mbsetup 1.14.1 turn 5, 11 
+	and 18 on at least. Report any problems and include a piece of the 
+	(debug)logfile.
 
 	Before installing, make a copy of /opt/mbse/bin/mbcico so you can go back
 	if you experience any problems.
@@ -41,6 +40,10 @@ v0.37.7		09-Sep-2003
 		Fixed MB state error from the previous version.
 		Added more code to debug the broken transfer problem.
 		Add attempt to send a resync command, please test.
+		Rewrote another part of the binkp driver, initializing the
+		options.
+		If doesn't do Multiple Batch mode anymore against binkp/1.1
+		mailers.
 
 	mbtask:
 		Added support for debug logfile. Dropped the debug switch for
