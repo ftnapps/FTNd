@@ -236,6 +236,7 @@ void e_global2(void)
 	mvprintw(10, 2, "5.  Ftp base");
 	mvprintw(11, 2, "6.  Arealists");
 	mvprintw(12, 2, "7.  Ext. edit");
+	mvprintw(13, 2, "8.  Rules dir");
 
         for (;;) {
                 set_color(WHITE, BLACK);
@@ -246,8 +247,9 @@ void e_global2(void)
 		show_str(10,16,64, CFG.ftp_base);
 		show_str(11,16,64, CFG.alists_path);
 		show_str(12,16,64, CFG.externaleditor);
+		show_str(13,16,64, CFG.rulesdir);
 
-                switch(select_menu(7)) {
+                switch(select_menu(8)) {
                 case 0: return;
                 case 1: E_PTH( 6,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.", 0750)
                 case 2: E_STR( 7,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
@@ -257,6 +259,7 @@ void e_global2(void)
 		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.", 0750)
 		case 7: E_STR(12,16,64, CFG.externaleditor, 
 				"The full path and filename to the ^external message editor^ (blank=disable)")
+		case 8: E_PTH(13,16,64, CFG.rulesdir,       "The path where the ^arearules^ are stored", 0750)
                 }
         };
 }
@@ -1606,6 +1609,10 @@ void global_menu(void)
 	Syslog('+', "Main config, upgraded for AreaMgr flags");
     }
 
+    if (strlen(CFG.rulesdir) == 0) {
+	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));
+	Syslog('+', "Main config, upgraded rules directory");
+    }
 
     for (;;) {
 

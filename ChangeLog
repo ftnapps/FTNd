@@ -4,6 +4,9 @@ $Id$
 v0.37.01	14-Jan-2003.
 
 	upgrade:
+		After installing the binaries, start mbsetup, enter menu 1 and
+		leave that and save it. This will set the default rules 
+		directory, will be used later.
 		After upgrade you may remove ~/etc/maptabs and it's contents.
 		After upgrade you may remove ~/etc/bank.data.
 
@@ -56,6 +59,7 @@ v0.37.01	14-Jan-2003.
 		When moving a message area to area zero mbsetup doesn't crash
 		anymore.
 		Added new menu item 319, remove menu items 22 and 23.
+		Added setup for rules directory.
 
 	mbsebbs:
 		It will now refuse to up/download OLR packets when the system
