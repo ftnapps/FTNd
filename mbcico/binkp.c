@@ -121,19 +121,19 @@ int binkp(int role)
     char	*nonhold_mail;
 
     if (role == 1) {
-	Syslog('+', "BINKP start outbound session");
+	Syslog('+', "Binkp: start outbound session");
 	if (orgbinkp()) {
 	    rc = MBERR_SESSION_ERROR;
 	}
     } else {
-	Syslog('+', "BINKP start inbound session");
+	Syslog('+', "Binkp: start inbound session");
 	if (ansbinkp()) {
 	    rc = MBERR_SESSION_ERROR;
 	}
     }
 	
     if (rc) {
-	Syslog('!', "BINKP session failed");
+	Syslog('!', "Binkp: session failed");
 	return rc;
     }
 
@@ -179,7 +179,7 @@ int binkp(int role)
 	tmpfl->next = NULL;
     }
 
-    Syslog('+', "BINKP end transfer rc=%d", rc);
+    Syslog('+', "Binkp: end transfer rc=%d", rc);
     closetcp();
 
     if (!MBflag) {
@@ -265,7 +265,6 @@ char *binkp2unix(char *fn)
 	    hex[0] = *p++;
 	    hex[1] = *p;
 	    hex[2] = '\0';
-	    Syslog('b', "binkp2unix hex=%s", hex);
 	    sscanf(hex, "%2x", &c);
 	    *q++ = c;
 	    *q = '\0';
@@ -277,7 +276,6 @@ char *binkp2unix(char *fn)
     }
     *q = '\0';
 
-    Syslog('b', "binkp2unix \"%s\"", printable(buf, 0));
     return buf;
 }
 
@@ -375,7 +373,7 @@ int binkp_recv_frame(char *buf, int *len, int *cmd)
 
 to:
     if (tty_status)
-	WriteError("TCP receive error: %d %s", tty_status, ttystat[tty_status]);
+	WriteError("Binkp: TCP receive error: %d %s", tty_status, ttystat[tty_status]);
     return tty_status;
 }
 
@@ -493,7 +491,7 @@ SM_START(waitconn)
 SM_STATE(waitconn)
 
     Loaded = FALSE;
-    Syslog('+', "Start binkp session with %s", ascfnode(remote->addr, 0x1f));
+    Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
     b_banner(TRUE);
     binkp_send_control(MM_NUL,"OPT MB CRC");
@@ -540,7 +538,7 @@ SM_STATE(waitaddr)
 	
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
-	    Syslog('!', "Error receiving remote info");
+	    Syslog('!', "Binkp: error receiving remote info");
 	    SM_ERROR;
 	}
 
@@ -570,7 +568,7 @@ SM_STATE(waitaddr)
 			    tmp = &((*tmp)->next);
 			}
 		    } else {
-			Syslog('!', "Bad remote address: \"%s\"", printable(q, 0));
+			Syslog('!', "Binkp: bad remote address: \"%s\"", printable(q, 0));
 			binkp_send_control(MM_ERR, "Bad address");
 		    }
 
@@ -600,11 +598,11 @@ SM_STATE(waitaddr)
 		SM_PROCEED(authremote)
 
 	    } else if (rbuf[0] == MM_BSY) {
-		Syslog('!', "Remote is busy");
+		Syslog('!', "Binkp: remote is busy");
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -626,7 +624,7 @@ SM_STATE(authremote)
     if (rc) {
 	SM_PROCEED(waitok)
     } else {
-	Syslog('!', "Error: the wrong node is reached");
+	Syslog('!', "Binkp: error, the wrong node is reached");
 	binkp_send_control(MM_ERR, "No AKAs in common or all AKAs busy");
 	SM_ERROR;
     }
@@ -635,24 +633,24 @@ SM_STATE(waitok)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
-	    Syslog('!', "Error waiting for remote acknowledge");
+	    Syslog('!', "Binkp: error waiting for remote acknowledge");
 	    SM_ERROR;
 	}
 
 	if (cmd) {
 	    if (rbuf[0] == MM_OK) {
 		if (SendPass)
-		    Syslog('+', "Password protected BINKP session");
+		    Syslog('+', "Binkp: password protected session");
 		else
-		    Syslog('+', "Unprotected BINKP session");
+		    Syslog('+', "Binkp: unprotected session");
 		SM_SUCCESS;
 
 	    } else if (rbuf[0] == MM_BSY) {
-		Syslog('!', "Remote is busy");
+		Syslog('!', "Binkp: remote is busy");
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -709,7 +707,7 @@ SM_STATE(waitaddr)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
-	    Syslog('!', "Error waiting for remote info");
+	    Syslog('!', "Binkp: error waiting for remote info");
 	    SM_ERROR;
 	}
 
@@ -739,7 +737,7 @@ SM_STATE(waitaddr)
 			    tmp = &((*tmp)->next);
 			}
 		    } else {
-			Syslog('!', "Bad remote address: \"%s\"", printable(q, 0));
+			Syslog('!', "Binkp: bad remote address: \"%s\"", printable(q, 0));
 			binkp_send_control(MM_ERR, "Bad address");
 		    }
 
@@ -762,7 +760,7 @@ SM_STATE(waitaddr)
 
 		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 		    if (((nlent = getnlent(tmpa->addr))) && (nlent->pflag != NL_DUMMY)) {
-			Syslog('+', "Remote is a listed system");
+			Syslog('+', "Binkp: remote is a listed system");
 			if (inbound)
 			    free(inbound);
 			inbound = xstrcpy(CFG.inbound);
@@ -791,7 +789,7 @@ SM_STATE(waitaddr)
 		SM_PROCEED(waitpwd)
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -804,7 +802,7 @@ SM_STATE(waitpwd)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
-	    Syslog('!', "Error waiting for password");
+	    Syslog('!', "Binkp: error waiting for password");
 	    SM_ERROR;
 	}
 
@@ -813,7 +811,7 @@ SM_STATE(waitpwd)
 		SM_PROCEED(pwdack)
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
                 SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -825,22 +823,22 @@ SM_STATE(waitpwd)
 SM_STATE(pwdack)
 
     if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
-	Syslog('+', "Node not in setup, unprotected BINKP session");
+	Syslog('+', "Binkp: node not in setup, unprotected session");
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;
     } else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Spasswd)) {
-	Syslog('+', "Node in setup but no session password, unprotected BINKP session");
+	Syslog('+', "Binkp: node in setup but no session password, unprotected session");
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;
     } else if ((strcmp(&rbuf[1], nodes.Spasswd) == 0) && Loaded) {
-	Syslog('+', "Password OK, protected BINKP session");
+	Syslog('+', "Binkp: password OK, protected session");
 	if (inbound)
 	    free(inbound);
 	inbound = xstrcpy(CFG.pinbound);
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;
     } else {
-	Syslog('?', "Password error: expected \"%s\", got \"%s\"", nodes.Spasswd, &rbuf[1]);
+	Syslog('?', "Binkp: password error: expected \"%s\", got \"%s\"", nodes.Spasswd, &rbuf[1]);
 	binkp_send_control(MM_ERR, "*** Password error, check setup ***");
 	SM_ERROR;
     }
@@ -1222,7 +1220,7 @@ int binkp_batch(file_list *to_send, int role)
 					    sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
 					}
 				    } else {
-					Syslog('+', "Got corrupted FILE frame, size %d bytes", strlen(rxbuf));
+					Syslog('+', "Binkp: got corrupted FILE frame, size %d bytes", strlen(rxbuf));
 				    }
 				} else {
 				    Syslog('+', "Binkp: got unexpected FILE frame %s", rxbuf+1);
@@ -1253,9 +1251,9 @@ int binkp_batch(file_list *to_send, int role)
 				    rxerror = TRUE;
 				    crc_errors++;
 				    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
-				    Syslog('+', "File CRC error nr %d, sending SKIP frame", crc_errors);
+				    Syslog('+', "Binkp: file CRC error nr %d, sending SKIP frame", crc_errors);
 				    if (crc_errors >= 3) {
-					WriteError("File CRC error nr %d, aborting session", crc_errors);
+					WriteError("Binkp: file CRC error nr %d, aborting session", crc_errors);
 					binkp_send_control(MM_ERR, "Too much CRC errors, aborting session");
 					RxState = RxDone;
 					rc = MBERR_FTRANSFER;
