@@ -127,7 +127,7 @@ void MakeStat(void)
     }
     
     Syslog('+', "Start making statistic HTML pages");
-    name = calloc(128, sizeof(char));
+    name = calloc(PATH_MAX, sizeof(char));
     if (Miy == 0)
 	Lm = 11;
     else
@@ -365,9 +365,12 @@ void MakeStat(void)
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
 		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"&nbsp;");
-		    MacroVars("d", "s", hist.system_name);
-		    MacroVars("e", "s", hist.sysop);
-		    MacroVars("f", "s", hist.location);
+		    html_massage(hist.system_name, name);
+		    MacroVars("d", "s", name);
+		    html_massage(hist.sysop, name);
+		    MacroVars("e", "s", name);
+		    html_massage(hist.location, name);
+		    MacroVars("f", "s", name);
 		    MacroVars("g", "s", strlen(hist.tty) ? hist.tty:"&nbsp;");
 		    MacroVars("h", "s", adate(hist.online));
 		    MacroVars("i", "s", t_elapsed(hist.online, hist.offline));
