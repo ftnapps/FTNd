@@ -4210,3 +4210,42 @@ v0.33.18        27-Jul-2001
 		Upgraded the FTSC documents to the current state.
 
 
+v0.33.19        26-Oct-2001
+
+	lang:
+		Changed language prompt 71.
+		Added language prompts 472 and 473 for FS editor.
+		Added language prompts 474 and 475 for address entry.
+
+	examples:
+		SAVE:
+		Changed menu setup.mnu and textfiles setup.* to show the new
+		setup entries for the users.
+
+	mbsetup:
+		Changed usereditor, new layout, added new settings and
+		changed password reset function. The system password is
+		now also updated.
+		Added setup item for menus 317 and 318.
+
+	mbsebbs:
+		Added menu 317, change FS editor shortcut keys to (Emacs/
+		Wordstar) style.
+		Added menu 318, change users address.
+		Added control-U 4, ON/OFF for FS edit Emacs shortcut keys.
+		Now updates the lastcaller information when a call is finished
+		and now also sets all the action bits what the user has been
+		doing. Also time online is correct now.
+		Added control-U 5, 6, 7, display users address lines 1, 2
+		and 3.
+
+	mbtask:
+		Changed to handle the External Doors flag in the lastcaller
+		information.
+
+	mbmon:
+		Changed the lastcaller screen to display the External Door
+		information.
+		When lastcaller info is scrolling, the lines are first proper
+		erased.
+
