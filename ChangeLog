@@ -35,6 +35,7 @@ v0.61.4		11-Aug-2004
 		The exec_nosuid function for doors now also has a extra small
 		delay just like all other execute functions to prevent problems
 		on fast machines.
+		Added extra fflush in quickscan mail.
 
 	mbuser:
 		Fixed permissions.
