@@ -679,92 +679,91 @@ int runtasktype(int tasktype)
  */
 int checktasks(int onsig)
 {
-	int	i, j, rc, count = 0, first = TRUE, status, do_outstat = FALSE;
+    int	i, j, rc, count = 0, first = TRUE, status, do_outstat = FALSE;
 
-	for (i = 0; i < MAXTASKS; i++) {
-		if (strlen(task[i].name)) {
+    for (i = 0; i < MAXTASKS; i++) {
+	if (strlen(task[i].name)) {
 
-			if (onsig) {
-				if (kill(task[i].pid, onsig) == 0)
-					tasklog('+', "%s to %s (pid %d) succeeded", SigName[onsig], task[i].name, task[i].pid);
-				else
-					tasklog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
+	    if (onsig) {
+		if (kill(task[i].pid, onsig) == 0)
+		    tasklog('+', "%s to %s (pid %d) succeeded", SigName[onsig], task[i].name, task[i].pid);
+		else
+		    tasklog('+', "%s to %s (pid %d) failed", SigName[onsig], task[i].name, task[i].pid);
+	    }
+
+	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
+	    if (task[i].rc) {
+		task[i].running = FALSE;
+		if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
+		    do_outstat = TRUE;
+		ptimer = PAUSETIME;
+	    }
+
+	    if (first && task[i].rc) {
+		first = FALSE;
+		tasklog('t', "Task             Type      pid stat status      rc    status");
+		tasklog('t', "---------------- ------- ----- ---- ----------- ----- --------");
+		for (j = 0; j < MAXTASKS; j++)
+		    if (strlen(task[j].name))
+			tasklog('t', "%-16s %s %5d %s %-11d %5d %08x", task[j].name, callmode(task[j].tasktype), 
+				task[j].pid, task[j].running?"runs":"stop", task[j].status, task[j].rc, task[j].status);
+	    }
+
+	    switch (task[i].rc) {
+		case -1:
+			if (errno == ECHILD)
+			    tasklog('+', "Task %d \"%s\" is ready", i, task[i].name);
+			else
+			    tasklog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
+			break;
+		case 0:
+			/*
+			 * Update last known status when running.
+			 */
+			task[i].status = status;
+			count++;
+			break;
+		default:
+			tasklog('+', "errno=%d %s", errno, strerror(errno));
+			if (WIFEXITED(task[i].status)) {
+			    rc = WEXITSTATUS(task[i].status);
+			    if (rc)
+				tasklog('+', "Task %s is ready, error=%d", task[i].name, rc);
+			    else
+				tasklog('+', "Task %s is ready", task[i].name);
+			} else if (WIFSIGNALED(task[i].status)) {
+			    rc = WTERMSIG(task[i].status);
+			    if (rc <= 31)
+				tasklog('+', "Task %s terminated on signal %s (%d)", task[i].name, SigName[rc], rc);
+			    else
+				tasklog('+', "Task %s terminated with error nr %d", task[i].name, rc);
+			} else if (WIFSTOPPED(task[i].status)) {
+			    rc = WSTOPSIG(task[i].status);
+			    tasklog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
+			} else {
+			    tasklog('+', "FIXME: 1");
 			}
+			break;
+	    }
 
-			task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
-			if (task[i].rc) {
-				task[i].running = FALSE;
-				if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
-					do_outstat = TRUE;
-				ptimer = PAUSETIME;
-			}
-
-			if (first && task[i].rc) {
-				first = FALSE;
-				tasklog('t', "Task             Type      pid stat status      rc    status");
-				tasklog('t', "---------------- ------- ----- ---- ----------- ----- --------");
-				for (j = 0; j < MAXTASKS; j++)
-					if (strlen(task[j].name))
-						tasklog('t', "%-16s %s %5d %s %-11d %5d %08x", task[j].name, 
-							callmode(task[j].tasktype), task[j].pid, task[j].running?"runs":"stop", 
-							task[j].status, task[j].rc, task[j].status);
-			}
-
-			switch (task[i].rc) {
-			case -1:
-				if (errno == ECHILD)
-					tasklog('+', "Task %d \"%s\" is ready", i, task[i].name);
-				else
-					tasklog('+', "Task %d \"%s\" is ready, error: %s", i, task[i].name, strerror(errno));
-				break;
-			case 0:
-				/*
-				 * Update last known status when running.
-				 */
-				task[i].status = status;
-				count++;
-				break;
-			default:
-				tasklog('+', "errno=%d %s", errno, strerror(errno));
-				if (WIFEXITED(task[i].status)) {
-					rc = WEXITSTATUS(task[i].status);
-					if (rc)
-						tasklog('+', "Task %s is ready, error=%d", task[i].name, rc);
-					else
-						tasklog('+', "Task %s is ready", task[i].name);
-				} else if (WIFSIGNALED(task[i].status)) {
-					rc = WTERMSIG(task[i].status);
-					if (rc <= 31)
-						tasklog('+', "Task %s terminated on signal %s (%d)", task[i].name, SigName[rc], rc);
-					else
-						tasklog('+', "Task %s terminated with error nr %d", task[i].name, rc);
-				} else if (WIFSTOPPED(task[i].status)) {
-					rc = WSTOPSIG(task[i].status);
-					tasklog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);
-				} else {
-					tasklog('+', "FIXME: 1");
-				}
-				break;
-			}
-
-			if (!task[i].running) {
-			    for (j = 0; j < MAXTASKS; j++) {
-				if (calllist[j].taskpid == task[i].pid) {
-				    calllist[j].calling = FALSE;
-				    calllist[j].taskpid = 0;
-				}
-			    }
-			    memset(&task[i], 0, sizeof(onetask));
-			}
+	    if (!task[i].running) {
+		for (j = 0; j < MAXTASKS; j++) {
+		    if (calllist[j].taskpid == task[i].pid) {
+			calllist[j].calling = FALSE;
+			calllist[j].taskpid = 0;
+		    }
 		}
+		memset(&task[i], 0, sizeof(onetask));
+	    }
 	}
+    }
 
-	if (do_outstat) {
-		outstat();
-		check_calllist();
-	}
+    if (do_outstat) {
+	outstat();
+	check_calllist();
+    }
 
-	return count;
+    return count;
 }
 
 
@@ -1034,8 +1033,6 @@ int ping_send(struct in_addr addr)
 	to.sin_addr   = addr;
 	SET_SOCKA_LEN4(to);
 	if (sendto(isock, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to)) == -1) {
-//		if (icmp_errs < ICMP_MAX_ERRS)
-//			tasklog('?', "$icmp ping: sendto()");
 		return -2;
 	}
 	return 0;

@@ -237,7 +237,7 @@ int outstat()
 			    T_window = TRUE;
 		    }
 		}
-		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+//		tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 		strcpy(flstr,"...... ... ..");
 		/*
 		 * If the node has internet and we have internet available, check if we can send

@@ -4608,3 +4608,6 @@ v0.33.20        10-Feb-2002
 		Will not crash anymore when it needs more then 10 minutes to
 		create the allfiles and newfiles lists.
 
+	mbtask:
+		Removed some debug logging.
+
