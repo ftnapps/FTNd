@@ -671,8 +671,8 @@ int edit_bool(int y, int x, int val, char *help)
 	int	ch;
 	char	*temp;
 
-	temp = calloc(81, sizeof(char));
-	sprintf(temp, "%s (Spacebar = toggle)", help);
+	temp = xstrcpy(help);
+	temp = xstrcat(temp, (char *)" (Spacebar = toggle)");
 	showhelp(temp);
 	free(temp);
 

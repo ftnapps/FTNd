@@ -4338,6 +4338,10 @@ v0.33.19        26-Oct-2001
 		When editing a node's connected file/mail groups it can now
 		handle more then 40 groups without messing up the screen.
 		Fixed area selection in filedatabase editor.
+		Protected help string display for boolean edit against buffer
+		overflow.
+		Menu 5.1.14, helpstring was too long, causing a buffer
+		overflow without the previous protection.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/

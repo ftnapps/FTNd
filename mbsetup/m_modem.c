@@ -483,7 +483,7 @@ int EditModemRec(int Area)
 		case 11:E_STR(17,14,15, modem.speed,      "The ^EMSI speed^ message for this modem")
 		case 12:E_BOOL(15,44,   modem.available,  "If this modem is ^available^")
 		case 13:E_BOOL(16,44,   modem.deleted,    "If this modem is to be ^deleted^ from the setup")
-		case 14:E_BOOL(17,44,   modem.stripdash,  "Stript ^dashes (-)^ from dial command strings if this modem needs it")
+		case 14:E_BOOL(17,44,   modem.stripdash,  "Strip ^dashes (-)^ from dial command strings if needed")
 		case 15:
 			EditConnect();
 			Modem_Screen();
