@@ -136,7 +136,13 @@ void soft_info(void)
 	temp = calloc(81, sizeof(char));
 	clr_index();
 	set_color(YELLOW, BLACK);
-	center_addstr( 6, (char *)"MBSE BBS");
+#ifdef __linux__
+	center_addstr( 6, (char *)"MBSE BBS (Linux)");
+#elif __FreeBSD__
+	center_addstr( 6, (char *)"MBSE BBS (FreeBSD)");
+#else
+	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
+#endif
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)Copyright);
 	set_color(YELLOW, BLACK);
@@ -152,9 +158,11 @@ void soft_info(void)
 #endif
 #endif
 	center_addstr(12, temp);
+	set_color(LIGHTCYAN, BLACK);
+	center_addstr(14, (char *)"http://mbse.sourceforge.net or 2:280/2802");
 	set_color(LIGHTGREEN, BLACK);
-	center_addstr(LINES -8, (char *)"This is free software; released under the terms of the GNU General");
-	center_addstr(LINES -7, (char *)"Public License as published by the Free Software Foundation.");
+	center_addstr(LINES -7, (char *)"This is free software; released under the terms of the GNU General");
+	center_addstr(LINES -6, (char *)"Public License as published by the Free Software Foundation.");
 	set_color(CYAN, BLACK);
 	free(temp);
 	center_addstr(LINES -4, (char *)"Press any key");
