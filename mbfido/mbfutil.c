@@ -119,7 +119,7 @@ void Help(void)
 	printf("        im import <area>		Import files in current dir to area\n");
 	printf("	in index			Create filerequest index\n");
 	printf("        k  kill				Kill/move old files\n");
-	printf("	l  list				List file areas\n");
+	printf("	l  list	[area]			List file areas or one area\n");
 //	printf("	m  move <from> <to> <file>	Move file from to area\n");
 	printf("	p  pack				Pack filebase\n");
 //	printf("	r  rearc <area> [file] [arc]	Rearc file(s) in area\n");

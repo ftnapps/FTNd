@@ -124,8 +124,15 @@ int main(int argc, char **argv)
 			cmd = xstrcat(cmd, argv[i]);
 		    }
 		}
-		if (!strncmp(argv[i], "l", 1))
+		if (!strncmp(argv[i], "l", 1)) {
 			do_list  = TRUE;
+			if (argc > (i + 1)) {
+			    i++;
+			    Area = atoi(argv[i]);
+			    cmd = xstrcat(cmd, (char *)" ");
+			    cmd = xstrcat(cmd, argv[i]);
+			}
+		}
 		if (!strncmp(argv[i], "p", 1))
 			do_pack = TRUE;
 		if (!strncmp(argv[i], "c", 1))
@@ -173,7 +180,7 @@ int main(int argc, char **argv)
 		Index();
 
 	if (do_list)
-		ListFileAreas();
+		ListFileAreas(Area);
 
 	die(0);
 	return 0;
