@@ -630,7 +630,7 @@ void MsgGlobal(void)
     char	*p, mfile[PATH_MAX];
     FILE	*fil;
     fidoaddr	a1, a2;
-    int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_LATIN_1;
+    int		menu = 0, marea, Areas, akan = 0, Found, charset = FTNC_CP437;
     int		Total, Done, netbrd, daysold, maxmsgs, maxarticles;
     long	offset;
     securityrec	rs, ws, ss, as;

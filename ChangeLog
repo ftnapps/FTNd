@@ -95,7 +95,7 @@ v0.51.1		21-Feb-2004 - 06-Mar-2004
 	upgrade:
 		In all message groups set check/set default character set.
 		In all message areas set the character set to use with the
-		global editor (to Latin-1 for example). Local and netmail
+		global editor (to CP437 for example). Local and netmail
 		areas must be done by hand because they are most likely not
 		in a group.
 		The macro templates are updated, you MUST install the newfiles

@@ -155,7 +155,7 @@ int OpenMGroup(void)
 				    mgroup.LinkSec.flags = 1;
 				}
 				if (MGrpUpdated && (mgroup.Charset == FTNC_NONE)) {
-				    mgroup.Charset = FTNC_LATIN_1;
+				    mgroup.Charset = FTNC_CP437;
 				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
