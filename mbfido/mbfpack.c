@@ -47,13 +47,20 @@ extern int	do_index;		/* Reindex filebases		*/
  */
 void PackFileBase(void)
 {
-    FILE    *fp, *pAreas, *pFile;
+    FILE    *pAreas;
     int	    i, iAreas, iAreasNew = 0, rc, iTotal = 0, iRemoved = 0;
-    char    *sAreas, *fAreas, *fTmp, fn[PATH_MAX];
+    char    *sAreas, fn[PATH_MAX];
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE    *pFile, *fp;
+    char    *fAreas, *fTmp;
 
-    sAreas = calloc(PATH_MAX, sizeof(char));
     fAreas = calloc(PATH_MAX, sizeof(char));
     fTmp   = calloc(PATH_MAX, sizeof(char));
+#endif
+
+    sAreas = calloc(PATH_MAX, sizeof(char));
 
     IsDoing("Pack filebase");
     if (!do_quiet) {
@@ -88,6 +95,10 @@ void PackFileBase(void)
 	    }
 	    Marker();
 
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
+		die(MBERR_GENERAL);
+#else
 	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    sprintf(fTmp,   "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), i);
 
@@ -109,13 +120,19 @@ void PackFileBase(void)
 		die(MBERR_GENERAL);
 	    }
 	    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
+#endif
 
+#ifdef	USE_EXPERIMENT
+	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-
+#endif
 		iTotal++;
 
 		if ((!fdb.Deleted) && (!fdb.Double) && (strcmp(fdb.Name, "") != 0)) {
+#ifndef	USE_EXPERIMENT
 		    fwrite(&fdb, fdbhdr.recsize, 1, fp);
+#endif
 		} else {
 		    iRemoved++;
 		    if (fdb.Double) {
@@ -140,6 +157,10 @@ void PackFileBase(void)
 		}
 	    }
 
+#ifdef	USE_EXPERIMENT
+	    mbsedb_PackFDB(fdb_area);
+	    mbsedb_CloseFDB(fdb_area);
+#else
 	    fclose(fp);
 	    fclose(pFile);
 
@@ -147,6 +168,7 @@ void PackFileBase(void)
 		unlink(fTmp);
 		chmod(fAreas, 00660);
 	    }
+#endif
 	    iAreasNew++;
 
 	} /* if area.Available */
@@ -160,9 +182,11 @@ void PackFileBase(void)
 	fflush(stdout);
     }
 
+#ifndef	USE_EXPERIMENT
     free(fTmp);
-    free(sAreas);
     free(fAreas);
+#endif
+    free(sAreas);
 }
 
 
