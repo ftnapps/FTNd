@@ -84,7 +84,7 @@ clean:
 
 install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 4750 mbfido  ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0750 mbseq   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbseq   ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbaff   ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbindex ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbdiff  ${BINDIR}
