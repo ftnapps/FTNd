@@ -158,7 +158,7 @@ void menu()
 
 	    while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
 		if ( Le_Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= le_int(menus.Age))){
-		    if ( menus.AutoExec ) {
+		    if (menus.AutoExec) {
 			DoMenu( le_int(menus.MenuType) );
 		    }
 		    DisplayMenu( ); 
