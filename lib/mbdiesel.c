@@ -276,7 +276,7 @@ void html_massage(char *inbuf, char *outbuf)
                         case 174:       sprintf(outptr, "&reg;");       break;
                         case 175:       sprintf(outptr, "&macr;");      break;
                         case 176:       sprintf(outptr, "&deg;");       break;
-                        case 177:       sprintf(outptr, "&plumn;");     break;
+                        case 177:       sprintf(outptr, "&plumin;");    break;
                         case 178:       sprintf(outptr, "&sup2;");      break;
                         case 179:       sprintf(outptr, "&sup3;");      break;
                         case 180:       sprintf(outptr, "&acute;");     break;
