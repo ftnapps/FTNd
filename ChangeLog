@@ -63,9 +63,13 @@ v0.51.4		11-Apr-2004
 		Reading news works, no posts yet.
 
 	mbsebbs:
-		Added loging of virus scanner results.
+		Added logging of virus scanner results.
 		Patches for offline reader programs that create messages with
 		wrong line terminaters (Sempoint).
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
+
+	mball:
 		Added new experimental files database code which will only be
                 used if configured with --enable-experiment.
 
@@ -78,6 +82,8 @@ v0.51.4		11-Apr-2004
 		Fixed a header include.
 		Fixed an error where new created file areas were created
 		without a file header.
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
 
 	mbtask:
 		Removed debug logging for the disk thread.
