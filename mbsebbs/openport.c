@@ -163,8 +163,8 @@ int io_mode(int fd, int n)
     Syslog('t', "io_mode(%d, %d)", fd, n);
 
     switch(n) {
-	case 2:         /* Un-raw mode used by sz, sb when -g detected */
-		if(!did0) {
+	case 2:
+		if (!did0) {
 		    did0 = TRUE;
 		    tcgetattr(fd,&oldtty);
 		}
@@ -176,8 +176,6 @@ int io_mode(int fd, int n)
 
 		tty.c_cflag &= ~PARENB; /* Disable parity */
 		tty.c_cflag |= CS8;     /* Set character size = 8 */
-//		if (Twostop)
-//		    tty.c_cflag |= CSTOPB;  /* Set two stop bits */
 #ifdef READCHECK
 		tty.c_lflag = protocol==ZM_ZMODEM ? 0 : ISIG;
 		tty.c_cc[VINTR] = protocol==ZM_ZMODEM ? -1 : 030;       /* Interrupt char */
@@ -206,17 +204,18 @@ int io_mode(int fd, int n)
 		return 0;
 	case 1:
 	case 3:
-		if(!did0) {
+		if (!did0) {
 		    did0 = TRUE;
 		    tcgetattr(fd,&oldtty);
 		}
 		tty = oldtty;
 
 		tty.c_iflag = IGNBRK;
-		if (n==3) /* with flow control */
+		if (n == 3) /* with flow control */
 		    tty.c_iflag |= IXOFF;
 
-		/* Setup raw mode: no echo, noncanonical (no edit chars),
+		/* 
+		 * Setup raw mode: no echo, noncanonical (no edit chars),
 		 * no signal generating chars, and no extended chars (^V, 
 		 * ^O, ^R, ^W).
 		 */
@@ -227,8 +226,6 @@ int io_mode(int fd, int n)
 		/* Set character size = 8 */
 		tty.c_cflag &= ~(CSIZE);
 		tty.c_cflag |= CS8;     
-//		if (Twostop)
-//		    tty.c_cflag |= CSTOPB;  /* Set two stop bits */
 #ifdef NFGVMIN
 		tty.c_cc[VMIN] = 1; /* This many chars satisfies reads */
 #else
@@ -240,8 +237,8 @@ int io_mode(int fd, int n)
 		Syslog('t', "Baudrate = %d", Baudrate);
 		return 0;
 	case 0:
-		if(!did0)
-		    return ERROR;
+		if (!did0)
+		    return -1;
 		tcdrain (fd); /* wait until everything is sent */
 		tcflush (fd,TCIOFLUSH); /* flush input queue */
 		tcsetattr (fd,TCSADRAIN,&oldtty);

@@ -32,7 +32,6 @@
 #include "../lib/mbselib.h"
 #include "ttyio.h"
 #include "zmmisc.h"
-#include "zmrle.h"
 #include "transfer.h"
 #include "openport.h"
 
@@ -78,6 +77,8 @@ extern int Rxhlen;
 
 extern char *txbuf;
 extern char *frametypes[];
+
+extern unsigned	Baudrate;
 
 
 int zmsndfiles(down_list *lst)
@@ -126,6 +127,7 @@ int zmsndfiles(down_list *lst)
 	free(txbuf);
     txbuf = NULL;
     free_frame_buffer();
+    io_mode(0, 1);
 
     Syslog('z', "Zmodem: send rc=%d", maxrc);
     return (maxrc < 2)?0:maxrc;
@@ -139,7 +141,7 @@ static int initsend(void)
 
     io_mode(0, 1);
     PUTSTR((char *)"rz\r");
-    stohdr(0x80L);		/* Show we can do var header */
+    stohdr(0L);
     zshhdr(ZRQINIT, Txhdr);
 
     if (getzrxinit()) {
@@ -247,35 +249,36 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 			zshhdr(ZACK, Txhdr);
 			continue;
 	    case ZCOMMAND:		/* They didn't see out ZRQINIT */
-			stohdr(0L);
-			zshhdr(ZRQINIT, Txhdr);
+			/* A receiver cannot send a command */
 			continue;
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
-//			Usevhdrs = Rxhdr[ZF1] & CANVHDR;
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
 			Zctlesc |= Rxflags & TESCCTL;
 			
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
-				Txwindow = 0;
+			    Txwindow = 0;
 			Syslog('z', "Zmodem: Remote allowed Rxbuflen=%d", Rxbuflen);
+			io_mode(0, 2); /* Set cbreak, XON/XOFF, etc. */
 
 			/* Set initial subpacket length */
 			if (blklen < 1024) {	/* Command line override? */
+			    if (Baudrate > 300)
+				blklen = 256;
+			    if (Baudrate > 1200)
+				blklen = 512;
+			    if (Baudrate  > 2400)
 				blklen = 1024;
 			}
 			if (Rxbuflen && blklen>Rxbuflen)
-				blklen = Rxbuflen;
+			    blklen = Rxbuflen;
 			if (blkopt && blklen > blkopt)
-				blklen = blkopt;
+			    blklen = blkopt;
 			Syslog('z', "Rxbuflen=%d blklen=%d", Rxbuflen, blklen);
 			Syslog('z', "Txwindow = %u Txwspac = %d", Txwindow, Txwspac);
 
-//			if (Lztrans == ZTRLE && (Rxflags & CANRLE))
-//				Txfcs32 = 2;
-//			else
-				Lztrans = 0;
+			Lztrans = 0;
 
 			return (sendzsinit());
 	    case ZCAN:
@@ -285,7 +288,7 @@ int getzrxinit(void)	// CHECKED BUT NOT WELL TESTED
 			return HANGUP;
 	    case ZRQINIT:
 			if (Rxhdr[ZF0] == ZCOMMAND)
-				continue;
+			    continue;
 	    default:
 			zshhdr(ZNAK, Txhdr);
 			continue;
@@ -337,7 +340,7 @@ int zfilbuf(void)
     n = fread(txbuf, 1, blklen, in);
     if (n < blklen) {
 	Eofseen = 1;
-	Syslog('Z', "zfilbuf return %d", n);
+	Syslog('z', "zfilbuf return %d", n);
     }
 
     return n;
@@ -369,10 +372,13 @@ again:
 	switch (c) {
 	    case ZRINIT:
 			while ((c = GETCHAR(5)) > 0)
-				if (c == ZPAD) {
-					goto again;
-				}
+			    if (c == ZPAD) {
+				goto again;
+			    }
 			continue;
+	    case ZRQINIT:
+			Syslog('+', "got ZRQINIT, a zmodem sender talks to this sender");
+			return TERROR;
 	    case ZCAN:
 	    case TIMEOUT:
 	    case ZABORT:
@@ -387,14 +393,14 @@ again:
 			continue;
 	    case ZCRC:
 			if (Rxpos != lastcrcrq) {
-				lastcrcrq = Rxpos;
-				crc = 0xFFFFFFFFL;
-				fseek(in, 0L, 0);
-				while (((c = getc(in)) != EOF) && --lastcrcrq)
-					crc = updcrc32(c, crc);
-				crc = ~crc;
-				clearerr(in);	/* Clear possible EOF */
-				lastcrcrq = Rxpos;
+			    lastcrcrq = Rxpos;
+			    crc = 0xFFFFFFFFL;
+			    fseek(in, 0L, 0);
+			    while (((c = getc(in)) != EOF) && --lastcrcrq)
+				crc = updcrc32(c, crc);
+			    crc = ~crc;
+			    clearerr(in);	/* Clear possible EOF */
+			    lastcrcrq = Rxpos;
 			}
 			stohdr(crc);
 			zsbhdr(ZCRC, Txhdr);
@@ -409,9 +415,9 @@ again:
 			 * lastyunc==bytcnt
 			 */
 			if (Rxpos > 0)
-				skipsize = Rxpos;
+			    skipsize = Rxpos;
 			if (fseek(in, Rxpos, 0))
-				return TERROR;
+			    return TERROR;
 			Lastsync = (bytcnt = Txpos = Lrxpos = Rxpos) -1;
 			return zsendfdata();
 	}

@@ -66,7 +66,6 @@ static void garbitch(void);
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "ttyio.h"
-#include "zmrle.h"
 #include "zmmisc.h"
 
 

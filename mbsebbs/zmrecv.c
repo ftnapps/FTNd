@@ -548,14 +548,16 @@ int putsec(char *buf, int n)
 {
     register char *p;
 
-    Syslog('z', "putsec %d characters %s mode", n, Thisbinary ? "binary":"ascii");
+   // Syslog('z', "putsec %d characters %s mode", n, Thisbinary ? "binary":"ascii");
 
     if (n == 0)
 	return OK;
 
     if (Thisbinary) {
-	for (p = buf; --n>=0; )
-	    putc( *p++, fout);
+	if (fwrite(buf, n, 1, fout) != 1)
+	    return ERROR;
+//	for (p = buf; --n>=0; )
+//	    putc( *p++, fout);
     } else {
 	if (Eofseen)
 	    return OK;
