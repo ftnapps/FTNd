@@ -8,6 +8,9 @@ v0.39.5		24-Dec-2003
 
 	script:
 		Fixed NetBSD init script
+		All init scripts now clean the ~/var/run directory and start
+		the bbs allways so that the bbs will try to start after a power
+		failure.
 
 
 v0.39.4		08-Dec-2003 - 24-Dec-2003

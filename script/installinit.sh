@@ -3,7 +3,7 @@
 #
 # Installation script to install bootscripts.
 #
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:$MBSE_ROOT/bin
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:${MBSE_ROOT}/bin
 DISTNAME=
 DISTVERS=
 DISTINIT=
@@ -39,7 +39,7 @@ EOF
         exit 2
 fi
 
-if [ "$MBSE_ROOT" = "" ]; then
+if [ "${MBSE_ROOT}" = "" ]; then
         echo "*** The MBSE_ROOT doesn't exist ***"
         log "!" "Aborted, MBSE_ROOT variable doesn't exist"
         exit 2
@@ -154,9 +154,9 @@ if [ "$DISTNAME" = "Slackware" ]; then
     log "+" "Adding SystemV Slackware $DISTVERS MBSE BBS start/stop scripts"
     cp init.Slackware $DISTINIT
     chmod 755 $DISTINIT
-    if [ -f $MBSE_ROOT/bin/mbse.start ]; then
+    if [ -f ${MBSE_ROOT}/bin/mbse.start ]; then
         echo "Removing old startup scripts"
-        rm $MBSE_ROOT/bin/mbse.start $MBSE_ROOT/bin/mbse.stop $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
+        rm ${MBSE_ROOT}/bin/mbse.start ${MBSE_ROOT}/bin/mbse.stop ${MBSE_ROOT}/etc/rc ${MBSE_ROOT}/etc/rc.shutdown
     fi
     if [ -d /var/log/setup ]; then
 	cp setup.mbse /var/log/setup

@@ -39,21 +39,19 @@ mbsebbs_start()
 
     export MBSE_ROOT
 
-    if [ ! -f ${MBSE_ROOT}/var/run/mbtask ]; then
-	rm -f ${MBSE_ROOT}/sema/*
-	rm -f ${MBSE_ROOT}/var/*.LCK
-	rm -f ${MBSE_ROOT}/tmp/mb*
-	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null 2>&1
-	echo -n " mbtask"
-	sleep 2
-	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
-	    echo ", opened bbs"
-	fi
-    else
-	echo " is already running"
+    rm -f ${MBSE_ROOT}/var/run/*
+    rm -f ${MBSE_ROOT}/sema/*
+    rm -f ${MBSE_ROOT}/var/*.LCK
+    rm -f ${MBSE_ROOT}/tmp/mb*
+    su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null 2>&1
+    echo -n " mbtask"
+    sleep 2
+    if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	echo ", opened bbs"
     fi
 }
+
 
 mbsebbs_stop()
 {
@@ -77,7 +75,7 @@ mbsebbs_stop()
 
     if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
 	echo -n " logoff users"
-	su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+	su mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
 	kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
 	sleep 1
 	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then

@@ -18,15 +18,15 @@
 # Find the MBSE_ROOT from the /etc/passwd file.
 MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
 
-if [ "$MBSE_ROOT" = "" ]
+if [ "${MBSE_ROOT}" = "" ]
 then
     echo "MBSE BBS: No 'mbse' user in the password file."
     exit 1
 fi
 
-if [ ! -d $MBSE_ROOT ]
+if [ ! -d ${MBSE_ROOT} ]
 then
-    echo "MBSE BBS: Home directory '$MBSE_ROOT' not found."
+    echo "MBSE BBS: Home directory '${MBSE_ROOT}' not found."
     exit 1
 fi
 
@@ -67,27 +67,24 @@ fi
 case "$1" in
     start)
 	echo -n "Starting MBSE BBS: "
-	if [ -f $MBSE_ROOT/var/run/mbtask ]; then
-	    echo "already started"
-	else
-	    rm -f $MBSE_ROOT/sema/*
-	    rm -f $MBSE_ROOT/var/*.LCK
-	    rm -f $MBSE_ROOT/tmp/mb*
-	    $SU mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
-	    echo -n "mbtask "
-	    sleep 2
-	    if [ -f $MBSE_ROOT/etc/config.data ]; then
-		$SU mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
-		echo "opened"
-	    fi
-	    touch /var/lock/subsys/mbsed
+	rm -f ${MBSE_ROOT}/var/run/*
+	rm -f ${MBSE_ROOT}/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	$SU mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	echo -n "mbtask "
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    $SU mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo "opened"
 	fi
+	touch /var/lock/subsys/mbsed
 	;;
     stop)
 	echo -n "Shutting down MBSE BBS: "
-	if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
 	    echo -n "logoff users "
-	    $SU mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+	    $SU mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
 	    echo -n "done, "
 	    echo -n "stop mbtask: "
 	    killproc mbtask -15

@@ -31,21 +31,18 @@ export MBSE_ROOT
 case "$1" in
   start)
 	echo -n "Starting $DESC: "
-	if [  -f $MBSE_ROOT/var/run/mbtask ]; then
-	    echo "already running"
-	else
-	    rm -f $MBSE_ROOT/sema/*
-	    rm -f $MBSE_ROOT/var/*.LCK
-	    rm -f $MBSE_ROOT/tmp/mb*
-	    su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
-	    echo -n "mbtask "
-	    sleep 2
-	    if [ -f $MBSE_ROOT/etc/config.data ]; then
-		su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
-		echo -n "opened "
-	    fi
-	    echo "done."
+	rm -f $MBSE_ROOT/var/run/*
+	rm -f $MBSE_ROOT/sema/*
+	rm -f $MBSE_ROOT/var/*.LCK
+	rm -f $MBSE_ROOT/tmp/mb*
+	su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
+	echo -n "mbtask "
+	sleep 2
+	if [ -f $MBSE_ROOT/etc/config.data ]; then
+	    su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
+	    echo -n "opened "
 	fi
+	echo "done."
 	;;
   stop)
 	echo -n "Stopping $DESC: "
