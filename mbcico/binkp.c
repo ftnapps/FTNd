@@ -216,7 +216,6 @@ int binkp(int role)
 #ifdef USE_NEWBINKP
     most_debug = TRUE;
 #endif
-most_debug = TRUE;
 
     Syslog('+', "Binkp: start session");
 
@@ -1085,13 +1084,11 @@ TrType binkp_receiver(void)
 	if (bp.DidSendGET) {
 	    Syslog('b', "Binkp: DidSendGET is set");
 	    /*
-	     * FIXME: this was from the old driver, still needed???
-	     *
 	     * The file was partly received, via the openfile the resync function
 	     * has send a GET command to start this file with a offset. This means
 	     * we will get a new FILE command to open this file with a offset.
 	     */
-	    bp.RxState = RxReceD;
+	    bp.RxState = RxWaitF;
 	    return Ok;
 	}
 
@@ -1187,13 +1184,18 @@ TrType binkp_receiver(void)
 	    return Ok;
 	}
     } else if (bp.RxState == RxWriteD) {
+
 	if (bp.rxfp == NULL) {
-		Syslog('b', "Binkp: file is closed, ignore data");
-		bp.GotFrame = FALSE;
-		bp.rxlen = 0;
-		bp.header = 0;
-        bp.RxState = RxReceD;
-        return Ok;
+	    /*
+	     * After sending M_GET for restart at offset, the file is closed
+	     * but some data frames may be underway, so ignore these.
+	     */
+	    Syslog('b', "Binkp: file is closed, ignore data");
+	    bp.GotFrame = FALSE;
+	    bp.rxlen = 0;
+	    bp.header = 0;
+	    bp.RxState = RxReceD;
+	    return Ok;
 	}
 
 	written = fwrite(bp.rxbuf, 1, bp.blklen, bp.rxfp);
