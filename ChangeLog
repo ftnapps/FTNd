@@ -21,6 +21,11 @@ v0.51.1		21-Feb-2004
 		area. Also added global edit for character set.
 		In several places where groups need to be tagged, there is now
 		a switch (*) to select/deslect all groups at once.
+		In the user editor the sex is now changed with the spacebar to
+		prevent typing errors.
+		In the user editor added character set edit in the second
+		screen.
+		Removed users fullscreen chat setting, not used.
 
 	mbsebbs:
 		Writes the ^aCHRS: kludge again in new created messages.

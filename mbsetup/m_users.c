@@ -295,20 +295,20 @@ void Screen2(void)
 	mvprintw(15, 2, "10. Sex");
 	mvprintw(16, 2, "11. Protocol");
 	mvprintw(17, 2, "12. Archiver");
-	mvprintw(18, 2, "13. Screenlen");
+	mvprintw(18, 2, "13. Charset");
 
-	mvprintw( 6,63, "14. Language");
-	mvprintw( 7,63, "15. Hotkeys");
-	mvprintw( 8,63, "16. Color");
-	mvprintw( 9,63, "17. Fs Chat");
-	mvprintw(10,63, "18. Silent");
-	mvprintw(11,63, "19. CLS");
-	mvprintw(12,63, "20. More");
-	mvprintw(13,63, "21. Editor");
-	mvprintw(14,63, "22. MailScan");
-	mvprintw(15,63, "23. ShowNews");
-	mvprintw(16,63, "24. NewFiles");
-	mvprintw(17,63, "25. Emacs");
+	mvprintw( 7,63, "14. Screenlen");
+	mvprintw( 8,63, "15. Language");
+	mvprintw( 9,63, "16. Hotkeys");
+	mvprintw(10,63, "17. Color");
+	mvprintw(11,63, "18. Silent");
+	mvprintw(12,63, "19. CLS");
+	mvprintw(13,63, "20. More");
+	mvprintw(14,63, "21. Editor");
+	mvprintw(15,63, "22. MailScan");
+	mvprintw(16,63, "23. ShowNews");
+	mvprintw(17,63, "24. NewFiles");
+	mvprintw(18,63, "25. Emacs");
 }
 
 
@@ -330,100 +330,114 @@ void Fields2(void)
 	show_str( 15,17, 7,usrconfig.sSex);
 	show_str( 16,17,12,usrconfig.sProtocol);
 	show_str( 17,17, 5,usrconfig.Archiver);
-	show_int( 18,17,   usrconfig.iScreenLen);
+	show_charset(18,17,usrconfig.Charset);
 
+	show_int(  7,76,   usrconfig.iScreenLen);
 	sprintf(temp, "%c",usrconfig.iLanguage);
-	show_str(  6,76,1, temp);
-	show_bool( 7,76,   usrconfig.HotKeys);
-	show_bool( 8,76,   usrconfig.GraphMode);
-	show_bool( 9,76,   usrconfig.Chat);
-	show_bool(10,76,   usrconfig.DoNotDisturb);
-	show_bool(11,76,   usrconfig.Cls);
-	show_bool(12,76,   usrconfig.More);
-	show_msgeditor(13,76, usrconfig.MsgEditor);
-	show_bool(14,76,   usrconfig.MailScan);
-	show_bool(15,76,   usrconfig.ieNEWS);
-	show_bool(16,76,   usrconfig.ieFILE);
-	show_bool(17,76,   usrconfig.FSemacs);
+	show_str(  8,76,1, temp);
+	show_bool( 9,76,   usrconfig.HotKeys);
+	show_bool(10,76,   usrconfig.GraphMode);
+	show_bool(11,76,   usrconfig.DoNotDisturb);
+	show_bool(12,76,   usrconfig.Cls);
+	show_bool(13,76,   usrconfig.More);
+	show_msgeditor(14,76, usrconfig.MsgEditor);
+	show_bool(15,76,   usrconfig.MailScan);
+	show_bool(16,76,   usrconfig.ieNEWS);
+	show_bool(17,76,   usrconfig.ieFILE);
+	show_bool(18,76,   usrconfig.FSemacs);
 }
 
 
 
 int EditUsrRec2(void)
 {
-	int	j = 0;
-	char	temp[PATH_MAX];
+    int	    j = 0, ch;
+    char    temp[PATH_MAX];
 
-        Screen2();
-        for (;;) {
-                Fields2();
-                j = select_menu(25);
-                switch(j) {
-                case 0: return 0;
-                case 1: E_STR( 6,17,35,usrconfig.sHandle,  "The ^Handle^ of this user")
-                case 2: E_STR( 7,17,27,usrconfig.sLocation,"The users ^Location^")
-                case 3:
-                case 4:
-                case 5: E_STR(j+5,17,40,usrconfig.address[j-3],"^Address^")
-                case 6: E_STR(11,17,16, usrconfig.sVoicePhone, "The ^Voice Phone^ number of this user")
-                case 7: E_STR(12,17,16, usrconfig.sDataPhone,  "The ^Data Phone^ number of this user")
-                case 8: E_STR(13,17,10, usrconfig.sDateOfBirth,"The ^Date of Birth^ in DD-MM-YYYY format")
-                case 9: strcpy(temp,edit_str(14,17,Max_passlen,usrconfig.Password,(char *)"Enter the ^password^ for this user"));
-                        if (strlen(temp)) {
-			    if (strcasecmp(usrconfig.Password, temp)) {
-				/*
-				 * Only do something if password really changed.
-				 */
-				working(1,0,0);
-                                memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
-                                strcpy(usrconfig.Password, temp);
-				usrconfig.tLastPwdChange = time(NULL);
-				Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
-				sprintf(temp, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
-				if (system(temp) != 0) {
-				    WriteError("$Failed to set new Unix password");
-				} else {
-				    Syslog('+', "Password changed for %s (%s)", usrconfig.sUserName, usrconfig.Name);
-				}
+    Screen2();
+    for (;;) {
+        Fields2();
+        j = select_menu(25);
+        switch(j) {
+            case 0: return 0;
+            case 1: E_STR( 6,17,35,usrconfig.sHandle,  "The ^Handle^ of this user")
+            case 2: E_STR( 7,17,27,usrconfig.sLocation,"The users ^Location^")
+            case 3:
+            case 4:
+            case 5: E_STR(j+5,17,40,usrconfig.address[j-3],"^Address^")
+            case 6: E_STR(11,17,16, usrconfig.sVoicePhone, "The ^Voice Phone^ number of this user")
+            case 7: E_STR(12,17,16, usrconfig.sDataPhone,  "The ^Data Phone^ number of this user")
+            case 8: E_STR(13,17,10, usrconfig.sDateOfBirth,"The ^Date of Birth^ in DD-MM-YYYY format")
+            case 9: strcpy(temp,edit_str(14,17,Max_passlen,usrconfig.Password,(char *)"Enter the ^password^ for this user"));
+                    if (strlen(temp)) {
+			if (strcasecmp(usrconfig.Password, temp)) {
+			    /*
+			     * Only do something if password really changed.
+			     */
+			    working(1,0,0);
+                            memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
+                            strcpy(usrconfig.Password, temp);
+			    usrconfig.tLastPwdChange = time(NULL);
+			    Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
+			    sprintf(temp, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
+			    if (system(temp) != 0) {
+			        WriteError("$Failed to set new Unix password");
+			    } else {
+			        Syslog('+', "Password changed for %s (%s)", usrconfig.sUserName, usrconfig.Name);
 			    }
-                        } else {
-			    working(2, 0, 0);
 			}
-                        break;
-                case 10:strcpy(usrconfig.sSex, tl(edit_str(15,17,7, usrconfig.sSex, (char *)"^Male^ or ^Female^")));
-                        break;
-                case 11:strcpy(temp, PickProtocol(15));
-                        if (strlen(temp) != 0)
-                                strcpy(usrconfig.sProtocol, temp);
-                        clr_index();
-                        Screen2();
-                        break;
-                case 12:strcpy(temp, PickArchive((char *)"15"));
-                        if (strlen(temp) != 0)
-                                strcpy(usrconfig.Archiver, temp);
-                        clr_index();
-                        Screen2();
-                        break;
-		case 13:E_INT( 18,17,usrconfig.iScreenLen,   "Users ^Screen length^ in lines (about 24)")
+                    } else {
+		        working(2, 0, 0);
+		    }
+                    break;
+            case 10:showhelp((char *)"Toggle ^Sex^ with spacebar, press <Enter> when done.");
+		    do {
+			set_color(YELLOW, BLUE);
+			show_str(15,17,7, usrconfig.sSex);
+			ch = readkey(15, 17, YELLOW, BLUE);
+			if (ch == ' ') {
+			    if (strcmp(usrconfig.sSex, "Male") == 0)
+				strcpy(usrconfig.sSex, "Female");
+			    else {
+				strcpy(usrconfig.sSex, "Male\0\0");
+			    }
+			}
+		    } while (ch != KEY_ENTER && ch != '\012');
+		    set_color(WHITE, BLACK);
+		    show_str(15,17,7, usrconfig.sSex);
+                    break;
+            case 11:strcpy(temp, PickProtocol(15));
+                    if (strlen(temp) != 0)
+                        strcpy(usrconfig.sProtocol, temp);
+                    clr_index();
+                    Screen2();
+                    break;
+            case 12:strcpy(temp, PickArchive((char *)"15"));
+                    if (strlen(temp) != 0)
+                        strcpy(usrconfig.Archiver, temp);
+                    clr_index();
+                    Screen2();
+                    break;
+	    case 13:usrconfig.Charset = edit_charset(18,17, usrconfig.Charset); break;
 
-		case 14:usrconfig.iLanguage = PickLanguage((char *)"15.14");
-			clr_index();
-			Screen2();
-			break;
-                case 15:E_BOOL( 7,76,usrconfig.HotKeys,      "Is user using ^HotKeys^ for menus")
-                case 16:E_BOOL( 8,76,usrconfig.GraphMode,    "Is user using ^ANSI^ colors")
-                case 17:E_BOOL( 9,76,usrconfig.Chat,         "User has ^IEMSI Chat^ capability")
-                case 18:E_BOOL(10,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
-                case 19:E_BOOL(11,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
-                case 20:E_BOOL(12,76,usrconfig.More,         "User uses the ^More prompt^")
-                case 21:usrconfig.MsgEditor = edit_msgeditor(13,76,usrconfig.MsgEditor);
-			break;
-                case 22:E_BOOL(14,76,usrconfig.MailScan,     "Don't check for ^new mail^")
-                case 23:E_BOOL(15,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
-                case 24:E_BOOL(16,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
-                case 25:E_BOOL(17,76,usrconfig.FSemacs,      "Use ^Emacs^ or Wordstart shorcut keys in FS editor")
-                }
+	    case 14:E_INT(  7,76,usrconfig.iScreenLen,   "Users ^Screen length^ in lines (about 24)")
+	    case 15:usrconfig.iLanguage = PickLanguage((char *)"15.15");
+		    clr_index();
+		    Screen2();
+		    break;
+            case 16:E_BOOL( 9,76,usrconfig.HotKeys,      "Is user using ^HotKeys^ for menus")
+            case 17:E_BOOL(10,76,usrconfig.GraphMode,    "Is user using ^ANSI^ colors")
+            case 18:E_BOOL(11,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
+            case 19:E_BOOL(12,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
+            case 20:E_BOOL(13,76,usrconfig.More,         "User uses the ^More prompt^")
+            case 21:usrconfig.MsgEditor = edit_msgeditor(14,76,usrconfig.MsgEditor);
+		    break;
+            case 22:E_BOOL(15,76,usrconfig.MailScan,     "Don't check for ^new mail^")
+            case 23:E_BOOL(16,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
+            case 24:E_BOOL(17,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
+            case 25:E_BOOL(18,76,usrconfig.FSemacs,      "Use ^Emacs^ or Wordstart shorcut keys in FS editor")
         }
+    }
 }
 
 

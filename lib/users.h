@@ -99,7 +99,7 @@ struct	userrec {
 	unsigned	GraphMode	: 1;	/* ANSI Mode ON/OFF         */
 	unsigned	Deleted		: 1;	/* Deleted Status           */
 	unsigned	NeverDelete	: 1;	/* Never Delete User        */
-	unsigned	Chat		: 1;	/* Has IEMSI Chatmode	    */
+	unsigned	xChat		: 1;
 	unsigned	LockedOut	: 1;	/* User is locked out	    */
 	unsigned	DoNotDisturb	: 1;	/* DoNot disturb	    */
 	unsigned	Cls		: 1;	/* CLS on/off		    */
