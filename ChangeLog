@@ -4747,14 +4747,13 @@ v0.33.20        10-Feb-2002
 
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.
-		Temporary added extra password handling logs.
 		If a binkp session comes in and there already is a session
 		with that node, mbcico stopts the binkp session with an error.
 		Remove some obsolete code that is handled by mbtask.
 		Added some debug logmessages in ttyio.
-		Disabled creation of .spl files dusing mail sessions for test.
 		Added experimental support for binkp GET command frame, under
-		test now.
+		test now, seems to work, although the offset request is not
+		supported.
 		Registers TCP/IP sessions with mbtask.
 		All filetransfer times and cps rates are calculated in mSecs.
 		Splitted no TCP settings in no IBN, no IFC and no ITN.

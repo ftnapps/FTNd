@@ -74,11 +74,11 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 	sprintf(Dest.domain, "%s", t->domain);
 
 	if (!SearchNode(Dest)) {
-		Syslog('m', "Can't find node %s", aka2str(Dest));
+		Syslog('!', "SendMgrMail(): Can't find node %s", aka2str(Dest));
 		return NULL;
 	}
 
-	Syslog('-', "  Netmail from %s to %s", aka2str(Orig), ascfnode(t, 0x1f));
+	Syslog('m', "  Netmail from %s to %s", aka2str(Orig), ascfnode(t, 0x1f));
 
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	flags |= (nodes.Crash)            ? M_CRASH    : 0;

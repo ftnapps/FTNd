@@ -56,10 +56,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	time_t		now;
 	fa_list		*tmp;
 
-	Syslog('+', "Forward file to %s", aka2str(Node));
+	Syslog('+', "Forward file to %s, %s netmail", aka2str(Node), nodes.Message?"with":"whithout");
 
 	if (!SearchNode(Node)) {
-		WriteError("Database corrupt, node %s not in setup", aka2str(Node));
+		WriteError("TIC forward in %s, node %s not in setup but defined in area setup", TIC.TicIn.Area, aka2str(Node));
 		return;
 	}
 
