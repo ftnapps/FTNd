@@ -45,7 +45,6 @@
 #include "mkftnhdr.h"
 #include "hash.h"
 #include "rollover.h"
-#include "pack.h"
 #include "storeecho.h"
 #include "rfc2ftn.h"
 #include "scannews.h"
@@ -75,6 +74,7 @@ extern	int	news_imp;
 extern	int	news_dupe;
 extern	int	echo_out;
 extern	int	echo_in;
+extern	int	do_flush;
 extern	char	*replyaddr;
 
 
@@ -243,7 +243,7 @@ void ScanNews(void)
 			free(tmp->field);
 		free(tmp);
 	}
-	packmail();
+	do_flush = TRUE;
 
 	if (!do_quiet)
 		printf("\r                                                    \r");

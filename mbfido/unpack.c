@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * $Id$
- * Purpose ...............: Lock mbfido processing.
+ * Purpose ...............: Unpacker
  *
  *****************************************************************************
  * Copyright (C) 1997-2002
@@ -37,85 +37,13 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "flock.h"
-#include "ulock.h"
+#include "unpack.h"
 
 #define UNPACK_FACTOR 300
 #define TOSS_FACTOR 120
-#define TMPNAME "TMP."
-#define LCKNAME "LOCKFILE"
 
 
-static char lockfile[81];
-
-extern int do_quiet;
-static int is_locked = FALSE;
-
-
-/*
- *  Put a lock on this program.
- */
-int lockunpack(void)
-{
-	char	Tmpfile[81];
-	FILE	*fp;
-	pid_t	oldpid;
-
-	sprintf(Tmpfile, "%s/", CFG.inbound);
-	strcpy(lockfile, Tmpfile);
-	sprintf(Tmpfile + strlen(Tmpfile), "%s%u", TMPNAME, getpid());
-	sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
-
-	if ((fp = fopen(Tmpfile, "w")) == NULL) {
-		WriteError("$Can't create lockfile \"%s\"", Tmpfile);
-		return 1;
-	}
-	fprintf(fp, "%10u\n", getpid());
-	fclose(fp);
-
-	while (1) {
-		if (link(Tmpfile, lockfile) == 0) {
-			unlink(Tmpfile);
-			is_locked = TRUE;
-			return 0;
-		}
-		if ((fp = fopen(lockfile, "r")) == NULL) {
-			WriteError("$Can't open lockfile \"%s\"", Tmpfile);
-			unlink(Tmpfile);
-			return 1;
-		}
-		if (fscanf(fp, "%u", &oldpid) != 1) {
-			WriteError("$Can't read old pid from \"%s\"", Tmpfile);
-			fclose(fp);
-			unlink(Tmpfile);
-			return 1;
-		}
-		fclose(fp);
-		if (kill(oldpid,0) == -1) {
-			if (errno == ESRCH) {
-				Syslog('+', "Stale lock found for pid %u", oldpid);
-				unlink(lockfile);
-				/* no return, try lock again */  
-			} else {
-				WriteError("$Kill for %u failed",oldpid);
-				unlink(Tmpfile);
-				return 1;
-			}
-		} else {
-			Syslog('+', "mbfido already running, pid=%u", oldpid);
-			unlink(Tmpfile);
-			return 1;
-		}
-	}
-}
-
-
-
-void ulockunpack(void)
-{
-	if (is_locked && lockfile)
-		(void)unlink(lockfile);
-}
-
+extern int  do_quiet;
 
 
 int checkspace(char *dir, char *fn, int factor)

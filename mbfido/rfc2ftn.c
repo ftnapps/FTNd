@@ -45,7 +45,6 @@
 #include "mkftnhdr.h"
 #include "hash.h"
 #include "rollover.h"
-#include "pack.h"
 #include "postnetmail.h"
 #include "postecho.h"
 #include "msgflags.h"

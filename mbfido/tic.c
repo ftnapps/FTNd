@@ -37,10 +37,9 @@
 #include "../lib/common.h"
 #include "../lib/dbftn.h"
 #include "../lib/clcomm.h"
-#include "ulock.h"
+#include "unpack.h"
 #include "ptic.h"
 #include "fsort.h"
-#include "pack.h"
 #include "tic.h"
 
 #define	UNPACK_FACTOR 300
@@ -55,6 +54,7 @@ int	tic_dup = 0;				/* dupe .tic files	     */
 extern	int do_unprot;
 extern	int do_quiet;
 extern	int tic_in;
+extern	int do_flush;
 
 
 /*
@@ -149,7 +149,7 @@ int Tic()
 	}
 
 	if (rc)
-		packmail();
+		do_flush = TRUE;
 
 	if (CompileNL) 
 		CreateSema((char *)"mbindex");

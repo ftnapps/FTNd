@@ -41,7 +41,6 @@
 #include "sendmail.h"
 #include "rollover.h"
 #include "addpkt.h"
-#include "pack.h"
 #include "createm.h"
 #include "createf.h"
 #include "mgrutil.h"
@@ -49,6 +48,7 @@
 
 extern int	net_out;
 extern int	do_quiet;
+extern int	do_flush;
 
 
 void tidy_arealist(AreaList **);
@@ -981,7 +981,7 @@ int Areas(void)
     free(buf);
     free(temp);
     if (net_out)
-	packmail();
+	do_flush = TRUE;
     return TRUE;
 }
 

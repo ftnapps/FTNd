@@ -43,7 +43,6 @@
 #include "../lib/dbmsgs.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "pack.h"
 #include "rfc2ftn.h"
 #include "mbfido.h"
 #include "../paths.h"
@@ -100,6 +99,7 @@ extern	int	most_debug;
 extern	int	news_in;
 extern	int	news_dupe;
 extern	int	check_dupe;
+extern	int	do_flush;
 
 
 void ProcessOne(FILE *);
@@ -561,7 +561,7 @@ void NewsUUCP(void)
 	most_debug = FALSE;
 	WaitForChildren(i);
 	Syslog('+', "End of UUCP batch, rc=%d", rc);
-	packmail();
+	do_flush = TRUE;
 
 	if (!do_quiet)
 		printf("\r                                                    \r");

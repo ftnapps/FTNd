@@ -38,9 +38,10 @@
 #include "../lib/common.h"
 #include "../lib/dbnode.h"
 #include "../lib/dbmsgs.h"
-#include "pack.h"
 #include "addpkt.h"
 
+
+extern int  do_flush;
 
 
 static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
@@ -51,80 +52,128 @@ static char *months[]={(char *)"Jan",(char *)"Feb",(char *)"Mar",
 extern int do_unprot;
 
 
+/*
+ * Prepare ARCmail, this is actually just a rename of the temporary
+ * .pkt file on the queue to a permanent .pkt name that will later
+ * be added to the real ARCmail bundle.
+ */
+int PrepARC(char *, fidoaddr);
+int PrepARC(char *Queue, fidoaddr Dest)
+{
+    char    *pktfile;
+    FILE    *fp;
+
+    Syslog('p', "Prepare ARCmail for %s", aka2str(Dest));
+
+    if (!SearchNode(Dest)) {
+	WriteError("Downlink %s not found", aka2str(Dest));
+	return FALSE;
+    }
+
+    pktfile = calloc(PATH_MAX, sizeof(char));
+    sprintf(pktfile, "%s/%d.%d.%d.%d/%08lx.pkt", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, sequencer());
+    Syslog('p', "Rename .pkt to %s", pktfile);
+
+    if (rename(Queue, pktfile)) {
+	WriteError("$Can't rename %s to %s", Queue, pktfile);
+	free(pktfile);
+	return FALSE;
+    }
+
+    /*
+     * Add zero word to end of .pkt file
+     */
+    if ((fp = fopen(pktfile, "a+")) == NULL) {
+	WriteError("$Can't open %s", pktfile);
+	free(pktfile);
+	return FALSE;
+    }
+    putc('\0', fp);
+    putc('\0', fp);
+    fsync(fileno(fp));
+    fclose(fp);
+
+    free(pktfile);
+    return TRUE;
+}
+
+
+
 FILE *CreatePkt(char *, fidoaddr, fidoaddr, char *);
 FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
 {
-	FILE		*qp;
-	unsigned char	buffer[0x3a];
-	time_t		Now;
-	int		i;
-	struct tm	*Tm;
-	char		str[81];
+    static FILE	    *qp;
+    unsigned char   buffer[0x3a];
+    time_t	    Now;
+    int		    i;
+    struct tm	    *Tm;
+    char	    str[81];
 
-	if ((qp = fopen(Queue, "a")) == NULL) {
-		WriteError("$Can't create Queue %s", Queue);
-		return NULL;
+    if ((qp = fopen(Queue, "a")) == NULL) {
+	WriteError("$Can't create Queue %s", Queue);
+	return NULL;
+    }
+    Syslog('p', "CreatePkt(%s, %s, %s)", Queue, aka2str(Dest), Extension);
+
+    /*
+     * Write .PKT header, see FSC-0039 rev. 4
+     */
+    memset(&buffer, 0, sizeof(buffer));
+    Now = time(NULL);
+    Tm = localtime(&Now);
+    if (Tm->tm_sec > 59)
+	Tm->tm_sec = 59;
+
+    buffer[0x00] = (Orig.node & 0x00ff);
+    buffer[0x01] = (Orig.node & 0xff00) >> 8;
+    buffer[0x02] = (Dest.node & 0x00ff);
+    buffer[0x03] = (Dest.node & 0xff00) >> 8;
+    buffer[0x04] = ((Tm->tm_year + 1900) & 0x00ff);
+    buffer[0x05] = ((Tm->tm_year + 1900) & 0xff00) >> 8;
+    buffer[0x06] = Tm->tm_mon;
+    buffer[0x08] = Tm->tm_mday;
+    buffer[0x0a] = Tm->tm_hour;
+    buffer[0x0c] = Tm->tm_min;
+    buffer[0x0e] = Tm->tm_sec;
+    buffer[0x12] = 2;
+    buffer[0x14] = (Orig.net & 0x00ff);
+    buffer[0x15] = (Orig.net & 0xff00) >> 8;
+    buffer[0x16] = (Dest.net & 0x00ff);
+    buffer[0x17] = (Dest.net & 0xff00) >> 8;
+    buffer[0x18] = 0xfe;
+
+    memset(&str, 0, 8);		/* Packet password	*/
+    if (SearchNode(Dest)) {
+	if (strlen(nodes.Epasswd)) {
+	    sprintf(str, "%s", nodes.Epasswd);
 	}
+    }
 
-	/*
-	 * Write .PKT header, see FSC-0039 rev. 4
-	 */
-	memset(&buffer, 0, sizeof(buffer));
-	Now = time(NULL);
-	Tm = localtime(&Now);
-	if (Tm->tm_sec > 59)
-		Tm->tm_sec = 59;
+    for (i = 0; i < 8; i++)
+	buffer[0x1a + i] = str[i];
 
-	buffer[0x00] = (Orig.node & 0x00ff);
-	buffer[0x01] = (Orig.node & 0xff00) >> 8;
-	buffer[0x02] = (Dest.node & 0x00ff);
-	buffer[0x03] = (Dest.node & 0xff00) >> 8;
-	buffer[0x04] = ((Tm->tm_year + 1900) & 0x00ff);
-	buffer[0x05] = ((Tm->tm_year + 1900) & 0xff00) >> 8;
-	buffer[0x06] = Tm->tm_mon;
-	buffer[0x08] = Tm->tm_mday;
-	buffer[0x0a] = Tm->tm_hour;
-	buffer[0x0c] = Tm->tm_min;
-	buffer[0x0e] = Tm->tm_sec;
-	buffer[0x12] = 2;
-	buffer[0x14] = (Orig.net & 0x00ff);
-	buffer[0x15] = (Orig.net & 0xff00) >> 8;
-	buffer[0x16] = (Dest.net & 0x00ff);
-	buffer[0x17] = (Dest.net & 0xff00) >> 8;
-	buffer[0x18] = 0xfe;
+    buffer[0x22] = (Orig.zone & 0x00ff);
+    buffer[0x23] = (Orig.zone & 0xff00) >> 8;
+    buffer[0x24] = (Dest.zone & 0x00ff);
+    buffer[0x25] = (Dest.zone & 0xff00) >> 8;
+    buffer[0x29] = 1;
+    buffer[0x2c] = 1;
+    buffer[0x2e] = buffer[0x22];
+    buffer[0x2f] = buffer[0x23];
+    buffer[0x30] = buffer[0x24];
+    buffer[0x31] = buffer[0x25];
+    buffer[0x32] = (Orig.point & 0x00ff);
+    buffer[0x33] = (Orig.point & 0xff00) >> 8;
+    buffer[0x34] = (Dest.point & 0x00ff);
+    buffer[0x35] = (Dest.point & 0xff00) >> 8;
+    buffer[0x36] = 'm';
+    buffer[0x37] = 'b';
+    buffer[0x38] = 's';
+    buffer[0x39] = 'e';
+    fwrite(buffer, 1, 0x3a, qp);
 
-	memset(&str, 0, 8);		/* Packet password	*/
-	if (SearchNode(Dest)) {
-		if (strlen(nodes.Epasswd)) {
-			sprintf(str, "%s", nodes.Epasswd);
-		}
-	}
-
-	for (i = 0; i < 8; i++)
-		buffer[0x1a + i] = str[i];
-
-	buffer[0x22] = (Orig.zone & 0x00ff);
-	buffer[0x23] = (Orig.zone & 0xff00) >> 8;
-	buffer[0x24] = (Dest.zone & 0x00ff);
-	buffer[0x25] = (Dest.zone & 0xff00) >> 8;
-	buffer[0x29] = 1;
-	buffer[0x2c] = 1;
-	buffer[0x2e] = buffer[0x22];
-	buffer[0x2f] = buffer[0x23];
-	buffer[0x30] = buffer[0x24];
-	buffer[0x31] = buffer[0x25];
-	buffer[0x32] = (Orig.point & 0x00ff);
-	buffer[0x33] = (Orig.point & 0xff00) >> 8;
-	buffer[0x34] = (Dest.point & 0x00ff);
-	buffer[0x35] = (Dest.point & 0xff00) >> 8;
-	buffer[0x36] = 'm';
-	buffer[0x37] = 'b';
-	buffer[0x38] = 's';
-	buffer[0x39] = 'e';
-	fwrite(buffer, 1, 0x3a, qp);
-
-	fsync(fileno(qp));
-	return qp;
+    fsync(fileno(qp));
+    return qp;
 }
 
 
@@ -136,59 +185,59 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
  */
 FILE *OpenPkt(fidoaddr Orig, fidoaddr Dest, char *Extension)
 {
-	char	Queue[128], qname[128];
-	FILE	*qp;
+    char	*Queue;
+    static FILE	*qp;
 
-	sprintf(Queue, "%s/tmp/%d.%d.%d.%d.%s", getenv("MBSE_ROOT"), 
-		Dest.zone, Dest.net, Dest.node, Dest.point, Extension);
+    Queue = calloc(PATH_MAX, sizeof(char));
 
-	if (file_exist(Queue, R_OK))
-		qp = CreatePkt(Queue, Orig, Dest, Extension);
-	else {
-		if ((qp = fopen(Queue, "a")) == NULL) {
-			WriteError("$Can't reopen Queue %s", Queue);
-			return NULL;
-		}
-
-		if (CFG.maxpktsize && (ftell(qp) >= (CFG.maxpktsize * 1024)) &&
-		    (strncmp(Extension, "qqq", 3) == 0)) {
-			/*
-			 * It's a pkt that's meant to be send archived and it's
-			 * bigger then maxpktsize. Try to add this pkt to the
-			 * outbound archive for this node.
-			 */
-			sprintf(qname, "%s/tmp", getenv("MBSE_ROOT"));
-			chdir(qname);
-			sprintf(qname, "%d.%d.%d.%d.qqq", Dest.zone, Dest.net, Dest.node, Dest.point);
-			fsync(fileno(qp));
-			fclose(qp);
-			if (pack_queue(qname) == TRUE) {
-				/*
-				 * If the pack succeeded create a fresh packet.
-				 */
-				qp = CreatePkt(Queue, Orig, Dest, Extension);
-			} else {
-				/*
-				 * If the pack failed the existing queue is
-				 * reopened and we continue adding to that
-				 * existing packet. This is the case when the
-				 * node is locked.
-				 */
-				Syslog('s', "pack_queue failed");
-				qp = fopen(Queue, "a");
-			}
-
-			/*
-			 * Go back to the original inbound directory.
-			 */
-			if (do_unprot) 
-				chdir(CFG.inbound);
-			else
-				chdir(CFG.pinbound);
-		}
+    sprintf(Queue, "%s/%d.%d.%d.%d/mailpkt.%s", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, Extension);
+    mkdirs(Queue, 0750);
+    Syslog('p', "OpenPkt(%s, %s)", aka2str(Dest), Extension);
+    
+    if (file_exist(Queue, R_OK))
+	qp = CreatePkt(Queue, Orig, Dest, Extension);
+    else {
+	if ((qp = fopen(Queue, "a")) == NULL) {
+	    WriteError("$Can't reopen Queue %s", Queue);
+	    free(Queue);
+	    return NULL;
 	}
 
-	return qp;
+	if (CFG.maxpktsize && (ftell(qp) >= (CFG.maxpktsize * 1024)) && (strcmp(Extension, "qqq") == 0)) {
+	    /*
+	     * It's a pkt that's meant to be send archived and it's
+	     * bigger then maxpktsize. Try to add this pkt to the
+	     * outbound archive for this node.
+	     */
+	    fsync(fileno(qp));
+	    fclose(qp);
+	    if (PrepARC(Queue, Dest) == TRUE) {
+		/*
+		 * If the pack succeeded create a fresh packet.
+		 */
+		qp = CreatePkt(Queue, Orig, Dest, Extension);
+	    } else {
+		/*
+		 * If the pack failed the existing queue is
+		 * reopened and we continue adding to that
+		 * existing packet.
+		 */
+		Syslog('s', "PrepARC failed");
+		qp = fopen(Queue, "a");
+	    }
+
+	    /*
+	     * Go back to the original inbound directory.
+	     */
+	    if (do_unprot) 
+		chdir(CFG.inbound);
+	    else
+		chdir(CFG.pinbound);
+	}
+    }
+
+    do_flush = TRUE;
+    return qp;
 }
 
 

@@ -3,4 +3,8 @@
 
 /* $Id$ */
 
+
+void flush_queue(void);
+
+
 #endif

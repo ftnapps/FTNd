@@ -45,13 +45,13 @@ extern int  do_unprot;
 /*
  * Check for lock, return TRUE if node is locked.
  */
-int islocked(char *lockfile, int chklck, int waitclr)
+int islocked(char *lockfile, int chklck, int waitclr, int loglvl)
 {
     int	    i;
     time_t  now, ftime;
 
     if (chklck && strlen(lockfile)) {
-	Syslog('m', "Checking lockfile %s", lockfile);
+	Syslog(loglvl, "Checking lockfile %s", lockfile);
 
 	/*
 	 * First check for stale lockfile.
@@ -103,13 +103,13 @@ int islocked(char *lockfile, int chklck, int waitclr)
  * Create a 1 byte lockfile if create is TRUE.
  * Returns FALSE if failed.
  */
-int setlock(char *lockfile, int create)
+int setlock(char *lockfile, int create, int loglvl)
 {
     FILE    *fp;
     char    temp[1];
 
     if (create && strlen(lockfile)) {
-	Syslog('m', "create lockfile %s", lockfile);
+	Syslog(loglvl, "create lockfile %s", lockfile);
 	if ((fp = fopen(lockfile, "w")) == NULL) {
 	    WriteError("$Can't create lock %s", lockfile);
 	    return FALSE;
@@ -128,13 +128,13 @@ int setlock(char *lockfile, int create)
 /*
  * Removing lockfile
  */
-void remlock(char *lockfile, int create)
+void remlock(char *lockfile, int create, int loglvl)
 {
     if (create) {
 	if (file_rm(lockfile))
 	    WriteError("$Can't remove lock %s", lockfile);
 	else
-	    Syslog('m', "Removed lock %s", lockfile);
+	    Syslog(loglvl, "Removed lock %s", lockfile);
     }
 }
 
@@ -159,9 +159,9 @@ void dirinbound(void)
 	    if (nodes.Session_in == S_DIR && strlen(nodes.Dir_in_path)) {
 		fileptr = ftell(fp) - nodeshdr.recsize;
 		Syslog('+', "Directory inbound session for node %s", aka2str(nodes.Aka[0]));
-		if (! islocked(nodes.Dir_in_clock, nodes.Dir_in_chklck, nodes.Dir_in_waitclr)) {
+		if (! islocked(nodes.Dir_in_clock, nodes.Dir_in_chklck, nodes.Dir_in_waitclr, 'm')) {
 		    Syslog('m', "Node is free, start processing");
-		    setlock(nodes.Dir_in_mlock, nodes.Dir_in_mklck);
+		    setlock(nodes.Dir_in_mlock, nodes.Dir_in_mklck, 'm');
 
 		    if ((dp = opendir(nodes.Dir_in_path)) == NULL) {
 			WriteError("$Can't open directory %s", nodes.Dir_in_path);
@@ -197,7 +197,7 @@ void dirinbound(void)
 			free(from);
 		    }
 		    
-		    remlock(nodes.Dir_in_mlock, nodes.Dir_in_mklck);
+		    remlock(nodes.Dir_in_mlock, nodes.Dir_in_mklck, 'm');
 		}
 
 		/*

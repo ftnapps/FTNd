@@ -41,7 +41,6 @@
 #include "../lib/dbnode.h"
 #include "../lib/dbmsgs.h"
 #include "addpkt.h"
-#include "pack.h"
 #include "tracker.h"
 #include "ftn2rfc.h"
 #include "rfc2ftn.h"
@@ -56,6 +55,7 @@ extern	int	echo_in;
 extern	int	email_out;
 extern	int	echo_out;
 extern	int	most_debug;
+extern	int	do_flush;
 int		scanned;
 
 #define	MAXSEEN 70
@@ -133,7 +133,7 @@ void ScanMail(int DoAll)
 		ScanFull();
 
 	if (echo_out || net_out)
-		packmail();
+		do_flush = TRUE;
 	RemoveSema((char *)"mailout");
 }
 

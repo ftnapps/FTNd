@@ -115,13 +115,13 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	routeto = fido2faddr(Node);
     dest = fido2faddr(Node);
     if (nodes.Session_out == S_DIR) {
-	if (islocked(nodes.Dir_out_clock, nodes.Dir_out_chklck, nodes.Dir_out_waitclr)) {
+	if (islocked(nodes.Dir_out_clock, nodes.Dir_out_chklck, nodes.Dir_out_waitclr, 'p')) {
 	    /*
 	     * Not good, should go to a queue
 	     */
 	    attach(*routeto, fwdfile, LEAVE, flavor);
 	} else {
-	    if (! setlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck)) {
+	    if (! setlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p')) {
 		/*
 		 * Not good again
 		 */
@@ -348,7 +348,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     }
 
     if (nodes.Session_out == S_DIR)
-	remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck);
+	remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p');
 
     /*
      * Update the nodes statistic counters
