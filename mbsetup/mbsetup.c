@@ -88,7 +88,7 @@ static void die(int onsig)
     int	    i;
 
     signal(onsig, SIG_IGN);
-    if (!init)
+    if ((!init) && (onsig != MBERR_NO_PROGLOCK))
 	screen_stop(); 
 
     if (exp_golded && (config_read() != -1)) {
@@ -143,6 +143,7 @@ static void die(int onsig)
 	free(temp);
     }
 
+    ulockprogram((char *)"mbsetup");
     umask(oldmask);
     if (onsig && (onsig <= NSIG))
 	WriteError("MBSETUP finished on signal %s", SigName[onsig]);
@@ -403,84 +404,90 @@ void initdatabases(void)
 
 int main(int argc, char *argv[])
 {
-	int		loop = 1;
-	struct passwd	*pw;
+    int		    loop = 1;
+    struct passwd   *pw;
 
-	/*
-	 * Find out who is on the keyboard or automated the keyboard.
-	 */
-	pw = getpwuid(geteuid());
-	if (strcmp(pw->pw_name, (char *)"mbse")) {
-	    printf("ERROR: only user \"mbse\" may use this program\n");
-	    exit(MBERR_INIT_ERROR);
-	}
+    /*
+     * Find out who is on the keyboard or automated the keyboard.
+     */
+    pw = getpwuid(geteuid());
+    if (strcmp(pw->pw_name, (char *)"mbse")) {
+	printf("ERROR: only user \"mbse\" may use this program\n");
+        exit(MBERR_INIT_ERROR);
+    }
 
 #ifdef MEMWATCH
-	mwInit();
+    mwInit();
 #endif
 
-	/*
-	 * Read the global configuration data, registrate connection
-	 */
-	config_check(getenv("MBSE_ROOT"));
-	config_read();
-	InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog);
+    /*
+     * Read the global configuration data, registrate connection
+     */
+    config_check(getenv("MBSE_ROOT"));
+    config_read();
+    InitClient(pw->pw_name, (char *)"mbsetup", CFG.location, CFG.logfile, 0x1f, CFG.error_log, CFG.mgrlog);
 
-	/*
-	 * Setup several signals so when the program terminate's it
-	 * will properly close the curses screens.
-	 */
-	signal(SIGINT, (void (*))die);
-	signal(SIGBUS, (void (*))die);
-	signal(SIGSEGV,(void (*))die);
-	signal(SIGTERM,(void (*))die);
-	signal(SIGKILL,(void (*))die);
+    /*
+     * Setup several signals so when the program terminate's it
+     * will properly close the curses screens.
+     */
+    signal(SIGINT, (void (*))die);
+    signal(SIGBUS, (void (*))die);
+    signal(SIGSEGV,(void (*))die);
+    signal(SIGTERM,(void (*))die);
+    signal(SIGKILL,(void (*))die);
 
-	oldmask = umask(002);
+    oldmask = umask(002);
 
-	if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
-	    init = TRUE;
-	else
-	    screen_start((char *)"MBsetup");
+    if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
+	init = TRUE;
+    else
+	screen_start((char *)"MBsetup");
 
-	do_quiet = TRUE;
-	Syslog(' ', " ");
-	Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
-	if (init)
-	    Syslog('+', "Cmd: mbsetup init");
-	bbs_free = FALSE;
-	initdatabases();
+    do_quiet = TRUE;
+    Syslog(' ', " ");
+    Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
+    if (init)
+	Syslog('+', "Cmd: mbsetup init");
+
+    if (lockprogram((char *)"mbsetup")) {
+	printf("\n\7Another mbsetup is already running, abort.\n\n");
+	die(MBERR_NO_PROGLOCK);
+    }
+
+    bbs_free = FALSE;
+    initdatabases();
 	
-	if (!init) {
-	    do {
-		IsDoing("Browsing Menu");
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "0.    MAIN SETUP");
-		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Global configuration");
-		mvprintw( 8, 6, "2.    Edit Fido Networks");
-		mvprintw( 9, 6, "3.    Edit Archiver Programs");
-		mvprintw(10, 6, "4.    Edit Virus Scanners");
-		mvprintw(11, 6, "5.    Edit Modem types");
-		mvprintw(12, 6, "6.    Edit TTY lines info");
-		mvprintw(13, 6, "7.    Edit Fidonet Nodes");
-		mvprintw(14, 6, "8.    Edit BBS Setup");
-		mvprintw(15, 6, "9.    Edit Mail Setup");
-		mvprintw(16, 6, "10.   Edit File Echo's setup");
-		mvprintw(17, 6, "11.   Edit Newfiles Groups");
-		mvprintw( 7,46, "12.   Edit Newfiles Reports");
-		mvprintw( 8,46, "13.   Edit FileFind Setup");
-		mvprintw( 9,46, "14.   Edit Files Database");
-		mvprintw(10,46, "15.   Edit BBS Users");
-		mvprintw(11,46, "16.   Edit Services");
-		mvprintw(12,46, "17.   Edit Domains");
-		mvprintw(13,46, "18.   Edit Task Manager");
-		mvprintw(14,46, "19.   Edit Routing Table");
-		mvprintw(15,46, "20.   Show software information");
-		mvprintw(16,46, "21.   Create site documents");
+    if (!init) {
+	do {
+	    IsDoing("Browsing Menu");
+	    clr_index();
+	    set_color(WHITE, BLACK);
+	    mvprintw( 5, 6, "0.    MAIN SETUP");
+	    set_color(CYAN, BLACK);
+	    mvprintw( 7, 6, "1.    Edit Global configuration");
+	    mvprintw( 8, 6, "2.    Edit Fido Networks");
+	    mvprintw( 9, 6, "3.    Edit Archiver Programs");
+	    mvprintw(10, 6, "4.    Edit Virus Scanners");
+	    mvprintw(11, 6, "5.    Edit Modem types");
+	    mvprintw(12, 6, "6.    Edit TTY lines info");
+	    mvprintw(13, 6, "7.    Edit Fidonet Nodes");
+	    mvprintw(14, 6, "8.    Edit BBS Setup");
+	    mvprintw(15, 6, "9.    Edit Mail Setup");
+	    mvprintw(16, 6, "10.   Edit File Echo's setup");
+	    mvprintw(17, 6, "11.   Edit Newfiles Groups");
+	    mvprintw( 7,46, "12.   Edit Newfiles Reports");
+	    mvprintw( 8,46, "13.   Edit FileFind Setup");
+	    mvprintw( 9,46, "14.   Edit Files Database");
+	    mvprintw(10,46, "15.   Edit BBS Users");
+	    mvprintw(11,46, "16.   Edit Services");
+	    mvprintw(12,46, "17.   Edit Domains");
+	    mvprintw(13,46, "18.   Edit Task Manager");
+	    mvprintw(14,46, "19.   Edit Routing Table");
+	    mvprintw(15,46, "20.   Show software information");
+	    mvprintw(16,46, "21.   Create site documents");
  
-		switch(select_menu(21)) {
+	    switch(select_menu(21)) {
 		case 0:
 			loop = 0;
 			break;
@@ -547,11 +554,11 @@ int main(int argc, char *argv[])
 		case 21:
 			site_docs();
 			break;
-		}
-	    } while (loop == 1);
-	}
+	    }
+	} while (loop == 1);
+    }
 
-	die(MBERR_OK);
-	return 0;
+    die(MBERR_OK);
+    return 0;
 }
 

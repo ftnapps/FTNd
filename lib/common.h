@@ -508,5 +508,12 @@ void	name_mangle(char *);	    /* Mangle name or make uppercase	*/
 int  Access(securityrec, securityrec);  /* Check security access	*/
 int  Le_Access(securityrec, securityrec);  /* Endian independant	*/
 
+
+/*
+ * proglock.c
+ */
+int lockprogram(char *);	    /* Lock a program			*/
+void ulockprogram(char *);	    /* Unlock a program			*/
+
 #endif
 

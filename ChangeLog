@@ -12,6 +12,7 @@ v0.37.5		12-Jul-2003
 
 	common.a:
 		Node locking tests for non-stale lockfiles older then 6 hours.
+		Added general code for prgram locking.
 
 	mbcico:
 		Implemented CRAM rev.4 change in binkp driver.
@@ -24,9 +25,16 @@ v0.37.5		12-Jul-2003
 
 	mbsetup:
 		Added menu entry 1.5.21 for setting maximum allowed logins.
+		Added program locking, only one mbsetup can run at the same
+		time.
 
 	mbtask:
 		On new installations sets max logins to 1.
+		Now uses standard locking in ~/var/run
+
+	mbmon:
+		Added program locking, only one mbmon can run at the same time
+		to prevent troubles with chat and sysop available.
 
 	lang:
 		Added language prompts 18 and 19.

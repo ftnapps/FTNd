@@ -56,7 +56,6 @@ static onetask		task[MAXTASKS];		/* Array with tasks	*/
 extern tocall		calllist[MAXTASKS];	/* Array with calllist	*/
 reg_info		reginfo[MAXCLIENT];	/* Array with clients	*/
 static pid_t		pgrp;			/* Pids group		*/
-static char		lockfile[PATH_MAX];	/* Lockfile 		*/
 int			sock = -1;		/* Datagram socket	*/
 struct sockaddr_un	servaddr;		/* Server address	*/
 struct sockaddr_un	from;			/* From address		*/
@@ -693,67 +692,107 @@ void die(int onsig)
  */
 int locktask(char *root)
 {
-	char    Tmpfile[81];
-	FILE    *fp;
-	pid_t   oldpid;
+    char    *tempfile, *lockfile;
+    FILE    *fp;
+    pid_t   oldpid;
 
-	sprintf(Tmpfile, "%s/var/", root);
-	strcpy(lockfile, Tmpfile);
-	sprintf(Tmpfile + strlen(Tmpfile), "%s%u", TMPNAME, getpid());
-	sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
+    tempfile = calloc(PATH_MAX, sizeof(char));
+    lockfile = calloc(PATH_MAX, sizeof(char));
 
-	if ((fp = fopen(Tmpfile, "w")) == NULL) {
-		perror("mbtask");
-		printf("Can't create lockfile \"%s\"\n", Tmpfile);
-		return 1;
+    sprintf(tempfile, "%s/var/run/mbtask.tmp", root);
+    sprintf(lockfile, "%s/var/run/mbtask", root);
+
+    if ((fp = fopen(tempfile, "w")) == NULL) {
+	perror("mbtask");
+	printf("Can't create lockfile \"%s\"\n", tempfile);
+	free(tempfile);
+	free(lockfile);
+	return 1;
+    }
+    fprintf(fp, "%10u\n", getpid());
+    fclose(fp);
+
+    while (TRUE) {
+	if (link(tempfile, lockfile) == 0) {
+	    unlink(tempfile);
+	    free(tempfile);
+	    free(lockfile);
+	    return 0;
 	}
-	fprintf(fp, "%10u\n", getpid());
+	if ((fp = fopen(lockfile, "r")) == NULL) {
+	    perror("mbtask");
+	    printf("Can't open lockfile \"%s\"\n", tempfile);
+	    unlink(tempfile);
+	    free(tempfile);
+	    free(lockfile);
+	    return 1;
+	}
+	if (fscanf(fp, "%u", &oldpid) != 1) {
+	    perror("mbtask");
+	    printf("Can't read old pid from \"%s\"\n", tempfile);
+	    fclose(fp);
+	    unlink(tempfile);
+	    free(tempfile);
+	    free(lockfile);
+	    return 1;
+	}
 	fclose(fp);
-
-	while (TRUE) {
-		if (link(Tmpfile, lockfile) == 0) {
-			unlink(Tmpfile);
-			return 0;
-		}
-		if ((fp = fopen(lockfile, "r")) == NULL) {
-			perror("mbtask");
-			printf("Can't open lockfile \"%s\"\n", Tmpfile);
-			unlink(Tmpfile);
-			return 1;
-		}
-		if (fscanf(fp, "%u", &oldpid) != 1) {
-			perror("mbtask");
-			printf("Can't read old pid from \"%s\"\n", Tmpfile);
-			fclose(fp);
-			unlink(Tmpfile);
-			return 1;
-		}
-		fclose(fp);
-		if (kill(oldpid,0) == -1) {
-			if (errno == ESRCH) {
-				printf("Stale lock found for pid %u\n", oldpid);
-				unlink(lockfile);
-				/* no return, try lock again */  
-			} else {
-				perror("mbtask");
-				printf("Kill for %u failed\n",oldpid);
-				unlink(Tmpfile);
-				return 1;
-			}
-		} else {
-			printf("Another mbtask is already running, pid=%u\n", oldpid);
-			unlink(Tmpfile);
-			return 1;
-		}
+	if (kill(oldpid,0) == -1) {
+	    if (errno == ESRCH) {
+		printf("Stale lock found for pid %u\n", oldpid);
+		unlink(lockfile);
+		/* no return, try lock again */  
+	    } else {
+		perror("mbtask");
+		printf("Kill for %u failed\n",oldpid);
+		unlink(tempfile);
+		free(tempfile);
+		free(lockfile);
+		return 1;
+	    }
+	} else {
+	    printf("Another mbtask is already running, pid=%u\n", oldpid);
+	    unlink(tempfile);
+	    free(tempfile);
+	    free(lockfile);
+	    return 1;
 	}
+    }
 }
 
 
 
 void ulocktask(void)
 {
-	if (lockfile)
-		(void)unlink(lockfile);
+    char	    *lockfile;
+    pid_t	    oldpid;
+    FILE	    *fp;
+    struct passwd   *pw;
+
+    pw = getpwnam((char *)"mbse");
+    lockfile = calloc(PATH_MAX, sizeof(char));
+    sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
+
+    if ((fp = fopen(lockfile, "r")) == NULL) {
+	WriteError("$Can't open lockfile \"%s\"", lockfile);
+	free(lockfile);
+	return;
+    }
+    if (fscanf(fp, "%u", &oldpid) != 1) {
+	WriteError("$Can't read old pid from \"%s\"", lockfile);
+	fclose(fp);
+	unlink(lockfile);
+	free(lockfile);
+	return;
+    }
+
+    if (oldpid == getpid()) {
+	(void)unlink(lockfile);
+    } else {
+	WriteError("Lockfile owned by pid %d, not removed", oldpid);
+    }
+
+    free(lockfile);
 }
 
 
@@ -1245,6 +1284,7 @@ void scheduler(void)
 int main(int argc, char **argv)
 {
     struct passwd   *pw;
+    char	    *lockfile;
     int             i;
     pid_t           frk;
     FILE            *fp;
@@ -1365,10 +1405,13 @@ int main(int argc, char **argv)
              * run the deamon process. Put the child's pid
              * in the lockfile before leaving.
              */
+	    lockfile = calloc(PATH_MAX, sizeof(char));
+	    sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
             if ((fp = fopen(lockfile, "w"))) {
                 fprintf(fp, "%10u\n", frk);
                 fclose(fp);
             }
+	    free(lockfile);
             Syslog('+', "Starting daemon with pid %d", frk);
             exit(MBERR_OK);
     }

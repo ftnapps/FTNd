@@ -4,7 +4,7 @@
  * Purpose ...............: Nodelist Compiler
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -41,10 +41,6 @@
 #include "../lib/mberrors.h"
 
 
-#define TMPNAME "TMP."
-#define LCKNAME "LOCKFILE"
-
-
 typedef struct _nl_list {
 	struct _nl_list	*next;
 	struct _nlidx	idx;
@@ -59,80 +55,12 @@ long		total = 0, entries = 0;
 int		filenr = 0;
 unsigned short	regio;
 nl_list		*nll = NULL;
-static 		char lockfile[81];
 
 
 extern		int do_quiet;		/* Quiet flag			    */
 extern		int show_log;		/* Show logging on screen	    */
 time_t		t_start;		/* Start time			    */
 time_t		t_end;			/* End time			    */
-
-
-/*
- *  Put a lock on this program.
- */
-int lockindex(void)
-{
-	char	Tmpfile[81];
-	FILE	*fp;
-	pid_t	oldpid;
-
-	sprintf(Tmpfile, "%s/", CFG.nodelists);
-	strcpy(lockfile, Tmpfile);
-	sprintf(Tmpfile + strlen(Tmpfile), "%s%u", TMPNAME, getpid());
-	sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
-
-	if ((fp = fopen(Tmpfile, "w")) == NULL) {
-		WriteError("$Can't create lockfile \"%s\"", Tmpfile);
-		return 1;
-	}
-	fprintf(fp, "%10u\n", getpid());
-	fclose(fp);
-
-	while (TRUE) {
-		if (link(Tmpfile, lockfile) == 0) {
-			unlink(Tmpfile);
-			return 0;
-		}
-		if ((fp = fopen(lockfile, "r")) == NULL) {
-			WriteError("$Can't open lockfile \"%s\"", Tmpfile);
-			unlink(Tmpfile);
-			return 1;
-		}
-		if (fscanf(fp, "%u", &oldpid) != 1) {
-			WriteError("$Can't read old pid from \"%s\"", Tmpfile);
-			fclose(fp);
-			unlink(Tmpfile);
-			return 1;
-		}
-		fclose(fp);
-		if (kill(oldpid,0) == -1) {
-			if (errno == ESRCH) {
-				Syslog('+', "Stale lock found for pid %u", oldpid);
-				unlink(lockfile);
-				/* no return, try lock again */  
-			} else {
-				WriteError("$Kill for %u failed",oldpid);
-				unlink(Tmpfile);
-				return 1;
-			}
-		} else {
-			Syslog('+', "mbindex already running, pid=%u", oldpid);
-			if (!do_quiet)
-				printf("Another mbindex is already running.\n");
-			unlink(Tmpfile);
-			return 1;
-		}
-	}
-}
-
-
-
-void ulockindex(void)
-{
-	if (lockfile)
-		(void)unlink(lockfile);
-}
 
 
 
@@ -176,102 +104,102 @@ void ProgName(void)
 
 void die(int onsig)
 {
-	if (onsig && (onsig < NSIG))
-		signal(onsig, SIG_IGN);
+    if (onsig && (onsig < NSIG))
+	signal(onsig, SIG_IGN);
 
-	ulockindex();
+    ulockprogram((char *)"mbindex");
 
-	if (!do_quiet) {
-		colour(3, 0);
-		show_log = TRUE;
-	}
+    if (!do_quiet) {
+	colour(3, 0);
+	show_log = TRUE;
+    }
 
-	if (IsSema((char *)"mbindex"))
-		RemoveSema((char *)"mbindex");
+    if (IsSema((char *)"mbindex"))
+	RemoveSema((char *)"mbindex");
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	t_end = time(NULL);
-	Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
+    t_end = time(NULL);
+    Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
 	
-	if (!do_quiet)
-		colour(7, 0);
+    if (!do_quiet)
+	colour(7, 0);
 
-	ExitClient(onsig);
+    ExitClient(onsig);
 }
 
 
 
 int main(int argc,char *argv[])
 {
-	int	i;
-	char	*cmd;
-	struct	passwd *pw;
+    int		    i;
+    char	    *cmd;
+    struct passwd   *pw;
 
 #ifdef MEMWATCH
-        mwInit();
+    mwInit();
 #endif
-	InitConfig();
-	InitFidonet();
-	TermInit(1);
-	t_start = time(NULL);
-	umask(002);
+    InitConfig();
+    InitFidonet();
+    TermInit(1);
+    t_start = time(NULL);
+    umask(002);
 
-	/*
-	 *  Catch all the signals we can, and ignore the rest.
-	 *  Don't listen to SIGTERM.
-	 */
-	for(i = 0; i < NSIG; i++) {
+    /*
+     *  Catch all the signals we can, and ignore the rest.
+     *  Don't listen to SIGTERM.
+     */
+    for (i = 0; i < NSIG; i++) {
 
-		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
-	}
-
-	cmd = xstrcpy((char *)"Command line: mbindex");
-
-	if (argc > 2)
-		Help();
-
-	if (argc == 2) {
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, argv[1]);
-
-		if (strncasecmp(argv[1], "-q", 2) == 0)
-			do_quiet = TRUE;
-		else
-			Help();
-	}
-
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbindex", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
-
-	Syslog(' ', " ");
-	Syslog(' ', "MBINDEX v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
-
-	if (!diskfree(CFG.freespace))
-		die(MBERR_DISK_FULL);
-
-	if (lockindex()) {
-		if (!do_quiet)
-			printf("Can't lock mbindex, abort.\n");
-		die(MBERR_NO_PROGLOCK);
-	}
-
-	if (nodebld())
-	    die(MBERR_GENERAL);
+	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
+	    signal(i, (void (*))die);
 	else
-	    die(MBERR_OK);
-	return 0;
+	    signal(i, SIG_IGN);
+    }
+
+    cmd = xstrcpy((char *)"Command line: mbindex");
+
+    if (argc > 2)
+	Help();
+
+    if (argc == 2) {
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, argv[1]);
+
+	if (strncasecmp(argv[1], "-q", 2) == 0)
+	    do_quiet = TRUE;
+	else
+	    Help();
+    }
+
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbindex", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+
+    Syslog(' ', " ");
+    Syslog(' ', "MBINDEX v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
+
+    if (!diskfree(CFG.freespace))
+	die(MBERR_DISK_FULL);
+
+    if (lockprogram((char *)"mbindex")) {
+	if (!do_quiet)
+	    printf("Can't lock mbindex, abort.\n");
+	die(MBERR_NO_PROGLOCK);
+    }
+
+    if (nodebld())
+	die(MBERR_GENERAL);
+    else
+	die(MBERR_OK);
+    return 0;
 }
 
 

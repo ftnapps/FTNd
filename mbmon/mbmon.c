@@ -5,7 +5,7 @@
  * Todo ..................: Chat with user via server
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -35,6 +35,7 @@
 #include "../lib/mberrors.h"
 #include "../lib/structs.h"
 #include "common.h"
+#include "proglock.h"
 #include "mutil.h"
 
 
@@ -58,15 +59,22 @@ static void die(int onsig)
     char    buf[128];
     
     signal(onsig, SIG_IGN);
-    screen_stop(); 
+
+    /*
+     * Prevent clear screen when the program was locked
+     */
+    if (onsig != MBERR_NO_PROGLOCK)
+	screen_stop(); 
+    
     if (onsig && (onsig <= NSIG))
-	Syslog('?', "Finished on signal %s", SigName[onsig]);
+	Syslog('?', "MBMON Finished on signal %s", SigName[onsig]);
     else
-	Syslog(' ', "Normally finished");
+	Syslog(' ', "MBMON Normally finished");
     
     sprintf(buf, "CSYS:2,%d,0;", mypid);
     if (socket_send(buf) == 0)
 	sprintf(buf, "%s", socket_receive());
+    ulockprogram((char *)"mbmon");
     ExitClient(0);
 }
 
@@ -709,7 +717,7 @@ int main(int argc, char *argv[])
      */
     pw = getpwuid(getuid());
     InitClient(pw->pw_name);
-    Syslog(' ', "Started by %s", pw->pw_name);
+    Syslog(' ', "MBMON Started by %s", pw->pw_name);
     bbs_free = FALSE;
 
     /*
@@ -730,7 +738,6 @@ int main(int argc, char *argv[])
     signal(SIGTERM,(void (*))die);
     signal(SIGKILL,(void (*))die);
 
-
     /*
      * Find out if the environment variables LINES and COLUMNS are present,
      * if so, then use these for screen dimensions.
@@ -747,6 +754,10 @@ int main(int argc, char *argv[])
     }
     Syslog('-', "Screen size set to %dx%d", columns, lines);
 
+    if (lockprogram((char *)"mbmon")) {
+	printf("\n\7Another mbmon is already running, abort.\n\n");
+	die(MBERR_NO_PROGLOCK);
+    }
     
     screen_start((char *)"MBmon");
 

@@ -10,8 +10,6 @@
  */
 #define MAXTASKS                10
 #define SLOWRUN                 20
-#define TMPNAME                 "TMP."
-#define LCKNAME                 "LOCKTASK"
 
 
 
@@ -53,6 +51,4 @@ void		scheduler(void);
 int		locktask(char *);
 void		ulocktask(void);
 
-
 #endif
-
