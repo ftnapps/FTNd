@@ -555,7 +555,7 @@ void do_cmd(char *cmd)
 	Syslog('-', "> %s", buf);
 
     for (;;) {
-	slen = sendto(sock, buf, strlen(buf), 0, &from, fromlen);
+	slen = sendto(sock, buf, strlen(buf), 0, (struct sockaddr *)&from, fromlen);
 	if (slen == -1)
 	    Syslog('?', "$do_cmd(): sendto error %d %s", tries, from.sun_path);
 	else if (slen != strlen(buf))

@@ -225,7 +225,7 @@ int socket_connect(char *user)
 	clntaddr.sun_family = AF_UNIX;
 	strcpy(clntaddr.sun_path, cpath);
 
-	if (bind(s, &clntaddr, sizeof(clntaddr)) < 0) {
+	if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
 		close(s);
 		perror("mbmon");
 		printf("Can't bind socket %s\n", cpath);

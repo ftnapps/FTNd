@@ -75,7 +75,7 @@ int socket_connect(char *user, char *prg, char *city)
 	clntaddr.sun_family = AF_UNIX;
 	strcpy(clntaddr.sun_path, cpath);
 
-	if (bind(s, &clntaddr, sizeof(clntaddr)) < 0) {
+	if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
 		close(s);
 		perror(myname);
 		printf("Can't bind socket %s\n", cpath);

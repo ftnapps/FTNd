@@ -864,7 +864,7 @@ void scheduler(void)
     servaddr.sun_family = AF_UNIX;
     strcpy(servaddr.sun_path, spath);
 
-    if (bind(sock, &servaddr, sizeof(servaddr)) < 0) {
+    if (bind(sock, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
 	close(sock);
 	sock = -1;
 	Syslog('?', "$Can't bind socket %s", spath);
@@ -918,7 +918,7 @@ void scheduler(void)
 		 */
 		memset(&buf, 0, sizeof(buf));
 		fromlen = sizeof(from);
-		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, &from, &fromlen);
+		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
 		do_cmd(buf);
 	    } else {
 		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);

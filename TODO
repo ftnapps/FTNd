@@ -111,11 +111,6 @@ mbcico:
 	N: Add better check for stale outbound locks, check if the pid is from
 	   a non-mbse program or add a age check.
 
-	N: Irex sends GOT: SEAP\7eNZE.TGZ 15423 1042401790 on a file send as
-	   send "/opt/mbse/var/boxes/ntbox/SEAP~NZE.TGZ" as "SEAP~NZE.TGZ".
-	   Filenames in Irex inbound are named SEAP~NZE.TGZ, which is good.
-	   We need to understand the escapes.
-
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
 
