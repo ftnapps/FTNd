@@ -43,7 +43,7 @@ case "$1" in
                 echo -n " logoff users"
                 su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	fi
-        kill -15 `/usr/local/bin/pidof ${MBSE_ROOT}/bin/mbtask`
+        kill -15 `/usr/local/bin/pidof mbtask`
 	echo -n " mbtask"
         ;;
   *)
