@@ -66,6 +66,7 @@
 
 */
 
+char *transfertime(struct timeval, struct timeval, long bytes, int);
 
 
 int ForceProtocol()
@@ -101,9 +102,10 @@ int download(down_list *download_list)
     int		    err, maxrc = 0, Count = 0;
     char	    *temp, *symTo, *symFrom;
     unsigned long   Size = 0;
-    time_t          ElapstimeStart, ElapstimeFin, iTime;
     struct dirent   *dp;
     DIR		    *dirp;
+    struct timeval  starttime, endtime;
+    struct timezone tz;
 
     /*
      * If user has no default protocol, make sure he has one.
@@ -186,7 +188,7 @@ int download(down_list *download_list)
 	for (tmpf = download_list; tmpf && (maxrc < 2); tmpf = tmpf->next) {
 	}
     } else {
-	ElapstimeStart = time(NULL);
+	gettimeofday(&starttime, &tz);
 
 	/*
 	 * Transfer the files. Set the Client/Server time at the maximum
@@ -232,15 +234,8 @@ int download(down_list *download_list)
 	alarm_off();
 	alarm_on();
 	Home();
-	ElapstimeFin = time(NULL);
+	gettimeofday(&endtime, &tz);
 
-	/*
-	 * Get time from Before Download and After Download to get
-	 * download time, if the time is zero, it will be one.
-	 */
-	iTime = ElapstimeFin - ElapstimeStart;
-	if (!iTime)
-	    iTime = 1;
 	/*
 	 * Checking the successfull sent files, they are missing from
 	 * the ./tag directory. Failed files are still there.
@@ -269,7 +264,7 @@ int download(down_list *download_list)
 	 * Size of the File by the amount of time it took to download 
 	 * the file.
 	 */
-	Syslog('+', "Download time %ld seconds (%lu cps), %d files", iTime, Size / iTime, Count);
+	Syslog('+', "Download %s, %d", transfertime(starttime, endtime, (unsigned long)Size, TRUE), Count);
     }
     
     free(symTo);
@@ -299,4 +294,24 @@ int upload(up_list *upload_list)
 }
 
 
+
+char *transfertime(struct timeval start, struct timeval end, long bytes, int sent)
+{
+    static char     resp[81];
+    double long     startms, endms, elapsed;
+
+    startms = (start.tv_sec * 1000) + (start.tv_usec / 1000);
+    endms = (end.tv_sec * 1000) + (end.tv_usec / 1000);
+    elapsed = endms - startms;
+    memset(&resp, 0, sizeof(resp));
+    if (!elapsed)
+	elapsed = 1L;
+    if (bytes > 1000000)
+	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
+    else
+	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+		bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
+    return resp;
+}
 
