@@ -26,7 +26,11 @@ is logged in the bbs. Since that is possible, a new location for the virtual C:
 drive is now being used withing the $MBSE_ROOT file structure. This virtual C:
 drive is owned by the group bbs. The basic ideas how doors should be run written
 by Redy Rodriguez are still valid, but some scripts are changed and some dosemu
-files must be copied into the mbse directory tree.
+files must be copied into the mbse directory tree.<p>
+<em>One very important note: the virtual dos drive is now $MBSE_ROOT/var/dosemu/c
+Don't use another location or change the access rights, there will be several 
+references from mbse to that and only that location for dos support. 
+Choose another one and you are on your own!</em>
 <p>&nbsp;<p>
 
 <h3>Installing dosemu</h3>
@@ -159,7 +163,41 @@ menu.
 <p>
 <img src="images/doors2.png" alt="doors menu" border="0">
 <p>
-That's it.
+<p>&nbsp;<p>
+
+<h3>Netmail support</h3>
+<p>
+In the virtual c: drive you need some directories that point to several other
+mbse subdirectories. You may need at least three of them, one to put netmail in,
+one to put files in to send and one semafore directory to tell mbse there is
+something to send. For example like this:
+<pre>
+ln -s /opt/mbse/var/msgs /opt/mbse/var/dosemu/c/msgs
+ln -s /opt/mbse/var/boxes/node92_100_60 /opt/mbse/var/dosemu/c/outbox
+ln -s /opt/mbse/sema /opt/mbse/var/dosemu/c/sema
+</pre>
+In dos you now have:
+<pre>
+C:\MSGS
+C:\OUTBOX
+C:\SEMA
+</pre>
+In <code>C:\MSGS</code> doors may put *.msg netmails. 
+File attaches won't work from these netmails because the netmails
+point to files with dosnames. (May be solved later). The script that calls the
+door, for example <code>c:\doors\bre.bat</code> must copy the file to send to
+the node outbound box. In the above example that would be copy to 
+<code>C:\OUTBOX</code>.
+To create the semafore to tell mbse to scan add to the batfile (for example
+<code>C:\DOORS\BRE.BAT</code> the following two lines:
+<pre>
+CD C:\SEMA
+ECHO ""&gt;MAILOUT
+</pre>
+See also the <a href="faq.html#_Doors">F.A.Q.</a> for some very usefull tips and
+tricks.
+Using the same method with symlinks, you can make all paths you need from the
+rest of mbse visible in dos. Use with care.
 <p>&nbsp;<p>
 
 <h3>What if I don't upgrade</h3>

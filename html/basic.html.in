@@ -76,14 +76,14 @@ layout looks like this:<br>
 /opt/mbse/var                  0770  Var root
 /opt/mbse/var/arealists        0750  Areamgr arealist files
 /opt/mbse/var/badtic           0750  Bad TIC files
-/opt/mbse/var/boxes            0750  Base for nodes fileboxes
+/opt/mbse/var/boxes            0770  Base for nodes fileboxes
 /opt/mbse/var/bso              0750  Binkley Style Outbound directory
 /opt/mbse/var/bso/outbound     0750  Default outbound for main aka
 /opt/mbse/var/dosemu           0770  Base for DOS drives
 /opt/mbse/var/dosemu/c         0770  DOS drive C:
 /opt/mbse/var/inbound          0750  Protected inbound directory
 /opt/mbse/var/mail             0770  JAM messagebase root
-/opt/mbse/var/msgs             0750  *.msgs netmail directory (not yet in use).
+/opt/mbse/var/msgs             0770  *.msgs netmail directory (not yet in use).
 /opt/mbse/var/nodelist         0750  Nodelists
 /opt/mbse/var/queue            0750  Queue for before outbound
 /opt/mbse/var/rules            0770  Echomail area rules files

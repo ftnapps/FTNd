@@ -173,11 +173,12 @@ install:
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/var ; \
 			chmod -R 0750 ${PREFIX}/var ; \
 		fi
+		@chmod 0770 ${PREFIX}/var/msgs
 		@if [ ! -d ${PREFIX}/var/boxes ]; then \
 			mkdir ${PREFIX}/var/boxes ; \
 			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/boxes ; \
-			chmod 0750 ${PREFIX}/var/boxes ; \
 		fi
+		@chmod 0770 ${PREFIX}/var/boxes
 		@if [ ! -d ${PREFIX}/var/rules ]; then \
 			mkdir ${PREFIX}/var/rules ; \
 			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/rules ; \
@@ -228,7 +229,6 @@ install:
 			echo; echo "If there is nothing important in ${PREFIX}/doc" ; \
 			echo "you may remove that obsolete directory." ; \
 		fi
-
 dist tar:	${TARFILE}
 
 clean:
