@@ -273,3 +273,26 @@ AC_OUTPUT(
 	script/editor
 )
 
+#=================================================================================
+
+AC_MSG_RESULT([
+-=-=-=-=-=-=-=-=-=-= Configuration Complete =-=-=-=-=-=-=-=-=-=-
+
+  Configuration summary :
+
+    Version : ..................... ${VERSION}
+])
+
+if test x$ac_cv_c_compiler_gnu = xyes ; then
+        echo -e "  Tools :\n"
+        echo "    Compiler is GCC : ............. ${ac_cv_c_compiler_gnu}"
+        fi
+
+AC_MSG_RESULT([
+  Installation directories :
+
+    Main directory    : ........... ${prefix}
+
+
+  Now type 'make' and as root 'make install'
+])

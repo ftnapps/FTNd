@@ -9829,3 +9829,41 @@ if test "$no_create" != yes; then
 fi
 
 
+#=================================================================================
+
+echo "$as_me:$LINENO: result:
+-=-=-=-=-=-=-=-=-=-= Configuration Complete =-=-=-=-=-=-=-=-=-=-
+
+  Configuration summary :
+
+    Version : ..................... ${VERSION}
+" >&5
+echo "${ECHO_T}
+-=-=-=-=-=-=-=-=-=-= Configuration Complete =-=-=-=-=-=-=-=-=-=-
+
+  Configuration summary :
+
+    Version : ..................... ${VERSION}
+" >&6
+
+if test x$ac_cv_c_compiler_gnu = xyes ; then
+        echo -e "  Tools :\n"
+        echo "    Compiler is GCC : ............. ${ac_cv_c_compiler_gnu}"
+        fi
+
+echo "$as_me:$LINENO: result:
+  Installation directories :
+
+    Main directory    : ........... ${prefix}
+
+
+  Now type 'make' and as root 'make install'
+" >&5
+echo "${ECHO_T}
+  Installation directories :
+
+    Main directory    : ........... ${prefix}
+
+
+  Now type 'make' and as root 'make install'
+" >&6
