@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.51.4 TODO list.
+			MBSE BBS V0.51.5 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -24,9 +24,6 @@ everything:
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
-
-general:
-	N: Write files database api with locking to prevent corruption.
 
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
