@@ -142,6 +142,12 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
+mbtask:
+	U: During chat when one of the users is disconnected for some reason
+	   mbtask crashes when trying to send a message to the pid that is no
+	   longer there. It looks that way. Maybe a protection is needed when
+	   communicating with other processes.
+
 mbaff:
 	L: Rewrite filefind search algorithm.
 
