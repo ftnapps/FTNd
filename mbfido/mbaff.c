@@ -56,122 +56,127 @@ time_t			t_end;			/* End time		    */
 
 void ProgName(void)
 {
-	if (do_quiet)
-		return;
+    if (do_quiet)
+	return;
 
-	colour(15, 0);
-	printf("\nMBAFF: MBSE BBS %s Announce new files and FileFind\n", VERSION);
-	colour(14, 0);
-	printf("       %s\n", COPYRIGHT);
+    colour(15, 0);
+    printf("\nMBAFF: MBSE BBS %s Announce new files and FileFind\n", VERSION);
+    colour(14, 0);
+    printf("       %s\n", COPYRIGHT);
 }
 
 
 
 void die(int onsig)
 {
-	signal(onsig, SIG_IGN);
+    signal(onsig, SIG_IGN);
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	t_end = time(NULL);
-	Syslog(' ', "MBAFF finished in %s", t_elapsed(t_start, t_end));
+    ulockprogram((char *)"mbaff");
+    t_end = time(NULL);
+    Syslog(' ', "MBAFF finished in %s", t_elapsed(t_start, t_end));
 
-	if (!do_quiet) {
-		colour(7, 0);
-		printf("\n");
-	}
-	ExitClient(onsig);
+    if (!do_quiet) {
+	colour(7, 0);
+	printf("\n");
+    }
+    ExitClient(onsig);
 }
 
 
 
 int main(int argc, char **argv)
 {
-	int	i, Mail = FALSE;
-	char	*cmd;
-	struct	passwd *pw;
-	struct	tm *t;
+    int		    i, Mail = FALSE;
+    char	    *cmd;
+    struct passwd   *pw;
+    struct tm	    *t;
 
 #ifdef MEMWATCH
-        mwInit();
+    mwInit();
 #endif
-	InitConfig();
-	TermInit(1);
-	t_start = time(NULL);
-	t = localtime(&t_start);
-	Diw = t->tm_wday;
-	Miy = t->tm_mon;
-	umask(002);
+    InitConfig();
+    TermInit(1);
+    t_start = time(NULL);
+    t = localtime(&t_start);
+    Diw = t->tm_wday;
+    Miy = t->tm_mon;
+    umask(002);
 
 	
-	/*
-	 * Catch all signals we can, and ignore the rest.
-	 */
-	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) ||
-		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) ||
-		    (i == SIGKILL))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
-	}
+    /*
+     * Catch all signals we can, and ignore the rest.
+     */
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, (void (*))die);
+	else
+	    signal(i, SIG_IGN);
+    }
 
-	if(argc < 2)
-		Help();
+    if (argc < 2)
+	Help();
 
-	cmd = xstrcpy((char *)"Command line: mbaff");
+    cmd = xstrcpy((char *)"Command line: mbaff");
 
-	for (i = 1; i < argc; i++) {
+    for (i = 1; i < argc; i++) {
 
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, tl(argv[i]));
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, tl(argv[i]));
 
-		if (!strncmp(argv[i], "a", 1))
-			do_announce = TRUE;
-		if (!strncmp(argv[i], "f", 1))
-			do_filefind = TRUE;
-		if (!strncmp(argv[i], "-q", 2))
-			do_quiet = TRUE;
+	if (!strncmp(argv[i], "a", 1))
+	    do_announce = TRUE;
+	if (!strncmp(argv[i], "f", 1))
+	    do_filefind = TRUE;
+	if (!strncmp(argv[i], "-q", 2))
+	    do_quiet = TRUE;
 
-	}
+    }
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbaff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbaff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBAFF v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
+    Syslog(' ', " ");
+    Syslog(' ', "MBAFF v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
 
+    if (!do_quiet)
+	printf("\n");
+
+    if (!diskfree(CFG.freespace))
+	die(MBERR_DISK_FULL);
+
+    if (lockprogram((char *)"mbaff")) {
 	if (!do_quiet)
-		printf("\n");
+	    printf("Can't lock mbaff, abort.\n");
+	die(MBERR_NO_PROGLOCK);
+    }
 
-	if (!diskfree(CFG.freespace))
-		die(MBERR_DISK_FULL);
+    memset(&MsgBase, 0, sizeof(MsgBase));
 
-	memset(&MsgBase, 0, sizeof(MsgBase));
+    if (do_announce)
+	if (Announce())
+	    Mail = TRUE;
 
-	if (do_announce)
-		if (Announce())
-			Mail = TRUE;
+    if (do_filefind)
+	if (Filefind())
+	    Mail = TRUE;
 
-	if (do_filefind)
-		if (Filefind())
-			Mail = TRUE;
+    if (Mail) {
+	CreateSema((char *)"mailout");
+	CreateSema((char *)"msglink");
+    }
 
-	if (Mail) {
-		CreateSema((char *)"mailout");
-		CreateSema((char *)"msglink");
-	}
-
-	die(MBERR_OK);
-	return 0;
+    die(MBERR_OK);
+    return 0;
 }
 
 

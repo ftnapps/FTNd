@@ -30,15 +30,11 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-//#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-//#include "../lib/dbcfg.h"
-//#include "../lib/dbftn.h"
-//#include "../lib/mberrors.h"
 
 
 extern		int do_quiet;		/* Quiet flag			    */
@@ -53,7 +49,7 @@ int lockprogram(char *progname)
     FILE    *fp;
     pid_t   oldpid;
 
-    tempfile  = calloc(PATH_MAX, sizeof(char));
+    tempfile = calloc(PATH_MAX, sizeof(char));
     lockfile = calloc(PATH_MAX, sizeof(char));
 
     sprintf(tempfile, "%s/var/run/%s.tmp", getenv("MBSE_ROOT"), progname);
@@ -141,8 +137,6 @@ void ulockprogram(char *progname)
 
     if (oldpid == getpid()) {
 	(void)unlink(lockfile);
-    } else {
-	WriteError("Lockfile owned by pid %d, not removed", oldpid);
     }
 
     free(lockfile);

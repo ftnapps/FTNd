@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -217,6 +217,12 @@ int main(int argc, char **argv)
 
     if (!diskfree(CFG.freespace))
 	die(MBERR_DISK_FULL);
+
+    if (lockprogram((char *)"mbfile")) {
+	if (!do_quiet)
+	    printf("Can't lock mbfile, abort.\n");
+	die(MBERR_NO_PROGLOCK);
+    }
 
     if (do_adopt) {
 	AdoptFile(Area, FileName, Description);

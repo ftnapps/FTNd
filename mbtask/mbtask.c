@@ -788,8 +788,6 @@ void ulocktask(void)
 
     if (oldpid == getpid()) {
 	(void)unlink(lockfile);
-    } else {
-	WriteError("Lockfile owned by pid %d, not removed", oldpid);
     }
 
     free(lockfile);

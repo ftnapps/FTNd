@@ -4,7 +4,7 @@
  * Purpose: File Database Maintenance - utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -66,43 +66,44 @@ void ProgName(void)
 
 void die(int onsig)
 {
+    /*
+     * First check if a child is running, if so, kill it.
+     */
+    if (e_pid) {
+	if ((kill(e_pid, SIGTERM)) == 0)
+	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
+	else {
+	    if ((kill(e_pid, SIGKILL)) == 0)
+		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+	    else
+		WriteError("$Failed to kill pid %d", e_pid);
+	}
+
 	/*
-	 * First check if a child is running, if so, kill it.
+	 * In case the child had the tty in raw mode...
 	 */
-	if (e_pid) {
-		if ((kill(e_pid, SIGTERM)) == 0)
-			Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
-		else {
-			if ((kill(e_pid, SIGKILL)) == 0)
-				Syslog('+', "SIGKILL to pid %d succeded", e_pid);
-			else
-				WriteError("$Failed to kill pid %d", e_pid);
-		}
+	if (!do_quiet)
+	    system("stty sane");
+    }
 
-		/*
-		 * In case the child had the tty in raw mode...
-		 */
-		if (!do_quiet)
-			system("stty sane");
-	}
+    signal(onsig, SIG_IGN);
 
-	signal(onsig, SIG_IGN);
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    ulockprogram((char *)"mbfile");
+    t_end = time(NULL);
+    Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
 
-	t_end = time(NULL);
-	Syslog(' ', "MBFILE finished in %s", t_elapsed(t_start, t_end));
-
-	if (!do_quiet) {
-		colour(LIGHTGRAY, BLACK);
-		fflush(stdout);
-	}
-	ExitClient(onsig);
+    if (!do_quiet) {
+	colour(LIGHTGRAY, BLACK);
+	fflush(stdout);
+    }
+    ExitClient(onsig);
 }
 
 

@@ -67,42 +67,43 @@ void ProgName()
 
 void die(int onsig)
 {
+    /*
+     * First check if a child is running, if so, kill it.
+     */
+    if (e_pid) {
+	if ((kill(e_pid, SIGTERM)) == 0)
+	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
+	else {
+	    if ((kill(e_pid, SIGKILL)) == 0)
+		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+	    else
+		WriteError("$Failed to kill pid %d", e_pid);
+	}
+
 	/*
-	 * First check if a child is running, if so, kill it.
+	 * In case the child had the tty in raw mode...
 	 */
-	if (e_pid) {
-		if ((kill(e_pid, SIGTERM)) == 0)
-			Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
-		else {
-			if ((kill(e_pid, SIGKILL)) == 0)
-				Syslog('+', "SIGKILL to pid %d succeded", e_pid);
-			else
-				WriteError("$Failed to kill pid %d", e_pid);
-		}
+	system("stty sane");
+    }
 
-		/*
-		 * In case the child had the tty in raw mode...
-		 */
-		system("stty sane");
-	}
+    signal(onsig, SIG_IGN);
 
-	signal(onsig, SIG_IGN);
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    ulockprogram((char *)"mball");
+    t_end = time(NULL);
+    Syslog(' ', "MBALL finished in %s", t_elapsed(t_start, t_end));
 
-	t_end = time(NULL);
-	Syslog(' ', "MBALL finished in %s", t_elapsed(t_start, t_end));
-
-	if (!do_quiet) {
-		colour(7, 0);
-		printf("\n");
-	}
-	ExitClient(onsig);
+    if (!do_quiet) {
+	colour(7, 0);
+	printf("\n");
+    }
+    ExitClient(onsig);
 }
 
 
@@ -132,76 +133,82 @@ void Help()
 
 int main(int argc, char **argv)
 {
-	int	i;
-	char	*cmd;
-	struct	passwd *pw;
+    int		    i;
+    char	    *cmd;
+    struct passwd   *pw;
 
 #ifdef MEMWATCH
-	mwInit();
+    mwInit();
 #endif
 
-	InitConfig();
-	TermInit(1);
-	t_start = time(NULL);
-	umask(000);
+    InitConfig();
+    TermInit(1);
+    t_start = time(NULL);
+    umask(000);
 
-	/*
-	 * Catch all signals we can, and ignore the rest.
-	 */
-	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGKILL) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
-	}
+    /*
+     * Catch all signals we can, and ignore the rest.
+     */
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGKILL) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, (void (*))die);
+	else
+	    signal(i, SIG_IGN);
+    }
 
-	if(argc < 2)
-		Help();
+    if(argc < 2)
+	Help();
 
-	cmd = xstrcpy((char *)"Command line: mball");
+    cmd = xstrcpy((char *)"Command line: mball");
 
-	for (i = 1; i < argc; i++) {
+    for (i = 1; i < argc; i++) {
 
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, argv[i]);
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, argv[i]);
 
-		if (!strncasecmp(argv[i], "l", 1))
-			do_list = TRUE;
-		if (!strncasecmp(argv[i], "-q", 2))
-			do_quiet = TRUE;
-		if (!strncasecmp(argv[i], "-z", 2))
-			do_zip = TRUE;
-	}
+	if (!strncasecmp(argv[i], "l", 1))
+	    do_list = TRUE;
+	if (!strncasecmp(argv[i], "-q", 2))
+	    do_quiet = TRUE;
+	if (!strncasecmp(argv[i], "-z", 2))
+	    do_zip = TRUE;
+    }
 
-	if (!do_list)
-		Help();
+    if (!do_list)
+	Help();
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mball", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mball", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBALL v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
+    Syslog(' ', " ");
+    Syslog(' ', "MBALL v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
 
-	if (!do_quiet) {
-		colour(3, 0);
-		printf("\n");
-	}
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("\n");
+    }
 
-	if (do_list) {
-		Masterlist();
-		if (do_zip)
-			MakeArc();
-		CreateSema((char *)"mailin");
-	}
-
+    if (lockprogram((char *)"mball")) {
 	if (!do_quiet)
-		printf("Done!\n");
+	    printf("Can't lock mball, abort.\n");
+	die(MBERR_NO_PROGLOCK);
+    }
 
-	die(MBERR_OK);
-	return 0;
+    if (do_list) {
+	Masterlist();
+	if (do_zip)
+	    MakeArc();
+	CreateSema((char *)"mailin");
+    }
+
+    if (!do_quiet)
+	printf("Done!\n");
+
+    die(MBERR_OK);
+    return 0;
 }
 
 

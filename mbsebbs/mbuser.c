@@ -4,7 +4,7 @@
  * Purpose ...............: User Pack Util
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -53,77 +53,84 @@ mode_t	oldmask;			/* Old umask value		     */
 
 int main(int argc, char **argv)
 {
-	int	i, pack = FALSE;
-	char	*cmd;
-	struct	passwd *pw;
+    int		    i, pack = FALSE;
+    char	    *cmd;
+    struct passwd   *pw;
 
 #ifdef MEMWATCH
-        mwInit();
+    mwInit();
 #endif
-	InitConfig();
-	TermInit(1);
-	Days = 0;
-	Level = 0;
+    InitConfig();
+    TermInit(1);
+    Days = 0;
+    Level = 0;
 
-	t_start = time(NULL);
+    t_start = time(NULL);
 
-	if (argc < 2)
+    if (argc < 2)
+	Help();
+
+    cmd = xstrcpy((char *)"Command line:");
+
+    for (i = 1; i < argc; i++) {
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, tl(argv[i]));
+
+	if (strncasecmp(tl(argv[i]), "-q", 2) == 0)
+	    do_quiet = TRUE;
+	if (strncasecmp(tl(argv[i]), "p", 1) == 0)
+	    pack = TRUE;
+	if (strncasecmp(tl(argv[i]), "k", 1) == 0) {
+	    if (argc  <= (i + 2))
 		Help();
+	    i++;
+	    cmd = xstrcat(cmd, (char *)" ");
+	    cmd = xstrcat(cmd, argv[i]);
+	    Days = atoi(argv[i]);
+	    i++;
+	    cmd = xstrcat(cmd, (char *)" ");
+	    cmd = xstrcat(cmd, argv[i]);
+	    Level = atoi(argv[i]);
 
-	cmd = xstrcpy((char *)"Command line:");
-
-	for (i = 1; i < argc; i++) {
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, tl(argv[i]));
-
-		if (strncasecmp(tl(argv[i]), "-q", 2) == 0)
-			do_quiet = TRUE;
-		if (strncasecmp(tl(argv[i]), "p", 1) == 0)
-			pack = TRUE;
-		if (strncasecmp(tl(argv[i]), "k", 1) == 0) {
-			if (argc  <= (i + 2))
-				Help();
-			i++;
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
-			Days = atoi(argv[i]);
-			i++;
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, argv[i]);
-			Level = atoi(argv[i]);
-
-			if ((Days == 0) || (Level == 0))
-				Help();
-		}
+	    if ((Days == 0) || (Level == 0))
+		Help();
 	}
+    }
 
-	if ((Days + Level + pack) == 0)
-		Help();
+    if ((Days + Level + pack) == 0)
+	Help();
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbuser", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
-	Syslog(' ', " ");
-	Syslog(' ', "MBUSER v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbuser", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
+    Syslog(' ', " ");
+    Syslog(' ', "MBUSER v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
 
-	if (!diskfree(CFG.freespace))
-		ExitClient(MBERR_DISK_FULL);
+    if (!diskfree(CFG.freespace))
+	ExitClient(MBERR_DISK_FULL);
 
-	oldmask = umask(027);
+    if (lockprogram((char *)"mbuser")) {
 	if (!do_quiet)
-		colour(3, 0);
-	UserPack(Days, Level, pack);
-	umask(oldmask);
+	    printf("Can't lock mbuser, abort.\n");
+	ExitClient(MBERR_NO_PROGLOCK);
+    }
 
-	t_end = time(NULL);
-	Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
+    oldmask = umask(027);
+    if (!do_quiet)
+	colour(3, 0);
+    UserPack(Days, Level, pack);
+    umask(oldmask);
 
-	if (!do_quiet)
-		colour(7, 0);
-	ExitClient(MBERR_OK);
-	return 0;
+    ulockprogram((char *)"mbuser");
+    t_end = time(NULL);
+    Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
+
+    if (!do_quiet)
+	colour(7, 0);
+    ExitClient(MBERR_OK);
+    return 0;
 }
 
 

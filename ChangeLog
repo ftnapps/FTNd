@@ -36,6 +36,22 @@ v0.37.5		12-Jul-2003
 		Added program locking, only one mbmon can run at the same time
 		to prevent troubles with chat and sysop available.
 
+	mbaff:
+		Added program locking to prevent that more than one mbaff can
+		run at the same time.
+
+	mball:
+		Added program locking to prevent that more than one mball can
+		run at the same time.
+
+	mbfile:
+		Added program locking to prevent that more than one mbfile can
+		run at the same time.
+
+	mbuser:
+		Added program locking to prevent that more than one mbuser can
+		run at the same time.
+
 	lang:
 		Added language prompts 18 and 19.
 
