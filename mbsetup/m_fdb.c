@@ -359,9 +359,7 @@ void InitFDB(void)
     struct dirent	    *de;
     struct OldFILERecord    old;
     struct stat		    sb;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea	    *fdb_area = NULL;
-#endif
 
     records = CountFilearea();
     if (records <= 0)
@@ -458,12 +456,10 @@ void InitFDB(void)
 		/*
 		 * Current area, check
 		 */
-#ifdef	USE_EXPERIMENT
 		if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
 		    WriteError("InitFDB(): database area %ld might be corrupt", Area);
 		else
 		    mbsedb_CloseFDB(fdb_area);
-#endif
 	    }
 	}
 	fclose(fil);

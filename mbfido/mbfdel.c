@@ -48,12 +48,7 @@ void Delete(int UnDel, int Area, char *File)
 {
     char		mask[256];
     int			rc = FALSE;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea	*fdb_area = NULL;
-#else
-    FILE		*fp;
-    char		*temp;
-#endif
 
     if (UnDel)
 	IsDoing("Undelete file");
@@ -81,33 +76,16 @@ void Delete(int UnDel, int Area, char *File)
 	die(MBERR_COMMANDLINE);
     }
 
-#ifdef	USE_EXPERIMENT
     if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
 	die(MBERR_GENERAL);
 
-#else
-    if (CheckFDB(Area, area.Path))
-	die(MBERR_GENERAL);
-
-    temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
-
-    if ((fp = fopen(temp, "r+")) == NULL)
-	die(MBERR_GENERAL);
-
-    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
-#endif
 
     colour(CYAN, BLACK);
     strcpy(mask, re_mask(File, FALSE));
     if (re_comp(mask))
 	die(MBERR_GENERAL);
 
-#ifdef	USE_EXPERIMENT
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
-#endif
 	if (re_exec(fdb.LName) || re_exec(fdb.Name)) {
 	    if (UnDel && fdb.Deleted) {
 		fdb.Deleted = FALSE;
@@ -124,7 +102,6 @@ void Delete(int UnDel, int Area, char *File)
 		rc = TRUE;
 	    }
 	    if (rc) {
-#ifdef	USE_EXPERIMENT
 		if (mbsedb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
@@ -132,19 +109,10 @@ void Delete(int UnDel, int Area, char *File)
 		} else {
 		    rc = FALSE;
 		}
-#else
-		fseek(fp, - fdbhdr.recsize, SEEK_CUR);
-		fwrite(&fdb, fdbhdr.recsize, 1, fp);
-#endif
 	    }
 	}
     }
-#ifdef	USE_EXPERIMENT
     mbsedb_CloseFDB(fdb_area);
-#else
-    fclose(fp);
-    free(temp);
-#endif
 
     if (!rc) {
 	Syslog('+', "%selete %s in area %d failed", UnDel?"Und":"D", File, Area);

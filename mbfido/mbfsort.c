@@ -40,84 +40,6 @@
 extern int	do_quiet;		/* Suppress screen output	*/
 extern int	do_index;		/* Reindex filebases		*/
 
-#ifndef	USE_EXPERIMENT
-
-typedef struct _fdbs {
-    struct _fdbs	*next;
-    struct FILE_record	filrec;
-} fdbs;
-
-
-
-void fill_fdbs(struct FILE_record, fdbs **);
-void fill_fdbs(struct FILE_record filrec, fdbs **fap)
-{
-    fdbs    *tmp;
-
-    tmp = (fdbs *)malloc(sizeof(fdbs));
-    tmp->next = *fap;
-    tmp->filrec = filrec;
-    *fap = tmp;
-}
-
-
-
-void tidy_fdbs(fdbs **);
-void tidy_fdbs(fdbs **fap)
-{
-    fdbs    *tmp, *old;
-
-    for (tmp = *fap; tmp; tmp = old) {
-	old = tmp->next;
-	free(tmp);
-    }
-    *fap = NULL;
-}
-
-
-int comp_fdbs(fdbs **, fdbs **);
-
-
-void sort_fdbs(fdbs **);
-void sort_fdbs(fdbs **fap)
-{
-    fdbs    *ta, **vector;
-    size_t  n = 0, i;
-
-    if (*fap == NULL)
-	return;
-
-    for (ta = *fap; ta; ta = ta->next)
-	n++;
-
-    vector = (fdbs **)malloc(n * sizeof(fdbs *));
-    i = 0;
-    for (ta = *fap; ta; ta = ta->next)
-	vector[i++] = ta;
-
-    qsort(vector, n, sizeof(fdbs *), (int(*)(const void*, const void *))comp_fdbs);
-    (*fap) = vector[0];
-    i = 1;
-
-    for (ta = *fap; ta; ta = ta->next) {
-	if (i < n)
-	    ta->next = vector[i++];
-	else
-	    ta->next = NULL;
-    }
-
-    free(vector);
-    return;
-}
-
-
-
-int comp_fdbs(fdbs **fap1, fdbs **fap2)
-{
-    return strcasecmp((*fap1)->filrec.LName, (*fap2)->filrec.LName);
-}
-
-#endif
 
 
 /*
@@ -128,16 +50,8 @@ void SortFileBase(int Area)
     FILE    *pAreas;
     int	    iAreas;
     char    *sAreas;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
-#else
-    FILE    *fp, *pFile;
-    char    *fAreas, *fTmp;
-    fdbs    *fdx = NULL, *tmp;
-
-    fAreas = calloc(PATH_MAX, sizeof(char));
-    fTmp   = calloc(PATH_MAX, sizeof(char));
-#endif
+    
     sAreas = calloc(PATH_MAX, sizeof(char));
 
     IsDoing("Sort filebase");
@@ -174,61 +88,10 @@ void SortFileBase(int Area)
 		fflush(stdout);
 	    }
 
-#ifdef	USE_EXPERIMENT
 	    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
 		mbsedb_SortFDB(fdb_area);
 		mbsedb_CloseFDB(fdb_area);
 	    }
-#else
-	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
-	    sprintf(fTmp,   "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
-
-	    if ((pFile = fopen(fAreas, "r")) == NULL) {
-		Syslog('!', "Creating new %s", fAreas);
-		if ((pFile = fopen(fAreas, "a+")) == NULL) {
-		    WriteError("$Can't create %s", fAreas);
-		    die(MBERR_GENERAL);
-		}
-		fdbhdr.hdrsize = sizeof(fdbhdr);
-		fdbhdr.recsize = sizeof(fdb);
-		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-	    } else {
-		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-	    } 
-
-	    if ((fp = fopen(fTmp, "a+")) == NULL) {
-		WriteError("$Can't create %s", fTmp);
-		die(MBERR_GENERAL);
-	    }
-	    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
-
-	    /*
-	     * Fill the sort array
-	     */
-	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-		fill_fdbs(fdb, &fdx);
-		Syslog('f', "Adding %s", fdb.LName);
-	    }
-
-	    sort_fdbs(&fdx);
-
-	    /*
-	     * Write sorted files to temp database
-	     */
-	    for (tmp = fdx; tmp; tmp = tmp->next) {
-		Syslog('f', "Sorted %s", tmp->filrec.LName);
-		fwrite(&tmp->filrec, fdbhdr.recsize, 1, fp);
-	    }
-	    tidy_fdbs(&fdx);
-
-	    fclose(fp);
-	    fclose(pFile);
-
-	    if ((rename(fTmp, fAreas)) == 0) {
-		unlink(fTmp);
-		chmod(fAreas, 00660);
-	    }
-#endif
 	    Syslog('+', "Sorted file area %d: %s", Area, area.Name);
 	    do_index = TRUE;
 
@@ -244,10 +107,6 @@ void SortFileBase(int Area)
 	fflush(stdout);
     }
 
-#ifndef	USE_EXPERIMENT
-    free(fTmp);
-    free(fAreas);
-#endif
     free(sAreas);
 }
 

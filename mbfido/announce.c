@@ -59,14 +59,7 @@ void Uploads()
     FILE    *pAreas;
     char    *sAreas;
     int	    Count = 0, i = 0, j, k;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
-#else
-    FILE    *pFile;
-    char    *fAreas;
-
-    fAreas = calloc(PATH_MAX, sizeof(char));
-#endif
 
     sAreas = calloc(PATH_MAX, sizeof(char));
 
@@ -82,9 +75,6 @@ void Uploads()
     if ((pAreas = fopen(sAreas, "r")) == NULL) {
 	WriteError("$Can't open %s", sAreas);
 	free(sAreas);
-#ifndef	USE_EXPERIMENT
-	free(fAreas);
-#endif
 	return;
     }
     fread(&areahdr, sizeof(areahdr), 1, pAreas);
@@ -103,15 +93,8 @@ void Uploads()
 		fflush(stdout);
 	    }
 
-#ifdef	USE_EXPERIMENT
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30))) {
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
-	    if ((pFile = fopen(fAreas, "r+")) != NULL) {
-		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-#endif
 		    Nopper();
 		    if (!fdb.Announced) {
 			Syslog('m', "  %d %s", i, fdb.Name);
@@ -147,24 +130,15 @@ void Uploads()
 			 * Mark file is announced.
 			 */
 			fdb.Announced = TRUE;
-#ifdef	USE_EXPERIMENT
 			if (mbsedb_LockFDB(fdb_area, 30)) {
 			    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 			    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 			    mbsedb_CloseFDB(fdb_area);
 			}
-#else
-			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-#endif
 		    }
 		}
 
-#ifdef	USE_EXPERIMENT
 		mbsedb_CloseFDB(fdb_area);
-#else
-		fclose(pFile);
-#endif
 	    }
 	}
     }
@@ -181,9 +155,6 @@ void Uploads()
 	
     fclose(pAreas);
     free(sAreas);
-#ifndef	USE_EXPERIMENT
-    free(fAreas);
-#endif
 }
 
 

@@ -275,14 +275,7 @@ void Masterlist()
     unsigned long   NewAreaFiles, NewAreaBytes;
     char	    *sAreas;
     char	    temp[81], pop[81];
-#ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
-#else
-    FILE	    *pFile;
-    char	    *fAreas;
-
-    fAreas      = calloc(PATH_MAX, sizeof(char));
-#endif
 
     sAreas	= calloc(PATH_MAX, sizeof(char));
 
@@ -342,23 +335,11 @@ void Masterlist()
 
 	    Nopper();
 
-#ifdef	USE_EXPERIMENT
 	    if ((fdb_area = mbsedb_OpenFDB(AreaNr, 30)) == 0) {
-#else
-	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), AreaNr);
-	    if ((pFile = fopen (fAreas, "r")) == NULL) {
-#endif
 		WriteError("$Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
 	    } else {
-#ifndef	USE_EXPERIMENT
-		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-#endif
 		popdown = 0;
-#ifdef	USE_EXPERIMENT
 		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-#endif
 		    if (!fdb.Deleted) {
 			/*
 			 * The next is to reduce system load.
@@ -412,13 +393,8 @@ void Masterlist()
 		    BotBox(fp, TRUE);
 		    BotBox(np, NewAreaFiles);
 
-#ifdef	USE_EXPERIMENT
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
-		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-#endif
 			if (!fdb.Deleted) {
 			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
 			    sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
@@ -449,11 +425,7 @@ void Masterlist()
 			}
 		    }
 		}
-#ifdef	USE_EXPERIMENT
 		mbsedb_CloseFDB(fdb_area);
-#else
-		fclose(pFile);
-#endif
     		}
 	}
     } /* End of While Loop Checking for Areas Done */
@@ -500,9 +472,6 @@ void Masterlist()
     Syslog('+', "Allfiles: %ld, %ld MBytes", AllFiles, AllKBytes / 1024);
     Syslog('+', "Newfiles: %ld, %ld MBytes", NewFiles, NewKBytes / 1024);
     free(sAreas);
-#ifndef	USE_EXPERIMENT
-    free(fAreas);
-#endif
 }
 
 

@@ -254,11 +254,7 @@ int EditFileRec(int Area)
 	DIR		*dp;
 	struct dirent	*de;
 	struct stat	stb;
-#ifdef	USE_EXPERIMENT
 	struct _fdbarea	*fdb_area = NULL;
-#else
-	FILE		*fp;
-#endif
 
 	clr_index();
 	working(1, 0, 0);
@@ -377,7 +373,6 @@ int EditFileRec(int Area)
 			    /*
 			     * Attempt to disable this area, but check first.
 			     */
-#ifdef	USE_EXPERIMENT
 			    if ((fdb_area = mbsedb_OpenFDB(Area, 30))) {
 	    			fseek(fdb_area->fp, 0, SEEK_END);
 				files = ((ftell(fdb_area->fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
@@ -387,19 +382,6 @@ int EditFileRec(int Area)
 				}
 				mbsedb_CloseFDB(fdb_area);
 			    }
-#else
-			    if ((fp = fopen(temp, "r"))) {
-				if (fread(&fdbhdr, sizeof(fdbhdr), 1, fp) == 1) {
-				    fseek(fp, 0, SEEK_END);
-				    files = ((ftell(fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
-				    if (files) {
-					errmsg("There are stil %d files in this area", files);
-					Available = TRUE;
-				    }
-				}
-				fclose(fp);
-			    }
-#endif
 			    if (!Available) {
 				if (yes_no((char *)"Are you sure you want to delete this area") == 0)
 				    Available = TRUE;
@@ -435,20 +417,8 @@ int EditFileRec(int Area)
 			} 
 			if (!area.Available && Available) {
 			    area.Available = TRUE;
-#ifdef	USE_EXPERIMENT
 			    if ((fdb_area = mbsedb_OpenFDB(Area, 30)))
 				mbsedb_CloseFDB(fdb_area);
-#else
-			    if ((fp = fopen(temp, "a+")) == NULL) {
-				WriteError("$Can't create file database %s", temp);
-			    } else {
-				fdbhdr.hdrsize = sizeof(fdbhdr);
-				fdbhdr.recsize = sizeof(fdb);
-				fwrite(fp, sizeof(fdbhdr), 1, fp);
-				fclose(fp);
-			    }
-			    chmod(temp, 0660);
-#endif
 			}
 			free(temp);
 			break;

@@ -209,14 +209,8 @@ void CheckArea(long Area)
     struct stat		stb;
     struct passwd	*pw;
     struct group	*gr;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea	*fdb_area = NULL;
-#else
-    FILE		*pFile;
-    char		*fAreas;
-
-    fAreas = calloc(PATH_MAX, sizeof(char));
-#endif
+    
     newdir = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
     mname  = calloc(PATH_MAX, sizeof(char));
@@ -294,52 +288,15 @@ void CheckArea(long Area)
 	WriteError("Can't stat %s", area.Path);
     }
 
-#ifdef USE_EXPERIMENT
     if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
 	return;
-#else
-    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
-
-    /*
-     * Open the file database, if it doesn't exist,
-     * create an empty one.
-     */
-    if ((pFile = fopen(fAreas, "r+")) == NULL) {
-	Syslog('!', "Creating new %s", fAreas);
-	if ((pFile = fopen(fAreas, "a+")) == NULL) {
-	    WriteError("$Can't create %s", fAreas);
-	    die(MBERR_GENERAL);
-	}
-	fdbhdr.hdrsize = sizeof(fdbhdr);
-	fdbhdr.recsize = sizeof(fdb);
-	fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-    } else {
-	fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-    }
-
-    /*
-     * We don't do any upgrade, so the header must be correct.
-     */
-    if (fdbhdr.hdrsize != sizeof(fdbhdr)) {
-	Syslog('+', "fAreas hdrsize is corrupt: %d", fdbhdr.hdrsize);
-	return;
-    }
-    if (fdbhdr.recsize != sizeof(fdb)) {
-    	Syslog('+', "fAreas recordsize is corrupt: %d, expected %d", fdbhdr.recsize, sizeof(fdbhdr));
-    	return;
-    }
-#endif
 
     /*
      * Now start checking the files in the filedatabase
      * against the contents of the directory.
      */
     inArea = 0;
-#ifdef	USE_EXPERIMENT
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-#endif
 
 	iTotal++;
 	inArea++;
@@ -353,16 +310,11 @@ void CheckArea(long Area)
 	    	do_pack = TRUE;
 	    }
 	    iErrors++;
-#ifdef	USE_EXPERIMENT
 	    if (mbsedb_LockFDB(fdb_area, 30)) {
 		fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 		mbsedb_UnlockFDB(fdb_area);
 	    }
-#else
-	    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-	    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-#endif
 	} else {
 	    /*
 	     * File exists, now check the file.
@@ -510,16 +462,11 @@ void CheckArea(long Area)
     	    }
     	    Marker();
     	    if (Update) {
-#ifdef	USE_EXPERIMENT
 		if (mbsedb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 		    mbsedb_UnlockFDB(fdb_area);
 		}
-#else
-    		fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-    		fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-#endif
 	    }
     	}
 
@@ -528,16 +475,11 @@ void CheckArea(long Area)
 	    if (rc == -1) {
 		Syslog('+', "Area %ld magic alias %s file %s is invalid", Area, fdb.Magic, fdb.Name);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
-#ifdef	USE_EXPERIMENT
 		if (mbsedb_LockFDB(fdb_area, 30)) {
 		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 		    mbsedb_UnlockFDB(fdb_area);
 		}
-#else
-	    	fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-	    	fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-#endif
 		iErrors++;
 	    }
 	}
@@ -556,13 +498,8 @@ void CheckArea(long Area)
     		if (de->d_name[0] != '.') {
     		    Marker();
     		    Found = FALSE;
-#ifdef	USE_EXPERIMENT
 		    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
 		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-#else
-    		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
-    		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
-#endif
 			if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
     			    if (!Found) {
 	    			Found = TRUE;
@@ -575,16 +512,11 @@ void CheckArea(long Area)
     				iErrors++;
     				fdb.Double = TRUE;
     				do_pack = TRUE;
-#ifdef	USE_EXPERIMENT
 				if (mbsedb_LockFDB(fdb_area, 30)) {
 				    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
 				    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 				    mbsedb_UnlockFDB(fdb_area);
 				}
-#else
-    				fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
-    				fwrite(&fdb, fdbhdr.recsize, 1, pFile);
-#endif
 			    }
     			}
     		    }
@@ -613,13 +545,7 @@ void CheckArea(long Area)
     	}
     }
 
-#ifdef	USE_EXPERIMENT
     mbsedb_CloseFDB(fdb_area);
-#else
-    fclose(pFile);
-    chmod(fAreas, 0660);
-    free(fAreas);
-#endif
 
     iAreasNew++;
     free(newdir);

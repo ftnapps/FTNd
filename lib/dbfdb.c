@@ -34,8 +34,6 @@
 #include "mbsedb.h"
 
 
-#ifdef	USE_EXPERIMENT
-
 
 
 /*
@@ -577,4 +575,3 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
 }
 
 
-#endif

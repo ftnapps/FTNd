@@ -92,9 +92,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     int         i, rc = 0, Found = FALSE;
     sysconnect  System;
     faddr	*From, *To;
-#ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
-#endif
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('f', "Checking file group \"%s\" \"%s\"", fgroup.Name, fgroup.Comment);
@@ -330,28 +328,8 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     /*
      * Create download database
      */
-#ifdef	USE_EXPERIMENT
     if ((fdb_area = mbsedb_OpenFDB(AreaNr, 30)))
 	mbsedb_CloseFDB(fdb_area);
-#else
-    
-    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), AreaNr);
-    if ((fp = fopen(temp, "r+")) == NULL) {
-	Syslog('f', "Creating new %s", temp);
-	if ((fp = fopen(temp, "a+")) == NULL) {
-	    WriteError("$Can't create %s", temp);
-	} else {
-	    fdbhdr.hdrsize = sizeof(fdbhdr);
-	    fdbhdr.recsize = sizeof(fdb);
-	    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
-	    fclose(fp);
-	}
-    } else {
-	fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
-	fclose(fp);
-    }
-    chmod(temp, 0660);
-#endif
 
     /*
      * Setup new TIC area.

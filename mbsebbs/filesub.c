@@ -151,36 +151,6 @@ void GetstrD(char *sStr, int iMaxlen)
 
 
 
-/*
- * Open FileDataBase, the filepointer is at the begin of the first record.
- */
-#ifndef	USE_EXPERIMENT
-FILE *OpenFileBase(unsigned long Area, int Write)
-{
-    FILE    *pFile;
-    char    *FileBase;
-
-    FileBase = calloc(PATH_MAX, sizeof(char));
-    sprintf(FileBase,"%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
-
-    if (Write)
-	pFile = fopen(FileBase, "r+");
-    else
-	pFile = fopen(FileBase, "r");
-
-    if (pFile == NULL) {
-	WriteError("$Can't open file: %s", FileBase);
-	/* Can't open file database for this area */
-	printf("%s\n\n", (char *) Language(237));
-	sleep(2);
-    }
-
-    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
-    free(FileBase);
-    return pFile;
-}
-#endif
-
 
 /*
  * Open the fareas.data file for read or R/W and read the headerrecord.
@@ -883,11 +853,7 @@ int Addfile(char *File, int AreaNum, int fileid)
     int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
     char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[81]; 
     struct  stat statfile; 
-#ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
-#else
-    FILE	    *pFileDB;
-#endif
 
     Filename = calloc(PATH_MAX, sizeof(char));
     temp1    = calloc(PATH_MAX, sizeof(char));  
@@ -895,11 +861,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	
     sprintf(Filename, "%s/%s", area.Path, File);
 
-#ifdef	USE_EXPERIMENT
     if ((fdb_area = mbsedb_OpenFDB(AreaNum, 30))) {
-#else
-    if ((pFileDB = OpenFileBase(AreaNum, TRUE)) != NULL) {
-#endif
 	/*
 	 * Do a physical check of file to see if it exists
 	 * if it fails it will return a zero which will not
@@ -911,11 +873,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    /* Upload was unsuccessful for: */
 	    printf("\n%s%s\n\n", (char *) Language(284), File);
 
-#ifdef	USE_EXPERIMENT
 	    mbsedb_CloseFDB(fdb_area);
-#else
-	    fclose(pFileDB);
-#endif
 	    free(Filename);
 	    free(temp1);
 	    free(lname);
@@ -1080,14 +1038,8 @@ int Addfile(char *File, int AreaNum, int fileid)
 		free(Desc[i]);
 	}
 
-#ifdef	USE_EXPERIMENT
 	mbsedb_InsertFDB(fdb_area, fdb, area.AddAlpha);
 	mbsedb_CloseFDB(fdb_area);
-#else
-	fseek(pFileDB, 0, SEEK_END);
-	fwrite(&fdb, fdbhdr.recsize, 1, pFileDB);
-	fclose(pFileDB);
-#endif
 
 	sprintf(temp, "%s/log/uploads.log", getenv("MBSE_ROOT"));
 	if ((pPrivate = fopen(temp, "a+")) == NULL)
