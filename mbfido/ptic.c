@@ -671,7 +671,7 @@ int ProcessTic(fa_list *sbl)
      * If the file is converted, we set the date of the original
      * received file as the file creation date.
      */
-    if (MustRearc || DidBanner) {
+    if ((MustRearc || DidBanner) && CFG.ct_KeepDate) {
 	if ((tic.Touch) && (tic.FileArea)) {
 	    ut.actime = mktime(localtime(&TIC.FileDate));
 	    ut.modtime = mktime(localtime(&TIC.FileDate));

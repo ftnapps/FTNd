@@ -822,82 +822,79 @@ void e_flags(int Users)
 
 void e_ticconf(void)
 {
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "1.13   EDIT FILEECHO PROCESSING");
+    set_color(CYAN, BLACK);
+
+    mvprintw( 7, 2, "1.  Keep days");
+    mvprintw( 8, 2, "2.  Hatch pwd");
+    mvprintw( 9, 2, "3.  Drv space");
+    mvprintw(10, 2, "4.  Systems");
+    mvprintw(11, 2, "5.  Groups");
+    mvprintw(12, 2, "6.  Max. dupes");
+    mvprintw(13, 2, "7.  Keep date");
+    mvprintw(14, 2, "8.  Keep netm");
+    mvprintw(15, 2, "9.  Loc resp");
+	
+    mvprintw( 7,42, "10. Plus all");
+    mvprintw( 8,42, "11. Notify");
+    mvprintw( 9,42, "12. Passwd");
+    mvprintw(10,42, "13. Message");
+    mvprintw(11,42, "14. Tic on/off");
+    mvprintw(12,42, "15. Pause");
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.13   EDIT FILEECHO PROCESSING");
-	set_color(CYAN, BLACK);
 
-	mvprintw( 7, 2, "1.  Keep days");
-	mvprintw( 8, 2, "2.  Hatch pwd");
-	mvprintw( 9, 2, "3.  Drv space");
-	mvprintw(10, 2, "4.  Systems");
-	mvprintw(11, 2, "5.  Groups");
-	mvprintw(12, 2, "6.  Max. dupes");
-	mvprintw(13, 2, "7.  Keep date");
-	mvprintw(14, 2, "8.  Keep netm");
-	mvprintw(15, 2, "9.  Res future");
-	mvprintw(16, 2, "10. Loc resp");
+	show_int( 7,18, CFG.tic_days);
+	show_str( 8,18,20, (char *)"********************");
+	show_int( 9,18, CFG.drspace);
+	show_int(10,18, CFG.tic_systems);
+	show_int(11,18, CFG.tic_groups);
+	show_int(12,18, CFG.tic_dupes);
+	show_bool(13,18, CFG.ct_KeepDate);
+	show_bool(14,18, CFG.ct_KeepMgr);
+	show_bool(15,18, CFG.ct_LocalRep);
+		
+	show_bool( 7,58, CFG.ct_PlusAll);
+	show_bool( 8,58, CFG.ct_Notify);
+	show_bool( 9,58, CFG.ct_Passwd);
+	show_bool(10,58, CFG.ct_Message);
+	show_bool(11,58, CFG.ct_TIC);
+	show_bool(12,58, CFG.ct_Pause);  
 
-	mvprintw( 7,42, "11. Repl ext");
-	mvprintw( 8,42, "12. Plus all");
-	mvprintw( 9,42, "13. Notify");
-	mvprintw(10,42, "14. Passwd");
-	mvprintw(11,42, "15. Message");
-	mvprintw(12,42, "16. Tic on/off");
-	mvprintw(13,42, "17. Pause");
+	switch(select_menu(15)) {
+	    case 0:	return;
 
-	for (;;) {
-		set_color(WHITE, BLACK);
+	    case 1: E_INT(  7,18,    CFG.tic_days,     "Number of days to ^keep^ files on hold.")
+	    case 2: E_STR(  8,18,20, CFG.hatchpasswd,  "Enter the internal ^hatch^ password.")
+	    case 3: E_INT(  9,18,    CFG.drspace,      "Enter the minimal ^free drivespace^ in KBytes.")
+	    case 4: CFG.tic_systems = edit_int(10,18, CFG.tic_systems, 
+			    (char *)"Enter the maximum number of ^connected systems^ in the database.");
+		    if ((OpenTicarea() == 0))
+			CloseTicarea(TRUE);
+		    working(0, 0, 0);
+		    break;
+	    case 5: CFG.tic_groups = edit_int(11,18, CFG.tic_groups, 
+			    (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
+		    if ((OpenNoderec() == 0))
+			CloseNoderec(TRUE);
+		    working(0, 0, 0);
+		    break;
+	    case 6: E_INT( 12,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
 
-		show_int( 7,18, CFG.tic_days);
-		show_str( 8,18,20, (char *)"********************");
-		show_int( 9,18, CFG.drspace);
-		show_int(10,18, CFG.tic_systems);
-		show_int(11,18, CFG.tic_groups);
-		show_int(12,18, CFG.tic_dupes);
-		show_bool(13,18, CFG.ct_KeepDate);
-		show_bool(14,18, CFG.ct_KeepMgr);
-		show_bool(15,18, CFG.ct_ResFuture);
-		show_bool(16,18, CFG.ct_LocalRep);
-		show_bool( 7,58, CFG.ct_ReplExt);
-		show_bool( 8,58, CFG.ct_PlusAll);
-		show_bool( 9,58, CFG.ct_Notify);
-		show_bool(10,58, CFG.ct_Passwd);
-		show_bool(11,58, CFG.ct_Message);
-		show_bool(12,58, CFG.ct_TIC);
-		show_bool(13,58, CFG.ct_Pause);  
-
-		switch(select_menu(17)) {
-		case 0:	return;
-
-		case 1: E_INT(  7,18,    CFG.tic_days,     "Number of days to ^keep^ files on hold.")
-		case 2: E_STR(  8,18,20, CFG.hatchpasswd,  "Enter the internal ^hatch^ password.")
-		case 3: E_INT(  9,18,    CFG.drspace,      "Enter the minimal ^free drivespace^ in KBytes.")
-		case 4: CFG.tic_systems = edit_int(10,18, CFG.tic_systems, (char *)"Enter the maximum number of ^connected systems^ in the database.");
-			if ((OpenTicarea() == 0))
-				CloseTicarea(TRUE);
-			working(0, 0, 0);
-			break;
-		case 5: CFG.tic_groups = edit_int(11,18, CFG.tic_groups, (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
-			if ((OpenNoderec() == 0))
-				CloseNoderec(TRUE);
-			working(0, 0, 0);
-			break;
-		case 6: E_INT( 12,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
-
-		case 7: E_BOOL(13,18,    CFG.ct_KeepDate,  "^Keep^ original filedate on import")
-		case 8: E_BOOL(14,18,    CFG.ct_KeepMgr,   "Keep ^Areamgr^ netmails.")
-		case 9: E_BOOL(15,18,    CFG.ct_ResFuture, "Reset ^future^ filedates.")
-		case 10:E_BOOL(16,18,    CFG.ct_LocalRep,  "Respond to local ^filesearch^ requests.")
-		case 11:E_BOOL( 7,58,    CFG.ct_ReplExt,   "Replace file ^extention^ to * during filesearch")
-		case 12:E_BOOL( 8,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in areamgr requests.")
-		case 13:E_BOOL( 9,58,    CFG.ct_Notify,    "Allow turning ^notify^ messages on or off.")
-		case 14:E_BOOL(10,58,    CFG.ct_Passwd,    "Allow changing the areamgr ^password^.")
-		case 15:E_BOOL(11,58,    CFG.ct_Message,   "Allow turning areamgr ^messages^ on or off.")
-		case 16:E_BOOL(12,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
-		case 17:E_BOOL(13,58,    CFG.ct_Pause,     "Allow the ^pause^ areamgr command.")
-		}
-	};
+	    case 7: E_BOOL(13,18,    CFG.ct_KeepDate,  "^Keep^ original filedate on import")
+	    case 8: E_BOOL(14,18,    CFG.ct_KeepMgr,   "Keep ^Areamgr^ netmails.")
+	    case 9: E_BOOL(15,18,    CFG.ct_LocalRep,  "Respond to local ^filesearch^ requests.")
+	    case 10:E_BOOL( 7,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in FileMgr requests.")
+	    case 11:E_BOOL( 8,58,    CFG.ct_Notify,    "Allow turning ^Notify^ messages on or off.")
+	    case 12:E_BOOL( 9,58,    CFG.ct_Passwd,    "Allow changing the AreaMgr/FileMgr ^password^.")
+	    case 13:E_BOOL(10,58,    CFG.ct_Message,   "Allow turning FileMgr ^messages^ on or off.")
+	    case 14:E_BOOL(11,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
+	    case 15:E_BOOL(12,58,    CFG.ct_Pause,     "Allow the ^Pause^ FileMgr command.")
+	}
+    }
 }
 
 
@@ -905,80 +902,93 @@ void e_ticconf(void)
 void s_fidomailcfg(void);
 void s_fidomailcfg(void)
 {
-        clr_index();
-        set_color(WHITE, BLACK);
-        mvprintw( 5, 5, "1.14   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
-        set_color(CYAN, BLACK);
-        mvprintw( 7, 2, "1. Badboard");
-        mvprintw( 8, 2, "2. Dupeboard");
-        mvprintw( 9, 2, "3. Pktdate");
-        mvprintw(10, 2, "4. Max pkts.");
-        mvprintw(11, 2, "5. Max arcs.");
-        mvprintw(12, 2, "6. Keep days");
-        mvprintw(13, 2, "7. Echo dupes");
-        mvprintw(14, 2, "8. Reject old");
-        mvprintw(15, 2, "9. Max msgs");
-        mvprintw(16, 1, "10. Days old");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 5, "1.14   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1. Badboard");
+    mvprintw( 8, 2, "2. Dupeboard");
+    mvprintw( 9, 2, "3. Pktdate");
+    mvprintw(10, 2, "4. Max pkts.");
+    mvprintw(11, 2, "5. Max arcs.");
+    mvprintw(12, 2, "6. Keep days");
+    mvprintw(13, 2, "7. Echo dupes");
+    mvprintw(14, 2, "8. Reject old");
+    mvprintw(15, 2, "9. Max msgs");
+    mvprintw(16, 1, "10. Days old");
+    mvprintw(17, 1, "11. Max systems");
+    mvprintw(18, 1, "12. Max groups");
+    
+    mvprintw(12,42, "13. 4d address");
+    mvprintw(13,42, "14. Split at");
+    mvprintw(14,42, "15. Force at");
+    mvprintw(15,42, "16. Allow %+*");
+    mvprintw(16,42, "17. Notify");
+    mvprintw(17,42, "18. Passwd");
+    mvprintw(18,42, "19. Pause");
 
-        mvprintw(12,42, "11. Max systems");
-        mvprintw(13,42, "12. Max groups");
-        mvprintw(14,42, "13. 4d address");
-        mvprintw(15,42, "14. Split at");
-        mvprintw(16,42, "15. Force at");
-
-        set_color(WHITE, BLACK);
-        show_str( 7,16,64, CFG.badboard);
-        show_str( 8,16,64, CFG.dupboard);
-        show_str( 9,16,64, CFG.pktdate);
-        show_int( 10,16, CFG.maxpktsize);
-        show_int( 11,16, CFG.maxarcsize);
-        show_int( 12,16, CFG.toss_days);
-        show_int( 13,16, CFG.toss_dupes);
-        show_int( 14,16, CFG.toss_old);
-        show_int( 15,16, CFG.defmsgs);
-        show_int( 16,16, CFG.defdays);
-
-        show_int( 12,58, CFG.toss_systems);
-        show_int( 13,58, CFG.toss_groups);
-        show_bool(14,58, CFG.addr4d);
-        show_int( 15,58, CFG.new_split);
-        show_int( 16,58, CFG.new_force);
+    set_color(WHITE, BLACK);
+    show_str( 7,16,64, CFG.badboard);
+    show_str( 8,16,64, CFG.dupboard);
+    show_str( 9,16,64, CFG.pktdate);
+    show_int( 10,16, CFG.maxpktsize);
+    show_int( 11,16, CFG.maxarcsize);
+    show_int( 12,16, CFG.toss_days);
+    show_int( 13,16, CFG.toss_dupes);
+    show_int( 14,16, CFG.toss_old);
+    show_int( 15,16, CFG.defmsgs);
+    show_int( 16,16, CFG.defdays);
+    show_int( 17,16, CFG.toss_systems);
+    show_int( 18,16, CFG.toss_groups);
+        
+    show_bool(12,58, CFG.addr4d);
+    show_int( 13,58, CFG.new_split);
+    show_int( 14,58, CFG.new_force);
+    show_bool(15,58, CFG.ca_PlusAll);
+    show_bool(16,58, CFG.ca_Notify);
+    show_bool(17,58, CFG.ca_Passwd);
+    show_bool(18,58, CFG.ca_Pause);
 }
 
 
 
 void e_fidomailcfg(void)
 {
-	s_fidomailcfg();
-	for (;;) { 
-		switch(select_menu(15)) {
-		case 0:	return;
-		case 1:	E_JAM(  7,16,64, CFG.badboard,     "The path to the ^bad echomail^ board.")
-		case 2:	E_JAM(  8,16,64, CFG.dupboard,     "The path to the ^dupe echomail^ board.")
-		case 3: E_STR(  9,16,64, CFG.pktdate,      "The filename and parameters to the ^pktdate^ program.")
-		case 4: E_INT( 10,16,    CFG.maxpktsize,   "The maximum size in KB for mail ^packets^, 0 if unlimited.")
-		case 5: E_INT( 11,16,    CFG.maxarcsize,   "The maximum size in KB for ^arcmail^ archives, 0 if unlimited.")
-		case 6: E_INT( 12,16,    CFG.toss_days,    "The number of ^days^ to keep mail on hold.")
-		case 7: E_INT( 13,16,    CFG.toss_dupes,   "The number of ^dupes^ to store in the echomail dupes database.")
-		case 8: E_INT( 14,16,    CFG.toss_old,     "^Reject^ mail older then days, 0 means never reject.")
-		case 9: E_INT( 15,16,    CFG.defmsgs,      "The default maximum number of ^messages^ in each mail area.")
-		case 10:E_INT( 16,16,    CFG.defdays,      "The default maximum ^age in days^ in each mail area.")
-
-		case 11:CFG.toss_systems = edit_int(12,58, CFG.toss_systems, (char *)"The maximum number of connected ^systems^ in the database.");
-			if ((OpenMsgarea() == 0))
-				CloseMsgarea(TRUE);
-			working(0, 0, 0);
-			break;
-		case 12:CFG.toss_groups = edit_int(13,58, CFG.toss_groups, (char *)"The maximum number of ^groups^ in the database.");
-			if ((OpenNoderec() == 0))
-				CloseNoderec(TRUE);
-			working(0, 0, 0);
-			break;
-		case 13:E_BOOL(14,58, CFG.addr4d,          "Use ^4d^ addressing instead of ^5d^ addressing.")
-		case 14:E_INT( 15,58, CFG.new_split,       "Gently ^split^ newfiles reports after n kilobytes (12..60).")
-		case 15:E_INT( 16,58, CFG.new_force,       "Force ^split^ of newfiles reports after n kilobytes (16..64).")
-		}
-	};
+    s_fidomailcfg();
+    for (;;) { 
+	switch(select_menu(19)) {
+	    case 0: return;
+	    case 1: E_JAM(  7,16,64, CFG.badboard,     "The path to the ^bad echomail^ board.")
+	    case 2: E_JAM(  8,16,64, CFG.dupboard,     "The path to the ^dupe echomail^ board.")
+	    case 3: E_STR(  9,16,64, CFG.pktdate,      "The filename and parameters to the ^pktdate^ program.")
+	    case 4: E_INT( 10,16,    CFG.maxpktsize,   "The maximum size in KB for mail ^packets^, 0 if unlimited.")
+	    case 5: E_INT( 11,16,    CFG.maxarcsize,   "The maximum size in KB for ^arcmail^ archives, 0 if unlimited.")
+	    case 6: E_INT( 12,16,    CFG.toss_days,    "The number of ^days^ to keep mail on hold.")
+	    case 7: E_INT( 13,16,    CFG.toss_dupes,   "The number of ^dupes^ to store in the echomail dupes database.")
+	    case 8: E_INT( 14,16,    CFG.toss_old,     "^Reject^ mail older then days, 0 means never reject.")
+	    case 9: E_INT( 15,16,    CFG.defmsgs,      "The default maximum number of ^messages^ in each mail area.")
+	    case 10:E_INT( 16,16,    CFG.defdays,      "The default maximum ^age in days^ in each mail area.")
+	    case 11:CFG.toss_systems = edit_int(17,16, CFG.toss_systems, 
+			    (char *)"The maximum number of connected ^systems^ in the database.");
+		    if ((OpenMsgarea() == 0))
+			CloseMsgarea(TRUE);
+		    working(0, 0, 0);
+		    break;
+	    case 12:CFG.toss_groups = edit_int(18,16, CFG.toss_groups, 
+			    (char *)"The maximum number of ^groups^ in the database.");
+		    if ((OpenNoderec() == 0))
+			CloseNoderec(TRUE);
+		    working(0, 0, 0);
+		    break;
+	    case 13:E_BOOL(12,58, CFG.addr4d,          "Use ^4d^ addressing instead of ^5d^ addressing.")
+	    case 14:E_INT( 13,58, CFG.new_split,       "Gently ^split^ newfiles reports after n kilobytes (12..60).")
+	    case 15:E_INT( 14,58, CFG.new_force,       "Force ^split^ of newfiles reports after n kilobytes (16..64).")
+	    case 16:E_BOOL(15,58, CFG.ca_PlusAll,      "Allow ^+%*^ (Plus all) in AreaMgr requests.")
+	    case 17:E_BOOL(16,58, CFG.ca_Notify,       "Allow turning ^Notify^ messages on or off.")
+	    case 18:E_BOOL(17,58, CFG.ca_Passwd,       "Allow changing the AreaMgr/FileMgr ^password^.")
+	    case 19:E_BOOL(18,58, CFG.ca_Pause,        "Allow the ^Pause^ AreaMgr command.")
+	}
+    }
 }
 
 
@@ -1622,6 +1632,16 @@ void global_menu(void)
 	Syslog('+', "Main config, upgraded for manager security");
     }
 
+    if (!CFG.ca_PlusAll && !CFG.ca_Notify && !CFG.ca_Passwd && !CFG.ca_Pause && !CFG.ca_Check) {
+	CFG.ca_PlusAll = TRUE;
+	CFG.ca_Notify  = TRUE;
+	CFG.ca_Passwd  = TRUE;
+	CFG.ca_Pause   = TRUE;
+	CFG.ca_Check   = TRUE;
+	Syslog('+', "Main config, upgraded for AreaMgr flags");
+    }
+
+
     for (;;) {
 
 	clr_index();
@@ -2006,15 +2026,13 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Max. dupes         %ld\n", CFG.tic_dupes);
 	fprintf(fp, "      Keep filedate      %s\n", getboolean(CFG.ct_KeepDate));
 	fprintf(fp, "      Keep mgr netmail   %s\n", getboolean(CFG.ct_KeepMgr));
-	fprintf(fp, "      Reset future dates %s\n", getboolean(CFG.ct_ResFuture));
 	fprintf(fp, "      Local requests     %s\n", getboolean(CFG.ct_LocalRep));
-	fprintf(fp, "      Replace extention  %s\n", getboolean(CFG.ct_ReplExt));
-	fprintf(fp, "      Areamgr: allow +%%* %s\n", getboolean(CFG.ct_PlusAll));
-	fprintf(fp, "      Areamgr: notify    %s\n", getboolean(CFG.ct_Notify));
-	fprintf(fp, "      Areamgr: passwd    %s\n", getboolean(CFG.ct_Passwd));
-	fprintf(fp, "      Areamgr: message   %s\n", getboolean(CFG.ct_Message));
-	fprintf(fp, "      Areamgr: TIC       %s\n", getboolean(CFG.ct_TIC));
-	fprintf(fp, "      Areamgr: pause     %s\n", getboolean(CFG.ct_Pause));
+	fprintf(fp, "      FileMgr: allow +%%* %s\n", getboolean(CFG.ct_PlusAll));
+	fprintf(fp, "      FileMgr: notify    %s\n", getboolean(CFG.ct_Notify));
+	fprintf(fp, "      FileMgr: passwd    %s\n", getboolean(CFG.ct_Passwd));
+	fprintf(fp, "      FileMgr: message   %s\n", getboolean(CFG.ct_Message));
+	fprintf(fp, "      FileMgr: TIC       %s\n", getboolean(CFG.ct_TIC));
+	fprintf(fp, "      FileMgr: pause     %s\n", getboolean(CFG.ct_Pause));
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 15, page, (char *)"Fidonet Mail and Echomail  processing");
@@ -2032,6 +2050,10 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Maximum systems    %ld\n", CFG.toss_systems);
 	fprintf(fp, "      Maximum groups     %ld\n", CFG.toss_groups);
 	fprintf(fp, "      Use 4d addressing  %s\n", getboolean(CFG.addr4d));
+        fprintf(fp, "      AreaMgr: allow +%%* %s\n", getboolean(CFG.ca_PlusAll));
+	fprintf(fp, "      AreaMgr: notify    %s\n", getboolean(CFG.ca_Notify));
+	fprintf(fp, "      AreaMgr: passwd    %s\n", getboolean(CFG.ca_Passwd));
+	fprintf(fp, "      AreaMgr: pause     %s\n", getboolean(CFG.ca_Pause));
 
 	addtoc(fp, toc, 1, 16, page, (char *)"Internet Mail and News processing");
 

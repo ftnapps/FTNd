@@ -668,15 +668,15 @@ struct	sysconfig {
 						/* TIC Processing	    */
 	unsigned	ct_KeepDate	: 1;	/* Keep Filedate	    */
 	unsigned	ct_KeepMgr	: 1;	/* Keep Mgr netmails	    */
-	unsigned	ct_ResFuture	: 1;	/* Reset Future filedates   */
+	unsigned	xct_ResFuture	: 1;	/* Reset Future filedates   */
 	unsigned	ct_LocalRep	: 1;	/* Respond to local requests*/
-	unsigned	ct_ReplExt	: 1;	/* Replace Extension	    */
-	unsigned	ct_PlusAll	: 1;	/* Areamgr: allow +%*	    */
-	unsigned	ct_Notify	: 1;	/* Areamgr: Notify on/off   */
-	unsigned	ct_Passwd	: 1;	/* Areamgr: Passwd change   */
-	unsigned	ct_Message	: 1;	/* Areamgr: Msg file on/off */
-	unsigned	ct_TIC		: 1;	/* Areamgr: TIC files on/off*/
-	unsigned	ct_Pause	: 1;	/* Areamgr: Allow Pause	    */
+	unsigned	xct_ReplExt	: 1;	/* Replace Extension	    */
+	unsigned	ct_PlusAll	: 1;	/* Filemgr: allow +%*	    */
+	unsigned	ct_Notify	: 1;	/* Filemgr: Notify on/off   */
+	unsigned	ct_Passwd	: 1;	/* Filemgr: Passwd change   */
+	unsigned	ct_Message	: 1;	/* Filemgr: Msg file on/off */
+	unsigned	ct_TIC		: 1;	/* Filemgr: TIC files on/off*/
+	unsigned	ct_Pause	: 1;	/* Filemgr: Allow Pause	    */
 	char		logfile[15];		/* System Logfile	    */
 	int		OLR_MaxReq;		/* Max nr of Freq's	    */
 	int		tic_days;		/* Keep on hold for n days  */
@@ -799,6 +799,12 @@ struct	sysconfig {
 
 	char		mgrlog[15];		/* Area/File-mgr logfile    */
 	char            aname[32][17];          /* Name of areas flags	    */
+
+	unsigned	ca_PlusAll	: 1;	/* Areamgr: allow +%*       */
+	unsigned	ca_Notify	: 1;	/* Areamgr: Notify on/off   */
+	unsigned	ca_Passwd	: 1;	/* Areamgr: Passwd change   */
+	unsigned	ca_Pause	: 1;	/* Areamgr: Allow Pause     */
+	unsigned	ca_Check	: 1;	/* Flag for upgrade check   */
 };
 
 

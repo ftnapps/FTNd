@@ -1085,31 +1085,31 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		A_Msgs(Buf, 5);
 	    else if (!strncasecmp(Buf, "%rescan", 7))
 		A_Rescan(f, Buf, tmp);
-	    else if (!strncasecmp(Buf, "%+all", 5))
+	    else if (!strncasecmp(Buf, "%+all", 5) && CFG.ca_PlusAll)
 		A_All(f, TRUE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%-all", 5))
+	    else if (!strncasecmp(Buf, "%-all", 5) && CFG.ca_PlusAll)
 		A_All(f, FALSE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%+*", 3))
+	    else if (!strncasecmp(Buf, "%+*", 3) && CFG.ca_PlusAll)
 		A_All(f, TRUE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%-*", 3))
+	    else if (!strncasecmp(Buf, "%-*", 3) && CFG.ca_PlusAll)
 		A_All(f, FALSE, tmp, NULL);
 	    else if (!strncasecmp(Buf, "%+", 2))
 		A_Group(f, Buf, TRUE, tmp);
 	    else if (!strncasecmp(Buf, "%-", 2))
 		A_Group(f, Buf, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%pause", 6))
+	    else if (!strncasecmp(Buf, "%pause", 6) && CFG.ca_Pause)
 		A_Pause(f, TRUE, tmp);
-	    else if (!strncasecmp(Buf, "%resume", 7))
+	    else if (!strncasecmp(Buf, "%resume", 7) && CFG.ca_Pause)
 		A_Pause(f, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%passive", 8))
+	    else if (!strncasecmp(Buf, "%passive", 8) && CFG.ca_Pause)
 		A_Pause(f, TRUE, tmp);
-	    else if (!strncasecmp(Buf, "%active", 7))
+	    else if (!strncasecmp(Buf, "%active", 7) && CFG.ca_Pause)
 		A_Pause(f, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%password", 9))
+	    else if (!strncasecmp(Buf, "%password", 9) && CFG.ca_Passwd)
 		MgrPasswd(f, Buf, tmp, 9, 0);
-	    else if (!strncasecmp(Buf, "%pwd", 4))
+	    else if (!strncasecmp(Buf, "%pwd", 4) && CFG.ca_Passwd)
 		MgrPasswd(f, Buf, tmp, 4, 0);
-	    else if (!strncasecmp(Buf, "%notify", 7))
+	    else if (!strncasecmp(Buf, "%notify", 7) && CFG.ca_Notify)
 		MgrNotify(f, Buf, tmp, 0);
 	    else if (*(Buf) == '-')
 		A_Disconnect(f, Buf, tmp);

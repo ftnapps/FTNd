@@ -35,6 +35,7 @@
 # 
 HATCHPWD="DizIzMyBIGseeKret"
 INBOUND=$MBSE_ROOT/var/inbound
+HVERSION="1.0.1"
 
 
 if [ "`id -un`" != "mbse" ]; then
@@ -78,12 +79,24 @@ do
 	echo -e "Enter description for $f (empty is skip file)"
 	echo -n ": "
 	read DESC
+	echo -e "Replace filename (empty is none)"
+	echo -n ": "
+	read REPL
+	echo -n "Magic filename (empty is no magic)"
+	echo -n ": "
+	read MAGIC
 	if [ ! -z "$DESC" ]; then
 	    let i=i+1
 	    FILE=$INBOUND/`$MBSE_ROOT/bin/mbseq`.tic
 	    echo "Hatch" > $FILE
-	    echo "Created MBSE BBS hatch script v1.0.0" >> $FILE
+	    echo "Created MBSE BBS hatch script v$HVERSION" >> $FILE
 	    echo "Area $GROUP" >> $FILE
+	    if [ ! -z "$REPL" ]; then
+		echo "Replaces $REPL" >> $FILE
+	    fi
+	    if [ ! -z "$MAGIC" ]; then
+		echo "Magic $MAGIC" >> $FILE
+	    fi		
 	    echo "Origin $AKA" >> $FILE
 	    echo "From $AKA" >> $FILE
 	    echo "Fullname $f" >> $FILE

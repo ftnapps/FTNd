@@ -300,8 +300,6 @@ void load_maincfg(void)
         /*
          * Fill ticconf defaults
          */
-        CFG.ct_ResFuture = TRUE;
-        CFG.ct_ReplExt = TRUE;
         CFG.ct_PlusAll = TRUE;
         CFG.ct_Notify = TRUE;
         CFG.ct_Message = TRUE;
@@ -335,6 +333,11 @@ void load_maincfg(void)
         CFG.UUCPgate.node = 875;
         sprintf(CFG.UUCPgate.domain, "fidonet");
         CFG.nntpdupes = 16000;
+	CFG.ca_PlusAll = TRUE;
+	CFG.ca_Notify = TRUE;
+	CFG.ca_Passwd = TRUE;
+	CFG.ca_Pause = TRUE;
+	CFG.ca_Check = TRUE;
 
         for (i = 0; i < 32; i++) {
 	    sprintf(CFG.fname[i], "Flag %d", i+1);

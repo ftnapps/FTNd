@@ -6,6 +6,10 @@ $Id$
 
 v0.35.05	19-Oct-2002
 
+	upgrade:
+		Start mbsetup, go into global configuration, leave it and 
+		save.
+
 	general:
 		This may become release 0.36.00
 		There is now a mberrors.h file that defines all errorcodes
@@ -22,7 +26,17 @@ v0.35.05	19-Oct-2002
 		the rar is used to unarchive instead of unrar when available,
 		rar is compiled static and prefered.
 		Added support for the nomarch unarchiver.
+		Removed from Screen 1.13 the unused switches Res Future and
+		Repl ext. Fixed some help texts.
+		Added in screen 1.14 settings for Plus All, Notify, Passwd and
+		Pause.
 
+	mbfido:
+		With ticfile processing, the KeepDate setup setting now works.
+		The FileMgr requests now honor the setting of the switches
+		Plus All, Notify, Passwd, Message, Tic on/off and Pause.
+		The AreaMgr reuqests now honor the setting of the switches
+		Plus All, Notify, Passwd and Pause.
 
 
 v0.35.04	29-Sep-2002 - 19-Oct-2002.

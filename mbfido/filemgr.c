@@ -904,35 +904,35 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 		f_stat = TRUE;
 	    else if (!strncasecmp(Buf, "%unlinked", 9))
 		f_unlnk = TRUE;
-	    else if (!strncasecmp(Buf, "%+all", 5))
+	    else if (!strncasecmp(Buf, "%+all", 5) && CFG.ct_PlusAll)
 		F_All(f, TRUE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%-all", 5))
+	    else if (!strncasecmp(Buf, "%-all", 5) && CFG.ct_PlusAll)
 		F_All(f, FALSE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%+*", 3))
+	    else if (!strncasecmp(Buf, "%+*", 3) && CFG.ct_PlusAll)
 		F_All(f, TRUE, tmp, NULL);
-	    else if (!strncasecmp(Buf, "%-*", 3))
+	    else if (!strncasecmp(Buf, "%-*", 3) && CFG.ct_PlusAll)
 		F_All(f, FALSE, tmp, NULL); 
 	    else if (!strncasecmp(Buf, "%+", 2))
 		F_Group(f, Buf, TRUE, tmp);
 	    else if (!strncasecmp(Buf, "%-", 2))
 		F_Group(f, Buf, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%pause", 6))
+	    else if (!strncasecmp(Buf, "%pause", 6) && CFG.ct_Pause)
 		F_Pause(f, TRUE, tmp);
-	    else if (!strncasecmp(Buf, "%passive", 8))
+	    else if (!strncasecmp(Buf, "%passive", 8) && CFG.ct_Pause)
 		F_Pause(f, TRUE, tmp);
-	    else if (!strncasecmp(Buf, "%resume", 7))
+	    else if (!strncasecmp(Buf, "%resume", 7) && CFG.ct_Pause)
 		F_Pause(f, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%active", 7))
+	    else if (!strncasecmp(Buf, "%active", 7) && CFG.ct_Pause)
 		F_Pause(f, FALSE, tmp);
-	    else if (!strncasecmp(Buf, "%password", 9))
+	    else if (!strncasecmp(Buf, "%password", 9) && CFG.ct_Passwd)
 		MgrPasswd(f, Buf, tmp, 9, 1);
-	    else if (!strncasecmp(Buf, "%pwd", 4))
+	    else if (!strncasecmp(Buf, "%pwd", 4) && CFG.ct_Passwd)
 		MgrPasswd(f, Buf, tmp, 4, 1);
-	    else if (!strncasecmp(Buf, "%notify", 7))
+	    else if (!strncasecmp(Buf, "%notify", 7) && CFG.ct_Notify)
 		MgrNotify(f, Buf, tmp, 1);
-	    else if (!strncasecmp(Buf, "%message", 8))
+	    else if (!strncasecmp(Buf, "%message", 8) && CFG.ct_Message)
 		F_Message(f, Buf, tmp);
-	    else if (!strncasecmp(Buf, "%tick", 5))
+	    else if (!strncasecmp(Buf, "%tick", 5) && CFG.ct_TIC)
 		F_Tick(f, Buf, tmp);
 	    else if (*(Buf) == '-')
 		F_Disconnect(f, Buf, tmp);
