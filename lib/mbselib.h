@@ -927,7 +927,7 @@ struct	sysconfig {
 	unsigned	xelite_mode       : 1;
 	unsigned	slow_util	  : 1;	/* Run utils slowly	    */
 	unsigned	exclude_sysop     : 1;	/* Exclude Sysop from lists */
-	unsigned	xUseSysDomain	  : 1;
+	unsigned	UsePopDomain	  : 1;	/* Add domain pop3 login    */
 	unsigned	xChkMail          : 1;
 	unsigned	iConnectString	  : 1;  /* Display Connect String   */
 	unsigned	iAskFileProtocols : 1;	/* Ask user FileProtocols   */

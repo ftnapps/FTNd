@@ -129,82 +129,86 @@ void retr_msg(int msgnum)
 
 void check_popmail(char *user, char *pass)
 {
-	char	*p, *q, temp[128];
-	int	tmsgs = 0, size, msgnum, color = LIGHTBLUE;
-	FILE	*tp;
+    char	*p, *q, temp[128];
+    int	tmsgs = 0, size, msgnum, color = LIGHTBLUE;
+    FILE	*tp;
 
-	/*
-	 *  If nothing is retrieved from the POP3 mailbox, the user sees nothing.
-	 */
-	Syslog('+', "POP3: connect user %s", user);
-	if (pop3_connect() == -1) {
-		WriteError("Can't connect POP3 server");
-		return;
-	}
+    /*
+     *  If nothing is retrieved from the POP3 mailbox, the user sees nothing.
+     */
+    Syslog('+', "POP3: connect user %s", user);
+    if (pop3_connect() == -1) {
+	WriteError("Can't connect POP3 server");
+	return;
+    }
 
+    if (CFG.UsePopDomain)
+	sprintf(temp, "USER %s@%s\r\n", user, CFG.sysdomain);
+    else
 	sprintf(temp, "USER %s\r\n", user);
-	if (pop3_cmd(temp)) {
-		error_popmail((char *)"You have no email box");
-		return;
-	}
+    
+    if (pop3_cmd(temp)) {
+	error_popmail((char *)"You have no email box");
+	return;
+    }
 
-	sprintf(temp, "PASS %s\r\n", pass);
-	if (pop3_cmd(temp)) {
-		error_popmail((char *)"Wrong email password, reset your password");
-		return;
-	}
+    sprintf(temp, "PASS %s\r\n", pass);
+    if (pop3_cmd(temp)) {
+	error_popmail((char *)"Wrong email password, reset your password");
+	return;
+    }
 
-	Syslog('+', "POP3: logged in");
+    Syslog('+', "POP3: logged in");
 
-	pop3_send((char *)"STAT\r\n");
-	p = pop3_receive();
-	if (strncmp(p, "+OK", 3) == 0) {
-		q = strtok(p, " ");
-		q = strtok(NULL, " ");
-		tmsgs = atoi(q);
-		q = strtok(NULL, " \r\n\0");
-		size = atoi(q);
-		Syslog('+', "POP3: %d messages, %d bytes", tmsgs, size);
-		if (tmsgs && ((tp = tmpfile()) != NULL)) {
-			if (pop3_cmd((char *)"LIST\r\n") == 0) {
-				while (TRUE) {
-					p = pop3_receive();
-					if (p[0] == '.') {
-						break;
-					} else {
-						q = strtok(p, " ");
-						msgnum = atoi(q);
-						fwrite(&msgnum, sizeof(msgnum), 1, tp);
-					}
-				}
-				rewind(tp);
-				while (fread(&msgnum, sizeof(msgnum), 1, tp) == 1) {
-					/*
-					 *  Show progress
-					 */
-					colour(color, BLACK);
-					printf("\rFetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
-					fflush(stdout);
-					if (color < WHITE)
-						color++;
-					else
-						color = LIGHTBLUE;
-					retr_msg(msgnum);
-				}
-				fclose(tp);
-			}
+    pop3_send((char *)"STAT\r\n");
+    p = pop3_receive();
+    if (strncmp(p, "+OK", 3) == 0) {
+	q = strtok(p, " ");
+	q = strtok(NULL, " ");
+	tmsgs = atoi(q);
+	q = strtok(NULL, " \r\n\0");
+	size = atoi(q);
+	Syslog('+', "POP3: %d messages, %d bytes", tmsgs, size);
+	if (tmsgs && ((tp = tmpfile()) != NULL)) {
+	    if (pop3_cmd((char *)"LIST\r\n") == 0) {
+		while (TRUE) {
+		    p = pop3_receive();
+		    if (p[0] == '.') {
+			break;
+		    } else {
+			q = strtok(p, " ");
+			msgnum = atoi(q);
+			fwrite(&msgnum, sizeof(msgnum), 1, tp);
+		    }
 		}
-		fflush(stdout);
+		rewind(tp);
+		while (fread(&msgnum, sizeof(msgnum), 1, tp) == 1) {
+		    /*
+		     *  Show progress
+		     */
+		    colour(color, BLACK);
+		    printf("\rFetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
+		    fflush(stdout);
+		    if (color < WHITE)
+			color++;
+		    else
+			color = LIGHTBLUE;
+		    retr_msg(msgnum);
+		}
+		fclose(tp);
+	    }
 	}
+	fflush(stdout);
+    }
 
-	pop3_cmd((char *)"QUIT\r\n");
-	pop3_close();
+    pop3_cmd((char *)"QUIT\r\n");
+    pop3_close();
 
-	if (tmsgs) {
-		colour(LIGHTMAGENTA, BLACK);
-		printf("\r                                                \r");
-		fflush(stdout);
-	}
+    if (tmsgs) {
+	colour(LIGHTMAGENTA, BLACK);
+	printf("\r                                                \r");
+	fflush(stdout);
+    }
 }
 
 
