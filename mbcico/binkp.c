@@ -123,12 +123,10 @@ int binkp(int role)
     char	*nonhold_mail;
 
     if (role == 1) {
-	Syslog('+', "Binkp: start outbound session");
 	if (orgbinkp()) {
 	    rc = MBERR_SESSION_ERROR;
 	}
     } else {
-	Syslog('+', "Binkp: start inbound session");
 	if (ansbinkp()) {
 	    rc = MBERR_SESSION_ERROR;
 	}

@@ -79,8 +79,6 @@ int rx_emsi(char *data)
     fa_list *tmr;
     int	    denypw=0;
 
-    Syslog('+', "Start inbound EMSI session");
-
     emsi_local_lcodes = LCODE_RH1;
     emsi_remote_lcodes=0;
 
@@ -207,7 +205,6 @@ int tx_emsi(char *data)
 {
     int	rc;
 
-    Syslog('+', "Start outbound EMSI session");
     emsi_local_lcodes = LCODE_PUA | LCODE_RH1;
     emsi_remote_lcodes = 0;
 

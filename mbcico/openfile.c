@@ -33,6 +33,8 @@
 #include "../lib/structs.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+#include "../lib/users.h"
+#include "../lib/records.h"
 #include "config.h"
 #include "lutil.h"
 #include "openfile.h"
@@ -82,8 +84,17 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
      * If it's there, resoffs will be set equal to remsize to signal the
      * receiving protocol to skip the file.
      */
-    infpath = xstrcpy(tempinbound);
-    infpath = xstrcat(infpath, (char *)"/");
+    if (tempinbound == NULL) {
+	/*
+	 * This is when we get a FTS-0001 handshake packet
+	 */
+	infpath = xstrcpy(CFG.inbound);
+	infpath = xstrcat(infpath, (char *)"/tmp/");
+	mkdirs(infpath, 0700);
+    } else {
+	infpath = xstrcpy(tempinbound);
+	infpath = xstrcat(infpath, (char *)"/");
+    }
     infpath = xstrcat(infpath, fname);
     if (stat(infpath, &st) == 0) {
 	/* FIXME: temp normal logging now! */

@@ -69,132 +69,131 @@ struct  sockaddr_in peeraddr;
 char *typestr(int);
 char *typestr(int tp)
 {
-	switch (tp) {
-		case SESSION_FTSC:	return (char *)"FTSC";
-		case SESSION_YOOHOO:	return (char *)"YooHoo/2U2";
-		case SESSION_EMSI:	return (char *)"EMSI";
-		case SESSION_BINKP:	return (char *)"Binkp";
-		default:		return (char *)"Unknown";
-	}
+    switch (tp) {
+	case SESSION_FTSC:	return (char *)"FTS-0001";
+	case SESSION_YOOHOO:	return (char *)"YooHoo/2U2";
+	case SESSION_EMSI:	return (char *)"EMSI";
+	case SESSION_BINKP:	return (char *)"Binkp";
+	default:		return (char *)"Unknown";
+    }
 }
 
 
 
 int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
-	int	rc = MBERR_OK;
-	fa_list *tmpl;
-	int	addrlen = sizeof(struct sockaddr_in);
+    int	    rc = MBERR_OK, addrlen = sizeof(struct sockaddr_in);
+    fa_list *tmpl;
 
-	session_flags = 0;
-	type = tp;
-	nlent = nl;
+    session_flags = 0;
+    type = tp;
+    nlent = nl;
 
-	if (role) {
-		Syslog('s', "Start outbound session type %s with %s", typestr(type), ascfnode(a,0x1f));
-	} else
-		Syslog('s', "Start inbound session type %s", typestr(type));
+    if (role)
+	Syslog('+', "Start outbound %s session with %s", typestr(type), ascfnode(a,0x1f));
+    else
+	Syslog('+', "Start inbound %s session", typestr(type));
 
-	if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
-		Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
+    if (getpeername(0,(struct sockaddr*)&peeraddr,&addrlen) == 0) {
+	Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 			addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
-		if (role == 0) {
-			if (tcp_mode == TCPMODE_IBN) {
-				Syslog('+', "Incoming IBN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-				IsDoing("Incoming IBN/TCP");
-			} else if (tcp_mode == TCPMODE_ITN) {
-				Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-				IsDoing("Incoming ITN/TCP");
-			} else if (tcp_mode == TCPMODE_IFC) {
-				Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
-				IsDoing("Incoming IFC/TCP");
-			} else if (tcp_mode == TCPMODE_NONE) {
-				WriteError("Unknown TCP connection, parameter missing");
-				die(MBERR_COMMANDLINE);
-			}
-		}
-		session_flags |= SESSION_TCP;
+	if (role == 0) {
+	    if (tcp_mode == TCPMODE_IBN) {
+		Syslog('+', "Incoming IBN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		IsDoing("Incoming IBN/TCP");
+	    } else if (tcp_mode == TCPMODE_ITN) {
+		Syslog('+', "Incoming ITN/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		IsDoing("Incoming ITN/TCP");
+	    } else if (tcp_mode == TCPMODE_IFC) {
+		Syslog('+', "Incoming IFC/TCP connection from %s", inet_ntoa(peeraddr.sin_addr));
+		IsDoing("Incoming IFC/TCP");
+	    } else if (tcp_mode == TCPMODE_NONE) {
+		WriteError("Unknown TCP connection, parameter missing");
+		die(MBERR_COMMANDLINE);
+	    }
 	}
+	session_flags |= SESSION_TCP;
+    }
 
-	if (data)
-		free(data);
-	data=NULL;
+    if (data)
+	free(data);
+    data=NULL;
 
-	if (dt)
-		data=xstrcpy(dt);
+    if (dt)
+	data=xstrcpy(dt);
 
-	emsi_local_protos=0;
-	emsi_local_opts=0;
-	emsi_local_lcodes=0;
+    emsi_local_protos=0;
+    emsi_local_opts=0;
+    emsi_local_lcodes=0;
 	
-	tidy_falist(&remote);
+    tidy_falist(&remote);
+    remote=NULL;
+    if (a) {
+	remote=(fa_list*)malloc(sizeof(fa_list));
+	remote->next=NULL;
+	remote->addr=(faddr*)malloc(sizeof(faddr));
+	remote->addr->zone=a->zone;
+	remote->addr->net=a->net;
+	remote->addr->node=a->node;
+	remote->addr->point=a->point;
+	remote->addr->domain=xstrcpy(a->domain);
+	remote->addr->name=NULL;
+    } else {
 	remote=NULL;
-	if (a) {
-		remote=(fa_list*)malloc(sizeof(fa_list));
-		remote->next=NULL;
-		remote->addr=(faddr*)malloc(sizeof(faddr));
-		remote->addr->zone=a->zone;
-		remote->addr->net=a->net;
-		remote->addr->node=a->node;
-		remote->addr->point=a->point;
-		remote->addr->domain=xstrcpy(a->domain);
-		remote->addr->name=NULL;
-	} else {
-		remote=NULL;
+    }
+
+    remote_flags=SESSION_FNC;
+
+    if (role) {
+	if (type == SESSION_UNKNOWN) 
+	    (void)tx_define_type();
+	switch(type) {
+	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
+	    case SESSION_FTSC:	    rc = tx_ftsc(); break;
+	    case SESSION_YOOHOO:    rc = tx_yoohoo(); break;
+	    case SESSION_EMSI:	    rc = tx_emsi(data); break;
+	    case SESSION_BINKP:	    rc = binkp(role); break;
 	}
-
-	remote_flags=SESSION_FNC;
-
-	if (role) {
-		if (type == SESSION_UNKNOWN) 
-			(void)tx_define_type();
-		switch(type) {
-			case SESSION_UNKNOWN:	rc = MBERR_UNKNOWN_SESSION; break;
-			case SESSION_FTSC:	rc = tx_ftsc(); break;
-			case SESSION_YOOHOO:	rc = tx_yoohoo(); break;
-			case SESSION_EMSI:	rc = tx_emsi(data); break;
-			case SESSION_BINKP:	rc = binkp(role); break;
-		}
-	} else {
-		if (type == SESSION_FTSC) 
-			session_flags |= FTSC_XMODEM_CRC;
-		if (type == SESSION_UNKNOWN) 
-			(void)rx_define_type();
-		switch(type) {
-			case SESSION_UNKNOWN:	rc = MBERR_UNKNOWN_SESSION; break;
-			case SESSION_FTSC:	rc = rx_ftsc(); break;
-			case SESSION_YOOHOO:	rc = rx_yoohoo(); break;
-			case SESSION_EMSI:	rc = rx_emsi(data); break;
-			case SESSION_BINKP:	rc = binkp(role); break;
-		}
+    } else {
+	if (type == SESSION_FTSC) 
+	    session_flags |= FTSC_XMODEM_CRC;
+	if (type == SESSION_UNKNOWN) 
+	    (void)rx_define_type();
+	switch(type) {
+	    case SESSION_UNKNOWN:   rc = MBERR_UNKNOWN_SESSION; break;
+	    case SESSION_FTSC:	    rc = rx_ftsc(); break;
+	    case SESSION_YOOHOO:    rc = rx_yoohoo(); break;
+	    case SESSION_EMSI:	    rc = rx_emsi(data); break;
+	    case SESSION_BINKP:	    rc = binkp(role); break;
 	}
-	sleep(2);
-	for (tmpl = remote; tmpl; tmpl = tmpl->next) {
-		/*
-		 * Unlock all nodes, locks not owned by us are untouched.
-		 */
-		(void)nodeulock(tmpl->addr);
-		/*
-		 * If successfull session, reset all status records.
-		 */
-		if (rc == 0)
-			putstatus(tmpl->addr, 0, 0);
-	}
-	tidy_falist(&remote);
-	if (data)
-		free(data);
-	data = NULL;
+    }
+    sleep(2);
+    for (tmpl = remote; tmpl; tmpl = tmpl->next) {
+	/*
+	 * Unlock all nodes, locks not owned by us are untouched.
+	 */
+	(void)nodeulock(tmpl->addr);
+	/*
+	 * If successfull session, reset all status records.
+	 */
+	if (rc == 0)
+	    putstatus(tmpl->addr, 0, 0);
+    }
+    tidy_falist(&remote);
+    if (data)
+	free(data);
+    data = NULL;
 
-	if (emsi_local_password)
-		free(emsi_local_password);
-	if (emsi_remote_password)
-		free(emsi_remote_password);
+    if (emsi_local_password)
+	free(emsi_local_password);
+    if (emsi_remote_password)
+	free(emsi_remote_password);
 
-	if (nlent->addr.domain)
-		free(nlent->addr.domain);
+    if (nlent->addr.domain)
+	free(nlent->addr.domain);
 
-	inbound_close(rc == 0);
-	return rc;
+    inbound_close(rc == 0);
+    return rc;
 }
 
 

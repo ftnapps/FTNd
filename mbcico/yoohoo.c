@@ -128,8 +128,6 @@ int rx_yoohoo(void)
     unsigned short  capabilities,localcaps;
     char	    *pwd = NULL;
 
-    Syslog('+', "Start inbound YooHoo session");
-
     pwd = NULL;
     localcaps = LOCALCAPS;
     if (localoptions & NOZMODEM) localcaps &= ~(ZED_ZAPPER|ZED_ZIPPER);
@@ -227,8 +225,6 @@ int tx_yoohoo(void)
     int		    rc;
     unsigned short  capabilities;
     char	    *pwd;
-
-    Syslog('+', "Start outbound YooHoo session");
 
     if (strlen(nodes.Spasswd))
 	pwd = xstrcpy(nodes.Spasswd);

@@ -67,7 +67,6 @@ int rx_ftsc(void)
 {
     int	rc;
 
-    Syslog('+', "Start inbound FTS-0001 session");
     IsDoing("FTS-0001 inbound");
 
     session_flags |= SESSION_BARK;
@@ -94,7 +93,6 @@ int tx_ftsc(void)
 {
     int	rc;
 
-    Syslog('+', "Start outbound FTS-0001 session with %s", ascfnode(remote->addr,0x1f));
     IsDoing("FTS-0001 to %s", ascfnode(remote->addr, 0x0f));
 
     if ((rc = txftsc())) {
@@ -131,10 +129,7 @@ SM_EDECL
 	char	*nonhold_mail;
 	int	mailsent = FALSE, mailrcvd = FALSE;
 
-//	if (localoptions & NOHOLD) 
-		nonhold_mail = (char *)ALL_MAIL;
-//	else 
-//		nonhold_mail = (char *)NONHOLD_MAIL;
+	nonhold_mail = (char *)ALL_MAIL;
 	tosend = create_filelist(remote,nonhold_mail,2);
 
 	Syslog('s', "txftsc SEND_MAIL");
@@ -157,7 +152,7 @@ SM_STATE(wait_command)
 			 * Some systems hangup after sending mail, so if we did
 			 * send and receive mail we consider the session OK.
 			 */
-			Syslog('+', "Lost carrier, FTSC session looks complete");
+			Syslog('+', "Lost carrier, FTS-0001 session looks complete");
 			SM_SUCCESS;
 		} else {
 			Syslog('+', "got error waiting for TSYNC: received %d",c);
@@ -407,8 +402,8 @@ SM_STATE(scan_packet)
      * handshake by sending us a .pkt file, we store this in the old
      * style ../tmp/ dir in the unprotected inbound.
      */
-    fpath = xstrcpy(inbound);
-    fpath = xstrcat(fpath,(char *)"/");
+    fpath = xstrcpy(CFG.inbound);
+    fpath = xstrcat(fpath,(char *)"/tmp/");
     fpath = xstrcat(fpath,recvpktname);
     mkdirs(fpath, 0700);
     fp = fopen(fpath,"r");
