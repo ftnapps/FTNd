@@ -351,7 +351,7 @@ int outstat()
 		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %s %s %s", flstr, (long)tmp->size,
 			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
-			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(&(tmp->addr), 0x1f));
+			tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(&(tmp->addr), 0x0f));
 		tasklog('+', "%s", temp);
 	}
 	
