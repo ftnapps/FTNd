@@ -33,6 +33,7 @@
 #define _STRUCTS_H
 
 
+#define Max_passlen     14      /* Define maximum passwd length            */
 
 /*****************************************************************************
  *

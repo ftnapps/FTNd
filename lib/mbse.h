@@ -31,7 +31,6 @@
 #ifndef _MBSE_H
 #define _MBSE_H
 
-#define Max_passlen	14	/* Define maximum passwd length		   */
 #define LINES 24		/* Lines for MoreFile			   */
 #define LANG 500		/* Amount of Language Entries		   */
 
