@@ -69,81 +69,81 @@ extern	char	*msgid;			/* Original message id		    */
 
 int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
 {
-	int		rc = 0, count = 0;
-	char		*Buf;
-	FILE		*np;
-	time_t		Now;
-	faddr		*from;
+    int	    rc = 0, count = 0;
+    char    *Buf;
+    FILE    *np;
+    time_t  Now;
+    faddr   *from;
 
-	Now = time(NULL);
-	if (SearchFidonet(f->zone))
-		f->domain = xstrcpy(fidonet.domain);
+    Now = time(NULL);
+    if (SearchFidonet(f->zone))
+	f->domain = xstrcpy(fidonet.domain);
 
-	Syslog('+', "Bounce msg from %s", ascfnode(f, 0xff));
-	Buf = calloc(2049, sizeof(char));
-	rewind(fp);
+    Syslog('+', "Bounce msg from %s", ascfnode(f, 0xff));
+    Buf = calloc(2049, sizeof(char));
+    rewind(fp);
 
-	np = tmpfile();
-        from = bestaka_s(f);
-	from->zone  = t->zone;
-	from->net   = t->net;
-	from->node  = t->node;
-	from->point = t->point;
-        from->name  = xstrcpy((char *)"Postmaster");
+    np = tmpfile();
+    from = bestaka_s(f);
+    from->zone  = t->zone;
+    from->net   = t->net;
+    from->node  = t->node;
+    from->point = t->point;
+    from->name  = xstrcpy((char *)"Postmaster");
 
-	if (f->point)
-		fprintf(np, "\001TOPT %d\r", f->point);
-	if (from->point)
-		fprintf(np, "\001FMPT %d\r", from->point);
-	fprintf(np, "\001INTL %d:%d/%d %d:%d/%d\r", f->zone, f->net, f->node, from->zone, from->net, from->node);
+    if (f->point)
+	fprintf(np, "\001TOPT %d\r", f->point);
+    if (from->point)
+	fprintf(np, "\001FMPT %d\r", from->point);
+    fprintf(np, "\001INTL %d:%d/%d %d:%d/%d\r", f->zone, f->net, f->node, from->zone, from->net, from->node);
 
-        /*
-         * Add MSGID, REPLY and PID
-         */
-	fprintf(np, "\001MSGID: %s %08lx\r", ascfnode(from, 0x1f), sequencer());
-	while ((fgets(Buf, 2048, fp)) != NULL) {
-		Striplf(Buf);
-		if (strncmp(Buf, "\001MSGID:", 7) == 0) {
-			fprintf(np, "\001REPLY:%s\r", Buf+7);
-		}
+    /*
+     * Add MSGID, REPLY and PID
+     */
+    fprintf(np, "\001MSGID: %s %08lx\r", ascfnode(from, 0x1f), sequencer());
+    while ((fgets(Buf, 2048, fp)) != NULL) {
+	Striplf(Buf);
+	if (strncmp(Buf, "\001MSGID:", 7) == 0) {
+	    fprintf(np, "\001REPLY:%s\r", Buf+7);
 	}
-	fprintf(np, "\001PID: MBSE-FIDO %s\r", VERSION);
-	fprintf(np, "\001TZUTC: %s\r", gmtoffset(Now));
+    }
+    fprintf(np, "\001PID: MBSE-FIDO %s\r", VERSION);
+    fprintf(np, "\001TZUTC: %s\r", gmtoffset(Now));
 
-	fprintf(np, "     Dear %s\r\r", MBSE_SS(f->name));
-	fprintf(np, "Your message could not be delevered, reason: %s\r\r", reason);
-	fprintf(np, "Here are the first lines of the original message from you:\r\r");
-	fprintf(np, "======================================================================\r");
+    fprintf(np, "     Dear %s\r\r", MBSE_SS(f->name));
+    fprintf(np, "Your message could not be delevered, reason: %s\r\r", reason);
+    fprintf(np, "Here are the first lines of the original message from you:\r\r");
+    fprintf(np, "======================================================================\r");
 
-	rewind(fp);
-	while ((fgets(Buf, 2048, fp)) != NULL) {
-		Striplf(Buf);
-		if (Buf[0] == '\001') {
-		    fprintf(np, "^a");
-		    fwrite(Buf + 1, strlen(Buf) -1, 1, np);
-		} else {
-		    fwrite(Buf, strlen(Buf), 1, np);
-		}
-		fputc('\r', np);
-		count++;
-		if (count == 50)
-		    break;
+    rewind(fp);
+    while ((fgets(Buf, 2048, fp)) != NULL) {
+	Striplf(Buf);
+	if (Buf[0] == '\001') {
+	    fprintf(np, "^a");
+	    fwrite(Buf + 1, strlen(Buf) -1, 1, np);
+	} else {
+	    fwrite(Buf, strlen(Buf), 1, np);
 	}
-	fprintf(np, "======================================================================\r");
-	if (count == 50) {
-	    fprintf(np, "\rOnly the first 50 lines are displayed\r");
-	}
+	fputc('\r', np);
+	count++;
+	if (count == 50)
+	    break;
+    }
+    fprintf(np, "======================================================================\r");
+    if (count == 50) {
+	fprintf(np, "\rOnly the first 50 lines are displayed\r");
+    }
 
-	fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
-	fprintf(np, "%s\r", TearLine());
-	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
-	rc = postnetmail(np, from, f, NULL, (char *)"Bounced message", Now, 0x0000, FALSE);
-	tidy_faddr(from);
+    fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
+    fprintf(np, "%s\r", TearLine());
+    Now = time(NULL) - (gmt_offset((time_t)0) * 60);
+    rc = postnetmail(np, from, f, NULL, (char *)"Bounced message", Now, 0x0000, FALSE, from->zone, f->zone);
+    tidy_faddr(from);
 
-	fclose(np);
+    fclose(np);
 
-	free(Buf);
-	return rc;
+    free(Buf);
+    return rc;
 }
 
 

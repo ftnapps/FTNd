@@ -32,6 +32,12 @@ v0.35.07	11-Dec-2002
 		The index command displays LFN names in the webpages again.
 		The real download still sends the 8.3 name.
 
+	mbfido:
+		Better detection of zone information in netmails when netmail
+		was stored in a netmail packet of a different network and the
+		netmail misses a lot of kludges. Better logging of processed
+		netmails.
+
 	mbcico:
 		Code cleanup in opentcp, better handling of given ports and
 		better logging.

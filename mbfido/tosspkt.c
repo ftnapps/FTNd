@@ -92,7 +92,7 @@ static int at_zero = 0;
  *  Internal prototypes
  */
 char	*aread(char *, int, FILE *);
-int     importmsg(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *);
+int     importmsg(faddr *, faddr *, faddr *, char *, char *, time_t, int, int, FILE *, unsigned int);
 
 
 
@@ -149,7 +149,8 @@ char *aread(char *s, int count, FILE *fp)
  *  5 - Locking error.
  *
  */
-int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, int flags, int cost, FILE *fp)
+int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t mdate, 
+	int flags, int cost, FILE *fp, unsigned int tzone)
 {
     char	*buf, *marea = NULL;
     int		echomail = FALSE, rc = 0, bad = FALSE, Known = FALSE, FirstLine;
@@ -234,11 +235,12 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
 	    FirstLine = FALSE;
     } /* end of checking kludges */
 
-
-    if (echomail)
+    if (echomail) {
+	f->zone = p_from->zone;
+	t->zone = tzone;
 	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
-    else
-	rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE);
+    } else
+	rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE, p_from->zone, tzone);
 
     free(buf);
     return rc;
@@ -418,9 +420,6 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 	return 3;
     }
 
-    f.zone = p_from->zone;
-    t.zone = p_to->zone;
-	
     if ((fp = tmpfile()) == NULL) {
 	WriteError("$unable to open temporary file");
 	return 4;
@@ -463,7 +462,7 @@ int getmessage(FILE *pkt, faddr *p_from, faddr *p_to)
 	}
     }
 
-    rc = importmsg(p_from, &f,&t,orig,subj,mdate,flags,cost,fp);
+    rc = importmsg(p_from, &f, &t, orig, subj, mdate, flags, cost, fp, p_to->zone);
     if (rc)
 	rc+=10;
     if (rc > maxrc) 
