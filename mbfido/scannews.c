@@ -189,13 +189,17 @@ void ScanNews(void)
 	struct msgareashdr	Msgshdr;
 	struct msgareas		Msgs;
 
+most_debug = TRUE;
 	IsDoing((char *)"Scan News");
 	if (nntp_connect() == -1) {
 		WriteError("Can't connect to newsserver");
+most_debug = FALSE;
 		return;
 	}
-	if (get_xoverview())
+	if (get_xoverview()) {
+most_debug = FALSE;
 		return;
+	}
 
 	if (!do_quiet) {
 		colour(10, 0);
@@ -244,7 +248,7 @@ void ScanNews(void)
 		free(tmp);
 	}
 	do_flush = TRUE;
-
+most_debug = FALSE;
 	if (!do_quiet)
 		printf("\r                                                    \r");
 }
@@ -299,9 +303,9 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 				/*
 				 *  If the message isn't a dupe, it must be new for us.
 				 */
-				most_debug = TRUE;
+//				most_debug = TRUE;
 				get_article(tmp->msgid, ftntag);
-				most_debug = FALSE;
+//				most_debug = FALSE;
 				fetched++;
 			}
 		}
@@ -515,7 +519,7 @@ int get_xoverview(void)
 		}
 
 		if ((tmp = xoverview) != NULL) {
-			most_debug = TRUE;
+//			most_debug = TRUE;
 			Syslog('N', "--Xoverview.fmt list");
 			while (tmp != NULL) {
 				if (tmp->header != NULL) {
@@ -523,7 +527,7 @@ int get_xoverview(void)
 				}
 				tmp = tmp->next;
 			}
-			most_debug = FALSE;
+//			most_debug = FALSE;
 		}
 	} else {
 		return 1;

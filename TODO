@@ -14,6 +14,10 @@ $Id$
                  L = Cosmetic or nice to have.
 
 
+libdiesel.a:
+	U: Processed stringlines containing unbalanced " characters are not
+	   processed, instead the previous macro value will be returned.
+
 mbsebbs:
 	L: Must include SEEN-BY and other hidden lines into BlueWave  and QWK
 	   mail, must be user selectable. see remarks of William McBrine.

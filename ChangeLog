@@ -2,6 +2,8 @@ $Id$
 
 WARNING: Extra debug logging enabled for checking internet news dupes.
          This will just make bigger logfiles if you gate news.
+	 Since 28-08-2002 mbfido news produces real big logs!!
+
 
 				MBSEBBS History.
 
