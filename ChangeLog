@@ -12,6 +12,13 @@ v0.71.2		16-Jan-2005
 		data frames, this will case uncompress error -5 because zero
 		bytes can't be compressed ar all.
 
+	mbfido:
+		Empty *.msg netmails for our own system are dropped with and
+		logged (just like received empty netmails). Empty netmails to
+		remote systems are still stored in the netmail base.
+		Added debug logging for exporting netmails from the messagebase
+		so that we later can decide to mark these messages auto deleted.
+
 	mbnntp:
 		Does now send the right mime headers recognised by new clients.
 		Fixed compile problem with some compilers.

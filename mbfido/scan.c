@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for outgoing mail.
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -75,61 +75,60 @@ void ExportEmail(unsigned long);
  */
 void ScanMail(int DoAll)
 {
-	int		DoFull = FALSE, i = 0;
-	unsigned long	msg;
-	char		*Fname = NULL, *temp, *path;
-	FILE		*fp;
+    int		    DoFull = FALSE, i = 0;
+    unsigned long   msg;
+    char	    *Fname = NULL, *temp, *path;
+    FILE	    *fp;
 
-	if (DoAll) {
-		DoFull = TRUE;
-	} else {
-		scanned = 0;
-		Fname = calloc(PATH_MAX, sizeof(char));
-		temp  = calloc(PATH_MAX, sizeof(char));
+    if (DoAll) {
+	DoFull = TRUE;
+    } else {
+	scanned = 0;
+	Fname = calloc(PATH_MAX, sizeof(char));
+	temp  = calloc(PATH_MAX, sizeof(char));
 
-		sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
-		if ((fp = fopen(Fname, "r")) != NULL) {
-			while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
-				path = strtok(temp, " ");
-				msg = atol(strtok(NULL, "\n"));
-				Syslog('+', "Export message %lu from %s", msg, path);
-				ScanOne(path, msg);
-				i++;
-				Nopper();
-			}
-			fclose(fp);
-			unlink(Fname); 
-		}
-
-		sprintf(Fname, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
-		if ((fp = fopen(Fname, "r")) != NULL) {
-			while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
-				path = strtok(temp, " ");
-				msg = atol(strtok(NULL, "\n"));
-				Syslog('+', "Export message %lu from %s", msg, path);
-				ScanOne(path, msg);
-				i++;
-				Nopper();
-			}
-			fclose(fp);
-			unlink(Fname);
-		}
-
-		if ((i != scanned) || (i == 0)) {
-			Syslog('+', "Not all messages exported, forcing full mail scan");
-			Syslog('+', "i=%d scanned=%d", i, scanned);
-			DoFull = TRUE;
-		}
-		free(Fname);
-		free(temp);
+	sprintf(Fname, "%s/tmp/echomail.jam", getenv("MBSE_ROOT"));
+	if ((fp = fopen(Fname, "r")) != NULL) {
+	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
+		path = strtok(temp, " ");
+		msg = atol(strtok(NULL, "\n"));
+		Syslog('+', "Export message %lu from %s", msg, path);
+		ScanOne(path, msg);
+		i++;
+		Nopper();
+	    }
+	    fclose(fp);
+	    unlink(Fname); 
 	}
 
-	if (DoFull)
-		ScanFull();
+	sprintf(Fname, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	if ((fp = fopen(Fname, "r")) != NULL) {
+	    while ((fgets(temp, PATH_MAX - 1, fp)) != NULL) {
+		path = strtok(temp, " ");
+		msg = atol(strtok(NULL, "\n"));
+		Syslog('+', "Export message %lu from %s", msg, path);
+		ScanOne(path, msg);
+		i++;
+		Nopper();
+	    }
+	    fclose(fp);
+	    unlink(Fname);
+	}
 
-	if (echo_out || net_out)
-		do_flush = TRUE;
-	RemoveSema((char *)"mailout");
+	if ((i != scanned) || (i == 0)) {
+	    Syslog('+', "Not all messages exported, forcing full mail scan to fix this");
+	    DoFull = TRUE;
+	}
+	free(Fname);
+	free(temp);
+    }
+
+    if (DoFull)
+	ScanFull();
+
+    if (echo_out || net_out)
+	do_flush = TRUE;
+    RemoveSema((char *)"mailout");
 }
 
 
@@ -673,98 +672,98 @@ void ExportEcho(sysconnect L, unsigned long MsgNum, fa_list **sbl)
  */
 void ExportNews(unsigned long MsgNum, fa_list **sbl)
 {
-	char    *p;
-	int     seenlen, oldnet, flags = 0;
-	char    sbe[16];
-	fa_list *tmpl;
-	FILE    *qp;
-	faddr   *from, *dest;
-	int     kludges = TRUE;
+    char    *p;
+    int     seenlen, oldnet, flags = 0;
+    char    sbe[16];
+    fa_list *tmpl;
+    FILE    *qp;
+    faddr   *from, *dest;
+    int     kludges = TRUE;
 
-	qp = tmpfile();
+    qp = tmpfile();
 
-	Syslog('m', "Msg.From %s", Msg.From);
-	Syslog('m', "Msg.FromAddress %s", Msg.FromAddress);
-	Syslog('m', "Msg.To %s", Msg.To);
-	Syslog('m', "Msg.ToAdrress", Msg.ToAddress);
+    Syslog('m', "Msg.From %s", Msg.From);
+    Syslog('m', "Msg.FromAddress %s", Msg.FromAddress);
+    Syslog('m', "Msg.To %s", Msg.To);
+    Syslog('m', "Msg.ToAdrress", Msg.ToAddress);
 
-	flags |= (Msg.Private)          ? M_PVT : 0;
-	from = fido2faddr(msgs.Aka);
+    flags |= (Msg.Private)          ? M_PVT : 0;
+    from = fido2faddr(msgs.Aka);
 
-	/*
-	 * Add name with echo to news gate.
-	 */
-	from->name = xstrcpy(Msg.From);
-	Syslog('m', "from %s", ascinode(from, 0xff));
-	dest = NULL;
+    /*
+     * Add name with echo to news gate.
+     */
+    from->name = xstrcpy(Msg.From);
+    Syslog('m', "from %s", ascinode(from, 0xff));
+    dest = NULL;
 
-	fprintf(qp, "AREA:%s\n", msgs.Tag);
-	Syslog('m', "AREA:%s", msgs.Tag);
+    fprintf(qp, "AREA:%s\n", msgs.Tag);
+    Syslog('m', "AREA:%s", msgs.Tag);
 
-	if (Msg_Read(MsgNum, 79)) {
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				if (kludges) {
-					if (p[0] != '\001') {
-						/*
-						 * After the first kludges, send RFC headers
-						 */
-						kludges = FALSE;
-						fprintf(qp, "\001TID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
-						fprintf(qp, "Subject: %s\n", Msg.Subject);
-						Syslog('m', "Subject: %s", Msg.Subject);
-						fprintf(qp, "\n");
-						Syslog('m', "\n");
-						fprintf(qp, "%s\n", p);
-						Syslog('m', "%s", p);
-					} else {
-						fprintf(qp, "%s\n", p+1);
-						Syslog('m', "%s", p+1);
-					}
-				} else {
-					fprintf(qp, "%s", p);
-					Syslog('m', "%s", printable(p, 0));
-					if (strncmp(p, " * Origin:", 10) == 0)
-						break;
+    if (Msg_Read(MsgNum, 79)) {
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if (kludges) {
+		    if (p[0] != '\001') {
+			/*
+			 * After the first kludges, send RFC headers
+			 */
+			kludges = FALSE;
+			fprintf(qp, "\001TID: MBSE-FIDO %s (%s-%s)\n", VERSION, OsName(), OsCPU());
+			fprintf(qp, "Subject: %s\n", Msg.Subject);
+			Syslog('m', "Subject: %s", Msg.Subject);
+			fprintf(qp, "\n");
+			Syslog('m', "\n");
+			fprintf(qp, "%s\n", p);
+			Syslog('m', "%s", p);
+		    } else {
+			fprintf(qp, "%s\n", p+1);
+			Syslog('m', "%s", p+1);
+		    }
+		} else {
+		    fprintf(qp, "%s", p);
+		    Syslog('m', "%s", printable(p, 0));
+		    if (strncmp(p, " * Origin:", 10) == 0)
+			break;
 
-					/*
-					 * Only append NL if not the last line
-					 */
-					fprintf(qp, "\n");
-				}
-			} while ((p = (char *)MsgText_Next()) != NULL);
+		    /*
+		     * Only append NL if not the last line
+		     */
+		    fprintf(qp, "\n");
 		}
+	    } while ((p = (char *)MsgText_Next()) != NULL);
 	}
+    }
 
-	seenlen = MAXSEEN + 1;
-	/*
-	 * Ensure that it will not match the first entry.
-	 */
-	oldnet = (*sbl)->addr->net - 1;
-	for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
-		if (tmpl->addr->net == oldnet)
-			sprintf(sbe, " %u", tmpl->addr->node);
-		else
-			sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
-		oldnet = tmpl->addr->net;
-		seenlen += strlen(sbe);
-		if (seenlen > MAXSEEN) {
-			seenlen = 0;
-			fprintf(qp, "\nSEEN-BY:");
-			sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
-			seenlen = strlen(sbe);
-		}
-		fprintf(qp, "%s", sbe);
+    seenlen = MAXSEEN + 1;
+    /*
+     * Ensure that it will not match the first entry.
+     */
+    oldnet = (*sbl)->addr->net - 1;
+    for (tmpl = *sbl; tmpl; tmpl = tmpl->next) {
+	if (tmpl->addr->net == oldnet)
+	    sprintf(sbe, " %u", tmpl->addr->node);
+	else
+	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	oldnet = tmpl->addr->net;
+	seenlen += strlen(sbe);
+	if (seenlen > MAXSEEN) {
+	    seenlen = 0;
+	    fprintf(qp, "\nSEEN-BY:");
+	    sprintf(sbe, " %u/%u", tmpl->addr->net, tmpl->addr->node);
+	    seenlen = strlen(sbe);
 	}
-	fprintf(qp, "\n\001PATH: %u/%u\n", msgs.Aka.net, msgs.Aka.node);
-	Syslog('m', "\\001PATH: %u/%u", msgs.Aka.net, msgs.Aka.node);
+	fprintf(qp, "%s", sbe);
+    }
+    fprintf(qp, "\n\001PATH: %u/%u\n", msgs.Aka.net, msgs.Aka.node);
+    Syslog('m', "\\001PATH: %u/%u", msgs.Aka.net, msgs.Aka.node);
 
-	rewind(qp);
-	most_debug = TRUE;
-	ftn2rfc(from, dest, NULL, NULL, Msg.Written + (gmt_offset((time_t)0) * 60), flags, qp);
-	most_debug = FALSE;
-	tidy_faddr(from);
-	fclose(qp);
+    rewind(qp);
+    most_debug = TRUE;
+    ftn2rfc(from, dest, NULL, NULL, Msg.Written + (gmt_offset((time_t)0) * 60), flags, qp);
+    most_debug = FALSE;
+    tidy_faddr(from);
+    fclose(qp);
 }
 
 
@@ -775,7 +774,7 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
 void ExportNet(unsigned long MsgNum, int UUCPgate)
 {
     char	    *p, *q, ext[4], fromname[37], flavor, MailFrom[128], MailTo[128];
-    int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE, mypoint = FALSE;
+    int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE, mypoint = FALSE, empty = TRUE;
     FILE	    *qp, *fp, *fl;
     fidoaddr	    Dest, Route, *dest;
     time_t	    now;
@@ -802,10 +801,14 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
                     is_intl = TRUE;
 		if (strncmp(p, "--- ", 4) == 0)
                     break;
+		if ((p[0] != '\001') && (p[0] != '\0')) {
+		    empty = FALSE;
+		}
 	    } while ((p = (char *)MsgText_Next()) != NULL);
         }
     }
-
+    Syslog('m', " netmail is %sempt", empty ? "":"not ");
+    
     /*
      *  Check if this a netmail to our own local UUCP gate.
      */

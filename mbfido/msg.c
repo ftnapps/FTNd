@@ -4,7 +4,7 @@
  * Purpose ...............: Read *.msg messages
  *
  *****************************************************************************
- * Copyright (C) 1997-2004
+ * Copyright (C) 1997-2005
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -92,10 +92,11 @@ int toss_msgs(void)
  *  3 = Missing zone info
  *  4 = No ftn network or netmailboard in setup
  *  5 = Can't open JAM area
+ *  6 = Empty local netmail, dropped.
  */
 int toss_onemsg(char *msgname)
 {
-    int		    rc = 0, islocal;
+    int		    rc = 0, islocal, empty = TRUE;
     char	    *temp, *dospath, *flagstr = NULL, *l, *r, *msgid = NULL; 
     char	    fromUserName[36], toUserName[36], subject[72], DateTime[20];
     FILE	    *fp, *np;
@@ -230,7 +231,12 @@ int toss_onemsg(char *msgname)
 	    flagstr = xstrcpy(buf + 8);
 	    Syslog('m', "^aFLAGS: %s", flagstr);
 	}
+	if (buf[0] != '\0') {
+	    if ((buf[0] != '\001') && (strcmp(buf, (char *)"--- ")))
+		empty = FALSE;
+	}
     }
+    Syslog('m', "Mail is %sempty", empty ? "":"not ");
 
     Syslog('m', "From %d:%d/%d.%d to %d:%d/%d.%d", origZone, origNet, origNode, origPoint, destZone, destNet, destNode, destPoint);
     
@@ -291,6 +297,14 @@ int toss_onemsg(char *msgname)
 	    /*
 	     * Message is local, make the message appear as a received netmail
 	     */
+	    if (empty) {
+		Syslog('+', "Empty local netmail for %s dropped", toUserName);
+		Msg_UnLock();
+		Msg_Close();
+		fclose(fp);
+		free(temp);
+		return 6;
+	    }
 	    islocal = TRUE;
 	    if ((strncasecmp(toUserName, "sysop", 5) == 0) ||
 		(strncasecmp(toUserName, "postmaster", 10) == 0) ||
