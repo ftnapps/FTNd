@@ -53,6 +53,7 @@
 #include "lutil.h"
 #include "binkp.h"
 #include "config.h"
+#include "md5b.h"
 
 
 /*
@@ -70,7 +71,7 @@ static char	rbuf[2048];
 char		*unix2binkp(char *);
 char		*binkp2unix(char *);
 int		binkp_expired(void);
-void		b_banner(int);
+void		b_banner(void);
 void		b_nul(char *);
 void		fill_binkp_list(binkp_list **, file_list *, off_t);
 void		debug_binkp_list(binkp_list **);
@@ -87,7 +88,7 @@ static int	binkp_batch(file_list *, int);
 extern char	*ttystat[];
 extern int	Loaded;
 extern pid_t	mypid;
-
+extern struct sockaddr_in   peeraddr;
 
 extern unsigned long	sentbytes;
 extern unsigned long	rcvdbytes;
@@ -110,8 +111,8 @@ static int	CRCflag = FALSE;
 unsigned long	nethold, mailhold;
 int		transferred = FALSE;
 int		batchnr = 0, crc_errors = 0;
-
-
+unsigned char	*MD_challenge = NULL;			/* Received CRAM challenge data   */
+int		ext_rand = 0;
 
 int binkp(int role)
 {
@@ -398,7 +399,7 @@ int binkp_expired(void)
 
 
 
-void b_banner(int originate)
+void b_banner(void)
 {
     time_t  t;
 
@@ -448,13 +449,24 @@ void b_nul(char *msg)
 	    MBflag = TRUE;
 	if (strstr(msg, (char *)"ND") != NULL)
 	    NDflag = TRUE;
-	if (strstr(msg, (char *)"CRYPT") != NULL)
+	if (strstr(msg, (char *)"CRYPT") != NULL) {
 	    CRYPTflag = TRUE;
-	if (strstr(msg, (char *)"CRAM-") != NULL)
-	    CRAMflag = TRUE;
+//	    Syslog('+', "Remote requests CRYPT mode");
+	}
+	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
+	    if (CFG.NoMD5) {
+		Syslog('+', "Remote supports MD5, but it's turned off here");
+	    } else {
+		CRAMflag = TRUE;
+		Syslog('+', "Remote requests MD5 password");
+		if (MD_challenge)
+		    free(MD_challenge);
+		MD_challenge = MD_getChallenge(msg, NULL);
+	    }
+	}
 	if (strstr(msg, (char *)"CRC") != NULL) {
 	    CRCflag = TRUE;
-	    Syslog('b', "Switching to CRC32 mode");
+	    Syslog('+', "Switching to CRC32 mode");
 	}
     } else
 	Syslog('+', "M_NUL \"%s\"", msg);
@@ -493,8 +505,8 @@ SM_STATE(waitconn)
     Loaded = FALSE;
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
-    b_banner(TRUE);
     binkp_send_control(MM_NUL,"OPT MB CRC");
+    b_banner();
 
     /*
      * Build a list of aka's to send, the primary aka first.
@@ -521,17 +533,6 @@ SM_STATE(waitconn)
     binkp_send_control(MM_ADR, "%s", p);
     free(p);
     tidy_faddr(primary);
-    SM_PROCEED(sendpass)
-
-SM_STATE(sendpass)
-
-    if (strlen(nodes.Spasswd)) {
-	SendPass = TRUE;
-	binkp_send_control(MM_PWD, "%s", nodes.Spasswd);
-    } else { 
-	binkp_send_control(MM_PWD, "-");
-    }
-
     SM_PROCEED(waitaddr)
 
 SM_STATE(waitaddr)
@@ -595,7 +596,7 @@ SM_STATE(waitaddr)
 		history.aka.point = remote->addr->point;
 		sprintf(history.aka.domain, "%s", remote->addr->domain);
 
-		SM_PROCEED(authremote)
+		SM_PROCEED(sendpass)
 
 	    } else if (rbuf[0] == MM_BSY) {
 		Syslog('!', "Binkp: remote is busy");
@@ -610,6 +611,30 @@ SM_STATE(waitaddr)
 	    }
 	}
     }
+
+SM_STATE(sendpass)
+
+    if (MD_challenge && strlen(nodes.Spasswd) && CRAMflag) {
+	Syslog('b', "MD_challenge is set, building digest");
+	char *pw = xstrcpy(nodes.Spasswd);
+	char *tp = MD_buildDigest(pw, MD_challenge);
+	if (!tp) {
+	    Syslog('!', "Unable to build MD5 digest");
+	    SM_ERROR;
+	}
+	SendPass = TRUE;
+	binkp_send_control(MM_PWD, "%s", tp);
+	free(pw);
+    } else {
+	if (strlen(nodes.Spasswd)) {
+	    SendPass = TRUE;
+	    binkp_send_control(MM_PWD, "%s", nodes.Spasswd);
+	} else {
+	    binkp_send_control(MM_PWD, "-");
+	}
+    }
+
+    SM_PROCEED(authremote)
 
 SM_STATE(authremote)
 
@@ -690,7 +715,19 @@ SM_START(waitconn)
 SM_STATE(waitconn)
 
     Loaded = FALSE;
-    b_banner(FALSE);
+
+    if (!CFG.NoMD5 && ((MD_challenge = MD_getChallenge(NULL, &peeraddr)) != NULL)) {
+	/*
+	 * Answering site MUST send CRAM message as very first M_NUL
+	 */
+	char s[MD5_DIGEST_LEN*2+15]; /* max. length of opt string */
+	strcpy(s, "OPT ");
+	MD_toString(s+4, MD_challenge[0], MD_challenge+1);
+	CRAMflag = TRUE;
+	Syslog('b', "sending \"%s\"", s);
+	binkp_send_control(MM_NUL, "%s", s);
+    }
+    b_banner();
     p = xstrcpy((char *)"");
 
     for (i = 0; i < 40; i++)
@@ -822,7 +859,34 @@ SM_STATE(waitpwd)
 
 SM_STATE(pwdack)
 
-    if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
+    if ((strncmp(&rbuf[1], "CRAM-", 5) == 0) && CRAMflag && Loaded) {
+	char	*sp, *pw;
+	pw = xstrcpy(nodes.Spasswd);
+	sp = MD_buildDigest(pw, MD_challenge);
+	free(pw);
+	if (sp != NULL) {
+	    if (strcmp(&rbuf[1], sp)) {
+		Syslog('+', "Binkp: bad MD5 crypted password");
+		binkp_send_control(MM_ERR, "*** Password error, check setup ***");
+		free(sp);
+		sp = NULL;
+		SM_ERROR;
+	    } else {
+		free(sp);
+		sp = NULL;
+		Syslog('+', "Binkp: MD5 password OK, protected session");
+		if (inbound)
+		    free(inbound);
+		inbound = xstrcpy(CFG.pinbound);
+		binkp_send_control(MM_OK, "");
+		SM_SUCCESS;
+	    }
+	} else {
+	    Syslog('!', "Could not build MD5 digest");
+	    binkp_send_control(MM_ERR, "*** Internal error ***");
+	    SM_ERROR;
+	}
+    } else if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
 	Syslog('+', "Binkp: node not in setup, unprotected session");
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;

@@ -456,43 +456,44 @@ unsigned long sequencer()
 
 char *printable(char *s, int l)
 {
-	int	len;
-	char	*p;
+    int	    len;
+    char    *p;
 
-	if (pbuff) 
-		free(pbuff);
-	pbuff=NULL;
+    if (pbuff) 
+	free(pbuff);
+    pbuff=NULL;
 
-	if (s == NULL) 
-		return (char *)"(null)";
+    if (s == NULL) 
+	return (char *)"(null)";
 
-	if (l > 0) 
-		len=l;
-	else if (l == 0) 
-		len=strlen(s);
-	else {
-		len=strlen(s);
-		if (len > -l) 
-			len=-l;
-	}
+    if (l > 0) 
+	len=l;
+    else if (l == 0) 
+	len=strlen(s);
+    else {
+	len=strlen(s);
+	if (len > -l) 
+	    len=-l;
+    }
 
-	pbuff=(char*)xmalloc(len*4+1);
-	p=pbuff;
-	while (len--) {
-		if (*(unsigned char*)s >= ' ') 
-			*p++=*s;
-		else switch (*s) {
-			case '\\': *p++='\\'; *p++='\\'; break;
-			case '\r': *p++='\\'; *p++='r'; break;
-			case '\n': *p++='\\'; *p++='n'; break;
-			case '\t': *p++='\\'; *p++='t'; break;
-			case '\b': *p++='\\'; *p++='b'; break;
-			default:   sprintf(p,"\\%03o",*s); p+=4; break;
-		}
-		s++;
-	}
-	*p='\0';
-	return pbuff;
+    pbuff=(char*)xmalloc(len*4+1);
+    p=pbuff;
+    while (len--) {
+	if (isprint(*(unsigned char*)s))
+	    *p++=*s;
+	else 
+	    switch (*s) {
+		case '\\': *p++='\\'; *p++='\\'; break;
+		case '\r': *p++='\\'; *p++='r'; break;
+		case '\n': *p++='\\'; *p++='n'; break;
+		case '\t': *p++='\\'; *p++='t'; break;
+		case '\b': *p++='\\'; *p++='b'; break;
+		default:   sprintf(p,"\\%02x",*s); p+=3; break;
+	    }
+	    s++;
+    }
+    *p='\0';
+    return pbuff;
 }
 
 

@@ -717,7 +717,7 @@ struct	sysconfig {
 	long		dialdelay;		/* Delay between calls	    */
 	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
 	unsigned	NoCall		: 1;	/* Don't call		    */
-	unsigned	xNoHold		: 1;
+	unsigned	NoMD5		: 1;	/* Don't do MD5		    */
 	unsigned	xNoPUA		: 1;
 	unsigned	NoEMSI		: 1;	/* Don't do EMSI	    */
 	unsigned	NoWazoo		: 1;	/* Don't do Yooho/2U2	    */

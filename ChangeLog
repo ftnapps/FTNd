@@ -7,6 +7,9 @@ $Id$
 
 v0.37.4		10-May-2003
 
+	upgrade:
+		Check setting of menu 1.14.15
+
 	general:
 		Added check for inconv.h in configure script for UNIX98 
 		character set conversion.
@@ -22,11 +25,13 @@ v0.37.4		10-May-2003
 		Guess what, these packets do still exist in Fidonet, it took
 		5 years to find them! If you want to check, call 5:5/0
 		Fixed compiler warning in network code.
+		printable function now escapes all non-printable characters.
 
 	mbcico:
 		The binkp transmitter does now escape the unsafe filename
 		characters.
 		The binkp receiver now does process escaped filenames.
+		The binkp protocol now supports MD5 crypted passwords.
 
 	mbfido:
 		Stone age packet support, see common.a.
@@ -42,6 +47,9 @@ v0.37.4		10-May-2003
 	mbsebbs:
 		Increased internal message buffer size to 700 lines.
 		Fullscreen editor code cleanup, debug messages removed.
+
+	mbsetup:
+		In menu 1.14 added a switch to turn MD5 crypted passwords off.
 
 	unix:
 		Fixed compiler warning.

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -92,4 +92,14 @@ int IsZMH()
 }
 
 
+unsigned long rnd (void)
+{
+    static int	i;
+
+    if (!i) {
+	i = 1;
+	srand (time (0));
+    }
+    return (time (0) + rand ()) & 0xFFFFFFFFul;
+}
 

@@ -63,6 +63,7 @@ int	rx_define_type(void);
 static	int type;
 static	char *data=NULL;
 
+struct  sockaddr_in peeraddr;
 
 
 char *typestr(int);
@@ -83,7 +84,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 {
 	int	rc = MBERR_OK;
 	fa_list *tmpl;
-	struct	sockaddr_in peeraddr;
 	int	addrlen = sizeof(struct sockaddr_in);
 
 	session_flags = 0;
