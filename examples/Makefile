@@ -8,7 +8,7 @@ HDRS		= endian.h
 OBJS		= endian.o
 OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar \
 		  txtfiles-en.tar templates-en.tar templates-es.tar templates-de.tar \
-		  templates-nl.tar
+		  templates-nl.tar txtfiles-es.tar 
 
 #####################################################################################
 
