@@ -516,7 +516,7 @@ int outstat()
 	     * Here we are out of options, clear callflag.
 	     */
 	    if (tmp->callmode == CM_NONE) {
-		Syslog('!', "No method to call %s available", ascfnode(tmp->addr, 0x0f));
+		Syslog('!', "No method to call %s available", fido2str(tmp->addr, 0x0f));
 		tmp->flavors &= ~F_CALL;
 	    }
 	}
@@ -535,7 +535,7 @@ int outstat()
 	sprintf(temp, "%s %8s %08x %08x %08x %08x %5d %s %s %s", flstr, size_str(tmp->size),
 		(unsigned int)tmp->olflags, (unsigned int)tmp->moflags,
 		(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags,
-		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), ascfnode(tmp->addr, 0x0f));
+		tmp->cst.tryno, callstatus(tmp->cst.trystat), callmode(tmp->callmode), fido2str(tmp->addr, 0x0f));
 	Syslog('+', "%s", temp);
 
     } /* All nodes scanned. */
@@ -591,6 +591,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		     (strcasecmp((*tmp)->addr.domain,addr->domain) == 0)))
 			break;
 	if (*tmp == NULL) {
+		Syslog('-', "%s", ascfnode(addr, 0xff));
 		nlent = getnlent(addr);
 		*tmp = (struct _alist *)malloc(sizeof(struct _alist));
 		(*tmp)->next = NULL;

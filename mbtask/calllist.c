@@ -78,7 +78,7 @@ int check_calllist(void)
 		}
 	    }
 	    if (!found) {
-		Syslog('c', "Removing slot %d node %s from calllist", i, ascfnode(calllist[i].addr, 0x0f));
+		Syslog('c', "Removing slot %d node %s from calllist", i, fido2str(calllist[i].addr, 0x0f));
 		memset(&calllist[i], 0, sizeof(tocall));
 	    }
 	}
@@ -113,7 +113,7 @@ int check_calllist(void)
 		if (!found) {
 		    for (i = 0; i < MAXTASKS; i++) {
 			if (!calllist[i].addr.zone) {
-			    Syslog('c', "Adding %s to calllist slot %d", ascfnode(tmp->addr, 0x1f), i);
+			    Syslog('c', "Adding %s to calllist slot %d", fido2str(tmp->addr, 0x1f), i);
 			    calllist[i].addr = tmp->addr;
 			    calllist[i].cst = tmp->cst;
 			    calllist[i].callmode = tmp->callmode;
@@ -142,7 +142,7 @@ int check_calllist(void)
 	    call_work++;
 	    Syslog('c', "%4d %s %5d %3d %s %s %08x %08x %08x %s", i, calllist[i].calling?"true ":"false", calllist[i].taskpid,
 		calllist[i].cst.tryno, callstatus(calllist[i].cst.trystat), callmode(calllist[i].callmode),
-		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, ascfnode(calllist[i].addr, 0x1f));
+		calllist[i].moflags, calllist[i].diflags, calllist[i].ipflags, fido2str(calllist[i].addr, 0x1f));
 	}
     }
 

@@ -67,15 +67,15 @@ static char *mon[] = {
 char *date(void);
 char *date(void)
 {
-	struct  tm      ptm;
-	time_t          now;
-	static  char    buf[20];
+    struct tm   ptm;
+    time_t      now;
+    static char buf[20];
 
-	now = time(NULL);
-	ptm = *localtime(&now);
-	sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+    now = time(NULL);
+    ptm = *localtime(&now);
+    sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
-	return(buf);
+    return(buf);
 }
 
 
@@ -100,56 +100,56 @@ void WriteError(const char *format, ...)
  */
 void Syslog(int grade, const char *format, ...)
 {
-	va_list va_ptr;
-	char    outstr[1024];
-	int     oldmask;
-	FILE    *logfile;
-	char    *logname;
+    va_list va_ptr;
+    char    outstr[1024];
+    int     oldmask;
+    FILE    *logfile;
+    char    *logname;
 
-	if (grade == '+' || grade == '-' || grade == '!' || grade == '?' || grade == ' ' || TCFG.debug) {
-		va_start(va_ptr, format);
-		vsprintf(outstr, format, va_ptr);
-		va_end(va_ptr);
+    if (grade == '+' || grade == '-' || grade == '!' || grade == '?' || grade == ' ' || TCFG.debug) {
+	va_start(va_ptr, format);
+	vsprintf(outstr, format, va_ptr);
+	va_end(va_ptr);
 
-		tcrc = StringCRC32(outstr);
-		if (tcrc == lcrc) {
-		    lcnt++;
-		    return;
-		}
-		lcrc = tcrc;
-
-		logname = calloc(PATH_MAX, sizeof(char));
-		oldmask=umask(066);
-		sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
-		logfile = fopen(logname, "a");
-		umask(oldmask);
-		if (logfile == NULL) {
-			printf("Cannot open logfile \"%s\"\n", logname);
-			free(logname);
-			return;
-		}
-
-		if ((lcnt) && ((lchr == '+') || (lchr == '-') || (lchr == '!') || (lchr == '?') || (lchr == ' ') || TCFG.debug)) {
-		    lcnt++;
-		    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
-		}
-		lcnt = 0;
-
-		fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
-		fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
-		if (*outstr == '$')
-			fprintf(logfile, ": %s\n", strerror(errno));
-		else
-			fprintf(logfile, "\n");
-
-		fflush(logfile);
-		if (fclose(logfile) != 0)
-			printf("Cannot close logfile \"%s\"\n", logname);
-
-		lchr = grade;
-		free(logname);
+	tcrc = StringCRC32(outstr);
+	if (tcrc == lcrc) {
+	    lcnt++;
+	    return;
 	}
-	return;
+	lcrc = tcrc;
+
+	logname = calloc(PATH_MAX, sizeof(char));
+	oldmask=umask(066);
+	sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
+	logfile = fopen(logname, "a");
+	umask(oldmask);
+	if (logfile == NULL) {
+	    printf("Cannot open logfile \"%s\"\n", logname);
+	    free(logname);
+	    return;
+	}
+
+	if ((lcnt) && ((lchr == '+') || (lchr == '-') || (lchr == '!') || (lchr == '?') || (lchr == ' ') || TCFG.debug)) {
+	    lcnt++;
+	    fprintf(logfile, "%c %s mbtask[%d] last message repeated %d times\n", lchr, date(), getpid(), lcnt);
+	}
+	lcnt = 0;
+
+	fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
+	fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
+	if (*outstr == '$')
+	    fprintf(logfile, ": %s\n", strerror(errno));
+	else
+	    fprintf(logfile, "\n");
+
+	fflush(logfile);
+	if (fclose(logfile) != 0)
+	    printf("Cannot close logfile \"%s\"\n", logname);
+
+	lchr = grade;
+	free(logname);
+    }
+    return;
 }
 
 
@@ -159,117 +159,117 @@ void Syslog(int grade, const char *format, ...)
  */
 int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 {
-	int     oldmask;
-	FILE    *log;
+    int     oldmask;
+    FILE    *log;
         
-	oldmask = umask(066);
-	log = fopen(fn, "a");
-	umask(oldmask);
-	if (log == NULL) {
-		oserr = errno;
-		Syslog('!', "$Cannot open user logfile %s", fn);
-		return -1;
-	}
+    oldmask = umask(066);
+    log = fopen(fn, "a");
+    umask(oldmask);
+    if (log == NULL) {
+	oserr = errno;
+	Syslog('!', "$Cannot open user logfile %s", fn);
+	return -1;
+    }
 
-        fprintf(log, "%s %s %s[%s] ", grade, date(), prname, prpid);
-        fwrite(format, strlen(format), 1, log);
-        fprintf(log, "\n");
+    fprintf(log, "%s %s %s[%s] ", grade, date(), prname, prpid);
+    fwrite(format, strlen(format), 1, log);
+    fprintf(log, "\n");
 
-        fflush(log);
-        if (fclose(log) != 0) {
-                oserr = errno;
-                Syslog('!', "$Cannot close user logfile %s", fn);
-                return -1;
-        }
-        return 0;
+    fflush(log);
+    if (fclose(log) != 0) {
+        oserr = errno;
+        Syslog('!', "$Cannot close user logfile %s", fn);
+	return -1;
+    }
+    return 0;
 }
 
 
 
 char *xstrcpy(char *src)
 {
-        char    *tmp;
+    char    *tmp;
 
-        if (src == NULL) 
-                return(NULL);
-        tmp = malloc(strlen(src)+1);
-        strcpy(tmp, src);
-        return tmp;
+    if (src == NULL) 
+        return(NULL);
+    tmp = malloc(strlen(src)+1);
+    strcpy(tmp, src);
+    return tmp;
 }
 
 
 
 char *xstrcat(char *src, char *add)
 {
-        char    *tmp;
-        size_t  size = 0;
+    char    *tmp;
+    size_t  size = 0;
 
-        if ((add == NULL) || (strlen(add) == 0))
-                return src;
-        if (src)
-                size = strlen(src);
-        size += strlen(add);
-        tmp = malloc(size + 1);
-        *tmp = '\0';
-        if (src) {
-                strcpy(tmp, src);
-                free(src);
-        }
-        strcat(tmp, add);
-        return tmp;
+    if ((add == NULL) || (strlen(add) == 0))
+        return src;
+    if (src)
+        size = strlen(src);
+    size += strlen(add);
+    tmp = malloc(size + 1);
+    *tmp = '\0';
+    if (src) {
+        strcpy(tmp, src);
+        free(src);
+    }
+    strcat(tmp, add);
+    return tmp;
 }
 
 
 
 void CreateSema(char *sem)
 {
-        char    temp[PATH_MAX];
-        int     fd;
+    char    temp[PATH_MAX];
+    int     fd;
 
-        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
-	if (access(temp, F_OK) == 0)
-		return;
-        if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
-                close(fd);
-        else
-                Syslog('?', "Can't create semafore %s", temp);
+    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    if (access(temp, F_OK) == 0)
+	return;
+    if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
+        close(fd);
+    else
+        Syslog('?', "Can't create semafore %s", temp);
 }
 
 
 
 void TouchSema(char *sem)
 {
-        char    temp[PATH_MAX];
-        int     fd;
+    char    temp[PATH_MAX];
+    int     fd;
 
-        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
-        if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
-                close(fd);
-        } else
-                Syslog('?', "Can't touch semafore %s", temp);
+    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
+        close(fd);
+    } else
+        Syslog('?', "Can't touch semafore %s", temp);
 }
 
 
 
 void RemoveSema(char *sem)
 {
-        char    temp[PATH_MAX];
+    char    temp[PATH_MAX];
 
-        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
-	if (access(temp, F_OK))
-		return;
-        if (unlink(temp) == -1)
-                Syslog('?', "Can't remove semafore %s", temp);
+    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    if (access(temp, F_OK))
+	return;
+    if (unlink(temp) == -1)
+        Syslog('?', "Can't remove semafore %s", temp);
 }
 
 
 
 int IsSema(char *sem)
 {
-	char    temp[PATH_MAX];
+    char    temp[PATH_MAX];
 
-	sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
-	return (access(temp, F_OK) == 0);
+    sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+    return (access(temp, F_OK) == 0);
 }
 
 
@@ -283,10 +283,10 @@ int IsSema(char *sem)
  */ 
 int file_exist(char *path, int mode)
 {
-	if (access(path, mode) != 0)
-		return errno;
+    if (access(path, mode) != 0)
+	return errno;
 
-	return 0;
+    return 0;
 }
 
 
@@ -295,32 +295,32 @@ int file_exist(char *path, int mode)
  */
 int mkdirs(char *name, mode_t mode)
 {
-        char    buf[PATH_MAX], *p, *q;
-        int     rc, last = 0, oldmask;
+    char    buf[PATH_MAX], *p, *q;
+    int     rc, last = 0, oldmask;
 
-        memset(&buf, 0, sizeof(buf));
-        strncpy(buf, name, sizeof(buf)-1);
-        buf[sizeof(buf)-1] = '\0';
+    memset(&buf, 0, sizeof(buf));
+    strncpy(buf, name, sizeof(buf)-1);
+    buf[sizeof(buf)-1] = '\0';
 
-        p = buf+1;
+    p = buf+1;
 
-        oldmask = umask(000);
-        while ((q = strchr(p, '/'))) {
-                *q = '\0';
-                rc = mkdir(buf, mode);
-                last = errno;
-                *q = '/';
-                p = q+1;
-        }
+    oldmask = umask(000);
+    while ((q = strchr(p, '/'))) {
+        *q = '\0';
+        rc = mkdir(buf, mode);
+        last = errno;
+        *q = '/';
+        p = q+1;
+    }
 
-        umask(oldmask);
+    umask(oldmask);
 
-        if ((last == 0) || (last == EEXIST)) {
-                return TRUE;
-        } else {
-                Syslog('?', "$mkdirs(%s)", name);
-                return FALSE;
-        }
+    if ((last == 0) || (last == EEXIST)) {
+        return TRUE;
+    } else {
+        Syslog('?', "$mkdirs(%s)", name);
+        return FALSE;
+    }
 }
 
 
@@ -330,12 +330,12 @@ int mkdirs(char *name, mode_t mode)
  */
 long file_size(char *path)
 {
-        static struct   stat sb;
+    static struct   stat sb;
 
-        if (stat(path, &sb) == -1)
-                return -1;
+    if (stat(path, &sb) == -1)
+        return -1;
 
-        return sb.st_size;
+    return sb.st_size;
 }
 
 
@@ -347,38 +347,58 @@ long file_size(char *path)
  */
 time_t file_time(char *path)
 {
-        static struct stat sb;
+    static struct stat sb;
 
-        if (stat(path, &sb) == -1)
-                return -1;
+    if (stat(path, &sb) == -1)
+        return -1;
 
-        return sb.st_mtime;
+    return sb.st_mtime;
 }
 
 
 /*
- * Return ASCII string for node, the bits in 'fl' set the
- * output format.
+ * Return ASCII string for node, the bits in 'fl' set the output format.
  */
-char *ascfnode(fidoaddr a, int fl)
+char *ascfnode(faddr *a, int fl)
 {
-        static char buf[128];
+    static char buf[128];
 
-        buf[0] = '\0';
-        if ((fl & 0x08) && (a.zone))
-                sprintf(buf+strlen(buf),"%u:",a.zone);
-        if (fl & 0x04)
-                sprintf(buf+strlen(buf),"%u/",a.net);
-        if (fl & 0x02)
-                sprintf(buf+strlen(buf),"%u",a.node);
-        if ((fl & 0x01) && (a.point))
-                sprintf(buf+strlen(buf),".%u",a.point);
-        if ((fl & 0x10) && (strlen(a.domain)))
-                sprintf(buf+strlen(buf),"@%s",a.domain);
-        return buf;
+    buf[0] = '\0';
+    if ((fl & 0x08) && (a->zone))
+        sprintf(buf+strlen(buf),"%u:",a->zone);
+    if (fl & 0x04)
+        sprintf(buf+strlen(buf),"%u/",a->net);
+    if (fl & 0x02)
+        sprintf(buf+strlen(buf),"%u",a->node);
+    if ((fl & 0x01) && (a->point))
+        sprintf(buf+strlen(buf),".%u",a->point);
+    if ((fl & 0x10) && (strlen(a->domain)))
+        sprintf(buf+strlen(buf),"@%s",a->domain);
+    return buf;
 }
 
 
+
+/*
+ * Return ASCII string for node, the bits in 'fl' set the output format.
+ */
+char *fido2str(fidoaddr a, int fl)
+{
+    static char buf[128];
+
+    buf[0] = '\0';
+    if ((fl & 0x08) && (a.zone))
+	sprintf(buf+strlen(buf),"%u:",a.zone);
+    if (fl & 0x04)
+	sprintf(buf+strlen(buf),"%u/",a.net);
+    if (fl & 0x02)
+	sprintf(buf+strlen(buf),"%u",a.node);
+    if ((fl & 0x01) && (a.point))
+	sprintf(buf+strlen(buf),".%u",a.point);
+    if ((fl & 0x10) && (strlen(a.domain)))
+	sprintf(buf+strlen(buf),"@%s",a.domain);
+    return buf;
+}
 
 char *Dos2Unix(char *dosname)
 {
