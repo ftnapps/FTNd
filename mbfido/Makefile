@@ -194,6 +194,6 @@ mbfcheck.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../l
 mbfpack.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfpack.h
 mbflist.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbflist.h
 mbfadopt.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h virscan.h mbfutil.h mbflist.h
-mbfimport.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfimport.h
+mbfimport.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h virscan.h mbfutil.h mbfimport.h
 virscan.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h virscan.h
 # End of generated dependencies

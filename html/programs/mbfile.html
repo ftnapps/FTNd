@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 19-Nov-2001</h5>
+<h5>Last update 25-Nov-2001</h5>
 <P>
 
 <H1>mbfile - File database maintenance program.</H1>
@@ -54,9 +54,7 @@ Adopt a file to the filebase. The description is optional, but if present it
 should be enclosed in quotes. The optional description may be 255 characters.
 Default mbfile will try to use the FILE_ID.DIZ if this is present. The file to
 adopt needs to be in your current directory and will be copied to the new area.
-If you have virus scanners defined, the file will be checked for virusses. If
-you have a different default archiver set for the destination file area then the
-file is archived with, the file will be rearchived.
+If you have virus scanners defined, the file will be checked for virusses. 
 
 <P>
 <code><strong>mbfile</strong> check</code>
@@ -69,10 +67,23 @@ value of the file. If there is something wrong, the error is corrected or the
 file is removed. If the area is a CD-rom area, the check that files on disk
 must exist in the filedatabase is skipped.
 <P>
+
+<code><strong>mbfile</strong> import &lt;area&gt;</code>
+Import files to the given area using files.bbs descriptions. 
+You need to be in the area where the files are stored. 
+There must also be the files.bbs file present, if not then in the area setup
+you must enter the full filename and path where the files.bbs is. This may
+be needed for some CD-roms where the files.bbs is not in the same directory
+as where the files are. The files are not checked for FILE_ID.DIZ inside the
+archives. If you have virus scanners defined, the files are checked for 
+virussed before the are added the the bbs.
+<P>
+
 <code><strong>mbfile</strong> index</code>
 Create fast filerequest index for the <strong>mbcico</strong> filerequest
 processor.
 <P>
+
 <code><strong>mbfile</strong> kill</code>
 Delete or move files in areas that have the <strong>download age</strong>
 set or the <strong>filedate age</strong> set. A setting of 0 is ignored.
@@ -82,9 +93,12 @@ upload date and download date are reset to the current date and time.
 So if you set in the destination area aging of 14 days, files will stay
 there for 14 days after the move. This is good for automatic "last chance" areas.
 <P>
-<code><strong>mbfile</strong> list</code>
+
+<code><strong>mbfile</strong> list [area]</code>
 List all defined file areas, the number of files, the total size of the files
-and the primary group.
+and the primary group. If and area is given on the commandline, the files in
+that area are listed.
+
 <P>
 <code><strong>mbfile</strong> pack</code>
 This command will actualy remove the records of files that are marked for
@@ -97,6 +111,11 @@ until you run <strong>mbfile pack</strong>.
 <P>
 <code><strong>mbfile</strong> [command] -quiet</code>
 Quiet mode, no screen output. Use this switch if you run <strong>mbfile</strong> from the crontab.
+<P>
+<code><strong>mbfile</strong> [command] -announce</code>
+Announce mode, use this switch with the adopt and import commands to prevent
+that the added file(s) will be announced. This can be usefull if you add lots of
+files that you don't want to announce these as new files.
 <P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;

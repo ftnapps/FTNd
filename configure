@@ -937,7 +937,7 @@ ac_config_headers="$ac_config_headers config.h"
 
 ac_config_commands="$ac_config_commands default-1"
 
-SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup fbutil import lang examples html script"
+SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup import lang examples html script"
 
 PACKAGE="mbsebbs"
 VERSION="0.33.19"
