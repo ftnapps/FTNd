@@ -5,6 +5,14 @@ v0.51.3		22-Mar-2003
 	mbtask:
 		Signal handler for sigchld set to sig_dfl, test for Fedora.
 
+	mbsetup:
+		Added experimental sitedoc creation in html format.
+		The advantage of html over the old plain doc is to easy see 
+		crossreferences using hyperlinks.
+		The html files are created in /opt/mbse/doc/html.
+		The ~/doc/xref.doc and ~/doc/stat.doc are not created anymore,
+		there was nothing in it yet.
+
 
 v0.51.2		06-Mar-2004 - 22-Mar-2003
 

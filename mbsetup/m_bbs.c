@@ -92,16 +92,31 @@ void bbs_menu(void)
 
 int bbs_doc(FILE *fp, FILE *toc, int page)
 {
-	page = newpage(fp, page);
-	addtoc(fp, toc, 8, 0, page, (char *)"BBS setup");
+    FILE    *wp;
+    
+    if ((wp = open_webdoc((char *)"bbs.html", (char *)"BBS Setup", NULL))) {
+	fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+	fprintf(wp, "<UL>\n");
+	fprintf(wp, " <LI><A HREF=\"limits.html\">Security Limits</A></LI>\n");
+	fprintf(wp, " <LI><A HREF=\"language.html\">Language Setup</A></LI>\n");
+	fprintf(wp, " <LI><A HREF=\"menus.html\">BBS Menus</A></LI>\n");
+	fprintf(wp, " <LI><A HREF=\"fileareas.html\">File Areas</A></LI>\n");
+	fprintf(wp, " <LI><A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
+	fprintf(wp, " <LI><A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
+	fprintf(wp, "</UL>\n");
+	fclose(wp);
+    }
 
-	page = bbs_limits_doc(fp, toc, page);
-	page = bbs_lang_doc(fp, toc, page);
-	page = bbs_menu_doc(fp, toc, page);
-	page = bbs_file_doc(fp, toc, page);
-	page = bbs_prot_doc(fp, toc, page);
+    page = newpage(fp, page);
+    addtoc(fp, toc, 8, 0, page, (char *)"BBS setup");
 
-	return page;
+    page = bbs_limits_doc(fp, toc, page);
+    page = bbs_lang_doc(fp, toc, page);
+    page = bbs_menu_doc(fp, toc, page);
+    page = bbs_file_doc(fp, toc, page);
+    page = bbs_prot_doc(fp, toc, page);
+
+    return page;
 }
 
 

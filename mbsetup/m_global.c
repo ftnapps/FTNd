@@ -39,6 +39,7 @@
 #include "m_new.h"
 #include "m_fgroup.h"
 #include "m_mgroup.h"
+#include "m_limits.h"
 #include "m_global.h"
 
 
@@ -1595,137 +1596,303 @@ int PickAka(char *msg, int openit)
 
 
 
+void web_secflags(FILE *fp, char *name, securityrec sec)
+{
+    int	    i;
+
+    fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%d (%s)</TD></TR>\n", name, sec.level, get_limit_name(sec.level));
+    for (i = 0; i < 32; i++) {
+	if ((sec.flags >> i) & 1) {
+	    fprintf(fp, "<TR><TH>&nbsp;</TH><TD>.and. bit %d (%s)</TD></TR>\n", i, CFG.fname[i]);
+	} else if ((sec.notflags >> i) & 1) {
+	    fprintf(fp, "<TR><TH>&nbsp;</TH><TD>.and not. bit %d (%s)</TD></TR>\n", i, CFG.fname[i]);
+	}
+    }
+}
+
+
+
 int global_doc(FILE *fp, FILE *toc, int page)
 {
-	int	i, j;
-	struct	utsname	utsbuf;
-	time_t	now;
-	char	*p;
+    int		    i, j;
+    struct utsname  utsbuf;
+    time_t	    now;
+    char	    *p, temp[1024];
+    FILE	    *wp;
+    
+    if (config_read())
+	return page;
 
-	if (config_read())
-		return page;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 0, page, (char *)"Global system setup");
+    addtoc(fp, toc, 1, 1, page, (char *)"Host system information");
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 0, page, (char *)"Global system setup");
-	addtoc(fp, toc, 1, 1, page, (char *)"Host system information");
+    wp = open_webdoc((char *)"global.html", (char *)"Global Configuration", NULL);
+    fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(wp, "<UL>\n");
+    fprintf(wp, " <LI><A HREF=\"#_host\">Host System Information</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_akas\">System fidonet addresses</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_reginfo\">Registration information</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_filenames\">Global filenames</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_pathnames\">Pathnames</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_global\">Global settings</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_security\">Users flag descriptions</A></LI>\n");
+    fprintf(wp, "</UL>\n");
+    fprintf(wp, "<HR>\n");
 
-	memset(&utsbuf, 0, sizeof(utsbuf));
-	if (uname(&utsbuf) == 0) {
-		fprintf(fp, "      Node name        %s\n", utsbuf.nodename);
+    fprintf(wp, "<A NAME=\"_host\"></A><H3>Host System Information</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    memset(&utsbuf, 0, sizeof(utsbuf));
+    if (uname(&utsbuf) == 0) {
+	add_webtable(wp, (char *)"Node name", utsbuf.nodename);
+	fprintf(fp, "      Node name        %s\n", utsbuf.nodename);
 #ifdef __USE_GNU
-		fprintf(fp, "      Domain name      %s\n", utsbuf.domainname);
+	add_webtable(wp, (char *)"Domain name", utsbuf.domainname);
+	fprintf(fp, "      Domain name      %s\n", utsbuf.domainname);
 #else
 #ifdef __linux__
-		fprintf(fp, "      Domain name      %s\n", utsbuf.__domainname);
+	add_webtable(wp, (char *)"Domain name", utsbuf.__domainname);
+	fprintf(fp, "      Domain name      %s\n", utsbuf.__domainname);
 #endif
 #endif
-		fprintf(fp, "      Operating system %s %s\n", utsbuf.sysname, utsbuf.release);
-		fprintf(fp, "      Kernel version   %s\n", utsbuf.version);
-		fprintf(fp, "      Machine type     %s\n", utsbuf.machine);
+	sprintf(temp, "%s %s", utsbuf.sysname, utsbuf.release);
+	add_webtable(wp, (char *)"Operating system", temp);
+	fprintf(fp, "      Operating system %s %s\n", utsbuf.sysname, utsbuf.release);
+	add_webtable(wp, (char *)"Kernel version", utsbuf.version);
+	fprintf(fp, "      Kernel version   %s\n", utsbuf.version);
+	add_webtable(wp, (char *)"Machine type", utsbuf.machine);
+	fprintf(fp, "      Machine type     %s\n", utsbuf.machine);
+    }
+    add_webtable(wp, (char *)"MBSE_ROOT", getenv("MBSE_ROOT"));
+    fprintf(fp, "      MBSE_ROOT        %s\n", getenv("MBSE_ROOT"));
+    now = time(NULL);
+    add_webtable(wp, (char *)"Date created", ctime(&now));
+    fprintf(fp, "      Date created     %s", ctime(&now));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    
+    fprintf(wp, "<A NAME=\"_akas\"></A><H3>System fidonet addresses</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    addtoc(fp, toc, 1, 2, page, (char *)"System fidonet addresses");
+    for (i = 0; i < 40; i++) {
+	if (CFG.akavalid[i]) {
+	    fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
+	    sprintf(temp, "Aka %d", i+1);
+	    add_webtable(wp, temp, aka2str(CFG.aka[i]));
 	}
-	fprintf(fp, "      MBSE_ROOT        %s\n", getenv("MBSE_ROOT"));
-	now = time(NULL);
-	fprintf(fp, "      Date created     %s", ctime(&now));
+    }
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
 
-        addtoc(fp, toc, 1, 2, page, (char *)"System fidonet addresses");
-	for (i = 0; i < 40; i++)
-	    if (CFG.akavalid[i])
-		fprintf(fp, "      Aka %2d    %s\n", i+1, aka2str(CFG.aka[i]));
+    fprintf(wp, "<A NAME=\"_reginfo\"></A><H3>Registration information</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"System name", CFG.bbs_name);
+    add_webtable(wp, (char *)"Domain name", CFG.sysdomain);
+    add_webtable(wp, (char *)"Sysop unix name", CFG.sysop);
+    add_webtable(wp, (char *)"Sysop fido name", CFG.sysop_name);
+    add_webtable(wp, (char *)"System location", CFG.location);
+    add_webtable(wp, (char *)"QWK/Bluewave id", CFG.bbsid);
+    add_webtable(wp, (char *)"Omen id", CFG.bbsid2);
+    add_webtable(wp, (char *)"Comment", CFG.comment);
+    add_webtable(wp, (char *)"Origin line", CFG.origin);
+    add_webtable(wp, (char *)"Start unix name", CFG.startname);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    addtoc(fp, toc, 1, 3, page, (char *)"Registration information");
+    fprintf(fp, "      System name      %s\n", CFG.bbs_name);
+    fprintf(fp, "      Domain name      %s\n", CFG.sysdomain);
+    fprintf(fp, "      Sysop unix name  %s\n", CFG.sysop);
+    fprintf(fp, "      Sysop fido name  %s\n", CFG.sysop_name);
+    fprintf(fp, "      System location  %s\n", CFG.location);
+    fprintf(fp, "      QWK/Bluewave id  %s\n", CFG.bbsid);
+    fprintf(fp, "      Omen id          %s\n", CFG.bbsid2);
+    fprintf(fp, "      Comment          %s\n", CFG.comment);
+    fprintf(fp, "      Origin line      %s\n", CFG.origin);
+    fprintf(fp, "      Start unix name  %s\n", CFG.startname);
 
-	page = newpage(fp, page);
+    fprintf(wp, "<A NAME=\"_filenames\"></A><H3>Global filenames</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"System logfile", CFG.logfile);
+    add_webtable(wp, (char *)"Error logfile", CFG.error_log);
+    add_webtable(wp, (char *)"Debug logfile", CFG.debuglog);
+    add_webtable(wp, (char *)"Manager logfile", CFG.mgrlog);
+    add_webtable(wp, (char *)"Default menu", CFG.default_menu);
+    add_webtable(wp, (char *)"Default language", CFG.current_language);
+    add_webtable(wp, (char *)"Chat logfile", CFG.chat_log);
+    add_webtable(wp, (char *)"Welcome logo", CFG.welcome_logo);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
+    fprintf(fp, "      System logfile   %s\n", CFG.logfile);
+    fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
+    fprintf(fp, "      Debug logfile    %s\n", CFG.debuglog);
+    fprintf(fp, "      Manager logfile  %s\n", CFG.mgrlog);
+    fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
+    fprintf(fp, "      Default language %s\n", CFG.current_language);
+    fprintf(fp, "      Chat logfile     %s\n", CFG.chat_log);
+    fprintf(fp, "      Welcome logo     %s\n", CFG.welcome_logo);
 
-	addtoc(fp, toc, 1, 3, page, (char *)"Registration information");
-	fprintf(fp, "      System name      %s\n", CFG.bbs_name);
-	fprintf(fp, "      Domain name      %s\n", CFG.sysdomain);
-	fprintf(fp, "      Sysop unix name  %s\n", CFG.sysop);
-	fprintf(fp, "      Sysop fido name  %s\n", CFG.sysop_name);
-	fprintf(fp, "      System location  %s\n", CFG.location);
-	fprintf(fp, "      QWK/Bluewave id  %s\n", CFG.bbsid);
-	fprintf(fp, "      Omen id          %s\n", CFG.bbsid2);
-	fprintf(fp, "      Comment          %s\n", CFG.comment);
-	fprintf(fp, "      Origin line      %s\n", CFG.origin);
-	fprintf(fp, "      Start unix name  %s\n", CFG.startname);
+    fprintf(wp, "<A NAME=\"_pathnames\"></A><H3>Pathnames</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"Menufiles", CFG.bbs_menus);
+    add_webtable(wp, (char *)"Textfiles", CFG.bbs_txtfiles);
+    add_webtable(wp, (char *)"Macro templates", CFG.bbs_macros);
+    add_webtable(wp, (char *)"Users homedirs", CFG.bbs_usersdir);
+    add_webtable(wp, (char *)"Nodelists", CFG.nodelists);
+    add_webtable(wp, (char *)"Unsafe inbound", CFG.inbound);
+    add_webtable(wp, (char *)"Known inbound", CFG.pinbound);
+    add_webtable(wp, (char *)"Outbound", CFG.outbound);
+    add_webtable(wp, (char *)"Outbound queue", CFG.out_queue);
+    add_webtable(wp, (char *)"*.msgs path", CFG.msgs_path);
+    add_webtable(wp, (char *)"Bad TIC's", CFG.badtic);
+    add_webtable(wp, (char *)"TIC queue", CFG.ticout);
+    add_webtable(wp, (char *)"Magic filerequests", CFG.req_magic);
+    add_webtable(wp, (char *)"DOS path", CFG.dospath);
+    add_webtable(wp, (char *)"Unix path", CFG.uxpath);
+    add_webtable(wp, (char *)"Leave case as is", getboolean(CFG.leavecase));
+    add_webtable(wp, (char *)"FTP base path", CFG.ftp_base);
+    add_webtable(wp, (char *)"Area lists", CFG.alists_path);
+    add_webtable(wp, (char *)"External editor", CFG.externaleditor);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
+    fprintf(fp, "      Menufiles        %s\n", CFG.bbs_menus);
+    fprintf(fp, "      Textfiles        %s\n", CFG.bbs_txtfiles);
+    fprintf(fp, "      Macros           %s\n", CFG.bbs_macros);
+    fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
+    fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
+    fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);
+    fprintf(fp, "      Known inbound    %s\n", CFG.pinbound);
+    fprintf(fp, "      Outbound         %s\n", CFG.outbound);
+    fprintf(fp, "      Out queue        %s\n", CFG.out_queue);
+    fprintf(fp, "      *.msgs path      %s\n", CFG.msgs_path);
+    fprintf(fp, "      Bad TIC's        %s\n", CFG.badtic);
+    fprintf(fp, "      TIC queue        %s\n", CFG.ticout);
+    fprintf(fp, "      Magic filereq.   %s\n", CFG.req_magic);
+    fprintf(fp, "      DOS path         %s\n", CFG.dospath);
+    fprintf(fp, "      Unix path        %s\n", CFG.uxpath);
+    fprintf(fp, "      Leave case as is %s\n", getboolean(CFG.leavecase));
+    fprintf(fp, "      FTP base path    %s\n", CFG.ftp_base);
+    fprintf(fp, "      Area lists       %s\n", CFG.alists_path);
+    fprintf(fp, "      External editor  %s\n", CFG.externaleditor);
 
-	addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
-	fprintf(fp, "      System logfile   %s\n", CFG.logfile);
-	fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
-	fprintf(fp, "      Debug logfile    %s\n", CFG.debuglog);
-	fprintf(fp, "      Manager logfile  %s\n", CFG.mgrlog);
-	fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
-	fprintf(fp, "      Default language %s\n", CFG.current_language);
-	fprintf(fp, "      Chat logfile     %s\n", CFG.chat_log);
-	fprintf(fp, "      Welcome logo     %s\n", CFG.welcome_logo);
+    fprintf(wp, "<A NAME=\"_global\"></A><H3>Global settings</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"Show new message areas", getboolean(CFG.NewAreas));
+    add_webtable(wp, (char *)"Exclude sysop from lists", getboolean(CFG.exclude_sysop));
+    add_webtable(wp, (char *)"Show connect info", getboolean(CFG.iConnectString));
+    add_webtable(wp, (char *)"Ask protocols", getboolean(CFG.iAskFileProtocols));
+    add_webdigit(wp, (char *)"Sysop security level", CFG.sysop_access);
+    add_webdigit(wp, (char *)"Minimum password length", CFG.password_length);
+    add_webtable(wp, (char *)"BBS loglevel", getloglevel(CFG.bbs_loglevel));
+    add_webtable(wp, (char *)"Util loglevel", getloglevel(CFG.util_loglevel));
+    sprintf(temp, "%c", CFG.iPasswd_Char);
+    add_webtable(wp, (char *)"Password char", temp);
+    add_webdigit(wp, (char *)"Idle timeout in minutes", CFG.idleout);
+    add_webdigit(wp, (char *)"Login enters", CFG.iCRLoginCount);
+    add_webdigit(wp, (char *)"Homedir quota in MByte", CFG.iQuota);
+    add_webdigit(wp, (char *)"Minimum location length", CFG.CityLen);
+    add_webdigit(wp, (char *)"OLR Max. messages", CFG.OLR_MaxMsgs);
+    add_webdigit(wp, (char *)"OLR Newfile days", CFG.OLR_NewFileLimit);
+    add_webdigit(wp, (char *)"OLR Max. filerequests", CFG.OLR_MaxReq);
+    add_webtable(wp, (char *)"Slowdown utilities", getboolean(CFG.slow_util));
+    add_webdigit(wp, (char *)"CrashMail security level", CFG.iCrashLevel);
+    add_webdigit(wp, (char *)"FileAttach security level", CFG.iAttachLevel);
+    add_webdigit(wp, (char *)"Free diskspace in MBytes", CFG.freespace);
+    if (CFG.max_logins)
+	sprintf(temp, "%d", CFG.max_logins);
+    else
+	sprintf(temp, "Unlimited");
+    add_webtable(wp, (char *)"Simultaneous logins", temp);
+    add_webdigit(wp, (char *)"Child priority", CFG.priority);
+    add_webtable(wp, (char *)"Sync on execute", getboolean(CFG.do_sync));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
+    fprintf(fp, "      Show new msgarea %s\n", getboolean(CFG.NewAreas));
+    fprintf(fp, "      Exclude sysop    %s\n", getboolean(CFG.exclude_sysop));
+    fprintf(fp, "      Show connect     %s\n", getboolean(CFG.iConnectString));
+    fprintf(fp, "      Ask protocols    %s\n", getboolean(CFG.iAskFileProtocols)); 
+    fprintf(fp, "      Sysop level      %d\n", CFG.sysop_access); 
+    fprintf(fp, "      Password length  %d\n", CFG.password_length);
+    p = getloglevel(CFG.bbs_loglevel);
+    fprintf(fp, "      BBS loglevel     %s\n", p);
+    free(p);
+    p = getloglevel(CFG.util_loglevel);
+    fprintf(fp, "      Util loglevel    %s\n", p);
+    free(p);
+    fprintf(fp, "      Password char    %c\n", CFG.iPasswd_Char);
+    fprintf(fp, "      Idle timeout     %d mins\n", CFG.idleout);
+    fprintf(fp, "      Login enters     %d\n", CFG.iCRLoginCount);
+    fprintf(fp, "      Homedir quota    %d MB.\n", CFG.iQuota);
+    fprintf(fp, "      Location length  %d\n", CFG.CityLen);
+    fprintf(fp, "      OLR Max. msgs.   %d\n", CFG.OLR_MaxMsgs);
+    fprintf(fp, "      OLR Newfile days %d\n", CFG.OLR_NewFileLimit);
+    fprintf(fp, "      OLR Max Freq's   %d\n", CFG.OLR_MaxReq);
+    fprintf(fp, "      Slow utilities   %s\n", getboolean(CFG.slow_util));
+    fprintf(fp, "      CrashMail level  %d\n", CFG.iCrashLevel);
+    fprintf(fp, "      FileAttach level %d\n", CFG.iAttachLevel);
+    fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
+    if (CFG.max_logins)
+	fprintf(fp, "      Simult. logins   %d\n", CFG.max_logins);
+    else
+	fprintf(fp, "      Simult. logins   unlimited\n");
+    fprintf(fp, "      Child priority   %d\n", CFG.priority);
+    fprintf(fp, "      Sync on execute  %s\n", getboolean(CFG.do_sync));
 
-	addtoc(fp, toc, 1, 5, page, (char *)"Pathnames");
-	fprintf(fp, "      Menufiles        %s\n", CFG.bbs_menus);
-	fprintf(fp, "      Textfiles        %s\n", CFG.bbs_txtfiles);
-	fprintf(fp, "      Macros           %s\n", CFG.bbs_macros);
-	fprintf(fp, "      Users homedirs   %s\n", CFG.bbs_usersdir);
-	fprintf(fp, "      Nodelists        %s\n", CFG.nodelists);
-	fprintf(fp, "      Unsafe inbound   %s\n", CFG.inbound);
-	fprintf(fp, "      Known inbound    %s\n", CFG.pinbound);
-	fprintf(fp, "      Outbound         %s\n", CFG.outbound);
-	fprintf(fp, "      Out queue        %s\n", CFG.out_queue);
-	fprintf(fp, "      *.msgs path      %s\n", CFG.msgs_path);
-	fprintf(fp, "      Bad TIC's        %s\n", CFG.badtic);
-	fprintf(fp, "      TIC queue        %s\n", CFG.ticout);
-	fprintf(fp, "      Magic filereq.   %s\n", CFG.req_magic);
-	fprintf(fp, "      DOS path         %s\n", CFG.dospath);
-	fprintf(fp, "      Unix path        %s\n", CFG.uxpath);
-	fprintf(fp, "      Leave case as is %s\n", getboolean(CFG.leavecase));
-	fprintf(fp, "      FTP base path    %s\n", CFG.ftp_base);
-	fprintf(fp, "      Area lists       %s\n", CFG.alists_path);
-	fprintf(fp, "      External editor  %s\n", CFG.externaleditor);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
-
-	fprintf(fp, "      Show new msgarea %s\n", getboolean(CFG.NewAreas));
-	fprintf(fp, "      Exclude sysop    %s\n", getboolean(CFG.exclude_sysop));
-	fprintf(fp, "      Show connect     %s\n", getboolean(CFG.iConnectString));
-	fprintf(fp, "      Ask protocols    %s\n", getboolean(CFG.iAskFileProtocols)); 
-	fprintf(fp, "      Sysop level      %d\n", CFG.sysop_access); 
-	fprintf(fp, "      Password length  %d\n", CFG.password_length);
-	p = getloglevel(CFG.bbs_loglevel);
-	fprintf(fp, "      BBS loglevel     %s\n", p);
-	free(p);
-	p = getloglevel(CFG.util_loglevel);
-	fprintf(fp, "      Util loglevel    %s\n", p);
-	free(p);
-	fprintf(fp, "      Password char    %c\n", CFG.iPasswd_Char);
-	fprintf(fp, "      Idle timeout     %d mins\n", CFG.idleout);
-	fprintf(fp, "      Login enters     %d\n", CFG.iCRLoginCount);
-	fprintf(fp, "      Homedir quota    %d MB.\n", CFG.iQuota);
-	fprintf(fp, "      Location length  %d\n", CFG.CityLen);
-	fprintf(fp, "      OLR Max. msgs.   %d\n", CFG.OLR_MaxMsgs);
-	fprintf(fp, "      OLR Newfile days %d\n", CFG.OLR_NewFileLimit);
-	fprintf(fp, "      OLR Max Freq's   %d\n", CFG.OLR_MaxReq);
-	fprintf(fp, "      Slow utilities   %s\n", getboolean(CFG.slow_util));
-	fprintf(fp, "      CrashMail level  %d\n", CFG.iCrashLevel);
-	fprintf(fp, "      FileAttach level %d\n", CFG.iAttachLevel);
-	fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
-	if (CFG.max_logins)
-	    fprintf(fp, "      Simult. logins   %d\n", CFG.max_logins);
-	else
-	    fprintf(fp, "      Simult. logins   unlimited\n");
-	fprintf(fp, "      Child priority   %d\n", CFG.priority);
-	fprintf(fp, "      Sync on execute  %s\n", getboolean(CFG.do_sync));
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");
-	fprintf(fp, "               1    1    2    2    3 3\n");
-	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
-	fprintf(fp, "      --------------------------------\n");
-	fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
-	for (i = 0; i < 32; i++) {
-	    fprintf(fp, "      ");
-	    for (j = 0; j < (31 - i); j++)
-		fprintf(fp, "|");
-	    fprintf(fp, "+");
-	    for (j = (32 - i); j < 32; j++)
-		fprintf(fp, "-");
-	    fprintf(fp, " %s\n", CFG.fname[31 - i]);
-	}
+    fprintf(wp, "<A NAME=\"_security\"></A><H3>Users flag descriptions</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    for (i = 0; i < 32; i++) {
+	sprintf(temp, "Bit %d", i+1);
+	add_webtable(wp, temp, CFG.fname[i]);
+    }
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");
+    fprintf(fp, "               1    1    2    2    3 3\n");
+    fprintf(fp, "      1   5    0    5    0    5    0 2\n");
+    fprintf(fp, "      --------------------------------\n");
+    fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
+    for (i = 0; i < 32; i++) {
+	fprintf(fp, "      ");
+        for (j = 0; j < (31 - i); j++)
+	   fprintf(fp, "|");
+	fprintf(fp, "+");
+	for (j = (32 - i); j < 32; j++)
+	    fprintf(fp, "-");
+	fprintf(fp, " %s\n", CFG.fname[31 - i]);
+    }
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
@@ -1897,7 +2064,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	    fprintf(fp, " %s\n", CFG.aname[31 - i]);
 	}
 
-	return page;
+    close_webdoc(wp);
+    return page;
 }
 
 

@@ -22,7 +22,7 @@ OBJS		= grlist.o m_domain.o m_fgroup.o m_lang.o m_marea.o m_new.o m_protocol.o \
 		  m_magic.o m_mgroup.o m_node.o m_task.o m_users.o screen.o m_bbs.o m_ff.o \
 		  m_hatch.o m_mail.o m_modem.o m_ol.o m_tic.o m_virus.o stlist.o m_bbslist.o \
 		  m_route.o
-LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a
+LIBS		+= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
 OTHER		= Makefile
 
 #############################################################################
@@ -88,10 +88,10 @@ m_menu.o: ../config.h ../lib/mbselib.h mutil.h screen.h ledit.h m_lang.h m_menu.
 m_ngroup.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_ngroup.h
 m_service.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_service.h
 m_tty.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_modem.h m_global.h m_tty.h
-mutil.o: ../config.h ../lib/mbselib.h screen.h mutil.h
+mutil.o: ../config.h ../lib/mbselib.h ../lib/diesel.h screen.h mutil.h
 m_archive.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_archive.h
 m_fdb.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_farea.h m_fdb.h
-m_global.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_fgroup.h m_mgroup.h m_global.h
+m_global.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_fgroup.h m_mgroup.h m_limits.h m_global.h
 m_magic.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_ticarea.h m_global.h m_magic.h
 m_mgroup.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_node.h m_marea.h m_mgroup.h
 m_node.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h grlist.h stlist.h m_global.h m_lang.h m_ticarea.h m_marea.h m_node.h

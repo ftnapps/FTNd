@@ -510,48 +510,85 @@ void gold_akamatch(FILE *fp)
 
 int fido_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
-	FILE	*fido;
-	int	i, j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *fido;
+    int	    i, j;
 
-	sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	if ((fido = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fido = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 2, 0, page, (char *)"Fidonet networks");
-	j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 2, 0, page, (char *)"Fidonet networks");
+    j = 0;
 
-	fprintf(fp, "\n\n");
-	fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
-	while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
+    fprintf(fp, "\n\n");
+    fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
 
-		if (j == 6) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
+    ip = open_webdoc((char *)"fidonet.html", (char *)"Fidonet networks", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
 
-		fprintf(fp, "     Comment      %s\n", fidonet.comment);
-		fprintf(fp, "     Domain       %s\n", fidonet.domain);
-		fprintf(fp, "     Available    %s\n", getboolean(fidonet.available));
-		fprintf(fp, "     Nodelist     %s\n", fidonet.nodelist);
-		for (i = 0; i < 6; i++)
-			if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone) {
-				fprintf(fp, "     Merge list %d %-8s %d:%d/%d\n", i+1, 
-						fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
-						fidonet.seclist[i].net, fidonet.seclist[i].node);
-			}
-		fprintf(fp, "     Zone(s)      ");
-		for (i = 0; i < 6; i++)
-			if (fidonet.zone[i])
-				fprintf(fp, "%d ", fidonet.zone[i]);
-		fprintf(fp, "\n\n\n");
-		j++;
+	if (j == 6) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(fido);
-	return page;
+	sprintf(temp, "fidonet_%d.html", fidonet.zone[0]);
+	fprintf(ip, " <LI><A HREF=\"%s\">Zone %d</A> %s</LI>\n", temp, fidonet.zone[0], fidonet.comment);
+	
+	if ((wp = open_webdoc(temp, (char *)"Fidonet network", fidonet.comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"fidonet.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Comment", fidonet.comment);
+	    add_webtable(wp, (char *)"Domain", fidonet.domain);
+	    add_webtable(wp, (char *)"Available", getboolean(fidonet.available));
+	    add_webtable(wp, (char *)"Nodelist", fidonet.nodelist);
+	    for (i = 0; i < 6; i++)
+		if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone) {
+		    sprintf(temp, "%d %-8s %d:%d/%d", i+1, fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
+			fidonet.seclist[i].net, fidonet.seclist[i].node);
+		    add_webtable(wp, (char *)"Merge list", temp);
+		}
+	    sprintf(temp, "%d", fidonet.zone[0]);
+	    for (i = 1; i < 6; i++)
+		if (fidonet.zone[i])
+		    sprintf(temp, "%s %d", temp, fidonet.zone[i]);
+	    add_webtable(wp, (char *)"Zone(s)", temp);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "     Comment      %s\n", fidonet.comment);
+	fprintf(fp, "     Domain       %s\n", fidonet.domain);
+	fprintf(fp, "     Available    %s\n", getboolean(fidonet.available));
+	fprintf(fp, "     Nodelist     %s\n", fidonet.nodelist);
+	for (i = 0; i < 6; i++)
+	    if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone) {
+		fprintf(fp, "     Merge list %d %-8s %d:%d/%d\n", i+1, 
+						fidonet.seclist[i].nodelist, fidonet.seclist[i].zone,
+						fidonet.seclist[i].net, fidonet.seclist[i].node);
+	    }
+	fprintf(fp, "     Zone(s)      ");
+	for (i = 0; i < 6; i++)
+	    if (fidonet.zone[i])
+		fprintf(fp, "%d ", fidonet.zone[i]);
+	fprintf(fp, "\n\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+	
+    fclose(fido);
+    return page;
 }
 
 

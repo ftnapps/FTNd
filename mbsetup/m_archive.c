@@ -781,8 +781,8 @@ char *PickArchive(char *shdr)
 int archive_doc(FILE *fp, FILE *toc, int page)
 {
 	char	temp[PATH_MAX];
-	FILE	*arch;
-	int	j;
+	FILE	*arch, *wp, *ip;
+	int	i, j;
 
 	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
 	if ((arch = fopen(temp, "r")) == NULL)
@@ -790,7 +790,11 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 3, 0, page, (char *)"Archiver programs");
-	j = 0;
+	i = j = 0;
+
+	ip = open_webdoc((char *)"archivers.html", (char *)"Archivers", NULL);
+	fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+	fprintf(ip, "<UL>\n");
 
 	fprintf(fp, "\n\n");
 	fread(&archiverhdr, sizeof(archiverhdr), 1, arch);
@@ -801,6 +805,31 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "\n");
 			j = 0;
 		}
+
+		i++;
+		
+		sprintf(temp, "archiver_%d.html", i);
+		if ((wp = open_webdoc(temp, (char *)"Archiver", archiver.comment))) {
+		    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"archivers.html\">Back</A>\n");
+		    fprintf(wp, "<P>\n");
+		    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+		    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+		    fprintf(wp, "<TBODY>\n");
+		    add_webtable(wp, (char *)"Short name", archiver.name);
+		    add_webtable(wp, (char *)"Available", getboolean(archiver.available));
+		    add_webtable(wp, (char *)"Pack files", archiver.farc);
+		    add_webtable(wp, (char *)"Pack mail", archiver.marc);
+		    add_webtable(wp, (char *)"Pack banners", archiver.barc);
+		    add_webtable(wp, (char *)"Test archive", archiver.tarc);
+		    add_webtable(wp, (char *)"Unpack files", archiver.funarc);
+		    add_webtable(wp, (char *)"Unpack mail", archiver.munarc);
+		    add_webtable(wp, (char *)"Get FILE_ID.DIZ", archiver.iunarc);
+		    add_webtable(wp, (char *)"List archive", archiver.varc);
+		    fprintf(wp, "</TBODY>\n");
+		    fprintf(wp, "</TABLE>\n");
+		    close_webdoc(wp);
+		}
+		fprintf(ip, "<LI><A HREF=\"%s\">%s</A></LI>\n", temp, archiver.comment);
 
 		fprintf(fp, "     Comment         %s\n", archiver.comment);
 		fprintf(fp, "     Short name      %s\n", archiver.name);
@@ -818,6 +847,8 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 	}
 
 	fclose(arch);
+	fprintf(ip, "</UL>\n");
+	close_webdoc(ip);
 	return page;
 }
 

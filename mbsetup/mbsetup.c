@@ -188,161 +188,136 @@ void soft_info(void)
 void site_docs(void);
 void site_docs(void)
 {
-	FILE	*fp, *toc;
-	char	temp[PATH_MAX], temp1[PATH_MAX];
-	int	page = 0, line = 0;
+    FILE    *fp, *hp, *toc;
+    char    temp[PATH_MAX], temp1[PATH_MAX];
+    int	    page = 0, line = 0;
 
-	if (config_read() == -1)
-		return;
-
-	sprintf(temp, "%s/doc/site.doc", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "w")) == NULL)
-		return;
-
-	sprintf(temp1, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
-	if ((toc = fopen(temp1, "w+")) == NULL) {
-		fclose(fp);
-		return;
-	}
-
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Making Sitedocs");
-	Syslog('+', "Start creating sitedocs");
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "17.  CREATING SITEDOCS");
-	set_color(CYAN, BLACK);
-	mvprintw( 7,11, (char *)"Create document in file %s", temp);
-	fflush(stdout);
-
-	page = global_doc(fp, toc, page);
-	page = fido_doc(fp, toc, page);
-	page = archive_doc(fp, toc, page);
-	page = virus_doc(fp, toc, page);
-	page = modem_doc(fp, toc, page);
-	page = tty_doc(fp, toc, page);
-	page = node_doc(fp, toc, page);
-	page = bbs_doc(fp, toc, page);
-	page = mail_doc(fp, toc, page);
-	page = tic_doc(fp, toc, page);
-	page = newf_group_doc(fp, toc, page);
-	page = new_doc(fp, toc, page);
-	page = ff_doc(fp, toc, page);
-	page = service_doc(fp, toc, page);
-	page = domain_doc(fp, toc, page);
-	page = task_doc(fp, toc, page);
-	page = route_doc(fp, toc, page);
-
-	/*
-	 * Append table of contents
-	 */
-	page = newpage(fp, page);
-	addtoc(fp, toc, 17, 0, page, (char *)"Table of contents");
-	fprintf(fp, "\n\n");
-	line = 4;
-	rewind(toc);
-
-	while (fgets(temp, 256, toc) != NULL) {
-		fprintf(fp, "%s", temp);
-		line++;
-		if (line == 56) {
-			page = newpage(fp, page);
-			line = 0;
-		}
-	}
-
-	fprintf(fp, "\f");
-	fclose(fp);
-	fclose(toc);
-	unlink(temp1);
-
-	Syslog('+', "Sitedocs created");
-
-	page = line = 0;
-	sprintf(temp, "%s/doc/xref.doc", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "w")) == NULL)
-		return;
-
-	sprintf(temp1, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
-	if ((toc = fopen(temp1, "w+")) == NULL) {
-		fclose(fp);
-		return;
-	}
-
-	Syslog('+', "Start creating crossreference");
-	mvprintw( 8,11, (char *)"Create document in file %s", temp);
-	fflush(stdout);
-
-	page = limit_users_doc(fp, toc, page);
-
-	/*
-	 * Append table of contents
-	 */
-	page = newpage(fp, page);
-	addtoc(fp, toc, 99, 0, page, (char *)"Table of contents");
-	fprintf(fp, "\n\n");
-	line = 4;
-	rewind(toc);
-
-	while (fgets(temp, 256, toc) != NULL) {
-		fprintf(fp, "%s", temp);
-		line++;
-		if (line == 56) {
-			page = newpage(fp, page);
-			line = 0;
-		}
-	}
-
-	fprintf(fp, "\f");
-	fclose(fp);
-	fclose(toc);
-	unlink(temp1);
-
-	Syslog('+', "Crossreference created");
-
-	page = line = 0;
-	sprintf(temp, "%s/doc/stat.doc", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "w")) == NULL)
-		return;
-
-	sprintf(temp1, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
-	if ((toc = fopen(temp1, "w+")) == NULL) {
-		fclose(fp);
-		return;
-	}
-
-	Syslog('+', "Start creating statistics");
-	mvprintw( 9,11, (char *)"Create document in file %s", temp);
-	fflush(stdout);
-
-	/*
-	 * Append table of contents
-	 */
-	page = newpage(fp, page);
-	addtoc(fp, toc, 99, 0, page, (char *)"Table of contents");
-	fprintf(fp, "\n\n");
-	line = 4;
-	rewind(toc);
-
-	while (fgets(temp, 256, toc) != NULL) {
-		fprintf(fp, "%s", temp);
-		line++;
-		if (line == 56) {
-			page = newpage(fp, page);
-			line = 0;
-		}
-	}
-
-	fprintf(fp, "\f");
-	fclose(fp);
-	fclose(toc);
-	unlink(temp1);
-
-	Syslog('+', "Statistics created");
-
-	center_addstr(LINES -4, (char *)"Press any key");
-	readkey(LINES -4, COLS / 2 + 8, LIGHTGRAY, BLACK);
+    if (config_read() == -1)
 	return;
+
+    sprintf(temp, "%s/doc/site.doc", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "w")) == NULL)
+	return;
+
+    sprintf(temp1, "%s/tmp/toc.tmp", getenv("MBSE_ROOT"));
+    if ((toc = fopen(temp1, "w+")) == NULL) {
+	fclose(fp);
+	return;
+    }
+
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Making Sitedocs");
+    Syslog('+', "Start creating sitedocs");
+
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "21.  CREATING SITEDOCS");
+    set_color(CYAN, BLACK);
+    mvprintw( 7,11, (char *)"Erasing directory       %s/doc/html", getenv("MBSE_ROOT"));
+    fflush(stdout);
+
+    sprintf(temp, "-r -f %s/doc/html", getenv("MBSE_ROOT"));
+    execute_pth((char *)"rm", temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+
+    if ((hp = open_webdoc((char *)"index.html", (char *)"BBS Site Documentation", NULL))) {
+	fprintf(hp, "<UL>\n");
+	fprintf(hp, " <LI><A HREF=\"global.html\">Global Configuration</A></LI>\n");
+	fprintf(hp, " <LI><A HREF=\"fidonet.html\">Fido Networks</A></LI>\n");
+	fprintf(hp, " <LI><A HREF=\"archivers.html\">Archivers</A></LI>\n");
+	fprintf(hp, " <LI>Virus Scaners</LI>\n");
+	fprintf(hp, " <LI>Modem Types</LI>\n");
+	fprintf(hp, " <LI>TTY Lines Info</LI>\n");
+	fprintf(hp, " <LI>Fidonet Nodes</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"bbs.html\">BBS Setup</A></LI>\n");
+	fprintf(hp, " <UL>\n");
+	fprintf(hp, "  <LI><A HREF=\"limits.html\">Security Limits</A></LI>\n");
+	fprintf(hp, "  <LI><A HREF=\"language.html\">Language Setup</A></LI>\n");
+	fprintf(hp, "  <LI><A HREF=\"menus.html\">BBS Menus</A></LI>\n");
+	fprintf(hp, "  <LI><A HREF=\"fileareas.html\">File Areas</A></LI>\n");
+	fprintf(hp, "  <LI><A HREF=\"protocols.html\">Transfer Protocols</A></LI>\n");
+	fprintf(hp, "  <LI><A HREF=\"oneliners.html\">Oneliners</A></LI>\n");
+	fprintf(hp, " </UL>\n");
+	fprintf(hp, " <LI>Mail Setup</LI>\n");
+	fprintf(hp, " <UL>\n");
+	fprintf(hp, "  <LI>Echomail Groups</LI>\n");
+	fprintf(hp, "  <LI>Echomail Areas</LI>\n");
+	fprintf(hp, " </UL>\n");
+	fprintf(hp, " <LI>File Echo's Setup</LI>\n");
+	fprintf(hp, " <UL>\n");
+	fprintf(hp, "  <LI><A HREF=\"filegroup.html\">FileEcho Groups</A></LI>\n");
+	fprintf(hp, "  <LI>Fileecho Areas</LI>\n");
+	fprintf(hp, "  <LI>Hatch Manager</LI>\n");
+	fprintf(hp, "  <LI>Magic Files</LI>\n");
+	fprintf(hp, " </UL>\n");
+	fprintf(hp, " <LI>Newfiles Groups</LI>\n");
+	fprintf(hp, " <LI>Newfiles Reports</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"filefind.html\">Filefind Setup</A></LI>\n");
+	fprintf(hp, " <LI>BBS Users</LI>\n");
+	fprintf(hp, " <LI>Mail Services</LI>\n");
+	fprintf(hp, " <LI><A HREF=\"domain.html\">Domain translation</A></LI>\n");
+	fprintf(hp, " <LI>Task Manager</LI>\n");
+	fprintf(hp, " <LI>Network Routing</LI>\n");
+        fprintf(hp, "</UL>\n");
+        close_webdoc(hp);
+    } else {
+        Syslog('+', "Can't create html documentation");
+    }
+
+    mvprintw( 8,11, (char *)"Create document in file %s/doc/site.doc", getenv("MBSE_ROOT"));
+    page = global_doc(fp, toc, page);
+    page = fido_doc(fp, toc, page);
+    page = archive_doc(fp, toc, page);
+    page = virus_doc(fp, toc, page);
+    page = modem_doc(fp, toc, page);
+    page = tty_doc(fp, toc, page);
+    page = node_doc(fp, toc, page);
+    page = bbs_doc(fp, toc, page);
+    page = mail_doc(fp, toc, page);
+    page = tic_doc(fp, toc, page);
+    page = newf_group_doc(fp, toc, page);
+    page = new_doc(fp, toc, page);
+    page = ff_doc(fp, toc, page);
+    page = service_doc(fp, toc, page);
+    page = domain_doc(fp, toc, page);
+    page = task_doc(fp, toc, page);
+    page = route_doc(fp, toc, page);
+
+    /*
+     * Append table of contents
+     */
+    page = newpage(fp, page);
+    addtoc(fp, toc, 17, 0, page, (char *)"Table of contents");
+    fprintf(fp, "\n\n");
+    line = 4;
+    rewind(toc);
+
+    while (fgets(temp, 256, toc) != NULL) {
+	fprintf(fp, "%s", temp);
+	line++;
+	if (line == 56) {
+	    page = newpage(fp, page);
+	    line = 0;
+	}
+    }
+
+    fprintf(fp, "\f");
+    fclose(fp);
+    fclose(toc);
+    unlink(temp1);
+
+    Syslog('+', "Sitedocs created");
+
+    /*
+     * Remove obsolete documents
+     */
+    sprintf(temp, "%s/doc/xref.doc", getenv("MBSE_ROOT"));
+    unlink(temp);
+    sprintf(temp, "%s/doc/stat.doc", getenv("MBSE_ROOT"));
+    unlink(temp);
+
+    center_addstr(LINES -4, (char *)"Press any key");
+    readkey(LINES -4, COLS / 2 + 8, LIGHTGRAY, BLACK);
+    return;
 }
 
 

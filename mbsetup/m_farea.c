@@ -754,60 +754,109 @@ void InitFilearea(void)
 
 int bbs_file_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX];
-	FILE		*no;
-	int		i = 0, j = 0;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *no;
+    int	    i = 0, j = 0;
 
-	sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-
-	fread(&areahdr, sizeof(areahdr), 1, no);
-	page = newpage(fp, page);	
-	addtoc(fp, toc, 8, 4, page, (char *)"BBS File areas");
-
-	while ((fread(&area, areahdr.recsize, 1, no)) == 1) {
-
-		i++;
-		if (area.Available) {
-
-			if (j == 1) {
-				page = newpage(fp, page);
-				j = 0;
-			} else {
-				j++;
-			}
-			fprintf(fp, "\n\n");
-			fprintf(fp, "    Area number       %d\n", i);
-			fprintf(fp, "    Area name         %s\n", area.Name);
-			fprintf(fp, "    Files path        %s\n", area.Path);
-			fprintf(fp, "    Download sec.     %s\n", get_secstr(area.DLSec));
-			fprintf(fp, "    Upload security   %s\n", get_secstr(area.UPSec));
-			fprintf(fp, "    List seccurity    %s\n", get_secstr(area.LTSec));
-			fprintf(fp, "    Path to files.bbs %s\n", area.FilesBbs);
-			fprintf(fp, "    Newfiles scan     %s\n", getboolean(area.New));
-			fprintf(fp, "    Check upl. dupes  %s\n", getboolean(area.Dupes));
-			fprintf(fp, "    Files are free    %s\n", getboolean(area.Free));
-			fprintf(fp, "    Allow direct DL   %s\n", getboolean(area.DirectDL));
-			fprintf(fp, "    Allow pwd upl.    %s\n", getboolean(area.PwdUP));
-			fprintf(fp, "    Filefind on       %s\n", getboolean(area.FileFind));
-			fprintf(fp, "    Add files sorted  %s\n", getboolean(area.AddAlpha));
-			fprintf(fp, "    Files in CDROM    %s\n", getboolean(area.CDrom));
-			fprintf(fp, "    Allow filerequst  %s\n", getboolean(area.FileReq));
-			fprintf(fp, "    BBS group         %s\n", area.BbsGroup);
-			fprintf(fp, "    Newfiles group    %s\n", area.NewGroup);
-			fprintf(fp, "    Minimum age       %d\n", area.Age);
-			fprintf(fp, "    Area password     %s\n", area.Password);
-			fprintf(fp, "    Kill DL days      %d\n", area.DLdays);
-			fprintf(fp, "    Kill FD days      %d\n", area.FDdays);
-			fprintf(fp, "    Move to area      %d\n", area.MoveArea);
-			fprintf(fp, "    Archiver          %s\n", area.Archiver);
-			fprintf(fp, "    Upload area       %d\n", area.Upload);
-		}
-	}
-
-	fclose(no);
+    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
 	return page;
+
+    fread(&areahdr, sizeof(areahdr), 1, no);
+    page = newpage(fp, page);	
+    addtoc(fp, toc, 8, 4, page, (char *)"BBS File areas");
+
+    ip = open_webdoc((char *)"fileareas.html", (char *)"File Areas", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+
+    while ((fread(&area, areahdr.recsize, 1, no)) == 1) {
+
+	i++;
+	if (area.Available) {
+
+	    if (j == 1) {
+		page = newpage(fp, page);
+		j = 0;
+	    } else {
+		j++;
+	    }
+
+	    sprintf(temp, "filearea_%d.html", i);
+
+	    fprintf(ip, " <LI><A HREF=\"%s\">%3d %s</A></LI>\n", temp, i, area.Name);
+	    if ((wp = open_webdoc(temp, (char *)"File area", area.Name))) {
+		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"fileareas.html\">Back</A>\n");
+		fprintf(wp, "<P>\n");
+		fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+		fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+		fprintf(wp, "<TBODY>\n");
+		add_webdigit(wp, (char *)"Area number", i);
+		add_webtable(wp, (char *)"Area name", area.Name);
+		add_webtable(wp, (char *)"Files path", area.Path);
+		web_secflags(wp, (char *)"Download security", area.DLSec);
+		web_secflags(wp, (char *)"Upload security", area.UPSec);
+		web_secflags(wp, (char *)"List security", area.LTSec);
+		add_webtable(wp, (char *)"Path to files.bbs", area.FilesBbs);
+		add_webtable(wp, (char *)"Newfiles scan", getboolean(area.New));
+		add_webtable(wp, (char *)"Check upload dupes", getboolean(area.Dupes));
+		add_webtable(wp, (char *)"Files are free", getboolean(area.Free));
+		add_webtable(wp, (char *)"Allow direct download", getboolean(area.DirectDL));
+		add_webtable(wp, (char *)"Allow password uploads", getboolean(area.PwdUP));
+		add_webtable(wp, (char *)"Filefind on", getboolean(area.FileFind));
+		add_webtable(wp, (char *)"Add files sorted", getboolean(area.AddAlpha));
+		add_webtable(wp, (char *)"Files on CDrom", getboolean(area.CDrom));
+		add_webtable(wp, (char *)"Allow filerequest", getboolean(area.FileReq));
+		fprintf(wp, "<TR><TH align='left'>BBS (tic) file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TH>\n",
+			area.BbsGroup, area.BbsGroup);
+		fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newfilegroup_%s.html\">%s</A></TD></TH>\n",
+			area.NewGroup, area.NewGroup);
+		add_webdigit(wp, (char *)"Minimum age for access", area.Age);
+		add_webtable(wp, (char *)"Area password", area.Password);
+		add_webdigit(wp, (char *)"Kill Download days", area.DLdays);
+		add_webdigit(wp, (char *)"Kill FileDate days", area.FDdays);
+		add_webdigit(wp, (char *)"Move to area", area.MoveArea);
+		add_webtable(wp, (char *)"Archiver", area.Archiver);
+		add_webdigit(wp, (char *)"Upload area", area.Upload);
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+		close_webdoc(wp);
+	    }
+
+	    fprintf(fp, "\n\n");
+	    fprintf(fp, "    Area number       %d\n", i);
+	    fprintf(fp, "    Area name         %s\n", area.Name);
+	    fprintf(fp, "    Files path        %s\n", area.Path);
+	    fprintf(fp, "    Download sec.     %s\n", get_secstr(area.DLSec));
+	    fprintf(fp, "    Upload security   %s\n", get_secstr(area.UPSec));
+	    fprintf(fp, "    List seccurity    %s\n", get_secstr(area.LTSec));
+	    fprintf(fp, "    Path to files.bbs %s\n", area.FilesBbs);
+	    fprintf(fp, "    Newfiles scan     %s\n", getboolean(area.New));
+	    fprintf(fp, "    Check upl. dupes  %s\n", getboolean(area.Dupes));
+	    fprintf(fp, "    Files are free    %s\n", getboolean(area.Free));
+	    fprintf(fp, "    Allow direct DL   %s\n", getboolean(area.DirectDL));
+	    fprintf(fp, "    Allow pwd upl.    %s\n", getboolean(area.PwdUP));
+	    fprintf(fp, "    Filefind on       %s\n", getboolean(area.FileFind));
+	    fprintf(fp, "    Add files sorted  %s\n", getboolean(area.AddAlpha));
+	    fprintf(fp, "    Files in CDROM    %s\n", getboolean(area.CDrom));
+	    fprintf(fp, "    Allow filerequst  %s\n", getboolean(area.FileReq));
+	    fprintf(fp, "    BBS group         %s\n", area.BbsGroup);
+	    fprintf(fp, "    Newfiles group    %s\n", area.NewGroup);
+	    fprintf(fp, "    Minimum age       %d\n", area.Age);
+	    fprintf(fp, "    Area password     %s\n", area.Password);
+	    fprintf(fp, "    Kill DL days      %d\n", area.DLdays);
+	    fprintf(fp, "    Kill FD days      %d\n", area.FDdays);
+	    fprintf(fp, "    Move to area      %d\n", area.MoveArea);
+	    fprintf(fp, "    Archiver          %s\n", area.Archiver);
+	    fprintf(fp, "    Upload area       %d\n", area.Upload);
+	}
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+    
+    fclose(no);
+    return page;
 }
 
 

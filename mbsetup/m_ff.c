@@ -432,46 +432,79 @@ void InitFilefind(void)
 
 int ff_doc(FILE *fp, FILE *toc, int page)
 {
-	char		temp[PATH_MAX];
-	FILE		*no;
-	int		j;
+    char    temp[PATH_MAX];
+    FILE    *wp, *ip, *no;
+    int	    i = 0, j;
 
-	sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
+    sprintf(temp, "%s/etc/scanmgr.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+	return page;
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 13, 0, page, (char *)"Filefind areas");
-	j = 0;
+    page = newpage(fp, page);
+    addtoc(fp, toc, 13, 0, page, (char *)"Filefind areas");
+    j = 0;
 
-	fprintf(fp, "\n\n");
-	fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, no);
+    fprintf(fp, "\n\n");
+    fread(&scanmgrhdr, sizeof(scanmgrhdr), 1, no);
 
-	while ((fread(&scanmgr, scanmgrhdr.recsize, 1, no)) == 1) {
+    ip = open_webdoc((char *)"filefind.html", (char *)"Filefind Areas", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
 
-		if (j == 4) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
+    while ((fread(&scanmgr, scanmgrhdr.recsize, 1, no)) == 1) {
 
-		fprintf(fp, "     Area comment      %s\n", scanmgr.Comment);
-		fprintf(fp, "     Origin line       %s\n", scanmgr.Origin);
-		fprintf(fp, "     Aka to use        %s\n", aka2str(scanmgr.Aka));
-		fprintf(fp, "     Scan msg board    %s\n", scanmgr.ScanBoard);
-		fprintf(fp, "     Reply msg board   %s\n", scanmgr.ReplBoard);
-		fprintf(fp, "     Language          %c\n", scanmgr.Language);
-		fprintf(fp, "     Template file     %s\n", scanmgr.template);
-		fprintf(fp, "     Active            %s\n", getboolean(scanmgr.Active));
-		fprintf(fp, "     Netmail reply     %s\n", getboolean(scanmgr.NetReply));
-		fprintf(fp, "     Allow Hi-ASCII    %s\n", getboolean(scanmgr.HiAscii));
-		fprintf(fp, "     Keyword length    %d\n", scanmgr.keywordlen);
-		fprintf(fp, "\n\n");
-		j++;
+	i++;
+	if (j == 4) {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n");
+	    j = 0;
 	}
 
-	fclose(no);
-	return page;
+	sprintf(temp, "filefind_%d.html", i);
+	fprintf(ip, " <LI><A HREF=\"%s\">%3d %s</A></LI>\n", temp, i, scanmgr.Comment);
+	if ((wp = open_webdoc(temp, (char *)"Filefind Area", scanmgr.Comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"filefind.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Area comment", scanmgr.Comment);
+	    add_webtable(wp, (char *)"Origin line", scanmgr.Origin);
+	    add_webtable(wp, (char *)"Aka to use", aka2str(scanmgr.Aka));
+	    add_webtable(wp, (char *)"Scan msg board", scanmgr.ScanBoard);
+	    add_webtable(wp, (char *)"Reply msg board", scanmgr.ReplBoard);
+	    sprintf(temp, "%c", scanmgr.Language);
+	    add_webtable(wp, (char *)"Language", temp);
+	    add_webtable(wp, (char *)"Template file", scanmgr.template);
+	    add_webtable(wp, (char *)"Active", getboolean(scanmgr.Active));
+	    add_webtable(wp, (char *)"Netmail reply", getboolean(scanmgr.NetReply));
+	    add_webtable(wp, (char *)"Allow Hi-ASCII", getboolean(scanmgr.HiAscii));
+	    add_webdigit(wp, (char *)"Keyword length", scanmgr.keywordlen);
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+
+	fprintf(fp, "     Area comment      %s\n", scanmgr.Comment);
+	fprintf(fp, "     Origin line       %s\n", scanmgr.Origin);
+	fprintf(fp, "     Aka to use        %s\n", aka2str(scanmgr.Aka));
+	fprintf(fp, "     Scan msg board    %s\n", scanmgr.ScanBoard);
+	fprintf(fp, "     Reply msg board   %s\n", scanmgr.ReplBoard);
+	fprintf(fp, "     Language          %c\n", scanmgr.Language);
+	fprintf(fp, "     Template file     %s\n", scanmgr.template);
+	fprintf(fp, "     Active            %s\n", getboolean(scanmgr.Active));
+	fprintf(fp, "     Netmail reply     %s\n", getboolean(scanmgr.NetReply));
+	fprintf(fp, "     Allow Hi-ASCII    %s\n", getboolean(scanmgr.HiAscii));
+	fprintf(fp, "     Keyword length    %d\n", scanmgr.keywordlen);
+	fprintf(fp, "\n\n");
+	j++;
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+
+    fclose(no);
+    return page;
 }
 
 

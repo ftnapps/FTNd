@@ -682,68 +682,125 @@ char *PickFGroup(char *shdr)
 
 int tic_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	*temp;
-	FILE	*no;
-	int	First = TRUE;;
+    char    *temp;
+    FILE    *wp, *ip, *no;
+    int	    First = TRUE;;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL) {
-	    free(temp);
-	    return page;
-	}
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
+	return page;
+    }
 
-	fread(&fgrouphdr, sizeof(fgrouphdr), 1, no);
-	fseek(no, 0, SEEK_SET);
-	fread(&fgrouphdr, fgrouphdr.hdrsize, 1, no);
+    fread(&fgrouphdr, sizeof(fgrouphdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&fgrouphdr, fgrouphdr.hdrsize, 1, no);
 
-	while ((fread(&fgroup, fgrouphdr.recsize, 1, no)) == 1) {
-		if (First) {
-		    addtoc(fp, toc, 10, 1, page, (char *)"File processing groups");
-		    First = FALSE;
-		    fprintf(fp, "\n");
-		} else {
-		    page = newpage(fp, page);
-		    fprintf(fp, "\n\n");
-		}
-
-		fprintf(fp, "    Group name     %s\n", fgroup.Name);
-		fprintf(fp, "    Comment        %s\n", fgroup.Comment);
-		fprintf(fp, "    Active         %s\n", getboolean(fgroup.Active));
-		fprintf(fp, "    Use Aka        %s\n", aka2str(fgroup.UseAka));
-		fprintf(fp, "    Uplink         %s\n", aka2str(fgroup.UpLink));
-		fprintf(fp, "    Areas file     %s\n", fgroup.AreaFile);
-		fprintf(fp, "    Start area     %ld\n", fgroup.StartArea);
-		fprintf(fp, "    Banner file    %s\n", fgroup.Banner);
-		fprintf(fp, "    Def. archiver  %s\n", fgroup.Convert);
-		fprintf(fp, "    Filegate fmt   %s\n", getboolean(fgroup.FileGate));
-		fprintf(fp, "    Auto change    %s\n", getboolean(fgroup.AutoChange));
-		fprintf(fp, "    User change    %s\n", getboolean(fgroup.UserChange));
-		fprintf(fp, "    Allow replace  %s\n", getboolean(fgroup.Replace));
-		fprintf(fp, "    Dupe checking  %s\n", getboolean(fgroup.DupCheck));
-		fprintf(fp, "    Secure         %s\n", getboolean(fgroup.Secure));
-		fprintf(fp, "    Touch dates    %s\n", getboolean(fgroup.Touch));
-		fprintf(fp, "    Virus scan     %s\n", getboolean(fgroup.VirScan));
-		fprintf(fp, "    Announce       %s\n", getboolean(fgroup.Announce));
-		fprintf(fp, "    Update magics  %s\n", getboolean(fgroup.UpdMagic));
-		fprintf(fp, "    FILE_ID.DIZ    %s\n", getboolean(fgroup.FileId));
-		fprintf(fp, "    Convert all    %s\n", getboolean(fgroup.ConvertAll));
-		fprintf(fp, "    Send original  %s\n", getboolean(fgroup.SendOrg));
-		fprintf(fp, "    Base path      %s\n", fgroup.BasePath);
-		fprintf(fp, "    Download sec.  %s\n", get_secstr(fgroup.DLSec));
-		fprintf(fp, "    Upload sec.    %s\n", get_secstr(fgroup.UPSec));
-		fprintf(fp, "    List security  %s\n", get_secstr(fgroup.LTSec));
-		fprintf(fp, "    Def. tic sec.        %s\n", getflag(fgroup.LinkSec.flags, fgroup.LinkSec.notflags));
-		fprintf(fp, "    BBS group      %s\n", fgroup.BbsGroup);
-		fprintf(fp, "    Announce group %s\n", fgroup.AnnGroup);
-		fprintf(fp, "    Upload area    %d\n", fgroup.Upload);
-		fprintf(fp, "    Start date     %s", ctime(&fgroup.StartDate));
-		fprintf(fp, "    Last date      %s\n", ctime(&fgroup.LastDate));
+    ip = open_webdoc((char *)"filegroup.html", (char *)"File Groups", NULL);
+    fprintf(ip, "<A HREF=\"index.html\">Main</A>\n");
+    fprintf(ip, "<UL>\n");
+	    
+    while ((fread(&fgroup, fgrouphdr.recsize, 1, no)) == 1) {
+	if (First) {
+	    addtoc(fp, toc, 10, 1, page, (char *)"File processing groups");
+	    First = FALSE;
+	    fprintf(fp, "\n");
+	} else {
+	    page = newpage(fp, page);
+	    fprintf(fp, "\n\n");
 	}
 
-	fclose(no);
-	return page;
+	sprintf(temp, "filegroup_%s.html", fgroup.Name);
+	fprintf(ip, " <LI><A HREF=\"%s\">%s</A> %s</LI>\n", temp, fgroup.Name, fgroup.Comment);
+
+	if ((wp = open_webdoc(temp, (char *)"File group", fgroup.Comment))) {
+	    fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"filegroup.html\">Back</A>\n");
+	    fprintf(wp, "<P>\n");
+	    fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+	    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+	    fprintf(wp, "<TBODY>\n");
+	    add_webtable(wp, (char *)"Group name", fgroup.Name);
+	    add_webtable(wp, (char *)"Comment", fgroup.Comment);
+	    add_webtable(wp, (char *)"Active", getboolean(fgroup.Active));
+	    add_webtable(wp, (char *)"Use Aka", aka2str(fgroup.UseAka));
+	    add_webtable(wp, (char *)"Uplink Aka", aka2str(fgroup.UpLink));
+	    add_webtable(wp, (char *)"Areas file", fgroup.AreaFile);
+	    sprintf(temp, "%ld", fgroup.StartArea);
+	    add_webtable(wp, (char *)"Start autocreate BBS area", temp);
+	    add_webtable(wp, (char *)"Banner file", fgroup.Banner);
+	    add_webtable(wp, (char *)"Default archiver", fgroup.Convert);
+	    add_webtable(wp, (char *)"Area file in Filegate format", getboolean(fgroup.FileGate));
+	    add_webtable(wp, (char *)"Auto change areas", getboolean(fgroup.AutoChange));
+	    add_webtable(wp, (char *)"User (downlink) change areas", getboolean(fgroup.UserChange));
+	    add_webtable(wp, (char *)"Allow replace", getboolean(fgroup.Replace));
+	    add_webtable(wp, (char *)"Dupe checking", getboolean(fgroup.DupCheck));
+	    add_webtable(wp, (char *)"Secure processing", getboolean(fgroup.Secure));
+	    add_webtable(wp, (char *)"Touch file dates", getboolean(fgroup.Touch));
+	    add_webtable(wp, (char *)"Virus scan", getboolean(fgroup.VirScan));
+	    add_webtable(wp, (char *)"Announce", getboolean(fgroup.Announce));
+	    add_webtable(wp, (char *)"Allow update magics", getboolean(fgroup.UpdMagic));
+	    add_webtable(wp, (char *)"Extract FILE_ID.DIZ", getboolean(fgroup.FileId));
+	    add_webtable(wp, (char *)"Convert all archives", getboolean(fgroup.ConvertAll));
+	    add_webtable(wp, (char *)"Send original file", getboolean(fgroup.SendOrg));
+	    add_webtable(wp, (char *)"Base path for new areas", fgroup.BasePath);
+	    web_secflags(wp, (char *)"Download security", fgroup.DLSec);
+	    web_secflags(wp, (char *)"Upload security", fgroup.UPSec);
+	    web_secflags(wp, (char *)"List security", fgroup.LTSec);
+	    add_webtable(wp, (char *)"Default tic security", getflag(fgroup.LinkSec.flags, fgroup.LinkSec.notflags));
+	    fprintf(wp, "<TR><TH align='left'>BBS (tic) file group</TH><TD><A HREF=\"filegroup_%s.html\">%s</A></TD></TH>\n",
+		fgroup.BbsGroup, fgroup.BbsGroup);
+	    fprintf(wp, "<TR><TH align='left'>Newfiles announce group</TH><TD><A HREF=\"newfilegroup_%s.html\">%s</A></TD></TH>\n",
+		fgroup.AnnGroup, fgroup.AnnGroup);
+	    sprintf(temp, "%d", fgroup.Upload);
+	    add_webtable(wp, (char *)"Upload area", temp);
+	    add_webtable(wp, (char *)"Start date", ctime(&fgroup.StartDate));
+	    add_webtable(wp, (char *)"Last active date", ctime(&fgroup.LastDate));
+	    fprintf(wp, "</TBODY>\n");
+	    fprintf(wp, "</TABLE>\n");
+	    close_webdoc(wp);
+	}
+	
+	fprintf(fp, "    Group name     %s\n", fgroup.Name);
+	fprintf(fp, "    Comment        %s\n", fgroup.Comment);
+	fprintf(fp, "    Active         %s\n", getboolean(fgroup.Active));
+	fprintf(fp, "    Use Aka        %s\n", aka2str(fgroup.UseAka));
+	fprintf(fp, "    Uplink         %s\n", aka2str(fgroup.UpLink));
+	fprintf(fp, "    Areas file     %s\n", fgroup.AreaFile);
+	fprintf(fp, "    Start area     %ld\n", fgroup.StartArea);
+	fprintf(fp, "    Banner file    %s\n", fgroup.Banner);
+	fprintf(fp, "    Def. archiver  %s\n", fgroup.Convert);
+	fprintf(fp, "    Filegate fmt   %s\n", getboolean(fgroup.FileGate));
+	fprintf(fp, "    Auto change    %s\n", getboolean(fgroup.AutoChange));
+	fprintf(fp, "    User change    %s\n", getboolean(fgroup.UserChange));
+	fprintf(fp, "    Allow replace  %s\n", getboolean(fgroup.Replace));
+	fprintf(fp, "    Dupe checking  %s\n", getboolean(fgroup.DupCheck));
+	fprintf(fp, "    Secure         %s\n", getboolean(fgroup.Secure));
+	fprintf(fp, "    Touch dates    %s\n", getboolean(fgroup.Touch));
+	fprintf(fp, "    Virus scan     %s\n", getboolean(fgroup.VirScan));
+	fprintf(fp, "    Announce       %s\n", getboolean(fgroup.Announce));
+	fprintf(fp, "    Update magics  %s\n", getboolean(fgroup.UpdMagic));
+	fprintf(fp, "    FILE_ID.DIZ    %s\n", getboolean(fgroup.FileId));
+	fprintf(fp, "    Convert all    %s\n", getboolean(fgroup.ConvertAll));
+	fprintf(fp, "    Send original  %s\n", getboolean(fgroup.SendOrg));
+	fprintf(fp, "    Base path      %s\n", fgroup.BasePath);
+	fprintf(fp, "    Download sec.  %s\n", get_secstr(fgroup.DLSec));
+	fprintf(fp, "    Upload sec.    %s\n", get_secstr(fgroup.UPSec));
+	fprintf(fp, "    List security  %s\n", get_secstr(fgroup.LTSec));
+	fprintf(fp, "    Def. tic sec.        %s\n", getflag(fgroup.LinkSec.flags, fgroup.LinkSec.notflags));
+	fprintf(fp, "    BBS group      %s\n", fgroup.BbsGroup);
+	fprintf(fp, "    Newfiles group %s\n", fgroup.AnnGroup);
+	fprintf(fp, "    Upload area    %d\n", fgroup.Upload);
+	fprintf(fp, "    Start date     %s", ctime(&fgroup.StartDate));
+	fprintf(fp, "    Last date      %s\n", ctime(&fgroup.LastDate));
+    }
+
+    fprintf(ip, "</UL>\n");
+    close_webdoc(ip);
+    
+    fclose(no);
+    free(temp);
+    return page;
 }
 
 

@@ -510,6 +510,31 @@ char *PickLimits(int nr)
 
 
 
+char *get_limit_name(int level)
+{
+    static char	buf[41];
+    char	temp[PATH_MAX];
+    FILE	*fp;
+
+    sprintf(buf, "N/A");
+    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r")) == NULL)
+	return buf;
+
+    fread(&LIMIThdr, sizeof(LIMIThdr), 1, fp);
+
+    while ((fread(&LIMIT, LIMIThdr.recsize, 1, fp)) == 1) {
+	if (level == LIMIT.Security) {
+	    sprintf(buf, "%s", LIMIT.Description);
+	    break;
+	}
+    }
+    fclose(fp);
+    return buf;
+}
+
+
+
 int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 {
 	char	temp[PATH_MAX];
@@ -536,68 +561,4 @@ int bbs_limits_doc(FILE *fp, FILE *toc, int page)
 	fclose(no);
 	return page;
 }
-
-
-
-int limit_users_doc(FILE *fp, FILE *toc, int page)
-{
-	char	temp[PATH_MAX];
-	FILE	*no, *us;
-	int	line = 0, j;
-
-	sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
-		return page;
-
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((us = fopen(temp, "r")) == NULL) {
-		fclose(no);
-		return page;
-	}
-	
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 0, page, (char *)"Access limits and users");
-
-	fread(&LIMIThdr, sizeof(LIMIThdr), 1, no);
-	fread(&usrconfighdr, sizeof(usrconfighdr), 1, us);
-
-	while (fread(&LIMIT, LIMIThdr.recsize, 1, no) == 1) {
-		if (LIMIT.Available) {
-			if (line > 52) {
-				page = newpage(fp, page);
-				line = 0;
-			}
-			fprintf(fp, "\n\n");
-			fprintf(fp, "    Level %ld - %s\n\n", LIMIT.Security, LIMIT.Description);
-			line += 4;
-			j = 2;
-			fseek(us, usrconfighdr.hdrsize, SEEK_SET);
-
-			while (fread(&usrconfig, usrconfighdr.recsize, 1, us) == 1) {
-				if ((!usrconfig.Deleted) && strlen(usrconfig.sUserName) &&
-				    (usrconfig.Security.level == LIMIT.Security)) {
-					if (j == 2) {
-						j = 0;
-						fprintf(fp, "     %-35s", usrconfig.sUserName);
-					 } else {
-						fprintf(fp, "     %s\n", usrconfig.sUserName);
-						line++;
-						if (line > 56) {
-							page = newpage(fp, page);
-							line = 0;
-						}
-					}
-					j++;
-				}
-			}
-			if (j != 2)
-				fprintf(fp, "\n");
-		}
-	}
-
-	fclose(us);
-	fclose(no);
-	return page;
-}
-
 

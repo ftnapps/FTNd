@@ -464,7 +464,7 @@ void InitDomain(void)
 int domain_doc(FILE *fp, FILE *toc, int page)
 {
 	char		temp[PATH_MAX];
-	FILE		*no;
+	FILE		*no, *wp;
 	int		j;
 
 	sprintf(temp, "%s/etc/domain.data", getenv("MBSE_ROOT"));
@@ -474,6 +474,14 @@ int domain_doc(FILE *fp, FILE *toc, int page)
 	page = newpage(fp, page);
 	addtoc(fp, toc, 15, 0, page, (char *)"Domain manager");
 	j = 0;
+
+	wp = open_webdoc((char *)"domain.html", (char *)"Domain Translation", NULL);
+	fprintf(wp, "<A HREF=\"index.html\">Main</A>\n");
+	fprintf(wp, "<P>\n");
+	fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
+//	fprintf(wp, "<COL width='40%%'><COL width='40%%'><COL width='20%%'>\n");
+	fprintf(wp, "<TBODY>\n");
+	fprintf(wp, "<TR><TH align='left'>Fidonet</TH><TH align='left'>Internet</TH><TH align='left'>Active</TH></TR>\n");
 
 	fprintf(fp, "\n");
 	fprintf(fp, "     Fidonet                         Internet                        Active\n");
@@ -490,10 +498,15 @@ int domain_doc(FILE *fp, FILE *toc, int page)
 			j = 0;
 		}
 
+		fprintf(wp, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD></TR>\n", 
+			domtrans.ftndom, domtrans.intdom, getboolean(domtrans.Active));
 		fprintf(fp, "     %-30s  %-30s  %s\n", domtrans.ftndom, domtrans.intdom, getboolean(domtrans.Active));
 		j++;
 	}
 
+	fprintf(wp, "</TBODY>\n");
+	fprintf(wp, "</TABLE>\n");
+	close_webdoc(wp);
 	fclose(no);
 	return page;
 }
