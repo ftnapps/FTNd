@@ -139,43 +139,49 @@ int checkspace(char *dir, char *fn, int factor)
  */
 int unpack(char *fn)
 {
-	char	newname[16];
-	char	*cmd = NULL, *unarc;
-	int	rc = 0, ld;
+    char	newname[16];
+    char	*cmd = NULL, *unarc;
+    int		rc = 0, ld;
 
-	if (!do_quiet) {
-		colour(11, 0);
-		printf("Unpacking file %s\n", fn);
-	}
+    if (!do_quiet) {
+	colour(11, 0);
+	printf("Unpacking file %s\n", fn);
+    }
 
-	if ((unarc = unpacker(fn)) == NULL) 
-		return 1;
+    if ((unarc = unpacker(fn)) == NULL) 
+	return 1;
 
-	if (!getarchiver(unarc))
-		return 1;
+    if (!getarchiver(unarc))
+	return 1;
 
-	cmd = xstrcpy(archiver.munarc);
+    cmd = xstrcpy(archiver.munarc);
 
-	if ((cmd == NULL) || (cmd == ""))
-		return -1;
+    if ((cmd == NULL) || (cmd == ""))
+	return -1;
 
-	if ((ld = f_lock(fn)) == -1) {
-		free(cmd);
-		return 1;
-	}
-
-	rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null");
-	if (rc == 0) 
-		unlink(fn);
-	else {
-		strncpy(newname,fn,sizeof(newname)-1);
-		strcpy(newname+8,".bad");
-		rename(fn,newname);
-	}
-
+    if ((ld = f_lock(fn)) == -1) {
 	free(cmd);
-	funlock(ld); 
-	return rc;
+	return 1;
+    }
+
+    if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
+	unlink(fn);
+    } else {
+	sync();
+	sleep(1);
+	Syslog('!', "Warning: unpack %s failed, trying again after sync()");
+	if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
+	    unlink(fn);
+	} else {
+	    strncpy(newname,fn,sizeof(newname)-1);
+	    strcpy(newname+8,".bad");
+	    rename(fn,newname);
+	}
+    }
+
+    free(cmd);
+    funlock(ld); 
+    return rc;
 }
 
 
