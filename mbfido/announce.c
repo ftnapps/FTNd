@@ -240,10 +240,6 @@ void FinishMsg(int Final, long filepos)
     char    *temp;
     FILE    *fp, *fi;
 
-#if defined (__FreeBSD__)
-    Syslog('-', "FinishMsg(Final=%s, filepos=%ld)", Final?"true":"false", filepos);
-#endif
-
     temp = calloc(PATH_MAX, sizeof(char));
 
     if (Final && ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL)) {
@@ -291,10 +287,6 @@ long Report(gr_list *ta, long filepos)
     long	    filepos1 = 0, filepos2, filepos3 = 0, finalpos = 0;
     time_t	    ftime;
 
-#if defined (__FreeBSD__)
-    Syslog('-', "Report(grlist ..., filepos=%ld)", filepos);
-#endif
-
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
     if ((fp = fopen(temp, "r")) == NULL) {
@@ -315,16 +307,10 @@ long Report(gr_list *ta, long filepos)
 	/*
 	 * Area block header
 	 */
-#if defined(__FreeBSD__)
-	Syslog('-', "Area Block GJZ: \"%s\" \"%s\" 0", T_File.Echo, T_File.Comment);
-#endif
 	MacroVars("GJZ", "ssd", T_File.Echo, T_File.Comment, 0);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
 	filepos1 = ftell(fi);
-#if defined(__FreeBSD__)
-	Syslog('-', "filepos1=%ld", filepos1);
-#endif
     } else {
 	free(temp);
 	return 0;
@@ -342,12 +328,6 @@ long Report(gr_list *ta, long filepos)
 	     */
 	    fseek(fi, filepos1, SEEK_SET);
 	    ftime = T_File.Fdate;
-#if defined (__FreeBSD__)
-	    Syslog('-', "start a file ...");
-	    Syslog('-', "sl: \"%s\" \"%s\"", T_File.Name, T_File.LName);
-	    Syslog('-', "bk: \"%d\" \"%d\"", T_File.Size, T_File.SizeKb);
-	    Syslog('-', "dt: \"%s\" \"%s\"", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
-#endif
 	    MacroVars("sl", "ss", T_File.Name, T_File.LName);
 	    MacroVars("bk", "dd", T_File.Size, T_File.SizeKb);
 	    MacroVars("dt", "ss", rfcdate(ftime), To_Low(T_File.LDesc[0],newfiles.HiAscii));
@@ -358,9 +338,6 @@ long Report(gr_list *ta, long filepos)
 	     * Extra description lines follow
 	     */
 	    for (i = 1; i < 24; i++) {
-#if defined (__FreeBSD__)
-		Syslog('-', "t %2d: \"%s\"", i, To_Low(T_File.LDesc[i],newfiles.HiAscii));
-#endif
 		MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
 		fseek(fi, filepos2, SEEK_SET);
 		if (strlen(T_File.LDesc[i])) {
