@@ -552,6 +552,10 @@ void ControlCodeU(int ch)
 		printf("%s", exitinfo.OL_ExtInfo ? (char *) Language(147) : (char *) Language(148));
 		break;
 
+	case '9':
+		printf("%s", getchrs(exitinfo.Charset));
+		break;
+
 	default:
 		printf(" ");
 	}

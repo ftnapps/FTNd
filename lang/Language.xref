@@ -21,9 +21,9 @@
 20	door.c				|The door is in use by another user, try again later
 21	mail.c				YN| Is this correct [y/N]: 
 22	mail.c				|Could not parse
-23	.c				|
-24	.c				|
-25	.c				|
+23	change.c			|Select your preferred character set
+24	change.c			|Select character set (Enter to Quit):
+25	change.c			|Character set now set to: 
 26	.c				|
 27	.c				|
 28	.c				|
@@ -33,8 +33,8 @@
 32	.c				|
 33	.c				|
 34	.c				|
-35	.c				|
-36	.c				|
+35	.c				|In use for internationalization
+36	.c				|In use for internationalization
 37	newuser.c			|MBSE Bulletin Board System - NEW USER REGISTRATION
 38	newuser.c			|Use this name: 
 39	newuser.c			|Please enter new password   : 
@@ -263,7 +263,7 @@
 262	change.c			|Protocol: Can't open protocol file.
 263	change.c			|Select your preferred file transfer protcol
 264	change.c			|Select Protocol (Enter to Quit): 
-265	change.c			|Ivalid selection, please try again!
+265	change.c			|Invalid selection, please try again!
 266	change.c			|Protocol now set to: 
 267	file.c				|Enter keyword to use for Search: 
 268	file.c				|File Search by Keyword

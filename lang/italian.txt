@@ -21,9 +21,9 @@ HR|Export to (H)ome or (R)ules directory:
 |The door is in use by another user, try again later
 YN| Is this correct [y/N]: 
 |Could not parse
-|
-|
-|
+|Select your preferred character set
+|Select character set (Enter to Quit): 
+|Character set now set to: 
 |
 |
 |

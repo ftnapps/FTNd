@@ -448,6 +448,13 @@ void user()
     if (! InitExitinfo())
 	Good_Bye(MBERR_INIT_ERROR);
 
+    /*
+     * If user has not set a preferred character set, force this
+     */
+    if (exitinfo.Charset == FTNC_NONE) {
+	Chg_Charset();
+    }
+
     GetLastUser();
     StartTime = xstrcpy(GetLocalHM());
     ChangeHomeDir(exitinfo.Name, exitinfo.Email);

@@ -657,6 +657,10 @@ void DoMenu(int Type)
 		Chg_OLR_ExtInfo();
 		break;
 
+	case 321:
+		Chg_Charset();
+		break;
+
 	case 401:
 		Oneliner_Add();
 		break;

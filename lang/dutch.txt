@@ -21,9 +21,9 @@ HR|Exporteer naar (H)ome of (R)egels directory:
 |De door is in gebruik door een andere gebruiker, probeer het later nog eens
 JN| Is dit juist [j/N]: 
 |Niet te verwerken
-|
-|
-|
+|Kies Uw karakter set
+|Kies karakter set (Enter is Stop): 
+|Karakter set is nu: 
 |
 |
 |

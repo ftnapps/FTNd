@@ -18,12 +18,12 @@ HR|Exporter vers le répertoire (H)ome ou (R)ègles:
 |Ceci n'est pas un simple fichier texte.
 |Vous ne pouvez vous connecter que
 |fois simultanément.
-|
-|
-|
-|
-|
-|
+|The door is in use by another user, try again later
+YN| Is this correct [y/N]:
+|Could not parse
+|Select your preferred character set
+|Select character set (Enter to Quit): 
+|Character set now set to: 
 |
 |
 |

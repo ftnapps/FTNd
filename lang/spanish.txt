@@ -21,9 +21,9 @@ PR|Exportar al directorio (P)ersonal o de (R)eglas:
 |Otro usuario est  usando esa door, int‚ntalo m s tarde.
 SN| Es correcto [s/N]: 
 |No puedo iterpretar
-|
-|
-|
+|Select your preferred character set
+|Select character set (Enter to Quit): 
+|Character set now set to: 
 |
 |
 |

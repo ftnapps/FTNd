@@ -21,9 +21,9 @@ HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras:
 |Outro usuario est  a usar esa door, proba mais tarde
 SN| ‚ correcto [s/N]: 
 |Non podo interpretar
-|
-|
-|
+|Select your preferred character set
+|Select character set (Enter to Quit): 
+|Character set now set to: 
 |
 |
 |

@@ -976,3 +976,64 @@ void Chg_OLR_ExtInfo()
 }
 
 
+
+/*
+ * Change character set.
+ */
+void Chg_Charset()
+{
+    int	    i;
+    char    *temp;
+
+    temp = calloc(81, sizeof(char));
+    ReadExitinfo();
+    Syslog('+', "Old character set %s", getchrs(exitinfo.Charset));
+
+    while(TRUE) {
+        colour(CFG.HiliteF, CFG.HiliteB);
+        /* Select your preferred character set */
+        printf("\n%s\n\n", (char *) Language(23));
+
+        colour(LIGHTBLUE, BLACK);
+	for (i = (FTNC_NONE + 1); i <= FTNC_MAXCHARS; i++) {
+	    colour(LIGHTBLUE, BLACK);
+	    printf("%2d ", i);
+	    colour(LIGHTCYAN, BLACK);
+	    printf("%-9s ", getchrs(i));
+	    colour(LIGHTMAGENTA, BLACK);
+	    printf("%s\n", getchrsdesc(i));
+	}
+
+        colour(CFG.HiliteF, CFG.HiliteB);
+	/* Select character set  (Enter to Quit): */
+        printf("\n%s", (char *) Language(24));
+
+        fflush(stdout);
+	Getnum(temp, 2);
+
+	if (((strcmp(temp, "")) == 0) && (exitinfo.Charset != FTNC_NONE)) {
+	    free(temp);
+	    return;
+	}
+	
+	i = atoi(temp);
+
+	if ((i > FTNC_NONE) && (i <= FTNC_MAXCHARS)) {
+	    exitinfo.Charset = i;
+	    Syslog('+', "New character set %s", getchrs(exitinfo.Charset));
+	    WriteExitinfo();
+	    free(temp);
+	    colour(LIGHTGREEN, BLACK);
+	    /* Character set now set to: */
+	    printf("\n\n%s%s\n\n", (char *) Language(25), getchrs(i));
+	    Pause();
+	    return;
+	}
+
+	Enter(2);
+	/* Invalid selection, please try again! */
+	pout(LIGHTRED, BLACK, (char *) Language(265));
+	Enter(2);
+    }
+}
+

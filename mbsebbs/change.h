@@ -1,6 +1,7 @@
 #ifndef _CHANGE_H
 #define _CHANGE_H
 
+/* $Id$ */
 
 int  Chg_Language(int);		/* Change language			*/
 void Chg_Password(void);	/* Change BBS Password			*/
@@ -23,6 +24,7 @@ void Chg_DOB(void);		/* Change Date of Birth			*/
 void Chg_Protocol(void);	/* Change default transfer protocol.	*/
 void Set_Protocol(char *);	/* Set default protocol			*/
 void Chg_OLR_ExtInfo(void);	/* Set OLR Extended Info		*/
+void Chg_Charset(void);		/* Change character set			*/
+
 
 #endif
-

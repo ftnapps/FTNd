@@ -2170,6 +2170,7 @@ char *getmenutype(int val)
 		case 318:	return (char *)"Change address";
 		case 319:	return (char *)"Change .signature file";
 		case 320:	return (char *)"Change OLR Extended Info";
+		case 321:	return (char *)"Change character set";
 
 		case 401:	return (char *)"Add oneliner";
 		case 402:	return (char *)"List oneliners";
