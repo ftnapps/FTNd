@@ -77,6 +77,12 @@ v0.35.03	06-Jul-2002
 		Added test for HA archiver.
 		When changing a Handle, Unix names are checked as forbidden
 		names as well.
+		Improved import of FILE_ID.DIZ with file uploads. Only if
+		FILE_ID.DIZ is processed successfull the user will see that
+		this file has been used.
+		Corrected length for manual file description to prevent string
+		overflow.
+		Added missing space in message to user about file unpack.
 
 	mbtask:
 		Changed logging of multiple logmessages that are equal.

@@ -608,7 +608,7 @@ int ScanArchive(char *fn, char *ftype)
 
     colour(CFG.TextColourF, CFG.TextColourB);
     /* Unpacking archive */
-    printf("%s %s", (char *) Language(201), fn);
+    printf("%s %s ", (char *) Language(201), fn);
     fflush(stdout);
 
     if (!strlen(archiver.funarc)) {
@@ -845,176 +845,218 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
  */
 int Addfile(char *File, int AreaNum, int fileid)
 {
-	FILE	*id, *pFileDB, *pPrivate;
-	int	err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE;
-	char	*Filename, *temp1, *idname = NULL;
-	char	*Desc[26]; 
-	struct	stat statfile; 
-	int	i;
-	char	temp[81];
+    FILE    *id, *pFileDB, *pPrivate;
+    int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
+    char    *Filename, *temp1, *idname = NULL, *Desc[26]; 
+    struct  stat statfile; 
+    char    temp[81];
 
-	Filename = calloc(PATH_MAX, sizeof(char));
-	temp1    = calloc(PATH_MAX, sizeof(char));  
+    Filename = calloc(PATH_MAX, sizeof(char));
+    temp1    = calloc(PATH_MAX, sizeof(char));  
 
 	
-	sprintf(Filename, "%s/%s", area.Path, File);
+    sprintf(Filename, "%s/%s", area.Path, File);
 
-	if ((pFileDB = OpenFileBase(AreaNum, TRUE)) != NULL) {
-		/*
-		 * Do a physical check of file to see if it exists
-		 * if it fails it will return a zero which will not
-		 * increase his uploads stats
-		 */
-		if(stat(Filename, &statfile) != 0) {
+    if ((pFileDB = OpenFileBase(AreaNum, TRUE)) != NULL) {
+	/*
+	 * Do a physical check of file to see if it exists
+	 * if it fails it will return a zero which will not
+	 * increase his uploads stats
+	 */
+	if(stat(Filename, &statfile) != 0) {
 
-			colour(10, 0);
-			/* Upload was unsuccessful for: */
-			printf("\n%s%s\n\n", (char *) Language(284), File);
+	    colour(10, 0);
+	    /* Upload was unsuccessful for: */
+	    printf("\n%s%s\n\n", (char *) Language(284), File);
 
-			fclose(pFileDB);
-			free(Filename);
-			free(temp1);
-			return FALSE;
-		}
-
-		memset(&file, 0, sizeof(file));
-		strcpy(file.LName, File);
-		strcpy(temp1, File);
-		name_mangle(temp1);
-		strcpy(file.Name, temp1);
-		file.Size = (long)(statfile.st_size);
-		file.FileDate = statfile.st_mtime;
-		file.Crc32 = file_crc(Filename, TRUE);
-		strcpy(file.Uploader, exitinfo.sUserName);
-		file.UploadDate = time(NULL);
-
-		if (area.PwdUP) {
-			colour(9,0);
-			/* Do you want to password protect your upload ? [y/N]: */
-			printf("\n%s", (char *) Language(285));
-			fflush(stdout);
-
-			if (toupper(Getone()) == Keystroke(285, 0)) {
-				colour(10, 0);
-				/* REMEMBER: Passwords are "CaSe SeNsITiVe!" */
-				printf("\n%s\n", (char *) Language(286));
-				colour(14,0);
-				/* Password: */
-				printf("%s", (char *) Language(8));
-				fflush(stdout);
-				fflush(stdin);
-				GetstrC(file.Password, 20);
-			}
-		}
-
-		if (fileid && strlen(archiver.iunarc)) {
-			/*
-			 * The right unarchiver is still in memory,
-			 * get the FILE_ID.DIZ if it exists.
-			 */
-			sprintf(temp, "%s/%s", area.Path, File);
-			if ((err = execute(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
-					(char *)"/dev/null", (char *)"/dev/null"))) {
-			    if ((err = execute(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
-					    (char *)"/dev/null", (char *)"/dev/null"))) {
-				Syslog('+', "No FILE_ID.DIZ found in %s", File);
-			    } else {
-				idname = xstrcpy((char *)"file_id.diz");
-			    }
-			} else {
-			    idname = xstrcpy((char *)"FILE_ID.DIZ");
-			}
-			if (!err) {
-				Syslog('+', "Found %s", idname);
-				GotId = TRUE;
-				colour(CFG.TextColourF, CFG.TextColourB);
-				/* Found FILE_ID.DIZ in */
-				printf("%s %s\n", (char *) Language(257), File);
-				fflush(stdout);
-			}
-		}
-
-		if (GotId) {
-			if ((id = fopen(idname, "r")) != NULL) {
-				/*
-				 * Import FILE_ID.DIZ, format to max. 25
-				 * lines, 48 chars width.
-				 */
-				while ((fgets(temp1, 256, id)) != NULL) {
-					if (iDesc < 26) {
-						Striplf(temp1);
-						temp1[48] = '\0';
-						strcpy(file.Desc[iDesc - 1], temp1);
-					}
-					iDesc++;
-				}
-			}
-			fclose(id);
-			unlink(idname);
-		} else {
-			/*
-			 * Ask the user for a description.
-			 */
-			for (i = 0; i < 26; i++)
-				*(Desc + i) = (char *) calloc(49, sizeof(char));
-
-			colour(12,0);
-			/* Please enter description of file */
-			printf("\n%s %s\n\n", (char *) Language(287), File);
-			while (TRUE) {
-				colour(10,0);
-				printf("%2d> ", iDesc);
-				fflush(stdout);
-				colour(CFG.InputColourF, CFG.InputColourB);
-
-				GetstrC(*(Desc + iDesc), 48);
-
-				if((strcmp(*(Desc + iDesc), "")) == 0) 
-					break;
-
-				iDesc++;
-
-				if(iDesc >= 26)
-					break;
-			}
-
-			for(i = 1; i < iDesc; i++)
-				strcpy(file.Desc[i - 1], Desc[i]);
-
-			for (i = 0; i < 26; i++)
-				free(Desc[i]);
-		}
-
-		fseek(pFileDB, 0, SEEK_END);
-		fwrite(&file, sizeof(file), 1, pFileDB);
-		fclose(pFileDB);
-
-		sprintf(temp, "%s/log/uploads.log", getenv("MBSE_ROOT"));
-		if ((pPrivate = fopen(temp, "a+")) == NULL)
-			WriteError("$Can't open %s", temp);
-		else {
-			iPrivate = TRUE;
-			fprintf(pPrivate, "****************************************************");
-			fprintf(pPrivate, "\nUser        : %s", file.Uploader);
-			fprintf(pPrivate, "\nFile        : %s (%s)", file.LName, file.Name);
-			fprintf(pPrivate, "\nSize        : %lu", (long)(file.Size));
-			fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(file.UploadDate));
-				
-			for(i = 0; i < iDesc - 1; i++)
-				fprintf(pPrivate, "%2d: %s\n", i, file.Desc[i]);
-
-			fclose(pPrivate);
-		}
-
-		Enter(1);
-		/* Your upload time has been returned to you. Thank you for your upload! */
-		pout(10, 0, (char *) Language(288));
-		Enter(1);
+	    fclose(pFileDB);
+	    free(Filename);
+	    free(temp1);
+	    return FALSE;
 	}
 
-	free(Filename);
-	free(temp1);
-	return TRUE;
+	memset(&file, 0, sizeof(file));
+	strcpy(file.LName, File);
+	strcpy(temp1, File);
+	name_mangle(temp1);
+	strcpy(file.Name, temp1);
+	file.Size = (long)(statfile.st_size);
+	file.FileDate = statfile.st_mtime;
+	file.Crc32 = file_crc(Filename, TRUE);
+	strcpy(file.Uploader, exitinfo.sUserName);
+	file.UploadDate = time(NULL);
+
+	if (area.PwdUP) {
+	    colour(9,0);
+	    /* Do you want to password protect your upload ? [y/N]: */
+	    printf("\n%s", (char *) Language(285));
+	    fflush(stdout);
+
+	    if (toupper(Getone()) == Keystroke(285, 0)) {
+		colour(10, 0);
+		/* REMEMBER: Passwords are "CaSe SeNsITiVe!" */
+		printf("\n%s\n", (char *) Language(286));
+		colour(14,0);
+		/* Password: */
+		printf("%s", (char *) Language(8));
+		fflush(stdout);
+		fflush(stdin);
+		GetstrC(file.Password, 20);
+	    }
+	}
+
+	if (fileid && strlen(archiver.iunarc)) {
+	    /*
+	     * The right unarchiver is still in memory,
+	     * get the FILE_ID.DIZ if it exists.
+	     */
+	    sprintf(temp, "%s/%s", area.Path, File);
+	    if ((err = execute(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
+					(char *)"/dev/null", (char *)"/dev/null"))) {
+		if ((err = execute(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
+					    (char *)"/dev/null", (char *)"/dev/null"))) {
+		    Syslog('+', "No FILE_ID.DIZ found in %s", File);
+		} else {
+		    idname = xstrcpy((char *)"file_id.diz");
+		}
+	    } else {
+		idname = xstrcpy((char *)"FILE_ID.DIZ");
+	    }
+	    if (!err) {
+		Syslog('+', "Found %s", idname);
+		GotId = TRUE;
+	    }
+	}
+
+	if (GotId) {
+	    lines = 0;
+	    if ((id = fopen(idname, "r")) != NULL) {
+		/*
+		 * Import FILE_ID.DIZ, format to max. 25
+		 * lines, 48 chars width.
+		 */
+		while (((fgets(temp1, PATH_MAX -1, id)) != NULL) && (lines < 25)) {
+		    Striplf(temp1);
+		    if (strlen(temp1) > 51) {
+			/*
+			 * Malformed FILE_ID.DIZ
+			 */
+			GotId = FALSE;
+			for (i = 0; i < 25; i++)
+			    file.Desc[i][0] = '\0';
+			lines = 0;
+			Syslog('!', "Trashing illegal formatted FILE_ID.DIZ");
+			break;
+		    }
+		    if (strlen(temp1) > 0) {
+			j = 0;
+			for (i = 0; i < strlen(temp1); i++) {
+			    if (isprint(temp1[i])) {
+				file.Desc[lines][j] = temp1[i];
+				j++;
+				if (j > 47)
+				    break;
+			    }
+			}
+
+			/*
+			 * Remove trailing spaces
+			 */
+			while (j && isspace(file.Desc[lines][j-1]))
+			    j--;
+			file.Desc[lines][j] = '\0';
+			lines++;
+		    }
+		}
+	    }
+	    fclose(id);
+	    unlink(idname);
+
+	    if (GotId) {
+		/*
+		 * Strip empty FILE_ID.DIZ lines at the end
+		 */
+		while ((strlen(file.Desc[lines-1]) == 0) && (lines)) {
+		    file.Desc[lines-1][0] = '\0';
+		    lines--;
+		}
+		if (lines) {
+		    Syslog('+', "Using %d FILE_ID.DIZ lines for description", lines);
+		    colour(CFG.TextColourF, CFG.TextColourB);
+		    /* Found FILE_ID.DIZ in */
+		    printf("%s %s\n", (char *) Language(257), File);
+		    fflush(stdout);
+		} else {
+		    Syslog('!', "No FILE_ID.DIZ lines left to use");
+		    GotId = FALSE;
+		}
+	    }
+	} 
+	
+	if (!GotId) {
+	    /*
+	     * Ask the user for a description.
+	     */
+	    for (i = 0; i < 26; i++)
+		*(Desc + i) = (char *) calloc(49, sizeof(char));
+
+	    colour(12,0);
+	    /* Please enter description of file */
+	    printf("\n%s %s\n\n", (char *) Language(287), File);
+	    while (TRUE) {
+		colour(10,0);
+		printf("%2d> ", iDesc);
+		fflush(stdout);
+		colour(CFG.InputColourF, CFG.InputColourB);
+
+		GetstrC(*(Desc + iDesc), 47);
+
+		if ((strcmp(*(Desc + iDesc), "")) == 0) 
+		    break;
+
+		iDesc++;
+
+		if (iDesc >= 26)
+		    break;
+	    }
+
+	    for (i = 1; i < iDesc; i++)
+		strcpy(file.Desc[i - 1], Desc[i]);
+
+	    for (i = 0; i < 26; i++)
+		free(Desc[i]);
+	}
+
+	fseek(pFileDB, 0, SEEK_END);
+	fwrite(&file, sizeof(file), 1, pFileDB);
+	fclose(pFileDB);
+
+	sprintf(temp, "%s/log/uploads.log", getenv("MBSE_ROOT"));
+	if ((pPrivate = fopen(temp, "a+")) == NULL)
+	    WriteError("$Can't open %s", temp);
+	else {
+	    iPrivate = TRUE;
+	    fprintf(pPrivate, "****************************************************");
+	    fprintf(pPrivate, "\nUser        : %s", file.Uploader);
+	    fprintf(pPrivate, "\nFile        : %s (%s)", file.LName, file.Name);
+	    fprintf(pPrivate, "\nSize        : %lu", (long)(file.Size));
+	    fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(file.UploadDate));
+				
+	    for (i = 0; i < iDesc - 1; i++)
+		fprintf(pPrivate, "%2d: %s\n", i, file.Desc[i]);
+
+	    fclose(pPrivate);
+	}
+
+	Enter(1);
+	/* Your upload time has been returned to you. Thank you for your upload! */
+	pout(10, 0, (char *) Language(288));
+	Enter(1);
+    }
+
+    free(Filename);
+    free(temp1);
+    return TRUE;
 }
 
 
