@@ -4786,6 +4786,9 @@ v0.33.20        10-Feb-2002
 		Doors are now passed the parameter to display a prompt after
 		the door or return silently.
 		Fixed lharc file return code to LHA.
+		Calling file transfer protocols now uses the execute call
+		instead of system.
+		Improved error logging for file downloads.
 
 	mbnewusr:
 		New users have the default internal fullscreen editor.
