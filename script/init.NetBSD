@@ -101,8 +101,8 @@ mbsebbs_stop()
 
 mbsebbs_reload()
 {
-    mbsebbs_start
     mbsebbs_stop
+    mbsebbs_start
 }
 
 load_rc_config $name

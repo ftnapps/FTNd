@@ -39,6 +39,9 @@ v0.61.2		11-Jul-2004
 	mbtask:
 		Changed to use direct instead of immediate mail.
 
+	script:
+		Fixed NetBSD init script reload command.
+
 
 v0.61.1		20-Jun-2004 - 11-Jul-2004
 
