@@ -1,5 +1,8 @@
 $Id$
 
+	WARNING, users of Sparc and HP-PA systems should not edit bbs menus now!
+	All other users on Intel machines (99,9% I think) can use this version.
+
 
 v0.37.01	14-Jan-2003.
 
@@ -36,6 +39,8 @@ v0.37.01	14-Jan-2003.
 
 	common.a:
 		Removed charset conversion/translation.
+		Added integer endian byteorder swapper, usefull for non-Intel
+		hardware.
 
 	mbtask:
 		Arcmail for non-CM nodes and Txx nodes is now sent during the
@@ -70,6 +75,7 @@ v0.37.01	14-Jan-2003.
 		Added new menu item 319, removed menu items 22 and 23.
 		Added setup for rules directory.
 		Added setup for menu 221. Changed description of menu 103.
+		The menu editor is machine endian independant.
 
 	mbsebbs:
 		It will now refuse to up/download OLR packets when the system

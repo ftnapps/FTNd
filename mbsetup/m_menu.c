@@ -44,6 +44,7 @@
 
 
 
+
 char *select_menurec(int max)
 {
 	static	char *menu=(char *)"-";
@@ -98,55 +99,55 @@ char *select_menurec(int max)
 void Show_A_Menu(void);
 void Show_A_Menu(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Sel. key");
-	mvprintw( 8, 2, "2.  Type nr.");
-	mvprintw( 9, 2, "3.  Opt. data");
-	mvprintw(11, 2, "4.  Display");
-	mvprintw(12, 2, "5.  Security");
-	mvprintw(13, 2, "6.  Min. age");
-	mvprintw(14, 2, "7.  Max. lvl");
-	mvprintw(15, 2, "8.  Password");
-	mvprintw(16, 2, "9.  Credit");
-	mvprintw(17, 2, "10. Lo-colors");
-	mvprintw(18, 2, "11. Hi-colors");
-	mvprintw(19, 2, "12. Autoexec");
-	if (menus.MenuType == 7) {
-		mvprintw(15,42, "13. No door.sys");
-		mvprintw(16,42, "14. Y2K style");
-		mvprintw(17,42, "15. Use Comport");
-		mvprintw(18,42, "16. Run nosuid");
-		mvprintw(19,42, "17. No Prompt");
-	}
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1.  Sel. key");
+    mvprintw( 8, 2, "2.  Type nr.");
+    mvprintw( 9, 2, "3.  Opt. data");
+    mvprintw(11, 2, "4.  Display");
+    mvprintw(12, 2, "5.  Security");
+    mvprintw(13, 2, "6.  Min. age");
+    mvprintw(14, 2, "7.  Max. lvl");
+    mvprintw(15, 2, "8.  Password");
+    mvprintw(16, 2, "9.  Credit");
+    mvprintw(17, 2, "10. Lo-colors");
+    mvprintw(18, 2, "11. Hi-colors");
+    mvprintw(19, 2, "12. Autoexec");
+    if (le_int(menus.MenuType) == 7) {
+	mvprintw(15,42, "13. No door.sys");
+	mvprintw(16,42, "14. Y2K style");
+	mvprintw(17,42, "15. Use Comport");
+	mvprintw(18,42, "16. Run nosuid");
+	mvprintw(19,42, "17. No Prompt");
+    }
 
-	set_color(WHITE, BLACK);
-	show_str( 7,16, 1, menus.MenuKey);
-	show_int( 8,16,    menus.MenuType); show_str( 8, 26,29, menus.TypeDesc);
-	show_str( 9,16,64, menus.OptionalData);
-	show_str(10,16,64,(char *)"1234567890123456789012345678901234567890123456789012345678901234");
-	show_str(11,16,64, menus.Display);
-	show_sec(12,16,    menus.MenuSecurity);
-	show_int(13,16,    menus.Age);
-	show_int(14,16,    menus.MaxSecurity);
-	if (strlen(menus.Password))
-		show_str(15,16,14, (char *)"**************");
-	else
-		show_str(15,16,14, (char *)"<null>");
-	show_int(16,16,    menus.Credit);
-	S_COL(17,16, "Normal display color", menus.ForeGnd, menus.BackGnd)
-	S_COL(18,16, "Bright display color", menus.HiForeGnd, menus.HiBackGnd)
-	set_color(WHITE, BLACK);
-	show_bool(19,16,   menus.AutoExec);
-	if (menus.MenuType == 7) {
-		show_bool(15,58,  menus.NoDoorsys);
-		show_bool(16,58,  menus.Y2Kdoorsys);
-		show_bool(17,58,  menus.Comport);
-		show_bool(18,58,  menus.NoSuid);
-		show_bool(19,58,  menus.NoPrompt);
-	}
+    set_color(WHITE, BLACK);
+    show_str( 7,16, 1, menus.MenuKey);
+    show_int( 8,16,    le_int(menus.MenuType)); show_str( 8, 26,29, menus.TypeDesc);
+    show_str( 9,16,64, menus.OptionalData);
+    show_str(10,16,64,(char *)"1234567890123456789012345678901234567890123456789012345678901234");
+    show_str(11,16,64, menus.Display);
+    show_sec(12,16,    menus.MenuSecurity);
+    show_int(13,16,    le_int(menus.Age));
+    show_int(14,16,    le_int(menus.MaxSecurity));
+    if (strlen(menus.Password))
+	show_str(15,16,14, (char *)"**************");
+    else
+	show_str(15,16,14, (char *)"<null>");
+    show_int(16,16,    menus.Credit);
+    S_COL(17,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
+    S_COL(18,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
+    set_color(WHITE, BLACK);
+    show_bool(19,16,   menus.AutoExec);
+    if (le_int(menus.MenuType) == 7) {
+	show_bool(15,58,  menus.NoDoorsys);
+	show_bool(16,58,  menus.Y2Kdoorsys);
+	show_bool(17,58,  menus.Comport);
+	show_bool(18,58,  menus.NoSuid);
+	show_bool(19,58,  menus.NoPrompt);
+    }
 }
 
 
@@ -213,67 +214,81 @@ int GetMenuType(void)
 void Edit_A_Menu(void);
 void Edit_A_Menu(void)
 {
-	int fg, bg;
+    int	    temp, fg, bg;
 
-	Show_A_Menu();
+    Show_A_Menu();
 
-	for (;;) {
-		switch(select_menu(17)) {
-		case 0: return;
+    for (;;) {
+	switch(select_menu(17)) {
+	    case 0: return;
+		    break;
+	    case 1: E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
+	    case 2: temp = GetMenuType();
+		    memset(&menus.TypeDesc, 0, sizeof(menus.TypeDesc));
+		    if (temp)
+			strcpy(menus.TypeDesc, getmenutype(temp));
+		    if (temp == 21)
+			menus.AutoExec = TRUE;
+		    menus.MenuType = le_int(temp);
+		    Show_A_Menu();
+		    break;
+	    case 3: E_STR( 9,16,64, menus.OptionalData, "The ^optional data^ for this menu item")
+	    case 4: E_STR(11,16,64, menus.Display,      "The text to ^display^ for this menu")
+	    case 5: menus.MenuSecurity.level = le_int(menus.MenuSecurity.level);
+		    menus.MenuSecurity = edit_sec(12,16, menus.MenuSecurity, (char *)"8.3.5 MENU ACCESS SECURITY");
+		    menus.MenuSecurity.level = le_int(menus.MenuSecurity.level);
+		    Show_A_Menu();
+		    break;
+	    case 6: temp = le_int(menus.Age);
+		    temp = edit_int(13,16, temp, (char *)"The minimum ^Age^ to select this menu, 0 is don't care");
+		    menus.Age = le_int(temp);
+		    break;
+	    case 7: temp = le_int(menus.MaxSecurity);
+		    temp = edit_int(14,16, temp, (char *)"The maximum ^Security level^ to access this menu");
+		    menus.MaxSecurity = le_int(temp);
+		    break;
+	    case 8: E_STR(15,16,14, menus.Password,     "The ^password^ to access this menu item")
+	    case 9: temp = le_int(menus.Credit);
+		    temp = edit_int(16,16, temp, (char *)"The ^credit cost^ for this menu item");
+		    menus.Credit = le_int(temp);
+		    break;
+	    case 10:fg = le_int(menus.ForeGnd);
+		    bg = le_int(menus.BackGnd);
+		    edit_color(&fg, &bg, (char *)"8.3.10 EDIT COLOR", (char *)"normal");
+		    menus.ForeGnd = le_int(fg);
+		    menus.BackGnd = le_int(bg);
+		    Show_A_Menu();
+		    break;
+	    case 11:fg = le_int(menus.HiForeGnd);
+		    bg = le_int(menus.HiBackGnd);
+		    edit_color(&fg, &bg, (char *)"8.3.11 EDIT COLOR", (char *)"bright");
+		    menus.HiForeGnd = le_int(fg);
+		    menus.HiBackGnd = le_int(bg);
+		    Show_A_Menu();
+		    break;
+	    case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
+	    case 13:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+		    } else
 			break;
-		case 1:	E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
-		case 2: menus.MenuType = GetMenuType();
-			memset(&menus.TypeDesc, 0, sizeof(menus.TypeDesc));
-			if (menus.MenuType)
-				strcpy(menus.TypeDesc, getmenutype(menus.MenuType));
-			if (menus.MenuType == 21)
-				menus.AutoExec = TRUE;
-			Show_A_Menu();
+	    case 14:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+		    } else
 			break;
-		case 3: E_STR( 9,16,64, menus.OptionalData, "The ^optional data^ for this menu item")
-		case 4: E_STR(11,16,64, menus.Display,      "The text to ^display^ for this menu")
-		case 5: E_SEC(12,16,    menus.MenuSecurity, "8.3.5 MENU ACCESS SECURITY", Show_A_Menu)
-		case 6: E_INT(13,16,    menus.Age,          "The minimum ^Age^ to select this menu, 0 is don't care")
-		case 7: E_INT(14,16,    menus.MaxSecurity,  "The maximum ^Security level^ to access this menu")
-		case 8: E_STR(15,16,14, menus.Password,     "The ^password^ to access this menu item")
-		case 9: E_INT(16,16,    menus.Credit,       "The ^credit cost^ for this menu item")
-		case 10:fg = menus.ForeGnd;
-			bg = menus.BackGnd;
-			edit_color(&fg, &bg, (char *)"8.3.10 EDIT COLOR", (char *)"normal");
-			menus.ForeGnd = fg;
-			menus.BackGnd = bg;
-			Show_A_Menu();
+	    case 15:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+		    } else
 			break;
-		case 11:fg = menus.HiForeGnd;
-			bg = menus.HiBackGnd;
-			edit_color(&fg, &bg, (char *)"8.3.11 EDIT COLOR", (char *)"bright");
-			menus.HiForeGnd = fg;
-			menus.HiBackGnd = bg;
-			Show_A_Menu();
+	    case 16:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
+		    } else
 			break;
-		case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
-		case 13:if (menus.MenuType == 7) {
-				E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
-			} else
-				break;
-		case 14:if (menus.MenuType == 7) {
-				E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
-			} else
-				break;
-		case 15:if (menus.MenuType == 7) {
-				E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
-			} else
-				break;
-		case 16:if (menus.MenuType == 7) {
-				E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
-			} else
-				break;
-		case 17:if (menus.MenuType == 7) {
-				E_BOOL(19,58,   menus.NoPrompt,     "^Don't display prompt^ when door is finished")
-			} else
-				break;
-		}
+	    case 17:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(19,58,   menus.NoPrompt,     "^Don't display prompt^ when door is finished")
+		    } else
+			break;
 	}
+    }
 }
 
 
@@ -281,188 +296,186 @@ void Edit_A_Menu(void)
 void EditMenu(char *);
 void EditMenu(char *Name)
 {
-	char		mtemp[PATH_MAX], temp[PATH_MAX];
-	FILE		*fil, *tmp;
-	int		records = 0, i, o, y;
-	char		pick[12];
-	long		offset;
-	unsigned long	crc, crc1;
-	int		MenuUpdated = FALSE, from, too;
-	struct menufile	tmenus;
+    char	    mtemp[PATH_MAX], temp[PATH_MAX], pick[12];
+    FILE	    *fil, *tmp;
+    int		    records = 0, i, o, y, MenuUpdated = FALSE, from, too;
+    long	    offset;
+    unsigned long   crc, crc1;
+    struct menufile tmenus;
 
+    clr_index();
+    IsDoing("Edit Menu");
+    working(1, 0, 0);
+
+    sprintf(mtemp, "%s/%s.tmp", lang.MenuPath, Name);
+    tmp = fopen(mtemp, "w+");
+
+    sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
+    if ((fil = fopen(temp, "r")) != NULL) {
+	while (fread(&menus, sizeof(menus), 1, fil) == 1) {
+	    fwrite(&menus, sizeof(menus), 1, tmp);
+	    records++;
+	}
+	fclose(fil);
+    }
+
+    o = 0;
+    for (;;) {
 	clr_index();
-	IsDoing("Edit Menu");
 	working(1, 0, 0);
+	sprintf(temp, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
+	mvprintw( 5, 6, tu(temp));
+	set_color(CYAN, BLACK);
+	fseek(tmp, 0, SEEK_SET);
 
-	sprintf(mtemp, "%s/%s.tmp", lang.MenuPath, Name);
-	tmp = fopen(mtemp, "w+");
-
-	sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
-	if ((fil = fopen(temp, "r")) != NULL) {
-		while (fread(&menus, sizeof(menus), 1, fil) == 1) {
-			fwrite(&menus, sizeof(menus), 1, tmp);
-			records++;
+	if (records) {
+	    y = 7;
+	    for (i = 1; i <= 10; i++) {
+		if ((o + i) <= records) {
+		    offset = ((o + i) - 1) * sizeof(menus);
+		    fseek(tmp, offset, SEEK_SET);
+		    fread(&menus, sizeof(menus), 1, tmp);
+		    if (menus.MenuKey[0] || menus.AutoExec) {
+			set_color(CYAN, BLACK);
+			mvprintw(y, 5, "%3d. ", o + i);
+			if (menus.AutoExec) {
+			    set_color(LIGHTRED, BLACK);
+			    mvprintw(y, 10,  "a");
+			    set_color(CYAN, BLACK);
+			} else {
+			    mvprintw(y, 10, "%1s", menus.MenuKey);
+			}
+			if (le_int(menus.MenuType) == 999 ) {
+			    mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.Display);
+			} else {
+			    mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, le_int(menus.MenuSecurity.level), menus.OptionalData);
+			}
+		    } else {
+			set_color(LIGHTBLUE, BLACK);
+			mvprintw(y, 5, "%3d.", o + i);
+		    }
+		    y++;
 		}
-		fclose(fil);
+	    }
 	}
 
-	o = 0;
-	for (;;) {
-		clr_index();
-		working(1, 0, 0);
-		sprintf(temp, "8.3 EDIT MENU \"%s\" (%s)", Name, lang.Name);
-		mvprintw( 5, 6, tu(temp));
-		set_color(CYAN, BLACK);
-		fseek(tmp, 0, SEEK_SET);
+	working(0, 0, 0);
+	strcpy(pick, select_menurec(records));
 
-		if (records) {
-			y = 7;
-			for (i = 1; i <= 10; i++) {
-				if ((o + i) <= records) {
-					offset = ((o + i) - 1) * sizeof(menus);
-					fseek(tmp, offset, SEEK_SET);
-					fread(&menus, sizeof(menus), 1, tmp);
-					if (menus.MenuKey[0] || menus.AutoExec) {
-						set_color(CYAN, BLACK);
-						mvprintw(y, 5, "%3d. ", o + i);
-						if (menus.AutoExec) {
-							set_color(LIGHTRED, BLACK);
-							mvprintw(y, 10,  "a");
-							set_color(CYAN, BLACK);
-						} else
-							mvprintw(y, 10, "%1s", menus.MenuKey);
-						if (menus.MenuType == 999 ){
-							mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, 
-								menus.MenuSecurity.level, menus.Display);
-						} else
-							mvprintw(y, 12, "%-29s %5d %s", menus.TypeDesc, 
-								menus.MenuSecurity.level, menus.OptionalData);
-					} else {
-						set_color(LIGHTBLUE, BLACK);
-						mvprintw(y, 5, "%3d.", o + i);
-					}
-					y++;
-				}
+	if (strncmp(pick, "-", 1) == 0) {
+	    if (MenuUpdated) {
+		if (yes_no((char *)"Menu is changed, save changes") == 1) {
+		    working(1, 0, 0);
+		    sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
+		    if ((fil = fopen(temp, "w+")) == NULL) {
+			working(2, 0, 0);
+		    } else {
+			Syslog('+', "Updated menu %s (%s)", temp, lang.Name);
+			fseek(tmp, 0, SEEK_SET);
+			while (fread(&menus, sizeof(menus), 1, tmp) == 1) {
+			    if (menus.MenuKey[0] || menus.AutoExec)
+				fwrite(&menus, sizeof(menus), 1, fil);
 			}
+			fclose(fil);
+			chmod(temp, 0640);
+		    }
+		    working(0, 0, 0);
 		}
+	    }
+	    fclose(tmp);
+	    unlink(mtemp);
+	    return;
+	}
 
-		working(0, 0, 0);
-		strcpy(pick, select_menurec(records));
+	if (strncmp(pick, "A", 1) == 0) {
+	    working(1, 0, 0);
+	    memset(&menus, 0, sizeof(menus));
+	    menus.ForeGnd = le_int(LIGHTGRAY);
+	    menus.HiForeGnd = le_int(WHITE);
+	    fseek(tmp, 0, SEEK_END);
+	    fwrite(&menus, sizeof(menus), 1, tmp);
+	    records++;
+	    working(0, 0, 0);
+	}
 
-		if (strncmp(pick, "-", 1) == 0) {
-			if (MenuUpdated) {
-				if (yes_no((char *)"Menu is changed, save changes") == 1) {
-					working(1, 0, 0);
-					sprintf(temp, "%s/%s.mnu", lang.MenuPath, Name);
-					if ((fil = fopen(temp, "w+")) == NULL) {
-						working(2, 0, 0);
-					} else {
-						Syslog('+', "Updated menu %s (%s)", temp, lang.Name);
-						fseek(tmp, 0, SEEK_SET);
-						while (fread(&menus, sizeof(menus), 1, tmp) == 1) {
-							if (menus.MenuKey[0] || menus.AutoExec)
-								fwrite(&menus, sizeof(menus), 1, fil);
-						}
-						fclose(fil);
-						chmod(temp, 0640);
-					}
-					working(0, 0, 0);
-				}
-			}
-			fclose(tmp);
-			unlink(mtemp);
-			return;
-		}
+	if (strncmp(pick, "D", 1) == 0) {
+	    mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
+	    y = 0;
+	    y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
+	    if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
+		offset = (y - 1) * sizeof(menus);
+		fseek(tmp, offset, SEEK_SET);
+		fread(&menus, sizeof(menus), 1, tmp);
+		menus.MenuKey[0] = '\0';
+		menus.AutoExec = FALSE;
+		fseek(tmp, offset, SEEK_SET);
+		fwrite(&menus, sizeof(menus), 1, tmp);
+		MenuUpdated = TRUE;
+	    }
+	}
 
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			memset(&menus, 0, sizeof(menus));
-			menus.ForeGnd = LIGHTGRAY;
-			menus.HiForeGnd = WHITE;
-			fseek(tmp, 0, SEEK_END);
-			fwrite(&menus, sizeof(menus), 1, tmp);
-			records++;
-			working(0, 0, 0);
-		}
-
-		if (strncmp(pick, "D", 1) == 0) {
-			mvprintw(LINES -3, 6, "Enter menu number (1..%d) to delete >", records);
-			y = 0;
-			y = edit_int(LINES -3, 44, y, (char *)"Enter record number");
-			if ((y > 0) && (y <= records) && yes_no((char *)"Remove record")) {
-				offset = (y - 1) * sizeof(menus);
-				fseek(tmp, offset, SEEK_SET);
-				fread(&menus, sizeof(menus), 1, tmp);
-				menus.MenuKey[0] = '\0';
-				menus.AutoExec = FALSE;
-				fseek(tmp, offset, SEEK_SET);
-				fwrite(&menus, sizeof(menus), 1, tmp);
-				MenuUpdated = TRUE;
-			}
-		}
-
-		if (strncmp(pick, "M", 1) == 0) {
-			from = too = 0;
-			mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
-			from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
-			locate(LINES -3, 6);
-			clrtoeol();
- 			mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
-			too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
-			if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
-				errmsg("That makes no sense");
-			} else if (yes_no((char *)"Proceed move")) {
-				fseek(tmp, (from -1) * sizeof(menus), SEEK_SET);
-				fread(&tmenus, sizeof(menus), 1, tmp);
-				if (from > too) {
-					for (i = from; i > too; i--) {
-						fseek(tmp, (i -2) * sizeof(menus), SEEK_SET);
-						fread(&menus, sizeof(menus), 1, tmp);
-						fseek(tmp, (i -1) * sizeof(menus), SEEK_SET);
-						fwrite(&menus, sizeof(menus), 1, tmp);
-					}
-				} else {
-					for (i = from; i < too; i++) {
-						fseek(tmp, i * sizeof(menus), SEEK_SET);
-						fread(&menus, sizeof(menus), 1, tmp);
-						fseek(tmp, (i -1) * sizeof(menus), SEEK_SET);
-						fwrite(&menus, sizeof(menus), 1, tmp);
-					}
-				}
-				fseek(tmp, (too -1) * sizeof(menus), SEEK_SET);
-				fwrite(&tmenus, sizeof(menus), 1, tmp);
-				MenuUpdated = TRUE;
-			}
-		}
-
-		if (strncmp(pick, "N", 1) == 0)
-			if ((o + 10) < records)
-				o += 10;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 10) >= 0)
-				o -= 10;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			offset = (atoi(pick) - 1) * sizeof(menus);
-			fseek(tmp, offset, SEEK_SET);
+	if (strncmp(pick, "M", 1) == 0) {
+	    from = too = 0;
+	    mvprintw(LINES -3, 6, "Enter menu number (1..%d) to move >", records);
+	    from = edit_int(LINES -3, 42, from, (char *)"Enter record number");
+	    locate(LINES -3, 6);
+	    clrtoeol();
+ 	    mvprintw(LINES -3, 6, "Enter new position (1..%d) >", records);
+	    too = edit_int(LINES -3, 36, too, (char *)"Enter destination record number, other will move away");
+	    if ((from == too) || (from == 0) || (too == 0) || (from > records) || (too > records)) {
+		errmsg("That makes no sense");
+	    } else if (yes_no((char *)"Proceed move")) {
+		fseek(tmp, (from -1) * sizeof(menus), SEEK_SET);
+		fread(&tmenus, sizeof(menus), 1, tmp);
+		if (from > too) {
+		    for (i = from; i > too; i--) {
+			fseek(tmp, (i -2) * sizeof(menus), SEEK_SET);
 			fread(&menus, sizeof(menus), 1, tmp);
-			crc = 0xffffffff;
-			crc = upd_crc32((char *)&menus, crc, sizeof(menus));
-			Edit_A_Menu();
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&menus, crc1, sizeof(menus));
-			if (crc1 != crc) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					fseek(tmp, offset, SEEK_SET);
-					fwrite(&menus, sizeof(menus), 1, tmp);
-					MenuUpdated = TRUE;
-					working(0, 0, 0);
-				}
-			}
+			fseek(tmp, (i -1) * sizeof(menus), SEEK_SET);
+			fwrite(&menus, sizeof(menus), 1, tmp);
+		    }
+		} else {
+		    for (i = from; i < too; i++) {
+			fseek(tmp, i * sizeof(menus), SEEK_SET);
+			fread(&menus, sizeof(menus), 1, tmp);
+			fseek(tmp, (i -1) * sizeof(menus), SEEK_SET);
+			fwrite(&menus, sizeof(menus), 1, tmp);
+		    }
 		}
+		fseek(tmp, (too -1) * sizeof(menus), SEEK_SET);
+		fwrite(&tmenus, sizeof(menus), 1, tmp);
+		MenuUpdated = TRUE;
+	    }
 	}
+
+	if (strncmp(pick, "N", 1) == 0)
+	    if ((o + 10) < records)
+		o += 10;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 10) >= 0)
+		o -= 10;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    offset = (atoi(pick) - 1) * sizeof(menus);
+	    fseek(tmp, offset, SEEK_SET);
+	    fread(&menus, sizeof(menus), 1, tmp);
+	    crc = 0xffffffff;
+	    crc = upd_crc32((char *)&menus, crc, sizeof(menus));
+	    Edit_A_Menu();
+	    crc1 = 0xffffffff;
+	    crc1 = upd_crc32((char *)&menus, crc1, sizeof(menus));
+	    if (crc1 != crc) {
+		if (yes_no((char *)"Record is changed, save") == 1) {
+		    working(1, 0, 0);
+		    fseek(tmp, offset, SEEK_SET);
+		    fwrite(&menus, sizeof(menus), 1, tmp);
+		    MenuUpdated = TRUE;
+		    working(0, 0, 0);
+		}
+	    }
+	}
+    }
 }
 
 
@@ -557,78 +570,78 @@ void EditMenus(void)
 
 int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 {
-	char	*temp;
-	FILE	*no, *mn;
-	DIR	*dp;
-	struct	dirent *de;
-	int	j;
+    char	    *temp;
+    FILE	    *no, *mn;
+    DIR		    *dp;
+    struct dirent   *de;
+    int		    j;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return page;
-	}
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 8, 3, page, (char *)"BBS Menus");
-
-	fread(&langhdr, sizeof(langhdr), 1, no);
-	j =0;
-
-	while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
-		if ((dp = opendir(lang.MenuPath)) != NULL) {
-			while ((de = readdir(dp))) {
-				if (de->d_name[0] != '.') {
-					j = 0;
-					sprintf(temp, "%s/%s", lang.MenuPath, de->d_name);
-					fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
-					if ((mn = fopen(temp, "r")) != NULL) {
-						while (fread(&menus, sizeof(menus), 1, mn) == 1) {
-							if (menus.MenuKey[0])
-								fprintf(fp, "    Menu select   %s\n", menus.MenuKey);
-							if (menus.AutoExec)
-								fprintf(fp, "    Menu select   Autoexec\n");
-							fprintf(fp, "    Type          %d %s\n", menus.MenuType, menus.TypeDesc);
-							fprintf(fp, "    Opt. data     %s\n", menus.OptionalData);
-							fprintf(fp, "    Display       %s\n", menus.Display);
-							fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
-							fprintf(fp, "    Minimum age   %d\n", menus.Age);
-							fprintf(fp, "    Maximum level %d\n", menus.MaxSecurity);
-							fprintf(fp, "    Password      %s\n", menus.Password);
-							fprintf(fp, "    Credits       %ld\n", menus.Credit);
-							fprintf(fp, "    Lo-colors     %s on %s\n", 
-								get_color(menus.ForeGnd), get_color(menus.BackGnd));
-							fprintf(fp, "    Hi-colors     %s on %s\n", 
-								get_color(menus.HiForeGnd), get_color(menus.HiBackGnd));
-							if (menus.MenuType == 7) {
-								fprintf(fp, "    No door.sys   %s\n", getboolean(menus.NoDoorsys));
-								fprintf(fp, "    Y2K door.sys  %s\n", getboolean(menus.Y2Kdoorsys));
-								fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
-								fprintf(fp, "    No setuid     %s\n", getboolean(menus.NoSuid));
-								fprintf(fp, "    No Prompt     %s\n", getboolean(menus.NoPrompt));
-							}
-							fprintf(fp, "\n\n");
-							j++;
-							if (j == 4) {
-								j = 0;
-								page = newpage(fp, page);
-								fprintf(fp, "\n");
-							}
-						}
-						fclose(mn);
-					}
-					if (j)
-						page = newpage(fp, page);
-				}
-			}
-			closedir(dp);
-		}
-	}
-
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL) {
 	free(temp);
-	fclose(no);
 	return page;
+    }
+
+    page = newpage(fp, page);
+    addtoc(fp, toc, 8, 3, page, (char *)"BBS Menus");
+
+    fread(&langhdr, sizeof(langhdr), 1, no);
+    j =0;
+
+    while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
+	if ((dp = opendir(lang.MenuPath)) != NULL) {
+	    while ((de = readdir(dp))) {
+		if (de->d_name[0] != '.') {
+		    j = 0;
+		    sprintf(temp, "%s/%s", lang.MenuPath, de->d_name);
+		    fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
+		    if ((mn = fopen(temp, "r")) != NULL) {
+			while (fread(&menus, sizeof(menus), 1, mn) == 1) {
+			    if (menus.MenuKey[0])
+				fprintf(fp, "    Menu select   %s\n", menus.MenuKey);
+			    if (menus.AutoExec)
+				fprintf(fp, "    Menu select   Autoexec\n");
+			    fprintf(fp, "    Type          %d %s\n", le_int(menus.MenuType), menus.TypeDesc);
+			    fprintf(fp, "    Opt. data     %s\n", menus.OptionalData);
+			    fprintf(fp, "    Display       %s\n", menus.Display);
+			    fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
+			    fprintf(fp, "    Minimum age   %d\n", menus.Age);
+			    fprintf(fp, "    Maximum level %d\n", le_int(menus.MaxSecurity));
+			    fprintf(fp, "    Password      %s\n", menus.Password);
+			    fprintf(fp, "    Credits       %d\n", le_int(menus.Credit));
+			    fprintf(fp, "    Lo-colors     %s on %s\n", 
+						get_color(le_int(menus.ForeGnd)), get_color(le_int(menus.BackGnd)));
+			    fprintf(fp, "    Hi-colors     %s on %s\n", 
+						get_color(le_int(menus.HiForeGnd)), get_color(le_int(menus.HiBackGnd)));
+			    if (le_int(menus.MenuType) == 7) {
+				fprintf(fp, "    No door.sys   %s\n", getboolean(menus.NoDoorsys));
+				fprintf(fp, "    Y2K door.sys  %s\n", getboolean(menus.Y2Kdoorsys));
+				fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
+				fprintf(fp, "    No setuid     %s\n", getboolean(menus.NoSuid));
+				fprintf(fp, "    No Prompt     %s\n", getboolean(menus.NoPrompt));
+			    }
+			    fprintf(fp, "\n\n");
+			    j++;
+			    if (j == 4) {
+				j = 0;
+				page = newpage(fp, page);
+				fprintf(fp, "\n");
+			    }
+			}
+			fclose(mn);
+		    }
+		    if (j)
+			page = newpage(fp, page);
+		}
+	    }
+	    closedir(dp);
+	}
+    }
+
+    free(temp);
+    fclose(no);
+    return page;
 }
 
 

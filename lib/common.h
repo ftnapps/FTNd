@@ -177,6 +177,13 @@ struct	termios	tbufs, tbufsavs;	/* Structure for raw mode	*/
 
 
 /*
+ * From endian.c
+ */
+int le_int(int);
+
+
+
+/*
  * From attach.c
  */
 int		attach(faddr, char *, int, char);
