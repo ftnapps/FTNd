@@ -79,6 +79,7 @@ typedef struct	_chatmsg {
  */
 typedef struct _channel_rec {
     char	name[21];	    /* Channel name			*/
+    char	topic[55];	    /* Channel topic			*/
     pid_t	owner;		    /* Channel owner			*/
     int		users;		    /* Users in channel			*/
     time_t	created;	    /* Creation time			*/
@@ -107,12 +108,19 @@ _channel		chat_channels[MAXCHANNELS];
 
 int			buffer_head = 0;    /* Messages buffer head	*/
 extern struct sysconfig CFG;		    /* System configuration	*/
+extern int		s_bbsopen;	    /* The BBS open status	*/
+
 
 
 /*
  * Prototypes
  */
 void chat_msg(int, char *, char *);
+void chat_dump(void);
+void system_msg(pid_t, char *);
+void chat_help(pid_t);
+int join(pid_t, char *, int);
+int part(pid_t, char*);
 
 
 
@@ -150,7 +158,6 @@ void chat_dump(void)
 /*
  * Put a system message into the chatbuffer
  */
-void system_msg(pid_t, char *);
 void system_msg(pid_t pid, char *msg)
 {
     if (buffer_head < MAXMESSAGES)
@@ -171,12 +178,24 @@ void system_msg(pid_t pid, char *msg)
 /*
  * Show help
  */
-void chat_help(pid_t);
 void chat_help(pid_t pid)
 {
-    system_msg(pid, (char *)"Topics available:");
+    system_msg(pid, (char *)"                     Help topics available:");
     system_msg(pid, (char *)"");
-    system_msg(pid, (char *)"    EXIT        HELP");
+    system_msg(pid, (char *)" /BYE              - Exit from chatserver");
+//  system_msg(pid, (char *)" /ECHO <message>   - Echo message to yourself");
+    system_msg(pid, (char *)" /EXIT             - Exit from chatserver");
+    system_msg(pid, (char *)" /JOIN #channel    - Join or create a channel");
+    system_msg(pid, (char *)" /J #channel       - Join or create a channel");
+//  system_msg(pid, (char *)" /KICK <nick>      - Kick nick out of the channel");
+    system_msg(pid, (char *)" /LIST             - List active channels");
+//  system_msg(pid, (char *)" /NAMES            - List nicks in current channel");
+    system_msg(pid, (char *)" /NICK <name>      - Set new nickname");
+    system_msg(pid, (char *)" /PART             - Leave current channel");
+    system_msg(pid, (char *)" /QUIT             - Exit from chatserver");
+//  system_msg(pid, (char *)" /TOPIC <topic>    - Set topic for current channel");
+    system_msg(pid, (char *)"");
+    system_msg(pid, (char *)" All other input (without a starting /) is sent to the channel.");
 }
 
 
@@ -184,8 +203,7 @@ void chat_help(pid_t pid)
 /*
  * Join a channel
  */
-int join(pid_t, char *);
-int join(pid_t pid, char *channel)
+int join(pid_t pid, char *channel, int sysop)
 {
     int	    i, j;
     char    buf[81];
@@ -194,7 +212,7 @@ int join(pid_t pid, char *channel)
     for (i = 0; i < MAXCHANNELS; i++) {
 	if (strcasecmp(chat_channels[i].name, channel) == 0) {
 	    /*
-	     * Excisting channel, add user to channel.
+	     * Existing channel, add user to channel.
 	     */
 	    chat_channels[i].users++;
 	    for (j = 0; j < MAXCLIENT; j++) {
@@ -209,6 +227,15 @@ int join(pid_t pid, char *channel)
 		}
 	    }
 	}
+    }
+
+    /*
+     * A new channel must be created, but only the sysop may create the "sysop" channel
+     */
+    if (!sysop && (strcasecmp(channel, "sysop") == 0)) {
+	sprintf(buf, "*** Only the sysop may create channel \"%s\"", channel);
+	system_msg(pid, buf);
+	return FALSE;
     }
 
     /*
@@ -245,7 +272,9 @@ int join(pid_t pid, char *channel)
     /*
      * No matching or free channels
      */
-    Syslog('+', "Cannot create chat channel %s, no free channels", channel);
+    sprintf(buf, "*** Cannot create chat channel %s, no free channels", channel);
+    system_msg(pid, buf);
+    Syslog('+', "%s", buf);
     return FALSE;
 }
 
@@ -254,7 +283,6 @@ int join(pid_t pid, char *channel)
 /*
  * Part from a channel
  */
-int part(pid_t, char*);
 int part(pid_t pid, char *reason)
 {
     int	    i;
@@ -350,7 +378,12 @@ char *chat_connect(char *data)
     memset(&buf, 0, sizeof(buf));
 
     if (IsSema((char *)"upsalarm")) {
-	sprintf(buf, "100:1,Power failure, running on UPS;");
+	sprintf(buf, "100:1,*** Power failure, running on UPS;");
+	return buf;
+    }
+
+    if (s_bbsopen == FALSE) {
+	sprintf(buf, "100:1,*** The BBS is closed now;");
 	return buf;
     }
 
@@ -418,7 +451,7 @@ char *chat_close(char *data)
 	}
     }
     Syslog('-', "Pid %s was not connected to chatserver");
-    sprintf(buf, "100:1,ERROR - Not connected to server;");
+    sprintf(buf, "100:1,*** ERROR - Not connected to server;");
     return buf;
 }
 
@@ -428,16 +461,21 @@ char *chat_put(char *data)
 {
     static char buf[200];
     char	*pid, *msg, *cmd;
-    int		i;
+    int		i, j, first;
 
     Syslog('-', "CPUT:%s", data);
     memset(&buf, 0, sizeof(buf));
 
     if (IsSema((char *)"upsalarm")) {
-	sprintf(buf, "100:2,1,Power alarm, running on UPS;");
+	sprintf(buf, "100:2,1,*** Power alarm, running on UPS;");
 	return buf;
     }
 
+    if (s_bbsopen == FALSE) {
+	sprintf(buf, "100:2,1,*** The BBS is closed now;");
+	return buf;
+    }
+	
     pid = strtok(data, ",");
     pid = strtok(NULL, ",");
     msg = strtok(NULL, "\0");
@@ -445,11 +483,6 @@ char *chat_put(char *data)
 
     for (i = 0; i < MAXCLIENT; i++) {
 	if (chat_users[i].pid == atoi(pid)) {
-	    /*
-	     * We are connected and known, first send the input back to ourself.
-	     */
-//	    system_msg(chat_users[i].pid, msg);
-
 	    if (msg[0] == '/') {
 		/*
 		 * A command, process this
@@ -457,16 +490,15 @@ char *chat_put(char *data)
 		if (strncasecmp(msg, "/help", 5) == 0) {
 		    chat_help(atoi(pid));
 		    goto ack;
-		}
-		if ((strncasecmp(msg, "/exit", 5) == 0) || 
+		} else if ((strncasecmp(msg, "/exit", 5) == 0) || 
 		    (strncasecmp(msg, "/quit", 5) == 0) ||
 		    (strncasecmp(msg, "/bye", 4) == 0)) {
 		    part(chat_users[i].pid, (char *)"Quitting");
 		    sprintf(buf, "Goodbye");
 		    system_msg(chat_users[i].pid, buf);
 		    goto hangup;
-		}
-		if (strncasecmp(msg, "/join", 5) == 0) {
+		} else if ((strncasecmp(msg, "/join", 5) == 0) ||
+		    (strncasecmp(msg, "/j ", 3) == 0)) {
 		    cmd = strtok(msg, " \0");
 		    Syslog('-', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
@@ -474,13 +506,48 @@ char *chat_put(char *data)
 		    if ((cmd == NULL) || (cmd[0] != '#') || (strcmp(cmd, "#") == 0)) {
 			sprintf(buf, "Try /join #channel");
 			system_msg(chat_users[i].pid, buf);
+		    } else if (chat_users[i].channel != -1) {
+			sprintf(buf, "Cannot join while in a channel");
+			system_msg(chat_users[i].pid, buf);
 		    } else {
 			Syslog('-', "Trying to join channel %s", cmd);
-			join(chat_users[i].pid, cmd+1);
+			join(chat_users[i].pid, cmd+1, chat_users[i].sysop);
+		    }
+		    chat_dump();
+		    goto ack;
+		} else if (strncasecmp(msg, "/list", 5) == 0) {
+		    first = TRUE;
+		    for (j = 0; j < MAXCHANNELS; j++) {
+			if (chat_channels[j].owner && chat_channels[j].active) {
+			    if (first) {
+				sprintf(buf, "Cnt Channel name         Channel topic");
+				system_msg(chat_users[i].pid, buf);
+				sprintf(buf, "--- -------------------- ------------------------------------------------------");
+				system_msg(chat_users[i].pid, buf);
+			    }
+			    first = FALSE;
+			    sprintf(buf, "%3d %-20s %-54s", chat_channels[j].users, chat_channels[j].name, chat_channels[j].topic);
+			    system_msg(chat_users[i].pid, buf);
+			}
+		    }
+		    if (first) {
+			sprintf(buf, "No active channels to list");
+			system_msg(chat_users[i].pid, buf);
 		    }
 		    goto ack;
-		}
-		if (strncasecmp(msg, "/part", 5) == 0) {
+		} else if (strncasecmp(msg, "/nick", 5) == 0) {
+		    cmd = strtok(msg, " \0");
+		    cmd = strtok(NULL, "\0");
+		    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 36)) {
+			sprintf(buf, "Nickname must be between 1 and 36 characters");
+		    } else {
+			strncpy(chat_users[i].name, cmd, 36);
+			sprintf(buf, "Nick set to \"%s\"", cmd);
+		    }
+		    system_msg(chat_users[i].pid, buf);
+		    chat_dump();
+		    goto ack;
+		} else if (strncasecmp(msg, "/part", 5) == 0) {
 		    cmd = strtok(msg, " \0");
 		    Syslog('-', "\"%s\"", cmd);
 		    cmd = strtok(NULL, "\0");
@@ -489,15 +556,17 @@ char *chat_put(char *data)
 			sprintf(buf, "Not in a channel");
 			system_msg(chat_users[i].pid, buf);
 		    }
+		    chat_dump();
+		    goto ack;
+		} else {
+		    /*
+		     * If still here, the command was not recognized.
+		     */
+		    cmd = strtok(msg, " \t\r\n\0");
+		    sprintf(buf, "*** \"%s\" :Unknown command", cmd+1);
+		    system_msg(chat_users[i].pid, buf);
 		    goto ack;
 		}
-		/*
-		 * If still here, the command was not recognized.
-		 */
-		cmd = strtok(msg, " \t\r\n\0");
-		sprintf(buf, "%s :Unknown command", cmd+1);
-		system_msg(chat_users[i].pid, buf);
-		goto ack;
 	    }
 	    if (chat_users[i].channel == -1) {
 		/*
@@ -515,7 +584,7 @@ char *chat_put(char *data)
 	}
     }
     Syslog('-', "Pid %s was not connected to chatserver");
-    sprintf(buf, "100:2,1,ERROR - Not connected to server;");
+    sprintf(buf, "100:2,1,*** ERROR - Not connected to server;");
     return buf;
 
 ack:
@@ -529,16 +598,23 @@ hangup:
 
 
 
+/*
+ * Check for a message for the user. Return the message or signal that
+ * nothing is there to display.
+ */
 char *chat_get(char *data)
 {
     static char buf[200];
     char	*pid;
     int		i;
-
-//    Syslog('-', "CGET:%s", data);
     
     if (IsSema((char *)"upsalarm")) {
-	sprintf(buf, "100:2,1,Power failure, running on UPS;");
+	sprintf(buf, "100:2,1,*** Power failure, running on UPS;");
+	return buf;
+    }
+
+    if (s_bbsopen == FALSE) {
+	sprintf(buf, "100:2,1,*** The BBS is closed now;");
 	return buf;
     }
 
@@ -548,6 +624,12 @@ char *chat_get(char *data)
 
     for (i = 0; i < MAXCLIENT; i++) {
 	if (atoi(pid) == chat_users[i].pid) {
+	    /*
+	     * First check if we are a normal user in the sysop channel
+	     */
+//	    if ((! chat_users[i].sysop) && (strcasecmp(channels[chat_users[i].channel].name, "sysop") == 0)) {
+//	    }
+
 	    while (chat_users[i].pointer != buffer_head) {
 		if (chat_users[i].pointer < MAXMESSAGES)
 		    chat_users[i].pointer++;
@@ -566,7 +648,7 @@ char *chat_get(char *data)
 	    return buf;
 	}
     }
-    sprintf(buf, "100:2,1,ERROR - Not connected to server;");
+    sprintf(buf, "100:2,1,*** ERROR - Not connected to server;");
     return buf;
 }
 

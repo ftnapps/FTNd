@@ -104,7 +104,7 @@ void Showline(int y, int x, char *msg)
 	    locate(y, x);
 	    colour(LIGHTCYAN, BLACK);
 	    putchar('<');
-	    colour(BLUE, BLACK);
+	    colour(LIGHTBLUE, BLACK);
 	    for (i = 1; i < strlen(msg); i++) {
 		if (msg[i] == '>') {
 		    colour(LIGHTCYAN, BLACK);
@@ -114,8 +114,11 @@ void Showline(int y, int x, char *msg)
 		    putchar(msg[i]);
 		}
 	    }
+	} else if (msg[0] == '*') {
+	    colour(LIGHTRED, BLACK);
+	    mvprintw(y, x, msg);
 	} else {
-	    colour(RED, BLACK);
+	    colour(GREEN, BLACK);
 	    mvprintw(y, x, msg);
 	}
     }
@@ -208,7 +211,7 @@ void Chat(char *username, char *channel)
     sprintf(buf, "CCON,3,%d,%s,0;", mypid, exitinfo.Name);
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
-	strcpy(buf, socket_receive());
+	strncpy(buf, socket_receive(), sizeof(buf)-1);
 	Syslog('-', "< %s", buf);
 	if (strncmp(buf, "100:1,", 6) == 0) {
 	    cnt = strtok(buf, ",");
@@ -258,7 +261,7 @@ void Chat(char *username, char *channel)
 	while (data) {
 	    sprintf(buf, "CGET:1,%d;", mypid);
 	    if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
+		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    Syslog('-', "> CGET:1,%d;", mypid);
 		    Syslog('-', "< %s", buf);
@@ -266,6 +269,7 @@ void Chat(char *username, char *channel)
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal, chat ended */
 		    rc = atoi(resp);
+		    memset(&resp, 0, sizeof(resp));
 		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message          */
 		    resp[strlen(resp)-1] = '\0';
 		    DispMsg(resp);
@@ -334,7 +338,6 @@ void Chat(char *username, char *channel)
     }
     chatting = FALSE;
 
-
     /* 
      * Before sending the close command, purge all outstanding messages.
      */
@@ -342,7 +345,7 @@ void Chat(char *username, char *channel)
     while (data) {
 	sprintf(buf, "CGET:1,%d;", mypid);
 	if (socket_send(buf) == 0) {
-	    strcpy(buf, socket_receive());
+	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
 		Syslog('-', "> CGET:1,%d;", mypid);
 		Syslog('-', "< %s", buf);
@@ -350,6 +353,7 @@ void Chat(char *username, char *channel)
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
 		rc = atoi(resp);
+		memset(&resp, 0, sizeof(resp));
 		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message          */
 		resp[strlen(resp)-1] = '\0';
 		DispMsg(resp);

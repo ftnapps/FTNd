@@ -425,6 +425,40 @@ void soft_info(void)
 
 
 /*
+ * Colorize the chat window
+ */
+void Showline(int y, int x, char *msg)
+{
+    int     i;
+
+    if (strlen(msg)) {
+	if (msg[0] == '<') {
+	    locate(y, x);
+	    colour(LIGHTCYAN, BLACK);
+	    putchar('<');
+	    colour(LIGHTBLUE, BLACK);
+	    for (i = 1; i < strlen(msg); i++) {
+		if (msg[i] == '>') {
+		    colour(LIGHTCYAN, BLACK);
+		    putchar(msg[i]);
+		    colour(CYAN, BLACK);
+		} else {
+		    putchar(msg[i]);
+		}
+	    }
+	} else if (msg[0] == '*') {
+	    colour(LIGHTRED, BLACK);
+	    mvprintw(y, x, msg);
+	} else {
+	    colour(GREEN, BLACK);
+	    mvprintw(y, x, msg);
+	}
+    }
+}
+
+
+
+/*
  * Display received chat message
  */
 void DispMsg(char *);
@@ -433,7 +467,7 @@ void DispMsg(char *msg)
     int	    i;
 
     strncpy(rbuf[rpointer], msg, 80);
-    mvprintw(4+rpointer, 1, rbuf[rpointer]);
+    Showline(4+rpointer, 1, rbuf[rpointer]);
     if (rpointer == rsize) {
 	/*
 	 * Scroll buffer
@@ -442,7 +476,7 @@ void DispMsg(char *msg)
 	    locate(i+4,1);
 	    clrtoeol();
 	    sprintf(rbuf[i], "%s", rbuf[i+1]);
-	    mvprintw(i+4, 1, rbuf[i]);
+	    Showline(i+4, 1, rbuf[i]);
 	}
     } else {
 	rpointer++;
@@ -490,7 +524,7 @@ void Chat(int sysop)
     clrtoeol();
     mvprintw(lines - 2, 2, "Chat, type \"/EXIT\" to exit");
 
-    set_color(LIGHTGRAY, BLACK);
+    set_color(WHITE, BLACK);
     mvprintw(lines - 1, 1, ">");
     memset(&sbuf, 0, sizeof(sbuf));
     memset(&rbuf, 0, sizeof(rbuf));
@@ -516,7 +550,8 @@ void Chat(int sysop)
 	while (data) {
 	    sprintf(buf, "CGET:1,%d;", mypid);
 	    if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
+		memset(&buf, 0, sizeof(buf));
+		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    Syslog('-', "> CGET:1,%d;", mypid);
 		    Syslog('-', "< %s", buf);
@@ -524,6 +559,7 @@ void Chat(int sysop)
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2	    */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal error	    */
 		    rc = atoi(resp);
+		    memset(&resp, 0, sizeof(resp));
 		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message	    */
 		    resp[strlen(resp)-1] = '\0';
 		    DispMsg(resp);
@@ -550,9 +586,8 @@ void Chat(int sysop)
 	 * Check for a pressed key, if so then process it
 	 */
 	ch = testkey(lines -1, curpos + 2);
-	if (ch == '@') {
-	    break;
-	} else if (isprint(ch)) {
+	if (isprint(ch)) {
+	    set_color(CYAN, BLACK);
 	    if (curpos < 77) {
 		putchar(ch);
 		fflush(stdout);
@@ -562,6 +597,7 @@ void Chat(int sysop)
 		putchar(7);
 	    }
 	} else if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
+	    set_color(CYAN, BLACK);
 	    if (curpos) {
 		curpos--;
 		sbuf[curpos] = '\0';
@@ -593,6 +629,7 @@ void Chat(int sysop)
 	    memset(&sbuf, 0, sizeof(sbuf));
 	    locate(lines - 1, 2);
 	    clrtoeol();
+	    set_color(WHITE, BLACK);
 	    mvprintw(lines - 1, 1, ">");
 	}
     }
@@ -604,7 +641,7 @@ void Chat(int sysop)
     while (data) {
 	sprintf(buf, "CGET:1,%d;", mypid);
 	if (socket_send(buf) == 0) {
-	    strcpy(buf, socket_receive());
+	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
 		Syslog('-', "> CGET:1,%d;", mypid);
 		Syslog('-', "< %s", buf);
@@ -612,6 +649,7 @@ void Chat(int sysop)
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
 		rc = atoi(resp);
+		memset(&resp, 0, sizeof(resp));
 		strncpy(resp, strtok(NULL, "\0"), 80);  /* The message          */
 		resp[strlen(resp)-1] = '\0';
 		DispMsg(resp);
