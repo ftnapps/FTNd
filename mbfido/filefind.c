@@ -185,6 +185,7 @@ long StartReply(ff_list *ffl)
     if (scanmgr.NetReply){
 	Msg.Netmail = TRUE;
 	sprintf(Msg.ToAddress, "%d:%d/%d.%d", ffl->zone, ffl->net, ffl->node, ffl->point);
+	Msg.Private = TRUE;
     } else
 	Msg.Echomail = TRUE;
 
