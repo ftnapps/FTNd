@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/callstat.c
+ * $Id$
  * Purpose ...............: Read mailer last call status
- * Last modification date : 08-Jul-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10

@@ -1,7 +1,8 @@
-/* $Id */
-
 #ifndef _MBTASK_H
 #define	_MBTASK_H
+
+/* $Id$ */
+
 
 /*
  *  Defines. 

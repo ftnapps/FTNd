@@ -1,6 +1,9 @@
 #ifndef _TASKREGS_H
 #define _TASKREGS_H
 
+/* $Id$ */
+
+
 #define MAXCLIENT       100
 
 

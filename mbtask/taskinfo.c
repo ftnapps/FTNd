@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/taskinfo.c
+ * $Id$
  * Purpose ...............: Give system information
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10

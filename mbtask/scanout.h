@@ -1,6 +1,9 @@
 #ifndef SCANOUT_H
 #define SCANOUT_H
 
+/* $Id$ */
+
+
 #define OUT_PKT 0
 #define OUT_DIR 1
 #define OUT_FLO 2

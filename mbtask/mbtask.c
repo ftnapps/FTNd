@@ -584,12 +584,12 @@ int checktasks(int onsig)
 
 	    if (first && task[i].rc) {
 		first = FALSE;
-		tasklog('t', "Task             Type      pid stat status      rc    status");
-		tasklog('t', "---------------- ------- ----- ---- ----------- ----- --------");
+		tasklog('t', "Task             Type      pid stat    rc");
+		tasklog('t', "---------------- ------- ----- ---- -----");
 		for (j = 0; j < MAXTASKS; j++)
 		    if (strlen(task[j].name))
-			tasklog('t', "%-16s %s %5d %s %-11d %5d %08x", task[j].name, callmode(task[j].tasktype), 
-				task[j].pid, task[j].running?"runs":"stop", task[j].status, task[j].rc, task[j].status);
+			tasklog('t', "%-16s %s %5d %s %5d", task[j].name, callmode(task[j].tasktype), 
+				task[j].pid, task[j].running?"runs":"stop", task[j].rc);
 	    }
 
 	    switch (task[i].rc) {
@@ -607,7 +607,6 @@ int checktasks(int onsig)
 			count++;
 			break;
 		default:
-			tasklog('+', "errno=%d %s", errno, strerror(errno));
 			if (WIFEXITED(task[i].status)) {
 			    rc = WEXITSTATUS(task[i].status);
 			    if (rc)
@@ -652,7 +651,10 @@ void die(int onsig)
 	int	i, count;
 
 	signal(onsig, SIG_IGN);
-	tasklog('+', "Shutting down on signal %s", SigName[onsig]);
+	if (onsig == SIGTERM)
+	    tasklog('+', "Starting normal shutdown");
+	else
+	    tasklog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
 
 	/*
 	 *  First check if there are tasks running, if so try to stop them
@@ -680,6 +682,11 @@ void die(int onsig)
 				tasklog('?', "Still %d tasks running, giving up", count);
 		}
 	}
+
+	if ((count = checktasks(0)))
+	    tasklog('?', "Shutdown with %d tasks still running", count);
+	else
+	    tasklog('+', "Good, no more tasks running");
 
 	ulocktask();
 	if (sock != -1)
