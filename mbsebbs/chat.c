@@ -208,10 +208,10 @@ void Chat(char *username, char *channel)
     mvprintw(1, 2, "MBSE BBS Chat Server");
 
     sprintf(buf, "CCON,3,%d,%s,0;", mypid, exitinfo.Name);
-    Syslog('-', "> %s", buf);
+    Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);
-	Syslog('-', "< %s", buf);
+	Syslog('c', "< %s", buf);
 	if (strncmp(buf, "100:1,", 6) == 0) {
 	    cnt = strtok(buf, ",");
 	    msg = strtok(NULL, "\0");
@@ -248,7 +248,7 @@ void Chat(char *username, char *channel)
 	    strcpy(buf, socket_receive());
     }
 
-    Syslog('-', "Start loop");
+    Syslog('c', "Start loop");
     chatting = TRUE;
 
     while (stop == FALSE) {
@@ -262,8 +262,8 @@ void Chat(char *username, char *channel)
 	    if (socket_send(buf) == 0) {
 		strncpy(buf, socket_receive(), sizeof(buf)-1);
 		if (strncmp(buf, "100:2,", 6) == 0) {
-		    Syslog('-', "> CGET:1,%d;", mypid);
-		    Syslog('-', "< %s", buf);
+		    Syslog('c', "> CGET:1,%d;", mypid);
+		    Syslog('c', "< %s", buf);
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* 1= fatal, chat ended */
@@ -310,10 +310,10 @@ void Chat(char *username, char *channel)
 	    }
 	} else if ((ch == '\r') && curpos) {
 	    sprintf(buf, "CPUT:2,%d,%s;", mypid, sbuf);
-	    Syslog('-', "> %s", buf);
+	    Syslog('c', "> %s", buf);
 	    if (socket_send(buf) == 0) {
 		strcpy(buf, socket_receive());
-		Syslog('-', "< %s", buf);
+		Syslog('c', "< %s", buf);
 		if (strncmp(buf, "100:2,", 6) == 0) {
 		    strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100            */
 		    strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2              */
@@ -346,8 +346,8 @@ void Chat(char *username, char *channel)
 	if (socket_send(buf) == 0) {
 	    strncpy(buf, socket_receive(), sizeof(buf)-1);
 	    if (strncmp(buf, "100:2,", 6) == 0) {
-		Syslog('-', "> CGET:1,%d;", mypid);
-		Syslog('-', "< %s", buf);
+		Syslog('c', "> CGET:1,%d;", mypid);
+		Syslog('c', "< %s", buf);
 		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100        */
 		strncpy(resp, strtok(NULL, ","), 5);    /* Should be 2          */
 		strncpy(resp, strtok(NULL, ","), 5);	/* 1= fatal error	*/
@@ -384,10 +384,10 @@ void Chat(char *username, char *channel)
      * Close server connection
      */
     sprintf(buf, "CCLO,1,%d;", mypid);
-    Syslog('-', "> %s", buf);
+    Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());
-	Syslog('-', "< %s", buf);
+	Syslog('c', "< %s", buf);
 	if (strncmp(buf, "100:1,", 6)) {
 	}
     }

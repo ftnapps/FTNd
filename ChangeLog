@@ -17,6 +17,7 @@ v0.39.1		22-Oct-2003
 	mbsebbs:
 		Fixed a bug where the bbs goes into a loop after idle timeout
 		during login (and maybe in other situations).
+		Fixed chat debug logging to only the debug.log file.
 
 	mbfile:
 		When the areanumber with the adopt command was not given, the
