@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/atoul.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 18-Dec-1998
  *
  *****************************************************************************
- * Copyright (C) 1997-1998
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -30,7 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "atoul.h"
 
 

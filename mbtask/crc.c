@@ -4,7 +4,7 @@
  * Purpose ...............: Crc32 calculations
  *
  *****************************************************************************
- * Copyright (C) 1993-2002
+ * Copyright (C) 1993-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,8 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "crc.h"
+#include "../lib/mbselib.h"
 
 
 /*

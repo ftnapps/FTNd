@@ -459,7 +459,7 @@ void screen_start(char *name)
 {
     int	i;
 
-    TermInit(1);
+    TermInit(1, columns, lines);
     /*
      *  Overwrite screen the first time, if user had it black on white
      *  it will change to white on black. clear() won't do the trick.

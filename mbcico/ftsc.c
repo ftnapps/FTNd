@@ -29,14 +29,8 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
+#include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
-#include "../lib/clcomm.h"
-#include "../lib/mberrors.h"
 #include "session.h"
 #include "ttyio.h"
 #include "statetbl.h"

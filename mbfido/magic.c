@@ -29,13 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbtic.h"
+#include "../lib/mbsedb.h"
 #include "tic.h"
 #include "utic.h"
 #include "magic.h"

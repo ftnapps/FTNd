@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Task Manager, utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,11 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "signame.h"
 #include "scanout.h"
-#include "crc.h"
 #include "taskutil.h"
 
 

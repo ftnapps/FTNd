@@ -29,23 +29,12 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "../lib/structs.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
 #include "../lib/nodelist.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbdupe.h"
-#include "../lib/dbcfg.h"
-#include "../lib/dbnode.h"
-#include "../lib/dbmsgs.h"
-#include "../lib/dbuser.h"
-#include "../lib/dbftn.h"
-#include "../lib/dbtic.h"
+#include "../lib/mbsedb.h"
 #include "../lib/msg.h"
-#include "../lib/mberrors.h"
 #include "flock.h"
 #include "tosspkt.h"
 #include "unpack.h"
@@ -308,7 +297,7 @@ int main(int argc, char **argv)
     InitTic();
     InitUser();
     InitFidonet();
-    TermInit(1);
+    TermInit(1, 80, 25);
     t_start = time(NULL);
     t = localtime(&t_start);
     Diw = t->tm_wday;

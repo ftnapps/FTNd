@@ -4,7 +4,7 @@
  * Purpose ...............: Show contents of toberep.data
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbselib.h"
 
 
 int main(int argc, char **argv)

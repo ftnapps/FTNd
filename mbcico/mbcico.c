@@ -29,17 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
+#include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
-#include "../lib/dbnode.h"
-#include "../lib/dbftn.h"
-#include "../lib/mberrors.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "config.h"
 #include "answer.h"
 #include "call.h"
@@ -188,7 +181,7 @@ int main(int argc, char *argv[])
     InitConfig();
     InitNode();
     InitFidonet();
-    TermInit(1);
+    TermInit(1, 80, 25);
     t_start = c_start = c_end = time(NULL);
 
     InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, 

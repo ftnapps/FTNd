@@ -91,6 +91,33 @@
 #include <zlib.h>
 #endif
 #include <pthread.h>
+#include <sys/poll.h>
+
+#include <stddef.h>
+#include <fcntl.h>
+#if defined(__FreeBSD__) || defined(__NetBSD__)
+#include <netinet/in_systm.h>
+#endif
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+
+
+/*
+ *  *  Some older systems don;t have this
+ *   */
+#ifndef ICMP_FILTER
+#define ICMP_FILTER     1
+
+struct icmp_filter {
+            u_int32_t       data;
+};
+
+#endif
+
+/* Some old libs don't have socklen_t */
+#ifndef socklen_t
+#define socklen_t unsigned int
+#endif
 
 
 /*
@@ -105,7 +132,7 @@
  */
 
 #define MBSE_SS(x) (x)?(x):"(null)"
-
+#define SOCKA_A4(a) ((void *)&((struct sockaddr_in *)(a))->sin_addr)
 
 
 /*****************************************************************************
@@ -2213,7 +2240,7 @@ char		*TearLine(void);
 /*
  * From term.c
  */
-void		TermInit(int);
+void		TermInit(int, int, int);
 void		Enter(int);
 void		pout(int, int, char *);
 void		poutCR(int, int, char *);

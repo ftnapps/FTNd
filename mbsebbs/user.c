@@ -6,7 +6,7 @@
  *                          does a lot of checking in general.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -31,14 +31,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "../lib/structs.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/mberrors.h"
 #include "timeout.h"
 #include "user.h"
 #include "dispfile.h"
@@ -256,7 +251,7 @@ void user()
 	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
     else
 	UserCity(mypid, usrconfig.Name, (char *)"N/A");
-    TermInit(usrconfig.GraphMode);
+    TermInit(usrconfig.GraphMode, 80, usrconfig.iScreenLen);
 
     /*
      * Count simultaneous logins

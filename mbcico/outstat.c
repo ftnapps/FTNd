@@ -29,17 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
+#include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
-#include "../lib/dbnode.h"
-#include "../lib/dbftn.h"
-#include "../lib/mberrors.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "scanout.h"
 #include "callstat.h"
 #include "outstat.h"
@@ -460,7 +453,7 @@ int IsZMH()
 
 
 
-int poll(faddr *addr, int stop)
+int pollnode(faddr *addr, int stop)
 {
     char	    *pol;
     int		    rc = 0;

@@ -4,7 +4,7 @@
  * Purpose ...............: Give system information
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,8 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "taskinfo.h"
 
 
@@ -43,7 +42,6 @@ char *get_sysinfo(void)
 	FILE		*fp;
 	static char	buf[SS_BUFSIZE];
 	char		*temp;
-	struct sysrec	SYSINFO;
 
 	sprintf(buf, "201:1,16;");
 	temp = calloc(128, sizeof(char));
@@ -71,7 +69,6 @@ char *get_lastcallercount(void)
 	static char		buf[SS_BUFSIZE];
 	char			*temp;
 	FILE			*fp;
-	struct lastcallershdr	LCALLhdr;
 
 	sprintf(buf, "201:1,16;");
 	temp = calloc(128, sizeof(char));
@@ -94,8 +91,6 @@ char *get_lastcallerrec(int Rec)
 	static char		buf[SS_BUFSIZE];
 	char                    *temp, action[9];
 	FILE                    *fp;
-	struct lastcallershdr   LCALLhdr;
-	struct lastcallers      LCALL;
 
 	sprintf(buf, "201:1,16;");
 	temp = calloc(128, sizeof(char));

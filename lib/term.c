@@ -35,12 +35,16 @@
 
 
 int termmode;			/* 0 = tty, 1 = ANSI			   */
+int termx = 80;
+int termy = 24;
 
 
-
-void TermInit(int mode)
+void TermInit(int mode, int x, int y)
 {
+    Syslog('-', "Terminit(%d, %d, %d)", mode, x, y);
     termmode = mode;
+    termx = x;
+    termy = y;
 }
 
 
@@ -140,11 +144,11 @@ void colour(int fg, int bg)
 void Center(char *string)
 {
     int	    Strlen;
-    int	    Maxlen = 70;
+    int	    Maxlen = termx;
     int	    i, x, z;
     char    *Str;
 
-    Str = calloc(81, sizeof(char));
+    Str = calloc(1024, sizeof(char));
     Strlen = strlen(string);
 
     if (Strlen == Maxlen)
@@ -183,19 +187,10 @@ void clear()
 void locate(int y, int x)
 {
     if (termmode > 0) {
-	if (exitinfo.iScreenLen != 0) {
-	    if (y > exitinfo.iScreenLen || x > 80) {
-		fprintf(stdout, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
-		fprintf(stdout, "ANSI: exitinfo.iScreenLen: %i\n", exitinfo.iScreenLen);
-		fflush(stdout);
-		return;
-	    }
-	} else {
-	    if (y > 25 || x > 80) {
-		fprintf(stdout, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
-		fflush(stdout);
-		return; 
-	    }
+	if (y > termy || x > termx) {
+	    fprintf(stdout, "ANSI: Invalid screen coordinates: %i, %i\n", y, x);
+	    fflush(stdout);
+	    return; 
 	}
 	fprintf(stdout, "\x1B[%i;%iH", y, x);
 	fflush(stdout);
@@ -225,7 +220,7 @@ void fLine(int	Len)
 
 void  sLine()
 {
-    fLine(79);
+    fLine(termx -1);
 }
 
 

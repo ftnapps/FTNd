@@ -2,12 +2,17 @@ $Id$
 
 v0.51.0		09-Feb-2004
 
+	general:
+		Reorganized the library header files. This will make it easier
+		to switch to dynamic libraries so other apps can link to mbse.
+
 	mbaff:
 		Patched to store long filename in the newfiles database
 
 	mbsebbs:
 		Added support for the internal editor for hi-ascii 
 		international character sets.
+		The screenlength is now really set to the users screenlength.
 
 
 v0.50.0		03-Oct-2003 - 09-Feb-2004

@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 
-AC_INIT(lib/libs.h)
+AC_INIT(lib/mbselib.h)
 AM_CONFIG_HEADER(config.h)
 SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)

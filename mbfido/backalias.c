@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/backalias.c
+ * $Id$
  * Purpose ...............: Alias functions.
- * Last modification date : 10-Jul-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek                FIDO:           2:280/2802
  * Beekmansbos 10
@@ -30,11 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
+#include "../lib/mbselib.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "backalias.h"
 
 

@@ -4,7 +4,7 @@
  * Purpose ...............: New user registration
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,14 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "../lib/structs.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/mberrors.h"
 #include "mbnewusr.h"
 #include "funcs.h"
 #include "input.h"
@@ -152,7 +147,7 @@ int main(int argc, char **argv)
 	 * Default set the terminal to ANSI mode. If your logo
 	 * is in color, the user will see color no mather what.
 	 */
-	TermInit(1);
+	TermInit(1, 80, 24);
 		
 	/*
 	 * Now it's time to check if the bbs is open. If not, we 

@@ -4,7 +4,7 @@
  * Purpose ...............: Read mailer last call status
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,8 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "taskutil.h"
 #include "callstat.h"
 

@@ -29,15 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/dbcfg.h"
-#include "../lib/clcomm.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbsedb.h"
 #include "mball.h"
 
 
@@ -137,7 +132,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    TermInit(1);
+    TermInit(1, 80, 24);
     t_start = time(NULL);
     umask(000);
 

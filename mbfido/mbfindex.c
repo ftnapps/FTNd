@@ -29,15 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
+#include "../lib/mbsedb.h"
 #include "../lib/diesel.h"
-#include "../lib/mberrors.h"
 #include "mbfutil.h"
 #include "mbfindex.h"
 

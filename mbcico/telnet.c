@@ -29,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/clcomm.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbselib.h"
 #include "telnet.h"
 
 

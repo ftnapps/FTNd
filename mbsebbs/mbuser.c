@@ -29,14 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbsedb.h"
 #include "mbuser.h"
 
 
@@ -57,7 +52,7 @@ int main(int argc, char **argv)
     struct passwd   *pw;
 
     InitConfig();
-    TermInit(1);
+    TermInit(1, 80, 24);
     Days = 0;
     Level = 0;
 

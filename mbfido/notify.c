@@ -4,7 +4,7 @@
  * Purpose ...............: Write notify messages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,15 +29,11 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
-#include "../lib/dbnode.h"
+#include "../lib/mbsedb.h"
 #include "filemgr.h"
 #include "areamgr.h"
 #include "sendmail.h"

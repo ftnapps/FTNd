@@ -4,7 +4,7 @@
  * Purpose ...............: Change user settings
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,13 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "../lib/structs.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
 #include "change.h"
 #include "dispfile.h"
 #include "funcs.h"
@@ -608,7 +604,7 @@ void Chg_Graphics()
 
 	Syslog('+', "Graphics mode now %s", exitinfo.GraphMode?"On":"Off");
 	Enter(2);
-	TermInit(exitinfo.GraphMode);
+	TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
 	WriteExitinfo();
 	sleep(2);
 }
@@ -727,6 +723,7 @@ void Chg_ScreenLen()
 		printf("\n%s%d\n\n", (char *) Language(81), exitinfo.iScreenLen);
 	}
 
+	TermInit(exitinfo.GraphMode, 80, exitinfo.iScreenLen);
 	Syslog('+', "New screenlen %d", exitinfo.iScreenLen);
 	WriteExitinfo();
 	Pause();

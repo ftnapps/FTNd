@@ -5,7 +5,7 @@
  *			    BBS and unix accounts.
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -30,14 +30,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
-#include "../lib/structs.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/clcomm.h"
-#include "../lib/common.h"
-#include "../lib/mberrors.h"
 #include "funcs.h"
 #include "input.h"
 #include "newuser.h"
@@ -211,7 +206,7 @@ int newuser()
 	Enter(1);
     }
     exitinfo.GraphMode = usrconfig.GraphMode;
-    TermInit(exitinfo.GraphMode);
+    TermInit(exitinfo.GraphMode, 80, 24);
 
     if (CFG.iVoicePhone) {
 	while (1) {
@@ -466,6 +461,7 @@ int newuser()
     else
 	usrconfig.iScreenLen = atoi(temp);
 
+    TermInit(usrconfig.GraphMode, 80, usrconfig.iScreenLen);
     alarm_on();
 
     usrconfig.tLastPwdChange  = ltime; /* Days Since Last Password Change */

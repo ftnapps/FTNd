@@ -700,9 +700,8 @@ void Chat(int sysop)
 int main(int argc, char *argv[])
 {
     struct passwd   *pw;
-    char	    buf[128], *temp;
+    char	    buf[128];
     int		    rc;
-    FILE	    *fp;
 
 
     /*

@@ -29,14 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/mbse.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
 #include "../lib/bluewave.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
 #include "../lib/msgtext.h"
 #include "../lib/msg.h"
 #include "mail.h"

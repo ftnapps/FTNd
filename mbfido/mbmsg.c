@@ -29,15 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
 #include "../lib/msg.h"
-#include "../lib/dbcfg.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbsedb.h"
 #include "post.h"
 #include "mbmsg.h"
 
@@ -90,7 +85,7 @@ int main(int argc, char **argv)
 
 
     InitConfig();
-    TermInit(1);
+    TermInit(1, 80, 25);
     oldmask = umask(007);
     t_start = time(NULL);
 

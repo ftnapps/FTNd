@@ -29,15 +29,9 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
-#include "../lib/dbftn.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbsedb.h"
 
 
 typedef struct _nl_list {
@@ -142,7 +136,7 @@ int main(int argc,char *argv[])
 
     InitConfig();
     InitFidonet();
-    TermInit(1);
+    TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 

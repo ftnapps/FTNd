@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/filetime.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 06-Jan-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -30,7 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "filetime.h"
 
 

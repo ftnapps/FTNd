@@ -4,7 +4,7 @@
  * Purpose ...............: Keep track of server status 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -29,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "../lib/structs.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbselib.h"
 #include "taskstat.h"
 #include "callstat.h"
 #include "outstat.h"

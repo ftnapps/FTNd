@@ -4,7 +4,7 @@
  * Purpose: MBSE BBS Outbound Manager
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -29,17 +29,10 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
+#include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
-#include "../lib/clcomm.h"
-#include "../lib/dbcfg.h"
-#include "../lib/dbnode.h"
-#include "../lib/dbftn.h"
-#include "../lib/mberrors.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "outstat.h"
 #include "nlinfo.h"
 
@@ -185,7 +178,7 @@ int main(int argc, char *argv[])
     InitConfig();
     InitNode();
     InitFidonet();
-    TermInit(1);
+    TermInit(1, 80, 25);
     t_start = time(NULL);
     umask(002);
 
@@ -279,7 +272,7 @@ int main(int argc, char *argv[])
 	    if (strncasecmp(argv[i-1], "-q", 2)) {
 		if ((addr = parsefaddr(argv[i-1])) == NULL)
 		    Fatal((char *)"Unrecognizable address", MBERR_COMMANDLINE);
-		j = poll(addr, do_stop);
+		j = pollnode(addr, do_stop);
 		tidy_faddr(addr);
 		if (j)
 		    rc = j;

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbaff/grlist.c
+ * $Id$
  * Purpose ...............: Announce new files and FileFind
- * Last modification date : 27-Nov-1999
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:2801/16
  * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
@@ -30,8 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/clcomm.h"
+#include "../lib/mbselib.h"
 #include "grlist.h"
 
 

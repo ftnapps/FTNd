@@ -29,9 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "libs.h"
-#include "../lib/structs.h"
-#include "../lib/mberrors.h"
+#include "../lib/mbselib.h"
 #include "taskstat.h"
 #include "taskutil.h"
 #include "ping.h"

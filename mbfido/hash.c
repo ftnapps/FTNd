@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbmail/hash.c
+ * $Id$
  * Purpose ...............: MBSE BBS Mail Gate
- * Last modification date : 25-Aug-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -30,7 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
+#include "../lib/mbselib.h"
 #include "hash.h"
 #include "lhash.h"
 

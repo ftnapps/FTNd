@@ -1,9 +1,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
-#include "../lib/structs.h"
-#include "../lib/common.h"
-
+/* $Id$ */
 
 extern long configtime;
 extern long maxfsize;

@@ -29,16 +29,11 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
+#include "../lib/mbselib.h"
 #include "../lib/users.h"
-#include "../lib/records.h"
-#include "../lib/common.h"
 #include "../lib/msg.h"
-#include "../lib/clcomm.h"
 #include "../lib/msgtext.h"
-#include "../lib/dbnode.h"
-#include "../lib/dbmsgs.h"
+#include "../lib/mbsedb.h"
 #include "addpkt.h"
 #include "tracker.h"
 #include "ftn2rfc.h"

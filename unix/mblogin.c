@@ -5,7 +5,7 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek        FIDO:           2:280/2802
  * Beekmansbos 10
@@ -346,8 +346,6 @@ int main(int argc, char **argv)
 	char	tty[BUFSIZ];
 	char	userfile[PATH_MAX];
 	FILE	*ufp;
-	struct userhdr	usrconfighdr;
-	struct userrec	usrconfig;
 	int	reason = PW_LOGIN;
 	int	delay;
 	int	retries;

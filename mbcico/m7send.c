@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/m7send.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 02-Jan-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -30,10 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
-#include "../lib/libs.h"
-#include "../lib/structs.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
+#include "../lib/mbselib.h"
 #include "statetbl.h"
 #include "ttyio.h"
 #include "m7send.h"
