@@ -1,8 +1,10 @@
 #!/bin/sh
 #
 #  Initialize DOS environment before starting a bbs door.
+#  Parameters: $1 = name of the door
+#	       $2 = the nodenumber for this session
 #
-#  by Redy Rodriguez, 21-Oct-2001
+#  by Redy Rodriguez, 22-Oct-2001
 
 if [ "$1" != "" ]; then
     if [ "$2" != "" ]; then
@@ -10,11 +12,11 @@ if [ "$1" != "" ]; then
 	# Copy door.sys to dos partition
 	cat ~/door.sys >/dos/c/doors/node$2/door.sys
 	# Create .dosemu/disclaimer in user home to avoid warning
-	if [ ! -d ~/.dosemu ]; then
-	    mkdir ~/.dosemu
+	if [ ! -d $HOME/.dosemu ]; then
+	    mkdir $HOME/.dosemu
 	fi
-	if [ ! -f ~/.dosemu/disclaimer ]; then
-	    touch ~/.dosmenu/disclaimer
+	if [ ! -f $HOME/.dosemu/disclaimer ]; then
+	    touch $HOME/.dosemu/disclaimer
 	fi
     fi
 fi
