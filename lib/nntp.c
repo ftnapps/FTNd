@@ -116,7 +116,8 @@ int nntp_connect(void)
 		}
 	} else if (strncmp(p, "200", 3)) {
 		WriteError("NNTP: bad response: %s", p);
-		nntp_close();
+//		nntp_close();  FIXME: Don't close, the other end might have done that already
+		//		      If we do also, this program hangs. Must be fixed!
 		return -1;
 	}
 

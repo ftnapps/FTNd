@@ -16,6 +16,11 @@ v0.35.03	06-Jul-2002
 		Added protection against emty rfc headers with only a space.
 		Added test for HA archiver.
 
+	mbinet.a:
+		If during a connect a newsserver refuses the connection then
+		don't close our side of the connection. This is a temporary
+		solution, we should disconnect with timeout instead.
+
 	lang:
 		Corrected a spelling error in the Dutch language file.
 
