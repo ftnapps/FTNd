@@ -134,6 +134,8 @@ mbtask:
 	   and then hangs up (at least with telnet), mbtask aborts.
 
 mbsetup:
+	N: Add a check for double areatag names.
+
 	U: PickAka function lets mbsetup crash if domain is 12 characters
 
 	N: Use some sort of sorting for the system aka's and make sure the
