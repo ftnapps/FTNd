@@ -131,6 +131,7 @@ void Help(void)
 	colour(CYAN, BLACK);
 	printf("	-a -announce			Supress announce added files\n");
 	printf("	-q -quiet			Quiet mode\n");
+	printf("	-v -virus			Suppress virus scanning, use with care\n");
 	die(0);
 }
 

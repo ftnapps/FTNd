@@ -76,7 +76,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	char		System[36], ext[4];
 	int		result = 1, email = FALSE, fmpt = 0, topt = 0;
 	faddr		*ta, *ra;
-	fidoaddr	na, route, Orig;
+	fidoaddr	na, routeto, Orig;
 	FILE		*sfp, *net;
 	time_t		now;
 	struct tm	*tm;
@@ -224,7 +224,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	if (SearchFidonet(na.zone))
 		sprintf(na.domain, "%s", fidonet.domain);
 
-	switch(TrackMail(na, &route)) {
+	switch(TrackMail(na, &routeto)) {
 	case R_LOCAL:
 		/*
 		 *  Check the To: field.
@@ -328,7 +328,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
 	case R_DIRECT:
 	case R_ROUTE:
-		Syslog('+', "Route netmail via %s", aka2str(route));
+		Syslog('+', "Route netmail via %s", aka2str(routeto));
                 if (!strcasecmp(t->name, (char *)"ping") && DoPing) {
                         Syslog('+', "In transit \"Ping\" message detected");
                         Ping(f, t, fp, TRUE);
@@ -339,9 +339,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		 * Forward this message. Will not work for unknown
 		 * direct links.
 		 */
-		if (SearchNode(route)) {
+		if (SearchNode(routeto)) {
 			memset(&Orig, 0, sizeof(Orig));
-			ra = fido2faddr(route);
+			ra = fido2faddr(routeto);
 			ta = bestaka_s(ra);
 			Orig.zone  = ta->zone;
 			Orig.net   = ta->net;
@@ -360,7 +360,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 			else 
 				sprintf(ext, (char *)"nnn");
 
-			if ((net = OpenPkt(Orig , route, (char *)ext)) == NULL) {
+			if ((net = OpenPkt(Orig , routeto, (char *)ext)) == NULL) {
 				net_bad++;
 				WriteError("Can't create netmail");
 				return 0;
@@ -374,7 +374,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 			 */
 			Syslog('!', "Warning: not a direct link, check setup");
 			memset(&Orig, 0, sizeof(Orig));
-			ra = fido2faddr(route);
+			ra = fido2faddr(routeto);
 			ta = bestaka_s(ra);
 			Orig.zone  = ta->zone;
 			Orig.net   = ta->net;
@@ -383,7 +383,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 			tidy_faddr(ra);
 			tidy_faddr(ta);
 
-			if ((net = OpenPkt(Orig , route, (char *)"nnn")) == NULL) {
+			if ((net = OpenPkt(Orig , routeto, (char *)"nnn")) == NULL) {
 				net_bad++;
 				WriteError("Can't create netmail");
 				return 0;

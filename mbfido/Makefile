@@ -17,7 +17,7 @@ SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c pack.c \
 		  createm.c createf.c
 HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h pack.h \
 		  postnetmail.h scannews.h tosspkt.h addpkt.h bwrite.h forward.h \
-		  lhash.h mbfido.h mkftnhdr.h paths.h ptic.h sendmail.h tracker.h \
+		  lhash.h mbfido.h mkftnhdr.h ptic.h sendmail.h tracker.h \
 		  aliasdb.h fsort.h magic.h mbfile.h mover.h ping.h rfc2ftn.h \
 		  storeecho.h ulock.h announce.h fflist.h ftn2rfc.h makestat.h mbindex.h \
 		  msgutil.h post.h rnews.h storenet.h utic.h areamgr.h filefind.h \
@@ -49,7 +49,7 @@ MBINDEX_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib
 MBDIFF_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBFILE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a ../lib/libdiesel.a
 MBMSG_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
-OTHER		= Makefile README maptabs.tgz paths.h.in
+OTHER		= Makefile README maptabs.tgz
 TARGET		= mbfido mbseq mbaff mbindex mbdiff mbfile mbmsg
 
 ####################################################################################################################
@@ -160,7 +160,7 @@ magic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/c
 mbfile.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfkill.h mbfadopt.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfimport.h mbftoberep.h mbfmove.h mbfdel.h mbfutil.h mbfile.h
 mover.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h mover.h
 post.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h post.h
-rnews.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h pack.h rfc2ftn.h mbfido.h paths.h rnews.h
+rnews.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h ../lib/dbdupe.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/msg.h ../lib/msgtext.h pack.h rfc2ftn.h mbfido.h ../paths.h rnews.h
 storenet.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbmsgs.h ../lib/dbuser.h rollover.h storenet.h
 utic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h tic.h mover.h tic.h utic.h
 announce.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h announce.h

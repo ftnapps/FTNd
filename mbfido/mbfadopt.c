@@ -43,6 +43,7 @@
 
 extern int	do_quiet;		/* Supress screen output	    */
 extern int	do_annon;		/* Supress announce file	    */
+extern int	do_novir;		/* Suppess virus check		    */
 
 
 void AdoptFile(int Area, char *File, char *Description)
@@ -91,11 +92,15 @@ void AdoptFile(int Area, char *File, char *Description)
 		    printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 		die(0);
 	    } else {
-		if (!do_quiet) {
-		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
+		if (do_novir == FALSE) {
+		    if (!do_quiet) {
+			printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
+		    IsVirus = VirScan(tmpdir);
+		} else {
+		    IsVirus = FALSE;
 		}
-		IsVirus = VirScan(tmpdir);
 		if (IsVirus) {
 		    DeleteVirusWork();
 		    chdir(pwd);
@@ -113,12 +118,16 @@ void AdoptFile(int Area, char *File, char *Description)
 	    if (!UnPacked)
 		die(0);
 
-            if (!do_quiet) {
-                printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-                fflush(stdout);
-            }
+	    if (do_novir == FALSE) {
+		if (!do_quiet) {
+		    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+		    fflush(stdout);
+		}
+		IsVirus = VirScan(tmpdir);
+	    } else {
+		IsVirus = FALSE;
+	    }
 
-	    IsVirus = VirScan(tmpdir);
             if (IsVirus) {
 		DeleteVirusWork();
                 chdir(pwd);

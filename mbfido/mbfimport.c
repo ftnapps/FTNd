@@ -43,6 +43,7 @@
 
 extern int	do_quiet;		/* Supress screen output	    */
 extern int	do_annon;		/* Supress announce files	    */
+extern int	do_novir;		/* Supress virus scanning	    */
 
 
 void ImportFiles(int Area)
@@ -112,12 +113,14 @@ void ImportFiles(int Area)
 				printf("Can't copy file to %s, %s\n", temp2, strerror(rc));
 			    Doit = FALSE;
 			} else {
-			    if (!do_quiet) {
-				printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-				fflush(stdout);
-			    }
-			    if (VirScan(tmpdir)) {
-				Doit = FALSE;
+			    if (do_novir == FALSE) {
+				if (!do_quiet) {
+				    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+				    fflush(stdout);
+				}
+				if (VirScan(tmpdir)) {
+				    Doit = FALSE;
+				}
 			    }
 			}
 		    } else {
@@ -126,12 +129,14 @@ void ImportFiles(int Area)
 			    fflush(stdout);
 			}
 			if (UnpackFile(temp)) {
-			    if (!do_quiet) {
-				printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-				fflush(stdout);
-			    }
-			    if (VirScan(tmpdir)) {
-				Doit = FALSE;
+			    if (do_novir == FALSE) {
+				if (!do_quiet) {
+				    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+				    fflush(stdout);
+				}
+				if (VirScan(tmpdir)) {
+				    Doit = FALSE;
+				}
 			    }
 			} else {
 			    Doit = FALSE;
@@ -311,12 +316,14 @@ void ImportFiles(int Area)
 		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
 		    Doit = FALSE;
 		} else {
-		    if (!do_quiet) {
-			printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-			fflush(stdout);
-		    }
-		    if (VirScan(tmpdir)) {
-			Doit = FALSE;
+		    if (do_novir == FALSE) {
+			if (!do_quiet) {
+			    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+			    fflush(stdout);
+			}
+			if (VirScan(tmpdir)) {
+			    Doit = FALSE;
+			}
 		    }
 		}
 	    } else {
@@ -325,12 +332,14 @@ void ImportFiles(int Area)
 		    fflush(stdout);
 		}
 		if (UnpackFile(temp)) {
-		    if (!do_quiet) {
-			printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
-			fflush(stdout);
-		    }
-		    if (VirScan(tmpdir)) {
-			Doit = FALSE;
+		    if (do_novir == FALSE) {
+			if (!do_quiet) {
+			    printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
+			    fflush(stdout);
+			}
+			if (VirScan(tmpdir)) {
+			    Doit = FALSE;
+			}
 		    }
 		} else {
 		    Doit = FALSE;

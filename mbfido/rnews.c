@@ -44,7 +44,7 @@
 #include "pack.h"
 #include "rfc2ftn.h"
 #include "mbfido.h"
-#include "paths.h"
+#include "../paths.h"
 #include "rnews.h"
 
 

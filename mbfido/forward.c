@@ -51,7 +51,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
 	FILE		*fp, *fi, *net;
 	char		flavor;
-	faddr		*dest, *route, *Fa;
+	faddr		*dest, *routeto, *Fa;
 	int		i, z, n;
 	time_t		now, ftime;
 	fa_list		*tmp;
@@ -108,11 +108,11 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		flavor = 'h';
 
 	if (nodes.RouteVia.zone)
-		route = fido2faddr(nodes.RouteVia);
+		routeto = fido2faddr(nodes.RouteVia);
 	else
-		route = fido2faddr(Node);
+		routeto = fido2faddr(Node);
 	dest = fido2faddr(Node);
-	attach(*route, fwdfile, LEAVE, flavor);
+	attach(*routeto, fwdfile, LEAVE, flavor);
 
 //	if (strlen(CFG.dospath))
 //		subject = xstrcpy(Unix2Dos(fwdfile));
@@ -286,7 +286,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 
 			fprintf(fp, "Pw %s\r\n", nodes.Fpasswd);
 			fclose(fp);
-			attach(*route, ticfile, KFS, flavor);
+			attach(*routeto, ticfile, KFS, flavor);
 		} else {
 			WriteError("$Can't create %s", ticfile);
 		}
@@ -325,7 +325,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	SearchNode(Node);
 	free(ticfile);
 	free(fwdfile);
-	tidy_faddr(route);
+	tidy_faddr(routeto);
 }
 
 

@@ -52,6 +52,7 @@
 
 extern int	do_quiet;		/* Supress screen output	    */
 int		do_annon = FALSE;	/* Suppress announce on new files   */
+int		do_novir = FALSE;	/* Suppress virus check		    */
 int		do_adopt = FALSE;	/* Adopt a file			    */
 int		do_pack  = FALSE;	/* Pack filebase		    */
 int		do_check = FALSE;	/* Check filebase		    */
@@ -190,6 +191,8 @@ int main(int argc, char **argv)
 			do_quiet = TRUE;
 		} else if (!strncasecmp(argv[i], "-a", 2)) {
 			do_annon = TRUE;
+		} else if (!strncasecmp(argv[i], "-v", 2)) {
+			do_novir = TRUE;
 		}
 	}
 
@@ -203,6 +206,8 @@ int main(int argc, char **argv)
 	Syslog(' ', " ");
 	Syslog(' ', "MBFILE v%s", VERSION);
 	Syslog(' ', cmd);
+	if (do_novir)
+	    Syslog('!', "WARNING: running without virus checking");
 	free(cmd);
 
 	if (!do_quiet)

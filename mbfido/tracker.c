@@ -48,13 +48,13 @@ extern long	nodes_pos;
  *  If not, return FALSE. The calling program must bounce the
  *  original message.
  */
-int TrackMail(fidoaddr too, fidoaddr *route)
+int TrackMail(fidoaddr too, fidoaddr *routeto)
 {
 	int	rc, i;
 
 	Syslog('r', "Tracking destination %s", aka2str(too));
 
-	rc = GetRoute(aka2str(too) , route);
+	rc = GetRoute(aka2str(too) , routeto);
 	if (rc == R_NOROUTE) {
 		WriteError("No route to %s, not parsed", aka2str(too));
 		return R_NOROUTE;
@@ -74,26 +74,26 @@ int TrackMail(fidoaddr too, fidoaddr *route)
 	 *  Now look again if from the routing result we find a
 	 *  direct link. If so, maybe adjust something.
 	 */
-	if (SearchNode(*route)) {
+	if (SearchNode(*routeto)) {
 		Syslog('r', "Known node: %s", aka2str(nodes.Aka[0]));
 		Syslog('r', "Check \"too\" %s", aka2str(too));
 
 		if (nodes.RouteVia.zone) {
-			route->zone  = nodes.RouteVia.zone;
-			route->net   = nodes.RouteVia.net;
-			route->node  = nodes.RouteVia.node;
-			route->point = nodes.RouteVia.point;
-			sprintf(route->domain, "%s", nodes.RouteVia.domain);
+			routeto->zone  = nodes.RouteVia.zone;
+			routeto->net   = nodes.RouteVia.net;
+			routeto->node  = nodes.RouteVia.node;
+			routeto->point = nodes.RouteVia.point;
+			sprintf(routeto->domain, "%s", nodes.RouteVia.domain);
 			return R_ROUTE;
 		} else {
 			for (i = 0; i < 20; i++)
-				if (route->zone == nodes.Aka[i].zone)
+				if (routeto->zone == nodes.Aka[i].zone)
 					break;
-			route->zone  = nodes.Aka[i].zone;
-			route->net   = nodes.Aka[i].net;
-			route->node  = nodes.Aka[i].node;
-			route->point = nodes.Aka[i].point;
-			sprintf(route->domain, "%s", nodes.Aka[i].domain);
+			routeto->zone  = nodes.Aka[i].zone;
+			routeto->net   = nodes.Aka[i].net;
+			routeto->node  = nodes.Aka[i].node;
+			routeto->point = nodes.Aka[i].point;
+			sprintf(routeto->domain, "%s", nodes.Aka[i].domain);
 			return R_ROUTE;
 		}
 	}
