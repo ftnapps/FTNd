@@ -17,7 +17,7 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 footer.txt ${ETCDIR}" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/menus/main.mnu ]; then \
-		    if [ "${HOSTTYPE}" = "i386" ]; then \
+		    if [ "${HOSTTYPE}" = "i386" ] || [ "${MACHTYPE}" = "i386" ]; then \
 			tar xfC menus-le.tar ${PREFIX}/english/menus ; \
 			echo "Installing default english menus for a Little-Endian (i386) system" ; \
 		    else  \
