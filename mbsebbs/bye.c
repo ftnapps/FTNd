@@ -114,7 +114,7 @@ void Good_Bye(int onsig)
 	if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
 	else if ((i != SIGKILL) && (i != SIGSTOP))
-	    signal(i, SIG_IGN);
+	    signal(i, SIG_DFL);
     }
 
     if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
