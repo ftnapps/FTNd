@@ -1615,6 +1615,59 @@ int NodeInMarea(fidoaddr A)
 
 
 
+void msged_areas(FILE *fp)
+{
+    char    *temp, *aka;
+    FILE    *no;
+    int     i = 0;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((no = fopen(temp, "r")) == NULL)
+        return;
+
+    fread(&msgshdr, sizeof(msgshdr), 1, no);
+    fseek(no, 0, SEEK_SET);
+    fread(&msgshdr, msgshdr.hdrsize, 1, no);
+
+    while (fread(&msgs, msgshdr.recsize, 1, no) == 1) {
+
+	i++;
+	if (msgs.Active) {
+
+	    fprintf(fp, "Jam ");
+
+	    switch (msgs.Type) {
+		case LOCALMAIL:	fprintf(fp, "l");   break;
+		case NETMAIL:	fprintf(fp, "mp");  break;
+		case ECHOMAIL:	fprintf(fp, "e");   break;
+		case NEWS:	fprintf(fp, "e");   break;
+	    }
+
+	    if (((msgs.Type == NEWS) || (msgs.Type == ECHOMAIL)) && strlen(msgs.Tag) && strlen(msgs.Newsgroup)) {
+		fprintf(fp, "u");
+	    }
+	    fprintf(fp, "8");
+	    fprintf(fp, " \"%s\" %s", msgs.Name, msgs.Base);
+	    if (msgs.Type == ECHOMAIL)
+		fprintf(fp, " %s", msgs.Tag);
+	    if (msgs.Type != LOCALMAIL) {
+		aka = xstrcpy(strtok(aka2str(msgs.Aka), "@"));
+		fprintf(fp, " %s", aka);
+		free(aka);
+	    }
+	    fprintf(fp, "\n");
+	}
+	fseek(no, msgshdr.syssize, SEEK_CUR);
+    }
+
+    fclose(no);
+    free(temp);
+    fprintf(fp, "\n");
+}
+
+
+
 void gold_areas(FILE *fp)
 {
 	char	*temp, *aka;

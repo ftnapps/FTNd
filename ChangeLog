@@ -50,6 +50,8 @@ v0.35.05	19-Oct-2002
 		In node setup the pack netmail switch is renamed and is now 
 		for all mail. Default for new records is Yes.
 		Added length check when importing taglines.
+		Now writes also ~/etc/msg.txt for MsgEd after messagebase is
+		updated.
 
 	mbfido:
 		With ticfile processing, the KeepDate setup setting now works.

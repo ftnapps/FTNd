@@ -1,6 +1,7 @@
 #ifndef _MAREA_H
 #define _MAREA_H
 
+/* $Id$ */
 
 int	OpenMsgarea(void);
 void	CloseMsgarea(int);
@@ -10,6 +11,7 @@ int	CountMsgarea(void);
 void	EditMsgarea(void);
 void	InitMsgarea(void);
 void	gold_areas(FILE *);
+void	msged_areas(FILE *);
 int	mail_area_doc(FILE *, FILE *, int);
 char	*PickMsgarea(char *);
 

@@ -84,54 +84,69 @@ int		init = FALSE;		/* Run init only		*/
 
 static void die(int onsig)
 {
-	FILE	*fp;
-	char	*temp;
-	int	i;
+    FILE    *fp;
+    char    *temp;
+    int	    i;
 
-	signal(onsig, SIG_IGN);
-	if (!init)
-	    screen_stop(); 
+    signal(onsig, SIG_IGN);
+    if (!init)
+	screen_stop(); 
 
-	if (exp_golded && (config_read() != -1)) {
-		temp = calloc(128, sizeof(char));
-		sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+    if (exp_golded && (config_read() != -1)) {
+	temp = calloc(PATH_MAX, sizeof(char));
 
-		if ((fp = fopen(temp, "w")) != NULL) {
-			fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
-			fprintf(fp, "; Basic information\n;\n");
-			if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
-			    fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
-			    fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
-			    for (i = 1; i < 40; i++)
-				if (CFG.akavalid[i])
-					fprintf(fp, "AKA     %s\n", aka2str(CFG.aka[i]));
-			    fprintf(fp, "\n");
-
-			    gold_akamatch(fp);
-			    fprintf(fp, "; JAM MessageBase Setup\n;\n");
-			    fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
-			    fprintf(fp, "JAMHARDDELETE NO\n\n");
-
-			    fprintf(fp, "; Semaphore files\n;\n");
-			    fprintf(fp, "SEMAPHORE NETSCAN    %s/sema/mailout\n", getenv("MBSE_ROOT"));
-			    fprintf(fp, "SEMAPHORE ECHOSCAN   %s/sema/mailout\n\n", getenv("MBSE_ROOT"));
-
-			    gold_areas(fp);
-			}
-			Syslog('+', "Created new %s", temp);
-		} else {
-			WriteError("$Could not create %s", temp);
-		}
-
-		free(temp);
+	/*
+	 * Export ~/etc/msg.txt for MsgEd.
+	 */
+	sprintf(temp, "%s/etc/msg.txt", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "w")) != NULL) {
+	    msged_areas(fp);
+	    fclose(fp);
+	    Syslog('+', "Created new %s", temp);
+	} else {
+	    WriteError("$Could not create %s", temp);
 	}
 
-	umask(oldmask);
-	if (onsig && (onsig <= NSIG))
-		WriteError("MBSETUP finished on signal %s", SigName[onsig]);
-	else
-		Syslog(' ', "MBSETUP finished");
-	ExitClient(onsig);
+	/*
+	 * Export ~/etc/golded.inc for GoldED
+	 */
+	sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "w")) != NULL) {
+	    fprintf(fp, "; GoldED.inc -- Automatic created by mbsetup %s -- Do not edit!\n\n", VERSION);
+	    fprintf(fp, "; Basic information\n;\n");
+	    if (strlen(CFG.sysop_name) && CFG.akavalid[0] && CFG.aka[0].zone) {
+		fprintf(fp, "USERNAME %s\n\n", CFG.sysop_name);
+		fprintf(fp, "ADDRESS %s\n", aka2str(CFG.aka[0]));
+		for (i = 1; i < 40; i++)
+		    if (CFG.akavalid[i])
+			fprintf(fp, "AKA     %s\n", aka2str(CFG.aka[i]));
+		    fprintf(fp, "\n");
+
+		gold_akamatch(fp);
+		fprintf(fp, "; JAM MessageBase Setup\n;\n");
+		fprintf(fp, "JAMPATH %s/tmp/\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "JAMHARDDELETE NO\n\n");
+
+		fprintf(fp, "; Semaphore files\n;\n");
+		fprintf(fp, "SEMAPHORE NETSCAN    %s/sema/mailout\n", getenv("MBSE_ROOT"));
+		fprintf(fp, "SEMAPHORE ECHOSCAN   %s/sema/mailout\n\n", getenv("MBSE_ROOT"));
+
+		gold_areas(fp);
+	    }
+	    Syslog('+', "Created new %s", temp);
+	} else {
+	    WriteError("$Could not create %s", temp);
+	}
+
+	free(temp);
+    }
+
+    umask(oldmask);
+    if (onsig && (onsig <= NSIG))
+	WriteError("MBSETUP finished on signal %s", SigName[onsig]);
+    else
+	Syslog(' ', "MBSETUP finished");
+    ExitClient(onsig);
 }
 
 
