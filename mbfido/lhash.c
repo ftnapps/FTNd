@@ -223,9 +223,9 @@ char *lh_insert(LHASH *lh, char *data)
 			return(NULL);
 		nn->data=data;
 		nn->next=NULL;
-#ifndef NO_HASH_COMP
+//#ifndef NO_HASH_COMP
 		nn->hash=hash;
-#endif
+//#endif
 		*rn=nn;
 		ret=NULL;
 		lh->num_insert++;
@@ -348,12 +348,12 @@ static void expand(LHASH *lh)
 	
 	for (np= *n1; np != NULL; )
 		{
-#ifndef NO_HASH_COMP
+//#ifndef NO_HASH_COMP
 		hash=np->hash;
-#else
-		hash=(*(lh->hash))(np->data);
-		lh->num_hash_calls++;
-#endif
+//#else
+//		hash=(*(lh->hash))(np->data);
+//		lh->num_hash_calls++;
+//#endif
 		if ((hash%nni) != p)
 			{ /* move it */
 			*n1= (*n1)->next;
@@ -447,14 +447,14 @@ static LHASH_NODE **getrn(LHASH *lh, char *data, unsigned long *rhash)
 	ret= &(lh->b[(int)nn]);
 	for (n1= *ret; n1 != NULL; n1=n1->next)
 		{
-#ifndef NO_HASH_COMP
+//#ifndef NO_HASH_COMP
 		lh->num_hash_comps++;
 		if (n1->hash != hash)
 			{
 			ret= &(n1->next);
 			continue;
 			}
-#endif
+//#endif
 		lh->num_comp_calls++;
 		if ((*cf)(n1->data,data) == 0)
 			break;
