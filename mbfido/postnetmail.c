@@ -274,7 +274,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	     * If message to "sysop" or "postmaster" replace it
 	     * with the sysops real name.
 	     */
-	    if ((strncasecmp(name, "sysop", 5) == 0) || (strcasecmp(name, "postmaster") == 0)) {
+	    if ((strncasecmp(name, "sysop", 5) == 0) || 
+		(strcasecmp(name, "postmaster") == 0) ||
+		(strcasecmp(name, "coordinator") == 0)) {
 		Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
 		sprintf(name, "%s", CFG.sysop_name);
 	    }

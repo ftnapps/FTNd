@@ -159,8 +159,8 @@ int is_my_tic(char *filename, char *ticfile)
 /*
  * The real unatach function, return 1 if a file is removed.
  */
-int check_flo(faddr *, char *, char);
-int check_flo(faddr *node, char *filename, char flavor)
+int check_flo(faddr *, char *, char, int);
+int check_flo(faddr *node, char *filename, char flavor, int fdn)
 {
     char    *flofile, *ticfile, *buf;
     FILE    *fp;
@@ -189,7 +189,7 @@ int check_flo(faddr *node, char *filename, char flavor)
 		fflush(fp);
 		fseek(fp, newpos, SEEK_SET);
 		filepos = newpos;
-		if (fgets(buf, PATH_MAX +2, fp)) {
+		if (fdn && fgets(buf, PATH_MAX +2, fp)) {
 		    Striplf(buf);
 		    if (buf[strlen(buf)-1] == '\r')
 			buf[strlen(buf)-1] = '\0';
@@ -202,6 +202,8 @@ int check_flo(faddr *node, char *filename, char flavor)
 		    } else {
 			Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(node, 0x1f));
 		    }
+		} else {
+		    Syslog('p', "Removed old %s for %s", basename(filename), ascfnode(node, 0x1f));
 		}
 		rc = 1;
 		break;
@@ -227,8 +229,8 @@ void un_attach(faddr *node, char *filename, int fdn)
 {
     Syslog('p', "un_attach: %s %s %s", ascfnode(node, 0x1f), filename, fdn ?"FDN":"NOR");
 
-    if (check_flo(node, filename, 'h') == 0)
-	if (check_flo(node, filename, 'f') == 0)
-	    check_flo(node, filename, 'c');
+    if (check_flo(node, filename, 'h', fdn) == 0)
+	if (check_flo(node, filename, 'f', fdn) == 0)
+	    check_flo(node, filename, 'c', fdn);
 }
 

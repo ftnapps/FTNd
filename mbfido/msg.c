@@ -39,6 +39,7 @@
 
 
 extern int	net_msgs;
+extern int	net_in;
 extern int	do_scan;
 
 
@@ -94,7 +95,7 @@ int toss_msgs(void)
  */
 int toss_onemsg(char *msgname)
 {
-    int		    rc = 0;
+    int		    rc = 0, islocal;
     char	    *temp, *dospath, *flagstr = NULL, *l, *r, *msgid = NULL; 
     char	    fromUserName[36], toUserName[36], subject[72], DateTime[20];
     FILE	    *fp, *np;
@@ -275,7 +276,6 @@ int toss_onemsg(char *msgname)
 	}
 	Msg.Written = parsefdate(DateTime, NULL);
 	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-	Msg.Local = TRUE;
 
 	Msg.KillSent       = ((Attribute & M_KILLSENT));
 	Msg.Hold           = ((Attribute & M_HOLD));
@@ -289,6 +289,25 @@ int toss_onemsg(char *msgname)
 	Msg.Direct         =                              flag_on((char *)"DIR", flagstr);
 	Msg.Gate           =                              flag_on((char *)"ZON", flagstr);
 
+	if ((origZone == destZone) && (origNet == destNet) && (origNode == destNode) && (origPoint == destPoint)) {
+	    /*
+	     * Message is local, make the message appear as a received netmail
+	     */
+	    Msg.Netmail = TRUE;
+	    islocal = TRUE;
+	    if ((strncasecmp(toUserName, "sysop", 5) == 0) ||
+		(strncasecmp(toUserName, "postmaster", 10) == 0) ||
+		(strncasecmp(toUserName, "coordinator", 11) == 0)) {
+		Syslog('+', "  Readdress from %s to %s", toUserName, CFG.sysop_name);
+		sprintf(toUserName, "%s", CFG.sysop_name);
+		strcpy(Msg.To, toUserName);
+	    }
+	    net_in++;
+	} else {
+	    Msg.Local = TRUE;
+	    islocal = FALSE;
+	}
+	Syslog('m', "Netmail is %s", islocal ? "Local":"for export");
 	Msg.Private = TRUE;
 
 	if (origPoint)
@@ -329,11 +348,13 @@ int toss_onemsg(char *msgname)
 	msgs.Posted.month[Miy]++;
 	UpdateMsgs();
 
-	do_scan = TRUE;
-	sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
-	if ((np = fopen(temp, "a")) != NULL) {
-	    fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
-	    fclose(np);
+	if (!islocal) {
+	    do_scan = TRUE;
+	    sprintf(temp, "%s/tmp/netmail.jam", getenv("MBSE_ROOT"));
+	    if ((np = fopen(temp, "a")) != NULL) {
+		fprintf(np, "%s %lu\n", msgs.Base, Msg.Id);
+		fclose(np);
+	    }
 	}
 
 	Msg_Close();
