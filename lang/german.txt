@@ -145,7 +145,7 @@ JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]:
 |Es liegen keine neuen Mitteilungen fuer Sie vor.
 |Hotkeys sind jetzt EIN
 |Hotkeys sind jetzt AUS
-|Ein 
+|Ein
 |Aus
 |Dieser Benutzername existiert bereits
 |Suchen nach persoenlichen Mitteilungen, bitte warten ...

@@ -145,8 +145,8 @@ SN|mensajes, ¨Quieres leerlos ahora? [S/n]:
 |No tienes correo nuevo a tu nombre ...
 |Men£s r pidos activados
 |Men£s r pidos desactivados 
-|Activado
-|Desactivado
+|Act
+|Des
 |El nombre ya existe
 |Buscando correo nuevo ...
 |     Charla de mbsebbs

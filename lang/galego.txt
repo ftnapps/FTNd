@@ -145,8 +145,8 @@ SN|mensaxes, ¨Queres lelas agora? [S/n]:
 |Non hai correo novo pra ti ...
 |Men£s r pidos activados
 |Men£s r pidos desactivados 
-|Activado
-|Desactivado
+|Act
+|Des
 |O nome xa existe
 |Buscando correo novo ...
 |     Charla de MBSE BBS
