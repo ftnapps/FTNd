@@ -371,12 +371,13 @@ int EditFileRec(int Area)
 			     * Attempt to disable this area, but check first.
 			     */
 			    if ((fp = fopen(temp, "r"))) {
-				fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
-				fseek(fp, 0, SEEK_END);
-				files = ((ftell(fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
-				if (files) {
-				    errmsg("There are stil %d files in this area", files);
-				    Available = TRUE;
+				if (fread(&fdbhdr, sizeof(fdbhdr), 1, fp) == 1) {
+				    fseek(fp, 0, SEEK_END);
+				    files = ((ftell(fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
+				    if (files) {
+					errmsg("There are stil %d files in this area", files);
+					Available = TRUE;
+				    }
 				}
 				fclose(fp);
 			    }
