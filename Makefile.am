@@ -93,6 +93,7 @@ install-exec-local:
 		$(mkinstalldirs) /var/spool/mbse/unknown ; \
 		$(mkinstalldirs) /var/spool/mbse/inbound ; \
 		$(mkinstalldirs) /var/spool/mbse/outbound ; \
+		$(mkinstalldirs) /var/spool/mbse/msgs; \
 		$(mkinstalldirs) /var/spool/mbse/badtic ; \
 		$(mkinstalldirs) /var/spool/mbse/ticqueue ; \
 		$(mkinstalldirs) /var/spool/mbse/ftp ; \

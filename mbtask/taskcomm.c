@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/taskcomm.c
  * Purpose ...............: MBSE BBS Daemon
- * Last modification date : 05-Jul-2001
+ * Last modification date : 01-Nov-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -27,14 +27,6 @@
  * You should have received a copy of the GNU General Public License
  * along with MB BBS; see the file COPYING.  If not, write to the Free
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
- *****************************************************************************
- *
- * This program uses the BSD IPC stream sockets mechanism. This is the
- * server program. You need an entry in /etc/services for tcp service
- * "mbse" on port 60180. Yes, this is 1 higher as for ifcico. You don't 
- * need an entry in inetd.conf, because this program is written as a
- * daemon for fast access.
- *
  *****************************************************************************/
 
 #include "libs.h"
@@ -442,11 +434,11 @@ void do_cmd(char *cmd)
 	char	buf[SS_BUFSIZE];
 	int	slen, tries = 0;
 
-	sprintf(buf, "%s", exe_cmd(cmd));
-	if (logtrans) {
+	if (logtrans)
 		tasklog('-', "< %s", cmd);
+	sprintf(buf, "%s", exe_cmd(cmd));
+	if (logtrans)
 		tasklog('-', "> %s", buf);
-	}
 
 	for (;;) {
 		slen = sendto(sock, buf, strlen(buf), 0, &from, fromlen);

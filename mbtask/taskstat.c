@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/taskstat.c
  * Purpose ...............: Keep track of server status 
- * Last modification date : 30-Jul-2001
+ * Last modification date : 31-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -139,17 +139,18 @@ void status_write(void);
 void status_write(void)
 {
 	int	 	d, stat_fd;
-	struct tm	ttm, ytm;
+	struct tm	*ttm, *ytm;
 	time_t		temp;
 
 	temp = time(NULL);
-	ttm = *localtime(&temp);
-	ytm = *localtime(&status.daily);
+	ttm = localtime(&temp);
+	temp = status.daily;	// On a Sparc, first put the time in temp, then pass it to locattime.
+	ytm = localtime(&temp);
 
 	/*
 	 * If we passed to the next day, zero the today counters 
 	 */
-	if (ttm.tm_yday != ytm.tm_yday) {
+	if (ttm->tm_yday != ytm->tm_yday) {
 		tasklog('+', "Last days statistics:");
 		tasklog('+', "Total clients : %lu", status.today.tot_clt);
 		tasklog('+', "Peak clients  : %lu", status.today.peak_clt);
@@ -161,11 +162,19 @@ void status_write(void)
 		tasklog('+', "Zeroed todays status counters");
 	}
 
-	stat_fd = open(stat_fn, O_RDWR);
-	d = lseek(stat_fd, 0, SEEK_SET);
+	if ((stat_fd = open(stat_fn, O_RDWR)) == -1) {
+		tasklog('?', "$Error open statusfile %s", stat_fn);
+		return;
+	}
+
+	if ((d = lseek(stat_fd, 0, SEEK_SET)) != 0) {
+		tasklog('?', "$Error seeking in statusfile");
+		return;
+	}
+
 	d = write(stat_fd, &status, sizeof(status_r));
 	if (d != sizeof(status_r))
-		tasklog('?', "Error writing statusfile, only %d bytes", d);
+		tasklog('?', "$Error writing statusfile, only %d bytes", d);
 
 	/*
 	 * CLose the statusfile

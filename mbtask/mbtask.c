@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/mbtask.c
  * Purpose ...............: MBSE BBS Task Manager
- * Last modification date : 25-Oct-2001
+ * Last modification date : 01-Nov-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -429,6 +429,7 @@ void load_taskcfg(void)
 		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
 		TCFG.ipblocks = TRUE;
+		TCFG.debug    = FALSE;
 		TCFG.max_pots = 1;
 		TCFG.max_isdn = 0;
 		TCFG.max_tcp  = 0;
@@ -778,7 +779,13 @@ void ulocktask(void)
 # define icmp_type  type
 # define icmp_code  code
 # define icmp_cksum checksum
+# ifdef icmp_id
+#  undef icmp_id
+# endif
 # define icmp_id    un.echo.id
+# ifdef icmp_seq
+#  undef icmp_seq
+# endif
 # define icmp_seq   un.echo.sequence
 #endif
 
@@ -1032,7 +1039,8 @@ void scheduler(void)
 	struct passwd   *pw;
 	int		running = 0, rc, rlen;
 	int             LOADhi = FALSE, oldmin = 70, olddo = 70;
-	char            *cmd = NULL, doing[32], buf[2048];
+	char            *cmd = NULL;
+	static char	doing[32], buf[2048];
 	time_t          now;
 	struct tm       *tm;
 	FILE		*fp;
