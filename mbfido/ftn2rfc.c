@@ -80,7 +80,7 @@ void fill_rlist(fa_list **fap, char *str)
 			*q++='\0';
 		else 
 			q=p+strlen(p);
-		if ((ta=parsefaddr(p))) {
+		if ((ta = parsefaddr(p))) {
 			if (ta->net == 0) 
 				ta->net=oldnet;
 			else 
@@ -222,7 +222,7 @@ void substitute(char *buf)
 			case ')':       if (!inquotes && inbrackets) inbrackets--; break;
 			default:        break;
 		}
-	if ((fa=parsefaddr(l))) {
+	if ((fa = parsefaddr(l))) {
 		Syslog('m', "it is an ftn address: %s",ascfnode(fa,0x7f));
 		if (is_local(fa)) {
 			Syslog('m', "it is local");
@@ -1069,7 +1069,9 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		sprintf(temp,"Reply-To: %s",p);
 		Send(newsmode, temp);
 	} else if ((p=hdr((char *)"REPLYTO",kmsg))) {
-		sprintf(temp,"Reply-To: %s\n",ascinode(parsefaddr(p),0xff));
+		ta = parsefaddr(p);
+		sprintf(temp,"Reply-To: %s\n",ascinode(ta, 0xff));
+		tidy_faddr(ta);
 		Send(newsmode, temp);
 	}
 	

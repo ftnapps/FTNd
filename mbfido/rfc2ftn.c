@@ -140,7 +140,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
         ftnmsg          *fmsg = NULL;
         FILE            *ofp;
         fa_list         *sbl = NULL, *ptl = NULL, *tmpl;
-        faddr           *ta;
+        faddr           *ta, *fta;
         unsigned long   svmsgid, svreply;
         int             sot_kludge = FALSE, eot_kludge = FALSE, qp_or_base64 = FALSE, tinyorigin = FALSE;
         int             needsplit, hdrsize, datasize, splitpart, forbidsplit, rfcheaders;
@@ -472,8 +472,11 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			hdrsize += 15;
 			if (newsmode)
 				fprintf(ofp,"\1REPLYTO: %s UUCP\n", aka2str(msgs.Aka));
-			else
-				fprintf(ofp,"\1REPLYTO: %s UUCP\n", ascfnode(bestaka_s(fmsg->to), 0x1f));
+			else {
+				fta = bestaka_s(fmsg->to);
+				fprintf(ofp,"\1REPLYTO: %s UUCP\n", ascfnode(fta, 0x1f));
+				tidy_faddr(fta);
+			}
 		} else if ((p = hdr((char *)"Reply-To",msg))) {
 			if ((ta = parsefaddr(p))) {
 				if ((q = hdr((char *)"From",msg))) {

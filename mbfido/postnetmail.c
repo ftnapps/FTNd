@@ -415,9 +415,11 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 
 		now = time(NULL);
 		tm = gmtime(&now);
+		ta = bestaka_s(t);
 		fprintf(net, "\001Via %s @%d%02d%02d.%02d%02d%02d.00.UTC mbfido %s\r", 
-			ascfnode(bestaka_s(t), 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+			ascfnode(ta, 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
 			tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
+		tidy_faddr(ta);
 
 		putc(0, net);
 		fclose(net);

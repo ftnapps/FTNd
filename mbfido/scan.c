@@ -817,7 +817,9 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	/*
 	 *  Check if this a netmail to our own local UUCP gate.
 	 */
-	if ((!strcmp(Msg.To, "UUCP")) && (is_local(parsefnode(Msg.ToAddress)))) {
+	ta = parsefnode(Msg.ToAddress);
+	if ((!strcmp(Msg.To, "UUCP")) && (is_local(ta))) {
+		tidy_faddr(ta);
 		most_debug = TRUE;
 		Syslog('m', "We are the UUCP gate");
 		Syslog('m', "From %s FromAddress %s", Msg.From, Msg.FromAddress);
@@ -892,6 +894,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 		fclose(fp);
 		return;
 	}
+	tidy_faddr(ta);
 
 	if (UUCPgate) {
 		memcpy(&Dest, &CFG.UUCPgate, sizeof(fidoaddr));

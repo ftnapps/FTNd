@@ -51,7 +51,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
 	FILE		*fp, *fi, *net;
 	char		flavor;
-	faddr		*dest, *routeto, *Fa, *Temp;
+	faddr		*dest, *routeto, *Fa, *Temp, *ba;
 	int		i, z, n;
 	time_t		now, ftime;
 	fa_list		*tmp;
@@ -226,8 +226,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			now = time(NULL);
 			subject = ctime(&now);
 			Striplf(subject);
-			fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(bestaka_s(dest), 0x1f),
+			ba = bestaka_s(dest);
+			fprintf(fp, "Path %s %lu %s %s\r\n", ascfnode(ba, 0x1f),
 						       mktime(localtime(&now)), subject, tzname[0]);
+			tidy_faddr(ba);
 
 			if (nodes.AdvTic) {
 				/*

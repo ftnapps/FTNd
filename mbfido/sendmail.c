@@ -132,19 +132,21 @@ FILE *SendMgrMail(faddr *t, int Keep, int FileAttach, char *bymgr, char *subj, c
 
 void CloseMail(FILE *qp, faddr *t)
 {
-	time_t		Now;
-	struct tm	*tm;
+    time_t	Now;
+    struct tm	*tm;
+    faddr	*ta;
 
-	putc('\r', qp);
-	Now = time(NULL);
-	tm = gmtime(&Now);
-	fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.02.UTC %s\r",
-		ascfnode(bestaka_s(t), 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, 
+    putc('\r', qp);
+    Now = time(NULL);
+    tm = gmtime(&Now);
+    ta = bestaka_s(t);
+    fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.02.UTC %s\r",
+		ascfnode(ta, 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, 
 		tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
-
-	putc(0, qp);
-	fclose(qp);
-	net_out++;
+    tidy_faddr(ta);
+    putc(0, qp);
+    fclose(qp);
+    net_out++;
 }
 
 

@@ -333,6 +333,7 @@ int main(int argc, char *argv[])
 			if (!do_quiet)
 				printf("File attach %s is successfull", argv[4]);
 			CreateSema((char *)"scanout");
+			tidy_faddr(addr);
 			die(0);
 		} else {
 			Fatal((char *)"File attach failed");
