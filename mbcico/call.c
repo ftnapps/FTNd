@@ -204,7 +204,6 @@ int call(faddr *addr)
     }
 
     if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (!IsZMH())) {
-//    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
 	Syslog('?', "Warning: calling non-CM system outside ZMH");
     }
 

@@ -322,7 +322,6 @@ int main(int argc, char *argv[])
 	if (nlent->pflag == NL_HOLD)
 	    Fatal((char *)"Node has status Hold", MBERR_NODE_MAY_NOT_CALL);
 	if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (flavor == 'c'))
-//	if (((nlent->oflags & cmmask) == 0) && (flavor == 'c'))
 	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", MBERR_NODE_MAY_NOT_CALL);
 
 	if (argv[4][0] == '-')

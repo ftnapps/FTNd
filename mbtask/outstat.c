@@ -532,7 +532,7 @@ int outstat()
 	 * If the node has internet and we have internet configured, 
 	 * check if we can send immediatly. Works for CM and ICM.
 	 */
-	if (TCFG.max_tcp && ((tmp->can_ip && tmp->is_icm) || (!tmp->can_pots && tmp->can_ip && tmp->is_cm))  &&
+	if (TCFG.max_tcp && (tmp->can_ip && tmp->is_icm)  &&
 		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
 		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 	    tmp->flavors |= F_CALL;
@@ -586,7 +586,6 @@ int outstat()
 	    tmp->flavors |= F_CALL;
 	}
 
-	// FIXME: Check for ICM
 	if ((tmp->flavors) & F_ISFIL ) {
 	    flstr[7]='A';
 	    /*
@@ -597,7 +596,6 @@ int outstat()
 	    }
 	}
 
-	// FIXME: Check for ICM
 	if ((tmp->flavors) & F_ISPKT ) { 
 	    flstr[8]='M';
 	    /*

@@ -511,7 +511,6 @@ int pollnode(faddr *addr, int stop)
 	} else {
 	    fclose(fp);
 	    if (((nlent->can_pots && nlent->is_cm) == FALSE) && ((nlent->can_ip && nlent->is_icm) == FALSE) && (!IsZMH())) {
-//	    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
 		Syslog('+', "Created poll for %s, non-CM node outside ZMH", ascfnode(addr, 0x1f));
 		if (!do_quiet)
 		    printf("Created poll for %s, non-CM node outside ZMH\n", ascfnode(addr, 0x1f));
