@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: faddr.c
+ * $Id$
  * Purpose ...............: Fidonet Address conversions. 
- * Last modification date : 18-Dec-1999
  *
  *****************************************************************************
- * Copyright (C) 1993-1999
+ * Copyright (C) 1993-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -44,15 +43,21 @@
  */
 char *aka2str(fidoaddr aka)
 {
-	static char	result[43];
+    static char	result[43];
 
-	result[0] = '\0';
+    result[0] = '\0';
+    if (strlen(aka.domain)) {
 	if (aka.point == 0) 
-		sprintf(result, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
+	    sprintf(result, "%d:%d/%d@%s", aka.zone, aka.net, aka.node, aka.domain);
 	else
-		sprintf(result, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
-
-	return result;
+	    sprintf(result, "%d:%d/%d.%d@%s", aka.zone, aka.net, aka.node, aka.point, aka.domain);
+    } else {
+	if (aka.point == 0)
+	    sprintf(result, "%d:%d/%d", aka.zone, aka.net, aka.node);
+	else
+	    sprintf(result, "%d:%d/%d.%d", aka.zone, aka.net, aka.node, aka.point);
+    }
+    return result;
 }
 
 

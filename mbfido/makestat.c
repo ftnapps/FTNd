@@ -307,7 +307,9 @@ void MakeStat(void)
 		    fseek(fg, i * sizeof(hist), SEEK_SET);
 		    fread(&hist, sizeof(hist), 1, fg);
 		    fseek(fi, fileptr, SEEK_SET);
-		    MacroVars("cdefghij", "sssssdds", aka2str(hist.aka), hist.system_name, hist.location,
+		    if (!strcmp(hist.aka.domain, "(null)"))
+			hist.aka.domain[0] = '\0';
+		    MacroVars("cdefghij", "sssssdds", hist.aka.zone?aka2str(hist.aka):"N/A", hist.system_name, hist.location,
 					adate(hist.online), t_elapsed(hist.online, hist.offline), hist.sent_bytes,
 					hist.rcvd_bytes, hist.inbound ? "In":"Out");
 		    MacroRead(fi, fw);
