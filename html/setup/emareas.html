@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 21-Jan-2002</h5>
+<h5>Last update 16-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Mail Setup -> Mail Areas.</H1>
@@ -40,29 +40,27 @@ change netmail reply board and delete message area.
 <pre>
 <strong>Area Name   </strong>The description of the area.
 <strong>Area Tag    </strong>The echomail area tag.
+<strong>Group       </strong>The name of the echomail group.
 <strong>Newsgroup   </strong>The newsgroup name if you are gating this area.
-<strong>Moderator   </strong>Leave this blank for now!
 <strong>JAM base    </strong>The path and name of the JAM message base without extension.
 <strong>Origin      </strong>The origin line to add to echomail messages.
 <strong>Fido Aka    </strong>The Fidonet aka for this area.
 <strong>QWK name    </strong>The name of the area for OffLine Readers.
-<strong>Group       </strong>The name of the echomail group.
 <strong>Distrib.    </strong>Leave this blank for now!
 <strong>Area Type   </strong>Local, Netmail, Echomail or News.
 <strong>Msg Kinds   </strong>Private/Public, Private, Public, Read Only, FTN moderated, Usenet Moderated
 <strong>FTN chars   </strong>FTN characterset, not in use yet, defaults to IBMPC 2
 <strong>RFC chars   </strong>RFC characterset, not in use yet, defaults tp LATIN-1 2
+<strong>Active      </strong>If this area is active.
 <strong>Days Old    </strong>The maximum age of the messages before purging.
 <strong>Max. Msgs   </strong>The maximum messages in this area.
 <strong>Articles    </strong>The maximum news headers to fetch.
 <strong>Netreply    </strong>Netmail reply area if this is echomail.
-<strong>Active      </strong>If this area is active.
-<strong>User Del.   </strong>Users may delete their own messages.
 <strong>Read Sec.   </strong>The security level to read messages.
 <strong>Write Sec.  </strong>The security level to write messages.
 <strong>Sysop Sec.  </strong>The security level to do sysop actions.
+<strong>User Del.   </strong>Users may delete their own messages.
 <strong>Aliases     </strong>Allow the use of an Alias.
-<strong>Random org  </strong>Create random origin lines (Oneliner database).
 <strong>Quotes      </strong>Add a random quote under new messages (Oneliner database).
 <strong>Mandatory   </strong>If this area is mandatory for downlinks.
 <strong>UnSecure    </strong>Don't check link address during toss (Dangerous!).
@@ -124,38 +122,8 @@ harm is done. The file mbsetup.log shows all affected areas.
 
 <H3>Automatic area creation.</H3>
 <P>
-If you want to use the automatic area creation you have to define a fictitious 
-area tagged 'DEFAULT' with the options you want for new areas like this:
-<pre>
- 1.  Area Name Area autocreada:
- 2.  FTN area  DEFAULT
- 3.  Newsgroup
- 4.  Moderator
- 5.  JAM base  /var/spool/mbse/mail/
- 6.  Origin    Parolas BBX. Por fin.
- 7.  Fido Aka  0:0/0@                                      22. Sysop Sec.   100
- 8.  QWK name                      15. Days Old    40      23. Aliases      No
- 9.  Group     AUTOCREADAS         16. Max. Msgs   1000    24. Quotes       No
- 10. Distrib.                      17. Netreply    0       25. Mandatory    No
- 11. Area Type Echomail            18. Active      Yes     26. UnSecure     No
- 12. Msg Kinds Public              19. User Del.   Yes     27. OLR Default  No
- 13. FTN chars IBMPC 2             20. Read Sec.   5       28. OLR Forced   No
- 14. RFC chars LATIN-1 2           21. Write Sec.  5       29. Connections
-</pre>
-The FTN area's Tag must be 'DEFAULT' exactly. Connections will be left blank. Fill
-the remaining options with your defaults for the new areas.
-If Fido AKA has not been filled in, the best fitting AKA according to the origin of
-the message will be used from the configuration.<BR>
-<P>
-Areas will be created as is laid out in this template, the tag of a new area
-will be added to the name and base path, the new tag will be placed in the tag 
-and qwk name (truncating it if needed).
-Only the node from which the new area is received will be added in connections.
-<P>
-You will need to change the setup, menu 18, item 2, to change the command
-'mbfido tic toss'. Add the -a parameter if you want the automatic
-creation of areas to work when importing received mail.
-So the commandline would be like <b>/opt/mbse/bin/mbfido tic toss web -a -quiet</b>.
+If you want to use the automatic area creation you have to define this in the
+message area groups. This has been changed since MBSE BBS version 0.33.19.
 <P>
 
 <A HREF="mail.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">Back to Mail Setup</A>&nbsp;
