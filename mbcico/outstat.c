@@ -4,7 +4,7 @@
  * Purpose ...............: Show mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -67,11 +67,77 @@ static struct _alist
 
 
 
+void checkdir(char *, faddr *, char);
+void checkdir(char *boxpath, faddr *fa, char flavor)
+{
+    char	    *temp;
+    DIR             *dp = NULL;
+    struct dirent   *de;
+    struct stat     sb;
+    struct passwd   *pw;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    pw = getpwnam((char *)"mbse");
+
+    Syslog('o', "checking filebox %s (%s) flavor %c", boxpath, ascfnode(fa, 0xff), flavor);
+
+    if ((dp = opendir(boxpath)) == NULL) {
+	Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(boxpath));
+    } else {
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", boxpath, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    Syslog('o' ,"checking: \"%s\"", de->d_name);
+		    if (S_ISREG(sb.st_mode)) {
+			if (pw->pw_uid == sb.st_uid) {
+                            /*
+                             * We own the file
+                             */
+                            if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
+                                each(fa, flavor, 0, temp);
+                            } else {
+                                Syslog('o', "no R/W permission on %s", temp);
+                            }
+                        } else if (pw->pw_gid == sb.st_gid) {
+                            /*
+                             * We own the file group
+                             */
+                            if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
+				each(fa, flavor, 0, temp);
+                            } else {
+                                Syslog('o', "no R/W permission on %s", temp);
+                            }
+                        } else {
+                            /*
+                             * No owner of file
+                             */
+                            if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
+                                each(fa, flavor, 0, temp);
+                            } else {
+                                Syslog('o', "no R/W permission on %s", temp);
+                            }
+                        }
+		    } else {
+                        Syslog('o', "not a regular file");
+                    }
+                } else {
+                    WriteError("Can't stat %s", temp);
+                }
+            }
+	}
+	closedir(dp);
+    }
+    free(temp);
+}
+
+
+
 int outstat()
 {
     int		    rc;
     struct _alist   *tmp, *old;
-    char	    flstr[6], *temp, flavor;
+    char	    digit[6], flstr[6], *temp, *temp2, flavor;
     time_t	    age;
     faddr	    *fa;
     callstat        *cst;
@@ -79,7 +145,6 @@ int outstat()
     DIR		    *dp = NULL;
     struct dirent   *de;
     struct stat	    sb;
-    struct passwd   *pw;
 
     if ((rc = scanout(each))) {
 	WriteError("Error scanning outbound, aborting");
@@ -100,7 +165,6 @@ int outstat()
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     fseek(fp, 0, SEEK_SET);
     fread(&nodeshdr, nodeshdr.hdrsize, 1, fp);
-    pw = getpwnam((char *)"mbse");
 
     while ((fread(&nodes, nodeshdr.recsize, 1, fp)) == 1) {
 	if (strlen(nodes.OutBox)) {
@@ -111,79 +175,13 @@ int outstat()
 	    else
 		flavor = 'o';
 	    fa = fido2faddr(nodes.Aka[0]);
-	    Syslog('o', "checking outbox %s (%s)", nodes.OutBox, ascfnode(fa, 0x2f));
-	    if ((dp = opendir(nodes.OutBox)) == NULL) {
-		Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(nodes.OutBox));
-	    } else {
-		while ((de = readdir(dp))) {
-		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-			sprintf(temp, "%s/%s", nodes.OutBox, de->d_name);
-			if (stat(temp, &sb) == 0) {
-			    Syslog('o' ,"checking: \"%s\"", de->d_name);
-			    if (S_ISREG(sb.st_mode)) {
-				if (pw->pw_uid == sb.st_uid) {
-				    /*
-				     * We own the file
-				     */
-				    if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
-					each(fa, flavor, 0, temp);
-				    } else {
-					Syslog('o', "no R/W permission on %s", temp);
-				    }
-				} else if (pw->pw_gid == sb.st_gid) {
-				    /*
-				     * We own the file group
-				     */
-				    if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
-					each(fa, flavor, 0, temp);
-				    } else {
-					Syslog('o', "no R/W permission on %s", temp);
-				    }
-				} else {
-				    /*
-				     * No owner of file
-				     */
-				    if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
-					each(fa, flavor, 0, temp);
-				    } else {
-					Syslog('o', "no R/W permission on %s", temp);
-				    }
-				}
-			    } else {
-				Syslog('o', "not a regular file");
-			    }
-			} else {
-			    WriteError("Can't stat %s", temp);
-			}
-		    }
-		}
-		closedir(dp);
-	    }
+	    checkdir(nodes.OutBox, fa, flavor);
 	    tidy_faddr(fa);
 	}
 	if ((nodes.Session_out == S_DIR) && strlen(nodes.Dir_out_path)) {
 	    fa = fido2faddr(nodes.Aka[0]);
 	    flavor = 'h';   /* Directory outbound files are always on hold */
-	    Syslog('o', "checking directory path %s (%s)", nodes.Dir_out_path, ascfnode(fa, 0x2f));
-	    if ((dp = opendir(nodes.Dir_out_path)) == NULL) {
-		Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(nodes.Dir_out_path));
-	    } else {
-		while ((de = readdir(dp))) {
-		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-			sprintf(temp, "%s/%s", nodes.Dir_out_path, de->d_name);
-			if (stat(temp, &sb) == 0) {
-			    if (S_ISREG(sb.st_mode)) {
-				each(fa, flavor, 0, temp);
-			    } else {
-				Syslog('o', "not a regular file");
-			    }
-			} else {
-			    WriteError("Can't stat %s", temp);
-			}
-		    }
-		}
-		closedir(dp);
-	    }
+	    checkdir(nodes.Dir_out_path, fa, flavor);
 	    tidy_faddr(fa);
 	}
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
@@ -200,22 +198,75 @@ int outstat()
 		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		    if (S_ISDIR(sb.st_mode)) {
+			fa = (faddr*)malloc(sizeof(faddr));
+			fa->name = NULL;
+			fa->domain = NULL;
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[0];
+			digit[1] = de->d_name[1];
+			fa->zone = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[2];
+			digit[1] = de->d_name[3];
+			digit[2] = de->d_name[4];
+			fa->net = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[5];
+			digit[1] = de->d_name[6];
+			digit[2] = de->d_name[7];
+			fa->node = strtol(digit, NULL, 32);
+			memset(&digit, 0, sizeof(digit));
+			digit[0] = de->d_name[9];
+			digit[1] = de->d_name[10];
+			fa->point = strtol(digit, NULL, 32);
+			if (SearchFidonet(fa->zone)) {
+			    fa->domain = xstrcpy(fidonet.domain);
+			}
+			if ((strlen(de->d_name) == 12) && (tolower(de->d_name[11]) == 'h'))
+			    flavor = 'h';
+			else
+			    flavor = 'o';
+			checkdir(temp, fa, flavor);
+			tidy_faddr(fa);
+		    }
 		}
 	    }
 	}
 	closedir(dp);
     }
     if (strlen(CFG.tmaillong) && (dp = opendir(CFG.tmaillong))) {
+	temp2 = calloc(PATH_MAX, sizeof(char));
 	Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
 	while ((de = readdir(dp))) {
 	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
 		if (stat(temp, &sb) == 0) {
 		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		    if (S_ISDIR(sb.st_mode)) {
+			sprintf(temp2, "%s", de->d_name);
+			fa = (faddr*)malloc(sizeof(faddr));
+			fa->name = NULL;
+			fa->domain = NULL;
+			fa->zone = atoi(strtok(temp2, ".\n\r\0"));
+			fa->net = atoi(strtok(NULL, ".\n\r\0"));
+			fa->node = atoi(strtok(NULL, ".\n\r\0"));
+			fa->point = atoi(strtok(NULL, ".\n\r\0"));
+			if (SearchFidonet(fa->zone)) {
+			    fa->domain = xstrcpy(fidonet.domain);
+			}
+			if (tolower(de->d_name[strlen(de->d_name) -1]) == 'h')
+			    flavor = 'h';
+			else
+			    flavor = 'o';
+			checkdir(temp, fa, flavor);
+			tidy_faddr(fa);
+		    }	
 		}
 	    }
 	}
 	closedir(dp);
+	free(temp2);
     }
 
     if (!do_quiet) {
@@ -261,114 +312,115 @@ int outstat()
 
 int each(faddr *addr, char flavor, int isflo, char *fname)
 {
-	struct	_alist **tmp;
-	struct	stat st;
-	FILE	*fp;
-	char	buf[256], *p;
+    struct _alist   **tmp;
+    struct stat	    st;
+    FILE	    *fp;
+    char	    buf[256], *p;
 
-	Syslog('o', "each(%s, %c, %s, %s)", ascfnode(addr, 0x2f), flavor, isflo?"isflo":"noflo", fname);
+    Syslog('o', "each(%s, %c, %s, %s)", ascfnode(addr, 0x2f), flavor, isflo?"isflo":"noflo", fname);
 
-	if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL))
-		return 0;
+    if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL))
+	return 0;
 
-	for (tmp = &alist; *tmp; tmp = &((*tmp)->next))
-		if (((*tmp)->addr.zone  == addr->zone) && ((*tmp)->addr.net   == addr->net) &&
+    for (tmp = &alist; *tmp; tmp = &((*tmp)->next))
+	if (((*tmp)->addr.zone  == addr->zone) && ((*tmp)->addr.net   == addr->net) &&
 		    ((*tmp)->addr.node  == addr->node) && ((*tmp)->addr.point == addr->point) &&
 		    (((*tmp)->addr.domain == NULL) || (addr->domain == NULL) ||
 		     (strcasecmp((*tmp)->addr.domain,addr->domain) == 0)))
-			break;
-	if (*tmp == NULL) {
-		*tmp = (struct _alist *)malloc(sizeof(struct _alist));
-		(*tmp)->next = NULL;
-		(*tmp)->addr.name   = NULL;
-		(*tmp)->addr.zone   = addr->zone;
-		(*tmp)->addr.net    = addr->net;
-		(*tmp)->addr.node   = addr->node;
-		(*tmp)->addr.point  = addr->point;
-		(*tmp)->addr.domain = xstrcpy(addr->domain);
-		(*tmp)->flavors = 0;
-		(*tmp)->time = time(NULL);
-		(*tmp)->size = 0L;
+	    break;
+    if (*tmp == NULL) {
+	*tmp = (struct _alist *)malloc(sizeof(struct _alist));
+	(*tmp)->next = NULL;
+	(*tmp)->addr.name   = NULL;
+	(*tmp)->addr.zone   = addr->zone;
+	(*tmp)->addr.net    = addr->net;
+	(*tmp)->addr.node   = addr->node;
+	(*tmp)->addr.point  = addr->point;
+	(*tmp)->addr.domain = xstrcpy(addr->domain);
+	(*tmp)->flavors = 0;
+	(*tmp)->time = time(NULL);
+	(*tmp)->size = 0L;
+    }
+
+    if ((isflo == OUT_FLO) || (isflo == OUT_PKT)) 
+	switch (flavor) {
+	    case '?':	break;
+	    case 'i':	(*tmp)->flavors |= F_IMM; break;
+	    case 'o':	(*tmp)->flavors |= F_NORMAL; break;
+	    case 'c':	(*tmp)->flavors |= F_CRASH; break;
+	    case 'h':	(*tmp)->flavors |= F_HOLD; break;
+	    default:	WriteError("Unknown flavor: '%c'\n",flavor); break;
 	}
 
-	if ((isflo == OUT_FLO) || (isflo == OUT_PKT)) 
-		switch (flavor) {
-			case '?':	break;
-			case 'i':	(*tmp)->flavors |= F_IMM; break;
-			case 'o':	(*tmp)->flavors |= F_NORMAL; break;
-			case 'c':	(*tmp)->flavors |= F_CRASH; break;
-			case 'h':	(*tmp)->flavors |= F_HOLD; break;
-			default:	WriteError("Unknown flavor: '%c'\n",flavor); break;
+    if (stat(fname,&st) != 0) {
+	WriteError("$Can't stat %s", fname);
+	st.st_size = 0L;
+	st.st_mtime = time(NULL);
+    }
+
+    /*
+     * Find the oldest time
+     */
+    if (st.st_mtime < (*tmp)->time) 
+	(*tmp)->time = st.st_mtime;
+
+    if (isflo == OUT_FLO) {
+	if ((fp = fopen(fname,"r"))) {
+	    while (fgets(buf, sizeof(buf) - 1, fp)) {
+		if (*(p = buf + strlen(buf) - 1) == '\n') 
+		    *p-- = '\0';
+		while (isspace(*p)) 
+		    *p-- = '\0';
+		for (p = buf; *p; p++) 
+		    if (*p == '\\') 
+			*p='/';
+		for (p = buf; *p && isspace(*p); p++);
+		    if (*p == '~') 
+			continue;
+		if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@')) 
+		    p++;
+		if (stat(p, &st) != 0) {
+		    if (strlen(CFG.dospath)) {
+			if (stat(Dos2Unix(p), &st) != 0) {
+			    /*
+			     * Fileattach dissapeared, maybe
+			     * the node doesn't poll enough and
+			     * is losing mail or files.
+			     */
+			    st.st_size = 0L;
+			    st.st_mtime = time(NULL);
+			}
+		    } else {
+			if (stat(p, &st) != 0) {
+			    st.st_size = 0L;
+			    st.st_mtime = time(NULL);
+			}
+		    }
 		}
 
-	if (stat(fname,&st) != 0) {
-		WriteError("$Can't stat %s", fname);
-		st.st_size = 0L;
-		st.st_mtime = time(NULL);
-	}
-
-	/*
-	 * Find the oldest time
-	 */
-	if (st.st_mtime < (*tmp)->time) 
-		(*tmp)->time = st.st_mtime;
-
-	if (isflo == OUT_FLO) {
-		if ((fp = fopen(fname,"r"))) {
-			while (fgets(buf, sizeof(buf) - 1, fp)) {
-				if (*(p = buf + strlen(buf) - 1) == '\n') 
-					*p-- = '\0';
-				while (isspace(*p)) 
-					*p-- = '\0';
-				for (p = buf; *p; p++) 
-					if (*p == '\\') 
-						*p='/';
-				for (p = buf; *p && isspace(*p); p++);
-				if (*p == '~') continue;
-				if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@')) 
-					p++;
-				if (stat(p, &st) != 0) {
-					if (strlen(CFG.dospath)) {
-						if (stat(Dos2Unix(p), &st) != 0) {
-							/*
-							 * Fileattach dissapeared, maybe
-							 * the node doesn't poll enough and
-							 * is losing mail or files.
-							 */
-							st.st_size = 0L;
-							st.st_mtime = time(NULL);
-						}
-					} else {
-						if (stat(p, &st) != 0) {
-							st.st_size = 0L;
-							st.st_mtime = time(NULL);
-						}
-					}
-				}
-
-				if ((p = strrchr(fname,'/'))) 
-					p++;
-				else 
-					p = fname;
-				if ((strlen(p) == 12) && (strspn(p,"0123456789abcdefABCDEF") == 8) && (p[8] == '.')) {
-					if (st.st_mtime < (*tmp)->time) 
-						(*tmp)->time = st.st_mtime;
-				}
-				(*tmp)->size += st.st_size;
-			}
-			fclose(fp);
-		} else 
-			WriteError("Can't open %s", fname);
-
-	} else if (isflo == OUT_PKT) {
+		if ((p = strrchr(fname,'/'))) 
+		    p++;
+		else 
+		    p = fname;
+		if ((strlen(p) == 12) && (strspn(p,"0123456789abcdefABCDEF") == 8) && (p[8] == '.')) {
+		    if (st.st_mtime < (*tmp)->time) 
+			(*tmp)->time = st.st_mtime;
+		}
 		(*tmp)->size += st.st_size;
-	} else if (isflo == OUT_REQ) {
-		(*tmp)->flavors |= F_FREQ;
-	} else if (isflo == OUT_POL) {
-		(*tmp)->flavors |= F_POLL;
-	}
+	    }
+	    fclose(fp);
+	} else 
+	    WriteError("Can't open %s", fname);
 
-	return 0;
+    } else if (isflo == OUT_PKT) {
+	(*tmp)->size += st.st_size;
+    } else if (isflo == OUT_REQ) {
+	(*tmp)->flavors |= F_FREQ;
+    } else if (isflo == OUT_POL) {
+	(*tmp)->flavors |= F_POLL;
+    }
+
+    return 0;
 }
 
 
@@ -376,15 +428,15 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 int IsZMH(void);
 int IsZMH()
 {
-	static  char buf[81];
+    static  char buf[81];
 
-	sprintf(buf, "SBBS:0;");
-	if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
-		if (strncmp(buf, "100:2,2", 7) == 0)
-			return TRUE;
-	}
-	return FALSE;
+    sprintf(buf, "SBBS:0;");
+    if (socket_send(buf) == 0) {
+	strcpy(buf, socket_receive());
+	if (strncmp(buf, "100:2,2", 7) == 0)
+	    return TRUE;
+    }
+    return FALSE;
 }
 
 

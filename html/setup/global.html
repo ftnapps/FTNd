@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 11-Jan-2004</h5></div>
+<div align="right"><h5>Last update 14-Jan-2004</h5></div>
 <div align="center"><H1>MBSE BBS Setup - Global Setup</H1></div>
 
 In this setup you can edit all global settings for MBSE BBS. All sections will
@@ -64,7 +64,17 @@ group them.
 <pre>
 <strong>BBS Menus         </strong>The path to the default menus
 <strong>Txtfiles          </strong>The path to the default ANSI and ASCII textfiles
+<strong>Macro's           </strong>The path to the default macro templates
 <strong>Home dirs         </strong>The path to the users home directories
+<strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
+<strong>Arealists         </strong>The path where area lists and filebone lists are stored
+<strong>Ext. edit         </strong>The full path and filename to the external editor
+<strong>Rules dir         </strong>The path to the directory to store area rules
+
+<strong>Magic's           </strong>Where the magic filerequests are kept
+<strong>DOS path          </strong>The DOS drive and path
+<strong>Unix path         </strong>The Translated DOS path in real
+<strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
 <strong>Nodelists         </strong>The path to the nodelist directory
 <strong>Inbound           </strong>The unprotected fidonet inbound
 <strong>Prot inb.         </strong>The (password) protected fidonet inbound
@@ -74,13 +84,8 @@ group them.
                   These are *.msg files can be created by several doors. (Not in use yet)
 <strong>Bad TIC's         </strong>Where bad TIC files are saved
 <strong>TIC queue         </strong>Where TIC files for downlinks are kept
-<strong>Magic's           </strong>Where the magic filerequests are kept
-<strong>DOS path          </strong>The DOS drive and path
-<strong>Unix path         </strong>The Translated DOS path in real
-<strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
-<strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
-<strong>Arealists         </strong>The path where area lists and filebone lists are stored
-<strong>Ext. edit         </strong>The full path and filename to the external editor.
+<strong>TMail DOS         </strong>The T-Mail 8.3 (short) base path (empty = disable)
+<strong>TMail Win         </strong>The T-Mail long filename base path (empty = disable)
 </pre>
 If you fill in the DOS path then the DOS path and Unix path are translated
 to DOS paths in the flo files for outbound mail sessions. You only need this if

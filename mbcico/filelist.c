@@ -306,12 +306,6 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	if ((tmpa->addr) && Loaded && strlen(nodes.OutBox) &&
 	    (tmpa->addr->zone == nodes.Aka[0].zone) && (tmpa->addr->net == nodes.Aka[0].net) &&
 	    (tmpa->addr->node == nodes.Aka[0].node) && (tmpa->addr->point == nodes.Aka[0].point)) {
-	    if (nodes.Crash)
-		flavor = 'c';
-	    else if (nodes.Hold)
-		flavor = 'h';
-	    else
-		flavor = 'o';
 	    check_filebox(nodes.OutBox, st);
 	}
 

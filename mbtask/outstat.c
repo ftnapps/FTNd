@@ -45,6 +45,7 @@ extern int		do_quiet;
 extern int		internet;	    /* Internet status		*/
 extern struct sysconfig	CFG;		    /* Main configuration	*/
 extern struct taskrec	TCFG;		    /* Task configuration	*/
+extern struct _fidonet  fidonet;	    /* Fidonet records		*/
 int			nxt_hour, nxt_min;  /* Time of next event	*/
 int			inet_calls;	    /* Internet calls to make	*/
 int			isdn_calls;	    /* ISDN calls to make	*/
@@ -209,6 +210,70 @@ const char* shortboxname(const faddr *fa) {
 
 
 /*
+ * Scan one directory filebox
+ */
+void checkdir(char *boxpath, faddr *fa, char flavor)
+{
+    char	    *temp;
+    DIR             *dp = NULL;
+    struct dirent   *de;
+    struct stat     sb;
+    struct passwd   *pw;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    pw = getpwnam((char *)"mbse");
+    Syslog('o', "check filebox %s (%s) flavor %c", boxpath, ascfnode(fa, 0xff), flavor);
+
+    if ((dp = opendir(boxpath)) != NULL) {
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", boxpath, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    if (S_ISREG(sb.st_mode)) {
+			if (pw->pw_uid == sb.st_uid) {
+                            /*
+                             * We own the file
+                             */
+                            if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
+                                each(fa, flavor, OUT_FIL, temp);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        } else if (pw->pw_gid == sb.st_gid) {
+                            /*
+                             * We own the file group
+                             */
+                            if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
+                                each(fa, flavor, OUT_FIL, temp);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        } else {
+                            /*
+                             * No owner of file
+                             */
+                            if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
+                                each(fa, flavor, OUT_FIL, temp);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        }
+                    } else {
+                        Syslog('+', "Not a regular file: %s", temp);
+                    }
+                } else {
+                    Syslog('?', "Can't stat %s", temp);
+                }
+            }
+        }
+        closedir(dp);
+    }
+    free(temp);
+}
+
+
+
+/*
  * Scan outbound, the call status is set in three counters: internet,
  * ISDN and POTS (analogue modems).
  * For all systems the CM and Txx flags are checked and for official
@@ -222,7 +287,7 @@ int outstat()
 {
     int		    rc, first = TRUE, T_window, iszmh = FALSE;
     struct _alist   *tmp, *old;
-    char	    flstr[13], *temp, as[6], be[6], utc[6], flavor;
+    char	    digit[6], flstr[13], *temp, as[6], be[6], utc[6], flavor, *temp2;
     time_t	    now;
     struct tm	    *tm;
     int		    uhour, umin, thour, tmin;
@@ -232,7 +297,6 @@ int outstat()
     DIR		    *dp = NULL;
     struct dirent   *de;
     struct stat	    sb;
-    struct passwd   *pw;
     unsigned long   cmmask, ibnmask = 0, ifcmask = 0, itnmask = 0;
     nodelist_modem  **tmpm;
 
@@ -282,7 +346,6 @@ int outstat()
     fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
     fseek(fp, 0, SEEK_SET);
     fread(&nodeshdr, nodeshdr.hdrsize, 1, fp);
-    pw = getpwnam((char *)"mbse");
 
     while ((fread(&nodes, nodeshdr.recsize, 1, fp)) == 1) {
 	if (strlen(nodes.OutBox)) {
@@ -301,50 +364,7 @@ int outstat()
 	    fa->node   = nodes.Aka[0].node;
 	    fa->point  = nodes.Aka[0].point;
 
-	    if ((dp = opendir(nodes.OutBox)) != NULL) {
-		while ((de = readdir(dp))) {
-		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-			sprintf(temp, "%s/%s", nodes.OutBox, de->d_name);
-			if (stat(temp, &sb) == 0) {
-			    if (S_ISREG(sb.st_mode)) {
-				if (pw->pw_uid == sb.st_uid) {
-				    /*
-				     * We own the file
-				     */
-				    if ((sb.st_mode & S_IRUSR) && (sb.st_mode & S_IWUSR)) {
-					each(fa, flavor, OUT_FIL, temp);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				} else if (pw->pw_gid == sb.st_gid) {
-				    /*
-				     * We own the file group
-				     */
-				    if ((sb.st_mode & S_IRGRP) && (sb.st_mode & S_IWGRP)) {
-					each(fa, flavor, OUT_FIL, temp);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				} else {
-				    /*
-				     * No owner of file
-				     */
-				    if ((sb.st_mode & S_IROTH) && (sb.st_mode & S_IWOTH)) {
-					each(fa, flavor, OUT_FIL, temp);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				}
-			    } else {
-				Syslog('+', "Not a regular file: %s", temp);
-			    }
-			} else {
-			    Syslog('?', "Can't stat %s", temp);
-			}
-		    }
-		}
-		closedir(dp);
-	    }
+	    checkdir(nodes.OutBox, fa, flavor);
 	    if (fa->domain)
 		free(fa->domain);
 	    free(fa);
@@ -352,6 +372,88 @@ int outstat()
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
     }
     fclose(fp);
+
+    /*
+     * Start checking T-Mail fileboxes
+     */
+    if (strlen(CFG.tmailshort) && (dp = opendir(CFG.tmailshort))) {
+        while ((de = readdir(dp))) {
+            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+                sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+                if (stat(temp, &sb) == 0) {
+                    if (S_ISDIR(sb.st_mode)) {
+                        fa = (faddr*)malloc(sizeof(faddr));
+                        fa->name = NULL;
+                        fa->domain = NULL;
+                        memset(&digit, 0, sizeof(digit));
+                        digit[0] = de->d_name[0];
+                        digit[1] = de->d_name[1];
+                        fa->zone = strtol(digit, NULL, 32);
+                        memset(&digit, 0, sizeof(digit));
+                        digit[0] = de->d_name[2];
+                        digit[1] = de->d_name[3];
+                        digit[2] = de->d_name[4];
+                        fa->net = strtol(digit, NULL, 32);
+                        memset(&digit, 0, sizeof(digit));
+                        digit[0] = de->d_name[5];
+                        digit[1] = de->d_name[6];
+                        digit[2] = de->d_name[7];
+                        fa->node = strtol(digit, NULL, 32);
+                        memset(&digit, 0, sizeof(digit));
+                        digit[0] = de->d_name[9];
+                        digit[1] = de->d_name[10];
+                        fa->point = strtol(digit, NULL, 32);
+                        if (SearchFidonet(fa->zone)) {
+                            fa->domain = xstrcpy(fidonet.domain);
+                        }
+                        if ((strlen(de->d_name) == 12) && (tolower(de->d_name[11]) == 'h'))
+                            flavor = 'h';
+                        else
+                            flavor = 'o';
+                        checkdir(temp, fa, flavor);
+			if (fa->domain)
+			    free(fa->domain);
+			free(fa);
+                    }
+                }
+            }
+        }
+        closedir(dp);
+    }
+    if (strlen(CFG.tmaillong) && (dp = opendir(CFG.tmaillong))) {
+        temp2 = calloc(PATH_MAX, sizeof(char));
+        while ((de = readdir(dp))) {
+            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+                sprintf(temp, "%s/%s", CFG.tmaillong, de->d_name);
+                if (stat(temp, &sb) == 0) {
+                    if (S_ISDIR(sb.st_mode)) {
+                        sprintf(temp2, "%s", de->d_name);
+                        fa = (faddr*)malloc(sizeof(faddr));
+                        fa->name = NULL;
+                        fa->domain = NULL;
+                        fa->zone = atoi(strtok(temp2, ".\n\r\0"));
+                        fa->net = atoi(strtok(NULL, ".\n\r\0"));
+                        fa->node = atoi(strtok(NULL, ".\n\r\0"));
+                        fa->point = atoi(strtok(NULL, ".\n\r\0"));
+                        if (SearchFidonet(fa->zone)) {
+                            fa->domain = xstrcpy(fidonet.domain);
+                        }
+                        if (tolower(de->d_name[strlen(de->d_name) -1]) == 'h')
+                            flavor = 'h';
+                        else
+                            flavor = 'o';
+                        checkdir(temp, fa, flavor);
+			if (fa->domain)
+			    free(fa->domain);
+			free(fa);
+                    }   
+                }
+            }
+        }
+        closedir(dp);
+        free(temp2);
+    }
+
 
     /*
      * During processing the outbound list, determine when the next event will occur,

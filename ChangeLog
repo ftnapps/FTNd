@@ -6,6 +6,13 @@ v0.39.6		11-Jan-2004
 		New binkp/1.1 driver fixes for Sun NetBSD.
 		Removed TCP ignore check in EOB state.
 		Transmiter file close now right after last block.
+		Added support for T-Mail fileboxes, partly written and info
+		provided by Przemyslaw Kwiatkowski (2:480/127).
+
+	mbout:
+		Added support for T-Mail fileboxes.
+
+	mbtask:
 		Added support for T-Mail fileboxes.
 
 	mbsetup:
