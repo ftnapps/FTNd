@@ -7,7 +7,7 @@ include ../Makefile.global
 SRCS		= addbbs.c backalias.c flock.c hatch.c mbdiff.c mgrutil.c qualify.c \
 		  ptic.c sendmail.c tracker.c addpkt.c bwrite.c forward.c lhash.c \
 		  mbfido.c mkftnhdr.c ping.c rfc2ftn.c storeecho.c unpack.c aliasdb.c \
-		  fsort.c magic.c mbfile.c mover.c post.c rnews.c storenet.c \
+		  fsort.c magic.c mbfile.c mover.c post.c rnews.c storenet.c mbfrearc.c \
 		  utic.c announce.c fflist.c ftn2rfc.c makestat.c mbindex.c msgutil.c \
 		  postecho.c rollover.c tic.c areamgr.c filefind.c grlist.c maketags.c \
 		  mbmsg.c newspost.c postemail.c scan.c toberep.c atoul.c filemgr.c \
