@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: packet.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 06-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -113,7 +112,7 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor)
 		Syslog('P', "creating new .pkt");
 
 		memset(&buffer, 0, sizeof(buffer));
-		time(&t);
+		t = time(NULL);
 		ptm = localtime(&t);
 		if (ptm->tm_sec > 59)
 			ptm->tm_sec = 59;

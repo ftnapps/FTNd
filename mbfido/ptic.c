@@ -84,7 +84,7 @@ int ProcessTic(fa_list *sbl)
 	int		BBS_Imp = FALSE, DidBanner = FALSE;
 
 
-	time(&Now);
+	Now = time(NULL);
 
 	if (TIC.TicIn.PathError) {
 		WriteError("Our Aka is in the path");

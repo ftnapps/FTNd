@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbmon/common.c
+ * $Id$
  * Purpose ...............: Common utilities
- * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -603,7 +602,7 @@ long gmt_offset(time_t now)
 	long		offset;
 
 	if (!now) 
-		time(&now);
+		now = time(NULL);
 	ptm = *localtime(&now);
 
 	/* 

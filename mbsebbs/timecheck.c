@@ -83,7 +83,7 @@ void TimeCheck(void)
 	time_t	Now;
 	int	Elapsed;
 
-	time(&Now);
+	Now = time(NULL);
 
 	/*
 	 * Update the global string for the menu prompt

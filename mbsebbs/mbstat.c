@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $id$
+ * $Id$
  * Purpose ...............: Change BBS status
  *
  *****************************************************************************
@@ -91,7 +91,7 @@ void die(int onsig)
 		printf("\n");
 	}
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBSTAT finished in %s", t_elapsed(t_start, t_end));
 
 	ExitClient(onsig);
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 #endif
 	InitConfig();
 	TermInit(1);
-	time(&t_start);
+	t_start = time(NULL);
 
 	/*
 	 * Catch or ignore signals

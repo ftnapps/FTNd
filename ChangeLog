@@ -4246,6 +4246,7 @@ v0.33.19        26-Oct-2001
 		When adding seenby entries, the zone number is copied from the
 		previous adress just like with the net numbers. This is for
 		old style tic files, they were not full 3d.
+		Fixes for Sparc systems.
 
 	lang:
 		Changed language prompts 6, 71, 429.
@@ -4275,6 +4276,7 @@ v0.33.19        26-Oct-2001
 		When an new area is made available, the database is created.
 		The AREADEF lines in golded.inc now contain the aka to use
 		instead of a dot.
+		Fixes for Sparc systems.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
@@ -4331,11 +4333,13 @@ v0.33.19        26-Oct-2001
 		should not disable this if you restrict access to some file
 		areas if you want to test the users age. Also the age in the
 		users record is invalid.
+		Fixes for Sparc systems.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
 		bbs user. Should be started by the bbs account.
 		Ask Date of Birth now only is asked if set in configuration.
+		Fixes for Sparc systems.
 
 	mbcico:
 		Removed IEMSI support since mbsebbs doesn't support it 
@@ -4351,6 +4355,10 @@ v0.33.19        26-Oct-2001
 		The hydra driver now sends 8.3 mangled filenames and long
 		filenames as specified in the specs.
 		Corrected the location of the modem lockfile on FreeBSD.
+		Fixes for Sparc systems.
+
+	mbout:
+		Fixes for Sparc systems.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
@@ -4365,9 +4373,11 @@ v0.33.19        26-Oct-2001
 		information.
 		When lastcaller info is scrolling, the lines are first proper
 		erased.
+		Fixes for Sparc systems.
 
 	mbmsg:
 		Corrected header in logfile for pack function.
+		Fixes for Sparc systems.
 
 	import:
 		Removed users import, could not work anymore.
@@ -4388,6 +4398,7 @@ v0.33.19        26-Oct-2001
 		rescan option.
 		Implemented long filenames with hatch. Now uses ticfile key-
 		word Fullname for the long filename.
+		Fixes for Sparc systems.
 
 	mbfile:
 		During check the file databases are reset to filemode 0660.
@@ -4415,10 +4426,21 @@ v0.33.19        26-Oct-2001
 		at the same time.
 		Implemented "mbfile delete" and "mbfile undelete" commands.
 		The command mbfile check now removes obsolete file databases.
+		Fixes for Sparc systems.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.
 		You may need to adjust your scripts that call "mball index".
+		Fixes for Sparc systems.
+
+	mbaff:
+		Fixes for Sparc systems.
+
+	mbindex:
+		Fixes for Sparc systems.
+
+	mbdiff:
+		Fixes for Sparc systems.
 
 	mbfbgen:
 		Obsolete and removed from the distribution. The function is

@@ -1,9 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/ftn2rfc.c
+ * $Id$
  * Purpose ...............: Gate netmail->email or echomail->news
- * Last modification date : 29-Oct-2001
- * Last modification date : 30-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -900,7 +898,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		}
 
 	} else { /* if newsmode */
-		time(&now);
+		now = time(NULL);
 		if (CFG.EmailMode == E_NOISP) {
 			/*
 			 * Probaly not needed as messages for systems without ISP never get here.
@@ -1083,13 +1081,14 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 		/*
 		 * Restamp future postings
 		 */
-		if(mdate > time(&now)) {
+		now = time(NULL);
+		if (mdate > now) {
 			Syslog('+', "Future posting: %s", rfcdate(mdate));
 			sprintf(temp,"Date: %s\n", rfcdate(now));
 			Send(newsmode, temp);
 			sprintf(temp,"X-Origin-Date: %s\n", rfcdate(mdate));
 			Send(newsmode, temp);
-		} else if((mdate < time(&now)-14*24*60*60) && (mdate > time(&now)-RESTAMP_OLD_POSTINGS*24*60*60)) {
+		} else if ((mdate < now-14*24*60*60) && (mdate > time(&now)-RESTAMP_OLD_POSTINGS*24*60*60)) {
 			/*
 			 * Restamp old postings
 			 */

@@ -192,7 +192,7 @@ void die(int onsig)
 			WriteError("Terminated with error %d", onsig);
 	}
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBINDEX finished in %s", t_elapsed(t_start, t_end));
 	
 	if (!do_quiet)

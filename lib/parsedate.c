@@ -1,4 +1,6 @@
-/* $Revision$
+/* $Id$
+**
+** $ Revision: 1.2 $
 **
 **  Originally written by Steven M. Bellovin <smb@research.att.com> while
 **  at the University of North Carolina at Chapel Hill.  Later tweaked by
@@ -1427,7 +1429,7 @@ int GetTimeInfo(TIMEINFO *Now)
     Now->usec = tv.tv_usec;
 #else
     /* Can't check for -1 since that might be a time, I guess. */
-    (void)time(&Now->time);
+    Now->time = time(NULL);
     Now->usec = 0;
 #endif	/* defined(HAVE_GETTIMEOFDAY) */
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbaff/msgutil.c
+ * $Id$
  * Purpose ...............: Announce new files and FileFind
- * Last modification date : 21-Jan-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -91,7 +90,7 @@ void Msg_Pid(void)
 	sprintf(temp, "\001PID: MBSE-FIDO %s", VERSION);
 	MsgText_Add2(temp);
 	sprintf(temp, "\001CHRS: %s", getchrs(msgs.Ftncode));
-	(void)time(&tt);
+	tt = time(NULL);
 	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
 	MsgText_Add2(temp);
 	free(temp);

@@ -838,7 +838,7 @@ int hydra_batch(int role, file_list *to_send)
 
 				Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
 				Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned long)txstat.st_size, date(txstat.st_mtime));
-				(void) time(&txstarttime);
+				txstarttime = time(NULL);
 			}
 
 			txstate = HTX_ToFName;
@@ -1115,7 +1115,7 @@ int hydra_batch(int role, file_list *to_send)
 				/*
 				 * calculate time needed and bytes transferred
 				 */
-				(void) time(&txendtime);
+				txendtime = time(NULL);
 				txstarttime = txendtime - txstarttime;
 
 				if (txstarttime <= 0L)
@@ -1324,7 +1324,7 @@ int hydra_batch(int role, file_list *to_send)
 							Name, filesize, date(timestamp));
 
 					rxfp = openfile(Name, timestamp, filesize, &rxpos, resync);
-					(void) time(&rxstarttime);
+					rxstarttime = time(NULL);
 
 					/* check for error opening file */
 					if (rxfp) {
@@ -1414,7 +1414,7 @@ int hydra_batch(int role, file_list *to_send)
 					/*
 					 * calculate time and CPU usage needed
 					 */
-					(void) time(&rxendtime);
+					rxendtime = time(NULL);
 	
 					if (rxpos >= 0) {
 						rxfp = NULL;

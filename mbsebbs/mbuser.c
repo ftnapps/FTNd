@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	Days = 0;
 	Level = 0;
 
-	time(&t_start);
+	t_start = time(NULL);
 
 	if (argc < 2)
 		Help();
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	UserPack(Days, Level, pack);
 	umask(oldmask);
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBUSER finished in %s", t_elapsed(t_start, t_end));
 
 	if (!do_quiet)

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/xmsend.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 04-Jan-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -123,7 +122,7 @@ SM_EDECL
 	fl.l_len=0L;
 
 	Syslog('x', "xmsend INIT");
-	(void)time(&stm);
+	stm = time(NULL);
 
 	/* if we got 'C' than hopefully remote is sealink capable... */
 
@@ -236,7 +235,7 @@ SM_STATE(sendblk)
 		} else if (ackd_blk < last_blk) {
 			SM_PROCEED(waitack);
 		} else {
-			(void)time(&etm);
+			etm = time(NULL);
 			if (etm == stm) 
 				etm++;
 			Syslog('+', "sent %lu bytes in %s (%lu cps)", (unsigned long)st.st_size,str_time(etm-stm),

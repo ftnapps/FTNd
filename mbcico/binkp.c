@@ -314,7 +314,7 @@ int binkp_expired(void)
 {
 	time_t	now;
 
-	(void)time(&now);
+	now = time(NULL);
 	if (now >= Timer)
 		Syslog('b', "Timer expired");
 	return (now >= Timer);
@@ -331,7 +331,7 @@ void b_banner(int originate)
 	binkp_send_control(MM_NUL,"ZYZ %s", CFG.sysop_name);
 	binkp_send_control(MM_NUL,"LOC %s", CFG.location);
 	binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
-	time(&t);
+	t = time(NULL);
 	binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
 	binkp_send_control(MM_NUL,"VER mbcico/%s binkp/1.0", VERSION);
 	if (strlen(CFG.Phone))
@@ -949,7 +949,7 @@ int binkp_batch(file_list *to_send)
 					Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 					binkp_send_control(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
 						(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
-					(void)time(&txstarttime);
+					txstarttime = time(NULL);
 					tmp->state = Sending;
 					cursend = tmp;
 					TxState = TxTryRead;
@@ -997,7 +997,7 @@ int binkp_batch(file_list *to_send)
 				/*
 				 * calculate time needed and bytes transferred
 				 */
-				(void)time(&txendtime);
+				txendtime = time(NULL);
 				txstarttime = txendtime - txstarttime;
 				if (txstarttime <= 0L)
 					txstarttime = 1L;
@@ -1116,7 +1116,7 @@ int binkp_batch(file_list *to_send)
 							binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
 							closefile(TRUE);
 							rxpos = rxpos - rxbytes;
-							(void)time(&rxendtime);
+							rxendtime = time(NULL);
 							if ((rxstarttime = rxendtime - rxstarttime) == 0L)
 								rxstarttime = 1L;
 							Syslog('+', "Binkp: received OK %lu bytes in %s (%ld cps)",
@@ -1143,7 +1143,7 @@ int binkp_batch(file_list *to_send)
 		case RxAcceptFile:
 			Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", rname, date(rtime), rsize, roffs);
 			rxfp = openfile(rname, rtime, rsize, &rxbytes, resync);
-			(void)time(&rxstarttime);
+			rxstarttime = time(NULL);
 			rxpos = 0;
 
 			if (!diskfree(CFG.freespace)) {

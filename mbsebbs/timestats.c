@@ -45,7 +45,7 @@ void TimeStats()
 {
 	char	Logdate[15];
 
-        time(&Time_Now);
+        Time_Now = time(NULL);
         l_date = localtime(&Time_Now);
         sprintf(Logdate,"%02d-%s %02d:%02d:%02d", l_date->tm_mday, GetMonth(l_date->tm_mon+1),
                         l_date->tm_hour, l_date->tm_min, l_date->tm_sec);

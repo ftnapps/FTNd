@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/emsidat.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 24-Jun-2001 
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -223,7 +222,7 @@ char *mkemsidat(int caller)
 	p=xstrcat(p,(char *)"][");
 	p=xstrcat(p,flags?emsiencode(flags):(char *)"");
 	p=xstrcat(p,(char *)"]}{TRX#}{[");
-	(void)time(&tt);
+	tt = time(NULL);
 	sprintf(cbuf,"%08lX",mtime2sl(tt));
 	p=xstrcat(p,cbuf);
 	p=xstrcat(p,(char *)"]}{TZUTC}{[");

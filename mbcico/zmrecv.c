@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/zmrecv.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 10-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -442,7 +441,7 @@ int closeit(int success)
 	rc = closefile(success);
 	fout = NULL;
 	sbytes = rxbytes - sbytes;
-	(void)time(&etime);
+	etime = time(NULL);
 	if ((startime = etime - startime) == 0L) 
 		startime = 1L;
 	Syslog('+', "Zmodem: %s %lu bytes in %s (%ld cps)", success?"OK":"dropped after",
@@ -515,7 +514,7 @@ int procheader(char *Name)
 	Syslog('+', "Zmodem: \"%s\" %ld bytes, %s mode %o", Name, Bytesleft, ctt, Filemode);
 
 	fout = openfile(Name,Modtime,Bytesleft,&(long)(rxbytes),resync);
-	(void)time(&startime);
+	startime = time(NULL);
 	sbytes = rxbytes;
 
 	if (Bytesleft == rxbytes) {

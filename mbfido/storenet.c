@@ -66,7 +66,7 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 
 	if (SearchNetBoard(t->zone, t->net)) {
 		StatAdd(&msgs.Received, 1L);
-		time(&msgs.LastRcvd);
+		msgs.LastRcvd = time(NULL);
 		UpdateMsgs();
 
 		result = Msg_Open(msgs.Base);

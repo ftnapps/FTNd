@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/outstat.c
+ * $Id$
  * Purpose ...............: Show mail outbound status
- * Last modification date : 23-Dec-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -94,7 +93,7 @@ int outstat()
 			if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
 			if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
 
-			(void)time(&age);
+			age = time(NULL);
 			age -= tmp->time;
 			sprintf(temp, "%s  %8lu %s %s", flstr, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
 
@@ -142,7 +141,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 		(*tmp)->addr.point  = addr->point;
 		(*tmp)->addr.domain = xstrcpy(addr->domain);
 		(*tmp)->flavors = 0;
-		time(&((*tmp)->time));
+		(*tmp)->time = time(NULL);
 		(*tmp)->size = 0L;
 	}
 
@@ -159,7 +158,7 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	if (stat(fname,&st) != 0) {
 		WriteError("$Can't stat %s", fname);
 		st.st_size = 0L;
-		(void)time(&st.st_mtime);
+		st.st_mtime = time(NULL);
 	}
 
 	/*
@@ -191,12 +190,12 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 							 * is losing mail or files.
 							 */
 							st.st_size = 0L;
-							(void)time(&st.st_mtime);
+							st.st_mtime = time(NULL);
 						}
 					} else {
 						if (stat(p, &st) != 0) {
 							st.st_size = 0L;
-							(void)time(&st.st_mtime);
+							st.st_mtime = time(NULL);
 						}
 					}
 				}

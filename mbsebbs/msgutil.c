@@ -62,7 +62,7 @@ char *rfcdate(time_t now)
 	long		offset;
 
 	if (!now) 
-		time(&now);
+		now = time(NULL);
 	ptm = *localtime(&now);
 
 	/*
@@ -229,7 +229,7 @@ void Add_Headkludges(faddr *dest, int IsReply)
 
 	sprintf(temp, "\001PID: MBSE-BBS %s", VERSION);
 	MsgText_Add2(temp);
-	(void)time(&tt);
+	tt = time(NULL);
 	sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
 	MsgText_Add2(temp);
 	free(temp);

@@ -79,12 +79,11 @@ int main(int argc, char **argv)
 	/* 
 	 * Set local time and statistic indexes.
 	 */
-	time(&Time_Now); 
-	time(&t_start);
+	Time_Now = t_start = time(NULL); 
 	l_date = localtime(&Time_Now); 
 	Diw = l_date->tm_wday;
 	Miy = l_date->tm_mon;
-	time(&ltime);  
+	ltime = time(NULL);  
 
 	/*
 	 * Initialize this client with the server. 

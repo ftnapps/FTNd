@@ -338,7 +338,7 @@ void Download(void)
 	 * Wait a while before download
 	 */
 	sleep(2);
-	time(&ElapstimeStart);
+	ElapstimeStart = time(NULL);
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s ./tag/*", sProtDn);
@@ -366,7 +366,7 @@ void Download(void)
 	fflush(stdout);
 	fflush(stdin);
 	free(temp);
-	time(&ElapstimeFin);
+	ElapstimeFin = time(NULL);
 
 	/*
 	 * Get time from Before Download and After Download to get
@@ -414,7 +414,7 @@ void Download(void)
 						}
 						Size += file.Size;
 						file.TimesDL++;
-						time(&file.LastDL);
+						file.LastDL = time(NULL);
 						fseek(fp, - sizeof(file), SEEK_CUR);
 						fwrite(&file, sizeof(file), 1, fp);
 						fclose(fp);
@@ -1117,7 +1117,7 @@ int Upload()
 	fflush(stdout);
 	fflush(stdin);
 	sleep(2);
-	time(&ElapstimeStart);
+	ElapstimeStart = time(NULL);
 	
 	/*
 	 * Get the file(s). Set the Client/Server time to 2 hours.
@@ -1139,7 +1139,7 @@ int Upload()
 	printf("\n\n\n");
 	fflush(stdout);
 	fflush(stdin);
-	time(&ElapstimeFin);
+	ElapstimeFin = time(NULL);
 
 	/*
 	 * Get time from Before Upload and After Upload to get
@@ -1287,7 +1287,7 @@ int DownloadDirect(char *Name, int Wait)
 	 * Wait a while before download
 	 */
 	sleep(2);
-	time(&ElapstimeStart);
+	ElapstimeStart = time(NULL);
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s %s", sProtDn, symFrom);
@@ -1315,7 +1315,7 @@ int DownloadDirect(char *Name, int Wait)
 	fflush(stdout);
 	fflush(stdin);
 	free(temp);
-	time(&ElapstimeFin);
+	ElapstimeFin = time(NULL);
 
 	/*
 	 * Get time from Before Download and After Download to get
@@ -1656,7 +1656,7 @@ int Upload_Home()
 	fflush(stdout);
 	fflush(stdin);
 	sleep(2);
-	time(&ElapstimeStart);
+	ElapstimeStart = time(NULL);
 	
 	/*
 	 * Get the file(s). Set the Client/Server time to 2 hours.
@@ -1678,7 +1678,7 @@ int Upload_Home()
 	printf("\n\n\n");
 	fflush(stdout);
 	fflush(stdin);
-	time(&ElapstimeFin);
+	ElapstimeFin = time(NULL);
 
 	/*
 	 * Get time from Before Upload and After Upload to get

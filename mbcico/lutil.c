@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/lutil.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 12-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -65,9 +64,9 @@ char *date(time_t t)
 	static char buf[20];
 
 	if (t) 
-		now=t; 
+		now = t; 
 	else 
-		time(&now);
+		now = time(NULL);
 	ptm=*localtime(&now);
 	sprintf(buf,"%s %02d %02d:%02d:%02d",
 		mon[ptm.tm_mon],ptm.tm_mday,

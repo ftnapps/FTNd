@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: strutil.c
+ * $Id$
  * Purpose ...............: Common string functions
- * Last modification date : 18-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -264,7 +263,7 @@ char *GetLocalHM()
 	static char	gettime[15];
 	time_t		T_Now;
 
-	time(&T_Now);
+	T_Now = time(NULL);
 	sprintf(gettime,"%s", StrTimeHM(T_Now));
 	return(gettime);
 }
@@ -280,7 +279,7 @@ char *GetLocalHMS()
 	static char	gettime[15];
 	time_t		T_Now;
 
-	time(&T_Now);
+	T_Now = time(NULL);
 	sprintf(gettime,"%s", StrTimeHMS(T_Now));
 	return(gettime);
 }
@@ -328,30 +327,10 @@ char *GetDateDMY()
 	struct tm	*l_d;
 	time_t		T_Now;
 
-	time(&T_Now);
+	T_Now = time(NULL);
 	l_d = localtime(&T_Now);
  	sprintf(tdate, "%02d-%02d-%04d", l_d->tm_mday,l_d->tm_mon+1,l_d->tm_year+1900);
 	return(tdate);
 }
 
 
-
-/*
- * Returns current date in DDMMYYY
- */
-/*
-char *tDate1()
-{
-	static char	tdate1[15];
-	struct tm	*l_d;
-	time_t		T_Now;
-
-	time(&T_Now);
-	l_d = localtime(&T_Now);
- 	sprintf(tdate1, "%02d%02d%02d",
-		 l_d->tm_mday,l_d->tm_mon+1,l_d->tm_year+1900);
-
-	return(tdate1);
-}
-
-*/

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/addpkt.c
+ * $Id$
  * Purpose ...............: Add mail to .pkt
- * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -68,7 +67,7 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
 	 * Write .PKT header, see FSC-0039 rev. 4
 	 */
 	memset(&buffer, 0, sizeof(buffer));
-	time(&Now);
+	Now = time(NULL);
 	Tm = localtime(&Now);
 	if (Tm->tm_sec > 59)
 		Tm->tm_sec = 59;

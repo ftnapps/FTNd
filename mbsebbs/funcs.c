@@ -340,7 +340,7 @@ char *GLCdateyy()
 	static	char	GLcdateyy[15];
 	char	ntime[15];
 
-	time(&Time_Now);
+	Time_Now = time(NULL);
 	l_date = localtime(&Time_Now);
 
 	sprintf(GLcdateyy,"%02d-",

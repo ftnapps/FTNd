@@ -100,7 +100,7 @@ void Good_Bye(int onsig)
 		}
 	}
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBSEBBS finished in %s", t_elapsed(t_start, t_end));
 
 	/*

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/aliasdb.c
+ * $Id$
  * Purpose ...............: Alias Database
- * Last modification date : 11-May-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -137,7 +136,7 @@ int registrate(char *freename, char *address)
 			/*
 			 *  Already present, update date/time.
 			 */
-			time(&key.dtime);
+			key.dtime = time(NULL);
 			fseek(afp, - sizeof(key), SEEK_CUR);
 			fwrite(&key, sizeof(key), 1, afp);
 			close_alias_db();
@@ -147,7 +146,7 @@ int registrate(char *freename, char *address)
 	
 	sprintf(key.freename, "%s", buf);
 	sprintf(key.address, "%s", address);
-	time(&key.dtime);
+	key.dtime = time(NULL);
 
 	if (fwrite(&key, sizeof(key), 1, afp) != 1) {
 		WriteError("$Cannot store: \"%s\" \"%s\"", MBSE_SS(buf), MBSE_SS(address));

@@ -1672,7 +1672,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "      Machine type     %s\n", utsbuf.machine);
 	}
 	fprintf(fp, "      MBSE_ROOT        %s\n", getenv("MBSE_ROOT"));
-	time(&now);
+	now = time(NULL);
 	fprintf(fp, "      Date created     %s", ctime(&now));
 
         addtoc(fp, toc, 1, 2, page, (char *)"System fidonet addresses");

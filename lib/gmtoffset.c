@@ -1,12 +1,11 @@
 /*****************************************************************************
  *
- * File ..................: gmtoffset.c
+ * $Id$
  * Purpose ...............: Calculate UTC offset 
- * Last modification date : 18-Dec-1999
  * Source ................: Eugene G. Crosser's ifmail package.
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -47,7 +46,7 @@ long gmt_offset(time_t now)
 	long		offset;
 
 	if (!now) 
-		time(&now);
+		now = time(NULL);
 	ptm = *localtime(&now);
 
 	/* 

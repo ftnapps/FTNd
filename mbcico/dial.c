@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/dial.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 08-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -120,7 +119,7 @@ int hangup()
 		chat(modem.hangup, CFG.timeoutreset, NULL);
 
 	if (carrier) {
-		time(&c_end);
+		c_end = time(NULL);
 		online += (c_end - c_start);
 		Syslog('+', "Connection time %s", t_elapsed(c_start, c_end));
 		carrier = FALSE;

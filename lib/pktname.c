@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: pktname.c
+ * $Id$
  * Purpose ...............: BinkleyTerm outbound naming
- * Last modification date : 23-Dec-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -228,7 +227,7 @@ char *dayname(void)
 	time_t	tt;
 	struct	tm *ptm;
 
-	(void)time(&tt);
+	tt = time(NULL);
 	ptm = localtime(&tt);
 	sprintf(buf, "%s", dow[ptm->tm_wday]);
 
@@ -245,7 +244,7 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 	struct	tm *ptm;
 	faddr	*bestaka;
 
-	(void)time(&tt);
+	tt = time(NULL);
 	ptm = localtime(&tt);
 	ext = dow[ptm->tm_wday];
 

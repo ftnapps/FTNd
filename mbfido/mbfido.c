@@ -234,7 +234,7 @@ void die(int onsig)
 	if (notify + areamgr + filemgr)
 		Syslog('+', "Notify msgs [%4d] AreaMgr [%4d] FileMgr [%4d]", notify, areamgr, filemgr);
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBFIDO finished in %s", t_elapsed(t_start, t_end));
 	ulockunpack();
 
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
 	InitUser();
 	InitFidonet();
 	TermInit(1);
-	time(&t_start);
+	t_start = time(NULL);
 	t = localtime(&t_start);
 	Diw = t->tm_wday;
 	Miy = t->tm_mon;

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: rfcdate.c
+ * $Id$
  * Purpose ...............: Date utilities
- * Last modification date : 30-Apr-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -149,7 +148,7 @@ char *rfcdate(time_t now)
 	long		offset;
 
 	if (!now) 
-		time(&now);
+		now = time(NULL);
 	ptm = *localtime(&now);
 
 	/*

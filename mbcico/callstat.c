@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/callstat.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 05-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -69,7 +68,7 @@ void putstatus(faddr *addr, int incr, int sts)
 		else 
 			cst->tryno += incr;
 		cst->trystat = sts;
-		(void)time(&cst->trytime);
+		cst->trytime = time(NULL);
 		fwrite(cst, sizeof(callstat), 1, fp);
 		fclose(fp);
 		if (cst->tryno >= 30)

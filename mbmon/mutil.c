@@ -372,7 +372,7 @@ void show_date(int fg, int bg, int y, int x)
 	time_t	now;
 	char	*p;
 
-	time(&now);
+	now = time(NULL);
 	if (now != lasttime) {
 		lasttime = now;
 		set_color(LIGHTGREEN, BLUE);

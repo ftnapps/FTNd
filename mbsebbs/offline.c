@@ -1113,7 +1113,7 @@ void OLR_Upload(void)
 	fflush(stdout);
 	fflush(stdin);
 	sleep(2);
-	time(&ElapstimeStart);
+	ElapstimeStart = time(NULL);
 
 	/*
 	 *  Get the file
@@ -1130,7 +1130,7 @@ void OLR_Upload(void)
 	printf("\n");
 	fflush(stdout);
 	fflush(stdin);
-	time(&ElapstimeFin);
+	ElapstimeFin = time(NULL);
 
 	/*
 	 *  Get the upload time.

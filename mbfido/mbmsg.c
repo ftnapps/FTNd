@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 	InitConfig();
 	TermInit(1);
 	oldmask = umask(007);
-	time(&t_start);
+	t_start = time(NULL);
 
 	/*
 	 * Catch all signals we can, and ignore or catch them
@@ -235,7 +235,7 @@ void die(int onsig)
 	if (msg_tot || msg_del)
 		Syslog('+', "Msgs   [%5d]   Deleted [%5d]", msg_tot, msg_del);
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBMSG finished in %s", t_elapsed(t_start, t_end));
 
 	umask(oldmask);

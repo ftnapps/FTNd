@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/zmsend.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -212,7 +211,7 @@ static int sendzfile(char *ln, char *rn)
 
 	Syslog('+', "Zmodem: send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
 	Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
-	(void)time(&startime);
+	startime = time(NULL);
 
 	sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2), st.st_mode);
 	bufl = strlen(txbuf);
@@ -224,7 +223,7 @@ static int sendzfile(char *ln, char *rn)
 		Syslog('+', "Zmodem: remote skipped %s, is OK",MBSE_SS(ln));
 		return 0;
 	} else if ((rc == OK) && (st.st_size - skipsize)) {
-		(void)time(&endtime);
+		endtime = time(NULL);
 		if ((startime = endtime - startime) == 0) 
 			startime = 1;
 		Syslog('+', "Zmodem: OK %lu bytes in %s (%ld cps)", (unsigned long)st.st_size - skipsize, str_time(startime),

@@ -557,7 +557,7 @@ void Fast_Bye(int onsig)
         char    *temp;
 	time_t	t_end;
 
-        time(&t_end);
+        t_end = time(NULL);
         Syslog(' ', "MBNEWUSR finished in %s", t_elapsed(t_start, t_end));
         socket_shutdown(mypid);
 	

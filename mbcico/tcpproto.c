@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/tcpproto.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -198,7 +197,7 @@ static int sendtfile(char *ln, char *rn)
 	if (st.st_size > 0) {
 		Syslog('+', "TCP send \"%s\" as \"%s\"", MBSE_SS(ln), MBSE_SS(rn));
 		Syslog('+', "TCP size %lu bytes, dated %s", (unsigned long)st.st_size, date(st.st_mtime));
-		(void)time(&startime);
+		startime = time(NULL);
 	} else {
 		Syslog('+', "File \"%s\" has 0 size, skiped",ln);
 		return 0;
@@ -240,7 +239,7 @@ static int sendtfile(char *ln, char *rn)
 	}
 
 	if (rc == 0 && strncmp(rxbuf,"FOK",3) == 0) {
-		(void)time(&endtime);
+		endtime = time(NULL);
 
 		if ((startime=endtime-startime) == 0) 
 			startime = 1;
@@ -275,7 +274,7 @@ static int closeit(int success)
 	rc = closefile(success);
 	fout = NULL;
 	sbytes = rxbytes - sbytes;
-	(void)time(&endtime);
+	endtime = time(NULL);
 
 	if ((startime = endtime - startime) == 0L) 
 		startime = 1L;
@@ -312,7 +311,7 @@ static int receivefile(char *fn, time_t ft, off_t fs)
 	Syslog('+', "TCP receive \"%s\" (%lu bytes) dated %s",fn,fs,date(ft));
 	strcpy(txbuf,"ROK");
 	fout = openfile(fn, ft, fs, &rxbytes, resync);
-	(void)time(&startime);
+	startime = time(NULL);
 	sbytes = rxbytes;
 
 	if (fs == rxbytes) {

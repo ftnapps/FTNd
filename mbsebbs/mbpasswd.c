@@ -376,7 +376,7 @@ static void check_password(const struct passwd *pw)
 	exp_status = isexpired(pw);
 #endif
 
-	time(&now);
+	now = time(NULL);
 
 #ifdef SHADOW_PASSWORD
 	/*

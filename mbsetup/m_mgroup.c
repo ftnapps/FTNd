@@ -198,7 +198,7 @@ int AppendMGroup(void)
 	sprintf(ffile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&mgroup, 0, sizeof(mgroup));
-		time(&mgroup.StartDate);
+		mgroup.StartDate = time(NULL);
 		fwrite(&mgroup, sizeof(mgroup), 1, fil);
 		fclose(fil);
 		MGrpUpdated = 1;

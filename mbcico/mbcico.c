@@ -136,7 +136,7 @@ void die(int onsig)
 	if (gotfiles)
 		CreateSema((char *)"mailin");
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
 	free_mem();
 	if (envptr)
@@ -190,9 +190,7 @@ int main(int argc, char *argv[])
 	InitNode();
 	InitFidonet();
 	TermInit(1);
-	time(&t_start);
-	time(&c_start);
-	time(&c_end);
+	t_start = c_start = c_end = time(NULL);
 
 	InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, CFG.cico_loglevel, CFG.error_log);
 	Syslog(' ', " ");

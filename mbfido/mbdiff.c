@@ -98,7 +98,7 @@ void die(int onsig)
 			WriteError("Terminated with error %d", onsig);
 	}
 
-	time(&t_end);
+	t_end = time(NULL);
 	Syslog(' ', "MBDIFF finished in %s", t_elapsed(t_start, t_end));
 
 	if (!do_quiet) {
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 #endif
 	InitConfig();
 	TermInit(1);
-	time(&t_start);
+	t_start = time(NULL);
 	umask(002);
 
 	/*

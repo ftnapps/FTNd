@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/xmrecv.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 04-Jan-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -89,7 +88,7 @@ int closeit(int success)
 	off_t	endofs;
 
 	endofs = recv_blk*XMBLKSIZ;
-	(void)time(&etm);
+	etm = time(NULL);
 	if (etm == stm) 
 		etm++;
 	Syslog('+', "Xmodem %s %lu bytes in %s (%lu cps)", success?"received":"dropped after",
@@ -147,7 +146,7 @@ SM_EDECL
 	int		goteot = FALSE;
 
 	Syslog('x', "xmrecv INIT");
-	(void)time(&stm);
+	stm = time(NULL);
 	recv_blk=-1L;
 
 	memset(&tmpfname, 0, sizeof(tmpfname));

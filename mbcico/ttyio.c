@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/ttyio.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 23-Dec-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -127,7 +126,7 @@ int tty_expired(int tno)
 	if (timer[tno] == (time_t) 0)
 		return 0;
 
-	(void)time(&now);
+	now = time(NULL);
 	Syslog('T', "ttyio: expired(%d) now=%lu,timer=%lu,return %s",
 		tno,now,timer[tno],(now >= timer[tno])?"yes":"no");
 	return (now >= timer[tno]);
@@ -170,7 +169,7 @@ static int tty_read(char *buf, int size, int tot)
 		return 0;
 	tty_status = 0;
 
-	(void)time(&now);
+	now = time(NULL);
 	timeout = (time_t)300; /* maximum of 5 minutes */
 
 	for (i = 0; i < TIMERNO_TX; i++) {
@@ -325,7 +324,7 @@ int tty_waitputget(int tot)
 	struct	timeval seltimer;
 
 	tty_status=0;
-	(void)time(&now);
+	now = time(NULL);
 	timeout=(time_t)300; /* maximum of 5 minutes */
 
 	for (i = 0; i < NUMTIMERS; i++) {
@@ -508,7 +507,7 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
 	struct	timeval seltimer;
 
 	tty_status = 0;
-	(void)time(&now);
+	now = time(NULL);
 	timeout = (time_t)300; /* maximum of 5 minutes */
 
 	for (i = 0; i < NUMTIMERS; i++) {

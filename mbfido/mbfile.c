@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 #endif
 	InitConfig();
 	TermInit(1);
-	time(&t_start);
+	t_start = time(NULL);
 	umask(002);
 
 	/*

@@ -245,7 +245,7 @@ char *ttime2()
 	time_t	Time_Now;
 	static	char Ttime2[9];
 
-	time(&Time_Now);
+	Time_Now = time(NULL);
 	l_date = localtime(&Time_Now);
 
  	sprintf(Ttime2, "%02d:%02d", l_date->tm_hour,l_date->tm_min);

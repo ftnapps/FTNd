@@ -408,7 +408,7 @@ void user()
 	Syslog('+', "User successfully logged into BBS");
 	Syslog('+', "Level %d (%s), %d mins. left, port %s", 
 		usrconfig.Security.level, LIMIT.Description, usrconfig.iTimeLeft, pTTY);
-	time(&Time2Go);
+	Time2Go = time(NULL);
 	Time2Go += usrconfig.iTimeLeft * 60;
 	iUserTimeLeft = exitinfo.iTimeLeft;
 

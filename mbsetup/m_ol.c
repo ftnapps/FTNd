@@ -486,7 +486,7 @@ void ImportOneline(void)
 		return;
 	}
 
-	time(&Time);
+	Time = time(NULL);
 	l_date = localtime(&Time);
 	sprintf(buf, "%02d-%02d-%04d", l_date->tm_mday, l_date->tm_mon+1, l_date->tm_year+1900);
 

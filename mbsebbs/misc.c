@@ -93,7 +93,7 @@ int ChkFiles()
 			WriteError("$ChkFiles: Can't create %s", sDataFile);
 		else {
 			memset((char *)&SYSINFO, 0, sizeof(SYSINFO));
-			time(&Now);
+			Now = time(NULL);
 			SYSINFO.StartDate = Now;
 
 			rewind(pCallerLog);
@@ -223,7 +223,7 @@ char *GLCdate()
 {
 	static char	GLcdate[15];
 
-	time(&Time_Now);
+	Time_Now = time(NULL);
 	l_date = localtime(&Time_Now);
 	sprintf(GLcdate,"%02d-", l_date->tm_mday);
 

@@ -198,7 +198,7 @@ int AppendFGroup(void)
 	sprintf(ffile, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&fgroup, 0, sizeof(fgroup));
-		time(&fgroup.StartDate);
+		fgroup.StartDate = time(NULL);
 		fgroup.DivideCost = TRUE;
 		fwrite(&fgroup, sizeof(fgroup), 1, fil);
 		fclose(fil);

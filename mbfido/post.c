@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/post.c
+ * $Id$
  * Purpose ...............: Post a message from a file.
- * Last modification date : 20-Mar-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -117,7 +116,7 @@ void Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 		return;
 	}
 
-	(void)time(&tt);
+	tt = time(NULL);
 	t = localtime(&tt);
 	Diw = t->tm_wday;
 	Miy = t->tm_mon;

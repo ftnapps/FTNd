@@ -93,7 +93,7 @@ char *crypt_make_salt(void)
 	static unsigned long x;
 	static char result[3];
 
-	time(&now);
+	now = time(NULL);
 	x += now + getpid() + clock();
 	result[0] = i64c(((x >> 18) ^ (x >> 6)) & 077);
 	result[1] = i64c(((x >> 12) ^ x) & 077);

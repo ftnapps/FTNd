@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: tosser/storenet.c
- * Purpose ...............: Import a netmail message
- * Last modification date : 28-Jul-2001
+ * $Id$
+ * Purpose ...............: Import a echomail message
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -69,9 +68,9 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
 	 */
 	if (!bad && !dupe) {
 		StatAdd(&msgs.Received, 1L);
-		time(&msgs.LastRcvd);
+		msgs.LastRcvd = time(NULL);
 		StatAdd(&mgroup.MsgsRcvd, 1L);
-		time(&mgroup.LastDate);
+		mgroup.LastDate = time(NULL);
 		UpdateMsgs();
 	}
 
