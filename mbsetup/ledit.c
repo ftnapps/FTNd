@@ -455,7 +455,7 @@ char *select_pick(int max, int items)
 	if (max == 0)
 		sprintf(help, "Select ^\"-\"^ for previous level");
 	else
-		if (max > 20)
+		if (max > items)
 			sprintf(help, "Record (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", max);
 		else
 			sprintf(help, "Select record (1..%d), ^\"-\"^ for previous level", max);
@@ -515,20 +515,34 @@ int select_menu_sub(int max, char *hlp)
 	char help[80];
 	int pick;
 
-	sprintf(help, "%s (1..%d) or ^\"-\"^ for previous level.", hlp, max);
+	if (max == 0)
+	    sprintf(help, "Select ^\"-\"^ for previous level");
+	else
+	    if (max > 40)
+		sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
+	    else
+		sprintf(help, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
 	showhelp(help);
 
-	/* Loop forever until it's right.
+	/* 
+	 * Loop forever until it's right.
 	 */
 	for (;;) {
 		mvprintw(LINES - 3, 6, "Enter your choice >");
 		menu = (char *)"-";
-		menu = edit_field(LINES - 3, 26, 3, '9', menu);
+		menu = edit_field(LINES - 3, 26, 3, '!', menu);
 		locate(LINES -3, 6);
 		clrtoeol();
 
 		if (strncmp(menu, "-", 1) == 0) 
 			return 0;
+
+		if (max > 40) {
+		    if (strncmp(menu, "N", 1) == 0)
+			return -1;
+		    if (strncmp(menu, "P", 1) == 0)
+			return -2;
+		}
 
 		pick = atoi(menu);
 		if ((pick >= 1) && (pick <= max)) 

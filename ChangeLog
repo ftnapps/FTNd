@@ -4322,7 +4322,9 @@ v0.33.19        26-Oct-2001
 		contains the % character.
 		In several menus after leaving a edit record records were
 		displayed from start again, now shows last screen.
-
+		When editing a node's connected file/mail groups it can now
+		handle more then 40 groups without messing up the screen.
+		
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
 		Wordstar) style. This has no effect on the editor for now.

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: grlist.c
+ * $Id$
  * Purpose ...............: Group Listing utils
- * Last modification date : 27-Nov-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -121,7 +120,7 @@ int compgroup(gr_list **fdp1, gr_list **fdp2)
 
 int E_Group(gr_list **fdp, char *title)
 {
-	int	n = 0, i, j, x, y, rc = FALSE;
+	int	o = 0, n = 0, i, j, x, y, rc = FALSE;
 	gr_list	*tmp;
 
 	clr_index();
@@ -139,37 +138,56 @@ int E_Group(gr_list **fdp, char *title)
 		j = 0;
 
 		for (tmp = *fdp; tmp; tmp = tmp->next) {
-			j++;
+		    j++;
+		    if ((j >= (o + 1)) && (j < (o + 41))) {
 			if (tmp->tagged)
 				mvprintw(y, x, (char *)"%2d. + %s", j, tmp->group);
 			else
 				mvprintw(y, x, (char *)"%2d.   %s", j, tmp->group);
 			y++;
-			if (y == 18) {
+			if (y == 17) {
 				y = 7;
 				x += 20;
 			}
+		    }
 		}
 
 		i = select_tag(n);
 
-		if (i == 0) {
-			clr_index();
-			return rc;
-		}
-
-		if ((i >= 1) && (i <= n)) {
-			j = 0;
-			rc = TRUE;
-			for (tmp = *fdp; tmp; tmp = tmp->next) {
-				j++;
-				if (j == i) {
-					if (tmp->tagged)
-						tmp->tagged = FALSE;
-					else
-						tmp->tagged = TRUE;
+		switch (i) {
+		    case 0:	clr_index();
+				return rc;
+				break;
+		    case -2:	if ((o - 40) >= 0) {
+				    clr_index();
+				    set_color(WHITE, BLACK);
+				    mvprintw(5, 5, (char *)"%s", title);
+				    set_color(CYAN, BLACK);
+				    o -= 40;
 				}
-			}
+				break;
+		    case -1:	if ((o + 40) < n) {
+				    clr_index();
+				    set_color(WHITE, BLACK);
+				    mvprintw(5, 5, (char *)"%s", title);
+				    set_color(CYAN, BLACK);
+				    o += 40;
+				}
+				break;
+		    default:	if ((i >= 1) && (i <= n)) {
+				    j = 0;
+				    rc = TRUE;
+				    for (tmp = *fdp; tmp; tmp = tmp->next) {
+					j++;
+					if (j == i) {
+					    if (tmp->tagged)
+						tmp->tagged = FALSE;
+					    else
+						tmp->tagged = TRUE;
+					}
+				    }
+				}
+				break;
 		}
 	}
 }
