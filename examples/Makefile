@@ -25,7 +25,9 @@ help:
 		@echo "make english-menus         Force (re)installation of English menus"
 		@echo "make english-txtfiles      Force (re)installation of English textfiles"
 		@echo "make english-macros        Force (re)installation of English macros"
-		@echo "make english               Force (re)installation of all ENglish files"
+		@echo "make english               Force (re)installation of all English files"
+		@echo ""
+		@echo "make macros                Force (re)installation of all macro templates"
 		@echo ""
 		@echo "You may replace the word english above with spanish galego german dutch italian"
 
@@ -78,6 +80,8 @@ italian:
 
 
 install-force:	english spanish dutch german italian galego
+
+macros:		english-macros spanish-macros german-macros dutch-macros
 
 
 install:
