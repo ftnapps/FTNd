@@ -43,6 +43,8 @@ void Debug(void);
 void GetstrLC(char *, int);
 void ScrollUp(void);
 void ScrollDown(void);
+void FsMove(unsigned char);
+int FsWordWrap(void);
 
 #endif
 
