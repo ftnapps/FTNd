@@ -145,6 +145,7 @@ void Check(void)
 				WriteError("No others read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
 			    }
 			    if (Fix) {
+				iErrors++;
 				if (chmod(area.Path, 0775))
 				    WriteError("Could not set mode to 0775");
 				else
@@ -162,6 +163,7 @@ void Check(void)
 				Fix = TRUE;
 			    }
 			    if (Fix) {
+				iErrors++;
 				pw = getpwnam((char *)"mbse");
 				gr = getgrnam((char *)"bbs");
 				if (chown(area.Path, pw->pw_gid, gr->gr_gid))
