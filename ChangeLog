@@ -1,14 +1,23 @@
 $Id$
 
-v0.39.6		11-Jan-2004
+v0.39.7		14-Jan-2004
+
+
+v0.39.6		11-Jan-2004 - 14-Jan-2004
+
+        upgrade:
+                Check setting 7.x.3.18 for each node. If you know the node uses
+                Irex between 2.24 and 2.29 then set this to Yes or you won't 
+		have good sessions without files with this mailer. Sessions
+		with Irex that do transfer some file are Ok.
 
 	mbcico:
-		New binkp/1.1 driver. Remember to check your Irex links, see
-		the warning with version 0.39.5. In case of troubles please
-		report these. In the mbcico directory are 2 files, binkpold.c
-		and binkpold.h if they are renamed to binkp.c and binkp.h you
-		get the old 1.0 driver back. After some weeks I hope to remove
-		these 2 old files.
+		New binkp/1.1 driver. Check the upgrade for your Irex links.
+		In case of troubles please report these. 
+		In the mbcico directory are 2 files, binkpold.c and binkpold.h
+		if they are renamed to binkp.c and binkp.h you get the old 1.0
+		driver back. After some weeks I hope to remove these 2 old 
+		files.
 		Added support for T-Mail fileboxes, partly written and info
 		provided by Przemyslaw Kwiatkowski (2:480/127).
 
@@ -31,17 +40,6 @@ v0.39.5		24-Dec-2003 - 11-Jan-2004
 		Added setup option per node to disable the binkp/1.1 protocol.
 		Added new binkp/1.1 driver, the code is disabled by default
 		and can only be used with the right configure option.
-		If you want to try the new binkp code, then run ./configure
-		with the --enable-newbinkp option. And if you are brave and
-		do this, please give some feedback about failed sessions with
-		certain mailers. Watch out: debug.log grows very very fast!
-
-	upgrade:
-		Check setting 7.x.3.18 for each node. If you know the node uses
-		Irex 2.29 or older then set this to Yes or you won't have good
-		sessions with these mailers. (For the default compile it doesn't
-		do anything yet, but it will as soon as the new binkp/1.1
-		driver is ready).
 
 	common.a:
 		Allows node locking with zero bytes lockfiles created by some
@@ -52,7 +50,7 @@ v0.39.5		24-Dec-2003 - 11-Jan-2004
 		Binkp code cleanup.
 		Allow m_file command in binkp during file transfer in progress.
 		Fixed a segfault when a session failed.
-		New binkp/1.1 driver, not compiled by default yet.
+		New binkp/1.1 driver, not compiled by default.
 
 	mbout:
 		Poll, remove poll and request failed to points which had no
