@@ -4149,6 +4149,12 @@ v0.33.18        27-Jul-2001
 		When changing the number of newfiles groups, the newfiles
 		reports database is converted on the fly.
 		All path variables now have a length of PATH_MAX.
+		When mbsetup is started, all databases not present are created
+		and when needed filled with default records.
+		There is now one possible commandline parameter: init. This
+		should be used only once (but doesn't hurt if run more then
+		once) on a new installation.
+		A check is build in that mbsetup is started by user mbse.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a

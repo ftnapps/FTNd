@@ -2,12 +2,12 @@
  *
  * File ..................: mbsetup.c
  * Purpose ...............: Setup Program 
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
  *   
- * Michiel Broek		FIDO:	2:280/2801
+ * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
@@ -71,6 +71,7 @@
 mode_t		oldmask;		/* Old umask value	 	*/
 extern int	do_quiet;		/* Suppress log to screen	*/
 int		exp_golded = FALSE;	/* Export GoldED config		*/
+int		init = FALSE;		/* Run init only		*/
 
 
 static void die(int onsig)
@@ -80,7 +81,8 @@ static void die(int onsig)
 	int	i;
 
 	signal(onsig, SIG_IGN);
-	screen_stop(); 
+	if (!init)
+	    screen_stop(); 
 
 	exp_golded = TRUE;
 	if (exp_golded && (config_read() != -1)) {
@@ -326,11 +328,14 @@ void site_docs(void)
 
 void initdatabases(void)
 {
-    clr_index();
-    working(1, 0, 0);
-    set_color(WHITE, BLACK);
-    mvprintw( 5, 6, "     INIT DATABASES");
-    IsDoing("Init Databases");
+    if (!init) {
+	clr_index();
+	working(1, 0, 0);
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "     INIT DATABASES");
+	IsDoing("Init Databases");
+    }
+
     config_read();
 
     InitArchive();
@@ -357,8 +362,10 @@ void initdatabases(void)
     InitUsers();
     InitVirus();
 
-    working(0, 0, 0);
-    clr_index();
+    if (!init) {
+	working(0, 0, 0);
+	clr_index();
+    }
 }
 
 
@@ -375,7 +382,15 @@ int main(int argc, char *argv[])
 	/*
 	 * Find out who is on the keyboard or automated the keyboard.
 	 */
-	pw = getpwuid(getuid());
+	pw = getpwuid(geteuid());
+	if (strcmp(pw->pw_name, (char *)"mbse")) {
+	    printf("ERROR: only user \"mbse\" may use this program\n");
+#ifdef MEMWATCH
+	    mwExit();
+#endif
+	    exit(1);
+	}
+
 	InitClient(pw->pw_name, (char *)"mbsetup", (char *)"nowhere", (char *)"mbsetup.log", 0x1f, (char *)"error.log");
 
 	/*
@@ -395,13 +410,20 @@ int main(int argc, char *argv[])
 
 	oldmask = umask(002);
 
-	screen_start((char *)"MBsetup");
+	if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
+	    init = TRUE;
+	else
+	    screen_start((char *)"MBsetup");
+
 	do_quiet = TRUE;
 	Syslog(' ', " ");
 	Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
+	if (init)
+	    Syslog('+', "Cmd: mbsetup init");
 	initdatabases();
 	
-	do {
+	if (!init) {
+	    do {
 		IsDoing("Browsing Menu");
 		clr_index();
 		set_color(WHITE, BLACK);
@@ -493,7 +515,8 @@ int main(int argc, char *argv[])
 			site_docs();
 			break;
 		}
-	} while (loop == 1);
+	    } while (loop == 1);
+	}
 
 	die(0);
 	return 0;

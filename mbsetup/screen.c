@@ -2,7 +2,7 @@
  *
  * File ..................: screen.c
  * Purpose ...............: Screen functions for setup. 
- * Last modification date : 08-Oct-2000
+ * Last modification date : 25-Oct-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -35,6 +35,8 @@
 #include "../lib/common.h"
 #include "screen.h"
 
+
+extern int  init;
 
 
 /*************************************************************************
@@ -172,6 +174,9 @@ void screen_stop()
 void working(int txno, int y, int x)
 {
 	int	i;
+
+	if (init)
+	    return;
 
 	/*
 	 * If txno not 0 there will be something written. The 
