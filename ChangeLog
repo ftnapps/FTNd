@@ -20,6 +20,14 @@ v0.61.3		25-Jul-2004
 	mbfile:
 		Fixed a bug where "mbfile k p i" didn't give the help screen.
 
+	mbnewuser:
+		Made questions for screenlen, newmail check and newfiles check
+		dependant of settings in the setup.
+
+	mbtask:
+		Added defaults for questions for screenlen, newmail chack and
+		newfiles check.
+
 	examples:
 		Fixed 2 spelling errors in the dutch macro templates.
 

@@ -474,8 +474,8 @@ int newuser()
     sprintf(usrconfig.sProtocol, "%s", (char *) Language(65));
     usrconfig.DoNotDisturb = FALSE;
 
-    switch (CFG.Newmail) {
-	case NO:    usrconfig.Mailscan = FALSE;
+    switch (CFG.AskNewmail) {
+	case NO:    usrconfig.MailScan = FALSE;
 		    break;
 	case YES:   usrconfig.MailScan = TRUE;
 		    break;
@@ -501,7 +501,7 @@ int newuser()
 		    break;
     }
 
-    switch (CFG.Newfiles) {
+    switch (CFG.AskNewfiles) {
 	case NO:    usrconfig.ieFILE = FALSE;
 		    break;
 	case YES:   usrconfig.ieFILE = TRUE;

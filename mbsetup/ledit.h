@@ -70,7 +70,7 @@ int 		edit_linetype(int, int, int);
 char		*getmagictype(int);
 void		show_magictype(int, int, int);
 int		edit_magictype(int, int, int);
-char		*get_asktype(int, int, int);
+char		*get_asktype(int);
 void		show_asktype(int, int, int);
 int		edit_asktype(int, int, int);
 char		*get_sessiontype(int);
