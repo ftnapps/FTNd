@@ -5,7 +5,7 @@
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -55,6 +55,9 @@
 #include "config.h"
 
 
+/*
+ * Safe characters for binkp filenames, the rest will be escaped.
+ */
 #define BNKCHARS    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&=+%$-_.!()#|"
 
 
@@ -97,6 +100,20 @@ static int	CRCflag = FALSE;
 unsigned long	nethold, mailhold;
 int		transferred = FALSE;
 int		batchnr = 0, crc_errors = 0;
+
+
+int  resync(off_t);
+char *unix2binkd(char *);
+void binkp_send_data(char *, int);
+void binkp_send_control(int,...);
+int  binkp_recv_frame(char *, int *, int *);
+void binkp_settimer(int);
+int  binkp_expired(void);
+void b_banner(int);
+void b_nul(char *);
+void fill_binkp_list(binkp_list **, file_list *, off_t);
+void debug_binkp_list(binkp_list **);
+int  binkp_batch(file_list *, int);
 
 
 
@@ -198,13 +215,13 @@ int binkp(int role)
 
 int resync(off_t off)
 {
-	return 0;
+    return 0;
 }
 
 
 
 /*
- * Translate filename to binkd filename
+ * Translate filename to binkd filename, unsafe characters are escaped.
  */
 char *unix2binkd(char *fn)
 {
@@ -238,17 +255,16 @@ char *unix2binkd(char *fn)
  */
 void binkp_send_data(char *buf, int len)
 {
-	unsigned short	header = 0;
+    unsigned short	header = 0;
 
-	Syslog('B', "send_data(%d)", len);
-	header = ((BINKP_DATA_BLOCK + len) & 0xffff);
+    header = ((BINKP_DATA_BLOCK + len) & 0xffff);
 
-	PUTCHAR((header >> 8) & 0x00ff);
-	PUTCHAR(header & 0x00ff);
-	if (len)
-		PUT(buf, len);
-	FLUSHOUT();
-	binkp_settimer(BINKP_TIMEOUT);
+    PUTCHAR((header >> 8) & 0x00ff);
+    PUTCHAR(header & 0x00ff);
+    if (len)
+	PUT(buf, len);
+    FLUSHOUT();
+    binkp_settimer(BINKP_TIMEOUT);
 }
 
 
@@ -258,41 +274,41 @@ void binkp_send_data(char *buf, int len)
  */
 void binkp_send_control(int id,...)
 {
-	va_list		args;
-	char		*fmt, *s;
-	binkp_frame	frame;
-	static char	buf[1024];
-	int		sz;
+    va_list	args;
+    char	*fmt, *s;
+    binkp_frame	frame;
+    static char	buf[1024];
+    int		sz;
 
-	va_start(args, id);
-	fmt = va_arg(args, char*);
+    va_start(args, id);
+    fmt = va_arg(args, char*);
 
-	if (fmt) {
-		vsprintf(buf, fmt, args);
-		sz = ((1 + strlen(buf)) & 0x7fff);
-	} else {
-		buf[0]='\0';
-		sz = 1;
-	}
+    if (fmt) {
+	vsprintf(buf, fmt, args);
+	sz = ((1 + strlen(buf)) & 0x7fff);
+    } else {
+	buf[0]='\0';
+	sz = 1;
+    }
 
-	frame.header = ((BINKP_CONTROL_BLOCK + sz) & 0xffff);
-	frame.id = (char)id;
-	frame.data = buf;
+    frame.header = ((BINKP_CONTROL_BLOCK + sz) & 0xffff);
+    frame.id = (char)id;
+    frame.data = buf;
 
-	s = (unsigned char *)malloc(sz + 2 + 1);
-	s[sz + 2] = '\0';
-	s[0] = ((frame.header >> 8)&0xff);
-	s[1] = (frame.header & 0xff);
-	s[2] = frame.id;
-	if (frame.data[0])
-		strncpy(s + 3, frame.data, sz-1);
+    s = (unsigned char *)malloc(sz + 2 + 1);
+    s[sz + 2] = '\0';
+    s[0] = ((frame.header >> 8)&0xff);
+    s[1] = (frame.header & 0xff);
+    s[2] = frame.id;
+    if (frame.data[0])
+	strncpy(s + 3, frame.data, sz-1);
 	
-	PUT(s, sz+2);
-	FLUSHOUT();
+    PUT(s, sz+2);
+    FLUSHOUT();
 
-	free(s);
-	va_end(args);
-	binkp_settimer(BINKP_TIMEOUT);
+    free(s);
+    va_end(args);
+    binkp_settimer(BINKP_TIMEOUT);
 }
 
 
@@ -302,32 +318,32 @@ void binkp_send_control(int id,...)
  */
 int binkp_recv_frame(char *buf, int *len, int *cmd)
 {
-	int	b0, b1;
+    int	b0, b1;
 
-	*len = *cmd = 0;
+    *len = *cmd = 0;
 
-	b0 = GETCHAR(180);
-	if (tty_status)
-		goto to;
-	if (b0 & 0x80)
-		*cmd = 1;
+    b0 = GETCHAR(180);
+    if (tty_status)
+	goto to;
+    if (b0 & 0x80)
+	*cmd = 1;
 
-	b1 = GETCHAR(1);
-	if (tty_status)
-		goto to;
+    b1 = GETCHAR(1);
+    if (tty_status)
+	goto to;
 
-	*len = (b0 & 0x7f) << 8;
-	*len += b1;
+    *len = (b0 & 0x7f) << 8;
+    *len += b1;
 
-	GET(buf, *len, 120);
-	buf[*len] = '\0';
-	if (tty_status)
-		goto to;
+    GET(buf, *len, 120);
+    buf[*len] = '\0';
+    if (tty_status)
+	goto to;
 
 to:
-	if (tty_status)
-		WriteError("TCP receive error: %d %s", tty_status, ttystat[tty_status]);
-	return tty_status;
+    if (tty_status)
+	WriteError("TCP receive error: %d %s", tty_status, ttystat[tty_status]);
+    return tty_status;
 }
 
 
@@ -339,20 +355,18 @@ void binkp_settimer(int interval)
 
 
 
-int binkp_expired(void);
 int binkp_expired(void)
 {
-	time_t	now;
+    time_t	now;
 
-	now = time(NULL);
-	if (now >= Timer)
-		Syslog('+', "Binkp: timeout");
-	return (now >= Timer);
+    now = time(NULL);
+    if (now >= Timer)
+	Syslog('+', "Binkp: timeout");
+    return (now >= Timer);
 }
 
 
 
-void b_banner(int);
 void b_banner(int originate)
 {
     time_t  t;
@@ -372,7 +386,6 @@ void b_banner(int originate)
 
 
 
-void b_nul(char *);
 void b_nul(char *msg)
 {
     if (strncmp(msg, "SYS ", 4) == 0) {
@@ -804,33 +817,31 @@ SM_RETURN
 
 
 
-void fill_binkp_list(binkp_list **, file_list *, off_t);
 void fill_binkp_list(binkp_list **bll, file_list *fal, off_t offs)
 {
-	binkp_list	**tmpl;
-	struct stat	tstat;
+    binkp_list	**tmpl;
+    struct stat	tstat;
 
-	if (stat(fal->local, &tstat) != 0) {
-		Syslog('!', "$Can't add %s to sendlist", fal->local);
-		exit;
-	}
-	if (strstr(fal->remote, (char *)".pkt"))
-		nethold += tstat.st_size;
-	else
-		mailhold += tstat.st_size;
+    if (stat(fal->local, &tstat) != 0) {
+	Syslog('!', "$Can't add %s to sendlist", fal->local);
+	exit;
+    }
+    if (strstr(fal->remote, (char *)".pkt"))
+	nethold += tstat.st_size;
+    else
+	mailhold += tstat.st_size;
 	
-	for (tmpl = bll; *tmpl; tmpl = &((*tmpl)->next));
-	*tmpl = (binkp_list *)malloc(sizeof(binkp_list));
+    for (tmpl = bll; *tmpl; tmpl = &((*tmpl)->next));
+    *tmpl = (binkp_list *)malloc(sizeof(binkp_list));
 
-	(*tmpl)->next   = NULL;
-	(*tmpl)->state  = NoState;
-	(*tmpl)->get    = FALSE;
-	(*tmpl)->local  = xstrcpy(fal->local);
-	(*tmpl)->remote = xstrcpy(fal->remote);
-	(*tmpl)->offset = offs;
-	(*tmpl)->size   = tstat.st_size;
-	(*tmpl)->date   = tstat.st_mtime;
-	Syslog('b', "fill_binkp_list %s => %s", fal->remote, unix2binkd(fal->remote));
+    (*tmpl)->next   = NULL;
+    (*tmpl)->state  = NoState;
+    (*tmpl)->get    = FALSE;
+    (*tmpl)->local  = xstrcpy(fal->local);
+    (*tmpl)->remote = xstrcpy(unix2binkd(fal->remote));
+    (*tmpl)->offset = offs;
+    (*tmpl)->size   = tstat.st_size;
+    (*tmpl)->date   = tstat.st_mtime;
 }
 
 
@@ -843,15 +854,15 @@ char *lbstat[]={(char *)"None",
 		(char *)"Get"};
 
 
-void debug_binkp_list(binkp_list **);
+
 void debug_binkp_list(binkp_list **bll)
 {
-	binkp_list	*tmpl;
+    binkp_list	*tmpl;
 
-	Syslog('B', "Current filelist:");
+    Syslog('B', "Current filelist:");
 
-	for (tmpl = *bll; tmpl; tmpl = tmpl->next)
-		Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstat[tmpl->state], tmpl->offset);
+    for (tmpl = *bll; tmpl; tmpl = tmpl->next)
+	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstat[tmpl->state], tmpl->offset);
 }
 
 

@@ -11,6 +11,10 @@ v0.37.4		10-May-2003
 		Added check for inconv.h in configure script for UNIX98 
 		character set conversion.
 
+	mbcico:
+		The binkp transmitter does now escape the unsafe filename
+		characters.
+
 
 v0.37.3		09-Apr-2003 - 10-May-2003
 
