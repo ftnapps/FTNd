@@ -4671,6 +4671,7 @@ v0.33.20        10-Feb-2002
 		ticfiles setup to forward file to and there was no noderecord.
 		When a ticfile was received while our aka is in the path, the
 		bad tic counter wasn't increased.
+		Made error message in AddMsgHdr function more clear.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to

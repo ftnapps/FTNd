@@ -199,7 +199,18 @@ int AddMsgHdr(FILE *fp, faddr *f, faddr *t, int flags, int cost, time_t date, ch
 	if ((tname == NULL) || (strlen(tname) > 36) ||
 	    (fname == NULL) || (strlen(fname) > 36) ||
 	    (subj  == NULL) || (strlen(subj) > 72)) {
-		WriteError("AddMsgHdr() error in To name, From name or Subject field");
+		if (tname == NULL)
+		    WriteError("AddMsgHdr() error, To name is NULL");
+		else if (strlen(tname) > 36)
+		    WriteError("AddMsgHdr() error, To name length %d", strlen(tname));
+		if (fname == NULL)
+		    WriteError("AddMsgHdr() error, From name is NULL");
+		else if (strlen(fname) > 36)
+		    WriteError("AddMsgHdr() error, From name length %d", strlen(fname));
+		if (subj  == NULL)
+		    WriteError("AddMsgHdr() error, Subject is NULL");
+		else if (strlen(subj) > 72)
+		    WriteError("AddMsgHdr() error, Subject length %d", strlen(subj));
 		return 1;
 	}
 
