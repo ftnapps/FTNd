@@ -1008,6 +1008,7 @@ struct _archiver {
 	char		funarc[65];		/* Unarc files		   */
 	char		munarc[65];		/* Unarc mail		   */
 	char		iunarc[65];		/* Unarc FILE_ID.DIZ	   */
+	char		varc[65];		/* View archive		   */
 };
 
 

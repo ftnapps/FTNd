@@ -429,7 +429,7 @@ void DoMenu(int Type)
 		break;
 
 	case 103:
-		ViewFile();
+		ViewFile(NULL);
 		break;
 
 	case 104:

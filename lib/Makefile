@@ -8,7 +8,7 @@ CLCOMM_SRCS	= clcomm.c client.c crc.c semafore.c signame.c
 CLCOMM_OBJS	= clcomm.o client.o crc.o semafore.o signame.o
 CLCOMM_HDRS	= clcomm.h
 COMMON_SRCS	= attach.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c \
-		  batchrd.c charset.c ftn.c pktname.c mangle.c sectest.c \
+		  batchrd.c ftn.c pktname.c mangle.c sectest.c \
 		  dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  execute.c expipe.c getheader.c noderecord.c rfcaddr.c strutil.c \
 		  faddr.c gmtoffset.c packet.c rfcdate.c term.c endian.c
@@ -136,7 +136,6 @@ parsedate.o: ../config.h libs.h memwatch.h structs.h common.h
 rfcmsg.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h clcomm.h
 unpacker.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 batchrd.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h
-charset.o:
 ftn.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h dbftn.h common.h
 pktname.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h
 mangle.o: ../config.h libs.h memwatch.h structs.h clcomm.h common.h

@@ -15,26 +15,26 @@ HR|Exporteer naar (H)ome of (R)egels directory:
 |Je mag dit bericht niet verwijderen
 |Offline Reader: Uitgebreide Informatie is nu AAN
 |Offline Reader: Uitgebreide Informatie is nu UIT
-|Tijd opgenomen vandaag             
-|Bytes opgenomen vandaag            
-SOE|(S)torten, (O)pnemen, (E)inde: 
-|Bank > 
-TBE|(T)ijd, (B)ytes, (E)inde: 
-|U moet minstens 5 minuten tijd over hebben om te storten
-|Hoeveel tijd. Aantal minuten beschikbaars is 
-|U heeft geprobeerd meer dan de dagelijkse limiet te storten.
-|Maximaal aantal te storten minuten per dag: 
-|U heeft Uw rekening balans overschreden.
-|Maximaal aantal minuten op de bankrekening is: 
-|U mag storten: 
-|U heeft geprobeerd meer dan de dagelijkse limiet op te nemen.
-|Maximaal per dag op te nemen: 
-|U heeft geprobeert meer tijd op te nemen dan op de rekening staat.
-|Huidige bank balans: 
-|Maximaal aantal kilobytes te storten per dag: 
-|U heeft Uw bank balans overschreden.
-|Maximaal aantal kilobytes op de bankrekening is: 
-|Hoeveel kilobytes. Aantal Kilobytes beschikbaar is 
+|Dit is geen normaal tekst bestand
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSE Bulletin Board Systeem - NIEUWE GEBRUIKER REGISTRATIE
 |Gebruik deze naam: 
 |Geef een nieuw wachtwoord   : 

@@ -4,7 +4,7 @@
  * Purpose ...............: Display ANSI/ASCII textfiles
  *
  *****************************************************************************
- * Copyright (C) 1997-2002 
+ * Copyright (C) 1997-2003 
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -50,7 +50,7 @@
 #include "email.h"
 #include "input.h"
 #include "dispfile.h"
-
+#include "filesub.h"
 
 
 
@@ -162,7 +162,7 @@ int DisplayTextFile(char *filename)
 {
     FILE    *fp;
     char    *buf;
-    int	    i, x, c, lc = 0;
+    int	    i, x, c, z, lc = 0;
 
     if ((fp = fopen(filename, "r")) == NULL) {
 	WriteError("$DisplayTextFile(%s) failed");
@@ -186,9 +186,26 @@ int DisplayTextFile(char *filename)
 	fflush(stdout);
 	lc++;
 
-	if (lc == exitinfo.iScreenLen) {
-	    Pause();
+	if ((lc >= exitinfo.iScreenLen) && (lc < 1000)) {
 	    lc = 0;
+	    /* More (Y/n/=) */
+	    pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
+	    fflush(stdout);
+	    alarm_on();
+	    z = toupper(Getone());
+
+	    if (z == Keystroke(61, 1)) {
+		printf("\n");
+		fflush(stdout);
+		fclose(fp);
+		free(buf);
+		return TRUE;
+	    }
+
+	    if (z == Keystroke(61, 2))
+		lc = 50000;
+
+	    Blanker(strlen(Language(61)));
 	    colour(CFG.TextColourF, CFG.TextColourB);
 	}
     }
@@ -198,7 +215,7 @@ int DisplayTextFile(char *filename)
 
     Enter(1);
     /* Press ENTER to continue */
-    language(LIGHTMAGENTA, BLACK, 436);
+    language(CFG.MoreF, CFG.MoreB, 436);
     fflush(stdout);
     fflush(stdin);
     alarm_on();
@@ -216,129 +233,121 @@ int DisplayTextFile(char *filename)
  */
 int DisplayFile(char *filename)
 {
-	FILE	*pFileName;
-	long	iSec = 0;
-	char	*sFileName, *tmp, *tmp1;
-	char	newfile[PATH_MAX];
-	int	i, x;
+    FILE    *pFileName;
+    long    iSec = 0;
+    char    *sFileName, *tmp, *tmp1, newfile[PATH_MAX];
+    int	    i, x;
 
-	sFileName = calloc(16385, sizeof(char));
-	tmp       = calloc(PATH_MAX, sizeof(char));
-	tmp1      = calloc(PATH_MAX, sizeof(char));
+    sFileName = calloc(16385, sizeof(char));
+    tmp       = calloc(PATH_MAX, sizeof(char));
+    tmp1      = calloc(PATH_MAX, sizeof(char));
 
-	/*
-	 * Open the file in the following search order:
-	 *  1 - if GraphMode -> users language .ans
-	 *  2 - if GraphMode -> default language .ans
-	 *  3 - users language .asc
-	 *  4 - default language .asc
-	 *  5 - Abort, there is no file to show.
-	 */
-	pFileName = NULL;
-	if (exitinfo.GraphMode) {
-		sprintf(newfile, "%s/%s.ans", lang.TextPath, filename);
-		if ((pFileName = fopen(newfile, "rb")) == NULL) {
-			sprintf(newfile, "%s/%s.ans", CFG.bbs_txtfiles, filename);
-			pFileName = fopen(newfile, "rb");
-		}
+    /*
+     * Open the file in the following search order:
+     *  1 - if GraphMode -> users language .ans
+     *  2 - if GraphMode -> default language .ans
+     *  3 - users language .asc
+     *  4 - default language .asc
+     *  5 - Abort, there is no file to show.
+     */
+    pFileName = NULL;
+    if (exitinfo.GraphMode) {
+	sprintf(newfile, "%s/%s.ans", lang.TextPath, filename);
+	if ((pFileName = fopen(newfile, "rb")) == NULL) {
+	    sprintf(newfile, "%s/%s.ans", CFG.bbs_txtfiles, filename);
+	    pFileName = fopen(newfile, "rb");
 	}
-	if (pFileName == NULL) {
-		sprintf(newfile, "%s/%s.asc", lang.TextPath, filename);
-		if ((pFileName = fopen(newfile, "rb")) == NULL) {
-			sprintf(newfile, "%s/%s.asc", CFG.bbs_txtfiles, filename);
-			if ((pFileName = fopen(newfile, "rb")) == NULL) {
-				free(sFileName);
-				free(tmp);
-				free(tmp1);
-				return FALSE;
-			}
-		}
+    }
+    if (pFileName == NULL) {
+	sprintf(newfile, "%s/%s.asc", lang.TextPath, filename);
+	if ((pFileName = fopen(newfile, "rb")) == NULL) {
+	    sprintf(newfile, "%s/%s.asc", CFG.bbs_txtfiles, filename);
+	    if ((pFileName = fopen(newfile, "rb")) == NULL) {
+		free(sFileName);
+		free(tmp);
+		free(tmp1);
+		return FALSE;
+	    }
 	}
+    }
 
-	Syslog('B', "Displayfile %s", newfile);
+    Syslog('B', "Displayfile %s", newfile);
 
-	while (!feof(pFileName)) {
-		i = fread(sFileName, sizeof(char), 16384, pFileName);
+    while (!feof(pFileName)) {
+	i = fread(sFileName, sizeof(char), 16384, pFileName);
 
-		for(x = 0; x < i; x++) {
-			switch(*(sFileName + x)) {
-				case '':
-					ControlCodeU(sFileName[++x]);
-					break;
+	for (x = 0; x < i; x++) {
+	    switch(*(sFileName + x)) {
+		case '':  ControlCodeU(sFileName[++x]);
+			    break;
 
-				case '':
-					ControlCodeF(sFileName[++x]);
-					break;
+		case '':  ControlCodeF(sFileName[++x]);
+			    break;
 
-				case '':
-					ControlCodeK(sFileName[++x]);
-					break;
+		case '':  ControlCodeK(sFileName[++x]);
+			    break;
 
-				case '':
-					fflush(stdout);
-					fflush(stdin);
-					alarm_on();
-					Getone();
-					break;
+		case '':  fflush(stdout);
+			    fflush(stdin);
+			    alarm_on();
+			    Getone();
+			    break;
 
-				case '':
-					/*
-					 * This code will allow you to specify a security level
-					 * in front of the text, ie ^B32000^Bthis is a test^B
-					 * will print this is a test only if you have security
-					 * above 32000. Only one set of control chars per line.
-					 * You cannot have multiple securitys etc
-					 */
-					x++;
-					strcpy(tmp1, "");
-					while (*(sFileName + x) != '') {
-						sprintf(tmp, "%c", *(sFileName + x));
-						strcat(tmp1, tmp);
-						x++;
-					}
-					x++;
-					iSec = atoi(tmp1);
-					while ((x <= i) && (*(sFileName + x) != '')) {
-						if (exitinfo.Security.level >= iSec)
-							printf("%c", *(sFileName + x));
-						x++;
-					} 
-					break;
+		case '':  /*
+			     * This code will allow you to specify a security level
+			     * in front of the text, ie ^B32000^Bthis is a test^B
+			     * will print this is a test only if you have security
+			     * above 32000. Only one set of control chars per line.
+			     * You cannot have multiple securitys etc
+			     */
+			    x++;
+			    strcpy(tmp1, "");
+			    while (*(sFileName + x) != '') {
+				sprintf(tmp, "%c", *(sFileName + x));
+				strcat(tmp1, tmp);
+				x++;
+			    }
+			    x++;
+			    iSec = atoi(tmp1);
+			    while ((x <= i) && (*(sFileName + x) != '')) {
+				if (exitinfo.Security.level >= iSec)
+				    printf("%c", *(sFileName + x));
+				x++;
+			    } 
+			    break;
 
-				case '':
-					fflush(stdout);
-					sleep(1);
-					break;
+		case '':  fflush(stdout);
+			    sleep(1);
+			    break;
 
-				default:
-					printf("%c", *(sFileName + x));
+		default:    printf("%c", *(sFileName + x));
 
-			} /* switch */
-		} /* for */
-	} /* while !eof */
+	    } /* switch */
+	} /* for */
+    } /* while !eof */
 
-	fclose(pFileName);
-	free(sFileName);
-	free(tmp);
-	free(tmp1);
-	return TRUE;
+    fclose(pFileName);
+    free(sFileName);
+    free(tmp);
+    free(tmp1);
+    return TRUE;
 }
 
 
 
 int DisplayFileEnter(char *File)
 {
-	int	rc;
+    int	    rc;
 
-	rc = DisplayFile(File);
-	Enter(1);
-	/* Press ENTER to continue */
-	language(13, 0, 436);
-	fflush(stdout);
-	fflush(stdin);
-	alarm_on();
-	Getone();
-	return rc;
+    rc = DisplayFile(File);
+    Enter(1);
+    /* Press ENTER to continue */
+    language(13, 0, 436);
+    fflush(stdout);
+    fflush(stdin);
+    alarm_on();
+    Getone();
+    return rc;
 }
 
 

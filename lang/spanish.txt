@@ -15,26 +15,26 @@ PR|Exportar al directorio (P)ersonal o de (R)eglas:
 |No puedes borrar este Mensaje.
 |Lector Offline: Informaci¢n extendida ACTIVADA
 |Lector Offline: Informaci¢n extendida DESACTIVADA
-|Tiempo retirado hoy      : 
-|Bytes retirados hoy      : 
-DRS|(D)epositar, (R)etirar, (S)alir : 
-|Banco > 
-TBS|(T)iempo, (B)ytes, (S)alir : 
-|Debes tener al menos 5 minutos para poder depositar 
-|¨Cuanto tiempo?. Disponible en minutos :  
-|Has intentado depositar mas del m ximo permitido para hoy.
-|M ximo tiempo diario que se puede depositar: 
-|Has excedido el saldo de tu cuenta.
-|Minutos disponibles en tu cuenta : 
-|Se te permite depositar: 
-|Has intentado retirar m s del l¡mite m ximo diario.
-|M ximo permitido diario para retirar:
-|Has intentado retirar m s tiempo del que tienes en tu cuenta.
-|El saldo de tu cuenta es : 
-|M ximo de Kb permitido depositar diariamente: 
-|Has excedido el saldo de tu cuenta.
-|Kilobytes disponible en tu cuenta : 
-|¨Cuantos kilobytes. Dispones de  
+|This is not a plain textfile.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSEBBS - REGISTRO DE NUEVO USUARIO
 |Use este nombre: 
 |Por favor teclee el nuevo password : 

@@ -15,7 +15,7 @@
 14	mail.c				|You are not allowed to delete that message
 15	change.c			|Offline Reader: Extended Info turned ON
 16	change.c			|Offline Reader: Extended Info turned OFF
-17	.c				|
+17	file.c				|This is not a plain textfile.
 18	.c				|
 19	.c				|
 20	.c				|
@@ -59,7 +59,7 @@
 58	newuser.c			|Please enter the correct date format
 59	chat.c				|*** Sysop is starting chat ***
 60	chat.c				|*** Sysop has terminated chat ***
-61	mail.c misc.c			YN=|More (Y/n/=) 
+61	mail.c misc.c file.c		YN=|More (Y/n/=) 
 62	newuser.c			YN|Would you like Hot-Keyed menus? [Y/n]: 
 63	newuser.c			|Please answer Y or N
 64	change.c			|Please enter your Screen Length? [24]: 
@@ -84,27 +84,27 @@
 83	change.c			|Please enter the correct date format
 84	misc.c				|Todays Callers to 
 85	misc.c				|#    User Name           Device  TimeOn  Calls  Location
-86	safe.c				|Safe Cracker Door
-87	safe.c				|Please press a key to continue: 
-88	safe.c				|In the safe lies ...
-89	safe.c				|Please enter three numbers consisting from 1 to 
-90	safe.c				|Please enter three combinations.
-91	safe.c				|1st digit: 
-92	safe.c				|Please try again! You must input a number greater than Zero and less than 
-93	safe.c				|2nd digit: 
-94	safe.c				|3rd digit: 
-95	safe.c				| Left: 
-96	safe.c				|Right: 
-97	safe.c				YN|Attempt to open safe with this combination [Y/n]: 
-98	safe.c				|You have won the following...
-99	safe.c				|Sorry - You didn't open the safe!
-100	safe.c				|The safe code was:
-101	safe.c				YN|Do you want to try again ? [Y/n]: 
-102	safe.c				YN|Do you want to open the safe ? [Y/n]: 
-103	safe.c				|THE SAFE IS CURRENTLY LOCKED
-104	safe.c				|has cracked the safe.
-105	safe.c				|The safe will remain locked until the sysop rewards the user.
-106	safe.c				|Maximum trys per day Exceeded!
+86	.c				|
+87	.c				|
+88	.c				|
+89	.c				|
+90	.c				|
+91	.c				|
+92	.c				|
+93	.c				|
+94	.c				|
+95	.c				|
+96	.c				|
+97	.c				|
+98	.c				|
+99	.c				|
+100	.c				|
+101	.c				|
+102	.c				|
+103	.c				|
+104	.c				|
+105	.c				|
+106	.c				|
 107	signature.c			|Edit message signature
 108	.c				|The FROM, TO and SUBJECT fields are optional.
 109	.c				|   From: 
@@ -440,7 +440,7 @@
 439	offline.c			|Offline Reader Upload
 440	offline.c			|Invalid packet received
 441	offline.c			|Unknown compression type
-442	offline.c			|Archiver not available
+442	offline.c file.c		|Archiver not available
 443	offline.c			|Unknown type mailpacket
 444	offline.c			|BlueWave Offline download
 445	offline.c			|Preparing packet

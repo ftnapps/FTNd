@@ -15,26 +15,26 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Keine Berechtigung zum loeschen der Message
 |Offline Reader: Extended Info turned ON
 |Offline Reader: Extended Info turned OFF
-|Heute abgehobene Zeit . . . . . . : 
-|Heute abgehobene KBytes . . . . . : 
-SAE|(S)paren, (A)bheben, (E)nde: 
-|Bank > 
-ZKE|(Z)eit, (K)Bytes, (E)nde : 
-|Zum Sparen muessen Sie mindestens 5 Minuten uebrig haben
-|Wieviel Zeit? Verfuegbare Minuten fuer Sie: 
-|Sie versuchten mehr als das maximale Limit fuer heute zu sparen.
-|Maximal zu sparende Minuten pro Tag: 
-|Sie haben Ihr Konto ueberzogen.
-|Die maximal verfuegbaren Minuten auf dem Konto sind: 
-|Sie koennen sparen: 
-|Sie versuchten mehr als das maximale Limit fuer heute abzuheben.
-|Maximum pro Tag abzuheben: 
-|Sie versuchten Ihr Zeitkonto zu ueberziehen.
-|Aktueller Kontostand: 
-|Maximal zu sparende Kilobytes pro Tag: 
-|Sie haben Ihr Konto ueberzogen.
-|Die maximal verfuegbaren Kilobytes auf dem Konto sind: 
-|Wieviele Kilobytes? Verfuegbare KBytes fuer Sie sind: 
+|This is not a plain textfile.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSE Bulletin Board System - Anlegen eines neuen Benutzerkontos
 |Diesen Namen verwenden: 
 |Bitte das neue Passwort eingeben    : 

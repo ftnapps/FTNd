@@ -82,12 +82,14 @@ int CountArchive(void)
 			    archiver.available = TRUE;
 			    sprintf(archiver.marc,    "%s anw", _PATH_ARC);
 			    sprintf(archiver.tarc,    "%s tnw", _PATH_ARC);
+			    sprintf(archiver.varc,    "%s l",   _PATH_ARC);
 			    sprintf(archiver.funarc,  "%s xnw", _PATH_ARC);
 			    sprintf(archiver.munarc,  "%s enw", _PATH_ARC);
 			    sprintf(archiver.iunarc,  "%s enw", _PATH_ARC);
 			} else {
 			    sprintf(archiver.marc,    "/usr/bin/arc anw");
 			    sprintf(archiver.tarc,    "/usr/bin/arc tnw");
+			    sprintf(archiver.varc,    "/usr/bin/arc l");
 			    sprintf(archiver.funarc,  "/usr/bin/arc xnw");
 			    sprintf(archiver.munarc,  "/usr/bin/arc enw");
 			    sprintf(archiver.iunarc,  "/usr/bin/arc enw");
@@ -99,6 +101,7 @@ int CountArchive(void)
 			    sprintf(archiver.funarc,  "%s -U", _PATH_NOMARCH);
 			    sprintf(archiver.munarc,  "%s", _PATH_NOMARCH);
 			    sprintf(archiver.iunarc,  "%s", _PATH_NOMARCH);
+			    sprintf(archiver.varc,    "%s -l", _PATH_NOMARCH);
 			}
 			fwrite(&archiver, sizeof(archiver), 1, fil);
 
@@ -109,6 +112,7 @@ int CountArchive(void)
 			    archiver.available = TRUE;
 			    sprintf(archiver.marc,    "%s aq", _PATH_LHA);
 			    sprintf(archiver.tarc,    "%s tq", _PATH_LHA);
+			    sprintf(archiver.varc,    "%s l", _PATH_LHA);
 			    sprintf(archiver.funarc,  "%s xqf", _PATH_LHA);
 			    sprintf(archiver.munarc,  "%s eqf", _PATH_LHA);
 			    sprintf(archiver.iunarc,  "%s eqf", _PATH_LHA);
@@ -116,6 +120,7 @@ int CountArchive(void)
 			    archiver.available = FALSE;
 			    sprintf(archiver.marc,    "/usr/bin/lha aq");
 			    sprintf(archiver.tarc,    "/usr/bin/lha tq");
+			    sprintf(archiver.varc,    "/usr/bin/lha l");
 			    sprintf(archiver.funarc,  "/usr/bin/lha xqf");
 			    sprintf(archiver.munarc,  "/usr/bin/lha eqf");
 			    sprintf(archiver.iunarc,  "/usr/bin/lha eqf");
@@ -131,6 +136,7 @@ int CountArchive(void)
 			    sprintf(archiver.marc,    "%s a -y", _PATH_RAR);
 			    sprintf(archiver.barc,    "%s c -y", _PATH_RAR);
 			    sprintf(archiver.tarc,    "%s t -y", _PATH_RAR);
+			    sprintf(archiver.varc,    "%s l", _PATH_RAR);
 			    sprintf(archiver.funarc,  "%s x -o+ -y -r", _PATH_RAR);
 			    sprintf(archiver.munarc,  "%s e -o+ -y", _PATH_RAR);
 			    sprintf(archiver.iunarc,  "%s e", _PATH_RAR);
@@ -139,12 +145,14 @@ int CountArchive(void)
 			    sprintf(archiver.funarc,  "%s x -o+ -y -r", _PATH_UNRAR);
 			    sprintf(archiver.munarc,  "%s e -o+ -y", _PATH_UNRAR);
 			    sprintf(archiver.iunarc,  "%s e", _PATH_UNRAR);
+			    sprintf(archiver.varc,    "%s l", _PATH_UNRAR);
 			} else {
 			    archiver.available = FALSE;
 			    sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
 			    sprintf(archiver.marc,    "/usr/bin/rar a -y");
 			    sprintf(archiver.barc,    "/usr/bin/rar c -y");
 			    sprintf(archiver.tarc,    "/usr/bin/rar t -y");
+			    sprintf(archiver.varc,    "/usr/bin/rar l");
 			    sprintf(archiver.funarc,  "/usr/bin/unrar x -o+ -y -r");
 			    sprintf(archiver.munarc,  "/usr/bin/unrar e -o+ -y");
 			    sprintf(archiver.iunarc,  "/usr/bin/unrar e");
@@ -159,6 +167,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "%s cfz", _PATH_TAR);
 			    sprintf(archiver.marc,    "%s Afz", _PATH_TAR);
 			    sprintf(archiver.tarc,    "%s tfz", _PATH_TAR);
+			    sprintf(archiver.varc,    "%s tfz", _PATH_TAR);
 			    sprintf(archiver.funarc,  "%s xfz", _PATH_TAR);
 			    sprintf(archiver.munarc,  "%s xfz", _PATH_TAR);
 			    sprintf(archiver.iunarc,  "%s xfz", _PATH_TAR);
@@ -167,6 +176,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "/bin/tar cfz");
 			    sprintf(archiver.marc,    "/bin/tar Afz");
 			    sprintf(archiver.tarc,    "/bin/tar tfz");
+			    sprintf(archiver.varc,    "/bin/tar tfz");
 			    sprintf(archiver.funarc,  "/bin/tar xfz");
 			    sprintf(archiver.munarc,  "/bin/tar xfz");
 			    sprintf(archiver.iunarc,  "/bin/tar xfz");
@@ -181,6 +191,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "%s cfj", _PATH_TAR);
 			    sprintf(archiver.marc,    "%s Afj", _PATH_TAR);
 			    sprintf(archiver.tarc,    "%s tfj", _PATH_TAR);
+			    sprintf(archiver.varc,    "%s tfj", _PATH_TAR);
 			    sprintf(archiver.funarc,  "%s xfj", _PATH_TAR);
 			    sprintf(archiver.munarc,  "%s xfj", _PATH_TAR);
 			    sprintf(archiver.iunarc,  "%s xfj", _PATH_TAR);
@@ -189,6 +200,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "/bin/tar cfj");
 			    sprintf(archiver.marc,    "/bin/tar Afj");
 			    sprintf(archiver.tarc,    "/bin/tar tfj");
+			    sprintf(archiver.varc,    "/bin/tar tfj");
 			    sprintf(archiver.funarc,  "/bin/tar xfj");
 			    sprintf(archiver.munarc,  "/bin/tar xfj");
 			    sprintf(archiver.iunarc,  "/bin/tar xfj");
@@ -203,6 +215,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "%s cf", _PATH_TAR);
 			    sprintf(archiver.marc,    "%s Af", _PATH_TAR);
 			    sprintf(archiver.tarc,    "%s tf", _PATH_TAR);
+			    sprintf(archiver.varc,    "%s tf", _PATH_TAR);
 			    sprintf(archiver.funarc,  "%s xf", _PATH_TAR);
 			    sprintf(archiver.munarc,  "%s xf", _PATH_TAR);
 			    sprintf(archiver.iunarc,  "%s xf", _PATH_TAR);
@@ -211,6 +224,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "/bin/tar cf");
 			    sprintf(archiver.marc,    "/bin/tar Af");
 			    sprintf(archiver.tarc,    "/bin/tar tf");
+			    sprintf(archiver.varc,    "/bin/tar tf");
 			    sprintf(archiver.funarc,  "/bin/tar xf");
 			    sprintf(archiver.munarc,  "/bin/tar xf");
 			    sprintf(archiver.iunarc,  "/bin/tar xf");
@@ -230,11 +244,13 @@ int CountArchive(void)
 			    archiver.available = FALSE;
 			if (strlen(_PATH_UNARJ)) {
 			    sprintf(archiver.tarc,    "%s t", _PATH_UNARJ);
+			    sprintf(archiver.varc,    "%s l", _PATH_UNARJ);
 			    sprintf(archiver.funarc,  "%s x", _PATH_UNARJ);
 			    sprintf(archiver.munarc,  "%s e", _PATH_UNARJ);
 			    sprintf(archiver.iunarc,  "%s e", _PATH_UNARJ);
 			} else {
 			    sprintf(archiver.tarc,    "/usr/bin/unarj t");
+			    sprintf(archiver.varc,    "/usr/bin/unarj l");
 			    sprintf(archiver.funarc,  "/usr/bin/unarj x");
 			    sprintf(archiver.munarc,  "/usr/bin/unarj e");
 			    sprintf(archiver.iunarc,  "/usr/bin/unarj e");
@@ -250,6 +266,7 @@ int CountArchive(void)
 			    sprintf(archiver.marc,    "%s -2d -y -e a", _PATH_ARJ);
 			    sprintf(archiver.barc,    "%s -2d -y c", _PATH_ARJ);
 			    sprintf(archiver.tarc,    "%s -y t", _PATH_ARJ);
+			    sprintf(archiver.varc,    "%s l", _PATH_ARJ);
 			    sprintf(archiver.funarc,  "%s -y x", _PATH_ARJ);
 			    sprintf(archiver.munarc,  "%s -y e", _PATH_ARJ);
 			    sprintf(archiver.iunarc,  "%s -y e", _PATH_ARJ);
@@ -259,6 +276,7 @@ int CountArchive(void)
 			    sprintf(archiver.marc,    "/usr/bin/arj -2d -y -e a");
 			    sprintf(archiver.barc,    "/usr/bin/arj -2d -y c");
 			    sprintf(archiver.tarc,    "/usr/bin/arj -y t");
+			    sprintf(archiver.varc,    "/usr/bin/arj l");
 			    sprintf(archiver.funarc,  "/usr/bin/arj -y x");
 			    sprintf(archiver.munarc,  "/usr/bin/arj -y e");
 			    sprintf(archiver.iunarc,  "/usr/bin/arj -y e");
@@ -287,10 +305,12 @@ int CountArchive(void)
 			    sprintf(archiver.funarc,  "%s -o -q", _PATH_UNZIP);
 			    sprintf(archiver.munarc,  "%s -o -j -L", _PATH_UNZIP);
 			    sprintf(archiver.iunarc,  "%s -o -j", _PATH_UNZIP);
+			    sprintf(archiver.varc,    "%s -l", _PATH_UNZIP);
 			} else {
 			    sprintf(archiver.funarc,  "/usr/bin/unzip -o -q");
 			    sprintf(archiver.munarc,  "/usr/bin/unzip -o -j -L");
 			    sprintf(archiver.iunarc,  "/usr/bin/unzip -o -j");
+			    sprintf(archiver.varc,    "/usr/bin/unzip -l");
 			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
@@ -302,6 +322,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "%s aq", _PATH_ZOO);
 			    sprintf(archiver.marc,    "%s aq:O", _PATH_ZOO);
 			    sprintf(archiver.barc,    "%s aqC", _PATH_ZOO);
+			    sprintf(archiver.varc,    "%s -list", _PATH_ZOO);
 			    sprintf(archiver.funarc,  "%s xqO", _PATH_ZOO);
 			    sprintf(archiver.munarc,  "%s eq:O", _PATH_ZOO);
 			    sprintf(archiver.iunarc,  "%s eqO", _PATH_ZOO);
@@ -310,6 +331,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "/usr/bin/zoo aq");
 			    sprintf(archiver.marc,    "/usr/bin/zoo aq:O");
 			    sprintf(archiver.barc,    "/usr/bin/zoo aqC");
+			    sprintf(archiver.varc,    "/usr/bin/zoo -list");
 			    sprintf(archiver.funarc,  "/usr/bin/zoo xqO");
 			    sprintf(archiver.munarc,  "/usr/bin/zoo eq:O");
 			    sprintf(archiver.iunarc,  "/usr/bin/zoo eqO");
@@ -324,6 +346,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "%s a21rq", _PATH_HA);
 			    sprintf(archiver.marc,    "%s a21q", _PATH_HA);
 			    sprintf(archiver.tarc,    "%s t", _PATH_HA);
+			    sprintf(archiver.varc,    "%s l", _PATH_HA);
 			    sprintf(archiver.funarc,  "%s eyq", _PATH_HA);
 			    sprintf(archiver.munarc,  "%s eyq", _PATH_HA);
 			    sprintf(archiver.iunarc,  "%s eyq", _PATH_HA);
@@ -332,6 +355,7 @@ int CountArchive(void)
 			    sprintf(archiver.farc,    "/usr/bin/ha a21rq");
 			    sprintf(archiver.marc,    "/usr/bin/ha a21q");
 			    sprintf(archiver.tarc,    "/usr/bin/ha t");
+			    sprintf(archiver.varc,    "/usr/bin/ha l");
 			    sprintf(archiver.funarc,  "/usr/bin/ha eyq");
 			    sprintf(archiver.munarc,  "/usr/bin/ha eyq");
 			    sprintf(archiver.iunarc,  "/usr/bin/ha eyq");
@@ -477,99 +501,102 @@ int AppendArchive(void)
  */
 int EditArchRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
-	long	offset;
-	int	j;
-	unsigned long crc, crc1;
+    FILE	    *fil;
+    char	    mfile[PATH_MAX];
+    long	    offset;
+    int		    j;
+    unsigned long   crc, crc1;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit Archiver");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit Archiver");
 
-	sprintf(mfile, "%s/etc/archiver.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/archiver.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(archiverhdr) + ((Area -1) * sizeof(archiver));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(archiverhdr) + ((Area -1) * sizeof(archiver));
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&archiver, sizeof(archiver), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&archiver, crc, sizeof(archiver));
-	working(0, 0, 0);
+    fread(&archiver, sizeof(archiver), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&archiver, crc, sizeof(archiver));
+    working(0, 0, 0);
 
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "3.  EDIT ARCHIVER");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1.  Comment");
+    mvprintw( 8, 2, "2.  Name");
+    mvprintw( 9, 2, "3.  Available");
+    mvprintw(10, 2, "4.  Deleted");
+    mvprintw(11, 2, "5.  Arc files");
+    mvprintw(12, 2, "6.  Arc mail");
+    mvprintw(13, 2, "7.  Banners");
+    mvprintw(14, 2, "8.  Arc test");
+    mvprintw(15, 2, "9.  Un. files");
+    mvprintw(16, 2, "10. Un. mail");
+    mvprintw(17, 2, "11. FILE_ID");
+    mvprintw(18, 2, "12. List arc");
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "3.  EDIT ARCHIVER");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Comment");
-	mvprintw( 8, 2, "2.  Name");
-	mvprintw( 9, 2, "3.  Available");
-	mvprintw(10, 2, "4.  Deleted");
-	mvprintw(11, 2, "5.  Arc files");
-	mvprintw(12, 2, "6.  Arc mail");
-	mvprintw(13, 2, "7.  Banners");
-	mvprintw(14, 2, "8.  Arc test");
-	mvprintw(15, 2, "9.  Un. files");
-	mvprintw(16, 2, "10. Un. mail");
-	mvprintw(17, 2, "11. FILE_ID");
+	show_str( 7,16,40, archiver.comment);
+	show_str( 8,16, 5, archiver.name);
+	show_bool(9,16,    archiver.available);
+	show_bool(10,16,   archiver.deleted);
+	show_str(11,16,64, archiver.farc);
+	show_str(12,16,64, archiver.marc);
+	show_str(13,16,64, archiver.barc);
+	show_str(14,16,64, archiver.tarc);
+	show_str(15,16,64, archiver.funarc);
+	show_str(16,16,64, archiver.munarc);
+	show_str(17,16,64, archiver.iunarc);
+	show_str(18,16,64, archiver.varc);
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,16,40, archiver.comment);
-		show_str( 8,16, 5, archiver.name);
-		show_bool(9,16,    archiver.available);
-		show_bool(10,16,   archiver.deleted);
-		show_str(11,16,64, archiver.farc);
-		show_str(12,16,64, archiver.marc);
-		show_str(13,16,64, archiver.barc);
-		show_str(14,16,64, archiver.tarc);
-		show_str(15,16,64, archiver.funarc);
-		show_str(16,16,64, archiver.munarc);
-		show_str(17,16,64, archiver.iunarc);
-
-		j = select_menu(11);
-		switch(j) {
-		case 0:	crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&archiver, crc1, sizeof(archiver));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&archiver, sizeof(archiver), 1, fil);
-					fclose(fil);
-					ArchUpdated = 1;
-					working(1, 0, 0);
-					working(0, 0, 0);
-				}
+	j = select_menu(12);
+	switch(j) {
+	    case 0: crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&archiver, crc1, sizeof(archiver));
+		    if (crc != crc1) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				working(2, 0, 0);
+				return -1;
+			    }
+			    fseek(fil, offset, 0);
+			    fwrite(&archiver, sizeof(archiver), 1, fil);
+			    fclose(fil);
+			    ArchUpdated = 1;
+			    working(1, 0, 0);
+			    working(0, 0, 0);
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1: E_STR(  7,16,40,archiver.comment,  "The ^Comment^ for this record")
-		case 2:	E_STR(  8,16,5, archiver.name,     "The ^name^ of this archiver")
-		case 3:	E_BOOL( 9,16,   archiver.available,"Switch if this archiver is ^Available^ for use.")
-		case 4:	E_BOOL(10,16,   archiver.deleted,  "Is this archiver ^deleted^")
-		case 5:	E_STR( 11,16,64,archiver.farc,     "The ^Archive^ command for files")
-		case 6:	E_STR( 12,16,64,archiver.marc,     "The ^Archive^ command for mail packets")
-		case 7:	E_STR( 13,16,64,archiver.barc,     "The ^Archive^ command to insert/replace banners")
-		case 8:	E_STR( 14,16,64,archiver.tarc,     "The ^Archive^ command to test an archive")
-		case 9:	E_STR( 15,16,64,archiver.funarc,   "The ^Unarchive^ command for files")
-		case 10:E_STR( 16,16,64,archiver.munarc,   "The ^Unarchive^ command for mail packets")
-		case 11:E_STR( 17,16,64,archiver.iunarc,   "The ^Unarchive^ command to extract the FILE_ID.DIZ file")
-		}
+		    }
+		    IsDoing("Browsing Menu");
+		    return 0;
+	    case 1: E_STR(  7,16,40,archiver.comment,  "The ^Comment^ for this record")
+	    case 2: E_STR(  8,16,5, archiver.name,     "The ^name^ of this archiver")
+	    case 3: E_BOOL( 9,16,   archiver.available,"Switch if this archiver is ^Available^ for use.")
+	    case 4: E_BOOL(10,16,   archiver.deleted,  "Is this archiver ^deleted^")
+	    case 5: E_STR( 11,16,64,archiver.farc,     "The ^Archive^ command for files")
+	    case 6: E_STR( 12,16,64,archiver.marc,     "The ^Archive^ command for mail packets")
+	    case 7: E_STR( 13,16,64,archiver.barc,     "The ^Archive^ command to insert/replace banners")
+	    case 8: E_STR( 14,16,64,archiver.tarc,     "The ^Archive^ command to test an archive")
+	    case 9: E_STR( 15,16,64,archiver.funarc,   "The ^Unarchive^ command for files")
+	    case 10:E_STR( 16,16,64,archiver.munarc,   "The ^Unarchive^ command for mail packets")
+	    case 11:E_STR( 17,16,64,archiver.iunarc,   "The ^Unarchive^ command to extract the FILE_ID.DIZ file")
+	    case 12:E_STR( 18,16,64,archiver.varc,     "The ^List^ command to show the archive contents")
 	}
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -784,6 +811,7 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Unpack files    %s\n", archiver.funarc);
 		fprintf(fp, "     Unpack mail     %s\n", archiver.munarc);
 		fprintf(fp, "     Get FILE_ID.DIZ %s\n", archiver.iunarc);
+		fprintf(fp, "     List archive    %s\n", archiver.varc);
 		fprintf(fp, "\n\n");
 		j++;
 	}

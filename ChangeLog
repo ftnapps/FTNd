@@ -7,6 +7,23 @@ $Id$
 
 v0.37.3		09-Apr-2003.
 
+	upgrade:
+		Remove ~/etc/archiver.data, start mbsetup menu 3, leave and
+		save. This updates the archiver view contents commands.
+
+	mbsetup:
+		The edit archiver has now an edit line for the view archive
+		commands.
+
+	mbsebbs:
+		Fixed recognition of tar.gz files.
+		Added menu function display file.
+		Display ascii textfiles now uses the More Y/n/= prompt.
+
+	lang:
+		New language prompt number 17.
+		Erased language prompts 18..36.
+
 
 v0.37.2		23-Feb-2003 - 09-Apr-2003
 

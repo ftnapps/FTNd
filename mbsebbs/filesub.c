@@ -732,7 +732,7 @@ char *GetFileType(char *fn)
 	if (memcmp(buf, "MTM", 3) == 0)			return (char *)"MTM";
 	if (memcmp(buf, "#!/bin/", 7) == 0)		return (char *)"UNIX script";
 	if (memcmp(buf, "\037\235", 2) == 0)		return (char *)"Compressed data";
-	if (memcmp(buf, "\037\213", 2) == 0)		return (char *)"gzip compress";
+	if (memcmp(buf, "\037\213", 2) == 0)		return (char *)"GZIP";
 	if (memcmp(buf, "\177ELF", 4) == 0)		return (char *)"ELF";
 	if (memcmp(buf, "%!", 2) == 0)			return (char *)"PostScript";
 	if (memcmp(buf, "GIF8", 4) == 0)		return (char *)"GIF";

@@ -15,26 +15,26 @@ HR|Export to (H)ome or (R)ules directory:
 |You are not allowed to delete that message
 |Offline Reader: Extended Info turned ON
 |Offline Reader: Extended Info turned OFF
-|Time withdrawn today               
-|Bytes withdrawn today              
-DWQ|(D)eposit, (W)ithdraw, (Q)uit: 
-|Bank > 
-TBQ|(T)ime, (B)ytes, (Q)uit : 
-|You must have at least 5 minutes remaining to deposit
-|How much time. Minutes available to you is 
-|You have tried to deposit more than the maximum limit today.
-|Maximum allowed minutes to deposit per day: 
-|You have exeeded your account balance.
-|Maximum allowable minutes in bank account is: 
-|You are allowed to deposit: 
-|You have tried to withdraw more than the maximum limit today.
-|Maximum allowed to withdraw per day: 
-|You have tried to withdraw more time than is in your bank account.
-|Current bank balance: 
-|Maximum allowed kilobytes to deposit per day: 
-|You have exeeded your account balance.
-|Maximum allowable kilobytes in bank account is: 
-|How many kilobytes. KBytes available to you is 
+|This is not a plain textfile.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSE Bulletin Board System - NEW USER REGISTRATION
 |Use this name: 
 |Please enter new password   : 

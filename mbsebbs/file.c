@@ -4,7 +4,7 @@
  * Purpose ...............: All the file functions. 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -47,6 +47,7 @@
 #include "exitinfo.h"
 #include "whoson.h"
 #include "change.h"
+#include "dispfile.h"
 
 
 
@@ -2214,9 +2215,166 @@ void EditTaglist()
 
 /*
  * View a file in the current area, menu 103.
+ * If a file name is given, display direct,
+ * else ask for filename to view.
  */
-void ViewFile()
+void ViewFile(char *name)
 {
+    char    *File, *temp, *arc;
+    int	    count, total, rc, found = FALSE;
+    FILE    *fp, *pFile;
+
+    Syslog('+', "ViewFile(%s)", printable(name, 0));
+
+    if (Access(exitinfo.Security, area.LTSec) == FALSE) {
+	colour(YELLOW, BLACK);
+	/* You don't have enough security to list this area */
+	printf("\n%s\n", (char *) Language(236));
+	Pause();
+	return;
+    }
+
+    File = calloc(PATH_MAX, sizeof(char));
+
+    if ((name != NULL) && strlen(name)) {
+	strcpy(File, name);
+    } else {
+	Enter(2);
+	/* Please enter filename: */
+	pout(YELLOW, BLACK, (char *) Language(245));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(File, 80);
+
+	if ((strcmp(File, "")) == 0) {
+	    free(File);
+	    return;
+	}
+	
+	if (*(File) == '.' || *(File) == '*' || *(File) == ' ' || *(File) == '/') {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal Filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    free(File);
+	    return;
+	}
+
+	Strlen = strlen(File);
+	Strlen--;
+
+	if (*(File + Strlen) == '.' || *(File + Strlen) == '/' || *(File + Strlen) == ' ') {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal Filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    free(File);
+	    return;
+	}
+
+	if ((!strcmp(File, "files.bbs")) || (!strcmp(File, "00index")) || (strstr(File, (char *)".html"))) {
+	    colour(CFG.HiliteF, CFG.HiliteB);
+	    /* Illegal Filename! */
+	    printf("\n%s\n\n", (char *) Language(247));
+	    Pause();
+	    free(File);
+	    return;
+	}
+    }
+
+    /*
+     * Now check if this file is present
+     */
+    if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL) {
+	free(File);
+	return;
+    }
+
+    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	if (((strcasecmp(File, file.Name) == 0) || (strcasecmp(File, file.LName) == 0)) && (!file.Deleted) && (!file.Missing)) {
+	    found = TRUE;
+	    break;
+	}
+    }
+    fclose(pFile);
+
+    if (!found) {
+	colour(YELLOW, BLACK);
+	/* File does not exist, please try again ... */
+	printf("\n%s\n\n", (char *) Language(296));
+	free(File);
+	Pause();
+	return;
+    }
+
+    sprintf(File, "%s/%s", sAreaPath, file.LName);
+    arc = GetFileType(File);
+    Syslog('+', "File to view: %s, type %s", file.LName, printable(arc, 0));
+
+    if (arc != NULL) {
+	found = FALSE;
+	temp = calloc(PATH_MAX, sizeof(char));
+	sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	
+	if ((fp = fopen(temp, "r")) != NULL) {
+	    fread(&archiverhdr, sizeof(archiverhdr), 1, fp);
+	    while (fread(&archiver, archiverhdr.recsize, 1, fp) == 1) {
+		if ((strcmp(arc, archiver.name) == 0) && (archiver.available)) {
+		    found = TRUE;
+		    break;
+		}
+	    }
+	    fclose(fp);
+	}
+
+	if (!found || (strlen(archiver.varc) == 0)) {
+	    Syslog('+', "No archiver view for %s available", File);
+	    colour(YELLOW, BLACK);
+	    /* Archiver not available */
+	    printf("\n%s\n\n", Language(442));
+	    free(File);
+	    free(temp);
+	    Pause();
+	    return;
+	}
+
+	/*
+	 * Archiver viewer is available. Make a temp file which we will
+	 * display to the user.
+	 */
+	sprintf(temp, "%s/%s/temptxt", CFG.bbs_usersdir, exitinfo.Name);
+	rc = execute(archiver.varc, File, NULL, (char *)"/dev/null", temp, (char *)"/dev/null");
+	Syslog('+', "Display temp file %s", temp);
+	DisplayTextFile(temp);
+	unlink(temp);
+	free(temp);
+    } else {
+	/*
+	 * Most likely a textfile, first check.
+	 */
+	total = count = 0;
+	if ((fp = fopen(File, "r"))) {
+	    while (TRUE) {
+		rc = fgetc(fp);
+		if (rc == EOF)
+		    break;
+		total++;
+		if (isascii(rc))
+		    count++;
+	    }
+	    fclose(fp);
+	}
+	if (((count * 10) / total) < 8) {
+	    Syslog('+', "This is not a ASCII textfile");
+	    printf("\n%s\n\n", Language(17));
+	    Pause();
+	    free(File);
+	    return;
+	}
+	Syslog('+', "Display text file %s", File);
+	DisplayTextFile(File);
+    }
+
+    free(File);
 }
 
 

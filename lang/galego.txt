@@ -15,26 +15,26 @@ HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras:
 |No podes borrar esta mensaxe.
 |Lector Offline: Informaci¢n extendida ACTIVADA
 |Lector Offline: Informaci¢n extendida DESACTIVADA
-|Tempo retirado hoxe      : 
-|Bytes retirados hoxe     : 
-DRS|(D)epositar, (R)etirar, (S)air : 
-|Banco > 
-TBS|(T)empo, (B)ytes, (S)air : 
-|Debes ter polo menos 5 minutos para poder depositar 
-|¨Canto tempo?. Dispo¤ible en minutos :  
-|Tentaches depositar m is do m ximo permitido para hoxe.
-|M ximo tempo diario que se pode depositar: 
-|Excedeche-lo saldo da tua conta.
-|Minutos dispo¤ibles na tua conta : 
-|Perm¡techese depositar: 
-|Tentaches retirar m is do l¡mite m ximo diario.
-|M ximo permitido diario para retirar:
-|Tentaches retirar m is tempo do que tes na tua conta.
-|O saldo da tua conta ‚ : 
-|M ximo de Kb que se permite depositar diariamente: 
-|Excedeche-lo saldo da tua conta.
-|Kilobytes dispo¤ible na tua conta : 
-|¨Cantos kilobytes. Podes dispo¤er de  
+|This is not a plain textfile.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSE BBS - REXISTRO DE NOVO USUARIO
 |Use este nome: 
 |Por favor teclee o novo password : 

@@ -15,26 +15,26 @@ HR|Export to (H)ome or (R)ules directory:
 |You are not allowed to delete that message
 |Offline Reader: Extended Info turned ON
 |Offline Reader: Extended Info turned OFF
-|Tempo prelevato oggi :
-|Byte prelevati oggi  :
-DPE|(D)eposita, (P)releva, (E)sci: 
-|Banca > 
-TBE|(T)empo, (B)yte, (E)sci : 
-|Devi avere almeno 5 minuti restanti per poter depositare
-|Scegli la quantita di tempo. Hai a disposizione minuti 
-|Hai cercato di depositare piu del limite massimo oggi.
-|Massimo numero di minuti che puoi depositare ogni giorno: 
-|Hai superato il limite per il tuo account.
-|Massimo numero di minuti disponibili nel tuo account:
-|Puoi depositare: 
-|Hai cercato di prelevare piu del limite massimo oggi.
-|Massimo numero di minuti che puoi prelevare ogni giorno: 
-|You have tried to withdraw more time than is in your bank account.
-|Stato attuale del tuo account: 
-|Numero massimo di KB che puoi depositare ogni giorno: 
-|Hai superato il limite per il tuo account.
-|Numero massimo di KB che puoi tenere nel tuo account: 
-|Scegli la quantita di KB. KB disponibili:  
+|This is not a plain textfile.
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
 |MBSE Bulletin Board System - REGISTRAZIONE DEI NUOVI UTENTI	
 |Usa questo nome: 
 |Inserisci una nuova password: 
