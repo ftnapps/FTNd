@@ -5,9 +5,9 @@
 
 #define RETRYMAX 10
 
-#define CPMEOF 032
-#define WANTCRC 0103    /* send C not NAK to get crc not checksum */
-#define WANTG 0107  /* Send G not NAK to get nonstop batch xmsn */
+#define CPMEOF 032  /* CP/M EOF, Ctrl-Z				*/
+#define WANTCRC 'C' /* send C not NAK to get crc not checksum	*/
+#define WANTG 'G'   /* Send G not NAK to get nonstop batch xmsn */
 
 
 int ymsndfiles(down_list *, int);

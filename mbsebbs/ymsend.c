@@ -41,7 +41,7 @@
 
 
 #define MAX_BLOCK 8192
-#define sendline(c) PUTCHAR((c) & 0377)
+#define sendline(c) PUTCHAR((c & 0377))
 
 
 FILE		*input_f;
@@ -93,6 +93,13 @@ int ymsndfiles(down_list *lst, int use1k)
 	}
     }
     Syslog('x', "%s: %d files, size %d bytes", protname(), Filesleft, Totalleft);
+
+    /*
+     * This is not documented as auto start sequence, but a lot of terminal
+     * programs seem to react on this.
+     */
+    if (protocol == ZM_YMODEM)
+	PUTSTR((char *)"rb\r");
 
     for (tmpf = lst; tmpf && (maxrc < 2); tmpf = tmpf->next) {
 	if (tmpf->remote) {
@@ -217,6 +224,7 @@ static int wctxpn(char *fname)
     if ((input_f != stdin) && *fname)
 	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
+//        sprintf(p, "%lu %lo 0 0 0 0", (long) f.st_size, f.st_mtime);
 
     Totalleft -= f.st_size;
     if (--Filesleft <= 0)
@@ -224,18 +232,9 @@ static int wctxpn(char *fname)
     if (Totalleft < 0)
 	Totalleft = 0;
 
-    /* force 1k blocks if name won't fit in 128 byte block */
-    if (txbuf[125])
-	blklen=1024;
-    else {          /* A little goodie for IMP/KMD */
-	txbuf[127] = (f.st_size + 127) >>7;
-	txbuf[126] = (f.st_size + 127) >>15;
-    }
-//    if (zmodem_requested)
-//	return zsendfile(zi,txbuf, 1+strlen(p)+(p-txbuf));
+    purgeline(1);
     if (wcputsec(txbuf, 0, 128) == TERROR) {
-	PUTSTR((char *)"wcputsec failed");
-	Syslog('+', "%s/%s: wcputsec failed", fname,protname());
+	Syslog('+', "%s: failed to send filename", protname());
 	return TERROR;
     }
     return OK;
@@ -243,6 +242,9 @@ static int wctxpn(char *fname)
 
 
 
+/*
+ * Get NAK, C or G
+ */
 static int getnak(void)
 {
     int firstch;
@@ -261,7 +263,7 @@ static int getnak(void)
 //			return FALSE;
 	    case TIMEOUT:
 			Syslog('x', "getnak: timeout try %d", tries);
-			/* 50 seconds are enough */
+			/* 50 seconds are enough (was 30, 26-11-2004 MB) */
 			if (tries == 5) {
 			    Syslog('x', "Timeout on pathname");
 			    return TRUE;
@@ -283,16 +285,21 @@ static int getnak(void)
 			io_mode(0, 2);  /* Set cbreak, XON/XOFF, etc. */
 			Optiong = TRUE;
 			blklen=1024;
+			Crcflg = TRUE;
+			return FALSE;
 	    case WANTCRC:
 			Syslog('x', "getnak: got WANTCRC");
 			Crcflg = TRUE;
+			return FALSE;
 	    case NAK:
 			Syslog('x', "getnak: got NAK");
 			return FALSE;
 	    case CAN:
 			Syslog('x', "getnak: got CAN");
-			if ((firstch = GETCHAR(2)) == CAN && Lastrx == CAN)
+			if ((firstch = GETCHAR(2)) == CAN && Lastrx == CAN) {
+			    Syslog('+', "%s: Receiver cancelled", protname());
 			    return TRUE;
+			}
 	    default:
 			Syslog('x', "got %d", firstch);
 			break;
@@ -316,7 +323,7 @@ static int wctx(long bytes_total)
     while ((firstch = GETCHAR(Rxtimeout)) != NAK && firstch != WANTCRC
 	    && firstch != WANTG && firstch != TIMEOUT && firstch != CAN);
     if (firstch == CAN) {
-	Syslog('x', "Receiver Cancelled");
+	Syslog('+', "%s: receiver Cancelled during transfer", protname());
 	return TERROR;
     }
 
@@ -348,7 +355,6 @@ static int wctx(long bytes_total)
     do {
 	purgeline(5);
 	PUTCHAR(EOT);
-	ioctl(1, TCFLSH, 0);
 	++attempts;
     } while ((firstch = (GETCHAR(Rxtimeout)) != ACK) && attempts < RETRYMAX);
     if (attempts == RETRYMAX) {
@@ -373,11 +379,10 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
     Syslog('x', "%s: wcputsec: sectnum %d, len %d, %s", protname(), sectnum, cseclen, Crcflg ? "crc":"checksum");
     
     for (attempts = 0; attempts <= RETRYMAX; attempts++) {
-	Syslog('x', "send sector");
 	Lastrx = firstch;
 	sendline(cseclen == 1024 ? STX:SOH);
 	sendline(sectnum);
-	sendline(-sectnum -1);
+	sendline((-sectnum -1));
 	oldcrc = Checksum = 0;
 	for (wcj = cseclen, cp = buf; --wcj >= 0; ) {
 	    sendline(*cp);
@@ -388,11 +393,10 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 	    oldcrc = updcrc16(0, updcrc16(0, oldcrc));
 	    sendline((int)oldcrc >> 8);
 	    sendline((int)oldcrc);
-	}
-	else
+	} else {
 	    sendline(Checksum);
+	}
 
-	ioctl(1, TCFLSH, 0);
 	if (Optiong) {
 	    firstsec = FALSE; 
 	    return OK;
@@ -416,10 +420,9 @@ cancan:
 			    Crcflg = TRUE;
 	    case NAK:
 			Syslog('+', "%s: got NAK on sector %d", protname(), sectnum); 
-			purgeline(10);
+			purgeline(20);
 			continue;
 	    case ACK:
-			Syslog('x', "Got ACK");
 			firstsec=FALSE;
 			Totsecs += (cseclen>>7);
 			return OK;

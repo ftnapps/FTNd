@@ -33,8 +33,10 @@
 #include "../lib/mbse.h"
 #include "ttyio.h"
 #include "timeout.h"
+#include "transfer.h"
 #include "zmmisc.h"
 #include "zmrecv.h"
+#include "ymsend.h"
 #include "ymrecv.h"
 
 
@@ -42,6 +44,8 @@
 static int	Firstsec;
 static int	eof_seen;
 static int	errors;
+static int	Gflg = FALSE;
+static char	NAKchar;
 
 extern long	Bytesleft;
 extern off_t	rxbytes;
@@ -50,22 +54,38 @@ extern char	Lastrx;
 extern char	*secbuf;
 
 
-#define sendline(c) PUTCHAR((c) & 0377)
+#define sendline(c) PUTCHAR((c & 0377))
 
 int wcgetsec(size_t *, char *, unsigned int);
-int wcrxpn(char *, int);
+int wcrxpn(char *);
 int wcrx(void);
 
 
-int ymrcvfiles(int want1k)
+int ymrcvfiles(int want1k, int wantG)
 {
     int	    rc = 0;
 
-    Syslog('x', "%s: ymrcvfiles(%s)", protname(), want1k ? "TRUE":"FALSE");
+    NAKchar = NAK;
+    Crcflg = Gflg = FALSE;
+    if (protocol == ZM_YMODEM) {
+	NAKchar = WANTCRC;
+	Crcflg = TRUE;
+    }
+    if (want1k) {
+	Crcflg = TRUE;
+	NAKchar = WANTCRC;
+    }
+    if (wantG) {
+	Crcflg = Gflg = TRUE;
+	NAKchar = WANTG;
+    }
+
+    Syslog('x', "%s: ymrcvfiles(%s, %s)", protname(), want1k ? "TRUE":"FALSE", wantG ? "TRUE":"FALSE");
+    Syslog('x', "%s: NAK character will be %s", protname(), printablec(NAKchar));
 
     for (;;) {
 	rxbytes = 0l;
-	if (wcrxpn(secbuf, want1k) == TERROR) {
+	if (wcrxpn(secbuf) == TERROR) {
 	    rc = 2;
 	    break;
 	}
@@ -95,26 +115,26 @@ int ymrcvfiles(int want1k)
  * Length is indeterminate as long as less than Blklen
  * A null string represents no more files (YMODEM)
  */
-int wcrxpn(char *rpn, int want1k)
+int wcrxpn(char *rpn)
 {
     register int    c;
     size_t	    Blklen = 0;                /* record length of received packets */
 
-    Crcflg = want1k;
     purgeline(0);
     Syslog('x', "%s: wcrxpn() crc=%s", protname(), Crcflg ? "true":"false");
 
 et_tu:
     Firstsec = TRUE;
     eof_seen = FALSE;
-    sendline(Crcflg?WANTCRC:NAK);
-    ioctl(1, TCFLSH, 0);
+    Syslog('x', "Send %s", printablec(NAKchar));
+    sendline(NAKchar);
+//    ioctl(1, TCFLSH, 0);
     purgeline(0); /* Do read next time ... */
     while ((c = wcgetsec(&Blklen, rpn, 10)) != 0) {
 	if (c == WCEOT) {
 	    Syslog('x', "Pathname fetch returned EOT");
 	    sendline(ACK);
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    goto et_tu;
 	}
@@ -136,13 +156,13 @@ int wcrx(void)
 
     Firstsec = TRUE; sectnum = 0; 
     eof_seen = FALSE;
-    sendchar = Crcflg ? WANTCRC:NAK;
+    sendchar = NAKchar;
 
-    Syslog('x', "%s: wcrx", protname());
+    Syslog('x', "%s: wcrx, request type %s", protname(), printablec(sendchar));
 
     for (;;) {
 	sendline(sendchar);     /* send it now, we're ready! */
-	ioctl(1, TCFLSH, 0);
+//	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
 
 	/*
@@ -164,19 +184,18 @@ int wcrx(void)
 	    if (putsec(secbuf, Blklen) == ERROR)
 		return ERROR;
 	    sendchar = ACK;
-	}
-	else if (sectcurr == (sectnum & 0377)) {
+	} else if (sectcurr == (sectnum & 0377)) {
 	    Syslog('x', "Received dup Sector");
 	    sendchar = ACK;
 	} else if (sectcurr == WCEOT) {
 	    if (closeit(1))
 		return ERROR;
 	    sendline(ACK);
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    return OK;
 	}
-	else if (sectcurr == ERROR)
+	else if (sectcurr == TERROR)
 	    return ERROR;
 	else {
 	    Syslog('x', "Sync Error");
@@ -202,6 +221,7 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
 	if (firstch == SOH) {
 	    *Blklen=128;
 get2:
+	    Syslog('x', "wcgetsec: firstch=%s, maxtime=%d, check=%s", printablec(firstch), maxtime, Crcflg?"CRC":"Checksum");
 	    sectcurr = GETCHAR(1);
 	    if ((sectcurr + (oldcrc = GETCHAR(1))) == 0377) {
 		oldcrc = Checksum = 0;
@@ -237,8 +257,8 @@ get2:
 	    return WCEOT;
 	else if (firstch == CAN) {
 	    if (Lastrx == CAN) {
-		Syslog('x', "Sender Cancelled");
-		return ERROR;
+		Syslog('+', "%s: sender Cancelled during transfer", protname());
+		return TERROR;
 	    } else {
 		Lastrx=CAN;
 		continue;
@@ -258,21 +278,21 @@ humbug:
 	}
 	
 	if (Firstsec) {
-	    sendline(Crcflg ? WANTCRC:NAK);
-	    ioctl(1, TCFLSH, 0);
-	    Syslog('x', "%s: send %s", protname(), Crcflg ? "WANTCRC":"NAK");
+	    sendline(NAKchar);
+//	    ioctl(1, TCFLSH, 0);
+	    Syslog('x', "%s: send %s", protname(), printablec(NAKchar));
 	    purgeline(0);   /* Do read next time ... */
 	} else {
-	    maxtime = 40;
+	    maxtime = 5;
 	    sendline(NAK);
 	    Syslog('x', "%s: send NAK", protname());
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	}
     }
     /* try to stop the bubble machine. */
     canit(STDOUT_FILENO);
-    return ERROR;
+    return TERROR;
 }
 
 

@@ -80,7 +80,7 @@ extern int		zmodem_requested;
  * This receiver will figure out what to do, you should
  * be able to send anything.
  */
-int zmrcvfiles(int want1k)
+int zmrcvfiles(int want1k, int wantg)
 {
     int	    rc;
 
@@ -99,7 +99,7 @@ int zmrcvfiles(int want1k)
 		Syslog('+', "%s: switching to Ymodem", protname());
 		protocol = ZM_YMODEM;
 	    }
-	    rc = ymrcvfiles(want1k);
+	    rc = ymrcvfiles(want1k, wantg);
 	    goto fubar;
 	}
 
@@ -128,8 +128,10 @@ fubar:
     io_mode(0, 1);  /* Normal raw mode */
     /*
      * Some programs send some garbage after the transfer, eat these.
+     * This also introduces a pause after the transfer, some clients
+     * need this.
      */
-    purgeline(100);
+    purgeline(200);
     
     Syslog('+', "%s: end receive rc=%d", protname(), rc);
     return abs(rc);
@@ -151,7 +153,7 @@ int tryz(void)
     if (protocol != ZM_ZMODEM)
 	return 0;
 
-    for (n = zmodem_requested ?15:5; --n >= 0; ) {
+    for (n = zmodem_requested ?15:10; --n >= 0; ) {
 	/*
 	 * Set buffer length (0) and capability flags
 	 */

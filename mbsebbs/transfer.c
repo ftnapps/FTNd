@@ -305,6 +305,8 @@ int download(down_list *download_list)
 	    }
 	    closedir(dirp);
 	}
+
+	purgeline(200); /* Wait a while, some Wintendo programs ignore input for a few seconds */
 	Altime(0);
 	alarm_off();
 	alarm_on();
@@ -389,7 +391,7 @@ int upload(up_list **upload_list)
     struct timeval  starttime, endtime;
     struct timezone tz;
     unsigned long   Size = 0;
-    int		    err, Count = 0, rc = 0, want1k = FALSE;
+    int		    err, Count = 0, rc = 0, want1k = FALSE, wantg = FALSE;
     up_list	    *tmp, *ta;
 
     /*
@@ -417,7 +419,10 @@ int upload(up_list **upload_list)
     sleep(2);
 
     if (uProtInternal) {
-	if ((strncasecmp(sProtName, "zmodem", 6) == 0) || (strncasecmp(sProtName, "ymodem", 6) == 0)) {
+	if ((strncasecmp(sProtName, "zmodem", 6) == 0) || 
+	    (strncasecmp(sProtName, "ymodem", 6) == 0) || 
+	    (strncasecmp(sProtName, "xmodem", 6) == 0)) {
+
 	    if (strncasecmp(sProtName, "zmodem", 6) == 0) {
 		zmodem_requested = TRUE;
 		protocol = ZM_ZMODEM;
@@ -426,10 +431,18 @@ int upload(up_list **upload_list)
 	    }
 	    if (strncasecmp(sProtName, "ymodem", 6) == 0)
 		protocol = ZM_YMODEM;
+	    if (strncasecmp(sProtName, "xmodem", 6) == 0)
+		protocol = ZM_XMODEM;
 
-	    if (strstr(sProtName, "1K") || strstr(sProtName, "1k"))
+	    if ((strstr(sProtName, "1K") || strstr(sProtName, "1k")) && (protocol != ZM_ZMODEM)) {
+		Syslog('x', "%s: want 1K blocks", protname());
 		want1k = TRUE;
-	    rc = zmrcvfiles(want1k);
+	    }
+	    if ((strstr(sProtName, "G")) && (protocol == ZM_YMODEM)) {
+		Syslog('x', "%s: want Ymodem-G", protname());
+		wantg = TRUE;
+	    }
+	    rc = zmrcvfiles(want1k, wantg);
 
 	    Syslog('b', "Begin dir processing");
 	    if ((dirp = opendir(".")) == NULL) {
