@@ -10,6 +10,7 @@ v0.37.6		10-Aug-2003
 		Changed all Linux references into GNU/Linux.
 		Changed the address of the FSF in all sources.
 		Removed memwatch debugger.
+		Changed all gif and jpg images to png images.
 
 
 v0.37.5		12-Jul-2003 - 10-Aug-2003
