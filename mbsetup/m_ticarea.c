@@ -419,22 +419,22 @@ void SetTicScreen(void)
 	mvprintw(14, 2, "9.  Banner");
 	mvprintw(15, 2, "10. Replace");
 
-	mvprintw( 7,37, "11. Dupecheck");
-	mvprintw( 8,37, "12. Secure");
-	mvprintw( 9,37, "13. No touch");
-	mvprintw(10,37, "14. Virus sc.");
-	mvprintw(11,37, "15. Announce");
-	mvprintw(12,37, "16. Upd magic");
-	mvprintw(13,37, "17. File_id");
-	mvprintw(14,37, "18. Conv.all");
-	mvprintw(15,37, "19. Send org.");
+	mvprintw( 7,41, "11. Dupecheck");
+	mvprintw( 8,41, "12. Secure");
+	mvprintw( 9,41, "13. No touch");
+	mvprintw(10,41, "14. Virus sc.");
+	mvprintw(11,41, "15. Announce");
+	mvprintw(12,41, "16. Upd magic");
+	mvprintw(13,41, "17. File_id");
+	mvprintw(14,41, "18. Conv.all");
+	mvprintw(15,41, "19. Send org.");
 
-	mvprintw( 7,59, "20. Mandatory");
-	mvprintw( 8,59, "21. Notified");
-	mvprintw( 9,59, "22. Upl discon");
-	mvprintw(10,59, "23. Deleted");
-	mvprintw(11,59, "24. Active");
-	mvprintw(12,59, "25. Systems");
+	mvprintw( 7,63, "20. Mandatory");
+	mvprintw( 8,63, "21. Notified");
+	mvprintw( 9,63, "22. Upl discon");
+	mvprintw(10,63, "23. Deleted");
+	mvprintw(11,63, "24. Active");
+	mvprintw(12,63, "25. Systems");
 } 
 
 
@@ -800,6 +800,8 @@ int EditTicRec(int Area)
 	unsigned long	crc1;
 	int		tmp, i, changed = FALSE;
 	sysconnect	System;
+	char		*temp;
+	FILE		*fp;
 
 	clr_index();
 	IsDoing("Edit Tic Area");
@@ -807,13 +809,27 @@ int EditTicRec(int Area)
 	if (LoadTicRec(Area, TRUE) == -1)
 		return -1;
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	SetTicScreen();
 
 	for (;;) {
+
+		sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+		if ((fp = fopen(temp, "r")) != NULL) {
+		    fread(&areahdr, sizeof(areahdr), 1, fp);
+		    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+		    fread(&area, areahdr.recsize, 1, fp);
+		    sprintf(temp, "%ld: %s", tic.FileArea, area.Name);
+		    temp[24] = '\0';
+		    fclose(fp);
+		} else {
+		    sprintf(temp, "%ld", tic.FileArea);
+		}
+
 		set_color(WHITE, BLACK);
 		show_str( 6,16,55, tic.Comment);
 		show_str( 7,16,20, tic.Name);
-		show_int( 8,16,    tic.FileArea);
+		show_str( 8,16,24, temp);
 		show_str( 9,16,14, tic.Message);
 		show_str(10,16,12, tic.Group);
 		show_int(11,16,    tic.KeepLatest);
@@ -822,21 +838,21 @@ int EditTicRec(int Area)
 		show_str(14,16,14, tic.Banner);
 		show_bool(15,16,   tic.Replace);
 
-		show_bool( 7,51,   tic.DupCheck);
-		show_bool( 8,51,   tic.Secure);
-		show_bool( 9,51,   tic.NoTouch);
-		show_bool(10,51,   tic.VirScan);
-		show_bool(11,51,   tic.Announce);
-		show_bool(12,51,   tic.UpdMagic);
-		show_bool(13,51,   tic.FileId);
-		show_bool(14,51,   tic.ConvertAll);
-		show_bool(15,51,   tic.SendOrg);
+		show_bool( 7,55,   tic.DupCheck);
+		show_bool( 8,55,   tic.Secure);
+		show_bool( 9,55,   tic.NoTouch);
+		show_bool(10,55,   tic.VirScan);
+		show_bool(11,55,   tic.Announce);
+		show_bool(12,55,   tic.UpdMagic);
+		show_bool(13,55,   tic.FileId);
+		show_bool(14,55,   tic.ConvertAll);
+		show_bool(15,55,   tic.SendOrg);
 
-		show_bool( 7,73,   tic.Mandat);
-		show_bool( 8,73,   tic.Notified);
-		show_bool( 9,73,   tic.UplDiscon);
-		show_bool(10,73,   tic.Deleted);
-		show_bool(11,73,   tic.Active);
+		show_bool( 7,77,   tic.Mandat);
+		show_bool( 8,77,   tic.Notified);
+		show_bool( 9,77,   tic.UplDiscon);
+		show_bool(10,77,   tic.Deleted);
+		show_bool(11,77,   tic.Active);
 
 		switch(select_menu(25)) {
 		case 0:
@@ -856,6 +872,7 @@ int EditTicRec(int Area)
 				}
 			}
 			IsDoing("Browsing Menu");
+			free(temp);
 			return 0;
 
 		case 1: E_STR( 6,16,55, tic.Comment, "The ^description^ for this area.");
@@ -899,20 +916,20 @@ int EditTicRec(int Area)
 			break;
 		case 9:	E_STR(14,16,14, tic.Banner,   "The ^banner^ to put in the file archives");
 		case 10:E_BOOL(15,16, tic.Replace,    "Allow ^Replace^ files command");
-		case 11:E_BOOL( 7,51, tic.DupCheck,   "Check for ^duplicates^ in received files");
-		case 12:E_BOOL( 8,51, tic.Secure,     "Check for ^secure^ systems");
-		case 13:E_BOOL( 9,51, tic.NoTouch,    "Don't ^touch^ filedate");
-		case 14:E_BOOL(10,51, tic.VirScan,    "Check received files for ^virusses^");
-		case 15:E_BOOL(11,51, tic.Announce,   "^Announce^ received files");
-		case 16:E_BOOL(12,51, tic.UpdMagic,   "Update files ^magic^ names");
-		case 17:E_BOOL(13,51, tic.FileId,     "Extract ^FILE_ID.DIZ^ from received files");
-		case 18:E_BOOL(14,51, tic.ConvertAll, "^Convert^ archive always");
-		case 19:E_BOOL(15,51, tic.SendOrg,    "^Send original^ file to downlinks");
-		case 20:E_BOOL( 7,73, tic.Mandat,     "Is this area ^mandatory^");
-		case 21:E_BOOL( 8,73, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
-		case 22:E_BOOL( 9,73, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
-		case 23:E_BOOL(10,73, tic.Deleted,    "Is this area ^deleted^");
-		case 24:E_BOOL(11,73, tic.Active,     "Is this area ^active^");
+		case 11:E_BOOL( 7,55, tic.DupCheck,   "Check for ^duplicates^ in received files");
+		case 12:E_BOOL( 8,55, tic.Secure,     "Check for ^secure^ systems");
+		case 13:E_BOOL( 9,55, tic.NoTouch,    "Don't ^touch^ filedate");
+		case 14:E_BOOL(10,55, tic.VirScan,    "Check received files for ^virusses^");
+		case 15:E_BOOL(11,55, tic.Announce,   "^Announce^ received files");
+		case 16:E_BOOL(12,55, tic.UpdMagic,   "Update files ^magic^ names");
+		case 17:E_BOOL(13,55, tic.FileId,     "Extract ^FILE_ID.DIZ^ from received files");
+		case 18:E_BOOL(14,55, tic.ConvertAll, "^Convert^ archive always");
+		case 19:E_BOOL(15,55, tic.SendOrg,    "^Send original^ file to downlinks");
+		case 20:E_BOOL( 7,77, tic.Mandat,     "Is this area ^mandatory^");
+		case 21:E_BOOL( 8,77, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
+		case 22:E_BOOL( 9,77, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
+		case 23:E_BOOL(10,77, tic.Deleted,    "Is this area ^deleted^");
+		case 24:E_BOOL(11,77, tic.Active,     "Is this area ^active^");
 		case 25:
 			if (EditTicConnections(ttfil))
 				changed = TRUE;
