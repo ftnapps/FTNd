@@ -48,8 +48,7 @@ case "$1" in
         if [ -f $MBSE_ROOT/var/run/mbtask ]; then
             echo -n " logoff users "
             su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-            echo -n "done,"
-	    echo -n " stopping mbtask"
+            echo -n "done, stopping mbtask"
 	    kill -15 `cat $MBSE_ROOT/var/run/mbtask`
 	    i=10; doit=1;
 	    while let 'i > 0' && let 'doit != 0'

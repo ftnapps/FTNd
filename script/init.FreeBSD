@@ -46,18 +46,18 @@ case "$1" in
             su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	    kill -15 `cat $MBSE_ROOT/var/run/mbtask`
 	    sleep 1
-		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
-		    echo -n "."
-		    sleep 1
-		fi
-		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
-			echo -n "."
-			sleep 1
-		fi
-		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
-			echo -n "."
-			sleep 1
-		fi
+	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
+	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
+	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+		echo -n "."
+		sleep 1
+	    fi
 	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
 		kill -9 `cat $MBSE_ROOT/var/run/mbtask`
 	    fi
