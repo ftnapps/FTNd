@@ -4247,6 +4247,7 @@ v0.33.19        26-Oct-2001
 		previous adress just like with the net numbers. This is for
 		old style tic files, they were not full 3d.
 		Fixes for Sparc systems.
+		The nodelist information now also holds the Txx flags.
 
 	lang:
 		Changed language prompts 6, 71, 429.
@@ -4384,6 +4385,8 @@ v0.33.19        26-Oct-2001
 		/opt/mbse root.
 		When scanning outbound, flags are set if flo or mail pkt files
 		are present.
+		When the internet connection status changes, the outbound is
+		rescanned.
 
 	mbmon:
 		Changed the lastcaller screen to display the External Door

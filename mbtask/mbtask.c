@@ -102,6 +102,7 @@ int			pingresult[2];		/* Ping results		*/
 char			pingaddress[41];	/* Ping current address	*/
 int			masterinit = FALSE;	/* Master init needed	*/
 int			ptimer = PAUSETIME;	/* Pause timer		*/
+int			tflags = FALSE;		/* if nodes with Txx	*/
 
 
 
@@ -433,6 +434,8 @@ void load_taskcfg(void)
 		TCFG.max_pots = 1;
 		TCFG.max_isdn = 0;
 		TCFG.max_tcp  = 0;
+		sprintf(TCFG.isp_ping1, "192.168.1.1");
+		sprintf(TCFG.isp_ping2, "192.168.1.1");
 		if ((fp = fopen(tcfgfn, "a+")) == NULL) {
 			tasklog('?', "$Can't create %s", tcfgfn);
 			die(2);
@@ -1197,6 +1200,12 @@ void scheduler(void)
 		tasklog('+', "Main configuration changed, reloading");
 		load_maincfg();
 	    }
+	    /*
+	     * If there is mail or files in the outbound for nodes with
+	     * the Txx flag, then scan the outbound each half hour.
+	     */
+	    if (tflags && ((tm->tm_min == 0) || (tm->tm_min == 30)))
+		sem_set((char *)"scanout", TRUE);
 	}
 
 	if (s_bbsopen && !UPSalarm && !LOADhi) {
@@ -1283,7 +1292,7 @@ void scheduler(void)
 		oldmin = tm->tm_sec / SLOWRUN;
 
 		/*
-		 *  If the previous pingstat is still P_SENT, the we now consider it a timeout.
+		 *  If the previous pingstat is still P_SENT, then we now consider it a timeout.
 		 */
 		if (pingstate == P_SENT) {
 		    pingresult[pingnr] = FALSE;
@@ -1333,11 +1342,13 @@ void scheduler(void)
 		    if (internet) {
 			tasklog('!', "Internet connection is down");
 			internet = FALSE;
+			sem_set((char *)"scanout", TRUE);
 		    }
 		} else {
 		    if (!internet) {
 			tasklog('!', "Internet connection is up");
 			internet = TRUE;
+			sem_set((char *)"scanout", TRUE);
 		    }
 		    icmp_errs = 0;
 		}

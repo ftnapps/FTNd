@@ -54,6 +54,8 @@ static struct _alist
 	unsigned long	moflags;	/* Nodelist modem flags		*/
 	unsigned long	diflags;	/* Nodelist ISDN flags		*/
 	unsigned long	ipflags;	/* Nodelist TCP/IP flags	*/
+	int		t1;		/* First Txx flag		*/
+	int		t2;		/* Second Txx flag		*/
 } *alist = NULL;
 
 
@@ -71,7 +73,7 @@ int outstat()
 {
 	int		rc, first = TRUE;
 	struct _alist	*tmp, *old;
-	char		flstr[9];
+	char		flstr[13];
 	char		temp[81];
 
 	tasklog('+', "Scanning outbound");
@@ -92,10 +94,10 @@ int outstat()
 
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor         Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
+			tasklog('+', "Flavor Out      Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
 			first = FALSE;
 		}
-		strcpy(flstr,"...... ..");
+		strcpy(flstr,"...... ... ..");
 		if ((tmp->flavors) & F_IMM   ) flstr[0]='I';
 		if ((tmp->flavors) & F_CRASH ) flstr[1]='C';
 		if ((tmp->flavors) & F_NORMAL) flstr[2]='N';
@@ -104,8 +106,10 @@ int outstat()
 		if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
 		if ((tmp->flavors) & F_ISPKT ) flstr[7]='M';
 		if ((tmp->flavors) & F_ISFLO ) flstr[8]='F';
+		if (tmp->t1) flstr[11] = tmp->t1;
+		if (tmp->t2) flstr[12] = tmp->t2;
 
-		sprintf(temp, "%s  %8lu %08x %08x %08x %08x %5d %6d %s", flstr, (long)tmp->size, 
+		sprintf(temp, "%s %8lu %08x %08x %08x %08x %5d %6d %s", flstr, (long)tmp->size, 
 			(unsigned int)tmp->olflags, (unsigned int)tmp->moflags, 
 			(unsigned int)tmp->diflags, (unsigned int)tmp->ipflags, 
 			tmp->cst.tryno, tmp->cst.trystat, ascfnode(&(tmp->addr), 0x1f));
@@ -153,11 +157,15 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 			(*tmp)->moflags = nlent->mflags;
 			(*tmp)->diflags = nlent->dflags;
 			(*tmp)->ipflags = nlent->iflags;
+			(*tmp)->t1 = nlent->t1;
+			(*tmp)->t2 = nlent->t2;
 		} else {
 			(*tmp)->olflags = 0L;
 			(*tmp)->moflags = 0L;
 			(*tmp)->diflags = 0L;
 			(*tmp)->ipflags = 0L;
+			(*tmp)->t1 = '\0';
+			(*tmp)->t2 = '\0';
 		}
 		(*tmp)->time = time(NULL);
 		(*tmp)->size = 0L;

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: nodelist.c
+ * $Id$
  * Purpose ...............: Read nodelists information
- * Last modification date : 06-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -211,6 +210,8 @@ node *getnlent(faddr *addr)
 	nodebuf.iflags      = 0L;
 	nodebuf.dflags      = 0L;
 	nodebuf.uflags[0]   = NULL;
+	nodebuf.t1	    = '\0';
+	nodebuf.t2	    = '\0';
 
 	if (addr == NULL) 
 		goto retdummy;
@@ -400,6 +401,13 @@ node *getnlent(faddr *addr)
 			for (j = 0; xkey[j].key; j++)
 				if (strcasecmp(p, xkey[j].key) == 0)
 					nodebuf.xflags |= xkey[j].flag;
+			if ((p[0] == 'T') && (strlen(p) == 3)) {
+				/*
+				 * System open hours flag
+				 */
+				nodebuf.t1 = p[1];
+				nodebuf.t2 = p[2];
+			}
 			if (!stdflag) {
 				if (ixflag < MAXUFLAGS) {
 					nodebuf.uflags[ixflag++] = p;

@@ -1,11 +1,8 @@
+/* $Id$ */
+
 #ifndef _NODELIST_H
 #define	_NODELIST_H
 
-/*
-#include "../config.h"
-
-#pragma pack(1)
-*/
 
 #define MAXNAME 35
 #define MAXUFLAGS 16
@@ -115,6 +112,8 @@ typedef struct	_node {
 	unsigned long	oflags;			/* Online flags		*/
 	unsigned long	xflags;			/* Request flags	*/
 	char		*uflags[MAXUFLAGS];	/* User flags		*/
+	int		t1;			/* First Txx flag	*/
+	int		t2;			/* Second Txx flag	*/
 } node;
 
 

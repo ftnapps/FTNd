@@ -210,6 +210,8 @@ node *getnlent(faddr *addr)
 	nodebuf.iflags      = 0L;
 	nodebuf.dflags      = 0L;
 	nodebuf.uflags[0]   = NULL;
+	nodebuf.t1	    = '\0';
+	nodebuf.t2	    = '\0';
 
 	if (addr == NULL) 
 		goto retdummy;
