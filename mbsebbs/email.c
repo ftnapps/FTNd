@@ -650,153 +650,147 @@ void Read_Email(void)
  */
 void Reply_Email(int IsReply)
 {
-	int     i, j, x;
-	char    to[65];
-	char    from[65];
-	char    subj[72];
-	char    msgid[81];
-	char    replyto[81];
-	char    replyaddr[81];
-	char    *tmp, *buf;
-	char    qin[9];
-	faddr	*Dest = NULL;
+    int     i, j, x;
+    char    to[65], from[65], subj[72], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[9];
+    faddr	*Dest = NULL;
 
-	sprintf(from, "%s", Msg.To);
-	sprintf(to, "%s", Msg.From);
-	sprintf(replyto, "%s", Msg.ReplyTo);
-	sprintf(replyaddr, "%s", Msg.ReplyAddr);
+    sprintf(from, "%s", Msg.To);
+    sprintf(to, "%s", Msg.From);
+    sprintf(replyto, "%s", Msg.ReplyTo);
+    sprintf(replyaddr, "%s", Msg.ReplyAddr);
 
-	if (strncasecmp(Msg.Subject, "Re:", 3) && IsReply) {
-		sprintf(subj, "Re: %s", Msg.Subject);
-	} else {
-		sprintf(subj, "%s", Msg.Subject);
-	}
-	Syslog('m', "Reply msg to %s, subject %s", to, subj);
-	Syslog('m', "Msgid was %s", Msg.Msgid);
-	sprintf(msgid, "%s", Msg.Msgid);
+    if (strncasecmp(Msg.Subject, "Re:", 3) && IsReply) {
+	sprintf(subj, "Re: %s", Msg.Subject);
+    } else {
+	sprintf(subj, "%s", Msg.Subject);
+    }
+    Syslog('m', "Reply msg to %s, subject %s", to, subj);
+    Syslog('m', "Msgid was %s", Msg.Msgid);
+    sprintf(msgid, "%s", Msg.Msgid);
 
-	x = 0;
-	Line = 1;
-	WhosDoingWhat(READ_POST, NULL);
-	clear();
-	colour(1,7);
-	printf("   %-71s", sMailbox);
-	colour(4,7);
-	printf("#%-5lu", EmailBase.Highest + 1);
+    x = 0;
+    Line = 1;
+    WhosDoingWhat(READ_POST, NULL);
+    clear();
+    colour(1,7);
+    printf("   %-71s", sMailbox);
+    colour(4,7);
+    printf("#%-5lu", EmailBase.Highest + 1);
 
-	colour(CFG.HiliteF, CFG.HiliteB);
-	sLine();
+    colour(CFG.HiliteF, CFG.HiliteB);
+    sLine();
 
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
-	Line = 1;
-	Msg_New();
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	Message[i] = (char *) calloc(MAX_LINE_LENGTH +1, sizeof(char));
+    Line = 1;
+    Msg_New();
 
-	sprintf(Msg.Replyid, "%s", msgid);
-	sprintf(Msg.ReplyTo, "%s", replyto);
-	sprintf(Msg.ReplyAddr, "%s", replyaddr);
+    sprintf(Msg.Replyid, "%s", msgid);
+    sprintf(Msg.ReplyTo, "%s", replyto);
+    sprintf(Msg.ReplyAddr, "%s", replyaddr);
 
-	/* From     : */
-	pout(14, 0, (char *) Language(209));
-	if (CFG.EmailMode != E_PRMISP) {
-		/*
-		 * If not permanent connected to the internet, use fidonet.org style addressing.
-		 */
-		Dest = fido2faddr(CFG.EmailFidoAka);
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
-	} else
-		sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, CFG.sysdomain, exitinfo.sUserName);
-	for (i = 0; i < strlen(Msg.From); i++) {
-		if (Msg.From[i] == ' ')
-			Msg.From[i] = '_';
-		if (Msg.From[i] == '@')
-			break;
-	}
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
-	Enter(1);
-	Syslog('b', "Setting From: %s", Msg.From);
-
-	/* To       : */
-	sprintf(Msg.To, "%s", to);
-	pout(14, 0, (char *) Language(208));
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
-	Enter(1);
-
-	/* Enter to keep Subject. */
-	pout(12, 0, (char *) Language(219));
-	Enter(1);
-	/* Subject  : */
-	pout(14, 0, (char *) Language(210));
-	sprintf(Msg.Subject, "%s", subj);
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
-
-	x = strlen(subj);
-	fflush(stdout);
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	GetstrP(subj, 50, x);
-	fflush(stdout);
-
-	if (strlen(subj))
-		strcpy(Msg.Subject, subj);
-
-	Msg.Private = TRUE;
-	Enter(1);
-
-//	Check_Attach();
-
+    /* From     : */
+    pout(14, 0, (char *) Language(209));
+    if (CFG.EmailMode != E_PRMISP) {
 	/*
-	 *  Quote original message now, format the original users
-	 *  initials into qin. If its a name@system.dom the use the
-	 *  first 8 characters of the name part.
+	 * If not permanent connected to the internet, use fidonet.org style addressing.
 	 */
-	sprintf(Message[1], "%s wrote to %s:", to, from);
-	memset(&qin, 0, sizeof(qin));
-	if (strchr(to, '@')) {
-		tmp = xstrcpy(strtok(to, "@"));
-		tmp[8] = '\0';
-		sprintf(qin, "%s", tmp);
-		free(tmp);
-	} else {
-		x = TRUE;
-		j = 0;
-		for (i = 0; i < strlen(to); i++) {
-			if (x && isalpha(to[i])) {
-				qin[j] = to[i];
-				j++;
-				x = FALSE;
-			}
-			if (to[i] == ' ' || to[i] == '.')
-				x = TRUE;
-			if (j == 6)
-				break;
-		}
-	}
+	Dest = fido2faddr(CFG.EmailFidoAka);
+	sprintf(Msg.From, "%s@%s (%s)", exitinfo.sUserName, ascinode(Dest, 0x2f), exitinfo.sUserName);
+    } else {
+	sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
+    }
+    for (i = 0; i < strlen(Msg.From); i++) {
+	if (Msg.From[i] == ' ')
+	    Msg.From[i] = '_';
+	if (Msg.From[i] == '@')
+	    break;
+    }
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
+    Enter(1);
+    Syslog('b', "Setting From: %s", Msg.From);
 
-	Line = 2;
-	tmp = calloc(128, sizeof(char));
-	buf = calloc(128, sizeof(char));
+    /* To       : */
+    sprintf(Msg.To, "%s", to);
+    pout(14, 0, (char *) Language(208));
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
+    Enter(1);
 
-	sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
-	if ((qf = fopen(tmp, "r")) != NULL) {
-		while ((fgets(buf, 128, qf)) != NULL) {
-			Striplf(buf);
-			sprintf(Message[Line], "%s> %s", (char *)qin, buf);
-			Line++;
-			if (Line == TEXTBUFSIZE)
-				break;
-		}
-		fclose(qf);
-	} else
-		WriteError("$Can't read %s", tmp);
+    /* Enter to keep Subject. */
+    pout(12, 0, (char *) Language(219));
+    Enter(1);
+    /* Subject  : */
+    pout(14, 0, (char *) Language(210));
+    sprintf(Msg.Subject, "%s", subj);
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
 
-	free(buf);
+    x = strlen(subj);
+    fflush(stdout);
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    GetstrP(subj, 50, x);
+    fflush(stdout);
+
+    if (strlen(subj))
+	strcpy(Msg.Subject, subj);
+
+    Msg.Private = TRUE;
+    Enter(1);
+
+//  Check_Attach();
+
+    /*
+     *  Quote original message now, format the original users
+     *  initials into qin. If its a name@system.dom the use the
+     *  first 8 characters of the name part.
+     */
+    sprintf(Message[1], "%s wrote to %s:", to, from);
+    memset(&qin, 0, sizeof(qin));
+    if (strchr(to, '@')) {
+	tmp = xstrcpy(strtok(to, "@"));
+	tmp[8] = '\0';
+	sprintf(qin, "%s", tmp);
 	free(tmp);
+    } else {
+	x = TRUE;
+	j = 0;
+	for (i = 0; i < strlen(to); i++) {
+	    if (x && isalpha(to[i])) {
+		qin[j] = to[i];
+		j++;
+		x = FALSE;
+	    }
+	    if (to[i] == ' ' || to[i] == '.')
+		x = TRUE;
+	    if (j == 6)
+		break;
+	}
+    }
 
-	if (Edit_Msg())
-		Save_Email(IsReply);
+    Line = 2;
+    tmp = calloc(128, sizeof(char));
+    buf = calloc(128, sizeof(char));
 
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		free(Message[i]);
+    sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    if ((qf = fopen(tmp, "r")) != NULL) {
+	while ((fgets(buf, 128, qf)) != NULL) {
+	    Striplf(buf);
+	    sprintf(Message[Line], "%s> %s", (char *)qin, buf);
+	    Line++;
+	    if (Line == TEXTBUFSIZE)
+		break;
+	}
+	fclose(qf);
+    } else
+	WriteError("$Can't read %s", tmp);
+
+    free(buf);
+    free(tmp);
+
+    if (Edit_Msg())
+	Save_Email(IsReply);
+
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	free(Message[i]);
 }
 
 
