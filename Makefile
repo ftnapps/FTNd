@@ -162,6 +162,10 @@ install:
 			mkdir ${PREFIX}/var/run ; \
 			${CHOWN}  ${OWNER}:${GROUP} ${PREFIX}/var/run ; \
 		fi
+		@if [ -d ${PREFIX}/var/inbound/tmp ]; then \
+			rmdir ${PREFIX}/var/inbound/tmp ; \
+			echo "Removed ${PREFIX}/var/inbound/tmp" ; \
+		fi
 		chmod 0770 ${PREFIX}/var/rules
 		chmod 0770 ${PREFIX}/var/run
 		@if [ ! -d ${PREFIX}/var/unknown ] ; then \

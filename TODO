@@ -110,6 +110,9 @@ mbcico:
 
 	N: Implement binkp resync when getting files. Transmit works.
 
+	N: FTS-0001 sessions always are secure, the password check is not
+	   good.
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 

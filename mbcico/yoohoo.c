@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -123,7 +123,7 @@ Hello gethello2(unsigned char[]);
 
 int rx_yoohoo(void)
 {
-    int		    rc;
+    int		    rc, protect = FALSE;
     unsigned short  capabilities,localcaps;
     char	    *pwd = NULL;
 
@@ -163,9 +163,6 @@ int rx_yoohoo(void)
 
 	if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
 	    Syslog('+', "Remote is a listed system");
-	    if (inbound)
-		free(inbound);
-	    inbound = xstrcpy(CFG.inbound);
 	    strncpy(history.location, nlent->location, 35);
 	    UserCity(mypid, nlent->sysop, nlent->location);
 	}
@@ -176,9 +173,7 @@ int rx_yoohoo(void)
 	    if ((strncasecmp((char*)hello2.my_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
 		(strlen((char*)hello2.my_password) == strlen(nodes.Spasswd))) {
 		Syslog('+', "Password correct, protected mail session");
-		if (inbound)
-		    free(inbound);
-		inbound = xstrcpy(CFG.pinbound);
+		protect = TRUE;
 		pwd = xstrcpy(nodes.Spasswd);
 	    } else {
 		if (pwd)
@@ -190,6 +185,8 @@ int rx_yoohoo(void)
 	} else
 	    Syslog('s', "No YooHoo password check");
 	
+	inbound_open(remote->addr, protect);
+
 	fillhello(localcaps,pwd);
 	
 	rc = txyoohoo();

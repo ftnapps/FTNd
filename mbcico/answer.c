@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - awnser a call
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -95,10 +95,6 @@ int answer(char *stype)
 
     c_start = time(NULL);
     rdoptions(FALSE);
-
-    if (inbound)
-	free(inbound);
-    inbound = xstrcpy(CFG.inbound); /* slave session is unsecure by default */
 
     if (stype == NULL) {
 	st=SESSION_UNKNOWN;

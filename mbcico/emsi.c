@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -48,6 +48,7 @@
 #include "rdoptions.h"
 #include "tcp.h"
 #include "wazoo.h"
+#include "inbound.h"
 
 
 #define LOCAL_PROTOS (PROT_ZMO | PROT_ZAP | PROT_HYD | PROT_TCP)
@@ -74,7 +75,7 @@ char	emsi_remote_comm[4]="8N1";
 
 int rx_emsi(char *data)
 {
-    int	    rc;
+    int	    rc, protect = FALSE;
     fa_list *tmr;
     int	    denypw=0;
 
@@ -135,9 +136,6 @@ int rx_emsi(char *data)
     for (tmr = remote; tmr; tmr = tmr->next)
 	if (((nlent = getnlent(tmr->addr))) && (nlent->pflag != NL_DUMMY)) {
 	    Syslog('+', "Remote is a listed system");
-	    if (inbound)
-		free(inbound);
-	    inbound = xstrcpy(CFG.inbound);
 	    UserCity(mypid, nlent->sysop, nlent->location);
 	    break;
 	}
@@ -162,9 +160,7 @@ int rx_emsi(char *data)
 	if ((strncasecmp(emsi_remote_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
 	    (strlen(emsi_remote_password) == strlen(nodes.Spasswd))) {
 	    emsi_local_password = xstrcpy(nodes.Spasswd);
-	    if (inbound)
-		free(inbound);
-	    inbound = xstrcpy(CFG.pinbound);
+	    protect = TRUE;
 	    Syslog('+', "Password correct, protected EMSI session");
 	} else {
 	    denypw = 1;
@@ -177,6 +173,7 @@ int rx_emsi(char *data)
 	Syslog('?', "Unexpected remote password \"%s\"", MBSE_SS(emsi_local_password));
     }
 
+    inbound_open(remote->addr, protect);
     Syslog('i', "local  lcodes 0x%04x, protos 0x%04x, opts 0x%04x", emsi_local_lcodes,emsi_local_protos,emsi_local_opts);
 
     if ((rc=txemsi())) 

@@ -1,5 +1,12 @@
 $Id$
 
+	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
+
+	Inbound file handling is changed, this version is under test and should NOT
+	be used on production systems
+
+	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
+
 	WARNING, users of Sparc and HP-PA systems should be carefull, some
 	menus do not work.
 	All other users on Intel machines (99,9% I think) can use this version.
@@ -11,6 +18,16 @@ v0.37.6		10-Aug-2003
 		Changed the address of the FSF in all sources.
 		Removed memwatch debugger.
 		Changed all gif and jpg images to png images.
+
+	mbcico:
+		Completly changed the files inbound receive, all files are now
+		first stored in a unique per node temporary inbound directory.
+		Only after a successfull session all received files are moved
+		to the final inbound directory. Hopefully this will solve the
+		resync problems.
+		The other goodie is that this is more safe on busy multiline
+		systems.
+		Fixed the binkp escape sequence which is wrong in the FSP.
 
 
 v0.37.5		12-Jul-2003 - 10-Aug-2003

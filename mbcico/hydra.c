@@ -5,7 +5,7 @@
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -1417,7 +1417,7 @@ int hydra_batch(int role, file_list *to_send)
 	
 					if (rxpos >= 0) {
 						rxfp = NULL;
-						if (!closefile(1)) {
+						if (!closefile()) {
 							srxpos = rxpos - srxpos;
 
 							Syslog('+', "Hydra: OK %s", 
@@ -1439,7 +1439,7 @@ int hydra_batch(int role, file_list *to_send)
 						rxendtime.tv_sec - rxstarttime.tv_sec);
 
 						if (rxfp) {
-							closefile(0);
+							closefile();
 							rxfp = NULL;
 						}
 
@@ -1447,7 +1447,7 @@ int hydra_batch(int role, file_list *to_send)
 					}
 				} else if (longnum == -2) {
 					if (rxfp) {
-						closefile(0);
+						closefile();
 						rxfp = NULL;
 					}
 
@@ -1577,7 +1577,7 @@ int hydra_batch(int role, file_list *to_send)
 		/* check if file is still open */
 		if (rxfp) {
 			rxfp = NULL;
-			closefile(0);
+			closefile();
 		}
 
 		Syslog('+', "Hydra: signal CAN to remote");

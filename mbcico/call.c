@@ -48,6 +48,8 @@
 #include "openport.h"
 #include "opentcp.h"
 #include "rdoptions.h"
+#include "inbound.h"
+
 
 
 extern int		tcp_mode;
@@ -205,16 +207,13 @@ int call(faddr *addr)
 	Syslog('?', "Warning: calling non-CM system outside ZMH");
     }
 
-    if (inbound)
-	free(inbound);
-    inbound = xstrcpy(CFG.pinbound); /* master sessions are secure */
+    inbound_open(addr, TRUE);	/* master sessions are secure */
 
     /*
      * Call when:
      *  there is a phone number and node is not down, hold or pvt
      *    or
      *  there is a fqdn/ip-address and node is not down or hold
-     *
      *      and
      *  nocall is false
      */

@@ -44,6 +44,7 @@ static time_t	intime;
 static int	isfreq;
 char		*freqname=NULL;
 int		gotfiles = FALSE;
+extern char	*tempinbound;
 
 
 /*
@@ -57,227 +58,166 @@ int		gotfiles = FALSE;
  */
 FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*resync)(off_t))
 {
-	char		*opentype;
-	char		*p, x;
-	char		ctt[32];
-	int		rc, ncount;
-	struct stat	st;
-	struct flock	fl;
-	char		tmpfname[16];
+    char	    *opentype, *p, x, ctt[32], tmpfname[16];
+    int		    rc, ncount;
+    struct stat	    st;
 
-	fl.l_type   = F_WRLCK;
-	fl.l_whence = 0;
-	fl.l_start  = 0L;
-	fl.l_len    = 0L;
-	strcpy(ctt,date(remtime));
+    strcpy(ctt,date(remtime));
 
-	Syslog('S', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt),(unsigned long)remsize);
+    Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt),(unsigned long)remsize);
 
-	if ((fname == NULL) || (fname[0] == '\0')) {
-		sprintf(tmpfname,"%08lx.pkt",(unsigned long)sequencer());
-		fname=tmpfname;
+    if ((fname == NULL) || (fname[0] == '\0')) {
+	sprintf(tmpfname,"%08lx.pkt",(unsigned long)sequencer());
+	fname=tmpfname;
+    }
+
+    if ((strlen(fname) == 12) && (strspn(fname,"0123456789abcdefABCDEF") == 8) && (strcasecmp(fname+8,".req") == 0)) {
+	Syslog('s', "Received wazoo freq file");
+	isfreq = TRUE;
+    } else 
+	isfreq = FALSE;
+
+    /*
+     * First check if the file is already in the inbound directory.
+     * If it's there, resoffs will be set equal to remsize to signal the
+     * receiving protocol to skip the file.
+     */
+    infpath = xstrcpy(tempinbound);
+    infpath = xstrcat(infpath, (char *)"/");
+    infpath = xstrcat(infpath, fname);
+    if (stat(infpath, &st) == 0) {
+	/* FIXME: temp normal logging now! */
+	Syslog('-', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
+
+	if ((remtime == st.st_mtime) && (remsize == st.st_size)) {
+	    Syslog('+', "File %s is already here", fname);
+	    *resofs = st.st_size;
+	    free(infpath);
+	    infpath = NULL;
+	    return NULL;
+	} 
+    }
+
+    /*
+     * If the file is in the inbound with a zero length, erase the
+     * file as if it wasn't there at all.
+     */
+    if (((rc = stat(infpath, &st)) == 0) && (st.st_size == 0)) {
+	Syslog('+', "Zero bytes file in the inbound, unlinking");
+	unlink(infpath);
+    }
+
+    /*
+     * If the file is not already in the inbound, but there is a file
+     * with the same name, the new file will be renamed if the file
+     * has another timestamp as the file we expect.
+     *
+     * Renaming algorythm is as follows: start with the present name,
+     * increase the last character of the file name, jumping from 
+     * '9' to 'a', from 'z' to 'A', from 'Z' to '0'. If _all_ these 
+     * names are occupied, create random name.
+     */
+    p = infpath + strlen(infpath) -1;
+    x = *p;
+    ncount = 0;
+    while (((rc = stat(infpath, &st)) == 0) && (remtime != st.st_mtime) && (ncount++ < 62)) {
+	if (x == '9') 
+	    x = 'a';
+	else if (x == 'z') 
+	    x = 'A';
+	else if (x == 'Z') 
+	    x = '0';
+	else 
+	    x++;
+	*p = x;
+    }
+
+    if (ncount >= 62) { /* names exhausted */
+	rc = 1;
+	p = strrchr(infpath,'/');
+	*p = '\0';
+	sprintf(ctt,"%08lx.doe",(unsigned long)sequencer());
+	free(infpath);
+	infpath = xstrcpy(p);
+	infpath = xstrcat(infpath, ctt);
+    }
+    if (ncount)
+	Syslog('s', "File renamed to %s", infpath);
+    
+    *resofs = 0L;
+    opentype = (char *)"w";
+    if ((rc == 0) && (remsize != 0)) {
+	Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned long)st.st_size, infpath);
+	if (resync(st.st_size) == 0) {
+	    opentype = (char *)"a";
+	    *resofs = st.st_size;
+	    Syslog('s', "resync == 0");
+	} else {
+	    Syslog('s', "resync != 0");
 	}
+    }
+    Syslog('s', "try fopen(\"%s\",\"%s\")", infpath, opentype);
 
-	if ((strlen(fname) == 12) && (strspn(fname,"0123456789abcdefABCDEF") == 8) && (strcasecmp(fname+8,".req") == 0)) {
-		Syslog('s', "Received wazoo freq file");
-		isfreq = TRUE;
-	} else 
-		isfreq = FALSE;
+    if ((infp = fopen(infpath, opentype)) == NULL) {
+	WriteError("$Cannot open local file \"%s\" for \"%s\"", infpath,opentype);
+	free(infpath);
+	infpath=NULL;
+	return NULL;
+    }
+    intime = remtime;
 
-	/*
-	 * First check if the file is already in the real inbound directory.
-	 * If it's there, resoffs will be set equal to remsize to signal the
-	 * receiving protocol to skip the file.
-	 */
-	if (infpath)
-		free(infpath);
-	infpath = xstrcpy(inbound);
-	infpath = xstrcat(infpath, (char *)"/");
-	infpath = xstrcat(infpath, fname);
-	if (stat(infpath, &st) == 0) {
-		/* FIXME: temp normal logging now! */
-		Syslog('-', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
+    if (isfreq) {
+	if (freqname) 
+	    free(freqname);
+	freqname = xstrcpy(infpath);
+    }
 
-		if ((remtime == st.st_mtime) && (remsize == st.st_size)) {
-			Syslog('+', "File %s is already here", fname);
-			*resofs = st.st_size;
-			free(infpath);
-			infpath = NULL;
-			return NULL;
-		} 
-	}
-
-	/*
-	 * If the file is not already in the inbound, but there is a file
-	 * with the same name, the new file will be renamed.
-	 *
-	 * If the file is 0 bytes, erase it so it can be received again.
-	 *
-	 * Renaming algorythm is as follows: start with the present name,
-	 * increase the last character of the file name, jumping from 
-	 * '9' to 'a', from 'z' to 'A', from 'Z' to '0'. If _all_ these 
-	 * names are occupied, create random name.
-	 */
-	if (infpath)
-		free(infpath);
-	infpath = xstrcpy(inbound);
-	infpath = xstrcat(infpath, (char *)"/tmp/");
-	infpath = xstrcat(infpath, fname);
-
-	if (((rc = stat(infpath, &st)) == 0) && (st.st_size == 0)) {
-		Syslog('+', "Zero bytes file in the inbound, unlinking");
-		unlink(infpath);
-	}
-
-	p = infpath + strlen(infpath) -1;
-	x = *p;
-	ncount = 0;
-	while (((rc = stat(infpath, &st)) == 0) && (remtime != st.st_mtime) && (ncount++ < 62)) {
-		if (x == '9') 
-			x = 'a';
-		else if (x == 'z') 
-			x = 'A';
-		else if (x == 'Z') 
-			x = '0';
-		else 
-			x++;
-		*p = x;
-	}
-
-	if (ncount >= 62) { /* names exhausted */
-		rc = 1;
-		p = strrchr(infpath,'/');
-		*p = '\0';
-		sprintf(ctt,"%08lx.doe",(unsigned long)sequencer());
-		free(infpath);
-		infpath = xstrcpy(p);
-		infpath = xstrcat(infpath, ctt);
-	}
-
-	*resofs = 0L;
-	opentype = (char *)"w";
-	if ((rc == 0) && (remsize != 0)) {
-		Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned long)st.st_size, infpath);
-		if (resync(st.st_size) == 0) {
-			opentype = (char *)"a";
-			*resofs = st.st_size;
-		}
-	}
-
-	Syslog('S', "try fopen(\"%s\",\"%s\")",infpath,opentype);
-
-	/*
-	 * If first attempt doesn't succeed, create tmp directory
-	 * and try again.
-	 */
-	if ((infp = fopen(infpath,opentype)) == NULL) {
-		mkdirs(infpath, 0770);
-		if ((infp = fopen(infpath, opentype)) == NULL) {
-			WriteError("$Cannot open local file \"%s\" for \"%s\"", infpath,opentype);
-			free(infpath);
-			infpath=NULL;
-			return NULL;
-		}
-	}
-
-	fl.l_pid = getpid();
-	if (fcntl(fileno(infp),F_SETLK,&fl) != 0) {
-		Syslog('+', "$cannot lock local file \"%s\"",infpath);
-		fclose(infp);
-		infp = NULL;
-		free(infpath);
-		infpath = NULL;
-		return NULL;
-	}
-	intime=remtime;
-
-	if (isfreq) {
-		if (freqname) 
-			free(freqname);
-		freqname = xstrcpy(infpath);
-	}
-
-	Syslog('S', "opened file \"%s\" for \"%s\", restart at %lu", infpath,opentype,(unsigned long)*resofs);
-	return infp;
+    Syslog('s', "opened file \"%s\" for \"%s\", restart at %lu", infpath,opentype,(unsigned long)*resofs);
+    return infp;
 }
 
 
 
 /*
- *  close file and if (success) { move it to the final location }
+ *  close file, even if the file is partial received, we set the date on the
+ *  file so that in a next session we know we must append to that file instead of
+ *  trying to get the file again.
  */
-int closefile(int success)
+int closefile(void)
 {
-	char		*newpath, *p, ctt[32];
-	int		rc=0,ncount;
-	char		x;
-	struct stat	st;
-	struct		utimbuf ut;
+    int		    rc = 0;
+    struct utimbuf  ut;
 
-	Syslog('S', "closefile(%d), for file \"%s\"",success, MBSE_SS(infpath));
+    Syslog('s', "closefile(), for file \"%s\"", MBSE_SS(infpath));
 
-	if ((infp == NULL) || (infpath == NULL)) {
-		WriteError("Internal error: try close unopened file!");
-		return 1;
+    if ((infp == NULL) || (infpath == NULL)) {
+	Syslog('+', "closefile(), nothing to close");
+	return 1;
+    }
+
+    rc = fclose(infp);
+    infp = NULL;
+
+    if (rc == 0) {
+	ut.actime = intime;
+	ut.modtime = intime;
+	if ((rc = utime(infpath,&ut)))
+	    WriteError("$utime failed");
+    }
+
+    if (isfreq) {
+	if (rc != 0) {
+	    Syslog('+', "Removing unsuccessfuly received wazoo freq");
+	    unlink(freqname);
+	    free(freqname);
+	    freqname=NULL;
 	}
-
-	rc = fclose(infp);
-	infp = NULL;
-
-	if (rc == 0) {
-		ut.actime = intime;
-		ut.modtime = intime;
-		if ((rc = utime(infpath,&ut)))
-			WriteError("$utime failed");
-	}
-
-	if (isfreq) {
-		if ((rc != 0) || (!success)) {
-			Syslog('+', "Removing unsuccessfuly received wazoo freq");
-			unlink(freqname);
-			free(freqname);
-			freqname=NULL;
-		}
-		isfreq = FALSE;
-	} else if ((rc == 0) && success) {
-		newpath = xstrcpy(inbound);
-		newpath = xstrcat(newpath, strrchr(infpath,'/'));
-		
-		p = newpath + strlen(newpath) - 1;
-		x = *p;
-		ncount = 0;
-		while (((rc = stat(newpath, &st)) == 0) && (ncount++ < 62)) {
-			if (x == '9') 
-				x = 'a';
-			else if (x == 'z') 
-				x = 'A';
-			else if (x == 'Z') 
-				x = '0';
-			else 
-				x++;
-			*p = x;
-		}
-		if (ncount >= 62) { /* names exhausted */
-			rc = 1;
-			p = strrchr(newpath,'/');
-			*p = '\0';
-			sprintf(ctt,"%08lx.doe",(unsigned long)sequencer());
-			free(newpath);
-			newpath = xstrcpy(p);
-			newpath = xstrcat(newpath, ctt);
-		}
-
-		Syslog('S', "moving \"%s\" -> \"%s\"", MBSE_SS(infpath), MBSE_SS(newpath));
-		rc = rename(infpath, newpath);
-		if (rc) 
-			WriteError("$error renaming \"%s\" -> \"%s\"", MBSE_SS(infpath),MBSE_SS(newpath));
-		else
-			gotfiles = TRUE;
-		free(newpath);
-	}
-	free(infpath);
-	infpath = NULL;
-	return rc;
+	isfreq = FALSE;
+    } 
+	
+    free(infpath);
+    infpath = NULL;
+    return rc;
 }
 
 

@@ -438,7 +438,7 @@ int closeit(int success)
 {
 	int rc;
 
-	rc = closefile(success);
+	rc = closefile();
 	fout = NULL;
 	sbytes = rxbytes - sbytes;
 	gettimeofday(&endtime, &tz);

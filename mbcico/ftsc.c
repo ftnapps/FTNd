@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -49,7 +49,7 @@
 #include "respfreq.h"
 #include "xmrecv.h"
 #include "xmsend.h"
-
+#include "inbound.h"
 
 
 extern int		master;
@@ -375,7 +375,7 @@ SM_NAMES
     (char *)"scan_packet",
     (char *)"recv_file"
 SM_EDECL
-    int	    rc=0;
+    int	    rc = 0, protect = FALSE;
     char    recvpktname[16];
     char    *fpath;
     FILE    *fp;
@@ -402,9 +402,15 @@ SM_STATE(recv_packet)
 
 SM_STATE(scan_packet)
 
+    /*
+     * We cannot use the temp inbound per node yet, FTS-0001 does it's
+     * handshake by sending us a .pkt file, we store this in the old
+     * style ../tmp/ dir in the unprotected inbound.
+     */
     fpath = xstrcpy(inbound);
     fpath = xstrcat(fpath,(char *)"/");
     fpath = xstrcat(fpath,recvpktname);
+    mkdirs(fpath, 0700);
     fp = fopen(fpath,"r");
     free(fpath);
     if (fp == NULL) {
@@ -444,9 +450,6 @@ SM_STATE(scan_packet)
 	
 		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
 		    Syslog('+', "remote is a listed system");
-		    if (inbound)
-			free(inbound);
-		    inbound = xstrcpy(CFG.inbound);
 		    strncpy(history.system_name, nlent->name, 35);
 		    strncpy(history.location, nlent->location, 35);
 		    strncpy(history.sysop, nlent->sysop, 35);
@@ -467,11 +470,10 @@ SM_STATE(scan_packet)
 		 */
 		if (f.name) {
 		    Syslog('+', "Password correct, protected FTS-0001 session");
-		    if (inbound)
-			free(inbound);
-		    inbound = xstrcpy(CFG.pinbound);
+		    protect = TRUE;
 		}
-
+		inbound_open(remote->addr, protect);
+		
 		tosend = create_filelist(remote,(char *)ALL_MAIL,1);
 		if (rc == 0) {
 		    SM_PROCEED(recv_file);

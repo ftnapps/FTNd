@@ -69,6 +69,7 @@ int		Loaded = FALSE;
 
 extern char	*myname;
 char		*inbound;
+char		*tempinbound = NULL;
 char		*uxoutbound;
 char		*name;
 char		*phone;
@@ -335,11 +336,6 @@ int main(int argc, char *argv[])
     seteuid(uid);
 
     umask(066);	/* packets may contain confidential information */
-
-    p = xstrcpy(inbound);
-    p = xstrcat(p,(char *)"/tmp/fooinb");
-    mkdirs(p, 0700);
-    free(p);
 
     maxrc=0;
     if (master) {

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -99,7 +99,7 @@ int closeit(int success)
 	    Syslog('+', "Xmodem: dropped after %ld bytes", endofs-startofs);
 	rcvdbytes += (unsigned long)(endofs-startofs);
 	fp = NULL;
-	return closefile(success);
+	return closefile();
 }
 
 

@@ -53,6 +53,7 @@
 #include "binkp.h"
 #include "config.h"
 #include "md5b.h"
+#include "inbound.h"
 
 
 /*
@@ -246,7 +247,7 @@ char *unix2binkp(char *fn)
 	    *q++ = *p; 
 	    *q = '\0';
 	} else {
-	    sprintf(q, "\\%2x", p[0]);
+	    sprintf(q, "\\x%2x", p[0]);
 	}
 	while (*q)
 	    q++;
@@ -283,7 +284,8 @@ char *binkp2unix(char *fn)
 		*q = '\0';
 	    } else {
 		/*
-		 * If remote sends \x0a method instead of \0a, eat the x character
+		 * If remote sends \x0a method instead of \0a, eat the x character.
+		 * Remotes should send the x character, But some (Argus) don't.
 		 */
 		if ((*p == 'x') || (*p == 'X'))
 		    p++;
@@ -847,9 +849,6 @@ SM_STATE(waitaddr)
 		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 		    if (((nlent = getnlent(tmpa->addr))) && (nlent->pflag != NL_DUMMY)) {
 			Syslog('+', "Binkp: remote is a listed system");
-			if (inbound)
-			    free(inbound);
-			inbound = xstrcpy(CFG.inbound);
 			UserCity(mypid, nlent->sysop, nlent->location);
 			break;
 		    }
@@ -913,6 +912,7 @@ SM_STATE(waitpwd)
 
 SM_STATE(pwdack)
 
+    tmpa = remote;
     if ((strncmp(&rbuf[1], "CRAM-", 5) == 0) && CRAMflag && Loaded) {
 	char	*sp, *pw;
 	pw = xstrcpy(nodes.Spasswd);
@@ -929,9 +929,7 @@ SM_STATE(pwdack)
 		free(sp);
 		sp = NULL;
 		Syslog('+', "Binkp: MD5 password OK, protected session");
-		if (inbound)
-		    free(inbound);
-		inbound = xstrcpy(CFG.pinbound);
+		inbound_open(tmpa->addr, TRUE);
 		binkp_send_control(MM_OK, "secure");
 		SM_SUCCESS;
 	    }
@@ -942,17 +940,17 @@ SM_STATE(pwdack)
 	}
     } else if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
 	Syslog('+', "Binkp: node not in setup, unprotected session");
+	inbound_open(tmpa->addr, FALSE);
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;
     } else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Spasswd)) {
 	Syslog('+', "Binkp: node in setup but no session password, unprotected session");
+	inbound_open(tmpa->addr, FALSE);
 	binkp_send_control(MM_OK, "");
 	SM_SUCCESS;
     } else if ((strcmp(&rbuf[1], nodes.Spasswd) == 0) && Loaded) {
 	Syslog('+', "Binkp: password OK, protected session");
-	if (inbound)
-	    free(inbound);
-	inbound = xstrcpy(CFG.pinbound);
+	inbound_open(tmpa->addr, TRUE);
 	binkp_send_control(MM_OK, "secure");
 	SM_SUCCESS;
     } else {
@@ -1364,7 +1362,7 @@ int binkp_batch(file_list *to_send, int role)
 				rxcrc = rxcrc ^ 0xffffffff;
 				if (rcrc == rxcrc) {
 				    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
-				    closefile(TRUE);
+				    closefile();
 				} else {
 				    rxerror = TRUE;
 				    crc_errors++;
@@ -1376,14 +1374,14 @@ int binkp_batch(file_list *to_send, int role)
 					RxState = RxDone;
 					rc = MBERR_FTRANSFER;
 				    }
-				    closefile(FALSE);
+				    closefile();
 				}
 			    } else {
 				/*
 				 * ACK without CRC check
 				 */
 				binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
-				closefile(TRUE);
+				closefile();
 			    }
 			    rxpos = rxpos - rxbytes;
 			    gettimeofday(&rxtvend, &tz);
@@ -1504,6 +1502,15 @@ int binkp_batch(file_list *to_send, int role)
     free(rname);
     free(lname);
     free(gname);
+
+    /*
+     * If there was an error, try to close a possible incomplete file in
+     * the temp inbound so we can resume the next time we have a session
+     * with this node.
+     */
+    if (rc)
+	closefile();
+
     Syslog('+', "Binkp: batch %d completed rc=%d", batchnr, rc);
     return rc;
 }

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -46,6 +46,7 @@
 #include "mbcico.h"
 #include "binkp.h"
 #include "callstat.h"
+#include "inbound.h"
 
 
 extern	int	tcp_mode;
@@ -192,6 +193,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	if (nlent->addr.domain)
 		free(nlent->addr.domain);
 
+	inbound_close(rc == 0);
 	return rc;
 }
 
