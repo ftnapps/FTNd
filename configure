@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER MAKE AWK INSTALL SET_MAKE RANLIB ac_ct_RANLIB TAR ZIP CHOWN CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT LOG_COMPRESS LOG_COMPRESSEXT joebin joelib LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS SUBDIRS PACKAGE MAJOR MINOR REVISION COPYRIGHT GROUP OWNER VERSION MAKE AWK INSTALL SET_MAKE RANLIB ac_ct_RANLIB TAR ZIP CHOWN CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP LIBOBJS COMPRESS GZIP ARC NOMARCH ARJ UNARJ LHA RAR UNRAR UNZIP ZOO HA ANTIVIR FPROT UVSCAN RB SB RZ SZ GOLDEDBIN GOLDNODE CONVERT LOG_COMPRESS LOG_COMPRESSEXT joebin joelib LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1305,6 +1305,7 @@ _ACEOF
 cat >>confdefs.h <<_ACEOF
 #define SHORTRIGHT "$SHORTRIGHT"
 _ACEOF
+
 
 TARGET="$target"
 
@@ -9321,6 +9322,7 @@ s,@REVISION@,$REVISION,;t t
 s,@COPYRIGHT@,$COPYRIGHT,;t t
 s,@GROUP@,$GROUP,;t t
 s,@OWNER@,$OWNER,;t t
+s,@VERSION@,$VERSION,;t t
 s,@MAKE@,$MAKE,;t t
 s,@AWK@,$AWK,;t t
 s,@INSTALL@,$INSTALL,;t t
