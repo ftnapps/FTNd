@@ -27,7 +27,7 @@ H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/go_to.png    images/nodelist3.png    images/tty2.png \
 		  images/hatch.png    images/nodelist4.png    images/tty3.png \
 		  images/language.png images/nodelist5.png    images/uarrow.png \
-		  images/larrow.png   images/users.png \
+		  images/larrow.png   images/users.png        images/doors2.png \
 		  images/mbse.png     images/taskmgr.png      images/mbsebbs-s.png \
 		  images/mbsebbs.png  images/users2.png       images/hand.up.png \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
