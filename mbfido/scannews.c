@@ -352,8 +352,9 @@ int get_article(char *msgid, char *ftntag)
 				}
 				while (done == FALSE) {
 					resp = nntp_receive();
-					fprintf(dp, resp);
+					fwrite(resp, strlen(resp), 1, dp);
 					fprintf(dp, "\n");
+					fflush(dp);
 					if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
 						done = TRUE;
 					} else {
