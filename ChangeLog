@@ -3,8 +3,7 @@ $Id$
 	WARNING: This code contains unfinished changes, if you use the bbs
 		 then do not use this version.
 		 This code also contains changes in the hydra code, this
-		 should be safe to use because the code is disabled for
-		 endusers.
+		 is under test.
 
 
 v0.39.0		09-Oct-2003
@@ -26,8 +25,10 @@ v0.39.0		09-Oct-2003
 		used password for the menu (Was only present in the setup).
 
 	mbcico:
-		Started adding code for zlib compression of hydra packets.
-		Not functional yet and disabled by configure.
+		Added Hydra zlib compressed data blocks using the idea of Alex
+		Shakhaylo. This is experimental and looks compatible with
+		mailers that don't support this option. The compression will
+		transfer some files about twice as fast as without compression.
 
 	lang:
 		Added language prompt 20.

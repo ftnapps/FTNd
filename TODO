@@ -123,8 +123,6 @@ mbcico:
 
 	U: Fix binkp file resume when mbcico silently dies.
 
-	N: Add zlib compression to Hydra (Alex Shakhaylo).
-
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 

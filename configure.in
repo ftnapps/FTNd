@@ -126,7 +126,7 @@ fi
 AC_CHECK_LIB(z,compress,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
-  dnl AC_CHECK_HEADERS(zlib.h)
+  AC_CHECK_HEADERS(zlib.h)
 fi
 
 dnl Checks for header files.
