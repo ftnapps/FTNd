@@ -322,7 +322,8 @@ void check_ping(void)
 	case P_WAIT:	// tasklog('p', "WAIT:");
 			if (time(NULL) >= pingtime) {
 			    pingstate = P_ERROR;
-			    tasklog('p', "timeout");
+			    if (icmp_errs < ICMP_MAX_ERRS)
+				tasklog('?', "ping: to %s timeout", pingaddress);
 			} else {
 			    /*
 			     * Quickly eat all packets not for us, we only want our
@@ -333,7 +334,9 @@ void check_ping(void)
 				/*
 				 * Reply received.
 				 */
-				tasklog('p', "Reply after %d", time(NULL) - (pingtime - 20));
+				rc = time(NULL) - (pingtime - 20);
+				if (rc != 1)
+				    tasklog('p', "ping: reply after %d seconds", rc);
 				pingresult[pingnr] = TRUE;
 				if (pingresult[1] || pingresult[2]) {
 				    if (!internet) {
@@ -356,7 +359,7 @@ void check_ping(void)
 			}
 			break;
 			
-	case P_SENT:	tasklog('p', "SENT:");
+	case P_SENT:	// tasklog('p', "SENT:");
 			pingtime = time(NULL) + 10;	// 10 secs timeout for pause.
 			if (pingnr == 1) {
 			    pingnr = 2;
@@ -378,7 +381,7 @@ void check_ping(void)
 			    }
 			}
 			pingtime = time(NULL) + 20;	// 20 secs timeout for a real ping
-			tasklog('p', "nr %d address %s", pingnr, pingaddress);
+			// tasklog('p', "nr %d address %s", pingnr, pingaddress);
 			if (inet_aton(pingaddress, &paddr)) {
 			    rc = ping_send(paddr);
 			    if (rc) {
@@ -396,7 +399,7 @@ void check_ping(void)
 			}
 			break;
 			
-	case P_ERROR:	tasklog('p', "ERROR:");
+	case P_ERROR:	// tasklog('p', "ERROR:");
 			pingresult[pingnr] = FALSE;
 			if (pingresult[1] == FALSE && pingresult[2] == FALSE) {
 			    icmp_errs++;
