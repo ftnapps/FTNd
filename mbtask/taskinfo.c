@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/taskinfo.c
  * Purpose ...............: Give system information
- * Last modification date : 24-May-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -92,7 +92,7 @@ char *get_lastcallercount(void)
 char *get_lastcallerrec(int Rec)
 {
 	static char		buf[SS_BUFSIZE];
-	char                    *temp, action[8];
+	char                    *temp, action[9];
 	FILE                    *fp;
 	struct lastcallershdr   LCALLhdr;
 	struct lastcallers      LCALL;
@@ -110,7 +110,7 @@ char *get_lastcallerrec(int Rec)
 	if (fread(&LCALL, LCALLhdr.recsize, 1, fp) == 1) {
 		LCALL.UserName[15] = '\0';
 		LCALL.Location[12] = '\0';
-		strcpy(action, "-------");
+		strcpy(action, "--------");
 		if (LCALL.Hidden)
 			action[0] = 'H';
 		if (LCALL.Download)
@@ -120,12 +120,14 @@ char *get_lastcallerrec(int Rec)
 		if (LCALL.Read)
 			action[3] = 'R';
 		if (LCALL.Wrote)
-			action[4] = 'W';
+			action[4] = 'P';
 		if (LCALL.Chat)
 			action[5] = 'C';
 		if (LCALL.Olr)
 			action[6] = 'O';
-		action[7] = '\0';
+		if (LCALL.Door)
+			action[7] = 'E';
+		action[8] = '\0';
 		sprintf(buf, "100:9,%s,%s,%d,%s,%s,%d,%d,%s,%s;", LCALL.UserName, LCALL.Location,
 			LCALL.SecLevel, LCALL.Device, LCALL.TimeOn, 
 			LCALL.CallTime, LCALL.Calls, LCALL.Speed, action);
