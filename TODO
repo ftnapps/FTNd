@@ -35,9 +35,6 @@ mbsebbs:
 
 	L: E-mail downloads with e-mail verification.
 
-	N: When a file is attached with netmail that doesn't exist the user
-	   doesn't see an error message.
-
 	N: OLR, implement file requests.
 
 mbfido:
@@ -84,13 +81,9 @@ mbfido:
 	N: Make ik possible to only virus scan the complete archives.
 
 	N: Force processing of arealists so that all tags are forced to
-	   uppercase.
+	   uppercase. Seems to give problems in some nets.
 
 mbcico:
-	L: Implement modem connect response translation for ISDN lines, i.e.
-	   make the CAUSE responses human readable. see McMail for this 
-	   option. Info received that this may be done using mgetty logs.
-
 	N: Implement MD5 crypt in binkp protocol driver.
 
 	N: Doesn't poll internet nodes with non-standard ports when the
@@ -98,6 +91,8 @@ mbcico:
 
 	N: See if it is possible with binkp protocol to resume aborted
 	   transfers.
+
+	N: Implement binkp resync when getting files. Transmit works.
 
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
