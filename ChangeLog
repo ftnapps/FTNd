@@ -4647,6 +4647,11 @@ v0.33.20        10-Feb-2002
 		the outgoing ticfile. For most files nothing is changed.
 		AreaMgr and FileMgr netmails are now split into more netmails
 		when the become too large.
+		When a downlink requests an echomail area which is not yet 
+		available, and there is a areas file for some uplink, the area
+		is automatic created and a areamgr request is sent to the 
+		uplink to connect that area. The area is created with the
+		defaults from the mailgroup.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
