@@ -126,7 +126,7 @@ fi
 AC_CHECK_LIB(z,compress2,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
-  AC_CHECK_HEADERS(zlib.h)
+  AC_CHECK_HEADERS(zlib.h,ZLIBSUP=Yes,ZLIBSUP=No)
 fi
 
 dnl Checks for header files.
@@ -285,6 +285,7 @@ AC_MSG_RESULT([
   Configuration summary :
 
     Version : ..................... ${VERSION}
+    Hydra zlib compression : ...... ${ZLIBSUP}
 ])
 
 if test x$ac_cv_c_compiler_gnu = xyes ; then

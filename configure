@@ -4461,7 +4461,9 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
   cat >>confdefs.h <<_ACEOF
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
-
+ ZLIBSUP=Yes
+else
+  ZLIBSUP=No
 fi
 
 done
@@ -10098,6 +10100,7 @@ echo "$as_me:$LINENO: result:
   Configuration summary :
 
     Version : ..................... ${VERSION}
+    Hydra zlib compression : ...... ${ZLIBSUP}
 " >&5
 echo "${ECHO_T}
 -=-=-=-=-=-=-=-=-=-= Configuration Complete =-=-=-=-=-=-=-=-=-=-
@@ -10105,6 +10108,7 @@ echo "${ECHO_T}
   Configuration summary :
 
     Version : ..................... ${VERSION}
+    Hydra zlib compression : ...... ${ZLIBSUP}
 " >&6
 
 if test x$ac_cv_c_compiler_gnu = xyes ; then

@@ -6,6 +6,8 @@ v0.39.1		22-Oct-2003
 	general:
 		Make dist now creates bzip2 archives.
 		Two html pages are now under control of configure.
+		The configure scripts shows the use of zlib compression for
+		Hydra.
 
 	upgrade:
 		If you don't have any personal archivers, then remove 
