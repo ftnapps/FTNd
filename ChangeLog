@@ -57,6 +57,7 @@ v0.61.4		11-Aug-2004
 		created to the LFN. Depending on the settings of your apache
 		server you would see the thumbnails or not.
 		The check for wrong thumbnails changed from LFN to 8.3 names.
+		Changed to use the new files database location.
 
 	mbindex:
 		Fixed compiling pointlists where on the Boss line there is no

@@ -357,7 +357,7 @@ int CheckFDB(int Area, char *Path)
     int	    rc = FALSE;
 
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 
     /*
      * Open the file database, create new one if it doesn't excist.
@@ -388,7 +388,7 @@ int CheckFDB(int Area, char *Path)
      */
     if (access(Path, W_OK) == -1) {
 	sprintf(temp, "%s/foobar", Path);
-	if (mkdirs(temp, 0755))
+	if (mkdirs(temp, 0775))
 	    Syslog('+', "Created directory %s", Path);
     }
 

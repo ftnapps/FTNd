@@ -368,7 +368,7 @@ int EditFileRec(int Area)
 		case 6:	E_STR( 11,16,64, area.FilesBbs,  "The path and name of \"files.bbs\" if area is on CDROM")
 		case 7:	Available = edit_bool(12, 16, area.Available, (char *)"Is this area ^available^");
 			temp = calloc(PATH_MAX, sizeof(char));
-			sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+			sprintf(temp, "%s/var/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 			if (area.Available && !Available) {
 			    /*
 			     * Attempt to disable this area, but check first.
@@ -579,8 +579,8 @@ void EditFilearea(void)
 				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
-				sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
-				sprintf(new,  "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
+				sprintf(temp, "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), from);
+				sprintf(new,  "%s/var/fdb/file%ld.data", getenv("MBSE_ROOT"), too);
 				rename(temp, new);
 
 				/*
