@@ -91,9 +91,9 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbfile  ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbmsg   ${BINDIR}
 		rm -f ${BINDIR}/mbmail
-		ln -s ${BINDIR}/mbfido ${BINDIR}/mbmail
+		${LN_S}  ${BINDIR}/mbfido ${BINDIR}/mbmail
 		rm -f ${BINDIR}/mbnews
-		ln -s ${BINDIR}/mbfido ${BINDIR}/mbnews
+		${LN_S}  ${BINDIR}/mbfido ${BINDIR}/mbnews
 
 filelist:	Makefile
 		BASE=`pwd`; \

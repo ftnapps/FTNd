@@ -182,9 +182,6 @@
 /* Define if you have the <utmpx.h> header file.  */
 #undef HAVE_UTMPX_H
 
-/* Define if you have the utmp.ut_id strcuture member */
-#undef HAVE_STRUCT_UTMP_UT_ID
-
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
 

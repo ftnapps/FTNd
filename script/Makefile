@@ -57,10 +57,10 @@ install:
 			echo "Installing support for joe editor" ; \
 			rm -f ${JOEBIN}/bbsjoe ; \
 			rm -f ${JOEBIN}/bbsjmacs ; \
-			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe" ; \
-			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe ; \
-			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs" ; \
-			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs ; \
+			echo "${LN_S} ${JOEBIN}/joe ${JOEBIN}/bbsjoe" ; \
+			${LN_S} ${JOEBIN}/joe ${JOEBIN}/bbsjoe ; \
+			echo "${LN_S} ${JOEBIN}/joe ${JOEBIN}/bbsjmacs" ; \
+			${LN_S} ${JOEBIN}/joe ${JOEBIN}/bbsjmacs ; \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}" ; \
 		fi

@@ -842,6 +842,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-experiment     Compile experimental code
   --enable-debugging      Compile for debugging
+  --enable-optimize       Enable CPU optimize
   --enable-newbinkp       Compile New Binkp code
 
 Optional Packages:
@@ -2898,20 +2899,29 @@ else
     CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 fi
 
+# Check whether --enable-optimize or --disable-optimize was given.
+if test "${enable_optimize+set}" = set; then
+  enableval="$enable_optimize"
+   optimize=$enableval
+else
+   optimize=no
+fi;
+if test "$optimize" = "yes"; then
 echo "$as_me:$LINENO: checking for cpuflags" >&5
 echo $ECHO_N "checking for cpuflags... $ECHO_C" >&6
-for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
+    for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
         if test "$cpuflagsbin" = "NONE"; then
-                echo "$as_me:$LINENO: result: unknown" >&5
+            echo "$as_me:$LINENO: result: unknown" >&5
 echo "${ECHO_T}unknown" >&6
         elif test -x $cpuflagsbin/cpuflags; then
-		CPUFLAGS=`$cpuflagsbin/cpuflags`
-                echo "$as_me:$LINENO: result: $CPUFLAGS" >&5
+	    CPUFLAGS=`$cpuflagsbin/cpuflags`
+            echo "$as_me:$LINENO: result: $CPUFLAGS" >&5
 echo "${ECHO_T}$CPUFLAGS" >&6
-		CFLAGS="$CFLAGS $CPUFLAGS"
-                break
+	    CFLAGS="$CPUFLAGS $CFLAGS"
+            break
         fi
-done
+    done
+fi
 
 # Check whether --enable-newbinkp or --disable-newbinkp was given.
 if test "${enable_newbinkp+set}" = set; then
@@ -6477,100 +6487,6 @@ if test $ac_cv_struct_tm = sys/time.h; then
 cat >>confdefs.h <<\_ACEOF
 #define TM_IN_SYS_TIME 1
 _ACEOF
-
-fi
-
-echo "$as_me:$LINENO: checking for struct utmp.ut_id" >&5
-echo $ECHO_N "checking for struct utmp.ut_id... $ECHO_C" >&6
-if test "${ac_cv_member_struct_utmp_ut_id+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <utmp.h>
-
-int
-main ()
-{
-static struct utmp ac_aggr;
-if (ac_aggr.ut_id)
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_member_struct_utmp_ut_id=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <utmp.h>
-
-int
-main ()
-{
-static struct utmp ac_aggr;
-if (sizeof ac_aggr.ut_id)
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_member_struct_utmp_ut_id=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_member_struct_utmp_ut_id=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_member_struct_utmp_ut_id" >&5
-echo "${ECHO_T}$ac_cv_member_struct_utmp_ut_id" >&6
-if test $ac_cv_member_struct_utmp_ut_id = yes; then
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_STRUCT_UTMP_UT_ID 1
-_ACEOF
-
 
 fi
 

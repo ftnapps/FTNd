@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 21-Jan-2004</h5></div>
+<div align="right"><h5>Last update 04-Apr-2004</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -28,12 +28,11 @@ less important packages which if missinng still let you compile MBSE BBS, but yo
 some features. Here is a short list of these packages:
 <ol>
  <li><b>Zlib</b>. On some distributions you also need <b>zlib development</b>. When you have
-     zlib installed, then in <b>mbcico</b> extra code will be compiled in the Hydra protocol driver
+     zlib installed, then in <b>mbcico</b> extra code will be compiled in the Hydra and Binkp protocol drivers
      that will allow the PLZ extension. When a connection is made with another system that also
      supports this extension (currently MBSE BBS and Radius beta versions), the files will be sent
      compressed even if they are already compressed. The increased throughput will be between 1 
-     and 10 times, that's even better then modem compression can do. Later the zlib compression will
-     also be added to binkp.</li>
+     and 10 times, that's even better then modem compression can do.</li>
 </ol>
 <P>&nbsp;<p>
 
@@ -44,7 +43,6 @@ layout looks like this:<br>
 <pre>
 /opt/mbse                      0775  Default MBSE_ROOT
 /opt/mbse/bin                  0755  Binaries
-/opt/mbse/doc                  0755  Generated sitedocs
 /opt/mbse/dutch/macro          0755  Dutch macro files
 /opt/mbse/dutch/menus          0755  Dutch menu files
 /opt/mbse/dutch/txtfiles       0755  Dutch ANSI files
@@ -66,6 +64,9 @@ layout looks like this:<br>
 /opt/mbse/log                  0775  MBSE BBS logfiles
 /opt/mbse/magic                0755  Magic filerequest names
 /opt/mbse/sema                 0777  Semafore files
+/opt/mbse/share/doc            0755  Generated sitedocs
+/opt/mbse/share/doc/html       0755  Generated html sitedocs
+/opt/mbse/share/doc/tags       0755  Generated area tags
 /opt/mbse/spanish/macro        0755  Spanish macro files
 /opt/mbse/spanish/menus        0755  Spanish menu files
 /opt/mbse/spanish/txtfiles     0755  Spanish ANSI files
@@ -82,6 +83,8 @@ layout looks like this:<br>
 /opt/mbse/var/msgs             0750  *.msgs netmail directory (not yet in use).
 /opt/mbse/var/nodelist         0750  Nodelists
 /opt/mbse/var/queue            0750  Queue for before outbound
+/opt/mbse/var/rules            0770  Echomail area rules files
+/opt/mbse/var/run              0770  Pid files of running programs
 /opt/mbse/var/ticqueue         0750  Queue for TIC files
 /opt/mbse/var/unknown          0750  Unprotected inbound directory
 </pre>
@@ -172,7 +175,7 @@ You now have the subdirectory with sources in the right place.
 Next build the binaries and install them using the following commands:
 <pre>
 cd ~/mbsebbs-@VERSION@
-./configure
+./configure [--enable-optimize]
 make
 su        <b>important, do not use "su -"</b>
 password: <em>enter root password here</em>
@@ -199,18 +202,7 @@ The first time <b>mbtask</b> is started on your system it will create a
 lot of new configuration files with default settings.
 <p>&nbsp;<p>
 
-<h3>Step 5: (RedHat) startup problems.</h3>
-<p>
-From RedHat 6.1 (not the older versions) the behaviour of the 
-<strong>su</strong> is changed. This may be true for other distributions since
-the end of 1999 and for Mandrake as well. The file <code>/etc/rc.d/init.d/mbsed</code> that is 
-created by the setup script is different then before. The new command
-is <strong>su -</strong> instead of simply <strong>su</strong>. It might be
-that other new distributions also need the extra minus sign. If that's the
-case, please let me know and tell me how I can test what version it is. 
-<p>&nbsp;<p>
-
-<h3>Step 6: Ready.</h3>
+<h3>Step 5: Ready.</h3>
 <p>
 Now you have shell scripts in ~/etc, most of them are called by cron, some
 are called during system startup and shutdown. You also have some default
