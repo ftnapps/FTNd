@@ -24,6 +24,9 @@ v0.35.02	22-Jun-2002
 		Implemented nodes special outbound box setup. When you enter
 		that item for the first time, it fills this with a suggested
 		path.
+		Changed description and filetype for default tar gzipped files
+		in archiver setup.
+		Added default records for bzip2 and uncompressed tar files.
 
 	mbcico:
 		Implemented nodes special outbound boxes.
@@ -37,6 +40,7 @@ v0.35.02	22-Jun-2002
 		and time. Possible cause: SunMail 1.0
 		When reading taglists if there was no description after the
 		tag, mbfido would crash.
+		Filefind netmail replies now set the private flag.
 
 	mbindex:
 		Fixed a crash when a pointlist contained Point,5,reservered,

@@ -139,8 +139,8 @@ int CountArchive(void)
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
-                        sprintf(archiver.comment, "TAR the GNU version");
-                        sprintf(archiver.name,    "TAR");
+                        sprintf(archiver.comment, "TAR gzip files");
+                        sprintf(archiver.name,    "GZIP");
 			if (strlen(_PATH_TAR)) {
 			    archiver.available = TRUE;
 			    sprintf(archiver.farc,    "%s cfz", _PATH_TAR);
@@ -159,6 +159,50 @@ int CountArchive(void)
 			    sprintf(archiver.iunarc,  "/bin/tar xfz");
 			}
                         fwrite(&archiver, sizeof(archiver), 1, fil);
+
+			memset(&archiver, 0, sizeof(archiver));
+			sprintf(archiver.comment, "TAR bzip2 files");
+			sprintf(archiver.name,    "BZIP");
+			if (strlen(_PATH_TAR)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s cfj", _PATH_TAR);
+			    sprintf(archiver.marc,    "%s Afj", _PATH_TAR);
+			    sprintf(archiver.tarc,    "%s tfj", _PATH_TAR);
+			    sprintf(archiver.funarc,  "%s xfj", _PATH_TAR);
+			    sprintf(archiver.munarc,  "%s xfj", _PATH_TAR);
+			    sprintf(archiver.iunarc,  "%s xfj", _PATH_TAR);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/bin/tar cfj");
+			    sprintf(archiver.marc,    "/bin/tar Afj");
+			    sprintf(archiver.tarc,    "/bin/tar tfj");
+			    sprintf(archiver.funarc,  "/bin/tar xfj");
+			    sprintf(archiver.munarc,  "/bin/tar xfj");
+			    sprintf(archiver.iunarc,  "/bin/tar xfj");
+			}
+			fwrite(&archiver, sizeof(archiver), 1, fil);
+
+			memset(&archiver, 0, sizeof(archiver));
+			sprintf(archiver.comment, "TAR files");
+			sprintf(archiver.name,    "TAR");
+			if (strlen(_PATH_TAR)) {
+			    archiver.available = TRUE;
+			    sprintf(archiver.farc,    "%s cf", _PATH_TAR);
+			    sprintf(archiver.marc,    "%s Af", _PATH_TAR);
+			    sprintf(archiver.tarc,    "%s tf", _PATH_TAR);
+			    sprintf(archiver.funarc,  "%s xf", _PATH_TAR);
+			    sprintf(archiver.munarc,  "%s xf", _PATH_TAR);
+			    sprintf(archiver.iunarc,  "%s xf", _PATH_TAR);
+			} else {
+			    archiver.available = FALSE;
+			    sprintf(archiver.farc,    "/bin/tar cf");
+			    sprintf(archiver.marc,    "/bin/tar Af");
+			    sprintf(archiver.tarc,    "/bin/tar tf");
+			    sprintf(archiver.funarc,  "/bin/tar xf");
+			    sprintf(archiver.munarc,  "/bin/tar xf");
+			    sprintf(archiver.iunarc,  "/bin/tar xf");
+			}
+			fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "UNARJ by Robert K Jung");
