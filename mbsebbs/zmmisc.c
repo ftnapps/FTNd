@@ -995,7 +995,6 @@ void canit(int fd)
     static char canistr[] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0 };
 
     Syslog('z', "%s: send canit to fd %d", protname(), fd);
-    ioctl(fd, TCFLSH, 0);
     write(fd, canistr, strlen(canistr));
     if (fd == 0)
 	write(1, canistr, strlen(canistr));

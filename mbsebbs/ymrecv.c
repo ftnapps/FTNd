@@ -141,7 +141,7 @@ et_tu:
 	return TERROR;
     }
     sendline(ACK);
-    ioctl(1, TCFLSH, 0);
+//    ioctl(1, TCFLSH, 0);
     return OK;
 }
 

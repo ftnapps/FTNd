@@ -254,11 +254,13 @@ int getzrxinit(void)
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
-			int old = Zctlesc;
-			Zctlesc |= Rxflags & TESCCTL;
-			/* update table - was initialised to not escape */
-			if (Zctlesc && !old)
-			    zsendline_init();
+			{
+			    int old = Zctlesc;
+			    Zctlesc |= Rxflags & TESCCTL;
+			    /* update table - was initialised to not escape */
+			    if (Zctlesc && !old)
+			    	zsendline_init();
+			}
 			
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
