@@ -9,7 +9,14 @@ NOTE: for previous 0.35.06 users, the hard links are now replaced with
 
 				MBSEBBS History.
 
-v0.35.06
+v0.35.07	11-Dec-2002
+
+	general:
+		This may become release 0.36.00 (again).
+
+
+
+v0.35.06	13-Nov-2002 - 11-Dec-2002
 
 	update:
 		Make sure you don't have download files with case differences
@@ -43,7 +50,6 @@ v0.35.06
 		errors, you may want to replace all templates.
 
 	general:
-		This may become release 0.36.00 (again).
 		Added better support for 8.3 and long filenames by creating
 		symbolic links in the download directories.
 
@@ -96,6 +102,9 @@ v0.35.06
 		a very large packet is tossed that takes longer then 10 mins.
 		When more then 1024 dupes were tossed, mbfido crashed because
 		a temp file wasn't closed.
+		The echomail dupecheck doesn't check the seconds of the message
+		date anymore. This will catch some rescanned dupes that modify
+		the seconds of the original messages.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 

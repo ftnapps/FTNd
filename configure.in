@@ -9,7 +9,7 @@ AC_SUBST(SUBDIRS)
 dnl General settings for MBSE BBS
 dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
-VERSION="0.35.06"
+VERSION="0.35.07"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
@@ -173,9 +173,13 @@ AC_PATH_PROG(ANTIVIR,antivir)
 AC_PATH_PROG(FPROT,f-prot)
 AC_PATH_PROG(UVSCAN,uvscan)
 AC_PATH_PROG(RB,rb)
+AC_PATH_PROG(RB,lrb)
 AC_PATH_PROG(SB,sb)
+AC_PATH_PROG(SB,lsb)
 AC_PATH_PROG(RZ,rz)
+AC_PATH_PROG(RZ,lrz)
 AC_PATH_PROG(SZ,sz)
+AC_PATH_PROG(SZ,lsz)
 AC_PATH_PROG(GOLDEDBIN,golded)
 AC_PATH_PROG(GOLDEDBIN,gedlnx)
 AC_PATH_PROG(GOLDNODE,goldnode)

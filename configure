@@ -1196,7 +1196,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 
 
 PACKAGE="mbsebbs"
-VERSION="0.35.06"
+VERSION="0.35.07"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
@@ -7604,8 +7604,86 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+# Extract the first word of "lrb", so it can be a program name with args.
+set dummy lrb; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_RB+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $RB in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RB="$RB" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_RB="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+RB=$ac_cv_path_RB
+
+if test -n "$RB"; then
+  echo "$as_me:$LINENO: result: $RB" >&5
+echo "${ECHO_T}$RB" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
 # Extract the first word of "sb", so it can be a program name with args.
 set dummy sb; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_SB+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $SB in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SB="$SB" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_SB="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+SB=$ac_cv_path_SB
+
+if test -n "$SB"; then
+  echo "$as_me:$LINENO: result: $SB" >&5
+echo "${ECHO_T}$SB" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "lsb", so it can be a program name with args.
+set dummy lsb; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_SB+set}" = set; then
@@ -7682,8 +7760,86 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+# Extract the first word of "lrz", so it can be a program name with args.
+set dummy lrz; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_RZ+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $RZ in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RZ="$RZ" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_RZ="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+RZ=$ac_cv_path_RZ
+
+if test -n "$RZ"; then
+  echo "$as_me:$LINENO: result: $RZ" >&5
+echo "${ECHO_T}$RZ" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
 # Extract the first word of "sz", so it can be a program name with args.
 set dummy sz; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_SZ+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $SZ in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SZ="$SZ" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_SZ="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+SZ=$ac_cv_path_SZ
+
+if test -n "$SZ"; then
+  echo "$as_me:$LINENO: result: $SZ" >&5
+echo "${ECHO_T}$SZ" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "lsz", so it can be a program name with args.
+set dummy lsz; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_SZ+set}" = set; then
