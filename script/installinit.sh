@@ -391,6 +391,7 @@ if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
     #
     if [ -f /etc/mandrake-release ]; then
 	RHR="`cat /etc/mandrake-release | awk '{ print $4 }' | tr -d .`"
+	RHN="Mandrake"
 	if [ $RHR -gt 60 ]; then
 	    echo "You are running Mandrake v6.1 or newer"
 	    SU="su -"
@@ -513,6 +514,13 @@ EOF
 	    rm /etc/rc.d/rc5.d/S95mbsed
 	fi
 	ln -s ../init.d/mbsed /etc/rc.d/rc5.d/S95mbsed
+	if [ "$RHN" = "e-smith based on RedHat" ]; then
+	    echo "Making link for start in runlevel 7"
+	    if [ -f /etc/rc.d/rc7.d/S95mbsed ]; then
+		rm /etc/rc.d/rc7.d/S95mbsed
+	    fi
+	    ln -s ../init.d/mbsed /etc/rc.d/rc7.d/S95mbsed
+	fi
 fi
 
 

@@ -4224,6 +4224,10 @@ v0.33.19        26-Oct-2001
 		the new style (not setuid) of mbsebbs.
 		Remove /opt/mbse/etc/maint to let it replace with a new
 		version, or change it by hand.
+		On RedHat, Mandrake or e-smith systems remove the excisting
+		start and stop commands with the runlevel editor, they will
+		be installed with other values when the system is installed.
+		If you forget this then mbsebbs will start and stop twice.
 		After compilation and installation run "mbfile check" to
 		update all file entries in the files database. This give a lot
 		of output in the logfile, don't worry about it.
@@ -4267,6 +4271,8 @@ v0.33.19        26-Oct-2001
 
 	installinit.sh:
 		Changed to recognize the e-smith server based on RedHat.
+		On RedHat, Mandrake and e-smith systems the symlinks to start
+		and stop the bbs are now added.
 
 	libcommon.a:
 		When adding seenby entries, the zone number is copied from the
