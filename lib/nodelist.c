@@ -1091,10 +1091,23 @@ node *getnlent(faddr *addr)
     if (addr->domain == NULL) 
 	addr->domain = xstrcpy(nodebuf.addr.domain);
 
+    /*
+     * FSP-1033, the ICM (IP Continuous Mail) flag.
+     */
     nodebuf.can_pots = (nodebuf.mflags || nodebuf.dflags)   ? TRUE : FALSE;
     nodebuf.can_ip   = (nodebuf.iflags)			    ? TRUE : FALSE;
     nodebuf.is_cm    = (nodebuf.oflags & 0x00000001)	    ? TRUE : FALSE;
     nodebuf.is_icm   = (nodebuf.oflags & 0x00000002)	    ? TRUE : FALSE; 
+    /*
+     * Now correct if node is ION with a CM flag instead of ICM flag.
+     * This is the case the first months after approval of the ICM flag
+     * and with nodes who won't change flags.
+     */
+    if (!nodebuf.can_pots && nodebuf.can_ip && nodebuf.is_cm && !nodebuf.is_icm) {
+	Syslog('n', "getnlent: correct CM into ICM flag");
+	nodebuf.is_cm  = FALSE;
+	nodebuf.is_icm = TRUE;
+    }
 
     Syslog('n', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
     Syslog('n', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
