@@ -2400,7 +2400,7 @@ void binkp_clear_filelist(int rc)
     file_list	*fal;
 
     if (tosend != NULL) {
-	Syslog('b', "Binkp: clear current filelist");
+	Syslog('b', "Binkp: binkp_clear_filelist(%d)", rc);
 
 	for (tmp = bll; bll; bll = tmp) {
 	    tmp = bll->next;
