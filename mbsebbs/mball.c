@@ -454,6 +454,7 @@ void closepage(FILE *fa, char *Path, int inArea, int Current)
 	rename(temp2, temp1);
 	free(temp1);
 	free(temp2);
+	chmod(temp1, 0644);
 	fa = NULL;
 }
 
@@ -656,6 +657,7 @@ void MakeIndex()
         fclose(fm);
         sprintf(linebuf, "%s/index.html", CFG.ftp_base);
         rename(fn, linebuf);
+	chmod(linebuf, 0644);
 
 	fclose(pAreas);
 	free(sAreas);

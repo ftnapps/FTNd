@@ -89,12 +89,13 @@ int config_read(void)
 
 int config_write(void)
 {
-	some_fd = open(some_fn, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+	some_fd = open(some_fn, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP);
 	if (some_fd == -1)
 		return -1;
 
 	write(some_fd, &CFG, sizeof(CFG));
 	close(some_fd);
+	chmod(some_fn, 0640);
 	exp_golded = TRUE;
 	return 0;
 }

@@ -4286,6 +4286,8 @@ v0.33.19        26-Oct-2001
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
 		information.
+		On new systems, ~/etc/config.data and ~/etc/task.data are
+		created with mode 0640.
 
 	mbmon:
 		Changed the lastcaller screen to display the External Door

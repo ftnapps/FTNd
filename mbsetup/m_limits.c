@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_limits.c
+ * $Id$
  * Purpose ...............: Setup Limits.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -128,6 +127,7 @@ int CountLimits(void)
                         fwrite(&LIMIT, sizeof(LIMIT), 1, fil);
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 7;
 		} else
 			return -1;
@@ -232,6 +232,7 @@ void CloseLimits(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"limits.data\"");
 			return;
 		}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: jammsg.c 
+ * $Id$
  * Purpose ...............: JAM message base functions
- * Last modification date : 30-Aug-2001
  *
  *****************************************************************************
  *
@@ -517,7 +516,7 @@ int JAM_Open(char *Msgbase)
 	File = calloc(PATH_MAX, sizeof(char));
 
 	sprintf(File, "%s%s", Msgbase, EXT_HDRFILE);
-	if ((fdHdr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)) != -1) {
+	if ((fdHdr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) != -1) {
 		if (read(fdHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) != sizeof(JAMHDRINFO)) {
 			memset(&jamHdrInfo, 0, sizeof(JAMHDRINFO));
 			jamHdrInfo.Signature[0] = Signature[0];
@@ -536,11 +535,11 @@ int JAM_Open(char *Msgbase)
 		    jamHdrInfo.Signature[2] == Signature[2] &&
 		    jamHdrInfo.Signature[3] == Signature[3]) {
 			sprintf(File, "%s%s", Msgbase, EXT_TXTFILE);
-			fdJdt = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+			fdJdt = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			sprintf(File, "%s%s", Msgbase, EXT_IDXFILE);
-			fdJdx = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+			fdJdx = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			sprintf(File, "%s%s", Msgbase, EXT_LRDFILE);
-			fdJlr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+			fdJlr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			RetVal = TRUE;
 
 			strcpy(BaseName, Msgbase);
@@ -575,13 +574,13 @@ void JAM_Pack(void)
 	File = calloc(PATH_MAX, sizeof(char));
 	New  = calloc(PATH_MAX, sizeof(char));
 	sprintf(File, "%s%s", BaseName, ".$dr");
-	fdnHdr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	fdnHdr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 	sprintf(File, "%s%s", BaseName, ".$dt");
-	fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 	sprintf(File, "%s%s", BaseName, ".$dx");
-	fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 	sprintf(File, "%s%s", BaseName, ".$lr");
-	fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 
 	if (fdnHdr != -1 && fdnJdt != -1 && fdnJdx != -1 && fdnJlr != -1) {
 		lseek(fdHdr, 0L, SEEK_SET);

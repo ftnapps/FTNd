@@ -373,6 +373,7 @@ int SafeCheckUser(void)
 			safe.Opened = 0;
 			fwrite(&safe, sizeof(safe), 1, pSafe);
 			fclose(pSafe);
+			chmod(File, 0660);
 		}
 	} else {
 		while ( fread(&safe, sizeof(safe), 1, pSafe) == 1) {

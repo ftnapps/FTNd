@@ -18,7 +18,7 @@ HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  mbstat.h msgutil.h oneline.h sgetpwent.h user.h bye.h morefile.h \
 		  encrypt.h funcs.h mail.h mbuser.h myname.h page.h pwio.h shadowio.h \
 		  xmalloc.h change.h exitinfo.h mball.h mbuseradd.h newuser.h \
-		  pinfo.h rad64.h statetbl.h chat.h file.h getdef.h mbpasswd.h menu.h \
+		  pinfo.h rad64.h chat.h file.h getdef.h mbpasswd.h menu.h \
 		  nextuser.h pop3.h safe.h timecheck.h mbnewusr.h input.h whoson.h \
 		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h
 MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
@@ -164,9 +164,9 @@ oneline.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/
 sgetpwent.o: ../config.h sgetpwent.h
 xmalloc.o: ../config.h xmalloc.h
 bbslist.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h bbslist.h funcs.h input.h language.h
-morefile.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h morefile.h
+morefile.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h input.h language.h morefile.h timeout.h
 email.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/msgtext.h ../lib/msg.h ../lib/common.h ../lib/clcomm.h ../lib/mbinet.h exitinfo.h language.h mail.h timeout.h msgutil.h input.h email.h whoson.h
-fsedit.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/ansi.h ../lib/common.h ../lib/clcomm.h mail.h funcs.h language.h timeout.h pinfo.h fsedit.h
+fsedit.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/ansi.h ../lib/common.h ../lib/clcomm.h mail.h input.h language.h timeout.h pinfo.h fsedit.h
 lineedit.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mail.h input.h language.h timeout.h lineedit.h
 mblang.o: ../lib/libs.h ../lib/structs.h ../lib/records.h
 mbuser.o: ../lib/libs.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbuser.h
@@ -203,7 +203,7 @@ misc.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clc
 offline.o: ../lib/libs.h ../lib/structs.h ../lib/mbse.h ../lib/records.h ../lib/bluewave.h ../lib/common.h ../lib/clcomm.h ../lib/msgtext.h ../lib/msg.h mail.h funcs.h input.h language.h file.h filesub.h exitinfo.h timeout.h msgutil.h pop3.h offline.h whoson.h
 putpwent.o: ../config.h putpwent.h
 salt.o: ../config.h rad64.h getdef.h
-user.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h timeout.h user.h dispfile.h funcs.h input.h misc.h bye.h file.h mail.h change.h menu.h exitinfo.h language.h offline.h statetbl.h email.h
+user.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h timeout.h user.h dispfile.h funcs.h input.h misc.h bye.h file.h mail.h change.h menu.h exitinfo.h language.h offline.h email.h
 mbnewusr.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h mbnewusr.h funcs.h input.h language.h misc.h timeout.h newuser.h
 input.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h input.h timeout.h language.h
 whoson.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h input.h language.h exitinfo.h whoson.h

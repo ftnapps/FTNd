@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_domain.c
+ * $Id$
  * Purpose ...............: Domain Setup
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -87,6 +86,7 @@ int CountDomain(void)
 			sprintf(domtrans.intdom, ".ftn");
 			fwrite(&domtrans, sizeof(domtrans), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 7;
 		} else
 			return -1;
@@ -180,6 +180,7 @@ void CloseDomain(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"domtrans.data\"");
 			return;
 		}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_language.c
+ * $Id$
  * Purpose ...............: Setup Languages.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -118,7 +117,8 @@ int CountLanguage(void)
 			fwrite(&lang, sizeof(lang), 1, fil);
 
 			fclose(fil);
-			return 2;
+			chmod(ffile, 0640);
+			return 5;
 		} else
 			return -1;
 	}
@@ -220,6 +220,7 @@ void CloseLanguage(int force)
 			fclose(fo);
 			unlink(fout);
 			tidy_stlist(&lan);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"language.data\"");
 			return;
 		}

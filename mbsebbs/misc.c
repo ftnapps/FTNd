@@ -72,7 +72,7 @@ int ChkFiles()
 	 * Check if users.data exists, if not create a new one.
 	 */
 	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if((pUsersFile = fopen(temp,"rb")) == NULL) {
+	if ((pUsersFile = fopen(temp,"rb")) == NULL) {
 		if((pUsersFile = fopen(temp,"wb")) == NULL) {
 			WriteError("$Can't create %s", temp);
 			ExitClient(1); 
@@ -81,13 +81,14 @@ int ChkFiles()
 			usrconfighdr.recsize = sizeof(usrconfig);
 			fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, pUsersFile);
 			fclose(pUsersFile);
+			chmod(temp, 0660);
 		}
 	}
 
 	/*
 	 * Check if sysinfo.data exists, if not, create a new one.
 	 */
-	if((pCallerLog = fopen(sDataFile, "rb")) == NULL) {
+	if ((pCallerLog = fopen(sDataFile, "rb")) == NULL) {
 		if((pCallerLog = fopen(sDataFile, "wb")) == NULL)
 			WriteError("$ChkFiles: Can't create %s", sDataFile);
 		else {
@@ -98,6 +99,7 @@ int ChkFiles()
 			rewind(pCallerLog);
 			fwrite(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
 			fclose(pCallerLog);
+			chmod(sDataFile, 0660);
 		}
 	}
 	free(temp);
@@ -177,9 +179,10 @@ void SaveLastCallers()
 			Syslog('+', "Created new lastcall.data");
 		}
 		fclose(pGLC);
+		chmod(sFileName, 0660);
 	}
 
-	if(( pGLC = fopen(sFileName,"a+")) == NULL) {
+	if ((pGLC = fopen(sFileName,"a+")) == NULL) {
 		WriteError("$Can't open %s", sFileName);
 		return;
 	} else {

@@ -1,9 +1,7 @@
 /*****************************************************************************
- * $Id$
  *
- * File ..................: mbsebbs/fsedit.c
+ * $Id$
  * Purpose ...............: FullScreen Message editor.
- * Last modification date : 29-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -39,7 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "mail.h"
-#include "funcs.h"
+#include "input.h"
 #include "language.h"
 #include "timeout.h"
 #include "pinfo.h"

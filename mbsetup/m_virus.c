@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_virus.c
+ * $Id$
  * Purpose ...............: Setup Virus structure.
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -86,6 +85,7 @@ int CountVirus(void)
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 3;
 		} else
 			return -1;
@@ -188,6 +188,7 @@ void CloseVirus(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"virscan.data\"");
 			return;
 		}

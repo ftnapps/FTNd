@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsetup/m_protocol.c
+ * $Id$
  * Purpose ...............: Setup Protocols.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -108,6 +107,7 @@ int CountProtocol(void)
                         fwrite(&PROT, sizeof(PROT), 1, fil);
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 4;
 		} else
 			return -1;
@@ -209,6 +209,7 @@ void CloseProtocol(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			tidy_stlist(&pro);
 			Syslog('+', "Updated \"protocol.data\"");
 			return;

@@ -396,6 +396,7 @@ void load_maincfg(void)
                 }
                 fwrite(&CFG, sizeof(CFG), 1, fp);
                 fclose(fp);
+		chmod(cfgfn, 0640);
         } else {
                 fread(&CFG, sizeof(CFG), 1, fp);
                 fclose(fp);
@@ -436,6 +437,7 @@ void load_taskcfg(void)
 		}
 		fwrite(&TCFG, sizeof(TCFG), 1, fp);
 		fclose(fp);
+		chmod(tcfgfn, 0640);
 		tasklog('+', "Created new %s", tcfgfn);
 	} else {
 		fread(&TCFG, sizeof(TCFG), 1, fp);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_fnewfiles.c
+ * $id$
  * Purpose ...............: Newfiles Setup
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -68,6 +67,7 @@ int CountNewfiles(void)
 			newfileshdr.grpsize = CFG.new_groups * 13;
 			fwrite(&newfileshdr, sizeof(newfileshdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -201,6 +201,7 @@ void CloseNewfiles(int force)
 			fclose(fo);
 			tidy_stlist(&new);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"newfiles.data\"");
 			return;
 		}

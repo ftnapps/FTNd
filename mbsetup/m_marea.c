@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_marea.c
+ * $Id$
  * Purpose ...............: Message Areas Setup
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -72,6 +71,7 @@ int CountMsgarea(void)
 			fwrite(&msgshdr, sizeof(msgshdr), 1, fil);
 			fclose(fil);
 			exp_golded = TRUE;
+			chmod(ffile, 0660);
 			return 0;
 		} else
 			return -1;
@@ -194,6 +194,7 @@ void CloseMsgarea(int Force)
 			exp_golded = TRUE;
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
+			chmod(fin, 0660);
 			Syslog('+', "Updated \"mareas.data\"");
 			return;
 		}

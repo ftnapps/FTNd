@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_ol.c
+ * $Id$
  * Purpose ...............: Setup Oneliners.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -63,6 +62,7 @@ int CountOneline(void)
 			olhdr.recsize = sizeof(ol);
 			fwrite(&olhdr, sizeof(olhdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0660);
 			return 0;
 		} else
 			return -1;
@@ -148,6 +148,7 @@ void CloseOneline(int force)
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
+			chmod(fin, 0660);
 			Syslog('+', "Updated \"oneline.data\"");
 			return;
 		}

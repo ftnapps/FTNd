@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_ngroups.c
+ * $Id$
  * Purpose ...............: Setup NGroups.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -64,6 +63,7 @@ int CountNGroup(void)
 			ngrouphdr.recsize = sizeof(ngroup);
 			fwrite(&ngrouphdr, sizeof(ngrouphdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -175,6 +175,7 @@ void CloseNGroup(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"ngroups.data\"");
 			return;
 		}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_magic.c
+ * $Id$
  * Purpose ...............: Edit Magics
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -65,6 +64,7 @@ int CountMagics(void)
 			magichdr.recsize = sizeof(magic);
 			fwrite(&magichdr, sizeof(magichdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -176,6 +176,7 @@ void CloseMagics(int force)
 			fclose(fo);
 			tidy_stlist(&mag);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"magic.data\"");
 			return;
 		}

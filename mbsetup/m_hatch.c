@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_hatch.c
+ * $Id$
  * Purpose ...............: Hatch Setup
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -75,6 +74,7 @@ int CountHatch(void)
 			hatchhdr.lastupd = time(NULL);
 			fwrite(&hatchhdr, sizeof(hatchhdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -185,6 +185,7 @@ void CloseHatch(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"hatch.data\"");
 			return;
 		}

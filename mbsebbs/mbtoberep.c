@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtoberep/mbtoberep.c
+ * $Id$
  * Purpose ...............: Show contents of toberep.data
- * Last modification date : 09-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -91,6 +90,7 @@ int main(int argc, char **argv)
 	}
 
 	fclose(fp);
+	chmod(temp, 0640);
 	free(temp);
 #ifdef MEMWATCH
 	mwTerm();

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_node.c
+ * $Id$
  * Purpose ...............: Nodes Setup Program 
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -70,6 +69,7 @@ int CountNoderec(void)
 			nodeshdr.mailgrp = CFG.toss_groups * 13;
 			fwrite(&nodeshdr, sizeof(nodeshdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -234,6 +234,7 @@ void CloseNoderec(int Force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"nodes.data\"");
 			return;
 		}

@@ -50,7 +50,6 @@
 #include "exitinfo.h"
 #include "language.h"
 #include "offline.h"
-#include "statetbl.h"
 #include "email.h"
 
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_farea.c
+ * $Id$
  * Purpose ...............: File Setup Program 
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -66,6 +65,7 @@ int CountFilearea(void)
 			areahdr.recsize = sizeof(area);
 			fwrite(&areahdr, sizeof(areahdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -146,6 +146,7 @@ void CloseFilearea(int force)
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"fareas.data\"");
 			return;
 		}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_archive.c
+ * $Id$
  * Purpose ...............: Setup Archive structure.
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -162,6 +161,7 @@ int CountArchive(void)
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 8;
 		} else
 			return -1;
@@ -264,6 +264,7 @@ void CloseArchive(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"archiver.data\"");
 			return;
 		}

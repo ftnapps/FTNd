@@ -354,6 +354,7 @@ void UserPack(int days, int level, int pack)
 		}
 		fclose(fin);
 		fclose(fout);
+		chmod(fnin, 0660);
 		Syslog('+', "Userbase is updated, written %d records", record);
 	}
 	unlink(fnout);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_modem.c
+ * $Id$
  * Purpose ...............: Setup Modem structure.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -145,6 +144,7 @@ int CountModem(void)
                         fwrite(&modem, sizeof(modem), 1, fil);
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 4;
 		} else
 			return -1;
@@ -247,6 +247,7 @@ void CloseModem(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"modem.data\"");
 			return;
 		}

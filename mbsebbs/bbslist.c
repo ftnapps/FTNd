@@ -197,6 +197,7 @@ void BBS_Add(void)
 
 	fwrite(&bbs, sizeof(bbs), 1, pBBSList);
 	fclose(pBBSList);
+	chmod(sFileName, 0660);
 	free(temp);
 	free(sFileName);
 }
@@ -702,6 +703,7 @@ void BBS_Delete(void)
 	}
 
 	fclose(pBBSLine);
+	chmod(sFileName, 0660);
 }
 
 

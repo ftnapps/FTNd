@@ -65,6 +65,7 @@ int CountUsers(void)
 			usrconfighdr.recsize = sizeof(usrconfig);
 			fwrite(&usrconfighdr, sizeof(usrconfighdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0660);
 			return 0;
 		} else
 			return -1;
@@ -150,6 +151,7 @@ void CloseUsers(int force)
 			working(1, 0, 0);
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
+			chmod(fin, 0660);
 			Syslog('+', "Updated \"users.data\"");
 			return;
 		}

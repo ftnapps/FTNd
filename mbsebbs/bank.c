@@ -88,6 +88,7 @@ void Bank()
 			bankhdr.recsize = sizeof(bank);
 			fwrite(&bankhdr, sizeof(bankhdr), 1, pBank);
 			fclose(pBank);
+			chmod(temp, 0660);
 			Syslog('-', "Created %s", temp);
 			AddAccount();
 			if ((pBank = fopen(temp, "r+")) == NULL) {

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: m_ff.c
+ * $Id$
  * Purpose ...............: Filefind Setup
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -65,6 +64,7 @@ int CountFilefind(void)
 			scanmgrhdr.recsize = sizeof(scanmgr);
 			fwrite(&scanmgrhdr, sizeof(scanmgrhdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -166,6 +166,7 @@ void CloseFilefind(int force)
 			fclose(fo);
 			tidy_stlist(&fff);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"scanmgr.data\"");
 			return;
 		}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_mgroups.c
+ * $Id$
  * Purpose ...............: Setup MGroups.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001 
@@ -66,6 +65,7 @@ int CountMGroup(void)
 			mgrouphdr.recsize = sizeof(mgroup);
 			fwrite(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 0;
 		} else
 			return -1;
@@ -179,6 +179,7 @@ void CloseMGroup(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"mgroups.data\"");
 			return;
 		}

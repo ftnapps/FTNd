@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbsetup/m_menu.c
+ * $Id$
  * Purpose ...............: Edit BBS menus
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -346,6 +345,7 @@ void EditMenu(char *Name)
 								fwrite(&menus, sizeof(menus), 1, fil);
 						}
 						fclose(fil);
+						chmod(temp, 0640);
 					}
 					working(0, 0, 0);
 				}
@@ -519,6 +519,7 @@ void EditMenus(void)
 						errmsg("Can't create menu %s", temp);
 					} else {
 						fclose(fil);
+						chmod(p, 0640);
 						Syslog('+', "Created menufile %s", p);
 					}
 				} else {

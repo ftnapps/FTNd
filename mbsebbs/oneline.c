@@ -58,6 +58,7 @@ void Oneliner_Check()
 			olhdr.recsize = sizeof(ol);
 			fwrite(&olhdr, sizeof(olhdr), 1, pOneline);
 			fclose(pOneline);
+			chmod(sFileName, 0660);
 			Syslog('-', "Created oneliner database");
 		}
 	}

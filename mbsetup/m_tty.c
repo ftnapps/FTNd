@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_tty.c
+ * $Id$
  * Purpose ...............: Setup Ttyinfo structure.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -139,6 +138,7 @@ int CountTtyinfo(void)
                         }
 
 			fclose(fil);
+			chmod(ffile, 0640);
 			return 34;
 		} else
 			return -1;
@@ -241,6 +241,7 @@ void CloseTtyinfo(int force)
 			fclose(fi);
 			fclose(fo);
 			unlink(fout);
+			chmod(fin, 0640);
 			Syslog('+', "Updated \"ttyinfo.data\"");
 			return;
 		}

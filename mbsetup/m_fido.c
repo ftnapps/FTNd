@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_fido.c
+ * $Id$
  * Purpose ...............: Setup Fidonet structure.
- * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -91,6 +90,7 @@ int CountFidonet(void)
 			fwrite(&fidonet, sizeof(fidonet), 1, fil);
 			fclose(fil);
 			exp_golded = TRUE;
+			chmod(ffile, 0640);
 			return 2;
 		} else
 			return -1;
@@ -196,6 +196,7 @@ void CloseFidonet(int force)
 			fclose(fo);
 			unlink(fout);
 			tidy_stlist(&fid);
+			chmod(fin, 0640);
 
 			Syslog('+', "Updated \"fidonet.data\"");
 			return;

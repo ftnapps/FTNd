@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_task.c
+ * $Id$
  * Purpose ...............: Setup TaskManager.
- * Last modification date : 19-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -84,6 +83,7 @@ void CloseTask(void)
 			if ((fp = fopen(fin, "w+")) != NULL) {
 				fwrite(&TCFG, sizeof(TCFG), 1, fp);
 				fclose(fp);
+				chmod(fin, 0640);
 				Syslog('+', "Updated \"task.data\"");
 			}
 		}
