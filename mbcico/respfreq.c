@@ -546,7 +546,7 @@ file_list *respmagic(char *cmd) /* must free(cmd) before exit */
 						}
 						fputs(buf, fp);
 					}
-					fprintf(fp, "\r--- mbcico v%s\r", VERSION);
+					fprintf(fp, "\r%s\r", TearLine());
 					free(buf);
 				}
 				fwrite(&zeroes, 1, 3, fp);
@@ -622,7 +622,7 @@ static void attach_report(file_list **fl)
 	    fclose(fp);
 	}
 
-	add_report((char *)"\r--- mbcico v%s\r", VERSION);
+	add_report((char *)"\r%s\r", TearLine());
 
 	sprintf(tmpfn, "%s/tmp/%08lX.rpl", getenv((char *)"MBSE_ROOT"), (unsigned long)sequencer());
 	if ((fp = fopen(tmpfn,"w"))) {

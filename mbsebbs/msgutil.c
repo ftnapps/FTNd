@@ -274,17 +274,7 @@ void Add_Footkludges(int Quote)
 		MsgText_Add2(temp);
 		MsgText_Add2((char *)"");
 	}
-
-#ifdef __linux__
-	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
-#elif __FreeBSD__
-	sprintf(temp, "--- MBSE BBS v%s (FreeBSD)", VERSION);
-#elif __NetBSD__
-	sprintf(temp, "--- MBSE BBS v%s (NetBSD)", VERSION);
-#else
-	sprintf(temp, "--- MBSE BBS v%s (Unknown)", VERSION);
-#endif
-	MsgText_Add2(temp);
+	MsgText_Add2(TearLine());
 
 	if ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
 		/* RANDOM ORIGIN LINES IMPLEMENTEREN */

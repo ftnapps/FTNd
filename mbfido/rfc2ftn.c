@@ -699,7 +699,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			else
 				charwrite(p,ofp);
 		} else
-			fprintf(ofp,"--- MBSE BBSv.%s\n",VERSION);
+			fprintf(ofp,"%s\n", TearLine());
 
 		if ((p = hdr((char *)"X-FTN-Origin",msg))) {
 			if (*(q=p+strlen(p)-1) == '\n') 

@@ -334,3 +334,48 @@ char *GetDateDMY()
 }
 
 
+char *OsName()
+{
+#ifdef __linux__
+    return (char *)"Linux";
+#elif __FreeBSD__
+    return (char *)"FreeBSD";
+#elif __NetBSD__
+    return (char *)"NetBSD";
+#else
+    return (char *)"Unknown";
+#endif
+}
+
+
+
+char *OsCPU()
+{
+#ifdef __i386__
+    return (char *)"i386";
+#elif __PPC__
+    return (char *)"PPC";
+#elif __sparc__
+    return (char *)"Sparc";
+#elif __alpha__
+    return (char *)"Alpha";
+#else
+    return (char *)"Unknown";
+#endif
+}
+
+
+
+/*
+ * Return universal tearline, note if OS and CPU are
+ * unknow, the tearline is already 39 characters.
+ */
+char *TearLine()
+{
+    static char	    tearline[41];
+
+    sprintf(tearline, "--- MBSE BBS v%s (%s-%s)", VERSION, OsName(), OsCPU());
+    return tearline;
+}
+
+

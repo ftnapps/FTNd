@@ -52,7 +52,6 @@
  * External declarations
  */
 extern	int	do_quiet;
-extern	char	*tearline;
 
 
 
@@ -124,7 +123,7 @@ void F_Help(faddr *t, char *replyid)
 		fprintf(fp, "  %%QUERY\r");
 		fprintf(fp, "  %%LIST\r\r");
 
-		fprintf(fp, "%s\r", tearline);
+		fprintf(fp, "%s\r", TearLine());
 		CloseMail(fp, t);
 		net_out++;
 	} else
@@ -226,7 +225,7 @@ void F_Query(faddr *t, char *replyid)
 		fprintf(qp, " S  - You may send files in this area\r");
 		fprintf(qp, " P  - The file area is temporary paused\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "%s\r", tearline);
+		fprintf(qp, "%s\r", TearLine());
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -329,7 +328,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 		fprintf(qp, " S  - You may send files in this area\r");
 		fprintf(qp, " P  - The file area is temporary paused\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "%s\r", tearline);
+		fprintf(qp, "%s\r", TearLine());
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -379,7 +378,7 @@ void F_Status(faddr *t, char *replyid)
 
 		fprintf(fp, "\rWith regards, %s\r\r", CFG.sysop_name);
 
-		fprintf(fp, "%s\r", tearline);
+		fprintf(fp, "%s\r", TearLine());
 		CloseMail(fp, t);
 		net_out++;
 	} else
@@ -481,7 +480,7 @@ void F_Unlinked(faddr *t, char *replyid)
 		fprintf(qp, " S  - You may send files in this area\r");
 		fprintf(qp, " P  - The file area is temporary paused\r\r");
 		fprintf(qp, "With regards, %s\r\r", CFG.sysop_name);
-		fprintf(qp, "%s\r", tearline);
+		fprintf(qp, "%s\r", TearLine());
 		CloseMail(qp, t);
 		net_out++;
 		free(temp);
@@ -942,7 +941,7 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
 			}
 
 			fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
-			fprintf(np, "%s\r", tearline);
+			fprintf(np, "%s\r", TearLine());
 			CloseMail(np, t);
 			net_out++;
 		} else 

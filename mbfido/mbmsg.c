@@ -58,7 +58,6 @@ int	msg_del = 0;		/* Deleted messages			    */
 int	msg_link = 0;		/* Linked messages			    */
 int	processed = FALSE;	/* Did process something		    */
 int	oldmask;
-char	*tearline;		/* Standard tearline			    */
 
 
 
@@ -95,17 +94,6 @@ int main(int argc, char **argv)
 	TermInit(1);
 	oldmask = umask(007);
 	t_start = time(NULL);
-
-        tearline = calloc(41, sizeof(char *));
-#ifdef __linux__
-	sprintf(tearline, "--- MBSE BBS v%s (Linux)", VERSION);
-#elif __FreeBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (FreeBSD)", VERSION);
-#elif __NetBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (NetBSD)", VERSION);
-#else
-	sprintf(tearline, "--- MBSE BBS v%s (Unknown)", VERSION);
-#endif
 
 	/*
 	 * Catch all signals we can, and ignore or catch them
@@ -256,7 +244,6 @@ void die(int onsig)
 		colour(7, 0);
 		printf("\r                                                          \n");
 	}
-	free(tearline);
 	ExitClient(onsig);
 }
 

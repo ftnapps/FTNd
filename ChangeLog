@@ -4591,4 +4591,7 @@ v0.33.20        10-Feb-2002
 		Added structures for area maintenance with area lists.
 
 
+	common.a:
+		Added 2 functions to return the OS name and CPU family.
+		Added a function to return the right tearline.
 

@@ -48,7 +48,6 @@ extern	int		do_quiet;		/* Supress screen output    */
 extern	int		show_log;		/* Show logging		    */
 time_t			t_start;		/* Start time		    */
 time_t			t_end;			/* End time		    */
-char			*tearline;		/* Standard tearline	    */
 
 
 
@@ -83,7 +82,6 @@ void die(int onsig)
 		colour(7, 0);
 		printf("\n");
 	}
-	free(tearline);
 	ExitClient(onsig);
 }
 
@@ -107,16 +105,6 @@ int main(int argc, char **argv)
 	Miy = t->tm_mon;
 	umask(002);
 
-        tearline = calloc(41, sizeof(char *));
-#ifdef __linux__
-	sprintf(tearline, "--- MBSE BBS v%s (Linux)", VERSION);
-#elif __FreeBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (FreeBSD)", VERSION);
-#elif __NetBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (NetBSD)", VERSION);
-#else
-	sprintf(tearline, "--- MBSE BBS v%s (Unknown)", VERSION);
-#endif
 	
 	/*
 	 * Catch all signals we can, and ignore the rest.

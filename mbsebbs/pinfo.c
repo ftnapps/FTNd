@@ -91,15 +91,7 @@ void cr(void)
 
 	wl(a);
 	ls(a);
-#ifdef __linux__
-	sprintf(temp, "MBSE Bulletin Board System %s (Linux)", VERSION);
-#elif __FreeBSD__
-	sprintf(temp, "MBSE Bulletin Board System %s (FreeBSD)", VERSION);
-#elif __NetBSD__
-	sprintf(temp, "MBSE Bulletin Board System %s (NetBSD)", VERSION);
-#else
-	sprintf(temp, "MBSE Bulletin Board System %s (Unknown OS)", VERSION);
-#endif
+	sprintf(temp, "MBSE Bulletin Board System %s (%s-%s)", VERSION, OsName(), OsCPU());
 	pout(14, 0, padleft(temp, 76, ' '));
 	rs(a);
 	wl(a);

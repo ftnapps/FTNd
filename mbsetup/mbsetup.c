@@ -136,15 +136,7 @@ void soft_info(void)
 	temp = calloc(81, sizeof(char));
 	clr_index();
 	set_color(YELLOW, BLACK);
-#ifdef __linux__
-	center_addstr( 6, (char *)"MBSE BBS (Linux)");
-#elif __FreeBSD__
-	center_addstr( 6, (char *)"MBSE BBS (FreeBSD)");
-#elif __NetBSD__
-	center_addstr( 6, (char *)"MBSE BBS (NetBSD)");
-#else
-	center_addstr( 6, (char *)"MBSE BBS (Unknown)");
-#endif
+	center_addstr( 6, (char *)"MBSE BBS (%s-%s)", OsName(), OsCPU());
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);

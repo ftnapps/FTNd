@@ -53,7 +53,6 @@
  * External declarations
  */
 extern	int	do_quiet;
-extern	char	*tearline;
 
 
 
@@ -135,7 +134,7 @@ int Bounce(faddr *f, faddr *t, FILE *fp, char *reason)
 	}
 
 	fprintf(np, "\rWith regards, %s\r\r", CFG.sysop_name);
-	fprintf(np, "%s\r", tearline);
+	fprintf(np, "%s\r", TearLine());
 	Now = time(NULL) - (gmt_offset((time_t)0) * 60);
 	rc = postnetmail(np, from, f, NULL, (char *)"Bounced message", Now, 0x0000, FALSE);
 	tidy_faddr(from);

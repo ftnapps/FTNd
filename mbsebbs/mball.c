@@ -436,7 +436,7 @@ void Masterlist()
 	MidLine((char *)"", fp, TRUE);
 	MidLine((char *)"", np, TRUE);
 
-	sprintf(temp, "Created by MBSE BBS v%s (Linux) at %s", VERSION, StrDateDMY(t_start));
+	sprintf(temp, "Created by MBSE BBS v%s (%s-%s) at %s", VERSION, OsName(), OsCPU(), StrDateDMY(t_start));
 	MidLine(temp, fp, TRUE);
 	MidLine(temp, np, TRUE);
 

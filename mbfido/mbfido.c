@@ -93,7 +93,6 @@ time_t	t_end;				/* End time			    */
 int	packets    = 0;			/* Tossed packets		    */
 int	packets_ok = 0;			/* Tossed packets Ok.		    */
 char	*envptr = NULL;
-char	*tearline;			/* Standard tearline for mail	    */
 
 extern	int net_in, net_imp, net_out, net_bad;
 extern	int echo_in, echo_imp, echo_out, echo_bad, echo_dupe;
@@ -242,7 +241,6 @@ void die(int onsig)
 
 	if (!do_quiet)
 		colour(7, 0);
-	free(tearline);
 	ExitClient(onsig);
 }
 
@@ -305,16 +303,6 @@ int main(int argc, char **argv)
 	Miy = t->tm_mon;
 	umask(002);
 
-	tearline = calloc(41, sizeof(char *));
-#ifdef __linux__
-	sprintf(tearline, "--- MBSE BBS v%s (Linux)", VERSION);
-#elif __FreeBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (FreeBSD)", VERSION);
-#elif __NetBSD__
-	sprintf(tearline, "--- MBSE BBS v%s (NetBSD)", VERSION);
-#else
-	sprintf(tearline, "--- MBSE BBS v%s (Unknown)", VERSION);
-#endif
 
 	/*
 	 * Catch all the signals we can, and ignore the rest.

@@ -310,16 +310,13 @@ int Save_Email(int IsReply)
 	} else
 		Msg.ReplyCRC = 0xffffffff;
 
-
 	/*
 	 * Add message text
 	 */
 	for (i = 1; i < Line; i++) {
 		MsgText_Add2(Message[i]);
 	}
-
-	sprintf(temp, "--- MBSE BBS v%s (Linux)", VERSION);
-	MsgText_Add2(temp);
+	MsgText_Add2(TearLine());
 
 	/*
 	 * Save if to disk

@@ -35,6 +35,7 @@
 
 #define Max_passlen     14      /* Define maximum passwd length            */
 
+
 /*****************************************************************************
  *
  *  Global typedefs.

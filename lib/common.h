@@ -538,6 +538,9 @@ char		*GetLocalHMS(void);
 char		*StrDateMDY(time_t *);
 char		*StrDateDMY(time_t);
 char		*GetDateDMY(void);
+char		*OsName(void);
+char		*OsCPU(void);
+char		*TearLine(void);
 
 
 

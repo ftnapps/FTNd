@@ -44,6 +44,7 @@
 
 
 
+
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
 	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX];
@@ -150,7 +151,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			fprintf(net, "\r\r");
 			fprintf(net, "With regards, %s\r\r", CFG.sysop_name);
 			fprintf(net, "... %s\r\r", Cookie());
-			fprintf(net, "--- MBSE BBS %s\r", VERSION);
+			fprintf(net, "%s\r", TearLine());
 			CloseMail(net, fido2faddr(Node));
 		} else {
 			WriteError("$Can't create netmail");
