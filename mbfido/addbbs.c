@@ -312,7 +312,6 @@ int Add_BBS()
      * Handle the Keep number of files option
      */
     if (TIC.KeepNum) {
-	Syslog('f', "AddBBS, handle KeepNum %d", TIC.KeepNum);
 	if ((fdb = fopen(fdbname, "r")) != NULL) {
 
 	    while (fread(&file, sizeof(file), 1, fdb) == 1) {
@@ -329,7 +328,6 @@ int Add_BBS()
 		    }
 		    if (Found) {
 			Keep++;
-			Syslog('f', "Add \"%s\" to keeplist", file.LName);
 			fill_fdlist(&fdl, file.LName, file.UploadDate);
 		    }
 		}

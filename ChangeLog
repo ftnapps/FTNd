@@ -20,6 +20,8 @@ v0.35.06
 		for real deleted files.
 		Start the bbs again (mbstat open).
 		Check new settings in nodes setup, screen 6, items 9 and 10.
+		Check TIC magic records (menu 10.4), all filenames tested are
+		now uppercase 8.3 names, adjust your filemasks.
 
 	templates:
 		The html templates are changed by Joachim Kuwan and now they

@@ -116,7 +116,9 @@ void flush_dir(char *ndir)
      * If we route via another aka, change everything.
      */
     if (nodes.RouteVia.zone) {
-	Syslog('p', "Route Via %s", aka2str(nodes.RouteVia));
+	p = xstrcpy(aka2str(nodenr));
+	Syslog('+', "Route to %s via %s", p, aka2str(nodes.RouteVia));
+	free(p);
 	noden.zone   = nodes.RouteVia.zone;
 	noden.net    = nodes.RouteVia.net;
 	noden.node   = nodes.RouteVia.node;
@@ -283,8 +285,6 @@ void flush_dir(char *ndir)
 	 *  Do this until we find a new name or if the last digit is a '9' or 'z'.
 	 *  Purge archives older then toss_days.
 	 */
-	Syslog('p', "Pulled %s", fname);
-
 	nr = oldnr = '0';
 	if (nodes.ARCmailAlpha)
 	    maxnr = 'z';
@@ -363,7 +363,6 @@ void flush_dir(char *ndir)
 	 * archiver program will complain.
 	 */
 	if (fsize == 0L) {
-	    Syslog('m', "Erasing zero bytes file %s", arcfile);
 	    unlink(arcfile);
 	    Attach = TRUE;
 	}

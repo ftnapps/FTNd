@@ -782,7 +782,6 @@ int ProcessTic(fa_list *sbl)
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
-		Syslog('f', "Add SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 		sprintf(sbe, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
 		fill_list(&sbl, sbe, NULL);
 	    } else {
@@ -791,9 +790,6 @@ int ProcessTic(fa_list *sbl)
 	}
 	uniq_list(&sbl);
 	sort_list(&sbl);
-
-	for (tmp = sbl; tmp; tmp = tmp->next)
-	    Syslog('f', "final SB list %s", ascfnode(tmp->addr, 0x0f));
 	
 	/*
 	 * Now forward this file to the qualified downlinks.
