@@ -1,0 +1,29 @@
+                                                              ÚÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+  ÛßßÜ ÛßßÜ ÜßßÜ     Û ßÛß ÛßßÜ Ûßß ÜßßÜ ÛßßÜ ÜßßÜ ÛßßÜ Û  Û  ³  IJmuiden   ³
+  ÛÜÜß ÛÜÜß ßÜÜ    Üß   Û  Û  Û ÛÜ  Û  Û ÛÜÜß ÛÜÜÛ Û  Û ÛÜß   ³             ³
+  Û  Û Û  Û Ü  Û Üß     Û  Û  Û Û   Û  Û Û  Û Û  Û Û  Û Û ßÜ  ³ Netherlands ³
+  ßßß  ßßß   ßß  ß     ßßß ß  ß ß    ßß  ßßß  ß  ß ß  ß ß  ß  ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+  Sysops       : Michiel Broek and Bob ten.Dolle (PD0BEL)
+  Online       : 24 hrs/day, limited times between 02:15 - 06:30
+  Line #1      : 31-(0)255-533858 1200-28K8 bps, V34,V42B,V32B
+  Line #2      : 31-(0)23-5525563 1200-14K4 bps, V42B,V32B
+  Requests     : minimum 1200 bps, max 30 minutes a day, no size limits.
+  Request times: except ZMH.
+  Request flag : XA
+  AKAs         : fidonet    2:2801/16 2:2801/1008     V34,V42B,V32B
+                            2:2801/805                V42B,V32B
+                 virnet     9:314/8                   V34,V42B,V32B
+
+  Alle files op dit bbs die onder MS-DOS draaien zijn gecontroleerd met
+  de laatste beschikbare virusscanners voordat ze voor download op het
+  bbs geplaatst zijn.
+  Desondanks aanvaarden wij geen enkele aansprakelijkheid voor eventuele
+  schade die ontstaat door het gebruik van deze files.
+
+  All files on this bbs running under MS-DOS are checked with the latest
+  available virusscanners before they were made available for download from
+  the bbs.
+  Nevertheless we take no responibility for any damage due to the use of
+  these files.
+
