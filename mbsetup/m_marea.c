@@ -304,6 +304,25 @@ void InitMsgRec(void)
 
 
 
+void DeleteJAM(char *);
+void DeleteJAM(char *Base)
+{
+    char    *temp;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s.jdt", Base);
+    unlink(temp);
+    sprintf(temp, "%s.jdx", Base);
+    unlink(temp);
+    sprintf(temp, "%s.jhr", Base);
+    unlink(temp);
+    sprintf(temp, "%s.jlr", Base);
+    unlink(temp);
+    free(temp);
+}
+
+    
+
 int AppendMsgarea(void);
 int AppendMsgarea()
 {
@@ -959,7 +978,8 @@ void MsgGlobal(void)
 								break;
 							case 12:if (msgs.Active) {
 									msgs.Active = FALSE;
-									memset(&msgs.Name, 0, sizeof(msgs.Name));
+									DeleteJAM(msgs.Base);
+									memset(&msgs, 0, sizeof(msgs));
 									if (SaveMsgRec(marea, FALSE) == 0) {
 										Done++;
 										Syslog('+', "Deleted message area %s", msgs.Tag);
@@ -994,8 +1014,9 @@ int EditMsgRec(int);
 int EditMsgRec(int Area)
 {
 	unsigned long	crc1;
-	int		tmp, i, changed = FALSE;
+	int		tmp, i, connections, changed = FALSE, Active;
 	sysconnect	System;
+	char		*temp;
 
 	clr_index();
 	IsDoing("Edit Msg Area");
@@ -1042,6 +1063,17 @@ int EditMsgRec(int Area)
 		show_bool(16,76, msgs.UnSecure);
 		show_bool(17,76, msgs.OLR_Default);
 		show_bool(18,76, msgs.OLR_Forced);
+		connections = 0;
+		switch (msgs.Type) {
+		    case ECHOMAIL:
+		    case NEWS:
+		    case LIST:  fseek(tfil, 0, SEEK_SET);
+				while (fread(&System, sizeof(System), 1, tfil) == 1)
+				    if (System.aka.zone)
+					connections++;
+				show_int(19,76, connections);
+				break;
+		}
 
 		switch(select_menu(29)) {
 		case 0:
@@ -1053,12 +1085,19 @@ int EditMsgRec(int Area)
 				crc1 = upd_crc32((char *)&System, crc1, sizeof(sysconnect));
 			}
 			if ((MsgCrc != crc1) || (changed)) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					if (SaveMsgRec(Area, TRUE) == -1)
-						return -1;
-					MsgUpdated = 1;
-					Syslog('+', "Saved record %d", Area);
-				}
+			    if (msgs.Active && !strlen(msgs.Base)) {
+				errmsg((char *)"JAM message base is not set");
+				break;
+			    } else if (msgs.Active && !strlen(msgs.Group) && 
+				       (msgs.Type == ECHOMAIL || msgs.Type == NEWS || msgs.Type == LIST)) {
+				errmsg((char *)"Message area has no group assigned");
+				break;
+			    } else if (yes_no((char *)"Record is changed, save") == 1) {
+				if (SaveMsgRec(Area, TRUE) == -1)
+				    return -1;
+				MsgUpdated = 1;
+				Syslog('+', "Saved record %d", Area);
+			    }
 			}
 			IsDoing("Browsing Menu");
 			return 0;
@@ -1119,7 +1158,52 @@ int EditMsgRec(int Area)
 					    break;
 			}
 			break;
-		case 18:E_BOOL(16,52,   msgs.Active,        "Is this area ^Active^")
+		case 18:Active = edit_bool(16,52, msgs.Active, (char *)"Is this area ^Active^");
+			if (msgs.Active && !Active) {
+			    /*
+			     * Attempt to deactivate area, do some checks.
+			     */
+			    if (connections) {
+				if (yes_no((char *)"There are nodes connected, disconnect them") == 0)
+				    Active = TRUE;
+			    }
+			    if (!Active) {
+				temp = calloc(PATH_MAX, sizeof(char));
+				sprintf(temp, "%s.jhr", msgs.Base);
+				if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
+				    if (yes_no((char *)"There are messages in this area, delete them") == 0)
+					Active = TRUE;
+				}
+				free(temp);
+			    }
+			    if (!Active) {
+				/*
+				 * Make it so
+				 */
+				DeleteJAM(msgs.Base);
+				memset(&System, 0, sizeof(System));
+				fseek(tfil, 0, SEEK_SET);
+				for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
+				    fwrite(&System, sizeof(System), 1, tfil);
+				InitMsgRec();
+				Syslog('+', "Deleted message area %d", Area);
+				changed = TRUE;
+			    }
+			}
+			if (!msgs.Active && Active) {
+			    InitMsgRec();
+			    msgs.Active = TRUE;
+			    /*
+			     * Clear connections, just in case from older mbse versions
+			     * might have left garbage here.
+			     */
+			    fseek(tfil, 0, SEEK_SET);
+			    memset(&System, 0, sizeof(System));
+			    for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
+				fwrite(&System, sizeof(System), 1, tfil);
+			}
+			SetScreen();
+			break;
 		case 19:E_SEC( 17,52,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
 		case 20:E_SEC( 18,52,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
 		case 21:E_SEC( 19,52,   msgs.SYSec,         "9.2 EDIT SYSOP SECURITY", SetScreen)

@@ -45,7 +45,7 @@ int create_msgarea(char *marea, faddr *p_from)
     char	*temp, *buf, *tag, *desc, *p;
     FILE	*gp, *ap, *mp;
     long	offset;
-    int		i;
+    int		i, rc = 0;
     sysconnect	System;
 
     temp = calloc(PATH_MAX, sizeof(char));
@@ -102,58 +102,66 @@ int create_msgarea(char *marea, faddr *p_from)
 			while (fread(&msgs, sizeof(msgs), 1, mp) == 1) {
 			    if (!msgs.Active) {
 				fseek(mp, - msgshdr.recsize, SEEK_CUR);
-				memset(&msgs, 0, sizeof(msgs));
 				offset = ((ftell(mp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1;
 				Syslog('m', "Found free slot at %ld", offset);
-				strncpy(msgs.Tag, tag, 50);
-				strncpy(msgs.Name, desc, 40);
-				strncpy(msgs.QWKname, tag, 20);
-				msgs.MsgKinds = PUBLIC;
-				msgs.Type = ECHOMAIL;
-				msgs.DaysOld = CFG.defdays;
-				msgs.MaxMsgs = CFG.defmsgs;
-				msgs.UsrDelete = mgroup.UsrDelete;
-				msgs.RDSec = mgroup.RDSec;
-				msgs.WRSec = mgroup.WRSec;
-				msgs.SYSec = mgroup.SYSec;
-				strncpy(msgs.Group, mgroup.Name, 12);
-				msgs.Aka = mgroup.UseAka;
-				strncpy(msgs.Origin, CFG.origin, 50);
-				msgs.Aliases = mgroup.Aliases;
-				msgs.NetReply = mgroup.NetReply;
-				msgs.Active = TRUE;
-				msgs.Quotes = mgroup.Quotes;
-				msgs.Rfccode = CHRS_DEFAULT_RFC;
-				msgs.Ftncode = CHRS_DEFAULT_FTN;
-				msgs.MaxArticles = CFG.maxarticles;
-				tag = tl(tag);
-				sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
-				fwrite(&msgs, sizeof(msgs), 1, mp);
-
-				memset(&System, 0, sizeof(System));
-				System.aka = mgroup.UpLink;
-				System.sendto = System.receivefrom = TRUE;
-				fwrite(&System, sizeof(System), 1, mp);
-				memset(&System, 0, sizeof(System));
-				for (i = 1; i < (msgshdr.syssize / sizeof(System)); i++)
-				    fwrite(&System, sizeof(System), 1, mp);
-
-				fclose(mp);
-				fclose(gp);
-				fclose(ap);
-				free(buf);
-				free(temp);
-				return TRUE;
+				rc = 1;
+				break;
 			    }
 			    /*
 			     * Skip systems
 			     */
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);
 			}
-			/*
-			 * No free slot at the end, append a slot.
-			 */
-		    }
+			if (!rc) {
+			    Syslog('m', "No free slot, append after last record");
+			    fseek(mp, 0, SEEK_END);
+			    rc = 1;
+			}
+
+			offset = ((ftell(mp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1;
+			memset(&msgs, 0, sizeof(msgs));
+			strncpy(msgs.Tag, tag, 50);
+			strncpy(msgs.Name, desc, 40);
+			strncpy(msgs.QWKname, tag, 20);
+			msgs.MsgKinds = PUBLIC;
+			msgs.Type = ECHOMAIL;
+			msgs.DaysOld = CFG.defdays;
+			msgs.MaxMsgs = CFG.defmsgs;
+			msgs.UsrDelete = mgroup.UsrDelete;
+			msgs.RDSec = mgroup.RDSec;
+			msgs.WRSec = mgroup.WRSec;
+			msgs.SYSec = mgroup.SYSec;
+			strncpy(msgs.Group, mgroup.Name, 12);
+			msgs.Aka = mgroup.UseAka;
+			strncpy(msgs.Origin, CFG.origin, 50);
+			msgs.Aliases = mgroup.Aliases;
+			msgs.NetReply = mgroup.NetReply;
+			msgs.Active = TRUE;
+			msgs.Quotes = mgroup.Quotes;
+			msgs.Rfccode = CHRS_DEFAULT_RFC;
+			msgs.Ftncode = CHRS_DEFAULT_FTN;
+			msgs.MaxArticles = CFG.maxarticles;
+			tag = tl(tag);
+			sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
+			fwrite(&msgs, sizeof(msgs), 1, mp);
+
+			memset(&System, 0, sizeof(System));
+			System.aka = mgroup.UpLink;
+			System.sendto = System.receivefrom = TRUE;
+			fwrite(&System, sizeof(System), 1, mp);
+			memset(&System, 0, sizeof(System));
+			for (i = 1; i < (msgshdr.syssize / sizeof(System)); i++)
+			    fwrite(&System, sizeof(System), 1, mp);
+
+			fclose(mp);
+			fclose(gp);
+			fclose(ap);
+			free(buf);
+			free(temp);
+			Syslog('+', "Auto created echo %s, group %s, area %ld, for node %s", 
+				msgs.Tag, msgs.Group, offset, ascfnode(p_from, 0x1f));
+			return TRUE;
+		    } /* if (strcmp(tag, marea) == 0) */
 		}
 		free(buf);
 		fclose(ap);

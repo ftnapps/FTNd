@@ -891,7 +891,7 @@ struct msgareas {
 	time_t		LastPosted;		/* Last time msg posted	    */
 	char		Newsgroup[81];		/* Newsgroup/Mailinglist    */
 	char		Distribution[17];	/* Ng distribution	    */
-	char		Moderator[65];		/* Moderator/Email-address  */
+	char		xModerator[65];
 	int		Rfccode;		/* RFC characterset	    */
 	int		Ftncode;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */

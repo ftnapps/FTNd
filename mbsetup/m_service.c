@@ -64,18 +64,23 @@ int CountService(void)
 			servhdr.lastupd = time(NULL);
 			fwrite(&servhdr, sizeof(servhdr), 1, fil);
 			memset(&servrec, 0, sizeof(servrec));
-			sprintf(servrec.Service, "UUCP");
+
 			servrec.Action = EMAIL;
 			servrec.Active = TRUE;
+			sprintf(servrec.Service, "UUCP");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
-			sprintf(servrec.Service, "areamgr");
+
 			servrec.Action = AREAMGR;
+			sprintf(servrec.Service, "areamgr");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			sprintf(servrec.Service, "gecho");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			sprintf(servrec.Service, "fmail");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
+
 			servrec.Action = FILEMGR;
+			sprintf(servrec.Service, "filemgr");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
 			sprintf(servrec.Service, "allfix");
 			fwrite(&servrec, sizeof(servrec), 1, fil);
 			sprintf(servrec.Service, "mbtic");
