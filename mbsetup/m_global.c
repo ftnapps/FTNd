@@ -865,66 +865,73 @@ void e_fidomailcfg(void)
 void s_intmailcfg(void);
 void s_intmailcfg(void)
 {
-        clr_index();
-        set_color(WHITE, BLACK);
-        mvprintw( 5, 5, "1.12   EDIT INTERNET MAIL AND NEWS PROCESSING");
-        set_color(CYAN, BLACK);
-        mvprintw( 7, 2, "1. POP3 node");
-	mvprintw( 8, 2, "2. User@domain");
-        mvprintw( 9, 2, "3. SMTP node");
-	switch (CFG.newsfeed) {
-		case FEEDINN:	mvprintw(10, 2, "4. N/A");
-        			mvprintw(11, 2, "5. NNTP node");
-				mvprintw(12, 2, "6. NNTP m.r.");
-				mvprintw(13, 2, "7. NNTP user");
-				mvprintw(14, 2, "8. NNTP pass");
-				break;
-		case FEEDRNEWS: mvprintw(10, 2, "4. Path rnews");
-				mvprintw(11, 2, "5. N/A");
-				mvprintw(12, 2, "6. N/A");
-                                mvprintw(13, 2, "7. N/A");
-                                mvprintw(14, 2, "8. N/A");
-				break;
-		case FEEDUUCP:	mvprintw(10, 2, "4. UUCP path");
-				mvprintw(11, 2, "5. UUCP node");
-                                mvprintw(12, 2, "6. N/A");
-                                mvprintw(13, 2, "7. N/A");
-                                mvprintw(14, 2, "8. N/A");
-				break;
-	}
-        mvprintw(15, 2, "9. News dupes");
-        mvprintw(16, 1, "10. Email aka");
-        mvprintw(17, 1, "11. UUCP aka");
-        mvprintw(18, 1, "12. Emailmode");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 5, "1.12   EDIT INTERNET MAIL AND NEWS PROCESSING");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1. POP3 node");
+    mvprintw( 8, 2, "2. Usr@domain");
+    mvprintw( 9, 2, "3. SMTP node");
+    switch (CFG.newsfeed) {
+	case FEEDINN:	mvprintw(10, 2, "4. N/A");
+        		mvprintw(11, 2, "5. NNTP node");
+			mvprintw(12, 2, "6. NNTP m.r.");
+			mvprintw(13, 2, "7. NNTP user");
+			mvprintw(14, 2, "8. NNTP pass");
+			break;
+	case FEEDRNEWS: mvprintw(10, 2, "4. Path rnews");
+			mvprintw(11, 2, "5. N/A");
+			mvprintw(12, 2, "6. N/A");
+                        mvprintw(13, 2, "7. N/A");
+                        mvprintw(14, 2, "8. N/A");
+			break;
+	case FEEDUUCP:	mvprintw(10, 2, "4. UUCP path");
+			mvprintw(11, 2, "5. UUCP node");
+                        mvprintw(12, 2, "6. N/A");
+                        mvprintw(13, 2, "7. N/A");
+                        mvprintw(14, 2, "8. N/A");
+			break;
+    }
+    mvprintw(15, 2, "9. News dupes");
+    mvprintw(16, 1, "10. Email aka");
+    mvprintw(17, 1, "11. UUCP aka");
+    mvprintw(18, 1, "12. Emailmode");
 
-	mvprintw(12,42, "13. Articles");
-        mvprintw(13,42, "14. News mode");
-        mvprintw(14,42, "15. Split at");
-        mvprintw(15,42, "16. Force at");
-        mvprintw(16,42, "17. Control ok");
-        mvprintw(17,42, "18. No regate");
+    mvprintw(13,42, "13. Articles");
+    mvprintw(14,42, "14. News mode");
+    mvprintw(15,42, "15. Split at");
+    mvprintw(16,42, "16. Force at");
+    mvprintw(17,42, "17. Control ok");
+    mvprintw(18,42, "18. No regate");
 
-        set_color(WHITE, BLACK);
-        show_str( 7,16,64, CFG.popnode);
-	show_bool(8,16,    CFG.UsePopDomain);
-        show_str( 9,16,64, CFG.smtpnode);
-        show_str(10,16,64, CFG.rnewspath);
-	show_str(11,16,64, CFG.nntpnode);
-        show_bool(12,16,   CFG.modereader);
-        show_str(13,16,15, CFG.nntpuser);
-        show_str(14,16,15, (char *)"**************");
+    set_color(WHITE, BLACK);
+    show_str( 7,16,64, CFG.popnode);
+    show_bool(8,16,    CFG.UsePopDomain);
+    show_str( 9,16,64, CFG.smtpnode);
+    switch (CFG.newsfeed) {
+	case FEEDINN:	show_str(11,16,64, CFG.nntpnode);
+			show_bool(12,16,   CFG.modereader);
+			show_str(13,16,15, CFG.nntpuser);
+			show_str(14,16,15, (char *)"**************");
+			break;
+	case FEEDRNEWS:	show_str(10,16,64, CFG.rnewspath);
+			break;
+	case FEEDUUCP:	show_str(10,16,64, CFG.rnewspath);
+			show_str(11,16,64, CFG.nntpnode);
+			break;
+    }
 
-        show_int(15,16,    CFG.nntpdupes);
-        show_aka(16,16,    CFG.EmailFidoAka);
-        show_aka(17,16,    CFG.UUCPgate);
-        show_emailmode(18,16, CFG.EmailMode);
+    show_int(15,16,    CFG.nntpdupes);
+    show_aka(16,16,    CFG.EmailFidoAka);
+    show_aka(17,16,    CFG.UUCPgate);
+    show_emailmode(18,16, CFG.EmailMode);
 
-	show_int( 13,57, CFG.maxarticles);
-	show_newsmode(14,57, CFG.newsfeed);
-        show_int( 15,57, CFG.new_split);
-        show_int( 16,57, CFG.new_force);
-        show_bool(17,57, CFG.allowcontrol);
-        show_bool(18,57, CFG.dontregate);
+    show_int( 13,57, CFG.maxarticles);
+    show_newsmode(14,57, CFG.newsfeed);
+    show_int( 15,57, CFG.new_split);
+    show_int( 16,57, CFG.new_force);
+    show_bool(17,57, CFG.allowcontrol);
+    show_bool(18,57, CFG.dontregate);
 }
 
 
@@ -977,7 +984,7 @@ void e_intmailcfg(void)
                 switch(select_menu(18)) {
                 case 0: return;
                 case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
-		case 2: E_BOOL( 8,16,    CFG.UsePopDomain, "Use ^user@maildomain^to login the POP3 server.")
+		case 2: E_BOOL( 8,16,    CFG.UsePopDomain, "Use ^user@maildomain^ to login the POP3 server.")
                 case 3: E_STR(  9,16,64, CFG.smtpnode,     "The ^FQDN^ of the node where the ^SMTP^ server runs.")
 		case 4: if (CFG.newsfeed == FEEDRNEWS)
 				strcpy(CFG.rnewspath, edit_pth(10,16,64, CFG.rnewspath, (char *)"The path and filename to the ^rnews^ command.", 0775));

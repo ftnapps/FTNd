@@ -43,10 +43,6 @@
 void error_popmail(char *);
 void error_popmail(char *umsg)
 {
-    char	*p;
-
-    pop3_send((char *)"QUIT\r\n");
-    p = pop3_receive();
     pop3_close();
     colour(LIGHTRED, BLACK);
     printf("%s\r\n", umsg);
@@ -136,7 +132,10 @@ void check_popmail(char *user, char *pass)
     /*
      *  If nothing is retrieved from the POP3 mailbox, the user sees nothing.
      */
-    Syslog('+', "POP3: connect user %s", user);
+    if (CFG.UsePopDomain)
+	Syslog('+', "POP3: connect user %s@%s", user, CFG.sysdomain);
+    else
+	Syslog('+', "POP3: connect user %s", user);
     if (pop3_connect() == -1) {
 	WriteError("Can't connect POP3 server");
 	return;
