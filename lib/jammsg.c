@@ -715,7 +715,6 @@ void JAM_Pack(void)
 	for (i = 0; i < count; i++) {
 	    if (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
 		if (jamHdrInfo.ActiveMsgs == 0 && (LR.LastReadMsg || LR.HighReadMsg)) {
-		    Syslog('-', "jamPack: reset LR pointer index %d, area %s", i, BaseName);
 		    LR.LastReadMsg = 0;
 		    LR.HighReadMsg = 0;
 		}

@@ -27,6 +27,9 @@ v0.61.2		11-Jul-2004 - 25-Jul-2004
 		with other mailers. Russell??
 		If you only use mbcico there will be no problems.
 
+	libmsgbase.a:
+		Removed debug logmessage from jamPack.
+
 	mbcico:
 		In the binkp driver, when files were found to transmit and
 		didn't exist anymore, they are not added to the list of files
