@@ -743,7 +743,6 @@ void Reply_Email(int IsReply)
 
 	if (strlen(subj))
 		strcpy(Msg.Subject, subj);
-	tlf(Msg.Subject);
 
 	Msg.Private = TRUE;
 	Enter(1);
@@ -873,7 +872,6 @@ void Write_Email(void)
 	fflush(stdout);
 	alarm_on();
 	GetstrP(Msg.Subject, 65, 0);
-	tlf(Msg.Subject);
 
 	if((strcmp(Msg.Subject, "")) == 0) {
 		Enter(1);

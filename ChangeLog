@@ -47,6 +47,8 @@ v0.37.4		10-May-2003
 	mbsebbs:
 		Increased internal message buffer size to 700 lines.
 		Fullscreen editor code cleanup, debug messages removed.
+		When entering a message, the first character of the subject
+		line was capitalized.
 
 	mbsetup:
 		In menu 1.14 added a switch to turn MD5 crypted passwords off.

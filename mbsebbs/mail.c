@@ -5,7 +5,7 @@
  * Todo ..................: Implement message groups.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -396,205 +396,204 @@ int Edit_Msg()
  */
 void Post_Msg()
 {
-	int		i, x;
-	char		*FidoNode;
-	faddr		*Dest = NULL;
-	node		*Nlent;
-	unsigned short	point;
+    int		    i, x;
+    char	    *FidoNode;
+    faddr	    *Dest = NULL;
+    node	    *Nlent;
+    unsigned short  point;
 
-	Line = 1;
-	WhosDoingWhat(READ_POST);
-	SetMsgArea(iMsgAreaNumber);
+    Line = 1;
+    WhosDoingWhat(READ_POST);
+    SetMsgArea(iMsgAreaNumber);
 
-	clear();
-	if (!Post_Allowed())
-		return;
+    clear();
+    if (!Post_Allowed())
+	return;
 	
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		Message[i] = (char *) calloc(81, sizeof(char));
-	Line = 1;
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	Message[i] = (char *) calloc(81, sizeof(char));
+    Line = 1;
 
-	Msg_New();
+    Msg_New();
 
-	colour(LIGHTBLUE, BLACK);
-	/* Posting message in area: */
-	printf("\n%s\"%s\"\n", (char *) Language(156), sMsgAreaDesc);
+    colour(LIGHTBLUE, BLACK);
+    /* Posting message in area: */
+    printf("\n%s\"%s\"\n", (char *) Language(156), sMsgAreaDesc);
 
-	if (Alias_Option()) {
-	    /*
-	     * Set Handle
-	     */
-	    strcpy(Msg.From, exitinfo.sHandle);
-	    tlcap(Msg.From); // Do we want this???
-	    /* From     : */
-	    pout(YELLOW, BLACK, (char *) Language(157));
-	} else {
-	    /*
-	     * Normal from address, no alias
-	     */
-	    /* From     : */
-	    pout(YELLOW, BLACK, (char *) Language(157));
-	    if (msgs.Type == NEWS) {
-		if (CFG.EmailMode != E_PRMISP) {
-			/*
-			 * If no internet mail domain, use fidonet addressing.
-			 */
-			Dest = fido2faddr(CFG.EmailFidoAka);
-			strcpy(Msg.From, exitinfo.sUserName);
-			tlcap(Msg.From);
-		} else {
-			sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
-		}
-	    } else {
+    if (Alias_Option()) {
+	/*
+         * Set Handle
+         */
+        strcpy(Msg.From, exitinfo.sHandle);
+        tlcap(Msg.From); // Do we want this???
+        /* From     : */
+        pout(YELLOW, BLACK, (char *) Language(157));
+    } else {
+        /*
+         * Normal from address, no alias
+         */
+        /* From     : */
+        pout(YELLOW, BLACK, (char *) Language(157));
+        if (msgs.Type == NEWS) {
+	   if (CFG.EmailMode != E_PRMISP) {
+		/*
+		 * If no internet mail domain, use fidonet addressing.
+		 */
+		Dest = fido2faddr(CFG.EmailFidoAka);
 		strcpy(Msg.From, exitinfo.sUserName);
 		tlcap(Msg.From);
+	    } else {
+		sprintf(Msg.From, "%s@%s (%s)", exitinfo.Name, CFG.sysdomain, exitinfo.sUserName);
 	    }
-	}
-
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
-	Syslog('b', "Setting From: %s", Msg.From);
-
-	if ((msgs.Type == NEWS) || (msgs.Type == LIST)) {
-                /*
-		 * Newsmode or maillist mode, automatic addressing to All.
-		 *                                   */
-	        strcpy(Msg.To, "All");
 	} else {
-		while (TRUE) {
-			Enter(1);
-			/* To     : */
-			pout(YELLOW, BLACK, (char *) Language(158));
-	
-			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-			Getname(Msg.To, 35);
-	
-			if ((strcmp(Msg.To, "")) == 0) {
-				for(i = 0; i < (TEXTBUFSIZE + 1); i++)
-					free(Message[i]);
-				return;
-			}
-
-			if ((strcasecmp(Msg.To, "sysop")) == 0)
-				strcpy(Msg.To, CFG.sysop_name);
-
-			/*
-			 * Localmail and Echomail may be addressed to All
-			 */
-			if ((msgs.Type == LOCALMAIL) || (msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
-				if (strcasecmp(Msg.To, "all") == 0) 
-					x = TRUE;
-				else {
-					/*
-					 * Local users must exist in the userbase.
-					 */
-					if (msgs.Type == LOCALMAIL) {
-						/* Verifying user ... */
-						pout(CYAN, BLACK, (char *) Language(159));
-						x = CheckUser(Msg.To);
-					} else
-						x = TRUE;
-				}
-			} else if (msgs.Type == NETMAIL) {
-				x = FALSE;
-				pout(YELLOW, BLACK, (char *)"Address  : ");
-				FidoNode = calloc(61, sizeof(char));
-				colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-				GetstrC(FidoNode, 60);
-
-				if ((Dest = parsefnode(FidoNode)) != NULL) {
-					point = Dest->point;
-					Dest->point = 0;
-					if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
-						colour(YELLOW, BLACK);
-						if (point)
-							printf("Boss     : ");
-						else
-							printf("Node     : ");
-						Dest->point = point;
-						colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-						printf("%s in %s", Nlent->name, Nlent->location);
-						colour(14, 0);
-						printf(" Is this correct Y/N: ");
-						colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-						fflush(stdout);
-						alarm_on();
-
-						if (toupper(Getone()) == 'Y') {
-							Enter(1);
-							sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
-							x = TRUE;
-							switch (Crash_Option(Dest)) {
-								case 1:	Msg.Crash = TRUE;
-									break;
-								case 2:	Msg.Immediate = TRUE;
-									break;
-							}
-						}
-					} else {
-						Dest->point = point;
-						printf("\r");
-						pout(CYAN, BLACK, (char *) Language(241));
-						fflush(stdout);
-						alarm_on();
-						if (toupper(Getone()) == Keystroke(241, 0)) {
-							x = TRUE;
-							Syslog('+', "Node %s not found, forced continue", FidoNode);
-						}
-					}
-				} else {
-					Syslog('m', "Can't parse address %s", FidoNode);
-				}
-				free(FidoNode);
-			} else {
-				x = FALSE;
-			}
-
-			if(!x) {
-				printf("\r");
-				/* User not found. Try again, or (Enter) to quit */
-				pout(CYAN, BLACK, (char *) Language(160));
-			} else
-				break;
-		}
+	    strcpy(Msg.From, exitinfo.sUserName);
+	    tlcap(Msg.From);
 	}
+    }
 
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
+    Syslog('b', "Setting From: %s", Msg.From);
+
+    if ((msgs.Type == NEWS) || (msgs.Type == LIST)) {
+        /*
+	 * Newsmode or maillist mode, automatic addressing to All.
+	 *                                   */
+	strcpy(Msg.To, "All");
+    } else {
+	while (TRUE) {
+	    Enter(1);
+	    /* To     : */
+	    pout(YELLOW, BLACK, (char *) Language(158));
+	
+	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	    Getname(Msg.To, 35);
+	
+	    if ((strcmp(Msg.To, "")) == 0) {
+		for(i = 0; i < (TEXTBUFSIZE + 1); i++)
+		    free(Message[i]);
+		return;
+	    }
+
+	    if ((strcasecmp(Msg.To, "sysop")) == 0)
+		strcpy(Msg.To, CFG.sysop_name);
+
+	    /*
+	     * Localmail and Echomail may be addressed to All
+	     */
+	    if ((msgs.Type == LOCALMAIL) || (msgs.Type == ECHOMAIL) || (msgs.Type == LIST)) {
+		if (strcasecmp(Msg.To, "all") == 0) 
+		    x = TRUE;
+		else {
+		    /*
+		     * Local users must exist in the userbase.
+		     */
+		    if (msgs.Type == LOCALMAIL) {
+			/* Verifying user ... */
+			pout(CYAN, BLACK, (char *) Language(159));
+			x = CheckUser(Msg.To);
+		    } else
+			x = TRUE;
+		}
+	    } else if (msgs.Type == NETMAIL) {
+		x = FALSE;
+		pout(YELLOW, BLACK, (char *)"Address  : ");
+		FidoNode = calloc(61, sizeof(char));
+		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+		GetstrC(FidoNode, 60);
+
+		if ((Dest = parsefnode(FidoNode)) != NULL) {
+		    point = Dest->point;
+		    Dest->point = 0;
+		    if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
+			colour(YELLOW, BLACK);
+			if (point)
+			    printf("Boss     : ");
+			else
+			    printf("Node     : ");
+			Dest->point = point;
+			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+			printf("%s in %s", Nlent->name, Nlent->location);
+			colour(14, 0);
+			printf(" Is this correct Y/N: ");
+			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+			fflush(stdout);
+			alarm_on();
+
+			if (toupper(Getone()) == 'Y') {
+			    Enter(1);
+			    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
+			    x = TRUE;
+			    switch (Crash_Option(Dest)) {
+				case 1:	Msg.Crash = TRUE;
+					break;
+				case 2:	Msg.Immediate = TRUE;
+					break;
+			    }
+			}
+		    } else {
+			Dest->point = point;
+			printf("\r");
+			pout(CYAN, BLACK, (char *) Language(241));
+			fflush(stdout);
+			alarm_on();
+			if (toupper(Getone()) == Keystroke(241, 0)) {
+			    x = TRUE;
+			    Syslog('+', "Node %s not found, forced continue", FidoNode);
+			}
+		    }
+		} else {
+		    Syslog('m', "Can't parse address %s", FidoNode);
+		}
+		free(FidoNode);
+	    } else {
+		x = FALSE;
+	    }
+
+	    if(!x) {
+		printf("\r");
+		/* User not found. Try again, or (Enter) to quit */
+		pout(CYAN, BLACK, (char *) Language(160));
+	    } else
+		break;
+	}
+    }
+
+    Enter(1);
+    /* Subject  :  */
+    pout(YELLOW, BLACK, (char *) Language(161));
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    fflush(stdout);
+    alarm_on();
+    GetstrP(Msg.Subject, 65, 0);
+
+    if ((strcmp(Msg.Subject, "")) == 0) {
 	Enter(1);
-	/* Subject  :  */
-	pout(YELLOW, BLACK, (char *) Language(161));
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	/* Abort Message [y/N] ?: */
+	pout(CYAN, BLACK, (char *) Language(162));
 	fflush(stdout);
 	alarm_on();
-	GetstrP(Msg.Subject, 65, 0);
-	tlf(Msg.Subject);
 
-	if((strcmp(Msg.Subject, "")) == 0) {
-		Enter(1);
-		/* Abort Message [y/N] ?: */
-		pout(CYAN, BLACK, (char *) Language(162));
-		fflush(stdout);
-		alarm_on();
-
-		if (toupper(Getone()) == Keystroke(162, 0)) {
-			for(i = 0; i < (TEXTBUFSIZE + 1); i++)
-				free(Message[i]);
-			return;
-		}
-	}
-
-	/*
-	 * If not addressed to "all" and the area is Private/Public we
-	 * ask the user for the private flag.
-	 */
-	if ((strcasecmp(Msg.To, "all")) != 0)
-		Msg.Private = IsPrivate();
-
-	Check_Attach();
-
-	if (Edit_Msg())
-		Save_Msg(FALSE, Dest);
-
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	if (toupper(Getone()) == Keystroke(162, 0)) {
+	    for(i = 0; i < (TEXTBUFSIZE + 1); i++)
 		free(Message[i]);
+	    return;
+	}
+    }
+
+    /*
+     * If not addressed to "all" and the area is Private/Public we
+     * ask the user for the private flag.
+     */
+    if ((strcasecmp(Msg.To, "all")) != 0)
+	Msg.Private = IsPrivate();
+
+    Check_Attach();
+
+    if (Edit_Msg())
+	Save_Msg(FALSE, Dest);
+
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	free(Message[i]);
 }
 
 
@@ -1379,7 +1378,6 @@ void Reply_Msg(int IsReply)
 
     if (strlen(subj))
 	strcpy(Msg.Subject, subj);
-    tlf(Msg.Subject);
 
     Msg.Private = IsPrivate();
     Enter(1);
