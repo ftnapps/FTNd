@@ -30,7 +30,9 @@
  * Ideas taken from Samba, Copyright (C) Andrew Tridgell 1992-1998
  *****************************************************************************/
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 #include "structs.h"
 #include "clcomm.h"
 #include "common.h"

@@ -28,7 +28,9 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -38,6 +40,7 @@
 #include "../lib/msgtext.h"
 #include "../lib/dbmsgs.h"
 #include "../lib/dbuser.h"
+#include "msgflags.h"
 #include "rollover.h"
 #include "storenet.h"
 

@@ -41,7 +41,9 @@
  * COPYRIGHT (C) 1991-1993; ALL RIGHTS RESERVED
  */
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

@@ -28,7 +28,9 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -148,7 +150,7 @@ int call(faddr *addr)
 	 * First see if this node can be reached over the internet and
 	 * that internet calls are allowed.
 	 */
-	if (nlent->iflags && ((localoptions & NOIBN & NOITN & NOIFC) == 0)) {
+	if (nlent->iflags && ((localoptions & (NOIBN | NOITN | NOIFC)) == 0)) {
 		if (!inetaddr) {
 			Syslog('d', "Trying to find IP address...");
 			/*

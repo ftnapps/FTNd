@@ -28,7 +28,9 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -46,6 +48,7 @@
 #include "pack.h"
 #include "postnetmail.h"
 #include "postecho.h"
+#include "msgflags.h"
 #include "rfc2ftn.h"
 
 

@@ -32,7 +32,9 @@
 	contributed by Stanislav Voronyi <stas@uanet.kharkov.ua>
 */
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

@@ -1,5 +1,7 @@
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 
 #ifndef HAVE_STRCASESTR
 

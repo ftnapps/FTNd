@@ -31,7 +31,9 @@
 /* ### Modified by P.Saratxaga on 25 Oct 1995 ###
  * - Added if (inetaddr) code from T. Tanaka
  */
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"

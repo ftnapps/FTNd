@@ -28,7 +28,9 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 #include "structs.h"
 #include "common.h"
 #include "users.h"

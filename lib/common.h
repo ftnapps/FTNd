@@ -903,16 +903,6 @@ extern CYYSTYPE cyylval;
 time_t parsedate(char *, TIMEINFO *);
 
 
-/*
- * msgflags.c
- */
-int	flag_on(char *,char *);
-int	flagset(char *);
-char	*compose_flags(int,char *);
-char	*strip_flags(char *);
-int	flag_on(char *,char *);
-
-
 
 /*
  * strcasestr.c

@@ -33,8 +33,6 @@
 #ifndef _LIBS_H
 #define _LIBS_H
 
-#include "../config.h"
-
 #ifndef _GNU_SOURCE
 #define	_GNU_SOURCE 1
 #endif
@@ -85,7 +83,6 @@
 #include <setjmp.h>
 #include <grp.h>
 #include <sys/resource.h>
-#include "../lib/memwatch.h"
 
 #pragma pack(1)
 

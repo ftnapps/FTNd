@@ -27,7 +27,9 @@
 **
 */
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 
 #error "Hey! Don't just compile this program, read the comments first!"
 #ifndef SIGSEGV

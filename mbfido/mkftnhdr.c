@@ -41,7 +41,9 @@
  * - corriged a bug when Organization: has only blanks
  */
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -50,6 +52,7 @@
 #include "../lib/dbcfg.h"
 #include "atoul.h"
 #include "hash.h"
+#include "msgflags.h"
 #include "aliasdb.h"
 #include "mkftnhdr.h"
 

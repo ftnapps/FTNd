@@ -28,7 +28,9 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 #include "clcomm.h"
 
 static int		sock = -1;	/* Unix Datagram socket		*/

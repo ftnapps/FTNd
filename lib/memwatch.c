@@ -82,7 +82,6 @@
 ** Include files
 ***********************************************************************/
 
-#include "../config.h"
 #include "libs.h"
 #include "memwatch.h"
 

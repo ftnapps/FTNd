@@ -2,7 +2,9 @@
 #
 
 BEGIN	{
+		print "#include \"../config.h\""
 		print "#include \"libs.h\""
+		print "#include \"memwatch.h\""
 		print "#include \"structs.h\""
 		print "#include \"common.h\""
 		print ""

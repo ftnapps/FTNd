@@ -64,6 +64,7 @@
 
 #if defined(__FreeBSD__) || defined(__NetBSD__)
 
+#include "../config.h"
 #include <sys/param.h>
 #include <sys/errno.h>
 #include <sys/time.h>

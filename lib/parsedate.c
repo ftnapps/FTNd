@@ -19,7 +19,9 @@
 /* SUPPRESS 593 on yynewstate *//* Label was not used */
 /* SUPPRESS 595 on yypvt *//* Automatic variable may be used before set */
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 #include "structs.h"
 #include "common.h"
 

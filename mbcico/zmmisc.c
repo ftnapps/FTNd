@@ -60,7 +60,9 @@ static int zgethex(void);
 static int zgeth1(void);
 static void garbitch(void);
 
+#include "../config.h"
 #include "../lib/libs.h"
+#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"

@@ -326,7 +326,9 @@ documented above, in outstring.
     
 */
 
+#include "../config.h"
 #include "libs.h"
+#include "memwatch.h"
 #include "diesel.h"
 
 /* Get(<var>, <structure_type>) allocates a new  <structure_type>  and
