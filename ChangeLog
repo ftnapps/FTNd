@@ -15,6 +15,10 @@ v0.39.1		22-Oct-2003
 		Fixed a bug where the bbs goes into a loop after idle timeout
 		during login (and maybe in other situations).
 
+	mbfile:
+		When the areanumber with the adopt command was not given, the
+		help is displayed instead of trying area 0 that doesn't exist.
+
 	mbsetup:
 		In node editor, fixed error message when there was no more
 		room for new nodes to point to the right menus.

@@ -104,23 +104,25 @@ int main(int argc, char **argv)
 	cmd = xstrcat(cmd, argv[i]);
 
 	if (!strncasecmp(argv[i], "a", 1)) {
-	    do_adopt = TRUE;
 	    i++;
 	    Area = atoi(argv[i]);
 	    cmd = xstrcat(cmd, (char *)" ");
 	    cmd = xstrcat(cmd, argv[i]);
-	    i++;
-	    FileName = xstrcpy(argv[i]);
-	    cmd = xstrcat(cmd, (char *)" ");
-	    cmd = xstrcat(cmd, argv[i]);
-	    if (argc > (i + 1)) {
+	    if (Area) {
+		do_adopt = TRUE;
 		i++;
+		FileName = xstrcpy(argv[i]);
 		cmd = xstrcat(cmd, (char *)" ");
 		cmd = xstrcat(cmd, argv[i]);
-		if (!strncasecmp(argv[i], "-a", 2)) {
-		    do_annon = TRUE;
-		} else {
-		    Description = xstrcpy(argv[i]);
+		if (argc > (i + 1)) {
+		    i++;
+		    cmd = xstrcat(cmd, (char *)" ");
+		    cmd = xstrcat(cmd, argv[i]);
+		    if (!strncasecmp(argv[i], "-a", 2)) {
+			do_annon = TRUE;
+		    } else {
+			Description = xstrcpy(argv[i]);
+		    }
 		}
 	    }
 	} else if ((!strncasecmp(argv[i], "d", 1)) || (!strncasecmp(argv[i], "u", 1))) {

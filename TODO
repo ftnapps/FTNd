@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.38.0 TODO list.
+			MBSE BBS V0.39.1 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -129,9 +129,6 @@ mbfile:
 	L: Possibility to skip file areas from checking and reindexing.
 
 	N: Add area sorting
-
-	N: If area is missing on the commandline, mbfile searches for record
-	   0 wich doesn't exist.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area
