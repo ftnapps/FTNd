@@ -94,6 +94,7 @@ static int	ansbinkp(void);
 static int	binkp_batch(file_list *);
 
 
+extern char	*tempinbound;
 extern char	*ttystat[];
 extern int	Loaded;
 extern pid_t	mypid;
@@ -133,6 +134,7 @@ struct binkprec {
     int			role;			/* 1=orig, 0=answer		    */
     int			RxState;		/* Receiver state		    */
     int			TxState;		/* Transmitter state		    */
+    int			DidSendGET;		/* Did we send a GET command	    */
     long		rsize;			/* Receiver filesize		    */
     long		roffs;			/* Receiver offset		    */
     char		*rname;			/* Receiver filename		    */
@@ -168,6 +170,7 @@ void binkp_init(void)
 	bp.CRCflag = WeCan;
     bp.Major = 1;
     bp.Minor = 0;
+    bp.DidSendGET = FALSE;
 }
 
 
@@ -442,15 +445,26 @@ void binkp_send_control(int id,...)
 
 
 
+/*
+ * This function is called two times if a partial file exists from openfile.
+ *  1. A partial file is detected, send a GET to the remote, set DidSendGET flag.
+ *  2. DidSendGET is set, return 0 and let openfile open the file in append mode.
+ */
 int resync(off_t off)
 {
-    Syslog('b', "Binkp: resync(%d)", off);
-    if (bp.CRCflag == Active) {
-	binkp_send_control(MM_GET, "%s %ld %ld %ld %lx", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs, &bp.rcrc);
-    } else {
-	binkp_send_control(MM_GET, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
+    Syslog('b', "Binkp: resync(%d) DidSendGET=%s", off, bp.DidSendGET ?"TRUE":"FALSE");
+    if (!bp.DidSendGET) {
+	if (bp.CRCflag == Active) {
+	    binkp_send_control(MM_GET, "%s %ld %ld %ld %lx", bp.rname, bp.rsize, bp.rtime, off, bp.rcrc);
+	} else {
+	    binkp_send_control(MM_GET, "%s %ld %ld %ld", bp.rname, bp.rsize, bp.rtime, off);
+	}
+	bp.DidSendGET = TRUE;
+	Syslog('+', "Binkp: already %lu bytes received, requested restart with offset", (unsigned long)off);
+	return -1;  /* Signal openfile not to open the file */
     }
-    return 0; 
+    bp.DidSendGET = FALSE;
+    return 0;	    /* Signal openfile to open the file in append mode	*/
 }
 
 
@@ -858,11 +872,9 @@ SM_STATE(WaitOk)
 SM_STATE(Opts)
 
     /*
-     * Room to negotiate more protocol options.
-     * When we are binkp/1.1 and remote is 1.0 we should
-     * negotiate MB mode here.
+     *  Try to initiate the MB option if the remote is binkp/1.0
      */
-    if (bp.MBflag == WeCan) {
+    if ((bp.MBflag == WeCan) && (bp.Major == 1) && (bp.Minor == 0)) {
 	bp.MBflag = WeWant;
 	Syslog('b', "MBflag WeCan => WeWant");
 	binkp_send_control(MM_NUL, "OPT MB");
@@ -1190,6 +1202,7 @@ int binkp_batch(file_list *to_send)
     struct timeval  rxtvstart, rxtvend;
     struct timeval  txtvstart, txtvend;
     struct timezone tz;
+    struct statfs   sfs;
 
     rxtvstart.tv_sec = rxtvstart.tv_usec = 0;
     rxtvend.tv_sec   = rxtvend.tv_usec   = 0;
@@ -1550,7 +1563,13 @@ int binkp_batch(file_list *to_send)
 			    transferred = TRUE;
 			}
 		    } else {
-			Syslog('+', "Binkp: unexpected DATA frame %d", rxbuf[0]);
+			if (!bp.DidSendGET) {
+			    /*
+			     * Do not log after a GET command, there will be data packets
+			     * in the pipeline that must be ignored.
+			     */
+			    Syslog('+', "Binkp: unexpected DATA frame %d", rxbuf[0]);
+			}
 		    }
 		}
 	    }
@@ -1576,8 +1595,26 @@ int binkp_batch(file_list *to_send)
 			bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
 	    (void)binkp2unix(bp.rname);
 	    rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, resync);
+
+	    if (bp.DidSendGET) {
+		/*
+		 * The file was partly received, via the openfile the resync function
+		 * has send a GET command to start this file with a offset. This means
+		 * we will get a new FILE command to open this file with a offset.
+		 */
+		bp.RxState = RxWaitFile;
+		break;
+	    }
+
 	    gettimeofday(&rxtvstart, &tz);
-	    rxpos = 0;
+	    rxpos = bp.roffs;
+
+	    /*
+	     * FIXME: if we have a rxpos, we are appending a partial received file.
+	     * We now need to know the CRC of the already received part!
+	     * Note, file is open in a+ mode, so we can read the already received
+	     * part and calculate the crc. For now, don't use CRC32 mode.
+	     */
 	    rxcrc = 0xffffffff;
 	    rxerror = FALSE;
 
@@ -1588,6 +1625,17 @@ int binkp_batch(file_list *to_send)
 		bp.TxState = TxDone;
 		rc = MBERR_FTRANSFER;
 		break;
+	    }
+
+	    if (statfs(tempinbound, &sfs) == 0) {
+		Syslog('b', "blocksize %lu free blocks %lu", sfs.f_bsize, sfs.f_bfree);
+		Syslog('b', "need %lu blocks", (unsigned long)(bp.rsize / (sfs.f_bsize + 1)));
+		if ((bp.rsize / (sfs.f_bsize + 1)) >= sfs.f_bfree) {
+		    Syslog('!', "Only %lu blocks free (need %lu) in %s", sfs.f_bfree, 
+			    (unsigned long)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
+		    closefile();
+		    rxfp = NULL; /* Force SKIP command	*/
+		}
 	    }
 
 	    if (bp.rsize == rxbytes) {

@@ -61,12 +61,12 @@ extern char	*tempinbound;
 FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*resync)(off_t))
 {
     char	    *opentype, *p, x, ctt[32], tmpfname[16];
-    int		    rc, ncount;
+    int		    rc, rsc, ncount;
     struct stat	    st;
 
     strcpy(ctt,date(remtime));
 
-    Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt),(unsigned long)remsize);
+    Syslog('s', "openfile(\"%s\",%s,%lu,...)", MBSE_SS(fname), MBSE_SS(ctt), (unsigned long)remsize);
 
     if ((fname == NULL) || (fname[0] == '\0')) {
 	sprintf(tmpfname,"%08lx.pkt",(unsigned long)sequencer());
@@ -97,8 +97,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
     }
     infpath = xstrcat(infpath, fname);
     if (stat(infpath, &st) == 0) {
-	/* FIXME: temp normal logging now! */
-	Syslog('-', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
+	Syslog('s', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
 
 	if ((remtime == st.st_mtime) && (remsize == st.st_size)) {
 	    Syslog('+', "File %s is already here", fname);
@@ -158,13 +157,20 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
     *resofs = 0L;
     opentype = (char *)"w";
     if ((rc == 0) && (remsize != 0)) {
-	Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned long)st.st_size, infpath);
-	if (resync(st.st_size) == 0) {
-	    opentype = (char *)"a";
-	    *resofs = st.st_size;
-	    Syslog('s', "resync == 0");
-	} else {
-	    Syslog('s', "resync != 0");
+	rsc = resync(st.st_size);
+	Syslog('s', "resync(%d) rsc=%d", (int)st.st_size, rsc);
+	switch (rsc) {
+	    case 0:	/* Success  */
+			opentype = (char *)"a+";
+			*resofs = st.st_size;
+			Syslog('+', "Resyncing at offset %lu of \"%s\"", (unsigned long)st.st_size, infpath);
+			break;
+	    case -1:	/* Binkp did send a GET, return here and do not open file */
+			free(infpath);
+			infpath = NULL;
+			return NULL;
+	    default:	/* Error from xmrecv, do nothing    */
+			break;
 	}
     }
     Syslog('s', "try fopen(\"%s\",\"%s\")", infpath, opentype);

@@ -38,12 +38,11 @@ v0.37.7		09-Sep-2003
 
 	mbcico:
 		Fixed MB state error from the previous version.
-		Added more code to debug the broken transfer problem.
-		Add attempt to send a resync command, please test.
 		Rewrote another part of the binkp driver, initializing the
 		options.
 		If doesn't do Multiple Batch mode anymore against binkp/1.1
 		mailers.
+		File resync during receive finally works.
 
 	mbtask:
 		Added support for debug logfile. Dropped the debug switch for
