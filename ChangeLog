@@ -4723,6 +4723,7 @@ v0.33.20        10-Feb-2002
 		of being plain passed.
 		Auto file area create implemented, it can use plain tagfiles
 		or filegate.zxx formatted files.
+		The mbfido web command now uses macro templates.
 
 	mbfile:
 		The mbfile index command now creates the html pages using the

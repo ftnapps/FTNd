@@ -166,7 +166,7 @@ utic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/co
 announce.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h announce.h
 fflist.o: ../lib/libs.h ../lib/clcomm.h ../lib/msg.h fflist.h
 ftn2rfc.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbftn.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h rollover.h aliasdb.h postemail.h backalias.h ftn2rfc.h
-makestat.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/diesel.h makestat.h
+makestat.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/diesel.h mgrutil.h makestat.h
 mbindex.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbftn.h mbindex.h
 msgutil.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h
 postecho.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h

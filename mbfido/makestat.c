@@ -35,62 +35,56 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/diesel.h"
+#include "mgrutil.h"
 #include "makestat.h"
 
 
 
 
-FILE *newpage(char *, char *);
-FILE *newpage(char *Name, char *Title)
+FILE *newpage(char *, FILE *);
+FILE *newpage(char *Name, FILE *fi)
 {
-        char            linebuf[1024], outbuf[1024];
-        static FILE*    fa;
-	time_t		later;
+    char            *temp;
+    static FILE*    fa;
+    time_t	    later;
 
-	later = time(NULL) + 86400;
-	sprintf(linebuf, "%s/stat/%s.temp", CFG.www_root, Name);
-	mkdirs(linebuf, 0755);
+    later = time(NULL) + 86400;
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/stat/%s.temp", CFG.www_root, Name);
+    mkdirs(temp, 0755);
 
-        if ((fa = fopen(linebuf, "w")) == NULL) {
-                WriteError("$Can't create %s", linebuf);
-        } else {
-                sprintf(linebuf, "%s", Title);
-                html_massage(linebuf, outbuf);
-                fprintf(fa, "<HTML>\n");
-                fprintf(fa, "<META http-equiv=\"Expires\" content=\"%s\">\n", rfcdate(later));
-                fprintf(fa, "<META http-equiv=\"Cache-Control\" content=\"no-cache, must-revalidate\">\n");
-                fprintf(fa, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
-                fprintf(fa, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
-                fprintf(fa, "<HEAD>\n<TITLE>%s</TITLE>\n", outbuf);
-                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
-                fprintf(fa, "<STYLE TYPE=\"text/css\">\n");
-                fprintf(fa, "</STYLE>\n</HEAD>\n<BODY>\n<A NAME=top></A>\n");
-                fprintf(fa, "<H1 align=center>%s</H1><P>\n", Title);
-		fprintf(fa, "<TABLE align=center cellspacing=0 cellpadding=2 border=1>\n");
-                return fa;
-        }
-        return NULL;
+    if ((fa = fopen(temp, "w")) == NULL) {
+	WriteError("$Can't create %s", temp);
+    } else {
+	MacroVars("a", "s", rfcdate(later));
+	MacroRead(fi, fa);
+	free(temp);
+	return fa;
+    }
+
+    free(temp);
+    return NULL;
 }
 
 
 
-void closepage(FILE *, char *);
-void closepage(FILE *fa, char *Name)
+void closepage(FILE *, char *, FILE *);
+void closepage(FILE *fa, char *Name, FILE *fi)
 {
-        char    temp1[81], temp2[81];
+    char    *temp1, *temp2;
 
-        if (fa == NULL)
-                return;
+    if (fa == NULL)
+	return;
 
-        fprintf(fa, "</TABLE><P>\n");
-	fprintf(fa, "<DIV align=center>\n");
-	fprintf(fa, "<A HREF=#top>Top of page</A>&nbsp;&nbsp;&nbsp;<A HREF=index.html>Statistic index</A>\n");
-        fprintf(fa, "</DIV>\n</BODY>\n</HTML>\n");
-        fclose(fa);
-	sprintf(temp1, "%s/stat/%s.html", CFG.www_root, Name);
-	sprintf(temp2, "%s/stat/%s.temp", CFG.www_root, Name);
-        rename(temp2, temp1);
-        fa = NULL;
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
+    MacroRead(fi, fa);
+    fclose(fa);
+    sprintf(temp1, "%s/stat/%s.html", CFG.www_root, Name);
+    sprintf(temp2, "%s/stat/%s.temp", CFG.www_root, Name);
+    rename(temp2, temp1);
+    chmod(temp1, 0644);
+    fa = NULL;
 }
 
 
@@ -115,195 +109,233 @@ char *adate(time_t now)
 
 void MakeStat(void)
 {
-	FILE		*fg, *fw;
-	char		*name, *p;
-	int		i, Total, Lm, Area;
-	struct _history	hist;
+    FILE	    *fi, *fg, *fw;
+    char	    *name, *p, *q;
+    int		    i, Total, Lm, Area;
+    struct _history hist;
+    long	    fileptr = 0;
 
-	if (!strlen(CFG.www_root))
-		return;
+    if (!strlen(CFG.www_root)) {
+	Syslog('!', "Warning, WWW root not defined, skip statistical html creation");
+	return;
+    }
 
-	Syslog('+', "Start making statistic HTML pages");
-	name = calloc(128, sizeof(char));
-	if (Miy == 0)
-		Lm = 11;
-	else
-		Lm = Miy -1;
+    Syslog('+', "Start making statistic HTML pages");
+    name = calloc(128, sizeof(char));
+    if (Miy == 0)
+	Lm = 11;
+    else
+	Lm = Miy -1;
 
-	sprintf(name, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) == NULL) {
-		WriteError("Can't open %s", name);
+    sprintf(name, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("Can't open %s", name);
+    } else {
+	fread(&mgrouphdr, sizeof(mgrouphdr), 1, fg);
+
+	if ((fi = OpenMacro("html.egroups", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
-		if ((fw = newpage((char *)"mgroups", (char *)"Message groups statistics")) != NULL) {
-			fprintf(fw, "<TR><TH class=head colspan=4>Message group statistics</TH><TH colspan=2>Received last</TH><TH colspan=2>Sent last</TH></TR>\n");
-			fprintf(fw, "<TR><TH>Group</TH><TH>Comment</TH><TH>Aka</TH><TH>Last date</TH><TH>week</TH><TH>month</TH><TH>week</TH><TH>month</TH></TR>\n");
-			fread(&mgrouphdr, sizeof(mgrouphdr), 1, fg);
-			while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
-				if (mgroup.Active) {
-					fprintf(fw, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD align=center>%s</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD></TR>\n",
-						mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka), adate(mgroup.LastDate),
-						mgroup.MsgsRcvd.lweek, mgroup.MsgsRcvd.month[Lm],
-						mgroup.MsgsSent.lweek, mgroup.MsgsSent.month[Lm]);
-				}
-			}
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"mgroups");
-		} else {
-			WriteError("Can't create mgroups.html");
+	    if ((fw = newpage((char *)"mgroups", fi)) != NULL) {
+		fileptr = ftell(fi);
+		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
+		    if (mgroup.Active) {
+			fseek(fi, fileptr, SEEK_SET);
+			MacroVars("bcdefghi", "ssssdddd", mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka), 
+				adate(mgroup.LastDate), mgroup.MsgsRcvd.lweek, mgroup.MsgsRcvd.month[Lm], 
+				mgroup.MsgsSent.lweek, mgroup.MsgsSent.month[Lm]);
+			MacroRead(fi, fw);
+		    }
 		}
-		fclose(fg);
+		closepage(fw, (char *)"mgroups", fi);
+	    } else {
+		WriteError("Can't create mgroups.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
 	
-	sprintf(name, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) == NULL) {
-		WriteError("$Can't open %s", name);
+    sprintf(name, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+    } else {
+	if ((fi = OpenMacro("html.mareas", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
-		if ((fw = newpage((char *)"mareas", (char *)"Message areas statistics")) != NULL) {
-			fprintf(fw, "<TR><TH class=head colspan=5>Message areas statistics</TH><TH colspan=2>Received last</TH><TH colspan=2>Posts last</TH></TR>\n");
-			fprintf(fw, "<TR><TH>Nr</TH><TH>Area</TH><TH>Tag</TH><TH>Group</TH><TH>Last date</TH><TH>week</TH><TH>month</TH><TH>week</TH><TH>month</TH></TR>\n");
-			fread(&msgshdr, sizeof(msgshdr), 1, fg);
-			Area = 0;
-			while ((fread(&msgs, msgshdr.recsize, 1, fg)) == 1) {
-				Area++;
-				if (msgs.Active) {
-					fprintf(fw, "<TR><TD align=right>%d</TD><TD>%s</TD><TD>%s&nbsp;</TD><TD>%s&nbsp;</TD><TD align=center>%s</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD></TR>\n",
-                                                Area, msgs.Name, msgs.Tag, msgs.Group, adate(msgs.LastRcvd),
-                                                msgs.Received.lweek, msgs.Received.month[Lm],
-                                                msgs.Posted.lweek, msgs.Posted.month[Lm]);
-				}
-				fseek(fg, msgshdr.syssize, SEEK_CUR);
-			}
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"mareas");
-		} else {
-			WriteError("Can't create mareas.html");
+	    if ((fw = newpage((char *)"mareas", fi)) != NULL) {
+		fileptr = ftell(fi);
+		fread(&msgshdr, sizeof(msgshdr), 1, fg);
+		Area = 0;
+		while ((fread(&msgs, msgshdr.recsize, 1, fg)) == 1) {
+		    Area++;
+		    if (msgs.Active) {
+			fseek(fi, fileptr, SEEK_SET);
+			MacroVars("bcdefghij", "dssssdddd", Area, msgs.Name, msgs.Tag, msgs.Group, adate(msgs.LastRcvd),
+			    msgs.Received.lweek, msgs.Received.month[Lm], msgs.Posted.lweek, msgs.Posted.month[Lm]);
+			MacroRead(fi, fw);
+		    }
+		    fseek(fg, msgshdr.syssize, SEEK_CUR);
 		}
-		fclose(fg);
+		closepage(fw, (char *)"mareas", fi);
+	    } else {
+		WriteError("Can't create mareas.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
-	sprintf(name, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) == NULL) {
-		WriteError("$Can't open %s", name);
+    sprintf(name, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+    } else {
+	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fg);
+	if ((fi = OpenMacro("html.fgroups", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
-		if ((fw = newpage((char *)"fgroups", (char *)"TIC file groups statistics")) != NULL) {
-			fprintf(fw, "<TR><TH class=head colspan=4>TIC file group statistics</TH><TH colspan=2>Last week</TH><TH colspan=2>Last month</TH></TR>\n");
-			fprintf(fw, "<TR><TH>Group</TH><TH>Comment</TH><TH>Aka</TH><TH>Last date</TH><TH>files</TH><TH>KBytes</TH><TH>files</TH><TH>KBytes</TH></TR>\n");
-			fread(&fgrouphdr, sizeof(fgrouphdr), 1, fg);
-			while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
-				if (fgroup.Active) {
-					fprintf(fw, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD align=center>%s</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD></TR>\n",
-						fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka), adate(fgroup.LastDate),
-						fgroup.Files.lweek, fgroup.KBytes.lweek,
-						fgroup.Files.month[Lm], fgroup.KBytes.month[Lm]);
-				}
-			}
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"fgroups");
-		} else {
-			WriteError("Can't create fgroups.html");
+	    if ((fw = newpage((char *)"fgroups", fi)) != NULL) {
+		fileptr = ftell(fi);
+		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
+		    if (fgroup.Active) {
+			fseek(fi, fileptr, SEEK_SET);
+			MacroVars("bcdefghi", "ssssdddd", fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka), adate(fgroup.LastDate),
+				fgroup.Files.lweek, fgroup.KBytes.lweek, fgroup.Files.month[Lm], fgroup.KBytes.month[Lm]);
+			MacroRead(fi, fw);
+		    }
 		}
-		fclose(fg);
+		closepage(fw, (char *)"fgroups", fi);
+	    } else {
+		WriteError("Can't create fgroups.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
-	sprintf(name, "%s/etc/tic.data", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) == NULL) {
-		WriteError("$Can't open %s", name);
+    sprintf(name, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+    } else {
+	fread(&tichdr, sizeof(tichdr), 1, fg);
+	if ((fi = OpenMacro("html.tic", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
-		if ((fw = newpage((char *)"tic", (char *)"TIC file areas statistics")) != NULL) {
-			fprintf(fw, "<TR><TH class=head colspan=4>TIC file areas statistics</TH><TH colspan=2>Last week</TH><TH colspan=2>Last month</TH></TR>\n");
-			fprintf(fw, "<TR><TH>Area</TH><TH>Tag</TH><TH>Group</TH><TH>Last date</TH><TH>files</TH><TH>KBytes</TH><TH>files</TH><TH>KBytes</TH></TR>\n");
-			fread(&tichdr, sizeof(tichdr), 1, fg);
-			while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
-				if (tic.Active) {
-					fprintf(fw, "<TR><TD>%s</TD><TD>%s&nbsp;</TD><TD>%s&nbsp;</TD><TD align=center>%s</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD><TD align=right>%ld</TD></TR>\n",
-                                                tic.Comment, tic.Name, tic.Group, adate(tic.LastAction),
-                                                tic.Files.lweek, tic.KBytes.lweek,
-                                                tic.Files.month[Lm], tic.KBytes.month[Lm]);
-				}
-				fseek(fg, tichdr.syssize, SEEK_CUR);
-			}
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"tic");
-		} else {
-			WriteError("Can't create tic.html");
+	    if ((fw = newpage((char *)"tic", fi)) != NULL) {
+		fileptr = ftell(fi);
+		while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
+		    if (tic.Active) {
+			fseek(fi, fileptr, SEEK_SET);
+			MacroVars("bcdefghi", "ssssdddd", tic.Comment, tic.Name, tic.Group, adate(tic.LastAction),
+                                 tic.Files.lweek, tic.KBytes.lweek, tic.Files.month[Lm], tic.KBytes.month[Lm]);
+			MacroRead(fi, fw);
+		    }
+		    fseek(fg, tichdr.syssize, SEEK_CUR);
 		}
-		fclose(fg);
+		closepage(fw, (char *)"tic", fi);
+	    } else {
+		WriteError("Can't create tic.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
-        sprintf(name, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
-        if ((fg = fopen(name, "r")) == NULL) {
-                WriteError("$Can't open %s", name);
-        } else {
-                if ((fw = newpage((char *)"nodes", (char *)"Nodes statistics")) != NULL) {
-                        fprintf(fw, "<TR><TH class=head colspan=7>Nodes statistics</TH></TR>\n");
-                        fprintf(fw, "<TR><TH>Node</TH><TH>Sysop</TH><TH>Status</TH><TH>Start Date</TH><TH>Last date</TH><TH>Credit</TH><TH>Debet</TH></TR>\n");
-                        fread(&nodeshdr, sizeof(nodeshdr), 1, fg);
-                        while ((fread(&nodes, nodeshdr.recsize, 1, fg)) == 1) {
-				fseek(fg, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
-				p = xstrcpy(adate(nodes.StartDate));
-				fprintf(fw, "<TR><TD>%s</TD><TD>%s</TD><TD>%s&nbsp;%s</TD><TD>%s</TD><TD>%s</TD><TD>%ld</TD><TD>%ld</TD></TR>\n",
-					aka2str(nodes.Aka[0]), nodes.Sysop, nodes.Crash?"Crash":"", nodes.Hold?"Hold":"",
-					p, adate(nodes.LastDate), nodes.Credit, nodes.Debet);
-				free(p);
-                        }
-                        fprintf(fw, "</TABLE>\n");
-                        closepage(fw, (char *)"nodes");
-                } else {
-                        WriteError("Can't create nodes.html");
-                }
-                fclose(fg);
-        }
-
-	sprintf(name, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) == NULL) {
-		WriteError("$Can't open %s", name);
+    sprintf(name, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+    } else {
+	fread(&nodeshdr, sizeof(nodeshdr), 1, fg);
+	if ((fi = OpenMacro("html.nodes", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
-		if ((fw = newpage((char *)"mailhistory", (char *)"Mailer history")) != NULL) {
-			fseek(fg, 0, SEEK_END);
-			Total = (ftell(fg) / sizeof(hist)) -1;
-			fseek(fg, 0, SEEK_SET);
-			fread(&hist, sizeof(hist), 1, fg);
-			fprintf(fw, "<TR><TH class=head colspan=8>Mailer history since %s</TH></TR>\n", adate(hist.online));
-			fprintf(fw, "<TR><TH>Aka</TH><TH>System</TH><TH>Location</TH><TH>Time</TH><TH>Elapsed</TH><TH>Sent</TH><TH>Received</TH><TH>Mode</TH></TR>\n");
+	    if ((fw = newpage((char *)"nodes", fi)) != NULL) {
+		fileptr = ftell(fi);
+                while ((fread(&nodes, nodeshdr.recsize, 1, fg)) == 1) {
+		    fseek(fg, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+		    p = xstrcpy(adate(nodes.StartDate));
+		    fseek(fi, fileptr, SEEK_SET);
+		    if (nodes.Crash)
+			q = xstrcpy((char *)"Crash");
+		    else if (nodes.Hold)
+			q = xstrcpy((char *)"Hold");
+		    else
+			q = xstrcpy((char *)"Normal");
+		    MacroVars("bcdefgh", "sssssdd", aka2str(nodes.Aka[0]), nodes.Sysop, q, p, 
+			    adate(nodes.LastDate), nodes.Credit, nodes.Debet);
+		    MacroRead(fi, fw);
+		    free(p);
+		    free(q);
+		}
+                closepage(fw, (char *)"nodes", fi);
+	    } else {
+		WriteError("Can't create nodes.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
+	}
+	fclose(fg);
+    }
 
-			for (i = Total; i > 0; i--) {
-				fseek(fg, i * sizeof(hist), SEEK_SET);
-				fread(&hist, sizeof(hist), 1, fg);
-				fprintf(fw, "<TR><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD>%s</TD><TD align=right>%lu</TD><TD align=right>%lu</TD><TD>%s</TD></TR>", 
-					aka2str(hist.aka), hist.system_name, hist.location,
+    sprintf(name, "%s/var/mailer.hist", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+    } else {
+	if ((fi = OpenMacro("html.mailer", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
+	} else {
+	    fseek(fg, 0, SEEK_END);
+	    Total = (ftell(fg) / sizeof(hist)) -1;
+	    fseek(fg, 0, SEEK_SET);
+	    fread(&hist, sizeof(hist), 1, fg);
+	    MacroVars("b", "s", adate(hist.online));
+	    if ((fw = newpage((char *)"mailhistory", fi)) != NULL) {
+		fileptr = ftell(fi);
+		for (i = Total; i > 0; i--) {
+		    fseek(fg, i * sizeof(hist), SEEK_SET);
+		    fread(&hist, sizeof(hist), 1, fg);
+		    fseek(fi, fileptr, SEEK_SET);
+		    MacroVars("cdefghij", "sssssdds", aka2str(hist.aka), hist.system_name, hist.location,
 					adate(hist.online), t_elapsed(hist.online, hist.offline), hist.sent_bytes,
 					hist.rcvd_bytes, hist.inbound ? "In":"Out");
-			}
-
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"mailhistory");
-		} else {
-			WriteError("Can't create tic.html");
+		    MacroRead(fi, fw);
 		}
-		fclose(fg);
+		closepage(fw, (char *)"mailhistory", fi);
+	    } else {
+		WriteError("Can't create tic.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
-	sprintf(name, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
-	if ((fg = fopen(name, "r")) != NULL ) {
-		fread(&SYSINFO, sizeof(SYSINFO), 1, fg);
-		if ((fw = newpage((char *)"sysinfo", (char *)"BBS system information")) != NULL) {
-			fprintf(fw, "<TR><TH class=head colspan=2>BBS system info</TH></TR>\n");
-			fprintf(fw, "<TR><TH>Total calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.SystemCalls);
-			fprintf(fw, "<TR><TH>Pots calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.Pots);
-			fprintf(fw, "<TR><TH>ISDN calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.ISDN);
-			fprintf(fw, "<TR><TH>Network calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.Network);
-			fprintf(fw, "<TR><TH>Local calls</TH><TD align=right>%lu</TD></TR>\n", SYSINFO.Local);
-			fprintf(fw, "<TR><TH>Start date</TH><TD align=right>%s</TD></TR>\n", adate(SYSINFO.StartDate));
-			fprintf(fw, "<TR><TH>Last caller</TH><TD align=right>%s</TD></TR>\n", SYSINFO.LastCaller);
-			fprintf(fw, "</TABLE>\n");
-			closepage(fw, (char *)"sysinfo");
-		}
-		fclose(fg);
+    sprintf(name, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    if ((fg = fopen(name, "r")) != NULL ) {
+	if ((fi = OpenMacro("html.sysinfo", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
+	} else {
+	    fread(&SYSINFO, sizeof(SYSINFO), 1, fg);
+	    MacroVars("bcdefgh", "dddddss", SYSINFO.SystemCalls, SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network,
+		    SYSINFO.Local, adate(SYSINFO.StartDate), SYSINFO.LastCaller);
+	    if ((fw = newpage((char *)"sysinfo", fi)) != NULL) {
+		closepage(fw, (char *)"sysinfo", fi);
+	    } else {
+		WriteError("Can't create sysinfo.html");
+	    }
+	    fclose(fi);
+	    MacroClear();
 	}
+	fclose(fg);
+    }
 
-	free(name);
-	Syslog('+', "Finished making statistic HTML pages");
+    free(name);
+    Syslog('+', "Finished making statistic HTML pages");
 }
 
 
