@@ -129,6 +129,10 @@ rfcmsg *parsrfc(FILE *fp)
 					Syslog('!', "Header line %s without key value", buffer);
 					cur->key = xstrcpy(buffer);
 					cur->val = xstrcpy((char *)" ");
+				} else if ((p=strchr(buffer,':')) && (p > buffer) && isspace(*(p+1))) { /* space past ':' */
+					Syslog('!', "Header line %s without key value (but with a Space)", buffer);
+					cur->key = xstrcpy(buffer);
+					cur->val = xstrcpy((char *)" ");
 				} else {
 					Syslog('M', "Non-header line: \"%s\"",buffer);
 					cur->key = xstrcpy((char *)"X-Body-Start");

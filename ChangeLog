@@ -6,6 +6,7 @@ v0.35.03	06-Jul-2002
 
 	common.a:
 		Added nodelist override to the nodelist lookup function.
+		Added protection against emty rfc headers with only a space.
 
 	lang:
 		Corrected a spelling error in the Dutch language file.
@@ -16,6 +17,10 @@ v0.35.03	06-Jul-2002
 
 	mbout:
 		Makes use of the node nodelist override settings.
+
+	mbfido:
+		Rollover now only sets IsDoing when it really does a date
+		rollover.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.

@@ -1694,7 +1694,6 @@ void BlueWave_Fetch()
 				Msg.Private = TRUE;
 			    if (msgs.MsgKinds == PRIVATE)
 				Msg.Private = TRUE;
-//			    Msg.Written = Upr.unix_date;
 			    Msg.Written = Upr.unix_date - (gmt_offset((time_t)0) * 60);
 			    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
 			    Msg.Local  = TRUE;
@@ -2195,209 +2194,223 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 
 void OLR_DownQWK(void)
 {
-	struct	tm	*tp;
-	time_t		Now;
-	char		Pktname[32];
-	long		Area = 0;
-	char		*Work, *Temp;
-	int		i, rc = 0;
-	FILE		*fp = NULL, *tf, *mf, *af;
-	unsigned long	Start, High;
-	msg_high	*tmp, *mhl = NULL;
+    struct tm	    *tp;
+    time_t	    Now;
+    char	    Pktname[32];
+    long	    Area = 0;
+    char	    *Work, *Temp;
+    int		    i, rc = 0;
+    FILE	    *fp = NULL, *tf, *mf, *af;
+    unsigned long   Start, High;
+    msg_high	    *tmp, *mhl = NULL;
 
-	if (!OLR_Prescan())
-		return;
+    if (!OLR_Prescan())
+	return;
 
-	Total = TotalPersonal = 0L;
-	clear();
-	colour(9, 0);
-	/*      QWK Offline Download */
-	printf("%s\n", (char *)Language(458));
+    Total = TotalPersonal = 0L;
+    clear();
+    colour(9, 0);
+    /*      QWK Offline Download */
+    printf("%s\n", (char *)Language(458));
 
-	Work = calloc(PATH_MAX, sizeof(char));
-	Temp = calloc(PATH_MAX, sizeof(char));
+    Work = calloc(PATH_MAX, sizeof(char));
+    Temp = calloc(PATH_MAX, sizeof(char));
 
-	Now = time(NULL);
-	tp = localtime(&Now);
-	Syslog('+', "Preparing QWK packet");
+    Now = time(NULL);
+    tp = localtime(&Now);
+    Syslog('+', "Preparing QWK packet");
 
-	sprintf(Temp, "%s.QWK", CFG.bbsid);
-	sprintf(Pktname, "%s", tl(Temp));
-	Syslog('m', "Packet name %s", Pktname);
-	sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
-	Syslog('m', "Work path %s", Work);
+    sprintf(Temp, "%s.QWK", CFG.bbsid);
+    sprintf(Pktname, "%s", tl(Temp));
+    Syslog('m', "Packet name %s", Pktname);
+    sprintf(Work, "%s/%s/tmp", CFG.bbs_usersdir, exitinfo.Name);
+    Syslog('m', "Work path %s", Work);
 
-	sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if ((mf = fopen(Temp, "r")) == NULL) {
-		WriteError("$Can't open %s", Temp);
-		fclose(fp);
-		return;
-	}
-	fread(&msgshdr, sizeof(msgshdr), 1, mf);
-
-	sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
-	if ((tf = fopen(Temp, "r")) == NULL) {
-		WriteError("$Can't open %s", Temp);
-		fclose(fp);
-		fclose(mf);
-		return;
-	}
-
-	Area = 0;
-	DrawBar(Pktname);
-	fseek(mf, sizeof(msgshdr), SEEK_SET);
-	fseek(tf, 0, SEEK_SET);
-
-	while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-		fseek(mf, msgshdr.syssize, SEEK_CUR);
-		fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
-		Area++;
-		if (olrtagrec.Tagged) {
-			if (Msg_Open(msgs.Base)) {
-				Current = Personal = 0;
-				if (Msg_Highest() != 0) {
-					memset(&LR, 0, sizeof(LR));
-					LR.UserID = grecno;
-					if (Msg_GetLastRead(&LR))
-						Start = LR.HighReadMsg;
-					else
-						Start = Msg_Lowest() -1;
-					if (Start > Msg_Highest())
-						Start = Msg_Highest();
-					if (Start < Msg_Highest()) {
-						Syslog('m', "First %lu, Last %lu, Start %lu", Msg_Lowest(), Msg_Highest(), Start);
-						High = QWK_PackArea(Start, Area);
-						fill_high(&mhl, Area, High, Personal);
-					}
-				}
-				Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
-				Msg_Close();
-			}
-		}
-	}
-
-	sprintf(Temp, "%s/CONTROL.DAT", Work);
-	if ((fp = fopen(Temp, "w+")) != NULL) {
-		fprintf(fp, "%s\n", CFG.bbs_name);
-		fprintf(fp, "%s\n", CFG.location);
-		fprintf(fp, "%s\n", CFG.Phone);
-		fprintf(fp, "%s\n", CFG.sysop_name);
-		fprintf(fp, "00000,%s\n", CFG.bbsid);
-		
-		fprintf(fp, "%02d-%02d-%04d,%02d:%02d:%02d\n", tp->tm_mday, tp->tm_mon+1, tp->tm_year+1900, 
-				tp->tm_hour, tp->tm_min, tp->tm_sec);
-		sprintf(Temp, "%s", exitinfo.sUserName);
-		fprintf(fp, "%s\n", tu(Temp));
-		fprintf(fp, " \n");
-		fprintf(fp, "0\n");
-		fprintf(fp, "%lu\n", Total);
-
-		/*
-		 * Count available areas.
-		 */
-		i = 0;
-		fseek(mf, msgshdr.hdrsize, SEEK_SET);
-		fseek(tf, 0, SEEK_SET);
-		while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-			fseek(mf, msgshdr.syssize, SEEK_CUR);
-			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname))
-				i++;
-		}
-		fprintf(fp, "%d\n", i - 1);
-
-		/*
-		 * Write available areas
-		 */
-		i = 0;
-		fseek(mf, msgshdr.hdrsize, SEEK_SET);
-		fseek(tf, 0, SEEK_SET);
-		while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-			fseek(mf, msgshdr.syssize, SEEK_CUR);
-			i++;
-			if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
-				fprintf(fp, "%d\n%s\n", i, msgs.QWKname);
-			}
-		}
-
-		fprintf(fp, "WELCOME\n");
-		fprintf(fp, "NEWS\n");
-		fprintf(fp, "GOODBYE\n");
-		fclose(fp);	
-	}
-
-	sprintf(Temp, "%s/DOOR.ID", Work);
-	if ((fp = fopen(Temp, "w+")) != 0) {
-		fprintf(fp, "DOOR = MBSE BBS QWK\n");
-		fprintf(fp, "VERSION = %s\n", VERSION);
-		fprintf(fp, "SYSTEM = %s\n", CFG.bbs_name);
-		fprintf(fp, "CONTROLNAME = MBSEQWK\n");
-		fprintf(fp, "CONTROLTYPE = ADD\n");
-		fprintf(fp, "CONTROLTYPE = DROP\n");
-		fclose(fp);
-	}
-
-	Syslog('+', "Packed %ld messages (%ld personal)", Total, TotalPersonal);
-	fclose(tf);
-
-	if (Total) {
-		/*        Packing with */
-		printf("\n%s ", (char *)Language(446));
-		sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
-		if ((af = fopen(Temp, "r")) != NULL) {
-			fread(&archiverhdr, sizeof(archiverhdr), 1, af);
-			while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
-				if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
-					Syslog('+', "Archiver %s", archiver.comment);
-					printf("%s ", archiver.comment);
-					sprintf(Temp, "%s/CONTROL.DAT", Work);
-					AddArc(Temp, Pktname);
-					alarm_on();
-					sprintf(Temp, "%s/MESSAGES.DAT", Work);
-					AddArc(Temp, Pktname);
-
-					for (tmp = mhl; tmp; tmp = tmp->next) {
-						sprintf(Temp, "%s/%03ld.NDX", Work, tmp->Area);
-						AddArc(Temp, Pktname);
-					}
-
-					sprintf(Temp, "%s/PERSONAL.NDX", Work);
-					if (TotalPersonal) {
-						AddArc(Temp, Pktname);
-					} else
-						unlink(Temp);
-
-					sprintf(Temp, "%s/DOOR.ID", Work);
-					AddArc(Temp, Pktname);
-					sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
-					rc = DownloadDirect(Temp, FALSE);
-					Syslog('m', "Download result %d", rc);
-					unlink(Temp);
-				}
-			}
-			fclose(af);
-		}
-	}
-
-	colour(CFG.HiliteF, CFG.HiliteB);
-	if (rc == FALSE) {
-		Syslog('+', "QWK download failed");
-		/*      Download failed */
-		printf("%s", (char *)Language(447));
-	} else {
-		Syslog('+', "QWK download successfull");
-		/*        Download successfull */
-		printf("\r%s\n", (char *)Language(448));
-
-		if (mhl != NULL)
-			UpdateLR(mhl, mf);
-	}
-	fclose(mf);
-	tidy_high(&mhl);
-
+    sprintf(Temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((mf = fopen(Temp, "r")) == NULL) {
+	WriteError("$Can't open %s", Temp);
+	fclose(fp);
 	free(Temp);
 	free(Work);
-	printf("\n\n");
-	Pause();
+	return;
+    }
+    fread(&msgshdr, sizeof(msgshdr), 1, mf);
+
+    sprintf(Temp, "%s/%s/.olrtags", CFG.bbs_usersdir, exitinfo.Name);
+    if ((tf = fopen(Temp, "r")) == NULL) {
+	WriteError("$Can't open %s", Temp);
+	fclose(fp);
+	fclose(mf);
+	free(Temp);
+	free(Work);
+	return;
+    }
+
+    Area = 0;
+    DrawBar(Pktname);
+    fseek(mf, sizeof(msgshdr), SEEK_SET);
+    fseek(tf, 0, SEEK_SET);
+
+    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+	fseek(mf, msgshdr.syssize, SEEK_CUR);
+	fread(&olrtagrec, sizeof(olrtagrec), 1, tf);
+	Area++;
+	if (olrtagrec.Tagged) {
+	    if (Msg_Open(msgs.Base)) {
+		Current = Personal = 0;
+		if (Msg_Highest() != 0) {
+		    memset(&LR, 0, sizeof(LR));
+		    LR.UserID = grecno;
+		    if (Msg_GetLastRead(&LR))
+			Start = LR.HighReadMsg;
+		    else
+			Start = Msg_Lowest() -1;
+		    if (Start > Msg_Highest())
+			Start = Msg_Highest();
+		    if (Start < Msg_Highest()) {
+			Syslog('m', "First %lu, Last %lu, Start %lu", Msg_Lowest(), Msg_Highest(), Start);
+			High = QWK_PackArea(Start, Area);
+			fill_high(&mhl, Area, High, Personal);
+		    }
+		}
+		Syslog('+', "Area %-20s %5ld (%ld personal)", msgs.QWKname, Current, Personal);
+		Msg_Close();
+	    }
+	}
+    }
+
+    sprintf(Temp, "%s/CONTROL.DAT", Work);
+    if ((fp = fopen(Temp, "w+")) != NULL) {
+	fprintf(fp, "%s\n", CFG.bbs_name);
+	fprintf(fp, "%s\n", CFG.location);
+	fprintf(fp, "%s\n", CFG.Phone);
+	fprintf(fp, "%s\n", CFG.sysop_name);
+	fprintf(fp, "00000,%s\n", CFG.bbsid);
+		
+	fprintf(fp, "%02d-%02d-%04d,%02d:%02d:%02d\n", tp->tm_mday, tp->tm_mon+1, tp->tm_year+1900, 
+				tp->tm_hour, tp->tm_min, tp->tm_sec);
+	sprintf(Temp, "%s", exitinfo.sUserName);
+	fprintf(fp, "%s\n", tu(Temp));
+	fprintf(fp, " \n");
+	fprintf(fp, "0\n");
+	fprintf(fp, "%lu\n", Total);
+
+	/*
+	 * Count available areas.
+	 */
+	i = 0;
+	fseek(mf, msgshdr.hdrsize, SEEK_SET);
+	fseek(tf, 0, SEEK_SET);
+	while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+	    fseek(mf, msgshdr.syssize, SEEK_CUR);
+	    if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname))
+		i++;
+	}
+	fprintf(fp, "%d\n", i - 1);
+
+	/*
+	 * Write available areas
+	 */
+	i = 0;
+	fseek(mf, msgshdr.hdrsize, SEEK_SET);
+	fseek(tf, 0, SEEK_SET);
+	while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+	    fseek(mf, msgshdr.syssize, SEEK_CUR);
+	    i++;
+	    if (msgs.Active && Access(exitinfo.Security, msgs.RDSec) && strlen(msgs.QWKname)) {
+		fprintf(fp, "%d\n%s\n", i, msgs.QWKname);
+	    }
+	}
+
+	fprintf(fp, "WELCOME\n");
+	fprintf(fp, "NEWS\n");
+	fprintf(fp, "GOODBYE\n");
+	fclose(fp);	
+    }
+
+    sprintf(Temp, "%s/DOOR.ID", Work);
+    if ((fp = fopen(Temp, "w+")) != 0) {
+	fprintf(fp, "DOOR = MBSE BBS QWK\n");
+	fprintf(fp, "VERSION = %s\n", VERSION);
+	fprintf(fp, "SYSTEM = %s\n", CFG.bbs_name);
+	fprintf(fp, "CONTROLNAME = MBSEQWK\n");
+	fprintf(fp, "CONTROLTYPE = ADD\n");
+	fprintf(fp, "CONTROLTYPE = DROP\n");
+	/*
+	 * QWKE extensions
+	 */
+//	fprintf(fp, "CONTROLTYPE = MAXKEYWORDS 0\n");
+//	fprintf(fp, "CONTROLTYPE = MAXFILTERS 0\n");
+//	fprintf(fp, "CONTROLTYPE = MAXTWITS 0\n");
+//	fprintf(fp, "CONTROLTYPE = ALLOWATTACH\n");
+//	fprintf(fp, "CONTROLTYPE = ALLOWFILES\n");
+//	fprintf(fp, "CONTROLTYPE = ALLOWREQUESTS\n");
+//	fprintf(fp, "CONTROLTYPE = MAXREQUESTS 0\n");
+	fclose(fp);
+    }
+
+    Syslog('+', "Packed %ld messages (%ld personal)", Total, TotalPersonal);
+    fclose(tf);
+
+    if (Total) {
+	/*        Packing with */
+	printf("\n%s ", (char *)Language(446));
+	sprintf(Temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+	if ((af = fopen(Temp, "r")) != NULL) {
+	    fread(&archiverhdr, sizeof(archiverhdr), 1, af);
+	    while (fread(&archiver, archiverhdr.recsize, 1, af) == 1) {
+		if (archiver.available && (!strcmp(archiver.name, exitinfo.Archiver))) {
+		    Syslog('+', "Archiver %s", archiver.comment);
+		    printf("%s ", archiver.comment);
+		    sprintf(Temp, "%s/CONTROL.DAT", Work);
+		    AddArc(Temp, Pktname);
+		    alarm_on();
+		    sprintf(Temp, "%s/MESSAGES.DAT", Work);
+		    AddArc(Temp, Pktname);
+
+		    for (tmp = mhl; tmp; tmp = tmp->next) {
+			sprintf(Temp, "%s/%03ld.NDX", Work, tmp->Area);
+			AddArc(Temp, Pktname);
+		    }
+
+		    sprintf(Temp, "%s/PERSONAL.NDX", Work);
+		    if (TotalPersonal) {
+			AddArc(Temp, Pktname);
+		    } else
+			unlink(Temp);
+
+		    sprintf(Temp, "%s/DOOR.ID", Work);
+		    AddArc(Temp, Pktname);
+		    sprintf(Temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Pktname);
+		    rc = DownloadDirect(Temp, FALSE);
+		    Syslog('m', "Download result %d", rc);
+		    unlink(Temp);
+		}
+	    }
+	    fclose(af);
+	}
+    }
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    if (rc == FALSE) {
+	Syslog('+', "QWK download failed");
+	/*      Download failed */
+	printf("%s", (char *)Language(447));
+    } else {
+	Syslog('+', "QWK download successfull");
+	/*        Download successfull */
+	printf("\r%s\n", (char *)Language(448));
+
+	if (mhl != NULL)
+	    UpdateLR(mhl, mf);
+    }
+    fclose(mf);
+    tidy_high(&mhl);
+
+    free(Temp);
+    free(Work);
+    printf("\n\n");
+    Pause();
 }
 
 
