@@ -47,10 +47,6 @@ fi
 if [ "$2" == "novirtual" ]; then
     /usr/bin/dosemu.bin -f ${MBSE_ROOT}/etc/dosemu/dosemu.conf -I "`echo -e keystroke $COMMANDO`"
 else
-    /usr/bin/dosemu.bin -f ${MBSE_ROOT}/etc/dosemu/dosemu.conf -I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"
+    /usr/bin/dosemu.bin -f ${MBSE_ROOT}/etc/dosemu/virtual.conf -I "`echo -e keystroke $COMMANDO`"
 fi
 
-# reset the users terminal, just in case.
-reset
-tput reset
-stty sane

@@ -22,6 +22,11 @@ v0.71.0		27-Oct-2004
 		Added prompt 28.
 		Removed leading spaces of prompt 151.
  
+	script:
+		Modified rundoor.sh so that it uses two different dosemu
+		configuration files, one for virtual modem and one without.
+		See the manual doors.html.
+
 	examples:
 		Fixed logo display.
 		Fixed Spanish txtfiles to leave out an old support bbs.

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align='right'><h5>Last update 11-Aug-2004</h5></div>
+<div align='right'><h5>Last update 05-Nov-2004</h5></div>
 <div align='center'><H1>MBSE BBS - Running DOS doors.</H1></div>
 
 <h3>Introduction</h3>
@@ -71,6 +71,14 @@ $_ems = (2048)
 $_dpmi = (0x1000)
 $_layout = "us"
 </pre>
+Next copy this new file as <code>virtual.conf</code> in
+<code>~/etc/dosemu/</code>. Then add the following line:
+<pre>
+$_com1 = "virtual"
+</pre>
+Note that in older dosemu versions you could use a commandline option to do
+this, but this isn't supported anymore since dosemu-1.2.x. The
+<code>rundoor.sh</code> now also uses two configuration files.<br>
 Next we need to setup the C: drive. Do this as user mbse. First type <code>umask
 007</code>, this sets the create mode for directories to 0770 and files to 0660
 so that we create all files and directories read/write for all bbs users. This
@@ -208,6 +216,11 @@ file <code>~/bin/rundoor.sh</code> is renamed to
 <code>~/bin/runvirtual.sh</code>. So you should change all symlinks of your door
 names in <code>~/bin</code> (or copies) to <code>~/bin/runvirtual.sh</code>. You
 should not need to change anything else.
+<p>
+
+<h3>Problems</h3>
+<p>
+Currently there are some troubles with modem calls.
 <p>
 
 <A HREF="index.htm"><IMG SRC="images/b_arrow.png" ALT="Back" Border="0">Go Back</A>
