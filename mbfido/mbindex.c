@@ -277,7 +277,6 @@ void tidy_nllist(nl_list **fap)
 {
 	nl_list	*tmp, *old;
 
-	Syslog('S', "tidy_nllist");
 	for (tmp = *fap; tmp; tmp = old) {
 		old = tmp->next;
 		free(tmp);
@@ -291,12 +290,9 @@ int in_nllist(struct _nlidx idx, nl_list **fap, int replace)
 {
 	nl_list	*tmp;
 
-	Syslog('S', "Seeking nlidx match for %u:%u/%u.%u", idx.zone, idx.net, idx.node, idx.point);
-
 	for (tmp = *fap; tmp; tmp = tmp->next)
 		if ((tmp->idx.zone == idx.zone) && (tmp->idx.net == idx.net) &&
 		    (tmp->idx.node == idx.node) && (tmp->idx.point == idx.point)) {
-			Syslog('S', "Match found");
 			if (replace) {
 				tmp->idx = idx;
 				entries++;
@@ -313,7 +309,6 @@ void fill_nllist(struct _nlidx idx, nl_list **fap)
 {
 	nl_list	*tmp;
 
-	Syslog('S', "fill_nllist %u:%u/%u.%u", idx.zone, idx.net, idx.node, idx.point);
 	tmp = (nl_list *)malloc(sizeof(nl_list));
 	tmp->next = *fap;
 	tmp->idx  = idx;
@@ -326,7 +321,7 @@ void fill_nllist(struct _nlidx idx, nl_list **fap)
 
 char *fullpath(char *fname)
 {
-	static char path[128];
+	static char path[PATH_MAX];
 
 	sprintf(path, "%s/%s", CFG.nodelists, fname);
 	return path;
@@ -346,12 +341,10 @@ void sort_nllist(nl_list **fap)
 		n++;
 
 	vector = (nl_list **)malloc(n * sizeof(nl_list *));
-	Syslog('s', "Sorting %d nodelist entries", n);
 
 	i = 0;
 	for (ta = *fap; ta; ta = ta->next) {
 		vector[i++] = ta;
-		Syslog('S', "Before %u:%u/%u.%u", ta->idx.zone, ta->idx.net, ta->idx.node, ta->idx.point);
 	}
 
 	qsort(vector, n, sizeof(nl_list *), 
@@ -365,7 +358,6 @@ void sort_nllist(nl_list **fap)
 			ta->next = vector[i++];
 		else
 			ta->next = NULL;
-		Syslog('S', "After %u:%u/%u.%u", ta->idx.zone, ta->idx.net, ta->idx.node, ta->idx.point);
 	}
 
 	free(vector);
@@ -441,7 +433,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			while (fgets(buf, sizeof(buf) -1, nl) &&
 			       (*(buf + strlen(buf) -1) != '\n')) /*void*/;
 			if (strlen(buf) > 1) /* Suppress EOF character */
-				Syslog('s', "Nodelist: too long line junked (%d)", lineno);
+				Syslog('-', "Nodelist: too long line junked (%d)", lineno);
 			continue;
 		}
 
@@ -479,8 +471,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			ndx.type = NL_POINT;
 			bossvalid = FALSE;
 			if ((tmpa=parsefnode(p)) == NULL) {
-				WriteError("%s(%u): unparsable Boss addr \"%s\"",
-					nlname,lineno,p);
+				WriteError("%s(%u): unparsable Boss addr \"%s\"", nlname,lineno,p);
 				continue;
 			}
 			boss = TRUE;
@@ -490,15 +481,11 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			ndx.node  = tmpa->node;
 			ndx.point = 0;
 			tidy_faddr(tmpa);
-			Syslog('S', "Boss %u:%u/%u", ndx.zone, ndx.net, ndx.node);
 			ndx.type = NL_NONE;
 
 			if (in_nllist(ndx, &nll, FALSE)) {
-				Syslog('S', "Boss exists");
 				bossvalid = TRUE;
 			}
-			else
-				Syslog('S', "Boss not found");
 			continue; /* no further processing */
 		} else {
 			boss = FALSE;
@@ -534,15 +521,12 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			for (q = buf; *q; q++) 
 				if (*q < ' ') 
 					*q='.';
-			WriteError("%s(%u): unidentified entry \"%s\"",
-				nlname, lineno, buf);
+			WriteError("%s(%u): unidentified entry \"%s\"", nlname, lineno, buf);
 			continue;
 		}
 
-		Syslog('S',"Got \"%s\" as \"%s\" typ %d", buf, p, ndx.type);
 		if ((num=atoi(p)) == 0) {
-			WriteError("%s(%u): bad numeric \"%s\"",
-				nlname,lineno,p);
+			WriteError("%s(%u): bad numeric \"%s\"", nlname,lineno,p);
 			continue;
 		}
 
@@ -651,12 +635,6 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 				ndx.pflag |= NL_TCPIP;
 		}
 
-		Syslog('S',"put: %u:%u/%u.%u reg %u upl %u/%u typ %u flg %02X as (%u,%lu)",
-			ndx.zone,ndx.net,ndx.node,
-			ndx.point,ndx.region,ndx.upnet,ndx.upnode,
-			ndx.type,ndx.pflag,ndx.fileno,ndx.offset);
-
-
 		/*
 		 *  If zone, net and node given, then this list is an
 		 *  overlay so we will call in_list() to replace the
@@ -667,7 +645,6 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			if (!(in_nllist(ndx, &nll, TRUE))) {
 				if (ndx.point && bossvalid) {
 					fill_nllist(ndx, &nll);
-					Syslog('S', "Add point %u:%u/%u.%u", ndx.zone, ndx.net, ndx.node, ndx.point);
 				}
 				if (!ndx.point)
 					fill_nllist(ndx, &nll);

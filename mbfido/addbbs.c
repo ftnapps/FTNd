@@ -78,7 +78,6 @@ int Add_BBS()
     if ((fdb = fopen(fdbname, "r+")) != NULL) {
 	while (fread(&frec, sizeof(frec), 1, fdb) == 1) {
 	    if ((strcmp(frec.Name, temp1) == 0) && (strcmp(frec.LName, TIC.NewName) == 0)) {
-		Syslog('f', "Found existing fdb record, will update this one");
 		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
 		sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
 		mkdirs(temp2, 0755);
@@ -107,7 +106,6 @@ int Add_BBS()
 		tic_imp++;
 		if ((i = file_rm(temp1)))
 		    WriteError("file_rm(%s): %s", temp1, strerror(i));
-		Syslog('f', "Update done");
 		return TRUE;
 	    }
 	}
