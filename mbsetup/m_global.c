@@ -183,35 +183,39 @@ void e_reginfo(void)
 
 void e_filenames(void)
 {
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "1.3   EDIT GLOBAL FILENAMES");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.   System logfile");
+    mvprintw( 8, 6, "2.   Error logfile");
+    mvprintw( 9, 6, "3.   Mgr logfile");
+    mvprintw(10, 6, "4.   Default Menu");
+    mvprintw(11, 6, "5.   Default Language");
+    mvprintw(12, 6, "6.   Chat Logfile");
+    mvprintw(13, 6, "7.   Welcome Logo");
+    
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.3   EDIT GLOBAL FILENAMES");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.   System logfile");
-	mvprintw( 8, 6, "2.   Error logfile");
-	mvprintw( 9, 6, "3.   Default Menu");
-	mvprintw(10, 6, "4.   Default Language");
-	mvprintw(11, 6, "5.   Chat Logfile");
-	mvprintw(12, 6, "6.   Welcome Logo");
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,28,14, CFG.logfile);
-		show_str( 8,28,14, CFG.error_log);
-		show_str( 9,28,14, CFG.default_menu);
-		show_str(10,28,14, CFG.current_language);
-		show_str(11,28,14, CFG.chat_log);
-		show_str(12,28,14, CFG.welcome_logo);
+	show_str( 7,28,14, CFG.logfile);
+	show_str( 8,28,14, CFG.error_log);
+	show_str( 9,28,14, CFG.mgrlog);
+	show_str(10,28,14, CFG.default_menu);
+	show_str(11,28,14, CFG.current_language);
+	show_str(12,28,14, CFG.chat_log);
+	show_str(13,28,14, CFG.welcome_logo);
 
-		switch(select_menu(6)) {
-		case 0:	return;
-		case 1: E_STR( 7,28,14, CFG.logfile,          "The name of the ^system^ logfile.")
-		case 2:	E_STR( 8,28,14, CFG.error_log,        "The name of the ^errors^ logfile.")
-		case 3:	E_STR( 9,28,14, CFG.default_menu,     "The name of the ^default^ (top) ^menu^.")
-		case 4:	E_STR(10,28,14, CFG.current_language, "The name of the ^default language^.")
-		case 5:	E_STR(11,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
-		case 6:	E_STR(12,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
-		}
-	};
+	switch(select_menu(7)) {
+	    case 0: return;
+	    case 1: E_STR( 7,28,14, CFG.logfile,          "The name of the ^system^ logfile.")
+	    case 2: E_STR( 8,28,14, CFG.error_log,        "The name of the ^errors^ logfile.")
+	    case 3: E_STR( 9,28,14, CFG.mgrlog,           "The name of the ^area-/filemgr^ logfile.")
+	    case 4: E_STR(10,28,14, CFG.default_menu,     "The name of the ^default^ (top) ^menu^.")
+	    case 5: E_STR(11,28,14, CFG.current_language, "The name of the ^default language^.")
+	    case 6: E_STR(12,28,14, CFG.chat_log,         "The name of the ^chat^ logfile.")
+	    case 7: E_STR(13,28,14, CFG.welcome_logo,     "The name of the ^BBS logo^ file.")
+	}
+    }
 }
 
 
@@ -741,54 +745,76 @@ void e_paging(void)
 
 
 
-void e_flags(void)
+void e_flags(int Users)
 {
-	int i, x, y, z;
-	char temp[80];
+    int	    i, x, y, z;
+    char    temp[80];
 
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    if (Users)
+	mvprintw( 5, 6, "1.6   EDIT USER FLAG DESCRIPTIONS");
+    else
+	mvprintw( 5, 6, "1.20  EDIT MANAGER FLAG DESCRIPTIONS");
+    
+    set_color(CYAN, BLACK);
+    for (i = 0; i < 32; i++) {
+	if (i < 11) 
+	    mvprintw(i + 7, 2, (char *)"%d.", i+1);
+	else
+	    if (i < 22) 
+		mvprintw(i - 4, 28, (char *)"%d.", i+1);
+	    else
+		mvprintw(i - 15, 54, (char *)"%d.", i+1);
+    }
+    
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.6   EDIT FLAG DESCRIPTIONS");
-	set_color(CYAN, BLACK);
 	for (i = 0; i < 32; i++) {
-		if (i < 11) 
-			mvprintw(i + 7, 2, (char *)"%d.", i+1);
+	    if (i < 11) {
+		if (Users)	
+		    show_str(i + 7, 6, 16, CFG.fname[i]);
 		else
-			if (i < 22) 
-				mvprintw(i - 4, 28, (char *)"%d.", i+1);
-			else
-				mvprintw(i - 15, 54, (char *)"%d.", i+1);
-	}
-	for (;;) {
-		set_color(WHITE, BLACK);
-		for (i = 0; i < 32; i++) {
-			if (i < 11) 
-				show_str(i + 7, 6, 16, CFG.fname[i]);
-			else
-				if (i < 22)
-					show_str(i - 4, 32, 16, CFG.fname[i]);
-				else
-					show_str(i -15, 58, 16, CFG.fname[i]);
+		    show_str(i + 7, 6, 16, CFG.aname[i]);
+	    } else {
+		if (i < 22) {
+		    if (Users)
+			show_str(i - 4, 32, 16, CFG.fname[i]);
+		    else
+			show_str(i - 4, 32, 16, CFG.aname[i]);
+		} else {
+		    if (Users)
+			show_str(i -15, 58, 16, CFG.fname[i]);
+		    else
+			show_str(i - 15,58, 16, CFG.aname[i]);
 		}
+	    }
+	}
 
-		z = select_menu(32);
-		if (z == 0)
-			return;
+	z = select_menu(32);
+	if (z == 0)
+	    return;
 
-		if (z < 12) {
-			x = 6;
-			y = z + 6;
-		} else
-			if (z < 23) {
-				x = 32;
-				y = z - 5;
-			} else {
-				x = 58;
-				y = z - 16;
-			}
-		sprintf(temp, "Enter a short ^description^ of flag bit %d", z);
-		strcpy(CFG.fname[z-1], edit_str(y, x, 16, CFG.fname[z-1], temp));
-	};
+	if (z < 12) {
+	    x = 6;
+	    y = z + 6;
+	} else {
+	    if (z < 23) {
+		x = 32;
+		y = z - 5;
+	    } else {
+		x = 58;
+		y = z - 16;
+	    }
+	}
+
+	sprintf(temp, "Enter a short ^description^ of flag bit %d", z);
+	if (Users) {
+	    strcpy(CFG.fname[z-1], edit_str(y, x, 16, CFG.fname[z-1], temp));
+	} else {
+	    strcpy(CFG.aname[z-1], edit_str(y, x, 16, CFG.aname[z-1], temp));
+	}
+    }
 }
 
 
@@ -1544,144 +1570,159 @@ void e_html(void)
 
 void global_menu(void)
 {
-	unsigned long crc, crc1;
+    unsigned long   crc, crc1;
+    int		    i;
 
-	if (! check_free())
-	    return;
+    if (! check_free())
+	return;
 
-	if (cf_open() == -1)
-		return;
+    if (cf_open() == -1)
+	return;
 
-	Syslog('+', "Opened main config");
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
+    Syslog('+', "Opened main config");
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
 
-	if (CFG.xmax_login) {
-		/*
-		 *  Do automatic upgrade for unused fields, erase them.
-		 */
-		Syslog('+', "Main config, clearing unused fields");
-		memset(&CFG.alists_path, 0, sizeof(CFG.alists_path));
-		CFG.xmax_login = 0;
-		CFG.xUseSysDomain = FALSE;
-		CFG.xChkMail = FALSE;
-		memset(&CFG.xquotestr, 0, sizeof(CFG.xquotestr));
-		CFG.xNewBytes = FALSE;
-		memset(&CFG.extra4, 0, sizeof(CFG.extra4));
-		memset(&CFG.xmgrname, 0, sizeof(CFG.xmgrname));
-		memset(&CFG.xtoss_log, 0, sizeof(CFG.xtoss_log));
-		memset(&CFG.xareamgr, 0, sizeof(CFG.xareamgr));
-		CFG.xNoJanus = FALSE;
-		memset(&CFG.extra5, 0, sizeof(CFG.extra5));
-		sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
-	}
+    if (CFG.xmax_login) {
+	/*
+	 *  Do automatic upgrade for unused fields, erase them.
+	 */
+	Syslog('+', "Main config, clearing unused fields");
+	memset(&CFG.alists_path, 0, sizeof(CFG.alists_path));
+	CFG.xmax_login = 0;
+	CFG.xUseSysDomain = FALSE;
+	CFG.xChkMail = FALSE;
+	memset(&CFG.xquotestr, 0, sizeof(CFG.xquotestr));
+	CFG.xNewBytes = FALSE;
+	memset(&CFG.extra4, 0, sizeof(CFG.extra4));
+	memset(&CFG.xmgrname, 0, sizeof(CFG.xmgrname));
+	memset(&CFG.xtoss_log, 0, sizeof(CFG.xtoss_log));
+	memset(&CFG.xareamgr, 0, sizeof(CFG.xareamgr));
+	CFG.xNoJanus = FALSE;
+	memset(&CFG.extra5, 0, sizeof(CFG.extra5));
+	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
+    }
 
-	if (strlen(CFG.bbs_macros) == 0) {
-	    sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
-	}
+    if (strlen(CFG.bbs_macros) == 0) {
+	sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
+	 Syslog('+', "Main config, upgraded default macro path");
+    }
 
-	if (strlen(CFG.out_queue) == 0) {
-	    sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
-	}
+    if (strlen(CFG.out_queue) == 0) {
+	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
+	 Syslog('+', "Main config, upgraded for new queue");
+    }
 
-	for (;;) {
+    if (strlen(CFG.mgrlog) == 0) {
+	sprintf(CFG.mgrlog, "manager.log");
+	for (i = 0; i < 32; i++)
+	    sprintf(CFG.aname[i], "Flags %d", i+1);
+	sprintf(CFG.aname[0], "Everyone");
+	Syslog('+', "Main config, upgraded for manager security");
+    }
 
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "1.    GLOBAL SETUP");
-		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    Edit Fidonet Aka's");
-		mvprintw( 8, 6, "2.    Edit Registration Info");
-		mvprintw( 9, 6, "3.    Edit Global Filenames");
-		mvprintw(10, 6, "4.    Edit Global Paths");
-		mvprintw(11, 6, "5.    Edit Global Settings");
-		mvprintw(12, 6, "6.    Edit Flag Descriptions");
-		mvprintw(13, 6, "7.    Edit New Users defaults");
-		mvprintw(14, 6, "8.    Edit Text Colors");
-		mvprintw(15, 6, "9.    Edit Next User Door");
-		mvprintw(16, 6, "10.   Edit Safe Door");
+    for (;;) {
 
-		mvprintw( 7,46, "11.   Edit Time Bank Door");
-		mvprintw( 8,46, "12.   Edit Sysop Paging");
-		mvprintw( 9,46, "13.   Edit Files Processing");
-		mvprintw(10,46, "14.   Edit Fidonet Mail/Echomail");
-		mvprintw(11,46, "15.   Edit Internet Mail/News");
-		mvprintw(12,46, "16.   Edit All-/Newfiles lists");
-		mvprintw(13,46, "17.   Edit Mailer setup");
-		mvprintw(14,46, "18.   Edit Ftp daemon setup");
-		mvprintw(15,46, "19.   Edit HTML pages setup");
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "1.    GLOBAL SETUP");
+	set_color(CYAN, BLACK);
+	mvprintw( 7, 6, "1.    Edit Fidonet Aka's");
+	mvprintw( 8, 6, "2.    Edit Registration Info");
+	mvprintw( 9, 6, "3.    Edit Global Filenames");
+	mvprintw(10, 6, "4.    Edit Global Paths");
+	mvprintw(11, 6, "5.    Edit Global Settings");
+	mvprintw(12, 6, "6.    Edit User flag Descriptions");
+	mvprintw(13, 6, "7.    Edit New Users defaults");
+	mvprintw(14, 6, "8.    Edit Text Colors");
+	mvprintw(15, 6, "9.    Edit Next User Door");
+	mvprintw(16, 6, "10.   Edit Safe Door");
 
-		switch(select_menu(19)) {
-		case 0:
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&CFG, crc1, sizeof(CFG));
-			if (crc != crc1) {
-				if (yes_no((char *)"Configuration is changed, save") == 1) {
-					cf_close();
-					Syslog('+', "Saved main config");
-				}
+	mvprintw( 7,46, "11.   Edit Time Bank Door");
+	mvprintw( 8,46, "12.   Edit Sysop Paging");
+	mvprintw( 9,46, "13.   Edit Files Processing");
+	mvprintw(10,46, "14.   Edit Fidonet Mail/Echomail");
+	mvprintw(11,46, "15.   Edit Internet Mail/News");
+	mvprintw(12,46, "16.   Edit All-/Newfiles lists");
+	mvprintw(13,46, "17.   Edit Mailer global setup");
+	mvprintw(14,46, "18.   Edit Ftp daemon setup");
+	mvprintw(15,46, "19.   Edit HTML pages setup");
+	mvprintw(16,46, "20.   Edit Mgr flag descriptions");
+
+	switch(select_menu(20)) {
+	    case 0:
+		    crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&CFG, crc1, sizeof(CFG));
+		    if (crc != crc1) {
+			if (yes_no((char *)"Configuration is changed, save") == 1) {
+			    cf_close();
+			    Syslog('+', "Saved main config");
 			}
-			open_bbs();
-			return;
-                case 1: 
-			e_fidoakas();
-			break;
-		case 2:
-			e_reginfo();
-			break;
-		case 3:
-			e_filenames();
-			break;
-		case 4:
-			e_global();
-			break;
-		case 5:
-			e_bbsglob();
-			break;
-                case 6: 
-			e_flags();
-			break;
-		case 7:
-			e_newuser();
-			break;
-		case 8:
-			e_colors();
-			break;
-		case 9:
-			e_nu_door();
-			break;
-		case 10:
-			e_safe_door();
-			break;
-		case 11:
-			e_timebank();
-			break;
-		case 12:
-			e_paging();
-			break;
-		case 13:
-			e_ticconf();
-			break;
-		case 14:
-			e_fidomailcfg();
-			break;
-		case 15:
-			e_intmailcfg();
-			break;
-		case 16:
-			e_newfiles();
-			break;
-		case 17:
-			e_mailer();
-			break;
-		case 18:
-			e_ftpd();
-			break;
-		case 19:
-			e_html();
-			break;
-		}
+		    }
+		    open_bbs();
+		    return;
+            case 1: 
+		    e_fidoakas();
+		    break;
+	    case 2:
+		    e_reginfo();
+		    break;
+	    case 3:
+		    e_filenames();
+		    break;
+	    case 4:
+		    e_global();
+		    break;
+	    case 5:
+		    e_bbsglob();
+		    break;
+            case 6: 
+		    e_flags(TRUE);
+		    break;
+	    case 7:
+		    e_newuser();
+		    break;
+	    case 8:
+		    e_colors();
+		    break;
+	    case 9:
+		    e_nu_door();
+		    break;
+	    case 10:
+		    e_safe_door();
+		    break;
+	    case 11:
+		    e_timebank();
+		    break;
+	    case 12:
+		    e_paging();
+		    break;
+	    case 13:
+		    e_ticconf();
+		    break;
+	    case 14:
+		    e_fidomailcfg();
+		    break;
+	    case 15:
+		    e_intmailcfg();
+		    break;
+	    case 16:
+		    e_newfiles();
+		    break;
+	    case 17:
+		    e_mailer();
+		    break;
+	    case 18:
+		    e_ftpd();
+		    break;
+	    case 19:
+		    e_html();
+		    break;
+	    case 20:
+		    e_flags(FALSE);
+		    break;
 	}
+    }
 }
 
 
@@ -1798,6 +1839,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	addtoc(fp, toc, 1, 4, page, (char *)"Global filenames");
 	fprintf(fp, "      System logfile   %s\n", CFG.logfile);
 	fprintf(fp, "      Error logfile    %s\n", CFG.error_log);
+	fprintf(fp, "      Manager logfile  %s\n", CFG.mgrlog);
 	fprintf(fp, "      Default menu     %s\n", CFG.default_menu);
 	fprintf(fp, "      Default language %s\n", CFG.current_language);
 	fprintf(fp, "      Chat logfile     %s\n", CFG.chat_log);
@@ -1853,7 +1895,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Free diskspace   %d MB.\n", CFG.freespace);
 
 	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 7, page, (char *)"Flag descriptions");
+	addtoc(fp, toc, 1, 7, page, (char *)"Users flag descriptions");
 	fprintf(fp, "               1    1    2    2    3 3\n");
 	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
 	fprintf(fp, "      --------------------------------\n");
@@ -2082,6 +2124,22 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Author name        %s\n", CFG.www_author);
 	fprintf(fp, "      Convert command    %s\n", CFG.www_convert);
 	fprintf(fp, "      File per webpage   %d\n", CFG.www_files_page);
+
+	page = newpage(fp, page);
+	addtoc(fp, toc, 1,21, page, (char *)"Manager flag descriptions");
+	fprintf(fp, "               1    1    2    2    3 3\n");
+	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
+	fprintf(fp, "      --------------------------------\n");
+	fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
+	for (i = 0; i < 32; i++) {
+	    fprintf(fp, "      ");
+	    for (j = 0; j < (31 - i); j++)
+		fprintf(fp, "|");
+	    fprintf(fp, "+");
+	    for (j = (32 - i); j < 32; j++)
+		fprintf(fp, "-");
+	    fprintf(fp, " %s\n", CFG.aname[31 - i]);
+	}
 
 	return page;
 }

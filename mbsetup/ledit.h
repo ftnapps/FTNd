@@ -34,6 +34,7 @@ char		*getflag(unsigned long, unsigned long);
 void		show_sec(int, int, securityrec);
 securityrec	edit_sec(int, int, securityrec, char *);
 securityrec	edit_usec(int, int, securityrec, char *);
+securityrec     edit_asec(securityrec, char *);
 char		*get_secstr(securityrec);
 void		show_int(int, int, int);
 int 		edit_int(int, int, int, char *);

@@ -151,7 +151,16 @@ int OpenNoderec(void)
 	    memset(&nodes, 0, sizeof(nodes));
 	    while (fread(&nodes, oldsize, 1, fin) == 1) {
 		if (oldsize != sizeof(nodes)) {
-		    strcpy(nodes.Spasswd, nodes.Epasswd);
+		    if (strlen(nodes.Spasswd) == 0)
+			strcpy(nodes.Spasswd, nodes.Epasswd);
+		    if (nodes.Security.level == 0) {
+			/*
+			 * Level is not used, here it is used to mark
+			 * the upgrade to default.
+			 */
+			nodes.Security.level = 1;
+			nodes.Security.flags = 1;
+		    }
 		}
 		fwrite(&nodes, sizeof(nodes), 1, fout);
 		memset(&nodes, 0, sizeof(nodes));
@@ -293,6 +302,8 @@ int AppendNoderec(void)
 	nodes.ARCmailCompat = TRUE;
 	nodes.ARCmailAlpha = TRUE;
 	nodes.StartDate = time(NULL);
+	nodes.Security.level = 1;
+	nodes.Security.flags = 1;
 	fwrite(&nodes, sizeof(nodes), 1, fil);
 	memset(&group, 0, 13);
 	for (i = 1; i <= CFG.tic_groups; i++)
@@ -493,7 +504,7 @@ void S_Stat(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "7.9  NODE STATISTICS");
+	mvprintw( 5, 6, "7.10 NODE STATISTICS");
 	set_color(CYAN, BLACK);
 	mvprintw( 8,18, " This week  Last week This month Last month      Total");
 	mvprintw( 9,18, "---------- ---------- ---------- ---------- ----------");
@@ -1086,9 +1097,10 @@ int EditNodeRec(int Area)
 	mvprintw(12, 6, "6.   Files setup");
 	mvprintw(13, 6, "7.   Files groups");
 	mvprintw(14, 6, "8.   Directory session");
-	mvprintw(15, 6, "9.   Statistics");
+	mvprintw(15, 6, "9.   Security flags");
+	mvprintw(16, 6, "10.  Statistics");
 
-	switch(select_menu(9)) {
+	switch(select_menu(10)) {
 	case 0:	crc1 = 0xffffffff;
 		crc1 = upd_crc32((char *)&nodes, crc1, nodeshdr.recsize);
 		if ((crc != crc1) || GrpChanged) {
@@ -1157,7 +1169,9 @@ int EditNodeRec(int Area)
 		break;
 	case 8: DirectoryEdit();
 		break;
-	case 9: S_Stat(); 
+	case 9:	nodes.Security = edit_asec(nodes.Security, (char *)"7.9  SECURITY FLAGS");
+		break;
+	case 10:S_Stat(); 
 		break;
 	}
     }
@@ -1474,7 +1488,8 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Advanced TIC   %s", getboolean(nodes.AdvTic));
 		fprintf(fp, "     Billing        %s", getboolean(nodes.Billing));
 		fprintf(fp, "     Bill direct    %s\n", getboolean(nodes.BillDirect));
-		fprintf(fp, "     Uplink add +   %s\n\n", getboolean(nodes.AddPlus));
+		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
+		fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 
 		fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));
 		if (nodes.Session_out == S_DIR) {

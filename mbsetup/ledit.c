@@ -1349,6 +1349,80 @@ securityrec edit_usec(int y, int x, securityrec sec, char *shdr)
 
 
 
+securityrec edit_asec(securityrec sec, char *shdr)
+{
+    int     c, i, xx, yy, s;
+
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw(4,3,shdr);
+    set_color(CYAN, BLACK);
+    xx = 3;
+    yy = 6;
+
+    for (i = 0; i < 32; i++) {
+	if (i == 11) {
+	    xx = 28;
+	    yy = 6;
+	}
+	if (i == 22) {
+	    xx = 53;
+	    yy = 6;
+	}
+	set_color(CYAN,BLACK);
+	mvprintw(yy, xx, (char *)"%2d. %-16s", i+1, CFG.aname[i]);
+	yy++;
+    }
+
+    for (;;) {
+	set_color(WHITE, BLACK);
+	xx = 24;
+	yy = 6;
+
+	for (i = 0; i < 32; i++) {
+	    if (i == 11) {
+		xx = 49;
+		yy = 6;
+	    }
+	    if (i == 22) {
+		xx = 74;
+		yy = 6;
+	    }
+	    c = '-';
+	    if ((sec.flags >> i) & 1)
+		c = 'X';
+	    if ((sec.notflags >> i) & 1)
+		c = 'O';
+	    /*
+	     * The next one may never show up
+	     */
+	    if (((sec.flags >> i) & 1) && ((sec.notflags >> i) & 1))
+		c = '!';
+	    mvprintw(yy,xx,(char *)"%c", c);
+	    yy++;
+	}
+	
+	s = select_menu(32);
+
+	switch(s) {
+	    case 0:	return sec;
+	    default:	if ((sec.notflags >> (s - 1)) & 1) {
+			    sec.notflags = (sec.notflags ^ (1 << (s - 1)));
+			    break;
+			}
+			if ((sec.flags >> (s - 1)) & 1) {
+			    sec.flags = (sec.flags ^ (1 << (s - 1)));
+			    sec.notflags = (sec.notflags | (1 << (s - 1)));
+			    break;
+			}
+			sec.flags = (sec.flags | (1 << (s - 1)));
+			break;
+	}
+    }
+}
+
+
+
 char *get_secstr(securityrec S)
 {
 	static char temp[45];
