@@ -16,6 +16,15 @@ v0.35.06
 		Added better support for 8.3 and long filenames by creating
 		hard links in the download directories.
 
+	common.a:
+		Changed the LFN name mangle functions to prevent 8.3 name 
+		collisions. Now the basepart is 4 characters followed by the
+		tilde char and then a 3 characters code calculated from the
+		16 bits crc of the original filename. Original this was base 5
+		followed by a tilde and 2 characters code calculated from the
+		checksum of the string modulo 1849. Both methods are different
+		then what MS does.
+
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.
 		Uploaded files will now also have a 8.3 hard link to the long

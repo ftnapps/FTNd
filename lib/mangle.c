@@ -42,7 +42,6 @@
  * Prototype functions
  */
 int		strhaslower(const char *);
-int		str_checksum(const char *);
 char		*safe_strcpy(char *, const char *, size_t);
 static void	init_chartest(void);
 static int	is_reserved_msdos(char *);
@@ -109,34 +108,6 @@ int strhaslower(const char *s)
     return FALSE;
 }
 
-
-
-
-/*****************************************************************************
- * Provide a checksum on a string
- *
- *  Input:  s - the null-terminated character string for which the checksum
- *              will be calculated.
- *
- *  Output: The checksum value calculated for s.
- *
- * ****************************************************************************
- */
-int str_checksum(const char *s)
-{
-    int	res = 0;
-    int	c;
-    int	i=0;
-        
-    while(*s) {
-	c = *s;
-	res ^= (c << (i % 15)) ^ (c >> (15-(i%15)));
-	s++;
-	i++;
-    }
-//    Syslog('f', "str_cksum(%s) %d", s, res);
-    return res;
-}
 
 
 
@@ -347,7 +318,7 @@ int is_8_3( char *fname)
  */
 void mangle_name_83(char *s)
 {
-    int		csum, crc16, i;
+    int		crc16, i;
     char	*p, *q;
     char	extension[4];
     char	base[9];
@@ -379,6 +350,9 @@ void mangle_name_83(char *s)
     } else if (strcmp(q = s + strlen(s) - strlen(".conf"), ".conf") == 0) {
 	*q = '\0';
 	q = (char *)"cnf";
+    } else if (strcmp(q = s + strlen(s) - strlen(".mpeg"), ".mpeg") == 0) {
+	*q = '\0';
+	q = (char *)"mpg";
     } else {
 	q = NULL;
     }
@@ -404,15 +378,12 @@ void mangle_name_83(char *s)
 
 	if (all_normal && p[1] != 0) {
 	    *p = 0;
-	    csum = str_checksum(s);
 	    crc16 = crc16xmodem(s, strlen(s));
 	    *p = '.';
 	} else {
-	    csum = str_checksum(s);
 	    crc16 = crc16xmodem(s, strlen(s));
 	}
     } else {
-	csum = str_checksum(s);
 	crc16 = crc16xmodem(s, strlen(s));
     }
 //    Syslog('f', "crc16xmodem(%s) %d", s, crc16);
@@ -435,20 +406,23 @@ void mangle_name_83(char *s)
 
     p = s;
 
-    while (*p && baselen < 5) {
+    /*
+     * Changed to baselen 4, original this is 5.
+     * 24-11-2002 MB.
+     */
+    while (*p && baselen < 4) {
 	if (*p != '.' )
 	    base[baselen++] = p[0];
 	p++;
     }
     base[baselen] = 0;
 
-    csum = csum % (MANGLE_BASE * MANGLE_BASE);
-    crc16 = crc16 % (MANGLE_BASE * MANGLE_BASE);
-    sprintf(s, "%s%c%c%c", base, magic_char, mangle(csum / MANGLE_BASE), mangle(csum));
-    Syslog('f', "csum %4d mangle old %c%c%c  crc16 %4d mangle new %c%c%c", 
-	    csum, magic_char, mangle(csum / MANGLE_BASE), mangle(csum),
-	    crc16, magic_char, mangle(crc16 / MANGLE_BASE), mangle(crc16));
-    if( *extension ) {
+    if (crc16 > (MANGLE_BASE * MANGLE_BASE * MANGLE_BASE))
+	Syslog('!', "WARNING: mangle_name_83() crc16 overflow");
+    crc16 = crc16 % (MANGLE_BASE * MANGLE_BASE * MANGLE_BASE);
+    sprintf(s, "%s%c%c%c%c", base, magic_char, 
+	    mangle(crc16 / (MANGLE_BASE * MANGLE_BASE)), mangle(crc16 / MANGLE_BASE), mangle(crc16));
+    if ( *extension ) {
 	(void)strcat(s, ".");
 	(void)strcat(s, extension);
     }
@@ -477,6 +451,7 @@ void name_mangle(char *OutName)
      */
     if (!is_8_3(OutName)) {
 	mangle_name_83(OutName);
+	Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
     } else {
 	/*
 	 * No mangling needed, convert to uppercase
