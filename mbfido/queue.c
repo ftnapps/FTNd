@@ -556,7 +556,7 @@ void flush_dir(char *ndir)
 	    p = strchr(p, ' ');
 	    p++;
 
-	    Syslog('+', "File attach %s", p);
+	    Syslog('p', "File attach %s", p);
 	    if (nodes.Session_out == S_DIRECT) {
 		attach(noden, p, mode, flavor);
 	    } else if (nodes.Session_out == S_DIR) {

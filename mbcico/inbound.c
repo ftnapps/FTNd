@@ -73,7 +73,7 @@ int inbound_open(faddr *addr, int protected)
     mkdirs(temp, 0700);
     free(temp);
 
-    Syslog('+', "Inbound set to \"%s\"", tempinbound);
+    Syslog('s', "Inbound set to \"%s\"", tempinbound);
     return 0;
 }
 
@@ -93,7 +93,7 @@ int inbound_close(int success)
     struct stat	    stb;
     int		    rc;
 
-    Syslog('+', "Closing temp inbound after a %s session", success?"good":"failed");
+    Syslog('s', "Closing temp inbound after a %s session", success?"good":"failed");
     if (! success) {
 	if (tempinbound)
 	    free(tempinbound);

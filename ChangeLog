@@ -1,7 +1,10 @@
 $Id$
 
 
-v0.39.1		22-Oct-2003
+v0.39.2		21-Nov-2003
+
+
+v0.39.1		22-Oct-2003 - 21-Nov-2003
 
 	general:
 		Make dist now creates bzip2 archives.
@@ -48,6 +51,10 @@ v0.39.1		22-Oct-2003
 		Added dynamic optimum sendbuffer size with a maximum of 8192
 		bytes with an average size of 2048 bytes.
 		Removed ITN support.
+		Changed two inbound logmessages to debug level.
+
+	mbfido:
+		Changed two logmessages to debug level.
 
 	mbsetup:
 		In node editor, fixed error message when there was no more

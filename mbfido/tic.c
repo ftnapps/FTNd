@@ -474,7 +474,7 @@ int LoadTic(char *inb, char *tfn)
 	    if (rename(Temp, Temp2))
 		WriteError("$Can't rename %s to %s", Temp, Temp2);
 	    else
-		Syslog('+', "Renamed %s to %s", Temp, Temp2);
+		Syslog('f', "Renamed %s to %s", Temp, Temp2);
 	}
     }
     strncpy(TIC.NewFile, TIC.TicIn.File, 80);
