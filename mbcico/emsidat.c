@@ -328,176 +328,181 @@ exit:
 
 int scanemsidat(char *buf)
 {
-	char		*p,*q;
-	fa_list	 	**tmp,*tmpa;
-	faddr		*fa;
-	char		*mailer_prod,*mailer_name,*mailer_version,*mailer_serial;
+    fa_list **tmp,*tmpa;
+    faddr   *fa;
+    char    *p, *q, *mailer_prod, *mailer_name, *mailer_version, *mailer_serial;
+    int	    dupe;
 
-	Syslog('I',"got data packet: \"%s\"",buf);
+    Syslog('I',"got data packet: \"%s\"",buf);
 
-	p=sel_brace(buf);
-	if (strcasecmp(p,"EMSI") != 0) {
-		Syslog('?', "This can never occur. Got \"%s\" instead of \"EMSI\"",p);
-		return 1;
+    p = sel_brace(buf);
+    if (strcasecmp(p,"EMSI") != 0) {
+	Syslog('?', "This can never occur. Got \"%s\" instead of \"EMSI\"",p);
+	return 1;
+    }
+    p = sel_brace(NULL);
+
+    /*
+     * Clear remote address list, and build a new one from EMSI data
+     */
+    tidy_falist(&remote);
+    remote = NULL;
+    tmp = &remote;
+    for (q = strtok(p," "); q; q = strtok(NULL," ")) {
+	if ((fa = parsefnode(q))) {
+	    dupe = FALSE;
+	    for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+		if ((tmpa->addr->zone == fa->zone) && (tmpa->addr->net == fa->net) &&
+		    (tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
+		    (strcmp(tmpa->addr->domain, fa->domain) == 0)) {
+		    dupe = TRUE;
+		    Syslog('i', "Double address %s", ascfnode(tmpa->addr, 0x1f));
+		    break;
+		}
+	    }
+	    if (!dupe) {
+		*tmp = (fa_list*)malloc(sizeof(fa_list));
+		(*tmp)->next = NULL;
+		(*tmp)->addr = fa;
+		tmp = &((*tmp)->next);
+	    }
 	}
-	p=sel_brace(NULL);
+    }
 
+    for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+	Syslog('+', "address : %s",ascfnode(tmpa->addr,0x1f));
+	(void)nodelock(tmpa->addr);
 	/*
-	 * Clear remote address list, and build a new one from EMSI data
+	 * With the loaded flag we prevent removing the noderecord 
+	 * when the remote presents us an address we don't know about.
 	 */
-	tidy_falist(&remote);
-	remote = NULL;
-	tmp = &remote;
-	for (q = strtok(p," "); q; q = strtok(NULL," "))
-		if ((fa = parsefnode(q))) {
-			*tmp = (fa_list*)malloc(sizeof(fa_list));
-			(*tmp)->next = NULL;
-			(*tmp)->addr = fa;
-			tmp = &((*tmp)->next);
-		}
-
-	for (tmpa = remote; tmpa; tmpa = tmpa->next) {
-		Syslog('+', "address : %s",ascfnode(tmpa->addr,0x1f));
-		(void)nodelock(tmpa->addr);
-		/*
-		 * With the loaded flag we prevent removing the noderecord 
-		 * when the remote presents us an address we don't know about.
-		 */
-		if (!Loaded) {
-			if (noderecord(tmpa->addr))
-				Loaded = TRUE;
-		}
+	if (!Loaded) {
+	    if (noderecord(tmpa->addr))
+		Loaded = TRUE;
 	}
+    }
 
-	history.aka.zone  = remote->addr->zone;
-	history.aka.net   = remote->addr->net;
-	history.aka.node  = remote->addr->node;
-	history.aka.point = remote->addr->point;
-	sprintf(history.aka.domain, "%s", remote->addr->domain);
+    history.aka.zone  = remote->addr->zone;
+    history.aka.net   = remote->addr->net;
+    history.aka.node  = remote->addr->node;
+    history.aka.point = remote->addr->point;
+    sprintf(history.aka.domain, "%s", remote->addr->domain);
 
-	if (emsi_remote_password) 
-		free(emsi_remote_password);
-	emsi_remote_password=xstrcpy(sel_brace(NULL));
-//	Syslog('+', "password: %s", MBSE_SS(emsi_remote_password));
+    if (emsi_remote_password) 
+	free(emsi_remote_password);
+    emsi_remote_password=xstrcpy(sel_brace(NULL));
 
-	p=sel_brace(NULL);
-	Syslog('+', "link    : %s", MBSE_SS(p));
-	for (q=strtok(p,",");q;q=strtok(NULL,",")) {
-		if (((q[0] >= '5') && (q[0] <= '8')) &&
-		    ((toupper(q[1]) == 'N') ||
-		     (toupper(q[1]) == 'O') ||
-		     (toupper(q[1]) == 'E') ||
-		     (toupper(q[1]) == 'S') ||
-		     (toupper(q[1]) == 'M')) &&
-		    ((q[2] == '1') || (q[2] == '2')))
-		{
-			strncpy(emsi_remote_comm,q,3);
-		}
-		else if (strcasecmp(q,"PUA") == 0) emsi_remote_lcodes |= LCODE_PUA;
-		else if (strcasecmp(q,"PUP") == 0) emsi_remote_lcodes |= LCODE_PUP;
-		else if (strcasecmp(q,"NPU") == 0) emsi_remote_lcodes |= LCODE_NPU;
-		else if (strcasecmp(q,"HAT") == 0) emsi_remote_lcodes |= LCODE_HAT;
-		else if (strcasecmp(q,"HXT") == 0) emsi_remote_lcodes |= LCODE_HXT;
-		else if (strcasecmp(q,"HRQ") == 0) emsi_remote_lcodes |= LCODE_HRQ;
-		else if (strcasecmp(q,"FNC") == 0) emsi_remote_lcodes |= LCODE_FNC;
-		else if (strcasecmp(q,"RMA") == 0) emsi_remote_lcodes |= LCODE_RMA;
-		else if (strcasecmp(q,"RH1") == 0) emsi_remote_lcodes |= LCODE_RH1;
-		else Syslog('+', "unrecognized EMSI link code: \"%s\"",q);
+    p=sel_brace(NULL);
+    Syslog('+', "link    : %s", MBSE_SS(p));
+    for (q=strtok(p,",");q;q=strtok(NULL,",")) {
+	if (((q[0] >= '5') && (q[0] <= '8')) && ((toupper(q[1]) == 'N') || (toupper(q[1]) == 'O') ||
+	    (toupper(q[1]) == 'E') || (toupper(q[1]) == 'S') || (toupper(q[1]) == 'M')) && ((q[2] == '1') || (q[2] == '2'))) {
+		strncpy(emsi_remote_comm,q,3);
 	}
+	else if (strcasecmp(q,"PUA") == 0) emsi_remote_lcodes |= LCODE_PUA;
+	else if (strcasecmp(q,"PUP") == 0) emsi_remote_lcodes |= LCODE_PUP;
+	else if (strcasecmp(q,"NPU") == 0) emsi_remote_lcodes |= LCODE_NPU;
+	else if (strcasecmp(q,"HAT") == 0) emsi_remote_lcodes |= LCODE_HAT;
+	else if (strcasecmp(q,"HXT") == 0) emsi_remote_lcodes |= LCODE_HXT;
+	else if (strcasecmp(q,"HRQ") == 0) emsi_remote_lcodes |= LCODE_HRQ;
+	else if (strcasecmp(q,"FNC") == 0) emsi_remote_lcodes |= LCODE_FNC;
+	else if (strcasecmp(q,"RMA") == 0) emsi_remote_lcodes |= LCODE_RMA;
+	else if (strcasecmp(q,"RH1") == 0) emsi_remote_lcodes |= LCODE_RH1;
+	else Syslog('+', "unrecognized EMSI link code: \"%s\"",q);
+    }
 
-	p=sel_brace(NULL);
-	Syslog('+', "comp    : %s", p);
-	for (q=strtok(p,",");q;q=strtok(NULL,","))
-	{
-		     if (strcasecmp(q,"DZA") == 0) emsi_remote_protos |= PROT_DZA;
-		else if (strcasecmp(q,"ZAP") == 0) emsi_remote_protos |= PROT_ZAP;
-		else if (strcasecmp(q,"ZMO") == 0) emsi_remote_protos |= PROT_ZMO;
-		else if (strcasecmp(q,"JAN") == 0) emsi_remote_protos |= PROT_JAN;
-		else if (strcasecmp(q,"HYD") == 0) emsi_remote_protos |= PROT_HYD;
-		else if (strcasecmp(q,"KER") == 0) emsi_remote_protos |= PROT_KER;
-		else if (strcasecmp(q,"TCP") == 0) emsi_remote_protos |= PROT_TCP;
-		else if (strcasecmp(q,"NCP") == 0) emsi_remote_protos = 0;
-		else if (strcasecmp(q,"NRQ") == 0) emsi_remote_opts |= OPT_NRQ;
-		else if (strcasecmp(q,"ARC") == 0) emsi_remote_opts |= OPT_ARC;
-		else if (strcasecmp(q,"XMA") == 0) emsi_remote_opts |= OPT_XMA;
-		else if (strcasecmp(q,"FNC") == 0) emsi_remote_opts |= OPT_FNC;
-		else if (strcasecmp(q,"CHT") == 0) emsi_remote_opts |= OPT_CHT;
-		else if (strcasecmp(q,"SLK") == 0) emsi_remote_opts |= OPT_SLK;
-		else if (strcasecmp(q,"EII") == 0) emsi_remote_opts |= OPT_EII;
-		else if (strcasecmp(q,"DFB") == 0) emsi_remote_opts |= OPT_DFB;
-		else if (strcasecmp(q,"FRQ") == 0) emsi_remote_opts |= OPT_FRQ;
-		else if (strcasecmp(q,"BBS") == 0) Syslog('+', "remote has BBS activity now");
-		else Syslog('+', "unrecognized EMSI proto/option code: \"%s\"",q);
+    p=sel_brace(NULL);
+    Syslog('+', "comp    : %s", p);
+    for (q=strtok(p,",");q;q=strtok(NULL,",")) {
+	if (strcasecmp(q,"DZA") == 0) emsi_remote_protos |= PROT_DZA;
+	else if (strcasecmp(q,"ZAP") == 0) emsi_remote_protos |= PROT_ZAP;
+	else if (strcasecmp(q,"ZMO") == 0) emsi_remote_protos |= PROT_ZMO;
+	else if (strcasecmp(q,"JAN") == 0) emsi_remote_protos |= PROT_JAN;
+	else if (strcasecmp(q,"HYD") == 0) emsi_remote_protos |= PROT_HYD;
+	else if (strcasecmp(q,"KER") == 0) emsi_remote_protos |= PROT_KER;
+	else if (strcasecmp(q,"TCP") == 0) emsi_remote_protos |= PROT_TCP;
+	else if (strcasecmp(q,"NCP") == 0) emsi_remote_protos = 0;
+	else if (strcasecmp(q,"NRQ") == 0) emsi_remote_opts |= OPT_NRQ;
+	else if (strcasecmp(q,"ARC") == 0) emsi_remote_opts |= OPT_ARC;
+	else if (strcasecmp(q,"XMA") == 0) emsi_remote_opts |= OPT_XMA;
+	else if (strcasecmp(q,"FNC") == 0) emsi_remote_opts |= OPT_FNC;
+	else if (strcasecmp(q,"CHT") == 0) emsi_remote_opts |= OPT_CHT;
+	else if (strcasecmp(q,"SLK") == 0) emsi_remote_opts |= OPT_SLK;
+	else if (strcasecmp(q,"EII") == 0) emsi_remote_opts |= OPT_EII;
+	else if (strcasecmp(q,"DFB") == 0) emsi_remote_opts |= OPT_DFB;
+	else if (strcasecmp(q,"FRQ") == 0) emsi_remote_opts |= OPT_FRQ;
+	else if (strcasecmp(q,"BBS") == 0) Syslog('+', "remote has BBS activity now");
+	else Syslog('+', "unrecognized EMSI proto/option code: \"%s\"",q);
+    }
+    if ((emsi_remote_opts & OPT_FNC) == 0) 
+	remote_flags &= ~SESSION_FNC;
+
+    mailer_prod=sel_brace(NULL);
+    mailer_name=sel_brace(NULL);
+    mailer_version=sel_brace(NULL);
+    mailer_serial=sel_brace(NULL);
+    Syslog('+', "uses    : %s [%s] version %s/%s", mailer_name, mailer_prod, mailer_version, mailer_serial);
+
+    while ((p=sel_brace(NULL))) {
+	if (strcasecmp(p,"IDENT") == 0) {
+	    p=sel_brace(NULL);
+	    Syslog('+', "system  : %s",(p=sel_bracket(p)));
+	    strncpy(history.system_name, p, 35);
+	    Syslog('+', "location: %s",(p=sel_bracket(NULL)));
+	    strncpy(history.location, p, 35);
+	    Syslog('+', "operator: %s",(p=sel_bracket(NULL)));
+	    strncpy(history.sysop, p, 35);
+	    if (remote && remote->addr)
+		remote->addr->name=xstrcpy(p);
+	    Syslog('+', "phone   : %s",sel_bracket(NULL));
+	    Syslog('+', "baud    : %s",sel_bracket(NULL));
+	    Syslog('+', "flags   : %s",sel_bracket(NULL));
+	} else if (strcasecmp(p, "TZUTC") == 0) {
+	    p = sel_brace(NULL);
+	    p = sel_bracket(p);
+	    if ((strlen(p) == 4) || (strlen(p) == 5))
+		Syslog('+', "timezone: %s", p);
+	    else
+		Syslog('+', "TZUTC   : %s", p);
+	} else if (strcasecmp(p,"TRX#") == 0) {
+	    time_t tt, now;
+	    char ctt[32];
+
+	    now = time(NULL);
+	    p=sel_brace(NULL);
+	    p=sel_bracket(p);
+	    if (sscanf(p,"%08lx",&tt) == 1) {
+		strcpy(ctt,date(sl2mtime(tt)));
+		Syslog('+', "time    : %s",ctt);
+		Syslog('+', "tranx   : %08lX/%08lX [%ld]", now, sl2mtime(tt), now - sl2mtime(tt));
+	    } else
+		Syslog('+', "remote     TRX#: %s",p);
+	} else if (strcasecmp(p, "TRAF") == 0) {
+	    unsigned long tt, tt1;
+
+	    p = sel_brace(NULL);
+	    if (sscanf(p, "%08lx %08lx", &tt, &tt1) == 2) {
+		Syslog('+', "netmail : %u byte(s)", tt);
+		Syslog('+', "echomail: %u byte(s)", tt1);
+	    } else {
+		Syslog('+', "TRAF    : %s", p);
+	    }
+	} else if (strcasecmp(p, "MOH#") == 0) {
+	    unsigned long tt;
+
+	    p = sel_brace(NULL);
+	    p = sel_bracket(p);
+	    if (sscanf(p, "%08lx", &tt) == 1)
+		Syslog('+', "on hold : %u byte(s)", tt);
+	    else
+		Syslog('+', "MOH#    : %s", p);
+	} else {
+	    q=sel_brace(NULL);
+	    Syslog('+', "extra   : \"%s\" value: \"%s\"",p,q);
 	}
-	if ((emsi_remote_opts & OPT_FNC) == 0) 
-		remote_flags &= ~SESSION_FNC;
+    }
 
-	mailer_prod=sel_brace(NULL);
-	mailer_name=sel_brace(NULL);
-	mailer_version=sel_brace(NULL);
-	mailer_serial=sel_brace(NULL);
-	Syslog('+', "uses    : %s [%s] version %s/%s",
-		mailer_name,mailer_prod,mailer_version,mailer_serial);
-
-	while ((p=sel_brace(NULL)))
-		if (strcasecmp(p,"IDENT") == 0) {
-			p=sel_brace(NULL);
-			Syslog('+', "system  : %s",(p=sel_bracket(p)));
-			strncpy(history.system_name, p, 35);
-			Syslog('+', "location: %s",(p=sel_bracket(NULL)));
-			strncpy(history.location, p, 35);
-			Syslog('+', "operator: %s",(p=sel_bracket(NULL)));
-			strncpy(history.sysop, p, 35);
-			if (remote && remote->addr)
-				remote->addr->name=xstrcpy(p);
-			Syslog('+', "phone   : %s",sel_bracket(NULL));
-			Syslog('+', "baud    : %s",sel_bracket(NULL));
-			Syslog('+', "flags   : %s",sel_bracket(NULL));
-		} else if (strcasecmp(p, "TZUTC") == 0) {
-			p = sel_brace(NULL);
-			p = sel_bracket(p);
-			if ((strlen(p) == 4) || (strlen(p) == 5))
-				Syslog('+', "timezone: %s", p);
-			else
-				Syslog('+', "TZUTC   : %s", p);
-		} else if (strcasecmp(p,"TRX#") == 0) {
-			time_t tt, now;
-			char ctt[32];
-
-			now = time(NULL);
-			p=sel_brace(NULL);
-			p=sel_bracket(p);
-			if (sscanf(p,"%08lx",&tt) == 1) {
-				strcpy(ctt,date(sl2mtime(tt)));
-				Syslog('+', "time    : %s",ctt);
-				Syslog('+', "tranx   : %08lX/%08lX [%ld]", now, sl2mtime(tt), now - sl2mtime(tt));
-			} else
-				Syslog('+', "remote     TRX#: %s",p);
-		} else if (strcasecmp(p, "TRAF") == 0) {
-			unsigned long tt, tt1;
-
-			p = sel_brace(NULL);
-			if (sscanf(p, "%08lx %08lx", &tt, &tt1) == 2) {
-				Syslog('+', "netmail : %u byte(s)", tt);
-				Syslog('+', "echomail: %u byte(s)", tt1);
-			} else {
-				Syslog('+', "TRAF    : %s", p);
-			}
-		} else if (strcasecmp(p, "MOH#") == 0) {
-			unsigned long tt;
-
-			p = sel_brace(NULL);
-			p = sel_bracket(p);
-			if (sscanf(p, "%08lx", &tt) == 1)
-				Syslog('+', "on hold : %u byte(s)", tt);
-			else
-				Syslog('+', "MOH#    : %s", p);
-		} else {
-			q=sel_brace(NULL);
-			Syslog('+', "extra   : \"%s\" value: \"%s\"",p,q);
-		}
-
-	return 0;
+    return 0;
 }
 
 

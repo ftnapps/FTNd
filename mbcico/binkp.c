@@ -403,7 +403,7 @@ SM_NAMES
 SM_EDECL
     faddr   *primary;
     char    *p, *q;
-    int	    i, rc, bufl, cmd;
+    int	    i, rc, bufl, cmd, dupe;
     fa_list **tmp, *tmpa;
     int	    SendPass = FALSE;
     faddr   *fa, ra;
@@ -473,10 +473,22 @@ SM_STATE(waitaddr)
 
 		for (q = strtok(p, " "); q; q = strtok(NULL, " "))
 		    if ((fa = parsefnode(q))) {
-			*tmp = (fa_list*)malloc(sizeof(fa_list));
-			(*tmp)->next = NULL;
-			(*tmp)->addr = fa;
-			tmp = &((*tmp)->next);
+			dupe = FALSE;
+			for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+			    if ((tmpa->addr->zone == fa->zone) && (tmpa->addr->net == fa->net) &&
+				(tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
+				(strcmp(tmpa->addr->domain, fa->domain) == 0)) {
+				dupe = TRUE;
+				Syslog('b', "Double address %s", ascfnode(tmpa->addr, 0x1f));
+				break;
+			    }
+			}
+			if (!dupe) {
+			    *tmp = (fa_list*)malloc(sizeof(fa_list));
+			    (*tmp)->next = NULL;
+			    (*tmp)->addr = fa;
+			    tmp = &((*tmp)->next);
+			}
 		    } else {
 			Syslog('!', "Bad remote address: \"%s\"", printable(q, 0));
 			binkp_send_control(MM_ERR, "Bad address");
@@ -591,7 +603,7 @@ SM_NAMES
 
 SM_EDECL
     char    *p, *q;
-    int     i, rc, bufl, cmd;
+    int     i, rc, bufl, cmd, dupe;
     fa_list **tmp, *tmpa;
     faddr   *fa;
 
@@ -630,10 +642,22 @@ SM_STATE(waitaddr)
 
 		for (q = strtok(p, " "); q; q = strtok(NULL, " "))
 		    if ((fa = parsefnode(q))) {
-			*tmp = (fa_list*)malloc(sizeof(fa_list));
-			(*tmp)->next = NULL;
-			(*tmp)->addr = fa;
-			tmp = &((*tmp)->next);
+			dupe = FALSE;
+			for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+			    if ((tmpa->addr->zone == fa->zone) && (tmpa->addr->net == fa->net) &&
+				(tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
+				(strcmp(tmpa->addr->domain, fa->domain) == 0)) {
+				dupe = TRUE;
+				Syslog('b', "Double address %s", ascfnode(tmpa->addr, 0x1f));
+				break;
+			    }
+			}
+			if (!dupe) {
+			    *tmp = (fa_list*)malloc(sizeof(fa_list));
+			    (*tmp)->next = NULL;
+			    (*tmp)->addr = fa;
+			    tmp = &((*tmp)->next);
+			}
 		    } else {
 			Syslog('!', "Bad remote address: \"%s\"", printable(q, 0));
 			binkp_send_control(MM_ERR, "Bad address");

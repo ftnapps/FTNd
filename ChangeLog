@@ -3,6 +3,9 @@ $Id$
 
 v0.37.00	26-Dec-2002.
 
+	mbcico:
+		With binkp and EMSI sessions double received remote aka's are
+		filtered.
 
 
 v0.36.00	26-Dec-2002 - stable release
