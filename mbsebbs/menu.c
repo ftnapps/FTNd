@@ -147,8 +147,8 @@ void menu()
 	     */
 	    IsANSI = FALSE;
 	    while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
-		if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
-		    if ((menus.MenuType == 5) || (menus.MenuType == 19) || (menus.MenuType == 20))
+		if ( Le_Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= le_int(menus.Age))){
+		    if ((le_int(menus.MenuType) == 5) || (le_int(menus.MenuType) == 19) || (le_int(menus.MenuType) == 20))
 			IsANSI = TRUE;
 		}
 	    }
@@ -157,9 +157,9 @@ void menu()
 		clear();
 
 	    while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
-		if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
+		if ( Le_Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= le_int(menus.Age))){
 		    if ( menus.AutoExec ) {
-			DoMenu( menus.MenuType );
+			DoMenu( le_int(menus.MenuType) );
 		    }
 		    DisplayMenu( ); 
 		}
@@ -224,10 +224,10 @@ void menu()
 		while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
 		 
 		    if ((strcmp(tu(Input), menus.MenuKey)) == 0) {
-			if ((Access(exitinfo.Security, menus.MenuSecurity)) && (UserAge >= menus.Age)) {
-			    Syslog('b', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, menus.MenuType, 
+			if ((Le_Access(exitinfo.Security, menus.MenuSecurity)) && (UserAge >= le_int(menus.Age))) {
+			    Syslog('b', "Menu[%d] %d=(%s), Opt: '%s'", MenuLevel, le_int(menus.MenuType), 
 					menus.TypeDesc, menus.OptionalData);
-			    if (menus.MenuType == 13) {
+			    if (le_int(menus.MenuType) == 13) {
 				/*
 				 *  Terminate call, cleanup here
 				 */
@@ -235,7 +235,7 @@ void menu()
 				free(sMenuPathFileName);
 				fclose(pMenuFile);
 			    }
-			    DoMenu(menus.MenuType);
+			    DoMenu(le_int(menus.MenuType));
 			    iFoundKey = TRUE;
 			    break;
 			}
@@ -321,8 +321,8 @@ void DoMenu(int Type)
 			strcat(sPrompt, temp);
 		    }
 		}
-		if (menus.ForeGnd || menus.BackGnd)
-		    pout(menus.ForeGnd, menus.BackGnd, sPrompt);
+		if (le_int(menus.ForeGnd) || le_int(menus.BackGnd))
+		    pout(le_int(menus.ForeGnd), le_int(menus.BackGnd), sPrompt);
 		else
 		    pout(WHITE, BLACK, sPrompt);
 		break;
@@ -372,7 +372,7 @@ void DoMenu(int Type)
 
 	case 15:
 		/* print text to screen */
-		if (exitinfo.Security.level >= menus.MenuSecurity.level) {
+		if (exitinfo.Security.level >= le_int(menus.MenuSecurity.level)) {
 		    for (i = 0; i < strlen(menus.OptionalData); i++)
 			if (*(menus.OptionalData + i) == '@')
 			    *(menus.OptionalData + i) = '\n';
@@ -713,7 +713,7 @@ void DisplayMenu(void)
     int	    maxdpos, dpos, escaped, skipCRLF, highlight;
 
     /* Anything to process, if not; save CPU time, return */
-    if (( strlen( menus.Display ) == 0 ) && (menus.MenuType != 21)) {
+    if (( strlen( menus.Display ) == 0 ) && (le_int(menus.MenuType) != 21)) {
 	return;
     }
 
@@ -724,7 +724,7 @@ void DisplayMenu(void)
     skipCRLF = 0;
     highlight = 0;
 
-    colour( menus.ForeGnd, menus.BackGnd );
+    colour( le_int(menus.ForeGnd), le_int(menus.BackGnd) );
 
     for ( dpos = 0; dpos < maxdpos ; dpos++ ){
 	switch ( menus.Display[ dpos ] ) {
@@ -749,10 +749,10 @@ void DisplayMenu(void)
 			if ( !escaped ) {
 			    if ( highlight == 0 ) { 
 				highlight = 1;
-				colour( menus.HiForeGnd, menus.HiBackGnd);
+				colour( le_int(menus.HiForeGnd), le_int(menus.HiBackGnd));
 			    } else {					
 				highlight = 0 ;
-				colour( menus.ForeGnd, menus.BackGnd );
+				colour( le_int(menus.ForeGnd), le_int(menus.BackGnd) );
 			    }
 			} else {
 			    escaped=0;

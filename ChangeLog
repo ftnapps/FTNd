@@ -1,6 +1,7 @@
 $Id$
 
-	WARNING, users of Sparc and HP-PA systems should not edit bbs menus now!
+	WARNING, users of Sparc and HP-PA systems should be carefull, some
+	menus might not work.
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
@@ -106,6 +107,7 @@ v0.37.01	14-Jan-2003.
 		Fixed whoson list to display user real names and handles again.
 		Fixed send online message to send to user real names, handles
 		and unix names again.
+		The menus are machine endian independant.
 
 	examples:
 		The English and Dutch templates are updated to show the new

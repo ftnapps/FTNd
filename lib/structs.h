@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Global structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -839,16 +839,16 @@ struct	menufile {
 	char		Display[81];		/* Menu display line	    */
 	securityrec	MenuSecurity;		/* Menu Security Level      */
 	int		Age;			/* Minimum Age to use menu  */
-	unsigned int	MaxSecurity;		/* Maximum security level   */
+	unsigned int	xMaxSecurity;
 	char		Password[15];		/* Menu Password            */
 	char		TypeDesc[30];		/* Menu Type Description    */
 	unsigned	AutoExec	: 1;	/* Auto Exec Menu Type      */
 	unsigned	NoDoorsys	: 1;	/* Suppress door.sys	    */
 	unsigned	Y2Kdoorsys	: 1;	/* Write Y2K style door.sys */
-	unsigned	Comport		: 1;	/* Vmodem compart mode	    */
+	unsigned	Comport		: 1;	/* Vmodem comport mode	    */
 	unsigned	NoSuid		: 1;	/* Execute door nosuid	    */
 	unsigned	NoPrompt	: 1;	/* No prompt after door	    */
-	long		Credit;			/* Credit needed	    */
+	long		xCredit;
 	int		HiForeGnd;		/* High ForeGround color    */
 	int		HiBackGnd;		/* High ForeGround color    */
 	int		ForeGnd;		/* Normal ForeGround color  */

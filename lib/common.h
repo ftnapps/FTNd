@@ -501,7 +501,7 @@ void	name_mangle(char *);	    /* Mangle name or make uppercase	*/
  * sectest.c
  */
 int  Access(securityrec, securityrec);  /* Check security access	*/
-
+int  Le_Access(securityrec, securityrec);  /* Endian independant	*/
 
 #endif
 

@@ -4,7 +4,7 @@
  * Purpose ...............: Security flags access test
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -54,4 +54,28 @@ int Access(securityrec us, securityrec ref)
 
     return TRUE;
 }
+
+
+
+/*
+ * The same test, for menus which are written in machine endian independant way.
+ * The second parameter MUST be the menu parameter.
+ */
+int Le_Access(securityrec us, securityrec ref)
+{
+    Syslog('B', "User %5d %08lx %08lx", us.level, us.flags, ~us.flags);
+    Syslog('B', "Ref. %5d %08lx %08lx", le_int(ref.level), ref.flags, ref.notflags);
+
+    if (us.level < le_int(ref.level))
+	return FALSE;
+
+    if ((ref.notflags & ~us.flags) != ref.notflags)
+	return FALSE;
+
+    if ((ref.flags & us.flags) != ref.flags)
+	return FALSE;
+
+    return TRUE;
+}
+
 
