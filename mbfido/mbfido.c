@@ -189,7 +189,8 @@ void die(int onsig)
 	system("stty sane");
     }
 
-    CloseDupes();
+    if (onsig != 110)
+	CloseDupes();
 
     /*
      * Check for locked and open message base.
@@ -239,11 +240,15 @@ void die(int onsig)
 
     /*
      * There should be no locks anymore, but in case of a crash try to unlock
-     * all possible directories.
+     * all possible directories. Only if onsig <> 110, this was a lock error
+     * and there should be no lock. We prevent removing the lock of another
+     * mbfido this way.
      */
-    ulockdir(CFG.inbound);
-    ulockdir(CFG.pinbound);
-    ulockdir(CFG.out_queue);
+    if (onsig != 110) {
+	ulockdir(CFG.inbound);
+	ulockdir(CFG.pinbound);
+	ulockdir(CFG.out_queue);
+    }
 
     t_end = time(NULL);
     Syslog(' ', "MBFIDO finished in %s", t_elapsed(t_start, t_end));
@@ -427,10 +432,11 @@ int main(int argc, char **argv)
     Syslog(' ', cmd);
     free(cmd);
 
-    InitDupes();
-
+    /*
+     * Not yet locked, if anything goes wrong, exit with die(110)
+     */
     if (!diskfree(CFG.freespace))
-	die(101);
+	die(110);
 
     if (do_mail) {
 	/*
@@ -452,7 +458,7 @@ int main(int argc, char **argv)
 	    i--;
 	    if (! i) {
 		WriteError("Lock timeout, aborting");
-		die(101);
+		die(110);
 	    }
 	    sleep(20);
 	    Nopper();
@@ -464,12 +470,16 @@ int main(int argc, char **argv)
 	 */
 	if (do_unprot) {
 	    if (! lockdir(CFG.inbound))
-		die(101);
+		die(110);
 	} else {
 	    if (! lockdir(CFG.pinbound))
-		die(101);
+		die(110);
 	}
     }
+
+    /*
+     * Locking succeeded, no more abort alowed with die(110)
+     */
 
     if (initnl())
 	die(101);
@@ -512,6 +522,8 @@ int main(int argc, char **argv)
 	flush_queue();
 	die(0);
     }
+
+    InitDupes();
 
     if (do_notify)
 	if (Notify(Options)) {

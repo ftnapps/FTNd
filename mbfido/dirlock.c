@@ -45,7 +45,7 @@
 
 
 /*
- *  Put a lock on this program.
+ *  Put a lock on a directory.
  */
 int lockdir(char *directory)
 {
@@ -116,14 +116,36 @@ int lockdir(char *directory)
 
 
 
+/*
+ * Unlock directory, make extra check to see if it is our own lock.
+ */
 void ulockdir(char *directory)
 {
     char    *lockfile;
+    FILE    *fp;
+    pid_t   oldpid;
 
     lockfile = calloc(PATH_MAX, sizeof(char));
     sprintf(lockfile, "%s/", directory);
     sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
-    (void)unlink(lockfile);
+
+    if ((fp = fopen(lockfile, "r")) == NULL) {
+	Syslog('-', "Lockfile \"%s\" doesn't exist", lockfile);
+	free(lockfile);
+	return;
+    }
+
+    if (fscanf(fp, "%u", &oldpid) != 1) {
+	WriteError("$Can't read old pid from \"%s\"", lockfile);
+    } else {
+	if (getpid() != oldpid) {
+	    WriteError("Attempt to remove lock %s of pid %d", lockfile, oldpid);
+	} else {
+	    unlink(lockfile);
+	}
+    }
+
+    fclose(fp);
     free(lockfile);
 }
 

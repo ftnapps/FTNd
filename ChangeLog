@@ -63,6 +63,13 @@ v0.35.03	06-Jul-2002
 		there is now better filtering to get that garbage out of the
 		received tic files. We will forward plain ascii of course.
 		Fixed the outbound queue to send to nodes not in the setup.
+		When mbfido stops with error 110 it doesn't remove any locks
+		because this error is only being used before that main lock is
+		made.
+		Changed the error codes during init until the main lock is 
+		made, this must prevent destroying a another lock.
+		Added extra check to unlock directory function to check that
+		only the owned lock is removed.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
