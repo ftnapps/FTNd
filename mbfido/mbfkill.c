@@ -164,8 +164,8 @@ void Kill(void)
 					if (area.MoveArea) {
 						fseek(pAreas, ((area.MoveArea -1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 						fread(&darea, areahdr.recsize, 1, pAreas);
-						sprintf(from, "%s/%s", area.Path, file.Name);
-						sprintf(to,   "%s/%s", darea.Path, file.Name);
+						sprintf(from, "%s/%s", area.Path, file.LName);
+						sprintf(to,   "%s/%s", darea.Path, file.LName);
 						if ((rc = file_mv(from, to)) == 0) {
 							Syslog('+', "Move %s, area %d => %d", file.Name, i, area.MoveArea);
 							sprintf(to, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), area.MoveArea);
@@ -178,8 +178,8 @@ void Kill(void)
 							/*
 							 * Now again if there is a dotted version (thumbnail) of this file.
 							 */
-							sprintf(from, "%s/.%s", area.Path, file.Name);
-							sprintf(to,   "%s/.%s", darea.Path, file.Name);
+							sprintf(from, "%s/.%s", area.Path, file.LName);
+							sprintf(to,   "%s/.%s", darea.Path, file.LName);
 							if (file_exist(from, R_OK) == 0)
 								file_mv(from, to);
 							file.Deleted = TRUE;
@@ -187,15 +187,16 @@ void Kill(void)
 							fwrite(&file, sizeof(file), 1, pFile);
 							iMoved++;
 						} else {
-							WriteError("Move %s failed rc = %d", file.Name, rc);
+							WriteError("Move %s to area %d failed rc = %d", 
+								    file.Name, area.MoveArea, rc);
 						}
 					} else {
-						Syslog('+', "Delete %s, area %d", file.Name, i);
+						Syslog('+', "Delete %s, area %d", file.LName, i);
 						file.Deleted = TRUE;
 						fseek(pFile, - sizeof(file), SEEK_CUR);
 						fwrite(&file, sizeof(file), 1, pFile);
 						iKilled++;
-						sprintf(from, "%s/%s", area.Path, file.Name);
+						sprintf(from, "%s/%s", area.Path, file.LName);
 						unlink(from);
 					}
 				}
@@ -211,7 +212,7 @@ void Kill(void)
 			if ((pTemp = fopen(sTemp, "a+")) != NULL) {
 				FilesLeft = FALSE;
 				while (fread(&file, sizeof(file), 1, pFile) == 1) {
-					if ((!file.Deleted) && strcmp(file.Name, "") != 0) {
+					if ((!file.Deleted) && strcmp(file.LName, "") != 0) {
 						fwrite(&file, sizeof(file), 1, pTemp);
 						FilesLeft = TRUE;
 					}

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/postecho.c
+ * $Id$
  * Purpose ...............: Post echomail message.
- * Last modification date : 01-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -57,7 +56,6 @@ extern	int	do_quiet;		/* No tty output	*/
 extern	int	do_unsec;		/* Toss unsecure	*/
 extern	int	check_dupe;		/* Check dupes		*/
 extern	time_t	t_start;		/* Reference time	*/
-extern	int	most_debug;		/* Heavy debugging	*/
 extern	int	echo_in;		/* Echomail processed	*/
 extern	int	echo_out;		/* Echomail forwarded	*/
 extern	int	echo_bad;		/* Bad echomail		*/
@@ -557,9 +555,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 			fprintf(qp, "%s\n", buf);
 		}
 		rewind(qp);
-		most_debug = TRUE;
 		ftn2rfc(f, t, subj, orig, mdate, flags, qp);
-		most_debug = FALSE;
 		fclose(qp);
 	}
 	fclose(nfp);
