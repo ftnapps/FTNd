@@ -1,0 +1,14 @@
+			README.developer for MBSE BBS
+
+This file is only available on CVS, not in the distribution. This file will
+hold information about CVS tags, scheduled releases and other info for
+development only. There are no secrets in this file because it's public
+available.
+
+
+
+	CVS tags.
+
+mbsebbs-0_33_17		17-Aug-2001 Initial CVS import by Ken.
+mbsebbs-0_33_18_current	25-Aug-2001 Upgraded to 0.33.18 current development.
+
