@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/users.h"
 #include "../lib/mbsedb.h"
+#include "../lib/msg.h"
 #include "openport.h"
 #include "ttyio.h"
 #include "auth.h"
@@ -43,6 +44,8 @@ time_t		    t_end;
 char		    *envptr = NULL;
 struct sockaddr_in  peeraddr;
 pid_t		    mypid;
+unsigned long	    rcvdbytes = 0L;
+unsigned long	    sentbytes = 0L;
 
 extern char	    *ttystat[];
 extern int	    authorized;
@@ -52,6 +55,7 @@ void die(int onsig)
 {
     signal(onsig, SIG_IGN);
     CloseDupes();
+    Msg_Close();
 
     if (onsig) {
 	if (onsig <= NSIG)
@@ -61,6 +65,7 @@ void die(int onsig)
     }
 
     t_end = time(NULL);
+    Syslog('+', "Send [%6lu] Received [%6lu]", sentbytes, rcvdbytes);
     Syslog(' ', "MBNNTP finished in %s", t_elapsed(t_start, t_end));
 
     if (envptr)
@@ -162,8 +167,10 @@ int get_nntp(char *buf, int max)
 	    Syslog('+', "Receiver status %s", ttystat[- c]);
 	    return c;
 	}
-	if ((c == '\r') || (c == '\n'))
+	if ((c == '\r') || (c == '\n')) {
+	    rcvdbytes += (len + 1);
 	    return len;
+	}
 	else {
 	    buf[len] = c;
 	    len++;
@@ -174,7 +181,8 @@ int get_nntp(char *buf, int max)
 	    return len;
 	}
     }
-    return 0;	/* Not reached */
+
+    return 0;	    /* Not reached */
 }
 
 
@@ -193,6 +201,8 @@ void send_nntp(const char *format, ...)
     Syslog('n', "> \"%s\"", printable(out, 0));
     PUTSTR(out);
     PUTSTR((char *)"\r\n");
+    FLUSHOUT();
+    sentbytes += (strlen(out) + 2);
     free(out);
 }
 
@@ -205,16 +215,18 @@ void nntp(void)
     
     while (TRUE) {
 
+	IsDoing("Waiting");
 	len = get_nntp(buf, sizeof(buf) -1);
 	if (len < 0)
 	    return;
 	if (len == 0)
 	    continue;
 
+	Syslog('n', "< \"%s\"", printable(buf, 0));
+
 	/*
 	 * Process received command
 	 */
-	Syslog('n', "< \"%s\"", printable(buf, 0));
 	if (strncasecmp(buf, "QUIT", 4) == 0) {
 	    send_nntp("205 Goodbye\r\n");
 	    return;
@@ -222,9 +234,21 @@ void nntp(void)
 	    auth_user(buf);
 	} else if (strncasecmp(buf, "AUTHINFO PASS", 13) == 0) {
 	    auth_pass(buf);
+	} else if (strncasecmp(buf, "ARTICLE", 7) == 0) {
+	    if (check_auth(buf))
+		command_abhs(buf);
+	} else if (strncasecmp(buf, "BODY", 4) == 0) {
+	    if (check_auth(buf))
+		command_abhs(buf);
 	} else if (strncasecmp(buf, "LIST", 4) == 0) {
 	    if (check_auth(buf))
 		command_list(buf);
+	} else if (strncasecmp(buf, "GROUP", 5) == 0) {
+	    if (check_auth(buf))
+		command_group(buf);
+	} else if (strncasecmp(buf, "HEAD", 4) == 0) {
+	    if (check_auth(buf))
+		command_abhs(buf);
 	} else if (strncasecmp(buf, "IHAVE", 5) == 0) {
 	    send_nntp("435 Article not wanted - do not send it");
 	} else if (strncasecmp(buf, "NEWGROUPS", 9) == 0) {
@@ -235,22 +259,34 @@ void nntp(void)
 	    send_nntp(".");
 	} else if (strncasecmp(buf, "SLAVE", 5) == 0) {
 	    send_nntp("202 Slave status noted");
+	} else if (strncasecmp(buf, "STAT", 4) == 0) {
+	    if (check_auth(buf))
+		command_abhs(buf);
 	} else if (strncasecmp(buf, "MODE READER", 11) == 0) {
 	    if (authorized)
 		send_nntp("200 Server ready, posting allowed");
 	    else
 		send_nntp("201 Server ready, no posting allowed");
+	} else if (strncasecmp(buf, "XOVER", 5) == 0) {
+	    if (check_auth(buf))
+		command_xover(buf);
 	} else if (strncasecmp(buf, "HELP", 4) == 0) {
 	    send_nntp("100 Help text follows");
 	    send_nntp("Recognized commands:");
 	    send_nntp("");
+	    send_nntp("ARTICLE");
 	    send_nntp("AUTHINFO");
+	    send_nntp("BODY");
+	    send_nntp("GROUP");
+	    send_nntp("HEAD");
 	    send_nntp("IHAVE (not implemented, messages are always rejected)");
 	    send_nntp("LIST");
 	    send_nntp("NEWGROUPS (not implemented, always returns an empty list)");
 	    send_nntp("NEWNEWS (not implemented, always returns an empty list)");
 	    send_nntp("QUIT");
 	    send_nntp("SLAVE (has no effect)");
+	    send_nntp("STAT");
+	    send_nntp("XOVER");
 	    send_nntp("");
 	    send_nntp("MBNNTP supports most of RFC-977 and also has support for AUTHINFO and");
 	    send_nntp("limited XOVER support (RFC-2980)");

@@ -1270,7 +1270,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
           ac_config_commands="$ac_config_commands default-1"
 
-SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html script"
+SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbnntp mbtask mbsetup unix lang examples html script"
 
 
 PACKAGE="mbsebbs"

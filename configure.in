@@ -3,7 +3,7 @@ dnl $Id$
 
 AC_INIT(lib/mbselib.h)
 AM_CONFIG_HEADER(config.h)
-SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html script"
+SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbnntp mbtask mbsetup unix lang examples html script"
 AC_SUBST(SUBDIRS)
 
 dnl

@@ -18,13 +18,17 @@ v0.51.4		11-Apr-2004
 		When a new echomail area is auto created, the creation date and
 		the newsgroup name will be set.
 
+	mbnntp:
+		New program, news server to read echomail with a news client.
+		Reading news works, no posts yet.
+
 	mbsebbs:
 		Added loging of virus scanner results.
 
 	mbsetup:
 		Added auto setup for message area creation date. Also creates
 		a faked newsgroup name in echomail areas. Both settings are
-		needed for the (upcoming) newsserver.
+		needed for the newsserver.
 
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
