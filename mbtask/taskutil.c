@@ -559,10 +559,10 @@ char *printable(char *s, int l)
 	if (len > -l) 
 	    len=-l;
     }
-    pbuff=(char*)xmalloc(len*4+1);
+    pbuff=(char*)xmalloc(len*3+1);
     p=pbuff;
     while (len--) {
-	if (*(unsigned char*)s >= ' ') 
+	if (isprint(*(unsigned char*)s))
 	    *p++=*s;
 	else switch (*s) {
 	    case '\\': *p++='\\'; *p++='\\'; break;
@@ -570,7 +570,7 @@ char *printable(char *s, int l)
 	    case '\n': *p++='\\'; *p++='n'; break;
 	    case '\t': *p++='\\'; *p++='t'; break;
 	    case '\b': *p++='\\'; *p++='b'; break;
-	    default:   sprintf(p,"\\%03o",*s); p+=4; break;
+	    default:   sprintf(p,"\\%02x", (*s & 0xff)); p+=3; break;
 	}
 	s++;
     }

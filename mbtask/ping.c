@@ -48,6 +48,7 @@ extern int		internet;		/* Internet is down	*/
 extern int		rescan;			/* Master rescan flag	*/
 struct in_addr		paddr;			/* Current ping address	*/
 extern int		T_Shutdown;		/* Program shutdown	*/
+int			ping_run = FALSE;	/* Thread runnning	*/
 
 
 
@@ -244,7 +245,7 @@ int ping_send(struct in_addr addr)
 int ping_receive(struct in_addr addr)
 {
     char                buf[1024]; 
-    int                 len;
+    int                 rc, len;
     struct sockaddr_in	ffrom;
     struct icmphdr      icmpp;
     struct iphdr        iph;
@@ -253,15 +254,17 @@ int ping_receive(struct in_addr addr)
 
     pfd.fd = ping_isocket;
     pfd.events = POLLIN;
+    pfd.revents = 0;
 
     /*
      *  100 mSec is enough, this function is called at regular intervals.
      */
-    if (poll(&pfd, 1, 100) < 0) {
+    if ((rc = poll(&pfd, 1, 100) < 0)) {
 	if (icmp_errs < ICMP_MAX_ERRS)
 	    Syslog('?', "$poll/select failed");
 	return -3; 
     }
+//    Syslog('p', "poll_thread: poll interrupted rc=%d events=%04x", rc, pfd.revents);
 
     if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 	sl = sizeof(ffrom);
@@ -339,6 +342,7 @@ void *ping_thread(void)
     pingresult[1] = pingresult[2] = FALSE;
     pingnr = 2;
     internet = FALSE;
+    ping_run = TRUE;
 
     while (! T_Shutdown) {
 
@@ -438,6 +442,7 @@ void *ping_thread(void)
 	}
     }
 
+    ping_run = FALSE;
     Syslog('+', "Ping thread stopped");
     pthread_exit(NULL);
 }

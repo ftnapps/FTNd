@@ -86,6 +86,7 @@ void fill_portlist(pp_list **fdp, pp_list *new)
     pp_list *tmp, *ta;
 
     tmp = (pp_list *)malloc(sizeof(pp_list));
+    memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->tty, new->tty, 6);
     tmp->mflags = new->mflags;

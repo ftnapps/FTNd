@@ -489,7 +489,7 @@ char *printable(char *s, int l)
 	    len=-l;
     }
 
-    pbuff=(char*)xmalloc(len*4+1);
+    pbuff=(char*)xmalloc(len*3+1);
     p=pbuff;
     while (len--) {
 	if (isprint(*(unsigned char*)s))

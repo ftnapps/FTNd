@@ -48,7 +48,7 @@
 #include "mbtask.h"
 
 
-#define	NUM_THREADS	1			/* Max.	nr of threads	*/
+#define	NUM_THREADS	2			/* Max.	nr of threads	*/
 
 
 /*
@@ -110,7 +110,9 @@ extern int		ipmailers;		/* TCP/IP mail sessions	*/
 extern int		tosswait;		/* Toss wait timer	*/
 extern pid_t		mypid;			/* Pid of daemon	*/
 int			T_Shutdown = FALSE;	/* Shutdown threads	*/
-
+int			nodaemon = FALSE;	/* Run in foreground	*/
+extern int		cmd_run;		/* Cmd running		*/
+extern int		ping_run;		/* Ping running		*/
 
 
 /*
@@ -118,7 +120,7 @@ int			T_Shutdown = FALSE;	/* Shutdown threads	*/
  */
 int		thr_id[NUM_THREADS];		/* thread ID's		*/
 pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
-pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;	/* Ping mutex	*/
+// pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;	/* Ping mutex	*/
 
 
 
@@ -443,33 +445,33 @@ void load_taskcfg(void)
  */
 pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 {
-	char	buf[PATH_MAX];
-	char	*vector[16];
-	int	i, rc = 0;
-	pid_t	pid = 0;
+    char    buf[PATH_MAX], *vector[16];
+    int	    i, rc = 0;
+    pid_t   pid = 0;
 
-	if (checktasks(0) >= MAXTASKS) {
-		Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
-		return 0;
-	}
+    if (checktasks(0) >= MAXTASKS) {
+	Syslog('?', "Launch: can't execute %s, maximum tasks reached", cmd);
+	return 0;
+    }
+    memset(vector, 0, sizeof(vector));
 
-	if (opts == NULL)
-		sprintf(buf, "%s", cmd);
-	else
-		sprintf(buf, "%s %s", cmd, opts);
+    if (opts == NULL)
+	sprintf(buf, "%s", cmd);
+    else
+	sprintf(buf, "%s %s", cmd, opts);
 
-	i = 0;
-	vector[i++] = strtok(buf," \t\n\0");
-	while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
-	vector[15] = NULL;
+    i = 0;
+    vector[i++] = strtok(buf," \t\n\0");
+    while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
+    vector[15] = NULL;
 
-	if (file_exist(vector[0], X_OK)) {
-		Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
-		return 0;
-	}
+    if (file_exist(vector[0], X_OK)) {
+	Syslog('?', "Launch: can't execute %s, command not found", vector[0]);
+	return 0;
+    }
 
-	pid = fork();
-	switch (pid) {
+    pid = fork();
+    switch (pid) {
 	case -1:
 		Syslog('?', "$Launch: error, can't fork grandchild");
 		return 0;
@@ -478,18 +480,18 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 		(void)setsid(); /* It doesn't seem to help */
 		close(0);
 		if (open("/dev/null", O_RDONLY) != 0) {
-			Syslog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
-			_exit(MBERR_EXEC_FAILED);
+		    Syslog('?', "$Launch: \"%s\": reopen of stdin to /dev/null failed", buf);
+		    _exit(MBERR_EXEC_FAILED);
 		}
 		close(1);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-			Syslog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
-			_exit(MBERR_EXEC_FAILED);
+		    Syslog('?', "$Launch: \"%s\": reopen of stdout to /dev/null failed", buf);
+		    _exit(MBERR_EXEC_FAILED);
 		}
 		close(2);
 		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-			Syslog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
-			_exit(MBERR_EXEC_FAILED);
+		    Syslog('?', "$Launch: \"%s\": reopen of stderr to /dev/null failed", buf);
+		    _exit(MBERR_EXEC_FAILED);
 		}
 		errno = 0;
 		rc = execv(vector[0],vector);
@@ -498,33 +500,33 @@ pid_t launch(char *cmd, char *opts, char *name, int tasktype)
 	default:
 		/* grandchild's daddy's process */
 		break;
+    }
+
+    /*
+     *  Add it to the tasklist.
+     */
+    for (i = 0; i < MAXTASKS; i++) {
+	if (strlen(task[i].name) == 0) {
+	    strcpy(task[i].name, name);
+	    strcpy(task[i].cmd, cmd);
+	    if (opts)
+		strcpy(task[i].opts, opts);
+	    task[i].pid = pid;
+	    task[i].status = 0;
+	    task[i].running = TRUE;
+	    task[i].rc = 0;
+	    task[i].tasktype = tasktype;
+	    break;
 	}
+    }
 
-	/*
-	 *  Add it to the tasklist.
-	 */
-	for (i = 0; i < MAXTASKS; i++) {
-		if (strlen(task[i].name) == 0) {
-			strcpy(task[i].name, name);
-			strcpy(task[i].cmd, cmd);
-			if (opts)
-				strcpy(task[i].opts, opts);
-			task[i].pid = pid;
-			task[i].status = 0;
-			task[i].running = TRUE;
-			task[i].rc = 0;
-			task[i].tasktype = tasktype;
-			break;
-		}
-	}
+    ptimer = PAUSETIME;
 
-	ptimer = PAUSETIME;
-
-	if (opts)
-		Syslog('+', "Launch: task %d \"%s %s\" success, pid=%d", i, cmd, opts, pid);
-	else
-		Syslog('+', "Launch: task %d \"%s\" success, pid=%d", i, cmd, pid);
-	return pid;
+    if (opts)
+	Syslog('+', "Launch: task %d \"%s %s\" success, pid=%d", i, cmd, opts, pid);
+    else
+	Syslog('+', "Launch: task %d \"%s\" success, pid=%d", i, cmd, pid);
+    return pid;
 }
 
 
@@ -649,12 +651,13 @@ int checktasks(int onsig)
 
 void die(int onsig)
 {
-    int	i, count;
+    int	    i, count;
 
+    T_Shutdown = TRUE;
     signal(onsig, SIG_IGN);
-    if (onsig == SIGTERM) {
-        Syslog('+', "Starting normal shutdown");
-	T_Shutdown = TRUE;
+
+    if ((onsig == SIGTERM) || (nodaemon && (onsig == SIGINT))) {
+        Syslog('+', "Starting normal shutdown (%s)", SigName[onsig]);
     } else {
         Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
     }
@@ -686,13 +689,28 @@ void die(int onsig)
 	}
     }
 
+    if (cmd_run || ping_run)
+	Syslog('+', "Waiting for threads to stop");
+
+    while (cmd_run || ping_run) {
+	sleep(1);
+    }
+
     if ((count = checktasks(0)))
 	Syslog('?', "Shutdown with %d tasks still running", count);
     else
 	Syslog('+', "Good, no more tasks running");
 
+    /*
+     * Free memory
+     */
     deinitnl();
     ulocktask();
+    printable(NULL, 0);
+
+    /*
+     * Close socket
+     */
     if (sock != -1)
 	close(sock);
     if (ping_isocket != -1)
@@ -700,6 +718,7 @@ void die(int onsig)
     if (!file_exist(spath, R_OK)) {
 	unlink(spath);
     }
+
     Syslog(' ', "MBTASK finished");
     exit(onsig);
 }
@@ -797,6 +816,7 @@ void ulocktask(void)
 	free(lockfile);
 	return;
     }
+
     if (fscanf(fp, "%u", &oldpid) != 1) {
 	WriteError("$Can't read old pid from \"%s\"", lockfile);
 	fclose(fp);
@@ -804,6 +824,8 @@ void ulocktask(void)
 	free(lockfile);
 	return;
     }
+
+    fclose(fp);
 
     if (oldpid == getpid()) {
 	(void)unlink(lockfile);
@@ -877,16 +899,15 @@ void check_sema(void)
 void scheduler(void)
 {
     struct passwd   *pw;
-    int		    running = 0, rc, i, rlen, found;
+    int		    running = 0, i, found;
     static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
     char            *cmd = NULL, opts[41], port[21];
-    static char	    doing[32], buf[2048];
+    static char	    doing[32];
     time_t          now;
     struct tm       *tm, *utm;
 #if defined(__linux__)
     FILE	    *fp;
 #endif
-    struct pollfd   pfd;
     int		    call_work = 0;
     static int	    call_entry = MAXTASKS;
     double	    loadavg[3];
@@ -949,43 +970,16 @@ void scheduler(void)
     }
 
     /*
-     * Install ping thread
+     * Install threads
      */
     thr_id[0] = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
+    thr_id[1] = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL);
 
     /*
      * Enter the mainloop (forever)
      */
     do {
-	/*
-	 *  Poll UNIX Datagram socket until the defined timeout of one second.
-	 *  This means we listen of a MBSE BBS client program has something
-	 *  to tell.
-	 */
-	pfd.fd = sock;
-	pfd.events = POLLIN | POLLPRI;
-	pfd.revents = 0;
-	rc = poll(&pfd, 1, 1000);
-	if (rc == -1) {
-	    /*
-	     *  Poll can be interrupted by a finished child so that's not a real error.
-	     */
-	    if (errno != EINTR) {
-		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
-	    }
-	} else if (rc) {
-	    if (pfd.revents & POLLIN) {
-		/*
-		 * Process the clients request
-		 */
-		memset(&buf, 0, sizeof(buf));
-		fromlen = sizeof(from);
-		rlen = recvfrom(sock, buf, sizeof(buf) -1, 0, (struct sockaddr *)&from, &fromlen);
-		do_cmd(buf);
-	    } else {
-		Syslog('-', "Return poll rc=%d, events=%04x", rc, pfd.revents);
-	    }
-	}
+	sleep(1);
 
 	/*
 	 * Check all registered connections and semafore's
@@ -1323,11 +1317,18 @@ int main(int argc, char **argv)
     for (i = 0; i < NSIG; i++) {
         if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
             signal(i, (void (*))die);
-        else
+        else if ((i != SIGKILL) && (i != SIGSTOP))
             signal(i, SIG_IGN);
     }
 
     init_pingsocket();
+
+    /*
+     * Secret undocumented startup switch, ie: no help available.
+     */
+    if ((argc == 2) && (strcmp(argv[1], "-nd") == 0)) {
+	nodaemon = TRUE;
+    }
 
     /*
      *  mbtask is setuid root, drop privileges to user mbse.
@@ -1341,11 +1342,18 @@ int main(int argc, char **argv)
 	close(ping_isocket);
 	exit(MBERR_INIT_ERROR);
     }
+
+    /*
+     * If running in the foreground under valgrind the next call fails.
+     * Developers should know what they are doing so we are not bailing out.
+     */
     if (setgid(pw->pw_gid)) {
 	perror("");
 	fprintf(stderr, "can't setgid to bbs\n");
-	close(ping_isocket);
-	exit(MBERR_INIT_ERROR);
+	if (! nodaemon) {
+	    close(ping_isocket);
+	    exit(MBERR_INIT_ERROR);
+	}
     }
 
     umask(007);
@@ -1360,6 +1368,9 @@ int main(int argc, char **argv)
     mypid = getpid();
     Syslog(' ', " ");
     Syslog(' ', "MBTASK v%s", VERSION);
+    if (nodaemon)
+	Syslog('+', "Starting in no-daemon mode");
+
     sprintf(tcfgfn, "%s/etc/task.data", getenv("MBSE_ROOT"));
     load_taskcfg();
     status_init();
@@ -1381,63 +1392,71 @@ int main(int argc, char **argv)
     if (!file_exist(spath, R_OK))
         unlink(spath);
 
-    /*
-     * Server initialization is complete. Now we can fork the 
-     * daemon and return to the user. We need to do a setpgrp
-     * so that the daemon will no longer be assosiated with the
-     * users control terminal. This is done before the fork, so
-     * that the child will not be a process group leader. Otherwise,
-     * if the child were to open a terminal, it would become
-     * associated with that terminal as its control terminal.
-     */
-    if ((pgrp = setpgid(0, 0)) == -1) {
-	Syslog('?', "$setpgid failed");
-	die(MBERR_INIT_ERROR);
-    }
+    if (nodaemon) {
+	/*
+	 * For debugging, run in foreground mode
+	 */
+	mypid = getpid();
+	scheduler();
+    } else {
+	/*
+	 * Server initialization is complete. Now we can fork the 
+	 * daemon and return to the user. We need to do a setpgrp
+	 * so that the daemon will no longer be assosiated with the
+	 * users control terminal. This is done before the fork, so
+	 * that the child will not be a process group leader. Otherwise,
+	 * if the child were to open a terminal, it would become
+	 * associated with that terminal as its control terminal.
+	 */
+	if ((pgrp = setpgid(0, 0)) == -1) {
+	    Syslog('?', "$setpgid failed");
+	    die(MBERR_INIT_ERROR);
+	}
 
-    frk = fork();
-    switch (frk) {
-    case -1:
-            Syslog('?', "$Unable to fork daemon");
-            die(MBERR_INIT_ERROR);
-    case 0:
-            /*
-             *  Starting the deamon child process here. 
-             */
-            fclose(stdin);
-	    if (open("/dev/null", O_RDONLY) != 0) {
-		Syslog('?', "$Reopen of stdin to /dev/null failed");
-		_exit(MBERR_EXEC_FAILED);
-	    }
-	    fclose(stdout);
-	    if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
-		Syslog('?', "$Reopen of stdout to /dev/null failed");
-		_exit(MBERR_EXEC_FAILED);
-	    }
-            fclose(stderr);
-	    if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
-		Syslog('?', "$Reopen of stderr to /dev/null failed");
-		_exit(MBERR_EXEC_FAILED);
-	    }
-	    mypid = getpid();
-            scheduler();
-	    /* Not reached */
-    default:
-            /*
-             * Here we detach this process and let the child
-             * run the deamon process. Put the child's pid
-             * in the lockfile before leaving.
-             */
-	    lockfile = calloc(PATH_MAX, sizeof(char));
-	    sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
-            if ((fp = fopen(lockfile, "w"))) {
-                fprintf(fp, "%10u\n", frk);
-                fclose(fp);
-            }
-	    free(lockfile);
-            Syslog('+', "Starting daemon with pid %d", frk);
-	    pthread_exit(NULL);
-            exit(MBERR_OK);
+	frk = fork();
+	switch (frk) {
+	case -1:
+		Syslog('?', "$Unable to fork daemon");
+		die(MBERR_INIT_ERROR);
+	case 0:
+		/*
+		 *  Starting the deamon child process here. 
+		 */
+		fclose(stdin);
+		if (open("/dev/null", O_RDONLY) != 0) {
+		    Syslog('?', "$Reopen of stdin to /dev/null failed");
+		    _exit(MBERR_EXEC_FAILED);
+		}
+		fclose(stdout);
+		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
+		    Syslog('?', "$Reopen of stdout to /dev/null failed");
+		    _exit(MBERR_EXEC_FAILED);
+		}
+		fclose(stderr);
+		if (open("/dev/null", O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
+		    Syslog('?', "$Reopen of stderr to /dev/null failed");
+		    _exit(MBERR_EXEC_FAILED);
+		}
+		mypid = getpid();
+		scheduler();
+		/* Not reached */
+	default:
+		/*
+		 * Here we detach this process and let the child
+		 * run the deamon process. Put the child's pid
+		 * in the lockfile before leaving.
+		 */
+		lockfile = calloc(PATH_MAX, sizeof(char));
+		sprintf(lockfile, "%s/var/run/mbtask", pw->pw_dir);
+		if ((fp = fopen(lockfile, "w"))) {
+		    fprintf(fp, "%10u\n", frk);
+		    fclose(fp);
+		}
+		free(lockfile);
+		Syslog('+', "Starting daemon with pid %d", frk);
+		pthread_exit(NULL);
+		exit(MBERR_OK);
+	}
     }
 
     /*

@@ -3,8 +3,7 @@
 
 /* $Id$ */
 
-
-void do_cmd(char *);
+void *cmd_thread(void);
 
 #endif
 

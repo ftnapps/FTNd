@@ -620,6 +620,9 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	sprintf((*tmp)->addr.domain, "%s", addr->domain);
 	if (nlent->addr.domain)
 	    free(nlent->addr.domain);
+	if (nlent->url)
+	    free(nlent->url);
+	nlent->url = NULL;
 	(*tmp)->flavors = 0;
 	if (nlent->pflag != NL_DUMMY) {
 	    (*tmp)->olflags = nlent->oflags;

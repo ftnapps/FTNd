@@ -14,12 +14,12 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 23-Mar-2002</h5></div>
+<div align="right"><h5>Last update 06-Dec-2003</h5></div>
 <div align="center"><H1>mbtask - MBSE BBS Taskmanager</H1></div>
 
 <H3>Sysopsis.</H3>
 <P>
-<code><strong>mbtask</strong></code>
+<code><strong>mbtask</strong> [-nd]</code>
 <P>&nbsp;<P>
 
 <H3>Description.</H3>
@@ -119,6 +119,10 @@ the chance that numbers are repeated on your system are almost zero. The first
 time the counter is initialized it is set to the current unix time in seconds
 since 1 januari 1970. This counter is used by several programs to create unique
 .pkt filenames, msgid numbers etc.
+<P>
+The commandline option <b>-nd</b> is only for debugging, it allows to start
+without becoming a daemon, <b>mbtask</b> will run in the foreground. This
+option is only usefull for developers.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>

@@ -129,7 +129,7 @@ int tcprcvfiles(void)
 {
     int	    rc, bufl;
     long    filesize, filetime;
-    char    *filename, *p;	
+    char    *filename = NULL, *p;	
 
     Syslog('+', "TCP: start receive files");
     if (getsync()) {
@@ -155,8 +155,12 @@ next:
 	} else 
 	    return rc==0?1:rc;
 
-	if (strlen(filename) && filesize && filetime)
+	if (strlen(filename) && filesize && filetime) {
 	    rc = receivefile(filename,filetime,filesize);
+	    if (filename)
+		free(filename);
+	    filename = NULL;
+	}
 
 	if (fout) {
 	    if (closeit(0))

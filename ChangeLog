@@ -59,6 +59,11 @@ v0.39.3		26-Nov-2003
 	mbtask:
 		The ping function now runs in a separate thread.
 		Changed some ping timer logic.
+		Added a "secret" commandline parameter to allow mbtask to run
+		under control of debuggers.
+		The client command server runs in a separate thread.
+		Fixed some small memory leaks which had no effect on long term
+		running of mbtask, only leaks during program stop.
 
 	mbpasswd:
 		Fixed a small memory leak.

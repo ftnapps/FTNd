@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -49,194 +49,199 @@ extern int	Loaded;
 extern int	mypid;
 
 
+
+/*
+ * Encode EMSI string. If called with a NULL pointer memory is freed.
+ */
 char *emsiencode(char *s)
 {
-	char		Base16Code[]="0123456789ABCDEF";
-	static char	*buf;
-	char		*p, *q;
+    char	Base16Code[]="0123456789ABCDEF";
+    static char	*buf;
+    char	*p, *q;
 
-	if (buf)
-		free(buf);
-	if ((buf = malloc(2 * strlen(s) + 1 * sizeof(char))) == NULL) {
-		Syslog('+', "emsiencode:out of memory:string too long:\"%s\"", s);
-		return s;
+    if (buf)
+	free(buf);
+    buf = NULL;
+    if (s == NULL)
+	return NULL;
+    
+    if ((buf = malloc(2 * strlen(s) + 1 * sizeof(char))) == NULL) {
+	Syslog('+', "emsiencode:out of memory:string too long:\"%s\"", s);
+	return s;
+    }
+    for (p = s, q = buf; *p != '\0';) {
+	switch (*p) {
+	    case '\\':      *q++ = '\\'; *q++ = *p++; break;
+	    case '[':
+	    case ']':
+	    case '{':
+	    case '}':       *q++ = '\\';
+			    *q++ = Base16Code[(*p >> 4) & 0x0f];
+			    *q++ = Base16Code[*p & 0x0f];
+			    p++; break;
+	    default:        *q++ = *p++; break;
 	}
-	for (p = s, q = buf; *p != '\0';) {
-		switch (*p) {
-			case '\\':      *q++ = '\\'; *q++ = *p++; break;
-			case '[':
-			case ']':
-			case '{':
-			case '}':       *q++ = '\\';
-					*q++ = Base16Code[(*p >> 4) & 0x0f];
-					*q++ = Base16Code[*p & 0x0f];
-					p++; break;
-			default:        *q++ = *p++; break;
-		}
-	}
-	*q = '\0';
+    }
+    *q = '\0';
 
-	return buf;
+    return buf;
 }
 
 
 
 char *mkemsidat(int caller)
 {
-	time_t	tt;
-	char	cbuf[16];
-	char	*p;
-	faddr	*primary;
-	int	i;
+    time_t  tt;
+    char    cbuf[16], *p;
+    faddr   *primary;
+    int	    i;
 
-	p = xstrcpy((char *)"EMSI_DAT0000{EMSI}{");
+    p = xstrcpy((char *)"EMSI_DAT0000{EMSI}{");
 
-	primary = bestaka_s(remote->addr);
-	p = xstrcat(p, ascfnode(primary, 0x1f));
+    primary = bestaka_s(remote->addr);
+    p = xstrcat(p, ascfnode(primary, 0x1f));
 
-	for (i = 0; i < 40; i++)
-		if ((CFG.aka[i].node) && (CFG.akavalid[i]) &&
-		    ((CFG.aka[i].zone != primary->zone) ||
-		     (CFG.aka[i].net  != primary->net) ||
-		     (CFG.aka[i].node != primary->node) ||
-		     (CFG.aka[i].point!= primary->point))) {
-			p = xstrcat(p, (char *)" ");
-			p = xstrcat(p, aka2str(CFG.aka[i]));
-		}
-
-	p=xstrcat(p,(char *)"}{");
-	tidy_faddr(primary);
-
-	if (emsi_local_password) 
-		p=xstrcat(p,emsi_local_password);
-	else 
-		if (strlen(nodes.Spasswd)) {
-			p = xstrcat(p, nodes.Spasswd);
-		}
-
-	if (emsi_local_opts & OPT_EII) {
-		p = xstrcat(p, (char *)"}{");
-
-		if (emsi_local_lcodes & LCODE_FNC) 
-			p = xstrcat(p, (char *)"FNC,");
-		if (emsi_local_lcodes & LCODE_RMA) 
-			p = xstrcat(p, (char *)"RMA,");
-		if (emsi_local_lcodes & LCODE_RH1) 
-			p = xstrcat(p, (char *)"RH1,");
-
-		if (emsi_local_lcodes & LCODE_PUA) 
-			p=xstrcat(p,(char *)"PUA,");
-		else if (emsi_local_lcodes & LCODE_PUP) 
-			p=xstrcat(p,(char *)"PUP,");
-		else if (emsi_local_lcodes & LCODE_NPU) 
-			p=xstrcat(p,(char *)"NPU,");
-		if (emsi_local_lcodes & LCODE_HAT) 
-			p=xstrcat(p,(char *)"HAT,");
-		if (emsi_local_lcodes & LCODE_HXT) 
-			p=xstrcat(p,(char *)"HXT,");
-		if (emsi_local_lcodes & LCODE_HRQ) 
-			p=xstrcat(p,(char *)"HRQ,");
-		if (*(p+strlen(p)-1) == ',') 
-			*(p+strlen(p)-1) = '}';
-		else 
-			p=xstrcat(p,(char *)"}");
-	} else {
-		p=xstrcat(p,(char *)"}{8N1");
-		if (emsi_local_lcodes & LCODE_RH1)
-			p = xstrcat(p, (char *)",RH1");
-		if (caller) {
-			if (emsi_local_lcodes & LCODE_PUA) 
-				p=xstrcat(p,(char *)",PUA");
-			else if (emsi_local_lcodes & LCODE_PUP) 
-				p=xstrcat(p,(char *)",PUP");
-			else if (emsi_local_lcodes & LCODE_NPU) 
-				p=xstrcat(p,(char *)",NPU");
-		} else {
-			if (emsi_local_lcodes & LCODE_HAT) 
-				p=xstrcat(p,(char *)",HAT");
-			if (emsi_local_lcodes & LCODE_HXT) 
-				p=xstrcat(p,(char *)",HXT");
-			if (emsi_local_lcodes & LCODE_HRQ) 
-				p=xstrcat(p,(char *)",HRQ");
-		}
-
-		p = xstrcat(p, (char *)"}");
+    for (i = 0; i < 40; i++)
+	if ((CFG.aka[i].node) && (CFG.akavalid[i]) &&
+		    ((CFG.aka[i].zone != primary->zone) || (CFG.aka[i].net  != primary->net) ||
+		     (CFG.aka[i].node != primary->node) || (CFG.aka[i].point!= primary->point))) {
+	    p = xstrcat(p, (char *)" ");
+	    p = xstrcat(p, aka2str(CFG.aka[i]));
 	}
 
-	p=xstrcat(p,(char *)"{");
-	if (emsi_local_protos & PROT_TCP)
-		p=xstrcat(p,(char *)"TCP,");
-	if (emsi_local_protos & PROT_HYD)
-		p=xstrcat(p,(char *)"HYD,");
-	if (emsi_local_protos & PROT_JAN)
-		p=xstrcat(p,(char *)"JAN,");
-	if (emsi_local_protos & PROT_ZAP) 
-		p=xstrcat(p,(char *)"ZAP,");
-	if (emsi_local_protos & PROT_ZMO) 
-		p=xstrcat(p,(char *)"ZMO,");
-	if (emsi_local_protos & PROT_DZA);
-		p=xstrcat(p,(char *)"DZA,");
-	if (emsi_local_protos & PROT_KER) 
-		p=xstrcat(p,(char *)"KER,");
-	if (emsi_local_protos ==  0) 
-		p=xstrcat(p,(char *)"NCP,");
-	if (emsi_local_opts & OPT_NRQ) 
-		p=xstrcat(p,(char *)"NRQ,");
-	if (emsi_local_opts & OPT_ARC) 
-		p=xstrcat(p,(char *)"ARC,");
-	if (emsi_local_opts & OPT_XMA) 
-		p=xstrcat(p,(char *)"XMA,");
-	if (emsi_local_opts & OPT_FNC) 
-		p=xstrcat(p,(char *)"FNC,");
-	if (emsi_local_opts & OPT_CHT) 
-		p=xstrcat(p,(char *)"CHT,");
-	if (emsi_local_opts & OPT_SLK) 
-		p=xstrcat(p,(char *)"SLK,");
-	if (emsi_local_opts & OPT_EII) 
-		p=xstrcat(p,(char *)"EII,");
-	if (emsi_local_opts & OPT_DFB) 
-		p=xstrcat(p,(char *)"DFB,");
-	if (emsi_local_opts & OPT_FRQ) 
-		p=xstrcat(p,(char *)"FRQ,");
+    p=xstrcat(p,(char *)"}{");
+    tidy_faddr(primary);
+
+    if (emsi_local_password) 
+	p=xstrcat(p,emsi_local_password);
+    else if (strlen(nodes.Spasswd)) {
+	    p = xstrcat(p, nodes.Spasswd);
+    }
+
+    if (emsi_local_opts & OPT_EII) {
+	p = xstrcat(p, (char *)"}{");
+
+	if (emsi_local_lcodes & LCODE_FNC) 
+	    p = xstrcat(p, (char *)"FNC,");
+	if (emsi_local_lcodes & LCODE_RMA) 
+	    p = xstrcat(p, (char *)"RMA,");
+	if (emsi_local_lcodes & LCODE_RH1) 
+	    p = xstrcat(p, (char *)"RH1,");
+
+	if (emsi_local_lcodes & LCODE_PUA) 
+	    p=xstrcat(p,(char *)"PUA,");
+	else if (emsi_local_lcodes & LCODE_PUP) 
+	    p=xstrcat(p,(char *)"PUP,");
+	else if (emsi_local_lcodes & LCODE_NPU) 
+	    p=xstrcat(p,(char *)"NPU,");
+	if (emsi_local_lcodes & LCODE_HAT) 
+	    p=xstrcat(p,(char *)"HAT,");
+	if (emsi_local_lcodes & LCODE_HXT) 
+	    p=xstrcat(p,(char *)"HXT,");
+	if (emsi_local_lcodes & LCODE_HRQ) 
+	    p=xstrcat(p,(char *)"HRQ,");
 	if (*(p+strlen(p)-1) == ',') 
-		*(p+strlen(p)-1) = '}';
+	    *(p+strlen(p)-1) = '}';
 	else 
-		p=xstrcat(p,(char *)"}");
+	    p=xstrcat(p,(char *)"}");
+    } else {
+	p=xstrcat(p,(char *)"}{8N1");
+	if (emsi_local_lcodes & LCODE_RH1)
+	    p = xstrcat(p, (char *)",RH1");
+	if (caller) {
+	    if (emsi_local_lcodes & LCODE_PUA) 
+		p=xstrcat(p,(char *)",PUA");
+	    else if (emsi_local_lcodes & LCODE_PUP) 
+		p=xstrcat(p,(char *)",PUP");
+	    else if (emsi_local_lcodes & LCODE_NPU) 
+		p=xstrcat(p,(char *)",NPU");
+	} else {
+	    if (emsi_local_lcodes & LCODE_HAT) 
+		p=xstrcat(p,(char *)",HAT");
+	    if (emsi_local_lcodes & LCODE_HXT) 
+		p=xstrcat(p,(char *)",HXT");
+	    if (emsi_local_lcodes & LCODE_HRQ) 
+		p=xstrcat(p,(char *)",HRQ");
+	}
 
-	sprintf(cbuf,"{%X}",PRODCODE);
-	p=xstrcat(p,cbuf);
-	p=xstrcat(p,(char *)"{mbcico}{");
-	p=xstrcat(p,(char *)VERSION);
-	p=xstrcat(p,(char *)"}{");
-	p=xstrcat(p,(char *)__DATE__);
-	p=xstrcat(p,(char *)"}{IDENT}{[");
-	p=xstrcat(p,name?emsiencode(name):(char *)"Unknown");
-	p=xstrcat(p,(char *)"][");
-	p=xstrcat(p,emsiencode(CFG.location));
-	p=xstrcat(p,(char *)"][");
-	p=xstrcat(p,emsiencode(CFG.sysop_name));
-	p=xstrcat(p,(char *)"][");
-	p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
-	p=xstrcat(p,(char *)"][");
-	if (CFG.Speed) 
-		sprintf(cbuf,"%ld",CFG.Speed);
-	else 
-		strcpy(cbuf,"9600");
-	p=xstrcat(p,cbuf);
-	p=xstrcat(p,(char *)"][");
-	p=xstrcat(p,flags?emsiencode(flags):(char *)"");
-	p=xstrcat(p,(char *)"]}{TRX#}{[");
-	tt = time(NULL);
-	sprintf(cbuf,"%08lX",mtime2sl(tt));
-	p=xstrcat(p,cbuf);
-	p=xstrcat(p,(char *)"]}{TZUTC}{[");
-	p=xstrcat(p,gmtoffset(tt));
-	p=xstrcat(p,(char *)"]}");
+	p = xstrcat(p, (char *)"}");
+    }
 
-	sprintf(cbuf,"%04X",(unsigned int)strlen(p+12));
-	memcpy(p+8,cbuf,4);
-	Syslog('I',"Prepared: \"%s\"",p);
-	return p;
+    p=xstrcat(p,(char *)"{");
+    if (emsi_local_protos & PROT_TCP)
+	p=xstrcat(p,(char *)"TCP,");
+    if (emsi_local_protos & PROT_HYD)
+	p=xstrcat(p,(char *)"HYD,");
+    if (emsi_local_protos & PROT_JAN)
+	p=xstrcat(p,(char *)"JAN,");
+    if (emsi_local_protos & PROT_ZAP) 
+	p=xstrcat(p,(char *)"ZAP,");
+    if (emsi_local_protos & PROT_ZMO) 
+	p=xstrcat(p,(char *)"ZMO,");
+    if (emsi_local_protos & PROT_DZA);
+	p=xstrcat(p,(char *)"DZA,");
+    if (emsi_local_protos & PROT_KER) 
+	p=xstrcat(p,(char *)"KER,");
+    if (emsi_local_protos ==  0) 
+	p=xstrcat(p,(char *)"NCP,");
+    if (emsi_local_opts & OPT_NRQ) 
+	p=xstrcat(p,(char *)"NRQ,");
+    if (emsi_local_opts & OPT_ARC) 
+	p=xstrcat(p,(char *)"ARC,");
+    if (emsi_local_opts & OPT_XMA) 
+	p=xstrcat(p,(char *)"XMA,");
+    if (emsi_local_opts & OPT_FNC) 
+	p=xstrcat(p,(char *)"FNC,");
+    if (emsi_local_opts & OPT_CHT) 
+	p=xstrcat(p,(char *)"CHT,");
+    if (emsi_local_opts & OPT_SLK) 
+	p=xstrcat(p,(char *)"SLK,");
+    if (emsi_local_opts & OPT_EII) 
+	p=xstrcat(p,(char *)"EII,");
+    if (emsi_local_opts & OPT_DFB) 
+	p=xstrcat(p,(char *)"DFB,");
+    if (emsi_local_opts & OPT_FRQ) 
+	p=xstrcat(p,(char *)"FRQ,");
+    if (*(p+strlen(p)-1) == ',') 
+	*(p+strlen(p)-1) = '}';
+    else 
+	p=xstrcat(p,(char *)"}");
+
+    sprintf(cbuf,"{%X}",PRODCODE);
+    p=xstrcat(p,cbuf);
+    p=xstrcat(p,(char *)"{mbcico}{");
+    p=xstrcat(p,(char *)VERSION);
+    p=xstrcat(p,(char *)"}{");
+    p=xstrcat(p,(char *)__DATE__);
+    p=xstrcat(p,(char *)"}{IDENT}{[");
+    p=xstrcat(p,name?emsiencode(name):(char *)"Unknown");
+    p=xstrcat(p,(char *)"][");
+    p=xstrcat(p,emsiencode(CFG.location));
+    p=xstrcat(p,(char *)"][");
+    p=xstrcat(p,emsiencode(CFG.sysop_name));
+    p=xstrcat(p,(char *)"][");
+    p=xstrcat(p,phone?emsiencode(phone):(char *)"-Unpublished-");
+    p=xstrcat(p,(char *)"][");
+    if (CFG.Speed) 
+	sprintf(cbuf,"%ld",CFG.Speed);
+    else 
+	strcpy(cbuf,"9600");
+    p=xstrcat(p,cbuf);
+    p=xstrcat(p,(char *)"][");
+    p=xstrcat(p,flags?emsiencode(flags):(char *)"");
+    p=xstrcat(p,(char *)"]}{TRX#}{[");
+    tt = time(NULL);
+    sprintf(cbuf,"%08lX",mtime2sl(tt));
+    p=xstrcat(p,cbuf);
+    p=xstrcat(p,(char *)"]}{TZUTC}{[");
+    p=xstrcat(p,gmtoffset(tt));
+    p=xstrcat(p,(char *)"]}");
+
+    sprintf(cbuf,"%04X",(unsigned int)strlen(p+12));
+    memcpy(p+8,cbuf,4);
+    Syslog('I',"Prepared: \"%s\"",p);
+    emsiencode(NULL);   /* Free memory */
+    return p;
 }
 
 
@@ -244,42 +249,42 @@ char *mkemsidat(int caller)
 char *sel_brace(char*);
 char *sel_brace(char *s)
 {
-	static	char *save;
-	char	*p,*q;
-	int	i;
+    static char *save;
+    char	*p,*q;
+    int		i;
 
-	if (s == NULL) 
-		s=save;
-	for (;*s && (*s != '{');s++);
-	if (*s == '\0') {
-		save=s;
-		return NULL;
-	} else
-		s++;
+    if (s == NULL) 
+	s=save;
+    for (;*s && (*s != '{');s++);
+    if (*s == '\0') {
+	save=s;
+	return NULL;
+    } else
+	s++;
 
-	for (p=s,q=s;*p;p++) 
-		switch (*p) {
-			case '}':	if (*(p+1) == '}') 
-						*q++=*p++;
-					else {
-						*q='\0';
-						save=p+1;
-						goto exit;
-					}
-					break;
-			case '\\':	if (*(p+1) == '\\') 
-						*q++=*p++;
-					else {
-						sscanf(p+1,"%02x",&i);
-						*q++=i;
-						p+=2;
-					}
-					break;
-			default:	*q++=*p;
-					break;
-		}
+    for (p=s,q=s;*p;p++) 
+	switch (*p) {
+	    case '}':	if (*(p+1) == '}') 
+			    *q++=*p++;
+			else {
+			    *q='\0';
+			    save=p+1;
+			    goto exit;
+			}
+			break;
+	    case '\\':	if (*(p+1) == '\\') 
+			    *q++=*p++;
+			else {
+			    sscanf(p+1,"%02x",&i);
+			    *q++=i;
+			    p+=2;
+			}
+			break;
+	    default:	*q++=*p;
+			break;
+	}
 exit:
-	return s;
+    return s;
 }
 
 
@@ -287,42 +292,42 @@ exit:
 char *sel_bracket(char*);
 char *sel_bracket(char *s)
 {
-	static	char *save;
-	char	*p,*q;
-	int	i;
+    static char	*save;
+    char	*p,*q;
+    int		i;
 
-	if (s == NULL) 
-		s=save;
-	for (;*s && (*s != '[');s++);
-	if (*s == '\0') {
-		save=s;
-		return NULL;
-	} else
-		s++;
+    if (s == NULL) 
+	s=save;
+    for (;*s && (*s != '[');s++);
+    if (*s == '\0') {
+	save=s;
+	return NULL;
+    } else
+	s++;
 
-	for (p=s,q=s;*p;p++) 
-		switch (*p) {
-			case ']':	if (*(p+1) == ']') 
-						*q++=*p++;
-					else {
-						*q='\0';
-						save=p+1;
-						goto exit;
-					}
-					break;
-			case '\\':	if (*(p+1) == '\\') 
-						*q++=*p++;
-					else {
-						sscanf(p+1,"%02x",&i);
-						*q++=i;
-						p+=2;
-					}
-					break;
-			default:	*q++=*p;
-					break;
-		}
+    for (p=s,q=s;*p;p++) 
+	switch (*p) {
+	    case ']':	if (*(p+1) == ']') 
+			    *q++=*p++;
+			else {
+			    *q='\0';
+			    save=p+1;
+			    goto exit;
+			}
+			break;
+	    case '\\':	if (*(p+1) == '\\') 
+			    *q++=*p++;
+			else {
+			    sscanf(p+1,"%02x",&i);
+			    *q++=i;
+			    p+=2;
+			}
+			break;
+	    default:	*q++=*p;
+			break;
+	}
 exit:
-	return s;
+    return s;
 }
 
 
