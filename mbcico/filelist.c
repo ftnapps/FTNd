@@ -487,11 +487,11 @@ char *transfertime(struct timeval start, struct timeval end, long bytes, int sen
     if (!elapsed)
 	elapsed = 1L;
     if (bytes > 1000000)
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.0Lf cps)",
-	    bytes, sent?"sent":"received", elapsed / 1000.000, (bytes / elapsed) * 1000);
+	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)",
+	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes / elapsed) * 1000) / 1024);
     else
-	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.0Lf cps)", 
-	    bytes, sent?"sent":"received", elapsed / 1000.000, (bytes * 1000) / elapsed);   
+	sprintf(resp, "%ld bytes %s in %0.3Lf seconds (%0.3Lf Kb/s)", 
+	    bytes, sent?"sent":"received", elapsed / 1000.000, ((bytes * 1000) / elapsed) / 1024);   
     return resp;
 }
 
