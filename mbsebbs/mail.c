@@ -86,6 +86,7 @@ int	Read_a_Msg(unsigned long Num, int);/* Read a message		    */
 int	Export_a_Msg(unsigned long Num);/* Export message to homedir	    */
 int	ReadPanel(void);		/* Read panel bar		    */
 int	Save_Msg(int, faddr *);		/* Save a message		    */
+int	Save_CC(int, char *);		/* Save carbon copy		    */
 void	Reply_Msg(int);			/* Reply to message		    */
 void	Delete_MsgNum(unsigned long);	/* Delete specified message	    */
 int	CheckUser(char *);		/* Check if user exists		    */
@@ -350,27 +351,27 @@ void Check_Attach(void)
  */
 void SysopComment(char *Cmt)
 {
-	unsigned long	tmp;
-	char		*temp;
-	FILE		*fp;
+    unsigned long   tmp;
+    char	    *temp;
+    FILE	    *fp;
 
-	tmp = iMsgAreaNumber;
+    tmp = iMsgAreaNumber;
 
-	/*
-	 *  Make sure that the .quote file is empty.
-	 */
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
-	if ((fp = fopen(temp, "w")) != NULL)
-		fclose(fp);
-	free(temp);
+    /*
+     *  Make sure that the .quote file is empty.
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+    if ((fp = fopen(temp, "w")) != NULL)
+	fclose(fp);
+    free(temp);
 
-	SetMsgArea(CFG.iSysopArea -1);
-	sprintf(Msg.From, "%s", CFG.sysop_name);
-	sprintf(Msg.Subject, "%s", Cmt);
-	Reply_Msg(FALSE);
+    SetMsgArea(CFG.iSysopArea -1);
+    sprintf(Msg.From, "%s", CFG.sysop_name);
+    sprintf(Msg.Subject, "%s", Cmt);
+    Reply_Msg(FALSE);
 
-	SetMsgArea(tmp);
+    SetMsgArea(tmp);
 }
 
 
@@ -395,7 +396,7 @@ int Edit_Msg()
  */
 void Post_Msg()
 {
-    int		    i, x;
+    int		    i, x, cc;
     char	    *FidoNode;
     faddr	    *Dest = NULL;
     node	    *Nlent;
@@ -512,13 +513,13 @@ void Post_Msg()
 			Dest->point = point;
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 			printf("%s in %s", Nlent->name, Nlent->location);
-			colour(14, 0);
-			printf(" Is this correct Y/N: ");
+			/* " Is this correct [y/N]: " */
+			pout(YELLOW, BLACK, (char *)Language(21));
 			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
 			fflush(stdout);
 			alarm_on();
 
-			if (toupper(Getone()) == 'Y') {
+			if (toupper(Getone()) == Keystroke(21, 0)) {
 			    Enter(1);
 			    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
 			    x = TRUE;
@@ -532,6 +533,7 @@ void Post_Msg()
 		    } else {
 			Dest->point = point;
 			printf("\r");
+			/* Node not known, continue anayway [y/N]: */
 			pout(CYAN, BLACK, (char *) Language(241));
 			fflush(stdout);
 			alarm_on();
@@ -588,11 +590,176 @@ void Post_Msg()
 
     Check_Attach();
 
-    if (Edit_Msg())
-	Save_Msg(FALSE, Dest);
-
+    if (Edit_Msg()) {
+	printf("\n");
+	fflush(stdout);
+	if (msgs.Type == NETMAIL) {
+	    /*
+	     * Check for Carbon Copy lines, process them if present.
+	     */
+	    cc = 0;
+	    for (i = 1; i <= Line; i++) {
+	        if (strncasecmp(Message[i], "cc: ", 4)) {
+		    break;
+		} else {
+		    cc++;
+		}
+	    }
+	    Syslog('b', "CC: detected %d", cc);
+	    if (cc) {
+		/*
+		 * Carbon copies, modify the text to show the presence of CCs.
+		 */
+		for (i = Line; i; i--) {
+		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
+		    sprintf(Message[i + 1], Message[i]);
+		}
+		Line++;
+		sprintf(Message[1], " +: Original message to %s", ascfnode(Dest, 0x4f));
+		for (i = 1; i <= Line; i++) {
+		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
+		}
+		/*
+		 * First sent to original destination
+		 */
+		Save_Msg(FALSE, Dest);
+		/*
+		 * Now sent copies
+		 */
+		for (i = 0; i < cc; i++) {
+		    Save_CC(FALSE, Message[i+2]);
+		}
+	    } else {
+		Save_Msg(FALSE, Dest);
+	    }
+	} else {
+	    Save_Msg(FALSE, Dest);
+	}
+	printf("\n");
+	fflush(stdout);
+	sleep(3);
+    }
+    
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
 	free(Message[i]);
+}
+
+
+
+/*
+ * Save a Carbon Copy
+ * The ccline should have the format "cc: Firstname Lastname z:n/n.p"
+ */
+int Save_CC(int IsReply, char *ccline)
+{
+    faddr	    *Dest = NULL;
+    int		    i, j, x, rc = FALSE;
+    char	    *p, *username;
+    unsigned short  point;
+    node	    *Nlent;
+    
+    Syslog('b', "Save_CC(%s, %s)",  IsReply ?"TRUE":"FALSE", ccline);
+
+    /*
+     * Reformat the line and extract username and node
+     */
+    i = 4;
+    j = strlen(ccline);
+    while (ccline[i] == ' ')
+	i++;
+    while (ccline[j] != ' ')
+	j--;
+    Syslog('b', "i=%d, j=%d", i, j);
+    if (j <= i) {
+	Syslog('+', "Could not parse %s", printable(ccline, 0));
+	colour(LIGHTRED, BLACK);
+	/* Could not parse */
+	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	Pause();
+	return FALSE;
+    }
+
+    username = calloc(j - i + 1, sizeof(char));
+    strncpy(username, ccline+i, j - i);
+    Syslog('b', "Username: \"%s\"", printable(username, 0));
+    while (*(p = username + strlen(username) -1) == ' ')
+	*p = '\0';
+    Syslog('b', "Username: \"%s\"", tlcap(printable(username, 0)));
+    
+    if (strlen(username) == 0) {
+	Syslog('+', "Could not extract username from %s", printable(ccline, 0));
+	colour(LIGHTRED, BLACK);
+	/* Could not parse */
+	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	Pause();
+	return FALSE;
+    }
+
+    if ((Dest = parsefnode(ccline + j)) == NULL) {
+	Syslog('+', "Could not extract address from %s", printable(ccline, 0));
+	colour(LIGHTRED, BLACK);
+	/* Could not parse */
+	printf("%s \"%s\"\n", Language(22), printable(ccline, 0));
+	Pause();
+	return FALSE;
+    }
+
+    Dest->name = tlcap(printable(username, 0));
+    Syslog('b', "Dest %s", ascfnode(Dest, 0xff));
+    colour(LIGHTMAGENTA, BLACK);
+    printf("\nConfirm CC to %s\n", ascfnode(Dest, 0xff));
+
+    x = FALSE;
+    point = Dest->point;
+    Dest->point = 0;
+    if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
+	colour(YELLOW, BLACK);
+	if (point)
+	    printf("Boss     : ");
+	else
+	    printf("Node     : ");
+	Dest->point = point;
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	printf("%s in %s", Nlent->name, Nlent->location);
+	/* " Is this correct [y/N]: " */
+	pout(YELLOW, BLACK, (char *)Language(21));
+	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	fflush(stdout);
+	alarm_on();
+    
+	if (toupper(Getone()) == Keystroke(21, 0)) {
+	    Enter(1);
+	    sprintf(Msg.ToAddress, "%s", ascfnode(Dest, 0x1f));
+	    x = TRUE;
+	    switch (Crash_Option(Dest)) {
+		case 1: Msg.Crash = TRUE;
+			break;
+		case 2: Msg.Immediate = TRUE;
+			break;
+	    }
+	}
+    } else {
+	Dest->point = point;
+	printf("\n");
+	/* Node not known, continue anayway [y/N]: */
+	pout(CYAN, BLACK, (char *) Language(241));
+	fflush(stdout);
+	alarm_on();
+	if (toupper(Getone()) == Keystroke(241, 0)) {
+	    x = TRUE;
+	    Syslog('+', "Node %s not found, forced continue", ascfnode(Dest, 0x0f));
+	}
+    }
+
+    if (x) {
+	printf("\n");
+	fflush(stdout);
+	rc = Save_Msg(IsReply, Dest);
+    }
+    
+    tidy_faddr(Dest);
+    free(username);
+    return rc;
 }
 
 
@@ -606,7 +773,7 @@ int Save_Msg(int IsReply, faddr *Dest)
     char    *temp;
     FILE    *fp;
 
-    if (Line < 2)
+    if ((Line < 2) || (Dest == NULL))
 	return TRUE;
 
     if (!Open_Msgbase(msgs.Base, 'w'))
@@ -654,9 +821,8 @@ int Save_Msg(int IsReply, faddr *Dest)
 
     colour(CFG.HiliteF, CFG.HiliteB);
     /* Saving message to disk */
-    printf("\n%s(%ld)\n\n", (char *) Language(202), Msg.Id);
+    printf("%s(%ld)\n", (char *) Language(202), Msg.Id);
     fflush(stdout);
-    sleep(2);
 
     msgs.LastPosted = time(NULL);
     msgs.Posted.total++;
@@ -1276,7 +1442,7 @@ int ReadPanel()
  */
 void Reply_Msg(int IsReply)
 {
-    int	    i, j, x;
+    int	    i, j, x, cc;
     char    to[65], from[65], subj[73], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[6];
     faddr   *Dest = NULL;
 
@@ -1438,8 +1604,55 @@ void Reply_Msg(int IsReply)
 	free(tmp);
     }
 
-    if (Edit_Msg())
-	Save_Msg(IsReply, Dest);
+    if (Edit_Msg()) {
+	printf("\n");
+	fflush(stdout);
+        if (msgs.Type == NETMAIL) {
+	    /*
+	     * Check for Carbon Copy lines, process them if present.
+	     */
+	    cc = 0;
+	    for (i = 1; i <= Line; i++) {
+		if (strncasecmp(Message[i], "cc: ", 4)) {
+		    break;
+		} else {
+		    cc++;
+		}
+	    }
+	    Syslog('b', "CC: detected %d", cc);
+            if (cc) {
+		/*
+		 * Carbon copies, modify the text to show the presence of CCs.
+		 */
+		for (i = Line; i; i--) {
+		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
+		    sprintf(Message[i + 1], Message[i]);
+		}
+		Line++;
+		sprintf(Message[1], " +: Original message to %s", ascfnode(Dest, 0x4f));
+		for (i = 1; i <= Line; i++) {
+		    Syslog('b', "%02d: \"%s\"", i, printable(Message[i], 0));
+		}
+		/*
+		 * First sent to original destination
+		 */
+		Save_Msg(IsReply, Dest);
+		/*
+		 * Now sent copies
+		 */
+		for (i = 0; i < cc; i++) {
+		    Save_CC(IsReply, Message[i+2]);
+		}
+	    } else {
+		Save_Msg(IsReply, Dest);
+	    }
+	} else {
+	    Save_Msg(IsReply, Dest);
+	}
+	printf("\n");
+	fflush(stdout);
+	sleep(3);
+    }
 
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
 	free(Message[i]);

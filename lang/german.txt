@@ -19,8 +19,8 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Du darfst nur
 |mal gleichzeitig eingewaehlt sein
 |The door is in use by another user, try again later
-|
-|
+YN| Is this correct [y/N]: 
+|Could not parse
 |
 |
 |

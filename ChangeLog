@@ -27,6 +27,10 @@ v0.39.1		22-Oct-2003
 		Fixed a bug where the bbs goes into a loop after idle timeout
 		during login (and maybe in other situations).
 		Fixed chat debug logging to only the debug.log file.
+		Posted netmail messages now support CC: lines. The CC: lines
+		should be the first lines of the message in the format:
+		CC: Michiel Broek 2:280/28
+		The Carbon Copied messages are marked with original sender.
 
 	mbfile:
 		When the areanumber with the adopt command was not given, the
@@ -57,6 +61,8 @@ v0.39.1		22-Oct-2003
 
 	script:
 		Added install scripts for Gentoo.
+
+	lang:	Two new language prompts, 21 and 22.
 
 
 v0.39.0		09-Oct-2003 - 22-Oct-2003

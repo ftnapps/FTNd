@@ -19,8 +19,8 @@ HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras:
 |You may only login
 |times at the same time
 |The door is in use by another user, try again later
-|
-|
+YN| Is this correct [y/N]: 
+|Could not parse
 |
 |
 |

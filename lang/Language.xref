@@ -19,8 +19,8 @@
 18	user.c				|You may only login
 19	user.c				|times at the same time
 20	door.c				|The door is in use by another user, try again later
-21	.c				|
-22	.c				|
+21	mail.c				YN| Is this correct [y/N]: 
+22	mail.c				|Could not parse
 23	.c				|
 24	.c				|
 25	.c				|
