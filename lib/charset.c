@@ -32,6 +32,84 @@
 #include "mbselib.h"
 
 
+#define strieq(a,b)  (strcasecmp ((a),(b)) == 0)
+#define BUF_APPEND(d,s)   str_append(d,sizeof(d),s)
+
+
+/*
+ * Alias linked list
+ */
+static CharsetAlias *charset_alias_list = NULL;
+static CharsetAlias *charset_alias_last = NULL;
+
+/*
+ * Table linked list
+ */
+static CharsetTable *charset_table_list = NULL;
+static CharsetTable *charset_table_last = NULL;
+
+/*
+ * Current charset mapping table
+ */
+static CharsetTable *charset_table_used = NULL;
+
+
+
+
+/*
+ * str_printf(): wrapper for sprintf()/snprintf()
+ */
+int str_printf(char *buf, size_t len, const char *fmt, ...)
+{
+    va_list args;
+    int	    n;
+	        
+    va_start(args, fmt);
+		    
+#ifdef HAS_SNPRINTF    
+    n = vsnprintf(buf, len, fmt, args);
+    /**FIXME: check for n==-1 and errno**/
+#else
+    n = vsprintf(buf, fmt, args);
+    if(n >= len) {
+	WriteError("Internal error - str_printf() buf overflow");
+	/**NOT REACHED**/
+	return FALSE;
+    }
+#endif
+    /* Make sure that buf[] is terminated with a \0. vsnprintf()
+     * should do this automatically as required by the ANSI C99
+     * proposal, but one never knows ... see also discussion on
+     * BugTraq */
+    buf[len - 1] = 0;
+				    
+    va_end(args);
+
+    return n;
+}
+
+
+char *str_append(char *d, size_t n, char *s)
+{
+    int max = n - strlen(d) - 1;
+
+    strncat(d, s, max);
+    d[n-1] = 0;
+    return d;
+}
+
+
+
+char *str_copy(char *d, size_t n, char *s)
+{
+    strncpy(d, s, n);
+    d[n-1] = 0;
+    return d;
+}
+
+#define BUF_COPY(d,s)   str_copy  (d,sizeof(d),s)
+
+
 char *getchrs(int val)
 {
     switch (val) {
@@ -67,34 +145,288 @@ char *getchrsdesc(int val)
 
 
 
-char *get_iconv_name(char *name)
+/*
+ * Alloc new CharsetTable and put into linked list
+ */
+CharsetTable *charset_table_new(void)
 {
-    if (!strncasecmp(name, "CP437", 5))
-	return (char *)"IBM437";
-    if (!strncasecmp(name, "CP850", 5))
-	return (char *)"IBM850";
-    if (!strncasecmp(name, "CP865", 5))
-	return (char *)"IBM865";
-    if (!strncasecmp(name, "CP866", 5))
-	return (char *)"IBM866";
-    if (!strncasecmp(name, "LATIN-1", 7))
-	return (char *)"ISO_8859-1";
-    if (!strncasecmp(name, "LATIN-2", 7))
-	return (char *)"ISO_8859-2";
-    if (!strncasecmp(name, "LATIN-5", 7))
-	return (char *)"ISO_8859-5";
-    if (!strncasecmp(name, "PC-8", 4))
-	return (char *)"IBM437";
-    if (!strncasecmp(name, "IBMPC", 5))
-	return (char *)"IBM437";
-    if (!strncasecmp(name, "+7_FIDO", 7))
-	return (char *)"IBM866";
-    if (!strncasecmp(name, "CP1125", 6))
-	return (char *)"CP1125";
+    CharsetTable *p;
 
-    Syslog('+', "get_iconv_name(%s): no usable character set name found", name);
-    return NULL;
+    /* Alloc and clear */
+    p = (CharsetTable *)xmalloc(sizeof(CharsetTable));
+    memset(p, 0, sizeof(CharsetTable));
+    p->next = NULL;                     /* Just to be sure */
+		        
+    /* Put into linked list */
+    if(charset_table_list)
+	charset_table_last->next = p;
+    else
+	charset_table_list       = p;
+    charset_table_last       = p;
+
+    return p;
 }
 
+
+/*
+ * Alloc new CharsetAlias and put into linked list
+ */
+CharsetAlias *charset_alias_new(void)
+{
+    CharsetAlias *p;
+
+    /* Alloc and clear */
+    p = (CharsetAlias *)xmalloc(sizeof(CharsetAlias));
+    memset(p, 0, sizeof(CharsetAlias));
+    p->next = NULL;                     /* Just to be sure */
+		        
+    /* Put into linked list */
+    if(charset_alias_list)
+	charset_alias_last->next = p;
+    else
+	charset_alias_list       = p;
+    charset_alias_last       = p;
+
+    return p;
+}
+
+
+
+/*
+ * Write binary mapping file
+ */
+int charset_write_bin(char *name)
+{
+    FILE	    *fp;
+    CharsetTable    *pt;
+    CharsetAlias    *pa;
+		    
+//    debug(14, "Writing charset.bin file %s", name);
+		        
+    fp = fopen(name, "w+");
+    if(!fp)
+	return FALSE;
+
+    /* Write aliases */
+    for (pa = charset_alias_list; pa; pa=pa->next) {
+	fputc(CHARSET_FILE_ALIAS, fp);
+	fwrite(pa, sizeof(CharsetAlias), 1, fp);
+	if(ferror(fp)) {
+	    fclose(fp);
+	    return FALSE;
+	}
+    }
+
+    /* Write tables */
+    for(pt = charset_table_list; pt; pt=pt->next) {
+	fputc(CHARSET_FILE_TABLE, fp);
+	fwrite(pt, sizeof(CharsetTable), 1, fp);
+	if(ferror(fp)) {
+	    fclose(fp);
+	    return FALSE;
+	}
+    }
+
+    fclose(fp);
+    return TRUE;
+}
+
+
+
+/*
+ * Read binary mapping file
+ */
+int charset_read_bin(void)
+{
+    FILE	    *fp;
+    int		    c, n;
+    CharsetTable    *pt;
+    CharsetAlias    *pa;
+    char	    *name;
+    
+    name = calloc(PATH_MAX, sizeof(char));
+    sprintf(name, "%s/etc/charset.bin", getenv("MBSE_ROOT"));
+    Syslog('s', "Reading %s", name);
+    if ((fp = fopen(name, "r")) == NULL) {
+	WriteError("$Can't open %s", name);
+	free(name);
+	return FALSE;
+    }
+    free(name);
+
+    while( (c = fgetc(fp)) != EOF ) {
+        switch(c) {
+        case CHARSET_FILE_ALIAS:
+            pa = charset_alias_new();
+            n = fread((void *)pa, sizeof(CharsetAlias), 1, fp);
+            pa->next = NULL;                    /* overwritten by fread() */
+            if(n != 1) 
+                return FALSE;
+            Syslog('s', "read charset alias: %s -> %s", pa->alias, pa->name);
+            break;
+        case CHARSET_FILE_TABLE:
+            pt = charset_table_new();
+            n = fread((void *)pt, sizeof(CharsetTable), 1, fp);
+            pt->next = NULL;                    /* overwritten by fread() */
+            if(n != 1) 
+                return FALSE;
+            Syslog('s', "read charset table: %s -> %s", pt->in, pt->out);
+            break;
+        default:
+            return FALSE;
+            break; 
+        }
+    }
+    
+    if(ferror(fp))
+        return FALSE;
+    fclose(fp);
+    return TRUE;
+}
+
+
+
+/*
+ * Convert to MIME quoted-printable =XX if qp==TRUE
+ */
+char *charset_qpen(int c, int qp)
+{
+    static char buf[4];
+
+    c &= 0xff;
+    
+    if( qp && (c == '=' || c >= 0x80) )
+        str_printf(buf, sizeof(buf), "=%02.2X", c & 0xff);
+    else
+    {
+        buf[0] = c;
+        buf[1] = 0;
+    }
+    
+    return buf;
+}
+
+
+
+/*
+ * Map single character
+ */
+char *charset_map_c(int c, int qp)
+{
+    static char buf[MAX_CHARSET_OUT * 4];
+    char *s;
+    
+    c &= 0xff;
+    buf[0] = 0;
+    
+    if(charset_table_used && c>=0x80)
+    {
+        s = charset_table_used->map[c - 0x80];
+        while(*s)
+            BUF_APPEND(buf, charset_qpen(*s++, qp));
+    }
+    else
+    {
+        BUF_COPY(buf, charset_qpen(c, qp));
+    }
+
+    return buf;
+}
+
+
+
+/*
+ * Search alias
+ */
+char *charset_alias_fsc(char *name)
+{
+    CharsetAlias *pa;
+
+    /* Search for aliases */
+    for(pa = charset_alias_list; pa; pa=pa->next)
+    {
+        if(strieq(pa->name, name))
+            return pa->alias;
+    }
+
+    return name;
+}
+
+
+
+char *charset_alias_rfc(char *name)
+{
+    CharsetAlias *pa;
+
+    /* Search for aliases */
+    for(pa = charset_alias_list; pa; pa=pa->next)
+    {
+        if(strieq(pa->alias, name))
+            return pa->name;
+    }
+
+    return name;
+}
+
+
+
+/*
+ * Set character mapping table
+ */
+int charset_set_in_out(char *in, char *out)
+{
+    CharsetTable    *pt;
+    CharsetAlias    *pa;
+    int		    i;
+    
+    if (!in || !out)
+        return FALSE;
+
+    /*
+     * Check if charset.bin is loaded.
+     */
+    if ((charset_alias_list == NULL) || (charset_table_list == NULL))
+	charset_read_bin();
+    Syslog('s', "charset1: in=%s out=%s", in, out);
+
+
+    /*
+     * For charset names with a space (level number), shorten the name.
+     */
+    for (i = 0; i < strlen(in); i++)
+	if (in[i] == ' ') {
+	    in[i] = '\0';
+	    break;
+	}
+
+    for (i = 0; i < strlen(out); i++)
+	if (out[i] == ' ') {
+	    out[i] = '\0';
+	    break;
+	}
+    Syslog('s', "charset2: in=%s out=%s", in, out);
+
+    /* Search for aliases */
+    for (pa = charset_alias_list; pa; pa=pa->next) {
+        if (strieq(pa->alias, in))
+            in = pa->name;
+        if (strieq(pa->alias, out))
+            out = pa->name;
+    }
+    Syslog('s', "charset3: in=%s out=%s", in, out);
+
+    /* Search for matching table */
+    for (pt = charset_table_list; pt; pt=pt->next) {
+        if(strieq(pt->in, in) && strieq(pt->out, out)) {
+            Syslog('s', "charset: table found in=%s out=%s", pt->in, pt->out);
+            charset_table_used = pt;
+            return TRUE;
+        }
+    }
+
+    Syslog('b', "charset: no table found in=%s out=%s", in, out);
+    charset_table_used = NULL;
+    return FALSE;
+}
 
 

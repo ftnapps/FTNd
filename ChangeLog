@@ -38,8 +38,8 @@ v0.51.1		21-Feb-2004
 		Added experimental characterset translation to message read.
 		This will translate the message character set used to the users
 		character set. When translation is impossible a ? is printed.
-		Doesn't work well with Russion, but seems to work with German
-		text. 
+		After problems with iconv, switched to use code from Martin
+		Junius Fidogate package.
 		In delete file in home directory the Y/N keys were read from
 		the wrong language prompt.
 

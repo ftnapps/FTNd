@@ -1137,14 +1137,8 @@ int Export_a_Msg(unsigned long Num)
 int Read_a_Msg(unsigned long Num, int UpdateLR)
 {
     char	*p = NULL, *fn, *charset = NULL, *charsin = NULL, *charsout = NULL;
-    int		ShowMsg = TRUE, UseIconv = FALSE;
+    int		i, ShowMsg = TRUE, UseIconv = FALSE;
     lastread	LR;
-    iconv_t	iconvstr = (iconv_t)(0);
-#ifdef HAVE_ICONV_H
-    size_t	cnt, inleft, outleft;
-    char	inbuf[256], outbuf[1024];
-    char	*inb, *outb;
-#endif
 
     LastNum = Num;
     iLineCount = 7;
@@ -1234,25 +1228,16 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	 */
 	charset = xstrcpy(getchrs(msgs.Charset));
     }
-    charsin = xstrcpy(get_iconv_name(charset));
-    charsout = xstrcpy(get_iconv_name(getchrs(exitinfo.Charset)));
+    charsin = xstrcpy(charset);
+    charsout = xstrcpy(getchrs(exitinfo.Charset));
     Syslog('b', "Stage 3: charset %s, translate %s to %s", MBSE_SS(charset), MBSE_SS(charsin), MBSE_SS(charsout));
 
-#ifdef HAVE_ICONV_H
     /*
-     * Try to setup iconv if the charactersets are different.
+     * Try to setup charset mapping if the charactersets are different.
      */
     if (charsin && charsout && strcmp(charsout, charsin)) {
-
-	charsout = xstrcat(charsout, (char *)"//TRANSLIT");
-	iconvstr = iconv_open(charsout, charsin);
-	if (iconvstr == (iconv_t)(-1)) {
-	    Syslog('!', "$open_iconv(%s, %s)", charsin, charsout);
-	} else {
-	    UseIconv = TRUE;
-	}
+	UseIconv = charset_set_in_out(charsin, charsout);
     }
-#endif
 
     /*
      * Show message text
@@ -1273,42 +1258,18 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 		    if (strchr(p, '>') != NULL)
 			if ((strlen(p) - strlen(strchr(p, '>'))) < 10)
 			    colour(CFG.HiliteF, CFG.HiliteB);
-#ifdef HAVE_ICONV_H
 		    if (UseIconv) {
 			/*
-			 * Try to translate character sets with iconv
+			 * Try to translate character sets
 			 */
-			inleft = outleft = strlen(p);
-			memset(&inbuf, 0, sizeof(inbuf));
-			memset(&outbuf, 0, sizeof(inbuf));
-			sprintf(inbuf, "%s", p);
-			inb = inbuf;
-			outb = outbuf;
-			cnt = iconv(iconvstr, &inb, &inleft, &outb, &outleft);
-			if (cnt == (size_t)(-1)) {
-			    /*
-			     * Failed, log and show original line.
-			     */
-			    Syslog('b', "iconv cnt=%d inleft=%d outleft=%d", cnt, inleft, outleft);
-			    Syslog('b', "%s", printable(p, 0));
-			    Syslog('b', "$iconv");
-			    printf("%s\n", p);
-			} else {
-			    if (strcmp(inbuf, outbuf)) {
-				/*
-				 * Success, translated and log
-				 */
-				Syslog('b', "< %s", MBSE_SS(inbuf));
-				Syslog('b', "> %s", MBSE_SS(outbuf));
-			    }
-			    printf("%s\n", outbuf);
+			for (i = 0; i < strlen(p); i++) {
+			    printf("%s", charset_map_c(p[i], FALSE));
 			}
+			printf("\n");
 		    } else {
 			printf("%s\n", p);
 		    }
-#else
-		    printf("%s\n", p);
-#endif
+
 		    if (CheckLine(CFG.TextColourF, CFG.TextColourB, FALSE))
 			break;
 		}
@@ -1322,12 +1283,6 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
 	free(charsout);
     if (charsin)
 	free(charsin);
-    
-#ifdef HAVE_ICONV_H
-    if (UseIconv && (iconv_close(iconvstr) == -1)) {
-	Syslog('!', "$iconv_close()");
-    }
-#endif
     
     /*
      * Set the Received status on this message if it's for the user.

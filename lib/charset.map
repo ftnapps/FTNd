@@ -1,0 +1,1321 @@
+#
+# $Id$
+#
+# Character set mapping table (to be compiled by mbcharsetc)
+#
+# Base of this map was made by Martin Junius for Fidogate,
+# syntax is the same.
+#
+# Syntax:
+#
+#	include FILE
+#       alias   FSC-NAME  RFC-NAME
+#	table   IN-SET    OUT-SET
+#	map     IN-CHAR   OUT-CHAR [OUT-CHAR] [OUT-CHAR]
+#	map     1:1
+#	map     1:1-noctrl
+#	map     default CHAR
+#	...
+#
+#	IN-SET/OUT-SET:	us-ascii	(FSC-0054: ASCII, VT100)
+#			iso-8859-1	(FSC-0054: LATIN-1, AMIGA)
+#			x-ibmpc		(FSC-0054: IBMPC, PC-8)
+#			x-mac		(FSC-0054: MAC)
+#			koir-8		(KOIR-8)
+#			x-alt		(ALT)
+#			...
+#
+#	IN-CHAR:	X		character X
+#			\NNN		octal value
+#			\xNN		hex value
+#
+#	OUT-CHAR:	up to 3 characters (syntax IN-CHAR)
+#
+#	1:1		all characters not explicitly defined are
+#			mapped to the same character
+#
+#	1:1-noctrl	all characters not explicitly defined are
+#			mapped to the same character, but not the
+#			high-bit control characters (0x80...0x9f)
+#
+#	default CHAR	all characters not explicitly defined are
+#			mapped to CHAR (syntax IN-CHAR)
+#
+# Currently only characters with high bit set (0x80) are mapped!!!
+# If not defined, the default mapping is any character >=0x80 -> nothing.
+#
+# Charset names must be less than 16 characters in length!!!
+#
+
+#
+# Aliases for FSC-0054 ^ACHRS
+#
+#	FSC-0054 name	RFC 2045 name
+#	-------------	-------------
+alias	ascii		us-ascii
+alias	vt100		us-ascii
+alias	latin-1		iso-8859-1
+alias	amiga		iso-8859-1
+alias	ibmpc		x-ibmpc
+alias	pc-8		x-ibmpc
+alias	cp437		x-ibmpc
+alias	mac		x-mac
+
+
+# ----------------------------------------------------------------------------
+table	us-ascii	us-ascii
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+table	us-ascii	iso-8859-1
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+table	us-ascii	x-ibmpc
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+table	us-ascii	x-mac
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+table	iso-8859-1	us-ascii
+map	\x80	? 
+map	\x81	? 
+map	\x82	? 
+map	\x83	? 
+map	\x84	? 
+map	\x85	? 
+map	\x86	? 
+map	\x87	? 
+map	\x88	? 
+map	\x89	? 
+map	\x8A	? 
+map	\x8B	? 
+map	\x8C	? 
+map	\x8D	? 
+map	\x8E	? 
+map	\x8F	? 
+map	\x90	? 
+map	\x91	? 
+map	\x92	? 
+map	\x93	? 
+map	\x94	? 
+map	\x95	? 
+map	\x96	? 
+map	\x97	? 
+map	\x98	? 
+map	\x99	? 
+map	\x9A	? 
+map	\x9B	? 
+map	\x9C	? 
+map	\x9D	? 
+map	\x9E	? 
+map	\x9F	? 
+map	\xA0	\x20 
+map	\xA1	! 
+map	\xA2	c 
+map	\xA3	# 
+map	\xA4	? 
+map	\xA5	Y 
+map	\xA6	| 
+map	\xA7	S 
+map	\xA8	" 
+map	\xA9	( C ) 
+map	\xAA	a 
+map	\xAB	< < 
+map	\xAC	- 
+map	\xAD	- 
+map	\xAE	( R ) 
+map	\xAF	- 
+map	\xB0	o 
+map	\xB1	+ - 
+map	\xB2	^ 2 
+map	\xB3	^ 3 
+map	\xB4	' 
+map	\xB5	m u 
+map	\xB6	P 
+map	\xB7	. 
+map	\xB8	, 
+map	\xB9	^ 1 
+map	\xBA	o 
+map	\xBB	> > 
+map	\xBC	1 / 4 
+map	\xBD	1 / 2 
+map	\xBE	3 / 4 
+map	\xBF	? 
+map	\xC0	A 
+map	\xC1	A 
+map	\xC2	A 
+map	\xC3	A 
+map	\xC4	A e 
+map	\xC5	A 
+map	\xC6	A E 
+map	\xC7	C 
+map	\xC8	E 
+map	\xC9	E 
+map	\xCA	E 
+map	\xCB	E 
+map	\xCC	I 
+map	\xCD	I 
+map	\xCE	I 
+map	\xCF	I 
+map	\xD0	D 
+map	\xD1	N 
+map	\xD2	O 
+map	\xD3	O 
+map	\xD4	O 
+map	\xD5	O 
+map	\xD6	O e 
+map	\xD7	x 
+map	\xD8	O 
+map	\xD9	U 
+map	\xDA	U 
+map	\xDB	U 
+map	\xDC	U e 
+map	\xDD	Y 
+map	\xDE	? 
+map	\xDF	s s 
+map	\xE0	a 
+map	\xE1	a 
+map	\xE2	a 
+map	\xE3	a 
+map	\xE4	a e 
+map	\xE5	a 
+map	\xE6	a e 
+map	\xE7	c 
+map	\xE8	e 
+map	\xE9	e 
+map	\xEA	e 
+map	\xEB	e 
+map	\xEC	i 
+map	\xED	i 
+map	\xEE	i 
+map	\xEF	i 
+map	\xF0	? 
+map	\xF1	n 
+map	\xF2	o 
+map	\xF3	o 
+map	\xF4	o 
+map	\xF5	o 
+map	\xF6	o e 
+map	\xF7	/ 
+map	\xF8	o 
+map	\xF9	u 
+map	\xFA	u 
+map	\xFB	u 
+map	\xFC	u e 
+map	\xFD	y 
+map	\xFE	? 
+map	\xFF	y 
+
+
+# ----------------------------------------------------------------------------
+table	iso-8859-1	iso-8859-1
+map	\x80	? 
+map	\x81	? 
+map	\x82	? 
+map	\x83	? 
+map	\x84	? 
+map	\x85	? 
+map	\x86	? 
+map	\x87	? 
+map	\x88	? 
+map	\x89	? 
+map	\x8A	? 
+map	\x8B	? 
+map	\x8C	? 
+map	\x8D	? 
+map	\x8E	? 
+map	\x8F	? 
+map	\x90	? 
+map	\x91	? 
+map	\x92	? 
+map	\x93	? 
+map	\x94	? 
+map	\x95	? 
+map	\x96	? 
+map	\x97	? 
+map	\x98	? 
+map	\x99	? 
+map	\x9A	? 
+map	\x9B	? 
+map	\x9C	? 
+map	\x9D	? 
+map	\x9E	? 
+map	\x9F	? 
+map	1:1-noctrl
+
+
+# ----------------------------------------------------------------------------
+table	iso-8859-1	x-ibmpc
+map	\x80	?
+map	\x81	?
+map	\x82	?
+map	\x83	?
+map	\x84	?
+map	\x85	?
+map	\x86	?
+map	\x87	?
+map	\x88	?
+map	\x89	?
+map	\x8A	?
+map	\x8B	?
+map	\x8C	?
+map	\x8D	?
+map	\x8E	?
+map	\x8F	?
+map	\x90	?
+map	\x91	?
+map	\x92	?
+map	\x93	?
+map	\x94	?
+map	\x95	?
+map	\x96	?
+map	\x97	?
+map	\x98	?
+map	\x99	?
+map	\x9A	?
+map	\x9B	?
+map	\x9C	?
+map	\x9D	?
+map	\x9E	?
+map	\x9F	?
+map	\xA0	\xFF
+map	\xA1	\xAD
+map	\xA2	\x9B
+map	\xA3	\x9C
+map	\xA4	?
+map	\xA5	\x9D
+map	\xA6	|
+map	\xA7	\x15
+map	\xA8	"
+map	\xA9	c
+map	\xAA	\xA6
+map	\xAB	\xAE
+map	\xAC	\xAA
+map	\xAD	-
+map	\xAE	R
+map	\xAF	-
+map	\xB0	\xF8
+map	\xB1	\xF1
+map	\xB2	\xFD
+map	\xB3	^ 3
+map	\xB4	'
+map	\xB5	\xE6
+map	\xB6	\x14
+map	\xB7	\xFE
+map	\xB8	,
+map	\xB9	^ 1
+map	\xBA	\xA7
+map	\xBB	\xAF
+map	\xBC	\xAC
+map	\xBD	\xAB
+map	\xBE	3 / 4
+map	\xBF	\xA8
+map	\xC0	A
+map	\xC1	A
+map	\xC2	A
+map	\xC3	A
+map	\xC4	\x8E
+map	\xC5	\x8F
+map	\xC6	\x92
+map	\xC7	\x80
+map	\xC8	E
+map	\xC9	\x90
+map	\xCA	E
+map	\xCB	E e
+map	\xCC	I
+map	\xCD	I
+map	\xCE	I
+map	\xCF	I e
+map	\xD0	D
+map	\xD1	\xA5
+map	\xD2	O
+map	\xD3	O
+map	\xD4	O
+map	\xD5	O
+map	\xD6	\x99
+map	\xD7	x
+map	\xD8	\x9D
+map	\xD9	U
+map	\xDA	U
+map	\xDB	U
+map	\xDC	\x9A
+map	\xDD	Y
+map	\xDE	T h
+map	\xDF	\xE1
+map	\xE0	\x85
+map	\xE1	\xA0
+map	\xE2	\x83
+map	\xE3	a
+map	\xE4	\x84
+map	\xE5	\x86
+map	\xE6	\x91
+map	\xE7	\x87
+map	\xE8	\x8A
+map	\xE9	\x82
+map	\xEA	\x88
+map	\xEB	\x89
+map	\xEC	\x8D
+map	\xED	\xA1
+map	\xEE	\x8C
+map	\xEF	\x8B
+map	\xF0	\xE7
+map	\xF1	\xA4
+map	\xF2	\x95
+map	\xF3	\xA2
+map	\xF4	\x93
+map	\xF5	o
+map	\xF6	\x94
+map	\xF7	\xF6
+map	\xF8	\x9B
+map	\xF9	\x97
+map	\xFA	\xA3
+map	\xFB	\x96
+map	\xFC	\x81
+map	\xFD	y e
+map	\xFE	t h
+map	\xFF	\x98
+
+
+# ----------------------------------------------------------------------------
+table	iso-8859-1	x-mac
+map	\x80	?
+map	\x81	?
+map	\x82	?
+map	\x83	?
+map	\x84	?
+map	\x85	?
+map	\x86	?
+map	\x87	?
+map	\x88	?
+map	\x89	?
+map	\x8A	?
+map	\x8B	?
+map	\x8C	?
+map	\x8D	?
+map	\x8E	?
+map	\x8F	?
+map	\x90	?
+map	\x91	?
+map	\x92	?
+map	\x93	?
+map	\x94	?
+map	\x95	?
+map	\x96	?
+map	\x97	?
+map	\x98	?
+map	\x99	?
+map	\x9A	?
+map	\x9B	?
+map	\x9C	?
+map	\x9D	?
+map	\x9E	?
+map	\x9F	?
+map	\xA0	\xCA
+map	\xA1	\xC1
+map	\xA2	\xA2
+map	\xA3	\xA3
+map	\xA4	?
+map	\xA5	\xB4
+map	\xA6	|
+map	\xA7	\xA4
+map	\xA8	\xAC
+map	\xA9	\xA9
+map	\xAA	\xBB
+map	\xAB	\xC7
+map	\xAC	\xC2
+map	\xAD	\xD1
+map	\xAE	\xA8
+map	\xAF	?
+map	\xB0	\xA1
+map	\xB1	\xB1
+map	\xB2	^ 2
+map	\xB3	^ 3
+map	\xB4	\xAB
+map	\xB5	\xB5
+map	\xB6	\xA6
+map	\xB7	\xA5
+map	\xB8	,
+map	\xB9	^ 1
+map	\xBA	\xBC
+map	\xBB	\xC8
+map	\xBC	?
+map	\xBD	. 5
+map	\xBE	?
+map	\xBF	\xC0
+map	\xC0	A
+map	\xC1	A
+map	\xC2	A
+map	\xC3	A
+map	\xC4	\x80
+map	\xC5	\x81
+map	\xC6	\xAE
+map	\xC7	\x82
+map	\xC8	E
+map	\xC9	\x83
+map	\xCA	E
+map	\xCB	E e
+map	\xCC	I
+map	\xCD	I
+map	\xCE	I
+map	\xCF	I e
+map	\xD0	D
+map	\xD1	\x84
+map	\xD2	O
+map	\xD3	O
+map	\xD4	O
+map	\xD5	O
+map	\xD6	\x85
+map	\xD7	x
+map	\xD8	\xAF
+map	\xD9	U
+map	\xDA	U
+map	\xDB	U
+map	\xDC	\x86
+map	\xDD	Y
+map	\xDE	?
+map	\xDF	\xA7
+map	\xE0	\x88
+map	\xE1	\x87
+map	\xE2	\x89
+map	\xE3	\x8B
+map	\xE4	\x8A
+map	\xE5	\x8C
+map	\xE6	\xBE
+map	\xE7	\x8D
+map	\xE8	\x8F
+map	\xE9	\x8E
+map	\xEA	\x90
+map	\xEB	\x91
+map	\xEC	\x93
+map	\xED	\x92
+map	\xEE	\x94
+map	\xEF	\x95
+map	\xF0	?
+map	\xF1	\x96
+map	\xF2	\x98
+map	\xF3	\x97
+map	\xF4	\x99
+map	\xF5	\x9B
+map	\xF6	\x9A
+map	\xF7	\xD6
+map	\xF8	\xBF
+map	\xF9	\x9D
+map	\xFA	\x9C
+map	\xFB	\x9E
+map	\xFC	\x9F
+map	\xFD	y e
+map	\xFE	?
+map	\xFF	\xD7
+
+
+# ----------------------------------------------------------------------------
+table	x-ibmpc		us-ascii
+map	\x80	C 
+map	\x81	u e 
+map	\x82	e 
+map	\x83	a 
+map	\x84	a e 
+map	\x85	a 
+map	\x86	a 
+map	\x87	c 
+map	\x88	e 
+map	\x89	e 
+map	\x8A	e 
+map	\x8B	i 
+map	\x8C	i 
+map	\x8D	i 
+map	\x8E	A e 
+map	\x8F	A 
+map	\x90	E 
+map	\x91	a e 
+map	\x92	A E 
+map	\x93	o 
+map	\x94	o e 
+map	\x95	o 
+map	\x96	u 
+map	\x97	u 
+map	\x98	y 
+map	\x99	O e 
+map	\x9A	U e 
+map	\x9B	c 
+map	\x9C	# 
+map	\x9D	Y 
+map	\x9E	P t 
+map	\x9F	f 
+map	\xA0	a 
+map	\xA1	i 
+map	\xA2	o 
+map	\xA3	u 
+map	\xA4	n 
+map	\xA5	N 
+map	\xA6	a 
+map	\xA7	o 
+map	\xA8	? 
+map	\xA9	- 
+map	\xAA	! 
+map	\xAB	. 5 
+map	\xAC	? 
+map	\xAD	! 
+map	\xAE	< < 
+map	\xAF	> > 
+map	\xB0	# 
+map	\xB1	# 
+map	\xB2	# 
+map	\xB3	| 
+map	\xB4	| 
+map	\xB5	| 
+map	\xB6	| 
+map	\xB7	+ 
+map	\xB8	+ 
+map	\xB9	| 
+map	\xBA	| 
+map	\xBB	+ 
+map	\xBC	+ 
+map	\xBD	+ 
+map	\xBE	+ 
+map	\xBF	+ 
+map	\xC0	+ 
+map	\xC1	- 
+map	\xC2	- 
+map	\xC3	| 
+map	\xC4	- 
+map	\xC5	+ 
+map	\xC6	| 
+map	\xC7	| 
+map	\xC8	+ 
+map	\xC9	+ 
+map	\xCA	= 
+map	\xCB	= 
+map	\xCC	| 
+map	\xCD	= 
+map	\xCE	+ 
+map	\xCF	= 
+map	\xD0	- 
+map	\xD1	= 
+map	\xD2	- 
+map	\xD3	+ 
+map	\xD4	+ 
+map	\xD5	+ 
+map	\xD6	+ 
+map	\xD7	| 
+map	\xD8	+ 
+map	\xD9	+ 
+map	\xDA	+ 
+map	\xDB	# 
+map	\xDC	n 
+map	\xDD	| 
+map	\xDE	| 
+map	\xDF	~ 
+map	\xE0	?
+map	\xE1	s s 
+map	\xE2	? 
+map	\xE3	?
+map	\xE4	? 
+map	\xE5	? 
+map	\xE6	?
+map	\xE7	? 
+map	\xE8	? 
+map	\xE9	? 
+map	\xEA	?
+map	\xEB	? 
+map	\xEC	? 
+map	\xED	? 
+map	\xEE	? 
+map	\xEF	? 
+map	\xF0	= = 
+map	\xF1	+ - 
+map	\xF2	> = 
+map	\xF3	< = 
+map	\xF4	? 
+map	\xF5	? 
+map	\xF6	/ 
+map	\xF7	~ = 
+map	\xF8	? 
+map	\xF9	. 
+map	\xFA	- 
+map	\xFB	? 
+map	\xFC	^ n 
+map	\xFD	^ 2 
+map	\xFE	o 
+map	\xFF	\x20 
+
+
+# ----------------------------------------------------------------------------
+table	x-ibmpc		iso-8859-1
+map	\x80	\xC7 
+map	\x81	\xFC 
+map	\x82	\xE9 
+map	\x83	\xE2 
+map	\x84	\xE4 
+map	\x85	\xE0 
+map	\x86	\xE5 
+map	\x87	\xE7 
+map	\x88	\xEA 
+map	\x89	\xEB 
+map	\x8A	\xE8 
+map	\x8B	\xEF 
+map	\x8C	\xEE 
+map	\x8D	\xEC 
+map	\x8E	\xC4 
+map	\x8F	\xC5 
+map	\x90	\xC9 
+map	\x91	\xE6 
+map	\x92	\xC6 
+map	\x93	\xF4 
+map	\x94	\xF6 
+map	\x95	\xF2 
+map	\x96	\xFB 
+map	\x97	\xF9 
+map	\x98	\xFF 
+map	\x99	\xD6 
+map	\x9A	\xDC 
+map	\x9B	\xA2 
+map	\x9C	\xA3 
+map	\x9D	\xA5 
+map	\x9E	?
+map	\x9F	f 
+map	\xA0	\xE1 
+map	\xA1	\xED 
+map	\xA2	\xF3 
+map	\xA3	\xFA 
+map	\xA4	\xF1 
+map	\xA5	\xD1 
+map	\xA6	\xAA 
+map	\xA7	\xBA 
+map	\xA8	\xBF 
+map	\xA9	- 
+map	\xAA	\xAC 
+map	\xAB	\xBD 
+map	\xAC	\xBC 
+map	\xAD	\xA1 
+map	\xAE	\xAB 
+map	\xAF	\xBB 
+map	\xB0	# 
+map	\xB1	# 
+map	\xB2	# 
+map	\xB3	| 
+map	\xB4	| 
+map	\xB5	| 
+map	\xB6	| 
+map	\xB7	+ 
+map	\xB8	+ 
+map	\xB9	| 
+map	\xBA	| 
+map	\xBB	+ 
+map	\xBC	+ 
+map	\xBD	+ 
+map	\xBE	+ 
+map	\xBF	+ 
+map	\xC0	+ 
+map	\xC1	- 
+map	\xC2	- 
+map	\xC3	| 
+map	\xC4	- 
+map	\xC5	+ 
+map	\xC6	| 
+map	\xC7	| 
+map	\xC8	+ 
+map	\xC9	+ 
+map	\xCA	= 
+map	\xCB	= 
+map	\xCC	| 
+map	\xCD	= 
+map	\xCE	+ 
+map	\xCF	= 
+map	\xD0	- 
+map	\xD1	= 
+map	\xD2	- 
+map	\xD3	+ 
+map	\xD4	+ 
+map	\xD5	+ 
+map	\xD6	+ 
+map	\xD7	| 
+map	\xD8	+ 
+map	\xD9	+ 
+map	\xDA	+ 
+map	\xDB	# 
+map	\xDC	n 
+map	\xDD	| 
+map	\xDE	| 
+map	\xDF	~ 
+map	\xE0	?
+map	\xE1	\xDF 
+map	\xE2	?
+map	\xE3	?
+map	\xE4	?
+map	\xE5	?
+map	\xE6	\xB5 
+map	\xE7	?
+map	\xE8	?
+map	\xE9	?
+map	\xEA	?
+map	\xEB	?
+map	\xEC	?
+map	\xED	?
+map	\xEE	?
+map	\xEF	?
+map	\xF0	?
+map	\xF1	\xB1 
+map	\xF2	?
+map	\xF3	?
+map	\xF4	?
+map	\xF5	?
+map	\xF6	\xF7 
+map	\xF7	?
+map	\xF8	\xB0 
+map	\xF9	. 
+map	\xFA	\xB7 
+map	\xFB	?
+map	\xFC	?
+map	\xFD	\xB2 
+map	\xFE	o 
+map	\xFF	\x20 
+
+
+# ----------------------------------------------------------------------------
+table	x-ibmpc		x-ibmpc
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+table	x-ibmpc		x-mac
+map	\x80	\x82
+map	\x81	\x9F
+map	\x82	\x8E
+map	\x83	\x89
+map	\x84	\x8A
+map	\x85	\x88
+map	\x86	\x8C
+map	\x87	\x8D
+map	\x88	\x90
+map	\x89	\x91
+map	\x8A	\x8F
+map	\x8B	\x95
+map	\x8C	\x94
+map	\x8D	\x93
+map	\x8E	\x80
+map	\x8F	\x81
+map	\x90	\x83
+map	\x91	\xBE
+map	\x92	\xAE
+map	\x93	\x99
+map	\x94	\x9A
+map	\x95	\x98
+map	\x96	\x9E
+map	\x97	\x9D
+map	\x98	\xD8
+map	\x99	\x85
+map	\x9A	\x9F
+map	\x9B	\xA2
+map	\x9C	\xA3
+map	\x9D	\xB4
+map	\x9E	P t
+map	\x9F	\xC4
+map	\xA0	\x87
+map	\xA1	\x92
+map	\xA2	\x97
+map	\xA3	\x9C
+map	\xA4	\x96
+map	\xA5	\x84
+map	\xA6	\xBB
+map	\xA7	\xBC
+map	\xA8	\xC0
+map	\xA9	-
+map	\xAA	\xC2
+map	\xAB	. 5
+map	\xAC	?
+map	\xAD	\xC1
+map	\xAE	\xC7
+map	\xAF	\xC8
+map	\xB0	#
+map	\xB1	#
+map	\xB2	#
+map	\xB3	|
+map	\xB4	|
+map	\xB5	|
+map	\xB6	|
+map	\xB7	+
+map	\xB8	+
+map	\xB9	|
+map	\xBA	|
+map	\xBB	+
+map	\xBC	+
+map	\xBD	+
+map	\xBE	+
+map	\xBF	+
+map	\xC0	+
+map	\xC1	-
+map	\xC2	-
+map	\xC3	|
+map	\xC4	-
+map	\xC5	+
+map	\xC6	|
+map	\xC7	|
+map	\xC8	+
+map	\xC9	+
+map	\xCA	=
+map	\xCB	=
+map	\xCC	|
+map	\xCD	=
+map	\xCE	+
+map	\xCF	=
+map	\xD0	-
+map	\xD1	=
+map	\xD2	-
+map	\xD3	+
+map	\xD4	+
+map	\xD5	+
+map	\xD6	+
+map	\xD7	|
+map	\xD8	+
+map	\xD9	+
+map	\xDA	+
+map	\xDB	#
+map	\xDC	n
+map	\xDD	|
+map	\xDE	|
+map	\xDF	~
+map	\xE0	a
+map	\xE1	\xA7
+map	\xE2	?
+map	\xE3	\xB9
+map	\xE4	\xB7
+map	\xE5	?
+map	\xE6	\xB5
+map	\xE7	?
+map	\xE8	?
+map	\xE9	?
+map	\xEA	\xBD
+map	\xEB	\xB6
+map	\xEC	\xB0
+map	\xED	\xBF
+map	\xEE	?
+map	\xEF	?
+map	\xF0	= =
+map	\xF1	\xB1
+map	\xF2	\xB3
+map	\xF3	\xB2
+map	\xF4	?
+map	\xF5	?
+map	\xF6	\xD6
+map	\xF7	\xC5
+map	\xF8	\xA1
+map	\xF9	.
+map	\xFA	\xD0
+map	\xFB	\xC3
+map	\xFC	^ n
+map	\xFD	^ 2
+map	\xFE	\xA5
+map	\xFF	\x20
+
+
+# ----------------------------------------------------------------------------
+table	x-mac		us-ascii
+map	\x80	A e 
+map	\x81	A 
+map	\x82	C 
+map	\x83	E 
+map	\x84	N 
+map	\x85	O e 
+map	\x86	U e 
+map	\x87	a 
+map	\x88	a 
+map	\x89	a 
+map	\x8A	a e 
+map	\x8B	a 
+map	\x8C	a 
+map	\x8D	c 
+map	\x8E	e 
+map	\x8F	e 
+map	\x90	e 
+map	\x91	e 
+map	\x92	i 
+map	\x93	i 
+map	\x94	i 
+map	\x95	i 
+map	\x96	n 
+map	\x97	o 
+map	\x98	o 
+map	\x99	o 
+map	\x9A	o e 
+map	\x9B	o 
+map	\x9C	u 
+map	\x9D	u 
+map	\x9E	u 
+map	\x9F	u e 
+map	\xA0	+ 
+map	\xA1	o 
+map	\xA2	c 
+map	\xA3	# 
+map	\xA4	S 
+map	\xA5	o 
+map	\xA6	? 
+map	\xA7	s s 
+map	\xA8	R 
+map	\xA9	c 
+map	\xAA	T M 
+map	\xAB	' 
+map	\xAC	? 
+map	\xAD	< > 
+map	\xAE	A E 
+map	\xAF	0 
+map	\xB0	? 
+map	\xB1	+ - 
+map	\xB2	< = 
+map	\xB3	> = 
+map	\xB4	Y 
+map	\xB5	m u 
+map	\xB6	d 
+map	\xB7	? 
+map	\xB8	? 
+map	\xB9	p i 
+map	\xBA	? 
+map	\xBB	a 
+map	\xBC	o 
+map	\xBD	O 
+map	\xBE	a e 
+map	\xBF	o 
+map	\xC0	? 
+map	\xC1	! 
+map	\xC2	! 
+map	\xC3	? 
+map	\xC4	f 
+map	\xC5	~ = 
+map	\xC6	? 
+map	\xC7	> > 
+map	\xC8	< < 
+map	\xC9	. . 
+map	\xCA	\x20 
+map	\xCB	A 
+map	\xCC	A 
+map	\xCD	O 
+map	\xCE	O E 
+map	\xCF	o e 
+map	\xD0	- 
+map	\xD1	- 
+map	\xD2	" 
+map	\xD3	" 
+map	\xD4	` 
+map	\xD5	' 
+map	\xD6	/ 
+map	\xD7	? 
+map	\xD8	y 
+map	\xD9	? 
+map	\xDA	? 
+map	\xDB	? 
+map	\xDC	? 
+map	\xDD	? 
+map	\xDE	? 
+map	\xDF	? 
+map	\xE0	? 
+map	\xE1	? 
+map	\xE2	? 
+map	\xE3	? 
+map	\xE4	? 
+map	\xE5	? 
+map	\xE6	? 
+map	\xE7	? 
+map	\xE8	? 
+map	\xE9	? 
+map	\xEA	? 
+map	\xEB	? 
+map	\xEC	? 
+map	\xED	? 
+map	\xEE	? 
+map	\xEF	? 
+map	\xF0	? 
+map	\xF1	? 
+map	\xF2	? 
+map	\xF3	? 
+map	\xF4	? 
+map	\xF5	? 
+map	\xF6	? 
+map	\xF7	? 
+map	\xF8	? 
+map	\xF9	? 
+map	\xFA	? 
+map	\xFB	? 
+map	\xFC	? 
+map	\xFD	? 
+map	\xFE	? 
+map	\xFF	? 
+
+
+# ----------------------------------------------------------------------------
+table	x-mac		iso-8859-1
+map	\x80	\xC4 
+map	\x81	\xC5 
+map	\x82	\xC7 
+map	\x83	\xC9 
+map	\x84	\xD1 
+map	\x85	\xD6 
+map	\x86	\xDC 
+map	\x87	\xE1 
+map	\x88	\xE0 
+map	\x89	\xE2 
+map	\x8A	\xE4 
+map	\x8B	\xE3 
+map	\x8C	\xE5 
+map	\x8D	\xE7 
+map	\x8E	\xE9 
+map	\x8F	\xE8 
+map	\x90	\xEA 
+map	\x91	\xEB 
+map	\x92	\xED 
+map	\x93	\xEC 
+map	\x94	\xEE 
+map	\x95	\xEF 
+map	\x96	\xF1 
+map	\x97	\xF3 
+map	\x98	\xF2 
+map	\x99	\xF4 
+map	\x9A	\xF6 
+map	\x9B	\xF5 
+map	\x9C	\xFA 
+map	\x9D	\xF9 
+map	\x9E	\xFB 
+map	\x9F	\xFC 
+map	\xA0	\xBE 
+map	\xA1	\xB0 
+map	\xA2	\xA2 
+map	\xA3	\xA3 
+map	\xA4	\xA7 
+map	\xA5	o 
+map	\xA6	\xB6 
+map	\xA7	\xDF 
+map	\xA8	\xAE 
+map	\xA9	\xA9 
+map	\xAA	?
+map	\xAB	\xB4 
+map	\xAC	\xA8 
+map	\xAD	\xAD 
+map	\xAE	\xC6 
+map	\xAF	\xD8 
+map	\xB0	? 
+map	\xB1	\xB1 
+map	\xB2	\xB2 
+map	\xB3	\xB3 
+map	\xB4	\xA5 
+map	\xB5	\xB5 
+map	\xB6	\xA6 
+map	\xB7	? 
+map	\xB8	? 
+map	\xB9	\xB9 
+map	\xBA	\xBC 
+map	\xBB	\xAA 
+map	\xBC	\xBA 
+map	\xBD	\xBD 
+map	\xBE	\xE6 
+map	\xBF	\xF8 
+map	\xC0	\xBF 
+map	\xC1	\xA1 
+map	\xC2	\xAC 
+map	\xC3	? 
+map	\xC4	f 
+map	\xC5	~ = 
+map	\xC6	? 
+map	\xC7	\xAB 
+map	\xC8	\xBB 
+map	\xC9	. . 
+map	\xCA	\x20 
+map	\xCB	\xC0 
+map	\xCC	\xC3 
+map	\xCD	\xD5 
+map	\xCE	?
+map	\xCF	?
+map	\xD0	\xD0 
+map	\xD1	- 
+map	\xD2	" 
+map	\xD3	" 
+map	\xD4	` 
+map	\xD5	' 
+map	\xD6	/ 
+map	\xD7	\xD7 
+map	\xD8	\xFF 
+map	\xD9	? 
+map	\xDA	? 
+map	\xDB	\xA4 
+map	\xDC	? 
+map	\xDD	\xDD 
+map	\xDE	\xDE 
+map	\xDF	? 
+map	\xE0	? 
+map	\xE1	\xB7 
+map	\xE2	? 
+map	\xE3	? 
+map	\xE4	? 
+map	\xE5	\xC2 
+map	\xE6	\xCA 
+map	\xE7	\xC1 
+map	\xE8	\xCB 
+map	\xE9	\xC8 
+map	\xEA	\xCD 
+map	\xEB	\xCE 
+map	\xEC	\xCF 
+map	\xED	\xCC 
+map	\xEE	\xD3 
+map	\xEF	\xD4 
+map	\xF0	\xF0 
+map	\xF1	\xD2 
+map	\xF2	\xDA 
+map	\xF3	\xDB 
+map	\xF4	\xD9 
+map	\xF5	? 
+map	\xF6	? 
+map	\xF7	? 
+map	\xF8	\xAF 
+map	\xF9	? 
+map	\xFA	? 
+map	\xFB	? 
+map	\xFC	\xB8 
+map	\xFD	\xFD 
+map	\xFE	\xFE 
+map	\xFF	? 
+
+
+# ----------------------------------------------------------------------------
+table	x-mac		x-ibmpc
+map	\x80	\x8E
+map	\x81	\x8F
+map	\x82	\x80
+map	\x83	\x90
+map	\x84	\xA5
+map	\x85	\x94
+map	\x86	\x9A
+map	\x87	\xA0
+map	\x88	\x85
+map	\x89	\x83
+map	\x8A	\x84
+map	\x8B	a
+map	\x8C	\x86
+map	\x8D	\x87
+map	\x8E	\x82
+map	\x8F	\x8A
+map	\x90	\x88
+map	\x91	\x89
+map	\x92	\xA1
+map	\x93	\x8D
+map	\x94	\x8C
+map	\x95	\x8B
+map	\x96	\xA4
+map	\x97	\xA2
+map	\x98	\x95
+map	\x99	\x96
+map	\x9A	\x94
+map	\x9B	o
+map	\x9C	\xA3
+map	\x9D	\x97
+map	\x9E	\x96
+map	\x9F	\x81
+map	\xA0	+
+map	\xA1	\xF8
+map	\xA2	\x9B
+map	\xA3	\x9C
+map	\xA4	\x15
+map	\xA5	\xFE
+map	\xA6	\x14
+map	\xA7	\xE1
+map	\xA8	( R )
+map	\xA9	( C )
+map	\xAA	t m
+map	\xAB	'
+map	\xAC	?
+map	\xAD	< >
+map	\xAE	\x92
+map	\xAF	\x9D
+map	\xB0	\xEC
+map	\xB1	\xF1
+map	\xB2	\xF3
+map	\xB3	\xF2
+map	\xB4	\x9D
+map	\xB5	\xE6
+map	\xB6	\xEB
+map	\xB7	\xE4
+map	\xB8	?
+map	\xB9	\xE3
+map	\xBA	?
+map	\xBB	\xA6
+map	\xBC	\xA7
+map	\xBD	\xEA
+map	\xBE	\x91
+map	\xBF	\x9B
+map	\xC0	\xA8
+map	\xC1	\xAD
+map	\xC2	\xAA
+map	\xC3	\xFB
+map	\xC4	\x9F
+map	\xC5	\xF7
+map	\xC6	\x7F
+map	\xC7	\xAF
+map	\xC8	\xAE
+map	\xC9	. .
+map	\xCA	\x20
+map	\xCB	A
+map	\xCC	A
+map	\xCD	O
+map	\xCE	O E
+map	\xCF	o e
+map	\xD0	\xFA
+map	\xD1	-
+map	\xD2	"
+map	\xD3	"
+map	\xD4	`
+map	\xD5	'
+map	\xD6	\xF6
+map	\xD7	\x04
+map	\xD8	\x98
+map	\xD9	Y
+map	\xDA	/
+map	\xDB	C u
+map	\xDC	<
+map	\xDD	>
+map	\xDE	f i
+map	\xDF	f l
+map	\xE0	+ +
+map	\xE1	.
+map	\xE2	'
+map	\xE3	"
+map	\xE4	% .
+map	\xE5	A
+map	\xE6	E
+map	\xE7	A
+map	\xE8	E
+map	\xE9	E
+map	\xEA	I
+map	\xEB	I
+map	\xEC	I
+map	\xED	I
+map	\xEE	O
+map	\xEF	O
+map	\xF0	?
+map	\xF1	O
+map	\xF2	U
+map	\xF3	U
+map	\xF4	U
+map	\xF5	i
+map	\xF6	?
+map	\xF7	?
+map	\xF8	-
+map	\xF9	u
+map	\xFA	.
+map	\xFB	o
+map	\xFC	,
+map	\xFD	"
+map	\xFE	,
+map	\xFF	v
+
+
+# ----------------------------------------------------------------------------
+table	x-mac		x-mac
+# nothing special to map
+
+
+# ----------------------------------------------------------------------------
+include russian.map

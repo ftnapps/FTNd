@@ -92,9 +92,6 @@
 #endif
 #include <pthread.h>
 #include <sys/poll.h>
-#ifdef  HAVE_ICONV_H
-#include <iconv.h>
-#endif
 
 #include <stddef.h>
 #include <fcntl.h>
@@ -375,39 +372,6 @@ struct icmp_filter {
 #define	FTNC_MAC		8	/* MacIntosh character set	    */
 #define FTNC_MAXCHARS		8	/* Highest charset number	    */
 
-
-/*
- *  Mapping:
- *
- *  Kludge	    iconv name
- *  ----------	    ---------------
- *  ASCII 1	    ISO646-US
- *  DUTCH 1	
- *  FINNISH 1	    ISO646-FI
- *  FRENCH 1	    ISO646-FR
- *  CANADIAN 1	    ISO646-CA
- *  GERMAN 1	
- *  ITALIAN 1	    ISO646-IT
- *  NORWEIG 1	    ISO646-NO
- *  PORTU 1	    ISO646-PT
- *  SPANISH 1	    ISO646-ES
- *  SWEDISH 1	    ISO646-SE
- *  SWISS 1
- *  UK 1	    ISO646-GB
- *  CP437 2	    CP437
- *  CP850 2	    CP850
- *  CP865 2	    CP865
- *  CP866 2	    CP766
- *  LATIN-1 2	    ISO8859-1
- *  LATIN-2 2	    ISO8859-2
- *  LATIN-5 2	    ISO8859-5
- *  MAC 2	    MAC
- *  PC-8	    ISO646-US
- *  IBMPC 2	    CP437
- *  UKR 2	    CP866
- *  +7_FIDO	    CP866
- *
- */
 
 /*****************************************************************************
  *
@@ -2130,15 +2094,6 @@ int	attach(faddr, char *, int, char);
 
 
 /*
- * From charset.c
- */
-char	*getchrs(int);			/* Return characterset name	    */
-char	*getchrsdesc(int);		/* Return characterset description  */
-char	*get_iconv_name(char *);	/* Return usable name for iconv	    */
-
-
-
-/*
  * From dostran.c
  */
 char	*Dos2Unix(char *);
@@ -2459,6 +2414,48 @@ int gpt_settimer(int, int);	    /* Set timer no to time		*/
 int gpt_expired(int);		    /* Is timer expired			*/
 int gpt_running(int);		    /* Is timer running			*/
 int msleep(int);		    /* Milliseconds timer		*/
+
+
+
+/************************************************************************
+ *
+ *  Charset mapping
+ */
+
+#define MAX_CHARSET_NAME        16
+#define MAX_CHARSET_IN          128
+#define MAX_CHARSET_OUT         4
+
+#define CHARSET_FILE_ALIAS      'A'     /* Id for binary file */
+#define CHARSET_FILE_TABLE      'T'     /* Id for binary file */
+
+
+typedef struct st_charset_alias {
+    char alias[MAX_CHARSET_NAME];       /* Alias charset name */
+    char name[MAX_CHARSET_NAME];        /* Real charset name */
+    struct st_charset_alias *next;
+} CharsetAlias;
+
+typedef struct st_charset_table {
+    char in[MAX_CHARSET_NAME];          /* Input charset name */
+    char out[MAX_CHARSET_NAME];         /* Output charset name */
+    char map[MAX_CHARSET_IN][MAX_CHARSET_OUT];
+    struct st_charset_table *next;
+} CharsetTable;
+
+
+char    *getchrs(int);                  /* Return characterset name         */
+char    *getchrsdesc(int);              /* Return characterset description  */
+CharsetTable *charset_table_new(void);	/* Add table to linked list	    */
+CharsetAlias *charset_alias_new(void);	/* Add alias to linked list	    */
+int charset_write_bin(char *);		/* Save charset.bin		    */
+int charset_read_bin(void);		/* Load ~/etc/charset.bin	    */
+char *charset_qpen(int, int);		/* Convert to MIME quoted-printable */
+char *charset_map_c(int, int);		/* map single character		    */
+char *charset_alias_fsc(char *);	/* Search FSC alias		    */
+char *charset_alias_rfc(char *);	/* Search RFC alias		    */
+int charset_set_in_out(char *, char *);	/* Setup mapping		    */
+
 
 
 /************************************************************************

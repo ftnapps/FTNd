@@ -112,6 +112,8 @@ mbfido:
 	N: Force processing of arealists so that all tags are forced to
 	   uppercase. Seems to give problems in some nets.
 
+	N: Make tic areas check case insensitive.
+
 	N: Let mbfido areas with a special switch update area descriptions.
 
 	N: Send rulefile via netmail for each new connected mail area.
