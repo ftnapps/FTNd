@@ -309,7 +309,7 @@ void system_stat(void)
 	    mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
 	}
 
-	switch (enoughspace()) {
+	switch (enoughspace(CFG.freespace)) {
 	    case 0: mvprintw(13, 72, "Full ");
 		    break;
 	    case 1: mvprintw(13, 72, "Ok   ");
