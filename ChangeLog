@@ -26,6 +26,8 @@ v0.71.0		27-Oct-2004
 		Modified rundoor.sh so that it uses two different dosemu
 		configuration files, one for virtual modem and one without.
 		See the manual doors.html.
+		In the editor script modified the joe header so that it will
+		work with the new terminal i/o.
 
 	examples:
 		Fixed logo display.
