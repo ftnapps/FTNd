@@ -29,15 +29,10 @@ install:
 			tar xfC txtfiles.tar ${PREFIX}/english/txtfiles ; \
 			echo "Installing default english txtfiles" ; \
 		fi
-		@echo -e "\a"
-		@echo "WARNING: overwriting all your templates! Do not customize them yet,"
-		@echo "there will be a lot of changes coming. If you still do so, it is not our fault"
-		@echo "Also do not make any translations yet! Wait until we are ready with this"
-		@echo "End of WARNING WARNING WARNING."
-		@echo -e "\a"
-		@echo -n "Press ENTER to continue: "
-		@read junk
-		tar xfC templates.tar ${PREFIX}/english/macro
+		@if [ ! -f ${PREFIX}/english/macro/html.tic ]; then \
+			tar xfC templates.tar ${PREFIX}/english/macro ; \
+			echo "Installing default english macro files" ; \
+		fi
 
 clean:
 		rm -f filelist Makefile.bak

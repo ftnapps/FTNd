@@ -1,9 +1,11 @@
 /*
+ * $Id$
+ *
  * stylesheet for the MBSE BBS manual.
  */
 
 
-BODY      { background-color: white; font-family: Arial, Helvetica; font-size: 12pt; }
+BODY      { background-color: white; font-family: Arial, Helvetica; }
 
 /*
  * H1 is the page header, H3 the paragraph header, H5 is topright update date.

@@ -4893,9 +4893,9 @@ v0.33.20        10-Feb-2002
 		The Makefile now selects the right little or big endian menu
 		files to install.
 		Rebuild the menus and txtfiles for the new external editor.
-		Added templates.tar. For the time of development they will be
-		installed destructive, ie. all private changes will be lost
-		with every install. Later this will be a normal install.
+		Removed the mbsetup door from the sample sysop menus.
+		Added templates.tar, these are the default english macro files
+		for the diesel library.
 
 	rundoor.sh
 		Called door.bat instead of doors.bat
@@ -4903,5 +4903,5 @@ v0.33.20        10-Feb-2002
 	installinit.sh
 		Modified for SuSE 7.1 and later, the location of the startup
 		script moved from /sbin to /etc. Patch by Joachim Kuwan.
-		Also modified init.SuSE for Yast on SuSE 8.0
+		Also modified init.SuSE for Yast2 on SuSE 8.0
 
