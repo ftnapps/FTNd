@@ -349,8 +349,6 @@ void deinitnl(void)
     if (!nlinitdone)
 	return;
 
-    Syslog('n', "De-init nodelists");
-
     tidy_nl_flag(&nl_online);
     tidy_nl_flag(&nl_request);
     tidy_nl_flag(&nl_reqbits);
@@ -362,7 +360,7 @@ void deinitnl(void)
     tidy_nl_domsuf(&nl_domsuffix);
     tidy_nl_service(&nl_service);
 
-    Syslog('n', "De-init done");
+    Syslog('n', "De-init nodelists done");
     nlinitdone = FALSE;
 }
 
@@ -526,8 +524,6 @@ int initnl(void)
     }
 
     free(nlpath);
-    Syslog('n', "mypots %08x myisdn %08x mytcpip %08x", mypots, myisdn, mytcpip);
-    Syslog('n', "Nodelists initialize complete, rc=%d", rc);
     nlinitdone = TRUE;
     return rc;
 }
@@ -912,15 +908,15 @@ node *getnlent(faddr *addr)
      */
     if (nodebuf.iflags & mytcpip) {
 	memset(&tbuf, 0, sizeof(tbuf));
-	Syslog('n', "node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
+	Syslog('n', "getnlent: node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
 	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
 	    if ((*tmpm)->mask & nodebuf.iflags) {
-		Syslog('n', "Setting %s", (*tmpm)->name);
+		Syslog('n', "getnlent: best flag is %s", (*tmpm)->name);
 		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
 		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
 			sprintf(tbuf, "%s", (*tmps)->service);
 			tport = (*tmps)->port;
-			Syslog('n', "Setting %s %d", (*tmps)->service, (*tmps)->port);
+			Syslog('n', "getnlent: protocol %s at port %d", (*tmps)->service, (*tmps)->port);
 		    }
 		}
 	    }
@@ -938,38 +934,36 @@ node *getnlent(faddr *addr)
 	 */
 	memset(&tbuf, 0, sizeof(tbuf));
 	if (ndrecord && strlen(nd.Nl_hostname)) {
-	    Syslog('n', "Using override %s for FQDN", nd.Nl_hostname);
+	    Syslog('n', "getnlent: using override %s for FQDN", nd.Nl_hostname);
 	    sprintf(tbuf, nodebuf.name);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	} else {
 	    for (tmpa = &nl_search; *tmpa; tmpa=&((*tmpa)->next)) {
-		Syslog('n', "Search FQDN method %s", (*tmpa)->name);
+		Syslog('n', "getnlent: search FQDN method %s", (*tmpa)->name);
 		if (strcasecmp((*tmpa)->name, "field3") == 0) {
 		    sprintf(tbuf, nodebuf.name);
 		    if (strchr(tbuf, '.')) {
 			/*
 			 * Okay, there are dots, this can be a FQDN or IP address.
 			 */
-			Syslog('n', "Using field3 \"%s\"", tbuf);
+			Syslog('n', "getnlent: using field3 \"%s\"", tbuf);
 			nodebuf.url = xstrcat(nodebuf.url, tbuf);
 			break;
 		    } else {
 			memset(&tbuf, 0, sizeof(tbuf));
-			Syslog('n', "Field3 is not usable");
 		    }
 		} else if (strcasecmp((*tmpa)->name, "field6") == 0) {
 		    if (nodebuf.phone && strncmp(nodebuf.phone, "000-", 4) == 0) {
-			Syslog('n', "Found 000- prefix");
+			Syslog('n', "getnlent: found 000- prefix");
 			sprintf(tbuf, "%s", nodebuf.phone+4);
 			for (i = 0; i < strlen(tbuf); i++)
 			    if (tbuf[i] == '-')
 				tbuf[i] = '.';
-			Syslog('n', "Using field6 \"%s\"", tbuf);
+			Syslog('n', "getnlent: using field6 \"%s\"", tbuf);
 			nodebuf.url = xstrcat(nodebuf.url, tbuf);
 			break;
 		    } else {
 			memset(&tbuf, 0, sizeof(tbuf));
-			Syslog('n', "Field6 is not usable");
 		    }
 		} else if (strcasecmp((*tmpa)->name, "field8") == 0) {
 		    /*
@@ -1017,7 +1011,7 @@ node *getnlent(faddr *addr)
 				r++;
 			    }
 			    if (*r == '*') {
-				Syslog('n', "Possible default domain marking \"%s\"", MBSE_SS(r));
+				Syslog('n', "getnlent: possible default domain marking \"%s\"", MBSE_SS(r));
 				for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 				    if ((*tmpd)->zone == nodebuf.addr.zone) {
 					if (*r++ == '\0')
@@ -1026,17 +1020,17 @@ node *getnlent(faddr *addr)
 					else
 					    sprintf(tbuf, "f%d.n%d.z%d.%s.%s%s", nodebuf.addr.node, nodebuf.addr.net,
 						    nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name, r);
-					Syslog('n', "Will try default domain \"%s\"", tbuf);
+					Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 					nodebuf.url = xstrcat(nodebuf.url, tbuf);
 					break;
 				    }
 				}
 				if (strlen(tbuf))
 				    break;
-				Syslog('n', "No matching default domain found for zone %d", nodebuf.addr.zone);
+				Syslog('n', "getnlent: no matching default domain found for zone %d", nodebuf.addr.zone);
 			    }
 			    if (strchr(r, '.')) {
-				Syslog('n', "Found a FQDN \"%s\"", MBSE_SS(r));
+				Syslog('n', "getnlent: found a FQDN \"%s\"", MBSE_SS(r));
 				sprintf(tbuf, "%s", r);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
 				break;
@@ -1045,16 +1039,15 @@ node *getnlent(faddr *addr)
 		    }
 		    if (strlen(tbuf))
 			break;
-		    Syslog('n', "Field8 is not usable");
 		    memset(&tbuf, 0, sizeof(tbuf));
 		} else if (strcasecmp((*tmpa)->name, "defdomain") == 0) {
-		    Syslog('n', "Trying default domain");
+		    Syslog('n', "getnlent: trying default domain");
 		    if (nodebuf.addr.domain) {
 			for (tmpd = &nl_domsuffix; *tmpd; tmpd=&((*tmpd)->next)) {
 			    if ((*tmpd)->zone == nodebuf.addr.zone) {
 				sprintf(tbuf, "f%d.n%d.z%d.%s.%s", nodebuf.addr.node, nodebuf.addr.net,
 					nodebuf.addr.zone, nodebuf.addr.domain, (*tmpd)->name);
-				Syslog('n', "Will try default domain \"%s\"", tbuf);
+				Syslog('n', "getnlent: will try default domain \"%s\"", tbuf);
 				nodebuf.url = xstrcat(nodebuf.url, tbuf);
 				break;
 			    }
@@ -1064,14 +1057,14 @@ node *getnlent(faddr *addr)
 		    }
 		    if (strlen(tbuf))
 			break;
-		    Syslog('n', "No matching default domain found for zone %d", nodebuf.addr.zone);
+		    Syslog('n', "getnlent: no matching default domain found for zone %d", nodebuf.addr.zone);
 		    memset(&tbuf, 0, sizeof(tbuf));
 		}
 	    }
 	}
 
 	if (strlen(tbuf) == 0) {
-	    Syslog('n', "No FQDN found, cannot call");
+	    Syslog('+', "getnlent: no FQDN found, cannot call");
 	    if (nodebuf.url)
 		free(nodebuf.url);
 	    nodebuf.url = NULL;
@@ -1081,7 +1074,7 @@ node *getnlent(faddr *addr)
 	     * for this protocol.
 	     */
 	    sprintf(tbuf, ":%lu", tport);
-	    Syslog('n', "Adding default port %s", tbuf);
+	    Syslog('n', "getnlent: adding default port %s", tbuf);
 	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
 	}
 
@@ -1105,11 +1098,11 @@ node *getnlent(faddr *addr)
     Syslog('n', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
     Syslog('n', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
     Syslog('n', "getnlent: URL     %s", printable(nodebuf.url, 0));
-    moflags(nodebuf.mflags);
-    diflags(nodebuf.dflags);
-    ipflags(nodebuf.iflags);
-    olflags(nodebuf.oflags);
-    rqflags(nodebuf.xflags);
+//    moflags(nodebuf.mflags);
+//    diflags(nodebuf.dflags);
+//    ipflags(nodebuf.iflags);
+//    olflags(nodebuf.oflags);
+//    rqflags(nodebuf.xflags);
     free(mydomain);
 
     return &nodebuf;

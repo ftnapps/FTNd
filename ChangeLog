@@ -26,6 +26,11 @@ v0.37.6		10-Aug-2003
 		Changed the address of the FSF in all sources.
 		Removed memwatch debugger.
 		Changed all gif and jpg images to png images.
+		Added a setup switch for the nodes for selecting the wrong
+		binkp long filenames escape method for Argus and Irex nodes.
+
+	nodelist.a:
+		Removed some of the debug logging.
 
 	mbcico:
 		Completly changed the files inbound receive, all files are now
@@ -35,13 +40,18 @@ v0.37.6		10-Aug-2003
 		resync problems.
 		The other goodie is that this is more safe on busy multiline
 		systems.
-		Fixed the binkp escape sequence which is wrong in the FSP.
+		Fixed the binkp escape sequence which is wrong in the FSP, this
+		is selectable in the nodes setup.
 		A light improvement in session handshake setup timers.
 		Added EMSI handshake timers, this gives a more relaxed EMSI
 		handshake.
 		Set the EMSI receive failure count to 20 instead of 6, we can
 		now even accept buggy maindoor sessions and still display a
 		banner.
+
+	mbsetup:
+		In the nodes setup a switch is added to fallback to the wrong
+		binkp escape method.
 
 
 v0.37.5		12-Jul-2003 - 10-Aug-2003

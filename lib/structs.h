@@ -1188,7 +1188,7 @@ struct	_nodes {
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility    */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */
 	unsigned	FNC		: 1;	/* Node needs 8.3 filenames */
-	unsigned	xNoITN		: 1;
+	unsigned	WrongEscape	: 1;	/* Binkp wrong escape	    */
 	unsigned	xNoIFC		: 1;
 
 	char		xExtra[94];

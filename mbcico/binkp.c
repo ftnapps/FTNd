@@ -245,7 +245,11 @@ char *unix2binkp(char *fn)
 	    *q++ = *p; 
 	    *q = '\0';
 	} else {
-	    sprintf(q, "\\x%2x", p[0]);
+	    if (nodes.WrongEscape) {
+		sprintf(q, "\\%2x", p[0]);
+	    } else {
+		sprintf(q, "\\x%2x", p[0]);
+	    }
 	}
 	while (*q)
 	    q++;
@@ -283,7 +287,7 @@ char *binkp2unix(char *fn)
 	    } else {
 		/*
 		 * If remote sends \x0a method instead of \0a, eat the x character.
-		 * Remotes should send the x character, But some (Argus) don't.
+		 * Remotes should send the x character, But some (Argus and Irex) don't.
 		 */
 		if ((*p == 'x') || (*p == 'X'))
 		    p++;
