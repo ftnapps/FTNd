@@ -21,6 +21,8 @@ v0.35.05	19-Oct-2002
 
 	mbcico:
 		Fixed crash with incoming YooHoo session with bad password.
+		Still used the phone override fields for hostname override
+		with internet calls if there was something filled in.
 
 	mbout:
 		The stat command now also shows what is on hold for a node

@@ -158,11 +158,11 @@ int call(faddr *addr)
 	     * There is no fdn or IP address at the commandline.
 	     * First check nodesetup for an override in the phone field.
 	     */
-	    if (strlen(nodes.phone[0])) {
-		inetaddr = xstrcpy(nodes.phone[0]);
-	    } else if (strlen(nodes.phone[1])) {
-		inetaddr = xstrcpy(nodes.phone[1]);
-	    } else {
+//	    if (strlen(nodes.phone[0])) {
+//		inetaddr = xstrcpy(nodes.phone[0]);
+//	    } else if (strlen(nodes.phone[1])) {
+//		inetaddr = xstrcpy(nodes.phone[1]);
+//	    } else {
 		/*
 		 * Try to find the fdn in several places in the nodelist fields.
 		 */
@@ -183,7 +183,7 @@ int call(faddr *addr)
 		    inetaddr = xstrcpy(nlent->location);
 		    Syslog('d', "Got hostname from nodelist location");
 		}
-	    }
+//	    }
 	}
 
 	/*
