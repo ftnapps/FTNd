@@ -146,9 +146,14 @@ void MakeStat(void)
 		while ((fread(&mgroup, mgrouphdr.recsize, 1, fg)) == 1) {
 		    if (mgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("bcdefghi", "ssssdddd", mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka), 
-				adate(mgroup.LastDate), mgroup.MsgsRcvd.lweek, mgroup.MsgsRcvd.month[Lm], 
-				mgroup.MsgsSent.lweek, mgroup.MsgsSent.month[Lm]);
+			MacroVars("b", "s", mgroup.Name);
+			MacroVars("c", "s", mgroup.Comment);
+			MacroVars("d", "s", aka2str(mgroup.UseAka));
+			MacroVars("e", "s", adate(mgroup.LastDate));
+			MacroVars("f", "d", mgroup.MsgsRcvd.lweek);
+			MacroVars("g", "d", mgroup.MsgsRcvd.month[Lm]);
+			MacroVars("h", "d", mgroup.MsgsSent.lweek);
+			MacroVars("i", "d", mgroup.MsgsSent.month[Lm]);
 			MacroRead(fi, fw);
 		    }
 		}
@@ -184,8 +189,15 @@ void MakeStat(void)
 			    MacroVars("k", "d", 0);
 			}
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("bcdefghij", "dssssdddd", Area, msgs.Name, msgs.Tag, msgs.Group, adate(msgs.LastRcvd),
-			    msgs.Received.lweek, msgs.Received.month[Lm], msgs.Posted.lweek, msgs.Posted.month[Lm]);
+			MacroVars("b", "d", Area);
+			MacroVars("c", "s", msgs.Name);
+			MacroVars("d", "s", msgs.Tag);
+			MacroVars("e", "s", msgs.Group);
+			MacroVars("f", "s", adate(msgs.LastRcvd));
+			MacroVars("g", "d", msgs.Received.lweek);
+			MacroVars("h", "d", msgs.Received.month[Lm]);
+			MacroVars("i", "d", msgs.Posted.lweek);
+			MacroVars("j", "d", msgs.Posted.month[Lm]);
 			MacroRead(fi, fw);
 		    }
 		    fseek(fg, msgshdr.syssize, SEEK_CUR);
@@ -213,9 +225,14 @@ void MakeStat(void)
 		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 		    if (fgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("bcdefghi", "ssssdddd", fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka), 
-				adate(fgroup.LastDate), fgroup.Files.lweek, fgroup.KBytes.lweek, 
-				fgroup.Files.month[Lm], fgroup.KBytes.month[Lm]);
+			MacroVars("b", "s", fgroup.Name);
+			MacroVars("c", "s", fgroup.Comment);
+			MacroVars("d", "s", aka2str(fgroup.UseAka));
+			MacroVars("e", "s", adate(fgroup.LastDate));
+			MacroVars("f", "d", fgroup.Files.lweek);
+			MacroVars("g", "d", fgroup.KBytes.lweek);
+			MacroVars("h", "d", fgroup.Files.month[Lm]);
+			MacroVars("i", "d", fgroup.KBytes.month[Lm]);
 			MacroRead(fi, fw);
 		    }
 		}
@@ -242,8 +259,14 @@ void MakeStat(void)
 		while ((fread(&tic, tichdr.recsize, 1, fg)) == 1) {
 		    if (tic.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("bcdefghi", "ssssdddd", tic.Comment, tic.Name, tic.Group, adate(tic.LastAction),
-                                 tic.Files.lweek, tic.KBytes.lweek, tic.Files.month[Lm], tic.KBytes.month[Lm]);
+			MacroVars("b", "s", tic.Comment);
+			MacroVars("c", "s", tic.Name);
+			MacroVars("d", "s", tic.Group);
+			MacroVars("e", "s", adate(tic.LastAction));
+			MacroVars("f", "d", tic.Files.lweek);
+			MacroVars("g", "d", tic.KBytes.lweek);
+			MacroVars("h", "d", tic.Files.month[Lm]);
+			MacroVars("i", "d", tic.KBytes.month[Lm]);
 			MacroRead(fi, fw);
 		    }
 		    fseek(fg, tichdr.syssize, SEEK_CUR);
@@ -278,8 +301,14 @@ void MakeStat(void)
 			q = xstrcpy((char *)"Hold");
 		    else
 			q = xstrcpy((char *)"Normal");
-		    MacroVars("bcdefghi", "sssssddd", aka2str(nodes.Aka[0]), nodes.Sysop, q, p, 
-			    adate(nodes.LastDate), nodes.Billing, nodes.Credit, nodes.Debet);
+		    MacroVars("b", "s", aka2str(nodes.Aka[0]));
+		    MacroVars("c", "s", nodes.Sysop);
+		    MacroVars("d", "s", q);
+		    MacroVars("e", "s", p);
+		    MacroVars("f", "s", adate(nodes.LastDate));
+		    MacroVars("g", "d", nodes.Billing);
+		    MacroVars("h", "d", nodes.Credit);
+		    MacroVars("i", "d", nodes.Debet);
 		    MacroRead(fi, fw);
 		    free(p);
 		    free(q);
@@ -314,10 +343,17 @@ void MakeStat(void)
 		    fseek(fi, fileptr, SEEK_SET);
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
-		    MacroVars("cdefghijklm", "sssssssddds", hist.aka.zone?aka2str(hist.aka):"N/A", hist.system_name, 
-					hist.sysop, hist.location, hist.tty, adate(hist.online), 
-					t_elapsed(hist.online, hist.offline), hist.sent_bytes,
-					hist.rcvd_bytes, hist.cost, hist.inbound ? "In":"Out");
+		    MacroVars("c", "s", hist.aka.zone ? aka2str(hist.aka):"N/A");
+		    MacroVars("d", "s", hist.system_name);
+		    MacroVars("e", "s", hist.sysop);
+		    MacroVars("f", "s", hist.location);
+		    MacroVars("g", "s", strlen(hist.tty) ? hist.tty:"&nbsp;");
+		    MacroVars("h", "s", adate(hist.online));
+		    MacroVars("i", "s", t_elapsed(hist.online, hist.offline));
+		    MacroVars("j", "d", hist.sent_bytes);
+		    MacroVars("k", "d", hist.rcvd_bytes);
+		    MacroVars("l", "d", hist.cost);
+		    MacroVars("m", "s", hist.inbound ? "In":"Out");
 		    MacroRead(fi, fw);
 		}
 		closepage(fw, (char *)"mailhistory", fi);
@@ -336,8 +372,13 @@ void MakeStat(void)
 	    Syslog('+', "Can't open macro file, skipping html pages creation");
 	} else {
 	    fread(&SYSINFO, sizeof(SYSINFO), 1, fg);
-	    MacroVars("bcdefgh", "dddddss", SYSINFO.SystemCalls, SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network,
-		    SYSINFO.Local, adate(SYSINFO.StartDate), SYSINFO.LastCaller);
+	    MacroVars("b", "d", SYSINFO.SystemCalls);
+	    MacroVars("c", "d", SYSINFO.Pots);
+	    MacroVars("d", "d", SYSINFO.ISDN);
+	    MacroVars("e", "d", SYSINFO.Network);
+	    MacroVars("f", "d", SYSINFO.Local);
+	    MacroVars("g", "s", adate(SYSINFO.StartDate));
+	    MacroVars("h", "s", SYSINFO.LastCaller);
 	    MacroVars("i", "s", adate(SYSINFO.LastTime));
 	    if ((fw = newpage((char *)"sysinfo", fi)) != NULL) {
 		closepage(fw, (char *)"sysinfo", fi);
