@@ -462,6 +462,7 @@ void Index(void)
 
 	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 	fread(&area, areahdr.recsize, 1, pAreas);
+	AreaNr++;
 
 	if (area.Available) {
 
