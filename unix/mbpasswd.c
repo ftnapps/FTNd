@@ -121,8 +121,44 @@ static char *myname;	/* The current user's name */
 static int  force;	/* Force update of locked passwords */
 
 
-
 #ifdef _VPOPMAIL_PATH
+
+/*
+ * Milliseconds timer, returns 0 on success.
+ */
+int msleep(int msecs)
+{
+    int             rc;
+    struct timespec req, rem;
+
+    rem.tv_sec = 0;
+    rem.tv_nsec = 0;
+    req.tv_sec = msecs / 1000;
+    req.tv_nsec = (msecs % 1000) * 1000000;
+
+    while (1) {
+
+	rc = nanosleep(&req, &rem);
+	if (rc == 0)
+	    break;
+	if ((errno == EINVAL) || (errno == EFAULT)) {
+	    break;
+	}
+
+	/*
+	 * Error was EINTR, run timer again to complete.
+	 */
+	req.tv_sec = rem.tv_sec;
+	req.tv_nsec = rem.tv_nsec;
+	rem.tv_sec = 0;
+	rem.tv_nsec = 0;
+    }
+
+    return rc;
+}
+
+
+
 int execute(char **args, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
@@ -139,6 +175,8 @@ int execute(char **args, char *in, char *out, char *err)
     fflush(stderr);
 
     if ((pid = fork()) == 0) {
+	msleep(150);
+
         if (in) {
             close(0);
             if (open(in, O_RDONLY) != 0) {
@@ -987,7 +1025,7 @@ int main(int argc, char *argv[])
 	fflush(stdin);
 	memset(args, 0, sizeof(args));
     
-	sprintf(temp, "%s/vpasswd", _VPOPMAIL_PATH);
+	sprintf(temp, "%s/vpasswd", (char *)_VPOPMAIL_PATH);
 	args[0] = temp;
 	args[1] = argv[2];
 	args[2] = argv[3];

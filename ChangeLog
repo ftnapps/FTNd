@@ -95,6 +95,10 @@ v0.51.2		06-Mar-2004
 	mbuseradd:
 		Fixed removing of a OS created homedir. This may solve problems
 		on RH and Fedora (under test).
+		Added msleep delay in execute child process.
+
+	mbpasswd:
+		Added msleep delay in execute child process.
 
 	examples:
 		Updated English, German, Spanish and Dutch macro files:
