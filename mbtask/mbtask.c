@@ -2,7 +2,7 @@
  *
  * File ..................: mbtask/mbtask.c
  * Purpose ...............: MBSE BBS Task Manager
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -102,7 +102,7 @@ int			pingstate = P_INIT;	/* Ping state		*/
 int			pingnr = 1;		/* Ping #, 1 or 2	*/
 int			pingresult[2];		/* Ping results		*/
 char			pingaddress[41];	/* Ping current address	*/
-
+int			masterinit = FALSE;	/* Master init needed	*/
 
 
 /*
@@ -116,6 +116,7 @@ void load_maincfg(void)
 	int		i;
 
         if ((fp = fopen(cfgfn, "r")) == NULL) {
+		masterinit = TRUE;
                 memset(&CFG, 0, sizeof(CFG));
 
                 /*
@@ -1077,9 +1078,24 @@ void scheduler(void)
 
 	pingresult[1] = TRUE;
 	pingresult[2] = TRUE;
+
+	/*
+	 * The flag masterinit is set if a new config.data is created, this
+	 * is true if mbtask is started the very first time. Then we run
+	 * mbsetup init to create the default databases.
+	 */
+	if (masterinit) {
+	    cmd = xstrcpy(pw->pw_dir);
+	    cmd = xstrcat(cmd, (char *)"/bin/mbsetup");
+	    launch(cmd, (char *)"init", (char *)"mbsetup", MBINIT);
+	    free(cmd);
+	    sleep(2);
+	    masterinit = FALSE;
+	}
+
 	initnl();
 	sem_set((char *)"scanout", TRUE);
-
+	
         do {
 		/*
 		 *  Poll UNIX Datagram socket until the defined timeout.

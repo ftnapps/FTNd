@@ -4123,6 +4123,7 @@ v0.33.18        27-Jul-2001
 		Does now respond again to external semafore's mailout, mailin
 		and scanout in the semafore directory.
 		Removes stale socket file if found.
+		Runs mbsetup init if config.data is created on new systems.
 
 	mbpasswd:
 		Added CLOSE_SESSIONS and ENV_ROOTPATH to getdef to prevent new
