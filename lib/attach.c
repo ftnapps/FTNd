@@ -176,7 +176,7 @@ int check_flo(faddr node, char *filename, char flavor)
     ticfile = calloc(PATH_MAX, sizeof(char));
 
     sprintf(flofile, "%s", floname(&node, flavor));
-//    Syslog('p', "%s", flofile);
+    Syslog('p', "%s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;
 	while (fgets(buf, PATH_MAX +2, fp)) {
@@ -184,9 +184,9 @@ int check_flo(faddr node, char *filename, char flavor)
 	    Striplf(buf);
 	    if (buf[strlen(buf)-1] == '\r')
 		buf[strlen(buf)-1] = '\0';
-//	    Syslog('p',  "hlo: \"%s\"", printable(buf, 0));
-	    if (strstr(buf, filename) && (buf[0] != '~')) {
-//		Syslog('p', "Found");
+	    Syslog('p',  "hlo: \"%s\"", printable(buf, 0));
+	    if (((strcmp(buf, filename) == 0) || (strcmp(buf+1, filename) == 0)) && (buf[0] != '~')) {
+		Syslog('p', "Found");
 		fseek(fp, filepos, SEEK_SET);
 		fwrite(&tpl, 1, 1, fp);
 		fflush(fp);
