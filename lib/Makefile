@@ -7,14 +7,14 @@ include ../Makefile.global
 
 COMMON_SRCS	= clcomm.c client.c crc.c semafore.c signame.c charset.c remask.c \
 		  attach.c falists.c hdr.c parsedate.c rfcmsg.c unpacker.c rearc.c \
-		  batchrd.c ftn.c pktname.c mangle.c sectest.c proglock.c \
+		  batchrd.c ftn.c pktname.c mangle.c sectest.c proglock.c magic.c \
 		  dostran.c ftnmsg.c mbfile.c nodelock.c rawio.c strcasestr.c \
 		  execute.c expipe.c getheader.c noderecord.c rfcaddr.c strutil.c \
 		  faddr.c gmtoffset.c packet.c rfcdate.c term.c endian.c timers.c
 COMMON_OBJS	= clcomm.o client.o crc.o semafore.o signame.o charset.o remask.o \
 		  ftscprod.o attach.o falists.o hdr.o parsedate.o rfcmsg.o unpacker.o \
 		  batchrd.o ftn.o pktname.o mangle.o sectest.o proglock.o rearc.o \
-		  dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o \
+		  dostran.o ftnmsg.o mbfile.o nodelock.o rawio.o strcasestr.o magic.o \
 		  execute.o expipe.o getheader.o noderecord.o rfcaddr.o strutil.o \
 		  faddr.o gmtoffset.o packet.o rfcdate.o term.o endian.o timers.o
 COMMON_HDRS	= mbselib.h
