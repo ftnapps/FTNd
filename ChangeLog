@@ -12,6 +12,14 @@ v0.51.4		11-Apr-2004
 	mbcico:
 		All heavy debug logmessages are now in defines and are only
 		enabled with ./configure --enable-newbinkp
+		In check for T-Mail fileboxes added condition that the zone	
+		must exist in the setup.
+		Added protection against empty domain names received from
+		remote systems.
+
+	mbout:
+		In check for T-Mail fileboxes added condition that the zone
+		must exist in the setup.
 
 	mbfido:
 		The last argument '*' which was hardcoded in the virusscan
@@ -41,10 +49,14 @@ v0.51.4		11-Apr-2004
 		Added auto setup for message area creation date. Also creates
 		a faked newsgroup name in echomail areas. Both settings are
 		needed for the newsserver.
+		It wasn't possible anymore to change the number of systems in
+		menu 1.11.11
 
 	mbtask:
 		Removed debug logging for the disk thread.
 		Added mbnntp to the taskregs to count as a user program.
+		In check for T-Mail fileboxes added condition that the zone
+		must exist in the setup.
 
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
