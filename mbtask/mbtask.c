@@ -1169,7 +1169,7 @@ void scheduler(void)
     static char	    doing[32], buf[2048];
     time_t          now;
     struct tm       *tm, *utm;
-#if !defined(__FreeBSD__) && !defined(__NetBSD__)
+#if defined(__linux__)
     FILE	    *fp;
 #endif
     struct pollfd   pfd;
@@ -1277,16 +1277,17 @@ void scheduler(void)
 	/*
 	 * Check the systems load average. FIXME: doesn't work in FreeBSD !!!
 	 */
-	Load = 0.0;
-	loadavg[0] = loadavg[1] = loadavg[2] = 0.0;
+	Load = loadavg[0] = loadavg[1] = loadavg[2] = 0.0;
 #if defined(__FreeBSD__) || defined(__NetBSD__)
 	if (getloadavg(loadavg, 3) == 3) {
 	    Load = loadavg[0];
 	}
-#else
+#elif defined(__linux__)
 	if ((fp = fopen((char *)"/proc/loadavg", "r"))) {
-	    if (fscanf(fp, "%f %f %f", &loadavg[0], &loadavg[1], &loadavg[2]) == 3) {
+	    if (fscanf(fp, "%lf %lf %lf", &loadavg[0], &loadavg[1], &loadavg[2]) == 3) {
 		Load = loadavg[0];
+	    } else {
+		tasklog('-', "error");
 	    }
 	    fclose(fp);
 	}
