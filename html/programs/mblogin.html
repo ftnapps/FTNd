@@ -12,10 +12,12 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 27-Jan-2002</h5>
-<P>&nbsp;<P>
-
+<DIV align=right>
+<h5>Last update 22-Jan-2003</h5>
+</DIV>
+<DIV align=center>
 <H1>mblogin - Unix login replacement for MBSE BBS.</H1>
+</DIV>
 <P>
 
 <H3>Synopsis.</H3>
@@ -44,12 +46,12 @@ to login. I advice against it, you should use <strong>ssh</strong> if you want
 remote access to do maintenance.
 <P>&nbsp;<P>
 
-<H3>How to use from telnetd.</H3>
+<H3>How to use from inetd.</H3>
 <P>
 If your system is connected to the internet you may want to let users login
 using telnet. The changes you need to make are different for each operating
 system mbse supports.
-I will only describe how to use it from inetd, not xinetd. 
+I will describe how to use it from inetd. 
 When you make changes to your system to
 change the telnet login, make sure you are already logged into your system as root
 from another terminal. If you make a mistake and can't login anymore you will be
@@ -77,6 +79,36 @@ Now you can test it with <code>telnet localhost</code> or from another machine
 with <code>telnet your.machine.com</code>. Check if you can still do other
 logins such as ssh, rlogin and login on local consoles.
 <P>&nbsp;<p>
+
+<H3>How to use from xinetd.</H3>
+<P>
+This is how to use xinetd, Read the section above also.
+Here is a tested setups:
+This has to be done as root. You have to create a service under /etc/xinetd.d
+named telnet if you dont have it yet installed, if it is already installed just
+modify the server_args line to match this:
+<pre>
+server_args = -L /opt/mbse/bin/mblogin
+</pre>
+Your /etc/xinetd.d/telnet file should look something like this:
+<pre>
+service telnet
+{
+        flags = REUSE
+        log_on_failure += USERID
+        socket_type = stream
+        user = root
+        server = /usr/sbin/telnetd
+        server_args = -L /opt/mbse/bin/mblogin
+        wait = no
+}
+</pre>
+This will replace the standard login program on xinetd systems to the mblogin
+program, so that next time someone logs into your bbs they will be presented the
+issue file on /opt/mbse/etc file and the login prompt for the BBS instead of the
+standard login prompt.
+<p>&nbsp;<p>
+
 
 <H3>How to use from mgetty</H3>
 <P>
