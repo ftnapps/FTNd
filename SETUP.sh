@@ -280,6 +280,8 @@ export MBSE_ROOT=\$HOME
 export GOLDED=\$HOME/etc
 # For xterm on the Gnome desktop:
 cd \$HOME
+#
+export COLUMNS LINES
 EOF
 chown mbse $MHOME/.profile
 chgrp bbs $MHOME/.profile
