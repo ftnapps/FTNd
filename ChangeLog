@@ -12,8 +12,9 @@ v0.35.06
 		Several user input functions don't allow comma's anymore.
 
 	mbfido:
-		For debug and test added extra logging for tic processing.
-		This will be for better SEEN-BY lists creation.
+		TIC file forwarding now uses a list of qualified systems to
+		forward to, and with this information builds more reliable
+		seen-by lines.
 
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.

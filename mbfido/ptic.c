@@ -86,6 +86,7 @@ int ProcessTic(fa_list *sbl)
     int		    BBS_Imp = FALSE, DidBanner = FALSE;
     faddr	    *p_from;
     qualify	    *qal = NULL, *tmpq;
+    fa_list	    *tmp;
 
     Now = time(NULL);
 
@@ -300,6 +301,9 @@ int ProcessTic(fa_list *sbl)
 	}
     }
 
+    for (tmp = sbl; tmp; tmp = tmp->next)
+	Syslog('f', "initial SB list %s", ascfnode(tmp->addr, 0x0f));
+
     /*
      * Count the actual downlinks for this area and build the list of
      * systems qualified to receive this file.
@@ -311,11 +315,11 @@ int ProcessTic(fa_list *sbl)
 	    DownLinks++;
 	    p_from = fido2faddr(Link.aka);
 	    if (TIC.TicIn.Hatch) {
-		fill_qualify(&qal, Link.aka, FALSE, in_list(p_from, &sbl, FALSE));
+		fill_qualify(&qal, Link.aka, FALSE, in_list(p_from, &sbl, TRUE));
 	    } else {
 		fill_qualify(&qal, Link.aka, ((TIC.Aka.zone == Link.aka.zone) &&
 			(TIC.Aka.net == Link.aka.net) && (TIC.Aka.node == Link.aka.node) &&
-			(TIC.Aka.point == Link.aka.point)), in_list(p_from, &sbl, FALSE));
+			(TIC.Aka.point == Link.aka.point)), in_list(p_from, &sbl, TRUE));
 	    }
 	    tidy_faddr(p_from);
 	}
@@ -749,71 +753,62 @@ int ProcessTic(fa_list *sbl)
 	First = TRUE;
 
 	/*
-	 * Add all our system aka's to the seenby lines in the same zone
+	 * Add all our system aka's to the seenby lines in the same zone,
+	 * omit aka's already in the seenby list.
 	 */
 	for (i = 0; i < 40; i++) {
-	    if (TIC.TicIn.Hatch) {
-		/*
-		 * Hatched file, add all aka's
-		 */
-		if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
+	    if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone)) {
+		p_from = fido2faddr(CFG.aka[i]);
+		if (! in_list(p_from, &sbl, TRUE)) {
 		    sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
 		    fill_list(&sbl, sbe, NULL);
 		}
-	    } else {
-		/*
-		 * Incoming file, don't add the aka already in the ticfile of our system.
-		 */
-		if (CFG.akavalid[i] && (tic.Aka.zone == CFG.aka[i].zone) &&
-		    !((tic.Aka.net == CFG.aka[i].net) && (tic.Aka.node == CFG.aka[i].node))) {
-		    sprintf(sbe, "%u:%u/%u", CFG.aka[i].zone, CFG.aka[i].net, CFG.aka[i].node);
-		    fill_list(&sbl, sbe, NULL);
-		}
+		tidy_faddr(p_from);
 	    }
 	}
-
-	/*
-	 * Add downlinks to seenby lines
-	 */
-	while (GetTicSystem(&Link, First)) {
-	    First = FALSE;
-	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause) && (!Link.aka.point)) {
-		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
-		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
-		    sprintf(sbe, "%u:%u/%u", Link.aka.zone, Link.aka.net, Link.aka.node);
-		    fill_list(&sbl, sbe, NULL);
-		    Syslog('f', "Old style add SB %s", sbe);
-		}
-	    }
-	}
-	uniq_list(&sbl);
-	sort_list(&sbl);
 
 	/*
 	 * Debugging, new style SB adding
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
-		Syslog('f', "New style add SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		Syslog('f', "Add SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		sprintf(sbe, "%u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		fill_list(&sbl, sbe, NULL);
 	    } else {
-		Syslog('f', "New style skip SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+		Syslog('f', "Skip SB %u:%u/%u", tmpq->aka.zone, tmpq->aka.net, tmpq->aka.node);
+	    }
+	}
+	uniq_list(&sbl);
+	sort_list(&sbl);
+
+	for (tmp = sbl; tmp; tmp = tmp->next)
+	    Syslog('f', "final SB list %s", ascfnode(tmp->addr, 0x0f));
+	
+	/*
+	 * Now forward this file to the qualified downlinks.
+	 */
+	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
+	    if (tmpq->send) {
+		ForwardFile(tmpq->aka, sbl);
+		tic_out++;
 	    }
 	}
 
 	/*
 	 * Now start forwarding files
 	 */
-	First = TRUE;
-	while (GetTicSystem(&Link, First)) {
-	    First = FALSE;
-	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
-		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
-		    tic_out++;
-		    ForwardFile(Link.aka, sbl);
-		}
-	    }
-	}
+//	First = TRUE;
+//	while (GetTicSystem(&Link, First)) {
+//	    First = FALSE;
+//	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
+//		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
+//		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
+//		    tic_out++;
+//		    ForwardFile(Link.aka, sbl);
+//		}
+//	    }
+//	}
     }
 
     Magic_ExecCommand();
