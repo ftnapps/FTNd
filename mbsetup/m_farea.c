@@ -572,6 +572,7 @@ void EditFilearea(void)
 				fseek(fil, offset, 0);
 				fwrite(&area, areahdr.recsize, 1, fil);
 				memset(&area, 0, sizeof(area));
+
 				/*
 				 * Fill in default values
 				 */
@@ -588,11 +589,32 @@ void EditFilearea(void)
 				sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), from);
 				sprintf(new,  "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), too);
 				rename(temp, new);
+
 				/*
-				 * Force databse update, don't let the user decide or he will
+				 * Force database update, don't let the user decide or he will
 				 * loose all files from the moved areas.
 				 */
 				FileForced = TRUE;
+
+				/*
+				 * Update all other areas in case we just moved the destination
+				 * for MoveArea or Upload area.
+				 */
+				fseek(fil, areahdr.hdrsize, SEEK_SET);
+				count = 0;
+				while (fread(&area, areahdr.recsize, 1, fil) == 1) {
+				    if (((area.Upload == from) || (area.MoveArea == from)) && area.Available) {
+					if (area.Upload == from)
+					    area.Upload = too;
+					if (area.MoveArea == from)
+					    area.MoveArea = too;
+					count++;
+					fseek(fil, - areahdr.recsize, SEEK_CUR);
+					fwrite(&area, areahdr.recsize, 1, fil);
+				    }
+				}
+				Syslog('+', "Updated %d fileareas", count);
+				
 				/*
 				 * Update references in tic areas to this filearea.
 				 */
