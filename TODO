@@ -25,6 +25,9 @@ install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
 
+general:
+	N: Write files database api with locking to prevent corruption.
+
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.

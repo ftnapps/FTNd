@@ -69,6 +69,10 @@ v0.51.4		11-Apr-2004
 		In check for T-Mail fileboxes added condition that the zone
 		must exist in the setup.
 
+	script:
+		In the maint script removed the check option from the mbfile
+		command so it will not run every day.
+
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
 
