@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 12-Nov-2001</h5>
+<h5>Last update 29-Dec-2001</h5>
 <P>&nbsp;<P>
 
 <H1>mbtask - MBSE BBS Taskmanager</H1>
@@ -28,18 +28,18 @@
 This deamon keeps track of all client actions,
 does the logging for the clients, does database locking, authorizes clients,
 set/resets users "do not disturb flags", sends and receives chat messages,
-keeps track of Zone Mail Hour and the BBS open/close status. Communication
-between <strong>mbsed</strong> and the client programs is done via Unix
+keeps track of Zone Mail Hour, the status of the mail and files in the outbound,
+and the BBS open/close status. 
+Communication between <strong>mbsed</strong> and the client programs is done via Unix
 Datagram sockets. The protocol used to communicate between <strong>mbtask</strong>
 and the clients is explained later.
 This daemon also watches the semafore directory for some special files. 
 It also starts programs when they are needed. 
 The very first time <b>mbtask</b> is started it creates a default config.data and task.data,
-the main configuration and task configuration files
+the main configuration and task configuration files. 
+Then it calls <b>mbsetup init</b> to build the default databases.
 <b>mbtask</b> should be started at system boot so the bbs system will start working. 
 The init script that is installed on your system will do that. 
-This program is introduced with MBSE BBS v0.33.16
-and replaces the run_inout and mailer scripts that were called by cron every minute.
 <P>
 After startup and initalization <b>mbtask</b> runs internally once per second forever. 
 If there is nothing to do then this time will slowly increase upto 5 seconds. This time will be reset
@@ -60,12 +60,19 @@ But before any program is started a number of things are checked:
       will shutdown and power off, that's why it's fatal and there is no way back.<br>
   <LI>The status of the bbs will be checked, is it open or closed. If it is closed, no
       jobs will be started.
-  <LI>The Zone Mail Hour is checked. If ZMH begins the semafore's <b>zmh</b> is created and
-      a outbound scan is forced. 
-      If ZMH ends the semafore <b>zmh</b> is removed a new outbound scan is forced.
+  <LI>The Zone Mail Hour is checked. If ZMH begins the semafore's <b>zmh</b> is
+      created.
+      If ZMH ends the semafore <b>zmh</b> is removed. 
   <LI>Each twenty seconds a ping is send to the IP addresses defined with <b>mbsetup</b> to
       check if the internet can be reached. If both ping addresses fail, it is assumed that
-      the internet can't be reached. <i>Note: this is for future use!</i>
+      the internet can't be reached. After a status change, the outbound will be
+      scanned.
+  <LI>Scan the mailer outbound for work. This builds a list of nodes with mail
+      in the outbound and sets the necessary flags on nodes who may be called.
+      It will also set a time when something will change for a node, ie. a zone
+      mail hour is reached, or a mail window for a node with Txx flags is
+      reached. Internally this scheduler runs at the UTC clock because Fidonet
+      has all times defined in UTC.
 </OL>
 Each new minute the timestamp of semafore <b>mbtask.last</b> is updated so that you can check that
 <b>mbtask</b> is running. Also each minute is checked if the system configuration files are
@@ -119,7 +126,7 @@ of the bbs structure.
 
 <H3>Security.</H3>
 <P>
-<strong>mbtask</strong is installed setuid root. This is needed to initialize
+<strong>mbtask</strong> is installed setuid root. This is needed to initialize
 a raw socket for the ping function. After that is done the privilege drops to
 user <strong>mbse</strong> before the child process is created and the rest
 of the initialisation is done. 
@@ -240,7 +247,7 @@ Reply:   100:1,n;                       n: 0=Ok, 1=Do not disturb, 2=Buffer full
         -CKCH:2,channel,user;           Kill user chatmode (for Sysops and moderators).
 
 
-        Group G, Global commands.
+         Group G, Global commands.
 
 Command: GNOP:0;                        No OPerations.
 Reply:   100:0;                         Ok.
@@ -313,8 +320,8 @@ are retrieved from /etc/mtab which is the actual mountstatus. This is used
 by the <b>mbmon</b> program to get a "live" view of your filesystems.
 <P>&nbsp;<P>
 
-<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0">Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0">Back to Main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>

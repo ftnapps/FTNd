@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 25-Dec-2001</h5>
+<h5>Last update 29-Dec-2001</h5>
 <P>&nbsp;<P>
 
 <h1>MBSE BBS Basic Installation</h1>
@@ -82,6 +82,8 @@ this error.
 
 <h3>Step 2: Running the installation script.</h3>
 <p>
+If you are upgrading, proceed with step 4. If not, follow the next steps
+very carefully!
 The installation script must be run by root. It checks if there is a
 previous or failed installation on your system. If that's so the script will
 not run. In other words, you can only run this script once. The script makes
@@ -164,7 +166,9 @@ will not be installed again.
 Now you must start the <b>mbtask</b> daemon by hand by typing <b>/opt/mbse/bin/mbtask</b>.
 Check the file <b>/opt/mbse/log/mbtask.log</b> for startup problems. You may notice that
 the program <b>mbcico</b> is started everytime, this is not a problem, it simply doesn't work right
-now because you haven't configured anything yet.
+now because you haven't configured anything yet. The first time <b>mbtask</b> is
+started on your system it will create a lot of new configuration files with
+default settings.
 <p>&nbsp;<p>
 
 <h3>Step 5: (RedHat) startup problems.</h3>

@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jul-2001</h5>
+<h5>Last update 29-Dec-2001</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Task Manager.</H1>
@@ -20,7 +20,9 @@
 <H3>Introduction</H3>
 <P>
 The task manager is the daemon which controls the MBSE BBS. It watches semafore's and spawns
-programs in the background. The behaviour is setup in this screen.
+programs in the background. It also watches the outbound to see if there are
+nodes to call.
+The behaviour is setup in this screen.
 <P>
 
 <H3>Edit Task Manager</H3>
@@ -38,29 +40,32 @@ programs in the background. The behaviour is setup in this screen.
 <b>ISP disc  </b>Not in use yet!
 <b>Ping #1   </b>IP address of node to ping to check the internet.
 <b>Ping #2   </b>IP address of second node to ping to check the internet.
-<b>ISP blks  </b>Set to true if you have internet dialup and if it blocks normal dial.
+<b>ISP blks  </b>Set to true if you have internet dialup and it blocks normal dial.
 <b>Max Load  </b>Max system load until processing is suspended.
 <b>ZMH start </b>Start of Zone Mail Hour in UTC time.
 <b>ZMH end   </b>End of Zone Mail Hour in UTC time.
 <b>Debug     </b>Enable debug logging.
-<b>Max POTS  </b>Maximum simultaneous outgoing calls (for now ISDN + POTS + TCP/IP).
-<b>Max ISDN  </b>Not in use yet!
-<b>Max TCP   </b>Not in use yet!
+<b>Max POTS  </b>Maximum simultaneous outgoing calls over analogue modems.
+<b>Max ISDN  </b>Maximum simultaneous outgoing calls over ISDN channels.
+<b>Max TCP   </b>Maximum simultaneous outgoing calls over the internet.
 </pre>
 <P>
 Default are the original MBSE commands filled in, but you could also call
-shell scripts. As you can see, the task manager is not yet finished.
+shell scripts.
 <P>
 The two IP addresses to ping need to be IP addresses, not hostnames. This is the
 most reliable way to check the connection. You should enter the IP addresses of
 the nameservers of your own ISP here. One of these will always be up, so if one 
-of these can be reached, the internet connection is assumed to be alive.
+of these can be reached, the internet connection is assumed to be alive. The
+status of the internet connection is used to decide if it is allowed (and
+possible) to call TCP/IP nodes. Calling these nodes is not depending on ZMH
+unless the destination is not a CM node.
 <P>
 <IMG SRC="../images/taskmgr.gif" Border="0">
 <P>
 
-<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
-<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0">  Back to main index</A>
 </BLOCKQUOTE>
 </BODY>
 </HTML>
