@@ -1942,7 +1942,7 @@ unsigned long BlueWave_PackArea(unsigned long ulLast, long Area)
 	if (Msg_Next(&Number)) {
 	    do {
 		Msg_ReadHeader(Number);
-		Msg_Read(Number, 78);
+		Msg_Read(Number, 79);
 		Pack = TRUE;
 
 		if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
@@ -2620,7 +2620,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 	if (Msg_Next(&Number)) {
 	    do {
 		Msg_ReadHeader(Number);
-		Msg_Read(Number, 78);
+		Msg_Read(Number, 79);
 		Pack = TRUE;
 		if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
 		    Personal++;
@@ -2899,7 +2899,7 @@ unsigned long ASCII_PackArea(unsigned long ulLast, long Area)
 	if (Msg_Next(&Number)) {
 	    do {
 		Msg_ReadHeader(Number);
-		Msg_Read(Number, 78);
+		Msg_Read(Number, 79);
 		Pack = TRUE;
 		if ((strcasecmp(Msg.To, exitinfo.sUserName) == 0) || (strcasecmp(Msg.To, exitinfo.sHandle) == 0)) {
                     Personal++;

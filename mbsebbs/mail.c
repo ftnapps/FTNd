@@ -1267,7 +1267,7 @@ int Read_a_Msg(unsigned long Num, int UpdateLR)
      * Show message text
      */
     colour(CFG.TextColourF, CFG.TextColourB);
-    if (Msg_Read(Num, 78)) {
+    if (Msg_Read(Num, 79)) {
 	if ((p = (char *)MsgText_First()) != NULL) {
 	    do {
 		if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {

@@ -81,6 +81,7 @@ v0.61.4		11-Aug-2004
 		The fake nodenumber is now obtained from mbtask instead of a
 		count of tty line records so the used nodenumbers will be a lot
 		lower then before.
+		Changed Msg_Read from 78 to 79 characters.
 
 	mbnewusr:
 		During program exit, it tried to remove the wrong socket to
