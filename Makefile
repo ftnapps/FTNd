@@ -40,7 +40,7 @@ install:
 		@if [ -z ${PREFIX} ] ; then \
 			echo; echo "PREFIX is not set!"; echo; exit 3; \
 		fi
-		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0775 ${PREFIX}
+		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0755 ${PREFIX}
 		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/bin
 		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/etc
 		${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/etc/dosemu

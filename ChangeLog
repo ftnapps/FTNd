@@ -1,7 +1,9 @@
 $Id$
 
 
-v0.61.3		25-Jul-2004
+v0.61.4		11-Aug-2004
+
+v0.61.3		25-Jul-2004 - 11-Aug-2004
 
 	upgrade:
 		To reinstall the corrected macro templates go into the examples
