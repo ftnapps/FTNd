@@ -77,48 +77,50 @@ void ProgName()
 void die(int);
 void die(int onsig)
 {
+    deinitnl();
+    
+    /*
+     * First check if a child is running, if so, kill it.
+     */
+    if (e_pid) {
+	if ((kill(e_pid, SIGTERM)) == 0)
+	    Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
+	else {
+	    if ((kill(e_pid, SIGKILL)) == 0)
+		Syslog('+', "SIGKILL to pid %d succeded", e_pid);
+	    else
+		WriteError("$Failed to kill pid %d", e_pid);
+	}
+
 	/*
-	 * First check if a child is running, if so, kill it.
+	 * In case the child had the tty in raw mode...
 	 */
-	if (e_pid) {
-		if ((kill(e_pid, SIGTERM)) == 0)
-			Syslog('+', "SIGTERM to pid %d succeeded", e_pid);
-		else {
-			if ((kill(e_pid, SIGKILL)) == 0)
-				Syslog('+', "SIGKILL to pid %d succeded", e_pid);
-			else
-				WriteError("$Failed to kill pid %d", e_pid);
-		}
+	system("stty sane");
+    }
 
-		/*
-		 * In case the child had the tty in raw mode...
-		 */
-		system("stty sane");
-	}
+    signal(onsig, SIG_IGN);
 
-	signal(onsig, SIG_IGN);
+    if (show_log)
+	do_quiet = FALSE;
 
-	if (show_log)
-		do_quiet = FALSE;
+    if (!do_quiet)
+	colour(3, 0);
 
-	if (!do_quiet)
-		colour(3, 0);
+    if (onsig) {
+	if (onsig <= NSIG)
+	    WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
+	else
+	    WriteError("Terminated with error %d", onsig);
+    }
 
-	if (onsig) {
-		if (onsig <= NSIG)
-			WriteError("Terminated on signal %d (%s)", onsig, SigName[onsig]);
-		else
-			WriteError("Terminated with error %d", onsig);
-	}
+    t_end = time(NULL);
+    Syslog(' ', "MBOUT finished in %s", t_elapsed(t_start, t_end));
 
-	t_end = time(NULL);
-	Syslog(' ', "MBOUT finished in %s", t_elapsed(t_start, t_end));
-
-	if (!do_quiet) {
-		colour(7, 0);
-		printf("\n");
-	}
-	ExitClient(onsig);
+    if (!do_quiet) {
+	colour(7, 0);
+	printf("\n");
+    }
+    ExitClient(onsig);
 }
 
 
@@ -176,7 +178,8 @@ int main(int argc, char *argv[])
     faddr	    *addr = NULL;
     node	    *nlent;
     FILE	    *fl;
-
+    unsigned long   cmmask;
+    
 #ifdef MEMWATCH
     mwInit();
 #endif
@@ -312,13 +315,14 @@ int main(int argc, char *argv[])
 	}
 
 	nlent = getnlent(addr);
+	cmmask = getCMmask();
 	if (nlent->pflag == NL_DUMMY)
 	    Fatal((char *)"Node is not in nodelist", MBERR_NODE_NOT_IN_LIST);
 	if (nlent->pflag == NL_DOWN)
 	    Fatal((char *)"Node has status Down", MBERR_NODE_MAY_NOT_CALL);
 	if (nlent->pflag == NL_HOLD)
 	    Fatal((char *)"Node has status Hold", MBERR_NODE_MAY_NOT_CALL);
-	if (((nlent->oflags & OL_CM) == 0) && (flavor == 'c'))
+	if (((nlent->oflags & cmmask) == 0) && (flavor == 'c'))
 	    Fatal((char *)"Node is not CM, must use Immediate, Normal or Hold flavor", MBERR_NODE_MAY_NOT_CALL);
 
 	if (argv[4][0] == '-')

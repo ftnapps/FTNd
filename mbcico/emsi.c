@@ -93,7 +93,7 @@ int rx_emsi(char *data)
 	emsi_local_protos &= ~PROT_JAN;
     if (localoptions & NOHYDRA) 
 	emsi_local_protos &= ~PROT_HYD;
-    if ((localoptions & NOITN) || (localoptions & NOIFC) || ((session_flags & SESSION_TCP) == 0)) {
+    if ((session_flags & SESSION_TCP) == 0) {
 	emsi_local_protos &= ~PROT_TCP;
     }
 
@@ -224,7 +224,7 @@ int tx_emsi(char *data)
 	emsi_local_protos &= ~PROT_JAN;
     if (localoptions & NOHYDRA) 
 	emsi_local_protos &= ~PROT_HYD;
-    if ((localoptions & NOIFC) || (localoptions & NOITN) || ((session_flags & SESSION_TCP) == 0)) {
+    if ((session_flags & SESSION_TCP) == 0) {
 	emsi_local_protos &= ~PROT_TCP;
     }
     emsi_remote_protos=0;

@@ -364,78 +364,82 @@ int IsZMH()
 
 int poll(faddr *addr, int stop)
 {
-	char		*pol;
-	int		rc = 0;
-	FILE		*fp;
-	callstat	*cst;
-	node		*nlent;
-
-	if (addr == NULL)
-		return 0;
-
-	pol = polname(addr);
-
-	if (stop) {
-		if (access(pol, R_OK) == 0) {
-			rc = unlink(pol);
-			if (rc == 0) {
-				Syslog('+', "Removed poll for %s", ascfnode(addr, 0x1f));
-				if (!do_quiet)
-					printf("Removed poll for %s\n", ascfnode(addr, 0x1f));
-			}
-		} else {
-			Syslog('+', "No poll found for %s", ascfnode(addr, 0x1f));
-		}
-	} else {
-		nlent = getnlent(addr);
-		if (nlent->pflag == NL_DUMMY) {
-			Syslog('+', "Node %s not in nodelist", ascfnode(addr, 0x1f));
-			if (!do_quiet)
-				printf("Node %s not in nodelist", ascfnode(addr, 0x1f));
-			return MBERR_NODE_NOT_IN_LIST;
-		}
-		if (nlent->pflag == NL_DOWN) {
-			Syslog('+', "Node %s has status Down", ascfnode(addr, 0x1f));
-			if (!do_quiet)
-				printf("Node %s has status Down", ascfnode(addr, 0x1f));
-			return MBERR_NODE_MAY_NOT_CALL;
-		}
-		if (nlent->pflag == NL_HOLD) {
-			Syslog('+', "Node %s has status Hold", ascfnode(addr, 0x1f));
-			if (!do_quiet)
-				printf("Node %s has status Hold", ascfnode(addr, 0x1f));
-			return MBERR_NODE_MAY_NOT_CALL;
-		}
-	
-		if ((fp = fopen(pol, "w+")) == NULL) {
-			WriteError("$Can't create poll for %s", ascfnode(addr, 0x1f));
-			rc = MBERR_CANNOT_MAKE_POLL;
-		} else {
-			fclose(fp);
-			if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
-				Syslog('+', "Created poll for %s, non-CM node outside ZMH", ascfnode(addr, 0x1f));
-				if (!do_quiet)
-					printf("Created poll for %s, non-CM node outside ZMH\n", ascfnode(addr, 0x1f));
-			} else {
-				Syslog('+', "Created poll for %s", ascfnode(addr, 0x1f));
-				if (!do_quiet)
-					printf("Created poll for %s\n", ascfnode(addr, 0x1f));
-			}
-			cst = getstatus(addr);
-			if ((cst->trystat == MBERR_NODE_LOCKED) || 
-			    (cst->trystat == MBERR_NOT_ZMH) ||
-			    (cst->trystat == MBERR_NO_CONNECTION) ||
-			    (cst->trystat == MBERR_SESSION_ERROR) ||
-			    (cst->trystat == MBERR_UNKNOWN_SESSION) ||
-			    (cst->trystat == MBERR_NO_PORT_AVAILABLE) ||
-			    (cst->trystat == MBERR_MODEM_ERROR)) {
-				putstatus(addr, 0, 0);
-			}
-			CreateSema((char *)"scanout");
-		}
-	}
-
+    char	    *pol;
+    int		    rc = 0;
+    unsigned long   cmmask;
+    FILE	    *fp;
+    callstat	    *cst;
+    node	    *nlent;
+    
+    if (addr == NULL)
 	return 0;
+
+    pol = polname(addr);
+
+    if (stop) {
+	if (access(pol, R_OK) == 0) {
+	    rc = unlink(pol);
+	    if (rc == 0) {
+		Syslog('+', "Removed poll for %s", ascfnode(addr, 0x1f));
+		if (!do_quiet)
+		    printf("Removed poll for %s\n", ascfnode(addr, 0x1f));
+		}
+		CreateSema((char *)"scanout");
+	    } else {
+		Syslog('+', "No poll found for %s", ascfnode(addr, 0x1f));
+	}
+    } else {
+	nlent = getnlent(addr);
+	if (nlent->pflag == NL_DUMMY) {
+	    Syslog('+', "Node %s not in nodelist", ascfnode(addr, 0x1f));
+	    if (!do_quiet)
+		printf("Node %s not in nodelist", ascfnode(addr, 0x1f));
+	    return MBERR_NODE_NOT_IN_LIST;
+	}
+	if (nlent->pflag == NL_DOWN) {
+	    Syslog('+', "Node %s has status Down", ascfnode(addr, 0x1f));
+	    if (!do_quiet)
+		printf("Node %s has status Down", ascfnode(addr, 0x1f));
+	    return MBERR_NODE_MAY_NOT_CALL;
+	}
+	if (nlent->pflag == NL_HOLD) {
+	    Syslog('+', "Node %s has status Hold", ascfnode(addr, 0x1f));
+	    if (!do_quiet)
+		printf("Node %s has status Hold", ascfnode(addr, 0x1f));
+	    return MBERR_NODE_MAY_NOT_CALL;
+	}
+	
+	if ((fp = fopen(pol, "w+")) == NULL) {
+	    WriteError("$Can't create poll for %s", ascfnode(addr, 0x1f));
+	    rc = MBERR_CANNOT_MAKE_POLL;
+	} else {
+	    fclose(fp);
+	    cmmask = getCMmask();
+	    Syslog('s', "oflags %08x cmmask %08x", nlent->oflags, cmmask);
+	    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
+		Syslog('+', "Created poll for %s, non-CM node outside ZMH", ascfnode(addr, 0x1f));
+		if (!do_quiet)
+		    printf("Created poll for %s, non-CM node outside ZMH\n", ascfnode(addr, 0x1f));
+	    } else {
+		Syslog('+', "Created poll for %s", ascfnode(addr, 0x1f));
+		if (!do_quiet)
+		    printf("Created poll for %s\n", ascfnode(addr, 0x1f));
+	    }
+	    cst = getstatus(addr);
+	    if ((cst->trystat == MBERR_NODE_LOCKED) || 
+		(cst->trystat == MBERR_NOT_ZMH) ||
+		(cst->trystat == MBERR_NO_CONNECTION) ||
+		(cst->trystat == MBERR_SESSION_ERROR) ||
+		(cst->trystat == MBERR_UNKNOWN_SESSION) ||
+		(cst->trystat == MBERR_NO_PORT_AVAILABLE) ||
+		(cst->trystat == MBERR_MODEM_ERROR)) {
+		putstatus(addr, 0, 0);
+	    }
+	    CreateSema((char *)"scanout");
+	}
+    }
+
+    return 0;
 }
 
 

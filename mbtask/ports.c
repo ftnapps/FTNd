@@ -109,11 +109,12 @@ void fill_portlist(pp_list **fdp, pp_list *new)
  */
 void load_ports()
 {
-    FILE    *fp;
-    pp_list new;
-    int	    j, stdflag;
-    char    *p, *q;
-
+    FILE	    *fp;
+    pp_list	    new;
+    int		    stdflag;
+    char	    *p, *q;
+    nodelist_modem  **tmpm;
+    
     tidy_portlist(&pl);
     if ((fp = fopen(ttyfn, "r")) == NULL) {
 	Syslog('?', "$Can't open %s", ttyfn);
@@ -142,12 +143,12 @@ void load_ports()
 		if ((strncasecmp(p, "U", 1) == 0) && (strlen(p) == 1)) {
 		    stdflag = FALSE;
 		} else {
-		    for (j = 0; fkey[j].key; j++)
-			if (strcasecmp(p, fkey[j].key) == 0)
-			    new.mflags |= fkey[j].flag;
-		    for (j = 0; dkey[j].key; j++)
-			if (strcasecmp(p, dkey[j].key) == 0)
-			    new.dflags |= dkey[j].flag;
+		    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcasecmp(p, (*tmpm)->name) == 0)
+			    new.mflags |= (*tmpm)->value;
+		    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcasecmp(p, (*tmpm)->name) == 0)
+			    new.dflags |= (*tmpm)->value;
 		}
 	    }
 

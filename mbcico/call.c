@@ -104,8 +104,10 @@ int portopen(faddr *addr)
 
 int call(faddr *addr)
 {
-    int		    i, rc = 1;
+    int		    i, rc = 1, proto = FALSE;
     struct hostent  *he;
+    unsigned long   cmmask, ipmask;
+    nodelist_modem  **tmpm;
 
     /*
      *  Don't call points, call their boss instead.
@@ -134,6 +136,7 @@ int call(faddr *addr)
      */
     noderecord(addr);
     rdoptions(TRUE);
+    cmmask = getCMmask();
 
     /*
      * Fill default history info in case we get a FTS0001 session
@@ -152,39 +155,31 @@ int call(faddr *addr)
      * First see if this node can be reached over the internet and
      * that internet calls are allowed.
      */
-    if (nlent->iflags && ((localoptions & (NOIBN & NOITN & NOIFC)) == 0)) {
+    if (nlent->iflags) {
 	if (!inetaddr) {
 	    Syslog('d', "Trying to find IP address...");
 	    /*
 	     * There is no fdn or IP address at the commandline.
 	     * First check nodesetup for an override in the phone field.
+	     * Try to find the fdn in several places in the nodelist fields.
 	     */
-//	    if (strlen(nodes.phone[0])) {
-//		inetaddr = xstrcpy(nodes.phone[0]);
-//	    } else if (strlen(nodes.phone[1])) {
-//		inetaddr = xstrcpy(nodes.phone[1]);
-//	    } else {
+	    if ((nlent->phone != NULL) && (strncmp(nlent->phone, (char *)"000-", 4) == 0)) {
+		inetaddr = xstrcpy(nlent->phone+4);
+		for (i = 0; i < strlen(inetaddr); i++)
+		    if (inetaddr[i] == '-')
+			inetaddr[i] = '.';
+		Syslog('d', "Got IP address from phone field");
+	    } else if ((he = gethostbyname(nlent->name))) {
+		inetaddr = xstrcpy(nlent->name);
+		Syslog('d', "Got hostname from nodelist system name");
+	    } else if ((he = gethostbyname(nlent->location))) {
 		/*
-		 * Try to find the fdn in several places in the nodelist fields.
+		 * A fdn at the nodelist location field is not in the specs
+		 * but the real world differs from the specs.
 		 */
-		if ((nlent->phone != NULL) && (strncmp(nlent->phone, (char *)"000-", 4) == 0)) {
-		    inetaddr = xstrcpy(nlent->phone+4);
-		    for (i = 0; i < strlen(inetaddr); i++)
-			if (inetaddr[i] == '-')
-			    inetaddr[i] = '.';
-			Syslog('d', "Got IP address from phone field");
-		} else if ((he = gethostbyname(nlent->name))) {
-		    inetaddr = xstrcpy(nlent->name);
-		    Syslog('d', "Got hostname from nodelist system name");
-		} else if ((he = gethostbyname(nlent->location))) {
-		    /*
-		     * A fdn at the nodelist location field is not in the specs
-		     * but the real world differs from the specs.
-		     */
-		    inetaddr = xstrcpy(nlent->location);
-		    Syslog('d', "Got hostname from nodelist location");
-		}
-//	    }
+		inetaddr = xstrcpy(nlent->location);
+		Syslog('d', "Got hostname from nodelist location");
+	    }
 	}
 
 	/*
@@ -200,16 +195,36 @@ int call(faddr *addr)
 		 * from the nodelist. If it fails, fallback to dial.
 		 * Priority IBN, IFC, ITN.
 		 */
-		if ((nlent->iflags & IP_IBN) && ((localoptions & NOIBN) == 0)) {
+		ipmask = 0;
+		for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+		    if (strcmp("IBN", (*tmpm)->name) == 0)
+			ipmask = (*tmpm)->mask;
+		if (nlent->iflags & ipmask) {
 		    tcp_mode = TCPMODE_IBN;
 		    Syslog('d', "TCP/IP mode set to IBN");
-		} else if ((nlent->iflags & IP_IFC) && ((localoptions & NOIFC) == 0)) {
-		    tcp_mode = TCPMODE_IFC;
-		    Syslog('d', "TCP/IP mode set to IFC");
-		} else if ((nlent->iflags & IP_ITN) && ((localoptions & NOITN) == 0)) {
-		    tcp_mode = TCPMODE_ITN;
-		    Syslog('d', "TCP/IP mode seto to ITN");
-		} else {
+		    proto = TRUE;
+		}
+		if (!proto) {
+		    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcmp("IFC", (*tmpm)->name) == 0)
+			    ipmask = (*tmpm)->mask;
+		    if (nlent->iflags & ipmask) {
+			tcp_mode = TCPMODE_IFC;
+			Syslog('d', "TCP/IP mode set to IFC");
+			proto = TRUE;
+		    }
+		}
+		if (!proto) {
+		    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcmp("ITN", (*tmpm)->name) == 0)
+			    ipmask = (*tmpm)->mask;
+		    if (nlent->iflags & ipmask) {
+			tcp_mode = TCPMODE_ITN;
+			Syslog('d', "TCP/IP mode seto to ITN");
+			proto = TRUE;
+		    }
+		}
+		if (!proto) {	
 		    Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);
 		    free(inetaddr);
 		    inetaddr = NULL;
@@ -224,8 +239,8 @@ int call(faddr *addr)
 	}
     }
 
-    if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
-	Syslog('?', "Warning: calling MO system outside ZMH");
+    if (((nlent->oflags & cmmask) == 0) && (!IsZMH())) {
+	Syslog('?', "Warning: calling non-CM system outside ZMH");
     }
 
     if (inbound)

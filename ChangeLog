@@ -1,10 +1,20 @@
 $Id$
 
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+Nodelist processing is under construction, it may be possible that you system
+won't call if you use this version or if it does not accept calls, cannot
+route mail or breaks your system.
+
+DO NOT USE THIS VERSION ON PRODUCTION SYSTEMS, ONLY FOR TESTING.
 
 v0.37.00	26-Dec-2002.
 
 	general:
 		A new developer joined the team, David Gonzalez.
+		The settings to suppres some IP protocols (global and nodes)
+		are removed, this behaviour can be set using nodelist flags 
+		configuration.
 
 	libs:
 		The nodelist lookup functions are now in a separate library.
@@ -17,9 +27,17 @@ v0.37.00	26-Dec-2002.
 		With binkp and EMSI sessions double received remote aka's are
 		filtered.
 
+	mbout:
+		When a poll was removed, the outbound was not rescanned.
+
 	examples:
 		Prepared for more example translations.
+		Added German template files made by Joachim Kuwan.
 
+
+	mbsetup:
+		Removed global flags No-IBN, IFC and ITN from the setup.
+		Removed nodes flags No-IBN, IFC and ITN from the setup.
 
 
 v0.36.00	26-Dec-2002 - stable release

@@ -36,10 +36,26 @@
 #include "records.h"
 #include "clcomm.h"
 #include "common.h"
+#include "mberrors.h"
 #include "nodelist.h"
 
 
 #define NULLDOMAIN "nulldomain"
+
+
+static char		*k, *v;
+static char		*nlpath = NULL;
+static int		nlinitdone = FALSE;
+static int		linecnt = 0;
+static unsigned long	mypots = 0, myisdn = 0, mytcpip =0;
+
+
+static int		getkwd(char**);
+static int		getmdm(char**);
+static int		getarr(char**);
+static int		getdom(char**);
+static int		getsrv(char**);
+
 
 
 struct _pkey pkey[] = {
@@ -54,106 +70,477 @@ struct _pkey pkey[] = {
 };
 
 
-
-struct _okey okey[] = {
-	{(char *)"CM",	OL_CM},
-	{(char *)"MO",	OL_MO},
-	{(char *)"LO",	OL_LO},
-	{(char *)"MN",  OL_MN},
-	{NULL, 0}
-};
-
-struct _fkey fkey[] = {
-	{(char *)"V22",	NL_V22},
-	{(char *)"V29",	NL_V29},
-	{(char *)"V32",	NL_V32},
-	{(char *)"V32B",NL_V32B | NL_V32},
-	{(char *)"V34",	NL_V34},
-	{(char *)"V42",	NL_V42  | NL_MNP},
-	{(char *)"V42B",NL_V42B | NL_V42  | NL_MNP},
-	{(char *)"MNP",	NL_MNP},
-	{(char *)"H96",	NL_H96},
-	{(char *)"HST",	NL_HST  | NL_MNP},
-	{(char *)"H14",	NL_H14  | NL_HST  | NL_MNP},
-	{(char *)"H16",	NL_H16  | NL_H14  | NL_HST | NL_MNP  | NL_V42 | NL_V42B},
-	{(char *)"MAX",	NL_MAX},
-	{(char *)"PEP",	NL_PEP},
-	{(char *)"CSP",	NL_CSP},
-	{(char *)"V32T",NL_V32T | NL_V32B | NL_V32},
-	{(char *)"VFC", NL_VFC},
-	{(char *)"ZYX",	NL_ZYX  | NL_V32B | NL_V32 | NL_V42B | NL_V42 | NL_MNP},
-	{(char *)"X2C", NL_X2C  | NL_X2S  | NL_V34},
-	{(char *)"X2S", NL_X2S  | NL_V34},
-	{(char *)"V90C",NL_V90C | NL_V90S | NL_V34},
-	{(char *)"V90S",NL_V90S | NL_V34},
-	{(char *)"Z19", NL_Z19  | NL_V32B | NL_V32 | NL_V42B | NL_V42 | NL_MNP | NL_ZYX},
-	{NULL, 0}
-};
-
-struct _xkey xkey [] = {
-	{(char *)"XA",	RQ_XA},
-	{(char *)"XB",	RQ_XB},
-	{(char *)"XC",	RQ_XC},
-	{(char *)"XP",	RQ_XP},
-	{(char *)"XR",	RQ_XR},
-	{(char *)"XW",	RQ_XW},
-	{(char *)"XX",	RQ_XX},
-	{NULL,	0}
-};
-
-struct _dkey dkey [] = {
-	{(char *)"V110L", ND_V110L},
-	{(char *)"V110H", ND_V110H},
-	{(char *)"V120L", ND_V120L},
-	{(char *)"V120H", ND_V120H},
-	{(char *)"X75",   ND_X75},
-	{NULL, 0}
-};
-
-struct _ikey ikey [] = {
-	{(char *)"IBN", IP_IBN},
-	{(char *)"IFC", IP_IFC},
-	{(char *)"ITN", IP_ITN},
-	{(char *)"IVM", IP_IVM},
-	{(char *)"IP",  IP_IP},
-	{(char *)"IFT", IP_IFT},
-	{NULL, 0}
+/*
+ * Table to parse the ~/etc/nodelist.conf file
+ */
+static struct _keytab {
+    char    *key;
+    int	    (*prc)(char **);
+    char**  dest;
+} keytab[] = {
+    {(char *)"online",	    getkwd,	    (char **)&nl_online},
+    {(char *)"request",	    getkwd,	    (char **)&nl_request},
+    {(char *)"reqbits",	    getkwd,	    (char **)&nl_reqbits},
+    {(char *)"pots",	    getmdm,	    (char **)&nl_pots},
+    {(char *)"isdn",	    getmdm,	    (char **)&nl_isdn},
+    {(char *)"tcpip",	    getmdm,	    (char **)&nl_tcpip},
+    {(char *)"search",	    getarr,	    (char **)&nl_search},
+    {(char *)"dialer",	    getarr,	    (char **)&nl_dialer},
+    {(char *)"domsuffix",   getdom,	    (char **)&nl_domsuffix},
+    {(char *)"service",	    getsrv,	    (char **)&nl_service},
+    {NULL,		    NULL,	    NULL}
 };
 
 
 
+/*
+ * Get a keyword, string, unsigned long
+ */
+static int getkwd(char **dest)
+{
+    char	    *p;
+    unsigned long   tmp;
+    nodelist_flag   **tmpm;
+    
+    for (p = v; *p && !isspace(*p); p++);
+    if (*p)
+	*p++ = '\0';
+    while (*p && isspace(*p))
+	p++;
+    if (*p == '\0') {
+	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (tmpm = (nodelist_flag**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_flag *) xmalloc(sizeof(nodelist_flag));
+    (*tmpm)->next = NULL;
+    (*tmpm)->name = xstrcpy(v);
+    tmp = strtoul(p, NULL, 0);
+    (*tmpm)->value = tmp;
+//  Syslog('s', "getkwd: %s(%d): \"%s\" \"%s\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name, (*tmpm)->value);
+    
+    return 0;
+}
+
+
+
+/*
+ * Get a keyword, string, unsigned long, unsigned long
+ */
+static int getmdm(char **dest)
+{
+    char            *p, *q;
+    unsigned long   tmp1, tmp2;
+    nodelist_modem  **tmpm;
+
+    for (p = v; *p && !isspace(*p); p++);
+    if (*p)
+	*p++ = '\0';
+    while (*p && isspace(*p))
+	p++;
+    if (*p == '\0') {
+	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (q = p; *q && !isspace(*q); q++);
+    if (*q)
+	*q++ = '\0';
+    while (*q && isspace(*q))
+	q++;
+    if (*q == '\0') {
+	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (tmpm = (nodelist_modem**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_modem *) xmalloc(sizeof(nodelist_modem));
+    (*tmpm)->next = NULL;
+    (*tmpm)->name = xstrcpy(v);
+    tmp1 = strtoul(p, NULL, 0);
+    tmp2 = strtoul(q, NULL, 0);
+    (*tmpm)->mask = tmp1;
+    (*tmpm)->value = tmp2;
+//  Syslog('s', "getmdm: %s(%d): \"%s\" \"%s\" \"%08x\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), 
+//	    (*tmpm)->name, (*tmpm)->mask, (*tmpm)->value);
+
+    return 0;
+}
+
+
+
+/*
+ * Get a keyword, string array
+ */
+static int getarr(char **dest)
+{
+    char            *p;
+    nodelist_array  **tmpm;
+
+    for (p = v; *p && !isspace(*p); p++);
+    if (*p)
+	*p++ = '\0';
+
+    for (tmpm = (nodelist_array**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_array *) xmalloc(sizeof(nodelist_array));
+    (*tmpm)->next = NULL;
+    (*tmpm)->name = xstrcpy(v);
+//  Syslog('s', "getarr: %s(%d): \"%s\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name);
+    return 0;
+}
+
+
+
+/*
+ * Get a keyword, unsigned short, string
+ */
+static int getdom(char **dest)
+{
+    char            *p;
+    unsigned short  tmp;
+    nodelist_domsuf **tmpm;
+		    
+    for (p = v; *p && !isspace(*p); p++);
+    if (*p)
+	*p++ = '\0';
+    while (*p && isspace(*p))
+	p++;
+    if (*p == '\0') {
+	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (tmpm = (nodelist_domsuf**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_domsuf *) xmalloc(sizeof(nodelist_domsuf));
+    (*tmpm)->next = NULL;
+    tmp = strtod(v, NULL);
+    (*tmpm)->zone = tmp;
+    (*tmpm)->name = xstrcpy(p);
+//  Syslog('s', "getdom: %s(%d): \"%s\" \"%d\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->zone, (*tmpm)->name);
+
+    return 0;
+}
+
+
+
+/*
+ * Get a keyword, string, string, unsigned long
+ */
+static int getsrv(char **dest)
+{
+    char		*p, *q;
+    unsigned long	tmp;
+    nodelist_service	**tmpm;
+
+    for (p = v; *p && !isspace(*p); p++);
+    if (*p)
+	*p++ = '\0';
+    while (*p && isspace(*p))
+	p++;
+    if (*p == '\0') {
+	WriteError("%s(%s): less then two tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (q = p; *q && !isspace(*q); q++);
+    if (*q)
+	*q++ = '\0';
+    while (*q && isspace(*q))
+	q++;
+    if (*q == '\0') {
+	WriteError("%s(%s): less then three tokens", nlpath, linecnt);
+	return MBERR_INIT_ERROR;
+    }
+
+    for (tmpm = (nodelist_service**)dest; *tmpm; tmpm=&((*tmpm)->next));
+    (*tmpm) = (nodelist_service *) xmalloc(sizeof(nodelist_service));
+    (*tmpm)->next = NULL;
+    (*tmpm)->flag = xstrcpy(v);
+    (*tmpm)->service = xstrcpy(p);
+    tmp = strtoul(q, NULL, 0);
+    (*tmpm)->port = tmp;
+//  Syslog('s', "getsrv: %s(%d): \"%s\" \"%s\" \"%s\" \"%d\"", nlpath, linecnt, MBSE_SS(k),
+//	    (*tmpm)->flag, (*tmpm)->service, (*tmpm)->port);
+    return 0;
+}
+
+
+
+void tidy_nl_flag(nodelist_flag **);
+void tidy_nl_flag(nodelist_flag **fap)
+{
+    nodelist_flag   *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->name)
+	    free(tmp->name);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+void tidy_nl_modem(nodelist_modem **);
+void tidy_nl_modem(nodelist_modem **fap)
+{
+    nodelist_modem  *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->name)
+	    free(tmp->name);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+void tidy_nl_array(nodelist_array **);
+void tidy_nl_array(nodelist_array **fap)
+{
+    nodelist_array	*tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->name)
+	    free(tmp->name);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+void tidy_nl_domsuf(nodelist_domsuf **);
+void tidy_nl_domsuf(nodelist_domsuf **fap)
+{
+    nodelist_domsuf *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->name)
+	    free(tmp->name);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+void tidy_nl_service(nodelist_service **);
+void tidy_nl_service(nodelist_service **fap)
+{
+    nodelist_service	*tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->flag)
+	    free(tmp->flag);
+	if (tmp->service)
+	    free(tmp->service);
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+
+/*
+ * De-init nodelists, free all allocated memory
+ */
+void deinitnl(void)
+{
+    if (!nlinitdone)
+	return;
+
+    Syslog('s', "De-init nodelists");
+
+    tidy_nl_flag(&nl_online);
+    tidy_nl_flag(&nl_request);
+    tidy_nl_flag(&nl_reqbits);
+    tidy_nl_modem(&nl_pots);
+    tidy_nl_modem(&nl_isdn);
+    tidy_nl_modem(&nl_tcpip);
+    tidy_nl_array(&nl_search);
+    tidy_nl_array(&nl_dialer);
+    tidy_nl_domsuf(&nl_domsuffix);
+    tidy_nl_service(&nl_service);
+
+    Syslog('s', "De-init done");
+    nlinitdone = FALSE;
+}
+
+
+
+/*
+ *  Init nodelists.
+ */
 int initnl(void)
 {
-	int		rc = 0;
-	FILE		*dbf, *fp;
-	char		*filexnm, *path;
-	struct _nlfil	fdx;
+    int		    i, rc = 0, Found;
+    FILE	    *dbf, *fp;
+    char	    *filexnm, buf[256], *p, *q;
+    struct _nlfil   fdx;
+    struct taskrec  TCFG;
+    nodelist_modem  **tmpm;
 
-	filexnm = xstrcpy(CFG.nodelists);
-	filexnm	= xstrcat(filexnm,(char *)"/node.files");
+    if (nlinitdone == TRUE)
+	return 0;
 
-	if ((dbf = fopen(filexnm, "r")) == NULL) {
-		WriteError("$Can't open %s", filexnm);
-		rc = 101;
-	} else {
-		path = calloc(128, sizeof(char));
+    nl_online = NULL;
+    nl_pots = NULL;
+    nl_request = NULL;
+    nl_reqbits = NULL;
+    nl_isdn = NULL;
+    nl_tcpip = NULL;
+    nl_search = NULL;
+    nl_domsuffix = NULL;
+    nl_dialer = NULL;
+    nl_service = NULL;
 
-		while (fread(&fdx, sizeof(fdx), 1, dbf) == 1) {
-			sprintf(path, "%s/%s", CFG.nodelists, fdx.filename);
-			if ((fp = fopen(path, "r")) == NULL) {
-				WriteError("$Can't open %s", path);
-				rc = 101;
-			} else {
-				fclose(fp);
-			}
-		}
+    filexnm = xstrcpy(CFG.nodelists);
+    filexnm = xstrcat(filexnm,(char *)"/node.files");
+    nlpath = calloc(PATH_MAX, sizeof(char));
 
-		fclose(dbf);
-		free(path);
+    /*
+     * Check if all installed nodelists are present.
+     */
+    if ((dbf = fopen(filexnm, "r")) == NULL) {
+	WriteError("$Can't open %s", filexnm);
+	rc = MBERR_INIT_ERROR;
+    } else {
+	while (fread(&fdx, sizeof(fdx), 1, dbf) == 1) {
+	    sprintf(nlpath, "%s/%s", CFG.nodelists, fdx.filename);
+	    if ((fp = fopen(nlpath, "r")) == NULL) {
+		WriteError("$Can't open %s", nlpath);
+		rc = MBERR_INIT_ERROR;
+	    } else {
+		fclose(fp);
+	    }
 	}
 
-	free(filexnm);
-	return rc;
+	fclose(dbf);
+    }
+    free(filexnm);
+
+    /*
+     * Read and parse ~/etc/nodelist.conf
+     */
+    sprintf(nlpath, "%s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    if ((dbf = fopen(nlpath, "r")) == NULL) {
+	WriteError("$Can't open %s", nlpath);
+	rc = MBERR_INIT_ERROR;
+    } else {
+	while (fgets(buf, sizeof(buf) -1, dbf)) {
+	    linecnt++;
+	    if (*(p = buf + strlen(buf) -1) != '\n') {
+		WriteError("%s(%d): \"%s\" - line too long", nlpath, linecnt, buf);
+		rc = MBERR_INIT_ERROR;
+		break;
+	    }
+	    *p-- = '\0';
+	    while ((p >= buf) && isspace(*p))
+		*p-- = '\0';
+	    k = buf;
+	    while (*k && isspace(*k))
+		k++;
+	    p = k;
+	    while (*p && !isspace(*p))
+		p++;
+	    *p++='\0';
+	    v = p;
+	    while (*v && isspace(*v)) 
+		v++;
+
+	    if ((*k == '\0') || (*k == '#')) {
+//		Syslog('n', "\"%s\" \"%s\" - ignore", MBSE_SS(k), MBSE_SS(v));
+		continue;
+	    }
+	    
+//	    Syslog('n', "\"%s\" \"%s\" - parsed", MBSE_SS(k), MBSE_SS(v));
+
+	    for (i = 0; keytab[i].key; i++)
+		if (strcasecmp(k,keytab[i].key) == 0)
+		    break;
+
+	    if (keytab[i].key == NULL) {
+		WriteError("%s(%d): %s %s - unknown keyword", nlpath, linecnt, MBSE_SS(k), MBSE_SS(v));
+		rc = MBERR_INIT_ERROR;
+		break;
+	    } else if ((keytab[i].prc(keytab[i].dest))) {
+		rc = MBERR_INIT_ERROR;
+		break;
+	    }
+	}
+	fclose(dbf);
+    }
+
+    Found = FALSE;
+
+    /*
+     * Howmany TCP sessions are allowd
+     */
+    sprintf(nlpath, "%s/etc/task.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(nlpath, "r"))) {
+	fread(&TCFG, sizeof(TCFG), 1, fp);
+	fclose(fp);
+    } else {
+	TCFG.max_tcp = 0;
+    }
+
+    /*
+     *  Read all our TCP/IP capabilities and set the global flag.
+     */
+    if (TCFG.max_tcp) {
+	sprintf(buf, "%s", CFG.Flags);
+	q = buf;
+	for (p = q; p; p = q) {
+	    if ((q = strchr(p, ',')))
+		*q++ = '\0';
+	    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+		if (strncasecmp((*tmpm)->name, p, strlen((*tmpm)->name)) == 0)
+		    mytcpip |= (*tmpm)->value;
+	}
+    }
+ 
+    /*
+     * Read the ports configuration for all pots and isdn lines.
+     * All lines are ORed so we have a global and total lines
+     * capability.
+     */
+    sprintf(nlpath, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(nlpath, "r"))) {
+	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
+
+	while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
+	    if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
+
+		sprintf(buf, "%s", ttyinfo.flags);
+		q = buf;
+		for (p = q; p; p = q) {
+		    if ((q = strchr(p, ',')))
+			*q++ = '\0';
+		    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcasecmp((*tmpm)->name, p) == 0)
+			    mypots |= (*tmpm)->value;
+		    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
+			if (strcasecmp((*tmpm)->name, p) == 0)
+			    myisdn |= (*tmpm)->value;
+		}
+	    }
+	}
+	fclose(fp);
+    }
+
+    free(nlpath);
+    Syslog('s', "mypots %08x myisdn %08x mytcpip %08x", mypots, myisdn, mytcpip);
+    Syslog('s', "Nodelists initialize complete, rc=%d", rc);
+    nlinitdone = TRUE;
+    return rc;
 }
 
 
@@ -161,14 +548,14 @@ int initnl(void)
 int comp_node(struct _nlidx, struct _ixentry);
 int comp_node(struct _nlidx fap1, struct _ixentry fap2)
 {
-	if (fap1.zone != fap2.zone)
-		return (fap1.zone - fap2.zone);
-	else if (fap1.net != fap2.net)
-		return (fap1.net - fap2.net);
-	else if (fap1.node != fap2.node)
-		return (fap1.node - fap2.node);
-	else
-		return (fap1.point - fap2.point);
+    if (fap1.zone != fap2.zone)
+	return (fap1.zone - fap2.zone);
+    else if (fap1.net != fap2.net)
+	return (fap1.net - fap2.net);
+    else if (fap1.node != fap2.node)
+	return (fap1.node - fap2.node);
+    else
+	return (fap1.point - fap2.point);
 }
 
 
@@ -177,16 +564,21 @@ node *getnlent(faddr *addr)
 {
     FILE		    *fp, *np;
     static node		    nodebuf;
-    static char		    buf[2048], ebuf[2048], *p, *q;
+    static char		    buf[2048], ebuf[2048], *p, *q, tbuf[256];
     struct _ixentry	    xaddr;
-    int			    i, j, Found = FALSE, ixflag, stdflag, ndrecord = FALSE;
+    int			    i, Found = FALSE, ixflag, stdflag, ndrecord = FALSE;
     char		    *mydomain, *path;
     struct _nlfil	    fdx;
     struct _nlidx	    ndx;
     long		    lowest, highest, current;
     struct _nodeshdr	    ndhdr;
     static struct _nodes    nd;
-
+    nodelist_modem	    **tmpm;
+    nodelist_flag	    **tmpf;
+    nodelist_service	    **tmps;
+    nodelist_array	    **tmpa;
+    unsigned long	    tport = 0;
+    
     Syslog('s', "getnlent: %s", ascfnode(addr,0xff));
 
     mydomain = xstrcpy(CFG.aka[0].domain);
@@ -215,9 +607,10 @@ node *getnlent(faddr *addr)
     nodebuf.iflags      = 0L;
     nodebuf.dflags      = 0L;
     nodebuf.uflags[0]   = NULL;
-    nodebuf.t1	    = '\0';
-    nodebuf.t2	    = '\0';
-
+    nodebuf.t1		= '\0';
+    nodebuf.t2		= '\0';
+    nodebuf.url		= NULL;
+    
     if (addr == NULL) 
 	goto retdummy;
 
@@ -312,6 +705,7 @@ node *getnlent(faddr *addr)
 	fclose(fp);
 	goto retdummy;
     }
+    Syslog('s', "getnlent: %s", buf);
 
     /*
      * Load noderecord if this node has one, if there is one then
@@ -450,21 +844,21 @@ node *getnlent(faddr *addr)
 	    /*
 	     * Process authorized flags and user flags both as authorized.
 	     */
-	    for (j = 0; fkey[j].key; j++)
-		if (strcasecmp(p, fkey[j].key) == 0)
-		    nodebuf.mflags |= fkey[j].flag;
-	    for (j = 0; okey[j].key; j++)
-		if (strcasecmp(p, okey[j].key) == 0) 
-		    nodebuf.oflags |= okey[j].flag;
-	    for (j = 0; dkey[j].key; j++)
-		if (strcasecmp(p, dkey[j].key) == 0)
-		    nodebuf.dflags |= dkey[j].flag;
-	    for (j = 0; ikey[j].key; j++)
-		if (strncasecmp(p, ikey[j].key, strlen(ikey[j].key)) == 0)
-		    nodebuf.iflags |= ikey[j].flag;
-	    for (j = 0; xkey[j].key; j++)
-		if (strcasecmp(p, xkey[j].key) == 0)
-		    nodebuf.xflags |= xkey[j].flag;
+	    for (tmpf = &nl_online; *tmpf; tmpf=&((*tmpf)->next))
+		if (strcasecmp(p, (*tmpf)->name) == 0)
+		    nodebuf.oflags |= (*tmpf)->value;
+	    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
+		if (strcasecmp(p, (*tmpm)->name) == 0)
+		    nodebuf.mflags |= (*tmpm)->value;
+	    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
+		if (strcasecmp(p, (*tmpm)->name) == 0)
+		    nodebuf.dflags |= (*tmpm)->value;
+	    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next))
+		if (strncasecmp(p, (*tmpm)->name, strlen((*tmpm)->name)) == 0)
+		    nodebuf.iflags |= (*tmpm)->value;
+	    for (tmpf = &nl_request; *tmpf; tmpf=&((*tmpf)->next))
+		if (strcasecmp(p, (*tmpf)->name) == 0)
+		    nodebuf.xflags = (*tmpf)->value;
 	    if ((p[0] == 'T') && (strlen(p) == 3)) {
 		/*
 		 * System open hours flag
@@ -503,6 +897,87 @@ node *getnlent(faddr *addr)
     }
     fclose(fp);
 
+    /*
+     * Build the connection URL
+     *
+     * If the node has some IP flags and we allow TCP, then search the best protocol.
+     */
+    if (nodebuf.iflags & mytcpip) {
+	Syslog('s', "node iflags %08x, mytcpip %08x", nodebuf.iflags, mytcpip);
+	for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
+	    if ((*tmpm)->mask & nodebuf.iflags) {
+		Syslog('s', "Setting %s", (*tmpm)->name);
+		for (tmps = &nl_service; *tmps; tmps=&((*tmps)->next)) {
+		    if (strcmp((*tmps)->flag, (*tmpm)->name) == 0) {
+			sprintf(tbuf, "%s", (*tmps)->service);
+			tport = (*tmps)->port;
+			Syslog('s', "Setting %s %d", (*tmps)->service, (*tmps)->port);
+		    }
+		}
+	    }
+	}
+
+	/*
+	 * The last setting is the best
+	 */
+	nodebuf.url = xstrcpy(tbuf);
+	nodebuf.url = xstrcat(nodebuf.url, (char *)"://");
+
+	/*
+	 * Next, try to find out the FQDN for this node, we have a search
+	 * preference list in the nodelist.conf file.
+	 */
+	memset(&tbuf, 0, sizeof(tbuf));
+	if (ndrecord && strlen(nd.Nl_hostname)) {
+	    Syslog('s', "Using override %s for FQDN", nd.Nl_hostname);
+	    sprintf(tbuf, nodebuf.name);
+	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
+	} else {
+	    for (tmpa = &nl_search; *tmpa; tmpa=&((*tmpa)->next)) {
+		Syslog('s', "Search FQDN method %s", (*tmpa)->name);
+		if (strcasecmp((*tmpa)->name, "field3") == 0) {
+		    sprintf(tbuf, nodebuf.name);
+		    if (strchr(tbuf, '.')) {
+			/*
+			 * Okay, there are dots, this can be a FQDN or IP address.
+			 */
+			Syslog('s', "Using field3 \"%s\"", tbuf);
+			nodebuf.url = xstrcat(nodebuf.url, tbuf);
+			break;
+		    }
+		} else if (strcasecmp((*tmpa)->name, "field6") == 0) {
+		    if (nodebuf.phone && strncmp(nodebuf.phone, "000-", 4) == 0) {
+			Syslog('s', "Found 000- prefix");
+			sprintf(tbuf, "%s", nodebuf.phone+4);
+			for (i = 0; i < strlen(tbuf); i++)
+			    if (tbuf[i] == '-')
+				tbuf[i] = '.';
+			Syslog('s', "Using field6 \"%s\"", tbuf);
+			nodebuf.url = xstrcat(nodebuf.url, tbuf);
+			break;
+		    }
+		}
+	    }
+	}
+
+	if (strchr(tbuf, ':') == NULL) {
+	    /*
+	     * No optional port number, add one from the default
+	     * for this protocol.
+	     */
+	    sprintf(tbuf, ":%lu", tport);
+	    Syslog('s', "Adding default port %s", tbuf);
+	    nodebuf.url = xstrcat(nodebuf.url, tbuf);
+	}
+
+    } else if (nodebuf.dflags & myisdn) {
+	nodebuf.url = xstrcpy((char *)"isdn://");
+	nodebuf.url = xstrcat(nodebuf.url, nodebuf.phone);
+    } else if (nodebuf.mflags & mypots) {
+	nodebuf.url = xstrcpy((char *)"pots://");
+	nodebuf.url = xstrcat(nodebuf.url, nodebuf.phone);
+    }
+    
     nodebuf.addr.name = nodebuf.sysop;
     nodebuf.addr.domain = xstrcpy(fdx.domain);
     nodebuf.upnet  = ndx.upnet;
@@ -511,8 +986,9 @@ node *getnlent(faddr *addr)
     if (addr->domain == NULL) 
 	addr->domain = xstrcpy(nodebuf.addr.domain);
 
-    Syslog('s', "getnlent: system	%s, %s", nodebuf.name, nodebuf.location);
-    Syslog('s', "getnlent: sysop	%s, %s", nodebuf.sysop, nodebuf.phone);
+    Syslog('s', "getnlent: system  %s, %s", nodebuf.name, nodebuf.location);
+    Syslog('s', "getnlent: sysop   %s, %s", nodebuf.sysop, nodebuf.phone);
+    Syslog('s', "getnlent: URL     %s", printable(nodebuf.url, 0));
     moflags(nodebuf.mflags);
     diflags(nodebuf.dflags);
     ipflags(nodebuf.iflags);
@@ -534,6 +1010,7 @@ retdummy:
     nodebuf.sysop = (char *)"Sysop";
     nodebuf.phone = NULL;
     nodebuf.speed = 2400;
+    nodebuf.url = NULL;
     free(mydomain);
 
     return &nodebuf;
@@ -543,17 +1020,16 @@ retdummy:
 
 void olflags(unsigned long flags)
 {
-    char    *t;
+    char	    *t;
+    nodelist_flag   **tmpm;
 
     t = xstrcpy((char *)"Mailer flags :");
-    if (flags & OL_CM)
-	t = xstrcat(t, (char *)" CM");
-    if (flags & OL_MO)
-	t = xstrcat(t, (char *)" MO");
-    if (flags & OL_LO)
-	t = xstrcat(t, (char *)" LO");
-    if (flags & OL_MN)
-	t = xstrcat(t, (char *)" MN");
+    for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->value & flags) {
+	    t = xstrcat(t, (char *)" ");
+	    t = xstrcat(t, (*tmpm)->name);
+	}
+    }
     Syslog('s', "%s", t);
     free(t);
 }
@@ -562,17 +1038,23 @@ void olflags(unsigned long flags)
 
 void rqflags(unsigned long flags)
 {
-    char    *t;
-
+    char	    *t;
+    nodelist_flag   **tmpm;
+    
     t = xstrcpy((char *)"Request flags:");
-    if (flags & RQ_RQ_BR)
-	t = xstrcat(t, (char *)" RQ_BR");
-    if (flags & RQ_RQ_BU)
-	t = xstrcat(t, (char *)" RQ_BU");
-    if (flags & RQ_RQ_WR)
-	t = xstrcat(t, (char *)" RQ_WR");
-    if (flags & RQ_RQ_WU)
-	t = xstrcat(t, (char *)" RQ_WU");
+    for (tmpm = &nl_reqbits; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->value & flags) {
+	    t = xstrcat(t, (char *)" ");
+	    t = xstrcat(t, (*tmpm)->name);
+	}
+    }
+    for (tmpm = &nl_request; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->value == flags) {
+	    t = xstrcat(t, (char *)" (");
+	    t = xstrcat(t, (*tmpm)->name);
+	    t = xstrcat(t, (char *)")");
+	}
+    }
     Syslog('s', "%s", t);
     free(t);
 }
@@ -581,55 +1063,18 @@ void rqflags(unsigned long flags)
 
 void moflags(unsigned long flags)
 {
-    char    *t;
+    char	    *t;
+    nodelist_modem  **tmpm;
 
     if (!flags)
 	return;
     t = xstrcpy((char *)"Modem flags  :");
-    if (flags & NL_V22)
-	t = xstrcat(t, (char *)" V22");
-    if (flags & NL_V29)
-	t = xstrcat(t, (char *)" V29");
-    if (flags & NL_V32)
-	t = xstrcat(t, (char *)" V32");
-    if (flags & NL_V32B)
-	t = xstrcat(t, (char *)" V32B");
-    if (flags & NL_V34)
-	t = xstrcat(t, (char *)" V34");
-    if (flags & NL_V42)
-	t = xstrcat(t, (char *)" V42");
-    if (flags & NL_V42B)
-	t = xstrcat(t, (char *)" V42B");
-    if (flags & NL_MNP)
-	t = xstrcat(t, (char *)" MNP");
-    if (flags & NL_H96)
-	t = xstrcat(t, (char *)" H96");
-    if (flags & NL_HST)
-	t = xstrcat(t, (char *)" HST");
-    if (flags & NL_H14)
-	t = xstrcat(t, (char *)" H14");
-    if (flags & NL_H16)
-	t = xstrcat(t, (char *)" H16");
-    if (flags & NL_MAX)
-	t = xstrcat(t, (char *)" MAX");
-    if (flags & NL_PEP)
-	t = xstrcat(t, (char *)" PEP");
-    if (flags & NL_CSP)
-	t = xstrcat(t, (char *)" CSP");
-    if (flags & NL_V32T)
-	t = xstrcat(t, (char *)" V32T");
-    if (flags & NL_VFC)
-	t = xstrcat(t, (char *)" VFC");
-    if (flags & NL_ZYX)
-	t = xstrcat(t, (char *)" ZYX");
-    if (flags & NL_X2C)
-	t = xstrcat(t, (char *)" X2C");
-    if (flags & NL_X2S)
-	t = xstrcat(t, (char *)" X2S");
-    if (flags & NL_V90C)
-	t = xstrcat(t, (char *)" V90C");
-    if (flags & NL_V90S)
-	t = xstrcat(t, (char *)" V90S");
+    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->mask & flags) {
+	    t = xstrcat(t, (char *)" ");
+	    t = xstrcat(t, (*tmpm)->name);
+	}
+    }
     Syslog('s', "%s", t);
     free(t);
 }
@@ -638,22 +1083,18 @@ void moflags(unsigned long flags)
 
 void diflags(unsigned long flags)
 {
-    char    *t;
-
+    char	    *t;
+    nodelist_modem  **tmpm;
+    
     if (!flags)
 	return;
-
     t = xstrcpy((char *)"ISDN flags   :");
-    if (flags & ND_V110L)
-	t = xstrcat(t, (char *)" V110L");
-    if (flags & ND_V110H)
-	t = xstrcat(t, (char *)" V110H");
-    if (flags & ND_V120L)
-	t = xstrcat(t, (char *)" V120L");
-    if (flags & ND_V120H)
-	t = xstrcat(t, (char *)" V120H");
-    if (flags & ND_X75)
-	t = xstrcat(t, (char *)" X75");
+    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->mask & flags) {
+	    t = xstrcat(t, (char *)" ");
+	    t = xstrcat(t, (*tmpm)->name);
+	}
+    }
     Syslog('s', "%s", t);
     free(t);
 }
@@ -662,27 +1103,36 @@ void diflags(unsigned long flags)
 
 void ipflags(unsigned long flags)
 {
-    char    *t;
-
+    char	    *t;
+    nodelist_modem  **tmpm;
+    
     if (!flags)
 	return;
-
     t = xstrcpy((char *)"TCP/IP flags :");
-    if (flags & IP_IBN)
-	t = xstrcat(t, (char *)" IBN");
-    if (flags & IP_IFC)
-	t = xstrcat(t, (char *)" IFC");
-    if (flags & IP_ITN)
-	t = xstrcat(t, (char *)" ITN");
-    if (flags & IP_IVM)
-	t = xstrcat(t, (char *)" IVM");
-    if (flags & IP_IP)
-	t = xstrcat(t, (char *)" IP");
-    if (flags & IP_IFT)
-	t = xstrcat(t, (char *)" IFT");
+    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
+	if ((*tmpm)->mask & flags) {
+	    t = xstrcat(t, (char *)" ");
+	    t = xstrcat(t, (*tmpm)->name);
+	}
+    }
     Syslog('s', "%s", t);
     free(t);
 }
 
+
+
+unsigned long getCMmask(void)
+{
+    nodelist_flag   **tmpm;
+
+    for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
+	if (strcmp("CM", (*tmpm)->name) == 0) {
+	    return (*tmpm)->value;
+	}
+    }
+
+    WriteError("CM mask not found in %s/etc/nodelist.conf", getenv("MBSE_ROOT"));
+    return 0;
+}
 
 

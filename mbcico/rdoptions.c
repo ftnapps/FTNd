@@ -55,9 +55,6 @@ static struct _ktab {
 	{(char *)"Zmodem",	NOZMODEM},
 	{(char *)"ZedZap",	NOZEDZAP},
 	{(char *)"Hydra",	NOHYDRA},
-	{(char *)"IBN",		NOIBN},
-	{(char *)"ITN",		NOITN},
-	{(char *)"IFC",		NOIFC},
 	{NULL,		0}
 };
 
@@ -98,12 +95,6 @@ void rdoptions(int Loaded)
 		localoptions |= NOZEDZAP;
 	if (CFG.NoHydra)
 		localoptions |= NOHYDRA;
-	if (CFG.NoIBN)
-		localoptions |= NOIBN;
-	if (CFG.NoITN)
-		localoptions |= NOITN;
-	if (CFG.NoIFC)
-		localoptions |= NOIFC;
 
 	if (nodes.Aka[0].zone == 0) {
 		if (Loaded)
@@ -128,13 +119,6 @@ void rdoptions(int Loaded)
 		localoptions |= NOZEDZAP;
 	if (nodes.NoHydra)
 		localoptions |= NOHYDRA;
-	if (nodes.NoIBN)
-		localoptions |= NOIBN;
-	if (nodes.NoITN)
-		localoptions |= NOITN;
-	if (nodes.NoIFC)
-		localoptions |= NOIFC;
-
 	logoptions();
 }
 

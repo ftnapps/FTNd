@@ -179,6 +179,6 @@ smtp.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h mbine
 diesel.o: ../config.h libs.h memwatch.h diesel.h
 mbdiesel.o: ../config.h libs.h memwatch.h structs.h users.h records.h common.h clcomm.h diesel.h
 memwatch.o: ../config.h libs.h memwatch.h
-nodelist.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h nodelist.h
+nodelist.o: ../config.h libs.h memwatch.h structs.h users.h records.h clcomm.h common.h mberrors.h nodelist.h
 ftscprod.o: ../config.h libs.h memwatch.h structs.h common.h
 # End of generated dependencies

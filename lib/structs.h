@@ -729,9 +729,9 @@ struct	sysconfig {
 
 	unsigned	xNoJanus	: 1;
 	unsigned	NoHydra		: 1;	/* Don't do Hydra	    */
-	unsigned	NoIBN		: 1;	/* No TCP-IP binkp	    */
-	unsigned	NoITN		: 1;	/* No TCP-IP telnet	    */
-	unsigned	NoIFC		: 1;	/* No TCP-IP ifcico	    */
+	unsigned	xNoIBN		: 1;
+	unsigned	xNoITN		: 1;
+	unsigned	xNoIFC		: 1;
 
 	char		Phone[21];		/* Default phonenumber	    */
 	unsigned long	Speed;			/* Default linespeed	    */
@@ -1221,13 +1221,13 @@ struct	_nodes {
 	unsigned	xNoJanus	: 1;	/* Don't use Janus	    */
 	unsigned	NoHydra		: 1;	/* Don't use Hydra	    */
 
-	unsigned	NoIBN		: 1;	/* Don't use TCP-IP binkp   */
+	unsigned	xNoIBN		: 1;
 	unsigned	PackNetmail	: 1;	/* Pack netmail		    */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility    */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */
 	unsigned	FNC		: 1;	/* Node needs 8.3 filenames */
-	unsigned	NoITN		: 1;	/* Don't use TCP-IP telnet  */
-	unsigned	NoIFC		: 1;	/* Don't use TCP-IP ifcico  */
+	unsigned	xNoITN		: 1;
+	unsigned	xNoIFC		: 1;
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	    */

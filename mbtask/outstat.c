@@ -202,7 +202,18 @@ int outstat()
     struct dirent   *de;
     struct stat	    sb;
     struct passwd   *pw;
+    unsigned long   cmmask, ibnmask = 0, ifcmask = 0, itnmask = 0;
+    nodelist_modem  **tmpm;
 
+    cmmask = getCMmask();
+    for (tmpm = &nl_tcpip; *tmpm; tmpm=&((*tmpm)->next)) {
+	if (strcmp((*tmpm)->name, "IBN") == 0)
+	    ibnmask = (*tmpm)->mask;
+	if (strcmp((*tmpm)->name, "IFC") == 0)
+	    ifcmask = (*tmpm)->mask;
+	if (strcmp((*tmpm)->name, "ITN") == 0)
+	    itnmask = (*tmpm)->mask;
+    }
     now = time(NULL);
     tm = gmtime(&now); /* UTC time */
     uhour = tm->tm_hour;
@@ -406,9 +417,9 @@ int outstat()
 	 * If the node has internet and we have internet configured, 
 	 * check if we can send immediatly.
 	 */
-	if (TCFG.max_tcp && (tmp->olflags & OL_CM) &&
+	if (TCFG.max_tcp && (tmp->olflags & cmmask) &&
 		(((tmp->flavors) & F_IMM) || ((tmp->flavors) & F_CRASH) || ((tmp->flavors) & F_NORMAL)) &&
-		((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+		((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 	    tmp->flavors |= F_CALL;
 	}
 
@@ -417,7 +428,7 @@ int outstat()
 	    /*
 	     * Immediate mail, send if node is CM or is in a Txx window or is in ZMH.
 	     */
-	    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
+	    if ((tmp->olflags & cmmask) || T_window || iszmh) {
 		tmp->flavors |= F_CALL;
 	    }
 	}
@@ -427,7 +438,7 @@ int outstat()
 	    /*
 	     * Crash mail, send if node is CM or is in a Txx window or is in ZMH.
 	     */
-	    if ((tmp->olflags & OL_CM) || T_window || iszmh) {
+	    if ((tmp->olflags & cmmask) || T_window || iszmh) {
 		tmp->flavors |= F_CALL;
 	    }
 	}
@@ -480,8 +491,7 @@ int outstat()
 	if ((tmp->flavors) & F_CALL) {
 	    tmp->callmode = CM_NONE;
 
-	    if (TCFG.max_tcp && !(nodes.NoIBN && nodes.NoIFC && nodes.NoITN) &&
-		    ((tmp->ipflags & IP_IBN) || (tmp->ipflags & IP_IFC) || (tmp->ipflags & IP_ITN))) {
+	    if (TCFG.max_tcp && ((tmp->ipflags & ibnmask) || (tmp->ipflags & ifcmask) || (tmp->ipflags & itnmask))) {
 		inet_calls++;
 		tmp->callmode = CM_INET;
 	    }

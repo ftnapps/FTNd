@@ -591,6 +591,13 @@ int checktasks(int onsig)
 		if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
 		    rescan = TRUE;
 		ptimer = PAUSETIME;
+		/*
+		 * If a nodelist compiler is ready, reload the nodelists configuration
+		 */
+		if (task[i].tasktype == MBINDEX) {
+		    deinitnl();
+		    initnl();
+		}
 	    }
 
 	    if (first && task[i].rc) {
@@ -699,6 +706,7 @@ void die(int onsig)
 	else
 	    Syslog('+', "Good, no more tasks running");
 
+	deinitnl();
 	ulocktask();
 	if (sock != -1)
 		close(sock);
@@ -1034,6 +1042,8 @@ void scheduler(void)
 		Syslog('+', "Ports configuration changed, reloading");
 		load_ports();
 		check_ports();
+		deinitnl();
+		initnl();
 		sem_set((char *)"scanout", TRUE);
 	    }
 
@@ -1305,8 +1315,8 @@ int main(int argc, char **argv)
 	memset(&reginfo, 0, sizeof(reginfo));
 	memset(&calllist, 0, sizeof(calllist));
 	sprintf(spath, "%s/tmp/mbtask", getenv("MBSE_ROOT"));
-
 	sprintf(ttyfn, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+	initnl();
 	load_ports();
 	check_ports();
 

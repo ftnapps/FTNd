@@ -188,45 +188,47 @@ int Alias_Option(void)
 int Crash_Option(faddr *);
 int Crash_Option(faddr *Dest)
 {
-	node		*Nlent;
-	int		rc = 0;
-	unsigned short	point;
+    node	    *Nlent;
+    int		    rc = 0;
+    unsigned short  point;
+    unsigned long   cmmask;
 
-	if (exitinfo.Security.level < CFG.iCrashLevel)
-		return 0;
+    if (exitinfo.Security.level < CFG.iCrashLevel)
+	return 0;
 
-	point = Dest->point;
-	Dest->point = 0;
+    cmmask = getCMmask();
+    point = Dest->point;
+    Dest->point = 0;
 
-	if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
-		if (Nlent->oflags & OL_CM) {
-			/* Crash [y/N]: */
-			pout(CYAN, BLACK, (char *)Language(461));
-			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-			fflush(stdout);
-			alarm_on();
-			if (toupper(Getone()) == Keystroke(461, 0)) {
-				rc = 1;
-				printf("%c", Keystroke(461, 0));
-			} else
-				printf("%c", Keystroke(461, 1));
-		} else {
-			/* Warning: node is not CM, send Immediate [y/N]: */
-			pout(CYAN, BLACK, (char *)Language(462));
-			colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-			fflush(stdout);
-			alarm_on();
-			if (toupper(Getone()) == Keystroke(462, 0)) {
-				rc = 2;
-				printf("%c", Keystroke(462, 0));
-			} else
-				printf("%c", Keystroke(462, 1));
-		}
-		fflush(stdout);
+    if (((Nlent = getnlent(Dest)) != NULL) && (Nlent->addr.zone)) {
+	if (Nlent->oflags & cmmask) {
+	    /* Crash [y/N]: */
+	    pout(CYAN, BLACK, (char *)Language(461));
+	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	    fflush(stdout);
+	    alarm_on();
+	    if (toupper(Getone()) == Keystroke(461, 0)) {
+		rc = 1;
+		printf("%c", Keystroke(461, 0));
+	    } else
+		printf("%c", Keystroke(461, 1));
+	} else {
+	    /* Warning: node is not CM, send Immediate [y/N]: */
+	    pout(CYAN, BLACK, (char *)Language(462));
+	    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+	    fflush(stdout);
+	    alarm_on();
+	    if (toupper(Getone()) == Keystroke(462, 0)) {
+		rc = 2;
+		printf("%c", Keystroke(462, 0));
+	    } else
+		printf("%c", Keystroke(462, 1));
 	}
+	fflush(stdout);
+    }
 
-	Dest->point = point;
-	return rc;
+    Dest->point = point;
+    return rc;
 }
 
 
