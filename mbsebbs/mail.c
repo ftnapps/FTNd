@@ -1833,6 +1833,7 @@ void QuickScan_Msgs()
 		colour(MAGENTA, BLACK);
 		printf("%s", padleft(Msg.Subject, 31, ' '));
 		printf("\n");
+		fflush(stdout);
 		FoundMsg = TRUE;
 		if (LC(1))
 		    break;
