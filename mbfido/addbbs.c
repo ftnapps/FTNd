@@ -50,7 +50,6 @@ extern	int	tic_imp;
  */
 int Add_BBS()
 {
-    struct FILE_recordhdr   frechdr;
     struct FILE_record	    frec;
     int			    rc, i, Found = FALSE, Keep = 0, DidDelete = FALSE;
     char		    temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname, *p;
@@ -58,6 +57,7 @@ int Add_BBS()
 #ifdef	USE_EXPERIMENT
     struct _fdbarea	    *fdb_area = NULL;
 #else
+    struct FILE_recordhdr   frechdr;
     int			    Insert, Done = FALSE;
     char		    fdbname[PATH_MAX], fdbtemp[PATH_MAX];
     FILE		    *fp, *fdt;
@@ -71,7 +71,7 @@ int Add_BBS()
      */
 #ifdef	USE_EXPERIMENT
     if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
-	while (fread(&frec, frechdr.recsize, 1, fdb_area->fp) == 1) {
+	while (fread(&frec, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 #else
     sprintf(fdbname, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), tic.FileArea);
     if ((fp = fopen(fdbname, "r+")) != NULL) {
