@@ -50,6 +50,7 @@ v0.51.1		21-Feb-2004
 	mbaff:
 		Writes the ^aCHRS: kludge again in new created messages.
 		Changed ^aPID to include OS and CPU.
+		Added macro "u" that holds the magic filerequest name.
 
 	mbfido:
 		Changed ^aTID to include OS and CPU.
@@ -64,6 +65,8 @@ v0.51.1		21-Feb-2004
 
 	examples:
 		Added change character set in English menus and textfiles.
+		Updated all newfiles macro template to include the magic file-
+		request macro (English, German, Spanish and Dutch).
 
 	lang:
 		Added language prompts 23, 24 and 25.

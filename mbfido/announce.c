@@ -346,6 +346,7 @@ long Report(gr_list *ta, long filepos)
 		}
 		filepos3 = ftell(fi);
 	    }
+	    MacroVars("u", "s", T_File.Magic);
 	    Total++;
 	    Size += T_File.SizeKb;
 	}
