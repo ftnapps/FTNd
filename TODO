@@ -54,6 +54,9 @@ mbfido:
 
 	N: Wish: internet addresses in the From: field.
 
+	N: Process GoldED filerequest netmails with the filereq flag set, we
+	   should create a .req file with the contents of the subject line.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
