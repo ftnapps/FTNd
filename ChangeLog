@@ -4,6 +4,8 @@ $Id$
 
 v0.35.01	05-Jun-2002
 
+DO NOT USE THIS VERSION, IT WON'T WORK !!!!!!
+
 	general:
 		Added structures for netmail routing file.
 		Expanded nodes structures for FTP and Directory transfers.
@@ -23,6 +25,8 @@ v0.35.01	05-Jun-2002
 		The binkd version string now includes the OS and CPU type.
 		If a transmitted file via binkp is skipped by the remote it
 		will stay in the queue for the next session.
+		The binkp receiver now supports the CRC option.
+		The binkp transmitter doesn't right now, sessions will fail!!!!!
 
 	mbfile:
 		Added -v commandline switch to supress virus checking for the
