@@ -2,7 +2,7 @@
  *
  * File ..................: m_global.c
  * Purpose ...............: Global Setup Program 
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -44,8 +44,10 @@
 #include "m_global.h"
 
 
-char	*some_fn;
-int 	some_fd;
+char	    *some_fn;
+int	    some_fd;
+extern int  exp_golded;
+
 
 #define WRLONG cnt = write(some_fd, &longvar, sizeof(longvar));
 
@@ -94,6 +96,7 @@ int config_write(void)
 
 	write(some_fd, &CFG, sizeof(CFG));
 	close(some_fd);
+	exp_golded = TRUE;
 	return 0;
 }
 

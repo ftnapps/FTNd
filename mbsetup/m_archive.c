@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_archive.c
  * Purpose ...............: Setup Archive structure.
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -69,7 +69,7 @@ int CountArchive(void)
 			memset(&archiver, 0, sizeof(archiver));
 			sprintf(archiver.comment, "ARC Version 5.21");
 			sprintf(archiver.name,    "ARC");
-			archiver.available = TRUE;
+			archiver.available = FALSE;
 			sprintf(archiver.marc,    "/usr/bin/arc anw");
 			sprintf(archiver.tarc,    "/usr/bin/arc tnw");
 			sprintf(archiver.funarc,  "/usr/bin/arc xnw");
@@ -80,7 +80,7 @@ int CountArchive(void)
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "LHarc");
                         sprintf(archiver.name,    "LHA");
-                        archiver.available = TRUE;
+                        archiver.available = FALSE;
                         sprintf(archiver.marc,    "/usr/bin/lha aq");
                         sprintf(archiver.tarc,    "/usr/bin/lha tq");
                         sprintf(archiver.funarc,  "/usr/bin/lha xqf");
@@ -91,7 +91,7 @@ int CountArchive(void)
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "RAR by Eugene Roshal");
                         sprintf(archiver.name,    "RAR");
-                        archiver.available = TRUE;
+                        archiver.available = FALSE;
                         sprintf(archiver.farc,    "/usr/bin/rar a -y -r");
                         sprintf(archiver.marc,    "/usr/bin/rar a -y");
                         sprintf(archiver.barc,    "/usr/bin/rar c -y");
@@ -116,12 +116,25 @@ int CountArchive(void)
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "UNARJ by Robert K Jung");
                         sprintf(archiver.name,    "ARJ");
-                        archiver.available = TRUE;
+                        archiver.available = FALSE;
                         sprintf(archiver.tarc,    "/usr/bin/unarj t");
                         sprintf(archiver.funarc,  "/usr/bin/unarj x");
                         sprintf(archiver.munarc,  "/usr/bin/unarj e");
                         sprintf(archiver.iunarc,  "/usr/bin/unarj e");
                         fwrite(&archiver, sizeof(archiver), 1, fil);
+
+			memset(&archiver, 0, sizeof(archiver));
+			sprintf(archiver.comment, "ARJ from ARJ Software Russia");
+			sprintf(archiver.name,    "ARJ");
+			archiver.available = FALSE;
+			sprintf(archiver.farc,    "/usr/bin/arj -2d -y -r a");
+			sprintf(archiver.marc,    "/usr/bin/arj -2d -y -e a");
+			sprintf(archiver.barc,    "/usr/bin/arj -2d -y c");
+			sprintf(archiver.tarc,    "/usr/bin/arj -y t");
+			sprintf(archiver.funarc,  "/usr/bin/arj -y x");
+			sprintf(archiver.munarc,  "/usr/bin/arj -y e");
+			sprintf(archiver.iunarc,  "/usr/bin/arj -y e");
+			fwrite(&archiver, sizeof(archiver), 1, fil);
 
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "ZIP and UNZIP by Info-ZIP");
@@ -139,7 +152,7 @@ int CountArchive(void)
                         memset(&archiver, 0, sizeof(archiver));
                         sprintf(archiver.comment, "ZOO archiver");
                         sprintf(archiver.name,    "ZOO");
-                        archiver.available = TRUE;
+                        archiver.available = FALSE;
                         sprintf(archiver.farc,    "/usr/bin/zoo aq");
                         sprintf(archiver.marc,    "/usr/bin/zoo aq:O");
                         sprintf(archiver.barc,    "/usr/bin/zoo aqC");
@@ -149,7 +162,7 @@ int CountArchive(void)
                         fwrite(&archiver, sizeof(archiver), 1, fil);
 
 			fclose(fil);
-			return 7;
+			return 8;
 		} else
 			return -1;
 	}
@@ -383,7 +396,7 @@ int EditArchRec(int Area)
 
 void EditArchive(void)
 {
-	int	records, i, x, y;
+	int	records, i, o, x, y;
 	char	pick[12];
 	FILE	*fil;
 	char	temp[PATH_MAX];
@@ -408,6 +421,7 @@ void EditArchive(void)
 		return;
 	}
 	working(0, 0, 0);
+	o = 0;
 
 	for (;;) {
 		clr_index();
@@ -421,22 +435,24 @@ void EditArchive(void)
 				x = 2;
 				y = 7;
 				set_color(CYAN, BLACK);
-				for (i = 1; i <= records; i++) {
-					offset = sizeof(archiverhdr) + ((i - 1) * archiverhdr.recsize);
-					fseek(fil, offset, 0);
-					fread(&archiver, archiverhdr.recsize, 1, fil);
+				for (i = 1; i <= 20; i++) {
 					if (i == 11) {
-						x = 42;
-						y = 7;
+					    x = 42;
+					    y = 7;
 					}
-					if (archiver.available)
+					if ((o + i) <= records) {
+					    offset = sizeof(archiverhdr) + (((o + i) - 1) * archiverhdr.recsize);
+					    fseek(fil, offset, 0);
+					    fread(&archiver, archiverhdr.recsize, 1, fil);
+					    if (archiver.available)
 						set_color(CYAN, BLACK);
-					else
+					    else
 						set_color(LIGHTBLUE, BLACK);
-					sprintf(temp, "%3d.  %-32s", i, archiver.comment);
-					temp[37] = 0;
-					mvprintw(y, x, temp);
-					y++;
+					    sprintf(temp, "%3d. %-5s %-26s", i, archiver.name, archiver.comment);
+					    temp[38] = 0;
+					    mvprintw(y, x, temp);
+					    y++;
+					}
 				}
 				fclose(fil);
 			}
@@ -459,8 +475,18 @@ void EditArchive(void)
 			working(0, 0, 0);
 		}
 
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
+		if (strncmp(pick, "N", 1) == 0)
+		    if ((o + 20) < records)
+			o += 20;
+
+		if (strncmp(pick, "P", 1) == 0)
+		    if ((o - 20) >= 0)
+			o -= 20;
+
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
 			EditArchRec(atoi(pick));
+			o = ((atoi(pick) -1) / 20) * 20;
+		}
 	}
 }
 

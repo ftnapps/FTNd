@@ -2,7 +2,7 @@
  *
  * File ..................: m_marea.c
  * Purpose ...............: Message Areas Setup
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -47,6 +47,7 @@
 int		MsgUpdated = 0;
 unsigned long	MsgCrc;
 FILE		*tfil = NULL;
+extern int	exp_golded;
 
 
 
@@ -70,6 +71,7 @@ int CountMsgarea(void)
 			msgshdr.lastupd = time(NULL);
 			fwrite(&msgshdr, sizeof(msgshdr), 1, fil);
 			fclose(fil);
+			exp_golded = TRUE;
 			return 0;
 		} else
 			return -1;
@@ -189,6 +191,7 @@ void CloseMsgarea(int Force)
 	if (MsgUpdated == 1) {
 		if (Force || (yes_no((char *)"Messages database is changed, save changes") == 1)) {
 			working(1, 0, 0);
+			exp_golded = TRUE;
 			if ((rename(fout, fin)) == 0)
 				unlink(fout);
 			Syslog('+', "Updated \"mareas.data\"");

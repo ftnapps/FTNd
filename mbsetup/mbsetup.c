@@ -84,7 +84,6 @@ static void die(int onsig)
 	if (!init)
 	    screen_stop(); 
 
-	exp_golded = TRUE;
 	if (exp_golded && (config_read() != -1)) {
 		temp = calloc(128, sizeof(char));
 		sprintf(temp, "%s/etc/golded.inc", getenv("MBSE_ROOT"));

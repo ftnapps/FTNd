@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_menu.c
  * Purpose ...............: Edit BBS menus
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -111,12 +111,12 @@ void Show_A_Menu(void)
 	mvprintw(16, 2, "9.  Credit");
 	mvprintw(17, 2, "10. Lo-colors");
 	mvprintw(18, 2, "11. Hi-colors");
-	mvprintw(15,42, "12. Autoexec");
+	mvprintw(19, 2, "12. Autoexec");
 	if (menus.MenuType == 7) {
-		mvprintw(15,42, "13. No door.sys");
-		mvprintw(16,42, "14. Y2K style");
-		mvprintw(17,42, "15. Use Comport");
-		mvprintw(18,42, "16. Run nosuid");
+		mvprintw(16,42, "13. No door.sys");
+		mvprintw(17,42, "14. Y2K style");
+		mvprintw(18,42, "15. Use Comport");
+		mvprintw(19,42, "16. Run nosuid");
 	}
 
 	set_color(WHITE, BLACK);
@@ -135,14 +135,13 @@ void Show_A_Menu(void)
 	show_int(16,16,    menus.Credit);
 	S_COL(17,16, "Normal display color", menus.ForeGnd, menus.BackGnd)
 	S_COL(18,16, "Bright display color", menus.HiForeGnd, menus.HiBackGnd)
-
 	set_color(WHITE, BLACK);
-	show_bool(15,58,   menus.AutoExec);
+	show_bool(19,16,   menus.AutoExec);
 	if (menus.MenuType == 7) {
-		show_bool(15,58,  menus.NoDoorsys);
-		show_bool(16,58,  menus.Y2Kdoorsys);
-		show_bool(17,58,  menus.Comport);
-		show_bool(18,58,  menus.NoSuid);
+		show_bool(16,58,  menus.NoDoorsys);
+		show_bool(17,58,  menus.Y2Kdoorsys);
+		show_bool(18,58,  menus.Comport);
+		show_bool(19,58,  menus.NoSuid);
 	}
 }
 
@@ -238,21 +237,21 @@ void Edit_A_Menu(void)
 		case 11:edit_color(&menus.HiForeGnd, &menus.HiBackGnd, (char *)"bright");
 			Show_A_Menu();
 			break;
-		case 12:E_BOOL(15,58,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
+		case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
 		case 13:if (menus.MenuType == 7) {
-				E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+				E_BOOL(16,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
 			} else
 				break;
 		case 14:if (menus.MenuType == 7) {
-				E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+				E_BOOL(17,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
 			} else
 				break;
 		case 15:if (menus.MenuType == 7) {
-				E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+				E_BOOL(18,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
 			} else
 				break;
 		case 16:if (menus.MenuType == 7) {
-				E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
+				E_BOOL(19,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
 			} else
 				break;
 		}

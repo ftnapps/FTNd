@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_virus.c
  * Purpose ...............: Setup Virus structure.
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -86,7 +86,7 @@ int CountVirus(void)
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 
 			fclose(fil);
-			return 2;
+			return 3;
 		} else
 			return -1;
 	}

@@ -4158,6 +4158,9 @@ v0.33.18        27-Jul-2001
 		A check is build in that mbsetup is started by user mbse.
 		Fixed segfault error during exit of mbsetup when writing the
 		golded.inc file when the bbs is more or less unconfigured.
+		The file golded.inc is now only rewritten if changes are made
+		to the main configuration, fidonet data or message areas.
+		Added default archiver record for the Russian ARJ archiver.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a

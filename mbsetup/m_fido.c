@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_fido.c
  * Purpose ...............: Setup Fidonet structure.
- * Last modification date : 19-Oct-2001
+ * Last modification date : 25-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -43,7 +43,8 @@
 
 
 
-int	FidoUpdated = 0;
+int	    FidoUpdated = 0;
+extern int  exp_golded;
 
 
 /*
@@ -89,6 +90,7 @@ int CountFidonet(void)
 			fidonet.available = TRUE;
 			fwrite(&fidonet, sizeof(fidonet), 1, fil);
 			fclose(fil);
+			exp_golded = TRUE;
 			return 2;
 		} else
 			return -1;
@@ -171,6 +173,7 @@ void CloseFidonet(int force)
 	if (FidoUpdated == 1) {
 		if (force || (yes_no((char *)"Database is changed, save changes") == 1)) {
 			working(1, 0, 0);
+			exp_golded = TRUE;
 			fi = fopen(fout, "r");
 			fo = fopen(fin, "w");
 			fread(&fidonethdr, fidonethdr.hdrsize, 1, fi);
