@@ -249,7 +249,7 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 {
 	List	*tmp;
 	char	temp[128], *resp;
-	int	retval;
+	int	retval, fetched = 0;
 	long	total, start, end;
 
 	Syslog('N', "do_one_group(%s, %s)", grpname, ftntag);
@@ -269,6 +269,10 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 	total = atol(strtok(NULL, " "));
 	start = atol(strtok(NULL, " "));
 	end   = atol(strtok(NULL, " '\0'"));
+	if ((msgs.MaxArticles) && (total > msgs.MaxArticles)) {
+	    start = end - msgs.MaxArticles;
+	    total = msgs.MaxArticles;
+	}
 	Syslog('n', "GROUP total %d, start %d, end %d", total, start, end);
 	if (!total) {
 		Syslog('N', "No articles");
@@ -290,11 +294,16 @@ int do_one_group(List **art, char *grpname, char *ftntag)
 				most_debug = TRUE;
 				get_article(tmp->msgid, ftntag);
 				most_debug = FALSE;
+				fetched++;
 			}
 		}
 	}
 
 	tidy_artlist(art);
+
+	if ((msgs.MaxArticles) && (fetched == msgs.MaxArticles))
+	    Syslog('!', "Warning: the maximum articles value for this group might be to low");
+
 	return RETVAL_OK;
 }
 

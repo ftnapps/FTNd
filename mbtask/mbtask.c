@@ -402,6 +402,8 @@ void load_maincfg(void)
         	sprintf(CFG.www_name_next, "Next page");
         	CFG.www_files_page = 10;
 
+		CFG.maxarticles = 500;
+
                 if ((fp = fopen(cfgfn, "a+")) == NULL) {
 			perror("");
                         fprintf(stderr, "Can't create %s\n", cfgfn);

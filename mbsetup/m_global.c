@@ -946,11 +946,12 @@ void s_intmailcfg(void)
         mvprintw(16, 1, "10. UUCP aka");
         mvprintw(17, 1, "11. Emailmode");
 
-        mvprintw(13,42, "12. News mode");
-        mvprintw(14,42, "13. Split at");
-        mvprintw(15,42, "14. Force at");
-        mvprintw(16,42, "15. Control ok");
-        mvprintw(17,42, "16. No regate");
+	mvprintw(12,42, "12. Articles");
+        mvprintw(13,42, "13. News mode");
+        mvprintw(14,42, "14. Split at");
+        mvprintw(15,42, "15. Force at");
+        mvprintw(16,42, "16. Control ok");
+        mvprintw(17,42, "17. No regate");
 
         set_color(WHITE, BLACK);
         show_str( 7,16,64, CFG.popnode);
@@ -966,6 +967,7 @@ void s_intmailcfg(void)
         show_aka(16,16,    CFG.UUCPgate);
         show_emailmode(17,16, CFG.EmailMode);
 
+	show_int( 12,57, CFG.maxarticles);
 	show_newsmode(13,57, CFG.newsfeed);
         show_int( 14,57, CFG.new_split);
         show_int( 15,57, CFG.new_force);
@@ -1020,7 +1022,7 @@ void e_intmailcfg(void)
 
         s_intmailcfg();
         for (;;) {
-                switch(select_menu(16)) {
+                switch(select_menu(17)) {
                 case 0: return;
                 case 1: E_STR(  7,16,64, CFG.popnode,      "The ^FQDN^ of the node where the ^POP3^ server runs.")
                 case 2: E_STR(  8,16,64, CFG.smtpnode,     "The ^FQDN^ of the node where the ^SMTP^ server runs.")
@@ -1050,13 +1052,14 @@ void e_intmailcfg(void)
                         s_intmailcfg();
                         break;
 
-		case 12:CFG.newsfeed = edit_newsmode(13,57, CFG.newsfeed);
+		case 12:E_INT( 12,57, CFG.maxarticles,    "Default maximum ^news articles^ to fetch")
+		case 13:CFG.newsfeed = edit_newsmode(13,57, CFG.newsfeed);
 			s_intmailcfg();
 			break;
-                case 13:E_INT( 14,57, CFG.new_split,       "Gently ^split^ messages after n kilobytes (12..60).")
-                case 14:E_INT( 15,57, CFG.new_force,       "Force ^split^ of messages after n kilobytes (16..64).")
-                case 15:E_BOOL(16,57, CFG.allowcontrol,    "^Allow control^ messages for news to be gated.")
-                case 16:E_BOOL(17,57, CFG.dontregate,      "Don't ^regate^ already gated messages.")
+                case 14:E_INT( 14,57, CFG.new_split,       "Gently ^split^ messages after n kilobytes (12..60).")
+                case 15:E_INT( 15,57, CFG.new_force,       "Force ^split^ of messages after n kilobytes (16..64).")
+                case 16:E_BOOL(16,57, CFG.allowcontrol,    "^Allow control^ messages for news to be gated.")
+                case 17:E_BOOL(17,57, CFG.dontregate,      "Don't ^regate^ already gated messages.")
                 }
         };
 }
@@ -1914,6 +1917,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "      Path to rnews      %s\n", CFG.rnewspath);
 			break;
 	}
+	fprintf(fp, "      Max articles fetch %d\n", CFG.maxarticles);
 	fprintf(fp, "      Allow control msgs %s\n", getboolean(CFG.allowcontrol));
 	fprintf(fp, "      Don't regate msgs  %s\n", getboolean(CFG.dontregate));
 

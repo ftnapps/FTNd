@@ -297,6 +297,7 @@ void InitMsgRec(void)
 	msgs.UsrDelete = TRUE;
 	msgs.Rfccode = CHRS_DEFAULT_RFC;
 	msgs.Ftncode = CHRS_DEFAULT_FTN;
+	msgs.MaxArticles = CFG.maxarticles;
 	strcpy(msgs.Origin, CFG.origin);
 }
 
@@ -430,7 +431,9 @@ int EditConnections(FILE *fil)
 
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
-					sprintf(temp, "%3d. %s %d:%d/%d.%d@%s", o+i, status, System.aka.zone, System.aka.net, System.aka.node, System.aka.point, System.aka.domain);
+					sprintf(temp, "%3d. %s %d:%d/%d.%d@%s", o+i, status, 
+						System.aka.zone, System.aka.net, System.aka.node, 
+						System.aka.point, System.aka.domain);
 				} else {
 					set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.", o+i);
@@ -490,7 +493,14 @@ void SetScreen()
 
 	mvprintw(13,36, "15. Days Old");
 	mvprintw(14,36, "16. Max. Msgs");
-	mvprintw(15,36, "17. Netreply");
+	switch (msgs.Type) {
+	    case ECHOMAIL:  mvprintw(15,36, "17. Netreply");
+			    break;
+	    case NEWS:	    mvprintw(15,36, "17. Articles");
+			    break;
+	    default:	    mvprintw(15,36, "17. N/A");
+			    break;
+	}
 	mvprintw(16,36, "18. Active");
 	mvprintw(17,36, "19. Read Sec.");
 	mvprintw(18,36, "20. Write Sec.");
@@ -503,7 +513,12 @@ void SetScreen()
 	mvprintw(16,60, "26. UnSecure");
 	mvprintw(17,60, "27. OLR Default");
 	mvprintw(18,60, "28. OLR Forced");
-	mvprintw(19,60, "29. Connections");
+	switch (msgs.Type) {
+	    case ECHOMAIL:
+	    case NEWS:
+	    case LIST:	mvprintw(19,60, "29. Connections");
+			break;
+	}
 } 
 
 
@@ -626,7 +641,7 @@ void MsgGlobal(void)
 	FILE		*fil;
 	fidoaddr	a1, a2;
 	int		menu = 0, marea, Areas, akan = 0, Found;
-	int		Total, Done, netbrd, daysold, maxmsgs;
+	int		Total, Done, netbrd, daysold, maxmsgs, maxarticles;
 	long		offset;
 	securityrec	rs, ws, ss;
 	sysconnect	S, Sc;
@@ -660,6 +675,7 @@ void MsgGlobal(void)
 	sprintf(mfile, "%s", CFG.origin);
 	daysold = CFG.defdays;
 	maxmsgs = CFG.defmsgs;
+	maxarticles = CFG.maxarticles;
 	netbrd = 1;
 
 	for (;;) {
@@ -673,16 +689,17 @@ void MsgGlobal(void)
 		mvprintw(10, 6, "4.  Change connection status");
 		mvprintw(11, 6, "5.  Change days old");
 		mvprintw(12, 6, "6.  Change max. messages");
-		mvprintw(13, 6, "7.  Change security");
-		mvprintw(14, 6, "8.  Change aka to use");
-		mvprintw(15, 6, "9.  Change origin line");
-		mvprintw(16, 6, "10. Change netmail reply");
-		mvprintw(17, 6, "11. Delete message area");
+		mvprintw(13, 6, "7.  Change max. articles");
+		mvprintw(14, 6, "8.  Change security");
+		mvprintw(15, 6, "9.  Change aka to use");
+		mvprintw(16, 6, "10. Change origin line");
+		mvprintw(17, 6, "11. Change netmail reply");
+		mvprintw(18, 6, "12. Delete message area");
 
 		memset(&a1, 0, sizeof(fidoaddr));
 		memset(&a2, 0, sizeof(fidoaddr));
 
-		menu = select_menu(11);
+		menu = select_menu(12);
 		switch (menu) {
 			case 0: return;
 			case 1: a1 = PullUplink((char *)"AKA TO DELETE");
@@ -703,14 +720,16 @@ void MsgGlobal(void)
 				E_INT(LINES -3, 14, daysold, (char *)"Enter new number of ^days old^")
 			case 6: mvprintw(LINES -3, 5, "Max. messages");
 				E_INT(LINES -3, 19, maxmsgs, (char *)"Enter ^maximum messages^")
-			case 7: rs = edit_sec(6, 5, rs, (char *)"9.2.7 READ SECURITY");
+			case 7:	mvprintw(LINES -3, 6, "Max. articles");
+				E_INT(LINES -3, 19, maxarticles, (char *)"Enter ^maximum news articles^ to fetch")
+			case 8: rs = edit_sec(6, 5, rs, (char *)"9.2.7 READ SECURITY");
 				ws = edit_sec(7, 5, ws, (char *)"9.2.7 WRITE SECURITY");
 				ss = edit_sec(8, 5, ss, (char *)"9.2.7 SYSOP SECURITY");
 				break;
-			case 8: akan = PickAka((char *)"9.2.8", TRUE);
+			case 9: akan = PickAka((char *)"9.2.8", TRUE);
 				break;
-			case 9: E_STR(LINES -3, 5, 64, mfile, "Enter new ^origin^ line");
-			case 10:mvprintw(LINES -3, 5, "Netmail reply board");
+			case 10:E_STR(LINES -3, 5, 64, mfile, "Enter new ^origin^ line");
+			case 11:mvprintw(LINES -3, 5, "Netmail reply board");
 				E_INT(LINES -3, 25, netbrd, (char *)"The ^netmail reply^ board number")
 		}
 
@@ -735,7 +754,9 @@ void MsgGlobal(void)
 				break;
 			case 6: mvprintw(7, 6, "Change maximum messages to %d", maxmsgs);
 				break;
-			case 7:	set_color(CYAN, BLACK);
+			case 7:	mvprintw(7, 6, "Change maximum news articles to fetch to %d", maxarticles);
+				break;
+			case 8:	set_color(CYAN, BLACK);
 				mvprintw(7, 6, "Read security");
 				mvprintw(8, 6, "Write security");
 				mvprintw(9, 6, "Sysop security");
@@ -744,14 +765,14 @@ void MsgGlobal(void)
 				show_sec(8, 21, ws);
 				show_sec(9, 21, ss);
 				break;
-			case 8:	if (akan != -1)
+			case 9:	if (akan != -1)
 					mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
 				break;
-			case 9:	mvprintw(7, 6, "Origin: %s", mfile);
+			case 10:mvprintw(7, 6, "Origin: %s", mfile);
 				break;
-			case 10:mvprintw(7, 6, "New netmail reply board %d", netbrd);
+			case 11:mvprintw(7, 6, "New netmail reply board %d", netbrd);
 				break;
-			case 11:mvprintw(7, 6, "Delete message areas");
+			case 12:mvprintw(7, 6, "Delete message areas");
 				break;
 		}
 
@@ -876,7 +897,15 @@ void MsgGlobal(void)
 									}
 								}
 								break;
-							case 7:	if ((msgs.RDSec.level != rs.level) ||
+							case 7:	if (maxarticles != msgs.MaxArticles) {
+								    msgs.MaxArticles = maxarticles;
+								    if (SaveMsgRec(marea, FALSE) == 0) {
+									Done++;
+									Syslog('+', "Changed max news articles to fetch to %d in area %s", maxarticles, msgs.Tag);
+								    }
+								}
+								break;
+							case 8:	if ((msgs.RDSec.level != rs.level) ||
 								    (msgs.RDSec.flags != rs.flags) ||
 								    (msgs.RDSec.notflags != rs.notflags) ||
 								    (msgs.WRSec.level != ws.level) ||
@@ -894,7 +923,7 @@ void MsgGlobal(void)
 									}
 								}
 								break;
-							case 8:	if (akan != -1) {
+							case 9:	if (akan != -1) {
 									if ((msgs.Aka.zone != CFG.aka[akan].zone) ||
 									    (msgs.Aka.net != CFG.aka[akan].net) ||
 									    (msgs.Aka.node != CFG.aka[akan].node) ||
@@ -911,7 +940,7 @@ void MsgGlobal(void)
 									}
 								}
 								break;
-							case 9:	if (strcmp(msgs.Origin, mfile)) {
+							case 10:if (strcmp(msgs.Origin, mfile)) {
 									sprintf(msgs.Origin, "%s", mfile);
 									if (SaveMsgRec(marea, FALSE) == 0) {
 										Done++;
@@ -919,7 +948,7 @@ void MsgGlobal(void)
 									}
 								}
 								break;
-							case 10:if (netbrd != msgs.NetReply) {
+							case 11:if (netbrd != msgs.NetReply) {
 									msgs.NetReply = netbrd;
 									if (SaveMsgRec(marea, FALSE) == 0) {
 										Done++;
@@ -927,7 +956,7 @@ void MsgGlobal(void)
 									}
 								}
 								break;
-							case 11:if (msgs.Active) {
+							case 12:if (msgs.Active) {
 									msgs.Active = FALSE;
 									memset(&msgs.Name, 0, sizeof(msgs.Name));
 									if (SaveMsgRec(marea, FALSE) == 0) {
@@ -994,7 +1023,12 @@ int EditMsgRec(int Area)
 
 		show_int( 13,52, msgs.DaysOld);
 		show_int( 14,52, msgs.MaxMsgs);
-		show_int( 15,52, msgs.NetReply);
+		switch (msgs.Type) {
+		    case ECHOMAIL:  show_int( 15,52, msgs.NetReply);
+				    break;
+		    case NEWS:	    show_int( 15,52, msgs.MaxArticles);
+				    break;
+		}
 		show_bool(16,52, msgs.Active);
 		show_int( 17,52, msgs.RDSec.level);
 		show_int( 18,52, msgs.WRSec.level);
@@ -1068,12 +1102,22 @@ int EditMsgRec(int Area)
 			SetScreen(); 
 			break;
 		case 10:E_STR( 15,16,16,msgs.Distribution,  "The ^Distribution^ name if this is a newsgroup")
-		case 11:msgs.Type = edit_msgtype(16,16, msgs.Type); break;
+		case 11:msgs.Type = edit_msgtype(16,16, msgs.Type); 
+			SetScreen();
+			break;
 		case 12:msgs.MsgKinds = edit_msgkinds(17,16, msgs.MsgKinds); break;
 
 		case 15:E_INT( 13,52,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")
 		case 16:E_INT( 14,52,   msgs.MaxMsgs,       "The ^maximum^ amount of messages in this area")
-		case 17:E_INT( 15,52,   msgs.NetReply,      "The ^Area Number^ for netmail replies")
+		case 17:switch (msgs.Type) {
+			    case ECHOMAIL:  msgs.NetReply = edit_int(15,52,msgs.NetReply, 
+						    (char *)"The ^Area Number^ for netmail replies");
+					    break;
+			    case NEWS:	    msgs.MaxArticles = edit_int(15,52,msgs.MaxArticles,
+						    (char *)"The ^maximum news articles^ to fetch");
+					    break;
+			}
+			break;
 		case 18:E_BOOL(16,52,   msgs.Active,        "Is this area ^Active^")
 		case 19:E_SEC( 17,52,   msgs.RDSec,         "9.2 EDIT READ SECURITY", SetScreen)
 		case 20:E_SEC( 18,52,   msgs.WRSec,         "9.2 EDIT WRITE SECURITY", SetScreen)
@@ -1086,9 +1130,15 @@ int EditMsgRec(int Area)
 		case 26:E_BOOL(16,76,   msgs.UnSecure,      "Toss messages ^UnSecure^, ie: no originating check")
 		case 27:E_BOOL(17,76,   msgs.OLR_Default,   "Area is ^default^ for ^offline^ users.")
 		case 28:E_BOOL(18,76,   msgs.OLR_Forced,    "Area is ^always on^ for ^offline^ users.")
-		case 29:if (EditConnections(tfil))
-				changed = TRUE;
-			SetScreen(); break;
+		case 29:switch (msgs.Type) {
+			    case ECHOMAIL:
+			    case NEWS:
+			    case LIST:	if (EditConnections(tfil))
+					    changed = TRUE;
+					SetScreen();
+					break;
+			}
+			break;
 		}
 	}
 }
@@ -1506,6 +1556,7 @@ int mail_area_doc(FILE *fp, FILE *toc, int page)
 			fprintf(fp, "    RFC charset      %s\n", printable(getchrs(msgs.Rfccode), 0));
 			fprintf(fp, "    Days old msgs.   %d\n", msgs.DaysOld);
 			fprintf(fp, "    Maximum msgs.    %d\n", msgs.MaxMsgs);
+			fprintf(fp, "    Max articles     %d\n", msgs.MaxArticles);
 			fprintf(fp, "    Users delete     %s\n", getboolean(msgs.UsrDelete));
 			fprintf(fp, "    Read security    %s\n", get_secstr(msgs.RDSec));
 			fprintf(fp, "    Write security   %s\n", get_secstr(msgs.WRSec));
