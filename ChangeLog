@@ -5,8 +5,7 @@ v0.39.6		11-Jan-2004
 	mbcico:
 		New binkp/1.1 driver fixes for Sun NetBSD.
 		Removed TCP ignore check in EOB state.
-		FIXME: transmitter on slow systems processes GOT while file
-		seems still in transmit state.
+		Transmiter file close now right after last block.
 
 	mbsetup:
 		Reorganised menu 1.4 screen 1 and 2.
