@@ -138,6 +138,9 @@ v0.37.01	14-Jan-2003.
 		English textfiles and menus are updated to show the new menu
 		functions.
 
+	script:
+		Added full path to pidof command in FreeBSD init script.
+
 	lang:
 		Changed english, german and dutch language prompts 11, 12, 13,
 		14 and 107.
