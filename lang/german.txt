@@ -1,11 +1,11 @@
 |Bitte Vor- und Nachnamen eingeben: 
-|Bitte geben Sie Ihre Nachnamen ein: 
+|Bitte geben Sie Ihren Nachnamen ein: 
 |Abmelden des Benutzers ...
 |Pruefen der Datei ...
-JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n] 
-|You need to login again with the name: 
+JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
+|Bitte melden Sie sich nun mit folgendem Namen erneut an: 
 |Dies ist ein PRIVATES System. Geben Sie zum Verlassen "off" ein
-|Geben Sie die Nummer ein - beenden mit <Enter>: 
+|Geben Sie bitte die Nummer ein - beenden mit <Enter>: 
 |Passwort: 
 |Die maximale Anzahl von Login-Versuchen wurde ueberschritten ...
 |Entweder Ihr NAME oder Ihr PASSWORT wurden falsch eingegeben
@@ -34,9 +34,9 @@ ZKE|(Z)eit, (K)Bytes, (E)nde :
 |Maximal zu sparende Kilobytes pro Tag: 
 |Sie haben Ihr Konto ueberzogen.
 |Die maximal verfuegbaren Kilobytes auf dem Konto sind: 
-|Wieviele Kilobytes. Verfuegbare KBytes fuer Sie sind: 
-|MBSE Bulletin Board System - Neubenutzer Anmeldung
-|Diesen Namen benutzen: 
+|Wieviele Kilobytes? Verfuegbare KBytes fuer Sie sind: 
+|MBSE Bulletin Board System - Anlegen eines neuen Benutzerkontos
+|Diesen Namen verwenden: 
 |Bitte das neue Passwort eingeben    : 
 |Bitte das neue Passwort wiederholen : 
 |Die Passwoerter stimmen nicht ueberein! Bitte wiederholen.
@@ -60,27 +60,27 @@ MW|Sind Sie (m)aennlich oder (w)eiblich ? :
 |*** Der Sysop beginnt den Chat ***
 |*** Der Sysop hat den Chat beendet ***
 JN=|Weiter (J/n/=) 
-JN|Moechten Sie Hot-Key-Menues verwenden? [J/n]: 
+JN|Moechten Sie Menues mit "Hot-Keys" verwenden? [J/n]: 
 |Bitte druecken Sie J oder N
-|Geben Sie bitte die Zeilenanzahl an [24]: 
+|Geben Sie bitte die Zeilenanzahl Ihres Bildschirms an [24]: 
 |Keine(r)
 |Mitteilungsbereiche fuer den Offline Reader markieren
-|Ihr Benutzeraccount wurde eingerichtet:
+|Ihr Benutzeraccount wurde wie folgt eingerichtet:
 |Login Name : 
 |Passwort   : 
-|nicht angezeigt
-|New user registration completed.
+| * * * * * 
+|Die Registrierung des neuen Benutzeraccounts ist abgeschlossen.
 |Unbekannt 
 |Bisheriger Ort: 
 |Bitte geben Sie eine laengere Bezeichung fuer den Ort ein (min 
 |Ansi Modus ist jetzt EIN
 |Ansi Modus ist jetzt AUS
 |Die Mitteilung existiert nicht
-|News bulletins sind jetzt EIN
-|News bulletins sind jetzt AUS
+|System-Mitteilungen sind jetzt EIN
+|System-Mitteilungen sind jetzt AUS
 |Die Zeilenanzahl ist 24
 |Die Zeilenanzahl ist jetzt gesetzt auf: 
-|Private Mittelung - Sie sind nicht der Besitzer
+|Private Mitteilung - Sie sind weder Absender noch Empfaenger
 |Bitte verwenden Sie das vorgegebene Datumsformat
 |Logins heute bis 
 |#    User Name           Leitg.  TimeOn  Calls  Ort
@@ -162,7 +162,7 @@ JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]:
 |Betreff  : 
 JN|Mitteilung verwerfen [j/N] ?: 
 JN|Privat [j/N]: 
-|Schreiben Sie die Mitteilung jetzt; Beenden: eine leere Zeile eingeben
+|Schreiben Sie die Mitteilung jetzt.  Beenden: eine leere Zeile eingeben
 |Maximal 60 Zeilen, 73 Zeichen pro Zeile
 |Maximale Zeilenanzahl erreicht
 |Verfuegbare Funktionen: (Aktuelle Mitteilung: 
@@ -242,7 +242,7 @@ ANE|(A)ntwort, (N)aechste, (E)nde:
 JN|Adresse unbekannt, dennoch fortfahren [j/N]: 
 |Dateien insgesamt: 
 |FATAL: die Datenbank der Dateibereiche kann nicht geoeffnet werden
-|Sie haben nicht ausreichend Rechte fuer das Herunterladen aus diesem Bereich
+|Sie haben nicht ausreichend Rechte zum Herunterladen aus diesem Bereich
 |Bitte den Dateinamen angeben: 
 |Kein Dateiname angegeben, Abbruch.
 |Ungueltiger Dateiname!
@@ -251,9 +251,9 @@ JN|Adresse unbekannt, dennoch fortfahren [j/N]:
 |zusaetzliche Download-KBytes.
 |Ihre Restzeit reicht nicht fuer das Herunterladen dieser Datei.
 |Ihr Download-Limit reicht nicht fuer das Herunterladen " 
-|Sie muessen etwas heraufladen bevor Sie herunterladen.
+|Sie muessen etwas heraufladen bevor Sie herunterladen koennen.
 |Kilobytes verfÅgbar: 
-|Pruefe die markierten Downloads, bitte warten...
+|Pruefe die markierten Downloads, bitte warten ...
 |Mitteilungsbereiche fuer den "Offline Reader" abwaehlen
 |FILEID.DIZ gefunden in
 |Es sind keine Dateien zum Herunterladen markiert.
@@ -379,12 +379,12 @@ JN|Sind Sie sicher? [J/n]:
 |Waehlen Sie Ihre bevorzugte Sprache aus
 |Sprache auswaehlen (<Enter> um abzubrechen): 
 |Sprache ist jetzt eingestellt auf: 
-|Das System wird Sie jetzt nach einem "Unix Account"
-|Ihr "Unix Account" wurde erzeugt, sie koennen Sie ihn beim naechsten mal nutzen.
-|Bitte geben Sie einen "Login-Namen" ein (Max. 8 Zeichen)
-|zB. John Doe, login = jdoe
-|login > 
-|Dieser "Login-Name" existiert bereits, bitte waehlen Sie einen anderen.
+|Das System wird jetzt einem Unix-Account fuer Sie anlegen
+|Ihr Unix-Account wurde angelegt, bitte verwenden Sie ihn ab jetzt zum Login.
+|Bitte geben Sie einen Anmeldenamen ein (Max. 8 Zeichen)
+|Beispiel:  "Gerhard Schroeder",  login = gschroed
+|Ihr gewuenschter Anmeldename: 
+|Dieser Anmeldename existiert bereits, bitte waehlen Sie einen anderen.
 |
 |
 |
@@ -436,7 +436,7 @@ JN|Moechten Sie diese Mitteilungen herunterladen [J/n]?
 |Ihr Passwort ist abgelaufen, neues Passwort: 
 |Druecken Sie <Enter> um fortzufahren 
 |Kein Senden moeglich, diese Area ist "Nur lesen"!
-|In dieser Area sind keine Antworten zugelassen!
+|In dieser Area sind Antworten nicht zugelassen!
 |"Offline Reader" Paket heraufladen 
 |Kein oder fehlerhaftes Paket erhalten
 |Unbekannter Datenkompressionstyp
@@ -470,10 +470,10 @@ JN|Datei anhaengen [j/N]:
 |trash    - Papierkorb, Ihre alte E-mail
 |Bereich # 
 |Minuten.
-|Fullscreen Editor shortcut keys set to Emacs
-|Fullscreen Editor shortcut keys set to Wordstar
-|Your address, maximum 3 lines (only visible for the sysop):
-|You need to enter your address here
-|Old address:
-|Use your alias (
-YN|) to post this message [Y/n]:
+|Tastenbelegung Vollbild-Editor im "Emacs" - Stil
+|Tastenbelegung Vollbild-Editor im "Wordstar" - Stil
+|Ihre Adresse (max. 3 Zeilen, nur fuer den Sysop sichtbar):
+|Sie muessen Ihre Adresse hier angeben
+|Alte Adresse:
+|Moechten Sie Ihren Aliasnamen (
+JN|) als Absender verwenden [J/n] 

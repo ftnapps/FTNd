@@ -4593,6 +4593,7 @@ v0.33.20        10-Feb-2002
 		Installing the maptabs don't give any errors anymore when
 		installed as user mbse. The location of the source isn't
 		important anymore to install the maptabs.
+		Updated German language.
 
 	common.a:
 		Added 2 functions to return the OS name and CPU family.
