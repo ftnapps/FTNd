@@ -60,13 +60,15 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	U: Add routing table to override standard routing.
+	U: Add routing table to override standard routing. UNDER TEST NOW!
 
 	N: Add traffic to html.nodes
 
 	N: Add stats for posts made by external programs.
 
 	N: Add macro's for stats of all months.
+
+	L: A separate log for processed area/filemgr requests.
 
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.

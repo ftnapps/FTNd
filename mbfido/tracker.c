@@ -44,6 +44,95 @@
 extern char	nodes_fil[81];
 extern long	nodes_pos;
 
+
+
+/*
+ * Parse the mask from the routing table. If all 4d address parts
+ * are 0, then something is wrong. This cannot happen because the
+ * syntax is checked in mbsetup.
+ * Matched values return the actual value, the "All" masks return 65535.
+ */
+void ParseMask(char *, fidoaddr *);
+void ParseMask(char *s, fidoaddr *addr)
+{
+    char	    *buf, *str, *p;
+    int		    good = TRUE;
+
+    memset(addr, 0, sizeof(fidoaddr));
+
+    if (s == NULL)
+	return;
+
+    str = buf = xstrcpy(s);
+
+    addr->zone = 65535;
+    if ((p = strchr(str, ':'))) {
+	*(p++) = '\0';
+	if (strspn(str, "0123456789") == strlen(str))
+	    addr->zone = atoi(str);
+	else
+	    if (strcmp(str,"All"))
+		good = FALSE;
+	str = p;
+    }
+
+    addr->net = 65535;
+    if ((p = strchr(str, '/'))) {
+	*(p++) = '\0';
+	if (strspn(str, "0123456789") == strlen(str))
+	    addr->net = atoi(str);
+	else 
+	    if (strcmp(str, "All"))
+		good = FALSE;
+	    str = p;
+    }
+
+    if ((p=strchr(str, '.'))) {
+	*(p++) = '\0';
+	if (strspn(str, "0123456789") == strlen(str))
+	    addr->node = atoi(str);
+	else 
+	    if (strcmp(str, "All") == 0)
+		addr->node = 65535;
+	    else 
+		good = FALSE;
+	    str = p;
+    } else {
+	if (strspn(str, "0123456789") == strlen(str))
+	    addr->node = atoi(str);
+	else 
+	    if (strcmp(str, "All") == 0)
+		addr->node = 65535;
+	    else 
+		good = FALSE;
+	    str = NULL;
+    }
+
+    if (str) {
+	if (strspn(str, "0123456789") == strlen(str))
+	    addr->point = atoi(str);
+	else 
+	    if (strcmp(str, "All") == 0)
+		addr->point = 65535;
+	    else 
+		good = FALSE;
+    }
+
+    if (buf)
+	free(buf);
+
+    if (!good) {
+	addr->zone  = 0;
+	addr->net   = 0;
+	addr->node  = 0;
+	addr->point = 0;
+    }
+
+    return;
+}
+
+
+
 /*
  *  Netmail tracker. Return TRUE if we found a valid route.
  *  If we did find a route, it is returned in the route pointer.
@@ -177,11 +266,13 @@ int GetRoute(char *ftn, fidoaddr *res)
 	node		*dnlent, *bnlent;
 	unsigned short	myregion;
 	faddr		*dest, *best, *maddr;
-	fidoaddr	*fido;
+	fidoaddr	*fido, mask;
 	int		me_host = -1, me_hub = -1;
-	int		i;
+	int		i, match, last;
 	fidoaddr	dir;
 	FILE		*fil;
+	char		*temp;
+	long		ptr;
 
 	memset(res, 0, sizeof(fidoaddr));
 	dest = parsefnode(ftn);
@@ -194,6 +285,83 @@ int GetRoute(char *ftn, fidoaddr *res)
 	Syslog('r', "Get route for: %s", ascfnode(dest, 0xff));
 	Syslog('r', "Our best aka is: %s", ascfnode(best, 0xff));
 
+	/*
+	 * Check routing table
+	 */
+	temp = calloc(PATH_MAX, sizeof(char));
+	sprintf(temp, "%s/etc/route.data", getenv("MBSE_ROOT"));
+	if ((fil = fopen(temp, "r")) != NULL) {
+	    fread(&routehdr, sizeof(routehdr), 1, fil);
+
+	    match = last = METRIC_MAX;
+	    ptr = ftell(fil);
+
+	    while (fread(&route, routehdr.recsize, 1, fil) == 1) {
+		if (route.Active) {
+		    ParseMask(route.mask, &mask);
+		    Syslog('r', "Table %s => %s", route.mask, aka2str(route.dest));
+		    match = METRIC_MAX;
+		    if (mask.zone) {
+			if ((mask.zone == 65535) || (mask.zone == dest->zone)) {
+			    match = METRIC_ZONE;
+			    if ((mask.net == 65535) || (mask.net == dest->net)) {
+				match = METRIC_NET;
+				if ((mask.node == 65535) || (mask.node == dest->node)) {
+				    match = METRIC_NODE;
+				    if ((mask.point == 65535) || (mask.point == dest->point))
+					match = METRIC_POINT;
+				}
+			    }
+			}
+			if (match < last) {
+			    Syslog('r', "Best util now");
+			    last = match;
+			    ptr = ftell(fil) - routehdr.recsize;
+			}
+			switch (match) {
+			    case METRIC_MAX:    Syslog('r', "Match MAX");
+					    break;
+			    case METRIC_ZONE:   Syslog('r', "Match ZONE");
+					    break;
+			    case METRIC_NET:    Syslog('r', "Match NET");
+					    break;
+			    case METRIC_NODE:   Syslog('r', "Match NODE");
+					    break;
+			    case METRIC_POINT:  Syslog('r', "Match POINT");
+					    break;
+			}
+		    } else {
+			Syslog('r', "Error in table");
+		    }
+		}
+	    }
+
+	    if (last < METRIC_MAX) {
+		fseek(fil, ptr, SEEK_SET);
+		fread(&route, routehdr.recsize, 1, fil);
+		fclose(fil);
+		Syslog('r', "Route selected %s %d %s", route.mask, route.routetype, aka2str(route.dest));
+		/*
+		 * Found a route record that matches. Return to caller with the result except
+		 * when the result is RT_DEFAULT, which means fall down to the default router below.
+		 * This is also true for routes that don't match at all.
+		 */
+		if (route.routetype == RT_ROUTE) {
+		    Syslog('+', "R: %s Routing table: Route => %s", ascfnode(dest, 0xff), aka2str(route.dest));
+		    memcpy(res, &route.dest, sizeof(fidoaddr));
+		    return R_ROUTE;
+		}
+		if (route.routetype == RT_DIRECT) {
+		    Syslog('+', "R: %s Routing table: Direct => %s", ascfnode(dest, 0xff), aka2str(route.dest));
+		    memcpy(res, &route.dest, sizeof(fidoaddr));
+		    return R_DIRECT;
+		}
+	    } else {
+		fclose(fil);
+	    }
+	}
+	free(temp);
+	
 	/*
 	 * Check if the destination is ourself.
 	 */

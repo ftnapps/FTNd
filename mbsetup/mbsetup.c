@@ -70,6 +70,7 @@
 #include "m_service.h"
 #include "m_domain.h"
 #include "m_task.h"
+#include "m_route.h"
 
 
 mode_t		oldmask;		/* Old umask value	 	*/
@@ -218,6 +219,7 @@ void site_docs(void)
 	page = service_doc(fp, toc, page);
 	page = domain_doc(fp, toc, page);
 	page = task_doc(fp, toc, page);
+	page = route_doc(fp, toc, page);
 
 	/*
 	 * Append table of contents
@@ -372,6 +374,7 @@ void initdatabases(void)
     InitTtyinfo();
     InitUsers();
     InitVirus();
+    InitRoute();
 
     if (!init) {
 	working(0, 0, 0);
@@ -448,18 +451,19 @@ int main(int argc, char *argv[])
 		mvprintw(14, 6, "8.    Edit BBS Setup");
 		mvprintw(15, 6, "9.    Edit Mail Setup");
 		mvprintw(16, 6, "10.   Edit File Echo's setup");
-		mvprintw( 7,46, "11.   Edit Newfiles Groups");
-		mvprintw( 8,46, "12.   Edit Newfiles Reports");
-		mvprintw( 9,46, "13.   Edit FileFind Setup");
-		mvprintw(10,46, "14.   Edit Files Database");
-		mvprintw(11,46, "15.   Edit BBS Users");
-		mvprintw(12,46, "16.   Edit Services");
-		mvprintw(13,46, "17.   Edit Domains");
-		mvprintw(14,46, "18.   Edit Task Manager");
-		mvprintw(15,46, "19.   Show software information");
-		mvprintw(16,46, "20.   Create site documents");
+		mvprintw(17, 6, "11.   Edit Newfiles Groups");
+		mvprintw( 7,46, "12.   Edit Newfiles Reports");
+		mvprintw( 8,46, "13.   Edit FileFind Setup");
+		mvprintw( 9,46, "14.   Edit Files Database");
+		mvprintw(10,46, "15.   Edit BBS Users");
+		mvprintw(11,46, "16.   Edit Services");
+		mvprintw(12,46, "17.   Edit Domains");
+		mvprintw(13,46, "18.   Edit Task Manager");
+		mvprintw(14,46, "19.   Edit Routing Table");
+		mvprintw(15,46, "20.   Show software information");
+		mvprintw(16,46, "21.   Create site documents");
  
-		switch(select_menu(20)) {
+		switch(select_menu(21)) {
 		case 0:
 			loop = 0;
 			break;
@@ -518,9 +522,12 @@ int main(int argc, char *argv[])
 			task_menu();
 			break;
 		case 19:
-			soft_info();
+			EditRoute();
 			break;
 		case 20:
+			soft_info();
+			break;
+		case 21:
 			site_docs();
 			break;
 		}

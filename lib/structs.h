@@ -56,7 +56,7 @@ typedef enum {E_NOISP, E_TMPISP, E_PRMISP} EMODE;
 typedef enum {AREAMGR, FILEMGR, EMAIL} SERVICE;
 typedef enum {FEEDINN, FEEDRNEWS, FEEDUUCP} NEWSFEED;
 typedef enum {S_DIRECT, S_DIR, S_FTP} SESSIONTYPE;
-typedef enum {R_ROUTE, R_NEWDEST, R_BOUNCE, R_CC} ROUTER;
+typedef enum {RT_ROUTE, RT_DIRECT, RT_DEFAULT, RT_REDIRECT, RT_BOUNCE, RT_CC} ROUTER;
 
 
 /***********************************************************************
@@ -1585,6 +1585,8 @@ struct _route {
 	int		routetype;		/* What to do with it	    */
 	fidoaddr	dest;			/* Destination address	    */
 	char		dname[37];		/* Destination name	    */
+	unsigned	Active	    : 1;	/* Is record active	    */
+	unsigned	Deleted	    : 1;	/* Is record deleted	    */
 };
 
 

@@ -1769,46 +1769,49 @@ int edit_sessiontype(int y, int x, int val)
 
 
 
-char *get_routertype(int val)
+char *get_routetype(int val)
 {
     switch (val) {
-	case R_ROUTE:	    return (char *)"Routed    ";
-	case R_NEWDEST:	    return (char *)"Redirect  ";
-	case R_BOUNCE:	    return (char *)"Bounce    ";
-	case R_CC:	    return (char *)"CarbonCopy";
+	case RT_ROUTE:	    return (char *)"Route to   ";
+	case RT_DIRECT:	    return (char *)"Direct     ";
+	case RT_DEFAULT:    return (char *)"Default    ";
+	case RT_REDIRECT:   return (char *)"New address";
+	case RT_BOUNCE:	    return (char *)"Bounce     ";
+	case RT_CC:	    return (char *)"CarbonCopy ";
 	default:	    return NULL;
     }
 }
 
 
 
-void show_routertype(int y, int x, int val)
+void show_routetype(int y, int x, int val)
 {
-    mvprintw(y, x, get_routertype(val));
+    mvprintw(y, x, get_routetype(val));
 }
 
 
 
-int edit_routertype(int y, int x, int val)
+int edit_routetype(int y, int x, int val)
 {
     int ch;
 
     showhelp((char *)"Toggle ^Routing mode^ with spacebar, press <Enter> whene done.");
     do {
 	set_color(YELLOW, BLUE);
-	show_routertype(y, x, val);
+	show_routetype(y, x, val);
 
 	ch = readkey(y, x, YELLOW, BLUE);
 
 	if (ch == ' ') {
-	    if (val < R_CC)
+//	    if (val < RT_CC)
+	    if (val < RT_DEFAULT)
 		val++;
 	    else
-		val = R_ROUTE;
+		val = RT_ROUTE;
 	}
     } while (ch != KEY_ENTER && ch != '\012');
     set_color(WHITE, BLACK);
-    show_routertype(y, x, val);
+    show_routetype(y, x, val);
     return val;
 }
 

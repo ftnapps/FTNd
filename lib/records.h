@@ -118,7 +118,7 @@ struct	_newfiles	newfiles;
 struct	_scanmgrhdr	scanmgrhdr;		/* Filefind areas	   */
 struct	_scanmgr	scanmgr;
 
-struct	_routehdr	routerhdr;		/* Routing file		    */
+struct	_routehdr	routehdr;		/* Routing file		    */
 struct	_route		route;
 
 #endif

@@ -1,5 +1,11 @@
 $Id$
 
+			WARNING WARNING WARNING WARNING
+
+		DO NOT USE ON PRODUCTION SYSTEMS, ONLY FOR TESTING
+
+
+
 				MBSEBBS History.
 
 v0.35.03	06-Jul-2002
@@ -24,6 +30,7 @@ v0.35.03	06-Jul-2002
 		When a new tic area was created the first file received for
 		that area was refused.
 		Fixed a few problems with local UUCP created netmails.
+		Added very experimental routing table.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
@@ -50,6 +57,7 @@ v0.35.03	06-Jul-2002
 		When a JAM messagebase path is changed in one of the message
 		area, filefind and newfiles records are automatic updated if
 		they were connected to that area.
+		Added setup for routing table.
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
