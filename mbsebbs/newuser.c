@@ -621,7 +621,7 @@ void Fast_Bye(int onsig)
     socket_shutdown(mypid);
 	
     temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
+    sprintf(temp, "%s/tmp/mbnewusr%d", getenv("MBSE_ROOT"), getpid());
     unlink(temp);
     free(temp);
 

@@ -55,6 +55,10 @@ v0.61.4		11-Aug-2004
 		When calling the external editor, the fromaddress if available
 		is given to joe.
 
+	mbnewusr:
+		During program exit, it tried to remove the wrong socket to
+		mbtask.
+
 	mbuser:
 		Fixed permissions.
 
