@@ -547,7 +547,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(fgroup.UseAka));
+    i = metric(b, fido2faddr(tic.Aka));
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -627,7 +627,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(fgroup.UseAka));
+    i = metric(b, fido2faddr(tic.Aka));
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -653,7 +653,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	 */
 	f_list = TRUE;
 	Syslog('+', "Connected to file area %s", Area);
-	fprintf(tmp, "Connected to area %s\n", Area);
+	fprintf(tmp, "Connected to area %s using aka %s\n", Area, aka2str(tic.Aka));
 	return;
     }
 
@@ -719,7 +719,8 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 		fseek(fp, tichdr.hdrsize, SEEK_SET);
 		while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 
-		    if ((!strcmp(Group, tic.Group)) && tic.Active && (metric(fido2faddr(fgroup.UseAka), f) == METRIC_EQUAL)) {
+		    if ((!strcmp(Group, tic.Group)) && tic.Active && strlen(tic.Name) &&
+			(metric(fido2faddr(tic.Aka), f) < METRIC_NET)) {
 
 			if (Connect) {
 			    Link = FALSE;
@@ -740,7 +741,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					fseek(fp, - sizeof(Sys), SEEK_CUR);
 					fwrite(&Sys, sizeof(Sys), 1, fp);
 					Syslog('+', "FileMgr: Connected %s", tic.Name);
-					fprintf(tmp, "Connected area %s\n", tic.Name);
+					fprintf(tmp, "Connected area %s using aka %s\n", tic.Name, aka2str(tic.Aka));
 					f_list = TRUE;
 					break;
 				    }

@@ -665,7 +665,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(mgroup.UseAka));
+    i = metric(b, fido2faddr(msgs.Aka));
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -745,7 +745,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(mgroup.UseAka));
+    i = metric(b, fido2faddr(msgs.Aka));
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -772,7 +772,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	 */
 	a_list = TRUE;
 	Syslog('+', "Connected echo area %s", Area);
-	fprintf(tmp, "Connected to area %s\n", Area);
+	fprintf(tmp, "Connected to area %s using aka %s\n", Area, aka2str(msgs.Aka));
 	return;
     }
 
@@ -805,7 +805,9 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     }
 
     f = bestaka_s(t);
-    Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
+    temp = xstrcpy(ascfnode(t, 0x1f));
+    Syslog('m', "Bestaka for %s is %s", temp, ascfnode(f, 0x1f));
+    free(temp);
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
@@ -840,8 +842,9 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 		fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
-		    if ((!strcmp(Group, msgs.Group)) && (msgs.Active) && (!msgs.Mandatory) &&
-			    (metric(fido2faddr(mgroup.UseAka), f) == METRIC_EQUAL)) {
+		    if ((!strcmp(Group, msgs.Group)) && (msgs.Active) && (!msgs.Mandatory) && strlen(msgs.Tag) &&
+			    ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST)) &&
+			    (metric(fido2faddr(msgs.Aka), f) < METRIC_NET)) {
 
 			if (Connect) {
 			    Link = FALSE;
@@ -863,7 +866,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					fseek(mp, - sizeof(Sys), SEEK_CUR);
 					fwrite(&Sys, sizeof(Sys), 1, mp);
 					Syslog('+', "AreaMgr: Connected %s", msgs.Tag);
-					fprintf(tmp, "Connected area %s\n", msgs.Tag);
+					fprintf(tmp, "Connected area %s using aka %s\n", msgs.Tag, aka2str(msgs.Aka));
 					a_list = TRUE;
 					break;
 				    }

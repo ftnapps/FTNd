@@ -4,7 +4,7 @@
  * Purpose ...............: SEEN-BY and PATH lists
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -53,10 +53,10 @@ int in_list(faddr *addr, fa_list **fap, int fourd)
 {
 	fa_list	*tmp;
 
-	Syslog('M', "in_list: Seeking seen-by match for %s", ascinode(addr,0x06));
-
+	/*
+	 * No seenby check for points
+	 */
 	if (addr->point) {
-		Syslog('M', "in_list: No seen-by check for point address");
 		return 0;
 	}
 
@@ -65,11 +65,9 @@ int in_list(faddr *addr, fa_list **fap, int fourd)
 		    ((!fourd) || (fourd && (tmp->addr->zone == addr->zone))) &&
 		    ((!fourd) || (fourd && (tmp->addr->point == addr->point))) &&
 		    (tmp->addr->node == addr->node)) {
-			Syslog('M', "in_list: Match found");
 			return 1;
 		}
 
-	Syslog('M', "in_list: Match not found");
 	return 0;
 }
 
@@ -102,7 +100,6 @@ void fill_list(fa_list **fap, char *str, fa_list **omit)
 		else 
 			oldnet = ta->net;
 		if (allowskip && omit && *omit && (metric(ta,(*omit)->addr) == 0)) {
-			Syslog('m', "fill_list: omit %s", ascfnode(ta,0x1f));
 			tmp = *omit;
 			*omit = (*omit)->next;
 			tmp->next = NULL;
@@ -200,8 +197,7 @@ void sort_list(fa_list **fap)
 	i = 1;
 
 	for (ta = *fap; ta; ta = ta->next) {
-		while ((i < n) && (compaddr(&ta,&(vector[i])) == 0))
-		{
+		while ((i < n) && (compaddr(&ta,&(vector[i])) == 0)) {
 			tidy_faddr((vector[i])->addr);
 			free(vector[i]);
 			i++;
