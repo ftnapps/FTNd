@@ -142,7 +142,7 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 #endif
     msleep(200);
     rc = _execute(cmd, file, pkt, in, out, err);
-#ifdef __linux
+#ifdef __linux__
     sync();
 #endif
     msleep(200);
