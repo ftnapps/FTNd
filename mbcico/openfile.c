@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/openfile.c
+ * $Id$
  * Purpose ...............: Fidonet mailer
- * Last modification date : 12-May-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -170,7 +169,7 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	 * and try again.
 	 */
 	if ((infp = fopen(infpath,opentype)) == NULL) {
-		mkdirs(infpath);
+		mkdirs(infpath, 0770);
 		if ((infp = fopen(infpath, opentype)) == NULL) {
 			WriteError("$Cannot open local file \"%s\" for \"%s\"", infpath,opentype);
 			free(infpath);

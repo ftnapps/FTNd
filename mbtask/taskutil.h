@@ -30,7 +30,7 @@ void		TouchSema(char *);
 void            RemoveSema(char *);
 int		IsSema(char *);
 int             file_exist(char *, int);
-int		mkdirs(char *);
+int		mkdirs(char *, mode_t);
 long		file_size(char *);
 time_t		file_time(char *);
 char		*ascfnode(fidoaddr, int);

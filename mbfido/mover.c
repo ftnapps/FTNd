@@ -50,7 +50,7 @@ void mover(char *fn)
 	sprintf(To,   "%s/%s", CFG.badtic, fn);
 	Syslog('!', "Moving %s to %s", From, To);
 
-	if (mkdirs(To)) {
+	if (mkdirs(To, 0770)) {
 		if (file_mv(From, To) != 0)
 			WriteError("$Failed to move %s to %s", From, To);
 	}

@@ -106,7 +106,7 @@ void ReadExitinfo()
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
-	mkdirs(temp);
+	mkdirs(temp, 0770);
 	if ((pExitinfo = fopen(temp,"r+b")) == NULL)
 		InitExitinfo();
 	else {

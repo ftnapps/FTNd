@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 
 	p = xstrcpy(inbound);
 	p = xstrcat(p,(char *)"/tmp/fooinb");
-	mkdirs(p);
+	mkdirs(p, 0700);
 	free(p);
 
 	maxrc=0;

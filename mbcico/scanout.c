@@ -71,7 +71,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
 		 * Create a fake filename, mkdirs() likes that.
 		 */
 		sprintf(fname, "%s/foo", dname);
-		(void)mkdirs(fname);
+		(void)mkdirs(fname, 0770);
 		if ((dp = opendir(dname)) == NULL) {
 			Syslog('o' ,"\"%s\" cannot be opened, proceed",MBSE_SS(dname));
 			return 0;

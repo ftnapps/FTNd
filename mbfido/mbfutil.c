@@ -309,7 +309,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
     FILE    *fp1, *fp2;
     int	    i, Insert, Done = FALSE, Found = FALSE;
 
-    mkdirs(DestPath);
+    mkdirs(DestPath, 0755);
     if (file_cp(FromPath, DestPath)) {
 	WriteError("Can't move file in place");
 	return FALSE;
@@ -445,7 +445,7 @@ int CheckFDB(int Area, char *Path)
      */
     if (access(Path, W_OK) == -1) {
 	sprintf(temp, "%s/foobar", Path);
-	if (mkdirs(temp))
+	if (mkdirs(temp, 0755))
 	    Syslog('+', "Created directory %s", Path);
     }
 

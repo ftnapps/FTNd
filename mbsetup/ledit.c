@@ -575,7 +575,7 @@ char *edit_pth(int y, int x, int l, char *line, char *help)
 		temp = xstrcat(temp, (char *)"/foobar");
 		if (access(s, R_OK)) {
 			if (yes_no((char *)"Path doesn't exist, create"))
-				if (! mkdirs(temp))
+				if (! mkdirs(temp, 0775))
 					errmsg((char *)"Can't create path");
 		}
 	}
@@ -602,7 +602,7 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 	temp = xstrcpy(s);
 	temp = xstrcat(temp, (char *)".jhr");
 	if (access(temp, W_OK)) {
-		if (mkdirs(s)) {
+		if (mkdirs(s, 0770)) {
 			if (yes_no((char *)"Messagebase doesn't exist, create")) {
 				if (Msg_Open(s))
 					Msg_Close();

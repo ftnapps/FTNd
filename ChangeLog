@@ -4272,6 +4272,8 @@ v0.33.19        26-Oct-2001
 		old style tic files, they were not full 3d.
 		Fixes for Sparc systems.
 		The nodelist information now also holds the Txx flags.
+		The mkdirs function now needs a mode parameter for directory
+		creation.
 
 	lang:
 		Changed language prompts 6, 71, 429.

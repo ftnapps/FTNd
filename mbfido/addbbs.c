@@ -85,7 +85,7 @@ int Add_BBS()
 
 	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
 	sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
-	mkdirs(temp2);
+	mkdirs(temp2, 0755);
 
 	if (file_cp(temp1, temp2) != 0) {
 		WriteError("$Copy to %s failed", temp2);

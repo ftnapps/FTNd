@@ -173,7 +173,7 @@ FILE *newpage(char *Name, char *Title)
 
 	later = time(NULL) + 86400;
 	sprintf(linebuf, "%s/stat/%s.temp", CFG.www_root, Name);
-	mkdirs(linebuf);
+	mkdirs(linebuf, 0755);
 
         if ((fa = fopen(linebuf, "w")) == NULL) {
                 WriteError("$Can't create %s", linebuf);

@@ -108,7 +108,7 @@ void Kill(void)
 				Syslog('!', "Create dir: %s", area.Path);
 				newdir = xstrcpy(area.Path);
 				newdir = xstrcat(newdir, (char *)"/");
-				mkdirs(newdir);
+				mkdirs(newdir, 0755);
 				free(newdir);
 				newdir = NULL;
 			}

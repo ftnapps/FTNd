@@ -81,7 +81,7 @@ int CountFilearea(void)
 			fclose(fil);
 			chmod(ffile, 0640);
 			sprintf(ffile, "%s/foobar", area.Path);
-			mkdirs(ffile);
+			mkdirs(ffile, 0755);
 			return 1;
 		} else
 			return -1;

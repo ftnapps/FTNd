@@ -103,7 +103,7 @@ void ImportFiles(int Area)
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
 			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
-			mkdirs(temp2);
+			mkdirs(temp2, 0755);
 			if (file_cp(temp, temp2)) {
 			    WriteError("Can't copy file to %s", temp2);
 			    Doit = FALSE;
@@ -292,7 +292,7 @@ void ImportFiles(int Area)
 	    if ((unarc = unpacker(temp)) == NULL) {
 		Syslog('+', "Unknown archive format %s", temp);
 		sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
-		mkdirs(temp2);
+		mkdirs(temp2, 0755);
 		if (file_cp(temp, temp2)) {
 		    WriteError("Can't copy file to %s", temp2);
 		    Doit = FALSE;

@@ -260,7 +260,7 @@ int file_exist(char *path, int mode)
 /*
  *    Make directory tree, the name must end with a /
  */
-int mkdirs(char *name)
+int mkdirs(char *name, mode_t mode)
 {
         char    buf[PATH_MAX], *p, *q;
         int     rc, last = 0, oldmask;
@@ -274,7 +274,7 @@ int mkdirs(char *name)
         oldmask = umask(000);
         while ((q = strchr(p, '/'))) {
                 *q = '\0';
-                rc = mkdir(buf, 0775);
+                rc = mkdir(buf, mode);
                 last = errno;
                 *q = '/';
                 p = q+1;

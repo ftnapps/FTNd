@@ -114,7 +114,7 @@ void Check(void)
 			if (access(area.Path, R_OK) == -1) {
 				Syslog('!', "No dir: %s", area.Path);
 				sprintf(newdir, "%s/foobar", area.Path);
-				mkdirs(newdir);
+				mkdirs(newdir, 0755);
 			}
 
 			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);

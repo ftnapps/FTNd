@@ -93,7 +93,7 @@ int CountMsgarea(void)
 			msgs.Ftncode = CHRS_DEFAULT_FTN;
 			strcpy(msgs.Origin, CFG.origin);
 			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base);
+			mkdirs(msgs.Base, 0770);
 			if (Msg_Open(msgs.Base))
 			    Msg_Close();
 			memset(&syscon, 0, sizeof(syscon));
@@ -118,7 +118,7 @@ int CountMsgarea(void)
 			msgs.Rfccode = CHRS_DEFAULT_RFC;   
 			msgs.Ftncode = CHRS_DEFAULT_FTN;
 			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base);
+			mkdirs(msgs.Base, 0770);
 			if (Msg_Open(msgs.Base))
 			    Msg_Close();
 			for (i = 1; i <= CFG.toss_systems; i++)
@@ -142,7 +142,7 @@ int CountMsgarea(void)
 			msgs.Rfccode = CHRS_DEFAULT_RFC;
 			msgs.Ftncode = CHRS_DEFAULT_FTN;
 			fwrite(&msgs, sizeof(msgs), 1, fil);
-			mkdirs(msgs.Base);
+			mkdirs(msgs.Base, 0770);
 			if (Msg_Open(msgs.Base))
 			    for (i = 1; i <= CFG.toss_systems; i++)
 			fwrite(&syscon, sizeof(syscon), 1, fil);

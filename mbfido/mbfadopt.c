@@ -82,7 +82,7 @@ void AdoptFile(int Area, char *File, char *Description)
 	if ((unarc = unpacker(File)) == NULL) {
 	    Syslog('+', "No known archive: %s", File);
 	    sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), File);
-	    mkdirs(temp2);
+	    mkdirs(temp2, 0755);
 	    if (file_cp(temp, temp2)) {
 		WriteError("Can't copy file to %s", temp2);
 		if (!do_quiet)

@@ -162,7 +162,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 * If we need a .TIC file, start creating it.
 	 */
 	if (nodes.Tic) {
-		mkdirs(ticfile);
+		mkdirs(ticfile, 0770);
 		if ((fp = fopen(ticfile, "a+")) != NULL) {
 			fprintf(fp, "Area %s\r\n", TIC.TicIn.Area);
 			fprintf(fp, "Origin %s\r\n", TIC.TicIn.Origin);
