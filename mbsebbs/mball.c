@@ -145,13 +145,13 @@ int main(int argc, char **argv)
      * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGHUP) || (i == SIGKILL) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
-	else
+	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
 
-    if(argc < 2)
+    if (argc < 2)
 	Help();
 
     cmd = xstrcpy((char *)"Command line: mball");
@@ -320,10 +320,11 @@ void Masterlist()
 	Syslog('+', "Inserting %s", temp);
 
 	while( fgets(temp, 80 ,pHeader) != NULL) {
-	Striplf(temp);
-	fprintf(fp, "%s\r\n", temp);
-	fprintf(np, "%s\r\n", temp);
+	    Striplf(temp);
+	    fprintf(fp, "%s\r\n", temp);
+	    fprintf(np, "%s\r\n", temp);
 	}
+	fclose(pHeader);
     }
 
     while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
@@ -457,6 +458,7 @@ void Masterlist()
 	    fprintf(fp, "%s\r\n", temp);
 	    fprintf(np, "%s\r\n", temp);
 	}
+	fclose(pHeader);
     }
 
     fclose(fp);
@@ -505,6 +507,7 @@ void MakeArc()
 			(char *)"/dev/null", (char  *)"/dev/null") == 0)
 		WriteError("Create newfiles.zip failed");
 	free(cmd);
+	cmd = NULL;
 }
 
 

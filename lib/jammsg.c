@@ -10,7 +10,7 @@
  * MBSE BBS and utilities.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -566,7 +566,7 @@ int JAM_Open(char *Msgbase)
 			fdJlr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			RetVal = TRUE;
 
-			strcpy(BaseName, Msgbase);
+			memmove(BaseName, Msgbase, strlen(Msgbase));
 		} else {
 			close(fdHdr);
 			fdHdr = -1;

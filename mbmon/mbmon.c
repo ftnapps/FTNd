@@ -318,72 +318,70 @@ void system_stat(void)
 
 void disk_stat(void)
 {
-	int		ch, i;
-	char		buf[1024];
-	char		*cnt, *type, *fs, *p;
-	unsigned long	last[10];
-	unsigned long	size, used, perc;
-	char		sign;
+    int		    ch, i;
+    char	    buf[1024], *cnt, *type, *fs, *p, sign;
+    unsigned long   last[10], size, used, perc;
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
-	set_color(YELLOW, RED);
-	mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   Mountpoint                             ");
-	set_color(CYAN, BLACK);
-	mvprintw(lines - 2, 6, "Press any key");
-	IsDoing("Filesystem Usage");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "3.    FILESYSTEM USAGE");
+    set_color(YELLOW, RED);
+    mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   Mountpoint                             ");
+    set_color(CYAN, BLACK);
+    mvprintw(lines - 2, 6, "Press any key");
+    IsDoing("Filesystem Usage");
+    for (i = 0; i < 10; i++)
+	last[i] = 0;
 
-	do {
-		show_date(LIGHTGRAY, BLACK, 0, 0);
+    do {
+	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-		sprintf(buf, "GDST:1,%d;", getpid());
-		if (socket_send(buf) == 0) {
-			strcpy(buf, socket_receive());
-			set_color(LIGHTGRAY, BLACK);
-			cnt = strtok(buf, ":");
-			cnt = strtok(NULL, ",;");
-			if (atoi(cnt)) {
-				for (i = 0; i < atoi(cnt); i++) {
-					p = strtok(NULL, " ");
-					size = atoi(p);
-					p = strtok(NULL, " ");
-					used = size - atoi(p);
-					perc = (used * 100) / size;
-					sign = ' ';
-					fs = strtok(NULL, " ");
-					type = strtok(NULL, ",;");
-					if (used > last[i])
-						sign = '^';
-					if (used < last[i])
-						sign = 'v';
-					if (last[i] == 0)
-						sign = ' ';
-					last[i] = used;
-					set_color(CYAN, BLACK);
-					mvprintw(i+8, 1, "%8lu  %8lu  ", 
-							size, used);
-					set_color(WHITE, BLACK);
-					printf("%c  ", sign);
-					set_color(CYAN, BLACK);
-					if (strstr(type, "iso") == NULL) {
-						if (perc >= 95)
-							set_color(LIGHTRED, BLACK);
-						else if (perc >= 80)
-							set_color(YELLOW, BLACK);
-					}
-					printf("%3lu", perc);
-					putchar('%');
-					set_color(CYAN, BLACK);
-					printf("  %-8s  %-40s", type, fs);
-				}
-				locate(i+8, 1);
-				clrtoeol();
-			}
+	sprintf(buf, "GDST:1,%d;", getpid());
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	    set_color(LIGHTGRAY, BLACK);
+	    cnt = strtok(buf, ":");
+	    cnt = strtok(NULL, ",;");
+	    if (atoi(cnt)) {
+		for (i = 0; i < atoi(cnt); i++) {
+		    p = strtok(NULL, " ");
+		    size = atoi(p);
+		    p = strtok(NULL, " ");
+		    used = size - atoi(p);
+		    perc = (used * 100) / size;
+		    sign = ' ';
+		    fs = strtok(NULL, " ");
+		    type = strtok(NULL, ",;");
+		    if (used > last[i])
+			sign = '^';
+		    if (used < last[i])
+			sign = 'v';
+		    if (last[i] == 0)
+			sign = ' ';
+		    last[i] = used;
+		    set_color(CYAN, BLACK);
+		    mvprintw(i+8, 1, "%8lu  %8lu  ", size, used);
+		    set_color(WHITE, BLACK);
+		    printf("%c  ", sign);
+		    set_color(CYAN, BLACK);
+		    if (strstr(type, "iso") == NULL) {
+			if (perc >= 95)
+			    set_color(LIGHTRED, BLACK);
+			else if (perc >= 80)
+			    set_color(YELLOW, BLACK);
+		    }
+		    printf("%3lu", perc);
+		    putchar('%');
+		    set_color(CYAN, BLACK);
+		    printf("  %-8s  %-40s", type, fs);
 		}
+		locate(i+8, 1);
+		clrtoeol();
+	    }
+	}
 
-		ch = testkey(lines - 2, 20);
-	} while (ch == '\0');
+	ch = testkey(lines - 2, 20);
+    } while (ch == '\0');
 }
 
 

@@ -83,100 +83,99 @@ void ProgName()
 
 int main(int argc, char **argv)
 {
-	int	i;
-	char	*cmd, *too = NULL, *subj = NULL, *mfile = NULL, *flavor = NULL;
-	struct	passwd *pw;
-	long	tarea = 0;
+    int		    i;
+    char	    *cmd, *too = NULL, *subj = NULL, *mfile = NULL, *flavor = NULL;
+    struct passwd   *pw;
+    long	    tarea = 0;
 
 
-	InitConfig();
-	TermInit(1);
-	oldmask = umask(007);
-	t_start = time(NULL);
+    InitConfig();
+    TermInit(1);
+    oldmask = umask(007);
+    t_start = time(NULL);
 
-	/*
-	 * Catch all signals we can, and ignore or catch them
-	 */
-	for (i = 0; i < NSIG; i++) {
-		if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) ||
-		    (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
-			signal(i, (void (*))die);
-		else
-			signal(i, SIG_IGN);
+    /*
+     * Catch all signals we can, and ignore or catch them
+     */
+    for (i = 0; i < NSIG; i++) {
+	if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+	    signal(i, (void (*))die);
+	else if ((i != SIGKILL) && (i != SIGSTOP))
+	    signal(i, SIG_IGN);
+    }
+
+    if (argc < 2)
+	Help();
+
+    cmd = xstrcpy((char *)"Cmd:");
+
+    for (i = 1; i < argc; i++) {
+	cmd = xstrcat(cmd, (char *)" ");
+	cmd = xstrcat(cmd, argv[i]);
+
+	if (strncasecmp(argv[i], "i", 1) == 0)
+	    do_index = TRUE;
+	if (strncasecmp(argv[i], "l", 1) == 0)
+	    do_link = TRUE;
+	if (strncasecmp(argv[i], "k", 1) == 0)
+	    do_kill = TRUE;
+	if (strncasecmp(argv[i], "pa", 2) == 0)
+	    do_pack = TRUE;
+	if (strncasecmp(argv[i], "po", 2) == 0) {
+	    do_post = TRUE;
+	    too = argv[++i];
+	    cmd = xstrcat(cmd, (char *)" \"");
+	    cmd = xstrcat(cmd, too);
+	    tarea = atoi(argv[++i]);
+	    cmd = xstrcat(cmd, (char *)"\" ");
+	    cmd = xstrcat(cmd, argv[i]);
+	    subj = argv[++i];
+	    cmd = xstrcat(cmd, (char *)" \"");
+	    cmd = xstrcat(cmd, subj);
+	    mfile = argv[++i];
+	    cmd = xstrcat(cmd, (char *)"\" ");
+	    cmd = xstrcat(cmd, mfile);
+	    flavor = argv[++i];
+	    cmd = xstrcat(cmd, (char *)" ");
+	    cmd = xstrcat(cmd, flavor);
 	}
-
-	if (argc < 2)
-		Help();
-
-	cmd = xstrcpy((char *)"Cmd:");
-
-	for (i = 1; i < argc; i++) {
-		cmd = xstrcat(cmd, (char *)" ");
-		cmd = xstrcat(cmd, argv[i]);
-
-		if (strncasecmp(argv[i], "i", 1) == 0)
-			do_index = TRUE;
-		if (strncasecmp(argv[i], "l", 1) == 0)
-			do_link = TRUE;
-		if (strncasecmp(argv[i], "k", 1) == 0)
-			do_kill = TRUE;
-		if (strncasecmp(argv[i], "pa", 2) == 0)
-			do_pack = TRUE;
-		if (strncasecmp(argv[i], "po", 2) == 0) {
-			do_post = TRUE;
-			too = argv[++i];
-			cmd = xstrcat(cmd, (char *)" \"");
-			cmd = xstrcat(cmd, too);
-			tarea = atoi(argv[++i]);
-			cmd = xstrcat(cmd, (char *)"\" ");
-			cmd = xstrcat(cmd, argv[i]);
-			subj = argv[++i];
-			cmd = xstrcat(cmd, (char *)" \"");
-			cmd = xstrcat(cmd, subj);
-			mfile = argv[++i];
-			cmd = xstrcat(cmd, (char *)"\" ");
-			cmd = xstrcat(cmd, mfile);
-			flavor = argv[++i];
-			cmd = xstrcat(cmd, (char *)" ");
-			cmd = xstrcat(cmd, flavor);
-		}
-		if (strncasecmp(argv[i], "-a", 2) == 0) {
-			i++;
-			do_area = atoi(argv[i]);
-		}
-		if (strncasecmp(argv[i], "-q", 2) == 0)
-			do_quiet = TRUE;
+	if (strncasecmp(argv[i], "-a", 2) == 0) {
+	    i++;
+	    do_area = atoi(argv[i]);
 	}
+	if (strncasecmp(argv[i], "-q", 2) == 0)
+	    do_quiet = TRUE;
+    }
 
-	if (!(do_index || do_link || do_kill || do_pack || do_post))
-		Help();
+    if (!(do_index || do_link || do_kill || do_pack || do_post))
+	Help();
 
-	ProgName();
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbmsg", CFG.location, CFG.logfile, 
+    ProgName();
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name, (char *)"mbmsg", CFG.location, CFG.logfile, 
 		CFG.util_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
 
-	Syslog(' ', " ");
-	Syslog(' ', "MBMSG v%s", VERSION);
-	Syslog(' ', cmd);
-	free(cmd);
+    Syslog(' ', " ");
+    Syslog(' ', "MBMSG v%s", VERSION);
+    Syslog(' ', cmd);
+    free(cmd);
 
-	if (!do_quiet) {
-		printf("\n");
-		colour(3, 0);
-	}
+    if (!do_quiet) {
+	printf("\n");
+	colour(3, 0);
+    }
 
-	if (do_index || do_link || do_kill || do_pack) {
-		memset(&MsgBase, 0, sizeof(MsgBase));
-		DoMsgBase();
-	}
+    if (do_index || do_link || do_kill || do_pack) {
+	memset(&MsgBase, 0, sizeof(MsgBase));
+	DoMsgBase();
+    }
 
-	if (do_post) {
-		Post(too, tarea, subj, mfile, flavor);
-	}
+    if (do_post) {
+	Post(too, tarea, subj, mfile, flavor);
+    }
 
-	die(MBERR_OK);
-	return 0;
+    die(MBERR_OK);
+    return 0;
 }
 
 

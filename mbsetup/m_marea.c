@@ -4,7 +4,7 @@
  * Purpose ...............: Message Areas Setup
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -535,48 +535,48 @@ void SetScreen()
 long LoadMsgRec(int, int);
 long LoadMsgRec(int Area, int work)
 {
-	FILE		*fil;
-	char		mfile[PATH_MAX];
-	long		offset;
-	sysconnect	System;
-	int		i;
+    FILE	*fil;
+    char	mfile[PATH_MAX];
+    long	offset;
+    sysconnect	System;
+    int		i;
 
-	if (work)
-		working(1, 0, 0);
+    if (work)
+	working(1, 0, 0);
 
-	sprintf(mfile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	if ((tfil = tmpfile()) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    if ((tfil = tmpfile()) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&msgshdr, sizeof(msgshdr), 1, fil);
-	offset = msgshdr.hdrsize + (((Area -1) * (msgshdr.recsize + msgshdr.syssize)));
-	if (fseek(fil, offset, SEEK_SET) != 0) {
-		fclose(tfil);
-		tfil = NULL;
-		working(2, 0, 0);
-		return -1;
-	}
+    fread(&msgshdr, sizeof(msgshdr), 1, fil);
+    offset = msgshdr.hdrsize + (((Area -1) * (msgshdr.recsize + msgshdr.syssize)));
+    if (fseek(fil, offset, SEEK_SET) != 0) {
+	fclose(tfil);
+	tfil = NULL;
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&msgs, msgshdr.recsize, 1, fil);
-	MsgCrc = 0xffffffff;
-	MsgCrc = upd_crc32((char *)&msgs, MsgCrc, msgshdr.recsize);
-	for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
-		fread(&System, sizeof(sysconnect), 1, fil);
-		fwrite(&System, sizeof(sysconnect), 1, tfil);
-		MsgCrc = upd_crc32((char *)&System, MsgCrc, sizeof(sysconnect));
-	}
-	fclose(fil);
-	if (work)
-		working(0, 0, 0);
+    fread(&msgs, msgshdr.recsize, 1, fil);
+    MsgCrc = 0xffffffff;
+    MsgCrc = upd_crc32((char *)&msgs, MsgCrc, msgshdr.recsize);
+    for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
+	fread(&System, sizeof(sysconnect), 1, fil);
+	fwrite(&System, sizeof(sysconnect), 1, tfil);
+	MsgCrc = upd_crc32((char *)&System, MsgCrc, sizeof(sysconnect));
+    }
+    fclose(fil);
+    if (work)
+	working(0, 0, 0);
 
-	return offset;
+    return offset;
 }
 
 
@@ -714,7 +714,8 @@ void MsgGlobal(void)
 
 	menu = select_menu(13);
 	switch (menu) {
-	    case 0: return;
+	    case 0: tidy_grlist(&mgr);
+		    return;
 	    case 1: a1 = PullUplink((char *)"AKA TO DELETE");
 		    break;
 	    case 2: a2 = PullUplink((char *)"AKA TO ADD");
@@ -991,6 +992,7 @@ void MsgGlobal(void)
 		}
 		if (tfil != NULL)
 		    fclose(tfil);
+		tfil = NULL;
 	    }
 
 	    working(0, 0, 0);
@@ -1099,6 +1101,9 @@ int EditMsgRec(int Area)
 			    Syslog('+', "Saved message area record %d", Area);
 			}
 		    }
+		    if (tfil != NULL)
+			fclose(tfil);
+		    tfil = NULL;
 		    IsDoing("Browsing Menu");
 		    return 0;
 	    case 1: E_STR(  6,16,40,msgs.Name,       "The ^Name^ of this area")

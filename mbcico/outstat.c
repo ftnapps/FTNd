@@ -373,7 +373,7 @@ int poll(faddr *addr, int stop)
     if (addr == NULL)
 	return 0;
 
-    pol = polname(addr);
+    pol = xstrcpy(polname(addr));
 
     if (stop) {
 	if (access(pol, R_OK) == 0) {
@@ -393,18 +393,21 @@ int poll(faddr *addr, int stop)
 	    Syslog('+', "Node %s not in nodelist", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Node %s not in nodelist", ascfnode(addr, 0x1f));
+	    free(pol);
 	    return MBERR_NODE_NOT_IN_LIST;
 	}
 	if (nlent->pflag == NL_DOWN) {
 	    Syslog('+', "Node %s has status Down", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Node %s has status Down", ascfnode(addr, 0x1f));
+	    free(pol);
 	    return MBERR_NODE_MAY_NOT_CALL;
 	}
 	if (nlent->pflag == NL_HOLD) {
 	    Syslog('+', "Node %s has status Hold", ascfnode(addr, 0x1f));
 	    if (!do_quiet)
 		printf("Node %s has status Hold", ascfnode(addr, 0x1f));
+	    free(pol);
 	    return MBERR_NODE_MAY_NOT_CALL;
 	}
 	
@@ -438,6 +441,7 @@ int poll(faddr *addr, int stop)
 	}
     }
 
+    free(pol);
     return 0;
 }
 

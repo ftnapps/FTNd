@@ -49,88 +49,87 @@ char			cpath[108];     /* Client socket path           */
 
 int socket_connect(char *user, char *prg, char *city)
 {
-	int 		s;
-	static char	buf[SS_BUFSIZE];
-	static char	tty[18];
+    int 	s;
+    static char	buf[SS_BUFSIZE], tty[18];
 
-	myname = prg;
+    myname = prg;
 
-	/*
-	 * Create Unix Datagram socket for the client.
-	 */
-	s = socket(AF_UNIX, SOCK_DGRAM, 0);
-	if (s == -1) {
-		perror(myname);
-		printf("Unable to create Unix Datagram socket\n");
-		return -1;
-	}
+    /*
+     * Create Unix Datagram socket for the client.
+     */
+    s = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (s == -1) {
+	perror(myname);
+	printf("Unable to create Unix Datagram socket\n");
+	return -1;
+    }
 
-	/*
-	 * Client will bind to an address so the server will get
-	 * an address in its recvfrom call and use it to send
-	 * data back to the client.
-	 */
-	memset(&clntaddr, 0, sizeof(clntaddr));
-	clntaddr.sun_family = AF_UNIX;
-	strcpy(clntaddr.sun_path, cpath);
+    /*
+     * Client will bind to an address so the server will get
+     * an address in its recvfrom call and use it to send
+     * data back to the client.
+     */
+    memset(&clntaddr, 0, sizeof(clntaddr));
+    clntaddr.sun_family = AF_UNIX;
+    strcpy(clntaddr.sun_path, cpath);
 
-	if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
-		close(s);
-		perror(myname);
-		printf("Can't bind socket %s\n", cpath);
-		return -1;
-	}
+    if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
+	close(s);
+	perror(myname);
+	printf("Can't bind socket %s\n", cpath);
+	return -1;
+    }
 
-	/*
-	 * If running seteuid as another user, chown to mbse.bbs
-	 */
-	if (getuid() != geteuid()) {
-		chown(cpath, getuid(), getgid());
-	} else {
-		chmod(cpath, 0775);
-	}
+    /*
+     * If running seteuid as another user, chown to mbse.bbs
+     */
+    if (getuid() != geteuid()) {
+	chown(cpath, getuid(), getgid());
+    } else {
+	chmod(cpath, 0775);
+    }
 
-	/*
-	 * Setup address structure for the server socket.
-	 */
-	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sun_family = AF_UNIX;
-	strcpy(servaddr.sun_path, spath);
+    /*
+     * Setup address structure for the server socket.
+     */
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sun_family = AF_UNIX;
+    strcpy(servaddr.sun_path, spath);
+	
+    /*
+     * Now that we have an connection, we gather 
+     * information to tell the server who we are.
+     */
+    if (isatty(1) && (ttyname(1) != NULL)) {
+	strcpy(tty, ttyname(1));
+	if (strchr(tty, 'p'))
+	    memccpy(tty, index(tty, 'p'), '\0', strlen(tty));
+	else if (strchr(tty, 't'))
+	    memccpy(tty, index(tty, 't'), '\0', strlen(tty));
+	else if (strchr(tty, 'c'))
+	    memccpy(tty, index(tty, 'c'), '\0', strlen(tty));
+    } else {
+	strcpy(tty, "-");
+    }
+    sock = s;
+	
+    /*
+     * Send the information to the server. 
+     */
+    sprintf(buf, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, user, prg, city);
+    if (socket_send(buf) != 0) {
+	sock = -1;
+	return -1;
+    }
 
-	/*
-	 * Now that we have an connection, we gather 
-	 * information to tell the server who we are.
-	 */
-	if (isatty(1) && (ttyname(1) != NULL)) {
-		strcpy(tty, ttyname(1));
-		if (strchr(tty, 'p'))
-			strcpy(tty, index(tty, 'p'));
-		else if (strchr(tty, 't'))
-			strcpy(tty, index(tty, 't'));
-		else if (strchr(tty, 'c'))
-			strcpy(tty, index(tty, 'c'));
-	} else {
-		strcpy(tty, "-");
-	}
-	sock = s;
+    strcpy(buf, socket_receive());
+    if (strncmp(buf, "100:0;", 6) != 0) {
+	printf("AINI not acknowledged by the server\n");
+	sock = -1;
+	return -1;
+    }
 
-	/*
-	 * Send the information to the server. 
-	 */
-	sprintf(buf, "AINI:5,%d,%s,%s,%s,%s;", getpid(), tty, user, prg, city);
-	if (socket_send(buf) != 0) {
-		sock = -1;
-		return -1;
-	}
-
-	strcpy(buf, socket_receive());
-	if (strncmp(buf, "100:0;", 6) != 0) {
-		printf("AINI not acknowledged by the server\n");
-		sock = -1;
-		return -1;
-	}
-
-	return s;
+    return s;
 }
 
 
@@ -140,14 +139,14 @@ int socket_connect(char *user, char *prg, char *city)
  */
 int socket_send(char *buf)
 {
-	if (sock == -1)
-		return -1;
+    if (sock == -1)
+	return -1;
 
-        if (sendto(sock, buf, strlen(buf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) != strlen(buf)) {
-		printf("Socket send failed error %d\n", errno);
-		return -1;
-	}
-	return 0;
+    if (sendto(sock, buf, strlen(buf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) != strlen(buf)) {
+	printf("Socket send failed error %d\n", errno);
+	return -1;
+    }
+    return 0;
 }
 
 
@@ -158,19 +157,19 @@ int socket_send(char *buf)
  */
 char *socket_receive(void)
 {
-	static char	buf[SS_BUFSIZE];
-	int		rlen;
+    static char	buf[SS_BUFSIZE];
+    int		rlen;
 
-	memset((char *)&buf, 0, SS_BUFSIZE);
-        fromlen = sizeof(from);
-        rlen = recvfrom(sock, buf, SS_BUFSIZE, 0, (struct sockaddr *)&from, &fromlen);
-        if (rlen == -1) {
-                perror("recv");
-                printf("Error reading socket\n");
-                memset((char *)&buf, 0, SS_BUFSIZE);
-                return buf;
-        }
-	return buf;
+    memset((char *)&buf, 0, SS_BUFSIZE);
+    fromlen = sizeof(from);
+    rlen = recvfrom(sock, buf, SS_BUFSIZE, 0, (struct sockaddr *)&from, &fromlen);
+    if (rlen == -1) {
+        perror("recv");
+        printf("Error reading socket\n");
+        memset((char *)&buf, 0, SS_BUFSIZE);
+        return buf;
+    }
+    return buf;
 }
 
 
@@ -186,28 +185,28 @@ char *socket_receive(void)
 
 int socket_shutdown(pid_t pid)
 {
-	static char	buf[SS_BUFSIZE];
+    static char	buf[SS_BUFSIZE];
 
-	if (sock == -1)
-		return 0;
-
-	sprintf(buf, "ACLO:1,%d;", pid);
- 	if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
-		if (strncmp(buf, "107:0;", 6) != 0) {
-			printf("Shutdown not acknowledged by the server\n");
-			printf("Got \"%s\"\n", buf);
-		}
-	}
-	
-	if (shutdown(sock, 1) == -1) {
-		perror(myname);
-		printf("Cannot shutdown socket\n");
-		return -1;
-	}
-
-	sock = -1;
+    if (sock == -1)
 	return 0;
+
+    sprintf(buf, "ACLO:1,%d;", pid);
+    if (socket_send(buf) == 0) {
+	strcpy(buf, socket_receive());
+	if (strncmp(buf, "107:0;", 6) != 0) {
+	    printf("Shutdown not acknowledged by the server\n");
+	    printf("Got \"%s\"\n", buf);
+	}
+    }
+	
+    if (shutdown(sock, 1) == -1) {
+	perror(myname);
+	printf("Cannot shutdown socket\n");
+	return -1;
+    }
+
+    sock = -1;
+    return 0;
 }
 
 

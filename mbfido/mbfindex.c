@@ -324,9 +324,9 @@ void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
                 sprintf(temp2, "%s/index.temp", Path);
         }
         rename(temp2, temp1);
+	chmod(temp1, 0644);
         free(temp1);
         free(temp2);
-        chmod(temp1, 0644);
         fa = NULL;
 }
 

@@ -154,7 +154,7 @@ int main(int argc,char *argv[])
 
 	if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
 	    signal(i, (void (*))die);
-	else
+	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
 
@@ -581,6 +581,7 @@ int compile(char *nlname, unsigned short zo, unsigned short ne, unsigned short n
 			fill_nllist(ndx, &nll);
 	}
 
+	fclose(nl);
 	Syslog('+', "%d entries", entries);
 
 	if (!do_quiet) {

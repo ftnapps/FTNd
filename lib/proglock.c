@@ -127,18 +127,14 @@ void ulockprogram(char *progname)
 	free(lockfile);
 	return;
     }
+
     if (fscanf(fp, "%u", &oldpid) != 1) {
 	WriteError("$Can't read old pid from \"%s\"", lockfile);
-	fclose(fp);
-	unlink(lockfile);
-	free(lockfile);
-	return;
     }
 
-    if (oldpid == getpid()) {
-	(void)unlink(lockfile);
-    }
-
+    fclose(fp);
+    unlink(lockfile);
     free(lockfile);
+    lockfile = NULL;
 }
 

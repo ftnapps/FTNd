@@ -202,6 +202,7 @@ void die(int onsig)
 	Msg_Close();
 
     signal(onsig, SIG_IGN);
+    deinitnl();
 
     if (!do_quiet) {
 	show_log = TRUE;
@@ -320,9 +321,9 @@ int main(int argc, char **argv)
      */
     for(i = 0; i < NSIG; i++) {
 
-	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL))
+	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
 	    signal(i, (void (*))die);
-	else
+	else if ((i != SIGKILL) && (i != SIGSTOP))
 	    signal(i, SIG_IGN);
     }
 

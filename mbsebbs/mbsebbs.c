@@ -125,6 +125,7 @@ int main(int argc, char **argv)
 
     if ((tty = ttyname(0)) == NULL) {
 	WriteError("Not at a tty");
+	Free_Language();
 	Quick_Bye(MBERR_OK);
     }
 
@@ -160,6 +161,7 @@ int main(int argc, char **argv)
      */
     if (CheckStatus() == FALSE) {
 	Syslog('+', "Kicking user out, the BBS is closed");
+	Free_Language();
 	Quick_Bye(MBERR_OK);
     }
 
@@ -192,6 +194,7 @@ int main(int argc, char **argv)
 	if ((strcmp(ttyinfo.tty, pTTY) != 0) || (!ttyinfo.available)) {
 	    Syslog('+', "No BBS allowed on port \"%s\"", pTTY);
 	    printf("No BBS on this port allowed!\n\n");
+	    Free_Language();
 	    Quick_Bye(MBERR_OK);
 	}
 

@@ -4,7 +4,7 @@
  * Purpose ...............: BinkleyTerm outbound naming
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -51,172 +51,175 @@
 #define ltyp "pol"
 
 
-static char buf[PATH_MAX];
 
-
+char *prepbuf(faddr *);
 char *prepbuf(faddr *addr)
 {
-	char	*p, *domain=NULL;
-	char	zpref[8];
-	int	i;
+    static char	buf[PATH_MAX];
+    char	*p, *domain=NULL, zpref[8];
+    int		i;
 
-	sprintf(buf, "%s", CFG.outbound);
+    sprintf(buf, "%s", CFG.outbound);
 
-	if (CFG.addr4d) {
-		Syslog('o', "Use 4d addressing, zone is %d", addr->zone);
+    if (CFG.addr4d) {
+	Syslog('o', "Use 4d addressing, zone is %d", addr->zone);
 
-		if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
-			zpref[0] = '\0';
-		else
-			sprintf(zpref, ".%03x", addr->zone);
-	} else {
-		/*
-		 * If we got a 5d address we use the given domain, if
-		 * we got a 4d address, we look for a matching domain name.
-		 */
-		if (addr->domain)
-			domain = xstrcpy(addr->domain);
-		else
-			for (i = 0; i < 40; i++)
-				if (CFG.aka[i].zone == addr->zone) {
-					domain = xstrcpy(CFG.aka[i].domain);
-					break;
-				}
-
-		if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) &&
-		    (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
-			if ((p = strrchr(buf,'/'))) 
-				p++;
-			else 
-				p = buf;
-			strcpy(p, domain);
-			for (; *p; p++) 
-				*p = tolower(*p);
-			for (i = 0; i < 40; i++)
-				if ((strlen(CFG.aka[i].domain)) &&
-				   (strcasecmp(CFG.aka[i].domain, domain) == 0))
-					break;
-
-			/*
-			 * The default zone must be the first one in the
-			 * setup, other zones get the hexadecimal zone
-			 * number appended.
-			 */
-			if (CFG.aka[i].zone == addr->zone)
-				zpref[0] = '\0';
-			else
-				sprintf(zpref, ".%03x", addr->zone);
-		} else {
-			/*
-			 * this is our primary domain
-			 */
-			if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
-				zpref[0]='\0';
-			else 
-				sprintf(zpref,".%03x",addr->zone);
-		}
-	}
-
-	p = buf + strlen(buf);
-
-	if (addr->point)
-		sprintf(p,"%s/%04x%04x.pnt/%08x.", zpref,addr->net,addr->node,addr->point);
+	if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
+	    zpref[0] = '\0';
 	else
-		sprintf(p,"%s/%04x%04x.",zpref,addr->net,addr->node);
+	    sprintf(zpref, ".%03x", addr->zone);
+    } else {
+	/*
+	 * If we got a 5d address we use the given domain, if
+	 * we got a 4d address, we look for a matching domain name.
+	 */
+	if (addr && addr->domain && strlen(addr->domain)) {
+	    domain = xstrcpy(addr->domain);
+	} else
+	    for (i = 0; i < 40; i++)
+		if (CFG.aka[i].zone == addr->zone) {
+		    domain = xstrcpy(CFG.aka[i].domain);
+		    break;
+		}
 
-	p = buf + strlen(buf);
-	if (domain)
-		free(domain);
-	return p;
+	if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) && (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
+	    if ((p = strrchr(buf,'/'))) 
+		p++;
+	    else 
+		p = buf;
+	    strcpy(p, domain);
+	    for (; *p; p++) 
+		*p = tolower(*p);
+	    for (i = 0; i < 40; i++)
+		if ((strlen(CFG.aka[i].domain)) && (strcasecmp(CFG.aka[i].domain, domain) == 0))
+		    break;
+
+	    /*
+	     * The default zone must be the first one in the
+	     * setup, other zones get the hexadecimal zone
+	     * number appended.
+	     */
+	    if (CFG.aka[i].zone == addr->zone)
+		zpref[0] = '\0';
+	    else
+		sprintf(zpref, ".%03x", addr->zone);
+	} else {
+	    /*
+	     * this is our primary domain
+	     */
+	    if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
+		zpref[0]='\0';
+	    else 
+		sprintf(zpref,".%03x",addr->zone);
+	}
+    }
+
+    p = buf + strlen(buf);
+
+    if (addr->point)
+	sprintf(p,"%s/%04x%04x.pnt/%08x.", zpref,addr->net,addr->node,addr->point);
+    else
+	sprintf(p,"%s/%04x%04x.",zpref,addr->net,addr->node);
+
+    if (domain)
+	free(domain);
+    return buf;
 }
 
 
 
 char *pktname(faddr *addr, char flavor)
 {
-	char	*p;
+    static char	*p, *q;
 
-	p = prepbuf(addr);
-	if (flavor == 'f') 
-		flavor = 'o';
+    p = prepbuf(addr);
+    if (flavor == 'f') 
+	flavor = 'o';
 
-	sprintf(p, "%c%s", flavor, ptyp);
-	Syslog('O', "packet name is \"%s\"",buf);
-	return buf;
+    q = p + strlen(p);
+    sprintf(q, "%c%s", flavor, ptyp);
+    Syslog('O', "packet name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *floname(faddr *addr, char flavor)
 {
-	char	*p;
+    static char	*p, *q;
 
-	p = prepbuf(addr);
-	if (flavor == 'o') 
-		flavor = 'f';
-	sprintf(p, "%c%s", flavor, ftyp);
-	Syslog('O', "flo file name is \"%s\"",buf);
-	return buf;
+    p = prepbuf(addr);
+    if (flavor == 'o') 
+	flavor = 'f';
+    q = p + strlen(p);
+    sprintf(q, "%c%s", flavor, ftyp);
+    Syslog('O', "flo file name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *reqname(faddr *addr)
 {
-	char *p;
+    static char *p, *q;
 
-	p = prepbuf(addr);
-	sprintf(p, "%s", rtyp);
-	Syslog('O', "req file name is \"%s\"",buf);
-	return buf;
+    p = prepbuf(addr);
+    q = p + strlen(p);    
+    sprintf(q, "%s", rtyp);
+    Syslog('O', "req file name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *splname(faddr *addr)
 {
-	char *p;
+    static char *p, *q;
 
-	p = prepbuf(addr);
-	sprintf(p, "%s", styp);
-	Syslog('O', "spl file name is \"%s\"",buf);
-	return buf;
+    p = prepbuf(addr);
+    q = p + strlen(p);
+    sprintf(q, "%s", styp);
+    Syslog('O', "spl file name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *bsyname(faddr *addr)
 {
-	char	*p;
+    static char	*p, *q;
 
-	p = prepbuf(addr);
-	sprintf(p, "%s", btyp);
-	Syslog('O', "bsy file name is \"%s\"",buf);
-	return buf;
+    p = prepbuf(addr);
+    q = p + strlen(p);
+    sprintf(q, "%s", btyp);
+    Syslog('O', "bsy file name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *stsname(faddr *addr)
 {
-	char *p;
+    static char *p, *q;
 
-	p = prepbuf(addr);
-	sprintf(p, "%s", qtyp);
-	Syslog('O', "sts file name is \"%s\"",buf);
-	return buf;
+    p = prepbuf(addr);
+    q = p + strlen(p);
+    sprintf(q, "%s", qtyp);
+    Syslog('O', "sts file name is \"%s\"", p);
+    return p;
 }
 
 
 
 char *polname(faddr *addr)
 {
-	char	*p;
+    static char	*p, *q;
 
-	p = prepbuf(addr);
-	sprintf(p, "%s", ltyp);
-	Syslog('O', "pol file name is \"%s\"", buf);
-	return buf;
+    p = prepbuf(addr);
+    q = p + strlen(p);
+    sprintf(q, "%s", ltyp);
+    Syslog('O', "pol file name is \"%s\"", p);
+    return p;
 }
 
 
@@ -226,20 +229,22 @@ static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we",
 
 char *dayname(void)
 {
-	time_t	tt;
-	struct	tm *ptm;
+    time_t	tt;
+    struct	tm *ptm;
+    static char	buf[3];
+    
+    tt = time(NULL);
+    ptm = localtime(&tt);
+    sprintf(buf, "%s", dow[ptm->tm_wday]);
 
-	tt = time(NULL);
-	ptm = localtime(&tt);
-	sprintf(buf, "%s", dow[ptm->tm_wday]);
-
-	return buf;	
+    return buf;	
 }
 
 
 
 char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 {
+    static char	*buf;
 	char	*p;
 	char	*ext;
 	time_t	tt;
@@ -252,7 +257,7 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 
 	bestaka = bestaka_s(addr);
 
-	(void)prepbuf(addr);
+	buf = prepbuf(addr);
 	p = strrchr(buf, '/');
 
 	if (!ARCmailCompat && (Zone != addr->zone)) {

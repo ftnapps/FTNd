@@ -5,7 +5,7 @@
  * Shadow Suite (c) ......: Julianne Frances Haugh
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek	FIDO:		2:280/2802
  * Beekmansbos 10
@@ -759,10 +759,12 @@ int main(int argc, char *argv[])
 	gr = getgrgid(pw->pw_gid);
 	if (!gr) {
 		fprintf(stderr, "mbpasswd: Cannot determine group name.\n");
+		free(myname);
 		exit(E_NOPERM);
 	}
 	if (strcmp(gr->gr_name, (char *)"bbs")) {
 		fprintf(stderr, "mbpasswd: You are not a member of group \"bbs\".\n");
+		free(myname);
 		exit(E_NOPERM);
 	}
 
@@ -776,6 +778,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "mbpasswd [-opt] [username] [newpassword]\n");
 		fprintf(stderr, "options are:  -n   normal password change\n");
 		fprintf(stderr, "              -f   forced password change\n");
+		free(myname);
 		exit(E_FAILURE);
 	}
 
@@ -787,6 +790,7 @@ int main(int argc, char *argv[])
 		force = 1;
 		if (strcmp(pw->pw_name, (char *)"mbse") && strcmp(pw->pw_name, (char *)"bbs")) {
 			fprintf(stderr, "mbpasswd: only users `mbse' and `bbs' may do this.\n");
+			free(myname);
 			exit(E_NOPERM);
 		}
 	} else if (strncmp(argv[1], "-n", 2) == 0) {
@@ -797,10 +801,12 @@ int main(int argc, char *argv[])
 		force = 0;
 		if (strcmp(pw->pw_name, argv[2])) {
 			fprintf(stderr, "mbpasswd: only owner may do this.\n");
+			free(myname);
 			exit(E_NOPERM);
 		}
 	} else {
 		fprintf(stderr, "mbpasswd: wrong option switch.\n");
+		free(myname);
 		exit(E_FAILURE);
 	}
 
@@ -809,10 +815,12 @@ int main(int argc, char *argv[])
 	 */
 	if (strlen(argv[2]) > 16) {
 		fprintf(stderr, "mbpasswd: Username too long\n");
+		free(myname);
 		exit(E_FAILURE);
 	}
 	if (strlen(argv[3]) > 16) {
 		fprintf(stderr, "mbpasswd: Password too long\n");
+		free(myname);
 		exit(E_FAILURE);
 	}
 
@@ -826,6 +834,7 @@ int main(int argc, char *argv[])
 	if ((pw = getpwnam(name)) == NULL) {
 		syslog(LOG_ERR, "mbpasswd: Unknown user %s", name);
 		fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
+		free(myname);
 		exit(E_FAILURE);
 	}
 
@@ -855,6 +864,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "The password for %s is unchanged.\n", name);
 		syslog(LOG_ERR, "The password for %s is unchanged", name);
 		closelog();
+		free(myname);
 		exit(E_FAILURE);
 	}
 	do_update_pwd = 1;
@@ -876,6 +886,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Cannot change ID to root.\n");
 		syslog(LOG_ERR, "can't setuid(0)");
 		closelog();
+		free(myname);
 		exit(E_FAILURE);
 	}
 
@@ -927,6 +938,7 @@ int main(int argc, char *argv[])
 	
 	syslog(LOG_NOTICE, "password for `%s' changed by user `%s'", name, myname);
 	closelog();
+	free(myname);
 	exit(E_SUCCESS);
 }
 

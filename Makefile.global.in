@@ -33,6 +33,7 @@ MAKE		= @MAKE@
 JOEBIN		= @joebin@
 JOELIB		= @joelib@
 
-CFLAGS		= -O2 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe
+CFLAGS		= @COMPILEFLAGS@
 LIBS		= @LIBS@
+PTLIBS		= @PTLIBS@
 

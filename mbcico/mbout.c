@@ -43,6 +43,7 @@
 #include "outstat.h"
 #include "nlinfo.h"
 
+extern int most_debug;
 
 extern int	do_quiet;		/* Suppress screen output	    */
 int		do_attach = FALSE;	/* Send file attaches		    */
@@ -179,6 +180,8 @@ int main(int argc, char *argv[])
     FILE	    *fl;
     unsigned long   cmmask;
     
+    most_debug = TRUE;
+
     InitConfig();
     InitNode();
     InitFidonet();

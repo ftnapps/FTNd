@@ -270,10 +270,10 @@ void CloseNoderec(int Force)
     }
 
     chmod(fin, 0640);
+    unlink(fout);
     working(1, 0, 0);
     free(fin);
     free(fout);
-    unlink(fout); 
 }
 
 

@@ -29,7 +29,12 @@ libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.
 
+mbtask:
+	N: Test with valgrind.
+
 mbsebbs:
+	N: Test with valgrind.
+
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.
@@ -57,6 +62,8 @@ mbsebbs:
 	N: Reimplememnt CHRS kludge.
 
 newuser:
+	N: Test with valgrind.
+
 	L: Allow handles to be the same as the unixname.
 
 
@@ -108,7 +115,13 @@ mbfido:
 	N: With auto created areas golded.inc is not adjusted to the new
 	   setup.
 
+	N: After readalias we need to free the alias list when mbfido ends.
+
+	N: Tic, toss, scan tests with valgrind.
+
 mbcico:
+	N: Test with valgrind, binkp is ok.
+
 	N: Upgrade binkp protocol to 1.1.
 
 	N: With binkp, if the other node is a binkp/1.0 mailer without MB
@@ -120,6 +133,9 @@ mbcico:
 
 	U: Fix binkp file resume when mbcico silently dies.
 
+mbout:
+	N: Fix prepbuf in libcommon so that valgind can test this.
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 
@@ -128,6 +144,8 @@ mbfile:
 	L: Rearc <area>
 
 	L: Possibility to skip file areas from checking and reindexing.
+
+	N: Test with valgrind.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

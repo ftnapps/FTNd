@@ -4,7 +4,7 @@
  * Purpose ...............: Netmail tracker / router
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -267,6 +267,7 @@ int IsLocal(char *ftn, fidoaddr *res)
 	}
     }
 
+    tidy_faddr(dest);
     return R_NOROUTE;
 }
 
@@ -378,9 +379,9 @@ int AreWeHost(faddr *dest)
 
 int AreWeHub(faddr *dest)
 {
-    int	i, j;
-    node	*nl;
-    faddr	*fido;
+    int	    i, j;
+    node    *nl;
+    faddr   *fido;
 
     for (i = 0; i < 40; i++)
 	if (CFG.akavalid[i])

@@ -4,7 +4,7 @@
  * Purpose ...............: TIC Areas Setup Program 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -611,7 +611,8 @@ void TicGlobal(void)
 	
 	menu = select_menu(7);
 	switch (menu) {
-	    case 0: return;
+	    case 0: tidy_grlist(&mgr);
+		    return;
 	    case 1: a1 = PullUplink((char *)"AKA TO DELETE");
 		    break;
 	    case 2: a2 = PullUplink((char *)"AKA TO ADD");
@@ -900,6 +901,9 @@ int EditTicRec(int Area)
 			    Syslog('+', "Saved tic record %d", Area);
 			}
 		    }
+		    if (ttfil != NULL)
+			fclose(ttfil);
+		    ttfil = NULL;
 		    IsDoing("Browsing Menu");
 		    free(temp);
 		    return 0;

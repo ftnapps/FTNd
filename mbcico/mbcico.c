@@ -136,7 +136,10 @@ void die(int onsig)
 
     t_end = time(NULL);
     Syslog(' ', "MBCICO finished in %s", t_elapsed(t_start, t_end));
+    
     free_mem();
+    deinitnl();
+    
     if (envptr)
 	free(envptr);
     ExitClient(onsig);
@@ -190,9 +193,9 @@ int main(int argc, char *argv[])
      * Catch all signals we can, and ignore the rest.
      */
     for (i = 0; i < NSIG; i++) {
-	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) || (i == SIGKILL)) {
+	if ((i == SIGINT) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM)) {
 	    signal(i, (void (*))die);
-	} else {
+	} else if ((i != SIGKILL) && (i != SIGSTOP)) {
 	    signal(i, SIG_IGN);
 	}
     }

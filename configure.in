@@ -55,10 +55,18 @@ CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 
 dnl Additional commandline switches
 AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
-
 if test "$experiment" = "yes"; then
   AC_DEFINE(USE_EXPERIMENT)
 fi
+
+AC_ARG_ENABLE(debugging,   [  --enable-debugging      Compile for debugging], [ debugging=$enableval ], [ debugging=no ])
+if test "$debugging" = "yes"; then
+  COMPILEFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
+else
+  COMPILEFLAGS="-O2 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
+fi 
+AC_SUBST(COMPILEFLAGS)
+
 
 dnl Defines for MBSE BBS (must use tests or --enable-stuff later)
 AC_DEFINE_UNQUOTED(RESTAMP_OLD_POSTINGS, 21)
@@ -140,15 +148,16 @@ fi
 PTHREADS=No
 AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
 if test "$result" = "yes"; then
-  LIBS="$LIBS -lpthread"
+  PTLIBS="$PTLIBS -lpthread"
   AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
 else
   AC_CHECK_LIB(c_r,pthread_create,result=yes,result=no)
   if test "$result" = "yes"; then
-    LIBS="$LIBS -lc_r"
+    PTLIBS="$PTLIBS -lc_r"
     AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
   fi
 fi
+AC_SUBST(PTLIBS)
 
 dnl Checks for header files.
 AC_HEADER_STDC

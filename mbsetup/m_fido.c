@@ -463,53 +463,55 @@ void InitFidonetdb(void)
 
 void gold_akamatch(FILE *fp)
 {
-	char    temp[PATH_MAX];
-	FILE    *fido;
-	faddr	*want;
-	int     i;
+    char    temp[PATH_MAX];
+    FILE    *fido;
+    faddr   *want, *ta;
+    int     i;
 
-	sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
-	if ((fido = fopen(temp, "r")) == NULL)
-		return;
+    sprintf(temp, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+    if ((fido = fopen(temp, "r")) == NULL)
+	return;
 
-	fprintf(fp, "; AKA Matching\n;\n");
-	want = (faddr *)malloc(sizeof(faddr));
+    fprintf(fp, "; AKA Matching\n;\n");
+    want = (faddr *)malloc(sizeof(faddr));
 
-        fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
-        while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
+    fread(&fidonethdr, sizeof(fidonethdr), 1, fido);
+    while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
 
-                for (i = 0; i < 6; i++)
-                        if (fidonet.zone[i]) {
-				want->zone   = fidonet.zone[0];
-				want->net    = 0;
-				want->node   = 0;
-				want->point  = 0;
-				want->name   = NULL;
-				want->domain = NULL;
-				fprintf(fp, "AKAMATCH %d:* %s\n", fidonet.zone[i], ascfnode(bestaka_s(want), 0xf));
-			}
-        }
+        for (i = 0; i < 6; i++)
+            if (fidonet.zone[i]) {
+		want->zone   = fidonet.zone[0];
+		want->net    = 0;
+		want->node   = 0;
+		want->point  = 0;
+		want->name   = NULL;
+		want->domain = NULL;
+		ta = bestaka_s(want);
+		fprintf(fp, "AKAMATCH %d:* %s\n", fidonet.zone[i], ascfnode(ta, 0xf));
+		tidy_faddr(ta);
+	    }
+    }
 
-	free(want);
-	fprintf(fp, ";\n");
-	fprintf(fp, "AKAMATCHNET   YES\n");
-	fprintf(fp, "AKAMATCHECHO  YES\n");	/* On request, should work better */
-	fprintf(fp, "AKAMATCHLOCAL NO\n\n");
+    free(want);
+    fprintf(fp, ";\n");
+    fprintf(fp, "AKAMATCHNET   YES\n");
+    fprintf(fp, "AKAMATCHECHO  YES\n");
+    fprintf(fp, "AKAMATCHLOCAL NO\n\n");
 
-	fprintf(fp, "; NODELISTS\n;\n");
-	fprintf(fp, "NODEPATH %s/\n", CFG.nodelists);
-	fseek(fido, fidonethdr.hdrsize, SEEK_SET);
-	while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
-		fprintf(fp, "NODELIST %s.*\n", fidonet.nodelist);
-		for (i = 0; i < 6; i++)
-			if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone)
-				fprintf(fp, "NODELIST %s.*\n", fidonet.seclist[i].nodelist);
-	}
-//	fprintf(fp, "USERLIST golded.lst\n");
-	fprintf(fp, "LOOKUPNET   YES\n");
-	fprintf(fp, "LOOKUPECHO  NO\n");
-	fprintf(fp, "LOOKUPLOCAL NO\n\n");
-	fclose(fido);
+    fprintf(fp, "; NODELISTS\n;\n");
+    fprintf(fp, "NODEPATH %s/\n", CFG.nodelists);
+    fseek(fido, fidonethdr.hdrsize, SEEK_SET);
+    while ((fread(&fidonet, fidonethdr.recsize, 1, fido)) == 1) {
+	fprintf(fp, "NODELIST %s.*\n", fidonet.nodelist);
+	for (i = 0; i < 6; i++)
+	    if (strlen(fidonet.seclist[i].nodelist) || fidonet.seclist[i].zone)
+		fprintf(fp, "NODELIST %s.*\n", fidonet.seclist[i].nodelist);
+    }
+//  fprintf(fp, "USERLIST golded.lst\n");
+    fprintf(fp, "LOOKUPNET   YES\n");
+    fprintf(fp, "LOOKUPECHO  NO\n");
+    fprintf(fp, "LOOKUPLOCAL NO\n\n");
+    fclose(fido);
 }
 
 

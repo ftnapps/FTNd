@@ -303,7 +303,6 @@ int		noderecord(faddr *);
 /*
  * From pktname.c
  */
-char		*prepbuf(faddr *);	
 char		*pktname(faddr *, char);
 char		*reqname(faddr *);
 char		*floname(faddr *, char);

@@ -211,6 +211,7 @@ void user()
 	printf("%s\n", (char *) Language(390));
 	Syslog('?', "FATAL: Could not find user in BBS users file.");
 	Syslog('?', "       and system is using unix accounts\n");
+	Free_Language();
 	ExitClient(MBERR_OK);
     }
 

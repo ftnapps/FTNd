@@ -130,6 +130,7 @@ void ulockprogram(char *progname)
 	free(lockfile);
 	return;
     }
+    fclose(fp);
 
     if (oldpid == getpid()) {
 	(void)unlink(lockfile);

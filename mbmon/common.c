@@ -4,7 +4,7 @@
  * Purpose ...............: Common utilities
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -207,65 +207,64 @@ void Nopper(void)
 
 int socket_connect(char *user)
 {
-	int 		s;
-	static char	buf[SS_BUFSIZE];
-	char		tty[18];
+    int 	s;
+    static char	buf[SS_BUFSIZE], tty[18];
 
-	if ((s = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1) {
-		perror("mbmon");
-		printf("Unable to create Unix Datagram socket\n");
-		return -1;
-	}
+    if ((s = socket(AF_UNIX, SOCK_DGRAM, 0)) == -1) {
+	perror("mbmon");
+	printf("Unable to create Unix Datagram socket\n");
+	return -1;
+    }
 
-	memset(&clntaddr, 0, sizeof(clntaddr));
-	clntaddr.sun_family = AF_UNIX;
-	strcpy(clntaddr.sun_path, cpath);
+    memset(&clntaddr, 0, sizeof(clntaddr));
+    clntaddr.sun_family = AF_UNIX;
+    strcpy(clntaddr.sun_path, cpath);
 
-	if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
-		close(s);
-		perror("mbmon");
-		printf("Can't bind socket %s\n", cpath);
-		return -1;
-	}
+    if (bind(s, (struct sockaddr *)&clntaddr, sizeof(clntaddr)) < 0) {
+	close(s);
+	perror("mbmon");
+	printf("Can't bind socket %s\n", cpath);
+	return -1;
+    }
 
-	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sun_family = AF_UNIX;
-	sprintf(servaddr.sun_path, "%s", (char *)spath);
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sun_family = AF_UNIX;
+    sprintf(servaddr.sun_path, "%s", (char *)spath);
 
-	/*
-	 * Now that we have an connection, we gather 
-	 * information to tell the server who we are.
-	 */
-	if (isatty(1) && (ttyname(1) != NULL)) {
-		strcpy(tty, ttyname(1));
-		if (strchr(tty, 'p'))
-			strcpy(tty, index(tty, 'p'));
-		else if (strchr(tty, 't'))
-			strcpy(tty, index(tty, 't'));
-		else if (strchr(tty, 'c'))
-			strcpy(tty, index(tty, 'c'));
-	} else {
-		strcpy(tty, "-");
-	}
-	sock = s;
+    /*
+     * Now that we have an connection, we gather 
+     * information to tell the server who we are.
+     */
+    if (isatty(1) && (ttyname(1) != NULL)) {
+	strcpy(tty, ttyname(1));
+	if (strchr(tty, 'p'))
+	    memccpy(tty, index(tty, 'p'), '\0', strlen(tty));
+	else if (strchr(tty, 't'))
+	    memccpy(tty, index(tty, 't'), '\0', strlen(tty));
+	else if (strchr(tty, 'c'))
+	    memccpy(tty, index(tty, 'c'), '\0', strlen(tty));
+    } else {
+	strcpy(tty, "-");
+    }
+    sock = s;
 
-	/*
-	 * Send the information to the server. 
-	 */
-	sprintf(buf, "AINI:5,%d,%s,%s,mbmon,localhost;", getpid(), tty, user);
-	if (socket_send(buf) != 0) {
-		sock = -1;
-		return -1;
-	}
+    /*
+     * Send the information to the server. 
+     */
+    sprintf(buf, "AINI:5,%d,%s,%s,mbmon,localhost;", getpid(), tty, user);
+    if (socket_send(buf) != 0) {
+	sock = -1;
+	return -1;
+    }
 
-	strcpy(buf, socket_receive());
-	if (strncmp(buf, "100:0;", 6) != 0) {
-		printf("AINI not acknowledged by the server\n");
-		sock = -1;
-		return -1;
-	}
+    strcpy(buf, socket_receive());
+    if (strncmp(buf, "100:0;", 6) != 0) {
+	printf("AINI not acknowledged by the server\n");
+	sock = -1;
+	return -1;
+    }
 
-	return s;
+    return s;
 }
 
 

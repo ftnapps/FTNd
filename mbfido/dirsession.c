@@ -215,6 +215,7 @@ int dirinbound(void)
 	    }
 	    fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
 	}
+	fclose(fp);
     }
     free(temp);
     Syslog('m', "Finished directory inbound sessions");

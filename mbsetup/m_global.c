@@ -779,7 +779,7 @@ void s_fidomailcfg(void)
     mvprintw(12,42, "13. 4d address");
     mvprintw(13,42, "14. Split at");
     mvprintw(14,42, "15. Force at");
-    mvprintw(15,42, "16. Allow %+*");
+    mvprintw(15,42, "16. Allow +*");
     mvprintw(16,42, "17. Notify");
     mvprintw(17,42, "18. Passwd");
     mvprintw(18,42, "19. Pause");

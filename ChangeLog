@@ -2,23 +2,66 @@ $Id$
 
 v0.39.3		26-Nov-2003
 
+	WARNING: NOT EVERYTHING IS TESTED, WAIT A FEW DAYS AND DON'T USE THIS.
+
 	general:
 		Since this version Posix threads are being used, please let
 		me know if this doesn't compile on you system.
 		All Makefiles do not strip the binaries anymore, the binaries
 		are stripped during make install only. This allows to run the
 		not yet installed binaries under debuggers.
+		The configure script has a --enable-debugging option so that
+		all code can be compiled to let it run under debuggers.
+
+	libclcomm:
+		Fixed a small (not harmfull) buffer overlapped copy detected
+		by valgrind.
+
+	libcommon:
+		Code cleanup in proglock and pktname.
+		Fixed a forgotten fclose in proglock.
+
+	libmsgbase:
+		In JAM_Open replaced a strcpy with memmove.
 
 	mbcico:
 		Dropped binkp CRC support because it will be incompatible with
 		future extensions.
+		Fixed a small memory leak.
+
+	mbfido:
+		Fixed a small memory leak.
+
+	mbfile:
+		Fixed a uninitialized memory pointer in the index command.
+
+	mbindex:
+		Fixed a forgotten file close.
 
 	mbsetup:
 		Removed binkp CRC settings.
+		Fixed a unitialized unlink call in nodes close.
+		Fixed unclosed tempfile.
+		Fixed several small memory leaks.
+
+	mbsebbs:
+		Fixed small memory leak.
+
+	mball:
+		Fixed 2 forgotten fclose functions.
+
+	mbuser:
+		Fixed a forgotten file close when nothing was done.
+
+	mbmon:
+		Fixed a minor problem with an uninitialized array.
 
 	mbtask:
 		The ping function now runs in a separate thread.
 		Changed some ping timer logic.
+
+	mbpasswd:
+		Fixed a small memory leak.
 
 
 v0.39.2		21-Nov-2003 - 26-Nov-2003
