@@ -65,6 +65,14 @@ layout looks like this:<br>
 /opt/mbse/share/doc            0750  Generated sitedocs
 /opt/mbse/share/doc/html       0750  Generated html sitedocs
 /opt/mbse/share/doc/tags       0750  Generated area tags
+/opt/mbse/share/int            0750  Base for language files
+/opt/mbse/share/int/de         0750  German
+/opt/mbse/share/int/en         0750  English
+/opt/mbse/share/int/es         0750  Spanish
+/opt/mbse/share/int/fr         0750  French
+/opt/mbse/share/int/gl         0750  Galacian
+/opt/mbse/share/int/it         0750  Italian
+/opt/mbse/share/int/nl         0750  Dutch
 /opt/mbse/spanish/macro        0750  Spanish macro files
 /opt/mbse/spanish/menus        0750  Spanish menu files
 /opt/mbse/spanish/txtfiles     0770  Spanish ANSI files
@@ -76,13 +84,13 @@ layout looks like this:<br>
 /opt/mbse/var/boxes            0770  Base for nodes fileboxes
 /opt/mbse/var/bso              0770  Binkley Style Outbound directory
 /opt/mbse/var/bso/outbound     0770  Default outbound for main aka
-/opt/mbse/var/dosemu           0770  Base for DOS drives
+/opt/mbse/var/dosemu           0770  Base for DOS drives (doors)
 /opt/mbse/var/dosemu/c         0770  DOS drive C:
 /opt/mbse/var/fdb              0770  Files database
 /opt/mbse/var/inbound          0750  Protected inbound directory
 /opt/mbse/var/magic            0750  Magic filerequest names
 /opt/mbse/var/mail             0770  JAM messagebase root
-/opt/mbse/var/msgs             0770  *.msgs netmail directory (not yet in use).
+/opt/mbse/var/msgs             0770  *.msgs netmail directory
 /opt/mbse/var/nodelist         0750  Nodelists
 /opt/mbse/var/queue            0750  Queue for before outbound
 /opt/mbse/var/rules            0770  Echomail area rules files
