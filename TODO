@@ -23,6 +23,8 @@ everything:
 
 	N: In BSO the i flavor should have been d flavor.
 
+	N: Increase size of Unix usernames > 8.
+
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
@@ -69,9 +71,6 @@ mbfido:
 
 	N: Check all .flo files for to old attachments.
 
-	N: If a download file is deleted by keep # then check if the file(s)
-	   are attached to nodes, if so delete the attachments and .tic files.
-
 	N: Count posted messages during mailscan.
 
 	N: Code cleanup and make a structure in this program. Remove duplicate
@@ -112,10 +111,6 @@ mbfido:
 	N: After readalias we need to free the alias list when mbfido ends.
 
 	N: Reimplement characterset conversion again on the gateway.
-
-	N: When adding a record to the toberep database add check for existing
-	   older entry to update the info with the later received file. Else
-	   just handle the record as a dupe (In test again).
 
 	N: Hatch statistics are not updated.
 
