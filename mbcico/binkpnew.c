@@ -106,14 +106,13 @@ static char *ftstate[] = { (char *)"InitTransfer", (char *)"Switch", (char *)"Re
 
 
 static time_t	Timer;
-int		transferred = FALSE;		/* Anything transferred in batch    */
 int		ext_rand = 0;
 
 
-the_queue	*tql = NULL;			/* The Queue List		    */
-file_list	*tosend = NULL;			/* Files to send		    */
-binkp_list	*bll = NULL;			/* Files to send with status	    */
-
+the_queue	    *tql = NULL;		/* The Queue List		    */
+file_list	    *tosend = NULL;		/* Files to send		    */
+binkp_list	    *bll = NULL;		/* Files to send with status	    */
+static binkp_list   *cursend = NULL;		/* Current file being transmitted   */
 
 
 struct binkprec {
@@ -182,15 +181,16 @@ int	binkp_banner(void);			    /* Send system banner	    */
 int	binkp_recv_command(char *, int *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 int	binkp_poll_frame(void);			    /* Poll for a frame		    */
-void	binkp_addqueue(char *frame);		    /* Add cmd frame to queue	    */
-int	binkp_countqueue(void);			    /* Count commands on the queue  */
-int	binkp_processthequeue(void);		    /* Process the queue	    */
+void	binkp_add_message(char *frame);		    /* Add cmd frame to queue	    */
+int	binkp_count_messages(void);		    /* Count commands on the queue  */
+int	binkp_process_messages(void);		    /* Process the queue	    */
 int	binkp_resync(off_t);			    /* File resync		    */
 char	*unix2binkp(char *);			    /* Binkp -> Unix escape	    */
 char	*binkp2unix(char *);			    /* Unix -> Binkp escape	    */
-void	fill_binkp_list(binkp_list **, file_list *, off_t);
-void	debug_binkp_list(binkp_list **);
-int	binkp_pendingfiles(void);
+void	fill_binkp_list(binkp_list **, file_list *, off_t); /* Build pending files  */
+void	debug_binkp_list(binkp_list **);	    /* Debug pending files list	    */
+int	binkp_pendingfiles(void);		    /* Count pending files	    */
+
 
 static int  orgbinkp(void);			    /* Originate session state	    */
 static int  ansbinkp(void);			    /* Answer session state	    */
@@ -589,14 +589,12 @@ SM_STATE(WaitConn)
 	strcpy(s, "OPT ");
 	MD_toString(s+4, bp.MD_Challenge[0], bp.MD_Challenge+1);
 	bp.CRAMflag = TRUE;
-	rc = binkp_send_command(MM_NUL, "%s", s);
-	if (rc) {
+	if ((rc = binkp_send_command(MM_NUL, "%s", s))) {
 	    SM_ERROR;
 	}
     }
 
-    rc = binkp_banner();
-    if (rc) {
+    if ((rc = binkp_banner())) {
 	SM_ERROR;
     }
 
@@ -811,6 +809,7 @@ SM_RETURN
 /*
  * We do not use the normal state machine because that produces a lot
  * of debug logging that will drive up the CPU usage.
+ *         FIXME: Remove these messages!!
  */
 int file_transfer(void)
 {
@@ -873,6 +872,7 @@ int file_transfer(void)
 				    binkp_settimer(BINKP_TIMEOUT);
 				    bp.FtState = Switch;
 				} else if (Trc == Failure) {
+				    Syslog('+', "Binkp: receiver failure");
 				    bp.rc = 1;
 				    bp.FtState = DeinitTransfer;
 				}
@@ -884,6 +884,7 @@ int file_transfer(void)
 				    binkp_settimer(BINKP_TIMEOUT);
 				    bp.FtState = Switch;
 				} else if (Trc == Failure) {
+				    Syslog('+', "Binkp: transmitter failure");
 				    bp.rc = 1;
 				    bp.FtState = DeinitTransfer;
 				}
@@ -935,7 +936,7 @@ TrType binkp_receiver(void)
             bp.RxState = RxDone;
             return Failure;
         } else if ((bcmd == MM_GET) || (bcmd == MM_GOT) || (bcmd == MM_SKIP)) {
-            binkp_addqueue(bp.rxbuf);
+            binkp_add_message(bp.rxbuf);
             return Ok;
         } else if (bcmd == MM_NUL) {
             parse_m_nul(bp.rxbuf +1);
@@ -980,6 +981,8 @@ TrType binkp_receiver(void)
 	if (bp.DidSendGET) {
 	    Syslog('b', "Binkp: DidSendGET is set");
 	    /*
+	     * FIXME: this was from the old driver, still needed???
+	     *
 	     * The file was partly received, via the openfile the resync function
 	     * has send a GET command to start this file with a offset. This means
 	     * we will get a new FILE command to open this file with a offset.
@@ -1001,10 +1004,8 @@ TrType binkp_receiver(void)
 	}
 
 	if (statfs(tempinbound, &sfs) == 0) {
-	    Syslog('b', "blocksize %lu free blocks %lu", sfs.f_bsize, sfs.f_bfree);
-	    Syslog('b', "need %lu blocks", (unsigned long)(bp.rsize / (sfs.f_bsize + 1)));
 	    if ((bp.rsize / (sfs.f_bsize + 1)) >= sfs.f_bfree) {
-		Syslog('!', "Only %lu blocks free (need %lu) in %s", sfs.f_bfree, 
+		Syslog('!', "Binkp: only %lu blocks free (need %lu) in %s for this file", sfs.f_bfree, 
 			    (unsigned long)(bp.rsize / (sfs.f_bsize + 1)), tempinbound);
 		closefile();
 		bp.rxfp = NULL; /* Force SKIP command       */
@@ -1062,7 +1063,7 @@ TrType binkp_receiver(void)
 	    bp.RxState = RxDone;
 	    return Failure;
 	} else if ((bcmd == MM_GET) || (bcmd == MM_GOT) || (bcmd == MM_SKIP)) {
-	    binkp_addqueue(bp.rxbuf);
+	    binkp_add_message(bp.rxbuf);
 	    return Ok;
 	} else if (bcmd == MM_NUL) {
 	    parse_m_nul(bp.rxbuf +1);
@@ -1097,7 +1098,6 @@ TrType binkp_receiver(void)
 	}
 	bp.rxpos += written;
 	if (bp.rxpos == bp.rsize) {
-	    Syslog('b', "We are at EOF");
 	    rc = binkp_send_command(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 	    closefile();
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
@@ -1105,7 +1105,6 @@ TrType binkp_receiver(void)
 	    Syslog('+', "Binkp: OK %s", transfertime(bp.rxtvstart, bp.rxtvend, bp.rxpos, FALSE));
 	    rcvdbytes += bp.rxpos;
 	    bp.RxState = RxWaitF;
-	    transferred = TRUE;
 	    if (rc)
 		return Failure;
 	    else
@@ -1130,7 +1129,7 @@ TrType binkp_receiver(void)
 		bp.RxState = RxDone;
 		return Failure;
 	    } else if ((bcmd == MM_GET) || (bcmd == MM_GOT) || (bcmd == MM_SKIP)) {
-		binkp_addqueue(bp.rxbuf);
+		binkp_add_message(bp.rxbuf);
 		return Ok;
 	    } else if (bcmd == MM_NUL) {
 		parse_m_nul(bp.rxbuf +1);
@@ -1171,7 +1170,7 @@ TrType binkp_transmitter(void)
     char	*nonhold_mail;
     fa_list	*eff_remote;
     file_list	*tsl;
-    static binkp_list	*tmp, *cursend;
+    static binkp_list	*tmp;
 
 
     Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
@@ -1207,7 +1206,10 @@ TrType binkp_transmitter(void)
 	    debug_binkp_list(&bll);
 
 	    Syslog('+', "Binkp: mail %ld, files %ld bytes", bp.nethold, bp.mailhold);
-	    binkp_send_command(MM_NUL, "TRF %ld %ld", bp.nethold, bp.mailhold);
+	    if ((rc = binkp_send_command(MM_NUL, "TRF %ld %ld", bp.nethold, bp.mailhold))) {
+		bp.TxState = TxDone;
+		return Failure;
+	    }
 	}
 	
 	for (tmp = bll; tmp; tmp = tmp->next) {
@@ -1244,13 +1246,16 @@ TrType binkp_transmitter(void)
 		bp.txpos = bp.stxpos = tmp->offset;
 		Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
 		Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
-		binkp_send_command(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
+		rc = binkp_send_command(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
 			(unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset);
+		if (rc) {
+		    bp.TxState = TxDone;
+		    return Failure;
+		}
 		gettimeofday(&bp.txtvstart, &bp.tz);
 		tmp->state = Sending;
 		cursend = tmp;
 		bp.TxState = TxTryR;
-		transferred = TRUE;
 		return Continue;
 	    } /* if state == NoState */
 	} /* for */
@@ -1273,12 +1278,12 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxTryR) {
 
-	if (binkp_countqueue() == 0) {
+	if (binkp_count_messages() == 0) {
 	    Syslog('b', "The queue is empty");
 	    bp.TxState = TxReadS;
 	    return Continue;
 	} else {
-	    if (binkp_processthequeue()) {
+	    if (binkp_process_messages()) {
 		bp.TxState = TxDone;
 		return Failure;
 	    } else 
@@ -1318,6 +1323,7 @@ TrType binkp_transmitter(void)
 	    }
 
 	    cursend->state = IsSent;
+	    cursend = NULL;
 	    bp.TxState = TxGNF;
 	    return Ok;
 	} else {
@@ -1333,12 +1339,14 @@ TrType binkp_transmitter(void)
 
     } else if (bp.TxState == TxWLA) {
 
-	if ((binkp_countqueue() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState >= RxEOB)) {
+	if ((binkp_count_messages() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState >= RxEOB)) {
 	    Syslog('b', "The queue is empty and RxState >= RxEOB");
 	    bp.TxState = TxDone;
 	    Syslog('+', "Binkp: there were %d messages", bp.messages);
-	    if (bp.local_EOB && bp.remote_EOB)
+	    if (bp.local_EOB && bp.remote_EOB) {
+		Syslog('b', "Binkp: transmitter puts receiver state to RxDone");
 		bp.RxState = RxDone;    /* Not in FSP-1018 rev.1 */
+	    }
 	    if (tosend != NULL) {
 		Syslog('b', "Clear current filelist");
 
@@ -1374,14 +1382,14 @@ TrType binkp_transmitter(void)
 	    return Ok;
 	}
 
-	if ((binkp_countqueue() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState < RxEOB)) {
+	if ((binkp_count_messages() == 0) && (binkp_pendingfiles() == 0) && (bp.RxState < RxEOB)) {
 	    Syslog('b', "The queue is empty and RxState < RxEOB");
 	    bp.TxState = TxWLA;
 	    return Ok;
 	}
 
-	if (binkp_countqueue()) {
-	    if (binkp_processthequeue()) {
+	if (binkp_count_messages()) {
+	    if (binkp_process_messages()) {
 		return Failure;
 	    }
 	}
@@ -1691,6 +1699,8 @@ int binkp_poll_frame(void)
 			bp.messages++;
 			bcmd = bp.rxbuf[0];
 			Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(bp.rxbuf+1, 0));
+		    } else {
+			Syslog('b', "Binkp: got data frame %s bytes", bp.rxlen);
 		    }
 		    rc = 1;
 		    break;
@@ -1708,16 +1718,15 @@ int binkp_poll_frame(void)
 
 
 /*
- * Add received command frame to the queue
+ * Add received command frame to the queue, will be processed by the transmitter.
  */
-void binkp_addqueue(char *frame)
+void binkp_add_message(char *frame)
 {
     the_queue	**tmpl;
     int		bcmd;
     
-    Syslog('b', "Binkp: add \"%s\" to the message queue", printable(frame, 0));
     bcmd = frame[0];
-    Syslog('b', "Binkp: got %s %s", bstate[bcmd], printable(frame +1, 0));
+    Syslog('b', "Binkp: add message %s %s", bstate[bcmd], printable(frame +1, 0));
 
     for (tmpl = &tql; *tmpl; tmpl = &((*tmpl)->next));
     *tmpl = (the_queue *)malloc(sizeof(the_queue));
@@ -1730,9 +1739,9 @@ void binkp_addqueue(char *frame)
 
 
 /*
- * Get nr of messages on the queue
+ * Get nr of messages on the queue FIXME: Change to static counter.
  */
-int binkp_countqueue(void)
+int binkp_count_messages(void)
 {
     the_queue	*tmp;
     int		count = 0;
@@ -1749,66 +1758,120 @@ int binkp_countqueue(void)
 
 
 /*
- * Count number of pending files
- */
-int binkp_pendingfiles(void)
-{
-    binkp_list  *tmpl;
-    int         count = 0;
-
-    for (tmpl = bll; tmpl; tmpl = tmpl->next) {
-	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
-	if ((tmpl->state != Got) && (tmpl->state != Skipped))
-	    count++;
-    }
-
-    Syslog('b', "Binkp: %d pending files on queue", count);
-    return count;
-}
-
-
-
-/*
  * Process all messages on the queue, the oldest are on top, after
  * processing release memory and reset the messages queue.
  */
-int binkp_processthequeue(void)
+int binkp_process_messages(void)
 {
     the_queue	*tmpq, *oldq;
     binkp_list	*tmp;
     int		Found;
     char	*lname;
     time_t	ltime;
-    long	lsize;
+    long	lsize, loffs;
 
     Syslog('b', "Binkp: Process The Messages Queue Start");
 
     lname = calloc(512, sizeof(char));
 
     for (tmpq = tql; tmpq; tmpq = tmpq->next) {
-	Syslog('b', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
+	Syslog('+', "Binkp: %s \"%s\"", bstate[tmpq->cmd], printable(tmpq->data, 0));
 	if (tmpq->cmd == MM_GET) {
-	    /* Requested file is not in know files list: Report */
-	    /* Requested pos is filesize: Close and finalize */
-	    /* Requested pos is less then filesize: Set filepos to requested, report, TxState -> TxGNF */
+	    sscanf(tmpq->data, "%s %ld %ld %ld", lname, &lsize, &ltime, &loffs);
+	    Found = FALSE;
+	    for (tmp = bll; tmp; tmp = tmp->next) {
+		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
+		    if (lsize == loffs) {
+			/*
+			 * Requested offset is filesize, close file.
+			 */
+			if (cursend && (strcmp(lname, cursend->remote) == 0) && 
+				(lsize == cursend->size) && (ltime == cursend->date)) {
+			    Syslog('b', "Got M_GET with offset == filesize for current file, close");
+			    /*
+			     * Close transmitter file
+			     */
+			    fclose(bp.txfp);
+			    bp.txfp = NULL;
+
+			    if (bp.txpos >= 0) {
+				bp.stxpos = bp.txpos - bp.stxpos;
+				Syslog('+', "Binkp: OK %s", transfertime(bp.txtvstart, bp.txtvend, bp.stxpos, TRUE));
+			    } else {
+				Syslog('+', "Binkp: transmitter skipped file after %ld seconds", 
+					bp.txtvend.tv_sec - bp.txtvstart.tv_sec);
+			    }
+
+			    cursend->state = IsSent;
+			    cursend = NULL;
+			    bp.TxState = TxGNF;
+			} else {
+			    Syslog('+', "Binkp: requested offset = filesize, but is not the current file");
+			}
+		    } else if (loffs < lsize) {
+			tmp->state = NoState;
+			tmp->offset = loffs;
+			if (loffs) {
+			    Syslog('+', "Binkp: Remote wants %s for resync at offset %ld", tmp->remote, tmp->offset);
+			} else {
+			    Syslog('+', "Binkp: Remote wants %s again from start", tmp->remote);
+			}
+			bp.TxState = TxGNF;
+		    } else {
+			Syslog('+', "Binkp: requested offset > filesize, ignore");
+		    }
+		    Found = TRUE;
+		    break;
+		}
+		if (!Found) {
+		    Syslog('!', "Binkp: unexpected M_GET \"%s\"", tmpq->data); /* Ignore frame */
+		}
+	    }
 	} else if (tmpq->cmd == MM_GOT) {
-	    /* File is transmitting: close and finalize, report remote refused, TxState -> TxGNF */
 	    sscanf(tmpq->data, "%s %ld %ld", lname, &lsize, &ltime);
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
-		    Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
-		    tmp->state = Got;
 		    Found = TRUE;
+		    if (tmp->state == Sending) {
+			Syslog('+', "Binkp: remote refused %s", tmp->remote);
+			fclose(bp.txfp);
+			bp.txfp = NULL;
+			tmp->state = Got;
+			cursend = NULL;
+		    } else {
+			Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
+			tmp->state = Got;
+		    }
+		    bp.TxState = TxGNF;
 		    break;
 		}
 	    }
 	    if (!Found) {
-		Syslog('!', "Binkp: unexpected GOT \"%s\"", tmpq->data); /* Ignore frame */
+		Syslog('!', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
 	    }
 	} else if (tmpq->cmd == MM_SKIP) {
-	    /* File is transmitting: close (no finalize), TxState -> TxGNF */
-	    /* File not transmitting: report, remove from list */
+	    sscanf(tmpq->data, "%s %ld %ld", lname, &lsize, &ltime);
+	    Found = FALSE;
+	    for (tmp = bll; tmp; tmp = tmp->next) {
+		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
+		    Found = TRUE;
+		    if (tmp->state == Sending) {
+			Syslog('+', "Binkp: remote skipped %s, may be accepted later", tmp->remote);
+			fclose(bp.txfp);
+			bp.txfp = NULL;
+			cursend = NULL;
+			bp.TxState = TxGNF;
+		    } else {
+			Syslog('+', "Binkp: remote refused %s", tmp->remote);
+		    }
+		    tmp->state = Skipped;
+		    break;
+		}
+	    }
+	    if (!Found) {
+		Syslog('!', "Binkp: unexpected M_GOT \"%s\"", tmpq->data); /* Ignore frame */
+	    }
 	} else {
 	    /* Illegal message on the queue */
 	}
@@ -1830,6 +1893,25 @@ int binkp_processthequeue(void)
     return 0;
 }
 
+
+
+/*
+ *  * Count number of pending files
+ *   */
+int binkp_pendingfiles(void)
+{
+    binkp_list  *tmpl;
+    int         count = 0;
+
+    for (tmpl = bll; tmpl; tmpl = tmpl->next) {
+	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
+	if ((tmpl->state != Got) && (tmpl->state != Skipped))
+	    count++;
+    }
+
+    Syslog('b', "Binkp: %d pending files on queue", count);
+    return count;
+}
 
 #ifndef DOTEST
 
@@ -1999,18 +2081,18 @@ int main()
 
     frame = xstrcpy((char *)"xSEAP\\x7e2GU.TGZ 338538 1072728016");
     frame[0] = MM_GOT;
-    binkp_addqueue(frame);
+    binkp_add_message(frame);
     free(frame);
-    binkp_countqueue();
+    binkp_count_messages();
 
     frame = xstrcpy((char *)"x39fb3e70.tic 441 1072728026");
     frame[0] = MM_GOT;
-    binkp_addqueue(frame);
+    binkp_add_message(frame);
     free(frame);
-    binkp_countqueue();
+    binkp_count_messages();
 
-    binkp_processthequeue();
-    binkp_countqueue();
+    binkp_process_messages();
+    binkp_count_messages();
 
     Syslog(' ', "MBTEST finished");
     ExitClient(0);

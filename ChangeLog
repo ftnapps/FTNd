@@ -5,6 +5,7 @@ v0.39.5		24-Dec-2003
 	general:
 		Added code for new binkp development, the code is disabled by
 		default and can only be used with the right configure option.
+		Upgraded to new released ftscprod.008
 
 	common.a:
 		Allows node locking with zero bytes lockfiles created by some
