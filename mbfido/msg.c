@@ -295,7 +295,6 @@ int toss_onemsg(char *msgname)
 	    /*
 	     * Message is local, make the message appear as a received netmail
 	     */
-	    Msg.Netmail = TRUE;
 	    islocal = TRUE;
 	    if ((strncasecmp(toUserName, "sysop", 5) == 0) ||
 		(strncasecmp(toUserName, "postmaster", 10) == 0) ||
@@ -311,6 +310,7 @@ int toss_onemsg(char *msgname)
 	}
 	Syslog('m', "Netmail is %s", islocal ? "Local":"for export");
 	Msg.Private = TRUE;
+	Msg.Netmail = TRUE;
 
 	if (origPoint)
 	    sprintf(Msg.FromAddress, "%d:%d/%d.%d@%s", origZone, origNet, origNode, origPoint, fidonet.domain);
