@@ -4331,7 +4331,8 @@ v0.33.19        26-Oct-2001
 		that one gives a complete dump and is for developer use.
 		The "mbfile index" function now also writes files.bbs files,
 		the index.html files for http download and 00index files in
-		all available areas.
+		all available areas. The files.bbs files have download
+		counters included.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.

@@ -30,15 +30,11 @@ MBINET_HDRS	= mbinet.h
 MEMWATCH_SRCS	= memwatch.c
 MEMWATCH_OBJS	= memwatch.o
 MEMWATCH_HDRS	= memwatch.h
-UBI_SRCS	= debugparse.c ubi_BinTree.c ubi_Cache.c ubi_SplayTree.c ubi_dLinkList.c ubi_sLinkList.c
-UBI_HDRS	= debugparse.h ubi_BinTree.h ubi_Cache.h ubi_SplayTree.h ubi_dLinkList.h ubi_sLinkList.h
-UBI_OBJS	= debugparse.o ubi_BinTree.o ubi_Cache.o ubi_SplayTree.o ubi_dLinkList.o ubi_sLinkList.o
 OTHER_HDRS	= ansi.h bluewave.h libs.h mbse.h records.h structs.h
 SRCS		= ${CLCOMM_SRCS} ${COMMON_SRCS} ${DBASE_SRCS} ${MSGBASE_SRCS} ${MBINET_SRCS} ${MEMWATCH_SRCS}
 OBJS		= ${CLCOMM_OBJS} ${COMMON_OBJS} ${DBASE_OBJS} ${MSGBASE_OBJS} ${MBINET_OBJS} ${MEMWATCH_OBJS}
 HDRS		= ${CLCOMM_HDRS} ${COMMON_HDRS} ${DBASE_HDRS} ${MSGBASE_HDRS} ${MBINET_HDRS} ${MEMWATCH_HDRS} ${OTHER_HDRS}
-OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c memwatch.c.org \
-		  COPYING.LIB README.UBI
+OTHER		= Makefile README ftscprod.006 mkprod.awk FAQ README.memwatch USING test.c memwatch.c.org
 TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libmemwatch.a
 
 #############################################################################
@@ -72,10 +68,6 @@ libmbinet.a:	${MBINET_OBJS}
 		${RANLIB} $@
 
 libmemwatch.a:	${MEMWATCH_OBJS}
-		ar r $@ $?
-		${RANLIB} $@
-
-libubi.a:	${UBI_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 

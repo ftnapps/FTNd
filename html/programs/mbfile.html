@@ -81,7 +81,11 @@ virussed before the are added the the bbs.
 
 <code><strong>mbfile</strong> index</code>
 Create fast filerequest index for the <strong>mbcico</strong> filerequest
-processor.
+processor. In each directory with the downloadable files is also a 
+<strong>files.bbs</strong> file written is msdos cr/lf format. This includes a
+download counter.
+Also, if defined, in each available download area for ftp/http, index files are
+created, starting at the ftp pub directory.
 <P>
 
 <code><strong>mbfile</strong> kill</code>
@@ -116,6 +120,12 @@ Quiet mode, no screen output. Use this switch if you run <strong>mbfile</strong>
 Announce mode, use this switch with the adopt and import commands to prevent
 that the added file(s) will be announced. This can be usefull if you add lots of
 files that you don't want to announce these as new files.
+<P>
+
+<H3>Setup.</H3>
+<P>
+In <strong>mbsetup</strong> menu 1.16 you need to set the public FTP base
+and the maximum security level.
 <P>
 
 <A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;

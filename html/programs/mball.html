@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 30-Jan-2001</h5>
+<h5>Last update 25-Nov-2001</h5>
 <P>&nbsp;<P>
 
 <H1>mball - Allfiles listing generator</H1>
@@ -32,15 +32,6 @@ resulting files are created in the current directory. After the creation of
 these files you can hatch them into your bbs with the programs <strong>
 mbfido tic</strong> when you properly setup a .tic file area for this purpose
 and create records for the hatch manager.
-<P>
-It can also create <strong>00index</strong> files in each download directory
-for FTP users. Because this file starts with double zero it is most likely the
-file at the top in each directory. At the same time HTTP pages are created in
-the download directories of your filebase. These are named index.html, 
-index1.html and so on, there are as many as needed. The main index is created in the root
-of your filebase. If you use the default setup then a user browsing at your bbs
-can type <strong>http://yoursite.org/files/index.html</strong> to see the list
-of fileareas.
 <P>&nbsp;<P>
 
 <H3>Environment.</H3>
@@ -53,7 +44,6 @@ must be present in the ~/etc directory.
 
 <H3>Commands.</H3>
 <P>
-<code><strong>mball index</strong></code> - Create 00index and HTTP files in all download directories.<br>
 <code><strong>mball list</strong> </code> - Create allfiles.txt and newfiles.txt files.
 <p>&nbsp;<P>
 
@@ -65,7 +55,7 @@ must be present in the ~/etc directory.
 
 <H3>Setup.</H3>
 <P>
-In <strong>mbsetup</strong> menu 1.15 you need to set the public FTP base,
+In <strong>mbsetup</strong> menu 1.16 you need to set the public FTP base,
 the days to include in newfiles listings and the maximum security level.
 <P>
 

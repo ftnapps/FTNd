@@ -539,7 +539,7 @@ void Index(void)
 		while (fread(&file, sizeof(file), 1, pFile) == 1) {
 		    if ((!file.Deleted) && (!file.Missing)) {
 			fbFiles++;
-			fprintf(fp, "%-12s %s\r\n", file.Name, file.Desc[0]);
+			fprintf(fp, "%-12s [%ld] %s\r\n", file.Name, file.TimesDL + file.TimesFTP + file.TimesReq, file.Desc[0]);
 			for (j = 1; j < 25; j++)
 			    if (strlen(file.Desc[j]))
 				fprintf(fp, " +%s\r\n", file.Desc[j]);

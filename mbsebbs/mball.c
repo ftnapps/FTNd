@@ -113,7 +113,7 @@ void Help()
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
-	printf("	i  index	Create \"00index\" files and WWW pages in areas\n");
+	printf("	l  list		Create allfiles and newfiles lists\n");
 	colour(9, 0);
 	printf("\n	Options are:\n\n");
 	colour(3, 0);
