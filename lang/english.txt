@@ -155,11 +155,11 @@ YN|messages, read your mail now? [Y/n]:
 |You have paged the Sysop the maximum times allowed.
 |Sysop currently is not available ... please leave a comment
 |Posting message in area: 
-|From     : 
-|To       : 
+|From : 
+|  To : 
 |Verifying user ...
 |User not found. Try again, or (Enter) to quit
-|Subject  : 
+|Subj : 
 YN|Abort Message [y/N] ?: 
 YN|Private [y/N]: 
 |Begin your message now, Blank line to end
@@ -477,3 +477,4 @@ YN|Attach file [y/N]:
 |Old address:
 |Use your alias (
 YN|) to post this message [Y/n]: 
+|No more areas with unread messages

@@ -477,3 +477,4 @@ YN|Adxuntar ficheiro [s/N]:
 |Enderezo vello:
 |¨Queres usa-lo alias (
 SN|) nesta mensaxe?  [S/n]: 
+|No more areas with unread messages

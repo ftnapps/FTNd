@@ -1535,6 +1535,7 @@ void MsgArea_List(char *Option)
 	long    offset;
 	char    *temp;
 	lastread	LR;
+	int loopcount=0;
 
 	temp         = calloc(PATH_MAX, sizeof(char));
 
@@ -1570,6 +1571,74 @@ void MsgArea_List(char *Option)
 		if (strcmp(Option, "N") == 0) {
 			iCheckNew = TRUE;
 		} else {
+			if (strcmp(Option, "U+") == 0) 
+				while(TRUE) {
+					iMsgAreaNumber++;
+					if (iMsgAreaNumber >= iAreaNum) {
+						iMsgAreaNumber = 0;
+						loopcount++;
+						if ( loopcount > 1 ) {
+							pout(LIGHTRED, BLACK, (char *) Language(479));
+							iMsgAreaNumber = iOldArea;
+							Enter(2);
+							Pause();
+							return;
+						}
+					}
+	
+					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+					if(fseek(pAreas, offset, 0) != 0) {
+						printf("Can't move pointer there.");
+					}
+									
+					fread(&msgs, msgshdr.recsize, 1, pAreas);
+					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+						if(Msg_Open(msgs.Base)){
+							MsgBase.Highest = Msg_Highest();
+							LR.UserID = grecno; 
+							if ( Msg_GetLastRead(&LR) != TRUE ){
+								LR.HighReadMsg = 0;
+							}
+							if (MsgBase.Highest > LR.HighReadMsg ) 
+								break;
+						}
+					}
+				}
+
+			if (strcmp(Option, "U-") == 0) 
+				while(TRUE) {
+					iMsgAreaNumber--;
+					if (iMsgAreaNumber < 0) {
+						iMsgAreaNumber = iAreaNum - 1;
+						loopcount++;
+						if ( loopcount > 1 ) {
+							pout(LIGHTRED, BLACK, (char *) Language(479));
+							iMsgAreaNumber = iOldArea;
+							Enter(2);
+							Pause();
+							return;
+						}
+					}
+	
+					offset = msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize));
+					if(fseek(pAreas, offset, 0) != 0) {
+						printf("Can't move pointer there.");
+					}
+									
+					fread(&msgs, msgshdr.recsize, 1, pAreas);
+					if ((Access(exitinfo.Security, msgs.RDSec)) && (msgs.Active) && (strlen(msgs.Password) == 0)) {
+						if(Msg_Open(msgs.Base)){
+							MsgBase.Highest = Msg_Highest();
+							LR.UserID = grecno; 
+							if ( Msg_GetLastRead(&LR) != TRUE ){
+								LR.HighReadMsg = 0;
+							}
+							if (MsgBase.Highest > LR.HighReadMsg ) 
+								break;
+						}
+					}
+				}
+			
 			if (strcmp(Option, "M+") == 0) 
 				while(TRUE) {
 					iMsgAreaNumber++;

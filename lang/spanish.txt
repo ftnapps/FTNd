@@ -477,3 +477,4 @@ YN|Adjuntar fichero [s/N]:
 |Direcci¢n antigua:
 |Usar tu alias (
 SN|) para este mensaje [S/n]: 
+|No more areas with unread messages

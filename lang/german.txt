@@ -477,3 +477,4 @@ JN|Datei anhaengen [j/N]:
 |Alte Adresse:
 |Moechten Sie Ihren Aliasnamen (
 JN|) als Absender verwenden [J/n] 
+|No more areas with unread messages
