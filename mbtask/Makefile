@@ -6,13 +6,13 @@ include ../Makefile.global
 
 SRCS		= callstat.c scanout.c taskcomm.c taskinfo.c taskstat.c \
 		  mbtask.c outstat.c signame.c taskdisk.c taskregs.c taskutil.c \
-		  ports.c calllist.c ping.c crc.c
+		  ports.c calllist.c ping.c crc.c taskchat.c
 HDRS		= callstat.h mbtask.h outstat.h signame.h taskdisk.h taskregs.h  taskutil.h \
 		  libs.h scanout.h taskcomm.h taskinfo.h taskstat.h \
-		  ports.h calllist.h ping.h crc.h
+		  ports.h calllist.h ping.h crc.h taskchat.h
 OBJS		= callstat.o scanout.o taskcomm.o taskinfo.o taskstat.o \
 		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o \
-		  ports.o calllist.o ping.o crc.o
+		  ports.o calllist.o ping.o crc.o taskchat.o
 LIBS		+= ../lib/libnodelist.a
 OTHER		= Makefile issue issue.netbsd
 
@@ -93,4 +93,5 @@ ports.o: ../config.h libs.h ../lib/structs.h taskutil.h ../lib/nodelist.h ports.
 calllist.o: ../config.h libs.h ../lib/structs.h taskstat.h taskutil.h callstat.h outstat.h mbtask.h calllist.h
 ping.o: ../config.h libs.h ../lib/structs.h ../lib/mberrors.h taskstat.h taskutil.h ping.h
 crc.o: ../config.h libs.h crc.h
+taskchat.o: ../config.h libs.h ../lib/structs.h taskchat.h
 # End of generated dependencies

@@ -59,6 +59,12 @@ v0.37.2		23-Feb-2003.
 		or stops.
 		Reports a page from a user in row 3 of the screen (but doesn't
 		do chat right now).
+		Adjusts its screensize if the environment variables LINES and
+		COLUMNS are set. 
+		(in ~/.profile add the line "export LINES COLUMNS").
+		The show lastcallers now adjusts the number of lines available.
+		The show server clients screen now adjusts to the number of
+		lines available.
 
 	mbtask:
 		Safer logging of user log messages.

@@ -182,6 +182,10 @@ install:
 			rm ${BINDIR}/fbutil ; \
 			echo "removed ${BINDIR}/fbutil "; \
 		fi
+		@if [ -x ${BINDIR}/mbchat ]; then \
+			rm ${BINDIR}/mbchat ; \
+			echo "removed ${BINDIR}/mbchat"; \
+		fi
 		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
 
 dist tar:	${TARFILE}

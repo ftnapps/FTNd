@@ -32,11 +32,17 @@
 #include "../config.h"
 #include "../lib/libs.h"
 #include "../lib/memwatch.h"
+#include "../lib/mberrors.h"
 #include "common.h"
 #include "mutil.h"
 
 
-extern int  bbs_free;
+int		lines = 24;
+int		columns = 80;
+
+extern int	bbs_free;
+extern int	ttyfd;
+extern pid_t	mypid;
 
 
 static void die(int onsig)
@@ -50,7 +56,7 @@ static void die(int onsig)
     else
 	Syslog(' ', "Normally finished");
     
-    sprintf(buf, "CSYS:1,0;");
+    sprintf(buf, "CSYS:2,%d,0;", mypid);
     if (socket_send(buf) == 0)
 	sprintf(buf, "%s", socket_receive());
     ExitClient(0);
@@ -60,175 +66,168 @@ static void die(int onsig)
 
 void ShowSysinfo(void)
 {
-	int	ch;
-	char	buf[128], *cnt;
+    int	    ch;
+    char    buf[128], *cnt;
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "4.   SHOW BBS SYSTEM INFO");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.   Total calls");
-	mvprintw( 8, 6, "2.   Pots calls");
-	mvprintw( 9, 6, "3.   ISDN calls");
-	mvprintw(10, 6, "4.   Network calls");
-	mvprintw(11, 6, "5.   Local calls");
-	mvprintw(12, 6, "6.   Date started");
-	mvprintw(13, 6, "7.   Last caller");
-	center_addstr(LINES - 4, (char *)"Press any key");
-	IsDoing("View System Info");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "4.   SHOW BBS SYSTEM INFO");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "1.   Total calls");
+    mvprintw( 8, 6, "2.   Pots calls");
+    mvprintw( 9, 6, "3.   ISDN calls");
+    mvprintw(10, 6, "4.   Network calls");
+    mvprintw(11, 6, "5.   Local calls");
+    mvprintw(12, 6, "6.   Date started");
+    mvprintw(13, 6, "7.   Last caller");
+    center_addstr(lines - 3, (char *)"Press any key");
+    IsDoing("View System Info");
 
-	do {
-		show_date(LIGHTGRAY, BLACK, 0, 0);
-		set_color(LIGHTGRAY, BLACK);
-		sprintf(buf, "GSYS:1,%d;", getpid());
-		if (socket_send(buf) == 0) {
-			sprintf(buf, "%s", socket_receive());
-			if (strncmp(buf, "100:7,", 6) == 0) {
-				cnt = strtok(buf, ",");
-				mvprintw( 7,26, "%s", strtok(NULL, ","));
-				mvprintw( 8,26, "%s", strtok(NULL, ","));
-				mvprintw( 9,26, "%s", strtok(NULL, ","));
-				mvprintw(10,26, "%s", strtok(NULL, ","));
-				mvprintw(11,26, "%s", strtok(NULL, ","));
-				mvprintw(12,26, "%s", strtok(NULL, ","));
-				mvprintw(13,26, "%s", strtok(NULL, ";"));
-				fflush(stdout);
-			}
-		}
-		ch = testkey(LINES - 4, COLS / 2 + 8);
-	} while (ch == '\0');
+    do {
+	show_date(LIGHTGRAY, BLACK, 0, 0);
+	set_color(LIGHTGRAY, BLACK);
+	sprintf(buf, "GSYS:1,%d;", getpid());
+	if (socket_send(buf) == 0) {
+	    sprintf(buf, "%s", socket_receive());
+	    if (strncmp(buf, "100:7,", 6) == 0) {
+		cnt = strtok(buf, ",");
+		mvprintw( 7,26, "%s", strtok(NULL, ","));
+		mvprintw( 8,26, "%s", strtok(NULL, ","));
+		mvprintw( 9,26, "%s", strtok(NULL, ","));
+		mvprintw(10,26, "%s", strtok(NULL, ","));
+		mvprintw(11,26, "%s", strtok(NULL, ","));
+		mvprintw(12,26, "%s", strtok(NULL, ","));
+		mvprintw(13,26, "%s", strtok(NULL, ";"));
+		fflush(stdout);
+	    }
+	}
+	ch = testkey(lines - 3, columns / 2 + 8);
+    } while (ch == '\0');
 }
 
 
 
 void ShowLastcaller(void)
 {
-	int	records, ch, i, y, o;
-	char	buf[128], *cnt;
+    int	    records, maxrows, ch, i, y, o;
+    char    buf[128], *cnt;
 	
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 4, 6, "5.    SHOW BBS LASTCALLERS");
-	set_color(YELLOW, RED);
-	mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
-	set_color(CYAN, BLACK);
-	center_addstr(LINES - 4, (char *)"Press any key");
-	IsDoing("View Lastcallers");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 4, 6, "5.    SHOW BBS LASTCALLERS");
+    set_color(YELLOW, RED);
+    mvprintw( 6, 1, "Nr Username       Location     Level Device Time  Mins Calls Speed     Actions ");
+    set_color(CYAN, BLACK);
+    center_addstr(lines - 1, (char *)"Press any key");
+    IsDoing("View Lastcallers");
+    maxrows = lines - 10;
 
-	do {
-		show_date(LIGHTGRAY, BLACK, 0, 0);
-		records = 0;
-		sprintf(buf, "GLCC:0;");
+    do {
+	show_date(LIGHTGRAY, BLACK, 0, 0);
+	records = 0;
+	sprintf(buf, "GLCC:0;");
+	if (socket_send(buf) == 0) {
+	    sprintf(buf, "%s", socket_receive());
+	    if (strncmp(buf, "100:1,", 6) == 0) {
+		cnt = strtok(buf, ",");
+		records = atoi(strtok(NULL, ";"));
+	    }
+	}
+
+	if (records) {
+	    y = 7;
+	    if (records > maxrows)
+		o = records - maxrows;
+	    else
+		o = 1;
+	    set_color(CYAN, BLACK);
+	    for (i = o; i <= records; i++) {
+		sprintf(buf, "GLCR:1,%d;", i);
 		if (socket_send(buf) == 0) {
-			sprintf(buf, "%s", socket_receive());
-			if (strncmp(buf, "100:1,", 6) == 0) {
-				cnt = strtok(buf, ",");
-				records = atoi(strtok(NULL, ";"));
-			}
+		    sprintf(buf, "%s", socket_receive());
+		    if (strncmp(buf, "100:9,", 6) == 0) {
+			cnt = strtok(buf, ",");
+			mvprintw(y, 1, "%2d", i);
+			mvprintw(y, 4, "%s", strtok(NULL, ","));
+			mvprintw(y,19, "%s", strtok(NULL, ","));
+			mvprintw(y,32, "%s", strtok(NULL, ","));
+			mvprintw(y,38, "%s", strtok(NULL, ","));
+			mvprintw(y,45, "%s", strtok(NULL, ","));
+			mvprintw(y,51, "%s", strtok(NULL, ","));
+			mvprintw(y,56, "%s", strtok(NULL, ","));
+			mvprintw(y,62, "%s", strtok(NULL, ","));
+			mvprintw(y,72, "%s", strtok(NULL, ";"));
+			y++;
+		    }
 		}
-
-		if (records) {
-			y = 7;
-			if (records > 10)
-				o = records - 10;
-			else
-				o = 1;
-			set_color(CYAN, BLACK);
-			for (i = o; i <= records; i++) {
-				sprintf(buf, "GLCR:1,%d;", i);
-				if (socket_send(buf) == 0) {
-					sprintf(buf, "%s", socket_receive());
-					if (strncmp(buf, "100:9,", 6) == 0) {
-						cnt = strtok(buf, ",");
-						if (records > 10) {
-						    /*
-						     * Only clear line if there's a change to scroll
-						     */
-						    locate(y, 1);
-						    clrtoeol();
-						}
-						mvprintw(y, 1, "%2d", i);
-						mvprintw(y, 4, "%s", strtok(NULL, ","));
-						mvprintw(y,19, "%s", strtok(NULL, ","));
-						mvprintw(y,32, "%s", strtok(NULL, ","));
-						mvprintw(y,38, "%s", strtok(NULL, ","));
-						mvprintw(y,45, "%s", strtok(NULL, ","));
-						mvprintw(y,51, "%s", strtok(NULL, ","));
-						mvprintw(y,56, "%s", strtok(NULL, ","));
-						mvprintw(y,62, "%s", strtok(NULL, ","));
-						mvprintw(y,72, "%s", strtok(NULL, ";"));
-						y++;
-					}
-				}
-			}
-		}
-		ch = testkey(LINES - 4, COLS / 2 + 8);
-	} while (ch == '\0');
+	    }
+	}
+	ch = testkey(lines - 1, columns / 2 + 8);
+    } while (ch == '\0');
 }
 
 
 
 void system_moni(void)
 {
-	int ch, y, eof;
-	char *cnt;
-	char buf[128];
-	time_t start, now;
+    int	    ch, y, eof;
+    char    *cnt, buf[128];
+    time_t  start, now;
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.    SERVER CLIENTS");
-	set_color(YELLOW, RED);
-	mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
-	set_color(CYAN, BLACK);
-	center_addstr(LINES - 4, (char *)"Press any key");
-	IsDoing("System Monitor");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "1.    SERVER CLIENTS");
+    set_color(YELLOW, RED);
+    mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
+    set_color(CYAN, BLACK);
+    center_addstr(lines - 1, (char *)"Press any key");
+    IsDoing("System Monitor");
 
-	do {
-		show_date(LIGHTGRAY, BLACK, 0, 0);
+    do {
+	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-		eof = 0;
-		set_color(LIGHTGRAY, BLACK);
+	eof = 0;
+	set_color(LIGHTGRAY, BLACK);
 
-		for (y = 8; y <= LINES - 5; y++) { 
-			if (y == 8)
-				sprintf(buf, "GMON:1,1;");
-			else
-				sprintf(buf, "GMON:1,0;");
-			if (eof == 0) {
-				if (socket_send(buf) == 0) {
-					strcpy(buf, socket_receive());
-					locate(y, 1);
-					clrtoeol();
-					if (strncmp(buf, "100:0;", 6) == 0) {
-						/*
-						 * There's no more information 
-						 */
-						eof = 1;
-					} else {
-						cnt = strtok(buf, ",");
-						mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
-						mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
-						mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
-						mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
-						mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
-						mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
-						start = atoi(strtok(NULL, ";"));
-						now = time(NULL);
-						mvprintw(y,75, (char *)"%s", t_elapsed(start, now));
-					}
-				}
-			} else {
-				/*
-				 *  If no valid data, clear line
-				 */
-				locate(y, 1);
-				clrtoeol();
-			}
-		} /* for () */
+	for (y = 8; y <= lines - 2; y++) { 
+	    if (y == 8)
+		sprintf(buf, "GMON:1,1;");
+	    else
+		sprintf(buf, "GMON:1,0;");
+	    if (eof == 0) {
+		if (socket_send(buf) == 0) {
+		    strcpy(buf, socket_receive());
+		    locate(y, 1);
+		    clrtoeol();
+		    if (strncmp(buf, "100:0;", 6) == 0) {
+			/*
+			 * There's no more information 
+			 */
+			eof = 1;
+		    } else {
+			cnt = strtok(buf, ",");
+			mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
+			mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
+			mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
+			mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
+			mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
+			mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
+			start = atoi(strtok(NULL, ";"));
+			now = time(NULL);
+			mvprintw(y,75, (char *)"%s", t_elapsed(start, now));
+		    }
+		}
+	    } else {
+		/*
+		 *  If no valid data, clear line
+		 */
+		locate(y, 1);
+		clrtoeol();
+	    }
+	} /* for () */
 
-		ch = testkey(LINES - 4, COLS / 2 + 8);
-	} while (ch == '\0');
+	ch = testkey(lines - 1, columns / 2 + 8);
+    } while (ch == '\0');
 }
 
 
@@ -318,7 +317,7 @@ void disk_stat(void)
 	set_color(YELLOW, RED);
 	mvprintw( 7, 1, " Size MB   Used MB     Perc. FS-Type   Mountpoint                             ");
 	set_color(CYAN, BLACK);
-	mvprintw(LINES - 2, 6, "Press any key");
+	mvprintw(lines - 2, 6, "Press any key");
 	IsDoing("Filesystem Usage");
 
 	do {
@@ -369,7 +368,7 @@ void disk_stat(void)
 			}
 		}
 
-		ch = testkey(LINES - 2, 20);
+		ch = testkey(lines - 2, 20);
 	} while (ch == '\0');
 }
 
@@ -408,11 +407,101 @@ void soft_info(void)
 	set_color(LIGHTCYAN, BLACK);
 	center_addstr(14, (char *)"http://mbse.sourceforge.net or 2:280/2802");
 	set_color(LIGHTGREEN, BLACK);
-	center_addstr(LINES -7, (char *)"This is free software; released under the terms of the GNU General");
-	center_addstr(LINES -6, (char *)"Public License as published by the Free Software Foundation.");
+	center_addstr(lines -7, (char *)"This is free software; released under the terms of the GNU General");
+	center_addstr(lines -6, (char *)"Public License as published by the Free Software Foundation.");
 	set_color(CYAN, BLACK);
-	center_addstr(LINES -4, (char *)"Press any key");
-	readkey(LINES - 4, COLS / 2 + 8, LIGHTGRAY, BLACK);
+	center_addstr(lines -4, (char *)"Press any key");
+	readkey(lines - 4, columns / 2 + 8, LIGHTGRAY, BLACK);
+}
+
+
+
+/*
+ * Sysop/user chat
+ */
+void Chat(int channel)
+{
+    int		    curpos = 0, rline = 0;
+    unsigned char   ch = 0;
+    char	    sbuf[81], rbuf[17][81], resp[128], from[36];
+    static char	    buf[128];
+
+    clr_index();
+    locate(lines - 2, 1);
+    set_color(WHITE, BLUE);
+    clrtoeol();
+    mvprintw(lines - 2, 2, "Sysop to user chat, press @ to exit");
+
+    set_color(LIGHTGRAY, BLACK);
+    mvprintw(lines - 1, 1, ">");
+    memset(&sbuf, 0, sizeof(sbuf));
+    memset(&rbuf, 0, sizeof(rbuf));
+
+    while (TRUE) {
+
+	/*
+	 * Check for new message
+	 */
+	sprintf(buf, "CIPM:1,%d;", mypid);
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	    if (strncmp(buf, "100:0;", 6)) {
+		Syslog('-', "%s", buf);
+		strncpy(resp, strtok(buf, ":"), 10);    /* Should be 100	    */
+		strncpy(resp, strtok(NULL, ","), 5);	/* Should be 3		    */
+		strncpy(resp, strtok(NULL, ","), 5);	/* Should be our channel    */
+		if (atoi(resp) != channel) {
+		    Syslog('+', "Message in channel %s instead of %d", resp, channel);
+		} else {
+		    strncpy(from, strtok(NULL, ","), 36);   /* From name	    */
+		    strncpy(resp, strtok(NULL, "\0"), 80);  /* The message	    */
+		    resp[strlen(resp)-1] = '\0';
+		}
+	    }
+	}
+
+	/*
+	 * Update top bars
+	 */
+	show_date(LIGHTGRAY, BLACK, 0, 0);
+
+	/*
+	 * Check for a pressed key, if so then process it
+	 */
+	ch = testkey(lines -1, curpos + 2);
+	if (ch == '@') {
+	    break;
+	} else if (isprint(ch)) {
+	    if (curpos < 77) {
+		putchar(ch);
+		fflush(stdout);
+		sbuf[curpos] = ch;
+		curpos++;
+	    } else {
+		putchar(7);
+	    }
+	} else if ((ch == KEY_BACKSPACE) || (ch == KEY_RUBOUT) || (ch == KEY_DEL)) {
+	    if (curpos) {
+		curpos--;
+		sbuf[curpos] = '\0';
+		printf("\b \b");
+	    } else {
+		putchar(7);
+	    }
+	} else if ((ch == '\r') && curpos) {
+	    sprintf(buf, "CSPM:4,%d,Sysop,-,%s;", channel, sbuf);
+	    Syslog('-', "%s", buf);
+	    if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		Syslog('-', "%s", buf);
+	    }
+	    curpos = 0;
+	    memset(&sbuf, 0, sizeof(sbuf));
+	    locate(lines - 1, 2);
+	    clrtoeol();
+	    mvprintw(lines - 1, 1, ">");
+	}
+    }
 }
 
 
@@ -421,7 +510,8 @@ int main(int argc, char *argv[])
 {
     struct passwd   *pw;
     char	    buf[128];
-    
+    int		    rc;
+
 #ifdef MEMWATCH
     mwInit();
 #endif
@@ -437,7 +527,7 @@ int main(int argc, char *argv[])
     /*
      * Report sysop available for chat
      */
-    sprintf(buf, "CSYS:1,1;");
+    sprintf(buf, "CSYS:2,%d,1;", mypid);
     if (socket_send(buf) == 0)
 	sprintf(buf, "%s", socket_receive());
 
@@ -452,6 +542,24 @@ int main(int argc, char *argv[])
     signal(SIGTERM,(void (*))die);
     signal(SIGKILL,(void (*))die);
 
+
+    /*
+     * Find out if the environment variables LINES and COLUMNS are present,
+     * if so, then use these for screen dimensions.
+     */
+    if (getenv("LINES")) {
+	rc = atoi(getenv("LINES"));
+	if (rc >= 24)
+	    lines = rc;
+    }
+    if (getenv("COLUMNS")) {
+	rc = atoi(getenv("COLUMNS"));
+	if (rc >= 80)
+	    columns = rc;
+    }
+    Syslog('-', "Screen size set to %dx%d", columns, lines);
+
+    
     screen_start((char *)"MBmon");
 
     for (;;) {
@@ -466,9 +574,10 @@ int main(int argc, char *argv[])
 	mvprintw( 9, 6, "3.    View Filesystem Usage");
 	mvprintw(10, 6, "4.    View BBS System Information");
 	mvprintw(11, 6, "5.    View BBS Lastcallers List");
-	mvprintw(12, 6, "6.    View Software Information");
+	mvprintw(12, 6, "6.    Chat with user");
+	mvprintw(13, 6, "7.    View Software Information");
 
-	switch(select_menu(6)) {
+	switch(select_menu(7)) {
 	    case 0:
 		    die(0);
 		    break;
@@ -488,6 +597,9 @@ int main(int argc, char *argv[])
 		    ShowLastcaller();
 		    break;
 	    case 6:
+		    Chat(0);
+		    break;
+	    case 7:
 		    soft_info();
 		    break;
 	}

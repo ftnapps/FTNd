@@ -13,6 +13,10 @@ $Id$
 		 N = Normal, second priority.
                  L = Cosmetic or nice to have.
 
+install:
+	N: On some (unsupported) distro's with xinetd the installation script
+	   also adds entries to inetd.conf.
+
 libdiesel.a:
 	U: Processed stringlines containing unbalanced " characters are not
 	   processed, instead the previous macro value will be returned.

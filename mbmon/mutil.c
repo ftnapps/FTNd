@@ -35,8 +35,10 @@
 #include "common.h"
 #include "mutil.h"
 
-extern	int	ttyfd;
-int		bbs_free;
+
+extern int  lines, columns;
+extern int  ttyfd;
+int	    bbs_free;
 
 
 unsigned char readkey(int y, int x, int fg, int bg)
@@ -93,7 +95,7 @@ unsigned char testkey(int y, int x)
 	}
 	Setraw();
 
-	rc = Waitchar(&ch, 100);
+	rc = Waitchar(&ch, 50);
 	if (rc == 1) {
 		if (ch == KEY_ESCAPE)
 			rc = Escapechar(&ch);
@@ -112,7 +114,7 @@ unsigned char testkey(int y, int x)
 
 void show_field(int y, int x, char *str, int length, int fill)
 {
-	mvprintw(y, x, padleft(str, length, fill));
+    mvprintw(y, x, padleft(str, length, fill));
 }
 
 
@@ -120,14 +122,14 @@ int insertflag = 0;
 
 void newinsert(int i, int fg, int bg)
 {
-	insertflag = i;
-	set_color(YELLOW, RED);
-	if (insertflag != 0) {
-		mvprintw(2,36," INS ");
-	} else {
-		mvprintw(2,36," OVR ");
-	}
-	set_color(fg, bg);
+    insertflag = i;
+    set_color(YELLOW, RED);
+    if (insertflag != 0) {
+	mvprintw(2,36," INS ");
+    } else {
+	mvprintw(2,36," OVR ");
+    }
+    set_color(fg, bg);
 }
 
 
@@ -295,58 +297,58 @@ char *edit_field(int y, int x, int w, int p, char *s_)
  */
 int select_menu(int max)
 {
-	static char	*menu=(char *)"-";
-	char		help[80];
-	int		pick;
+    static char	*menu=(char *)"-";
+    char	help[80];
+    int		pick;
 
-	sprintf(help, "Select menu item (1..%d) or ^\"-\"^ for previous level.", max);
-	showhelp(help);
+    sprintf(help, "Select menu item (1..%d) or ^\"-\"^ for previous level.", max);
+    showhelp(help);
 
-	/* 
-	 * Loop forever until it's right.
-	 */
-	for (;;) {
-		mvprintw(LINES - 3, 6, "Enter your choice >");
-		menu = (char *)"-";
-		menu = edit_field(LINES - 3, 26, 3, '9', menu);
-		locate(LINES -3, 6);
-		clrtoeol();
+    /* 
+     * Loop forever until it's right.
+     */
+    for (;;) {
+	mvprintw(lines - 2, 6, "Enter your choice >");
+	menu = (char *)"-";
+	menu = edit_field(lines - 2, 26, 3, '9', menu);
+	locate(lines -2, 6);
+	clrtoeol();
 
-		if (strncmp(menu, "-", 1) == 0) 
-			return 0;
+	if (strncmp(menu, "-", 1) == 0) 
+	    return 0;
 
-		pick = atoi(menu);
-		if ((pick >= 1) && (pick <= max)) 
-			return pick;
+	pick = atoi(menu);
+	if ((pick >= 1) && (pick <= max)) 
+	    return pick;
 
-		working(2, 0, 0);
-		working(0, 0, 0);
-	}
+	working(2, 0, 0);
+	working(0, 0, 0);
+    }
 }
 
 
 
 void clrtoeol()
 {
-	int	i;
+    int	i;
 
-	printf("\r");
-	for (i = 0; i < COLS; i++)
-		putchar(' ');
-	printf("\r");
-	fflush(stdout);
+    printf("\r");
+    for (i = 0; i < columns; i++)
+	putchar(' ');
+    printf("\r");
+    fflush(stdout);
 }
 
 
 
 void hor_lin(int y, int x, int len)
 {
-	int	i;
+    int	i;
 
-	locate(y, x);
-	for (i = 0; i < len; i++)
-		putchar('-');
-	fflush(stdout);
+    locate(y, x);
+    for (i = 0; i < len; i++)
+	putchar('-');
+    fflush(stdout);
 }
 
 
@@ -356,12 +358,12 @@ static int	old_b = -1;
 
 void set_color(int f, int b)
 {
-	if ((f != old_f) || (b != old_b)) {
-		old_f = f;
-		old_b = b;
-		colour(f, b);
-		fflush(stdout);
-	}
+    if ((f != old_f) || (b != old_b)) {
+	old_f = f;
+	old_b = b;
+	colour(f, b);
+	fflush(stdout);
+    }
 }
 
 
@@ -383,10 +385,10 @@ void show_date(int fg, int bg, int y, int x)
 	set_color(LIGHTGREEN, BLUE);
 	p = ctime(&now);
 	Striplf(p);
-	mvprintw(1, 44, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
+	mvprintw(1, columns - 36, (char *)"%s TZUTC %s", p, gmtoffset(now)); 
 	p = asctime(gmtime(&now));
 	Striplf(p);
-	mvprintw(2, 44, (char *)"%s UTC", p);
+	mvprintw(2, columns - 36, (char *)"%s UTC", p);
 
 	/*
 	 * Indicator if bbs is free
@@ -396,15 +398,15 @@ void show_date(int fg, int bg, int y, int x)
 	    strcpy(buf, SockR("SBBS:0;"));
 	    if (strncmp(buf, "100:2,1", 7) == 0) {
 		set_color(WHITE, RED);
-		mvprintw(2,74, (char *)" Down ");
+		mvprintw(2,columns - 6, (char *)" Down ");
 	    } else {
 		set_color(WHITE, BLUE);
-		mvprintw(2,74, (char *)" Free ");
+		mvprintw(2,columns - 6, (char *)" Free ");
 	    }
 	    bbs_free = TRUE;
 	} else {
 	    set_color(WHITE, RED);
-	    mvprintw(2,74, (char *)" Busy ");
+	    mvprintw(2,columns - 6, (char *)" Busy ");
 	    bbs_free = FALSE;
 	}
 
@@ -448,7 +450,7 @@ void show_date(int fg, int bg, int y, int x)
 
 void center_addstr(int y, char *s)
 {
-	mvprintw(y, (COLS / 2) - (strlen(s) / 2), s);
+    mvprintw(y, (columns / 2) - (strlen(s) / 2), s);
 }
 
 
@@ -458,32 +460,32 @@ void center_addstr(int y, char *s)
  */
 void screen_start(char *name)
 {
-	int	i;
+    int	i;
 
-	/*
-	 *  Overwrite screen the first time, if user had it black on white
-	 *  it will change to white on black. clear() won't do the trick.
-	 */
-	set_color(LIGHTGRAY, BLUE);
-	locate(1, 1);
-	for (i = 0; i < LINES; i++) {
-		if (i == 3)
-			colour(LIGHTGRAY, BLACK);
-		clrtoeol();
-		if (i < LINES)
-			printf("\n");
-	}
-	fflush(stdout);
+    /*
+     *  Overwrite screen the first time, if user had it black on white
+     *  it will change to white on black. clear() won't do the trick.
+     */
+    set_color(LIGHTGRAY, BLUE);
+    locate(1, 1);
+    for (i = 0; i < lines; i++) {
+	if (i == 3)
+	    colour(LIGHTGRAY, BLACK);
+	clrtoeol();
+	if (i < lines)
+	    printf("\n");
+    }
+    fflush(stdout);
 
-	set_color(WHITE, BLUE);
-	locate(1, 1);
-	printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
-	set_color(YELLOW, BLUE);
-	locate(2, 1);
-	printf((char *)SHORTRIGHT);
-	set_color(LIGHTGRAY, BLACK);
-	show_date(LIGHTGRAY, BLACK, 0, 0);
-	fflush(stdout);
+    set_color(WHITE, BLUE);
+    locate(1, 1);
+    printf((char *)"%s for MBSE BBS version %s", name, VERSION);  
+    set_color(YELLOW, BLUE);
+    locate(2, 1);
+    printf((char *)SHORTRIGHT);
+    set_color(LIGHTGRAY, BLACK);
+    show_date(LIGHTGRAY, BLACK, 0, 0);
+    fflush(stdout);
 }
 
 
@@ -493,9 +495,9 @@ void screen_start(char *name)
  */
 void screen_stop()
 {
-	set_color(LIGHTGRAY, BLACK);
-	clear();
-	fflush(stdout);
+    set_color(LIGHTGRAY, BLACK);
+    clear();
+    fflush(stdout);
 }
 
 
@@ -505,51 +507,51 @@ void screen_stop()
  */
 void working(int txno, int y, int x)
 {
-	int	i;
+    int	i;
 
-	/*
-	 * If txno not 0 there will be something written. The 
-	 * reversed attributes for mono, or white on red for
-	 * color screens is set. The cursor is turned off and 
-	 * original cursor position is saved.
-	 */
-	show_date(LIGHTGRAY, BLACK, 0, 0);
+    /*
+     * If txno not 0 there will be something written. The 
+     * reversed attributes for mono, or white on red for
+     * color screens is set. The cursor is turned off and 
+     * original cursor position is saved.
+     */
+    show_date(LIGHTGRAY, BLACK, 0, 0);
 
-	if (txno != 0)
-		set_color(YELLOW, RED);
-	else
-		set_color(LIGHTGRAY, BLACK);
+    if (txno != 0)
+	set_color(YELLOW, RED);
+    else
+	set_color(LIGHTGRAY, BLACK);
 
-	switch (txno) {
-	case 0: mvprintw(4, 66, (char *)"             ");
+    switch (txno) {
+	case 0: mvprintw(4, columns - 14, (char *)"             ");
 		break;
-	case 1: mvprintw(4, 66, (char *)"Working . . .");
+	case 1: mvprintw(4, columns - 14, (char *)"Working . . .");
 		break;
-	case 2:	mvprintw(4, 66, (char *)">>> ERROR <<<");
+	case 2:	mvprintw(4, columns - 14, (char *)">>> ERROR <<<");
 		for (i = 1; i <= 5; i++) {
-			putchar(7);
-			fflush(stdout);
-			usleep(150000);
+		    putchar(7);
+		    fflush(stdout);
+		    usleep(150000);
 		}
 		usleep(550000);
 		break;
-	case 3: mvprintw(4, 66, (char *)"Form inserted");
+	case 3: mvprintw(4, columns - 14, (char *)"Form inserted");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
 		break;
-	case 4: mvprintw(4, 66, (char *)"Form deleted ");
+	case 4: mvprintw(4, columns - 14, (char *)"Form deleted ");
 		putchar(7);
 		fflush(stdout);
 		sleep(1);
 		break;
-	}
+    }
 
-	show_date(LIGHTGRAY, BLACK, 0, 0);
-	set_color(LIGHTGRAY, BLACK);
-	if (y && x)
-		locate(y, x);
-	fflush(stdout);
+    show_date(LIGHTGRAY, BLACK, 0, 0);
+    set_color(LIGHTGRAY, BLACK);
+    if (y && x)
+	locate(y, x);
+    fflush(stdout);
 }
 
 
@@ -562,7 +564,7 @@ void clr_index()
     int i;
 
     set_color(LIGHTGRAY, BLACK);
-    for (i = 4; i <= (LINES - 1); i++) {
+    for (i = 4; i <= (lines); i++) {
 	locate(i, 1);
 	clrtoeol();
     }
@@ -575,31 +577,31 @@ void clr_index()
  */
 void showhelp(char *T)
 {
-	int f, i, x, forlim;
+    int f, i, x, forlim;
 
-	f = FALSE;
-	locate(LINES-1, 1);
-	set_color(WHITE, RED);
-	clrtoeol();
-	x = 0;
-	forlim = strlen(T);
+    f = FALSE;
+    locate(lines, 1);
+    set_color(WHITE, RED);
+    clrtoeol();
+    x = 0;
+    forlim = strlen(T);
 
-	for (i = 0; i < forlim; i++) {
-		if (T[i] == '^') {
-			if (f == FALSE) {
-				f = TRUE;
-				set_color(YELLOW, RED);
-			} else {
-				f = FALSE;
-				set_color(WHITE, RED);
-			}
-		} else {
-			putchar(T[i]);
-			x++;
-		}
+    for (i = 0; i < forlim; i++) {
+	if (T[i] == '^') {
+	    if (f == FALSE) {
+		f = TRUE;
+		set_color(YELLOW, RED);
+	    } else {
+		f = FALSE;
+		set_color(WHITE, RED);
+	    }
+	} else {
+	    putchar(T[i]);
+	    x++;
 	}
-	set_color(LIGHTGRAY, BLACK);
-	fflush(stdout);
+    }
+    set_color(LIGHTGRAY, BLACK);
+    fflush(stdout);
 }
 
 

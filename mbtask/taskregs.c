@@ -360,10 +360,28 @@ int reg_user(char *data)
  */
 int reg_sysop(char *data)
 {
-    char    *cnt;
+    char    *cnt, *pid;
+    int	    rec;
 
     cnt = strtok(data, ",");
+    pid = strtok(NULL, ",");
     sysop_present = atoi(strtok(NULL, ";"));
+ 
+    if ((rec = reg_find(pid)) != -1) {
+	if (sysop_present) {
+	    /*
+	     * Allthough the sysop is not really chatting, still put channel 0
+	     * into chatmode for the sysop's process.
+	     */
+	    reginfo[rec].channel = 0;
+	    reginfo[rec].chatting = TRUE;
+	} else {
+	    reginfo[rec].channel = -1;
+	    reginfo[rec].chatting = FALSE;
+	}
+	reginfo[rec].lastcon = time(NULL);
+    }
+
     Syslog('+', "Sysop present for chat: %s", sysop_present ? "True":"False");
     return 0;
 }
@@ -415,7 +433,7 @@ char *reg_ipm(char *data)
 int reg_spm(char *data)
 {
     char    *cnt, *ch, *from, *too, *txt, *log;
-    int	    i;
+    int	    i, error = 0;
 
     cnt  = strtok(data, ",");
     ch   = strtok(NULL, ",");
@@ -424,7 +442,7 @@ int reg_spm(char *data)
     txt  = strtok(NULL, "\0");
     txt[strlen(txt)-1] = '\0';
 
-    Syslog('-', "SIPM:%s,%d,%s,%s,%s;", cnt, ch, from, too, txt);
+    Syslog('-', "SIPM:%s,%s,%s,%s,%s;", cnt, ch, from, too, txt);
     log = calloc(PATH_MAX, sizeof(char));
     sprintf(log, "%s/log/%s", getenv("MBSE_ROOT"), CFG.chat_log);
 
@@ -432,24 +450,23 @@ int reg_spm(char *data)
 	/*
 	 *  Personal messages and sysop/user chat messages.
 	 */
-	if (reginfo[i].pid && (strcasecmp(reginfo[i].uname, too) == 0) && 
-		    ((atoi(ch) == -1) || (atoi(ch) == 0)) && (atoi(ch) == reginfo[i].channel)) {
+	if (reginfo[i].pid && 
+	    (((strcasecmp(reginfo[i].uname, too) == 0) && (atoi(ch) == -1)) || (atoi(ch) == 0)) &&
+	    (atoi(ch) == reginfo[i].channel)) {
 	    /*
 	     *  If the in and out pointers are the same and the 
 	     *  message present flag is still set, then this user
 	     *  can't get anymore new messages.
 	     */
 	    if (reginfo[i].ismsg && (reginfo[i].ptr_in == reginfo[i].ptr_out)) {
-		free(log);
-		return 2;
+		error = 2;
 	    }
 
 	    /*
 	     *  If user has the "do not distrurb" flag set, but the sysop ignore's this.
 	     */
 	    if (reginfo[i].silent && (atoi(ch) == -1)) {
-		free(log);
-		return 1;
+		error = 1;
 	    }
 
 	    /*
@@ -467,9 +484,11 @@ int reg_spm(char *data)
 		ulog(log, (char *)"+", from, ch, txt);
 	    }
 
-	    Syslog('+', "reg_spm: in=%d out=%d ismsg=%d", reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
+	    Syslog('+', "reg_spm: rec=%d in=%d out=%d ismsg=%d", i, reginfo[i].ptr_in, reginfo[i].ptr_out, reginfo[i].ismsg);
+	}
+	if ((atoi(ch) == -1) || (atoi(ch) == 0)) {
 	    free(log);
-	    return 0;
+	    return error;
 	}
 
 	/*

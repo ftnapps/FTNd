@@ -51,7 +51,7 @@ int		    fromlen;
 static char	    spath[PATH_MAX];	/* Server socket path		*/
 static char	    cpath[PATH_MAX];	/* Client socket path		*/
 
-
+extern int	lines, columns;
 
 
 void InitClient(char *user)
@@ -837,7 +837,7 @@ void clear()
  */
 void locate(int y, int x)
 {
-	if (y > LINES || x > COLS) {
+	if (y > lines || x > columns) {
 		printf("ANSI: Invalid screen coordinates: %i, %i\n", y, x);
 		return; 
 	}
