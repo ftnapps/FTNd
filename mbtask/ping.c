@@ -40,7 +40,7 @@
  *  Global variables
  */
 extern struct taskrec	TCFG;			/* Task config record	*/
-int     		ping_isocket;		/* Ping socket		*/
+int     		ping_isocket = -1;	/* Ping socket		*/
 int     		icmp_errs = 0;		/* ICMP error counter	*/
 extern int		internet;		/* Internet is down	*/
 extern int		rescan;			/* Master rescan flag	*/
@@ -455,6 +455,12 @@ void *ping_thread(void)
 	    }
 	}
     }
+
+    Syslog('p', "Ping thread closing socket %d", ping_isocket);
+    if ((rc = close(ping_isocket))) {
+	WriteError("$ping thread error socket close");
+    }
+    ping_isocket = -1;
 
     ping_run = FALSE;
     Syslog('+', "Ping thread stopped");
