@@ -1,6 +1,12 @@
 $Id$
 
-v0.39.8		26-Jan-2004
+v0.39.9		29-Jan-2004
+
+
+v0.39.8		26-Jan-2004 - 29-Jan-2004
+
+	warning:
+		Avoid this version, binkp compression is buggy.
 
 	libcommon.a:
 		Fixed compiler directive for Linux in execute function.
@@ -12,6 +18,11 @@ v0.39.8		26-Jan-2004
 		Fixed binkp master timer reset points, this should make session
 		timeout work.
 		Code cleanup.
+		The filelist function didn't add files from fileboxes.
+		Added refresh heartbeat in binkp driver to prevent broken
+		sessions after 10 minutes.
+		Added more logging to investigate the tty hangup problem
+		Fixed zlib (un)compress buffersize init.
 
 
 v0.39.7		14-Jan-2004 - 26-Jan-2004

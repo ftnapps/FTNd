@@ -1605,6 +1605,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
      */
     if ((bp.PLZflag == Active) && (len > 20) && (!cmd)) {
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
+	zlen = BINKP_PLZ_BLOCK -1;
 	rcz = compress2(zbuf, &zlen, buf, len, 9);
 	if (rcz == Z_OK) {
 	    Syslog('b', "Binkp: compressed OK, srclen=%d, destlen=%d, will send compressed=%s", 
@@ -1642,6 +1643,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		    bp.cmpblksize = SND_BLKSIZE;
 	    }
 	} else {
+	    Syslog('+', "Binkp: compress error %d", rcz);
 	    rc = PUTCHAR((header >> 8) & 0x00ff);
 	    if (!rc)
 		rc = PUTCHAR(header & 0x00ff);
@@ -1673,6 +1675,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
 
     FLUSHOUT();
     binkp_settimer(BINKP_TIMEOUT);
+    Nopper();
     return rc;
 }
 
@@ -1779,23 +1782,30 @@ int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
     *len = *cmd = 0;
 
     b0 = GETCHAR(BINKP_TIMEOUT);
-    if (tty_status)
+    if (tty_status) {
+	Syslog('-', "Binkp: tty_status with b0");
 	goto to;
+    }
     if (b0 & 0x80)
 	*cmd = 1;
 
     b1 = GETCHAR(BINKP_TIMEOUT / 2);
-    if (tty_status)
+    if (tty_status) {
+	Syslog('-', "Binkp: tty_status with b1");
 	goto to;
+    }
 
     *len = (b0 & 0x7f) << 8;
     *len += b1;
 
     GET(buf, *len, BINKP_TIMEOUT / 2);
     buf[*len] = '\0';
-    if (tty_status)
+    if (tty_status) {
+	Syslog('-', "Binkp: tty_status with block len=%d", *len);
 	goto to;
+    }
     binkp_settimer(BINKP_TIMEOUT);
+    Nopper();
 
 to:
     if (tty_status)
@@ -1901,7 +1911,6 @@ int binkp_poll_frame(void)
 {
     int		    c, rc = 0, bcmd;
 #ifdef HAVE_ZLIB_H
-    int		    plz = FALSE;
     unsigned long   zlen;
     char	    *zbuf;
 #endif
@@ -1939,7 +1948,6 @@ int binkp_poll_frame(void)
 #ifdef HAVE_ZLIB_H
 		    if (bp.PLZflag == Active) {
 			bp.blklen = bp.header & 0x3fff;
-			plz = bp.header & BINKP_PLZ_BLOCK;
 		    } else {
 			bp.blklen = bp.header & 0x7fff;
 		    }
@@ -1950,8 +1958,10 @@ int binkp_poll_frame(void)
 		if ((bp.rxlen == (bp.blklen + 1) && (bp.rxlen >= 1))) {
 		    bp.GotFrame = TRUE;
 #ifdef HAVE_ZLIB_H
-		    if (plz) {
+		    if ((bp.PLZflag == Active) && (bp.header & BINKP_PLZ_BLOCK)) {
+			Syslog('b', "Binkp: got a compressed block %d bytes", bp.blklen);
 			zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
+			zlen = BINKP_PLZ_BLOCK -1;
 			rc = uncompress(zbuf, &zlen, bp.rxbuf, bp.rxlen -1);
 			if (rc == Z_OK) {
 			    bp.rxcompressed += (zlen - (bp.rxlen -1));
@@ -1960,7 +1970,7 @@ int binkp_poll_frame(void)
 			    bp.blklen = zlen;
 			} else {
 			    free(zbuf);
-			    Syslog('!', "Binkp: uncompress error");
+			    Syslog('!', "Binkp: uncompress error %d", rc);
 			    return 3;
 			}
 			free(zbuf);
@@ -1978,6 +1988,7 @@ int binkp_poll_frame(void)
 			Syslog('b', "Binkp: rcvd data (%d)", bp.rxlen -1);
 		    }
 		    binkp_settimer(BINKP_TIMEOUT);
+		    Nopper();
 		    rc = 1;
 		    break;
 		}

@@ -219,8 +219,8 @@ static void check_flo(file_list **lst, char *nm)
 
 
 
-void check_filebox(char *, file_list *);
-void check_filebox(char *boxpath, file_list *st)
+void check_filebox(char *, file_list **);
+void check_filebox(char *boxpath, file_list **st)
 {
     char	    *temp;
     DIR             *dp;
@@ -245,7 +245,7 @@ void check_filebox(char *boxpath, file_list *st)
                              * We own the file
                              */
                             if ((stbuf.st_mode & S_IRUSR) && (stbuf.st_mode & S_IWUSR)) {
-                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                                add_list(st, temp, de->d_name, KFS, 0L, NULL, 1);
                             } else {
                                 Syslog('+', "No R/W permission on %s", temp);
                             }
@@ -254,7 +254,7 @@ void check_filebox(char *boxpath, file_list *st)
                              * We own the file group
                              */
                             if ((stbuf.st_mode & S_IRGRP) && (stbuf.st_mode & S_IWGRP)) {
-                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                                add_list(st, temp, de->d_name, KFS, 0L, NULL, 1);
                             } else {
                                 Syslog('+', "No R/W permission on %s", temp);
                             }
@@ -263,7 +263,7 @@ void check_filebox(char *boxpath, file_list *st)
                              * No owner of file
                              */
                             if ((stbuf.st_mode & S_IROTH) && (stbuf.st_mode & S_IWOTH)) {
-                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                                add_list(st, temp, de->d_name, KFS, 0L, NULL, 1);
                             } else {
                                 Syslog('+', "No R/W permission on %s", temp);
                             }
@@ -309,7 +309,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	if ((tmpa->addr) && Loaded && strlen(nodes.OutBox) &&
 	    (tmpa->addr->zone == nodes.Aka[0].zone) && (tmpa->addr->net == nodes.Aka[0].net) &&
 	    (tmpa->addr->node == nodes.Aka[0].node) && (tmpa->addr->point == nodes.Aka[0].point)) {
-	    check_filebox(nodes.OutBox, st);
+	    check_filebox(nodes.OutBox, &st);
 	}
 
 	/*
@@ -429,7 +429,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
                            if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
 			       (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
 			       strchr(fl, flavor)) 
-			       check_filebox(temp, st);
+			       check_filebox(temp, &st);
                        }
                        tidy_faddr(fa);
                    }
@@ -464,7 +464,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
                                if ((fa->zone==tmpa->addr->zone) && (fa->net==tmpa->addr->net) && 
 				    (fa->node==tmpa->addr->node) && (fa->point==tmpa->addr->point) && 
 				    strchr(fl, flavor)) 
-				   check_filebox(temp, st);
+				   check_filebox(temp, &st);
                            }
                        }
                        tidy_faddr(fa);
@@ -477,6 +477,8 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
     }
     free(temp);
 
+
+    Syslog('o', "B4 FTS-0001 checkpoint");
     /*
      * For FTS-0001 we need to create at least one packet.
      */
