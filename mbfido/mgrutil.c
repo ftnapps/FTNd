@@ -46,6 +46,7 @@
 
 
 extern int	net_out;
+extern int	do_quiet;
 
 
 void tidy_arealist(AreaList **);
@@ -506,6 +507,11 @@ int Areas(void)
 
     Syslog('+', "Process areas taglists");
 
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("Processing areas taglists...\n");
+    }
+
     temp = calloc(PATH_MAX, sizeof(char));
     buf  = calloc(4097, sizeof(char));
 
@@ -518,6 +524,11 @@ int Areas(void)
 
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
 	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile)) {
+		if (!do_quiet) {
+		    colour(CYAN, BLACK);
+		    printf("\rEcho group %-12s ", mgroup.Name);
+		    fflush(stdout);
+		}
 		Syslog('+', "Checking mail group %s, file %s", mgroup.Name, mgroup.AreaFile);
 		sprintf(temp, "%s/%s", CFG.alists_path, mgroup.AreaFile);
 		if ((ap = fopen(temp, "r")) == NULL) {
@@ -534,6 +545,11 @@ int Areas(void)
 		    /*
 		     * Mark areas already present in the taglist.
 		     */
+		    if (!do_quiet) {
+			colour(LIGHTRED, BLACK);
+			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
@@ -545,6 +561,8 @@ int Areas(void)
 		    fread(&msgshdr, sizeof(msgshdr), 1, fp);
 		    for (tmp = alist; tmp; tmp = tmp->next) {
 			fseek(fp, msgshdr.hdrsize, SEEK_SET);
+			if (CFG.slow_util && do_quiet)
+			    usleep(1);
 			while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 			    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name))
 				tmp->IsPresent = TRUE;
@@ -555,6 +573,10 @@ int Areas(void)
 		    /*
 		     * Add areas to AreaList not in the taglist, they must be deleted.
 		     */
+		    if (!do_quiet) {
+			printf("(check deleted areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		    fseek(fp, msgshdr.hdrsize, SEEK_SET);
 		    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 			if (msgs.Active && !strcmp(msgs.Group, mgroup.Name)) {
@@ -569,15 +591,11 @@ int Areas(void)
 			fseek(fp, msgshdr.syssize, SEEK_CUR);
 		    }
 		    fclose(fp);
-
-		    /*
-		     * Debug logging
-		     */
-//		    Syslog('m', "Area tag             Oke Del");
-//		    for (tmp = alist; tmp; tmp = tmp->next) {
-//			Syslog('m', "%-20s %s %s", tmp->Name, tmp->IsPresent?"Yes":"No ", tmp->DoDelete?"Yes":"No ");
-//		    }
-
+		    if (!do_quiet) {
+			printf("(update database)    \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
+		    
 		    /*
 		     * Make modification, first add missing areas
 		     */
@@ -593,6 +611,8 @@ int Areas(void)
 				cmd = xstrcat(cmd, (char *)"\r+");
 			    }
 			    cmd = xstrcat(cmd, tmp->Name);
+			    if (CFG.slow_util && do_quiet)
+				usleep(1);
 			}
 		    }
 
@@ -610,6 +630,8 @@ int Areas(void)
 			    if (!tmp->IsPresent && tmp->DoDelete) {
 				fseek(fp, msgshdr.hdrsize, SEEK_SET);
 				Syslog('m', "Delete %s", tmp->Name);
+				if (CFG.slow_util && do_quiet)
+				    usleep(1);
 				while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 				    if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && !strcmp(msgs.Tag, tmp->Name)) {
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
@@ -672,6 +694,10 @@ int Areas(void)
 			free(cmd);
 			cmd = NULL;
 		    }
+		    if (!do_quiet) {
+			printf("                     \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		}
 	    }
 	}
@@ -687,6 +713,11 @@ int Areas(void)
 
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
 	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile)) {
+		if (!do_quiet) {
+		    colour(CYAN, BLACK);
+		    printf("\r TIC group %-12s ", fgroup.Name);
+		    fflush(stdout);
+		}
 		Syslog('+', "Checking tic group %s, file %s", fgroup.Name, fgroup.AreaFile);
 		sprintf(temp, "%s/%s", CFG.alists_path, fgroup.AreaFile);
 		if ((ap = fopen(temp, "r")) == NULL) {
@@ -747,6 +778,11 @@ int Areas(void)
                     /*
 		     * Mark areas already present in the taglist.
 		     */
+		    if (!do_quiet) {
+			colour(LIGHTRED, BLACK);
+			printf("(check missing areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 		    if ((fp = fopen(temp, "r")) == NULL) {
 			WriteError("Can't open %s", temp);
@@ -758,6 +794,8 @@ int Areas(void)
 		    fread(&tichdr, sizeof(tichdr), 1, fp);
 		    for (tmp = alist; tmp; tmp = tmp->next) {
 			fseek(fp, tichdr.hdrsize, SEEK_SET);
+			if (CFG.slow_util && do_quiet)
+			    usleep(1);
 			while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 			    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name))
 				tmp->IsPresent = TRUE;
@@ -768,6 +806,10 @@ int Areas(void)
                     /*
 		     * Add areas to AreaList not in the taglist, they must be deleted.
 		     */
+		    if (!do_quiet) {
+			printf("(check deleted areas)\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		    fseek(fp, tichdr.hdrsize, SEEK_SET);
 		    while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 			if (tic.Active && !strcmp(tic.Group, fgroup.Name)) {
@@ -782,6 +824,10 @@ int Areas(void)
 			fseek(fp, tichdr.syssize, SEEK_CUR);
 		    }
 		    fclose(fp);
+		    if (!do_quiet) {
+			printf("(update database)    \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 
 		    /*
 		     * Now we have a list of actions to perform
@@ -806,6 +852,8 @@ int Areas(void)
 				cmd = xstrcat(cmd, (char *)"\r+");
 			    }
 			    cmd = xstrcat(cmd, tmp->Name);
+			    if (CFG.slow_util && do_quiet)
+				usleep(1);
 			}
 		    }
 
@@ -825,6 +873,8 @@ int Areas(void)
 			    if (!tmp->IsPresent && tmp->DoDelete) {
 				fseek(fp, tichdr.hdrsize, SEEK_SET);
 				Syslog('f', "Delete %s", tmp->Name);
+				if (CFG.slow_util && do_quiet)
+				    usleep(1);
 				while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 				    if (tic.Active && !strcmp(tic.Group, fgroup.Name) && !strcmp(tic.Name, tmp->Name)) {
 					fseek(fp, - tichdr.recsize, SEEK_CUR);
@@ -894,15 +944,23 @@ int Areas(void)
 			free(cmd);
 			cmd = NULL;
 		    }
+		    if (!do_quiet) {
+			printf("                     \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
+		    }
 		}
 	    }
 	}
 	fclose(gp);
     }
 
+    if (!do_quiet)
+	printf("\r                                                    \r");
+
     free(buf);
     free(temp);
-    packmail();
+    if (net_out)
+	packmail();
     return TRUE;
 }
 
