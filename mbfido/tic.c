@@ -168,8 +168,6 @@ int LoadTic(char *inb, char *tfn)
     char	    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
     int		    i, j, rc, bufsize, DescCnt = FALSE;
     fa_list	    *sbl = NULL;
-//    DIR             *dp;
-//    struct dirent   *de;
 
     if (CFG.slow_util && do_quiet)
 	usleep(1);
@@ -273,16 +271,21 @@ int LoadTic(char *inb, char *tfn)
 	
 	} else if (strncasecmp(Temp, "path ", 5) == 0) {
 	    strncpy(TIC.TicIn.Path[TIC.TicIn.TotPath], Temp+5, 80);
-	    TIC.TicIn.TotPath++;
-	    TIC.Aka.zone = atoi(strtok(Temp+5, ":"));
-	    TIC.Aka.net  = atoi(strtok(NULL, "/"));
-	    TIC.Aka.node = atoi(strtok(NULL, "\0"));
-	    for (i = 0; i < 40; i++)
-		if ((CFG.akavalid[i]) && (CFG.aka[i].zone  == TIC.Aka.zone) && (CFG.aka[i].net   == TIC.Aka.net) &&
-		    (CFG.aka[i].node  == TIC.Aka.node) && (!CFG.aka[i].point)) {
-		    TIC.TicIn.PathError = TRUE;
-		    Syslog('+', "Aka %d: %s in path", i + 1, aka2str(CFG.aka[i]));
-		}
+	    if (strchr(TIC.TicIn.Path[TIC.TicIn.TotPath], ':') && strchr(Temp+5, '/')) {
+		TIC.TicIn.TotPath++;
+		TIC.Aka.zone = atoi(strtok(Temp+5, ":"));
+		TIC.Aka.net  = atoi(strtok(NULL, "/"));
+		TIC.Aka.node = atoi(strtok(NULL, "\0"));
+		for (i = 0; i < 40; i++)
+		    if ((CFG.akavalid[i]) && (CFG.aka[i].zone  == TIC.Aka.zone) && (CFG.aka[i].net   == TIC.Aka.net) &&
+			(CFG.aka[i].node  == TIC.Aka.node) && (!CFG.aka[i].point)) {
+			TIC.TicIn.PathError = TRUE;
+			Syslog('+', "Aka %d: %s in path", i + 1, aka2str(CFG.aka[i]));
+		    }
+	    } else {
+		WriteError("No AKA in path: \"%s\"", printable(Temp, 0));
+		WriteError("Report this to author of that program");
+	    }
 		
 	} else if (strncasecmp(Temp, "seenby ", 7) == 0) {
 	    fill_list(&sbl, Temp+7, NULL);

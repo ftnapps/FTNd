@@ -29,6 +29,9 @@ v0.37.4		10-May-2003
 
 	mbfido:
 		Stone age packet support, see common.a.
+		Due to a bug in King-FIX v.1.26.Universal mbfido did crash.
+		Now it will log this and continue processing ticfiles with the
+		risk of sending files back to the owner of that faulty program.
 
 
 v0.37.3		09-Apr-2003 - 10-May-2003
