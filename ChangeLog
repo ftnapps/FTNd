@@ -1,6 +1,9 @@
 $Id$
 
-v0.39.3		26-Nov-2003
+v0.39.4		08-Dec-2003
+
+
+v0.39.3		26-Nov-2003 - 08-Dec-2003.
 
 	general:
 		Since this version Posix threads are being used, please let
@@ -58,6 +61,7 @@ v0.39.3		26-Nov-2003
 
 	mbsebbs:
 		Fixed small memory leak.
+		Fixed posting to local/echomail areas from bbs users.
 
 	mball:
 		Fixed 2 forgotten fclose functions.

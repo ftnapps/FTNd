@@ -4,7 +4,7 @@
  * Purpose ...............: Make Web statistics
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -98,17 +98,16 @@ void closepage(FILE *fa, char *Name, FILE *fi)
 char *adate(time_t);
 char *adate(time_t now)
 {
-	static char	buf[40];
-	struct tm	ptm;
+    static char	buf[40];
+    struct tm	ptm;
 
-	if (now == 0L) {
-		sprintf(buf, "&nbsp;");
-	} else {
-		ptm = *localtime(&now);
-		sprintf(buf, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900,
-			ptm.tm_hour, ptm.tm_min);
-	}
-	return buf;
+    if (now == 0L) {
+	sprintf(buf, "&nbsp;");
+    } else {
+	ptm = *localtime(&now);
+	sprintf(buf, "%02d-%02d-%04d %02d:%02d", ptm.tm_mday, ptm.tm_mon +1, ptm.tm_year + 1900, ptm.tm_hour, ptm.tm_min);
+    }
+    return buf;
 }
 
 
@@ -127,6 +126,7 @@ void MakeStat(void)
     }
 
     if (!do_quiet) {
+	colour(CYAN, BLACK);
 	printf("\rMaking statistical HTML pages");
 	fflush(stdout);
     }

@@ -74,9 +74,6 @@ mbfido:
 	N: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 
-	L: Remove memory leak during toss. (It's ok for less 5000 messages for 
-	   each run).
-
 	N: Process GoldED filerequest netmails with the filereq flag set, we
 	   should create a .req file with the contents of the subject line.
 
@@ -96,7 +93,7 @@ mbfido:
 
 	L: Maybe store echomail for unknown areas in badmail area.
 
-	L: Make ik possible to only virus scan the complete archives.
+	L: Make it possible to only virus scan the complete archives.
 
 	N: Force processing of arealists so that all tags are forced to
 	   uppercase. Seems to give problems in some nets.
