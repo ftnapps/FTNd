@@ -16,7 +16,8 @@ v0.37.01	14-Jan-2003.
 		Spanish templates and macros added to the examples.
 
 	mbtask:
-		Added debug logging to find some errors.
+		Arcmail for non-CM nodes and Txx nodes is now sent during the
+		node's opening hours or ZMH.
 
 	mbfile:
 		In the import function several bugfixes for reading files.bbs.

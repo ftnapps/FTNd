@@ -334,8 +334,8 @@ int outstat()
 	}
 
 	rc = load_node(tmp->addr);
-	Syslog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", fido2str(tmp->addr, 0x0f), rc?"true":"false",
-		    nodes.NoCall?"True":"False", (itnmask + ibnmask + ifcmask)?"False":"True");
+//	Syslog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", fido2str(tmp->addr, 0x0f), rc?"true":"false",
+//		    nodes.NoCall?"True":"False", (itnmask + ibnmask + ifcmask)?"False":"True");
 
 	/*
 	 * Zone Mail Hours, only use Fidonet Hours.
@@ -395,7 +395,7 @@ int outstat()
 	    else
 		tmin = 30;
 	    sprintf(be, "%02d:%02d", thour, tmin);
-	    Syslog('o', "Setting next hour for Txx node at %s", be);
+//	    Syslog('o', "Setting next hour for Txx node at %s", be);
 	    set_next(thour, tmin);
 	    if (strcmp(as, be) > 0) {
 		/*
@@ -411,7 +411,7 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
-	Syslog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+//	Syslog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 	strcpy(flstr,"...... .... ..");
 
 	/*
@@ -455,8 +455,15 @@ int outstat()
 	    tmp->flavors |= F_CALL;
 	}
 
-	if ((tmp->flavors) & F_ISFIL )
+	if ((tmp->flavors) & F_ISFIL ) {
 	    flstr[7]='A';
+	    /*
+	     * Arcmail and maybe file attaches, send during ZMH or if node has a Txx window.
+	     */
+	    if (iszmh || T_window) {
+		tmp->flavors |= F_CALL;
+	    }
+	}
 	if ((tmp->flavors) & F_ISPKT ) { 
 	    flstr[8]='M';
 	    /*
