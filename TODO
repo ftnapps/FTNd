@@ -71,6 +71,8 @@ mbfido:
 
 	N: Doesn't erase netmail.jam and/or echomail.jam after a full mailscan.
 
+	N: Add traffic to html.nodes
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
@@ -110,6 +112,10 @@ mbnewusr:
 
 mbsetup:
 	U: PickAka function lets mbsetup crash if domain is 12 characters
+
+	U: Use some sort of sorting for the system aka's and make sure the
+	   main aka with zone's is listed first. Having zone's mixed gives
+	   too high outbound stats and the outbound is scanned multiple times.
 
 	U: When moving an JAM messagebase, check filefind records.
 

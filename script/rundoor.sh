@@ -11,7 +11,7 @@
 # by Redy Rodriguez and Michiel Broek.
 #
 DOOR=`basename $0`
-COMMANDO="\"doors $DOOR $*\r\""
+COMMANDO="\" doors $DOOR $*\r\""
 
 /usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1
 /usr/bin/sudo /opt/dosemu/bin/dosemu.bin \
