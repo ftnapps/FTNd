@@ -205,7 +205,8 @@ void ScanNews(void)
 
     while (fread(&Msgs, Msgshdr.recsize, 1, pAreas) == 1) {
 	fseek(pAreas, Msgshdr.syssize, SEEK_CUR);
-	if ((Msgs.Active) && strlen(Msgs.Newsgroup) && (msgs.Type == NEWS)) {
+//	Syslog('m', "Check newsgroup: %s %d", Msgs.Newsgroup, Msgs.Type);
+	if ((Msgs.Active) && strlen(Msgs.Newsgroup) && (Msgs.Type == NEWS)) {
 	    if (IsSema((char *)"upsalarm")) {
 		Syslog('+', "Detected upsalarm semafore, aborting newsscan");
 		break;
