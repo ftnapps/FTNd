@@ -63,7 +63,7 @@ extern int	do_pack;		/* Pack filebase		    */
 void Check(void)
 {
 	FILE	*pAreas, *pFile;
-	int	i, iAreas, iAreasNew = 0;
+	int	i, iAreas, iAreasNew = 0, Fix;
 	int	iTotal = 0, iErrors =  0;
 	char	*sAreas, *fAreas, *newdir, *temp;
 	DIR	*dp;
@@ -71,6 +71,8 @@ void Check(void)
 	int	Found, Update;
 	char	fn[PATH_MAX];
 	struct	stat stb;
+	struct  passwd *pw;
+	struct	group *gr;
 
 	sAreas = calloc(PATH_MAX, sizeof(char));
 	fAreas = calloc(PATH_MAX, sizeof(char));
@@ -114,7 +116,61 @@ void Check(void)
 			if (access(area.Path, R_OK) == -1) {
 				Syslog('!', "No dir: %s", area.Path);
 				sprintf(newdir, "%s/foobar", area.Path);
-				mkdirs(newdir, 0755);
+				mkdirs(newdir, 0775);
+			}
+
+			if (stat(area.Path, &stb) == 0) {
+			    /*
+			     * Very extended directory check
+			     */
+			    Fix = FALSE;
+			    if ((stb.st_mode & S_IRUSR) == 0) {
+				Fix = TRUE;
+				WriteError("No owner read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+			    }
+			    if ((stb.st_mode & S_IWUSR) == 0) {
+				Fix = TRUE;
+				WriteError("No owner write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+			    }
+			    if ((stb.st_mode & S_IRGRP) == 0) {
+				Fix = TRUE;
+				WriteError("No group read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+			    }
+			    if ((stb.st_mode & S_IWGRP) == 0) {
+				Fix = TRUE;
+				WriteError("No group write access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+			    }
+			    if ((stb.st_mode & S_IROTH) == 0) {
+				Fix = TRUE;
+				WriteError("No others read access in %s, mode is %04o", area.Path, stb.st_mode & 0x1ff);
+			    }
+			    if (Fix) {
+				if (chmod(area.Path, 0775))
+				    WriteError("Could not set mode to 0775");
+				else
+				    Syslog('+', "Corrected directory mode to 0775");
+			    }
+			    Fix = FALSE;
+			    pw = getpwuid(stb.st_uid);
+			    if (strcmp(pw->pw_name, (char *)"mbse")) {
+				WriteError("Directory %s not owned by user mbse", area.Path);
+				Fix = TRUE;
+			    }
+			    gr = getgrgid(stb.st_gid);
+			    if (strcmp(gr->gr_name, (char *)"bbs")) {
+				WriteError("Directory %s not owned by group bbs", area.Path);
+				Fix = TRUE;
+			    }
+			    if (Fix) {
+				pw = getpwnam((char *)"mbse");
+				gr = getgrnam((char *)"bbs");
+				if (chown(area.Path, pw->pw_gid, gr->gr_gid))
+				    WriteError("Could not set owner to mbse.bbs");
+				else
+				    Syslog('+', "Corrected directory owner to mbse.bbs");
+			    }
+			} else {
+			    WriteError("Can't stat %s", area.Path);
 			}
 
 			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);

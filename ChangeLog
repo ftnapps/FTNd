@@ -4590,6 +4590,7 @@ v0.33.20        10-Feb-2002
 		Go into global configuration, exit and save, this will update
 		the main configuration (add default macro path).
 		Edit the message groups and file groups for new settings.
+		Run mbfile check to fix download directory permissions.
 
 	general:
 		Added structures for area maintenance with area lists.
@@ -4727,6 +4728,9 @@ v0.33.20        10-Feb-2002
 		The mbfile index command now creates the html pages using the
 		macro templates html.main and html.areas. The files.css file
 		is no longer needed.
+		The check function now checks download directory permissions
+		and tries to correct errors.
+		Missing download directories are created mode 0775.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
