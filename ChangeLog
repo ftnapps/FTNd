@@ -11,6 +11,11 @@ v0.39.4		08-Dec-2003
 		delete /opt/mbse/etc/language.data and run mbsetup to create
 		a new language.data including the french setup.
 
+	libmsgbase:
+		Changed the fix in JAM to prevent the copy overwrite. This may
+		also fixed the message renumbering bug introduced with previous
+		version.
+
 	mbsetup:
 		Added default record for french language.
 

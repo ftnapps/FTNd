@@ -566,7 +566,7 @@ int JAM_Open(char *Msgbase)
 			fdJlr = open(File, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 			RetVal = TRUE;
 
-			memmove(BaseName, Msgbase, strlen(Msgbase));
+			strcpy(BaseName, Msgbase);
 		} else {
 			close(fdHdr);
 			fdHdr = -1;
@@ -749,7 +749,8 @@ void JAM_Pack(void)
 	unlink(New);
 	rename(File, New);
 
-	JAM_Open(BaseName);
+	sprintf(File, "%s", BaseName);
+	JAM_Open(File);
     }
 
     if (fdnHdr != -1)

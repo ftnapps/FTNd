@@ -123,14 +123,14 @@ install:
 			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/german; \
 		fi
 		@chmod 0775 ${PREFIX}/german/txtfiles
-                @if [ ! -d ${PREFIX}/french ] ; then \
-                        mkdir ${PREFIX}/french; \
-                        mkdir ${PREFIX}/french/txtfiles ; \
-                        mkdir ${PREFIX}/french/menus ; \
-                        mkdir ${PREFIX}/french/macro ; \
-                        ${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/french; \
-                fi
-                @chmod 0775 ${PREFIX}/french/txtfiles
+		@if [ ! -d ${PREFIX}/french ] ; then \
+			mkdir ${PREFIX}/french; \
+			mkdir ${PREFIX}/french/txtfiles ; \
+			mkdir ${PREFIX}/french/menus ; \
+			mkdir ${PREFIX}/french/macro ; \
+			${CHOWN} -R ${OWNER}:${GROUP} ${PREFIX}/french; \
+		fi
+		@chmod 0775 ${PREFIX}/french/txtfiles
 		@if [ ! -d ${PREFIX}/ftp ] ; then \
 			mkdir ${PREFIX}/ftp ; \
 			mkdir ${PREFIX}/ftp/pub ; \
