@@ -473,7 +473,7 @@ long LoadTicRec(int Area, int work)
 	fread(&tic, tichdr.recsize, 1, fil);
 	TicCrc = 0xffffffff;
 	TicCrc = upd_crc32((char *)&tic, TicCrc, tichdr.recsize);
-	for (i = 0; i <= (tichdr.syssize / sizeof(sysconnect)); i++) {
+	for (i = 0; i < (tichdr.syssize / sizeof(sysconnect)); i++) {
 		fread(&System, sizeof(sysconnect), 1, fil);
 		fwrite(&System, sizeof(sysconnect), 1, ttfil);
 		TicCrc = upd_crc32((char *)&System, TicCrc, sizeof(sysconnect));
@@ -798,7 +798,7 @@ int EditTicRec(int);
 int EditTicRec(int Area)
 {
 	unsigned long	crc1;
-	int		tmp, i, changed = FALSE;
+	int		tmp, i, connections = 0, changed = FALSE;
 	sysconnect	System;
 	char		*temp;
 	FILE		*fp;
@@ -853,13 +853,20 @@ int EditTicRec(int Area)
 		show_bool( 9,77,   tic.UplDiscon);
 		show_bool(10,77,   tic.Deleted);
 		show_bool(11,77,   tic.Active);
-
+		fseek(ttfil, 0, SEEK_SET);
+		connections = 0;
+		while (fread(&System, sizeof(System), 1, ttfil) == 1) {
+		    if (System.aka.zone)
+			connections++;
+		}
+		show_int( 12,77,   connections);
+		
 		switch(select_menu(25)) {
 		case 0:
 			crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&tic, crc1, tichdr.recsize);
 			fseek(ttfil, 0, 0);
-			for (i = 0; i <= (tichdr.syssize / sizeof(sysconnect)); i++) {
+			for (i = 0; i < (tichdr.syssize / sizeof(sysconnect)); i++) {
 				fread(&System, sizeof(sysconnect), 1, ttfil);
 				crc1 = upd_crc32((char *)&System, crc1, sizeof(sysconnect));
 			}
