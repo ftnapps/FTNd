@@ -150,7 +150,7 @@ int binkp(int role)
     else
 	session_flags |= SESSION_WAZOO;
 
-    Syslog('b', "WAZOO requests: %s", (session_flags & SESSION_WAZOO) ? "True":"False");
+    Syslog('b', "Binkp: WAZOO requests: %s", (session_flags & SESSION_WAZOO) ? "True":"False");
 
     nonhold_mail = (char *)ALL_MAIL;
     eff_remote = remote;
@@ -161,10 +161,9 @@ int binkp(int role)
 	remote_flags &= ~SESSION_FNC;
 	
     tosend = create_filelist(eff_remote, nonhold_mail, 0);
-    request = create_freqlist(remote);
 
     if (request != NULL) {
-	Syslog('b', "Inserting request list");
+	Syslog('b', "Binkp: inserting request list");
 	tmpfl = tosend;
 	tosend = request;
 	for (; request->next; request = request->next);
@@ -206,10 +205,10 @@ int binkp(int role)
 	for (tmpfl = respond; tmpfl; tmpfl = tmpfl->next) {
 	    if (strncmp(tmpfl->local, "/tmp", 4)) {
 		attach(*remote->addr, tmpfl->local, LEAVE, 'h');
-		Syslog('+', "Put on hold: %s", MBSE_SS(tmpfl->local));
+		Syslog('+', "Binkp: put on hold: %s", MBSE_SS(tmpfl->local));
 	    } else {
 		file_mv(tmpfl->local, pktname(remote->addr, 'h'));
-		Syslog('+', "New netmail: %s", pktname(remote->addr, 'h'));
+		Syslog('+', "Binkp: new netmail: %s", pktname(remote->addr, 'h'));
 	    }
 	}
     }
@@ -439,7 +438,7 @@ void b_banner(int Norequests)
     binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
     t = time(NULL);
     binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
-    Syslog('b', "M_NUL VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
+    Syslog('b', "Binkp: M_NUL VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
     binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
     if (strlen(CFG.Phone))
 	binkp_send_control(MM_NUL,"PHN %s", CFG.Phone);
@@ -492,9 +491,8 @@ void b_nul(char *msg)
 	}
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
 	    if (CFG.NoMD5) {
-		Syslog('+', "Remote supports MD5, but it's turned off here");
+		Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
 	    } else {
-		Syslog('b', "Remote requests MD5 password");
 		if (MD_challenge)
 		    free(MD_challenge);
 		MD_challenge = MD_getChallenge(msg, NULL);
@@ -502,10 +500,10 @@ void b_nul(char *msg)
 	}
 	if (strstr(msg, (char *)"CRC") != NULL) {
 	    CRCflag = TRUE;
-	    Syslog('b', "Remote supports CRC32 mode");
+	    Syslog('b', "Binkp: remote supports CRC32 mode");
 	}
     } else
-	Syslog('+', "M_NUL \"%s\"", msg);
+	Syslog('+', "Binkp: M_NUL \"%s\"", msg);
 }
 
 
@@ -543,10 +541,8 @@ SM_STATE(waitconn)
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
     if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32) {
 	binkp_send_control(MM_NUL,"OPT MB CRC");
-	Syslog('b', "Send OPT MB CRC");
     } else {
 	binkp_send_control(MM_NUL,"OPT MB");
-	Syslog('b', "Send OPT MB");
     }
     if (((noderecord(remote->addr)) && nodes.NoFreqs) || CFG.NoFreqs)
 	b_banner(TRUE);
@@ -603,7 +599,7 @@ SM_STATE(waitaddr)
 				(tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
 				(strcmp(tmpa->addr->domain, fa->domain) == 0)) {
 				dupe = TRUE;
-				Syslog('b', "Double address %s", ascfnode(tmpa->addr, 0x1f));
+				Syslog('b', "Binkp: double address %s", ascfnode(tmpa->addr, 0x1f));
 				break;
 			    }
 			}
@@ -644,11 +640,11 @@ SM_STATE(waitaddr)
 		SM_PROCEED(sendpass)
 
 	    } else if (rbuf[0] == MM_BSY) {
-		Syslog('!', "Binkp: remote is busy");
+		Syslog('!', "Binkp: M_BSY \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -661,7 +657,6 @@ SM_STATE(sendpass)
 
     if (MD_challenge && strlen(nodes.Spasswd)) {
 	char	*pw = NULL, *tp = NULL;
-	Syslog('b', "MD_challenge is set, building digest");
 	pw = xstrcpy(nodes.Spasswd);
 	tp = MD_buildDigest(pw, MD_challenge);
 	if (!tp) {
@@ -712,6 +707,7 @@ SM_STATE(waitok)
 
 	if (cmd) {
 	    if (rbuf[0] == MM_OK) {
+		Syslog('!', "Binkp: M_OK \"%s\"", printable(&rbuf[1], 0));
 		if (SendPass)
 		    Syslog('+', "Binkp: %spassword protected session", CRAMflag ? "MD5 ":"");
 		else
@@ -719,11 +715,11 @@ SM_STATE(waitok)
 		SM_SUCCESS;
 
 	    } else if (rbuf[0] == MM_BSY) {
-		Syslog('!', "Binkp: remote is busy");
+		Syslog('!', "Binkp: M_BSY \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -764,6 +760,12 @@ SM_STATE(waitconn)
 
     Loaded = FALSE;
 
+    if (strncmp(SockR("SBBS:0;"), "100:2,1", 7) == 0) {
+	Syslog('+', "Binkp: system is closed, sending M_BSY");
+	binkp_send_control(MM_BSY, "This system is closed, try again later");
+	SM_ERROR;
+    }
+
     if (!CFG.NoMD5 && ((MD_challenge = MD_getChallenge(NULL, &peeraddr)) != NULL)) {
 	/*
 	 * Answering site MUST send CRAM message as very first M_NUL
@@ -772,7 +774,7 @@ SM_STATE(waitconn)
 	strcpy(s, "OPT ");
 	MD_toString(s+4, MD_challenge[0], MD_challenge+1);
 	CRAMflag = TRUE;
-	Syslog('b', "sending \"%s\"", s);
+	Syslog('b', "Binkp: sending \"%s\"", s);
 	binkp_send_control(MM_NUL, "%s", s);
     }
     b_banner(CFG.NoFreqs);
@@ -811,7 +813,7 @@ SM_STATE(waitaddr)
 				(tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
 				(strcmp(tmpa->addr->domain, fa->domain) == 0)) {
 				dupe = TRUE;
-				Syslog('b', "Double address %s", ascfnode(tmpa->addr, 0x1f));
+				Syslog('b', "Binkp: double address %s", ascfnode(tmpa->addr, 0x1f));
 				break;
 			    }
 			}
@@ -857,16 +859,15 @@ SM_STATE(waitaddr)
 		    rdoptions(Loaded);
 
 		if (MBflag) {
-		    Syslog('b', "Remote supports MB");
+		    Syslog('b', "Binkp: remote supports MB");
 		    binkp_send_control(MM_NUL,"OPT MB");
 		}
 		if (CRCflag) {
-		    Syslog('b', "Remote supports CRC32");
 		    if (Loaded && nodes.CRC32 && !CFG.NoCRC32) {
 			binkp_send_control(MM_NUL,"OPT CRC");
-			Syslog('b', "Send OPT CRC");
+			Syslog('+', "Binkp: using file transfers with CRC32 checking");
 		    } else {
-			Syslog('b', "CRC32 support is diabled here");
+			Syslog('b', "Binkp: CRC32 support is diabled here");
 			CRCflag = FALSE;
 		    }
 		}
@@ -880,7 +881,7 @@ SM_STATE(waitaddr)
 		SM_PROCEED(waitpwd)
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -902,7 +903,7 @@ SM_STATE(waitpwd)
 		SM_PROCEED(pwdack)
 
 	    } else if (rbuf[0] == MM_ERR) {
-		Syslog('!', "Binkp: remote error: %s", &rbuf[1]);
+		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
                 SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
@@ -936,7 +937,7 @@ SM_STATE(pwdack)
 		SM_SUCCESS;
 	    }
 	} else {
-	    Syslog('!', "Could not build MD5 digest");
+	    Syslog('!', "Binkp: could not build MD5 digest");
 	    binkp_send_control(MM_ERR, "*** Internal error ***");
 	    SM_ERROR;
 	}
@@ -953,7 +954,7 @@ SM_STATE(pwdack)
 	if (inbound)
 	    free(inbound);
 	inbound = xstrcpy(CFG.pinbound);
-	binkp_send_control(MM_OK, "");
+	binkp_send_control(MM_OK, "secure");
 	SM_SUCCESS;
     } else {
 	Syslog('?', "Binkp: password error: expected \"%s\", got \"%s\"", nodes.Spasswd, &rbuf[1]);
@@ -1086,7 +1087,7 @@ int binkp_batch(file_list *to_send, int role)
 	 */
 	for (;;) {
 	    if (GotFrame) {
-		Syslog('b', "WARNING: frame not processed");
+		Syslog('b', "Binkp: WARNING: frame not processed");
 		break;
 	    } else {
 		c = GETCHAR(0);
