@@ -16,6 +16,10 @@ v0.35.06
 		forward to, and with this information builds more reliable
 		seen-by lines.
 
+	mbcico:
+		With filetransfer errors, the attempts counter was not 
+		increased.
+
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.
 

@@ -290,7 +290,7 @@ int call(faddr *addr)
 
     if ((rc == MBERR_NOT_ZMH) || (rc == MBERR_SESSION_ERROR))  /* Session error */
 	putstatus(addr, 5, rc);
-    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_UNKNOWN_SESSION))
+    else if ((rc == MBERR_NO_CONNECTION) || (rc == MBERR_UNKNOWN_SESSION) || (rc == MBERR_FTRANSFER))
 	putstatus(addr,1,rc);
     else
 	putstatus(addr,0,rc);
