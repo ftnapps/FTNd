@@ -4880,3 +4880,7 @@ v0.33.20        10-Feb-2002
 	rundoor.sh
 		Called door.bat instead of doors.bat
 
+	installinit.sh
+		Modified for SuSE 7.1 and later, the location of the startup
+		script moved from /sbin to /etc. Patch by Joachim Kuwan.
+

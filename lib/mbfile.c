@@ -70,6 +70,7 @@ int file_cp(char *from, char *to)
 			free(line);
 			return error;
 		}
+		Nopper();  // For large files on slow systems
 	} while (bread != 0);
 
 	free(line);
@@ -193,6 +194,7 @@ long file_crc(char *path, int slow)
 		crc = upd_crc32(line, crc, bread);
 		if (slow)
 			usleep(1);
+		Nopper(); // For large files on slow systems.
 	} while (bread > 0);
 
 	free(line);

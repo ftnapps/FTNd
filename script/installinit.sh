@@ -140,23 +140,31 @@ log "+" "Distribution $OSTYPE $DISTNAME $DISTVERS"
 
 #--------------------------------------------------------------------------
 #
-#  Adding scripts for SuSE
+#  Adding scripts for SuSE, from 7.1 and later in /etc/init.d
 #
 if [ "$DISTNAME" = "SuSE" ]; then
-    DISTINIT="/sbin/init.d/mbsed"
-    echo "Installing SystemV init scripts for SuSE"
-    log "+" "Installing SystemV init scripts for SuSE"
+    if [ "$DISTVERS" '>' "7.1" ]; then
+	DISTDIR="/etc"
+    else
+	DISTDIR="/sbin"
+    fi
+    DISTINIT="$DISTDIR/init.d/mbsed"
+    echo "Installing SystemV init scripts for SuSE $DISTVERS"
+    log "+" "Installing SystemV init scripts for SuSE $DISTVERS"
     echo "Adding $DISTINIT"
     cp init.SuSE $DISTINIT
     chmod 755 $DISTINIT
     echo "Making links for start/stop in runlevel 2"
-    ln -s ../mbsed /sbin/init.d/rc2.d/K05mbsed
-    ln -s ../mbsed /sbin/init.d/rc2.d/S99mbsed
+    ln -s ../mbsed $DISTDIR/init.d/rc2.d/K05mbsed
+    ln -s ../mbsed $DISTDIR/init.d/rc2.d/S99mbsed
     echo "Making links for start/stop in runlevel 3"
-    ln -s ../mbsed /sbin/init.d/rc3.d/K05mbsed
-    ln -s ../mbsed /sbin/init.d/rc3.d/S99mbsed
-    echo "SuSE SystemV init configured"
-    log "+" "SuSE SystemV init configured"
+    ln -s ../mbsed $DISTDIR/init.d/rc3.d/K05mbsed
+    ln -s ../mbsed $DISTDIR/init.d/rc3.d/S99mbsed
+    echo "Making links for start/stop in runlevel 5"
+    ln -s ../mbsed $DISTDIR/init.d/rc5.d/K05mbsed
+    ln -s ../mbsed $DISTDIR/init.d/rc5.d/S99mbsed
+    echo "SuSE $DISTVERS SystemV init configured"
+    log "+" "SuSE $DISTVERS SystemV init configured"
 fi
 
 

@@ -398,7 +398,7 @@ int EditFileRec(int Area)
 				     * Erase file in path if path is set and not the default
 				     * FTP base path
 				     */
-				    sprintf(temp, "rm -r -f %s", area.Path);
+				    sprintf(temp, "rm -f %s", area.Path);
 				    system(temp);
 				    rmdir(area.Path);
 				}
