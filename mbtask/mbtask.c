@@ -156,7 +156,6 @@ void load_maincfg(void)
                 sprintf(CFG.pinbound, "/var/spool/mbse/inbound");
                 sprintf(CFG.outbound, "/var/spool/mbse/outbound");
 		sprintf(CFG.msgs_path, "/var/spool/mbse/msgs");
-                sprintf(CFG.dospath, "a:"); /* The biggest floppy on earth, JvdW. */
                 sprintf(CFG.uxpath, "/var/spool/mbse");
                 sprintf(CFG.badtic, "/var/spool/mbse/badtic");
                 sprintf(CFG.ticout, "/var/spool/mbse/ticqueue");

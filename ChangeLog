@@ -4371,6 +4371,8 @@ v0.33.19        26-Oct-2001
 		information.
 		On new systems, ~/etc/config.data and ~/etc/task.data are
 		created with mode 0640.
+		On new systems, the DOS path isn't set anymore by default,
+		most people don't need it.
 		Starting utilities is now more relaxed using a 3 seconds
 		pause timer. Fixed some potential Sparc problems.
 

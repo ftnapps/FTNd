@@ -264,7 +264,7 @@ void e_global(void)
 		case 9: E_PTH(14,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
 		case 10:E_PTH(15,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
 		case 11:E_PTH(16,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
-		case 12:E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path.")
+		case 12:E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path, empty disables translation")
 		case 13:E_PTH(18,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
 		case 14:E_BOOL(19,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
 		}
