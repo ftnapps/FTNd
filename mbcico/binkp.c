@@ -1602,7 +1602,10 @@ int binkp_send_frame(int cmd, char *buf, int len)
 
 #ifdef HAVE_ZLIB_H
     last = bp.cmpblksize;
-    if ((bp.PLZflag == Active) && (len > 20)) {
+    /*
+     * Only use compression for DATA blocks larger then 20 bytes.
+     */
+    if ((bp.PLZflag == Active) && (len > 20) && (!cmd)) {
 	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
 	rcz = compress2(zbuf, &zlen, buf, len, 9);
 	if (rcz == Z_OK) {
@@ -1616,21 +1619,16 @@ int binkp_send_frame(int cmd, char *buf, int len)
 		 * a dynamic optimal blocksize. The average maximum
 		 * blocksize on the line will be 4096 bytes.
 		 */
-		if (!cmd) {
-		    bp.cmpblksize = ((len * 4) / zlen) * 512;
-		    if (bp.cmpblksize < SND_BLKSIZE)
-			bp.cmpblksize = SND_BLKSIZE;
-		    if (bp.cmpblksize > (BINKP_PLZ_BLOCK -1))
-			bp.cmpblksize = (BINKP_PLZ_BLOCK -1);
-		}
+		bp.cmpblksize = ((len * 4) / zlen) * 512;
+		if (bp.cmpblksize < SND_BLKSIZE)
+		    bp.cmpblksize = SND_BLKSIZE;
+		if (bp.cmpblksize > (BINKP_PLZ_BLOCK -1))
+		    bp.cmpblksize = (BINKP_PLZ_BLOCK -1);
+
 		/*
 		 * Rebuild header for compressed block
 		 */
-		if (cmd) {
-		    header = ((BINKP_CONTROL_BLOCK + BINKP_PLZ_BLOCK + zlen) & 0xffff);
-		} else {
-		    header = ((BINKP_DATA_BLOCK + BINKP_PLZ_BLOCK + zlen) & 0xffff);
-		}
+		header = ((BINKP_DATA_BLOCK + BINKP_PLZ_BLOCK + zlen) & 0xffff);
 		rc = PUTCHAR((header >> 8) & 0x00ff);
 		if (!rc)
 		    rc = PUTCHAR(header & 0x00ff);
@@ -1779,10 +1777,6 @@ int binkp_banner(void)
 int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
 {
     int	    b0, b1;
-#ifdef HAVE_ZLIB_H
-    int	    rc, zlen, plz = FALSE;
-    char    *zbuf;
-#endif
 
     *len = *cmd = 0;
 
@@ -1792,52 +1786,15 @@ int binkp_recv_command(char *buf, unsigned long *len, int *cmd)
     if (b0 & 0x80)
 	*cmd = 1;
 
-#ifdef HAVE_ZLIB_H
-    /*
-     * During session setup even if we are not yet in PLZ mode,
-     * we already accept zlib compressed packets. This assumes
-     * that there are no command messages longer then 16Kb.
-     */
-    if ((b0 & 0x40) && (bp.PLZflag != No)) {
-	Syslog('b', "Binkp: binkp_recv_command() compressed block");
-	plz = TRUE;
-    }
-#endif
-
     b1 = GETCHAR(BINKP_TIMEOUT / 2);
     if (tty_status)
 	goto to;
 
-#ifdef HAVE_ZLIB_H
-    if (plz) {
-	*len = (b0 & 0x3f) << 8;
-
-	zbuf = calloc(BINKP_ZIPBUFLEN, sizeof(char));
-	GET(zbuf, *len, BINKP_TIMEOUT / 2);
-	zlen = *len;
-	rc = uncompress(buf, len, zbuf, zlen);
-	free(zbuf);
-
-	if (rc == Z_OK) {
-	    Syslog('b', "Binkp: uncompress size %d => %d", zlen, len);
-	} else {
-	    Syslog('b', "Binkp: uncompress error %d", rc);
-	    tty_status = STAT_UNCOMP;
-	}
-	buf[*len] = '\0';
-    } else {
-	*len = (b0 & 0x7f) << 8;
-	*len += b1;
-	GET(buf, *len, BINKP_TIMEOUT / 2);
-	buf[*len] = '\0';
-    }
-#else
     *len = (b0 & 0x7f) << 8;
     *len += b1;
 
     GET(buf, *len, BINKP_TIMEOUT / 2);
     buf[*len] = '\0';
-#endif
     if (tty_status)
 	goto to;
 

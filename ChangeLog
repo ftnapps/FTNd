@@ -4,6 +4,7 @@ v0.39.8		26-Jan-2004
 
 	mbcico:
 		Fixed binkp file resync.
+		Binkp now only tries to compress data frames.
 
 
 v0.39.7		14-Jan-2004 - 26-Jan-2004
