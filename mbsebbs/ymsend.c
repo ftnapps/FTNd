@@ -113,8 +113,8 @@ int ymsndfiles(down_list *lst, int use1k)
 				    Syslog('x', "%s: will use 1K blocks", protname());
 				    blklen = 1024;
 				}
-				if (wctx(tmpf->size) == ERROR) {
-				    Syslog('x', "wctx returned error");
+				if (wctx(tmpf->size) == TERROR) {
+				    Syslog('+', "%s: wctx returned error", protname());
 				    tmpf->failed = TRUE;
 				} else {
 				    tmpf->sent = TRUE;
@@ -131,11 +131,16 @@ int ymsndfiles(down_list *lst, int use1k)
 	    Syslog('+', "%s: could not unlink %s", protname(), tmpf->remote);
     }
 
-    if (protocol == ZM_YMODEM) {
-	/*
-	 * Send empty filename to signal end of batch
-	 */
-	wctxpn((char *)"");
+    if (maxrc == 2) {
+	canit(1);
+	purgeline(50);
+    } else {
+	if (protocol == ZM_YMODEM) {
+	    /*
+	     * Send empty filename to signal end of batch
+	     */
+	    wctxpn((char *)"");
+	}
     }
 
     if (txbuf)
@@ -143,7 +148,7 @@ int ymsndfiles(down_list *lst, int use1k)
     txbuf = NULL;
     io_mode(0, 1);
 
-    Syslog('x', "%s: send rc=%d", protname(), maxrc);
+    Syslog('+', "%s: end send files rc=%d", protname(), maxrc);
     return (maxrc < 2)?0:maxrc;
 }
 
@@ -191,8 +196,7 @@ static int wctxpn(char *fname)
 
     if (!zmodem_requested)
 	if (getnak()) {
-	    PUTSTR((char *)"getnak failed");
-	    Syslog('+', "%s/%s: getnak failed", MBSE_SS(fname), protname());
+	    Syslog('+', "%s: timeout sending filename %s", protname(), MBSE_SS(fname));
 	    return TERROR;
 	}
 
@@ -229,7 +233,7 @@ static int wctxpn(char *fname)
     }
 //    if (zmodem_requested)
 //	return zsendfile(zi,txbuf, 1+strlen(p)+(p-txbuf));
-    if (wcputsec(txbuf, 0, 128)==ERROR) {
+    if (wcputsec(txbuf, 0, 128) == TERROR) {
 	PUTSTR((char *)"wcputsec failed");
 	Syslog('+', "%s/%s: wcputsec failed", fname,protname());
 	return TERROR;
@@ -257,8 +261,8 @@ static int getnak(void)
 //			return FALSE;
 	    case TIMEOUT:
 			Syslog('x', "getnak: timeout try %d", tries);
-			/* 30 seconds are enough */
-			if (tries == 3) {
+			/* 50 seconds are enough */
+			if (tries == 5) {
 			    Syslog('x', "Timeout on pathname");
 			    return TRUE;
 			}
@@ -290,6 +294,7 @@ static int getnak(void)
 			if ((firstch = GETCHAR(2)) == CAN && Lastrx == CAN)
 			    return TRUE;
 	    default:
+			Syslog('x', "got %d", firstch);
 			break;
 	}
     Lastrx = firstch;
@@ -343,7 +348,7 @@ static int wctx(long bytes_total)
     do {
 	purgeline(5);
 	PUTCHAR(EOT);
-//	ioctl(1, TCFLSH, 0);
+	ioctl(1, TCFLSH, 0);
 	++attempts;
     } while ((firstch = (GETCHAR(Rxtimeout)) != ACK) && attempts < RETRYMAX);
     if (attempts == RETRYMAX) {
@@ -365,9 +370,10 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 
     firstch = 0;      /* part of logic to detect CAN CAN */
     
-    Syslog('x', "%s: wcputsec: sectnum %d, len %d", protname(), sectnum, cseclen);
+    Syslog('x', "%s: wcputsec: sectnum %d, len %d, %s", protname(), sectnum, cseclen, Crcflg ? "crc":"checksum");
     
     for (attempts = 0; attempts <= RETRYMAX; attempts++) {
+	Syslog('x', "send sector");
 	Lastrx = firstch;
 	sendline(cseclen == 1024 ? STX:SOH);
 	sendline(sectnum);
@@ -386,7 +392,7 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 	else
 	    sendline(Checksum);
 
-//	ioctl(1, TCFLSH, 0);
+	ioctl(1, TCFLSH, 0);
 	if (Optiong) {
 	    firstsec = FALSE; 
 	    return OK;
@@ -399,7 +405,7 @@ gotnak:
 			if(Lastrx == CAN) {
 cancan:
 			    Syslog('x', "Cancelled");  
-			    return ERROR;
+			    return TERROR;
 			}
 			break;
 	    case TIMEOUT:
@@ -409,9 +415,11 @@ cancan:
 			if (firstsec)
 			    Crcflg = TRUE;
 	    case NAK:
-			Syslog('x', "NAK on sector"); 
+			Syslog('+', "%s: got NAK on sector %d", protname(), sectnum); 
+			purgeline(10);
 			continue;
 	    case ACK:
+			Syslog('x', "Got ACK");
 			firstsec=FALSE;
 			Totsecs += (cseclen>>7);
 			return OK;

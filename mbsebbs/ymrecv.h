@@ -8,7 +8,8 @@
 
 #define RETRYMAX 10
 
-int wcrxpn(char *, int);
-int wcrx(void);
+
+int ymrcvfiles(int);
+
 
 #endif

@@ -53,6 +53,41 @@ extern char	*secbuf;
 #define sendline(c) PUTCHAR((c) & 0377)
 
 int wcgetsec(size_t *, char *, unsigned int);
+int wcrxpn(char *, int);
+int wcrx(void);
+
+
+int ymrcvfiles(int want1k)
+{
+    int	    rc = 0;
+
+    Syslog('x', "%s: ymrcvfiles(%s)", protname(), want1k ? "TRUE":"FALSE");
+
+    for (;;) {
+	rxbytes = 0l;
+	if (wcrxpn(secbuf, want1k) == TERROR) {
+	    rc = 2;
+	    break;
+	}
+	if (secbuf[0] == 0) {
+	    Syslog('+', "%s: end of batch", protname());
+	    break;
+	}
+	if (procheader(secbuf) == ZFERR) {
+	    canit(1);
+	    rc = 2;
+	    break;
+	}
+	if (wcrx() == TERROR) {
+	    rc = 2;
+	    break;
+	}
+    }
+
+    Syslog('x', "%s: ymrcvfiles rc=%d", protname(), rc);
+    return rc;
+}
+
 
 
 /*
@@ -73,21 +108,20 @@ et_tu:
     Firstsec = TRUE;
     eof_seen = FALSE;
     sendline(Crcflg?WANTCRC:NAK);
-//    ioctl(1, TCFLSH, 0);
+    ioctl(1, TCFLSH, 0);
     purgeline(0); /* Do read next time ... */
     while ((c = wcgetsec(&Blklen, rpn, 10)) != 0) {
 	if (c == WCEOT) {
 	    Syslog('x', "Pathname fetch returned EOT");
 	    sendline(ACK);
-//	    ioctl(1, TCFLSH, 0);
+	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
-//	    GETCHAR(1);
 	    goto et_tu;
 	}
-	return ERROR;
+	return TERROR;
     }
     sendline(ACK);
-//    ioctl(1, TCFLSH, 0);
+    ioctl(1, TCFLSH, 0);
     return OK;
 }
 
@@ -108,7 +142,7 @@ int wcrx(void)
 
     for (;;) {
 	sendline(sendchar);     /* send it now, we're ready! */
-//	ioctl(1, TCFLSH, 0);
+	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
 
 	/*
@@ -138,7 +172,7 @@ int wcrx(void)
 	    if (closeit(1))
 		return ERROR;
 	    sendline(ACK);
-//	    ioctl(1, TCFLSH, 0);
+	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    return OK;
 	}
@@ -225,14 +259,14 @@ humbug:
 	
 	if (Firstsec) {
 	    sendline(Crcflg ? WANTCRC:NAK);
-//	    ioctl(1, TCFLSH, 0);
+	    ioctl(1, TCFLSH, 0);
 	    Syslog('x', "%s: send %s", protname(), Crcflg ? "WANTCRC":"NAK");
 	    purgeline(0);   /* Do read next time ... */
 	} else {
 	    maxtime = 40;
 	    sendline(NAK);
 	    Syslog('x', "%s: send NAK", protname());
-//	    ioctl(1, TCFLSH, 0);
+	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	}
     }

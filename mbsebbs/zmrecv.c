@@ -66,7 +66,6 @@ static int tryz(void);
 static int rzfiles(void);
 static int rzfile(void);
 static void zmputs(char*);
-static int procheader(char*);
 static int ackbibi(void);
 static long getfree(void);
 
@@ -100,29 +99,10 @@ int zmrcvfiles(int want1k)
 		Syslog('+', "%s: switching to Ymodem", protname());
 		protocol = ZM_YMODEM;
 	    }
-	    for (;;) {
-		/*
-		 * Ymodem or Xmodem receive loop
-		 */
-		rxbytes = 0l;
-		if (wcrxpn(secbuf, want1k) == TERROR) {
-		    rc = 2;
-		    goto fubar;
-		}
-		if (secbuf[0] == 0) {
-		    Syslog('z', "%s: session seems complete", protname());
-		    goto fubar;
-		}
-		if (procheader(secbuf) == ZFERR) {
-		    rc = 2;
-		    goto fubar;
-		}
-		if (wcrx() == TERROR) {
-		    rc = 2;
-		    goto fubar;
-		}
-	    }
+	    rc = ymrcvfiles(want1k);
+	    goto fubar;
 	}
+
 	/*
 	 * Zmodem receiver
 	 */
@@ -151,7 +131,7 @@ fubar:
      */
     purgeline(100);
     
-    Syslog('z', "%s: receive rc=%d", protname(), rc);
+    Syslog('+', "%s: end receive rc=%d", protname(), rc);
     return abs(rc);
 }
 
@@ -525,10 +505,15 @@ int procheader(char *Name)
 	if (!*p) {
 	    /* alert - file name ended in with a / */
 	    Syslog('!', "%s: file name ends with a /, skipped: %s", protname(), Name);
-	    return ERROR;
+	    return ZFERR;
 	}
 	Name = p;
 	Syslog('z', "filename converted to \"%s\"", MBSE_SS(Name));
+    }
+
+    if (strlen(Name) > 80) {
+	Syslog('!', "%s: file name received is longer then 80 characters, skipped: %s", protname(), Name);
+	return ZFERR;
     }
 
     Syslog('z', "zmanag=%d", zmanag);

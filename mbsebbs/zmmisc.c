@@ -970,6 +970,9 @@ char *protname(void)
 
 
 
+/*
+ * Purge input, maximum wait time in n * 10 mSec.
+ */
 void purgeline(int howlong)
 {
     int		    c, count = 0;
@@ -991,6 +994,7 @@ void canit(int fd)
 {
     static char canistr[] = { 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0 };
 
+    Syslog('z', "%s: send canit to fd %d", protname(), fd);
     ioctl(fd, TCFLSH, 0);
     write(fd, canistr, strlen(canistr));
     if (fd == 0)

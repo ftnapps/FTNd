@@ -851,18 +851,26 @@ int Addfile(char *File, int AreaNum, int fileid)
 	}
 
 	memset(&fdb, 0, fdbhdr.recsize);
-	strcpy(fdb.LName, File);
+	strcpy(fdb.LName, File); /* LFN, currently real file */
 	strcpy(temp1, File);
 	name_mangle(temp1);
-	strcpy(fdb.Name, temp1);
+	strcpy(fdb.Name, temp1); /* 8.3 name */
 	fdb.Size = (long)(statfile.st_size);
 	fdb.FileDate = statfile.st_mtime;
 	fdb.Crc32 = file_crc(Filename, TRUE);
 	strcpy(fdb.Uploader, exitinfo.sUserName);
 	fdb.UploadDate = time(NULL);
 	if (strcmp(fdb.Name, fdb.LName)) {
+	    /*
+	     * Rename the file first to the 8.3 name, this is the
+	     * standard way to store files in the filebase.
+	     */
 	    sprintf(lname, "%s/%s", area.Path, fdb.Name);
-	    if (symlink(Filename, lname)) {
+	    rename(Filename, lname);
+	    /*
+	     * Then make a symlink to the 8.3 name
+	     */
+	    if (symlink(lname, Filename)) {
 		WriteError("$Can't create link %s to %s", lname, Filename);
 	    }
 	}
