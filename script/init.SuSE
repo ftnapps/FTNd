@@ -16,14 +16,14 @@ MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
 
 if [ "$MBSE_ROOT" = "" ]
 then
-        echo "MBSE BBS: No 'mbse' user in the password file."
-        exit 1
+    echo "MBSE BBS: No 'mbse' user in the password file."
+    exit 1
 fi
  
 if [ ! -d $MBSE_ROOT ]
 then
-        echo "MBSE BBS: Home directory '$MBSE_ROOT' not found."
-        exit 1
+    echo "MBSE BBS: Home directory '$MBSE_ROOT' not found."
+    exit 1
 fi
  
 export MBSE_ROOT
@@ -31,30 +31,36 @@ export MBSE_ROOT
 case "$1" in
     start)
         echo -n "MBSE BBS starting:"
-        rm -f $MBSE_ROOT/sema/*
-        rm -f $MBSE_ROOT/var/*.LCK
-	rm -f $MBSE_ROOT/tmp/mb*
-        su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
-        echo -n " mbtask"
-	sleep 2
-        if [ -f $MBSE_ROOT/etc/config.data ]; then
-                su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
-                echo " and opened the bbs."
+	if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+	    echo " already started"
 	else
+	    rm -f $MBSE_ROOT/sema/*
+	    rm -f $MBSE_ROOT/var/*.LCK
+	    rm -f $MBSE_ROOT/tmp/mb*
+	    su mbse -c '$MBSE_ROOT/bin/mbtask' >/dev/null
+	    echo -n " mbtask"
+	    sleep 2
+	    if [ -f $MBSE_ROOT/etc/config.data ]; then
+		su mbse -c '$MBSE_ROOT/bin/mbstat open -quiet'
+		echo " and opened the bbs."
+	    else
 		echo ""
-        fi
+	    fi
+	fi
 	;;
     stop)
         echo -n "MBSE BBS shutdown:"
-        if [ -f $MBSE_ROOT/etc/config.data ]; then
-                echo -n " logoff users "
-                su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-                echo -n "done,"
-        fi
-        echo -n " stopping mbtask "
-        killproc $MBSE_ROOT/bin/mbtask -15
-	sleep 3
-        echo "done."
+        if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+            echo -n " logoff users "
+            su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+            echo -n "done,"
+	    echo -n " stopping mbtask "
+	    killproc `cat $MBSE_ROOT/var/run/mbtask` -15
+	    sleep 3
+	    echo "done."
+	else
+	    echo "already stopped."
+	fi
 	;;
     restart|reload)
 	$0 stop
@@ -62,10 +68,10 @@ case "$1" in
 	;;
     status)
         echo -n "MBSE BBS status: "
-        if [ "`/sbin/pidof mbtask`" = "" ]; then
-                echo "mbtask is NOT running"
+        if [ ! -f $MBSE_ROOT/var/run/mbtask ]; then
+            echo "mbtask is NOT running"
         else
-                echo "mbtask Ok"
+            echo "mbtask Ok"
         fi
 	;;
     *)

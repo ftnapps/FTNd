@@ -652,6 +652,7 @@ int checktasks(int onsig)
 void die(int onsig)
 {
     int	    i, count;
+    time_t  now;
 
     T_Shutdown = TRUE;
     signal(onsig, SIG_IGN);
@@ -692,7 +693,12 @@ void die(int onsig)
     if (cmd_run || ping_run)
 	Syslog('+', "Waiting for threads to stop");
 
-    while (cmd_run || ping_run) {
+    /*
+     * Wait at most 2 seconds for the threads, internal they are
+     * build to stop within a second.
+     */
+    now = time(NULL) + 2;
+    while ((cmd_run || ping_run) && (time(NULL) < now)) {
 	sleep(1);
     }
 

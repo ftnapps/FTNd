@@ -50,12 +50,27 @@ start() {
 		
 stop() {
 
-       ebegin "Stopping mbse"
-       if [ -f $MBSE_ROOT/etc/config.data ]; then
-               echo -n "logoff users "
-               su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
-       fi
-       kill `pidof mbtask`
-       sleep 3
-       eend $? "Stopping error."
+	ebegin "Stopping mbse"
+	if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+		echo -n "logoff users "
+		su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+		echo -n " stopping mbtask"
+		kill `cat $MBSE_ROOT/var/run/mbtask`
+		i=10 
+		doit=1
+		while let 'i > 0' && let 'doit != 0'
+		do
+			if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+				echo -n "."
+				sleep 1
+				let i=i-1
+			else
+				doit=0
+			fi
+		done
+		if [ -f $MBSE_ROOT/var/run/mbtask ]; then
+			kill -9 `cat $MBSE_ROOT/var/run/mbtask`
+		fi
+	fi
+	eend $? "Stopping error."
 }

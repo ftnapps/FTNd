@@ -68,6 +68,9 @@ v0.39.3		26-Nov-2003
 	mbpasswd:
 		Fixed a small memory leak.
 
+	script:
+		Changed all init scripts to allow the slower stopping of mbtask
+
 
 v0.39.2		21-Nov-2003 - 26-Nov-2003
 

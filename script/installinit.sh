@@ -220,26 +220,33 @@ if [ "$DISTNAME" = "Slackware" ]; then
             echo "Removing old startup scripts"
             rm $MBSE_ROOT/bin/mbse.start $MBSE_ROOT/bin/mbse.stop $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
         fi
-	echo "Making links for start/stop in runlevel 3"
-        if [ -f /etc/rc.d/rc3.d/K05mbsed ]; then
-            rm /etc/rc.d/rc3.d/K05mbsed
-        fi
-        ln -s ../init.d/mbsed /etc/rc.d/rc3.d/K05mbsed
-        if [ -f /etc/rc.d/rc3.d/S95mbsed ]; then
-            rm /etc/rc.d/rc3.d/S95mbsed
-        fi
-        ln -s ../init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
-	echo "Making links for start/stop in runlevel 4"
-        if [ -f /etc/rc.d/rc4.d/K05mbsed ]; then
-            rm /etc/rc.d/rc4.d/K05mbsed
-        fi
-        ln -s ../init.d/mbsed /etc/rc.d/rc4.d/K05mbsed
-        if [ -f /etc/rc.d/rc4.d/S95mbsed ]; then
-            rm /etc/rc.d/rc4.d/S95mbsed
-        fi
-        ln -s ../init.d/mbsed /etc/rc.d/rc4.d/S95mbsed
-	echo "Slackware SystemV init configured"
-        log "+" "Slackware SystemV init configured"
+	if [ -d /var/log/setup ]; then
+	    cp setup.mbse /var/log/setup
+	    chmod 755 /var/log/setup/setup.mbse
+	    echo "Added setup script, as root use 'pkgtool' Setup to enable MBSE at boot"
+	    log "+" "Added Slackware setup script for use with pkgtool"
+	else
+	    echo "Making links for start/stop in runlevel 3"
+	    if [ -f /etc/rc.d/rc3.d/K05mbsed ]; then
+		rm /etc/rc.d/rc3.d/K05mbsed
+	    fi
+	    ln -s ../init.d/mbsed /etc/rc.d/rc3.d/K05mbsed
+	    if [ -f /etc/rc.d/rc3.d/S95mbsed ]; then
+		rm /etc/rc.d/rc3.d/S95mbsed
+	    fi
+	    ln -s ../init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
+	    echo "Making links for start/stop in runlevel 4"
+	    if [ -f /etc/rc.d/rc4.d/K05mbsed ]; then
+		rm /etc/rc.d/rc4.d/K05mbsed
+	    fi
+	    ln -s ../init.d/mbsed /etc/rc.d/rc4.d/K05mbsed
+	    if [ -f /etc/rc.d/rc4.d/S95mbsed ]; then
+		rm /etc/rc.d/rc4.d/S95mbsed
+	    fi
+	    ln -s ../init.d/mbsed /etc/rc.d/rc4.d/S95mbsed
+	    echo "Slackware SystemV init configured"
+	    log "+" "Slackware SystemV init configured"
+	fi
     fi
 fi
 
