@@ -4259,6 +4259,8 @@ v0.33.19        26-Oct-2001
 	SETUP.sh
 		Better grep to check for excisting usernames like bbs, mbse.
 		Ported to NetBSD.
+		Added support for xinetd configuration.
+		Changed distribution test for Mandrake.
 
 	libcommon.a:
 		When adding seenby entries, the zone number is copied from the

@@ -88,14 +88,16 @@ if [ "$OSTYPE" = "Linux" ]; then
 	    	DISTNAME="SuSE"
 	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
 	    else
-	    	if [ -f /etc/redhat-release ]; then
-		    DISTNAME="RedHat"
-		    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
-	        else
-		    if [ -f /etc/mandrake-release ]; then
-		    	DISTNAME="Mandrake"
-		    	# Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    	DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
+		# Mandrake test before RedHat, Mandrake has a redhat-release
+		# file also which is a symbolic link to mandrake-release.
+		if [ -f /etc/mandrake-release ]; then
+		    DISTNAME="Mandrake"
+		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
+		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
+		else
+		    if [ -f /etc/redhat-release ]; then
+			DISTNAME="RedHat"
+			DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
 		    else
 		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
 		    	    # If Slackware wasn't detected yet it is version 4.0 or older.

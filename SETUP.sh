@@ -81,14 +81,16 @@ if [ "$OSTYPE" = "Linux" ]; then
 	    	DISTNAME="SuSE"
 	    	DISTVERS=`cat /etc/SuSE-release | grep VERSION | awk '{ print $3 }'`
 	    else
-	    	if [ -f /etc/redhat-release ]; then
-		    DISTNAME="RedHat"
-		    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
-	    	else
-		    if [ -f /etc/mandrake-release ]; then
-		    	DISTNAME="Mandrake"
-		    	# Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    	DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
+		# Mandrake test before RedHat, Mandrake has a redhat-release
+		# file also which is a symbolic link to mandrake-release.
+		if [ -f /etc/mandrake-release ]; then
+		    DISTNAME="Mandrake"
+		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
+		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
+		else 
+		    if [ -f /etc/redhat-release ]; then
+		    	DISTNAME="RedHat"
+		    	DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
 		    else
 		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
 		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
@@ -312,7 +314,7 @@ if [ "$OSTYPE" = "Linux" ]; then
    if [ -f /etc/shadow ]; then
 	log "+" "Standard shadow password system"
 	# Not all systems are the same...
-	if [ "`grep -w bbs:\!\!: /etc/shadow`" != "" ]; then
+	if [ "`grep bbs:\!\!: /etc/shadow`" != "" ]; then
 		sed /bbs:\!\!:/s/bbs:\!\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
 	else
 		sed /bbs:\!:/s/bbs:\!:/bbs::/ /etc/shadow >/etc/shadow.bbs
@@ -410,7 +412,9 @@ if [ "$FIDO" = "TRUE" ] || [ "$BINKD" = "TRUE" ]; then
 fi
 
 
-if [ "`grep mbcico /etc/inetd.conf`" = "" ]; then
+if [ -f /etc/inetd.conf ]; then
+    log "+" "/etc/inetd.conf found, inetd system"
+    if [ "`grep mbcico /etc/inetd.conf`" = "" ]; then
 	echo -n "Modifying /etc/inetd.conf"
 	log "+" "Modifying /etc/inetd.conf"
 	mv /etc/inetd.conf /etc/inetd.conf.mbse
@@ -432,8 +436,56 @@ EOF
 		log "!" "Warning: no inetd.pid file found"
 	fi
 	echo ", done."
+    fi
 fi
 
+if [ -f /etc/xinetd.conf ]; then
+    log "+" "/etc/xinetd.conf found, xinetd system"
+    if [ -d /etc/xinetd.d ]; then
+	log "+" "has xinetd.d subdir, writing files"
+	XINET="/etc/xinetd.d/mbsebbs"
+    else
+	log "+" "appending to xinetd.conf"
+	XINET="/etc/xinetd.conf"
+    fi
+cat << EOF >> $XINET
+#:MBSE BBS services are defined here.
+
+service binkp
+{
+	socket_type	= stream
+	protocol	= tcp
+	wait		= no
+	user		= mbse
+	instances	= 10
+	server		= $MHOME/bin/mbcico
+	server-args	= -t ibn
+}
+
+service tfido
+{
+	socket_type	= stream
+	protocol	= tcp
+	wait		= no
+	user		= mbse
+	instances	= 10
+	server		= $MHOME/bin/mbcico
+	server-args	= -t itn
+}
+
+service fido
+{
+	socket_type	= stream
+	protocol	= tcp
+	wait		= no
+	user		= mbse
+	instances	= 10
+	server		= $MHOME/bin/mbcico
+	server-args	= -t ifc
+}
+EOF
+
+fi
 
 echo ""
 echo -n "Press Enter to continue"
