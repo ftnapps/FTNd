@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 21-Jan-2002</h5>
+<h5>Last update 01-May-2002</h5>
 <P>&nbsp;<P>
 
 <H1>mbfido, the fidonet mail and files processor.</H1>
@@ -136,6 +136,15 @@ contain a line: "Reply-To: jsmith@mbse.nl".
 <P>&nbsp;<P>
 
 <H3>Commands.</H3>
+<P>
+<code><strong>mbfido</strong> areas</code>
+This command will check all file and mail groups if areas files are defined and
+if the setting <b>Auto change</b> is set to Yes. Then the areafile is read and
+the areas in that file are compared with the defined areas. Missing areas are
+created and areas not in the areafile are removed or blocked depending if there
+are files or messages present in these areas. This is also a good command to
+create large bulks of new areas on your system.
+
 <P>
 <code><strong>mbfido</strong> mail &lt;recipient&gt;</code>
 This command is used by your MTA to deliver email addressed to for example
