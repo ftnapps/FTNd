@@ -444,8 +444,10 @@ void EditDomain(void)
 			if ((o - 10) >= 0)
 				o = o - 10;
 
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
 			EditDomainRec(atoi(pick));
+			o = ((atoi(pick) - 1) / 10) * 10;
+		}
 	}
 }
 

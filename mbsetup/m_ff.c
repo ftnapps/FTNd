@@ -404,8 +404,10 @@ void EditFilefind(void)
 			if ((o - 20) >= 0)
 				o = o - 20;
 
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
 			EditFfRec(atoi(pick));
+			o = ((atoi(pick) - 1) / 20) * 20;
+		}
 	}
 }
 

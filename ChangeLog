@@ -4318,6 +4318,8 @@ v0.33.19        26-Oct-2001
 		fetching of newsgroups headers.
 		The edit field now shows the contents correctly if the field
 		contains the % character.
+		In several menus after leaving a edit record records were
+		displayed from start again, now shows last screen.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/

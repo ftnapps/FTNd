@@ -394,8 +394,10 @@ void EditNGroup(void)
 			if ((o - 20) >= 0)
 				o = o - 20;
 
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
 			EditNGrpRec(atoi(pick));
+			o = ((atoi(pick) - 1) / 20) * 20;
+		}
 	}
 }
 
