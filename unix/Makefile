@@ -93,7 +93,7 @@ myname.o: ../config.h
 encrypt.o: ../config.h encrypt.h
 pwio.o: ../config.h sgetpwent.h commonio.h putpwent.h pwio.h
 shadowio.o: ../config.h commonio.h shadowio.h
-mbpasswd.o: ../config.h encrypt.h rad64.h myname.h xmalloc.h pwio.h shadowio.h pw_util.h mbpasswd.h
+mbpasswd.o: ../config.h encrypt.h rad64.h myname.h xmalloc.h pwio.h shadowio.h pw_util.h getdef.h mbpasswd.h
 mbuseradd.o: ../config.h mbuseradd.h
 rad64.o: ../config.h rad64.h
 getdef.o: ../config.h getdef.h
