@@ -114,7 +114,10 @@ file_list	    *tosend = NULL;		/* Files to send		    */
 file_list	    *respond = NULL;		/* Requests honored		    */
 binkp_list	    *bll = NULL;		/* Files to send with status	    */
 static binkp_list   *cursend = NULL;		/* Current file being transmitted   */
-
+    struct timeval      txtvstart;              /* Transmitter start time           */
+    struct timeval      txtvend;                /* Transmitter end time             */
+    struct timeval      rxtvstart;              /* Receiver start time              */
+    struct timeval      rxtvend;                /* Receiver end time                */
 
 struct binkprec {
     int			Role;			/* 1=orig, 0=answer		    */
@@ -145,8 +148,6 @@ struct binkprec {
     FILE		*rxfp;			/* Receiver file		    */
     off_t		rxbytes;		/* Receiver bytecount		    */
     int			rxpos;			/* Receiver position		    */
-    struct timeval	rxtvstart;		/* Receiver start time		    */
-    struct timeval	rxtvend;		/* Receiver end time		    */
     struct timezone	tz;			/* Timezone			    */
     int			DidSendGET;		/* Receiver send GET status	    */
 
@@ -155,8 +156,6 @@ struct binkprec {
     FILE		*txfp;			/* Transmitter file		    */
     int			txpos;			/* Transmitter position		    */
     int			stxpos;			/* Transmitter start position	    */
-    struct timeval	txtvstart;		/* Transmitter start time	    */
-    struct timeval	txtvend;		/* Transmitter end time		    */
 
     int			local_EOB;		/* Local EOB sent		    */
     int			remote_EOB;		/* Got EOB from remote		    */
@@ -939,7 +938,8 @@ TrType binkp_receiver(void)
     int		    bcmd, rc = 0;
     struct statfs   sfs;
     long	    written;
-    
+	off_t		rxbytes;
+
     Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
 
     if (bp.RxState == RxWaitF) {
@@ -1012,7 +1012,11 @@ TrType binkp_receiver(void)
     } else if (bp.RxState == RxAccF) {
         Syslog('b', "Binkp: got M_FILE \"%s\"", printable(bp.rxbuf +1, 0));
 	if (strlen(bp.rxbuf) < 512) {
-	    sscanf(bp.rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
+//	    sscanf(bp.rxbuf+1, "%s %ld %ld %ld", bp.rname, &bp.rsize, &bp.rtime, &bp.roffs);
+		sprintf(bp.rname, "%s", strtok(bp.rxbuf+1, " \n\r"));
+		bp.rsize = atoi(strtok(NULL, " \n\r"));
+		bp.rtime = atoi(strtok(NULL, " \n\r"));
+		bp.roffs = atoi(strtok(NULL, " \n\r"));
 	} else {
 	    /*
 	     * Corrupted command, in case this was serious, send the M_GOT back so it's
@@ -1028,8 +1032,10 @@ TrType binkp_receiver(void)
 	}
 	Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
 	(void)binkp2unix(bp.rname);
-	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &bp.rxbytes, binkp_resync);
-	
+	rxbytes = bp.rxbytes;
+	bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, binkp_resync);
+	bp.rxbytes = rxbytes;
+
 	if (bp.DidSendGET) {
 	    Syslog('b', "Binkp: DidSendGET is set");
 	    /*
@@ -1043,7 +1049,7 @@ TrType binkp_receiver(void)
 	    return Ok;
 	}
 
-	gettimeofday(&bp.rxtvstart, &bp.tz);
+	gettimeofday(&rxtvstart, &bp.tz);
 	bp.rxpos = bp.roffs;
 
 	if (!diskfree(CFG.freespace)) {
@@ -1154,8 +1160,9 @@ TrType binkp_receiver(void)
 	    rc = binkp_send_command(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 	    closefile();
 	    bp.rxpos = bp.rxpos - bp.rxbytes;
-	    gettimeofday(&bp.rxtvend, &bp.tz);
-	    Syslog('+', "Binkp: OK %s", transfertime(bp.rxtvstart, bp.rxtvend, bp.rxpos, FALSE));
+	    gettimeofday(&rxtvend, &bp.tz);
+Syslog('b', "4");
+	    Syslog('+', "Binkp: OK %s", transfertime(rxtvstart, rxtvend, bp.rxpos, FALSE));
 	    rcvdbytes += bp.rxpos;
 	    bp.RxState = RxWaitF;
 	    if (rc)
@@ -1312,7 +1319,7 @@ TrType binkp_transmitter(void)
 		    bp.TxState = TxDone;
 		    return Failure;
 		}
-		gettimeofday(&bp.txtvstart, &bp.tz);
+		gettimeofday(&txtvstart, &bp.tz);
 		tmp->state = Sending;
 		cursend = tmp;
 		bp.TxState = TxTryR;
@@ -1364,7 +1371,7 @@ TrType binkp_transmitter(void)
 	    /*
 	     * calculate time needed and bytes transferred
 	     */
-	    gettimeofday(&bp.txtvend, &bp.tz);
+	    gettimeofday(&txtvend, &bp.tz);
 
 	    /*
 	     * Close transmitter file
@@ -1374,9 +1381,9 @@ TrType binkp_transmitter(void)
 
 	    if (bp.txpos >= 0) {
 		bp.stxpos = bp.txpos - bp.stxpos;
-		Syslog('+', "Binkp: OK %s", transfertime(bp.txtvstart, bp.txtvend, bp.stxpos, TRUE));
+		Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, bp.stxpos, TRUE));
 	    } else {
-		Syslog('+', "Binkp: transmitter skipped file after %ld seconds", bp.txtvend.tv_sec - bp.txtvstart.tv_sec);
+		Syslog('+', "Binkp: transmitter skipped file after %ld seconds", txtvend.tv_sec - txtvstart.tv_sec);
 	    }
 
 	    cursend->state = IsSent;
@@ -1822,10 +1829,10 @@ int binkp_process_messages(void)
 
 			    if (bp.txpos >= 0) {
 				bp.stxpos = bp.txpos - bp.stxpos;
-				Syslog('+', "Binkp: OK %s", transfertime(bp.txtvstart, bp.txtvend, bp.stxpos, TRUE));
+				Syslog('+', "Binkp: OK %s", transfertime(txtvstart, txtvend, bp.stxpos, TRUE));
 			    } else {
 				Syslog('+', "Binkp: transmitter skipped file after %ld seconds", 
-					bp.txtvend.tv_sec - bp.txtvstart.tv_sec);
+					txtvend.tv_sec - txtvstart.tv_sec);
 			    }
 
 			    cursend->state = IsSent;
