@@ -61,6 +61,10 @@ int CountTtyinfo(void)
 	    ttyinfohdr.recsize = sizeof(ttyinfo);
 	    fwrite(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
 
+#if defined(__linux__)
+	    /*
+	     *  Only seen on Linux systems
+	     */
 	    for (i = 0; i < 20; i++) {
 		memset(&ttyinfo, 0, sizeof(ttyinfo));
 		sprintf(ttyinfo.comment, "Network port %d", i+11);
@@ -73,11 +77,15 @@ int CountTtyinfo(void)
 		fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
 		count++;
 	    }
+#endif
 
             for (i = 0; i < 20; i++) {
                 memset(&ttyinfo, 0, sizeof(ttyinfo));
 		sprintf(ttyinfo.comment, "Network port %d", i+1);
-                sprintf(ttyinfo.tty,     "ttyp%d", i);
+		if (i > 9)
+		    sprintf(ttyinfo.tty,     "ttyp%c", (i - 10) + 'a');
+		else
+                    sprintf(ttyinfo.tty,     "ttyp%d", i);
                 sprintf(ttyinfo.speed,   "10 mbit");
                 sprintf(ttyinfo.flags,   "IBN,IFC,XX");
                 ttyinfo.type = NETWORK;
@@ -87,7 +95,7 @@ int CountTtyinfo(void)
 		count++;
             }
 
-#ifdef __linux__
+#if defined(__linux__)
 	    /*
 	     * Linux has 6 virtual consoles
 	     */
@@ -103,7 +111,23 @@ int CountTtyinfo(void)
             }
 #endif
 
-#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__)
+#if defined(__FreeBSD__)
+            /*
+             * FreeBSD has 8 virtual consoles
+             */
+            for (i = 0; i < 8; i++) {
+                memset(&ttyinfo, 0, sizeof(ttyinfo));
+                sprintf(ttyinfo.comment, "Console port %d", i+1);
+                sprintf(ttyinfo.tty,     "ttyv%d", i);
+                sprintf(ttyinfo.speed,   "10 mbit");
+                ttyinfo.type = LOCAL;
+                ttyinfo.available = TRUE;
+                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+                count++;
+            }
+#endif
+
+#if defined(__OpenBSD__) || defined(__NetBSD__)
 	    /*
 	     * By default, xxxBSD systems have only one console
 	     */
