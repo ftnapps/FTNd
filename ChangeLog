@@ -82,6 +82,7 @@ v0.61.1		20-Jun-2004 - 11-Jul-2004
 		rulefile is deleted too.
 		When a new golded.inc file is written, only fidonet records
 		that are active are written.
+		When a file area is deleted, the file path wasn't removed.
 
 
 v0.61.0		06-Jun-2004 - 20-Jun-2004
