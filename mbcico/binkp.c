@@ -54,6 +54,7 @@
 #include "config.h"
 #include "md5b.h"
 #include "inbound.h"
+#include "mbcico.h"
 
 
 /*
@@ -77,6 +78,7 @@ static char *bstate[] = {
  */
 void		binkp_init(void);
 void		binkp_deinit(void);
+void		*binkp_readbuf(void);
 char		*unix2binkp(char *);
 char		*binkp2unix(char *);
 int		binkp_expired(void);
@@ -130,6 +132,10 @@ int		batchnr = 0, crc_errors = 0;
 unsigned char	*MD_challenge = NULL;		/* Received CRAM challenge data	    */
 int		ext_rand = 0;
 
+
+static int	read_state;
+
+
 struct binkprec {
     int			role;			/* 1=orig, 0=answer		    */
     int			RxState;		/* Receiver state		    */
@@ -160,6 +166,8 @@ struct binkprec	bp;				/* Global structure		    */
 
 void binkp_init(void)
 {
+    int	    frk;
+
     bp.rname = calloc(512, sizeof(char));
     bp.lname = calloc(512, sizeof(char));
     bp.gname = calloc(512, sizeof(char));
@@ -171,7 +179,15 @@ void binkp_init(void)
     bp.Major = 1;
     bp.Minor = 0;
     bp.DidSendGET = FALSE;
+
+    read_state = 0;
+
+    frk = pthread_create(&threads[0], NULL, binkp_readbuf, NULL);
+    Syslog('-', "pthread_create returnd %d", frk);
+
+    Syslog('+', "Binkp: init complete");
 }
+
 
 
 void binkp_deinit(void)
@@ -183,6 +199,29 @@ void binkp_deinit(void)
     if (bp.gname)
 	free(bp.gname);
 }
+
+
+
+/*
+ * Read buffer, executed in a second process
+ */
+void *binkp_readbuf(void)
+{
+    /*
+     * Just for testing
+     */
+    Syslog('!', "Entering binkp_readbuf");
+
+    while (TRUE) {
+	read_state++;
+	if (read_state > 20)
+	    read_state = 0;
+	usleep(100000);
+	Syslog('!', "readstate now %d", read_state);
+    }
+    Syslog('!', "SHOULD NOT BE HERE");
+}
+
 
 
 int binkp(int role)
@@ -1240,6 +1279,8 @@ int binkp_batch(file_list *to_send)
     while ((bp.RxState != RxDone) || (bp.TxState != TxDone)) {
 
 	Nopper();
+	Syslog('-', "read state %d", read_state);
+
 	if (binkp_expired()) {
 	    Syslog('!', "Binkp: Transfer timeout");
 	    Syslog('b', "Binkp: TxState=%s, RxState=%s, rxlen=%d", txstate[bp.TxState], rxstate[bp.RxState], rxlen);

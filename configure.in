@@ -136,6 +136,12 @@ if test "$result" = "yes"; then
   AC_CHECK_HEADERS(zlib.h,ZLIBSUP=Yes,ZLIBSUP=No)
 fi
 
+AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
+if test "$result" = "yes"; then
+  LIBS="$LIBS -lpthread"
+  AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
+fi
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_DIRENT
@@ -293,6 +299,8 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra zlib compression : ...... ${ZLIBSUP}
+    Posix threads : ............... ${PTHREADS}
+
 ])
 
 if test x$ac_cv_c_compiler_gnu = xyes ; then

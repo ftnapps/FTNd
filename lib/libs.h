@@ -83,6 +83,7 @@
 #include <setjmp.h>
 #include <grp.h>
 #include <sys/resource.h>
+#include <pthread.h>
 #ifdef	HAVE_ICONV_H
 #include <iconv.h>
 #endif
