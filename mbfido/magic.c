@@ -102,11 +102,13 @@ int GetMagicRec(int Typ, int First)
 {
     int	    Eof = FALSE, DoMagic = TRUE;
     int	    i;
-    char    *temp, *Magic, *p, *q, mask[256];
+    char    *temp, *p, *q, mask[256];
     FILE    *FeM;
 
     if (First)
 	MagicNr = 0;
+
+    Syslog('f', "GetMagicRec(%d, %s), MagicNr = %d", Typ, First ? "true":"false", MagicNr);
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
@@ -132,9 +134,8 @@ int GetMagicRec(int Typ, int First)
 
 	    if ((magic.Active) && (magic.Attrib == Typ) && (strcasecmp(magic.From, TIC.TicIn.Area) == 0)) {
 
-//		p = tl(magic.Mask);
-		Magic = xstrcpy(magic.Mask);
-		p = tl(Magic);
+		memset(&mask, 0, sizeof(mask));
+		p = magic.Mask;
 		q = mask;
 		*q++ = '^';
 		while ((*p) && (q < (mask + sizeof(mask) - 4))) {
@@ -152,7 +153,7 @@ int GetMagicRec(int Typ, int First)
 		}
 		*q++ = '$';
 		*q = '\0';
-		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(Magic), MBSE_SS(mask));
+		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(magic.Mask), MBSE_SS(mask));
 		if ((re_comp(mask)) == NULL) {
 		    if (re_exec(TIC.NewName))
 			Syslog('f', "Should matched using regexp");
@@ -161,7 +162,6 @@ int GetMagicRec(int Typ, int First)
 		} else {
 		    Syslog('f', "re_comp() failed");
 		}
-		free(Magic);
 
 		/*
 		 * Comparing of the filename must be done in 
