@@ -71,6 +71,7 @@ int outstat()
 	char		flstr[6];
 	time_t		age;
 	char		temp[81];
+	callstat        *cst;
 
 	if ((rc = scanout(each))) {
 		WriteError("Error scanning outbound, aborting");
@@ -79,11 +80,11 @@ int outstat()
 
 	if (!do_quiet) {
 		colour(10, 0);
-		printf("flavor       size age    address\n");
+		printf("flavor try      size age    address\n");
 		colour(3, 0);
 	}
 
-	Syslog('+', "Flavor      Size Age    Address");
+	Syslog('+', "Flavor Try      Size Age    Address");
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if ((tmp->flavors & F_FREQ) || (tmp->size) || 1) {
 			strcpy(flstr,"......");
@@ -94,9 +95,11 @@ int outstat()
 			if ((tmp->flavors) & F_FREQ  ) flstr[4]='R';
 			if ((tmp->flavors) & F_POLL  ) flstr[5]='P';
 
+			cst = getstatus(&(tmp->addr));
 			age = time(NULL);
 			age -= tmp->time;
-			sprintf(temp, "%s  %9lu %s %s", flstr, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
+			sprintf(temp, "%s %3d %9lu %s %s", flstr, cst->tryno, (long)tmp->size, 
+				str_time(age), ascfnode(&(tmp->addr), 0x1f));
 
 			if (!do_quiet)
 				printf("%s\n", temp);
@@ -317,6 +320,19 @@ int poll(faddr *addr, int stop)
 	}
 
 	return 0;
+}
+
+
+
+int reset(faddr *addr)
+{
+    if (addr == NULL)
+	return 0;
+
+    putstatus(addr, 0, 0);
+    CreateSema((char *)"scanout");
+
+    return 0;
 }
 
 

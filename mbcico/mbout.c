@@ -48,6 +48,7 @@ int		do_poll	  = FALSE;	/* Poll a node			    */
 int		do_req	  = FALSE;	/* Request files from a node	    */
 int		do_stat	  = FALSE;	/* Show outbound status		    */
 int		do_stop   = FALSE;	/* Stop polling a node		    */
+int		do_reset  = FALSE;	/* Reset node's try counter	    */
 int		e_pid = 0;		/* Pid of child			    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -129,10 +130,11 @@ void Help()
 	colour(9, 0);
 	printf("	Commands are:\n\n");
 	colour(3, 0);
-	printf("	a   att  <node> <flavor> <file>		Attach a file to a node\n");
-	printf("	n   node <node>				Show nodelist information\n");
-	printf("	p   poll <node> [node..node]		Poll node(s) (always crash)\n");
-	printf("	r   req  <node> <file> [file..file]	Request file(s) from node\n");
+	printf("	a   att   <node> <flavor> <file>	Attach a file to a node\n");
+	printf("	n   node  <node>			Show nodelist information\n");
+	printf("	p   poll  <node> [node..node]		Poll node(s) (always crash)\n");
+	printf("	req req   <node> <file> [file..file]	Request file(s) from node\n");
+	printf("	res reset <node>			Reset node(s) \"try\" counter\n");
 	printf("	sta stat				Show outbound status\n");
 	printf("	sto stop <node> [node..node]		Stop polling node(s)\n");
 	printf("\n");
@@ -207,8 +209,10 @@ int main(int argc, char *argv[])
 			do_node = TRUE;
 		if (!strncasecmp(argv[1], "p", 1))
 			do_poll = TRUE;
-		if (!strncasecmp(argv[1], "r", 1))
+		if (!strncasecmp(argv[1], "req", 3))
 			do_req = TRUE;
+		if (!strncasecmp(argv[1], "res", 3))
+			do_reset = TRUE;
 		if (!strncasecmp(argv[1], "sta", 3))
 			do_stat = TRUE;
 		if (!strncasecmp(argv[1], "sto", 3))
@@ -247,12 +251,12 @@ int main(int argc, char *argv[])
 	/*
 	 * Get node number from commandline
 	 */
-	if (do_attach || do_node || do_poll || do_stop || do_req) {
+	if (do_attach || do_node || do_poll || do_stop || do_req || do_reset) {
 		if (argc < 3)
 			Fatal((char *)"Not enough parameters");
 	}
 
-	if (do_attach || do_node || do_req) {
+	if (do_attach || do_node || do_req || do_reset) {
 		if ((addr = parsefaddr(argv[2])) == NULL)
 			Fatal((char *)"Unrecognizable address");
 	}
@@ -278,6 +282,14 @@ int main(int argc, char *argv[])
 		}
 		if (rc)
 			rc = 100;
+		die(rc);
+	}
+
+	if (do_reset) {
+		rc = reset(addr);
+		tidy_faddr(addr);
+		if (rc)
+		    rc += 100;
 		die(rc);
 	}
 
