@@ -321,6 +321,7 @@ void flush_dir(char *ndir)
 			nr = 'a';
 		    arcfile[strlen(arcfile) -1] = nr;
 		} else {
+		    Syslog('!', "Warning: archive filename extensions exhausted for today");
 		    break;
 		}
 	    } else if (CFG.maxarcsize && (fsize > (CFG.maxarcsize * 1024)) && (nr < maxnr)) {
@@ -354,6 +355,18 @@ void flush_dir(char *ndir)
 	}
 
 	fsize = file_size(arcfile);
+
+	/*
+	 * If arcfile names were exhausted then the file ending on a z could still
+	 * be in the outbound but truncated if it has been sent. Since we are
+	 * reusing that filename (not a good solution) we must erase it or the
+	 * archiver program will complain.
+	 */
+	if (fsize == 0L) {
+	    Syslog('m', "Erasing zero bytes file %s", arcfile);
+	    unlink(arcfile);
+	    Attach = TRUE;
+	}
 
 	if (first) {
 	    Syslog('+', "Pack ARCmail for %s, via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));

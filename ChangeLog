@@ -63,7 +63,10 @@ v0.35.05	19-Oct-2002
 		Email posted in the email box in full domain mode was refused
 		by SMTP servers because of bad address formatting.
 		Addex extra check to prevent overflow of arcmail packets
-		extension.
+		extension. This is logged with a warning when this happens.
+		If filenames were exhausted and the last one (ending on z) is
+		truncated in the outbound (has been sent already) it is erased
+		before the archiver is called to reuse that filename again.
 
 	mbtask:
 		Removed debug logging of "does" info.

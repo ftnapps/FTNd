@@ -93,6 +93,12 @@ mbcico:
 
 	N: Implement MD5 crypt in binkp protocol driver.
 
+	N: Doesn't poll internet nodes with non-standard ports when the
+	   FQDN:port is in the override field.
+
+	N: See if it is possible with binkp protocol to resume aborted
+	   transfers.
+
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
 
