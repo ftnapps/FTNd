@@ -314,17 +314,24 @@ int get_article(char *msgid, char *ftntag)
 {
 	char	cmd[81], *resp;
 	int	retval, done = FALSE;
-	FILE	*fp = NULL;
+	FILE	*fp = NULL, *dp;
+	char	dpath[PATH_MAX];
 
 	Syslog('n', "Get article %s, %s", msgid, ftntag);
 	if (!SearchMsgs(ftntag)) {
 		WriteError("Search message area %s failed", ftntag);
 		return RETVAL_ERROR;
 	}
+
+	sprintf(dpath, "%s/tmp/scannews.last", getenv("MBSE_ROOT"));
+	dp = fopen(dpath, "w");
+
 	IsDoing("Article %d", (news_in + 1));
 	sprintf(cmd, "ARTICLE %s\r\n", msgid);
+	fprintf(dp, "ARTICLE %s\n", msgid);
 	nntp_send(cmd);
 	resp = nntp_receive();
+	fprintf(dp, "%s\n", resp);
 	retval = atoi(strtok(resp, " "));
 	switch (retval) {
 		case 412:	WriteError("No newsgroup selected");
@@ -341,6 +348,8 @@ int get_article(char *msgid, char *ftntag)
 				}
 				while (done == FALSE) {
 					resp = nntp_receive();
+					fprintf(dp, resp);
+					fprintf(dp, "\n");
 					if ((strlen(resp) == 1) && (strcmp(resp, ".") == 0)) {
 						done = TRUE;
 					} else {
@@ -354,6 +363,7 @@ int get_article(char *msgid, char *ftntag)
 	IsDoing("Article %d", (news_in));
 	retval = rfc2ftn(fp, NULL);
 	fclose(fp);
+	fclose(dp);
 	return retval;
 }
 
