@@ -23,11 +23,29 @@ v0.35.05	19-Oct-2002
 
 	mbsebbs:
 		Email posted at the bbs was not signed with the signature.
+		Fixed the bug where the filearea number was lost. This was
+		caused when a user was logged off before the login procedure
+		was complete.
+		If user was displaying the whoson list and there was no
+		matching isdoing action then browsing will be displayed 
+		instead of system error.
+		Sends Unix name instead of long name to mbtask.
+		During login the OS and CPU type is displayed.
+
+	mbnewusr:
+		Sends Unix name instead of long name to mbtask.
+		During login the OS and CPU type is displayed.
+
+	mbmon:
+		In screen 1, username field decreased ro 8 characters and the
+		doing field is increased to 26 characters.
 
 	mbcico:
 		Fixed crash with incoming YooHoo session with bad password.
 		Still used the phone override fields for hostname override
 		with internet calls if there was something filled in.
+		For inbound sessions if the remote is listed in some nodelist,
+		mbtask is updated with the sysop name and location.
 
 	mbout:
 		The stat command now also shows what is on hold for a node

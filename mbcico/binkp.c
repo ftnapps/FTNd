@@ -69,6 +69,8 @@ static int	binkp_batch(file_list *, int);
 
 extern char	*ttystat[];
 extern int	Loaded;
+extern pid_t	mypid;
+
 
 extern unsigned long	sentbytes;
 extern unsigned long	rcvdbytes;
@@ -412,7 +414,7 @@ SM_STATE(waitconn)
 
     Loaded = FALSE;
     Syslog('+', "Start binkp session with %s", ascfnode(remote->addr, 0x1f));
-    IsDoing("Connect binkp %s", ascfnode(remote->addr, 0x1f));
+    IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
     b_banner(TRUE);
     binkp_send_control(MM_NUL,"OPT MB CRC");
 
@@ -660,6 +662,7 @@ SM_STATE(waitaddr)
 			if (inbound)
 			    free(inbound);
 			inbound = xstrcpy(CFG.inbound);
+			UserCity(mypid, nlent->sysop, nlent->location);
 			break;
 		    }
 		}
@@ -820,7 +823,7 @@ int binkp_batch(file_list *to_send, int role)
 
     batchnr++;
     Syslog('+', "Binkp: starting batch %d", batchnr);
-    IsDoing("Binkp %s %s", (role == 1)?"out":"inb", ascfnode(remote->addr, 0x1f));
+    IsDoing("Binkp %s %s", (role == 1)?"out":"inb", ascfnode(remote->addr, 0xf));
     txbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
     rname = calloc(512, sizeof(char));

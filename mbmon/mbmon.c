@@ -173,7 +173,7 @@ void system_moni(void)
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 6, "1.    SERVER CLIENTS");
 	set_color(YELLOW, RED);
-	mvprintw( 7, 1, "Pid   tty    user             program  city            doing              time ");
+	mvprintw( 7, 1, "Pid   tty    user     program  city            doing                      time ");
 	set_color(CYAN, BLACK);
 	center_addstr(LINES - 4, (char *)"Press any key");
 	IsDoing("System Monitor");
@@ -203,10 +203,10 @@ void system_moni(void)
 						cnt = strtok(buf, ",");
 						mvprintw(y, 1, (char *)"%.5s", strtok(NULL, ","));
 						mvprintw(y, 7, (char *)"%.6s", strtok(NULL, ","));
-						mvprintw(y,14, (char *)"%.16s", strtok(NULL, ","));
-						mvprintw(y,31, (char *)"%.8s", strtok(NULL, ","));
-						mvprintw(y,40, (char *)"%.15s", strtok(NULL, ","));
-						mvprintw(y,56, (char *)"%.18s", strtok(NULL, ","));
+						mvprintw(y,14, (char *)"%.8s", strtok(NULL, ","));
+						mvprintw(y,23, (char *)"%.8s", strtok(NULL, ","));
+						mvprintw(y,32, (char *)"%.15s", strtok(NULL, ","));
+						mvprintw(y,48, (char *)"%.26s", strtok(NULL, ","));
 						start = atoi(strtok(NULL, ";"));
 						now = time(NULL);
 						mvprintw(y,75, (char *)"%s", t_elapsed(start, now));

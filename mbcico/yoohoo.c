@@ -114,6 +114,7 @@ typedef struct   _Hello {
 
 
 extern int	Loaded;
+extern pid_t	mypid;
 
 Hello hello2;
 Hello gethello2(unsigned char[]);
@@ -166,6 +167,7 @@ int rx_yoohoo(void)
 		free(inbound);
 	    inbound = xstrcpy(CFG.inbound);
 	    strncpy(history.location, nlent->location, 35);
+	    UserCity(mypid, nlent->sysop, nlent->location);
 	}
 	if (nlent) 
 	    rdoptions(Loaded);

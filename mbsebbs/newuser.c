@@ -147,7 +147,6 @@ int newuser()
     } while (badname);
 
     strcpy(FullName, tlcap(temp));
-    UserCity(mypid, FullName, (char *)"Unknown");
 
     while (TRUE) {
 	Enter(1);
@@ -187,6 +186,7 @@ int newuser()
     sprintf(usrconfig.Password, "%s", temp2);
     alarm_on();
     sprintf(UnixName, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
+    UserCity(mypid, UnixName, (char *)"Unknown");
 
     strcpy(usrconfig.sUserName, FullName);
     strcpy(usrconfig.Name, UnixName);
@@ -297,7 +297,7 @@ int newuser()
 		Enter(1);
 	    } else {
 		strcpy(usrconfig.sLocation, temp);
-		UserCity(mypid, FullName, temp);
+		UserCity(mypid, UnixName, temp);
 		break;
 	    }
 	}

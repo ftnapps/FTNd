@@ -59,6 +59,8 @@ static int		txftsc(void);
 static int		recvfiles(void);
 static file_list	*tosend;
 extern int		Loaded;
+extern pid_t		mypid;
+
 
 
 int rx_ftsc(void)
@@ -365,131 +367,134 @@ SM_RETURN
 
 SM_DECL(recvfiles,(char *)"recvfiles")
 SM_STATES
-	recv_packet,
-	scan_packet,
-	recv_file
+    recv_packet,
+    scan_packet,
+    recv_file
 SM_NAMES
-	(char *)"recv_packet",
-	(char *)"scan_packet",
-	(char *)"recv_file"
+    (char *)"recv_packet",
+    (char *)"scan_packet",
+    (char *)"recv_file"
 SM_EDECL
-	int	rc=0;
-	char	recvpktname[16];
-	char	*fpath;
-	FILE	*fp;
-	faddr	f,t;
-	fa_list	**tmpl;
+    int	    rc=0;
+    char    recvpktname[16];
+    char    *fpath;
+    FILE    *fp;
+    faddr   f, t;
+    fa_list **tmpl;
 
 SM_START(recv_packet)
-	Loaded = FALSE;
+    Loaded = FALSE;
 
 SM_STATE(recv_packet)
 
-	sprintf(recvpktname,"%08lx.pkt",(unsigned long)sequencer());
-	if ((rc = xmrecv(recvpktname)) == 1) {
-		SM_SUCCESS;
-	} else if (rc == 0) {
-		if (master) {
-			SM_PROCEED(recv_file);
-		} else {
-			SM_PROCEED(scan_packet);
-		}
+    sprintf(recvpktname,"%08lx.pkt",(unsigned long)sequencer());
+    if ((rc = xmrecv(recvpktname)) == 1) {
+	SM_SUCCESS;
+    } else if (rc == 0) {
+	if (master) {
+	    SM_PROCEED(recv_file);
 	} else {
-		SM_ERROR;
+	    SM_PROCEED(scan_packet);
 	}
+    } else {
+	SM_ERROR;
+    }
 
 SM_STATE(scan_packet)
 
-	fpath = xstrcpy(inbound);
-	fpath = xstrcat(fpath,(char *)"/");
-	fpath = xstrcat(fpath,recvpktname);
-	fp = fopen(fpath,"r");
-	free(fpath);
-	if (fp == NULL) {
-		WriteError("$cannot open received packet");
+    fpath = xstrcpy(inbound);
+    fpath = xstrcat(fpath,(char *)"/");
+    fpath = xstrcat(fpath,recvpktname);
+    fp = fopen(fpath,"r");
+    free(fpath);
+    if (fp == NULL) {
+	WriteError("$cannot open received packet");
+	SM_ERROR;
+    }
+    switch (getheader(&f , &t, fp, recvpktname)) {
+	case 3:	Syslog('+', "remote mistook us for %s",ascfnode(&t,0x1f));
+		fclose(fp);
 		SM_ERROR;
-	}
-	switch (getheader(&f , &t, fp, recvpktname)) {
-		case 3:	Syslog('+', "remote mistook us for %s",ascfnode(&t,0x1f));
-			fclose(fp);
-			SM_ERROR;
-		case 0:	Syslog('+', "accepting session");
-			fclose(fp);
-			for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next));
-			(*tmpl)=(fa_list*)malloc(sizeof(fa_list));
-			(*tmpl)->next=NULL;
-			(*tmpl)->addr=(faddr*)malloc(sizeof(faddr));
-			(*tmpl)->addr->zone=f.zone;
-			(*tmpl)->addr->net=f.net;
-			(*tmpl)->addr->node=f.node;
-			(*tmpl)->addr->point=f.point;
-			(*tmpl)->addr->name=NULL;
-			(*tmpl)->addr->domain=NULL;
-			for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next)) {
-				(void)nodelock((*tmpl)->addr);
-				/* try lock all remotes, ignore locking result */
-				if (!Loaded)
-					if (noderecord((*tmpl)->addr))
-						Loaded = TRUE;
-			}
+	case 0:	Syslog('+', "accepting session");
+		fclose(fp);
+		for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next));
+		(*tmpl)=(fa_list*)malloc(sizeof(fa_list));
+		(*tmpl)->next=NULL;
+		(*tmpl)->addr=(faddr*)malloc(sizeof(faddr));
+		(*tmpl)->addr->zone=f.zone;
+		(*tmpl)->addr->net=f.net;
+		(*tmpl)->addr->node=f.node;
+		(*tmpl)->addr->point=f.point;
+		(*tmpl)->addr->name=NULL;
+		(*tmpl)->addr->domain=NULL;
+		for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next)) {
+		    (void)nodelock((*tmpl)->addr);
+		    /* try lock all remotes, ignore locking result */
+		    if (!Loaded)
+			if (noderecord((*tmpl)->addr))
+			    Loaded = TRUE;
+		}
 
-			history.aka.zone  = remote->addr->zone;
-			history.aka.net   = remote->addr->net;
-			history.aka.node  = remote->addr->node;
-			history.aka.point = remote->addr->point;
-			if (remote->addr->domain && strlen(remote->addr->domain))
-				sprintf(history.aka.domain, "%s", remote->addr->domain);
+		history.aka.zone  = remote->addr->zone;
+		history.aka.net   = remote->addr->net;
+		history.aka.node  = remote->addr->node;
+		history.aka.point = remote->addr->point;
+		if (remote->addr->domain && strlen(remote->addr->domain))
+		    sprintf(history.aka.domain, "%s", remote->addr->domain);
 	
-			if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
-				Syslog('+', "remote is a listed system");
-				if (inbound)
-					free(inbound);
-				inbound = xstrcpy(CFG.inbound);
-				strncpy(history.system_name, nlent->name, 35);
-				strncpy(history.location, nlent->location, 35);
-				strncpy(history.sysop, nlent->sysop, 35);
-			} else {
-				sprintf(history.system_name, "Unknown");
-				sprintf(history.location, "Somewhere");
-			}
+		if (((nlent=getnlent(remote->addr))) && (nlent->pflag != NL_DUMMY)) {
+		    Syslog('+', "remote is a listed system");
+		    if (inbound)
+			free(inbound);
+		    inbound = xstrcpy(CFG.inbound);
+		    strncpy(history.system_name, nlent->name, 35);
+		    strncpy(history.location, nlent->location, 35);
+		    strncpy(history.sysop, nlent->sysop, 35);
+		    UserCity(mypid, nlent->sysop, nlent->location);
+		} else {
+		    sprintf(history.system_name, "Unknown");
+		    sprintf(history.location, "Somewhere");
+		}
 
-			if (nlent) 
-				rdoptions(Loaded);
+		if (nlent) 
+		    rdoptions(Loaded);
 
-			/*
-			 * It appears that if the remote gave no password, the 
-			 * getheader function fills in a password itself. Maybe
-			 * that's the reason why E.C did not switch to protected
-			 * inbound, because of the failing password check. MB.
-			 */
-			if (f.name) {
-				Syslog('+', "Password correct, protected FTS-0001 session");
-				if (inbound)
-					free(inbound);
-				inbound = xstrcpy(CFG.pinbound);
-			}
+		/*
+		 * It appears that if the remote gave no password, the 
+		 * getheader function fills in a password itself. Maybe
+		 * that's the reason why E.C did not switch to protected
+		 * inbound, because of the failing password check. MB.
+		 */
+		if (f.name) {
+		    Syslog('+', "Password correct, protected FTS-0001 session");
+		    if (inbound)
+			free(inbound);
+		    inbound = xstrcpy(CFG.pinbound);
+		}
 
-			tosend = create_filelist(remote,(char *)ALL_MAIL,1);
-			if (rc == 0) {
-				SM_PROCEED(recv_file);
-			} else {
-				SM_SUCCESS;
-			}
-		default: Syslog('+', "received bad packet apparently from",ascfnode(&f,0x1f));
-			fclose(fp);
-			SM_ERROR;
-	}
+		tosend = create_filelist(remote,(char *)ALL_MAIL,1);
+		if (rc == 0) {
+		    SM_PROCEED(recv_file);
+		} else {
+		    SM_SUCCESS;
+		}
+		
+	default: 
+		Syslog('+', "received bad packet apparently from",ascfnode(&f,0x1f));
+		fclose(fp);
+		SM_ERROR;
+    }
 
 SM_STATE(recv_file)
 
-	switch (xmrecv(NULL)) {
-		case 0:		SM_PROCEED(recv_file); 
-				break;
-		case 1:		SM_SUCCESS; 
-				break;
-		default:	SM_ERROR; 
-				break;
-	}
+    switch (xmrecv(NULL)) {
+	case 0:	    SM_PROCEED(recv_file); 
+		    break;
+	case 1:	    SM_SUCCESS; 
+		    break;
+	default:    SM_ERROR; 
+		    break;
+    }
 
 SM_END
 SM_RETURN

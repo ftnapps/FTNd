@@ -58,6 +58,7 @@ static char *intro;
 static int caller;
 
 extern int	most_debug;
+extern pid_t	mypid;
 
 int	emsi_local_lcodes;
 int	emsi_remote_lcodes;
@@ -137,6 +138,7 @@ int rx_emsi(char *data)
 	    if (inbound)
 		free(inbound);
 	    inbound = xstrcpy(CFG.inbound);
+	    UserCity(mypid, nlent->sysop, nlent->location);
 	    break;
 	}
     if (nlent) 

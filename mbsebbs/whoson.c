@@ -173,10 +173,11 @@ void WhosOn(char *OpData)
 		    /* WhosOn List */
 		    printf("%-15s", (char *) Language(428));
 		else if (strstr(isdoing, "Offline"))
-		    /* Idle */
+		    /* Offline Reader */
 		    printf("%-15s", (char *) Language(429));
 		else
-		    printf("System error   ");
+		    /* Browsing */ /* This is default when nothing matches */
+		    printf("%-15s", (char *) Language(418));
 
 		colour(LIGHTRED, BLACK);
 		printf("%-25s\n", location);
@@ -253,7 +254,6 @@ void WhosDoingWhat(int iStatus)
 			break;
     }
     IsDoing(temp);
-	
     free(temp);
 }
 

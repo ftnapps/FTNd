@@ -203,331 +203,335 @@ void user()
 	    grecno++;
     }
 							
-	if (!FoundName) {
-	    printf("Unknown username: %s\n", sUnixName);
-	    /* FATAL ERROR: You are not in the BBS users file.*/
-	    printf("%s\n", (char *) Language(389));
-	    /* Please run 'newuser' to create an account */
-	    printf("%s\n", (char *) Language(390));
-	    Syslog('?', "FATAL: Could not find user in BBS users file.");
-	    Syslog('?', "       and system is using unix accounts\n");
-	    ExitClient(MBERR_OK);
+    if (!FoundName) {
+	printf("Unknown username: %s\n", sUnixName);
+	/* FATAL ERROR: You are not in the BBS users file.*/
+	printf("%s\n", (char *) Language(389));
+	/* Please run 'newuser' to create an account */
+	printf("%s\n", (char *) Language(390));
+	Syslog('?', "FATAL: Could not find user in BBS users file.");
+	Syslog('?', "       and system is using unix accounts\n");
+	ExitClient(MBERR_OK);
+    }
+
+    /*
+     * Copy username, split first and lastname.
+     */
+    strcpy(UserName, usrconfig.sUserName);
+    if ((strchr(UserName,' ') == NULL && !CFG.iOneName)) {
+	token = strtok(UserName, " ");
+  	strcpy(FirstName, token);
+  	token = strtok(NULL, "\0");
+	i = strlen(token);
+	for(x = 2; x < i; x++) {
+	    if (token[x] == ' ')
+		token[x] = '\0';
 	}
+	strcpy(LastName, token);
+    } else
+	strcpy(FirstName, UserName);
+    strcpy(UserName, usrconfig.sUserName);
+    Syslog('+', "%s On-Line at %s", UserName, ttyinfo.comment);
+    IsDoing("Just Logged In");
 
-	/*
-	 * Copy username, split first and lastname.
-	 */
-	strcpy(UserName, usrconfig.sUserName);
-	if ((strchr(UserName,' ') == NULL && !CFG.iOneName)) {
-		token = strtok(UserName, " ");
-  		strcpy(FirstName, token);
-  		token = strtok(NULL, "\0");
-		i = strlen(token);
-		for(x = 2; x < i; x++) {
-			if(token[x] == ' ')
-				token[x] = '\0';
-		}
-	 	strcpy(LastName, token);
-	} else
-		strcpy(FirstName, UserName);
-	strcpy(UserName, usrconfig.sUserName);
-	Syslog('+', "%s On-Line at %s", UserName, ttyinfo.comment);
-	IsDoing("Just Logged In");
+    /*
+     * Check some essential files, create them if they don't exist.
+     */
+    ChkFiles();
 
-	/*
-	 * Check some essential files, create them if they don't exist.
-	 */
- 	ChkFiles();
+    /*
+     * Setup users favourite language.
+     */
+    Set_Language(usrconfig.iLanguage);
+    Free_Language();
+    InitLanguage();
 
-	/*
-	 * Setup users favourite language.
-	 */
-	Set_Language(usrconfig.iLanguage);
-	Free_Language();
-	InitLanguage();
+    /*
+     * User logged in, tell it to the server. Check if a location is
+     * set, if Ask User location for new users is off, this field is
+     * empty but we have to send something to the server.
+     */
+    if (strlen(usrconfig.sLocation))
+	UserCity(mypid, usrconfig.Name, usrconfig.sLocation);
+    else
+	UserCity(mypid, usrconfig.Name, (char *)"N/A");
 
-	/*
-	 * User logged in, tell it to the server. Check if a location is
-	 * set, if Ask User location for new users is off, this field is
-	 * empty but we have to send something to the server.
-	 */
-	if (strlen(usrconfig.sLocation))
-	    UserCity(mypid, usrconfig.sUserName, usrconfig.sLocation);
-	else
-	    UserCity(mypid, usrconfig.sUserName, (char *)"N/A");
+    /*
+     * Set last file and message area so these numbers are saved when
+     * the user hangs up or is logged off before het gets to the main
+     * menu. Later in this function the areas are set permanent.
+     */
+    iAreaNumber = usrconfig.iLastFileArea;
+    iMsgAreaNumber = usrconfig.iLastMsgArea;
 
+    /*
+     * See if this user is the Sysop.
+     */
+    strcpy(temp, UserName);
+    strcpy(temp1, CFG.sysop_name);
+    if ((strcasecmp(CFG.sysop_name, UserName)) == 0) {
 	/*
-	 * Set last file and message area so these numbers are saved when
-	 * the user hangs up or is logged off before het gets to the main
-	 * menu. Later in this function the areas are set permanent.
+	 * If login name is sysop, set SYSOP true 
 	 */
-	iAreaNumber = usrconfig.iLastFileArea;
-	iLastMsgArea = usrconfig.iLastMsgArea;
+	SYSOP = TRUE;
+	Syslog('+', "Sysop is online");
+    }
 
-	/*
-	 * See if this user is the Sysop.
+    /*
+     * Is this a new user?
+     */
+    if (usrconfig.iTotalCalls == 0)
+	IsNew = TRUE;
+
+    TermInit(usrconfig.GraphMode);
+
+    /*
+     * Pause after logo screen.
+     */
+    alarm_on();
+    Pause();
+
+    if (usrconfig.Archiver[0] == '\0') {
+	usrconfig.Archiver[0] = 'Z';
+	usrconfig.Archiver[1] = 'I';
+	usrconfig.Archiver[2] = 'P';
+	Syslog('+', "Setup default archiver ZIP");
+    }
+
+    /*
+     * Check users date format. We do it strict as we
+     * need this to be good for several other purposes.
+     * If it is correct, the users age is set in UserAge
+     */
+    if (!Test_DOB(usrconfig.sDateOfBirth)) {
+	Syslog('!', "Error in Date of Birth");
+	Chg_DOB();
+	strcpy(usrconfig.sDateOfBirth, exitinfo.sDateOfBirth);
+    }
+
+    /*
+     * Check to see if user must expire
+     */
+    sprintf(temp,"%s", (char *) GetDateDMY());
+    SwapDate(temp, usrconfig.sExpiryDate);
+
+    /* Convert Date1 & Date2 to longs for compare */
+    l1 = atol(Date1);
+    l2 = atol(Date2);
+
+    if (l1 >= l2 && l2 != 0) {
+	/* 
+	 * If Expiry Date is the same as today expire to 
+	 * Expire Sec level
 	 */
-	strcpy(temp, UserName);
-	strcpy(temp1, CFG.sysop_name);
-	if ((strcasecmp(CFG.sysop_name, UserName)) == 0) {
-		/*
-		 * If login name is sysop, set SYSOP true 
-		 */
-		SYSOP = TRUE;
-		Syslog('+', "Sysop is online");
+	usrconfig.Security = usrconfig.ExpirySec;
+	Syslog('!', "User is expired, resetting level");
+	/*
+	 * Show texfile to user telling him about this.
+	 */
+	DisplayFile((char *)"expired");
+    }
+
+    free(Date1); 
+    free(Date2);
+
+    /* 
+     * Copy limits.data into memory
+     */
+    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+
+    if ((pLimits = fopen(temp,"rb")) == NULL) {
+	WriteError("$Can't open %s", temp);
+    } else {
+	fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
+
+	while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
+ 	    if (LIMIT.Security == usrconfig.Security.level) {
+		iFoundLimit = TRUE;
+		break;
+	    }
 	}
+	fclose(pLimits);
+    }
 
+    if (!iFoundLimit) {
+	WriteError("Unknown Security Level in limits.data");
+	usrconfig.iTimeLeft = 0; /* Could not find limit, so set to Zero */
+	usrconfig.iTimeUsed = 0; /* Set to Zero as well  */
+    } else {
 	/*
-	 * Is this a new user?
-	 */
-	if (usrconfig.iTotalCalls == 0)
-	    IsNew = TRUE;
-
-	TermInit(usrconfig.GraphMode);
-
-	/*
-	 * Pause after logo screen.
-	 */
-	alarm_on();
-	Pause();
-
-	if (usrconfig.Archiver[0] == '\0') {
-		usrconfig.Archiver[0] = 'Z';
-		usrconfig.Archiver[1] = 'I';
-		usrconfig.Archiver[2] = 'P';
-		Syslog('+', "Setup default archiver ZIP");
-	}
-
-	/*
-	 * Check users date format. We do it strict as we
-	 * need this to be good for several other purposes.
-	 * If it is correct, the users age is set in UserAge
-	 */
-	if (!Test_DOB(usrconfig.sDateOfBirth)) {
-		Syslog('!', "Error in Date of Birth");
-		Chg_DOB();
-		strcpy(usrconfig.sDateOfBirth, exitinfo.sDateOfBirth);
-	}
-
-	/*
-	 * Check to see if user must expire
+	 * Give user new time limit everyday, also new users get a new limit.
 	 */
 	sprintf(temp,"%s", (char *) GetDateDMY());
-	SwapDate(temp, usrconfig.sExpiryDate);
+	if (((strcmp(StrDateDMY(usrconfig.tLastLoginDate), temp)) != 0) || IsNew) {
+	    /*
+	     *  If no timelimit set give user 24 hours.
+	     */
+	    if (LIMIT.Time)
+		usrconfig.iTimeLeft = LIMIT.Time;
+	    else
+		usrconfig.iTimeLeft = 86400;
+	    usrconfig.iTimeUsed    = 0;          /* Set time used today to Zero       */
+	    usrconfig.iConnectTime = 0;	     /* Set connect time to Zero          */
 
-	/* Convert Date1 & Date2 to longs for compare */
-	l1 = atol(Date1);
-	l2 = atol(Date2);
-
-	if (l1 >= l2 && l2 != 0) {
-		/* 
-		 * If Expiry Date is the same as today expire to 
-		 * Expire Sec level
-		 */
-		usrconfig.Security = usrconfig.ExpirySec;
-		Syslog('!', "User is expired, resetting level");
-		/*
-		 * Show texfile to user telling him about this.
-		 */
-		DisplayFile((char *)"expired");
+	    /*
+	     * Give user new bytes and files every day if needed.
+	     */
+	    if (LIMIT.DownK && LIMIT.DownF) {
+		usrconfig.DownloadKToday = LIMIT.DownK;
+		usrconfig.DownloadsToday = LIMIT.DownF;
+	    }
 	}
+    } /* End of else  */
 
-	free(Date1); 
-	free(Date2);
+    usrconfig.iConnectTime = 0;
 
-	/* 
-	 * Copy limits.data into memory
-	 */
-	sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    /* Copy Users Protocol into Memory */
+    Set_Protocol(usrconfig.sProtocol);
+    tlf(usrconfig.sProtocol);
 
-	if ((pLimits = fopen(temp,"rb")) == NULL) {
-		WriteError("$Can't open %s", temp);
-	} else {
-		fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
+    /* 
+     * Set last login Date and Time, copy previous session
+     * values in memory.
+     */
+    sprintf(LastLoginDate, "%s", StrDateDMY(usrconfig.tLastLoginDate));
+    sprintf(LastLoginTime, "%s", StrTimeHMS(usrconfig.tLastLoginDate));
+    LastLogin = usrconfig.tLastLoginDate;
+    usrconfig.tLastLoginDate = ltime; /* Set current login to current date */
+    usrconfig.iTotalCalls++;
 
-		while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
- 			if (LIMIT.Security == usrconfig.Security.level) {
-				iFoundLimit = TRUE;
-				break;
-			}
-		}
-		fclose(pLimits);
-	}
+    /*
+     * Update user record.
+     */
+    if (fseek(pUsrConfig, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), 0) != 0) {
+	WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
+    } else {
+	fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
+	fclose(pUsrConfig);
+    }
 
-	if (!iFoundLimit) {
-		WriteError("Unknown Security Level in limits.data");
-		usrconfig.iTimeLeft = 0; /* Could not find limit, so set to Zero */
-		usrconfig.iTimeUsed = 0; /* Set to Zero as well  */
-	} else {
-		/*
-		 * Give user new time limit everyday, also new users get a new limit.
-		 */
-		sprintf(temp,"%s", (char *) GetDateDMY());
-		if (((strcmp(StrDateDMY(usrconfig.tLastLoginDate), temp)) != 0) || IsNew) {
-			/*
-			 *  If no timelimit set give user 24 hours.
-			 */
-			if (LIMIT.Time)
-				usrconfig.iTimeLeft = LIMIT.Time;
-			else
-				usrconfig.iTimeLeft = 86400;
-			usrconfig.iTimeUsed    = 0;          /* Set time used today to Zero       */
-			usrconfig.iConnectTime = 0;	     /* Set connect time to Zero          */
+    /*
+     * Write users structure to tmp file in ~/home/unixname/exitinfo
+     * A copy of the userrecord is also in the variable exitinfo.
+     */
+    if (! InitExitinfo())
+	Good_Bye(MBERR_INIT_ERROR);
 
-			/*
-			 * Give user new bytes and files every day if needed.
-			 */
-			if (LIMIT.DownK && LIMIT.DownF) {
-				usrconfig.DownloadKToday = LIMIT.DownK;
-				usrconfig.DownloadsToday = LIMIT.DownF;
-			}
-		}
-	} /* End of else  */
+    GetLastUser();
+    StartTime = xstrcpy(GetLocalHM());
+    ChangeHomeDir(exitinfo.Name, exitinfo.Email);
 
-	usrconfig.iConnectTime = 0;
+    Syslog('+', "User successfully logged into BBS");
+    Syslog('+', "Level %d (%s), %d mins. left, port %s", usrconfig.Security.level, LIMIT.Description, usrconfig.iTimeLeft, pTTY);
+    Time2Go = time(NULL);
+    Time2Go += usrconfig.iTimeLeft * 60;
+    iUserTimeLeft = exitinfo.iTimeLeft;
 
-	/* Copy Users Protocol into Memory */
-	Set_Protocol(usrconfig.sProtocol);
-	tlf(usrconfig.sProtocol);
+    IsDoing("Welcome screens");
+    DisplayFile((char *)"mainlogo");
+    DisplayFile((char *)"welcome");
 
-	/* 
-	 * Set last login Date and Time, copy previous session
-	 * values in memory.
-	 */
-	sprintf(LastLoginDate, "%s", StrDateDMY(usrconfig.tLastLoginDate));
-	sprintf(LastLoginTime, "%s", StrTimeHMS(usrconfig.tLastLoginDate));
-	LastLogin = usrconfig.tLastLoginDate;
-	usrconfig.tLastLoginDate = ltime; /* Set current login to current date */
-	usrconfig.iTotalCalls++;
+    /*
+     * The following files are only displayed if the user has
+     * turned the Bulletins on.
+     */
+    if (exitinfo.ieNEWS) {
+	DisplayFile((char *)"welcome1");
+	DisplayFile((char *)"welcome2");
+	DisplayFile((char *)"welcome3");
+	DisplayFile((char *)"welcome4");
+	DisplayFile((char *)"welcome5");
+	DisplayFile((char *)"welcome6");
+	DisplayFile((char *)"welcome7");
+	DisplayFile((char *)"welcome8");
+	DisplayFile((char *)"welcome9");
+
+	sprintf(temp, "%s", (char *) GetDateDMY() );
+	if ((strcmp(exitinfo.sDateOfBirth, temp)) == 0)
+	    DisplayFile((char *)"birthday");
 
 	/*
-	 * Update user record.
+	 * Displays file if it exists DD-MM.A??
 	 */
-	if (fseek(pUsrConfig, usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize), 0) != 0) {
-		WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
-	} else {
-		fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
-		fclose(pUsrConfig);
-	}
-
-	/*
-	 * Write users structure to tmp file in ~/home/unixname/exitinfo
-	 * A copy of the userrecord is also in the variable exitinfo.
-	 */
-	if (! InitExitinfo())
-	    Good_Bye(MBERR_INIT_ERROR);
-
-	GetLastUser();
-	StartTime = xstrcpy(GetLocalHM());
-	ChangeHomeDir(exitinfo.Name, exitinfo.Email);
-
-	Syslog('+', "User successfully logged into BBS");
-	Syslog('+', "Level %d (%s), %d mins. left, port %s", 
-		usrconfig.Security.level, LIMIT.Description, usrconfig.iTimeLeft, pTTY);
-	Time2Go = time(NULL);
-	Time2Go += usrconfig.iTimeLeft * 60;
-	iUserTimeLeft = exitinfo.iTimeLeft;
-
-	DisplayFile((char *)"mainlogo");
-	DisplayFile((char *)"welcome");
-
-	/*
-	 * The following files are only displayed if the user has
-	 * turned the Bulletins on.
-	 */
-	if (exitinfo.ieNEWS) {
-		DisplayFile((char *)"welcome1");
-		DisplayFile((char *)"welcome2");
-		DisplayFile((char *)"welcome3");
-		DisplayFile((char *)"welcome4");
-		DisplayFile((char *)"welcome5");
-		DisplayFile((char *)"welcome6");
-		DisplayFile((char *)"welcome7");
-		DisplayFile((char *)"welcome8");
-		DisplayFile((char *)"welcome9");
-
-		sprintf(temp, "%s", (char *) GetDateDMY() );
-		if ((strcmp(exitinfo.sDateOfBirth, temp)) == 0)
-			DisplayFile((char *)"birthday");
-
-		/*
-		 * Displays file if it exists DD-MM.A??
-		 */
-		sprintf(temp, "%s", (char *) GetDateDMY());
-		strcpy(temp1, "");
-		strncat(temp1, temp, 5);
-		sprintf(temp, "%s", temp1);
-		DisplayFile(temp);
+	sprintf(temp, "%s", (char *) GetDateDMY());
+	strcpy(temp1, "");
+	strncat(temp1, temp, 5);
+	sprintf(temp, "%s", temp1);
+	DisplayFile(temp);
 	
-		/*
-		 * Displays users security file if it exists
-		 */
-		sprintf(temp, "sec%d", exitinfo.Security.level);
-		DisplayFile(temp);
-
-		/*
-		 * Display News file
-		 */
-		DisplayFile((char *)"news");
-	}
+	/*
+	 * Displays users security file if it exists
+	 */
+	sprintf(temp, "sec%d", exitinfo.Security.level);
+	DisplayFile(temp);
 
 	/*
-	 * Display Onceonly file, first get the date of that
-	 * file, search order is the same as in DisplayFile()
+	 * Display News file
 	 */
-	st.st_mtime = 0;
-	if (exitinfo.GraphMode) {
-		sprintf(temp, "%s/onceonly.ans", lang.TextPath);
-		stat(temp, &st);
-		if (st.st_mtime == 0) {
-			sprintf(temp, "%s/onceonly.ans", CFG.bbs_txtfiles);
-			stat(temp, &st);
-		}
-	}
+	DisplayFile((char *)"news");
+    }
+
+    /*
+     * Display Onceonly file, first get the date of that
+     * file, search order is the same as in DisplayFile()
+     */
+    st.st_mtime = 0;
+    if (exitinfo.GraphMode) {
+	sprintf(temp, "%s/onceonly.ans", lang.TextPath);
+	stat(temp, &st);
 	if (st.st_mtime == 0) {
-		sprintf(temp, "%s/onceonly.asc", lang.TextPath);
-		stat(temp, &st);
-		if (st.st_mtime == 0) {
-			sprintf(temp, "%s/onceonly.asc", CFG.bbs_txtfiles);
-			stat(temp, &st);
-		}
+	    sprintf(temp, "%s/onceonly.ans", CFG.bbs_txtfiles);
+	    stat(temp, &st);
 	}
+    }
+    if (st.st_mtime == 0) {
+	sprintf(temp, "%s/onceonly.asc", lang.TextPath);
+	stat(temp, &st);
+	if (st.st_mtime == 0) {
+	    sprintf(temp, "%s/onceonly.asc", CFG.bbs_txtfiles);
+	    stat(temp, &st);
+	}
+    }
 
-	if ((st.st_mtime != 0) && (LastLogin < st.st_mtime))
-		DisplayFile((char *)"onceonly");
+    if ((st.st_mtime != 0) && (LastLogin < st.st_mtime))
+	DisplayFile((char *)"onceonly");
 	
-	OLR_SyncTags();
+    OLR_SyncTags();
 
-	if (exitinfo.MailScan)
-		CheckMail();
+    if (exitinfo.MailScan) {
+	IsDoing("New mail check");
+	CheckMail();
+    }
 
-	/*
-	 * We don't show new files to new users.
-	 */
-	if (exitinfo.ieFILE && (!IsNew))
-		NewfileScan(FALSE);
+    /*
+     * We don't show new files to new users.
+     */
+    if (exitinfo.ieFILE && (!IsNew)) {
+	IsDoing("New files check");
+	NewfileScan(FALSE);
+    }
+    
+    /* 
+     * Copy last file Area in to current Area 
+     */
+    SetFileArea(exitinfo.iLastFileArea);
 
-	/* 
-	 * Copy last file Area in to current Area 
-	 */
-	SetFileArea(exitinfo.iLastFileArea);
+    /*
+     * Copy Last Message Area in to Current Msg Area
+     */
+    SetMsgArea(usrconfig.iLastMsgArea);
+    SetEmailArea((char *)"mailbox");
 
-	/*
-	 * Copy Last Message Area in to Current Msg Area
-	 */
-	SetMsgArea(usrconfig.iLastMsgArea);
-	SetEmailArea((char *)"mailbox");
+    /*
+     * Set or Reset the DoNotDisturb flag, now is the time
+     * we may be interrupted.
+     */
+    UserSilent(usrconfig.DoNotDisturb);
 
-	/*
-	 * Set or Reset the DoNotDisturb flag, now is the time
-	 * we may be interrupted.
-	 */
-	UserSilent(usrconfig.DoNotDisturb);
-
-	/*
-	 * Start the menu.
-	 */
-       	menu();
+    /*
+     * Start the menu.
+     */
+    menu();
 }
 
 

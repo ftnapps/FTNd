@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 	DisplayLogo();
 
 	colour(YELLOW, BLACK);
-	printf("MBSE BBS v%s (Release: %s)\n", VERSION, ReleaseDate);
+	printf("MBSE BBS v%s (Release: %s) on %s/%s\n", VERSION, ReleaseDate, OsName(), OsCPU());
 	colour(WHITE, BLACK);
 	printf("%s\n\n", COPYRIGHT);
  
