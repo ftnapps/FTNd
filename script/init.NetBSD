@@ -1,0 +1,111 @@
+#!/bin/sh
+#
+# $Id$
+#
+
+# PROVIDE: mbsebbs
+# REQUIRE: root beforenetlkm mountcritlocal tty
+
+#	it does not really require beforenetlkm.
+
+. /etc/rc.subr
+
+name="mbsebbs"
+rcvar=$name
+start_cmd="mbsebbs_start"
+stop_cmd="mbsebbs_stop"
+reload_cmd="mbsebbs_reload"
+extra_commands="reload"
+
+
+mbsebbs_start()
+{
+    echo -n "Starting mbsebbs:"
+
+    # Find the MBSE_ROOT from the /etc/passwd file.
+    MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+
+    if [ "${MBSE_ROOT}" = "" ]
+    then
+	echo " no 'mbse' user in the password file."
+	return
+    fi
+
+    if [ ! -d ${MBSE_ROOT} ]
+    then
+	echo " home directory '${MBSE_ROOT}' not found."
+	return
+    fi
+
+    export MBSE_ROOT
+
+    if [ ! -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	rm -f ${MBSE_ROOT}/sema/*
+	rm -f ${MBSE_ROOT}/var/*.LCK
+	rm -f ${MBSE_ROOT}/tmp/mb*
+	su mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	echo -n " mbtask"
+	sleep 2
+	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
+	    su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    echo -n ", opened bbs"
+	fi
+    else
+	echo " is already running"
+    fi
+}
+
+mbsebbs_stop()
+{
+    echo -n "Stopping mbsebbs:"
+
+    # Find the MBSE_ROOT from the /etc/passwd file.
+    MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+    
+    if [ "${MBSE_ROOT}" = "" ]; then
+	echo " no 'mbse' user in the password file."
+	return
+    fi
+
+    if [ ! -d ${MBSE_ROOT} ]
+    then
+	echo " home directory '${MBSE_ROOT}' not found."
+	return
+    fi
+
+    export MBSE_ROOT
+
+    if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	echo -n " logoff users"
+	su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
+	kill -15 `cat ${MBSE_ROOT}/var/run/mbtask`
+	sleep 1
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    echo -n "."
+	    sleep 1
+	fi
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    echo -n "."
+	    sleep 1
+	fi
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    echo -n "."
+	    sleep 1
+	fi
+	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
+	    kill -9 `cat ${MBSE_ROOT}/var/run/mbtask`
+	fi
+	echo " done"
+    else
+	echo " was not running"
+    fi
+}
+
+mbsebbs_reload()
+{
+    mbsebbs_start
+    mbsebbs_stop
+}
+
+load_rc_config $name
+run_rc_command "$1"
