@@ -740,6 +740,7 @@ char *GetFileType(char *fn)
 	if (memcmp(buf, "THNL", 4) == 0)		return (char *)"ThumbNail";
 	if ((memcmp(buf, "<html>", 6) == 0) ||
 	    (memcmp(buf, "<HTML>", 6) == 0))		return (char *)"HTML";
+	if (memcmp(buf, "MSCF", 4) == 0)		return (char *)"CAB";
 	if (memcmp(buf, "BZ", 2) == 0)			return (char *)"BZIP";
 
 	/*
