@@ -100,6 +100,7 @@ extern int		pots_lines;		/* POTS lines available	*/
 extern int		isdn_lines;		/* ISDN lines available */
 extern int		pots_free;		/* POTS lines free	*/
 extern int		isdn_free;		/* ISDN lines free	*/
+extern pp_list		*pl;			/* List of tty ports	*/
 
 
 
@@ -836,7 +837,7 @@ void scheduler(void)
     struct passwd   *pw;
     int		    running = 0, rc, i, rlen, found;
     static int      LOADhi = FALSE, oldmin = 70, olddo = 70, oldsec = 70;
-    char            *cmd = NULL, opts[41];
+    char            *cmd = NULL, opts[41], port[21];
     static char	    doing[32], buf[2048];
     time_t          now;
     struct tm       *tm, *utm;
@@ -847,6 +848,7 @@ void scheduler(void)
     int		    call_work = 0;
     static int	    call_entry = MAXTASKS;
     double	    loadavg[3];
+    pp_list	    *tpl;
 
     InitFidonet();
 
@@ -1147,17 +1149,14 @@ void scheduler(void)
 			    call_entry = 0;
 			else
 			    call_entry++;
-//			tasklog('c', "Call entry rotaded to %d", call_entry);
+
 			/*
 			 * If a valid entry, and not yet calling, and the retry time is reached,
 			 * then launch a callprocess for this node.
 			 */
-//			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling) {
-//			    tasklog('o', "trytime %lu, now %lu", calllist[call_entry].cst.trytime, now);
-//			}
 			if (calllist[call_entry].addr.zone && !calllist[call_entry].calling && 
 				(calllist[call_entry].cst.trytime < now)) {
-			    if ((calllist[call_entry].callmode == CM_INET) && (runtasktype(CM_INET) < TCFG.max_tcp)) {
+			    if ((calllist[call_entry].callmode == CM_INET) && (runtasktype(CM_INET) < TCFG.max_tcp) && internet) {
 				found = TRUE;
 				break;
 			    }
@@ -1170,6 +1169,7 @@ void scheduler(void)
 				break;
 			    }
 			}
+
 			/*
 			 * Safety counter, if all systems are already calling, we should
 			 * never break out of this loop anymore.
@@ -1179,15 +1179,30 @@ void scheduler(void)
 			    break;
 		    }
 		    if (found) {
-//			tasklog('c', "Should launch slot %d node %s", call_entry, ascfnode(calllist[call_entry].addr, 0x1f));
-			/*
-			 * FIXME: here we should check if there are multiple ISDN or POTS lines which of the
-			 * lines matches the flags to call that node and use the most simple device.
-			 * The mbcico should be called with the instruction which line to use.
-			 */
 			cmd = xstrcpy(pw->pw_dir);
 			cmd = xstrcat(cmd, (char *)"/bin/mbcico");
-			sprintf(opts, "f%u.n%u.z%u", calllist[call_entry].addr.node, calllist[call_entry].addr.net,
+			/*
+			 * For ISDN or POTS, select a free tty device.
+			 */
+			switch (calllist[call_entry].callmode) {
+			    case CM_ISDN:   for (tpl = pl; tpl; tpl = tpl->next) {
+						if (!tpl->locked && (tpl->dflags  & calllist[call_entry].diflags)) {
+						    sprintf(port, "-l %s ", tpl->tty);
+						    break;
+						}
+					    }
+					    break;
+			    case CM_POTS:   for (tpl = pl; tpl; tpl = tpl->next) {
+						if (!tpl->locked && (tpl->mflags  & calllist[call_entry].moflags)) {
+						    sprintf(port, "-l %s ", tpl->tty);
+						    break;
+						}
+					    }
+					    break;
+			    default:	    port[0] = '\0';
+					    break;
+			}
+			sprintf(opts, "%sf%u.n%u.z%u", port, calllist[call_entry].addr.node, calllist[call_entry].addr.net,
 				calllist[call_entry].addr.zone);
 			calllist[call_entry].taskpid = launch(cmd, opts, (char *)"mbcico", calllist[call_entry].callmode);
 			if (calllist[call_entry].taskpid)

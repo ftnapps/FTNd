@@ -1,7 +1,10 @@
+/* $Id$ */
+
 #ifndef CALLSTAT_H
 #define CALLSTAT_H
 
 
+#define ST_PORTOK	0
 #define	ST_PORTERR	1
 #define	ST_NOCONN	2
 #define	ST_MDMERR	3

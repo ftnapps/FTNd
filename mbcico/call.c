@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -69,8 +69,8 @@ int checkretry(callstat *st)
 
 int portopen(faddr *addr)
 {
-	char	*p, *q;
-	int	rc, speed;
+	char	*p;
+	int	rc;
 	pp_list	*pl = NULL, *tmp;
 
 	if (inetaddr) {
@@ -87,33 +87,23 @@ int portopen(faddr *addr)
 	if (forcedline) {
 		Syslog('d', "portopen forcedline %s", forcedline);
 		p = forcedline;
-		if ((q = strchr(p, ':'))) { /* Note: DIT KAN WEG ! */
-			*q++ = '\0';
-			if ((*q == 'l') || (*q == 'L'))
-				speed=atoi(++q);
-			else {
-				speed = atoi(q);
-				if (nlent->speed < speed)
-					speed = nlent->speed;
-			}
-		}
 
 		if (load_port(p)) {
-			speed = ttyinfo.portspeed;
-			rc = openport(p,speed);
-			if (rc) {
+			if ((rc = openport(p, ttyinfo.portspeed))) {
 				Syslog('+', "Cannot open port %s",p);
 				nodeulock(addr);
 				putstatus(addr, 10, ST_PORTERR);
 				return ST_PORTERR;
 			}
-			return 0;
+			return ST_PORTOK;
 		} else {
 			nodeulock(addr);
 			putstatus(addr, 0, ST_PORTERR);
 			return ST_PORTERR;
 		}
 	}
+
+	WriteError("call.c portopen(): should not be here");
 
 	if (make_portlist(nlent, &pl) == 0) {
 		WriteError("No matching ports defined");
@@ -126,8 +116,7 @@ int portopen(faddr *addr)
 		if (load_port(tmp->tty)) {
 			Syslog('+', "Port %s at %ld, modem %s", ttyinfo.tty, ttyinfo.portspeed, modem.modem);
 			p = xstrcpy(tmp->tty);
-			speed = ttyinfo.portspeed;
-			rc = openport(p, speed);
+			rc = openport(p, ttyinfo.portspeed);
 			free(p);
 			if (rc == 0) {
 				tidy_pplist(&pl);
@@ -146,7 +135,7 @@ int portopen(faddr *addr)
 
 int call(faddr *addr)
 {
-	int		i, j, rc = 1;
+	int		i, rc = 1;
 	callstat	*st;
 	struct hostent	*he;
 
@@ -261,12 +250,12 @@ int call(faddr *addr)
 	}
 
 	if (((nlent->oflags & OL_CM) == 0) && (!IsZMH())) {
-		if (!forcedcalls) {
-			Syslog('d', "Node is ZMH only and it is not ZMH");
-			nodeulock(addr);
-			putstatus(addr,0,ST_NOTZMH);
-			return ST_NOTZMH;
-		}
+//		if (!forcedcalls) {
+//			Syslog('d', "Node is ZMH only and it is not ZMH");
+//			nodeulock(addr);
+//			putstatus(addr,0,ST_NOTZMH);
+//			return ST_NOTZMH;
+//		}
 		Syslog('?', "Warning: calling MO system outside ZMH");
 	}
 
@@ -280,26 +269,26 @@ int call(faddr *addr)
 	 * Over TCP/IP we don't do a delay because the node we are
 	 * connecting can't be busy. Also forced calls don't delay.
 	 */
-	Syslog('d', "delay=%d inetaddr=%s immediatecall=%s", 
-			CFG.dialdelay, inetaddr?"true":"false", immediatecall?"true":"false");
-	if ((CFG.dialdelay > 10) && (!inetaddr) && (!immediatecall)) {
-		/*
-		 *  Generate a random number between CFG.dialdelay and
-		 *  CFG.dialdelay / 10, minimum value is 10.
-		 */
-		srand(getpid());
-		while (TRUE) {
-			j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
-			if ((j > (CFG.dialdelay / 10)) && (j > 9))
-				break;
-		}
-		Syslog('d', "Dial delay %d seconds", j);
-
-		for (i = j; i > 0; i--) {
-			IsDoing("Delay %d seconds", i);
-			sleep(1);
-		}
-	}
+//	Syslog('d', "delay=%d inetaddr=%s immediatecall=%s", 
+//			CFG.dialdelay, inetaddr?"true":"false", immediatecall?"true":"false");
+//	if ((CFG.dialdelay > 10) && (!inetaddr) && (!immediatecall)) {
+//		/*
+//		 *  Generate a random number between CFG.dialdelay and
+//		 *  CFG.dialdelay / 10, minimum value is 10.
+//		 */
+//		srand(getpid());
+//		while (TRUE) {
+//			j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
+//			if ((j > (CFG.dialdelay / 10)) && (j > 9))
+//				break;
+//		}
+//		Syslog('d', "Dial delay %d seconds", j);
+//
+//		for (i = j; i > 0; i--) {
+//			IsDoing("Delay %d seconds", i);
+//			sleep(1);
+//		}
+//	}
 
 	if (nodelock(addr)) {
 		Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));

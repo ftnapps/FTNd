@@ -247,6 +247,7 @@ int main(int argc, char *argv[])
 						usage();
 						die(101);
 					}
+					WriteError("commandline option -r is obsolete");
 					break;
 
 			case 'l':	forcedline = optarg; 
@@ -372,8 +373,11 @@ int main(int argc, char *argv[])
 		if (!diskfree(CFG.freespace))
 			die(101);
 
-		if (callist == NULL) 
-			callist = callall();
+		if (callist == NULL) {
+			WriteError("Calling mbcico without node address not supported anymore");
+			die(101);
+		}
+//			callist = callall();
 
 		for (tmpl = &callist; *tmpl; tmpl = &((*tmpl)->next)) {
 			callno++;
@@ -387,9 +391,9 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-		if (callist == NULL) 
-			if (IsSema((char *)"scanout"))
-				RemoveSema((char *)"scanout");
+//		if (callist == NULL) 
+//			if (IsSema((char *)"scanout"))
+//				RemoveSema((char *)"scanout");
 	} else {
 		/* slave */
 		if (!answermode && tcp_mode == TCPMODE_IBN)

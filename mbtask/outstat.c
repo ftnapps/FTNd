@@ -35,6 +35,7 @@
 #include "scanout.h"
 #include "nodelist.h"
 #include "callstat.h"
+#include "ports.h"
 #include "outstat.h"
 
 
@@ -50,6 +51,7 @@ _alist_l		*alist = NULL;	    /* Nodes to call list	*/
 extern int		s_do_inet;	    /* Internet wanted		*/
 extern int		pots_lines;	    /* POTS lines available	*/
 extern int		isdn_lines;	    /* ISDN lines available	*/
+extern pp_list		*pl;		    /* Available ports		*/
 
 
 
@@ -192,6 +194,7 @@ int outstat()
     time_t	    now;
     struct tm	    *tm;
     int		    uhour, umin, thour, tmin;
+    pp_list	    *tpl;
 
     now = time(NULL);
     tm = gmtime(&now); /* UTC time */
@@ -393,27 +396,36 @@ int outstat()
 
 	    if ((tmp->callmode == CM_NONE) && isdn_lines) {
 		/*
-		 * ISDN node
+		 * If any matching port found, mark node ISDN
 		 */
-		isdn_calls++;
-		tmp->callmode = CM_ISDN;
-		break;
+		for (tpl = pl; tpl; tpl = tpl->next) {
+		    if (tmp->diflags & tpl->dflags) {
+			isdn_calls++;
+			tmp->callmode = CM_ISDN;
+			break;
+		    }
+		}
 	    }
 
 	    if ((tmp->callmode == CM_NONE) && pots_lines) {
 		/*
-		 * POTS node
+		 * If any matching ports found, mark node POTS
 		 */
-		pots_calls++;
-		tmp->callmode = CM_POTS;
-		break;
+		for (tpl = pl; tpl; tpl = tpl->next) {
+		    if (tmp->moflags & tpl->mflags) {
+			pots_calls++;
+			tmp->callmode = CM_POTS;
+			break;
+		    }
+		}
 	    }
 
 	    /*
-	     * Here we are out of options.
+	     * Here we are out of options, clear callflag.
 	     */
 	    if (tmp->callmode == CM_NONE) {
 		tasklog('!', "No method to call %s available", ascfnode(tmp->addr, 0x0f));
+		tmp->flavors &= ~F_CALL;
 	    }
 	}
 	
