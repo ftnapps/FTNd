@@ -182,8 +182,8 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 			fprintf(fp, "%d\r\n", exitinfo.Security.level);
 			fprintf(fp, "%d\r\n", exitinfo.iTotalCalls);
 			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Seconds	*/
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft / 60);	/* Minutes	*/
+			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);	/* Seconds	*/
+			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Minutes	*/
 			fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics	*/
 			fprintf(fp, "%d\r\n", exitinfo.iScreenLen);
 			fprintf(fp, "N\r\n");		/* User mode, always N	*/

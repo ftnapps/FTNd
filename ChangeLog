@@ -112,6 +112,7 @@ v0.37.01	14-Jan-2003.
 		The menus are machine endian independant.
 		Maybe removed a bug where the bbs sometimes crashed during
 		mail reading.
+		Fixed some minor things to the door.sys file.
 
 	examples:
 		The English and Dutch templates are updated to show the new
