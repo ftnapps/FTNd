@@ -2,7 +2,7 @@
  *
  * File ..................: setup/m_users.c
  * Purpose ...............: Edit Users
- * Last modification date : 19-Oct-2001
+ * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -37,6 +37,7 @@
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
+#include "m_lang.h"
 #include "m_global.h"
 #include "m_archive.h"
 #include "m_protocol.h"
@@ -182,109 +183,236 @@ int AppendUsers(void)
 
 void Screen1(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "15. EDIT USER");
-	set_color(CYAN, BLACK);
-	mvprintw( 4,21, "First login");
-	mvprintw( 5,21, "Last login");
-	mvprintw( 6, 2, "1.  Full Name");
-	mvprintw( 7, 2, "2.  Handle");
-	mvprintw( 8, 2, "3.  Location");
-	mvprintw( 9, 2, "4.  Address 1");
-	mvprintw(10, 2, "5.  Address 2");
-	mvprintw(11, 2, "6.  Address 3");
-	mvprintw(12, 2, "7.  Voicephone");
-	mvprintw(13, 2, "8.  Dataphone");
-	mvprintw(14, 2, "9.  Security");
-	mvprintw(15, 2, "10. Birthdate");
-	mvprintw(16, 2, "11. Expirydate");
-	mvprintw(17, 2, "12. Expiry Sec");
-	mvprintw(18, 2, "13. Unix uid");
-	mvprintw(19, 2, "14. Comment");
+        clr_index();
+        set_color(WHITE, BLACK);
+        mvprintw( 4, 2, "15. EDIT USER");
+        set_color(CYAN, BLACK);
+        mvprintw( 6, 2, "1.  Full Name");
+        mvprintw( 7, 2, "2.  Security");
+        mvprintw( 8, 2, "3.  Expirydate");
+        mvprintw( 9, 2, "4.  Expiry Sec");
+        mvprintw(10, 2, "5.  Unix name");
+	mvprintw(11, 2, "    1st login");
+	mvprintw(12, 2, "    Last login");
+	mvprintw(13, 2, "    Pwdchange");
+        mvprintw(14, 2, "6.  Credit");
+        mvprintw(15, 2, "7.  Hidden");
+	mvprintw(16, 2, "8.  Deleted");
+	mvprintw(17, 2, "9.  No Kill");
+	mvprintw(18, 2, "10. Comment");
 
-	mvprintw(12,37, "15. Password");
-	mvprintw(13,37, "16. Sex");
-	mvprintw(14,37, "17. Credit");
-	mvprintw(15,37, "18. Protocol");
-	mvprintw(16,37, "19. Archiver");
-	mvprintw(17,37, "20. Hidden");
-	mvprintw(18,37, "21. Hotkeys");
-
-	mvprintw( 4,63, "22. Color");
-	mvprintw( 5,63, "23. Deleted");
-	mvprintw( 6,63, "24. No Kill");
-	mvprintw( 7,63, "25. Fs Chat");
-	mvprintw( 8,63, "26. Locked");
-	mvprintw( 9,63, "27. Silent");
-	mvprintw(10,63, "28. CLS");
-	mvprintw(11,63, "29. More");
-	mvprintw(12,63, "30. Fs Edit");
-	mvprintw(13,63, "31. MailScan");
-	mvprintw(14,63, "32. Guest");
-	mvprintw(15,63, "33. ShowNews");
-	mvprintw(16,63, "34. NewFiles");
-	mvprintw(17,63, "35. Ext Info");
-	mvprintw(18,63, "36. Email");
+        mvprintw( 6,54, "11. Locked");
+        mvprintw( 7,54, "12. Guest");
+        mvprintw( 8,54, "13. Ext Info");
+        mvprintw( 9,54, "14. Email");
+	mvprintw(10,54, "    Calls");
+	mvprintw(11,54, "    Downlds");
+	mvprintw(12,54, "    Down Kb");
+	mvprintw(13,54, "    Uploads");
+	mvprintw(14,54, "    Upload Kb");
+	mvprintw(15,54, "    Posted");
+	mvprintw(16,54, "15. Screen 2");
 }
 
 
 
 void Fields1(void)
 {
-	char	Date[30];
-	struct	tm *ld;
+        char    Date[30];
+        struct  tm *ld;
+
+        set_color(WHITE, BLACK);
+	show_str( 6,17,35, usrconfig.sUserName);
+	show_int( 7,17,    usrconfig.Security.level);
+	show_str( 8,17,10, usrconfig.sExpiryDate);
+	show_int( 9,17,    usrconfig.ExpirySec.level);
+	show_str(10,17, 8, usrconfig.Name);
+	
+        ld = localtime(&usrconfig.tFirstLoginDate);
+        sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+                ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
+        show_str(11,17,19, Date);
+        ld = localtime(&usrconfig.tLastLoginDate);
+        sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+                ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
+        show_str(12,17,19, Date);
+	ld = localtime(&usrconfig.tLastPwdChange);
+	sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday,
+		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
+	show_str(13,17,19, Date);
+	
+        show_int( 14,17,    usrconfig.Credit);
+        show_bool(15,17,    usrconfig.Hidden);
+	show_bool(16,17,    usrconfig.Deleted);
+	show_bool(17,17,    usrconfig.NeverDelete);
+	show_str( 18,17,63, usrconfig.sComment);
+
+        show_bool( 6,68, usrconfig.LockedOut);
+        show_bool( 7,68, usrconfig.Guest);
+        show_bool( 8,68, usrconfig.OL_ExtInfo);
+        show_bool( 9,68, usrconfig.Email);
+	show_int( 10,68, usrconfig.iTotalCalls);
+	show_int( 11,68, usrconfig.Downloads);
+	show_int( 12,68, usrconfig.DownloadK);
+	show_int( 13,68, usrconfig.Uploads);
+	show_int( 14,68, usrconfig.UploadK);
+	show_int( 15,68, usrconfig.iPosted);
+}
+
+
+
+void Screen2(void)
+{
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 4, 2, "15. EDIT USER PRIVATE SETTINGS");
+	set_color(CYAN, BLACK);
+	mvprintw( 6, 2, "1.  Handle");
+	mvprintw( 7, 2, "2.  Location");
+	mvprintw( 8, 2, "3.  Address 1");
+	mvprintw( 9, 2, "4.  Address 2");
+	mvprintw(10, 2, "5.  Address 3");
+	mvprintw(11, 2, "6.  Voicephone");
+	mvprintw(12, 2, "7.  Dataphone");
+	mvprintw(13, 2, "8.  Birthdate");
+	mvprintw(14, 2, "9.  Password");
+	mvprintw(15, 2, "10. Sex");
+	mvprintw(16, 2, "11. Protocol");
+	mvprintw(17, 2, "12. Archiver");
+	mvprintw(18, 2, "13. Screenlen");
+
+	mvprintw( 6,63, "14. Language");
+	mvprintw( 7,63, "15. Hotkeys");
+	mvprintw( 8,63, "16. Color");
+	mvprintw( 9,63, "17. Fs Chat");
+	mvprintw(10,63, "18. Silent");
+	mvprintw(11,63, "19. CLS");
+	mvprintw(12,63, "20. More");
+	mvprintw(13,63, "21. Fs Edit");
+	mvprintw(14,63, "22. MailScan");
+	mvprintw(15,63, "23. ShowNews");
+	mvprintw(16,63, "24. NewFiles");
+	mvprintw(17,63, "25. Emacs");
+}
+
+
+
+void Fields2(void)
+{
+	char	temp[4];
 
 	set_color(WHITE, BLACK);
-	ld = localtime(&usrconfig.tFirstLoginDate);
-	sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday, 
-		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
-	show_str( 4,33,19, Date);
-	ld = localtime(&usrconfig.tLastLoginDate);
-	sprintf(Date, "%02d-%02d-%04d %02d:%02d:%02d", ld->tm_mday, 
-		ld->tm_mon+1, ld->tm_year + 1900, ld->tm_hour, ld->tm_min, ld->tm_sec);
-	show_str( 5,33,19, Date);
-	show_str( 6,17,35, usrconfig.sUserName);
-	show_str( 7,17,35, usrconfig.sHandle);
-	show_str( 8,17,27, usrconfig.sLocation);
-	show_str( 9,17,40, usrconfig.address[0]);
-	show_str(10,17,40, usrconfig.address[1]);
-	show_str(11,17,40, usrconfig.address[2]);
-	show_str(12,17,19, usrconfig.sVoicePhone);
-	show_str(13,17,19, usrconfig.sDataPhone);
-	show_int(14,17,    usrconfig.Security.level);
-	show_str(15,17,10, usrconfig.sDateOfBirth);
-	show_str(16,17,10, usrconfig.sExpiryDate);
-	show_int(17,17,    usrconfig.ExpirySec.level);
-	show_str(18,17, 8, usrconfig.Name);
-	show_str(19,17,63, usrconfig.sComment);
+	show_str( 6,17,35, usrconfig.sHandle);
+	show_str( 7,17,27, usrconfig.sLocation);
+	show_str( 8,17,40, usrconfig.address[0]);
+	show_str( 9,17,40, usrconfig.address[1]);
+	show_str(10,17,40, usrconfig.address[2]);
+	show_str(11,17,19, usrconfig.sVoicePhone);
+	show_str(12,17,19, usrconfig.sDataPhone);
+	show_str(13,17,10, usrconfig.sDateOfBirth);
 
 	if (usrconfig.iPassword == 0)
-		show_str(12,50,12, (char *)"Invalid");
+		show_str(14,17,12, (char *)"Invalid");
 	else
-		show_str(12,50,12, (char *)"********");
-	show_str( 13,50, 7,usrconfig.sSex);
-	show_int( 14,50,   usrconfig.Credit);
-	show_str( 15,50,12,usrconfig.sProtocol);
-	show_str( 16,50, 5,usrconfig.Archiver);
-	show_bool(17,50,   usrconfig.Hidden);
-	show_bool(18,50,   usrconfig.HotKeys);
+		show_str(14,17,12, (char *)"********");
+	show_str( 15,17, 7,usrconfig.sSex);
+	show_str( 16,17,12,usrconfig.sProtocol);
+	show_str( 17,17, 5,usrconfig.Archiver);
+	show_int( 18,17,   usrconfig.iScreenLen);
 
-	show_bool( 4,76, usrconfig.GraphMode);
-	show_bool( 5,76, usrconfig.Deleted);
-	show_bool( 6,76, usrconfig.NeverDelete);
-	show_bool( 7,76, usrconfig.Chat);
-	show_bool( 8,76, usrconfig.LockedOut);
-	show_bool( 9,76, usrconfig.DoNotDisturb);
-	show_bool(10,76, usrconfig.Cls);
-	show_bool(11,76, usrconfig.More);
-	show_bool(12,76, usrconfig.FsMsged);
-	show_bool(13,76, usrconfig.MailScan);
-	show_bool(14,76, usrconfig.Guest);
-	show_bool(15,76, usrconfig.ieNEWS);
-	show_bool(16,76, usrconfig.ieFILE);
-	show_bool(17,76, usrconfig.OL_ExtInfo);
-	show_bool(18,76, usrconfig.Email);
+	sprintf(temp, "%c",usrconfig.iLanguage);
+	show_str(  6,76,1, temp);
+	show_bool( 7,76,   usrconfig.HotKeys);
+	show_bool( 8,76,   usrconfig.GraphMode);
+	show_bool( 9,76,   usrconfig.Chat);
+	show_bool(10,76,   usrconfig.DoNotDisturb);
+	show_bool(11,76,   usrconfig.Cls);
+	show_bool(12,76,   usrconfig.More);
+	show_bool(13,76,   usrconfig.FsMsged);
+	show_bool(14,76,   usrconfig.MailScan);
+	show_bool(15,76,   usrconfig.ieNEWS);
+	show_bool(16,76,   usrconfig.ieFILE);
+	show_bool(17,76,   usrconfig.FSemacs);
+}
+
+
+
+int EditUsrRec2(void)
+{
+	int	j;
+	char	temp[PATH_MAX];
+
+        Screen2();
+        for (;;) {
+                Fields2();
+                j = select_menu(25);
+                switch(j) {
+                case 0: return 0;
+                case 1: E_STR( 6,17,35,usrconfig.sHandle,  "The ^Handle^ of this user")
+                case 2: E_STR( 7,17,27,usrconfig.sLocation,"The users ^Location^")
+                case 3:
+                case 4:
+                case 5: E_STR(j+5,17,40,usrconfig.address[j-3],"^Address^")
+                case 6: E_STR(11,17,16, usrconfig.sVoicePhone, "The ^Voice Phone^ number of this user")
+                case 7: E_STR(12,17,16, usrconfig.sDataPhone,  "The ^Data Phone^ number of this user")
+                case 8: E_STR(13,17,10, usrconfig.sDateOfBirth,"The ^Date of Birth^ in DD-MM-YYYY format")
+                case 9: strcpy(temp,  edit_str(14,17,12, usrconfig.Password, (char *)"Enter the ^password^ for this user"));
+                        if (strlen(temp)) {
+			    if (strcasecmp(usrconfig.Password, temp)) {
+				/*
+				 * Only do something if password really changed.
+				 */
+				working(1,0,0);
+                                memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
+                                strcpy(usrconfig.Password, temp);
+                                usrconfig.iPassword = StringCRC32(tu(temp));
+				usrconfig.tLastPwdChange = time(NULL);
+				Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
+				sprintf(temp, "%s/bin/mbpasswd -n %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
+				if (system(temp) != 0) {
+				    WriteError("$Failed to set new Unix password");
+				} else {
+				    Syslog('+', "Password changed for %s (%s)", usrconfig.sUserName, usrconfig.Name);
+				}
+			    }
+                        } else {
+			    working(2, 0, 0);
+			}
+                        working(0, 0, 0);
+                        break;
+                case 10:strcpy(usrconfig.sSex, tl(edit_str(15,17,7, usrconfig.sSex, (char *)"^Male^ or ^Female^")));
+                        break;
+                case 11:strcpy(temp, PickProtocol(15));
+                        if (strlen(temp) != 0)
+                                strcpy(usrconfig.sProtocol, temp);
+                        clr_index();
+                        Screen2();
+                        break;
+                case 12:strcpy(temp, PickArchive((char *)"15"));
+                        if (strlen(temp) != 0)
+                                strcpy(usrconfig.Archiver, temp);
+                        clr_index();
+                        Screen2();
+                        break;
+		case 13:E_INT( 18,17,usrconfig.iScreenLen,   "Users ^Screen length^ in lines (about 24)")
+
+		case 14:usrconfig.iLanguage = PickLanguage((char *)"15.14");
+			clr_index();
+			Screen2();
+			break;
+                case 15:E_BOOL( 7,76,usrconfig.HotKeys,      "Is user using ^HotKeys^ for menus")
+                case 16:E_BOOL( 8,76,usrconfig.GraphMode,    "Is user using ^ANSI^ colors")
+                case 17:E_BOOL( 9,76,usrconfig.Chat,         "User has ^IEMSI Chat^ capability")
+                case 18:E_BOOL(10,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
+                case 19:E_BOOL(11,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
+                case 20:E_BOOL(12,76,usrconfig.More,         "User uses the ^More prompt^")
+                case 21:E_BOOL(13,76,usrconfig.FsMsged,      "User uses the ^Fullscreen editor^")
+                case 22:E_BOOL(14,76,usrconfig.MailScan,     "Don't check for ^new mail^")
+                case 23:E_BOOL(15,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
+                case 24:E_BOOL(16,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
+                case 25:E_BOOL(17,76,usrconfig.FSemacs,      "Use ^Emacs^ or Wordstart shorcut keys in FS editor")
+                }
+        }
 }
 
 
@@ -299,7 +427,6 @@ int EditUsrRec(int Area)
 	long	offset;
 	int	j = 0;
 	unsigned long crc, crc1;
-	char	temp[81];
 
 	clr_index();
 	working(1, 0, 0);
@@ -326,7 +453,7 @@ int EditUsrRec(int Area)
 
 	for (;;) {
 		Fields1();
-		j = select_menu(36);
+		j = select_menu(15);
 		switch(j) {
 		case 0:
 			crc1 = 0xffffffff;
@@ -347,69 +474,29 @@ int EditUsrRec(int Area)
 			}
 			IsDoing("Browsing Menu");
 			return 0;
-		
-		case 1:	E_STR( 6,17,35,usrconfig.sUserName,"The ^First and Last name^ of this user")
-		case 2:	E_STR( 7,17,35,usrconfig.sHandle,  "The ^Handle^ of this user")
-		case 3:	E_STR( 8,17,27,usrconfig.sLocation,"The users ^Location^")
-		case 4:
-		case 5:
-		case 6:	E_STR(j+5,17,40,usrconfig.address[j-4],"^Address^")
-		case 7:	E_STR(12,17,16, usrconfig.sVoicePhone, "The ^Voice Phone^ number of this user")
-		case 8:	E_STR(13,17,16, usrconfig.sDataPhone,  "The ^Data Phone^ number of this user")
-		case 9:	E_USEC(14,17,    usrconfig.Security,    "15.9   EDIT USER SECURITY", Screen1)
+		case 1:	E_STR(  6,17,35,usrconfig.sUserName,      "The ^First and Last name^ of this user")
+		case 2:	E_USEC( 7,17,   usrconfig.Security,       "15.2   EDIT USER SECURITY", Screen1)
 			break;
-		case 10:E_STR(15,17,10, usrconfig.sDateOfBirth,"The ^Date of Birth^ in DD-MM-YYYY format")
-		case 11:E_STR(16,17,10, usrconfig.sExpiryDate, "The ^Expiry Date^ in DD-MM-YYYY format, 00-00-0000 is no expire")
-		case 12:E_INT(17,17, usrconfig.ExpirySec.level,"The ^Expiry Level^ for this user")
-		case 13:E_STR(18,17,8,  usrconfig.Name,        "The ^Unix username^ for this user")
-		case 14:E_STR(19,17,62, usrconfig.sComment,    "A ^Comment^ for this user")
-		case 15:strcpy(temp,  edit_str(12,50,12, usrconfig.Password, (char *)"Enter the ^password^ for this user"));
-			if (strlen(temp)) {
-				memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
-				strcpy(usrconfig.Password, temp);
-				usrconfig.iPassword = StringCRC32(tu(temp));
-			} else {
-				working(2, 0, 0);
-				working(0, 0, 0);
-			}
-			break;
-		case 16:strcpy(usrconfig.sSex, tl(edit_str(13,50,7, usrconfig.sSex, (char *)"^Male^ or ^Female^")));
-			break;
-		case 17:E_INT(14,50, usrconfig.Credit, "Users ^Credit^")
-		case 18:strcpy(temp, PickProtocol(15));
-			if (strlen(temp) != 0)
-				strcpy(usrconfig.sProtocol, temp);
+		case 3 :E_STR(  8,17,10,usrconfig.sExpiryDate,    "The ^Expiry Date^ in DD-MM-YYYY format, 00-00-0000 is no expire")
+		case 4 :E_INT(  9,17,   usrconfig.ExpirySec.level,"The ^Expiry Level^ for this user")
+		case 5 :E_STR( 10,17,8, usrconfig.Name,           "The ^Unix username^ for this user")
+		case 6 :E_INT( 14,17,   usrconfig.Credit,         "Users ^Credit^")
+		case 7 :E_BOOL(15,17,   usrconfig.Hidden,         "Is user ^hidden^ on the BBS")
+		case 8 :E_BOOL(16,17,   usrconfig.Deleted,        "Is user marked for ^deletion^")
+		case 9 :E_BOOL(17,17,   usrconfig.NeverDelete,    "^Never delete^ this user")
+		case 10:E_STR( 18,17,62,usrconfig.sComment,       "A ^Comment^ for this user")
+
+		case 11:E_BOOL( 6,68,   usrconfig.LockedOut,      "User is ^Locked Out^ of this BBS")
+		case 12:E_BOOL( 7,68,   usrconfig.Guest,          "This is a ^Guest^ account")
+		case 13:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
+		case 14:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
+		case 15:EditUsrRec2();
 			clr_index();
 			Screen1();
 			Fields1();
 			break;
-		case 19:strcpy(temp, PickArchive((char *)"15"));
-			if (strlen(temp) != 0)
-				strcpy(usrconfig.Archiver, temp);
-			clr_index();
-			Screen1();
-			Fields1();
-			break;
-		case 20:E_BOOL(17,50,usrconfig.Hidden,       "Is user ^hidden^ on the BBS")
-		case 21:E_BOOL(18,50,usrconfig.HotKeys,      "Is user using ^HotKeys^ for menus")
-		case 22:E_BOOL( 4,76,usrconfig.GraphMode,    "Is user using ^ANSI^ colors")
-		case 23:E_BOOL( 5,76,usrconfig.Deleted,      "Is user marked for ^deletion^")
-		case 24:E_BOOL( 6,76,usrconfig.NeverDelete,  "^Never delete^ this user")
-		case 25:E_BOOL( 7,76,usrconfig.Chat,         "User has ^IEMSI Chat^ capability")
-		case 26:E_BOOL( 8,76,usrconfig.LockedOut,    "User is ^Locked Out^ of this BBS")
-		case 27:E_BOOL( 9,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
-		case 28:E_BOOL(10,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
-		case 29:E_BOOL(11,76,usrconfig.More,         "User uses the ^More prompt^")
-		case 30:E_BOOL(12,76,usrconfig.FsMsged,      "User uses the ^Fullscreen editor^")
-		case 31:E_BOOL(13,76,usrconfig.MailScan,     "Don't check for ^new mail^")
-		case 32:E_BOOL(14,76,usrconfig.Guest,        "This is a ^Guest^ account")
-		case 33:E_BOOL(15,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
-		case 34:E_BOOL(16,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")
-		case 35:E_BOOL(17,76,usrconfig.OL_ExtInfo,   "Add ^Extended Message Info^ in OLR download")
-		case 36:E_BOOL(18,76,usrconfig.Email,        "User has a ^private email^ mailbox")
 		}
 	}
-
 	return 0;
 }
 
