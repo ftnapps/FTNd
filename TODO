@@ -95,6 +95,8 @@ mbfido:
 
 	N: Send notifications to downlinks about changed areas from uplink.
 
+	N: Add statistic mail messages.
+
 mbcico:
 	N: Implement MD5 crypt in binkp protocol driver.
 
