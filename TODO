@@ -50,7 +50,8 @@ mbsebbs:
 
 	X: OLR: implement limit date function.
 
-	X: OLR: include private email area in download packets.
+	X: OLR: include private email area in download packets. See also global
+           wish for private email areas.
 
 	X: OLR: implement some global settings from the offline configuration.
 

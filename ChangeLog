@@ -7,6 +7,8 @@ v0.61.3		25-Jul-2004
 		To reinstall the corrected macro templates go into the examples
 		directory and type "make macros".
 		In mbsetup menu 1.7 check the new items 15, 16 and 17.
+		If you use dosemu 1.2.0 or later, copy in ~/bin bbsdoor.sh.new
+		over bbsdoor.sh
 
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 
@@ -52,6 +54,9 @@ v0.61.3		25-Jul-2004
 		Fixed 2 spelling errors in the dutch macro templates.
 		Fixed another spelling error in the filemgr.help template of
 		all languages.
+
+	script:
+		Changed bbsdoor.sh so that it works for dosemu 1.2.0 and later.
 
 	lang:
 		Added language prompts 26 and 27.
