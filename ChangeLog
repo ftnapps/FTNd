@@ -4219,7 +4219,7 @@ v0.33.19        26-Oct-2001
 		it should display no data anymore.
 		Change the file /opt/mbse/etc/issue like the example in the
 		subdirectory mbtask.
-		Change the shell for user mbse to /opt/mbse/bin/mbnewusr
+		Change the shell for user "bbs" to /opt/mbse/bin/mbnewusr
 		The make install fixes several permissions that are wrong for
 		the new style (not setuid) of mbsebbs.
 		Remove /opt/mbse/etc/maint to let it replace with a new
@@ -4245,8 +4245,8 @@ v0.33.19        26-Oct-2001
 		Made the Makefile system more simple. The bbs programs now
 		don't run setuid anymore! This makes the system more secure.
 		A new program, mblogin, is written to allow logins with
-		Fidonet style names. This is a login replacement for bbs use
-		only.
+		Fidonet style names from mgetty and telnetd.  This is a login
+		replacement for bbs use only. Normal shell users can't login.
 		On FreeBSD the installed files are not removed anymore from
 		the source tree.
 		Added German language file made by Harald Wuensch.
@@ -4326,11 +4326,12 @@ v0.33.19        26-Oct-2001
 		colors are set, the prompt is displayed with these colors.
 		If not, the prompt defaults to white on black. 
 		Does now run as the users uid, not suid anymore. You are not
-		able to login with Fidonet style name anymore, only using
-		login. Removed IEMSI support, this has no use anymore. New
-		users need to register with the mbnewuser program, mbsebbs is
-		only for registered users. This should fix all kinds of setuid
-		and security problems with previous versions.
+		able to login with Fidonet style name anymore, the mblogin
+		program does this. Removed IEMSI support, this has no use 
+		anymore. New users need to register with the mbnewuser 
+		program, mbsebbs is only for registered users. This should 
+		fix all kinds of setuid and security problems with previous 
+		versions.
 		QuickScan messages in netmail areas now only shows personal
 		messages.
 		The whoson list now uses mbtask to get the information.
@@ -4375,7 +4376,7 @@ v0.33.19        26-Oct-2001
 
 	mblogin:
 		New program. Replaces standard login, allows Fidonet style
-		usernames.
+		usernames. Has it's own login.defs file.
 
 	mbcico:
 		Undefined IEMSI support since mbsebbs doesn't support it 
