@@ -39,43 +39,54 @@
 
 callstat *getstatus(faddr *addr)
 {
-	static callstat	cst;
-	FILE		*fp;
+    static callstat	cst;
+    FILE		*fp;
 
-	cst.trytime = 0L;
-	cst.tryno   = 0;
-	cst.trystat = 0;
+    cst.trytime = 0L;
+    cst.tryno   = 0;
+    cst.trystat = 0;
 	
-	if ((fp = fopen(stsname(addr), "r"))) {
-		fread(&cst, sizeof(callstat), 1, fp);
-		fclose(fp);
-	}
+    if ((fp = fopen(stsname(addr), "r"))) {
+	fread(&cst, sizeof(callstat), 1, fp);
+	fclose(fp);
+    }
 
-	return &cst;
+    return &cst;
 }
 
 
 
 void putstatus(faddr *addr, int incr, int sts)
 {
-	FILE		*fp;
-	callstat	*cst;
+    FILE	    *fp;
+    callstat    *cst;
+    int	    j;
 
-	cst = getstatus(addr);
-	if ((fp = fopen(stsname(addr), "w"))) {
-		if (sts == 0) 
-			cst->tryno = 0;
-		else 
-			cst->tryno += incr;
-		cst->trystat = sts;
-		cst->trytime = time(NULL);
-		fwrite(cst, sizeof(callstat), 1, fp);
-		fclose(fp);
-		if (cst->tryno >= 30)
-			WriteError("Node %s is marked undialable.", ascfnode(addr, 0x1f));
+    cst = getstatus(addr);
+    if ((fp = fopen(stsname(addr), "w"))) {
+	if (sts == 0) {
+	    j = cst->tryno = 0;
 	} else {
-		WriteError("$Cannot create status file for node %s", ascfnode(addr,0x1f));
+	    cst->tryno += incr;
+	    srand(getpid());
+	    while (TRUE) {
+		j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
+		if ((j > (CFG.dialdelay / 10)) && (j > 9))
+		    break;
+	    }
+	    Syslog('d', "Next call allowed over %d seconds", j);
 	}
+
+	cst->trystat = sts;
+	cst->trytime = time(NULL) + j;
+
+	fwrite(cst, sizeof(callstat), 1, fp);
+	fclose(fp);
+	if (cst->tryno >= 30)
+	    WriteError("Node %s is marked undialable.", ascfnode(addr, 0x1f));
+    } else {
+	WriteError("$Cannot create status file for node %s", ascfnode(addr,0x1f));
+    }
 }
 
 

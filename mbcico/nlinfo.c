@@ -73,7 +73,9 @@ int nlinfo(faddr *addr)
 		for (i = 0; ikey[i].flag != 0; i++)
 			if ((nlent->iflags & ikey[i].flag) == ikey[i].flag)
 				sprintf(flagbuf + strlen(flagbuf), "%s,", ikey[i].key);
-
+		for (i = 0; okey[i].flag != 0; i++)
+			if ((nlent->oflags & okey[i].flag) == okey[i].flag)
+				sprintf(flagbuf + strlen(flagbuf), "%s,", okey[i].key);
 
 		switch (nlent->xflags) {
 			case RQ_XA: sprintf(flagbuf + strlen(flagbuf), "XA"); break;
