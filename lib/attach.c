@@ -52,7 +52,7 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	 * Check if outbound directory exists and 
 	 * create if it doesn't exist.
 	 */
-	mkdirs(ofile);
+	mkdirs(ofile, 0770);
 
 	/*
 	 *  Attach file to .flo

@@ -222,7 +222,7 @@ time_t file_time(char *path)
 /*
  *    Make directory tree, the name must end with a /
  */
-int mkdirs(char *name)
+int mkdirs(char *name, mode_t mode)
 {
 	char	buf[PATH_MAX], *p, *q;
 	int	rc, last = 0, oldmask;
@@ -236,7 +236,8 @@ int mkdirs(char *name)
 	oldmask = umask(000);
 	while ((q = strchr(p, '/'))) {
 		*q = '\0';
-		rc = mkdir(buf, 0775);
+		rc = mkdir(buf, mode);
+		Syslog('-', "mkdir(%s) rc=%d", buf, rc);
 		last = errno;
 		*q = '/';
 		p = q+1;
@@ -257,7 +258,6 @@ int mkdirs(char *name)
 /*
  *  Check free diskspace on most filesystems. Exclude check on floppyies,
  *  CD's and /boot partition. The amount of needed space is given in MBytes.
- *  Currently only Linux is supported.
  */
 int diskfree(int needed)
 {
@@ -292,7 +292,7 @@ int diskfree(int needed)
 			 */
 			if (strncmp((char *)"/dev/fd", dev, 7) && strncmp((char *)"/boot", fs, 5) &&
 			    (!strncmp((char *)"ext2", type, 4) || !strncmp((char *)"reiserfs", type, 8) ||
-			     !strncmp((char *)"ufs", type, 3) ||
+			     !strncmp((char *)"ufs", type, 3)  || !strncmp((char *)"ffs", type, 3) ||
 			     !strncmp((char *)"vfat", type, 4) || !strncmp((char *)"msdos", type, 5))) {
 				if (statfs(fs, &sfs) == 0) {
 					temp = (unsigned long)(sfs.f_bsize / 512L);

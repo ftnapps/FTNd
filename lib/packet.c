@@ -85,7 +85,7 @@ FILE *openpkt(FILE *pkt, faddr *addr, char flavor)
 		pktroute.domain = xstrcpy(addr->domain);
 		pktroute.name   = NULL;
 		Name = pktname(addr,flavor);
-		mkdirs(Name);
+		mkdirs(Name, 0770);
 
 		if ((pktfp = fopen(Name, "r+")) == NULL)
 			pktfp = fopen(Name,"w");

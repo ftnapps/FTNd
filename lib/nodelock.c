@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: nodelock.c
+ * $Id$
  * Purpose ...............: Node locking
- * Last modification date : 18-Mar-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -51,7 +50,7 @@ int nodelock(faddr *addr)
 	mypid = getpid();
 	sprintf(tmp, "aa%d", mypid);
 	tfn = xstrcat(tfn, tmp);
-	mkdirs(tfn);
+	mkdirs(tfn, 0770);
 
 	if ((fp = fopen(tfn,"w")) == NULL) {
 		WriteError("$Can't open tmp file for bsy lock (%s) \"%s\"",ascfnode(addr, 0x1f), tfn);
@@ -61,7 +60,7 @@ int nodelock(faddr *addr)
 
 	fprintf(fp,"%10d\n", mypid);
 	fclose(fp);
-	chmod(tfn, 0444);
+	chmod(tfn, 0440);
 	if (link(tfn, fn) == 0) {
 		unlink(tfn);
 		free(tfn);
