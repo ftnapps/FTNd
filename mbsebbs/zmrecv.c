@@ -81,7 +81,7 @@ int zmrcvfiles(void)
 {
     int	    rc;
 
-    Syslog('+', "Zmodem: start Zmodem receive");
+    Syslog('+', "%s: start receive", protname());
 
     zsendline_init();
     if (secbuf == NULL) 
@@ -90,7 +90,7 @@ int zmrcvfiles(void)
     protocol = ZM_ZMODEM;
 
     if ((rc = tryz()) < 0) {
-	Syslog('+', "Zmodem: could not initiate receive, rc=%d",rc);
+	Syslog('+', "%s: could not initiate receive, rc=%d", protname(), rc);
     } else {
 	if (rc == 0) {
 	    if (wcrxpn(secbuf) == TERROR) {
@@ -129,7 +129,7 @@ int zmrcvfiles(void)
 fubar:
     if (fout) {
 	if (closeit(0)) {
-	    WriteError("Zmodem: Error closing file");
+	    WriteError("%s: Error closing file", protname);
 	}
     }
 
@@ -143,7 +143,7 @@ fubar:
      */
     purgeline(100);
     
-    Syslog('z', "Zmodem: receive rc=%d",rc);
+    Syslog('z', "%s: receive rc=%d", protname(), rc);
     return abs(rc);
 }
 
@@ -153,7 +153,7 @@ fubar:
  * Initialize for Zmodem receive attempt, try to activate Zmodem sender
  *  Handles ZSINIT frame
  *  Return ZFILE if Zmodem filename received, -1 on error,
- *   ZCOMPL if transaction finished,  else 0
+ *   ZCOMPL if transaction finished,  else 0: can be ymodem.
  */
 int tryz(void)
 {

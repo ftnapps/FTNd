@@ -49,32 +49,10 @@
 #include "ymrecv.h"
 
 
-/*
- 
-   Design remarks.
-
-   This entry must accept up and downloads at the same time in case a users
-   wants to download but uses a bidirectional protocol and has something to
-   upload.
-
-   First design fase: support the now used external protocols and link it to
-   the rest of the bbs.
-
-   Second design fase: add build-in zmodem and ymodem-1k.
-
-   To think of:
-    - Drop bidirectional support, is this still in use. No bimodem specs and
-      Hydra seems not implemented in any terminal emulator.
-    - Add sliding kermit? Can still be used externally.
-    - Add special internet protocol and make a module for minicom. No, this
-      would mean only a few users will use it.
-
-*/
-
-
 int	sentbytes;
 int	rcvdbytes;
 
+extern int  zmodem_requested;
 
 
 int ForceProtocol()
@@ -439,8 +417,18 @@ int upload(up_list **upload_list)
     sleep(2);
 
     if (uProtInternal) {
-	if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+	if ((strncasecmp(sProtName, "zmodem", 6) == 0) || (strncasecmp(sProtName, "ymodem", 6) == 0)) {
+	    if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+		zmodem_requested = TRUE;
+		protocol = ZM_ZMODEM;
+	    } else {
+		zmodem_requested = FALSE;
+	    }
+	    if (strncasecmp(sProtName, "ymodem", 6) == 0)
+		protocol = ZM_YMODEM;
+
 	    rc = zmrcvfiles();
+
 	    Syslog('b', "Begin dir processing");
 	    if ((dirp = opendir(".")) == NULL) {
 	        WriteError("$Upload: can't open ./upl");
