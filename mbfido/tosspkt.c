@@ -236,8 +236,10 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     } /* end of checking kludges */
 
     if (echomail) {
-	f->zone = p_from->zone;
-	t->zone = tzone;
+	if (!f->zone)
+	    f->zone = p_from->zone;
+	if (!t->zone)
+	    t->zone = tzone;
 	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);
     } else
 	rc = postnetmail(fp, f, t, orig, subj, mdate, flags, TRUE, p_from->zone, tzone);

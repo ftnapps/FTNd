@@ -44,6 +44,9 @@ v0.37.00	26-Dec-2002.
 		Move old files to another area failed, only the symbolic link
 		was moved.
 
+	mbfido:
+		Echomail from other zones showed the address of your own zone.
+
 	mbsetup:
 		Removed global flags No-IBN, IFC and ITN from the setup.
 		Removed nodes flags No-IBN, IFC and ITN from the setup.
