@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_menu.c
  * Purpose ...............: Edit BBS menus
- * Last modification date : 25-Oct-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -197,7 +197,7 @@ int GetMenuType(void)
 		case 1:	return GetSubmenu(1, 25);
 		case 2:	return GetSubmenu(101, 19);
 		case 3:	return GetSubmenu(201, 20);
-		case 4:	return GetSubmenu(301, 16);
+		case 4:	return GetSubmenu(301, 18);
 		case 5:	return GetSubmenu(401, 5);
 		case 6:	return GetSubmenu(501, 6);
 		default: return 0; 

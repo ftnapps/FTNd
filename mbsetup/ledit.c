@@ -2,7 +2,7 @@
  *
  * File ..................: ledit.c
  * Purpose ...............: Line Editor
- * Last modification date : 14-Oct-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1584,6 +1584,7 @@ char *getmenutype(int val)
 		case 218:	return (char *)"Trash email";
 		case 219:	return (char *)"Choose mailbox";
 		case 220:	return (char *)"Quick-scan email's";
+
 		case 301:	return (char *)"Change transfer protocol";
 		case 302:	return (char *)"Change password";
 		case 303:	return (char *)"Change location";
@@ -1600,6 +1601,8 @@ char *getmenutype(int val)
 		case 314:	return (char *)"Change do-not-disturb";
 		case 315:	return (char *)"Change check for new files";
 		case 316:	return (char *)"Change fullscreen editor";
+		case 317:	return (char *)"Change FS edit shortcut keys";
+		case 318:	return (char *)"Change address";
 
 		case 401:	return (char *)"Add oneliner";
 		case 402:	return (char *)"List oneliners";
