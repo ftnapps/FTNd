@@ -1,5 +1,6 @@
 $Id$
 
+	DE CRONTAB STAAT UIT !!!!
 
 v0.61.2		11-Jul-2004
 
@@ -21,6 +22,15 @@ v0.61.2		11-Jul-2004
 		This is for test! Please check if you run mbcico together
 		with other mailers. Russell??
 		If you only use mbcico there will be no problems.
+
+	mbcico:
+		In the binkp driver, when files were found to transmit and
+		didn't exist anymore, they are not added to the list of files
+		to sent but are marked as already transmitted so they will
+		be removed from the .flo file. Also, after a successfull
+		session .flo files with all files marked as transmitted are
+		removed. With nodes that were marked crash, this will prevent
+		continuous calling.
 
 	mbout:
 		Changed to use direct instead of immediate mail.

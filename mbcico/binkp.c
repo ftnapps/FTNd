@@ -192,7 +192,7 @@ char	*binkp2unix(char *);			    /* Unix -> Binkp escape	    */
 void	fill_binkp_list(binkp_list **, file_list *, off_t); /* Build pending files  */
 void	debug_binkp_list(binkp_list **);	    /* Debug pending files list	    */
 int	binkp_pendingfiles(void);		    /* Count pending files	    */
-void	binkp_clear_filelist(void);		    /* Clear current filelist	    */
+void	binkp_clear_filelist(int);		    /* Clear current filelist	    */
 
 static int  orgbinkp(void);			    /* Originate session state	    */
 static int  ansbinkp(void);			    /* Answer session state	    */
@@ -959,7 +959,7 @@ int file_transfer(void)
 	    case DeinitTransfer:/*
 				 * In case of a transfer error the filelist is not yet cleared
 				 */
-				binkp_clear_filelist();
+				binkp_clear_filelist(bp.rc);
 				if (bp.rc)
 				    return MBERR_FTRANSFER;
 				else
@@ -1033,7 +1033,7 @@ TrType binkp_receiver(void)
 			bp.TxState = TxGNF;
 			bp.RxState = RxWaitF;
 			Syslog('+', "Binkp: receiver starts batch %d", bp.batchnr + 1);
-			binkp_clear_filelist();
+			binkp_clear_filelist(0);
 			return Ok;
 		    }
 		} else {
@@ -1494,7 +1494,7 @@ TrType binkp_transmitter(void)
 		    bp.RxState = RxDone;
 		}
 
-		binkp_clear_filelist();
+		binkp_clear_filelist(rc);
 		return Ok;
 	    }
 
@@ -1531,12 +1531,12 @@ TrType binkp_transmitter(void)
 			bp.TxState = TxGNF;
 			bp.RxState = RxWaitF;
 			Syslog('+', "Binkp: transmitter starts batch %d", bp.batchnr + 1);
-			binkp_clear_filelist();
+			binkp_clear_filelist(rc);
 			return Ok; /* Continue is not good here, troubles with binkd on slow links. */
 		    }
 		}
 
-		binkp_clear_filelist();
+		binkp_clear_filelist(rc);
 		return Ok;
 	    }
 	}
@@ -2254,8 +2254,8 @@ int binkp_resync(off_t off)
 
 
 /*
- *  * Translate string to binkp escaped string, unsafe characters are escaped.
- *   */
+ * Translate string to binkp escaped string, unsafe characters are escaped.
+ */
 char *unix2binkp(char *fn)
 {
     static char buf[PATH_MAX];
@@ -2288,8 +2288,8 @@ char *unix2binkp(char *fn)
 
 
 /*
- *  * Translate escaped binkp string to normal string.
- *   */
+ * Translate escaped binkp string to normal string.
+ */
 char *binkp2unix(char *fn)
 {
     static char buf[PATH_MAX];
@@ -2345,22 +2345,28 @@ char *binkp2unix(char *fn)
 void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 {
     binkp_list  **tmpl;
+    FILE	*fp;
     struct stat tstat;
 
-    if (stat(fal->local, &tstat) != 0) {
-	Syslog('+', "$Binkp: can't add %s to sendlist", fal->local);
-	return;
-    }
-    if (strstr(fal->remote, (char *)".pkt"))
-	bp.nethold += tstat.st_size;
-    else
-	bp.mailhold += tstat.st_size;
-			        
     for (tmpl = bkll; *tmpl; tmpl = &((*tmpl)->next));
     *tmpl = (binkp_list *)malloc(sizeof(binkp_list));
 
     (*tmpl)->next   = NULL;
     (*tmpl)->state  = NoState;
+    if ((fp = fopen(fal->local, "r")) == NULL) {
+	if ((errno == ENOENT) || (errno == EINVAL)) {
+	    Syslog('+', "Binkp: file %s doesn't exist, removing", MBSE_SS(fal->local));
+	    (*tmpl)->state  = Got;
+	    execute_disposition(fal);
+	}
+    } else {
+	fclose(fp);
+	stat(fal->local, &tstat);
+	if (strstr(fal->remote, (char *)".pkt"))
+	    bp.nethold += tstat.st_size;
+	else
+	    bp.mailhold += tstat.st_size;
+    }
     (*tmpl)->get    = FALSE;
     (*tmpl)->local  = xstrcpy(fal->local);
     (*tmpl)->remote = xstrcpy(unix2binkp(fal->remote));
@@ -2368,7 +2374,6 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     (*tmpl)->size   = tstat.st_size;
     (*tmpl)->date   = tstat.st_mtime;
 }
-
 
 
 
@@ -2389,9 +2394,10 @@ void debug_binkp_list(binkp_list **bkll)
 /*
  * Clear current filelist
  */
-void binkp_clear_filelist(void)
+void binkp_clear_filelist(int rc)
 {
     binkp_list	*tmp;
+    file_list	*fal;
 
     if (tosend != NULL) {
 	Syslog('b', "Binkp: clear current filelist");
@@ -2405,6 +2411,14 @@ void binkp_clear_filelist(void)
 	    free(bll);
 	}
 
+	/* WARNING: Added 16-07-2004 to see if this is safe to clean /flo files.
+	 *
+	 *  Remove sent fake files like .spl and .flo
+	 */
+	for (fal = tosend; fal; fal = fal->next) {
+	    if ((fal->remote == NULL) && (rc == 0))
+		execute_disposition(fal);
+	}
 	tidy_filelist(tosend, TRUE);
 	tosend = NULL;
 	respond = NULL;
