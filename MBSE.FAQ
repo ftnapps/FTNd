@@ -72,11 +72,7 @@ A: tail -f /opt/mbse/log/system.log or start mbmon.
 
 1.6 How to start mbsebbs from inetd?
 
-A: For Linux: ss root edit the file /etc/inetd.conf and change the entry 
-for telnet like this:
-telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /opt/mbse/bin/mbsebbs
-Then restart inetd with "kill -HUP `pidof inetd`". If you now telnet to your
-system the bbs is started directly without the Unix login prompt.
+A: This is not possible anymore from version 0.33.19 and later.
 
 
 

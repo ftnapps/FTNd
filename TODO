@@ -44,8 +44,6 @@ mbsebbs:
 	L: Better word wrapping or paragraph justification in editor.
 
 mbfido:
-	U: postnetmail doesn't set msgid and reply for storenet.
-
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 

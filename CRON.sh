@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# Crontab setup script for MBSE BBS
+# $Id$
 #
-# (C) Michiel Broek, v0.06 06-Mar-2001
+# Crontab setup script for MBSE BBS
 
-echo "MBSE BBS for Linux crontab setup. Checking your system..."
+echo "MBSE BBS for Unix crontab setup. Checking your system..."
 
 # Basic checks.
 if [ `whoami` != "mbse" ]; then
