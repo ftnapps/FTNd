@@ -243,8 +243,18 @@ int pack_queue(char *name)
 	}
 
 	fsize = file_size(arcfile);
-	if (execute(archiver.marc, arcfile, pktfile, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0)
+	if (execute(archiver.marc, arcfile, pktfile, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		unlink(pktfile);
+	} else {
+	    sync();
+	    sleep(1);
+	    Syslog('+', "Create ARCmail failed, trying again after sync()"); 
+	    if (execute(archiver.marc, arcfile, pktfile, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+		unlink(pktfile);
+	    } else {
+		WriteError("Can't add %s to ARCmail archive", pktfile);
+	    }
+	}
 
 	/*
 	 * Attach file to .flo
