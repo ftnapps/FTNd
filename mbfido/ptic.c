@@ -89,6 +89,7 @@ int ProcessTic(fa_list *sbl)
 
 	if (TIC.TicIn.PathError) {
 		WriteError("Our Aka is in the path");
+		tic_bad++;
 		return 1;
 	}
 
