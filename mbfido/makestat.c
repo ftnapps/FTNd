@@ -209,8 +209,9 @@ void MakeStat(void)
 		while ((fread(&fgroup, fgrouphdr.recsize, 1, fg)) == 1) {
 		    if (fgroup.Active) {
 			fseek(fi, fileptr, SEEK_SET);
-			MacroVars("bcdefghi", "ssssdddd", fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka), adate(fgroup.LastDate),
-				fgroup.Files.lweek, fgroup.KBytes.lweek, fgroup.Files.month[Lm], fgroup.KBytes.month[Lm]);
+			MacroVars("bcdefghi", "ssssdddd", fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka), 
+				adate(fgroup.LastDate), fgroup.Files.lweek, fgroup.KBytes.lweek, 
+				fgroup.Files.month[Lm], fgroup.KBytes.month[Lm]);
 			MacroRead(fi, fw);
 		    }
 		}
@@ -273,8 +274,8 @@ void MakeStat(void)
 			q = xstrcpy((char *)"Hold");
 		    else
 			q = xstrcpy((char *)"Normal");
-		    MacroVars("bcdefgh", "sssssdd", aka2str(nodes.Aka[0]), nodes.Sysop, q, p, 
-			    adate(nodes.LastDate), nodes.Credit, nodes.Debet);
+		    MacroVars("bcdefghi", "sssssddd", aka2str(nodes.Aka[0]), nodes.Sysop, q, p, 
+			    adate(nodes.LastDate), nodes.Billing, nodes.Credit, nodes.Debet);
 		    MacroRead(fi, fw);
 		    free(p);
 		    free(q);
@@ -309,14 +310,15 @@ void MakeStat(void)
 		    fseek(fi, fileptr, SEEK_SET);
 		    if (!strcmp(hist.aka.domain, "(null)"))
 			hist.aka.domain[0] = '\0';
-		    MacroVars("cdefghij", "sssssdds", hist.aka.zone?aka2str(hist.aka):"N/A", hist.system_name, hist.location,
-					adate(hist.online), t_elapsed(hist.online, hist.offline), hist.sent_bytes,
-					hist.rcvd_bytes, hist.inbound ? "In":"Out");
+		    MacroVars("cdefghijklm", "sssssssddds", hist.aka.zone?aka2str(hist.aka):"N/A", hist.system_name, 
+					hist.sysop, hist.location, hist.tty, adate(hist.online), 
+					t_elapsed(hist.online, hist.offline), hist.sent_bytes,
+					hist.rcvd_bytes, hist.cost, hist.inbound ? "In":"Out");
 		    MacroRead(fi, fw);
 		}
 		closepage(fw, (char *)"mailhistory", fi);
 	    } else {
-		WriteError("Can't create tic.html");
+		WriteError("Can't create mailhistory.html");
 	    }
 	    fclose(fi);
 	    MacroClear();
@@ -332,6 +334,7 @@ void MakeStat(void)
 	    fread(&SYSINFO, sizeof(SYSINFO), 1, fg);
 	    MacroVars("bcdefgh", "dddddss", SYSINFO.SystemCalls, SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network,
 		    SYSINFO.Local, adate(SYSINFO.StartDate), SYSINFO.LastCaller);
+	    MacroVars("i", "s", adate(SYSINFO.LastTime));
 	    if ((fw = newpage((char *)"sysinfo", fi)) != NULL) {
 		closepage(fw, (char *)"sysinfo", fi);
 	    } else {
