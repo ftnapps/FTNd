@@ -1233,10 +1233,10 @@ unsigned long getCMmask(void)
 
     for (tmpm = &nl_online; *tmpm; tmpm=&((*tmpm)->next)) {
 	if (strcmp("CM", (*tmpm)->name) == 0) {
-	    mask &= (*tmpm)->value;
+	    mask |= (*tmpm)->value;
 	}
 	if (strcmp("ICM", (*tmpm)->name) == 0) {
-	    mask &= (*tmpm)->value;
+	    mask |= (*tmpm)->value;
 	}
     }
     if (mask)
