@@ -5,7 +5,10 @@ $Id$
 	menus do not work. All other programs do work on all platforms.
 	All other users on Intel machines (99,9% I think) can use this version.
 
-v0.37.8		14-Sep-2003
+v0.37.9		17-Sep-2003
+
+
+v0.37.8		14-Sep-2003 - 17-Sep-2003
 
 	general:
 		This version is issued to prepare for a stable release.
