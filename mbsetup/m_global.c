@@ -214,26 +214,66 @@ void e_filenames(void)
 
 
 
+void e_global2(void)
+{
+        clr_index();
+        set_color(WHITE, BLACK);
+        mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS - 2");
+        set_color(CYAN, BLACK);
+        mvprintw( 6, 2, "1.  Magic's");
+        mvprintw( 7, 2, "2.  DOS path");
+        mvprintw( 8, 2, "3.  Unix path");
+        mvprintw( 9, 2, "4.  LeaveCase");
+	mvprintw(10, 2, "5.  Ftp base");
+	mvprintw(11, 2, "6.  Arealists");
+
+        for (;;) {
+                set_color(WHITE, BLACK);
+                show_str( 6,16,64, CFG.req_magic);
+                show_str( 7,16,64, CFG.dospath);
+                show_str( 8,16,64, CFG.uxpath);
+                show_bool(9,16,    CFG.leavecase);
+		show_str(10,16,64, CFG.ftp_base);
+		show_str(11,16,64, CFG.alists_path);
+
+                switch(select_menu(6)) {
+                case 0: return;
+                case 1: E_PTH(16,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
+                case 2: E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path, empty disables translation")
+                case 3: E_PTH(18,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
+                case 4: E_BOOL(19,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+		case 5: E_PTH(10,16,64, CFG.ftp_base,     "The ^FTP home^ directory to strip of the real directory")
+		case 6: E_PTH(11,16,64, CFG.alists_path,  "The path where ^area lists^ and ^filebone lists^ are stored.")
+                }
+        };
+}
+
+
+
+void s_global(void)
+{
+        clr_index();
+        set_color(WHITE, BLACK);
+        mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS");
+        set_color(CYAN, BLACK);
+        mvprintw( 6, 2, "1.  BBS menus");
+        mvprintw( 7, 2, "2.  Txtfiles");
+        mvprintw( 8, 2, "3.  Home dirs");
+        mvprintw( 9, 2, "4.  Nodelists");
+        mvprintw(10, 2, "5.  Inbound");
+        mvprintw(11, 2, "6.  Prot inb.");
+        mvprintw(12, 2, "7.  Outbound");
+        mvprintw(13, 2, "8.  *.msgs");
+        mvprintw(14, 2, "9.  Bad TIC's");
+	mvprintw(15, 2, "10. TIC queue");
+        mvprintw(16, 2, "11. Next Screen");
+}
+
+
+
 void e_global(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS");
-	set_color(CYAN, BLACK);
-	mvprintw( 6, 2, "1.  BBS menus");
-	mvprintw( 7, 2, "2.  Txtfiles");
-	mvprintw( 8, 2, "3.  Home dirs");
-	mvprintw( 9, 2, "4.  Nodelists");
-	mvprintw(10, 2, "5.  Inbound");
-	mvprintw(11, 2, "6.  Prot inb.");
-	mvprintw(12, 2, "7.  Outbound");
-	mvprintw(13, 2, "8.  *.msgs");
-	mvprintw(14, 2, "9.  Bad TIC's");
-	mvprintw(15, 2, "10. TIC queue");
-	mvprintw(16, 2, "11. Magic's");
-	mvprintw(17, 2, "12. DOS path");
-	mvprintw(18, 2, "13. Unix path");
-	mvprintw(19, 2, "14. LeaveCase");
+	s_global();
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -247,12 +287,8 @@ void e_global(void)
 		show_str(13,16,64, CFG.msgs_path);
 		show_str(14,16,64, CFG.badtic);
 		show_str(15,16,64, CFG.ticout);
-		show_str(16,16,64, CFG.req_magic);
-		show_str(17,16,64, CFG.dospath);
-		show_str(18,16,64, CFG.uxpath);
-		show_bool(19,16,   CFG.leavecase);
 
-		switch(select_menu(14)) {
+		switch(select_menu(11)) {
 		case 0:	return;
 		case 1:	E_PTH( 6,16,64, CFG.bbs_menus,    "The path to the ^default menus^.")
 		case 2:	E_PTH( 7,16,64, CFG.bbs_txtfiles, "The path to the ^default textfiles^.")
@@ -264,10 +300,9 @@ void e_global(void)
 		case 8: E_PTH(13,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.")
 		case 9: E_PTH(14,16,64, CFG.badtic,       "The path to the ^bad tic files^.")
 		case 10:E_PTH(15,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.")
-		case 11:E_PTH(16,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
-		case 12:E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path, empty disables translation")
-		case 13:E_PTH(18,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
-		case 14:E_BOOL(19,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+		case 11:e_global2();
+			s_global();
+			break;
 		}
 	};
 }
@@ -288,20 +323,19 @@ void b_screen(void)
 	mvprintw(12, 2, "6.   Passwd Character");
 	mvprintw(13, 2, "7.   Idle timeout");
 	mvprintw(14, 2, "8.   Login Enters");
-	mvprintw(15, 2, "9.   Login Attempts");
-	mvprintw(16, 2, "10.  Homedir Quota");
-	mvprintw(17, 2, "11.  Location length");
+	mvprintw(15, 2, "9.   Homedir Quota");
+	mvprintw(16, 2, "10.  Location length");
 
-	mvprintw( 7,37, "12.  Show new msgarea");
-	mvprintw( 8,37, "13.  OLR Max. msgs.");
-	mvprintw( 9,37, "14.  OLR Newfile days");
-	mvprintw(10,37, "15.  OLR Max Filereq");
-	mvprintw(11,37, "16.  BBS Log Level");
-	mvprintw(12,37, "17.  Utils loglevel");
-	mvprintw(13,37, "18.  Utils slowly");
-	mvprintw(14,37, "19.  CrashMail level");
-	mvprintw(15,37, "20.  FileAttach level");
-	mvprintw(16,37, "21.  Min diskspace MB");
+	mvprintw( 7,37, "11.  Show new msgarea");
+	mvprintw( 8,37, "12.  OLR Max. msgs.");
+	mvprintw( 9,37, "13.  OLR Newfile days");
+	mvprintw(10,37, "14.  OLR Max Filereq");
+	mvprintw(11,37, "15.  BBS Log Level");
+	mvprintw(12,37, "16.  Utils loglevel");
+	mvprintw(13,37, "17.  Utils slowly");
+	mvprintw(14,37, "18.  CrashMail level");
+	mvprintw(15,37, "19.  FileAttach level");
+	mvprintw(16,37, "20.  Min diskspace MB");
 
 	set_color(WHITE, BLACK);
 	show_bool( 7,24, CFG.exclude_sysop);
@@ -334,7 +368,7 @@ void e_bbsglob(void)
 	b_screen();
 
 	for (;;) {
-		switch(select_menu(21)) {
+		switch(select_menu(20)) {
 		case 0:	return;
 		case 1:	E_BOOL( 7,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
 		case 2:	E_BOOL( 8,24, CFG.iConnectString,    "Show ^connect string^ at logon")
@@ -347,16 +381,16 @@ void e_bbsglob(void)
 		case 9: E_INT( 15,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
 		case 10:E_INT( 16,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
 
-		case 12:E_BOOL( 7,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
-		case 13:E_INT(  8,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
-		case 14:E_INT(  9,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
-		case 15:E_INT( 10,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
-		case 16:E_LOGL(CFG.bbs_loglevel, "1.5.16", b_screen)
-		case 17:E_LOGL(CFG.util_loglevel, "1.5.17", b_screen)
-		case 18:E_BOOL(13,59, CFG.slow_util,         "Let background utilities run ^slowly^")
-		case 19:E_INT( 14,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
-		case 20:E_INT( 15,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
-		case 21:E_INT( 16,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
+		case 11:E_BOOL( 7,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
+		case 12:E_INT(  8,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
+		case 13:E_INT(  9,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
+		case 14:E_INT( 10,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
+		case 15:E_LOGL(CFG.bbs_loglevel, "1.5.15", b_screen)
+		case 16:E_LOGL(CFG.util_loglevel, "1.5.16", b_screen)
+		case 17:E_BOOL(13,59, CFG.slow_util,         "Let background utilities run ^slowly^")
+		case 18:E_INT( 14,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
+		case 19:E_INT( 15,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
+		case 20:E_INT( 16,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
 		}
 	};
 }
@@ -1070,10 +1104,9 @@ void s_newfiles(void)
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 2, "1.16 ALLFILES & NEWFILES LISTINGS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.   Ftp base");
-	mvprintw( 8, 2, "2.   New days");
-	mvprintw( 9, 2, "3.   Security");
-	mvprintw(10, 2, "4.   Groups");
+	mvprintw( 7, 2, "1.   New days");
+	mvprintw( 8, 2, "2.   Security");
+	mvprintw( 9, 2, "3.   Groups");
 }
 
 
@@ -1083,17 +1116,15 @@ void e_newfiles(void)
 	s_newfiles();
 	for (;;) {
 		set_color(WHITE, BLACK);
-		show_str( 7,16,64, CFG.ftp_base); 
-		show_int( 8,16, CFG.newdays);
-		show_sec( 9,16, CFG.security);
-		show_int(10,16, CFG.new_groups);
+		show_int( 7,16, CFG.newdays);
+		show_sec( 8,16, CFG.security);
+		show_int( 9,16, CFG.new_groups);
 
-		switch(select_menu(4)) {
+		switch(select_menu(3)) {
 		case 0:	return;
-		case 1:	E_PTH(7,16,64, CFG.ftp_base,   "The ^FTP home^ directory to strip of the real directory")
-		case 2:	E_INT(8,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
-		case 3:	E_SEC(9,16,    CFG.security,   "1.14  NEWFILES REPORTS SECURITY", s_newfiles)
-		case 4: CFG.new_groups = edit_int(10, 16, CFG.new_groups, 
+		case 1:	E_INT(7,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
+		case 2:	E_SEC(8,16,    CFG.security,   "1.14  NEWFILES REPORTS SECURITY", s_newfiles)
+		case 3: CFG.new_groups = edit_int( 9, 16, CFG.new_groups, 
 				    (char *)"The maximum of ^newfiles^ groups in the newfiles database");
 			if (OpenNewfiles() == 0)
 			    CloseNewfiles(TRUE);
@@ -1339,73 +1370,70 @@ void e_ftpd(void)
         set_color(WHITE, BLACK);
         mvprintw( 5, 2, "1.18 EDIT FTPD SETTINGS");
         set_color(CYAN, BLACK);
-        mvprintw( 7, 2, "1.  Base path");
-        mvprintw( 8, 2, "2.  Upload pth");
-        mvprintw( 9, 2, "3.  Banner msg");
-        mvprintw(10, 2, "4.  Pth filter");
-        mvprintw(11, 2, "5.  Pth msg");
-        mvprintw(12, 2, "6.  Email addr");
-        mvprintw(13, 2, "7.  Shutdown");
-	mvprintw(14, 2, "8.  Rdm login");
-	mvprintw(15, 2, "9.  Rdm cwd*");
-	mvprintw(16, 1,"10.  Msg login");
-	mvprintw(17, 1,"11.  Msg cwd*");
-	mvprintw(18, 1,"12.  Userslimit");
-	mvprintw(19, 1,"13.  Loginfails");
+        mvprintw( 7, 2, "1.  Upload pth");
+        mvprintw( 8, 2, "2.  Banner msg");
+        mvprintw( 9, 2, "3.  Pth filter");
+        mvprintw(10, 2, "4.  Pth msg");
+        mvprintw(11, 2, "5.  Email addr");
+        mvprintw(12, 2, "6.  Shutdown");
+	mvprintw(13, 2, "7.  Rdm login");
+	mvprintw(14, 2, "8.  Rdm cwd*");
+	mvprintw(15, 2, "9.  Msg login");
+	mvprintw(16, 1,"10.  Msg cwd*");
+	mvprintw(17, 1,"11.  Userslimit");
+	mvprintw(18, 1,"12.  Loginfails");
 
-	mvprintw(14,60,"14.  Compress");
-	mvprintw(15,60,"15.  Tar");
-	mvprintw(16,60,"16.  Mkdir ok");
-	mvprintw(17,60,"17.  Log cmds");
-	mvprintw(18,60,"18.  Anonymous");
-	mvprintw(19,60,"19.  User mbse");
+	mvprintw(13,60,"13.  Compress");
+	mvprintw(14,60,"14.  Tar");
+	mvprintw(15,60,"15.  Mkdir ok");
+	mvprintw(16,60,"16.  Log cmds");
+	mvprintw(17,60,"17.  Anonymous");
+	mvprintw(18,60,"18.  User mbse");
 
 	set_color(WHITE, BLACK);
-	show_str( 7,18,59, CFG.ftp_base);
-	show_str( 8,18,59, CFG.ftp_upl_path);
-	show_str( 9,18,59, CFG.ftp_banner);
-	show_str(10,18,40, CFG.ftp_pth_filter);
-	show_str(11,18,59, CFG.ftp_pth_message);
-	show_str(12,18,40, CFG.ftp_email);
-	show_str(13,18,40, CFG.ftp_msg_shutmsg);
-	show_str(14,18,20, CFG.ftp_readme_login);
-	show_str(15,18,20, CFG.ftp_readme_cwd);
-	show_str(16,18,20, CFG.ftp_msg_login);
-	show_str(17,18,20, CFG.ftp_msg_cwd);
-	show_int(18,18,    CFG.ftp_limit);
-	show_int(19,18,    CFG.ftp_loginfails);
+	show_str( 7,18,59, CFG.ftp_upl_path);
+	show_str( 8,18,59, CFG.ftp_banner);
+	show_str( 9,18,40, CFG.ftp_pth_filter);
+	show_str(10,18,59, CFG.ftp_pth_message);
+	show_str(11,18,40, CFG.ftp_email);
+	show_str(12,18,40, CFG.ftp_msg_shutmsg);
+	show_str(13,18,20, CFG.ftp_readme_login);
+	show_str(14,18,20, CFG.ftp_readme_cwd);
+	show_str(15,18,20, CFG.ftp_msg_login);
+	show_str(16,18,20, CFG.ftp_msg_cwd);
+	show_int(17,18,    CFG.ftp_limit);
+	show_int(18,18,    CFG.ftp_loginfails);
 
-	show_bool(14,75, CFG.ftp_compress);
-	show_bool(15,75, CFG.ftp_tar);
-	show_bool(16,75, CFG.ftp_upl_mkdir);
-	show_bool(17,75, CFG.ftp_log_cmds);
-	show_bool(18,75, CFG.ftp_anonymousok);
-	show_bool(19,75, CFG.ftp_mbseok);
+	show_bool(13,75, CFG.ftp_compress);
+	show_bool(14,75, CFG.ftp_tar);
+	show_bool(15,75, CFG.ftp_upl_mkdir);
+	show_bool(16,75, CFG.ftp_log_cmds);
+	show_bool(17,75, CFG.ftp_anonymousok);
+	show_bool(18,75, CFG.ftp_mbseok);
 
         for (;;) {
                 set_color(WHITE, BLACK);
 
-                switch(select_menu(19)) {
+                switch(select_menu(18)) {
                 case 0: return;
-		case 1:	E_STR( 7,18,59, CFG.ftp_base,        "Public ^base path^ to the files")
-		case 2: E_STR( 8,18,59, CFG.ftp_upl_path,    "Public ^upload^ path, must be in the base path")
-		case 3: E_STR( 9,18,59, CFG.ftp_banner,      "^Banner^ file to show before login")
-		case 4: E_STR(10,18,40, CFG.ftp_pth_filter,  "^Filter^ with allowed characters in upload filename")
-		case 5: E_STR(11,18,59, CFG.ftp_pth_message, "^Message^ to display if illegal characters in filename")
-		case 6:	E_STR(12,18,40, CFG.ftp_email,       "^Email^ address of the ftp server administrator")
-		case 7:	E_STR(13,18,40, CFG.ftp_msg_shutmsg, "^Shutdown message^, if this file is present, login if forbidden")
-		case 8: E_STR(14,18,20, CFG.ftp_readme_login,"^README^ file to display at login")
-		case 9: E_STR(15,18,20, CFG.ftp_readme_cwd,  "^README^ file to display when entering a new directory")
-		case 10:E_STR(16,18,20, CFG.ftp_msg_login,   "^Message^ file to display at login")
-		case 11:E_STR(17,18,20, CFG.ftp_msg_cwd,     "^Message^ file to display when entering a new directory")
-		case 12:E_INT(18,18,    CFG.ftp_limit,       "^Limit^ the number of concurent ftp users")
-		case 13:E_INT(19,18,    CFG.ftp_loginfails,  "Maximum ^login fails^ before a user is disconnected")
-		case 14:E_BOOL(14,75,   CFG.ftp_compress,    "Allow the use of the ^compress^ command")
-		case 15:E_BOOL(15,75,   CFG.ftp_tar,         "Allow the use if the ^tar^ command")
-		case 16:E_BOOL(16,75,   CFG.ftp_upl_mkdir,   "Allow ^mkdir^ in the upload directory")
-		case 17:E_BOOL(17,75,   CFG.ftp_log_cmds,    "^Log^ all user ^commands^")
-		case 18:E_BOOL(18,75,   CFG.ftp_anonymousok, "Allow ^anonymous^ users to login")
-		case 19:E_BOOL(19,75,   CFG.ftp_mbseok,      "Allow the ^mbse^ user to login")
+		case 1: E_STR( 7,18,59, CFG.ftp_upl_path,    "Public ^upload^ path, must be in the base path")
+		case 2: E_STR( 8,18,59, CFG.ftp_banner,      "^Banner^ file to show before login")
+		case 3: E_STR( 9,18,40, CFG.ftp_pth_filter,  "^Filter^ with allowed characters in upload filename")
+		case 4: E_STR(10,18,59, CFG.ftp_pth_message, "^Message^ to display if illegal characters in filename")
+		case 5:	E_STR(11,18,40, CFG.ftp_email,       "^Email^ address of the ftp server administrator")
+		case 6:	E_STR(12,18,40, CFG.ftp_msg_shutmsg, "^Shutdown message^, if this file is present, login if forbidden")
+		case 7: E_STR(13,18,20, CFG.ftp_readme_login,"^README^ file to display at login")
+		case 8: E_STR(14,18,20, CFG.ftp_readme_cwd,  "^README^ file to display when entering a new directory")
+		case 9: E_STR(15,18,20, CFG.ftp_msg_login,   "^Message^ file to display at login")
+		case 10:E_STR(16,18,20, CFG.ftp_msg_cwd,     "^Message^ file to display when entering a new directory")
+		case 11:E_INT(17,18,    CFG.ftp_limit,       "^Limit^ the number of concurent ftp users")
+		case 12:E_INT(18,18,    CFG.ftp_loginfails,  "Maximum ^login fails^ before a user is disconnected")
+		case 13:E_BOOL(13,75,   CFG.ftp_compress,    "Allow the use of the ^compress^ command")
+		case 14:E_BOOL(14,75,   CFG.ftp_tar,         "Allow the use if the ^tar^ command")
+		case 15:E_BOOL(15,75,   CFG.ftp_upl_mkdir,   "Allow ^mkdir^ in the upload directory")
+		case 16:E_BOOL(16,75,   CFG.ftp_log_cmds,    "^Log^ all user ^commands^")
+		case 17:E_BOOL(17,75,   CFG.ftp_anonymousok, "Allow ^anonymous^ users to login")
+		case 18:E_BOOL(18,75,   CFG.ftp_mbseok,      "Allow the ^mbse^ user to login")
                 }
         };
 }
@@ -1493,6 +1521,27 @@ void global_menu(void)
 	Syslog('+', "Opened main config");
 	crc = 0xffffffff;
 	crc = upd_crc32((char *)&CFG, crc, sizeof(CFG));
+
+	if (CFG.xmax_login) {
+		/*
+		 *  Do automatic upgrade for unused fields, erase them.
+		 */
+		Syslog('+', "Main config, clearing unused fields");
+		memset(&CFG.alists_path, 0, sizeof(CFG.alists_path));
+		memset(&CFG.xsequencer, 0, sizeof(CFG.xsequencer));
+		CFG.xmax_login = 0;
+		CFG.xUseSysDomain = FALSE;
+		CFG.xChkMail = FALSE;
+		memset(&CFG.xquotestr, 0, sizeof(CFG.xquotestr));
+		CFG.xNewBytes = FALSE;
+		memset(&CFG.extra4, 0, sizeof(CFG.extra4));
+		memset(&CFG.xmgrname, 0, sizeof(CFG.xmgrname));
+		memset(&CFG.xtoss_log, 0, sizeof(CFG.xtoss_log));
+		memset(&CFG.xareamgr, 0, sizeof(CFG.xareamgr));
+		CFG.xNoJanus = FALSE;
+		memset(&CFG.extra5, 0, sizeof(CFG.extra5));
+		sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
+	}
 
 	for (;;) {
 
@@ -1726,6 +1775,8 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      DOS path         %s\n", CFG.dospath);
 	fprintf(fp, "      Unix path        %s\n", CFG.uxpath);
 	fprintf(fp, "      Leave case as is %s\n", getboolean(CFG.leavecase));
+	fprintf(fp, "      FTP base path    %s\n", CFG.ftp_base);
+	fprintf(fp, "      Area lists       %s\n", CFG.alists_path);
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
@@ -1920,7 +1971,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 
 	addtoc(fp, toc, 1, 17, page, (char *)"Newfile reports");
 
-	fprintf(fp, "      FTP base path      %s\n", CFG.ftp_base);
 	fprintf(fp, "      New files days     %d\n", CFG.newdays);
 	fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
 	fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
@@ -1965,7 +2015,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Log commands       %s\n", getboolean(CFG.ftp_log_cmds));
 	fprintf(fp, "      Anonymous login    %s\n", getboolean(CFG.ftp_anonymousok));
 	fprintf(fp, "      User mbse login    %s\n", getboolean(CFG.ftp_mbseok));
-	fprintf(fp, "      Base path          %s\n", CFG.ftp_base);
 	fprintf(fp, "      Shutdown message   %s\n", CFG.ftp_msg_shutmsg);
 	fprintf(fp, "      Upload path        %s\n", CFG.ftp_upl_path);
 	fprintf(fp, "      README login       %s\n", CFG.ftp_readme_login);

@@ -93,7 +93,7 @@ int OpenFGroup(void);
 int OpenFGroup(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
+	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
@@ -142,7 +142,9 @@ int OpenFGroup(void)
 				    fgroup.Announce  = TRUE;
 				    fgroup.UpdMagic  = TRUE;
 				    fgroup.FileId    = TRUE;
-				    sprintf(fgroup.BasePath, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(fgroup.Name));
+				    memset(&temp, 0, sizeof(temp));
+				    strcpy(temp, fgroup.Name);
+				    sprintf(fgroup.BasePath, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(temp));
 				}
 				
 				fwrite(&fgroup, sizeof(fgroup), 1, fout);

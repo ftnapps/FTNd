@@ -162,6 +162,11 @@ install:
 		fi
 		@chmod 0770 ${PREFIX}/var
 		@chmod 0770 ${PREFIX}/var/mail
+		@if [ ! -d ${PREFIX}/var/arealists ] ; then \
+			mkdir ${PREFIX}/var/arealists ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/var/arealists ; \
+			chmod 0750 ${PREFIX}/var/arealists ; \
+		fi
 		@if [ -x ${BINDIR}/mbfbgen ]; then \
 			rm ${BINDIR}/mbfbgen; \
 			echo "removed ${BINDIR}/mbfbgen"; \

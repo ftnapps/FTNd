@@ -103,7 +103,7 @@ int OpenMGroup(void);
 int OpenMGroup(void)
 {
 	FILE	*fin, *fout;
-	char	fnin[PATH_MAX], fnout[PATH_MAX];
+	char	fnin[PATH_MAX], fnout[PATH_MAX], temp[13];
 	long	oldsize;
 
 	sprintf(fnin,  "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
@@ -143,7 +143,9 @@ int OpenMGroup(void)
 			memset(&mgroup, 0, sizeof(mgroup));
 			while (fread(&mgroup, oldsize, 1, fin) == 1) {
 				if (MGrpUpdated) {
-				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(mgroup.Name));
+				    memset(&temp, 0, sizeof(temp));
+				    strcpy(temp, mgroup.Name);
+				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(temp));
 				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
@@ -228,15 +230,26 @@ void MgScreen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "9.1 EDIT MESSAGE GROUP");
+	mvprintw( 5, 1, "9.1 EDIT MESSAGE GROUP");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "1.  Name");
-	mvprintw( 8, 6, "2.  Comment");
-	mvprintw( 9, 6, "3.  Active");
-	mvprintw(10, 6, "4.  Use Aka");
-	mvprintw(11, 6, "5.  Uplink");
-	mvprintw(12, 6, "6.  Areas");
-	mvprintw(13, 6, "7.  Deleted");
+	mvprintw( 7, 1, "1.  Name");
+	mvprintw( 8, 1, "2.  Comment");
+	mvprintw( 9, 1, "3.  Base path");
+	mvprintw(10, 1, "4.  Read sec");
+	mvprintw(11, 1, "5.  Write sec");
+	mvprintw(12, 1, "6.  Sysop sec");
+	mvprintw(13, 1, "7.  Net reply");
+	mvprintw(14, 1, "8.  Users del");
+	mvprintw(15, 1, "9.  Aliases");
+	mvprintw(16, 1, "10. Quotes");
+	
+	mvprintw(10,41, "11. Auto change");
+	mvprintw(11,41, "12. User change");
+	mvprintw(12,41, "13. Active");
+	mvprintw(13,41, "14. Use Aka");
+	mvprintw(14,41, "15. Uplink");
+	mvprintw(15,41, "16. Areas");
+	mvprintw(16,41, "17. Deleted");
 }
 
 
@@ -268,7 +281,7 @@ int CheckMgroup(void)
 int EditMGrpRec(int Area)
 {
 	FILE		*fil;
-	static char	mfile[PATH_MAX];
+	static char	mfile[PATH_MAX], temp[13];
 	static long	offset;
 	static int	j, tmp;
 	unsigned long	crc, crc1;
@@ -298,15 +311,26 @@ int EditMGrpRec(int Area)
 	
 	for (;;) {
 		set_color(WHITE, BLACK);
-		show_str(  7,18,12, mgroup.Name);
-		show_str(  8,18,55, mgroup.Comment);
-		show_bool( 9,18, mgroup.Active);
-		show_aka( 10,18, mgroup.UseAka);
-		show_aka( 11,18, mgroup.UpLink);
-		show_str( 12,18,12, mgroup.AreaFile);
-		show_bool(13,18, mgroup.Deleted);
+		show_str(  7,15,12, mgroup.Name);
+		show_str(  8,15,55, mgroup.Comment);
+		show_str(  9,15,64, mgroup.BasePath);
+		show_int( 10,15,    mgroup.RDSec.level);
+		show_int( 11,15,    mgroup.WRSec.level);
+		show_int( 12,15,    mgroup.SYSec.level);
+		show_int( 13,15,    mgroup.NetReply);
+		show_bool(14,15,    mgroup.UsrDelete);
+		show_bool(15,15,    mgroup.Aliases);
+		show_bool(16,15,    mgroup.Quotes);
 
-		j = select_menu(7);
+		show_bool(10,57,    mgroup.AutoChange);
+		show_bool(11,57,    mgroup.UserChange);
+		show_bool(12,57,    mgroup.Active);
+		show_aka( 13,57,    mgroup.UseAka);
+		show_aka( 14,57,    mgroup.UpLink);
+		show_str( 15,57,12, mgroup.AreaFile);
+		show_bool(16,57,    mgroup.Deleted);
+
+		j = select_menu(17);
 		switch(j) {
 		case 0:
 			crc1 = 0xffffffff;
@@ -331,23 +355,39 @@ int EditMGrpRec(int Area)
 			return 0;
 		case 1: if (CheckMgroup())
 				break;
-			E_UPS( 7,18,12,mgroup.Name,"The ^name^ for this message group")
-		case 2: E_STR( 8,18,55,mgroup.Comment,"The ^desription^ for this message group")
-		case 3: if (CheckMgroup())
+			strcpy(mgroup.Name, edit_str(7,15,12, mgroup.Name, (char *)"The ^name^ for this message group"));
+			if (strlen(mgroup.BasePath) == 0) {
+			    memset(&temp, 0, sizeof(temp));
+			    strcpy(temp, mgroup.Name);
+			    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(temp));
+			}
+			break;
+		case 2: E_STR( 8,15,55, mgroup.Comment,"The ^desription^ for this message group")
+		case 3: E_PTH( 9,15,64, mgroup.BasePath, "The ^Base path^ where new JAM areas are created")
+		case 4: E_SEC(10,15,    mgroup.RDSec, "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
+		case 5: E_SEC(11,15,    mgroup.WRSec, "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
+		case 6: E_SEC(12,15,    mgroup.SYSec, "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
+		case 7: E_INT(13,15,    mgroup.NetReply, "The ^Area Number^ for netmail replies")
+		case 8: E_BOOL(14,15,   mgroup.UsrDelete, "Allow users to ^Delete^ their messages")
+		case 9: E_BOOL(15,15,   mgroup.Aliases, "Allow ^Aliases^ or real names only")
+		case 10:E_BOOL(16,15,   mgroup.Quotes, "Allow random ^quotes^ to new messages")
+		case 11:E_BOOL(10,57,   mgroup.AutoChange, "^Auto change^ areas from new areas lists")
+		case 12:E_BOOL(11,57,   mgroup.UserChange, "^Auto add/delete^ areas from downlinks requests")
+		case 13:if (CheckMgroup())
 				break;
-			E_BOOL(9,18,   mgroup.Active, "Is this message group ^active^")
-		case 4: tmp = PickAka((char *)"9.1.4", TRUE);
+			E_BOOL(9,15,   mgroup.Active, "Is this message group ^active^")
+		case 14:tmp = PickAka((char *)"9.1.14", TRUE);
 			if (tmp != -1)
 				memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));
 			MgScreen();
 			break;
-		case 5: mgroup.UpLink = PullUplink((char *)"9.1.5");
+		case 15:mgroup.UpLink = PullUplink((char *)"9.1.15");
 			MgScreen();
 			break;
-		case 6: E_STR(12,18,12,mgroup.AreaFile,"The name of the ^Areas File^ from the uplink")
-		case 7: if (CheckMgroup())
+		case 16:E_STR(15,57,12,mgroup.AreaFile,"The name of the ^Areas File^ from the uplink")
+		case 17:if (CheckMgroup())
 				break;
-			E_BOOL(13,18,  mgroup.Deleted, "Is this group ^Deleted^")
+			E_BOOL(16,57,  mgroup.Deleted, "Is this group ^Deleted^")
 		}
 	}
 

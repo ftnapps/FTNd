@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 21-Jan-2002</h5>
+<h5>Last update 10-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Global Setup</H1>
@@ -74,6 +74,8 @@ Here you can enter 40 fidonet addresses. These are 5d addresses.
 <strong>DOS path          </strong>The DOS drive and path
 <strong>Unix path         </strong>The Translated DOS path in real
 <strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
+<strong>FTP base          </strong>The FTP base path, ie. /opt/mbse/ftp/pub
+<strong>Arealists         </strong>The path where area lists and filebone lists are stored
 </pre>
 If you fill in the DOS path then the DOS path and Unix path are translated
 to DOS paths in the flo files for outbound mail sessions. You only need this if
@@ -365,7 +367,6 @@ In UUCP mode the NNTP entries are replaced by:
 <p>
 These are the settings that affect the generation of newfiles and allfiles reports.
 <pre>
-<strong>Ftp base          </strong>The root of the public download area (.../ftp)
 <strong>New days          </strong>The number of days old files are &quot;newfiles&quot;
 <strong>Security          </strong>The highest security level to include files in the reports
 <strong>Groups            </strong>The number of newfile groups the newfiles database can hold
@@ -406,8 +407,7 @@ A new program is <strong>mbftpd</strong>. This is a replacement for the normal
 ftp server for Linux with special futures for MBSE BBS. This is not working
 yet and is not included in the distribution. Setting it up is adviced.
 <pre>
-<strong>Base path         </strong>The ftp base directory (ie. /SYS/usr/ftp).
-<strong>Upload pth        </strong>Incoming files (ie. /SYS/usr/ftp/incoming).
+<strong>Upload pth        </strong>Incoming files (ie. /opt/mbse/ftp/incoming).
 <strong>Banner msg        </strong>The banner file to display before login.
 <strong>Path filter       </strong>The legal character in upload filenames.
 <strong>Path msg          </strong>Message to display if illegal characters in upload.
