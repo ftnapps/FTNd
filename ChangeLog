@@ -9,13 +9,15 @@ v0.61.4		11-Aug-2004
 		(That was twice).
 		Don't forget to backup /opt/mbse.
 		Before upgrade (make install) stop the bbs with "mbstat c w".
+		Kill mbtask, "kill `/sbin/pidof mbtask` might work.
 		This is important because the files database moves to a new
-		location (~/var/fdb).
+		location (~/var/fdb). Some other directories move too.
+		Now you can run "make install" and start the bbs again.
+		Start "mbsetup", enter 1, global setup, leave and save".
 		If you have BBBS uplinks and use automatic uplink requests then
 		change the setup of these nodes in screen 7.10.
 		Run "mbfile check" and then "mbfile index". This fixes the
 		thumbnails if supported by your system.
-		Start mbsetup, enter global setup and leave.
 
 	libmbse.a:
 		The socket_connect function now sets the global nodenumber from
@@ -60,8 +62,8 @@ v0.61.4		11-Aug-2004
 		Changed to use the new files database location.
 
 	mbindex:
-		Fixed compiling pointlists where on the Boss line there is no
-		last comma on the line.
+		Fixed compiling pointlists where on the Boss line when there 
+		is no last comma on the line.
 
 	mbmsg:
 		Fixed counter in log that should show the number of linked 
@@ -96,6 +98,8 @@ v0.61.4		11-Aug-2004
 		was on hold.
 		The comm protocol reply to the AINI command now contains a fake
 		node number.
+		The magic filenames directory is move from ~/magic to
+		~/var/magic.
 
 	mbsetup:
 		Changed nodes screens to have a separate uplink managers setup
@@ -103,6 +107,8 @@ v0.61.4		11-Aug-2004
 		If the convert program is found and was not found before, the
 		defaults are set in menu 1.15.6.
 		The files database is moved from ~/fdb to ~/var/fdb.
+		The magic filenames directory is move from ~/magic to 
+		~/var/magic.
 
 	script:
 		In the editor script (that calls joe) made a fix for screens

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 11-Aug-2004</h5></div>
+<div align="right"><h5>Last update 14-Sep-2004</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -51,7 +51,6 @@ layout looks like this:<br>
 /opt/mbse/english/txtfiles     0770  Default english ANSI files
 /opt/mbse/etc                  0770  System configuration files
 /opt/mbse/etc/dosemu           0750  DOSemu configuration files
-/opt/mbse/fdb                  0770  Files database
 /opt/mbse/ftp/pub              0755  Default FTP root for download areas.
 /opt/mbse/galego/macro         0750  Galego macro files
 /opt/mbse/galego/menus         0750  Galego menu files
@@ -63,7 +62,6 @@ layout looks like this:<br>
 /opt/mbse/italian/menus        0750  Italian menu files
 /opt/mbse/italian/txtfiles     0770  Italian ANSI files
 /opt/mbse/log                  0770  MBSE BBS logfiles
-/opt/mbse/magic                0750  Magic filerequest names
 /opt/mbse/sema                 0777  Semafore files
 /opt/mbse/share/doc            0750  Generated sitedocs
 /opt/mbse/share/doc/html       0750  Generated html sitedocs
@@ -81,7 +79,9 @@ layout looks like this:<br>
 /opt/mbse/var/bso/outbound     0770  Default outbound for main aka
 /opt/mbse/var/dosemu           0770  Base for DOS drives
 /opt/mbse/var/dosemu/c         0770  DOS drive C:
+/opt/mbse/var/fdb              0770  Files database
 /opt/mbse/var/inbound          0750  Protected inbound directory
+/opt/mbse/var/magic            0750  Magic filerequest names
 /opt/mbse/var/mail             0770  JAM messagebase root
 /opt/mbse/var/msgs             0770  *.msgs netmail directory (not yet in use).
 /opt/mbse/var/nodelist         0750  Nodelists

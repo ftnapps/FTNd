@@ -182,7 +182,7 @@ void load_maincfg(void)
         sprintf(CFG.uxpath, "%s", getenv("MBSE_ROOT"));
         sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
         sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
-        sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
+        sprintf(CFG.req_magic, "%s/var/magic", getenv("MBSE_ROOT"));
 	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
 	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
 	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));

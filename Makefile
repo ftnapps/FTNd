@@ -53,7 +53,6 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/html
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/share/doc/tags
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/log
-		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/magic
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0777 ${PREFIX}/sema
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/tmp
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/home
@@ -101,6 +100,13 @@ install:
 			${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/fdb ; \
 			mv ${PREFIX}/fdb/file*.data ${PREFIX}/var/fdb ; \
 			echo "...done. You may remove ${PREFIX}/fdb" ; \
+		fi
+		@if [ ! -d ${PREFIX}/var/magic ] && [ -d ${PREFIX}/magic ]; then \
+			echo "Migrate magic filenames..." ; \
+			${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/magic ; \
+			mv ${PREFIX}/magic/* ${PREFIX}/var/magic ; \
+			rmdir ${PREFIX}/magic ; \
+			echo "...done." ; \
 		fi
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/fdb
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/hatch

@@ -418,11 +418,11 @@ void InitFDB(void)
 			    /*
 			     * Search the magic directory to see if this file is a magic file.
 			     */
-			    sprintf(temp, "%s/magic", getenv("MBSE_ROOT"));
+			    sprintf(temp, "%s", CFG.req_magic);
 			    if ((dp = opendir(temp)) != NULL) {
 				while ((de = readdir(dp))) {
 				    if (de->d_name[0] != '.') {
-					sprintf(temp, "%s/magic/%s", getenv("MBSE_ROOT"), de->d_name);
+					sprintf(temp, "%s/%s", CFG.req_magic, de->d_name);
 					/*
 					 * Only regular files without execute permission are magic requests.
 					 */
@@ -439,6 +439,8 @@ void InitFDB(void)
 				    }
 				}
 				closedir(dp);
+			    } else {
+				WriteError("$Can't open directory %s", temp);
 			    }
 			    fdb.Deleted = old.Deleted;
 			    fdb.NoKill = old.NoKill;

@@ -1408,6 +1408,7 @@ void global_menu(void)
 {
     unsigned long   crc, crc1;
     int		    i;
+    char	    *temp;
 
     if (! check_free())
 	return;
@@ -1461,6 +1462,14 @@ void global_menu(void)
 	Syslog('+', "Main config, installed convert for thumbnails");
     }
 
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/magic", getenv("MBSE_ROOT"));
+    if (strcmp(CFG.req_magic, temp) == 0) {
+	sprintf(CFG.req_magic, "%s/var/magic", getenv("MBSE_ROOT"));
+	Syslog('+', "Main config, magic dir moved to %s", CFG.req_magic);
+    }
+    free(temp);
+    
     if (!CFG.is_upgraded) {
 	CFG.priority = 15;
 #ifdef __linux__
