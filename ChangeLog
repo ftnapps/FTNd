@@ -4911,3 +4911,7 @@ v0.33.20        10-Feb-2002
 		script moved from /sbin to /etc. Patch by Joachim Kuwan.
 		Also modified init.SuSE for Yast2 on SuSE 8.0
 
+	mbse.stop:
+		Added path /usr/local/bin for FreeBSD. Needs the psmisc 
+		package from the ports collection to work.
+
