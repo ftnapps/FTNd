@@ -12,8 +12,11 @@ v0.71.2		16-Jan-2005
 
 	mbcico:
 		Added protection during binkp receive for zero bytes compressed
-		data frames, this will case uncompress error -5 because zero
+		data frames, this will cause uncompress error -5 because zero
 		bytes can't be compressed ar all.
+		Fixed test for valid aka's in the EMSI handshake that prevented
+		that host aka's (node /0) were not presented to the remote.
+		(thanks Przemyslaw Kwiatkowski).
 
 	mbfido:
 		Empty *.msg netmails for our own system are dropped with and

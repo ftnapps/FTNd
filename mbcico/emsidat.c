@@ -99,7 +99,7 @@ char *mkemsidat(int caller)
     p = xstrcat(p, ascfnode(primary, 0x1f));
 
     for (i = 0; i < 40; i++)
-	if ((CFG.aka[i].node) && (CFG.akavalid[i]) &&
+	if ((CFG.aka[i].zone) && (CFG.akavalid[i]) &&
 		    ((CFG.aka[i].zone != primary->zone) || (CFG.aka[i].net  != primary->net) ||
 		     (CFG.aka[i].node != primary->node) || (CFG.aka[i].point!= primary->point))) {
 	    p = xstrcat(p, (char *)" ");
