@@ -372,7 +372,20 @@ int EditTtyRec(int Area)
 		case 4:	E_STR( 10,21,20,ttyinfo.speed,    "The ^Speed^ of this device")
 		case 5:	E_STR( 11,21,30,ttyinfo.flags,    "The ^Fidonet Capability Flags^ for this tty line")
 		case 6:	ttyinfo.type = edit_linetype(12,21, ttyinfo.type); break;
-		case 7:	E_BOOL(13,21,   ttyinfo.available,"Switch if this tty line is ^Available^ for use.")
+		case 7:	ttyinfo.available = edit_bool(13,21, ttyinfo.available, 
+				(char *)"Switch if this tty line is ^Available^ for use.");
+			if (ttyinfo.available) {
+			    if ((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) {
+				ttyinfo.callout = TRUE;
+				ttyinfo.authlog = TRUE;
+				ttyinfo.honor_zmh = TRUE;
+			    }
+			    if ((ttyinfo.type == POTS) && !ttyinfo.portspeed)
+				ttyinfo.portspeed = 57600;
+			    else
+				ttyinfo.portspeed = 0;
+			}
+			break;
 		case 8:	E_BOOL(14,21,   ttyinfo.authlog,  "Is mgetty ^Auth^ logging available")
 		case 9: E_BOOL(15,21,   ttyinfo.honor_zmh,"Honor ^Zone Mail Hour^ on this tty line")
 		case 10:E_BOOL(16,21,   ttyinfo.deleted,  "Is this tty line ^deleted") 

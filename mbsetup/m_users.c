@@ -311,7 +311,7 @@ void Fields2(void)
 	show_str(11,17,19, usrconfig.sVoicePhone);
 	show_str(12,17,19, usrconfig.sDataPhone);
 	show_str(13,17,10, usrconfig.sDateOfBirth);
-	show_str(14,17,12, (char *)"********");
+	show_str(14,17,Max_passlen, (char *)"**************");
 	show_str( 15,17, 7,usrconfig.sSex);
 	show_str( 16,17,12,usrconfig.sProtocol);
 	show_str( 17,17, 5,usrconfig.Archiver);
@@ -353,7 +353,7 @@ int EditUsrRec2(void)
                 case 6: E_STR(11,17,16, usrconfig.sVoicePhone, "The ^Voice Phone^ number of this user")
                 case 7: E_STR(12,17,16, usrconfig.sDataPhone,  "The ^Data Phone^ number of this user")
                 case 8: E_STR(13,17,10, usrconfig.sDateOfBirth,"The ^Date of Birth^ in DD-MM-YYYY format")
-                case 9: strcpy(temp,  edit_str(14,17,12, usrconfig.Password, (char *)"Enter the ^password^ for this user"));
+                case 9: strcpy(temp,edit_str(14,17,Max_passlen,usrconfig.Password,(char *)"Enter the ^password^ for this user"));
                         if (strlen(temp)) {
 			    if (strcasecmp(usrconfig.Password, temp)) {
 				/*
@@ -363,8 +363,8 @@ int EditUsrRec2(void)
                                 memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
                                 strcpy(usrconfig.Password, temp);
 				usrconfig.tLastPwdChange = time(NULL);
-				Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
-				sprintf(temp, "%s/bin/mbpasswd -n %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
+				Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
+				sprintf(temp, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
 				if (system(temp) != 0) {
 				    WriteError("$Failed to set new Unix password");
 				} else {

@@ -4283,6 +4283,9 @@ v0.33.19        26-Oct-2001
 		default mail areas, a newfilereport and the groups belonging
 		to these areas. Also 10 oneliners are installed.
 		Changed help for nodes billing flag.
+		Changed users password length to 14 characters instead of 12.
+		When you make a tty line available, some settings are
+		automatic set to reasonable defaults.
 
 	mbsebbs:
 		Added menu 317, change FS editor shortcut keys to (Emacs/
