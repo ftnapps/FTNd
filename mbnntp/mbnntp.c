@@ -263,10 +263,12 @@ void nntp(void)
 	    if (check_auth(buf))
 		command_abhs(buf);
 	} else if (strncasecmp(buf, "MODE READER", 11) == 0) {
-	    if (authorized)
-		send_nntp("200 Server ready, posting allowed");
-	    else
-		send_nntp("201 Server ready, no posting allowed");
+	    if (check_auth(buf)) {
+		if (authorized)
+		    send_nntp("200 Server ready, posting allowed");
+		else
+		    send_nntp("201 Server ready, no posting allowed");
+	    }
 	} else if (strncasecmp(buf, "XOVER", 5) == 0) {
 	    if (check_auth(buf))
 		command_xover(buf);
