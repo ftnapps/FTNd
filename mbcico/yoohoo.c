@@ -167,17 +167,17 @@ int rx_yoohoo(void)
 		if (nlent) 
 			rdoptions(Loaded);
 
-		if (strlen(nodes.Epasswd)) {
-			if ((strncasecmp((char*)hello2.my_password, nodes.Epasswd, strlen(nodes.Epasswd)) == 0) &&
-			    (strlen((char*)hello2.my_password) == strlen(nodes.Epasswd))) {
+		if (strlen(nodes.Spasswd)) {
+			if ((strncasecmp((char*)hello2.my_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
+			    (strlen((char*)hello2.my_password) == strlen(nodes.Spasswd))) {
 				Syslog('+', "Password correct, protected mail session");
 				if (inbound)
 					free(inbound);
 				inbound = xstrcpy(CFG.pinbound);
-				pwd = xstrcpy(nodes.Epasswd);
+				pwd = xstrcpy(nodes.Spasswd);
 			} else {
 				pwd = (char *)"BAD_PASS";
-				Syslog('?', "Remote password \"%s\", expected \"%s\"", (char*)hello2.my_password, nodes.Epasswd);
+				Syslog('?', "Remote password \"%s\", expected \"%s\"", (char*)hello2.my_password, nodes.Spasswd);
 				localcaps = 0;
 			}
 		} else
@@ -224,8 +224,8 @@ int tx_yoohoo(void)
 
 	Syslog('+', "Start outbound YooHoo session");
 
-	if (strlen(nodes.Epasswd))
-		pwd = xstrcpy(nodes.Epasswd);
+	if (strlen(nodes.Spasswd))
+		pwd = xstrcpy(nodes.Spasswd);
 	else
 		pwd = NULL;
 

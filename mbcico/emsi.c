@@ -155,17 +155,17 @@ int rx_emsi(char *data)
 	if (localoptions & NOFREQS)
 		emsi_local_opts |= OPT_NRQ;
 
-	if (strlen(nodes.Epasswd)) {
-		if ((strncasecmp(emsi_remote_password, nodes.Epasswd, strlen(nodes.Epasswd)) == 0) &&
-	            (strlen(emsi_remote_password) == strlen(nodes.Epasswd))) {
-			emsi_local_password = xstrcpy(nodes.Epasswd);
+	if (strlen(nodes.Spasswd)) {
+		if ((strncasecmp(emsi_remote_password, nodes.Spasswd, strlen(nodes.Spasswd)) == 0) &&
+	            (strlen(emsi_remote_password) == strlen(nodes.Spasswd))) {
+			emsi_local_password = xstrcpy(nodes.Spasswd);
 			if (inbound)
 				free(inbound);
 			inbound = xstrcpy(CFG.pinbound);
 			Syslog('+', "Password correct, protected EMSI session");
 		} else {
 			denypw = 1;
-			Syslog('?', "Remote password \"%s\", expected \"%s\"", MBSE_SS(emsi_remote_password), nodes.Epasswd);
+			Syslog('?', "Remote password \"%s\", expected \"%s\"", MBSE_SS(emsi_remote_password), nodes.Spasswd);
 			emsi_local_password = xstrcpy((char *)"BAD_PASS");
 			emsi_local_lcodes = LCODE_HAT;
 		}

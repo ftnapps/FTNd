@@ -107,8 +107,8 @@ char *mkemsidat(int caller)
 	if (emsi_local_password) 
 		p=xstrcat(p,emsi_local_password);
 	else 
-		if (strlen(nodes.Epasswd)) {
-			p = xstrcat(p, nodes.Epasswd);
+		if (strlen(nodes.Spasswd)) {
+			p = xstrcat(p, nodes.Spasswd);
 		}
 
 	if (emsi_local_opts & OPT_EII) {

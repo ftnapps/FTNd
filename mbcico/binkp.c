@@ -440,9 +440,9 @@ SM_STATE(waitconn)
 
 SM_STATE(sendpass)
 
-	if (strlen(nodes.Epasswd)) {
+	if (strlen(nodes.Spasswd)) {
 		SendPass = TRUE;
-		binkp_send_control(MM_PWD, "%s", nodes.Epasswd);
+		binkp_send_control(MM_PWD, "%s", nodes.Spasswd);
 	} else { 
 		binkp_send_control(MM_PWD, "-");
 	}
@@ -714,11 +714,11 @@ SM_STATE(pwdack)
 		Syslog('+', "Node not in setup, unprotected BINKP session");
 		binkp_send_control(MM_OK, "");
 		SM_SUCCESS;
-	} else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Epasswd)) {
+	} else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Spasswd)) {
 		Syslog('+', "Node in setup but no session password, unprotected BINKP session");
 		binkp_send_control(MM_OK, "");
 		SM_SUCCESS;
-	} else if ((strcmp(&rbuf[1], nodes.Epasswd) == 0) && Loaded) {
+	} else if ((strcmp(&rbuf[1], nodes.Spasswd) == 0) && Loaded) {
 		Syslog('+', "Password OK, protected BINKP session");
 		if (inbound)
 			free(inbound);
@@ -726,7 +726,7 @@ SM_STATE(pwdack)
 		binkp_send_control(MM_OK, "");
 		SM_SUCCESS;
 	} else {
-		Syslog('?', "Password error: expected \"%s\", got \"%s\"", nodes.Epasswd, &rbuf[1]);
+		Syslog('?', "Password error: expected \"%s\", got \"%s\"", nodes.Spasswd, &rbuf[1]);
 		binkp_send_control(MM_ERR, "*** Password error, check setup ***");
 		SM_ERROR;
 	}
