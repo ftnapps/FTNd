@@ -254,7 +254,7 @@ void die(int onsig)
 
 int main(int argc, char **argv)
 {
-    int		    i, Loop, envrecip_count = 0;
+    int		    i, x, Loop, envrecip_count = 0;
     char	    *p, *cmd, *temp, Options[81];
     struct passwd   *pw;
     struct tm	    *t;
@@ -602,8 +602,19 @@ int main(int argc, char **argv)
 	MakeStat();
     if (do_uucp)
 	NewsUUCP();
-    if (do_areas)
+    if (do_areas) {
+	if (!do_quiet) {
+	    colour(LIGHTGREEN, BLACK);
+	    printf("Are you sure to process all area lists [y/N] ");
+	    fflush(stdout);
+	    x = Getone();
+	    printf("\r                                             \r");
+	    fflush(stdout);
+	    if (toupper(x) != 'Y')
+		die(MBERR_OK);
+	}
 	Areas();
+    }
     if (do_flush)
 	flush_queue();
 

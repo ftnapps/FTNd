@@ -114,9 +114,6 @@ mbfido:
 
 	N: Hatch statistics are not updated.
 
-	N: If areas command is given without -quiet, ask user if he/she really
-	   want's to do this.
-
 mbcico:
 	L: Implement binkp option ND.
 

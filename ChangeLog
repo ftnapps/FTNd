@@ -14,6 +14,8 @@ v0.61.3		25-Jul-2004
 	mbfido:
 		Changed netmail counters in the .msg import function.
 		Fixed logging of 0 articles in scannews.
+		With the command "mbfido areas" without the -q option the user
+		must confirm this action.
 
 	mbfile:
 		Fixed a bug where "mbfile k p i" didn't give the help screen.
