@@ -2028,7 +2028,7 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
+CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 
 # Check whether --enable-memwatch or --disable-memwatch was given.
 if test "${enable_memwatch+set}" = set; then

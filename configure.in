@@ -7,6 +7,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup fbutil import lang examp
 AC_SUBST(SUBDIRS)
 
 dnl General settings for MBSE BBS
+dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
 VERSION="0.33.19"
 COPYRIGHT="Copyright (C) 1997-2001 Michiel Broek, All Rights Reserved"
@@ -40,7 +41,7 @@ AC_CHECK_PROG(TAR, tar, tar)
 AC_CHECK_PROG(ZIP, zip, zip)
 dnl AM_PROG_LEX
 AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
-CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
+CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 
 dnl Additional commandline switches
 AC_ARG_ENABLE(memwatch,  [  --enable-memwatch       MEMWATCH debugging],     [ memwatch=$enableval ], [ memwatch=no ])
