@@ -191,16 +191,14 @@ int GetMenuType(void)
 	mvprintw(10, 6, "4.  User setting menus");
 	mvprintw(11, 6, "5.  Oneliner menus");
 	mvprintw(12, 6, "6.  BBS List menus");
-	mvprintw(13, 6, "7.  Display Text Only");
 
-	switch (select_menu(7)) {
+	switch (select_menu(6)) {
 		case 1:	return GetSubmenu(1, 25);
 		case 2:	return GetSubmenu(101, 19);
 		case 3:	return GetSubmenu(201, 20);
 		case 4:	return GetSubmenu(301, 16);
 		case 5:	return GetSubmenu(401, 5);
 		case 6:	return GetSubmenu(501, 6);
-		case 7: return 999;
 		default: return 0; 
 	}
 }
