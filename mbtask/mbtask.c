@@ -82,6 +82,7 @@ double			Load;			/* System Load		*/
 int			Processing;		/* Is system running	*/
 int			ZMH = FALSE;		/* Zone Mail Hour	*/
 int			UPSalarm = FALSE;	/* UPS alarm status	*/
+int			UPSdown = FALSE;	/* UPS down status	*/
 extern int		s_bbsopen;		/* BBS open semafore	*/
 extern int		s_scanout;		/* Scan outbound sema	*/
 extern int		s_mailout;		/* Mail out semafore	*/
@@ -658,14 +659,19 @@ void start_shutdown(int onsig)
 void die(int onsig)
 {
     int	    i, count;
+    char    temp[80];
     time_t  now;
 
     signal(onsig, SIG_IGN);
 
-    if ((onsig == SIGTERM) || (nodaemon && (onsig == SIGINT))) {
-        Syslog('+', "Starting normal shutdown (%s)", SigName[onsig]);
+    if (onsig < NSIG) {
+	if ((onsig == SIGTERM) || (nodaemon && (onsig == SIGINT))) {
+	    Syslog('+', "Starting normal shutdown (%s)", SigName[onsig]);
+	} else {
+	    Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
+	}
     } else {
-        Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
+	Syslog('+', "Shutdown on error %d", onsig);
     }
 
     /*
@@ -699,6 +705,25 @@ void die(int onsig)
 	Syslog('?', "Shutdown with %d tasks still running", count);
     else
 	Syslog('+', "Good, no more tasks running");
+
+    /*
+     * Now check for users online and other programs not started
+     * under control of mbtask.
+     */
+    count = 30;
+    while (count) {
+	sprintf(temp, "%s", reg_fre());
+	if (strcmp(temp, "100:0;") == 0) {
+	    Syslog('+', "Good, no more other programs running");
+	    break;
+	}
+	Syslog('+', "%s", temp+6);
+	sleep(1);
+	count--;
+    }
+    if ((count == 0) && strcmp(temp, "100:0;")) {
+	Syslog('?', "Continue shutdown with other programs running");
+    }
 
     /*
      * Now stop the threads
@@ -890,6 +915,7 @@ void check_sema(void)
     }
     if (IsSema((char *)"upsdown")) {
 	Syslog('!', "UPS: power failure, starting shutdown");
+	UPSdown = TRUE;
 	/*
 	 *  Since the upsdown semafore is permanent, the system WILL go down
 	 *  there is no point for this program to stay. Signal all tasks and stop.
@@ -1081,6 +1107,8 @@ void *scheduler(void)
 	memset(&doing, 0, sizeof(doing));
 	if ((running = checktasks(0)))
 	    sprintf(doing, "Run %d tasks", running);
+	else if (UPSdown)
+	    sprintf(doing, "UPS shutdown");
 	else if (UPSalarm)
 	    sprintf(doing, "UPS alarm");
 	else if (!s_bbsopen)

@@ -51,6 +51,7 @@ int			s_bbsopen  = FALSE;
 int			s_do_inet  = FALSE;
 int			tosswait   = TOSSWAIT_TIME;
 extern int		UPSalarm;
+extern int		UPSdown;
 extern int		ptimer;
 extern int		rescan;
 
@@ -394,6 +395,8 @@ char *sem_status(char *data)
         value = s_reqindex;
     } else if (!strcmp(sem, "upsalarm")) {
 	value = UPSalarm;
+    } else if (!strcmp(sem, "upsdown")) {
+	value = UPSdown;
     } else if (!strcmp(sem, "do_inet")) {
 	value = s_do_inet;
     } else {

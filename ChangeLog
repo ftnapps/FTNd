@@ -111,6 +111,10 @@ v0.61.4		11-Aug-2004
 		The magic filenames directory is moved from ~/magic to
 		~/var/magic.
 		The semafore directory is moved from ~/sema to ~/var/sema.
+		When shutting down on UPS semafore "upsdown", the log was
+		garbled.
+		When shutting down on an external event and there were users
+		online, mbtask did not wait.
 
 	mbsetup:
 		Changed nodes screens to have a separate uplink managers setup
