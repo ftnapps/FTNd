@@ -138,12 +138,10 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
     int	    rc;
 
 #ifdef __linux__
-    Syslog('-', "sync()");
     sync();
 #endif
     rc = _execute(cmd, file, pkt, in, out, err);
 #ifdef __linux
-    Syslog('-', "sync()");
     sync();
 #endif
     return rc;
