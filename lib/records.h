@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: records.h
- * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 25-Sep-2000
+ * $Id$
+ * Purpose ...............: MBSE BBS Global records structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -118,6 +117,9 @@ struct	_newfiles	newfiles;
 
 struct	_scanmgrhdr	scanmgrhdr;		/* Filefind areas	   */
 struct	_scanmgr	scanmgr;
+
+struct	_routehdr	routerhdr;		/* Routing file		    */
+struct	_route		route;
 
 #endif
 

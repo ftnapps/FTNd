@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS Global structure
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -55,7 +55,8 @@ typedef enum {I_DZA, I_ZAP, I_ZMO, I_SLK, I_KER} IPROT;
 typedef enum {E_NOISP, E_TMPISP, E_PRMISP} EMODE;
 typedef enum {AREAMGR, FILEMGR, EMAIL} SERVICE;
 typedef enum {FEEDINN, FEEDRNEWS, FEEDUUCP} NEWSFEED;
-
+typedef enum {S_DIRECT, S_DIR, S_FTP} SESSIONTYPE;
+typedef enum {R_ROUTE, R_NEWDEST, R_BOUNCE, R_CC} ROUTER;
 
 
 /***********************************************************************
@@ -1157,69 +1158,110 @@ struct	_nodeshdr {
 };
 
 struct	_nodes {
-	char		Sysop[36];		/* Sysop name		   */
-	fidoaddr	Aka[20];		/* Aka's for this system   */
-	char		Fpasswd[16];		/* Files password	   */
-	char		Epasswd[16];		/* Session/Mail password   */
-	char		Apasswd[16];		/* Areamgr password	   */
-	char		UplFmgrPgm[9];		/* Uplink FileMgr program  */
-	char		UplFmgrPass[16];	/* Uplink FileMgr password */
-	char		UplAmgrPgm[9];		/* Uplink AreaMgr program  */
-	char		UplAmgrPass[16];	/* Uplink AreaMgr password */
+	char		Sysop[36];		/* Sysop name		    */
+	fidoaddr	Aka[20];		/* Aka's for this system    */
+	char		Fpasswd[16];		/* Files password	    */
+	char		Epasswd[16];		/* Mail password	    */
+	char		Apasswd[16];		/* Areamgr password	    */
+	char		UplFmgrPgm[9];		/* Uplink FileMgr program   */
+	char		UplFmgrPass[16];	/* Uplink FileMgr password  */
+	char		UplAmgrPgm[9];		/* Uplink AreaMgr program   */
+	char		UplAmgrPass[16];	/* Uplink AreaMgr password  */
 
-	unsigned	Direct		: 1;	/* Netmail Direct	   */
-	unsigned	Message		: 1;	/* Send Message w. files   */
-	unsigned	Tic		: 1;	/* Send TIC files	   */
-	unsigned	Notify		: 1;	/* Send Notify messages	   */
-	unsigned	FileFwd		: 1;	/* Accept File Forward	   */
-	unsigned	MailFwd		: 1;	/* Accept Mail Forward	   */
-	unsigned	AdvTic		: 1;	/* Advanced Tic files	   */
-	unsigned	Billing		: 1;	/* Cost sharing on/off	   */
+	unsigned	Direct		: 1;	/* Netmail Direct	    */
+	unsigned	Message		: 1;	/* Send Message w. files    */
+	unsigned	Tic		: 1;	/* Send TIC files	    */
+	unsigned	Notify		: 1;	/* Send Notify messages	    */
+	unsigned	FileFwd		: 1;	/* Accept File Forward	    */
+	unsigned	MailFwd		: 1;	/* Accept Mail Forward	    */
+	unsigned	AdvTic		: 1;	/* Advanced Tic files	    */
+	unsigned	Billing		: 1;	/* Cost sharing on/off	    */
 
-	unsigned	BillDirect	: 1;	/* Send bill direct	   */
-	unsigned	Crash		: 1;	/* Netmail crash	   */
-	unsigned	Hold		: 1;	/* Netmail hold		   */
-	unsigned	AddPlus		: 1;	/* Add + for uplink msgs   */
-	unsigned	MailPwdCheck	: 1;	/* Mail password check	   */
-	unsigned	Deleted		: 1;	/* Node is deleted	   */
-	unsigned	NoEMSI		: 1;	/* No EMSI handshake	   */
-	unsigned	NoWaZOO		: 1;	/* No YooHoo/2U2 handshake */
+	unsigned	BillDirect	: 1;	/* Send bill direct	    */
+	unsigned	Crash		: 1;	/* Netmail crash	    */
+	unsigned	Hold		: 1;	/* Netmail hold		    */
+	unsigned	AddPlus		: 1;	/* Add + for uplink msgs    */
+	unsigned	MailPwdCheck	: 1;	/* Mail password check	    */
+	unsigned	Deleted		: 1;	/* Node is deleted	    */
+	unsigned	NoEMSI		: 1;	/* No EMSI handshake	    */
+	unsigned	NoWaZOO		: 1;	/* No YooHoo/2U2 handshake  */
 
-	unsigned	NoFreqs		: 1;	/* Don't allow requests	   */
-	unsigned	NoCall		: 1;	/* Don't call this node	   */
+	unsigned	NoFreqs		: 1;	/* Don't allow requests	    */
+	unsigned	NoCall		: 1;	/* Don't call this node	    */
 	unsigned	xNoHold		: 1;
 	unsigned	xNoPUA		: 1;
-	unsigned	NoZmodem	: 1;	/* Don't use Zmodem	   */
-	unsigned	NoZedzap	: 1;	/* Don't use Zedzap	   */
-	unsigned	xNoJanus	: 1;	/* Don't use Janus	   */
-	unsigned	NoHydra		: 1;	/* Don't use Hydra	   */
+	unsigned	NoZmodem	: 1;	/* Don't use Zmodem	    */
+	unsigned	NoZedzap	: 1;	/* Don't use Zedzap	    */
+	unsigned	xNoJanus	: 1;	/* Don't use Janus	    */
+	unsigned	NoHydra		: 1;	/* Don't use Hydra	    */
 
-	unsigned	NoIBN		: 1;	/* Don't use TCP-IP binkp  */
-	unsigned	PackNetmail	: 1;	/* Pack netmail		   */
-	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility   */
-	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name */
-	unsigned	FNC		: 1;	/* Node needs 8.3 filenames*/
-	unsigned	NoITN		: 1;	/* Don't use TCP-IP telnet */
-	unsigned	NoIFC		: 1;	/* Don't use TCP-IP ifcico */
+	unsigned	NoIBN		: 1;	/* Don't use TCP-IP binkp   */
+	unsigned	PackNetmail	: 1;	/* Pack netmail		    */
+	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility    */
+	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name  */
+	unsigned	FNC		: 1;	/* Node needs 8.3 filenames */
+	unsigned	NoITN		: 1;	/* Don't use TCP-IP telnet  */
+	unsigned	NoIFC		: 1;	/* Don't use TCP-IP ifcico  */
 
 	char		xExtra[94];
-	time_t		StartDate;		/* Node start date	   */
-	time_t		LastDate;		/* Last action date	   */
-	long		Credit;			/* Node's credit	   */
-	long		Debet;			/* Node's debet		   */
-	long		AddPerc;		/* Add Percentage	   */
-	long		WarnLevel;		/* Warning level	   */
-	long		StopLevel;		/* Stop level		   */
-	fidoaddr	RouteVia;		/* Routing address	   */
-	int		Language;		/* Language for netmail	   */
-	statcnt		FilesSent;		/* Files sent to node	   */
-	statcnt		FilesRcvd;		/* Files received from node*/
-	statcnt		F_KbSent;		/* File KB. sent	   */
-	statcnt		F_KbRcvd;		/* File KB. received	   */
-	statcnt		MailSent;		/* Messages sent to node   */
-	statcnt		MailRcvd;		/* Messages received	   */
-	char		dial[41];		/* Dial command override   */
-	char		phone[2][21];		/* Phone numbers override  */
+	time_t		StartDate;		/* Node start date	    */
+	time_t		LastDate;		/* Last action date	    */
+	long		Credit;			/* Node's credit	    */
+	long		Debet;			/* Node's debet		    */
+	long		AddPerc;		/* Add Percentage	    */
+	long		WarnLevel;		/* Warning level	    */
+	long		StopLevel;		/* Stop level		    */
+	fidoaddr	RouteVia;		/* Routing address	    */
+	int		Language;		/* Language for netmail	    */
+	statcnt		FilesSent;		/* Files sent to node	    */
+	statcnt		FilesRcvd;		/* Files received from node */
+	statcnt		F_KbSent;		/* File KB. sent	    */
+	statcnt		F_KbRcvd;		/* File KB. received	    */
+	statcnt		MailSent;		/* Messages sent to node    */
+	statcnt		MailRcvd;		/* Messages received	    */
+	char		dial[41];		/* Dial command override    */
+	char		phone[2][21];		/* Phone numbers override   */
+
+	char		Spasswd[16];		/* Session password	    */
+	int		Session_out;		/* Outbound session type    */
+	int		Session_in;		/* Inbound session type	    */
+
+						/* Directory in/outbound    */
+	char		Dir_out_path[65];	/* Outbound files	    */
+	char		Dir_out_clock[65];	/* Outbound filelock check  */
+	char		Dir_out_mlock[65];	/* Outbound filelock create */
+	char		Dir_in_path[65];	/* Inbound files	    */
+	char		Dir_in_clock[65];	/* Inbound filelock check   */
+	char		Dir_in_mlock[65];	/* Inbound filelock create  */
+	unsigned	Dir_out_chklck	: 1;	/* Outbound check lock	    */
+	unsigned	Dir_out_waitclr	: 1;	/* Outbound wait for clear  */
+	unsigned	Dir_out_mklck	: 1;	/* Outbound create lock	    */
+	unsigned	Dir_in_chklck	: 1;	/* Inbound check lock	    */
+	unsigned	Dir_in_waitclr	: 1;	/* Inbound wait for clear   */
+	unsigned	Dir_in_mklck	: 1;	/* Inbound create lock	    */
+
+						/* FTP transfer		    */
+	char		FTP_site[65];		/* Site name or IP address  */
+	char		FTP_user[17];		/* Username		    */
+	char		FTP_pass[17];		/* Password		    */
+	char		FTP_starthour[6];	/* Start hour		    */
+	char		FTP_endhour[6];		/* End hour		    */
+	char		FTP_out_path[65];	/* Outbound files path	    */
+	char		FTP_out_clock[65];	/* Outbound filelock check  */
+	char		FTP_out_mlock[65];	/* Outbound filelock create */
+	char		FTP_in_path[65];	/* Inbound files path	    */
+	char		FTP_in_clock[65];	/* Inbound filelock check   */
+	char		FTP_in_mlock[65];	/* Inbound filelock create  */
+	unsigned	FTP_lock1byte	: 1;	/* Locksize 1 or 0 bytes    */
+	unsigned	FTP_unique	: 1;	/* Unique storage	    */
+	unsigned	FTP_uppercase	: 1;	/* Force uppercase	    */
+	unsigned	FTP_lowercase	: 1;	/* Force lowercase	    */
+	unsigned	FTP_out_chklck	: 1;	/* Outbound check lockfile  */
+	unsigned	FTP_out_waitclr	: 1;	/* Outbound wait for clear  */
+	unsigned	FTP_out_mklck	: 1;	/* Outbound create lock	    */
+	unsigned	FTP_in_chklck	: 1;	/* Inbound check lockfile   */
+	unsigned	FTP_in_waitclr	: 1;	/* Inbound wait for clear   */
+	unsigned	FTP_in_mklck	: 1;	/* Inbound create lock	    */
 };
 
 
@@ -1505,6 +1547,31 @@ struct _history {
 	unsigned long	rcvd_bytes;		/* Bytes received	   */
 	int		cost;			/* Session cost		   */
 	unsigned	inbound		: 1;	/* Inbound session	   */
+};
+
+
+
+/*
+ * Routing file, will override standard routing.
+ * The mask is some kind of free formatted string like:
+ *   1:All
+ *   2:2801/16
+ *   2:2801/All
+ * If sname is used, the message To name is also tested for, this way
+ * extra things can be done for netmail to a specific person.
+ */
+struct _routehdr {
+	long            hdrsize;                /* Size of header	    */
+	long            recsize;                /* Size of records	    */
+};
+
+
+struct _route {
+	char		mask[25];		/* Mask to check	    */
+	char		sname[37];		/* Opt. name to test	    */
+	int		routetype;		/* What to do with it	    */
+	fidoaddr	dest;			/* Destination address	    */
+	char		dname[37];		/* Destination name	    */
 };
 
 
