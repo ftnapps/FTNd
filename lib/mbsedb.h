@@ -59,6 +59,7 @@ char			fidonet_fil[81];/* Fidonet database filename	    */
 int	InitFidonet(void);		/* Initialize fidonet database	    */
 int	TestFidonet(unsigned short);	/* Test if zone is in memory	    */
 int	SearchFidonet(unsigned short);	/* Search specified zone and load   */
+char	*GetFidoDomain(unsigned short);	/* Search Fidonet domain name	    */
 
 
 

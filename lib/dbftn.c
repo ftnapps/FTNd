@@ -97,3 +97,17 @@ int SearchFidonet(unsigned short zone)
 
 
 
+char *GetFidoDomain(unsigned short zone)
+{
+    static char domain[9];
+
+    memset(&domain, 0, sizeof(domain));
+
+    if (SearchFidonet(zone) == FALSE)
+	return NULL;
+
+    strncpy(domain, fidonet.domain, 8);
+    return domain;
+}
+
+

@@ -35,8 +35,22 @@
 
 void command_list(char *cmd)
 {
+    FILE    *fp;
+    char    *temp;
+    
     send_nntp("215 List of newsgroups follows");
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp, "r"))) {
+	fread(&msgshdr, sizeof(msgshdr), 1, fp);
+	while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
 
+	    fseek(fp, msgs.syssize, SEEK_CUR);
+	}
+    } else {
+	WriteError("$Can't open %s", temp);
+    }
+    free(temp);
     send_nntp(".");
 }
 

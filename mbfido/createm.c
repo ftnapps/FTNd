@@ -31,6 +31,8 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "../lib/msg.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "mgrutil.h"
 #include "createm.h"
 
@@ -250,7 +252,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		    if (tag[i] == '.')
 			tag[i] = '/';
 		sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
-		sprintf(msgs.Newsgroup, "%s.%s", msgs.Group, tag);
+		sprintf(msgs.Newsgroup, "%s.%s", GetFidoDomain(msgs.Aka.zone), tag);
 		for (i = 0; i < strlen(msgs.Newsgroup); i++) {
 		    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
 		    if (msgs.Newsgroup[i] == '/')

@@ -31,6 +31,8 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "../lib/msg.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "screen.h"
 #include "mutil.h"
 #include "ledit.h"
@@ -190,6 +192,7 @@ int OpenMsgarea(void)
 	start = SYSINFO.StartDate;
 	fclose(fin);
     }
+    InitFidonet();
 
     sprintf(fnin,  "%s/etc/mareas.data", getenv("MBSE_ROOT"));
     sprintf(fnout, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
@@ -241,7 +244,7 @@ int OpenMsgarea(void)
 		if ((int)msgs.Created == 0) {
 		    msgs.Created = start;
 		    if ((strlen(msgs.Newsgroup) == 0) && (msgs.Type == ECHOMAIL) && strlen(msgs.Group)) {
-			sprintf(msgs.Newsgroup, "%s.%s", msgs.Group, msgs.Tag);
+			sprintf(msgs.Newsgroup, "%s.%s", GetFidoDomain(msgs.Aka.zone), msgs.Tag);
 			for (i = 0; i < strlen(msgs.Newsgroup); i++) {
 			    msgs.Newsgroup[i] = tolower(msgs.Newsgroup[i]);
 			    if (msgs.Newsgroup[i] == '_')
