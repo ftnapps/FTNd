@@ -33,7 +33,9 @@ MAKE		= @MAKE@
 JOEBIN		= @joebin@
 JOELIB		= @joelib@
 
-CFLAGS		= @COMPILEFLAGS@
+CFLAGS		= @CFLAGS@
 LIBS		= @LIBS@
 PTLIBS		= @PTLIBS@
+LDFLAGS		= @LDFLAGS@
+DEFS		= @DEFS@
 

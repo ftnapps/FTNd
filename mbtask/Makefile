@@ -19,7 +19,7 @@ OTHER		= Makefile issue issue.netbsd
 #############################################################################
 
 .c.o:
-		${CC} ${CFLAGS} ${INCLUDES} ${DEFINES} -c $<
+		${CC} ${CFLAGS} -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS ${INCLUDES} ${DEFINES} -c $<
 
 all:		mbtask
 
