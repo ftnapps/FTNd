@@ -46,7 +46,9 @@ v0.61.4		11-Aug-2004
 	mbmsg:
 		Fixed counter in log that should show the number of linked 
 		messages.
-		With the post command no tearline is added anymore.
+		With the post command a check is done to see if the input file
+		has a tearline and origin line, if not mbmsg will add these
+		lines, else the lines of the input file are used.
 
 	mbsebbs:
 		The exec_nosuid function for doors now also has a extra small

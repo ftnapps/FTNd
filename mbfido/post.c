@@ -43,7 +43,7 @@ extern int		do_quiet;		/* Suppress screen output    */
 
 int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
 {
-    int		    i, rc = FALSE;
+    int		    i, rc = FALSE, has_tear = FALSE, has_origin = FALSE;
     char	    *aka, *temp, *sAreas;
     FILE	    *fp, *tp;
     unsigned long   crc = -1;
@@ -226,6 +226,15 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     sprintf(temp, "\001TZUTC: %s", gmtoffset(tt));
     MsgText_Add2(temp);
 
+    while ((Fgets(temp, PATH_MAX -1, tp)) != NULL) {
+	if (strncmp(temp, "--- ", 4) == 0)
+	    has_tear = TRUE;
+	if (strncmp(temp, " * Origin: ", 11) == 0)
+	    has_origin = TRUE;
+    }
+    rewind(tp);
+    Syslog('m', "has tearline=%s, has origin=%s", has_tear?"True":"False", has_origin?"True":"False");
+
     /*
      * Add the file as text
      */
@@ -235,20 +244,27 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     /*
      * Finish the message
      */
-    aka = calloc(40, sizeof(char));
+    if (! has_tear) {
+	MsgText_Add2((char *)"");
+	MsgText_Add2(TearLine());
+    }
 
-    if (msgs.Aka.point)
-	sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
-    else
-	sprintf(aka, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+    if (! has_origin) {
+	aka = calloc(40, sizeof(char));
 
-    if (strlen(msgs.Origin))
-	sprintf(temp, " * Origin: %s %s", msgs.Origin, aka);
-    else
-	sprintf(temp, " * Origin: %s %s", CFG.origin, aka);
+	if (msgs.Aka.point)
+	    sprintf(aka, "(%d:%d/%d.%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node, msgs.Aka.point);
+	else
+	    sprintf(aka, "(%d:%d/%d)", msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
-    MsgText_Add2(temp);
-    free(aka);
+	if (strlen(msgs.Origin))
+	    sprintf(temp, " * Origin: %s %s", msgs.Origin, aka);
+	else
+	    sprintf(temp, " * Origin: %s %s", CFG.origin, aka);
+
+	MsgText_Add2(temp);
+	free(aka);
+    }
 
     Msg_AddMsg();
     Msg_UnLock();
