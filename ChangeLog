@@ -24,6 +24,8 @@ v0.37.3		09-Apr-2003.
 		Removed some heavy debug code from ttyio functions to increase
 		throughput.
 		Standarized raw ifcico protocol logging.
+		Some minor changes to the raw ifcico protocol, better error
+		checking and a check for buffer overflow.
 
 	lang:
 		New language prompt number 17.

@@ -50,13 +50,18 @@
 #include "tcpproto.h"
 
 
-#define TCP_CMD	0x87
-#define TCP_DATA 0xe1
+#define TCP_CMD	    0x87
+#define TCP_DATA    0xe1
+#define	TCP_BLKSTRT 0xc6
+#define	TCP_BLKEND  0x6c
+#define TCP_BLKSIZE 2048
+#define	TCP_DATSIZE 1024
+
 
 static FILE 	*fout;
 static FILE 	*in;
-static char 	txbuf[2048];
-static char 	rxbuf[2048];
+static char 	txbuf[TCP_BLKSIZE];
+static char 	rxbuf[TCP_BLKSIZE];
 static int  	rx_type;
 static long 	sbytes;
 struct timeval	starttime, endtime;
@@ -241,7 +246,7 @@ static int sendtfile(char *ln, char *rn)
     } else
 	return rc;
 
-    while ((bufl = fread(&txbuf, 1, 1024, in)) != 0) {
+    while ((bufl = fread(&txbuf, 1, TCP_DATSIZE, in)) != 0) {
 	if ((rc = tcp_sblk(txbuf, bufl, TCP_DATA)) > 0)
 	    break;
     }
@@ -367,12 +372,12 @@ static int tcp_sblk(char *buf, int len, int typ)
     else
 	Syslog('a', "tcp_sblk: data: %d bytes", len);
 
-    PUTCHAR(0xc6);
+    PUTCHAR(TCP_BLKSTRT);
     PUTCHAR(typ);
     PUTCHAR((len >> 8) & 0x0ff);
     PUTCHAR(len & 0x0ff);
     PUT(buf, len);
-    PUTCHAR(0x6c);
+    PUTCHAR(TCP_BLKEND);
     FLUSHOUT();
 
     if (tty_status)
@@ -394,7 +399,7 @@ static int tcp_rblk(char *buf, int *len)
     c = GETCHAR(180);
     if (tty_status)
 	goto to;
-    if (c != 0xc6) {
+    if (c != TCP_BLKSTRT) {
 	WriteError("tcp_rblk: got %d instead of block header", c);
 	return c;
     }
@@ -423,7 +428,7 @@ static int tcp_rblk(char *buf, int *len)
 	goto to;
     *len += c;
 
-    if (*len > 2048) {
+    if (*len > TCP_BLKSIZE) {
 	WriteError("TCP: remote sends too large block: %d bytes", len);
 	return 1;
     }
@@ -431,9 +436,13 @@ static int tcp_rblk(char *buf, int *len)
     /*
      *  Get actual data block
      */
-    GET(buf, *len, 120);
-    if (tty_status)
-	goto to;
+    if (*len != 0) {
+	GET(buf, *len, 120);
+	if (tty_status)
+	    goto to;
+    } else {
+	WriteError("TCP: remote sends empty frame");
+    }
 
     /*
      *  Get block trailer
@@ -441,8 +450,10 @@ static int tcp_rblk(char *buf, int *len)
     c = GETCHAR(120);
     if (tty_status)
 	goto to;
-    if (c != 0x6c)
+    if (c != TCP_BLKEND) {
+	WriteError("TCP: got %d instead of block trailer", c);
 	return c;
+    }
 
     if (rx_type == TCP_CMD) {
 	buf[*len] = '\0';
