@@ -40,7 +40,7 @@ extern pid_t	mypid;
  */
 int VirScan(char *path)
 {
-    char    *pwd, *temp, *cmd = NULL, *stdlog, *errlog, buf[256];
+    char    *pwd, *temp, *stdlog, *errlog, buf[256];
     FILE    *fp, *lp;
     int	    vrc, rc = FALSE, has_scan = FALSE;
 
@@ -81,29 +81,23 @@ int VirScan(char *path)
     
     fseek(fp, virscanhdr.hdrsize, SEEK_SET);
     while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-        cmd = NULL;
         if (virscan.available) {
 	    Altime(3600);
-            cmd = xstrcpy(virscan.scanner);
-            cmd = xstrcat(cmd, (char *)" ");
-            cmd = xstrcat(cmd, virscan.options);
-	    vrc = execute_str(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", stdlog, errlog);
+	    vrc = execute_str(virscan.scanner, virscan.options, (char *)NULL, (char *)"/dev/null", stdlog, errlog);
 	    if (file_size(stdlog)) {
-		Syslog('-', "%s contains data", stdlog);
 		if ((lp = fopen(stdlog, "r"))) {
 		    while (fgets(buf, sizeof(buf) -1, lp)) {
 			Striplf(buf);
-			Syslog('-', "stdout: \"%s\"", printable(buf, 0));
+			Syslog('+', "stdout: \"%s\"", printable(buf, 0));
 		    }
 		    fclose(lp);
 		}
 	    }
 	    if (file_size(errlog)) {
-		Syslog('-', "%s contains data", errlog);
 		if ((lp = fopen(errlog, "r"))) {
 		    while (fgets(buf, sizeof(buf) -1, lp)) {
 			Striplf(buf);
-			Syslog('-', "stderr: \"%s\"", printable(buf, 0));
+			Syslog('+', "stderr: \"%s\"", printable(buf, 0));
 		    }
 		    fclose(lp);
 		}
@@ -114,7 +108,6 @@ int VirScan(char *path)
                 Syslog('!', "Virus found by %s", virscan.comment);
 		rc = TRUE;
             }
-	    free(cmd);
 	    Altime(0);
 	    Nopper();
         }

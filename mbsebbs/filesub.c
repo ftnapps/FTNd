@@ -42,9 +42,9 @@
 #include "change.h"
 
 
-
-long	arecno = 1;		/* Area record number			     */
-int	Hcolor = 9;		/* Color of area line in xxxScan() functions */
+extern pid_t	    mypid;
+long		    arecno = 1;	/* Area record number			     */
+int		    Hcolor = 9;	/* Color of area line in xxxScan() functions */
 
 
 /*
@@ -513,14 +513,19 @@ void Home()
  */
 int ScanDirect(char *fn)
 {
-    FILE    *fp;
+    FILE    *fp, *lp;
     int	    err, Found = FALSE;
-    char    *temp, *temp1;
+    char    *temp, *temp1, *stdlog, *errlog, buf[256];
 
     temp  = calloc(PATH_MAX, sizeof(char));
     temp1 = calloc(PATH_MAX, sizeof(char));
+    stdlog = calloc(PATH_MAX, sizeof(char));
+    errlog = calloc(PATH_MAX, sizeof(char));
+    
     sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
     sprintf(temp1, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
+    sprintf(stdlog, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    sprintf(errlog, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
 
     if ((fp = fopen(temp1, "r")) != NULL) {
 	fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
@@ -534,8 +539,28 @@ int ScanDirect(char *fn)
 		fflush(stdout);
 
 		Altime(3600);
-		if ((err = execute_str(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
-					(char *)"/dev/null" , (char *)"/dev/null")) != virscan.error) {
+		err = execute_str(virscan.scanner, virscan.options, temp, (char *)"/dev/null", stdlog, errlog);
+		if (file_size(stdlog)) {
+		    if ((lp = fopen(stdlog, "r"))) {
+			while (fgets(buf, sizeof(buf) -1, lp)) {
+			    Striplf(buf);
+			    Syslog('+', "stdout: \"%s\"", printable(buf, 0));
+			}
+			fclose(lp);
+		    }
+		}
+		if (file_size(errlog)) {
+		    if ((lp = fopen(errlog, "r"))) {
+			while (fgets(buf, sizeof(buf) -1, lp)) {
+			    Striplf(buf);
+			    Syslog('+', "stderr: \"%s\"", printable(buf, 0));
+    			}
+			fclose(lp);
+		    }
+		}
+		unlink(stdlog);
+		unlink(errlog);
+		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 		    colour(CFG.HiliteF, CFG.HiliteB);
 		    /* Possible VIRUS found! */
@@ -546,6 +571,7 @@ int ScanDirect(char *fn)
 		    printf("%s\n", (char *) Language(200));
 		}
 		Altime(0);
+		Nopper();
 		fflush(stdout);
 	    }
 	}
@@ -554,6 +580,8 @@ int ScanDirect(char *fn)
 
     free(temp);
     free(temp1);
+    free(stdlog);
+    free(errlog);
     return Found;
 }
 
@@ -569,9 +597,9 @@ int ScanDirect(char *fn)
  */
 int ScanArchive(char *fn, char *ftype)
 {
-    FILE    *fp;
+    FILE    *fp, *lp;
     int	    err = 0, Found = FALSE;
-    char    *temp;
+    char    *temp, *stdlog, *errlog, buf[256];
     char    *cwd = NULL;
 
 
@@ -579,7 +607,13 @@ int ScanArchive(char *fn, char *ftype)
      * First search for the right archiver program
      */
     temp = calloc(PATH_MAX, sizeof(char));
+    stdlog = calloc(PATH_MAX, sizeof(char));
+    errlog = calloc(PATH_MAX, sizeof(char));
+	
     sprintf(temp, "%s/etc/archiver.data", getenv("MBSE_ROOT"));
+    sprintf(stdlog, "%s/tmp/stdlog%d", getenv("MBSE_ROOT"), mypid);
+    sprintf(errlog, "%s/tmp/errlog%d", getenv("MBSE_ROOT"), mypid);
+	
     if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
 	return 3;
@@ -645,8 +679,27 @@ int ScanArchive(char *fn, char *ftype)
 		fflush(stdout);
 
 		Altime(3600);
-		err = execute_str(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", 
-			(char *)"/dev/null", (char *)"/dev/null");
+		err = execute_str(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", stdlog, errlog);
+		if (file_size(stdlog)) {
+		    if ((lp = fopen(stdlog, "r"))) {
+			while (fgets(buf, sizeof(buf) -1, lp)) {
+			    Striplf(buf);
+			    Syslog('+', "stdout: \"%s\"", printable(buf, 0));
+			}
+			fclose(lp);
+		    }
+		}
+		if (file_size(errlog)) {
+		    if ((lp = fopen(errlog, "r"))) {
+			while (fgets(buf, sizeof(buf) -1, lp)) {
+			    Striplf(buf);
+			    Syslog('+', "stderr: \"%s\"", printable(buf, 0));
+			}
+			fclose(lp);
+		    }
+		}
+		unlink(stdlog);
+		unlink(errlog);
 		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 		    colour(CFG.HiliteF, CFG.HiliteB);
@@ -669,7 +722,9 @@ int ScanArchive(char *fn, char *ftype)
     chdir(cwd);
     free(cwd);
     free(temp);
-
+    free(stdlog);
+    free(errlog);
+	
     if (Found)
 	return 2;
     else

@@ -7,7 +7,13 @@ v0.51.4		11-Apr-2004
 		enabled with ./configure --enable-newbinkp
 
 	mbfido:
-		Added experimental logging of virus scanner messages.
+		The last argument '*' which was hardcoded in the virusscan
+		function is removed, this should be done in the setup for the
+		virus scanners.
+		Added loging of virus scanner results.
+
+	mbsebbs:
+		Added loging of virus scanner results.
 
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
