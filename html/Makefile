@@ -33,7 +33,8 @@ H_IMAGES	= images/b_arrow.png  images/magic.png        images/nodes1.png \
 		  images/dream1.png   images/dream2.png       images/dream3.png \
 		  images/tdream1.png  images/tdream2.png      images/tdream3.png \
 		  images/route1.png   images/route2.png       images/mbmon1.png \
-		  images/mbmon2.png   images/mbmon1-tn.png    images/mbmon2-tn.png
+		  images/mbmon2.png   images/mbmon1-tn.png    images/mbmon2-tn.png \
+		  images/nodes11.png
 
 H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
 		  license/jam.html

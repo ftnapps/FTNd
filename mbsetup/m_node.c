@@ -405,6 +405,7 @@ void E_UplMgr(void)
     mvprintw(10, 6, "4.   Uplink FileMgr program");
     mvprintw(11, 6, "5.   Uplink FileMgr password");
     mvprintw(12, 6, "6.   Uplink FileMgr is BBBS");
+    mvprintw(13, 6, "7.   Our Area/Filemgr passwd");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -414,8 +415,9 @@ void E_UplMgr(void)
         show_str( 10,35, 8, nodes.UplFmgrPgm);
 	show_str( 11,35,15, (char *)"***************");
 	show_bool(12,35,    nodes.UplFmgrBbbs);
+	show_str( 13,35,15, (char *)"***************");
 
-	switch(select_menu(6)) {
+	switch(select_menu(7)) {
 	    case 0: return;
 	    case 1: E_STR(  7,35, 8, nodes.UplAmgrPgm,   "Name of the uplink ^areamanager program^")
 	    case 2: E_STR(  8,35,15, nodes.UplAmgrPass,  "Uplink ^areamanager password^ for this node")
@@ -423,6 +425,7 @@ void E_UplMgr(void)
             case 4: E_STR( 10,35,8,  nodes.UplFmgrPgm,   "Name of the uplink ^filemanager^ program")
 	    case 5: E_STR( 11,35,15, nodes.UplFmgrPass,  "Uplink ^filemanager password^ for this node")
 	    case 6: E_BOOL(12,35,    nodes.UplFmgrBbbs,  "Uplink ^filemanager^ is ^BBBS^ software")
+	    case 7: E_STR( 13,35,15, nodes.Apasswd,      "The area and filemanager ^password^ for this node")
 	}
     }
 }
@@ -471,35 +474,32 @@ void E_Files(void)
     mvprintw( 5, 6, "7.6  EDIT NODE - FILES PROCESSING");
     set_color(CYAN, BLACK);
     mvprintw( 7, 6, "1.   Files password");
-    mvprintw( 8, 6, "2.   Mgr password");
-    mvprintw( 9, 6, "3.   Incl. message");
-    mvprintw(10, 6, "4.   Send TIC file");
-    mvprintw(11, 6, "5.   Advanced TIC");
-    mvprintw(12, 6, "6.   Advanced SB");
-    mvprintw(13, 6, "7.   To line in TIC");
-    mvprintw(14, 6, "8.   File forward");
+    mvprintw( 8, 6, "2.   Incl. message");
+    mvprintw( 9, 6, "3.   Send TIC file");
+    mvprintw(10, 6, "4.   Advanced TIC");
+    mvprintw(11, 6, "5.   Advanced SB");
+    mvprintw(12, 6, "6.   To line in TIC");
+    mvprintw(13, 6, "7.   File forward");
 
     for (;;) {
 	set_color(WHITE, BLACK);
 	show_str(  7,26,15, (char *)"***************");
-	show_str(  8,26,15, (char *)"***************");
-	show_bool( 9,26,    nodes.Message);
-	show_bool(10,26,    nodes.Tic);
-	show_bool(11,26,    nodes.AdvTic);
-	show_bool(12,26,    nodes.TIC_AdvSB);
-	show_bool(13,26,    nodes.TIC_To);
-	show_bool(14,26,    nodes.FileFwd);
+	show_bool( 8,26,    nodes.Message);
+	show_bool( 9,26,    nodes.Tic);
+	show_bool(10,26,    nodes.AdvTic);
+	show_bool(11,26,    nodes.TIC_AdvSB);
+	show_bool(12,26,    nodes.TIC_To);
+	show_bool(13,26,    nodes.FileFwd);
 
-	switch(select_menu(8)) {
+	switch(select_menu(7)) {
 	    case 0: return;
 	    case 1: E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
-	    case 2: E_STR(  8,26,15,nodes.Apasswd,    "The filemanager ^password^ for this node")
-	    case 3: E_BOOL( 9,26,   nodes.Message,    "Send ^messages^ with files send to this node")
-	    case 4: E_BOOL(10,26,   nodes.Tic,        "Send ^TIC^ files to this node")
-	    case 5: E_BOOL(11,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
-	    case 6: E_BOOL(12,26,   nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
-	    case 7: E_BOOL(13,26,   nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
-	    case 8: E_BOOL(14,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
+	    case 2: E_BOOL( 8,26,   nodes.Message,    "Send ^messages^ with files send to this node")
+	    case 3: E_BOOL( 9,26,   nodes.Tic,        "Send ^TIC^ files to this node")
+	    case 4: E_BOOL(10,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
+	    case 5: E_BOOL(11,26,   nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
+	    case 6: E_BOOL(12,26,   nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
+	    case 7: E_BOOL(13,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
 	}
     }
 }
@@ -1106,7 +1106,7 @@ int EditNodeRec(int Area)
 	mvprintw(13, 6, "7.   Files groups");
 	mvprintw(14, 6, "8.   Directory session");
 	mvprintw(15, 6, "9.   Security flags");
-	mvprintw(16, 6, "10.  Uplink managers");
+	mvprintw(16, 6, "10.  Area/File managers");
 	mvprintw(17, 6, "11.  Statistics");
 
 	switch(select_menu(11)) {

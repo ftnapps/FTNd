@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align=right><h5>Last update 08-Mar-2004</h5></div>
+<div align=right><h5>Last update 12-Aug-2004</h5></div>
 <div align=center><H1>MBSE BBS Setup - Fidonet nodes.</H1></div>
 <P>
 
@@ -147,13 +147,18 @@ Irex upto 2.29. Others may exist, even some older mbse versions.
 <H3>4. Edit node - mail processing</H3>
 <P>
 <p><table>
-<tr><th nowrap align=left valign=top>PKT password</th><td>The password to insert in .pkt files.
-<tr><th nowrap align=left valign=top>Check PKT pwd</th><td>Check password in received .pkt files. If not, errors or missing passwords are only logged.  If set, errors or missing password are refused and the .pkt files are renamed to .bad
-<tr><th nowrap align=left valign=top>UplMgr program</th><td>The name of the Areamgr program of this node.  This could be AreaFix, AreaMgr etc.
-<tr><th nowrap align=left valign=top>UplMgr passwd</th><td>The password for the Areamgr of this node.
-<tr><th nowrap align=left valign=top>Mail forward</th><td>Not in use yet.
-<tr><th nowrap align=left valign=top>ARCmail comp.</th><td>Use ARCmail 0.60 file naming convention for out of zone mail.
-<tr><th nowrap align=left valign=top>ARCmail a..z</th><td>Allow a..z last character for ARCmail filenames.
+<tr><th nowrap align=left valign=top>PKT password</th><td>The password to insert
+in .pkt files.</td></tr>
+<tr><th nowrap align=left valign=top>Check PKT pwd</th><td>Check password in
+received .pkt files. If not, errors or missing passwords are only logged.  If
+set, errors or missing password are refused and the .pkt files are renamed to
+.bad</td></tr>
+<tr><th nowrap align=left valign=top>Mail forward</th><td>Not in use
+yet.</td></tr>
+<tr><th nowrap align=left valign=top>ARCmail comp.</th><td>Use ARCmail 0.60 file
+naming convention for out of zone mail.</td></tr>
+<tr><th nowrap align=left valign=top>ARCmail a..z</th><td>Allow a..z last
+character for ARCmail filenames.</td></tr>
 </table>
 <P>
 <IMG SRC="../images/nodes4.png" alt='Nodes mail setup'>
@@ -173,14 +178,6 @@ carefull not to allow a node to connect areas from networks he has no aka in.
 <p><table>
 <tr><th nowrap align=left valign=top>Files password</th><td>The password for
 .tic files.</td></tr>
-<tr><th nowrap align=left valign=top>Mgr password</th><td>The password for the
-Areamgr and Filemgr.</td></tr>
-<tr><th nowrap align=left valign=top>UplMgr program</th><td>The name of the
-Filemgr progrom of this node. This could be FileMgr, Allfix, Raid etc.</td></tr>
-<tr><th nowrap align=left valign=top>UplMgr passwd</th><td>The password of the
-Filemgr if this node.</td></tr>
-<tr><th nowrap align=left valign=top>UplMgr Add +</th><td>Add a "+" in the
-command to connect areas.</td></tr>
 <tr><th nowrap align=left valign=top>Incl. message</th><td>Send a netmail
 message for each file to send.</td></tr>
 <tr><th nowrap align=left valign=top>Send TIC file</th><td>Send .tic file to
@@ -365,7 +362,31 @@ is set for each node.
 <IMG SRC="../images/nodes9.png" alt='Nodes security setup'>
 <P>
 
-<H3>10. Statistics</H3>
+<H3>10. Area and File managers</H3>
+<P>
+This screen sets names and passwords of the uplink managers, also our own
+password is set here.
+<p><table>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr program</th><td>The name of the
+Areamgr program of this node.  This could be AreaFix, AreaMgr etc.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr passowrd</th><td>The password for the
+Areamgr of this node.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink AreaMgr is BBBS</th><td>If the uplink uses BBBS software set this
+to Yes.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FilMgr program</th><td>The name of the
+Filemgr progrom of this node. This could be FileMgr, Allfix, Raid etc.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FileMgr password</th><td>The password of the
+Filemgr if this node.</td></tr>
+<tr><th nowrap align=left valign=top>Uplink FileMgr is BBBS</th><td>If the plink
+uses BBBS set this to Yes.</td></tr>
+<tr><th nowrap align=left valign=top>Our Area/Filemgr passwd</th><td>Our own
+Area/Filemgr password for this node to send to our node.</td></tr>
+</table>
+<P>
+<IMG SRC="../images/nodes10.png" alt="Nodes managers setup">
+<P>
+
+<H3>11. Statistics</H3>
 <P>
 In this statistics screen you can see the mail and files flow with this
 node. Values are stored for the current week, the previous week, the
@@ -373,7 +394,7 @@ current month and previous month and the overall total since you defined
 this node. There are actual 12 months of statistics stored in the nodes
 record, only 2 are visible.
 <P>
-<IMG SRC="../images/nodes10.png" alt='Nodes statistics'>
+<IMG SRC="../images/nodes11.png" alt='Nodes statistics'>
 <P>
 
 <A HREF="./"><IMG SRC="../images/larrow.png" ALT="Back" Border="0">Back to index</A>&nbsp;
