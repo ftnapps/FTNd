@@ -48,7 +48,7 @@ int Add_ToBeRep(struct _filerecord report)
 
     fname = calloc(PATH_MAX, sizeof(char));
     sprintf(fname, "%s/etc/toberep.data", getenv("MBSE_ROOT"));
-    if ((tbr = fopen(fname, "a+")) == NULL) {
+    if ((tbr = fopen(fname, "r+")) == NULL) {
 	WriteError("$Can't create %s", fname);
 	free(fname);
 	return FALSE;

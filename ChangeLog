@@ -44,6 +44,7 @@ v0.51.4		11-Apr-2004
 		Added new experimental files database code which will only be
                 used if configured with --enable-experiment.
 		Another small change for double filename announces.
+		Change file open mode for double filename announces.
 
 	mbfile:
 		The toberep command now logs the toberep.data in the debug
