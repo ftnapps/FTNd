@@ -55,16 +55,16 @@ install:	all
 		${INSTALL} -c -s -g ${GROUP} -o ${OWNER} -m 0755 mbtelout  ${BINDIR}
 
 mbcico:		${MBCICO_OBJS} ${LIBS}
-		${CC} -o mbcico ${MBCICO_OBJS} ${LIBS}
+		${CC} -o mbcico ${MBCICO_OBJS} ${LDFLAGS} ${LIBS}
 
 mbout:		${MBOUT_OBJS} ${LIBS}
-		${CC} -o mbout ${MBOUT_OBJS} ${LIBS}
+		${CC} -o mbout ${MBOUT_OBJS} ${LDFLAGS} ${LIBS}
 
 mbtelind:	${MBTELIND_OBJS} ${LIBS}
-		${CC} -o mbtelind ${MBTELIND_OBJS} ${LIBS}
+		${CC} -o mbtelind ${MBTELIND_OBJS} ${LDFLAGS} ${LIBS}
 
 mbtelout:	${MBTELOUT_OBJS} ${LIBS}
-		${CC} -o mbtelout ${MBTELOUT_OBJS} ${LIBS}
+		${CC} -o mbtelout ${MBTELOUT_OBJS} ${LDFLAGS} ${LIBS}
 
 filelist:	Makefile
 		BASE=`pwd`; \
