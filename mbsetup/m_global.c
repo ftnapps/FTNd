@@ -226,6 +226,7 @@ void e_global2(void)
         mvprintw( 9, 2, "4.  LeaveCase");
 	mvprintw(10, 2, "5.  Ftp base");
 	mvprintw(11, 2, "6.  Arealists");
+	mvprintw(12, 2, "7.  Ext. edit");
 
         for (;;) {
                 set_color(WHITE, BLACK);
@@ -235,15 +236,17 @@ void e_global2(void)
                 show_bool(9,16,    CFG.leavecase);
 		show_str(10,16,64, CFG.ftp_base);
 		show_str(11,16,64, CFG.alists_path);
+		show_str(12,16,64, CFG.externaleditor);
 
-                switch(select_menu(6)) {
+                switch(select_menu(7)) {
                 case 0: return;
-                case 1: E_PTH(16,16,64, CFG.req_magic,    "The path to the ^magic filerequest^ files.")
-                case 2: E_STR(17,16,64, CFG.dospath,      "The translated ^DOS^ drive and path, empty disables translation")
-                case 3: E_PTH(18,16,64, CFG.uxpath,       "The translated ^Unix^ path.")
-                case 4: E_BOOL(19,16,   CFG.leavecase,    "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
-		case 5: E_PTH(10,16,64, CFG.ftp_base,     "The ^FTP home^ directory to strip of the real directory")
-		case 6: E_PTH(11,16,64, CFG.alists_path,  "The path where ^area lists^ and ^filebone lists^ are stored.")
+                case 1: E_PTH(16,16,64, CFG.req_magic,      "The path to the ^magic filerequest^ files.")
+                case 2: E_STR(17,16,64, CFG.dospath,        "The translated ^DOS^ drive and path, empty disables translation")
+                case 3: E_PTH(18,16,64, CFG.uxpath,         "The translated ^Unix^ path.")
+                case 4: E_BOOL(19,16,   CFG.leavecase,      "^Leave^ outbound flo filenames as is, ^No^ forces uppercase.")
+		case 5: E_PTH(10,16,64, CFG.ftp_base,       "The ^FTP home^ directory to strip of the real directory")
+		case 6: E_PTH(11,16,64, CFG.alists_path,    "The path where ^area lists^ and ^filebone lists^ are stored.")
+		case 7: E_STR(12,16,64, CFG.externaleditor, "The full path and filename to the ^external message editor^")
                 }
         };
 }
@@ -1528,7 +1531,6 @@ void global_menu(void)
 		 */
 		Syslog('+', "Main config, clearing unused fields");
 		memset(&CFG.alists_path, 0, sizeof(CFG.alists_path));
-		memset(&CFG.xsequencer, 0, sizeof(CFG.xsequencer));
 		CFG.xmax_login = 0;
 		CFG.xUseSysDomain = FALSE;
 		CFG.xChkMail = FALSE;
@@ -1777,6 +1779,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Leave case as is %s\n", getboolean(CFG.leavecase));
 	fprintf(fp, "      FTP base path    %s\n", CFG.ftp_base);
 	fprintf(fp, "      Area lists       %s\n", CFG.alists_path);
+	fprintf(fp, "      External editor  %s\n", CFG.externaleditor);
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 6, page, (char *)"Global settings");

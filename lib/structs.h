@@ -523,7 +523,7 @@ struct	sysconfig {
 	char		inbound[65];		/* Inbound directory	    */
 	char		pinbound[65];		/* Protected inbound	    */
 	char		outbound[65];		/* Outbound		    */
-	char		xsequencer[65];
+	char		externaleditor[65];	/* External mail editor	    */
 	char		dospath[65];		/* DOS path		    */
 	char		uxpath[65];		/* Unix path		    */
 

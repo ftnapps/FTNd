@@ -1537,6 +1537,51 @@ int edit_newsmode(int y, int x, int val)
 
 
 
+char *getmsgeditor(int val)
+{
+    switch (val) {
+	case LINEEDIT:	return (char *)"Line";
+	case FSEDIT:	return (char *)"FS. ";
+	case EXTEDIT:	return (char *)"Ext.";
+	default:	return NULL;
+    }
+}
+
+
+
+void show_msgeditor(int y, int x, int val)
+{
+    mvprintw(y, x, getmsgeditor(val));
+}
+
+
+
+int edit_msgeditor(int y, int x, int val)
+{
+    int	ch;
+
+    showhelp((char *)"Toggle ^Message editor^ with spacebar, press <Enter> whene done");
+
+    do {
+	set_color(YELLOW, BLUE);
+	show_msgeditor(y, x, val);
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < EXTEDIT)
+		val++;
+	    else
+		val = LINEEDIT;
+	}
+    } while ((ch != KEY_ENTER) && (ch != '\012'));
+
+    set_color(WHITE, BLACK);
+    show_msgeditor(y, x, val);
+    return val;
+}
+
+
+
 void show_magictype(int y, int x, int val)
 {
 	mvprintw(y, x, getmagictype(val));

@@ -370,8 +370,8 @@ AT|(A)ctivar/desactivar, desactivar (T)odos, (ENTER) para seguir:
 SN|¨Est s seguro? [S/n]: 
 |Comprobar ficheiros novos ACTIVADO
 |Comprobar ficheios novos DESACTIVADO
-|Editor a pantalla completa ACTIVADO
-|Editor a pantalla completa DESACTIVADO
+|Now using the
+123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
 |¡Non hai mensaxes! 
 |Pulsa (Enter) para seguir: 
 |Centrar
@@ -385,10 +385,10 @@ SN|¨Est s seguro? [S/n]:
 |'Elena Nito del Bosque ' podes usar 'enitob', 'elenanb' ou 'enbosque'
 |login > 
 |Ese nome de LOGIN xa existe. Escolle outro...
-|
-|
-|
-|
+|Line
+|Fullscreen
+|External
+|Editor
 |New    
 |Local    
 |Netmail  

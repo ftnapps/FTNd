@@ -103,7 +103,7 @@ int newuser()
 	FullName = calloc(81, sizeof(char));
 
 	usrconfig.iLanguage = iLang;
-	usrconfig.FsMsged = TRUE;
+	usrconfig.MsgEditor = FSEDIT;
 
 	do {
 

@@ -391,7 +391,15 @@ void ControlCodeU(int ch)
 		break;
 
 	case '3':
-		printf("%s", exitinfo.FsMsged ? (char *) Language(147) : (char *) Language(148));
+		switch(exitinfo.MsgEditor) {
+		    case LINEEDIT:  printf(Language(387));
+				    break;
+		    case FSEDIT:    printf(Language(388));
+				    break;
+		    case EXTEDIT:   printf(Language(389));
+				    break;
+		    default:	    printf("?");
+		}	    
 		break;
 
 	case '4':

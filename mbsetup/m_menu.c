@@ -113,10 +113,11 @@ void Show_A_Menu(void)
 	mvprintw(18, 2, "11. Hi-colors");
 	mvprintw(19, 2, "12. Autoexec");
 	if (menus.MenuType == 7) {
-		mvprintw(16,42, "13. No door.sys");
-		mvprintw(17,42, "14. Y2K style");
-		mvprintw(18,42, "15. Use Comport");
-		mvprintw(19,42, "16. Run nosuid");
+		mvprintw(15,42, "13. No door.sys");
+		mvprintw(16,42, "14. Y2K style");
+		mvprintw(17,42, "15. Use Comport");
+		mvprintw(18,42, "16. Run nosuid");
+		mvprintw(19,42, "17. No Prompt");
 	}
 
 	set_color(WHITE, BLACK);
@@ -138,10 +139,11 @@ void Show_A_Menu(void)
 	set_color(WHITE, BLACK);
 	show_bool(19,16,   menus.AutoExec);
 	if (menus.MenuType == 7) {
-		show_bool(16,58,  menus.NoDoorsys);
-		show_bool(17,58,  menus.Y2Kdoorsys);
-		show_bool(18,58,  menus.Comport);
-		show_bool(19,58,  menus.NoSuid);
+		show_bool(15,58,  menus.NoDoorsys);
+		show_bool(16,58,  menus.Y2Kdoorsys);
+		show_bool(17,58,  menus.Comport);
+		show_bool(18,58,  menus.NoSuid);
+		show_bool(19,58,  menus.NoPrompt);
 	}
 }
 
@@ -214,7 +216,7 @@ void Edit_A_Menu(void)
 	Show_A_Menu();
 
 	for (;;) {
-		switch(select_menu(16)) {
+		switch(select_menu(17)) {
 		case 0: return;
 			break;
 		case 1:	E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
@@ -249,19 +251,23 @@ void Edit_A_Menu(void)
 			break;
 		case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
 		case 13:if (menus.MenuType == 7) {
-				E_BOOL(16,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+				E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
 			} else
 				break;
 		case 14:if (menus.MenuType == 7) {
-				E_BOOL(17,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+				E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
 			} else
 				break;
 		case 15:if (menus.MenuType == 7) {
-				E_BOOL(18,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+				E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
 			} else
 				break;
 		case 16:if (menus.MenuType == 7) {
-				E_BOOL(19,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
+				E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
+			} else
+				break;
+		case 17:if (menus.MenuType == 7) {
+				E_BOOL(19,58,   menus.NoPrompt,     "^Don't display prompt^ when door is finished")
 			} else
 				break;
 		}
@@ -594,6 +600,8 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 								fprintf(fp, "    No door.sys   %s\n", getboolean(menus.NoDoorsys));
 								fprintf(fp, "    Y2K door.sys  %s\n", getboolean(menus.Y2Kdoorsys));
 								fprintf(fp, "    Use COM port  %s\n", getboolean(menus.Comport));
+								fprintf(fp, "    No setuid     %s\n", getboolean(menus.NoSuid));
+								fprintf(fp, "    No Prompt     %s\n", getboolean(menus.NoPrompt));
 							}
 							fprintf(fp, "\n\n");
 							j++;

@@ -392,27 +392,53 @@ void Chg_FileCheck()
 
 
 /*
- * Toggle Fullscreen Editor
+ * Choose Message Editor
  */
 void Chg_FsMsged()
 {
-	ReadExitinfo();
-	Enter(2);
+    int	    z;
 
-	if (exitinfo.FsMsged) {
-		exitinfo.FsMsged = FALSE;
-		/* Fullscreen Editor is now OFF */
-		pout(10, 0, (char *) Language(373));
-	} else {
-		exitinfo.FsMsged = TRUE;
-		/* Fullscreen Editor is now ON */
-		pout(10, 0, (char *) Language(372));
-	}
+    ReadExitinfo();
+    Enter(2);
 
-	Enter(2);
-	sleep(2);
-	Syslog('+', "Fullscreen Editor changed to %s", exitinfo.FsMsged ?"True":"False");
-	WriteExitinfo();
+    /*                               Now using the */
+    pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
+    /*                 Line/Fullscreen/External    */
+    colour(LIGHTCYAN, BLACK);
+    printf(" %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    /*                                      Editor */
+    pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
+    Enter(1);
+
+    pout(WHITE, BLACK, (char *)Language(373));
+    fflush(stdout);
+    alarm_on();
+    z = toupper(Getone());
+
+    if (z == Keystroke(373, 0)) {
+	exitinfo.MsgEditor = LINEEDIT;
+	Syslog('+', "User selected line editor");
+    } else if (z == Keystroke(373, 1)) {
+	exitinfo.MsgEditor = FSEDIT;
+	Syslog('+', "User selected fullscreen editor");
+    } else if (z == Keystroke(373, 2)) {
+	exitinfo.MsgEditor = EXTEDIT;
+	Syslog('+', "User selected external editor");
+    }
+
+    Enter(2);
+
+    /*                               Now using the */
+    pout(LIGHTMAGENTA, BLACK, (char *)Language(372));
+    /*                 Line/Fullscreen/External    */
+    colour(LIGHTCYAN, BLACK);
+    printf(" %s ", Language(387 + (exitinfo.MsgEditor & 3)));
+    /*                                      Editor */
+    pout(LIGHTMAGENTA, BLACK, (char *)Language(390));
+
+    Enter(2);
+    sleep(2);
+    WriteExitinfo();
 }
 
 

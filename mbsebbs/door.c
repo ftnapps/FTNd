@@ -95,7 +95,7 @@ char *Rdate(char *ind, int Y2K)
 /*
  * Function will run a external program or door
  */
-void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid)
+void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid, int NoPrompt)
 {
 	char	*String, *String1;
 	int	i, rc;
@@ -232,7 +232,9 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
 
 	free(temp1);
 	printf("\n\n");
-	Pause();
+
+	if (!NoPrompt)
+	    Pause();
 }
 
 

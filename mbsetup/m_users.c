@@ -124,8 +124,17 @@ int OpenUsers(void)
 			 */
 			memset(&usrconfig, 0, sizeof(usrconfig));
 			while (fread(&usrconfig, oldsize, 1, fin) == 1) {
-				fwrite(&usrconfig, sizeof(usrconfig), 1, fout);
-				memset(&usrconfig, 0, sizeof(usrconfig));
+			    /*
+			     * In version 0.33.20 the message editor has 3 choices,
+			     * adjust settings.
+			     */
+			    if (usrconfig.xFsMsged && (usrconfig.MsgEditor == LINEEDIT)) {
+				usrconfig.MsgEditor = FSEDIT;
+				UsrUpdated = 1;
+				Syslog('+', "Adjusted editor setting for user %s", usrconfig.sUserName);
+			    }
+			    fwrite(&usrconfig, sizeof(usrconfig), 1, fout);
+			    memset(&usrconfig, 0, sizeof(usrconfig));
 			}
 
 			fclose(fin);
@@ -295,7 +304,7 @@ void Screen2(void)
 	mvprintw(10,63, "18. Silent");
 	mvprintw(11,63, "19. CLS");
 	mvprintw(12,63, "20. More");
-	mvprintw(13,63, "21. Fs Edit");
+	mvprintw(13,63, "21. Editor");
 	mvprintw(14,63, "22. MailScan");
 	mvprintw(15,63, "23. ShowNews");
 	mvprintw(16,63, "24. NewFiles");
@@ -331,7 +340,7 @@ void Fields2(void)
 	show_bool(10,76,   usrconfig.DoNotDisturb);
 	show_bool(11,76,   usrconfig.Cls);
 	show_bool(12,76,   usrconfig.More);
-	show_bool(13,76,   usrconfig.FsMsged);
+	show_msgeditor(13,76, usrconfig.MsgEditor);
 	show_bool(14,76,   usrconfig.MailScan);
 	show_bool(15,76,   usrconfig.ieNEWS);
 	show_bool(16,76,   usrconfig.ieFILE);
@@ -408,7 +417,8 @@ int EditUsrRec2(void)
                 case 18:E_BOOL(10,76,usrconfig.DoNotDisturb, "User will not be ^disturbed^")
                 case 19:E_BOOL(11,76,usrconfig.Cls,          "Send ^ClearScreen code^ to users terminal")
                 case 20:E_BOOL(12,76,usrconfig.More,         "User uses the ^More prompt^")
-                case 21:E_BOOL(13,76,usrconfig.FsMsged,      "User uses the ^Fullscreen editor^")
+                case 21:usrconfig.MsgEditor = edit_msgeditor(13,76,usrconfig.MsgEditor);
+			break;
                 case 22:E_BOOL(14,76,usrconfig.MailScan,     "Don't check for ^new mail^")
                 case 23:E_BOOL(15,76,usrconfig.ieNEWS,       "Show ^News Bulletins^ when logging in")
                 case 24:E_BOOL(16,76,usrconfig.ieFILE,       "Show ^New Files^ when logging in")

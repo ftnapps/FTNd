@@ -370,8 +370,8 @@
 369	file.c				YN|Are you Sure? [Y/n]: 
 370	change.c			|New Files check is now ON 
 371	change.c			|New Files check is now OFF
-372	change.c			|Fullscreen Editor is now ON
-373	change.c			|Fullscreen Editor is now OFF
+372	change.c			|Now using the
+373	change.c			123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
 374	offline.c			|No messages found to download!
 375	funcs4.c			|Press (Enter) to continue: 
 376	lineedit.c			|Center
@@ -385,10 +385,10 @@
 384	funcs4.c			|ie. John Doe, login = jdoe
 385	funcs4.c			|login > 
 386	funcs4.c			|That login name already exists, please choose another one.
-387					|
-388					|
-389					|
-390				        |
+387	change.c			|Line
+388	change.c			|Fullscreen
+389	change.c			|External
+390	change.c		        |Editor
 391	offline.c			|New    
 392	offline.c			|Local    
 393	offline.c			|Netmail  

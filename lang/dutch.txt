@@ -370,8 +370,8 @@ SV|(S)chakel aktief, (V)erwijder alles, (ENTER) voor doorgaan:
 JN|Zeker weten? [J/n]: 
 |Tonen nieuwe Bestanden is nu AAN
 |Tonen nieuwe Bestanden is nu UIT
-|Schermgestuurde Tekstverwerker is nu AAN
-|Schermgestuurde Tekstverwerker is nu UIT
+|U gebruikt nu de
+123|Kies: 1) Regel editer, 2) Volle scherm editer, 3) Externe editer 
 |Geen berichten gevonden voor download!
 |Geef (Enter) voor doorgaan: 
 |Centreer
@@ -385,10 +385,10 @@ JN|Zeker weten? [J/n]:
 |bv. Piet Snot, login = psnot
 |login > 
 |Die login naam bestaat al, kies iets anders.
-|
-|
-|
-|
+|Regel
+|Volle scherm
+|Externe
+|Textverwerker
 |Nieuw  
 |Lokaal   
 |Netmail  

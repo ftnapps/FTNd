@@ -36,6 +36,8 @@
 #define Max_passlen     14      /* Define maximum passwd length            */
 
 
+typedef enum {LINEEDIT, FSEDIT, EXTEDIT} MSGEDITOR;
+
 
 /************************************************************************
  *
@@ -78,7 +80,7 @@ struct	userhdr {
 struct	userrec {
 	char		sUserName[36];		/* User First and Last Name */
 	char		Name[9];		/* Unix name		    */
-	unsigned long	xPassword;		/* Users Password (CRC)     */
+	unsigned long	xPassword;
 	char		sVoicePhone[20];	/* Voice Number             */
 	char		sDataPhone[20];		/* Data/Business Number     */
 	char		sLocation[28];		/* Users Location           */
@@ -102,7 +104,7 @@ struct	userrec {
 	unsigned	DoNotDisturb	: 1;	/* DoNot disturb	    */
 	unsigned	Cls		: 1;	/* CLS on/off		    */
 	unsigned	More		: 1;	/* More prompt		    */
-	unsigned	FsMsged		: 1;	/* Fullscreen editor	    */
+	unsigned	xFsMsged	: 1;
 	unsigned	MailScan	: 1;	/* New Mail scan	    */
 	unsigned	Guest		: 1;	/* Is guest account	    */
 	unsigned	OL_ExtInfo	: 1;	/* OLR extended msg info    */
@@ -115,7 +117,7 @@ struct	userrec {
 	unsigned	xHangUps;
 	long		Credit;			/* Users credit		    */
 	int		Paged;			/* Times paged today	    */
-	int		xOfflineFmt;
+	int		MsgEditor;		/* Message Editor to use    */
 	int		LastPktNum;		/* Todays Last packet number*/
 	char		Archiver[6];		/* Archiver to use	    */
 

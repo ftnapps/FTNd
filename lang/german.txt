@@ -370,8 +370,8 @@ UA|Aufgelistete (U)mschalten, alle (A)bwaehlen, <ENTER> um fortzufahren:
 JN|Sind Sie sicher? [J/n]: 
 |Check auf neue Dateien ist jetzt AN
 |Check auf neue Dateien ist jetzt AUS
-|Vollbild-Editor ist jetzt AN
-|Vollbild-Editor ist jetzt AUS
+|Now using the
+123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
 |Es liegen keine Mitteilungen zum Herunterladen vor!
 |Weiter mit <Enter> ... 
 |Zentrieren
@@ -385,10 +385,10 @@ JN|Sind Sie sicher? [J/n]:
 |Beispiel:  "Gerhard Schroeder",  login = gschroed
 |Ihr gewuenschter Anmeldename: 
 |Dieser Anmeldename existiert bereits, bitte waehlen Sie einen anderen.
-|
-|
-|
-|
+|Line
+|Fullscreen
+|External
+|Editor
 |Neu    
 |Local    
 |Netmail  

@@ -334,7 +334,7 @@ void DoMenu(int Type)
 
 	case 7:
 		/* Run external program */
-		ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport, menus.NoSuid);
+		ExtDoor(menus.OptionalData, menus.NoDoorsys, menus.Y2Kdoorsys, menus.Comport, menus.NoSuid, menus.NoPrompt);
 		break;
 
 	case 8:

@@ -58,6 +58,7 @@
 #include "msgutil.h"
 #include "pop3.h"
 #include "email.h"
+#include "door.h"
 #include "whoson.h"
 
 
@@ -375,10 +376,12 @@ void SysopComment(char *Cmt)
  */
 int Edit_Msg()
 {
-	if (exitinfo.FsMsged)
-		return Fs_Edit();
-	else
-		return Line_Edit();
+    switch (exitinfo.MsgEditor) {
+	case LINEEDIT:	return Line_Edit();
+	case FSEDIT:	return Fs_Edit();
+	case EXTEDIT:	return Ext_Edit();
+    }
+    return 0;
 }
 
 
@@ -2215,6 +2218,88 @@ void SetMsgArea(unsigned long AreaNum)
 	} else
 		WriteError("Error open JAM %s", sMsgAreaBase);
 	free(sFileName);
+}
+
+
+
+/*
+ * External Message Editor
+ */
+int Ext_Edit()
+{
+    int     changed;
+    int     j, i;
+    char    *l, *tmpname;
+    FILE    *fd;
+    struct stat     st1,st2;
+
+    changed=FALSE;
+
+    tmpname = calloc(PATH_MAX, sizeof(char));
+
+    sprintf(tmpname, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, "data.msg");
+    if ((fd = fopen(tmpname, "w")) == NULL) {
+	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
+    } else {
+	fprintf(fd,"AREA='%s'\n",sMsgAreaDesc);
+	fprintf(fd,"AREANUM='%d'\n",iMsgAreaNumber+1);
+	fprintf(fd,"AREATYPE='%d'\n",iMsgAreaType);
+	fprintf(fd,"MSGFROM='%s'\n",Msg.From);
+	fprintf(fd,"MSGTO='%s'\n",Msg.To);
+	fprintf(fd,"MSGTOADDR='%s'\n",Msg.ToAddress);
+	fprintf(fd,"MSGSUBJECT='%s'\n",Msg.Subject);
+	fprintf(fd,"BBSLANGUAGE='%c'\n",exitinfo.iLanguage);
+	fprintf(fd,"BBSFSEDKEYS='%d'\n",exitinfo.FSemacs);
+	fclose(fd);
+    }
+
+    sprintf(tmpname, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, "edit.msg");
+    if ((fd = fopen(tmpname, "w")) == NULL) {
+	Syslog('+',"EXT_EDIT: Unable to open %s for writing", tmpname);
+    } else {
+	for (i = 1; i <= Line; i++) {
+	    fprintf(fd,"%s\n",Message[i]);
+	}
+	fclose(fd);
+	stat( tmpname, &st1 );
+	ExtDoor(CFG.externaleditor,FALSE,TRUE,TRUE,FALSE,TRUE);
+	stat( tmpname, &st2 );
+    }
+    
+    if ( st1.st_mtime != st2.st_mtime ) {
+	l = calloc(81, sizeof(char));
+	if ((fd = fopen(tmpname, "r")) == NULL) {
+	    Syslog('+',"EXT_EDIT: Unable to open %s for reading", tmpname);
+	} else {
+	    i=1;
+	    while ( (fgets(l,80,fd) != NULL) && (i < TEXTBUFSIZE ) ) {
+		for (j = 0; i < strlen(l); j++) {
+		    if (*(l + j) == '\0')
+			break;
+		    if (*(l + j) == '\n')
+			*(l + j) = '\0';
+		    if (*(l + j) == '\r')
+			*(l + j) = '\0';
+		    /*
+		     * Make sure that any tear or origin lines are
+		     * made invalid.
+		     */
+		    if (strncmp(l, (char *)"--- ", 4) == 0)
+			l[1] = 'v';
+		    if (strncmp(l, (char *)" * Origin:", 10) == 0)
+			l[1] = '+';
+		}
+		sprintf(Message[i],"%s",l);
+		i++;
+	    }
+	    changed=TRUE;
+	    Line=i;
+	    fclose(fd);
+	}
+	free(l);
+    }
+    free(tmpname);
+    return changed;
 }
 
 

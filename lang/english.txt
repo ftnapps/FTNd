@@ -370,8 +370,8 @@ TE|(T)oggle active, (E)rase all, (ENTER) to continue:
 YN|Are you Sure? [Y/n]: 
 |New Files check is now ON
 |New Files check is now OFF
-|Fullscreen Editor is now ON
-|Fullscreen Editor is now OFF
+|Now using the
+123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
 |No messages found to download!
 |Press (Enter) to continue: 
 |Center
@@ -385,10 +385,10 @@ YN|Are you Sure? [Y/n]:
 |ie. John Doe, login = jdoe
 |login > 
 |That login name already exists, please choose another one.
-|
-|
-|
-|
+|Line
+|Fullscreen
+|External
+|Editor
 |New    
 |Local    
 |Netmail  

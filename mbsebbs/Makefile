@@ -30,7 +30,7 @@ MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
 MBSEBBS_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a \
 		  ../lib/libdbase.a ../lib/libmbinet.a
 MBNEWUSR_OBJS	= mbnewusr.o newuser.o language.o timeout.o dispfile.o oneline.o \
-		  timecheck.o input.o exitinfo.o funcs.o misc.o change.o \
+		  timecheck.o input.o exitinfo.o funcs.o misc.o change.o door.o \
 		  filesub.o mail.o email.o msgutil.o pop3.o lineedit.o fsedit.o whoson.o
 MBNEWUSR_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a \
 		  ../lib/libdbase.a ../lib/libmbinet.a
@@ -150,7 +150,7 @@ mbuser.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/
 page.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h dispfile.h input.h chat.h page.h timeout.h mail.h language.h
 bye.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h dispfile.h misc.h language.h bye.h
 funcs.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/msg.h ../lib/clcomm.h funcs.h
-mail.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/clcomm.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h whoson.h
+mail.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/clcomm.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h door.h whoson.h
 newuser.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h funcs.h input.h newuser.h language.h timeout.h change.h dispfile.h
 pinfo.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h pinfo.h input.h
 timecheck.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h timecheck.h funcs.h bye.h exitinfo.h language.h input.h

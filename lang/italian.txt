@@ -370,8 +370,8 @@ CE|(C)ambia aree attive, (E)limina tutto, (INVIO) per continuare:
 SN|Sei sicuro? [S/n]: 
 |Controllo per i nuovi file ATTIVATO
 |Controllo per i nuovi file DISATTIVATO
-|Editor a schermo pieno ATTIVATO
-|Editor a schermo pieno DISATTIVATO
+|Now using the
+123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
 |Nessun messaggio da scaricare trovato!
 |Premi (Invio) per continuare: 
 |Centra
@@ -385,10 +385,10 @@ SN|Sei sicuro? [S/n]:
 |es. Mario Rossi, login = mrossi
 |login > 
 |Quel login esiste gia', scegline uno leggermente diverso.
-|
-|
-|
-|
+|Line
+|Fullscreen
+|External
+|Editor
 |Nuovo    
 |Locale    
 |Netmail  
