@@ -46,6 +46,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
 	int	Count = 0, First = TRUE;
 	char	*Group, *temp;
 	FILE	*gp;
+	faddr	*g;
 
 	temp = calloc(128, sizeof(char));
 	fprintf(fp, "Dear %s\r\r", nodes.Sysop);
@@ -71,11 +72,10 @@ void WriteMailGroups(FILE *fp, faddr *f)
 
 		fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
 		while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
+			g = bestaka_s(fido2faddr(mgroup.UseAka));
 			if ((!strcmp(mgroup.Name, Group)) && 
-			    (mgroup.UseAka.zone  == f->zone) &&
-			    (mgroup.UseAka.net   == f->net) &&
-			    (mgroup.UseAka.node  == f->node) &&
-			    (mgroup.UseAka.point == f->point)) {
+			    (g->zone  == f->zone) && (g->net   == f->net) &&
+			    (g->node  == f->node) && (g->point == f->point)) {
 				fprintf(fp, "%-12s %s\r", mgroup.Name, mgroup.Comment);
 				Count++;
 				break;
@@ -97,6 +97,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
 	int	Count = 0, First = TRUE;
 	char	*Group, *temp;
 	FILE	*gp;
+	faddr	*g;
 
 	temp = calloc(128, sizeof(char));
 	fprintf(fp, "Dear %s\r\r", nodes.Sysop);
@@ -122,11 +123,10 @@ void WriteFileGroups(FILE *fp, faddr *f)
 
 		fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
 		while (fread(&fgroup, fgrouphdr.recsize, 1, gp) == 1) {
+			g = bestaka_s(fido2faddr(fgroup.UseAka));
 			if ((!strcmp(fgroup.Name, Group)) && 
-			    (fgroup.UseAka.zone  == f->zone) &&
-			    (fgroup.UseAka.net   == f->net) &&
-			    (fgroup.UseAka.node  == f->node) &&
-			    (fgroup.UseAka.point == f->point)) {
+			    (g->zone  == f->zone) && (g->net   == f->net) &&
+			    (g->node  == f->node) && (g->point == f->point)) {
 				fprintf(fp, "%-12s %s\r", fgroup.Name, fgroup.Comment);
 				Count++;
 				break;
@@ -209,9 +209,9 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp)
 	if (!strncasecmp(Buf, "on", 2))
 		nodes.Notify = TRUE;
 	else if (!strncasecmp(Buf, "off", 3))
-			nodes.Notify = FALSE;
-		else
-			return;
+		nodes.Notify = FALSE;
+	else
+		return;
 
 	UpdateNode();
 	memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
