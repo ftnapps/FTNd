@@ -51,6 +51,18 @@ extern	int	do_quiet;
 extern	int	flushed;
 
 
+/*
+ *  Internal version of basename to make this better portable.
+ */
+char *Basename(char *);
+char *Basename(char *str)
+{
+        char *cp = strrchr(str, '/');
+
+        return cp ? cp+1 : str;
+}
+
+
 
 /*
  * Flush one queue directory of a node. If everything is successfull the
@@ -553,7 +565,7 @@ void flush_dir(char *ndir)
 	    if (nodes.Session_out == S_DIRECT) {
 		attach(noden, p, mode, flavor);
 	    } else if (nodes.Session_out == S_DIR) {
-		sprintf(arcfile, "%s/%s", nodes.Dir_out_path, basename(p));
+		sprintf(arcfile, "%s/%s", nodes.Dir_out_path, Basename(p));
 		if (mode == LEAVE) {
 		    /*
 		     * LEAVE file, so we copy this one.
