@@ -4,12 +4,14 @@ v0.39.8		26-Jan-2004
 
 	libcommon.a:
 		Fixed compiler directive for Linux in execute function.
+		Code cleanup.
 
 	mbcico:
 		Fixed binkp file resync.
 		Binkp now only tries to compress data frames.
 		Fixed binkp master timer reset points, this should make session
 		timeout work.
+		Code cleanup.
 
 
 v0.39.7		14-Jan-2004 - 26-Jan-2004
