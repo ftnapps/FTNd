@@ -560,11 +560,12 @@ int hydra_batch(int role, file_list *to_send)
     struct timeval  rxstarttime, rxendtime;
     struct timezone tz;
     int		    sverr;
-    int		    rcz;
+    int		    rcz, txcompressed;
 
     Syslog('h', "Hydra: resettimers");
     RESETTIMERS();
 
+    txcompressed = 0;
     txpos = rxpos = 0;
     stxpos = srxpos = 0;
     txretries = rxretries = 0;
@@ -852,6 +853,8 @@ int hydra_batch(int role, file_list *to_send)
 
 		    Syslog('+', "Hydra: send \"%s\" as \"%s\"", MBSE_SS(to_send->local), MBSE_SS(to_send->remote));
 		    Syslog('+', "Hydra: size %lu bytes, dated %s",(unsigned long)txstat.st_size, date(txstat.st_mtime));
+		    if (txcompressed)
+			Syslog('+', "Hydra: saved by compression %d bytes", txcompressed);
 		    gettimeofday(&txstarttime, &tz);
 		}
 
@@ -900,6 +903,7 @@ int hydra_batch(int role, file_list *to_send)
 			txlen = 1;
 		    }
 
+		    txcompressed = 0;
 		    hytxpkt(HPKT_FINFO, txbuf, txlen);
 
 		    if (txretries > 0) {
@@ -1013,11 +1017,12 @@ int hydra_batch(int role, file_list *to_send)
 #ifdef HAVE_ZLIB_H
 			if ((txoptions & HOPT_CANPLZ) && (txretries == 0)) {
 			    txzlen = H_ZIPBUFLEN - 4;
-			    rcz = compress(txzbuf + 4, &txzlen, txbuf + 4, txlen);
+			    rcz = compress2(txzbuf + 4, &txzlen, txbuf + 4, txlen, 9);
 			    if (rcz == Z_OK) {
 				Syslog('h', "Compressed OK, srclen=%d, destlen=%d, will send compressed=%s", txlen, txzlen,
 					(txzlen < txlen) ?"yes":"no");
 				if (txzlen < txlen) {
+				    txcompressed += (txlen - txzlen);
 				    put_long(txzbuf, txpos);
 				    txpos += txlen;
 				    sentbytes += txlen;

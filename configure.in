@@ -123,7 +123,7 @@ if test "$result" = "yes"; then
   AC_CHECK_HEADERS(sys/types.h)
 fi
 
-AC_CHECK_LIB(z,compress,result=yes,result=no)
+AC_CHECK_LIB(z,compress2,result=yes,result=no)
 if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
   AC_CHECK_HEADERS(zlib.h)
