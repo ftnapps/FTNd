@@ -263,10 +263,11 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	resp = nntp_receive();
 	retval = atoi(strtok(resp, " "));
 	if (retval != 211) {
-		if (retval == 411)
+		if (retval == 411) {
 			WriteError("No such newsgroup: %s", grpname);
-		else
-			WriteError("Unknown response %d to GROUP command", retval);
+			return RETVAL_UNEXPECTEDANS;
+		}
+		WriteError("Unknown response %d to GROUP command", retval);
 		return RETVAL_ERROR;
 	}
 
@@ -281,7 +282,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	}
 	if (!total) {
 		Syslog('N', "No articles");
-		return RETVAL_OK;
+		return RETVAL_NOARTICLES;
 	}
 
 	retval = get_xover(grpname, start, end, art);
@@ -307,7 +308,7 @@ int do_one_group(List **art, char *grpname, char *ftntag, int maxarticles)
 	tidy_artlist(art);
 
 	if ((maxarticles) && (fetched == maxarticles))
-	    Syslog('!', "Warning: the maximum articles value for this group might be to low");
+	    Syslog('!', "Warning: the max. articles value in newsgroup %s might be to low", grpname);
 
 	return RETVAL_OK;
 }
