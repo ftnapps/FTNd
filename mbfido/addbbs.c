@@ -57,7 +57,7 @@ int Add_BBS()
     struct FILERecord	frec;
     int			rc, i, Insert, Done = FALSE, Found = FALSE;
     char		fdbname[PATH_MAX], fdbtemp[PATH_MAX];
-    char		temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname;
+    char		temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname, *p;
     FILE		*fdb, *fdt;
     int			Keep = 0, DidDelete = FALSE;
     fd_list		*fdl = NULL;
@@ -146,6 +146,26 @@ int Add_BBS()
 	return FALSE;
     }
     chmod(temp2, 0644);
+
+    /*
+     * If LFN = 8.3 name and is DOS 8.3 format, change the LFN to lowercase.
+     */
+    if (strcmp(frec.Name, frec.LName) == 0) {
+	p = frec.LName;
+	while (*p) {
+	    if (islower(*p))
+		Found = TRUE;
+	    p++;
+	}
+	if (!Found) {
+	    /*
+	     * All uppercase, change to lowercase.
+	     */
+	    tl(frec.LName);
+	    Syslog('f', "Converted LFN to lowercase: \"%s\"", frec.LName);
+	}
+    }
+    Found = FALSE;
     lname = calloc(PATH_MAX, sizeof(char));
     sprintf(lname, "%s/%s", TIC.BBSpath, frec.LName);
     if (symlink(temp2, lname)) {

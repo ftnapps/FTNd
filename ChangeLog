@@ -73,6 +73,11 @@ v0.37.01	14-Jan-2003.
 		If echomail is accepted in a unsecure area or the unsecure
 		commandline option is set, a violation is logged as warning.
 		Removed some debugging tests and log messages.
+		If a tic file was received in uppercase, during import in the
+		bbs the LFN is converted to lowercase.
+		Removed a debug logmessage from file forward.
+		Promoted some normal debug logmessages to heavy debug messages
+		in the outbound queue packer.
 
 	mbdiff:
 		If unpacking a diff file fails, a second attempt is done after

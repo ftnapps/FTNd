@@ -57,9 +57,9 @@ extern	int	flushed;
 char *Basename(char *);
 char *Basename(char *str)
 {
-        char *cp = strrchr(str, '/');
+    char *cp = strrchr(str, '/');
 
-        return cp ? cp+1 : str;
+    return cp ? cp+1 : str;
 }
 
 
@@ -213,7 +213,7 @@ void flush_dir(char *ndir)
     } else {
 	sprintf(arcfile, "%s", arcname(&noden, nodes.Aka[0].zone, nodes.ARCmailCompat));
     }
-    Syslog('p', "Arcmail file %s", arcfile);
+    Syslog('P', "Arcmail file %s", arcfile);
 
     /*
      * If there is a mailpkt.qqq file, close it and rename it.
@@ -236,7 +236,7 @@ void flush_dir(char *ndir)
 	    putc('\0', fp);
 	    fsync(fileno(fp));
 	    fclose(fp);
-	    Syslog('p', "Renamed %s to %s", fname, pktfile);
+	    Syslog('P', "Renamed %s to %s", fname, pktfile);
 	}
     }
     free(fname);
@@ -380,7 +380,7 @@ void flush_dir(char *ndir)
 	}
 
 	if (first) {
-	    Syslog('+', "Pack ARCmail for %s, via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
+	    Syslog('+', "Pack ARCmail for %s via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
 	    if (!do_quiet) {
 		printf("\rAdding ARCmail for %s                      ", ascfnode(&noden, 0x1f));
 		fflush(stdout);
@@ -449,7 +449,7 @@ void flush_dir(char *ndir)
     first = TRUE;
     while ((fname = pull_fdlist(&fdl)) != NULL) {
 	if (first) {
-	    Syslog('+', "Pack unpacked mail for %s, via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
+	    Syslog('+', "Pack unpacked mail for %s via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
 	    if (!do_quiet) {
 		printf("\rAdding netmail for %s                      ", ascfnode(&noden, 0x1f));
 		fflush(stdout);
@@ -470,16 +470,12 @@ void flush_dir(char *ndir)
 	    flavor = 'o';
 
 	if (nodes.Session_out == S_DIR) {
-//	    if (noden.point)
-//		sprintf(arcfile, "%s/%08x.%cut", nodes.Dir_out_path, noden.point, flavor);
-//	    else
-//		sprintf(arcfile, "%s/%04x%04x.%cut", nodes.Dir_out_path, noden.net, noden.node, flavor);
 	    sprintf(arcfile, "%s/%08lx.pkt", nodes.Dir_out_path, sequencer());
 	} else {
 	    sprintf(arcfile, "%s", pktname(&noden, flavor));
 	}
-	Syslog('p', "Outfile: %s", arcfile);
-	Syslog('p', "Pktfile: %s", pktfile);
+	Syslog('P', "Outfile: %s", arcfile);
+	Syslog('P', "Pktfile: %s", pktfile);
 
 	/*
 	 *  Now we must see if there is already mail in the outbound.
@@ -534,7 +530,7 @@ void flush_dir(char *ndir)
     sprintf(pktfile, "%s/.filelist", temp);
     if ((fp = fopen(pktfile, "r")) != NULL) {
 
-	Syslog('+', "Adding files for %s, via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
+	Syslog('+', "Adding files for %s via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
 	if (!do_quiet) {
 	    printf("\rAdding files for %s                        ", ascfnode(&noden, 0x1f));
 	    fflush(stdout);
@@ -582,7 +578,7 @@ void flush_dir(char *ndir)
 		chmod(arcfile, 0660);
 	    }
 
-	    Syslog('p', "%c %d %s", flavor, mode, pktfile);
+	    Syslog('P', "%c %d %s", flavor, mode, pktfile);
 
 	}
 
