@@ -900,20 +900,22 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
 	} else { /* if newsmode */
 		now = time(NULL);
-		if (CFG.EmailMode == E_NOISP) {
-			/*
-			 * Probaly not needed as messages for systems without ISP never get here.
-			 * Perhaps only news to moderators.
-			 */
-			Syslog('m', "We should not be here");
-			sprintf(temp, "From %s!%s %s", ascinode(f,0x3f), ascinode(f,0x40), ctime(&mdate));
-			Send(FALSE, temp);
-		}
+//		if (CFG.EmailMode == E_NOISP) {
+//			/*
+//			 * Probaly not needed as messages for systems without ISP never get here.
+//			 * Perhaps only news to moderators.
+//			 */
+//			Syslog('m', "We should not be here");
+//			sprintf(temp, "From %s!%s %s", ascinode(f,0x3f), ascinode(f,0x40), ctime(&mdate));
+//			Send(FALSE, temp);
+//		}
 
 		Syslog('m', "Should send Received: header for mbfido");
-		sprintf(temp, "Received: from %s by %s\n", ascinode(f,0x3f), ascinode(bestaka,0x3f));
+		sprintf(temp, "Received: from %s\n", ascinode(f, 0x3f));
 		Send(FALSE, temp);
-		sprintf(temp, "\twith FTN (mbfido v.%s) id AA%u; %s\n", VERSION, getpid(), rfcdate(now));
+		sprintf(temp, "\tby %s with FTN (mbfido v.%s) id AA%u\n", ascinode(bestaka,0x3f), VERSION, getpid());
+		Send(FALSE, temp);
+		sprintf(temp, "\t%s\n", rfcdate(now));
 		Send(FALSE, temp);
 		Syslog('m', "Is done now");
 
