@@ -236,8 +236,9 @@ void un_attach(faddr *node, char *filename, int fdn)
     if ((strlen(base) == 12) && ((strncasecmp(base+8,".su",3) == 0) ||
 	(strncasecmp(base+8,".mo",3) == 0) || (strncasecmp(base+8,".tu",3) == 0) ||
 	(strncasecmp(base+8,".we",3) == 0) || (strncasecmp(base+8,".th",3) == 0) ||
-	(strncasecmp(base+8,".fr",3) == 0) || (strncasecmp(base+8,".sa",3) == 0))) {
-	Syslog('p', "this is arcmail, no un_attach");
+	(strncasecmp(base+8,".fr",3) == 0) || (strncasecmp(base+8,".sa",3) == 0) ||
+	(strncasecmp(base+8,".tic",4) == 0))) {
+	Syslog('p', "this is arcmail or tic, no un_attach");
 	free(allname);
 	return;
     }
