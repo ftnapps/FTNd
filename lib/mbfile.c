@@ -322,7 +322,7 @@ int diskfree(int needed)
 	 */
 	if ((strncmp(mntbuf[i].f_fstypename, (char *)"kernfs", 6)) &&
 	    (strncmp(mntbuf[i].f_fstypename, (char *)"procfs", 6)) &&
-	    (strncmp(mntbuf[i].f_fsfromname, (char *)"/dev/fd", 7)) &&
+	    (strncmp(mntbuf[i].f_mntfromname, (char *)"/dev/fd", 7)) &&
 	    (strncmp(mntbuf[i].f_fstypename, (char *)"cd9660", 6)) &&
 	    (strncmp(mntbuf[i].f_fstypename, (char *)"msdos", 5)) &&
 	    (statfs(mntbuf[i].f_mntonname, &sfs) == 0)) {
