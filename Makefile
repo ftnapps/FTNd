@@ -207,6 +207,18 @@ install:
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/arealists ; \
 			chmod 0750 ${PREFIX}/var/arealists ; \
 		fi
+		@if [ ! -d ${PREFIX}/var/dosemu ]; then \
+			mkdir ${PREFIX}/var/dosemu ; \
+			chmod 0770 ${PREFIX}/var/dosemu ; \
+		fi
+		@if [ ! -d ${PREFIX}/var/dosemu/c ]; then \
+			mkdir ${PREFIX}/var/dosemu/c ; \
+			chmod 0770 ${PREFIX}/var/dosemu/c ; \
+		fi
+		@if [ ! -d ${PREFIX}/etc/dosemu ]; then \
+			mkdir ${PREFIX}/etc/dosemu ; \
+			chmod 0750 ${PREFIX}/etc/dosemu ; \
+		fi
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
 			rm ${BINDIR}/mbtelnetd ; \
 			echo "removed ${BINDIR}/mbtelnetd"; \

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 20-Jun-2004</h5></div>
+<div align="right"><h5>Last update 09-Aug-2004</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
@@ -50,6 +50,7 @@ layout looks like this:<br>
 /opt/mbse/english/menus        0755  Default english menu files
 /opt/mbse/english/txtfiles     0755  Default english ANSI files
 /opt/mbse/etc                  0775  System configuration files
+/opt/mbse/etc/dosemu           0750  DOSemu configuration files
 /opt/mbse/fdb                  0775  Files database
 /opt/mbse/ftp/pub              0775  Default FTP root for download areas.
 /opt/mbse/galego/macro         0755  Galego macro files
@@ -78,6 +79,8 @@ layout looks like this:<br>
 /opt/mbse/var/boxes            0750  Base for nodes fileboxes
 /opt/mbse/var/bso              0750  Binkley Style Outbound directory
 /opt/mbse/var/bso/outbound     0750  Default outbound for main aka
+/opt/mbse/var/dosemu           0770  Base for DOS drives
+/opt/mbse/var/dosemu/c         0770  DOS drive C:
 /opt/mbse/var/inbound          0750  Protected inbound directory
 /opt/mbse/var/mail             0770  JAM messagebase root
 /opt/mbse/var/msgs             0750  *.msgs netmail directory (not yet in use).

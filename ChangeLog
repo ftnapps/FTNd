@@ -57,6 +57,11 @@ v0.61.3		25-Jul-2004
 
 	script:
 		Changed bbsdoor.sh so that it works for dosemu 1.2.0 and later.
+		Created new runvirtual.sh so that we have door scripts with and
+		without virual comport support.
+		Changed all locations for dosemu so that we run in the mbse
+		environment with dropped privileges of the user running the
+		door.
 
 	lang:
 		Added language prompts 26 and 27.

@@ -2,15 +2,15 @@
 #
 # $Id$
 #
-# rundoor.sh - Never call this script directly, create a symlink
+# runvirtual.sh - Never call this script directly, create a symlink
 #              to this file with the name of the door. For example
-#              to run the door ilord do:
+#              tu run the door ilord do:
 #              cd /opt/mbse/bin
-#              ln -s rundoor.sh ilord
+#              ln -s runvirtual.sh ilord
 #              In the menu use the following line for Optional Data:
 #              /opt/mbse/bin/ilord /N
 #
-# This version DOES NOT have virtual COMport support, see runvirtual.sh
+# This version support a virtual COMport, needed by some doors.
 #
 # by Redy Rodriguez and Michiel Broek.
 #
@@ -18,7 +18,8 @@ DOOR=`basename $0`
 COMMANDO="\"doors $DOOR $*\r\""
 
 /usr/bin/sudo /opt/mbse/bin/bbsdoor.sh $DOOR $1
-/usr/bin/sudo /usr/bin/dosemu.bin -f /opt/mbse/etc/dosemu/dosemu.conf -I "`echo -e keystroke $COMMANDO`"
+/usr/bin/sudo /opt/dosemu/bin/dosemu.bin -f /opt/mbse/etc/dosemu/dosemu.conf \
+	-I "`echo -e serial { com 1 virtual }"\n" keystroke $COMMANDO`"
 reset
 tput reset
 stty sane

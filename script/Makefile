@@ -4,7 +4,7 @@
 include ../Makefile.global
 
 OTHER		= Makefile README maint midnight weekly monthly installinit.sh setup.mbse \
-		  bbsdoor.sh rundoor.sh init.Debian init.RedHat init.FreeBSD init.NetBSD \
+		  bbsdoor.sh rundoor.sh runvirtual.sh init.Debian init.RedHat init.FreeBSD init.NetBSD \
 		  init.Slackware init.SuSE init.Gentoo hatch editor.in bbsjoerc bbsjmacsrc
 
 ####################################################################################################
@@ -75,11 +75,15 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}" ; \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 runvirtual.sh  ${BINDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 runvirtual.sh  ${BINDIR}" ; \
 		else \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 bbsdoor.sh  ${BINDIR}/bbsdoor.sh.new ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 bbsdoor.sh  ${BINDIR}/bbsdoor.sh.new" ; \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 rundoor.sh  ${BINDIR}/rundoor.sh.new ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 rundoor.sh  ${BINDIR}/rundoor.sh.new" ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new" ; \
 		fi
 		@bash ./installinit.sh
 

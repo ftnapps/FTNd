@@ -7,8 +7,9 @@
 #	       $2 = the nodenumber for this session
 #
 #  by Redy Rodriguez, 22-Oct-2001
+#  Revised for dosemu 1.2.0 by Michiel Broek.
 
-DOSDRIVE=/dos/c
+DOSDRIVE=/opt/mbse/var/dosemu/c
 
 if [ "$1" != "" ]; then
     if [ "$2" != "" ]; then
