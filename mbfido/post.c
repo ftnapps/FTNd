@@ -244,7 +244,7 @@ int Post(char *To, long Area, char *Subj, char *File, char *Flavor)
     /*
      * Finish the message
      */
-    if (! has_tear) {
+    if ((! has_tear) && (! has_origin)) {
 	MsgText_Add2((char *)"");
 	MsgText_Add2(TearLine());
     }
