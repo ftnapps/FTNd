@@ -47,12 +47,12 @@ log "+" "Current directory is `pwd`"
 
 # Check the OS type, only Linux for now.
 #
-if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ] && [ "$OSTYPE" != "NetBSD" ]; then
+if [ "$OSTYPE" != "Linux" ] && [ "$OSTYPE" != "FreeBSD" ] && [ "$OSTYPE" != "NetBSD" ] && [ "$OSTYPE" != "Darwin" ]; then
 
     cat << EOF
 
 Your are trying to install MBSE BBS on a $OSTYPE system, however
-at this time only Linux, FreeBSD or NetBSD is supported.
+at this time only Linux, FreeBSD, NetBSD and Darwin (OS X) is supported.
 
 
 EOF
@@ -95,18 +95,12 @@ if [ "$OSTYPE" = "Linux" ]; then
 			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
 			fi
 		    else
-		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
-		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
-		    	    DISTNAME="Slackware"
-		    	    DISTVERS="Old"
-		    	else
-                            if [ -f /etc/gentoo-release ]; then
-                                DISTNAME="Gentoo"
-                                DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
-                            else
-                                DISTNAME="Unknown"
-                            fi
-		    	fi
+                        if [ -f /etc/gentoo-release ]; then
+                            DISTNAME="Gentoo"
+                            DISTVERS=`cat /etc/gentoo-release | awk '{ print $5 }'`
+                        else
+                            DISTNAME="Unknown"
+                        fi
 		    fi
 	    	fi
 	    fi
@@ -122,7 +116,10 @@ if [ "$OSTYPE" = "NetBSD" ]; then
     DISTNAME="NetBSD"
     DISTVERS=`uname -r`
 fi
-
+if [ "$OSTYPE" = "Darwin" ]; then
+    DISTNAME="Darwin"
+    DISTVERS=`uname -r`
+fi
 log "+" "Detected \"${OSTYPE}\" (${HOSTTYPE}) \"${DISTNAME}\" version \"${DISTVERS}\""
 
 
@@ -180,9 +177,10 @@ if [ "$OSTYPE" = "Linux" ]; then
     fi
 fi
 
-if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ]; then
+if [ "$OSTYPE" = "FreeBSD" ] || [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
     #
-    #  FreeBSD/NetBSD uses /usr/local for extra packages and doesn't use /opt
+    #  FreeBSD/NetBSD/Darwin uses /usr/local for extra packages
+    #  and doesn't use /opt.
     #  Also using /opt means that we are in the root partition which
     #  by default is very small. We put everything in /usr/local/opt
     #  and create symlinks to it.
@@ -223,6 +221,10 @@ cat << EOF
     your system. It might also be wise to login as root on another
     virtual console incase something goes wrong with system login.
 
+    Darwin (OS X) Users must install the .dmg image of user utils
+    available on Version Tracker and within this archive prior
+    to continuing the installation.
+
     If you are not sure, or forgot something, hit Control-C now or
 EOF
 
@@ -250,6 +252,9 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
 fi
 if [ "$OSTYPE" = "NetBSD" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/pkg/bin/bash mbse
+fi
+if [ "$OSTYPE" = "Darwin" ]; then
+    useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -s /bin/bash
 fi
 log "+" "[$?] Added user mbse"
 chmod 775 $MHOME
@@ -303,6 +308,10 @@ if [ "$OSTYPE" = "FreeBSD" ]; then
 fi
 if [ "$OSTYPE" = "NetBSD" ]; then
     useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -m -g bbs -s $MHOME/bin/mbnewusr bbs
+    log "+" "[$?] Added user bbs"
+fi
+if [ "$OSTYPE" = "Darwin" ]; then
+    useradd bbs -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewuser
     log "+" "[$?] Added user bbs"
 fi
 # Some systems (RedHat and Mandrake) insist on creating a users homedir.
@@ -363,13 +372,13 @@ if [ "$OSTYPE" = "Linux" ]; then
     fi
     rm /etc/passwd.lock
 fi
-if [ "$OSTYPE" = "NetBSD" ]; then
+if [ "$OSTYPE" = "NetBSD" ] || [ "$OSTYPE" = "Darwin" ]; then
 cat << EOF
 
 READ THIS CAREFULLY NOW   READ THIS CAREFULLY NOW
 
 I don't know how to automatic remove the password for the "bbs"
-user account in NetBSD. You have to do this for me!
+user account in NetBSD/Darwin. You have to do this for me!
 Next I start the editor you need to use, remove all the stars"
 after the word Password, then save the file with "wq!"
 

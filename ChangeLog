@@ -3,6 +3,13 @@ $Id$
 
 v0.51.1		21-Feb-2004
 
+	SETUP.sh:
+		Changed to support Darwin (OS X). Note that in earlier days
+		mbse did compile under OS X, but things are different since
+		then. Work is underway to let it compile and run again.
+		
+
+
 v0.51.0		09-Feb-2004 - 21-Feb-2004
 
 	general:

@@ -68,6 +68,13 @@ newuser:
 	L: Allow handles to be the same as the unixname.
 
 
+mbtask:
+	N: Add a thread that keeps track of disk usage of all partitions used
+	   by mbse, update partition list after setup changes. Make the info
+	   available for all other programs so they know very fast if enough
+	   space is still available.
+
+
 mbfido:
 	N: The elist rules files are named (8.3) areaname.rul where areaname
 	   is the first 8 characters of the area name and we use the full name
