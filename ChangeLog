@@ -4679,6 +4679,7 @@ v0.33.20        10-Feb-2002
 		it can now be reset.
 		Protected convert-all setting in menus 10.1 and 10.2 when no
 		default archiver is defined.
+		Changed page layout in site.doc
 
 	mbmon:
 		The top statusbar now displays the bbs Free/Down/Busy status.

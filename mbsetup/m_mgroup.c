@@ -630,7 +630,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 
 	addtoc(fp, toc, 9, 1, page, (char *)"Mail processing groups");
 	j = 0;
-	fprintf(fp, "\n\n");
+	fprintf(fp, "\n");
 
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, no);
 	fseek(no, 0, SEEK_SET);
@@ -661,12 +661,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    user add/del areas %s\n", getboolean(mgroup.UserChange));
 		fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
 		fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
-
-//		fprintf(fp, "               Total      This month Last month\n");
-//		fprintf(fp, "               ---------- ---------- ----------\n");
-//		fprintf(fp, "    Messages   %-10ld %-10ld %-10ld\n", mgroup.Total.files, mgroup.ThisMonth.files, mgroup.LastMonth.files);
-//		fprintf(fp, "    Kilobytes  %-10ld %-10ld %-10ld\n", mgroup.Total.kbytes, mgroup.ThisMonth.kbytes, mgroup.LastMonth.kbytes);
-		fprintf(fp, "\n\n\n");
+		fprintf(fp, "\n\n");
 		j++;
 	}
 

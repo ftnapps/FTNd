@@ -546,7 +546,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, tty);
 
 	while ((fread(&ttyinfo, ttyinfohdr.recsize, 1, tty)) == 1) {
-		if (j == 3) {
+		if (j == 4) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;
@@ -565,7 +565,7 @@ int tty_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Modem type   %s\n", ttyinfo.modem);
 		fprintf(fp, "     Locked speed %ld\n", ttyinfo.portspeed);
 		fprintf(fp, "     EMSI name    %s\n", ttyinfo.name);
-		fprintf(fp, "\n\n\n");
+		fprintf(fp, "\n\n");
 		j++;
 	}
 

@@ -890,9 +890,26 @@ int EditTicRec(int Area)
 			SetTicScreen();
 			break;
 		case 4:	E_STR( 9,16,14, tic.Message, "The ^message^ to include with the .tic files.");
-		case 5:	strcpy(tic.Group, PickFGroup((char *)"10.2.5"));
-			if (strlen(tic.Group)) {
+		case 5:	tmp = strlen(tic.Group);
+			strcpy(tic.Group, PickFGroup((char *)"10.2.5"));
+			if (strlen(tic.Group) && !tmp) {
+				/*
+				 * If set the first time, fill in defaults
+				 */
 				tic.Aka = fgroup.UseAka;
+				strncpy(tic.Convert, fgroup.Convert, 5);
+				strncpy(tic.Banner, fgroup.Banner, 14);
+				tic.Replace = fgroup.Replace;
+				tic.DupCheck = fgroup.DupCheck;
+				tic.Secure = fgroup.Secure;
+				tic.NoTouch = fgroup.NoTouch;
+				tic.VirScan = fgroup.VirScan;
+				tic.Announce = fgroup.Announce;
+				tic.UpdMagic = fgroup.UpdMagic;
+				tic.FileId = fgroup.FileId;
+				tic.ConvertAll = fgroup.ConvertAll;
+				tic.SendOrg = fgroup.SendOrg;
+
 				/*
 				 * If there is an uplink defined in the group,
 				 * and the first connected system is empty,

@@ -507,7 +507,7 @@ int tic_magic_doc(FILE *fp, FILE *toc, int page)
 
 	fread(&magichdr, sizeof(magichdr), 1, no);
 	while (fread(&magic, magichdr.recsize, 1, no) == 1) {
-		if (j == 4) {
+		if (j == 6) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;

@@ -505,35 +505,29 @@ char *PickNGroup(char *shdr)
 
 int newf_group_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
+	char	*temp;
 	FILE	*no;
-	int	j;
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/ngroups.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
+	if ((no = fopen(temp, "r")) == NULL) {
+		free(temp);
 		return page;
+	}
+	free(temp);
 
+	page = newpage(fp, page);
 	addtoc(fp, toc, 11, 0, page, (char *)"Newfiles announce groups");
-	j = 0;
-	fprintf(fp, "\n\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "   Name         Act Comment\n");
+	fprintf(fp, "   ------------ --- --------------------------------------------------\n");
 
 	fread(&ngrouphdr, sizeof(ngrouphdr), 1, no);
 	fseek(no, 0, SEEK_SET);
 	fread(&ngrouphdr, ngrouphdr.hdrsize, 1, no);
 
-	while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1) {
-		if (j == 7) {
-			page = newpage(fp, page);
-			fprintf(fp, "\n");
-			j = 0;
-		}
-
-		fprintf(fp, "    Name       %s\n", ngroup.Name);
-		fprintf(fp, "    Comment    %s\n", ngroup.Comment);
-		fprintf(fp, "    Active     %s\n", getboolean(ngroup.Active));
-		fprintf(fp, "\n\n\n");
-		j++;
-	}
+	while ((fread(&ngroup, ngrouphdr.recsize, 1, no)) == 1)
+		fprintf(fp, "   %-12s %s %s\n", ngroup.Name, getboolean(ngroup.Active), ngroup.Comment);
 
 	fclose(no);
 	return page;

@@ -1087,10 +1087,16 @@ int EditMsgRec(int Area)
 				strncpy(msgs.QWKname, msgs.Tag, 13);
 			}
 			break;
-		case 3:	strcpy(msgs.Group, PickMGroup((char *)"9.2.3"));
-			if (strlen(msgs.Group)) {
+		case 3:	tmp = strlen(msgs.Group);
+			strcpy(msgs.Group, PickMGroup((char *)"9.2.3"));
+			if (strlen(msgs.Group) && !tmp) {
+			    /*
+			     * If set for the first time, set some defaults
+			     */
 			    msgs.Aka = mgroup.UseAka;
 			    msgs.Active = TRUE;
+			    msgs.MsgKinds = PUBLIC;
+			    msgs.Type = ECHOMAIL;
 			    msgs.DaysOld = CFG.defdays;
 			    msgs.MaxMsgs = CFG.defmsgs;
 			    msgs.UsrDelete = mgroup.UsrDelete;
@@ -1101,6 +1107,9 @@ int EditMsgRec(int Area)
 			    msgs.NetReply = mgroup.NetReply;
 			    msgs.Quotes = mgroup.Quotes;
 			    msgs.MaxArticles = CFG.maxarticles;
+			    msgs.Rfccode = CHRS_DEFAULT_RFC;
+			    msgs.Ftncode = CHRS_DEFAULT_FTN;
+			    strncpy(msgs.Origin, CFG.origin, 50);
 			    
 			    /*
 			     * If there is an uplink defined in the group,

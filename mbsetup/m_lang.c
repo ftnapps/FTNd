@@ -537,7 +537,7 @@ int bbs_lang_doc(FILE *fp, FILE *toc, int page)
 
 	while ((fread(&lang, langhdr.recsize, 1, no)) == 1) {
 
-		if (j == 5) {
+		if (j == 6) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;

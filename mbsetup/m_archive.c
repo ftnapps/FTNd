@@ -591,7 +591,7 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 	fread(&archiverhdr, sizeof(archiverhdr), 1, arch);
 	while ((fread(&archiver, archiverhdr.recsize, 1, arch)) == 1) {
 
-		if (j == 4) {
+		if (j == 5) {
 			page = newpage(fp, page);
 			fprintf(fp, "\n");
 			j = 0;
@@ -607,7 +607,7 @@ int archive_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Unpack files    %s\n", archiver.funarc);
 		fprintf(fp, "     Unpack mail     %s\n", archiver.munarc);
 		fprintf(fp, "     Get FILE_ID.DIZ %s\n", archiver.iunarc);
-		fprintf(fp, "\n\n\n");
+		fprintf(fp, "\n\n");
 		j++;
 	}
 

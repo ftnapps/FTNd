@@ -1840,7 +1840,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      File description %s on %s\n", get_color(CFG.FiledescF), get_color(CFG.FiledescB));
 	fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
 
-	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 10, page, (char *)"Next user door");
 	
 	fprintf(fp, "      Text file        %s\n", CFG.sNuScreen);
@@ -1869,6 +1868,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Users time ratio   %s\n", CFG.sTimeRatio);
 	fprintf(fp, "      Users Kb. ratio    %s\n", CFG.sByteRatio);
 
+	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 13, page, (char *)"Sysop paging");
 
 	fprintf(fp, "      Ext. Chat program  %s\n", CFG.sExternalChat);
@@ -1893,7 +1893,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Friday             %s %s\n", CFG.cStartTime[5], CFG.cStopTime[5]);
 	fprintf(fp, "      Saterday           %s %s\n", CFG.cStartTime[6], CFG.cStopTime[6]);
 
-	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 14, page, (char *)"Fileecho processing");
 
 	fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
@@ -1914,6 +1913,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Areamgr: TIC       %s\n", getboolean(CFG.ct_TIC));
 	fprintf(fp, "      Areamgr: pause     %s\n", getboolean(CFG.ct_Pause));
 
+	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 15, page, (char *)"Fidonet Mail and Echomail  processing");
 
 	fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);

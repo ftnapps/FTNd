@@ -555,15 +555,18 @@ void EditMenus(void)
 
 int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 {
-	char	temp[PATH_MAX];
+	char	*temp;
 	FILE	*no, *mn;
 	DIR	*dp;
 	struct	dirent *de;
 	int	j;
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
-	if ((no = fopen(temp, "r")) == NULL)
+	if ((no = fopen(temp, "r")) == NULL) {
+		free(temp);
 		return page;
+	}
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 8, 3, page, (char *)"BBS Menus");
@@ -577,7 +580,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 				if (de->d_name[0] != '.') {
 					j = 0;
 					sprintf(temp, "%s/%s", lang.MenuPath, de->d_name);
-					fprintf(fp, "    MENU %s (%s)\n\n", de->d_name, lang.Name);
+					fprintf(fp, "\n    MENU %s (%s)\n\n", de->d_name, lang.Name);
 					if ((mn = fopen(temp, "r")) != NULL) {
 						while (fread(&menus, sizeof(menus), 1, mn) == 1) {
 							if (menus.MenuKey[0])
@@ -605,9 +608,10 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 							}
 							fprintf(fp, "\n\n");
 							j++;
-							if (j == 5) {
+							if (j == 4) {
 								j = 0;
 								page = newpage(fp, page);
+								fprintf(fp, "\n");
 							}
 						}
 						fclose(mn);
@@ -620,6 +624,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 		}
 	}
 
+	free(temp);
 	fclose(no);
 	return page;
 }
