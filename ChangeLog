@@ -4,6 +4,7 @@ NOTE: for previous 0.35.06 users, the hard links are now replaced with
       symbolic links. Run mbfile check to update if you were running
       a pre 09-12-2002 version. Backup everything!! If all went well the
       backups should be in size back to normal.
+      If you use web pages of the download areas, run mbfile index.
 
 
 				MBSEBBS History.
@@ -103,6 +104,11 @@ v0.35.06
 		files seem to exist under both names.
 		The delete and move functions can now use 8.3 or long
 		filenames as argument.
+		The index function now creates web pages with the uppercase
+		8.3 filename (including thumbnails) because webservers don't
+		allow downloads from symlinks and the LFN is a symlink. You
+		could allow your webserver to do this but this is a big 
+		security hole.
 
 	mbsetup:
 		In filedatabase editor, if a file is deleted the name is

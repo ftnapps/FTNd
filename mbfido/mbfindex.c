@@ -566,25 +566,25 @@ void Index(void)
 			     */
 			    if (strstr(file.LName, ".gif") || strstr(file.LName, ".jpg") ||
 				strstr(file.LName, ".GIF") || strstr(file.LName, ".JPG")) {
-				sprintf(linebuf, "%s/%s", area.Path, file.LName);
-				sprintf(outbuf, "%s/.%s", area.Path, file.LName);
+				sprintf(linebuf, "%s/%s", area.Path, file.Name);
+				sprintf(outbuf, "%s/.%s", area.Path, file.Name);
 				if (file_exist(outbuf, R_OK)) {
 				    if ((j = execute(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
-					Syslog('+', "Failed to create thumbnail for %s, rc=% d", file.LName, j);
+					Syslog('+', "Failed to create thumbnail for %s, rc=% d", file.Name, j);
 				    } else {
 					chmod(outbuf, 0644);
 				    }
 				}
 				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp, 
-					area.Path+strlen(CFG.ftp_base), file.LName);
+					area.Path+strlen(CFG.ftp_base), file.Name);
 				sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.LName);
-				MacroVars("fghi", "dsss", 1, outbuf, file.LName, linebuf);
+					area.Path+strlen(CFG.ftp_base), file.Name);
+				MacroVars("fghi", "dsss", 1, outbuf, file.Name, linebuf);
 			    } else {
 				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.LName);
-				MacroVars("fghi", "dsss", 0, outbuf, file.LName, "");
+					area.Path+strlen(CFG.ftp_base), file.Name);
+				MacroVars("fghi", "dsss", 0, outbuf, file.Name, "");
 			    }
 			    sprintf(outbuf, "%lu Kb.", (long)(file.Size / 1024));
 			    MacroVars("jkl", "ssd", StrDateDMY(file.FileDate), outbuf, file.TimesDL+file.TimesFTP+file.TimesReq);

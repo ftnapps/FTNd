@@ -325,6 +325,19 @@ void Check(void)
 			Syslog('!', "Weird problem, %s is no regular file", newdir);
 		    }
 
+		    /*
+		     * It could be that there is a thumbnail made of the LFN.
+		     */
+		    tname = calloc(PATH_MAX, sizeof(char));
+		    sprintf(tname, "%s/.%s", area.Path, file.LName);
+		    if (file_exist(tname, R_OK) == 0) {
+			Syslog('+', "Removing thumbnail %s", tname);
+			iErrors++;
+			unlink(tname);
+		    }
+		    free(tname);
+
+
 		    if (file_time(newdir) != file.FileDate) {
 			Syslog('!', "Date mismatch area %d file %s", i, file.LName);
 			file.FileDate = file_time(newdir);
