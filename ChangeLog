@@ -2,6 +2,18 @@ $Id$
 
 v0.39.4		08-Dec-2003
 
+	general:
+		Added French language file created by Francois Thunus. This
+		translation is not yet complete.
+
+	upgrade:
+		If you didn't change anything of the language defaults then
+		delete /opt/mbse/etc/language.data and run mbsetup to create
+		a new language.data including the french setup.
+
+	mbsetup:
+		Added default record for french language.
+
 
 v0.39.3		26-Nov-2003 - 08-Dec-2003.
 

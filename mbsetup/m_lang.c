@@ -4,7 +4,7 @@
  * Purpose ...............: Setup Languages.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -128,9 +128,19 @@ int CountLanguage(void)
 			lang.Available = TRUE;
 			fwrite(&lang, sizeof(lang), 1, fil);
 
+			memset(&lang, 0, sizeof(lang));
+			sprintf(lang.Name,      "French");
+			sprintf(lang.LangKey,   "F");
+			sprintf(lang.MenuPath,  "%s/french/menus", getenv("MBSE_ROOT"));
+			sprintf(lang.TextPath,  "%s/french/txtfiles", getenv("MBSE_ROOT"));
+			sprintf(lang.MacroPath, "%s/french/macro", getenv("MBSE_ROOT"));
+			sprintf(lang.Filename,  "french.lang");
+			lang.Available = TRUE;  
+			fwrite(&lang, sizeof(lang), 1, fil);
+
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 5;
+			return 6;
 		} else
 			return -1;
 	}
