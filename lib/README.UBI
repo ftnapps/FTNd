@@ -1,0 +1,16 @@
+Sun Nov 25 23:18:30 CET 2001
+
+The C code files in the samba/source/ubiqx directory are licensed under
+the terms of the GNU LIBRARY GENERAL PUBLIC LICENSE (LGPL).  A copy of the
+LGPL should also be included in this directory under the name COPYING.LIB. 
+If this file is not present, you can obtain a copy of the LGPL by writing
+to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
+USA. 
+
+The versions of the ubiqx modules distributed with MBSE BBS may have been
+modified for inclusion with MBSE BBS. The main distribution, which contains
+additional available modules, can be found at: 
+
+  http://www.interads.co.uk/~crh/ubiqx/
+
+Michiel Broek.
