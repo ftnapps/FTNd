@@ -2,8 +2,6 @@ $Id$
 
 v0.39.3		26-Nov-2003
 
-	WARNING: NOT EVERYTHING IS TESTED, WAIT A FEW DAYS AND DON'T USE THIS.
-
 	general:
 		Since this version Posix threads are being used, please let
 		me know if this doesn't compile on you system.
