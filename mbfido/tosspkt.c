@@ -159,6 +159,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 	if (CFG.slow_util && do_quiet)
 		usleep(1);
 
+	Nopper();
 	memset(&Link, 0, sizeof(Link));
 
 	/*
