@@ -97,7 +97,11 @@ if [ "$OSTYPE" = "Linux" ]; then
 		else
 		    if [ -f /etc/redhat-release ]; then
 			DISTNAME="RedHat"
-			DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			if [ -z "`grep e-smith /etc/redhat-release`" ]; then
+			    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			else
+			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
+			fi
 		    else
 		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
 		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
@@ -129,7 +133,6 @@ if [ "$OSTYPE" = "NetBSD" ]; then
     DISTNAME="NetBSD"
     DISTVERS=`uname -r`
 fi
-
 
 
 log "+" "Distribution $OSTYPE $DISTNAME $DISTVERS"
@@ -373,25 +376,33 @@ fi
 
 #--------------------------------------------------------------------------
 #
-#  Adding scripts for RedHat and Mandrake
+#  Adding scripts for RedHat, e-smith and Mandrake
 #  FIXME: some details unknown about Mandrake
 #
 if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
 
-    log "+" "Adding RedHat/Mandrake SystemV init scripts"
+    log "+" "Adding RedHat/E-Smith/Mandrake SystemV init scripts"
     DISTINIT="/etc/rc.d/init.d/mbsed"
     SU="su"
     #
     # From RedHat version 6.1 and up the behaviour of "su" has changed.
+    # Extra tests are added for the RedHat e-smith server distribution,
+    # this is a special distribution based on RedHat.
     # For Mandrake we follow the same behaviour.
     #
     if [ -f /etc/redhat-release ]; then
-	RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
+	if [ -z "`grep e-smith /etc/redhat-release`" ]; then
+	    RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
+	    RHN="RedHat"
+	else
+	    RHR=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d . | tr -d \)`
+	    RHN="e-smith based on RedHat"
+	fi
 	if [ $RHR -gt 60 ]; then
-	    echo "You are running RedHat v6.1 or newer"
+	    echo "You are running $RHN v6.1 or newer"
 	    SU="su -"
 	else
-	    echo "You are running RedHat v6.0 or older"
+	    echo "You are running $RHN v6.0 or older"
 	fi
     else
 	if [ -f /etc/mandrake-release ]; then
@@ -414,8 +425,8 @@ cat << EOF >$DISTINIT
 # chkconfig: 345 99 05
 # description: Starts and stops MBSE BBS.
 #
-# For RedHat and Mandrake SYSV init style.
-# 23-May-2001 M. Broek
+# For RedHat, E-Smith and Mandrake SYSV init style.
+# 18-Jan-2002 M. Broek
 #
 # Source function library.
 . /etc/rc.d/init.d/functions

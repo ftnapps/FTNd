@@ -90,7 +90,11 @@ if [ "$OSTYPE" = "Linux" ]; then
 		else 
 		    if [ -f /etc/redhat-release ]; then
 		    	DISTNAME="RedHat"
-		    	DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			if [ -z "`grep e-smith /etc/redhat-release`" ]; then
+			    DISTVERS=`cat /etc/redhat-release | awk '{ print $5 }'`
+			else
+			    DISTVERS=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d \)`
+			fi
 		    else
 		    	if [ -f /etc/rc.d/rc.0 ] && [ -f /etc/rc.d/rc.local ]; then
 		    	    # If Slackware wasn't detected yet it is version 4.0 or older.
@@ -233,6 +237,7 @@ echo ""
 echo -n "Adding group 'bbs'"
 $PW groupadd bbs
 log "+" "[$?] Added group bbs"
+
 echo -n ", user 'mbse'"
 if [ "$OSTYPE" = "Linux" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
@@ -486,6 +491,10 @@ service fido
 EOF
 
 fi
+
+# We made it, copy the logfile to mbse's homedir so that when the
+# /tmp directory is cleaned, we still have it.
+cat SETUP.log >> $MHOME/SETUP.log
 
 echo ""
 echo -n "Press Enter to continue"

@@ -4256,11 +4256,15 @@ v0.33.19        26-Oct-2001
 		mblogin and mbuseradd.
 		Started NetBSD port. Not working yet but does compile.
 
-	SETUP.sh
+	SETUP.sh:
 		Better grep to check for excisting usernames like bbs, mbse.
 		Ported to NetBSD.
 		Added support for xinetd configuration.
 		Changed distribution test for Mandrake.
+		Changed to recognize the e-smith server based on RedHat.
+
+	installinit.sh:
+		Changed to recognize the e-smith server based on RedHat.
 
 	libcommon.a:
 		When adding seenby entries, the zone number is copied from the
