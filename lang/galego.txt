@@ -9,12 +9,12 @@ SN|¨Escribiche-lo teu nome correctamente? [S/n]
 |Password: 
 |Sobrepasouse o n£mero m ximo de erros permitido... 
 |O teu nome ou a tua PASSWORD son incorrectos
-HR|Export to (H)ome or (R)ules directory: 
-|Message exported to rules directory as 
-|No rules found for this area
-|You are not allowed to delete that message
-|Offline Reader: Extended Info turned ON
-|Offline Reader: Extended Info turned OFF
+HR|Exportar ¢ directrio (P)ersoal ou ¢ de (R)egras: 
+|Mesaxe exportada ¢ directorio de regras coma 
+|Non se atopan regras pra esta  rea 
+|No podes borrar esta mensaxe.
+|Lector Offline: Informaci¢n extendida ACTIVADA
+|Lector Offline: Informaci¢n extendida DESACTIVADA
 |Tempo retirado hoxe      : 
 |Bytes retirados hoxe     : 
 DRS|(D)epositar, (R)etirar, (S)air : 
@@ -477,4 +477,4 @@ YN|Adxuntar ficheiro [s/N]:
 |Enderezo vello:
 |¨Queres usa-lo alias (
 SN|) nesta mensaxe?  [S/n]: 
-|No more areas with unread messages
+|Non hai mais  reas con mensaxes sen ler.

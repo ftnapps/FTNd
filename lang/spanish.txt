@@ -9,12 +9,12 @@ SN|¨Has escrito correctamente tu nombre? [S/n]
 |Password: 
 |El n£mero de errores permitidos se ha sobrepasado ... 
 |Tu nombre o tu PASSWORD son incorrectos
-HR|Export to (H)ome or (R)ules directory: 
-|Message exported to rules directory as 
-|No rules found for this area
-|You are not allowed to delete that message
-|Offline Reader: Extended Info turned ON
-|Offline Reader: Extended Info turned OFF
+PR|Exportar al directorio (P)ersonal o de (R)eglas: 
+|Mensaje exportado al deirectorio de reglas como 
+|No se encuentran reglas para este  rea.
+|No puedes borrar este Mensaje.
+|Lector Offline: Informaci¢n extendida ACTIVADA
+|Lector Offline: Informaci¢n extendida DESACTIVADA
 |Tiempo retirado hoy      : 
 |Bytes retirados hoy      : 
 DRS|(D)epositar, (R)etirar, (S)alir : 
