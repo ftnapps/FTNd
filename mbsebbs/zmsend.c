@@ -213,11 +213,7 @@ static int sendzfile(char *rn)
     Syslog('+', "Zmodem: size %lu bytes, dated %s", (unsigned long)st.st_size, rfcdate(st.st_mtime));
     gettimeofday(&starttime, &tz);
 
-    /*
-     * Filemode is fixed to 100644, we don't care how it is stored in the filebase.
-     */
-    sprintf(txbuf,"%s %lu %lo 100644 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2));
-    Syslog('z', "txbuf \"%s\"", txbuf);
+    sprintf(txbuf,"%s %lu %lo %o 0 0 0", rn,(unsigned long)st.st_size, st.st_mtime+(st.st_mtime%2), st.st_mode);
     bufl = strlen(txbuf);
     *(strchr(txbuf,' ')) = '\0'; /*hope no blanks in filename*/
 
