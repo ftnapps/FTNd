@@ -5,5 +5,5 @@ Also available at http://mbse.sourceforge.net
 
 MBSE  Support  BBS  es  el sistema principal de sdesarrollo  de  paquete
 MBSE BBS.
-MBSE BBS esta disponible en 2:280/2002, peticion de magic MBSEBBS.
+MBSE BBS esta disponible en 2:280/2802, peticion de magic MBSEBBS.
 Tambien esta disponible en http://mbse.sourceforge.net

@@ -3,7 +3,7 @@
 
   Sysops       : Michiel Broek
   Online       : 24 hrs/day
-  Line #1      : 31-(0)255-515973 1200-28K8 bps, V34,V42B,V32B
+  Line #1      : 31-(0)255-515973 1200-28K8 bps, V34,V42B,V32B,X75
   Requests     : minimum 1200 bps, no limits.
   Request times: except ZMH.
   Request flag : XA
