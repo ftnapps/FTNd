@@ -216,6 +216,8 @@ void working(int txno, int y, int x)
 		fflush(stdout);
 		sleep(1);
 		break;
+	case 5: mvprintw(4, 66, (char *)"Moving . . . ");
+		break;
 	}
 
 	show_date(LIGHTGRAY, BLACK, 0, 0);

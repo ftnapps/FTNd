@@ -46,6 +46,8 @@
 
 
 int	FileUpdated = 0;
+int	FileForced = FALSE;
+
 
 
 /*
@@ -244,11 +246,14 @@ void FileScreen(void)
  */
 int EditFileRec(int Area)
 {
-	FILE	*fil, *fp;
-	char	mfile[PATH_MAX], *temp;
-	long	offset;
-	unsigned long crc, crc1;
-	int	Available, files;
+	FILE		*fil, *fp;
+	char		mfile[PATH_MAX], *temp, tpath[65], frpath[81], topath[81];
+	long		offset;
+	unsigned long	crc, crc1;
+	int		Available, files, rc, Force = FALSE, count;
+	DIR		*dp;
+	struct dirent	*de;
+	struct stat	stb;
 
 	clr_index();
 	working(1, 0, 0);
@@ -306,11 +311,10 @@ int EditFileRec(int Area)
 		show_int(17,73, area.Upload);
 
 		switch(select_menu(26)) {
-		case 0:
-			crc1 = 0xffffffff;
+		case 0: crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&area, crc1, areahdr.recsize);
 			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
+				if (Force || yes_no((char *)"Record is changed, save") == 1) {
 					working(1, 0, 0);
 					if ((fil = fopen(mfile, "r+")) == NULL) {
 						working(2, 0, 0);
@@ -320,13 +324,46 @@ int EditFileRec(int Area)
 					fwrite(&area, areahdr.recsize, 1, fil);
 					fclose(fil);
 					FileUpdated = 1;
+					Syslog('+', "Updated file area %d", Area);
 					working(0, 0, 0);
 				}
 			}
 			IsDoing("Browsing Menu");
 			return 0;
 		case 1:	E_STR(  6,16,44, area.Name,      "The ^name^ for this area")
-		case 2:	E_PTH(  7,16,64, area.Path,      "The ^path^ for the files in this area")
+		case 2:	strcpy(tpath, area.Path);
+			strcpy(area.Path, edit_pth(7,16,64, area.Path, (char *)"The ^path^ for the files in this area"));
+			if (strlen(tpath) && strlen(area.Path) && strcmp(tpath, area.Path)) {
+			    if ((dp = opendir(tpath)) == NULL) {
+				WriteError("Can't open directory %s", tpath);
+			    } else {
+				working(5, 0, 0);
+				count = 0;
+				Syslog('+', "Moving files from %s to %s", tpath, area.Path);
+				while ((de = readdir(dp))) {
+				    sprintf(frpath, "%s/%s", tpath, de->d_name);
+				    sprintf(topath, "%s/%s", area.Path, de->d_name);
+				    if (stat(frpath, &stb) == 0) {
+					if (S_ISREG(stb.st_mode)) {
+					    rc = file_mv(frpath, topath);
+					    if (rc)
+						WriteError("mv %s to %s rc=%d", frpath, topath, rc);
+					    else
+						count++;
+					    Nopper();
+					}
+				    }
+				}
+				closedir(dp);
+				if ((rc = rmdir(tpath)))
+				    WriteError("rmdir %s rc=%d", tpath, rc);
+				Force = TRUE;
+				FileForced = TRUE;
+				Syslog('+', "Moved %d files", count);
+				working(0, 0, 0);
+			    }
+			}
+			break;
 		case 3:	E_SEC(  8,16,    area.DLSec,     "8.4.3  DOWNLOAD SECURITY", FileScreen)
 		case 4:	E_SEC(  9,16,    area.UPSec,     "8.4.4  UPLOAD SECURITY", FileScreen)
 		case 5:	E_SEC( 10,16,    area.LTSec,     "8.4.5  LIST SECURITY", FileScreen)
@@ -363,6 +400,7 @@ int EditFileRec(int Area)
 				     */
 				    sprintf(temp, "rm -r -f %s", area.Path);
 				    system(temp);
+				    rmdir(area.Path);
 				}
 				memset(&area, 0, sizeof(area));
 				/*
@@ -423,11 +461,11 @@ int EditFileRec(int Area)
 
 void EditFilearea(void)
 {
-	int	records, i, o, x, y;
+	int	records, i, o, x, y, count;
 	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+	FILE	*fil, *tfil;
+	char	temp[PATH_MAX], new[PATH_MAX];
+	long	offset, from, too;
 
 	clr_index();
 	working(1, 0, 0);
@@ -486,10 +524,10 @@ void EditFilearea(void)
 			}
 		}
 		working(0, 0, 0);
-		strcpy(pick, select_record(records, 20));
+		strcpy(pick, select_filearea(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
-			CloseFilearea(FALSE);
+			CloseFilearea(FileForced);
 			return;
 		}
 
@@ -501,6 +539,86 @@ void EditFilearea(void)
 			} else
 				working(2, 0, 0);
 			working(0, 0, 0);
+		}
+
+		if (strncmp(pick, "M", 1) == 0) {
+		    from = too = 0;
+		    mvprintw(LINES -3, 5, "From");
+		    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
+		    mvprintw(LINES -3,15, "To");
+		    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
+
+		    sprintf(temp, "%s/etc/fareas.temp", getenv("MBSE_ROOT"));
+		    if ((fil = fopen(temp, "r+")) != NULL) {
+			fread(&areahdr, sizeof(areahdr), 1, fil);
+			offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
+			if ((fseek(fil, offset, 0) != 0) || (fread(&area, areahdr.recsize, 1, fil) != 1) || 
+			    (area.Available == FALSE)) {
+			    errmsg((char *)"The originating area is invalid");
+			} else {
+			    offset = areahdr.hdrsize + ((too - 1) * areahdr.recsize);
+			    if ((fseek(fil, offset, 0) != 0) || (fread(&area, areahdr.recsize, 1, fil) != 1) ||
+				area.Available) {
+				errmsg((char *)"The destination area is invalid");
+			    } else {
+				/*
+				 * Move the area now
+				 */
+				working(5, 0, 0);
+				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
+				fseek(fil, offset, 0);
+				fread(&area, areahdr.recsize, 1, fil);
+				offset = areahdr.hdrsize + ((too - 1) * areahdr.recsize);
+				fseek(fil, offset, 0);
+				fwrite(&area, areahdr.recsize, 1, fil);
+				memset(&area, 0, sizeof(area));
+				/*
+				 * Fill in default values
+				 */
+				area.New      = TRUE;
+				area.Dupes    = TRUE;
+				area.FileFind = TRUE;
+				area.AddAlpha = TRUE;
+				area.FileReq  = TRUE;
+				strcpy(area.Path, CFG.ftp_base);
+				FileUpdated = 1;
+				offset = areahdr.hdrsize + ((from - 1) * areahdr.recsize);
+				fseek(fil, offset, 0);
+				fwrite(&area, areahdr.recsize, 1, fil);
+				sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), from);
+				sprintf(new,  "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), too);
+				rename(temp, new);
+				/*
+				 * Force databse update, don't let the user decide or he will
+				 * loose all files from the moved areas.
+				 */
+				FileForced = TRUE;
+				/*
+				 * Update references in tic areas to this filearea.
+				 */
+				sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+				if ((tfil = fopen(temp, "r+")) == NULL) {
+				    WriteError("Can't update %s", temp);
+				} else {
+				    count = 0;
+				    fread(&tichdr, sizeof(tichdr), 1, tfil);
+				    while (fread(&tic, tichdr.recsize, 1, tfil) == 1) {
+					if (tic.Active && (tic.FileArea == from)) {
+					    tic.FileArea = too;
+					    fseek(tfil, - tichdr.recsize, SEEK_CUR);
+					    fwrite(&tic, tichdr.recsize, 1, tfil);
+					    count++;
+					}
+					fseek(tfil, tichdr.syssize, SEEK_CUR);
+				    }
+				    fclose(tfil);
+				    Syslog('+', "Updated %d ticareas", count);
+				}
+				working(0, 0, 0);
+			    }
+			}
+			fclose(fil);
+		    }
 		}
 
 		if (strncmp(pick, "N", 1) == 0) 

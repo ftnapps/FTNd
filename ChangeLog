@@ -4606,6 +4606,9 @@ v0.33.20        10-Feb-2002
 		Layout for message area editor changed, more logical now.
 		If selecting a file/mailgroup in node edit that is outside the
 		visible range of groups, the view is adjusted.
+		If changing the path in an existing file area, the files in
+		that area are moved to the new path.
+		It is now possible to move file areas.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 

@@ -9,6 +9,7 @@ void		show_field(int, int, char *, int, int);
 void		newinsert(int, int, int);
 char		*edit_field(int, int, int, int, char *);
 char		*select_record(int, int);
+char		*select_filearea(int, int);
 char		*select_area(int, int);
 char		*select_pick(int, int);
 char		*select_show(int);
