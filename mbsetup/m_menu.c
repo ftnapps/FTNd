@@ -109,18 +109,16 @@ void Show_A_Menu(void)
     mvprintw(11, 2, "4.  Display");
     mvprintw(12, 2, "5.  Security");
     mvprintw(13, 2, "6.  Min. age");
-    mvprintw(14, 2, "7.  Max. lvl");
-    mvprintw(15, 2, "8.  Password");
-    mvprintw(16, 2, "9.  Credit");
-    mvprintw(17, 2, "10. Lo-colors");
-    mvprintw(18, 2, "11. Hi-colors");
-    mvprintw(19, 2, "12. Autoexec");
+    mvprintw(14, 2, "7.  Password");
+    mvprintw(15, 2, "8.  Lo-colors");
+    mvprintw(16, 2, "9.  Hi-colors");
+    mvprintw(17, 2, "10. Autoexec");
     if (le_int(menus.MenuType) == 7) {
-	mvprintw(15,42, "13. No door.sys");
-	mvprintw(16,42, "14. Y2K style");
-	mvprintw(17,42, "15. Use Comport");
-	mvprintw(18,42, "16. Run nosuid");
-	mvprintw(19,42, "17. No Prompt");
+	mvprintw(13,42, "11. No door.sys");
+	mvprintw(14,42, "12. Y2K style");
+	mvprintw(15,42, "13. Use Comport");
+	mvprintw(16,42, "14. Run nosuid");
+	mvprintw(17,42, "15. No Prompt");
     }
 
     set_color(WHITE, BLACK);
@@ -131,22 +129,20 @@ void Show_A_Menu(void)
     show_str(11,16,64, menus.Display);
     show_sec(12,16,    menus.MenuSecurity);
     show_int(13,16,    le_int(menus.Age));
-    show_int(14,16,    le_int(menus.MaxSecurity));
     if (strlen(menus.Password))
-	show_str(15,16,14, (char *)"**************");
+	show_str(14,16,14, (char *)"**************");
     else
-	show_str(15,16,14, (char *)"<null>");
-    show_int(16,16,    menus.Credit);
-    S_COL(17,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
-    S_COL(18,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
+	show_str(14,16,14, (char *)"<null>");
+    S_COL(15,16, "Normal display color", le_int(menus.ForeGnd), le_int(menus.BackGnd))
+    S_COL(16,16, "Bright display color", le_int(menus.HiForeGnd), le_int(menus.HiBackGnd))
     set_color(WHITE, BLACK);
-    show_bool(19,16,   menus.AutoExec);
+    show_bool(17,16,   menus.AutoExec);
     if (le_int(menus.MenuType) == 7) {
-	show_bool(15,58,  menus.NoDoorsys);
-	show_bool(16,58,  menus.Y2Kdoorsys);
-	show_bool(17,58,  menus.Comport);
-	show_bool(18,58,  menus.NoSuid);
-	show_bool(19,58,  menus.NoPrompt);
+	show_bool(13,58,  menus.NoDoorsys);
+	show_bool(14,58,  menus.Y2Kdoorsys);
+	show_bool(15,58,  menus.Comport);
+	show_bool(16,58,  menus.NoSuid);
+	show_bool(17,58,  menus.NoPrompt);
     }
 }
 
@@ -219,7 +215,7 @@ void Edit_A_Menu(void)
     Show_A_Menu();
 
     for (;;) {
-	switch(select_menu(17)) {
+	switch(select_menu(15)) {
 	    case 0: return;
 		    break;
 	    case 1: E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
@@ -243,48 +239,40 @@ void Edit_A_Menu(void)
 		    temp = edit_int(13,16, temp, (char *)"The minimum ^Age^ to select this menu, 0 is don't care");
 		    menus.Age = le_int(temp);
 		    break;
-	    case 7: temp = le_int(menus.MaxSecurity);
-		    temp = edit_int(14,16, temp, (char *)"The maximum ^Security level^ to access this menu");
-		    menus.MaxSecurity = le_int(temp);
-		    break;
-	    case 8: E_STR(15,16,14, menus.Password,     "The ^password^ to access this menu item")
-	    case 9: temp = le_int(menus.Credit);
-		    temp = edit_int(16,16, temp, (char *)"The ^credit cost^ for this menu item");
-		    menus.Credit = le_int(temp);
-		    break;
-	    case 10:fg = le_int(menus.ForeGnd);
+	    case 7: E_STR(14,16,14, menus.Password,     "The ^password^ to access this menu item")
+	    case 8: fg = le_int(menus.ForeGnd);
 		    bg = le_int(menus.BackGnd);
-		    edit_color(&fg, &bg, (char *)"8.3.10 EDIT COLOR", (char *)"normal");
+		    edit_color(&fg, &bg, (char *)"8.3.8  EDIT COLOR", (char *)"normal");
 		    menus.ForeGnd = le_int(fg);
 		    menus.BackGnd = le_int(bg);
 		    Show_A_Menu();
 		    break;
-	    case 11:fg = le_int(menus.HiForeGnd);
+	    case 9: fg = le_int(menus.HiForeGnd);
 		    bg = le_int(menus.HiBackGnd);
-		    edit_color(&fg, &bg, (char *)"8.3.11 EDIT COLOR", (char *)"bright");
+		    edit_color(&fg, &bg, (char *)"8.3.9  EDIT COLOR", (char *)"bright");
 		    menus.HiForeGnd = le_int(fg);
 		    menus.HiBackGnd = le_int(bg);
 		    Show_A_Menu();
 		    break;
-	    case 12:E_BOOL(19,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
+	    case 10:E_BOOL(17,16,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
+	    case 11:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(13,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+		    } else
+			break;
+	    case 12:if (le_int(menus.MenuType) == 7) {
+			E_BOOL(14,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+		    } else
+			break;
 	    case 13:if (le_int(menus.MenuType) == 7) {
-			E_BOOL(15,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+			E_BOOL(15,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
 		    } else
 			break;
 	    case 14:if (le_int(menus.MenuType) == 7) {
-			E_BOOL(16,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+			E_BOOL(16,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
 		    } else
 			break;
 	    case 15:if (le_int(menus.MenuType) == 7) {
-			E_BOOL(17,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
-		    } else
-			break;
-	    case 16:if (le_int(menus.MenuType) == 7) {
-			E_BOOL(18,58,   menus.NoSuid,       "Run the door as ^real user (nosuid)^")
-		    } else
-			break;
-	    case 17:if (le_int(menus.MenuType) == 7) {
-			E_BOOL(19,58,   menus.NoPrompt,     "^Don't display prompt^ when door is finished")
+			E_BOOL(17,58,   menus.NoPrompt,     "^Don't display prompt^ when door is finished")
 		    } else
 			break;
 	}
@@ -607,9 +595,7 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 			    fprintf(fp, "    Display       %s\n", menus.Display);
 			    fprintf(fp, "    Security      %s\n", get_secstr(menus.MenuSecurity));
 			    fprintf(fp, "    Minimum age   %d\n", menus.Age);
-			    fprintf(fp, "    Maximum level %d\n", le_int(menus.MaxSecurity));
 			    fprintf(fp, "    Password      %s\n", menus.Password);
-			    fprintf(fp, "    Credits       %d\n", le_int(menus.Credit));
 			    fprintf(fp, "    Lo-colors     %s on %s\n", 
 						get_color(le_int(menus.ForeGnd)), get_color(le_int(menus.BackGnd)));
 			    fprintf(fp, "    Hi-colors     %s on %s\n", 
