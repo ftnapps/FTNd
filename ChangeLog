@@ -7,6 +7,7 @@ v0.51.3		22-Mar-2003
 		were two different values for the same purpose. The removed
 		one was not used.
 		Moved doc directory from /opt/mbse/doc to /opt/mbse/share/doc.
+		Added configure test for CPU optimization flags.
 
 	mbtask:
 		Signal handler for sigchld set to sig_dfl, test for Fedora.

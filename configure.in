@@ -83,7 +83,7 @@ dnl Check if cpuflags program is installed, if so get CPU optimization flags
 dnl Currently this only works on NetBSD.
 dnl
 AC_MSG_CHECKING(for cpuflags)
-for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
+for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
         if test "$cpuflagsbin" = "NONE"; then
                 AC_MSG_RESULT(unknown)
         elif test -x $cpuflagsbin/cpuflags; then

@@ -2900,7 +2900,7 @@ fi
 
 echo "$as_me:$LINENO: checking for cpuflags" >&5
 echo $ECHO_N "checking for cpuflags... $ECHO_C" >&6
-for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
+for cpuflagsbin in /usr/bin /usr/local/bin /usr/pkg/bin `pwd` NONE; do
         if test "$cpuflagsbin" = "NONE"; then
                 echo "$as_me:$LINENO: result: unknown" >&5
 echo "${ECHO_T}unknown" >&6
