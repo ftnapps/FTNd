@@ -108,6 +108,7 @@ static int	NDflag = FALSE;
 static int	CRYPTflag = FALSE;
 static int	CRAMflag = FALSE;
 static int	CRCflag = FALSE;
+static int	Remote_1_1 = FALSE;
 unsigned long	nethold, mailhold;
 int		transferred = FALSE;
 int		batchnr = 0, crc_errors = 0;
@@ -120,8 +121,6 @@ int binkp(int role)
     fa_list	*eff_remote;
     file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
     char	*nonhold_mail;
-
-    Syslog('b', "NoFreqs %s", (localoptions & NOFREQS) ? "True":"False");
 
     if (role == 1) {
 	Syslog('+', "Binkp: start outbound session");
@@ -140,12 +139,18 @@ int binkp(int role)
 	return rc;
     }
 
-    Syslog('b', "NoFreqs %s", (localoptions & NOFREQS) ? "True":"False");
+    /*
+     * Adjust file requests support. We only send requests to binkp/1.1
+     * systems and if file requests are not forbidden by setup.
+     */
+    if (Remote_1_1 == FALSE)
+	localoptions |= NOFREQS;
     if (localoptions & NOFREQS)
 	session_flags &= ~SESSION_WAZOO;
     else
 	session_flags |= SESSION_WAZOO;
-    Syslog('b', "Session WAZOO %s", (session_flags & SESSION_WAZOO) ? "True":"False");
+
+    Syslog('b', "WAZOO requests: %s", (session_flags & SESSION_WAZOO) ? "True":"False");
 
     nonhold_mail = (char *)ALL_MAIL;
     eff_remote = remote;
@@ -461,11 +466,10 @@ void b_nul(char *msg)
 	Syslog('+', "Time    : %s", msg+5);
     else if (strncmp(msg, "VER ", 4) == 0) {
 	Syslog('+', "Uses    : %s", msg+4);
-	if (strstr(msg+4, "binkp/1.1"))
-	    Syslog('b', "1.1 mode");
-	else {
-	    Syslog('b', "1.0 mode");
-	    localoptions &= ~NOFREQS;
+	if (strstr(msg+4, "binkp/1.1")) {
+	    Remote_1_1 = TRUE;
+	} else {
+	    Remote_1_1 = FALSE;
 	}
     }
     else if (strncmp(msg, "PHN ", 4) == 0)
