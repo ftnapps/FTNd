@@ -53,6 +53,40 @@ int	FileRecno = 0;
 
 
 
+int CheckFile(char *, int);
+int CheckFile(char *File, int iArea)
+{
+        FILE    *pFileB;
+        int     iFile = FALSE;
+        char    *sFileArea;
+
+        sFileArea = calloc(PATH_MAX, sizeof(char));
+        sprintf(sFileArea,"%s/fdb/fdb%d.dta", getenv("MBSE_ROOT"), iArea); 
+
+        if(( pFileB = fopen(sFileArea,"r+")) == NULL) {
+                mkdir(sFileArea, 755);
+                return FALSE;
+        }
+
+        while ( fread(&file, sizeof(file), 1, pFileB) == 1) {
+                if((strcmp(tl(file.Name), tl(File))) == 0) {
+                        iFile = TRUE;
+                        fclose(pFileB);
+                        return TRUE;
+                }
+
+        }
+
+        fclose(pFileB);
+        free(sFileArea);
+
+        if(!iFile)
+                return FALSE;
+        return 1;
+}
+
+
+
 /*
  * Show filelist from current area, called from the menu.
  */

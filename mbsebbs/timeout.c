@@ -37,7 +37,6 @@
 #include "../lib/msg.h"
 #include "timeout.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "bye.h"
 #include "filesub.h"
 #include "language.h"

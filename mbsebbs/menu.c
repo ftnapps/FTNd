@@ -42,7 +42,6 @@
 #include "chat.h"
 #include "file.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "input.h"
 #include "misc.h"
 #include "nextuser.h"
@@ -59,6 +58,11 @@
 #include "email.h"
 #include "door.h"
 #include "dispfile.h"
+#include "userlist.h"
+#include "timestats.h"
+#include "logentry.h"
+#include "morefile.h"
+#include "lastcallers.h"
 
 
 

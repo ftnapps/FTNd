@@ -37,7 +37,6 @@
 #include "change.h"
 #include "dispfile.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "input.h"
 #include "language.h"
 #include "misc.h"
@@ -220,6 +219,45 @@ void Chg_Password()
 	free(temp2);
 	Enter(2);
 	Pause();
+}
+
+
+
+/*
+ * Function to check if User Handle exists and returns a 0 or 1
+ */
+int CheckHandle(char *);
+int CheckHandle(char *Name)
+{
+        FILE    *fp;
+        int     Status = FALSE;
+        char    *temp, *temp1;
+        struct  userhdr uhdr;
+        struct  userrec u;
+
+        temp   = calloc(PATH_MAX, sizeof(char));
+        temp1  = calloc(PATH_MAX, sizeof(char));
+
+        strcpy(temp1, tl(Name));
+
+        sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+        if(( fp = fopen(temp,"rb")) != NULL) {
+                fread(&uhdr, sizeof(uhdr), 1, fp);
+
+                while (fread(&u, uhdr.recsize, 1, fp) == 1) {
+                        strcpy(temp, tl(u.sHandle));
+
+                        if((strcmp(temp, temp1)) == 0) {
+                                Status = TRUE;
+                                break;
+                        }
+                }
+                free(temp);
+                free(temp1);
+                fclose(fp);
+        }
+
+        return Status;
 }
 
 

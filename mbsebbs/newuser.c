@@ -35,7 +35,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
-#include "funcs4.h"
+#include "funcs.h"
 #include "input.h"
 #include "newuser.h"
 #include "language.h"
@@ -44,15 +44,30 @@
 #include "dispfile.h"
 
 
+/*
+ * Internal prototypes
+ */
+char *NameGen(char *);			    /* Get and test for unix login              */
+char *NameCreate(char *, char *, char *);   /* Create users login in passwd file	*/
+int  BadNames(char *);			    /* Check for Unwanted user names		*/
+int  TelephoneScan(char *, char *);	    /* Scans for Duplicate User Phone Numbers   */
 
-extern	int	do_quiet;		/* No logging to the screen	*/
-extern	pid_t	mypid;			/* Pid of this program		*/
-char		UnixName[9];		/* Unix Name			*/
-extern	char	*ieHandle;		/* Users Handle			*/
-extern  time_t  t_start;		/* Program starttime		*/
-int		do_mailout = FALSE;	/* Just for linking		*/
+
+/*
+ * Variables
+ */
+extern	int	do_quiet;		    /* No logging to the screen			*/
+extern	pid_t	mypid;			    /* Pid of this program			*/
+char		UnixName[9];		    /* Unix Name				*/
+extern	char	*ieHandle;		    /* Users Handle				*/
+extern  time_t  t_start;		    /* Program starttime			*/
+int		do_mailout = FALSE;	    /* Just for linking				*/
 
 
+
+/*
+ * The main newuser registration function
+ */
 int newuser()
 {
 	FILE		*pUsrConfig;
@@ -571,6 +586,164 @@ void Fast_Bye(int onsig)
 void Good_Bye(int onsig)
 {
     Fast_Bye(onsig);
+}
+
+
+
+/*
+ * Function will ask user to create a unix login
+ * Name cannot be longer than 8 characters
+ */
+char *NameGen(char *FidoName)
+{
+        char            *sUserName;
+        struct passwd   *pw;
+
+        sUserName = calloc(10, sizeof(char));
+
+        Syslog('+', "NameGen(%s)", FidoName);
+        setpwent();
+        while ((strcmp(sUserName, "") == 0 || (pw = getpwnam(sUserName)) != NULL) || (strlen(sUserName) < 3)) {
+                colour(12, 0);
+                printf("\n%s\n\n", (char *) Language(381));
+                colour(15, 0);
+                /* Please enter a login name (Maximum 8 characters) */
+                printf("\n%s\n", (char *) Language(383));
+                /* ie. John Doe, login = jdoe */
+                printf("%s\n", (char *) Language(384));
+                colour(10, 0);
+                /* login > */
+                printf("%s", (char *) Language(385));
+                fflush(stdout);
+                fflush(stdin);
+                GetstrU(sUserName, 7);
+
+                setpwent();
+                if (pw = getpwnam(tl(sUserName)), pw != NULL) {
+                        /* That login name already exists, please choose another one. */
+                        colour(12, 0);
+                        printf("\n%s\n", (char *) Language(386));
+                        setpwent();
+                }
+        }
+        return tl(sUserName);
+}
+
+
+/*
+ * Function will create the users name in the passwd file
+ */
+char *NameCreate(char *Name, char *Comment, char *Password)
+{
+        char    *PassEnt;
+
+        PassEnt = calloc(256, sizeof(char));
+
+        /*
+         * Call mbuseradd, this is a special setuid root program to create
+         * unix acounts and home directories.
+         */
+        sprintf(PassEnt, "%s/bin/mbuseradd %d %s \"%s\" %s",
+                getenv("MBSE_ROOT"), getgid(), Name, Comment, CFG.bbs_usersdir);
+        Syslog('+', "%s", PassEnt);
+        fflush(stdout);
+        fflush(stdin);
+
+        if (system(PassEnt) != 0) {
+                WriteError("Failed to create unix account");
+                free(PassEnt);
+                ExitClient(1);
+        }
+        sprintf(PassEnt, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), Name, Password);
+        Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), Name);
+        if (system(PassEnt) != 0) {
+                WriteError("Failed to set unix password");
+                free(PassEnt);
+                ExitClient(1);
+        }
+
+        colour(14, 0);
+        /* Your "Unix Account" is created, you may use it the next time you call */
+        printf("\n%s\n", (char *) Language(382));
+        Syslog('+', "Created Unix account %s for %s", Name, Comment);
+
+        free(PassEnt);
+        return Name;
+}
+
+
+
+/*
+ * Function will check for unwanted user names
+ */
+int BadNames(char *Username)
+{
+        FILE    *fp;
+        short   iFoundName = FALSE;
+        char    *temp, *String, *User;
+
+        temp   = calloc(PATH_MAX, sizeof(char));
+        String = calloc(81, sizeof(char));
+        User   = calloc(81, sizeof(char));
+
+        strcpy(User, tl(Username));
+
+        sprintf(temp, "%s/etc/badnames.ctl", getenv("MBSE_ROOT"));
+        if(( fp = fopen(temp, "r")) != NULL) {
+                while((fgets(String, 80, fp)) != NULL) {
+                        strcpy(String, tl(String));
+                        Striplf(String);
+                        if((strstr(User, String)) != NULL) {
+                                printf("\nSorry that name is not acceptable on this system\n");
+                                iFoundName = TRUE;
+                                break;
+                        }
+                }
+                fclose(fp);
+        }
+
+        free(temp);
+        free(String);
+        free(User);
+        return iFoundName;
+}
+
+
+
+/*
+ * Function will Scan Users Database for existing phone numbers. If
+ * found, it will write a log entry to the logfile. The user WILL NOT
+ * be notified about the same numbers
+ */
+int TelephoneScan(char *Number, char *Name)
+{
+        FILE    *fp;
+        int     Status = FALSE;
+        char    *temp;
+        struct  userhdr uhdr;
+        struct  userrec u;
+
+        temp  = calloc(81, sizeof(char));
+
+        sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+        if(( fp = fopen(temp,"rb")) != NULL) {
+                fread(&uhdr, sizeof(uhdr), 1, fp);
+
+                while (fread(&u, uhdr.recsize, 1, fp) == 1) {
+                        if (strcasecmp(u.sUserName, Name) != 0)
+                                if ((strlen(u.sVoicePhone) && (strcmp(u.sVoicePhone, Number) == 0)) ||
+                                    (strlen(u.sDataPhone) &&  (strcmp(u.sDataPhone, Number) == 0))) {
+                                        Status = TRUE;
+                                        Syslog('b', "Dupe phones ref: \"%s\" voice: \"%s\" data: \"%s\"",
+                                                Number, u.sVoicePhone, u.sDataPhone);
+                                        Syslog('+', "Uses the same telephone number as %s", u.sUserName);
+                                }
+                }
+                fclose(fp);
+        }
+
+        free(temp);
+        return Status;
 }
 
 

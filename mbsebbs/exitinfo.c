@@ -45,11 +45,9 @@
 #include "exitinfo.h"
 
 
-//extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
-
 
 /*
- * Copy usersrecord into ~/tmp/.bbs-exitinfo.tty
+ * Copy usersrecord into ~/home/unixname/exitinfo
  */
 int InitExitinfo()
 {
@@ -79,8 +77,7 @@ int InitExitinfo()
 	exitinfo = usrconfig;
 	fclose(pUsrConfig);
 
-	sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
-	mkdirs(temp);
+	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, usrconfig.Name);
 	if ((pExitinfo = fopen(temp, "w+b")) == NULL) {
 		WriteError("$Can't open %s for writing", temp);
 		free(temp);
@@ -88,6 +85,8 @@ int InitExitinfo()
 	} else {
 		fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
 		fclose(pExitinfo);
+		if (chmod(temp, 0600))
+		    WriteError("$Can't chmod 0600 %s", temp);
 	}
 	free(temp);
 	return TRUE;
@@ -105,9 +104,9 @@ void ReadExitinfo()
 	char *temp;
 
 	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
+	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
 	mkdirs(temp);
-	if(( pExitinfo = fopen(temp,"r+b")) == NULL)
+	if ((pExitinfo = fopen(temp,"r+b")) == NULL)
 		InitExitinfo();
 	else {
 		fflush(stdin);
@@ -130,8 +129,8 @@ void WriteExitinfo()
 
 	temp = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
-	if(( pExitinfo = fopen(temp,"w+b")) == NULL)
+	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, sUnixName);
+	if ((pExitinfo = fopen(temp,"w+b")) == NULL)
 		WriteError("$WriteExitinfo() failed");
 	else {
 		fwrite(&exitinfo, sizeof(exitinfo), 1, pExitinfo);

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/timecheck.c
+ * $Id$
  * Purpose ...............: Timecheck functions
- * Last modification date : 28-May-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -37,11 +36,42 @@
 #include "../lib/common.h"
 #include "timecheck.h"
 #include "funcs.h"
-#include "funcs4.h"
-#include "misc.h"
+//#include "misc.h"
 #include "bye.h"
 #include "exitinfo.h"
 #include "language.h"
+#include "input.h"
+
+
+extern pid_t    mypid;          /* Pid of this program      */
+
+
+/*
+ * Check for a personal message, this will go via mbsed. If there
+ * is a message, it will be displayed, else nothing happens.
+ */
+void Check_PM(void);
+void Check_PM(void)
+{
+        static char     buf[128];
+        char            resp[128];
+
+        sprintf(buf, "CIPM:1,%d;", mypid);
+        if (socket_send(buf) == 0) {
+                strcpy(buf, socket_receive());
+                if (strncmp(buf, "100:0;", 6) == 0)
+                        return;
+
+                strcpy(resp, strtok(buf, ":"));
+                strcpy(resp, strtok(NULL, ","));
+                colour(CYAN, BLACK);
+                /* ** Message ** from */
+                printf("\n\n\007%s %s:\n", (char *)Language(434), strtok(NULL, ","));
+                printf("%s\n", strtok(NULL, ";"));
+                Pause();
+        }
+}
+
 
 
 /*

@@ -42,7 +42,6 @@
 #include "../lib/msg.h"
 #include "mail.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "input.h"
 #include "language.h"
 #include "file.h"

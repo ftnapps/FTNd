@@ -34,14 +34,8 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-//#include "funcs.h"
 #include "input.h"
 #include "language.h"
-//#include "oneline.h"
-//#include "misc.h"
-//#include "bye.h"
-//#include "timeout.h"
-//#include "timecheck.h"
 #include "exitinfo.h"
 #include "whoson.h"
 
@@ -56,125 +50,115 @@ extern int  LC_Download, LC_Upload, LC_Read, LC_Chat, LC_Olr, LC_Door;
  */
 void WhosOn(char *OpData)
 {
-	FILE	*pExitinfo;
-	DIR	*Directory;
-	char	*Heading, *Underline, *temp, *tmp, *device;
-	struct	dirent *Dir;
-	int	i, x;
+	char	buf[128], *Heading, *Underline, *cnt, *isdoing, *location, *device;
+	int	i, x, Start = TRUE;
 
 	Underline = calloc(81, sizeof(char));
 	Heading   = calloc(81, sizeof(char));
-	temp      = calloc(PATH_MAX, sizeof(char));
-	tmp       = calloc(PATH_MAX, sizeof(char));
 
 	WhosDoingWhat(WHOSON);
 
 	clear();
-
 	Enter(1);
-	colour(15, 0);
+	colour(WHITE, BLACK);
+	/* Callers On-Line to */
 	sprintf(Heading, "%s%s", (char *) Language(414), CFG.bbs_name);
 	Center(Heading);
 	x = strlen(Heading);
 
 	for(i = 0; i < x; i++)
                 sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
-
-	colour(12, 0);
+	colour(LIGHTRED, BLACK);
 	Center(Underline);
-
 	printf("\n");
-		
-	pout(10, 0, (char *) Language(415));
+
+	/* Name                          Device   Status         Location */
+	pout(LIGHTGREEN, BLACK, (char *) Language(415));
 	Enter(1);
-
-	colour(2, 0);
+	colour(GREEN, BLACK);
 	fLine(79);
 
-	sprintf(tmp, "%s/tmp", getenv("MBSE_ROOT"));
-	if ((Directory = opendir(tmp)) != NULL)
-       		while ((Dir = readdir( Directory )) != NULL)
-			if((strstr(Dir->d_name, ".bbs-exitinfo.")) != NULL) {
-				sprintf(temp, "%s/%s", tmp, Dir->d_name);
-				if(( pExitinfo = fopen(temp, "rb")) != NULL) {
-					fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
+	while (TRUE) {
+	    if (Start)
+		sprintf(buf, "GMON:1,1;");
+	    else
+		sprintf(buf, "GMON:1,0;");
+	    Start = FALSE;
+	    if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		if (strncmp(buf, "100:0;", 6) == 0)
+		    break;  /* No more data */
+		if (strstr(buf, "mbsebbs")) {
+		    cnt = strtok(buf, ",");
+		    strtok(NULL, ",");
+		    device = xstrcpy(strtok(NULL, ","));
+		    /*
+		     * We are only interested in copies of the mbsebbs program
+		     */
+		    if ((strcmp(OpData, "/H")) == 0) {
+			/*
+			 * The mbtask daemon has only the users real names, we
+			 * want the handle instead.
+			 */
+		    }
+		    colour(LIGHTCYAN, BLACK);
+		    printf("%-30s", strtok(NULL, ","));
 
-					colour(11, 0);
-					if((strcmp(OpData, "/H")) == 0) {
-						if((strcmp(exitinfo.sHandle, "") != 0 && *(exitinfo.sHandle) != ' '))
-							printf("%-30s", exitinfo.sHandle);
-						else
-							printf("%-30s", exitinfo.sUserName);
-					} else
-						printf("%-30s", exitinfo.sUserName);
+		    colour(LIGHTBLUE, BLACK);
+		    printf("%-9s", device);
+		    free(device);
+		    strtok(NULL, ",");
+		    location = xstrcpy(strtok(NULL, ","));
+		    isdoing = xstrcpy(strtok(NULL, ","));
 
-					colour(9, 0);
-					if((device = strstr(Dir->d_name, "tty")) != NULL)
-						printf("%-9s", device);
-					else
-						printf("%-9s", "None");
+		    colour(WHITE, BLACK);
+		    if (strstr(isdoing, "Browsing"))
+			/* Browseng */
+			printf("%-15s", (char *) Language(418));
+		    else if (strstr(isdoing, "Downloading"))
+			/* Downloading */
+			printf("%-15s", (char *) Language(419));
+		    else if (strstr(isdoing, "Uploading"))
+			/* Uploading */
+			printf("%-15s", (char *) Language(420));
+		    else if (strstr(isdoing, "Read"))
+			/* Msg Section */
+			printf("%-15s", (char *) Language(421));
+		    else if (strstr(isdoing, "External"))
+			/* External Door */
+			printf("%-15s", (char *) Language(422));
+		    else if (strstr(isdoing, "Chat"))
+			/* Chatting */
+			printf("%-15s", (char *) Language(423));
+		    else if (strstr(isdoing, "Files"))
+			/* Listing Files */
+			printf("%-15s", (char *) Language(424));
+		    else if (strstr(isdoing, "Time"))
+			/* Banking Door */
+			printf("%-15s", (char *) Language(426));
+		    else if (strstr(isdoing, "Safe"))
+			/* Safe Door */
+			printf("%-15s", (char *) Language(427));
+		    else if (strstr(isdoing, "Whoson"))
+			/* WhosOn List */
+			printf("%-15s", (char *) Language(428));
+		    else if (strstr(isdoing, "Offline"))
+			/* Idle */
+			printf("%-15s", (char *) Language(429));
+		    else
+			printf("System error   ");
 
-					colour(15, 0);
+		    colour(LIGHTRED, BLACK);
+		    printf("%-25s\n", location);
+		    free(location);
+		    free(isdoing);
+		}
+	    }
+	}
 
-					/* Browseng */
-					if(exitinfo.iStatus == BROWSING)
-						printf("%-15s", (char *) Language(418));
-
-					/* Downloading */
-					else if(exitinfo.iStatus == DOWNLOAD)
-						printf("%-15s", (char *) Language(419));
-
-					/* Uploading */
-					else if(exitinfo.iStatus == UPLOAD)
-						printf("%-15s", (char *) Language(420));
-
-					/* Msg Section */
-					else if(exitinfo.iStatus == READ_POST)
-						printf("%-15s", (char *) Language(421));
-
-					/* External Door */
-					else if(exitinfo.iStatus == DOOR)
-						printf("%-15s", (char *) Language(422));
-
-					/* Chatting */
-					else if(exitinfo.iStatus == SYSOPCHAT)
-						printf("%-15s", (char *) Language(423));
-
-					/* Listing Files */
-					else if(exitinfo.iStatus == FILELIST)
-						printf("%-15s", (char *) Language(424));
-
-					/* Banking Door */
-					else if(exitinfo.iStatus == TIMEBANK)
-						printf("%-15s", (char *) Language(426));
-
-					/* Safe Door */
-					else if(exitinfo.iStatus == SAFE)
-						printf("%-15s", (char *) Language(427));
-
-					/* WhosOn List */
-					else if(exitinfo.iStatus == WHOSON)
-						printf("%-15s", (char *) Language(428));
-
-					/* Idle */
-					else
-						printf("%s", (char *) Language(429));
-
-					colour(12, 0);
-					printf("%-25s\n", exitinfo.sLocation);
-
-					fclose(pExitinfo);
-				}
-			}
-      	closedir(Directory);
-
-	ReadExitinfo();
-
-	colour(2, 0);
+	colour(GREEN, BLACK);
 	fLine(79);
 
-	free(tmp);
-	free(temp);
 	free(Underline);
 	free(Heading);
 

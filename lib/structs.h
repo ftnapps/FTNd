@@ -388,7 +388,8 @@ struct	sysrec {
 	unsigned long	Local;			/* Local calls		   */
 	unsigned long	ADSL;			/* ADSL calls		   */
 	time_t		StartDate;		/* Start Date of BBS	   */
-	char		LastCaller[36];		/* Last Caller to BBS	   */
+	char		LastCaller[37];		/* Last Caller to BBS	   */
+	time_t		LastTime;		/* Time of last caller	   */
 };
 
 

@@ -39,7 +39,7 @@
 #include "timeout.h"
 #include "user.h"
 #include "dispfile.h"
-#include "funcs4.h"
+#include "funcs.h"
 #include "input.h"
 #include "misc.h"
 #include "bye.h"
@@ -64,6 +64,59 @@ char		*StartTime;
  * Non global function prototypes
  */
 void SwapDate(char *, char *);              /* Swap two Date strings around     */
+
+
+
+void GetLastUser(void);
+void GetLastUser(void)
+{
+        FILE    *pCallerLog;
+        char    *sDataFile;
+
+        sDataFile = calloc(PATH_MAX, sizeof(char));
+        sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+
+        if((pCallerLog = fopen(sDataFile, "r+")) == NULL)
+                WriteError("GetLastUser: Can't open file: %s", sDataFile);
+        else {
+                fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
+
+                /* Get lastcaller in memory */
+                strcpy(LastCaller, SYSINFO.LastCaller);
+                LastCallerTime = SYSINFO.LastTime;
+
+                /* Set next lastcaller (this user) */
+                if (!usrconfig.Hidden) {
+                        strcpy(SYSINFO.LastCaller,exitinfo.sUserName);
+                        SYSINFO.LastTime = time(NULL);
+                }
+
+                SYSINFO.SystemCalls++;
+                switch(ttyinfo.type) {
+                        case POTS:
+                                SYSINFO.Pots++;
+                                break;
+
+                        case ISDN:
+                                SYSINFO.ISDN++;
+                                break;
+
+                        case NETWORK:
+                                SYSINFO.Network++;
+                                break;
+
+                        case LOCAL:
+                                SYSINFO.Local++;
+                                break;
+                }
+
+                rewind(pCallerLog);
+                fwrite(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
+
+                fclose(pCallerLog);
+        }
+        free(sDataFile);
+}
 
 
 
@@ -343,7 +396,7 @@ void user()
 	}
 
 	/*
-	 * Write users structure to tmp file in ~/tmp/.bbs-exitinfo.ttyxx
+	 * Write users structure to tmp file in ~/home/unixname/exitinfo
 	 * A copy of the userrecord is also in the variable exitinfo.
 	 */
 	if (! InitExitinfo())

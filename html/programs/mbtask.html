@@ -2,7 +2,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META name="author" lang="en" "content="Michiel Broek">
+<META name="author" lang="en" "content=Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
 <META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 07-Jul-2001</h5>
+<h5>Last update 12-Nov-2001</h5>
 <P>&nbsp;<P>
 
 <H1>mbtask - MBSE BBS Taskmanager</H1>
@@ -224,7 +224,9 @@ Command: CSPM:3,fromuser,touser,txt;    Send personal message to user.
 Reply:   100:1,n;                       n: 0=Ok, 1=Do not disturb, 2=Buffer full, 3=Error.
          100:0;                         Impossible.
 
-         The next commandis are some ideas, they are not implemented.
+         The next commands are some ideas, they are not implemented.
+	 Channel 0 will be for sysop chat only, other channels are
+	 user channels.
 
         -CBPM:2,fromuser,txt;           Broadcast message to all users.
         -CJCH:2,pid,channel;            Join Channel

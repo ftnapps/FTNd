@@ -427,7 +427,7 @@ YN|Do you want to download these messages [Y/n]?
 |Banking Door
 |Safe Door
 |WhosOn List
-|Idle
+|Offline Reader
 |Please enter username to send message to: 
 |Sorry, there is no user on
 |doesn't wish to be disturbed

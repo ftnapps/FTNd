@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: rawio.c
+ * $Id$
  * Purpose ...............: Raw I/O routines.
- * Last modification date : 07-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -44,10 +43,6 @@ void Setraw()
 {
 	int	rc;
 
-//	if (ioctl(ttyfd, TCGETA, &tbuf) == -1) {
-//		perror("TCGETA Failed");
-//		exit(1);  /* ERROR  - could not set get tty ioctl */
-//	}
 	if ((rc = tcgetattr(ttyfd, &tbufs))) {
 		perror("");
 		printf("$tcgetattr(0, save) return %d\n", rc);
@@ -70,11 +65,6 @@ void Setraw()
 		exit(1);
 	}
 
-//	if (ioctl(ttyfd, TCSETAF, &tbuf) == -1) {
-//		perror("TCSETAF failed");
-//		exit(1);  /* ERROR - could not set tty ioctl */
-//	}
-
 	rawset = TRUE;
 }
 
@@ -91,10 +81,6 @@ void Unsetraw()
 	 * Only unset the mode if it is set to raw mode
 	 */
 	if (rawset == TRUE) {
-//		if (ioctl(ttyfd, TCSETAF, &tbufsav) == -1) {
-//			perror("TCSETAF Normal Failed");
-//			exit(1);  /* ERROR  - could not save original tty ioctl */
-//		}
 		if ((rc = tcsetattr(ttyfd, TCSAFLUSH, &tbufsavs))) {
 			perror("");
 			printf("$tcsetattr(%d, TCSAFLUSH, save) return %d\n", ttyfd, rc);
@@ -132,21 +118,109 @@ unsigned char Getone()
 /*
  * Read the (locked) speed from the tty
  */
-int Speed(void)
+long Speed(void)
 {
-//	int		mspeed;
-//	struct termio	ttyhold;
 	speed_t		mspeed;
 
-//	static int baud[16] = {0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400};
-
-//	ioctl(0, TCGETA, &ttyhold);
-//	mspeed = baud[ttyhold.c_cflag & 017];
-//	ioctl(0, TCSETAF, &ttyhold);
-
 	mspeed = cfgetospeed(&tbufs);
-
-	return(mspeed);
+#ifdef CBAUD
+	switch (mspeed & CBAUD) {
+#else
+	switch (mspeed) {
+#endif
+	    case B0:	    return 0;
+#if defined(B50)
+	    case B50:	    return 50;
+#endif
+#if defined(B75)
+	    case B75:	    return 75;
+#endif
+#if defined(B110)
+	    case B110:	    return 110;
+#endif
+#if defined(B134)
+	    case B134:	    return 134;
+#endif
+#if defined(B150)
+	    case B150:	    return 150;
+#endif
+#if defined(B200)
+	    case B200:	    return 200;
+#endif
+#if defined(B300)
+	    case B300:	    return 300;
+#endif
+#if defined(B600)
+	    case B600:	    return 600;
+#endif
+#if defined(B1200)
+	    case B1200:	    return 1200;
+#endif
+#if defined(B1800)
+	    case B1800:	    return 1800;
+#endif
+#if defined(B2400)
+	    case B2400:	    return 2400;
+#endif
+#if defined(B4800)
+	    case B4800:	    return 4800;
+#endif
+#if defined(B9600)
+	    case B9600:	    return 9600;
+#endif
+#if defined(B19200)
+	    case B19200:    return 19200;
+#endif
+#if defined(B38400)
+	    case B38400:    return 38400;
+#endif
+#if defined(B57600)
+	    case B57600:    return 57600;
+#endif
+#if defined(B115200)
+	    case B115200:   return 115200;
+#endif
+#if defined(B230400)
+	    case B230400:   return 203400;
+#endif
+#if defined(B460800)
+	    case B460800:   return 460800;
+#endif
+#if defined(B500000)
+	    case B500000:   return 500000;
+#endif
+#if defined(B576000)
+	    case B576000:   return 576000;
+#endif
+#if defined(B921600)
+	    case B921600:   return 921600;
+#endif
+#if defined(B1000000)
+	    case B1000000:  return 1000000;
+#endif
+#if defined(B1152000)
+	    case B1152000:  return 1152000;
+#endif
+#if defined(B1500000)
+	    case B1500000:  return 1500000;
+#endif
+#if defined(B2000000)
+	    case B2000000:  return 2000000;
+#endif
+#if defined(B2500000)
+	    case B2500000:  return 2500000;
+#endif
+#if defined(B3000000)
+	    case B3000000:  return 3000000;
+#endif
+#if defined(B3500000)
+	    case B3500000:  return 3500000;
+#endif
+#if defined(B4000000)
+	    case B4000000:  return 4000000;
+#endif
+	    default:	    return 9600;
+	}
 }
 
 

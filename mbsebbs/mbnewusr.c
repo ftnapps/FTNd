@@ -36,7 +36,6 @@
 #include "../lib/clcomm.h"
 #include "mbnewusr.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "input.h"
 #include "language.h"
 #include "misc.h"

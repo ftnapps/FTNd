@@ -38,12 +38,13 @@
 #include "mbsebbs.h"
 #include "user.h"
 #include "dispfile.h"
-#include "funcs4.h"
 #include "language.h"
 #include "menu.h"
 #include "misc.h"
 #include "bye.h"
 #include "timeout.h"
+#include "funcs.h"
+
 
 extern	int	do_quiet;	/* Logging quiet flag */
 time_t		t_start;

@@ -427,7 +427,7 @@ SN|¨Queres descargar estas mensaxes [S/N]?
 |No Banco
 |Safe Door
 |L. Conectados
-|Desocupado
+|Offline Reader
 |Teclea usuario ¢ que queres dar recado:
 |Non hai usuario en 
 |Non quere que o molesten

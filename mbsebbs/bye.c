@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/bye.c
+ * $Id$
  * Purpose ...............: Hangup functions
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -70,7 +69,7 @@ void Good_Bye(int onsig)
 	 */
 	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
 	if ((pUsrConfig = fopen(temp,"r+b")) != NULL) {
-		sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
+		sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
 		if ((pExitinfo = fopen(temp,"rb")) != NULL) {
 			fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
 			offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
@@ -111,7 +110,7 @@ void Good_Bye(int onsig)
 	sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
 	unlink(temp);
 
-	sprintf(temp, "%s/tmp/.bbs-exitinfo.%s", getenv("MBSE_ROOT"), pTTY);
+	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
 	unlink(temp);
 	free(temp);
 	unlink("taglist");

@@ -94,7 +94,8 @@ char  	sUserTimeleft[7];	/* Global Time Left Variable		   */
 int	iUserTimeLeft;		/* Global Time Left Variable		   */
 char	LastLoginDate[12];	/* Last login date			   */
 char	LastLoginTime[9];	/* Last login time			   */
-char	LastCaller[36];		/* Last caller on system		   */
+char	LastCaller[36];		/* Last caller on system name		   */
+time_t	LastCallerTime;		/* Last caller on system time		   */
 char  	FirstName[20];		/* Users First name			   */
 char  	LastName[30];		/* Users Last name			   */ 
 int	UserAge;		/* Users age				   */

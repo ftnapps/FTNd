@@ -35,7 +35,6 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "input.h"
 #include "language.h"
 #include "misc.h"
@@ -43,7 +42,6 @@
 #include "exitinfo.h"
 
 
-extern pid_t	mypid;		/* Pid of this program	    */
 extern char	*StartTime;	/* Time user logged in	    */
 
 /*
@@ -56,112 +54,6 @@ int		LC_Wrote = FALSE;
 int		LC_Chat = FALSE;
 int		LC_Olr = FALSE;
 int		LC_Door = FALSE;
-
-
-int MoreFile(char *filename)
-{
-	char	Buf[81];
-	static	FILE *fptr;
-	int	lines;
-	int	input;
-	int	ignore = FALSE;
-	int	maxlines;
-
-	maxlines = lines = exitinfo.iScreenLen - 2;
-
-	if ((fptr =  fopen(filename,"r")) == NULL) {
-		printf("%s%s\n", (char *) Language(72), filename);
-		return(0);
-	}
-
-	printf("\n");
-
-	while (fgets(Buf,80,fptr) != NULL) {
-		if ((lines != 0) || (ignore)) {
-			lines--;
-			printf("%s",Buf);
-		}
-
-		if (strlen(Buf) == 0) {
-			fclose(fptr);
-			return(0);
-		}
-		if (lines == 0) {
-			fflush(stdin);
-			/* More (Y/n/=) */
-			printf(" %sY\x08", (char *) Language(61));
-			fflush(stdout);
-			alarm_on();
-			input = toupper(getchar());
-
-			if ((input == Keystroke(61, 0)) || (input == '\r'))
-				lines = maxlines;
-
-			if (input == Keystroke(61, 1)) {
-				fclose(fptr);
-				return(0);
-			}
-
-			if (input == Keystroke(61, 2))
-				ignore = TRUE;
-			else
-				lines  = maxlines;
-		}
-	}
-	Pause();
-	fclose(fptr);
-	return 1;
-}
-
-
-
-int GetLastUser()
-{
-	FILE	*pCallerLog;
-	char	*sDataFile;
-
-	sDataFile = calloc(PATH_MAX, sizeof(char));
-	sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
-
-	if((pCallerLog = fopen(sDataFile, "r+")) == NULL)
-		WriteError("GetLastUser: Can't open file: %s", sDataFile);
-	else {
-		fread(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-
-		/* Get lastcaller in memory */
-		strcpy(LastCaller, SYSINFO.LastCaller);
-
-		/* Set next lastcaller (this user) */
-		if(!usrconfig.Hidden)
-			strcpy(SYSINFO.LastCaller,exitinfo.sUserName);
-
-		SYSINFO.SystemCalls++;
-		switch(ttyinfo.type) {
-			case POTS:
-				SYSINFO.Pots++;
-				break;
-
-			case ISDN:
-				SYSINFO.ISDN++;
-				break;
-
-			case NETWORK:
-				SYSINFO.Network++;
-				break;
-
-			case LOCAL:
-				SYSINFO.Local++;
-				break;
-		}
-
-		rewind(pCallerLog);
-		fwrite(&SYSINFO, sizeof(SYSINFO), 1, pCallerLog);
-
-		fclose(pCallerLog);
-	}
-	free(sDataFile);
-	return 1;
-}
 
 
 
@@ -334,131 +226,6 @@ char *GLCdate()
 
 	strcat(GLcdate,GetMonth(l_date->tm_mon+1));
 	return(GLcdate);
-}
-
-
-
-/*
- * Display last callers screen.
- */
-void LastCallers(char *OpData)
-{
-	FILE	*pLC;
-	int	LineCount = 5;
-	int	count = 0;
-	char	*sFileName;
-	char	*Heading;
-	char	*Underline;
-	int	i, x;
-	struct	lastcallers lcall;
-	struct	lastcallershdr lcallhdr;
-
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	Heading   = calloc(81, sizeof(char));
-	Underline = calloc(81, sizeof(char));
-
-	clear();
-
-	sprintf(sFileName,"%s/etc/lastcall.data", getenv("MBSE_ROOT"));
-	if((pLC = fopen(sFileName,"r")) == NULL) 
-		WriteError("$LastCallers: Can't open %s", sFileName);
-	else {
-		fread(&lcallhdr, sizeof(lcallhdr), 1, pLC);
-		colour(15, 0);
-		/* Todays callers to */
-		sprintf(Heading, "%s%s", (char *) Language(84), CFG.bbs_name);
-		Center(Heading);
-
-		x = strlen(Heading);
-
-		for(i = 0; i < x; i++)
-       			sprintf(Underline, "%s%c", Underline, exitinfo.GraphMode ? 196 : 45);
-
-		colour(12, 0);
-		Center(Underline);
-
-		printf("\n");
-
-		/* #  User Name               Device  timeOn  Calls Location */
-		pout(10, 0, (char *) Language(85));
-		Enter(1);
-
-		colour(2, 0);
-		fLine(79);
-		
-		while (fread(&lcall, lcallhdr.recsize, 1, pLC) == 1) {
-			if(!lcall.Hidden) {
-				count++;
-
-				colour(15,0);
-				printf("%-5d", count);
-
-				colour(11, 0);
-				if((strcmp(OpData, "/H")) == 0) {
-					if((strcmp(lcall.Handle, "") != 0 && *(lcall.Handle) != ' '))
-						printf("%-20s", lcall.Handle);
-					else
-						printf("%-20s", lcall.UserName);
-				} else
-					printf("%-20s", lcall.UserName);
-
-				colour(9, 0);
-				printf("%-8s", lcall.Device);
-
-				colour(13, 0);
-				printf("%-8s", lcall.TimeOn);
-
-				colour(14, 0);
-				printf("%-7d", lcall.Calls);
-
-				colour(12, 0);
-				printf("%-32s\n", lcall.Location);
-
-				LineCount++;
-				if (LineCount == exitinfo.iScreenLen) {
-					Pause();
-					LineCount = 0;
-				}
-			} /* End of check if user is sysop */
-		}
-
-		colour(2, 0);
-		fLine(79);
-
-		fclose(pLC);
-		printf("\n");
-		Pause();
-	}
-	free(sFileName);
-	free(Heading);
-	free(Underline);
-}
-
-
-
-/*
- * Check for a personal message, this will go via mbsed. If there
- * is a message, it will be displayed, else nothing happens.
- */
-void Check_PM(void)
-{
-	static char	buf[128];
-	char		resp[128];
-
-	sprintf(buf, "CIPM:1,%d;", mypid);
-	if (socket_send(buf) == 0) {
-		strcpy(buf, socket_receive());
-		if (strncmp(buf, "100:0;", 6) == 0)
-			return;
-
-		strcpy(resp, strtok(buf, ":"));
-		strcpy(resp, strtok(NULL, ","));
-		colour(CYAN, BLACK);
-		/* ** Message ** from */
-		printf("\n\n\007%s %s:\n", (char *)Language(434), strtok(NULL, ","));
-		printf("%s\n", strtok(NULL, ";"));
-		Pause();
-	}
 }
 
 

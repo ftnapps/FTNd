@@ -427,7 +427,7 @@ JN|Wilt U deze berichten downloaden [J/n]?
 |Tijd Bank
 |Kluis kraken
 |Wie is hier
-|Vrij
+|Offline Reader
 |Geef de gebruikersnaam waar het bericht heen moet: 
 |Sorry, er is niemand op 
 |wil niet gestoord worden

@@ -111,10 +111,10 @@ int main(int argc, char **argv)
 
 	if (strncmp( (tty = *(argv+1)), "/dev/", 5 ) == 0 ) {
 		tty+=5;
-		sprintf(pid,"%s/tmp/.bbs-exitinfo.%s",BBSpath,tty);
+		sprintf(pid,"%s/bbs/exitinfo", CFG.bbs_usersdir);
 		strcpy(sTTY,"");
 	} else {
-		sprintf(pid,"%s/tmp/.bbs-exitinfo.%s",BBSpath,*(argv+1));
+		sprintf(pid,"%s/bbs/exitinfo", CFG.bbs_usersdir);
 		strcpy(sTTY,"/dev/");
 	}
 

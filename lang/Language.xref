@@ -427,7 +427,7 @@
 426	exitinfo.c			|Banking Door
 427	exitinfo.c			|Safe Door
 428	exitinfo.c			|WhosOn List
-429	exitinfo.c			|Idle
+429	exitinfo.c			|Offline Reader
 430	exitinfo.c			|Please enter username to send message to: 
 431	exitinfo.c			|Sorry, there is no user on
 432	exitinfo.c			|doesn't wish to be disturbed

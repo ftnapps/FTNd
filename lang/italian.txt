@@ -427,7 +427,7 @@ SN|Vuoi scaricare questi messaggi [S/n]?
 |Banking Door
 |Safe Door
 |WhosOn
-|Idle
+|Offline Reader
 |Digita il nome della persona a cui inviare il messaggio: 
 |Mi dispiace, non c'e' tale utente
 |l'utente non vuole essere disturbato

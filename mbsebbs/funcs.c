@@ -37,24 +37,322 @@
 #include "../lib/msg.h"
 #include "../lib/clcomm.h"
 #include "funcs.h"
-#include "funcs4.h"
-#include "language.h"
-#include "input.h"
-#include "oneline.h"
-#include "misc.h"
-#include "bye.h"
-#include "timeout.h"
-#include "timecheck.h"
-#include "exitinfo.h"
-//#include "whoson.h"
-#include "mail.h"
-#include "email.h"
 
 
-extern long	ActiveMsgs;
-//extern time_t	t_start;
-//extern int	e_pid;
-//extern char	**environ;
+extern	pid_t mypid;		/* Original pid				   */
+
+
+
+void UserSilent(int flag)
+{
+	SockS("ADIS:2,%d,%d;", mypid, flag);
+}
+
+
+
+/*
+ * Check BBS open status, return FALSE if the bbs is closed.
+ * Display the reason why to the user.
+ */
+int CheckStatus()
+{
+	static	char buf[81];
+
+	sprintf(buf, "SBBS:0;");
+	if (socket_send(buf) == 0) {
+		strcpy(buf, socket_receive());
+		if (strncmp(buf, "100:2,0", 7) == 0)
+			return TRUE;
+		if ((strncmp(buf, "100:2,2", 7) == 0) && (!ttyinfo.honor_zmh))
+			return TRUE;
+		buf[strlen(buf) -1] = '\0';
+		printf("\n\n\007*** %s ***\n\n\n", buf+8);
+		fflush(stdout);
+	}
+	return FALSE;
+}
+
+
+
+/*
+ * Function to check if UserName exists and returns a 0 or 1
+ */
+int CheckName(char *Name)
+{
+	FILE	*fp;
+	int	Status = FALSE;
+	char	*temp, *temp1;
+	struct	userhdr	ushdr;
+	struct	userrec	us;
+
+	temp   = calloc(81, sizeof(char));
+	temp1  = calloc(81, sizeof(char));
+
+	strcpy(temp1, tl(Name));
+
+	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp,"rb")) != NULL) {
+		fread(&ushdr, sizeof(ushdr), 1, fp);
+
+ 		while (fread(&us, ushdr.recsize, 1, fp) == 1) {
+			strcpy(temp, tl(us.sUserName));
+
+			if((strcmp(temp, temp1)) == 0) {
+				Status = TRUE;
+				break;
+			}
+ 		}
+		fclose(fp);
+	}
+
+	free(temp);
+	free(temp1);
+	return Status;
+}
+
+
+
+/*
+ * Function will check and create a home directory for the user if
+ * needed. It will also change into the users home directory when
+ * they login.
+ */
+char *ChangeHomeDir(char *Name, int Mailboxes)
+{
+	char		*temp;
+	static char	temp1[PATH_MAX];
+	FILE		*fp;
+
+	temp  = calloc(PATH_MAX, sizeof(char));
+
+	/*
+	 * set umask bits to zero's then reset with mkdir
+	 */
+	umask(000);
+	
+	/*
+	 * First check to see if users home directory exists
+	 * else try create directory, as set in CFG.bbs_usersdir
+	 */
+	if ((access(CFG.bbs_usersdir, R_OK)) != 0) {
+		WriteError("$FATAL: Access to %s failed", CFG.bbs_usersdir);
+		free(temp);
+		ExitClient(1);
+	}
+
+	sprintf(temp1, "%s/%s", CFG.bbs_usersdir, Name);
+
+	/*
+	 * Then check to see if users directory exists in the home dir
+	 */
+	if ((access(temp1, R_OK)) != 0) {
+		WriteError("$FATAL: Users homedir %s doesn't exist", temp1);
+		free(temp);
+		ExitClient(1);
+	}
+
+	/*
+	 * Change to users home directory
+	 */
+	if (chdir(temp1) != 0) {
+		WriteError("$FATAL: Can't change to users home dir, aborting: %s", temp1);
+		free(temp);
+		ExitClient(1);
+	}
+	setenv("HOME", temp1, 1);
+
+	/*
+	 * Check if user has a .signature file.
+	 * If not, create a simple one.
+	 */
+	sprintf(temp, "%s/%s/.signature", CFG.bbs_usersdir, Name);
+	if (access(temp, R_OK)) {
+	    Syslog('+', "Creating users .signature file");
+	    if ((fp = fopen(temp, "w")) == NULL) {
+		WriteError("$Can't create %s", temp);
+	    } else {
+		fprintf(fp, "    Gtx, %s\n", exitinfo.sUserName);
+		if (CFG.EmailMode == E_PRMISP)
+		    fprintf(fp, "    email: %s@%s\n", exitinfo.Name, CFG.sysdomain);
+		fclose(fp);
+	    }
+	}
+
+	/*
+	 * Check subdirectories, create them if they don't exist.
+	 */
+	sprintf(temp, "%s/wrk", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/tag", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/upl", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/tmp", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/.dosemu", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/.dosemu/run", temp1);
+	CheckDir(temp);
+	sprintf(temp, "%s/.dosemu/tmp", temp1);
+	CheckDir(temp);
+	umask(007);
+
+	/*
+	 * Check users private emailboxes
+	 */
+	if (Mailboxes) {
+		sprintf(temp, "%s/mailbox", temp1);
+		if (Msg_Open(temp))
+			Msg_Close();
+		sprintf(temp, "%s/archive", temp1);
+		if (Msg_Open(temp))
+			Msg_Close();
+		sprintf(temp, "%s/trash", temp1);
+		if (Msg_Open(temp))
+			Msg_Close();
+	}
+	
+	free(temp);
+	return temp1;
+}
+
+
+
+void CheckDir(char *dir)
+{
+	if ((access(dir, R_OK) != 0)) {
+		Syslog('+', "Creating %s", dir);
+		if (mkdir(dir, 0770))
+			WriteError("$Can't create %s", dir);
+	}
+}
+
+
+
+/*
+ * Function will find where MBSE is located on system and load
+ * the file $MBSE_ROOT/etc/config.data in memory.
+ */
+void FindMBSE()
+{
+	FILE		*pDataFile;
+	static char	p[81];
+	char		*FileName;
+	struct passwd	*pw;
+
+        FileName = calloc(PATH_MAX, sizeof(char));
+
+	/*
+	 * Check if the environment is set, if not, then we create the
+	 * environment from the passwd file.
+	 */
+	if (getenv("MBSE_ROOT") == NULL) {
+		pw = getpwnam("mbse");
+		memset(&p, 0, sizeof(p));
+		sprintf(p, "MBSE_ROOT=%s", pw->pw_dir);
+		putenv(p);
+	}
+
+	if (getenv("MBSE_ROOT") == NULL) {
+		printf("FATAL ERROR: Environment variable MBSE_ROOT not set\n");
+		free(FileName);
+#ifdef MEMWATCH
+		mwTerm();
+#endif
+		exit(1);
+	}
+	sprintf(FileName, "%s/etc/config.data", getenv("MBSE_ROOT"));
+
+	if(( pDataFile = fopen(FileName, "rb")) == NULL) {
+		printf("FATAL ERROR: Can't open %s for reading!\n", FileName);
+		printf("Please run mbsetup to create configuration file.\n");
+		printf("Or check that your environment variable MBSE_ROOT is set to the BBS Path!\n");
+		free(FileName);
+#ifdef MEMWATCH
+                mwTerm();
+#endif
+		exit(1);
+	}
+
+	fread(&CFG, sizeof(CFG), 1, pDataFile);
+	free(FileName);
+	fclose(pDataFile);
+}
+
+
+
+/* 
+ * Returns Mmm in the users language.
+ */
+char *GetMonth(int Month)
+{
+	static char	month[10];
+
+	switch (Month) {
+		case 1:
+			strcpy(month, *(mLanguage + 398));
+			break;
+		case 2:                    
+			strcpy(month, *(mLanguage + 399));      
+			break;                    
+		case 3:                    
+			strcpy(month, *(mLanguage + 400));      
+			break;                    
+		case 4:                    
+			strcpy(month, *(mLanguage + 401));      
+			break;                    
+		case 5:                    
+			strcpy(month, *(mLanguage + 402));      
+			break;                    
+		case 6:                    
+			strcpy(month, *(mLanguage + 403));      
+			break;                    
+		case 7:                    
+			strcpy(month, *(mLanguage + 404));      
+			break;                    
+		case 8:                    
+			strcpy(month, *(mLanguage + 405));      
+			break;                    
+		case 9:                    
+			strcpy(month, *(mLanguage + 406));      
+			break;                    
+		case 10:                    
+			strcpy(month, *(mLanguage + 407));      
+			break;                    
+		case 11:                    
+			strcpy(month, *(mLanguage + 408));      
+			break;                    
+		case 12:
+			strcpy(month, *(mLanguage + 409));
+			break;
+		default:                        
+			strcpy(month, "Unknown");      
+	}                                              
+
+	return(month);
+}
+
+
+
+/* Returns DD-Mmm-YYYY */
+char *GLCdateyy()
+{
+	static	char	GLcdateyy[15];
+	char	ntime[15];
+
+	time(&Time_Now);
+	l_date = localtime(&Time_Now);
+
+	sprintf(GLcdateyy,"%02d-",
+	  l_date->tm_mday);
+
+	sprintf(ntime,"-%02d", l_date->tm_year+1900);
+	strcat(GLcdateyy, GetMonth(l_date->tm_mon+1));
+	strcat(GLcdateyy,ntime);
+
+	return(GLcdateyy);
+}
+
 
 
 /*
@@ -76,279 +374,5 @@ int Access(securityrec us, securityrec ref)
 
 	return TRUE;
 }
-
-
-
-void UserList(char *OpData)
-{                                                                        
-	FILE	*pUsrConfig;
-	int	LineCount = 2;
-	int	iFoundName = FALSE;
-	int	iNameCount = 0;
-	char	*Name, *sTemp, *User;
-	char	*temp;
-	struct	userhdr	uhdr;
-	struct	userrec	u;
-
-	temp  = calloc(PATH_MAX, sizeof(char));
-	Name  = calloc(37, sizeof(char));
-	sTemp = calloc(81, sizeof(char));
-	User  = calloc(81, sizeof(char));
-
-	clear();
-	/* User List */
-	language(15, 0, 126);
-	Enter(1);
-	LineCount = 1;
-
-	sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-	if ((pUsrConfig = fopen(temp, "rb")) == NULL) {
-		WriteError("UserList: Can't open file: %s", temp);
-		return;
-	}
-	fread(&uhdr, sizeof(uhdr), 1, pUsrConfig);
-
-	/* Enter Username search string or (Enter) for all users: */
-	language(15, 0, 127);
-	colour(CFG.InputColourF, CFG.InputColourB);
-	alarm_on();
-	GetstrC(Name,35);
-	clear();
-
-	/* Name         Location                   Last On    Calls */
-	language(15, 0, 128);
-	Enter(1);
-
-	colour(2, 0);
-	fLine(79);
-
-	colour(3, 0);
-	while (fread(&u, uhdr.recsize, 1, pUsrConfig) == 1) {
-		if ((strcmp(Name,"")) != 0) {
-			if((strcmp(OpData, "/H")) == 0)
-				sprintf(User, "%s", u.sHandle);
-			else
-				sprintf(User, "%s", u.sUserName);
-
-			if ((strstr(tl(User), tl(Name)) != NULL)) {
-				if ((!u.Hidden) && (!u.Deleted)) {
-					if((strcmp(OpData, "/H")) == 0) {
-						if((strcmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-							printf("%-25s", u.sHandle);
-						else
-							printf("%-25s", u.sUserName);
-					} else 
-						printf("%-25s", u.sUserName);
-
-					printf("%-30s%-14s%-11d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
-					iFoundName = TRUE;
-					LineCount++;
-					iNameCount++; 
-				}
-			}
-		} else
-			if ((!u.Hidden) && (!u.Deleted) && (strlen(u.sUserName) > 0)) {
-				if((strcmp(OpData, "/H")) == 0) {
-					if((strcmp(u.sHandle, "") != 0 && *(u.sHandle) != ' '))
-						printf("%-25s", u.sHandle);
-					else
-						printf("%-25s", u.sUserName);
-				} else
-					printf("%-25s", u.sUserName);
-
-	   	    		printf("%-30s%-14s%-11d", u.sLocation, StrDateDMY(u.tLastLoginDate), u.iTotalCalls);
-				iFoundName = TRUE;
-				LineCount++;
-				iNameCount++;
-				Enter(1);
-			}
-
-		if (LineCount >= exitinfo.iScreenLen - 2) {
-			LineCount = 0;
-			Pause();
-			colour(3, 0);
-		}
-	}
-
-	if(!iFoundName) {
-		language(3, 0, 129);
-		Enter(1);
-	}
-
-	fclose(pUsrConfig);
-
-	colour(2, 0);
-	fLine(79); 
-
-	free(temp);
-	free(Name);
-	free(sTemp);
-	free(User);
-
-	Pause();
-}
-
-
-
-void TimeStats()
-{
-	clear();
-	ReadExitinfo();
-
-	colour(15, 0);
-	/* TIME STATISTICS for */
-	printf("\n%s%s ", (char *) Language(134), exitinfo.sUserName);
-	/* on */
-	printf("%s %s\n", (char *) Language(135), (char *) logdate());
-
-	colour(12, 0);
-	fLine(79);
-
-	printf("\n");
-	
-	colour(10, 0);
-
-	/* Current Time */
-	printf("%s %s\n", (char *) Language(136), (char *) GetLocalHMS());
-
-	/* Current Date */
-	printf("%s %s\n\n", (char *) Language(137), (char *) GLCdateyy());
-
-	/* Connect time */
-	printf("%s %d %s\n", (char *) Language(138), exitinfo.iConnectTime, (char *) Language(471));
-
-	/* Time used today */
-	printf("%s %d %s\n", (char *) Language(139), exitinfo.iTimeUsed, (char *) Language(471));
-
-	/* Time remaining today */
-	printf("%s %d %s\n", (char *) Language(140), exitinfo.iTimeLeft, (char *) Language(471));
-
-	/* Daily time limit */
-	printf("%s %d %s\n", (char *) Language(141), exitinfo.iTimeUsed + exitinfo.iTimeLeft, (char *) Language(471));
-
-	printf("\n");
-	Pause();
-}
-
-
-
-int CheckFile(char *File, int iArea)
-{
-	FILE	*pFileB;
-	int	iFile = FALSE;
-	char	*sFileArea;
-
-	sFileArea = calloc(PATH_MAX, sizeof(char));
-	sprintf(sFileArea,"%s/fdb/fdb%d.dta", getenv("MBSE_ROOT"), iArea); 
-
-	if(( pFileB = fopen(sFileArea,"r+")) == NULL) {
-		mkdir(sFileArea, 755);
-		return FALSE;
-	}
-
-	while ( fread(&file, sizeof(file), 1, pFileB) == 1) {
-		if((strcmp(tl(file.Name), tl(File))) == 0) {
-			iFile = TRUE;
-			fclose(pFileB);
-			return TRUE;
-		}
-
-	}
-
-	fclose(pFileB);
-	free(sFileArea);
-
-	if(!iFile)
-		return FALSE;
-	return 1;
-}
-
-
-
-/*
- * View a textfile.
- */
-void ViewTextFile(char *Textfile)
-{
-	FILE	*fp;
-	int	iLine = 0;
-	char	*temp, *temp1;
-	char	sPrompt[] = "\n(More (Y/n/=): ";
-	int	i, x, z;
-
-	x = strlen(sPrompt);
-
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	temp  = calloc(81, sizeof(char));
-
-	sprintf(temp1, "%s", Textfile);
-
-	if(( fp = fopen (temp1, "r")) != NULL) {
-		while (fgets(temp, 80, fp) != NULL) {
-			printf("%s", temp);
-			++iLine;
-			if(iLine >= exitinfo.iScreenLen && iLine < 1000) {
-				iLine = 0;
-				pout(CFG.MoreF, CFG.MoreB, sPrompt);
-
-				fflush(stdout);
-				z = Getone();
-				switch(z) {
-
-				case 'n':
-				case 'N':
-					printf("\n");
-					break;
-
-				case '=':
-					iLine = 1000;
-				}
-				for(i = 0; i < x; i++)
-					printf("\b");
-				for(i = 0; i < x; i++)
-					printf(" ");
-				printf("\r");
-			}
-		}
-		fclose(fp);
-	}
-
-	Pause();
-	free(temp1);
-	free(temp);
-}
-
-
-
-/*
- * Function will make log entry in users logfile
- * Understands @ for Fileareas and ^ for Message Areas
- */
-void LogEntry(char *Log)
-{
-	char *Entry, *temp;
-	int i;
-
-	Entry = calloc(256, sizeof(char));
-	temp  = calloc(1, sizeof(char));
-
-	for(i = 0; i < strlen(Log); i++) {
-		if(*(Log + i) == '@')
-			strcat(Entry, sAreaDesc);
-		else 
-			if(*(Log + i) == '^')
-				strcat(Entry, sMsgAreaDesc);
-			else {
-				sprintf(temp, "%c", *(Log + i));
-				strcat(Entry, temp);
-			}
-	}
-
-	Syslog('+', Entry);
-	free(Entry);
-	free(temp);
-}
-
-
 
 

@@ -4226,14 +4226,13 @@ v0.33.19        26-Oct-2001
 		Made the Makefile system more simple.
 
 	lang:
-		Changed language prompts 6 and 71.
+		Changed language prompts 6, 71, 429.
 		Added language prompts 472 and 473 for FS editor.
 		Added language prompts 474, 475 and 476 for address entry.
 		Added language prompts 477 and 478 for post with user alias.
 		Deleted language prompts 387, 388, 389, 390
 
 	examples:
-		SAVE:
 		Changed menu setup.mnu and textfiles setup.* to show the new
 		setup entries for the users.
 
@@ -4275,6 +4274,9 @@ v0.33.19        26-Oct-2001
 		issues with previous versions.
 		QuickScan messages in netmail areas now only shows personal
 		messages.
+		The whoson list now uses mbtask to get the information.
+		The users exitinfo file is now stored in his homedirectory
+		with mode 0600.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new

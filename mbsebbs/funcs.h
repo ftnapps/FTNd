@@ -3,12 +3,15 @@
 #ifndef _FUNCS_H
 #define _FUNCS_H
 
-int  Access(securityrec, securityrec);	    /* Check security access		*/
-void UserList(char *);			    /* Get complete users list		*/
-void TimeStats(void);			    /* Get users Time Statistics	*/
-int  CheckFile(char *, int);		    /* Check for Dupe file in Database  */
-void ViewTextFile(char *);		    /* View text file			*/
-void LogEntry(char *);			    /* Create log entry in logfile	*/
 
+void UserSilent(int);			/* Update users silent flag info	    */
+int  CheckStatus(void);			/* Check BBS open status		    */
+int  CheckName(char *);			/* Check if user name exists                */
+char *ChangeHomeDir(char *, int);	/* Change and Create Users Home Directories */
+void CheckDir(char *);			/* Check and create directory		    */
+void FindMBSE(void);			/* Load Configuration file in memory        */
+char *GLCdateyy(void);			/* Returns current date  DD-Mmm-YYYY        */
+char *GetMonth(int);			/* Returns Mmm				    */
+int  Access(securityrec, securityrec);	/* Check security access		    */
 
 #endif

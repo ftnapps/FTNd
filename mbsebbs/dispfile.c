@@ -37,7 +37,6 @@
 #include "../lib/msg.h"
 #include "../lib/clcomm.h"
 #include "funcs.h"
-#include "funcs4.h"
 #include "language.h"
 #include "oneline.h"
 #include "misc.h"
@@ -441,7 +440,7 @@ void ControlCodeK(int ch)
 		break;
 
 	case 'E':
-		printf("%d", Speed() );
+		printf("%ld", Speed());
 		break;
 
 	case 'F':
@@ -512,6 +511,10 @@ void ControlCodeK(int ch)
 				printf("?");
 			Msg_Close();
 		}
+		break;
+
+	case 'Q':
+		printf("%s %s", StrDateDMY(LastCallerTime), StrTimeHMS(LastCallerTime));
 		break;
 
 	default:

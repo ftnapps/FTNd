@@ -37,7 +37,6 @@
 #include "filesub.h"
 #include "funcs.h"
 #include "language.h"
-#include "funcs4.h"
 #include "input.h"
 #include "misc.h"
 #include "timeout.h"

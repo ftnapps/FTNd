@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef _COMMON_H
 #define	_COMMON_H
 
@@ -504,7 +506,7 @@ char		*arcname(faddr *, unsigned short, int);
 void		Setraw(void);			/* Set raw mode		    */
 void		Unsetraw(void);			/* Unset raw mode	    */
 unsigned char	Getone(void);			/* Get one raw character    */
-int		Speed(void);			/* Get (locked) tty speed   */
+long		Speed(void);			/* Get (locked) tty speed   */
 int		Waitchar(unsigned char *, int);	/* Wait n * 10mSec for char */
 int		Escapechar(unsigned char *);	/* Escape sequence test	    */
 unsigned char	Readkey(void);			/* Read a translated key    */
