@@ -4,7 +4,7 @@
  * Purpose ...............: Execute subprogram
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -44,7 +44,7 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 {
     char    buf[512];
     char    *vector[16];
-    int	    i, pid, status, rc;
+    int	    i, pid, status = 0, rc = 0;
 
     if (pkt == NULL)
 	sprintf(buf, "%s %s", cmd, file);
@@ -52,6 +52,7 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 	sprintf(buf, "%s %s %s", cmd, file, pkt);
     Syslog('+', "Execute: %s",buf);
 
+    memset(vector, 0, sizeof(vector));
     i = 0;
     vector[i++] = strtok(buf," \t\n");
     while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
