@@ -86,7 +86,6 @@ int ProcessTic(fa_list *sbl)
     int		    BBS_Imp = FALSE, DidBanner = FALSE;
     faddr	    *p_from;
     qualify	    *qal = NULL, *tmpq;
-    fa_list	    *tmp;
 
     Now = time(NULL);
 
@@ -300,9 +299,6 @@ int ProcessTic(fa_list *sbl)
 	    return 1;
 	}
     }
-
-    for (tmp = sbl; tmp; tmp = tmp->next)
-	Syslog('f', "initial SB list %s", ascfnode(tmp->addr, 0x0f));
 
     /*
      * Count the actual downlinks for this area and build the list of
@@ -730,13 +726,11 @@ int ProcessTic(fa_list *sbl)
      * Create file announce record
      */
     if (tic.FileArea) {
-	Syslog('f', "Start magic check");
 	if (strlen(TIC.TicIn.Magic))
 	    UpDateAlias(TIC.TicIn.Magic);
 	else
 	    Magic_UpDateAlias();
 
-	Syslog('f', "done");
 	for (i = 0; i <= TIC.File_Id_Ct; i++)
 	    strncpy(T_File.LDesc[i], TIC.File_Id[i], 48);
 	T_File.TotLdesc = TIC.File_Id_Ct;

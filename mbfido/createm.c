@@ -156,9 +156,12 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 */
 		fseek(mp, 0, SEEK_END);
 		offset = msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize));
-		Syslog('+', "file end at %ld, offset needed %ld", ftell(mp), offset);
+		Syslog('m', "file end at %ld, start area offset at %ld", ftell(mp), offset);
 
 		if (ftell(mp) < offset) {
+		    /*
+		     * Start area record not in database, expand until start record exists.
+		     */
 		    Syslog('m', "Database too small, expanding...");
 		    memset(&msgs, 0, sizeof(msgs));
 		    memset(&System, 0, sizeof(System));

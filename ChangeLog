@@ -49,6 +49,8 @@ v0.35.06
 		then what MS does.
 		Added long extension to 3 char extensions for mpeg, smil, perl,
 		jpeg and tiff.
+		The unpack function doesn't complain anymore when it was
+		testing for the archive format on files smaller then 257 bytes.
 
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.
@@ -74,6 +76,9 @@ v0.35.06
 		lines now depends on the new nodes setting.
 		When adding unpacked mail for a directory node, the mail
 		packets had the wrong filename.
+		Changed some logging to debug with auto create areas.
+		Request messages sent to the uplinks are now logged in the
+		manager logfile.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 

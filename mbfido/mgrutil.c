@@ -309,8 +309,8 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
     struct tm	*tm;
     fidoaddr	Orig, Dest;
     unsigned	flags = M_PVT;
-    char	ext[4], *mgrname, *subj;
-    int		i;
+    char	ext[4], *mgrname, *subj, cmdline[81];
+    int		i, j;
 
     memset(&Orig, 0, sizeof(Orig));
     Orig.zone  = From->zone;
@@ -351,7 +351,7 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
     }
     subj = xstrcpy(nodes.Apasswd);
 
-    Syslog('-', "  Netmail from %s to %s", aka2str(Orig), ascfnode(t, 0x1f));
+    Mgrlog("%s request from %s to %s", mgrname, aka2str(Orig), ascfnode(t, 0x1f));
 
     Now = time(NULL) - (gmt_offset((time_t)0) * 60);
     flags |= (nodes.Crash)  ? M_CRASH    : 0;
@@ -396,10 +396,27 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
     fprintf(qp, "\001PID: MBSE-FIDO %s\r", VERSION);
     fprintf(qp, "\001TZUTC: %s\r", gmtoffset(Now));
 
-    for (i = 0; i < strlen(cmd); i++)
+    /*
+     * Send command, may be format *AREA1\r+AREA2\r=AREA3
+     */
+    j = 0;
+    for (i = 0; i < strlen(cmd); i++) {
 	putc(cmd[i], qp);
-    putc('\r', qp);
+	if (cmd[i] == '\r') {
+	    cmdline[j] = '\0';
+	    Mgrlog("%s", cmdline);
+	    j = 0;
+	} else {
+	    cmdline[j] = cmd[i];
+	    j++;
+	}
+    }
+    putc('\r', qp);	/* There is no return after the last one. */
+    cmdline[j] = '\0';
+    Mgrlog("%s", cmdline);
+    Mgrlog("---");
     fprintf(qp, TearLine());
+
     /*
      * Add a warning after the tearline.
      */
@@ -501,6 +518,12 @@ void fill_arealist(AreaList **fdp, char *tag, int DoDelete)
 
 
 
+/*
+ * Process areas commandline. Check for missing records in message and
+ * file groups or areas dropped from the area taglists. Supported taglists
+ * are plain areaname description lists and for file areas the filegate.zxx
+ * formatted lists.
+ */
 int Areas(void)
 {
     FILE	*gp, *ap, *fp;
@@ -510,7 +533,7 @@ int Areas(void)
     sysconnect	System;
     faddr	*From, *To;
 
-    Mgrlog("Process areas taglists");
+    Syslog('+', "Process areas taglists");
 
     if (!do_quiet) {
 	colour(3, 0);
