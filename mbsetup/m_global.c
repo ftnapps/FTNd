@@ -312,9 +312,8 @@ void b_screen(void)
 	show_int( 12,24, CFG.iPasswd_Char);
 	show_int( 13,24, CFG.idleout);
 	show_int( 14,24, CFG.iCRLoginCount);
-	show_int( 15,24, CFG.max_login);
-	show_int( 16,24, CFG.iQuota);
-	show_int( 17,24, CFG.CityLen);
+	show_int( 15,24, CFG.iQuota);
+	show_int( 16,24, CFG.CityLen);
 
 	show_bool( 7,59, CFG.NewAreas);
 	show_int(  8,59, CFG.OLR_MaxMsgs);
@@ -345,9 +344,8 @@ void e_bbsglob(void)
 		case 6: E_INT( 12,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
 		case 7: E_INT( 13,24, CFG.idleout,           "^Idle timeout^ in minutes")
 		case 8: E_INT( 14,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
-		case 9: E_INT( 15,24, CFG.max_login,         "Maximum ^Login^ attempts")
-		case 10:E_INT( 16,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
-		case 11:E_INT( 17,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
+		case 9: E_INT( 15,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
+		case 10:E_INT( 16,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
 
 		case 12:E_BOOL( 7,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
 		case 13:E_INT(  8,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
@@ -1747,7 +1745,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "      Password char    %c\n", CFG.iPasswd_Char);
 	fprintf(fp, "      Idle timeout     %d mins\n", CFG.idleout);
 	fprintf(fp, "      Login enters     %d\n", CFG.iCRLoginCount);
-	fprintf(fp, "      Login attempts   %d\n", CFG.max_login);
 	fprintf(fp, "      Homedir quota    %d MB.\n", CFG.iQuota);
 	fprintf(fp, "      Location length  %d\n", CFG.CityLen);
 	fprintf(fp, "      OLR Max. msgs.   %d\n", CFG.OLR_MaxMsgs);

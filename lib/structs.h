@@ -1262,7 +1262,7 @@ struct	_fgroup {
 	unsigned	SendOrg		: 1;	/* Send original file	   */
 	unsigned	xRes7		: 1;
 	unsigned	xRes8		: 1;
-	char		BasePath;		/* File area base path     */
+	char		BasePath[64];		/* File area base path     */
 	securityrec	DLSec;			/* Download Security	   */
 	securityrec	UPSec;			/* Upload Security	   */
 	securityrec	LTSec;			/* List Security	   */

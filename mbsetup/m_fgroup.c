@@ -111,7 +111,7 @@ int OpenFGroup(void)
 			}
 
 			/*
-			 * In case we are automaitc upgrading the data format
+			 * In case we are automatic upgrading the data format
 			 * we save the old format. If it is changed, the
 			 * database must always be updated.
 			 */
@@ -132,6 +132,19 @@ int OpenFGroup(void)
 			 */
 			memset(&fgroup, 0, sizeof(fgroup));
 			while (fread(&fgroup, oldsize, 1, fin) == 1) {
+				/*
+				 * Now set defaults
+				 */
+				if (FGrpUpdated) {
+				    fgroup.DupCheck  = TRUE;
+				    fgroup.Secure    = TRUE;
+				    fgroup.VirScan   = TRUE;
+				    fgroup.Announce  = TRUE;
+				    fgroup.UpdMagic  = TRUE;
+				    fgroup.FileId    = TRUE;
+				    sprintf(fgroup.BasePath, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(fgroup.Name));
+				}
+				
 				fwrite(&fgroup, sizeof(fgroup), 1, fout);
 				memset(&fgroup, 0, sizeof(fgroup));
 			}

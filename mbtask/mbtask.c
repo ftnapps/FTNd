@@ -187,7 +187,6 @@ void load_maincfg(void)
                  * BBS Globals
                  */
                 CFG.CityLen = 6;
-                CFG.max_login = 5;
                 CFG.exclude_sysop = TRUE;
                 CFG.iConnectString = FALSE;
                 CFG.iAskFileProtocols = FALSE;

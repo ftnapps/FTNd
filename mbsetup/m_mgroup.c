@@ -142,6 +142,9 @@ int OpenMGroup(void)
 			 */
 			memset(&mgroup, 0, sizeof(mgroup));
 			while (fread(&mgroup, oldsize, 1, fin) == 1) {
+				if (MGrpUpdated) {
+				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), tl(mgroup.Name));
+				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
 			}

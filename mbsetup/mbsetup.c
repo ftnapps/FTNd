@@ -136,7 +136,8 @@ void soft_info(void)
 	temp = calloc(81, sizeof(char));
 	clr_index();
 	set_color(YELLOW, BLACK);
-	center_addstr( 6, (char *)"MBSE BBS (%s-%s)", OsName(), OsCPU());
+	sprintf(temp, "MBSE BBS (%s-%s)", OsName(), OsCPU());
+	center_addstr( 6, temp);
 	set_color(WHITE, BLACK);
 	center_addstr( 8, (char *)COPYRIGHT);
 	set_color(YELLOW, BLACK);
