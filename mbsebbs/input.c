@@ -53,7 +53,11 @@ int Waitchar(unsigned char *ch, int wtime)
 //	Syslog('t', "Waitchar(): after GETCHAR() tty_status = %d, rc = %d", tty_status, rc);
 	if (tty_status == STAT_SUCCESS) {
 //	    Syslog('t', "Waitchar(): return %d", rc);
+#ifdef __NetBSD__
+	    *ch = (unsigned char)rc;
+#else
 	    memcpy(ch, &rc, sizeof(unsigned char));
+#endif
 	    return 1;
 	}
 	if (tty_status != STAT_TIMEOUT) {
@@ -62,7 +66,7 @@ int Waitchar(unsigned char *ch, int wtime)
 	}
 	msleep(10);
     }
-  //  Syslog('t', "Waitchar() timeout returns %d", rc);
+//    Syslog('t', "Waitchar() timeout returns %d", rc);
     return rc;
 }
 

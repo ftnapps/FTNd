@@ -121,8 +121,8 @@ void Good_Bye(int onsig)
     	cookedport();
     }
 Syslog('b', "Will hangup");
+    signal(SIGHUP, SIG_IGN);
     hangup();
-    Syslog('b', "Done");
 
     for (i = 0; i < NSIG; i++) {
 	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
@@ -170,19 +170,25 @@ void Quick_Bye(int onsig)
     sprintf(temp, "%s/tmp/mbsebbs%d", getenv("MBSE_ROOT"), getpid());
     unlink(temp);
     free(temp);
+    colour(LIGHTGRAY, BLACK);
+    sleep(3);
+
+    if ((onsig != SIGALRM) && (onsig != MBERR_TIMEOUT) && (hanged_up == 0)) {
+        cookedport();
+    }
+
+    /*
+     * Ignore SIGHUP during hangup
+     */
+    signal(SIGHUP, SIG_IGN);
+    hangup();
 
     /*
      * Prevent that we call die() if something goes wrong next
      */
     for (i = 0; i < NSIG; i++)
-	if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
-	    signal(i, SIG_DFL);
-
-    colour(LIGHTGRAY, BLACK);
-    sleep(3);
-
-    cookedport();
-    hangup();
+        if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM))
+            signal(i, SIG_DFL);
 
     free(pTTY);
     if (StartTime)

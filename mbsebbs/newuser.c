@@ -625,6 +625,7 @@ void Fast_Bye(int onsig)
     sleep(3);
 
     cookedport();
+    signal(SIGHUP, SIG_IGN);
     hangup();
 
     Free_Language();
