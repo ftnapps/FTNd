@@ -1169,7 +1169,7 @@ int EditNodeRec(int Area)
 		break;
 	case 8: DirectoryEdit();
 		break;
-	case 9:	nodes.Security = edit_asec(nodes.Security, (char *)"7.9  SECURITY FLAGS");
+	case 9:	nodes.Security = edit_nsec(nodes.Security, (char *)"7.9  NODE SECURITY FLAGS");
 		break;
 	case 10:S_Stat(); 
 		break;

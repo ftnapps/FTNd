@@ -156,6 +156,10 @@ int OpenMGroup(void)
 				    }
 				    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
 				}
+				if (MGrpUpdated && !mgroup.LinkSec.level) {
+				    mgroup.LinkSec.level = 1;
+				    mgroup.LinkSec.flags = 1;
+				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
 			}
@@ -225,6 +229,8 @@ int AppendMGroup(void)
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&mgroup, 0, sizeof(mgroup));
 		mgroup.StartDate = time(NULL);
+		mgroup.LinkSec.level = 1;
+		mgroup.LinkSec.flags = 1;
 		fwrite(&mgroup, sizeof(mgroup), 1, fil);
 		fclose(fil);
 		MGrpUpdated = 1;
@@ -247,19 +253,20 @@ void MgScreen(void)
 	mvprintw(10, 2, "4.  Read sec");
 	mvprintw(11, 2, "5.  Write sec");
 	mvprintw(12, 2, "6.  Sysop sec");
-	mvprintw(13, 2, "7.  Start at");
-	mvprintw(14, 2, "8.  Net reply");
-	mvprintw(15, 2, "9.  Users del");
-	mvprintw(16, 2, "10. Aliases");
-	mvprintw(17, 2, "11. Quotes");
-	mvprintw(18, 2, "12. Active");
+	mvprintw(13, 2, "7.  Link sec");
+	mvprintw(14, 2, "8.  Start at");
+	mvprintw(15, 2, "9.  Net reply");
+	mvprintw(16, 2, "10. Users del");
+	mvprintw(17, 2, "11. Aliases");
+	mvprintw(18, 2, "12. Quotes");
+	mvprintw(19, 2, "13. Active");
 
-	mvprintw(13,41, "13. Deleted");
-	mvprintw(14,41, "14. Auto change");
-	mvprintw(15,41, "15. User change");
-	mvprintw(16,41, "16. Use Aka");
-	mvprintw(17,41, "17. Uplink");
-	mvprintw(18,41, "18. Areas");
+	mvprintw(14,41, "14. Deleted");
+	mvprintw(15,41, "15. Auto change");
+	mvprintw(16,41, "16. User change");
+	mvprintw(17,41, "17. Use Aka");
+	mvprintw(18,41, "18. Uplink");
+	mvprintw(19,41, "19. Areas");
 }
 
 
@@ -324,24 +331,25 @@ int EditMGrpRec(int Area)
 		show_str(  7,16,12, mgroup.Name);
 		show_str(  8,16,55, mgroup.Comment);
 		show_str(  9,16,64, mgroup.BasePath);
-		show_int( 10,16,    mgroup.RDSec.level);
-		show_int( 11,16,    mgroup.WRSec.level);
-		show_int( 12,16,    mgroup.SYSec.level);
-		show_int( 13,16,    mgroup.StartArea);
-		show_int( 14,16,    mgroup.NetReply);
-		show_bool(15,16,    mgroup.UsrDelete);
-		show_bool(16,16,    mgroup.Aliases);
-		show_bool(17,16,    mgroup.Quotes);
-		show_bool(18,16,    mgroup.Active);
+		show_sec( 10,16,    mgroup.RDSec);
+		show_sec( 11,16,    mgroup.WRSec);
+		show_sec( 12,16,    mgroup.SYSec);
+		mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+		show_int( 14,16,    mgroup.StartArea);
+		show_int( 15,16,    mgroup.NetReply);
+		show_bool(16,16,    mgroup.UsrDelete);
+		show_bool(17,16,    mgroup.Aliases);
+		show_bool(18,16,    mgroup.Quotes);
+		show_bool(19,16,    mgroup.Active);
 
-		show_bool(13,57,    mgroup.Deleted);
-		show_bool(14,57,    mgroup.AutoChange);
-		show_bool(15,57,    mgroup.UserChange);
-		show_aka( 16,57,    mgroup.UseAka);
-		show_aka( 17,57,    mgroup.UpLink);
-		show_str( 18,57,12, mgroup.AreaFile);
+		show_bool(14,57,    mgroup.Deleted);
+		show_bool(15,57,    mgroup.AutoChange);
+		show_bool(16,57,    mgroup.UserChange);
+		show_aka( 17,57,    mgroup.UseAka);
+		show_aka( 18,57,    mgroup.UpLink);
+		show_str( 19,57,12, mgroup.AreaFile);
 
-		j = select_menu(18);
+		j = select_menu(19);
 		switch(j) {
 		case 0:	if (!mgroup.StartArea && strlen(mgroup.AreaFile)) {
 			    errmsg("Areas file defined but no BBS start area");
@@ -387,33 +395,36 @@ int EditMGrpRec(int Area)
 		case 4: E_SEC( 10,16,    mgroup.RDSec,      "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
 		case 5: E_SEC( 11,16,    mgroup.WRSec,      "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
 		case 6: E_SEC( 12,16,    mgroup.SYSec,      "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
-		case 7: E_INT( 13,16,    mgroup.StartArea,  "The ^Start area number^ from where to add areas")
-		case 8: E_INT( 14,16,    mgroup.NetReply,   "The ^Area Number^ for netmail replies")
-		case 9: E_BOOL(15,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
-		case 10:E_BOOL(16,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
-		case 11:E_BOOL(17,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
-		case 12:if (CheckMgroup())
-			    break;
-			E_BOOL(18,16,    mgroup.Active,     "Is this message group ^active^")
+		case 7: mgroup.LinkSec = edit_asec(mgroup.LinkSec, (char *)"9.1.7 DEFAULT SECURITY FOR NEW AREAS");
+			MgScreen();
+			break;
+		case 8: E_INT( 14,16,    mgroup.StartArea,  "The ^Start area number^ from where to add areas")
+		case 9: E_INT( 15,16,    mgroup.NetReply,   "The ^Area Number^ for netmail replies")
+		case 10:E_BOOL(16,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
+		case 11:E_BOOL(17,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
+		case 12:E_BOOL(18,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
 		case 13:if (CheckMgroup())
 			    break;
-			E_BOOL(13,57,    mgroup.Deleted,    "Is this group ^Deleted^")
-		case 14:E_BOOL(14,57,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
-		case 15:tmp = edit_bool(15,57, mgroup.UserChange, (char *)"^Auto add/delete^ areas from downlinks requests");
+			E_BOOL(19,16,    mgroup.Active,     "Is this message group ^active^")
+		case 14:if (CheckMgroup())
+			    break;
+			E_BOOL(14,57,    mgroup.Deleted,    "Is this group ^Deleted^")
+		case 15:E_BOOL(15,57,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
+		case 16:tmp = edit_bool(16,57, mgroup.UserChange, (char *)"^Auto add/delete^ areas from downlinks requests");
 			if (tmp && !mgroup.UpLink.zone)
 			    errmsg("It looks like you are the toplevel, no Uplink defined");
 			else
 			    mgroup.UserChange = tmp;
 			break;
-		case 16:tmp = PickAka((char *)"9.1.16", TRUE);
+		case 17:tmp = PickAka((char *)"9.1.17", TRUE);
 			if (tmp != -1)
 				memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));
 			MgScreen();
 			break;
-		case 17:mgroup.UpLink = PullUplink((char *)"9.1.17");
+		case 18:mgroup.UpLink = PullUplink((char *)"9.1.18");
 			MgScreen();
 			break;
-		case 18:E_STR( 18,57,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
+		case 19:E_STR( 19,57,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
 		}
 	}
 
@@ -660,6 +671,7 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Read security      %s\n", get_secstr(mgroup.RDSec));
 		fprintf(fp, "    Write security     %s\n", get_secstr(mgroup.WRSec));
 		fprintf(fp, "    Sysop security     %s\n", get_secstr(mgroup.SYSec));
+		fprintf(fp, "    Def. link security       %s\n", getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
 		fprintf(fp, "    Use aliases        %s\n", getboolean(mgroup.Aliases));
 		fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
 		fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));

@@ -919,6 +919,7 @@ struct msgareas {
 	int		Rfccode;		/* RFC characterset	    */
 	int		Ftncode;		/* FTN characterset	    */
 	int		MaxArticles;		/* Max. newsarticles to get */
+	securityrec	LinkSec;		/* Link security flags	    */
 };
 
 
@@ -1160,6 +1161,7 @@ struct	_tic {
 	unsigned	Deleted		: 1;	/* If this area is deleted */
 	statcnt		Files;			/* Total processed files   */
 	statcnt		KBytes;			/* Total processed KBytes  */
+	securityrec	LinkSec;		/* Link security flags	   */
 };
 
 
@@ -1350,6 +1352,7 @@ struct	_fgroup {
 	char		BbsGroup[13];		/* BBS Group		   */
 	char		AnnGroup[13];		/* BBS Announce Group	   */
 	unsigned	Upload;			/* Upload area		   */
+	securityrec	LinkSec;		/* Default link security   */
 };
 
 
@@ -1391,6 +1394,7 @@ struct	_mgroup {
 	unsigned	xRes7		: 1;
 	unsigned	xRes8		: 1;
 	unsigned	StartArea;		/* Start at area number    */
+	securityrec	LinkSec;		/* Default link security   */
 };
 
 

@@ -584,7 +584,7 @@ int Areas(void)
 		    }
 		    fseek(fp, msgshdr.hdrsize, SEEK_SET);
 		    while (fread(&msgs, msgshdr.recsize, 1, fp) == 1) {
-			if (msgs.Active && !strcmp(msgs.Group, mgroup.Name)) {
+			if (msgs.Active && !strcmp(msgs.Group, mgroup.Name) && (msgs.Type == ECHOMAIL)) {
 			    Found = FALSE;
 			    for (tmp = alist; tmp; tmp = tmp->next) {
 				if (!strcmp(msgs.Tag, tmp->Name))

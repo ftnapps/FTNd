@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.35.03 TODO list.
+			MBSE BBS V0.35.04 TODO list.
 			----------------------------
 
 	These are a list of things that must be implemented one way or
@@ -138,8 +138,6 @@ mbsetup:
 
 	N: Add switch for file area to skip checking and indexing.
 
-	N: Add logging info about added/removed areas.
-
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups
@@ -159,8 +157,6 @@ mbsetup:
 	   Fileecho groups <=> File echos
 	   Fileecho groups <=> Newfile reports
 	   Fileecho groups <=> BBS Areas
-
-	N: Add areas security flags.
 
 	N: Add backspace test and store result in global setup.
 	   Note: experimental patch to test Rubout key as backspace.

@@ -365,6 +365,9 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     tic.ConvertAll = fgroup.ConvertAll;
     tic.SendOrg = fgroup.SendOrg;
     tic.Active = TRUE;
+    tic.LinkSec.level = fgroup.LinkSec.level;
+    tic.LinkSec.flags = fgroup.LinkSec.flags;
+    tic.LinkSec.notflags = fgroup.LinkSec.notflags;
     fwrite(&tic, sizeof(tic), 1, mp);
 
     memset(&System, 0, sizeof(System));

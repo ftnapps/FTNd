@@ -231,6 +231,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		msgs.RDSec = mgroup.RDSec;
 		msgs.WRSec = mgroup.WRSec;
 		msgs.SYSec = mgroup.SYSec;
+		msgs.LinkSec = mgroup.LinkSec;
 		strncpy(msgs.Group, mgroup.Name, 12);
 		msgs.Aka = mgroup.UseAka;
 		strncpy(msgs.Origin, CFG.origin, 50);

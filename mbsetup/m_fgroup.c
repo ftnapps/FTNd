@@ -139,7 +139,7 @@ int OpenFGroup(void)
 				/*
 				 * Now set defaults
 				 */
-				if (FGrpUpdated) {
+				if (FGrpUpdated && !strlen(fgroup.BasePath)) {
 				    fgroup.DupCheck  = TRUE;
 				    fgroup.Secure    = TRUE;
 				    fgroup.VirScan   = TRUE;
@@ -150,7 +150,10 @@ int OpenFGroup(void)
 				    strcpy(temp, fgroup.Name);
 				    sprintf(fgroup.BasePath, "%s/ftp/pub/%s", getenv("MBSE_ROOT"), tl(temp));
 				}
-				
+				if (FGrpUpdated && !fgroup.LinkSec.level) {
+				    fgroup.LinkSec.level = 1;
+				    fgroup.LinkSec.flags = 1;
+				}
 				fwrite(&fgroup, sizeof(fgroup), 1, fout);
 				memset(&fgroup, 0, sizeof(fgroup));
 			}
@@ -228,6 +231,8 @@ int AppendFGroup(void)
 		fgroup.FileId = TRUE;
 		fgroup.DupCheck = TRUE;
 		fgroup.Replace = TRUE;
+		fgroup.LinkSec.level = 1;
+		fgroup.LinkSec.flags = 1;
 		fwrite(&fgroup, sizeof(fgroup), 1, fil);
 		fclose(fil);
 		FGrpUpdated = 1;
@@ -301,6 +306,7 @@ void FgScreen(void)
 	mvprintw(17,56, "32. UP sec");
 	mvprintw(18,56, "33. LT sec");
 	mvprintw(19,56, "34. Upl. area");
+	mvprintw(20,56, "35. Link sec");
 }
 
 
@@ -378,7 +384,7 @@ int EditFGrpRec(int Area)
 		show_int( 18,70,    fgroup.LTSec.level);
 		show_int( 19,70,    fgroup.Upload);
 
-		j = select_menu(34);
+		j = select_menu(35);
 		switch(j) {
 		case 0:	if (!fgroup.StartArea && strlen(fgroup.AreaFile)) {
 			    errmsg("Areas file defined but no BBS start area");
@@ -482,6 +488,9 @@ int EditFGrpRec(int Area)
 		case 32:E_SEC( 17,70,   fgroup.UPSec,      "10.1.32 FILE GROUP UPLOAD SECURITY", FgScreen)
 		case 33:E_SEC( 18,70,   fgroup.LTSec,      "10.1.33 FILE GROUP LIST SECURITY", FgScreen)
 		case 34:E_INT( 19,70,   fgroup.Upload,     "Set the default ^Upload area^ in new created file areas")
+		case 35:fgroup.LinkSec = edit_asec(fgroup.LinkSec, (char *)"10.1.35 DEFAULT NEW TIC AREAS SECURITY");
+			FgScreen();
+			break;
 		}
 	}
 
@@ -750,6 +759,7 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Download sec.  %s\n", get_secstr(fgroup.DLSec));
 		fprintf(fp, "    Upload sec.    %s\n", get_secstr(fgroup.UPSec));
 		fprintf(fp, "    List security  %s\n", get_secstr(fgroup.LTSec));
+		fprintf(fp, "    Def. tic sec.        %s\n", getflag(fgroup.LinkSec.flags, fgroup.LinkSec.notflags));
 		fprintf(fp, "    BBS group      %s\n", fgroup.BbsGroup);
 		fprintf(fp, "    Announce group %s\n", fgroup.AnnGroup);
 		fprintf(fp, "    Upload area    %d\n", fgroup.Upload);

@@ -331,7 +331,7 @@ void EditFDB()
 	    }
 	}
 	working(0, 0, 0);
-	strcpy(pick, select_record(records, 20));
+	strcpy(pick, select_pick(records, 20));
 
 	if (strncmp(pick, "-", 1) == 0) {
 	    return;

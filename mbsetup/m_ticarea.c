@@ -147,6 +147,10 @@ int OpenTicarea(void)
 			 */
 			memset(&tic, 0, sizeof(tic));
 			while (fread(&tic, oldsize, 1, fin) == 1) {
+				if (TicUpdated && !tic.LinkSec.level) {
+				    tic.LinkSec.level = 1;
+				    tic.LinkSec.flags = 1;
+				}
 				fwrite(&tic, sizeof(tic), 1, fout);
 				memset(&tic, 0, sizeof(tic));
 				/*
@@ -256,6 +260,8 @@ int AppendTicarea(void)
 		tic.FileId     = TRUE;
 		tic.Active     = TRUE;
 		tic.AreaStart  = time(NULL);
+		tic.LinkSec.level = 1;
+		tic.LinkSec.flags = 1;
 		fwrite(&tic, sizeof(tic), 1, fil);
 		memset(&syscon, 0, sizeof(syscon));
 		for (i = 1; i <= CFG.tic_systems; i++)
@@ -406,37 +412,39 @@ int EditTicConnections(FILE *fil)
 void SetTicScreen(void);
 void SetTicScreen(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 4, 2, "10.2 EDIT TIC AREA");
-	set_color(CYAN, BLACK);
-	mvprintw( 6, 2, "1.  Comment");
-	mvprintw( 7, 2, "2.  Area tag");
-	mvprintw( 8, 2, "3.  BBS area");
-	mvprintw( 9, 2, "4.  Message");
-	mvprintw(10, 2, "5.  Group");
-	mvprintw(11, 2, "6.  Keep #");
-	mvprintw(12, 2, "7.  Fido aka");
-	mvprintw(13, 2, "8.  Convert");
-	mvprintw(14, 2, "9.  Banner");
-	mvprintw(15, 2, "10. Replace");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 4, 2, "10.2 EDIT TIC AREA");
+    set_color(CYAN, BLACK);
+    
+    mvprintw( 6, 2, "1.  Comment");
+    mvprintw( 7, 2, "2.  Area tag");
+    mvprintw( 8, 2, "3.  Security");
+    mvprintw( 9, 2, "4.  BBS area");
+    mvprintw(10, 2, "5.  Message");
+    mvprintw(11, 2, "6.  Group");
+    mvprintw(12, 2, "7.  Keep #");
+    mvprintw(13, 2, "8.  Fido aka");
+    mvprintw(14, 2, "9.  Convert");
+    mvprintw(15, 2, "10. Banner");
+    mvprintw(16, 2, "11. Replace");
 
-	mvprintw( 7,41, "11. Dupecheck");
-	mvprintw( 8,41, "12. Secure");
-	mvprintw( 9,41, "13. Touch");
-	mvprintw(10,41, "14. Virus sc.");
-	mvprintw(11,41, "15. Announce");
-	mvprintw(12,41, "16. Upd magic");
-	mvprintw(13,41, "17. File_id");
-	mvprintw(14,41, "18. Conv.all");
-	mvprintw(15,41, "19. Send org.");
+    mvprintw( 9,41, "12. Dupecheck");
+    mvprintw(10,41, "13. Secure");
+    mvprintw(11,41, "14. Touch");
+    mvprintw(12,41, "15. Virus sc.");
+    mvprintw(13,41, "16. Announce");
+    mvprintw(14,41, "17. Upd magic");
+    mvprintw(15,41, "18. File_id");
+    mvprintw(16,41, "19. Conv.all");
 
-	mvprintw( 7,63, "20. Mandatory");
-	mvprintw( 8,63, "21. Notified");
-	mvprintw( 9,63, "22. Upl discon");
-	mvprintw(10,63, "23. Deleted");
-	mvprintw(11,63, "24. Active");
-	mvprintw(12,63, "25. Systems");
+    mvprintw( 9,63, "20. Send org.");
+    mvprintw(10,63, "21. Mandatory");
+    mvprintw(11,63, "22. Notified");
+    mvprintw(12,63, "23. Upl discon");
+    mvprintw(13,63, "24. Deleted");
+    mvprintw(14,63, "25. Active");
+    mvprintw(15,63, "26. Systems");
 } 
 
 
@@ -550,244 +558,256 @@ void ShowTicStatus(sysconnect S)
 void TicGlobal(void);
 void TicGlobal(void)
 {
-	gr_list		*mgr = NULL, *tmp;
-	char		*p, tfile[PATH_MAX];
-	FILE		*fil;
-	fidoaddr	a1, a2;
-	int		menu = 0, areanr, Areas, akan = 0, Found;
-	int		Total, Done;
-	long		offset;
-	sysconnect	S, Sc;
+    gr_list	*mgr = NULL, *tmp;
+    char	*p, tfile[PATH_MAX];
+    FILE	*fil;
+    fidoaddr	a1, a2;
+    int		menu = 0, areanr, Areas, akan = 0, Found;
+    int		Total, Done;
+    long	offset;
+    sysconnect	S, Sc;
+    securityrec	as;
 
-	/*
-	 * Build the groups select array
-	 */
-	working(1, 0, 0);
-	sprintf(tfile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(tfile, "r")) != NULL) {
-		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
+    /*
+     * Build the groups select array
+     */
+    working(1, 0, 0);
+    sprintf(tfile, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(tfile, "r")) != NULL) {
+	fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
 
-		while (fread(&fgroup, fgrouphdr.recsize, 1, fil) == 1)
-			fill_grlist(&mgr, fgroup.Name);
+	while (fread(&fgroup, fgrouphdr.recsize, 1, fil) == 1)
+	    fill_grlist(&mgr, fgroup.Name);
 
-		fclose(fil);
-		sort_grlist(&mgr);
-	}
-	working(0, 0, 0);
+	fclose(fil);
+	sort_grlist(&mgr);
+    }
+    working(0, 0, 0);
 
-	/*
-	 * Initialize some variables
-	 */
-	memset(&S, 0, sizeof(sysconnect));
-	S.sendto = TRUE;
-	S.receivefrom = FALSE;
+    /*
+     * Initialize some variables
+     */
+    memset(&S, 0, sizeof(sysconnect));
+    S.sendto = TRUE;
+    S.receivefrom = FALSE;
+    as.level = 1;
+    as.flags = 1;
+    as.notflags = 0;
+    
+    for (;;) {
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
+	set_color(CYAN, BLACK);
+	mvprintw( 7, 6, "1.   Delete connection");
+	mvprintw( 8, 6, "2.   Add new connection");
+	mvprintw( 9, 6, "3.   Replace connection");
+	mvprintw(10, 6, "4.   Change connection status");
+	mvprintw(11, 6, "5.   Change aka to use");
+	mvprintw(12, 6, "6.   Change security flags");
+	mvprintw(13, 6, "7.   Delete TIC area");
 
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "10.2 GLOBAL EDIT TIC AREAS");
-		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.   Delete connection");
-		mvprintw( 8, 6, "2.   Add new connection");
-		mvprintw( 9, 6, "3.   Replace connection");
-		mvprintw(10, 6, "4.   Change connection status");
-		mvprintw(11, 6, "5.   Change aka to use");
-		mvprintw(12, 6, "6.   Delete TIC area");
-
-		memset(&a1, 0, sizeof(fidoaddr));
-		memset(&a2, 0, sizeof(fidoaddr));
+	memset(&a1, 0, sizeof(fidoaddr));
+	memset(&a2, 0, sizeof(fidoaddr));
 	
-		menu = select_menu(6);
-		switch (menu) {
-			case 0: return;
-			case 1: a1 = PullUplink((char *)"AKA TO DELETE");
-				break;
-			case 2: a2 = PullUplink((char *)"AKA TO ADD");
-				break;
-			case 3: a1 = PullUplink((char *)"AKA TO REPLACE");
-				a2 = PullUplink((char *)"NEW AKA");
-				break;
-			case 4: S.aka = PullUplink((char *)"AKA TO CHANGE STATUS");
-				ShowTicStatus(S);
-				S.sendto = edit_bool(8,16,S.sendto, (char *)"^Send^ files to this node");
-				S.receivefrom = edit_bool(9,16,S.receivefrom, (char *)"^Receive^ files from this node");
-				S.pause = edit_bool(10,16,S.pause, (char *)"Is this node ^paused^");
-				break;
-			case 5: akan = PickAka((char *)"10.2.5", TRUE);
-				break;
-		}
-
-		E_Group(&mgr, (char *)"SELECT TIC GROUPS TO CHANGE");
-
-		/*
-		 * Show settings before proceeding
-		 */
-		switch (menu) {
-			case 1: mvprintw(7, 6, "Delete aka %s", aka2str(a1));
-				break;
-			case 2: mvprintw(7, 6, "Add aka %s", aka2str(a2));
-				break;
-			case 3: p = xstrcpy(aka2str(a1));
-				mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
-				free(p);
-				break;
-			case 4: ShowTicStatus(S);
-				mvprintw(14, 6, "Change the link status");
-			case 5: if (akan != -1)
-					mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
-				break;
-			case 6: mvprintw(7, 6, "Delete TIC areas");
-				break;
-		}
-
-		if (yes_no((char *)"Perform changes")) {
-			working(1, 0, 0);
-			Areas = CountTicarea();
-			Total = Done = 0;
-
-			for (areanr = 1; areanr <= Areas; areanr++) {
-				offset = LoadTicRec(areanr, FALSE);
-				if (tic.Active && strlen(tic.Group)) {
-					for (tmp = mgr; tmp; tmp = tmp->next) {
-						if (tmp->tagged && (strcmp(tmp->group, tic.Group) == 0)) {
-							Total++;
-							switch (menu) {
-							case 1: fseek(ttfil, 0, SEEK_SET);
-								while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
-									if ((Sc.aka.zone == a1.zone) &&
-									    (Sc.aka.net == a1.net) &&
-									    (Sc.aka.node == a1.node) &&
-									    (Sc.aka.point == a1.point)) {
-										fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
-										memset(&Sc, 0, sizeof(sysconnect));
-										fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
-										if (SaveTicRec(areanr, FALSE) == 0) {
-											Done++;
-											Syslog('+', "Deleted %s from %s", aka2str(a1), tic.Name);
-										}
-										break;
-									}
-								}
-								break;
-							case 2: fseek(ttfil, 0, SEEK_SET);
-								Found = FALSE;
-								while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1)
-									if ((Sc.aka.zone == a2.zone) &&
-									    (Sc.aka.net == a2.net) &&
-									    (Sc.aka.node == a2.node) &&
-									    (Sc.aka.point == a2.point)) {
-										Found = TRUE;
-										break;
-									}
-									if (Found)
-										break;
-								fseek(ttfil, 0, SEEK_SET);
-								while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
-									if (Sc.aka.zone == 0) {
-										fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
-										memset(&Sc, 0, sizeof(sysconnect));
-										Sc.aka.zone = a2.zone;
-										Sc.aka.net = a2.net;
-										Sc.aka.node = a2.node;
-										Sc.aka.point = a2.point;
-										Sc.sendto = TRUE;
-										Sc.receivefrom = FALSE;
-										sprintf(Sc.aka.domain, "%s", a2.domain);
-										fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
-										if (SaveTicRec(areanr, FALSE) == 0) {
-											Done++;
-											Syslog('+', "Added %s to area %s", aka2str(a2), tic.Name);
-										}
-										break;
-									}
-								}
-								break;
-							case 3: fseek(ttfil, 0, SEEK_SET);
-								while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
-									if ((Sc.aka.zone == a1.zone) &&
-									    (Sc.aka.net == a1.net) &&
-									    (Sc.aka.node == a1.node) &&
-									    (Sc.aka.point == a1.point)) {
-										Sc.aka.zone = a2.zone;
-										Sc.aka.net = a2.net;
-										Sc.aka.node = a2.node;
-										Sc.aka.point = a2.point;
-										sprintf(Sc.aka.domain, "%s", a2.domain);
-										fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
-										fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
-										if (SaveTicRec(areanr, FALSE) == 0) {
-											Done++;
-											p = xstrcpy(aka2str(a1));
-											Syslog('+', "Changed %s into %s in area %s", p, aka2str(a2), tic.Name);
-											free(p);
-										}
-										break;
-									}
-								}
-								break;
-							case 4: fseek(ttfil, 0, SEEK_SET);
-								while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
-									if ((Sc.aka.zone == S.aka.zone) &&
-									    (Sc.aka.net == S.aka.net) &&
-									    (Sc.aka.node == S.aka.node) &&
-									    (Sc.aka.point == S.aka.point)) {
-										Sc.sendto = S.sendto;
-										Sc.receivefrom = S.receivefrom;
-										Sc.pause = S.pause;
-										Sc.cutoff = S.cutoff;
-										fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
-										fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
-										if (SaveTicRec(areanr, FALSE) == 0) {
-											Done++;
-											Syslog('+', "Changed status of %s in area %s", aka2str(S.aka), tic.Name);
-										}
-										break;
-									}
-								}
-								break;
-							case 5: if (akan != -1) {
-									if ((tic.Aka.zone != CFG.aka[akan].zone) ||
-									    (tic.Aka.net != CFG.aka[akan].net) ||
-									    (tic.Aka.node != CFG.aka[akan].node) ||
-									    (tic.Aka.point != CFG.aka[akan].point)) {
-										tic.Aka.zone = CFG.aka[akan].zone;
-										tic.Aka.net = CFG.aka[akan].net;
-										tic.Aka.node = CFG.aka[akan].node;
-										tic.Aka.point = CFG.aka[akan].point;
-										sprintf(tic.Aka.domain, "%s", CFG.aka[akan].domain);
-										if (SaveTicRec(areanr, FALSE) == 0) {
-											Done++;
-											Syslog('+', "Area %s now uses aka %s", tic.Name, aka2str(tic.Aka));
-										}
-									}
-								}
-								break;
-							case 6:	if (tic.Active) {
-									tic.Active = FALSE;
-									tic.Deleted = TRUE;
-									if (SaveTicRec(areanr, FALSE) == 0) {
-										Done++;
-										Syslog('+', "Deleted TIC area %s", tic.Name);
-									}
-								}
-								break;
-							}
-						}
-					}
-				}
-				if (ttfil != NULL)
-					fclose(ttfil);
-			}
-
-			working(0, 0, 0);
-			mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
-			(void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
-			if (Done)
-				TicUpdated = TRUE;
-		}
+	menu = select_menu(7);
+	switch (menu) {
+	    case 0: return;
+	    case 1: a1 = PullUplink((char *)"AKA TO DELETE");
+		    break;
+	    case 2: a2 = PullUplink((char *)"AKA TO ADD");
+		    break;
+	    case 3: a1 = PullUplink((char *)"AKA TO REPLACE");
+		    a2 = PullUplink((char *)"NEW AKA");
+		    break;
+	    case 4: S.aka = PullUplink((char *)"AKA TO CHANGE STATUS");
+		    ShowTicStatus(S);
+		    S.sendto = edit_bool(8,16,S.sendto, (char *)"^Send^ files to this node");
+		    S.receivefrom = edit_bool(9,16,S.receivefrom, (char *)"^Receive^ files from this node");
+		    S.pause = edit_bool(10,16,S.pause, (char *)"Is this node ^paused^");
+		    break;
+	    case 5: akan = PickAka((char *)"10.2.5", TRUE);
+		    break;
+	    case 6: as = edit_asec(as, (char *)"10.2.6 EDIT LINK SECURITY");
+		    break;
 	}
 
-	tidy_grlist(&mgr);
+	E_Group(&mgr, (char *)"SELECT TIC GROUPS TO CHANGE");
+
+	/*
+	 * Show settings before proceeding
+	 */
+	switch (menu) {
+	    case 1: mvprintw(7, 6, "Delete aka %s", aka2str(a1));
+		    break;
+	    case 2: mvprintw(7, 6, "Add aka %s", aka2str(a2));
+		    break;
+	    case 3: p = xstrcpy(aka2str(a1));
+		    mvprintw(7, 6, "Replace aka %s with %s", p, aka2str(a2));
+		    free(p);
+		    break;
+	    case 4: ShowTicStatus(S);
+		    mvprintw(14, 6, "Change the link status");
+	    case 5: if (akan != -1)
+			mvprintw( 7, 6, "Set %s as new aka to use", aka2str(CFG.aka[akan]));
+		    break;
+	    case 6: set_color(CYAN, BLACK);
+		    mvprintw(7, 6, "Link security");
+		    set_color(WHITE, BLACK);
+		    mvprintw(7,21, getflag(as.flags, as.notflags));
+		    break;
+	    case 7: mvprintw(7, 6, "Delete TIC areas");
+		    break;
+	}
+
+	if (yes_no((char *)"Perform changes")) {
+	    working(1, 0, 0);
+	    Areas = CountTicarea();
+	    Total = Done = 0;
+
+	    for (areanr = 1; areanr <= Areas; areanr++) {
+		offset = LoadTicRec(areanr, FALSE);
+		if (tic.Active && strlen(tic.Group)) {
+		    for (tmp = mgr; tmp; tmp = tmp->next) {
+			if (tmp->tagged && (strcmp(tmp->group, tic.Group) == 0)) {
+			    Total++;
+			    switch (menu) {
+				case 1: fseek(ttfil, 0, SEEK_SET);
+					while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
+					    if ((Sc.aka.zone == a1.zone) && (Sc.aka.net == a1.net) &&
+						(Sc.aka.node == a1.node) && (Sc.aka.point == a1.point)) {
+						fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
+						memset(&Sc, 0, sizeof(sysconnect));
+						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
+						if (SaveTicRec(areanr, FALSE) == 0) {
+						    Done++;
+						    Syslog('+', "Deleted %s from %s", aka2str(a1), tic.Name);
+						}
+						break;
+					    }
+					}
+					break;
+				case 2: fseek(ttfil, 0, SEEK_SET);
+					Found = FALSE;
+					while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1)
+					    if ((Sc.aka.zone == a2.zone) && (Sc.aka.net == a2.net) &&
+						(Sc.aka.node == a2.node) && (Sc.aka.point == a2.point)) {
+						Found = TRUE;
+						break;
+					    }
+					if (Found)
+					    break;
+					fseek(ttfil, 0, SEEK_SET);
+					while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
+					    if (Sc.aka.zone == 0) {
+						fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
+						memset(&Sc, 0, sizeof(sysconnect));
+						Sc.aka.zone = a2.zone;
+						Sc.aka.net = a2.net;
+						Sc.aka.node = a2.node;
+						Sc.aka.point = a2.point;
+						Sc.sendto = TRUE;
+						Sc.receivefrom = FALSE;
+						sprintf(Sc.aka.domain, "%s", a2.domain);
+						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
+						if (SaveTicRec(areanr, FALSE) == 0) {
+						    Done++;
+						    Syslog('+', "Added %s to area %s", aka2str(a2), tic.Name);
+						}
+						break;
+					    }
+					}
+					break;
+				case 3: fseek(ttfil, 0, SEEK_SET);
+					while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
+					    if ((Sc.aka.zone == a1.zone) && (Sc.aka.net == a1.net) &&
+						(Sc.aka.node == a1.node) && (Sc.aka.point == a1.point)) {
+						Sc.aka.zone = a2.zone;
+						Sc.aka.net = a2.net;
+						Sc.aka.node = a2.node;
+						Sc.aka.point = a2.point;
+						sprintf(Sc.aka.domain, "%s", a2.domain);
+						fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
+						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
+						if (SaveTicRec(areanr, FALSE) == 0) {
+						    Done++;
+						    p = xstrcpy(aka2str(a1));
+						    Syslog('+', "Changed %s into %s in area %s", p, aka2str(a2), tic.Name);
+						    free(p);
+						}
+						break;
+					    }
+					}
+					break;
+				case 4: fseek(ttfil, 0, SEEK_SET);
+					while (fread(&Sc, sizeof(sysconnect), 1, ttfil) == 1) {
+					    if ((Sc.aka.zone == S.aka.zone) && (Sc.aka.net == S.aka.net) &&
+						(Sc.aka.node == S.aka.node) && (Sc.aka.point == S.aka.point)) {
+						Sc.sendto = S.sendto;
+						Sc.receivefrom = S.receivefrom;
+						Sc.pause = S.pause;
+						Sc.cutoff = S.cutoff;
+						fseek(ttfil, - sizeof(sysconnect), SEEK_CUR);
+						fwrite(&Sc, sizeof(sysconnect), 1, ttfil);
+						if (SaveTicRec(areanr, FALSE) == 0) {
+						    Done++;
+						    Syslog('+', "Changed status of %s in area %s", aka2str(S.aka), tic.Name);
+						}
+						break;
+					    }
+					}
+					break;
+				case 5: if (akan != -1) {
+					    if ((tic.Aka.zone != CFG.aka[akan].zone) ||
+									    (tic.Aka.net != CFG.aka[akan].net) ||
+						(tic.Aka.node != CFG.aka[akan].node) ||
+									    (tic.Aka.point != CFG.aka[akan].point)) {
+						tic.Aka.zone = CFG.aka[akan].zone;
+						tic.Aka.net = CFG.aka[akan].net;
+						tic.Aka.node = CFG.aka[akan].node;
+						tic.Aka.point = CFG.aka[akan].point;
+						sprintf(tic.Aka.domain, "%s", CFG.aka[akan].domain);
+						if (SaveTicRec(areanr, FALSE) == 0) {
+						    Done++;
+						    Syslog('+', "Area %s now uses aka %s", tic.Name, aka2str(tic.Aka));
+						}
+					    }
+					}
+					break;
+				case 6:	if ((tic.LinkSec.flags != as.flags) || (tic.LinkSec.notflags != as.notflags)) {
+					    memcpy(&tic.LinkSec, &as, sizeof(securityrec));
+					    if (SaveTicRec(areanr, FALSE) == 0) {
+						Done++;
+						Syslog('+', "Area %s changed link security flags", tic.Name);
+					    }
+					}
+					break;
+				case 7:	if (tic.Active) {
+					    tic.Active = FALSE;
+					    tic.Deleted = TRUE;
+					    if (SaveTicRec(areanr, FALSE) == 0) {
+						Done++;
+						Syslog('+', "Deleted TIC area %s", tic.Name);
+					    }
+					}
+					break;
+			    }
+			}
+		    }
+		}
+		if (ttfil != NULL)
+		    fclose(ttfil);
+	    }
+
+	    working(0, 0, 0);
+	    mvprintw(LINES -3, 6,"Made %d changes in %d possible areas", Done, Total);
+	    (void)readkey(LINES -3, 50, LIGHTGRAY, BLACK);
+	    if (Done)
+		TicUpdated = TRUE;
+	}
+    }
+
+    tidy_grlist(&mgr);
 }
 
 
@@ -799,176 +819,180 @@ void TicGlobal(void)
 int EditTicRec(int);
 int EditTicRec(int Area)
 {
-	unsigned long	crc1;
-	int		tmp, i, connections = 0, changed = FALSE;
-	sysconnect	System;
-	char		*temp;
-	FILE		*fp;
+    unsigned long   crc1;
+    int		    tmp, i, connections = 0, changed = FALSE;
+    sysconnect	    System;
+    char	    *temp;
+    FILE	    *fp;
 
-	clr_index();
-	IsDoing("Edit Tic Area");
+    clr_index();
+    IsDoing("Edit Tic Area");
 
-	if (LoadTicRec(Area, TRUE) == -1)
-		return -1;
+    if (LoadTicRec(Area, TRUE) == -1)
+	return -1;
 
-	temp = calloc(PATH_MAX, sizeof(char));
-	SetTicScreen();
+    temp = calloc(PATH_MAX, sizeof(char));
+    SetTicScreen();
 
-	for (;;) {
+    for (;;) {
 
-		sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
-		if ((fp = fopen(temp, "r")) != NULL) {
-		    fread(&areahdr, sizeof(areahdr), 1, fp);
-		    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
-		    fread(&area, areahdr.recsize, 1, fp);
-		    sprintf(temp, "%ld: %s", tic.FileArea, area.Name);
-		    temp[24] = '\0';
-		    fclose(fp);
-		} else {
-		    sprintf(temp, "%ld", tic.FileArea);
-		}
-
-		set_color(WHITE, BLACK);
-		show_str( 6,16,55, tic.Comment);
-		show_str( 7,16,20, tic.Name);
-		show_str( 8,16,24, temp);
-		show_str( 9,16,14, tic.Message);
-		show_str(10,16,12, tic.Group);
-		show_int(11,16,    tic.KeepLatest);
-		show_str(12,16,20, aka2str(tic.Aka));
-		show_str(13,16,5,  tic.Convert);
-		show_str(14,16,14, tic.Banner);
-		show_bool(15,16,   tic.Replace);
-
-		show_bool( 7,55,   tic.DupCheck);
-		show_bool( 8,55,   tic.Secure);
-		show_bool( 9,55,   tic.Touch);
-		show_bool(10,55,   tic.VirScan);
-		show_bool(11,55,   tic.Announce);
-		show_bool(12,55,   tic.UpdMagic);
-		show_bool(13,55,   tic.FileId);
-		show_bool(14,55,   tic.ConvertAll);
-		show_bool(15,55,   tic.SendOrg);
-
-		show_bool( 7,77,   tic.Mandat);
-		show_bool( 8,77,   tic.Notified);
-		show_bool( 9,77,   tic.UplDiscon);
-		show_bool(10,77,   tic.Deleted);
-		show_bool(11,77,   tic.Active);
-		fseek(ttfil, 0, SEEK_SET);
-		connections = 0;
-		while (fread(&System, sizeof(System), 1, ttfil) == 1) {
-		    if (System.aka.zone)
-			connections++;
-		}
-		show_int( 12,77,   connections);
-		
-		switch(select_menu(25)) {
-		case 0:
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&tic, crc1, tichdr.recsize);
-			fseek(ttfil, 0, 0);
-			for (i = 0; i < (tichdr.syssize / sizeof(sysconnect)); i++) {
-				fread(&System, sizeof(sysconnect), 1, ttfil);
-				crc1 = upd_crc32((char *)&System, crc1, sizeof(sysconnect));
-			}
-			if ((TicCrc != crc1) || (changed)) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					if (SaveTicRec(Area, TRUE) == -1)
-						return -1;
-					TicUpdated = 1;
-					Syslog('+', "Saved tic record %d", Area);
-				}
-			}
-			IsDoing("Browsing Menu");
-			free(temp);
-			return 0;
-
-		case 1: E_STR( 6,16,55, tic.Comment, "The ^description^ for this area.");
-		case 2:	E_STR( 7,16,20, tic.Name,    "The ^name^ of this ^TIC^ area.");
-		case 3: tmp = PickFilearea((char *)"10.2.3");
-			if (tmp != 0)
-				tic.FileArea = tmp;
-			SetTicScreen();
-			break;
-		case 4:	E_STR( 9,16,14, tic.Message, "The ^message^ to include with the .tic files.");
-		case 5:	tmp = strlen(tic.Group);
-			strcpy(tic.Group, PickFGroup((char *)"10.2.5"));
-			if (strlen(tic.Group) && !tmp) {
-				/*
-				 * If set the first time, fill in defaults
-				 */
-				tic.Aka = fgroup.UseAka;
-				strncpy(tic.Convert, fgroup.Convert, 5);
-				strncpy(tic.Banner, fgroup.Banner, 14);
-				tic.Replace = fgroup.Replace;
-				tic.DupCheck = fgroup.DupCheck;
-				tic.Secure = fgroup.Secure;
-				tic.Touch = fgroup.Touch;
-				tic.VirScan = fgroup.VirScan;
-				tic.Announce = fgroup.Announce;
-				tic.UpdMagic = fgroup.UpdMagic;
-				tic.FileId = fgroup.FileId;
-				tic.ConvertAll = fgroup.ConvertAll;
-				tic.SendOrg = fgroup.SendOrg;
-
-				/*
-				 * If there is an uplink defined in the group,
-				 * and the first connected system is empty,
-				 * copy the uplink as default connection.
-				 */
-				if (fgroup.UpLink.zone) {
-					fseek(ttfil, 0, SEEK_SET);
-					fread(&System, sizeof(sysconnect), 1, ttfil);
-					if (!System.aka.zone) {
-						memset(&System, 0, sizeof(sysconnect));
-						System.aka = fgroup.UpLink;
-						System.receivefrom = TRUE;
-						fseek(ttfil, 0, SEEK_SET);
-						fwrite(&System, sizeof(sysconnect), 1, ttfil);
-					}
-				}
-			}
-			SetTicScreen();
-			break;
-		case 6:	E_INT(11,16,    tic.KeepLatest, "^Keep^ the ^latest^ number of files.");
-		case 7:	tmp = PickAka((char *)"10.2.7", TRUE);
-			if (tmp != -1)
-				tic.Aka = CFG.aka[tmp];
-			SetTicScreen();
-			break;
-		case 8:	strcpy(tic.Convert, PickArchive((char *)"10.2.8"));
-			SetTicScreen();
-			break;
-		case 9:	E_STR(14,16,14, tic.Banner,   "The ^banner^ to put in the file archives");
-		case 10:E_BOOL(15,16, tic.Replace,    "Allow ^Replace^ files command");
-		case 11:E_BOOL( 7,55, tic.DupCheck,   "Check for ^duplicates^ in received files");
-		case 12:E_BOOL( 8,55, tic.Secure,     "Check for ^secure^ systems");
-		case 13:E_BOOL( 9,55, tic.Touch,      "^Touch filedate^ on rearchived files to the origininal filedate");
-		case 14:E_BOOL(10,55, tic.VirScan,    "Check received files for ^virusses^");
-		case 15:E_BOOL(11,55, tic.Announce,   "^Announce^ received files");
-		case 16:E_BOOL(12,55, tic.UpdMagic,   "Update files ^magic^ names");
-		case 17:E_BOOL(13,55, tic.FileId,     "Extract ^FILE_ID.DIZ^ from received files");
-		case 18:tmp = edit_bool(14,55, tic.ConvertAll, (char *)"^Convert^ archive always");
-			if (tmp && !tic.ConvertAll && strlen(tic.Convert) == 0)
-			    errmsg("No archiver configured to convert to, edit 8 first");
-			else
-			    tic.ConvertAll = tmp;
-			break;
-		case 19:E_BOOL(15,55, tic.SendOrg,    "^Send original^ file to downlinks");
-		case 20:E_BOOL( 7,77, tic.Mandat,     "Is this area ^mandatory^");
-		case 21:E_BOOL( 8,77, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
-		case 22:E_BOOL( 9,77, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
-		case 23:E_BOOL(10,77, tic.Deleted,    "Is this area ^deleted^");
-		case 24:E_BOOL(11,77, tic.Active,     "Is this area ^active^");
-		case 25:
-			if (EditTicConnections(ttfil))
-				changed = TRUE;
-			SetTicScreen();
-			break;
-
-		}
+	sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	if ((fp = fopen(temp, "r")) != NULL) {
+	    fread(&areahdr, sizeof(areahdr), 1, fp);
+	    fseek(fp, ((tic.FileArea - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+	    fread(&area, areahdr.recsize, 1, fp);
+	    sprintf(temp, "%ld: %s", tic.FileArea, area.Name);
+	    temp[24] = '\0';
+	    fclose(fp);
+	} else {
+	    sprintf(temp, "%ld", tic.FileArea);
 	}
+
+	set_color(WHITE, BLACK);
+	show_str( 6,16,55, tic.Comment);
+	show_str( 7,16,20, tic.Name);
+	mvprintw( 8,16,    getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
+	show_str( 9,16,24, temp);
+	show_str(10,16,14, tic.Message);
+	show_str(11,16,12, tic.Group);
+	show_int(12,16,    tic.KeepLatest);
+	show_str(13,16,20, aka2str(tic.Aka));
+	show_str(14,16,5,  tic.Convert);
+	show_str(15,16,14, tic.Banner);
+	show_bool(16,16,   tic.Replace);
+
+	show_bool( 9,55,   tic.DupCheck);
+	show_bool(10,55,   tic.Secure);
+	show_bool(11,55,   tic.Touch);
+	show_bool(12,55,   tic.VirScan);
+	show_bool(13,55,   tic.Announce);
+	show_bool(14,55,   tic.UpdMagic);
+	show_bool(15,55,   tic.FileId);
+	show_bool(16,55,   tic.ConvertAll);
+	
+	show_bool( 9,77,   tic.SendOrg);
+	show_bool(10,77,   tic.Mandat);
+	show_bool(11,77,   tic.Notified);
+	show_bool(12,77,   tic.UplDiscon);
+	show_bool(13,77,   tic.Deleted);
+	show_bool(14,77,   tic.Active);
+	fseek(ttfil, 0, SEEK_SET);
+	connections = 0;
+	while (fread(&System, sizeof(System), 1, ttfil) == 1) {
+	    if (System.aka.zone)
+		connections++;
+	}
+	show_int( 15,77,   connections);
+		
+	switch(select_menu(25)) {
+	    case 0:
+		    crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&tic, crc1, tichdr.recsize);
+		    fseek(ttfil, 0, 0);
+		    for (i = 0; i < (tichdr.syssize / sizeof(sysconnect)); i++) {
+			fread(&System, sizeof(sysconnect), 1, ttfil);
+			crc1 = upd_crc32((char *)&System, crc1, sizeof(sysconnect));
+		    }
+		    if ((TicCrc != crc1) || (changed)) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    if (SaveTicRec(Area, TRUE) == -1)
+				return -1;
+			    TicUpdated = 1;
+			    Syslog('+', "Saved tic record %d", Area);
+			}
+		    }
+		    IsDoing("Browsing Menu");
+		    free(temp);
+		    return 0;
+
+	    case 1: E_STR( 6,16,55, tic.Comment, "The ^description^ for this area.");
+	    case 2:	E_STR( 7,16,20, tic.Name,    "The ^name^ of this ^TIC^ area.");
+	    case 3: tic.LinkSec = edit_asec(tic.LinkSec, (char *)"LINK SECURITY FLAGS");
+		    SetTicScreen();
+		    break;
+	    case 4: tmp = PickFilearea((char *)"10.2.4");
+		    if (tmp != 0)
+			tic.FileArea = tmp;
+		    SetTicScreen();
+		    break;
+	    case 5: E_STR(10,16,14, tic.Message, "The ^message^ to include with the .tic files.");
+	    case 6: tmp = strlen(tic.Group);
+		    strcpy(tic.Group, PickFGroup((char *)"10.2.6"));
+		    if (strlen(tic.Group) && !tmp) {
+			/*
+			 * If set the first time, fill in defaults
+			 */
+			tic.Aka = fgroup.UseAka;
+			strncpy(tic.Convert, fgroup.Convert, 5);
+			strncpy(tic.Banner, fgroup.Banner, 14);
+			tic.Replace = fgroup.Replace;
+			tic.DupCheck = fgroup.DupCheck;
+			tic.Secure = fgroup.Secure;
+			tic.Touch = fgroup.Touch;
+			tic.VirScan = fgroup.VirScan;
+			tic.Announce = fgroup.Announce;
+			tic.UpdMagic = fgroup.UpdMagic;
+			tic.FileId = fgroup.FileId;
+			tic.ConvertAll = fgroup.ConvertAll;
+			tic.SendOrg = fgroup.SendOrg;
+			tic.LinkSec = fgroup.LinkSec;
+
+			/*
+			 * If there is an uplink defined in the group,
+			 * and the first connected system is empty,
+			 * copy the uplink as default connection.
+			 */
+			if (fgroup.UpLink.zone) {
+			    fseek(ttfil, 0, SEEK_SET);
+			    fread(&System, sizeof(sysconnect), 1, ttfil);
+			    if (!System.aka.zone) {
+				memset(&System, 0, sizeof(sysconnect));
+				System.aka = fgroup.UpLink;
+				System.receivefrom = TRUE;
+				fseek(ttfil, 0, SEEK_SET);
+				fwrite(&System, sizeof(sysconnect), 1, ttfil);
+			    }
+			}
+		    }
+		    SetTicScreen();
+		    break;
+	    case 7: E_INT(12,16,    tic.KeepLatest, "^Keep^ the ^latest^ number of files.");
+	    case 8: tmp = PickAka((char *)"10.2.8", TRUE);
+		    if (tmp != -1)
+			tic.Aka = CFG.aka[tmp];
+		    SetTicScreen();
+		    break;
+	    case 9: strcpy(tic.Convert, PickArchive((char *)"10.2.9"));
+		    SetTicScreen();
+		    break;
+	    case 10:E_STR(15,16,14, tic.Banner,   "The ^banner^ to put in the file archives");
+	    case 11:E_BOOL(16,16, tic.Replace,    "Allow ^Replace^ files command");
+	    case 12:E_BOOL( 9,55, tic.DupCheck,   "Check for ^duplicates^ in received files");
+	    case 13:E_BOOL(10,55, tic.Secure,     "Check for ^secure^ systems");
+	    case 14:E_BOOL(11,55, tic.Touch,      "^Touch filedate^ on rearchived files to the origininal filedate");
+	    case 15:E_BOOL(12,55, tic.VirScan,    "Check received files for ^virusses^");
+	    case 16:E_BOOL(13,55, tic.Announce,   "^Announce^ received files");
+	    case 17:E_BOOL(14,55, tic.UpdMagic,   "Update files ^magic^ names");
+	    case 18:E_BOOL(15,55, tic.FileId,     "Extract ^FILE_ID.DIZ^ from received files");
+	    case 19:tmp = edit_bool(16,55, tic.ConvertAll, (char *)"^Convert^ archive always");
+		    if (tmp && !tic.ConvertAll && strlen(tic.Convert) == 0)
+			errmsg("No archiver configured to convert to, edit 8 first");
+		    else
+			tic.ConvertAll = tmp;
+		    break;
+	    case 20:E_BOOL( 9,77, tic.SendOrg,    "^Send original^ file to downlinks");
+	    case 21:E_BOOL(10,77, tic.Mandat,     "Is this area ^mandatory^");
+	    case 22:E_BOOL(11,77, tic.Notified,   "Is the sysop ^notified^ if this area is (dis)connected");
+	    case 23:E_BOOL(12,77, tic.UplDiscon,  "Is the uplink ^disconnected^ from this area");
+	    case 24:E_BOOL(13,77, tic.Deleted,    "Is this area ^deleted^");
+	    case 25:E_BOOL(14,77, tic.Active,     "Is this area ^active^");
+	    case 26:if (EditTicConnections(ttfil))
+			changed = TRUE;
+		    SetTicScreen();
+		    break;
+
+	}
+    }
 }
 
 
@@ -1282,6 +1306,7 @@ int tic_areas_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Convert to  %s\n", tic.Convert);
 		fprintf(fp, "    Convert all %s\n", getboolean(tic.ConvertAll));
 		fprintf(fp, "    Banner file %s\n", tic.Banner);
+		fprintf(fp, "    Security    %s\n", getflag(tic.LinkSec.flags, tic.LinkSec.notflags));
 		fprintf(fp, "    Replace ok. %s\n", getboolean(tic.Replace));
 		fprintf(fp, "    Dupe check  %s\n", getboolean(tic.DupCheck));
 		fprintf(fp, "    Secure      %s\n", getboolean(tic.Secure));
