@@ -187,7 +187,7 @@ int LoadTic(char *inb, char *tfn)
 	Temp = calloc(PATH_MAX, sizeof(char));
 	Buf  = calloc(257, sizeof(char));
 
-	while ((fgets(Buf, 256, tfp)) != NULL) {
+	while ((fgets(Buf, 255, tfp)) != NULL) {
 		/*
 		 * Remove all garbage from the .TIC file.
 		 */

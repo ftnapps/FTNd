@@ -50,7 +50,7 @@ void ImportFiles(int Area)
     char		*pwd, *temp, *temp2, *String, *token, *dest, *unarc;
     FILE		*fbbs;
     int			Append = FALSE, Files = 0, i, j = 0, k = 0, x, Doit;
-    int			Imported = 0, Errors = 0;
+    int			Imported = 0, Errors = 0, Present = FALSE;
     struct FILERecord   fdb;
     struct stat		statfile;
 
@@ -66,7 +66,7 @@ void ImportFiles(int Area)
         temp   = calloc(PATH_MAX, sizeof(char));
 	temp2  = calloc(PATH_MAX, sizeof(char));
         pwd    = calloc(PATH_MAX, sizeof(char));
-	String = calloc(256, sizeof(char));
+	String = calloc(4096, sizeof(char));
 	dest   = calloc(PATH_MAX, sizeof(char));
 
         getcwd(pwd, PATH_MAX);
@@ -92,13 +92,13 @@ void ImportFiles(int Area)
 	    }
 	}
 	
-	while (fgets(String, 255, fbbs) != NULL) {
+	while (fgets(String, 4095, fbbs) != NULL) {
 
 	    if ((String[0] != ' ') && (String[0] != 't')) {
 		/*
 		 * New file entry, check if there has been a file that is not yet saved.
 		 */
-		if (Append) {
+		if (Append && Present) {
 		    Doit = TRUE;
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
@@ -147,6 +147,7 @@ void ImportFiles(int Area)
 			Errors++;
 		    }
 		    Append = FALSE;
+		    Present = FALSE;
 		}
 
 		/*
@@ -157,89 +158,96 @@ void ImportFiles(int Area)
 
 		Files++;
 		memset(&fdb, 0, sizeof(fdb));
+		Present = TRUE;
 
 		token = strtok(String, " \t");
-		strcpy(fdb.LName, token);
+		strncpy(fdb.LName, token, 80);
+
 		/*
 		 * Test filename against name on disk, first normal case,
 		 * then lowercase and finally uppercase.
 		 */
 		sprintf(temp,"%s/%s", pwd, fdb.LName);
 		if (stat(temp,&statfile) != 0) {
-		    strcpy(fdb.LName, tl(token));
+		    strncpy(fdb.LName, tl(token), 80);
 		    sprintf(temp,"%s/%s", pwd, fdb.LName);
 		    if (stat(temp,&statfile) != 0) {
 			strcpy(fdb.LName, tu(token));
 			if (stat(temp,&statfile) != 0) {
-			    WriteError("Cannot locate file on disk! Skipping... -> %s\n",temp);
+			    WriteError("Can't find file on disk, skipping: %s\n",temp);
 			    Append = FALSE;
+			    Present = FALSE;
 			}
 		    }
 		}
 
-		/*
-		 * Create DOS 8.3 filename
-		 */
-		strcpy(temp2, fdb.LName);
-		name_mangle(temp2);
-		strcpy(fdb.Name, temp2);
+		if (Present) {
+		    /*
+		     * Create DOS 8.3 filename
+		     */
+		    strcpy(temp2, fdb.LName);
+		    name_mangle(temp2);
+		    strcpy(fdb.Name, temp2);
 
-		if (do_annon)
-		    fdb.Announced = TRUE;
-		Syslog('f', "File: %s (%s)", fdb.Name, fdb.LName);
+		    if (do_annon)
+			fdb.Announced = TRUE;
+		    Syslog('f', "File: %s (%s)", fdb.Name, fdb.LName);
 
-		if (!do_quiet) {
-		    printf("\rImport file: %s ", fdb.Name);
-		    printf("Checking  \b\b\b\b\b\b\b\b\b\b");
-		    fflush(stdout);
-		}
-
-		IsDoing("Import %s", fdb.Name);
-
-		token = strtok(NULL, "\0");
-		i = strlen(token);
-		j = k = 0;
-		for (x = 0; x < i; x++) {
-		    if ((token[x] == '\n') || (token[x] == '\r'))
-			token[x] = '\0';
-		}
-
-		Doit = FALSE;
-		for (x = 0; x < i; x++) {
-		    if (!Doit) {
-			if (isalnum(token[x]))
-			    Doit = TRUE;
+		    if (!do_quiet) {
+			printf("\rImport file: %s ", fdb.Name);
+			printf("Checking  \b\b\b\b\b\b\b\b\b\b");
+			fflush(stdout);
 		    }
-		    if (Doit) {
-			if (k > 42) {
-			    if (token[x] == ' ') {
-				fdb.Desc[j][k] = '\0';
-				j++;
-				k = 0;
-			    } else {
-				if (k == 49) {
+
+		    IsDoing("Import %s", fdb.Name);
+
+		    token = strtok(NULL, "\0");
+		    i = strlen(token);
+		    j = k = 0;
+		    for (x = 0; x < i; x++) {
+			if ((token[x] == '\n') || (token[x] == '\r'))
+			    token[x] = '\0';
+		    }
+
+		    Doit = FALSE;
+		    for (x = 0; x < i; x++) {
+			if (!Doit) {
+			    if (isalnum(token[x]))
+				Doit = TRUE;
+			}
+			if (Doit) {
+			    if (k > 42) {
+				if (token[x] == ' ') {
 				    fdb.Desc[j][k] = '\0';
-				    k = 0;
 				    j++;
+				    k = 0;
+				} else {
+				    if (k == 49) {
+					fdb.Desc[j][k] = '\0';
+					k = 0;
+					j++;
+				    }
+				    fdb.Desc[j][k] = token[x];
+				    k++;
 				}
+			    } else {
 				fdb.Desc[j][k] = token[x];
 				k++;
 			    }
-			} else {
-			    fdb.Desc[j][k] = token[x];
-			    k++;
+			    if (j == 25)
+				break;
 			}
 		    }
-		}
 
-		sprintf(dest, "%s/%s", area.Path, fdb.LName);
-		Append = TRUE;
-		fdb.Size = statfile.st_size;
-		fdb.FileDate = statfile.st_mtime;
-		fdb.Crc32 = file_crc(temp, FALSE);
-		strcpy(fdb.Uploader, CFG.sysop_name);
-		fdb.UploadDate = time(NULL);
-	    } else {
+		    sprintf(dest, "%s/%s", area.Path, fdb.LName);
+		    Append = TRUE;
+		    fdb.Size = statfile.st_size;
+		    fdb.FileDate = statfile.st_mtime;
+		    fdb.Crc32 = file_crc(temp, FALSE);
+		    strcpy(fdb.Uploader, CFG.sysop_name);
+		    fdb.UploadDate = time(NULL);
+		}
+	    } else if (Present) {
 		/*
 		 * Add multiple description lines
 		 */
@@ -272,6 +280,8 @@ void ImportFiles(int Area)
 			    fdb.Desc[j][k] = token[x];
 			    k++;
 			}
+			if (j == 25)
+			    break;
 		    } else {
 			/*
 			 * Skip until + or | is found
@@ -280,7 +290,7 @@ void ImportFiles(int Area)
 			    Doit = TRUE;
 		    }
 		}
-	    }
+	    } /* End if new file entry found */
 	} /* End of files.bbs */
 	fclose(fbbs);
 
