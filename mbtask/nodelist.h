@@ -178,10 +178,6 @@ extern struct _pkey {
 
 int		initnl(void);
 node		*getnlent(faddr *);
-void		olflags(unsigned long);
-void		moflags(unsigned long);
-void		diflags(unsigned long);
-void		ipflags(unsigned long);
 
 
 #endif

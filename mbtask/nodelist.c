@@ -182,8 +182,6 @@ node *getnlent(faddr *addr)
 	struct _nlidx	ndx;
 	long		lowest, highest, current;
 
-	tasklog('s', "getnlent: %s", ascfnode(addr,0xff));
-
 	mydomain = xstrcpy(CFG.aka[0].domain);
 	if (mydomain == NULL) 
 		mydomain = (char *)NULLDOMAIN;
@@ -426,12 +424,7 @@ node *getnlent(faddr *addr)
 	if (addr->domain == NULL) 
 		addr->domain = xstrcpy(nodebuf.addr.domain);
 
-	moflags(nodebuf.mflags);
-	diflags(nodebuf.dflags);
-	ipflags(nodebuf.iflags);
-	olflags(nodebuf.oflags);
 	free(mydomain);
-
 	return &nodebuf;
 
 badsyntax:
@@ -450,130 +443,6 @@ retdummy:
 	free(mydomain);
 
 	return &nodebuf;
-}
-
-
-
-void olflags(unsigned long flags)
-{
-	char	*t;
-
-	t = xstrcpy((char *)"Mailer flags :");
-	if (flags & OL_CM)
-		t = xstrcat(t, (char *)" CM");
-	if (flags & OL_MO)
-		t = xstrcat(t, (char *)" MO");
-	if (flags & OL_LO)
-		t = xstrcat(t, (char *)" LO");
-	if (flags & OL_MN)
-		t = xstrcat(t, (char *)" MN");
-	tasklog('s', "%s", t);
-	free(t);
-}
-
-
-
-void moflags(unsigned long flags)
-{
-	char 	*t;
-
-	if (!flags)
-		return;
-	t = xstrcpy((char *)"Modem flags  :");
-	if (flags & NL_V22)
-		t = xstrcat(t, (char *)" V22");
-	if (flags & NL_V29)
-		t = xstrcat(t, (char *)" V29");
-	if (flags & NL_V32)
-		t = xstrcat(t, (char *)" V32");
-	if (flags & NL_V32B)
-		t = xstrcat(t, (char *)" V32B");
-	if (flags & NL_V34)
-		t = xstrcat(t, (char *)" V34");
-	if (flags & NL_V42)
-		t = xstrcat(t, (char *)" V42");
-	if (flags & NL_V42B)
-		t = xstrcat(t, (char *)" V42B");
-	if (flags & NL_MNP)
-		t = xstrcat(t, (char *)" MNP");
-	if (flags & NL_H96)
-		t = xstrcat(t, (char *)" H96");
-	if (flags & NL_HST)
-		t = xstrcat(t, (char *)" HST");
-	if (flags & NL_H14)
-		t = xstrcat(t, (char *)" H14");
-	if (flags & NL_H16)
-		t = xstrcat(t, (char *)" H16");
-	if (flags & NL_MAX)
-		t = xstrcat(t, (char *)" MAX");
-	if (flags & NL_PEP)
-		t = xstrcat(t, (char *)" PEP");
-	if (flags & NL_CSP)
-		t = xstrcat(t, (char *)" CSP");
-	if (flags & NL_V32T)
-		t = xstrcat(t, (char *)" V32T");
-	if (flags & NL_VFC)
-		t = xstrcat(t, (char *)" VFC");
-	if (flags & NL_ZYX)
-		t = xstrcat(t, (char *)" ZYX");
-	if (flags & NL_X2C)
-		t = xstrcat(t, (char *)" X2C");
-	if (flags & NL_X2S)
-		t = xstrcat(t, (char *)" X2S");
-	if (flags & NL_V90C)
-		t = xstrcat(t, (char *)" V90C");
-	if (flags & NL_V90S)
-		t = xstrcat(t, (char *)" V90S");
-	tasklog('s', "%s", t);
-	free(t);
-}
-
-
-
-void diflags(unsigned long flags)
-{
-	char	*t;
-
-	if (!flags)
-		return;
-
-	t = xstrcpy((char *)"ISDN flags   :");
-	if (flags & ND_V110L)
-		t = xstrcat(t, (char *)" V110L");
-	if (flags & ND_V110H)
-		t = xstrcat(t, (char *)" V110H");
-	if (flags & ND_V120L)
-		t = xstrcat(t, (char *)" V120L");
-	if (flags & ND_V120H)
-		t = xstrcat(t, (char *)" V120H");
-	if (flags & ND_X75)
-		t = xstrcat(t, (char *)" X75");
-	tasklog('s', "%s", t);
-	free(t);
-}
-
-
-
-void ipflags(unsigned long flags)
-{
-	char	*t;
-
-	if (!flags)
-		return;
-
-	t = xstrcpy((char *)"TCP/IP flags :");
-	if (flags & IP_IBN)
-		t = xstrcat(t, (char *)" IBN");
-	if (flags & IP_IFC)
-		t = xstrcat(t, (char *)" IFC");
-	if (flags & IP_ITN)
-		t = xstrcat(t, (char *)" ITN");
-	if (flags & IP_IVM)
-		t = xstrcat(t, (char *)" IVM");
-	if (flags & IP_IP)
-		t = xstrcat(t, (char *)" IP");
-	tasklog('s', "%s", t);
-	free(t);
 }
 
 

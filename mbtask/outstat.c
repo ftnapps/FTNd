@@ -94,7 +94,7 @@ int outstat()
 
 	for (tmp = alist; tmp; tmp = tmp->next) {
 		if (first) {
-			tasklog('+', "Flavor Out      Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
+			tasklog('+', "Flavor Out        Size   Online    Modem     ISDN   TCP/IP Calls Status Address");
 			first = FALSE;
 		}
 		strcpy(flstr,"...... ... ..");

@@ -1216,10 +1216,8 @@ void scheduler(void)
 	     */
 	    if (tm->tm_sec != oldsec) {
 		oldsec = tm->tm_sec;
-		if (ptimer) {
+		if (ptimer)
 		    ptimer--;
-		    tasklog('t', "Set ptimer to %d", ptimer);
-		}
 	    }
 
 	    if (!Processing) {
