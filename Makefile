@@ -123,6 +123,7 @@ install:
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/fdb
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/hatch
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/inbound
+		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/magic
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/mail
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0770 ${PREFIX}/var/msgs
 		@${INSTALL} -d -o ${OWNER} -g ${GROUP} -m 0750 ${PREFIX}/var/nodelist
