@@ -213,7 +213,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	char		*ftnfrom=NULL;
 	static ftnmsg	*tmsg;
 	int		needreplyaddr = 1;
-	faddr		*tmp;
+	faddr		*tmp, *tmp2;
 
 	tmsg=(ftnmsg *)malloc(sizeof(ftnmsg));
 	memset(tmsg, 0, sizeof(ftnmsg));
@@ -422,9 +422,11 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	if (tmsg->from)
 	    Syslog('m', "From address was%s distinguished as ftn", tmsg->from ? "" : " not");
 
-	if (newsmode)
-		bestaka = bestaka_s(fido2faddr(msgs.Aka));
-	else
+	if (newsmode) {
+		tmp2 = fido2faddr(msgs.Aka);
+		bestaka = bestaka_s(tmp2);
+		tidy_faddr(tmp2);
+	} else
 		bestaka = bestaka_s(tmsg->to);
 
 	if ((tmsg->from == NULL) && (bestaka)) {

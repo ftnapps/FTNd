@@ -51,7 +51,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname;
 	FILE		*fp, *fi, *net;
 	char		flavor;
-	faddr		*dest, *routeto, *Fa;
+	faddr		*dest, *routeto, *Fa, *Temp;
 	int		i, z, n;
 	time_t		now, ftime;
 	fa_list		*tmp;
@@ -114,11 +114,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	dest = fido2faddr(Node);
 	attach(*routeto, fwdfile, LEAVE, flavor);
 
-//	if (strlen(CFG.dospath))
-//		subject = xstrcpy(Unix2Dos(fwdfile));
-//	else
-//		subject = xstrcpy(fwdfile);
-
 	ticfile = calloc(PATH_MAX, sizeof(char));
 	ticname = calloc(15, sizeof(char));
 	if (nodes.Tic) {
@@ -133,7 +128,8 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 *  Send netmail message if the node has it turned on.
 	 */
 	if (nodes.Message) {
-	    if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
+	    Temp = fido2faddr(Node);
+	    if ((net = SendMgrMail(Temp, CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
 		if ((fi = OpenMacro("forward.tic", nodes.Language, FALSE)) != NULL) {
 		    ftime = TIC.FileDate;
 		    MacroVars("a", "s", TIC.TicIn.Area);
@@ -158,11 +154,12 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			MacroVars("l", "s", TIC.TicIn.Replace);
 		    MacroRead(fi, net);
 		    fprintf(net, "%s\r", TearLine());
-		    CloseMail(net, fido2faddr(Node));
+		    CloseMail(net, Temp);
 		}
 	    } else {
 		WriteError("$Can't create netmail");
 	    }
+	    tidy_faddr(Temp);
 	}
 	free(subject);
 

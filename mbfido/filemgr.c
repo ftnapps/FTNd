@@ -116,7 +116,7 @@ void F_List(faddr *t, char *replyid, int Notify)
     char	*temp, *Group, *subject;
     int		i, First = TRUE, SubTot, Total = 0, Cons;
     char	Stat[4];
-    faddr	*f, *g;
+    faddr	*f, *g, *Temp;
     sysconnect	System;
     long	msgptr;
     fpos_t      fileptr,fileptr1,fileptr2;
@@ -200,7 +200,8 @@ void F_List(faddr *t, char *replyid, int Notify)
 
 	    fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
 	    while (fread(&fgroup, fgrouphdr.recsize, 1, gp) == 1) {
-		g = bestaka_s(fido2faddr(fgroup.UseAka));
+		Temp = fido2faddr(fgroup.UseAka);
+		g = bestaka_s(Temp);
 		if ((!strcmp(fgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
@@ -260,6 +261,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 		    }
 		    MacroRead(fi, qp);
 		}
+		tidy_faddr(Temp);
 	    }
 	}
 
@@ -352,7 +354,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 {
     int		i, First;
     char	*Group;
-    faddr	*b;
+    faddr	*b, *Temp;
     sysconnect	Sys;
 
     Syslog('+', "FileMgr: %s", Area);
@@ -387,7 +389,9 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(tic.Aka));
+    Temp = fido2faddr(tic.Aka);
+    i = metric(b, Temp);
+    tidy_faddr(Temp);
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -441,7 +445,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 {
     int		i, First;
     char	*Group, *temp;
-    faddr	*b;
+    faddr	*b, *Temp;
     sysconnect	Sys;
     FILE	*gp;
 
@@ -515,7 +519,9 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(tic.Aka));
+    Temp = fido2faddr(tic.Aka);
+    i = metric(b, Temp);
+    tidy_faddr(Temp);
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -567,7 +573,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 {
     FILE	*fp, *gp;
     char	*Group, *temp;
-    faddr	*f;
+    faddr	*f, *Temp;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
     long	Pos;
@@ -618,14 +624,17 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 		fseek(fp, tichdr.hdrsize, SEEK_SET);
 		while (fread(&tic, tichdr.recsize, 1, fp) == 1) {
 
+		    Temp = fido2faddr(tic.Aka);
 		    if ((!strcmp(Group, tic.Group)) && tic.Active && strlen(tic.Name) &&
-			(metric(fido2faddr(tic.Aka), f) < METRIC_NET)) {
+			(metric(Temp, f) < METRIC_NET)) {
 
 			if (Connect) {
 			    Link = FALSE;
 			    for (i = 0; i < Cons; i++) {
 				fread(&Sys, sizeof(Sys), 1, fp);
-				if (metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL)
+				tidy_faddr(Temp);
+				Temp = fido2faddr(Sys.aka);
+				if (metric(Temp, t) == METRIC_EQUAL)
 				    Link = TRUE;
 			    }
 			    if (!Link) {
@@ -653,7 +662,9 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 			} else {
 			    for (i = 0; i < Cons; i++) {
 				fread(&Sys, sizeof(Sys), 1, fp);
-				if (metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) {
+				tidy_faddr(Temp);
+				Temp = fido2faddr(Sys.aka);
+				if (metric(Temp, t) == METRIC_EQUAL) {
 				    memset(&Sys, 0, sizeof(Sys));
 				    fseek(fp, - sizeof(Sys), SEEK_CUR);
 				    fwrite(&Sys, sizeof(Sys), 1, fp);
@@ -668,6 +679,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 			}
 		    } else
 			fseek(fp, tichdr.syssize, SEEK_CUR);
+		    tidy_faddr(Temp);
 		}
 	    }
 	}
@@ -696,7 +708,7 @@ void F_Pause(faddr *, int, FILE *);
 void F_Pause(faddr *t, int Pause, FILE *tmp)
 {
     FILE	*fp;
-    faddr	*f;
+    faddr	*f, *Temp;
     int		i, Cons;
     sysconnect	Sys;
     char	*temp;
@@ -723,7 +735,8 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
 	if (tic.Active) {
 	    for (i = 0; i < Cons; i++) {
 		fread(&Sys, sizeof(Sys), 1, fp);
-		if ((metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) && (!Sys.cutoff)) {
+		Temp = fido2faddr(Sys.aka);
+		if ((metric(Temp, t) == METRIC_EQUAL) && (!Sys.cutoff)) {
 		    Sys.pause = Pause;
 		    fseek(fp, - sizeof(Sys), SEEK_CUR);
 		    fwrite(&Sys, sizeof(Sys), 1, fp);
@@ -733,6 +746,7 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
 		    MsgResult("filemgr.responses",tmp);
 		    f_list = TRUE;
 		}
+		tidy_faddr(Temp);
 	    }
 	} else {
 	    fseek(fp, tichdr.syssize, SEEK_CUR);

@@ -38,6 +38,7 @@ v0.35.01	05-Jun-2002
 	mbfido:
 		When creating uplink area requests the from aka used is now
 		the aka defined in the group.
+		Removed several memory leaks again.
 
 	mbfile:
 		Added -v commandline switch to supress virus checking for the

@@ -99,7 +99,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
     int	    Count = 0, First = TRUE;
     char    *Group, *temp;
     FILE    *gp,*fi;
-    faddr   *g;
+    faddr   *g, *Temp;
     fpos_t  fileptr;
 
     if ((fi = OpenMacro("areamgr.group", nodes.Language, FALSE)) == NULL)
@@ -127,7 +127,8 @@ void WriteMailGroups(FILE *fp, faddr *f)
 
 	fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
 	while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
-	    g = bestaka_s(fido2faddr(mgroup.UseAka));
+	    Temp = fido2faddr(mgroup.UseAka);
+	    g = bestaka_s(Temp);
 	    if ((!strcmp(mgroup.Name, Group)) && 
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		MacroVars("gh", "ss", mgroup.Name, mgroup.Comment);
@@ -136,6 +137,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
 		Count++;
 		break;
 	    }
+	    tidy_faddr(Temp);
 	}
     }
 
@@ -156,7 +158,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
     int	    Count = 0, First = TRUE;
     char    *Group, *temp;
     FILE    *gp, *fi;
-    faddr   *g;
+    faddr   *g, *Temp;
     fpos_t  fileptr;
 
     if ((fi = OpenMacro("filemgr.group", nodes.Language, FALSE)) == NULL)
@@ -184,7 +186,8 @@ void WriteFileGroups(FILE *fp, faddr *f)
 
 	fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
 	while (fread(&fgroup, fgrouphdr.recsize, 1, gp) == 1) {
-	    g = bestaka_s(fido2faddr(fgroup.UseAka));
+	    Temp = fido2faddr(fgroup.UseAka);
+	    g = bestaka_s(Temp);
 	    if ((!strcmp(fgroup.Name, Group)) && 
 		(g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
  	        MacroVars("gh", "ss", fgroup.Name, fgroup.Comment );
@@ -193,6 +196,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
 		Count++;
 		break;
 	    }
+	    tidy_faddr(Temp);
 	}
     }
 
@@ -502,6 +506,7 @@ int Areas(void)
     AreaList	*alist = NULL, *tmp;
     int		i, count = 0, Found;
     sysconnect	System;
+    faddr	*From, *To;
 
     Syslog('+', "Process areas taglists");
 
@@ -685,11 +690,15 @@ int Areas(void)
 			 * Sent one uplink command with additions and deletions
 			 */
 			if (mgroup.UpLink.zone) {
-			    if (UplinkRequest(fido2faddr(mgroup.UpLink), fido2faddr(mgroup.UseAka), FALSE, cmd)) {
+			    From = fido2faddr(mgroup.UseAka);
+			    To   = fido2faddr(mgroup.UpLink);
+			    if (UplinkRequest(To, From, FALSE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
 				Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
 			    }
+			    tidy_faddr(From);
+			    tidy_faddr(To);
 			} else {
 			    Syslog('+', "No uplink defined, not sending a AreaMgr request");
 			}
@@ -939,11 +948,15 @@ int Areas(void)
 			 * Sent one uplink command with additions and deletions
 			 */
 			if (fgroup.UpLink.zone) {
-			    if (UplinkRequest(fido2faddr(fgroup.UpLink), fido2faddr(fgroup.UseAka), TRUE, cmd)) {
+			    From = fido2faddr(fgroup.UseAka);
+			    To   = fido2faddr(fgroup.UpLink);
+			    if (UplinkRequest(To, From, TRUE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
 				Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));
 			    }
+			    tidy_faddr(From);
+			    tidy_faddr(To);
 			} else {
 			    Syslog('+', "No uplink defined, not sending a FileMgr request");
 			}

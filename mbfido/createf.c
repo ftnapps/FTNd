@@ -93,6 +93,7 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     long        offset, AreaNr;
     int         i, rc = 0, Found = FALSE;
     sysconnect  System;
+    faddr	*From, *To;
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('f', "Checking file group \"%s\" \"%s\"", fgroup.Name, fgroup.Comment);
@@ -188,13 +189,20 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      */
     if (SendUplink) {
 	sprintf(temp, "+%s", Area);
-	if (UplinkRequest(fido2faddr(fgroup.UpLink), fido2faddr(fgroup.UseAka), TRUE, temp)) {
+
+	From = fido2faddr(fgroup.UseAka);
+	To   = fido2faddr(fgroup.UpLink);
+	if (UplinkRequest(To, From, TRUE, temp)) {
 	    WriteError("Can't send netmail to uplink");
 	    fclose(ap);
 	    free(buf);
 	    free(temp);
+	    tidy_faddr(From);
+	    tidy_faddr(To);
 	    return 1;
 	}
+	tidy_faddr(From);
+	tidy_faddr(To);
     }
     Syslog('f', "Netmail ready");
 

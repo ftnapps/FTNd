@@ -59,6 +59,7 @@ int Notify(char *Options)
 	FILE	*np;
 	char	*temp, Opt[44];
 	int	i;
+	faddr	*Tmp;
 
 	Syslog('+', "Notify \"%s\"", Options);
 
@@ -139,13 +140,15 @@ int Notify(char *Options)
 					fflush(stdout);
 				}
 
+				Tmp = fido2faddr(nodes.Aka[i]);
 				if (i == 0) {
-					F_Status(fido2faddr(nodes.Aka[i]), NULL);
-					A_Status(fido2faddr(nodes.Aka[i]), NULL);
+					F_Status(Tmp, NULL);
+					A_Status(Tmp, NULL);
 				}
-				F_List(fido2faddr(nodes.Aka[i]), NULL, TRUE);
-				A_List(fido2faddr(nodes.Aka[i]), NULL, TRUE);
-				A_Flow(fido2faddr(nodes.Aka[i]), NULL, TRUE);
+				F_List(Tmp, NULL, TRUE);
+				A_List(Tmp, NULL, TRUE);
+				A_Flow(Tmp, NULL, TRUE);
+				tidy_faddr(Tmp);
 				notify++;
 			}
 		}

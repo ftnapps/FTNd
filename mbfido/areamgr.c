@@ -124,7 +124,7 @@ void A_List(faddr *t, char *replyid, int Notify)
     char	*temp, *Group, *subject;
     int		i, First = TRUE, SubTot, Total = 0, Cons;
     char	Stat[5];
-    faddr	*f, *g;
+    faddr	*f, *g, *Temp;
     sysconnect	System;
     long        msgptr;
     fpos_t      fileptr,fileptr1,fileptr2;
@@ -209,7 +209,9 @@ void A_List(faddr *t, char *replyid, int Notify)
 
 	    fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
 	    while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
-		g = bestaka_s(fido2faddr(mgroup.UseAka));
+		Temp = fido2faddr(mgroup.UseAka);
+		g = bestaka_s(Temp);
+		tidy_faddr(Temp);
 		if ((!strcmp(mgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
@@ -296,7 +298,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     char	*temp, *Group, *subject;
     int		i, First = TRUE, Cons;
     char	Stat[2];
-    faddr	*f, *g;
+    faddr	*f, *g, *Temp;
     sysconnect	System;
     time_t	Now;
     struct tm	*tt;
@@ -379,7 +381,9 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    plm = plw = plt = rlm = rlw = rlt = 0;
 	    fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
 	    while (fread(&mgroup, mgrouphdr.recsize, 1, gp) == 1) {
-		g = bestaka_s(fido2faddr(mgroup.UseAka));
+		Temp = fido2faddr(mgroup.UseAka);
+		g = bestaka_s(Temp);
+		tidy_faddr(Temp);
 		if ((!strcmp(mgroup.Name, Group)) &&
 		    (g->zone  == f->zone) && (g->net   == f->net) && (g->node  == f->node) && (g->point == f->point)) {
 
@@ -521,7 +525,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 {
     int		i, First;
     char	*Group;
-    faddr	*b;
+    faddr	*b, *Temp;
     sysconnect	Sys;
 
     Syslog('+', "AreaMgr: \"%s\"", Area);
@@ -556,7 +560,9 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(msgs.Aka));
+    Temp = fido2faddr(msgs.Aka);
+    i = metric(b, Temp);
+    tidy_faddr(Temp);
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -610,7 +616,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 {
     int		i, First;
     char	*Group, *temp;
-    faddr	*b;
+    faddr	*b, *Temp;
     sysconnect	Sys;
     FILE	*gp;
 
@@ -684,7 +690,9 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     }
 
     b = bestaka_s(t);
-    i = metric(b, fido2faddr(msgs.Aka));
+    Temp = fido2faddr(msgs.Aka);
+    i = metric(b, Temp);
+    tidy_faddr(Temp);
     Syslog('m', "Aka match level is %d", i);
 
     if (i >= METRIC_NET) {
@@ -737,7 +745,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 {
     FILE	*mp, *gp;
     char	*Group, *temp;
-    faddr	*f;
+    faddr	*f, *Temp;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
     long	Pos;
@@ -792,15 +800,18 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 		fseek(mp, msgshdr.hdrsize, SEEK_SET);
 
 		while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
+		    Temp = fido2faddr(msgs.Aka);
 		    if ((!strcmp(Group, msgs.Group)) && (msgs.Active) && (!msgs.Mandatory) && strlen(msgs.Tag) &&
 			    ((msgs.Type == ECHOMAIL) || (msgs.Type == NEWS) || (msgs.Type == LIST)) &&
-			    (metric(fido2faddr(msgs.Aka), f) < METRIC_NET)) {
+			    (metric(Temp, f) < METRIC_NET)) {
 
 			if (Connect) {
 			    Link = FALSE;
 			    for (i = 0; i < Cons; i++) {
 				fread(&Sys, sizeof(Sys), 1, mp);
-				if (metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL)
+				tidy_faddr(Temp);
+				Temp = fido2faddr(Sys.aka);
+				if (metric(Temp, t) == METRIC_EQUAL)
 				    Link = TRUE;
 			    }
 			    if (!Link) {
@@ -829,7 +840,9 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 			} else {
 			    for (i = 0; i < Cons; i++) {
 				fread(&Sys, sizeof(Sys), 1, mp);
-				if ((metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) && (!Sys.cutoff)) {
+				tidy_faddr(Temp);
+				Temp = fido2faddr(Sys.aka);
+				if ((metric(Temp, t) == METRIC_EQUAL) && (!Sys.cutoff)) {
 				    memset(&Sys, 0, sizeof(Sys));
 				    fseek(mp, - sizeof(Sys), SEEK_CUR);
 				    fwrite(&Sys, sizeof(Sys), 1, mp);
@@ -844,6 +857,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 			}
 		    } else
 			fseek(mp, msgshdr.syssize, SEEK_CUR);
+		    tidy_faddr(Temp);
 		}
 	    }
 	}
@@ -872,7 +886,7 @@ void A_Pause(faddr *, int, FILE *);
 void A_Pause(faddr *t, int Pause, FILE *tmp)
 {
     FILE	*mp;
-    faddr	*f;
+    faddr	*f, *Temp;
     int		i, Cons;
     sysconnect	Sys;
     char	*temp;
@@ -900,7 +914,8 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
 	if (msgs.Active) {
 	    for (i = 0; i < Cons; i++) {
 		fread(&Sys, sizeof(Sys), 1, mp);
-		if ((metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) && (!Sys.cutoff)) {
+		Temp = fido2faddr(Sys.aka);
+		if ((metric(Temp, t) == METRIC_EQUAL) && (!Sys.cutoff)) {
 		    Sys.pause = Pause;
 		    fseek(mp, - sizeof(Sys), SEEK_CUR);
 		    fwrite(&Sys, sizeof(Sys), 1, mp);
@@ -910,6 +925,7 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
 		    MsgResult("areamgr.responses",tmp);
 		    a_list = TRUE;
 		}
+		tidy_faddr(Temp);
 	    }
 	} else {
 	    fseek(mp, msgshdr.syssize, SEEK_CUR);

@@ -94,6 +94,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
     long	offset;
     int		i, rc = 0;
     sysconnect	System;
+    faddr	*From, *To;
 
     temp = calloc(PATH_MAX, sizeof(char));
     Syslog('m', "Checking echogroup %s %s", mgroup.Name, mgroup.Comment);
@@ -121,13 +122,19 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 */
 		if (SendUplink) {
 		    sprintf(temp, "+%s", Area);
-		    if (UplinkRequest(fido2faddr(mgroup.UpLink), fido2faddr(mgroup.UseAka), FALSE, temp)) {
+		    From = fido2faddr(mgroup.UseAka);
+		    To   = fido2faddr(mgroup.UpLink);
+		    if (UplinkRequest(To, From, FALSE, temp)) {
 			WriteError("Can't send netmail to uplink");
 			fclose(ap);
 			free(buf);
 			free(temp);
+			tidy_faddr(From);
+			tidy_faddr(To);
 			return 1;
 		    }
+		    tidy_faddr(From);
+		    tidy_faddr(To);
 		}
 
 		sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
