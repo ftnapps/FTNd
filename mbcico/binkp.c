@@ -30,6 +30,9 @@
  *****************************************************************************/
 
 #include "../config.h"
+
+#ifndef USE_NEWBINKP
+
 #include "../lib/libs.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -1676,4 +1679,4 @@ int binkp_batch(file_list *to_send)
     return bp.rc;
 }
 
-
+#endif

@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c md5b.c \
+SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c binkpnew.c md5b.c \
 		  xmsend.c xmrecv.c m7recv.c m7send.c hydra.c inbound.c \
 		  answer.c chat.c dial.c dietifna.c emsidat.c filelist.c \
 		  openfile.c openport.c opentcp.c rdoptions.c yoohoo.c \
@@ -13,7 +13,7 @@ SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c md5b.c \
 		  ttyio.c lutil.c scanout.c emsi.c ulock.c \
 		  callstat.c session.c call.c mbcico.c \
 		  outstat.c nlinfo.c mbout.c mbtelind.c mbtelout.c
-HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
+HDRS		= zmodem.h binkp.h binkpnew.h config.h statetbl.h md5b.h \
 		  xmsend.h xmrecv.h m7recv.h m7send.h hydra.h inbound.h \
 		  answer.h chat.h dial.h dietifna.h emsidat.h filelist.h \
 		  openfile.h openport.h opentcp.h rdoptions.h yoohoo.h \
@@ -22,7 +22,7 @@ HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  ttyio.h lutil.h scanout.h emsi.h ulock.h \
 		  callstat.h session.h call.h mbcico.h \
 		  outstat.h nlinfo.h mbtelind.h mbtelout.h
-MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
+MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o binkpnew.o md5b.o \
 		  xmsend.o xmrecv.o m7recv.o m7send.o hydra.o inbound.o \
 		  answer.o chat.o dial.o dietifna.o emsidat.o filelist.o \
 		  openfile.o openport.o opentcp.o rdoptions.o yoohoo.o \

@@ -76,6 +76,10 @@ if test "$debugging" = "yes"; then
 else
     CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 fi 
+AC_ARG_ENABLE(newbinkp,  [  --enable-newbinkp       Compile New Binkp code],     [ newbinkp=$enableval ], [ newbinkp=no ])
+if test "$newbinkp" = "yes"; then
+  AC_DEFINE(USE_NEWBINKP)
+fi
 
 
 dnl

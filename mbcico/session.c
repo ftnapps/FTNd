@@ -44,7 +44,11 @@
 #include "session.h"
 #include "yoohoo.h"
 #include "mbcico.h"
+#ifdef USE_NEWBINKP
+#include "binkpnew.h"
+#else
 #include "binkp.h"
+#endif
 #include "callstat.h"
 #include "inbound.h"
 #include "opentcp.h"
