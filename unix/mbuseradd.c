@@ -103,7 +103,7 @@ int execute(char **args, char *in, char *out, char *err)
 void makedir(char *path, mode_t mode, uid_t owner, gid_t group)
 {
     if (mkdir(path, mode) != 0) {
-	syslog(LOG_WARNING, "Can't create directory %s", path);
+	syslog(LOG_WARNING, "Can't create directory %s:%s", path, strerror(errno));
 	exit(2);
     }
     if ((chown(path, owner, group)) == -1) {
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
      * some systems have already created a home directory. If one is found
      * it is removed to create a fresh one.
      */
-    if ((access(temp, R_OK)) == 0) {
+    if ((access(homedir, R_OK)) == 0) {
 	if ((access("/bin/rm", X_OK)) == 0)
 	    args[0] = (char *)"/bin/rm";
 	else if ((access("/usr/bin/rm", X_OK)) == 0)

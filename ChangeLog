@@ -82,6 +82,10 @@ v0.51.2		06-Mar-2004
 		Changed default charset for new mailgroups and message areas
 		to CP437.
 
+	mbuseradd:
+		Fixed removing of a OS created homedir. This may solve problems
+		on RH and Fedora (under test).
+
 	examples:
 		Updated English, German, Spanish and Dutch macro files:
 		html.nodes and filemgr.status.
