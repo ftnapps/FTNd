@@ -37,8 +37,6 @@ libdiesel.a:
 mbsebbs:
 	X: Better word wrapping or paragraph justification in editor.
 
-	X: E-mail downloads with e-mail verification.
-
 	N: OLR, implement file requests.
 
 	N: Only count posted messages in local mail areas.
@@ -50,7 +48,7 @@ mbsebbs:
 	X: OLR: implement limit date function.
 
 	X: OLR: include private email area in download packets. See also global
-           wish for private email areas.
+           wish for private mail areas.
 
 	X: OLR: implement some global settings from the offline configuration.
 
@@ -63,10 +61,12 @@ mbsebbs:
 	N: Translate characterset of messages to the users preferred 
            characterset. This is partly done for testing.
 
-	N: There are some bugs in the bbs list menu. Make it a door?
+	N: There are some bugs in the bbs list menu. Make it a door? YES! The
+	   bbslist is unsupported since 0.71.0. The door will be released soon.
 
 newuser:
-	L: Allow handles to be the same as the unixname.
+	L: Allow handles to be the same as the unixname. Most menus allow this,
+	   still needed?
 
 mbfido:
 	N: Check all .flo files for dead attachments.
