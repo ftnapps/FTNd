@@ -4589,6 +4589,7 @@ v0.33.20        10-Feb-2002
 		Enter mbsetup, this will upgrade the databases.
 		Go into global configuration, exit and save, this will update
 		the main configuration (add default macro path).
+		Edit the message groups and file groups for new settings.
 
 	general:
 		Added structures for area maintenance with area lists.

@@ -416,10 +416,10 @@ int EditFGrpRec(int Area)
 		case 9: strcpy(fgroup.Convert, PickArchive((char *)"10.1.9"));
 			FgScreen();
 			break;
-		case 10:strcpy(fgroup.BbsGroup, PickFGroup((char *)"8.4.17"));
+		case 10:strncpy(fgroup.BbsGroup, PickFGroup((char *)"8.4.17"), 12);
 			FgScreen();
 			break;
-		case 11:strcpy(fgroup.AnnGroup, PickNGroup((char *)"8.4.18"));
+		case 11:strncpy(fgroup.AnnGroup, PickNGroup((char *)"8.4.18"), 12);
 			FgScreen();
 			break;
 		case 12:if (CheckFgroup())
