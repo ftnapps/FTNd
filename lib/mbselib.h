@@ -731,7 +731,7 @@ struct	fileareas {
 	unsigned	DLdays;			/* Move not DL for days     */
 	unsigned	FDdays;			/* Move if FD older than    */
 	unsigned	MoveArea;		/* Move to Area             */
-	int		Cost;			/* File Cost		    */
+	int		xCost;			/* File Cost		    */
 	char		FilesBbs[65];		/* Path to files.bbs if CD  */
 	char		NewGroup[13];		/* Newfiles scan group	    */
 	char		Archiver[6];		/* Archiver for area	    */
@@ -753,9 +753,40 @@ struct	FILEIndex {
 
 
 /*
- * File Record Control Structure (fdb#.data)
+ * Files database (file#.data)
  */
-struct	FILERecord {
+struct FILE_recordhdr {
+	long		hdrsize;		/* Size of header	    */
+	long		recsize;		/* Record size		    */
+};
+
+
+struct  FILE_record {
+	char            Name[13];               /* DOS style filename       */
+	char            LName[81];              /* Long filename            */
+	char            TicArea[21];            /* Tic area file came in    */
+	off_t           Size;                   /* File Size                */
+	unsigned long   Crc32;                  /* File CRC-32              */
+	char            Uploader[36];           /* Uploader name            */
+	time_t          UploadDate;             /* Date/Time uploaded       */
+	time_t          FileDate;               /* Real file date           */
+	time_t          LastDL;                 /* Last Download date       */
+	unsigned long   TimesDL;                /* Times file was dl'ed     */
+	char            Password[16];           /* File password            */
+	char            Desc[25][49];           /* file description         */
+	char		Magic[21];		/* Magic request name	    */
+	unsigned        Deleted      : 1;       /* Deleted                  */
+	unsigned        NoKill       : 1;       /* Cannot be deleted        */
+	unsigned        Announced    : 1;       /* File is announced        */
+	unsigned        Double       : 1;       /* Double record            */
+};
+
+
+
+/*
+ * Old File Record Control Structure (fdb#.data)
+ */
+struct	OldFILERecord {
 	char		Name[13];		/* DOS style filename	    */
 	char		LName[81];		/* Long filename	    */
 	char		xTicArea[9];		/* Tic area file came in    */
@@ -1518,9 +1549,9 @@ struct	_nodes {
 	unsigned	FileFwd		: 1;	/* Accept File Forward	    */
 	unsigned	MailFwd		: 1;	/* Accept Mail Forward	    */
 	unsigned	AdvTic		: 1;	/* Advanced Tic files	    */
-	unsigned	Billing		: 1;	/* Cost sharing on/off	    */
+	unsigned	xBilling	: 1;	/* Cost sharing on/off	    */
 
-	unsigned	BillDirect	: 1;	/* Send bill direct	    */
+	unsigned	xBillDirect	: 1;	/* Send bill direct	    */
 	unsigned	Crash		: 1;	/* Netmail crash	    */
 	unsigned	Hold		: 1;	/* Netmail hold		    */
 	unsigned	AddPlus		: 1;	/* Add + for uplink msgs    */
@@ -1549,11 +1580,11 @@ struct	_nodes {
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	    */
 	time_t		LastDate;		/* Last action date	    */
-	long		Credit;			/* Node's credit	    */
-	long		Debet;			/* Node's debet		    */
-	long		AddPerc;		/* Add Percentage	    */
-	long		WarnLevel;		/* Warning level	    */
-	long		StopLevel;		/* Stop level		    */
+	long		xCredit;		/* Node's credit	    */
+	long		xDebet;			/* Node's debet		    */
+	long		xAddPerc;		/* Add Percentage	    */
+	long		xWarnLevel;		/* Warning level	    */
+	long		xStopLevel;		/* Stop level		    */
 	fidoaddr	RouteVia;		/* Routing address	    */
 	int		Language;		/* Language for netmail	    */
 	statcnt		FilesSent;		/* Files sent to node	    */
@@ -1637,12 +1668,12 @@ struct	_fgroup {
 	char		Comment[56];		/* Group Comment	   */
 	unsigned	Active		: 1;	/* Group Active		   */
 	unsigned	Deleted		: 1;	/* Is group deleted	   */
-	unsigned	DivideCost	: 1;	/* Divide cost over links  */
+	unsigned	xDivideCost	: 1;	/* Divide cost over links  */
 	fidoaddr	UseAka;			/* Aka to use		   */
 	fidoaddr	UpLink;			/* Uplink address	   */
-	long		UnitCost;		/* Cost per unit	   */
-	long		UnitSize;		/* Size per unit	   */
-	long		AddProm;		/* Promillage to add	   */
+	long		xUnitCost;		/* Cost per unit	   */
+	long		xUnitSize;		/* Size per unit	   */
+	long		xAddProm;		/* Promillage to add	   */
 	time_t		StartDate;		/* Start Date		   */
 	time_t		LastDate;		/* Last active date	   */
 	char		AreaFile[13];		/* Areas filename	   */
@@ -1800,20 +1831,6 @@ struct	_magic {
 
 
 /*
- * Billing database
- */
-struct	_bill {
-	fidoaddr	Node;			/* Fido address		   */
-	char		FileName[15];		/* File Name		   */
-	char		FileEcho[21];		/* File Echo		   */
-	char		Group[13];		/* Group		   */
-	off_t		Size;			/* File Size		   */
-	long		Cost;			/* File Cost		   */
-};
-
-
-
-/*
  * Newfile reports (newfiles.data)
  */
 struct	_newfileshdr {
@@ -1883,7 +1900,6 @@ struct	_filerecord {
 	char		Desc[256];		/* Short description	   */
 	char		LDesc[25][49];		/* Long description	   */
 	int		TotLdesc;		/* Total long desc lines   */
-	long		Cost;			/* File cost		   */
 	unsigned	Announce	: 1;	/* Announce this file	   */
 };
 
@@ -2478,7 +2494,9 @@ struct	oneline		ol;
 
 struct	fileareashdr	areahdr;		/* File areas		   */
 struct	fileareas	area;
-struct	FILERecord	file;
+struct	OldFILERecord	oldfile;		/* Pre 0.51.2 structure	   */
+struct	FILE_recordhdr	fdbhdr;    		/* Files database          */
+struct	FILE_record	fdb;
 struct	_fgrouphdr	fgrouphdr;		/* File groups		   */
 struct	_fgroup		fgroup;
 
@@ -2533,7 +2551,7 @@ struct	_magic		magic;
 struct	_nodeshdr	nodeshdr;		/* Fidonet nodes	   */
 struct	_nodes		nodes;
 
-struct	_bill		bill;			/* Unsent bills		   */
+//struct	_bill		bill;			/* Unsent bills		   */
 
 struct	_newfileshdr	newfileshdr;		/* New file reports	   */
 struct	_newfiles	newfiles;

@@ -55,31 +55,31 @@ int	FileRecno = 0;
 int CheckFile(char *, int);
 int CheckFile(char *File, int iArea)
 {
-        FILE    *pFileB;
-        char    *sFileArea;
+    FILE    *pFileB;
+    char    *sFileArea;
 
-        sFileArea = calloc(PATH_MAX, sizeof(char));
-        sprintf(sFileArea,"%s/fdb/fdb%d.dta", getenv("MBSE_ROOT"), iArea); 
+    sFileArea = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileArea,"%s/fdb/file%d.data", getenv("MBSE_ROOT"), iArea); 
 
-        if ((pFileB = fopen(sFileArea,"r+")) == NULL) {
-                mkdir(sFileArea, 775);
-                return FALSE;
-        }
-	free(sFileArea);
-
-	/*
-	 * Check long and short filenames, case insensitive
-	 */
-        while (fread(&file, sizeof(file), 1, pFileB) == 1) {
-                if (((strcasecmp(file.Name, File)) == 0) || ((strcasecmp(file.LName, File)) == 0)) {
-                        fclose(pFileB);
-                        return TRUE;
-                }
-
-        }
-
-        fclose(pFileB);
+    if ((pFileB = fopen(sFileArea,"r+")) == NULL) {
+	mkdir(sFileArea, 775);
         return FALSE;
+    }
+    free(sFileArea);
+    fread(&fdbhdr, sizeof(fdbhdr), 1, pFileB);
+
+    /*
+     * Check long and short filenames, case insensitive
+     */
+    while (fread(&fdb, fdbhdr.recsize, 1, pFileB) == 1) {
+        if (((strcasecmp(fdb.Name, File)) == 0) || ((strcasecmp(fdb.LName, File)) == 0)) {
+            fclose(pFileB);
+	    return TRUE;
+        }
+    }
+
+    fclose(pFileB);
+    return FALSE;
 }
 
 
@@ -89,75 +89,69 @@ int CheckFile(char *File, int iArea)
  */
 void File_List()
 {
-	FILE		*pFile;
-	int		FileCount = 0;
-	unsigned	FileBytes = 0;
-	_Tag		T;
+    FILE	*pFile;
+    int		FileCount = 0;
+    unsigned	FileBytes = 0;
+    _Tag	T;
 
-	iLineCount = 0;
-	WhosDoingWhat(FILELIST, NULL);
+    iLineCount = 0;
+    WhosDoingWhat(FILELIST, NULL);
 
-	Syslog('+', "Listing File Area # %d", iAreaNumber);
+    Syslog('+', "Listing File Area # %d", iAreaNumber);
 
-	if(Access(exitinfo.Security, area.LTSec) == FALSE) {
-		colour(14, 0);
-		/* You don't have enough security to list this area */
-		printf("\n%s\n", (char *) Language(236));
-		Pause();
-		return;
-	}
-
-	InitTag();
-
-	if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL)
-		return;
-
-	clear();
-	Header();
-	if (iLC(2) == 1) {
-		fclose(pFile);
-		return;
-	}
-
-	while (fread(&file, sizeof(file), 1, pFile) == 1) {
-
-		memset(&T, 0, sizeof(T));
-		T.Area   = iAreaNumber;
-		T.Active = FALSE;
-		T.Cost   = file.Cost;
-		T.Size   = file.Size;
-		strncpy(T.SFile, file.Name, 12);
-		strncpy(T.LFile, file.LName, 80);
-		SetTag(T);
-
-		if (ShowOneFile() == 1) {
-			fclose(pFile);
-			return;
-		}
-
-		if (file.Deleted)
-			/* D E L E T E D */ /* Uploaded by: */
-			printf(" -- %-12s     %s     [%4ld] %s%s\n", file.Name, (char *) Language(239), 
-				file.TimesDL, (char *) Language(238), file.Uploader);
-
-		if (file.Missing)
-			/* M I S S I N G */ /* Uploaded by: */
-			printf(" -- %-12s     %s     [%4ld] %s%s\n", file.Name, (char *) Language(240), 
-				file.TimesDL, (char *) Language(238), file.Uploader);
-
-		FileCount++;			/* Increase File Counter by 1 */
-		FileBytes += file.Size;		/* Increase File Byte Count   */
-	}
-
-	Mark();
-	
-	colour(11,0);
-	/* Total Files: */
-	printf("\n%s%d / %d bytes\n\n", (char *) Language(242), FileCount, FileBytes);
-
-	iLineCount = 0;
-	fclose(pFile);
+    if (Access(exitinfo.Security, area.LTSec) == FALSE) {
+	colour(14, 0);
+	/* You don't have enough security to list this area */
+	printf("\n%s\n", (char *) Language(236));
 	Pause();
+	return;
+    }
+
+    InitTag();
+
+    if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL)
+	return;
+
+    clear();
+    Header();
+    if (iLC(2) == 1) {
+	fclose(pFile);
+	return;
+    }
+
+    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+
+	memset(&T, 0, sizeof(T));
+	T.Area   = iAreaNumber;
+	T.Active = FALSE;
+	T.Size   = fdb.Size;
+	strncpy(T.SFile, fdb.Name, 12);
+	strncpy(T.LFile, fdb.LName, 80);
+	SetTag(T);
+
+	if (ShowOneFile() == 1) {
+	    fclose(pFile);
+	    return;
+	}
+
+	if (fdb.Deleted)
+	    /* D E L E T E D */ /* Uploaded by: */
+	    printf(" -- %-12s     %s     [%4ld] %s%s\n", fdb.Name, (char *) Language(239), 
+				fdb.TimesDL, (char *) Language(238), fdb.Uploader);
+
+	FileCount++;			/* Increase File Counter by 1 */
+	FileBytes += fdb.Size;		/* Increase File Byte Count   */
+    }
+
+    Mark();
+	
+    colour(11,0);
+    /* Total Files: */
+    printf("\n%s%d / %d bytes\n\n", (char *) Language(242), FileCount, FileBytes);
+
+    iLineCount = 0;
+    fclose(pFile);
+    Pause();
 }
 
 
@@ -205,26 +199,25 @@ void Download(void)
 	    SetFileArea(Tag.Area);
 
 	    /*
-	     * Check password for selected file
+	     * Check password for selected file  FIXME: Where???
 	     */
-	    memset(&file, 0, sizeof(file));
+	    memset(&fdb, 0, sizeof(fdb));
 	    if ((fp = OpenFileBase(Tag.Area, FALSE)) != NULL) {
-		while (fread(&file, sizeof(file), 1, fp) == 1) {
-		    if (strcmp(file.LName, Tag.LFile) == 0)
+		while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+		    if (strcmp(fdb.LName, Tag.LFile) == 0)
 			break;
 		}
 		fclose(fp);
 	    } 
 
-	    if (strcmp(file.LName, Tag.LFile) == 0) {
-		Syslog('b', "Found file %s in area %d", file.LName, Tag.Area);
-		if ((file.Deleted) || (file.Missing)) {
+	    if (strcmp(fdb.LName, Tag.LFile) == 0) {
+		Syslog('b', "Found file %s in area %d", fdb.LName, Tag.Area);
+		if (fdb.Deleted) {
 		    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(248));
 		    /* Sorry that file is unavailable for download */
-		    printf("%s (%s)\n", (char *) Language(248), file.LName);
+		    printf("%s (%s)\n", (char *) Language(248), fdb.LName);
 		    Tag.Active = FALSE;
-		    Syslog('+', "File %s in area %d unavailable for download, %s", 
-			    file.LName, Tag.Area, file.Deleted?"deleted":"missing");
+		    Syslog('+', "File %s in area %d unavailable for download, deleted", fdb.LName, Tag.Area);
 		}
 	    }
 
@@ -237,10 +230,10 @@ void Download(void)
 		 */
 		sprintf(symTo, "./tag/filedesc.%ld", exitinfo.Downloads % 256);
 		if ((fd = fopen(symTo, "a")) != NULL) {
-		    fprintf(fd, "%s (%s)\r\n", file.LName, file.Name);
+		    fprintf(fd, "%s (%s)\r\n", fdb.LName, fdb.Name);
 		    for (i = 0; i < 25; i++) {
-			if (strlen(file.Desc[i]) > 1)
-			    fprintf(fd, "  %s\r\n", file.Desc[i]);
+			if (strlen(fdb.Desc[i]) > 1)
+			    fprintf(fd, "  %s\r\n", fdb.Desc[i]);
 		    }
 		    fprintf(fd, "\r\n");
 		    fclose(fd);
@@ -287,9 +280,9 @@ void Download(void)
 		 * Count file and sizes.
 		 */
 		Count++;
-		Size += file.Size;
-		if ((!file.Free) && (!area.Free))
-		    CostSize += file.Size;
+		Size += fdb.Size;
+		if (!area.Free)
+		    CostSize += fdb.Size;
 	    }
 	}
     }
@@ -437,15 +430,15 @@ void Download(void)
 		     */
 		    SetFileArea(Tag.Area);
 		    if ((fp = OpenFileBase(Tag.Area, TRUE)) != NULL) {
-			while (fread(&file, sizeof(file), 1, fp) == 1) {
-			    if (strcmp(file.LName, Tag.LFile) == 0)
+			while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+			    if (strcmp(fdb.LName, Tag.LFile) == 0)
 				break;
 			}
-			Size += file.Size;
-			file.TimesDL++;
-			file.LastDL = time(NULL);
-			fseek(fp, - sizeof(file), SEEK_CUR);
-			fwrite(&file, sizeof(file), 1, fp);
+			Size += fdb.Size;
+			fdb.TimesDL++;
+			fdb.LastDL = time(NULL);
+			fseek(fp, - fdbhdr.recsize, SEEK_CUR);
+			fwrite(&fdb, fdbhdr.recsize, 1, fp);
 			fclose(fp);
 			Count++;
 		    }
@@ -570,136 +563,129 @@ void File_RawDir(char *OpData)
  */
 int KeywordScan()
 {
-	FILE		*pAreas, *pFile;
-	int		i, z, y, Found, Count = 0;
-	char		*Name;
-	char		*tmpname;
-	char		*BigDesc;
-	char		temp[81];
-	_Tag		T;
-	unsigned long	OldArea;
+    FILE	    *pAreas, *pFile;
+    int		    i, z, y, Found, Count = 0;
+    char	    *Name, *tmpname, *BigDesc, temp[81];
+    _Tag	    T;
+    unsigned long   OldArea;
 
 
-	Name     = calloc(81, sizeof(char));
-	tmpname  = calloc(81, sizeof(char));
-	BigDesc  = calloc(1230, sizeof(char));
-	OldArea  = iAreaNumber;
+    Name     = calloc(81, sizeof(char));
+    tmpname  = calloc(81, sizeof(char));
+    BigDesc  = calloc(1230, sizeof(char));
+    OldArea  = iAreaNumber;
 
-	iLineCount = 2; /* Reset Line Counter to Zero */
-	arecno     = 1; /* Reset Area Number to One */
+    iLineCount = 2; /* Reset Line Counter to Zero */
+    arecno     = 1; /* Reset Area Number to One */
 
-	Enter(2);
-	/* Enter keyword to use for Search: */
-	pout(11, 0, (char *) Language(267));
+    Enter(2);
+    /* Enter keyword to use for Search: */
+    pout(11, 0, (char *) Language(267));
 
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(Name, 80);
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(Name, 80);
 
-	if ((strcmp(Name, "")) == 0)
-		return 0;
+    if ((strcmp(Name, "")) == 0)
+	return 0;
 
-	strcpy(tmpname, tl(Name));
-	strcpy(Name, "");
-	y = strlen(tmpname);
-	for (z = 0; z <  y; z++) {
-		if (tmpname[z] != '*') {
-			sprintf(temp, "%c", tmpname[z]);
-			strcat(Name, temp);
-		}
+    strcpy(tmpname, tl(Name));
+    strcpy(Name, "");
+    y = strlen(tmpname);
+    for (z = 0; z <  y; z++) {
+	if (tmpname[z] != '*') {
+	    sprintf(temp, "%c", tmpname[z]);
+	    strcat(Name, temp);
 	}
-	Syslog('+', "KeywordScan(): \"%s\"", Name);
+    }
+    Syslog('+', "KeywordScan(): \"%s\"", Name);
 
-	clear();
-	/* File search by keyword */
-	pout(15, 0, (char *) Language(268));
-	Enter(1);
-	InitTag();
+    clear();
+    /* File search by keyword */
+    pout(15, 0, (char *) Language(268));
+    Enter(1);
+    InitTag();
 
-	for(i = 0; i < 25; i++)
-		sprintf(BigDesc, "%s%s", BigDesc, *(file.Desc + i));
+    if ((pAreas = OpenFareas(FALSE)) == NULL)
+	return 0;
 
-	if ((pAreas = OpenFareas(FALSE)) == NULL)
-		return 0;
+    while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
 
-	while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
+	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
 
-		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
+	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
 
-			if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
+		Nopper();
+		Found = FALSE;
+		Sheader();
 
-				Nopper();
-				Found = FALSE;
-				Sheader();
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 
-				while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		    for (i = 0; i < 25; i++)
+			sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
 
-					for(i = 0; i < 25; i++)
-						sprintf(BigDesc, "%s%s", BigDesc, *(file.Desc + i));
+		    if ((strstr(fdb.Name,Name) != NULL) || (strstr(tl(BigDesc), Name) != NULL)) {
 
-					if ((strstr(file.Name,Name) != NULL) || (strstr(tl(BigDesc), Name) != NULL)) {
+			if (!Found) {
+			    Enter(2);
+			    if (iLC(2) == 1) {
+				free(BigDesc);
+				free(Name);
+				free(tmpname);
+				SetFileArea(OldArea);
+				return 1;
+			    }
+			    Found = TRUE;
+			}
 
-						if (!Found) {
-							Enter(2);
-							if (iLC(2) == 1) {
-								free(BigDesc);
-								free(Name);
-								free(tmpname);
-								SetFileArea(OldArea);
-								return 1;
-							}
-							Found = TRUE;
-						}
+			memset(&T, 0, sizeof(T));
+			T.Area   = arecno;
+			T.Active = FALSE;
+			T.Size   = fdb.Size;
+			strncpy(T.SFile, fdb.Name, 12);
+			strncpy(T.LFile, fdb.LName, 80);
+			SetTag(T);
+			Count++;
+			if (ShowOneFile() == 1) {
+			    free(BigDesc);
+			    free(Name);
+			    free(tmpname);
+			    SetFileArea(OldArea);
+			    return 1;
+			}
+		    }
+		    strcpy(BigDesc, "");  /* Clear BigDesc */
 
-						memset(&T, 0, sizeof(T));
-						T.Area   = arecno;
-						T.Active = FALSE;
-						T.Cost   = file.Cost;
-						T.Size   = file.Size;
-						strncpy(T.SFile, file.Name, 12);
-						strncpy(T.LFile, file.LName, 80);
-						SetTag(T);
-						Count++;
-						if (ShowOneFile() == 1) {
-							free(BigDesc);
-							free(Name);
-							free(tmpname);
-							SetFileArea(OldArea);
-							return 1;
-						}
-					}
-					strcpy(BigDesc, "");  /* Clear BigDesc */
+		} /* while */
 
-				} /* while */
+		fclose(pFile);
+		if (Found) {
+		    Enter(2);
+		    if (iLC(2) == 1) {
+			free(BigDesc);
+			free(Name);
+			free(tmpname);
+			SetFileArea(OldArea);
+			return 1;
+		    }
+		}
 
-				fclose(pFile);
-				if (Found) {
-					Enter(2);
-					if (iLC(2) == 1) {
-						free(BigDesc);
-						free(Name);
-						free(tmpname);
-						SetFileArea(OldArea);
-						return 1;
-					}
-				}
+	    } /* End check for LTSec */
+	} /* if access */
+	arecno++; /* Go to next file area */
+    } /* End of Main */
 
-			} /* End check for LTSec */
-		} /* if access */
-		arecno++; /* Go to next file area */
-	} /* End of Main */
-
-	Syslog('+', "Found %d files", Count);
-	free(BigDesc);
-	free(Name);
-	free(tmpname);
-	fclose(pAreas);
-	printf("\n");
-	if (Count)
-		Mark();
-	else
-		Pause();
-	SetFileArea(OldArea);
-	return 1;
+    Syslog('+', "Found %d files", Count);
+    free(BigDesc);
+    free(Name);
+    free(tmpname);
+    fclose(pAreas);
+    printf("\n");
+    if (Count)
+	Mark();
+    else
+	Pause();
+    SetFileArea(OldArea);
+    return 1;
 }
 
 
@@ -779,9 +765,9 @@ int FilenameScan()
 		Sheader();
 		Nopper();
 
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 
-		    if (re_exec(file.Name) || re_exec(file.LName)) {
+		    if (re_exec(fdb.Name) || re_exec(fdb.LName)) {
 			if (!Found) {
 			    Enter(2);
 			    if (iLC(2) == 1) {
@@ -794,10 +780,9 @@ int FilenameScan()
 			memset(&T, 0, sizeof(T));
 			T.Area   = arecno;
 			T.Active = FALSE;
-			T.Cost   = file.Cost;
-			T.Size   = file.Size;
-			strncpy(T.SFile, file.Name, 12);
-			strncpy(T.LFile, file.LName, 81);
+			T.Size   = fdb.Size;
+			strncpy(T.SFile, fdb.Name, 12);
+			strncpy(T.LFile, fdb.LName, 81);
 			SetTag(T);
 			Count++;
 			if (ShowOneFile() == 1) {
@@ -904,8 +889,8 @@ int NewfileScan(int AskStart)
 		Found = FALSE;
 		Nopper();
 
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    strcpy(temp, StrDateDMY(file.UploadDate));	/* Realloc Space for Date */
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    strcpy(temp, StrDateDMY(fdb.UploadDate));	/* Realloc Space for Date */
 		    Date[0] = temp[6];	    /* Swap the date around      */
 		    Date[1] = temp[7];	    /* Instead of   DD-MM-YYYY   */
 		    Date[2] = temp[8];	    /* Let it equal YYYYMMDD     */
@@ -934,10 +919,9 @@ int NewfileScan(int AskStart)
 			memset(&T, 0, sizeof(T));
 			T.Area   = arecno;
 			T.Active = FALSE;
-			T.Cost   = file.Cost;
-			T.Size   = file.Size;
-			strncpy(T.SFile, file.Name, 12);
-			strncpy(T.LFile, file.LName, 80);
+			T.Size   = fdb.Size;
+			strncpy(T.SFile, fdb.Name, 12);
+			strncpy(T.LFile, fdb.LName, 80);
 			SetTag(T);
 
 			Count++;
@@ -1992,105 +1976,105 @@ void FileArea_List(char *Option)
  */
 void Copy_Home()
 {
-	FILE		*pFile;
-	char		*File, *temp1, *temp2;
-	int		err, Found = FALSE;
+    FILE    *pFile;
+    char    *File, *temp1, *temp2;
+    int	    err, Found = FALSE;
 	
-	File  = calloc(81, sizeof(char));
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	temp2 = calloc(PATH_MAX, sizeof(char));
+    File  = calloc(81, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
 	
-	colour(14,0);
-	/* Please enter filename: */
-	printf("\n%s", (char *) Language(245));
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(File, 80);
+    colour(14,0);
+    /* Please enter filename: */
+    printf("\n%s", (char *) Language(245));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(File, 80);
 
-	if ((strcmp(File, "")) == 0) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* No filename entered, Aborting. */
-		printf("\n\n%s\n", (char *) Language(246));
-		Pause();
-		free(File);
-		free(temp1);
-		free(temp2);
-		return;
-	}
-
-	if (*(File) == '/' || *(File) == ' ') {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* Illegal Filename! */
-		printf("\n%s\n\n", (char *) Language(247));
-		Pause();
-                free(File);
-                free(temp1);
-                free(temp2);
-		return;
-	}
-
-	if (Access(exitinfo.Security, area.DLSec) == FALSE) {
-		colour(14, 0);
-		printf("\n%s\n", (char *) Language(236));
-		Pause();
-                free(File);
-                free(temp1);
-                free(temp2);
-		return;
-	}
-
-	if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL) {
-                free(File);
-                free(temp1);
-                free(temp2);
-		return;
-	}
-
-	while (fread(&file, sizeof(file), 1, pFile) == 1) {
-
-		if ((strcasecmp(File, file.Name) == 0) || (strcasecmp(File, file.LName) == 0)) {
-
-			Found = TRUE;
-			if (((file.Size + Quota()) > (CFG.iQuota * 1048576))) {
-				colour(CFG.HiliteF, CFG.HiliteB);
-				/* You have not enough diskspace free to copy this file */
-				printf("%s\n", (char *) Language(279));
-				Syslog('+', "Copy homedir, not enough quota");
-			} else {
-				sprintf(temp1, "%s/%s", area.Path, file.LName); /* Use real longname here */
-				sprintf(temp2, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
-				colour(CFG.TextColourF, CFG.TextColourB);
-				/* Start copy: */
-				printf("%s%s ", (char *) Language(289), File);
-				fflush(stdout);
-
-				Syslog('b', "Copy from : %s", temp1);
-				Syslog('b', "Copy to   : %s", temp2);
-
-				if ((err = file_cp(temp1, temp2))) {
-					colour(CFG.HiliteF, CFG.HiliteB);
-					/* Failed! */
-					printf("%s\n", (char *) Language(353));
-					WriteError("Copy %s to homedir failed, code %d", File, err);
-				} else {
-					/* Ok */
-					printf("%s\n", (char *) Language(200));
-					Syslog('+', "Copied %s from area %d to homedir", File, iAreaNumber);
-				}
-			}
-		}
-	}
-	fclose(pFile);
-
-	if (!Found) {
-		colour(CFG.HiliteF, CFG.HiliteB);
-		/* File does not exist, please try again ... */
-		printf("%s\n", (char *) Language(296));
-	}
-
+    if ((strcmp(File, "")) == 0) {
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/* No filename entered, Aborting. */
+	printf("\n\n%s\n", (char *) Language(246));
 	Pause();
 	free(File);
 	free(temp1);
 	free(temp2);
+	return;
+    }
+
+    if (*(File) == '/' || *(File) == ' ') {
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/* Illegal Filename! */
+	printf("\n%s\n\n", (char *) Language(247));
+	Pause();
+        free(File);
+        free(temp1);
+        free(temp2);
+	return;
+    }
+
+    if (Access(exitinfo.Security, area.DLSec) == FALSE) {
+	colour(14, 0);
+	printf("\n%s\n", (char *) Language(236));
+	Pause();
+        free(File);
+        free(temp1);
+        free(temp2);
+	return;
+    }
+
+    if ((pFile = OpenFileBase(iAreaNumber, FALSE)) == NULL) {
+        free(File);
+        free(temp1);
+        free(temp2);
+	return;
+    }
+
+    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+
+	if ((strcasecmp(File, fdb.Name) == 0) || (strcasecmp(File, fdb.LName) == 0)) {
+
+	    Found = TRUE;
+	    if (((fdb.Size + Quota()) > (CFG.iQuota * 1048576))) {
+		colour(CFG.HiliteF, CFG.HiliteB);
+		/* You have not enough diskspace free to copy this file */
+		printf("%s\n", (char *) Language(279));
+		Syslog('+', "Copy homedir, not enough quota");
+	    } else {
+		sprintf(temp1, "%s/%s", area.Path, fdb.LName); /* Use real longname here */
+		sprintf(temp2, "%s/%s/wrk/%s", CFG.bbs_usersdir, exitinfo.Name, File);
+		colour(CFG.TextColourF, CFG.TextColourB);
+		/* Start copy: */
+		printf("%s%s ", (char *) Language(289), File);
+		fflush(stdout);
+
+		Syslog('b', "Copy from : %s", temp1);
+		Syslog('b', "Copy to   : %s", temp2);
+
+		if ((err = file_cp(temp1, temp2))) {
+		    colour(CFG.HiliteF, CFG.HiliteB);
+		    /* Failed! */
+		    printf("%s\n", (char *) Language(353));
+		    WriteError("Copy %s to homedir failed, code %d", File, err);
+		} else {
+		    /* Ok */
+		    printf("%s\n", (char *) Language(200));
+		    Syslog('+', "Copied %s from area %d to homedir", File, iAreaNumber);
+		}
+	    }
+	}
+    }
+    fclose(pFile);
+
+    if (!Found) {
+	colour(CFG.HiliteF, CFG.HiliteB);
+	/* File does not exist, please try again ... */
+	printf("%s\n", (char *) Language(296));
+    }
+
+    Pause();
+    free(File);
+    free(temp1);
+    free(temp2);
 }
 
 
@@ -2289,8 +2273,8 @@ void ViewFile(char *name)
 	return;
     }
 
-    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-	if (((strcasecmp(File, file.Name) == 0) || (strcasecmp(File, file.LName) == 0)) && (!file.Deleted) && (!file.Missing)) {
+    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+	if (((strcasecmp(File, fdb.Name) == 0) || (strcasecmp(File, fdb.LName) == 0)) && (!fdb.Deleted)) {
 	    found = TRUE;
 	    break;
 	}
@@ -2306,9 +2290,9 @@ void ViewFile(char *name)
 	return;
     }
 
-    sprintf(File, "%s/%s", sAreaPath, file.LName);
+    sprintf(File, "%s/%s", sAreaPath, fdb.LName);
     arc = GetFileType(File);
-    Syslog('+', "File to view: %s, type %s", file.LName, printable(arc, 0));
+    Syslog('+', "File to view: %s, type %s", fdb.LName, printable(arc, 0));
 
     if (arc != NULL) {
 	found = FALSE;

@@ -44,71 +44,61 @@ void EditFile(void);
 
 void FHeader(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "14. EDIT FILE");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "    FileName");
-	mvprintw( 8, 2, "    Long fn");
-	mvprintw( 9, 2, "    FileSize");
-	mvprintw(10, 2, "    FileDate");
-	mvprintw(11, 2, "    Last DL.");
-	mvprintw(12, 2, "    Upl.Date");
-	mvprintw(13, 2, "1.  Uploader");
-	mvprintw(14, 2, "2.  Times DL");
-	mvprintw(15, 2, "3.  Times FTP");
-	mvprintw(16, 2, "4.  Times Req");
-	mvprintw(17, 2, "5.  Password");
-	mvprintw(18, 2, "6.  Cost");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "14. EDIT FILE");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "    FileName");
+    mvprintw( 8, 2, "    Long fn");
+    mvprintw( 9, 2, "    FileSize");
+    mvprintw(10, 2, "    FileDate");
+    mvprintw(11, 2, "    Last DL.");
+    mvprintw(12, 2, "    Upl.Date");
+    mvprintw(13, 2, "    TIC area");
+    mvprintw(14, 2, "    Magic");
+    mvprintw(15, 2, "1.  Uploader");
+    mvprintw(16, 2, "2.  Times DL");
+    mvprintw(17, 2, "3.  Password");
 
-	mvprintw(14,42, "7.  Free");
-	mvprintw(15,42, "8.  Deleted");
-	mvprintw(16,42, "    Missing");
-	mvprintw(17,42, "9.  No Kill");
-	mvprintw(18,42, "10. Announced");
+    mvprintw(15,61, "4.  Deleted");
+    mvprintw(16,61, "5.  No Kill");
+    mvprintw(17,61, "6.  Announced");
 }
 
 
 
 void EditFile()
 {
-	FHeader();
+    FHeader();
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,16,12, file.Name);
-		show_str( 8,16,64, file.LName);
-		show_int( 9,16,    file.Size);
-		mvprintw(10,16, (char *)"%s %s", StrDateDMY(file.FileDate), StrTimeHM(file.FileDate));
-		mvprintw(11,16, (char *)"%s %s", StrDateDMY(file.LastDL), StrTimeHM(file.LastDL));
-		mvprintw(12,16, (char *)"%s %s", StrDateDMY(file.UploadDate), StrTimeHM(file.UploadDate));
-		show_str(13,16,36, file.Uploader);
-		show_int(14,16,    file.TimesDL);
-		show_int(15,16,    file.TimesFTP);
-		show_int(16,16,    file.TimesReq);
-		show_str(17,16,15, file.Password);
-		show_int(18,16,    file.Cost);
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_str( 7,16,12, fdb.Name);
+	show_str( 8,16,64, fdb.LName);
+	show_int( 9,16,    fdb.Size);
+	mvprintw(10,16, (char *)"%s %s", StrDateDMY(fdb.FileDate), StrTimeHM(fdb.FileDate));
+	mvprintw(11,16, (char *)"%s %s", StrDateDMY(fdb.LastDL), StrTimeHM(fdb.LastDL));
+	mvprintw(12,16, (char *)"%s %s", StrDateDMY(fdb.UploadDate), StrTimeHM(fdb.UploadDate));
+	show_str(13,16,20, fdb.TicArea);
+	show_str(14,16,20, fdb.Magic);
+	show_str(15,16,36, fdb.Uploader);
+	show_int(16,16,    fdb.TimesDL);
+	show_str(17,16,15, fdb.Password);
 
-		show_bool(14,56, file.Free);
-		show_bool(15,56, file.Deleted);
-		show_bool(16,56, file.Missing);
-		show_bool(17,56, file.NoKill);
-		show_bool(18,56, file.Announced);
+	show_bool(15,75, fdb.Deleted);
+	show_bool(16,75, fdb.NoKill);
+	show_bool(17,75, fdb.Announced);
 
-		switch(select_menu(10)) {
-			case 0: return;
-			case 1: E_STR( 13,16,35, file.Uploader,  "The ^uploader^ of this file")
-			case 2: E_INT( 14,16,    file.TimesDL,   "The number of times file is sent with ^download^")
-			case 3: E_INT( 15,16,    file.TimesFTP,  "The number of times file is sent with ^FTP or WWW^")
-			case 4: E_INT( 16,16,    file.TimesReq,  "The number of times file is sent with ^filerequest^")
-			case 5: E_STR( 17,16,15, file.Password,  "The ^password^ to protect this file with")
-			case 6: E_INT( 18,16,    file.Cost,      "The ^cost^ of this file")
-			case 7: E_BOOL(14,56,    file.Free,      "If this file is a ^free^ download")
-			case 8:	E_BOOL(15,56,    file.Deleted,   "Should this this file be ^deleted^")
-			case 9: E_BOOL(17,56,    file.NoKill,    "File can't be ^killed^ automatic")
-			case 10:E_BOOL(18,56,    file.Announced, "File is ^announced^ as new file")
-		}
+	switch(select_menu(6)) {
+	    case 0: return;
+	    case 1: E_STR( 15,16,35, fdb.Uploader,  "The ^uploader^ of this file")
+	    case 2: E_INT( 16,16,    fdb.TimesDL,   "The number of times file is sent with ^download^")
+	    case 3: E_STR( 17,16,15, fdb.Password,  "The ^password^ to protect this file with")
+	    case 4: E_BOOL(15,75,    fdb.Deleted,   "Should this this file be ^deleted^")
+	    case 5: E_BOOL(16,75,    fdb.NoKill,    "File can't be ^killed^ automatic")
+	    case 6: E_BOOL(17,75,    fdb.Announced, "File is ^announced^ as new file")
 	}
+    }
 }
 
 
@@ -126,7 +116,7 @@ void E_F(long areanr)
 
     clr_index();
 
-    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), areanr);
+    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), areanr);
     if ((fil = fopen(temp, "r+")) == NULL) {
 	working(2, 0, 0);
 	return;
@@ -134,8 +124,9 @@ void E_F(long areanr)
     if (! check_free())
 	return;
 
+    fread(&fdbhdr, sizeof(fdbhdr), 1, fil);
     fseek(fil, 0, SEEK_END);
-    records = ftell(fil) / sizeof(file);
+    records = ((ftell(fil) - fdbhdr.hdrsize) / fdbhdr.recsize);
     o = 0;
 
     for (;;) {
@@ -154,41 +145,41 @@ void E_F(long areanr)
 
 	for (i = 1; i <= 10; i++) {
 	    if ((o + i) <= records) {
-		offset = ((o + i) - 1) * sizeof(file);
+		offset = (((o + i) - 1) * fdbhdr.recsize) + fdbhdr.hdrsize;
 		fseek(fil, offset, SEEK_SET);
-		fread(&file, sizeof(file), 1, fil);
+		fread(&fdb, fdbhdr.recsize, 1, fil);
 
 		set_color(WHITE, BLACK);
 		mvprintw(y, 1, (char *)"%4d.", o + i);
 
-		sprintf(temp, "%s/%s", area.Path, file.LName);
+		sprintf(temp, "%s/%s", area.Path, fdb.LName);
 		Ondisk = ((stat(temp, &statfile)) != -1);
 
-		if (file.Deleted)
+		if (fdb.Deleted)
 		    set_color(LIGHTBLUE, BLACK);
 		else if (Ondisk)
 		    set_color(CYAN, BLACK);
 		else
 		    set_color(LIGHTRED, BLACK);
-		mvprintw(y, 8, (char *)"%-14s", file.Name);
+		mvprintw(y, 8, (char *)"%-14s", fdb.Name);
 
 		if (Ondisk) {
-		    if (file.Size == statfile.st_size)
+		    if (fdb.Size == statfile.st_size)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
-		    mvprintw(y,23, (char *)"%8ld", file.Size);
+		    mvprintw(y,23, (char *)"%8ld", fdb.Size);
 
-		    if (file.FileDate == statfile.st_mtime)
+		    if (fdb.FileDate == statfile.st_mtime)
 			set_color(CYAN, BLACK);
 		    else
 			set_color(LIGHTRED, BLACK);
-		    Time = file.FileDate;
+		    Time = fdb.FileDate;
 		    mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
 		}
 
 		set_color(CYAN, BLACK);
-		sprintf(temp, "%s", file.Desc[0]);
+		sprintf(temp, "%s", fdb.Desc[0]);
 		temp[30] = '\0';
 		mvprintw(y,49, (char *)"%s", temp);
 		y++;
@@ -234,26 +225,23 @@ void E_F(long areanr)
 
 	    if ((atoi(menu) > 0) && (atoi(menu) <= records)) {
 		working(1, 0, 0);
-		offset = (atoi(menu) - 1) * sizeof(file);
+		offset = ((atoi(menu) - 1) * fdbhdr.recsize) + fdbhdr.hdrsize;
 		fseek(fil, offset, SEEK_SET);
-		fread(&file, sizeof(file), 1, fil);
+		fread(&fdb, fdbhdr.recsize, 1, fil);
 		crc = 0xffffffff;
-		crc = upd_crc32((char *)&file, crc, sizeof(file));
+		crc = upd_crc32((char *)&fdb, crc, fdbhdr.recsize);
 
-		sprintf(temp, "%s/%s", area.Path, file.LName);
-		if (stat(temp, &statfile) == -1)
-		    file.Missing = TRUE;
-
+		sprintf(temp, "%s/%s", area.Path, fdb.LName);
 		EditFile();
 
 		crc1 = 0xffffffff;
-		crc1 = upd_crc32((char *)&file, crc1, sizeof(file));
+		crc1 = upd_crc32((char *)&fdb, crc1, fdbhdr.recsize);
 
 		if (crc != crc1) {
 		    if (yes_no((char *)"Record is changed, save") == 1) {
 			working(1, 0, 0);
 			fseek(fil, offset, SEEK_SET);
-			fwrite(&file, sizeof(file), 1, fil);
+			fwrite(&fdb, fdbhdr.recsize, 1, fil);
 			working(6, 0, 0);
 		    }
 		}
@@ -351,6 +339,121 @@ void EditFDB()
 	    }
 	}
     }
+}
+
+
+
+/*
+ * Init files database. Since version 0.51.2 the format is changed.
+ * Check this and automagic upgrade the database.
+ */
+void InitFDB(void)
+{
+    int			    records, i;
+    long		    Area = 0;
+    char		    *temp, Magic[21];
+    FILE		    *fp1, *fp2, *fil, *ft, *fp;
+    DIR			    *dp;
+    struct dirent	    *de;
+    struct OldFILERecord    old;
+    struct stat		    sb;
+    
+    records = CountFilearea();
+    if (records <= 0)
+	return;
+    
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(temp, "r")) != NULL) {
+	fread(&areahdr, sizeof(areahdr), 1, fil);
+
+	while (fread(&area, areahdr.recsize, 1, fil)) {
+	    Area++;
+	    if (area.Available) {
+		sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		if ((fp1 = fopen(temp, "r")) != NULL) {
+		    /*
+		     * Old area available, upgrade.
+		     */
+		    sprintf(temp, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
+		    if ((fp2 = fopen(temp, "w+")) == NULL) {
+			WriteError("$Can't create %s", temp);
+		    } else {
+			fdbhdr.hdrsize = sizeof(fdbhdr);
+			fdbhdr.recsize = sizeof(fdb);
+			fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp2);
+
+			while (fread(&old, sizeof(old), 1, fp1)) {
+			    Nopper();
+			    memset(&fdb, 0, fdbhdr.recsize);
+			    strncpy(fdb.Name, old.Name, sizeof(fdb.Name) -1);
+			    strncpy(fdb.LName, old.LName, sizeof(fdb.LName) -1);
+			    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+			    if ((ft = fopen(temp, "r")) != NULL) {
+				fread(&tichdr, sizeof(tichdr), 1, ft);
+				while (fread(&tic, tichdr.recsize, 1, ft)) {
+				    if (StringCRC32(tic.Name) == old.TicAreaCRC) {
+					strncpy(fdb.TicArea, tic.Name, sizeof(fdb.TicArea) -1);
+					break;
+				    }
+				    fseek(ft, tichdr.syssize, SEEK_CUR);
+				}
+				fclose(ft);
+			    }
+			    fdb.Size = old.Size;
+			    fdb.Crc32 = old.Crc32;
+			    strncpy(fdb.Uploader, old.Uploader, sizeof(fdb.Uploader) -1);
+			    fdb.UploadDate = old.UploadDate;
+			    fdb.FileDate = old.FileDate;
+			    fdb.LastDL = old.LastDL;
+			    fdb.TimesDL = old.TimesDL + old.TimesFTP + old.TimesReq;
+			    strncpy(fdb.Password, old.Password, sizeof(fdb.Password) -1);
+			    for (i = 0; i < 25; i++)
+				strncpy(fdb.Desc[i], old.Desc[i], 48);
+
+			    /*
+			     * Search the magic directory to see if this file is a magic file.
+			     */
+			    sprintf(temp, "%s/magic", getenv("MBSE_ROOT"));
+			    if ((dp = opendir(temp)) != NULL) {
+				while ((de = readdir(dp))) {
+				    if (de->d_name[0] != '.') {
+					sprintf(temp, "%s/magic/%s", getenv("MBSE_ROOT"), de->d_name);
+					/*
+					 * Only regular files without execute permission are magic requests.
+					 */
+					if ((lstat(temp, &sb) != -1) && (S_ISREG(sb.st_mode)) && (! (sb.st_mode & S_IXUSR))) {
+					    if ((fp = fopen(temp, "r"))) {
+						fgets(Magic, sizeof(Magic) -1, fp);
+						Striplf(Magic);
+						if ((strcasecmp(Magic, fdb.Name) == 0) || (strcasecmp(Magic, fdb.LName) == 0)) {
+						    strncpy(fdb.Magic, de->d_name, sizeof(fdb.Magic) -1);
+						}
+						fclose(fp);
+					    }
+					}
+				    }
+				}
+				closedir(dp);
+			    }
+			    fdb.Deleted = old.Deleted;
+			    fdb.NoKill = old.NoKill;
+			    fdb.Announced = old.Announced;
+			    fdb.Double = old.Double;
+			    fwrite(&fdb, fdbhdr.recsize, 1, fp2);
+			}
+			fclose(fp2);
+			Syslog('+', "Upgraded file area database %d", Area);
+		    }
+		    fclose(fp1);
+		    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+		    unlink(temp);
+		}
+	    }
+	}
+	fclose(fil);
+    }
+    free(temp);
 }
 
 

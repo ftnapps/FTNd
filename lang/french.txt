@@ -238,7 +238,7 @@ RNQ|(R)épondre, (N)ext, (Q)uitter:
 |Ne paut pas ouvrir la base pour cette conférence
 |Télécharrgé par: 
 |F A C        
-|M A N Q U A N T
+|
 ON|Node inconnu, continue quand même [o/N]: 
 |Total Fichiers: 
 |FATAL: Impossible d'ouvrir la conférence

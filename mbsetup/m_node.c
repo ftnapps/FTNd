@@ -440,15 +440,7 @@ void E_Files(void)
     mvprintw(14, 6, "8.   Advanced TIC");
     mvprintw(15, 6, "9.   Advanced SB");
     mvprintw(16, 6, "10.  To line in TIC");
-
-    mvprintw( 7,46, "11.  File forward");
-    mvprintw( 8,46, "12.  Billing (CSO)");
-    mvprintw( 9,46, "13.  Bill direct");
-    mvprintw(10,46, "14.  Credit");
-    mvprintw(11,46, "15.  Debit");
-    mvprintw(12,46, "16.  Add %");
-    mvprintw(13,46, "17.  Warn level");
-    mvprintw(14,46, "18.  Stop level");
+    mvprintw(17, 6, "11.  File forward");
 
     for (;;) {
 	set_color(WHITE, BLACK);
@@ -462,35 +454,21 @@ void E_Files(void)
 	show_bool(14,26,    nodes.AdvTic);
 	show_bool(15,26,    nodes.TIC_AdvSB);
 	show_bool(16,26,    nodes.TIC_To);
-	show_bool( 7,66,    nodes.FileFwd);
-	show_bool( 8,66,    nodes.Billing);
-	show_bool( 9,66,    nodes.BillDirect);
-	show_int( 10,66,    nodes.Credit);
-	show_int( 11,66,    nodes.Debet);
-	show_int( 12,66,    nodes.AddPerc);
-	show_int( 13,66,    nodes.WarnLevel);
-	show_int( 14,66,    nodes.StopLevel);
+	show_bool(17,26,    nodes.FileFwd);
 
-	switch(select_menu(18)) {
-	case 0:	return;
-	case 1:	E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
-	case 2:	E_STR(  8,26,15,nodes.Apasswd,    "The filemanager ^password^ for this node")
-	case 3:	E_STR(  9,26,8, nodes.UplFmgrPgm, "The name of the uplink ^filemanager^ program")
-	case 4:	E_STR( 10,26,15,nodes.UplFmgrPass,"The uplink filemanager ^password^")
-	case 5:	E_BOOL(11,26,   nodes.AddPlus,    "Add ^+^ in uplink manager requests for new areas")
-	case 6:	E_BOOL(12,26,   nodes.Message,    "Send ^messages^ with files send to this node")
-	case 7:	E_BOOL(13,26,   nodes.Tic,        "Send ^TIC^ files to this node")
-	case 8:	E_BOOL(14,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
-	case 9: E_BOOL(15,26,	nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
-	case 10:E_BOOL(16,26,	nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
-	case 11:E_BOOL( 7,66,   nodes.FileFwd,    "^Forward TIC^ files for this node")
-	case 12:E_BOOL( 8,66,   nodes.Billing,    "Send ^bills^ to this node, Costsharing is active")
-	case 13:E_BOOL( 9,66,   nodes.BillDirect, "Send bills ^direct^ after file processing")
-	case 14:E_INT( 10,66,   nodes.Credit,     "The ^credit^ this node has for costsharing")
-	case 15:E_INT( 11,66,   nodes.Debet,      "The ^debit^ in cents we have credit from this node")
-	case 16:E_INT( 12,66,   nodes.AddPerc,    "The + or - ^promille^ factor for this node")
-	case 17:E_INT( 13,66,   nodes.WarnLevel,  "Credit level in cents to ^Warn^ node for low credit")
-	case 18:E_INT( 14,66,   nodes.StopLevel,  "Credit level in cents to ^Stop^ sending files")
+	switch(select_menu(11)) {
+	    case 0: return;
+	    case 1: E_STR(  7,26,15,nodes.Fpasswd,    "The ^TIC^ files ^password^ for this node")
+	    case 2: E_STR(  8,26,15,nodes.Apasswd,    "The filemanager ^password^ for this node")
+	    case 3: E_STR(  9,26,8, nodes.UplFmgrPgm, "The name of the uplink ^filemanager^ program")
+	    case 4: E_STR( 10,26,15,nodes.UplFmgrPass,"The uplink filemanager ^password^")
+	    case 5: E_BOOL(11,26,   nodes.AddPlus,    "Add ^+^ in uplink manager requests for new areas")
+	    case 6: E_BOOL(12,26,   nodes.Message,    "Send ^messages^ with files send to this node")
+	    case 7: E_BOOL(13,26,   nodes.Tic,        "Send ^TIC^ files to this node")
+	    case 8: E_BOOL(14,26,   nodes.AdvTic,     "Send ^advanced^ TIC files to this node")
+	    case 9: E_BOOL(15,26,	nodes.TIC_AdvSB,  "Send ^advanced Seen-By^ lines in ticfiles to this node")
+	    case 10:E_BOOL(16,26,	nodes.TIC_To,     "Send ^To^ line in ticfiles to this node")
+	    case 11:E_BOOL(17,26,   nodes.FileFwd,    "^Forward TIC^ files for this node")
 	}
     }
 }
@@ -1486,8 +1464,6 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Advanced TIC   %s\n", getboolean(nodes.AdvTic));
 		fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
 		fprintf(fp, "     Sent To lines  %s", getboolean(nodes.TIC_To));
-		fprintf(fp, "     Billing        %s\n", getboolean(nodes.Billing));
-		fprintf(fp, "     Bill direct    %s", getboolean(nodes.BillDirect));
 		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
 		fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 
@@ -1525,11 +1501,6 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     Total files    %-8lu %-8lu %-8lu %-8lu\n", nodes.FilesSent.total, nodes.F_KbSent.total, nodes.FilesRcvd.total, nodes.F_KbSent.total);
 		fprintf(fp, "     Total mail     %-8lu          %-8lu\n\n", nodes.MailSent.total, nodes.MailRcvd.total);
 
-		if (nodes.Billing) {
-		    fprintf(fp, "     Credit units   %-8ld   Warnlevel  %ld\n", nodes.Credit, nodes.WarnLevel);
-		    fprintf(fp, "     Debit units    %-8ld   Stoplevel  %ld\n", nodes.Debet, nodes.StopLevel);
-		    fprintf(fp, "     Add promille   %ld\n\n", nodes.AddPerc);
-		}
 		fprintf(fp, "     File groups:\n      ");
 		groups = nodeshdr.filegrp / sizeof(group);
 		for (i = 0; i < groups; i++) {

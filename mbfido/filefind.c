@@ -291,12 +291,13 @@ void ScanFiles(ff_list *tmp)
 		Back(15);
 	    }
 	    if (area.Available && area.FileFind) {
-		sprintf(temp, "%s/fdb/fdb%lu.data", getenv("MBSE_ROOT"), areanr);
+		sprintf(temp, "%s/fdb/file%lu.data", getenv("MBSE_ROOT"), areanr);
 		if ((pFile = fopen(temp, "r")) != NULL) {
 
-		    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 			for (i = 0; i < 25; i++)
-			    sprintf(BigDesc, "%s%s", BigDesc, *(file.Desc + i));
+			    sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
 			sprintf(temp, "%s", tmp->subject);
 
 			Found = FALSE;
@@ -332,20 +333,20 @@ void ScanFiles(ff_list *tmp)
 			    tl(kwd);
 
 			    if (strlen(kwd) > 3) {
-				if (strstr(file.Name, kwd) != NULL) {
+				if (strstr(fdb.Name, kwd) != NULL) {
 				    Found = TRUE;
-				    Syslog('m', "Found %s in %s in filename", kwd, file.Name);
+				    Syslog('m', "Found %s in %s in filename", kwd, fdb.Name);
 				}
 				if (keywrd && (strstr(tl(BigDesc), kwd) != NULL)) {
 				    Found = TRUE;
-				    Syslog('m', "Found %s in %s in description", kwd, file.Name);
+				    Syslog('m', "Found %s in %s in description", kwd, fdb.Name);
 				}
 			    }
 			} /* while (strlen(temp) && (!Found)) */
 			if (Found) {
 			    found++;
-			    Syslog('m', "Found %s area %d", file.Name, areanr);
-			    fill_rflist(&rfl, file.Name, areanr);
+			    Syslog('m', "Found %s area %d", fdb.Name, areanr);
+			    fill_rflist(&rfl, fdb.Name, areanr);
 			}
 			strcpy(BigDesc, "");
 		    }
@@ -404,27 +405,28 @@ void ScanFiles(ff_list *tmp)
 			areanr = rft->area;
 		    }
 
-		    sprintf(temp, "%s/fdb/fdb%lu.data", getenv("MBSE_ROOT"), rft->area);
+		    sprintf(temp, "%s/fdb/file%lu.data", getenv("MBSE_ROOT"), rft->area);
 		    if ((pFile = fopen(temp, "r")) != NULL) {
-			while (fread(&file, sizeof(file), 1, pFile) == 1)
-			    if (!strcmp(rft->filename, file.Name))
+			fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+			while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1)
+			    if (!strcmp(rft->filename, fdb.Name))
 				break;
 			fclose(pFile);
-			MacroVars("slbkdt", "ssddss", file.Name, file.LName, file.Size, file.Size / 1024, " ",
-					To_Low(file.Desc[0],scanmgr.HiAscii));
+			MacroVars("slbkdt", "ssddss", fdb.Name, fdb.LName, fdb.Size, fdb.Size / 1024, " ",
+					To_Low(fdb.Desc[0],scanmgr.HiAscii));
 			fseek(fi, filepos1, SEEK_SET);
 			Msg_Macro(fi);
 			filepos2 = ftell(fi);
-			SubSize += file.Size;
+			SubSize += fdb.Size;
 
 			/*
 			 * We add no more then 5 description lines
 			 * to prevent unnecesary long messages.
 			 */
 			for (i = 1; i < MAX_DESC_LINES; i++) {
-			    MacroVars("t", "s", To_Low(file.Desc[i],scanmgr.HiAscii));
+			    MacroVars("t", "s", To_Low(fdb.Desc[i],scanmgr.HiAscii));
 			    fseek(fi, filepos2, SEEK_SET);
-			    if (strlen(file.Desc[i])) {
+			    if (strlen(fdb.Desc[i])) {
 				Msg_Macro(fi);
 			    } else {
 				line = calloc(255, sizeof(char));

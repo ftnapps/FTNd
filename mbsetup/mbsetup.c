@@ -384,6 +384,7 @@ void initdatabases(void)
     InitUsers();
     InitVirus();
     InitRoute();
+    InitFDB();
 
     if (!init) {
 	clr_index();

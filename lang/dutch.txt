@@ -238,7 +238,7 @@ AVS|(A)ntwoord, (V)olgende, (S)top:
 |Kan de database niet openen voor dit gebied
 |Upload door: 
 |GEWIST
-|ONTBREEKT
+|
 JN|Node onbekend, toch doorgaan [j/N]: 
 |Aantal bestanden: 
 |FATAAL: kan de bestanden database niet openen

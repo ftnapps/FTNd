@@ -172,7 +172,7 @@ void Check(void)
 		WriteError("Can't stat %s", area.Path);
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 
 	    /*
 	     * Open the file database, if it doesn't exist,
@@ -184,6 +184,11 @@ void Check(void)
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    } 
 
 	    /*
@@ -191,23 +196,22 @@ void Check(void)
 	     * against the contents of the directory.
 	     */
 	    inArea = 0;
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 
 		iTotal++;
 		inArea++;
-		sprintf(newdir, "%s/%s", area.Path, file.LName);
-		sprintf(mname,  "%s/%s", area.Path, file.Name);
+		sprintf(newdir, "%s/%s", area.Path, fdb.LName);
+		sprintf(mname,  "%s/%s", area.Path, fdb.Name);
 
 		if (file_exist(newdir, R_OK) && file_exist(mname, R_OK)) {
 		    Syslog('+', "File %s area %d not on disk.", newdir, i);
-		    if (!file.NoKill) {
-			file.Deleted = TRUE;
+		    if (!fdb.NoKill) {
+			fdb.Deleted = TRUE;
 			do_pack = TRUE;
 		    }
 		    iErrors++;
-		    file.Missing = TRUE;
-		    fseek(pFile, - sizeof(file), SEEK_CUR);
-		    fwrite(&file, sizeof(file), 1, pFile);
+		    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+		    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 		} else {
 		    /*
 		     * File exists, now check the file.
@@ -215,16 +219,16 @@ void Check(void)
 		    Marker();
 		    Update = FALSE;
 
-		    strcpy(temp, file.LName);
+		    strcpy(temp, fdb.LName);
 		    name_mangle(temp);
 		    sprintf(mname, "%s/%s", area.Path, temp);
-		    if (strcmp(file.Name, temp))  {
-			Syslog('!', "Converted %s to %s", file.Name, temp);
+		    if (strcmp(fdb.Name, temp))  {
+			Syslog('!', "Converted %s to %s", fdb.Name, temp);
 			tname = calloc(PATH_MAX, sizeof(char));
-			sprintf(tname, "%s/%s", area.Path, file.Name);
+			sprintf(tname, "%s/%s", area.Path, fdb.Name);
 			rename(tname, mname);
 			free(tname);
-			strncpy(file.Name, temp, 12);
+			strncpy(fdb.Name, temp, 12);
 			iErrors++;
 			Update = TRUE;
 		    }
@@ -232,17 +236,17 @@ void Check(void)
 		    /*
 		     * If 8.3 and LFN are the same, try to rename the LFN to lowercase.
 		     */
-		    if (strcmp(file.Name, file.LName) == 0) {
+		    if (strcmp(fdb.Name, fdb.LName) == 0) {
 			/*
 			 * 8.3 and LFN are the same.
 			 */
 			tname = calloc(PATH_MAX, sizeof(char));
-			sprintf(tname, "%s/%s", area.Path, file.LName);
-			for (j = 0; j < strlen(file.LName); j++)
-			    file.LName[j] = tolower(file.LName[j]);
-			sprintf(newdir, "%s/%s", area.Path, file.LName);
+			sprintf(tname, "%s/%s", area.Path, fdb.LName);
+			for (j = 0; j < strlen(fdb.LName); j++)
+			    fdb.LName[j] = tolower(fdb.LName[j]);
+			sprintf(newdir, "%s/%s", area.Path, fdb.LName);
 			if (strcmp(tname, newdir)) {
-			    Syslog('+', "Rename LFN from %s to %s", file.Name, file.LName);
+			    Syslog('+', "Rename LFN from %s to %s", fdb.Name, fdb.LName);
 			    rename(tname, newdir);
 			    Update = TRUE;
 			}
@@ -323,7 +327,7 @@ void Check(void)
 		     * It could be that there is a thumbnail made of the LFN.
 		     */
 		    tname = calloc(PATH_MAX, sizeof(char));
-		    sprintf(tname, "%s/.%s", area.Path, file.LName);
+		    sprintf(tname, "%s/.%s", area.Path, fdb.LName);
 		    if (file_exist(tname, R_OK) == 0) {
 			Syslog('+', "Removing thumbnail %s", tname);
 			iErrors++;
@@ -332,28 +336,28 @@ void Check(void)
 		    free(tname);
 
 
-		    if (file_time(newdir) != file.FileDate) {
-			Syslog('!', "Date mismatch area %d file %s", i, file.LName);
-			file.FileDate = file_time(newdir);
+		    if (file_time(newdir) != fdb.FileDate) {
+			Syslog('!', "Date mismatch area %d file %s", i, fdb.LName);
+			fdb.FileDate = file_time(newdir);
 			iErrors++;
 			Update = TRUE;
 		    }
-		    if (file_size(newdir) != file.Size) {
-			Syslog('!', "Size mismatch area %d file %s", i, file.LName);
-			file.Size = file_size(newdir);
+		    if (file_size(newdir) != fdb.Size) {
+			Syslog('!', "Size mismatch area %d file %s", i, fdb.LName);
+			fdb.Size = file_size(newdir);
 			iErrors++;
 			Update = TRUE;
 		    }
-		    if (file_crc(newdir, CFG.slow_util && do_quiet) != file.Crc32) {
-			Syslog('!', "CRC error area %d, file %s", i, file.LName);
-			file.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
+		    if (file_crc(newdir, CFG.slow_util && do_quiet) != fdb.Crc32) {
+			Syslog('!', "CRC error area %d, file %s", i, fdb.LName);
+			fdb.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
 			iErrors++;
 			Update = TRUE;
 		    }
 		    Marker();
 		    if (Update) {
-			fseek(pFile, - sizeof(file), SEEK_CUR);
-			fwrite(&file, sizeof(file), 1, pFile);
+			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 		    }
 		}
 	    }
@@ -370,9 +374,9 @@ void Check(void)
 			if (de->d_name[0] != '.') {
 			    Marker();
 			    Found = FALSE;
-			    rewind(pFile);
-			    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-				if ((strcmp(file.LName, de->d_name) == 0) || (strcmp(file.Name, de->d_name) == 0)) {
+			    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
+			    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+				if ((strcmp(fdb.LName, de->d_name) == 0) || (strcmp(fdb.Name, de->d_name) == 0)) {
 				    if (!Found) {
 					Found = TRUE;
 				    } else {
@@ -380,12 +384,12 @@ void Check(void)
 					 * Record has been found before, so this must be
 					 * a double record.
 					 */
-					Syslog('!', "Double file record area %d file %s", i, file.LName);
+					Syslog('!', "Double file record area %d file %s", i, fdb.LName);
 					iErrors++;
-					file.Double = TRUE;
+					fdb.Double = TRUE;
 					do_pack = TRUE;
-					fseek(pFile, - sizeof(file), SEEK_CUR);
-					fwrite(&file, sizeof(file), 1, pFile);
+					fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+					fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 				    }
 				}
 			    }
@@ -421,7 +425,7 @@ void Check(void)
 	} else {
 		    
 	    if (strlen(area.Name) == 0) {
-		sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+		sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 		if (unlink(fAreas) == 0) {
 		    Syslog('+', "Removed obsolete %s", fAreas);
 		}

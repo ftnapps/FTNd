@@ -98,63 +98,46 @@ void ListFileAreas(int Area)
 	    /*
 	     * Open the file database, create new one if it doesn't exist.
 	     */
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 	    if ((pFile = fopen(fAreas, "r+")) == NULL) {
 		Syslog('!', "Creating new %s", fAreas);
 		if ((pFile = fopen(fAreas, "a+")) == NULL) {
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
 
             fcount = 0;
 	    fsize  = 0L;
 	    colour(CYAN, BLACK);
 	    printf("File listing of area %d, %s\n\n", Area, area.Name);
-	    printf("Short name     Kb. File date  Down Flags TIC Area             Long name\n");
-	    printf("------------ ----- ---------- ---- ----- -------------------- ");
+	    printf("Short name     Kb. File date  Down Flg TIC Area             Long name\n");
+	    printf("------------ ----- ---------- ---- --- -------------------- ");
 	    for (i = 63; i < COLS; i++)
 		printf("-");
 	    printf("\n");
 
 	    colour(LIGHTGRAY, BLACK);
 
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		sprintf(flags, "-----");
-		if (file.Free)
-		    flags[0] = 'F';
-		if (file.Deleted)
-		    flags[1] = 'D';
-		if (file.Missing)
-		    flags[2] = 'M';
-		if (file.NoKill)
-		    flags[3] = 'N';
-		if (file.Announced)
-		    flags[4] = 'A';
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		sprintf(flags, "---");
+		if (fdb.Deleted)
+		    flags[0] = 'D';
+		if (fdb.NoKill)
+		    flags[1] = 'N';
+		if (fdb.Announced)
+		    flags[2] = 'A';
 
-		if (file.TicAreaCRC) {
-		    /*
-		     * Fill the default answer
-		     */
-		    sprintf(ticarea, "Not found");
-		    fseek(pTic, tichdr.hdrsize, SEEK_SET);
-		    while (fread(&tic, tichdr.recsize, 1, pTic)) {
-			if (StringCRC32(tic.Name) == file.TicAreaCRC) {
-			    sprintf(ticarea, "%s", tic.Name);
-			    break;
-			}
-			fseek(pTic, tichdr.syssize, SEEK_CUR);
-		    }
-		} else {
-		    sprintf(ticarea, "N/A");
-		}
-
-		file.LName[COLS - 63] = '\0';
-		printf("%-12s %5ld %s %4ld %s %-20s %s\n", 
-			file.Name, (long)(file.Size / 1024), StrDateDMY(file.FileDate), 
-			(long)(file.TimesDL + file.TimesFTP + file.TimesReq), flags, ticarea, file.LName);
+		fdb.LName[COLS - 63] = '\0';
+		printf("%-12s %5ld %s %4ld %s %-20s %s\n", fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.FileDate), 
+			(long)(fdb.TimesDL), flags, fdb.TicArea, fdb.LName);
 		fcount++;
-		fsize = fsize + file.Size;
+		fsize = fsize + fdb.Size;
 	    }
 	    fsize = fsize / 1024;
 
@@ -196,20 +179,25 @@ void ListFileAreas(int Area)
 	    /*
 	     * Open the file database, create new one if it doesn't exist.
 	     */
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    if ((pFile = fopen(fAreas, "r+")) == NULL) {
 		Syslog('!', "Creating new %s", fAreas);
 		if ((pFile = fopen(fAreas, "a+")) == NULL) {
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
 
 	    fcount = 0;
 	    fsize  = 0L;
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 		fcount++;
-		fsize = fsize + file.Size;
+		fsize = fsize + fdb.Size;
 	    }
 	    fsize = fsize / 1048576;
 	    tcount += fcount;

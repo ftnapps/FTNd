@@ -43,13 +43,13 @@ extern int	do_index;		/* Reindex filebases		*/
 
 typedef struct _fdbs {
     struct _fdbs	*next;
-    struct FILERecord	filrec;
+    struct FILE_record	filrec;
 } fdbs;
 
 
 
-void fill_fdbs(struct FILERecord, fdbs **);
-void fill_fdbs(struct FILERecord filrec, fdbs **fap)
+void fill_fdbs(struct FILE_record, fdbs **);
+void fill_fdbs(struct FILE_record filrec, fdbs **fap)
 {
     fdbs    *tmp;
 
@@ -166,8 +166,8 @@ void SortFileBase(int Area)
 		fflush(stdout);
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
-	    sprintf(fTmp,   "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), Area);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+	    sprintf(fTmp,   "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
 
 	    if ((pFile = fopen(fAreas, "r")) == NULL) {
 		Syslog('!', "Creating new %s", fAreas);
@@ -175,20 +175,26 @@ void SortFileBase(int Area)
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    } 
 
 	    if ((fp = fopen(fTmp, "a+")) == NULL) {
 		WriteError("$Can't create %s", fTmp);
 		die(MBERR_GENERAL);
 	    }
+	    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
 
 	    /*
 	     * Fill the sort array
 	     */
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 		iTotal++;
-		fill_fdbs(file, &fdx);
-		Syslog('f', "Adding %s", file.LName);
+		fill_fdbs(fdb, &fdx);
+		Syslog('f', "Adding %s", fdb.LName);
 	    }
 
 	    sort_fdbs(&fdx);
@@ -198,7 +204,7 @@ void SortFileBase(int Area)
 	     */
 	    for (tmp = fdx; tmp; tmp = tmp->next) {
 		Syslog('f', "Sorted %s", tmp->filrec.LName);
-		fwrite(&tmp->filrec, sizeof(file), 1, fp);
+		fwrite(&tmp->filrec, fdbhdr.recsize, 1, fp);
 	    }
 	    tidy_fdbs(&fdx);
 

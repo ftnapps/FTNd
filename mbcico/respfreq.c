@@ -151,245 +151,236 @@ file_list *respond_bark(char *buf)
 
 file_list *respfreq(char *nm, char *pw, char *dt)
 {
-	file_list		*fl = NULL;
-	struct stat		st;
-	char			mask[256], *p, *q;
-	char			*tnm, *t;
-	time_t			upd = 0L;
-	int			newer = 1;
-	FILE			*fa, *fb, *fi;
-	long			Area;
-	int			Send;
-	struct FILEIndex	idx;
+    file_list		*fl = NULL;
+    struct stat		st;
+    char		mask[256], *p, *q, *tnm, *t;
+    time_t		upd = 0L;
+    int			newer = 1, Send;
+    FILE		*fa, *fb, *fi;
+    long		Area;
+    struct FILEIndex	idx;
 
-	if (localoptions & NOFREQS) {
-		Syslog('+', "File requests disabled");
-		add_report((char *)"ER: \"%s\" denied: file requests disabled", nm);
-		return NULL;
-	}
+    if (localoptions & NOFREQS) {
+	Syslog('+', "File requests disabled");
+	add_report((char *)"ER: \"%s\" denied: file requests disabled", nm);
+	return NULL;
+    }
 
-	if (strchr(nm, '/') || strchr(nm, '\\') || strchr(nm, ':')) {
-		Syslog('+', "Illegal characters in request");
-		add_report((char *)"ER: \"%s\" denied: illegal characters", nm);
-		return NULL;
-	}
+    if (strchr(nm, '/') || strchr(nm, '\\') || strchr(nm, ':')) {
+	Syslog('+', "Illegal characters in request");
+	add_report((char *)"ER: \"%s\" denied: illegal characters", nm);
+	return NULL;
+    }
 
-	if (dt) {
-		if (*dt == '+') {
-			newer = 1;
-			dt++;
-		} else if (*dt == '-') {
-			newer = 0;
-			dt++;
-		} else 
-			newer = 1;
-		upd=atoul(dt);
-	}
+    if (dt) {
+	if (*dt == '+') {
+	    newer = 1;
+	    dt++;
+	} else if (*dt == '-') {
+	    newer = 0;
+	    dt++;
+	} else 
+	    newer = 1;
+	upd=atoul(dt);
+    }
 
-	if (strlen(CFG.req_magic)) {
-		/*
-		 * Check for uppercase and lowercase magic names.
-		 */
-		tnm = xstrcpy(CFG.req_magic);
-		tnm = xstrcat(tnm,(char *)"/");
-		tnm = xstrcat(tnm,tl(xstrcpy(nm)));
-		if ((stat(tnm, &st) == 0) &&
-		    (S_ISREG(st.st_mode))) {
-			if (access(tnm, X_OK) == 0) {
-				return respmagic(tnm);
-				/* respmagic will free(tnm) */
-			} else if (access(tnm, R_OK) == 0) {
-				return resplist(tnm, pw, dt);
-				/* resplist will free(tnm) */
-			} else 
-				free(tnm);
-		} else 
-			free(tnm);
-
-		tnm = xstrcpy(CFG.req_magic);
-		tnm = xstrcat(tnm,(char *)"/");
-		t = xstrcpy(nm);
-		tnm = xstrcat(tnm,tu(t));
-		free(t);
-		if ((stat(tnm, &st) == 0) &&
-		    (S_ISREG(st.st_mode))) {
-			if (access(tnm, X_OK) == 0) {
-				return respmagic(tnm);
-				/* respmagic will free(tnm) */
-			} else if (access(tnm, R_OK) == 0) {
-				return resplist(tnm, pw, dt);
-				/* resplist will free(tnm) */
-			} else 
-				free(tnm);
-		} else free(tnm);
-	}
-
-	Syslog('+', "File request : %s (update (%s), password \"%s\")",MBSE_SS(nm),MBSE_SS(dt),MBSE_SS(pw));
-	add_report((char *)"RQ: Regular file \"%s\"",nm);
-	p = tl(nm);
-	q = mask;
-	*q++ = '^';
-	while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-		switch (*p) {
-			case '\\':	*q++ = '\\'; *q++ = '\\'; break;
-			case '?':	*q++ = '.';  break;
-			case '.':	*q++ = '\\'; *q++ = '.'; break;
-			case '+':	*q++ = '\\'; *q++ = '+'; break;
-			case '*':	*q++ = '.';  *q++ = '*'; break;
-			default:	*q++ = toupper(*p);   break;
-		}
-		p++;
-	}
-	*q++ = '$';
-	*q = '\0';
-	Syslog('f', "Search mask \"%s\"", mask);
-	re_comp(mask);
-
+    if (strlen(CFG.req_magic)) {
 	/*
-	 * Open the areas database and request index.
+	 * Check for uppercase and lowercase magic names.
 	 */
-	p = xstrcpy(getenv("MBSE_ROOT"));
-	p = xstrcat(p, (char *)"/etc/fareas.data");
-	if ((fa = fopen(p, "r")) == NULL) {
-		WriteError("$Can't open %s", p);
-		return NULL;
+	tnm = xstrcpy(CFG.req_magic);
+	tnm = xstrcat(tnm,(char *)"/");
+	tnm = xstrcat(tnm,tl(xstrcpy(nm)));
+	if ((stat(tnm, &st) == 0) && (S_ISREG(st.st_mode))) {
+	    if (access(tnm, X_OK) == 0) {
+		return respmagic(tnm);
+		/* respmagic will free(tnm) */
+	    } else if (access(tnm, R_OK) == 0) {
+		return resplist(tnm, pw, dt);
+		/* resplist will free(tnm) */
+	    } else 
+		free(tnm);
+	} else 
+	    free(tnm);
+
+	tnm = xstrcpy(CFG.req_magic);
+	tnm = xstrcat(tnm,(char *)"/");
+	t = xstrcpy(nm);
+	tnm = xstrcat(tnm,tu(t));
+	free(t);
+	if ((stat(tnm, &st) == 0) && (S_ISREG(st.st_mode))) {
+	    if (access(tnm, X_OK) == 0) {
+		return respmagic(tnm);
+		/* respmagic will free(tnm) */
+	    } else if (access(tnm, R_OK) == 0) {
+		return resplist(tnm, pw, dt);
+		/* resplist will free(tnm) */
+	    } else 
+		free(tnm);
+	} else free(tnm);
+    }
+
+    Syslog('+', "File request : %s (update (%s), password \"%s\")",MBSE_SS(nm),MBSE_SS(dt),MBSE_SS(pw));
+    add_report((char *)"RQ: Regular file \"%s\"",nm);
+    p = tl(nm);
+    q = mask;
+    *q++ = '^';
+    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
+	switch (*p) {
+	    case '\\':	*q++ = '\\'; *q++ = '\\'; break;
+	    case '?':	*q++ = '.';  break;
+	    case '.':	*q++ = '\\'; *q++ = '.'; break;
+	    case '+':	*q++ = '\\'; *q++ = '+'; break;
+	    case '*':	*q++ = '.';  *q++ = '*'; break;
+	    default:	*q++ = toupper(*p);   break;
 	}
-	free(p);
-	fread(&areahdr, sizeof(areahdr), 1, fa);
+	p++;
+    }
+    *q++ = '$';
+    *q = '\0';
+    Syslog('f', "Search mask \"%s\"", mask);
+    re_comp(mask);
 
-	p = xstrcpy(getenv("MBSE_ROOT"));
-	p = xstrcat(p, (char *)"/etc/request.index");
-	if ((fi = fopen(p, "r")) == NULL) {
-		WriteError("$Can't open %s", p);
+    /*
+     * Open the areas database and request index.
+     */
+    p = xstrcpy(getenv("MBSE_ROOT"));
+    p = xstrcat(p, (char *)"/etc/fareas.data");
+    if ((fa = fopen(p, "r")) == NULL) {
+	WriteError("$Can't open %s", p);
+	return NULL;
+    }
+    free(p);
+    fread(&areahdr, sizeof(areahdr), 1, fa);
+
+    p = xstrcpy(getenv("MBSE_ROOT"));
+    p = xstrcat(p, (char *)"/etc/request.index");
+    if ((fi = fopen(p, "r")) == NULL) {
+	WriteError("$Can't open %s", p);
+	return NULL;
+    }
+    Area = 0L;
+    free(p);
+
+    Syslog('f', "Start search ...");
+    while (!no_more && (fread(&idx, sizeof(idx), 1, fi) == 1)) {
+	if (re_exec(idx.Name) || re_exec(idx.LName)) {
+	    Syslog('f', "Index found %s area %d record %d", idx.LName, idx.AreaNum, idx.Record);
+	    if (fseek(fa, ((idx.AreaNum - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET) == -1) {
+		WriteError("$Can't seek in fareas.data");
 		return NULL;
-	}
-	Area = 0L;
-	free(p);
-
-	Syslog('f', "Start search ...");
-	while (!no_more && (fread(&idx, sizeof(idx), 1, fi) == 1)) {
-		if (re_exec(idx.Name) || re_exec(idx.LName)) {
-			Syslog('f', "Index found %s area %d record %d", idx.LName, idx.AreaNum, idx.Record);
-			if (fseek(fa, ((idx.AreaNum - 1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET) == -1) {
-				WriteError("$Can't seek in fareas.data");
-				return NULL;
+	    }
+	    if (fread(&area, areahdr.recsize, 1, fa) != 1) {
+		WriteError("$Can't read record %d in fareas.data", idx.AreaNum);
+		return NULL;
+	    }
+	    Syslog('f', "Area %s", area.Name);
+	    p = calloc(PATH_MAX, sizeof(char));
+	    sprintf(p, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), idx.AreaNum);
+	    if ((fb = fopen(p, "r+")) == NULL) {
+		WriteError("$Can't open %s", p);
+		free(p);
+	    } else {
+		free(p);
+		fread(&fdbhdr, sizeof(fdbhdr), 1, fb);
+		if (fseek(fb, fdbhdr.hdrsize + (idx.Record * fdbhdr.recsize), SEEK_SET) == -1) {
+		    WriteError("$Can't seek filerecord %d", idx.Record);
+		} else {
+		    if (fread(&fdb, fdbhdr.recsize, 1, fb) != 1) {
+			WriteError("$Can't read filerecord %d", idx.Record);
+		    } else {
+			Send = FALSE;
+			Syslog('f', "Found \"%s\" in %s", fdb.LName, area.Name);
+			tnm = xstrcpy(area.Path);
+			tnm = xstrcat(tnm, (char *)"/");
+			tnm = xstrcat(tnm, fdb.LName);
+			if ((stat(tnm, &st) == 0) && (S_ISREG(st.st_mode)) &&
+				(access(tnm, R_OK) == 0) && ((upd == 0L) || ((newer) && (st.st_mtime <= upd)))) {
+			    Send = TRUE;
 			}
-			if (fread(&area, areahdr.recsize, 1, fa) != 1) {
-				WriteError("$Can't read record %d in fareas.data", idx.AreaNum);
-				return NULL;
-			}
-			Syslog('f', "Area %s", area.Name);
-			p = calloc(128, sizeof(char));
-			sprintf(p, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), idx.AreaNum);
-			if ((fb = fopen(p, "r+")) == NULL) {
-				WriteError("$Can't open %s", p);
-				free(p);
-			} else {
-				free(p);
-				if (fseek(fb, idx.Record * sizeof(file), SEEK_SET) == -1) {
-					WriteError("$Can't seek filerecord %d", idx.Record);
-				} else {
-					if (fread(&file, sizeof(file), 1, fb) != 1) {
-						WriteError("$Can't read filerecord %d", idx.Record);
-					} else {
-						Send = FALSE;
-						Syslog('f', "Found \"%s\" in %s", file.LName, area.Name);
-						tnm = xstrcpy(area.Path);
-						tnm = xstrcat(tnm, (char *)"/");
-						tnm = xstrcat(tnm, file.LName);
-						if ((stat(tnm, &st) == 0) && (S_ISREG(st.st_mode)) &&
-						    (access(tnm, R_OK) == 0) && ((upd == 0L) ||
-						     ((newer) && (st.st_mtime <= upd)))) {
-							Send = TRUE;
-						}
 
-						/*
-						 * If no password is given, we do not respond
-						 * on requests to password protected areas
-						 * or files in case it was a wildcard request.
-						 * Wrong passwords are honored with an error
-						 * response.
-						 */
-						if (Send && strlen(area.Password)) {
-							if (pw != NULL) {
-								if (strcasecmp(area.Password, pw)) {
-									Send = FALSE;
-									Syslog('+', "Bad password for area %s", area.Name);
-									add_report((char *)"ER: bad password for area %s", 
-										area.Name);
-								}
-							} else {
-								Send = FALSE;
-							}
-						}
-
-						if (Send && strlen(file.Password)) {
-							if (pw != NULL) {
-								if (strcasecmp(file.Password, pw)) {
-									Send = FALSE;
-									Syslog('+', "Bad password for file %s", file.Name);
-									add_report((char *)"ER: bad password for file %s", 
-										file.LName);
-								}
-							} else {
-								Send = FALSE;
-							}
-						}
-
-						if (Send && CFG.Req_Files) {
-							if (report_count >= CFG.Req_Files) {
-								Send = FALSE;
-								add_report((char *)"ER: too many files requested");
-								Syslog('+', "Exceeding maximum files limit");
-								no_more = TRUE;
-							}
-						}
-
-						if (Send && CFG.Req_MBytes) {
-							if ((st.st_size + report_total) > (CFG.Req_MBytes * 1048576)) {
-								Send = FALSE;
-								add_report((char *)"ER: file %s will exceed the request limit", 
-									file.Name);
-								Syslog('+', "Exceeding request size limit");
-								no_more = TRUE;
-							}
-						}
-
-						if (Send) {
-							Syslog('f', "Will send %s", file.LName);
-							report_total += st.st_size;
-							report_count++;
-							if (strcasecmp(file.Name, file.LName))
-							    add_report((char *)"OK: Sending \"%s\" as \"%s\" (%lu bytes)", 
-								file.LName, file.Name, file.Size);
-							else
-							    add_report((char *)"OK: Sending \"%s\" (%lu bytes)",
-								file.LName, file.Size);
-							add_list(&fl, tnm, file.LName, 0, 0L, NULL, 1);
-
-							/*
-							 * Update file information
-							 */
-							file.TimesReq++;
-							file.LastDL = time(NULL);
-							fseek(fb, - sizeof(file), SEEK_CUR);
-							fwrite(&file, sizeof(file), 1, fb);
-						}
-						free(tnm);
-					}
+			/*
+			 * If no password is given, we do not respond
+			 * on requests to password protected areas
+			 * or files in case it was a wildcard request.
+			 * Wrong passwords are honored with an error
+			 * response.
+			 */
+			if (Send && strlen(area.Password)) {
+			    if (pw != NULL) {
+				if (strcasecmp(area.Password, pw)) {
+				    Send = FALSE;
+				    Syslog('+', "Bad password for area %s", area.Name);
+				    add_report((char *)"ER: bad password for area %s", area.Name);
 				}
-				fclose(fb);
+			    } else {
+				Send = FALSE;
+			    }
 			}
+
+			if (Send && strlen(fdb.Password)) {
+			    if (pw != NULL) {
+				if (strcasecmp(fdb.Password, pw)) {
+				    Send = FALSE;
+				    Syslog('+', "Bad password for file %s", fdb.Name);
+				    add_report((char *)"ER: bad password for file %s", fdb.LName);
+				}
+			    } else {
+				Send = FALSE;
+			    }
+			}
+
+			if (Send && CFG.Req_Files) {
+			    if (report_count >= CFG.Req_Files) {
+				Send = FALSE;
+				add_report((char *)"ER: too many files requested");
+				Syslog('+', "Exceeding maximum files limit");
+				no_more = TRUE;
+			    }
+			}
+
+			if (Send && CFG.Req_MBytes) {
+			    if ((st.st_size + report_total) > (CFG.Req_MBytes * 1048576)) {
+				Send = FALSE;
+				add_report((char *)"ER: file %s will exceed the request limit", fdb.Name);
+				Syslog('+', "Exceeding request size limit");
+				no_more = TRUE;
+			    }
+			}
+
+			if (Send) {
+			    Syslog('f', "Will send %s", fdb.LName);
+			    report_total += st.st_size;
+			    report_count++;
+			    if (strcasecmp(fdb.Name, fdb.LName))
+				add_report((char *)"OK: Sending \"%s\" as \"%s\" (%lu bytes)", fdb.LName, fdb.Name, fdb.Size);
+			    else
+				add_report((char *)"OK: Sending \"%s\" (%lu bytes)", fdb.LName, fdb.Size);
+			    add_list(&fl, tnm, fdb.LName, 0, 0L, NULL, 1);
+
+			    /*
+			     * Update file information
+			     */
+			    fdb.TimesDL++;
+			    fdb.LastDL = time(NULL);
+			    fseek(fb, - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, fb);
+			}
+			free(tnm);
+		    }
 		}
+		fclose(fb);
+	    }
 	}
+    }
 
- 	fclose(fa);
-	fclose(fi);
+    fclose(fa);
+    fclose(fi);
 
-	if (fl == NULL)
-		add_report((char *)"ER: No matching files found");
+    if (fl == NULL)
+	add_report((char *)"ER: No matching files found");
 
-	return fl;
+    return fl;
 }
 
 

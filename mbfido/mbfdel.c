@@ -42,12 +42,11 @@ extern int	do_quiet;		/* Suppress screen output	    */
 
 
 /*
- * Move a file
+ * Delete a file
  */
 void Delete(int UnDel, int Area, char *File)
 {
     char		*temp;
-    struct FILERecord	fdb;
     FILE		*fp;
     int			rc = FALSE;
 

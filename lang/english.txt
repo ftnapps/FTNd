@@ -238,7 +238,7 @@ RNQ|(R)eply, (N)ext, (Q)uit:
 |Can't open file database for this area
 |Uploaded by: 
 |D E L E T E D
-|M I S S I N G
+|
 YN|Node not known, continue anyway [y/N]: 
 |Total Files: 
 |FATAL: Unable to open areas database

@@ -232,9 +232,8 @@ void FileScreen(void)
 	mvprintw(12,59, "21. DL days");
 	mvprintw(13,59, "22. FD days");
 	mvprintw(14,59, "23. Move area");
-	mvprintw(15,59, "24. Cost");
-	mvprintw(16,59, "25. Archiver");
-	mvprintw(17,59, "26. Upload");
+	mvprintw(15,59, "24. Archiver");
+	mvprintw(16,59, "25. Upload");
 }
 
 
@@ -303,11 +302,10 @@ int EditFileRec(int Area)
 		show_int(12,73, area.DLdays);
 		show_int(13,73, area.FDdays);
 		show_int(14,73, area.MoveArea);
-		show_int(15,73, area.Cost);
-		show_str(16,73, 5, area.Archiver);
-		show_int(17,73, area.Upload);
+		show_str(15,73, 5, area.Archiver);
+		show_int(16,73, area.Upload);
 
-		switch(select_menu(26)) {
+		switch(select_menu(25)) {
 		case 0: crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&area, crc1, areahdr.recsize);
 			if (crc != crc1) {
@@ -366,14 +364,15 @@ int EditFileRec(int Area)
 		case 6:	E_STR( 11,16,64, area.FilesBbs,  "The path and name of \"files.bbs\" if area is on CDROM")
 		case 7:	Available = edit_bool(12, 16, area.Available, (char *)"Is this area ^available^");
 			temp = calloc(PATH_MAX, sizeof(char));
-			sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+			sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 			if (area.Available && !Available) {
 			    /*
 			     * Attempt to disable this area, but check first.
 			     */
 			    if ((fp = fopen(temp, "r"))) {
+				fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 				fseek(fp, 0, SEEK_END);
-				files = ftell(fp) / sizeof(file);
+				files = ((ftell(fp) - fdbhdr.hdrsize) / fdbhdr.recsize);
 				if (files) {
 				    errmsg("There are stil %d files in this area", files);
 				    Available = TRUE;
@@ -444,11 +443,10 @@ int EditFileRec(int Area)
 		case 21:E_INT( 12,73,    area.DLdays,    "The not ^downloaded days^ to move/kill files")
 		case 22:E_INT( 13,73,    area.FDdays,    "The ^file age^ in days to move/kill files")
 		case 23:E_INT( 14,73,    area.MoveArea,  "The ^area to move^ files to, 0 is kill")
-		case 24:E_INT( 15,73,    area.Cost,      "The ^cost^ to download a file")
-		case 25:strcpy(area.Archiver, PickArchive((char *)"8.4"));
+		case 24:strcpy(area.Archiver, PickArchive((char *)"8.4"));
 			FileScreen();
 			break;
-		case 26:E_INT( 17,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
+		case 25:E_INT( 16,73,    area.Upload,    "The ^upload^ area, 0 if upload in this area")
 		}
 	}
 }

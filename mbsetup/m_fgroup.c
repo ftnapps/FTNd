@@ -219,7 +219,6 @@ int AppendFGroup(void)
 	if ((fil = fopen(ffile, "a")) != NULL) {
 		memset(&fgroup, 0, sizeof(fgroup));
 		fgroup.StartDate = time(NULL);
-		fgroup.DivideCost = TRUE;
 		fgroup.FileGate = TRUE;
 		fgroup.Secure = TRUE;
 		fgroup.VirScan = TRUE;
@@ -280,28 +279,24 @@ void FgScreen(void)
 	mvprintw(18, 2, "13. Deleted");
 	mvprintw(19, 2, "14. Start at");
 
-	mvprintw(11,32, "15. Unit Cost");
-	mvprintw(12,32, "16. Unit Size");
-	mvprintw(13,32, "17. Add Prom.");
-	mvprintw(14,32, "18. Divide");
-	mvprintw(15,32, "19. Auto chng");
-	mvprintw(16,32, "20. User chng");
-	mvprintw(17,32, "21. Replace");
-	mvprintw(18,32, "22. Dupecheck");
-	mvprintw(19,32, "23. Secure");
+	mvprintw(12,32, "15. Auto chng");
+	mvprintw(13,32, "16. User chng");
+	mvprintw(14,32, "17. Replace");
+	mvprintw(15,32, "18. Dupecheck");
+	mvprintw(16,32, "19. Secure");
+	mvprintw(17,32, "20. Touch");
+	mvprintw(18,32, "21. Virscan");
+	mvprintw(19,32, "22. Announce");
 
-	mvprintw( 9,56, "24. Touch");
-	mvprintw(10,56, "25. Virscan");
-	mvprintw(11,56, "26. Announce");
-	mvprintw(12,56, "27. Upd magic");
-	mvprintw(13,56, "28. File ID");
-	mvprintw(14,56, "29. Conv. all");
-	mvprintw(15,56, "30. Send orig");
-	mvprintw(16,56, "31. DL sec");
-	mvprintw(17,56, "32. UP sec");
-	mvprintw(18,56, "33. LT sec");
-	mvprintw(19,56, "34. Upl. area");
-	mvprintw(20,56, "35. Link sec");
+	mvprintw(11,56, "23. Upd magic");
+	mvprintw(12,56, "24. File ID");
+	mvprintw(13,56, "25. Conv. all");
+	mvprintw(14,56, "26. Send orig");
+	mvprintw(15,56, "27. DL sec");
+	mvprintw(16,56, "28. UP sec");
+	mvprintw(17,56, "29. LT sec");
+	mvprintw(18,56, "30. Upl. area");
+	mvprintw(19,56, "31. Link sec");
 }
 
 
@@ -356,29 +351,25 @@ int EditFGrpRec(int Area)
 		show_bool(18,16,    fgroup.Deleted);
 		show_int( 19,16,    fgroup.StartArea);
 
-		show_int( 11,46,    fgroup.UnitCost);
-		show_int( 12,46,    fgroup.UnitSize);
-		show_int( 13,46,    fgroup.AddProm);
-		show_bool(14,46,    fgroup.DivideCost);
-		show_bool(15,46,    fgroup.AutoChange);
-		show_bool(16,46,    fgroup.UserChange);
-		show_bool(17,46,    fgroup.Replace);
-		show_bool(18,46,    fgroup.DupCheck);
-		show_bool(19,46,    fgroup.Secure);
+		show_bool(12,46,    fgroup.AutoChange);
+		show_bool(13,46,    fgroup.UserChange);
+		show_bool(14,46,    fgroup.Replace);
+		show_bool(15,46,    fgroup.DupCheck);
+		show_bool(16,46,    fgroup.Secure);
+		show_bool(17,46,    fgroup.Touch);
+		show_bool(18,46,    fgroup.VirScan);
+		show_bool(19,46,    fgroup.Announce);
 
-		show_bool( 9,70,    fgroup.Touch);
-		show_bool(10,70,    fgroup.VirScan);
-		show_bool(11,70,    fgroup.Announce);
-		show_bool(12,70,    fgroup.UpdMagic);
-		show_bool(13,70,    fgroup.FileId);
-		show_bool(14,70,    fgroup.ConvertAll);
-		show_bool(15,70,    fgroup.SendOrg);
-		show_int( 16,70,    fgroup.DLSec.level);
-		show_int( 17,70,    fgroup.UPSec.level);
-		show_int( 18,70,    fgroup.LTSec.level);
-		show_int( 19,70,    fgroup.Upload);
+		show_bool(11,70,    fgroup.UpdMagic);
+		show_bool(12,70,    fgroup.FileId);
+		show_bool(13,70,    fgroup.ConvertAll);
+		show_bool(14,70,    fgroup.SendOrg);
+		show_int( 15,70,    fgroup.DLSec.level);
+		show_int( 16,70,    fgroup.UPSec.level);
+		show_int( 17,70,    fgroup.LTSec.level);
+		show_int( 18,70,    fgroup.Upload);
 
-		j = select_menu(35);
+		j = select_menu(31);
 		switch(j) {
 		case 0:	if (!fgroup.StartArea && strlen(fgroup.AreaFile)) {
 			    errmsg("Areas file defined but no BBS start area");
@@ -450,38 +441,34 @@ int EditFGrpRec(int Area)
 			E_BOOL(18,16,   fgroup.Deleted,    "Is this file group ^Deleted^")
 		case 14:E_INT( 19,16,   fgroup.StartArea,  "The ^start area^ to create new BBS areas")
 
-		case 15:E_INT( 11,46,   fgroup.UnitCost,   "The ^cost per size unit^ files received in this tic group")
-		case 16:E_INT( 12,46,   fgroup.UnitSize,   "The ^unit size^ in KBytes, 0 means cost per file in this tic group")
-		case 17:E_INT( 13,46,   fgroup.AddProm,    "The ^Promillage^ to add or substract of the filecost")
-		case 18:E_BOOL(14,46,   fgroup.DivideCost, "^Divide^ the cost over all downlinks or charge each link full cost")
-		case 19:E_BOOL(15,46,   fgroup.AutoChange, "^Automatic change areas^ when a new arealist is received")
-		case 20:tmp = edit_bool(16,46, fgroup.UserChange, (char *)"Create new areas when ^users^ request new tic areas");
+		case 15:E_BOOL(12,46,   fgroup.AutoChange, "^Automatic change areas^ when a new arealist is received")
+		case 16:tmp = edit_bool(13,46, fgroup.UserChange, (char *)"Create new areas when ^users^ request new tic areas");
 			if (tmp && !fgroup.UpLink.zone)
 			    errmsg("It looks like you are at the toplevel, no Uplink defined");
 			else
 			    fgroup.UserChange = tmp;
 			break;
-		case 21:E_BOOL(17,46,   fgroup.Replace,    "Set ^Replace^ in new created tic areas")
-		case 22:E_BOOL(18,46,   fgroup.DupCheck,   "Set ^Dupe check^ in new created tic areas")
-		case 23:E_BOOL(19,46,   fgroup.Secure,     "Set ^Secure^ tic processing in new created tic areas")
+		case 17:E_BOOL(14,46,   fgroup.Replace,    "Set ^Replace^ in new created tic areas")
+		case 18:E_BOOL(15,46,   fgroup.DupCheck,   "Set ^Dupe check^ in new created tic areas")
+		case 19:E_BOOL(16,46,   fgroup.Secure,     "Set ^Secure^ tic processing in new created tic areas")
+		case 20:E_BOOL(17,46,   fgroup.Touch,      "Set ^Touch filedate^ in new created tic areas")
+		case 21:E_BOOL(18,46,   fgroup.VirScan,    "Set ^Virus scanner^ in new created tic areas")
+		case 22:E_BOOL(19,46,   fgroup.Announce,   "Set ^Announce files^ in new created tic areas")
 
-		case 24:E_BOOL( 9,70,   fgroup.Touch,      "Set ^Touch filedate^ in new created tic areas")
-		case 25:E_BOOL(10,70,   fgroup.VirScan,    "Set ^Virus scanner^ in new created tic areas")
-		case 26:E_BOOL(11,70,   fgroup.Announce,   "Set ^Announce files^ in new created tic areas")
-		case 27:E_BOOL(12,70,   fgroup.UpdMagic,   "Set ^Update magic^ in new created tic areas")
-		case 28:E_BOOL(13,70,   fgroup.FileId,     "Set ^FILE_ID.DIZ extract^ in new created tic areas")
-		case 29:tmp = edit_bool(14,70, fgroup.ConvertAll, (char *)"Set ^Convert All^ setting in new created tic areas");
+		case 23:E_BOOL(11,70,   fgroup.UpdMagic,   "Set ^Update magic^ in new created tic areas")
+		case 24:E_BOOL(12,70,   fgroup.FileId,     "Set ^FILE_ID.DIZ extract^ in new created tic areas")
+		case 25:tmp = edit_bool(13,70, fgroup.ConvertAll, (char *)"Set ^Convert All^ setting in new created tic areas");
 			if (tmp && !fgroup.ConvertAll && (strlen(fgroup.Convert) == 0))
 			    errmsg("No archiver configured to convert to, edit 9 first");
 			else
 			    fgroup.ConvertAll = tmp;
 			break;
-		case 30:E_BOOL(15,70,   fgroup.SendOrg,    "Set ^Send original^ setting in new created tic areas")
-		case 31:E_SEC( 16,70,   fgroup.DLSec,      "10.1.31 FILE GROUP DOWNLOAD SECURITY", FgScreen)
-		case 32:E_SEC( 17,70,   fgroup.UPSec,      "10.1.32 FILE GROUP UPLOAD SECURITY", FgScreen)
-		case 33:E_SEC( 18,70,   fgroup.LTSec,      "10.1.33 FILE GROUP LIST SECURITY", FgScreen)
-		case 34:E_INT( 19,70,   fgroup.Upload,     "Set the default ^Upload area^ in new created file areas")
-		case 35:fgroup.LinkSec = edit_asec(fgroup.LinkSec, (char *)"10.1.35 DEFAULT NEW TIC AREAS SECURITY");
+		case 26:E_BOOL(14,70,   fgroup.SendOrg,    "Set ^Send original^ setting in new created tic areas")
+		case 27:E_SEC( 15,70,   fgroup.DLSec,      "10.1.27 FILE GROUP DOWNLOAD SECURITY", FgScreen)
+		case 28:E_SEC( 16,70,   fgroup.UPSec,      "10.1.28 FILE GROUP UPLOAD SECURITY", FgScreen)
+		case 29:E_SEC( 17,70,   fgroup.LTSec,      "10.1.29 FILE GROUP LIST SECURITY", FgScreen)
+		case 30:E_INT( 18,70,   fgroup.Upload,     "Set the default ^Upload area^ in new created file areas")
+		case 31:fgroup.LinkSec = edit_asec(fgroup.LinkSec, (char *)"10.1.31 DEFAULT NEW TIC AREAS SECURITY");
 			FgScreen();
 			break;
 		}
@@ -726,10 +713,6 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Use Aka        %s\n", aka2str(fgroup.UseAka));
 		fprintf(fp, "    Uplink         %s\n", aka2str(fgroup.UpLink));
 		fprintf(fp, "    Areas file     %s\n", fgroup.AreaFile);
-		fprintf(fp, "    Divice cost    %s\n", getboolean(fgroup.DivideCost));
-		fprintf(fp, "    Unit cost      %ld\n", fgroup.UnitCost);
-		fprintf(fp, "    Unit size      %ld\n", fgroup.UnitSize);
-		fprintf(fp, "    Add promille   %ld\n", fgroup.AddProm);
 		fprintf(fp, "    Start area     %ld\n", fgroup.StartArea);
 		fprintf(fp, "    Banner file    %s\n", fgroup.Banner);
 		fprintf(fp, "    Def. archiver  %s\n", fgroup.Convert);

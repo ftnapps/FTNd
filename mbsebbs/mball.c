@@ -332,14 +332,15 @@ void Masterlist()
 	if (area.Available && (area.LTSec.level <= CFG.security.level)) {
 
 	    Nopper();
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), AreaNr);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), AreaNr);
 
 	    if ((pFile = fopen (fAreas, "r")) == NULL) {
 		WriteError("$Can't open Area %d (%s)! Skipping ...", AreaNr, area.Name);
 	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 		popdown = 0;
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    if ((!file.Deleted) && (!file.Missing)) {
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    if (!fdb.Deleted) {
 			/*
 			 * The next is to reduce system load.
 			 */
@@ -348,16 +349,16 @@ void Masterlist()
 			    msleep(1);
 			AllFiles++;
 			AllAreaFiles++;
-			AllAreaBytes += file.Size;
-			down = file.TimesDL + file.TimesFTP + file.TimesReq;
+			AllAreaBytes += fdb.Size;
+			down = fdb.TimesDL;
 			if (down > popdown) {
 			    popdown = down;
-			    sprintf(pop, "%s", file.Name);
+			    sprintf(pop, "%s", fdb.Name);
 			}
-			if (((t_start - file.UploadDate) / 84400) <= CFG.newdays) {
+			if (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays) {
 			    NewFiles++;
 			    NewAreaFiles++;
-			    NewAreaBytes += file.Size;
+			    NewAreaBytes += fdb.Size;
 			}
 		    }
 		}
@@ -392,28 +393,27 @@ void Masterlist()
 		    BotBox(fp, TRUE);
 		    BotBox(np, NewAreaFiles);
 
-		    fseek(pFile, 0, SEEK_SET);
-		    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-			if((!file.Deleted) && (!file.Missing)) {
-			    New = (((t_start - file.UploadDate) / 84400) <= CFG.newdays);
+		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
+		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+			if (!fdb.Deleted) {
+			    New = (((t_start - fdb.UploadDate) / 84400) <= CFG.newdays);
 			    sprintf(temp, "%-12s%10lu K %s [%04ld] Uploader: %s",
-				file.Name, (long)(file.Size / 1024), StrDateDMY(file.UploadDate), 
-				file.TimesDL + file.TimesFTP + file.TimesReq, 
-				strlen(file.Uploader)?file.Uploader:"");
+				fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.UploadDate), fdb.TimesDL, 
+				strlen(fdb.Uploader)?fdb.Uploader:"");
 			    fprintf(fp, "%s\r\n", temp);
 			    if (New)
 				fprintf(np, "%s\r\n", temp);
 	
 			    for (z = 0; z <= 25; z++) {
-				if (strlen(file.Desc[z])) {
-				    if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
-					fprintf(fp, "                         %s\r\n",file.Desc[z]+4);
+				if (strlen(fdb.Desc[z])) {
+				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
+					fprintf(fp, "                         %s\r\n",fdb.Desc[z]+4);
 					if (New)
-					    fprintf(np, "                         %s\r\n",file.Desc[z]+4);
+					    fprintf(np, "                         %s\r\n",fdb.Desc[z]+4);
 				    } else {
-					fprintf(fp, "                         %s\r\n",file.Desc[z]);
+					fprintf(fp, "                         %s\r\n",fdb.Desc[z]);
 					if (New)
-					    fprintf(np, "                         %s\r\n",file.Desc[z]);
+					    fprintf(np, "                         %s\r\n",fdb.Desc[z]);
 				    }
 				}
 			    }

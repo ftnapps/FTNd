@@ -1,7 +1,70 @@
 $Id$
 
+		If you feel lucky then try this version, if not just wait
+		a few days so that I fix the destructive bugs that might
+		be present in this version.
 
-v0.51.1		21-Feb-2004
+
+v0.51.2		06-Mar-2004
+
+	upgrade:
+		Before upgrade announce all new files!
+		Compile all programs.
+		Close the system with mbstat close.
+		Install programs as root (as usual).
+		Start mbsetup, this can take a while on a system with lots of
+		files, during startup the files database will be converted.
+		After the menu appears, you may exit mbsetup.
+		Open the system again.
+		If you want you may restart mbtask.
+
+	general:
+		Updated to a new files database structure that allows for
+		expanding the records like most other databases to allow new
+		features.
+		Removed all references to costsharing for ticfiles which wasn't
+		fully implemented.
+
+	mbcico:
+		Updated file request function to new files database structure.
+
+	mbfido:
+		When removing files during tic import due to replace or maximum
+		files, thumbnails are now also removed from disk.
+		Updated tic file import function to the new files database
+		structure.
+
+	mbfile:
+		Updated kill, index, check, pack, list, adopt, import, move,
+		delete and sort to the new files database structure.
+		The file delete function in kill didn't delete the thumbnail.
+
+	mbaff:
+		When scanning for uploads, files which were hatched now have
+		the right tic area name instead of AREA n in the announce
+		record. They also contain the used magic filename if this is
+		known.
+		The scan for new uploads function is updated to the new files
+		database structure.
+		The filefind function is updated to the new files database
+		structure.
+
+	mbsebbs:
+		Updated to the new files database structure.
+
+	mbsetup:
+		Added auto upgrade for the files database.
+		Changed menus 14, 7.n.6, 10.1 and 8.4.
+
+	examples:
+		Updated English, German, Spanish and Dutch macro files:
+		html.nodes and filemgr.status.
+
+	lang:
+		removed obsolede prompt 240.
+
+
+v0.51.1		21-Feb-2004 - 06-Mar-2004
 
 	upgrade:
 		In all message groups set check/set default character set.

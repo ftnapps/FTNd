@@ -238,7 +238,7 @@ RPE|(R)ispondi, (P)rossimo, (E)sci:
 |Non trovo il database dei file di quest'area
 |Uploadato da: 
 |C A N C E L L A T O
-|M A N C A N T E
+|
 SN|Nodo sconosciuto, continua lo stesso [s/N]: 
 |File Totali: 
 |FATAL: Non trovo il database dell'area

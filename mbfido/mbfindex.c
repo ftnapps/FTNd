@@ -379,7 +379,7 @@ void ReqIndex(void)
 		newdir = NULL;
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 
 	    /*
 	     * Open the file database, if it doesn't exist,
@@ -391,6 +391,11 @@ void ReqIndex(void)
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    }
 
 	    /*
@@ -401,13 +406,13 @@ void ReqIndex(void)
 		 * Now start creating the unsorted index.
 		 */
 		record = 0;
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 		    iTotal++;
 		    if ((iTotal % 10) == 0)
 			Marker();
 		    memset(&idx, 0, sizeof(idx));
-		    sprintf(idx.Name, "%s", tu(file.Name));
-		    sprintf(idx.LName, "%s", tu(file.LName));
+		    sprintf(idx.Name, "%s", tu(fdb.Name));
+		    sprintf(idx.LName, "%s", tu(fdb.LName));
 		    idx.AreaNum = i;
 		    idx.Record = record;
 		    fill_index(idx, &fdx);
@@ -426,15 +431,15 @@ void ReqIndex(void)
 	    if ((fp = fopen(temp, "w")) == NULL) {
 		WriteError("$Can't create %s", temp);
 	    } else {
-		fseek(pFile, 0, SEEK_SET);
+		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 		fbAreas++;
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    if ((!file.Deleted) && (!file.Missing)) {
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    if (!fdb.Deleted) {
 			fbFiles++;
-			fprintf(fp, "%-12s [%ld] %s\r\n", file.Name, file.TimesDL + file.TimesFTP + file.TimesReq, file.Desc[0]);
+			fprintf(fp, "%-12s [%ld] %s\r\n", fdb.Name, fdb.TimesDL, fdb.Desc[0]);
 			for (j = 1; j < 25; j++)
-			    if (strlen(file.Desc[j]))
-				fprintf(fp, " +%s\r\n", file.Desc[j]);
+			    if (strlen(fdb.Desc[j]))
+				fprintf(fp, " +%s\r\n", fdb.Desc[j]);
 		    }
 		}
 		fclose(fp);
@@ -450,10 +455,10 @@ void ReqIndex(void)
 		if ((fp = fopen(temp, "w")) == NULL) {
 		    WriteError("$Can't create %s", temp);
 		} else {
-		    fseek(pFile, 0, SEEK_SET);
+		    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 
-		    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-			if ((!file.Deleted) && (!file.Missing)) {
+		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+			if (!fdb.Deleted) {
 			    /*
 			     * The next is to reduce system load
 			     */
@@ -462,16 +467,16 @@ void ReqIndex(void)
 				msleep(1);
 
 			    for (z = 0; z <= 25; z++) {
-				if (strlen(file.Desc[z])) {
+				if (strlen(fdb.Desc[z])) {
 				    if (z == 0)
-					fprintf(fp, "%-12s %7luK %s ", file.Name, (long)(file.Size / 1024), 
-						StrDateDMY(file.UploadDate));
+					fprintf(fp, "%-12s %7luK %s ", fdb.Name, (long)(fdb.Size / 1024), 
+						StrDateDMY(fdb.UploadDate));
 				    else
 					fprintf(fp, "                                 ");
-				    if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X'))
-					fprintf(fp, "%s\n", file.Desc[z]+4);
+				    if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X'))
+					fprintf(fp, "%s\n", fdb.Desc[z]+4);
 				    else
-					fprintf(fp, "%s\n", file.Desc[z]);
+					fprintf(fp, "%s\n", fdb.Desc[z]);
 				}
 			    }
 			}
@@ -600,7 +605,7 @@ void HtmlIndex(char *Lang)
 		fflush(stdout);
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), i);
 
 	    /*
 	     * Open the file database, if it doesn't exist,
@@ -609,21 +614,22 @@ void HtmlIndex(char *Lang)
 	    if ((pFile = fopen(fAreas, "r+")) == NULL) {
 		WriteError("$Can't open %s", fAreas);
 		die(MBERR_GENERAL);
-	    } 
+	    }
+	    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 
 	    /*
 	     * Create index.html pages in each available download area.
 	     */
 	    if (!area.CDrom && fm && (strncmp(CFG.ftp_base, area.Path, strlen(CFG.ftp_base)) == 0)) {
 
-		fseek(pFile, 0, SEEK_SET);
+		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 		AreasHtml++;
 		inArea = 0;
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    if ((!file.Deleted) && (!file.Missing))
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    if (!fdb.Deleted)
 			inArea++;
 		}
-		fseek(pFile, 0, SEEK_SET);
+		fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 
 		aSize = 0L;
 		aTotal = 0;
@@ -635,8 +641,8 @@ void HtmlIndex(char *Lang)
 		    fileptr1 = gfilepos;
 		}
 
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    if ((!file.Deleted) && (!file.Missing)) {
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    if (!fdb.Deleted) {
 			/*
 			 * The next is to reduce system load
 			 */
@@ -654,40 +660,40 @@ void HtmlIndex(char *Lang)
 			 * check if a thumbnail file exists. If not try to
 			 * create a thumbnail file to add to the html listing.
 			 */
-			if (strstr(file.LName, ".gif") || strstr(file.LName, ".jpg") ||
-			    strstr(file.LName, ".GIF") || strstr(file.LName, ".JPG")) {
-			    sprintf(linebuf, "%s/%s", area.Path, file.Name);
-			    sprintf(outbuf, "%s/.%s", area.Path, file.Name);
+			if (strstr(fdb.LName, ".gif") || strstr(fdb.LName, ".jpg") ||
+			    strstr(fdb.LName, ".GIF") || strstr(fdb.LName, ".JPG")) {
+			    sprintf(linebuf, "%s/%s", area.Path, fdb.Name);
+			    sprintf(outbuf, "%s/.%s", area.Path, fdb.Name);
 			    if (file_exist(outbuf, R_OK)) {
 				if ((j = execute_str(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
-				    Syslog('+', "Failed to create thumbnail for %s, rc=% d", file.Name, j);
+				    Syslog('+', "Failed to create thumbnail for %s, rc=% d", fdb.Name, j);
 				} else {
 				    chmod(outbuf, 0644);
 				}
 			    }
 			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp, 
-					area.Path+strlen(CFG.ftp_base), file.Name);
+					area.Path+strlen(CFG.ftp_base), fdb.Name);
 			    sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.Name);
-			    MacroVars("fghi", "dsss", 1, outbuf, file.LName, linebuf);
+					area.Path+strlen(CFG.ftp_base), fdb.Name);
+			    MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);
 			} else {
 			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.Name);
-			    MacroVars("fghi", "dsss", 0, outbuf, file.LName, "");
+					area.Path+strlen(CFG.ftp_base), fdb.Name);
+			    MacroVars("fghi", "dsss", 0, outbuf, fdb.LName, "");
 			}
 
-			sprintf(outbuf, "%lu Kb.", (long)(file.Size / 1024));
-			MacroVars("jkl", "ssd", StrDateDMY(file.FileDate), outbuf, file.TimesDL+file.TimesFTP+file.TimesReq);
+			sprintf(outbuf, "%lu Kb.", (long)(fdb.Size / 1024));
+			MacroVars("jkl", "ssd", StrDateDMY(fdb.FileDate), outbuf, fdb.TimesDL);
 			memset(&desc, 0, sizeof(desc));
 			k = 0;
 			for (j = 0; j < 25; j++)
-			    if (strlen(file.Desc[j])) {
+			    if (strlen(fdb.Desc[j])) {
 				if (j) {
 				    sprintf(desc+k, "\n");
 				    k += 1;
 				}
-			        sprintf(linebuf, "%s", To_Html(file.Desc[j]));
+			        sprintf(linebuf, "%s", To_Html(fdb.Desc[j]));
 				html_massage(linebuf, outbuf);
 				sprintf(desc+k, "%s", outbuf);
 				k += strlen(outbuf);
@@ -695,10 +701,10 @@ void HtmlIndex(char *Lang)
 			MacroVars("m", "s", desc);
 			fseek(fb, fileptr1, SEEK_SET);
 			MacroRead(fb, fa);
-			aSize += file.Size;
+			aSize += fdb.Size;
 			MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
-			if (file.FileDate > last)
-			    last = file.FileDate;
+			if (fdb.FileDate > last)
+			    last = fdb.FileDate;
 			if ((aTotal % CFG.www_files_page) == 0) {
 			    closepage(fa, area.Path, inArea, aTotal, fb);
 			    fseek(fb, 0, SEEK_SET);

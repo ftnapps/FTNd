@@ -238,7 +238,7 @@ CSR|(C)ontestar, (S)eguinte, (R)ematar:
 |Non podo abri-la base de ficheiros desta  rea
 |Enviado por: 
 |B O R R A D O
-|P E R D I D O
+|
 SN|Nodo desco¤ecido. ¨Continuar? [s/N]: 
 |Total Fichs: 
 |FATAL: Imposible abrir base de  reas

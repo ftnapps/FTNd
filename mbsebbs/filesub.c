@@ -151,29 +151,31 @@ void GetstrD(char *sStr, int iMaxlen)
 
 
 /*
- * Open FileDataBase.
+ * Open FileDataBase, the filepointer is at the begin of the first record.
  */
 FILE *OpenFileBase(unsigned long Area, int Write)
 {
-	FILE	*pFile;
-	char	*FileBase;
+    FILE    *pFile;
+    char    *FileBase;
 
-	FileBase = calloc(PATH_MAX, sizeof(char));
-	sprintf(FileBase,"%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), Area);
+    FileBase = calloc(PATH_MAX, sizeof(char));
+    sprintf(FileBase,"%s/fdb/file%ld.data", getenv("MBSE_ROOT"), Area);
 
-	if (Write)
-		pFile = fopen(FileBase, "r+");
-	else
-		pFile = fopen(FileBase, "r");
+    if (Write)
+	pFile = fopen(FileBase, "r+");
+    else
+	pFile = fopen(FileBase, "r");
 
-	if (pFile == NULL) {
-		WriteError("$Can't open file: %s", FileBase);
-		/* Can't open file database for this area */
-		printf("%s\n\n", (char *) Language(237));
-		sleep(2);
-	}
-	free(FileBase);
-	return pFile;
+    if (pFile == NULL) {
+	WriteError("$Can't open file: %s", FileBase);
+	/* Can't open file database for this area */
+	printf("%s\n\n", (char *) Language(237));
+	sleep(2);
+    }
+
+    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+    free(FileBase);
+    return pFile;
 }
 
 
@@ -408,48 +410,48 @@ int ShowOneFile()
 {
     int	y, z, fg, bg;
 
-    if ((!file.Deleted) && (!file.Missing)) {
+    if (!fdb.Deleted) {
 
 	colour(7, 0);
 	printf(" %02d ", Tagnr);
 
 	colour(CFG.FilenameF, CFG.FilenameB);
-	printf("%-12s", file.Name);
+	printf("%-12s", fdb.Name);
 
 	colour(CFG.FilesizeF, CFG.FilesizeB);
-	printf("%10lu ", (long)(file.Size));
+	printf("%10lu ", (long)(fdb.Size));
 
 	colour(CFG.FiledateF, CFG.FiledateB);
-	printf("%-10s  ", StrDateDMY(file.UploadDate));
+	printf("%-10s  ", StrDateDMY(fdb.UploadDate));
 
 	colour(12, 0);
-	printf("[%4ld] ", file.TimesDL);
+	printf("[%4ld] ", fdb.TimesDL);
 
-	if ((strcmp(file.Uploader, "")) == 0)
-	    strcpy(file.Uploader, "SysOp");
+	if ((strcmp(fdb.Uploader, "")) == 0)
+	    strcpy(fdb.Uploader, "SysOp");
 
 	colour(CFG.HiliteF, CFG.HiliteB);
-	printf("%s%s\n", (char *) Language(238), file.Uploader);
+	printf("%s%s\n", (char *) Language(238), fdb.Uploader);
 
 	if (iLC(1) == 1) 
 	    return 1;
 
-	for (z = 0; z <= 25; z++) {
-	    if ((y = strlen(file.Desc[z])) > 1) {
-		if ((file.Desc[z][0] == '@') && (file.Desc[z][1] == 'X')) {
+	for (z = 0; z < 25; z++) {
+	    if ((y = strlen(fdb.Desc[z])) > 1) {
+		if ((fdb.Desc[z][0] == '@') && (fdb.Desc[z][1] == 'X')) {
 		    /*
 		     *  Color formatted description lines.
 		     */
-		    if (file.Desc[z][3] > '9')
-			fg = (int)file.Desc[z][3] - 55;
+		    if (fdb.Desc[z][3] > '9')
+			fg = (int)fdb.Desc[z][3] - 55;
 		    else
-			fg = (int)file.Desc[z][3] - 48;
-		    bg = (int)file.Desc[z][2] - 48;
+			fg = (int)fdb.Desc[z][3] - 48;
+		    bg = (int)fdb.Desc[z][2] - 48;
 		    colour(fg, bg);
-		    printf("    %s\n",file.Desc[z]+4);
+		    printf("    %s\n",fdb.Desc[z]+4);
 		} else {
 		    colour(CFG.FiledescF, CFG.FiledescB);
-		    printf("    %s\n",file.Desc[z]);
+		    printf("    %s\n",fdb.Desc[z]);
 		}
 
 		if (iLC(1) == 1) 
@@ -850,18 +852,18 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    return FALSE;
 	}
 
-	memset(&file, 0, sizeof(file));
-	strcpy(file.LName, File);
+	memset(&fdb, 0, fdbhdr.recsize);
+	strcpy(fdb.LName, File);
 	strcpy(temp1, File);
 	name_mangle(temp1);
-	strcpy(file.Name, temp1);
-	file.Size = (long)(statfile.st_size);
-	file.FileDate = statfile.st_mtime;
-	file.Crc32 = file_crc(Filename, TRUE);
-	strcpy(file.Uploader, exitinfo.sUserName);
-	file.UploadDate = time(NULL);
-	if (strcmp(file.Name, file.LName)) {
-	    sprintf(lname, "%s/%s", area.Path, file.Name);
+	strcpy(fdb.Name, temp1);
+	fdb.Size = (long)(statfile.st_size);
+	fdb.FileDate = statfile.st_mtime;
+	fdb.Crc32 = file_crc(Filename, TRUE);
+	strcpy(fdb.Uploader, exitinfo.sUserName);
+	fdb.UploadDate = time(NULL);
+	if (strcmp(fdb.Name, fdb.LName)) {
+	    sprintf(lname, "%s/%s", area.Path, fdb.Name);
 	    if (symlink(Filename, lname)) {
 		WriteError("$Can't create link %s to %s", lname, Filename);
 	    }
@@ -882,7 +884,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 		printf("%s", (char *) Language(8));
 		fflush(stdout);
 		fflush(stdin);
-		GetstrC(file.Password, 20);
+		GetstrC(fdb.Password, 20);
 	    }
 	}
 
@@ -924,7 +926,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 			 */
 			GotId = FALSE;
 			for (i = 0; i < 25; i++)
-			    file.Desc[i][0] = '\0';
+			    fdb.Desc[i][0] = '\0';
 			lines = 0;
 			Syslog('!', "Trashing illegal formatted FILE_ID.DIZ");
 			break;
@@ -933,7 +935,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 			j = 0;
 			for (i = 0; i < strlen(temp1); i++) {
 			    if (isprint(temp1[i])) {
-				file.Desc[lines][j] = temp1[i];
+				fdb.Desc[lines][j] = temp1[i];
 				j++;
 				if (j > 47)
 				    break;
@@ -943,9 +945,9 @@ int Addfile(char *File, int AreaNum, int fileid)
 			/*
 			 * Remove trailing spaces
 			 */
-			while (j && isspace(file.Desc[lines][j-1]))
+			while (j && isspace(fdb.Desc[lines][j-1]))
 			    j--;
-			file.Desc[lines][j] = '\0';
+			fdb.Desc[lines][j] = '\0';
 			lines++;
 		    }
 		}
@@ -957,8 +959,8 @@ int Addfile(char *File, int AreaNum, int fileid)
 		/*
 		 * Strip empty FILE_ID.DIZ lines at the end
 		 */
-		while ((strlen(file.Desc[lines-1]) == 0) && (lines)) {
-		    file.Desc[lines-1][0] = '\0';
+		while ((strlen(fdb.Desc[lines-1]) == 0) && (lines)) {
+		    fdb.Desc[lines-1][0] = '\0';
 		    lines--;
 		}
 		if (lines) {
@@ -1002,14 +1004,14 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    }
 
 	    for (i = 1; i < iDesc; i++)
-		strcpy(file.Desc[i - 1], Desc[i]);
+		strcpy(fdb.Desc[i - 1], Desc[i]);
 
 	    for (i = 0; i < 26; i++)
 		free(Desc[i]);
 	}
 
 	fseek(pFileDB, 0, SEEK_END);
-	fwrite(&file, sizeof(file), 1, pFileDB);
+	fwrite(&fdb, fdbhdr.recsize, 1, pFileDB);
 	fclose(pFileDB);
 
 	sprintf(temp, "%s/log/uploads.log", getenv("MBSE_ROOT"));
@@ -1018,13 +1020,13 @@ int Addfile(char *File, int AreaNum, int fileid)
 	else {
 	    iPrivate = TRUE;
 	    fprintf(pPrivate, "****************************************************");
-	    fprintf(pPrivate, "\nUser        : %s", file.Uploader);
-	    fprintf(pPrivate, "\nFile        : %s (%s)", file.LName, file.Name);
-	    fprintf(pPrivate, "\nSize        : %lu", (long)(file.Size));
-	    fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(file.UploadDate));
+	    fprintf(pPrivate, "\nUser        : %s", fdb.Uploader);
+	    fprintf(pPrivate, "\nFile        : %s (%s)", fdb.LName, fdb.Name);
+	    fprintf(pPrivate, "\nSize        : %lu", (long)(fdb.Size));
+	    fprintf(pPrivate, "\nUpload Date : %s\n\n", StrDateDMY(fdb.UploadDate));
 				
 	    for (i = 0; i < iDesc - 1; i++)
-		fprintf(pPrivate, "%2d: %s\n", i, file.Desc[i]);
+		fprintf(pPrivate, "%2d: %s\n", i, fdb.Desc[i]);
 
 	    fclose(pPrivate);
 	}

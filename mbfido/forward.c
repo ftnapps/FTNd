@@ -43,7 +43,7 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-    char	*subject = NULL, *fwdfile = NULL, *queuedir, *listfile, *ticfile = NULL, fname[PATH_MAX], *ticname, flavor;
+    char	*subject = NULL, *fwdfile = NULL, *queuedir, *listfile, *ticfile = NULL, *ticname, flavor;
     FILE	*fp, *fi, *fl, *net;
     faddr	*dest, *routeto, *Fa, *Temp, *ba;
     int		i, z, n;
@@ -55,28 +55,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	return;
     }
     Syslog('+', "Forward file to %s %s netmail", aka2str(Node), nodes.Message?"with":"without");
-
-    /*
-     * If Costsharing active for this node
-     */
-    if (nodes.Billing) {
-	/*
-	 * Check if this node has enough credits for this file.
-	 */
-	T_File.Cost = TIC.FileCost + (TIC.FileCost * nodes.AddPerc / 1000);
-	if ((nodes.Credit < (nodes.StopLevel + T_File.Cost))  && (!TIC.Charge)) {
-	    Syslog('!', "No forward to %s, not enough credit left", aka2str(Node));
-	    return;
-	}
-
-	/*
-	 * Check if we are passing the warning level
-	 */
-	if ((nodes.Credit > nodes.WarnLevel) && ((nodes.Credit - T_File.Cost) <= nodes.WarnLevel)) {
-	    Syslog('+', "Low credit warning to %s", aka2str(Node));
-	    /* CREATE NETMAIL */
-	}
-    }
 
     fwdfile  = calloc(PATH_MAX, sizeof(char));
     queuedir = calloc(PATH_MAX, sizeof(char));
@@ -206,12 +184,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    if (nodes.AdvTic) {
 		fprintf(fp, "Areadesc %s\r\n", tic.Comment);
 		fprintf(fp, "Fdn %s\r\n", fgroup.Comment);
-		/*
-		 * According to Harald Harms this field must
-		 * be multiplied with 100.
-		 */
-		if (TIC.FileCost && nodes.Billing) 
-		    fprintf(fp, "Cost %ld.00\r\n", T_File.Cost);
 		if (TIC.TicIn.TotLDesc)
 		    for (i = 0; i < TIC.TicIn.TotLDesc; i++)
 			fprintf(fp, "LDesc %s\r\n", TIC.TicIn.LDesc[i]);
@@ -287,30 +259,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    fprintf(fl, "%c KFS %s\n", flavor, ticfile);
 	} else {
 	    WriteError("$Can't create %s", ticfile);
-	}
-    }
-
-    if (TIC.Charge && nodes.Billing) {
-	nodes.Credit -= TIC.FileCost;
-	Syslog('-', "Cost: %d  Left: %d", TIC.FileCost, nodes.Credit);
-
-	/*
-	 * Add an entry to the billing file, each node has his own
-	 * billing file.
-	 */
-	sprintf(fname, "%s/tmp/%d.%d.%d.%d.bill", getenv("MBSE_ROOT"), 
-		nodes.Aka[0].zone, nodes.Aka[0].net, nodes.Aka[0].node, nodes.Aka[0].point);
-	if ((fp = fopen(fname, "a+")) != NULL) {
-	    memset(&bill, 0, sizeof(bill));
-	    bill.Node = nodes.Aka[0];
-	    strcpy(bill.FileName, TIC.NewFile);
-	    strcpy(bill.FileEcho, TIC.TicIn.Area);
-	    bill.Size = TIC.FileSize;
-	    bill.Cost = TIC.FileCost;
-	    fwrite(&bill, sizeof(bill), 1, fp);
-	    fclose(fp);
-	} else {
-	    WriteError("$Can't create %s", fname);
 	}
     }
     fsync(fileno(fl));

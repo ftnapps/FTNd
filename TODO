@@ -77,6 +77,9 @@ mbtask:
 	   space is still available.
 
 mbfido:
+	N: When importing a tic file with magic name, remove the magic from
+	   the filerecord of the previous file.
+
 	N: The elist rules files are named (8.3) areaname.rul where areaname
 	   is the first 8 characters of the area name and we use the full name
 	   only. Make sure both namings are accepted?
@@ -132,7 +135,7 @@ mbcico:
 	N: Make workaround for binkp bug in Irex 2.24 upto 2.29
 
 mbfile:
-	L: Add a check to see if the magic filenames are (still) valid.
+	N: Add a check to see if the magic filenames are (still) valid.
 
 	L: Update <filespec> <area> <-touch>
 

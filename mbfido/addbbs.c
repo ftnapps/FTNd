@@ -48,13 +48,13 @@ extern	int	tic_imp;
  */
 int Add_BBS()
 {
-    struct FILERecord	frec;
-    int			rc, i, Insert, Done = FALSE, Found = FALSE;
-    char		fdbname[PATH_MAX], fdbtemp[PATH_MAX];
-    char		temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname, *p;
-    FILE		*fdb, *fdt;
-    int			Keep = 0, DidDelete = FALSE;
-    fd_list		*fdl = NULL;
+    struct FILE_recordhdr   frechdr;
+    struct FILE_record	    frec;
+    int			    rc, i, Insert, Done = FALSE, Found = FALSE, Keep = 0, DidDelete = FALSE;
+    char		    fdbname[PATH_MAX], fdbtemp[PATH_MAX];
+    char		    temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname, *p;
+    FILE		    *fp, *fdt;
+    fd_list		    *fdl = NULL;
 
     /*
      * First check for an existing record with the same filename,
@@ -62,20 +62,21 @@ int Add_BBS()
      * prevent for example allfiles.zip to get a new record everytime
      * and thus the download counters will be reset after a new update.
      */
-    sprintf(fdbname, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), tic.FileArea);
-    if ((fdb = fopen(fdbname, "r+")) != NULL) {
-	while (fread(&frec, sizeof(frec), 1, fdb) == 1) {
+    sprintf(fdbname, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), tic.FileArea);
+    if ((fp = fopen(fdbname, "r+")) != NULL) {
+	fread(&frechdr, sizeof(frechdr), 1, fp);
+	while (fread(&frec, frechdr.recsize, 1, fp) == 1) {
 	    if (strcmp(frec.Name, TIC.NewFile) == 0) {
 		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
 		sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewFile);
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp1, temp2))) {
 		    WriteError("Copy to %s failed: %s", temp2, strerror(rc));
-		    fclose(fdb);
+		    fclose(fp);
 		    return FALSE;
 		}
 		chmod(temp2, 0644);
-		frec.TicAreaCRC =  StringCRC32(TIC.TicIn.Area);
+		strncpy(frec.TicArea, TIC.TicIn.Area, sizeof(frec.TicArea) -1);
 		frec.Size = TIC.FileSize;
 		frec.Crc32 = TIC.Crc_Int;
 		frec.Announced = TRUE;
@@ -88,16 +89,16 @@ int Add_BBS()
 		}
 		if (strlen(TIC.TicIn.Magic))
 		    sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
-		fseek(fdb, 0 - sizeof(frec), SEEK_CUR);
-		fwrite(&frec, sizeof(frec), 1, fdb);
-		fclose(fdb);
+		fseek(fp, 0 - sizeof(frec), SEEK_CUR);
+		fwrite(&frec, sizeof(frec), 1, fp);
+		fclose(fp);
 		tic_imp++;
 		if ((i = file_rm(temp1)))
 		    WriteError("file_rm(%s): %s", temp1, strerror(i));
 		return TRUE;
 	    }
 	}
-	fclose(fdb);
+	fclose(fp);
     }
 
 
@@ -116,7 +117,7 @@ int Add_BBS()
 	for (i = 0; i < strlen(frec.LName); i++)
 	    frec.LName[i] = tolower(frec.LName[i]);
     }
-    frec.TicAreaCRC =  StringCRC32(TIC.TicIn.Area);
+    strncpy(frec.TicArea, TIC.TicIn.Area, 20);
     frec.Size = TIC.FileSize;
     frec.Crc32 = TIC.Crc_Int;
     frec.Announced = TRUE;
@@ -128,8 +129,10 @@ int Add_BBS()
 	if (i == 24)
 	    break;
     }
-    if (strlen(TIC.TicIn.Magic))
+    if (strlen(TIC.TicIn.Magic)) {
+	strncpy(frec.Magic, TIC.TicIn.Magic, sizeof(frec.Magic) -1);
 	sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
+    }
 
     sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
     sprintf(temp2, "%s/%s", TIC.BBSpath, frec.Name);
@@ -167,15 +170,19 @@ int Add_BBS()
     }
     free(lname);
 
-    sprintf(fdbtemp, "%s/fdb/fdb%ld.temp", getenv("MBSE_ROOT"), tic.FileArea);
-
-    if ((fdb = fopen(fdbname, "r+")) == NULL) {
+    sprintf(fdbtemp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), tic.FileArea);
+    if ((fp = fopen(fdbname, "r+")) == NULL) {
 	Syslog('+', "Fdb %s doesn't exist, creating", fdbname);
-	if ((fdb = fopen(fdbname, "a+")) == NULL) {
+	if ((fp = fopen(fdbname, "a+")) == NULL) {
 	    WriteError("$Can't create %s", fdbname);
 	    return FALSE;
 	}
+	frechdr.hdrsize = sizeof(frechdr);
+	frechdr.recsize = sizeof(frec);
+	fwrite(&frechdr, sizeof(frechdr), 1, fp);
 	chmod(fdbname, 0660);
+    } else {
+	fread(&frechdr, sizeof(frechdr), 1, fp);
     }
 
     /*
@@ -183,10 +190,10 @@ int Add_BBS()
      * one and leave immediatly, keepnum and replace have no
      * use at this point.
      */
-    fseek(fdb, 0, SEEK_END);
-    if (ftell(fdb) == 0) {
-	fwrite(&frec, sizeof(frec), 1, fdb);
-	fclose(fdb);
+    fseek(fp, 0, SEEK_END);
+    if (ftell(fp) == frechdr.hdrsize) {
+	fwrite(&frec, sizeof(frec), 1, fp);
+	fclose(fp);
 	file_rm(temp1);
 	tic_imp++;
 	return TRUE;
@@ -197,17 +204,17 @@ int Add_BBS()
      * which position to insert the new file, replace or
      * remove the old entry.
      */
-    fseek(fdb, 0, SEEK_SET);
+    fseek(fp, frechdr.hdrsize, SEEK_SET);
 
     Insert = 0;
     do {
-	if (fread(&file, sizeof(file), 1, fdb) != 1)
+	if (fread(&fdb, frechdr.recsize, 1, fp) != 1)
 	    Done = TRUE;
 	if (!Done) {
-	    if (strcmp(frec.LName, file.LName) == 0) {
+	    if (strcmp(frec.LName, fdb.LName) == 0) {
 		Found = TRUE;
 		Insert++;
-	    } else if (strcmp(frec.LName, file.LName) < 0)
+	    } else if (strcmp(frec.LName, fdb.LName) < 0)
 		Found = TRUE;
 	    else
 		Insert++;
@@ -217,53 +224,54 @@ int Add_BBS()
     if (Found) {
 	if ((fdt = fopen(fdbtemp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", fdbtemp);
-	    fclose(fdb);
+	    fclose(fp);
 	    return FALSE;
 	}
+	fwrite(&frechdr, frechdr.hdrsize, 1, fdt);
 
-	fseek(fdb, 0, SEEK_SET);
+	fseek(fp, frechdr.hdrsize, SEEK_SET);
 	/*
 	 * Copy entries till the insert point.
 	 */
 	for (i = 0; i < Insert; i++) {
-	    fread(&file, sizeof(file), 1, fdb);
+	    fread(&fdb, frechdr.recsize, 1, fp);
 	    /*
 	     * Check if we are importing a file with the same
 	     * name, if so, don't copy the original database
 	     * record. The file is also overwritten.
 	     */
-	    if (strcmp(file.LName, frec.LName) != 0)
-		fwrite(&file, sizeof(file), 1, fdt);
+	    if (strcmp(fdb.LName, frec.LName) != 0)
+		fwrite(&fdb, frechdr.recsize, 1, fdt);
 	}
 
 	if (area.AddAlpha) {
 	    /*
 	     * Insert the new entry
 	     */
-	    fwrite(&frec, sizeof(frec), 1, fdt);
+	    fwrite(&frec, frechdr.recsize, 1, fdt);
 	}
 
 	/*
 	 * Append the rest of the entries.
 	 */
-	while (fread(&file, sizeof(file), 1, fdb) == 1) {
+	while (fread(&fdb, frechdr.recsize, 1, fp) == 1) {
 	    /*
 	     * Check if we find a file with the same name,
 	     * then we skip the record what was origionaly
 	     * in the database record.
 	     */
-	    if (strcmp(file.LName, frec.LName) != 0)
-		fwrite(&file, sizeof(file), 1, fdt);
+	    if (strcmp(fdb.LName, frec.LName) != 0)
+		fwrite(&fdb, frechdr.recsize, 1, fdt);
 	}
 
 	if (!area.AddAlpha) {
 	    /*
 	     * Append the new entry
 	     */
-	    fwrite(&frec, sizeof(frec), 1, fdt);
+	    fwrite(&frec, frechdr.recsize, 1, fdt);
 	}
 	fclose(fdt);
-	fclose(fdb);
+	fclose(fp);
 
 	/*
 	 * Now make the changes for real.
@@ -280,9 +288,9 @@ int Add_BBS()
 	/*
 	 * Append the new entry
 	 */
-	fseek(fdb, 0, SEEK_END);
-	fwrite(&frec, sizeof(frec), 1, fdb);
-	fclose(fdb);
+	fseek(fp, 0, SEEK_END);
+	fwrite(&frec, frechdr.recsize, 1, fp);
+	fclose(fp);
     }
 
     /*
@@ -297,28 +305,30 @@ int Add_BBS()
     if ((strlen(TIC.TicIn.Replace)) && (tic.Replace)) {
 	Syslog('f', "Must Replace: %s", TIC.TicIn.Replace);
 
-	if ((fdb = fopen(fdbname, "r+")) != NULL) {
+	if ((fp = fopen(fdbname, "r+")) != NULL) {
 
-	    while (fread(&file, sizeof(file), 1, fdb) == 1) {
-		if (strlen(file.LName) == strlen(frec.LName)) {
+	    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+
+	    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+		if (strlen(fdb.LName) == strlen(frec.LName)) {
 		    // FIXME: Search must be based on a reg_exp search
-		    if (strcasecmp(file.LName, frec.LName) != 0) {
+		    if (strcasecmp(fdb.LName, frec.LName) != 0) {
 			Found = TRUE;
 			for (i = 0; i < strlen(frec.LName); i++) {
-			    if ((TIC.TicIn.Replace[i] != '?') && (toupper(TIC.TicIn.Replace[i]) != toupper(file.LName[i])))
+			    if ((TIC.TicIn.Replace[i] != '?') && (toupper(TIC.TicIn.Replace[i]) != toupper(fdb.LName[i])))
 				Found = FALSE;
 			}
 			if (Found) {
-			    Syslog('+', "Replace: Deleting: %s", file.LName);
-			    file.Deleted = TRUE;
-			    fseek(fdb, - sizeof(file), SEEK_CUR);
-			    fwrite(&file, sizeof(file), 1, fdb);
+			    Syslog('+', "Replace: Deleting: %s", fdb.LName);
+			    fdb.Deleted = TRUE;
+			    fseek(fp , - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, fp);
 			    DidDelete = TRUE;
 			}
 		    }
 		}
 	    }
-	    fclose(fdb);
+	    fclose(fp);
 	}
     }
 
@@ -326,27 +336,29 @@ int Add_BBS()
      * Handle the Keep number of files option
      */
     if (TIC.KeepNum) {
-	if ((fdb = fopen(fdbname, "r")) != NULL) {
+	if ((fp = fopen(fdbname, "r")) != NULL) {
 
-	    while (fread(&file, sizeof(file), 1, fdb) == 1) {
+	    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 
-		if ((strlen(file.LName) == strlen(frec.LName)) && (!file.Deleted)) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+
+		if ((strlen(fdb.LName) == strlen(frec.LName)) && (!fdb.Deleted)) {
 		    Found = TRUE;
 
-		    for (i = 0; i < strlen(file.LName); i++) {
+		    for (i = 0; i < strlen(fdb.LName); i++) {
 			if ((frec.LName[i] < '0') || (frec.LName[i] > '9')) {
-			    if (frec.LName[i] != file.LName[i]) {
+			    if (frec.LName[i] != fdb.LName[i]) {
 				Found = FALSE;
 			    }
 			}
 		    }
 		    if (Found) {
 			Keep++;
-			fill_fdlist(&fdl, file.LName, file.UploadDate);
+			fill_fdlist(&fdl, fdb.LName, fdb.UploadDate);
 		    }
 		}
 	    }
-	    fclose(fdb);
+	    fclose(fp);
 	}
 
 	/*
@@ -355,22 +367,24 @@ int Add_BBS()
 	if (Keep > TIC.KeepNum) {
 	    sort_fdlist(&fdl);
 
-	    if ((fdb = fopen(fdbname, "r+")) != NULL) {
+	    if ((fp = fopen(fdbname, "r+")) != NULL) {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+
 		for (i = 0; i < (Keep - TIC.KeepNum); i++) {
 		    fname = pull_fdlist(&fdl);
-		    fseek(fdb, 0, SEEK_SET);
+		    fseek(fp, fdbhdr.hdrsize, SEEK_SET);
 
-		    while (fread(&file, sizeof(file), 1, fdb) == 1) {
-			if (strcmp(file.LName, fname) == 0) {
-			    Syslog('+', "Keep %d files, deleting: %s", TIC.KeepNum, file.LName);
-			    file.Deleted = TRUE;
-			    fseek(fdb, - sizeof(file), SEEK_CUR);
-			    fwrite(&file, sizeof(file), 1, fdb);
+		    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+			if (strcmp(fdb.LName, fname) == 0) {
+			    Syslog('+', "Keep %d files, deleting: %s", TIC.KeepNum, fdb.LName);
+			    fdb.Deleted = TRUE;
+			    fseek(fp , - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, fp);
 			    DidDelete = TRUE;
 			}
 		    }
 		}
-		fclose(fdb);
+		fclose(fp);
 	    }
 	}
 	tidy_fdlist(&fdl);
@@ -381,20 +395,24 @@ int Add_BBS()
      *  database.
      */
     if (DidDelete) {
-	if ((fdb = fopen(fdbname, "r")) != NULL) {
+	if ((fp = fopen(fdbname, "r")) != NULL) {
+	    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
 	    if ((fdt = fopen(fdbtemp, "a+")) != NULL) {
-		while (fread(&file, sizeof(file), 1, fdb) == 1)
-		    if (!file.Deleted)
-			fwrite(&file, sizeof(file), 1, fdt);
+		fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fdt);
+		while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1)
+		    if (!fdb.Deleted)
+			fwrite(&fdb, fdbhdr.recsize, 1, fdt);
 		    else {
-			sprintf(temp2, "%s/%s", area.Path, file.LName);
+			sprintf(temp2, "%s/%s", area.Path, fdb.LName);
 			if (unlink(temp2) != 0)
 			    WriteError("$Can't unlink file %s", temp2);
-			sprintf(temp2, "%s/%s", area.Path, file.Name);
+			sprintf(temp2, "%s/%s", area.Path, fdb.Name);
 			if (unlink(temp2) != 0)
 			    WriteError("$Can't unlink file %s", temp2);
+			sprintf(temp2, "%s/.%s", area.Path, fdb.Name);
+			unlink(temp2); /* Thumbnail, no logging if there is an error */
 		    }
-		fclose(fdb);
+		fclose(fp);
 		fclose(fdt);
 		if (unlink(fdbname) == 0) {
 		    rename(fdbtemp, fdbname);
@@ -403,7 +421,7 @@ int Add_BBS()
 		    unlink(fdbtemp);
 		}
 	    } else {
-		fclose(fdb);
+		fclose(fp);
 	    }
 	    DidDelete = FALSE;
 	}

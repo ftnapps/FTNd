@@ -50,7 +50,7 @@ void ImportFiles(int Area)
     DIR			*dp;
     int			Append = FALSE, Files = 0, rc, i, line = 0, pos, x, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
-    struct FILERecord   fdb;
+    struct FILE_record  f_db;
     struct stat		statfile;
     struct dirent	*de;
 
@@ -105,7 +105,7 @@ void ImportFiles(int Area)
 		    Doit = TRUE;
 		    if ((unarc = unpacker(temp)) == NULL) {
 			Syslog('+', "Unknown archive format %s", temp);
-			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.Name);
+			sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.Name);
 			mkdirs(temp2, 0755);
 			if ((rc = file_cp(temp, temp2))) {
 			    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
@@ -148,14 +148,14 @@ void ImportFiles(int Area)
 			    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
 			    fflush(stdout);
 			}
-			if (strcmp(fdb.Name, fdb.LName)) {
-			    if (AddFile(fdb, Area, dest, temp, lname)) {
+			if (strcmp(f_db.Name, f_db.LName)) {
+			    if (AddFile(f_db, Area, dest, temp, lname)) {
 				Imported++;
 			    } else {
 				Errors++;
 			    }
 			} else {
-			    if (AddFile(fdb, Area, dest, temp, NULL)) {
+			    if (AddFile(f_db, Area, dest, temp, NULL)) {
 				Imported++;
 			    } else {
 				Errors++;
@@ -177,7 +177,7 @@ void ImportFiles(int Area)
 		    die(MBERR_DISK_FULL);
 
 		Files++;
-		memset(&fdb, 0, sizeof(fdb));
+		memset(&f_db, 0, sizeof(f_db));
 		Present = TRUE;
 
 		token = strtok(String, " \t");
@@ -195,13 +195,13 @@ void ImportFiles(int Area)
 			/*
 			 * Found the right file.
 			 */
-			strncpy(fdb.LName, token, 80);
+			strncpy(f_db.LName, token, 80);
 			break;
 		    }
 		}
 		closedir(dp);
 
-		if (strlen(fdb.LName) == 0) {
+		if (strlen(f_db.LName) == 0) {
 		    WriteError("Can't find file on disk, skipping: %s\n", token);
 		    Append = FALSE;
 		    Present = FALSE;
@@ -209,28 +209,28 @@ void ImportFiles(int Area)
 		    /*
 		     * Create DOS 8.3 filename
 		     */
-		    strcpy(temp2, fdb.LName);
+		    strcpy(temp2, f_db.LName);
 		    name_mangle(temp2);
-		    strcpy(fdb.Name, temp2);
+		    strcpy(f_db.Name, temp2);
 
-		    if (strcmp(fdb.LName, fdb.Name) && (rename(fdb.LName, fdb.Name) == 0)) {
-			Syslog('+', "Renamed %s to %s", fdb.LName, fdb.Name);
+		    if (strcmp(f_db.LName, f_db.Name) && (rename(f_db.LName, f_db.Name) == 0)) {
+			Syslog('+', "Renamed %s to %s", f_db.LName, f_db.Name);
 		    }
 
-		    sprintf(temp, "%s/%s", pwd, fdb.Name);
+		    sprintf(temp, "%s/%s", pwd, f_db.Name);
 		    stat(temp, &statfile);
 
 		    if (do_annon)
-			fdb.Announced = TRUE;
-		    Syslog('f', "File: %s (%s)", fdb.Name, fdb.LName);
+			f_db.Announced = TRUE;
+		    Syslog('f', "File: %s (%s)", f_db.Name, f_db.LName);
 
 		    if (!do_quiet) {
-			printf("\rImport file: %s ", fdb.Name);
+			printf("\rImport file: %s ", f_db.Name);
 			printf("Checking  \b\b\b\b\b\b\b\b\b\b");
 			fflush(stdout);
 		    }
 
-		    IsDoing("Import %s", fdb.Name);
+		    IsDoing("Import %s", f_db.Name);
 
 		    token = strtok(NULL, "\0");
 		    i = strlen(token);
@@ -250,20 +250,20 @@ void ImportFiles(int Area)
 			if (Doit) {
 			    if (pos > 42) {
 				if (token[x] == ' ') {
-				    fdb.Desc[line][pos] = '\0';
+				    f_db.Desc[line][pos] = '\0';
 				    line++;
 				    pos = 0;
 				} else {
 				    if (pos == 49) {
-					fdb.Desc[line][pos] = '\0';
+					f_db.Desc[line][pos] = '\0';
 					pos = 0;
 					line++;
 				    }
-				    fdb.Desc[line][pos] = token[x];
+				    f_db.Desc[line][pos] = token[x];
 				    pos++;
 				}
 			    } else {
-				fdb.Desc[line][pos] = token[x];
+				f_db.Desc[line][pos] = token[x];
 				pos++;
 			    }
 			    if (line == 25)
@@ -271,14 +271,14 @@ void ImportFiles(int Area)
 			}
 		    }
 
-		    sprintf(dest, "%s/%s", area.Path, fdb.Name);
-		    sprintf(lname, "%s/%s", area.Path, fdb.LName);
+		    sprintf(dest, "%s/%s", area.Path, f_db.Name);
+		    sprintf(lname, "%s/%s", area.Path, f_db.LName);
 		    Append = TRUE;
-		    fdb.Size = statfile.st_size;
-		    fdb.FileDate = statfile.st_mtime;
-		    fdb.Crc32 = file_crc(temp, FALSE);
-		    strcpy(fdb.Uploader, CFG.sysop_name);
-		    fdb.UploadDate = time(NULL);
+		    f_db.Size = statfile.st_size;
+		    f_db.FileDate = statfile.st_mtime;
+		    f_db.Crc32 = file_crc(temp, FALSE);
+		    strcpy(f_db.Uploader, CFG.sysop_name);
+		    f_db.UploadDate = time(NULL);
 		}
 	    } else if (Present) {
 		/*
@@ -298,20 +298,20 @@ void ImportFiles(int Area)
 			if (Doit) {
 			    if (pos > 42) {
 				if (token[x] == ' ') {
-				    fdb.Desc[line][pos] = '\0';
+				    f_db.Desc[line][pos] = '\0';
 				    line++;
 				    pos = 0;
 				} else {
 				    if (pos == 49) {
-					fdb.Desc[line][pos] = '\0';
+					f_db.Desc[line][pos] = '\0';
 					pos = 0;
 					line++;
 				    }
-				    fdb.Desc[line][pos] = token[x];
+				    f_db.Desc[line][pos] = token[x];
 				    pos++;
 				}
 			    } else {
-				fdb.Desc[line][pos] = token[x];
+				f_db.Desc[line][pos] = token[x];
 				pos++;
 			    }
 			    if (line == 25)
@@ -336,7 +336,7 @@ void ImportFiles(int Area)
 	    Doit = TRUE;
 	    if ((unarc = unpacker(temp)) == NULL) {
 		Syslog('+', "Unknown archive format %s", temp);
-		sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), fdb.LName);
+		sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), f_db.LName);
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp, temp2))) {
 		    WriteError("Can't copy file to %s, %s", temp2, strerror(rc));
@@ -377,13 +377,13 @@ void ImportFiles(int Area)
 		    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
 		    fflush(stdout);
 		}
-		if (strcmp(fdb.Name, fdb.LName)) {
-		    if (AddFile(fdb, Area, dest, temp, lname))
+		if (strcmp(f_db.Name, f_db.LName)) {
+		    if (AddFile(f_db, Area, dest, temp, lname))
 			Imported++;
 		    else
 			Errors++;
 		} else {
-		    if (AddFile(fdb, Area, dest, temp, NULL))
+		    if (AddFile(f_db, Area, dest, temp, NULL))
 			Imported++;
 		    else
 			Errors++;

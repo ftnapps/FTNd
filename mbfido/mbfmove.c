@@ -46,10 +46,11 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void Move(int From, int To, char *File)
 {
-    char		*frompath, *topath, *temp1, *temp2, *fromlink, *tolink, *fromthumb, *tothumb;
-    struct FILERecord	fdb;
-    FILE		*fp1, *fp2;
-    int			rc = FALSE, Found = FALSE;
+    char		    *frompath, *topath, *temp1, *temp2, *fromlink, *tolink, *fromthumb, *tothumb;
+    struct FILE_recordhdr   f_dbhdr;
+    struct FILE_record	    f_db;
+    FILE		    *fp1, *fp2;
+    int			    rc = FALSE, Found = FALSE;
 
     IsDoing("Move file");
     colour(LIGHTRED, BLACK);
@@ -87,11 +88,13 @@ void Move(int From, int To, char *File)
      * Find the file in the "from" area, check LFN and 8.3 names.
      */
     temp1 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp1, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), From);
+    sprintf(temp1, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), From);
     if ((fp1 = fopen(temp1, "r")) == NULL)
 	die(MBERR_GENERAL);
-    while (fread(&fdb, sizeof(fdb), 1, fp1) == 1) {
-	if ((strcmp(fdb.LName, File) == 0) || strcmp(fdb.Name, File) == 0) {
+    fread(&f_dbhdr, sizeof(fdbhdr), 1, fp1);
+
+    while (fread(&f_db, f_dbhdr.recsize, 1, fp1) == 1) {
+	if ((strcmp(f_db.LName, File) == 0) || strcmp(f_db.Name, File) == 0) {
 	    Found = TRUE;
 	    break;
 	}
@@ -107,13 +110,13 @@ void Move(int From, int To, char *File)
 
     frompath = xstrcpy(area.Path);
     frompath = xstrcat(frompath, (char *)"/");
-    frompath = xstrcat(frompath, fdb.Name);
+    frompath = xstrcat(frompath, f_db.Name);
     fromlink = xstrcpy(area.Path);
     fromlink = xstrcat(fromlink, (char *)"/");
-    fromlink = xstrcat(fromlink, fdb.LName);
+    fromlink = xstrcat(fromlink, f_db.LName);
     fromthumb = xstrcpy(area.Path);
     fromthumb = xstrcat(fromthumb, (char *)"/.");
-    fromthumb = xstrcat(fromthumb, fdb.Name);
+    fromthumb = xstrcat(fromthumb, f_db.Name);
 
     /*
      * Check Destination area
@@ -139,13 +142,13 @@ void Move(int From, int To, char *File)
 
     topath = xstrcpy(area.Path);
     topath = xstrcat(topath, (char *)"/");
-    topath = xstrcat(topath, fdb.Name);
+    topath = xstrcat(topath, f_db.Name);
     tolink = xstrcpy(area.Path);
     tolink = xstrcat(tolink, (char *)"/");
-    tolink = xstrcat(tolink, fdb.LName);
+    tolink = xstrcat(tolink, f_db.LName);
     tothumb = xstrcpy(area.Path);
     tothumb = xstrcat(tothumb, (char *)"/.");
-    tothumb = xstrcat(tothumb, fdb.Name);
+    tothumb = xstrcat(tothumb, f_db.Name);
 
     if (file_exist(topath, F_OK) == 0) {
 	WriteError("File %s already exists in area %d", File, To);
@@ -155,23 +158,25 @@ void Move(int From, int To, char *File)
     }
 	
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), From);
+    sprintf(temp2, "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), From);
 
     if ((fp1 = fopen(temp1, "r")) == NULL)
 	die(MBERR_GENERAL);
+    fread(&f_dbhdr, sizeof(fdbhdr), 1, fp1);
     if ((fp2 = fopen(temp2, "a+")) == NULL)
 	die(MBERR_GENERAL);
+    fwrite(&f_dbhdr, f_dbhdr.hdrsize, 1, fp2);
 
     /*
      * Search the file if the From area, if found, the
      * temp database holds all records except the moved
      * file.
      */
-    while (fread(&fdb, sizeof(fdb), 1, fp1) == 1) {
-	if (strcmp(fdb.LName, File) && strcmp(fdb.Name, File))
-	    fwrite(&fdb, sizeof(fdb), 1, fp2);
+    while (fread(&f_db, f_dbhdr.recsize, 1, fp1) == 1) {
+	if (strcmp(f_db.LName, File) && strcmp(f_db.Name, File))
+	    fwrite(&f_db, f_dbhdr.recsize, 1, fp2);
 	else {
-	    rc = AddFile(fdb, To, topath, frompath, tolink);
+	    rc = AddFile(f_db, To, topath, frompath, tolink);
 	    if (rc) {
 		unlink(fromlink);
 		unlink(frompath);

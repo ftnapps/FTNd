@@ -74,7 +74,6 @@ int ProcessTic(fa_list *sbl)
     unsigned long   crc, crc2, Kb;
     sysconnect	    Link;
     FILE	    *fp;
-    long	    FwdCost = 0, FwdSize = 0;
     struct utimbuf  ut;
     int		    BBS_Imp = FALSE, DidBanner = FALSE;
     faddr	    *p_from;
@@ -314,63 +313,14 @@ int ProcessTic(fa_list *sbl)
 	}
     }
 
-    /*
-     * Calculate the cost of this file
-     */
     T_File.Size = TIC.FileSize;
     T_File.SizeKb = TIC.FileSize / 1024;
-    if ((fgroup.UnitCost) || (TIC.TicIn.Cost))
-	TIC.Charge = TRUE;
-    else
-	TIC.Charge = FALSE;
-
-    if (TIC.Charge) {
-	/*
-	 * Calculate our filetransfer cost.
-	 */
-	FwdCost = fgroup.UnitCost;
-	FwdSize = fgroup.UnitSize;
-
-	/*
-	 * If FwdSize <> 0 then calculate per size, else charge for each file.
-	 */
-	if (FwdSize)
-	    TIC.FileCost = ((TIC.FileSize / 1024) / FwdSize) * FwdCost;
-	else
-	    TIC.FileCost = FwdCost;
-
-	if (TIC.TicIn.Cost)
-	    TIC.FileCost += TIC.TicIn.Cost;
-
-	if (fgroup.AddProm)
-	    TIC.FileCost += (TIC.FileCost * fgroup.AddProm / 1000);
-
-	if (fgroup.DivideCost) {
-	    /*
-	     * If not a passthru area, we are a link too.
-	     */
-	    if (DownLinks)
-		TIC.FileCost = TIC.FileCost / (DownLinks + 1);
-	}
-
-	/*
-	 * At least charge one unit.
-	 */
-	if (!TIC.FileCost)
-	    TIC.FileCost = 1;
-
-	Syslog('+', "The file cost will be %ld", TIC.FileCost);
-    }
 
     /*
      * Update the uplink's counters.
      */
     Kb = TIC.FileSize / 1024;
     if (SearchNode(TIC.Aka)) {
-	if (TIC.TicIn.Cost && nodes.Billing) {
-	    nodes.Debet -= TIC.TicIn.Cost;
-	    Syslog('f', "Uplink cost %ld, debet %ld", TIC.TicIn.Cost, nodes.Debet);
-	}
 	StatAdd(&nodes.FilesRcvd, 1L);
 	StatAdd(&nodes.F_KbRcvd, Kb);
 	UpdateNode();
@@ -727,7 +677,6 @@ int ProcessTic(fa_list *sbl)
 	strncpy(T_File.Name, TIC.NewFile, 12);
 	strncpy(T_File.LName, TIC.NewFullName, 80);
 	T_File.Fdate = TIC.FileDate;
-	T_File.Cost = TIC.TicIn.Cost;
 	Add_ToBeRep();
     }
 

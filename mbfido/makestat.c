@@ -322,9 +322,6 @@ void MakeStat(void)
 		    MacroVars("d", "s", q);
 		    MacroVars("e", "s", p);
 		    MacroVars("f", "s", adate(nodes.LastDate));
-		    MacroVars("g", "d", nodes.Billing);
-		    MacroVars("h", "d", nodes.Credit);
-		    MacroVars("i", "d", nodes.Debet);
 		    MacroVars("j", "d", nodes.F_KbSent.total);
 		    MacroVars("k", "d", nodes.F_KbRcvd.total);
 		    MacroVars("l", "d", nodes.MailSent.total);

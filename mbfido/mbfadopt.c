@@ -51,7 +51,7 @@ void AdoptFile(int Area, char *File, char *Description)
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
     int			i, j, k, lines = 0, File_id_cnt = 0, rc;
-    struct FILERecord	fdb;
+    struct FILE_record	f_db;
 
     Syslog('f', "Adopt(%d, %s, %s)", Area, MBSE_SS(File), MBSE_SS(Description));
 
@@ -140,11 +140,11 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
         }
 
-        memset(&fdb, 0, sizeof(fdb));
-	strcpy(fdb.Uploader, CFG.sysop_name);
-	fdb.UploadDate = time(NULL);
+        memset(&f_db, 0, sizeof(f_db));
+	strcpy(f_db.Uploader, CFG.sysop_name);
+	f_db.UploadDate = time(NULL);
 	if (do_annon)
-	    fdb.Announced = TRUE;
+	    f_db.Announced = TRUE;
 	
 	if (UnPacked) {
 	    /*
@@ -187,7 +187,7 @@ void AdoptFile(int Area, char *File, char *Description)
 			    j = 0;
 			    for (i = 0; i < strlen(Desc); i++) {
 				if ((Desc[i] >= ' ') || (Desc[i] < 0)) {
-				    fdb.Desc[File_id_cnt][j] = Desc[i];
+				    f_db.Desc[File_id_cnt][j] = Desc[i];
 				    j++;
 				}
 			    }
@@ -200,12 +200,12 @@ void AdoptFile(int Area, char *File, char *Description)
 		    /*
 		     * Strip empty lines at end of FILE_ID.DIZ
 		     */
-		    while ((strlen(fdb.Desc[File_id_cnt-1]) == 0) && (File_id_cnt))
+		    while ((strlen(f_db.Desc[File_id_cnt-1]) == 0) && (File_id_cnt))
 			File_id_cnt--;
 
 		    Syslog('f', "Got %d FILE_ID.DIZ lines", File_id_cnt);
 		    for (i = 0; i < File_id_cnt; i++)
-			Syslog('f', "\"%s\"", fdb.Desc[i]);
+			Syslog('f', "\"%s\"", f_db.Desc[i]);
 		}
 	    }
 	}
@@ -225,7 +225,7 @@ void AdoptFile(int Area, char *File, char *Description)
 		    /*
 		     * Less then 48 chars, copy and ready.
 		     */
-		    strcpy(fdb.Desc[0], Description);
+		    strcpy(f_db.Desc[0], Description);
 		    File_id_cnt++;
 		} else {
 		    /*
@@ -238,14 +238,14 @@ void AdoptFile(int Area, char *File, char *Description)
 			j = 48;
 			while (TDesc[j] != ' ')
 			    j--;
-			strncat(fdb.Desc[File_id_cnt], TDesc, j);
+			strncat(f_db.Desc[File_id_cnt], TDesc, j);
 			File_id_cnt++;
 			k = strlen(TDesc);
 			j++; /* Correct space */
 			for (i = 0; i <= k; i++, j++)
 			    TDesc[i] = TDesc[j];
 		    }
-		    strcpy(fdb.Desc[File_id_cnt], TDesc);
+		    strcpy(f_db.Desc[File_id_cnt], TDesc);
 		    File_id_cnt++;
 		}
 	    }
@@ -261,11 +261,11 @@ void AdoptFile(int Area, char *File, char *Description)
 	 */
 	strcpy(temp2, File);
 	name_mangle(temp2);
-	strcpy(fdb.Name, temp2);
-	strcpy(fdb.LName, File);
-	fdb.Size = file_size(File);
-	fdb.Crc32 = file_crc(File, TRUE);
-	fdb.FileDate = file_time(File);
+	strcpy(f_db.Name, temp2);
+	strcpy(f_db.LName, File);
+	f_db.Size = file_size(File);
+	f_db.Crc32 = file_crc(File, TRUE);
+	f_db.FileDate = file_time(File);
 	sprintf(temp2, "%s/%s", area.Path, File);
 
 	if (!do_quiet) {
@@ -273,15 +273,15 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
 	}
 
-	if (strcmp(fdb.Name, fdb.LName)) {
+	if (strcmp(f_db.Name, f_db.LName)) {
 	    lname = calloc(PATH_MAX, sizeof(char));
-	    sprintf(lname, "%s/%s", area.Path, fdb.Name);
-	    if (AddFile(fdb, Area, temp2, File, lname) == FALSE) {
+	    sprintf(lname, "%s/%s", area.Path, f_db.Name);
+	    if (AddFile(f_db, Area, temp2, File, lname) == FALSE) {
 		die(MBERR_GENERAL);
 	    }
 	    free(lname);
 	} else {
-	    if (AddFile(fdb, Area, temp2, File, NULL) == FALSE) {
+	    if (AddFile(f_db, Area, temp2, File, NULL) == FALSE) {
 		die(MBERR_GENERAL);
 	    }
 	}

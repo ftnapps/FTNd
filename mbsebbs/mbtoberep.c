@@ -68,7 +68,6 @@ int main(int argc, char **argv)
 		printf("From system   %s\n", rep.From);
 		printf("Replace       %s\n", rep.Replace);
 		printf("Magic         %s\n", rep.Magic);
-		printf("Cost          %ld\n", rep.Cost);
 		printf("Announce      ");
 		if (rep.Announce)
 			printf("yes\n");

@@ -94,43 +94,49 @@ void Uploads()
 		fflush(stdout);
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    if ((pFile = fopen(fAreas, "r+")) != NULL) {
 
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 		    Nopper();
-		    if (!file.Announced) {
-			Syslog('m', "  %d %s", i, file.Name);
+		    if (!fdb.Announced) {
+			Syslog('m', "  %d %s", i, fdb.Name);
 			memset(&T_File, 0, sizeof(T_File));
-			sprintf(T_File.Echo, "AREA %d", i);
-			sprintf(T_File.Group, "%s", area.NewGroup);
-			sprintf(T_File.Comment, "%s", area.Name);
-			sprintf(T_File.Name, "%s", file.Name);
-			sprintf(T_File.LName, "%s", file.LName);
-			T_File.Size = file.Size;
-			T_File.SizeKb = file.Size / 1024;
-			T_File.Fdate = file.FileDate;
-			sprintf(T_File.Crc, "%08lx", file.Crc32);
-			sprintf(T_File.Desc, "%s %s %s %s", file.Desc[0], file.Desc[1], file.Desc[2], file.Desc[3]);
+			if (strlen(fdb.TicArea))
+			    strncpy(T_File.Echo, fdb.TicArea, sizeof(T_File.Echo) -1);
+			else
+			    sprintf(T_File.Echo, "AREA %d", i);
+			strncpy(T_File.Group, area.NewGroup, sizeof(T_File.Group) -1);
+			strncpy(T_File.Comment, area.Name, sizeof(T_File.Comment) -1);
+			strncpy(T_File.Name, fdb.Name, sizeof(T_File.Name) -1);
+			strncpy(T_File.LName, fdb.LName, sizeof(T_File.LName) -1);
+			if (strlen(fdb.Magic))
+			    strncpy(T_File.Magic, fdb.Magic, sizeof(T_File.Magic) -1);
+			T_File.Size = fdb.Size;
+			T_File.SizeKb = fdb.Size / 1024;
+			T_File.Fdate = fdb.FileDate;
+			sprintf(T_File.Crc, "%08lx", fdb.Crc32);
+			sprintf(T_File.Desc, "%s %s %s %s", fdb.Desc[0], fdb.Desc[1], fdb.Desc[2], fdb.Desc[3]);
 			k = 0;
 			for (j = 0; j < 25; j++) {
-			    if (strlen(file.Desc[j])) {
-				sprintf(T_File.LDesc[k], "%s", file.Desc[j]);
+			    if (strlen(fdb.Desc[j])) {
+				sprintf(T_File.LDesc[k], "%s", fdb.Desc[j]);
 				T_File.LDesc[k][49] = '\0';
 				k++;
 			    }
 			}
 			T_File.TotLdesc = k;
-			T_File.Cost = file.Cost;
 			T_File.Announce = TRUE;
 			if (Add_ToBeRep())
 			    Count++;
 			/*
 			 * Mark file is announced.
 			 */
-			file.Announced = TRUE;
-			fseek(pFile, - sizeof(file), SEEK_CUR);
-			fwrite(&file, sizeof(file), 1, pFile);
+			fdb.Announced = TRUE;
+			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 		    }
 		}
 

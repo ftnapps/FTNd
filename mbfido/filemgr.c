@@ -305,11 +305,6 @@ void F_Status(faddr *t, char *replyid)
     MacroVars("B", "d", nodes.Tic);
     MacroVars("C", "d", nodes.AdvTic);
     MacroVars("D", "d", nodes.Notify);
-    MacroVars("E", "d", nodes.Billing);
-    MacroVars("f", "d", nodes.BillDirect);
-    MacroVars("G", "d", nodes.Debet);
-    MacroVars("I", "d", nodes.Credit);
-    MacroVars("J", "d", nodes.WarnLevel);
     MacroVars("a", "d", nodes.FilesSent.lweek);
     MacroVars("b", "d", nodes.FilesSent.month[i]);
     MacroVars("c", "d", nodes.FilesSent.total);

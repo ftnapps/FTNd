@@ -238,7 +238,7 @@ ANE|(A)ntwort, (N)aechste, (E)nde:
 |Die Datei-Datenbank fuer diesen Bereich kann nicht geoeffnet werden
 |Heraufgeladen von: 
 |G E L O E S C H T
-|F   E   H   L   T 
+|
 JN|Adresse unbekannt, dennoch fortfahren [j/N]: 
 |Dateien insgesamt: 
 |FATAL: die Datenbank der Dateibereiche kann nicht geoeffnet werden

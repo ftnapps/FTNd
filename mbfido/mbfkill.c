@@ -52,7 +52,7 @@ extern int	do_pack;		/* Perform pack			    */
 void Kill(void)
 {
     FILE		*pAreas, *pFile, *pDest, *pTemp;
-    int			i, iAreas, iAreasNew = 0, iTotal = 0, iKilled =  0, iMoved = 0, rc, Killit, FilesLeft;
+    int			i, iAreas, iAreasNew = 0, iTotal = 0, iKilled =  0, iMoved = 0, rc, Killit;
     char		*sAreas, *fAreas, *newdir = NULL, *sTemp, from[PATH_MAX], to[PATH_MAX];
     time_t		Now;
     struct fileareas	darea;
@@ -106,7 +106,7 @@ void Kill(void)
 		newdir = NULL;
 	    }
 
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 
 	    /*
 	     * Open the file database, if it doesn't exist,
@@ -118,29 +118,34 @@ void Kill(void)
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
-	    } 
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    }
 
 	    /*
 	     * Now start checking the files in the filedatabase
 	     * against the contents of the directory.
 	     */
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 		iTotal++;
 		Marker();
 
 		Killit = FALSE;
-		if (!file.UploadDate)
-		    Syslog('!', "Warning: file %s in area %d has no upload date", file.Name, i);
+		if (!fdb.UploadDate)
+		    Syslog('!', "Warning: file %s in area %d has no upload date", fdb.Name, i);
 
 		if (area.DLdays) {
 		    /*
 		     * Test last download date or never downloaded and the
 		     * file is more then n days available for download.
 		     */
-		    if ((file.LastDL) && (((Now - file.LastDL) / 84400) > area.DLdays)) {
+		    if ((fdb.LastDL) && (((Now - fdb.LastDL) / 84400) > area.DLdays)) {
 			Killit = TRUE;
 		    }
-		    if ((!file.LastDL) && file.UploadDate && (((Now - file.UploadDate) / 84400) > area.DLdays)) {
+		    if ((!fdb.LastDL) && fdb.UploadDate && (((Now - fdb.UploadDate) / 84400) > area.DLdays)) {
 			Killit = TRUE;
 		    }
 		}
@@ -149,7 +154,7 @@ void Kill(void)
 		    /*
 		     * Check filedate
 		     */
-		    if (file.UploadDate && (((Now - file.UploadDate) / 84400) > area.FDdays)) {
+		    if (fdb.UploadDate && (((Now - fdb.UploadDate) / 84400) > area.FDdays)) {
 			Killit = TRUE;
 		    }
 		}
@@ -159,55 +164,62 @@ void Kill(void)
 		    if (area.MoveArea) {
 			fseek(pAreas, ((area.MoveArea -1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
 			fread(&darea, areahdr.recsize, 1, pAreas);
-			sprintf(from, "%s/%s", area.Path, file.Name);
-			sprintf(to,   "%s/%s", darea.Path, file.Name);
+			sprintf(from, "%s/%s", area.Path, fdb.Name);
+			sprintf(to,   "%s/%s", darea.Path, fdb.Name);
 			if ((rc = file_mv(from, to)) == 0) {
-			    Syslog('+', "Move %s, area %d => %d", file.Name, i, area.MoveArea);
-			    sprintf(to, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), area.MoveArea);
+			    Syslog('+', "Move %s, area %d => %d", fdb.Name, i, area.MoveArea);
+			    sprintf(to, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), area.MoveArea);
 			    if ((pDest = fopen(to, "a+")) != NULL) {
-				file.UploadDate = time(NULL);
-				file.LastDL = time(NULL);
-				fwrite(&file, sizeof(file), 1, pDest);
+				fseek(pDest, 0, SEEK_END);
+				if (ftell(pDest) == 0) {
+				    /* New file, write header */
+				    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, pDest);
+				}
+				fdb.UploadDate = time(NULL);
+				fdb.LastDL = time(NULL);
+				fwrite(&fdb, fdbhdr.recsize, 1, pDest);
 				fclose(pDest);
 			    }
 
 			    /*
 			     * Now again if there is a dotted version (thumbnail) of this file.
 			     */
-			    sprintf(from, "%s/.%s", area.Path, file.Name);
-			    sprintf(to,   "%s/.%s", darea.Path, file.Name);
+			    sprintf(from, "%s/.%s", area.Path, fdb.Name);
+			    sprintf(to,   "%s/.%s", darea.Path, fdb.Name);
 			    if (file_exist(from, R_OK) == 0)
 				file_mv(from, to);
 
 			    /*
 			     * Unlink the old symbolic link
 			     */
-			    sprintf(from, "%s/%s", area.Path, file.LName);
+			    sprintf(from, "%s/%s", area.Path, fdb.LName);
 			    unlink(from);
 
 			    /*
 			     * Create the new symbolic link
 			     */
-			    sprintf(from, "%s/%s", darea.Path, file.Name);
-			    sprintf(to,   "%s/%s", darea.Path, file.LName);
+			    sprintf(from, "%s/%s", darea.Path, fdb.Name);
+			    sprintf(to,   "%s/%s", darea.Path, fdb.LName);
 			    symlink(from, to);
 
-			    file.Deleted = TRUE;
-			    fseek(pFile, - sizeof(file), SEEK_CUR);
-			    fwrite(&file, sizeof(file), 1, pFile);
+			    fdb.Deleted = TRUE;
+			    fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+			    fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 			    iMoved++;
 			} else {
-			    WriteError("Move %s to area %d failed, %s", file.Name, area.MoveArea, strerror(rc));
+			    WriteError("Move %s to area %d failed, %s", fdb.Name, area.MoveArea, strerror(rc));
 			}
 		    } else {
-			Syslog('+', "Delete %s, area %d", file.LName, i);
-			file.Deleted = TRUE;
-			fseek(pFile, - sizeof(file), SEEK_CUR);
-			fwrite(&file, sizeof(file), 1, pFile);
+			Syslog('+', "Delete %s, area %d", fdb.LName, i);
+			fdb.Deleted = TRUE;
+			fseek(pFile, - fdbhdr.recsize, SEEK_CUR);
+			fwrite(&fdb, fdbhdr.recsize, 1, pFile);
 			iKilled++;
-			sprintf(from, "%s/%s", area.Path, file.LName);
+			sprintf(from, "%s/%s", area.Path, fdb.LName);
 			unlink(from);
-			sprintf(from, "%s/%s", area.Path, file.Name);
+			sprintf(from, "%s/%s", area.Path, fdb.Name);
+			unlink(from);
+			sprintf(from, "%s/.%s", area.Path, fdb.Name);
 			unlink(from);
 		    }
 		}
@@ -221,11 +233,10 @@ void Kill(void)
 	    sprintf(sTemp, "%s/fdb/fdbtmp.data", getenv("MBSE_ROOT"));
 
 	    if ((pTemp = fopen(sTemp, "a+")) != NULL) {
-		FilesLeft = FALSE;
-		while (fread(&file, sizeof(file), 1, pFile) == 1) {
-		    if ((!file.Deleted) && strcmp(file.LName, "") != 0) {
-			fwrite(&file, sizeof(file), 1, pTemp);
-			FilesLeft = TRUE;
+		fwrite(&fdbhdr, fdbhdr.hdrsize, 1, pTemp);
+		while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+		    if ((!fdb.Deleted) && strcmp(fdb.LName, "") != 0) {
+			fwrite(&fdb, fdbhdr.recsize, 1, pTemp);
 		    }
 		}
 

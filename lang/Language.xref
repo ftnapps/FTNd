@@ -238,7 +238,7 @@
 237	filesub.c			|Can't open file database for this area
 238	filesub.c file.c		|Uploaded by: 
 239	file.c				|D E L E T E D
-240	file.c				|M I S S I N G
+240					|
 241	mail.c				YN|Node not known, continue anayway [y/N]: 
 242	file.c				|Total Files: 
 243	filesub.c			|FATAL: Unable to open areas database

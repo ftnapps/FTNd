@@ -238,7 +238,7 @@ RST|(R)esponder, (S)iguiente, (T)erminar:
 |No puedo abrir la base de ficheros de esta  rea
 |Enviado por: 
 |B O R R A D O
-|P E R D I D O
+|
 SN|Nodo desconocido. ¨Continuar? [s/N]: 
 |Total Fichs: 
 |FATAL: Imposible abrir base de  reas

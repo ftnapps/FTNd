@@ -299,11 +299,10 @@ int UnpackFile(char *File)
 
 
 /*
- * Add file to the BBS. The file is in the current
- * directory. The fdb record already has all needed
- * information.
+ * Add file to the BBS. The file is in the current directory. 
+ * The f_db record already has all needed information.
  */
-int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, char *LinkPath)
+int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, char *LinkPath)
 {
     char    *temp1, *temp2;
     FILE    *fp1, *fp2;
@@ -316,9 +315,9 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
     mkdirs(DestPath, 0775);
 
     if (file_exist(DestPath, F_OK) == 0) {
-	WriteError("File %s already exists in area %d", fdb.Name, Area);
+	WriteError("File %s already exists in area %d", f_db.Name, Area);
 	if (!do_quiet)
-	    printf("\nFile %s already exists in area %d\n", fdb.Name, Area);
+	    printf("\nFile %s already exists in area %d\n", f_db.Name, Area);
 	return FALSE;
     }
 
@@ -341,33 +340,34 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
 
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp1, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
-    sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), Area);
+    sprintf(temp1, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp2, "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), Area);
 
     fp1 = fopen(temp1, "r+");
+    fread(&fdbhdr, sizeof(fdbhdr.hdrsize), 1, fp1);
     fseek(fp1, 0, SEEK_END);
-    if (ftell(fp1) == 0) {
+    if (ftell(fp1) == fdbhdr.hdrsize) {
 	/*
 	 * No records yet
 	 */
-	fwrite(&fdb, sizeof(fdb), 1, fp1);
+	fwrite(&f_db, fdbhdr.recsize, 1, fp1);
 	fclose(fp1);
     } else {
 	/*
 	 * Files are already there. Find the right spot.
 	 */
-	fseek(fp1, 0, SEEK_SET);
+	fseek(fp1, fdbhdr.hdrsize, SEEK_SET);
 
 	Insert = 0;
 	do {
-	    if (fread(&file, sizeof(file), 1, fp1) != 1)
+	    if (fread(&fdb, fdbhdr.recsize, 1, fp1) != 1)
 		Done = TRUE;
 	    if (!Done) {
-		if (strcmp(fdb.LName, file.LName) == 0) {
+		if (strcmp(f_db.LName, fdb.LName) == 0) {
 		    Found = TRUE;
 		    Insert++;
 		} else {
-		    if (strcmp(fdb.LName, file.LName) < 0)
+		    if (strcmp(f_db.LName, fdb.LName) < 0)
 			Found = TRUE;
 		    else
 			Insert++;
@@ -380,33 +380,34 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
 		WriteError("Can't create %s", temp2);
 		return FALSE;
 	    }
+	    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp2);
+	    fseek(fp1, fdbhdr.hdrsize, SEEK_SET);
 
-	    fseek(fp1, 0, SEEK_SET);
 	    /*
 	     * Copy until the insert point
 	     */
 	    for (i = 0; i < Insert; i++) {
-		fread(&file, sizeof(file), 1, fp1);
+		fread(&fdb, fdbhdr.recsize, 1, fp1);
 		/*
 		 * If we are importing a file with the same name,
 		 * skip the original record and put the new one in place.
 		 */
-		if (strcmp(file.LName, fdb.LName) != 0)
-		    fwrite(&file, sizeof(file), 1, fp2);
+		if (strcmp(fdb.LName, f_db.LName) != 0)
+		    fwrite(&fdb, fdbhdr.recsize, 1, fp2);
 	    }
 
 	    if (area.AddAlpha)
-		fwrite(&fdb, sizeof(fdb), 1, fp2);
+		fwrite(&f_db, fdbhdr.recsize, 1, fp2);
 
 	    /*
 	     * Append the rest of the records
 	     */
-	    while (fread(&file, sizeof(file), 1, fp1) == 1) {
-		if (strcmp(file.LName, fdb.LName) != 0)
-		    fwrite(&file, sizeof(file), 1, fp2);
+	    while (fread(&fdb, fdbhdr.recsize, 1, fp1) == 1) {
+		if (strcmp(fdb.LName, f_db.LName) != 0)
+		    fwrite(&fdb, fdbhdr.recsize, 1, fp2);
 	    }
 	    if (!area.AddAlpha)
-		fwrite(&fdb, sizeof(fdb), 1, fp2);
+		fwrite(&f_db, fdbhdr.recsize, 1, fp2);
 	    fclose(fp1);
 	    fclose(fp2);
 
@@ -423,7 +424,7 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, cha
 	     * Append file record
 	     */
 	    fseek(fp1, 0, SEEK_END);
-	    fwrite(&fdb, sizeof(fdb), 1, fp1);
+	    fwrite(&f_db, fdbhdr.recsize, 1, fp1);
 	    fclose(fp1);
 	}
     }

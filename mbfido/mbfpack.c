@@ -88,8 +88,8 @@ void PackFileBase(void)
 	    }
 	    Marker();
 
-	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
-	    sprintf(fTmp,   "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), i);
+	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fTmp,   "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), i);
 
 	    if ((pFile = fopen(fAreas, "r")) == NULL) {
 		Syslog('!', "Creating new %s", fAreas);
@@ -97,37 +97,43 @@ void PackFileBase(void)
 		    WriteError("$Can't create %s", fAreas);
 		    die(MBERR_GENERAL);
 		}
+		fdbhdr.hdrsize = sizeof(fdbhdr);
+		fdbhdr.recsize = sizeof(fdb);
+		fwrite(&fdbhdr, sizeof(fdbhdr), 1, pFile);
+	    } else {
+		fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 	    } 
 
 	    if ((fp = fopen(fTmp, "a+")) == NULL) {
 		WriteError("$Can't create %s", fTmp);
 		die(MBERR_GENERAL);
 	    }
+	    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
 
-	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+	    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
 
 		iTotal++;
 
-		if ((!file.Deleted) && (!file.Double) && (strcmp(file.Name, "") != 0)) {
-		    fwrite(&file, sizeof(file), 1, fp);
+		if ((!fdb.Deleted) && (!fdb.Double) && (strcmp(fdb.Name, "") != 0)) {
+		    fwrite(&fdb, fdbhdr.recsize, 1, fp);
 		} else {
 		    iRemoved++;
-		    if (file.Double) {
-			Syslog('+', "Removed double record file \"%s\" from area %d", file.LName, i);
+		    if (fdb.Double) {
+			Syslog('+', "Removed double record file \"%s\" from area %d", fdb.LName, i);
 		    } else {
-			Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
-			sprintf(fn, "%s/%s", area.Path, file.LName);
+			Syslog('+', "Removed file \"%s\" from area %d", fdb.LName, i);
+			sprintf(fn, "%s/%s", area.Path, fdb.LName);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
-			sprintf(fn, "%s/%s", area.Path, file.Name);
+			sprintf(fn, "%s/%s", area.Path, fdb.Name);
 			rc = unlink(fn);
 			if (rc && (errno != ENOENT))
 			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
 			/*
 			 * If a dotted version (thumbnail) exists, remove it silently
 			 */
-			sprintf(fn, "%s/.%s", area.Path, file.LName);
+			sprintf(fn, "%s/.%s", area.Path, fdb.Name);
 			unlink(fn);
 		    }
 		    do_index = TRUE;
