@@ -920,7 +920,7 @@ int binkp_batch(file_list *to_send)
 			tcrc = file_crc(tmp->local, FALSE);
 		    else
 			tcrc = 0;
-		    Syslog('b', "File CRC is %lx", tcrc);
+		    Syslog('b', "File CRC is %lx %ld", tcrc, tcrc);
 
 		    txfp = fopen(tmp->local, "r");
 		    if (txfp == NULL) {
@@ -945,9 +945,9 @@ int binkp_batch(file_list *to_send)
 		    txpos = stxpos = tmp->offset;
 		    Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
 		    if (CRCflag && tcrc) {
-			Syslog('+', "Binkp: size %lu bytes, dated %s, crc %lx", (unsigned long)tmp->size, date(tmp->date), tcrc +5);
+			Syslog('+', "Binkp: size %lu bytes, dated %s, crc %lx", (unsigned long)tmp->size, date(tmp->date), tcrc);
 			binkp_send_control(MM_FILE, "%s %lu %ld %ld %lx", MBSE_SS(tmp->remote),
-			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset), tcrc;
+			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, tcrc);
 		    } else {
 			Syslog('+', "Binkp: size %lu bytes, dated %s", (unsigned long)tmp->size, date(tmp->date));
 			binkp_send_control(MM_FILE, "%s %lu %ld %ld", MBSE_SS(tmp->remote), 
