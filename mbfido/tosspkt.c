@@ -236,8 +236,9 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t 
     } /* end of checking kludges */
 
     if (echomail) {
-	if (!f->zone)
-	    f->zone = p_from->zone;
+	/*
+	 * At this point, the destination zone is not yet set.
+	 */
 	if (!t->zone)
 	    t->zone = tzone;
 	rc = postecho(p_from, f, t, orig, subj, mdate, flags, cost, fp, TRUE);

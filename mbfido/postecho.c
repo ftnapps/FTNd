@@ -156,12 +156,6 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     crc = 0xffffffff;
     echo_in++;
 
-    p = xstrcpy(ascfnode(f, 0x1f));
-    q = xstrcpy(ascfnode(t, 0x1f));
-    Syslog('m', "postecho %s to %s \"%s\"", p, q, subj);
-    free(q);
-    free(p);
-
     /*
      *  p_from is set for tossed echomail, it is NULL for local posted echomail and gated news.
      */
@@ -227,13 +221,16 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	if (!strncmp(buf, "\001MSGID: ", 8)) {
 	    msgid = xstrcpy(buf + 8);
 	    /*
-	     * Extra test to see if the mail comes from a pointaddress.
+	     * Extra test to see if the address is correct.
 	     */
 	    p = strtok(buf, " \n");
 	    p = strtok(NULL, " \n");
 	    if ((ta = parsefnode(p))) {
-		Syslog('m', "MSGID aka is %d", ascfnode(ta, 0x1f));
-		tidy_faddr(ta);
+		if ((ta->zone != f->zone) || (ta->point != f->point) || (ta->node != f->node) || (ta->net != f->net)) {
+		    p = xstrcpy(ascfnode(f, 0x1f));
+		    Syslog('!', "ERROR: f=%s, ta=%s", p, ascfnode(ta, 0x1f));
+		    free(p);
+		}
 	    }
 	}
 	if (!strncmp(buf, "\001REPLY: ", 8))
