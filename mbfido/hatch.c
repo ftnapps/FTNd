@@ -108,6 +108,7 @@ int CheckHatch(char *temp)
 	struct dirent	*de;
 	char		*fn, tf[81], tmp[4], *temp2;
 	int		i, Match, hatched = FALSE;
+	char		*Temp, *p, *q, mask[256];
 	FILE		*Tf;
 
 	fn = xstrcpy(strrchr(temp, '/') + 1);
@@ -126,6 +127,29 @@ int CheckHatch(char *temp)
 		return FALSE;
 	}
 
+	Temp = xstrcpy(temp);
+	p = tl(Temp);
+	q = mask;
+	*q++ = '^';
+	while ((*p) && (q < (mask + sizeof(mask) - 4))) {
+	    switch(*p) {
+		case '\\':  *q++ = '\\'; *q++ = '\\'; break;
+		case '?':   *q++ = '.'; break;
+		case '.':   *q++ = '\\'; *q++ = '.'; break;
+		case '+':   *q++ = '\\'; *q++ = '+'; break;
+		case '*':   *q++ = '.'; *q++ = '*'; break;
+		default:    *q++ = toupper(*p); break;
+	    }
+	    p++;
+	}
+	*q++ = '$';
+	*q = '\0';
+	Syslog('f', "Hatch mask \"%s\" -> \"%s\"", MBSE_SS(Temp), MBSE_SS(mask));
+	if ((re_comp(mask)) != NULL)
+	    Syslog('f', "re_comp() accepted");
+	else
+	    Syslog('f', "re_comp() returned NULL");
+	
 	while ((de = readdir(dp))) {
 		Match = FALSE;
 		if (strlen(fn) == strlen(de->d_name)) {
@@ -144,6 +168,12 @@ int CheckHatch(char *temp)
 				}
 			}
 		}
+
+		if (re_exec(de->d_name))
+		    Syslog('f', "%s matched using regexp", de->d_name);
+		else
+		    Syslog('f', "%s no match using regexp", de->d_name);
+
 		if (Match) {
 			hatched = TRUE;
 			Syslog('+', "Hatch %s in area %s", de->d_name, hatch.Name);

@@ -102,7 +102,7 @@ int GetMagicRec(int Typ, int First)
 {
     int	    Eof = FALSE, DoMagic = TRUE;
     int	    i;
-    char    *temp;
+    char    *temp, *Magic, *p, *q, mask[256];
     FILE    *FeM;
 
     if (First)
@@ -132,6 +132,35 @@ int GetMagicRec(int Typ, int First)
 
 	    if ((magic.Active) && (magic.Attrib == Typ) && (strcasecmp(magic.From, TIC.TicIn.Area) == 0)) {
 
+//		p = tl(magic.Mask);
+		Magic = xstrcpy(magic.Mask);
+		p = tl(Magic);
+		q = mask;
+		*q++ = '^';
+		while ((*p) && (q < (mask + sizeof(mask) - 4))) {
+		    switch(*p) {
+			case '\\':  *q++ = '\\'; *q++ = '\\'; break;
+			case '?':   *q++ = '.'; break;
+			case '.':   *q++ = '\\'; *q++ = '.'; break;
+			case '+':   *q++ = '\\'; *q++ = '+'; break;
+			case '*':   *q++ = '.'; *q++ = '*'; break;
+			default:    *q++ = toupper(*p); break;
+		    }
+		    p++;
+		}
+		*q++ = '$';
+		*q = '\0';
+		Syslog('f', "Magic mask \"%s\" -> \"%s\"", MBSE_SS(Magic), MBSE_SS(mask));
+		if ((re_comp(mask)) != NULL) {
+		    if (re_exec(TIC.NewName))
+			Syslog('f', "Should matched using regexp");
+		    else
+			Syslog('f', "No match using regexp");
+		} else {
+		    Syslog('f', "re_comp returned NULL");
+		}
+		free(Magic);
+
 		/*
 		 * Comparing of the filename must be done in 
 		 * two parts, before and after the dot.
@@ -154,6 +183,8 @@ int GetMagicRec(int Typ, int First)
 		} else {
 		    DoMagic = FALSE;
 		}
+
+		Syslog('f', "Old test, found %s", DoMagic ? "True":"False");
 
 		if (DoMagic) {
 		    fclose(FeM);
