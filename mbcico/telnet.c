@@ -108,11 +108,8 @@ void telout_filter(int fdi, int fdo)
 	    Syslog('s', "$telout_filter: write failed");
 	    exit(MBERR_TTYIO_ERROR);
 	}
-	tcflush(fdo, TCOFLUSH);
     }
 
-    tcflush(fdi, TCIFLUSH);
-    tcflush(fdo, TCOFLUSH);
     Syslog('s', "telout_filter: finished rc=%d", rc);
     exit(0);
 }
@@ -172,12 +169,9 @@ void telin_filter(int fdo, int fdi)
 		exit(MBERR_TTYIO_ERROR);
 	    }
 	}
-	tcflush(fdo, TCOFLUSH);
     }
 
-    tcflush(fdi, TCIFLUSH);
-    tcflush(fdo, TCOFLUSH);
-
+    
     Syslog('s', "telin_filter: finished rc=%d", rc);
     exit(0);
 }
