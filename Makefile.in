@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -104,7 +104,7 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 $(ACLOCAL_M4):  configure.in  acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
 
-config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+config.status: $(srcdir)/configure.in $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 $(srcdir)/configure: $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
@@ -281,7 +281,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -461,6 +461,7 @@ install-exec-local:
 		$(mkinstalldirs) /var/spool/mbse/unknown ; \
 		$(mkinstalldirs) /var/spool/mbse/inbound ; \
 		$(mkinstalldirs) /var/spool/mbse/outbound ; \
+		$(mkinstalldirs) /var/spool/mbse/msgs; \
 		$(mkinstalldirs) /var/spool/mbse/badtic ; \
 		$(mkinstalldirs) /var/spool/mbse/ticqueue ; \
 		$(mkinstalldirs) /var/spool/mbse/ftp ; \
