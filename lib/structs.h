@@ -244,11 +244,11 @@ struct	taskrec {
 	char		cmd_msglink[81];	/* msglink command	    */
 	char		cmd_reqindex[81];	/* reqindex command	    */
 
-	int		max_pots;		/* maximum pots calls	    */
-	int		max_isdn;		/* maximum ISDN calls	    */
+	int		xmax_pots;
+	int		xmax_isdn;
 	int		max_tcp;		/* maximum TCP/IP calls	    */
 
-	unsigned	ipblocks	: 1;	/* internet blocks dial	    */
+	unsigned	xipblocks	: 1;
 	unsigned	debug		: 1;	/* debugging on/off	    */
 };
 

@@ -99,6 +99,8 @@ mbnewusr:
 mbsetup:
 	U: PickAka function lets mbsetup crash if domain is 12 characters
 
+	N: Put ZMH fields in the network setup for each zone.
+
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups
 	   File Areas      <=> Newfiles groups
