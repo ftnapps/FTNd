@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: clcomm.c
+ * $Id$
  * Purpose ...............: Client/Server communications
- * Last modification date : 23-May-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2002
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -41,6 +40,7 @@ int		most_debug = FALSE;	/* Toggle normal/most debugging	    */
 char		progname[21];		/* Program name			    */
 char		logfile[PATH_MAX];	/* Normal logfile		    */
 char		errfile[PATH_MAX];	/* Error logfile		    */
+char		mgrfile[PATH_MAX];	/* Area/File- mgr logfile	    */
 long		loggrade;		/* Logging grade		    */
 pid_t		mypid;			/* Original parent pid if child	    */
 unsigned long	lcrc = 0, tcrc = 1;	/* CRC value of logstring	    */
@@ -48,6 +48,7 @@ int		lcnt = 0;		/* Same message counter		    */
 static char	*pbuff = NULL;
 extern char	cpath[108];
 extern char	spath[108];
+
 
 
 char *xmalloc(size_t size)
@@ -99,7 +100,7 @@ char *xstrcat(char *src, char *add)
 
 
 
-void InitClient(char *user, char *myname, char *where, char *log, long loggr, char *err)
+void InitClient(char *user, char *myname, char *where, char *log, long loggr, char *err, char *mgr)
 {
 	if ((getenv("MBSE_ROOT")) == NULL) {
 		printf("Could not get the MBSE_ROOT environment variable\n");
@@ -111,6 +112,7 @@ void InitClient(char *user, char *myname, char *where, char *log, long loggr, ch
 	sprintf(progname, "%s", myname);
 	sprintf(logfile, "%s", log);
 	sprintf(errfile, "%s", err);
+	sprintf(mgrfile, "%s", mgr);
 	loggrade = loggr;
 
         sprintf(cpath, "%s/tmp/%s%d", getenv("MBSE_ROOT"), progname, getpid());
@@ -234,6 +236,9 @@ void WriteError(const char *format, ...)
 
 
 
+/*
+ * Standard system logging
+ */
 void Syslog(int level, const char *format, ...)
 {
 	char		*outstr;
@@ -250,6 +255,9 @@ void Syslog(int level, const char *format, ...)
 
 
 
+/*
+ * System logging without string formatting.
+ */
 void Syslogp(int level, char *outstr)
 {
 	long	mask = 0;
@@ -317,6 +325,31 @@ void Syslogp(int level, char *outstr)
 		SockS("ALOG:5,%s,%s,%d,%c,%s: %s;", logfile, progname, mypid, level, outstr+1, strerror(errno));
 	else
 		SockS("ALOG:5,%s,%s,%d,%c,%s;", logfile, progname, mypid, level, outstr);
+}
+
+
+
+void Mgrlog(const char *format, ...)
+{
+    char    *outstr;
+    va_list va_ptr;
+    int	    i;
+
+    outstr = calloc(10240, sizeof(char));
+
+    va_start(va_ptr, format);
+    vsprintf(outstr, format, va_ptr);
+    va_end(va_ptr);
+
+    for (i = 0; i < strlen(outstr); i++)
+	if (outstr[i] == '\r' || outstr[i] == '\n')
+	    outstr[i] = ' ';
+    if (strlen(outstr) > (SS_BUFSIZE - 64))
+	outstr[SS_BUFSIZE - 64] = '\0';
+    
+    SockS("ALOG:5,%s,%s,%d,+,%s;", mgrfile, progname, mypid, outstr);
+    Syslogp('+', outstr);
+    free(outstr);
 }
 
 

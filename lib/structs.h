@@ -796,6 +796,9 @@ struct	sysconfig {
 	int		maxarticles;		/* Default max articles	    */
 	char		bbs_macros[65];		/* Default macros path	    */
 	char		out_queue[65];		/* Outbound queue path	    */
+
+	char		mgrlog[15];		/* Area/File-mgr logfile    */
+	char            aname[32][17];          /* Name of areas flags	    */
 };
 
 
@@ -1289,6 +1292,8 @@ struct	_nodes {
 	char		Ct_cellphone[21];	/* Node's cellphone	    */
 	char		Ct_email[31];		/* Node's email		    */
 	char		Ct_remark[65];		/* Remark		    */
+
+	securityrec	Security;		/* Security flags	    */
 };
 
 
