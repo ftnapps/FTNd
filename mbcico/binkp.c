@@ -816,12 +816,12 @@ int binkp_batch(file_list *to_send)
 	int		sverr, cmd = FALSE, GotFrame = FALSE;
 	int		blklen = 0, c, Found = FALSE;
 	unsigned short	header = 0;
-	char		*rname, *lname;
-	long		rsize, roffs, lsize;
-	time_t		rtime, ltime;
+	char		*rname, *lname, *gname;
+	long		rsize, roffs, lsize, gsize, goffset;
+	time_t		rtime, ltime, gtime;
 	off_t		rxbytes;
 	long		written;
-	binkp_list	*bll = NULL, *tmp, *cursend = NULL;
+	binkp_list	*bll = NULL, *tmp, *tmpg, *cursend = NULL;
 	file_list	*tsl;
 
 	batchnr++;
@@ -830,6 +830,7 @@ int binkp_batch(file_list *to_send)
 	rxbuf = calloc(MAX_BLKSIZE + 3, sizeof(unsigned char));
 	rname = calloc(512, sizeof(char));
 	lname = calloc(512, sizeof(char));
+	gname = calloc(512, sizeof(char));
 	TfState = Switch;
 	RxState = RxWaitFile;
 	TxState = TxGetNextFile;
@@ -1064,9 +1065,19 @@ int binkp_batch(file_list *to_send)
 						break;
 
 				case MM_SKIP:   Syslog('+', "Got SKIP frame");
+						Syslogp('+', printable(rxbuf+1, 0));
 						break;
 
 				case MM_GET:    Syslog('+', "Got GET frame");
+						sscanf(rxbuf+1, "%s %ld %ld %ld", gname, &gsize, &gtime, &goffset);
+						for (tmpg = bll; tmpg; tmpg = tmpg->next) {
+						    if (strcasecmp(tmpg->remote, gname) == 0) {
+							tmpg->state = NoState;
+							tmpg->offset = goffset;
+							Syslog('+', "Remote wants %s again, offset %ld", gname, goffset);
+							TxState = TxGetNextFile;
+						    }
+						}
 						break;
 
 				case MM_GOT:    sscanf(rxbuf+1, "%s %ld %ld", lname, &lsize, &ltime);
@@ -1074,8 +1085,7 @@ int binkp_batch(file_list *to_send)
 						for (tmp = bll; tmp; tmp = tmp->next)
 							if ((strcmp(lname, tmp->remote) == 0) && 
 							    (lsize == tmp->size) && (ltime == tmp->date)) {
-								Syslog('+', "Binkp: remote GOT \"%s\"", 
-									tmp->remote);
+								Syslog('+', "Binkp: remote GOT \"%s\"", tmp->remote);
 								tmp->state = Got;
 								Found = TRUE;
 							}
@@ -1217,6 +1227,7 @@ int binkp_batch(file_list *to_send)
 	free(rxbuf);
 	free(rname);
 	free(lname);
+	free(gname);
 	Syslog('+', "Binkp: batch %d completed rc=%d", batchnr, rc);
 	return rc;
 }
