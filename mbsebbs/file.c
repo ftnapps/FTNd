@@ -123,6 +123,7 @@ void File_List()
 
 	while (fread(&file, sizeof(file), 1, pFile) == 1) {
 
+		memset(&T, 0, sizeof(T));
 		T.Area   = iAreaNumber;
 		T.Active = FALSE;
 		T.Cost   = file.Cost;

@@ -4624,3 +4624,7 @@ v0.33.20        10-Feb-2002
 	mbcico:
 		Fixed binkp driver to accept incoming unprotected sessions.
 
+	mbsebbs:
+		On some systems the download taglists contained garbage after
+		the short filename causing wrong filenames at the users side.
+
