@@ -282,7 +282,7 @@ void ScanFull()
 					if (Link.aka.zone)
 					    ExportEcho(Link, Number, &sbl);
 				    }
-				    if (strlen(msgs.Newsgroup))
+				    if (strlen(msgs.Newsgroup) && (msgs.Type == NEWS))
 				        ExportNews(Number, &sbl);
 
 				    tidy_falist(&sbl);
@@ -439,7 +439,7 @@ void ScanOne(char *path, unsigned long MsgNum)
 										ExportEcho(Link, MsgNum, &sbl);
 									}
 								}
-								if (strlen(msgs.Newsgroup))
+								if (strlen(msgs.Newsgroup) && (msgs.Type == NEWS))
 									ExportNews(MsgNum, &sbl);
 
 								tidy_falist(&sbl);

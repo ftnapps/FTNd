@@ -174,71 +174,71 @@ void Marker(void)
  */
 void ScanNews(void)
 {
-	List			*art = NULL;
-	POverview		tmp, old;
-	FILE			*pAreas;
-	char			*sAreas;
-	struct msgareashdr	Msgshdr;
-	struct msgareas		Msgs;
+    List		*art = NULL;
+    POverview		tmp, old;
+    FILE		*pAreas;
+    char		*sAreas;
+    struct msgareashdr	Msgshdr;
+    struct msgareas	Msgs;
 
-	IsDoing((char *)"Scan News");
-	if (nntp_connect() == -1) {
-		WriteError("Can't connect to newsserver");
-		return;
-	}
-	if (get_xoverview()) {
-		return;
-	}
+    IsDoing((char *)"Scan News");
+    if (nntp_connect() == -1) {
+	WriteError("Can't connect to newsserver");
+	return;
+    }
+    if (get_xoverview()) {
+	return;
+    }
 
-	if (!do_quiet) {
-		colour(10, 0);
-		printf("Scan for new news articles\n");
-	}
+    if (!do_quiet) {
+	colour(10, 0);
+	printf("Scan for new news articles\n");
+    }
 
-	sAreas = calloc(PATH_MAX, sizeof(char));
-	sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if(( pAreas = fopen (sAreas, "r")) == NULL) {
-		WriteError("$Can't open Messages Areas File.");
-		return;
-	}
-	fread(&Msgshdr, sizeof(Msgshdr), 1, pAreas);
+    sAreas = calloc(PATH_MAX, sizeof(char));
+    sprintf(sAreas, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if(( pAreas = fopen (sAreas, "r")) == NULL) {
+	WriteError("$Can't open Messages Areas File.");
+	return;
+    }
+    fread(&Msgshdr, sizeof(Msgshdr), 1, pAreas);
 
-	while (fread(&Msgs, Msgshdr.recsize, 1, pAreas) == 1) {
-		fseek(pAreas, Msgshdr.syssize, SEEK_CUR);
-		if ((Msgs.Active) && strlen(Msgs.Newsgroup)) {
-			if (IsSema((char *)"upsalarm")) {
-				Syslog('+', "Detected upsalarm semafore, aborting newsscan");
-				break;
-			}
-			Syslog('m', "Scan newsgroup: %s", Msgs.Newsgroup);
-			if (!do_quiet) {
-				colour(3, 0);
-				printf("\r%-40s", Msgs.Newsgroup);
-				fflush(stdout);
-			}
-			Nopper();
-			if (do_one_group(&art, Msgs.Newsgroup, Msgs.Tag, Msgs.MaxArticles) == RETVAL_ERROR)
-				break;
-			/*
-			 * To be safe, update the dupes database after each area.
-			 */
-			CloseDupes();
-		}
+    while (fread(&Msgs, Msgshdr.recsize, 1, pAreas) == 1) {
+	fseek(pAreas, Msgshdr.syssize, SEEK_CUR);
+	if ((Msgs.Active) && strlen(Msgs.Newsgroup) && (msgs.Type == NEWS)) {
+	    if (IsSema((char *)"upsalarm")) {
+		Syslog('+', "Detected upsalarm semafore, aborting newsscan");
+		break;
+	    }
+	    Syslog('m', "Scan newsgroup: %s", Msgs.Newsgroup);
+	    if (!do_quiet) {
+		colour(3, 0);
+		printf("\r%-40s", Msgs.Newsgroup);
+		fflush(stdout);
+	    }
+	    Nopper();
+	    if (do_one_group(&art, Msgs.Newsgroup, Msgs.Tag, Msgs.MaxArticles) == RETVAL_ERROR)
+		break;
+	    /*
+	     * To be safe, update the dupes database after each area.
+	     */
+	    CloseDupes();
 	}
-	fclose(pAreas);
-	free(sAreas);
+    }
+    fclose(pAreas);
+    free(sAreas);
 
-	for (tmp = xoverview; tmp; tmp = old) {
-		old = tmp->next;
-		if (tmp->header)
-			free(tmp->header);
-		if (tmp->field)
-			free(tmp->field);
-		free(tmp);
-	}
-	do_flush = TRUE;
-	if (!do_quiet)
-		printf("\r                                                    \r");
+    for (tmp = xoverview; tmp; tmp = old) {
+	old = tmp->next;
+	if (tmp->header)
+	    free(tmp->header);
+	if (tmp->field)
+	    free(tmp->field);
+	free(tmp);
+    }
+    do_flush = TRUE;
+    if (!do_quiet)
+	printf("\r                                                    \r");
 }
 
 

@@ -17,6 +17,10 @@ v0.51.4		11-Apr-2004
 		Added loging of virus scanner results.
 		When a new echomail area is auto created, the creation date and
 		the newsgroup name will be set.
+		Fixed news command, only real newsgroup areas are fetched from
+		the remote newsserver.
+		You may need to edit or remove /opt/mbse/tmp/newsout to remove
+		postings for the remote newsserver with echomail messages.
 
 	mbnntp:
 		New program, news server to read echomail with a news client.
