@@ -32,6 +32,8 @@
 #include "../lib/mbselib.h"
 #include "../lib/nodelist.h"
 #include "../lib/msg.h"
+#include "../lib/users.h"
+#include "../lib/mbsedb.h"
 #include "session.h"
 #include "lutil.h"
 #include "config.h"
@@ -156,9 +158,14 @@ file_list *respfreq(char *nm, char *pw, char *dt)
     char		mask[256], *p, *tnm, *t;
     time_t		upd = 0L;
     int			newer = 1, Send;
-    FILE		*fa, *fb, *fi;
+    FILE		*fa, *fi;
     long		Area;
     struct FILEIndex	idx;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea	*fdb_area = NULL;
+#else
+    FILE		*fb;
+#endif
 
     if (localoptions & NOFREQS) {
 	Syslog('+', "File requests disabled");
@@ -259,6 +266,10 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 		return NULL;
 	    }
 	    Syslog('f', "Area %s", area.Name);
+#ifdef	USE_EXPERIMENT
+	    if ((fdb_area = mbsedb_OpenFDB(idx.AreaNum, 30)) == 0) {
+	    } else {
+#else
 	    p = calloc(PATH_MAX, sizeof(char));
 	    sprintf(p, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), idx.AreaNum);
 	    if ((fb = fopen(p, "r+")) == NULL) {
@@ -267,10 +278,19 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 	    } else {
 		free(p);
 		fread(&fdbhdr, sizeof(fdbhdr), 1, fb);
+#endif
+
+#ifdef	USE_EXPERIMENT
+		if (fseek(fdb_area->fp, fdbhdr.hdrsize + (idx.Record * fdbhdr.recsize), SEEK_SET) == -1) {
+		    WriteError("$Can't seek filerecord %d", idx.Record);
+		} else {
+		    if (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) != 1) {
+#else
 		if (fseek(fb, fdbhdr.hdrsize + (idx.Record * fdbhdr.recsize), SEEK_SET) == -1) {
 		    WriteError("$Can't seek filerecord %d", idx.Record);
 		} else {
 		    if (fread(&fdb, fdbhdr.recsize, 1, fb) != 1) {
+#endif
 			WriteError("$Can't read filerecord %d", idx.Record);
 		    } else {
 			Send = FALSE;
@@ -347,13 +367,25 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 			     */
 			    fdb.TimesDL++;
 			    fdb.LastDL = time(NULL);
+#ifdef	USE_EXPERIMENT
+			    if (mbsedb_LockFDB(fdb_area, 30)) {
+				fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+				fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+				mbsedb_UnlockFDB(fdb_area);
+			    }
+#else
 			    fseek(fb, - fdbhdr.recsize, SEEK_CUR);
 			    fwrite(&fdb, fdbhdr.recsize, 1, fb);
+#endif
 			}
 			free(tnm);
 		    }
 		}
+#ifdef	USE_EXPERIMENT
+		mbsedb_CloseFDB(fdb_area);
+#else
 		fclose(fb);
+#endif
 	    }
 	}
     }

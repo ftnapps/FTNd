@@ -110,7 +110,7 @@ opentcp.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/
 rdoptions.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h session.h config.h
 yoohoo.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/users.h ../lib/mbsedb.h statetbl.h ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h dietifna.h yoohoo.h inbound.h
 recvbark.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h statetbl.h recvbark.h respfreq.h filelist.h
-respfreq.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/msg.h session.h lutil.h config.h atoul.h respfreq.h filelist.h
+respfreq.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ../lib/msg.h ../lib/users.h ../lib/mbsedb.h session.h lutil.h config.h atoul.h respfreq.h filelist.h
 sendbark.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h statetbl.h sendbark.h xmrecv.h
 tcp.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h statetbl.h config.h emsi.h respfreq.h filelist.h tcpproto.h tcp.h
 tcpproto.o: ../config.h ../lib/mbselib.h ../lib/nodelist.h ttyio.h session.h config.h emsi.h lutil.h openfile.h filelist.h tcpproto.h

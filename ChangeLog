@@ -19,6 +19,8 @@ v0.51.4		11-Apr-2004
 		must exist in the setup.
 		Added protection against empty domain names received from
 		remote systems.
+		Added new experimental files database code which will only be
+                used if configured with --enable-experiment.
 
 	mbout:
 		In check for T-Mail fileboxes added condition that the zone
