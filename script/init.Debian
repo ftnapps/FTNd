@@ -69,7 +69,7 @@ case "$1" in
 	    if [ -f $MBSE_ROOT/var/run/mbtask ]; then
 		kill -9 `cat $MBSE_ROOT/var/run/mbtask`
 	    fi
-	    echo "$NAME done."
+	    echo " done."
 	else
 	    echo "already stopped."
 	fi
