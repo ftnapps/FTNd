@@ -60,6 +60,9 @@ v0.37.5		12-Jul-2003
 
 	lang:
 		Added language prompts 18 and 19.
+		Added germandu, a German language file in "Du" style instead of
+		"Sie". Written by Malte Tychsen.
+		Changed the last Englsh language prompts in the german.txt.
 
 
 v0.37.4		10-May-2003 - 12-Jul-2003

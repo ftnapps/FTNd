@@ -1,14 +1,14 @@
 |Bitte Vor- und Nachnamen eingeben: 
-|Bitte geben Sie Ihren Nachnamen ein: 
+|Bitte gib Deinen Nachnamen ein: 
 |Abmelden des Benutzers ...
 |Pruefen der Datei ...
-JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
-|Bitte melden Sie sich nun mit folgendem Namen erneut an: 
-|Dies ist ein PRIVATES System. Geben Sie zum Verlassen "off" ein
-|Geben Sie bitte die Nummer ein - beenden mit <Enter>: 
+JN|Hast Du Deinen Namen korrekt eingegeben? [J/n]
+|Bitte melde Dich nun mit folgendem Namen erneut an: 
+|Dies ist ein PRIVATES System. Gib zum Verlassen "off" ein
+|Gib bitte die Nummer ein - beenden mit <Enter>: 
 |Passwort: 
 |Die maximale Anzahl von Login-Versuchen wurde ueberschritten ...
-|Entweder Ihr NAME oder Ihr PASSWORT wurden falsch eingegeben
+|Entweder Dein NAME oder Dein PASSWORT wurden falsch eingegeben
 HR|Export in (H)ome oder (R)ules Direktorie: 
 |Message exportiert in das Rules Direktorie als 
 |Keine Rules gefunden fuer diese Area
@@ -40,39 +40,39 @@ HR|Export in (H)ome oder (R)ules Direktorie:
 |Bitte das neue Passwort eingeben    : 
 |Bitte das neue Passwort wiederholen : 
 |Die Passwoerter stimmen nicht ueberein! Bitte wiederholen.
-|Ihr Passwort muss mindestens 
+|Dein Passwort muss mindestens 
 |Zeichen enthalten! Bitte wiederholen.
-JN|Moechten Sie den ANSI Anzeigemodus verwenden [J/n]: 
-|Bitte geben Sie Ihre Telefonnummer an:
-|Die Mitteilung wurde in Ihr privates Verzeichnis gespeichert als: 
-|Bitte geben Sie eine vollstaendige Telefonnummer an:
-|Bitte geben Sie Ihre Daten-Telefonnummer an:
-|Bitte geben Sie Ihren Wohnort an: 
+JN|Moechtest Du den ANSI Anzeigemodus verwenden [J/n]: 
+|Bitte gib Deine Telefonnummer an:
+|Die Mitteilung wurde in Dein privates Verzeichnis gespeichert als: 
+|Bitte gib Deine vollstaendige Telefonnummer an:
+|Bitte gib Deine Daten-Telefonnummer an:
+|Bitte gib Deinen Ihren Wohnort an: 
 |Der Name des Wohnortes ist zu kurz
-MW|Sind Sie (m)aennlich oder (w)eiblich ? : 
+MW|Bist Du (m)aennlich oder (w)eiblich ? : 
 |Maennlich
 |Weiblich
-|Bitte druecken Sie "M" oder "W"
+|Bitte druecke "M" oder "W"
 |Unbekannt
-|Bitte geben Sie Ihr Geburtsdatum an TT-MM-JJJJ: 
-|Sie haben versehentlich dieses Jahr eingegeben.
-|Bitte verwenden Sie das vorgegebene Datumsformat
+|Bitte gib Dein Geburtsdatum an [TT-MM-JJJJ]: 
+|Du hast versehentlich dieses Jahr eingegeben.
+|Bitte verwende das vorgegebene Datumsformat
 |*** Der Sysop beginnt den Chat ***
 |*** Der Sysop hat den Chat beendet ***
 JN=|Weiter (J/n/=) 
-JN|Moechten Sie Menues mit "Hot-Keys" verwenden? [J/n]: 
-|Bitte druecken Sie J oder N
-|Geben Sie bitte die Zeilenanzahl Ihres Bildschirms an [24]: 
+JN|Moechtest Du Menues mit "Hot-Keys" verwenden? [J/n]: 
+|Bitte druecke J oder N
+|Gib bitte die Zeilenanzahl Deines Bildschirms an [24]: 
 |Keine(r)
 |Mitteilungsbereiche fuer den Offline Reader markieren
-|Ihr Benutzeraccount wurde wie folgt eingerichtet:
+|Dein Benutzeraccount wurde wie folgt eingerichtet:
 |Login Name : 
 |Passwort   : 
 | * * * * * 
 |Die Registrierung des neuen Benutzeraccounts ist abgeschlossen.
 |Unbekannt 
 |Bisheriger Ort: 
-|Bitte geben Sie eine laengere Bezeichung fuer den Ort ein (min 
+|Bitte gib eine laengere Bezeichung fuer den Ort ein (min 
 |Ansi Modus ist jetzt EIN
 |Ansi Modus ist jetzt AUS
 |Die Mitteilung existiert nicht
@@ -80,32 +80,32 @@ JN|Moechten Sie Menues mit "Hot-Keys" verwenden? [J/n]:
 |System-Mitteilungen sind jetzt AUS
 |Die Zeilenanzahl ist 24
 |Die Zeilenanzahl ist jetzt gesetzt auf: 
-|Private Mitteilung - Sie sind weder Absender noch Empfaenger
-|Bitte verwenden Sie das vorgegebene Datumsformat
+|Private Mitteilung - Du bist weder Absender noch Empfaenger
+|Bitte verwende das vorgegebene Datumsformat
 |Logins heute bis 
 |#    User Name           Leitg.  TimeOn  Calls  Ort
 |Safe Cracker Door
-|Um fortzufahren druecken Sie bitte eine Taste: 
+|Um fortzufahren druecke bitte eine Taste: 
 |Im Safe liegt ...
-|Bitte geben Sie drei Zahlen ein - von 1 bis 
-|Bitte geben Sie drei Kombinationen ein.
+|Bitte gib drei Zahlen ein - von 1 bis 
+|Bitte gib Deine Kombination ein.
 |1. Zahl: 
-|Bitte versuchen Sie es erneut! Verwenden Sie Zahlen groesser 0 und kleiner 
+|Bitte versuche es erneut! Verwenden Sie Zahlen groesser 0 und kleiner 
 |2. Zahl: 
 |3. Zahl: 
 | Links: 
 |Rechts: 
-JN|Moechten Sie den Safe mit dieser Kombination oeffnen [J/n]: 
-|Sie haben folgendes gewonnen...
-|Sie haben den Safe leider nicht geoeffnet !
+JN|Moechtest Du den Safe mit dieser Kombination oeffnen [J/n]: 
+|Du hast folgendes gewonnen...
+|Du hast den Safe leider nicht geoeffnet !
 |Der Safe Code war:
-JN|Moechten Sie es noch einmal versuchen ? [J/n]: 
-JN|Moechten Sie den Safe oeffnen ? [J/n]: 
+JN|Moechtest Du es noch einmal versuchen ? [J/n]: 
+JN|Moechtest Du den Safe oeffnen ? [J/n]: 
 |DER SAFE IST ZUR ZEIT VERSCHLOSSEN
 |hat den Safe geknackt.
 |Der Safe bleibt verschlossen bis der Sysop den Preis vergeben hat..
 |Maximale Versuche pro Tag ueberschritten !
-|Message fÅr das "Nextuser Door"
+|Message fuer das "Nextuser Door"
 |Die VON, AN und Betreff Felder sind optional.
 |    Von: 
 |     An: 
@@ -141,8 +141,8 @@ JN=M|Weiter (J/n/=) M=Markieren
 |Verbleibende Zeit Heute :
 |Taegl. Zeitlimit        :
 |Sie haben 
-JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]: 
-|Es liegen keine neuen Mitteilungen fuer Sie vor.
+JN|Mitteilungen, moechtest Du jetzt Deine Post lesen? [J/n]: 
+|Es liegen keine neuen Mitteilungen fuer Dich vor.
 |Hotkeys sind jetzt EIN
 |Hotkeys sind jetzt AUS
 |Ein
@@ -151,9 +151,9 @@ JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]:
 |Suchen nach persoenlichen Mitteilungen, bitte warten ...
 |     MBSE BBS Chat
 |Der SysOp spricht gerade mit einem anderen User.
-|Bitte versuchen Sie es in einigen Minuten nochmals ...
+|Bitte versuche es in einigen Minuten nochmals ...
 |Ihre maximale Anzahl von Sysop-Anrufen ist erreicht.
-|Sysop ist zurzeit nicht erreichbar. Bitte hinterlassen Sie eine Mitteilung...
+|Sysop ist zurzeit nicht erreichbar. Bitte hinterlasse eine Mitteilung...
 |Versenden einer Mitteilung im Bereich: 
 |Von      : 
 |An       : 
@@ -162,7 +162,7 @@ JN|Mitteilungen, moechten Sie jetzt Ihre Post lesen? [J/n]:
 |Betreff  : 
 JN|Mitteilung verwerfen [j/N] ?: 
 JN|Privat [j/N]: 
-|Schreiben Sie die Mitteilung jetzt.  Beenden: eine leere Zeile eingeben
+|Schreibe die Mitteilung jetzt.  Beenden: eine leere Zeile eingeben
 |Maximal 60 Zeilen, 73 Zeichen pro Zeile
 |Maximale Zeilenanzahl erreicht
 |Verfuegbare Funktionen: (Aktuelle Mitteilung: 
@@ -176,24 +176,24 @@ ASWBLETXRZ|Z - Zeile zentrieren
 |Loeschen 
 |Loeschen ab Zeile 
 |Abgebrochen.
-|Bitte geben Sie eine Zahl ein im Bereich  
+|Bitte gib eine Zahl ein im Bereich  
 |Loeschen bis Zeile  
 |Bearbeiten
-|Geben Sie die zu bearbeitende Zeile an  
+|Gib die zu bearbeitende Zeile an  
 |Einfuegen
-|Geben Sie die Zeile an, vor der eingefÅgt werden soll 
+|Gib die Zeile an, vor der eingefuegt werden soll 
 |Listen
-|Geben Sie die zu ersetzende Zeile an 
+|Gib die zu ersetzende Zeile an 
 |Zeile:
 |Unveraendert.
 |Zeile jetzt:
 |Beenden
-JN|Sind Sie sicher [j/N]: 
+JN|Bist Du sicher [j/N]: 
 |Mitteilung wurde verworfen.
 |Nein
 |Text bearbeiten
-|Geben Sie die zu bearbeitende Zeile an   
-|Geben Sie den zu ersetzenden Text an  : 
+|Gib die zu bearbeitende Zeile an   
+|Gib den zu ersetzenden Text an  : 
 |Ersatztext : 
 |Zeile jetzt: 
 |Speichern
@@ -201,7 +201,7 @@ JN|Sind Sie sicher [j/N]:
 |Ok
 |Auspacken des Archivs
 |Mitteilung speichern 
-|Geben Sie die zu zentrierende Zeile an 
+|Gib die zu zentrierende Zeile an 
 |Die Zeile kann nicht zentriert werden, da sie maximale Laenge hat.
 |Es liegen keine Mitteilungen in diesem Bereich vor.
 |Datum   : 
@@ -209,7 +209,7 @@ JN=|Weiter (J/n/=/Bereich-Nr.):
 |An      : 
 |Von     : 
 |Betreff : 
-|NÑchste Antwort:
+|Naechste Antwort:
 |Antwort auf:
 |Mitteilungen in
 WNLAUEHX|Wiederh. Naechste Letzte Antwort neU loescHen Ende eXport
@@ -234,7 +234,7 @@ ANE|(A)ntwort, (N)aechste, (E)nde:
 |Die angegebene Bereichsnummer existiert nicht.
 |Das Passwort ist ungueltig
 |Das Passwort ist korrekt
-|Sie haben nicht ausreichend Rechte um diesen Mitteilungsbereich aufzulisten
+|Du hast nicht ausreichend Rechte um diesen Mitteilungsbereich aufzulisten
 |Die Datei-Datenbank fuer diesen Bereich kann nicht geoeffnet werden
 |Heraufgeladen von: 
 |G E L O E S C H T
@@ -242,23 +242,23 @@ ANE|(A)ntwort, (N)aechste, (E)nde:
 JN|Adresse unbekannt, dennoch fortfahren [j/N]: 
 |Dateien insgesamt: 
 |FATAL: die Datenbank der Dateibereiche kann nicht geoeffnet werden
-|Sie haben nicht ausreichend Rechte zum Herunterladen aus diesem Bereich
+|Du hast nicht ausreichend Rechte zum Herunterladen aus diesem Bereich
 |Bitte den Dateinamen angeben: 
 |Kein Dateiname angegeben, Abbruch.
 |Ungueltiger Dateiname!
 |Dieses Datei ist fuer das Herunterladen leider nicht verfuegbar
-|Sie haben
+|Du hast
 |zusaetzliche Download-KBytes.
-|Ihre Restzeit reicht nicht fuer das Herunterladen dieser Datei.
-|Ihr Download-Limit reicht nicht fuer das Herunterladen " 
-|Sie muessen etwas heraufladen bevor Sie herunterladen koennen.
-|Kilobytes verfÅgbar: 
+|Deine Restzeit reicht nicht fuer das Herunterladen dieser Datei.
+|Dein Download-Limit reicht nicht fuer das Herunterladen " 
+|Du musst etwas heraufladen bevor Du herunterladen kannst.
+|Kilobytes verfuegbar: 
 |Pruefe die markierten Downloads, bitte warten ...
 |Mitteilungsbereiche fuer den "Offline Reader" abwaehlen
 |FILEID.DIZ gefunden in
 |Es sind keine Dateien zum Herunterladen markiert.
 |extra Minuten.
-|Sie haben folgende Bereiche fuer den "Offline Reader" markiert:
+|Du hast folgende Bereiche fuer den "Offline Reader" markiert:
 |Dateiname           Groesse     Datum
 |Protokoll: Protokolldatei kann nicht geoeffnet werden.
 |Auswahl des bevorzugten Protokolls
@@ -269,28 +269,28 @@ JN|Adresse unbekannt, dennoch fortfahren [j/N]:
 |Dateisuche nach Schluesselwort
 |Akzeptiert Platzhalter wie: *.zip, *.gz, *.*
 |                            *.zip entspricht .zip
-|Geben Sie den zu suchenden Dateinamen an: 
+|Gib den zu suchenden Dateinamen an: 
 |Dateisuche nach Dateinamen
-JN|Neue Dateien seit Ihrem letzten Login suchen [J/n]: 
-|Geben Sie das Suchdatum an [TT-MM-JJJJ]: 
+JN|Neue Dateien seit Deinem letzten Login suchen [J/n]: 
+|Gib das Suchdatum an [TT-MM-JJJJ]: 
 |Dateisuche nach Datum
-|Geben sie den Namen der heraufzuladenden Datei ein: 
+|Gib den Namen der heraufzuladenden Datei ein: 
 |Mitteilungen fuer "Offline Reader" herunterladen
-|Ihre Zugriffsberechtigung reicht nicht fuer das Heraufladen.
-|Ihr Plattenplatz reicht nicht fuer das Kopieren der Datei
+|Deine Zugriffsberechtigung reicht nicht fuer das Heraufladen.
+|Dein Plattenplatz reicht nicht fuer das Kopieren der Datei
 |Dateien(
 |Bytes) zum Herunterladen markiert.
 |Diese Datei ist schon vorhanden
-|Bitte starten Sie das Heraufladen jetzt ...
+|Bitte starte das Heraufladen jetzt ...
 |Folgendes konnte nicht heraufgeladen werden: 
-JN|Moechten Sie das Heraufgeladene mit einem Passwort schuetzen ? [j/N]: 
-|Beachten Sie: Passwoerter sind "CaSe SeNsITiVe!"
-|Bitte geben Sie die Beschreibung der Datei ein
-|Danke! Die Zeit fuer das Heraufladen wurde Ihnen gutgeschrieben.
+JN|Moechtest Du das Heraufgeladene mit einem Passwort schuetzen ? [j/N]: 
+|Beachte: Passwoerter sind "CaSe SeNsITiVe!"
+|Bitte gib die Beschreibung der Datei ein
+|Danke! Die Zeit fuer das Heraufladen wurde Dir gutgeschrieben.
 |Kopieren beginnen: 
 |Das Verzeichnis kann nicht aufgelistet werden: 
 |Home-Verzeichnis von 
-|Geben Sie den Dateinamen zum Loeschen an: 
+|Gib den Dateinamen zum Loeschen an: 
 |Versteckte Dateien koennen nicht geloescht werden ...
 |Datei kann nicht geloescht werden ...
 |Ungueltiger Dateiname, bitte erneut eingeben ...
@@ -306,8 +306,8 @@ JN|Moechten Sie das Heraufgeladene mit einem Passwort schuetzen ? [j/N]:
 |BBS Software: 
 |Speicherplatz (GigaByte): 
 |Zugangsgeschwindigkeiten: 
-JN|Moechten Sie eine erweiterte Beschreibung hinzufuegen ? [J/n]: 
-|Bitte geben Sie eine Beschreibung ein fÅr 
+JN|Moechtest Du eine erweiterte Beschreibung hinzufuegen ? [J/n]: 
+|Bitte geben Sie eine Beschreibung ein fuer 
 |BBS Liste 
 |#    BBS Name               Nummer         Software        GigaByte   Speed
 |Nach BBS suchen
@@ -331,7 +331,7 @@ JN|BBS-Details anzeigen ? [J/n]:
 |BBS loeschen 
 |Bitte die zu loeschende Nummer eingeben: 
 |Datensatz 
-|wurde nicht von Ihnen angelegt.
+|wurde nicht von Dir angelegt.
 |ist schon zum Loeschen markiert
 |zum Loeschen markiert 
 |Der Sysop wird die Liste endgueltig loeschen  
@@ -341,7 +341,7 @@ JN|BBS-Details anzeigen ? [J/n]:
 |Speichern...
 |MBSE BBS "Einzeiler" werden zufallsgesteuert im Hauptmenue erscheinen.
 |Obszoene oder unanstaendige "Einzeiler" werden geloescht!!
-|Bitte geben Sie Ihren "Einzeiler" ein, max. 75 Zeichen.
+|Bitte gib Deinen "Einzeiler" ein, max. 75 Zeichen.
 |"Einzeiler" hinzugefuegt
 | # A Datum      User            Beschreibung
 | # Beschreibung 
@@ -367,24 +367,24 @@ UA|Aufgelistete (U)mschalten, alle (A)bwaehlen, <ENTER> um fortzufahren:
 |Check auf neue Mail ist jetzt AN
 |Check auf neue Mail ist jetzt AUS
 |Datei loeschen: 
-JN|Sind Sie sicher? [J/n]: 
+JN|Bist Du sicher? [J/n]: 
 |Check auf neue Dateien ist jetzt AN
 |Check auf neue Dateien ist jetzt AUS
-|Sie verwenden jetzt den 
+|Du verwendest jetzt den 
 123|Auswahl: 1) Zeilen-Editor, 2) Vollbild-Editor, 3) Externer Editor 
 |Es liegen keine Mitteilungen zum Herunterladen vor!
 |Weiter mit <Enter> ... 
 |Zentrieren
 |Zu viele Mitteilungen. Nur die ersten
-|Waehlen Sie Ihre bevorzugte Sprache aus
+|Waehle Deine bevorzugte Sprache aus
 |Sprache auswaehlen (<Enter> um abzubrechen): 
 |Sprache ist jetzt eingestellt auf: 
-|Das System wird jetzt einem Unix-Account fuer Sie anlegen
-|Ihr Unix-Account wurde angelegt, bitte verwenden Sie ihn ab jetzt zum Login.
-|Bitte geben Sie einen Anmeldenamen ein (Max. 8 Zeichen)
+|Das System wird jetzt einem Unix-Account fuer Dich anlegen
+|Dein Unix-Account wurde angelegt, bitte verwenden ihn ab jetzt zum Login.
+|Bitte gib einen Anmeldenamen ein (Max. 8 Zeichen)
 |Beispiel:  "Gerhard Schroeder",  login = gschroed
-|Ihr gewuenschter Anmeldename: 
-|Dieser Anmeldename existiert bereits, bitte waehlen Sie einen anderen.
+|Dein gewuenschter Anmeldename: 
+|Dieser Anmeldename existiert bereits, bitte waehle einen anderen.
 |Zeilen-
 |Vollbild-
 |Externen 
@@ -410,8 +410,8 @@ JN|Sind Sie sicher? [J/n]:
 |Dez
 |Autologout: Verbindung wird wegen Zeitablauf getrennt.
 |Wird gepackt!
-|Geben Sie den Alias ein (<Enter> fuer "keinen"): 
-|Sie koennen das BBS ab jetzt benutzen
+|Gib den Alias ein (<Enter> fuer "keinen"): 
+|Du kannst das BBS ab jetzt benutzen
 |Benutzer On-Line in 
 |Name                          Leitg.   Status         Location
 |"Nicht stoeren" ist jetzt AUS
@@ -423,7 +423,7 @@ JN|Sind Sie sicher? [J/n]:
 |Ext. Programm
 |Im Chat
 |Dateibereich
-JN|Moechten Sie diese Mitteilungen herunterladen [J/n]?
+JN|Moechtest Du diese Mitteilungen herunterladen [J/n]?
 |Bank Programm 
 |Sich. ext. Programm
 |Liste Online
@@ -431,10 +431,10 @@ JN|Moechten Sie diese Mitteilungen herunterladen [J/n]?
 |Name an den die Nachricht geschickt werden soll: 
 |Der angegebene Benutzer ist nicht online:
 |moechte nicht gestoert werden
-|Bitte geben Sie die Nachricht ein (Max 76 Zeichen)
+|Bitte gib die Nachricht ein (Max 76 Zeichen)
 |** Nachricht ** von
-|Ihr Passwort ist abgelaufen, neues Passwort: 
-|Druecken Sie <Enter> um fortzufahren 
+|Dein Passwort ist abgelaufen, neues Passwort: 
+|Drueck <Enter> um fortzufahren 
 |Kein Senden moeglich, diese Area ist "Nur lesen"!
 12|Auswahl: 1) Zeilen-Editor, 2) Vollbild-Editor
 |"Offline Reader" Paket heraufladen 
@@ -472,9 +472,9 @@ JN|Datei anhaengen [j/N]:
 |Minuten.
 |Tastenbelegung Vollbild-Editor im "Emacs" - Stil
 |Tastenbelegung Vollbild-Editor im "Wordstar" - Stil
-|Ihre Adresse (max. 3 Zeilen, nur fuer den Sysop sichtbar):
-|Sie muessen Ihre Adresse hier angeben
+|Deine Adresse (max. 3 Zeilen, nur fuer den Sysop sichtbar):
+|Du musst Deine Adresse hier angeben
 |Alte Adresse:
-|Moechten Sie Ihren Aliasnamen (
+|Moechtest Du Deinen Aliasnamen (
 JN|) als Absender verwenden [J/n] 
 |Keine weitere Bereiche mit ungelsenen Nachrichten
