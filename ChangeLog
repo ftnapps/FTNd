@@ -17,6 +17,13 @@ v0.37.2		23-Feb-2003.
 	mbfido:
 		Finding the inbound tic file now uses the new function.
 
+	mbfile:
+		When a file was deleted for age or download age, the 8.3
+		filename was not removed from disk.
+		A better check againts empty upload dates when purging files.
+		Also added a log when this happens. Please report if you see
+		any of these.
+
 	examples:
 		Removed the last menu item from the offline menu, added new
 		Extended Info toggle (English only).
