@@ -62,31 +62,24 @@ all:		${TARGET}
 
 mbfido:		${MBFIDO_OBJS} ${MBFIDO_LIBS}
 		${CC} -o mbfido ${MBFIDO_OBJS} ${LIBS} ${MBFIDO_LIBS}
-		strip mbfido
 
 mbseq:		${MBSEQ_OBJS} ${MBSEQ_LIBS}
 		${CC} -o mbseq ${MBSEQ_OBJS} ${LIBS} ${MBSEQ_LIBS}
-		strip mbseq
 
 mbaff:		${MBAFF_OBJS} ${MBAFF_LIBS}
 		${CC} -o mbaff ${MBAFF_OBJS} ${LIBS} ${MBAFF_LIBS}
-		strip mbaff
 
 mbindex:	${MBINDEX_OBJS} ${MBINDEX_LIBS}
 		${CC} -o mbindex ${MBINDEX_OBJS} ${LIBS} ${MBINDEX_LIBS}
-		strip mbindex
 
 mbdiff:		${MBDIFF_OBJS} ${MBDIFF_LIBS}
 		${CC} -o mbdiff ${MBDIFF_OBJS} ${LIBS} ${MBDIFF_LIBS}
-		strip mbdiff
 
 mbfile:		${MBFILE_OBJS} ${MBFILE_LIBS}
 		${CC} -o mbfile ${MBFILE_OBJS} ${LIBS} ${MBFILE_LIBS}
-		strip mbfile
 
 mbmsg:		${MBMSG_OBJS} ${MBMSG_LIBS}
 		${CC} -o mbmsg ${MBMSG_OBJS} ${LIBS} ${MBMSG_LIBS}
-		strip mbmsg
 
 clean: 
 		rm -f ${TARGET} *.o *.h~ *.c~ core filelist Makefile.bak

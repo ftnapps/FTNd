@@ -33,15 +33,12 @@ clean:
 
 mbuseradd:	${MBUSERADD_OBJS}
 		${CC} -o mbuseradd ${MBUSERADD_OBJS} ${LIBS}
-		strip mbuseradd
 
 mbpasswd:	${MBPASSWD_OBJS}
 		${CC} -o mbpasswd ${MBPASSWD_OBJS} ${LIBS}
-		strip mbpasswd
 
 mblogin:	${MBLOGIN_OBJS}
 		${CC} -o mblogin ${MBLOGIN_OBJS} ${LIBS}
-		strip mblogin
 
 install:	all
 		@if [ "`id -un`" != "root" ] ; then \

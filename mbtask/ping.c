@@ -47,6 +47,7 @@ int     		icmp_errs = 0;		/* ICMP error counter	*/
 extern int		internet;		/* Internet is down	*/
 extern int		rescan;			/* Master rescan flag	*/
 struct in_addr		paddr;			/* Current ping address	*/
+extern int		T_Shutdown;		/* Program shutdown	*/
 
 
 
@@ -332,14 +333,14 @@ void *ping_thread(void)
     int		    rc = 0;
     static int      pingnr, pingresult[2];
     static char     pingaddress[41];
-    static time_t   pingtime;
+    static time_t   pingsend;
 
-    Syslog('p', "ping_thread: Start");
+    Syslog('+', "Starting ping thread with pid %d", (int)getpid());
     pingresult[1] = pingresult[2] = FALSE;
     pingnr = 2;
     internet = FALSE;
 
-    while (TRUE) {
+    while (! T_Shutdown) {
 
 	/*
 	 * Select new address to ping
@@ -367,13 +368,13 @@ void *ping_thread(void)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
 		pingresult[pingnr] = FALSE;
 	    } else {
-		if (internet)
-		    pingtime = time(NULL) + 20;
-		else
-		    pingtime = time(NULL) + 10;
+		pingsend = time(NULL);
 
 		while (TRUE) {
-		    if (time(NULL) >= pingtime) {
+		    if (T_Shutdown)
+			break;
+
+		    if (time(NULL) >= (pingsend + 20)) {
 			pingresult[pingnr] = FALSE;
 			if (icmp_errs < ICMP_MAX_ERRS)
 			    Syslog('?', "ping: to %s timeout", pingaddress);
@@ -388,12 +389,12 @@ void *ping_thread(void)
 			    /*
 			     * Reply received.
 			     */
-			    rc = time(NULL) - (pingtime - 20);
+			    rc = time(NULL) - pingsend;
 			    if (rc > 5)
 				Syslog('+', "Ping: slow reply after %d seconds", rc);
 			    pingresult[pingnr] = TRUE;
-			    if (rc < 10)
-				sleep(10 - rc);
+			    if (rc < 20)
+				sleep(20 - rc);
 			    else
 				sleep(1);
 			    break;
@@ -436,8 +437,7 @@ void *ping_thread(void)
 	}
     }
 
-    /* Never reached */
-    Syslog('p', "ping_thread: End");
+    Syslog('+', "Ping thread stopped");
     pthread_exit(NULL);
 }
 

@@ -25,7 +25,6 @@ all:		mbtask
 
 mbtask:		${OBJS} ${LIBS}
 		${CC} -o mbtask ${OBJS} ${LIBS}
-		strip mbtask
 
 clean:
 		rm -f mbtask *.o *.h~ *.c~ version.* core filelist Makefile.bak
@@ -35,15 +34,6 @@ install:	all
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
 		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbtask   ${BINDIR}
-		@if [ -f ${ETCDIR}/mbsed.conf ]; then \
-			rm ${ETCDIR}/mbsed.conf ; \
-		fi
-		@if [ -f ${ETCDIR}/client.conf ]; then \
-			rm ${ETCDIR}/client.conf ; \
-		fi
-		@if [ -f ${BINDIR}/mbsed ]; then \
-			rm ${BINDIR}/mbsed ; \
-		fi
 		@if [ ! -f ${ETCDIR}/issue ]; then \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR}"; \

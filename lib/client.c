@@ -51,7 +51,7 @@ int socket_connect(char *user, char *prg, char *city)
 {
 	int 		s;
 	static char	buf[SS_BUFSIZE];
-	char		tty[18];
+	static char	tty[18];
 
 	myname = prg;
 

@@ -56,19 +56,15 @@ install:	all
 
 mbcico:		${MBCICO_OBJS} ${LIBS}
 		${CC} -o mbcico ${MBCICO_OBJS} ${LIBS}
-		strip mbcico
 
 mbout:		${MBOUT_OBJS} ${LIBS}
 		${CC} -o mbout ${MBOUT_OBJS} ${LIBS}
-		strip mbout
 
 mbtelind:	${MBTELIND_OBJS} ${LIBS}
 		${CC} -o mbtelind ${MBTELIND_OBJS} ${LIBS}
-		strip mbtelind
 
 mbtelout:	${MBTELOUT_OBJS} ${LIBS}
 		${CC} -o mbtelout ${MBTELOUT_OBJS} ${LIBS}
-		strip mbtelout
 
 filelist:	Makefile
 		BASE=`pwd`; \

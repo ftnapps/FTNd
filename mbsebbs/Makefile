@@ -59,31 +59,24 @@ clean:
 
 mbsebbs:	${MBSEBBS_OBJS} ${MBSEBBS_LIBS}
 		${CC} -o mbsebbs ${MBSEBBS_OBJS} ${LIBS} ${MBSEBBS_LIBS}
-		strip mbsebbs
 
 mbnewusr:	${MBNEWUSR_OBJS} ${MBNEWUSR_LIBS}
 		${CC} -o mbnewusr ${MBNEWUSR_OBJS} ${LIBS} ${MBNEWUSR_LIBS}
-		strip mbnewusr
 
 mball:		${MBALL_OBJS} ${MBALL_LIBS}
 		${CC} -o mball   ${MBALL_OBJS} ${LIBS} ${MBALL_LIBS}
-		strip mball
 
 mblang:		${MBLANG_OBJS} ${MBLANG_LIBS}
 		${CC} -o mblang  ${MBLANG_OBJS} ${LIBS} ${MBLANG_LIBS}
-		strip mblang
 
 mbstat:		${MBSTAT_OBJS} ${MBSTAT_LIBS}
 		${CC} -o mbstat ${MBSTAT_OBJS} ${LIBS} ${MBSTAT_LIBS}
-		strip mbstat
 
 mbtoberep:	${MBTOBE_OBJS} ${MBTOBE_LIBS}
 		${CC} -o mbtoberep ${MBTOBE_OBJS} ${LIBS} ${MBTOBE_LIBS}
-		strip mbtoberep
 
 mbuser:		${MBUSER_OBJS} ${MBUSER_LIBS}
 		${CC} -o mbuser ${MBUSER_OBJS} ${LIBS} ${MBUSER_LIBS}
-		strip mbuser
 
 install:	all
 		@if [ "`id -un`" != "root" ] ; then \
@@ -96,7 +89,7 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbstat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0711 mbtoberep ${BINDIR}
 		${INSTALL} -c -s -o `id -un` -g `id -gn` -m 6711 mbuser    ${BINDIR}
-		@rm -f mbuseradd mbpasswd mblogin mbchat
+		@rm -f mbchat
 
 filelist:	Makefile
 		BASE=`pwd`; \

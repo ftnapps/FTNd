@@ -109,6 +109,7 @@ extern pp_list		*pl;			/* List of tty ports	*/
 extern int		ipmailers;		/* TCP/IP mail sessions	*/
 extern int		tosswait;		/* Toss wait timer	*/
 extern pid_t		mypid;			/* Pid of daemon	*/
+int			T_Shutdown = FALSE;	/* Shutdown threads	*/
 
 
 
@@ -651,10 +652,12 @@ void die(int onsig)
     int	i, count;
 
     signal(onsig, SIG_IGN);
-    if (onsig == SIGTERM)
+    if (onsig == SIGTERM) {
         Syslog('+', "Starting normal shutdown");
-    else
+	T_Shutdown = TRUE;
+    } else {
         Syslog('+', "Abnormal shutdown on signal %s", SigName[onsig]);
+    }
 
     /*
      *  First check if there are tasks running, if so try to stop them
@@ -1110,7 +1113,6 @@ void scheduler(void)
 	    oldsec = tm->tm_sec;
 	    if (ptimer)
 		ptimer--;
-//	    check_ping();
 	}
 
 	if (Processing) {
