@@ -34,6 +34,9 @@
 #include "mutil.h"
 
 
+extern int  bbs_free;
+
+
 static void die(int onsig)
 {
 	signal(onsig, SIG_IGN);
@@ -420,7 +423,9 @@ int main(int argc, char *argv[])
 	pw = getpwuid(getuid());
 	InitClient(pw->pw_name);
 	Syslog(' ', "Started by %s", pw->pw_name);
+	bbs_free = FALSE;
 
+	
 	/*
 	 * Setup several signals so when the program terminate's it
 	 * will properly close.

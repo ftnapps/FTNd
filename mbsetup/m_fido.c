@@ -408,6 +408,8 @@ void EditFidonet(void)
 	IsDoing("Browsing Menu");
 
 	working(0, 0, 0);
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -445,6 +447,7 @@ void EditFidonet(void)
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseFidonet(FALSE);
+			open_bbs();
 			return;
 		}
 

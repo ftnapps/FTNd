@@ -42,6 +42,7 @@
 
 
 int		sock;			/* Connected socket		   */
+extern int	bbs_free;
 
 
 int yes_no(char *T_)
@@ -90,6 +91,47 @@ void errmsg(const char *format, ...)
 	locate(LINES - 3, 6);
 	clrtoeol();
 	free(t);
+}
+
+
+
+/*
+ * Check if bbs is free, if so close it.
+ */
+int check_free(void)
+{
+    char    buf[81];
+
+    if (bbs_free) {
+	strcpy(buf, SockR("SCLO:0;"));
+	if (strncmp(buf, "100:0;", 6) == 0) {
+	    Syslog('+', "The BBS is closed");
+	    return TRUE;
+	} else {
+	    errmsg("Cannon continue, failed to close the bbs");
+	    return FALSE;
+	}
+    }
+
+    errmsg("You cannot edit right now, the system is busy");
+    return FALSE;
+}
+
+
+
+/*
+ * Reopen the bbs.
+ */
+void open_bbs(void)
+{
+    char    buf[81];
+
+    strcpy(buf, SockR("SOPE:0;"));
+    if (strncmp(buf, "100:0;", 6) == 0) {
+	Syslog('+', "The BBS is open");
+    } else {
+	errmsg("Failed to reopen the bbs");
+    }
 }
 
 

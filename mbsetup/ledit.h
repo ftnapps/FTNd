@@ -5,6 +5,8 @@
 
 int 		yes_no(char *);
 void		errmsg(const char *, ...);
+int		check_free(void);
+void		open_bbs(void);
 void		show_field(int, int, char *, int, int);
 void		newinsert(int, int, int);
 char		*edit_field(int, int, int, int, char *);

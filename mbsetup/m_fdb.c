@@ -136,6 +136,8 @@ void E_F(long areanr)
 		working(2, 0, 0);
 		return;
 	}
+        if (! check_free())
+	    return;
 
 	fseek(fil, 0, SEEK_END);
 	records = ftell(fil) / sizeof(file);
@@ -216,6 +218,7 @@ void E_F(long areanr)
 
 			if (strncmp(menu, "-", 1) == 0) {
 				fclose(fil);
+				open_bbs();
 				return;
 			}
 

@@ -32,10 +32,13 @@
 #include "../lib/structs.h"
 #include "../lib/ansi.h"
 #include "../lib/common.h"
+#include "../lib/clcomm.h"
 #include "screen.h"
 
 
 extern int  init;
+int	    bbs_free;
+
 
 
 /*************************************************************************
@@ -95,7 +98,7 @@ static time_t lasttime;
 void show_date(int fg, int bg, int y, int x)
 {
 	time_t	now;
-	char	*p;
+	char	*p, buf[128];
 
 	now = time(NULL);
 	if (now != lasttime) {
@@ -107,6 +110,27 @@ void show_date(int fg, int bg, int y, int x)
 		p = asctime(gmtime(&now));
 		Striplf(p);
 		mvprintw(2, 44, (char *)"%s UTC", p);
+
+		/*
+		 * Indicator if bbs is free
+		 */
+		strcpy(buf, SockR("SFRE:0;"));
+		if (strncmp(buf, "100:0;", 6) == 0) {
+		    strcpy(buf, SockR("SBBS:0;"));
+		    if (strncmp(buf, "100:2,1", 7) == 0) {
+			set_color(WHITE, RED);
+			mvprintw(2,74, (char *)" Down ");
+		    } else {
+			set_color(WHITE, BLUE);
+			mvprintw(2,74, (char *)" Free ");
+		    }
+		    bbs_free = TRUE;
+		} else {
+		    set_color(WHITE, RED);
+		    mvprintw(2,74, (char *)" Busy ");
+		    bbs_free = FALSE;
+		}
+
 		if (y && x)
 			locate(y, x);
 		set_color(fg, bg);

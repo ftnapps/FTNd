@@ -433,8 +433,6 @@ int EditConnections(FILE *fil)
 				if (System.aka.zone) {
 					set_color(CYAN,BLACK);
 					sprintf(temp, "%3d. %s %s", o+i, status, aka2str(System.aka));
-//						System.aka.zone, System.aka.net, System.aka.node, 
-//						System.aka.point, System.aka.domain);
 				} else {
 					set_color(LIGHTBLUE, BLACK);
 					sprintf(temp, "%3d.", o+i);
@@ -1251,6 +1249,8 @@ void EditMsgarea(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -1288,6 +1288,7 @@ void EditMsgarea(void)
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseMsgarea(MailForced);
+			open_bbs();
 			return;
 		}
 

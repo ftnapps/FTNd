@@ -503,6 +503,8 @@ void EditFGroup(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -544,6 +546,7 @@ void EditFGroup(void)
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseFGroup(FALSE);
+			open_bbs();
 			return;
 		}
 

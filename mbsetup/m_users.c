@@ -566,6 +566,8 @@ void EditUsers(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -607,6 +609,7 @@ void EditUsers(void)
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseUsers(FALSE);
+			open_bbs();
 			return;
 		}
 

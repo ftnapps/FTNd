@@ -921,6 +921,8 @@ void EditNodes(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -962,6 +964,7 @@ void EditNodes(void)
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseNoderec(FALSE);
+			open_bbs();
 			return;
 		}
 

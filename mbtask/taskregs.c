@@ -449,6 +449,7 @@ char *reg_fre(void)
 	for (i = 1; i < MAXCLIENT; i++) {
 		if (reginfo[i].pid) {
 			if ((!strncmp(reginfo[i].prg, "mbsebbs", 7)) ||
+			    (!strncmp(reginfo[i].prg, "mbnewusr", 8)) ||
 			    (!strncmp(reginfo[i].prg, "mbftpd", 6)))
 				users++;
 

@@ -309,6 +309,9 @@ void EditDomain(void)
 	long		offset;
 	struct domrec	tdomtrans;
 
+	if (! check_free())
+	    return;
+		
 	clr_index();
 	working(1, 0, 0);
 	IsDoing("Browsing Menu");
@@ -366,6 +369,7 @@ void EditDomain(void)
 		strcpy(pick, select_menurec(records));
 		
 		if (strncmp(pick, "-", 1) == 0) {
+			open_bbs();
 			CloseDomain(FALSE);
 			return;
 		}

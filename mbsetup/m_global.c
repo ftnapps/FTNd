@@ -1493,6 +1493,9 @@ void global_menu(void)
 {
 	unsigned long crc, crc1;
 
+	if (! check_free())
+	    return;
+
 	if (cf_open() == -1)
 		return;
 
@@ -1561,6 +1564,7 @@ void global_menu(void)
 					Syslog('+', "Saved main config");
 				}
 			}
+			open_bbs();
 			return;
                 case 1: 
 			e_fidoakas();

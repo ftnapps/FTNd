@@ -70,8 +70,10 @@
 
 mode_t		oldmask;		/* Old umask value	 	*/
 extern int	do_quiet;		/* Suppress log to screen	*/
+extern int	bbs_free;		/* Free/Busy status		*/
 int		exp_golded = FALSE;	/* Export GoldED config		*/
 int		init = FALSE;		/* Run init only		*/
+
 
 
 static void die(int onsig)
@@ -423,6 +425,7 @@ int main(int argc, char *argv[])
 	Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
 	if (init)
 	    Syslog('+', "Cmd: mbsetup init");
+	bbs_free = FALSE;
 	initdatabases();
 	
 	if (!init) {

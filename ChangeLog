@@ -4665,6 +4665,13 @@ v0.33.20        10-Feb-2002
 		Fixed a non understandable logmessage in check if nodes are
 		connected to file and or mail groups.
 		It is now possible to reset a users time left for today.
+		The top statusbar now displays the bbs Free/Down/Busy status.
+		Some dangerous menus cannot be entered anymore while some
+		programs are being used, ie. the bbs must be free. When these
+		menus are entered, the bbs will be closed for use.
+
+	mbmon:
+		The top statusbar now displays the bbs Free/Down/Busy status.
 
 	mbfido:
 		In AreaMgr and FileMgr changed aka matching for area 
@@ -4837,6 +4844,10 @@ v0.33.20        10-Feb-2002
 		If a new user has registered and not yet used the bbs, mbuser
 		would kill that user because the last login date wasn't set.
 		It will use the registration date instead.
+
+	mbstat:
+		The timeout for the wait command was wrong due to a wrong
+		upsdown semafore test.
 
 	hatch:
 		A new shellscript to hatch files in a tic area.

@@ -977,6 +977,8 @@ void EditTicarea(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+        if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -1015,6 +1017,7 @@ Comment);
 		
 		if (strncmp(pick, "-", 1) == 0) {
 			CloseTicarea(FALSE);
+			open_bbs();
 			return;
 		}
 

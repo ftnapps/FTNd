@@ -487,6 +487,8 @@ void EditFilearea(void)
 	}
 	working(0, 0, 0);
 	o = 0;
+	if (! check_free())
+	    return;
 
 	for (;;) {
 		clr_index();
@@ -527,6 +529,7 @@ void EditFilearea(void)
 		strcpy(pick, select_filearea(records, 20));
 		
 		if (strncmp(pick, "-", 1) == 0) {
+			open_bbs();
 			CloseFilearea(FileForced);
 			return;
 		}
