@@ -7,8 +7,15 @@ v0.61.3		25-Jul-2004
 		To reinstall the corrected macro templates go into the examples
 		directory and type "make macros".
 		In mbsetup menu 1.7 check the new items 15, 16 and 17.
-		If you use dosemu 1.2.0 or later, copy in ~/bin bbsdoor.sh.new
-		over bbsdoor.sh
+		If you want to switch running doors as user instead of via sudo
+		then read doors.html and follow the instructions.
+		In the english txtfiles and menus the doors menu and screens
+		are updated for the newer doors setup, you might want to
+		upgrade or use them as examples.
+
+	general:
+		With the newer versions of dosemu running doors as user finally
+		works. To migrate you need to read doors.html.
 
 	libmbse.a:
 		Removed the fdn parameter from the attach and un_attach 
@@ -56,12 +63,13 @@ v0.61.3		25-Jul-2004
 		all languages.
 
 	script:
-		Changed bbsdoor.sh so that it works for dosemu 1.2.0 and later.
-		Created new runvirtual.sh so that we have door scripts with and
-		without virual comport support.
+		Changed bbsdoor.sh, it now hase a variable pointing to the dos
+		directory.
+		Created runvirtual.sh, this replaces rundoor.sh for old systems
+		that run doors using the obsoleted sudo method.
+		Rewrote rundoor.sh for running dosemu with user privileges.
 		Changed all locations for dosemu so that we run in the mbse
-		environment with dropped privileges of the user running the
-		door.
+		environment with privileges of the user running the door.
 
 	lang:
 		Added language prompts 26 and 27.

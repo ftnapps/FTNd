@@ -7,7 +7,6 @@
 #	       $2 = the nodenumber for this session
 #
 #  by Redy Rodriguez, 22-Oct-2001
-#  Revised for dosemu 1.2.0 by Michiel Broek.
 
 DOSDRIVE=/opt/mbse/var/dosemu/c
 
@@ -28,9 +27,5 @@ if [ "$1" != "" ]; then
 	if [ ! -f $HOME/.dosemu/disclaimer ]; then
 	    touch $HOME/.dosemu/disclaimer
 	fi
-	# For dosemu 1.2.0 and later, create a link to the drive
-#	if [ ! -f $HOME/.dosemu/drives/c ]; then
-#	    ln -s $DOSDRIVE $HOME/.dosemu/drives
-#	fi
     fi
 fi
