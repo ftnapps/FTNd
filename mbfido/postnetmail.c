@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/postnetmail.c
  * Purpose ...............: Post Netmail message from temp file
- * Last modification date : 03-Aug-2001
+ * Last modification date : 04-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -70,7 +70,7 @@ extern	int	most_debug;		/* Headvy debugging flag	*/
  */
 int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t mdate, int flags, int DoPing)
 {
-	char    	*p, *msgid = NULL, *reply = NULL;
+	char    	*p, *msgid = NULL, *reply = NULL, *flagstr = NULL;
 	char    	name[36], *buf, *l, *r, *q;
 	char		System[36], ext[4];
 	int		result = 1, email = FALSE, fmpt = 0, topt = 0;
@@ -80,9 +80,9 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	time_t		now;
 	struct tm	*tm;
 
-	Syslog('m', "Post netmail from: %s", ascfnode(f, 0xff));
-	Syslog('m', "Post netmail to  : %s", ascfnode(t, 0xff));
-	Syslog('m', "Post netmail subj: %s", MBSE_SS(subject));
+	Syslog('M', "Post netmail from: %s", ascfnode(f, 0xff));
+	Syslog('M', "Post netmail to  : %s", ascfnode(t, 0xff));
+	Syslog('M', "Post netmail subj: %s", MBSE_SS(subject));
 	net_in++;
 
 	/*
@@ -92,7 +92,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 	rewind(fp);
 	while ((fgets(buf, 2048, fp)) != NULL) {
 		Striplf(buf);
-		Syslogp('m', printable(buf, 0));
+		Syslogp('M', printable(buf, 0));
 		if (!strncmp(buf, "\001MSGID: ", 8)) {
 			msgid = xstrcpy(buf + 8);
 			/*
@@ -178,6 +178,18 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 					tidy_faddr(ta);
 				}
 			}
+		}
+
+		/*
+		 * Check FLAGS kludge
+		 */
+		if (!strncmp(buf, "\001FLAGS ", 7)) {
+			flagstr = xstrcpy(buf + 7);
+			Syslog('m', "^aFLAGS %s", flagstr);
+		}
+		if (!strncmp(buf, "\001FLAGS: ", 8)) {
+			flagstr = xstrcpy(buf + 8);
+			Syslog('m', "^aFLAGS: %s", flagstr);
 		}
 
 		/*
@@ -289,7 +301,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		 * Import if one fits.
 		 */
 		if (SearchUser(name)) {
-			return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
+			return storenet(f, t, mdate, flags, subject, msgid, reply, fp, flagstr);
 		}
 
 		Syslog('+', "  \"%s\" is not a known BBS user", name);
@@ -300,7 +312,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
 		sprintf(name, "%s", CFG.sysop_name);
 		if (SearchUser(name)) {
-			return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
+			return storenet(f, t, mdate, flags, subject, msgid, reply, fp, flagstr);
 		} else {
 			WriteError("Readdress import failed, sysop doesn't exist. CHECK YOUR SETUP");
 			return 0;
@@ -414,7 +426,8 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		 */
 		WriteError("No ROUTE for this netmail");
 		net_bad++;
-		return storenet(f, t, mdate, flags, subject, msgid, reply, fp);
+		flags |= M_ORPHAN;
+		return storenet(f, t, mdate, flags, subject, msgid, reply, fp, flagstr);
 		break;
 	}
 

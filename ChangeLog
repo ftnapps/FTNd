@@ -4102,6 +4102,7 @@ v0.33.18        27-Jul-2001
 		The code for mbmail is now merged into mbfido. A symlink from
 		mbmail to mbfido is created to let mbfido run in mail mode.
 		The syntax to call mbmail is changed.
+		Implemented processing ^aFLAGS for received netmail (FSC-0053).
 
 	mbmail:
 		Obsolete, the functions are now in mbfido.

@@ -2,7 +2,7 @@
  *
  * File ..................: tosser/storenet.c
  * Purpose ...............: Import a netmail message
- * Last modification date : 27-Jul-2001
+ * Last modification date : 04-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -59,7 +59,7 @@ extern	int	net_bad;		/* Bad netmails (tracking errors    */
  *  2 - Can't find a netmail board.
  *
  */
-int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgid, char *reply, FILE *fp)
+int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgid, char *reply, FILE *fp, char *flagstr)
 {
 	int		result, i, empty = TRUE;
 	unsigned long	crc2;
@@ -91,22 +91,31 @@ int storenet(faddr *f, faddr *t, time_t mdate, int flags, char *Subj, char *msgi
 			Msg.Netmail = TRUE;
 
 			/*
-			 * These are the only usefull flags in netmail
+			 *  Set flags for the message base.
 			 */
 			if ((msgs.MsgKinds == BOTH) || (msgs.MsgKinds == PRIVATE))
-				Msg.Private = (flags & M_PVT) ? TRUE:FALSE;
+				Msg.Private = (((flags & M_PVT) ? TRUE:FALSE) || flag_on((char *)"PVT", flagstr));
 			else
 				Msg.Private = TRUE;	/* Allways */
-			if (flags & M_CRASH) 
-				Msg.Crash = TRUE;
-			if (flags & M_FILE)
-				Msg.FileAttach = TRUE;
-			if (flags & M_TRANSIT)
-				Msg.Intransit = TRUE;
-			if (flags & M_REQ)
-				Msg.FileRequest = TRUE;
-			if (flags & M_RRQ)
-				Msg.ReceiptRequest = TRUE;
+			Msg.Crash          = ((flags & M_CRASH)    || flag_on((char *)"CRA", flagstr));
+			Msg.FileAttach     = ((flags & M_FILE)     || flag_on((char *)"FIL", flagstr));
+			Msg.Intransit      = ((flags & M_TRANSIT));
+			Msg.FileRequest    = ((flags & M_REQ)      || flag_on((char *)"FRQ", flagstr));
+			Msg.ReceiptRequest = ((flags & M_RRQ)      || flag_on((char *)"RRQ", flagstr));
+			Msg.KillSent       = ((flags & M_KILLSENT) || flag_on((char *)"K/S", flagstr));
+			Msg.ArchiveSent    =                          flag_on((char *)"A/S", flagstr);
+			Msg.Hold           = ((flags & M_HOLD)     || flag_on((char *)"HLD", flagstr));
+			Msg.Immediate      =                          flag_on((char *)"IMM", flagstr);
+			Msg.Direct         =                          flag_on((char *)"DIR", flagstr);
+			Msg.Gate           =                          flag_on((char *)"ZON", flagstr);
+			Msg.TruncFile      =                          flag_on((char *)"TFS", flagstr);
+			Msg.KillFile       =                          flag_on((char *)"KFS", flagstr);
+			Msg.ConfirmRequest = ((flags * M_AUDIT)    || flag_on((char *)"CFM", flagstr));
+			Msg.Orphan         = ((flags & M_ORPHAN));
+
+			if (Msg.ReceiptRequest) {
+				Syslog('+', "Netmail has ReceiptRequest flag, no message created");
+			}
 
 			/*
 			 * Set MSGID and REPLY crc.

@@ -2,7 +2,7 @@
 #define _STORENET_H
 
 
-int	storenet(faddr *, faddr *, time_t, int, char *, char *, char *, FILE *);
+int	storenet(faddr *, faddr *, time_t, int, char *, char *, char *, FILE *, char*);
 
 #endif
 
