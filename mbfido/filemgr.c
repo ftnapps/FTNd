@@ -595,7 +595,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 	return;
     }
 
-    if (!TicSystemConnect(&Sys, FALSE)) {
+    if (TicSystemConnect(&Sys, FALSE)) {
 
 	/*
 	 * Make sure to write an overview afterwards

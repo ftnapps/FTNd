@@ -4602,6 +4602,7 @@ v0.33.20        10-Feb-2002
 		Added 2 functions to return the OS name and CPU family.
 		Added a function to return the right tearline.
 		Added support for ext3 filesystem in diskspace check.
+		Fixed lharc archives return code to LHA.
 
 	mbsetup:
 		In message groups added default settings for auto area
@@ -4658,6 +4659,7 @@ v0.33.20        10-Feb-2002
 		defaults from the mailgroup.
 		Experimental patch in mkftnhdr to create a To address in news
 		articles where a Reply-To: header is present.
+		It was not possible to disconnect file areas.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to
@@ -4692,6 +4694,7 @@ v0.33.20        10-Feb-2002
 		Added support for external message editor written by Redy.
 		Doors are now passed the parameter to display a prompt after
 		the door or return silently.
+		Fixed lharc file return code to LHA.
 
 	mbnewusr:
 		New users have the default internal fullscreen editor.

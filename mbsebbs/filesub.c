@@ -711,7 +711,7 @@ char *GetFileType(char *fn)
 	 */
  	if (memcmp(buf, "PK\003\004", 4) == 0)		return (char *)"ZIP";
 	if (*buf == 0x1a)				return (char *)"ARC";
-	if (memcmp(buf+2, "-l", 2) == 0)		return (char *)"LZH";
+	if (memcmp(buf+2, "-l", 2) == 0)		return (char *)"LHA";
 	if (memcmp(buf, "ZOO", 3) == 0)			return (char *)"ZOO";
 	if (memcmp(buf, "`\352", 2) == 0)		return (char *)"ARJ";
 	if (memcmp(buf, "Rar!", 4) == 0)		return (char *)"RAR";
@@ -770,6 +770,7 @@ int ImportFile(char *fn, int Area, int fileid, time_t iTime, off_t Size)
 	if ((file_mv(temp1, temp))) {
 		WriteError("$Can't move %s to %s", fn, area.Path);
 	} else {
+		chmod(temp, 0664);
 		if (Addfile(fn, Area, fileid)) {
 
 			ReadExitinfo();

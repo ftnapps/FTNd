@@ -38,6 +38,18 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR}" ; \
 		fi
+		@if [ -x /usr/bin/joe ]; then \
+			echo "Making symlinks for joe's editor" ; \
+			ln -s /usr/bin/joe /usr/bin/bbsjoe ; \
+			ln -s /usr/bin/joe /usr/bin/bbsjmacs ; \
+		fi
+		@if [ -d /usr/lib/joe ]; then \
+			echo "Installing joerc files for MBSE BBS" ; \
+			${INSTALL} -c -o root -g root -m 0644 bbsjoerc   /usr/lib/joe ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjoerc   /usr/lib/joe" ; \
+			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc /usr/lib/joe ; \
+			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc /usr/lib/joe" ; \
+		fi
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}
 		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 rundoor.sh  ${BINDIR}
 		@bash ./installinit.sh

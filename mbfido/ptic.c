@@ -127,6 +127,11 @@ int ProcessTic(fa_list *sbl)
 	if (TIC.TicIn.Size) {
 		if (TIC.TicIn.Size != TIC.FileSize)
 			WriteError("Size is %ld, expected %ld", TIC.FileSize, TIC.TicIn.Size);
+	} else {
+		/*
+		 * No filesize in TIC file, add filesize.
+		 */
+		TIC.TicIn.Size = TIC.FileSize;
 	}
 
 	if (TIC.Crc_Int) {
@@ -154,6 +159,7 @@ int ProcessTic(fa_list *sbl)
 		free(Temp);
 		return 1;
 	}
+
 
 	if ((tic.Secure) && (!TIC.TicIn.Hatch)) {
 		First = TRUE;
@@ -443,6 +449,7 @@ int ProcessTic(fa_list *sbl)
 		}
 
 		if (!getarchiver(unarc)) {
+			WriteError("Can't get archiver for %s", unarc);
 			chdir(TIC.Inbound);
 			free(Temp);
 			return 1;
