@@ -30,8 +30,8 @@ typedef struct _file_list {
 } file_list;
 
 #define HOLD_MAIL "h"
-#define NONHOLD_MAIL "ico"
-#define ALL_MAIL "icoh"
+#define NONHOLD_MAIL "dco"
+#define ALL_MAIL "dcoh"
 
 extern int session_flags;
 extern int remote_flags;
