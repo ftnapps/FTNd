@@ -40,7 +40,8 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 
 
-int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
+int _execute(char *, char *, char *, char *, char *, char *);
+int _execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
     char    *vector[16];
@@ -52,13 +53,6 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 	sprintf(buf, "%s %s %s", cmd, file, pkt);
     Syslog('+', "Execute: %s",buf);
 
-#ifdef __linux__
-    /*
-     * Linux has async diskwrites by default.
-     */
-    sync();
-#endif
-    
     memset(vector, 0, sizeof(vector));
     i = 0;
     vector[i++] = strtok(buf," \t\n");
@@ -111,10 +105,6 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 
     setpriority(PRIO_PROCESS, 0, 0);
 
-#ifdef __linux__
-    sync();
-#endif
-    
     switch (rc) {
 	case -1:
 		WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
@@ -142,20 +132,35 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 }
 
 
+
+int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
+{
+    int	    rc;
+
+#ifdef __linux__
+    Syslog('-', "sync()");
+    sync();
+#endif
+    rc = _execute(cmd, file, pkt, in, out, err);
+#ifdef __linux
+    Syslog('-', "sync()");
+    sync();
+#endif
+    return rc;
+}
+
+
 #define SHELL "/bin/sh"
 
 
-int execsh(char *cmd, char *in, char *out, char *err)
+int _execsh(char *, char *, char *, char *);
+int _execsh(char *cmd, char *in, char *out, char *err)
 {
     int	pid, status, rc, sverr;
 
     Syslog('+', "Execute shell: %s", MBSE_SS(cmd));
     fflush(stdout);
     fflush(stderr);
-
-#ifdef __linux__
-    sync();
-#endif
 
     if ((pid = fork()) == 0) {
 	if (in) {
@@ -201,11 +206,21 @@ int execsh(char *cmd, char *in, char *out, char *err)
 	return MBERR_EXEC_FAILED;
     }
 
-#ifdef __linux__
-    sync();
-#endif
-
     return status;
 }
 
+
+int execsh(char *cmd, char *in, char *out, char *err)
+{
+    int	rc;
+
+#ifdef __linux__
+    sync();
+#endif
+    rc = _execsh(cmd, in, out, err);
+#ifdef __linux__
+    sync();
+#endif
+    return rc;
+}
 
