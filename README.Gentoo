@@ -1,0 +1,8 @@
+$Id$
+
+Unlike most distributions, Gentoo doesn't install programs that may be usefull
+for mbsebbs by default. Before you run ./configure emerge the following
+programs to make mbsebbs run with features:
+
+zip (includes unzip),
+
