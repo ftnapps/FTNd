@@ -1,0 +1,23 @@
+-= MBSE BBS System v@VERSION@ for Linux =-
+MBSE BBS is a full Fidonet capable ANSI bbs 
+package including a mailer (ifcico clone), 
+tosser, ticfile processor, filefind and other
+utilities. 
+The bbs supports full configurable ANSI
+menus, multiple languages, IEMSI, standard
+file transfer protocols, native Linux doors
+and BlueWave and QWK offline readers.
+The mailer supports FTS-0001, YooHoo/2U2,
+EMSI protocols over modem, TCP/IP IFC and 
+Binkd protocol. Zedzap, Zmodem, Telink and 
+Hydra file transfer protocols.  Full FTN mail 
+support, including automatic routing for hub 
+and host systems.
+Internal mail format is JAM (c) messagebase.
+Full tic file support, including extended
+tic files. Costsharing will be added later.
+Originating sites 2:280/2802@fidonet and
+http://mbse.sourceforge.net/
+Copyright by Michiel Broek.
+Released under the terms of the GNU Public
+License.

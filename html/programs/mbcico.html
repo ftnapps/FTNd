@@ -1,0 +1,222 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbcico - The Fidonet mailer.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 30-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>mbcico - The Fidonet mailer.</H1>
+
+<P>
+This is work in progress....
+<P>
+
+<h3>Synopsis.</H3>
+<P>
+<code>-r&lt;role&gt; -a&lt;inetaddr&gt; &lt;node&gt; ...</code><br>
+<code>-r 0|1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>1 - master, o - slave [0]<br>
+<code>-n&lt;phone&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>forced phone number<br>
+<code>-l&lt;ttydevice&gt;&nbsp;</code>forced tty device<br>
+<code>-t&lt;tcpmode&gt;&nbsp;&nbsp;&nbsp;</code>telnet TCP/IP mode, must be one of ifc|itn|ibn, forces TCP/IP<br>
+<code>-a&lt;inetaddr&gt;&nbsp;&nbsp;</code>supply internet hostname if not in nodelist<br>
+<code>   &lt;node&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>should be in domain form, e.g. f11.n22.z3
+(this implies master mode)<br>
+<code>-h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code>show this help message<br>
+<br>
+&nbsp;or: <code>mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc|-t itn</code> (this implies slave mode)
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbcico</strong> stands for MBse "Internet - Fidonet Copy In /Copy Out",
+this is a FidoNet(r) compatible transport agent. It is based on <strong>
+ifcico</strong> written by Eugene G. Crosser, &lt;crosser@average.org&gt;,
+2:5020/230@FidoNet. I changed the name of the program to make the difference
+between <strong>ifcico</strong> and <strong>mbcico</strong>. Nowadays it is
+quite different then ifcico.
+<P>
+Currently it supports FTS-0001, YooHoo/2U2 and EMSI handshake protocols,
+Xmodem, Telink, Modem7, Hydra, SEAlink with and without overdrive and 
+crash recovery, Bark file and update requests, WaZoo protocols: DietIFNA, 
+plain Zmodem (aka ZedZip, EMSI flag "ZMO") and ZedZap, WaZoo file and 
+update requests (nodelist flag should be XA). WaZoo file and update requests 
+do also work with FTS-0001 sessions, this is supported by several well known DOS 
+mailers also.
+Password protected requests and update requests are implemented (but not
+yet full tested).
+<P>
+There is also a special protocol optimized to use over TCP/IP connections,
+contributed by Stanislav Voronyi &lt;stas@uanet.kharkov.ua&gt;, it is
+identiefied by EMSI proto code TCP (not registered) and nodelist flag IFC.
+The default port is 60179. There is a telnet variant on this, the default
+port is 23, and nodelist flag is ITN. The telnet variant is written by
+T. Tanaka.
+<P>
+There is also a <strong>Binkp</strong> implementation, this is a 
+bi-directional TCP/IP protocol. 
+This protocol is prefferred over the IFC protocol because it is
+more efficient. Nodelist flag is IBN, the default port is 24554, and the
+nodelist request flag is XX. This Binkp implementation supports multiple
+batches, however this is only tested against another <strong>mbcico.</strong>
+I don't know if any other mailer supports this option, but it is documented 
+in the spec's.
+<P>
+Outbound directory structure is BinkleyTerm compatible, with domains and
+point subdirectories (full 5d). There are separate "protected" and
+"unprotected" inbound directories for the incoming sessions with the nodes
+that are in your setup. Files received during outbound sessions are always
+stored in the "protected" inbound.
+<P>
+"Magic" file request processors are executable files placed in the "magic"
+directory. If a request is made for a file with matching name, the
+executable from the "magic" directory is run, and its stdout output is mailed
+to the requestor. Full requestor's address, in the form of "John Smith of
+1:234/56/7" is passed to the executable in the command line. Non-executable
+files in the magic directory contain the full names to magic filenames. The
+magic NODELIST can thus point to the full path and filename of your latest
+nodelist. These magic names are automatic maintained by the <strong>mbfido</strong>
+program when the magic name is set in the .tic file that you receive.
+<P>
+To run <strong>mbcico</strong> in master mode, you need to make dialout
+devices read/writeable for <strong>mbcico</strong>, and do the same for
+the directory where your uucp locks are created (usually /var/locks).
+<P>&nbsp;<P>
+
+<h3>Answer Mode.</h3>
+<P>
+To make <strong>mbcico</strong> work in answer mode, you need <strong>
+mgetty</strong> written by Gert Doering. <strong>mbcico</strong> must be
+started with one of the following parameters:
+<P><PRE>
+FTS-0001 call:       "/opt/mbse/bin/mbcico tsync"
+FTS-0006 call:       "/opt/mbse/bin/mbcico yoohoo"
+EMSI call:           "/opt/mbse/bin/mbcico **EMSI_....."
+</PRE><P>
+In the latter case the received EMSI packet should be passed whitout trailing
+CR). To make this work <strong>mgetty</strong> must be compiled with the
+-DFIDO option. Other getty programs might work.
+<P>
+To answer TCP/IP calls the following lines should be added to /etc/inetd.conf:
+<P><PRE>
+binkd   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ibn
+tfido   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn
+fido    stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ifc
+</PRE><P>
+In the file /etc/services the following lines must be present:
+<P><PRE>
+binkd           24554/tcp               # mbcico IBN mode
+tfido           60177/tcp               # mbcico ITN mode
+fido            60179/tcp               # mbcico IFC mode
+mbse            60180/tcp               # MBSE BBS deamon
+</PRE><P>
+In this case I installed the ITN mode at port 60177 instead of 23 like most
+sysops do.
+<P>&nbsp;<P>
+
+
+<h3>Master Mode.</h3>
+<P>
+To make <strong>mbcico</strong> scan for pending outbound mail and do 
+appropriate calls, start it with <strong>-r1</strong> flag. It will check
+for Zone Mail Hour, outside ZMH only crash mail is delivered. Mail to 
+non-CM systems is only send when mail has the Immedidate status.
+Poll request are always honnored, even to non-CM systems if there is a 
+<strong>poll</strong> request in the outbound. Be carefull.
+The taskmanager <strong>mbtask</strong> will start calling <strong>mbcico -r1</strong>
+if it has seen the <b>scanout</b> semafore. After all calls are completed <b>mbcico</b>
+will remove the <b>scanout</b> semafore.
+During ZMH all non-compressed mail is send. File requests in the outbound do not
+force calling a system. If you make a filerequest, you must also make a
+poll for that node to really start the request. You can also force a call
+by entering <strong>mbcico f2802.n280.z2</strong> on the commandline.
+Only one call is made then and there is no dial delay. If <b>mbcico -r1</b> is
+called a random dialdelay is used with each call except for internet calls.
+<P>&nbsp;<P>
+
+<h3>Environment.</H3>
+<P>
+In order to run the mbcico you need to set one global environment variable
+<strong>$MBSE_ROOT</strong>
+This variable must point to the root of the bbs directoy structure.
+<P>&nbsp;<P>
+
+<H3>Return Codes.</H3>
+<P>
+<pre>
+0        - No errors
+1..32    - Linux errors, SIGHUP, SIGKILL, etc.
+101      - No dialout ports available.
+102      - Dial failed (no CONNECT or TCP connection failed).
+103      - Could not reset the modem (no OK).
+104      - System is locked.
+105      - not used?
+106      - Nodelist lookup failed.
+107      - Call prohibited by config options.
+108      - Phone number unavailable.
+109      - No matching ports defined.
+110      - Tried to call a CM system outside ZMH.
+111..129 - Session failures (not defined).
+130      - Could not establish session, system is marked undialable.
+</pre>
+These codes are also stored in status files for nodes, with the extension
+of ".sts". These are small datafiles containing three decimal numbers.
+<ol>
+  <li>Time retry code, this is the last call attempt time. This is an unsigned
+      long representing the number of seconds since the epoch.
+  <li>Retries, this is the number of consequtive call attempts made that returned
+      "call failed" or other errors. This field is zeroed when the call succeeds and
+      when a new "poll" is created. If the value is 30, the node won't be called
+      anymore.
+  <li>Code, this is the return code of the last attempt.
+</ol>
+<p>&nbsp;<p>
+
+<h3>Configuration.</H3>
+<P>
+The behaviour of mbcico can be configured with <strong>mbsetup</strong>,
+section 1.16 If something doesn't do what you want, set the debug on for
+that problem. This will produce huge logfiles, but also a lot of information.
+Important flags are Device IO, EMSI debug, File forward, Locking, Outboundscan
+and Session.
+<P>&nbsp;<P>
+
+<h3>Bugs.</H3>
+<P>
+Incoming calls from McMail mailers, McMail is quite hasty
+to establish an EMSI session, and times out in less than a second. So
+if your system is heavy loaded, or not too fast, McMail cannot connect
+with your system. This is a known problem with McMail 1.0 and older,
+later versions are ok.
+<P>&nbsp;<P>
+
+<H3>Authors.</H3>
+<P>
+<pre>
+Eugene G. Crosser &lt;crosser@average.org&gt;   Orginal ifcico.
+Stanislav Voronyi &lt;stas@uanet.kharkov.ua&gt; TCP/IP code.
+T. Tanaka                                 Telnet mode.
+Martin Junius                             Rewrite of opentcp().
+Omen Technology Inc                       Zmodem protocol.
+Arjen G. Lentz, Joaquim H. Homrighausen   Hydra transfer protocol.
+Cristof Meerwald                          Implementation of Hydra in ifcico.
+P. Saratxaga                              Tty driver code, yoohoo extensions.
+Dima Maloff                               Binkp protocol.
+Michiel Broek                             Rewrite for MBSE BBS.
+</pre>
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

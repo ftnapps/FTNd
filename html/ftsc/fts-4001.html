@@ -1,0 +1,192 @@
+<HTML>
+<HEAD>
+<TITLE>Addessing Control Paragraphs.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FTS-4001
+Revision:       1
+Title:          ADDRESSING CONTROL PARAGRAPHS
+Author(s):      FTSC
+
+Revision Date:  1 October 2000
+Expiry Date:    1 October 2002
+----------------------------------------------------------------------
+Contents:
+                1. Credits
+                2. General
+                3. FMPT
+                4. TOPT
+                5. INTL
+----------------------------------------------------------------------
+
+Status of this document
+-----------------------
+
+  This document is a Fidonet Standard (FTS).
+
+  This document specifies a Fidonet standard for the Fidonet
+  community.
+
+  This document is released to the public domain, and may be used,
+  copied or modified for any purpose whatever.
+
+
+1. Credits
+----------
+
+  This document is based on the work of Randy Bush and many others.
+
+
+2. General
+----------
+
+  The general control paragraph format is specified in separate FTSC
+  documents.
+
+  The addressing control paragraphs specified in this document are
+  normally only used in netmail messages and not in echomail messages.
+
+  While it would be technically correct to use them also in echomail,
+  it is known that certain programs will misbehave if they are present
+  there. It is therefore recommended that they should not be used in
+  echomail at the present time.
+
+  If a program processing messages detects these control paragraphs in
+  an echomail message it is recommended that they are disregarded and
+  deleted from any copies of that message exported to other systems.
+
+  Addressing of and address resolution for echomail messages should
+  instead be done with the help of packet and message header
+  information. See separate FTSC documents.
+
+  To determine the address of the original sender of an echomail
+  message, the information in the Origin line should be used. See
+  separate FTSC documents.
+
+
+3. FMPT
+-------
+
+  The FMPT control paragraph shall be used to give information about
+  the point number of the original sender of a message if that point
+  number is not 0. If the point number of the original sender of a
+  message is 0 that message should not contain any FMPT control
+  paragraph.
+
+  The format of a FMPT control paragraph shall be:
+
+    &lt;SOH&gt;"FMPT &lt;point number&gt;"&lt;CR&gt;
+
+  where &lt;point number&gt; is the ASCII representation of the point number
+  of the sender. The point number shall be an unsigned integer in the
+  range 1-65535.
+
+  E.g. a message from point number 1 of a certain node shall contain
+  the following FMPT control paragraph
+
+    &lt;SOH&gt;"FMPT 1"&lt;CR&gt;
+
+  Note that the format of a FMPT control paragraph deviates from the
+  general format specified in separate FTSC documents in that it does
+  not contain any colon after the control tag.
+
+
+4. TOPT
+-------
+
+  The TOPT control paragraph shall be used to give information about
+  the point number of the ultimate addressee of a message if that
+  point number is not 0. If the point number of the ultimate addressee
+  of a message is 0 that message should not contain any TOPT control
+  paragraph.
+
+  The format of a TOPT control paragraph shall be:
+
+    &lt;SOH&gt;"TOPT "&lt;point number&gt;&lt;CR&gt;
+
+  where &lt;point number&gt; is the ASCII representation of the point number
+  of the addressee. The point number shall be an unsigned integer in
+  the range 1-65535.
+
+  E.g. a message to point number 1 of a certain node shall contain the
+  following TOPT control paragraph
+
+    &lt;SOH&gt;"TOPT 1"&lt;CR&gt;
+
+  Note that the format of a TOPT control paragraph deviates from the
+  general format specified in separate FTSC documents in that it does
+  not contain any colon after the control tag.
+
+
+5. INTL
+-------
+
+  The INTL control paragraph shall be used to give information about
+  the zone numbers of the original sender and the ultimate addressee
+  of a message.
+
+  The format of an INTL control paragraph shall be:
+
+    &lt;SOH&gt;"INTL "&lt;destination address&gt;" "&lt;origin address&gt;&lt;CR&gt;
+
+  where &lt;destination address&gt; shall be the representation of the
+  address of ultimate destination and &lt;origin address&gt; is the
+  representation of the address of the original sender of the message
+  in question. These addresses shall be given on the form
+  &lt;zone&gt;:&lt;net&gt;/&lt;node&gt; where &lt;zone&gt; is the ASCII representation of the
+  zone number, &lt;net&gt; is the ASCII representation of the net number and
+  &lt;node&gt; is the ASCII representation of the node number. Any point
+  number information shall be given in FMPT and TOPT control
+  paragraphs.
+
+  E.g. a message from address 1:123/4.5 to 2:345/6.7 shall contain the
+  following INTL control paragraph
+
+    &lt;SOH&gt;"INTL 2:345/6 1:123/4"&lt;CR&gt;
+
+  Note that the format of an INTL control paragraph deviates from the
+  general format specified in separate FTSC documents in that it does
+  not contain any colon after the control tag.
+
+  INTL control paragraphs are also often used even when both the
+  originating and the destination systems are in the same zone. This
+  gives both the originating system and the destination system as well
+  as any intermediate routing systems unambiguous zone information
+  even in a situation where one system may be active in a number of
+  different (possibly non-FidoNet) zones.
+
+  Although it is known that some programs may route messages
+  incorrectly if the INTL control paragraph is present in messages
+  where both the originating and the destination systems are in the
+  same zone, it is recommended that the INTL control paragraph is
+  always inserted into netmail messages in packet files.
+
+
+
+A. History
+----------
+
+   Rev.1, 20001001: Initial Release.
+                    Principal author Goran Eriksson.
+
+**********************************************************************
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

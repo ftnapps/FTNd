@@ -1,0 +1,414 @@
+<HTML>
+<HEAD>
+<TITLE>Echomail Specification.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+FTS-0004        EchoMail Specification
+
+This document is directly derived from the documentation of
+
+-------------------------------------------------------------------------------
+
+                           The Conference Mail System
+                                        
+                                       By
+                                  Bob Hartman
+                       Sysop of FidoNet(tm) node 132/101
+                                        
+                  (C) Copyright 1986,87, Spark Software, Inc.
+                                        
+                              427-3 Amherst Street
+                              CS  2032, Suite  232
+                              Nashua,  N.H.  03061
+                                        
+                              ALL RIGHTS RESERVED.
+
+-------------------------------------------------------------------------------
+
+version 3.31 of 12 December, 1987.
+
+With Bob Hartman's kind consent, copying for the purpose of technological
+research and advancement is allowed.
+
+                                        
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+                                        
+
+     WHAT IS THE CONFERENCE MAIL SYSTEM?
+
+          Conference Mail  is a  technique to  permit several  nodes  on  a
+          network to  share a  message base,  similar  in  concept  to  the
+          conferences available on many of the computer services, but it is
+          most closely related to the Usenet system consisting of more than
+          8,000 systems  world wide. All systems sharing a given conference
+          see any  messages entered  into the  conference  by  any  of  the
+          participating systems.  This can  be implemented in such a way as
+          to be  totally transparent  to the users of a particular node. In
+          fact, they  may not  even be  aware of  the network being used to
+          move their  messages about from node to node! Unfortunately, this
+          has its  disadvantages also  - most  users who  are not  educated
+          about Conference  Mail do  not realize  the messages  transmitted
+          cost MANY  sysops (system  operators) money,  not just  the local
+          sysop. This  is an important consideration in Conference Mail and
+          should not be taken lightly.  In a conference with 100 systems as
+          participants the cost per message can get quite high.
+
+          The Conference  Mail System is designed to operate in conjunction
+          with a  FidoNet compatible  mail server.  The currently supported
+          mail servers  are Fido(tm),  SEAdog(tm), Opus, and Dutchie. Since
+          the mail  server is  a prerequisite  to using the Conference Mail
+          System, it  will be  assumed you  already have  your mail  server
+          operating correctly  on your   system, and you are connected into
+          FidoNet or a compatible network.
+
+
+     HISTORY OF THE CONFERENCE MAIL SYSTEM
+
+          In late  1985, Jeff  Rush, a  Fido  sysop  in  Dallas,  wanted  a
+          convenient means  of sharing  ideas with the other Dallas sysops.
+          He created  a system  of programs  he called  Echomail,  and  the
+          Dallas sysops' Conference was born.
+
+          Within a  short time  sysops in other areas began hearing of this
+          marvelous new  gadget and  Echomail took  on a  life of  its own.
+          Today, a  scant year and a half later, the FidoNet public network
+          boasts a myriad of conferences varying in size from the dozen-or-
+          so participants  in the  FidoNet  Technical  Standards  Committee
+          Conference  to   the  Sysops'  Conference  with  several  hundred
+          participants. It  is not  uncommon for a node to carry 30 or more
+          conferences and share those conferences with 10 or more nodes.
+
+
+     HOW IT WORKS
+
+          The Conference  Mail System  is functionally  compatible with the
+          original Echomail utilities.  In general, the process is:
+
+          1. A  message is  entered into  a designated  area on  a  FidoNet
+          compatible system.
+
+          2. This message is "Exported" along with some control information
+          to each system "linked" to the conference through the originating
+          system.
+
+          3. Each  of the  receiving systems  "Import" the message into the
+          proper Conference Mail area.
+
+          4. The receiving systems then "Export" these messages, along with
+          additional control  information,  to  each  of  their  conference
+          links.
+
+          5. Return to step 3.
+
+          As you  can see,  the method  is quite  simple -  in general.  Of
+          course, following  the steps  literally would mean messages would
+          never stop being Exported and transmitted to other systems.  This
+          obviously would  not be  desired or  the  network  would  quickly
+          become overburdened.  The information  contained in  the 'control
+          information' section  is used  to prevent  transmitting the  same
+          message more than once to a single system.
+
+
+     CONFERENCE MAIL MESSAGE CONTROL INFORMATION
+
+          There are  five pieces  of control  information associated with a
+          Conference  Mail  message.  Some  are  optional,  some  are  not.
+          Normally this information is never entered by the person creating
+          the  message.   The  following   control  fields   determine  how
+          Conference Mail is handled:
+
+          1. Area line
+
+               This is  the first  line of  a conference  mail message. Its
+               actual appearance is:
+
+                                     AREA:CONFERENCE
+
+               Where CONFERENCE is the name of the conference. This line is
+               added when  a conference  is  being  "Exported"  to  another
+               system. It  is based upon information found in the AREAS.BBS
+               (configuration) File  for the  designated message area. This
+               field is  REQUIRED by  the receiving  system to  "Import"  a
+               message into the correct Conference Mail area.
+
+          2. Tear Line
+
+               This line is near the end of a message and consists of three
+               dashes (---)  followed by  an  optional  program  specifier.
+               This is  used to show the first program used to add Echomail
+               compatible control information to the message. The tear line
+               generated by Conference Mail looks like:
+
+                                    --- <a small product-specific banner>
+
+               This  field   is  optional   for  most  Echomail  compatible
+               processors, and  is added  by the  Conference Mail System to
+               ensure complete  compatibility. Some systems will place this
+               line in  the message  when it  is first  created, but  it is
+               normally added when the message is first "exported."
+
+          3. Origin line
+
+               This line  appears near  the bottom of a message and gives a
+               small amount  of  information  about  the  system  where  it
+               originated. It looks like:
+
+                      * Origin: The Conference Mail BBS (1:132/101)
+
+               The "  * Origin:  " part  of the  line is  a constant field.
+               This is followed by the name of the system as taken from the
+               AREAS.BBS file  or a  file named  ORIGIN located  in the DOS
+               directory of  the  designated  message  area.  The  complete
+               network address  (1:132/101 in  this case)  is added  by the
+               program inserting  the line.  This field is generated at the
+               same time  as the  tear line,  and therefore  may either  be
+               generated at  the time  of  creation  or  during  the  first
+               "export"  processing.   Although  the  Origin  line  is  not
+               required by  all Echomail  processors, it  is added  by  the
+               Conference Mail System to ensure complete compatibility.
+
+
+          4. Seen-by Lines
+
+               There can  be many  seen-by lines  at the  end of Conference
+               Mail messages,  and they  are the real "meat" of the control
+               information. They  are used  to  determine  the  systems  to
+               receive the exported messages. The format of the line is:
+
+                           SEEN-BY: 132/101 113 136/601 1014/1
+
+               The net/node  numbers correspond  to the net/node numbers of
+               the systems having already received the message. In this way
+               a message  is never  sent to a system twice. In a conference
+               with many  participants the  number of  seen-by lines can be
+               very large.   This line is added if it is not already a part
+               of the  message, or added to if it already exists, each time
+               a message  is exported  to other systems. This is a REQUIRED
+               field, and  Conference Mail  will not  function correctly if
+               this field  is not put in place by other Echomail compatible
+               programs.
+
+          5. PATH Lines
+
+               These are  the last  lines in  a Conference Mail message and
+               are a  new addition,  and therefore  is not supported by all
+               Echomail processors. It appears as follows:
+
+                                  ^aPATH: 132/101 1014/1
+
+               Where the  ^a stands  for Control-A  (ASCII character 1) and
+               the net/nodes  listed correspond  to  those  systems  having
+               processed the  message before it reached the current system.
+               This is  not the  same as  the seen-by  lines, because those
+               lines list  all systems  the message has been sent to, while
+               the path line contains all systems having actually processed
+               the message.  This is not a required field, and few echomail
+               processors currently  support it,  however it  can  be  used
+               safely with  any other  system, since  the line(s)  will  be
+               ignored. For  a discussion  on how  the  path  line  can  be
+               helpful, see the "Advanced Features" section of this manual.
+
+
+     METHODS OF SENDING CONFERENCE MAIL
+
+          To this  point the  issue of how Conference Mail is actually sent
+          has been glossed over entirely. The phrase has been, "the message
+          is exported  to another  system."   What exactly  does this mean?
+          Well, for starters lets show what is called the "basic" setup:
+
+          In this setup exported mail is placed into the FidoNet mail area.
+          Each message   exported  from a  Conference  Mail  area  has  one
+          message generated  for each  receiving system.  This mail is then
+          sent the  same as any other network mail. When Echomail was first
+          created this was the only way mail could be sent.
+
+          The "basic"  method has some disadvantages. First, since Echomail
+          has grown so large it is not uncommon to get 200 new messages per
+          day imported  into various message bases. It is also not uncommon
+          for a  system to  be exporting  messages to 4 or 5 other systems.
+          Simple arithmetic  shows 800-1000  messages per day would be sent
+          in normal  netmail! This  puts a tremendous strain on any netmail
+          system, not  to mention transmission time and the resultant phone
+          charges. When this limitation of Echomail was first noticed a lot
+          of people started scratching their heads wondering what to do. If
+          a  solution  could  not  be  found  it  appeared  Echomail  would
+          certainly overrun the capabilities of FidoNet.
+
+          Thom Henderson  (from System Enhancement Associates) came up with
+          the original  ARCmail program.  Having previously written the ARC
+          file archiving  and compression  program,  he  knew  the  savings
+          achievable by  having all  of the netmail messages placed in .ARC
+          format for  transmission. As  a byproduct, the messages no longer
+          appeared in  the netmail  area,  but  were  included  in  a  file
+          attached to  a message  (see your  FidoNet mailer manual for file
+          attaches).  In   this  way  the  tremendous  number  of  messages
+          generated, and the phone bill problems were both solved.
+
+          Unfortunately, ARCmail  required the  messages to first be placed
+          into the  netmail area  before it  could be  run. In  effect,  it
+          caused the  messages to  be scanned once when they were exported,
+          once during  the ARCmail  phase, once when ARCmail was run at the
+          other end  to get  the messages out of .ARC format, and once when
+          those messages  were later  imported into  a message  base on the
+          receiving system.  The Conference Mail System solves this problem
+          by eliminating  the ARCmail  program. Conference  Mail builds the
+          ARCmail files during Export, and unpacks them during Import. This
+          way  messages   are  exported  directly  to  ARCmail  style  file
+          attaches, and imported directly from ARCmail style file attaches.
+          The scanning  phases between importing and exporting messages are
+          totally removed and processing time is proportionally reduced.
+
+          This is  now the  most common  method for sending Conference Mail
+          between systems.  The overhead  involved in  doing it  during the
+          importing and exporting phases is much less than what is involved
+          if ARCmailing  is not  utilized. This was a primary consideration
+          in the  design and  implementation of the Conference Mail System,
+          and as  a result  the entire system is optimized for this type of
+          use.  Please  refer  to  the  Import  and  Export  functions  for
+          specifics on how to use the ARCmailing feature.
+
+
+     CONFERENCE TOPOLOGY
+
+          The  way   in  which  systems  link  together  for  a  particular
+          conference is  called the "conference topology."  It is important
+          to know  this structure  for two  reasons: 1)  It is important to
+          have a  topology which  is  efficient  in  the  transfer  of  the
+          Conference Mail  messages, and  2) It  is  important  to  have  a
+          topology which  will not  cause systems  to see the same messages
+          more than once.
+
+          Efficiency can  be measured  in a  number  of  ways;  least  time
+          involved for all systems to receive a message, least cost for all
+          systems to receive a message, and fewest phone calls required for
+          all systems  to receive  a message  are all  valid indicators  of
+          efficiency. Users  of Echomail compatible systems have determined
+          (through trial  and error)  the best  measure of  efficiency is a
+          combination  of  all  three  of  the  measurements  given  above.
+          Balancing the equation is not trivial, but some guidelines can be
+          given:
+
+               1. Never have two systems attempting to send Conference mail
+               to each other at the same time. This results in "collisions"
+               that will  cause both  systems to  fail. To  avoid this, one
+               system should  be responsible  for polling  while the  other
+               system is holding mail. This arrangement can alternate based
+               upon various  criteria, but  both systems  should  never  be
+               attempting to call each other at the same time.
+
+               2. Have  nodes form  "stars" for  distribution of Conference
+               Mail. This arrangement has several nodes all receiving their
+               Conference Mail from the same system. In general the systems
+               on the  "outside"  of  the  star  poll  the  system  on  the
+               "inside". The  system on  the "inside"  in turn  polls other
+               systems to  receive the Conference Mail that is being passed
+               on to the "outside" systems.
+
+               3. Utilize  fully connected  polygons with  a few  vertices.
+               Nodes can  be connected in a triangle (A sends to B and C, B
+               sends to  A and  C, C sends to A and B) or a fully connected
+               square (all  corners of  the square send to all of the other
+               corners). This  method is useful for getting Conference Mail
+               messages to each node as quickly as possible.
+
+
+          All of  these efficiency  guidelines have to be tempered with the
+          guidelines dealing  with keeping  duplicate messages  from  being
+          exported. Duplicates  will occur  in any  topology that  forms  a
+          closed polygon  that is not fully connected. Take for example the
+          following configuration:
+
+                                      A ----- B
+                                      |       |
+                                      |       |
+                                      C ----- D
+
+          This square  is a  closed polygon that is not fully connected. It
+          is capable of generating duplicates as follows:
+
+               1. A message is entered on node A.
+
+               2. Node  A exports  the message to node B and node C placing
+               the seen-by for A, B, and C in the message as it does so.
+
+               3. Node  B sees that node D is not listed in the seen-by and
+               exports the message to node D.
+
+               4. Node  C sees that node D is not listed in the seen-by and
+               exports the message to node D.
+
+          At this  point node  D has  received the  same message  twice - a
+          duplicate was  generated. Normally  a "dup-ring"  will not  be as
+          simple as  a square.  Generally it  will be caused by a system on
+          one end  of a  long chain  accidentally connecting to a system on
+          the other end of the chain. This causes the two ends of the chain
+          to become connected, forming a polygon.
+
+          In FidoNet  this problem  is reduced somewhat by having "Regional
+          Echomail Coordinators"  (RECS) that try to keep track of Echomail
+          connections within  their regions  of the  world. A  further rule
+          which is  followed is  that only  the RECS  are allowed  to  make
+          inter-regional connections for the larger conferences. In return,
+          the RECS  have established  a very  efficient topology which gets
+          messages from  coast to  coast, and onto over 200 systems in less
+          than 24  hours. If  no one were willing to follow the rules, then
+          this system  would collapse,  but due to the excellent efficiency
+          it has remained intact for over a year.
+
+
+     Why a PATH line?
+
+          As was  previously mentioned,  the PATH  line is a new concept in
+          Echomail. It  stores the  net/node numbers  of each system having
+          actually processed  a message.  This  information  is  useful  in
+          correcting the  biggest problem  encountered by  nodes running an
+          Echomail compatible  system - the problem of finding the cause of
+          duplicate messages.  How does  the  PATH  line  help  solve  this
+          problem? Take the following path line as an example:
+
+               ^aPATH: 107/6 107/312 132/101
+
+          This  shows  the  message  was  processed  by  system  107/6  and
+          transferred to  system 107/312.  It further  shows system 107/312
+          transferred the  message to  132/101, and  132/101  processed  it
+          again. Now take the following path line as the example:
+
+               ^aPATH: 107/6 107/312 107/528 107/312 132/101
+
+          This shows  the message  having been processed by node 107/312 on
+          more than one occasion. Based upon the earlier description of the
+          'information control'  fields in  Echomail messages, this clearly
+          is an  error in  processing (see  the section  entitled  "How  it
+          Works"). This  further shows   node  107/528 as  the  node  which
+          apparently processed  the message  incorrectly. In  this case the
+          path line  can be  used to quickly locate the source of duplicate
+          messages.
+
+          In  a   conference  with  many  participants  it  becomes  almost
+          impossible to  determine the  exact topology used. In these cases
+          the use of the path line can help a coordinator of the conference
+          track any  possible breakdowns in the overall topology, while not
+          substantially increasing  the amount  of information transmitted.
+          Having this  small amount of information added to the end of each
+          message pays  for itself very quickly when it can be used to help
+          detect a  topology  problem  causing  duplicate  messages  to  be
+          transmitted to each system.
+
+-30-
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

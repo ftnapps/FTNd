@@ -1,0 +1,90 @@
+		README for GoldED users.
+
+
+Since MBSE BBS version 0.33.12 GoldED and MBSE BBS can be used together
+without problems as long as you use it to read the sysop mail. The
+mbsetup program can export a file called /opt/mbse/etc/golded.inc which
+will contain your main Aka's, Aka matching, sysop name and all your mail
+areas. This file is only (re)created if you change the global settings or
+one of the mail areas. The first time you must force this by making a change
+somewhere.
+
+Now create /opt/mbse/etc/golded.cfg, here is what I wrote:
+
+; GoldED.cfg
+;
+; Internet Addressing
+;
+INTERNETADDRESS Michiel_Broek@f2802.n280.z2.fidonet.org
+INTERNETGATE UUCP 2:292/875
+;
+;
+OUTBOUNDPATH /SYS/usr/mail/out
+REPLYLINK chain
+STYLECODES yes
+;
+;
+; MESSAGE READER
+;
+DISPMSGSIZE KBYTES
+DISPATTACHSIZE KBYTES
+DISPLOCALHIGH YES
+DISPPAGEBAR YES
+VIEWHIDDEN YES
+VIEWKLUDGE NO
+VIEWQUOTE YES
+;
+INCLUDE /opt/mbse/etc/golded.inc
+;
+; The end.
+
+Put in /opt/mbse/.profile the following line:
+export GOLDED=$HOME/etc
+
+When you now start GoldED you use it as the sysop. Make sure that the sysop's
+userrecord is the first user in the MBSE BBS userbase. If not, the lastread
+pointers are not right. 
+
+
+Compile instructions for GoldED 3.0.1 written by Johannes Beekhuizen, 2:280/1018
+
+*  Unpack the sources in some directory (/tmp):
+	cd /tmp
+	tar -zxvf ???/ged_301.tgz
+   This will create a directory golded-3.0.1, so if you did this in /tmp then
+   there is now a directory called /tmp/golded-3.0.1 which will be called
+   <basedir> from now on.
+*  Set the environment variables GSRC, GOBJ and GLIB to basedir. In a bash
+   shell this is:
+	export GSRC=/tmp/golded-3.0.1
+	export GOBJ=/tmp/golded-3.0.1
+	export GLIB=/tmp/golded-3.0.1
+*  Build the program 'gbuild':
+	cd <basedir>/gbuild
+	make lnx
+	cp gbldnx /opt/mbse/bin
+   The location of gbldlnx is not important, as long as it is in your PATH.
+*  Create the directories needed for compilation and installation:
+	cd <basedir>/goldlib
+	make install
+*  Next build GoldED:
+	cd <basedir>/goldlib/gall
+	make lnx
+	cd <basedir>/goldlib/gcfg
+	make lnx
+	cd <basedir>/goldlib/gmb3
+	make lnx
+	cd <basedir>/golded3
+	cp mygolded.__h mygolded.h
+   Edit the file mygolded.h to suit your own taste.
+	make lnx
+	strip gedlnx
+	cp gedlnx /opt/mbse/bin
+*  Now build goldnode:
+	cd <basedir>/goldnode
+	make lnx
+	strip gnlnx
+	cp gnlnx /opt/mbse/bin
+*  Example configurations and documentation are in <basedir>/golded3/cfgs
+   and <basedir>/golded3/docs.
+

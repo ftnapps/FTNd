@@ -1,0 +1,284 @@
+/*****************************************************************************
+ *
+ * File ..................: mbstat/mbstat.c
+ * Purpose ...............: Change BBS status
+ * Last modification date : 10-Jul-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek		FIDO:	2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/records.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "../lib/dbcfg.h"
+#include "mbstat.h"
+
+
+extern	int	do_quiet;
+time_t		t_start, t_end;
+
+
+void Help(void)
+{
+	do_quiet = FALSE;
+	ProgName();
+
+	colour(11, 0);
+	printf("\nUsage:	mbstat [command] <options>\n\n");
+	colour(9, 0);
+	printf("	Commands are:\n\n");
+	colour(3, 0);
+	printf("	c  close	Close the BBS for users\n");
+	printf("	o  open		Open the BBS for users\n");
+	printf("	s  set semafore Set named semafore\n");
+	printf("	w  wait		Wait until the BBS is free\n\n");
+	colour(9,0);
+	printf("	Options are:\n\n");
+	colour(3, 0);
+	printf("	-q -quiet	Quiet, no screen output\n");
+	colour(7, 0);
+	die(0);
+}
+
+
+
+void ProgName(void)
+{
+	if (do_quiet)
+		return;
+
+	colour(15, 0);
+	printf("\nMBSTAT: MBSE BBS %s Status Changer\n", VERSION);
+	colour(14, 0);
+	printf("        %s\n", Copyright);
+	colour(3, 0);
+}
+
+
+
+void die(int onsig)
+{
+	signal(onsig, SIG_IGN);
+
+	if (onsig)
+		WriteError("$Terminated on signal %d", onsig);
+
+	if (!do_quiet) {
+		colour(7, 0);
+		printf("\n");
+	}
+
+	time(&t_end);
+	Syslog(' ', "MBSTAT finished in %s", t_elapsed(t_start, t_end));
+
+	ExitClient(onsig);
+}
+
+
+
+int main(int argc, char **argv)
+{
+	int	i;
+	char	*cmd, *semafore = NULL;
+	int	do_open  = FALSE;
+	int	do_close = FALSE;
+	int	do_wait  = FALSE;
+	int	do_sema  = FALSE;
+	struct	passwd *pw;
+
+#ifdef MEMWATCH
+        mwInit();
+#endif
+	InitConfig();
+	TermInit(1);
+	time(&t_start);
+
+	/*
+	 * Catch or ignore signals
+	 */
+	for (i = 0; i < NSIG; i++) {
+		if ((i == SIGHUP) || (i == SIGINT) || (i == SIGBUS) ||
+		    (i == SIGILL) || (i == SIGSEGV) || (i == SIGTERM) ||
+		    (i == SIGKILL))
+			signal(i, (void (*))die);
+		else
+			signal(i, SIG_IGN);
+	}
+
+	cmd = xstrcpy((char *)"Command line: mbstat");
+
+	for (i = 1; i < argc; i++) {
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, tl(argv[i]));
+
+		if (!strncmp(tl(argv[i]), "w", 1))
+			do_wait = TRUE;
+		if (!strncmp(tl(argv[i]), "o", 1))
+			do_open = TRUE;
+		if (!strncmp(tl(argv[i]), "c", 1))
+			do_close = TRUE;
+		if (!strncmp(tl(argv[i]), "s", 1)) {
+			do_sema = TRUE;
+			i++;
+			semafore = xstrcpy(tl(argv[i]));
+			cmd = xstrcat(cmd, (char *)" ");
+			cmd = xstrcat(cmd, tl(argv[i]));
+		}
+		if (!strncmp(tl(argv[i]), "-q", 2))
+			do_quiet = TRUE;
+	}
+
+	ProgName();
+	pw = getpwuid(getuid());
+	InitClient(pw->pw_name, (char *)"mbstat", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log);
+	usleep(1);
+
+	Syslog(' ', " ");
+	Syslog(' ', "MBSTAT v%s", VERSION);
+	Syslog(' ', cmd);
+	free(cmd);
+
+	if (!do_quiet) {
+		colour(3, 0);
+		printf("\n");
+	}
+
+	if (do_close)
+		do_open = FALSE;
+
+	if (do_open) {
+		Open();
+		do_close = FALSE;
+		do_wait  = FALSE;
+	}
+
+	if (do_close)
+		Close();
+
+	if (do_wait)
+		Wait();
+
+	if (do_sema)
+		Semafore(semafore);
+
+	if (!(do_open || do_close || do_wait || do_sema))
+		Help();
+
+	usleep(1);
+	die(0);
+	return 0;
+}
+
+
+
+int Semafore(char *semafore)
+{
+        char    buf[81];
+
+        strcpy(buf, SockR("SECR:1,%s;", semafore));
+        if (strncmp(buf, "100:0;", 6) == 0) {
+                Syslog('+', "Semafore \"%s\" is set", semafore);
+                if (!do_quiet)
+                        printf("Semafore \"%s\" is set\n", semafore);
+                return TRUE;
+        } else {
+		Syslog('+', "Failed to set \"%s\" semafore", semafore);
+                printf("Failed to set \"%s\" semafore\n", semafore);
+                return FALSE;
+        }
+}
+
+
+
+int Close(void)
+{
+	char	buf[81];
+
+	strcpy(buf, SockR("SCLO:0;"));
+	if (strncmp(buf, "100:0;", 6) == 0) {
+		Syslog('+', "The BBS is closed");
+		if (!do_quiet)
+			printf("The BBS is closed\n");
+		return TRUE;
+	} else {
+		printf("Failed to close the BBS\n");
+		return FALSE;
+	}
+}
+
+
+
+int Open(void)
+{
+	char	buf[81];
+
+	strcpy(buf, SockR("SOPE:0;"));
+	if (strncmp(buf, "100:0;", 6) == 0) {
+		Syslog('+', "The BBS is open");
+		if (!do_quiet)
+			printf("The BBS is open\n");
+		return TRUE;
+	} else {
+		printf("Failed to open the BBS\n");
+		return FALSE;
+	}
+}
+
+
+
+int Wait(void)
+{
+	int	Waiting = 3600;
+	char	buf[PATH_MAX];
+
+	sprintf(buf, "%s/sema/upsdown", getenv("MBSE_ROOT"));
+	if (file_exist(buf, R_OK))
+		Waiting = 30;
+
+	Syslog('+', "Waiting for the BBS to become free, timout %d seconds", Waiting);
+	while (Waiting) {
+		strcpy(buf, SockR("SFRE:0;"));
+		if (strncmp(buf, "100:0;", 6) == 0) {
+			Syslog('+', "The BBS is free");
+			if (!do_quiet)
+				printf("The BBS is free.                             \n");
+			return TRUE;
+		}
+		if (!do_quiet) {
+			buf[strlen(buf) -1] = '\0';
+			printf("\r%s\r", buf+6);
+			fflush(stdout);
+		}
+		sleep(1);
+		Waiting--;
+	}
+
+	WriteError("Wait for BBS free timeout, aborting");
+	return FALSE;
+}
+
+

@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - BBS Users.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 30-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - BBS Users.</H1>
+<P>
+
+<H3>Introduction.</H3>
+<P>
+This screen lets you edit some settings of the BBS users. Note that the users
+database will never be packed and users will always keep their record number.
+If a user is deleted the record will be blanked. New users will get a blank
+record if it exists, otherwise the database will be expanded. The reason for
+this is the LastRead pointers of the message areas, BBS systems who do it
+in another method mostly can't keep track of LastRead pointers and records,
+and they mix all users LastRead pointers. Fields that
+can be changed by the users themselves are marked with a <b>*</b>.
+<P>&nbsp;<P>
+
+<H3>Edit User</H3>
+<P>
+<pre>
+<strong>Full Name    </strong>The full (Fidonet) name of the user.
+<strong>Handle     * </strong>The nickname of the user.
+<strong>Location   * </strong>The location of the user.
+<strong>Address n  * </strong>The address of the user (3 lines).
+<strong>Voicephone * </strong>The voice phonenumber of the user.
+<strong>dataphone  * </strong>The data phonenumber of the user.
+<strong>Security     </strong>The security level of the user.
+<strong>Birthdate  * </strong>The birthdate of the user DD-MM-YYYY.
+<strong>Expirydate   </strong>The expiry date of the user DD-MM-YYYY.
+<strong>Expiry Sec   </strong>The security level the user gets after expiry.
+<strong>Unix uid     </strong>The unix username of the user.
+<strong>Comment      </strong>The comment about this user.
+<strong>Password   * </strong>Change password for this user.
+<strong>Sex        * </strong>Users sex, male or female.
+<strong>Credit       </strong>The users credit.
+<strong>Protocol   * </strong>The selected file transfer protocol.
+<strong>Archiver   * </strong>The selected archiver.
+<strong>Hidden       </strong>If the user is hidden from listings etc.
+<strong>Hotkeys    * </strong>Hotkeys on/off.
+<strong>Color      * </strong>Color on/off.
+<strong>Deleted      </strong>User must be deleted.
+<strong>No Kill      </strong>User can never be deleted.
+<strong>Fs Chat    * </strong>Use fullscreen chat on/off.
+<strong>Locked       </strong>Locked out of the BBS.
+<strong>Silent     * </strong>Do not disturb on/off.
+<strong>CLS        * </strong>Sent clearscreen codes on/off.
+<strong>More       * </strong>More prompt on/off.
+<strong>Fs Edit    * </strong>Use fullscreen editor on/off.
+<strong>MailScan   * </strong>Scan for new mail at logon on/off.
+<strong>Guest        </strong>Is this a "guest" account on/off.
+<strong>ShowNews   * </strong>Show "news" screens on/off.
+<strong>NewFiles   * </strong>New files scan at logon on/off.
+<strong>Ext Info     </strong>Send ^aKLUDGES with BlueWave downloads.
+<strong>Email        </strong>If this user has an email address.
+</pre>
+<P>
+
+<IMG SRC="../images/users.gif" width="589" height="342">
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,28 @@
+			LANGUAGE SOURCES FOR MBSE BBS.
+			==============================
+
+
+This directory contains the language sources for MBSE BBS. The file
+Language.xref is only a reference file with linenumbers and source
+references. The files english.txt, dutch.txt and italian.txt are the 
+real language sources. The resulting files dutch.lang, english.lang
+and italian.lang are placed in the ~/etc directory where the bbs 
+will expect them to be.
+
+If you make your own language files, use Language.xref as a guide.
+The syntax for each language line is:
+
+KEYS|Language line
+
+The keys are the keys that the users must press for the right response.
+Order is important. The "|" character is a seperator, the rest of the
+language line is the line shown to the user. Trailing spaces are important!
+
+If you do create language sources then I would like that you make them
+public available and send them to me so I can include them in the
+source distribution.
+
+The Italian language was translated by nervous@nervous.it
+
+Michiel.
+

@@ -1,0 +1,106 @@
+Frequently Asked Questions for memwatch
+
+Q. I'm not getting any log file! What's wrong??
+
+A. Did you define MEMWATCH when compiling all files?
+   Did you include memwatch.h in all the files?
+   If you did, then...:
+
+   Memwatch creates the file when it initializes. If you're not
+   getting the log file, it's because a) memwatch is not
+   initializing or b) it's initializing, but can't create the
+   file.
+   
+   Memwatch has two functions, mwInit() and mwTerm(), that
+   initialize and terminate memwatch, respectively. They are
+   nestable. You USUALLY don't need to call mwInit() and
+   mwTerm(), since memwatch will auto-initialize on the first
+   call to a memory function, and then add mwTerm() to the
+   atexit() list.
+   
+   You can call mwInit() and mwTerm() manually, if it's not
+   initializing properly or if your system doesn't support
+   atexit(). Call mwInit() as soon as you can, and mwTerm() at
+   the logical no-error ending of your program. Call mwAbort()
+   if the program is stopping due to an error; this will
+   terminate memwatch even if more than one call to mwTerm() is
+   outstanding.
+   
+   If you are using C++, remember that global and static C++
+   objects constructors execute before main() when considering
+   where to put mwInit(). Also, their destructors execute after
+   main(). You may want to create a global object very early
+   with mwInit() in the constructor and mwTerm() in the
+   destructor. Too bad C++ does not guarantee initialization
+   order for global objects.
+   
+   If this didn't help, try adding a call to mwDoFlush(1) after
+   mwInit(). If THAT didn't help, then memwatch is unable to
+   create the log file. Check write permissions.
+   
+   If you can't use a log file, you can still use memwatch by
+   redirecting the output to a function of your choice. See the
+   next question.
+
+Q. I'd like memwatch's output to pipe to my fave debugger! How?
+
+A. Call mwSetOutFunc() with the addres of a "void func(int c)"
+   function. You should also consider doing something about
+   the ARI handler, see memwatch.h for more details about that.
+
+Q. Why isn't there any C++ support?
+
+A. Because C++ is for sissies! =) Just kidding.
+   C++ comes with overridable allocation/deallocation
+   built-in. You can define your own new/delete operators
+   for any class, and thus circumvent memwatch, or confuse
+   it to no end. Also, the keywords "new" and "delete" may
+   appear in declarations in C++, making the preprocessor
+   replacement approach shaky. You can do it, but it's not
+   very stable.
+   
+   If someone were to write a rock solid new/delete checker
+   for C++, there is no conflict with memwatch; use them both.
+
+Q. I'm getting "WILD free" errors, but the code is bug-free!
+
+A. If memwatch's free() recieves a pointer that wasn't allocated
+   by memwatch, a "WILD free" message appears. If the source of
+   the memory buffer is outside of memwatch (a non-standard
+   library function, for instance), you can use mwFree_() to
+   release it. mwFree_() calls free() on the pointer given if
+   memwatch can't recognize it, instead of blocking it.
+   
+   Another source of "WILD free" messages is that if memwatch
+   is terminated before all memory allocated is freed, memwatch
+   will have forgotten about it, and thus generate the errors.
+   This is commonly caused by having memwatch auto-initialize,
+   and then using atexit() to clean up. When auto-initializing,
+   memwatch registers mwTerm() with atexit(), but if mwTerm()
+   runs before all memory is freed, then you will get "unfreed"
+   and "WILD free" messages when your own atexit()-registered
+   cleanup code runs, and frees the memory.
+
+Q. I'm getting "unfreed" errors, but the code is bug-free!
+
+A. You can get erroneous "unfreed" messages if memwatch 
+   terminates before all memory has been freed. Try using
+   mwInit() and mwTerm() instead of auto-initialization.
+   
+   If you _are_ using mwInit() and mwTerm(), it may be that
+   some code in your program executes before mwInit() or
+   after mwTerm(). Make sure that mwInit() is the first thing
+   executed, and mwTerm() the last.
+
+Q. When compiling memwatch I get these 'might get clobbered'
+   errors, and something about a longjmp() inside memwatch.
+
+A. You are using a non-Win32 platform, and most likely using 
+   gcc or egcs, and is probably running with the highest
+   possible warning levels. This is a Good Thing.
+   
+   Unfortunately, it seems some compilers get a bit too
+   paranoid at those levels. There is nothing wrong with
+   memwatch's code. Nothing that matters will get 
+   clobbered, if the compiler adheres to the ANSI C
+   standard. Just ignore the warnings.

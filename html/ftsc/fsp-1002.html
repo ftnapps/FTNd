@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+<TITLE>Numeric reply indication in FTN subject lines.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FSP-1002
+Revision:       2
+Title:          Numeric reply indication in FTN subject lines
+Author:         Odinn Sorensen, 2:236/77
+Revision Date:  19 October 1997
+Expiry Date:    11 October 1999
+----------------------------------------------------------------------
+Contents:
+                1. Scope
+                2. Format
+                3. Reply procedure
+----------------------------------------------------------------------
+
+
+Status of this document
+-----------------------
+
+  This document is a Fidonet Standards Proposal (FSP).
+
+  This document specifies an optional Fidonet standard protocol for
+  the Fidonet community, and requests discussion and suggestions for
+  improvements.
+
+  This document is released to the public domain, and may be used,
+  copied or modified for any purpose whatever.
+
+
+Abstract
+--------
+
+  When making a reply to a message, there are currently three common
+  ways to handle the subject line:
+
+  1. Don't change it.
+  2. Insert the string "Re: " in front of it.
+  3. Insert the string "Re^n: " in front of it, where 'n' is increased
+     by one if the original subject was already a reply.
+
+  This document concerns itself with specifying the third variant.
+
+
+1. Scope
+--------
+
+  This standard is specified for all FTN messages. Implementations
+  will typically be message editors and other software that creates
+  replies to messages.
+
+
+2. Format
+---------
+
+  The format is "Re^n: ", where n is an unsigned integer number with
+  one or more digits. The range of the number must be at least 0 to
+  255. Negative numbers are not allowed. Note that there must be a
+  space after the colon. The letters are not case sensitive, but
+  uppercase 'R' and lowercase 'e' is recommended.
+
+
+3. Reply procedure
+------------------
+
+  When making a reply that conforms to this specification, this
+  procedure, or a functionally identical one, must be followed:
+
+  1. If the original subject does not have a leading "Re: " or
+     "Re^n: ", put the string "Re: " in front of it. Don't use a
+     number here.
+
+     Example:   "Hello world"  ->  "Re: Hello world"
+
+  2. If the original subject has a leading "Re: ", put the string
+     "Re^2: " in front of the subject.
+
+     Example:   "Re: Hello world"  ->  "Re^2: Hello world"
+
+  3. If the original subject has a leading "Re^n: ", increase the
+     number 'n' by one and modify the subject accordingly.
+
+     Example:   "Re^4: Hello world"  ->  "Re^5: Hello world"
+
+  Notes:
+
+  * The numbers 0 and 1 should not occur in the "Re^n: " string under
+    normal circumstances, but a robust implementation should just
+    increase the number in any case.
+
+  * The number should not be increased beyond the range of the number
+    type used in the implementation, or in other words, it should not
+    roll around to zero. If it can't be increased, leave it alone.
+
+  * When inserting the "Re: " or "Re^n: " string in front of the
+    subject, information from the end might be lost, because the
+    message storage or packet formats use fixed length subject fields.
+    Intelligent subject-based reply linking software should be aware
+    of this and try to link correctly anyway.
+
+
+A. Author contact data
+----------------------
+
+  Odinn Sorensen
+  Fidonet: 2:236/77
+  E-mail:  odinn@goldware.dk
+  WWW:     http://www.goldware.dk
+
+
+B. History
+----------
+
+  Rev.1, 971011: First release.
+  Rev.2, 971019: Added note that "Re" is not case sensitive.
+
+
+**********************************************************************
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

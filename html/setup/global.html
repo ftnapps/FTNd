@@ -1,0 +1,464 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Global Setup.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 22-Jun-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - Global Setup</H1>
+<P>
+
+In this setup you can edit all global settings for MBSE BBS. All sections will
+be discussed below.
+<P>
+
+<h3>1.1. Edit Registration Info.</H3>
+<P>
+<pre>
+<strong>System name       </strong>The name of your BBS
+<strong>Domain name       </strong>Your internet domain name (or a fake name if you have 
+                  no direct connection).
+<strong>Sysop uid         </strong>The Unix name of your Sysop account
+<strong>Sysop Fido        </strong>The Fidonet name of your Sysop account
+<strong>Location          </strong>The Location of your BBS
+<strong>QWK/Bluewave      </strong>The packet name for Offline mail downloads.
+<strong>Omed id.          </strong>Not in use
+<strong>Comment           </strong>A comment line for your BBS
+<strong>Origin line       </strong>The default origin line for echomail
+<strong>Startup uid       </strong>The default username &quot;bbs&quot;
+</pre>
+<P>
+
+<h3>1.2. Edit Global Filenames.</H3>
+<P>
+<pre>
+<strong>System logfile    </strong>The name of the main logfile
+<strong>Error logfile     </strong>The name of the errors logfile
+<strong>Default menu      </strong>The name of the default main menu
+<strong>Default language  </strong>The name of the default language
+<strong>Chat logfile      </strong>The name of the logfile for chatting
+<strong>Welcome logo      </strong>The name of the BBS logo ANSI file
+</pre>
+<P>
+
+<h3>1.3. Edit Global Paths</H3>
+<P>
+<pre>
+<strong>BBS Menus         </strong>The path to the default menus
+<strong>Txtfiles          </strong>The path to the default ANSI and ASCII textfiles
+<strong>Home dirs         </strong>The path to the users home directories
+<strong>Nodelists         </strong>The path to the nodelist directory
+<strong>Inbound           </strong>The unprotected fidonet inbound
+<strong>Prot inb.         </strong>The (password) protected fidonet inbound
+<strong>Outbound          </strong>The outbound for the main aka
+<strong>Bad TIC's         </strong>Where bad TIC files are saved
+<strong>TIC queue         </strong>Where TIC files for downlinks are kept
+<strong>Magic's           </strong>Where the magic filerequests are kept
+<strong>DOS path          </strong>The DOS drive and path
+<strong>Unix path         </strong>The Translated DOS path in real
+<strong>LeaveCase         </strong>Leave outbound .flo filenames as is, No forces to uppercase
+</pre>
+The DOS path and Unix path are translated for in and outbound mail sessions,
+so the outside world will be happy. The DOS path is a fake, you can put 
+anything you like in there, but "C:\OUT" is a good choice. Note that
+the TIC queue must be somewere in the Unix path, otherwise it is
+impossible to create a DOS path from the path to the TIC files in that
+directory. To set this up correctly is also important if you use other mailers
+as well, for example binkd, or even a DOS binkly-style mailer running from
+a network. All those mailer must "see" the same file attaches in the .flo
+files. If you leave the DOS path empty, no translation will be performed
+and the Unix paths will be stored in the .flo files.
+<P>
+
+<h3>1.4. Edit BBS Configuration</H3>
+<p>
+<pre>
+<strong>Private system    </strong>Set to true when only pre-registered users are allowed
+<strong>Exclude Sysop     </strong>True is Sysop will be invisible
+<strong>Show connect      </strong>Show connection info at logon
+<strong>Ask protocols     </strong>Ask protocol before each up/download
+<strong>Sysop level       </strong>The Sysop security level
+<strong>Password Length   </strong>The minimum password length, should be 6.
+<strong>Password Char.    </strong>The password hiding character
+<strong>Idle timeout      </strong>The idle timeout in minutes
+<strong>Login Enters      </strong>Maximum times for only enter <Enter>
+<strong>Login Attempts    </strong>Maximum login attempts
+<strong>Homedir Quota     </strong>Maximum size in MBytes for each user
+<strong>Location length   </strong>The minimum length of the location (3 in Holland!)
+<strong>Show new msgarea  </strong>Show new available message areas at logon (for OLR users)
+<strong>OLR Max. msgs.    </strong>Maximum messages to download, 0 is no limit.
+<strong>OLR Newfile days  </strong>The maximum age for newfiles in the OLR packet
+<strong>OLR Max Filereq   </strong>Maximum filerequests allowed for OLR users
+<strong>BBS Log Level     </strong>What will be logged or not the BBS program
+<strong>Utils Log Level   </strong>What will be logged or not for utilities
+<strong>Utils slowly      </strong>Should utilities release <A HREF="../misc/usleep.html">timeslices</A>
+<strong>CrashMail level   </strong>Minimum level to allow sending netmail crash
+<strong>FileAttach level  </strong>Minimum level to allow attach files to netmail
+<strong>Min diskspace MB  </strong>At which low diskspace level utilities should stop working.
+</pre>
+The minimum diskspace setting is to prevent that files get corrupted if your filesystem
+is full. All drives are checked except CD-roms and floppies and the /boot directory if that
+one is on a separate filesystem. Ext2, msdos and vfat partitions
+are checked. The lowest free diskspace found counts. Default is 10 MB.
+Note, Reiserfs is not supported at this moment because I don't have access to a
+system with reisefs volumes. This means that if you use Reiserfs that you are not
+protected against a full filesystem.
+<p>
+
+<h3>1.5. New users defaults.</h3>
+<p>
+<pre>
+<strong>Access level      </strong>The access level and flags after registration
+<strong>Cap. Username     </strong>Capitalize the username
+<strong>Ask ANSI          </strong>Ask for ANSI screen (default is yes)
+<strong>Ask Sex           </strong>Ask for Male/Female
+<strong>Ask Voicephone    </strong>Ask for voice phonenumber
+<strong>Ask Dataphone     </strong>Ask for data phonenumber
+<strong>Telephone scan    </strong>Scan for duplicate numbers
+<strong>Ask Handle        </strong>Ask for handle (nickname)
+<strong>Ask Birth date    </strong>Ask for birthdate (needed for checks)
+<strong>Ask Location      </strong>Ask for users location
+<strong>Ask Hot-Keys      </strong>Ask for hot-keyed menus (default is yes)
+<strong>One word names    </strong>Allow one word names
+<strong>Ask address       </strong>Not implemented
+<strong>Give email        </strong>Give new users email access (default is yes)
+</pre>
+<p>
+
+<h3>1.6. Text Colors.</h3>
+<p>
+Several prompts use different colors. They can be changed with the following
+menu.
+<P>
+<IMG SRC="../images/mbsetup1.6.gif" width="589" height="343">
+<IMG SRC="../images/mbsetup1.6.S.gif" width="589" height="343">
+<P>
+
+<h3>1.7. Next User Door.</h3>
+<p>
+This is a "message to nextuser" door I found in RapidBBS. It allows a user
+to write a message to the next BBS user.
+<pre>
+<strong>Text file         </strong>The textfile to display
+<strong>Quote             </strong>The prompt to show
+</pre>
+<p>
+
+<h3>1.8. Safe cracker door.</h3>
+<p>
+This is a door I found in RapidBBS, it is a simple number guessing game.
+<pre>
+<strong>Digit 1           </strong>The first digit to guess
+<strong>Digit 2           </strong>The second digit to guess
+<strong>Digit 3           </strong>The third digit to guess
+<strong>Max trys          </strong>The maximum number of trys per day
+<strong>Max numb          </strong>The highest number to guess
+<strong>Num gen           </strong>Automatic number generation
+<strong>Prize             </strong>The prize to win
+<strong>Welcome           </strong>The welcome file to display
+<strong>Opened            </strong>The file to display to the winner
+</pre>
+<p>
+
+<h3>1.9. Time Bank Door.</h3>
+<p>
+This is the timebank door I found in RapidBBS. It allows a user to deposit
+time or download kilobytes on his bank account so when he needs it for
+big downloads he can use his savings for extra large downloads. Anyway,
+I haven't figured this one out completly for myself, so the meaning of all
+these settings are not well explained right now.
+<pre>
+<strong>Time balance      </strong>Maximum time balance
+<strong>Max time withdraw </strong>Maximum time to withdraw
+<strong>Max time deposit  </strong>Maximum time to deposit
+<strong>Kb. balance       </strong>Maximum Kilobytes balance
+<strong>Max Kb. withdraw  </strong>Maximum Kilobytes to withdraw
+<strong>Max Kb. deposit   </strong>Maximum Kilobytes to deposit
+<strong>Users time ratio  </strong>Time ratio
+<strong>Users Kb. ratio   </strong>Kilobytes ratio
+</pre>
+<p>
+
+<h3>1.10. Sysop paging</h3>
+<p>
+For sysop chat we use a program that will connect to the users tty. This is 
+not a nice solution because it will not work over a network, but at least
+it works.
+<pre>
+<strong>Ext. chat         </strong>External chat program, not in use!
+<strong>Chat device       </strong>The device where the sysop is called (beeped)
+<strong>Call script       </strong>For future use
+<strong>Page length       </strong>The length of a page in seconds
+<strong>Page times        </strong>Maximum number of times a user may page the sysop
+<strong>Sysop area        </strong>Message from user to Sysop area number
+<strong>Ask reason        </strong>Ask reason for chat, this will be logged
+<strong>Use Extern        </strong>Use external chat 
+<strong>Log Chat          </strong>Log the chat conversation
+<strong>Prompt Chk.       </strong>Check at menu prompts for Sysop breaking in
+<strong>Freeze Time       </strong>Freeze users time during chat
+<strong>Sunday..Saturday  </strong>The times the Sysop is normal available
+</pre><p>
+
+<h3>1.11. Flag Descriptions.</h3>
+<p>
+In this menu you can give the 32 users flags a meaningfull description.
+<p>
+
+<h3>1.12. Fileecho Processing.</h3>
+<p>
+A note, when you change the number of Systems or Groups, the databases affected
+will be updated automatic.
+<pre>
+<strong>Keep days         </strong>How long TIC files should be kept on hold
+<strong>Hatch pwd         </strong>The internal hatch password. Make this weird.
+<strong>Drv space         </strong>The minimal free space on your disk in kilobytes
+<strong>Systems           </strong>The maximum number of connected nodes
+<strong>Groups            </strong>The maximum number of fileecho groups
+<strong>Max. dupes        </strong>The maximum number of entries in dupe database
+<strong>Keep date         </strong>Keep original filedate
+<strong>Keep netm         </strong>Keep sent netmails
+<strong>Res future        </strong>Reset dates in the future
+<strong>Loc resp          </strong>Respond to local created filefind messages
+<strong>Repl ext          </strong>Replace filename extension with .* before filesearch
+<strong>Plus all          </strong>Allow filemgr +all command
+<strong>Notify            </strong>Allow filemgr notify=on/off command
+<strong>Passwd            </strong>Allow filemgr passwd command
+<strong>Message           </strong>Allow filemgr message=on/off command
+<strong>Tic on/off        </strong>Allow filemgr tic=on/off command
+<strong>Pause             </strong>Allow filemgr pause/resume commands
+</pre><p>
+
+<h3>1.13. Edit Fidonet mail and echomail processing.</h3>
+<p>
+Note that the first 2 mailboards must also exist in the normal mail areas if
+you want to see what is in them. Here they are defined for quick access of the
+tosser. For the Max. systems and groups see 1.12. If you use MBSE BBS together
+with a DOS based BBS (using DOSEMU or mars netware emulator), you can set the
+behaviour of the outbound to 4d. addressing instead of 5d. This option may
+dissapear in the future.<br>
+Another option is present, this is the <strong>pktdate</strong> option. This
+is the full path and filename to an external program that can inspect and 
+correct the mail .pkt files. Originally I put this in to run pktname of Tobias
+Ernst of 2:2476/418 to fix y2k problems in the incoming mail. At this time
+most y2k fixes are build in, but in case you need it it's there. To make it
+clear; the y2ktools written by Tobias are static compiled for Linux and they
+should run on all Linux i386 versions. Until now, I still use pktdate because
+it is necessary.<br>
+
+<pre>
+<strong>Badboard          </strong>The path and filename of the bad messages
+<strong>Dupeboard         </strong>The path and filename of the duplicate messages
+<strong>Pktdate           </strong>Full path and filename of a .pkt preprocessor
+<strong>Max pkts.         </strong>Maximum Kb. of mail packets before a new one is created.
+<strong>Max arcs.         </strong>Maximum size in Kilobytes of an arcmail file
+<strong>Keep days         </strong>How many day should we keep ARCmail on hold
+<strong>Echo dupes        </strong>Maximum number of entries in the echomail dupe database
+<strong>Reject old        </strong>Reject echomail messages older then n days
+<strong>Max msgs          </strong>Default maximum number of messages in each area
+<strong>Days old          </strong>Default number of days old to keep messages
+<strong>Max systems       </strong>Maximum number of nodes to connect to echomail
+<strong>Max groups        </strong>Maximum number of echomail groups
+<strong>4d address        </strong>Use 4d. addressing (not needed you only use MBSE BBS)
+<strong>Split at          </strong>Gently split messages after n KBytes (12..60)
+<strong>Force at          </strong>Force split of messages after n KBytes (16..63)
+</pre><p>
+A note about the splitting of messages. Some tossers can't handle 
+messages greater than 16 KBytes, these tossers are rare these days. Most
+tossers can handle messages of 32 KBytes. To set these values on the safe
+side set "Split at" to 27 and "Force at" to 31. This means that a long
+newfile report will be split after 27 KBytes when a new group of files
+should start in the report. If it can't find that point because a large
+number of files is in the group that is just being processed, the message
+split will be forced right after the file that passes the 31 KBytes limit.
+I use values of 1 KBytes below maximum for overhead such as SEEN-BY and
+PATH lines. Values larger then 32 KBytes is not a good idea, recent tests
+in May 1999 have shown that your messages will not reach all systems
+if they are larger then 32 KBytes. Splitting is used for newsfiles reports
+and gated news articles to Fidonet.
+<P>
+
+<h3>1.14. Edit Internet mail and news processing.</h3>
+<p>
+Email and news is setup here. There are three possible configurations which you
+can set with 1.14.11:
+<ul>
+  <li><strong>No ISP</strong>. If you don't have any connection to the internet
+      use this setting. Email will come from the default Fidonet UUCP gate and will be send out
+      via the UUCP gate. Users have email addresses like
+      <strong>user@f2802.m280.z2.fidonet.org</strong> Note, the username is their
+      Unix name when sending email.
+  <li><strong>Dial ISP</strong>. If you dial the internet regulary or are connected
+      with a cable modem without a valid DNS (Nameserver) entry you should use
+      this mode. Email will be sent via your local SMTP port, then through your
+      own sendmail (or whatever you use) to your ISP. 
+      As soon as you are connected to the internet
+      the mail will be sent to your ISP's mailer. In your sendmail you should
+      define the mailer of your ISP as Smarthost. Incoming email will still come
+      from the UUCP gate. Users have email addresses like
+      <strong>user@f2802.m280.z2.fidonet.org</strong> Note, the username is their
+      Unix name.
+  <li><strong>Perm ISP</strong>. If you are permanent connected to the internet
+      either with a static or dynamic IP address use this option. Use this option
+      also if you have an UUCP domain and hav a dialup UUCP connection. You need to
+      register a DNS name and MX record for your system, if you don't you won't be able to
+      receive email from the internet and must use the previous Dial mode.
+      If you have a dynamic IP address you can still get a DNS name from for
+      example <A HREF="http://www.dynip.com">dynip.com</A>
+      Incoming email will come directly from the internet, but if someone sends
+      email via the UUCP gate it is also accepted. Users have email addresses like
+      <strong>user@yourbbs.domain.org</strong>. Note, the username is their
+      Unix name.
+</ul>
+Another word of wisdom from my side, configuration of the internet, ppp, sendmail etc. is not discussed
+here, see the HOWTO's and other documentation that exists at <A HREF="http://www.linuxdoc.org">
+www.linuxdoc.org</A>, it's all there.
+
+<pre>
+<strong>POP3 node         </strong>The POP3 node to use, should be localhost
+<strong>SMTP node         </strong>The SMTP node to use, should be localhost
+<strong>NNTP node         </strong>The NNTP node to use, should be localhost
+<strong>NNTP m.r.         </strong>If the NNTP server needs the Mode Reader command
+<strong>NNTP user         </strong>The username for the NNTP server if needed
+<strong>NNTP pass         </strong>The password for the NNTP server if needed
+<strong>News dupes        </strong>The number of entries for the news dupes database.
+<strong>Email aka         </strong>The Fidonet aka to use for the fidonet.org UUCP gate
+<strong>UUCP aka          </strong>The default Fidonet UUCP gate, 2:292/875@fidonet
+<strong>Emailmode         </strong>The email mode, discussed above
+<strong>News mode         </strong>Newsfeed mode, INN, rnews or UUCP.
+<strong>Split at          </strong>Gently split newfiles reports after n KBytes (12..60)
+<strong>Force at          </strong>Force split of newfiles reports after n KBytes (16..63)
+<strong>Control ok        </strong>Allow news control messages to be gated
+<strong>No regate         </strong>Don't regate already gated messages
+
+In rnews mode the NNTP entries are replaced by:
+
+<strong>Path rnews        </strong>The full path and filename to the rnews binary.
+
+In UUCP mode the NNTP entries are replaced by:
+
+<strong>UUCP path         </strong>The full path to the uucppublic directory.
+<strong>UUCP node         </strong>The UUCP nodename of your ISP.
+</pre><p>
+
+
+<P>
+<h3>1.15. Allfiles and Newfiles lists.</h3>
+<p>
+These are the settings that affect the generation of newfiles and allfiles reports.
+<pre>
+<strong>Ftp base          </strong>The root of the public download area (.../ftp)
+<strong>New days          </strong>The number of days old files are &quot;newfiles&quot;
+<strong>Security          </strong>The highest security level to include files in the reports
+<strong>Groups            </strong>The number of newfile groups the newfiles database can hold
+</pre><p>
+
+<h3>1.16. Fidonet Aka's.</h3>
+<p>
+Here you can enter 40 fidonet addresses. These are 5d addresses.
+<p>
+
+<h3>1.17. Mailer Setup.</h3>
+<p>
+Note that you can't disable FTS-0001 sessions as that is a mandatory session
+protocol in Fidonet. There are 40 phonenumber translations present, this is for
+countries with lots of telephone operators with all kind of prefixes for
+carrier select functions.
+<pre>
+<strong>Mailer logl.      </strong>The logging level for mailer sessions
+<strong>Default phone     </strong>The default phonenumber for EMSI sessions
+<strong>TCP/IP flags      </strong>The TCP/IP capability flags for TCP/IP sessions
+<strong>Default speed     </strong>The default speed for EMSI sessions
+<strong>Timeout reset     </strong>The timout for normal modem commands
+<strong>Timeout connect   </strong>The timeout for waiting for connect
+<strong>Dial delay        </strong>The maximum delay between calls, minimum is 10 seconds.
+<strong>No Filerquests    </strong>Disable filerequests
+<strong>No callout        </strong>Disable callout
+<strong>No hold mail      </strong>Send &quot;hold&quot; mail if we make the call
+<strong>No pickup all     </strong>Exchange mail for one aka only
+<strong>No EMSI session   </strong>Disable EMSI
+<strong>No YooHoo/2U2     </strong>Disable FTS-0006 sessions
+<strong>No Zmodem         </strong>Disable zmodem protocol
+<strong>No Zedzap         </strong>Disable zedzap protocol
+<strong>No Hydra          </strong>Disable Hydra protocol
+<strong>No TCP/IP         </strong>Disable TCP/IP protocol, set to Yes if you don't have internet.
+<strong>Phonetrans 1..40  </strong>Maximum 40 phone number translations
+<strong>Max. files        </strong>Maximum files to request, 0 is unlimited 
+<strong>Max. MBytes       </strong>Maximum MBytes to request, 0 is unlimited
+</pre>
+
+<h3>1.18. FTPD Settings.</h3>
+<p>
+A new program is <strong>mbftpd</strong>. This is a replacement for the normal
+ftp server for Linux with special futures for MBSE BBS. This is not working
+yet so don't use it. Setting it up is adviced.
+<pre>
+<strong>Base path         </strong>The ftp base directory (ie. /SYS/usr/ftp).
+<strong>Upload pth        </strong>Incoming files (ie. /SYS/usr/ftp/incoming).
+<strong>Banner msg        </strong>The banner file to display before login.
+<strong>Path filter       </strong>The legal character in upload filenames.
+<strong>Path msg          </strong>Message to display if illegal characters in upload.
+<strong>Email addr        </strong>Your email address.
+<strong>Shutdown          </strong>Shutdown message if FTP server is closed.
+<strong>Readme login      </strong>Readme to display after login.
+<strong>Readme cwd*       </strong>Readme to display after chdir.
+<strong>Msg login         </strong>Welcome message after login.
+<strong>Msg cwd*          </strong>Message to display in directory.
+<strong>Userslimit        </strong>Maximum FTP users allowed.
+<strong>Loginfails        </strong>Maximum login failures.
+<strong>Compress          </strong>If compress command is allowed.
+<strong>Tar               </strong>If tar command is allowed.
+<strong>Mkdir ok          </strong>If users may create directories.
+<strong>Log commands      </strong>Log user commands.
+<strong>Anonymous         </strong>If anonymous login is allowed.
+<strong>User mbse         </strong>If user <strong>mbse</strong> is allowed. Dangerous!
+</pre>
+
+<h3>1.19. Edit HTML pages setup.</h3>
+<p>
+Here you setup the HTML pages that can be created with the <strong>
+mbfile web</strong> command. These are HTML pages of your download
+areas and indexes of all areas. If there are pictures in these areas
+thumbnails are created if you have the <strong>convert</strong>
+command available. The document root is the same as defined in your
+web server. The link to ftp must be created from that directory to
+your ftp base directory. To do that become root, cd to the document root
+and type <strong>ln -s /var/spool/mbse/ftp files</strong> In this case the link
+is called <strong>files</strong>. Note that all download areas are accesible,
+there is no user authentication yet available.
+<pre>
+<strong>Docs root         </strong>The path to the httpd documents root.
+<strong>Link to ftp       </strong>The link to the ftp directory.
+<strong>URL name          </strong>The URL of your webserver.
+<strong>Charset           </strong>The default character set, ISO-8859-1.
+<strong>Table color       </strong>The tables background color.
+<strong>Header color      </strong>The tables header background color.
+<strong>Author name       </strong>The author name you want in the HTTP headers.
+<strong>Convert command   </strong>The graphics convert command. (ImageMagick needed).
+<strong>Files/page        </strong>The number of files to display per web page.
+<strong>Icon Home         </strong>The name of the Home icon file.
+<strong>Text Home         </strong>The text to display for Home.
+<strong>Icon Back         </strong>The name of the Back icon file.
+<strong>Text Back         </strong>The text to display for Back.
+<strong>Icon Prev.        </strong>The name of the Previous page icon file.
+<strong>Text Prev.        </strong>The text to display for Previous page.
+<strong>Icon Next         </strong>The name of the Next page icon file.
+<strong>Text Next         </strong>The text to display for Next page.
+</pre>
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" align="bottom" width="40" height="30">  Back to index</A>
+<BR>
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" align="bottom" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

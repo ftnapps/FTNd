@@ -1,0 +1,326 @@
+<HTML>
+<HEAD>
+<TITLE>Compatibility and Link Qualifier Extensions for EMSI Sessions</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+  | Document: FSC-0088
+  | Version:  001
+  | Date:     31 October, 1995
+  |
+  | Robert Williamson FidoNet#1:167/104.0
+
+    Compatibility and Link Qualifier Extensions for EMSI Sessions
+    Robert Williamson FidoNet#1:167/104.0  robert@ecs.mtlnet.org
+
+    Purpose:
+
+    The  basic  purpose of this document is to start discussions which will
+    hopefully result in an improved handshake negotiation protocol.
+
+    Scope:
+
+    Relation of flags to Types of files transferred:
+
+    The  FSC-0056  EMSI  specification  (hereafter  referred  to as EMSI-I)
+    makes  little  distinction  between  ARCmail/packets and other types of
+    files,  such  as  files attached and TIC'ed files.  In EMSI-I, the term
+    'Mail'  when  not  used  in  conjunction with the term 'compressed', is
+    interpreted to mean ANY file.
+
+    This  extension  (hereafter  referred to as EMSI-II) makes reference to
+    and  allows control of types of files in addition to 'compressed mail'.
+    References  to  'Mail'  are  changed to 'File' where common practice so
+    indicates.   The  additional qualifier flags described provide for more
+    control as to the types of files a system is prepared to receive.
+
+
+    Relation of flags to presented addresses:
+
+    The  EMSI-I  specification does not allow qualification for any address
+    other than the PRIMARY address.  This means that Link flags are limited
+    in  application  to  either  all  presented addresses or to the primary
+    presented address only.
+
+    This  extension  also  allows  application  of  Link  flags to specific
+    addresses other than the primary.
+
+
+    Distinctions between Calling and Answering System:
+
+    In  the EMSI-I spec, the type of flags that may be presented is limited
+    by  the  status  of the site.  Certain flags may only be presented when
+    the  site  is the caller and other flags may only be presented when the
+    site   is   the   answerer.    This  proposed  extension  removes  this
+    distinction.
+
+    In the EMSI-I spec, certain Link and Capability (a.k.a:  Compatibility)
+    flags  are  caller-driven, while others are controlled by the answering
+    system.  This specification attempts to harmonize these discrepancies.
+
+    A  attempt  is made to remain somewhat backwards compatible and to have
+    new  flags  follow the original flag naming convention.  However, IMHO,
+    it  would  be preferable to harmonize the flags; reducing the number of
+    them  while retaining the fine type control, so that the same codes are
+    used in all sessions.
+
+    Under  both  EMSI-I and EMSI-II, any flags that are not understood, are
+    to  be  ignored.   Therfore,  if  a site presents it's flags in EMSI-II
+    format  and  the  other site does not do EMSI-II, it is permissable for
+    that site to interpret all flags according to EMSI-I specifications.
+
+
+    Specifics:
+
+    Compatibility flags:
+
+    Compatibility  flags  consist of a string of codes that specify the
+    PROTOCOL CAPABILITIES and ENABLED FEATURES of the mailer.
+
+    ARC, XMA
+    These  EMSI-I  compatibility  flags  have  no  meaning  relavant to the
+    transfer  of  files  and  are  not  to  be presented under EMSI-II.  If
+    received, they are to be ignored.
+
+
+    FNC    
+    The FNC EMSI-I compatibility flag has been identified as a 'mistake' by
+    the  author  of EMSI-I.  This is agreeable as that specification called
+    for   the   creation   of   a   filename   that  was  ALWAYS  8.3,  not
+    up-to-8.up-to-3.
+    It   is   not  to  be  presented  under  EMSI-II.   If  received  as  a
+    compatibility flag, it is to be ignored.
+
+
+    Protocol Selection:
+
+    In  the EMSI-I spec, a requirement is placed upon the calling system to
+    present  it's  available  protocols  in  order  of preference.  A quote
+    follows:
+
+        The calling system must list supported protocols first and
+        descending order of preference (the most desirable protocol
+        should be listed first).
+        The answering system should only present one protocol and it
+        should be the first item in the compatibility_codes field.
+
+    Some mailer authors have interpreted 'the compatibility_codes field' in
+    the  second  sentence  to  mean  that  of the answering system, thereby
+    making  protocol  selection RECEIVER-PREFS driven.  This interpretation
+    makes  unnecessary  the  'decending  order' requirement placed upon the
+    calling   system,   so  shall  be  considered  in  conflict  with  that
+    requirement.
+
+     Most   mailer  authors  have  interpreted  that  phrase  to  mean  the
+    'compatibility_codes  field'  OF  THE  CALLER,  thereby making protocol
+    selection  CALLER-PREFS  driven.   Since  EMSI-I  was intended to be "a
+    clear  protocol  definition  for  state-of-the-art  E-Mail  systems  to
+    follow",  they  cannot  be  faulted  for  interpretation.  Caller-prefs
+    driven  selection  is state-of-the-art, receiver-prefs driven selection
+    is older technolgy, such as Wazoo.
+
+    This   specification   requires   that   the   second  interpretation,
+    CALLER-PREFS driven, be mandatory.
+
+
+    New Compatibilty Flags:
+    ----------------------
+
+    EII
+    Indicates   that   the   system   will   interpret   flags  under  this
+    specification, if other end also presents this flag.  IF either or both
+    systems  do  not  present  this  flag,  all  interpretations  are  done
+    according to EMSI-I.
+
+    DFB
+    Indicates  that  the  system  presenting  is  capabable of fall-back to
+    FTS1/WAZOO  negotiation  in the case of failure of EMSI handshake or no
+    common  protocol.   Since  ZMO  is  the  minimum required protocol, NCP
+    should  only  occur  if  the  answering  system  presents more than one
+    protocol..  (ie. it's broken)
+
+    FRQ
+    Indicates  that  the  system  will  accept  and  process  file requests
+    received  during  outbound  calls.   In other words, the calling system
+    will  do a second turnaround for uni-directional protocols, to send the
+    files requested, at his cost.
+
+    NRQ
+    NRQ should be presented ONLY IF the mailer does not have a file request
+    server, task or function and cannot accept requests..  It should NOT be
+    used to indicate that the  function  is  temporarly disabled. 
+
+    When  examined,  No  requests will be sent.  It would be advisable that
+    the  mailer  alert  the  system  operator  of this occurance to prevent
+    continued polling of the remote site.
+
+
+    Protocol Capabilities:
+
+    Protocol   capability   flags  are  presented  in  decending  order  of
+    preference  by  the  caller.  The answering system selects and presents
+    the  FIRST  protocol  from  the  callers  list  that  it supports.  The
+    answering system must present only ONE protocol.
+
+    HYD  Hydra bi-directional    (link flags define parameters)
+    JAN  Janus bi-directional
+    TZA  DirectZap               (TrapDoor DirectZap varient)
+    DZA  DirectZap               (Zmodem variant, reduced escape set)
+    ZAP  ZedZap                  (Zmodem variant, upe 8K blocks)
+    ZMO  Zmodem w/1,024 packets  (Wazoo ZedZip)
+    SLK  SeaLink                 (no TYSNC, No MDM7, No TeLink)
+                                 (8-32k window/ReSync/OverDrive/LongNames)
+
+    NCP
+    This  is  presented  if  no compatible protocol can be negotiated under
+    EMSI.   Since  in  most  FTN  networks,  a  common protocol DOES exist,
+    fallback   to  WaZoo  and  FTS1  negotiation  is  expected.   If  these
+    negotiation methods are not available, the session is terminated.
+
+    This  condition  should  never  occur  under  normal circumstances.  It
+    should  be  considered as a problem with the design or configuration of
+    one of the mailers involved.
+
+    Link flags:
+    ----------
+
+    Link  flags  consist  of a string of codes that specify DESIRED CONNECT
+    CONDITIONS.   They  apply  to  the CURRENT SESSION ONLY.  Under EMSI-I,
+    there are four TYPES of link flags:  communications parameters, session
+    parameters, pickup options and hold options.  Under EMSI-II, only three
+    types  are  used,  the communications parameters type is REMOVED, as it
+    serves no purpose whatsoever in FTN operations.
+
+
+    Link Session options:
+
+    FNC
+    If  either  system  presents  this  flag,  it is an indication that the
+    presenting   system   requires   filename   conversion   to  cp/m-msdos
+    conventions.  The other system will convert filenames to cp/m cpm/msdos
+    8.3 conventions before sending. 
+    The   convention   is   defined   as   a  filename  consisting  of  two
+    parts,  the  filepart  and  extension.   The filepart and extension are
+    separated  by a period ".".  The filepart may be from 1 to 8 characters
+    in  length  and  the  extension  may  be  from  0 to 3 characters.  The
+    character set shall be any uppercase character in the range A-Z and any
+    numeric  character  in  the  range  0-9.   If  the extension is of zero
+    length, the period may or may not be present.
+
+
+    RMA
+    Indicates that the presenting site is able to send and process multiple
+    file  requests.   If both sites present this flag, the caller will send
+    any REQ files found for each AKA presented by the answering system.
+    The answering system will process each received REQ.
+
+    RH1
+    Indicates  that  under  the  Hydra  protocol,  batch  one contains file
+    requests only, while batch 2 is reserved for all other files.
+    
+
+    (others to be defined)
+
+    Pickup and Hold Flags:
+
+    Under  the  EMSI-I  specification, Link Pickup flags are only presented
+    when  calling (an Outbound Session) and are examined and processed only
+    when  answering  (an  Inbound  Session)  and  Link  Hold flags are only
+    presented  when  answering  (an  Inbound  Session) and are examined and
+    processed only when calling (an Outbound Session).
+
+    With  EMSI-II,  BOTH  Pickup and Hold flags are presented by both sites
+    during  a  session.   This  allows  more control for those systems, for
+    example,  which  cannot  modify  addresses  presented or rotate akas to
+    change  the  primary  address  presented  on  a per-session or per-site
+    basis.
+
+
+    Link Pickup and Hold:
+
+    Each  system can present one of three (or more) Link options related to
+    application of addresses.  If neither of these flags are presented, PUA
+    is to be assumed.
+
+    Neither  PUA  nor  PUP  is  to  be  presented  if  only one address was
+    presented.
+
+             PUP     Pickup FILES for primary address only
+          /  PUA     Pickup FILES for all presented addresses
+         /   PUn     Pickup FILES for address number n in AKA list
+ one of |
+         \
+          \  NPU     No FILE pickup desired. (calling system)
+             HAT     Hold all FILES          (answering system)    
+             HAn     Hold all FILES for address number n in AKA list
+
+
+    Qualifiers:
+
+    Qualifiers  are  processed  in  the  order presented, with any conflict
+    being  resolved  by  subsequent  qualifiers overridding any conflicting
+    previous qualifier in the list.
+
+    Qualifiers may be not be presented with either NPU or HAT and should be
+    ignored if received with NPU or HAT.
+
+    PickUp:
+
+        PMO     PickUp Mail (ARCmail and Packets) ONLY 
+        PMn     PickUp Mail ONLY for address number n in AKA list
+
+        NFE     No TIC'S, associated files or files 
+                attachs desired
+        NFn     No TIC'S, associated files or file attaches, 
+                for address number n in AKA list
+
+        NXP     No compressed mail pickup desired 
+        NXn     No compressed mail pickup desired, 
+                for address number n in AKA list
+
+        NRQ     File requests not accepted by caller
+                This  flag is presented if file request processing
+                is disabled TEMPORARILY for any reason
+        NRn     File requests not accepted by caller
+                for address number n in AKA list
+
+     Note that NFE,NPX,NRQ != NPU
+
+    Hold:
+
+        HNM     Hold all traffic EXCEPT Mail (ARCmail and Packets)
+        HNn     Hold all traffic EXCEPT Mail (ARCmail and Packets)
+                for address number n in AKA list
+
+        HXT     Hold compressed mail traffic.
+        HXn     Hold compressed mail traffic.
+                for address number n in AKA list
+
+        HFE     Hold tic's and associated files
+                and file attaches other than mail 
+        HFn     Hold tic's and associated files
+                and file attaches other than mail 
+                for address number n in AKA list
+
+        HRQ     Hold file requests (not processed at this time)
+                This  flag is presented if file request processing
+                is disabled TEMPORARILY for any reason
+        HRn     Hold file requests (not processed at this time)
+                for address number n in AKA list
+
+     Note that HXT,HRQ,HFE == HAT
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

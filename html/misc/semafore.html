@@ -1,0 +1,51 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Semafore files with MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 22-jul-2001</h5>
+<P>&nbsp;<P>
+
+<H1>Semafore files with MBSE BBS.</H1>
+
+The directory $MBSE_ROOT/sema is the hardcoded semafore directory where all
+semafore's must be created, tested and removed. When the system is booting,
+the init script will erase all semafore's just before the BBS is started.
+This description is valid from MBSE BBS v0.33.17 and newer.
+
+<PRE>
+zmh		Purpose: to mark the state of Zone Mail Hour. 
+		Created by "mbtask" at the start of Zone Mail Hour.
+		Removed by "mbtask" at the end of Zone Mail Hour.
+
+upsalarm	Purpose: Signal that the system is running on battery power.
+		Created and removed by UPS software.
+		Checked by mbtask to suspend processing.
+		Checked by mbfido to stop processing.
+
+upsdown		Purpose: Signal that the system will go down on low battery.
+		Created and removed by UPS software.
+		Checked by mbtask to go down.
+		Checked by several scripts and "mbstat wait".
+
+newnews		Purpose: Signal that there are new articles on the news server.
+		Checked by mbtask to start news processing.
+		Removed by mbtask as soon as it is detected.
+
+mbtask.last	Purpose: A timestamp created and touched by "mbtask" every
+		minute so you can check it is running.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

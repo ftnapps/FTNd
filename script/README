@@ -1,0 +1,7 @@
+			MBSE BBS Script files.
+
+If you want to make any changes to the scripts, do it here and not in the
+~/etc and ~/bin directories. After making the changes do a 'make install' 
+as root and the scripts are in place with the right permissions and owners.
+
+	Michiel

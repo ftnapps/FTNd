@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+<TITLE>Suggested use of Nodelist Fields.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FSP-1003
+Revision:       1
+Title:          Suggested use of Nodelist Fields
+Author:         Lee Kindness
+Revision Date:  15 May 1997
+Expiry Date:    15 May 1999
+----------------------------------------------------------------------
+Contents:
+                1. Field 3, Node Name
+                2. Field 4, Location
+                3. Field 5, Sysop Name
+----------------------------------------------------------------------
+
+
+Status of this document
+-----------------------
+
+  This document is a Fidonet Standards Proposal (FSP).
+
+  This document specifies an optional Fidonet standard protocol for
+  the Fidonet community, and requests discussion and suggestions for
+  improvements.
+
+  This document is released to the public domain, and may be used,
+  copied or modified for any purpose whatever.
+
+
+Introduction
+------------
+
+  This document makes recommendations on the use of various fields in
+  the distribution nodelist (St. Louis nodelist format", fts-0005).
+  Naturally it is the choice of the *C's if they want to use them.
+  Remember the fts-0005 requirements should still be adhered to.
+
+
+1. Field 3, Node Name
+---------------------
+
+  The node name field should be no more than 20 characters long. For
+  comparison in nodelist.122'1997 the minimum entry was 1, maximum 51!
+  and the average was 14.
+
+  For zone entries this field should contain a description of the
+  zones area, (eg North America, Europe). For region entries it should
+  contain the country/state, for host entries the local area name and
+  for hub entries a description of the area the hub serves.
+
+
+2. Field 4, Location
+--------------------
+
+  This field contains the location of the node. It should usually be
+  expressed as the primary local location (town, suburb, city, etc.)
+  plus an identifier of the regional geopolitical administrative
+  district (state, province, department, county, etc.). Wherever
+  possible, standard postal abbreviations for the major regional
+  district should be used (IL, BC, NSW, UK, etc.).
+
+  For zone and region entries this field should also have the julian
+  day of segment creation appended to it (eg "Somearea_(122)") to aid
+  checks on the validity of the nodelist.
+
+
+3. Field 5, Sysop Name
+----------------------
+
+  This field contains the name of the system operator. Entries such as
+  "postmaster" and "uucp" should not be used. Aliases should not be
+  permitted in this field (as they give Fidonet a 'less respectable'
+  image).
+
+
+A. Author contact data
+----------------------
+
+  Lee Kindness
+  Fidonet: n/a
+  E-mail:  wangi@earthling.net
+  WWW:     http://www.scms.rgu.ac.uk/students/cs_yr94/lk/fido.html
+
+
+B. History
+----------
+
+  Rev.1, 971101: First release as FSP, based on the Fidonews 14/20
+                 article. Transformed into FSP document by Odinn
+                 Sorensen.
+
+
+**********************************************************************
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,450 @@
+<HTML>
+<HEAD>
+<TITLE>Zone 2 nodelist flags.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FSP-1005
+Revision:       6
+Title:          Zone 2 nodelist flags
+Author:         Frank Ellermann, 2:240/5815.1
+Revision Date:  27 November 1997
+Expiry Date:    27 November 1999
+---------------------------------------------------------------------
+Contents:
+                1. Introduction
+                2. FTS-0005 flags
+                3. User flags
+                4. Approved zone 2 user flags
+                5. Flag implications
+                6. Invalid combinations
+                7. Baud rate field
+                8. Thanks to...
+---------------------------------------------------------------------
+
+
+1. Introduction
+---------------
+   This document informs about known differences of FidoNet zone 2
+   nodelist flags from FTS-0005.003.  The ultimate sources for these
+   informations are the current Z2 nodelist epilogue and the setup
+   for flag corrections at Z2C, but it may be difficult to get these
+   sources for readers in other zones.
+
+|  All changes since version 5 are marked by a bar at the left edge.
+   It is (again) possible to list V32b and V42b in zone 2, upper case
+   V32B or V42B is not more enforced.  Currently new flags needed for
+   IP-connectivity are under test in zone 2 (only internally), e.g.
+
+   ->   VM      VModem, default port  3141, dummy country code 000-
+   ->   IFC     IFCico, default port 60179, dummy country code 000-
+   ->   BND     BinkP,  default port 24544, dummy country code 000-
+   ->   IP      general IP connectivity,    dummy country code 000-
+   ->   TELN    Telnet                      dummy country code 000-
+
+
+2. FTS-0005 flags
+-----------------
+   The following flags are used as specified in FTS-0005.003:
+
+        CM      Continuous Mail, node accepts mail 24 hours a day
+        MO      Mailer Only (no BBS)
+        LO      Listed Only, node accepts calls only from listed
+                node numbers in the current FidoNet nodelist
+
+   ->   V21     ITU-T V21      300 bps full duplex (obsolete)
+        V22     ITU-T V22     1200 bps full duplex (obsolescent)
+
+|  In zone 2 the value 1200 in the baud rate field implies V22.  Only
+|  two nodes not supporting at least V22bis, ISDN, or IP still exist
+|  in the zone 2 segment.  Flag V22 is almost obsolete, and V21 is
+|  already removed in Z2.  Both flags should be dropped from the next
+|  FTS-0005 version.
+
+        V29     ITU-T V29     9600 bps half duplex (obsolescent)
+   ->   V33     ITU-T V33    14400 bps half duplex (obsolete)
+
+   V33 cannot be used in connecting FidoNet nodes over public dial-up
+   lines and is most probably a historical error in FTS-0005.  A very
+   similar argument is applicable on V29, all nodes flying this flag
+   support at least V32.  Today only one node in Z2 still flies V29,
+   and V33 is already removed in Z2.  Both flags should be dropped in
+   the next FTS-0005 version.
+
+        V32     ITU-T V32     9600 bps full duplex
+        V32b    ITU-T V32bis 14400 bps full duplex (implies V32)
+|       V34     ITU-T V34    28800 bps full duplex (33600 bps option)
+
+   FTS-0005 specifies V32b and V42b (capital V and small b), current
+   nodelist practice in FidoNet shows all combinations of small and
+   capital letters for flags.  This was no problem before FSC-0062
+   introduced case-sensitive flags.  The best solution is to stick to
+   the current practice and treat all old flags as case-insensitive.
+
+        H96     Hayes V9600
+        HST     USR Courier HST up to 9600  (implies MNP)
+        H14     USR Courier HST up to 14400 (implies HST)
+   ->   H16     USR Courier HST up to 16800 (implies H14 and V42b)
+        MAX     Microcom AX/96xx series (almost obsolete)
+        PEP     Packet Ensemble Protocol
+        CSP     Compucom Speedmodem
+   ->   ZYX     Zyxel series 16800 bps (implies V32b and V42b)
+   ->   V32T    V.32 Terbo   19200 bps (implies V32b)
+        VFC     V.Fast Class 28800 bps (should imply V32b and V42b)
+
+   If a flag directly or indirectly implies other flags, then these
+   other flags are not shown in a nodelist entry, because this would
+   be redundant.  Unfortunately the rules for redundancies in zone 2
+   and FTS-0005 are different.  Zone 2 continued to avoid redundancy
+   with most "new" flags, but FTS-0005.003 specified no redundancies
+   for "new" flags like ZYX, H16, V32T, or VFC.  "New" flags in this
+   context are flags approved by FidoNet International Coordinators
+   since 1989, when FTS-0005.TXT, the predecesssor of FTS-0005.003,
+   was published.
+
+   For details see the chapter "implications" below, for now only
+   note, that in zone 2 H16 implies V42b, ZYX implies V32b and V42b,
+   and V32T implies V32b.
+
+   Zone 1 and zone 2 have introduced a user flag Z19 approved by the
+   corresponding Zone Coordinator.  User flags are discussed later,
+   for now only note, that in zone 2 ZYX is specified as Zyxel 16k8,
+   while FTS-0005.003 not knowing Z19 specifies ZYX as generic flag
+   for all Zyxel protocol speeds.
+
+   Today only one node in FidoNet still really flies MAX, this flag
+   is obsolete and should be dropped from FTS-0005.  The flags CSP
+   (7 nodes worldwide) and H96 should be marked as obsolescent.
+
+|       MNP     Microcom Networking Protocol 2-4 error correction
+|       V42     ITU-T LAP-M error correction w/ fallback to MNP 2-4
+|       V42b    ITU-T V.42bis BTLZ data compression over V.42 LAP-M
+
+   The next version of FTS-0005 should adopt the better V42b and
+   MNP definitions of the zone 3 nodelist epilogue.  FTS-0005.003
+   specifies an implication of V42 by V42b, but the exact meaning of
+   the flag MNP is unclear.  Most probably this flag was meant to
+|  indicate support of MNP 2-4, and in this sense V42 implies MNP.
+
+|  Note the difference between the flag V42b (implying V42) and the
+|  standard V.42bis (not necessarily based on LAP-M as data link
+|  layer protocol), without this difference the flag V42b would be
+|  ambiguous for combined modem and ISDN node entries.
+
+        MN      No compression supported in insecure inbound
+
+        XA      Bark and WaZOO file/update requests
+        XB      Bark file/update requests, WaZOO file requests
+        XC      Bark file requests, WaZOO file/update requests
+        XP      Bark file/update requests
+        XR      Bark and WaZOO file requests
+        XW      WaZOO file requests
+        XX      WaZOO file/update requests
+
+   These flags are equivalent in FTS-0005 and in the zone 2 segment.
+
+        Gx..x   Gateway to domain 'x..x'
+
+   Valid values for this flag are assigned by the Fido International
+   Coordinator, FTS-0005.003 explicitly mentions GUUCP.  In zone 2
+   only GUUCP gateways are flagged.
+
+        #01     Zone 5 mail hour (01:00 - 02:00 UTC) w/ Bell 212A
+        #02     Zone 2 mail hour (02:30 - 03:30 UTC) w/ Bell 212A
+   ->   #08     Zone 4 mail hour (08:00 - 09:00 UTC) w/ Bell 212A
+        #09     Zone 1 mail hour (09:00 - 10:00 UTC) w/ Bell 212A
+        #18     Zone 3 mail hour (18:00 - 19:00 UTC) w/ Bell 212A
+        #20     Zone 6 mail hour (20:00 - 21:00 UTC) w/ Bell 212A
+
+   The variants !01, !02, !08, !09, !18, and !20 indicate missing
+   Bell 212A support.  In zone 2 #02 or !02 would be obviously
+   redundant.
+
+   Today less than four 1200 modems (V22 or Bell 212A) are listed.
+   A future version of FTS-0005 should drop !mn variants together
+   with V21 and V22 flags.
+
+   Further most non-CM systems flagging #mn or !mn today probably
+   want to show additional online times instead of additional mail
+   hours.  As soon as FSC-0062 flags have been approved by the IC
+   or adopted as FTS by the FTSC, the following version of FTS-0005
+   should mark #mn as obsolescent and recommend the more flexible
+   FSC-0062 flags (see below).
+
+
+3. User flags
+-------------
+   An example for one of several problems in zone 2 with user flags:
+
+        ...,U,Z19,V110H,V120L,V120H,X75,ENC,NEC
+
+   These flags indicate a modern Zyxel ISDN-modem and two additional
+   user flags ENC and NEC.  This possible user flags string contains
+   34 characters, but at most 32 characters are allowed in FTS-0005.
+
+        ...,U,Z19,V110L,V110H,X75,ISDNA,ISDNB,ISDNC
+
+   During the period for the replacement of old by new ISDN flags
+   (several months !) many nodes listed both old and new flags for
+   maximal compatibility, and no problems with nodelist compilers
+   or mailers caused by too long user flags strings were reported.
+
+   Therefore the length limit in FTS-0005 is probably unnecessary
+   and at least inconsequent:  Other nodelist fields like the system
+   name are unlimited, so why only restrict the user flags string ?
+   To help developpers an upper limit of e.g. 255 characters for a
+   nodelist line and 63 characters for fields 3 to 6 would be more
+   useful.
+
+   The next problem with user flag strings as specified in FTS-0005
+   is their introduction by the letter U with no comma following:
+
+   Nodelist compilers could parse ...,UISDN,USR in user flags ISDN
+   and USR.  But USR cannot be approved as "real" flag, because the
+   combination ...,USR,UISDN would then be parsed in SR and UISDN.
+
+   Other side effects of the FTS-0005 specification are additional
+   difficulties in finding flags.  Almost all flags are separated
+   by a comma, only the first user flag can be an exception to this
+   simple rule.  If the order of user flags has no meaning, then...
+
+        ...,UV120L,V120H
+        ...,UV120H,V120L
+
+   ... are equivalent.  A "simple" solution of this problem could be
+   to treat UV120L as synonym for V120L, and UV120H as synonym for
+   V120H.  Similar problems show up, if user flags are counted, etc.
+
+   Obviously a nodelist compiler looking for user flags has always
+   to consider the case "user flag separated by comma".  In zone 2
+   this idea was simply extended to the first user flag:
+
+   All flags are separated by commas.  Flags not yet approved by the
+   International Coordinator or the FTSC (i.e. user flags only used
+   experimentally or locally) are separated by a new pseudo flag U.
+
+   ->   U       pseudo flag to the left of at least one user flag
+
+   All flags following this pseudo flag U are user flags, all flags
+   before this pseudo flag are "real" flags specified in FTS-0005 or
+   approved by the International Coordinator.
+
+   Because this definition should be compatible with any reasonable
+   software implementation based on FTS-0005.003, and simplifies the
+   handling of user flags significantly, a future FTS-0005 version
+   will hopefully adopt it.
+
+
+4. Approved zone 2 user flags
+-----------------------------
+   In zone 2 user flags have to be approved by the Zone Coordinator.
+   Currently the following zone 2 user flags exist:
+
+   ->   V110L   ITU-T V.110 19k2 async 'Low'    (former ISDNA)
+   ->   V110H   ITU-T V.110 38k4 async 'High'   (former ISDNB)
+   ->   V120L   ITU-T V.120 56k6 async, N1 = 259, W = 7, modulo 8
+   ->   V120H   ITU-T V.120 64k  async, N1 = 259, W = 7, modulo 8
+   ->   X75     ITU-T X.75 SLP (single link procedure),
+                64kbit/s B channel; layer 2 max. framesize N1 = 2048,
+                window size W = 2, frame numbering modulo 8;
+                layer 3 transparent (no packet layer)
+   ->   ISDN    Other configuration, used only if none of above fits
+
+   These ISDN flags follow the specification in FSC-0091.
+
+   ->   Tyz     Online time flags as specified in FSC-0062
+
+   The flag Tyz is used by non-CM nodes online not only during ZMH,
+   y is a letter indicating the start and z a letter indicating the
+   end of the online period as defined below (times in UTC):
+
+        A  0:00,  a  0:30,   B  1:00,  b  1:30,   C  2:00,  c  2:30,
+        D  3:00,  d  3:30,   E  4:00,  e  4:30,   F  5:00,  f  5:30,
+        G  6:00,  g  6:30,   H  7:00,  h  7:30,   I  8:00,  i  8:30,
+        J  9:00,  j  9:30,   K 10:00,  k 10:30,   L 11:00,  l 11:30,
+        M 12:00,  m 12:30,   N 13:00,  n 13:30,   O 14:00,  o 14:30,
+        P 15:00,  p 15:30,   Q 16:00,  q 16:30,   R 17:00,  r 17:30,
+        S 18:00,  s 18:30,   T 19:00,  t 19:30,   U 20:00,  u 20:30,
+        V 21:00,  v 21:30,   W 20:00,  w 20:30,   X 23:00,  x 23:30.
+
+   For example TuB shows an online period from 20:30 until 1:00 UTC.
+
+   ->   Z19     Zyxel series 19200 bps (implies ZYX)
+   ->   X2C     x2 client w/ 56000 bps (should imply V34 and V42b)
+   ->   X2S     x2 server w/ 64000 bps (should imply V34 and V42b)
+
+   ->   K12     Systems offering all educational K12-conferences
+   ->   ENC     The node accepts inbound encrypted mail
+
+   ->   NC      Network Coordinator (only if the NC is not the host)
+   ->   NEC     Net Echomail Coordinator    (at most one per net)
+   ->   REC     Region Echomail Coordinator (at most one per region)
+
+   Redundant AKAs used to indicate echomail coordination in zone 2
+   are no longer permitted.  One *EC flag is valid for all AKAs of
+   a given sysop.
+
+
+5. Flag implications
+--------------------
+   Flag implications directly or indirectly specified in FTS-0005:
+
+        HST     => MNP
+        H14     => MNP HST
+        H16     => MNP HST H14
+        V42b    => V42 (MNP ?)
+        V32b    => V32
+
+   Flag implications specified in the zone 2 nodelist epilogue:
+
+        HST     => MNP
+        H14     => HST MNP
+   ->   H16     => V42 MNP V42b H14 HST
+   ->   V42b    => V42 MNP
+   ->   ZYX     => V42 MNP V42b V32 V32b
+   ->   Z19     => V42 MNP V42b V32 V32b ZYX
+        V32b    => V32
+   ->   V32T    => V32 V32b
+
+   ->   V110L   => ISDN
+   ->   V110H   => ISDN
+   ->   V120L   => ISDN
+   ->   V120H   => ISDN
+   ->   X75     => ISDN
+
+   The latter ISDN flag redundancies are a consequence of FSC-0091.
+   Maybe some of the following implications could be added in zone 2:
+
+        VFC     => V32 V32b MNP V42 V42b
+        X2C     => V34 MNP V42 V42b
+        X2S     => V34 MNP V42 V42b
+
+   Flag implications (i.e. not listing redundant flags) have several
+   advantages:  Some old nodelist tools are unable to handle too long
+   lines.  Old flags like HST, MNP, V42, or V32 vanish automatically,
+   if they are implied by H16, V42b, V32b, or better.  Redundancies
+   defined globally for the whole nodelist help to avoid flag errors.
+
+
+6. Invalid combinations
+-----------------------
+   All file request flags exclude each other (at most 1 is possible):
+   XA, XB, XC, XP, XR, XW, and XX.  For flag checkers only supporting
+   implications a good approximation based on FTS-0005 definitions is
+
+|       XA      => XW XR XP XB XC XX,
+|       XB      => XW XR XP,
+|       XC      => XW XR XX,
+|       XR      => XW,
+|       XX      => XW.
+
+   Further X2C cannot be combined with X2S, and FSC-62 Tyz-flags are
+   not possible with CM.  Also Tyz with y = z is of course incorrect.
+
+   Some modem protocols are "proprietary" in a sense, that all today
+   known modems can fly at most one of the corresponding modem flags:
+   MAX, CSP, H96, PEP, HST, H14, H16, ZYX, and Z19.
+
+   A few "old" modem protocol flags are known to be invalid if used
+   together with "new" protocol flags, i.e. each "old" flag excludes
+   all "new" flags and vice versa:
+
+   "Old" in this sense are MAX, CSP, H96, HST, H14, V32, and PEP.
+   "New" in this sense are X2S, X2C, V34, VFC, V32T, and H16.
+
+   For Z2 add ZYX as "old" and Z19 as "new".  A simple REXX script to
+   test some known inconsistencies is available as NLSCHECK.REX at
+   the site of the author.  While erroneously listing redundant flags
+   causes no harm, other errors like combining V34 with HST or Z19
+   with H16 indicate serious problems, which can result in connection
+   failures or other damage.
+
+
+7. Baud rate field
+------------------
+   The baud rate field 7 in the nodelist as specified in FTS-0005 is
+   nearly useless today:  Except from a few remaining 1200 and 2400
+   nodes almost all nodelist entries show either 9600 for all modem
+   protocols better than V22bis or 300 for ISDN (or IP) only nodes.
+   No more V21 or Bell 103 modems are listed for more than 2 years.
+
+   The baud rate values 19200 and 38400 specified in FTS-0005.003
+   have not been used in the FidoNet nodelist.  So all a reasonable
+   nodelist compiler can do today, is treat 300 as indicator for
+   ISDN or IP only, and treat unknown or missing values in field 7
+   like 9600.
+
+   A new meaning for field 7 as speed field could be really useful.
+   An example is ZYX, if we would have 16800, 19200, 28800, and 33600
+   as speed values, then their combination with ZYX is all we need
+   technically, Z19 would be unnecessary.  Another example is HST,
+   flags H14 and H16 are unnecessary, if HST is combined with 9600,
+   14400, 16800, 28800, or better.  Variants of PEP could be shown in
+   the speed field without new flags.  "Enhanced V32.terbo" could be
+   shown by 21600.
+
+   Most important:  V34 may have the famous bug not allowing connects
+   from new "V34+", unless the caller disabled symbol rate 3429.  If
+   "V34+" is indicated by speed 33600 or better, then an appropriate
+   setup for all kinds of V34 connects is possible.
+
+   A future version of FTS-0005 hopefully allows the following speed
+   values in field 7:
+
+          300   reserved for ISDN or IP only (for historical reasons)
+         1200   obsolete (either V.22 in Z2 / Z3, or Bell 212A in Z1)
+         2400   implies V22bis, qualifies as least common denominator
+         9600   default, used with PEP, V32, HST, H96, (CSP), (MAX)
+        12000   rare variant of V32
+        14400   used with V32b or HST (obsoleting H14)
+        16800   used with ZYX  or HST (obsoleting H16)
+        19200   used with V32T or ZYX (obsoleting Z19)
+        21600   rare variant of V32T (no "H21" needed)
+        28800   used with VFC or V34
+        33600   used with V34 (no V34+ or V34b needed)
+|       56000   used with X2C, X2S, or V.PCM
+
+   Allowing more than 12 speed values or allowing speed values above
+   64000 could break existing software (MakeNL, V7).  Therefore the
+   next step in FidoNet could be, to add 12000, 14400, 16800, 19200,
+   21600, 28800, 33600, and 56000, where 19200 is already specified
+   in FTS-5 since 1989.
+
+
+8. Thanks to...
+---------------
+   Ben Baker            St. Louis nodelist format
+   Rick Moore           FTS-0005.TXT
+   David Nugent         FTS-0005.003 and NLTOOLS
+   Jonny Bergdahl       ERRFLAGS 2.6
+   Ward Dossche         Zone 2 nodelist epilogue
+   David J. Thomas      FSC-0062.003 (FRL-0062)
+   Jan Ceuleers         FSC-0075.001 (FRL-0075)
+   Arjen Lentz          FSC-0091.001 (FRL-0091)
+   Leonard Erickson     CHECKNL 2.14 and many discussions in NET_DEV
+   Jim Barchuk          LNDL 2.7
+   Marius Ellen         FASTV7 2.04
+|  Jan Vermeulen, Ian Smith, Gisbert Rudolph, Carlos Fernandez Sanz,
+|  Tom Schlangen, Craig Ford, Pedro Lima, and many others...
+
+
+**********************************************************************
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbfile - File database maintenance program.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 30-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>mbfile - File database maintenance program.</H1>
+<P>
+
+<H3>Synopsys.</H3>
+<code><strong>mbfile</strong> [commands] &lt;options&gt;</code>
+<P>&nbsp;<P>
+
+<H3>Description.</H3>
+<P>
+<strong>mbfile</strong>
+is the filedatabase maintenance program for mbsebbs. In order to run mbfile you
+must have started <strong>mbsed</strong>,
+this is the deamon which controls all bbs activities.
+<P>
+The main purpose of <strong>mbfile</strong>
+to do automatic maintenance on the downloadable files on the bbs, such as
+removing or moving old files, checking the database and packing the database.
+The best way to do the maintenance is to run <strong>mbfile</strong>
+from the crontab. example:
+<P><pre>
+30 05 * * * export MBSE_ROOT=/opt/mbse; /opt/mbse/bin/mbfile kill pack check index -quiet
+</pre>
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+In order to run the bbs you need to set one global environment variable
+<strong>$MBSE_ROOT</strong>
+This variable must point to the root of the bbs directoy structure. The
+main configuration file <strong>config.data</strong>
+must exist in the subdirectory ~/etc.
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbfile</strong> check</code>
+Check the database integrity. All files in the filedatabase must exist on
+disk and all files on disk must exist in the filedatabase. There are some
+exceptions, files.bbs, files.bak, 00index, index*.html, header, readme and 
+files that start with a dot. 
+Of all files the date and time is checked, the size and the crc
+value of the file. If there is something wrong, the error is corrected or the
+file is removed. If the area is a CD-rom area, the check that files on disk
+must exist in the filedatabase is skipped.
+<P>
+<code><strong>mbfile</strong> index</code>
+Create fast filerequest index for the <strong>mbcico</strong> filerequest
+processor.
+<P>
+<code><strong>mbfile</strong> pack</code>
+This command will actualy remove the records of files that are marked for
+deletion. If the file is still on disk, it will be removed also. So when
+you delete files with mbsetup, they are still in your database and on disk
+until you run <strong>mbfile pack</strong>.
+<P>
+<code><strong>mbfile</strong> kill</code>
+Delete or move files in areas that have the <strong>download age</strong>
+set or the <strong>filedate age</strong> set. A setting of 0 is ignored.
+Areas on CD-rom are always skipped.
+If the Move to Area option is set the files are moved to the given area. The
+upload date and download date are reset to the current date and time.
+So if you set in the destination area aging of 14 days, files will stay
+there for 14 days after the move. This is good for automatic "last chance" areas.
+<P>&nbsp;<P>
+
+<H3>Options.</H3>
+<P>
+<code><strong>mbfile</strong> [command] -quiet</code>
+Quiet mode, no screen output. Use this switch if you run <strong>mbfile</strong> from the crontab.
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

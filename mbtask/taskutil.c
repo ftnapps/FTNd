@@ -1,0 +1,439 @@
+/*****************************************************************************
+ *
+ * File ..................: mbtask/taskutil.c
+ * Purpose ...............: MBSE BBS Task Manager, utilities
+ * Last modification date : 06-Jul-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "libs.h"
+#include "../lib/structs.h"
+#include "signame.h"
+#include "scanout.h"
+#include "taskutil.h"
+
+
+
+pid_t           		mypid;	/* Original parent pid if child     	*/
+int				oserr;	/* Last OS error number			*/
+extern struct sysconfig 	CFG;
+extern struct _fidonethdr	fidonethdr;
+extern struct _fidonet		fidonet;
+extern struct taskrec		TCFG;
+
+
+
+static char *mon[] = {
+        (char *)"Jan",(char *)"Feb",(char *)"Mar",
+        (char *)"Apr",(char *)"May",(char *)"Jun",
+        (char *)"Jul",(char *)"Aug",(char *)"Sep",
+        (char *)"Oct",(char *)"Nov",(char *)"Dec"
+};
+
+
+
+/************************************************************************
+ *
+ *  Loging procedures.
+ */
+
+
+char *date(void);
+char *date(void)
+{
+	struct  tm      ptm;
+	time_t          now;
+	static  char    buf[20];
+
+	now = time(NULL);
+	ptm = *localtime(&now);
+	sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+	return(buf);
+}
+
+
+
+/*
+ * general log for this server
+ */
+void tasklog(int grade, const char *format, ...)
+{
+	va_list va_ptr;
+	char    outstr[1024];
+	int     oldmask;
+	FILE    *logfile;
+	char    *logname;
+
+	if (grade == '+' || grade == '-' || grade == '!' || grade == '?' || grade == ' ' || TCFG.debug) {
+		va_start(va_ptr, format);
+		vsprintf(outstr, format, va_ptr);
+		va_end(va_ptr);
+
+		logname = calloc(PATH_MAX, sizeof(char));
+		oldmask=umask(066);
+		sprintf(logname, "%s/log/mbtask.log", getenv("MBSE_ROOT"));
+		logfile = fopen(logname, "a");
+		umask(oldmask);
+		if (logfile == NULL) {
+			printf("Cannot open logfile \"%s\"\n", logname);
+			free(logname);
+			return;
+		}
+
+		fprintf(logfile, "%c %s mbtask[%d] ", grade, date(), getpid());
+		fprintf(logfile, *outstr == '$' ? outstr+1 : outstr);
+		if (*outstr == '$')
+			fprintf(logfile, ": %s\n", strerror(errno));
+		else
+			fprintf(logfile, "\n");
+
+		fflush(logfile);
+		if (fclose(logfile) != 0)
+			printf("Cannot close logfile \"%s\"\n", logname);
+
+		free(logname);
+	}
+	return;
+}
+
+
+
+/*
+ * user log process
+ */
+int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
+{
+	int     oldmask;
+	FILE    *log;
+        
+	oldmask = umask(066);
+	log = fopen(fn, "a");
+	umask(oldmask);
+	if (log == NULL) {
+		oserr = errno;
+		tasklog('!', "$Cannot open user logfile %s", fn);
+		return -1;
+	}
+
+        fprintf(log, "%s %s %s[%s] ", grade, date(), prname, prpid);
+        fwrite(format, strlen(format), 1, log);
+        fprintf(log, "\n");
+
+        fflush(log);
+        if (fclose(log) != 0) {
+                oserr = errno;
+                tasklog('!', "$Cannot close user logfile %s", fn);
+                return -1;
+        }
+        return 0;
+}
+
+
+
+char *xstrcpy(char *src)
+{
+        char    *tmp;
+
+        if (src == NULL) 
+                return(NULL);
+        tmp = malloc(strlen(src)+1);
+        strcpy(tmp, src);
+        return tmp;
+}
+
+
+
+char *xstrcat(char *src, char *add)
+{
+        char    *tmp;
+        size_t  size = 0;
+
+        if ((add == NULL) || (strlen(add) == 0))
+                return src;
+        if (src)
+                size = strlen(src);
+        size += strlen(add);
+        tmp = malloc(size + 1);
+        *tmp = '\0';
+        if (src) {
+                strcpy(tmp, src);
+                free(src);
+        }
+        strcat(tmp, add);
+        return tmp;
+}
+
+
+
+void CreateSema(char *sem)
+{
+        char    temp[PATH_MAX];
+        int     fd;
+
+        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+	if (access(temp, F_OK) == 0)
+		return;
+        if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0)
+                close(fd);
+        else
+                tasklog('?', "Can't create semafore %s", temp);
+}
+
+
+
+void TouchSema(char *sem)
+{
+        char    temp[PATH_MAX];
+        int     fd;
+
+        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+        if ((fd = open(temp, O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)) >= 0) {
+                close(fd);
+        } else
+                tasklog('?', "Can't touch semafore %s", temp);
+}
+
+
+
+void RemoveSema(char *sem)
+{
+        char    temp[PATH_MAX];
+
+        sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+	if (access(temp, F_OK))
+		return;
+        if (unlink(temp) == -1)
+                tasklog('?', "Can't remove semafore %s", temp);
+}
+
+
+
+int IsSema(char *sem)
+{
+	char    temp[PATH_MAX];
+
+	sprintf(temp, "%s/sema/%s", getenv("MBSE_ROOT"), sem);
+	return (access(temp, F_OK) == 0);
+}
+
+
+
+/*
+ * Test if the given file exists. The second option is:
+ * R_OK - test for Read rights 
+ * W_OK - test for Write rights
+ * X_OK - test for eXecute rights
+ * F_OK - test file presence only
+ */ 
+int file_exist(char *path, int mode)
+{
+	if (access(path, mode) != 0)
+		return errno;
+
+	return 0;
+}
+
+
+/*
+ *    Make directory tree, the name must end with a /
+ */
+int mkdirs(char *name)
+{
+        char    buf[PATH_MAX], *p, *q;
+        int     rc, last = 0, oldmask;
+
+        memset(&buf, 0, sizeof(buf));
+        strncpy(buf, name, sizeof(buf)-1);
+        buf[sizeof(buf)-1] = '\0';
+
+        p = buf+1;
+
+        oldmask = umask(000);
+        while ((q = strchr(p, '/'))) {
+                *q = '\0';
+                rc = mkdir(buf, 0775);
+                last = errno;
+                *q = '/';
+                p = q+1;
+        }
+
+        umask(oldmask);
+
+        if ((last == 0) || (last == EEXIST)) {
+                return TRUE;
+        } else {
+                tasklog('?', "$mkdirs(%s)", name);
+                return FALSE;
+        }
+}
+
+
+
+/*
+ * Return size of file, or -1 if file doesn't exist
+ */
+long file_size(char *path)
+{
+        static struct   stat sb;
+
+        if (stat(path, &sb) == -1)
+                return -1;
+
+        return sb.st_size;
+}
+
+
+
+/*
+ * Return time of file, or -1 if file doen't exist, which is
+ * the same as 1 second before 1 jan 1970. You may test the 
+ * result on -1 since time_t is actualy a long integer.
+ */
+time_t file_time(char *path)
+{
+        static struct stat sb;
+
+        if (stat(path, &sb) == -1)
+                return -1;
+
+        return sb.st_mtime;
+}
+
+
+/*
+ * Return ASCII string for node, the bits in 'fl' set the
+ * output format.
+ */
+char *ascfnode(faddr *a, int fl)
+{
+        static char buf[128];
+
+        if (a == NULL) {
+                strcpy(buf, "<none>");
+                return buf;
+        }
+
+        buf[0] = '\0';
+        if ((fl & 0x40) && (a->name))
+                sprintf(buf+strlen(buf),"%s of ",a->name);
+        if ((fl & 0x08) && (a->zone))
+                sprintf(buf+strlen(buf),"%u:",a->zone);
+        if (fl & 0x04)
+                sprintf(buf+strlen(buf),"%u/",a->net);
+        if (fl & 0x02)
+                sprintf(buf+strlen(buf),"%u",a->node);
+        if ((fl & 0x01) && (a->point))
+                sprintf(buf+strlen(buf),".%u",a->point);
+        if ((fl & 0x10) && (a->domain))
+                sprintf(buf+strlen(buf),"@%s",a->domain);
+        return buf;
+}
+
+
+
+char *Dos2Unix(char *dosname)
+{
+        char            buf[PATH_MAX];
+        static char     buf2[PATH_MAX];
+        char            *p, *q;
+
+        memset(&buf, 0, sizeof(buf));
+        memset(&buf2, 0, sizeof(buf2));
+        sprintf(buf, "%s", dosname);
+        p = buf;
+
+        if (strlen(CFG.dospath)) {
+                if (strncasecmp(p, CFG.dospath, strlen(CFG.dospath)) == 0) {
+                        strcpy((char *)buf2, CFG.uxpath);
+                        for (p+=strlen(CFG.dospath), q = buf2 + strlen(buf2); *p; p++, q++)
+                                *q = ((*p) == '\\')?'/':tolower(*p);
+                        *q = '\0';
+                        p = buf2;
+                } else {
+                        if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
+                                for (p+=strlen(CFG.uxpath), q = buf2 + strlen(buf2); *p; p++, q++)
+                                        *q = ((*p) == '\\')?'/':tolower(*p);
+                                *q = '\0';
+                                p = buf2;
+                        }
+                }
+        }
+        return buf2;
+}
+
+
+
+static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we", 
+                      (char *)"th", (char *)"fr", (char *)"sa"};
+
+char *dayname(void)
+{
+        time_t  	tt;
+        struct tm	*ptm;
+	static char	buf[3];
+
+        (void)time(&tt);
+        ptm = localtime(&tt);
+        sprintf(buf, "%s", dow[ptm->tm_wday]);
+
+        return buf;     
+}
+
+
+
+void InitFidonet(void)
+{
+        memset(&fidonet, 0, sizeof(fidonet));
+}
+
+
+
+int SearchFidonet(unsigned short zone)
+{
+        FILE    *fil;
+	char	fidonet_fil[PATH_MAX];
+	int	i;
+
+	sprintf(fidonet_fil, "%s/etc/fidonet.data", getenv("MBSE_ROOT"));
+        if ((fil = fopen(fidonet_fil, "r")) == NULL) {
+                return FALSE;
+        }
+        fread(&fidonethdr, sizeof(fidonethdr), 1, fil);
+
+        while (fread(&fidonet, fidonethdr.recsize, 1, fil) == 1) {
+        	for (i = 0; i < 6; i++) {
+                	if (zone == fidonet.zone[i]) {
+	                        fclose(fil);
+        	                return TRUE;
+                	}
+		}
+        }
+        fclose(fil);
+        return FALSE;
+}
+
+

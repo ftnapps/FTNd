@@ -1,0 +1,98 @@
+/*****************************************************************************
+ *
+ * File ..................: mbfido/backalias.c
+ * Purpose ...............: Alias functions.
+ * Last modification date : 10-Jul-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek                FIDO:           2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "../lib/dbcfg.h"
+#include "backalias.h"
+
+
+
+static struct aliaslist {
+	struct aliaslist	*next;
+	faddr			*addr;
+	char			*alias;
+} *alist = NULL;
+
+
+
+char *backalias(faddr *fa)
+{
+	struct aliaslist	*tmp;
+
+	for (tmp = alist; tmp; tmp = tmp->next)
+		if ((!fa->domain || !tmp->addr->domain || !strcasecmp(fa->domain,tmp->addr->domain)) &&
+		    (!fa->zone   || (fa->zone == tmp->addr->zone)) && (fa->net == tmp->addr->net) && 
+		    (fa->node == tmp->addr->node) && (fa->point == tmp->addr->point) && (fa->name) && 
+		    (tmp->addr->name) && (strcasecmp(fa->name,tmp->addr->name) == 0)) {
+			Syslog('m', "Address \"%s\" has local alias \"%s\"", ascinode(fa,0x7f), MBSE_SS(tmp->alias));
+			return tmp->alias;
+		}
+	return NULL;
+}
+
+
+
+void readalias(char *fn)
+{
+	FILE			*fp;
+	char			buf[256], *k, *v;
+	struct aliaslist	*tmp = NULL;
+	faddr			*ta = NULL;
+
+	if ((fp = fopen(fn,"r")) == NULL) {
+		WriteError("$cannot open system alias file %s", MBSE_SS(fn));
+		return;
+	}
+
+	while (fgets(buf, sizeof(buf)-1, fp)) {
+		k = strtok(buf, " \t:");
+		v = strtok(NULL, " \t\n\r\0:");
+		if (k && v)
+			if ((ta = parsefaddr(v))) {
+				if (alist) {
+					tmp->next = (struct aliaslist *) xmalloc(sizeof(struct aliaslist));
+					tmp = tmp->next;
+				} else {
+					alist = (struct aliaslist *) xmalloc(sizeof(struct aliaslist));
+					tmp = alist;
+				}
+				tmp->next = NULL;
+				tmp->addr = ta;
+				ta = NULL;
+				tmp->alias = xstrcpy(k);
+			}
+	}
+	fclose(fp);
+}
+

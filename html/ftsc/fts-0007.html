@@ -1,0 +1,1869 @@
+<HTML>
+<HEAD>
+<TITLE>An Enhanced FidoNet(r) Technical Standard.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FTS-0007
+Version:  003
+Date:     15-Oct-1990
+Updates:  FTS-0001
+
+
+
+
+                  An Enhanced FidoNet(r) Technical Standard
+                Extending FTS-0001 to include SEAlink protocol
+                    (Including Overdrive and File Restart)
+
+                             October 15, 1990
+
+
+
+
+Status of this document:
+
+    This document specifies an optional standard for the FidoNet community.
+    Implementation of the protocols defined in this document is not mandatory,
+    but all implementations of these protocols are expected to adhere to this
+    standard.  Distribution of this document is subject to the limitations of
+    the copyright notice displayed below.
+
+
+    Copyright 1989-90 by Philip L. Becker.  Portions of this document are
+    copyright 1986-90 by Randy Bush and are incorporated with his consent.
+    All rights reserved.  A right to distribute only without modification and
+    only at no charge is granted.  Under no circumstances is this document to
+    be reproduced or distributed as part of or packaged with any product or
+    other sales transaction for which any fee is charged.  Any and all other
+    reproduction or excerpting requires the explicit written consent of the
+    copyright holders.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Introduction
+
+    While the basic FTS-0001 protocol has become reasonably standardized, it
+    is technically inferior when used with modem speeds of 2400bps or higher,
+    and results in considerably slower file transfers than more sophisticated
+    protocols under many line and modem configurations.
+
+    Very sophisticated protocols exist to allow absolute maximum efficiency,
+    but these protocols are much more difficult to implement than the basic
+    XMODEM used by FTS-0001.  A need exists for a standardized, easy to
+    implement extension to the FTS-0001 protocol which can gain much better
+    performance.  SEAlink is such an extension.  It is nearly as easy to
+    implement as the FTS-0001 protocol with which it is fully backward
+    compatible.  Despite its ease of implementation, it provides several
+    significant performance advantages. Among these advantages are:
+
+         o  Transparently communicates with strict FTS-0001 implementations.
+
+         o  Transparently communicates with FTS-0001 variants which omit
+            either the MODEM7 file name or the TeLink header block.
+
+         o  Transparently becomes a sliding window XMODEM protocol when
+            communicating with a like implementation.  This sliding window
+            protocol gives significantly improved throughput when there is
+            an end-to-end delay.
+
+         o  Offers a negotiated streaming mode for high speed asymmetrical
+            modems to further enhance throughput for such links.
+
+         o  Offers a negotiated file restart capability which allows an
+            interrupted transfer to restart where it left off, reducing
+            time spent to retransmit the file.
+
+    This document defines the  data structures and communication protocols
+    which a FidoNet SEAlink implementation must provide.  The implementor of
+    FidoNet compatible systems is the intended audience of this document.
+
+    This document has the same overall format and state table descriptions
+    as FTS-0001.  SEAlink is implemented by modifying the following tables:
+
+       Session Layer:   Sender - S1
+       Network Layer:   Batch File Sender - BS0
+       Network Layer:   Batch File Receiver - BR0
+       Data Link Layer: XMODEM/TeLink Sender - XS0
+       Data Link Layer: XMODEM/TeLink Receiver - XR0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                             1
+                              Table of Contents
+
+
+                                                                          Page
+    The purpose of the SEAlink protocol ...................................  3
+
+    How SEAlink negotiates its enhancements ...............................  4
+
+    Basic requirements for a FidoNet Implementation .......................  5
+
+    Levels of Compliance ..................................................  5
+
+    The ISO/OSI Reference Model ...........................................  5
+
+    Data Description Language .............................................  6
+
+    Finite State Machine Notation .........................................  7
+
+    Glossary of variables and terms .......................................  7
+
+    Application layer .....................................................  8
+
+    Presentation layer ....................................................  8
+
+    Session layer protocol ................................................  8
+         Session State Table: Sender (S0) .................................  9
+         Session State Table: Receiver (R0) ............................... 10
+
+    Transport layer ....................................................... 10
+
+    Network layer ......................................................... 11
+         Data Definition: MODEM7 file name ................................ 11
+         Network State Table: Batch File Sender (BS0) ..................... 12
+         Network State Table: Batch File Receiver (BR0) ................... 13
+
+    Data Link Layer ....................................................... 14
+         Data Definition: XMODEM data block (CRC) ......................... 14
+         Data Definition: XMODEM data block (Checksum) .................... 15
+         Data Definition: TeLink header block ............................. 15
+         Data Definition: SEAlink header block ............................ 16
+         Data Definition: SEAlink RESYNC packet ........................... 16
+         DDL Definition: XMODEMBlock, TeLink header ....................... 17
+         DDL Definition: SEAlink header, ACK, NAK, RESYNC block ........... 18
+         Checksum and CRC calculation algorithms .......................... 19
+         Data Link Layer protocol ......................................... 20
+         Data Link State Table: XMODEM/TeLink/SEAlink Sender (XS0) ........ 21
+         Data Link State Table: Transmitter ACK/NAK check (AC0) ........... 22
+         Data Link State Table: XMODEM/TeLink/SEAlink Receiver (XR0) ...... 24
+         Data Link State Table: Send NAK (SN0) ............................ 26
+         Data Link State Table: Send ACK (SA0) ............................ 26
+         Data Link State Table: MODEM7 Filename Sender (MS0) .............. 27
+         Data Link State Table: MODEM7 Filename Receiver (MR0) ............ 27
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            2
+    The purpose of the SEAlink protocol
+
+    The purpose of the SEAlink protocol is to provide a much higher level
+    of capability than the XMODEM protocol provides, while retaining the
+    ease of implementation which has made the XMODEM protocol ubiquitous.
+
+    In order for an extended protocol to function in FidoNet, it has to be
+    fully upward compatible with FTS-0001 mailers, and also those slight
+    variants of FTS-0001 which can communicate well with FTS-0001 mailers.
+    To meet this requirement, any extension to the FTS-0001 protocol has
+    to be capable of transparently negotiating away its extended capabilities
+    and communicate with strict FTS-0001 mailers (and their approved variants)
+    properly and reliably.
+
+    This means that an extended protocol must miminally do the following:
+
+        o  Detect that the other mailer can or cannot support its extensions
+           automatically, and within the framework of a legitimate FTS-0001
+           protocol encounter.
+
+        o  Support mail sessions with or without MODEM7 file names and with
+           or without TeLink headers in either combination.
+
+    To be useful such an extended protocol should also be able to reliably
+    detect when the other mailer can support its extensions so they can
+    be used to maximum benefits.
+
+    The major problems which exist with a standard FidoNet FTS-0001 session
+    result from the use of the XMODEM protocol.  This is a half duplex protocol
+    which forces a line turnaround on every transmitted block.  As a result,
+    any end-to-end delay in the transmission link is directly added to each
+    transmitted data block twice (once for each line turnaround).
+
+    To dramatize how easily XMODEM is impacted by even small line delays, let's
+    examine a 2400bps call on a line with 500ms (1/2 second) delay on each line
+    turnaround.  This is not an uncommon delay time on long distance calls.  A
+    single data block in the XMODEM CRC format contains 133 characters.  This
+    means it will be transmitted in 554ms.  The ACK/NAK response is a single
+    character and will take 4ms.  Thus with no delay (an ideal link) an XMODEM
+    transfer would send 128 data characters in 558ms for an effective data
+    throughput of about 230cps.  With a 500ms line turnaround delay, these same
+    128 data bytes will take 1558ms resulting in a throughput of 82cps.  If
+    faster modem speeds are used, the percentage impact is even greater.
+
+    The solution to this problem is to enhance the XMODEM protocol by adding
+    a "sliding window" capability which allows more than one block to be sent
+    before an acknowledgment is received.  This converts the protocol to a
+    full duplex protocol, and if the "window size" (the number of blocks which
+    may be sent before the sender must wait for an acknowledgment) is larger
+    that the line turnaround delay, then the ideal throughput can be restored
+    even to lines with long turnaround delays.  SEAlink is such a protocol.
+
+    The standard SEAlink window size is 6 blocks, but the state tables given
+    below implement a receiver which will operate correctly with any window
+    size up to 127 blocks.  Thus an implementation which uses a larger window
+    size will be totally compatible with the standard 6 block window versions.
+
+    A second problem with the XMODEM protocol arises when asymmetrical high
+    speed modems are used.  These modems achieve much higher throughput when
+    data is sent in only one direction.  Since they provide error free links,
+    a protocol which does not send any positive acknowledgments, but only
+    reports any bad blocks received will achieve a significantly higher
+
+
+
+                                                                             3
+    throughput than a protocol which is either full duplex or which turns
+    around between each block such as XMODEM or normal SEAlink.  It is for
+    this purpose that SEAlink Overdrive is provided.  It is a streaming version
+    of SEAlink designed to provide much higher throughput on asymmetrical
+    high speed links which provide end-to-end data flow control.
+
+    Finally, there is the annoying problem which occurs when a large data file
+    transfer has nearly completed and a loss of connection occurs.  Normally
+    the entire file must be retransmitted on a new call, resulting in lost
+    time and money.  The SEAlink RESYNC enhancement allows an interrupted
+    file transfer to be resumed at the point it was interrupted thus minimizing
+    the impact of such an interruption.
+
+    How SEAlink Negotiates its enhancements
+
+    SEAlink makes some assumptions about how FTS-0001 mailer implementations
+    react to various stimuli in order to negotiate its enhancements.  For the
+    sender, the test consists of two parts:
+
+    1.  Send a SEAlink header and see if the other end acknowledges it.  In
+        general it will, because most XMODEM implementations will think that
+        the SEAlink header is a "previous block" and ACK and discard it.  If
+        the receiver refuses to accept a SEAlink header block in three tries,
+        then it clearly cannot do SEAlink protocol and the negotiation is over.
+
+    2.  Since the receiver's acknowledgment of the SEAlink header is not a
+        sufficient criteria to determine if the receiver in fact supports
+        SEAlink, the sender dynamically examines the acknowledgments the
+        receiver provides to determine if their format indicates support of
+        SEAlink or not and adjusts its sending techniques accordingly.  This
+        is also the technique used to detect whether the receiver is in fact
+        supporting any extensions (such as SEAlink Overdrive) which have been
+        requested in the header.
+
+    For the receiver, the negotiation occurs during the receipt of the first
+    valid block.
+
+    1.   If the first block received is a valid SEAlink header, then the
+         transmitter supports SEAlink and the receiver can switch to it.  This
+         same header also indicates if the transmitter wants or can support the
+         SEAlink options such as Overdrive and File RESYNC.
+
+     2.  If the first block received is a valid TeLink header, then the
+         transmitter supports a variant of FTS-0001 and SEAlink support may
+         be assumed to be absent.
+
+     3.  If the first block received is an XMODEM data block then SEAlink
+         support may also be assumed to be absent.
+
+    If the receiver gets a SEAlink header, it can then arbitrarily decide
+    which of any requested options it wishes to use.  It may not use an option
+    for which support is not indicated in the sender's SEAlink header block.
+
+    The remainder of this document provides the details for a full SEAlink
+    implementation with Overdrive and RESYNC support.  A glossary of terms and
+    indicators is provided along with a full state table description of the
+    protocol implementation.
+
+
+
+
+
+
+
+
+                                                                             4
+    This document follows the format of FTS-0001 to allow ease of
+    comparison of the two protocols.  This document could not have been
+    generated without the tremendous efforts of those whose work resulted in
+    FTS-0001.  FidoNet owes a great debt to those efforts.  The following
+    introduction is reprinted from FTS-0001.
+
+    The layered metaphor of the ISO Open Systems Interface reference model
+    has been used to view FidoNet from a standard perspective.  As with most
+    prospective ISO/OSI descriptions, FidoNet does not always make this easy.
+
+
+   1. Basic Requirements for a FidoNet Implementation
+
+      Compatibility is a set of abilities which, when taken as a whole, make
+      it safe to list a net or node in the IFNA nodelist.  In other words,
+      if another node should attempt contact, does it have a reasonable
+      chance of successful communication?  This is a social obligation, as
+      the calling system pays money for the attempt.  Conversely, an
+      implementation should be able to successfully contact other systems,
+      as life is not a one-way street.
+
+      A FidoNet implementation must be able to call other nodes and transfer
+      messages and files in both directions.  This includes pickup and poll.
+
+      A FidoNet implementation must be able to accept calls from other nodes
+      and transfer messages and files in both directions.  This includes
+      pickup.
+
+      A FidoNet implementation must be able to receive and process the IFNA
+      format nodelist, and transfer nodelists to other nodes.  A companion
+      document, FTS-0005, defines the IFNA format nodelist and how to
+      interpret and process it.
+
+      A FidoNet implementation must route messages which do not have files
+      attached through net hosts as shown in an IFNA format nodelist.
+
+
+   2. Levels of Compliance
+
+      This documents represents an extended FidoNet implementation.  It
+      defines a well tested extension which is optional but provides
+      sufficient additional function that implementors should seriously
+      consider it.  SEAdog(tm), from System Enhancement Associates,
+      is the inspiration for this extended FidoNet implementation.
+      System Enhancement Associates is the creator of the SEAlink protocol.
+
+
+   3. The ISO/OSI Reference Model (cribbed from "Protocol Verification via
+      Executable Logic Specifications", D. P. Sidhu, in Rudin & West)
+
+      In the ISO/OSI model, a distributed system consists of entities that
+      communicate with each other according to a set of rules called a
+      protocol.   The model is layered, and there are entities associated
+      with each layer of the model which provide services to higher layers
+      by exchanging information with their peer entities using the services
+      of lower layers.  The only actual physical communication between two
+      systems is at the lowest level.
+
+
+
+
+
+
+
+
+                                                                             5
+      Several techniques have been used in the specification of such
+      protocols.  A common ingredient in all techniques is the notion of the
+      extended finite state automata or machine.  Extensions include the
+      addition of state variables for the storing of state information about
+      the protocol.  The state of an automaton can change as a result of
+      one of the following events:
+
+      o Request from an upper network layer for service
+
+      o Response to the upper layer
+
+      o Request to the lower network layer to perform a service
+
+      o Response from the lower layer
+
+      o Interaction with the system and environment in which the protocol is
+        implemented (e.g. timeouts, host operating system aborts, ...)
+
+      A protocol specification, in a large part, consists of specifying
+      state changes in automata which model protocol entities and in
+      describing the data which they exchange.
+
+      For historical reasons, the term packet is used in FidoNet to
+      represent a bundle of messages, as opposed to the more common use as a
+      unit of communication, which is known as a block in FidoNet.
+
+
+   4. Data Description
+
+      A language specific notation was avoided.  Please help stamp out
+      environmental dependencies.   Don't panic, there are rectangular record
+      layouts too.  The following defines the data description language used.
+
+      (* non-terminals *)
+      UpperCaseName - to be defined further on
+
+      (* literals *)
+      "ABC"         - ASCII character string, no termination implied
+      nnH           - byte in hexadecimal
+
+      (* terminals *)
+      someName      - 16-bit integer, low order byte first (8080 style)
+      someName[n]   - field of n bytes
+      someName[.n]  - field of n bits
+      someName(n)   - Null terminated string allocated n chars (incl Null)
+      someName{max} - Null terminated string of up to max chars (incl Null)
+      someName<max> - String of up to max chars, NOT null terminated
+
+      (* punctuation *)
+      a b           - one 'a' followed by one 'b'
+      ( a | b )     - either 'a' or 'b', but not both
+      { a }         - zero or more 'a's
+      [ b ]         - zero or one 'b'
+      (* comment *) - ignored
+
+      (* predeclared constant *)
+      Null          = 00H
+
+
+
+
+
+
+
+
+                                                                             6
+ 5. Finite State Machine Notation
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | fnn*|          |                         |                         |     |
+    `-----+----------+-------------------------+-------------------------+-----'
+
+    State #      - Number of this state (e.g. R13).
+                   f  - FSM initial (Window, Sender, Receiver, ...)
+                   nn - state number
+                   *  - state which represents a lower level protocol  which
+                        is represented by yet another automation.
+
+    State Name   - Descriptive name of this state.
+
+    Predicate(s) - Conditions which terminate the state.  If predicates are
+                   non-exclusive, consider them ordered.
+
+    Action(s)    - Action(s) corresponding to predicate(s)
+
+    Next State   - Subsequent state corresponding to predicate(s)
+
+    Ideally, there should be a supporting section for each state which
+    should give a prose description of the state, its predicates, actions,
+    etc.  So much for ideals.  The following is a list of all of the terms
+    and variables used in the following state machine descriptions:
+
+
+                     Glossary of variables and terms
+
+    SEAlink - Flag indicating SEAlink or XMODEM mode
+
+    SLO - Flag indicating overdrive if in SEAlink mode
+
+    RESYNC - Flag indicating whether transmitting end can honor RESYNC
+             file positioning requests or only NAKs
+
+    MACFLOW - Flag indicating whether the sender supports the Macintosh flow
+              control option.  This is an optional feature used by TABBY
+              because the Macintosh serial port does not support RTS/CTS.
+
+    CRC - Flag indicating whether block check is done using CRC or Checksum
+
+    T1 and T2 - Timeout Timers which run asynchronously with the code
+
+    WINDOW - Number of unacknowledged blocks which may be transmitted
+
+    SendBLK - Next 128 byte block number in file to send.  May not occur in
+              sequential order, so file positioning may be necessary when
+              it is time to send this block
+
+    ACKBLK - Highest block number in file which has been acknowledged by
+             the receiver as received without error
+
+    Last Blk - Block number of last 128 byte block (or partial block) in the
+               file being sent.
+
+    NumNAK - Number of NAKs received since last ACK
+
+    ACKs Rcvd - Number of ACKs received since the start of this file send
+
+
+
+                                                                             7
+                     Glossary of variables and terms (cont.)
+
+    ACKST - State of ACK/NAK machine during auto-detect of SEAlink or XMODEM
+            style ACK/NAK block receipt
+
+    RESYNC BLK# - Block number in file requested by a received RESYNC packet
+
+    ARBLK8 - Block # (0-255) received in a SEAlink style ACK/NAK packet
+
+    ARBLK - Block # in file (calculated from ARBLK8) which is the actual
+            block being referenced in the SEAlink ACK/NAK packet
+
+    blocknum - Block # (0-255) sent in a SEAlink style ACK/NAK packet
+
+    WriteBLK - Block # in file to write next correctly received data block.
+               Note: Block 1 is the first byte of the file.
+
+    CHR - Temp holding variable for received character during send operation
+
+
+ B. Application Layer : the System from the User's View
+
+    This is unchanged from FTS-0001.
+
+
+ C. Presentation Layer : the User from the System's View
+
+    This is unchanged from FTS-0001.
+
+
+ D. Session Layer Protocol : Connecting to Another FidoNet Machine
+
+    A session is a connection between two FidoNet machines.  It is currently
+    assumed to be over the DDD telephone network via modems.  The calling
+    machine starts out as the sender and the called machine as the receiver.
+    The pickup feature is described by the sender and receiver changing
+    roles midway through the session, after the sender has transferred the
+    message packet and any attached files.  Due to the lack of security in
+    the pickup protocol (danger of pickup by a fake node), extensions to the
+    basic Session protocol have been developed.  This document describes only
+    the minimum Session Layer protocol (as in FTS-0001).
+
+    Once a connection has been established, each system should ensure that
+    the physical connection remains throughout the session.  For physical
+    layers implemented through modems, this means monitoring the carrier
+    detect signal, and terminating the session if it is lost.
+
+    Error detection at the physical layer should be monitored for both sent
+    and received characters.  Parity, framing, and other physical errors
+    should be detected.
+
+    The only change to the Session Layer state tables from FTS-0001 is in the
+    Sender state "S1", Predicate "1" (S1.1) entry.
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                             8
+    Sender
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | S0  | SendInit |                         | dial modem              | S1  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S1  | WaitCxD  |1| carrier detected      | delay 1-5 seconds       | S2  |
+    |     |  (*1)    | |                       | Set SLO if > 2400bps,   |     |
+    |     |          | |                       | Reset SLO if <= 2400bps |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| busy, etc.            | report no connection    | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| voice                 | report no carrier       | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| carrier not detected  | report no connection    | exit|
+    |     |          | | within 60 seconds     |                         |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S2  | WhackCRs |1| over 30 seconds       | report no response &lt;cr&gt; | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ?? &lt;cr&gt;s received     | delay 1 sec             | S3  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| &lt;cr&gt;s not received    | send &lt;cr&gt; &lt;sp&gt; &lt;cr&gt; &lt;sp&gt;| S2  |
+    |     |          | |                       |   delay ??? secs        |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S3  | WaitClear|1| no input for 0.5 secs | send TSYNCH = AEH       | S4  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| over 60 seconds       | hang up, report garbage | exit|
+    |     |          | | and line not clear    |                         |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S4* | SendMail |                         | (XMODEM send packet XS0)| S5  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S5  | CheckMail|1| XMODEM successful     | (Fido registers success)| S6  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| XMODEM fail or timeout| hang up, report mail bad| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S6* | SendFiles|                         | (BATCH send files BS0)  | S7  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S7  | CheckFile|1| BATCH send successful |                         | S8  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| BATCH send failed     | hang up, rept files fail| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S8  | TryPickup|1| wish to pickup        | note send ok            | R2* |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| no desire to pickup   | delay 5 secs            | exit|
+    |     |          | |                       |   hang up, rept send ok |     |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+    Although the above shows the sender emitting only one TSYNCH, it is
+    recommended that a timeout of 5-20 seconds should initiate another TSYNCH.
+    The receiver should tolerate multiple TSYNCHs.
+
+    *1 - The action for (S1.1) is the only change from the corresponding
+         FTS-0001 state table.
+
+
+
+
+
+
+
+
+
+
+
+                                                                             9
+    Receiver
+
+    The receiving FSM is given an external timer, the expiration of which
+    will cause termination with a result of 'no calls' (R0.2).
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R0  | WaitCxD  |1| carrier detected      |                         | R1  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| external timer expires| report no calls         | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R1  | WaitBaud |1| baud rate detected    | send signon with &lt;cr&gt;s  | R2  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| no detect in ?? secs  | hang up, report no baud | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R2  | WaitTsync|1| TSYNCH received       | ignore input not TSYNCH | R3  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| 60 seconds timeout    | hang up, report not Fido| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R3* | RecMail  |                         | (XMODEM rec packet XR0) | R4  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R4  | XRecEnd  |1| XMODEM successful     | delay 1 second          | R5  |
+    |     |          | |                       |   flush input           |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| XMODEM failed         | hang up, rept mail fail | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R5* | RecFiles |                         | (BATCH rec files BR0)   | R6  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R6  | ChkFiles |1| BATCH recv successful | delay 2 secs            | R7  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| BATCH recv failed     | hang up, report bad file| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R7  | AllowPkup|1| have pickup for sender| receiver becomes sender | S3* |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| nothing to pickup     | hang up, rept recv ok   | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    There is no change in the Session Layer Receiver state table from FTS-0001.
+
+
+ E. Transport Layer : ?????
+
+    This is unchanged from FTS-0001.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            10
+ F. Network Layer : the Network's View of the System, Routing and Packets
+
+   1. Network Layer Data Definition : the Packet Header
+
+      This is unchanged from FTS-0001.
+
+
+   2. Network Layer Data Description : a File with Attributes
+
+      The BATCH protocol uses the MODEM7 filename and/or SEAlink/TeLink/XMODEM
+      file transfer protocols to transfer the file with attributes.
+
+      When a file is transferred via FidoNet, an attempt is made to also
+      pass the operating system's attributes for the file such as length,
+      modification date, etc.  FidoNet does this via a special prefix block
+      to the XMODEM file transfer using a protocol known as TeLink.  As the
+      TeLink protocol relies on a modification to the XMODEM file transfer
+      protocol, it is documented at the data link layer level.  Optionally,
+      if both sender and receiver implement the SEAlink extension, file
+      information is passed using the SEAlink header block which also
+      contains feature negotiation information.
+
+      The MODEM7 file name is redundant if there is also a TeLink or SEAlink
+      block, in which case the name may be taken from either or both.  In this
+      extended implementation, the MODEM7 file name is never required.  It
+      is sent, however, if it appears that the other node is using a strict
+      FTS-0001 implementation.  This implementation will adapt to an FTS-0001
+      variant which only sends the TeLink header without the MODEM7 filename
+      also so that it is compatible with all know variants of FTS-0001 which
+      are currently in the FidoNet network.
+
+
+                          FileName as Sent by MODEM7
+       Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |                   fileName                    |
+              ~                   8  bytes                    ~
+              |           left adjusted blank filled          |
+              +-----------------------------------------------+
+        8   8 |                    fileExt                    |
+              ~                    3  bytes                   ~
+              |           left adjusted blank filled          |
+              `-----------------------------------------------'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            11
+ 3. Network Layer Protocol : BATCH File Finite State Machines
+
+    BATCH File Sender
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BS0 | MoreFiles|1| more files to send    |                         | BS1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| no more files to send |                         | BS4 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BS1 | WaitType |1| rec NAK               | (MODEM7 FName send MS0) | BS2 |
+    |     |    (*1)  +-+-----------------------+-------------------------+-----+
+    |     |          |2| rec 'C'               | (SEAlink send file XS0) | BS3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| rec other char        | eat character           | BS1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| &gt; 20 sec in BS1       | report name send bad    | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BS2 | CheckFNm |1| MODEM7 Filename ok    | (TeLink send file XS0T) | BS3 |
+    |     |    (*2)  +-+-----------------------+-------------------------+-----+
+    |     |          |2| MODEM7 Filename bad   | report name send bad    | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BS3 | CheckFile|1| File send ok          |                         | BS0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| File send bad         | report file send bad    | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BS4 | EndSend  |1| rec NAK or 'C'        | send EOT, report send ok| exit|
+    |     |    (*3)  +-+-----------------------+-------------------------+-----+
+    |     |          |2| 10 secs no NAK or 'C' | send EOT, report no NAK | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    *1 - Note: Filenames must be upper case ASCII.  The data link layer uses
+         lower case "u" as a control character during MODEM7 name transmission.
+
+    *2 - Note: SEAdog (through version 4.51b) does not possess a state "XS0T".
+         It therefore calls XS0 from state BS2, resulting in a MODEM7 file name
+         being sent with no TeLink header on batch file transmissions when it
+         is not in SEAlink mode.
+
+    *3 - When no files remain, the sender responds to the receiver's NAK with
+         an EOT.  The EOT is not ACK/NAKed by the receiver.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            12
+   BATCH File Receiver
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | BR0 | TestSL   |                         | Send 'C',               | BR1 |
+    |     |          |                         |   Set T1 to 10 sec      |     |
+    |     |          |                         |   Set T2 to 120 sec     |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BR1 | CheckSL  |1| &gt; 2 sec with no data  | Send 'C'                | BR1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Timer T2 expired      | (MODEM7 FName recv MR0) | BR2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Character Waiting     | "Peek" char to CHR (*1) | BR4 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| Timer T1 expired      | (MODEM7 FName recv MR0) | BR2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BR2 | CheckFNm |1| no more files         | report files recd ok    | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Filename ok           | (Rcv file Telink XR0)   | BR3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Filename bad          | report name recv bad    | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BR3 | CheckFile|1| File received ok      |                         | BR0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| File received bad     | report file recv bad    | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | BR4 | FindType |1| CHR = NUL             | eat character,          | BR1 |
+    |     |          | |                       |   Reset T1 to 20 secs   |     |
+    |     |   (*2)   +-+-----------------------+-------------------------+-----+
+    |     |          |2| CHR = SOH             | (Rcv File SEAlink XR0B) | BR3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| CHR = SYN             | (Rcv File Telink XR0B)  | BR3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| CHR = EOT or          | eat character,          | exit|
+    |     |          | | CHR = SUB             |   report files recd ok  |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| CHR = Other char      | eat character           | BR1 |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    *1 - "Peek" a character means to place it in CHR but leave it in the input
+         buffer so the next read operation will re-read it.
+
+    *2 - "Eat" a character means to remove it from the input buffer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            13
+ G. Data Link Layer : Error-Free Data Transfer
+
+   1. Data Link Layer Data Definition : XMODEM/TeLink/SEAlink Blocks
+
+      XMODEM transfers are in blocks of 128 uninterpreted data bytes
+      preceded by a three byte header and followed by either a one byte
+      checksum or a two byte crc remainder.  XMODEM makes no provision  for
+      data streams which are not an integral number of blocks long.
+      Therefore, the sender pads streams whose length is not a multiple of
+      128 bytes with the end-of-file character (^Z for MS-DOS), and uses some
+      other means to convey the true data length to the receiver (e.g.
+      SEAlink or TeLink file info header block).
+
+      Data blocks contain sequence numbers so the receiver can ensure it has
+      the correct block.  Data block numbers are sequential unsigned eight bit
+      integers beginning with 01H and wrapping to 00H.  A TeLink or SEAlink
+      header block is given sequence number 00H.
+
+      For files which are attached to the mail packet (but not the mail packet
+      itself), if the sending system is aware of the file attributes as they
+      are known to the operating system, then the first block of the XMODEM
+      transfer may be a special TeLink block to transfer that information.
+      This block differs in that the first byte is a SYN character as
+      opposed to an SOH, and it is always sent checksum as opposed to CRC.
+      Should the receiver be unwilling to handle such information, after four
+      NAKs (or "C"s), the sender skips this special block and goes on to the
+      data itself.
+
+      In this extended protocol the TeLink header block may be replaced by
+      the SEAlink header block which conveys protocol negotiation information
+      in addition to the file attributes if both nodes implement SEAlink.
+
+
+
+                        XMODEM Data Block (CRC mode)
+       Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |        SOH  -  Start Of Header -  01H         |
+              +-----------------------------------------------+
+        1   1 |                 BlockNumber                   |
+              +-----------------------------------------------+
+        2   2 |               BlockComplement                 |
+              +-----------------------------------------------+
+        3   3 |                128 bytes  of                  |
+              ~                uninterpreted                  ~
+              |                    data                       |
+              +-----------------------------------------------+
+      131  83 |             CRC high order byte               |
+              +-----------------------------------------------+
+      132  84 |             CRC  low order byte               |
+              `-----------------------------------------------'
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            14
+                      XMODEM Data Block (Checksum mode)
+       Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |        SOH  -  Start Of Header -  01H         |
+              +-----------------------------------------------+
+        1   1 |                 BlockNumber                   |
+              +-----------------------------------------------+
+        2   2 |               BlockComplement                 |
+              +-----------------------------------------------+
+        3   3 |                128 bytes  of                  |
+              ~                uninterpreted                  ~
+              |                    data                       |
+              +-----------------------------------------------+
+      131  83 |                Checksum byte                  |
+              `-----------------------------------------------'
+
+
+                       TeLink File Descriptor Block
+       Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |       SYN  -  File Info Header -  16H         |
+              +-----------------------------------------------+
+        1   1 |                     00H                       |
+              +-----------------------------------------------+
+        2   2 |                     FFH                       |  dec  hex
+              +-----------------------------------------------+
+        3   3 |     File Length, least significant byte       |  0    0
+              +-----------------------------------------------+
+        4   4 | File Length, second to least significant byte |  1    1
+              +-----------------------------------------------+
+        5   5 |  File Length, second to most significant byte |  2    2
+              +-----------------------------------------------+
+        6   6 |      File Length, most significant byte       |  3    3
+              +-----------------------------------------------+
+        7   7 |            Creation Time of File              |  4    4
+              |                "DOS Format"                   |
+              +-----------------------------------------------+
+        9   9 |            Creation Date of File              |  6    6
+              |                "DOS Format"                   |
+              +-----------------------------------------------+
+       11   B |                 File  Name                    |  8    8
+              ~                  16 chars                     ~
+              |        left justified  blank filled           |
+              +-----------------------------------------------+
+       27  1B |                    00H                        | 24   18
+              +-----------------------------------------------+
+       28  1C |            Sending Program Name               | 25   19
+              ~                  16 chars                     ~
+              |         left justified  Null filled           |
+              +-----------------------------------------------+
+       44  2B |            01H (for CRC) or 00H               | 41   29
+              +-----------------------------------------------+
+       45  2C |                    fill                       | 42   2A
+              ~                  86 bytes                     ~
+              |                  all zero                     |
+              +-----------------------------------------------+
+      131  83 |                Checksum byte                  |
+              `-----------------------------------------------'
+
+
+
+
+
+                                                                            15
+      Offset           SEAink File Descriptor Block
+      dec hex
+              .-----------------------------------------------.
+        0   0 |       SOH  -  Start of Header -   01H         |
+              +-----------------------------------------------+
+        1   1 |                     00H                       |
+              +-----------------------------------------------+
+        2   2 |                     FFH                       |  dec  hex
+              +-----------------------------------------------+
+        3   3 |         File Length, (4 bytes, LSB first)     |  0    0
+              +-----------------------------------------------+
+        7   7 |            Creation Date/Time of File         |  4    4
+              |   (4 bytes, LSB first, seconds since 1979)    |
+              +-----------------------------------------------+
+       11   B |                 File  Name                    |  8    8
+              ~                  17 chars                     ~
+              |        left justified   Null filled           |
+              +-----------------------------------------------+
+       28  1C |            Sending Program Name               | 25   19
+              ~                  15 chars                     ~
+              |         left justified  Null filled           |
+              +-----------------------------------------------+
+       43  2B |            &gt; 0 if SLO Requested               | 40   28
+              +-----------------------------------------------+
+       44  2C |           &gt; 0 if RESYNC Supported             | 41   29
+              +-----------------------------------------------+
+       45  2D |           &gt; 0 if MACFLOW Supported            | 42   2A
+              +-----------------------------------------------+
+       46  2E |                    fill                       | 43   2B
+              ~                  85 bytes                     ~
+              |                  all zero                     |
+              +-----------------------------------------------+
+      131  83 |            CRC high order byte                |
+              +-----------------------------------------------+
+      132  84 |            CRC  low order byte                |
+              `-----------------------------------------------'
+  
+
+      Offset                SEAlink RESYNC packet
+      dec hex
+              .-----------------------------------------------.
+        0   0 |       SYN - Start of RESYNC packet - 16H      |
+              +-----------------------------------------------+
+        1   1 |     ASCII Decimal 128 byte block number in    |
+              ~     file to restart sending.  (No leading     ~
+        n     |     or trailing blanks, MSD first).           |
+              +-----------------------------------------------+
+        n+1   |       ETX -  End of RESYNC packet  - 03H      |
+              +-----------------------------------------------+
+        n+2   |     (*1)     CRC  low order byte              |
+              +-----------------------------------------------+
+        n+3   |     (*1)     CRC high order byte              |
+              `-----------------------------------------------'
+
+              *1 - CRC does not include the SYN or ETX and is
+                   in the reverse byte order from the CRC in a
+                   normal XMODEM data packet.  The following is
+                   a sample RESYNC packet for file block 27 (1BH).
+
+                     SYN   '2'   '7'   ETX  CRCLO CRCHI 
+                   .-----+-----+-----+-----+-----+-----.
+                   | 16H | 32H | 37H | 03H | 43H | 25H |
+                   `-----+-----+-----+-----+-----+-----'
+
+
+                                                                            16
+    Data Description language definitions of block types:
+
+      XMODEMData   =   XMODEMBlock    (* block of data with hdr and trailer *)
+                     | SEALinkBlock   (* SEALink File Descriptor Block *)
+                     | TeLinkBlock    (* TeLink File Descriptor Block *)
+                     | ReSyncBlock    (* SEAlink RESYNC request packet *)
+                     | ACK            (* acknowledge data received ok *)
+                     | NAK            (* negative ACK & poll 1st block *)
+                     | SEAlinkACK     (* acknowledge data received ok *)
+                     | SEAlinkNAK     (* negative ACK & poll 1st block *)
+                     | EOT            (* end of xfer, after last block *)
+                     | "C"            (* 43H *)
+
+
+      XMODEMBlock  = SOH              (* Start of Header, XMODEM Block *)
+                     blockNumber[1]   (* sequence, i'=mod( i+1, 256 ) *)
+                     blockCompl[1]    (* one's complement of blockNumber *)
+                     data[128]        (* uninterpreted user data block *)
+                     (CRC | Checksum) (* error detect/correction code *)
+
+
+      TeLinkBlock  = SYN              (* File Info Header *)
+                     00H              (* block no, must be first block *)
+                     FFH              (* one's complement of block no *)
+                     fileLength[4]    (* length of data in bytes *)
+                (*2) CreationTime[2]  (* time file last modified or zero *)
+                (*2) CreationDate[2]  (* date file last modified or zero *)
+                     fileName(16)     (* name of file, not vol or dir *)
+                     00H              (* header version number *)
+                     sendingProg(16)  (* name of program on send side *)
+                (*1) crcMode[1]       (* 01H for CRC 00H for Checksum *)
+                     fill[87]         (* zeroed *)
+                     Checksum         (* error detect/correction code *)
+
+    *1 -  Note that the crcMode is always set to 01H in current implementations
+          as all TeLink/XMODEM implementations use the CRC method.  Therefore,
+          it is always set to 01H by the sender, and is ignored by the receiver.
+
+    *2 -  CreationDate and CreationTime are MS-DOS format as follows:
+
+      CreationDate = year[.7]         (* 7 bits, years since 1980, 0-127  *)
+                     month[.4]        (* 4 bits, month of year, 1-12 *)
+                     day[.5]          (* 5 bits, day of month, 1-31 *)
+
+      CreationTime = hour[.5]         (* 5 bits, hour of day, 0-23 *)
+                     minute[.6]       (* 6 bits, minute of hour, 0-60 *)
+                     biSeconds[.2]    (* 6 bits, seconds/2, 0-29 *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            17
+    Data Description Language definition of the block types added by this
+    extended protocol specification:
+
+     SEALinkBlock  = SOH              (* File Info Header *)
+                     00H              (* block no, must be first block *)
+                     FFH              (* one's complement of block no *)
+                     fileLength[4]    (* length of data in bytes *)
+              (*1)   Creation[4]      (* Seconds since 1979 file last chgd *)
+                     fileName(17)     (* name of file, not vol or dir *)
+                     sendingProg(15)  (* name of program on send side *)
+                     SLO[1]           (* 01H for Overdrive supported *)
+                     RESYNC[1]        (* 01H for file Restart supported *)
+                     MACFLOW[1]       (* 01H for Macintosh flow supported *)
+                     fill[85]         (* zeroed *)
+                     CRC              (* error detect/correction code *)
+
+    *1 - Creation is a long integer number of seconds since January 1, 1979.
+
+     SEAlinkACK    = ACK              (* indicator data block received ok *)
+                     blockNumber[1]   (* sequence, i'=mod( i+1, 256 ) *)
+                     blockCompl[1]    (* one's complement of blockNumber *)
+
+     SEAlinkNAK    = NAK              (* indicator block not received ok *)
+                     blockNumber[1]   (* sequence, i'=mod( i+1, 256 ) *)
+                     blockCompl[1]    (* one's complement of blockNumber *)
+
+     ReSyncBlock   = SYN              (* File Restart Position *)
+                (*1) RestartBlock<20> (* ASCII decimal file block # *)
+                     ETX              (* End of block number text *)
+                     CRC(rev order)   (* error detection code *)
+
+     *1 - RestartBlock is a text ASCII version of the decimal block number
+          in the file desired.  Note:  The first block of the file is block 1.
+
+
+    Definitions of Single byte Character values used in protocol:
+
+      ACK          = 06H              (* acknowledge data received ok *)
+      NAK          = 15H              (* negative ACK & poll 1st block *)
+      SOH          = 01H              (* start of header, begins block *)
+      SYN          = 16H              (* start of TeLink file info blk *)
+      EOT          = 04H              (* end of xfer, after last block *)
+      ETX          = 03H              (* end of RESYNC request data field*)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            18
+    Block Verification calculated values used by this protocol:
+
+      CRC          = crc[2]           (* CCITT Cyclic Redundancy Check *)
+
+      Checksum     = checksum[1]      (* low 8 bits of sum of data bytes
+                                         using unsigned 8 bit arithmetic *)
+
+    Calculating Checksum
+    --------------------
+
+    For blocks which use a checksum to do error detection, the checksum is
+    calculated by initializing an accumulator to zero and doing successive
+    addition of each character in the data field.  Carry is discarded on
+    each addition.  The resulting 8 bit value is the checksum.
+
+    Calculating CRC
+    ---------------
+
+    For blocks which use CRC to do error detection, the CRC is calculated
+    using the CCITT V.41 generator polynomial.  An accumulator is initialized
+    to zero, and then each character of the data field is processed by the
+    CRC generator polynomial.  This process can be quite complex to explain,
+    but is not so complex in practice.  The following CRC routine is
+    given here as an aid to understanding the CRC generation process.
+
+    8086 assembler routine to implement CCITT V.41 CRC algorithm
+    ;---------------------------------------------------------------+
+    ;       CRCUPD - Update CRC value from character in AL          |
+    ;                                                               |
+    ;  CRC is calculated using the CCITT V.41 generator polynomial. |
+    ;    That polynomial is: X^16 + X^12 + X^5 + 1 (X^0)            |
+    ;                                                               |
+    ;  As an aid to understanding, remember that XOR is bitwise     |
+    ;    addition without carry.                                    |
+    ;---------------------------------------------------------------+
+    CRCVAL  DW      0                   ;16 bit CRC accumulator
+    ;
+    CRCUPD: PUSH    AX                  ;All registers preserved
+            PUSH    CX
+            PUSH    DX
+            MOV     DX,[CRCVAL]
+            XOR     DH,AL               ;init X^16 term
+            XOR     DL,DL
+            MOV     CX,8
+    CRCUP1: SHL     DX,1
+            JNC     CRCUP2
+            XOR     DX,1021h            ;X^12 + X^5 + 1
+    CRCUP2: LOOP    CRCUP1
+            XOR     DH,BYTE PTR[CRCVAL] ;finish X^16 term
+            MOV     [CRCVAL],DX         ;update CRC accumulator
+            POP     DX
+            POP     CX
+            POP     AX
+            RET
+
+
+
+
+
+
+
+
+
+
+
+                                                                            19
+ 2. Data Link Layer Protocol : XMODEM/TeLink/SEAlink Finite State Machines
+
+    The protocol is receiver driven, the receiver polling the sender for
+    each block.  If the receiver polls for the first block using a "C"
+    (43H) as  the poll character, it would prefer to have the CRC-CCITT V.41
+    polynomial remainder error detection code at the end of each block as
+    opposed to a one byte unsigned checksum.  The sender will respond to
+    the "C" poll if it can  comply. If the sender chooses checksum as
+    opposed to CRC, it waits for the receiver to poll with  NAK (15H).
+    Should the checksum method be preferable to the receiver, it polls
+    with NAK rather than "C".
+
+    The sender returns an EOT instead of a data block when no data remain.
+
+    With this extended implementation, the sender and the receiver may send
+    blocks or ACK/NAK responses while there is data being received, once the
+    SEAlink protocol has been negotiated.  This full duplex operation allows
+    the throughput gains of a sliding window protocol.  When SEAlink is not
+    set the window size of 1 prohibits data being sent at the same time and
+    restores the attributes of a standard XMODEM protocol.
+
+    ------------------
+    In this extended protocol, the FTS-0001 single state table
+    "XMODEM Sender" is replaced by two state tables.
+
+    The top level table is equivalent to the FTS-0001 XMODEM Sender table.
+    It in turn calls the new state table named "Transmitter ACK/NAK Check"
+    which implements the full duplex adaptive SEAlink/XMODEM dynamic switching
+    along with the Overdrive and file Restart sending features of the extended
+    protocol.
+
+    -----------------
+    In this extended protocol, the FTS-0001 single state table
+    "XMODEM Receiver" is replaced by three state tables.
+
+    The top level table is equivalent to the FTS-0001 XMODEM Receiver table.
+    It in turn calls the two new state tables named "Send NAK" and "Send ACK"
+    which implement the full duplex adaptive SEAlink/TeLink/XMODEM dynamic
+    switching along with the Overdrive and file Restart receiving features of
+    the extended protocol.
+
+
+    Caution!!!!
+    -----------
+    Many current implementations keep file block numbers as 16 bit numbers.
+    This limits the max file size to either 4 megabytes (if number is signed)
+    or 8 megabytes (if number is unsigned).  To handle files up to the maximum
+    size DOS allows (4 gigabytes) at least 25 bits plus sign are required for
+    these numbers.  Good practice is to make file block numbers 32 bit values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            20
+    XMODEM/TeLink/SEAlink - Sender
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XS0 | XmtStart |  Normal Entry Point     | reset SEAlink flag,     | XS1 |
+    |     |          |  for file send          |   SendBLK=1, ACKST=0,   |     |
+    |     |          |                         |   ACKBLK= -1, WINDOW=1, |     |
+    |     |          |                         |   ACKs Rcvd=0,          |     |
+    |     |          |                         |   NumNAK=0,             |     |
+    |     |          |                         |   T1=30 seconds,        |     |
+    |     |          |                    (*1) |   Build SEAlink hdr blk |     |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XS0T| XmTeStrt |  Alternate entry from   | reset SEAlink flag,     | XS1 |
+    |     |          |  Batch Send if TeLink   |   SendBLK=1, ACKST=0,   |     |
+    |     |          |  mode send required     |   ACKBLK= -1, WINDOW=1, |     |
+    |     |          |                         |   ACKs Rcvd=0,          |     |
+    |     |          |                         |   NumNAK=0,             |     |
+    |     |          |                         |   T1=30 seconds,        |     |
+    |     |          |                         |   Build TeLink hdr blk  |     |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XS1 | CheckACK |                         | (Check ACK/NAK AC0)     | XS2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XS2 | SendBlk  |1| NumNAK &gt; 4 &          | If header = SEAlink     | XS0T|
+    |     |   (*2)   | |   SendBLK = 0         +-------------------------+-----+
+    |     |          | |                       | If header = TeLink,     | XS2 |
+    |     |          | |                       |   NumNAK = 0,           |     |
+    |     |          | |                       |   Incr ACKBLK,          |     |
+    |     |          | |                       |   Incr SendBLK          |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| NumNAK &gt; 10           | report too many errors  | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Timer T1 expired      | report fatal timeout    | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| SendBLK &gt; Last Blk+1  |                         | XS3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| SendBLK &gt;ACKBLK+Window|                         | XS1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |6| SendBLK = Last Blk+1  | Send EOT, Incr SendBLK, | XS1 |
+    |     |          | |                       |   Set T1 to 30 seconds  |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |7| SLO set & SEAlink set | Send SendBLK, (*3)      | XS1 |
+    |     |          | |                       |   ACKBLK = SendBLK,     |     |
+    |     |          | |                       |   Incr SendBLK,         |     |
+    |     |          | |                       |   Set T1 to 60 seconds  |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |8| SLO reset or          | Send SendBLK, (*3)      | XS1 |
+    |     |          | |     SEAlink reset     |   Incr SendBLK,         |     |
+    |     |          | |                       |   Set T1 to 30 seconds  |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XS3 | WaitEnd  |1| ACKBLK &lt; Last Blk+1   |                         | XS1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ACKBLK = Last Blk+1   | report send success     | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    *1 - Build SEAlink Header block with RESYNC set.  Set SLO if line speed &gt;
+         2400 bps, reset SLO otherwise.
+
+    *2 - State (XS2.1) allows the receiver to refuse one or both header blocks.
+
+    *3 - If SendBLK = 0, then send the SEAlink (or TeLink) header block.
+         If SendBLK &gt; 0, send the corresponding 128 byte file data block where
+                         block #1 begins with the first byte of the file.
+
+                                                                            21
+    XMODEM/TeLink/SEAlink - Transmitter ACK/NAK Check
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC0 | ChkRcvd  |1| No character waiting  |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Character waiting     | Read character to CHR   | AC1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC1 | SLCheck  |1| ACKST &gt; 2             |                         | AC2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ACKST &lt;=2             |                         | AC6 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC2 | SLVerify |1| ARBLK8 = 1's comp(CHR)| ARBLK = SendBLK -       | AC3 |
+    |     |          | |                       | ((SendBLK-ARBLK8)&0FFh) |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ARBLK8 # 1's comp(CHR)| Reset SEAlink flag,     | AC6 |
+    |     |          | |                       |   WINDOW=1,             |     |
+    |     |          | |                       |   ACKST=0               |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC3 | SLACKNAK |1| ARBLK not valid (*1)  |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ACKST = 3             | Set SEALink flag,       | AC5 |
+    |     |     (*2) | |                       |   WINDOW = 6,           |     |
+    |     |          | |                       |   ACKBLK = ARBLK,       |     |
+    |     |          | |                       |   Incr ACKs Rcvd,       |     |
+    |     |          | |                       |   ACKST=0               |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| ACKST = 4             | SendBLK = ARBLK,        | AC4 |
+    |     |          | |                       |   ACKST=0               |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC4 | XMCheck  |1| NumNAK &lt; 4            | Set SEAlink Flag,       | exit|
+    |     |          | |                       |   WINDOW = 6            |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| NumNAK &gt;= 4           | Reset SEAlink flag,     | exit|
+    |     |          | |                       |   WINDOW = 1            |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC5 | SLOCheck |1| SLO Reset             |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ACKs Rcvd &lt; 10        |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| ACKs Rcvd &gt;= 10       | Reset SLO               | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC6 | SL1Check |1| ACKST = 1 or 2        | ARBLK8 = CHR,           | AC6 |
+    |     |          | |                       |   ACKST = ACKST+2       |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink reset         |                         | AC7 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| ACKST = 0             |                         | AC7 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| ACKST &gt; 2             |                         | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+                            (Continued on next page)
+
+    *1 - ARBLK is valid only if all of the following are true:
+
+         a. ARBLK &gt;= 0
+         b. ARBLK &lt;= SendBLK
+         c. ARBLK &gt;  SendBLK-128
+
+    *2 - Software error if ACKST is not 3 or 4 in state AC3
+
+
+                                                                            22
+    XMODEM/TeLink/SEAlink - Transmitter ACK/NAK Check
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC7 | ACKNAK   |1| CHR = ACK             | ACKST = 1               | AC8 |
+    |     |          | |                       |   NumNAK = 0            |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| CHR = NAK or 'C'      | Set CRC/Chksm if 1st,   | AC9 |
+    |     |     (*1) | |                       |   ACKST = 2,            |     |
+    |     |          | |                       |   Incr NumNAK,          |     |
+    |     |          | |                       |   Delay 0.6 seconds     |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |     (*1) |3| CHR = SYN             | Receive RESYNC packet,  | AC10|
+    |     |          | |                       |   ACKST = 0             |     |
+    |     |     (*2) +-+-----------------------+-------------------------+-----+
+    |     |          |4| CHR = other           |                         | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC8 | XMACK    |1| SEAlink set           |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink reset         | Incr ACKBLK             | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC9 | XMNAK    |1| SEAlink set           |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink reset         | SendBLK = ACKBLK+1      | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | AC10| RESYNC   |1| RESYNC pkt invalid    | Send NAK                | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| RESYNC pkt valid      | Set SEAlink flag,       | exit|
+    |     |          | |                       |   WINDOW = 6,           |     |
+    |     |          | |                       |   SendBLK = RESYNC Blk#,|     |
+    |     |          | |                       |   ACKBLK = SendBLK-1,   |     |
+    |     |          | |                       |   Send ACK              |     |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    *1 - If the output is buffered in local computer memory, any characters
+         which remain in the local buffer should be purged before leaving
+         states (AC7.2) or (AC7.3) to aid in resynchronizing the link.
+
+    *2 - If the implementation is honoring MACFLOW protocol, set the flag in
+         the SEAlink header block and add the following state to (AC7):
+
+    .-----+--------+---+-----------------------+-------------------------+-----.
+    | AC7 |        |3.5| CHR = ^S (13H) &      | Delay 10 seconds or     | exit|
+    |     |        |   |   SEAlink set &       |   until ^Q (11H) rcvd   |     |
+    |     |        |   |   ACKST = 0           |                         |     |
+    `-----+--------+---+-----------------------+-------------------------+-----'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                            23
+    XMODEM/TeLink/SEAlink - Receiver
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XR0 | RecInit  |                         | reset SEAlink flag,     | XR1 |
+    |     |          |                         |   reset SLO flag,       |     |
+    |     |          |                         |   reset RESYNC flag,    |     |
+    |     |          |                         |   set CRC flag,         |     |
+    |     |          |                         |   set blocknum=0,       |     |
+    |     |          |                         |   set WriteBLK=1,       |     |
+    |     |          |                         |   reset retry cnt       |     |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XR0B| BrecInit |  Alternate Entry from   | reset SEAlink flag,     | XR2 |
+    |     |          |  Batch Receive (BR4.2)  |   reset SLO flag,       |     |
+    |     |          |  or (BR4.3)             |   reset RESYNC flag,    |     |
+    |     |          |                         |   set CRC flag,         |     |
+    |     |          |                         |   set blocknum=0,       |     |
+    |     |          |                         |   set WriteBLK=1,       |     |
+    |     |          |                         |   reset retry cnt       |     |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | XR1 | RecStart |                         | (Send NAK SN0)          | XR2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XR2 | WaitFirst|1| 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | |   w/o valid input     |                         |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| &gt; 3 retries or 30 secs| reset CRC flag          | XR1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| EOT received          | (Send ACK SA0),         | exit|
+    |     |          | |                       |   report no file        |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |     (*1) |4| TeLink block recd     | (Send ACK SA0),         | XR3 |
+    |     |          | |                       |   reset retry cnt       |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |     (*2) |5| SEAlink block recd    | set SEAlink,            | XR4 |
+    |     |          | |                       |   set RESYNC as         |     |
+    |     |          | |                       |   indicated by header   |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |     (*3) |6| XMODEM data block 1   | Write block to file,    | XR3 |
+    |     |          | |   received            |   Incr WriteBLK,        |     |
+    |     |          | |                       |   Incr blocknum,        |     |
+    |     |          | |                       |   (Send ACK SA0),       |     |
+    |     |          | |                       |   reset retry cnt       |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |7| bad block or 2-10 secs| incr retry count        | XR1 |
+    |     |          | |   without input       |                         |     |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+                              (Continued on next page)
+
+    *1 - A TeLink header packet has the standard XMODEM data block format except
+         that it begins with an SYN instead of an SOH character and has a block
+         number of 0.  Note: SEAdog (through version 4.51b) does not possess
+         (XR2.4) and therefore will consider a TeLink header a bad block and
+         process it according to (XR2.7) when communicating with mailers which
+         do not do SEAlink protocol.
+
+    *2 - A SEAlink header packet has the standard XMODEM data block format
+    *3   except that is has a block number of 0. The first block is an XMODEM
+         data block if its block number is not 0.
+
+
+
+
+                                                                            24
+    XMODEM/TeLink/SEAlink - Receiver (cont.)
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XR3 | WaitBlock|1| 10 retries or 1 minute| report receive failure  | exit|
+    |     |          | |   w/o expected block  |                         |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| EOT received          | reset SLO flag,         | exit|
+    |     |          | |                       |   (Send ACK SA0)        |     |
+    |     |          | |                       |   report recd ok        | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| expected data         | Decrement blocknum,     | XR3 |
+    |     |          | |   block-1 received    |   (Send ACK SA0)        |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| expected data         | Write block to file,    | XR3 |
+    |     |          | |   block received      |   Incr WriteBLK,        |     |
+    |     |          | |                       |   (Send ACK SA0),       |     |
+    |     |          | |                       |   reset retry cnt       |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| SEAlink set &         | Discard block - resync  | XR3 |
+    |     |          | |   expected block+1 to |   in progress,          |     |
+    |     |          | |   expected block+127  | Send Conditional NAK(*5)|     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |6| bad block or 2-10 secs| (Send NAK SN0),         | XR3 |
+    |     |          | |   without input       |   incr retry cnt        |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XR4 | Restart  |1| Want entire file      | (Send ACK SA0),         | XR5 |
+    |     |          | |   or RESYNC not set   | reset retry cnt         |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Want to resume an     |  WriteBLK = file restart| XR5 |
+    |     |          | |   interrupted xfer    |    block number,        |     |
+    |     |          | |   and RESYNC is set   |  blocknum=WriteBLK&0FFh,|     |
+    |     |          | |                       |    (Send NAK SN0)       |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | XR5 | SetOvrdr |                         | Set SLO as indicated    | XR3 |
+    |     |          |                         |   by SEAlink header     |     |
+    `-----+----------+-------------------------+-------------------------+-----'
+    Note: The routine that receives a header/data block should do the following:
+
+    1. Report a bad block if the checksum or CRC is not correct or if the
+       physical layer encounters errors (e.g. parity, framing, etc.) regardless
+       of checksum or CRC.  Report a bad block if the length of the block is
+       less than expected (Use a 5 second timeout to detect short blocks).
+    2. If the block's sequence number does not match the complement, then
+       report a bad block if not in SEAlink. If in SEAlink mode don't report
+       this as a bad block, just restart the block search looking for SOH.
+       Check for SOH, BLK, ~BLK characters in a "sliding" fashion and keep
+       cycling until a valid start of block (or timeout) is detected before
+       assembling the remainder of the block.  This procedure makes a resync
+       occur much more rapidly, and with far fewer errors reported.
+    3. If the sequence number and block are good but not the expected number,
+       report state (XR3.3) if previous block.  If not in SEAlink, abort on any
+       other out of sequence block.  If in SEAlink, report back state (XR3.5)
+       or (XR3.6) as indicated by the out of sequence received block number.
+    4. If an EOT is received on a data block prior to the filesize specified
+       in the SEAlink or TeLink header block, a NAK should be issued to ensure
+       that spurious data did not cause a premature EOF.  A NAK should also
+       be issued for the first EOT received in an Xmodem transfer when the
+       final file size is not known.  A second EOT without intervening data
+       would ensure that the file really has been sent, and should be ACK'd.
+    5. If you last sent an ACK, then send a NAK here.  If you last sent a NAK
+       then only NAK evry 32 blocks after the first NAK.  This allows buffer
+       drain in overdrive.  Use (Send NAK SN0) to send the NAK.
+                                                                            25
+    XMODEM/TeLink/SEAlink - Send NAK
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SN0 | ClearLine|1| RESYNC flag set       | Send RESYNC packet      | SN3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink flag set      |                         | SN1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| &gt; 30 sec contin data  | report failure          | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| character waiting     | eat character           | SN0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| clear line            |                         | SN1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SN1 | SendNAK  |1| CRC flag set          | Send "C"                | SN2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| CRC flag reset        | send NAK                | SN2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SN2 | SEAlink  |1| SEAlink flag reset    |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink flag set      | send blocknum, ~blocknum| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SN3 | AckResync|1| Rcv ACK               |                         | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Rcv NAK               | Resend RESYNC packet    | SN3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Rcv Other Char        | eat character           | SN3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| No char for 10 secs   | Resend RESYNC packet    | SN3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| 30 seconds in SN3     |                         | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+    Note: RESYNC packet should send WriteBLK as its desired block number.
+
+
+    XMODEM/TeLink/SEAlink - Send ACK
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SA0 | ClearLine|1| SLO flag set          |                         | SA3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink flag set      |                         | SA1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| &gt; 30 sec contin data  | report failure          | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| character waiting     | eat character           | SA0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| No char waiting       |                         | SA1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SA1 | SendACK  |                         | Send ACK                | SA2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SA2 | SEAlink  |1| SEAlink flag reset    |                         | SA3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| SEAlink flag set      | send blocknum, ~blocknum| SA3 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SA3 | IncBlk   |                         | Incr blocknum           | exit|
+    `-----+----------+-------------------------+-------------------------+-----'
+
+
+
+
+                                                                            26
+ 3. Data Link Layer Protocol : MODEM7 Filename Finite State Machines
+    (There is no change to the MODEM7 state tables from FTS-0001).
+
+    MODEM7 Filename Sender
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MS0 | WaitNak  |1| 20 retries or 1 minute| filename send failed    | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| NAK received          | send ACK & 1st ch of fn | MS1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MS1 | WaitChAck|1| ACK rcd, fname done   | send SUB = 1AH          | MS2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ACK rcd, fname ~done  | send next ch of fname   | MS1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| other char or 1 sec   | send "u", incr retry cnt| MS0 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MS2 | WaitCksm |1| cksum recd and ok     | send ACK, report fn ok  | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| cksum recd but bad    | send "u", incr retry cnt| MS0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| no cksum in 1 sec     | send "u", incr retry cnt| MS0 |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+
+    MODEM7 Filename Receiver
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MR0 | SendNak  |1| 20 tries or 1 minute  | report filename failure | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2|                       | send NAK, incr try cnt  | MR1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MR1 | WaitAck  |1| rcd ACK               |                         | MR2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| rcd EOT               | report no files remain  | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| 5 secs & no ACK/EOT   |                         | MR0 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MR2 | WaitChar |1| recd EOT (can happen?)| report no files remain  | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| recd SUB              | send checksum byte      | MR3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| recd "u"              |                         | MR0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| recd char of name     | send ACK                | MR2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| no char in 1 second   |                         | MR0 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | MR3 | WaitOkCk |1| recd ACK within 1 sec | report recd filename ok | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| recd "u" or other char|                         | MR0 |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    SUB  is the ASCII character ^Z or 1AH.  The checksum is the unsigned low
+    order eight bits of the sum of the characters in the transferred filename
+    including the SUB.
+
+    Although 1 second timeouts are used successfully by Fido and SEAdog, some
+    fear that this is too small a value for some satellite and packet networks.
+
+                                                                            27
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

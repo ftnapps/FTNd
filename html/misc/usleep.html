@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<TITLE>System load and the usleep() call.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+		usleep.doc
+
+
+At some time when developping MBSE BBS I decided that background utilities
+did't need full speed to do their jobs. BBS utilities under DOS needed
+to run as fast as possible because you needed to bring the bbs down to run
+these programs and users couldn't login during that time.
+
+Starting with mball, the allfiles creator, I inserted code that does usleep(1)
+after each 5 processed files. The 1 microsecond is not really the time the
+program pauses, it's probably a lot longer. I think this depends on the 
+hardware type, (Intel, Sparc, Alpha etc) how long Linux will really suspends
+executing the utility.
+
+The program speed downgrade at the development machine that mball needed was
+3 times the original exection time, while system loading stayed under 30%.
+At that time the development machine is an 486DX2-66 with a Seagate ST32151N
+SCSI harddisk.
+
+The extra usleep code is only active if you run these utils with the -quiet
+switch and when this is set in mbsetup. See menu 1->5.
+With this switch, the program is mostly run by cron. If you onmit
+this switch, this is probably when you start the program manually, it will
+then always run at full speed, no matter what the setting in mbsetup is.
+
+If you have a fast system or don't care that the performance of your system 
+drops because of background processing, you can turn this future off with
+mbsetup in the global section. (menu 1->5).
+
+Remember, if you have a PII-400 MMX or so with IDE disks, you may still have
+performance problems and need to set that switch to yes. There is only one
+way to find out if you need it.
+
+Well, actually, I tested this on a Dell Latitude PII-266, setting the switch to
+yes gave better performance then no. Why? The CPU has more time for the slow
+IDE disk. With the slow switch on programs runs even faster then with the switch
+off. 
+
+Michiel.
+
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

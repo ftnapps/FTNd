@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+<TITLE>A Character Set Identifier For FidoNet Message Editors.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FSC-0050
+Version:  001
+Date:     14-Jul-90
+
+
+
+
+         A Character Set Identifier For FidoNet Message Editors
+
+                                Draft I
+
+                           Thomas Sundblom
+                          2:201/114@fidonet
+
+
+
+			  
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+   Purpose
+
+        This document should serve as a guide for the character set 
+        identifier, CHARSET hereafter, format for FidoNet message Editors.
+        The purpose behind CHARSET is related to my attempt to make it
+        easier for each reader of a FidoNet message to identify the 
+        characters used in the messages.
+
+        Since FidoNet messages aren't restricted to use any special character
+        sets in the messages, there will be differences between computer 
+        kinds and special country dependent characters. To avoid confusion
+        in such cases, I'm hereby introducing the CHARSET kludge.
+
+        There is no need that each FidoNet Message reader should be able
+        to understand every possible character set. If the reader can't
+        handle the special character set found in a message, then it should
+        use a default character set (as most readers do today).
+
+
+   Format
+
+        ^aCHARSET: <Character set identifier>
+
+   Sample
+
+        ^aCHARSET: ISO-11
+
+        Would identify that the message is written using the ISO-11 
+        character set, which relates to the character set mainly used
+        in Sweden.
+
+
+   Supported character sets
+
+        No special character set is specified, but it is recomended to
+        use the ISO numbering of the different character sets. Where no
+        ISO number is available, an easy to understand code should by used.
+
+
+   Character set identifier examples
+
+        ISO-6       Relates to plain ASCII 7 bit character set.
+        ISO-11      Swedish character set, 7 bit.
+        ISO-21      Germany character set, 7 bit.
+        ISO-69      French character set, 7 bit.
+
+        Other character set identifiers could be
+        PC-8        IBM PC complete character set.
+        ATARI       ATARI ST complete character set
+        AMIGA       AMIGA complete character set
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

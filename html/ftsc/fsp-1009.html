@@ -1,0 +1,142 @@
+<HTML>
+<HEAD>
+<TITLE>Year 2000 issues in FTN software.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FSP-1009
+Revision:       1
+Title:          Year 2000 issues in FTN software
+Author:         Michael Hohner, 2:2490/2520.17
+Revision Date:  29 December 1997
+Expiry Date:    29 December 1999
+----------------------------------------------------------------------
+Contents:
+                1. Introduction
+                2. Generating Fidonet timestamps
+                3. Interpreting Fidonet timestamps
+----------------------------------------------------------------------
+
+
+Status of this document
+-----------------------
+
+  This document is a Fidonet Standards Proposal (FSP).
+
+  This document specifies an optional Fidonet standard protocol for
+  the Fidonet community, and requests discussion and suggestions for
+  improvements.
+
+  This document is released to the public domain, and may be used,
+  copied or modified for any purpose whatever.
+
+
+Abstract
+--------
+
+  The year 2000 causes problems in many computer programs which use
+  two-digit year numbers. Current Fidonet software faces the very same
+  problems. This FSP specifies procedures which enable FTN software to
+  run without problems after the year 2000.
+
+
+1. Introduction
+---------------
+
+  Software using two-digit year numbers may cause problems in the year
+  2000. When the year number rolls over from "99" to "00", some
+  software may interpret the resulting year number as "1900" instead
+  of "2000". Such programs may contain code like this:
+
+     calendar_year = year_number + 1900;  /* wrong! */
+
+  Fidonet software faces the very same problem: the year number in
+  packed messages (see FTS-0001) has only two digits. Some programs
+  interpreting this number incorrectly may decide that messages from
+  the year 1900 are too old and discard them. Other programs probably
+  just display a wrong calendar year.
+
+  The long-term solution would be a transition to four-digit year
+  numbers. However, this would require new data formats and cause
+  every existing software to fail. So a short-term solution is
+  required, resulting in only minimal changes in software. This FSP
+  contains guidelines for proper year-number interpretation. The
+  author encourages all FTN software authors to check their software
+  for possible year-2000 problems (and release fixed versions during
+  the next three years).
+
+
+2. Generating Fidonet timestamps
+--------------------------------
+
+  This should not cause much headache. However, some software may use
+  the following algorithm:
+
+     year_number = calendar_year - 1900  /* wrong! */
+
+  This will result in a three-digit year number in 2000 and lead to
+  incorrect Fidonet timestamps.
+
+  One correct algorithm is:
+
+     year_number = calendar_year mod 100  /* correct! */
+
+
+3. Interpreting Fidonet timestamps
+----------------------------------
+
+  We can make use of the fact that Fidonet didn't exist before 1980,
+  i.e. no messages were created before 1980. So any year number
+  smaller than 80 can't mean "year 19xx", but can only mean "year
+  20xx". One algorithm for correct year number interpretation is:
+
+     if year_number < 80 then
+        calendar_year = 2000 + year_number
+     else
+        calendar_year = 1900 + year_number
+
+  Fidonet software should only use the calendar year for further
+  processing, not the year number from the timestamp.
+
+  This solution will work until 2080, giving us another 80+ years to
+  finally let some innovation happen in Fidonet.
+
+
+A. Contacting the author
+------------------------
+
+  The author may be contacted electronically at the following
+  addresses:
+
+  Fidonet:    2:2490/2520.17
+  Internet:   miho@osn.de
+
+  Suggestions, comments and corrections are always welcome.
+
+
+B. History
+----------
+
+  Rev.1, 19971229: Submitted as FSP.
+
+
+**********************************************************************
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,64 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - File Echo's Setup - File Groups.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 30-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - File Echo's Setup - File Groups.</H1>
+<P>
+
+<H3>Introduction.</H3>
+<P>
+File echo groups are to logically divide your file echo's for different 
+file distribution networks. It makes sense to select the groups by uplink and
+area file that is available for that file distribution network. By doing that 
+downlinks can connect areas that are not yet connected at your bbs but are
+available from your uplink. NOTE: uplink requests is not yet implemented.
+<P>&nbsp;<p>
+
+<h3>Cost Sharing.</H3>
+<P>
+With the setup of groups you can also specify the Cost Sharing for the
+files distribution. The unit cost is the cost for each transmitted file
+if the unit size field is zero, or the unit price per transmitted unit size.
+The final cost is multiplied with the "Add Prom." factor to add taxes or so.
+Also if your uplink sends advanced .tic files, the cost found in that .tic
+file will be added to the cost as well. Further you can set the final price
+to divide between your downlinks or let them all pay the full price.
+
+<H3>File Group Setup.</H3>
+<P>
+<pre>
+<strong>Name      </strong>File Echo Group name.
+<strong>Comment   </strong>The description of that group.
+<strong>Active    </strong>If this group is active.
+<strong>Use Aka   </strong>The Fidonet aka to use for this group
+<strong>Uplink    </strong>The Fidonet aka of the uplink.
+<strong>Areas     </strong>The name of the areas file (in ~/etc).
+<strong>Unit Cost </strong>The cost per unit.
+<strong>Unit Size </strong>The size in Kbytes per unit.
+<strong>Add Prom. </strong>The prommilage to add to the cost.
+<strong>Divide    </strong>Divide cost over downlinks.
+<strong>Deleted   </strong>If this group must be deleted.
+</pre>
+<p>
+<img src="../images/fegroup.gif" width="589" height="343">
+<P>
+
+<A HREF="tic.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to File Echo's Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,536 @@
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+AWK = @AWK@
+CC = @CC@
+COMPRESS = @COMPRESS@
+GROUP = @GROUP@
+GZIP = @GZIP@
+LEX = @LEX@
+LOG_COMPRESS = @LOG_COMPRESS@
+LOG_COMPRESSEXT = @LOG_COMPRESSEXT@
+MAKEINFO = @MAKEINFO@
+OWNER = @OWNER@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+YACC = @YACC@
+
+EXTRA_DIST = README
+SUBDIRS = .
+
+noinst_PROGRAMS = mbcico mbout
+
+mbcico_SOURCES = zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c xmsend.c xmrecv.c m7recv.c m7send.c hydra.c answer.c chat.c dial.c dietifna.c emsidat.c filelist.c openfile.c openport.c opentcp.c rdoptions.c yoohoo.c recvbark.c respfreq.c sendbark.c tcp.c tcpproto.c wazoo.c filetime.c ftsc.c atoul.c portsel.c ttyio.c lutil.c scanout.c emsi.c ulock.c callstat.c session.c call.c callall.c mbcico.c zmodem.h binkp.h config.h statetbl.h xmsend.h xmrecv.h m7recv.h m7send.h hydra.h answer.h chat.h dial.h dietifna.h emsidat.h filelist.h openfile.h openport.h opentcp.h rdoptions.h yoohoo.h recvbark.h respfreq.h sendbark.h tcp.h tcpproto.h wazoo.h filetime.h ftsc.h atoul.h portsel.h ttyio.h lutil.h scanout.h emsi.h ulock.h callstat.h session.h call.h callall.h mbcico.h
+
+
+mbout_SOURCES = outstat.c nlinfo.c mbout.c scanout.c callstat.c outstat.h nlinfo.h scanout.h callstat.h
+
+
+LDADD = ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(noinst_PROGRAMS)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I..
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+mbcico_OBJECTS =  zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o xmsend.o \
+xmrecv.o m7recv.o m7send.o hydra.o answer.o chat.o dial.o dietifna.o \
+emsidat.o filelist.o openfile.o openport.o opentcp.o rdoptions.o \
+yoohoo.o recvbark.o respfreq.o sendbark.o tcp.o tcpproto.o wazoo.o \
+filetime.o ftsc.o atoul.o portsel.o ttyio.o lutil.o scanout.o emsi.o \
+ulock.o callstat.o session.o call.o callall.o mbcico.o
+mbcico_LDADD = $(LDADD)
+mbcico_DEPENDENCIES =  ../lib/libmemwatch.a ../lib/libclcomm.a \
+../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
+mbcico_LDFLAGS = 
+mbout_OBJECTS =  outstat.o nlinfo.o mbout.o scanout.o callstat.o
+mbout_LDADD = $(LDADD)
+mbout_DEPENDENCIES =  ../lib/libmemwatch.a ../lib/libclcomm.a \
+../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
+mbout_LDFLAGS = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  README Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+SOURCES = $(mbcico_SOURCES) $(mbout_SOURCES)
+OBJECTS = $(mbcico_OBJECTS) $(mbout_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps mbcico/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-noinstPROGRAMS:
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+
+distclean-noinstPROGRAMS:
+
+maintainer-clean-noinstPROGRAMS:
+
+.c.o:
+	$(COMPILE) -c $<
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+mbcico: $(mbcico_OBJECTS) $(mbcico_DEPENDENCIES)
+	@rm -f mbcico
+	$(LINK) $(mbcico_LDFLAGS) $(mbcico_OBJECTS) $(mbcico_LDADD) $(LIBS)
+
+mbout: $(mbout_OBJECTS) $(mbout_DEPENDENCIES)
+	@rm -f mbout
+	$(LINK) $(mbout_LDFLAGS) $(mbout_OBJECTS) $(mbout_LDADD) $(LIBS)
+
+# This directory's subdirectories are mostly independent; you can cd
+# into them and run `make' without going through this Makefile.
+# To change the values of `make' variables: instead of editing Makefiles,
+# (1) if the variable is set in `config.status', edit `config.status'
+#     (which will cause the Makefiles to be regenerated when you run `make');
+# (2) otherwise, pass the desired values on the `make' command line.
+
+@SET_MAKE@
+
+all-recursive install-data-recursive install-exec-recursive \
+installdirs-recursive install-recursive uninstall-recursive  \
+check-recursive installcheck-recursive info-recursive dvi-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+maintainer-clean-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	rev=''; list='$(SUBDIRS)'; for subdir in $$list; do \
+	  rev="$$subdir $$rev"; \
+	  test "$$subdir" = "." && dot_seen=yes; \
+	done; \
+	test "$$dot_seen" = "no" && rev=". $$rev"; \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$rev; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	   || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+tags-recursive:
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+	  test "$$subdir" = . || (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
+	done
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SUBDIRS)'; for subdir in $$list; do \
+   if test "$$subdir" = .; then :; else \
+	    test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
+   fi; \
+	done; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = mbcico
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+	for subdir in $(SUBDIRS); do \
+	  if test "$$subdir" = .; then :; else \
+	    test -d $(distdir)/$$subdir \
+	    || mkdir $(distdir)/$$subdir \
+	    || exit 1; \
+	    chmod 777 $(distdir)/$$subdir; \
+	    (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) top_distdir=../$(top_distdir) distdir=../$(distdir)/$$subdir distdir) \
+	      || exit 1; \
+	  fi; \
+	done
+answer.o: answer.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h lutil.h \
+	session.h config.h answer.h openport.h portsel.h dial.h \
+	rdoptions.h mbcico.h
+atoul.o: atoul.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h atoul.h
+binkp.o: binkp.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/dbnode.h ../lib/clcomm.h ttyio.h \
+	session.h statetbl.h config.h emsi.h openfile.h respfreq.h \
+	filelist.h opentcp.h rdoptions.h lutil.h binkp.h
+call.o: call.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/records.h ../lib/common.h \
+	../lib/clcomm.h ../lib/dbnode.h session.h callstat.h call.h \
+	config.h dial.h lutil.h portsel.h openport.h opentcp.h \
+	rdoptions.h
+callall.o: callall.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	config.h ../lib/clcomm.h scanout.h lutil.h callstat.h callall.h
+callstat.o: callstat.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/clcomm.h ../lib/common.h callstat.h
+chat.o: chat.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/records.h ../lib/common.h \
+	../lib/clcomm.h config.h portsel.h chat.h ttyio.h
+dial.o: dial.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/records.h ../lib/common.h \
+	../lib/clcomm.h ../lib/dbnode.h portsel.h config.h chat.h \
+	ttyio.h session.h dial.h
+dietifna.o: dietifna.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h emsi.h dietifna.h respfreq.h \
+	filelist.h xmrecv.h xmsend.h
+emsi.o: emsi.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/records.h ../lib/common.h \
+	../lib/dbnode.h ../lib/clcomm.h ttyio.h session.h statetbl.h \
+	config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h
+emsidat.o: emsidat.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h emsi.h \
+	session.h lutil.h config.h emsidat.h filetime.h
+filelist.o: filelist.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/clcomm.h ../lib/common.h config.h session.h filelist.h
+filetime.o: filetime.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h filetime.h
+ftsc.o: ftsc.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/records.h ../lib/common.h \
+	../lib/clcomm.h session.h ttyio.h statetbl.h config.h ftsc.h \
+	rdoptions.h recvbark.h filelist.h sendbark.h respfreq.h \
+	xmrecv.h xmsend.h
+hydra.o: hydra.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h session.h filelist.h filetime.h ttyio.h \
+	statetbl.h config.h emsi.h openfile.h lutil.h respfreq.h \
+	mbcico.h hydra.h
+lutil.o: lutil.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h lutil.h
+m7recv.o: m7recv.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h statetbl.h ttyio.h m7recv.h
+m7send.o: m7send.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h statetbl.h ttyio.h m7send.h
+mbcico.o: mbcico.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
+	../lib/dbftn.h config.h answer.h portsel.h call.h callall.h \
+	lutil.h mbcico.h session.h
+mbout.o: mbout.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
+	../lib/dbftn.h outstat.h nlinfo.h
+nlinfo.o: nlinfo.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h nlinfo.h
+openfile.o: openfile.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
+	../lib/common.h config.h lutil.h openfile.h
+openport.o: openport.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ulock.h ttyio.h openport.h
+opentcp.o: opentcp.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h session.h \
+	ttyio.h openport.h opentcp.h
+outstat.o: outstat.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h \
+	../lib/dbftn.h scanout.h callstat.h outstat.h
+portsel.o: portsel.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h portsel.h
+rdoptions.o: rdoptions.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbnode.h portsel.h \
+	session.h config.h
+recvbark.o: recvbark.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h statetbl.h recvbark.h \
+	respfreq.h filelist.h
+respfreq.o: respfreq.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h session.h lutil.h config.h \
+	atoul.h respfreq.h filelist.h
+scanout.o: scanout.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ../lib/dbftn.h config.h \
+	scanout.h lutil.h
+sendbark.o: sendbark.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h statetbl.h sendbark.h \
+	xmrecv.h
+session.o: session.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ttyio.h statetbl.h emsi.h \
+	ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h
+tcp.o: tcp.c ../lib/libs.h ../lib/../config.h ../lib/../lib/memwatch.h \
+	../lib/structs.h ../lib/common.h ../lib/clcomm.h ttyio.h \
+	session.h statetbl.h config.h emsi.h respfreq.h filelist.h \
+	tcpproto.h tcp.h
+tcpproto.o: tcpproto.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h config.h emsi.h lutil.h \
+	openfile.h filelist.h tcpproto.h
+ttyio.o: ttyio.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/common.h ../lib/clcomm.h ttyio.h lutil.h
+ulock.o: ulock.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/clcomm.h
+wazoo.o: wazoo.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h statetbl.h config.h emsi.h \
+	respfreq.h filelist.h wazoo.h zmodem.h
+xmrecv.o: xmrecv.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h session.h ttyio.h statetbl.h config.h lutil.h \
+	openfile.h m7recv.h xmrecv.h filetime.h
+xmsend.o: xmsend.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h session.h ttyio.h statetbl.h xmsend.h m7send.h \
+	filelist.h filetime.h
+yoohoo.o: yoohoo.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/records.h \
+	../lib/clcomm.h ../lib/common.h ../lib/dbnode.h statetbl.h \
+	ttyio.h session.h config.h emsi.h hydra.h rdoptions.h wazoo.h \
+	dietifna.h yoohoo.h
+zmmisc.o: zmmisc.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h zmodem.h
+zmrecv.o: zmrecv.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
+	../lib/common.h lutil.h ttyio.h session.h zmodem.h config.h \
+	emsi.h openfile.h openport.h
+zmrle.o: zmrle.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/clcomm.h \
+	../lib/common.h ttyio.h session.h zmodem.h
+zmsend.o: zmsend.c ../lib/libs.h ../lib/../config.h \
+	../lib/../lib/memwatch.h ../lib/structs.h ../lib/common.h \
+	../lib/clcomm.h ttyio.h session.h zmodem.h lutil.h emsi.h \
+	filelist.h
+
+info-am:
+info: info-recursive
+dvi-am:
+dvi: dvi-recursive
+check-am: all-am
+check: check-recursive
+installcheck-am:
+installcheck: installcheck-recursive
+install-exec-am: install-exec-local
+install-exec: install-exec-recursive
+
+install-data-am:
+install-data: install-data-recursive
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-recursive
+uninstall-am:
+uninstall: uninstall-recursive
+all-am: Makefile $(PROGRAMS)
+all-redirect: all-recursive
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs: installdirs-recursive
+installdirs-am:
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
+		mostlyclean-tags mostlyclean-generic
+
+mostlyclean: mostlyclean-recursive
+
+clean-am:  clean-noinstPROGRAMS clean-compile clean-tags clean-generic \
+		mostlyclean-am
+
+clean: clean-recursive
+
+distclean-am:  distclean-noinstPROGRAMS distclean-compile distclean-tags \
+		distclean-generic clean-am
+
+distclean: distclean-recursive
+
+maintainer-clean-am:  maintainer-clean-noinstPROGRAMS \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-generic distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-recursive
+
+.PHONY: mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
+clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile install-data-recursive \
+uninstall-data-recursive install-exec-recursive \
+uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
+all-recursive check-recursive installcheck-recursive info-recursive \
+dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
+maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
+dvi-am dvi check check-am installcheck-am installcheck \
+install-exec-local install-exec-am install-exec install-data-am \
+install-data install-am install uninstall-am uninstall all-redirect \
+all-am all installdirs-am installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+install-exec-local:
+	$(mkinstalldirs) $(bindir)
+	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 4751 mbcico $(bindir)
+	$(INSTALL) -s -o @OWNER@ -g @GROUP@ -m 0711 mbout  $(bindir)
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

@@ -1,0 +1,26 @@
+/*
+ * Example stylesheet MBSE BBS file listings.
+ */
+
+
+BODY      { background: beige }
+
+/*
+ * H1 is the header in the area pages, H2 in the main page.
+ */
+H1        { color: red;   font-family: Arial; font-size: 13pt;  font-weight: bold }
+H2        { color: black; font-family: Arial; font-size: 13pt;  font-weight: bold }
+
+A:link	  { color: blue }
+A:visited { color: blue }
+A:active  { color: red  }
+
+/*
+ * The look and feel of the file listings. Use a fixed font in the TD
+ * fields, not Truetype or it will look ugly.
+ */
+TABLE     { background: #CCCCCC }
+TH        { background: #99CCFF; font-family: Helvetica }
+TH.head   { background: #FF9900; font-family: Helvetica }
+TD        { font-family: Fixed; font-size: 12pt }
+

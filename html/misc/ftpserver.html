@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>Howto setup an FTP server to work with MBSE BBS.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 06-Jun-2001</h5>
+<P>&nbsp;<P>
+
+<H1>How to setup an FTP server to work with MBSE BBS.</H1>
+<P>
+
+In order to let MBSE BBS and your FTP server to both function together you must
+organize a special file structure. Note that even if you don't setup an FTP
+server you must still create a structure like this for the fidonet mailer,
+if you don't, <strong>mail and files will get lost!</strong>
+Note that this description is written for wu-ftpd, on your distribution there
+may be another ftpd installed. <font color=red><u>Don't use mbftpd yet!</u></font>
+<P>
+<H4>The filestructure I used is as follows:</H4>
+<PRE>
+/var/spool/mbse/ftp/pub/dos_util/dos_4dos	- Public download areas
+               |   |   |        /dos_disk
+               |   |   |        /dos_file
+               |   |   /virnet/mcafee
+               |   |          /win16
+               |   |          /win32
+               |   /bin				- FTP bin directory
+               |   /etc				- FTP etc directory
+               |   /incoming			- FTP public upload.
+               /mail/out			- Your default outbound
+               |    /out.009			- Outbound Zone 9
+               |    /inbound			- Inbound directory
+               /raonly/upload			- Non-public download areas
+               |      /sysop
+               |      /logfiles
+               /tic_queue			- Queue for .tic files.
+
+</PRE>
+
+In order to give DOS style names for fidonet sessions you must set the
+DOS path and Unix path in <strong>mbsetup</strong> (1.3.11 and 1.3.12) to 
+<strong>"m:"</strong> and <strong>"/var/spool/mbse"</strong>. Note that to get 
+forwarding of .tic files to work the <strong>tic_queue</strong> must be a
+subdirectory of "/var/spool/mbse" too. You could actually use any drive letter for
+the DOS path.
+<P>
+This means that a fidonet file attach from the dos_4dos public download 
+directory shall get the subject "M:\FTP\PUB\DOS_UTIL\DOS_4DOS\COMMAND.ZIP".
+
+<P>
+As you can see, anonymous ftp users can't get to the mail, non-public
+downloads etc. Normally, your BBS users have unix accounts and will be able
+to do a ftp login and access any directory on your system. Because the bbs
+users have <b>mbsebbs</b> as their shell and this shell is not in the file
+<b>/etc/shells</b> the ftp daemon will not let the bbs users in. So even
+your own bbs users must login as anonymous to get files from the ftp server.
+<P>
+Note the following directory permissions MUST BE SET!!!!::: See also
+the man pages for the DARPA ftpd server.
+<P>
+
+<PRE>
+Directory               	owner group mode perms
+------------------------------- ----- ----- ---- ----------
+/var/spool/mbse			mbse  bbs   0755 drwxr-xr-x
+/var/spool/mbse/ftp		root  wheel 0555 dr-xr-xr-x
+/var/spool/mbse/ftp/bin		root  wheel 0555 dr-xr-xr-x
+/var/spool/mbse/ftp/bin/ls	root  bin   0111 ---x--x--x
+/var/spool/mbse/ftp/etc		root  root  0555 dr-xr-xr-x
+/var/spool/mbse/ftp/etc/passwd	root  root  0444 -r--r--r--
+/var/spool/mbse/ftp/etc/group	root  root  0444 -r--r--r--
+/var/spool/mbse/ftp/pub		mbse  bbs   0775 drwxrwxr-x
+/var/spool/mbse/ftp/incoming   	ftp   users 0755 drwxr-xr-x
+
+</PRE>
+Note that all subdirectories under ../pub also must be owned by <strong>mbse
+</strong> and group <strong>bbs</strong> and have at least mode 775 as long 
+as it are real bbs subdirectories. The bbs will maintain these directories 
+automatic and must have the rights to do so.
+
+<P>
+In the /var/spool/mbse/ftp/etc/group file, add the group bbs so that your directory
+listings give the proper groupname instead of a number.
+<P>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

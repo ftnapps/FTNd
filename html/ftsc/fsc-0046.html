@@ -1,0 +1,227 @@
+<HTML>
+<HEAD>
+<TITLE>A Product Identiefier for FidoNet Message Handlers.</TITLE>
+</HEAD>
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FSC-0046
+Version:  005
+Date:     30-Aug-94
+
+
+
+
+
+
+
+
+            A Product Idenfifier for FidoNet Message Handlers
+
+                            Joaquim Homrighausen
+                       2:270/17@fidonet or joho@abs.lu
+
+                              August 30, 1994
+
+         Copyright 1994 Joaquim Homrighausen; All rights reserved.
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+    Purpose
+
+    This document should serve as a guide for the product identfier, PID
+    hereafter, format for FidoNet message handlers. The purpose behind PIDs
+    is related to my attempt to remove the requirement of Origin lines in
+    conference mail messages.
+
+    While I fully understand that this won't happen in all conferences, I
+    would like to provide the facility to those who can use it (i.e. for
+    conferences where all the participants are using software that supports
+    messages without origin lines).
+
+    Another use for PIDs is to minimize the excessive amount of information
+    some programs put on the tear lines which increases overall
+    transportation cost and time of conference mail.
+
+
+    PID
+
+    A PID replaces the program identifier often seen on the tear line of
+    conference mail messages and is hidden behind a ^A (ASCII SOH, 01h).
+    This also allows for better tracking of software causing problems in
+    conferences.
+
+:   Only one PID per message is allowed and should only be added by the
+:   program that creates the message. I.e. programs passing the message on
+:   to someone else may not add additional PIDs. If a PID is added, no
+:   program information may be present after the tear line.
+
+    A PID also offers the ability to add serial numbers to identify a
+    specific copy of a program as being the source of a message with little
+    or no effort.
+
+
+    Format
+
+      ^APID: <pID> <version>[ <serial#>]<CR>
+
+
+    Sample
+
+      ^APID: FM 2.11.b<CR>
+
+      Would identify FrontDoor's editor, beta version 2.11 and replace:
+
+       --- FM 2.11 (beta)
+
+
+    Fields
+
+    pID         The ID of the product responsible for creating the message.
+                This should be kept as short as possible. The maximum
+                length for this field is 10 characters.
+
+    version     The version of the product including any alpha, beta, or
+                gamma status. Only the relevant part of the version should
+                be included. I.e. 1.00 should be expressed as 1, 1.10 as
+                1.1 and 1.01 as 1.01. Alpha, beta, or gamma status should
+                be expressed by appending a / or . followed by a, b, or g
+                and optionally a revision indicator, such as a1, b2, etc.
+                The maximum length for this field is 10 characters.
+
+    serial#     The serial number of the product, omitted if irrelevant
+                or zero. The maximum length for this field is ten (10)
+                characters.
+
+
+    TID
+
+    TIDs or "Tosser IDs" started to appear shortly after the first
+    revision of this document was released. They are added by Conference
+    Mail ("EchoMail") processors when a message is exported from the
+    local message base and injected into the network distribution scope
+    for a conference.
+
+    When a Conference Mail processor adds a TID to a message, it may not
+    add a PID. An existing TID should, however, be replaced. TIDs follow
+    the same format used for PIDs, as explained above.
+
+
+    List of products
+
+    The accompanying file, PIDLIST.TXT, is a list of products known to
+    support the PID proposal. Software authors are encouraged to inform
+    the author of this document of changes and additions to this list.
+
+     --- end of file "fsc-0046.005" ---
+</PRE>
+<HR>
+<PRE>
+Document: PIDLIST.TXT (FSC-0046)
+Date:     30-Aug-94
+
+
+
+                     A list of used product idenfifiers
+
+                            Joaquim Homrighausen
+                      2:270/17@fidonet or joho@abs.lu
+
+
+
+Product identifiers
+
+Product                Version  ID        Author
+-----------------------------------------------------------------------------
+!!MessageBase           1.6+    !!MB      Holger Lembke          2:240/500.20
+Alert                   2.1+    Alert     Richard Kail           2:310/25.2
+ANet                    921213+ ANet      Thomas Ekstroem        2:201/411
+ArcMail RISC OS         1.04+   AM        Philip Blundell        2:440/34.4
+Artmail Mailer System   1.00+   ART       Klaus Landefeld        2:247/402
+Auto Message Taker      1.00+   AMT       Patrik Torstensson     n/a
+AVALON                  3.10+   AVALON    Stephan Slabihoud      2:2401/103.6
+CrossPoint              2.10+   XP        Peter Mandrella        2:243/97.80
+EchoSprint              1.02+   ES        Ben Elliston           3:620/262
+Enhanced Mail MAnager   .01+    EMMA      Johan Zwiekhorst       2:292/118
+Enhanced Message EDitor .02+    EMED      Johan Zwiekhorst       2:292/118
+EZMail                  .67+    EZMail    Torben Paving          2:234/41
+F_POINT                 1.1+    F_POINT   Florian Rupp           2:248/107.2
+FastEcho                1.21a+  FastEcho  Tobias Burchhardt      2:245/39
+FileScan                1.5+    FileScan  Matthias Duesterhoeft  2:241/4513
+Freqit (Windows)        1.0+    FIW       Marvin Hart            1:106/462
+Freqit (MS-DOS)         1.0+    FID       Marvin Hart            1:106/462
+FrontDoor APX           1.00+   FDAPX     Joaquim Homrighausen   2:270/17
+FrontDoor (Editor)      2.00+   FM        Joaquim Homrighausen   2:270/17
+FrontDoor (Mailer)      2.00+   FD        Joaquim Homrighausen   2:270/17
+FrontEnd FX             1.00+   FEFX      Eric Theriault         1:132/220
+GEcho                   1.00+   GE        Gerard van der Land    2:2802/110
+GeeMail                 2.00+   GeeMail   Lech Szychowski        2:480/4.7
+HbToSca                 1.00+   HTS       Jani Laatikainen       2:220/150
+HyperBBS                2.00+   HyperBBS  Jani Laatikainen       2:220/150
+JetMail                 1.00+   JetMail   Daniel Roesen          2:243/93.8
+LazyBBS                 .5+     LazyBBS   Franck Arnaud          2:320/100
+Mail FX                 1.00+   MFX       Eric Theriault         1:132/220
+MsgTrack                3.20+   MT        Andrew Farmer          1:243/1
+NewsFlash               1.01+   NwF       Chris Lueders          2:2402/330
+NodeDiff Processor      3.00+   NDP       Serge Vikulov          2:5080/5
+Notify                  2.1     Notify    Frank Schuhardt        2:247/160
+OFFFax                  3.03    OFFFax    Frank Schuhardt        2:247/160
+Pobble                  0.15+   Pobble    Josh Parsons           3:771/340
+QBBed                   2.64+   qbbed     Werner Berghofer       2:310/90.100
+RemoteAccess            1.10+   RA        Andrew Milner          2:270/18
+RASS                    1.00+   RASS      Yossi Gottlieb         2:403/139.75
+SendFile                1.00+   SendFile  Mike Shoyher           2:5020/17.3
+Synchronet              1.00+   SYNC      Rob Swindell           1:103/705
+TB-Edit                 1.10+   TB-Edit   Arjen Lentz            2:283/512
+TB-Mailer               1.97+   TB-Mailer Arjen Lentz            2:283/512
+TB-Point                .10+    TB-Point  Arjen Lentz            2:283/512
+TechBBS                 1.00    TECHBBS   Marcel Tegelaar        2:281/409
+TechMail                1.00    TECHMAIL  Raymond van der Holst  2:281/409.2
+TosScan                 1.10+   TosScan   Joaquim Homrighausen   2:270/17
+TPCS                    .89b    TPCS      Krister Hansson-Renaud 2:201/201.7
+                                          Mikael Kjellstrom      2:201/201.10
+XRobot                  3.00+   XRobot    Joaquim Homrighausen   2:270/17
+Xrs Alternative Packer  1.04+   XAP       Jeroen Smulders        2:512/1.8
+ZeroToss                1.00    ZeroToss  Jeff Masud             1:103/115
+-----------------------------------------------------------------------------
+
+
+Product identifier registration
+
+Simply fill in the required information and send this form to the author of
+this document via private netmail.
+
+ Product: _________________________________________
+
+ Version: __________
+
+PID info: _________________________________________
+
+  Author: _________________________________________
+
+ Address: ___________________________ (eMail address)
+
+--- end of file "pidlist.txt" ---
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

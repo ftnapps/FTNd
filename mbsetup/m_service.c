@@ -1,0 +1,435 @@
+/*****************************************************************************
+ *
+ * File ..................: m_service.c
+ * Purpose ...............: Service Setup
+ * Last modification date : 30-Apr-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MB BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/records.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "screen.h"
+#include "mutil.h"
+#include "ledit.h"
+#include "stlist.h"
+#include "m_global.h"
+#include "m_service.h"
+
+
+int	ServiceUpdated;
+
+
+/*
+ * Count nr of servrec records in the database.
+ * Creates the database if it doesn't exist.
+ */
+int CountService(void)
+{
+	FILE	*fil;
+	char	ffile[81];
+	int	count;
+
+	sprintf(ffile, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	if ((fil = fopen(ffile, "r")) == NULL) {
+		if ((fil = fopen(ffile, "a+")) != NULL) {
+			servhdr.hdrsize = sizeof(servhdr);
+			servhdr.recsize = sizeof(servrec);
+			servhdr.lastupd = time(NULL);
+			fwrite(&servhdr, sizeof(servhdr), 1, fil);
+			memset(&servrec, 0, sizeof(servrec));
+			sprintf(servrec.Service, "UUCP");
+			servrec.Action = EMAIL;
+			servrec.Active = TRUE;
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			sprintf(servrec.Service, "areamgr");
+			servrec.Action = AREAMGR;
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			sprintf(servrec.Service, "gecho");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			sprintf(servrec.Service, "fmail");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			servrec.Action = FILEMGR;
+			sprintf(servrec.Service, "allfix");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			sprintf(servrec.Service, "mbtic");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			sprintf(servrec.Service, "raid");
+			fwrite(&servrec, sizeof(servrec), 1, fil);
+			fclose(fil);
+			return 6;
+		} else
+			return -1;
+	}
+
+	fread(&servhdr, sizeof(servhdr), 1, fil);
+	fseek(fil, 0, SEEK_END);
+	count = (ftell(fil) - servhdr.hdrsize) / servhdr.recsize;
+	fclose(fil);
+
+	return count;
+}
+
+
+
+/*
+ * Open database for editing. The datafile is copied, if the format
+ * is changed it will be converted on the fly. All editing must be 
+ * done on the copied file.
+ */
+int OpenService(void)
+{
+	FILE	*fin, *fout;
+	char	fnin[81], fnout[81];
+	long	oldsize;
+
+	sprintf(fnin,  "%s/etc/service.data", getenv("MBSE_ROOT"));
+	sprintf(fnout, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	if ((fin = fopen(fnin, "r")) != NULL) {
+		if ((fout = fopen(fnout, "w")) != NULL) {
+			fread(&servhdr, sizeof(servhdr), 1, fin);
+			/*
+			 * In case we are automatic upgrading the data format
+			 * we save the old format. If it is changed, the
+			 * database must always be updated.
+			 */
+			oldsize    = servhdr.recsize;
+			if (oldsize != sizeof(servrec))
+				ServiceUpdated = 1;
+			else
+				ServiceUpdated = 0;
+			servhdr.hdrsize = sizeof(servhdr);
+			servhdr.recsize = sizeof(servrec);
+			fwrite(&servhdr, sizeof(servhdr), 1, fout);
+
+			/*
+			 * The datarecord is filled with zero's before each
+			 * read, so if the format changed, the new fields
+			 * will be empty.
+			 */
+			memset(&servrec, 0, sizeof(servrec));
+			while (fread(&servrec, oldsize, 1, fin) == 1) {
+				fwrite(&servrec, sizeof(servrec), 1, fout);
+				memset(&servrec, 0, sizeof(servrec));
+			}
+			fclose(fin);
+			fclose(fout);
+			return 0;
+		} else
+			return -1;
+	}
+	return -1;
+}
+
+
+
+void CloseService(void)
+{
+	char	fin[81], fout[81];
+	FILE	*fi, *fo;
+	st_list	*hat = NULL, *tmp;
+
+	sprintf(fin, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	sprintf(fout,"%s/etc/service.temp", getenv("MBSE_ROOT"));
+
+	if (ServiceUpdated == 1) {
+		if (yes_no((char *)"Database is changed, save changes") == 1) {
+			working(1, 0, 0);
+			fi = fopen(fout, "r");
+			fo = fopen(fin,  "w");
+			fread(&servhdr, servhdr.hdrsize, 1, fi);
+			fwrite(&servhdr, servhdr.hdrsize, 1, fo);
+
+			while (fread(&servrec, servhdr.recsize, 1, fi) == 1)
+				if (!servrec.Deleted)
+					fill_stlist(&hat, servrec.Service, ftell(fi) - servhdr.recsize);
+			sort_stlist(&hat);
+
+			for (tmp = hat; tmp; tmp = tmp->next) {
+				fseek(fi, tmp->pos, SEEK_SET);
+				fread(&servrec, servhdr.recsize, 1, fi);
+				fwrite(&servrec, servhdr.recsize, 1, fo);
+			}
+
+			tidy_stlist(&hat);
+			fclose(fi);
+			fclose(fo);
+			unlink(fout);
+			Syslog('+', "Updated \"servrec.data\"");
+			return;
+		}
+	}
+	working(1, 0, 0);
+	unlink(fout); 
+}
+
+
+
+int AppendService(void)
+{
+	FILE	*fil;
+	char	ffile[81];
+
+	sprintf(ffile, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	if ((fil = fopen(ffile, "a")) != NULL) {
+		memset(&servrec, 0, sizeof(servrec));
+		/*
+		 * Fill in default values
+		 */
+		fwrite(&servrec, sizeof(servrec), 1, fil);
+		fclose(fil);
+		ServiceUpdated = 1;
+		return 0;
+	} else
+		return -1;
+}
+
+
+
+void ServiceScreen(void)
+{
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 2, "16.  EDIT SERVICES");
+	set_color(CYAN, BLACK);
+	mvprintw( 7, 2, "1.  Name");
+	mvprintw( 8, 2, "2.  Type");
+	mvprintw( 9, 2, "3.  Active");
+	mvprintw(10, 2, "4.  Deleted");
+}
+
+
+
+/*
+ * Edit one record, return -1 if record doesn't exist, 0 if ok.
+ */
+int EditServiceRec(int Area)
+{
+	FILE		*fil;
+	char		mfile[81];
+	long		offset;
+	unsigned long	crc, crc1;
+
+	clr_index();
+	working(1, 0, 0);
+	IsDoing("Edit Service");
+
+	sprintf(mfile, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+	if ((fil = fopen(mfile, "r")) == NULL) {
+		working(2, 0, 0);
+		return -1;
+	}
+
+	fread(&servhdr, sizeof(servhdr), 1, fil);
+	offset = servhdr.hdrsize + ((Area -1) * servhdr.recsize);
+	if (fseek(fil, offset, 0) != 0) {
+		working(2, 0, 0);
+		return -1;
+	}
+
+	fread(&servrec, servhdr.recsize, 1, fil);
+	fclose(fil);
+	crc = 0xffffffff;
+	crc = upd_crc32((char *)&servrec, crc, servhdr.recsize);
+	working(0, 0, 0);
+
+	for (;;) {
+		ServiceScreen();
+		set_color(WHITE, BLACK);
+		show_str(  7,18,15, servrec.Service);
+		show_service(8, 18, servrec.Action);
+		show_bool( 9,18,    servrec.Active);
+		show_bool(10,18,    servrec.Deleted);
+
+		switch(select_menu(4)) {
+		case 0:
+			crc1 = 0xffffffff;
+			crc1 = upd_crc32((char *)&servrec, crc1, servhdr.recsize);
+			if (crc != crc1) {
+				if (yes_no((char *)"Record is changed, save") == 1) {
+					working(1, 0, 0);
+					if ((fil = fopen(mfile, "r+")) == NULL) {
+						working(2, 0, 0);
+						return -1;
+					}
+					fseek(fil, offset, 0);
+					fwrite(&servrec, servhdr.recsize, 1, fil);
+					fclose(fil);
+					ServiceUpdated = 1;
+					working(0, 0, 0);
+				}
+			}
+			IsDoing("Browsing Menu");
+			return 0;
+
+		case 1:	E_STR(  7,18,15, servrec.Service,"Enter the ^name^ of this ^service^.")
+		case 2: servrec.Action = edit_service(8,18,servrec.Action);
+			break;
+		case 3: E_BOOL( 9,18,    servrec.Active,    "If this service is ^active^")
+		case 4: E_BOOL(10,18,    servrec.Deleted,   "If this record is ^Deleted^")
+		}
+	}
+}
+
+
+
+void EditService(void)
+{
+	int	records, i, o, x, y;
+	char	pick[12];
+	FILE	*fil;
+	char	temp[81];
+	long	offset;
+
+	clr_index();
+	working(1, 0, 0);
+	IsDoing("Browsing Menu");
+	if (config_read() == -1) {
+		working(2, 0, 0);
+		return;
+	}
+
+	records = CountService();
+	if (records == -1) {
+		working(2, 0, 0);
+		return;
+	}
+
+	if (OpenService() == -1) {
+		working(2, 0, 0);
+		return;
+	}
+	working(0, 0, 0);
+	o = 0;
+
+	for (;;) {
+		clr_index();
+		set_color(WHITE, BLACK);
+		mvprintw( 5, 4, "16.   SERVICE MANAGER");
+		set_color(CYAN, BLACK);
+		if (records != 0) {
+			sprintf(temp, "%s/etc/service.temp", getenv("MBSE_ROOT"));
+			working(1, 0, 0);
+			if ((fil = fopen(temp, "r")) != NULL) {
+				fread(&servhdr, sizeof(servhdr), 1, fil);
+				x = 2;
+				y = 7;
+				set_color(CYAN, BLACK);
+				for (i = 1; i <= 20; i++) {
+					if (i == 11) {
+						x = 42;
+						y = 7;
+					}
+					if ((o + i) <= records) {
+						offset = sizeof(servhdr) + (((o + i) - 1) * servhdr.recsize);
+						fseek(fil, offset, 0);
+						fread(&servrec, servhdr.recsize, 1, fil);
+						if (servrec.Active)
+							set_color(CYAN, BLACK);
+						else
+							set_color(LIGHTBLUE, BLACK);
+						sprintf(temp, "%3d.  %-15s %s", o+i, servrec.Service, getservice(servrec.Action));
+						temp[37] = 0;
+						mvprintw(y, x, temp);
+						y++;
+					}
+				}
+				fclose(fil);
+			}
+		}
+		working(0, 0, 0);
+		strcpy(pick, select_record(records, 20));
+		
+		if (strncmp(pick, "-", 1) == 0) {
+			CloseService();
+			return;
+		}
+
+		if (strncmp(pick, "A", 1) == 0) {
+			working(1, 0, 0);
+			if (AppendService() == 0) {
+				records++;
+				working(1, 0, 0);
+			} else
+				working(2, 0, 0);
+			working(0, 0, 0);
+		}
+
+		if (strncmp(pick, "N", 1) == 0) 
+			if ((o + 20) < records) 
+				o = o + 20;
+
+		if (strncmp(pick, "P", 1) == 0)
+			if ((o - 20) >= 0)
+				o = o - 20;
+
+		if ((atoi(pick) >= 1) && (atoi(pick) <= records))
+			EditServiceRec(atoi(pick));
+	}
+}
+
+
+
+int service_doc(FILE *fp, FILE *toc, int page)
+{
+	char		temp[81];
+	FILE		*no;
+	int		j;
+
+	sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
+	if ((no = fopen(temp, "r")) == NULL)
+		return page;
+
+	page = newpage(fp, page);
+	addtoc(fp, toc, 14, 0, page, (char *)"Service manager");
+	j = 0;
+
+	fprintf(fp, "\n");
+	fprintf(fp, "     Service           Action     Active\n");
+	fprintf(fp, "     ---------------   --------   ------\n");
+	fread(&servhdr, sizeof(servhdr), 1, no);
+
+	while ((fread(&servrec, servhdr.recsize, 1, no)) == 1) {
+
+		if (j == 50) {
+			page = newpage(fp, page);
+			fprintf(fp, "\n");
+			fprintf(fp, "     Service           Action     Active\n");
+			fprintf(fp, "     ---------------   --------   ------\n");
+			j = 0;
+		}
+
+		fprintf(fp, "     %-15s   %-8s   %s\n", servrec.Service, getservice(servrec.Action), getboolean(servrec.Active));
+		j++;
+	}
+
+	fclose(no);
+	return page;
+}
+
+

@@ -1,0 +1,617 @@
+<HTML>
+<HEAD>
+<TITLE>The Distribution Nodelist.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+ | Document: FTS-0005
+ | Version:  003
+ | Date:     February 7, 1996
+ | Maintainer: David Nugent, 3:632/348@fidonet
+
+
+                       The Distribution Nodelist
+
+                        Originally by Ben Baker
+       Amended by Rick Moore, 1:115/333@FidoNet, February 5, 1989
+     Amended by David Nugent, 3:632/348@FidoNet, February 27, 1996
+
+
+|   Copyright 1986-1996 by the FidoNet Technical Standards Committee.
+    All rights reserved. Duplication and/or distribution permitted
+    for non-commercial purposes only.
+
+    This document supersedes and replaces the document known under
+|   the names of FSC002, FSC-0002, and FTS-0002. Significant changes,
+|   which excludes mere formatting changes, to the previous version
+|   of this document have been "redlined" (marked with a vertical
+|   bar in the leftmost column).
+
+    This document defines the format and content of the nodelist for
+    the Public FidoNet Network (PFN) as published on Friday of each
+|   week. This format is historically known as the "St. Louis nodelist
+|   format".
+
+    The PFN is an international network of independently owned
+    electronic mail systems, most with interlocking electronic
+    bulletin board systems. The distribution nodelist, or simply
+    "nodelist", is the glue which holds the network together. It is
+    the PFN's "phone book" and it defines the top-level network
+|   structure and is the means by which FidoNet retains its integrity
+|   as a point-to-point mail network.
+
+
+| THE NODELIST
+
+    The nodelist is published as an ASCII text file named
+    NODELIST.nnn, where nnn is a three digit number representing the
+|   day-of-year of the Friday publication date, with zeros filling
+|   positions to the left if necessary. This file is packed into a
+|   archive file named NODELIST.?nn, where 'nn' are the last two
+|   digits of day-of-year, and the character at the position of the
+|   '?' indicating the type of compression used. Conventions as to
+|   which compression method is used for the distributed nodelist is
+|   a matter of local policy and is usually determined by each zone's
+|   Zone Coordinator.
+
+    As stated above, NODELIST.nnn is an ASCII text file. It contains
+    two kinds of lines; comment lines and data lines. Each line is
+    terminated with an ASCII carriage return and line feed character
+    sequence, and contains no trailing white-space (spaces, tabs,
+|   etc.). The file is terminated with a DOS end-of-file character
+|   (character value 26 decimal, or "control-Z").
+
+    Comment lines contain a semicolon (;) in the first character
+    position followed by zero or more alphabetic characters called
+    "interest flags". A program which processes the nodelist may use
+    comment interest flags to determine the disposition of a comment
+    line. The remainder of a comment line (with one exception,
+|   treated below) is free-form ASCII text. There are five types of
+|   comments flags:
+
+|       ;S This is of particular interest to Sysops
+|       ;U This is of particular interest to BBS users
+|       ;F This should appear in any formatted "Fido List"
+|       ;A This is of general interest (shorthand for ;SUF)
+|       ;E This is an error message inserted by the nodelist generator
+|       ; This comment may be ignored by a nodelist processor
+
+    The first line of a nodelist is a special comment line containing
+    identification data for the particular edition of the nodelist.
+    The following is an example of the first line of a nodelist:
+
+    ;A FidoNet Nodelist for Friday, July 3, 1987 -- Day number 184 : 15943
+
+    This line contains the general interest flag, the day, date, and
+|   three-digit (zero-filled) day-of-year number of publication, and
+    ends with a 5 digit decimal number with leading zeros, if
+    necessary. This number is the decimal representation of a check
+    value derived as follows:
+
+        Beginning with the first character of the second line, a
+        16 bit cyclic redundancy check (CRC) is calculated for the
+        entire file, including carriage return and line feed
+        characters, but not including the terminating EOF
+        character. The check polynomial used is the same one used
+        for many file transfer protocols:
+
+                    2**16 + 2**12 + 2**5 + 2**0
+
+    The CRC may be used to verify that the file has not been edited.
+    The importance of this will become evident in the discussion of
+    NODEDIFF, below. CRC calculation techniques are well documented
+|   in various technical references, and will not be treated further
+    here.
+
+    The content of the remaining comments in the nodelist are
+    intended to be informative. Beyond the use of interest flags for
+    distribution, a processing program need not have any interest in
+    them.
+
+    A nodelist data line contains eight variable length "fields"
+    separated by commas (,). No space characters are allowed in a
+    data line, and underscore characters are used in lieu of spaces.
+    The term "alphanumeric character" is defined as the portion of
+    the ASCII character set from 20 hex through 7E hex, inclusive.
+    The following discussion defines the contents of each field in a
+    data line.
+
+
+  Field 1: Keyword
+
+    The keyword field may be empty, or may contain one of the
+    following:
+
+    Zone
+
+        Begins the definition of a geographic zone and define its
+        coordinator. All the data lines following a line with the
+        "Zone" keyword down to, but not including, the next
+        occurrence of a "Zone" keyword, are regions, networks, and
+|       nodes within the defined zone.  Node entries defined
+|       immediately after the "Zone" keyword and before the next
+|       region or host entry are known as zone adminstrative nodes.
+|       These are allocated by the Zone Coordinator for use by nodes
+|       in the entire zone; for example, mail gateways between
+|       FidoNet zones.
+
+    Region
+
+        Begins the definition of a geographic region and defines
+        its coordinator. All the data lines following a line with
+        the "Region" keyword down to,  but not including,  the
+        next occurrence of a "Zone",  "Region",  or "Host"
+        keyword, are independent nodes within the defined region.
+
+    Host
+
+        Begins the definition of a local network and defines its
+|       network coordinator. All the data lines following a line
+        with the Host keyword down to, but not including, the
+        next occurrence of a "Zone", "Region",  or "Host" keyword,
+        are local nodes, members of the defined local network.
+
+    Hub
+
+        Begins the definition of a routing sub-unit within a
+        multi-level local network. The hub is the routing focal
+        point for nodes listed below it until the next occurrence
+        of a "Zone", "Region", "Host", or "Hub" keyword. The hub
+        entry MUST be a redundant entry, with a unique number, for
+        one of the nodes listed below it, within its hub segment.
+        This is necessary because some nodelist processors
+        eliminate these entries in all but the local network.
+
+    Pvt
+
+        Defines a private node with unlisted number. Private nodes
+        are only allowed as members of local networks.
+
+    Hold
+
+        Defines a node which is temporarily down. Mail may be sent
+        to it and is held by its host or coordinator.
+
+    Down
+
+        Defines a node which is not operational. Mail may NOT be
+        sent to it. This keyword may not be used for longer than
+        two weeks on any single node, at which point the "down"
+        node is to be removed from the nodelist.
+
+    <empty>
+
+|       The field contains no text (not the sequence "<empty>"),
+|       and defines a normal node entry.
+
+|   Only one of these may be used in any individual data line.
+
+
+  Field 2: Zone/Region/Net/Node number
+
+    This field contains only numeric digits and is a number in the
+    range of 0 to 32767. If the line had the "Zone", "Region", or
+    "Host" keyword, the number is the zone, net, or region number,
+    and the node has an implied node number of 0. Otherwise, the
+    number is the node number. The zone number, region or net number,
+    and the node number, taken together, constitute a node's FidoNet
+    address.
+
+    Zone numbers must be unique. Region or net numbers must be unique
+    within their zone, hub numbers unique be within their net, node
+|   numbers unique within their net (and region, for regional
+|   independent nodes, zone for zone administrative entries). Duplicate
+    node numbers under different hubs within the same net are not
+    allowed.
+
+
+  Field 3: Node name
+
+    This field may contain any alphanumeric characters other than
+    commas and spaces. Underscores are used to represent spaces, and
+    a comma delimits the end of the field. This is the name by which
+    the node is known, usually as determined by the node or the
+    coordinator responsible for compiling the segment.
+
+
+  Field 4: Location
+
+    This field may contain any alphanumeric characters other than
+    commas and spaces. Underscores are used to represent spaces. This
+    field contains the location of the node. It is usually expressed
+    as the primary local location (town, suburb, city, etc.) plus the
+    identifier of the regional geopolitical administrative district
+    (state, province, department, county, etc.). Wherever possible,
+    standard postal abbreviations for the major regional district
+    should be used (IL, BC, NSW, etc.).
+
+
+  Field 5: Sysop name
+
+    This field may contain any alphanumeric characters other than
+    commas and spaces. Underscores are used to represent spaces. This
+    is the name of the system operator.
+
+
+  Field 6: Phone number
+
+    This field contains at least three and usually four numeric
+    sub-fields separated by dashes (-). The fields are country code,
+    city or area code, exchange code, and number. The various parts
+    of the phone number are frequently used to derive cost and
+    routing information, as well as what number is to be dialed. A
+    typical example of the data in a phone number field is
+    1-800-555-1212, corresponding to country 1 (USA), area 800
+    (inbound WATS), exchange 555, and number 1212.
+
+    Alternatively, this field may contain the notation
+    "-Unpublished-" in the case of a private node. In this case, the
+|   keyword "Pvt" must appear at the start of the line.
+
+
+  Field 7: Baud rate
+
+    This field contains one of the values: 300, 1200, 2400, 9600,
+|   19200, or 38400.
+
+|   This baud rate is indicative only of the maximum baud rate that
+|   may be expected when connecting to a node and is generally of use
+|   only where a calling node needs to adjust the baud rate used to
+|   dial to the caller's modem speed in order to achieve a
+|   connection, a requirement that with modem technology available in
+|   1996 is rarely if ever needed. This information is largely
+|   superseded by modem protocol flags (see next section) where any
+|   two nodes using a common protocol may have other expectations
+|   with regards to actual transfer rates. Use of the baud rate field
+|   alone is therefore depreciated.
+
+
+  Field 8 - Flags
+
+    This optional field contains data about the specific operation of
+    the node, such as file requests, modem protocol supported, etc.
+    Any text following the seventh comma on a data line is taken
+    collectively to be the flags field. The required format is zero
+    or more sub-fields, separated by commas. Each sub-field consists
+    of a flag, possibly followed by a value.
+
+    The following flags define special operating conditions:
+
+       Flag    Meaning
+
+       CM      Node accepts mail 24 hours a day
+       MO      Node does not accept human callers
+|      LO      Node accepts calls only from valid listed node
+|              numbers in the current FidoNet nodelist
+
+
+    The following flags define modem protocols supported:
+
+       Flag    Meaning
+
+|      V21     ITU-T V21      300 bps full duplex
+|      V22     ITU-T V22     1200 bps full duplex
+|      V29     ITU-T V29     9600 bps half duplex
+|      V32     ITU-T V32     9600 bps full duplex
+|      V32b    ITU-T V32bis 14400 bps full duplex
+|      V33     ITU-T V33
+|      V34     ITU-T V34    28800 bps full duplex
+
+       H96     Hayes V9600
+       HST     USR Courier HST up to 9600
+|      H14     USR Courier HST up to 14400
+|      H16     USR Courier HST up to 16800
+       MAX     Microcom AX/96xx series
+       PEP     Packet Ensemble Protocol
+|      CSP     Compucom Speedmodem
+|      ZYX     Zyxel series
+|      VFC     V.Fast Class
+|      V32T    V.32 Terbo
+
+       NOTE:   Many V22 modems also support Bell 212A.
+
+    If no modem flag is given, Bell 212A is assumed for 1200 bps
+    systems, ITU-T V22bis is assumed for 2400 bps systems.
+
+
+    The following flags define type of error correction available. A
+    separate error correction flag should not be used when the error
+    correction type can be determined by the modem flag. For
+|   instance, a modem flag of HST implies MNP, V32b implies V32 and
+|   V42b implies V42. Therefore MNP+HST, H14+MNP, H16+MNP, V32+V32b
+|   and V42+V42b flag pairs are redundant and should not be used.
+
+        Flag    Meaning
+
+        MNP     Microcom Networking Protocol error correction
+|       V42     ITU-T LAP-M error correction w/fallback to MNP 1-4
+|       V42b    ITU-T LAP-M error correction w/fallback to MNP 1-5
+
+
+    The following flags define the type(s) of compression of mail
+    packets supported.
+
+        Flag    Meaning
+
+        MN      No compression supported
+
+|       NOTE:   While FidoNet nodes usually exchange mail
+|               using a variety of different file compression
+|               formats negotiated between individual systems, the
+|               presence of this flag indicates the INABILITY TO
+|               RECEIVE MAIL compressed using the SEA ARC version 5
+|               compression format and/or named according to the
+|               ARCmail 0.6 mail bundle naming method. This is, by
+|               convention, the most common mail compression format
+|               in use within FidoNet. The presence of this flag
+|               would normally indicate that all mail should be sent
+|               uncompressed unless there is some overriding
+|               arrangement with the receiving system.
+
+    The following flags indicate the types of file and file update
+    requests supported.
+
+        Flag    Meaning
+
+        XA      Bark and WaZOO file/update requests
+        XB      Bark file/update requests, WaZOO file requests
+|       XC      Bark file requests, WaZOO file file/update
+        XP      Bark file/update requests
+        XR      Bark and WaZOO file requests
+        XW      WaZOO file requests
+|       XX      WaZOO file/update requests
+
+
+    The following flag defines gateways to other domains (mail
+    networks).
+
+        Flag    Meaning
+
+        Gx..x   Gateway to domain 'x..x', where 'x..x` is a string
+                of alphanumeric characters.
+
+        NOTE:   Valid values for 'x..x' are assigned by the FidoNet
+|               International Coordinator or the person appointed as
+|               Internetworking Coordinator by the FidoNet
+|               International Coordinator. Current valid values of
+                'x..x' may usually be found in the notes at the end
+|               of the current FidoNet nodelist. The most common
+|               gateway flag is "GUUCP", to denote a gateway to the
+|               Internet mail system that gates on behalf of the
+|               fidonet.org internet domain.
+
+
+    The following flags define the dedicated mail periods supported.
+    They have the form "#nn" or "!nn" where nn is the UTC hour the mail
+    period begins, '#' indicates Bell 212A compatibility, and '!'
+    indicates incompatibility with Bell 212A.
+
+        Flag    Meaning
+
+|       #01     Zone 5 mail hour (01:00 - 02:00 UTC)
+        #02     Zone 2 mail hour (02:30 - 03:30 UTC)
+|       #03     Zone 4 mail hour (08:00 - 09:00 UTC)
+        #09     Zone 1 mail hour (09:00 - 10:00 UTC)
+        #18     Zone 3 mail hour (18:00 - 19:00 UTC)
+|       #20     Zone 6 mail hour (20:00 - 21:00 UTC)
+
+        NOTE:   When applicable, the mail period flags may be strung
+                together with no intervening commas, e.g.. "#02#09"
+|               or "!02!09". Only mail hours other than that
+                standard within a node's zone should be given. Since
+                observance of mail hour within one's zone is
+                mandatory, it should not be indicated.
+
+
+    The following flag defines user-specific values. If present,
+    this flag MUST be the last flag present in a nodelist entry.
+
+        Flag    Meaning
+
+        Ux..x   A user-specified string, which may contain any
+                alphanumeric character except blanks. This string
+                may contain one to thirty-two characters of
+                information that may be used to add user-defined
+                data to a specific nodelist entry.
+
+|       NOTE:   Ux..x flags are the mechanism by which new flags may
+|               be experimentally introduced into the nodelist for a
+|               trial period to assess their worth. They are
+|               therefore of a temporary nature, and after their
+|               introduction they are eventually either promoted
+|               to a non-U flag or dropped from use altogether.
+
+    The FTSC recognizes that the FidoNet International Coordinator is
+    the ultimate authority over what appears in the FidoNet nodelist.
+    Also, FTSC is by definition a deliberative body, and adding or
+    changing a flag may take a considerable amount of time.
+    Therefore, the FidoNet International Coordinator may temporarily
+    make changes or additions to the flags as defined in this
+    document. The FidoNet International Coordinator will then consult
+    with FTSC over the changes needed to this document to reflect
+    these temporary changes.
+
+
+    The following are examples of nodelist data lines:
+
+    Host,102,SOCALNET,Los_Angeles_CA,Richard_Martz,1-213-874-9484,2400,XP
+    ,101,Rainbow_Data,Culver_City_CA,Don_Brauns,1-213-204-2996,2400,
+
+
+| THE NODEDIFF
+
+|   With more than thirty-five thousand nodes as of this date (1996),
+|   the nodelist, even in archive form, is a document of substantial
+|   size. Since distribution of the nodelist occurs via electronic
+    file transfer, this file is NOT routinely distributed. Instead,
+|   when a new nodelist is prepared weekly, it is compared with the
+    previous week's nodelist, and a file containing only the
+    differences is created and distributed.
+
+|   The distribution difference file, called NODEDIFF.nnn, where nnn
+    is the day-of-year of publication, is actually an editing script
+    which will transform the previous week's nodelist into the
+    current nodelist. A definition of its format follows:
+
+    The first line of NODEDIFF.nnn is an exact copy of the first line
+|   of LAST WEEK'S nodelist (i.e. the first line of the nodelist to
+|   which the current difference file applies). This is used as a
+    first-level confidence check to insure that the correct file is
+    being edited. The second and subsequent lines are editing
+    commands and data.
+
+    There are three editing commands and all have the same format:
+
+  <command><number>
+
+    <command> is a 1 letter command, one of A, C, or D.
+
+    <number> is a decimal number greater than zero, and defines the
+    number of lines to be operated on by the command. Each command
+    appears on a line by itself. The commands have the following
+    meanings:
+
+        Ann     Add the following nn lines to the output file.
+        Cnn     Copy nn unchanged lines from the input to the output
+                file.
+        Dnn     Delete (or skip) nn lines from the input file.
+
+    The following illustrate how the first few lines of a
+|   hypothetical NODEDIFF.213 might look:
+
+        ;A Friday, July 25, 1986 -- Day number 206 : 27712
+        D2
+        A2
+        ;A Friday, August 1, 1986 -- Day number 213 : 05060
+        ;A
+        C5
+
+    This fragment illustrates all three editing commands. The first
+    line is the first line from the previous nodelist, NODELIST.206.
+    The next line says "delete the first two lines" from
+    NODELIST.206. These are the identification line and the line
+    following it. The next command says "add the next two lines" to
+    NODELIST.213 at the "current" location. The two data lines are
+    followed by a command which says "copy five unchanged lines" from
+    NODELIST.206 to NODELIST.213. Notice that the first line added
+|   will ALWAYS contain the new nodelist CRC, so that the software
+|   applying the changes to the old nodelist may check the result of
+|   its editing.
+
+    Since only the differences will be distributed, it is important
+    to insure the accuracy of the newly created nodelist. This is the
+    function of the CRC mentioned above. It is sufficient for a
+    program designed to perform the above edits to pick the CRC value
+    from the first line added to the output file, then compute the
+    CRC of the rest of the output file. If the two CRCs do not agree,
+    one of the input files has been corrupted. If they do agree, the
+    probability is very high (but not 100%) that the output file is
+    accurate.
+
+    For actual distribution, NODEDIFF.nnn is packed into an archive
+|   file named NODEDIFF.?nn, where 'nn' are the last two digits of
+|   day-of-year, and '?' indicates the compression format used.
+
+
+| NODELIST COMPILATION
+
+|   This section is included for tutorial reasons and is not intended
+|   as a definition of any specific method by which FidoNet MUST
+|   compile its weekly nodelist. It merely represents an attempt to
+|   document the method by which it currently does so. It is intended
+|   to be explanatory, and seeks to answer commonly asked questions,
+|   such as how the nodelist is compiled and where the information
+|   comes from, why the nodelists used in different FidoNet zones are
+|   not the same document, and why the difference file generated for
+|   use in one FidoNet zone cannot be applied to the nodelist
+|   generated for use in a different zone, even though the week
+|   numbers match.
+
+|   Nodelists are compiled via a distributed method, which follows
+|   the same structure as the FidoNet coordinator hierarchy. At the
+|   lowest level, network coordinators maintain a list of the nodes
+|   in their network and are responsible for the addition, removal
+|   and correction of individual node's listings in their "segment"
+|   (as portions of the full nodelist are called). In some larger
+|   networks, it is common for this job to be shared with hub
+|   coordinators appointed by the net coordinator, though the
+|   responsibility for those hub segments still remains with the
+|   network coordinator.
+
+|   At a nominated day during the week, before the regional level
+|   segment is submitted to the zone coordinator, individual net
+|   coordinators submit their segments to the regional coordinator
+|   who subsequently compiles these segments and transmits the merged
+|   copy to the zone coordinator. These are combined by the zone
+|   coordinator with the separate segments of other zones and
+|   compiled into that zone's version of the world nodelist. This
+|   world nodelist is then compared with the previous week's version,
+|   a difference file is generated and subsequently distributed
+|   throughout the zone.
+
+|   In some cases, in the interest of saving in transmission times
+|   and therefore costs, the compilation process itself may be better
+|   served by the submission of DIFFERENCE FILES rather than full
+|   net- or region-level segments. Each coordinator therefore retains
+|   a copy of the previously submitted segments and applies
+|   difference files to those to derive the new one. This process is
+|   exactly identical to the NODEDIFF/NODELIST scenario described
+|   earlier in this document, with the same first line and CRC
+|   validation method used to guard the integrity of the nodelist
+|   segments.
+
+|   For a number of reasons, it is important that publication of the
+|   nodelist be as timely as possible. These reasons include: the
+|   nodelist is a definitive list of valid FidoNet addresses that may
+|   receive mail, and must therefore be as correct and up-to-date as
+|   possible to save nodes the unnecessary expense of mail routed to
+|   possibly non-existing addresses; the nodelist contains the list
+|   of telephone numbers that may be called by any user of the
+|   FidoNet nodelist and should therefore be accurate so as not to
+|   unduly annoy owners of those phone numbers should a listed node
+|   go down and an unsuspecting telephone subscriber inherit the same
+|   telephone number.
+
+|   Given this constraint, the expense of international calls and the
+|   fact that FidoNet is a worldwide network that exists in many time
+|   zones, it may be unreasonable to expect the compilation of the
+|   nodelist to be delayed until each zone coordinator can transmit
+|   their most up-to-date zone segment to a central authority for
+|   compilation and subsequent redistribution in any week. For the
+|   sake of expedience, each zone instead maintains its own separate
+|   world nodelist which contains a compilation of the current zone's
+|   latest segments and including the most current copy to hand of
+|   all other FidoNet zone's segments. The zone level nodelist
+|   generated each week by each zone coordinator is then transmitted
+|   to all other zone coordinators for inclusion into their separate
+|   world nodelist as timing permits.
+
+|   In theory, then, the only difference between nodelists
+|   distributed in each zone in any week are accounted for by timing
+|   differences in the exchange of each zone's separate segment. In
+|   practice, other constraints may interfere with timeliness, such
+|   as the difficulty and expense of international telephonic
+|   communications. Also, another point of variance is introduced by
+|   the fact that each zone usually includes its own zone segment
+|   first into its world nodelist to assist - amongst other things -
+|   software that uses the nodelist for index generation. Some
+|   software in common use in FidoNet indexes the nodelist according
+|   to its sequential order (e.g. version 5 and 6 compiled nodelist
+|   formats), and including the current zone first before others will
+|   have a beneficial effect on software performance.
+
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

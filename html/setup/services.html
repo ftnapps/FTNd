@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Edit Services.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 06-Jun-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - Edit Services.</H1>
+<P>
+
+<H3>Introduction.</H3>
+<P>
+Services are special mail accounts. Netmail addressed to one of these names
+will be handled according to the action that is selected. Current implemented
+actions are AreaMgr, FileMgr and Email. So if you name a service <strong>
+Areamgr</strong> and set the action to <strong>AreaMgr</strong> then an incoming
+netmail will be directed to the Areamgr function. If you define a service
+<strong>listserv</strong> and set the action to <strong>Email</strong> then
+and incoming netmail will be converted to email and send to <strong>listserv</strong>
+at your host.<br>
+If you should want to run some votemanager on your system you can
+do that by creating a service <b>votemgr</b> with the type set to <b>email</b>.
+You also need to setup a valid unix user <b>votemgr</b> so that there will be an excisting
+mailbox. Then with some external scripts you can process all received messages.
+<P>&nbsp;<P>
+
+<H3>Edit Services.</H3>
+<P>
+<pre>
+<strong>Name      </strong>The name of the Service.
+<strong>Type      </strong>Toggle the service type with the spacebar.
+<strong>Active    </strong>If this service is active.
+<strong>Deleted   </strong>If this service must be deleted.
+</pre>
+<P>
+Here are some example services:
+<P>
+<PRE>
+UUCP		Email
+allfix          FileMgr
+areamgr         AreaMgr                                                  
+fmail           AreaMgr                                                  
+gecho           AreaMgr                                                  
+listserv        Email                                                    
+majordomo       Email                                                    
+mbsebbs         Email                                                    
+mbsebbs-owner   Email                                                    
+mbtic           FileMgr                                                  
+owner-mbsebbs   Email
+raid            FileMgr
+</PRE>
+Note: the UUCP services is needed if you are gating email!
+<P>
+
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

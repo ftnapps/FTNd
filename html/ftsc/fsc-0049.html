@@ -1,0 +1,103 @@
+<HTML>
+<HEAD>
+<TITLE>A Proposal for Passing Domain Information During an FST-0006 Session.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FSC-0049
+Version:  001
+Date:     03-Jul-90
+
+
+
+
+                               A Proposal for
+                         Passing Domain Information
+                         During an FTS-0006 Session
+
+                                     by
+                                Bob Hartman
+                           1:104/501@fidonet.org
+                                July 3, 1990
+
+
+
+
+Status of this document:
+
+     This FSC suggests a proposed protocol for the FidoNet(r) community,
+     and requests discussion and suggestions for improvements.
+     Distribution of this document is unlimited.
+
+     Fido and FidoNet are registered marks of Tom Jennings and Fido
+     Software.
+
+
+FSC-0045 proposes a method for sending five dimensional FidoNet addresses
+(ie, zone:net/node.point@domain) via the type 2 packet header.  This
+document describes a proposed method for sending the same five dimensional
+address in the Hello packet of an FTS-0006 session, with the additional
+advantage of being able to utilize the full Internet recognized domain name
+for various Fidonet technology networks.  This proposal, combined with
+FSC-0045 will help to solve one of FidoNet's most pressing problems: How to
+recognize alternative networks without the need of some centralized
+management looking at all of them and what they are doing with Zone numbers,
+etc.  Like FSC-0045, this proposal remains backwards compatible with what it
+is replacing.
+
+Currently FTS-0006 has provisions for zone, net, node, and point information
+to be passed in the Hello packet.  To extend this to allow the domain name
+to be passed, an extra capability bit is used.  This bit corresponds to the
+0x4000 bit, and will be called the DO_DOMAIN bit.  If this bit is set, it
+means that the sender is domain aware, and has enclosed his domain in the
+Hello packet.  The domain is stored in the system name field, after the null
+that terminates the real system name.  The system name field is a maximum of
+60 characters, so the sender must make the real system name, a null, the
+domain name, and another null byte fit within the 60 bytes.  The domain will
+start at the byte immediately after the first null byte.  The domain is
+arbitrary length and should correspond to the Internet assigned domain name.
+This is NOT the same as the FSC-0045 domain, and therefore there needs to be
+a mapping between real Internet domains, and the FSC-0045 style domain name,
+if FSC-0045 is accepted by the FTSC as a standard for use by all mailers.
+This mapping is normally straightforward (for example, Internet fidonet.org
+would correspond to FSC-0045 domain FidoNet).  Since most alternative nets
+do not have a registered Internet domain, the naming convention should be
+"known by" domain (ie, FSC-0045 domain name) followed by .ftn (for FidoNet
+Technology Network).  So, the FSC-0045 domain "Alternet" would be converted
+to alternet.ftn under this proposal.  This allows domains which are not
+normally FidoNet aware to use FTS-0006 to talk to FidoNet technology mail
+programs.  For example, a mailer located at Camex in Manchester, NH might
+send it's mail as 'man.camex.com' during an FTS-0006 session.  When parsing
+the domain name, the parsing should try to match the domain from right to
+left (Internet naming is hierarchical from right to left), so that if a
+mailer knew about man.camex.com, that could also match something of the form
+super.machine.silly.name.man.camex.com.  The domain name should be case
+INSENSITIVE, and the FSC-0045 abbreviation of it should be unique within the
+first 8 characters, and also should not include any periods ('.') or at-signs
+('@') since those characters are significant in the Internet domain naming
+scheme.
+
+In order for this proposal to be adopted, the FTSC would have to assign the
+DO_DOMAIN bit, and have it documented in FTS-0006.  This method is fully
+backwards compatible, since a domain aware mailer could send the domain
+information, and if the other end was not domain aware, it would ignore it.
+If the other end was domain aware, it would be able to extract the domain
+information easily and would then have a full five dimensional address
+available for the sender.  This proposal remains fully backward compatible
+with the current uses of all FTS-0006 fields, and should not affect operation
+of any mailer that has used reserved bytes in the Hello packet.
+</PRE>
+
+<A HREF="./"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

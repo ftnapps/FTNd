@@ -1,0 +1,533 @@
+<HTML>
+<HEAD>
+<TITLE>Conference Managaers - Specifications for Requests.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FSC-0057
+Version:  003
+Date:     07-Dec-92
+
+
+
+
+               Conference Managers - Specifications for Requests
+
+                               December 7, 1992
+
+                   Fabiano Fabris      Joaquim H. Homrighausen
+                2:285/304.100@fidonet      2:270/17@fidonet
+
+
+
+
+    Status of this document:
+
+    This FSC suggests a proposed protocol for the FidoNet(r) community, and
+    requests discussion and suggestions for improvements. Revision 3
+    presents several additions and enhancements over the previous revision.
+
+    Distribution of this document is unlimited.
+
+    Fido and FidoNet are registered marks of Tom Jennings and Fido
+    Software.
+
+
+
+    1  Purpose
+
+       This document will explore the methods implemented by various
+       conference managers which process requests (in net mail form)
+       for changes to the conference mail links on the system on which
+       they are in use.
+
+       Until now, it would appear that no real standard exists, so most
+       software authors have either tried to emulate another program, or
+       to create a new method of their own, or both.
+
+       Here, an attempt will be made to define a standard, one which tries
+       to maintain compatibility with methods already in use, while also
+       extending them to provide new functions.
+
+
+
+    2  Conventions
+
+       The names of the commands described in the following paragraphs are
+       given in upper case, for legibility. However, a conference manager
+       should be able to interpret them even if they are given in lower
+       or mixed case.
+
+       Similarly, conference names, or tags, are given in upper case, but
+       the conference manager should be able to handle them even if typed
+       in lower or mixed case.
+
+       Optional information is enclosed with square brackets, while
+       variable information is enclosed with angle brackets. For example:
+
+          +CONF [,R=<n>]
+
+       indicates that the section within square brackets is optional, and
+       if supplied, requires a parameter after the equals sign.
+
+       Some conference managers may allow commands to be abbreviated to the
+       shortest non-ambiguous string. For example, %LIST might be reduced
+       to %L.
+
+
+
+    3  Format of the request
+
+       A request to a conference manager is generally made in a net mail
+       message containing specific information in some of the fields. In
+       particular, the addressee is the name of the conference manager
+       itself, and the subject of the message is a password assigned by
+       the sysop of the system running the program.
+
+       For example:
+
+          From:     John Doe, on 2:123/56
+          To:       Program,  on 2:234/0
+          Subject:  password
+
+       Here the first problem is encountered. Each of the existing programs
+       recognizes a different addressee. For this reason it is proposed
+       that all such programs recognize requests made to a single,
+       "standard" addressee, besides any other they may wish to implement.
+       The term "ConfMgr" has been arbitrarily chosen, and should be used
+       by those programs which adhere fully to all the standards proposed
+       in this document.
+
+       The text of the message itself contains the request proper, and is
+       the subject of the following paragraphs.
+
+
+
+    4  Linking and Unlinking of conferences.
+
+       The current methods for requesting that a conference be linked are
+       basically two:
+
+          +CONFNAME
+          CONFNAME
+
+       For reasons of uniformity, it is proposed that all conference
+       manager programs recognize the first method.
+
+       Requests that a conference be unlinked are given by:
+
+          -CONFNAME
+
+       It might be interesting to implement some form of pattern matching,
+       similar to the unix shell. The following basic wildcards should be
+       considered:
+
+          *        matches zero or more characters
+          ?        matches any one (not zero) character
+
+       Since the requests are processed top-down, a request of the form
+
+          +CONFNAME
+          -*
+
+       would be redundant, since the ConfMgr would link CONFNAME from the
+       first line, and then immediately unlink it again because of the
+       second line, which requests that all linked conferenecs be unlinked.
+
+       It should also be possible to specify more than one conference tag
+       on the same line. For example:
+
+          +CONF1 CONF2 CONF3
+
+       would link the three conferences CONF1, CONF2 and CONF3.
+
+
+
+    5  Rescanning Conference Mail
+
+       Many conference managers currently allow a system to request that an
+       area be "rescanned". In other words, the system receiving the
+       request will export all mail in one or more areas to the requesting
+       system.
+
+       This may be accomplished by specifying the %RESCAN command in the
+       body of the request. This will force the ConfMgr to generate a scan
+       request for those areas which the remote system requested with the
+       message containing the %RESCAN command.
+
+       Rescans of a single area, newly linked, could be requested as
+       follows:
+
+          +CONFNAME, R[=<n>]
+
+       where 'n' is the number of messages in that area to be rescanned.
+       (The space following the comma is optional, but allowed.)
+
+       Rescanning has one serious drawback: dupes! It is very possible for
+       the requesting system to have already set up the area with several
+       downlinks. Thus, when the rescanned mail is received, it could be
+       exported to other systems. In a tree-based topology, this is
+       harmless, but in circular topologies this would create dupes.
+
+       Thus, it is proposed that system receiving the rescan request add a
+       kludge to the messages, so that they can be recognized by the
+       requesting system and not re-exported.
+
+       The proposed kludge is:
+
+          ^ARESCANNED <addr>
+
+       where <addr> is the network address, including domain, of the
+       system from which the mail was rescanned.
+
+       In alternative to a rescan, a sysop might request a "sample",
+       consisting of a series of messages contained in a text file. The
+       ConfMgr would export some or all messages from an area to a plain
+       ASCII text file, and send it along with the reply, to the requesting
+       system. A "sample" request would be made as follows:
+
+          +CONFNAME, S[=<n>]
+
+       where 'n' indicates how many messages should be sampled.
+
+       a) Updating Conferences
+
+          Update requests allow a sysop to rescan or "sample" an area
+          without having to first unlink from it, and then relink with the
+          rescan or "sample" parameter.
+
+          The format of this command is:
+
+             =CONFNAME, <param>[=<n>]
+
+          Thus a rescan request for the most recent 50 messages would be
+          specified as:
+
+             =CONFNAME, R=50
+
+
+
+    6  Information Requests
+
+       Requests for information have until now taken two forms. In one
+       case, they are given as switches after the password on the subject
+       line, while in the second they are given as "commands" within the
+       body of the message text. It is proposed that the second method be
+       chosen as standard, since it is considerably more flexible.
+
+       Below are listed the proposed commands:
+
+         %HELP                    Sends a (pre-defined) help text to the
+                                  requesting system, explaining how the
+                                  ConfMgr is to be used.
+
+         %LIST[,B]                Lists the conferences currently available
+                                  to the requesting system, on the basis
+                                  of a method internal to the conference
+                                  manager itself. This list would flag the
+                                  areas which are already linked. The 'B'
+                                  modifier would generate the list in
+                                  binary format (see section 8e).
+
+         %BLIST                   Equivalent to %LIST,B above.
+
+         %QUERY                   Lists the conferences currently linked to
+                                  the requesting system.
+
+         %UNLINKED                Lists the conferences which are available
+                                  to the requesting system, but not
+                                  currently linked. This is the logical
+                                  difference between a %LIST and a %QUERY.
+
+
+
+    7  Remote Maintenance
+
+       Besides these simple functions, it is becoming more and more
+       interesting to make handling of the conference mail flow even more
+       automatic. For this reason, for example, it might be useful to
+       allow another sysop control over your own system, adding and
+       removing conferences as need requires. Thus a hub or coordinator
+       could automatically have a new area added to their conference
+       lists, or discontinued ones removed.
+
+       Naturally, the ConfMgr must be able to distinguish which system has
+       the ability to make such changes, but that is beyond the scope of
+       this document.
+
+       It is proposed that a conference manager be able to automatically
+       add a new conference to the system's list if/when it is detected.
+       Thus no special commands would be required. The manager should be
+       able to determine a default list of down-links for the new area,
+       and also the "group" of systems which could then request it.
+
+       However, should it be desired to explicitly create a new conference
+       via remote, this could be done by including a line such as the
+       following in the message text:
+
+          &CONFNAME
+
+       In order to remote delete an area, the requesting sysop should
+       include a line like this in the body of the message text:
+
+          ~CONFNAME
+
+       Thus, if the system has remote privileges, the conference would be
+       deleted (and optionally, all systems linked to the conference could
+       be informed of this fact).
+
+       Similarly, it would also be possible to allow a system to change the
+       tag of a conference. This would be accomplished by a line such as:
+
+          # OLD_NAME  NEW_NAME
+
+       The ConfMgr should inform all downlinks of the change by sending a
+       net mail message.
+
+       It might also be desirable to allow a sysop to make changes on
+       behalf of another system. This could be done by inserting a special
+       command at the beginning of the request itself. For example:
+
+          From:     John Doe, on 2:123/1
+          To:       Program,  on 2:987/65
+          Subject:  password
+          Text:
+          %FROM: 2:234/56
+          +CONFNAME
+
+       The %FROM command would make the ConfMgr carry out the changes as if
+       the system 2:234/56 had requested them. The password should
+       nonetheless be the one assigned to 2:123/1.
+
+
+
+    8  Further Automation
+
+       In order to make the system more powerful, and to reduce the
+       necessity for human intervention, several extensions are feasible.
+
+       a) ARCmail Compression Method
+
+          One interesting application is the possibility of allowing a
+          remote system to change the compression program used to "pack"
+          mail bound for his system. This could be done with the following
+          command in the message to a ConfMgr:
+
+             %COMPRESS <method>
+
+          where <method> is one of the compression programs supported by
+          the system. Of course, the remote system should also be able to
+          determine which compression methods are available; this could be
+          done with
+
+             %COMPRESS ?
+
+          Requests for an unsupported compression method should also be
+          responded to with a list of those available.
+
+          From the practical point of view, only systems which pick up
+          their mail (as opposed to those to whom mail is sent) should be
+          allowed to change the compression method used. How this
+          distinction is achieved is beyond the scope of this document.
+
+       b) Passwords
+
+          A sysop should be able to change the password used to make
+          requests to a ConfMgr without requiring the intervention of the
+          other system's sysop. This could easily be done if the
+          conference manager implemented the following command:
+
+             %PWD <new_password>
+
+          The new password (case insensitive) would replace the current
+          one as of the next request.
+
+       c) Temporary Unlink
+
+          Should a system's sysop be absent for a prolonged period of time,
+          he might want to temporarily cut all conferences from his
+          uplink.  This could be accomplished with the
+
+             %PAUSE
+
+          command. This would tell the ConfMgr to temporarily stop sending
+          conferences to that system.  On his return, the sysop could
+          reactivate them all with the
+
+             %RESUME
+
+          command.
+
+       d) Forwarding Remote Requests
+
+          If a conference manager receives a remote request to delete an
+          area, it could very easily "forward" that request to all its
+          downlinks by producing a similar request.  In that way, a single
+          request originating from, for example, a Region Coordinator,
+          would result in the conference being deleted from all systems
+          "below" him.
+
+          Similarly, remote requests for conference name changes could
+          also be passed on to downlinks.
+
+       e) Automatic Requests for Conferences
+
+          A conference manager should also be able to automatically request
+          an area from an uplink. This would become necessary if, for
+          example, it processed a request for an area not currently
+          available on the system. In this case, it would scan a series of
+          conference lists for the requested area, and if found, would
+          send a request for that area.
+
+          In order to be able to do this, the ConfMgr would need to have
+          one or more lists of conferences from the uplinks. These lists
+          could be produced on request by the ConfMgr itself. In order to
+          simplify matters, a binary format is proposed. (Note that these
+          are C-style structures, with everything which that implies.)
+          This binary file is called a Binary Conference List (BCL).
+
+          The file starts with a header, containing some basic system
+          information:
+
+             struct bcl_header {
+               char    FingerPrint[4];     /* BCL<NUL> */
+               char    ConfMgrName[31];    /* Name of "ConfMgr" */
+               char    Origin[51];         /* Originating network addr */
+               long    CreationTime;       /* UNIX-timestamp when created */
+               long    flags;              /* Options, see below */
+               char    Reserved[256];      /* Reserved data */
+             }
+
+          The currently defined flags for the header are:
+
+            BCLH_ISLIST     0x00000001L
+              File is complete list
+
+            BCLH_ISUPDATE   0x00000002L
+              File contains update/diff information
+
+          The BCL would then contain a series of entries having the
+          following format:
+
+             struct bcl {
+               int     EntryLength;      /* Length of entry data */
+               long    flags1, flags2;   /* Conference flags */
+               char    *AreaTag;         /* Area tag [51] */
+               char    *Description;     /* Description [51] */
+               char    *Administrator;   /* Administrator or contact [51] */
+             }
+
+          The flags currently defined are:
+
+             FLG1_READONLY   0x00000001L
+                Read only, software must not allow users to enter mail.
+
+             FLG1_PRIVATE    0x00000002L
+                Private attribute of messages is honored.
+
+             FLG1_FILECONF   0x00000004L
+                File conference.
+
+             FLG1_MAILCONF   0x00000008L
+                Mail conference.
+
+             FLG1_REMOVE     0x00000010L
+                Remove specified conference from list (otherwise add/upd).
+
+          Thus, instead of scanning an AREAS.BBS style list, the ConfMgr
+          would parse and use lists in the above format. Naturally, each
+          list would be in some way "attached" to a node number, and a
+          corresponding ConfMgr password.
+
+          Each system may only have one master file, called anything they
+          want. But when transmitted to other systems, this file must
+          always be named ????????.BCL.
+
+          The list would be generated in response to a
+
+            %LIST, B
+
+          command in the message text.
+
+       f) Receipts
+
+          It might be useful to have the ConfMgr generate a receipt to be
+          sent to another system, perhaps a co-sysop or a sysop point
+          node. This could be done with the command:
+
+            %RECEIPT <name>,<address>
+
+         embedded in the request message. For example:
+
+            %RECEIPT JoHo,2:270/17
+
+
+
+    9  Comments in the request
+
+       It should be possible for a sysop to insert a comment in the request
+       made to a conference manager. These comments, naturally, would be
+       destined to the sysop of the system, and not to the conference
+       manager itself. Such comments should be placed at the end of the
+       message, following a %NOTE command.
+
+       In all cases except the above, the request can be deleted by the
+       ConfMgr once processed, but messages containing comments should be
+       retained.
+
+       Note: the current method used is to supply comments after a tear-
+       line. This practice is somewhat "messy", but it might be wise to
+       support it until such time as all conference managers have
+       implemented the %NOTE command.
+
+
+
+    10 Summary
+
+       +CONFNAME[,R|S]        Request to link to CONFNAME
+       -CONFNAME              Request to unlink from CONFNAME
+       =CONFNAME,R|S          Rescan or "sample" linked conference
+       &CONFNAME              Request to create CONFNAME
+       ~CONFNAME              Request to delete CONFNAME
+       #OLD NEW               Name change request
+
+       %LIST[,B]              List available areas, flag linked
+       %QUERY                 Only list linked areas
+       %UNLINKED              List available but unlinked areas
+       %HELP                  Send help text
+       %FROM <addr>           Simulate request from another system
+       %RESCAN                Rescan conferences linked in current request
+       %COMPRESS <method>     Change compression method
+       %PWD <new_pwd>         Change ConfMgr password
+       %PAUSE                 Suspend link
+       %RESUME                Resume link
+       %RECEIPT <name>,<addr> Send copy of receipt to another system
+       %NOTE                  Introduces comment to the sysop
+
+
+
+    11 Final Note
+
+       This document is to be considered as a suggestion for software
+       developers to make their programs compatible with one another, so as
+       to make life easier for the average sysop when dealing with
+       conference managers.
+
+       Feedback would be appreciated and can be sent to us at the addresses
+       specified on the title page. Please send feedback via netmail only.
+
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,31 @@
+			Debugging with MBSE BBS.
+
+From version 0.33.15 I changed the way debug logging goes. There are no more
+#ifdef .. #endif directives in the code that change the loging behaviour.
+Lines that could be logged in the code for debug are now written in two
+possible ways:
+
+Syslog('b', "This is always logged for debug");
+Syslog('B', "This is logged if most_debug flag is true");
+
+The difference is the uppercase or lowercase logclass. Uppercase is only logged
+if the global flag most_debug is set to true. If you want to use it in one of
+the sources declare that flag like this:
+
+extern int most_debug;
+
+Then, from the moment you need the extra debugging, insert
+
+most_debug = TRUE;
+
+in the code, and set it to FALSE when you are done. 
+
+I did this because the extra debug is good for developers but not for regualar
+users that need some extra logging. The log output with the most_debug flag
+set to TRUE can be huge and does affect system performance.
+
+For those who are developing code for MBSE BBS, use two kinds on debug logging.
+
+
+	Michiel Broek.
+

@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Programs - mbuseradd - The useradd wrapper.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 31-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>mbpasswd - The password wrapper.</H1>
+<P>
+
+<H3>Synopsis.</h3>
+<P>
+<code><strong>mbpasswd</strong> [-opt] [username] [password]</code>
+<P>&nbsp;<P>
+
+<H3>Description.</h3>
+<P>
+<strong>mbpasswd</strong> is the wrapper for the <strong>passwd</strong> program
+is present on all Linux systems. To use <b>passwd</b> to change the password of 
+another user is only allowed by <b>root</b>. The mbpasswd program overcomes this limitation.
+The wrapper <b>mbpasswd</b> is run from the bbs by user <b>mbse</b> when an ordinary 
+user is logged in the bbs. The program is called when a new user logs in the bbs or 
+when an excisting user changes his password. His password under Unix is then always the same as his
+password in the bbs program. This is necessary for the user to be able to get
+his email using the pop3 protocol.<P> 
+You never need to run <strong>mbpasswd</strong> by hand, in fact it is protected so that only
+members of group <b>bbs</b> are allowed to use it.
+<P>&nbsp;<P>
+
+<H3>Environment.</H3>
+<P>
+<strong>mbpasswd</strong> must be installed setuid root and setgid root, ls -la looks like this:<br>
+<pre>
+-rws--s--x   1 root     root         6644 Jun 26 21:23 /opt/mbse/bin/mbpasswd*
+</pre>
+<P>&nbsp;<P>
+
+<H3>Commands.</H3>
+<P>
+<code><strong>mbpasswd</strong> [-opt] [username] [password]</code> for example:<br>
+<pre>
+mbpasswd -f michiel secret
+</pre>
+Valid options are <strong>-f</strong> (forced), this will also change locked passwords,
+this has only effect if your system uses shadow passwords. If you use
+<strong>-n</strong> as option, locked passwords cannot be changed. For a new user the
+<b>-f</b> option is used by <b>mbsebbs</b>, when a user changes his own password the
+<b>-n</b> option is used.
+<P>
+
+
+<A HREF="index.htm"><IMG SRC="../images/larrow.gif" ALT="Index" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Main" Border="0" width="33" height="35">  Back to Main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

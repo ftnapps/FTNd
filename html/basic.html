@@ -1,0 +1,152 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS basic installation.</TITLE>
+<LINK rel=stylesheet HREF="manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 27-May-2001</h5>
+<P>&nbsp;<P>
+
+<h1>MBSE BBS Basic Installation</h1>
+
+<h3>Introduction.</h3>
+<p>
+Before you compile and install MBSE BBS you must first setup the basic
+environment. If you don't do this, things will fail. 
+<P>&nbsp;<p>
+
+<h3>Step 1: planning the filesystems.</h3>
+<p>
+MBSE BBS is default installed in <b>/opt/mbse</b>. The spoolfiles (in and
+outbound, message bases) go into <b>/var/spool/mbse</b>. In the <b>/opt/mbse</b>
+path are several subdirectories, <b>bin</b> for the binaries, <b>etc</b> for the
+configuration and some scripts, <b>english</b> and <b>dutch</b> for the language
+files and menus, <b>home</b> for the users homedirectories, <b>log</b> for the
+logfiles, <b>magic</b> for the filerequest magicnames, <b>fdb</b> for the files
+database, <b>var</b> for some statistic files and <b>tmp</b> as temp directory.
+<p>
+Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard Linux
+filesystems (ext2). If you intent to make your bbs also accessible
+by FTP and WWW you must create the directory structure under the ftp user
+behind the pub directory. Read <a href="misc/ftpserver.html">the
+ftp server</a> doc for details. If you don't follow these guidlines, you
+will run into trouble later and have to spend a lot of time in correcting
+this error.
+<p>
+The default setup will be as follows:<br>
+<pre>
+/opt/mbse		binaries, config and user home directories.
+/var/spool/mbse		In/outbound, queues, download directories.
+</pre>
+<P>&nbsp;<p>
+
+<h3>Step 2: Running the installation script.</h3>
+<p>
+The installation script must be run by root. It checks if there is a
+previous or failed installation on your system. If that's so the script will
+not run. In other words, you can only run this script once. The script makes
+backup copies of the system files it changes, these files will get the
+extension <strong>.mbse</strong> To run the installation script you need
+the archive <strong>mbbsebbs-0.33.nn.tar.gz</strong>.
+Unpack this archive on your system, in /tmp will do fine:
+<pre>
+cd /tmp
+tar xfvz /path/to/the/mbsebbs-0.33.nn.tar.gz
+</pre>
+To start the script type:
+<pre>
+cd mbsebbs-0.33.nn
+sh ./SETUP.sh
+</pre>
+The script does the following:
+<ol>
+ <li>Create the group <strong>bbs</strong>
+ <li>Create the user <strong>mbse</strong>
+ <li>Create a <strong>.profile</strong> for user <strong>mbse</strong>
+ <li>Create and set owner of directory tree under /opt/mbse
+</ol>
+Then the script will ask you to give a password for user <strong>mbse</strong>
+This password is for system maintenance and for you to make changes to the
+bbs. You will need that frequently but you should not make that password
+easy to guess of course. The script will then continue again:
+<ol start="5">
+ <li>The user <strong>bbs</strong> is added.
+ <li>The password will be removed from user <strong>bbs</strong> This action
+will make changes in /etc/shadow (if you have that) otherwise in /etc/passwd.
+ <li>If they don't exist in the file /etc/services the services fido, tfido
+and binkp will be added.
+ <li>If they don't exist in the file /etc/inetd.conf the internet protocols
+for the mailer will be added. The <strong>inetd</strong> is restarted to
+activate the changes.
+</ol>
+<p>&nbsp;<p>
+
+<h3>Step 3: Check the basic installation</h3>
+<p>
+The last screen of the script is about sanity checks. Perform those checks!
+If something is wrong, now is the time to fix it. Don't panic and remember
+the backups of the system files that are changed are in /etc with the 
+extension <strong>.mbse</strong> i.e: those were the original files.
+<p>&nbsp;<p>
+
+<h3>Step 4: Install the basic packages.</h3>
+<p>
+Login as user <b>mbse</b>. While in the home directory unpack the distribution
+archives:
+<pre>
+tar xfvz /path/to/mbsebbs-0.33.nn.tar.gz
+</pre>
+You now have the subdirectory with sources in the right place. Indeed, if you
+have a new installation, you also have unpacked the archive somewere else
+to run the installation script. That one can be removed.
+Next build the binaries and install them using the folowing commands:
+<pre>
+cd ~/mbsebbs-0.33.nn
+./configure
+make
+su
+password: <em>enter root password here</em>
+make install
+exit
+</pre>
+The last part of the installation procedure shows you the location of the bbs
+startup script that is added to your system.  Because this is your first
+time installation, example menus, textfiles and some databases are installed. 
+If they already excist on your systems (when you do an upgrade) they
+will not be installed again.
+<p>
+Now you must start the <b>mbtask</b> daemon by hand by typing <b>/opt/mbse/bin/mbtask</b>.
+Check the file <b>/opt/mbse/log/mbtask.log</b> for startup problems. You may notice that
+the program <b>mbcico</b> is started everytime, this is not a problem, it simply doesn't work right
+now because you haven't configured anything yet.
+<p>&nbsp;<p>
+
+<h3>Step 5: (RedHat) startup problems.</h3>
+<p>
+From RedHat 6.1 (not the older versions) the behaviour of the 
+<strong>su</strong> is changed. This may be true for other distributions since
+the end of 1999 and for Mandrake as well. The file <code>/etc/rc.d/init.d/mbsed</code> that is 
+created by the setup script is different then before. The new command
+is <strong>su -</strong> instead of simply <strong>su</strong>. It might be
+that other new distributions also need the extra minus sign. If that's the
+case, please let me know and tell me how I can test what version it is. 
+<p>&nbsp;<p>
+
+<h3>Step 6: ready.</h3>
+<p>
+Now the basic environment is finished, the next thing is to <a href="install.html">install</a>
+the scripts, examples and configuration.
+<P>&nbsp;<P>
+<a href="index.htm"><img SRC="images/b_arrow.gif" ALT="Back to Index" BORDER=0 width="33" height="35" ></a>
+<a href="index.htm">Back to Index</a>
+
+</blockquote>
+</body>
+</html>

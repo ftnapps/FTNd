@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - BBS Setup - Security Limits.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 29-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - BBS Setup - Security Limits.</H1>
+<P>
+
+<H3>Security limits, introduction.</H3>
+<P>
+Every BBS needs several security limits to make a difference between several
+user groups. These are the twits, regular users and (co-)sysops. If you have
+a donation system you will probably have more different levels. Every level a 
+user can have must have a record in this file. To operate MBSE BBS you need at
+least 3 levels, twit with level 0, new users with the level as setup in 1.5.1,
+and the sysop level as setup in 1.4.5 As said, for special usergroups you can
+add more levels as you need. If a user logs in and has a level in the userbase
+you didn't define here, he won't be able to login. Even the twit level needs
+some access to be able to throw him out in a nice but friendly way, give him
+5 minutes, 1 file to download and no more then 1 Kb so he will understand he
+is not wanted. Some defaults are installed during first bbs setup.
+<P>&nbsp;<p>
+
+<H3>Limits setup</H3>
+<P>
+<pre>
+<strong>Access level    </strong>The access level value.
+<strong>Maximum time    </strong>The maximum time each day.
+<strong>Download Kb.    </strong>Maximum Kilobytes download each day.
+<strong>Download Files  </strong>Maximum files to download each day.
+<strong>Description     </strong>The description for this level.
+<strong>Available       </strong>If this level is available.
+<strong>Deleted         </strong>If this level must be deleted.
+</pre>
+<p>
+<IMG SRC="../images/security.gif" width="589" height="343">
+<P>
+
+<A HREF="bbs.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to BBS index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,16 @@
+	Mailflow roadmap (in progress)!
+
+
+
+
+                                        RFC	+---------------+
+					------->|   postemail	|--> SMTP
+						+---------------+
+
+						+---------------+
+					FTN	|		|--> Outbound
+					------->|  postnetmail	|--> MsgBase
+						|		|--> mkrfcmsg --> postemail
+						+---------------+
+
+

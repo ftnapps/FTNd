@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Virus scanners.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 29-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - virus scanners</H1>
+<P>
+Once upon a time there was no DOS and no computer virusses. But since DOS was
+invented as a small OS which was easily extensible, virus writers saw their
+chance to easy spread their hacks. Although running a Linux system is 
+relative safe, most of the files that you have available on your bbs 
+are DOS based programs. And before you put them available for download, they 
+should be checked for virusses. Macro virusses are a relative new danger,
+this can also hurt Unix/Linux users.<P>
+There are several scanners for Linux available. Default only two of them
+are setup. You may consult <A HREF="http://www.openantivirus.org/">
+http://www.openantivirus.org</A> for more scanner mentioned in a mini-FAQ 
+maintained by Rainer Link.
+<p>
+<b>NAI Virus Scan</b> (uvscan) for Unix (Linux) made by <A HREF="http://www.nai.com">
+Network Associates, USA.</A>
+Not free for personal use. Uses the same DAT files as for Windows and DOS.
+<P>
+<strong>AntiVir/Linux</strong> made by <A HREF="http://www.hbedv.com">
+H+BEDV Datentechnik GmbH.</A>
+Can also be installed in sendmail or Postfix to scan incoming
+and outgoing email. This may be a good idea if you run a email gateway. 
+This version can be registered for personal use.
+<P>
+As soon as you have made a scanner available in the setup and you receive files
+in tic areas where the scan flag is set, then these files will be checked.
+As soon as one of the scanners detects a virus the received file will not be imported.
+Uploads from users will be checked with the installed virus scanners as well.
+<p>
+
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,268 @@
+<HTML>
+<HEAD>
+<TITLE>FTSC Product ID List.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FTA-1005
+Revision:       3
+Title:          FTSC Product Codes
+Author:         Administrator
+Revision Date:  22 March 1998
+Expiry Date:    22 March 1998
+----------------------------------------------------------------------
+Contents:
+                1. Format of product code list
+                2. Application for a product code
+----------------------------------------------------------------------
+
+
+1. Format of product code list
+------------------------------
+
+  The FTSC publishes a list of all product codes issued. The filename
+  is FTSCPROD.nnn, where nnn is a number which increases with each
+  revision.
+
+  The list is an ASCII text file with one line per product. Each line
+  contains a number of fields, delimited by commas. Some fields may
+  contain more than one value. In this case, the different values are
+  delimited with a forward slash ('/'). Spaces in fields are replaced
+  with underscores ('_'). Fields are not case-sensitive.
+
+  These are the fields which are currently defined:
+
+    code,name,platform,type,contact,netaddr[,assigned[,updated]]
+
+  code      The product code. 4 digits hexadecimal.
+  name      Product name.
+  platform  Platforms(s) supported.
+  type      Type(s) of product.
+  contact   Name of contact person.
+  netaddr   FidoNet address of contact person.
+  assigned  Date the product code was originally assigned.
+  updated   Date of last update of the product code data.
+
+  Platforms
+  ---------
+  See the list for examples. (Will be specified more firmly later).
+
+  Product types
+  -------------
+  Mailer    A mailer is a product that exchanges mail with FTS-0001,
+            FTS-0006, EMSI or other protocols that include a product
+            code field.
+  Packer    A packer is a product that creates .PKT files.
+
+  Dates
+  -----
+  The format is YYYYMMDD. A date field may also be blank.
+
+  If you write software which is dependant on this format, please make
+  it tolerant of additional fields after these for upwards
+  compatibility.
+
+
+2. Application for a product code
+---------------------------------
+
+  FidoNet products without an allocated product code which either
+  create Type-2 packets, or negotiate FTS-0001 sessions must use a
+  product code FEh (254d) in Type-2 compatible packet headers. This
+  code as been reserved for that purpose (use by product without a
+  product code). The product code FFh (255d) has been reserved to
+  indicate that the product code is stored elsewhere in the packet
+  header at an as yet unallocated offset.
+
+  The FTSC is currently working on an update to the Type-2 packet
+  specification, to allow 16-bit codes while keeping full backward
+  compatibility with 8-bit codes (something which the current Type-2
+  proposals in the FSC's are not). Until the specification is ready,
+  16-bit codes are issued with the low byte set to FFh (255d).
+
+  Below is an application form for an FTSC product code, which is used
+  to identify your product when used in FidoNet, and providing a means
+  by which you can be contacted should your product be found
+  responsible for problems encountered during its use. The issuance of
+  this product code in no way implies authorisation or approval of
+  your product for use on the network, only provides a means of ready
+  identification.
+
+  This application should be completed and submitted for only `real'
+  and completed products which will be used by FidoNet systems. If you
+  are currently developing a product which is not yet ready for use on
+  the network out of experimental stage, use product code 0 (zero)
+  which is, by convention, reserved for this purpose.
+
+  Please answer the questions as accurately and completely as
+  possible. We need to know what will actually be used on the net, so
+  describe only the current product, and leave future features and
+  plans for the comments section.
+
+  Send the completed form to the administrator of the FidoNet
+  Technical Standards Committee. Please see FTA-1003 for addresses.
+
+  We hope that you will take the time to revise your answers by
+  submitting updates as your product changes. A summary of the
+  information you provide is compiled into a list of all product codes
+  published and updated periodically by the FTSC called
+  "FTSCPROD.nnn".
+
+
+A. Application Form
+-------------------
+
+--- Cut along here ---------------------------------------------------
+
+FTSC Product Code Application
+=============================
+
+Type of application
+-------------------
+
+1.  Mark whichever is appropriate:
+
+    ____  New product application
+    ____  Update existing product       for existing product code ____
+
+
+2.  If this is an update, please briefly state the nature of the
+    update (change author's node number, change of product name, etc.)
+
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+
+
+Product information
+-------------------
+
+3.  What is the name of the product and the current version name or
+    number?
+
+    __________________________________________________________________
+
+
+4.  What is the name, FidoNet node, and postal address, and voice
+    number of the person(s) or organization responsible for the
+    product?  Where should inquiries be directed and who should be
+    contacted if the product is thought to cause errors on the
+    network?
+
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+
+
+5.  What operating systems does it currently run on?
+
+    __________________________________________________________________
+
+
+6.  Does the product contain a 'mailer'?  E.g. the package transmits
+    mail to other FidoNet systems and can fall back to FTS-0001,
+    though it may handle other protocols.
+
+    __________________________________________________________________
+
+
+7.  If the answer to question (6) is yes, what additional protocols
+    other than FTS-0001 does the product support? Refer to the
+    specific FTSC document which details this protocol, if any.
+
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+
+
+    With what additions or restrictions?
+
+    __________________________________________________________________
+
+
+8.  Is the package capable of servicing file requests, and if so,
+    'Bark' style (FTS-0008) and/or WaZOO .REQ (FTS-0006) or both?
+
+    __________________________________________________________________
+
+
+    With what additions or restrictions?
+
+    __________________________________________________________________
+
+
+9.  Is your software capable of functioning as a Continuous Mail
+    system? i.e. nodes running it might be marked as such in the
+    FidoNet nodelist?
+
+    __________________________________________________________________
+
+
+10. How is the product distributed?
+
+    Public Domain  ____________          Shareware      ______________
+    Commercial     ____________          Other          ______________
+    Object code    ____________          Source code    ______________
+
+    Comments: ________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+
+
+11. Please give additional comments to describe your product.
+
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+    __________________________________________________________________
+
+--- Cut along here ---------------------------------------------------
+
+
+B. Acknowledgements
+-------------------
+
+  The application form was inspired by one originally published in
+  FSC-0022 and later FSC-0090, originally by Bob Hartman, Jim Long,
+  and Randy Bush and modified by Rick Moore and David Nugent.
+
+
+C. History
+----------
+
+  Rev.1, 19970407: First non-draft release. Author Adrian Walker.
+  Rev.2, 19971229: Author changed to Administrator. Reformatted
+                   document slightly. Changed all dates in the lists
+                   to 4 digit centuries. Added information about
+                   status of 16-bit product codes.
+  Rev.3, 19980322: Moved the product code list out of the document and
+                   into a separate list, FTSCPROD.nnn. Added an
+                   application form. Revised text about 16 bit codes.
+
+
+**********************************************************************
+</PRE>
+
+<A HREF="./"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

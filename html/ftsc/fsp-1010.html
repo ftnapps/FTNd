@@ -1,0 +1,242 @@
+<HTML>
+<HEAD>
+<TITLE>FTSC Document FSP-1010, Revision 001</TITLE>
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+**********************************************************************
+FTSC                             FIDONET TECHNICAL STANDARDS COMMITTEE
+**********************************************************************
+
+Publication:    FSP-1010
+Revision:       1
+Title:          Via kludge specification
+Author:         Colin Turner,
+                Joaquim Homrighausen
+Revision Date:  26 April 1999
+Expiry Date:    26 April 2001
+----------------------------------------------------------------------
+Contents:
+                1. Current practice
+                2. Kludge specification
+                3. Examples
+                4. Deprecated formats
+----------------------------------------------------------------------
+
+Status of this document
+-----------------------
+
+  This document is a Fidonet Standards Proposal (FSP).
+
+  This document specifies an optional Fidonet standard protocol for
+  the Fidonet community, and requests discussion and suggestions for
+  improvements.
+
+  This document is released to the public domain, and may be used,
+  copied or modified for any purpose whatever.
+
+
+Abstract
+--------
+
+  Current practice for Fidonet Technology Network (FTN) NetMail
+  messages is to track their progress through the network and
+  programs by using control lines. These control lines are in
+  the form of a kludge named Via.
+  
+
+1. Current practice
+-------------------
+
+  As NetMail messages are routed through a FidoNet Technology Network
+  or as they are processed on a system, Via control lines are used to
+  track their progress.
+  
+  A single NetMail message may have any number of Via control lines.
+  
+  The Via control lines are stored in a block which starts after any
+  message text. New Via lines should be added to the end of the block
+  separated from the preceding control line by a single ASCII &lt;CR&gt;
+  character (0Dh).
+  
+  A Via control line is typically added:
+  
+    when a netmail packer packs the NetMail for transmission to
+    another system;
+    
+    when a netmail tracker inspects a NetMail.
+
+2. Kludge specification
+-----------------------
+
+  The Via control line is formatted as a number of fields, separated
+  by single space (20h) characters, as follows
+  
+    ^AVia: &lt;FTN Address&gt; @YYYYMMDD.HHMMSS[.Precise][.Time Zone] 
+    &lt;Program Name&gt; &lt;Version&gt; [Serial Number]&lt;CR&gt;
+    
+  Where ^A denotes the ASCII &lt;SOH&gt; (01h) character, and &lt;CR&gt; is the
+  character (0Dh).
+  
+  The fields are defined as follows:
+  
+  FTN Address
+  -----------
+
+  This field is mandatory and is the FidoNet Technology address of 
+  the system inserting the kludge. This may or may not include a
+  domain indicator.
+  
+  @YYYYMMDD.HHMMSS
+  ----------------
+  
+  This field is mandatory and consists of a time stamp. This is the
+  time at which the stamp was placed. The subcomponents are
+  
+  YYYY, the calendar year, in full four digit, decimal form;
+  MM,   the calendar month, in the range 01 to 12, this must be a
+        zero padded, two digit decimal number;
+  DD,   the day of the month, in the range 01 to 31, this must be a
+        zero padded, two digit decimal number;
+  HH,   hours, in the range 00 to 23, this must be a zero padded,
+        two digit decimal number;
+  MM,   minutes, in the range 00 to 59, this must be a zero padded,
+        two digit decimal number;
+  SS.   seconds, in the range 00 to 59, this must be a zero padded,
+        two digit decimal number.
+        
+  Precise
+  -------
+  
+  This field is optional and takes the form of extra precision in the
+  time stamp.
+  
+  If this field is present:
+  
+    it must begin with a single period character;
+    
+    this period must be followed by one or more decimal digits;
+    
+    the field has ended when another period or space is encountered;
+    
+    each decimal digit in the field following this character
+    represents the time of the via line in fractions of a second,
+    such that the the first digit represents tenths of a second,
+    the second digit represents hundreds of a second and so on.
+        
+  Time Zone
+  ---------
+
+  This field is optional, and must be a short, widely accepted
+  alphabetical abbreviation of the time zone that the time stamp
+  in the Via line pertains to.
+  
+  The use of various Time Zone values is deprecated, implementations
+  should attempt to convert the timestamp in the kludge to Universal
+  Time (GMT or UTC) and use the &quot;UTC&quot; Time Zone indicator, where
+  possible.
+  
+  The Time Zone field may only be ommitted when it is not possible
+  for the implementation to determine the correct offset from UTC,
+  and in this case the time stamp must represent local time on the
+  generating system.
+  
+  Program Name
+  ------------
+  
+  This field is mandatory, and must follow the format used in the PID
+  control line (detailed in FSC-46).
+  
+  Version
+  -------
+
+  This field is mandatory, and must follow the format used in the PID
+  control line (detailed in FSC-46).
+  
+  Serial Number
+  -------------
+  
+  This field is optional, and must follow the format used in the PID
+  control line (detailed in FSC-46).
+
+  Note that unlike many kludges, the &quot;Via&quot; text of the kludge itself
+  is in mixed, and not all upper case.
+  
+3. Examples
+-----------
+
+  Example of valid usage are
+  
+  ^AVia 2:443/13 @19990305.043212.UTC O/T-Track+ 2.69
+  ^AVia 2:443/13@fidonet @19980331.231202.UTC FrontDoor 2.32.mL
+  ^AVia 2:443/13.0 @19990101.002102.UTC FastEcho 1.46.1 21321
+  ^AVia 2:443/13 @19990323.230132 FakeMail 1.2
+  ^AVia 2:2480/18@fidonet @19990307.182128.47.UTC ITrack+ 1.3/G6 FP000069
+  
+4. Deprecated formats
+---------------------
+
+  Some other formats for the Via line are in use today, but these
+  formats are rather variable and inconsistent in nature, while
+  the format specified above is both more widespread and more
+  consistent.
+  
+  New implentations may need to parse these formats, but must not
+  generate them.
+  
+  The formats in use include, but are not limited to
+  
+  &lt;NAME&gt; [VERSION] [SERIAL] &lt;ADDRESS&gt; &lt;TIMESTAMP&gt; &lt;TIMEZONE&gt;
+  &lt;NAME&gt; &lt;ADDRESS&gt;, &lt;TIMESTAMP&gt; &lt;TIMEZONE&gt; &lt;VERSION&gt;
+  
+  Not that the time stamp in the above formats is also widely
+  variable, and takes forms which include, but may not be limited to
+  
+  &lt;Day&gt; &lt;Month&gt; &lt;Year&gt; AT &lt;Hour&gt;:&lt;Min&gt;:[Sec]
+  &lt;Day of Week&gt; &lt;Month&gt; &lt;Day of Month&gt; &lt;Year&gt;  &lt;Hour&gt;:&lt;Min&gt;:&lt;Sec&gt;
+  ON &lt;Day of Month&gt; &lt;Month&gt; &lt;Year&gt;  &lt;Hour&gt;:&lt;Min&gt;:&lt;Sec&gt;
+  &lt;Month&gt;/&lt;Day&gt; &lt;Hour&gt;:&lt;Min&gt;
+  @YYMMDDHHMMSS
+  
+  In the last listed format, observe in particular the two digit year
+  and lack of period to seperate the date from time.
+
+A. References
+-------------
+
+  [FTS-1] &quot;A Basic FidoNet(r) Technical Standard Revision 16&quot;, Randy
+  Bush. September 1995.
+
+  [FSC-46] &quot;A Product Identifier for FidoNet Message Handlers&quot;,
+  Joaquim Homrighausen, August 1994.
+
+
+B. Author contact data
+----------------------
+
+  Colin Turner
+  Fidonet: 2:443/13
+  E-mail:  ct@piglets.com
+  WWW:     http://www.piglets.com
+  
+  Joaquim Homrighausen
+  Fidonet: 2:201/330
+  E-mail:  joho@defsol.se
+  WWW:     http://www.defsol.se
+
+
+C. History
+----------
+
+  Rev.1, 990426: First release.
+
+**********************************************************************
+</PRE>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+</BODY>
+

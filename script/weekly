@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# MBSE BBS Weekly - Should be run every week at sunday from cron at 00:05
+#
+# 26-Aug-1999 MB.
+
+if [ "$MBSE_ROOT" = "" ]; then
+   export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
+fi
+
+# While the system is on UPS battery power, don't start maintenance
+#
+while [ -f $MBSE_ROOT/sema/upsalarm ]; do
+   sleep 60
+done
+
+$MBSE_ROOT/bin/mbfido notify -quiet
+

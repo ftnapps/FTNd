@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - TTY Lines.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 29-Jan-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - TTY Lines.</H1>
+<P>
+
+<h3>Introduction.</H3>
+<P>
+For each line your bbs has you must setup a tty line. This also includes 
+console lines (for local login), network lines for internet and lan connections
+and X-terminal connections, ISDN lines, and Analogue modem lines. If a call
+comes in over a tty you didn't define, that call is refused. So if you are
+directly connected to the internet, and have only 5 network tty's defined,
+then maximum 5 users are allowed to telnet to your bbs via the internet.
+<p>
+One thing about the portspeed, this is only needed for devices connected to
+serial ports such as modems and external ISDN adapters. For network tty's and
+internal ISDN cards this should be set to zero. If you set it to some other value, 
+things still word but you will get error messages in the logs.
+<p>
+A note about the EMSI flags, this <u>must</u> match your modem capabilities, if
+not dialout will not work correct. It is used to see which line to use to call
+a certain node. If you add the X75 flag on an analogue line, your system will try to
+call ISDN nodes using an analogue modem. So these are not your nodelist flags as they
+may represent combined ISDN and analogue flags but the flags that belong to a modem.
+<p>&nbsp;<p>
+
+<H3>Setup a line.</H3>
+<p>
+<pre>
+<strong>Comment      </strong>A description for this line.
+<strong>TTY device   </strong>The tty device name without /dev/
+<strong>Phone nr.    </strong>The phone number on this line.
+<strong>Line Speed   </strong>The maximum line speed for this line.
+<strong>Fido Flags   </strong>The EMSI flags for this line, include your modem flags here!
+<strong>Line Type    </strong>Can be POTS, ISDN, Network and Local.
+<strong>Available    </strong>Is this line available for use.
+<strong>Auth. log    </strong>Not in use yet.
+<strong>Honor ZMH    </strong>Deny users during ZMH on this line.
+<strong>Deleted      </strong>If this line must be deleted.
+<strong>Callout      </strong>Allow calling other systems from this line.
+<strong>Portspeed    </strong>The "locked" modemspeed, 0 to 4000000 baud, only for serial ports.
+<strong>Modemtype    </strong>The modem connected to this line.
+<strong>EMSI name    </strong>The EMSI name presented for this (modem) line.
+</pre>
+<p>&nbsp;<p>
+
+<H3>Some examples.</H3>
+<P>
+<IMG SRC="../images/tty.gif" width="589" height="343"><P>
+<IMG SRC="../images/tty1.gif" width="576" height="344"><P>
+<IMG SRC="../images/tty2.gif" width="589" height="342"><P>
+<IMG SRC="../images/tty3.gif" width="589" height="343"><P>
+
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="33" height="35">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

@@ -1,0 +1,188 @@
+/*****************************************************************************
+ *
+ * File ..................: getheader.c
+ * Purpose ...............: Read fidonet .pkt header
+ * Last modification date : 29-Jun-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek		FIDO:	2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#define	DB_NODES
+
+#include "libs.h"
+#include "structs.h"
+#include "records.h"
+#include "clcomm.h"
+#include "common.h"
+
+
+faddr	pktfrom;
+char	pktpwd[9];
+
+
+/*
+ * Return codes:
+ *  0 - All Seems Well
+ *  1 - Invalid type (not 2 or 2+)
+ *  2 - Read header error
+ *  3 - Not for me
+ *  4 - Password error
+ */
+int getheader(faddr *f, faddr *t, FILE *pkt, char *pname)
+{
+	unsigned char	buffer[0x3a];
+	int		i, pwdok;
+	int		capword, prodx;
+	int		major, minor = 0;
+	int		tome = FALSE;
+	char		*p, *prodn = NULL;
+	char		buf[5];
+	long		year, month, day, hour, min, sec;
+
+	f->domain = NULL;
+	f->name   = NULL;
+	t->domain = NULL;
+	t->name   = NULL;
+
+	/*
+	 * Read type 2+ packet header, see FSC-0039 version 4
+	 * and FTS-0001
+	 */
+	if (fread(buffer, 1, 0x3a, pkt) != 0x3a) {
+		WriteError("$Could not read header (%s)", pname);
+		return 2;
+	}
+	if ((buffer[0x12] + (buffer[0x13] << 8)) != 2) {
+		WriteError("Not a type 2 packet (%s)", pname);
+		return 1;
+	}
+
+	f->node = (buffer[0x01] << 8) + buffer[0x00];
+	t->node = (buffer[0x03] << 8) + buffer[0x02];
+	f->net  = (buffer[0x15] << 8) + buffer[0x14];
+	t->net  = (buffer[0x17] << 8) + buffer[0x16];
+	f->zone = (buffer[0x23] << 8) + buffer[0x22];
+	t->zone = (buffer[0x25] << 8) + buffer[0x24];
+
+	year    = (buffer[0x05] << 8) + buffer[0x04];
+	month   = (buffer[0x07] << 8) + buffer[0x06] + 1;
+	day     = (buffer[0x09] << 8) + buffer[0x08];
+	hour    = (buffer[0x0b] << 8) + buffer[0x0a];
+	min     = (buffer[0x0d] << 8) + buffer[0x0c];
+	sec     = (buffer[0x0f] << 8) + buffer[0x0e];
+	prodx   =  buffer[0x18];
+	major   =  buffer[0x19];
+
+	capword = (buffer[0x2d] << 8) + buffer[0x2c];
+	if (capword != ((buffer[0x28] << 8) + buffer[0x29]))
+		capword = 0;
+
+	if (capword & 0x0001) {
+		/*
+		 * FSC-0039 packet type 2+
+		 */
+		prodx     = prodx + (buffer[0x2a] << 8);
+		minor     = buffer[0x2b];
+		f->zone   = buffer[0x2e] + (buffer[0x2f] << 8);
+		t->zone   = buffer[0x30] + (buffer[0x31] << 8);
+		f->point  = buffer[0x32] + (buffer[0x33] << 8);
+		t->point  = buffer[0x34] + (buffer[0x35] << 8);
+	}
+
+	for (i = 0; i < 8; i++) 
+		pktpwd[i] = buffer[0x1a + i];
+	pktpwd[8]='\0';
+	for (p = pktpwd + 7; (p >= pktpwd) && (*p == ' '); p--) *p='\0';
+	if (pktpwd[0]) 
+		f->name = pktpwd;
+
+	/*
+	 * Fill in a default product code in case it doesn't exist
+	 */
+	sprintf(buf, "%04x", prodx);
+	prodn = xstrcpy((char *)"Unknown 0x");
+	prodn = xstrcat(prodn, buf);
+	for (i = 0; ftscprod[i].name; i++)
+		if (ftscprod[i].code == prodx) {
+			free(prodn);
+			prodn = xstrcpy(ftscprod[i].name);
+			break;
+		}
+
+	pktfrom.name   = NULL;
+	pktfrom.domain = NULL;
+	pktfrom.zone   = f->zone;
+	pktfrom.net    = f->net;
+	pktfrom.node   = f->node;
+	if (capword & 0x0001) 
+		pktfrom.point = f->point;
+	else 
+		pktfrom.point = 0;
+
+	for (i = 0; i < 40; i++) {
+		if ((CFG.akavalid[i]) &&
+		    ((t->zone == 0) || (t->zone == CFG.aka[i].zone)) &&
+		    (t->net  == CFG.aka[i].net) &&
+		    (t->node == CFG.aka[i].node) &&
+		    ((!(capword & 0x0001)) || (t->point == CFG.aka[i].point)))
+			tome = TRUE;
+	}
+
+	Syslog('+', "Packet   : %s type %s", pname, (capword & 0x0001) ? "2+":"stone-age");
+	Syslog('+', "From     : %s to %s", xstrcpy(ascfnode(f, 0x1f)), xstrcpy(ascfnode(t,0x1f)));
+	Syslog('+', "Dated    : %02u-%02u-%u %02u:%02u:%02u", day, month, year, hour, min, sec);
+	Syslog('+', "Program  : %s %d.%d", prodn, major, minor);
+
+	if (capword & 0x0001) {
+		buf[0] = buffer[0x36];
+		buf[1] = buffer[0x37];
+		buf[2] = buffer[0x38];
+		buf[3] = buffer[0x39];
+		buf[4] = '\0';
+	}
+
+	pwdok = TRUE;
+	if (noderecord(f)) {
+		if (strcasecmp(nodes.Epasswd, pktpwd) != 0) {
+			pwdok = FALSE;
+			if (strlen(pktpwd))
+				Syslog('!', "Password : got \"%s\", expected \"%s\"", pktpwd, nodes.Epasswd);
+		}
+	} else {
+		Syslog('+', "Node not in setup");
+	}
+
+	if (prodn)
+		free(prodn);
+
+	if (!tome) 
+		return 3;
+	else if (!pwdok && nodes.MailPwdCheck) 
+		return 4;
+	else 
+		return 0;
+}
+
+

@@ -1,0 +1,123 @@
+			MBSE BBS V0.33.17 TODO list.
+			----------------------------
+
+	These are a list of things that must be implemented one way or
+	another. Some things are urgent and necessary to operate the bbs
+	without human intervention, others are just for comfort, or nice.
+	I think this list will always contain items, I only hope the urgent
+	matters will be removed.
+	Note that most goodies are still in my mind instead of in this file.
+	Classes: U = Urgent.
+		 N = Normal, second priority.
+                 L = Cosmetic or nice to have.
+
+
+mbsebbs:
+	L: Reading of function keys over modem lines, or worse PPP connections,
+	   must be fixed. Timing problems together with modem buffering?
+	   It works with direct serial connections. Note, this also happens
+	   on busy LAN's between Linux boxes with normal xterm's.
+	   Note: this problem almost dissapeared after kernel upgrade to
+	   2.2.16.
+
+	L: Must include SEEN-BY and other hidden lines into BlueWave  and QWK
+	   mail, must be user selectable. see remarks of William McBrine.
+	   The default is oke now.
+
+	N: Rewrite chat to use "mbtask". Write chat functions into "mbmon"
+
+	N: Implement session and time/day limits.
+
+	N: Display textfiles and archives.
+
+	N: Check for tagged files before logoff
+
+	N: If a message doesn't end with a newline in the FS-editor, the last 
+	   line will dissapear when reading the message.
+
+	N: Can't post messages to users handle.
+
+	L: Implement telnet door.
+
+	N: Deleting a line in the FS editor with the BS key gives a SEGFAULT.
+
+mbfido:
+	U: Code cleanup and make a structure in this program. Remove duplicate
+	   or similar functions.
+
+	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
+	   each run).
+
+	N: Make a workaround for the fileecho name in the filesdatabase.
+
+	N: Implement long filename support from .tic files.
+
+	N: When a news article is received from a mailinglist there is a valid
+	   To: address in the message, the gate doesn't see that and uses the
+	   name to "All".
+
+mbcico:
+	L: Implement modem connect response translation for ISDN lines, i.e.
+	   make the CAUSE responses human readable. see McMail for this 
+	   option.
+
+	N: Implement MD5 crypt in binkp protocol driver.
+
+	N: Remove code to make automatic calls after mbtask does this.
+
+mbfile:
+	N: Add a check to see if the magic filenames are valid.
+
+	N: Adopt files with check for FILE_ID.DIZ
+
+	N: Export to files.bbs
+	
+	N: Add <area> <file> <uploader> <description>
+
+	N: Update <filespec> <area> <-touch>
+
+	N: Rearc <area>
+
+mbaff:
+	L: Add setup parameters for minimum length of keywords.
+
+mbindex:
+	N: Add usernames index.
+
+mbmon:
+	L: Logfile tail functions.
+
+	L: Chat with bbs users.
+
+mbtask:
+	L: Add chat protocol.
+
+	N: Let mbtask control the mailer and mailer calls.
+
+        N: Implement nodelist Txx flags.
+
+	N: Add events.
+
+mbsetup:
+	U: PickAka function lets mbsetup crash if domain is 12 characters
+
+	L: Generate crossreference document:
+	   File Areas      <=> BBS groups
+	   File Areas      <=> Newfiles groups
+	   Filefind flags  <=> TIC Areas
+	   Echomail        <=> Mail groups
+	   Echomail        <=> Nodes
+	   Fileechos       <=> Groups
+	   Fileechos       <=> Nodes
+	   Fileechos       <=> BBS Areas
+	   Fileechos       <=> Magic processing
+	   Fileechos       <=> Hatch
+	   Newfiles        <=> BBS Areas
+	   Newfiles        <=> File groups
+	   Echomail groups <=> Nodes
+	   Echomail groups <=> Areas
+	   Fileecho groups <=> Nodes
+	   Fileecho groups <=> File echos
+	   Fileecho groups <=> Newfile reports
+	   Fileecho groups <=> BBS Areas
+

@@ -1,0 +1,485 @@
+<HTML>
+<HEAD>
+<TITLE>Bark file-request protocol extension.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FTS-0008
+Version:  003
+Date:     15-Oct-1990
+Updates:  FTS-0001
+
+
+
+                  An Enhanced FidoNet(r) Technical Standard
+                 Extending FTS-0001 to include Bark requests
+
+                            October 15, 1990
+
+
+
+
+Status of this document:
+
+    This document specifies an optional standard for the FidoNet community.
+    Implementation of the protocols defined in this document is not mandatory,
+    but all implementations of these protocols are expected to adhere to this
+    standard.  Distribution of this document is subject to the limitations of
+    the copyright notice displayed below.
+
+
+    Copyright 1989-90 by Philip L. Becker.  Portions of this document are
+    copyright 1986-90 by Randy Bush and are incorporated with his consent.
+    All rights reserved.  A right to distribute only without modification and
+    only at no charge is granted.  Under no circumstances is this document to
+    be reproduced or distributed as part of or packaged with any product or
+    other sales transaction for which any fee is charged.  Any and all other
+    reproduction or excerpting requires the explicit written consent of the
+    copyright holders.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A. Introduction
+
+ 1. This Document
+
+    This document describes the standard for "Bark" type FidoNet file
+    request operation.  Bark file requests are an extension to the basic
+    FTS-0001 mail session, and this document presents these requests as a
+    modification to that document.
+
+ 2. What are File Requests?
+
+    File Requests are a way of requesting that a specific file be sent during
+    a FidoNet mail session.  This has many advantages over simply logging on to
+    a BBS and downloading a file:
+
+       o  You need not be a validated user
+
+       o  You don't have to spend time searching for the file on the BBS
+
+       o  You can schedule the file request to take place at any time without
+          your being near your computer.
+
+    There are two commonly used types of file requests on FidoNet today, WaZOO
+    and Bark requests.  WaZOO requests are used by Opus and BinkleyTerm, and
+    are not documented here.  See the document FTS-0006 by V. Perriello for a
+    description of these.   Bark requests were the first file request extension
+    to the FTS-0001 protocol, and are supported (at least partially) by many
+    mailers, including SEAdog, Dutchie, BinkleyTerm, and to a certain extent
+    Opus.  This document describes how to implement Bark-type file requests.
+
+
+ B. Terms Used in this Document
+
+ 1. The diagrams and notations used in this document are the same as those used
+    in the FTS-0001 document.  Please see FTS-0001 for a description of these.
+    This document should be considered as an extension to the FTS-0001 session
+    layer protocol, and you will require FTS-0001 in addition to this document
+    to fully understand what is presented here.
+  
+    In addition to the data description language described in FTS-0001 section
+    A.4, one extra terminal used in this notation:
+  
+    (* terminals *)
+    someName<max> - String of up to max chars, NOT null terminated
+ C. Performing File Requests
+
+ 1. Introduction
+
+    A Bark request consists of transmitting a special Bark Request packet which
+    contains a filename, a date (used for update requests), and optionally a
+    password.  The system receiving the request then decides if it can send the
+    requested file or not, and if it can does so using the same protocol used
+    to send attached files.  Bark request handling is always controlled by the
+    answering system, and consists of two phases.  In phase one, the receiving
+    system asks the calling system to honor requests it may have to ask for
+    files from the caller.  In phase two, the receiving system allows the
+    calling system to request files from it.
+
+    Update file requests are the same as normal file requests, with one
+    exception.  If the date in the Bark Request packet (described below) is
+    greater than or equal to the date of the actual file requested, the file
+    will not be sent.  The requestor should set the date to the date of the
+    the actual file on its own end if an update request is desired.
+
+
+ D. The Bark Request Packet
+
+ 1. Data Link Layer Data Definition.
+ 
+    The Bark Request packet is a variable-sized packet containing a header, a
+    filename, a date (which is used only for update requests - in a normal file
+    request it's 0) and an optional password. When receiving a Bark Request
+    packet, the ETX may be used to determine the end of the data portion. Note
+    that the CRC is sent in the reverse byte order of a normal CRC XMODEM data
+    block (see FTS-0001 section G.1).
+
+    Note: some systems will send a password in the data block even if none is
+    needed.  Incoming passwords should be ignored unless the other system is
+    trying to request a passworded file.
+
+  
+
+                          Bark File Request Packet
+      Offset
+      dec hex
+              .-----------------------------------------------.
+        0   0 |       ACK - Start of Bark Request - 06H       |
+              +-----------------------------------------------+
+        1   1 |     Filename - Packed DOS file format         |
+              +-----------------------------------------------+
+        n   n |              SPACE - 20H                      |
+              +-----------------------------------------------+
+        n   n |              Date (0 if not Update Request)   |
+              +-----------------------------------------------+
+        n   n |      SPACE - 20H  (only if pswd follows)      |
+              +-----------------------------------------------+
+        n   n |         Password (optional)                   |
+              +-----------------------------------------------+
+        n   n |       ETX -  End of RESYNC packet  - 03H      |
+              +-----------------------------------------------+
+        n   n |     (*1)     CRC  low order byte              |
+              +-----------------------------------------------+
+        n   n |     (*1)     CRC high order byte              |
+              `-----------------------------------------------'
+
+              *1 - CRC does not include the ACK or ETX and is
+                   in the reverse byte order from the CRC in a
+                   normal XMODEM data packet.
+ 2. Data Description Notation of Bark Request Packet
+
+    DataBlock (no password) = ACK
+                              Filename<12>
+                              Space
+                              Date<11>
+                              ETX
+                              CRC
+  
+    DataBlock (with password) = ACK
+                                Filename<12>
+                                Space
+                                Date<11>
+                                Space
+                                Password<6|8>
+                                ETX
+                                CRC
+  
+    ACK   = 06H       (* Header for file request block *)
+    Space = 20H       (* Space character *)
+    ETX   = 03H       (* End of block *)
+  
+    Filename          (* Name of file requested *)
+    Date              (* ASCII string; the number of seconds
+                         since midnight, January 1, 1970 *)
+    Password          (* The password needed to request this
+                         file, if any.  Maximum length is 6 for
+                         BinkleyTerm and Opus, 8 for SEAdog
+                         and Dutchie. *)
+  
+    CRC = crc[2]      (* CCITT Cyclic Redundancy Check.  The
+                         same algorithm as used for XModem
+                         CRCs.  The CRC is calculated on
+                         all data in the block between but
+                         not including the ACK and the ETX *)
+ E. Session Layer Protocol:
+
+    This section describes the modified FTS-0001 session layer protocol.  This
+    is the only area of FTS-0001 which is modified to implement Bark style file
+    requests.  File Requests are performed at the end of the normal FidoNet
+    mail session, after any mail pickup is performed.
+
+    The diagrams below desribe the session level protocol with Bark file
+    requests implemented.  The state tables have been broken into subroutines
+    but the FTS-0001 portion is not functionally changed.  FTS-0001 sender
+    states S4 through S7 are now table "Send Mail SM0".  FTS-0001 receiver
+    states R3 through R6 are now table "Receive Mail RM0".  They are not
+    functionally changed in any way from FTS-0001, they are just broken out
+    to allow them to be used as subroutines.  Finally Sender states S0 through
+    S3 are unchanged, as are Receiver states R0 through R2.
+
+    The remaining FTS-0001 states are enhanced to implement the Bark file
+    request protocol. In addition, the subroutine state tables "Send Bark SB0"
+    and "Receive Bark RB0" have been added to handle the actual file requests.
+ 
+    The following diagrams fully replace the Session Layer protocol state
+    tables in FTS-0001.  No other changes to FTS-0001 are required to implement
+    the Bark File request feature.
+    Sender  (Top level)
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | S0  | SendInit |                         | dial modem              | S1  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S1  | WaitCxD  |1| carrier detected      | delay 1-5 seconds       | S2  |
+    |     |  (*1)    | |                       | Set SLO if > 2400bps,   |     |
+    |     |          | |                       | Reset SLO if <= 2400bps |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| busy, etc.            | report no connection    | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| voice                 | report no carrier       | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| carrier not detected  | report no connection    | exit|
+    |     |          | | within 60 seconds     |                         |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S2  | WhackCRs |1| over 30 seconds       | report no response <cr> | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| ?? <cr>s received     | delay 1 sec             | S3  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| <cr>s not received    | send <cr> <sp> <cr> <sp>| S2  |
+    |     |          | |                       |   delay ??? secs        |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S3  | WaitClear|1| no input for 0.5 secs | send TSYNCH = AEH       | S4  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| over 60 seconds       | hang up, report garbage | exit|
+    |     |          | | and line not clear    |                         |     |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S4  | SendMail |                         | (Send Mail SM0)         | S5  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | S5  | TryPickup|1| Rcv TSYNC             | (Receive Mail RM0)      | S5  |
+    |     |   (*2)   +-+-----------------------+-------------------------+-----+
+    |     |          |2| Rcv SYN               | (Receive Bark Req RB0)  | S5  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Rcv ENQ               | (Do Bark Requests SB0)  | S5  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| Rcv 'C' or NAK        | Send EOT                | S5  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| Rcv Other Char        | Send SUB                | S5  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |6| No Data for 45 secs   | Hang Up                 | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+    *1 - This state is shown for the extended SEAlink protocol.  Omit the
+         set/reset SLO actions if adding Bark to a strict FTS-0001 protocol
+         implementation, or if not implementing overdrive in SEAdog.
+   
+    *2 - To refuse to pickup mail (S5.1) may send a CAN and stay in (S5).
+
+    Note: Although the above shows the sender emitting only one TSYNCH, it is
+    recommended that a timeout of 5-20 seconds should initiate another TSYNCH.
+    The receiver should tolerate multiple TSYNCHs.
+    Receiver (Top Level)
+
+    The  receiving FSM is given  an external timer, the expiration of  which
+    will cause termination with a result of 'no calls' (R0.2).
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R0  | WaitCxD  |1| carrier detected      |                         | R1  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| external timer expires| report no calls         | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R1  | WaitBaud |1| baud rate detected    | send signon with <cr>s  | R2  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| no detect in ?? secs  | hang up, report no baud | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R2  | WaitTsync|1| TSYNCH received       | ignore input not TSYNCH | R3  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| 60 seconds timeout    | hang up, report not Fido| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R3  | RecMail  |                         | (Receive Mail RM0)      | R4  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R4  | AllowPkup|1| Have pickup for sender| Send Tsync,             | R5  |
+    |     |          | |                       |   Set T1=1 sec          |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| No pickup for sender  |                         | R6  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R5  | WtPickup |1| Rcv NAK or 'C'        | (Send Mail SM0)         | R6  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Rcv SUB               | Send Tsync,             | R5  |
+    |     |          | |                       |   Set T1=1 sec          |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Rcv CAN               | Report Mail Refused     | R6  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| T1 expired            | Send Tsync,             | R5  |
+    |     |          | |                       |   Set T1=1 sec          |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| 45 secs in R5         | Hang Up, report error   | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R6  | AskBark  |1| Wish to make requests | Send SYN                | R7  |
+    |     |   (*1)   +-+-----------------------+-------------------------+-----+
+    |     |          |2| No requests to make   |                         | R8  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R7  | DoRequest|1| Rcv CAN               | Report Requests Refused | R8  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Rcv ENQ               | (Send Bark SB0)         | R8  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Rcv SUB               | Send SYN                | R7  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| Rcv NAK or 'C'        | Send EOT                | R6  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| Rcv Other             | eat character           | R7  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |6| 5 sec, no input       | Send SYN                | R7  |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |7| 45 secs in R7         |                         | R8  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | R8  | WtPickup |1| Allow File Request    | (Receive Bark RB0),     | exit|
+    |     |          | |                       |   Hang Up               |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Disallow Requests     | Hang Up                 | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+    *1 - Some implementations always do (R6.1) even if they have no requests.
+    Sender - Send Mail
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | SM0 | SendMail |                         | (XMODEM send packet XS0)| SM1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SM1 | CheckMail|1| XMODEM successful     | (Fido registers success)| SM2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| XMODEM fail or timeout| hang up, report mail bad| exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SM2 | SendFiles|                         | (BATCH send files BS0)  | SM3 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SM3 | CheckFile|1| BATCH send successful | report success          | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| BATCH send failed     | hang up, rept files fail| exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+
+
+    Sender - Send Bark
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SB0 | SendBark |1| File to request       | Build Bark Request Pkt, | SB1 |
+    |     |          | |                       |   Set tries = 0         |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| No more files to req  | Send ETB                | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SB1 | AskFile  |                         | Send Bark Packet        | SB2 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SB2 | RcvFile  |1| Rcv ACK               | (Batch Receive BR0)     | SB3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Tries > 5             | Send ETB, report failed | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Rcv Other             | Purge input, Incr tries | SB1 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| 10 sec w/o ACK        | Incr tries              | SB1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | SB3 | NxtFile  |1| Rcv ENQ               |                         | SB0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Rcv Other             | Purge Input             | SB3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| 5 sec, no input       | Send SUB                | SB3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| 45 sec in SB3         | Hang up, report error   | exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+    Sender & Receiver - Receive Mail
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-------------------------+-------------------------+-----+
+    | RM0 | RecMail  |                         | (XMODEM rec packet XR0) | RM1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RM1 | XRecEnd  |1| XMODEM successful     | delay 1 second          | RM2 |
+    |     |          | |                       |   flush input           |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| XMODEM failed         | hang up, rept mail fail | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RM2 | RecFiles |                         | (BATCH rec files BR0)   | RM3 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RM3 | ChkFiles |1| BATCH recv successful | delay 2 secs, rprt good | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| BATCH recv failed     | hang up, report bad file| exit|
+    `-----+----------+-+-----------------------+-------------------------+-----'
+
+
+    Sender & Receiver - Receive Bark
+
+    .-----+----------+-------------------------+-------------------------+-----.
+    |State| State    | Predicate(s)            | Action(s)               | Next|
+    |  #  | Name     |                         |                         | St  |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RB0 | HonorReq |1| Ok to honor request   | Purge Input, Send ENQ,  | RB1 |
+    |     |          | |                       |   Set T1 = 2 seconds    |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Don't wish to honor   | Send CAN                | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RB1 | WaitBark |1| Got ACK               | Rcv Bark Packet (*1)    | RB2 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Got ETB               | Report done             | exit|
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| Got ENQ               | Send ETB                | RB0 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |4| T1 expired            | Purge Input, Send ENQ,  | RB1 |
+    |     |          | |                       |   Set T1 = 2 seconds    |     |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |5| 20 seconds in RB1     | Hang Up, Report error   | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RB2 | AckBark  |1| Bark Pkt Rcvd Good    | Send ACK                | RB3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| Bark Pkt Rcv Error    | Send NAK                | RB1 |
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RB3 | WaitStrt |1| Got 'C' or NAK        |                         | RB4 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |2| No data for 3 seconds | Send ACK                | RB3 |
+    |     |          +-+-----------------------+-------------------------+-----+
+    |     |          |3| 15 seconds in RB3     | Hang Up, Report Error   | exit|
+    +-----+----------+-+-----------------------+-------------------------+-----+
+    | RB4 | SendFile |1| Can snd requested file| (Batch Send File BS0)   | RB0 |
+    |     |   (*2)   +-+-----------------------+-------------------------+-----+
+    |     |          |2| Can't send file       | Send EOT                | RB0 |
+    `-----+----------+-+-----------------------+-------------------------+-----'
+    *1 - If SUB (16H) received before ETX go to RB0 to resync bark receive
+
+    *2 - While deciding if file exists, and if the password allows it to be
+         sent etc., a NUL may be sent to buy 20 seconds more on the timeout
+         on the other end if it is using the SEAlink extended FTS-0001
+         specification protocol.  Sending a NUL is harmless for a strict
+         FTS-0001 session, but will not buy more time.
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

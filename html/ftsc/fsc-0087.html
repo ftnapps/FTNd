@@ -1,0 +1,305 @@
+<HTML>
+<HEAD>
+<TITLE>File Forwarding in Fidonet Technology Networks.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+  | Document: FSC-0087
+  | Version:  001
+  | Date:     31 October, 1995
+  |
+  | Robert Williamson FidoNet#1:167/104.0
+
+    File Forwarding in Fidonet Technology Networks
+    Robert Williamson FidoNet#1:167/104.0  robert@ecs.mtlnet.org
+
+    Purpose: 
+        To  document  current practices in File Forwarding and the minimum
+    requirements and known extensions of the TIC file format.
+
+    Acknowledgements:
+        The  TIC  file  format  was introduced by Barry Geller, in the MSDOS
+    File Forwarder, Tick.  Useful extensions to this format were introduced
+    by Harald Helms, in the MSDOS FileForwarder, AllFix.
+    
+    Terminology:
+    FTN - Fidonet Technolgy Network, such as FIDONET, AMIGANET or IBMNET.
+          Sometimes used interchangably with the term DOMAIN.
+
+    FNC - FileName Conversion, process of converting filenames to msdos 8.3
+          format for transmission.
+
+    FQFA - Fully Qualified FTN Address, the format is
+              FTN#Zone:Net/Node.Point
+
+    CRC - Cyclic Redundancy Check, method to determine whether some data
+          has been altered. CRC-32 is used in File Forwarding.
+
+    TIC - a file that contains control information for the File Forwarding
+        system.   These  files  are  named  xxSTAMP.TIC,  where  xx  is  an
+        abbreviation  representing  the  File  Forwarding  program name and
+        stamp  is  a  unixdate  stamp  truncated  to 6 characters.  
+
+    UTC  -  Universal  Time  Coordinated,  the  time  at  the  0o  meridian
+        (Greenwich); previously called GMT
+
+
+    forwarding  -  the  process  of  creating and sending tic files and the
+                   associated  file to one's downlinks.
+
+    ticking - the processing of reading and verifying a tic file and it's
+              associated file.
+
+    hatching - the process of introducing a new file into a fileecho
+
+    cross-hatching - the process of forwarding a file from one fileecho
+                     (ususally restricted) to another
+
+    Associated File - The file listed in the FILE field of the TIC file.
+
+
+        Note that use of UPPERCASE on tic file keywords in this document in
+        for display purposes only.
+
+  Format of a TIC file:
+
+    Addressing:
+        In  a  tic  file  any form of FTN address representation from 3d to
+        FQFA  may  be  used.   All  File  Forwarders  must  understand  the
+        following formats:
+          zone:net/node                 - 3D 
+          zone:net/node.point           - 4D
+          zone:net/node@ftn             - 5D - point 0 assumed
+          zone:net/node.point@ftn       - 5D 
+          ftn#zone:net/node.point       - fqfa
+
+        File Forwarders should have configurable options per site as to the
+        type of addressing each of it's downlinks can understand.
+
+    Dates:
+        All dates are expressed in UTC.
+
+    TimeDateStamps:
+        All  TimeDateStamps are unix TimeDateStamps (# of seconds since Jan
+        1, 1960) in UTC and expressed in hexadecimal notation.
+
+    Case Insensitivity:
+        the  format is completely case-insensitive.  It is general practice
+        that  the  first  letter  of a keyword is uppercase.  This is not a
+        requirement.
+
+    Order Dependancy:
+        keywords are not order dependant.
+        Order  dependancy  is required in some groupings of a keyword, such
+        as PATH, VIA, DESC and APP.
+
+    Modification of address fields on PassThrough:
+        The  forwarding  site may modify the addresses in any keyword field
+        to  make  them  compliant  with  the addressing limitations of each
+        downlink.  
+
+    Stripping of SeenBys:
+        The  forwarding site may strip seenbys to current FTN, ZONE or NET,
+        when not forwarding outside of current FTN, ZONE or NET.  This does
+        not imply nor permit the stripping of of a direct downlink which is
+        outside the current strip filter.
+
+
+    Keywords:
+      There are no colons on keywords.
+
+      Each keyword line is terminated with CR LF pair.
+
+      The maximum length of a keyword line is 256 characters, including the
+      CRLF termination. Some keyword lines may have a shorter limit.
+
+      Keywords  are  separated from their data by a single space.  There is
+      no space if there is no data associated with the keyword.
+        eg:  ReturnReceipt
+
+      Keywords are case-insensitive and order independant.
+
+      Keywords not understood are to be passed-though.
+
+      Known Keywords that are blank should not be passed though.
+        For  example,  an  empty  AREADESC,  could be either dropped or the
+        blank  replaced with the proper description.
+
+      Most Keywords are passed through when processing.
+        There  are  exceptions.  In some cases, a site-specific replacement
+        may be created.
+        Keywords marked with a ^ should not be passed-through.
+
+      Keywords marked with a * are REQUIRED when processing a TIC file.
+        If  any  of these are missing, the tic file should be considered as
+        BAD and the associated file not forwarded to downlinks.
+
+      Keywords marked with a # are CREATED when hatching or forwarding.
+
+
+    *#  AREA [AreaName]
+          the TagName of the file area.
+
+        AREADESC [description of area]                    OPTIONAL
+          a  short  (80 chars) description of the file area.  This could be
+          the description found in FileBone.NA
+
+    *#  FILE [File being sent]
+          the name of the file being sent, no path
+          the filename must conform to msdos 8.3 format, unless it is known
+          that the receiving site can handle longer filenames.
+     
+    ^#  FULLNAME [original filename before FNC]           OPTIONAL FNC only
+          the original filename (no path) before FileName Conversion    
+
+    *#  CRC [CRC-32 in hex]
+          crc of the file being sent, 8 hexadecimal characters
+
+    ^   MAGIC [MagicName]               OPTIONAL
+          Name  under  which the file can be FREQed from the site listed in
+          FROM.   This  is  NOT  passed  though when forwarding, unless the
+          MAGIC  name  is  the  same  on  the  forwarding  site.  It can be
+          replaced by the appropriate name.
+
+        REPLACES [FileName]               OPTIONAL
+          Filename  (no  path)  of  a  file  hatched  in  the AREA that the
+          associated file replaces.  If the site expects FNC files, and the
+          filename  does  not confrom to msdos 8.3 convention, the REPLACES
+          name should also be FNC.
+
+     #  DESC [Description]
+          Description of the file, limited to 80 characters per line,
+          including CRLF termination.
+          If  multiple LDESC lines are used, the DESC line must provide the
+          maximum information.  No File Forwadrer is required to passthough
+          or make use of any extra DESC line after the first.
+
+     # LDESC [multiple lines]
+          A  long description of the file.  LDESC does NOT replace DESC, it
+          is  used IN ADDITION to the short description.  No File Forwarder
+          is required make use of LESC lines.
+
+     #  SIZE [Bytes]              OPTIONAL, SHOULD be required
+          Length of the file in bytes
+
+        DATE [TimeDateStamp]
+          TimeDateStamp of the file. Can be date of creation of archive.
+
+       RELEASE [TimeDateStamp]
+          Date  when file is TO BE released.  Usually used by SDS, but can
+          be used by ADS as well.
+
+       AUTHOR [name]
+          Name  of  the author of the software package being hatched.  This
+          field  is  obviously not applicable to Newsletters, Nodelists and
+          Diffs and the like.
+
+       SOURCE [authors_address]
+          FTN  address of the Author of the software package being hatched.
+          Not  necessary  the same as the ORIGIN hatch site.  Does not have
+          to be an FTN address.
+
+     ^ APP [program] [Application Specific Information]
+          The  APP  keyword  is  a  keyword  known  to programs of the name
+          indicated.  APP'S are order dependent and must be passed though.
+  
+    *#  ORIGIN [Address]
+          Site where file entered the fileecho
+
+    *^# FROM [Address] [Pwd]
+          Site  that  is  forwarding  the  file  to  the next site.  Pwd is
+          optional and rarely used, IF AT ALL.  Pwd is NEVER passed through.
+
+    ^   TO [Address]                        OPTIONAL
+          Site  to  which  this TIC and the assocaited file are being sent.
+          This keyword is included in the .TIC file when:
+            a)  the file is being routed via another system which permits
+                such routing.  
+            b)  the  platform  in  use  does  not  have  any  FTN  software
+                independant   method   of   associating   a  file  nd  it's
+                destination.   eg.   platforms  that  do not have filenotes
+                that   could  contain  this  information  as  part  of  the
+                filesystem.
+
+          If  the address in the TO line is that of the receiving site, the
+          field  is  not passed through when forwarding.  If the address in
+          the  TO  lines  IS  NOT  that of the receiving site, it should be
+          forwarded to the TO site, if a routing agreement is in place with
+          the sending site.
+
+    *^# CREATED [by] [Program Banner]
+          File  Forwarder which created the TIC file.  This is generally in
+          the form:  
+            Created [by] program_name version [copyright_info]
+
+        VIA [FROM CREATED]                  OPTIONAL (tracking)
+          Copy  of  CREATED  line of FROM, with 'Created [by]' stripped and
+          FROM  prepended.   Always passed though.  The VIA is only created
+          by the receiving site when forwarding. It is never created by the
+          hatching  site.  Therefore, in any TIC file, the addresses in the
+          FROM and VIA should never be the same.
+          examples:
+          Via 1:167/100 ALLFIX+ 4.31 Copyright (C) 1992,95 Harald Harms (2:281/910)
+          Via FIDONET#1:167/104.0 XTick 3 Copyright (c) 1995 Robert Williamson FIDONET#1:167/104.0
+
+    *#  PATH [Address] [TimeDateStamp] [date and time]
+          Address  of  Site  which  has forwarded the file.  TimeDateStamp,
+          date and time is that of when the Site received and Processed the
+          file.
+
+    * # SEENBY [Address]
+          Site  which  has  received the file.  There are multiple lines of
+          Seenby and they are unordered.
+
+    *   PW [password]
+          Site or Area password.  This is case-insensitive and should be at
+          least 5 characters in length. 
+
+        PGP [signature]
+          PrettyGoodPrivacy signature. To be discussed. 
+
+    ^    ReceiptRequest -no data-               OPTIONAL
+          A  request  to the receiving system to generate a IsReturnReceipt
+          (attribute  word bit 13) messsage, in the same manner it would if
+          it  had  received  a message with the FileAttach an ReturnReceipt
+          attributes and a subject of the filename.
+          There  is  NO  requirement  to recognize this keyword.  It should
+          never be passed through.
+
+  Transmission of Files:
+
+    The  associated file, that is, the file Listed in the FILE field of the
+  TIC  file, should always be sent FIRST.  In the case of a failed session,
+  sending  the  FILE  first  prevents  the  orphaning  of  the file that is
+  normally caused by the deletion or movement of the TIC file to BAD. 
+
+    File  Forwarders should not move or delete orphaned TIC files, but this
+  can neither be relied upon nor mandated.
+
+    File  Forwaders  should  be  transparent  to  the  renaming  of file by
+  mailers.   This  means  that  if  the  mailer renames a duplicate file by
+  renaming  or  bumpinmg  a numeric extension, the File Forwarder should be
+  able  to  use  the  size  and  crc fields of the TIC to find and properly
+  rename the associated file referred to in the TIC.
+
+  File  Forwaders  should  always  delete and dequeue unsent TIC files when
+  re-hatching  the  same  or  updated  version  of an associated file.  The
+  implementor  may  wish  to  allow  exceptions  for  periodicals  such  as
+  nodediffs and newsletters.
+
+ -to be continued-
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

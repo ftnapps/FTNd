@@ -1,0 +1,182 @@
+/*****************************************************************************
+ *
+ * File ..................: mbfido/ulock.c
+ * Purpose ...............: Lock mbfido processing.
+ * Last modification date : 10-May-1999
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-1999
+ *   
+ * Michiel Broek		FIDO:		2:2801/16
+ * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/records.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "flock.h"
+#include "ulock.h"
+
+#define UNPACK_FACTOR 300
+#define TOSS_FACTOR 120
+#define TMPNAME "TMP."
+#define LCKNAME "LOCKFILE"
+
+
+static char lockfile[81];
+
+extern int do_quiet;
+
+
+/*
+ *  Put a lock on this program.
+ */
+int lockunpack(void)
+{
+	char	Tmpfile[81];
+	FILE	*fp;
+	pid_t	oldpid;
+
+	sprintf(Tmpfile, "%s/", CFG.inbound);
+	strcpy(lockfile, Tmpfile);
+	sprintf(Tmpfile + strlen(Tmpfile), "%s%u", TMPNAME, getpid());
+	sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
+
+	if ((fp = fopen(Tmpfile, "w")) == NULL) {
+		WriteError("$Can't create lockfile \"%s\"", Tmpfile);
+		return 1;
+	}
+	fprintf(fp, "%10u\n", getpid());
+	fclose(fp);
+
+	while (1) {
+		if (link(Tmpfile, lockfile) == 0) {
+			unlink(Tmpfile);
+			return 0;
+		}
+		if ((fp = fopen(lockfile, "r")) == NULL) {
+			WriteError("$Can't open lockfile \"%s\"", Tmpfile);
+			unlink(Tmpfile);
+			return 1;
+		}
+		if (fscanf(fp, "%u", &oldpid) != 1) {
+			WriteError("$Can't read old pid from \"%s\"", Tmpfile);
+			fclose(fp);
+			unlink(Tmpfile);
+			return 1;
+		}
+		fclose(fp);
+		if (kill(oldpid,0) == -1) {
+			if (errno == ESRCH) {
+				Syslog('+', "Stale lock found for pid %u", oldpid);
+				unlink(lockfile);
+				/* no return, try lock again */  
+			} else {
+				WriteError("$Kill for %u failed",oldpid);
+				unlink(Tmpfile);
+				return 1;
+			}
+		} else {
+			Syslog('+', "mbfido already running, pid=%u", oldpid);
+			unlink(Tmpfile);
+			return 1;
+		}
+	}
+}
+
+
+
+void ulockunpack(void)
+{
+	if (lockfile)
+		(void)unlink(lockfile);
+}
+
+
+
+int checkspace(char *dir, char *fn, int factor)
+{
+	struct stat	st;
+	struct statfs	sfs;
+
+	if ((stat(fn,&st) != 0) || (statfs(dir,&sfs) != 0)) {
+		WriteError("Cannot stat \"%s\" or statfs \"%s\", assume enough space", fn, dir);
+		return 1;
+	}
+
+	if ((((st.st_size / sfs.f_bsize +1) * factor) / 100L) > sfs.f_bfree) {
+		Syslog('!', "Only %lu %lu-byte blocks left on device where %s is located",
+			sfs.f_bfree,sfs.f_bsize,dir);
+		return 0;
+	}
+	return 1;
+}
+
+
+
+/*
+ * Unpack archive
+ */
+int unpack(char *fn)
+{
+	char	newname[16];
+	char	*cmd = NULL, *unarc;
+	int	rc = 0, ld;
+
+	if (!do_quiet) {
+		colour(11, 0);
+		printf("Unpacking file %s\n", fn);
+	}
+
+	if ((unarc = unpacker(fn)) == NULL) 
+		return 1;
+
+	if (!getarchiver(unarc))
+		return 1;
+
+	cmd = xstrcpy(archiver.munarc);
+
+	if ((cmd == NULL) || (cmd == ""))
+		return -1;
+
+	if ((ld = f_lock(fn)) == -1) {
+		free(cmd);
+		return 1;
+	}
+
+	rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null");
+	if (rc == 0) 
+		unlink(fn);
+	else {
+		strncpy(newname,fn,sizeof(newname)-1);
+		strcpy(newname+8,".bad");
+		rename(fn,newname);
+	}
+
+	free(cmd);
+	funlock(ld); 
+	return rc;
+}
+
+
+

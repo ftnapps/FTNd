@@ -1,0 +1,117 @@
+/*****************************************************************************
+ *
+ * File ..................: mbse.h
+ * Purpose ...............: Global variables for MBSE BBS
+ * Last modification date : 25-Aug-2000
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2000
+ *   
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#ifndef _MBSE_H
+#define _MBSE_H
+
+#define Max_passlen	14	/* Define maximum passwd length		   */
+#define LINES 24		/* Lines for MoreFile			   */
+#define LANG 500		/* Amount of Language Entries		   */
+
+
+
+typedef	struct _TagRec {
+	long	Area;		/* File Area number			   */
+	int	Active;		/* Not deleted from taglist		   */
+	int	Cost;		/* Free download			   */
+	off_t	Size;		/* File Size				   */
+	char	File[81];	/* File Name				   */
+} _Tag;
+
+
+
+/*
+ * File Areas
+ */
+int	iAreaNumber;		/* Current File Area -1			   */
+char	sAreaDesc[PATH_MAX];	/* Current File Area Name		   */
+char	sAreaPath[PATH_MAX];	/* Current File Area path		   */
+FILE	*pTagList;		/* Tagged files for download		   */
+_Tag	Tag;			/* Tag record				   */
+
+
+
+/*
+ * Msg Areas
+ */
+int	iMsgAreaNumber;		/* Current Message Area number -1	   */
+int	iMsgAreaType;		/* Current Message Area Type		   */
+char	sMsgAreaDesc[PATH_MAX];	/* Current Message Area Name		   */
+char	sMsgAreaBase[PATH_MAX];	/* Current Message Area Base		   */
+char	sMailbox[21];		/* Current e-mail mailbox		   */
+char	sMailpath[PATH_MAX];	/* Current e-mail path			   */
+
+
+
+/* 
+ * Protocols
+ */
+char	sProtName[21];		/* Current Transfer Protocol name	   */
+char	sProtUp[51];		/* Upload path & binary			   */
+char	sProtDn[51];		/* Download path & binary		   */
+char	sProtAdvice[31];	/* Advice for protocol			   */
+unsigned uProtBatch;		/* Batching protocol			   */
+unsigned uProtBidir;		/* Bi-directional protocol		   */
+int	iProtEfficiency;	/* Protocol efficiency			   */
+
+
+
+/* 
+ * Global variables
+ */
+char  	*mLanguage[LANG];	/* Define LANG=nnn Language Variables	   */
+char	*mKeystroke[LANG];	/* Possible keystrokes			   */
+char	*Date1, *Date2;		/* Result from function SwapDate()	   */
+char	*pTTY;			/* Current tty name			   */
+char  	sUserTimeleft[7];	/* Global Time Left Variable		   */
+int	iUserTimeLeft;		/* Global Time Left Variable		   */
+char	LastLoginDate[12];	/* Last login date			   */
+char	LastLoginTime[9];	/* Last login time			   */
+char	LastCaller[36];		/* Last caller on system		   */
+char  	FirstName[20];		/* Users First name			   */
+char  	LastName[30];		/* Users Last name			   */ 
+int	LoginPrompt;		/* Login prompt check - timeout		   */
+int	UserAge;		/* Users age				   */
+int	grecno;			/* User's Record Number in user file	   */
+int	SYSOP;			/* Int to see if user is Sysop		   */
+int	iLineCount;		/* Line Counter				   */
+int	iExpired;		/* Check if users time ran out		   */
+int	iUnixMode;		/* Using Unix Accounts			   */
+char	sUnixName[9];		/* Unix login name			   */
+time_t	Time2Go;		/* Calculated time to force logout	   */
+struct	tm *l_date;		/* Structure for Date			   */
+
+time_t	ltime;
+time_t	Time_Now;
+
+
+
+#endif

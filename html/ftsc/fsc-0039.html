@@ -1,0 +1,362 @@
+<HTML>
+<HEAD>
+<TITLE>A Type-2 Packet Extension Proposal.</TITLE>
+</HEAD>
+
+<!-- Background white, links blue (unvisited), navy (visited), red (active) -->
+<BODY
+ BGCOLOR="#FFFFFF"
+ TEXT="#000000"
+ LINK="#0000FF"
+ VLINK="#000080"
+ ALINK="#FF0000"
+>
+<PRE>
+Document: FSC-0039
+Version:  04
+Date:     29-Sep-90
+
+
+                      A Type-2 Packet Extension Proposal
+                       Mark A. Howard 1:260/340@FidoNet
+
+  Status of this document:
+  ------------------------
+  This FSC suggests a proposed protocol for the FidoNet(r) community,
+  and requests discussion and suggestions for improvements.  Distribution
+  of this document is unlimited.
+
+  Fido and FidoNet are registered marks of Tom Jennings and Fido Software.
+  FTS-0001 is a copyrighted work of Randy Bush.
+
+  Introduction
+  ------------
+  This document serves two major purposes.  The first is an attempt to define
+  and document the Type-2 packet which is widely in use in FidoNet today.
+  Although FTS-0001 defines the structure of a Type-2 packet, the natural
+  evolution of our network, mostly with regards to addressing methodology,
+  has made it necessary to utilize hitherto unused portions of the header
+  to insert Zone and Point information.  Also, it has become apparent that
+  some of the existing fields are not large enough to accomplish their
+  original tasks.
+
+  The second is to propose a simple mechanism to allow FidoNet to begin to
+  utilize advanced mail packing techniques.  It is quite apparent that while
+  Type-2 has served us faithfully for some time now, the evolution of our
+  network in terms of technical and physical complexity has caused us to
+  consider more efficient and functional ways to pack mail.
+
+  It should be made clear that with the exception of the Capability Word,
+  Capability Word Validation Copy, ProductCode(hi), and Revision(minor),
+  which are proposed extensions to the Type-2 packet header, this FSC is
+  an attempt to correctly document existing practices with regards to the
+  insertion of zone and point info by at least three mail processors in
+  use today.
+
+
+  The Type-2 Header (Where's the Zone?)
+  -------------------------------------
+  Although FTS-0001 has recently been updated to reflect the use of some of
+  the areas in the packed message header for zone data, at least two other
+  methods for inserting the zone information have been adopted, making it
+  necessary to provide support for both formats in all of the zone aware mail
+  processors.  The end result is more code, and redundant information in the
+  packet header.
+
+  This has presented a problem in logistics, as it is difficult to consider
+  the project of updating mail processors using one type to use the other.
+  As sufficient indentification is provided, in the form of the product code,
+  to determine the expected location of the zone information, and because
+  code already exists in most of the mail processors to overcome this, this
+  proposal does not attempt to suggest that one method be used over the
+  other, rather the intent is to attempt to document the extensions in use,
+  and the products involved.
+
+  See the accompanying chart and cross-reference.
+
+
+  The Product Code
+  ----------------
+  Based upon the current rate of requests for product codes from the FTSC,
+  it is probable that the Product Code byte will not be large enough to
+  accomodate all of the codes required.  While it is not reasonable to
+  expect that all Type-2 processors will eventually check the hi-order byte
+  proposed here, it is likely that 'current' mail processors will.  This
+  can be nothing but benefical, as it will force users to upgrade their
+  mail processors to a product which will as a minimum, support Type-2
+  with Zone and Point extensions, and quite possibly, processors that will
+  utilize more advanced mail packing techniques, making Type-2 extinct once
+  and for all.
+
+ 
+  The Capability Word  (How do we GET there from here?)
+  -----------------------------------------------------
+  Everybody would like to see more efficient and functional ways to pack and
+  exchange mail.  Several Type-3 message bundle proposals exist, but none
+  really address a problem which must be solved first.  The problem is that
+  since FidoNet is a hobbyist network, no demands can be placed on any one
+  sysop to upgrade or change their bundling software.  Because of this, it
+  is necessary to consider strategies which allow for the existence of Type-2
+  bundlers in the network topology.
+
+  Considerable advantages can be realized, however, between systems that
+  consent to use advanced bundling techniques.  One way to do this is to
+  simply send netmail to all of your connecting systems, saying "Hey, I've
+  got a Type-3 bundler now, how about you?"  This could become quite
+  tiresome, and does not represent much of an improvement on the current
+  situation.
+
+  What would be desirable is a network that would 'upgrade itself'.  Given a
+  situation where mail processors of various capabilities will exist in a
+  network topology, the goal is to provide a mechanism whereby two links can
+  determine and utilize the most efficient bundling method to use, in a
+  manner transparent to the sysop.
+
+  For instance, let's say that the FTSC releases the Type-7 All New Singing
+  and Dancing bundle format.  Well, your current version of SlingToss can
+  only support Types 2, 3, and 5.  One of your downlinks gets a new version
+  of MailMangle which can support Types 2, 3, 4, and 7.  Well, it is quite
+  obvious that since you and he are exchanging 4 megs of mail each night,
+  and it's an overseas call, that it would be in your interest to obtain a
+  new version of SlingToss which can support Type 7.
+
+  Note that this is *optional*.  Because both processors can support Type-3,
+  they will continue to exchange Type-3 mail quite happily, even though
+  MailMangle is happily advertising the availability of Type-7.  Even your
+  downlinks which are still using stone-age Type-2 processors will be fine,
+  as SlingToss will always export Type-2 bundles when no higher capability
+  can be determined.
+
+  So, after dashing off the check to the author, your new version of
+  SlingToss comes in the mail!  You rush over to your system, and install it.
+  The next time SlingToss exports mail to the MailMangle system, it says
+  "Hey!  I can now support Type 2, 3, 5, and 7!  So, whattya got?"  This is
+  no skin off MailMangle's nose, he's had Type-7 for quite a while, and he
+  begins to export Type-7 bundles to SlingToss.  "It's about time.", he says.
+
+  Now, this scenario is made possible by implementing a 'Capability Word' in
+  the present and future packet headers.  The Capability Update mechanism
+  depends on several assumptions:
+
+  1)   Any Advanced Capability Bundler *MUST* be capable of receiving and
+     faithfully processing Type-2 bundles.  Hopefully, the inbound packets
+     will be in the new format proposed by this document, but then again,
+     this is not an exact science.  What this means is that it is likely
+     that some packets may arrive with the Capability Word (CW) set to 0.
+     In this case, Type-2 is assumed, assuring compatibility.  The only
+     caveat is that it is conceivable that some obscure mail processor
+     uses the location proposed for the CW for other arcane purposes.  This
+|    can detected through the CWValidation Copy, which is byte-swapped and
+|    compared with the CW at that time.  If a mismatch is found, a CW of
+|    type 0 is assumed, and a Type-2 bundling method is used.
+
+  2) An Advanced Capability Bundler, hereafter referred to as a Type-N
+     Bundler, must have a method to store and maintain the node-by-node
+     capability information.  This can be done many ways, and in fact
+     several processors already have begun to maintain node information
+     outside of that found in AREAS.BBS, mostly to implement pre-arranged
+     alternate compression methods.  In a text configuration file, you
+     might see the following:
+
+     ;       Address      Comp    Send  LastCW ; Comments
+     Node    1:260/340    ZIP     Auto  7      ; Auto detect & upgrade
+     Node    1:135/20     LZH     3     2,3,7  ; Always send Type-3
+     Node    1:           ARC     2     0      ; Stone-Age processor
+     Node    1:135/4      ---     Auto  7      ; Sent me netmail
+     Node    1:           ---     0     0      ; Don't send CW
+
+     In this example, the fields are:
+
+     Address - downlink address.  Note that this is not necessarily
+               relative to echomail, only, it is possible to append
+               information to the node database as netmail packets are
+               receieved from different addresses.
+
+     Comp    - desired mail compression method.
+
+     Send    - Auto - automatically determined maximum common packing
+                      method to use.  Automatically update to LastCW
+                      when packing.
+
+     LastCW  - Last CW received from remote system.
+
+
+  3) A Type-N Bundle will always advertise it's capabilities in the CW
+     regardless of the type being sent.  As shown in the above example,
+     it allows Type-N processors to automatically track the capability
+     of your system.  Again, in cases where a stone-age processor is
+     being used, this field will be ignored, and in the unusual event
+     that it is not ignored, and is somehow harmful to the far system,
+     the Type-N processor can be configured to send a CW of 0.
+
+  The format of the Capability Word is designed to support up to 15 future
+  bundle types, and is bit-mapped to facilitate the easy determination of
+  the maximum common level supported between two nodes:
+
+                 msb           Capability Word               lsb
+  Node Supports  ------------FTSC Type Supported----------------
+
+                  U 16 15 14 13 12 11 10  9  8  7  6  5  4  3  2
+
+  2, 3, and 7     0  0  0  0  0  0  0  0  0  0  1  0  0  0  1  1
+  2, 3, and 5     0  0  0  0  0  0  0  0  0  0  0  0  1  0  1  1
+  2 (this FSC)    0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+  Stone Age**     0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+                  ^
+                  +--- Indicates UseNet RFC-822 capability
+
+                  ** - a mismatch in the CWValidation Copy also
+                       produces a CW=0.
+
+  In this example, the Type-N bundler would first compare the remote CW
+| and the byte-swapped remote CWValidation Copy, and check for a mismatch.
+  Prior to the compare, the MSB of the CW's are masked, as this bit is
+  reserved to indicate whether the mail processor is capable of also
+  accepting UseNet RFC-822 bundles.  Following the MSB mask, and bit
+  comparison, if they do not match, a remote CW of 0 is assumed.  If they
+  match, the Type-N processor would AND the local and remote CW words,
+  obtaining a CW expressing the Types which are in common to both systems.
+  The most significant Type will be used, by default, but note that this
+  assumes that new bundling Types will be increasingly more efficient or
+  in some way more beneficial.
+
+  Because this may not always be the case, there should be a method provided,
+  as illustrated above, to override the automatic upgrade should this become
+  the case.
+
+  The MSB of the CW is used to indicate whether the mail processor can accept
+  UseNet RFC-822 bundles or not.  It is a separate indicator, and not intended
+  to be used as a part of the above comparison, however can be used to also
+  advertise RFC-822 capability to other systems.  Since RFC-822 is 'set in
+  stone', there is no need to assign more than one capability bit.
+
+  It might seem somewhat limiting to only consider the possibility of 15
+  different future bundling methods, but it is my opinion that the careful
+  use of a 'Sub-Type' byte in the packet header can allow for the variations
+  on a single theme, and that proposals for new formats should be evaluated
+  by the FTSC to determine whether sufficient benefit can be realized in
+  the implementation of the given format, prior to assigning a new type
+  code.
+
+
+  Mailers
+  -------
+  It is quite clear to me that should this concept take hold, that the
+  logical place to store node capability data is in the local nodelist
+  database, or an index-associated data file.  As above, it is necessary
+  to generate Type-2 packets for whatever purpose, unless it is known
+  by prior association, that the far mailer can accept other types of
+  packets.  It is also quite reasonable to assume that a nodelist flag
+  could be assigned to advertise the CW for a given node, which the
+  native mailer nodelist compiler could then immediately determine the
+  preferred bundling method for any given node in FidoNet.
+
+  Another possibility would be to pass a capability advertisement in the
+  extensible portion of a handshake protocol, which may or may not already
+  exist in FidoNet.
+
+  The approach suggested previously in this document suggests the use of
+  a text configuration file, but it is quite obvious that many benefits
+  can be realized through the use of the nodelist, including the use of
+  additional flags to indicate the preferred compression method, etc.
+
+
+  Summary
+  -------
+  This document has been created in an attempt to define a method to allow
+  the future expansion and enhancement of FidoNet technology mail processors
+  and mailers, and in a way that is the least disruptive to existing mail
+  operations.  The intent is to provide for an environment that is as open,
+  and extensible as possible.
+
+  The mechanism described should allow many different types of processors
+  (FTSC-registered) to exist in the network at once, and to provide an
+  environment which is designed to operate at it's maximum efficiency
+  wherever possible or practical.
+
+  Revision 2 of this document was produced to implement suggestions made
+  primarily by Jan Vroonhof, who suggested the use of the CW Validation
+  Copy.  Jan presented this idea in his FSC-0048, along with other concepts
+  relating to the correct indentification and handling of zone and point
+  addressing.   This document sanctions the improvements to the CW as
+  recommended, but does not address or support the other extensions
+  recommended in FSC-0048.
+
+
+  Thanks
+  ------
+  To Ward Christensen, creator of XModem and BYE.
+
+     Tom Jennings, who started this whole mess.
+
+     Joaquim Homrighausen, for lots of good ideas, and motivation.  Here's
+                           another Lamborghini to work on.
+
+     Wynn Wagner, Oliver McDonald, Roeland Meyer, Andrew Farmer, Claude
+     Warren, Jan Vroonhof, Bob Hartman, and Vince Perriello, who all
+     contributed in some way to the creation of this document, mostly
+     through their messages in NET_DEV.
+
+
+
+  Type-2 Packet Format (proposed, but currently in use)
+  -----------------------------------------------------
+    Field    Ofs Siz Type  Description                Expected value(s)
+    -------  --- --- ----  -------------------------- -----------------
+    OrgNode  0x0   2 Word  Origination node address   0-65535
+    DstNode    2   2 Word  Destination node address   1-65535
+    Year       4   2  Int  Year packet generated      19??-2???
+    Month      6   2  Int  Month  "        "          0-11 (0=Jan)
+    Day        8   2  Int  Day    "        "          1-31
+    Hour       A   2  Int  Hour   "        "          0-23
+    Min        C   2  Int  Minute "        "          0-59
+    Sec        E   2  Int  Second "        "          0-59
+    Baud      10   2  Int  Baud Rate (not in use)     ????
+    PktVer    12   2  Int  Packet Version             Always 2
+    OrgNet    14   2 Word  Origination net address    1-65535
+    DstNet    16   2 Word  Destination net address    1-65535
+    PrdCodL   18   1 Byte  FTSC Product Code     (lo) 1-255
+  * PVMajor   19   1 Byte  FTSC Product Rev   (major) 1-255
+    Password  1A   8 Char  Packet password            A-Z,0-9
+  * QOrgZone  22   2  Int  Orig Zone (ZMailQ,QMail)   1-65535
+  * QDstZone  24   2  Int  Dest Zone (ZMailQ,QMail)   1-65535
+    Filler    26   2 Byte  Spare Change               ?
+| * CapValid  28   2 Word  CW Byte-Swapped Valid Copy BitField
+  * PrdCodH   2A   1 Byte  FTSC Product Code     (hi) 1-255
+  * PVMinor   2B   1 Byte  FTSC Product Rev   (minor) 1-255
+  * CapWord   2C   2 Word  Capability Word            BitField
+  * OrigZone  2E   2  Int  Origination Zone           1-65535
+  * DestZone  30   2  Int  Destination Zone           1-65535
+  * OrigPoint 32   2  Int  Origination Point          1-65535
+  * DestPoint 34   2  Int  Destination Point          1-65535
+  * ProdData  36   4 Long  Product-specific data      Whatever
+    PktTerm   3A   2 Word  Packet terminator          0000
+
+  * - extensions to FTS-0001
+
+  Ofs, Siz are in hex, other values are decimal.
+
+
+  Zone/Point Aware Mail Processors (probably a partial list)
+  ----------------------------------------------------------
+    Prod
+    Code Name - Uses QOrg/QDstZone Orig/DestZone Orig/DestPoint
+    ---- ----------- ------------- ------------- --------------
+    0x0C  FrontDoor  Reads/Updates      Yes           Yes
+    0x1A  DBridge        ?????          Yes           Yes
+    0x45  XRS        Reads/Updates      Yes           Yes
+    0x29  QMail           Yes          ?????      Not point-aware
+    0x35  ZMailQ          Yes          ?????      Not point-aware
+    0x3F  TosScan    Reads/Updates      Yes           Yes
+
+
+
+
+
+</PRE>
+
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+
+</BODY>
+</HTML>
+

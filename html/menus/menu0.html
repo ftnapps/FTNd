@@ -1,0 +1,176 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Menus - Global Menus.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 02-Feb-2001</h5>
+<P>&nbsp;<P>
+
+<h1>MBSE BBS Global Menus</h1>
+<hr>
+
+<OL>
+
+ <LI value="1"><strong>Goto another menu:</strong> This will start the execution
+ of another menu. The current menu level is not stored on the stack.<br>
+ <strong>Optional data:</strong> The name of the new menu.<Br>
+ <P>
+
+ <LI value="2"><strong>Gosub another menu:</strong> This will start the execution
+ of another menu. The current menu level is stored on the stack. Gosub's may
+ be nested 50 levels deep.<br>
+ <strong>Optional data:</strong> The name of the new menu.<br>
+ <P>
+
+ <LI value="3"><strong>Return from Gosub:</strong> This will go back one
+        gosub level. If you are already at the top level nothing happens.<br>
+ <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="4"><strong>Return to top menu:</strong> Return to the top (main)
+     menu. The name of this menu is set in the global setup. 
+     Default is main.mnu<br>
+    <strong>Optional data:</strong> None.<br>
+ <P>
+
+ <LI value="5"><strong>Display .a?? file with controlcodes:</strong> This will
+   display an ANSI file to the user. If the user has <em>Graphics No</em> set
+   then the ASCII version is shown. Search is done first in the users language
+   path and if that fails the default language path is used. 
+   <A HREF="control.html">Control codes</A> in the
+   file are substituted with the current values the represent.<BR>
+   <strong>Optional data:</strong> The name of the file to display. Do not
+   give the filename extension!<BR>
+   <P>
+
+ <LI value="6"><strong>Show menu prompt:</strong> Display the menu prompt.<br>
+   <strong>Optional data:</strong> The prompt to display. This string may
+   contain some control characters that are replaced with information. The
+   prompt is displayed in White on Black and is hardcoded at the moment.
+   <ul>
+     <li><strong>~</strong> This will insert the number of minutes the user
+        has left.
+     <li><strong>@</strong> This will insert the name of the current file area.
+     <li><strong>^</strong> This will insert the name of the current message area.
+     <li><strong>#</strong> This will insert the current local time.
+   </ul>
+   <P>
+
+ <LI value="7"><strong>Run external program:</strong> This will execute 
+    external programs.<br>
+   <strong>Optional data:</strong> The full path and filename of the external
+   program. This can be a shell too. Look for a lot of programs, for example
+   if you want to give your users internet mail with elm, the user can get a
+   shell prompt by typing <em>!/bin/sh</em>. If you want this look for
+   anyway you might consider using a restricted shell.<br>
+   <P>
+
+ <LI value="8"><strong>Show product information:</strong> This will show
+   copyright information about MBSE BBS.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="9"><strong>Display todays callers:</strong> This will display a
+   list of todays callers to the BBS.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names.<br>
+   <P>
+
+ <LI value="10"><strong>Display userlist:</strong> Display all users in the
+   users database except those that are hidden.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names.<br>
+   <P>
+
+ <LI value="11"><strong>Time statistics:</strong> Display the users time
+   statistics.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="12"><strong>Page Sysop:</strong> Page sysop for a chat.<br>
+   <strong>Optional data:</strong> A message to the user<br>
+   The message to the user could be something like "Calling sysop, please
+   wait ..." or "I will see if Michiel wants to chat with you, please wait!"
+   As sysop you will know best what to put in that line.
+   <P>
+
+ <LI value="13"><strong>Terminate call:</strong> Terminale this call and 
+   hangup.<br>
+   <strong>Optional data:</strong> None.
+   <P>
+
+ <LI value="14"><strong>Make a log entry:</strong> This will write a line in
+   the logfile.<br>
+   <strong>Optional data:</strong> The information you want in the logfile.<br>
+   <P>
+
+ <LI value="15"><strong>Print text to screen:</strong> Write text to the users
+   screen.<br>
+   <strong>Optional data:</strong> The text that must appear on the users
+   screen. The <em>@</em> character is replaced with a newline.<br>
+   <P>
+
+ <LI value="16"><strong>Who is online:</strong> Displays the who is online
+   list and what they are doing. Users that are hidden are not displayed.<br>
+   <strong>Optional data:</strong> "/H" Show handles instead of real names.<br>
+   <P>
+
+ <LI value="17"><strong>Comment to sysop:</strong> Enter the texteditor and
+   let the user write a message to the sysop. The area is predefined in the
+   global setup.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="18"><strong>Send online message:</strong> Send an online message
+   to a user on another line.</br>
+   <strong>Optional data:</strong> "/H" Use handles instead of real names.<br>
+   <P>
+
+ <LI value="19"><strong>Display textfile with more:</strong> This will display
+   a textfile to the user. After each full screen the user is prompted with
+   <em>More Y/n/=</em>.<br>
+   <strong>Optional data:</strong> The full path and filename to the file.<br>
+   <P>
+
+ <LI value="20"><strong>Display .a?? file with control codes and wait:</strong> 
+   This will display a ANSI or ASCII file to the user with <A HREF="control.html">
+   control codes</A> and wait for <em>Enter</em> when it is finished.<br>
+   <strong>Optional data:</strong> The filename without extension of the
+   file to display.<br>
+   <P>
+
+ <LI value="21"><strong>Expert mode .a??</strong> Not of any use anymore.
+   This one will be removed.<br>
+   <strong>Optional data:</strong> The name of the file without extension
+   to display.<br>
+   <P>
+
+ <LI value="22"><strong>Nextuser door:</strong> This runs the message to next
+   user door.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="23"><strong>Timebank door:</strong> This runs the time bank door.<br>
+   <strong>Optional data:</strong> None.<br>
+   <P>
+
+ <LI value="25"><strong>Safe cracker door:</strong> This runs the Safe Cracker
+   door.<br>
+   <strong>Optional data:</strong> None.<br>
+</OL>
+
+<HR>
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Index" BORDER=0 width="33" height="35"></A>
+   <A HREF="../">Main Index</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" BORDER=0 width="40" height="30"></A>
+   <A HREF="./">Menus Index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+

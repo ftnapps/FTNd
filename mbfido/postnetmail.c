@@ -1,0 +1,316 @@
+/*****************************************************************************
+ *
+ * File ..................: mbfido/postnetmail.c
+ * Purpose ...............: Post Netmail message from temp file
+ * Last modification date : 21-Jun-2001
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-2001
+ *   
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MBSE BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MBSE BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/records.h"
+#include "../lib/dbcfg.h"
+#include "../lib/dbuser.h"
+#include "../lib/dbnode.h"
+#include "../lib/dbftn.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "tracker.h"
+#include "addpkt.h"
+#include "importnet.h"
+#include "mkrfcmsg.h"
+#include "areamgr.h"
+#include "filemgr.h"
+#include "ping.h"
+#include "postemail.h"
+
+
+
+/*
+ * Global variables
+ */
+extern	int	net_in;			/* Total netmails processed	*/
+extern	int	net_out;		/* Netmails exported		*/
+extern	int	net_imp;		/* Netmails imported            */
+extern	int	net_bad;		/* Bad netmails			*/
+extern	int	most_debug;		/* Headvy debugging flag	*/
+
+
+
+/*
+ *  Post netmail message for temp file. The tempfile is an FTN style message.
+ *
+ *  0 - All seems well.
+ *  1 - Something went wrong.
+ *
+ */
+int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t mdate, int flags, int DoPing)
+{
+	char    	*p, *reply = NULL;
+	char    	name[36], *buf;
+	char		System[36], ext[4];
+	int		result = 1, email = FALSE;
+	faddr		*ta, *ra;
+	fidoaddr	na, route, Orig;
+	FILE		*sfp, *net;
+	time_t		now;
+	struct tm	*tm;
+
+	Syslog('m', "Post netmail from: %s", ascfnode(f, 0xff));
+	Syslog('m', "Post netmail to  : %s", ascfnode(t, 0xff));
+	Syslog('m', "Post netmail subj: %s", MBSE_SS(subject));
+	net_in++;
+
+	memset(&na, 0, sizeof(na));
+	na.zone  = t->zone;
+	na.net   = t->net;
+	na.node  = t->node;
+	na.point = t->point;
+	if (SearchFidonet(na.zone))
+		sprintf(na.domain, "%s", fidonet.domain);
+
+	switch(TrackMail(na, &route)) {
+	case R_LOCAL:
+		/*
+		 *  Check the To: field.
+		 */
+		if (strchr(t->name, '@') != NULL) {
+			sprintf(name, "%s", strtok(t->name, "@"));
+			sprintf(System, "%s", strtok(NULL, "\000"));
+			email = TRUE;
+		} else {
+			sprintf(name, "%s", t->name);
+			sprintf(System, "%s", CFG.sysdomain);
+		}
+
+		if (email) {
+			/*
+			 * Send this netmail via mkrfcmsg -> postemail.
+			 */
+			if (reply)
+				free(reply);
+			most_debug = TRUE;
+			result = mkrfcmsg(f, t, subject, orig, mdate, flags, fp, 0L, FALSE);
+			most_debug = FALSE;
+			return result;
+		}
+
+		/*
+		 * If message to "sysop" or "postmaster" replace it
+		 * with the sysops real name.
+		 */
+		if ((strncasecmp(name, "sysop", 5) == 0) || (strcasecmp(name, "postmaster") == 0)) {
+			Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
+			sprintf(name, "%s", CFG.sysop_name);
+		}
+
+		/*
+		 * If the message is a service message, check the
+		 * services database to see what action is needed.
+		 * First make sure that the right noderecord is loaded.
+		 */
+		(void)noderecord(f);
+		p = calloc(PATH_MAX, sizeof(char));
+		sprintf(p, "%s/etc/service.data", getenv("MBSE_ROOT"));
+		if ((sfp = fopen(p, "r")) == NULL) {
+			WriteError("$Can't open %s", p);
+		} else {
+			fread(&servhdr, sizeof(servhdr), 1, sfp);
+			while (fread(&servrec, servhdr.recsize, 1, sfp) == 1) {
+				if ((strncasecmp(servrec.Service, name, strlen(servrec.Service)) == 0) && servrec.Active) {
+					switch (servrec.Action) {
+					case AREAMGR:   result = AreaMgr(f, t, mdate, flags, fp);
+							break;
+					case FILEMGR:   result = FileMgr(f, t, mdate, flags, fp);
+							break;
+					case EMAIL:     most_debug = TRUE;
+							result = mkrfcmsg(f, t, subject, orig, mdate, flags, fp, 0L, FALSE);
+							most_debug = FALSE;
+							break;
+					}
+					Syslog('m', "Handled service %s, rc=%d", servrec.Service, result);
+					if (reply)
+						free(reply);
+					fclose(sfp);
+					return result;
+				}
+			}
+			fclose(sfp);
+		}
+		free(p);
+
+		/*
+		 * Ping function
+		 */
+		if (!strcasecmp(name, (char *)"ping") && DoPing) {
+			return Ping(f, t, fp, FALSE);
+		}
+
+		/*
+		 * Check userlist real names, handles, unix names.
+		 * Import if one fits.
+		 */
+		if (SearchUser(name)) {
+			if (reply)
+				free(reply);
+			return importnet(f, t, mdate, flags, fp);
+		}
+
+		Syslog('+', "  \"%s\" is not a known BBS user", name);
+		/*
+		 *  Unknown, readdress it to the sysop.
+		 */
+		net_bad++;
+		Syslog('+', "  Readdress from %s to %s", name, CFG.sysop_name);
+		sprintf(name, "%s", CFG.sysop_name);
+		if (SearchUser(name)) {
+			return importnet(f, t, mdate, flags, fp);
+		} else {
+			WriteError("Readdress import failed");
+			return 0;
+		}
+		break;
+
+	case R_DIRECT:
+	case R_ROUTE:
+		Syslog('+', "Route netmail via %s", aka2str(route));
+                if (!strcasecmp(t->name, (char *)"ping") && DoPing) {
+                        Syslog('+', "In transit \"Ping\" message detected");
+                        Ping(f, t, fp, TRUE);
+                        (void)noderecord(f);
+                }
+
+		/*
+		 * Forward this message. Will not work for unknown
+		 * direct links.
+		 */
+		if (SearchNode(route)) {
+			memset(&Orig, 0, sizeof(Orig));
+			ra = fido2faddr(route);
+			ta = bestaka_s(ra);
+			Orig.zone  = ta->zone;
+			Orig.net   = ta->net;
+			Orig.node  = ta->node;
+			Orig.point = ta->point;
+			tidy_faddr(ra);
+			tidy_faddr(ta);
+
+			memset(&ext, 0, sizeof(ext));
+			if (nodes.PackNetmail)
+				sprintf(ext, (char *)"qqq");
+			else if (nodes.Crash)
+				sprintf(ext, (char *)"ccc");
+			else if (nodes.Hold)
+				sprintf(ext, (char *)"hhh");
+			else 
+				sprintf(ext, (char *)"nnn");
+
+			if ((net = OpenPkt(Orig , route, (char *)ext)) == NULL) {
+				net_bad++;
+				WriteError("Can't create netmail");
+				return 0;
+			}
+		} else {
+			/*
+			 * If it's not a direct link, create a outbound
+			 * .pkt anyway, better then that this mail is 
+			 * lost. It gets the normal status, it might
+			 * get delivered during ZMH this way.
+			 */
+			Syslog('!', "Warning: not a direct link, check setup");
+			memset(&Orig, 0, sizeof(Orig));
+			ra = fido2faddr(route);
+			ta = bestaka_s(ra);
+			Orig.zone  = ta->zone;
+			Orig.net   = ta->net;
+			Orig.node  = ta->node;
+			Orig.point = ta->point;
+			tidy_faddr(ra);
+			tidy_faddr(ta);
+
+			if ((net = OpenPkt(Orig , route, (char *)"nnn")) == NULL) {
+				net_bad++;
+				WriteError("Can't create netmail");
+				return 0;
+			}
+		}
+
+		/*
+		 * Now start forward.
+		 */
+		Syslog('m', "Net from  %s", ascfnode(f, 0xff));
+		Syslog('m', "Net to    %s", ascfnode(t, 0xff));
+		Syslog('m', "Net flags %08x", flags);
+		Syslog('m', "Net subj  %s", subject);
+
+		if (AddMsgHdr(net, f, t, flags, 0, mdate, t->name, f->name, subject)) {
+			WriteError("Can't write message header");
+			net_bad++;
+			return 0;
+		}
+		rewind(fp);
+
+		/*
+		 * Copy all text including kludges, when
+		 * finished, insert our ^aVia line.
+		 */
+		buf = calloc(2048, sizeof(char));
+		while ((fgets(buf, 2048, fp)) != NULL)
+			fprintf(net, "%s\r", buf);
+
+		now = time(NULL);
+		tm = gmtime(&now);
+		fprintf(net, "\001Via %s @%d%02d%02d.%02d%02d%02d.00.UTC mbfido %s\r", 
+			ascfnode(bestaka_s(t), 0x1f), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+			tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
+
+		putc(0, net);
+		fclose(net);
+		free(buf);
+		net_out++;
+		if (reply)
+			free(reply);
+		Syslog('m', "Forward done.");
+		return 0;
+
+	default:
+		/*
+		 * If we came this far, there's definitly something wrong
+		 * with this netmail.
+		 */
+		WriteError("No ROUTE for this netmail");
+		net_bad++;
+		if (reply)
+			free(reply);
+		return importnet(f, t, mdate, flags, fp);
+		break;
+	}
+
+	/* Never reached */
+	return result;
+}
+
+

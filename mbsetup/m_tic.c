@@ -1,0 +1,98 @@
+/*****************************************************************************
+ *
+ * File ..................: m_tic.c
+ * Purpose ...............: TIC Setup Program 
+ * Last modification date : 08-Feb-1999
+ *
+ *****************************************************************************
+ * Copyright (C) 1997-1999
+ *   
+ * Michiel Broek		FIDO:		2:2801/16
+ * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * 1971 BV IJmuiden
+ * the Netherlands
+ *
+ * This file is part of MBSE BBS.
+ *
+ * This BBS is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ *
+ * MB BBS is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MB BBS; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include "../lib/libs.h"
+#include "../lib/structs.h"
+#include "../lib/common.h"
+#include "screen.h"
+#include "mutil.h"
+#include "ledit.h"
+#include "m_fgroup.h"
+#include "m_ticarea.h"
+#include "m_magic.h"
+#include "m_hatch.h"
+#include "m_tic.h"
+
+
+void tic_menu(void)
+{
+	for (;;) {
+
+		clr_index();
+		set_color(WHITE, BLACK);
+		mvprintw( 5, 6, "10.   FILEECHO SETUP");
+		set_color(CYAN, BLACK);
+		mvprintw( 7, 6, "1.    Edit Fileecho Groups");
+		mvprintw( 8, 6, "2.    Edit Fileecho Areas");
+		mvprintw( 9, 6, "3.    Edit Hatch Manager");
+		mvprintw(10, 6, "4.    Edit Magic files");
+
+		switch(select_menu(4)) {
+		case 0:
+			return;
+
+		case 1:
+			EditFGroup();
+			break;
+
+		case 2:
+			EditTicarea();
+			break;
+
+		case 3:
+			EditHatch();
+			break;
+
+		case 4:
+			EditMagics();
+			break;
+		}
+	}
+}
+
+
+
+int tic_doc(FILE *fp, FILE *toc, int page)
+{
+	int	next;
+
+	page = newpage(fp, page);
+	addtoc(fp, toc, 10, 0, page, (char *)"Files processing");
+
+	next = tic_group_doc(fp, toc, page);
+	next = tic_areas_doc(fp, toc, next);
+	next = tic_hatch_doc(fp, toc, next);
+	next = tic_magic_doc(fp, toc, next);
+
+	return next;
+}
+
+

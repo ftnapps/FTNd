@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="author" lang="en" "content="Michiel Broek">
+<META name="copyright" lang="en" content="Copyright Michiel Broek">
+<META name="description" lang="en" content="MBSE BBS Manual">
+<META name="keywords" lang="en" content="MBSE BBS, MBSE, BBS, manual, fido, fidonet, gateway, tosser, mail, tic, mailer">
+<TITLE>MBSE BBS Setup - Mail Setup - Mail Areas.</TITLE>
+<LINK rel=stylesheet HREF="../manual.css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<h5>Last update 08-Jun-2001</h5>
+<P>&nbsp;<P>
+
+<H1>MBSE BBS Setup - Mail Setup -> Mail Areas.</H1>
+<P>
+
+<H3>Introduction.</H3>
+<P>
+Mail areas have fixed area numbers, just like file areas. But if you want you
+can move areas.
+Some offline readers don't like changing the area numbers. All areas can
+be of the following types: local, netmail, echomail and news. If you gate
+news and echomail in the same area, then select echomail
+if this area is a Fidonet area, select news if this area is a Usenet news area.
+<P>
+There is a global setup tool, if you are in the main message area setup screen then
+you can choose the Global command. This will allow you to do bulk changes on areas
+selected by the mail groups. Options are delete connection, add new connection, 
+replace connection, change connection status, change days old for purge, change 
+maximum messages for purge, change user security, change aka to use, change origin line,
+change netmail reply board and delete message area.
+<P>&nbsp;<P>
+
+<H3>Message Area Setup.</H3>
+<P>
+<pre>
+<strong>Area Name   </strong>The description of the area.
+<strong>Area Tag    </strong>The echomail area tag.
+<strong>Newsgroup   </strong>The newsgroup name if you are gating this area.
+<strong>Moderator   </strong>Leave this blank for now!
+<strong>JAM base    </strong>The path and name of the JAM message base without extension.
+<strong>Origin      </strong>The origin line to add to echomail messages.
+<strong>Fido Aka    </strong>The Fidonet aka for this area.
+<strong>QWK name    </strong>The name of the area for OffLine Readers.
+<strong>Group       </strong>The name of the echomail group.
+<strong>Distrib.    </strong>Leave this blank for now!
+<strong>Area Type   </strong>Local, Netmail, Echomail or News.
+<strong>Msg Kinds   </strong>Private/Public, Private, Public, Read Only, FTN moderated, Usenet Moderated
+<strong>FTN chars   </strong>FTN characterset, not in use yet, defaults to IBMPC 2
+<strong>RFC chars   </strong>RFC characterset, not in use yet, defaults tp LATIN-1 2
+<strong>Days Old    </strong>The maximum age of the messages before purging.
+<strong>Max. Msgs   </strong>The maximum messages in this area.
+<strong>Netreply    </strong>Netmail reply area if this is echomail.
+<strong>Active      </strong>If this area is active.
+<strong>User Del.   </strong>Users may delete their own messages.
+<strong>Read Sec.   </strong>The security level to read messages.
+<strong>Write Sec.  </strong>The security level to write messages.
+<strong>Sysop Sec.  </strong>The security level to do sysop actions.
+<strong>Aliases     </strong>Allow the use of an Alias.
+<strong>Random org  </strong>Create random origin lines (Oneliner database).
+<strong>Quotes      </strong>Add a random quote under new messages (Oneliner database).
+<strong>Mandatory   </strong>If this area is mandatory for downlinks.
+<strong>UnSecure    </strong>Don't check link address during toss (Dangerous!).
+<strong>OLR Default </strong>Switch area default on for OLR users.
+<strong>OLR Forced  </strong>Area is always on for OLR users.
+<strong>Connections </strong>This will take you to the screen to edit up and downlinks.
+</pre>
+<P>
+
+<IMG SRC="../images/emareas.gif" width="587" height="342">
+<P>&nbsp;<P>
+
+<H3>Edit connection</H3>
+<P>
+<pre>
+<strong>Aka         </strong>The network address.
+<strong>Send to     </strong>Export mail to this node.
+<strong>Recv from   </strong>Import mail form this node.
+<strong>Pause       </strong>The node is temporary disconnected.
+<strong>Excluded    </strong>The node is disconnected by the sysop.
+<strong>Delete      </strong>Delete this connection.
+</pre>
+<P>
+A note about the excluded switch. This can be used to disconnect a node
+from the area by moderator request. AreaMgr requests from that node
+for this area are not processed anymore, he cannot disconnect this area
+and reconnect. If you want to prevent a node to connect the area while
+he is not connected, you should manually connect the node and then set
+the Excluded flag to yes. However, the status of this flag is reported to the
+node in the notify messages, so this action is not invisible.
+<P>&nbsp;<P>
+
+
+<H3>Global Commands.</H3>
+<P>
+From menu 9.2 you can enter the global commands menu. In this menu you can:
+<ol>
+ <li>Delete connection
+ <li>Add new connection
+ <li>Replace connection
+ <li>Change connection status
+ <li>Change days old
+ <li>Change max. messages
+ <li>Change security
+ <li>Change aka to use
+ <li>Change origin line
+ <li>Change netmail reply
+ <li>Delete message area
+</ol>
+After you have selected the action you want and added the items to do, you will see 
+a screen were you can select message area groups. You can then tag one or more
+groups and press enter when you are done. Then you have one chance to perform the
+actions or to bail out. All areas matching in that group are affected by your
+changes. If you are not happy with the result, don't save the database and no
+harm is done. The file mbsetup.log shows all affected areas.
+<P>&nbsp;<P>
+
+
+<H3>Automatic area creation.</H3>
+<P>
+If you want to use the automatic area creation you have to define a fictitious 
+area tagged 'DEFAULT' with the options you want for new areas like this:
+<pre>
+ 1.  Area Name Area autocreada:
+ 2.  FTN area  DEFAULT
+ 3.  Newsgroup
+ 4.  Moderator
+ 5.  JAM base  /var/spool/mbse/mail/
+ 6.  Origin    Parolas BBX. Por fin.
+ 7.  Fido Aka  0:0/0@                                      22. Sysop Sec.   100
+ 8.  QWK name                      15. Days Old    40      23. Aliases      No
+ 9.  Group     AUTOCREADAS         16. Max. Msgs   1000    24. Quotes       No
+ 10. Distrib.                      17. Netreply    0       25. Mandatory    No
+ 11. Area Type Echomail            18. Active      Yes     26. UnSecure     No
+ 12. Msg Kinds Public              19. User Del.   Yes     27. OLR Default  No
+ 13. FTN chars IBMPC 2             20. Read Sec.   5       28. OLR Forced   No
+ 14. RFC chars LATIN-1 2           21. Write Sec.  5       29. Connections
+</pre>
+The FTN area's Tag must be 'DEFAULT' exactly. Connections will be left blank. Fill
+the remaining options with your defaults for the new areas.
+If Fido AKA has not been filled in, the best fitting AKA according to the origin of
+the message will be used from the configuration.<BR>
+<P>
+Areas will be created as is laid out in this template, the tag of a new area
+will be added to the name and base path, the new tag will be placed in the tag 
+and qwk name (truncating it if needed).
+Only the node from which the new area is received will be added in connections.
+<P>
+You will need to change the setup, menu 18, item 2, to change the command
+'mbfido tic toss'. Add the -a parameter if you want the automatic
+creation of areas to work when importing received mail.
+So the commandline would be like <b>/opt/mbse/bin/mbfido tic toss web -a -quiet</b>.
+<P>
+
+<A HREF="mail.html"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to Mail Setup</A>&nbsp;
+<A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0" width="40" height="30">  Back to index</A>&nbsp;
+<A HREF="../"><IMG SRC="../images/b_arrow.gif" ALT="Home" Border="0" width="40" height="30">  Back to main index</A>
+</BLOCKQUOTE>
+</BODY>
+</HTML>
+
