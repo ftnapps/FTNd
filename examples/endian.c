@@ -39,6 +39,7 @@ int main(void)
     /*
      * First test BYTE_ORDER
      */
+#ifdef BYTE_ORDER
     if (BYTE_ORDER == 1234) {
 	printf("le");
     } else if (BYTE_ORDER == 4321) {
@@ -47,12 +48,16 @@ int main(void)
 	/*
 	 * If it failed do a simple CPU test
 	 */
+#endif
 #ifdef __i386__
 	printf("le");
 #else
 	printf("be");
 #endif
+#ifdef BYTE_ORDER
     }
+#endif
+
 
     return 0;
 }
