@@ -14,13 +14,27 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 03-Nov-2003</h5></div>
+<div align="right"><h5>Last update 09-Nov-2003</h5></div>
 <div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
 <p>
 Before you compile and install MBSE BBS you must first setup the basic
-environment. If you don't do this, things will fail. 
+environment. If you don't do this, things will fail.
+<p>
+To compile and install MBSE BBS most distributions have installed all needed packages. 
+If important packages are missing then the configure script will tell you. There are also
+less important packages which if missinng still let you compile MBSE BBS, but you will miss
+some features. Here is a short list of these packages:
+<ol>
+ <li><b>Zlib</b>. On some distributions you also need <b>zlib development</b>. When you have
+     zlib installed, then in <b>mbcico</b> extra code will be compiled in the Hydra protocol driver
+     that will allow the PLZ extension. When a connection is made with another system that also
+     supports this extension (currently MBSE BBS and Radius beta versions), the files will be sent
+     compressed even if they are already compressed. The increased throughput will be between 1 
+     and 10 times, that's even better then modem compression can do. Later the zlib compression will
+     also be added to binkp.</li>
+</ol>
 <P>&nbsp;<p>
 
 <h3>Step 1: planning the filesystems.</h3>
@@ -204,18 +218,22 @@ configuration files, these are ttyinfo, modems, fidonet networks. In the
 default (english) directory you now have default menu datafiles and ansi
 screens. These are copies of my test system so you have to edit them to
 build your own bbs.<br>
-Editing ansi screens can be done on a GNU/Linux system with
-<strong>duhdraw</strong>, 
-this is available from 2:280/2802 as <strong>duhdraw.tgz</strong> (68 Kbytes). 
-The binaries are included in this archive, if you compile it yourself 
-it may give trouble so if the binaries work, use these.<br>
-Another editor is available from 
-<A HREF="http://www.drastic.net/bmdraw/">http://www.drastic.net/bmdraw/</A>,
-you can find the tar.gz file in <A
-HREF="http://www.drastic.net/bmdraw/files/bmd022.tgz">
-http://www.drastic.net/bmdraw/files/bmd022.tgz</A>, it's about 36 Kbytes. 
-This is also a thedraw clone for Linux. Note, at my system I needed to run it as
-root.<br>
+Editing ansi screens can be done on a GNU/Linux system with one of the
+following packages:
+<ol>
+ <li><strong>duhdraw</strong>, this is available from 2:280/2802 as 
+     <strong>duhdraw.tgz</strong> (68 Kbytes). 
+     The binaries are included in this archive, if you compile it yourself 
+     it may give trouble so if the binaries work, use these.</li>
+ <li><strong>bmdraw</strong> This editor is available from 
+     <A HREF="http://www.drastic.net/bmdraw/">http://www.drastic.net/bmdraw/</A>,
+     you can find the tar.gz file in 
+     <A HREF="http://www.drastic.net/bmdraw/files/bmd022.tgz">http://www.drastic.net/bmdraw/files/bmd022.tgz</A>, 
+     it's about 36 Kbytes. This is also a thedraw clone for Linux. 
+     Note, at my system I needed to run it as root.</li>
+ <li><strong>TetraDraw</strong> This is a very nice Ansi editor, you can
+     get this file as TETR~VC#.TGZ from 2:280/2802. The file is 157 Kbytes.
+</ol>
 You may also want to edit ~/etc/header.txt and ~/etc/footer.txt, these
 files are the top and bottom of the newfiles/allfiles listings.
 <P>

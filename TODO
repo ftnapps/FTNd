@@ -126,6 +126,8 @@ mbfile:
 
 	L: Possibility to skip file areas from checking and reindexing.
 
+	U: With adopt if a file exists there will be troubles.
+
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area
 	   will cause trouble later, should be blocked to be used on netmail
