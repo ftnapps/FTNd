@@ -62,7 +62,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef __FreeBSD__ || __NetBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 
 #include <sys/param.h>
 #include <sys/errno.h>
