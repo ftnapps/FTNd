@@ -50,7 +50,8 @@
 #include "opentcp.h"
 
 
-extern	int	tcp_mode;
+extern int	tcp_mode;
+extern pid_t	mypid;
 
 
 node	*nlent;
@@ -170,7 +171,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	/*
 	 * Unlock all nodes, locks not owned by us are untouched.
 	 */
-	(void)nodeulock(tmpl->addr);
+	(void)nodeulock(tmpl->addr, mypid);
 	/*
 	 * If successfull session, reset all status records.
 	 */

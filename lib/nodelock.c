@@ -36,11 +36,11 @@
 
 
 
-int nodelock(faddr *addr)
+int nodelock(faddr *addr, pid_t mypid)
 {
     char    *fn, *tfn, *p, tmp[16];
     FILE    *fp;
-    pid_t   pid, mypid;
+    pid_t   pid;
     int	    tmppid, sverr;
     time_t  ltime, now;
 
@@ -48,7 +48,6 @@ int nodelock(faddr *addr)
     tfn = xstrcpy(fn);
     if ((p=strrchr(tfn,'/'))) 
 	*++p='\0';
-    mypid = getpid();
     sprintf(tmp, "aa%d", mypid);
     tfn = xstrcat(tfn, tmp);
     mkdirs(tfn, 0770);
@@ -96,7 +95,7 @@ int nodelock(faddr *addr)
     /*
      * If lock is our own lock, then it's ok and we are ready.
      */
-    if (getpid() == pid) {
+    if (mypid == pid) {
 	unlink(tfn);
 	free(tfn);
 	return 0;
@@ -135,11 +134,11 @@ int nodelock(faddr *addr)
 
 
 
-int nodeulock(faddr *addr)
+int nodeulock(faddr *addr, pid_t mypid)
 {
     char    *fn;
     FILE    *fp;
-    pid_t   pid, mypid;
+    pid_t   pid;
     int	    tmppid;
 
     fn = bsyname(addr);
@@ -151,7 +150,6 @@ int nodeulock(faddr *addr)
     fscanf(fp, "%d", &tmppid);
     pid = tmppid;
     fclose(fp);
-    mypid = getpid();
 
     if (pid == mypid) {
 	unlink(fn);

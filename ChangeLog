@@ -2,6 +2,18 @@ $Id$
 
 v0.39.3		26-Nov-2003
 
+	general:
+		Since this version Posix threads are being used, please let
+		me know if this doesn't compile on you system.
+
+	mbcico:
+		Dropped binkp CRC support because it will be incompatible with
+		future extensions.
+
+	mbsetup:
+		Removed binkp CRC settings.
+
+
 v0.39.2		21-Nov-2003 - 26-Nov-2003
 
 	general:

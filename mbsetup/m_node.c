@@ -796,12 +796,11 @@ void SessionScreen(void)
     mvprintw(17, 6, "11.  No Filerequest");
     mvprintw(18, 6, "12.  Don't call");
 
-    mvprintw(13,41, "13.  8.3 names");
-    mvprintw(14,41, "14.  No Zmodem");
-    mvprintw(15,41, "15.  No Zedzap");
-    mvprintw(16,41, "16.  No Hydra");
-    mvprintw(17,41, "17.  binkp CRC32");
-    mvprintw(18,41, "18.  binkp old esc");
+    mvprintw(14,41, "13.  8.3 names");
+    mvprintw(15,41, "14.  No Zmodem");
+    mvprintw(16,41, "15.  No Zedzap");
+    mvprintw(17,41, "16.  No Hydra");
+    mvprintw(18,41, "17.  binkp old esc");
 }
 
 
@@ -826,14 +825,13 @@ void SessionEdit(void)
 	show_bool(17,26,    nodes.NoFreqs);
 	show_bool(18,26,    nodes.NoCall);
 	
-	show_bool(13,61,    nodes.FNC);
-	show_bool(14,61,    nodes.NoZmodem);
-	show_bool(15,61,    nodes.NoZedzap);
-	show_bool(16,61,    nodes.NoHydra);
-	show_bool(17,61,    nodes.CRC32);
+	show_bool(14,61,    nodes.FNC);
+	show_bool(15,61,    nodes.NoZmodem);
+	show_bool(16,61,    nodes.NoZedzap);
+	show_bool(17,61,    nodes.NoHydra);
 	show_bool(18,61,    nodes.WrongEscape);
 
-	switch(select_menu(18)) {
+	switch(select_menu(17)) {
 	case 0: return;
 	case 1: E_STR(  7,26,15, nodes.Spasswd,     "The ^Session password^ for this node")
 	case 2: E_STR(  8,26,40, nodes.dial,        "If needed, give a special modem ^dial command^ for this node")
@@ -850,12 +848,11 @@ void SessionEdit(void)
 	case 11:E_BOOL(17,26,    nodes.NoFreqs,     "Disallow ^file requests^ from this node")
 	case 12:E_BOOL(18,26,    nodes.NoCall,      "Don't ^call^ this node")
 
-	case 13:E_BOOL(13,61,    nodes.FNC,         "Node needs ^DOS 8.3^ filenames")
-	case 14:E_BOOL(14,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
-	case 15:E_BOOL(15,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
-	case 16:E_BOOL(16,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
-	case 17:E_BOOL(17,61,    nodes.CRC32,       "Enable ^binkp CRC32^ file transfers with this node")
-	case 18:E_BOOL(18,61,    nodes.WrongEscape, "Use the ^old escape^ for long filenames (Argus, Irex)")
+	case 13:E_BOOL(14,61,    nodes.FNC,         "Node needs ^DOS 8.3^ filenames")
+	case 14:E_BOOL(15,61,    nodes.NoZmodem,    "Disable ^Zmodem^ protocol with this node")
+	case 15:E_BOOL(16,61,    nodes.NoZedzap,    "Disable ^Zedzap^ protocol with this node")
+	case 16:E_BOOL(17,61,    nodes.NoHydra,     "Disable ^Hydra^ protocol with this node")
+	case 17:E_BOOL(18,61,    nodes.WrongEscape, "Use the ^old escape^ for long filenames (Argus, Irex)")
 	}
     }
 }
@@ -1485,21 +1482,20 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     No Zmodem      %s\n", getboolean(nodes.NoZmodem));
 		fprintf(fp, "     No Zedzap      %s", getboolean(nodes.NoZedzap));
 		fprintf(fp, "     No Hydra       %s", getboolean(nodes.NoHydra));
-		fprintf(fp, "     binkp CRC32    %s\n", getboolean(nodes.CRC32));
-		fprintf(fp, "     binkp old esc  %s", getboolean(nodes.WrongEscape));
+		fprintf(fp, "     binkp old esc  %s\n", getboolean(nodes.WrongEscape));
 		fprintf(fp, "     Mail forward   %s", getboolean(nodes.MailFwd));
-		fprintf(fp, "     Check mailpwd  %s\n", getboolean(nodes.MailPwdCheck));
-		fprintf(fp, "     ARCmail comp.  %s", getboolean(nodes.ARCmailCompat));
+		fprintf(fp, "     Check mailpwd  %s", getboolean(nodes.MailPwdCheck));
+		fprintf(fp, "     ARCmail comp.  %s\n", getboolean(nodes.ARCmailCompat));
 		fprintf(fp, "     ACRmail a..z   %s", getboolean(nodes.ARCmailAlpha));
-		fprintf(fp, "     Send message   %s\n", getboolean(nodes.Message));
-		fprintf(fp, "     Send .TIC      %s", getboolean(nodes.Tic));
+		fprintf(fp, "     Send message   %s", getboolean(nodes.Message));
+		fprintf(fp, "     Send .TIC      %s\n", getboolean(nodes.Tic));
 		fprintf(fp, "     File forward   %s", getboolean(nodes.FileFwd));
-		fprintf(fp, "     Advanced TIC   %s\n", getboolean(nodes.AdvTic));
-		fprintf(fp, "     Advanded SB    %s", getboolean(nodes.TIC_AdvSB));
+		fprintf(fp, "     Advanced TIC   %s", getboolean(nodes.AdvTic));
+		fprintf(fp, "     Advanded SB    %s\n", getboolean(nodes.TIC_AdvSB));
 		fprintf(fp, "     Sent To lines  %s", getboolean(nodes.TIC_To));
-		fprintf(fp, "     Billing        %s\n", getboolean(nodes.Billing));
-		fprintf(fp, "     Bill direct    %s", getboolean(nodes.BillDirect));
-		fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
+		fprintf(fp, "     Billing        %s", getboolean(nodes.Billing));
+		fprintf(fp, "     Bill direct    %s\n", getboolean(nodes.BillDirect));
+		fprintf(fp, "     Uplink add +   %s", getboolean(nodes.AddPlus));
 		fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 
 		fprintf(fp, "     Outb session   %s\n", get_sessiontype(nodes.Session_out));

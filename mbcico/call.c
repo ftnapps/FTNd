@@ -59,7 +59,7 @@ extern char		*forcedphone;
 extern char		*forcedline;
 extern char		*inetaddr;
 extern char		*protocol;
-
+extern pid_t		mypid;
 
 
 int portopen(faddr *addr)
@@ -71,7 +71,7 @@ int portopen(faddr *addr)
 	Syslog('d', "portopen inetaddr %s", inetaddr);
 	if ((rc = opentcp(inetaddr))) {
 	    Syslog('+', "Cannot connect %s", inetaddr);
-	    nodeulock(addr);
+	    nodeulock(addr, mypid);
 	    return MBERR_NO_CONNECTION;
 	}
 	return MBERR_OK;
@@ -85,13 +85,13 @@ int portopen(faddr *addr)
 	if (load_port(p)) {
 	    if ((rc = openport(p, ttyinfo.portspeed))) {
 		Syslog('+', "Cannot open port %s",p);
-		nodeulock(addr);
+		nodeulock(addr, mypid);
 		putstatus(addr, 10, MBERR_PORTERROR);
 		return MBERR_PORTERROR;
 	    }
 	    return MBERR_OK;
 	} else {
-	    nodeulock(addr);
+	    nodeulock(addr, mypid);
 	    putstatus(addr, 0, MBERR_PORTERROR);
 	    return MBERR_PORTERROR;
 	}
@@ -118,7 +118,7 @@ int call(faddr *addr)
      *  First check if node is locked, if not lock it immediatly
      *  or stop further waste of time and logfile space.
      */
-    if (nodelock(addr)) {
+    if (nodelock(addr, mypid)) {
 	Syslog('+', "System %s is locked", ascfnode(addr, 0x1f));
 	putstatus(addr, 0, MBERR_NODE_LOCKED);
 	return MBERR_NODE_LOCKED;
@@ -127,7 +127,7 @@ int call(faddr *addr)
     if ((nlent = getnlent(addr)) == NULL) {
 	WriteError("Cannot call %s: fatal in nodelist lookup", ascfnode(addr, 0x1f));
 	putstatus(addr,0,MBERR_NODE_NOT_IN_LIST);
-	nodeulock(addr);
+	nodeulock(addr, mypid);
 	return MBERR_NODE_NOT_IN_LIST;
     }
 
@@ -190,7 +190,7 @@ int call(faddr *addr)
 	    WriteError("No IP address, abort call");
 	    rc = MBERR_NO_IP_ADDRESS;
 	    putstatus(addr, 10, rc);
-	    nodeulock(addr);
+	    nodeulock(addr, mypid);
 	    return rc;
 	}
     } else {
@@ -228,7 +228,7 @@ int call(faddr *addr)
 	if ((rc == MBERR_OK) && (forcedphone)) {
 	    if ((rc = dialphone(forcedphone))) {
 		Syslog('+', "Dial failed");
-		nodeulock(addr);
+		nodeulock(addr, mypid);
 	    } 
 	}
 
@@ -264,7 +264,7 @@ int call(faddr *addr)
 	Syslog('+', "Cannot call %s (%s)", ascfnode(addr,0x1f), MBSE_SS(nlent->name));
 	rc = MBERR_NO_CONNECTION;
 	putstatus(addr, 10, rc);
-	nodeulock(addr);
+	nodeulock(addr, mypid);
 	return rc;
     }
 

@@ -48,6 +48,7 @@ static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we",
 
 extern	int	do_quiet;
 extern	int	flushed;
+extern	pid_t	mypid;
 
 
 /*
@@ -167,7 +168,7 @@ void flush_dir(char *ndir)
 	    }
 	}
     } else {
-	if (nodelock(&noden)) {
+	if (nodelock(&noden, mypid)) {
 	    Syslog('+', "Mail and files stay in queue, will be added later");
 	    if (noden.domain)
 		free(noden.domain);
@@ -250,7 +251,7 @@ void flush_dir(char *ndir)
 	if (nodes.Session_out == S_DIR)
 	    remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p');
 	else
-	    nodeulock(&noden);
+	    nodeulock(&noden, mypid);
 	if (noden.domain)
 	    free(noden.domain);
 	return;
@@ -425,7 +426,7 @@ void flush_dir(char *ndir)
 	if (nodes.Session_out == S_DIR)
 	    remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p');
 	else
-	    nodeulock(&noden);
+	    nodeulock(&noden, mypid);
 	if (noden.domain)
 	    free(noden.domain);
 	return;
@@ -592,7 +593,7 @@ void flush_dir(char *ndir)
     if (nodes.Session_out == S_DIR)
 	remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p');
     else
-	nodeulock(&noden);
+	nodeulock(&noden, mypid);
 
     if (noden.domain)
 	free(noden.domain);

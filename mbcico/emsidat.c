@@ -46,6 +46,7 @@
 
 
 extern int	Loaded;
+extern int	mypid;
 
 
 char *emsiencode(char *s)
@@ -371,7 +372,7 @@ int scanemsidat(char *buf)
 
     for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 	Syslog('+', "address : %s",ascfnode(tmpa->addr,0x1f));
-	(void)nodelock(tmpa->addr);
+	(void)nodelock(tmpa->addr, mypid);
 	/*
 	 * With the loaded flag we prevent removing the noderecord 
 	 * when the remote presents us an address we don't know about.

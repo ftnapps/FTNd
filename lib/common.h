@@ -289,8 +289,8 @@ int		getfilecase(char *, char *);
 /*
  * From nodelock.c
  */
-int		nodelock(faddr *);
-int		nodeulock(faddr *);
+int		nodelock(faddr *, pid_t);
+int		nodeulock(faddr *, pid_t);
 
 
 /*

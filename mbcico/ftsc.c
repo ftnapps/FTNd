@@ -433,7 +433,7 @@ SM_STATE(scan_packet)
 		(*tmpl)->addr->name=NULL;
 		(*tmpl)->addr->domain=NULL;
 		for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next)) {
-		    (void)nodelock((*tmpl)->addr);
+		    (void)nodelock((*tmpl)->addr, mypid);
 		    /* try lock all remotes, ignore locking result */
 		    if (!Loaded)
 			if (noderecord((*tmpl)->addr))

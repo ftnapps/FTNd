@@ -577,7 +577,7 @@ int checkhello(void)
 	}
 
 	for (tmpn = remote; tmpn; tmpn = tmpn->next) {
-		(void)nodelock(tmpn->addr);
+		(void)nodelock(tmpn->addr, mypid);
 		/*
 		 * lock all remotes, ignore locking result
 		 */
