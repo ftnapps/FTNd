@@ -100,144 +100,177 @@ char *Rdate(char *ind, int Y2K)
  */
 void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSuid, int NoPrompt)
 {
-	char	*String, *String1;
-	int	i, rc;
-	char	*temp1;
-	FILE	*fp;
+    char    *String, *String1;
+    int	    i, rc;
+    char    *temp1;
+    FILE    *fp;
 
-	temp1 = calloc(PATH_MAX, sizeof(char));
-	String = calloc(81, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    String = calloc(81, sizeof(char));
 
-	WhosDoingWhat(DOOR);
+    WhosDoingWhat(DOOR);
 
-	if ((strstr(Program, "/N")) != NULL) {
-	    sprintf(temp1, "%d", iNode);
-	    strreplace(Program, (char *)"/N", temp1);
+    if ((strstr(Program, "/N")) != NULL) {
+	sprintf(temp1, "%d", iNode);
+	strreplace(Program, (char *)"/N", temp1);
+    }
+
+    if ((strstr(Program, "/A")) != NULL) {
+	colour(3, 0);
+	if ((String = strstr(Program, "/T=")) != NULL) {
+	    String1 = String + 3;
+	    printf("\n%s", String1);
+	} else
+	    printf("\nPlease enter filename: ");
+
+	fflush(stdout);
+	colour(CFG.InputColourF, CFG.InputColourB);
+	GetstrC(temp1, 80);
+
+	strreplace(Program, (char *)"/A", temp1);
+
+	for (i = 0; i < strlen(Program); i++) {
+	    if (*(Program + i) == '\0')
+		break;
+	    if (*(Program + i) == '/')
+		*(Program + i) = '\0';
 	}
+    }
 
-	if ((strstr(Program, "/A")) != NULL) {
-		colour(3, 0);
-		if ((String = strstr(Program, "/T=")) != NULL) {
-			String1 = String + 3;
-			printf("\n%s", String1);
-		} else
-			printf("\nPlease enter filename: ");
+    free(String);
+    Syslog('+', "Door: %s", Program);
+    ReadExitinfo();
+    alarm_set((exitinfo.iTimeLeft * 60) - 10);
+    Altime((exitinfo.iTimeLeft * 60));
 
-		fflush(stdout);
-		colour(CFG.InputColourF, CFG.InputColourB);
-		GetstrC(temp1, 80);
+    /*
+     * Always remove the old door.sys first.
+     */
+    sprintf(temp1, "%s/%s/door.sys", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp1);
 
-		strreplace(Program, (char *)"/A", temp1);
-
-		for(i = 0; i < strlen(Program); i++) {
-			if (*(Program + i) == '\0')
-				break;
-			if (*(Program + i) == '/')
-				*(Program + i) = '\0';
-		}
+    /*
+     * Write door.sys in users homedirectory
+     */
+    if (!NoDoorsys) {
+	if ((fp = fopen(temp1, "w+")) == NULL) {
+	    WriteError("$Can't create %s", temp1);
+	} else {
+	    if (Comport) {
+		fprintf(fp, "COM1:\r\n"); /* COM port             */
+		fprintf(fp, "19200\r\n");/* Effective baudrate   */
+	    } else {
+		fprintf(fp, "COM0:\r\n");/* COM port		*/
+		fprintf(fp, "0\r\n");	/* Effective baudrate	*/
+	    }
+	    fprintf(fp, "8\r\n");		/* Databits		*/
+	    fprintf(fp, "%d\r\n", iNode);	/* Node number		*/
+	    if (Comport)
+		fprintf(fp, "19200\r\n");/* Locked baudrate	*/
+	    else
+		fprintf(fp, "%ld\r\n", ttyinfo.portspeed); /* Locked baudrate */
+	    fprintf(fp, "Y\r\n");		/* Screen snoop		*/
+	    fprintf(fp, "N\r\n");		/* Printer on		*/
+	    fprintf(fp, "Y\r\n");		/* Page bell		*/
+	    fprintf(fp, "Y\r\n");		/* Caller alarm		*/
+	    fprintf(fp, "%s\r\n", exitinfo.sUserName);
+	    fprintf(fp, "%s\r\n", exitinfo.sLocation);
+	    fprintf(fp, "%s\r\n", exitinfo.sVoicePhone);
+	    fprintf(fp, "%s\r\n", exitinfo.sDataPhone);
+	    fprintf(fp, "%s\r\n", exitinfo.Password);
+	    fprintf(fp, "%d\r\n", exitinfo.Security.level);
+	    fprintf(fp, "%d\r\n", exitinfo.iTotalCalls);
+	    fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
+	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);	/* Seconds	*/
+	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Minutes	*/
+	    fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics GR,RIP,NG */
+	    fprintf(fp, "%d\r\n", exitinfo.iScreenLen);
+	    fprintf(fp, "N\r\n");		/* User mode, always N	*/
+	    fprintf(fp, "\r\n");		/* Always blank		*/
+	    fprintf(fp, "\r\n");		/* Always blank		*/
+	    fprintf(fp, "%s\r\n", Rdate(exitinfo.sExpiryDate, Y2Kdoorsys));
+	    fprintf(fp, "%d\r\n", grecno);	/* Users recordnumber	*/
+	    fprintf(fp, "%s\r\n", exitinfo.sProtocol);
+	    fprintf(fp, "%ld\r\n", exitinfo.Uploads);
+	    fprintf(fp, "%ld\r\n", exitinfo.Downloads);
+	    fprintf(fp, "%ld\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
+	    fprintf(fp, "%ld\r\n", LIMIT.DownK);
+	    fprintf(fp, "%s\r\n", Rdate(exitinfo.sDateOfBirth, Y2Kdoorsys));
+	    fprintf(fp, "\r\n");		/* Path to userbase	*/
+	    fprintf(fp, "\r\n");		/* Path to messagebase	*/
+	    fprintf(fp, "%s\r\n", CFG.sysop_name);
+	    fprintf(fp, "%s\r\n", exitinfo.sHandle);
+	    fprintf(fp, "none\r\n");	/* Next event time	*/
+	    fprintf(fp, "Y\r\n");		/* Error free connect.	*/
+	    fprintf(fp, "N\r\n");		/* Always N		*/
+	    fprintf(fp, "Y\r\n");		/* Always Y		*/
+	    fprintf(fp, "7\r\n");		/* Default textcolor	*/
+	    fprintf(fp, "0\r\n");		/* Always 0		*/
+	    fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys)); /* Last newfiles scan date */
+	    fprintf(fp, "%s\r\n", StrTimeHM(t_start));  /* Time of this call    */
+	    fprintf(fp, "%s\r\n", LastLoginTime);	    /* Time of last call    */
+	    fprintf(fp, "32768\r\n");	/* Always 32768		*/
+	    fprintf(fp, "%d\r\n", exitinfo.DownloadsToday);
+	    fprintf(fp, "%ld\r\n", exitinfo.UploadK);
+	    fprintf(fp, "%ld\r\n", exitinfo.DownloadK);
+	    fprintf(fp, "%s\r\n", exitinfo.sComment);
+	    fprintf(fp, "0\r\n");		/* Always 0		*/
+	    fprintf(fp, "%d\r\n\032", exitinfo.iPosted);
+	    fclose(fp);
 	}
+    }
 
-	free(String);
-	Syslog('+', "Door: %s", Program);
-	ReadExitinfo();
-	alarm_set((exitinfo.iTimeLeft * 60) - 10);
-	Altime((exitinfo.iTimeLeft * 60));
+    /*
+     * Always remove the old door32.sys first.
+     */
+    sprintf(temp1, "%s/%s/door32.sys", CFG.bbs_usersdir, exitinfo.Name);
+    unlink(temp1);
 
-	/*
-	 * Always remove the old door.sys first.
-	 */
-	sprintf(temp1, "%s/%s/door.sys", CFG.bbs_usersdir, exitinfo.Name);
-	unlink(temp1);
-
-	/*
-	 * Write door.sys in users homedirectory
-	 */
-	if (!NoDoorsys) {
-		if ((fp = fopen(temp1, "w+")) == NULL) {
-			WriteError("$Can't create %s", temp1);
-		} else {
-			if (Comport) {
-				fprintf(fp, "COM1:\r\n"); /* COM port             */
-				fprintf(fp, "19200\r\n");/* Effective baudrate   */
-
-			} else {
-				fprintf(fp, "COM0:\r\n");/* COM port		*/
-				fprintf(fp, "0\r\n");	/* Effective baudrate	*/
-			}
-			fprintf(fp, "8\r\n");		/* Databits		*/
-			fprintf(fp, "%d\r\n", iNode);	/* Node number		*/
-			if (Comport)
-				fprintf(fp, "19200\r\n");/* Locked baudrate	*/
-			else
-				fprintf(fp, "%ld\r\n", ttyinfo.portspeed); /* Locked baudrate */
-			fprintf(fp, "Y\r\n");		/* Screen snoop		*/
-			fprintf(fp, "N\r\n");		/* Printer on		*/
-			fprintf(fp, "Y\r\n");		/* Page bell		*/
-			fprintf(fp, "Y\r\n");		/* Caller alarm		*/
-			fprintf(fp, "%s\r\n", exitinfo.sUserName);
-			fprintf(fp, "%s\r\n", exitinfo.sLocation);
-			fprintf(fp, "%s\r\n", exitinfo.sVoicePhone);
-			fprintf(fp, "%s\r\n", exitinfo.sDataPhone);
-			fprintf(fp, "%s\r\n", exitinfo.Password);
-			fprintf(fp, "%d\r\n", exitinfo.Security.level);
-			fprintf(fp, "%d\r\n", exitinfo.iTotalCalls);
-			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);	/* Seconds	*/
-			fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	/* Minutes	*/
-			fprintf(fp, "%s\r\n", exitinfo.GraphMode?"GR":"NG");	/* Graphics	*/
-			fprintf(fp, "%d\r\n", exitinfo.iScreenLen);
-			fprintf(fp, "N\r\n");		/* User mode, always N	*/
-			fprintf(fp, "\r\n");		/* Always blank		*/
-			fprintf(fp, "\r\n");		/* Always blank		*/
-			fprintf(fp, "%s\r\n", Rdate(exitinfo.sExpiryDate, Y2Kdoorsys));
-			fprintf(fp, "%d\r\n", grecno);	/* Users recordnumber	*/
-			fprintf(fp, "%s\r\n", exitinfo.sProtocol);
-			fprintf(fp, "%ld\r\n", exitinfo.Uploads);
-			fprintf(fp, "%ld\r\n", exitinfo.Downloads);
-			fprintf(fp, "%ld\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
-			fprintf(fp, "%ld\r\n", LIMIT.DownK);
-			fprintf(fp, "%s\r\n", Rdate(exitinfo.sDateOfBirth, Y2Kdoorsys));
-			fprintf(fp, "\r\n");		/* Path to userbase	*/
-			fprintf(fp, "\r\n");		/* Path to messagebase	*/
-			fprintf(fp, "%s\r\n", CFG.sysop_name);
-			fprintf(fp, "%s\r\n", exitinfo.sHandle);
-			fprintf(fp, "none\r\n");	/* Next event time	*/
-			fprintf(fp, "Y\r\n");		/* Error free connect.	*/
-			fprintf(fp, "N\r\n");		/* Always N		*/
-			fprintf(fp, "Y\r\n");		/* Always Y		*/
-			fprintf(fp, "7\r\n");		/* Default textcolor	*/
-			fprintf(fp, "0\r\n");		/* Always 0		*/
-			fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys)); /* Last newfiles scan date */
-			fprintf(fp, "%s\r\n", StrTimeHM(t_start));  /* Time of this call    */
-			fprintf(fp, "%s\r\n", LastLoginTime);	    /* Time of last call    */
-			fprintf(fp, "32768\r\n");	/* Always 32768		*/
-			fprintf(fp, "%d\r\n", exitinfo.DownloadsToday);
-			fprintf(fp, "%ld\r\n", exitinfo.UploadK);
-			fprintf(fp, "%ld\r\n", exitinfo.DownloadK);
-			fprintf(fp, "%s\r\n", exitinfo.sComment);
-			fprintf(fp, "0\r\n");		/* Always 0		*/
-			fprintf(fp, "%d\r\n\032", exitinfo.iPosted);
-			fclose(fp);
-		}
+    /*
+     * Write door32.sys in users homedirectory
+     */
+    if (!NoDoorsys) {
+	if ((fp = fopen(temp1, "w+")) == NULL) {
+	    WriteError("$Can't create %s", temp1);
+	} else {
+	    if (Comport) {
+		fprintf(fp, "1\r\n");			    /* COM type, 1=serial, 2=telnet	*/
+		fprintf(fp, "1\r\n");			    /* COM port number			*/
+		fprintf(fp, "19200\r\n");		    /* Effective baudrate		*/
+	    } else {
+		fprintf(fp, "0\r\n");			    /* COM type, 0=local		*/
+		fprintf(fp, "0\r\n");			    /* COM port				*/
+		fprintf(fp, "0\r\n");			    /* Effective baudrate		*/
+	    }
+	    fprintf(fp, "%s\r\n", CFG.bbs_name);	    /* BBS name				*/
+	    fprintf(fp, "%d\r\n", grecno);		    /* User record			*/
+	    fprintf(fp, "%s\r\n", exitinfo.sUserName);	    /* User's real name			*/
+	    fprintf(fp, "%s\r\n", exitinfo.sHandle);	    /* User's handle			*/
+	    fprintf(fp, "%d\r\n", exitinfo.Security.level); /* User's security level		*/
+	    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);	    /* User's time left in minutes	*/
+	    fprintf(fp, "%s\r\n", exitinfo.GraphMode?"1":"0");	/* User's graphic mode		*/
+	    fprintf(fp, "%d\r\n\032", iNode);		    /* Node number			*/
+	    fclose(fp);
 	}
+    }
 
-	clear();
-	printf("Loading ...\n\n");
-	if (NoSuid) 
-	    rc = exec_nosuid(Program);
-	else
-	    rc = execute((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
+    clear();
+    printf("Loading ...\n\n");
+    if (NoSuid) 
+	rc = exec_nosuid(Program);
+    else
+	rc = execute((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
 
-	Altime(0);
-	alarm_off();
-	alarm_on();
-	Syslog('+', "Door end, rc=%d", rc);
+    Altime(0);
+    alarm_off();
+    alarm_on();
+    Syslog('+', "Door end, rc=%d", rc);
 
-	free(temp1);
-	printf("\n\n");
+    free(temp1);
+    printf("\n\n");
 
-	if (!NoPrompt)
-	    Pause();
+    if (!NoPrompt)
+	Pause();
 }
 
 
