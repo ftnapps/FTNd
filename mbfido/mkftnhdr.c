@@ -229,11 +229,8 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		if (p == NULL) 
 			p = xstrcpy(hdr((char *)"X-Apparently-To",msg));
 		if (p == NULL)
-			p = xstrcpy(hdr((char *)"Reply-To", msg));
-		if (p == NULL)
 			p = xstrcpy(hdr((char *)"To", msg));  /* 14-Aug-2001 MB */
 		if (p) {
-			Syslog('n', "getting `to' address from: \"%s\"",p);
 			if ((tmsg->to = parsefaddr(p)) == NULL)
 				tmsg->to = parsefaddr((char *)"All@p0.f0.n0.z0");
 			if ((l = strrchr(p,'<')) && (r = strchr(p,'>')) && (l < r)) {
@@ -285,7 +282,9 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 			tmsg->to->point  = msgs.Aka.point;
 			tmsg->to->domain = xstrcpy(msgs.Aka.domain);
 		} else {
-			Syslog('n', "Filling default To: address");
+			/*
+			 *  Filling a default To: address.
+			 */
 			tmsg->to = (faddr*)malloc(sizeof(faddr));
 			tmsg->to->name   = xstrcpy((char *)"All");
 			tmsg->to->zone   = msgs.Aka.zone;
@@ -294,7 +293,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 			tmsg->to->point  = msgs.Aka.point;
 			tmsg->to->domain = xstrcpy(msgs.Aka.domain);
 		}
-		Syslog('n', "TO: %s",ascfnode(tmsg->to,0xff));
+		Syslog('N', "TO: %s",ascfnode(tmsg->to,0xff));
 	} else {
 		if (recipient) {
 			/*
@@ -363,9 +362,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		while (isspace(*freename)) 
 			freename++;
 	}
-//	if (p)  NOT IN IFMAIL
-//		free(p);
-//	p = NULL;
+
 	if (rfcfrom) {
 		while (isspace(*rfcfrom)) 
 			rfcfrom++;
@@ -389,9 +386,8 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	if ((!freename) || ((freename) && (*freename == '\0')) || (strcmp(freename,".")==0)) 
 	    freename=rfcfrom;
 
-//	p = NULL;
 	if (newsmode)
-		Syslog('n', "FROM: %s <%s>", freename, rfcfrom);
+		Syslog('M', "FROM: %s <%s>", freename, rfcfrom);
 	else
 		Syslog('+', "from: %s <%s>",freename,rfcfrom);
 
@@ -419,11 +415,12 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		replyaddr=NULL;
 	}
 	if (needreplyaddr && (tmsg->from == NULL)) {
-		Syslog('m', "fill replyaddr with \"%s\"",rfcfrom);
+		Syslog('M', "fill replyaddr with \"%s\"",rfcfrom);
 		replyaddr=xstrcpy(rfcfrom);
 	}
 
-	Syslog('m', "From address was%s distinguished as ftn", tmsg->from ? "" : " not");
+	if (tmsg->from)
+	    Syslog('m', "From address was%s distinguished as ftn", tmsg->from ? "" : " not");
 
 	if (newsmode)
 		bestaka = bestaka_s(fido2faddr(msgs.Aka));
@@ -503,11 +500,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	} else {
 		tmsg->subj = xstrcpy((char *)" ");
 	}
-//	if (p)
-//		free(p);
-//	p = NULL;
-
-	Syslog('m', "SUBJ: \"%s\"", tmsg->subj);
+	Syslog('M', "SUBJ: \"%s\"", tmsg->subj);
 
 	if ((p = hdr((char *)"X-FTN-FLAGS",msg))) 
 		tmsg->flags |= flagset(p);
@@ -569,7 +562,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 	else
 		tmsg->reply_a=NULL;
 
-	Syslog('m', "DATE: %s, MSGID: %s %lx, REPLY: %s %lx",
+	Syslog('M', "DATE: %s, MSGID: %s %lx, REPLY: %s %lx",
 		ftndate(tmsg->date), MBSE_SS(tmsg->msgid_a),tmsg->msgid_n, MBSE_SS(tmsg->reply_a),tmsg->reply_n);
 
 	p = hdr((char *)"Organization",msg);
@@ -589,7 +582,7 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int incode, int outcode, int newsmode, faddr *reci
 		tmsg->origin = xstrcpy(CFG.origin);
 	}
 
-	Syslog('m', "ORIGIN: %s", MBSE_SS(tmsg->origin));
+	Syslog('M', "ORIGIN: %s", MBSE_SS(tmsg->origin));
 	return tmsg;
 }
 
