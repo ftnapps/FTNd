@@ -47,8 +47,6 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
     int		    Tries = 0;
     FILE	    *fp;
 
-    Syslog('f', "OpenFDB area %ld, timeout %d", Area, Timeout);
-
     temp = calloc(PATH_MAX, sizeof(char));
     fdb_area = malloc(sizeof(struct _fdbarea));	    /* Will be freed by CloseFDB */
 
@@ -124,15 +122,7 @@ struct _fdbarea *mbsedb_OpenFDB(long Area, int Timeout)
  */
 int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
 {
-    Syslog('f', "CloseFDB %ld", fdb_area->area);
-    if (fdb_area->locked) {
-	/*
-	 * Unlock first
-	 */
-//	mbsedb_UnlockFDB(fdb_area);
-    }
     fclose(fdb_area->fp);
-
     free(fdb_area);
     return TRUE;
 }
@@ -147,7 +137,6 @@ int mbsedb_LockFDB(struct _fdbarea *fdb_area, int Timeout)
     int		    rc, Tries = 0;
     struct flock    fl;
     
-    Syslog('f', "LockFDB %ld", fdb_area->area);
     fl.l_type	= F_WRLCK;
     fl.l_whence	= SEEK_SET;
     fl.l_start	= 0L;
@@ -182,7 +171,6 @@ int mbsedb_UnlockFDB(struct _fdbarea *fdb_area)
 {
     struct flock    fl;
 
-    Syslog('f', "UnlockFDB %ld", fdb_area->area);
     fl.l_type   = F_UNLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start  = 0L;
@@ -352,13 +340,12 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 {
     char    *temp, *temp2;
     FILE    *fp;
-    int	    rc, count = 0;
+    int	    count = 0;
 
     Syslog('f', "PackFDB %ld", fdb_area->area);
 
     fseek(fdb_area->fp, 0, SEEK_END);
     if (ftell(fdb_area->fp) == fdbhdr.hdrsize) {
-	Syslog('f', "no records, nothing to do");
 	return 0;
     }
 
@@ -393,14 +380,11 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
      */
     sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
     sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = rename(temp2, temp);
-    Syslog('f', "rename %s %s rc=%d", temp2, temp, rc);
+    rename(temp2, temp);
     sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = rename(temp, temp2);
-    Syslog('f', "rename %s %s rc=%d", temp, temp2, rc);
+    rename(temp, temp2);
     sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = unlink(temp);
-    Syslog('f', "unlink %s rc=%d", temp, rc);
+    unlink(temp);
 
     fdb_area->fp = fp;
     fdb_area->locked = 0;
@@ -498,7 +482,7 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     fdbs    *fdx = NULL, *tmp;
     char    *temp, *temp2;
     FILE    *fp;
-    int	    count = 0, rc;
+    int	    count = 0;
 
     Syslog('f', "SortFDB %ld", fdb_area->area);
 
@@ -512,7 +496,6 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
 
     while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
 	fill_fdbs(fdb, &fdx);
-	Syslog('f', "Adding %s", fdb.LName);
     }
 
     sort_fdbs(&fdx);
@@ -541,7 +524,6 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
      * Write sorted files to temp database
      */
     for (tmp = fdx; tmp; tmp = tmp->next) {
-        Syslog('f', "Sorted %s", tmp->filrec.LName);
         fwrite(&tmp->filrec, fdbhdr.recsize, 1, fp);
 	count++;
     }
@@ -555,14 +537,11 @@ int mbsedb_SortFDB(struct _fdbarea *fdb_area)
     temp2 = calloc(PATH_MAX, sizeof(char));
     sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
     sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = rename(temp2, temp);
-    Syslog('f', "rename %s %s rc=%d", temp2, temp, rc);
+    rename(temp2, temp);
     sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = rename(temp, temp2);
-    Syslog('f', "rename %s %s rc=%d", temp, temp2, rc);
+    rename(temp, temp2);
     sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
-    rc = unlink(temp);
-    Syslog('f', "unlink %s rc=%d", temp, rc);
+    unlink(temp);
 
     fdb_area->fp = fp;
     fdb_area->locked = 0;
