@@ -73,21 +73,21 @@ et_tu:
     Firstsec = TRUE;
     eof_seen = FALSE;
     sendline(Crcflg?WANTCRC:NAK);
-    ioctl(1, TCFLSH, 0);
+//    ioctl(1, TCFLSH, 0);
     purgeline(0); /* Do read next time ... */
     while ((c = wcgetsec(&Blklen, rpn, 10)) != 0) {
 	if (c == WCEOT) {
 	    Syslog('x', "Pathname fetch returned EOT");
 	    sendline(ACK);
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
-	    GETCHAR(1);
+//	    GETCHAR(1);
 	    goto et_tu;
 	}
 	return ERROR;
     }
     sendline(ACK);
-    ioctl(1, TCFLSH, 0);
+//    ioctl(1, TCFLSH, 0);
     return OK;
 }
 
@@ -108,7 +108,7 @@ int wcrx(void)
 
     for (;;) {
 	sendline(sendchar);     /* send it now, we're ready! */
-	ioctl(1, TCFLSH, 0);
+//	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
 
 	/*
@@ -118,7 +118,7 @@ int wcrx(void)
 	alarm_on();
 	
 	sectcurr = wcgetsec(&Blklen, secbuf, (unsigned int) ((sectnum & 0177) ? 5 : 13));
-	Syslog('x', "%s: got sector %d", protname(), sectcurr);
+	Syslog('x', "%s: got sector %d size %d", protname(), sectcurr, Blklen);
 
 	if (sectcurr == ((sectnum+1) &0377)) {
 	    sectnum++;
@@ -138,7 +138,7 @@ int wcrx(void)
 	    if (closeit(1))
 		return ERROR;
 	    sendline(ACK);
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    return OK;
 	}
@@ -160,8 +160,6 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
     register char *p;
     int sectcurr;
 
-    Syslog('x', "%s: wcgetsec()", protname());
-
     for (Lastrx = errors = 0; errors < RETRYMAX; errors++) {
 
 	if ((firstch = GETCHAR(maxtime)) == STX) {
@@ -170,7 +168,6 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
 	if (firstch == SOH) {
 	    *Blklen=128;
 get2:
-	    Syslog('x', "%s: wcgetsec blklen %d", protname(), *Blklen);
 	    sectcurr = GETCHAR(1);
 	    if ((sectcurr + (oldcrc = GETCHAR(1))) == 0377) {
 		oldcrc = Checksum = 0;
@@ -228,14 +225,14 @@ humbug:
 	
 	if (Firstsec) {
 	    sendline(Crcflg ? WANTCRC:NAK);
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    Syslog('x', "%s: send %s", protname(), Crcflg ? "WANTCRC":"NAK");
 	    purgeline(0);   /* Do read next time ... */
 	} else {
 	    maxtime = 40;
 	    sendline(NAK);
 	    Syslog('x', "%s: send NAK", protname());
-	    ioctl(1, TCFLSH, 0);
+//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	}
     }

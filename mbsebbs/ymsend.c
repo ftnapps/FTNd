@@ -343,8 +343,7 @@ static int wctx(long bytes_total)
     do {
 	purgeline(5);
 	PUTCHAR(EOT);
-	ioctl(1, TCFLSH, 0);
-//	fflush(stdout);
+//	ioctl(1, TCFLSH, 0);
 	++attempts;
     } while ((firstch = (GETCHAR(Rxtimeout)) != ACK) && attempts < RETRYMAX);
     if (attempts == RETRYMAX) {
@@ -366,8 +365,7 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 
     firstch = 0;      /* part of logic to detect CAN CAN */
     
-    Syslog('x', "wcputsec: sectnum %d, len %d", sectnum, cseclen);
-    Syslog('x', "%s sectors/kbytes sent: %3d/%2dk", protname(), Totsecs, Totsecs/8 );
+    Syslog('x', "%s: wcputsec: sectnum %d, len %d", protname(), sectnum, cseclen);
     
     for (attempts = 0; attempts <= RETRYMAX; attempts++) {
 	Lastrx = firstch;
@@ -388,8 +386,7 @@ static int wcputsec(char *buf, int sectnum, size_t cseclen)
 	else
 	    sendline(Checksum);
 
-	ioctl(1, TCFLSH, 0);
-//	fflush(stdout);
+//	ioctl(1, TCFLSH, 0);
 	if (Optiong) {
 	    firstsec = FALSE; 
 	    return OK;

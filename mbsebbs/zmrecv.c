@@ -75,6 +75,12 @@ extern unsigned long	rcvdbytes;
 extern int		zmodem_requested;
 
 
+
+/*
+ * Receive files with Zmodem, Ymodem or Xmodem.
+ * This receiver will figure out what to do, you should
+ * be able to send anything.
+ */
 int zmrcvfiles(int want1k)
 {
     int	    rc;
