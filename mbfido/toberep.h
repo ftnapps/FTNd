@@ -3,6 +3,6 @@
 
 /* $Id$ */
 
-int Add_ToBeRep(void);
+int Add_ToBeRep(struct _filerecord);
 
 #endif

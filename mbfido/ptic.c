@@ -677,7 +677,7 @@ int ProcessTic(fa_list *sbl)
 	strncpy(T_File.Name, TIC.NewFile, 12);
 	strncpy(T_File.LName, TIC.NewFullName, 80);
 	T_File.Fdate = TIC.FileDate;
-	Add_ToBeRep();
+	Add_ToBeRep(T_File);
     }
 
     if (TIC.SendOrg && !tic.FileArea) {

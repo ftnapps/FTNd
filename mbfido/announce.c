@@ -129,7 +129,7 @@ void Uploads()
 			}
 			T_File.TotLdesc = k;
 			T_File.Announce = TRUE;
-			if (Add_ToBeRep())
+			if (Add_ToBeRep(T_File))
 			    Count++;
 			/*
 			 * Mark file is announced.

@@ -428,17 +428,17 @@ int main(int argc, char *argv[])
 
     oldmask = umask(002);
 
-    if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
-	init = TRUE;
-    else
-	screen_start((char *)"MBsetup");
-
     do_quiet = TRUE;
     Syslog(' ', " ");
     Syslog(' ', "MBSETUP v%s started by %s", VERSION, pw->pw_name);
     if (init)
 	Syslog('+', "Cmd: mbsetup init");
 
+    if ((argc == 2) && (strncmp(tl(argv[1]), "i", 1) == 0))
+	init = TRUE;
+    else
+	screen_start((char *)"MBsetup");
+    
     if (lockprogram((char *)"mbsetup")) {
 	printf("\n\7Another mbsetup is already running, abort.\n\n");
 	die(MBERR_NO_PROGLOCK);

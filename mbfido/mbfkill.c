@@ -229,7 +229,7 @@ void Kill(void)
 	     * Now we must pack this area database otherwise
 	     * we run into trouble later on.
 	     */
-	    fseek(pFile, 0, SEEK_SET);
+	    fseek(pFile, fdbhdr.hdrsize, SEEK_SET);
 	    sprintf(sTemp, "%s/fdb/filetmp.data", getenv("MBSE_ROOT"));
 
 	    if ((pTemp = fopen(sTemp, "a+")) != NULL) {

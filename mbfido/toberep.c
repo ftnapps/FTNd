@@ -35,10 +35,11 @@
 
 
 /*
- *  Add a file whos data is in T_File to the toberep.data file.
+ *  Add a file record to the toberep database and do some checks.
+ *  The function returns TRUE if the file will be announced.
  *  The newfiles announce option will later remove these records.
  */
-int Add_ToBeRep()
+int Add_ToBeRep(struct _filerecord report)
 {
     char		*fname;
     struct _filerecord	Temp;
@@ -56,8 +57,30 @@ int Add_ToBeRep()
 
     fseek(tbr, 0, SEEK_SET);
     while (fread(&Temp, sizeof(Temp), 1, tbr) == 1) {
-	if ((strcmp(Temp.Name, T_File.Name) == 0) && (Temp.Fdate == T_File.Fdate))
+
+	if (strcmp(Temp.Name, report.Name) == 0) {
+	    Syslog('f', "Add_ToBeRep found record with the same name");
+	    if (strlen(report.Echo) && (strcmp(Temp.Echo, report.Echo) == 0)) {
+		Syslog('f', "Add_ToBeRep this is the same tic area");
+		/*
+		 * If it's a later received file, update the record
+		 */
+		if (report.Fdate > Temp.Fdate) {
+		    Syslog('f', "Add_ToBeRep this file is newer, update record");
+		    fseek(tbr, - sizeof(Temp), SEEK_SET);
+		    fwrite(&report, sizeof(report), 1, tbr);
+		    fclose(tbr);
+		    return TRUE;
+		}
+		Syslog('f', "Add_ToBeRep this file is older, discard record");
+		fclose(tbr);
+		return TRUE;
+	    }
+	}
+	if ((strcmp(Temp.Name, report.Name) == 0) && (Temp.Fdate == T_File.Fdate)) {
+	    Syslog('f', "Add_ToBeRep record with same filename, but other area");
 	    Found = TRUE;
+	}
     }
 
     if (Found) {
@@ -66,6 +89,10 @@ int Add_ToBeRep()
 	return FALSE;
     }
 
+    /*
+     * Append record
+     */
+    Syslog('f', "Add_ToBeRep append record");
     fwrite(&T_File, sizeof(T_File), 1, tbr);
     fclose(tbr);
     return TRUE;

@@ -125,6 +125,10 @@ mbfido:
 
 	N: Reimplement characterset conversion again on the gateway.
 
+	N: When adding a record to the toberep database add check for existing
+	   older entry to update the info with the later received file. Else
+	   just handle the record as a dupe.
+
 mbcico:
 	N: Further investigate binkp tty_error hangup.
 

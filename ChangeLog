@@ -3,6 +3,7 @@ $Id$
 		If you feel lucky then try this version, if not just wait
 		a few days so that I fix the destructive bugs that might
 		be present in this version.
+		One found, destroyed 5 fileareas, don't think it won't happen!
 
 
 v0.51.2		06-Mar-2004
@@ -34,6 +35,11 @@ v0.51.2		06-Mar-2004
 		files, thumbnails are now also removed from disk.
 		Updated tic file import function to the new files database
 		structure.
+		Added more checks and logging for adding new file announce 
+		records. Newer files will replace the older record so the last
+		one will be announced.
+		Fixed a bug in mbfile kill that destroyed the filebase when a
+		file was deleted or moved.
 
 	mbfile:
 		Updated kill, index, check, pack, list, adopt, import, move,
