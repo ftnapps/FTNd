@@ -7,7 +7,7 @@ OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  INSTALL.in MBSE.FAQ Makefile Makefile.global.in NEWS \
 		  README README.GoldED README.isdn SETUP.sh TODO UPGRADE \
 		  aclocal.m4 \
-		  checkbasic config.h.in configure configure.in files.css
+		  checkbasic config.h.in configure configure.in
 TARFILE		= ${PACKAGE}-${VERSION}.tar.gz
 
 ###############################################################################
@@ -132,14 +132,6 @@ install:
 			chmod 0755 ${PREFIX}/ftp/incoming ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub/local ; \
 			chmod 0755 ${PREFIX}/ftp/pub/local ; \
-		fi
-		@if [ ! -d ${PREFIX}/ftp/pub/css ] ; then \
-			mkdir ${PREFIX}/ftp/pub/css ; \
-			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub/css ; \
-			chmod 0755 ${PREFIX}/ftp/pub/css ; \
-		fi
-		@if [ ! -f ${PREFIX}/ftp/pub/css/files.css ]; then \
-			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 files.css ${PREFIX}/ftp/pub/css ; \
 		fi
 		@if [ ! -d ${PREFIX}/var/bso ] ; then \
 			mkdir ${PREFIX}/var/nodelist ; \

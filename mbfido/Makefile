@@ -47,7 +47,7 @@ MBAFF_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/l
 		  ../lib/libdbase.a ../lib/libdiesel.a
 MBINDEX_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBDIFF_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
-MBFILE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
+MBFILE_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a ../lib/libdiesel.a
 MBMSG_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libmsgbase.a ../lib/libdbase.a
 OTHER		= Makefile README maptabs.tgz paths.h.in
 TARGET		= mbfido mbseq mbaff mbindex mbdiff mbfile mbmsg
@@ -166,7 +166,7 @@ utic.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/co
 announce.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h grlist.h msgutil.h announce.h
 fflist.o: ../lib/libs.h ../lib/clcomm.h ../lib/msg.h fflist.h
 ftn2rfc.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/dbftn.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/common.h ../lib/clcomm.h rollover.h aliasdb.h postemail.h backalias.h ftn2rfc.h
-makestat.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h makestat.h
+makestat.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/diesel.h makestat.h
 mbindex.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbftn.h mbindex.h
 msgutil.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/msg.h ../lib/msgtext.h ../lib/diesel.h msgutil.h
 postecho.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h ftn2rfc.h postecho.h storeecho.h addpkt.h rollover.h
@@ -192,7 +192,7 @@ scannews.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../li
 tosspkt.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/msg.h ../lib/msgtext.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbmsgs.h ../lib/dbdupe.h ../lib/dbuser.h ../lib/dbftn.h tosspkt.h postnetmail.h postecho.h rollover.h createm.h
 mbfkill.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfkill.h mbfutil.h
 mbfutil.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfile.h
-mbfindex.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfindex.h
+mbfindex.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/diesel.h mbfutil.h mbfindex.h
 mbfcheck.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfcheck.h
 mbfpack.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbfpack.h
 mbflist.o: ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbcfg.h mbfutil.h mbflist.h

@@ -169,7 +169,7 @@ nntp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 pop3.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 smtp.o: libs.h structs.h users.h records.h clcomm.h mbinet.h
 diesel.o: libs.h diesel.h
-mbdiesel.o: libs.h structs.h users.h records.h clcomm.h diesel.h
+mbdiesel.o: libs.h structs.h users.h records.h common.h clcomm.h diesel.h
 memwatch.o: ../config.h ../config.h libs.h memwatch.h
 ftscprod.o: libs.h structs.h common.h
 # End of generated dependencies

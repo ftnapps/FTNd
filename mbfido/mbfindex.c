@@ -35,6 +35,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "../lib/dbcfg.h"
+#include "../lib/diesel.h"
 #include "mbfutil.h"
 #include "mbfindex.h"
 
@@ -42,6 +43,7 @@
 
 extern int	do_quiet;		/* Supress screen output    */
 int		lastfile;		/* Last file number	    */
+long		gfilepos = 0;		/* Global file position	    */
 
 
 typedef struct _Index {
@@ -131,128 +133,43 @@ int comp_index(Findex **fap1, Findex **fap2)
 
 
 
-/*
- * Translate ISO 8859-1 characters to named character entities
- */
-void html_massage(char *, char *);
-void html_massage(char *inbuf, char *outbuf)
+void MacroRead(FILE *fi, FILE *fp)
 {
-        char    *inptr = inbuf;
-        char    *outptr = outbuf;
+    char    *line, *temp;
+    int     res, i;
 
-        memset(outbuf, 0, sizeof(outbuf));
+    line = calloc(MAXSTR, sizeof(char));
+    temp = calloc(MAXSTR, sizeof(char));
 
-        while (*inptr) {
-
-                switch ((unsigned char)*inptr) {
-                        case '"':       sprintf(outptr, "&quot;");      break;
-                        case '&':       sprintf(outptr, "&amp;");       break;
-                        case '<':       sprintf(outptr, "&lt;");        break;
-                        case '>':       sprintf(outptr, "&gt;");        break;
-                        case 160:       sprintf(outptr, "&nbsp;");      break;
-                        case 161:       sprintf(outptr, "&iexcl;");     break;
-                        case 162:       sprintf(outptr, "&cent;");      break;
-                        case 163:       sprintf(outptr, "&pound;");     break;
-                        case 164:       sprintf(outptr, "&curren;");    break;
-                        case 165:       sprintf(outptr, "&yen;");       break;
-                        case 166:       sprintf(outptr, "&brvbar;");    break;
-                        case 167:       sprintf(outptr, "&sect;");      break;
-                        case 168:       sprintf(outptr, "&uml;");       break;
-                        case 169:       sprintf(outptr, "&copy;");      break;
-                        case 170:       sprintf(outptr, "&ordf;");      break;
-                        case 171:       sprintf(outptr, "&laquo;");     break;
-                        case 172:       sprintf(outptr, "&not;");       break;
-                        case 173:       sprintf(outptr, "&shy;");       break;
-                        case 174:       sprintf(outptr, "&reg;");       break;
-                        case 175:       sprintf(outptr, "&macr;");      break;
-                        case 176:       sprintf(outptr, "&deg;");       break;
-                        case 177:       sprintf(outptr, "&plumn;");     break;
-                        case 178:       sprintf(outptr, "&sup2;");      break;
-                        case 179:       sprintf(outptr, "&sup3;");      break;
-                        case 180:       sprintf(outptr, "&acute;");     break;
-                        case 181:       sprintf(outptr, "&micro;");     break;
-                        case 182:       sprintf(outptr, "&para;");      break;
-                        case 183:       sprintf(outptr, "&middot;");    break;
-                        case 184:       sprintf(outptr, "&cedil;");     break;
-                        case 185:       sprintf(outptr, "&supl;");      break;
-                        case 186:       sprintf(outptr, "&ordm;");      break;
-                        case 187:       sprintf(outptr, "&raquo;");     break;
-                        case 188:       sprintf(outptr, "&frac14;");    break;
-                        case 189:       sprintf(outptr, "&frac12;");    break;
-                        case 190:       sprintf(outptr, "&frac34;");    break;
-                        case 191:       sprintf(outptr, "&iquest;");    break;
-                        case 192:       sprintf(outptr, "&Agrave;");    break;
-                        case 193:       sprintf(outptr, "&Aacute;");    break;
-                        case 194:       sprintf(outptr, "&Acirc;");     break;
-                        case 195:       sprintf(outptr, "&Atilde;");    break;
-                        case 196:       sprintf(outptr, "&Auml;");      break;
-                        case 197:       sprintf(outptr, "&Aring;");     break;
-                        case 198:       sprintf(outptr, "&AElig;");     break;
-                        case 199:       sprintf(outptr, "&Ccedil;");    break;
-                        case 200:       sprintf(outptr, "&Egrave;");    break;
-                        case 201:       sprintf(outptr, "&Eacute;");    break;
-                        case 202:       sprintf(outptr, "&Ecirc;");     break;
-                        case 203:       sprintf(outptr, "&Euml;");      break;
-                        case 204:       sprintf(outptr, "&Igrave;");    break;
-                        case 205:       sprintf(outptr, "&Iacute;");    break;
-                        case 206:       sprintf(outptr, "&Icirc;");     break;
-                        case 207:       sprintf(outptr, "&Iuml;");      break;
-                        case 208:       sprintf(outptr, "&ETH;");       break;
-                        case 209:       sprintf(outptr, "&Ntilde;");    break;
-                        case 210:       sprintf(outptr, "&Ograve;");    break;
-                        case 211:       sprintf(outptr, "&Oacute;");    break;
-                        case 212:       sprintf(outptr, "&Ocirc;");     break;
-                        case 213:       sprintf(outptr, "&Otilde;");    break;
-                        case 214:       sprintf(outptr, "&Ouml;");      break;
-                        case 215:       sprintf(outptr, "&times;");     break;
-                        case 216:       sprintf(outptr, "&Oslash;");    break;
-                        case 217:       sprintf(outptr, "&Ugrave;");    break;
-                        case 218:       sprintf(outptr, "&Uacute;");    break;
-                        case 219:       sprintf(outptr, "&Ucirc;");     break;
-                        case 220:       sprintf(outptr, "&Uuml;");      break;
-                        case 221:       sprintf(outptr, "&Yacute;");    break;
-                        case 222:       sprintf(outptr, "&THORN;");     break;
-                        case 223:       sprintf(outptr, "&szlig;");     break;
-                        case 224:       sprintf(outptr, "&agrave;");    break;
-                        case 225:       sprintf(outptr, "&aacute;");    break;
-                        case 226:       sprintf(outptr, "&acirc;");     break;
-                        case 227:       sprintf(outptr, "&atilde;");    break;
-                        case 228:       sprintf(outptr, "&auml;");      break;
-                        case 229:       sprintf(outptr, "&aring;");     break;
-                        case 230:       sprintf(outptr, "&aelig;");     break;
-                        case 231:       sprintf(outptr, "&ccedil;");    break;
-                        case 232:       sprintf(outptr, "&egrave;");    break;
-                        case 233:       sprintf(outptr, "&eacute;");    break;
-                        case 234:       sprintf(outptr, "&ecirc;");     break;
-                        case 235:       sprintf(outptr, "&euml;");      break;
-                        case 236:       sprintf(outptr, "&igrave;");    break;
-                        case 237:       sprintf(outptr, "&iacute;");    break;
-                        case 238:       sprintf(outptr, "&icirc;");     break;
-                        case 239:       sprintf(outptr, "&iuml;");      break;
-                        case 240:       sprintf(outptr, "&eth;");       break;
-                        case 241:       sprintf(outptr, "&ntilde;");    break;
-                        case 242:       sprintf(outptr, "&ograve;");    break;
-                        case 243:       sprintf(outptr, "&oacute;");    break;
-                        case 244:       sprintf(outptr, "&ocirc;");     break;
-                        case 245:       sprintf(outptr, "&otilde;");    break;
-                        case 246:       sprintf(outptr, "&ouml;");      break;
-                        case 247:       sprintf(outptr, "&divide;");    break;
-                        case 248:       sprintf(outptr, "&oslash;");    break;
-                        case 249:       sprintf(outptr, "&ugrave;");    break;
-                        case 250:       sprintf(outptr, "&uacute;");    break;
-                        case 251:       sprintf(outptr, "&ucirc;");     break;
-                        case 252:       sprintf(outptr, "&uuml;");      break;
-                        case 253:       sprintf(outptr, "&yacute;");    break;
-                        case 254:       sprintf(outptr, "&thorn;");     break;
-                        case 255:       sprintf(outptr, "&yuml;");      break;
-                        default:        *outptr++ = *inptr; *outptr = '\0';     break;
-                }
-                while (*outptr)
-                        outptr++;
-
-                inptr++;
+    while ((fgets(line, MAXSTR-2, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {
+        /*
+         * Skip comment lines
+         */
+        if (line[0] != '#') {
+            Striplf(line);
+            if (strlen(line) == 0) {
+                /*
+                 * Empty lines are just written
+                 */
+		fputc('\n', fp);
+            } else {
+                strncpy(temp, ParseMacro(line,&res), MAXSTR-1);
+                if (res)
+                    Syslog('!', "Macro error line: \"%s\"", line);
+                /*
+                 * Only output if something was evaluated
+                 */
+                if (strlen(temp)) {
+		    for (i = 0; i < strlen(temp); i++)
+			fputc(temp[i], fp);
+		    fputc('\n', fp);
+		}
+            }
         }
-        *outptr = '\0';
+    }
+    free(line);
+    free(temp);
+    gfilepos = ftell(fi);
 }
 
 
@@ -273,41 +190,42 @@ char *rfcdate(time_t now)
 
 
 
+/*
+ * Create the macro's for the navigation bar.
+ */
 void pagelink(FILE *, char *, int, int);
 void pagelink(FILE *fa, char *Path, int inArea, int Current)
 {
-        char    nr[20];
-
-        fprintf(fa, "<DIV align=center>\n");
+        char    temp[256], nr[25];
 
         if ((Current >= CFG.www_files_page) && (inArea >= CFG.www_files_page)) {
-                if (((Current / CFG.www_files_page) - 1) > 0)
-                        sprintf(nr, "%d", (Current / CFG.www_files_page) -1);
-                else
-                        nr[0] = '\0';
-                fprintf(fa, "<A HREF=\"%s/%s%s/index%s.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>&nbsp;\n", 
-                        CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), nr, 
-                        CFG.www_icon_prev, CFG.www_name_prev, CFG.www_name_prev);
-        }
-
-        fprintf(fa, "<A HREF=\"%s/index.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>&nbsp;\n",
-                        CFG.www_url, CFG.www_icon_home, CFG.www_name_home, CFG.www_name_home);
-        fprintf(fa, "<A HREF=\"%s/%s/index.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>\n", 
-                        CFG.www_url, CFG.www_link2ftp, CFG.www_icon_back, CFG.www_name_back, CFG.www_name_back);
+                if (((Current / CFG.www_files_page) - 1) > 0) {
+                    sprintf(nr, "%d", (Current / CFG.www_files_page) -1);
+		} else {
+                    nr[0] = '\0';
+		}
+		sprintf(temp, "%s/%s%s/index%s.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), nr);
+		MacroVars("c", "s", temp);
+        } else {
+	    MacroVars("c", "s", "");
+	}
 
         if ((Current < (inArea - CFG.www_files_page)) && (inArea >= CFG.www_files_page)) {
-                fprintf(fa, "&nbsp;<A HREF=\"%s/%s%s/index%d.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>\n", 
-                        CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), (Current / CFG.www_files_page) + 1,
-                        CFG.www_icon_next, CFG.www_name_next, CFG.www_name_next);
-        }
-
-        fprintf(fa, "</DIV><P>\n");
+	    sprintf(temp, "%s/%s%s/index%d.html", CFG.www_url, CFG.www_link2ftp, Path+strlen(CFG.ftp_base), 
+		    (Current / CFG.www_files_page) + 1);
+	    MacroVars("d", "s", temp);
+        } else {
+	    MacroVars("d", "s", "");
+	}
 }
 
 
 
-FILE *newpage(char *, char *, time_t, int, int);
-FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current)
+/*
+ * Start a new file areas page
+ */
+FILE *newpage(char *, char *, time_t, int, int, FILE *);
+FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current, FILE *fi)
 {
         char            linebuf[1024], outbuf[1024];
         static FILE*    fa;
@@ -322,21 +240,9 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current)
         } else {
                 sprintf(linebuf, "%s", Name);
                 html_massage(linebuf, outbuf);
-		fprintf(fa, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n");
-                fprintf(fa, "<HTML>\n");
-		fprintf(fa, "<!-- Page created by MBSE BBS v%s -->\n", VERSION);
-                fprintf(fa, "<META http-equiv=\"Expires\" content=\"%s\">\n", rfcdate(later));
-                fprintf(fa, "<META http-equiv=\"Cache-Control\" content=\"no-cache, must-revalidate\">\n");
-                fprintf(fa, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
-                fprintf(fa, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
-                fprintf(fa, "<HEAD><TITLE>%s</TITLE>\n", outbuf);
-                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
-                fprintf(fa, "<STYLE TYPE=\"text/css\">\n");
-                fprintf(fa, "</STYLE>\n</HEAD>\n<BODY>\n");
+		MacroVars("ab", "ss", rfcdate(later), outbuf);
                 pagelink(fa, Path, inArea, Current);
-                fprintf(fa, "<H1 align=center>File index of %s</H1><P>\n", outbuf);
-                fprintf(fa, "<TABLE align=center width=750>\n");
-                fprintf(fa, "<TR><TH>Nr.</TH><TH>Filename</TH><TH>Date</TH><TH>Size</TH><TH>Downloads</TH><TH>Description</TH></TR>\n");
+		MacroRead(fi, fa);
                 return fa;
         }
         return NULL;
@@ -344,8 +250,11 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current)
 
 
 
-void closepage(FILE *, char *, int, int);
-void closepage(FILE *fa, char *Path, int inArea, int Current)
+/*
+ * Finish a files area page
+ */
+void closepage(FILE *, char *, int, int, FILE *);
+void closepage(FILE *fa, char *Path, int inArea, int Current, FILE *fi)
 {
         char    *temp1, *temp2;
 
@@ -354,9 +263,7 @@ void closepage(FILE *fa, char *Path, int inArea, int Current)
 
         temp1 = calloc(PATH_MAX, sizeof(char));
         temp2 = calloc(PATH_MAX, sizeof(char));
-        fprintf(fa, "</TABLE><P>\n");
-        pagelink(fa, Path, inArea, lastfile);
-        fprintf(fa, "</BODY></HTML>\n");
+	MacroRead(fi, fa);
         fclose(fa);
         if (lastfile) {
                 sprintf(temp1, "%s/index%d.html", Path, lastfile / CFG.www_files_page);
@@ -380,17 +287,18 @@ void closepage(FILE *fa, char *Path, int inArea, int Current)
  */
 void Index(void)
 {
-    FILE		*pAreas, *pFile, *pIndex, *fa, *fm, *fp;
+    FILE		*pAreas, *pFile, *pIndex, *fa, *fb = NULL, *fm, *fp, *fi = NULL;
     unsigned long	i, iAreas, iAreasNew = 0, record, KSize = 0L, aSize = 0;
-    int			iTotal = 0, AreaNr = 0, j, z, x = 0, Areas = 0;
+    int			iTotal = 0, AreaNr = 0, j, k, z, x = 0, Areas = 0;
     int			Total = 0, aTotal = 0, inArea = 0, filenr;
     int			fbAreas = 0, fbFiles = 0;
     char		*sAreas, *fAreas, *newdir = NULL, *sIndex, *fn, *temp;
-    char		linebuf[1024], outbuf[1024];
+    char		linebuf[1024], outbuf[1024], desc[1500];
     time_t		last = 0L, later;
     Findex		*fdx = NULL;
     Findex		*tmp;
     struct FILEIndex	idx;
+    long		fileptr = 0, fileptr1 = 0;
 
     sAreas = calloc(PATH_MAX, sizeof(char));
     fAreas = calloc(PATH_MAX, sizeof(char));
@@ -437,6 +345,14 @@ void Index(void)
     }
 
     if (fm) {
+	if ((fi = OpenMacro("html.main", 'E', TRUE)) == NULL) {
+	    Syslog('+', "Can't open macro file, skipping html pages creation");
+	    fclose(fm);
+	    unlink(fn);
+	}
+    }
+
+    if (fm) {
 	/*
 	 * Because these web pages are dynamic, ie. they change everytime you
 	 * receive new files and recreates these pages, extra HTTP headers are
@@ -445,22 +361,9 @@ void Index(void)
 	 * also have an author name, this is the bbs name, and a content 
 	 * description for search engines. Automatic advertising.
 	 */
-	sprintf(linebuf, "File areas at %s", CFG.bbs_name);
-	html_massage(linebuf, outbuf);
-	fprintf(fm, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">\n");
-	fprintf(fm, "<HTML>\n");
-	fprintf(fm, "<!-- Page created by MBSE BBS v%s -->\n", VERSION);
-	fprintf(fm, "<META http-equiv=\"Expires\" content=\"%s\">\n", rfcdate(later));
-	fprintf(fm, "<META http-equiv=\"Cache-Control\" content=\"no-cache, must-revalidate\">\n");
-	fprintf(fm, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
-	fprintf(fm, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
-	fprintf(fm, "<HEAD><TITLE>%s</TITLE>\n", outbuf);
-	fprintf(fm, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
-	fprintf(fm, "<STYLE TYPE=\"text/css\">\n");
-	fprintf(fm, "</STYLE>\n</HEAD>\n<BODY>\n");
-	fprintf(fm, "<H2 align=center>%s</H2><P>\n", outbuf);
-	fprintf(fm, "<TABLE align=center width=750>\n");
-	fprintf(fm, "<TR><TH>Area</TH><TH>Description</TH><TH>Files</TH><TH>Total size</TH><TH>Last added</TH></TR>\n");
+	MacroVars("acd", "sdd", rfcdate(later), 0, 0);
+	MacroRead(fi, fm);
+	fileptr = ftell(fi);
     }
 
     for (i = 1; i <= iAreas; i++) {
@@ -576,7 +479,12 @@ void Index(void)
 		    aSize = 0L;
 		    aTotal = 0;
 		    last = 0L;
-		    fa = newpage(area.Path, area.Name, later, inArea, aTotal);
+		    if ((fb = OpenMacro("html.areas", 'E', TRUE)) == NULL) {
+			fa = NULL;
+		    } else {
+			fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
+			fileptr1 = gfilepos;
+		    }
 		    while (fread(&file, sizeof(file), 1, pFile) == 1) {
 			if ((!file.Deleted) && (!file.Missing)) {
 			    /*
@@ -601,7 +509,7 @@ void Index(void)
 				}
 			    }
 			    
-			    fprintf(fa, "<TR><TD align=right valign=top>%d</TD>", aTotal);
+			    MacroVars("e", "d", aTotal);
 			    /*
 			     * Check if this is a .gif or .jpg file, if so then
 			     * check if a thumbnail file exists. If not try to
@@ -619,44 +527,47 @@ void Index(void)
 					chmod(outbuf, 0644);
 				    }
 				}
-				fprintf(fa, "<TD align=center valign=top><A HREF=\"%s/%s%s/%s\">",
-					CFG.www_url, CFG.www_link2ftp,
+				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp, 
 					area.Path+strlen(CFG.ftp_base), file.LName);
-				fprintf(fa, "<IMG SRC=\"%s/%s%s/.%s\" ALT=\"%s\" BORDER=0>",
-					CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.LName, file.LName);
-				fprintf(fa, "</A></TD>");
+				sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
+					area.Path+strlen(CFG.ftp_base), file.LName);
+				MacroVars("fghi", "dsss", 1, outbuf, file.LName, linebuf);
 			    } else {
-				fprintf(fa, "<TD valign=top><A HREF=\"%s/%s%s/%s\">%s</A></TD>",
-					CFG.www_url, CFG.www_link2ftp,
-					area.Path+strlen(CFG.ftp_base), file.LName, file.LName);
+				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+					area.Path+strlen(CFG.ftp_base), file.LName);
+				MacroVars("fghi", "dsss", 0, outbuf, file.LName, "");
 			    }
-			    fprintf(fa, "<TD valign=top>%s</TD>", StrDateDMY(file.FileDate));
-			    fprintf(fa, "<TD align=right valign=top>%lu Kb.</TD>",
-				    (long)(file.Size / 1024));
-			    fprintf(fa, "<TD valign=top>%8ld</TD>",
-				    file.TimesDL + file.TimesFTP + file.TimesReq);
-			    fprintf(fa, "<TD><PRE>");
+			    sprintf(outbuf, "%lu Kb.", (long)(file.Size / 1024));
+			    MacroVars("jkl", "ssd", StrDateDMY(file.FileDate), outbuf, file.TimesDL+file.TimesFTP+file.TimesReq);
+			    memset(&desc, 0, sizeof(desc));
+			    k = 0;
 			    for (j = 0; j < 25; j++)
 				if (strlen(file.Desc[j])) {
-				    if (j)
-					fprintf(fa, "\n");
+				    if (j) {
+					sprintf(desc+k, "\n");
+					k += 1;
+				    }
 				    sprintf(linebuf, "%s", strkconv(file.Desc[j], CHRS_DEFAULT_FTN, CHRS_DEFAULT_RFC));
 				    html_massage(linebuf, outbuf);
-				    fprintf(fa, "%s", outbuf);
+				    sprintf(desc+k, "%s", outbuf);
+				    k += strlen(outbuf);
 				}
-			    fprintf(fa, "</PRE></TD></TR>\n");
+			    MacroVars("m", "s", desc);
+			    fseek(fb, fileptr1, SEEK_SET);
+			    MacroRead(fb, fa);
 			    aSize += file.Size;
 			    if (file.FileDate > last)
 				last = file.FileDate;
 			    if ((aTotal % CFG.www_files_page) == 0) {
-				closepage(fa, area.Path, inArea, aTotal);
-				fa = newpage(area.Path, area.Name, later, inArea, aTotal);
+				closepage(fa, area.Path, inArea, aTotal, fb);
+				fseek(fb, 0, SEEK_SET);
+				fa = newpage(area.Path, area.Name, later, inArea, aTotal, fb);
 			    }
 			} /* if (!file.deleted) */
 		    }
 		    KSize += aSize / 1024;
-		    closepage(fa, area.Path, inArea, aTotal);
+		    closepage(fa, area.Path, inArea, aTotal, fb);
+		    fclose(fb);
 		    fclose(fp);
 		    chmod(temp, 0644);
 
@@ -674,17 +585,18 @@ void Index(void)
 			Syslog('+', "Removed obsolete %s", linebuf);
 		    }
 
-		    fprintf(fm, "<TR><TD align=right>%d</TD><TD><A HREF=\"%s/%s%s/index.html\">%s</A></TD>",
-			    AreaNr, CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base), area.Name);
-		    fprintf(fm, "<TD align=right>%d</TD>", aTotal);
+		    sprintf(linebuf, "%s/%s%s/index.html", CFG.www_url, CFG.www_link2ftp, area.Path+strlen(CFG.ftp_base));
 		    if (aSize > 1048576)
-			fprintf(fm, "<TD align=right>%ld Mb.</TD>", aSize / 1048576);
+			sprintf(outbuf, "%ld Mb.", aSize / 1048576);
 		    else
-			fprintf(fm, "<TD align=right>%ld Kb.</TD>", aSize / 1024);
+			sprintf(outbuf, "%ld Kb.", aSize / 1024);
+		    MacroVars("efghi", "dssds", AreaNr, linebuf, area.Name, aTotal, outbuf);
 		    if (last == 0L)
-			fprintf(fm, "<TD>&nbsp;</TD></TR>\n");
+			MacroVars("j", "s", "&nbsp;");
 		    else
-			fprintf(fm, "<TD align=center>%s</TD></TR>\n",  StrDateDMY(last));
+			MacroVars("j", "s", StrDateDMY(last));
+		    fseek(fi, fileptr, SEEK_SET);
+		    MacroRead(fi, fm);
 		}
 	    }
 	    fclose(pFile);
@@ -693,12 +605,10 @@ void Index(void)
     }
 
     if (fm) {
-	fprintf(fm, "<TR align=right><TH>&nbsp;</TH><TH>Total</TH><TD>%d</TD><TD>%ld Mb.</TD><TD>&nbsp;</TD></TR>\n",
-		Total, KSize / 1024);
-	fprintf(fm, "</TABLE><P>\n");
-	fprintf(fm, "<A HREF=\"/index.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>\n",
-		CFG.www_icon_home, CFG.www_name_home, CFG.www_name_home);
-	fprintf(fm, "</BODY></HTML>\n");
+	sprintf(linebuf, "%ld Mb.", KSize / 1024);
+	MacroVars("cd", "ds", Total, linebuf);
+	MacroRead(fi, fm);
+	fclose(fi);
 	fclose(fm);
 	sprintf(linebuf, "%s/index.html", CFG.ftp_base);
 	rename(fn, linebuf);

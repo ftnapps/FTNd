@@ -242,7 +242,7 @@ void FinishMsg(int Final, long filepos)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    if (Final && ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL)) {
+    if (Final && ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL)) {
 	/*
 	 * Message footer
 	 */
@@ -298,7 +298,7 @@ long Report(gr_list *ta, long filepos)
 	    break;
     }
 
-    if ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL) {
+    if ((fi = OpenMacro(newfiles.Template, newfiles.Language, FALSE)) != NULL) {
 	/*
 	 * Area block header
 	 */

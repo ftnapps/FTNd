@@ -135,7 +135,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	 */
 	if (nodes.Message) {
 	    if ((net = SendMgrMail(fido2faddr(Node), CFG.ct_KeepMgr, TRUE, (char *)"Filemgr", subject, NULL)) != NULL) {
-		if ((fi = OpenMacro("forward.tic", nodes.Language)) != NULL) {
+		if ((fi = OpenMacro("forward.tic", nodes.Language, FALSE)) != NULL) {
 		    MacroVars("abcdfghijmns", "ssdssddsssss", TIC.TicIn.Area, tic.Comment, TIC.FileCost, fgroup.Comment,
 							    TIC.TicIn.FullName, TIC.FileSize, TIC.FileSize / 1024, 
 							    TIC.TicIn.Crc, TIC.TicIn.Origin, " ", TIC.TicIn.Desc, nodes.Sysop);

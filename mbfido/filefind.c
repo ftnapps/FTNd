@@ -210,7 +210,7 @@ void FinishReply(int Reported, int Total, long filepos)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    if ((fi = OpenMacro(scanmgr.template, scanmgr.Language)) != NULL) {
+    if ((fi = OpenMacro(scanmgr.template, scanmgr.Language, FALSE)) != NULL) {
 	MacroVars("CD", "dd", Reported, Total);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
@@ -373,7 +373,7 @@ void ScanFiles(ff_list *tmp)
 	    fflush(stdout);
 	}
 
-	if (((filepos = StartReply(tmp)) != -1) && ((fi = OpenMacro(scanmgr.template, scanmgr.Language)) != NULL)) {
+	if (((filepos = StartReply(tmp)) != -1) && ((fi = OpenMacro(scanmgr.template, scanmgr.Language, FALSE)) != NULL)) {
 	    areanr = 0;
 
 	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));

@@ -64,8 +64,6 @@ mbcico:
 
 	N: Implement MD5 crypt in binkp protocol driver.
 
-	N: Remove code to make automatic calls after mbtask does this.
-
 mbfile:
 	N: Add a check to see if the magic filenames are (still) valid.
 

@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #ifndef	_DIESEL_H
 #define	_DIESEL_H
 
@@ -22,7 +24,7 @@ int tracing = TRUE;		      /* Trace macro evalution */
 /*  Local variables.  */
 
 #define MAXARGS     10		      /* Maximum arguments to a macro */
-#define MAXSTR	    256 	      /* Maximum string length */
+#define MAXSTR	    2560 	      /* Maximum string length */
 #define MAXDEPTH    32		      /* Maximum recursion depth for eval */
 
 #define MACROCHAR   '@' 	      /* Macro trigger character */
@@ -48,7 +50,8 @@ int diesel(char *, char *);
 char *ParseMacro( const char *, int * );
 void MacroVars( const char *, const char *, ... );
 void MacroClear(void);
-FILE *OpenMacro(const char *, int);
+void html_massage(char *, char *);
+FILE *OpenMacro(const char *, int, int);
 
 #endif
 

@@ -148,7 +148,7 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    if ((fi = OpenMacro(template, language))) {
+    if ((fi = OpenMacro(template, language, FALSE))) {
 	/*
 	 * First override default aka with current aka, then display header.
 	 */

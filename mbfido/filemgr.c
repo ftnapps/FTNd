@@ -86,7 +86,7 @@ void F_Help(faddr *t, char *replyid)
     GetRpSubject("filemgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
-	if ((fi = OpenMacro("filemgr.help", nodes.Language)) != NULL ){
+	if ((fi = OpenMacro("filemgr.help", nodes.Language, FALSE)) != NULL ){
 	    MacroVars("sAYP", "ssss", nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
 	    MacroRead(fi, fp);
 	    MacroClear();
@@ -128,22 +128,22 @@ void F_List(faddr *t, char *replyid, int Notify)
 	case LIST_NOTIFY:   Syslog('+', "FileMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"FileMgr Notify");
 			    GetRpSubject("filemgr.notify.list",subject);
-			    fi=OpenMacro("filemgr.notify.list", nodes.Language);
+			    fi=OpenMacro("filemgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Syslog('+', "FileMgr: List");
 			    sprintf(subject,"FileMgr list");
 			    GetRpSubject("filemgr.list",subject);
-			    fi=OpenMacro("filemgr.list", nodes.Language);
+			    fi=OpenMacro("filemgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Syslog('+', "FileMgr: Query");
 			    sprintf(subject,"FileMgr Query");
 			    GetRpSubject("filemgr.query",subject);
-			    fi=OpenMacro("filemgr.query", nodes.Language);
+			    fi=OpenMacro("filemgr.query", nodes.Language, FALSE);
 			    break;
 	default:	    Syslog('+', "FileMgr: Unlinked");
 			    sprintf(subject,"FileMgr: Unlinked areas");
 			    GetRpSubject("filemgr.unlink",subject);
-			    fi=OpenMacro("filemgr.unlink", nodes.Language);
+			    fi=OpenMacro("filemgr.unlink", nodes.Language, FALSE);
 			    break;
     }
 
@@ -318,7 +318,7 @@ void F_Status(faddr *t, char *replyid)
  	    					);
     GetRpSubject("filemgr.status",subject);
 
-    if ((fi = OpenMacro("filemgr.status", nodes.Language)) == NULL ) {
+    if ((fi = OpenMacro("filemgr.status", nodes.Language, FALSE)) == NULL ) {
 	free(subject);
 	MacroClear();
 	return;

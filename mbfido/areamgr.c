@@ -92,7 +92,7 @@ void A_Help(faddr *t, char *replyid)
     GetRpSubject("areamgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
-	if ((fi = OpenMacro("areamgr.help", nodes.Language)) != NULL ){
+	if ((fi = OpenMacro("areamgr.help", nodes.Language, FALSE)) != NULL ){
 	    MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
 	    MacroRead(fi, fp);
 	    fclose(fi);
@@ -137,22 +137,22 @@ void A_List(faddr *t, char *replyid, int Notify)
 	case LIST_NOTIFY:   Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"AreaMgr Notify");
 			    GetRpSubject("areamgr.notify.list",subject);
-			    fi = OpenMacro("areamgr.notify.list", nodes.Language);
+			    fi = OpenMacro("areamgr.notify.list", nodes.Language, FALSE);
 			    break;
 	case LIST_LIST:	    Syslog('+', "AreaMgr: List");
 			    sprintf(subject,"AreaMgr list");
 			    GetRpSubject("areamgr.list",subject);
-			    fi = OpenMacro("areamgr.list", nodes.Language);
+			    fi = OpenMacro("areamgr.list", nodes.Language, FALSE);
 			    break;
 	case LIST_QUERY:    Syslog('+', "AreaMgr: Query");
 			    sprintf(subject,"AreaMgr Query");
 			    GetRpSubject("areamgr.query",subject);
-			    fi = OpenMacro("areamgr.query", nodes.Language);
+			    fi = OpenMacro("areamgr.query", nodes.Language, FALSE);
 			    break;
 	case LIST_UNLINK:   Syslog('+', "AreaMgr: Unlinked");
 			    sprintf(subject,"AreaMgr: Unlinked areas");
 			    GetRpSubject("areamgr.unlink",subject);
-			    fi = OpenMacro("areamgr.unlink", nodes.Language);
+			    fi = OpenMacro("areamgr.unlink", nodes.Language, FALSE);
 			    break;
     }
 
@@ -321,12 +321,12 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	Syslog('+', "AreaMgr: Flow report to %s", ascfnode(t, 0xff));
         sprintf(subject,"AreaMgr Notify Flow Report");
         GetRpSubject("areamgr.notify.flow",subject);
-	fi = OpenMacro("areamgr.notify.flow", nodes.Language);
+	fi = OpenMacro("areamgr.notify.flow", nodes.Language, FALSE);
     }else{
 	Syslog('+', "AreaMgr: Flow report");
         sprintf(subject,"AreaMgr Flow Report");
         GetRpSubject("areamgr.flow",subject);
-	fi = OpenMacro("areamgr.flow", nodes.Language);
+	fi = OpenMacro("areamgr.flow", nodes.Language, FALSE);
     }
 
     if (fi == 0) {
@@ -489,7 +489,7 @@ void A_Status(faddr *t, char *replyid)
     	                                 );
     GetRpSubject("areamgr.status",subject);
 
-    if ((fi = OpenMacro("areamgr.status", nodes.Language)) == NULL ){
+    if ((fi = OpenMacro("areamgr.status", nodes.Language, FALSE)) == NULL ){
 	MacroClear();
 	free(subject);
 	return;

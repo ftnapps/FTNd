@@ -1199,18 +1199,8 @@ int EditMsgRec(int Area)
 				changed = TRUE;
 			    }
 			}
-			if (!msgs.Active && Active) {
-			    InitMsgRec();
+			if (!msgs.Active && Active)
 			    msgs.Active = TRUE;
-			    /*
-			     * Clear connections, just in case from older mbse versions
-			     * might have left garbage here.
-			     */
-			    fseek(tfil, 0, SEEK_SET);
-			    memset(&System, 0, sizeof(System));
-			    for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++)
-				fwrite(&System, sizeof(System), 1, tfil);
-			}
 			SetScreen();
 			break;
 		case 15:E_INT( 13,52,   msgs.DaysOld,       "Maximum ^days^ to keep mail in this area")

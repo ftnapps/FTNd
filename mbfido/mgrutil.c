@@ -93,7 +93,7 @@ void WriteMailGroups(FILE *fp, faddr *f)
     faddr   *g;
     fpos_t  fileptr;
 
-    if ((fi = OpenMacro("areamgr.group", nodes.Language)) == NULL)
+    if ((fi = OpenMacro("areamgr.group", nodes.Language, FALSE)) == NULL)
 	return;
 
     MacroRead(fi, fp);
@@ -150,7 +150,7 @@ void WriteFileGroups(FILE *fp, faddr *f)
     faddr   *g;
     fpos_t  fileptr;
 
-    if ((fi = OpenMacro("filemgr.group", nodes.Language)) == NULL)
+    if ((fi = OpenMacro("filemgr.group", nodes.Language, FALSE)) == NULL)
 	return;
 
     MacroRead(fi, fp);
@@ -414,7 +414,7 @@ void GetRpSubject(const char *report, char* subject)
     int	    res;
 
     temp = calloc(256,sizeof(char)); 
-    if ((fi=OpenMacro(report, nodes.Language))!=NULL){
+    if ((fi=OpenMacro(report, nodes.Language, FALSE))!=NULL){
        while ( fgets(temp, 254, fi) != NULL )
 	   if (temp[0] != '#')
           	ParseMacro(temp,&res);
@@ -439,7 +439,7 @@ int MsgResult(const char * report, FILE *fo)
     temp = calloc(256,sizeof(char)); 
     resp = calloc(256,sizeof(char));
 
-    if ((fi = OpenMacro(report, nodes.Language)) != NULL){
+    if ((fi = OpenMacro(report, nodes.Language, FALSE)) != NULL){
         while ( fgets(temp, 254, fi) != NULL ){
 	    if (temp[0] != '#') {
 		strncpy(resp, ParseMacro(temp, &res), 80);
