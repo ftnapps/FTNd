@@ -1275,7 +1275,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html script"
 
-
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -1384,8 +1383,6 @@ test -n "$target_alias" &&
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
 
-echo "$host_cpu $host_os"
-
 PACKAGE="mbsebbs"
 MAJOR="0"
 MINOR="39"
@@ -1426,7 +1423,6 @@ _ACEOF
 cat >>confdefs.h <<_ACEOF
 #define SHORTRIGHT "$SHORTRIGHT"
 _ACEOF
-
 
 
 SYSTEM="`uname -s`"
@@ -3034,7 +3030,6 @@ if test "$experiment" = "yes"; then
 _ACEOF
 
 fi
-
 # Check whether --enable-debugging or --disable-debugging was given.
 if test "${enable_debugging+set}" = set; then
   enableval="$enable_debugging"
@@ -3045,10 +3040,13 @@ fi;
 if test "$debugging" = "yes"; then
     CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 else
-    CFLAGS="${CFLAGS} -march=${target_cpu} -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
+    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes"
 fi
 
 
+if test "$SYSTEM" = "NetBSD"; then
+    CFLAGS="$CFLAGS -I /usr/pkg/include"
+fi
 
 if test "$SYSTEM" = "FreeBSD"; then
     CFLAGS="-pthread $CFLAGS"
@@ -3056,6 +3054,7 @@ if test "$SYSTEM" = "FreeBSD"; then
 else
     PTLIBS="$PTLIBS -lpthread"
 fi
+
 
 
 cat >>confdefs.h <<_ACEOF
@@ -4674,6 +4673,7 @@ done
 
 fi
 
+
 ZLIBSUP=No
 echo "$as_me:$LINENO: checking for compress2 in -lz" >&5
 echo $ECHO_N "checking for compress2 in -lz... $ECHO_C" >&6
@@ -5090,6 +5090,7 @@ fi
 done
 
 fi
+
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6

@@ -83,10 +83,6 @@
 #include <setjmp.h>
 #include <grp.h>
 #include <sys/resource.h>
-#include <pthread.h>
-#ifdef	HAVE_ICONV_H
-#include <iconv.h>
-#endif
 #ifdef	HAVE_ZLIB_H
 #include <zlib.h>
 #endif

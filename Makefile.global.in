@@ -36,6 +36,5 @@ JOELIB		= @joelib@
 CFLAGS		= @CFLAGS@
 LIBS		= @LIBS@
 PTLIBS		= @PTLIBS@
-LDFLAGS		= @LDFLAGS@
 DEFS		= @DEFS@
 
