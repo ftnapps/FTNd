@@ -4255,6 +4255,9 @@ v0.33.19        26-Oct-2001
 		- Added display file "mainlogo" before the "welcome" file.
 		- Added display files "welcome2..9" after "welcome1" file.
 		Posting message with users alias is now possible.
+		If in menu entries "Display prompt" the fore and background
+		colors are set, the prompt is displayed with these colors.
+		If not, the prompt defaults to white on black.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

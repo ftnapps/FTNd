@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/menu.c
+ * $Id$
  * Purpose ...............: Display and handle the menus.
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -318,7 +317,10 @@ void DoMenu(int Type)
 						strcat(sPrompt, temp);
 					}
 		}
-		pout(15, 0, sPrompt);
+		if (menus.ForeGnd || menus.BackGnd)
+		    pout(menus.ForeGnd, menus.BackGnd, sPrompt);
+		else
+		    pout(15, 0, sPrompt);
 		break;
 
 	case 7:
