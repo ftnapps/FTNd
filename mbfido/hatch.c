@@ -147,14 +147,13 @@ int CheckHatch(char *temp)
     }
     *q++ = '$';
     *q = '\0';
-    Syslog('f', "Hatch mask \"%s\" -> \"%s\"", MBSE_SS(fn), MBSE_SS(mask));
 
     if ((re_comp(mask)) == NULL) {
 	tf = calloc(PATH_MAX, sizeof(char));
 	while ((de = readdir(dp))) {
 	    if (re_exec(de->d_name)) {
 		hatched = TRUE;
-		Syslog('+', "Hatch %s in area %s", de->d_name, hatch.Name);
+		Syslog('+', "Hatch \"%s\" in area %s", de->d_name, hatch.Name);
 		sprintf(tf, "%s/%s", CFG.pinbound, MakeTicName());
 
 		if ((Tf = fopen(tf, "a+")) == NULL) {

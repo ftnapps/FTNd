@@ -4764,6 +4764,7 @@ v0.33.20        10-Feb-2002
 		cleared to prevent later malformatted descriptions.
 		The hatch and magic processors now scan the filenames to test
 		using the regexp library, this should be more reliable.
+		Increased the size of the buffer for filesort.
 
 	mbmsg:
 		When creating non-existend message bases, the path is created

@@ -137,8 +137,8 @@ int Tic()
 			rc = 0;
 			break;
 		}
-		Syslog('f', "Tic() ending with %s", fname);
 	}
+	Syslog('f', "Tic() finished all files");
 
 	if (!do_quiet) {
 		printf("\r");
