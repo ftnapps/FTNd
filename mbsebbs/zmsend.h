@@ -4,7 +4,7 @@
 /* $Id$ */
 
 
-int zmsndfiles(down_list *);
+int zmsndfiles(down_list *, int);
 
 
 #endif

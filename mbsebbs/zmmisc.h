@@ -147,8 +147,6 @@ enum zm_type_enum {
 enum zm_type_enum protocol;
 
 
-//void	get_frame_buffer(void);
-//void	free_frame_buffer(void);
 void	zsbhdr(int, char *);
 void	zshhdr(int, char *);
 void	zsdata(register char *, int, int);
@@ -160,6 +158,7 @@ void	zsendline(int);
 int	zdlread(void);
 void	stohdr(long);
 long	rclhdr(register char *);
+void	zsendline_init(void);
 
 #define FTOFFSET 16
 

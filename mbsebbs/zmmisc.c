@@ -78,6 +78,8 @@ char *txbuf=NULL;
 static int lastsent;		/* Last char we sent */
 static int Not8bit;		/* Seven bits seen on header */
 
+static char zsendline_tab[256];
+
 extern unsigned	Baudrate;
 
 
@@ -688,33 +690,65 @@ void zputhex(register int c)
  */
 void zsendline(int c)
 {
-    /* Quick check for non control characters */
-    if (c & 0140)
-	PUTCHAR(lastsent = c);
-    else {
-	switch (c &= 0377) {
-	    case ZDLE:	PUTCHAR(ZDLE);
-			PUTCHAR(lastsent = (c ^= 0100));
-			break;
-	    case 015:
-	    case 0215:	if (!Zctlesc && (lastsent & 0177) != '@')
-			    goto sendit;
-			/* **** FALL THRU TO **** */
-	    case 020:
-	    case 021:
-	    case 023:
-	    case 0220:
-	    case 0221:
-	    case 0223:	PUTCHAR(ZDLE);
-			c ^= 0100;
-sendit:
-			PUTCHAR(lastsent = c);
-			break;
-	    default:	if (Zctlesc && ! (c & 0140)) {
-			    PUTCHAR(ZDLE);
-			    c ^= 0100;
-			}
-			PUTCHAR(lastsent = c);
+    switch(zsendline_tab[(unsigned) (c&=0377)]) {
+	case 0: 
+		PUTCHAR(lastsent = c); 
+		break;
+	case 1:
+		PUTCHAR(ZDLE);
+		c ^= 0100;
+		PUTCHAR(lastsent = c);
+		break;
+	case 2:
+		if ((lastsent & 0177) != '@') {
+		    PUTCHAR(lastsent = c);
+		} else {
+		    PUTCHAR(ZDLE);
+		    c ^= 0100;
+		    PUTCHAR(lastsent = c);
+		}
+		break;
+    }
+}
+
+
+
+void zsendline_init(void)
+{
+    int	    i;
+
+    Syslog('z', "zsendline_init()");
+
+    for (i = 0; i < 256; i++) {   
+	if (i & 0140)
+	    zsendline_tab[i]=0;
+	else {
+	    switch(i) {
+		case ZDLE:
+		case XOFF: /* ^Q */
+		case XON: /* ^S */
+		case (XOFF | 0200):
+		case (XON | 0200):
+				    zsendline_tab[i]=1;
+				    break;
+		case 020: /* ^P */
+		case 0220:
+				    zsendline_tab[i]=1;
+				    break;
+		case 015:
+		case 0215:
+				    if (Zctlesc)
+					zsendline_tab[i]=1;
+				    else
+					zsendline_tab[i]=2;
+				    break;
+		default:
+				    if (Zctlesc)
+					zsendline_tab[i]=1;
+				    else
+					zsendline_tab[i]=0;
+    
+	    }
 	}
     }
 }

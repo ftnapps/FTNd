@@ -259,10 +259,15 @@ int download(down_list *download_list)
     sleep(2);
     
     if (uProtInternal) {
-	if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+	if (strncasecmp(sProtName, "zmodem 8k", 9) == 0) {
 	    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
 	    chdir(temp);
-	    maxrc = zmsndfiles(download_list);
+	    maxrc = zmsndfiles(download_list, TRUE);
+	    Home();
+	} else if (strncasecmp(sProtName, "zmodem", 6) == 0) {
+	    sprintf(temp, "%s/%s/tag", CFG.bbs_usersdir, exitinfo.Name);
+	    chdir(temp);
+	    maxrc = zmsndfiles(download_list, FALSE);
 	    Home();
 	} else {
 	    Syslog('!', "Warning internal protocol %s not supported", sProtName);

@@ -83,6 +83,7 @@ int zmrcvfiles(void)
 
     Syslog('+', "Zmodem: start Zmodem receive");
 
+    zsendline_init();
     if (secbuf == NULL) 
 	secbuf = malloc(MAXBLOCK+1);
     tryzhdrtype = ZRINIT;

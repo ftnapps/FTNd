@@ -72,7 +72,7 @@ static char Myattn[]={0};
 static long skipsize;
 struct timeval	starttime, endtime;
 struct timezone	tz;
-
+static int use8k = FALSE;
 extern unsigned long	sentbytes;
 extern int Rxhlen;
 
@@ -82,14 +82,16 @@ extern char *frametypes[];
 extern unsigned	Baudrate;
 
 
-int zmsndfiles(down_list *lst)
+int zmsndfiles(down_list *lst, int try8)
 {
     int		rc, maxrc = 0;
     down_list	*tmpf;
 
-    Syslog('+', "Zmodem: start Zmodem send");
-
+    Syslog('+', "Zmodem: start Zmodem%s send", try8 ? "-8K":"");
+    use8k = try8;
     protocol = ZM_ZMODEM;
+    zsendline_init();
+
     if ((rc = initsend())) {
 	if (txbuf)
 	    free(txbuf);
@@ -187,7 +189,7 @@ static int sendzfile(char *rn)
     fl.l_start  = 0L;
     fl.l_len    = 0L;
     if (txbuf == NULL) 
-	txbuf = malloc(MAXBLOCK);
+	txbuf = malloc(MAXBLOCK + 1024);
 
     skipsize = 0L;
     if ((in = fopen(rn, "r")) == NULL) {
@@ -252,7 +254,11 @@ int getzrxinit(void)
 	    case ZRINIT:
 			Rxflags = 0377 & Rxhdr[ZF0];
 			Txfcs32 = (Wantfcs32 && (Rxflags & CANFC32));
+			int old = Zctlesc;
 			Zctlesc |= Rxflags & TESCCTL;
+			/* update table - was initialised to not escape */
+			if (Zctlesc && !old)
+			    zsendline_init();
 			
 			Rxbuflen = (0377 & Rxhdr[ZP0])+((0377 & Rxhdr[ZP1])<<8);
 			if ( !(Rxflags & CANFDX))
@@ -437,7 +443,10 @@ int zsendfdata(void)
     int	    junkcount; /* Counts garbage chars received by TX */
     int	    maxblklen, goodblks = 0, goodneeded = 8;
 
-    maxblklen = 1024; // FIXME: 8K variant set this to 8K
+    if (use8k)
+	maxblklen = 8192;
+    else
+	maxblklen = 1024;
     Syslog('z', "zsendfdata() maxblklen=%d", maxblklen);
 
     junkcount = 0;
