@@ -5,6 +5,14 @@ v0.61.2		11-Jul-2004
 
 	libmbse.a:
 		Added logging for obsolete .tic files in .flo files.
+		When files are attached that should "leave" after sent (not
+		truncated or removed) they are now prepended with the @
+		character instead of no character. This is compatible with
+		ifcico but not with other mailers, but should do no harm 
+		because most mailers only look for the ^ and # characters.
+		This is for test! Please check if you run mbcico together
+		with other mailers. Russell??
+		If you only use mbcico there will be no problems.
 
 
 v0.61.1		20-Jun-2004 - 11-Jul-2004

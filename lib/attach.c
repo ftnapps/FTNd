@@ -78,11 +78,11 @@ int attach(faddr noden, char *ofile, int mode, char flavor)
 	case LEAVE:
 	    if (strlen(CFG.dospath)) {
 		if (CFG.leavecase)
-		    sprintf(thefile, "%s", Unix2Dos(ofile));
+		    sprintf(thefile, "@%s", Unix2Dos(ofile));
 		else
-		    sprintf(thefile, "%s", tu(Unix2Dos(ofile)));
+		    sprintf(thefile, "@%s", tu(Unix2Dos(ofile)));
 	    } else {
-		sprintf(thefile, "%s", ofile);
+		sprintf(thefile, "@%s", ofile);
 	    }
 	    break;
 
