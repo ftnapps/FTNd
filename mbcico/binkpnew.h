@@ -1,7 +1,7 @@
 #ifdef USE_NEWBINKP
 
-#ifndef	_BINKP_H
-#define	_BINKP_H
+#ifndef	_BINKPNEW_H
+#define	_BINKPNEW_H
 
 
 /* $Id$ */
@@ -72,6 +72,18 @@ typedef struct _binkp_list {
 	time_t			date;		/* File date & time		*/
 	off_t			offset;		/* Start offset			*/
 } binkp_list;
+
+
+
+/*
+ * Linked FIFO list of received commands to be processed by the transmitter.
+ */
+typedef struct _the_queue {
+    struct  _the_queue		*next;
+    int				cmd;		/* M_xxx command id		*/
+    char			*data;		/* Frame data in the queue	*/
+} the_queue;
+
 
 
 int binkp(int);

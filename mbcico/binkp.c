@@ -1251,7 +1251,6 @@ void batch_receive_frame(void)
 int binkp_batch(file_list *to_send)
 {
     int		    NotDone, written, Found = FALSE;
-    off_t	    rxbytes;
     binkp_list	    *bll = NULL, *tmp, *tmpg, *cursend = NULL;
     file_list	    *tsl;
     struct statfs   sfs;
@@ -1537,7 +1536,7 @@ int binkp_batch(file_list *to_send)
 			    bp.RxState = RxWaitFile;
 			    binkp_send_control(MM_GOT, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 			    closefile();
-			    bp.rxpos = bp.rxpos - rxbytes;
+			    bp.rxpos = bp.rxpos - bp.rxbytes;
 			    gettimeofday(&bp.rxtvend, &bp.tz);
 			    Syslog('+', "Binkp: OK %s", transfertime(bp.rxtvstart, bp.rxtvend, bp.rxpos, FALSE));
 			    rcvdbytes += bp.rxpos;
@@ -1571,7 +1570,7 @@ int binkp_batch(file_list *to_send)
 	case RxAcceptFile:
 	    Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", bp.rname, date(bp.rtime), bp.rsize, bp.roffs);
 	    (void)binkp2unix(bp.rname);
-	    bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &rxbytes, resync);
+	    bp.rxfp = openfile(binkp2unix(bp.rname), bp.rtime, bp.rsize, &bp.rxbytes, resync);
 
 	    if (bp.DidSendGET) {
 		/*
@@ -1606,7 +1605,7 @@ int binkp_batch(file_list *to_send)
 		}
 	    }
 
-	    if (bp.rsize == rxbytes) {
+	    if (bp.rsize == bp.rxbytes) {
 		/*
 		 * We already got this file, send GOT so it will
 		 * be deleted at the remote.
@@ -1623,7 +1622,7 @@ int binkp_batch(file_list *to_send)
 		binkp_send_control(MM_SKIP, "%s %ld %ld", bp.rname, bp.rsize, bp.rtime);
 		bp.RxState = RxWaitFile;
 	    } else {
-		Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", bp.rsize, rxbytes, bp.roffs);
+		Syslog('b', "rsize=%d, rxbytes=%d, roffs=%d", bp.rsize, bp.rxbytes, bp.roffs);
 		bp.RxState = RxReceData;
 	    }
 	    break;

@@ -129,6 +129,8 @@ mbcico:
 
 	U: Fix binkp file resume when mbcico silently dies.
 
+	U: Check node locking results for EMSI, YooHoo and FTS-0001 sessions.
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 
