@@ -158,6 +158,23 @@ AC_CHECK_FUNCS(getspnam getutent initgroups updwtmp updwtmpx)
 dnl Check for external programs
 AC_PATH_PROG(COMPRESS,compress,no-compress-found-during-configure)
 AC_PATH_PROGS(GZIP,gzip,no-gzip-found-during-configure)
+AC_PATH_PROG(ARC,arc)
+AC_PATH_PROG(ARJ,arj)
+AC_PATH_PROG(UNARJ,unarj)
+AC_PATH_PROG(LHA,lha)
+AC_PATH_PROG(RAR,rar)
+AC_PATH_PROG(UNRAR,unrar)
+AC_PATH_PROG(TAR,tar)
+AC_PATH_PROG(ZIP,zip)
+AC_PATH_PROG(UNZIP,unzip)
+AC_PATH_PROG(ZOO,zoo)
+AC_PATH_PROG(ANTIVIR,antivir)
+AC_PATH_PROG(FPROT,f-prot)
+AC_PATH_PROG(UVSCAN,uvscan)
+AC_PATH_PROG(RB,rb)
+AC_PATH_PROG(SB,sb)
+AC_PATH_PROG(RZ,rz)
+AC_PATH_PROG(SZ,sz)
 dnl
 AC_ARG_WITH(log-compress,[  --with-log-compress=METHOD   Log compression method (default gzip)], LOG_COMPRESS=$with_log_compress, LOG_COMPRESS=gzip)
 case "$LOG_COMPRESS" in
@@ -210,7 +227,7 @@ done
 
 AC_OUTPUT(
 	Makefile.global
-	mbfido/paths.h
+	paths.h
 	unix/login.defs
 	INSTALL 
 	FILE_ID.DIZ

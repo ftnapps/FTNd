@@ -4,10 +4,36 @@ $Id$
 
 v0.35.01	05-Jun-2002
 
+	general:
+		Added structures for netmail routing file.
+		Expanded nodes structures for FTP and Directory transfers.
+		Splitted nodes session/mail password in mail and session
+		password.
+		Added more external program checks to get the right paths of
+		archivers, virus scanners etc for default settings in the
+		setup.
+
 	mbtask:
 		Removed some debug logging and corrected some spelling.
 		The ping test now also works if operations are suspended.
 		Rewrote the ping state machine.
+
+	mbcico:
+		Now uses the new session password field for session handshake.
+
+	mbfile:
+		Added -v commandline switch to supress virus checking for the
+		adopt and import commands. Use with great care.
+
+	mbsetup:
+		Upgrades the nodes records, the new session password is copied
+		from the old combined mail/session password.
+		In nodes submenu 14 the session and mail passwords can now be
+		edited seperatly. This will change again!
+		Archivers, file transfer protocols and virus scanners  found 
+		during first configure of this program are automatic installed
+		in the setup and enabled. Others are shown there with default
+		paths but are disabled, they can be used as examples.
 
 
 v0.33.21	04-Jun-2002

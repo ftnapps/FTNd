@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 25-Oct-2001</h5>
+<h5>Last update 15-Jun-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - virus scanners</H1>
@@ -28,8 +28,13 @@ There are several scanners for Linux available. Default only two of them
 are setup. You may consult <A HREF="http://www.openantivirus.org/">
 http://www.openantivirus.org</A> for more scanners mentioned in a mini-FAQ 
 maintained by Rainer Link.
+<p>
+When you configured the sources and build mbse, the configure script searched
+for excisting scanners. When mbsetup was run the first time, when mbtask was
+started, the scanners found on your system are already configured with the
+right paths and enabled.
 <P>
-The following scanners are default installed in the setup but disabled for use:
+The following scanners are default installed in the setup:
 <p>
 
 <UL>
@@ -46,7 +51,7 @@ HREF="http://www.frisk.is">http://www.frisk.is</A>. For now the BETA releases ar
 for personal use.
 </UL>
 <P>
-As soon as you have made a scanner available in the setup and you receive files
+As soon as you have made one scanner available in the setup and you receive files
 in tic areas where the scan flag is set, then these files will be checked.
 As soon as one of the scanners detects a virus the received file will not be imported.
 Uploads from users will be checked with the installed virus scanners as well.
