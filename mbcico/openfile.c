@@ -96,7 +96,8 @@ FILE *openfile(char *fname, time_t remtime, off_t remsize, off_t *resofs, int(*r
 	infpath = xstrcat(infpath, (char *)"/");
 	infpath = xstrcat(infpath, fname);
 	if (stat(infpath, &st) == 0) {
-		Syslog('S', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
+		/* FIXME: temp normal logging now! */
+		Syslog('-', "remtine=%ld, st_time=%ld, remsize=%ld, st_size=%ld", remtime, st.st_mtime, remsize, st.st_size);
 
 		if ((remtime == st.st_mtime) && (remsize == st.st_size)) {
 			Syslog('+', "File %s is already here", fname);
