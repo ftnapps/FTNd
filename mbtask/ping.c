@@ -337,6 +337,7 @@ void *ping_thread(void)
     static int      pingnr, pingresult[2];
     static char     pingaddress[41];
     static time_t   pingsend;
+    time_t	    now;
 
     Syslog('+', "Starting ping thread with pid %d", (int)getpid());
     pingresult[1] = pingresult[2] = FALSE;
@@ -371,7 +372,13 @@ void *ping_thread(void)
 		if (icmp_errs++ < ICMP_MAX_ERRS)
 		    Syslog('?', "ping: to %s rc=%d", pingaddress, rc);
 		pingresult[pingnr] = FALSE;
-		sleep(10);
+		now = time(NULL) + 10;
+
+		while ((! T_Shutdown) && (time(NULL) < now)) {
+		    sleep(1);
+		}
+		if (T_Shutdown)
+		    break;
 	    } else {
 		pingsend = time(NULL);
 
@@ -398,10 +405,10 @@ void *ping_thread(void)
 			    if (rc > 5)
 				Syslog('+', "Ping: slow reply after %d seconds", rc);
 			    pingresult[pingnr] = TRUE;
-			    if (rc < 20)
-				sleep(20 - rc);
-			    else
+			    now = time(NULL) + 20 - rc;
+			    while ((! T_Shutdown) && (time(NULL) < now)) {
 				sleep(1);
+			    }
 			    break;
 			} else {
 			    if (rc != -6) {
@@ -415,8 +422,14 @@ void *ping_thread(void)
 	} else {
 	    if (icmp_errs++ < ICMP_MAX_ERRS)
 		Syslog('?', "Ping address %d is invalid \"%s\"", pingnr, pingaddress);
-	    sleep(10);
+	    now = time(NULL) + 10;
+	    while ((! T_Shutdown) && (time(NULL) < now)) {
+		sleep(1);
+	    }
 	}
+
+	if (T_Shutdown)
+	    break;
 
 	/* 
 	 *  Evaluate the result of the ping test

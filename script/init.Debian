@@ -50,6 +50,7 @@ case "$1" in
 		su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	fi
 	kill `pidof mbtask`
+	sleep 3
 	echo "$NAME done."
 	;;
   force-reload|restart)

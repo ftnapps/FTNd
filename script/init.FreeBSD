@@ -45,6 +45,8 @@ case "$1" in
 	fi
         kill -15 `/usr/local/bin/pidof mbtask`
 	echo -n " mbtask"
+	sleep 3
+	echo -n " done"
         ;;
   *)
         echo "Usage: `basename $0` {start|stop}" >&2

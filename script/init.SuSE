@@ -53,6 +53,7 @@ case "$1" in
         fi
         echo -n " stopping mbtask "
         killproc $MBSE_ROOT/bin/mbtask -15
+	sleep 3
         echo "done."
 	;;
     restart|reload)

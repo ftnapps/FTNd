@@ -48,6 +48,7 @@ case "$1" in
 	fi
         echo -n " stopping mbtask "
         kill -15 `pidof $MBSE_ROOT/bin/mbtask`
+	sleep 3
         echo "done."
         ;;
   status)

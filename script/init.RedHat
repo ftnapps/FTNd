@@ -89,6 +89,7 @@ case "$1" in
 	echo -n "stop mbtask: "
 	killproc mbtask -15
 	rm -f /var/lock/subsys/mbsed
+	sleep 3
 	echo ""
 #	echo "done."
 	;;

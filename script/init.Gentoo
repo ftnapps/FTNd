@@ -56,5 +56,6 @@ stop() {
                su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
        fi
        kill `pidof mbtask`
+       sleep 3
        eend $? "Stopping error."
 }
