@@ -233,7 +233,7 @@ void Magic_ExecCommand(void)
 	opts = strtok(NULL, "\0");
 	MagicResult((char *)"Exec: \"%s %s\"", cmd, opts);
 	
-	if ((Err = execute(cmd, opts, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) == 0) {
+	if ((Err = execute_str(cmd, opts, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) == 0) {
 	    Magics++;
 	} else
 	    Syslog('!', "Mgc Exec: (%s %s) returns %d", cmd, opts, Err);
@@ -287,7 +287,7 @@ void Magic_UnpackFile(void)
 		if (getarchiver(unarc)) {
 		    cmd = xstrcpy(archiver.munarc);
 		    if (strlen(cmd)) {
-			rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+			rc = execute_str(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 			if (rc)
 			    WriteError("$Magic: unpack in %s, error %d", magic.Path, rc);
 			else

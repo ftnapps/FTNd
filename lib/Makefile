@@ -101,7 +101,7 @@ clean:
 filelist:	Makefile
 		BASE=`pwd`; \
 		BASE=`basename $${BASE}`; \
-		(for f in ${SRCS} ${HDRS} ${OTHER} ;do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; done) >filelist
+		(for f in ${SRCS} ${HDRS} ${OTHER} ${MAPS} ;do echo ${PACKAGE}-${VERSION}/$${BASE}/$$f; done) >filelist
 
 depend:		ftscprod.c
 		@rm -f Makefile.bak; \

@@ -113,7 +113,7 @@ int Rearc(char *unarc)
     Syslog('f' , "NewFile=\"%s\", NewFullName=\"%s\"", TIC.NewFile, TIC.NewFullName);
 	
     sprintf(temp, "%s/%s .", TIC.Inbound, TIC.NewFile);
-    if (execute(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+    if (execute_str(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	free(cmd);
 	return TRUE;
     }
@@ -142,8 +142,8 @@ void DeleteVirusWork()
 
     if (chdir(temp) == 0) {
 	Syslog('f', "DeleteVirusWork %s/arc", temp);
-	system("rm -r -f arc");
-	system("mkdir arc");
+	execute_pth((char *)"rm", (char *)"-r -f arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+	execute_pth((char *)"mkdir", (char *)"arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     } else
 	WriteError("$Can't chdir to %s", temp);
 

@@ -2104,7 +2104,9 @@ char	*Unix2Dos(char *);
 /*
  * From execute.c
  */
-int	execute(char *, char *, char *, char *, char *, char *);
+int	execute(char **, char *, char *, char *);
+int	execute_str(char *, char *, char *, char *, char *, char *);
+int	execute_pth(char *, char *, char *, char *, char *);
 int	execsh(char *, char *, char *, char *);
 
 

@@ -291,7 +291,7 @@ void ExtDoor(char *Program, int NoDoorsys, int Y2Kdoorsys, int Comport, int NoSu
     if (NoSuid) 
 	rc = exec_nosuid(Program);
     else
-	rc = execute((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
+	rc = execute_str((char *)"/bin/sh", (char *)"-c", Program, NULL, NULL, NULL);
 
     Altime(0);
     alarm_off();

@@ -71,6 +71,8 @@ newuser:
 
 	N: Add menu setup to set users preffered character set.
 
+	U: Fix (kernel 2.6.x ??) problem with creating new users.
+
 mbtask:
 	N: Add a thread that keeps track of disk usage of all partitions used
 	   by mbse, update partition list after setup changes. Make the info

@@ -352,7 +352,7 @@ void Fields2(void)
 int EditUsrRec2(void)
 {
     int	    j = 0, ch;
-    char    temp[PATH_MAX];
+    char    temp[PATH_MAX], *args[16];
 
     Screen2();
     for (;;) {
@@ -379,8 +379,15 @@ int EditUsrRec2(void)
                             strcpy(usrconfig.Password, temp);
 			    usrconfig.tLastPwdChange = time(NULL);
 			    Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
-			    sprintf(temp, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);
-			    if (system(temp) != 0) {
+			    sprintf(temp, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+			    memset(args, 0, sizeof(args));
+			    args[0] = temp;
+			    args[1] = (char *)"-f";
+			    args[2] = usrconfig.Name;
+			    args[3] = usrconfig.Password;
+			    args[4] = NULL;
+
+			    if (execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")!= 0) {
 			        WriteError("$Failed to set new Unix password");
 			    } else {
 			        Syslog('+', "Password changed for %s (%s)", usrconfig.sUserName, usrconfig.Name);

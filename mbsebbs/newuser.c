@@ -598,7 +598,7 @@ void Good_Bye(int onsig)
  */
 char *NameGen(char *FidoName)
 {
-    char    *sUserName;
+    static char    *sUserName;
 
     sUserName = calloc(10, sizeof(char));
     Syslog('+', "NameGen(%s)", FidoName);
@@ -635,34 +635,47 @@ char *NameGen(char *FidoName)
  */
 char *NameCreate(char *Name, char *Comment, char *Password)
 {
-    char    *progname;
+    char    *progname, *args[16], *gidstr;
     int	    err;
 
     progname = calloc(PATH_MAX, sizeof(char));
+    gidstr = calloc(10, sizeof(char));
+    memset(args, 0, sizeof(args));
 
     /*
      * Call mbuseradd, this is a special setuid root program to create
      * unix acounts and home directories.
      */
-    sprintf(progname, "%s/bin/mbuseradd %d %s \"%s\" %s", getenv("MBSE_ROOT"), getgid(), Name, Comment, CFG.bbs_usersdir);
-    Syslog('+', "%s", progname);
+    sprintf(progname, "%s/bin/mbuseradd", getenv("MBSE_ROOT"));
+    sprintf(gidstr, "%d", getgid());
     fflush(stdout);
     fflush(stdin);
-
-    if ((err = system(progname))) {
-	perror("");
+    args[0] = progname;
+    args[1] = gidstr;
+    args[2] = Name;
+    args[3] = Comment;
+    args[4] = CFG.bbs_usersdir;
+    args[5] = NULL;
+    
+    if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
         WriteError("Failed to create unix account");
         free(progname);
+	free(gidstr);
         ExitClient(MBERR_GENERAL);
     }
+    free(gidstr);
 
-    sprintf(progname, "%s/bin/mbpasswd -f %s %s", getenv("MBSE_ROOT"), Name, Password);
-    Syslog('+', "%s/bin/mbpasswd -f %s ******", getenv("MBSE_ROOT"), Name);
+    sprintf(progname, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+    memset(args, 0, sizeof(args));
+    args[0] = progname;
+    args[1] = (char *)"-f";
+    args[2] = Name;
+    args[3] = Password;
+    args[4] = NULL;
     fflush(stdout);
     fflush(stdin);
 
-    if ((err = system(progname))) {
-	perror("");
+    if ((err = execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
         WriteError("Failed to set unix password");
         free(progname);
         ExitClient(MBERR_GENERAL);

@@ -142,77 +142,84 @@ int Chg_Language(int NewMode)
 
 void Chg_Password()
 {
-	char	*temp1, *temp2;
+    char    *temp1, *temp2, *args[16];
 
-  	temp1 = calloc(PATH_MAX, sizeof(char));
-	temp2 = calloc(PATH_MAX, sizeof(char));
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
 
-	ReadExitinfo();
-	DisplayFile((char *)"password");
+    ReadExitinfo();
+    DisplayFile((char *)"password");
 
-	Enter(1);
-	/* Old password: */
-	language(15, 0, 120);
-	fflush(stdout);
-	colour(CFG.InputColourF, CFG.InputColourB);
-	Getpass(temp1);
+    Enter(1);
+    /* Old password: */
+    language(15, 0, 120);
+    fflush(stdout);
+    colour(CFG.InputColourF, CFG.InputColourB);
+    Getpass(temp1);
 
-	if (!strcmp(exitinfo.Password, temp1)) {
-		while (TRUE) {
-			Enter(1);
-			/* New password: */
-			language(9, 0, 121);
-			fflush(stdout);
-			colour(CFG.InputColourF, CFG.InputColourB);
-			Getpass(temp1);
-			if((strlen(temp1)) >= CFG.password_length) {
-				Enter(1);
-				/* Confirm new password: */
-				language(9, 0, 122);
-				colour(CFG.InputColourF, CFG.InputColourB);
-				fflush(stdout);
-				Getpass(temp2);
-				if(( strcmp(temp1,temp2)) != 0) {
-					/* Passwords do not match! */
-					Enter(2);
-					language(12, 0, 123);
-					Enter(1);
-				} else {
-					fflush(stdout);
-					fflush(stdin);
-					break;
-				}
-			} else {
-				colour(12, 0);
-				/* Your password must contain at least %d characters! Try again.*/
-				printf("\n%s%d %s\n\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
-			}
-		}
-
-		Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
-		sprintf(temp1, "%s/bin/mbpasswd -n %s %s", getenv("MBSE_ROOT"), exitinfo.Name, temp2);
-		if (system(temp1) != 0) {
-			WriteError("Failed to set new Unix password");
-		} else {
-			memset(&exitinfo.Password, 0, sizeof(exitinfo.Password));
-			strcpy(exitinfo.Password, temp2);
-			exitinfo.tLastPwdChange = time(NULL);
-			Enter(1);
-			/* Password Change Successful */
-			language(10, 0, 124);
-			Syslog('+', "User changed his password");
-			WriteExitinfo();
-		}
-	} else {
+    if (!strcmp(exitinfo.Password, temp1)) {
+	while (TRUE) {
+	    Enter(1);
+	    /* New password: */
+	    language(9, 0, 121);
+	    fflush(stdout);
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    Getpass(temp1);
+	    if((strlen(temp1)) >= CFG.password_length) {
 		Enter(1);
-		/* Old password incorrect! */
-		language(12, 0, 125);
+		/* Confirm new password: */
+		language(9, 0, 122);
+		colour(CFG.InputColourF, CFG.InputColourB);
+		fflush(stdout);
+		Getpass(temp2);
+		if(( strcmp(temp1,temp2)) != 0) {
+		    /* Passwords do not match! */
+		    Enter(2);
+		    language(12, 0, 123);
+		    Enter(1);
+		} else {
+		    fflush(stdout);
+		    fflush(stdin);
+		    break;
+		}
+	    } else {
+		colour(12, 0);
+		/* Your password must contain at least %d characters! Try again.*/
+		printf("\n%s%d %s\n\n", (char *) Language(42), CFG.password_length, (char *) Language(43));
+	    }
 	}
 
-	free(temp1);
-	free(temp2);
-	Enter(2);
-	Pause();
+	Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), exitinfo.Name);
+	sprintf(temp1, "%s/bin/mbpasswd", getenv("MBSE_ROOT"));
+	memset(args, 0, sizeof(args));
+	args[0] = temp1;
+	args[1] = (char *)"-n";
+	args[2] = exitinfo.Name;
+	args[3] = temp2;
+	args[4] = NULL;
+
+	if (execute(args, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") != 0) {
+	    WriteError("Failed to set new Unix password");
+	} else {
+	    memset(&exitinfo.Password, 0, sizeof(exitinfo.Password));
+	    strcpy(exitinfo.Password, temp2);
+	    exitinfo.tLastPwdChange = time(NULL);
+	    Enter(1);
+	    /* Password Change Successful */
+	    language(10, 0, 124);
+	    Syslog('+', "User changed his password");
+	    WriteExitinfo();
+	}
+    } else {
+	Enter(1);
+	/* Old password incorrect! */
+	language(12, 0, 125);
+    }
+
+    free(temp1);
+    free(temp2);
+    Enter(2);
+    Pause();
 }
 
 

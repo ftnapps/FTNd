@@ -659,7 +659,7 @@ void HtmlIndex(char *Lang)
 			    sprintf(linebuf, "%s/%s", area.Path, file.Name);
 			    sprintf(outbuf, "%s/.%s", area.Path, file.Name);
 			    if (file_exist(outbuf, R_OK)) {
-				if ((j = execute(CFG.www_convert, linebuf, outbuf,
+				if ((j = execute_str(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
 				    Syslog('+', "Failed to create thumbnail for %s, rc=% d", file.Name, j);
 				} else {

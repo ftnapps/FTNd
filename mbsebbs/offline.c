@@ -97,7 +97,7 @@ unsigned long	ASCII_PackArea(unsigned long, long);
 
 void AddArc(char *Temp, char *Pktname)
 {
-    execute((char *)archiver.marc, Pktname, Temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+    execute_str((char *)archiver.marc, Pktname, Temp, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     unlink(Temp);
     printf(".");
     fflush(stdout);
@@ -1097,7 +1097,7 @@ void OLR_Upload(void)
      */
     Altime(7200);
     alarm_set(7190);
-    if ((err = execute(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
+    if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
 	colour(CFG.HiliteF, CFG.HiliteB);
 	WriteError("$Upload error %d, prot: %s", err, sProtUp);
     }
@@ -1184,7 +1184,7 @@ void OLR_Upload(void)
     Syslog('m', "Unarc %s", temp);
     colour(CFG.HiliteF, CFG.HiliteB);
 
-    if ((err = execute(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
+    if ((err = execute_str(archiver.funarc, File, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
 	WriteError("$Failed %s", temp);
 	/* ERROR */
 	printf("%s\n", (char *) Language(217));

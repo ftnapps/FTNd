@@ -532,7 +532,7 @@ int ScanDirect(char *fn)
 		fflush(stdout);
 
 		Altime(3600);
-		if ((err = execute(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
+		if ((err = execute_str(virscan.scanner, virscan.options, temp, (char *)"/dev/null",
 					(char *)"/dev/null" , (char *)"/dev/null")) != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
 		    colour(CFG.HiliteF, CFG.HiliteB);
@@ -613,9 +613,9 @@ int ScanArchive(char *fn, char *ftype)
 	WriteError("No unarc command available");
     } else {
 	sprintf(temp, "%s/%s/upl/%s", CFG.bbs_usersdir, exitinfo.Name, fn);
-	if (execute(archiver.funarc, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+	if (execute_str(archiver.funarc, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
 	    WriteError("$Failed %s %s", archiver.funarc, temp);
-	    system("rm -f -r ./*");
+	    execute_pth((char *)"rm", (char *)"-r -f ./*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	    chdir(cwd);
 	    free(cwd);
 	    colour(CFG.HiliteF, CFG.HiliteB);
@@ -643,7 +643,7 @@ int ScanArchive(char *fn, char *ftype)
 		fflush(stdout);
 
 		Altime(3600);
-		err = execute(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", 
+		err = execute_str(virscan.scanner, virscan.options, (char *)"*", (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null");
 		if (err != virscan.error) {
 		    WriteError("VIRUS ALERT: Result %d (%s)", err, virscan.comment);
@@ -663,7 +663,7 @@ int ScanArchive(char *fn, char *ftype)
 	fclose(fp);
     }
 
-    system("rm -f -r ./*");
+    execute_pth((char *)"rm", (char *)"-r -f ./*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     chdir(cwd);
     free(cwd);
     free(temp);
@@ -892,9 +892,9 @@ int Addfile(char *File, int AreaNum, int fileid)
 	     * get the FILE_ID.DIZ if it exists.
 	     */
 	    sprintf(temp, "%s/%s", area.Path, File);
-	    if ((err = execute(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
+	    if ((err = execute_str(archiver.iunarc, temp, (char *)"FILE_ID.DIZ", (char *)"/dev/null", 
 					(char *)"/dev/null", (char *)"/dev/null"))) {
-		if ((err = execute(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
+		if ((err = execute_str(archiver.iunarc, temp, (char *)"file_id.diz", (char *)"/dev/null",
 					    (char *)"/dev/null", (char *)"/dev/null"))) {
 		    Syslog('+', "No FILE_ID.DIZ found in %s", File);
 		} else {

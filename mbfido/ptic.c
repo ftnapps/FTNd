@@ -481,7 +481,7 @@ int ProcessTic(fa_list *sbl)
 	    Syslog('!', "No unarc command available");
 	} else {
 	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
-	    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+	    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		UnPacked = TRUE;
 	    } else {
 		chdir(TIC.Inbound);
@@ -566,11 +566,11 @@ int ProcessTic(fa_list *sbl)
 		    sprintf(temp1, "%s/tmp", getenv("MBSE_ROOT"));
 		    chdir(temp1);
 		    sprintf(temp1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
-		    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+		    if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			File_Id = TRUE;
 		    } else {
 			sprintf(temp1, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
-			if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+			if (execute_str(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			    File_Id = TRUE;
 			}
 		    }
@@ -658,7 +658,7 @@ int ProcessTic(fa_list *sbl)
 	} else {
 	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
 	    sprintf(Temp, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
-	    if (execute(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
+	    if (execute_str(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
 		WriteError("$Changing the banner failed");
 	    } else {
 		Syslog('+', "New banner %s", tic.Banner);

@@ -181,7 +181,7 @@ void Download(void)
     Enter(2);
     OldArea = iAreaNumber;
     WhosDoingWhat(DOWNLOAD, NULL);
-    system("rm -f ./tag/*");
+    execute_pth((char *)"rm", (char *)"-f ./tag/*", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 
     if ((tf = fopen("taglist", "r+")) == NULL) {
 	Syslog('+', "Download command but no files marked");
@@ -382,7 +382,7 @@ void Download(void)
 	    }
 	}
 	if (temp != NULL) {
-	    if ((err = execute(sProtDn, temp, NULL, NULL, NULL, NULL))) {
+	    if ((err = execute_str(sProtDn, temp, NULL, NULL, NULL, NULL))) {
 		perror("");
 		colour(CFG.HiliteF, CFG.HiliteB);
 		WriteError("Download error %d, prot: %s", err, sProtDn);
@@ -1140,7 +1140,7 @@ int Upload()
 	 */
 	Altime(7200);
 	alarm_set(7190);
-	if ((err = execute(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
+	if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
 		/*
 		 * Log any errors
 		 */
@@ -1309,7 +1309,7 @@ int DownloadDirect(char *Name, int Wait)
 	 */
 	alarm_set(((exitinfo.iTimeLeft + 10) * 60) - 10);
 	Altime((exitinfo.iTimeLeft + 10) * 60);
-	if ((err = execute(sProtDn, symFrom, NULL, NULL, NULL, NULL))) {
+	if ((err = execute_str(sProtDn, symFrom, NULL, NULL, NULL, NULL))) {
 		/*
 		 * Only log the error, we might have sent some files
 		 * instead of nothing.
@@ -1671,7 +1671,7 @@ int Upload_Home()
 	 */
 	Altime(7200);
 	alarm_set(7190);
-	if ((err = execute(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
+	if ((err = execute_str(sProtUp, (char *)"", NULL, NULL, NULL, NULL))) {
 		/*
 		 * Log any errors
 		 */
@@ -2342,7 +2342,7 @@ void ViewFile(char *name)
 	 * display to the user.
 	 */
 	sprintf(temp, "%s/%s/temptxt", CFG.bbs_usersdir, exitinfo.Name);
-	rc = execute(archiver.varc, File, NULL, (char *)"/dev/null", temp, (char *)"/dev/null");
+	rc = execute_str(archiver.varc, File, NULL, (char *)"/dev/null", temp, (char *)"/dev/null");
 	Syslog('+', "Display temp file %s", temp);
 	DisplayTextFile(temp);
 	unlink(temp);

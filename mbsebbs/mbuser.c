@@ -178,9 +178,7 @@ void UserPack(int days, int level, int pack)
 	long	oldsize, curpos;
 	int	updated, delete = 0, rc, highest = 0, record = 0, sysop = FALSE;
 	time_t	Last;
-#ifdef _VPOPMAIL_PATH
 	char	*cmd;
-#endif
 
 	fnin  = calloc(PATH_MAX, sizeof(char));
 	fnout = calloc(PATH_MAX, sizeof(char));
@@ -323,22 +321,26 @@ void UserPack(int days, int level, int pack)
 						WriteError("Cannot delete unix account %s", usr.Name);
 					} else {
 #ifndef __FreeBSD__
-						rc = execute((char *)"/usr/sbin/userdel ", usr.Name, NULL,
+						rc = execute_str((char *)"/usr/sbin/userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #else
-						rc = execute((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
+						rc = execute_str((char *)"/usr/sbin/pw userdel ", usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 #endif
 #ifdef _VPOPMAIL_PATH
 						cmd = xstrcpy((char *)_VPOPMAIL_PATH);
 						cmd = xstrcat(cmd, (char *)"/vdeluser ");
-						rc = execute(cmd, usr.Name, NULL,
+						rc = execute_str(cmd, usr.Name, NULL,
 							(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
 						free(cmd);
 #endif
-						if (chdir(CFG.bbs_usersdir) == 0)
-							rc = execute((char *)"/bin/rm -Rf ", usr.Name, NULL,
+						if (chdir(CFG.bbs_usersdir) == 0) {
+						    cmd = xstrcpy((char *)"-Rf ");
+						    cmd = xstrcat(cmd, usr.Name);
+							rc = execute_pth((char *)"rm", cmd,
 								(char *)"/dev/null",(char *)"/dev/null",(char *)"/dev/null");
+						    free(cmd);
+						}
 					}
 				}
 

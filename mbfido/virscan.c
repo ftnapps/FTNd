@@ -80,7 +80,7 @@ int VirScan(char *path)
             cmd = xstrcpy(virscan.scanner);
             cmd = xstrcat(cmd, (char *)" ");
             cmd = xstrcat(cmd, virscan.options);
-            if (execute(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", 
+            if (execute_str(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", 
 			     (char *)"/dev/null" , (char *)"/dev/null") != virscan.error) {
                 Syslog('!', "Virus found by %s", virscan.comment);
 		rc = TRUE;

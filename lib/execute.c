@@ -36,24 +36,21 @@ int	e_pid = 0;		/* Execute child pid	*/
 
 
 
-int _execute(char *, char *, char *, char *, char *, char *);
-int _execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
+int _execute(char **, char *, char *, char *);
+int _execute(char **args, char *in, char *out, char *err)
 {
     char    buf[PATH_MAX];
-    char    *vector[16];
     int	    i, pid, status = 0, rc = 0;
 
-    if (pkt == NULL)
-	sprintf(buf, "%s %s", cmd, fil);
-    else
-	sprintf(buf, "%s %s %s", cmd, fil, pkt);
-    Syslog('+', "Execute: %s",buf);
+    memset(&buf, 0, sizeof(buf));
+    for (i = 0; i < 16; i++) {
+	if (args[i])
+	    sprintf(buf, "%s %s", buf, args[i]);
+	else
+	    break;
+    }
+    Syslog('+', "Execute:%s",buf);
 
-    memset(vector, 0, sizeof(vector));
-    i = 0;
-    vector[i++] = strtok(buf," \t\n");
-    while ((vector[i++] = strtok(NULL," \t\n")) && (i<16));
-    vector[15] = NULL;
     fflush(stdout);
     fflush(stderr);
 
@@ -86,8 +83,8 @@ int _execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
 	    if (rc)
 		WriteError("$execv can't set priority to 15");
 	}
-	rc = execv(vector[0],vector);
-	WriteError("$execv \"%s\" returned %d", MBSE_SS(vector[0]), rc);
+	rc = execv(args[0],args);
+	WriteError("$execv \"%s\" returned %d", MBSE_SS(args[0]), rc);
 	setpriority(PRIO_PROCESS, 0, 0);
 	exit(MBERR_EXEC_FAILED);
     }
@@ -104,7 +101,7 @@ int _execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
     switch (rc) {
 	case -1:
 		WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
-		return MBERR_EXEC_FAILED;
+		return 0;
 	case 0:
 		return 0;
 	default:
@@ -129,7 +126,7 @@ int _execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
 
 
 
-int execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
+int execute(char **args, char *in, char *out, char *err)
 {
     int	    rc;
 
@@ -137,13 +134,83 @@ int execute(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
     sync();
 #endif
     msleep(300);
-    rc = _execute(cmd, fil, pkt, in, out, err);
+    rc = _execute(args, in, out, err);
 #ifdef __linux__
     sync();
 #endif
     msleep(300);
     return rc;
 }
+
+
+
+/*
+ * The old behaviour, parse command strings to arguments.
+ */
+int execute_str(char *cmd, char *fil, char *pkt, char *in, char *out, char *err)
+{
+    int     i;
+    char    *args[16], buf[PATH_MAX];
+
+    memset(args, 0, sizeof(args));
+    memset(&buf, 0, sizeof(buf));
+    i = 0;
+
+    if ((pkt != NULL) && strlen(pkt))
+	sprintf(buf, "%s %s %s", cmd, fil, pkt);
+    else
+	sprintf(buf, "%s %s", cmd, fil);
+	
+    args[i++] = strtok(buf, " \t\0");
+    while ((args[i++] = strtok(NULL," \t\n")) && (i < 15));
+    args[i++] = NULL;
+
+    return execute(args, in, out, err);
+}
+
+
+
+/*
+ * Execute command in the PATH.
+ */
+int execute_pth(char *prog, char *opts, char *in, char *out, char *err)
+{
+    char    *pth;
+    int	    rc;
+
+    if (strchr(prog, ' ') || strchr(prog, '/')) {
+	WriteError("First parameter of execute_pth() must be a program name");
+	return -1;
+    }
+
+    pth = xstrcpy((char *)"/usr/bin/");
+    pth = xstrcat(pth, prog);
+    if (access(pth, X_OK) == -1) {
+	free(pth);
+	pth = xstrcpy((char *)"/usr/local/bin/");
+	pth = xstrcat(pth, prog);
+	if (access(pth, X_OK) == -1) {
+	    free(pth);
+	    pth = xstrcpy((char *)"/bin/");
+	    pth = xstrcat(pth, prog);
+	    if (access(pth, X_OK) == -1) {
+		free(pth);
+		pth = xstrcpy((char *)"/usr/pkg/bin/");
+		pth = xstrcat(pth, prog);
+		if (access(pth, X_OK) == -1) {
+		    WriteError("Can't find %s", prog);
+		    free(pth);
+		    return -1;
+		}
+	    }
+	}
+    }
+
+    rc = execute_str(pth, opts, NULL, in, out, err);
+    free(pth);
+    return rc;
+}
+
 
 
 #define SHELL "/bin/sh"
@@ -199,7 +266,7 @@ int _execsh(char *cmd, char *in, char *out, char *err)
     while (((rc > 0) && (rc != pid)) || ((rc == -1) && (sverr == EINTR))); 
     if (rc == -1) {
 	WriteError("$Wait returned %d, status %d,%d", rc, status >> 8, status & 0xff);
-	return MBERR_EXEC_FAILED;
+	return 0;
     }
 
     return status;

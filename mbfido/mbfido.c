@@ -176,7 +176,7 @@ void die(int onsig)
 	/*
 	 * In case the child had the tty in raw mode, reset the tty.
 	 */
-	system("stty sane");
+	execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     }
 
     if (onsig != MBERR_NO_PROGLOCK)
@@ -750,7 +750,7 @@ int TossPkts(void)
 	 * See if "pktdate" from Tobias Ernst (or another preprocessor) is installed.
 	 */
 	if (strlen(CFG.pktdate)) {
-	    rc = execute(CFG.pktdate, fname, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+	    rc = execute_str(CFG.pktdate, fname, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	    if (rc)
 		Syslog('+', "%s preprocessing rc=%d", fname, rc);
 	}

@@ -77,7 +77,7 @@ void die(int onsig)
 	 * In case the child had the tty in raw mode...
 	 */
 	if (!do_quiet)
-	    system("stty sane");
+	    execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     }
 
     signal(onsig, SIG_IGN);
@@ -211,8 +211,8 @@ void DeleteVirusWork()
 
         if (chdir(temp) == 0) {
                 Syslog('f', "DeleteVirusWork %s/arc", temp);
-                system("rm -r -f arc");
-                system("mkdir arc");
+                execute_pth((char *)"rm", (char *)"-r -f arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+		execute_pth((char *)"mkdir", (char *)"arc", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
         } else
                 WriteError("$Can't chdir to %s", temp);
 
@@ -282,7 +282,7 @@ int UnpackFile(char *File)
 	die(MBERR_GENERAL);
     }
 
-    if (execute(cmd, File, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+    if (execute_str(cmd, File, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	chdir(pwd);
 	free(temp);
 	free(pwd);

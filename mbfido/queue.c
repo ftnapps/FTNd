@@ -384,13 +384,13 @@ void flush_dir(char *ndir)
 	    flushed = TRUE;
 	}
 
-	if (execute(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+	if (execute_str(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	    unlink(fname);
 	} else {
 	    WriteError("Create ARCmail failed, trying again after sync()");
 	    sync();
 	    sleep(1);
-	    if (execute(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+	    if (execute_str(archiver.marc, arcfile, fname, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		unlink(fname);
 	    } else {
 		WriteError("Can't add %s to ARCmail archive", fname);

@@ -17,7 +17,17 @@ v0.51.1		21-Feb-2004
 		Changed to support Darwin (OS X). Note that in earlier days
 		mbse did compile under OS X, but things are different since
 		then. Work is underway to let it compile and run again.
-		
+	
+	libmbse.a:
+		Changed the execute function so it will work on 2.6.x kernels
+		and fast cpu's.
+		Added execute_str function for compatibility with the older
+		api. Added execute_pth function to execute programs in the
+		path.
+	
+	mbout:
+		Replaced system() call with execute.
+
 	mbsetup:
 		In edit message groups added setup for default character set.
 		In edit message areas added setup for character set for the
@@ -30,6 +40,7 @@ v0.51.1		21-Feb-2004
 		screen.
 		Removed users fullscreen chat setting, not used.
 		Added menu setup for change character set, menu 321.
+		Replaced system() call with execute.
 
 	mbsebbs:
 		Writes the ^aCHRS: kludge again in new created messages.
@@ -45,6 +56,13 @@ v0.51.1		21-Feb-2004
 		Junius Fidogate package.
 		In delete file in home directory the Y/N keys were read from
 		the wrong language prompt.
+		Replaced system() call with execute.
+
+	mbnewusr:
+		Replaced system() call with execute.
+
+	mball:
+		Replaced system() call with execute.
 
 	mbmsg:
 		Writes the ^aCHRS: kludge again in new created messages.
@@ -60,16 +78,29 @@ v0.51.1		21-Feb-2004
 		For the tic area create and message area create the check is
 		now case insensitive, also the area tagnames are forced to
 		uppercase. This should solve the problems with Linuxnet.
+		Replaced system() call with execute.
+
+	mbdiff:
+		Replaced system() call with execute.
 
 	mbfile:
 		For creating www pages of the download areas, the new mapping
 		tables are used to translate from ibmpc characters to 
 		iso-8859-1.
+		Replaced system() call with execute.
 
 	examples:
 		Added change character set in English menus and textfiles.
 		Updated all newfiles macro template to include the magic file-
 		request macro (English, German, Spanish and Dutch).
+
+	mbuseradd:
+		Uses the execv instead of system to call the systems useradd
+		program.
+
+	mbpasswd:
+		Uses the execv instead of system to call the systems vpassswd
+		program if needed.
 
 	lang:
 		Added language prompts 23, 24 and 25.

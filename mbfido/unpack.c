@@ -90,18 +90,15 @@ int unpack(char *fn)
 	return 1;
     }
 
-    if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
-//	sync();
+    if ((rc = execute_str(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
 	unlink(fn);
     } else {
 	sync();
 	sleep(1);
 	WriteError("Warning: unpack %s failed, trying again after sync()", fn);
-	if ((rc = execute(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
-//	    sync();
+	if ((rc = execute_str(cmd,fn,(char *)NULL,(char*)"/dev/null",(char*)"/dev/null",(char*)"/dev/null")) == 0) {
 	    unlink(fn);
 	} else {
-//	    sync();
 	    strncpy(newname,fn,sizeof(newname)-1);
 	    strcpy(newname+8,".bad");
 	    rename(fn,newname);

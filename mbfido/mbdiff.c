@@ -84,7 +84,7 @@ void die(int onsig)
 		/*
 		 * In case the child had the tty in raw mode...
 		 */
-		system("stty sane");
+		execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	}
 
 	signal(onsig, SIG_IGN);
@@ -287,11 +287,11 @@ int main(int argc, char **argv)
 	    die(MBERR_CONFIG_ERROR);
 	}
 
-	if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+	if (execute_str(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
 	    WriteError("Warning: unpack error, trying again after a sync");
 	    sync();
 	    sleep(1);
-	    if (execute(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
+	    if (execute_str(cmd, nd, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) {
 		show_log = TRUE;
 		free(cmd);
 		free(onl);
@@ -406,7 +406,7 @@ int main(int argc, char **argv)
 	    p = xstrcpy(onl);
 	    p = xstrcat(p, (char *)" ");
 	    p = xstrcat(p, nn);
-	    if (execute(cmd, p, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))
+	    if (execute_str(cmd, p, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))
 		WriteError("Create %s failed", onl);
 	    else {
 		CreateSema((char *)"mailin");

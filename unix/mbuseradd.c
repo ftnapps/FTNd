@@ -48,19 +48,19 @@
 
 
 
-int execute(char *cmd, char *file, char *in, char *out, char *err)
+int execute(char **args, char *in, char *out, char *err)
 {
-    char    buf[PATH_MAX], *vector[16];
+    char    buf[PATH_MAX];
     int	    i, pid, status = 0, rc = 0;
 
-    sprintf(buf, "%s %s", cmd, file);
-    syslog(LOG_WARNING, "Execute: %s", buf);
+    for (i = 0; i < 16; i++) {
+	if (args[i])
+	    sprintf(buf, "%s %s", buf, args[i]);
+	else
+	    break;
+    }
+    syslog(LOG_WARNING, "Execute:%s", buf);
 	
-    memset(vector, 0, sizeof(vector));
-    i = 0;
-    vector[i++] = strtok(buf, " \t\n");
-    while ((vector[i++] = strtok(NULL," \t\n")) && (i < 16)) { syslog(LOG_NOTICE, "%s", vector[i]); } ;
-    vector[15] = NULL;
     fflush(stdout);
     fflush(stderr);
 
@@ -86,19 +86,14 @@ int execute(char *cmd, char *file, char *in, char *out, char *err)
 		_exit(-1);
 	    }
 	}
-	rc = execv(vector[0],vector);
-	syslog(LOG_WARNING, "Exec \"%s\" returned %d", vector[0], rc);
+	rc = execv(args[0],args);
+	syslog(LOG_WARNING, "Exec \"%s\" returned %d", args[0], rc);
 	_exit(-1);
     }
 
     do {
 	rc = wait(&status);
     } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
-
-    if (rc == -1) {
-	syslog(LOG_WARNING, "Wait returned %d, status %d,%d", rc, status >> 8, status & 0xff);
-	return -1;
-    }
 
     return 0;
 }
@@ -125,7 +120,7 @@ void makedir(char *path, mode_t mode, uid_t owner, gid_t group)
  */
 int main(int argc, char *argv[])
 {
-    char	    *PassEnt, *temp, *shell;
+    char	    *temp, *shell, *homedir, *args[16];
     int		    i;
     struct passwd   *pwent, *pwuser;
 
@@ -142,9 +137,12 @@ int main(int argc, char *argv[])
 	}
     }
 
-    PassEnt = calloc(PATH_MAX, sizeof(char));
+    memset(args, 0, sizeof(args));
+
     temp    = calloc(PATH_MAX, sizeof(char));
     shell   = calloc(PATH_MAX, sizeof(char));
+    homedir = calloc(PATH_MAX, sizeof(char));
+
 
     if (setuid(0) == -1 || setgid(1) == -1) {
         perror("");
@@ -168,22 +166,22 @@ int main(int argc, char *argv[])
      */
 #if defined(__linux__) || defined(__NetBSD__)
     if ((access("/usr/bin/useradd", R_OK)) == 0)
-	strcpy(temp, "/usr/bin/useradd");
+	args[0] = (char *)"/usr/bin/useradd";
     else if ((access("/bin/useradd", R_OK)) == 0)
-	strcpy(temp, "/bin/useradd");
+	args[0] = (char *)"/bin/useradd";
     else if ((access("/usr/sbin/useradd", R_OK)) == 0)
-	strcpy(temp, "/usr/sbin/useradd");
+	args[0] = (char *)"/usr/sbin/useradd";
     else if ((access("/sbin/useradd", R_OK)) == 0)
-	strcpy(temp, "/sbin/useradd");
+	args[0] = (char *)"/sbin/useradd";
     else {
 	syslog(LOG_WARNING, "Can't find useradd");
 	exit(1);
     }
 #elif __FreeBSD__
     if ((access("/usr/sbin/pw", X_OK)) == 0)
-	strcpy(temp, "/usr/sbin/pw");
+	args[0] = (char *)"/usr/sbin/pw";
     else if ((access("/sbin/pw", X_OK)) == 0)
-	strcpy(temp, "/sbin/pw");
+	args[0] = (char *)"/sbin/pw";
     else {
 	syslog(LOG_WARNING, "Can't find pw");
 	exit(1);
@@ -194,19 +192,39 @@ int main(int argc, char *argv[])
 #endif
 
     sprintf(shell, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
+    sprintf(homedir, "%s/%s", argv[4], argv[2]);
 
 #if defined(__linux__) || defined(__NetBSD__)
-    sprintf(PassEnt, "%s -c \"%s\" -d %s/%s -g %s -s %s %s", temp, argv[3], argv[4], argv[2], argv[1], shell, argv[2]);
+    args[1] = (char *)"-c";
+    args[2] = argv[3];
+    args[3] = (char *)"-d";
+    args[4] = homedir;
+    args[5] = (char *)"-g";
+    args[6] = argv[1];
+    args[7] = (char *)"-s";
+    args[8] = shell;
+    args[9] = argv[2];
+    args[10] = NULL;
 #endif
 #ifdef __FreeBSD__
-    sprintf(PassEnt, "%s useradd %s -c \"%s\" -d %s/%s -g %s -s %s", temp, argv[2], argv[3], argv[4], argv[2], argv[1], shell);
+    args[1] = (char *)"useradd";
+    args[2] = argv[2];
+    args[3] = (char *)"-c";
+    args[4] = argv[3];
+    args[5] = (char *)"-d";
+    args[6] = homedir;
+    args[7] = (char *)"-g";
+    args[8] = argv[1];
+    args[9] = (char *)"-s";
+    args[10] = shell;
+    args[11] = NULL;
 #endif
 
-    syslog(LOG_WARNING, "system(%s)", PassEnt);
-    if (system(PassEnt) != 0) {
+    if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
 	syslog(LOG_WARNING, "Failed to create unix account");
 	exit(1);
     } 
+    syslog(LOG_WARNING, "Created Unix account");
 
     /*
      * Now create directories and files for this user.
@@ -220,26 +238,29 @@ int main(int argc, char *argv[])
      *
      *  Check bbs users base home directory
      */
-    if ((access(argv[4], R_OK)) != 0)
+    if ((access(argv[4], R_OK)) != 0) {
+	syslog(LOG_WARNING, "No bbs base homedirectory, creating..");
 	makedir(argv[4], 0770, pwent->pw_uid, pwent->pw_gid);
+    }
 
     /*
      * Now create users home directory. Check for an existing directory,
      * some systems have already created a home directory. If one is found
      * it is removed to create a fresh one.
      */
-    sprintf(temp, "%s/%s", argv[4], argv[2]);
     if ((access(temp, R_OK)) == 0) {
 	if ((access("/bin/rm", X_OK)) == 0)
-	    strcpy(shell, "/bin/rm");
+	    args[0] = (char *)"/bin/rm";
 	else if ((access("/usr/bin/rm", X_OK)) == 0)
-	    strcpy(shell, "/usr/bin/rm");
+	    args[0] = (char *)"/usr/bin/rm";
 	else {
 	    syslog(LOG_WARNING, "Can't find rm");
 	    exit(2);
 	}
-	sprintf(PassEnt, " -Rf %s", temp);
-	i = execute(shell, PassEnt, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty");
+	args[1] = (char *)"-Rf";
+	args[2] = homedir;
+	args[3] = NULL;
+	i = execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty");
 	if (i != 0) {
 	    syslog(LOG_WARNING, "Unable remove old home directory");
 	    exit(2);
@@ -253,7 +274,7 @@ int main(int argc, char *argv[])
 	syslog(LOG_WARNING, "Can't get passwd entry for %s", argv[2]);
 	exit(2);
     }
-    makedir(temp, 0770, pwuser->pw_uid, pwent->pw_gid);
+    makedir(homedir, 0770, pwuser->pw_uid, pwent->pw_gid);
 
     /*
      *  Create Maildir and subdirs for Qmail.
@@ -268,16 +289,22 @@ int main(int argc, char *argv[])
     makedir(temp, 0700, pwuser->pw_uid, pwent->pw_gid);
 
 #ifdef _VPOPMAIL_PATH
-    sprintf(temp, "%s/vadduser %s %s", _VPOPMAIL_PATH, argv[2], argv[2]);
-
-    if (system(temp) != 0) {
+    sprintf(temp, "%s/vadduser", _VPOPMAIL_PATH);
+    args[0] = temp;
+    args[1] = argv[2];
+    args[2] = argv[2];
+    args[3] = NULL;
+    
+    if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
 	syslog(LOG_WARNING, "Failed to create vpopmail account");
+    } else {
+	syslog(LOG_WARNING, "Created vpopmail account");
     }
 #endif
 
     free(shell);
-    free(PassEnt);
     free(temp);
+    free(homedir);
     syslog(LOG_WARNING, "Added system account for user\"%s\"", argv[2]);
     exit(0);
 }

@@ -47,6 +47,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/param.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
 #if defined(SHADOW_PASSWORD)
 #include <shadow.h>
 #endif
@@ -116,6 +119,59 @@ static void check_password(const struct passwd *);
 static char *name;	/* The name of user whose password is being changed */
 static char *myname;	/* The current user's name */
 static int  force;	/* Force update of locked passwords */
+
+
+
+#ifdef _VPOPMAIL_PATH
+int execute(char **args, char *in, char *out, char *err)
+{
+    char    buf[PATH_MAX];
+    int     i, pid, status = 0, rc = 0;
+
+    for (i = 0; i < 16; i++) {
+        if (args[i])
+            sprintf(buf, "%s %s", buf, args[i]);
+        else
+            break;
+    }
+    syslog(LOG_WARNING, "Execute:%s", buf);
+    fflush(stdout);
+    fflush(stderr);
+
+    if ((pid = fork()) == 0) {
+        if (in) {
+            close(0);
+            if (open(in, O_RDONLY) != 0) {
+                syslog(LOG_WARNING, "Reopen of stdin to %s failed", in);
+                _exit(-1);
+            }
+        }
+        if (out) {
+            close(1);
+            if (open(out, O_WRONLY | O_APPEND | O_CREAT,0600) != 1) {
+                syslog(LOG_WARNING, "Reopen of stdout to %s failed", out);
+                _exit(-1);
+            }
+        }
+        if (err) {
+            close(2);
+            if (open(err, O_WRONLY | O_APPEND | O_CREAT,0600) != 2) {
+                syslog(LOG_WARNING, "Reopen of stderr to %s failed", err);
+                _exit(-1);
+            }
+        }
+        rc = execv(args[0],args);
+        syslog(LOG_WARNING, "Exec \"%s\" returned %d", args[0], rc);
+        _exit(-1);
+    }
+
+    do {
+        rc = wait(&status);
+    } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
+
+    return 0;
+}
+#endif
 
 
 
@@ -735,6 +791,7 @@ int main(int argc, char *argv[])
 	char			*cp;
 #ifdef _VPOPMAIL_PATH
 	char			temp[PATH_MAX];
+	char			*args[16];
 #endif
 
 	/*
@@ -926,11 +983,17 @@ int main(int argc, char *argv[])
 #endif /* __FreeBSD__ */
 
 #ifdef _VPOPMAIL_PATH
-	sprintf(temp, "%s/vpasswd %s %s", _VPOPMAIL_PATH, argv[2], argv[3]);
 	fflush(stdout);
 	fflush(stdin);
+	memset(args, 0, sizeof(args));
+    
+	sprintf(temp, "%s/vpasswd", _VPOPMAIL_PATH);
+	args[0] = temp;
+	args[1] = argv[2];
+	args[2] = argv[3];
+	args[3] = NULL;
 
-	if (system(temp) != 0) {
+	if (execute(args, (char *)"/dev/tty", (char *)"/dev/tty", (char *)"/dev/tty") != 0) {
 	    perror("mbpasswd: Failed to change vpopmail password\n");
 	    syslog(LOG_ERR, "Failed to change vpopmail password");
 	}

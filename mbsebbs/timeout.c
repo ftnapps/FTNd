@@ -62,7 +62,7 @@ void die(int onsig)
 		/*
 		 * In case the child had the tty in raw mode, reset the tty
 		 */
-		system("stty sane");
+		execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
 	}
 
 	if (MsgBase.Locked)

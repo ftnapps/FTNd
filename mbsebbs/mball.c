@@ -77,7 +77,7 @@ void die(int onsig)
 	/*
 	 * In case the child had the tty in raw mode...
 	 */
-	system("stty sane");
+	execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     }
 
     signal(onsig, SIG_IGN);
@@ -491,14 +491,14 @@ void MakeArc()
 	Nopper();
 	if (!do_quiet)
 		printf("Creating allfiles.zip\n");
-	if (!execute(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
+	if (!execute_str(cmd, (char *)"allfiles.zip allfiles.txt", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char *)"/dev/null") == 0)
 		WriteError("Create allfiles.zip failed");
 
 	Nopper();
 	if (!do_quiet)
 		printf("Creating newfiles.zip\n");
-	if (!execute(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
+	if (!execute_str(cmd, (char *)"newfiles.zip newfiles.txt", (char *)NULL, (char *)"/dev/null", 
 			(char *)"/dev/null", (char  *)"/dev/null") == 0)
 		WriteError("Create newfiles.zip failed");
 	free(cmd);

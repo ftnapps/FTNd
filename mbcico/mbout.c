@@ -46,7 +46,7 @@ int		do_req	  = FALSE;	/* Request files from a node	    */
 int		do_stat	  = FALSE;	/* Show outbound status		    */
 int		do_stop   = FALSE;	/* Stop polling a node		    */
 int		do_reset  = FALSE;	/* Reset node's try counter	    */
-int		e_pid = 0;		/* Pid of child			    */
+extern	pid_t	e_pid;			/* Pid of child			    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
 time_t		t_end;			/* End time			    */
@@ -88,7 +88,7 @@ void die(int onsig)
 	/*
 	 * In case the child had the tty in raw mode...
 	 */
-	system("stty sane");
+	execute_pth((char *)"stty", (char *)"sane", (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
     }
 
     signal(onsig, SIG_IGN);
