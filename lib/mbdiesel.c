@@ -32,6 +32,7 @@
 #include "structs.h"
 #include "users.h"
 #include "records.h"
+#include "common.h"
 #include "clcomm.h"
 #include "diesel.h"
 
@@ -230,8 +231,11 @@ FILE *OpenMacro(const char *filename, int Language)
 
     if (fi == NULL)
 	Syslog('d', "OpenMacro(%s, %c): not found, using hardcoded", filename, Language);
-    else
+    else {
 	Syslog('d', "OpenMacro(%s, %c): using %s", filename, Language, temp);
+	MacroVars("HLMNSTUYZ", "ssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name,
+					    CFG.sysop_name, CFG.comment, CFG.sysop, aka2str(CFG.aka[0]), 0);
+    }
 
     free(temp);
     return fi;

@@ -83,16 +83,15 @@ void F_Help(faddr *t, char *replyid)
     Syslog('+', "FileMgr: Help");
     subject=calloc(255,sizeof(char));
     sprintf(subject,"FileMgr help");
-    MacroVars("SsNAP", "sssss", CFG.sysop_name, nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
     GetRpSubject("filemgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
- 	    if ( (fi=OpenMacro("filemgr.help", nodes.Language)) != NULL ){
- 	    	MacroVars("SNAP", "ssss", nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
-		MacroRead(fi, fp);
- 	    	MacroClear();
- 	    	fclose(fi);
- 	    }else{
+	if ( (fi=OpenMacro("filemgr.help", nodes.Language)) != NULL ){
+	    MacroVars("sAYP", "ssss", nodes.Sysop, (char *)"Filemgr", ascfnode(bestaka_s(t), 0xf), nodes.Fpasswd );
+	    MacroRead(fi, fp);
+	    MacroClear();
+	    fclose(fi);
+	} else {
 		fprintf(fp, "Address all requests to '%s' (without quotes)\r", (char *)"Filemgr");
 		fprintf(fp, "Your FileMgr password goes on the subject line.\r\r");
 
@@ -159,14 +158,8 @@ void F_List(faddr *t, char *replyid, int Notify)
     fpos_t      fileptr,fileptr1,fileptr2;
 
     subject = calloc(255, sizeof(char));
-
-    MacroVars("SsKyY", "ssdss",
-    				CFG.sysop_name, 
-    				nodes.Sysop, 
-    				Notify, 
-    				ascfnode(t, 0xff),
-    				ascfnode(bestaka_s(t), 0xf)
-    			);
+    f = bestaka_s(t);
+    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
     
     if (Notify==LIST_NOTIFY){
 	Syslog('+', "FileMgr: Notify to %s", ascfnode(t, 0xff));
@@ -188,7 +181,6 @@ void F_List(faddr *t, char *replyid, int Notify)
         sprintf(subject,"FileMgr: Unlinked areas");
         GetRpSubject("filemgr.unlink",subject);
     }
-    f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
 
@@ -254,7 +246,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 		    (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
 		    if (fi != NULL){	
- 	    		MacroVars("GHI", "sss",fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka) );
+ 	    		MacroVars("GJI", "sss",fgroup.Name, fgroup.Comment, aka2str(fgroup.UseAka) );
 			fsetpos(fi,&fileptr);
 			MacroRead(fi, qp);
 			fgetpos(fi,&fileptr1);
@@ -290,7 +282,7 @@ void F_List(faddr *t, char *replyid, int Notify)
 			         || ((Notify == LIST_QUERY) && ((Stat[0]=='S') || (Stat[1]=='R')))
 			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){  
 			        if (fi !=NULL){	
- 	    			    MacroVars("XTNsrp", "sssddd", 
+ 	    			    MacroVars("XDEsrp", "sssddd", 
  	    			                            Stat, tic.Name, tic.Comment,
  	    			                            (Stat[0] == 'S'),
  	    			                            (Stat[1] == 'R'),
@@ -375,7 +367,7 @@ void F_Status(faddr *t, char *replyid)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("MTANBDECWabcdefghijklSs", "dddddddddddddddddddddss", 	
+    MacroVars("ABCDEFGIJabcdefghijkls", "ddddddddddddddddddddds", 	
  	    					nodes.Message,
  	    					nodes.Tic,
  	    					nodes.AdvTic,
@@ -397,11 +389,9 @@ void F_Status(faddr *t, char *replyid)
  	    					nodes.F_KbRcvd.lweek,
  	    					nodes.F_KbRcvd.month[i],
  	    					nodes.F_KbRcvd.total,
- 	    					CFG.sysop_name,
  	    					nodes.Sysop
  	    					);
     GetRpSubject("filemgr.status",subject);
-
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", subject, replyid)) != NULL) {
  	    if ( (fi=OpenMacro("filemgr.status", nodes.Language)) != NULL ){

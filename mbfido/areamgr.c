@@ -89,11 +89,11 @@ void A_Help(faddr *t, char *replyid)
     
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Help");
-    MacroVars("SsNAP", "sssss", CFG.sysop_name, nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
     GetRpSubject("areamgr.help",subject);
 
     if ((fp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject , replyid)) != NULL) {
  	    if ((fi = OpenMacro("areamgr.help", nodes.Language)) != NULL ){
+		MacroVars("sAYP", "ssss", nodes.Sysop, "Areamgr", ascfnode(bestaka_s(t), 0xf), nodes.Apasswd );
 		MacroRead(fi, fp);
  	    	MacroClear();
  	    	fclose(fi);
@@ -154,7 +154,7 @@ void A_Query(faddr *t, char *replyid)
 
 void A_List(faddr *t, char *replyid, int Notify)
 {
-    FILE	*qp, *gp, *mp, *fi;
+    FILE	*qp, *gp, *mp, *fi = NULL;
     char	*temp, *Group, *subject;
     int		i, First = TRUE, SubTot, Total = 0, Cons;
     char	Stat[5];
@@ -164,14 +164,8 @@ void A_List(faddr *t, char *replyid, int Notify)
     fpos_t      fileptr,fileptr1,fileptr2;
 
     subject = calloc(255, sizeof(char));
-
-    MacroVars("SsKyY", "ssdss",
-    				CFG.sysop_name, 
-    				nodes.Sysop, 
-    				Notify, 
-    				ascfnode(t, 0xff),
-    				ascfnode(bestaka_s(t), 0xf)
-    			);
+    f = bestaka_s(t);
+    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
 
     if (Notify==LIST_NOTIFY){
 	Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
@@ -193,7 +187,6 @@ void A_List(faddr *t, char *replyid, int Notify)
         sprintf(subject,"AreaMgr: Unlinked areas");
         GetRpSubject("areamgr.unlink",subject);
     }
-    f = bestaka_s(t);
 
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
@@ -203,7 +196,6 @@ void A_List(faddr *t, char *replyid, int Notify)
          */
         msgptr = ftell(qp);
 
-	fi=NULL;
 	if (Notify==LIST_LIST){
 	    fi=OpenMacro("areamgr.list", nodes.Language);
             WriteMailGroups(qp, f);
@@ -260,7 +252,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 		    (g->node  == f->node) && (g->point == f->point)) {
 		    SubTot = 0;
 		    if (fi != NULL){	
- 	    		MacroVars("GHI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+ 	    		MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
 			fsetpos(fi,&fileptr);
 			MacroRead(fi, qp);
 			fgetpos(fi,&fileptr1);
@@ -298,7 +290,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 			         || ((Notify == LIST_QUERY) && ((Stat[0]=='S') || (Stat[1]=='R')))
 			         || ((Notify >= LIST_UNLINK) && ((Stat[0]!='S') && (Stat[1]!='R')))){  
 			        if (fi !=NULL){	
- 	    			    MacroVars("XTNsrpc", "sssdddd", 
+ 	    			    MacroVars("XDEsrpc", "sssdddd", 
  	    			                            Stat, msgs.Tag, msgs.Name,
  	    			                            (Stat[0] == 'S'),
  	    			                            (Stat[1] == 'R'),
@@ -318,7 +310,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);
 		    }
  		    if (fi != NULL){	
- 	    	        MacroVars("ZA", "dd", (int) 0 , SubTot );
+ 	    	        MacroVars("ZC", "dd", (int) 0 , SubTot );
 			fsetpos(fi,&fileptr2);
 			if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
 			    MacroVars("Z","d",1);
@@ -372,7 +364,7 @@ void A_List(faddr *t, char *replyid, int Notify)
 
 void A_Flow(faddr *t, char *replyid, int Notify)
 {
-    FILE	*qp, *gp, *mp, *fi;
+    FILE	*qp, *gp, *mp, *fi = NULL;
     char	*temp, *Group, *subject;
     int		i, First = TRUE, Cons;
     char	Stat[2];
@@ -394,14 +386,8 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	lmonth = 11;
 
     subject = calloc(255, sizeof(char));
-
-    MacroVars("SsKyY", "ssdss",
-    				CFG.sysop_name, 
-    				nodes.Sysop, 
-    				Notify, 
-    				ascfnode(t, 0xff),
-    				ascfnode(bestaka_s(t), 0xf)
-    			);
+    f = bestaka_s(t);
+    MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
 
     if (Notify){
 	Syslog('+', "AreaMgr: Flow report to %s", ascfnode(t, 0xff));
@@ -412,14 +398,12 @@ void A_Flow(faddr *t, char *replyid, int Notify)
         sprintf(subject,"AreaMgr Flow Report");
         GetRpSubject("areamgr.flow",subject);
     }	
-    f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid)) != NULL) {
-	fi=NULL;
-	if (Notify){
-	    fi=OpenMacro("areamgr.notify.flow", nodes.Language);
-	}else{
-	    fi=OpenMacro("areamgr.flow", nodes.Language);
+	if (Notify) {
+	    fi = OpenMacro("areamgr.notify.flow", nodes.Language);
+	} else {
+	    fi = OpenMacro("areamgr.flow", nodes.Language);
 	}
         /*
          * Mark begin of message in .pkt
@@ -432,6 +416,10 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    WriteError("$Can't open %s", temp);
 	    free(temp);
 	    free(subject);
+	    if (fi) {
+		fclose(fi);
+		MacroClear();
+	    }
 	    return;
 	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
@@ -443,6 +431,10 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	    free(temp);
 	    free(subject);
 	    fclose(mp);
+	    if (fi) {
+		fclose(fi);
+		MacroClear();
+	    }
 	    return;
 	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
@@ -468,7 +460,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 		    (g->node  == f->node) && (g->point == f->point)) {
 
 		    if (fi != NULL){	
- 	    		MacroVars("GHI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
+ 	    		MacroVars("GJI", "sss",mgroup.Name, mgroup.Comment, aka2str(mgroup.UseAka) );
 			fsetpos(fi,&fileptr);
 			MacroRead(fi, qp);
 			fgetpos(fi,&fileptr1);
@@ -496,7 +488,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 				}
 			    }
 			    if (fi !=NULL){	
- 	    			MacroVars("XAWMTwmtx", "csddddddd", 
+ 	    			MacroVars("XAPQRpqrx", "csddddddd", 
  	    			                        Stat[0], 
  	    			                        msgs.Tag, 
  	    			                        msgs.Received.lweek, 
@@ -584,7 +576,7 @@ void A_Status(faddr *t, char *replyid)
 	i = 11;
     else
 	i = Miy - 1;
-    MacroVars("DCHNLRWMTwmtSsYy","ddddcsddddddssss",   
+    MacroVars("DCEFGRPQRpqrsYy","ddddcsddddddsss",   
  	    					nodes.Direct, 
  	    	                                nodes.Crash, 
  	    	                                nodes.Hold,
@@ -597,7 +589,6 @@ void A_Status(faddr *t, char *replyid)
  	    	                                nodes.MailRcvd.lweek,
  	    	                                nodes.MailRcvd.month[i],
  	    	                                nodes.MailRcvd.total,
- 	    	                                CFG.sysop_name,
  	    	                                nodes.Sysop,
 		    				ascfnode(t, 0xff),
 						ascfnode(bestaka_s(t), 0xf)

@@ -302,7 +302,7 @@ long Report(gr_list *ta, long filepos)
     }
 
     if ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL) {
-	MacroVars("GHZ", "ssd", T_File.Echo, T_File.Comment, 0);
+	MacroVars("GJZ", "ssd", T_File.Echo, T_File.Comment, 0);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
 	filepos1 = ftell(fi);
