@@ -41,7 +41,7 @@
 #include "nlinfo.h"
 
 
-extern int	do_quiet;		/* Supress screen output	    */
+extern int	do_quiet;		/* Suppress screen output	    */
 int		do_attach = FALSE;	/* Send file attaches		    */
 int		do_node   = FALSE;	/* Query the nodelist		    */
 int		do_poll	  = FALSE;	/* Poll a node			    */

@@ -56,7 +56,7 @@
 #define MAX_FILES_NETMAIL	100
 
 
-extern int		do_quiet;		/* Supress screen output    */
+extern int		do_quiet;		/* Suppress screen output   */
 struct _filerecord	T_File;			/* Internal announce record */
 int			Requests = 0;		/* Total found request      */
 int			Replies = 0;		/* Total generated replies  */

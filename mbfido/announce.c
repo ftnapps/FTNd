@@ -44,7 +44,7 @@
 #include "announce.h"
 
 
-extern int		do_quiet;		/* Supress screen output    */
+extern int		do_quiet;		/* Suppress screen output   */
 struct _filerecord	T_File;			/* Internal announce record */
 int			TotalFiles;		/* Total announced files    */
 unsigned long		TotalSize;		/* Total size in KBytes.    */

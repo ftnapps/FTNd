@@ -41,9 +41,9 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
-extern int	do_annon;		/* Supress announce file	    */
-extern int	do_novir;		/* Suppess virus check		    */
+extern int	do_quiet;		/* Suppress screen output	    */
+extern int	do_annon;		/* Suppress announce file	    */
+extern int	do_novir;		/* Suppress virus check		    */
 
 
 void AdoptFile(int Area, char *File, char *Description)

@@ -41,7 +41,7 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output    */
+extern int	do_quiet;		/* Suppress screen output   */
 int		lastfile;		/* Last file number	    */
 long		gfilepos = 0;		/* Global file position	    */
 

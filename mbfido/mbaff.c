@@ -44,7 +44,7 @@
 
 int			do_announce = FALSE;	/* Announce flag	    */
 int			do_filefind = FALSE;	/* FileFind flag	    */
-extern	int		do_quiet;		/* Supress screen output    */
+extern	int		do_quiet;		/* Suppress screen output   */
 extern	int		show_log;		/* Show logging		    */
 time_t			t_start;		/* Start time		    */
 time_t			t_end;			/* End time		    */

@@ -39,7 +39,7 @@
 #include "mball.h"
 
 
-extern int	do_quiet;		/* Supress screen output	*/
+extern int	do_quiet;		/* Suppress screen output	*/
 int		do_zip   = FALSE;	/* Create ZIP archives		*/
 int		do_list  = FALSE;	/* Create filelist		*/
 extern	int	e_pid;			/* Pid of child			*/

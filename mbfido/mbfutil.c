@@ -40,7 +40,7 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
+extern int	do_quiet;		/* Suppress screen output	    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern time_t	t_start;		/* Start time			    */
 extern time_t	t_end;			/* End time			    */
@@ -129,7 +129,7 @@ void Help(void)
 	colour(LIGHTBLUE, BLACK);
 	printf("\n	Options are:\n\n");
 	colour(CYAN, BLACK);
-	printf("	-a -announce			Supress announce added files\n");
+	printf("	-a -announce			Suppress announce added files\n");
 	printf("	-q -quiet			Quiet mode\n");
 	printf("	-v -virus			Suppress virus scanning, use with care\n");
 	die(0);

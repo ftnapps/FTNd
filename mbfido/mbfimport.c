@@ -41,9 +41,9 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
-extern int	do_annon;		/* Supress announce files	    */
-extern int	do_novir;		/* Supress virus scanning	    */
+extern int	do_quiet;		/* Suppress screen output	    */
+extern int	do_annon;		/* Suppress announce files	    */
+extern int	do_novir;		/* Suppress virus scanning	    */
 
 
 void ImportFiles(int Area)

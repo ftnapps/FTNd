@@ -40,7 +40,7 @@
 #include "post.h"
 
 
-extern int		do_quiet;		/* Supress screen output    */
+extern int		do_quiet;		/* Suppress screen output    */
 
 
 

@@ -40,7 +40,7 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
+extern int	do_quiet;		/* Suppress screen output	    */
 extern int	do_pack;		/* Perform pack			    */
 
 

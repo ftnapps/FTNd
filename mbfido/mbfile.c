@@ -50,7 +50,7 @@
 
 
 
-extern int	do_quiet;		/* Supress screen output	    */
+extern int	do_quiet;		/* Suppress screen output	    */
 int		do_annon = FALSE;	/* Suppress announce on new files   */
 int		do_novir = FALSE;	/* Suppress virus check		    */
 int		do_adopt = FALSE;	/* Adopt a file			    */
