@@ -61,6 +61,7 @@
 #include "xmalloc.h"
 #include "pwio.h"
 #include "shadowio.h"
+#include "pw_util.h"
 #include "mbpasswd.h"
 
 
@@ -172,10 +173,8 @@ static char *insert_crypt_passwd(const char *string, char *passwd)
 #endif
         return xstrdup(passwd);
 }
-#endif /* FreeBSD */
 
 
-#ifndef __FreeBSD__
 static char *update_crypt_pw(char *cp)
 {
 	if (do_update_pwd)
@@ -183,7 +182,6 @@ static char *update_crypt_pw(char *cp)
 
 	return cp;
 }
-#endif
 
 
 
@@ -243,7 +241,7 @@ void pwd_init(void)
   
 	umask(077);
 }
-
+#endif /* not FreeBSD */
 
 
 /*
@@ -723,16 +721,19 @@ static void update_shadow(void)
  */
 int main(int argc, char *argv[])
 {
+#ifndef __FreeBSD__
 	const struct passwd	*pw;
 	const struct group	*gr;
 #ifdef SHADOW_PASSWORD
 	const struct spwd	*sp;
 #endif
-	char			*cp;
-#ifdef __FreeBSD__
-	char			temp[81];
-	char			cmd[256];
+#else
+	static struct passwd	*pw;
+	static struct group	*gr;
+	int			pfd, tfd;
 #endif
+	char			*cp;
+
 
 	/*
 	 * Get my username
@@ -771,10 +772,30 @@ int main(int argc, char *argv[])
 		exit(E_FAILURE);
 	}
 
-	if (strncmp(argv[1], "-f", 2) == 0)
+	if (strncmp(argv[1], "-f", 2) == 0) {
+		/*
+		 * This is a new user setting his password,
+		 * this program runs under account mbse.
+		 */
 		force = 1;
-	else
+		if (strcmp(pw->pw_name, (char *)"mbse")) {
+			fprintf(stderr, "mbpasswd: only user \"mbse\" may do this.\n");
+			exit(E_NOPERM);
+		}
+	} else if (strncmp(argv[1], "-n", 2) == 0) {
+		/*
+		 * Normal password change by user, check
+		 * caller is the user.
+		 */
 		force = 0;
+		if (strcmp(pw->pw_name, argv[2])) {
+			fprintf(stderr, "mbpasswd: only owner may do this.\n");
+			exit(E_NOPERM);
+		}
+	} else {
+		fprintf(stderr, "mbpasswd: wrong option switch.\n");
+		exit(E_FAILURE);
+	}
 
 	/*
 	 *  Check stringlengths
@@ -788,13 +809,19 @@ int main(int argc, char *argv[])
 		exit(E_FAILURE);
 	}
 
+	/*
+	 * We don't log into MBSE BBS logfiles but to the system logfiles,
+	 * because we are modifying system files not belonging to MBSE BBS.
+	 */
+	openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
+
 	name = strdup(argv[2]);
 	if ((pw = getpwnam(name)) == NULL) {
+		syslog(LOG_ERR, "mbpasswd: Unknown user %s", name);
 		fprintf(stderr, "mbpasswd: Unknown user %s\n", name);
 		exit(E_FAILURE);
 	}
 
-	openlog("mbpasswd", LOG_PID|LOG_CONS|LOG_NOWAIT, LOG_AUTH);
 
 #ifdef SHADOW_PASSWORD
 	sp = getspnam(name);
@@ -831,7 +858,11 @@ int main(int argc, char *argv[])
 	 * to root to protect against unexpected signals.  Any
 	 * keyboard signals are set to be ignored.
 	 */
+#ifndef __FreeBSD__
 	pwd_init();
+#else
+	pw_init();
+#endif
 
 	if (setuid(0)) {
 		fprintf(stderr, "Cannot change ID to root.\n");
@@ -855,33 +886,23 @@ int main(int argc, char *argv[])
 #endif /* !HAVE_USERSEC_H */
 
 #else /* __FreeBSD__ */
-
 	/*
-	 *  FreeBSD has no interface (that I know of) to change the users password,
-	 *  but they do have a utility that does it. We will use that.
+	 *  FreeBSD password change, borrowed from the original FreeBSD sources
 	 */
-	if ((access("/usr/bin/chpass", X_OK)) == 0)
-		strcpy(temp, "/usr/bin/chpass");
-	else if ((access("/usr/sbin/chpass", X_OK)) == 0)
-		strcpy(temp, "/usr/sbin/chpass");
-	else if ((access("/bin/chpass", X_OK)) == 0)
-		strcpy(temp, "/bin/chpass");
-	else if ((access("/sbin/chpass", X_OK)) == 0)
-		strcpy(temp, "/sbin/chpass");
-	else {
-		fprintf(stderr, "mbpasswd: Can't find chpass\n");
-		syslog(LOG_ERR, "Can't find chpass");
-		closelog();
-		exit(E_FAILURE);
-	}
-	sprintf(cmd, "%s -p \"%s\" %s", temp, crypt_passwd, name);
 
-	if (system(cmd) != 0) {
-		perror("mbpasswd: failed to change password\n");
-		syslog(LOG_ERR, "password change for `%s' failed", name);
-		closelog();
-		exit(E_FAILURE);
-	}
+        /*
+         * Get the new password.  Reset passwd change time to zero by
+         * default.
+         */
+	pw->pw_change = 0;
+	pw->pw_passwd = crypt_passwd;
+
+	pfd = pw_lock();
+	tfd = pw_tmp();
+	pw_copy(pfd, tfd, pw);
+
+	if (!pw_mkdb(pw->pw_name))
+		pw_error((char *)NULL, 0, 1);
 
 #endif /* __FreeBSD__ */
 

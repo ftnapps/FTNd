@@ -31,6 +31,7 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
+#ifndef __FreeBSD__
 
 #include "../config.h"
 #include <stdio.h>
@@ -168,10 +169,12 @@ int pw_name(const char *filename)
 
 
 
+#ifndef __FreeBSD__
 int pw_lock(void) 
 {
 	return commonio_lock(&passwd_db);
 }
+#endif
 
 
 
@@ -243,4 +246,5 @@ void __pw_del_entry(const struct commonio_entry *ent)
 	commonio_del_entry(&passwd_db, ent);
 }
 
+#endif
 

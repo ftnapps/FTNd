@@ -1,5 +1,9 @@
+/* $Id$ */
+
 #ifndef	_PWIO_H
 #define	_PWIO_H
+
+#ifndef __FreeBSD__
 
 #ifndef PASSWD_FILE
 #define PASSWD_FILE "/etc/passwd"
@@ -22,6 +26,8 @@ int pw_remove (const char *);
 int pw_rewind (void);
 int pw_unlock (void);
 int pw_update (const struct passwd *);
+
+#endif
 
 #endif
 

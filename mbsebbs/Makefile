@@ -12,7 +12,7 @@ SRCS		= bank.c commonio.c filesub.c language.c mbtoberep.c \
 		  exitinfo.c mball.c mbsebbs.c menu.c nextuser.c pop3.c lastcallers.c \
 		  safe.c timeout.c chat.c file.c getdef.c mbchat.c mbstat.c misc.c \
 		  offline.c putpwent.c salt.c user.c mbnewusr.c input.c whoson.c \
-		  door.c dispfile.c userlist.c timestats.c logentry.c
+		  door.c dispfile.c userlist.c timestats.c logentry.c pw_util.c
 HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  putpwent.h salt.h timeout.h bbslist.h email.h fsedit.h lineedit.h \
 		  mbstat.h msgutil.h oneline.h sgetpwent.h user.h bye.h morefile.h \
@@ -20,7 +20,7 @@ HDRS		= bank.h commonio.h filesub.h language.h mbsebbs.h misc.h offline.h \
 		  xmalloc.h change.h exitinfo.h mball.h mbuseradd.h newuser.h \
 		  pinfo.h rad64.h chat.h file.h getdef.h mbpasswd.h menu.h \
 		  nextuser.h pop3.h safe.h timecheck.h mbnewusr.h input.h whoson.h \
-		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h
+		  door.h dispfile.h userlist.h timestats.h logentry.h lastcallers.h pw_util.h
 MBSEBBS_OBJS	= bank.o bbslist.o chat.o file.o funcs.o mail.o menu.o \
 		  misc.o pinfo.o nextuser.o oneline.o page.o fsedit.o \
 		  bye.o change.o mbsebbs.o safe.o timeout.o user.o timecheck.o \
@@ -48,7 +48,7 @@ MBUSER_OBJS	= mbuser.o
 MBUSER_LIBS	= ../lib/libmemwatch.a ../lib/libclcomm.a ../lib/libcommon.a ../lib/libdbase.a
 MBUSERADD_OBJS	= mbuseradd.o
 MBPASSWD_OBJS	= mbpasswd.o commonio.o pwio.o shadowio.o sgetpwent.o \
-		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o
+		  xmalloc.o myname.o rad64.o salt.o getdef.o encrypt.o putpwent.o pw_util.o
 OTHER		= Makefile
 TARGET		= mbsebbs mbnewusr mball mblang mbchat mbstat mbtoberep mbuser mbuseradd mbpasswd
 
@@ -171,7 +171,7 @@ bye.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clco
 encrypt.o: ../config.h encrypt.h
 funcs.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/msg.h ../lib/clcomm.h funcs.h
 mail.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/msgtext.h ../lib/clcomm.h ../lib/msg.h mail.h funcs.h input.h language.h misc.h timeout.h oneline.h exitinfo.h lineedit.h fsedit.h filesub.h msgutil.h pop3.h email.h whoson.h
-mbpasswd.o: ../config.h encrypt.h rad64.h myname.h xmalloc.h pwio.h shadowio.h mbpasswd.h
+mbpasswd.o: ../config.h encrypt.h rad64.h myname.h xmalloc.h pwio.h shadowio.h pw_util.h mbpasswd.h
 mbuseradd.o: ../config.h mbuseradd.h
 newuser.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/clcomm.h ../lib/common.h funcs.h input.h newuser.h language.h timeout.h change.h dispfile.h
 pinfo.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h pinfo.h input.h
@@ -205,4 +205,5 @@ dispfile.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib
 userlist.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h userlist.h language.h input.h timeout.h
 timestats.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h timestats.h funcs.h language.h input.h exitinfo.h
 logentry.o: ../lib/libs.h ../lib/mbse.h ../lib/structs.h ../lib/records.h ../lib/common.h ../lib/clcomm.h logentry.h
+pw_util.o: pw_util.h
 # End of generated dependencies
