@@ -350,10 +350,74 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 
 
 
-// mbsedb_SearchFileFDB
-// mbsedb_UpdateFileFDB
-// mbsedb_InsertFileFDB
-// mbsedb_DeleteFileFDB
+/*
+ * Return -1 if error, else number of purged records
+ */
+int mbsedb_PackFDB(struct _fdbarea *fdb_area)
+{
+    char    *temp, *temp2;
+    FILE    *fp;
+    int	    rc, count = 0;
+
+    Syslog('f', "PackFDB %ld", fdb_area->area);
+
+    fseek(fdb_area->fp, 0, SEEK_END);
+    if (ftell(fdb_area->fp) == fdbhdr.hdrsize) {
+	Syslog('f', "no records, nothing to do");
+	return 0;
+    }
+
+    if (mbsedb_LockFDB(fdb_area, 30) == FALSE)
+	return -1;
+
+    /*
+     * There are files, copy the remaining entries
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    if ((fp = fopen(temp, "a+")) == NULL) {
+	WriteError("$Can't create %s", temp);
+	mbsedb_UnlockFDB(fdb_area);
+	return -1;
+    }
+    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
+    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+	if (!fdb.Deleted)
+	    fwrite(&fdb, fdbhdr.recsize, 1, fp);
+	else
+	    count++;
+    }
+
+    /*
+     * Now the trick, some might be waiting for a lock on the original file,
+     * we will give that a new name on disk. Then we move the temp in place.
+     * Finaly remove the old (still locked) original file.
+     */
+    sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = rename(temp2, temp);
+    Syslog('f', "rename %s %s rc=%d", temp2, temp, rc);
+    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = rename(temp, temp2);
+    Syslog('f', "rename %s %s rc=%d", temp, temp2, rc);
+    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = unlink(temp);
+    Syslog('f', "unlink %s rc=%d", temp, rc);
+
+    fdb_area->fp = fp;
+    fdb_area->locked = 0;
+
+    free(temp);
+    free(temp2);
+
+    Syslog('f', "success, purged %d", count);
+    return count;
+}
+
+
 // mbsedb_SortFDB
 
 
