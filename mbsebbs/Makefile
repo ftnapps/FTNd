@@ -86,7 +86,7 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mblang    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mbstat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mbtoberep ${BINDIR}
-		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6700 mbuser    ${BINDIR}
+		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6711 mbuser    ${BINDIR}
 		@rm -f mbchat
 
 filelist:	Makefile
