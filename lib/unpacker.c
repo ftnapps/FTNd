@@ -73,8 +73,11 @@ char *unpacker(char *fn)
 	
 	if ((fp = fopen(fn,"r"))) {
 	    fseek(fp, 257, SEEK_SET);
-	    if (fread(buf,1,sizeof(buf),fp) != sizeof(buf)) {
-		WriteError("$Could not read position 257 of the file %s", fn);
+	    if (fread(buf, 1, sizeof(buf), fp) != sizeof(buf)) {
+		/*
+		 * Here we don't complain about a read error, the file may be
+		 * smaller then 257 bytes so it is not a tar file anyway.
+		 */
 		fclose(fp);
 		return NULL;
 	    }
