@@ -21,16 +21,26 @@ $Id$
 v0.37.7		09-Sep-2003
 
 	upgrade:
-		A bit tricky to upgrade and start using the new debug logfile:
-		  Before make install close the bbs "mbstat close"
-		  Then kill mbtask.
-		  Then as root a make install.
-		  As user mbse: start mbtask, just by typing mbtask.
-		  Then type "mbsetup init"
-		  Then open the bbs with mbstat open.
-		  Start mbsetup normal, enter the global menu, exit and save.
+		A bit tricky to upgrade and start using the new debug logfile,
+		follow the next steps exactly!!
+		1.  Download and install the source
+		2.  Run "./configure"
+		3.  Run "make" (and do not install yet)
+		4.  Run "mbstat close"
+		5.  Backup /opt/mbse/bin and /opt/mbse/etc.
+		6.  Run "mbstat close"
+		7.  Kill mbtask, mostly "kill `/sbin/pidoff mbtask`" will do.
+		8.  Run (as root) "make install" to install the new software.
+		9.  Make sure you are user mbse again.
+		10. Start mbtask manual, "mbtask"
+		11. Run "mbsetup", enter menu 1, exit, save and close.
+		12. Wait one minute.
+		13. Run "mbstat open"
 		After this is done the first time, restarting mbtask can be
-		done as usual by running the mbsed init script.
+		done as usual by running the mbsed init script. If something
+		doesn't work (you get socket errors), it is important that you
+		kill mbtask during software versions swap. All software must
+		be of the same build.
 
 	general:
 		Debug logging is now in a separate file, the normal logging is
