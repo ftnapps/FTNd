@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/nextuser.c
+ * $Id$
  * Purpose ...............: Message to next User door
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -38,7 +37,7 @@
 #include "../lib/common.h"
 #include "nextuser.h"
 #include "funcs.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "timeout.h"
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/timeout.c
+ * $Id$
  * Purpose ...............: Inactivity timeout functions
- * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -94,11 +93,7 @@ void die(int onsig)
 		Syslog('+', "Last msg area %s", msgs.Name);
 	}
 
-	if (LoginPrompt) {
-		Unsetraw();
-		Quick_Bye(onsig);
-	} else
-		Good_Bye(onsig);
+	Good_Bye(onsig);
 }
 
 
@@ -109,11 +104,7 @@ void alarm_sig()
 	/* Autologout: idletime reached.*/
 	printf("\r\n%s\r\n", (char *) Language(410));
 
-	if (LoginPrompt)
-		Syslog('!', "Autologout: idletime reached at login prompt");
-	else
-		Syslog('!', "Autologout: idletime reached");
-
+	Syslog('!', "Autologout: idletime reached");
 	die(SIGALRM);
 }
 

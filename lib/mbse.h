@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbse.h
+ * $Id$
  * Purpose ...............: Global variables for MBSE BBS
- * Last modification date : 22-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -98,13 +97,11 @@ char	LastLoginTime[9];	/* Last login time			   */
 char	LastCaller[36];		/* Last caller on system		   */
 char  	FirstName[20];		/* Users First name			   */
 char  	LastName[30];		/* Users Last name			   */ 
-int	LoginPrompt;		/* Login prompt check - timeout		   */
 int	UserAge;		/* Users age				   */
 int	grecno;			/* User's Record Number in user file	   */
 int	SYSOP;			/* Int to see if user is Sysop		   */
 int	iLineCount;		/* Line Counter				   */
 int	iExpired;		/* Check if users time ran out		   */
-int	iUnixMode;		/* Using Unix Accounts			   */
 char	sUnixName[9];		/* Unix login name			   */
 time_t	Time2Go;		/* Calculated time to force logout	   */
 struct	tm *l_date;		/* Structure for Date			   */

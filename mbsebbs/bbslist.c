@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/bbslist.c
+ * $Id$
  * Purpose ...............: Handle BBS lists
- * Last modification date : 28-Jun-2001
  * ToDo ..................: Add use of new fields
  *			    Verify check at logon
  *			    Intro New BBS at logon
@@ -40,7 +39,7 @@
 #include "../lib/common.h"
 #include "bbslist.h"
 #include "funcs.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 
 

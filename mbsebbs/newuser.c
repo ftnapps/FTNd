@@ -1,9 +1,8 @@
 /*****************************************************************************
  *
- * File ..................: mbsebbs/newuser.c
+ * $Id$
  * Purpose ...............: New User login under Unix, creates both
  *			    BBS and unix accounts.
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -36,48 +35,48 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
+//#include "funcs.h"
 #include "funcs4.h"
+#include "input.h"
 #include "pwcheck.h"
 #include "newuser.h"
 #include "language.h"
 #include "timeout.h"
 #include "change.h"
 #include "bye.h"
+#include "dispfile.h"
+
 
 
 extern	int	do_quiet;		/* No logging to the screen	*/
 extern	pid_t	mypid;			/* Pid of this program		*/
 char		UnixName[9];		/* Unix Name			*/
-extern	int	ieLogin;		/* IEMSI Login Successfull	*/
-extern	int	ieRows;			/* Rows on screen		*/
-extern	int	ieHOT;			/* Use Hotkeys			*/
 extern	char	*ieHandle;		/* Users Handle			*/
-extern	char	*ieLocation;		/* Users Location		*/
-extern	char	*Passwd;		/* Plain password		*/
 
 
-int newuser(char *FullName)
+
+int newuser()
 {
 	FILE		*pUsrConfig;
-	int		i, x, Found, iLang, recno = 0;
+	int		i, x, Found, iLang, recno = 0, Count = 0;
 	unsigned long	crc;
-	char		temp[PATH_MAX];
+	char		temp[PATH_MAX], *FullName;
 	char		*temp1, *temp2;
 	char		*Phone1, *Phone2;
 	long		offset;
 	struct userrec	us;
+	int		badname;
 
 	IsDoing("New user login");
 	Syslog('+', "Newuser registration");
 	clear();
+	DisplayFile((char *)"newuser");
 	iLang = Chg_Language(TRUE);
 
 	Enter(1);
 	/* MBSE BBS - NEW USER REGISTRATION */
 	language(CYAN, BLACK, 37);
 	Enter(2);
-
-	Syslog('+', "Name entered: %s", FullName);
 
 	memset(&usrconfig, 0, sizeof(usrconfig));
 	memset(&exitinfo, 0, sizeof(exitinfo));
@@ -86,91 +85,93 @@ int newuser(char *FullName)
 	temp2  = calloc(81, sizeof(char));
 	Phone1 = calloc(81, sizeof(char));
 	Phone2 = calloc(81, sizeof(char));
+	FullName = calloc(81, sizeof(char));
 
 	usrconfig.iLanguage = iLang;
 	usrconfig.FsMsged = TRUE;
 
+	do {
+
+	    /* Please enter your First and Last name: */
+	    language(CYAN, BLACK, 0);
+	    fflush(stdout);
+	    alarm_on();
+	    Getname(temp, 35);
+	    strcpy(FullName, tlcap(temp));
+	    Syslog('+', "Name entered: %s", FullName);
+			
+	    /*
+	     * Secret escape name
+	     */
+	    if ((strcasecmp(temp, "off")) == 0) {
+		Syslog('+', "Quick \"off\" logout");
+		Quick_Bye(0);
+	    }
+
+	    Count++;
+	    if (Count >= CFG.iCRLoginCount) {
+		Enter(1);
+		/* Disconnecting user ... */
+		language(CFG.HiliteF, CFG.HiliteB, 2);
+		Enter(2);
+		Syslog('!', "Exceeded maximum login attempts");
+		Quick_Bye(0);
+	    }
+
+	    /*
+	     * Check name, duplicate names, unwanted names, single names, they all get
+	     * the same errormessage.
+	     */
+	    badname = (BadNames(temp) || (CheckName(temp) || (strchr(temp, ' ') == NULL)));
+	    if (badname) {
+		language(LIGHTRED, BLACK, 386);
+		Enter(1);
+	    }
+
+	} while (badname);
+
+	strcpy(FullName, tlcap(temp));
+	UserCity(mypid, FullName, (char *)"Unknown");
+
 	while (TRUE) {
-		do {
-			alarm_on();
-			Enter(1);
-			/* Use this name: */
-			language(YELLOW, BLACK, 38); 
-			printf("%s [Y/n]? ", FullName);
-			fflush(stdout);
-			fflush(stdin);
-			GetstrC(temp, 80);
-
-			if ((strcasecmp(temp, "y") == 0) || (strcmp(temp, "") == 0))
-				sprintf(temp, "%s", FullName);
-			else {
-				do {
-					Syslog('+', "User chose to use a different name");
-					Enter(1);
-					/* Please enter your First and Last name: */
-					language(CYAN, BLACK, 0);
-					fflush(stdout);
-					alarm_on();
-					Getname(temp, 35);
-					if (CheckName(temp))
-						printf("\n%s\n", (char *) Language(149));
-					/*
-				 	 * Do a check to see if name exists
-					 */
-				} while ((CheckName(temp) || strchr(temp, ' ') == NULL));
-			}
-		} while (BadNames(temp) || *(temp) == '\n');
-
-		/*
-		 * Used to get users full name for other functions
-		 */
-		strcpy(FullName, tlcap(temp));
-		UserCity(mypid, FullName, (char *)"Unknown");
-
-		while (1) {
-			Enter(1);
-			/* Please enter your BBS password, this can be the same as the unix password */
-			printf("%s\n\n", (char *) Language(388));
-			/* Please enter new password   : */
-			language(LIGHTCYAN, BLACK, 39);
-			fflush(stdout);
-			alarm_on();
-		  	Getpass(temp1);
-			if((x = strlen(temp1)) >= CFG.password_length) {
-				Enter(1);
-				/* Please enter password again : */
-				language(LIGHTCYAN, BLACK, 40);
-				fflush(stdout);
-				alarm_on();
-			  	Getpass(temp2);
-				if((i = strcmp(temp1,temp2)) != 0) {
-					Enter(2);
-					/* Your passwords do not match! Try again. */
-					language(LIGHTRED, BLACK, 41);
-					Enter(1);
-				} else {
-					crc = StringCRC32(tu(temp1));
-					break;
-		  		}
-		  	} else {
-				Enter(2);
-				/* Your password must contain at least */
-				language(LIGHTRED, BLACK, 42);
-		  		printf("%d ", CFG.password_length);
-				/* characters! Try again. */
-				language(WHITE, BLACK, 43);
-				Enter(1);
-			}
-		}
-		memset(Passwd, 0, 16);
-		sprintf(Passwd, "%s", temp2);
-		memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
-		sprintf(usrconfig.Password, "%s", temp2);
-		usrconfig.iPassword = crc;
+		Enter(1);
+		/* Please enter new password   : */
+		language(LIGHTCYAN, BLACK, 39);
+		fflush(stdout);
 		alarm_on();
-		sprintf(UnixName, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
-		break;
+	  	Getpass(temp1);
+		if((x = strlen(temp1)) >= CFG.password_length) {
+			Enter(1);
+			/* Please enter password again : */
+			language(LIGHTCYAN, BLACK, 40);
+			fflush(stdout);
+			alarm_on();
+		  	Getpass(temp2);
+			if((i = strcmp(temp1,temp2)) != 0) {
+				Enter(2);
+				/* Your passwords do not match! Try again. */
+				language(LIGHTRED, BLACK, 41);
+				Enter(1);
+			} else {
+				crc = StringCRC32(tu(temp1));
+				break;
+	  		}
+	  	} else {
+			Enter(2);
+			/* Your password must contain at least */
+			language(LIGHTRED, BLACK, 42);
+	  		printf("%d ", CFG.password_length);
+			/* characters! Try again. */
+			language(WHITE, BLACK, 43);
+			Enter(1);
+		}
 	}
+
+	memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
+	sprintf(usrconfig.Password, "%s", temp2);
+	usrconfig.iPassword = crc;
+	alarm_on();
+	sprintf(UnixName, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
 
 	strcpy(usrconfig.sUserName, FullName);
 	strcpy(usrconfig.Name, UnixName);
@@ -259,14 +260,11 @@ int newuser(char *FullName)
 	if(!CFG.iDataPhone)
 		printf("\n");
 
-	if (ieLogin && (strlen(ieLocation) >= CFG.CityLen) && (strlen(ieLocation) < 24)) {
-		strcpy(usrconfig.sLocation, ieLocation);
-	} else {
-	    if (CFG.iLocation) {
+	if (CFG.iLocation) {
 		while (TRUE) {
 			Enter(1);
 			/* Enter your location */
-			pout(YELLOW, BLACK, (char *) Language(49));
+			language(YELLOW, BLACK, 49);
 			colour(CFG.InputColourF, CFG.InputColourB);
 			alarm_on();
 			if (CFG.iCapLocation) { /* Cap Location is turn on, Capitalise first letter */
@@ -288,14 +286,13 @@ int newuser(char *FullName)
 				break;
 			}
 		}
-	    }
 	}
 
 	if (CFG.AskAddress) {
 	    while (TRUE) {
 		Enter(1);
 		/* Your address, maximum 3 lines (only visible for the sysop): */
-		pout(LIGHTMAGENTA, BLACK, (char *)Language(474));
+		language(LIGHTMAGENTA, BLACK, 474);
 		Enter(1);
 		for (i = 0; i < 3; i++) {
 		    colour(YELLOW, BLACK);
@@ -309,7 +306,7 @@ int newuser(char *FullName)
 		    break;
 		Enter(1);
 		/* You need to enter your address here */
-		pout(LIGHTRED, BLACK, (char *)Language(475));
+		language(LIGHTRED, BLACK, 475);
 		Enter(1);
 	    }
 	}
@@ -317,7 +314,7 @@ int newuser(char *FullName)
 	if (CFG.iHandle) {
 		Enter(1);
 		/* Enter a handle (Enter to Quit): */
-		pout(LIGHTRED, BLACK, (char *) Language(412));
+		language(LIGHTRED, BLACK, 412);
 		colour(CFG.InputColourF, CFG.InputColourB);
 		fflush(stdout);
 		alarm_on();
@@ -405,53 +402,44 @@ int newuser(char *FullName)
 	usrconfig.Security = CFG.newuser_access;
 	usrconfig.Email = CFG.GiveEmail;
 
-	if (ieLogin) 
-		usrconfig.HotKeys = ieHOT;
-	else {
-		if (CFG.iHotkeys) {
-			while (TRUE) {
-				Enter(1);
-				/* Would you like hot-keyed menus [Y/n]: */
-				pout(LIGHTRED, BLACK, (char *) Language(62));
-				colour(CFG.InputColourF, CFG.InputColourB);
-				alarm_on();
-			 	GetstrC(temp, 8);
+	if (CFG.iHotkeys) {
+		while (TRUE) {
+			Enter(1);
+			/* Would you like hot-keyed menus [Y/n]: */
+			pout(LIGHTRED, BLACK, (char *) Language(62));
+			colour(CFG.InputColourF, CFG.InputColourB);
+			alarm_on();
+		 	GetstrC(temp, 8);
 	
-				if ((toupper(temp[0]) == Keystroke(62, 0)) || (strcmp(temp,"") == 0)) {
-					usrconfig.HotKeys = TRUE;
-					break;
-				}
-				if (toupper(temp[0]) == Keystroke(62, 1)) {
-					usrconfig.HotKeys = FALSE;
-					break;
-				} else {
-					/* Please answer Y or N */
-					pout(WHITE, BLACK, (char *) Language(63));
-				}
+			if ((toupper(temp[0]) == Keystroke(62, 0)) || (strcmp(temp,"") == 0)) {
+				usrconfig.HotKeys = TRUE;
+				break;
 			}
-		} /* End of if Statement */
-		else
-			usrconfig.HotKeys = TRUE; /* Default set it to Hotkeys */
-	}
+			if (toupper(temp[0]) == Keystroke(62, 1)) {
+				usrconfig.HotKeys = FALSE;
+				break;
+			} else {
+				/* Please answer Y or N */
+				pout(WHITE, BLACK, (char *) Language(63));
+			}
+		}
+	} else
+		usrconfig.HotKeys = TRUE; /* Default set it to Hotkeys */
 
 	usrconfig.iTimeLeft    = 20;  /* Set Timeleft in users file to 20 */
 
 	Enter(1);
-	if (ieLogin)
-		usrconfig.iScreenLen = ieRows;
-	else {
-		/* Please enter your Screen Length [24]: */
-		pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
-		alarm_on();
-		Getnum(temp, 3);
+	/* Please enter your Screen Length [24]: */
+	pout(LIGHTMAGENTA, BLACK, (char *) Language(64));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	fflush(stdout);
+	alarm_on();
+	Getnum(temp, 3);
 
-		if(strlen(temp) == 0)
-			usrconfig.iScreenLen = 24;
-		else
-			usrconfig.iScreenLen = atoi(temp);
-	}
+	if(strlen(temp) == 0)
+		usrconfig.iScreenLen = 24;
+	else
+		usrconfig.iScreenLen = atoi(temp);
 
 	alarm_on();
 
@@ -505,7 +493,7 @@ int newuser(char *FullName)
 	/* Login Name : */
 	pout(LIGHTBLUE, BLACK, (char *) Language(68));
 	colour(CYAN, BLACK);
-	printf("%s (%s)\n", FullName, UnixName);
+	printf("%s (%s)\n", UnixName, FullName);
 	/* Password   : */
 	pout(LIGHTBLUE, BLACK, (char *) Language(69));
 	pout(CYAN, BLACK, (char *)"<");
@@ -530,15 +518,21 @@ int newuser(char *FullName)
 	free(Phone1);
 	free(Phone2);
 
+	DisplayFile((char *)"registered");
+
 	Syslog('+', "Completed new-user procedure");
 	/* New user registration completed. */
 	pout(LIGHTGREEN, BLACK, (char *) Language(71));
+	Enter(1);
+	/* You need to login again with the name: */
+	pout(LIGHTRED, BLACK, (char *) Language(5));
+	pout(YELLOW, BLACK, UnixName);
 	Enter(2);
 	alarm_on();
 	Pause();
 	alarm_off();
 	printf("\n");
-	return recno;
+	return 0;
 }
 
 

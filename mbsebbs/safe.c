@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/safe.c
+ * $Id$
  * Purpose ...............: Safe Door
- * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -35,9 +34,9 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
-#include "exitinfo.h"
-#include "funcs.h"
-#include "funcs4.h"
+#include "whoson.h"
+#include "dispfile.h"
+#include "input.h"
 #include "misc.h"
 #include "safe.h"
 #include "timeout.h"

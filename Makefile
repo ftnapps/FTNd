@@ -35,6 +35,7 @@ install:
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/etc ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/etc/maptabs ; \
 		fi
+		@chmod 0775 ${PREFIX}/etc
 		@if [ ! -d ${PREFIX}/doc ] ; then \
 			mkdir ${PREFIX}/doc ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/doc ; \
@@ -43,6 +44,7 @@ install:
 			mkdir ${PREFIX}/fdb ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/fdb ; \
 		fi
+		@chmod 0775 ${PREFIX}/fdb
 		@if [ ! -d ${PREFIX}/log ] ; then \
 			mkdir ${PREFIX}/log ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/log ; \

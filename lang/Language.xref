@@ -3,8 +3,8 @@
 2	user.c				|Disconnecting user ...
 3	user.c				|Scanning User File ...
 4	user.c				YN|Did you spell your name correctly? [Y/n] 
-5	user.c				|Name Entered: 
-6	user.c				|This is a PRIVATE System. Type "off" to leave
+5	newuser.c			|You need to login again with the name:
+6	user.c		 		|This is a PRIVATE System. Type "off" to leave
 7	filesub.c			|Mark file number or press <Enter> to stop 
 8	user.c filesub.c		|Password: 
 9	user.c				|Maximum login attempts have been exceeded ...
@@ -386,9 +386,9 @@
 385	funcs4.c			|login > 
 386	funcs4.c			|That login name already exists, please choose another one.
 387					|
-388	newuser.c			|Your new Unix and BBS password will be the same.
-389	user.c				|FATAL ERROR: You are not in the BBS users file.
-390	user.c			        |     Please run 'newuser' to create an account
+388					|
+389					|
+390				        |
 391	offline.c			|New    
 392	offline.c			|Local    
 393	offline.c			|Netmail  

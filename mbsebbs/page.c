@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/page.c
+ * $Id$
  * Purpose ...............: Sysop Paging
- * Last modification date : 28-Jun-2001
  * Todo ..................: Implement new config settings.
  *
  *****************************************************************************
@@ -36,8 +35,8 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "funcs.h"
-#include "funcs4.h"
+#include "dispfile.h"
+#include "input.h"
 #include "chat.h"
 #include "page.h"
 #include "timeout.h"

@@ -34,7 +34,8 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "funcs4.h"
+#include "pinfo.h"
+#include "input.h"
 
 
 

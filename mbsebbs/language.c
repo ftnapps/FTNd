@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/language.c
+ * $Id$
  * Purpose ...............: Language functions.
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -35,7 +34,7 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 
 

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/chat.c
+ * $Id$
  * Purpose ...............: Sysop to user chat utility
- * Last modification date : 08-Feb-1999
  *
  *****************************************************************************
  * Copyright (C) 1997-1999
@@ -37,10 +36,10 @@
 #include "../lib/clcomm.h"
 #include "chat.h"
 #include "funcs.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "misc.h"
-#include "exitinfo.h"
+#include "whoson.h"
 
 
 

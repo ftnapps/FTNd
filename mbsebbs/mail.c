@@ -45,7 +45,7 @@
 #include "../lib/msg.h"
 #include "mail.h"
 #include "funcs.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "misc.h"
 #include "timeout.h"
@@ -57,6 +57,7 @@
 #include "msgutil.h"
 #include "pop3.h"
 #include "email.h"
+#include "whoson.h"
 
 
 

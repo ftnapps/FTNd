@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/offline.c
+ * $Id$
  * Purpose ...............: Offline Reader
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -44,6 +43,7 @@
 #include "mail.h"
 #include "funcs.h"
 #include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "file.h"
 #include "filesub.h"
@@ -52,6 +52,7 @@
 #include "msgutil.h"
 #include "pop3.h"
 #include "offline.h"
+#include "whoson.h"
 
 
 

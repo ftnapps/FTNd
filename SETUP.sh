@@ -1,8 +1,10 @@
 #!/bin/bash
 #
+# $Id$
+# 
 # Basic setup script for MBSE BBS
 #
-# (C) Michiel Broek, v0.18 05-Aug-2001
+# (C) Michiel Broek
 #
 # Customisation section, change the next variables to your need.
 # However, all docs refer to the setup below.
@@ -273,11 +275,11 @@ log "+" "[$?] chown mbse.bbs $MHOME/home"
 chmod 775 $MHOME/home
 log "+" "[$?] chmod 775 $MHOME/home"
 if [ "$OSTYPE" = "Linux" ]; then
-    useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbsebbs bbs
+    useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewusr bbs
     log "+" "[$?] Added user bbs"
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
-    pw useradd bbs -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbsebbs
+    pw useradd bbs -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewusr
     log "+" "[$?] Added user bbs"
 fi
 # Some systems (RedHat and Mandrake) insist on creating a users homedir.

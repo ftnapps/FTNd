@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/bank.c
+ * $Id$
  * Purpose ...............: Time/Bytes Bank
- * Last modification date : 28-Jun-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -36,11 +35,12 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 #include "bank.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
-#include "funcs.h"
+#include "dispfile.h"
 #include "timeout.h"
 #include "timecheck.h"
+#include "whoson.h"
 #include "exitinfo.h"
 
 

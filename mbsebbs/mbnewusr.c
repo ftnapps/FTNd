@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * $Id$
- * Purpose ...............: Main startup
+ * Purpose ...............: New user registration
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -34,47 +34,67 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "../lib/msg.h"
-#include "mbsebbs.h"
-#include "user.h"
-#include "dispfile.h"
+#include "mbnewusr.h"
+#include "funcs.h"
 #include "funcs4.h"
+#include "input.h"
 #include "language.h"
-#include "menu.h"
 #include "misc.h"
 #include "bye.h"
 #include "timeout.h"
+#include "newuser.h"
+
+
 
 extern	int	do_quiet;	/* Logging quiet flag */
-extern	char	*Passwd;
 time_t		t_start;
-
+char             *StartTime;
 
 
 int main(int argc, char **argv)
 {
-	FILE		*pTty;
 	char		*p, *tty;
-	int		i;
-	char		temp[PATH_MAX];
+        FILE            *pTty;
+        int             i;
+        char            temp[PATH_MAX];
+        struct passwd   *pw;
 
 #ifdef MEMWATCH
 	mwInit();
 #endif
-	printf("Loading MBSE BBS ...\n");
+	printf("Loading MBSE BBS New User Registration ...\n");
  	pTTY = calloc(15, sizeof(char));
 	tty = ttyname(1);
-
-	/*
-	 * Set the users device to writable by other bbs users, so they
-         * can send one-line messages
-	 */
-	chmod(tty, 00666);
 
 	/*
 	 * Get MBSE_ROOT Path and load Config into Memory
 	 */
 	FindMBSE();
+	if (!strlen(CFG.startname)) {
+		printf("FATAL: No bbs startname, edit mbsetup 1.2.10\n");
+#ifdef MEMWATCH
+		mwTerm();
+#endif
+		exit(1);
+	}
+
+	/*
+	 * Set uid and gid to the "mbse" user.
+	 */
+	if ((pw = getpwnam((char *)"mbse")) == NULL) {
+		perror("Can't find user \"mbse\" in /etc/passwd");
+#ifdef MEMWATCH
+                mwTerm();
+#endif
+		exit(1);
+	}
+	if ((setuid(pw->pw_uid) == -1) || (setgid(pw->pw_gid) == -1)) {
+		perror("Can't setuid() or setgid() to \"mbse\" user");
+#ifdef MEMWATCH
+                mwTerm();
+#endif
+		exit(1);
+	}
 
 	/* 
 	 * Set local time and statistic indexes.
@@ -87,14 +107,15 @@ int main(int argc, char **argv)
 	time(&ltime);  
 
 	/*
-	 * Initialize this client with the server. 
+	 * Initialize this client with the server. We don't know
+	 * who is at the other end of the line, so that's what we tell.
 	 */
 	do_quiet = TRUE;
-	InitClient(getenv("LOGNAME"), (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
+	InitClient((char *)"Unknown", (char *)"mbnewusr", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
 	IsDoing("Loging in");
 
 	Syslog(' ', " ");
-	Syslog(' ', "MBSEBBS v%s", VERSION);
+	Syslog(' ', "MBNEWUSR v%s", VERSION);
 
 	if ((p = getenv("CONNECT")) != NULL)
 		Syslog('+', "CONNECT %s", p);
@@ -103,21 +124,11 @@ int main(int argc, char **argv)
 			Syslog('+', "CALLER  %s", p);
 
 	sUnixName[0] = '\0';
-	if (getenv("LOGNAME") != NULL) {
-		strcpy(sUnixName, getenv("LOGNAME"));
-	} else {
-		WriteError("No username in environment");
-		Quick_Bye(0);
-	}
 
 	/*
 	 * Initialize 
 	 */
 	InitLanguage();
-	InitMenu();
-	memset(&MsgBase, 0, sizeof(MsgBase));
-		
-	i = getpid();
 
 	if ((tty = ttyname(0)) == NULL) {
 		WriteError("Not at a tty");
@@ -151,10 +162,6 @@ int main(int argc, char **argv)
 	 */
 	TermInit(1);
 		
-	sprintf(temp, "chat.%s", pTTY);
-	if(access(temp, F_OK) == 0)
-		unlink(temp);
-
 	/*
 	 * Now it's time to check if the bbs is open. If not, we 
 	 * log the user off.
@@ -209,10 +216,12 @@ int main(int argc, char **argv)
 		}
 	}
 
-	sprintf(sMailbox, "mailbox");
-	colour(LIGHTGRAY, BLACK);
-	Passwd = calloc(16, sizeof(char));
-	user();
+	alarm_on();
+	Pause();
+
+	newuser();
+	Quick_Bye(0);
 	return 0;
 }
+
 

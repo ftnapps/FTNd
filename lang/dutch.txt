@@ -3,7 +3,7 @@
 |Verbreken gebruiker ...
 |Doorzoeken gebruikers bestand ...
 JN|Is Uw naam juist gespeld? [J/n] 
-|Opgegeven naam: 
+|Log nu opnieuw in met de naam: 
 |Dit is een PRIVE Systeem. Tik "off" om eruit te gaan
 |Markeer bestand nummer of toets <Enter> voor stop 
 |Wachtwoord: 
@@ -385,10 +385,10 @@ JN|Zeker weten? [J/n]:
 |bv. Piet Snot, login = psnot
 |login > 
 |Die login naam bestaat al, kies iets anders.
-|FATAL: Cannot open language definition file
-|Uw nieuwe Unix en BBS wachtwoord worden hetzelfde.
-|FATAL ERROR: Niet gevonden in het BBS gebruikers bestand.
-|             Start 'newuser' om een account te maken
+|
+|
+|
+|
 |Nieuw  
 |Lokaal   
 |Netmail  

@@ -3,7 +3,7 @@
 |Scollegamento in corso ...
 |Controllo User File in corso...
 SN|Hai scritto il tuo nome e cognome correttamente? [S/n] 
-|Nome inserito: 
+|You need to login again with the name: 
 |Questo e' un sistema telematico PRIVATO. Scrivi "off" per uscire ora
 |Scegli il numero del file o premi <Invio> per interrompere 
 |Password: 
@@ -385,10 +385,10 @@ SN|Sei sicuro? [S/n]:
 |es. Mario Rossi, login = mrossi
 |login > 
 |Quel login esiste gia', scegline uno leggermente diverso.
-|FATAL: Non riesco a aprire il file per quella lingua
-|La tua password per l' "Account Unix" e la BBS saranno identiche.
-|FATAL ERROR: Non sei nel database degli utenti della BBS.
-|                   Lancia 'newuser' per creare un account
+|
+|
+|
+|
 |Nuovo    
 |Locale    
 |Netmail  

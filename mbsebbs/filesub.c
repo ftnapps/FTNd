@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/filesub.c
+ * $Id$
  * Purpose ...............: All the file sub functions. 
- * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -39,6 +38,7 @@
 #include "funcs.h"
 #include "language.h"
 #include "funcs4.h"
+#include "input.h"
 #include "misc.h"
 #include "timeout.h"
 #include "exitinfo.h"

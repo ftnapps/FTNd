@@ -132,7 +132,7 @@ void e_reginfo(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.1   EDIT REGISTRATION INFO");
+	mvprintw( 5, 6, "1.2   EDIT REGISTRATION INFO");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.    System name");
 	mvprintw( 8, 6, "2.    Domain name");
@@ -181,7 +181,7 @@ void e_filenames(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.2   EDIT GLOBAL FILENAMES");
+	mvprintw( 5, 6, "1.3   EDIT GLOBAL FILENAMES");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.   System logfile");
 	mvprintw( 8, 6, "2.   Error logfile");
@@ -216,7 +216,7 @@ void e_global(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 4, 6, "1.3   EDIT GLOBAL PATHS");
+	mvprintw( 4, 6, "1.4   EDIT GLOBAL PATHS");
 	set_color(CYAN, BLACK);
 	mvprintw( 6, 2, "1.  BBS menus");
 	mvprintw( 7, 2, "2.  Txtfiles");
@@ -276,56 +276,54 @@ void b_screen(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.4  EDIT GLOBAL SETTINGS");
+	mvprintw( 5, 2, "1.5  EDIT GLOBAL SETTINGS");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.   Private system");
-	mvprintw( 8, 2, "2.   Exclude Sysop");
-	mvprintw( 9, 2, "3.   Show Connect");
-	mvprintw(10, 2, "4.   Ask Protocols");
-	mvprintw(11, 2, "5.   Sysop Level");
-	mvprintw(12, 2, "6.   Password Length");
-	mvprintw(13, 2, "7.   Passwd Character");
-	mvprintw(14, 2, "8.   Idle timeout");
-	mvprintw(15, 2, "9.   Login Enters");
-	mvprintw(16, 2, "10.  Login Attempts");
-	mvprintw(17, 2, "11.  Homedir Quota");
+	mvprintw( 7, 2, "1.   Exclude Sysop");
+	mvprintw( 8, 2, "2.   Show Connect");
+	mvprintw( 9, 2, "3.   Ask Protocols");
+	mvprintw(10, 2, "4.   Sysop Level");
+	mvprintw(11, 2, "5.   Password Length");
+	mvprintw(12, 2, "6.   Passwd Character");
+	mvprintw(13, 2, "7.   Idle timeout");
+	mvprintw(14, 2, "8.   Login Enters");
+	mvprintw(15, 2, "9.   Login Attempts");
+	mvprintw(16, 2, "10.  Homedir Quota");
+	mvprintw(17, 2, "11.  Location length");
 
-	mvprintw( 7,37, "12.  Location length");
-	mvprintw( 8,37, "13.  Show new msgarea");
-	mvprintw( 9,37, "14.  OLR Max. msgs.");
-	mvprintw(10,37, "15.  OLR Newfile days");
-	mvprintw(11,37, "16.  OLR Max Filereq");
-	mvprintw(12,37, "17.  BBS Log Level");
-	mvprintw(13,37, "18.  Utils loglevel");
-	mvprintw(14,37, "19.  Utils slowly");
-	mvprintw(15,37, "20.  CrashMail level");
-	mvprintw(16,37, "21.  FileAttach level");
-	mvprintw(17,37, "22.  Min diskspace MB");
+	mvprintw( 7,37, "12.  Show new msgarea");
+	mvprintw( 8,37, "13.  OLR Max. msgs.");
+	mvprintw( 9,37, "14.  OLR Newfile days");
+	mvprintw(10,37, "15.  OLR Max Filereq");
+	mvprintw(11,37, "16.  BBS Log Level");
+	mvprintw(12,37, "17.  Utils loglevel");
+	mvprintw(13,37, "18.  Utils slowly");
+	mvprintw(14,37, "29.  CrashMail level");
+	mvprintw(15,37, "20.  FileAttach level");
+	mvprintw(16,37, "21.  Min diskspace MB");
 
 	set_color(WHITE, BLACK);
-	show_bool( 7,24, CFG.elite_mode);
-	show_bool( 8,24, CFG.exclude_sysop);
-	show_bool( 9,24, CFG.iConnectString);
-	show_bool(10,24, CFG.iAskFileProtocols);
-	show_int( 11,24, CFG.sysop_access);
-	show_int( 12,24, CFG.password_length);
-	show_int( 13,24, CFG.iPasswd_Char);
-	show_int( 14,24, CFG.idleout);
-	show_int( 15,24, CFG.iCRLoginCount);
-	show_int( 16,24, CFG.max_login);
-	show_int( 17,24, CFG.iQuota);
+	show_bool( 7,24, CFG.exclude_sysop);
+	show_bool( 8,24, CFG.iConnectString);
+	show_bool( 9,24, CFG.iAskFileProtocols);
+	show_int( 10,24, CFG.sysop_access);
+	show_int( 11,24, CFG.password_length);
+	show_int( 12,24, CFG.iPasswd_Char);
+	show_int( 13,24, CFG.idleout);
+	show_int( 14,24, CFG.iCRLoginCount);
+	show_int( 15,24, CFG.max_login);
+	show_int( 16,24, CFG.iQuota);
+	show_int( 17,24, CFG.CityLen);
 
-	show_int(  7,59, CFG.CityLen);
-	show_bool( 8,59, CFG.NewAreas);
-	show_int(  9,59, CFG.OLR_MaxMsgs);
-	show_int( 10,59, CFG.OLR_NewFileLimit);
-	show_int( 11,59, CFG.OLR_MaxReq);
-	show_logl(12,59, CFG.bbs_loglevel);
-	show_logl(13,59, CFG.util_loglevel);
-	show_bool(14,59, CFG.slow_util);
-	show_int( 15,59, CFG.iCrashLevel);
-	show_int( 16,59, CFG.iAttachLevel);
-	show_int( 17,59, CFG.freespace);
+	show_bool( 7,59, CFG.NewAreas);
+	show_int(  8,59, CFG.OLR_MaxMsgs);
+	show_int(  9,59, CFG.OLR_NewFileLimit);
+	show_int( 10,59, CFG.OLR_MaxReq);
+	show_logl(11,59, CFG.bbs_loglevel);
+	show_logl(12,59, CFG.util_loglevel);
+	show_bool(13,59, CFG.slow_util);
+	show_int( 14,59, CFG.iCrashLevel);
+	show_int( 15,59, CFG.iAttachLevel);
+	show_int( 16,59, CFG.freespace);
 }
 
 
@@ -335,31 +333,30 @@ void e_bbsglob(void)
 	b_screen();
 
 	for (;;) {
-		switch(select_menu(22)) {
+		switch(select_menu(21)) {
 		case 0:	return;
-		case 1:	E_BOOL( 7,24, CFG.elite_mode,        "^Private^ system.")
-		case 2:	E_BOOL( 8,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
-		case 3:	E_BOOL( 9,24, CFG.iConnectString,    "Show ^connect string^ at logon")
-		case 4:	E_BOOL(10,24, CFG.iAskFileProtocols, "Ask ^file protocol^ before every up- download")
-		case 5:	E_INT( 11,24, CFG.sysop_access,      "Sysop ^access level^")
-		case 6: E_INT( 12,24, CFG.password_length,   "Mimimum ^password^ length.")
-		case 7: E_INT( 13,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
-		case 8: E_INT( 14,24, CFG.idleout,           "^Idle timeout^ in minutes")
-		case 9: E_INT( 15,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
-		case 10:E_INT( 16,24, CFG.max_login,         "Maximum ^Login^ attempts")
-		case 11:E_INT( 17,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
+		case 1:	E_BOOL( 7,24, CFG.exclude_sysop,     "^Exclude^ sysop from lists.")
+		case 2:	E_BOOL( 8,24, CFG.iConnectString,    "Show ^connect string^ at logon")
+		case 3:	E_BOOL( 9,24, CFG.iAskFileProtocols, "Ask ^file protocol^ before every up- download")
+		case 4:	E_INT( 10,24, CFG.sysop_access,      "Sysop ^access level^")
+		case 5: E_INT( 11,24, CFG.password_length,   "Mimimum ^password^ length.")
+		case 6: E_INT( 12,24, CFG.iPasswd_Char,      "Ascii number of ^password^ character")
+		case 7: E_INT( 13,24, CFG.idleout,           "^Idle timeout^ in minutes")
+		case 8: E_INT( 14,24, CFG.iCRLoginCount,     "Maximum ^Login Return^ count")
+		case 9: E_INT( 15,24, CFG.max_login,         "Maximum ^Login^ attempts")
+		case 10:E_INT( 16,24, CFG.iQuota,            "Maximum ^Quota^ in MBytes in users homedirectory");
+		case 11:E_INT( 17,24, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
 
-		case 12:E_INT(  7,59, CFG.CityLen,           "Minimum ^Location name^ length (3..6)")
-		case 13:E_BOOL( 8,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
-		case 14:E_INT(  9,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
-		case 15:E_INT( 10,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
-		case 16:E_INT( 11,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
-		case 17:E_LOGL(CFG.bbs_loglevel, "1.4.17", b_screen)
-		case 18:E_LOGL(CFG.util_loglevel, "1.4.18", b_screen)
-		case 19:E_BOOL(14,59, CFG.slow_util,         "Let background utilities run ^slowly^")
-		case 20:E_INT( 15,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
-		case 21:E_INT( 16,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
-		case 22:E_INT( 17,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
+		case 12:E_BOOL( 7,59, CFG.NewAreas,          "Show ^new^ or ^deleted^ message areas to the user at login.")
+		case 13:E_INT(  8,59, CFG.OLR_MaxMsgs,       "^Maximum messages^ to pack for download (0=unlimited)")
+		case 14:E_INT(  9,59, CFG.OLR_NewFileLimit,  "^Limit Newfiles^ listing for maximum days")
+		case 15:E_INT( 10,59, CFG.OLR_MaxReq,        "Maximum ^Filerequests^ to honor")
+		case 16:E_LOGL(CFG.bbs_loglevel, "1.5.16", b_screen)
+		case 17:E_LOGL(CFG.util_loglevel, "1.5.17", b_screen)
+		case 18:E_BOOL(13,59, CFG.slow_util,         "Let background utilities run ^slowly^")
+		case 19:E_INT( 14,59, CFG.iCrashLevel,       "The user level to allow sending ^CrashMail^")
+		case 20:E_INT( 15,59, CFG.iAttachLevel,      "The user level to allow sending ^File Attaches^")
+		case 21:E_INT( 16,59, CFG.freespace,         "Minimum ^free diskspace^ in MBytes on filesystems")
 		}
 	};
 }
@@ -370,7 +367,7 @@ void s_newuser(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.5   EDIT NEW USERS DEFAULTS");
+	mvprintw( 5, 6, "1.7   EDIT NEW USERS DEFAULTS");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.    Access level");  
 	mvprintw( 8, 6, "2.    Cap. Username");
@@ -414,7 +411,7 @@ void e_newuser(void)
 
 		switch(select_menu(14)) {
 		case 0:	return;
-		case 1: E_SEC(  7,28, CFG.newuser_access, "1.6.1 NEWUSER SECURITY", s_newuser)
+		case 1: E_SEC(  7,28, CFG.newuser_access, "1.7.1 NEWUSER SECURITY", s_newuser)
 		case 2:	E_BOOL( 8,28, CFG.iCapUserName, "^Capitalize^ username")
 		case 3:	E_BOOL( 9,28, CFG.iAnsi, "Ask user if he wants ^ANSI^ colors")
 		case 4:	E_BOOL(10,28, CFG.iSex, "Ask users ^sex^")
@@ -440,7 +437,7 @@ void e_colors(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "1.6   EDIT TEXT COLOURS");
+		mvprintw( 5, 6, "1.8   EDIT TEXT COLOURS");
 		set_color(CYAN, BLACK);
 		mvprintw( 7, 6, "1.    Normal text");  
 		mvprintw( 8, 6, "2.    Underline");
@@ -488,7 +485,7 @@ void e_nu_door(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.7  EDIT NEXT USER DOOR");
+	mvprintw( 5, 2, "1.9  EDIT NEXT USER DOOR");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.   Text file");  
 	mvprintw( 8, 2, "2.   Quote");
@@ -511,40 +508,40 @@ void e_safe_door(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.8 EDIT SAFE DOOR");
+	mvprintw( 5, 2, "1.10 EDIT SAFE DOOR");
 	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Digit 1"); 
-	mvprintw( 8, 2, "2.  Digit 2");
-	mvprintw( 9, 2, "3.  Digit 3");
-	mvprintw(10, 2, "4.  Max trys");
-	mvprintw(11, 2, "5.  Max numb");
-	mvprintw(12, 2, "6.  Num gen");
-	mvprintw(13, 2, "7.  Prize");
-	mvprintw(14, 2, "8.  Welcome");
-	mvprintw(15, 2, "9.  Opened");
+	mvprintw( 7, 2, "1.   Digit 1"); 
+	mvprintw( 8, 2, "2.   Digit 2");
+	mvprintw( 9, 2, "3.   Digit 3");
+	mvprintw(10, 2, "4.   Max trys");
+	mvprintw(11, 2, "5.   Max numb");
+	mvprintw(12, 2, "6.   Num gen");
+	mvprintw(13, 2, "7.   Prize");
+	mvprintw(14, 2, "8.   Welcome");
+	mvprintw(15, 2, "9.   Opened");
 	for (;;) {
 		set_color(WHITE, BLACK);
-		show_int( 7,15, CFG.iSafeFirstDigit);
-		show_int( 8,15, CFG.iSafeSecondDigit);
-		show_int( 9,15, CFG.iSafeThirdDigit);
-		show_int(10,15, CFG.iSafeMaxTrys);
-		show_int(11,15, CFG.iSafeMaxNumber);
-		show_bool(12,15, CFG.iSafeNumGen);
-		show_str(13,15,64, CFG.sSafePrize); 
-		show_str(14,15,64, CFG.sSafeWelcome);
-		show_str(15,15,64, CFG.sSafeOpened);
+		show_int( 7,16, CFG.iSafeFirstDigit);
+		show_int( 8,16, CFG.iSafeSecondDigit);
+		show_int( 9,16, CFG.iSafeThirdDigit);
+		show_int(10,16, CFG.iSafeMaxTrys);
+		show_int(11,16, CFG.iSafeMaxNumber);
+		show_bool(12,16, CFG.iSafeNumGen);
+		show_str(13,16,64, CFG.sSafePrize); 
+		show_str(14,16,64, CFG.sSafeWelcome);
+		show_str(15,16,64, CFG.sSafeOpened);
 
 		switch(select_menu(9)) {
 		case 0:	return;
-		case 1:	E_INT(  7,15, CFG.iSafeFirstDigit,  "Enter ^first^ digit of the safe")
-		case 2:	E_INT(  8,15, CFG.iSafeSecondDigit, "Enter ^second^ digit of the safe")
-		case 3:	E_INT(  9,15, CFG.iSafeThirdDigit,  "Enter ^third^ digit of the safe")
-		case 4:	E_INT( 10,15, CFG.iSafeMaxTrys,     "Maximum ^trys^ per day")
-		case 5:	E_INT( 11,15, CFG.iSafeMaxNumber,   "^Maximum number^ of each digit")
-		case 6:	E_BOOL(12,15, CFG.iSafeNumGen,      "^Automatic^ number generation")
-		case 7:	E_STR( 13,15,64, CFG.sSafePrize,    "The ^prize^ the user wins when he opens the safe")
-		case 8:	E_STR( 14,15,64, CFG.sSafeWelcome,  "The ^welcome^ screen for the safe door")
-		case 9:	E_STR( 15,15,64, CFG.sSafeOpened,   "The file to display when the safe is ^opened^")
+		case 1:	E_INT(  7,16, CFG.iSafeFirstDigit,  "Enter ^first^ digit of the safe")
+		case 2:	E_INT(  8,16, CFG.iSafeSecondDigit, "Enter ^second^ digit of the safe")
+		case 3:	E_INT(  9,16, CFG.iSafeThirdDigit,  "Enter ^third^ digit of the safe")
+		case 4:	E_INT( 10,16, CFG.iSafeMaxTrys,     "Maximum ^trys^ per day")
+		case 5:	E_INT( 11,16, CFG.iSafeMaxNumber,   "^Maximum number^ of each digit")
+		case 6:	E_BOOL(12,16, CFG.iSafeNumGen,      "^Automatic^ number generation")
+		case 7:	E_STR( 13,16,64, CFG.sSafePrize,    "The ^prize^ the user wins when he opens the safe")
+		case 8:	E_STR( 14,16,64, CFG.sSafeWelcome,  "The ^welcome^ screen for the safe door")
+		case 9:	E_STR( 15,16,64, CFG.sSafeOpened,   "The file to display when the safe is ^opened^")
 		}
 	};
 }
@@ -555,7 +552,7 @@ void e_timebank(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.9   EDIT TIME BANK");
+	mvprintw( 5, 6, "1.11  EDIT TIME BANK");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.    Users time balance");  
 	mvprintw( 8, 6, "2.    Max time withdraw");
@@ -596,7 +593,7 @@ void e_paging(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.10  EDIT SYSOP PAGING");
+	mvprintw( 5, 2, "1.12  EDIT SYSOP PAGING");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.    Ext. Chat");
 	mvprintw( 8, 2, "2.    Chat Device");
@@ -697,7 +694,7 @@ void e_flags(void)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.11  EDIT FLAG DESCRIPTIONS");
+	mvprintw( 5, 6, "1.6   EDIT FLAG DESCRIPTIONS");
 	set_color(CYAN, BLACK);
 	for (i = 0; i < 32; i++) {
 		if (i < 11) 
@@ -746,7 +743,7 @@ void e_ticconf(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.12   EDIT FILEECHO PROCESSING");
+	mvprintw( 5, 6, "1.13   EDIT FILEECHO PROCESSING");
 	set_color(CYAN, BLACK);
 
 	mvprintw( 7, 2, "1.  Keep days");
@@ -829,7 +826,7 @@ void s_fidomailcfg(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 5, "1.13   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
+        mvprintw( 5, 5, "1.14   EDIT FIDONET MAIL AND ECHOMAIL PROCESSING");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1. Badboard");
         mvprintw( 8, 2, "2. Dupeboard");
@@ -910,7 +907,7 @@ void s_intmailcfg(void)
 {
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 5, "1.14   EDIT INTERNET MAIL AND NEWS PROCESSING");
+        mvprintw( 5, 5, "1.15   EDIT INTERNET MAIL AND NEWS PROCESSING");
         set_color(CYAN, BLACK);
         mvprintw( 7, 2, "1. POP3 node");
         mvprintw( 8, 2, "2. SMTP node");
@@ -977,7 +974,7 @@ void e_uucp(void)
 
         clr_index();
         set_color(WHITE, BLACK);
-        mvprintw( 5, 6, "1.14  EDIT UUCP GATEWAY");
+        mvprintw( 5, 6, "1.15  EDIT UUCP GATEWAY");
         set_color(CYAN, BLACK);
         mvprintw( 7, 6, "1.    Zone");
         mvprintw( 8, 6, "2.    Net");
@@ -1031,7 +1028,7 @@ void e_intmailcfg(void)
                 case 6: E_STR( 12,16,15, CFG.nntpuser,     "The ^Username^ for the NNTP server if needed.")
                 case 7: E_STR( 13,16,15, CFG.nntppass,     "The ^Password^ for the NNTP server if needed.")
                 case 8: E_INT( 14,16,    CFG.nntpdupes,    "The number of ^dupes^ to store in the news articles dupes database.")
-                case 9: tmp = PickAka((char *)"1.14.8", FALSE);
+                case 9: tmp = PickAka((char *)"1.15.9", FALSE);
                         if (tmp != -1)
                                 CFG.EmailFidoAka = CFG.aka[tmp];
                         s_intmailcfg();
@@ -1060,7 +1057,7 @@ void s_newfiles(void)
 {
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "1.15 ALLFILES & NEWFILES LISTINGS");
+	mvprintw( 5, 2, "1.16 ALLFILES & NEWFILES LISTINGS");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 2, "1.   Ftp base");
 	mvprintw( 8, 2, "2.   New days");
@@ -1106,7 +1103,7 @@ void e_aka(int Area)
 
 	clr_index();
 	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "1.16  EDIT AKA");
+	mvprintw( 5, 6, "1.1   EDIT AKA");
 	set_color(CYAN, BLACK);
 	mvprintw( 7, 6, "1.    Zone");
 	mvprintw( 8, 6, "2.    Net");
@@ -1149,7 +1146,7 @@ void e_fidoakas(void)
 	for (;;) {
 		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw( 5, 2, "1.16  EDIT FIDONET AKA'S");
+		mvprintw( 5, 2, "1.1   EDIT FIDONET AKA'S");
 		set_color(CYAN, BLACK);
 		x = 2;
 		y = 7;
@@ -1722,7 +1719,6 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 6, page, (char *)"Global settings");
 
-	fprintf(fp, "      Private system   %s\n", getboolean(CFG.elite_mode));
 	fprintf(fp, "      Show new msgarea %s\n", getboolean(CFG.NewAreas));
 	fprintf(fp, "      Exclude sysop    %s\n", getboolean(CFG.exclude_sysop));
 	fprintf(fp, "      Show connect     %s\n", getboolean(CFG.iConnectString));

@@ -266,7 +266,7 @@ void DoMsgBase()
 		Syslog('+', "Processing all message areas");
 
 	if (do_kill) {
-		Syslog('-', " Total Max. Days/Killed Max. Age/Killed Area name");
+		Syslog('-', " Total Max. Days/Killed  Max. Nr/Killed Area name");
 		Syslog('-', "------    ------ ------   ------ ------ ----------------------------------");
 	}
 

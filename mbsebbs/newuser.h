@@ -2,7 +2,7 @@
 #define _NEWUSER_H
 
 
-int	newuser(char *);	/* Newuser function		*/
+int	newuser(void);	/* Newuser function		*/
 
 
 #endif

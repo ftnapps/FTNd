@@ -623,7 +623,7 @@ struct	sysconfig {
 						/* BBS Globals		    */
 	int		max_login;		/* Maximum login attempts   */
 	unsigned	NewAreas	  : 1;	/* Notify if new msg areas  */
-	unsigned	elite_mode        : 1;	/* Allow new users/Private? */
+	unsigned	xelite_mode       : 1;
 	unsigned	slow_util	  : 1;	/* Run utils slowly	    */
 	unsigned	exclude_sysop     : 1;	/* Exclude Sysop from lists */
 	unsigned	xUseSysDomain	  : 1;

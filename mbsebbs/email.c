@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/email.c
+ * $Id$
  * Purpose ...............: Internet email
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -43,8 +42,9 @@
 #include "mail.h"
 #include "timeout.h"
 #include "msgutil.h"
-#include "funcs4.h"
+#include "input.h"
 #include "email.h"
+#include "whoson.h"
 
 
 extern unsigned long	LastNum;

@@ -1,14 +1,13 @@
 /*****************************************************************************
  *
- * File ..................: bbs/lineedit.c
+ * $Id$
  * Purpose ...............: Message line editor.
- * Last modification date : 06-Jul-1999
  *
  *****************************************************************************
- * Copyright (C) 1997-1999
+ * Copyright (C) 1997-2001
  *   
- * Michiel Broek		FIDO:		2:2801/16
- * Beekmansbos 10		Internet:	mbroek@ux123.pttnwb.nl
+ * Michiel Broek		FIDO:		2:280/2802
+ * Beekmansbos 10
  * 1971 BV IJmuiden
  * the Netherlands
  *
@@ -36,7 +35,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "mail.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "timeout.h"
 #include "lineedit.h"

@@ -43,6 +43,7 @@
 #include "file.h"
 #include "funcs.h"
 #include "funcs4.h"
+#include "input.h"
 #include "misc.h"
 #include "nextuser.h"
 #include "safe.h"
@@ -52,10 +53,13 @@
 #include "pinfo.h"
 #include "bye.h"
 #include "timecheck.h"
-#include "exitinfo.h"
+#include "whoson.h"
 #include "language.h"
 #include "offline.h"
 #include "email.h"
+#include "door.h"
+#include "dispfile.h"
+
 
 
 /*

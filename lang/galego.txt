@@ -3,7 +3,7 @@
 |Desconectando usuario ...
 |Explorando ficheiro de usuarios ...
 SN|¨Escribiche-lo teu nome correctamente? [S/n] 
-|Nome escrito: 
+|You need to login again with the name: 
 |Este ‚ un sistema PRIVADO. Teclea "off" para salir
 |Teclea n£mero de ficheiro ou <Enter> para rematar : 
 |Password: 
@@ -385,10 +385,10 @@ SN|¨Est s seguro? [S/n]:
 |'Elena Nito del Bosque ' podes usar 'enitob', 'elenanb' ou 'enbosque'
 |login > 
 |Ese nome de LOGIN xa existe. Escolle outro...
-|FATAL: Non podo abrir ficheiro de idioma
-|A password do teu Login ser  igual que o da BBS. 
-|ERROR FATAL: Non est s no ficheiro de usuarios da BBS.
-|             Ejecuta 'newuser' para crear un novo usuario
+|
+|
+|
+|
 |New    
 |Local    
 |Netmail  

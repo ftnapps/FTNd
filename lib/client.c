@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: client.c
+ * $Id$
  * Purpose ...............: MBSE Deamon Client
- * Last modification date : 27-May-2001
  *
  *****************************************************************************
  * Copyright (C) 1993-2000
@@ -86,6 +85,8 @@ int socket_connect(char *user, char *prg, char *city)
 	 */
 	if (getuid() != geteuid()) {
 		chown(cpath, getuid(), getgid());
+	} else {
+		chmod(cpath, 0775);
 	}
 
 	/*

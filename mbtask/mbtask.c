@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbtask/mbtask.c
+ * $Id$
  * Purpose ...............: MBSE BBS Task Manager
- * Last modification date : 01-Nov-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -175,7 +174,6 @@ void load_maincfg(void)
                  */
                 CFG.CityLen = 6;
                 CFG.max_login = 5;
-                CFG.elite_mode = FALSE;
                 CFG.exclude_sysop = TRUE;
                 CFG.iConnectString = FALSE;
                 CFG.iAskFileProtocols = FALSE;

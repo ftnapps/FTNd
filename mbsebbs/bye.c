@@ -35,7 +35,7 @@
 #include "../lib/records.h"
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
-#include "funcs.h"
+#include "dispfile.h"
 #include "misc.h"
 #include "language.h"
 #include "bye.h"

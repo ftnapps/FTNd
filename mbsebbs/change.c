@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/change.c
+ * $Id$
  * Purpose ...............: Change user settings
- * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -36,8 +35,10 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "change.h"
+#include "dispfile.h"
 #include "funcs.h"
 #include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "misc.h"
 #include "pwcheck.h"

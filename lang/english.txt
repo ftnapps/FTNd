@@ -3,7 +3,7 @@
 |Disconnecting user ...
 |Scanning User File ...
 YN|Did you spell your name correctly? [Y/n] 
-|Name Entered: 
+|You need to login again with the name: 
 |This is a PRIVATE System. Type "off" to leave
 |Mark file number or press <Enter> to stop 
 |Password: 
@@ -385,10 +385,10 @@ YN|Are you Sure? [Y/n]:
 |ie. John Doe, login = jdoe
 |login > 
 |That login name already exists, please choose another one.
-|FATAL: Cannot open language definition file
-|Your new Unix and BBS password will be the same.
-|FATAL ERROR: You are not in the BBS users file.
-|             Please run 'newuser' to create an account
+|
+|
+|
+|
 |New    
 |Local    
 |Netmail  

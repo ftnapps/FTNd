@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: bbs/file.c
+ * $Id$
  * Purpose ...............: All the file functions. 
- * Last modification date : 30-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -38,11 +37,12 @@
 #include "filesub.h"
 #include "file.h"
 #include "funcs.h"
-#include "funcs4.h"
+#include "input.h"
 #include "language.h"
 #include "misc.h"
 #include "timeout.h"
 #include "exitinfo.h"
+#include "whoson.h"
 #include "change.h"
 
 

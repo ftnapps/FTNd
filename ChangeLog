@@ -4214,14 +4214,23 @@ v0.33.18        27-Jul-2001
 
 v0.33.19        26-Oct-2001
 
+	upgrade:
+		Change the file /opt/mbse/etc/issue like the example in the
+		subdirectory mbtask.
+		Change the shell for user mbse to /opt/mbse/bin/mbnewusr
+
+		The make install fixes several permissions that are wrong for
+		the new style (not setuid) of mbsebbs.
+
 	general:
 		Made the Makefile system more simple.
 
 	lang:
-		Changed language prompt 71.
+		Changed language prompts 6 and 71.
 		Added language prompts 472 and 473 for FS editor.
 		Added language prompts 474, 475 and 476 for address entry.
 		Added language prompts 477 and 478 for post with user alias.
+		Deleted language prompts 387, 388, 389, 390
 
 	examples:
 		SAVE:
@@ -4257,7 +4266,17 @@ v0.33.19        26-Oct-2001
 		Posting message with users alias is now possible.
 		If in menu entries "Display prompt" the fore and background
 		colors are set, the prompt is displayed with these colors.
-		If not, the prompt defaults to white on black.
+		If not, the prompt defaults to white on black. 
+		Does now run as the users uid, not suid anymore. You are not
+		able to login with Fidonet style name anymore, only using
+		login. Removed IEMSI support, this has no use anymore. New
+		users need to register with the mbnewuser program, mbsebbs is
+		only for registered users. This should fix all kinds of setuid
+		issues with previous versions.
+
+	mbnewusr:
+		New program, run by user bbs. This is only to register a new
+		bbs user.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
@@ -4268,4 +4287,7 @@ v0.33.19        26-Oct-2001
 		information.
 		When lastcaller info is scrolling, the lines are first proper
 		erased.
+
+	mbmsg:
+		Corrected header in logfile for pack function.
 
