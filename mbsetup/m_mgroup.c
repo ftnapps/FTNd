@@ -435,102 +435,106 @@ int EditMGrpRec(int Area)
 
 void EditMGroup(void)
 {
-	int	records, i, o, x, y;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+    int	    records, i, o, x, y;
+    char    pick[12], temp[PATH_MAX];
+    FILE    *fil;
+    long    offset;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    records = CountMGroup();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenMGroup() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    working(0, 0, 0);
+    o = 0;
+    if (! check_free())
+	return;
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountMGroup();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenMGroup() == -1) {
-		working(2, 0, 0);
-		return;
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    sprintf(temp, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
+		x = 2;
+		y = 7;
+		set_color(CYAN, BLACK);
+		for (i = 1; i <= 20; i++) {
+		    if (i == 11 ) {
+			x = 42;
+			y = 7;
+		    }
+		    if ((o + i) <= records) {
+			offset = sizeof(mgrouphdr) + (((o + i) - 1) * mgrouphdr.recsize);
+			fseek(fil, offset, 0);
+			fread(&mgroup, mgrouphdr.recsize, 1, fil);
+			if (mgroup.Active)
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
+			temp[38] = '\0';
+			mvprintw(y, x, temp);
+			y++;
+		    }
+		}
+		fclose(fil);
+	    }
 	}
 	working(0, 0, 0);
-	o = 0;
-        if (! check_free())
-	    return;
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "9.1 MESSAGE GROUPS SETUP");
-		set_color(CYAN, BLACK);
-		if (records != 0) {
-			sprintf(temp, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
-			working(1, 0, 0);
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&mgrouphdr, sizeof(mgrouphdr), 1, fil);
-				x = 2;
-				y = 7;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= 20; i++) {
-					if (i == 11 ) {
-						x = 42;
-						y = 7;
-					}
-					if ((o + i) <= records) {
-						offset = sizeof(mgrouphdr) + (((o + i) - 1) * mgrouphdr.recsize);
-						fseek(fil, offset, 0);
-						fread(&mgroup, mgrouphdr.recsize, 1, fil);
-						if (mgroup.Active)
-							set_color(CYAN, BLACK);
-						else
-							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-12s %-18s", o + i, mgroup.Name, mgroup.Comment);
-						temp[38] = '\0';
-						mvprintw(y, x, temp);
-						y++;
-					}
-				}
-				fclose(fil);
-			}
-		}
-		working(0, 0, 0);
-		strcpy(pick, select_record(records, 20));
+	strcpy(pick, select_record(records, 20));
 		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseMGroup(FALSE);
-			open_bbs();
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendMGroup() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-			working(0, 0, 0);
-		}
-
-		if (strncmp(pick, "N", 1) == 0)
-			if ((o + 20) < records)
-				o = o + 20;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 20) >= 0)
-				o = o - 20;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			EditMGrpRec(atoi(pick));
-			o = ((atoi(pick) - 1) / 20) * 20;
-		}
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseMGroup(FALSE);
+	    open_bbs();
+	    return;
 	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    if (records < CFG.toss_groups) {
+		working(1, 0, 0);
+		if (AppendMGroup() == 0) {
+		    records++;
+		    working(1, 0, 0);
+		} else
+		    working(2, 0, 0);
+		working(0, 0, 0);
+	    } else {
+		errmsg("Cannot add group, change global setting in menu 1.14.12");
+	    }
+	}
+	
+
+	if (strncmp(pick, "N", 1) == 0)
+	    if ((o + 20) < records)
+		o = o + 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o = o - 20;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    EditMGrpRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 20) * 20;
+	}
+    }
 }
 
 

@@ -1334,135 +1334,159 @@ int EditMsgRec(int Area)
 
 void EditMsgarea(void)
 {
-	int		records, i, o, y;
-	char		pick[12];
-	FILE		*fil;
-	char		temp[PATH_MAX];
-	long		offset;
-	int		from, too;
-	sysconnect	System;
+    int		records, rc, i, o, y, from, too;
+    char	pick[12], temp[PATH_MAX];
+    FILE	*fil;
+    long	offset;
+    sysconnect	System;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    records = CountMsgarea();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenMsgarea() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    working(0, 0, 0);
+    o = 0;
+    if (! check_free())
+	return;
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountMsgarea();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenMsgarea() == -1) {
-		working(2, 0, 0);
-		return;
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    sprintf(temp, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&msgshdr, sizeof(msgshdr), 1, fil);
+		y = 7;
+		set_color(CYAN, BLACK);
+		for (i = 1; i <= 10; i++) {
+		    if ((o + i) <= records) {
+			offset = sizeof(msgshdr) + (((o + i) - 1) * (msgshdr.recsize + msgshdr.syssize));
+			fseek(fil, offset, 0);
+			fread(&msgs, msgshdr.recsize, 1, fil);
+			if (msgs.Active) {
+			    set_color(CYAN, BLACK);
+			    sprintf(temp, "%3d. %-8s %-23s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
+			} else {
+			    set_color(LIGHTBLUE, BLACK);
+			    sprintf(temp, "%3d.", o+i);
+			}
+			mvprintw(y, 2, temp);
+			y++;
+		    }
+		}
+		fclose(fil);
+	    }
 	}
 	working(0, 0, 0);
-	o = 0;
-        if (! check_free())
-	    return;
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 3, "9.2 MESSAGE AREA SETUP");
-		set_color(CYAN, BLACK);
-		if (records != 0) {
-			sprintf(temp, "%s/etc/mareas.temp", getenv("MBSE_ROOT"));
-			working(1, 0, 0);
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&msgshdr, sizeof(msgshdr), 1, fil);
-				y = 7;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= 10; i++) {
-					if ((o + i) <= records) {
-						offset = sizeof(msgshdr) + (((o + i) - 1) * (msgshdr.recsize + msgshdr.syssize));
-						fseek(fil, offset, 0);
-						fread(&msgs, msgshdr.recsize, 1, fil);
-						if (msgs.Active) {
-							set_color(CYAN, BLACK);
-							sprintf(temp, "%3d. %-8s %-23s %-40s", o + i, getmsgtype(msgs.Type), msgs.Tag, msgs.Name);
-						} else {
-							set_color(LIGHTBLUE, BLACK);
-							sprintf(temp, "%3d.", o+i);
-						}
-						mvprintw(y, 2, temp);
-						y++;
-					}
-				}
-				fclose(fil);
-			}
-		}
-		working(0, 0, 0);
-		strcpy(pick, select_area(records, 10));
+	strcpy(pick, select_area(records, 10));
 		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseMsgarea(MailForced);
-			open_bbs();
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendMsgarea() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-			working(0, 0, 0);
-		}
-
-		if (strncmp(pick, "G", 1) == 0) {
-			MsgGlobal();
-		}
-
-		if (strncmp(pick, "N", 1) == 0) 
-			if ((o + 10) < records) 
-				o = o + 10;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 10) >= 0)
-				o = o - 10;
-
-		if (strncmp(pick, "M", 1) == 0) {
-			from = too = 0;
-			mvprintw(LINES -3, 5, "From");
-			from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
-			mvprintw(LINES -3,15, "To");
-			too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
-			if ((LoadMsgRec(from, TRUE) == -1) || (!msgs.Active)) {
-				errmsg((char *)"The originating area is invalid");
-				fclose(tfil);
-			} else {
-				fclose(tfil);
-				if ((LoadMsgRec(too, TRUE) == -1) || (msgs.Active)) {
-					errmsg((char *)"The destination area is invalid");
-					fclose(tfil);
-				} else {
-					fclose(tfil);
-					LoadMsgRec(from, TRUE);
-					SaveMsgRec(too, TRUE);
-					LoadMsgRec(from, TRUE);
-					InitMsgRec();
-					fseek(tfil, 0, SEEK_SET);
-					memset(&System, 0, sizeof(sysconnect));
-					for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
-						fwrite(&System, sizeof(sysconnect), 1, tfil);
-					}
-					SaveMsgRec(from, TRUE);
-					MsgUpdated = 1;
-				}
-			}
-		}
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			EditMsgRec(atoi(pick));
-			o = ((atoi(pick) - 1) / 10) * 10;
-		}
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseMsgarea(MailForced);
+	    open_bbs();
+	    return;
 	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    working(1, 0, 0);
+	    if (AppendMsgarea() == 0) {
+		records++;
+		working(1, 0, 0);
+	    } else
+		working(2, 0, 0);
+	    working(0, 0, 0);
+	}
+
+	if (strncmp(pick, "G", 1) == 0) {
+	    MsgGlobal();
+	}
+
+	if (strncmp(pick, "N", 1) == 0) 
+	    if ((o + 10) < records) 
+		o = o + 10;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 10) >= 0)
+		o = o - 10;
+
+	if (strncmp(pick, "M", 1) == 0) {
+	    from = too = 0;
+	    mvprintw(LINES -3, 5, "From");
+	    from = edit_int(LINES -3, 10, from, (char *)"Wich ^area^ you want to move");
+	    mvprintw(LINES -3,15, "To");
+	    too  = edit_int(LINES -3, 18, too,  (char *)"Too which ^area^ to move");
+	    rc = 0;
+
+	    /*
+	     * Check originating area
+	     */
+	    if (from == 0) {
+		errmsg((char *)"The originating area cannot be zero");
+		rc = 1;
+	    } 
+	    if (!rc && LoadMsgRec(from, TRUE) == -1) {
+		errmsg((char *)"The originating area does not exist");
+		rc = 1;
+	    }
+	    if (!rc)
+		fclose(tfil);
+	    if (!rc && !msgs.Active) {
+		errmsg((char *)"The originating area is not in use");
+		rc = 1;
+	    }
+
+	    if (!rc && (too == 0)) {
+		errmsg((char *)"The destination area cannot be zero");
+		rc = 1;
+	    }
+	    if (!rc && LoadMsgRec(too, TRUE) == -1) {
+		errmsg((char *)"The destination area does not exist");
+		rc = 1;
+	    }
+	    if (!rc)
+		fclose(tfil);
+	    if (!rc && (msgs.Active)) {
+		errmsg((char *)"The destination area is in use");
+		rc = 1;
+	    }
+
+	    if (!rc) {
+		LoadMsgRec(from, TRUE);
+		SaveMsgRec(too, TRUE);
+		LoadMsgRec(from, TRUE);
+		InitMsgRec();
+		fseek(tfil, 0, SEEK_SET);
+		memset(&System, 0, sizeof(sysconnect));
+		for (i = 0; i < (msgshdr.syssize / sizeof(sysconnect)); i++) {
+		    fwrite(&System, sizeof(sysconnect), 1, tfil);
+		}
+		SaveMsgRec(from, TRUE);
+		MsgUpdated = 1;
+		Syslog('+', "Moved message area %d to %d", from, too);
+	    }
+	}
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    EditMsgRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 10) * 10;
+	}
+    }
 }
 
 

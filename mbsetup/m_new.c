@@ -436,99 +436,102 @@ int EditNewRec(int Area)
 
 void EditNewfiles(void)
 {
-	int	records, i, o, x, y;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+    int	    records, i, o, x, y;
+    char    pick[12], temp[PATH_MAX];
+    FILE    *fil;
+    long    offset;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    records = CountNewfiles();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenNewfiles() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    working(0, 0, 0);
+    o = 0;
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountNewfiles();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenNewfiles() == -1) {
-		working(2, 0, 0);
-		return;
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 4, "12. NEWFILES REPORTS");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    sprintf(temp, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
+		x = 2;
+		y = 7;
+		set_color(CYAN, BLACK);
+		for (i = 1; i <= 20; i++) {
+		    if (i == 11) {
+			x = 42;
+			y = 7;
+		    }
+		    if ((o + i) <= records) {
+			offset = sizeof(newfileshdr) + (((o + i) - 1) * (newfileshdr.recsize + newfileshdr.grpsize));
+			fseek(fil, offset, 0);
+			fread(&newfiles, newfileshdr.recsize, 1, fil);
+			if (newfiles.Active)
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			sprintf(temp, "%3d.  %-32s", o + i, newfiles.Comment);
+			temp[37] = 0;
+			mvprintw(y, x, temp);
+			y++;
+		    }
+		}
+		fclose(fil);
+	    }
 	}
 	working(0, 0, 0);
-	o = 0;
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "12. NEWFILES REPORTS");
-		set_color(CYAN, BLACK);
-		if (records != 0) {
-			sprintf(temp, "%s/etc/newfiles.temp", getenv("MBSE_ROOT"));
-			working(1, 0, 0);
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&newfileshdr, sizeof(newfileshdr), 1, fil);
-				x = 2;
-				y = 7;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= 20; i++) {
-					if (i == 11) {
-						x = 42;
-						y = 7;
-					}
-					if ((o + i) <= records) {
-						offset = sizeof(newfileshdr) + (((o + i) - 1) * (newfileshdr.recsize + newfileshdr.grpsize));
-						fseek(fil, offset, 0);
-						fread(&newfiles, newfileshdr.recsize, 1, fil);
-						if (newfiles.Active)
-							set_color(CYAN, BLACK);
-						else
-							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-32s", o + i, newfiles.Comment);
-						temp[37] = 0;
-						mvprintw(y, x, temp);
-						y++;
-					}
-				}
-				fclose(fil);
-			}
-		}
-		working(0, 0, 0);
-		strcpy(pick, select_record(records, 20));
+	strcpy(pick, select_record(records, 20));
 		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseNewfiles(FALSE);
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendNewfiles() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-			working(0, 0, 0);
-		}
-
-		if (strncmp(pick, "N", 1) == 0) 
-			if ((o + 20) < records) 
-				o = o + 20;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 20) >= 0)
-				o = o - 20;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			EditNewRec(atoi(pick));
-			o = ((atoi(pick) - 1) / 20) * 20;
-		}
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseNewfiles(FALSE);
+	    return;
 	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    if (records > CFG.new_groups) {
+		working(1, 0, 0);
+		if (AppendNewfiles() == 0) {
+		    records++;
+		    working(1, 0, 0);
+		} else
+		    working(2, 0, 0);
+		working(0, 0, 0);
+	    } else {
+		errmsg("Cannot add, change global setting in menu 1.16.3");
+	    }
+	}
+
+	if (strncmp(pick, "N", 1) == 0) 
+	    if ((o + 20) < records) 
+		o = o + 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o = o - 20;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    EditNewRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 20) * 20;
+	}
+    }
 }
 
 

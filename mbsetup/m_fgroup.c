@@ -501,102 +501,105 @@ int EditFGrpRec(int Area)
 
 void EditFGroup(void)
 {
-	int	records, i, o, x, y;
-	char	pick[12];
-	FILE	*fil;
-	char	temp[PATH_MAX];
-	long	offset;
+    int	    records, i, o, x, y;
+    char    pick[12], temp[PATH_MAX];
+    FILE    *fil;
+    long    offset;
 
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Browsing Menu");
+    if (config_read() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    records = CountFGroup();
+    if (records == -1) {
+	working(2, 0, 0);
+	return;
+    }
+
+    if (OpenFGroup() == -1) {
+	working(2, 0, 0);
+	return;
+    }
+    working(0, 0, 0);
+    o = 0;
+    if (! check_free())
+	return;
+
+    for (;;) {
 	clr_index();
-	working(1, 0, 0);
-	IsDoing("Browsing Menu");
-	if (config_read() == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	records = CountFGroup();
-	if (records == -1) {
-		working(2, 0, 0);
-		return;
-	}
-
-	if (OpenFGroup() == -1) {
-		working(2, 0, 0);
-		return;
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 4, "10.1 FILE GROUPS SETUP");
+	set_color(CYAN, BLACK);
+	if (records != 0) {
+	    sprintf(temp, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
+	    working(1, 0, 0);
+	    if ((fil = fopen(temp, "r")) != NULL) {
+		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
+		x = 2;
+		y = 7;
+		set_color(CYAN, BLACK);
+		for (i = 1; i <= 20; i++) {
+		    if (i == 11 ) {
+			x = 42;
+			y = 7;
+		    }
+		    if ((o + i) <= records) {
+			offset = sizeof(fgrouphdr) + (((o + i) - 1) * fgrouphdr.recsize);
+			fseek(fil, offset, 0);
+			fread(&fgroup, fgrouphdr.recsize, 1, fil);
+			if (fgroup.Active)
+			    set_color(CYAN, BLACK);
+			else
+			    set_color(LIGHTBLUE, BLACK);
+			sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
+			temp[38] = '\0';
+			mvprintw(y, x, temp);
+			y++;
+		    }
+		}
+		fclose(fil);
+	    }
 	}
 	working(0, 0, 0);
-	o = 0;
-        if (! check_free())
-	    return;
-
-	for (;;) {
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 4, "10.1 FILE GROUPS SETUP");
-		set_color(CYAN, BLACK);
-		if (records != 0) {
-			sprintf(temp, "%s/etc/fgroups.temp", getenv("MBSE_ROOT"));
-			working(1, 0, 0);
-			if ((fil = fopen(temp, "r")) != NULL) {
-				fread(&fgrouphdr, sizeof(fgrouphdr), 1, fil);
-				x = 2;
-				y = 7;
-				set_color(CYAN, BLACK);
-				for (i = 1; i <= 20; i++) {
-					if (i == 11 ) {
-						x = 42;
-						y = 7;
-					}
-					if ((o + i) <= records) {
-						offset = sizeof(fgrouphdr) + (((o + i) - 1) * fgrouphdr.recsize);
-						fseek(fil, offset, 0);
-						fread(&fgroup, fgrouphdr.recsize, 1, fil);
-						if (fgroup.Active)
-							set_color(CYAN, BLACK);
-						else
-							set_color(LIGHTBLUE, BLACK);
-						sprintf(temp, "%3d.  %-12s %-18s", o + i, fgroup.Name, fgroup.Comment);
-						temp[38] = '\0';
-						mvprintw(y, x, temp);
-						y++;
-					}
-				}
-				fclose(fil);
-			}
-		}
-		working(0, 0, 0);
-		strcpy(pick, select_record(records, 20));
+	strcpy(pick, select_record(records, 20));
 		
-		if (strncmp(pick, "-", 1) == 0) {
-			CloseFGroup(FALSE);
-			open_bbs();
-			return;
-		}
-
-		if (strncmp(pick, "A", 1) == 0) {
-			working(1, 0, 0);
-			if (AppendFGroup() == 0) {
-				records++;
-				working(1, 0, 0);
-			} else
-				working(2, 0, 0);
-			working(0, 0, 0);
-		}
-
-		if (strncmp(pick, "N", 1) == 0)
-			if ((o + 20) < records)
-				o = o + 20;
-
-		if (strncmp(pick, "P", 1) == 0)
-			if ((o - 20) >= 0)
-				o = o - 20;
-
-		if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
-			EditFGrpRec(atoi(pick));
-			o = ((atoi(pick) - 1) / 20) * 20;
-		}
+	if (strncmp(pick, "-", 1) == 0) {
+	    CloseFGroup(FALSE);
+	    open_bbs();
+	    return;
 	}
+
+	if (strncmp(pick, "A", 1) == 0) {
+	    if (records < CFG.tic_groups) {
+		working(1, 0, 0);
+		if (AppendFGroup() == 0) {
+		    records++;
+		    working(1, 0, 0);
+		} else
+		    working(2, 0, 0);
+		working(0, 0, 0);
+	    } else {
+		errmsg("Cannot add group, change global setting in menu 1.13.5");
+	    }
+	}
+
+	if (strncmp(pick, "N", 1) == 0)
+	    if ((o + 20) < records)
+		o += 20;
+
+	if (strncmp(pick, "P", 1) == 0)
+	    if ((o - 20) >= 0)
+		o -= 20;
+
+	if ((atoi(pick) >= 1) && (atoi(pick) <= records)) {
+	    EditFGrpRec(atoi(pick));
+	    o = ((atoi(pick) - 1) / 20) * 20;
+	}
+    }
 }
 
 

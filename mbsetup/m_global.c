@@ -44,6 +44,8 @@
 #include "m_marea.h"
 #include "m_ticarea.h"
 #include "m_new.h"
+#include "m_fgroup.h"
+#include "m_mgroup.h"
 #include "m_global.h"
 
 
@@ -822,6 +824,8 @@ void e_flags(int Users)
 
 void e_ticconf(void)
 {
+    int	temp;
+    
     clr_index();
     set_color(WHITE, BLACK);
     mvprintw( 5, 6, "1.13   EDIT FILEECHO PROCESSING");
@@ -870,17 +874,29 @@ void e_ticconf(void)
 	    case 1: E_INT(  7,18,    CFG.tic_days,     "Number of days to ^keep^ files on hold.")
 	    case 2: E_STR(  8,18,20, CFG.hatchpasswd,  "Enter the internal ^hatch^ password.")
 	    case 3: E_INT(  9,18,    CFG.drspace,      "Enter the minimal ^free drivespace^ in KBytes.")
-	    case 4: CFG.tic_systems = edit_int(10,18, CFG.tic_systems, 
-			    (char *)"Enter the maximum number of ^connected systems^ in the database.");
-		    if ((OpenTicarea() == 0))
-			CloseTicarea(TRUE);
-		    working(0, 0, 0);
+	    case 4: temp = CFG.tic_systems;
+		    temp = edit_int(10,18, temp, (char *)"Enter the maximum number of ^connected systems^ in the database.");
+		    if (temp < CountNoderec()) {
+			errmsg("You have %d nodes defined", CountNoderec());
+			show_int(10,18, CFG.tic_systems);
+		    } else {
+			CFG.tic_systems = temp;
+			if ((OpenTicarea() == 0))
+			    CloseTicarea(TRUE);
+			working(0, 0, 0);
+		    }
 		    break;
-	    case 5: CFG.tic_groups = edit_int(11,18, CFG.tic_groups, 
-			    (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
-		    if ((OpenNoderec() == 0))
-			CloseNoderec(TRUE);
-		    working(0, 0, 0);
+	    case 5: temp =  CFG.tic_groups;
+		    temp = edit_int(11,18, temp, (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
+		    if (temp < CountFGroup()) {
+			errmsg("You have %d groups defined", CountFGroup());
+			show_int(11,18, CFG.tic_groups);
+		    } else {
+			CFG.tic_groups = temp;
+			if ((OpenNoderec() == 0))
+			    CloseNoderec(TRUE);
+			working(0, 0, 0);
+		    }
 		    break;
 	    case 6: E_INT( 12,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
 
@@ -954,6 +970,8 @@ void s_fidomailcfg(void)
 
 void e_fidomailcfg(void)
 {
+    int	    temp;
+
     s_fidomailcfg();
     for (;;) { 
 	switch(select_menu(19)) {
@@ -968,17 +986,29 @@ void e_fidomailcfg(void)
 	    case 8: E_INT( 14,16,    CFG.toss_old,     "^Reject^ mail older then days, 0 means never reject.")
 	    case 9: E_INT( 15,16,    CFG.defmsgs,      "The default maximum number of ^messages^ in each mail area.")
 	    case 10:E_INT( 16,16,    CFG.defdays,      "The default maximum ^age in days^ in each mail area.")
-	    case 11:CFG.toss_systems = edit_int(17,16, CFG.toss_systems, 
-			    (char *)"The maximum number of connected ^systems^ in the database.");
-		    if ((OpenMsgarea() == 0))
-			CloseMsgarea(TRUE);
-		    working(0, 0, 0);
+	    case 11:temp = CFG.toss_systems;
+		    temp = edit_int(17,16, temp, (char *)"The maximum number of connected ^systems^ in the database.");
+		    if (temp < CountNoderec()) {
+			errmsg("You have %d nodes defined", CountNoderec());
+			show_int( 17,16, CFG.toss_systems);
+		    } else {
+			CFG.toss_systems = temp;
+			if ((OpenMsgarea() == 0))
+			    CloseMsgarea(TRUE);
+			working(0, 0, 0);
+		    }
 		    break;
-	    case 12:CFG.toss_groups = edit_int(18,16, CFG.toss_groups, 
-			    (char *)"The maximum number of ^groups^ in the database.");
-		    if ((OpenNoderec() == 0))
-			CloseNoderec(TRUE);
-		    working(0, 0, 0);
+	    case 12:temp = CFG.toss_groups;
+		    temp = edit_int(18,16, temp, (char *)"The maximum number of ^groups^ in the database.");
+		    if (temp < CountMGroup()) {
+			errmsg("You have %d groups defined", CountMGroup());
+			show_int( 18,16, CFG.toss_groups);
+		    } else {
+			CFG.toss_groups = temp;
+			if ((OpenNoderec() == 0))
+			    CloseNoderec(TRUE);
+			working(0, 0, 0);
+		    }
 		    break;
 	    case 13:E_BOOL(12,58, CFG.addr4d,          "Use ^4d^ addressing instead of ^5d^ addressing.")
 	    case 14:E_INT( 13,58, CFG.new_split,       "Gently ^split^ newfiles reports after n kilobytes (12..60).")
@@ -1162,25 +1192,33 @@ void s_newfiles(void)
 
 void e_newfiles(void)
 {
-	s_newfiles();
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_int( 7,16, CFG.newdays);
-		show_sec( 8,16, CFG.security);
-		show_int( 9,16, CFG.new_groups);
+    int	temp;
+	
+    s_newfiles();
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_int( 7,16, CFG.newdays);
+	show_sec( 8,16, CFG.security);
+	show_int( 9,16, CFG.new_groups);
 
-		switch(select_menu(3)) {
-		case 0:	return;
-		case 1:	E_INT(7,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
-		case 2:	E_SEC(8,16,    CFG.security,   "1.14  NEWFILES REPORTS SECURITY", s_newfiles)
-		case 3: CFG.new_groups = edit_int( 9, 16, CFG.new_groups, 
-				    (char *)"The maximum of ^newfiles^ groups in the newfiles database");
+	switch(select_menu(3)) {
+	    case 0: return;
+	    case 1: E_INT(7,16,    CFG.newdays,    "Add files younger than this in newfiles report.")
+	    case 2: E_SEC(8,16,    CFG.security,   "1.16  NEWFILES REPORTS SECURITY", s_newfiles)
+	    case 3: temp = CFG.new_groups;
+		    temp = edit_int( 9, 16, temp, (char *)"The maximum of ^newfiles^ groups in the newfiles database");
+		    if (temp < CountNewfiles()) {
+			errmsg("You have %d newfiles reports defined", CountNewfiles());
+			show_int( 9,16, CFG.new_groups);
+		    } else {
+			CFG.new_groups = temp;
 			if (OpenNewfiles() == 0)
 			    CloseNewfiles(TRUE);
 			working(0, 0, 0);
-			break;
-		}
-	};
+		    }
+		    break;
+	}
+    }
 }
 
 

@@ -92,7 +92,7 @@ m_tty.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/use
 mutil.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h screen.h mutil.h
 m_archive.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_archive.h
 m_fdb.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h m_global.h m_farea.h m_fdb.h
-m_global.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_global.h
+m_global.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/mberrors.h screen.h mutil.h ledit.h m_node.h m_marea.h m_ticarea.h m_new.h m_fgroup.h m_mgroup.h m_global.h
 m_magic.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_ticarea.h m_global.h m_magic.h
 m_mgroup.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h stlist.h m_global.h m_node.h m_marea.h m_mgroup.h
 m_node.o: ../config.h ../lib/libs.h ../lib/memwatch.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h screen.h mutil.h ledit.h grlist.h stlist.h m_global.h m_lang.h m_ticarea.h m_marea.h m_node.h
