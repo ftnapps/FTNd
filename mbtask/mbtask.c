@@ -112,294 +112,298 @@ extern int		ipmailers;		/* TCP/IP mail sessions	*/
  */
 void load_maincfg(void)
 {
-	FILE		*fp;
-	struct utsname	un;
-	int		i;
+    FILE	    *fp;
+    struct utsname  un;
+    int		    i;
 
-        if ((fp = fopen(cfgfn, "r")) == NULL) {
-		masterinit = TRUE;
-                memset(&CFG, 0, sizeof(CFG));
+    if ((fp = fopen(cfgfn, "r")) == NULL) {
+	masterinit = TRUE;
+        memset(&CFG, 0, sizeof(CFG));
 
-                /*
-                 * Fill Registration defaults
-                 */
-                sprintf(CFG.bbs_name, "MBSE BBS");
-                uname((struct utsname *)&un); 
+        /*
+         * Fill Registration defaults
+         */
+        sprintf(CFG.bbs_name, "MBSE BBS");
+        uname((struct utsname *)&un); 
 #ifdef __USE_GNU
-                sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
+        sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.domainname); 
 #else
 #ifdef __linux__
-                sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
+        sprintf(CFG.sysdomain, "%s.%s", un.nodename, un.__domainname);
 #endif
 #endif
-                sprintf(CFG.comment, "MBSE BBS development");
-                sprintf(CFG.origin, "MBSE BBS. Made in the Netherlands");
-                sprintf(CFG.location, "Earth");
+        sprintf(CFG.comment, "MBSE BBS development");
+        sprintf(CFG.origin, "MBSE BBS. Made in the Netherlands");
+        sprintf(CFG.location, "Earth");
 
-                /*
-                 * Fill Filenames defaults
-                 */
-                sprintf(CFG.logfile, "system.log");
-                sprintf(CFG.error_log, "error.log");
-                sprintf(CFG.default_menu, "main.mnu");
-                sprintf(CFG.current_language, "english.lang");
-                sprintf(CFG.chat_log, "chat.log");
-                sprintf(CFG.welcome_logo, "logo.asc");
+        /*
+         * Fill Filenames defaults
+         */
+        sprintf(CFG.logfile, "system.log");
+        sprintf(CFG.error_log, "error.log");
+        sprintf(CFG.default_menu, "main.mnu");
+        sprintf(CFG.current_language, "english.lang");
+        sprintf(CFG.chat_log, "chat.log");
+        sprintf(CFG.welcome_logo, "logo.asc");
+	sprintf(CFG.mgrlog, "manager.log");
 
-                /*
-                 * Fill Global defaults
-                 */
-                sprintf(CFG.bbs_menus, "%s/english/menus", getenv("MBSE_ROOT"));
-                sprintf(CFG.bbs_txtfiles, "%s/english/txtfiles", getenv("MBSE_ROOT"));
-		sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
-                sprintf(CFG.bbs_usersdir, "%s/home", getenv("MBSE_ROOT"));
-                sprintf(CFG.nodelists, "%s/var/nodelist", getenv("MBSE_ROOT"));
-                sprintf(CFG.inbound, "%s/var/unknown", getenv("MBSE_ROOT"));
-                sprintf(CFG.pinbound, "%s/var/inbound", getenv("MBSE_ROOT"));
-                sprintf(CFG.outbound, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
-		sprintf(CFG.msgs_path, "%s/var/msgs", getenv("MBSE_ROOT"));
-                sprintf(CFG.uxpath, "%s", getenv("MBSE_ROOT"));
-                sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
-                sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
-                sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
-		sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
-		sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
-		CFG.leavecase = TRUE;
+        /*
+         * Fill Global defaults
+         */
+        sprintf(CFG.bbs_menus, "%s/english/menus", getenv("MBSE_ROOT"));
+        sprintf(CFG.bbs_txtfiles, "%s/english/txtfiles", getenv("MBSE_ROOT"));
+	sprintf(CFG.bbs_macros, "%s/english/macro", getenv("MBSE_ROOT"));
+        sprintf(CFG.bbs_usersdir, "%s/home", getenv("MBSE_ROOT"));
+        sprintf(CFG.nodelists, "%s/var/nodelist", getenv("MBSE_ROOT"));
+        sprintf(CFG.inbound, "%s/var/unknown", getenv("MBSE_ROOT"));
+        sprintf(CFG.pinbound, "%s/var/inbound", getenv("MBSE_ROOT"));
+        sprintf(CFG.outbound, "%s/var/bso/outbound", getenv("MBSE_ROOT"));
+	sprintf(CFG.msgs_path, "%s/var/msgs", getenv("MBSE_ROOT"));
+        sprintf(CFG.uxpath, "%s", getenv("MBSE_ROOT"));
+        sprintf(CFG.badtic, "%s/var/badtic", getenv("MBSE_ROOT"));
+        sprintf(CFG.ticout, "%s/var/ticqueue", getenv("MBSE_ROOT"));
+        sprintf(CFG.req_magic, "%s/magic", getenv("MBSE_ROOT"));
+	sprintf(CFG.alists_path, "%s/var/arealists", getenv("MBSE_ROOT"));
+	sprintf(CFG.out_queue, "%s/var/queue", getenv("MBSE_ROOT"));
+	CFG.leavecase = TRUE;
 
-                /*
-                 * Newfiles reports
-                 */
-                sprintf(CFG.ftp_base, "%s/ftp/pub", getenv("MBSE_ROOT"));
-                CFG.newdays = 30;
-                CFG.security.level = 20;
-                CFG.new_split = 27;
-                CFG.new_force = 30;
+        /*
+         * Newfiles reports
+         */
+        sprintf(CFG.ftp_base, "%s/ftp/pub", getenv("MBSE_ROOT"));
+        CFG.newdays = 30;
+        CFG.security.level = 20;
+        CFG.new_split = 27;
+        CFG.new_force = 30;
 
-                /*
-                 * BBS Globals
-                 */
-                CFG.CityLen = 6;
-                CFG.exclude_sysop = TRUE;
-                CFG.iConnectString = FALSE;
-                CFG.iAskFileProtocols = FALSE;
-                CFG.sysop_access = 32000;
-                CFG.password_length = 4;
-                CFG.iPasswd_Char = '.';
-                CFG.idleout = 3;
-                CFG.iQuota = 10;
-                CFG.iCRLoginCount = 10;
-                CFG.bbs_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
-                CFG.util_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
-                CFG.OLR_NewFileLimit = 30;
-                CFG.OLR_MaxReq = 25;
-                CFG.slow_util = TRUE;
-                CFG.iCrashLevel = 100;
-                CFG.iAttachLevel = 100;
-                CFG.new_groups = 25;
+        /*
+         * BBS Globals
+         */
+        CFG.CityLen = 6;
+        CFG.exclude_sysop = TRUE;
+        CFG.iConnectString = FALSE;
+        CFG.iAskFileProtocols = FALSE;
+        CFG.sysop_access = 32000;
+        CFG.password_length = 4;
+        CFG.iPasswd_Char = '.';
+        CFG.idleout = 3;
+        CFG.iQuota = 10;
+        CFG.iCRLoginCount = 10;
+        CFG.bbs_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
+        CFG.util_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
+        CFG.OLR_NewFileLimit = 30;
+        CFG.OLR_MaxReq = 25;
+        CFG.slow_util = TRUE;
+        CFG.iCrashLevel = 100;
+        CFG.iAttachLevel = 100;
+        CFG.new_groups = 25;
 
-                CFG.slow_util = TRUE;
-                CFG.iCrashLevel = 100;
-                CFG.iAttachLevel = 100;
-                CFG.new_groups = 25;
-                sprintf(CFG.startname, "bbs");
-                CFG.freespace = 10;
+        CFG.slow_util = TRUE;
+        CFG.iCrashLevel = 100;
+        CFG.iAttachLevel = 100;
+        CFG.new_groups = 25;
+        sprintf(CFG.startname, "bbs");
+        CFG.freespace = 10;
 
-                /*
-                 * New Users
-                 */
-                CFG.newuser_access.level = 20;
-                CFG.iCapUserName = TRUE;
-                CFG.iAnsi = TRUE;
-                CFG.iDataPhone = TRUE;
-                CFG.iVoicePhone = TRUE;
-                CFG.iDOB = TRUE;
-                CFG.iTelephoneScan = TRUE;
-                CFG.iLocation = TRUE;
-                CFG.iHotkeys = TRUE;
-                CFG.iCapLocation = FALSE;
-                CFG.AskAddress = TRUE;
-                CFG.GiveEmail = TRUE;
+        /*
+         * New Users
+         */
+        CFG.newuser_access.level = 20;
+        CFG.iCapUserName = TRUE;
+        CFG.iAnsi = TRUE;
+        CFG.iDataPhone = TRUE;
+        CFG.iVoicePhone = TRUE;
+        CFG.iDOB = TRUE;
+        CFG.iTelephoneScan = TRUE;
+        CFG.iLocation = TRUE;
+        CFG.iHotkeys = TRUE;
+        CFG.iCapLocation = FALSE;
+        CFG.AskAddress = TRUE;
+        CFG.GiveEmail = TRUE;
 
-                /*
-                 * Colors
-                 */
-                CFG.TextColourF         = 3;
-                CFG.TextColourB         = 0;
-                CFG.UnderlineColourF    = 14;
-                CFG.UnderlineColourB    = 0;
-                CFG.InputColourF        = 11;
-                CFG.InputColourB        = 0;
-                CFG.CRColourF           = 15;
-                CFG.CRColourB           = 0;
-                CFG.MoreF               = 13;
-                CFG.MoreB               = 0;
-                CFG.HiliteF             = 15;
-                CFG.HiliteB             = 0;
-                CFG.FilenameF           = 14;
-                CFG.FilenameB           = 0;
-                CFG.FilesizeF           = 13;
-                CFG.FilesizeB           = 0;
-                CFG.FiledateF           = 10;
-                CFG.FiledateB           = 0;
-                CFG.FiledescF           = 3;
-                CFG.FiledescB           = 0;
-                CFG.MsgInputColourF     = 3;
-                CFG.MsgInputColourB     = 0;
+        /*
+         * Colors
+         */
+        CFG.TextColourF         = 3;
+        CFG.TextColourB         = 0;
+        CFG.UnderlineColourF    = 14;
+        CFG.UnderlineColourB    = 0;
+        CFG.InputColourF        = 11;
+        CFG.InputColourB        = 0;
+        CFG.CRColourF           = 15;
+        CFG.CRColourB           = 0;
+        CFG.MoreF               = 13;
+        CFG.MoreB               = 0;
+        CFG.HiliteF             = 15;
+        CFG.HiliteB             = 0;
+        CFG.FilenameF           = 14;
+        CFG.FilenameB           = 0;
+        CFG.FilesizeF           = 13;
+        CFG.FilesizeB           = 0;
+        CFG.FiledateF           = 10;
+        CFG.FiledateB           = 0;
+        CFG.FiledescF           = 3;
+        CFG.FiledescB           = 0;
+        CFG.MsgInputColourF     = 3;
+        CFG.MsgInputColourB     = 0;
 
-                /*
-                 * NextUser Door
-                 */
-                sprintf(CFG.sNuScreen, "welcome");
-                sprintf(CFG.sNuQuote, "Please press [ENTER] to continue: ");
+        /*
+         * NextUser Door
+         */
+        sprintf(CFG.sNuScreen, "welcome");
+        sprintf(CFG.sNuQuote, "Please press [ENTER] to continue: ");
 
-                /*
-                 * Safe Door
-                 */
-                CFG.iSafeFirstDigit     = 1;
-                CFG.iSafeSecondDigit    = 2;
-                CFG.iSafeThirdDigit     = 3;
-                CFG.iSafeMaxTrys        = 4;
-                CFG.iSafeMaxNumber      = 20;
-                CFG.iSafeNumGen         = FALSE;
-                strcpy(CFG.sSafePrize, "Free access for a year!");
-                sprintf(CFG.sSafeWelcome, "safewel");
-                sprintf(CFG.sSafeOpened, "safeopen");
+        /*
+         * Safe Door
+         */
+        CFG.iSafeFirstDigit     = 1;
+        CFG.iSafeSecondDigit    = 2;
+        CFG.iSafeThirdDigit     = 3;
+        CFG.iSafeMaxTrys        = 4;
+        CFG.iSafeMaxNumber      = 20;
+        CFG.iSafeNumGen         = FALSE;
+        strcpy(CFG.sSafePrize, "Free access for a year!");
+        sprintf(CFG.sSafeWelcome, "safewel");
+        sprintf(CFG.sSafeOpened, "safeopen");
 
-                /*
-                 * Paging
-                 */
-                CFG.iPageLength         = 30;
-                CFG.iMaxPageTimes       = 5;
-                CFG.iAskReason          = TRUE;
-                CFG.iSysopArea          = 1;
-                CFG.iExternalChat       = FALSE;
-                strcpy(CFG.sExternalChat, "/usr/local/bin/chat");
-                CFG.iAutoLog            = TRUE;
-                strcpy(CFG.sChatDevice, "/dev/tty01");
-                CFG.iChatPromptChk      = TRUE;
-                CFG.iStopChatTime       = TRUE;
-                for (i = 0; i < 7; i++) {
-                        sprintf(CFG.cStartTime[i], "18:00");
-                        sprintf(CFG.cStopTime[i], "23:59");
-                }
-
-                /*
-                 * Time Bank
-                 */
-                CFG.iMaxTimeBalance     = 200;
-                CFG.iMaxTimeWithdraw    = 100;
-                CFG.iMaxTimeDeposit     = 60;
-                CFG.iMaxByteBalance     = 500;
-                CFG.iMaxByteWithdraw    = 300;
-                CFG.iMaxByteDeposit     = 150;
-                strcpy(CFG.sTimeRatio, "3:1");
-                strcpy(CFG.sByteRatio, "3:1");
-
-                /*
-                 * Fill ticconf defaults
-                 */
-                CFG.ct_ResFuture = TRUE;
-                CFG.ct_ReplExt = TRUE;
-                CFG.ct_PlusAll = TRUE;
-                CFG.ct_Notify = TRUE;
-                CFG.ct_Message = TRUE;
-                CFG.ct_TIC = TRUE;
-                CFG.tic_days = 30;
-                sprintf(CFG.hatchpasswd, "DizIzMyBIGseeKret");
-                CFG.drspace = 2048;
-                CFG.tic_systems = 10;
-                CFG.tic_groups  = 25;
-                CFG.tic_dupes   = 16000;
-
-                /*
-                 * Fill Mail defaults
-                 */
-                CFG.maxpktsize = 150;
-                CFG.maxarcsize = 300;
-                sprintf(CFG.badboard, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
-                sprintf(CFG.dupboard, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
-                sprintf(CFG.popnode, "localhost");
-                sprintf(CFG.smtpnode, "localhost");
-                sprintf(CFG.nntpnode, "localhost");
-                CFG.toss_days = 30;
-                CFG.toss_dupes = 16000;
-                CFG.toss_old = 60;
-                CFG.defmsgs = 500;
-                CFG.defdays = 90;
-                CFG.toss_systems = 10;
-                CFG.toss_groups = 25;
-                CFG.UUCPgate.zone = 2;
-                CFG.UUCPgate.net  = 292;
-                CFG.UUCPgate.node = 875;
-                sprintf(CFG.UUCPgate.domain, "fidonet");
-                CFG.nntpdupes = 16000;
-
-                for (i = 0; i < 32; i++) 
-                        sprintf(CFG.fname[i], "Flag %d", i+1);
-
-
-                /*
-                 * Fido mailer defaults
-                 */
-                CFG.timeoutreset = 3L;
-                CFG.timeoutconnect = 60L;
-                sprintf(CFG.phonetrans[0].match, "31-255");
-                sprintf(CFG.phonetrans[1].match, "31-");
-                sprintf(CFG.phonetrans[1].repl, "0");
-                sprintf(CFG.phonetrans[2].repl, "00");
-                CFG.Speed = 9600;
-                CFG.dialdelay = 60;
-                sprintf(CFG.Flags, "CM,XX,IBN,IFC,ITN");
-                CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
-
-                /*
-                 * FTP Server
-                 */
-                CFG.ftp_limit = 20;
-                CFG.ftp_loginfails = 2;
-                CFG.ftp_compress = TRUE;
-                CFG.ftp_tar = TRUE;
-                CFG.ftp_log_cmds = TRUE;
-                CFG.ftp_anonymousok = TRUE;
-                CFG.ftp_mbseok = FALSE;
-                sprintf(CFG.ftp_readme_login, "README*");
-                sprintf(CFG.ftp_readme_cwd, "README*");
-                sprintf(CFG.ftp_msg_login, "/welcome.msg");
-                sprintf(CFG.ftp_msg_cwd, ".message");
-                sprintf(CFG.ftp_msg_shutmsg, "/etc/nologin");
-                sprintf(CFG.ftp_upl_path, "%s/ftp/incoming", getenv("MBSE_ROOT"));
-                sprintf(CFG.ftp_banner, "%s/etc/ftpbanner", getenv("MBSE_ROOT"));
-                sprintf(CFG.ftp_email, "sysop@%s", CFG.sysdomain);
-                sprintf(CFG.ftp_pth_filter, "^[-A-Za-z0-9_\\.]*$  ^\\.  ^-");
-                sprintf(CFG.ftp_pth_message, "%s/etc/pathmsg", getenv("MBSE_ROOT"));
-
-		/*
-		 *  WWW defaults
-		 */
-        	sprintf(CFG.www_root, "/var/www/htdocs");
-        	sprintf(CFG.www_link2ftp, "files");
-        	sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
-        	sprintf(CFG.www_charset, "ISO 8859-1");
-        	sprintf(CFG.www_author, "Your Name");
-        	sprintf(CFG.www_convert,"/usr/X11R6/bin/convert -geometry x100");
-        	CFG.www_files_page = 10;
-
-		CFG.maxarticles = 500;
-
-                if ((fp = fopen(cfgfn, "a+")) == NULL) {
-			perror("");
-                        fprintf(stderr, "Can't create %s\n", cfgfn);
-                        exit(2);
-                }
-                fwrite(&CFG, sizeof(CFG), 1, fp);
-                fclose(fp);
-		chmod(cfgfn, 0640);
-        } else {
-                fread(&CFG, sizeof(CFG), 1, fp);
-                fclose(fp);
+        /*
+         * Paging
+         */
+        CFG.iPageLength         = 30;
+        CFG.iMaxPageTimes       = 5;
+        CFG.iAskReason          = TRUE;
+        CFG.iSysopArea          = 1;
+        CFG.iExternalChat       = FALSE;
+        strcpy(CFG.sExternalChat, "/usr/local/bin/chat");
+        CFG.iAutoLog            = TRUE;
+        strcpy(CFG.sChatDevice, "/dev/tty01");
+        CFG.iChatPromptChk      = TRUE;
+        CFG.iStopChatTime       = TRUE;
+        for (i = 0; i < 7; i++) {
+	    sprintf(CFG.cStartTime[i], "18:00");
+            sprintf(CFG.cStopTime[i], "23:59");
         }
 
-        cfg_time = file_time(cfgfn);
+        /*
+         * Time Bank
+         */
+        CFG.iMaxTimeBalance     = 200;
+        CFG.iMaxTimeWithdraw    = 100;
+        CFG.iMaxTimeDeposit     = 60;
+        CFG.iMaxByteBalance     = 500;
+        CFG.iMaxByteWithdraw    = 300;
+        CFG.iMaxByteDeposit     = 150;
+        strcpy(CFG.sTimeRatio, "3:1");
+        strcpy(CFG.sByteRatio, "3:1");
+
+        /*
+         * Fill ticconf defaults
+         */
+        CFG.ct_ResFuture = TRUE;
+        CFG.ct_ReplExt = TRUE;
+        CFG.ct_PlusAll = TRUE;
+        CFG.ct_Notify = TRUE;
+        CFG.ct_Message = TRUE;
+        CFG.ct_TIC = TRUE;
+        CFG.tic_days = 30;
+        sprintf(CFG.hatchpasswd, "DizIzMyBIGseeKret");
+        CFG.drspace = 2048;
+        CFG.tic_systems = 10;
+        CFG.tic_groups  = 25;
+        CFG.tic_dupes   = 16000;
+
+        /*
+         * Fill Mail defaults
+         */
+        CFG.maxpktsize = 150;
+        CFG.maxarcsize = 300;
+        sprintf(CFG.badboard, "%s/var/mail/badmail", getenv("MBSE_ROOT"));
+        sprintf(CFG.dupboard, "%s/var/mail/dupemail", getenv("MBSE_ROOT"));
+        sprintf(CFG.popnode, "localhost");
+        sprintf(CFG.smtpnode, "localhost");
+        sprintf(CFG.nntpnode, "localhost");
+        CFG.toss_days = 30;
+        CFG.toss_dupes = 16000;
+        CFG.toss_old = 60;
+        CFG.defmsgs = 500;
+        CFG.defdays = 90;
+        CFG.toss_systems = 10;
+        CFG.toss_groups = 25;
+        CFG.UUCPgate.zone = 2;
+        CFG.UUCPgate.net  = 292;
+        CFG.UUCPgate.node = 875;
+        sprintf(CFG.UUCPgate.domain, "fidonet");
+        CFG.nntpdupes = 16000;
+
+        for (i = 0; i < 32; i++) {
+	    sprintf(CFG.fname[i], "Flag %d", i+1);
+	    sprintf(CFG.aname[i], "Flag %d", i+1);
+	}
+	sprintf(CFG.aname[0], "Everyone");
+
+
+        /*
+         * Fido mailer defaults
+         */
+        CFG.timeoutreset = 3L;
+        CFG.timeoutconnect = 60L;
+        sprintf(CFG.phonetrans[0].match, "31-255");
+        sprintf(CFG.phonetrans[1].match, "31-");
+        sprintf(CFG.phonetrans[1].repl, "0");
+        sprintf(CFG.phonetrans[2].repl, "00");
+        CFG.Speed = 9600;
+        CFG.dialdelay = 60;
+        sprintf(CFG.Flags, "CM,XX,IBN,IFC,ITN");
+        CFG.cico_loglevel = DLOG_ALLWAYS | DLOG_ERROR | DLOG_ATTENT | DLOG_NORMAL | DLOG_VERBOSE;
+
+        /*
+         * FTP Server
+         */
+        CFG.ftp_limit = 20;
+        CFG.ftp_loginfails = 2;
+        CFG.ftp_compress = TRUE;
+        CFG.ftp_tar = TRUE;
+        CFG.ftp_log_cmds = TRUE;
+        CFG.ftp_anonymousok = TRUE;
+        CFG.ftp_mbseok = FALSE;
+        sprintf(CFG.ftp_readme_login, "README*");
+        sprintf(CFG.ftp_readme_cwd, "README*");
+        sprintf(CFG.ftp_msg_login, "/welcome.msg");
+        sprintf(CFG.ftp_msg_cwd, ".message");
+        sprintf(CFG.ftp_msg_shutmsg, "/etc/nologin");
+        sprintf(CFG.ftp_upl_path, "%s/ftp/incoming", getenv("MBSE_ROOT"));
+        sprintf(CFG.ftp_banner, "%s/etc/ftpbanner", getenv("MBSE_ROOT"));
+        sprintf(CFG.ftp_email, "sysop@%s", CFG.sysdomain);
+        sprintf(CFG.ftp_pth_filter, "^[-A-Za-z0-9_\\.]*$  ^\\.  ^-");
+        sprintf(CFG.ftp_pth_message, "%s/etc/pathmsg", getenv("MBSE_ROOT"));
+
+	/*
+	 *  WWW defaults
+	 */
+        sprintf(CFG.www_root, "/var/www/htdocs");
+        sprintf(CFG.www_link2ftp, "files");
+        sprintf(CFG.www_url, "http://%s", CFG.sysdomain);
+        sprintf(CFG.www_charset, "ISO 8859-1");
+        sprintf(CFG.www_author, "Your Name");
+        sprintf(CFG.www_convert,"/usr/X11R6/bin/convert -geometry x100");
+        CFG.www_files_page = 10;
+
+	CFG.maxarticles = 500;
+
+        if ((fp = fopen(cfgfn, "a+")) == NULL) {
+	    perror("");
+            fprintf(stderr, "Can't create %s\n", cfgfn);
+            exit(2);
+        }
+        fwrite(&CFG, sizeof(CFG), 1, fp);
+        fclose(fp);
+	chmod(cfgfn, 0640);
+    } else {
+        fread(&CFG, sizeof(CFG), 1, fp);
+        fclose(fp);
+    }
+
+    cfg_time = file_time(cfgfn);
 }
 
 
