@@ -13,6 +13,7 @@ v0.61.0		06-Jun-2004.
 		updated and the mailout semafore is not set.
 		Added checks in the mbmsg post command if the To parameter has
 		the correct syntax for netmail and all other areas.
+		Fixed parameter count if post is used with the -q option.
 
 	mbout:
 		Prepared for ICM flag (FSP-1033).

@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	if (strncasecmp(argv[i], "pa", 2) == 0)
 	    do_pack = TRUE;
 	if (strncasecmp(argv[i], "po", 2) == 0) {
-	    if ((argc - i) != 6)
+	    if (((argc - i) < 6) || ((argc - i) > 7))
 		Help();
 	    do_post = TRUE;
 	    too = argv[++i];
