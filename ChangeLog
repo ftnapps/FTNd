@@ -23,6 +23,7 @@ v0.35.03	06-Jul-2002
 		rollover.
 		When a new tic area was created the first file received for
 		that area was refused.
+		Fixed a few problems with local UUCP created netmails.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
@@ -32,6 +33,7 @@ v0.35.03	06-Jul-2002
 		Check existing usernames now also checks handles.
 		When a user paged the sysop for a chat, after the timer was
 		expired, the bbs crashed.
+		Fixed a problem with extra spaces in UUCP replyto address.
 
 	mbtask:
 		Changed logging of multiple logmessages that are equal.

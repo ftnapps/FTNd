@@ -1216,150 +1216,153 @@ int ReadPanel()
  */
 void Reply_Msg(int IsReply)
 {
-	int	i, j, x;
-	char	to[65];
-	char	from[65];
-	char	subj[72];
-	char	msgid[81];
-	char	replyto[81];
-	char	replyaddr[81];
-	char	*tmp, *buf;
-	char	qin[6];
-	faddr	*Dest = NULL;
+    int	    i, j, x;
+    char    to[65], from[65], subj[73], msgid[81], replyto[81], replyaddr[81], *tmp, *buf, qin[6];
+    faddr   *Dest = NULL;
 
-	if (!Post_Allowed())
-		return;
+    if (!Post_Allowed())
+	return;
 
-	sprintf(from, "%s", Msg.To);
-	sprintf(to, "%s", Msg.From);
-	sprintf(replyto, "%s", Msg.ReplyTo);
-	sprintf(replyaddr, "%s", Msg.ReplyAddr);
-	Dest = parsefnode(Msg.FromAddress);
-	Syslog('m', "Parsed from address %s", ascfnode(Dest, 0x1f));
+    strncpy(from, Msg.To, 64);
+    strncpy(to, Msg.From, 64);
+    strncpy(replyto, Msg.ReplyTo, 80);
 
-	if (strncasecmp(Msg.Subject, "Re:", 3) && strncasecmp(Msg.Subject, "Re^2:", 5) && IsReply) {
-		sprintf(subj, "Re: %s", Msg.Subject);
-	} else {
-		sprintf(subj, "%s", Msg.Subject);
+    /*
+     * For some reason there are sometimes spaces at the
+     * beginning of the reply address.
+     */
+    tmp = Msg.ReplyAddr;
+    while (*tmp && isspace(*tmp))
+	tmp++;
+    strncpy(replyaddr, tmp, 80);
+
+    Dest = parsefnode(Msg.FromAddress);
+    Syslog('m', "Parsed from address %s", ascfnode(Dest, 0x1f));
+
+    if (strncasecmp(Msg.Subject, "Re:", 3) && strncasecmp(Msg.Subject, "Re^2:", 5) && IsReply) {
+	sprintf(subj, "Re: ");
+	strncpy(subj+4, Msg.Subject, 68);
+    } else {
+	strncpy(subj, Msg.Subject, 72);
+    }
+    Syslog('m', "Reply msg to %s, subject %s", to, subj);
+    Syslog('m', "Msgid was %s", Msg.Msgid);
+    strncpy(msgid, Msg.Msgid, 80);
+
+    x = 0;
+    WhosDoingWhat(READ_POST);
+    clear();
+    colour(BLUE, LIGHTGRAY);
+    printf("   %-71s", sMsgAreaDesc);
+    colour(RED, LIGHTGRAY);
+    printf("#%-5lu", MsgBase.Highest + 1);
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    sLine();
+
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	Message[i] = (char *) calloc(81, sizeof(char));
+    Msg_New();
+
+    strncpy(Msg.Replyid, msgid, 80);
+    strncpy(Msg.ReplyTo, replyto, 80);
+    strncpy(Msg.ReplyAddr, replyaddr, 80);
+
+    /* From     : */
+    strncpy(Msg.From, exitinfo.sUserName, 100);
+    pout(YELLOW, BLACK, (char *) Language(209));
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
+    Enter(1);
+
+    /* To       : */
+    strncpy(Msg.To, to, 100);
+    pout(YELLOW, BLACK, (char *) Language(208));
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
+    Enter(1);
+
+    /* Enter to keep Subject. */
+    pout(LIGHTRED, BLACK, (char *) Language(219));
+    Enter(1);
+    /* Subject  : */
+    pout(YELLOW, BLACK, (char *) Language(210));
+    strncpy(Msg.Subject, subj, 100);
+    pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
+
+    x = strlen(subj);
+    fflush(stdout);
+    colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
+    GetstrP(subj, 50, x);
+    fflush(stdout);
+
+    if (strlen(subj))
+	strcpy(Msg.Subject, subj);
+    tlf(Msg.Subject);
+
+    Msg.Private = IsPrivate();
+    Enter(1);
+
+    /*
+     * If netmail reply and enough security level, allow crashmail.
+     */
+    if (msgs.Type == NETMAIL) {
+	switch (Crash_Option(Dest)) {
+	    case 1: Msg.Crash = TRUE;
+		    break;
+	    case 2: Msg.Immediate = TRUE;
+		    break;
 	}
-	Syslog('m', "Reply msg to %s, subject %s", to, subj);
-	Syslog('m', "Msgid was %s", Msg.Msgid);
-	sprintf(msgid, "%s", Msg.Msgid);
+    }
 
-	x = 0;
-	WhosDoingWhat(READ_POST);
-	clear();
-	colour(BLUE, LIGHTGRAY);
-	printf("   %-71s", sMsgAreaDesc);
-	colour(RED, LIGHTGRAY);
-	printf("#%-5lu", MsgBase.Highest + 1);
+    Check_Attach();
 
-	colour(CFG.HiliteF, CFG.HiliteB);
-	sLine();
-
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		Message[i] = (char *) calloc(81, sizeof(char));
-	Msg_New();
-
-	sprintf(Msg.Replyid, "%s", msgid);
-	sprintf(Msg.ReplyTo, "%s", replyto);
-	sprintf(Msg.ReplyAddr, "%s", replyaddr);
-
-	/* From     : */
-	sprintf(Msg.From, "%s", exitinfo.sUserName);
-	pout(YELLOW, BLACK, (char *) Language(209));
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.From);
-	Enter(1);
-
-	/* To       : */
-	sprintf(Msg.To, "%s", to);
-	pout(YELLOW, BLACK, (char *) Language(208));
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.To);
-	Enter(1);
-
-	/* Enter to keep Subject. */
-	pout(LIGHTRED, BLACK, (char *) Language(219));
-	Enter(1);
-	/* Subject  : */
-	pout(YELLOW, BLACK, (char *) Language(210));
-	sprintf(Msg.Subject, "%s", subj);
-	pout(CFG.MsgInputColourF, CFG.MsgInputColourB, Msg.Subject);
-
-	x = strlen(subj);
-	fflush(stdout);
-	colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
-	GetstrP(subj, 50, x);
-	fflush(stdout);
-
-	if (strlen(subj))
-		strcpy(Msg.Subject, subj);
-	tlf(Msg.Subject);
-
-	Msg.Private = IsPrivate();
-	Enter(1);
-
-	/*
-	 * If netmail reply and enough security level, allow crashmail.
-	 */
-	if (msgs.Type == NETMAIL) {
-		switch (Crash_Option(Dest)) {
-			case 1:	Msg.Crash = TRUE;
-				break;
-			case 2:	Msg.Immediate = TRUE;
-				break;
-		}
-	}
-
-	Check_Attach();
-
-	/*
-	 *  Quote original message now, format the original users
-	 *  initials into qin. No quoting if this is a message to Sysop.
-	 */
-	Line = 1;
-	if (IsReply) {
-		sprintf(Message[1], "%s wrote to %s:", to, from);
-		memset(&qin, 0, sizeof(qin));
+    /*
+     *  Quote original message now, format the original users
+     *  initials into qin. No quoting if this is a message to Sysop.
+     */
+    Line = 1;
+    if (IsReply) {
+	sprintf(Message[1], "%s wrote to %s:", to, from);
+	memset(&qin, 0, sizeof(qin));
+	x = TRUE;
+	j = 0;
+	for (i = 0; i < strlen(to); i++) {
+	    if (x && isalpha(to[i])) {
+		qin[j] = to[i];
+		j++;
+		x = FALSE;
+	    }
+	    if (to[i] == ' ' || to[i] == '.')
 		x = TRUE;
-		j = 0;
-		for (i = 0; i < strlen(to); i++) {
-			if (x && isalpha(to[i])) {
-				qin[j] = to[i];
-				j++;
-				x = FALSE;
-			}
-			if (to[i] == ' ' || to[i] == '.')
-				x = TRUE;
-			if (j == 6)
-				break;
-		}
-		Line = 2;
-
-		tmp = calloc(128, sizeof(char));
-		buf = calloc(128, sizeof(char));
-
-		sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
-		if ((qf = fopen(tmp, "r")) != NULL) {
-			while ((fgets(buf, 128, qf)) != NULL) {
-				Striplf(buf);
-				sprintf(Message[Line], "%s> %s", (char *)qin, buf);
-				Line++;
-				if (Line == TEXTBUFSIZE)
-					break;
-			}
-			fclose(qf);
-		} else
-			WriteError("$Can't read %s", tmp);
-
-		free(buf);
-		free(tmp);
+	    if (j == 6)
+		break;
 	}
+	Line = 2;
 
-	if (Edit_Msg())
-		Save_Msg(IsReply, Dest);
+	tmp = calloc(128, sizeof(char));
+	buf = calloc(128, sizeof(char));
 
-	for (i = 0; i < (TEXTBUFSIZE + 1); i++)
-		free(Message[i]);
+	sprintf(tmp, "%s/%s/.quote", CFG.bbs_usersdir, exitinfo.Name);
+	if ((qf = fopen(tmp, "r")) != NULL) {
+	    while ((fgets(buf, 128, qf)) != NULL) {
+		Striplf(buf);
+		sprintf(Message[Line], "%s> %s", (char *)qin, buf);
+		Line++;
+		if (Line == TEXTBUFSIZE)
+		    break;
+	    }
+	    fclose(qf);
+	} else
+	    WriteError("$Can't read %s", tmp);
+
+	free(buf);
+	free(tmp);
+    }
+
+    if (Edit_Msg())
+	Save_Msg(IsReply, Dest);
+
+    for (i = 0; i < (TEXTBUFSIZE + 1); i++)
+	free(Message[i]);
 }
 
 

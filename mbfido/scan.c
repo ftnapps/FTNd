@@ -781,273 +781,277 @@ void ExportNews(unsigned long MsgNum, fa_list **sbl)
  */
 void ExportNet(unsigned long MsgNum, int UUCPgate)
 {
-	char		*p, *q, ext[4], fromname[37];
-	int		i, rc, flags = 0, first;
-	FILE		*qp, *fp;
-	fidoaddr	Dest, Route, *dest;
-	time_t		now;
-	struct tm	*tm;
-	char		flavor;
-	faddr		*from, *too, *ta;
-	int		is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE;
-	unsigned short	point;
-	char		MailFrom[128], MailTo[128];
+    char	    *p, *q, ext[4], fromname[37], flavor, MailFrom[128], MailTo[128];
+    int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE;
+    FILE	    *qp, *fp;
+    fidoaddr	    Dest, Route, *dest;
+    time_t	    now;
+    struct tm	    *tm;
+    faddr	    *from, *too, *ta;
+    unsigned short  point;
 
-	Syslog('m', "Export netmail to %s of %s (%s) %s mode", Msg.To, Msg.ToAddress, 
+    Syslog('m', "Export netmail to %s of %s (%s) %s mode", Msg.To, Msg.ToAddress, 
 		(Msg.Crash || Msg.Direct || Msg.FileAttach) ? "Direct" : "Routed", UUCPgate ? "UUCP" : "Netmail");
 
-        /*
-         *  Analyze this message if it contains INTL, FMPT and TOPT kludges 
-         *  and check if we need them. If they are missing they are inserted.
-         *  GoldED doesn't insert them but MBSE does.
-         */
-        if (Msg_Read(MsgNum, 78)) {
-                if ((p = (char *)MsgText_First()) != NULL) {
-                        do {
-                                if (strncmp(p, "\001FMPT", 5) == 0)
-                                        is_fmpt = TRUE;
-                                if (strncmp(p, "\001TOPT", 5) == 0)
-                                        is_topt = TRUE;
-                                if (strncmp(p, "\001INTL", 5) == 0)
-                                        is_intl = TRUE;
-                                if (strncmp(p, "--- ", 4) == 0)
-                                        break;
-                        } while ((p = (char *)MsgText_Next()) != NULL);
-                }
+    /*
+     *  Analyze this message if it contains INTL, FMPT and TOPT kludges 
+     *  and check if we need them. If they are missing they are inserted.
+     *  GoldED doesn't insert them but MBSE does.
+     */
+    if (Msg_Read(MsgNum, 78)) {
+        if ((p = (char *)MsgText_First()) != NULL) {
+            do {
+                if (strncmp(p, "\001FMPT", 5) == 0)
+                    is_fmpt = TRUE;
+                if (strncmp(p, "\001TOPT", 5) == 0)
+                    is_topt = TRUE;
+                if (strncmp(p, "\001INTL", 5) == 0)
+                    is_intl = TRUE;
+		if (strncmp(p, "--- ", 4) == 0)
+                    break;
+	    } while ((p = (char *)MsgText_Next()) != NULL);
         }
+    }
 
-	/*
-	 *  Check if this a netmail to our own local UUCP gate.
-	 */
-	ta = parsefnode(Msg.ToAddress);
-	if ((!strcmp(Msg.To, "UUCP")) && (is_local(ta))) {
-		tidy_faddr(ta);
-		most_debug = TRUE;
-		Syslog('m', "We are the UUCP gate");
-		Syslog('m', "From %s FromAddress %s", Msg.From, Msg.FromAddress);
-		if ((fp = tmpfile()) == NULL) {
-			WriteError("$Can't open tempfile");
-			return;
-		}
-		from = fido2faddr(msgs.Aka);
-		sprintf(fromname, "%s", Msg.From);
-		for (i = 0; i < strlen(fromname); i++)
-			if (fromname[i] == ' ')
-				fromname[i] = '_';
-		sprintf(MailFrom, "%s@%s", fromname, ascinode(from, 0x2f));
-
-        	if (Msg_Read(MsgNum, 78)) {
-                	if ((p = (char *)MsgText_First()) != NULL) {
-                        	do {
-					if (strncmp(p, "To: ", 4) == 0) {
-						q = strtok(p, "<");
-						q = strtok(NULL, ">");
-						sprintf(MailTo, "%s", q);
-						break;
-					}
-				} while ((p = (char *)MsgText_Next()) != NULL);
-			}
-		}
-
-		/*
-		 *  First send all headers
-		 */
-		fprintf(fp, "Date: %s\n", rfcdate(Msg.Written));
-		fprintf(fp, "From: %s@%s\n", fromname, ascinode(from, 0x2f));
-		tidy_faddr(from);
-		fprintf(fp, "Subject: %s\n", Msg.Subject);
-		fprintf(fp, "MIME-Version: 1.0\n");
-		fprintf(fp, "Content-Type: text/plain\n");
-		fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
-		fprintf(fp, "X-Mailreader: MBSE BBS %s\r\n", VERSION);
-
-		if (msgs.Aka.point && !is_fmpt)
-			fprintf(fp, "X-FTN-FMPT: %d\r", msgs.Aka.point);
-		if (Dest.point && !is_topt)
-			fprintf(fp, "X-FTN-TOPT: %d\r", Dest.point);
-		if (!is_intl)
-			fprintf(fp, "X-FTN-INTL: %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node,
-				msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
-
-                if (Msg_Read(MsgNum, 78)) {
-                        if ((p = (char *)MsgText_First()) != NULL) {
-                                do {
-					if (p[0] == '\001') {
-						if (strncmp(p, "\001INTL", 5) == 0)
-							fprintf(fp, "X-FTN-INTL: %s\n", p+4);
-						else
-							fprintf(fp, "X-FTN-%s\n", p+1);
-					}
-                                } while ((p = (char *)MsgText_Next()) != NULL);
-                        }
-                }
-
-                if (Msg_Read(MsgNum, 78)) {
-                        if ((p = (char *)MsgText_First()) != NULL) {
-                                do {
-                                        if (p[0] != '\001') {
-                                                fprintf(fp, "%s\n", p);
-                                        }
-                                } while ((p = (char *)MsgText_Next()) != NULL);
-                        }
-                }
-
-		postemail(fp, MailFrom, MailTo);
-		fclose(fp);
-		return;
-	}
+    /*
+     *  Check if this a netmail to our own local UUCP gate.
+     */
+    ta = parsefnode(Msg.ToAddress);
+    if ((!strcmp(Msg.To, "UUCP")) && (is_local(ta))) {
 	tidy_faddr(ta);
-
-	if (UUCPgate) {
-		memcpy(&Dest, &CFG.UUCPgate, sizeof(fidoaddr));
-		memset(&msgs, 0, sizeof(msgs));
-		memcpy(&msgs.Aka, &CFG.EmailFidoAka, sizeof(fidoaddr));
-	} else {
-		ta = parsefnode(Msg.ToAddress);
-		dest = faddr2fido(ta);
-		tidy_faddr(ta);
-		memcpy(&Dest, dest, sizeof(fidoaddr));
+	most_debug = TRUE;
+	if ((fp = tmpfile()) == NULL) {
+	    WriteError("$Can't open tempfile");
+	    return;
 	}
-	Dest.domain[0] = '\0';
-
-	if (!(Msg.Crash || Msg.Immediate || Msg.Direct || Msg.FileAttach)) {
-		if (!TrackMail(Dest, &Route)) {
-			Syslog('!', "No route to %s, message orphaned", Msg.ToAddress);
-			Msg.Orphan = TRUE;
-			net_bad++;
-			return;
-		}
-	}
-
-	Msg.Sent = TRUE;
-	if (Msg.KillSent)
-		Msg.Deleted = TRUE;
-
-	if (Msg.Crash || Msg.Direct || Msg.FileAttach || Msg.Immediate) {
-		memset(&ext, 0, sizeof(ext));
-		if (Msg.Immediate)
-			sprintf(ext, (char *)"iii");
-		else if (Msg.Crash)
-			sprintf(ext, (char *)"ccc");
-		else
-			sprintf(ext, (char *)"nnn");
-		point = Dest.point;
-		Dest.point = 0;
-		if (point)
-			Syslog('+', "Routing via Boss %s", aka2str(Dest));
-		if ((qp = OpenPkt(msgs.Aka, Dest, (char *)ext)) == NULL) {
-			net_bad++;
-			return;
-		}
-		Dest.point = point;
-
-	} else {
-		Syslog('m', "Route via %s", aka2str(Route));
-		if (!SearchNode(Route)) {
-			WriteError("Routing node %s not in setup, aborting", aka2str(Route));
-			return;
-		}
-
-		/*
-		 *  Note that even if the exported netmail is not crash, that if
-		 *  the routing node has crash status, this netmail will be send
-		 *  crash.
-		 */
-		memset(&ext, 0, sizeof(ext));
-		if (nodes.PackNetmail)
-			sprintf(ext, (char *)"qqq");
-		else if (nodes.Crash)
-			sprintf(ext, (char *)"ccc");
-		else if (nodes.Hold)
-			sprintf(ext, (char *)"hhh");
-		else
-			sprintf(ext, (char *)"nnn");
-		if ((qp = OpenPkt(msgs.Aka, Route, (char *)ext)) == NULL) {
-			net_bad++;
-			return;
-		}
-	}
-
-	flags |= (Msg.Private)		? M_PVT   : 0;
-	flags |= (Msg.Crash)		? M_CRASH : 0;
-	flags |= (Msg.Hold)		? M_HOLD  : 0;
-	flags |= (Msg.Immediate)	? M_CRASH : 0;
-	flags |= (Msg.FileRequest)	? M_REQ   : 0;
-	flags |= (Msg.FileAttach)	? M_FILE  : 0;
-	flags |= (Msg.ReceiptRequest)	? M_RRQ   : 0;
-	flags |= (Msg.ConfirmRequest)	? M_AUDIT : 0;
-
-	too  = fido2faddr(Dest);
 	from = fido2faddr(msgs.Aka);
-	if (UUCPgate) {
-		Syslog('m', "AddMsgHdr(%s, %s, %s)", (char *)"UUCP", Msg.From, Msg.Subject);
-		rc = AddMsgHdr(qp, from, too, flags, 0, Msg.Written, (char *)"UUCP", Msg.From, Msg.Subject);
-	} else {
-		rc = AddMsgHdr(qp, from, too, flags, 0, Msg.Written, Msg.To, Msg.From, Msg.Subject);
-	}
-	tidy_faddr(from);
-	tidy_faddr(too);
+	strncpy(fromname, Msg.From, 36);
+	for (i = 0; i < strlen(fromname); i++)
+	    if (fromname[i] == ' ')
+		    fromname[i] = '_';
+	sprintf(MailFrom, "%s@%s", fromname, ascinode(from, 0x2f));
 
-	if (rc) {
-		WriteError("Create message failed");
-		return;
+        if (Msg_Read(MsgNum, 78)) {
+            if ((p = (char *)MsgText_First()) != NULL) {
+                do {
+		    if (strncmp(p, "To: ", 4) == 0) {
+			Syslog('m', "%s", MBSE_SS(p));
+			if ((strchr(p, '<') != NULL) && (strchr(p, '>') != NULL)) {
+			    q = strtok(p, "<");
+			    q = strtok(NULL, ">");
+			} else {
+			    q = strtok(p, " ");
+			    q = strtok(NULL, " \n\r\t");
+			}
+			sprintf(MailTo, "%s", q);
+			Syslog('m', "Final MailTo \"%s\"", MailTo);
+			break;
+						
+		    }
+		} while ((p = (char *)MsgText_Next()) != NULL);
+	    }
 	}
+	Syslog('+', "UUCP gate From: %s at %s To: %s", Msg.From, Msg.FromAddress, MailTo);
+	
+	/*
+	 *  First send all headers
+	 */
+	fprintf(fp, "Date: %s\n", rfcdate(Msg.Written));
+	fprintf(fp, "From: %s@%s\n", fromname, ascinode(from, 0x2f));
+	tidy_faddr(from);
+	fprintf(fp, "Subject: %s\n", Msg.Subject);
+	fprintf(fp, "MIME-Version: 1.0\n");
+	fprintf(fp, "Content-Type: text/plain\n");
+	fprintf(fp, "Content-Transfer-Encoding: 8bit\n");
+	fprintf(fp, "X-Mailreader: MBSE BBS %s\r\n", VERSION);
 
 	if (msgs.Aka.point && !is_fmpt)
-		fprintf(qp, "\001FMPT %d\r", msgs.Aka.point);
+	    fprintf(fp, "X-FTN-FMPT: %d\n", msgs.Aka.point);
 	if (Dest.point && !is_topt)
-		fprintf(qp, "\001TOPT %d\r", Dest.point);
+	    fprintf(fp, "X-FTN-TOPT: %d\n", Dest.point);
 	if (!is_intl)
-		fprintf(qp, "\001INTL %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node, 
-			msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+	    fprintf(fp, "X-FTN-INTL: %d:%d/%d %d:%d/%d\n", Dest.zone, Dest.net, Dest.node,
+				msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+
+        if (Msg_Read(MsgNum, 78)) {
+            if ((p = (char *)MsgText_First()) != NULL) {
+                do {
+		    if (p[0] == '\001') {
+			if (strncmp(p, "\001INTL", 5) == 0)
+			    fprintf(fp, "X-FTN-INTL: %s\n", p+6);
+			else
+			    fprintf(fp, "X-FTN-%s\n", p+1);
+		    }
+                } while ((p = (char *)MsgText_Next()) != NULL);
+            }
+        }
 
 	if (Msg_Read(MsgNum, 78)) {
-		first = TRUE;
-		if ((p = (char *)MsgText_First()) != NULL) {
-			do {
-				if (UUCPgate && first && (p[0] != '\001')) {
-					/*
-					 * Past the kludges at the message start.
-					 * Add the To: name@dom.com and a blank line.
-					 */
-					fprintf(qp, "To: %s\r", Msg.To);
-					fprintf(qp, "\r");
-					first = FALSE;
-				}
-				fprintf(qp, "%s\r", p);
-				if (strncmp(p, "--- ", 4) == 0)
-					break;
-			} while ((p = (char *)MsgText_Next()) != NULL);
-		}
+            if ((p = (char *)MsgText_First()) != NULL) {
+                do {
+                    if (p[0] != '\001') {
+                        fprintf(fp, "%s\n", p);
+                    }
+                } while ((p = (char *)MsgText_Next()) != NULL);
+            }
 	}
 
-	now = time(NULL);
-	tm = gmtime(&now);
-	fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.01.UTC MBSE BBS %s\r",
+	postemail(fp, MailFrom, MailTo);
+	fclose(fp);
+	return;
+    }
+    tidy_faddr(ta);
+
+    if (UUCPgate) {
+	memcpy(&Dest, &CFG.UUCPgate, sizeof(fidoaddr));
+	memset(&msgs, 0, sizeof(msgs));
+	memcpy(&msgs.Aka, &CFG.EmailFidoAka, sizeof(fidoaddr));
+    } else {
+	ta = parsefnode(Msg.ToAddress);
+	dest = faddr2fido(ta);
+	tidy_faddr(ta);
+	memcpy(&Dest, dest, sizeof(fidoaddr));
+    }
+    Dest.domain[0] = '\0';
+
+    if (!(Msg.Crash || Msg.Immediate || Msg.Direct || Msg.FileAttach)) {
+	if (!TrackMail(Dest, &Route)) {
+	    Syslog('!', "No route to %s, message orphaned", Msg.ToAddress);
+	    Msg.Orphan = TRUE;
+	    net_bad++;
+	    return;
+	}
+    }
+
+    Msg.Sent = TRUE;
+    if (Msg.KillSent)
+	Msg.Deleted = TRUE;
+
+    if (Msg.Crash || Msg.Direct || Msg.FileAttach || Msg.Immediate) {
+	memset(&ext, 0, sizeof(ext));
+	if (Msg.Immediate)
+	    sprintf(ext, (char *)"iii");
+	else if (Msg.Crash)
+	    sprintf(ext, (char *)"ccc");
+	else
+	    sprintf(ext, (char *)"nnn");
+	point = Dest.point;
+	Dest.point = 0;
+	if (point)
+	    Syslog('+', "Routing via Boss %s", aka2str(Dest));
+	if ((qp = OpenPkt(msgs.Aka, Dest, (char *)ext)) == NULL) {
+	    net_bad++;
+	    return;
+	}
+	Dest.point = point;
+
+    } else {
+	Syslog('m', "Route via %s", aka2str(Route));
+	if (!SearchNode(Route)) {
+	    WriteError("Routing node %s not in setup, aborting", aka2str(Route));
+	    return;
+	}
+
+	/*
+	 *  Note that even if the exported netmail is not crash, that if
+	 *  the routing node has crash status, this netmail will be send
+	 *  crash.
+	 */
+	memset(&ext, 0, sizeof(ext));
+	if (nodes.PackNetmail)
+	    sprintf(ext, (char *)"qqq");
+	else if (nodes.Crash)
+	    sprintf(ext, (char *)"ccc");
+	else if (nodes.Hold)
+	    sprintf(ext, (char *)"hhh");
+	else
+	    sprintf(ext, (char *)"nnn");
+	if ((qp = OpenPkt(msgs.Aka, Route, (char *)ext)) == NULL) {
+	    net_bad++;
+	    return;
+	}
+    }
+
+    flags |= (Msg.Private)	    ? M_PVT   : 0;
+    flags |= (Msg.Crash)	    ? M_CRASH : 0;
+    flags |= (Msg.Hold)		    ? M_HOLD  : 0;
+    flags |= (Msg.Immediate)	    ? M_CRASH : 0;
+    flags |= (Msg.FileRequest)	    ? M_REQ   : 0;
+    flags |= (Msg.FileAttach)	    ? M_FILE  : 0;
+    flags |= (Msg.ReceiptRequest)   ? M_RRQ   : 0;
+    flags |= (Msg.ConfirmRequest)   ? M_AUDIT : 0;
+
+    too  = fido2faddr(Dest);
+    from = fido2faddr(msgs.Aka);
+    if (UUCPgate) {
+	Syslog('m', "AddMsgHdr(%s, %s, %s)", (char *)"UUCP", Msg.From, Msg.Subject);
+	rc = AddMsgHdr(qp, from, too, flags, 0, Msg.Written, (char *)"UUCP", Msg.From, Msg.Subject);
+    } else {
+	rc = AddMsgHdr(qp, from, too, flags, 0, Msg.Written, Msg.To, Msg.From, Msg.Subject);
+    }
+    tidy_faddr(from);
+    tidy_faddr(too);
+
+    if (rc) {
+	WriteError("Create message failed");
+	return;
+    }
+
+    if (msgs.Aka.point && !is_fmpt)
+	fprintf(qp, "\001FMPT %d\r", msgs.Aka.point);
+    if (Dest.point && !is_topt)
+	fprintf(qp, "\001TOPT %d\r", Dest.point);
+    if (!is_intl)
+	fprintf(qp, "\001INTL %d:%d/%d %d:%d/%d\r", Dest.zone, Dest.net, Dest.node, 
+		    msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
+
+    if (Msg_Read(MsgNum, 78)) {
+	first = TRUE;
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if (UUCPgate && first && (p[0] != '\001')) {
+		    /*
+		     * Past the kludges at the message start.
+		     * Add the To: name@dom.com and a blank line.
+		     */
+		    fprintf(qp, "To: %s\r", Msg.To);
+		    fprintf(qp, "\r");
+		    first = FALSE;
+		}
+		fprintf(qp, "%s\r", p);
+		if (strncmp(p, "--- ", 4) == 0)
+		    break;
+	    } while ((p = (char *)MsgText_Next()) != NULL);
+	}
+    }
+
+    now = time(NULL);
+    tm = gmtime(&now);
+    fprintf(qp, "\001Via %s @%d%02d%02d.%02d%02d%02d.01.UTC MBSE BBS %s\r",
 		aka2str(msgs.Aka), tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec, VERSION);
 
-	putc(0, qp);
-	fclose(qp);
+    putc(0, qp);
+    fclose(qp);
 
-	if (Msg.FileAttach) {
-		if (Msg.Crash)
-			flavor = 'c';
-		else
-			flavor = 'f';
+    if (Msg.FileAttach) {
+	if (Msg.Crash)
+	    flavor = 'c';
+	else
+	    flavor = 'f';
 
-		ta = parsefnode(Msg.ToAddress);
-		if (strlen(CFG.dospath)) {
-			rc = attach(*ta, Dos2Unix(Msg.Subject), LEAVE, flavor);
-			Syslog('+', "FileAttach %s %s", Dos2Unix(Msg.Subject), rc ? "Success":"Failed");
-		} else {
-			rc = attach(*ta, Msg.Subject, LEAVE, flavor);
-			Syslog('+', "FileAttach %s %s", Msg.Subject, rc ? "Success":"Failed");
-		}
-		tidy_faddr(ta);
+	ta = parsefnode(Msg.ToAddress);
+	if (strlen(CFG.dospath)) {
+	    rc = attach(*ta, Dos2Unix(Msg.Subject), LEAVE, flavor);
+	    Syslog('+', "FileAttach %s %s", Dos2Unix(Msg.Subject), rc ? "Success":"Failed");
+	} else {
+	    rc = attach(*ta, Msg.Subject, LEAVE, flavor);
+	    Syslog('+', "FileAttach %s %s", Msg.Subject, rc ? "Success":"Failed");
 	}
+	tidy_faddr(ta);
+    }
 
-	net_out++;
+    net_out++;
 }
 
 
