@@ -3,9 +3,12 @@ $Id$
 v0.39.6		11-Jan-2004
 
 	mbcico:
-		New binkp/1.1 driver fixes for Sun NetBSD.
-		Removed TCP ignore check in EOB state.
-		Transmiter file close now right after last block.
+		New binkp/1.1 driver. Remember to check your Irex links, see
+		the warning with version 0.39.5. In case of troubles please
+		report these. In the mbcico directory are 2 files, binkpold.c
+		and binkpold.h if they are renamed to binkp.c and binkp.h you
+		get the old 1.0 driver back. After some weeks I hope to remove
+		these 2 old files.
 		Added support for T-Mail fileboxes, partly written and info
 		provided by Przemyslaw Kwiatkowski (2:480/127).
 

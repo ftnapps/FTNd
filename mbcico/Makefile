@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c binkpnew.c md5b.c \
+SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c md5b.c \
 		  xmsend.c xmrecv.c m7recv.c m7send.c hydra.c inbound.c \
 		  answer.c chat.c dial.c dietifna.c emsidat.c filelist.c \
 		  openfile.c openport.c opentcp.c rdoptions.c yoohoo.c \
@@ -13,7 +13,7 @@ SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c binkpnew.c md5b.c \
 		  ttyio.c lutil.c scanout.c emsi.c ulock.c \
 		  callstat.c session.c call.c mbcico.c \
 		  outstat.c nlinfo.c mbout.c mbtelind.c mbtelout.c
-HDRS		= zmodem.h binkp.h binkpnew.h config.h statetbl.h md5b.h \
+HDRS		= zmodem.h binkp.h config.h statetbl.h md5b.h \
 		  xmsend.h xmrecv.h m7recv.h m7send.h hydra.h inbound.h \
 		  answer.h chat.h dial.h dietifna.h emsidat.h filelist.h \
 		  openfile.h openport.h opentcp.h rdoptions.h yoohoo.h \
@@ -22,7 +22,7 @@ HDRS		= zmodem.h binkp.h binkpnew.h config.h statetbl.h md5b.h \
 		  ttyio.h lutil.h scanout.h emsi.h ulock.h \
 		  callstat.h session.h call.h mbcico.h \
 		  outstat.h nlinfo.h mbtelind.h mbtelout.h
-MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o binkpnew.o md5b.o \
+MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o md5b.o \
 		  xmsend.o xmrecv.o m7recv.o m7send.o hydra.o inbound.o \
 		  answer.o chat.o dial.o dietifna.o emsidat.o filelist.o \
 		  openfile.o openport.o opentcp.o rdoptions.o yoohoo.o \
@@ -100,7 +100,6 @@ zmrle.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/commo
 zmrecv.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h lutil.h ttyio.h session.h zmodem.h config.h emsi.h openfile.h filelist.h openport.h
 zmsend.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ttyio.h session.h zmodem.h lutil.h emsi.h filelist.h
 binkp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/clcomm.h ../lib/mberrors.h ttyio.h session.h statetbl.h config.h emsi.h openfile.h respfreq.h filelist.h opentcp.h rdoptions.h lutil.h binkp.h config.h md5b.h inbound.h
-binkpnew.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/clcomm.h ../lib/mberrors.h ttyio.h session.h statetbl.h config.h emsi.h openfile.h respfreq.h filelist.h opentcp.h rdoptions.h lutil.h binkpnew.h config.h md5b.h inbound.h
 md5b.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h lutil.h md5b.h
 xmsend.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h session.h ttyio.h statetbl.h xmsend.h m7send.h filelist.h filetime.h
 xmrecv.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h session.h ttyio.h statetbl.h config.h lutil.h openfile.h m7recv.h xmrecv.h filelist.h filetime.h
@@ -136,7 +135,7 @@ scanout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/reco
 emsi.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/dbnode.h ../lib/clcomm.h ../lib/mberrors.h ttyio.h session.h statetbl.h config.h emsi.h emsidat.h hydra.h rdoptions.h tcp.h wazoo.h inbound.h
 ulock.o: ../config.h ../lib/libs.h ../lib/clcomm.h
 callstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h callstat.h
-session.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/mberrors.h ttyio.h statetbl.h emsi.h ftsc.h session.h yoohoo.h mbcico.h binkpnew.h binkp.h callstat.h inbound.h opentcp.h
+session.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/mberrors.h ttyio.h statetbl.h emsi.h ftsc.h session.h yoohoo.h mbcico.h binkp.h callstat.h inbound.h opentcp.h
 call.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbnode.h ../lib/mberrors.h session.h callstat.h call.h config.h dial.h lutil.h portsel.h openport.h opentcp.h rdoptions.h inbound.h
 mbcico.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h config.h answer.h call.h lutil.h mbcico.h session.h
 outstat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbcfg.h ../lib/dbnode.h ../lib/dbftn.h ../lib/mberrors.h scanout.h callstat.h outstat.h

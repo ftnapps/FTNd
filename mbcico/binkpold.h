@@ -1,7 +1,5 @@
-#ifdef USE_NEWBINKP
-
-#ifndef	_BINKPNEW_H
-#define	_BINKPNEW_H
+#ifndef	_BINKP_H
+#define	_BINKP_H
 
 
 /* $Id$ */
@@ -23,8 +21,7 @@
 
 /* protocol version */
 #define	PRTCLNAME "binkp"
-#define PRTCLVER "1.1"
-#define PRTCLOLD "1.0"
+#define PRTCLVER "1.0"
 
 #define MAX_BLKSIZE 0x7fff	/* Don't change!				*/
 #define	BLK_HDR_SIZE 2		/* 2 bytes header				*/
@@ -61,6 +58,8 @@ typedef struct _binkp_frame {
 /*
  *  Linked list of files to send and responses from the receiver.
  */
+typedef enum {NoState, Sending, IsSent, Got, Skipped, Get} FileState;
+
 typedef struct _binkp_list {
 	struct _binkp_list	*next;
 	char			*remote;	/* Remote filename		*/
@@ -73,20 +72,6 @@ typedef struct _binkp_list {
 } binkp_list;
 
 
-
-/*
- * Linked FIFO list of received commands to be processed by the transmitter.
- */
-typedef struct _the_queue {
-    struct  _the_queue		*next;
-    int				cmd;		/* M_xxx command id		*/
-    char			*data;		/* Frame data in the queue	*/
-} the_queue;
-
-
-
 int binkp(int);
-
-#endif
 
 #endif
