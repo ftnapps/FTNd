@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 	Syslog('+', "CONNECT %s", p);
     if ((p = getenv("CALLER_ID")) != NULL)
 	if (strncmp(p, "none", 4))
-	    Syslog('+', "CALLER  %s", p);
+	    Syslog('+', "CALLER_ID  %s", p);
 
     /*
      * Initialize 
@@ -197,7 +197,6 @@ int main(int argc, char **argv)
 	    printf("No BBS on this port allowed!\n\n");
 	    Quick_Bye(MBERR_OK);
 	}
-	Syslog('b', "Node number %d", iNode);
 
 	/* 
 	 * Display Connect String if turned on.

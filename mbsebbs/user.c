@@ -232,7 +232,7 @@ void user()
     } else
 	strncpy(FirstName, UserName, sizeof(FirstName)-1);
     strncpy(UserName, usrconfig.sUserName, sizeof(UserName)-1);
-    Syslog('+', "%s On-Line at %s", UserName, ttyinfo.comment);
+    Syslog('+', "%s On-Line at \"%s\", node %d", UserName, ttyinfo.comment, iNode);
     IsDoing("Just Logged In");
 
     /*

@@ -22,6 +22,7 @@ v0.37.5		12-Jul-2003
 		Removed debug logging for userrecord i/o
 		During virusscan of file uploads, the mbtask timeout timer is
 		set to one hour to support very long scans.
+		Changed logging during user login.
 
 	mbsetup:
 		Added menu entry 1.5.21 for setting maximum allowed logins.
