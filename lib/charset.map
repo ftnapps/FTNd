@@ -19,8 +19,8 @@
 #
 #	IN-SET/OUT-SET:	us-ascii	(FSC-0054: ASCII, VT100)
 #			iso-8859-1	(FSC-0054: LATIN-1, AMIGA)
-#			x-ibmpc		(FSC-0054: IBMPC, PC-8)
-#			x-mac		(FSC-0054: MAC)
+#			cp437		(FSC-0054: IBMPC, PC-8) (Was called x-ibmpc)
+#			mac		(FSC-0054: MAC)
 #			koir-8		(KOIR-8)
 #			x-alt		(ALT)
 #			...
@@ -56,10 +56,9 @@ alias	ascii		us-ascii
 alias	vt100		us-ascii
 alias	latin-1		iso-8859-1
 alias	amiga		iso-8859-1
-alias	ibmpc		x-ibmpc
-alias	pc-8		x-ibmpc
-alias	cp437		x-ibmpc
-alias	mac		x-mac
+alias	ibmpc		cp437
+alias	pc-8		cp437
+alias	mac		mac
 
 
 # ----------------------------------------------------------------------------
@@ -73,12 +72,12 @@ table	us-ascii	iso-8859-1
 
 
 # ----------------------------------------------------------------------------
-table	us-ascii	x-ibmpc
+table	us-ascii	cp437
 # nothing special to map
 
 
 # ----------------------------------------------------------------------------
-table	us-ascii	x-mac
+table	us-ascii	mac
 # nothing special to map
 
 
@@ -252,7 +251,7 @@ map	1:1-noctrl
 
 
 # ----------------------------------------------------------------------------
-table	iso-8859-1	x-ibmpc
+table	iso-8859-1	cp437
 map	\x80	?
 map	\x81	?
 map	\x82	?
@@ -384,7 +383,7 @@ map	\xFF	\x98
 
 
 # ----------------------------------------------------------------------------
-table	iso-8859-1	x-mac
+table	iso-8859-1	mac
 map	\x80	?
 map	\x81	?
 map	\x82	?
@@ -516,7 +515,7 @@ map	\xFF	\xD7
 
 
 # ----------------------------------------------------------------------------
-table	x-ibmpc		us-ascii
+table	cp437		us-ascii
 map	\x80	C 
 map	\x81	u e 
 map	\x82	e 
@@ -648,7 +647,7 @@ map	\xFF	\x20
 
 
 # ----------------------------------------------------------------------------
-table	x-ibmpc		iso-8859-1
+table	cp437		iso-8859-1
 map	\x80	\xC7 
 map	\x81	\xFC 
 map	\x82	\xE9 
@@ -780,12 +779,12 @@ map	\xFF	\x20
 
 
 # ----------------------------------------------------------------------------
-table	x-ibmpc		x-ibmpc
+table	cp437		cp437
 # nothing special to map
 
 
 # ----------------------------------------------------------------------------
-table	x-ibmpc		x-mac
+table	cp437		mac
 map	\x80	\x82
 map	\x81	\x9F
 map	\x82	\x8E
@@ -917,7 +916,7 @@ map	\xFF	\x20
 
 
 # ----------------------------------------------------------------------------
-table	x-mac		us-ascii
+table	mac		us-ascii
 map	\x80	A e 
 map	\x81	A 
 map	\x82	C 
@@ -1049,7 +1048,7 @@ map	\xFF	?
 
 
 # ----------------------------------------------------------------------------
-table	x-mac		iso-8859-1
+table	mac		iso-8859-1
 map	\x80	\xC4 
 map	\x81	\xC5 
 map	\x82	\xC7 
@@ -1181,7 +1180,7 @@ map	\xFF	?
 
 
 # ----------------------------------------------------------------------------
-table	x-mac		x-ibmpc
+table	mac		cp437
 map	\x80	\x8E
 map	\x81	\x8F
 map	\x82	\x80
@@ -1313,7 +1312,7 @@ map	\xFF	v
 
 
 # ----------------------------------------------------------------------------
-table	x-mac		x-mac
+table	mac		mac
 # nothing special to map
 
 

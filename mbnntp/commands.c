@@ -52,6 +52,8 @@ extern char         *ttystat[];
 void send_xlat(char *);
 char *make_msgid(char *);
 
+static CharsetAlias *charset_alias_list;
+static CharsetTable *charset_table_list;
 
 #define	POST_MAXSIZE	10000
 
@@ -134,9 +136,9 @@ char *getrfcchrs(int val)
  */
 void command_abhs(char *buf)
 {
-    char	    *p, *cmd, *opt, *subj;
+    char	    *p, *cmd, *opt, *subj, *charset = NULL;
     unsigned long   art = 0L;
-    int		    found;
+    int		    i, found;
 
     Syslog('+', "%s", buf);
     cmd = strtok(buf, " \0");
@@ -194,12 +196,6 @@ void command_abhs(char *buf)
 	return;
     }
 
-
-    /*
-     * Setup a charset translation
-     */
-    charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
-
     if (Msg_Read(art, 75)) {
 
 	if (strcasecmp(cmd, "ARTICLE") == 0)
@@ -208,6 +204,32 @@ void command_abhs(char *buf)
 	    send_nntp("221 %ld %s Article retrieved - Head follows", art, make_msgid(Msg.Msgid));
 	if (strcasecmp(cmd, "BODY") == 0)
 	    send_nntp("222 %ld %s Article retrieved - Body follows", art, make_msgid(Msg.Msgid));
+
+	/*
+	 * Find out the charset used in the Fido side of the message
+	 */
+	if ((p = (char *)MsgText_First()) != NULL) {
+	    do {
+		if (strncmp(p, (char *)"\001CHRS: ", 7) == 0) {
+		    charset = xstrcpy(p + 7);
+		} else if (strncmp(p, "\001CHARSET: ", 10) == 0) {
+		    charset = xstrcpy(p + 10);
+		}
+	    } while ((p = (char *)MsgText_Next()) != NULL);
+	}
+	if (charset) {
+	    if ((charset_alias_list == NULL) || (charset_table_list == NULL))
+		charset_read_bin();
+	    for (i = 0; i < strlen(charset); i++) {
+		if (charset[i] == ' ') {
+		    charset[i] = '\0';
+		    break;
+		}
+	    }
+	}
+	
+//	We don't do translation to the users charset, the news reader must do that.
+//	charset_set_in_out(getrfcchrs(msgs.Charset),getrfcchrs(usercharset));
 
 	if ((strcasecmp(cmd, "ARTICLE") == 0) || (strcasecmp(cmd, "HEAD") == 0)) {
 
@@ -220,13 +242,24 @@ void command_abhs(char *buf)
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
 		send_nntp("References: %s", make_msgid(Msg.Replyid));
+
+	    /*
+	     * Send RFC 2045 Multipurpose Internet Mail Extensions (MIME) header.
+	     */
+	    send_nntp("MIME-Version: 1.0");
+	    if (charset) {
+		send_nntp("Content-Type: text/plain; charset=%s", charset_alias_rfc(charset));
+	    } else {
+		send_nntp("Content-Type: text/plain; charset=us-ascii; format=fixed");
+	    }
+	    send_nntp("Content-Transfer-Encoding: 8bit");
+
 	    send_nntp("X-FTN-From: %s <%s>", Msg.From, Msg.FromAddress);
 	    if (strlen(Msg.To))
 		send_nntp("X-FTN-To: %s", Msg.To);
 	    if ((p = (char *)MsgText_First()) != NULL) {
 		do {
 		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
-			Syslog('n', "%s", printablec(p, 0));
 			if (p[0] == '\001') {
 			    send_nntp("X-FTN-%s", p+1);
 			} else {
@@ -235,11 +268,11 @@ void command_abhs(char *buf)
 		    }
 		} while ((p = (char *)MsgText_Next()) != NULL);
 	    }
-	    
-	    send_nntp("MIME-Version: 1.0");
-	    send_nntp("Content-Type: text/plain; charset=%s; format=fixed", getrfcchrs(usercharset));
-	    send_nntp("Content-Transfer-Encoding: 8bit");
 	}
+
+	if (charset)
+	    free(charset);
+	charset = NULL;
 
 	if (strcasecmp(cmd, "ARTICLE") == 0)
 	    send_nntp("");

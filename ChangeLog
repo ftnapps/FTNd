@@ -3,12 +3,17 @@ $Id$
 
 v0.71.2		16-Jan-2005
 
+	charset:
+		Changed rfc-2045 name x-mac to mac. Changed x-ibmpc to cp437.
+		This allows rfc mime headers to show official names.
+
 	mbcico:
 		Added protection during binkp receive for zero bytes compressed
 		data frames, this will case uncompress error -5 because zero
 		bytes can't be compressed ar all.
 
 	mbnntp:
+		Does now send the right mime headers recognised by new clients.
 		Fixed compile problem with some compilers.
 
 

@@ -842,7 +842,7 @@ map     \xFF    \xEF
 #       Channel map for translation CP866 codes to MAC codes
 #	(Russian language)
 #
-table	cp866	x-mac
+table	cp866	mac
 map     \x80    \x80
 map     \x81    \x81
 map     \x82    \x82
@@ -979,7 +979,7 @@ map     \xFF    \xCA
 #	Due to fidonet wieredness, capital Russian EN translates to 
 #	latin 'H'.
 #
-table	x-mac	cp866
+table	mac	cp866
 map     \x80    \x80
 map     \x81    \x81
 map     \x82    \x82
