@@ -148,11 +148,13 @@ long Msg_Top(char *template, int language, fidoaddr aka)
     FILE    *fp, *fi;
     long    fileptr, fileptr1 = 0L;
 
-    MacroVars("YSNLTUMH", "ssssssss", aka2str(aka), CFG.sysop_name, CFG.bbs_name, CFG.location, 
-					CFG.comment, CFG.sysop, CFG.sysdomain, CFG.www_url);
     temp = calloc(PATH_MAX, sizeof(char));
 
     if ((fi = OpenMacro(template, language))) {
+	/*
+	 * First override default aka with current aka, then display header.
+	 */
+	MacroVars("Y", "s", aka2str(aka));
 	Msg_Macro(fi);
 	fileptr = ftell(fi);
     
@@ -165,47 +167,17 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 		    MacroVars("pqrf", "dsss", ttyinfo.type, ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
 		    fseek(fi, fileptr, SEEK_SET);
 		    Msg_Macro(fi);
-		    fileptr1 = ftell(fi);
 		}
 	    }
 	    fclose(fp);
 	}
+
+	/*
+	 * TTY info footer
+	 */
+	Msg_Macro(fi);
+	fileptr1 = ftell(fi);
 	fclose(fi);
-    } else {
-	sprintf(temp, "System name   %s", CFG.bbs_name);
-	MsgText_Add2(temp);
-	sprintf(temp, "Sysop         %s", CFG.sysop_name);
-	MsgText_Add2(temp);
-	sprintf(temp, "Location      %s", CFG.location);
-	MsgText_Add2(temp);
-	sprintf(temp, "Remark        %s", CFG.comment);
-	MsgText_Add2(temp);
-	MsgText_Add2((char *)"");
-
-	sprintf(temp, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	if ((fp = fopen(temp, "r")) != NULL) {
-
-	    MsgText_Add2((char *)"Line Phone number         Maximum speed        Fidonet Flags");
-	    MsgText_Add2((char *)"---- -------------------- -------------------- -------------------------");
-	    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
-
-	    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
-		if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) &&
-		    ttyinfo.available && strlen(ttyinfo.phone)) {
-		    switch (ttyinfo.type) {
-			case POTS:  sprintf(temp, "POTS %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
-				    break;
-			case ISDN:  sprintf(temp, "ISDN %-20s %-20s %s", ttyinfo.phone, ttyinfo.speed, ttyinfo.flags);
-				    break;
-		    }
-		    MsgText_Add2(temp);
-		}
-	    }
-	    fclose(fp);
-	}
-
-	MsgText_Add2((char *)"");
-	MsgText_Add2((char *)"");
     }
     
     free(temp);
@@ -221,6 +193,9 @@ void Msg_Bot(fidoaddr UseAka, char *Org, char *template)
 	temp = calloc(81, sizeof(char));
 	aka  = calloc(40, sizeof(char));
 
+	/*
+	 * Add tearline, this is hardcoded.
+	 */
 	MsgText_Add2((char *)"");
 	MsgText_Add2(TearLine());
 

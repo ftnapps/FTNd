@@ -242,21 +242,15 @@ void FinishMsg(int Final, long filepos)
 
     temp = calloc(PATH_MAX, sizeof(char));
 
-    if (Final) {
-	if ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL) {
-	    MacroVars("CD", "dd", TotalFiles, TotalSize);
-	    fseek(fi, filepos, SEEK_SET);
-	    Msg_Macro(fi);
-	    fclose(fi);
-	    MacroClear();
-	} else {
-	    MsgText_Add2((char *)"");
-	    sprintf(temp, "This is a total of %d files, %lu Kbytes", TotalFiles, TotalSize);
-	    MsgText_Add2(temp);
-	    MsgText_Add2((char *)"");
-	    sprintf(temp, "With regards, %s", CFG.sysop_name);
-	    MsgText_Add2(temp);
-	}
+    if (Final && ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL)) {
+	/*
+	 * Message footer
+	 */
+	MacroVars("CD", "dd", TotalFiles, TotalSize);
+	fseek(fi, filepos, SEEK_SET);
+	Msg_Macro(fi);
+	fclose(fi);
+	MacroClear();
     }
 
     if (strlen(newfiles.Origin))
@@ -280,6 +274,9 @@ void FinishMsg(int Final, long filepos)
 
 
 
+/*
+ * Report one group block of new files.
+ */
 long Report(gr_list *, long);
 long Report(gr_list *ta, long filepos)
 {
@@ -302,14 +299,16 @@ long Report(gr_list *ta, long filepos)
     }
 
     if ((fi = OpenMacro(newfiles.Template, newfiles.Language)) != NULL) {
+	/*
+	 * Area block header
+	 */
 	MacroVars("GJZ", "ssd", T_File.Echo, T_File.Comment, 0);
 	fseek(fi, filepos, SEEK_SET);
 	Msg_Macro(fi);
 	filepos1 = ftell(fi);
     } else {
-	sprintf(temp, "Area %s - %s", T_File.Echo, T_File.Comment);
-	MsgText_Add2(temp);
-	MsgText_Add2((char *)"------------------------------------------------------------------------");
+	free(temp);
+	return 0;
     }
 
     fseek(fp, 0, SEEK_SET);
@@ -319,74 +318,51 @@ long Report(gr_list *ta, long filepos)
 	    if (CFG.slow_util && do_quiet)
 		usleep(1);
 
-	    if (fi != NULL) {
-		fseek(fi, filepos1, SEEK_SET);
-		MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, " ",
+	    /*
+	     * Report one newfile, first line.
+	     */
+	    fseek(fi, filepos1, SEEK_SET);
+	    MacroVars("slbkdt", "ssddss", T_File.Name, T_File.LName, T_File.Size, T_File.SizeKb, " ",
 				    To_Low(T_File.LDesc[0],newfiles.HiAscii));
-		Msg_Macro(fi);
-		filepos2 = ftell(fi);
-		for (i = 1; i < 24; i++) {
-		    MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
-		    fseek(fi, filepos2, SEEK_SET);
-		    if (strlen(T_File.LDesc[i])) {
-			Msg_Macro(fi);
-		    } else {
-			line = calloc(255, sizeof(char));
-			while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
-			free(line);
-		    }
-		    filepos3 = ftell(fi);
+	    Msg_Macro(fi);
+	    filepos2 = ftell(fi);
+	    /*
+	     * Extra description lines follow
+	     */
+	    for (i = 1; i < 24; i++) {
+		MacroVars("t", "s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
+		fseek(fi, filepos2, SEEK_SET);
+		if (strlen(T_File.LDesc[i])) {
+		    Msg_Macro(fi);
+		} else {
+		    line = calloc(255, sizeof(char));
+		    while ((fgets(line, 254, fi) != NULL) && ((line[0]!='@') || (line[1]!='|'))) {}
+		    free(line);
 		}
-	    } else {
-		sprintf(temp, "%-12s %5lu Kb. %s", T_File.Name, T_File.SizeKb, To_Low(T_File.LDesc[0],newfiles.HiAscii));
-		MsgText_Add2(temp);
-		if (T_File.TotLdesc > 0)
-		    for (i = 1; i < T_File.TotLdesc; i++) {
-			sprintf(temp, "                       %s", To_Low(T_File.LDesc[i],newfiles.HiAscii));
-			MsgText_Add2(temp);
-		    }
+		filepos3 = ftell(fi);
 	    }
 	    Total++;
 	    Size += T_File.SizeKb;
-
-	    /*
-	     * Split message the hard way.
-	     */
-	    if (Msg.Size > (CFG.new_force * 1024)) {
-		MacroVars("Z", "d", 1);
-		MsgText_Add2((char *)"");
-		MsgText_Add2((char *)"to be continued...");
-		MsgCount++;
-		FinishMsg(FALSE, finalpos);
-		StartMsg();
-	    }
-	    if ((Msg.Size > (CFG.new_split * 1024)) && (fi != NULL)) {
-		MacroVars("Z", "d", 1);
-	    }
 	}
     }
-    if (fi != NULL) {
-	MacroVars("AB", "dd", Total, Size);
-	fseek(fi, filepos3, SEEK_SET);
-	Msg_Macro(fi);
-	finalpos = ftell(fi);
-    } else {
-	MsgText_Add2((char *)"------------------------------------------------------------------------");
-	sprintf(temp, "%d files, %lu Kb", Total, Size);
-	MsgText_Add2(temp);
-	MsgText_Add2((char *)"");
-	MsgText_Add2((char *)"");
-    }
 
+    /*
+     * Area block footer
+     */
+    if (Msg.Size > (CFG.new_split * 1024))
+	MacroVars("ABZ", "ddd", Total, Size, 1);
+    else
+	MacroVars("ABZ", "ddd", Total, Size, 0);
+    fseek(fi, filepos3, SEEK_SET);
+    Msg_Macro(fi);
+    finalpos = ftell(fi);
     fclose(fp);
     free(temp);
 
     /*
-     * Split messages the gently way.
+     * Split messages if too big.
      */
     if (Msg.Size > (CFG.new_split * 1024)) {
-	MsgText_Add2((char *)"");
-	MsgText_Add2((char *)"to be continued...");
 	MsgCount++;
 	FinishMsg(FALSE, finalpos);
 	StartMsg();

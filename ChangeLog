@@ -4702,7 +4702,8 @@ v0.33.20        10-Feb-2002
 	mbaff:
 		The High-ascii table to translate to lowercase has now the
 		right values to translate the ansi graphics.
-		Now uses the template newfiles to create the reports.
+		Now uses the template newfiles and filefind to create the 
+		reports.
 
 	mbtask:
 		Removed some debug logging.
