@@ -418,11 +418,166 @@ int mbsedb_PackFDB(struct _fdbarea *fdb_area)
 }
 
 
+typedef struct _fdbs {
+    struct _fdbs        *next;
+    struct FILE_record  filrec;
+} fdbs;
 
-int mbsedb_SortFDB(struct _fdbarea *fdb_area)
+
+
+void fill_fdbs(struct FILE_record, fdbs **);
+void fill_fdbs(struct FILE_record filrec, fdbs **fap)
 {
+    fdbs    *tmp;
+
+    tmp = (fdbs *)malloc(sizeof(fdbs));
+    tmp->next = *fap;
+    tmp->filrec = filrec;
+    *fap = tmp;
 }
 
+
+
+void tidy_fdbs(fdbs **);
+void tidy_fdbs(fdbs **fap)
+{
+    fdbs    *tmp, *old;
+
+    for (tmp = *fap; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fap = NULL;
+}
+
+
+int comp_fdbs(fdbs **, fdbs **);
+
+
+void sort_fdbs(fdbs **);
+void sort_fdbs(fdbs **fap)
+{
+    fdbs    *ta, **vector;
+    size_t  n = 0, i;
+
+    if (*fap == NULL)
+	return;
+
+    for (ta = *fap; ta; ta = ta->next)
+	n++;
+
+    vector = (fdbs **)malloc(n * sizeof(fdbs *));
+    i = 0;
+    for (ta = *fap; ta; ta = ta->next)
+	vector[i++] = ta;
+
+    qsort(vector, n, sizeof(fdbs *), (int(*)(const void*, const void *))comp_fdbs);
+    (*fap) = vector[0];
+    i = 1;
+
+    for (ta = *fap; ta; ta = ta->next) {
+	if (i < n)
+	    ta->next = vector[i++];
+	else
+	    ta->next = NULL;
+    }
+
+    free(vector);
+    return;
+}
+
+
+
+int comp_fdbs(fdbs **fap1, fdbs **fap2)
+{
+    return strcasecmp((*fap1)->filrec.LName, (*fap2)->filrec.LName);
+}
+
+
+
+/*
+ * Sort a files database using the long filenames.
+ */
+int mbsedb_SortFDB(struct _fdbarea *fdb_area)
+{
+    fdbs    *fdx = NULL, *tmp;
+    char    *temp, *temp2;
+    FILE    *fp;
+    int	    count = 0, rc;
+
+    Syslog('f', "SortFDB %ld", fdb_area->area);
+
+    fseek(fdb_area->fp, 0, SEEK_END);
+    if (ftell(fdb_area->fp) <= (fdbhdr.hdrsize + fdbhdr.recsize)) {
+	Syslog('f', "0 or 1 records, nothing to sort");
+	return 0;
+    }
+
+    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+	fill_fdbs(fdb, &fdx);
+	Syslog('f', "Adding %s", fdb.LName);
+    }
+
+    sort_fdbs(&fdx);
+    
+    /*
+     * Now the most timeconsuming part is done, lock the database and
+     * write the new sorted version.
+     */
+    if (mbsedb_LockFDB(fdb_area, 30) == FALSE) {
+	tidy_fdbs(&fdx);
+	return -1;
+    }
+    
+    temp  = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    if ((fp = fopen(temp, "a+")) == NULL) {
+        WriteError("$Can't create %s", temp);
+        mbsedb_UnlockFDB(fdb_area);
+        tidy_fdbs(&fdx);
+	free(temp);
+        return -1;
+    }
+    fwrite(&fdbhdr, fdbhdr.hdrsize, 1, fp);
+
+    /*
+     * Write sorted files to temp database
+     */
+    for (tmp = fdx; tmp; tmp = tmp->next) {
+        Syslog('f', "Sorted %s", tmp->filrec.LName);
+        fwrite(&tmp->filrec, fdbhdr.recsize, 1, fp);
+	count++;
+    }
+    tidy_fdbs(&fdx);
+
+    /*
+     * Now the trick, some might be waiting for a lock on the original file,
+     * we will give that a new name on disk. Then we move the temp in place.
+     * Finaly remove the old (still locked) original file.
+     */
+    temp2 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp2, "%s/fdb/file%ld.data", getenv("MBSE_ROOT"), fdb_area->area);
+    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = rename(temp2, temp);
+    Syslog('f', "rename %s %s rc=%d", temp2, temp, rc);
+    sprintf(temp, "%s/fdb/file%ld.temp", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = rename(temp, temp2);
+    Syslog('f', "rename %s %s rc=%d", temp, temp2, rc);
+    sprintf(temp, "%s/fdb/file%ld.xxxx", getenv("MBSE_ROOT"), fdb_area->area);
+    rc = unlink(temp);
+    Syslog('f', "unlink %s rc=%d", temp, rc);
+
+    fdb_area->fp = fp;
+    fdb_area->locked = 0;
+
+    free(temp);
+    free(temp2);
+
+    Syslog('f', "success, sorted %d", count);
+    return count;
+}
 
 
 #endif

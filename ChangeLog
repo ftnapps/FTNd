@@ -47,6 +47,8 @@ v0.51.4		11-Apr-2004
 		corrupt.
 		Mbfile check will now accept an area number to just check one
 		single area.
+		Added new experimental files database code which will only be
+		used if configured with --enable-experiment.
 
 	mbnntp:
 		New program, news server to read echomail with a news client.
