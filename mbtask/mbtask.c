@@ -658,11 +658,9 @@ int checktasks(int onsig)
  */
 void start_shutdown(int onsig)
 {
-    Syslog('+', "Trigger shutdown on signal %s", SigName[onsig]);
+    Syslog('s', "Trigger shutdown on signal %s", SigName[onsig]);
     signal(onsig, SIG_IGN);
     G_Shutdown = TRUE;
-    if (nodaemon && (onsig == SIGINT))
-	die(SIGTERM);
 }
 
 
@@ -719,8 +717,7 @@ void die(int onsig)
      * Now stop the threads
      */
     T_Shutdown = TRUE;
-    if (cmd_run || ping_run || sched_run)
-	Syslog('+', "Waiting for threads to stop");
+    Syslog('+', "Signal all threads to stop");
 
     /*
      * Wait at most 2 seconds for the threads, internal they are
@@ -730,6 +727,7 @@ void die(int onsig)
     while ((cmd_run || ping_run || sched_run) && (time(NULL) < now)) {
 	sleep(1);
     }
+    Syslog('+', "All threads stopped");
 
     /*
      * Free memory
@@ -931,7 +929,6 @@ void start_scheduler(void)
     struct passwd   *pw;
     char            *cmd = NULL;
     int		    rc;
-    pthread_attr_t  attr;
     
     InitFidonet();
 
@@ -953,7 +950,7 @@ void start_scheduler(void)
      * Setup UNIX Datagram socket
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0) {
-	Syslog('?', "$Can't create socket");
+	WriteError("$Can't create socket");
 	die(MBERR_INIT_ERROR);
     }
 
@@ -964,7 +961,7 @@ void start_scheduler(void)
     if (bind(sock, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
 	close(sock);
 	sock = -1;
-	Syslog('?', "$Can't bind socket %s", spath);
+	WriteError("$Can't bind socket %s", spath);
 	die(MBERR_INIT_ERROR);
     }
 
@@ -986,22 +983,24 @@ void start_scheduler(void)
     initnl();
     sem_set((char *)"scanout", TRUE);
     if (!TCFG.max_tcp && !pots_lines && !isdn_lines) {
-	Syslog('?', "ERROR: this system cannot connect to other systems, check setup");
+	Syslog('?', "WARNING: this system cannot connect to other systems, check setup");
     }
 
     /*
-     * Install threads
+     * Install the threads that do the real work.
      */
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    rc = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL);
-    Syslog('l', "pthread_create ping_thread rc=%d", rc);
-    rc = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL);
-    Syslog('l', "pthread_create cmd_thread rc=%d", rc);
-    rc = pthread_create(&p_thread[2], NULL, (void (*))scheduler, NULL);
-    Syslog('l', "pthread_create scheduler rc=%d", rc);
-    pthread_attr_destroy(&attr);
-    Syslog('+', "All threads installed");
+    if ((rc = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL))) {
+	WriteError("$pthread_create ping_thread rc=%d", rc);
+	die(SIGTERM);
+    } else if ((rc = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL))) {
+	WriteError("$pthread_create cmd_thread rc=%d", rc);
+	die(SIGTERM);
+    } else if ((rc = pthread_create(&p_thread[2], NULL, (void (*))scheduler, NULL))) {
+	WriteError("$pthread_create scheduler rc=%d", rc);
+	die(SIGTERM);
+    } else {
+	Syslog('+', "All threads installed");
+    }
 
     /*
      * Sleep until we die
@@ -1034,7 +1033,7 @@ void *scheduler(void)
     double          loadavg[3];
     pp_list         *tpl;
 
-    Syslog('+', "Starting scheduler thread with pid %d", (int)getpid());
+    Syslog('+', "Starting scheduler thread");
     sched_run = TRUE;
     pw = getpwuid(getuid());
 
@@ -1471,7 +1470,7 @@ int main(int argc, char **argv)
 	 * For debugging, run in foreground mode
 	 */
 	mypid = getpid();
-	scheduler();
+	start_scheduler();
     } else {
 	/*
 	 * Server initialization is complete. Now we can fork the 

@@ -584,7 +584,7 @@ void *cmd_thread(void)
     struct pollfd   pfd;
     static char	    buf[2048];
 
-    Syslog('+', "Starting cmd thread with pid %d", (int)getpid());
+    Syslog('+', "Starting cmd thread");
     cmd_run = TRUE;
 
     while (! T_Shutdown) {
@@ -601,9 +601,9 @@ void *cmd_thread(void)
 	    /* 
 	     *  Poll can be interrupted by a finished child so that's not a real error.
 	     */
-//	    if (errno != EINTR) {
+	    if (errno != EINTR) {
 		Syslog('?', "$poll() rc=%d sock=%d, events=%04x", rc, sock, pfd.revents);
-//	    }
+	    }
 	} else if (rc) {
 	    if (pfd.revents & POLLIN) {
 		/*

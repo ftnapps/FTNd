@@ -339,7 +339,7 @@ void *ping_thread(void)
     static time_t   pingsend;
     time_t	    now;
 
-    Syslog('+', "Starting ping thread with pid %d", (int)getpid());
+    Syslog('+', "Starting ping thread");
     pingresult[1] = pingresult[2] = FALSE;
     pingnr = 2;
     internet = FALSE;
