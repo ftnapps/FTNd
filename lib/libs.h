@@ -83,6 +83,7 @@
 #include <setjmp.h>
 #include <grp.h>
 #include <sys/resource.h>
+#include <iconv.h>
 
 #pragma pack(1)
 

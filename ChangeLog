@@ -5,7 +5,14 @@ $Id$
 	All other users on Intel machines (99,9% I think) can use this version.
 
 
-v0.37.3		09-Apr-2003.
+v0.37.4		10-May-2003
+
+	general:
+		Added check for inconv.h in configure script for UNIX98 
+		character set conversion.
+
+
+v0.37.3		09-Apr-2003 - 10-May-2003
 
 	upgrade:
 		Remove ~/etc/archiver.data, start mbsetup menu 3, leave and
