@@ -52,6 +52,7 @@ void PackFileBase(void)
     char    *sAreas, fn[PATH_MAX];
 #ifdef	USE_EXPERIMENT
     struct _fdbarea *fdb_area = NULL;
+    int	    purge;
 #else
     FILE    *pFile, *fp;
     char    *fAreas, *fTmp;
@@ -98,6 +99,7 @@ void PackFileBase(void)
 #ifdef	USE_EXPERIMENT
 	    if ((fdb_area = mbsedb_OpenFDB(i, 30)) == NULL)
 		die(MBERR_GENERAL);
+	    purge = 0;
 #else
 	    sprintf(fAreas, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), i);
 	    sprintf(fTmp,   "%s/fdb/file%d.temp", getenv("MBSE_ROOT"), i);
@@ -135,6 +137,9 @@ void PackFileBase(void)
 #endif
 		} else {
 		    iRemoved++;
+#ifdef	USE_EXPERIMENT
+		    purge++;
+#endif
 		    if (fdb.Double) {
 			Syslog('+', "Removed double record file \"%s\" from area %d", fdb.LName, i);
 		    } else {
@@ -158,7 +163,8 @@ void PackFileBase(void)
 	    }
 
 #ifdef	USE_EXPERIMENT
-	    mbsedb_PackFDB(fdb_area);
+	    if (purge)
+		mbsedb_PackFDB(fdb_area);
 	    mbsedb_CloseFDB(fdb_area);
 #else
 	    fclose(fp);

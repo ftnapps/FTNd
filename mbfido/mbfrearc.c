@@ -48,9 +48,13 @@ extern int	do_index;		/* Rebuild index		    */
 void ReArc(int Area, char *File)
 {
     char	    *p, *temp, *mname, *linkpath, mask[256];
-    FILE	    *fp;
     int		    i, rc = -1, count = 0, errors = 0;
     struct utimbuf  ut;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *fp;
+#endif
 
     IsDoing("ReArc file(s)");
     colour(LIGHTRED, BLACK);
@@ -84,18 +88,29 @@ void ReArc(int Area, char *File)
 	die(MBERR_GENERAL);
 
     temp = calloc(PATH_MAX, sizeof(char));
+
+#ifdef	USE_EXPERIMENT
+    if ((fdb_area = mbsedb_OpenFDB(Area, 30)) == NULL)
+	die(MBERR_GENERAL);
+#else
     sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
 
     if ((fp = fopen(temp, "r+")) == NULL)
 	die(MBERR_GENERAL);
 
     fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+#endif
+
     colour(CYAN, BLACK);
     strcpy(mask, re_mask(File, FALSE));
     if (re_comp(mask))
 	die(MBERR_GENERAL);
 
+#ifdef	USE_EXPERIMENT
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
     while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+#endif
 	if (re_exec(fdb.LName) || re_exec(fdb.Name)) {
 	    Syslog('+', "Will rearc %s", fdb.LName);
 	    sprintf(temp, "%s/%s", area.Path, fdb.Name);
@@ -185,9 +200,17 @@ void ReArc(int Area, char *File)
 		    strcpy(temp, mname);
 		}
 		free(mname);
+#ifdef	USE_EXPERIMENT
+		if (mbsedb_LockFDB(fdb_area, 30)) {
+		    fseek(fdb_area->fp, - fdbhdr.recsize, SEEK_CUR);
+		    fwrite(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+		    mbsedb_UnlockFDB(fdb_area);
+		}
+#else
 		fseek(fp, - fdbhdr.recsize, SEEK_CUR);
 		fwrite(&fdb, fdbhdr.recsize, 1, fp);
-		
+#endif
+
 		/*
 		 * Update symbolic link to long filename
 		 */
@@ -211,7 +234,11 @@ void ReArc(int Area, char *File)
 	    }
 	}
     }
+#ifdef	USE_EXPERIMENT
+    mbsedb_CloseFDB(fdb_area);
+#else
     fclose(fp);
+#endif
     free(temp);
     Syslog('+', "ReArc Files [%5d]  Good [%5d]  Errors [%5d]", count, count - errors, errors);
 }
