@@ -295,7 +295,7 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
     fidoaddr	Orig, Dest;
     faddr	From;
     unsigned	flags = M_PVT;
-    char	ext[4], *mgrname, *bymgr, *subj;
+    char	ext[4], *mgrname, *subj;
     int		i;
 
     From = *bestaka_s(t);
@@ -324,14 +324,12 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
 	    return 2;
 	}
 	mgrname = xstrcpy(nodes.UplFmgrPgm);
-	bymgr = xstrcpy((char *)"FileMgr");
     } else {
 	if (strlen(nodes.UplAmgrPgm) == 0) {
 	    Syslog('!', "AreaMgr program not defined in setup of node %s", aka2str(Dest));
 	    return 2;
 	}
 	mgrname = xstrcpy(nodes.UplAmgrPgm);
-	bymgr = xstrcpy((char *)"AreaMgr");
     }
 
     if (strlen(nodes.Apasswd) == 0) {
@@ -366,7 +364,7 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
     if ((qp = OpenPkt(Orig, Dest, (char *)ext)) == NULL)
 	return 4;
 
-    if (AddMsgHdr(qp, &From, t, flags, 0, Now, mgrname, bymgr, subj)) {
+    if (AddMsgHdr(qp, &From, t, flags, 0, Now, mgrname, CFG.sysop_name, subj)) {
 	fclose(qp);
 	return 4;
     }
@@ -399,7 +397,6 @@ int UplinkRequest(faddr *t, int FileMgr, char *cmd)
     fclose(qp);
 
     free(mgrname);
-    free(bymgr);
     free(subj);
     net_out++;
     return 0;

@@ -199,11 +199,12 @@ void Cookie(void)
     char    *fname;
     long    recno, records;
 
+    MacroVars("F", "s", "");
     fname = calloc(PATH_MAX, sizeof(char));
     sprintf(fname, "%s/etc/oneline.data", getenv("MBSE_ROOT"));
 
     if ((olf = fopen(fname, "r")) == NULL) {
-	WriteError("$Can't open %s", fname);
+	WriteError("Can't open %s", fname);
 	free(fname);
 	return;
     }
@@ -222,10 +223,10 @@ void Cookie(void)
 	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {
 	    MacroVars("F", "s", ol.Oneline);
 	} else {
-	    WriteError("Can't read %s", fname);
+	    WriteError("Can't read record %d from %s", recno, fname);
 	}
     } else {
-	WriteError("$Can't seek record %d in %s", recno, fname);
+	WriteError("Can't seek record %d in %s", recno, fname);
     }
     fclose(olf);
     free(fname);
