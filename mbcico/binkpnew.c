@@ -972,7 +972,7 @@ TrType binkp_receiver(void)
         } else if (bcmd == MM_EOB) {
             Syslog('+', "Binkp: rcvd M_EOB");
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-                Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
 		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
@@ -1250,7 +1250,7 @@ TrType binkp_transmitter(void)
 	    if ((respond = respond_wazoo()) != NULL) {
 		for (tsl = tosend; tsl->next; tsl = tsl ->next);
 		tsl->next = respond;
-		Syslog('+', "Binkp: added requested files");
+		Syslog('b', "Binkp: added requested files");
 	    }
 
 	    /*
@@ -1415,7 +1415,7 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-		Syslog('b', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
 			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
 
 		if (bp.local_EOB && bp.remote_EOB) {
@@ -1797,7 +1797,6 @@ int binkp_process_messages(void)
     long	lsize, loffs;
 
     Syslog('b', "Binkp: Process The Messages Queue Start");
-    debug_binkp_list(&bll);
 
     lname = calloc(512, sizeof(char));
 
