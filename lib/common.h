@@ -258,7 +258,7 @@ int		chkftnmsgid(char *);
 /*
  * From getheader.c
  */
-int		getheader(faddr *, faddr *, FILE *, char *);
+int		getheader(faddr *, faddr *, FILE *, char *, int);
 
 
 
@@ -384,7 +384,7 @@ int 		getarchiver(char *);
 /*
  * From packet.c
  */
-FILE		*openpkt(FILE *, faddr *, char);
+FILE		*openpkt(FILE *, faddr *, char, int);
 void		closepkt(void);
 
 

@@ -279,7 +279,7 @@ int TossPkt(char *fn)
 	memset(&from, 0, sizeof(faddr));
 	memset(&to,   0, sizeof(faddr));
 
-	if (((rc = getheader(&from, &to, pkt, fn)) != 0)) {
+	if (((rc = getheader(&from, &to, pkt, fn, FALSE)) != 0)) {
 		WriteError("%s, aborting",
 				(rc == 1)?"wrong header type":
 				(rc == 2)?"bad packet header":

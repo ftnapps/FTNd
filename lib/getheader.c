@@ -50,11 +50,15 @@ char	pktpwd[9];
  *  2 - Read header error
  *  3 - Not for me
  *  4 - Password error
+ *  5 - Unsecure session
+ *
+ *  If session is TRUE, the password is checked as being the session password,
+ *  otherwise it is checked as the mail password.
  */
-int getheader(faddr *f, faddr *t, FILE *pkt, char *pname)
+int getheader(faddr *f, faddr *t, FILE *pkt, char *pname, int session)
 {
     unsigned char   buffer[0x3a];
-    int		    i, pwdok, capword, prodx, major, minor = 0, tome = FALSE;
+    int		    i, capword, prodx, major, minor = 0, tome = FALSE;
     char	    *p, *prodn = NULL, *fa, *ta, buf[5];
     long	    year, month, day, hour, min, sec;
 
@@ -189,26 +193,44 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname)
 	buf[4] = '\0';
     }
 
-    pwdok = TRUE;
-    if (noderecord(f)) {
-	if (strcasecmp(nodes.Epasswd, pktpwd) != 0) {
-	    pwdok = FALSE;
-	    if (strlen(pktpwd))
-		Syslog('!', "Password : got \"%s\", expected \"%s\"", pktpwd, nodes.Epasswd);
-	}
-    } else {
-	Syslog('+', "Node not in setup");
-    }
-
     if (prodn)
 	free(prodn);
 
-    if (!tome) 
+    if (!tome)
 	return 3;
-    else if (!pwdok && nodes.MailPwdCheck) 
-	return 4;
-    else 
-	return 0;
+
+    if (session) {
+	/*
+	 * FTS-0001 session setup mode.
+	 */
+	if (noderecord(f) && strlen(nodes.Spasswd)) {
+	    if (strcasecmp(nodes.Spasswd, pktpwd) == 0) {
+		return 0; /* Secure session */
+	    } else {
+		Syslog('!', "Password : got \"%s\", expected \"%s\"", pktpwd, nodes.Spasswd);
+		return 4; /* Bad password */
+	    }
+	} else {
+	    Syslog('+', "Node not in setup or no password set");
+	    return 5; /* Unsecure session */
+	}
+    } else {
+	/*
+	 * Mail password check
+	 */
+	if (noderecord(f) && nodes.MailPwdCheck && strlen(nodes.Epasswd)) {
+	    if (strcasecmp(nodes.Epasswd, pktpwd) == 0) {   
+		return 0; /* Password Ok */
+	    } else {
+		Syslog('!', "Password : got \"%s\", expected \"%s\"", pktpwd, nodes.Epasswd);
+		return 4; /* Bad password */
+	    }
+	} else {
+	    return 0; /* Not checked, still Ok */
+	}
+    }
+
+    return 0;
 }
 
 

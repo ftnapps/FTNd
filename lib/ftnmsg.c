@@ -1,11 +1,11 @@
 /*****************************************************************************
  *
+ * $Id$
  * File ..................: ftnmsg.c
  * Purpose ...............: Fidonet mailer
- * Last modification date : 09-Nov-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -75,7 +75,7 @@ FILE *ftnmsghdr(ftnmsg *fmsg, FILE *pkt, faddr *route, char flavor, char *Pid)
 
 	if (route == NULL) 
 		route = fmsg->to;
-	pkt = openpkt(pkt, route, flavor);
+	pkt = openpkt(pkt, route, flavor, FALSE);
 	if (pkt == NULL) 
 		return NULL;
 

@@ -48,6 +48,9 @@ v0.37.6		10-Aug-2003
 		Set the EMSI receive failure count to 20 instead of 6, we can
 		now even accept buggy maindoor sessions and still display a
 		banner.
+		For FTS-0001 sessions the mail password was used instead of the
+		session password. Also improved the password check.
+		The product code was not entered in the FTS-0001 packet headers.
 
 	mbsetup:
 		In the nodes setup a switch is added to fallback to the wrong

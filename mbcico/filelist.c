@@ -4,7 +4,7 @@
  * Purpose ...............: fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -358,9 +358,12 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	}
     }
 
+    /*
+     * For FTS-0001 we need to create at least one packet.
+     */
     if (((st == NULL) && (create > 1)) || ((st != NULL) && (packets == 0) && (create > 0))) {
 	Syslog('o', "Create packet for %s", ascfnode(al->addr,0x1f));
-	if ((fp = openpkt(NULL, al->addr, 'o'))) {
+	if ((fp = openpkt(NULL, al->addr, 'o', TRUE))) {
 	    memset(&buffer, 0, sizeof(buffer));
 	    fwrite(buffer, 1, 2, fp);
 	    fclose(fp);

@@ -113,6 +113,8 @@ mbcico:
 	N: FTS-0001 sessions always are secure, the password check is not
 	   good.
 
+	N: The FTS-0001 incoming hello packet is not after a session.
+
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.
 

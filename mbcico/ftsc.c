@@ -60,6 +60,7 @@ static int		recvfiles(void);
 static file_list	*tosend;
 extern int		Loaded;
 extern pid_t		mypid;
+extern char		*tempinbound;
 
 
 
@@ -370,9 +371,9 @@ SM_NAMES
     (char *)"scan_packet",
     (char *)"recv_file"
 SM_EDECL
-    int	    rc = 0, protect = FALSE;
+    int	    rc = 0, ghc = 0;
     char    recvpktname[16];
-    char    *fpath;
+    char    *fpath, *tpath;
     FILE    *fp;
     faddr   f, t;
     fa_list **tmpl;
@@ -407,18 +408,21 @@ SM_STATE(scan_packet)
     fpath = xstrcat(fpath,recvpktname);
     mkdirs(fpath, 0700);
     fp = fopen(fpath,"r");
-    free(fpath);
     if (fp == NULL) {
 	WriteError("$cannot open received packet");
+	free(fpath);
 	SM_ERROR;
     }
-    switch (getheader(&f , &t, fp, recvpktname)) {
+    switch ((ghc = getheader(&f , &t, fp, recvpktname, TRUE))) {
 	case 3:	Syslog('+', "remote mistook us for %s",ascfnode(&t,0x1f));
 		fclose(fp);
+		Syslog('s', "Unlink %s rc=%d", fpath, unlink(fpath));
+		free(fpath);
 		SM_ERROR;
-	case 0:	Syslog('+', "accepting session");
+	case 0:	
+	case 5:	Syslog('+', "accepting session");
 		fclose(fp);
-		for (tmpl=&remote;*tmpl;tmpl=&((*tmpl)->next));
+		for (tmpl = &remote; *tmpl; tmpl = &((*tmpl)->next));
 		(*tmpl)=(fa_list*)malloc(sizeof(fa_list));
 		(*tmpl)->next=NULL;
 		(*tmpl)->addr=(faddr*)malloc(sizeof(faddr));
@@ -457,18 +461,26 @@ SM_STATE(scan_packet)
 		if (nlent) 
 		    rdoptions(Loaded);
 
-		/*
-		 * It appears that if the remote gave no password, the 
-		 * getheader function fills in a password itself. Maybe
-		 * that's the reason why E.C did not switch to protected
-		 * inbound, because of the failing password check. MB.
-		 */
-		if (f.name) {
+		if (ghc == 0) {
 		    Syslog('+', "Password correct, protected FTS-0001 session");
-		    protect = TRUE;
+		    inbound_open(remote->addr, TRUE);
+		} else {
+		    Syslog('+', "Unsecure FTS-0001 session");
+		    inbound_open(remote->addr, FALSE);
 		}
-		inbound_open(remote->addr, protect);
-		
+		/*
+		 * Move the packet to the temp inbound so the we can later
+		 * move it to the final inbound.
+		 */
+		tpath = xstrcpy(tempinbound);
+		tpath = xstrcat(tpath,(char *)"/");
+		tpath = xstrcat(tpath,recvpktname);
+
+		Syslog('s', "Move %s to %s rc=%d", fpath, tpath, file_mv(fpath, tpath));
+
+		free(fpath);
+		free(tpath);
+
 		tosend = create_filelist(remote,(char *)ALL_MAIL,1);
 		if (rc == 0) {
 		    SM_PROCEED(recv_file);
@@ -479,6 +491,8 @@ SM_STATE(scan_packet)
 	default: 
 		Syslog('+', "received bad packet apparently from",ascfnode(&f,0x1f));
 		fclose(fp);
+		Syslog('s', "Unlink %s rc=%d", fpath, unlink(fpath));
+		free(fpath);
 		SM_ERROR;
     }
 
