@@ -33,6 +33,7 @@
 #include "../lib/mbse.h"
 #include "ttyio.h"
 #include "zmmisc.h"
+#include "zmrecv.h"
 #include "ymrecv.h"
 
 
@@ -41,8 +42,11 @@ static int	Firstsec;
 static int	eof_seen;
 static int	errors;
 
+extern long	Bytesleft;
 extern int	Crcflg;
 extern char	Lastrx;
+extern char	*secbuf;
+
 
 #define sendline(c) PUTCHAR((c) & 0377)
 
@@ -54,18 +58,19 @@ int wcrxpn(char *rpn)
     size_t	    Blklen = 0;                /* record length of received packets */
 
     purgeline(0);
+    Syslog('x', "%s: wcrxpn()", protname());
 
 et_tu:
     Firstsec = TRUE;
     eof_seen = FALSE;
     sendline(Crcflg?WANTCRC:NAK);
-    fflush(stdout);
+    ioctl(1, TCFLSH, 0);
     purgeline(0); /* Do read next time ... */
-    while ((c = wcgetsec(&Blklen, rpn, 100)) != 0) {
+    while ((c = wcgetsec(&Blklen, rpn, 10)) != 0) {
 	if (c == WCEOT) {
 	    Syslog('x', "Pathname fetch returned EOT");
 	    sendline(ACK);
-	    fflush(stdout);
+	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    GETCHAR(1);
 	    goto et_tu;
@@ -73,7 +78,7 @@ et_tu:
 	return ERROR;
     }
     sendline(ACK);
-    fflush(stdout);
+    ioctl(1, TCFLSH, 0);
     return OK;
 }
 
@@ -81,7 +86,54 @@ et_tu:
 
 int wcrx(void)
 {
+    register int sectnum, sectcurr;
+    register char sendchar;
+    size_t Blklen;
+    long bytes_received = 0;
+
+    Firstsec = TRUE; sectnum = 0; 
+    eof_seen = FALSE;
+    sendchar = Crcflg ? WANTCRC:NAK;
+
+    Syslog('x', "%s: wcrx", protname());
+
+    for (;;) {
+	sendline(sendchar);     /* send it now, we're ready! */
+	ioctl(1, TCFLSH, 0);
+	purgeline(0);   /* Do read next time ... */
+	sectcurr = wcgetsec(&Blklen, secbuf, (unsigned int) ((sectnum & 0177) ? 5 : 13));
+	Syslog('x', "%s: got sector %d", sectcurr);
+
+	if (sectcurr == ((sectnum+1) &0377)) {
+	    sectnum++;
+	    /* if using xmodem we don't know how long a file is */
+	    if (Bytesleft && (Bytesleft - bytes_received) < Blklen)
+		Blklen = Bytesleft - bytes_received;
+	    bytes_received += Blklen;
+	    if (putsec(secbuf, Blklen) == ERROR)
+		return ERROR;
+	    sendchar = ACK;
+	}
+	else if (sectcurr == (sectnum & 0377)) {
+	    Syslog('x', "Received dup Sector");
+	    sendchar = ACK;
+	} else if (sectcurr == WCEOT) {
+	    if (closeit(1))
+		return ERROR;
+	    sendline(ACK);
+	    ioctl(1, TCFLSH, 0);
+	    purgeline(0);   /* Do read next time ... */
+	    return OK;
+	}
+	else if (sectcurr == ERROR)
+	    return ERROR;
+	else {
+	    Syslog('x', "Sync Error");
+	    return ERROR;
+	}
+    }
 }
+
 
 
 int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
@@ -91,6 +143,8 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
     register char *p;
     int sectcurr;
 
+    Syslog('x', "%s: wcgetsec()", protname());
+
     for (Lastrx = errors = 0; errors < RETRYMAX; errors++) {
 
 	if ((firstch = GETCHAR(maxtime)) == STX) {
@@ -99,6 +153,7 @@ int wcgetsec(size_t *Blklen, char *rxbuf, unsigned int maxtime)
 	if (firstch == SOH) {
 	    *Blklen=128;
 get2:
+	    Syslog('x', "%s: wcgetsec blklen %d", protname(), Blklen);
 	    sectcurr = GETCHAR(1);
 	    if ((sectcurr + (oldcrc = GETCHAR(1))) == 0377) {
 		oldcrc = Checksum = 0;
@@ -156,12 +211,14 @@ humbug:
 	
 	if (Firstsec) {
 	    sendline(Crcflg ? WANTCRC:NAK);
-	    fflush(stdout);
+	    ioctl(1, TCFLSH, 0);
+	    Syslog('x', "%s: send %s", protname(), Crcflg ? "WANTCRC":"NAK");
 	    purgeline(0);   /* Do read next time ... */
 	} else {
 	    maxtime = 40;
 	    sendline(NAK);
-	    fflush(stdout);
+	    Syslog('x', "%s: send NAK", protname());
+	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	}
     }

@@ -52,11 +52,11 @@ struct timeval starttime, endtime;
 struct timezone tz;
 
 #define DEFBYTL 2000000000L	/* default rx file size */
-static long Bytesleft;		/* number of bytes of incoming file left */
+long Bytesleft;			/* number of bytes of incoming file left */
 static long Modtime;		/* Unix style mod time for incoming file */
 static int Filemode;		/* Unix style mode for incoming file */
 static int Thisbinary = TRUE;	/* current file is to be received in bin mode */
-static char *secbuf=0;		/* "sector" buffer */
+char *secbuf=0;			/* "sector" buffer */
 static int tryzhdrtype;
 static char zconv;		/* ZMODEM file conversion request */
 static char zmanag;		/* ZMODEM file management request */
@@ -66,8 +66,6 @@ static int tryz(void);
 static int rzfiles(void);
 static int rzfile(void);
 static void zmputs(char*);
-int closeit(int);
-static int putsec(char*,int);
 static int procheader(char*);
 static int ackbibi(void);
 static long getfree(void);

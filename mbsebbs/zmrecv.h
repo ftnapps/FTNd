@@ -4,6 +4,7 @@
 /* $Id$ */
 
 int	zmrcvfiles(void);
-
+int	putsec(char*,int);
+int	closeit(int);
 
 #endif
