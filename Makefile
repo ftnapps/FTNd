@@ -8,7 +8,7 @@ OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  ChangeLog_1998 ChangeLog_1999 ChangeLog_2000 ChangeLog_2001 \
 		  ChangeLog_2002 README SETUP.sh TODO UPGRADE aclocal.m4 \
 		  checkbasic config.h.in configure configure.in paths.h.in
-TARFILE		= ${PACKAGE}-${VERSION}.tar.gz
+TARFILE		= ${PACKAGE}-${VERSION}.tar.bz2
 
 ###############################################################################
 
@@ -205,7 +205,7 @@ clean:
 
 ${TARFILE}:	.filelist
 		cd ..; rm -f ${TARFILE}; \
-		${TAR} cvTf ./${PACKAGE}-${VERSION}/.filelist - | gzip >${TARFILE}
+		${TAR} cvTf ./${PACKAGE}-${VERSION}/.filelist - | bzip2 >${TARFILE}
 
 crontab:
 		sh ./CRON.sh
