@@ -45,7 +45,7 @@
 #include "mbfutil.h"
 #include "mbfsort.h"
 #include "mbfile.h"
-
+#include "mbfrearc.h"
 
 
 extern int	do_quiet;		/* Suppress screen output	    */
@@ -62,6 +62,7 @@ int		do_tobe  = FALSE;	/* List toberep database	    */
 int		do_move  = FALSE;	/* Move a file			    */
 int		do_del   = FALSE;	/* Delete/undelete a file	    */
 int		do_sort  = FALSE;	/* Sort a filebase		    */
+int		do_rearc = FALSE;	/* ReArc a file			    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
 time_t		t_start;		/* Start time			    */
@@ -137,6 +138,20 @@ int main(int argc, char **argv)
 		    do_del = TRUE;
 		}
 	    }
+	} else if (!strncasecmp(argv[i], "r", 1)) {
+	    if (argc > (i + 1)) {
+		i++;
+		Area = atoi(argv[i]);
+		cmd = xstrcat(cmd, (char *)" ");
+		cmd = xstrcat(cmd, argv[i]);
+		if (argc > (i + 1)) {
+		    i++;
+		    FileName = xstrcpy(argv[i]);
+		    cmd = xstrcat(cmd, (char *)" ");
+		    cmd = xstrcat(cmd, argv[i]);
+		    do_rearc = TRUE;
+		}
+	    }
 	} else if (!strncasecmp(argv[i], "in", 2)) {
 	    do_index = TRUE;
 	} else if (!strncasecmp(argv[i], "im", 2)) {
@@ -201,7 +216,7 @@ int main(int argc, char **argv)
     }
 
     if (!(do_pack || do_sort || do_check || do_kill || do_index || do_import || 
-		do_list || do_adopt || do_del || do_move || do_tobe))
+		do_list || do_adopt || do_del || do_move || do_tobe || do_rearc))
 	Help();
 
     ProgName();
@@ -260,6 +275,11 @@ int main(int argc, char **argv)
 
     if (do_del) {
 	Delete(UnDel, Area, FileName);
+	die(MBERR_OK);
+    }
+
+    if (do_rearc) {
+	ReArc(Area, FileName);
 	die(MBERR_OK);
     }
 

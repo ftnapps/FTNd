@@ -43,8 +43,7 @@ extern int	do_quiet;		/* Suppress screen output	    */
 void ListFileAreas(int Area)
 {
     FILE    *pAreas, *pFile, *pTic;
-    int     i, iAreas, fcount, tcount = 0;
-    int     iTotal = 0;
+    int     i, iAreas, fcount, tcount = 0, iTotal = 0, columns = 80;
     long    fsize, tsize = 0;
     char    *sAreas, *fAreas, *sTic, flags[6], *ticarea;
 
@@ -53,6 +52,15 @@ void ListFileAreas(int Area)
      */
     if (do_quiet)
 	return;
+
+    /*
+     * See if we know the width of the users screen.
+     */
+    if (getenv("COLUMNS")) {
+	i = atoi(getenv("COLUMNS"));
+	if (i >= 80)
+	    columns = i;
+    }
 
     colour(LIGHTRED, BLACK);
     sAreas  = calloc(PATH_MAX, sizeof(char));
@@ -118,7 +126,7 @@ void ListFileAreas(int Area)
 	    printf("File listing of area %d, %s\n\n", Area, area.Name);
 	    printf("Short name     Kb. File date  Down Flg TIC Area             Long name\n");
 	    printf("------------ ----- ---------- ---- --- -------------------- ");
-	    for (i = 63; i < COLS; i++)
+	    for (i = 60; i < columns; i++)
 		printf("-");
 	    printf("\n");
 
@@ -133,7 +141,7 @@ void ListFileAreas(int Area)
 		if (fdb.Announced)
 		    flags[2] = 'A';
 
-		fdb.LName[COLS - 63] = '\0';
+		fdb.LName[columns - 60] = '\0';
 		printf("%-12s %5ld %s %4ld %s %-20s %s\n", fdb.Name, (long)(fdb.Size / 1024), StrDateDMY(fdb.FileDate), 
 			(long)(fdb.TimesDL), flags, fdb.TicArea, fdb.LName);
 		fcount++;
@@ -142,8 +150,8 @@ void ListFileAreas(int Area)
 	    fsize = fsize / 1024;
 
 	    colour(CYAN, BLACK);
-	    printf("--------------------------------------------------------------");
-	    for (i = 63; i < COLS; i++)
+	    printf("------------------------------------------------------------");
+	    for (i = 60; i < columns; i++)
 		printf("-");
 	    printf("\n");
 	    printf("%d file%s, %ld Kbytes\n", fcount, (fcount == 1) ? "":"s", fsize);

@@ -2434,6 +2434,12 @@ int gpt_running(int);		    /* Is timer running			*/
 int msleep(int);		    /* Milliseconds timer		*/
 
 
+/*
+ * remask.c
+ */
+char *re_mask(char *, int);	    /* Bluid file mask			*/
+
+
 
 /************************************************************************
  *
@@ -2475,8 +2481,14 @@ char *charset_alias_rfc(char *);	/* Search RFC alias		    */
 int charset_set_in_out(char *, char *);	/* Setup mapping		    */
 
 
+/*
+ * rearc.c
+ */
+int rearc(char *, char *, int);		/* Rearc command		    */
 
-/************************************************************************
+
+
+/****************************************************************************
  *
  *  Records data
  */
@@ -2550,8 +2562,6 @@ struct	_magic		magic;
 
 struct	_nodeshdr	nodeshdr;		/* Fidonet nodes	   */
 struct	_nodes		nodes;
-
-//struct	_bill		bill;			/* Unsent bills		   */
 
 struct	_newfileshdr	newfileshdr;		/* New file reports	   */
 struct	_newfiles	newfiles;

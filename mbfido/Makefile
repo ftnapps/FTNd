@@ -21,7 +21,7 @@ HDRS		= addbbs.h backalias.h flock.h hatch.h mbdiff.h mgrutil.h qualify.h \
 		  aliasdb.h fsort.h magic.h mbfile.h mover.h ping.h rfc2ftn.h \
 		  storeecho.h unpack.h announce.h fflist.h ftn2rfc.h makestat.h mbindex.h \
 		  msgutil.h post.h rnews.h storenet.h utic.h areamgr.h filefind.h \
-		  grlist.h maketags.h mbmsg.h newspost.h postecho.h rollover.h tic.h \
+		  grlist.h maketags.h mbmsg.h newspost.h postecho.h rollover.h tic.h mbfrearc.h \
 		  atoul.h filemgr.h hash.h mbaff.h mbseq.h notify.h postemail.h scan.h toberep.h \
 		  mbfkill.h mbfutil.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfadopt.h \
 		  mbfimport.h mbfsort.h virscan.h mbftoberep.h mbfmove.h mbfdel.h bounce.h \
@@ -39,7 +39,7 @@ MBAFF_OBJS	= announce.o fflist.o filefind.o grlist.o mbaff.o msgutil.o toberep.o
 MBINDEX_OBJS	= mbindex.o
 MBDIFF_OBJS	= mbdiff.o
 MBFILE_OBJS	= mbfile.o mbfkill.o mbfutil.o mbfindex.o mbfcheck.o mbfpack.o mbflist.o mbfadopt.o \
-		  mbfimport.o virscan.o mbftoberep.o mbfmove.o mbfdel.o mbfsort.o
+		  mbfimport.o virscan.o mbftoberep.o mbfmove.o mbfdel.o mbfsort.o mbfrearc.o
 MBMSG_OBJS	= post.o mbmsg.o
 MBFIDO_LIBS	= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a ../lib/libmbinet.a ../lib/libnodelist.a
 MBSEQ_LIBS	= ../lib/libmbse.a ../lib/libdbase.a
@@ -147,7 +147,7 @@ unpack.o: ../config.h ../lib/mbselib.h flock.h unpack.h
 aliasdb.o: ../config.h ../lib/mbselib.h aliasdb.h
 fsort.o: ../config.h ../lib/mbselib.h fsort.h
 magic.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h tic.h utic.h magic.h
-mbfile.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfkill.h mbfadopt.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfimport.h mbftoberep.h mbfmove.h mbfdel.h mbfutil.h mbfsort.h mbfile.h
+mbfile.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfkill.h mbfadopt.h mbfindex.h mbfcheck.h mbfpack.h mbflist.h mbfimport.h mbftoberep.h mbfmove.h mbfdel.h mbfutil.h mbfsort.h mbfile.h mbfrearc.h
 mover.o: ../config.h ../lib/mbselib.h tic.h mover.h
 post.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h post.h
 rnews.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbinet.h ../lib/mbsedb.h ../lib/msg.h ../lib/msgtext.h rfc2ftn.h mbfido.h ../paths.h rnews.h

@@ -227,6 +227,9 @@ void Check(void)
 			tname = calloc(PATH_MAX, sizeof(char));
 			sprintf(tname, "%s/%s", area.Path, fdb.Name);
 			rename(tname, mname);
+			sprintf(tname, "%s/%s", area.Path, fdb.LName);
+			unlink(tname);
+			symlink(mname, tname);
 			free(tname);
 			strncpy(fdb.Name, temp, 12);
 			iErrors++;

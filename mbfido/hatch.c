@@ -104,7 +104,7 @@ int CheckHatch(char *temp)
     struct dirent   *de;
     char	    *fn, *tf, tmp[4], *temp2;
     int		    i, hatched = FALSE;
-    char	    *p, *q, mask[256];
+    char	    mask[256];
     FILE	    *Tf;
 
     fn = xstrcpy(strrchr(temp, '/') + 1);
@@ -125,26 +125,7 @@ int CheckHatch(char *temp)
 	return FALSE;
     }
 
-    memset(&mask, 0, sizeof(mask));
-    p = fn;
-    q = mask;
-    *q++ = '^';
-    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-	switch(*p) {
-	    case '\\':  *q++ = '\\'; *q++ = '\\'; break;
-	    case '?':   *q++ = '.'; break;
-	    case '.':   *q++ = '\\'; *q++ = '.'; break;
-	    case '+':   *q++ = '\\'; *q++ = '+'; break;
-	    case '*':   *q++ = '.'; *q++ = '*'; break;
-	    case '@':   sprintf(q, "[A-Za-z]"); while (*q) q++; break;
-	    case '#':   sprintf(q, "[0-9]"); while (*q) q++; break;
-	    default:    *q++ = *p; break;
-	}
-	p++;
-    }
-    *q++ = '$';
-    *q = '\0';
-
+    strcpy(mask, re_mask(fn, FALSE));
     if ((re_comp(mask)) == NULL) {
 	tf = calloc(PATH_MAX, sizeof(char));
 	while ((de = readdir(dp))) {

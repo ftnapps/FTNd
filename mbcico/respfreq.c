@@ -153,7 +153,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 {
     file_list		*fl = NULL;
     struct stat		st;
-    char		mask[256], *p, *q, *tnm, *t;
+    char		mask[256], *p, *tnm, *t;
     time_t		upd = 0L;
     int			newer = 1, Send;
     FILE		*fa, *fb, *fi;
@@ -222,23 +222,7 @@ file_list *respfreq(char *nm, char *pw, char *dt)
 
     Syslog('+', "File request : %s (update (%s), password \"%s\")",MBSE_SS(nm),MBSE_SS(dt),MBSE_SS(pw));
     add_report((char *)"RQ: Regular file \"%s\"",nm);
-    p = tl(nm);
-    q = mask;
-    *q++ = '^';
-    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-	switch (*p) {
-	    case '\\':	*q++ = '\\'; *q++ = '\\'; break;
-	    case '?':	*q++ = '.';  break;
-	    case '.':	*q++ = '\\'; *q++ = '.'; break;
-	    case '+':	*q++ = '\\'; *q++ = '+'; break;
-	    case '*':	*q++ = '.';  *q++ = '*'; break;
-	    default:	*q++ = toupper(*p);   break;
-	}
-	p++;
-    }
-    *q++ = '$';
-    *q = '\0';
-    Syslog('f', "Search mask \"%s\"", mask);
+    strcpy(mask, re_mask(nm, TRUE));
     re_comp(mask);
 
     /*

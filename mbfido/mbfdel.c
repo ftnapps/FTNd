@@ -46,7 +46,7 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void Delete(int UnDel, int Area, char *File)
 {
-    char		*temp;
+    char		*temp, mask[256];
     FILE		*fp;
     int			rc = FALSE;
 
@@ -84,29 +84,32 @@ void Delete(int UnDel, int Area, char *File)
     if ((fp = fopen(temp, "r+")) == NULL)
 	die(MBERR_GENERAL);
 
+    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
     colour(CYAN, BLACK);
+    strcpy(mask, re_mask(File, FALSE));
+    if (re_comp(mask))
+	die(MBERR_GENERAL);
 
-    while (fread(&fdb, sizeof(fdb), 1, fp) == 1) {
-	if ((! strcmp(fdb.LName, File) || (! strcmp(fdb.Name, File)))) {
+    while (fread(&fdb, fdbhdr.recsize, 1, fp) == 1) {
+	if (re_exec(fdb.LName) || re_exec(fdb.Name)) {
 	    if (UnDel && fdb.Deleted) {
 		fdb.Deleted = FALSE;
-		Syslog('+', "Marked file %s in area %d for undeletion", File, Area);
+		Syslog('+', "Marked file %s in area %d for undeletion", fdb.Name, Area);
 		if (!do_quiet)
-		    printf("Marked file %s in area %d for undeletion\n", File, Area);
+		    printf("Marked file %s in area %d for undeletion\n", fdb.Name, Area);
 		rc = TRUE;
 	    }
 	    if (!UnDel && !fdb.Deleted) {
 		fdb.Deleted = TRUE;
-		Syslog('+', "Marked file %s in area %d for deletion", File, Area);
+		Syslog('+', "Marked file %s in area %d for deletion", fdb.Name, Area);
 		if (!do_quiet)
-		    printf("Marked file %s in area %d for deletion\n", File, Area);
+		    printf("Marked file %s in area %d for deletion\n", fdb.Name, Area);
 		rc = TRUE;
 	    }
 	    if (rc) {
-		fseek(fp, - sizeof(fdb), SEEK_CUR);
-		fwrite(&fdb, sizeof(fdb), 1, fp);
+		fseek(fp, - fdbhdr.recsize, SEEK_CUR);
+		fwrite(&fdb, fdbhdr.recsize, 1, fp);
 	    }
-	    break;
 	}
     }
     fclose(fp);

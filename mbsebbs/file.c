@@ -697,7 +697,7 @@ int FilenameScan()
 {
     FILE	    *pAreas, *pFile;
     int		    Found, Count = 0;
-    char	    *p, *q, mask[256];
+    char	    mask[256];
     char	    *Name;
     _Tag	    T;
     unsigned long   OldArea;
@@ -724,25 +724,7 @@ int FilenameScan()
 	return 0;
     }
 
-    /*
-     * Make a regexp string for the users search mask.
-     */
-    p = tl(Name);
-    q = mask;
-    *q++ = '^';
-    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-	switch (*p) {
-	    case '\\':  *q++ = '\\'; *q++ = '\\'; break;
-	    case '?':   *q++ = ','; break;
-	    case '.':   *q++ = '\\'; *q++ = '.'; break;
-	    case '+':   *q++ = '\\'; *q++ = '+'; break;
-	    case '*':   *q++ = '.';  *q++ = '*'; break;
-	    default:    *q++ = toupper(*p);   break;
-	}
-	p++;
-    }
-    *q++ = '$';
-    *q++ = '\0';
+    strcpy(mask, re_mask(Name, TRUE));
     Syslog('+', "FilenameScan(): \"%s\" -> \"%s\"", Name, mask);
     free(Name);
     re_comp(mask);

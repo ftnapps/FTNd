@@ -83,7 +83,7 @@ char *Magic_Macro(int C)
 int GetMagicRec(int Typ, int First)
 {
     int	    Eof = FALSE;
-    char    *temp, *p, *q, mask[256];
+    char    *temp, mask[256];
     FILE    *FeM;
 
     if (First)
@@ -114,25 +114,7 @@ int GetMagicRec(int Typ, int First)
 	    if ((magic.Active) && (magic.Attrib == Typ) && (strcasecmp(magic.From, TIC.TicIn.Area) == 0)) {
 
 		memset(&mask, 0, sizeof(mask));
-		p = magic.Mask;
-		q = mask;
-		*q++ = '^';
-		while ((*p) && (q < (mask + sizeof(mask) - 4))) {
-		    switch(*p) {
-			case '\\':  *q++ = '\\'; *q++ = '\\'; break;
-			case '?':   *q++ = '.'; break;
-			case '.':   *q++ = '\\'; *q++ = '.'; break;
-			case '+':   *q++ = '\\'; *q++ = '+'; break;
-			case '*':   *q++ = '.'; *q++ = '*'; break;
-			case '@':   sprintf(q, "[A-Za-z]"); while (*q) q++; break;
-			case '#':   sprintf(q, "[0-9]"); while (*q) q++; break;
-			default:    *q++ = *p; break;
-		    }
-		    p++;
-		}
-		*q++ = '$';
-		*q = '\0';
-
+		strcpy(mask, re_mask(magic.Mask, FALSE));
 		if ((re_comp(mask)) == NULL) {
 		    if (re_exec(TIC.NewFile)) {
 			fclose(FeM);

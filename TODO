@@ -139,9 +139,12 @@ mbfile:
 
 	L: Update <filespec> <area> <-touch>
 
-	L: Rearc <area>
-
 	L: Possibility to skip file areas from checking and reindexing.
+
+	N: The import function does not create long filenames.
+
+	N: The import function doesn't strip the [0] from the files.bbs
+	   when importing the description.
 
 mbmsg:
 	N: With the post command if a netmail area is used the netmail area

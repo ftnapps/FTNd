@@ -38,6 +38,11 @@ v0.51.2		06-Mar-2004
 		Updated kill, index, check, pack, list, adopt, import, move,
 		delete and sort to the new files database structure.
 		The file delete function in kill didn't delete the thumbnail.
+		The mbfile del and undel commands accept wildcards in the 
+		filename.
+		Fixed an error in check when a mangled 8.3 filename was changed
+		and the symbolic link was not adjusted.
+		Added rearc command.
 
 	mbaff:
 		When scanning for uploads, files which were hatched now have
