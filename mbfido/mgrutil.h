@@ -23,7 +23,7 @@ typedef struct _AreaList {
 
 
 void MacroRead(FILE *, FILE *);
-int  MsgResult(const char *, FILE * );
+int  MsgResult(const char *, FILE *, char);
 void GetRpSubject(const char *, char*);
 
 void WriteMailGroups(FILE *, faddr *);

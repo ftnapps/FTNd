@@ -22,6 +22,10 @@ v0.61.3		25-Jul-2004
 		Fixed logging of 0 articles in scannews.
 		With the command "mbfido areas" without the -q option the user
 		must confirm this action.
+		For netmails to uplinks for areamgr/filemgr changes, the wrong
+		password was used.
+		In large areamgr/filemgr responses each 2048 bytes was an extra
+		<cr> inserted.
 
 	mbfile:
 		Fixed a bug where "mbfile k p i" didn't give the help screen.

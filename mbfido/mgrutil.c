@@ -241,7 +241,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, mgr?(char *)"Filemgr":(char *)"Areamgr");
 	if ((strlen(Buf) < 3) || (strlen(Buf) > 15)) {
  	    MacroVars("RABCDE", "ssssss",(char *)"ERR_PASS_LEN",(char *)"",(char *)"",(char *)"",(char *)"",(char *)"");
-	    MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
+	    MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp,'\n');
 	    Mgrlog("%s: Password length %d, not changed", mgr?(char *)"Filemgr":(char *)"Areamgr", strlen(Buf));
 	    return;
 	}
@@ -249,7 +249,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	memset(&nodes.Apasswd, 0, sizeof(nodes.Apasswd));
 	strncpy(nodes.Apasswd, tu(Buf), 15);
 	MacroVars("RABCDE", "ssssss",(char *)"OK_PASS",nodes.Apasswd,(char *)"",(char *)"",(char *)"",(char *)"");
-	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
+	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp,'\n');
 	Mgrlog("%s: Password \"%s\" for node %s", mgr?(char *)"Filemgr":(char *)"Areamgr", nodes.Apasswd, ascfnode(t, 0x1f));
         MacroClear();
 	UpdateNode();
@@ -281,7 +281,7 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
 	Mgrlog("%s: Notify %s", mgr?(char *)"Filemgr":(char *)"Areamgr", nodes.Notify?"Yes":"No");
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,mgr?(char *)"Filemgr":(char *)"Areamgr");
 	MacroVars("RABCDE", "sdssss",(char *)"NOTIFY",nodes.Notify,(char *)"",(char *)"",(char *)"",(char *)"");
-	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
+	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp,'\n');
 	MacroClear();
 }
 
@@ -332,19 +332,23 @@ int UplinkRequest(faddr *t, faddr *From, int FileMgr, char *cmd)
 	    return 2;
 	}
 	mgrname = xstrcpy(nodes.UplFmgrPgm);
+	if (strlen(nodes.UplFmgrPass) == 0) {
+	    Syslog('!', "No FileMgr password set for node %s", aka2str(Dest));
+	    return 3;
+	}
+	subj = xstrcpy(nodes.UplFmgrPass);
     } else {
 	if (strlen(nodes.UplAmgrPgm) == 0) {
 	    Syslog('!', "AreaMgr program not defined in setup of node %s", aka2str(Dest));
 	    return 2;
 	}
 	mgrname = xstrcpy(nodes.UplAmgrPgm);
+	if (strlen(nodes.UplAmgrPass) == 0) {
+	    Syslog('!', "No AreaMgr password set for node %s", aka2str(Dest));
+	    return 3;
+	}
+	subj = xstrcpy(nodes.UplAmgrPass);
     }
-
-    if (strlen(nodes.Apasswd) == 0) {
-	Syslog('!', "No %s password set for node %s", mgrname, aka2str(Dest));
-	return 3;
-    }
-    subj = xstrcpy(nodes.Apasswd);
 
     Mgrlog("Sending uplink request from %s to \"%s\" at %s", aka2str(Orig), mgrname, ascfnode(t, 0x1f));
 
@@ -456,7 +460,7 @@ void GetRpSubject(const char *report, char* subject)
 
 
 
-int MsgResult(const char * report, FILE *fo)
+int MsgResult(const char * report, FILE *fo, char eol)
 {
     FILE    *fi;
     char    *temp, *resp;
@@ -470,7 +474,7 @@ int MsgResult(const char * report, FILE *fo)
 	    if (temp[0] != '#') {
 		strncpy(resp, ParseMacro(temp, &res), 80);
 		if ((res == 0) && strlen(resp))
-		    fprintf(fo,"%s\r",ParseMacro(temp,&res));
+		    fprintf(fo,"%s%c",ParseMacro(temp,&res), eol);
 	    }
 	}
         fclose(fi);
