@@ -39,8 +39,15 @@ mbsebbs:
 	N: If a new mailcheck takes longer then the idle timeout, the user is 
 	   disconnected as soon as the mailcheck is ready.
 
+	N: Only count posted messages in local mail areas.
 
 mbfido:
+	N: The elist rules files are named (8.3) areaname.rul where areaname
+	   is the first 8 characters of the area name and we use the full name
+	   only. Make sure both namings are accepted?
+
+	N: Count posted messages during mailscan.
+
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
 

@@ -53,6 +53,8 @@ v0.37.01	14-Jan-2003.
 		In areamgr/filemgr lists the messages are forced splitted when
 		the force limit is reached in the middle of a group listing.
 		The nodes statistocs are expanded with flow counters.
+		If echomail is accepted in a unsecure area or the unsecure
+		commandline option is set, a violation is logged as warning.
 
 	mbsetup:
 		Added protection against wrong database sizes depending on

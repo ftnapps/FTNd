@@ -170,6 +170,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	if (bad && (msgs.UnSecure || do_unsec)) {
 	    bad = FALSE;
 	    memset(&Link, 0, sizeof(Link));
+	    Syslog('!', "Warning, unsecure echomail from %s accepted in area %s", ascfnode(p_from, 0x1f), msgs.Tag);
 	}
 	if (bad) {
 	    Syslog('+', "Node %s not connected to area %s", ascfnode(p_from, 0x1f), msgs.Tag);
