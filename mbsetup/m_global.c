@@ -442,13 +442,16 @@ void s_newuser(void)
 	mvprintw(12, 6, "6.    Ask Dataphone");
 	mvprintw(13, 6, "7.    Telephone scan");
 	mvprintw(14, 6, "8.    Ask Handle");
-
-	mvprintw( 8,46, "9.    Ask Birth date");
-	mvprintw( 9,46, "10.   Ask Location");
-	mvprintw(10,46, "11.   Ask Hot-Keys");
-	mvprintw(11,46, "12.   One word names");
-	mvprintw(12,46, "13.   Ask Address");
-	mvprintw(13,46, "14.   Give email");
+	mvprintw(15, 6, "9.    Ask Birth date");
+	mvprintw(16, 6, "10.   Ask Location");
+	
+	mvprintw( 8,46, "11.   Ask Hot-Keys");
+	mvprintw( 9,46, "12.   One word names");
+	mvprintw(10,46, "13.   Ask Address");
+	mvprintw(11,46, "14.   Give email");
+	mvprintw(12,46, "15.   Ask screenlen");
+	mvprintw(13,46, "16.   Do Newmail");
+	mvprintw(14,46, "17.   Do newfiles");
 }
 
 
@@ -466,15 +469,18 @@ void e_newuser(void)
 		show_bool(12,28, CFG.iDataPhone);
 		show_bool(13,28, CFG.iTelephoneScan);
 		show_bool(14,28, CFG.iHandle);
+		show_bool(15,28, CFG.iDOB);
+		show_bool(16,28, CFG.iLocation);
 
-		show_bool( 8,68, CFG.iDOB);
-		show_bool( 9,68, CFG.iLocation);
-		show_bool(10,68, CFG.iHotkeys);
-		show_bool(11,68, CFG.iOneName);
-		show_bool(12,68, CFG.AskAddress);
-		show_bool(13,68, CFG.GiveEmail);
+		show_bool( 8,68, CFG.iHotkeys);
+		show_bool( 9,68, CFG.iOneName);
+		show_bool(10,68, CFG.AskAddress);
+		show_bool(11,68, CFG.GiveEmail);
+		show_bool(12,68, CFG.AskScreenlen);
+		show_asktype(13,68, CFG.AskNewmail);
+		show_asktype(14,68, CFG.AskNewfiles);
 
-		switch(select_menu(14)) {
+		switch(select_menu(17)) {
 		case 0:	return;
 		case 1: E_SEC(  7,28, CFG.newuser_access, "1.7.1 NEWUSER SECURITY", s_newuser)
 		case 2:	E_BOOL( 8,28, CFG.iCapUserName, "^Capitalize^ username")
@@ -484,13 +490,18 @@ void e_newuser(void)
 		case 6:	E_BOOL(12,28, CFG.iDataPhone, "Ask users ^Data^ phone number")
 		case 7:	E_BOOL(13,28, CFG.iTelephoneScan, "Perform ^Telephone^ number scan")
 		case 8:	E_BOOL(14,28, CFG.iHandle, "Ask users ^handle^")
+		case 9:	E_BOOL(15,28, CFG.iDOB, "Ask users ^Date of Birth^")
+		case 10:E_BOOL(16,28, CFG.iLocation, "Ask users ^Location^")
 
-		case 9:	E_BOOL( 8,68, CFG.iDOB, "Ask users ^Date of Birth^")
-		case 10:E_BOOL( 9,68, CFG.iLocation, "Ask users ^Location^")
-		case 11:E_BOOL(10,68, CFG.iHotkeys, "Ask user if he wants ^Hot-Keys^")
-		case 12:E_BOOL(11,68, CFG.iOneName, "Allow ^one word^ (not in Unixmode) usernames")
-		case 13:E_BOOL(12,68, CFG.AskAddress, "Aks users ^home address^ in 3 lines")
-		case 14:E_BOOL(13,68, CFG.GiveEmail, "Give new users an ^private email^ box")
+		case 11:E_BOOL( 8,68, CFG.iHotkeys, "Ask user if he wants ^Hot-Keys^")
+		case 12:E_BOOL( 9,68, CFG.iOneName, "Allow ^one word^ (not in Unixmode) usernames")
+		case 13:E_BOOL(10,68, CFG.AskAddress, "Ask users ^home address^ in 3 lines")
+		case 14:E_BOOL(11,68, CFG.GiveEmail, "Give new users an ^private email^ box")
+		case 15:E_BOOL(12,68, CFG.AskScreenlen, "Ask new user to set the ^screen length^")
+		case 16:CFG.AskNewmail = 
+			edit_asktype(13,68,CFG.AskNewmail, "Set ^new mail^ check at login, toggle wit space, Enter when done");
+		case 17:CFG.AskNewfiles =
+			edit_asktype(13,68,CFG.AskNewfiles, "Set ^new files^ check at login, toggle wit space, Enter when done");
 		}
 	};
 }
@@ -1925,26 +1936,32 @@ int global_doc(FILE *fp, FILE *toc, int page)
     add_webtable(wp, (char *)"Allow one word names", getboolean(CFG.iOneName));
     add_webtable(wp, (char *)"Ask Address", getboolean(CFG.AskAddress));
     add_webtable(wp, (char *)"Give email box", getboolean(CFG.GiveEmail));
+    add_webtable(wp, (char *)"Ask Screenlen", getboolean(CFG.AskScreenlen));
+    add_webtable(wp, (char *)"Do newmail check", get_asktype(CFG.AskNewmail));
+    add_webtable(wp, (char *)"Do newfiles check", get_asktype(CFG.AskNewfiles));
     fprintf(wp, "</TBODY>\n");
     fprintf(wp, "</TABLE>\n");
     fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
     fprintf(wp, "<HR>\n");
     page = newpage(fp, page);
     addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
-    fprintf(fp, "      Access level     %s\n", get_secstr(CFG.newuser_access));
-    fprintf(fp, "      Cap. username    %s\n", getboolean(CFG.iCapUserName));
-    fprintf(fp, "      Ask ANSI         %s\n", getboolean(CFG.iAnsi));
-    fprintf(fp, "      Ask Sex          %s\n", getboolean(CFG.iSex));
-    fprintf(fp, "      Ask voicephone   %s\n", getboolean(CFG.iVoicePhone));
-    fprintf(fp, "      Ask dataphone    %s\n", getboolean(CFG.iDataPhone));
-    fprintf(fp, "      Telephone scan   %s\n", getboolean(CFG.iTelephoneScan));
-    fprintf(fp, "      Ask handle       %s\n", getboolean(CFG.iHandle));
-    fprintf(fp, "      Ask birthdate    %s\n", getboolean(CFG.iDOB));
-    fprintf(fp, "      Ask location     %s\n", getboolean(CFG.iLocation));
-    fprintf(fp, "      Ask hotkeys      %s\n", getboolean(CFG.iHotkeys));
-    fprintf(fp, "      One word names   %s\n", getboolean(CFG.iOneName));
-    fprintf(fp, "      Ask address      %s\n", getboolean(CFG.AskAddress));
-    fprintf(fp, "      Give email box   %s\n", getboolean(CFG.GiveEmail));
+    fprintf(fp, "      Access level      %s\n", get_secstr(CFG.newuser_access));
+    fprintf(fp, "      Cap. username     %s\n", getboolean(CFG.iCapUserName));
+    fprintf(fp, "      Ask ANSI          %s\n", getboolean(CFG.iAnsi));
+    fprintf(fp, "      Ask Sex           %s\n", getboolean(CFG.iSex));
+    fprintf(fp, "      Ask voicephone    %s\n", getboolean(CFG.iVoicePhone));
+    fprintf(fp, "      Ask dataphone     %s\n", getboolean(CFG.iDataPhone));
+    fprintf(fp, "      Telephone scan    %s\n", getboolean(CFG.iTelephoneScan));
+    fprintf(fp, "      Ask handle        %s\n", getboolean(CFG.iHandle));
+    fprintf(fp, "      Ask birthdate     %s\n", getboolean(CFG.iDOB));
+    fprintf(fp, "      Ask location      %s\n", getboolean(CFG.iLocation));
+    fprintf(fp, "      Ask hotkeys       %s\n", getboolean(CFG.iHotkeys));
+    fprintf(fp, "      One word names    %s\n", getboolean(CFG.iOneName));
+    fprintf(fp, "      Ask address       %s\n", getboolean(CFG.AskAddress));
+    fprintf(fp, "      Give email box    %s\n", getboolean(CFG.GiveEmail));
+    fprintf(fp, "      Ask Screenlen     %s\n", getboolean(CFG.AskScreenlen));
+    fprintf(fp, "      Do newmail check  %s\n", get_asktype(CFG.AskNewmail));
+    fprintf(fp, "      Do newfiles check %s\n", get_asktype(CFG.AskNewfiles));
 
     fprintf(wp, "<A NAME=\"_colors\"></A><H3>Text colors</H3>\n");
     fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
