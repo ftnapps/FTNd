@@ -88,6 +88,7 @@ int outstat()
 
     /*
      * Check private outbound box for nodes in the setup.
+     * Also, check directory outbounds for FTP nodes.
      */
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
@@ -148,6 +149,31 @@ int outstat()
 					Syslog('o', "no R/W permission on %s", temp);
 				    }
 				}
+			    } else {
+				Syslog('o', "not a regular file");
+			    }
+			} else {
+			    WriteError("Can't stat %s", temp);
+			}
+		    }
+		}
+		closedir(dp);
+	    }
+	    tidy_faddr(fa);
+	}
+	if ((nodes.Session_out == S_DIR) && strlen(nodes.Dir_out_path)) {
+	    fa = fido2faddr(nodes.Aka[0]);
+	    flavor = 'h';   /* Directory outbound files are always on hold */
+	    Syslog('o', "checking directory path %s (%s)", nodes.Dir_out_path, ascfnode(fa, 0x2f));
+	    if ((dp = opendir(nodes.Dir_out_path)) == NULL) {
+		Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(nodes.Dir_out_path));
+	    } else {
+		while ((de = readdir(dp))) {
+		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+			sprintf(temp, "%s/%s", nodes.Dir_out_path, de->d_name);
+			if (stat(temp, &sb) == 0) {
+			    if (S_ISREG(sb.st_mode)) {
+				each(fa, flavor, 0, temp);
 			    } else {
 				Syslog('o', "not a regular file");
 			    }
