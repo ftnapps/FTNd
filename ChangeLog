@@ -2,6 +2,9 @@ $Id$
 
 v0.51.3		22-Mar-2003
 
+	mbtask:
+		Signal handler for sigchld set to sig_dfl, test for Fedora.
+
 
 v0.51.2		06-Mar-2004 - 22-Mar-2003
 

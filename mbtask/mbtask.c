@@ -1383,6 +1383,8 @@ int main(int argc, char **argv)
             signal(i, (void (*))die);
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
+	else if (i == SIGCHLD)
+	    signal(i, SIG_DFL);
         else if ((i != SIGKILL) && (i != SIGSTOP))
             signal(i, SIG_IGN);
     }
