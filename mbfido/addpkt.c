@@ -4,7 +4,7 @@
  * Purpose ...............: Add mail to .pkt
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -236,6 +236,7 @@ FILE *OpenPkt(fidoaddr Orig, fidoaddr Dest, char *Extension)
 	}
     }
 
+    free(Queue);
     do_flush = TRUE;
     return qp;
 }

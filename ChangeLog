@@ -30,7 +30,7 @@ v0.39.3		26-Nov-2003
 		Fixed a small memory leak.
 
 	mbfido:
-		Fixed a small memory leak.
+		Fixed a some small memory leaks.
 
 	mbfile:
 		Fixed a uninitialized memory pointer in the index command.

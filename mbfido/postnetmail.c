@@ -4,7 +4,7 @@
  * Purpose ...............: Post Netmail message from temp file
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -125,6 +125,7 @@ int postnetmail(FILE *fp, faddr *f, faddr *t, char *orig, char *subject, time_t 
 		}
 		tidy_faddr(ta);
 	    }
+	    free(msgid);
 	}
 	if (!strncmp(buf, "\001FMPT", 5)) {
 	    p = strtok(buf, " \n");

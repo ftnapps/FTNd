@@ -117,7 +117,7 @@ mbfido:
 
 	N: After readalias we need to free the alias list when mbfido ends.
 
-	N: Tic, toss, scan tests with valgrind.
+	N: Tic, scan tests with valgrind.
 
 mbcico:
 	N: Test with valgrind, binkp is ok.
