@@ -45,6 +45,7 @@
 #include "sendmail.h"
 #include "mgrutil.h"
 #include "scan.h"
+#include "createm.h"
 #include "areamgr.h"
 
 
@@ -765,12 +766,11 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 void A_Connect(faddr *, char *, FILE *);
 void A_Connect(faddr *t, char *Area, FILE *tmp)
 {
-    int		i, First, rc = 0;
-    long	offset;
-    char	*Group, *temp, *buf, *desc, *p, *tag;
+    int		i, First;
+    char	*Group, *temp;
     faddr	*b;
     sysconnect	Sys;
-    FILE	*gp, *mp, *ap;
+    FILE	*gp;
 
     Syslog('+', "AreaMgr: \"%s\"", printable(Area, 0));
 
@@ -794,129 +794,10 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
 	    if ((mgroup.UseAka.zone == t->zone) && (mgroup.UseAka.net == t->net) && mgroup.UpLink.zone &&
 		strlen(mgroup.AreaFile) && mgroup.Active && mgroup.UserChange) {
-		Syslog('m', "Checking echogroup %s %s", mgroup.Name, mgroup.Comment);
-		sprintf(temp, "%s/%s", CFG.alists_path , mgroup.AreaFile);
-		if ((ap = fopen(temp, "r")) == NULL) {
-		    WriteError("$Can't open %s", temp);
-		} else {
-		    buf = calloc(4097, sizeof(char));
-		    while (fgets(buf, 4096, ap)) {
-			tag = strtok(buf, "\t \r\n\0");
-			p = strtok(NULL, "\r\n\0");
-			desc = p;
-			while ((*desc == ' ') || (*desc == '\t'))
-			    desc++;
-			if (strcmp(tag, Area) == 0) {
-			    Syslog('m', "Found tag \"%s\" desc \"%s\"", tag, desc);
-			    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-			    if ((mp = fopen(temp, "r+")) == NULL) {
-				WriteError("$Can't open %s", temp);
-				fclose(ap);
-				fclose(gp);
-				free(buf);
-				free(temp);
-				return;
-			    }
-			    fread(&msgshdr, sizeof(msgshdr), 1, mp);
-			    offset = msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize));
-			    if (fseek(mp, offset, SEEK_SET)) {
-				WriteError("$Can't seek in %s", temp);
-				fclose(ap);
-				fclose(gp);
-				fclose(mp);
-				free(buf);
-				free(temp);
-				return;
-			    }
-			    sprintf(temp, "+%s", Area);
-			    if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, temp)) {
-				WriteError("Can't send netmail to uplink");
-				fclose(ap);
-				fclose(gp);
-				fclose(mp);
-				free(buf);
-				free(temp);
-				return;
-			    }
-			    while (fread(&msgs, sizeof(msgs), 1, mp) == 1) {
-				if (!msgs.Active) {
-				    fseek(mp, - msgshdr.recsize, SEEK_CUR);
-				    offset = ((ftell(mp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1;
-				    Syslog('m', "Found free slot at %ld", offset);
-				    rc = 1;
-				    break;
-				}
-				/*
-				 * Skip systems
-				 */
-				fseek(mp, msgshdr.syssize, SEEK_CUR);
-			    }
-			    if (!rc) {
-				Syslog('m', "No free slot, append after last record");
-				fseek(mp, 0, SEEK_END);
-				if (ftell(mp) < msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize))) {
-				    Syslog('m', "Database too small, expanding...");
-				    memset(&msgs, 0, sizeof(msgs));
-				    memset(&Sys, 0, sizeof(Sys));
-				    while (TRUE) {
-					fwrite(&msgs, sizeof(msgs), 1, mp);
-					for (i = 0; i < (msgshdr.syssize / sizeof(Sys)); i++)
-					    fwrite(&Sys, sizeof(Sys), 1, mp);
-					if (ftell(mp) >= msgshdr.hdrsize + ((mgroup.StartArea -1) * (msgshdr.recsize + msgshdr.syssize)))
-					    break;
-				    }
-				}
-				rc = 1;
-			    }
-			    offset = ((ftell(mp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1;
-			    memset(&msgs, 0, sizeof(msgs));
-			    strncpy(msgs.Tag, tag, 50);
-			    strncpy(msgs.Name, desc, 40);
-			    strncpy(msgs.QWKname, tag, 20);
-			    msgs.MsgKinds = PUBLIC;
-			    msgs.Type = ECHOMAIL;
-			    msgs.DaysOld = CFG.defdays;
-			    msgs.MaxMsgs = CFG.defmsgs;
-			    msgs.UsrDelete = mgroup.UsrDelete;
-			    msgs.RDSec = mgroup.RDSec;
-			    msgs.WRSec = mgroup.WRSec;
-			    msgs.SYSec = mgroup.SYSec;
-			    strncpy(msgs.Group, mgroup.Name, 12);
-			    msgs.Aka = mgroup.UseAka;
-			    strncpy(msgs.Origin, CFG.origin, 50);
-			    msgs.Aliases = mgroup.Aliases;
-			    msgs.NetReply = mgroup.NetReply;
-			    msgs.Active = TRUE;
-			    msgs.Quotes = mgroup.Quotes;
-			    msgs.Rfccode = CHRS_DEFAULT_RFC;
-			    msgs.Ftncode = CHRS_DEFAULT_FTN;
-			    msgs.MaxArticles = CFG.maxarticles;
-			    tag = tl(tag);
-			    for (i = 0; i < strlen(tag); i++)
-				if (tag[i] == '.')
-				    tag[i] = '/';
-			    sprintf(msgs.Base, "%s/%s", mgroup.BasePath, tag);
-			    fwrite(&msgs, sizeof(msgs), 1, mp);
-
-			    memset(&Sys, 0, sizeof(Sys));
-			    Sys.aka = mgroup.UpLink;
-			    Sys.sendto = Sys.receivefrom = TRUE;
-			    fwrite(&Sys, sizeof(Sys), 1, mp);
-			    memset(&Sys, 0, sizeof(Sys));
-			    for (i = 1; i < (msgshdr.syssize / sizeof(Sys)); i++)
-				fwrite(&Sys, sizeof(Sys), 1, mp);
-			    Syslog('+', "Created echo %s, group %s, area %ld, for node %s",
-				    msgs.Tag, msgs.Group, offset, ascfnode(t, 0x1f));
-			    fclose(mp);
-			    rc = 1;
-			} /* if (strcmp(tag, Area) == 0) */
-		    } /* while (fgets(buf, 4096, ap)) */
-		    free(buf);
-		    fclose(ap);
-		} /* else ((ap = fopen(temp, "r")) == NULL) */
-		if (rc)
+		if (CheckEchoGroup(Area, TRUE, t) == 0) {
 		    break;
-	    } /* if possible matching group */
+		}
+	    }
 	}
 	fclose(gp);
 	free(temp);

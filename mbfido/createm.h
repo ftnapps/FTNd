@@ -5,6 +5,8 @@
 
 
 int create_msgarea(char *, faddr *);
+int CheckEchoGroup(char *, int, faddr *);
+
 
 #endif
 
