@@ -84,7 +84,7 @@ install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 6750 mbnewusr  ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mball     ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mblang    ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mbstat    ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0750 mbstat    ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP}  -m 0700 mbtoberep ${BINDIR}
 		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6711 mbuser    ${BINDIR}
 		@rm -f mbchat

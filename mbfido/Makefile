@@ -84,12 +84,12 @@ clean:
 
 install:	all
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 4750 mbfido  ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbseq   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0750 mbseq   ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbaff   ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbindex ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbdiff  ${BINDIR}
 		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbfile  ${BINDIR}
-		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0700 mbmsg   ${BINDIR}
+		${INSTALL} -c -s -o ${OWNER} -g ${GROUP} -m 0750 mbmsg   ${BINDIR}
 		rm -f ${BINDIR}/mbmail
 		${LN_S}  ${BINDIR}/mbfido ${BINDIR}/mbmail
 		rm -f ${BINDIR}/mbnews
