@@ -258,89 +258,76 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	}
     } while ((!Found) && (!Done));
 
-    Syslog('f', "mbsedb_InsertFDB: insertpoint=%d, found=%s, done=%s", Insert, Found?"true":"false", Done?"true":"false");
+    if ((fp = fopen(temp, "a+")) == NULL) {
+	WriteError("$Can't create %s", temp);
+        mbsedb_UnlockFDB(fdb_area);
+        free(temp);
+        return FALSE;
+    }
+    fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
 
-//    if (Found) {
-	if ((fp = fopen(temp, "a+")) == NULL) {
-	    WriteError("$Can't create %s", temp);
-	    mbsedb_UnlockFDB(fdb_area);
-	    free(temp);
-	    return FALSE;
-	}
-	fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
-
-	fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
-	/*
-	 * Copy entries untill the insert point.
-	 */
-	for (i = 0; i < Insert; i++) {
-	    fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
-	    /*
-	     * If we see a magic that is the new magic, remove
-	     * the old one.
-	     */
-	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
-		Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
-		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
-	    }
-
-	    /*
-	     * Check if we are importing a file with the same
-	     * name, if so, don't copy the original database
-	     * record. The file is also overwritten.
-	     */
-	    if (strcmp(fdb.LName, frec.LName) != 0)
-		fwrite(&fdb, fdbhdr.recsize, 1, fp);
-	}
-
-	if (AddAlpha) {
-	    /*
-	     * Insert new entry
-	     */
-	    fwrite(&frec, fdbhdr.recsize, 1, fp);
+    fseek(fdb_area->fp, fdbhdr.hdrsize, SEEK_SET);
+    /*
+     * Copy entries untill the insert point.
+     */
+    for (i = 0; i < Insert; i++) {
+        fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
+        /*
+         * If we see a magic that is the new magic, remove the old one.
+         */
+        if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
+	   Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
+	    memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	}
 
 	/*
-	 * Append the rest of the entries
-	 */
-	while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
-	    /*
-	     * If we see a magic that is the new magic, remove
-	     * the old one.
-	     */
-	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
-		Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
-		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
-	    }
+	 * Check if we are importing a file with the same
+         * name, if so, don't copy the original database
+         * record. The file is also overwritten.
+         */
+        if (strcmp(fdb.LName, frec.LName) != 0)
+	   fwrite(&fdb, fdbhdr.recsize, 1, fp);
+    }
 
-	    /*
-	     * Check if we are importing a file with the same
-	     * name, if so, don't copy the original database
-	     * record. The file is also overwritten.
-	     */
-	    if (strcmp(fdb.LName, frec.LName) != 0)
-		fwrite(&fdb, fdbhdr.recsize, 1, fp);
+    if (AddAlpha) {
+        /*
+         * Insert new entry
+         */
+        fwrite(&frec, fdbhdr.recsize, 1, fp);
+    }
+
+    /*
+     * Append the rest of the entries
+     */
+    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+        /*
+         * If we see a magic that is the new magic, remove the old one.
+         */
+        if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
+	    Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
+	    memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	}
 
-	if (! AddAlpha) {
-	    /*
-	     * Append
-	     */
-	    fwrite(&frec, fdbhdr.recsize, 1, fp);
-	}
+        /*
+         * Check if we are importing a file with the same
+         * name, if so, don't copy the original database
+         * record. The file is also overwritten.
+         */
+        if (strcmp(fdb.LName, frec.LName) != 0)
+	    fwrite(&fdb, fdbhdr.recsize, 1, fp);
+    }
 
-	fclose(fdb_area->fp);
-	mbsedb_Temp2Data(fdb_area->area);
-	fdb_area->fp = fp;
-	fdb_area->locked = 0;
-//    } else {
-	/*
-	 * Append new entry
-	 */
-//	fseek(fdb_area->fp, 0, SEEK_END);
-//	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
-//    }
+    if (! AddAlpha) {
+        /*
+         * Append
+         */
+        fwrite(&frec, fdbhdr.recsize, 1, fp);
+    }
 
+    fclose(fdb_area->fp);
+    mbsedb_Temp2Data(fdb_area->area);
+    fdb_area->fp = fp;
+    fdb_area->locked = 0;
     free(temp);
 
     return TRUE;
