@@ -4,7 +4,7 @@
  * Purpose ...............: Dupe checking.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -115,18 +115,14 @@ int CheckDupe(unsigned long crc, int idx, int max)
 	    dupes[idx].crcs[dupes[idx].count] = test;
 	    dupes[idx].count++;
 	}
-	Syslog('N', "Loaded %d dupe records in %s", dupes[idx].count++, files[idx]);
 	fclose(fil);
 	free(dfile);
 	dupes[idx].loaded = TRUE;
 	dupes[idx].max = max;
     }
 
-    // Syslog('N', "dupetest %08x %s %d", crc, files[idx], max);
-
     for (i = 0; i < dupes[idx].count; i++) {
 	if (dupes[idx].crcs[i] == crc) {
-	    // Syslog('N', "dupe at %d", i);
 	    return TRUE;
 	}
     }
@@ -134,7 +130,6 @@ int CheckDupe(unsigned long crc, int idx, int max)
      * Not a dupe, append new crc value
      */
     dupes[idx].crcs[dupes[idx].count] = crc;
-    // Syslog('N', "Added new dupe at %d", dupes[idx].count);
     dupes[idx].count++;
     dupes[idx].changed = TRUE;
 
@@ -155,7 +150,6 @@ void CloseDdb(int idx)
     FILE    *fil;
 
     dfile = calloc(PATH_MAX, sizeof(char));
-//  Syslog('N', "Checking %s.dupe", files[idx]);
     if (dupes[idx].loaded) {
 	if (dupes[idx].changed) {
 	    if (dupes[idx].count > dupes[idx].max)
@@ -164,7 +158,6 @@ void CloseDdb(int idx)
 		start = 0;
 	    sprintf(dfile, "%s/etc/%s.dupe", getenv("MBSE_ROOT"), files[idx]);
 	    if ((fil = fopen(dfile, "w"))) {
-		Syslog('N', "Writing dupes %d to %d", start, dupes[idx].count);
 		for (j = start; j < dupes[idx].count; j++)
 		    fwrite(&dupes[idx].crcs[j], sizeof(unsigned long), 1, fil);
 		fclose(fil);

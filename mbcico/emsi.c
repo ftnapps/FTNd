@@ -306,7 +306,6 @@ SM_START(init)
 
 SM_STATE(init)
     
-    Syslog('i', "RXEMSI: init");
     gpt_resettimers();
     gpt_settimer(0, 60);
     gpt_settimer(1, 20);
@@ -314,7 +313,6 @@ SM_STATE(init)
 
 SM_STATE(waitpkt)
 
-    Syslog('i', "RXEMSI: waitpkt");
     standby = 0;
     gpt_settimer(1, 20);
     SM_PROCEED(waitchar);
@@ -410,8 +408,6 @@ SM_STATE(getdat)
 
 SM_STATE(checkpkt)
 
-    Syslog('i', "RXEMSI: checkpkt");
-
     if (strncasecmp(databuf,"EMSI_DAT",8) == 0) {
 	SM_PROCEED(checkdat);
     }
@@ -483,13 +479,12 @@ SM_STATE(sendnak)
 
 SM_STATE(sendack)
 
-    Syslog('i', "RXEMSI: send **EMSI_ACKA490 (2 times)"); 
     PUTSTR((char *)"**EMSI_ACKA490\r\021");
     PUTSTR((char *)"**EMSI_ACKA490\r\021");
     SM_SUCCESS;
 
 SM_END
-    Syslog('i', "RXEMSI: end");
+
     free(databuf);
 
 SM_RETURN
@@ -526,7 +521,6 @@ SM_EDECL
     Syslog('i', "TXEMSI: 60 seconds timer set");
 
 SM_START(senddata)
-    Syslog('i', "TXEMSI: start");
 
 SM_STATE(senddata)
 
@@ -618,13 +612,11 @@ SM_STATE(checkpkt)
 
 SM_STATE(sendack)
 
-    Syslog('i', "TXEMSI: send **EMSI_ACKA490 (2 times)");
     PUTSTR((char *)"**EMSI_ACKA490\r\021");
     PUTSTR((char *)"**EMSI_ACKA490\r\021");
     SM_PROCEED(waitpkt);
 
 SM_END
-    Syslog('i', "TXEMSI: end");
 
 SM_RETURN
 

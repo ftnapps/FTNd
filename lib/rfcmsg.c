@@ -4,7 +4,7 @@
  * Purpose ...............: RFC msg
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -79,7 +79,6 @@ rfcmsg *parsrfc(FILE *fp)
 		} else 
 		    cur->val = xstrcat(cur->val,buffer);
 	    } else {
-//		Syslog('M', "this is a header line");
 		if (cur) {
 		    firstline=FALSE;
 		    (cur->next) = (rfcmsg *)malloc(sizeof(rfcmsg));
@@ -101,7 +100,6 @@ rfcmsg *parsrfc(FILE *fp)
 			    /* at least one non blank char */
 			    (strspn(p+2, " \t\n") < strlen(p+2)) && (strspn(buffer,KWDCHARS) == (p-buffer))) {
 			*p='\0';
-//			Syslog('M', "This is a regular header");
 			cur->key = xstrcpy(buffer);
 			cur->val = xstrcpy(p+1);
 		} else if ((p=strchr(buffer,':')) && (!strncasecmp(buffer, (char *)"X-MS-", 5))) {
@@ -124,7 +122,6 @@ rfcmsg *parsrfc(FILE *fp)
 		    cur->key = xstrcpy(buffer);
 		    cur->val = xstrcpy((char *)" ");
 		} else {
-		    Syslog('M', "Non-header line: \"%s\"",buffer);
 		    cur->key = xstrcpy((char *)"X-Body-Start");
 		    cur->val = xstrcpy(buffer);
 		    break;

@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/sendbark.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 29-Oct-2000
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -114,73 +113,68 @@ int sendbark(void)
 
 SM_DECL(send_bark,(char *)"sendbark")
 SM_STATES
-	Send,
-	waitack,
-	getfile
+    Send,
+    waitack,
+    getfile
 SM_NAMES
-	(char *)"send",
-	(char *)"waitack",
-	(char *)"getfile"
+    (char *)"send",
+    (char *)"waitack",
+    (char *)"getfile"
 SM_EDECL
 
-	int		c;
-	char		buf[256];
-	unsigned short	crc;
-	int		count = 0;
+    char	    buf[256];
+    unsigned short  crc;
+    int		    c, count = 0;
 
-	Syslog('s', "send_bark INIT");
-	sprintf(buf,"%s %s %s",nm,dt,pw);
-	crc = crc16xmodem(buf, strlen(buf));
-	Syslog('s', "sending bark packet \"%s\", crc = 0x%04x", buf, crc);
+    sprintf(buf,"%s %s %s",nm,dt,pw);
+    crc = crc16xmodem(buf, strlen(buf));
+    Syslog('s', "sending bark packet \"%s\", crc = 0x%04x", buf, crc);
 
 SM_START(Send)
 
 SM_STATE(Send)
 
-	Syslog('s', "send_bark SEND");
-	if (count++ > 5) {
-		Syslog('+', "Bark request failed");
-		SM_ERROR;
-	}
+    if (count++ > 5) {
+	Syslog('+', "Bark request failed");
+	SM_ERROR;
+    }
 
-	PUTCHAR(ACK);
-	PUT(buf, strlen(buf));
-	PUTCHAR(ETX);
-	PUTCHAR(crc & 0xff);
-	PUTCHAR((crc >> 8) & 0xff);
-	if (STATUS) {
-		SM_ERROR;
-	} else {
-		SM_PROCEED(waitack);
-	}
+    PUTCHAR(ACK);
+    PUT(buf, strlen(buf));
+    PUTCHAR(ETX);
+    PUTCHAR(crc & 0xff);
+    PUTCHAR((crc >> 8) & 0xff);
+    if (STATUS) {
+	SM_ERROR;
+    } else {
+	SM_PROCEED(waitack);
+    }
 
 SM_STATE(waitack)
 
-	Syslog('s', "send_bark WAITACK");
-	c = GETCHAR(10);
-	if (c == TIMEOUT) {
-		Syslog('s', "sendbark got timeout waiting for ACK");
-		SM_PROCEED(Send);
-	} else if (c < 0) {
-		SM_PROCEED(Send);
-	} else if (c == ACK) {
-		SM_PROCEED(getfile);
-	} else {
-		Syslog('s', "sendbark got %s waiting for ACK", printablec(c));
-		SM_PROCEED(Send);
-	}
+    c = GETCHAR(10);
+    if (c == TIMEOUT) {
+	Syslog('s', "sendbark got timeout waiting for ACK");
+	SM_PROCEED(Send);
+    } else if (c < 0) {
+	SM_PROCEED(Send);
+    } else if (c == ACK) {
+	SM_PROCEED(getfile);
+    } else {
+	Syslog('s', "sendbark got %s waiting for ACK", printablec(c));
+	SM_PROCEED(Send);
+    }
 
 SM_STATE(getfile)
 
-	Syslog('s', "send_bark GETFILE");
-	switch (xmrecv(NULL)) {
-		case 0:		SM_PROCEED(getfile); 
-				break;
-		case 1:		SM_SUCCESS; 
-				break;
-		default:	SM_ERROR; 
-				break;
-	}
+    switch (xmrecv(NULL)) {
+	case 0:	    SM_PROCEED(getfile); 
+		    break;
+	case 1:	    SM_SUCCESS; 
+		    break;
+	default:    SM_ERROR; 
+		    break;
+    }
 
 SM_END
 SM_RETURN

@@ -132,8 +132,7 @@ int sendfiles(file_list *tosend)
 
 	while (((c = GETCHAR(15)) >= 0) && (c != NAK) && (c != 'C') && 
 	       (count++ < 9)) 
-		Syslog('s', "got '%s' waiting for C/NAK",
-			printablec(c));
+		Syslog('s', "got '%s' waiting for C/NAK", printablec(c));
 
 	if (c == NAK)
 		session_flags &= ~FTSC_XMODEM_CRC;

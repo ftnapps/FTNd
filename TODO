@@ -118,10 +118,9 @@ mbfido:
 	   in the toberep database and will be multiple times announced.
 
 mbcico:
-	U: Fix binkp file resume when mbcico silently dies. Check with the new
-	   driver.
-
 	L: Implement binkp option ND.
+
+	N: Implement PLZ turn off m_get command.
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -240,7 +240,6 @@ char *mkemsidat(int caller)
 
     sprintf(cbuf,"%04X",(unsigned int)strlen(p+12));
     memcpy(p+8,cbuf,4);
-    Syslog('I',"Prepared: \"%s\"",p);
     emsiencode(NULL);   /* Free memory */
     return p;
 }
@@ -339,8 +338,6 @@ int scanemsidat(char *buf)
     faddr   *fa;
     char    *p, *q, *mailer_prod, *mailer_name, *mailer_version, *mailer_serial;
     int	    dupe;
-
-    Syslog('I',"got data packet: \"%s\"",buf);
 
     p = sel_brace(buf);
     if (strcasecmp(p,"EMSI") != 0) {

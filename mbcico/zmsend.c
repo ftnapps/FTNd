@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -399,7 +399,6 @@ again:
 				lastcrcrq = Rxpos;
 				crc = 0xFFFFFFFFL;
 				fseek(in, 0L, 0);
-				Syslog('Z', "bytcnt=%ld crc=%08lX", bytcnt, crc);
 				while (((c = getc(in)) != EOF) && --lastcrcrq)
 					crc = updcrc32(c, crc);
 				crc = ~crc;

@@ -4,7 +4,7 @@
  * Purpose ...............: Security flags access test
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -40,9 +40,6 @@
  */
 int Access(securityrec us, securityrec ref)
 {
-    Syslog('B', "User %5d %08lx %08lx", us.level, us.flags, ~us.flags);
-    Syslog('B', "Ref. %5d %08lx %08lx", ref.level, ref.flags, ref.notflags);
-
     if (us.level < ref.level)
 	return FALSE;
 
@@ -63,9 +60,6 @@ int Access(securityrec us, securityrec ref)
  */
 int Le_Access(securityrec us, securityrec ref)
 {
-    Syslog('B', "User %5d %08lx %08lx", us.level, us.flags, ~us.flags);
-    Syslog('B', "Ref. %5d %08lx %08lx", le_int(ref.level), ref.flags, ref.notflags);
-
     if (us.level < le_int(ref.level))
 	return FALSE;
 

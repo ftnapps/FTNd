@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -155,7 +155,6 @@ int hangup()
 
 void aftercall()
 {
-    Syslog('d', "Reading link stat (aftercall)");
     FLUSHIN();
     FLUSHOUT();
     chat(modem.info, CFG.timeoutreset, TRUE, NULL);

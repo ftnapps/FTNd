@@ -4,7 +4,7 @@
  * Purpose ...............: Mangle a unix name to DOS 8.3 filename
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -120,7 +120,7 @@ char *safe_strcpy(char *dest,const char *src, size_t maxlength)
     size_t len;
 
     if (!dest) {
-        Syslog('f', "ERROR: NULL dest in safe_strcpy");
+        Syslog('+', "ERROR: NULL dest in safe_strcpy");
         return NULL;
     }
 
@@ -263,7 +263,7 @@ int is_8_3( char *fname)
     init_chartest();
     for (i = 0; i < strlen(fname); i++) {
 	if (isillegal(fname[i])) {
-	    Syslog('f', "Illegal character in filename");
+	    Syslog('+', "Illegal character in filename");
 	    return FALSE;
 	}
     }
@@ -378,7 +378,6 @@ void mangle_name_83(char *s)
 	for (i = 0; i < strlen(q); i++)
 	    *p++ = q[i];
 	*p++ = '\0';
-//	Syslog('f', "name with new extension => \"%s\"", s);
     }
 
     /*
@@ -398,7 +397,6 @@ void mangle_name_83(char *s)
     } else {
 	crc16 = crc16xmodem(s, strlen(s));
     }
-//    Syslog('f', "crc16xmodem(%s) %d", s, crc16);
 
     tu(s);
 
@@ -463,7 +461,6 @@ void name_mangle(char *OutName)
      */
     if (!is_8_3(OutName)) {
 	mangle_name_83(OutName);
-//	Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
     } else {
 	/*
 	 * No mangling needed, convert to uppercase
@@ -471,7 +468,6 @@ void name_mangle(char *OutName)
 	tu(OutName);
     }
 
-//    Syslog('f',"name_mangle(%s) ==> [%s]", p, OutName);
     free(p);
 }
 

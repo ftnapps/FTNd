@@ -318,7 +318,6 @@ int main(int argc, char *argv[])
 	    (strncasecmp(p,"EMSI_",5) == 0)) {
 	    master = 0;
 	    answermode = argv[optind];
-	    Syslog('S', "Inbound \"%s\" mode", MBSE_SS(answermode));
 	} else {
 	    if ((addr = parsefaddr(argv[optind]))) {
 		immediatecall = TRUE;

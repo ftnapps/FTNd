@@ -477,8 +477,6 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
     }
     free(temp);
 
-
-    Syslog('o', "B4 FTS-0001 checkpoint");
     /*
      * For FTS-0001 we need to create at least one packet.
      */

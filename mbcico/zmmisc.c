@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  *   Z M . C
  *    Copyright 1994 Omen Technology Inc All Rights Reserved
  *    ZMODEM protocol primitives
@@ -712,20 +714,16 @@ int zrbhd32(register char *shdr)
 	Rxtype = c;
 	crc = 0xFFFFFFFFL; crc = updcrc32(c, crc);
 
-	Syslog('Z', "zrbhd32 c=%X  crc=%lX", c, crc);
-
 	for (n=Rxhlen; --n >= 0; ++shdr) {
 		if ((c = zdlread()) & ~0377)
 			return c;
 		crc = updcrc32(c, crc);
 		*shdr = c;
-		Syslog('Z', "zrbhd32 c=%X  crc=%lX", c, crc);
 	}
 	for (n=4; --n >= 0;) {
 		if ((c = zdlread()) & ~0377)
 			return c;
 		crc = updcrc32(c, crc);
-		Syslog('Z', "zrbhd32 c=%X  crc=%lX", c, crc);
 	}
 	if (crc != 0xDEBB20E3) {
 		Syslog('+', "Zmodem zrbhd32: Bad CRC");
@@ -791,7 +789,6 @@ void zputhex(register int c)
 {
 	static char	digits[]	= "0123456789abcdef";
 
-	Syslog('Z', "zputhex: %02X", c);
 	BUFFER_BYTE(digits[(c&0xF0)>>4]);
 	BUFFER_BYTE(digits[(c)&0xF]);
 }
@@ -847,7 +844,6 @@ int zgethex(void)
 	register int c;
 
 	c = zgeth1();
-	Syslog('Z', "zgethex: %02X", c);
 	return c;
 }
 

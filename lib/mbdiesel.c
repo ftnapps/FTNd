@@ -4,7 +4,7 @@
  * Purpose ...............: MBSE BBS functions for TURBODIESEL
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -182,7 +182,6 @@ char *ParseMacro( const char *line, int *dieselrc)
     while (isspace(res[strlen(res) - 1])) {
 	res[strlen(res) - 1] = EOS;
     }
-//  sprintf(&res[strlen(res)],"\r\n");
     if ((res[0] == '@') && (res[1] =='!' ))
 	res[0]='\0';
     return res;

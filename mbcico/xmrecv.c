@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -149,7 +149,6 @@ SM_EDECL
 	off_t		remsize=0;
 	int		goteot = FALSE;
 
-	Syslog('x', "xmrecv INIT");
 	gettimeofday(&starttime, &tz);
 	recv_blk=-1L;
 
@@ -181,7 +180,6 @@ SM_STATE(sendnak0)
 
 SM_STATE(waitblk0)
 
-	Syslog('x', "xmrecv WAITBLK0");
 	header = GETCHAR(5);
 	if (header == TIMEOUT) {
 		Syslog('x', "timeout waiting for xmodem block 0 header, count=%d", count);
@@ -248,7 +246,6 @@ SM_STATE(waitblk0)
 
 SM_STATE(sendnak)
 
-	Syslog('x', "xmrecv SENDNAK");
 	if (ackd_blk < 0) {
 		SM_PROCEED(sendnak0);
 	}
@@ -306,7 +303,6 @@ SM_STATE(sendack)
 
 SM_STATE(waitblk)
 
-	Syslog('x', "xmrecv WAITBLK");
 	header = GETCHAR(15);
 	if (header == TIMEOUT) {
 		Syslog('x', "timeout waiting for xmodem block header, count=%d", count);
@@ -344,7 +340,6 @@ SM_STATE(waitblk)
 
 SM_STATE(recvblk)
 
-	Syslog('x', "xmrecv RECVBLK");
 	Nopper();
 	GET((char*)&xmblk,(crcmode && (header != SYN))?  sizeof(xmblk): sizeof(xmblk)-1,15);
 	if (STATUS == STAT_TIMEOUT) {
@@ -442,8 +437,7 @@ SM_STATE(recvblk)
 
 SM_STATE(checktelink)
 
-	Syslog('x', "xmrecv CHECKTELINK");
-	Syslog('X', "checktelink got \"%s\"",printable(xmblk.data,45));
+	Syslog('x', "checktelink got \"%s\"",printable(xmblk.data,45));
 	if (tmpfname[0] == '\0') {
 		strncpy(tmpfname,xmblk.data+8,16);
 		/*
@@ -457,7 +451,7 @@ SM_STATE(checktelink)
 		}
 	} else {
 		Syslog('+', "Remote uses %s",printable(xmblk.data+25,-14));
-		Syslog('X', "Remote file name \"%s\" discarded", printable(xmblk.data+8,-16));
+		Syslog('x', "Remote file name \"%s\" discarded", printable(xmblk.data+8,-16));
 	}
 	remsize = ((off_t)xmblk.data[0]) + ((off_t)xmblk.data[1]<<8) + ((off_t)xmblk.data[2]<<16) + ((off_t)xmblk.data[3]<<24);
 	last_blk = (remsize-1)/XMBLKSIZ+1;
@@ -518,7 +512,6 @@ SM_STATE(checktelink)
 
 SM_STATE(recvm7)
 
-	Syslog('x', "xmrecv RECVM7");
 	switch (m7recv(tmpfname)) {
 		case 0:		ackd_blk=0; 
 				SM_PROCEED(sendnak); 
@@ -531,7 +524,6 @@ SM_STATE(recvm7)
 
 SM_STATE(goteof)
 
-	Syslog('x', "xmrecv GOTEOF");
 	Slo = FALSE;
 	closeit(1);
 	if (ackd_blk == -1L) 

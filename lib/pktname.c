@@ -4,7 +4,7 @@
  * Purpose ...............: BinkleyTerm outbound naming
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -138,7 +138,6 @@ char *pktname(faddr *addr, char flavor)
 
     q = p + strlen(p);
     sprintf(q, "%c%s", flavor, ptyp);
-    Syslog('O', "packet name is \"%s\"", p);
     return p;
 }
 
@@ -153,7 +152,6 @@ char *floname(faddr *addr, char flavor)
 	flavor = 'f';
     q = p + strlen(p);
     sprintf(q, "%c%s", flavor, ftyp);
-    Syslog('O', "flo file name is \"%s\"", p);
     return p;
 }
 
@@ -166,7 +164,6 @@ char *reqname(faddr *addr)
     p = prepbuf(addr);
     q = p + strlen(p);    
     sprintf(q, "%s", rtyp);
-    Syslog('O', "req file name is \"%s\"", p);
     return p;
 }
 
@@ -179,7 +176,6 @@ char *splname(faddr *addr)
     p = prepbuf(addr);
     q = p + strlen(p);
     sprintf(q, "%s", styp);
-    Syslog('O', "spl file name is \"%s\"", p);
     return p;
 }
 
@@ -192,7 +188,6 @@ char *bsyname(faddr *addr)
     p = prepbuf(addr);
     q = p + strlen(p);
     sprintf(q, "%s", btyp);
-    Syslog('O', "bsy file name is \"%s\"", p);
     return p;
 }
 
@@ -205,7 +200,6 @@ char *stsname(faddr *addr)
     p = prepbuf(addr);
     q = p + strlen(p);
     sprintf(q, "%s", qtyp);
-    Syslog('O', "sts file name is \"%s\"", p);
     return p;
 }
 
@@ -218,7 +212,6 @@ char *polname(faddr *addr)
     p = prepbuf(addr);
     q = p + strlen(p);
     sprintf(q, "%s", ltyp);
-    Syslog('O', "pol file name is \"%s\"", p);
     return p;
 }
 
@@ -286,7 +279,6 @@ char *arcname(faddr *addr, unsigned short Zone, int ARCmailCompat)
 	}
 
 	tidy_faddr(bestaka);
-	Syslog('O', "Arc file name is \"%s\"", buf);
 	return buf;
 }
 

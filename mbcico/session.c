@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -229,7 +229,6 @@ SM_START(skipjunk)
 
 SM_STATE(skipjunk)
 
-    Syslog('s', "tx_define_type SKIPJUNK");
     while ((c = GETCHAR(1)) >= 0) /*nothing*/ ;
     if (c == TIMEOUT) {
 	gpt_resettimers();
@@ -241,7 +240,6 @@ SM_STATE(skipjunk)
 
 SM_STATE(wake)
 
-    Syslog('s', "tx_define_type WAKE");
     if (gpt_expired(0)) {
 	Syslog('+', "Remote did not respond");
 	SM_ERROR;
@@ -256,7 +254,6 @@ SM_STATE(wake)
 	SM_ERROR;
     } else {
 	gpt_settimer(0, 60);
-	Syslog('S', "Got %c wakeup", c);
 	SM_PROCEED(nextchar);
     }
 
@@ -364,17 +361,13 @@ SM_STATE(checkintro)
 
 SM_STATE(sendinq)
 
-    Syslog('s', "tx_define_type SENDINQ");
     PUTCHAR(DC1);
     if ((localoptions & NOEMSI) == 0) {
-	Syslog('S', "send **EMSI_INQC816 (2 times)");
 	PUTSTR((char *)"\r**EMSI_INQC816\r**EMSI_INQC816");
     }
     if ((localoptions & NOWAZOO) == 0) {
-	Syslog('S', "send YOOHOO char");
 	PUTCHAR(YOOHOO);
     }
-    Syslog('S', "send TSYNC char");
     PUTCHAR(TSYNC);
     if ((localoptions & NOEMSI) == 0)
 	PUTSTR((char *)"\r\021");

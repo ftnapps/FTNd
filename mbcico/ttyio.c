@@ -172,8 +172,6 @@ static int tty_read(char *buf, int size, int tot)
     fd_set	    readfds, writefds, exceptfds;
     struct timeval  seltimer;
 
-//    Syslog('t', "tty_read(buf, %d, %d)", size, tot);
-
     if (size == 0) 
 	return 0;
     tty_status = 0;

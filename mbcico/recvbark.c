@@ -1,11 +1,10 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/recvbark.c
+ * $Id$
  * Purpose ...............: Fidonet mailer 
- * Last modification date : 01-Jan-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -88,8 +87,6 @@ SM_START(sendenq)
 
 SM_STATE(sendenq)
 
-	Syslog('s', "recvbark SENDINQ");
-
 	count = 0;
 	PUTCHAR(ENQ);
 	if (STATUS) {
@@ -99,8 +96,6 @@ SM_STATE(sendenq)
 	}
 
 SM_STATE(waitack)
-
-	Syslog('s', "recvbark WAITACK");
 
 	if (count++ > 10) {
 		Syslog('+', "Wait for Bark Request: timeout");
@@ -134,7 +129,6 @@ SM_STATE(waitack)
 
 SM_STATE(waitchar)
 
-	Syslog('s', "recvbark WAITCHAR");
 	c=GETCHAR(15);
 	if (c == TIMEOUT) {
 		Syslog('s', "Recvbark got timeout waiting for char");
@@ -157,7 +151,6 @@ SM_STATE(waitchar)
 
 SM_STATE(scanreq)
 
-	Syslog('s', "recvbark SCANREQ");
 	lcrc = crc16xmodem(buf, strlen(buf));
 	c1 = GETCHAR(15);
 	if (c1 == TIMEOUT) {
@@ -181,7 +174,6 @@ SM_STATE(scanreq)
 
 SM_STATE(sendack)
 
-	Syslog('s', "recvbark SENDACK");
 	count = 0;
 	PUTCHAR(ACK);
 	tosend = respond_bark(buf);
@@ -218,7 +210,6 @@ SM_STATE(waitnak)
 
 SM_STATE(sendfiles)
 
-	Syslog('s', "recvbark SENDFILES");
 	rc = xmsndfiles(tosend);
 	tidy_filelist(tosend, 0);
 	if (rc == 0) {

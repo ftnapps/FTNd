@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer - respond to filerequests
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -66,91 +66,90 @@ static int		no_more = FALSE;
 
 file_list *respond_wazoo(void)
 {
-	char		buf[256];
-	char		*nm, *pw, *dt, *p;
-	file_list	*fl=NULL, **tmpl;
-	FILE		*fp;
+    char	buf[256], *nm, *pw, *dt, *p;
+    file_list	*fl=NULL, **tmpl;
+    FILE	*fp;
 
-	if (freqname == NULL) 
-		return NULL;
+    if (freqname == NULL) 
+	return NULL;
 
-	if ((fp=fopen(freqname,"r")) == NULL) {
-		WriteError("$cannot open received wazoo freq \"%s\"",freqname);
-		unlink(freqname);
-		free(freqname);
-		freqname=NULL;
-		return NULL;
-	}
-
-	tmpl=&fl;
-	while (fgets(buf,sizeof(buf)-1,fp)) {
-		nm = NULL;
-		pw = NULL;
-		dt = NULL;
-		p = strtok(buf," \n\r");
-		if ((p == NULL) || (*p == '\0')) 
-			continue;
-		nm = p;
-		p = strtok(NULL," \n\r");
-		if (p && (*p == '!')) 
-			pw = p+1;
-		else 
-			if (p && ((*p == '+') || (*p == '-'))) 
-				dt = p;
-		p = strtok(NULL," \n\r");
-		if (p && (*p == '!')) 
-			pw = p+1;
-		else 
-			if (p && ((*p == '+') || (*p == '-'))) 
-				dt = p;
-		*tmpl = respfreq(nm, pw, dt);
-		while (*tmpl) tmpl=&((*tmpl)->next);
-		if (no_more)
-			break;
-	}
-
-	fclose(fp);
+    if ((fp=fopen(freqname,"r")) == NULL) {
+	WriteError("$cannot open received wazoo freq \"%s\"",freqname);
 	unlink(freqname);
 	free(freqname);
-	freqname = NULL;
-	for (tmpl = &fl; *tmpl; tmpl = &((*tmpl)->next)) {
-		Syslog('F', "resplist: %s",MBSE_SS((*tmpl)->local));
-	}
-	attach_report(&fl);
-	return fl;
+	freqname=NULL;
+	return NULL;
+    }
+
+    tmpl=&fl;
+    while (fgets(buf,sizeof(buf)-1,fp)) {
+	nm = NULL;
+	pw = NULL;
+	dt = NULL;
+	p = strtok(buf," \n\r");
+	if ((p == NULL) || (*p == '\0')) 
+	    continue;
+	nm = p;
+	p = strtok(NULL," \n\r");
+	if (p && (*p == '!')) 
+	    pw = p+1;
+	else if (p && ((*p == '+') || (*p == '-'))) 
+	    dt = p;
+	p = strtok(NULL," \n\r");
+	if (p && (*p == '!')) 
+	    pw = p+1;
+	else if (p && ((*p == '+') || (*p == '-'))) 
+	    dt = p;
+		
+	*tmpl = respfreq(nm, pw, dt);
+	while (*tmpl) tmpl=&((*tmpl)->next);
+	if (no_more)
+	    break;
+    }
+
+    fclose(fp);
+    unlink(freqname);
+    free(freqname);
+    freqname = NULL;
+    for (tmpl = &fl; *tmpl; tmpl = &((*tmpl)->next)) {
+	Syslog('f', "resplist: %s",MBSE_SS((*tmpl)->local));
+    }
+    attach_report(&fl);
+    return fl;
 }
 
 
 
 file_list *respond_bark(char *buf)
 {
-	char		*nm, *pw, *dt, *p;
-	file_list	*fl;
+    char	*nm, *pw, *dt, *p;
+    file_list	*fl;
 
-	nm = buf;
-	pw = (char *)"";
-	dt = (char *)"0";
-	while (isspace(*nm)) 
-		nm++;
-	for (p = nm; *p && (!isspace(*p)); p++);
+    nm = buf;
+    pw = (char *)"";
+    dt = (char *)"0";
+    while (isspace(*nm)) 
+	nm++;
+    for (p = nm; *p && (!isspace(*p)); p++);
+    if (*p) {
+	*p++ = '\0';
+	dt = p;
+	while (isspace(*dt)) 
+	    dt++;
+	for (p = dt; *p && (!isspace(*p)); p++);
 	if (*p) {
-		*p++ = '\0';
-		dt = p;
-		while (isspace(*dt)) 
-			dt++;
-		for (p = dt; *p && (!isspace(*p)); p++);
-		if (*p) {
-			*p++ = '\0';
-			pw = p;
-			while (isspace(*pw)) 
-				pw++;
-			for (p = pw; *p && (!isspace(*p)); p++);
-			*p = '\0';
-		}
+	    *p++ = '\0';
+	    pw = p;
+	    while (isspace(*pw)) 
+		pw++;
+	    for (p = pw; *p && (!isspace(*p)); p++);
+	    *p = '\0';
 	}
-	fl = respfreq(nm, pw, dt);
-	attach_report(&fl);
-	return fl;
+    }
+    
+    fl = respfreq(nm, pw, dt);
+    attach_report(&fl);
+    return fl;
 }
 
 
@@ -612,7 +611,6 @@ static void attach_report(file_list **fl)
 	    records = (ftell(fp) - olhdr.hdrsize) / olhdr.recsize;
 	    srand(getpid());
 	    recno = 1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0));
-	    Syslog('f', "Selected quote %d out of %d records", recno, records);
 	    if (fseek(fp, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
 		if (fread(&ol, olhdr.recsize, 1, fp) == 1) {
 		    add_report((char *)"\r... %s", ol.Oneline);

@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -104,10 +104,8 @@ int txwazoo(void)
     char	*nonhold_mail;
 
     Syslog('+', "Start WaZOO session");
-//  if (localoptions & NOHOLD) 
-	nonhold_mail = (char *)ALL_MAIL;
-//  else 
-//	nonhold_mail = (char *)NONHOLD_MAIL;
+    nonhold_mail = (char *)ALL_MAIL;
+
     if (emsi_remote_lcodes & LCODE_HAT) {
 	Syslog('+', "Remote asked to \"hold all traffic\", no send");
 	tosend = NULL;

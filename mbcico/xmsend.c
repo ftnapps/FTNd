@@ -4,7 +4,7 @@
  * Purpose ...............: Fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2001
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -124,7 +124,6 @@ SM_EDECL
 	fl.l_start=0L;
 	fl.l_len=0L;
 
-	Syslog('x', "xmsend INIT");
 	gettimeofday(&starttime, &tz);
 
 	/* if we got 'C' than hopefully remote is sealink capable... */
@@ -185,7 +184,6 @@ SM_START(startstate)
 
 SM_STATE(sendm7)
 
-	Syslog('x', "xmsend SENDM7");
 	if (m7send(rn)) {
 		SM_PROCEED(sendblk0);
 	} else {
@@ -194,7 +192,6 @@ SM_STATE(sendm7)
 
 SM_STATE(sendblk0)
 
-	Syslog('X', "xmsend SENDBLK0");
 	Syslog('x', "xmsendblk0 send:%ld, next:%ld, ackd:%ld, last:%ld", send_blk,next_blk,ackd_blk,last_blk);
 
 	memset(xmblk.data,0,sizeof(xmblk.data));
@@ -217,22 +214,20 @@ SM_STATE(sendblk0)
 	xmblk.data[41]=((session_flags & FTSC_XMODEM_RES) != 0);
 	xmblk.data[42]=((session_flags & FTSC_XMODEM_XOF) != 0);
 
-	Syslog('X', "sealink block: \"%s\"",printable(xmblk.data,44));
+	Syslog('x', "sealink block: \"%s\"",printable(xmblk.data,44));
 
 	next_blk=send_blk+1;
 	SM_PROCEED(sendblk);
 
 SM_STATE(sendblk)
 
-	Syslog('X', "xmsend SENDBLK %d", send_blk);
+	Syslog('x', "xmsendblk send:%ld, next:%ld, ackd:%ld, last:%ld", send_blk,next_blk,ackd_blk,last_blk);
 	if (send_blk == 0) {
 		SM_PROCEED(writeblk);
 	}
 
-	Syslog('x', "xmsendblk send:%ld, next:%ld, ackd:%ld, last:%ld", send_blk,next_blk,ackd_blk,last_blk);
-
 	if (send_blk > last_blk) {
-		Syslog('X', "send_blk > last_blk");
+		Syslog('x', "send_blk > last_blk");
 		if (send_blk == (last_blk+1)) {
 			SM_PROCEED(sendeot);
 		} else if (ackd_blk < last_blk) {
@@ -264,7 +259,6 @@ SM_STATE(sendblk)
 
 SM_STATE(writeblk)
 
-	Syslog('X', "xmsend WRITEBLK");
 	Nopper();
 	xmblk.n1=send_blk&0xff;
 	xmblk.n2=~xmblk.n1;
@@ -290,7 +284,6 @@ SM_STATE(writeblk)
 
 SM_STATE(waitack)
 
-	Syslog('x', "xmsend WAITACK");
 	if ((count > 4) && (ackd_blk < 0)) {
 		Syslog('+', "Cannot send sealink block, try xmodem");
 		window=1;
@@ -309,7 +302,6 @@ SM_STATE(waitack)
 	}
 
 	a = GETCHAR(20);
-	Syslog('X', "xmsend got 0x%02x", a);
 	if (a == TIMEOUT) {
 		if (count++ > 9) {
 			Syslog('+', "too many tries to send block");
@@ -356,7 +348,6 @@ SM_STATE(waitack)
 		case 1:
 			a1=GETCHAR(1);
 			a2=GETCHAR(1);
-			Syslog('X', "got block ACK %d", a1);
 			if ((a1 < 0) || (a2 < 0) || (a1 != ((~a2)&0xff))) {
 				Syslog('x', "bad ACK: 0x%02x/0x%02x, ignore", a1,a2);
 				SM_PROCEED(sendblk);
@@ -417,7 +408,6 @@ SM_STATE(waitack)
 
 SM_STATE(resync)
 
-	Syslog('x', "xmsend RESYNC");
 	if (count++ > 9) {
 		Syslog('+', "too may tries to resync");
 		SM_ERROR;
@@ -464,7 +454,6 @@ SM_STATE(resync)
 
 SM_STATE(sendeot)
 
-	Syslog('x', "xmsend SENDEOT");
 	PUTCHAR(EOT);
 	if (STATUS) {
 		SM_ERROR;

@@ -63,7 +63,7 @@ static int scan_dir(int (*fn)(faddr *, char, int, char *), char *dname, int ispo
     Syslog('o' ,"scan_dir \"%s\" (%s)",MBSE_SS(dname),ispoint?"point":"node");
 
     if ((dp = opendir(dname)) == NULL) {
-	Syslog('-', "Creating directory %s", dname);
+	Syslog('+', "Creating directory %s", dname);
 	/*
 	 * Create a fake filename, mkdirs() likes that.
 	 */
