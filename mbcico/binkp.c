@@ -261,8 +261,9 @@ char *binkp2unix(char *fn)
 
     while (*p) {
 	if (p[0] == '\\') {
+	    p++;
 	    hex[0] = *p++;
-	    hex[1] = *p++;
+	    hex[1] = *p;
 	    hex[2] = '\0';
 	    Syslog('b', "binkp2unix hex=%s", hex);
 	    sscanf(hex, "%2x", &c);
