@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: setup/m_users.c
+ * $Id$
  * Purpose ...............: Edit Users
- * Last modification date : 26-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -339,7 +338,7 @@ void Fields2(void)
 
 int EditUsrRec2(void)
 {
-	int	j;
+	int	j = 0;
 	char	temp[PATH_MAX];
 
         Screen2();

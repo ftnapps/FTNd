@@ -35,10 +35,10 @@
 #include "../lib/clcomm.h"
 #include "../lib/common.h"
 //#include "funcs.h"
-//#include "input.h"
-//#include "language.h"
+#include "input.h"
+#include "language.h"
 #include "morefile.h"
-//#include "timeout.h"
+#include "timeout.h"
 //#include "exitinfo.h"
 
 

@@ -4277,10 +4277,11 @@ v0.33.19        26-Oct-2001
 		The whoson list now uses mbtask to get the information.
 		The users exitinfo file is now stored in his homedirectory
 		with mode 0600.
+		A lot of code rewrites to make it more modular.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
-		bbs user.
+		bbs user. Should be started by the bbs account.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
@@ -4294,4 +4295,7 @@ v0.33.19        26-Oct-2001
 
 	mbmsg:
 		Corrected header in logfile for pack function.
+
+	import:
+		Removed users import, could not work anymore.
 
