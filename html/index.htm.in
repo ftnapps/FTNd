@@ -16,7 +16,7 @@
 <BLOCKQUOTE>
 <center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
-<div align=right><h5>Last update 13-Feb-2004</h5></div>
+<div align=right><h5>Last update 01-Jul-2004</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
@@ -115,6 +115,7 @@
   </ol></li>
   <li><a href="routing.html">Netmail routing behaviour</a></li>
   <li><a href="intergate.html">Fido to Internet Gateway</a></li>
+  <li><a href="postfix.html">Email Gateway - Postfix setup.</a></li>
   <li><a href="nodelist.html">Nodediff and Nodelist processing</a></li>
   <li><a href="ups.html">Using UPS semafore's</a></li>
 </ol>
