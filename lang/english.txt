@@ -12,7 +12,7 @@ YN|Did you spell your name correctly? [Y/n]
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
 |No rules found for this area
-|Bytes in account                   
+|You are not allowed to delete that message
 |Time deposited today               
 |Bytes deposited today              
 |Time withdrawn today               

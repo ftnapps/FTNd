@@ -44,6 +44,7 @@ v0.37.01	14-Jan-2003.
 		Removed charset conversion/translation.
 		Added integer endian byteorder swapper, usefull for non-Intel
 		hardware.
+		The poutCR function for the bbs never did send a newline.
 
 	mbtask:
 		Arcmail for non-CM nodes and Txx nodes is now sent during the
@@ -113,6 +114,10 @@ v0.37.01	14-Jan-2003.
 		Maybe removed a bug where the bbs sometimes crashed during
 		mail reading.
 		Fixed some minor things to the door.sys file.
+		Normal users were allowed to delete messages of other users,
+		now only the writer or those with sysop access to the area are
+		allowed to delete messages.
+		Finally wrote Delete Message from the menu (menu 206).
 
 	examples:
 		The English and Dutch templates are updated to show the new
@@ -121,7 +126,8 @@ v0.37.01	14-Jan-2003.
 		functions.
 
 	lang:
-		Changed english and dutch language prompts 11, 12, 13 and 107.
+		Changed english and dutch language prompts 11, 12, 13, 14 and
+		107.
 		Changed in other languages as well, but in English.
 
 

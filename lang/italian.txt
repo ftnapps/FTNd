@@ -12,7 +12,7 @@ SN|Hai scritto il tuo nome e cognome correttamente? [S/n]
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
 |No rules found for this area
-|Byte disponibili     :
+|You are not allowed to delete that message
 |Tempo depositato oggi:
 |Byte depositati oggi :
 |Tempo prelevato oggi :

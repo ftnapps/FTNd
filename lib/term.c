@@ -87,6 +87,7 @@ void poutCR(int fg, int bg, char *Str)
 {
     colour(fg, bg);
     fputs(Str, stdout);
+    fprintf(stdout, "\n");
     fflush(stdout);
 }
 

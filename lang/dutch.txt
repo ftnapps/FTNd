@@ -12,7 +12,7 @@ JN|Is Uw naam juist gespeld? [J/n]
 HR|Exporteer naar (H)ome of (R)egels directory: 
 |Bericht geexporteerd naar rules directory als 
 |Geen regels gevonden voor dit gebied
-|Bytes op de rekening               
+|Je mag dit bericht niet verwijderen
 |Tijd gestort vandaag               
 |Bytes gestort vandaag              
 |Tijd opgenomen vandaag             

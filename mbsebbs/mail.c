@@ -101,30 +101,30 @@ int	IsMe(char *);			/* Test if this is my userrecord    */
  */
 int LC(int Lines)
 {
-	int	z;
+    int	z;
 
-	iLineCount += Lines;
+    iLineCount += Lines;
  
-	if (iLineCount >= exitinfo.iScreenLen && iLineCount < 1000) {
-		iLineCount = 1;
+    if (iLineCount >= exitinfo.iScreenLen && iLineCount < 1000) {
+	iLineCount = 1;
 
-		pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
-		fflush(stdout);
-		alarm_on();
-		z = toupper(Getone());
+	pout(CFG.MoreF, CFG.MoreB, (char *) Language(61));
+	fflush(stdout);
+	alarm_on();
+	z = toupper(Getone());
 
-		if (z == Keystroke(61, 1)) {
-			printf("\n");
-			return(1);
-		}
-
-		if (z == Keystroke(61, 2))
-			iLineCount = 50000;
-
-		Blanker(strlen(Language(61)));
+	if (z == Keystroke(61, 1)) {
+	    printf("\n");
+	    return(1);
 	}
 
-	return(0);
+	if (z == Keystroke(61, 2))
+	    iLineCount = 50000;
+
+	Blanker(strlen(Language(61)));
+    }
+
+    return(0);
 }
 
 
@@ -135,14 +135,14 @@ int LC(int Lines)
 int Post_Allowed(void);
 int Post_Allowed(void)
 {
-	if (msgs.MsgKinds == RONLY) {
-		/* Message area is Readonly */
-		pout(LIGHTRED, BLACK, (char *) Language(437));
-		fflush(stdout);
-		sleep(3);
-		return FALSE;
-	}
-	return TRUE;
+    if (msgs.MsgKinds == RONLY) {
+	/* Message area is Readonly */
+	pout(LIGHTRED, BLACK, (char *) Language(437));
+	fflush(stdout);
+	sleep(3);
+	return FALSE;
+    }
+    return TRUE;
 }
 
 
@@ -240,30 +240,30 @@ int Crash_Option(faddr *Dest)
 int IsPrivate(void);
 int IsPrivate(void)
 {
-	int	rc = FALSE;
+    int	rc = FALSE;
 
-        if (msgs.MsgKinds == BOTH) {
-                Enter(1);
-                /* Private [y/N]: */
-                pout(CYAN, BLACK, (char *) Language(163));
-                fflush(stdout);
-                alarm_on();
-                if (toupper(Getone()) == Keystroke(163, 0)) {
-                        rc = TRUE;
-			printf("%c", Keystroke(163, 0));
-		} else {
-			printf("%c", Keystroke(163, 1));
-		}
-		fflush(stdout);
-        }
+    if (msgs.MsgKinds == BOTH) {
+        Enter(1);
+        /* Private [y/N]: */
+        pout(CYAN, BLACK, (char *) Language(163));
+        fflush(stdout);
+        alarm_on();
+        if (toupper(Getone()) == Keystroke(163, 0)) {
+            rc = TRUE;
+	    printf("%c", Keystroke(163, 0));
+	} else {
+	    printf("%c", Keystroke(163, 1));
+	}
+	fflush(stdout);
+    }
 
-        /*
-         * Allways set the private flag in Private areas.
-         */
-        if (msgs.MsgKinds == PRIVATE)
-                rc = TRUE;
+    /*
+     * Allways set the private flag in Private areas.
+     */
+    if (msgs.MsgKinds == PRIVATE)
+        rc = TRUE;
 
-	return rc;
+    return rc;
 }
 
 
@@ -1175,88 +1175,100 @@ void Read_Msgs()
  */
 int ReadPanel()
 {
-	int input;
+    int input;
 
-	WhosDoingWhat(READ_POST);
+    WhosDoingWhat(READ_POST);
 
-	colour(WHITE, RED);
- 	if (msgs.UsrDelete || exitinfo.Security.level >= CFG.sysop_access) {
-		/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port */
-		printf("%s", (char *) Language(214));
-	} else {
-		/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (Q)uit, e(X)port */
-		printf("%s", (char *) Language(215));
+    colour(WHITE, RED);
+    /*
+     * The writer of the message, sysops, and who has sysop rights to the message area
+     * are allowed to delete messages.
+     */
+    if ((msgs.UsrDelete && IsMe(Msg.From)) || (exitinfo.Security.level >= CFG.sysop_access) ||
+	    Access(exitinfo.Security, msgs.SYSec)) {
+	/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (D)elete, (Q)uit, e(X)port */
+	printf("%s", (char *) Language(214));
+    } else {
+	/* (A)gain, (N)ext, (L)ast, (R)eply, (E)nter, (Q)uit, e(X)port */
+	printf("%s", (char *) Language(215));
+    }
+    if ((exitinfo.Security.level >= CFG.sysop_access) || Access(exitinfo.Security, msgs.SYSec))
+	printf(", (!)");
+
+    printf(": ");
+
+    fflush(stdout);
+    alarm_on();
+    input = toupper(Getone());
+
+    if (input == '!') { /* ! Toggle kludges display */
+	if ((exitinfo.Security.level >= CFG.sysop_access) || Access(exitinfo.Security, msgs.SYSec)) {
+	    if (Kludges)
+		Kludges = FALSE;
+	    else
+		Kludges = TRUE;
 	}
-	if (exitinfo.Security.level >= CFG.sysop_access)
-		printf(", (!)");
+	Read_a_Msg(LastNum, TRUE);
+    
+    } else if (input == Keystroke(214, 0)) { /* (A)gain */
+	Read_a_Msg(LastNum, TRUE);
 
-	printf(": ");
+    } else if (input == Keystroke(214, 4)) { /* (P)ost */
+	Post_Msg();
+	Read_a_Msg(LastNum, TRUE);
 
-	fflush(stdout);
-	alarm_on();
-	input = toupper(Getone());
+    } else if (input == Keystroke(214, 2)) { /* (L)ast */
+	if (LastNum  > MsgBase.Lowest)
+	    LastNum--;
+	Read_a_Msg(LastNum, TRUE);
 
-	if (input == '!') {
-		if (exitinfo.Security.level >= CFG.sysop_access) {
-			if (Kludges)
-				Kludges = FALSE;
-			else
-				Kludges = TRUE;
-		}
+    } else if (input == Keystroke(214, 3)) { /* (R)eply */
+	Reply_Msg(TRUE);
+	Read_a_Msg(LastNum, TRUE);
+
+    } else if (input == Keystroke(214, 5)) { /* (Q)uit */
+	/* Quit */
+	printf("%s\n", (char *) Language(189));
+	return FALSE;
+
+    } else if (input == Keystroke(214, 7)) { /* e(X)port */
+	Export_a_Msg(LastNum);
+	Read_a_Msg(LastNum, TRUE);
+
+    } else if (input == '+') {
+	if (Msg.Reply) 
+	    LastNum = Msg.Reply;
+	Read_a_Msg(LastNum, TRUE);
+
+    } else if (input == '-') {
+	if (Msg.Original) 
+	    LastNum = Msg.Original;
+	Read_a_Msg(LastNum, TRUE);
+
+    } else if (input == Keystroke(214, 6)) { /* (D)elete */
+	if ((msgs.UsrDelete && IsMe(Msg.From)) || (exitinfo.Security.level >= CFG.sysop_access) ||
+		                Access(exitinfo.Security, msgs.SYSec)) {
+	    Delete_MsgNum(LastNum);
+	    if (LastNum < MsgBase.Highest) {
+		LastNum++;
 		Read_a_Msg(LastNum, TRUE);
-	} else if (input == Keystroke(214, 0)) { /* (A)gain */
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == Keystroke(214, 4)) { /* (P)ost */
-		Post_Msg();
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == Keystroke(214, 2)) { /* (L)ast */
-		if (LastNum  > MsgBase.Lowest)
-			LastNum--;
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == Keystroke(214, 3)) { /* (R)eply */
-		Reply_Msg(TRUE);
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == Keystroke(214, 5)) { /* (Q)uit */
-		/* Quit */
-		printf("%s\n", (char *) Language(189));
+	    } else {
 		return FALSE;
-
-	} else if (input == Keystroke(214, 7)) { /* e(X)port */
-		Export_a_Msg(LastNum);
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == '+') {
-		if (Msg.Reply) 
-			LastNum = Msg.Reply;
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == '-') {
-		if (Msg.Original) 
-			LastNum = Msg.Original;
-		Read_a_Msg(LastNum, TRUE);
-
-	} else if (input == Keystroke(214, 6)) { /* (D)elete */
-		Delete_MsgNum(LastNum);
-		if (LastNum < MsgBase.Highest) {
-			LastNum++;
-			Read_a_Msg(LastNum, TRUE);
-		} else {
-			return FALSE;
-		}
+	    }
 	} else {
-		/* Next */
-		pout(WHITE, BLACK, (char *) Language(216));
-		if (LastNum < MsgBase.Highest)
-			LastNum++;
-		else
-			return FALSE;
-		Read_a_Msg(LastNum, TRUE);
+	    Read_a_Msg(LastNum, TRUE);
 	}
-	return TRUE;
+
+    } else {
+	/* Next */
+	pout(WHITE, BLACK, (char *) Language(216));
+	if (LastNum < MsgBase.Highest)
+	    LastNum++;
+	else
+	    return FALSE;
+	Read_a_Msg(LastNum, TRUE);
+    }
+    return TRUE;
 }
 
 
@@ -1476,64 +1488,64 @@ int IsMe(char *Name)
 
 void QuickScan_Msgs()
 {
-	int	FoundMsg  = FALSE;
-	long	i;
+    int	    FoundMsg  = FALSE;
+    long    i;
 
-	iLineCount = 2;
-	WhosDoingWhat(READ_POST);
+    iLineCount = 2;
+    WhosDoingWhat(READ_POST);
 
-	if (MsgBase.Total == 0) {
-		Enter(1);
-		/* There are no messages in this area. */
-		pout(WHITE, BLACK, (char *) Language(205));
-		Enter(3);
-		sleep(3);
-		return;
-	}
+    if (MsgBase.Total == 0) {
+	Enter(1);
+	/* There are no messages in this area. */
+	pout(WHITE, BLACK, (char *) Language(205));
+	Enter(3);
+	sleep(3);
+	return;
+    }
 
-  	clear(); 
-	/* #    From                  To                       Subject */
-	poutCR(YELLOW, BLUE, (char *) Language(220));
+    clear(); 
+    /* #    From                  To                       Subject */
+    poutCR(YELLOW, BLUE, (char *) Language(220));
 
-	if (Msg_Open(sMsgAreaBase)) {
-		for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
-			if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
+    if (Msg_Open(sMsgAreaBase)) {
+	for (i = MsgBase.Lowest; i <= MsgBase.Highest; i++) {
+	    if (Msg_ReadHeader(i) && ((msgs.Type != NETMAIL) || 
 				    ((msgs.Type == NETMAIL) && ((IsMe(Msg.From)) || (IsMe(Msg.To)))))) {
 				
-				colour(WHITE, BLACK);
-				printf("%-6lu", Msg.Id);
-				if (IsMe(Msg.From))
-					colour(LIGHTCYAN, BLACK);
-				else
-					colour(CYAN, BLACK);
-				printf("%s ", padleft(Msg.From, 20, ' '));
+		colour(WHITE, BLACK);
+		printf("%-6lu", Msg.Id);
+		if (IsMe(Msg.From))
+		    colour(LIGHTCYAN, BLACK);
+		else
+		    colour(CYAN, BLACK);
+		printf("%s ", padleft(Msg.From, 20, ' '));
 
-				if (IsMe(Msg.To))
-					colour(LIGHTGREEN, BLACK);
-				else
-					colour(GREEN, BLACK);
-				printf("%s ", padleft(Msg.To, 20, ' '));
-				colour(MAGENTA, BLACK);
-				printf("%s", padleft(Msg.Subject, 31, ' '));
-				printf("\n");
-				FoundMsg = TRUE;
-				if (LC(1))
-					break;
-			}
-		}
-		Msg_Close();
+		if (IsMe(Msg.To))
+		    colour(LIGHTGREEN, BLACK);
+		else
+		    colour(GREEN, BLACK);
+		printf("%s ", padleft(Msg.To, 20, ' '));
+		colour(MAGENTA, BLACK);
+		printf("%s", padleft(Msg.Subject, 31, ' '));
+		printf("\n");
+		FoundMsg = TRUE;
+		if (LC(1))
+		    break;
+	    }
 	}
+	Msg_Close();
+    }
 
-	if(!FoundMsg) {
-		Enter(1);
-		/* There are no messages in this area. */
-		pout(LIGHTGREEN, BLACK, (char *) Language(205));
-		Enter(2);
-		sleep(3);
-	}
+    if (!FoundMsg) {
+	Enter(1);
+	/* There are no messages in this area. */
+	pout(LIGHTGREEN, BLACK, (char *) Language(205));
+	Enter(2);
+	sleep(3);
+    }
 
-	iLineCount = 2;
-	Pause();
+    iLineCount = 2;
+    Pause();
 }
 
 
@@ -1543,7 +1555,67 @@ void QuickScan_Msgs()
  */
 void Delete_Msg()
 {
+    char	    *temp;
+    unsigned long   Msgnum = 0L;
+
+    WhosDoingWhat(READ_POST);
+
+    /*
+     * The area data is already set, so we can do the next things
+     */
+    if (MsgBase.Total == 0) {
+	colour(WHITE, BLACK);
+	/* There are no messages in this area */
+	printf("\n%s\n\n", (char *) Language(205));
+	sleep(3);
 	return;
+    }
+
+    colour(CFG.TextColourF, CFG.TextColourB);
+    /* Message area \"%s\" contains %lu messages. */
+    printf("\n%s\"%s\" %s%lu %s", (char *) Language(221), sMsgAreaDesc,
+	    (char *) Language(222), MsgBase.Total, (char *) Language(223));
+
+    colour(WHITE, BLACK);
+    /* Please enter a message between */
+    printf("\n%s(%lu - %lu): ", (char *) Language(224), MsgBase.Lowest, MsgBase.Highest);
+
+    temp = calloc(81, sizeof(char));
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(temp, 10);
+    if ((strcmp(temp, "")) != 0)
+	Msgnum = atoi(temp);
+    free(temp);
+    
+    if (!Msg_Open(sMsgAreaBase)) {
+	WriteError("Error open JAM base %s", sMsgAreaBase);
+	return;
+    }
+
+    if (!Msg_ReadHeader(Msgnum)) {
+	perror("");
+	colour(WHITE, BLACK);
+	/* Message doesn't exist */
+	printf("\n%s\n\n", (char *)Language(77));
+	Msg_Close();
+	sleep(3);
+	return;
+    }
+    Msg_Close();
+    
+    /*
+     * Message does exist and a valid number is suplied, check and finally mark the message deleted.
+     */
+    if ((msgs.UsrDelete && IsMe(Msg.From)) || (exitinfo.Security.level >= CFG.sysop_access) ||
+	                Access(exitinfo.Security, msgs.SYSec)) {
+	Delete_MsgNum(Msgnum);
+    } else {
+	colour(LIGHTRED, BLACK);
+	printf("\n%s\n\n", (char *)Language(14));
+    }
+
+    sleep(3);
+    return;
 } 
 
 
@@ -1933,27 +2005,25 @@ void MsgArea_List(char *Option)
 
 
 
-/*
- *  Function deletes a specified message.
- */
 void Delete_MsgNum(unsigned long MsgNum)
 {
-	int	Result = FALSE;
+    int	Result = FALSE;
 
-	pout(LIGHTRED, BLACK, (char *) Language(230));
+    /* Deleting message */
+    pout(LIGHTRED, BLACK, (char *) Language(230));
 
-	if (Msg_Open(sMsgAreaBase)) {
-		if (Msg_Lock(15L)) {
-			Result = Msg_Delete(MsgNum);
-			Msg_UnLock();
-		}
-		Msg_Close();
+    if (Msg_Open(sMsgAreaBase)) {
+	if (Msg_Lock(15L)) {
+	    Result = Msg_Delete(MsgNum);
+	    Msg_UnLock();
 	}
+	Msg_Close();
+    }
 
-	if (Result)
-		Syslog('+', "Deleted msg #%lu in Area #%d (%s)", MsgNum, iMsgAreaNumber, sMsgAreaDesc);
-	else
-		WriteError("ERROR delete msg #%lu in Area #%d (%s)", MsgNum, iMsgAreaNumber, sMsgAreaDesc);
+    if (Result)
+	Syslog('+', "Deleted msg #%lu in Area #%d (%s)", MsgNum, iMsgAreaNumber, sMsgAreaDesc);
+    else
+	WriteError("ERROR delete msg #%lu in Area #%d (%s)", MsgNum, iMsgAreaNumber, sMsgAreaDesc);
 }
 
 

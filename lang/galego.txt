@@ -12,7 +12,7 @@ SN|¨Escribiche-lo teu nome correctamente? [S/n]
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
 |No rules found for this area
-|Bytes na cuenta          : 
+|You are not allowed to delete that message
 |Tempo depositado hoxe    : 
 |Bytes depositados hoxe   : 
 |Tempo retirado hoxe      : 

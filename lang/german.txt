@@ -12,7 +12,7 @@ JN|Haben Sie Ihren Namen korrekt eingegeben? [J/n]
 HR|Export to (H)ome or (R)ules directory: 
 |Message exported to rules directory as 
 |No rules found for this area
-|Kontostand Daten (KBytes) . . . . : 
+|You are not allowed to delete that message
 |Heute gesparte Zeit . . . . . . . : 
 |Heute gesparte KBytes . . . . . . : 
 |Heute abgehobene Zeit . . . . . . : 

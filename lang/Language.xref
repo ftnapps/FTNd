@@ -12,7 +12,7 @@
 11	mail.c email.c			HR|Export to (H)ome or (R)ules directory: 
 12	mail.c email.c			|Message exported to rules directory as 
 13	dispfile.c			|No rules found for this area
-14	.c				|
+14	mail.c				|You are not allowed to delete that message
 15	.c				|
 16	.c				|
 17	.c				|
@@ -329,7 +329,7 @@
 328	bbslist.c			| Date of Entry : 
 329	bbslist.c			| Entry Name    : 
 330	bbslist.c			|Delete BBS 
-331	bbslist.c oneline.c		|Please enter number to delete: 
+331	bbslist.c oneline.c mail.c		|Please enter number to delete: 
 332	bbslist.c oneline.c		|Record 
 333	bbslist.c oneline.c		|does not belong to you.
 334	bbslist.c oneline.c		|already marked for deletion
