@@ -267,7 +267,7 @@ SN|Nodo desco¤ecido. ¨Continuar? [s/N]:
 |Protocolo predeterminado: 
 |Palabra a buscar: 
 |Buscar ficheiro por unha palabra 
-|Aceptanse comodins coma : *.zip, *.gz, .tar*
+|Aceptanse comodins coma : *.zip, *.gz, *.*
 |                        : *.zip es lo mismo que .zip
 |Nome do ficheiro a buscar: 
 |Buscar ficheiro por nome 

@@ -267,7 +267,7 @@ JN|Node onbekend, toch doorgaan [j/N]:
 |Het protocol is nu: 
 |Geef sleutelwoord om op te zoeken : 
 |Bestanden zoeken op sleutelwoord
-|Accepteerd jokers zoals : *.zip, *.gz, .tar*
+|Accepteerd jokers zoals : *.zip, *.gz, *.*
 |                        : *.zip is hetzelfde als .zip
 |Geef bestandsnaam om naar te zoeken : 
 |Bestanden zoeken op naam

@@ -52,7 +52,7 @@ extern int	do_novir;		/* Suppress virus check		    */
 void AdoptFile(int Area, char *File, char *Description)
 {
     FILE		*fp;
-    char		*temp, *temp2, *tmpdir, *unarc, *pwd;
+    char		*temp, *temp2, *tmpdir, *unarc, *pwd, *lname;
     char		Desc[256], TDesc[256];
     int			IsArchive = FALSE, MustRearc = FALSE, UnPacked = FALSE;
     int			IsVirus = FALSE, File_Id = FALSE;
@@ -279,8 +279,17 @@ void AdoptFile(int Area, char *File, char *Description)
 	    fflush(stdout);
 	}
 
-	if (AddFile(fdb, Area, temp2, File) == FALSE) {
-	    die(MBERR_GENERAL);
+	if (strcmp(fdb.Name, fdb.LName)) {
+	    lname = calloc(PATH_MAX, sizeof(char));
+	    sprintf(lname, "%s/%s", area.Path, fdb.Name);
+	    if (AddFile(fdb, Area, temp2, File, lname) == FALSE) {
+		die(MBERR_GENERAL);
+	    }
+	    free(lname);
+	} else {
+	    if (AddFile(fdb, Area, temp2, File, NULL) == FALSE) {
+		die(MBERR_GENERAL);
+	    }
 	}
 	Syslog('+', "File %s added to area %d", File, Area);
 

@@ -267,8 +267,8 @@
 266	change.c			|Protocol now set to: 
 267	file.c				|Enter keyword to use for Search: 
 268	file.c				|File Search by Keyword
-269	file.c				|Accepts wildcards such as : *.zip, *.gz, .tar*
-270	file.c				|                          : *.zip is the same as .zip
+269	file.c				|Accepts wildcards such as : *.zip, *.gz, *.*
+270					|                          : *.zip is the same as .zip
 271	file.c				|Enter filename to search for : 
 272	file.c				|File Search by Filename
 273	file.c				YN|Search for new since your last call [Y/n]: 

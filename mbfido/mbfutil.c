@@ -309,12 +309,16 @@ int UnpackFile(char *File)
  * directory. The fdb record already has all needed
  * information.
  */
-int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
+int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath, char *LinkPath)
 {
     char    *temp1, *temp2;
     FILE    *fp1, *fp2;
     int	    i, rc, Insert, Done = FALSE, Found = FALSE;
 
+    /*
+     * Copy file to the final destination and make a hard link with the
+     * 8.3 filename to the long filename.
+     */
     mkdirs(DestPath, 0775);
     if ((rc = file_cp(FromPath, DestPath))) {
 	WriteError("Can't copy file in place");
@@ -323,6 +327,15 @@ int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
 	return FALSE;
     }
     chmod(DestPath, 0644);
+    if (LinkPath) {
+	if ((rc = link(DestPath, LinkPath))) {
+	    WriteError("Can't create link %s", LinkPath);
+	    if (!do_quiet)
+		printf("Can't create link %s, %s\n", LinkPath, strerror(rc));
+	    unlink(DestPath);
+	    return FALSE;
+	}
+    }
 
     temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));

@@ -121,152 +121,152 @@ void EditFile()
 
 void E_F(long areanr)
 {
-	FILE		*fil;
-	char		temp[PATH_MAX];
-	int		i, y, o, records, Ondisk;
-	char		help[81];
-	static	char	*menu = (char *)"0";
-	long		offset;
-	time_t		Time;
-	struct	stat	statfile;
-	unsigned long	crc, crc1;
+    FILE	    *fil;
+    char	    temp[PATH_MAX], help[81];
+    int		    i, y, o, records, Ondisk;
+    static char	    *menu = (char *)"0";
+    long	    offset;
+    time_t	    Time;
+    struct stat	    statfile;
+    unsigned long   crc, crc1;
+
+    clr_index();
+
+    sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), areanr);
+    if ((fil = fopen(temp, "r+")) == NULL) {
+	working(2, 0, 0);
+	return;
+    }
+    if (! check_free())
+	return;
+
+    fseek(fil, 0, SEEK_END);
+    records = ftell(fil) / sizeof(file);
+    o = 0;
+
+    for (;;) {
 
 	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw(5, 4, "14.  EDIT FILES DATABASE");
 
-	sprintf(temp, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), areanr);
-	if ((fil = fopen(temp, "r+")) == NULL) {
-		working(2, 0, 0);
-		return;
-	}
-        if (! check_free())
-	    return;
+	y = 8;
+	working(1, 0, 0);
 
-	fseek(fil, 0, SEEK_END);
-	records = ftell(fil) / sizeof(file);
-	o = 0;
+	set_color(YELLOW, BLUE);
+	mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
+/*                      1234   12345678901234 12345678 12-34-1998 12:45 123456789012345678901234567890*/
+	set_color(CYAN, BLACK);
 
-	for (;;) {
+	for (i = 1; i <= 10; i++) {
+	    if ((o + i) <= records) {
+		offset = ((o + i) - 1) * sizeof(file);
+		fseek(fil, offset, SEEK_SET);
+		fread(&file, sizeof(file), 1, fil);
 
-		clr_index();
 		set_color(WHITE, BLACK);
-		mvprintw(5, 4, "14.  EDIT FILES DATABASE");
+		mvprintw(y, 1, (char *)"%4d.", o + i);
 
-		y = 8;
-		working(1, 0, 0);
+		sprintf(temp, "%s/%s", area.Path, file.LName);
+		Ondisk = ((stat(temp, &statfile)) != -1);
 
-		set_color(YELLOW, BLUE);
-		mvprintw(7, 1, "  Nr   Filename           Size Date       Time  Description                   ");
-/*                              1234   12345678901234 12345678 12-34-1998 12:45 123456789012345678901234567890*/
-		set_color(CYAN, BLACK);
-
-		for (i = 1; i <= 10; i++) {
-			if ((o + i) <= records) {
-				offset = ((o + i) - 1) * sizeof(file);
-				fseek(fil, offset, SEEK_SET);
-				fread(&file, sizeof(file), 1, fil);
-
-				set_color(WHITE, BLACK);
-				mvprintw(y, 1, (char *)"%4d.", o + i);
-
-				sprintf(temp, "%s/%s", area.Path, file.LName);
-				Ondisk = ((stat(temp, &statfile)) != -1);
-
-				if (Ondisk)
-					set_color(CYAN, BLACK);
-				else
-					set_color(LIGHTRED, BLACK);
-				mvprintw(y, 8, (char *)"%-14s", file.Name);
-
-				if (Ondisk) {
-					if (file.Size == statfile.st_size)
-						set_color(CYAN, BLACK);
-					else
-						set_color(LIGHTRED, BLACK);
-					mvprintw(y,23, (char *)"%8ld", file.Size);
-
-					if (file.FileDate == statfile.st_mtime)
-						set_color(CYAN, BLACK);
-					else
-						set_color(LIGHTRED, BLACK);
-					Time = file.FileDate;
-					mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
-				}
-
-				set_color(CYAN, BLACK);
-				sprintf(temp, "%s", file.Desc[0]);
-				temp[30] = '\0';
-				mvprintw(y,49, (char *)"%s", temp);
-				y++;
-			}
-		}
-		working(0, 0, 0);
-
-		if (records)
-			if (records > 10)
-				sprintf(help, "^1..%d^ Edit, ^-^ Return, ^N^/^P^ Page", records);
-			else
-				sprintf(help, "^1..%d^ Edit, ^-^ Return", records); 
+		if (file.Deleted)
+		    set_color(LIGHTBLUE, BLACK);
+		else if (Ondisk)
+		    set_color(CYAN, BLACK);
 		else
-			sprintf(help, "^-^ Return");
+		    set_color(LIGHTRED, BLACK);
+		mvprintw(y, 8, (char *)"%-14s", file.Name);
 
-		showhelp(help);
+		if (Ondisk) {
+		    if (file.Size == statfile.st_size)
+			set_color(CYAN, BLACK);
+		    else
+			set_color(LIGHTRED, BLACK);
+		    mvprintw(y,23, (char *)"%8ld", file.Size);
 
-		while(TRUE) {
-			mvprintw(LINES - 4, 6, "Enter your choice >");
-			menu = (char *)"-";
-			menu = edit_field(LINES - 4, 26, 6, '!', menu);
-			locate(LINES - 4, 6);
-			clrtoeol();
-
-			if (strncmp(menu, "-", 1) == 0) {
-				fclose(fil);
-				open_bbs();
-				return;
-			}
-
-			if (records > 10) {
-				if (strncmp(menu, "N", 1) == 0)
-					if ((o + 10) < records) {
-						o += 10;
-						break;
-					}
-
-				if (strncmp(menu, "P", 1) == 0)
-					if ((o - 10) >= 0) {
-						o -= 10;
-						break;
-					}
-			}
-
-			if ((atoi(menu) > 0) && (atoi(menu) <= records)) {
-				working(1, 0, 0);
-				offset = (atoi(menu) - 1) * sizeof(file);
-				fseek(fil, offset, SEEK_SET);
-				fread(&file, sizeof(file), 1, fil);
-				crc = 0xffffffff;
-				crc = upd_crc32((char *)&file, crc, sizeof(file));
-
-				sprintf(temp, "%s/%s", area.Path, file.LName);
-				if (stat(temp, &statfile) == -1)
-					file.Missing = TRUE;
-
-				EditFile();
-
-				crc1 = 0xffffffff;
-				crc1 = upd_crc32((char *)&file, crc1, sizeof(file));
-
-				if (crc != crc1) {
-					if (yes_no((char *)"Record is changed, save") == 1) {
-						working(1, 0, 0);
-						fseek(fil, offset, SEEK_SET);
-						fwrite(&file, sizeof(file), 1, fil);
-					}
-				}
-				break;
-			}
+		    if (file.FileDate == statfile.st_mtime)
+			set_color(CYAN, BLACK);
+		    else
+			set_color(LIGHTRED, BLACK);
+		    Time = file.FileDate;
+		    mvprintw(y,32, (char *)"%s %s", StrDateDMY(Time), StrTimeHM(Time));
 		}
 
+		set_color(CYAN, BLACK);
+		sprintf(temp, "%s", file.Desc[0]);
+		temp[30] = '\0';
+		mvprintw(y,49, (char *)"%s", temp);
+		y++;
+	    }
 	}
+	working(0, 0, 0);
+
+	if (records)
+	    if (records > 10)
+		sprintf(help, "^1..%d^ Edit, ^-^ Return, ^N^/^P^ Page", records);
+	    else
+		sprintf(help, "^1..%d^ Edit, ^-^ Return", records); 
+	else
+	    sprintf(help, "^-^ Return");
+
+	showhelp(help);
+
+	while(TRUE) {
+	    mvprintw(LINES - 4, 6, "Enter your choice >");
+	    menu = (char *)"-";
+	    menu = edit_field(LINES - 4, 26, 6, '!', menu);
+	    locate(LINES - 4, 6);
+	    clrtoeol();
+
+	    if (strncmp(menu, "-", 1) == 0) {
+		fclose(fil);
+		open_bbs();
+		return;
+	    }
+
+	    if (records > 10) {
+		if (strncmp(menu, "N", 1) == 0)
+		    if ((o + 10) < records) {
+			o += 10;
+			break;
+		    }
+
+		if (strncmp(menu, "P", 1) == 0)
+		    if ((o - 10) >= 0) {
+			o -= 10;
+			break;
+		    }
+	    }
+
+	    if ((atoi(menu) > 0) && (atoi(menu) <= records)) {
+		working(1, 0, 0);
+		offset = (atoi(menu) - 1) * sizeof(file);
+		fseek(fil, offset, SEEK_SET);
+		fread(&file, sizeof(file), 1, fil);
+		crc = 0xffffffff;
+		crc = upd_crc32((char *)&file, crc, sizeof(file));
+
+		sprintf(temp, "%s/%s", area.Path, file.LName);
+		if (stat(temp, &statfile) == -1)
+		    file.Missing = TRUE;
+
+		EditFile();
+
+		crc1 = 0xffffffff;
+		crc1 = upd_crc32((char *)&file, crc1, sizeof(file));
+
+		if (crc != crc1) {
+		    if (yes_no((char *)"Record is changed, save") == 1) {
+			working(1, 0, 0);
+			fseek(fil, offset, SEEK_SET);
+			fwrite(&file, sizeof(file), 1, fil);
+		    }
+		}
+		break;
+	    }
+	}
+    }
 }
 
 

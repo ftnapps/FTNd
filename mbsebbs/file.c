@@ -712,149 +712,129 @@ int KeywordScan()
  */
 int FilenameScan()
 {
-	FILE		*pAreas, *pFile;
-	int		z, y, Found, Count = 0;
-	char		*Name;
-	char		*tmpname, *tmpname2;
-	char		temp[81];
-	_Tag		T;
-	unsigned long	OldArea;
+    FILE	    *pAreas, *pFile;
+    int		    Found, Count = 0;
+    char	    *p, *q, mask[256];
+    char	    *Name;
+    _Tag	    T;
+    unsigned long   OldArea;
 
-	Name     = calloc(81, sizeof(char));
-	tmpname  = calloc(81, sizeof(char));
-	tmpname2 = calloc(81, sizeof(char));
-	OldArea  = iAreaNumber;
+    Name     = calloc(81, sizeof(char));
+    OldArea  = iAreaNumber;
 
-	iLineCount = 2; /* Reset Line Counter to Zero */
-	arecno     = 1; /* Reset Area Number to One  */
+    iLineCount = 2; /* Reset Line Counter to Zero */
+    arecno     = 1; /* Reset Area Number to One  */
 
-	Enter(2);
-	/* Accepts wildcards such as : *.zip, *.gz, .tar */
-	pout(15, 0, (char *) Language(269));
-	Enter(1);
-	/*                           : *.zip is the same as .zip */
-	pout(15, 0, (char *) Language(270));
+    Enter(2);
+    /* Accepts wildcards such as : *.zip, *.gz, *.* */
+    pout(15, 0, (char *) Language(269));
 
-	Enter(2);
-	/* Enter filename to search for : */
-	pout(11, 0, (char *) Language(271));
+    Enter(2);
+    /* Enter filename to search for : */
+    pout(11, 0, (char *) Language(271));
 
-	colour(CFG.InputColourF, CFG.InputColourB);
-	GetstrC(Name, 80);
+    colour(CFG.InputColourF, CFG.InputColourB);
+    GetstrC(Name, 80);
 
-	if ((strcmp(Name, "")) == 0) {
-		free(tmpname);
-		free(Name);
-		return 0;
-	}
-
-	/*
-	 * If there is a file extension, strip it off, it are mostly
-	 * archiver extensions, and who knows what we're using as
-	 * archiver.
-	 */
-	if (strchr(Name, '.') != NULL)
-		strcpy(tmpname, strtok(Name, "."));
-	else
-		strcpy(tmpname, tl(Name));
-	strcpy(Name, "");
-	y = strlen(tmpname);
-	for(z = 0; z <  y; z++) {
-		if(tmpname[z] != '*') {
-			sprintf(temp, "%c", tmpname[z]);
-			strcat(Name, temp);
-		}
-	}
-	tl(Name);
-	Syslog('+', "FilenameScan(): \"%s\"", Name);
-
-	clear();
-	/* File Search by Filename */
-	pout(15, 0, (char *) Language(272));
-	Enter(1);
-	InitTag();
-
-	if ((pAreas = OpenFareas(FALSE)) == NULL)
-		return 0;
-
-	while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
-		if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
-
-			if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
-
-				Found = FALSE;
-				Sheader();
-				Nopper();
-
-				while (fread(&file, sizeof(file), 1, pFile) == 1) {
-
-					strcpy(tmpname, file.Name);
-					strcpy(tmpname2, file.LName);
-					tl(tmpname);
-					tl(tmpname2);
-					if (((strstr(tmpname, Name)) != NULL) || ((strstr(tmpname2, Name)) != NULL)) {
-						if (!Found) {
-							Enter(2);
-							if (iLC(2) == 1) {
-								free(Name);
-								free(tmpname);
-								free(tmpname2);
-								SetFileArea(OldArea);
-								return 1;
-							}
-							Found = TRUE;
-						}
-
-						memset(&T, 0, sizeof(T));
-						T.Area   = arecno;
-						T.Active = FALSE;
-						T.Cost   = file.Cost;
-						T.Size   = file.Size;
-						strncpy(T.SFile, file.Name, 12);
-						strncpy(T.LFile, file.LName, 81);
-						SetTag(T);
-						Count++;
-						if (ShowOneFile() == 1) {
-							free(Name);
-							free(tmpname);
-							free(tmpname2);
-							SetFileArea(OldArea);
-							return 1;
-						}
-					}
-
-				} /* End of while */
-
-				fclose(pFile);
-				if (Found) {
-					Enter(2);
-					if (iLC(2) == 1) {
-						free(Name);
-						free(tmpname);
-						free(tmpname2);
-						SetFileArea(OldArea);
-						return 1;
-					}
-				}
-
-			} /* End Check for LTSec */
-		} /* if access */
-		arecno++; /* Go to next file area */
-
-	} /* End of Main */
-
-	Syslog('+', "Found %d files", Count);
-	fclose(pAreas);
+    if ((strcmp(Name, "")) == 0) {
 	free(Name);
-	free(tmpname);
-	free(tmpname2);
-	printf("\n");
-	if (Count)
-		Mark();
-	else
-		Pause();
-	SetFileArea(OldArea);
-	return 1;
+	return 0;
+    }
+
+    /*
+     * Make a regexp string for the users search mask.
+     */
+    p = tl(Name);
+    q = mask;
+    *q++ = '^';
+    while ((*p) && (q < (mask + sizeof(mask) - 4))) {
+	switch (*p) {
+	    case '\\':  *q++ = '\\'; *q++ = '\\'; break;
+	    case '?':   *q++ = ','; break;
+	    case '.':   *q++ = '\\'; *q++ = '.'; break;
+	    case '+':   *q++ = '\\'; *q++ = '+'; break;
+	    case '*':   *q++ = '.';  *q++ = '*'; break;
+	    default:    *q++ = toupper(*p);   break;
+	}
+	p++;
+    }
+    *q++ = '$';
+    *q++ = '\0';
+    Syslog('+', "FilenameScan(): \"%s\" -> \"%s\"", Name, mask);
+    free(Name);
+    re_comp(mask);
+
+    clear();
+    /* File Search by Filename */
+    pout(15, 0, (char *) Language(272));
+    Enter(1);
+    InitTag();
+
+    if ((pAreas = OpenFareas(FALSE)) == NULL)
+	return 0;
+
+    while (fread(&area, areahdr.recsize, 1, pAreas) == 1) {
+	if ((Access(exitinfo.Security, area.LTSec)) && (area.Available) && (strlen(area.Password) == 0)) {
+
+	    if ((pFile = OpenFileBase(arecno, FALSE)) != NULL) {
+
+		Found = FALSE;
+		Sheader();
+		Nopper();
+
+		while (fread(&file, sizeof(file), 1, pFile) == 1) {
+
+		    if (re_exec(file.Name) || re_exec(file.LName)) {
+			if (!Found) {
+			    Enter(2);
+			    if (iLC(2) == 1) {
+				SetFileArea(OldArea);
+				return 1;
+			    }
+			    Found = TRUE;
+			}
+
+			memset(&T, 0, sizeof(T));
+			T.Area   = arecno;
+			T.Active = FALSE;
+			T.Cost   = file.Cost;
+			T.Size   = file.Size;
+			strncpy(T.SFile, file.Name, 12);
+			strncpy(T.LFile, file.LName, 81);
+			SetTag(T);
+			Count++;
+			if (ShowOneFile() == 1) {
+			    SetFileArea(OldArea);
+			    return 1;
+			}
+		    }
+
+		} /* End of while */
+
+		fclose(pFile);
+		if (Found) {
+		    Enter(2);
+		    if (iLC(2) == 1) {
+			SetFileArea(OldArea);
+			return 1;
+		    }
+		}
+
+	    } /* End Check for LTSec */
+	} /* if access */
+	arecno++; /* Go to next file area */
+
+    } /* End of Main */
+
+    Syslog('+', "Found %d files", Count);
+    fclose(pAreas);
+    printf("\n");
+    if (Count)
+	Mark();
+    else
+	Pause();
+    SetFileArea(OldArea);
+    return 1;
 }
 
 

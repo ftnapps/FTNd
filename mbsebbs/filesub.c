@@ -847,13 +847,12 @@ int Addfile(char *File, int AreaNum, int fileid)
 {
     FILE    *id, *pFileDB, *pPrivate;
     int	    err = 1, iDesc = 1, iPrivate = FALSE, GotId = FALSE, lines, i, j;
-    char    *Filename, *temp1, *idname = NULL, *Desc[26]; 
+    char    *Filename, *temp1, *idname = NULL, *Desc[26], *lname, temp[81]; 
     struct  stat statfile; 
-    char    temp[81];
 
     Filename = calloc(PATH_MAX, sizeof(char));
     temp1    = calloc(PATH_MAX, sizeof(char));  
-
+    lname    = calloc(PATH_MAX, sizeof(char));
 	
     sprintf(Filename, "%s/%s", area.Path, File);
 
@@ -863,7 +862,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	 * if it fails it will return a zero which will not
 	 * increase his uploads stats
 	 */
-	if(stat(Filename, &statfile) != 0) {
+	if (stat(Filename, &statfile) != 0) {
 
 	    colour(10, 0);
 	    /* Upload was unsuccessful for: */
@@ -872,6 +871,7 @@ int Addfile(char *File, int AreaNum, int fileid)
 	    fclose(pFileDB);
 	    free(Filename);
 	    free(temp1);
+	    free(lname);
 	    return FALSE;
 	}
 
@@ -885,6 +885,12 @@ int Addfile(char *File, int AreaNum, int fileid)
 	file.Crc32 = file_crc(Filename, TRUE);
 	strcpy(file.Uploader, exitinfo.sUserName);
 	file.UploadDate = time(NULL);
+	if (strcmp(file.Name, file.LName)) {
+	    sprintf(lname, "%s/%s", area.Path, file.Name);
+	    if (link(Filename, lname)) {
+		WriteError("$Can't create link %s to %s", lname, Filename);
+	    }
+	}
 
 	if (area.PwdUP) {
 	    colour(9,0);

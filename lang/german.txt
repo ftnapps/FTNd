@@ -267,7 +267,7 @@ JN|Adresse unbekannt, dennoch fortfahren [j/N]:
 |Standardprotokoll ist jetzt: 
 |Bitte den Suchbegriff eingeben: 
 |Dateisuche nach Schluesselwort
-|Akzeptiert Platzhalter wie: *.zip, *.gz, .tar*
+|Akzeptiert Platzhalter wie: *.zip, *.gz, *.*
 |                            *.zip entspricht .zip
 |Geben Sie den zu suchenden Dateinamen an: 
 |Dateisuche nach Dateinamen

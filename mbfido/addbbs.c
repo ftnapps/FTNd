@@ -57,7 +57,7 @@ int Add_BBS()
     struct FILERecord	frec;
     int			rc, i, Insert, Done = FALSE, Found = FALSE;
     char		fdbname[PATH_MAX], fdbtemp[PATH_MAX];
-    char		temp1[PATH_MAX], temp2[PATH_MAX], *fname;
+    char		temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname;
     FILE		*fdb, *fdt;
     int			Keep = 0, DidDelete = FALSE;
     fd_list		*fdl = NULL;
@@ -142,6 +142,12 @@ int Add_BBS()
 	return FALSE;
     }
     chmod(temp2, 0644);
+    lname = calloc(PATH_MAX, sizeof(char));
+    sprintf(lname, "%s/%s", TIC.BBSpath, frec.Name);
+    if (link(temp2, lname)) {
+	WriteError("$Create link %s to %s failed", lname, temp2);
+    }
+    free(lname);
 
     sprintf(fdbtemp, "%s/fdb/fdb%ld.temp", getenv("MBSE_ROOT"), tic.FileArea);
 
@@ -363,6 +369,9 @@ int Add_BBS()
 			fwrite(&file, sizeof(file), 1, fdt);
 		    else {
 			sprintf(temp2, "%s/%s", area.Path, file.LName);
+			if (unlink(temp2) != 0)
+			    WriteError("$Can't unlink file %s", temp2);
+			sprintf(temp2, "%s/%s", area.Path, file.Name);
 			if (unlink(temp2) != 0)
 			    WriteError("$Can't unlink file %s", temp2);
 		    }

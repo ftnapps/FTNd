@@ -94,7 +94,7 @@ void Delete(int UnDel, int Area, char *File)
     colour(CYAN, BLACK);
 
     while (fread(&fdb, sizeof(fdb), 1, fp) == 1) {
-	if (! strcmp(fdb.LName, File)) {
+	if ((! strcmp(fdb.LName, File) || (! strcmp(fdb.Name, File)))) {
 	    if (UnDel && fdb.Deleted) {
 		fdb.Deleted = FALSE;
 		Syslog('+', "Marked file %s in area %d for undeletion", File, Area);

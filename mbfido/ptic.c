@@ -695,16 +695,24 @@ int ProcessTic(fa_list *sbl)
      * If the file is converted, we set the date of the original
      * received file as the file creation date.
      */
+    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewName);
     if ((MustRearc || DidBanner) && CFG.ct_KeepDate) {
 	if ((tic.Touch) && (tic.FileArea)) {
 	    ut.actime = mktime(localtime(&TIC.FileDate));
 	    ut.modtime = mktime(localtime(&TIC.FileDate));
-	    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewName);
 	    utime(Temp, &ut);
 	    Syslog('-', "Restamp filedate %s to %s", Temp, rfcdate(ut.modtime));
 	}
     }
+    /*
+     * Now make sure the file timestamp is updated. The file may be restamped,
+     * altered by banners etc.
+     */
+    TIC.FileDate = file_time(Temp);
 
+    /*
+     * If not passthru, import in the BBS.
+     */
     if (tic.FileArea) {
 
 	Syslog('+', "Import: %s Area: %s", TIC.NewName, TIC.TicIn.Area);
@@ -795,21 +803,6 @@ int ProcessTic(fa_list *sbl)
 		tic_out++;
 	    }
 	}
-
-	/*
-	 * Now start forwarding files
-	 */
-//	First = TRUE;
-//	while (GetTicSystem(&Link, First)) {
-//	    First = FALSE;
-//	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-//		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
-//		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
-//		    tic_out++;
-//		    ForwardFile(Link.aka, sbl);
-//		}
-//	    }
-//	}
     }
 
     Magic_ExecCommand();
@@ -818,8 +811,8 @@ int ProcessTic(fa_list *sbl)
     Magic_AdoptFile();
 
     sprintf(Temp, "%s/%s", TIC.Inbound, TIC.TicName);
-
     unlink(Temp);
+
     free(Temp);
     tidy_qualify(&qal);
     return 0;

@@ -267,7 +267,7 @@ SN|Nodo sconosciuto, continua lo stesso [s/N]:
 |Protocollo impostato su: 
 |Inserisci la parola da cercare: 
 |Ricerca file per parola chiave
-|Accetto caratteri jolly come : *.zip, *.gz, .tar*
+|Accetto caratteri jolly come : *.zip, *.gz, *.*
 |                             : *.zip e' equivalente a .zip
 |Scegli il filename da cercare: 
 |Ricerca per nome del file

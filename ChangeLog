@@ -5,20 +5,46 @@ $Id$
 
 v0.35.06
 
+	update:
+		Run "mbfile check". This will create a error in the logfile
+		for each file! It will update the filenames on disk to have
+		both short and long filenames. Just ignore the errors!
+
 	general:
 		This may become release 0.36.00 (again).
+		Added better support for 8.3 and long filenames by creating
+		hard links in the download directories.
 
 	mbsebbs:
 		Several user input functions don't allow comma's anymore.
+		Uploaded files will now also have a 8.3 hard link to the long
+		filename.
+		Filesearch on filename now uses regexp to find the files.
 
 	mbfido:
 		TIC file forwarding now uses a list of qualified systems to
 		forward to, and with this information builds more reliable
 		seen-by lines.
+		Imported tic files with a new banner file in the archive got
+		the wrong filetime in the files database. The mbfile check
+		command would detect and correct this.
+		TIC files added to the bbs will now also have a 8.3 hard link.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 
 		increased.
+
+	mbfile:
+		Finished complete support for 8.3 and long filenames.
+		The check function now creates hard links in the download
+		areas with the 8.3 filename to the long filename so that the
+		files seem to exist under both names.
+		The delete and move functions can now use 8.3 or long
+		filenames as argument.
+
+	mbsetup:
+		In filedatabase editor, if a file is deleted the name is
+		displayed in light blue.
 
 
 v0.35.05	19-Oct-2002 - 13-Nov-2002.

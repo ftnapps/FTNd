@@ -53,113 +53,116 @@ extern int	do_index;		/* Reindex filebases		*/
  */
 void PackFileBase(void)
 {
-	FILE	*fp, *pAreas, *pFile;
-	int	i, iAreas, iAreasNew = 0, rc;
-	int	iTotal = 0, iRemoved = 0;
-	char	*sAreas, *fAreas, *fTmp, fn[PATH_MAX];
+    FILE    *fp, *pAreas, *pFile;
+    int	    i, iAreas, iAreasNew = 0, rc, iTotal = 0, iRemoved = 0;
+    char    *sAreas, *fAreas, *fTmp, fn[PATH_MAX];
 
-	sAreas = calloc(PATH_MAX, sizeof(char));
-	fAreas = calloc(PATH_MAX, sizeof(char));
-	fTmp   = calloc(PATH_MAX, sizeof(char));
+    sAreas = calloc(PATH_MAX, sizeof(char));
+    fAreas = calloc(PATH_MAX, sizeof(char));
+    fTmp   = calloc(PATH_MAX, sizeof(char));
 
-	IsDoing("Pack filebase");
-	if (!do_quiet) {
-		colour(3, 0);
-		printf("Packing file database...\n");
-	}
+    IsDoing("Pack filebase");
+    if (!do_quiet) {
+	colour(3, 0);
+	printf("Packing file database...\n");
+    }
 
-	sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+    sprintf(sAreas, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
 
-	if ((pAreas = fopen (sAreas, "r")) == NULL) {
-		WriteError("Can't open %s", sAreas);
-		die(MBERR_INIT_ERROR);
-	}
+    if ((pAreas = fopen (sAreas, "r")) == NULL) {
+	WriteError("Can't open %s", sAreas);
+	die(MBERR_INIT_ERROR);
+    }
 
-	fread(&areahdr, sizeof(areahdr), 1, pAreas);
-	fseek(pAreas, 0, SEEK_END);
-	iAreas = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
+    fread(&areahdr, sizeof(areahdr), 1, pAreas);
+    fseek(pAreas, 0, SEEK_END);
+    iAreas = (ftell(pAreas) - areahdr.hdrsize) / areahdr.recsize;
 
-	for (i = 1; i <= iAreas; i++) {
+    for (i = 1; i <= iAreas; i++) {
 
-		fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
-		fread(&area, areahdr.recsize, 1, pAreas);
+	fseek(pAreas, ((i-1) * areahdr.recsize) + areahdr.hdrsize, SEEK_SET);
+	fread(&area, areahdr.recsize, 1, pAreas);
 
-		if (area.Available && !area.CDrom) {
+	if (area.Available && !area.CDrom) {
 
-			if (!diskfree(CFG.freespace))
-				die(MBERR_DISK_FULL);
+	    if (!diskfree(CFG.freespace))
+		die(MBERR_DISK_FULL);
 
-			if (!do_quiet) {
-				printf("\r%4d => %-44s", i, area.Name);
-				fflush(stdout);
-			}
-			Marker();
-
-			sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
-			sprintf(fTmp,   "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), i);
-
-			if ((pFile = fopen(fAreas, "r")) == NULL) {
-				Syslog('!', "Creating new %s", fAreas);
-				if ((pFile = fopen(fAreas, "a+")) == NULL) {
-					WriteError("$Can't create %s", fAreas);
-					die(MBERR_GENERAL);
-				}
-			} 
-
-			if ((fp = fopen(fTmp, "a+")) == NULL) {
-				WriteError("$Can't create %s", fTmp);
-				die(MBERR_GENERAL);
-			}
-
-			while (fread(&file, sizeof(file), 1, pFile) == 1) {
-
-				iTotal++;
-
-				if ((!file.Deleted) && (!file.Double) && (strcmp(file.Name, "") != 0)) {
-					fwrite(&file, sizeof(file), 1, fp);
-				} else {
-					iRemoved++;
-					if (file.Double) {
-					    Syslog('+', "Removed double record file \"%s\" from area %d", file.LName, i);
-					} else {
-					    Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
-					    sprintf(fn, "%s/%s", area.Path, file.LName);
-					    rc = unlink(fn);
-					    if (rc)
-						Syslog('+', "Unlink %s failed, result %d", fn, rc);
-					    /*
-					     * If a dotted version (thumbnail) exists, remove it silently
-					     */
-					    sprintf(fn, "%s/.%s", area.Path, file.LName);
-					    unlink(fn);
-					}
-					do_index = TRUE;
-				}
-			}
-
-			fclose(fp);
-			fclose(pFile);
-
-			if ((rename(fTmp, fAreas)) == 0) {
-				unlink(fTmp);
-				chmod(fAreas, 00660);
-			}
-			iAreasNew++;
-
-		} /* if area.Available */
-	}
-
-	fclose(pAreas);
-	Syslog('+', "Pack  Areas [%5d] Files [%5d] Removed [%5d]", iAreasNew, iTotal, iRemoved);
-
-	if (!do_quiet) {
-		printf("\r                                                              \r");
+	    if (!do_quiet) {
+		printf("\r%4d => %-44s", i, area.Name);
 		fflush(stdout);
-	}
+	    }
+	    Marker();
 
-	free(fTmp);
-	free(sAreas);
-	free(fAreas);
+	    sprintf(fAreas, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), i);
+	    sprintf(fTmp,   "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), i);
+
+	    if ((pFile = fopen(fAreas, "r")) == NULL) {
+		Syslog('!', "Creating new %s", fAreas);
+		if ((pFile = fopen(fAreas, "a+")) == NULL) {
+		    WriteError("$Can't create %s", fAreas);
+		    die(MBERR_GENERAL);
+		}
+	    } 
+
+	    if ((fp = fopen(fTmp, "a+")) == NULL) {
+		WriteError("$Can't create %s", fTmp);
+		die(MBERR_GENERAL);
+	    }
+
+	    while (fread(&file, sizeof(file), 1, pFile) == 1) {
+
+		iTotal++;
+
+		if ((!file.Deleted) && (!file.Double) && (strcmp(file.Name, "") != 0)) {
+		    fwrite(&file, sizeof(file), 1, fp);
+		} else {
+		    iRemoved++;
+		    if (file.Double) {
+			Syslog('+', "Removed double record file \"%s\" from area %d", file.LName, i);
+		    } else {
+			Syslog('+', "Removed file \"%s\" from area %d", file.LName, i);
+			sprintf(fn, "%s/%s", area.Path, file.LName);
+			rc = unlink(fn);
+			if (rc)
+			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
+			sprintf(fn, "%s/%s", area.Path, file.Name);
+			rc = unlink(fn);
+			if (rc)
+			    Syslog('+', "Unlink %s failed, result %d", fn, rc);
+			/*
+			 * If a dotted version (thumbnail) exists, remove it silently
+			 */
+			sprintf(fn, "%s/.%s", area.Path, file.LName);
+			unlink(fn);
+		    }
+		    do_index = TRUE;
+		}
+	    }
+
+	    fclose(fp);
+	    fclose(pFile);
+
+	    if ((rename(fTmp, fAreas)) == 0) {
+		unlink(fTmp);
+		chmod(fAreas, 00660);
+	    }
+	    iAreasNew++;
+
+	} /* if area.Available */
+    }
+
+    fclose(pAreas);
+    Syslog('+', "Pack  Areas [%5d] Files [%5d] Removed [%5d]", iAreasNew, iTotal, iRemoved);
+
+    if (!do_quiet) {
+	printf("\r                                                              \r");
+	fflush(stdout);
+    }
+
+    free(fTmp);
+    free(sAreas);
+    free(fAreas);
 }
 
 

@@ -267,7 +267,7 @@ YN|Node not known, continue anyway [y/N]:
 |Protocol now set to: 
 |Enter keyword to use for Search: 
 |File Search by Keyword
-|Accepts wildcards such as : *.zip, *.gz, .tar*
+|Accepts wildcards such as : *.zip, *.gz, *.*
 |                          : *.zip is the same as .zip
 |Enter filename to search for : 
 |File Search by Filename

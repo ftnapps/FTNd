@@ -67,7 +67,7 @@ void Check(void)
 {
     FILE	    *pAreas, *pFile;
     int		    i, iAreas, iAreasNew = 0, Fix, inArea, iTotal = 0, iErrors =  0;
-    char	    *sAreas, *fAreas, *newdir, *temp;
+    char	    *sAreas, *fAreas, *newdir, *temp, *lname;
     DIR		    *dp;
     struct dirent   *de;
     int		    Found, Update;
@@ -80,6 +80,7 @@ void Check(void)
     fAreas = calloc(PATH_MAX, sizeof(char));
     newdir = calloc(PATH_MAX, sizeof(char));
     temp   = calloc(PATH_MAX, sizeof(char));
+    lname  = calloc(PATH_MAX, sizeof(char));
 
     if (!do_quiet) {
 	colour(3, 0);
@@ -221,11 +222,24 @@ void Check(void)
 
 		    strcpy(temp, file.LName);
 		    name_mangle(temp);
+		    sprintf(lname, "%s/%s", area.Path, temp);
 		    if (strcmp(file.Name, temp))  {
 			Syslog('!', "Converted %s to %s", file.Name, temp);
 			strncpy(file.Name, temp, 12);
 			iErrors++;
 			Update = TRUE;
+		    }
+		    /*
+		     * Check hard link to the short/mangled filename.
+		     */
+		    if (strcmp(file.Name, file.LName)) {
+			if (file_exist(lname, F_OK)) {
+			    if (link(newdir, lname)) {
+				WriteError("$Can't create link %s to %s", lname, newdir);
+			    } else {
+				Syslog('!', "Created hard link area %d LFN %s to 8.3 %s", i, file.LName, file.Name);
+			    }
+			}
 		    }
 		    if (file_time(newdir) != file.FileDate) {
 			Syslog('!', "Date mismatch area %d file %s", i, file.LName);
@@ -267,7 +281,7 @@ void Check(void)
 			    Found = FALSE;
 			    rewind(pFile);
 			    while (fread(&file, sizeof(file), 1, pFile) == 1) {
-				if (strcmp(file.LName, de->d_name) == 0) {
+				if ((strcmp(file.LName, de->d_name) == 0) || (strcmp(file.Name, de->d_name) == 0)) {
 				    if (!Found) {
 					Found = TRUE;
 				    } else {
@@ -331,6 +345,7 @@ void Check(void)
 	fflush(stdout);
     }
 
+    free(lname);
     free(temp);
     free(newdir);
     free(sAreas);

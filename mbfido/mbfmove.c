@@ -52,10 +52,10 @@ extern int	do_quiet;		/* Suppress screen output	    */
  */
 void Move(int From, int To, char *File)
 {
-    char		*frompath, *topath, *temp1, *temp2;
+    char		*frompath, *topath, *temp1, *temp2, *fromlink, *tolink;
     struct FILERecord	fdb;
     FILE		*fp1, *fp2;
-    int			rc = FALSE;
+    int			rc = FALSE, Found = FALSE;
 
     IsDoing("Move file");
     colour(LIGHTRED, BLACK);
@@ -88,9 +88,35 @@ void Move(int From, int To, char *File)
     }
     if (CheckFDB(From, area.Path))
 	die(MBERR_GENERAL);
+
+    /*
+     * Find the file in the "from" area, check LFN and 8.3 names.
+     */
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp1, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), From);
+    if ((fp1 = fopen(temp1, "r")) == NULL)
+	die(MBERR_GENERAL);
+    while (fread(&fdb, sizeof(fdb), 1, fp1) == 1) {
+	if ((strcmp(fdb.LName, File) == 0) || strcmp(fdb.Name, File) == 0) {
+	    Found = TRUE;
+	    break;
+	}
+    }
+    fclose(fp1);
+    if (!Found) {
+	WriteError("File %s not found in area %d", File, From);
+	if (!do_quiet)
+	    printf("File %s not found in area %d\n", File, From);
+	free(temp1);
+	die(MBERR_GENERAL);
+    }
+
     frompath = xstrcpy(area.Path);
     frompath = xstrcat(frompath, (char *)"/");
-    frompath = xstrcat(frompath, File);
+    frompath = xstrcat(frompath, fdb.LName);
+    fromlink = xstrcpy(area.Path);
+    fromlink = xstrcat(fromlink, (char *)"/");
+    fromlink = xstrcat(fromlink, fdb.Name);
 
     /*
      * Check Destination area
@@ -113,13 +139,15 @@ void Move(int From, int To, char *File)
     }
     if (CheckFDB(To, area.Path))
 	die(MBERR_GENERAL);
+
     topath = xstrcpy(area.Path);
     topath = xstrcat(topath, (char *)"/");
-    topath = xstrcat(topath, File);
+    topath = xstrcat(topath, fdb.LName);
+    tolink = xstrcpy(area.Path);
+    tolink = xstrcat(tolink, (char *)"/");
+    tolink = xstrcat(tolink, fdb.Name);
 
-    temp1 = calloc(PATH_MAX, sizeof(char));
     temp2 = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp1, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), From);
     sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), From);
 
     if ((fp1 = fopen(temp1, "r")) == NULL)
@@ -133,11 +161,19 @@ void Move(int From, int To, char *File)
      * file.
      */
     while (fread(&fdb, sizeof(fdb), 1, fp1) == 1) {
-	if (strcmp(fdb.LName, File))
+	if (strcmp(fdb.LName, File) && strcmp(fdb.Name, File))
 	    fwrite(&fdb, sizeof(fdb), 1, fp2);
 	else {
-	    rc = AddFile(fdb, To, topath, frompath);
+	    if (strcmp(fdb.Name, fdb.LName))
+		rc = AddFile(fdb, To, topath, frompath, tolink);
+	    else
+		rc = AddFile(fdb, To, topath, frompath, NULL);
 	    if (rc) {
+		/*
+		 * Remove old 8.3 name
+		 */
+		if (strcmp(fdb.Name, fdb.LName))
+		    unlink(fromlink);
 		/*
 		 * Try to move thumbnail if it exists
 		 */
@@ -189,7 +225,9 @@ void Move(int From, int To, char *File)
     free(temp1);
     free(temp2);
     free(frompath);
+    free(fromlink);
     free(topath);
+    free(tolink);
 }
 
 

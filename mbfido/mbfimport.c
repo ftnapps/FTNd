@@ -51,7 +51,7 @@ extern int	do_novir;		/* Suppress virus scanning	    */
 
 void ImportFiles(int Area)
 {
-    char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc;
+    char		*pwd, *temp, *temp2, *tmpdir, *String, *token, *dest, *unarc, *lname;
     FILE		*fbbs;
     int			Append = FALSE, Files = 0, rc, i, j = 0, k = 0, x, Doit;
     int			Imported = 0, Errors = 0, Present = FALSE;
@@ -73,6 +73,7 @@ void ImportFiles(int Area)
 	tmpdir = calloc(PATH_MAX, sizeof(char));
 	String = calloc(4096, sizeof(char));
 	dest   = calloc(PATH_MAX, sizeof(char));
+	lname  = calloc(PATH_MAX, sizeof(char));
 
         getcwd(pwd, PATH_MAX);
 	if (CheckFDB(Area, area.Path))
@@ -151,10 +152,19 @@ void ImportFiles(int Area)
 			    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
 			    fflush(stdout);
 			}
-			if (AddFile(fdb, Area, dest, temp)) {
-			    Imported++;
-			} else
-			    Errors++;
+			if (strcmp(fdb.Name, fdb.LName)) {
+			    if (AddFile(fdb, Area, dest, temp, lname)) {
+				Imported++;
+			    } else {
+				Errors++;
+			    }
+			} else {
+			    if (AddFile(fdb, Area, dest, temp, NULL)) {
+				Imported++;
+			    } else {
+				Errors++;
+			    }
+			}
 		    } else {
 			Errors++;
 		    }
@@ -252,6 +262,7 @@ void ImportFiles(int Area)
 		    }
 
 		    sprintf(dest, "%s/%s", area.Path, fdb.LName);
+		    sprintf(lname, "%s/%s", area.Path, fdb.Name);
 		    Append = TRUE;
 		    fdb.Size = statfile.st_size;
 		    fdb.FileDate = statfile.st_mtime;
@@ -354,15 +365,23 @@ void ImportFiles(int Area)
 		    printf("Adding    \b\b\b\b\b\b\b\b\b\b");
 		    fflush(stdout);
 		}
-		if (AddFile(fdb, Area, dest, temp))
-		    Imported++;
-		else
-		    Errors++;
+		if (strcmp(fdb.Name, fdb.LName)) {
+		    if (AddFile(fdb, Area, dest, temp, lname))
+			Imported++;
+		    else
+			Errors++;
+		} else {
+		    if (AddFile(fdb, Area, dest, temp, NULL))
+			Imported++;
+		    else
+			Errors++;
+		}
 	    } else {
 		Errors++;
 	    }
 	}
 
+	free(lname);
 	free(dest);
 	free(String);
 	free(pwd);
