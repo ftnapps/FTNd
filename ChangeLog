@@ -18,8 +18,14 @@ v0.61.1		20-Jun-2004.
 		If a message area becomes empty after a pack, all lastread
 		pointers are reset to zero.
 
-	libdbsae.a:
+	libdbase.a:
 		Removed some debug logging from files database module.
+
+	libmbse.a:
+		In nodelist.conf changed the order of fields to search for ip
+		information, field 8 before field 6.
+		Added a new keyword 'ipprefix' in nodelist.conf to define a
+		table with IP prefixes to use in field 6.
 
 	mbout:
 		Code cleanup for nodelist processing.
