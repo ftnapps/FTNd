@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.35.02 TODO list.
+			MBSE BBS V0.35.03 TODO list.
 			----------------------------
 
 	These are a list of things that must be implemented one way or
@@ -60,12 +60,7 @@ mbfido:
 
 	N: Process To: and Cc: lines in messages gated from Fido to Internet.
 
-	N: Must be able to use more nodelist override's from the setup.
-
 	U: Add routing table to override standard routing.
-
-	N: The first file received in a not yet created tic area is refused
-	   after the area is created: node xxx not connected to area xxx.
 
 	N: Add traffic to html.nodes
 
@@ -117,13 +112,9 @@ mbsetup:
 	   main aka with zone's is listed first. Having zone's mixed gives
 	   too high outbound stats and the outbound is scanned multiple times.
 
-	U: When moving an JAM messagebase, check filefind records.
-
 	N: Put ZMH fields in the network setup for each zone.
 
 	N: Add switch for file area to skip checking and indexing.
-
-	N: Add more nodelist override settings for nodes.
 
 	L: Generate crossreference document:
 	   File Areas      <=> BBS groups

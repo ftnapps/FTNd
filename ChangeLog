@@ -21,6 +21,8 @@ v0.35.03	06-Jul-2002
 	mbfido:
 		Rollover now only sets IsDoing when it really does a date
 		rollover.
+		When a new tic area was created the first file received for
+		that area was refused.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
@@ -43,6 +45,9 @@ v0.35.03	06-Jul-2002
 	mbsetup:
 		Enabled setting of nodelist override settings in menu 7.x.3
 		After nodes setup edit the semafore scanout is set.
+		When a JAM messagebase path is changed in one of the message
+		area, filefind and newfiles records are automatic updated if
+		they were connected to that area.
 
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
@@ -55,8 +60,9 @@ v0.35.02	22-Jun-2002 - 06-Jul-2002
 	upgrade:
 		Delete ~/etc/lastcall.data
 		Delete ~/etc/archiver.data
+		Delete ~/etc/virscan.data
 		Start mbsetup and enter the Edit Archiver Programs. The new
-		values should now be set.
+		values should now be set. Do the same for Virus scanners.
 
 	general:
 		Added checks for GoldED in external program checks.
@@ -96,7 +102,7 @@ v0.35.02	22-Jun-2002 - 06-Jul-2002
 		tag, mbfido would crash.
 		Filefind netmail replies now set the private flag.
 		Removed debugging messages displaying the incoming tic files.
-		The mbfid test command now needs a extra parameter, the final
+		The mbfido test command now needs a extra parameter, the final
 		destination to test. It doesn't use the internal fixed table
 		anymore.
 

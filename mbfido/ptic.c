@@ -169,6 +169,14 @@ int ProcessTic(fa_list *sbl)
 		return 1;
 	    }
 	    tidy_faddr(p_from);
+	    /*
+	     * Try to load the .TIC area again.
+	     */
+	    if (!SearchTic(TIC.TicIn.Area)) {
+		Bad((char *)"Reload of new created file area %s failed", TIC.TicIn.Area);
+		free(Temp);
+		return 1;
+	    }
 	}
 
 	if ((tic.Secure) && (!TIC.TicIn.Hatch)) {
