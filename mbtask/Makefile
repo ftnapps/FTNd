@@ -5,11 +5,14 @@
 include ../Makefile.global
 
 SRCS		= callstat.c nodelist.c scanout.c taskcomm.c taskinfo.c taskstat.c \
-		  mbtask.c outstat.c signame.c taskdisk.c taskregs.c taskutil.c
+		  mbtask.c outstat.c signame.c taskdisk.c taskregs.c taskutil.c \
+		  ports.c calllist.c ping.c
 HDRS		= callstat.h mbtask.h outstat.h signame.h taskdisk.h taskregs.h  taskutil.h \
-		  libs.h nodelist.h scanout.h taskcomm.h taskinfo.h taskstat.h
+		  libs.h nodelist.h scanout.h taskcomm.h taskinfo.h taskstat.h \
+		  ports.h calllist.h ping.h
 OBJS		= callstat.o nodelist.o scanout.o taskcomm.o taskinfo.o taskstat.o \
-		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o
+		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o \
+		  ports.o calllist.o ping.o
 OTHER		= Makefile issue issue.netbsd
 
 #############################################################################
@@ -80,10 +83,13 @@ scanout.o: libs.h ../lib/structs.h taskutil.h scanout.h
 taskcomm.o: libs.h ../lib/structs.h taskstat.h taskregs.h taskdisk.h taskinfo.h taskutil.h taskcomm.h
 taskinfo.o: libs.h ../lib/structs.h taskinfo.h
 taskstat.o: libs.h ../lib/structs.h taskstat.h callstat.h outstat.h taskutil.h
-mbtask.o: libs.h ../lib/structs.h signame.h taskstat.h taskutil.h taskregs.h taskcomm.h callstat.h outstat.h nodelist.h mbtask.h
-outstat.o: libs.h ../lib/structs.h taskutil.h taskstat.h scanout.h nodelist.h callstat.h outstat.h
+mbtask.o: libs.h ../lib/structs.h signame.h taskstat.h taskutil.h taskregs.h taskcomm.h callstat.h outstat.h nodelist.h ports.h calllist.h ping.h mbtask.h
+outstat.o: libs.h ../lib/structs.h taskutil.h taskstat.h scanout.h nodelist.h callstat.h ports.h outstat.h
 signame.o: signame.h
 taskdisk.o: libs.h ../lib/structs.h taskdisk.h taskutil.h
 taskregs.o: libs.h ../lib/structs.h taskstat.h taskregs.h taskutil.h
 taskutil.o: libs.h ../lib/structs.h signame.h scanout.h taskutil.h
+ports.o: libs.h ../lib/structs.h taskutil.h nodelist.h ports.h
+calllist.o: libs.h ../lib/structs.h taskstat.h taskutil.h callstat.h outstat.h mbtask.h ports.h calllist.h
+ping.o: libs.h ../lib/structs.h taskstat.h taskutil.h ping.h
 # End of generated dependencies

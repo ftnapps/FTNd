@@ -1,6 +1,16 @@
+/* $Id */
+
 #ifndef _MBTASK_H
 #define	_MBTASK_H
 
+/*
+ *  Defines. 
+ *  SLOWRUN is number of seconds for scheduling mailer calls. Leave at 20!
+ */
+#define MAXTASKS                10
+#define SLOWRUN                 20
+#define TMPNAME                 "TMP."
+#define LCKNAME                 "LOCKTASK"
 
 
 /*
@@ -16,22 +26,6 @@ typedef struct _onetask {
 	int		status;			/* Waitpid status	*/
 	int		rc;			/* Exit code		*/
 } onetask;
-
-
-
-/*
- *  Callist
- */
-typedef struct _tocall {
-    fidoaddr	    addr;			/* Address to call	*/
-    int		    callmode;			/* Method to use	*/
-    callstat	    cst;			/* Last call status	*/
-    int		    calling;			/* Is calling		*/
-    pid_t	    taskpid;			/* Task pid number	*/
-    unsigned long   moflags;			/* Modem flags		*/
-    unsigned long   diflags;			/* ISDN flags		*/
-    unsigned long   ipflags;			/* TCP/IP flags		*/
-} tocall;
 
 
 
@@ -53,10 +47,6 @@ pid_t		launch(char *, char *, char *, int);
 int		runtasktype(int);
 int		checktasks(int);
 void		die(int);
-static int	icmp4_errcmp(char *, int, struct in_addr *, char *, int, int);
-unsigned short	get_rand16(void);
-int		ping_send(struct in_addr);
-int		ping_receive(struct in_addr);
 void		scheduler(void);
 int		locktask(char *);
 void		ulocktask(void);

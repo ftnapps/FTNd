@@ -35,6 +35,7 @@
 #include "scanout.h"
 #include "nodelist.h"
 #include "callstat.h"
+#include "ports.h"
 #include "outstat.h"
 
 
@@ -42,13 +43,11 @@ extern int		do_quiet;
 extern int		internet;	    /* Internet status		*/
 extern struct sysconfig	CFG;		    /* Main configuration	*/
 extern struct taskrec	TCFG;		    /* Task configuration	*/
-extern char		ttyfn[];	    /* TTY file name		*/
-extern time_t		tty_time;	    /* TTY update time		*/
 int			nxt_hour, nxt_min;  /* Time of next event	*/
 int			inet_calls;	    /* Internet calls to make	*/
 int			isdn_calls;	    /* ISDN calls to make	*/
 int			pots_calls;	    /* POTS calls to make	*/
-pp_list			*pl = NULL;	    /* Portlist			*/
+extern pp_list		*pl;		    /* Portlist			*/
 _alist_l		*alist = NULL;	    /* Nodes to call list	*/
 extern int		s_do_inet;	    /* Internet wanted		*/
 
@@ -383,7 +382,7 @@ int outstat()
 			 */
 			if ((tmp->callmode == CM_NONE) && TCFG.max_isdn) {
 			    /*
-			     * Dialup node, check available dialout ports
+			     * ISDN node, check available dialout ports
 			     */
 			    for (tpl = pl; tpl; tpl = tpl->next) {
 				if (tpl->dflags & tmp->diflags) {
@@ -394,6 +393,9 @@ int outstat()
 			    }
 			}
 			if ((tmp->callmode == CM_NONE) && TCFG.max_pots) {
+			    /*
+			     * POTS node, check available modems
+			     */
 			    for (tpl = pl; tpl; tpl = tpl->next) {
 				if (tpl->mflags & tmp->moflags) {
 				    pots_calls++;
@@ -560,102 +562,6 @@ int each(faddr *addr, char flavor, int isflo, char *fname)
 	}
 
 	return 0;
-}
-
-
-
-/*
- * Tidy the portlist
- */
-void tidy_portlist(pp_list **);
-void tidy_portlist(pp_list ** fdp)
-{
-    pp_list *tmp, *old;
-
-    tasklog('p', "tidy_portlist");
-    for (tmp = *fdp; tmp; tmp = old) {
-	old = tmp->next;
-	free(tmp);
-    }
-    *fdp = NULL;
-}
-
-
-
-/*
- * Add a port to the portlist
- */
-void fill_portlist(pp_list **, pp_list *);
-void fill_portlist(pp_list **fdp, pp_list *new)
-{
-    pp_list *tmp, *ta;
-
-    tmp = (pp_list *)malloc(sizeof(pp_list));
-    tmp->next = NULL;
-    strncpy(tmp->tty, new->tty, 6);
-    tmp->mflags = new->mflags;
-    tmp->dflags = new->dflags;
-
-    if (*fdp == NULL) {
-	*fdp = tmp;
-    } else {
-	for (ta = *fdp; ta; ta = ta->next)
-	    if (ta->next == NULL) {
-		ta->next = (pp_list *)tmp;
-		break;
-	    }
-    }
-}
-
-
-
-/*
- * Build a list of available dialout ports.
- */
-void load_ports()
-{
-    FILE    *fp;
-    pp_list new;
-    int	    count = 0, j, stdflag;
-    char    *p, *q;
-
-    tidy_portlist(&pl);
-    if ((fp = fopen(ttyfn, "r")) == NULL) {
-	tasklog('?', "$Can't open %s", ttyfn);
-	return;
-    }
-    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
-    
-    tasklog('p', "Building portlist...");
-    while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
-	if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
-	    memset(&new, 0, sizeof(new));
-	    strncpy(new.tty, ttyinfo.tty, 6);
-
-	    stdflag = TRUE;
-	    q = xstrcpy(ttyinfo.flags);
-	    for (p = q; p; p = q) {
-		if ((q = strchr(p, ',')))
-		    *q++ = '\0';
-		if ((strncasecmp(p, "U", 1) == 0) && (strlen(p) == 1)) {
-		    stdflag = FALSE;
-		} else {
-		    for (j = 0; fkey[j].key; j++)
-			if (strcasecmp(p, fkey[j].key) == 0)
-			    new.mflags |= fkey[j].flag;
-		    for (j = 0; dkey[j].key; j++)
-			if (strcasecmp(p, dkey[j].key) == 0)
-			    new.dflags |= dkey[j].flag;
-		}
-	    }
-	    tasklog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
-	    fill_portlist(&pl, &new);
-	    count++;
-	}
-    }
-    fclose(fp);
-    tty_time = file_time(ttyfn);
-    tasklog('p', "make_portlist %d ports", count);
 }
 
 

@@ -31,17 +31,6 @@ typedef struct _alist
 } _alist_l;
 
 
-/*
- * Linked list of available dialout ports.
- */
-typedef struct _pp_list {
-    struct _pp_list *next;
-    char	    tty[7];	/* tty name of the port		*/
-    unsigned long   mflags;	/* Analogue modem flags		*/
-    unsigned long   dflags;	/* ISDN flags			*/
-    int		    locked;	/* If port is locked		*/
-} pp_list;
-
 
 /*
  * Bitmasks for calling status
@@ -58,15 +47,9 @@ typedef struct _pp_list {
 
 
 
-struct _ttyinfohdr  ttyinfohdr;	/* TTY lines			*/
-struct _ttyinfo	    ttyinfo;
-
-
 int  each(faddr *, char, int, char *);
 char *callstatus(int);
 char *callmode(int);
 int  outstat(void);
-void load_ports(void);
 
 #endif
-
