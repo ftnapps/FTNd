@@ -1196,7 +1196,7 @@ SUBDIRS="lib mbcico mbfido mbmon mbsebbs mbtask mbsetup unix lang examples html 
 
 
 PACKAGE="mbsebbs"
-VERSION="0.37.00"
+VERSION="0.37.01"
 COPYRIGHT="Copyright (C) 1997-2003 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2003 M. Broek"
 GROUP="bbs"

@@ -1,14 +1,21 @@
 $Id$
 
-WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
-Nodelist processing is under construction, it may be possible that you system
-won't call if you use this version or if it does not accept calls, cannot
-route mail or breaks your system.
+v0.37.01	14-Jan-2003.
 
-DO NOT USE THIS VERSION ON PRODUCTION SYSTEMS, ONLY FOR TESTING.
+	general:
+		This version may be used on production systems, but be 
+		carefull and check your logs. Before I make any changes that
+		make it more difficult to downgrade I will wait a few days.
+		Things to watch out for:
+		   Messages in the logs about too many open files.
+		   Systems not being called or called with wrong protols.
+		Let me know if something goes wrong.
+		Make sure you have a copy of the previous sources available
+		if you need to downgrade.
 
-v0.37.00	26-Dec-2002.
+
+v0.37.00	26-Dec-2002 - 14-Jan-2003
 
 	upgrade:
 		In mbsetup 1.17.3 check if you have the XX,CM,IBN,IFC flags,
