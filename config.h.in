@@ -85,9 +85,6 @@
 /* Define to 1 if NLS is requested.  */
 #undef ENABLE_NLS
 
-/* Path for faillog file.  */
-#undef FAILLOG_FILE
-
 /* Define to libshadow_getpass to use our own version of getpass().  */
 #undef getpass
 
@@ -111,9 +108,6 @@
 
 /* Define if mblogin should support the -r flag for rlogind. */
 #undef RLOGIN
-
-/* Define if you have the getusershell function.  */
-#undef HAVE_GETUSERSHELL
 
 /* Define if you have the getutent function.  */
 #undef HAVE_GETUTENT
