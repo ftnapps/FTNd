@@ -3,7 +3,7 @@
 #ifndef _MAIL_H
 #define _MAIL_H
 
-#define	TEXTBUFSIZE	500
+#define	TEXTBUFSIZE	700
 
 
 int  LC(int);				/* More prompt for reading messages */

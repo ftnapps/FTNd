@@ -26,7 +26,6 @@ void Full_Help(void);
 void Setcursor(void);
 void Beep(void);
 void Refresh(void);
-void Debug(void);
 void GetstrLC(char *, int);
 void ScrollUp(void);
 void ScrollDown(void);

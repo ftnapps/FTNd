@@ -34,6 +34,10 @@ v0.37.4		10-May-2003
 		risk of sending files back to the owner of that faulty program.
 		Added the same check for Seenby lines.
 
+	mbsebbs:
+		Increased internal message buffer size to 700 lines.
+		Fullscreen editor code cleanup, debug messages removed.
+
 
 v0.37.3		09-Apr-2003 - 10-May-2003
 
