@@ -128,8 +128,7 @@ int tty_expired(int tno)
 		return 0;
 
 	now = time(NULL);
-	Syslog('T', "ttyio: expired(%d) now=%lu,timer=%lu,return %s",
-		tno,now,timer[tno],(now >= timer[tno])?"yes":"no");
+	Syslog('T', "ttyio: expired(%d) now=%lu,timer=%lu,return %s", tno,now,timer[tno],(now >= timer[tno])?"yes":"no");
 	return (now >= timer[tno]);
 }
 
@@ -177,7 +176,8 @@ static int tty_read(char *buf, int size, int tot)
 		if (timer[i]) {
 			if (now >= timer[i]) {
 				tty_status=STAT_TIMEOUT;
-				Syslog('t', "tty_read: timer %d already expired, return",i);
+				Syslog('-', "tty_read: timer %d already expired, return",i);
+			//	Syslog('t', "tty_read: timer %d already expired, return",i);
 				return -tty_status;
 			} else {
 				if (timeout > (timer[i]-now))
@@ -234,8 +234,10 @@ static int tty_read(char *buf, int size, int tot)
 		if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
 			tty_status = STAT_HANGUP;
 			WriteError("$tty_read: hanged_up flag");
-		} else 
+		} else {
 			tty_status = STAT_ERROR;
+			Syslog('-', "tty_read: error flag");
+		}
 		rc=-tty_status;
 	} else 
 		Syslog('T', "tty_read: %s %d characters", printable(buf, rc), rc);
@@ -257,8 +259,10 @@ int tty_write(char *buf, int size)
 		if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
 			tty_status = STAT_HANGUP;
 			WriteError("$tty_write: hanged_up flag");
-		} else 
+		} else {
 			tty_status=STAT_ERROR;
+			Syslog('-', "tty_write: error flag");
+		}
 	}
 	if (tty_status)
 		Syslog('t', "tty_write: error %s", ttystat[tty_status]);
