@@ -1,6 +1,22 @@
 #ifndef	_FSEDIT_H
 #define	_FSEDIT_H
 
+/* Includes needed for fsedit.c */
+
+#include "../lib/libs.h"
+#include "../lib/mbse.h"
+#include "../lib/structs.h"
+#include "../lib/records.h"
+#include "../lib/ansi.h"
+#include "../lib/common.h"
+#include "../lib/clcomm.h"
+#include "mail.h"
+#include "funcs4.h"
+#include "language.h"
+#include "timeout.h"
+#include "pinfo.h"
+
+
 int	Fs_Edit(void);	/* The fullscreen message editor	*/
 
 extern	int	Line;		/* Number of lines + 1			*/

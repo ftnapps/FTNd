@@ -29,18 +29,6 @@
  * Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *****************************************************************************/
 
-#include "../lib/libs.h"
-#include "../lib/mbse.h"
-#include "../lib/structs.h"
-#include "../lib/records.h"
-#include "../lib/ansi.h"
-#include "../lib/common.h"
-#include "../lib/clcomm.h"
-#include "mail.h"
-#include "funcs4.h"
-#include "language.h"
-#include "timeout.h"
-#include "pinfo.h"
 #include "fsedit.h"
 
 
