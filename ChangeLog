@@ -21,6 +21,7 @@ v0.71.1		28-Nov-2004
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
 		the Spanish menus and txtfiles.
+		Fixed the menu archives so that they contain menu files again.
 
 	lang:
 		TODO: remove bbslist entries.
