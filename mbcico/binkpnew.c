@@ -1852,13 +1852,9 @@ int binkp_process_messages(void)
 		}
 	    }
 	} else if (tmpq->cmd == MM_GOT) {
-	    Syslog('b', "1");
 	    sprintf(lname, "%s", strtok(tmpq->data, " \n\r"));
-	    Syslog('b', "2");
 	    lsize = atoi(strtok(NULL, " \n\r"));
-	    Syslog('b', "3");
 	    ltime = atoi(strtok(NULL, " \n\r"));
-	    Syslog('b', "4");
 	    Found = FALSE;
 	    for (tmp = bll; tmp; tmp = tmp->next) {
 		if ((strcmp(lname, tmp->remote) == 0) && (lsize == tmp->size) && (ltime == tmp->date)) {
