@@ -472,7 +472,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
 	    if ((fgroup.UseAka.zone == t->zone) && (fgroup.UseAka.net == t->net) && fgroup.UpLink.zone &&
 		strlen(fgroup.AreaFile) && fgroup.Active && fgroup.UserChange) {
-		if (CheckTicGroup(Area, TRUE, t) == 0) {
+		if (CheckTicGroup(Area, fgroup.UpLink.zone, t) == 0) {
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 		    MacroVars("RABCDE", "ssssss","ERR_CONN_FORWARD",Area,aka2str(fgroup.UpLink),"","","");
 		    MsgResult("filemgr.responses",tmp);

@@ -394,7 +394,12 @@ int EditMGrpRec(int Area)
 			    break;
 			E_BOOL(13,57,    mgroup.Deleted,    "Is this group ^Deleted^")
 		case 14:E_BOOL(14,57,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
-		case 15:E_BOOL(15,57,    mgroup.UserChange, "^Auto add/delete^ areas from downlinks requests")
+		case 15:tmp = edit_bool(15,57, mgroup.UserChange, (char *)"^Auto add/delete^ areas from downlinks requests");
+			if (tmp && !mgroup.UpLink.zone)
+			    errmsg("It looks like you are the toplevel, no Uplink defined");
+			else
+			    mgroup.UserChange = tmp;
+			break;
 		case 16:tmp = PickAka((char *)"9.1.16", TRUE);
 			if (tmp != -1)
 				memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));

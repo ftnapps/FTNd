@@ -641,7 +641,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
 	    if ((mgroup.UseAka.zone == t->zone) && (mgroup.UseAka.net == t->net) && mgroup.UpLink.zone &&
 		strlen(mgroup.AreaFile) && mgroup.Active && mgroup.UserChange) {
-		if (CheckEchoGroup(Area, TRUE, t) == 0) {
+		if (CheckEchoGroup(Area, mgroup.UpLink.zone, t) == 0) {
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    MacroVars("RABCDE", "ssssss","ERR_CONN_FORWARD",Area,aka2str(mgroup.UpLink),"","","");
 		    MsgResult("areamgr.responses",tmp);

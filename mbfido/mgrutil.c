@@ -686,10 +686,14 @@ int Areas(void)
 			/*
 			 * Sent one uplink command with additions and deletions
 			 */
-			if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, cmd)) {
-			    WriteError("Uplink request failed");
+			if (mgroup.UpLink.zone) {
+			    if (UplinkRequest(fido2faddr(mgroup.UpLink), FALSE, cmd)) {
+				WriteError("Uplink request failed");
+			    } else {
+				Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
+			    }
 			} else {
-			    Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
+			    Syslog('+', "No uplink defined, not sending a AreaMgr request");
 			}
 			free(cmd);
 			cmd = NULL;
@@ -936,10 +940,14 @@ int Areas(void)
 			/*
 			 * Sent one uplink command with additions and deletions
 			 */
-			if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, cmd)) {
-			    WriteError("Uplink request failed");
+			if (fgroup.UpLink.zone) {
+			    if (UplinkRequest(fido2faddr(fgroup.UpLink), TRUE, cmd)) {
+				WriteError("Uplink request failed");
+			    } else {
+				Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));
+			    }
 			} else {
-			    Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));
+			    Syslog('+', "No uplink defined, not sending a FileMgr request");
 			}
 			free(cmd);
 			cmd = NULL;

@@ -451,7 +451,12 @@ int EditFGrpRec(int Area)
 		case 17:E_INT( 13,46,   fgroup.AddProm,    "The ^Promillage^ to add or substract of the filecost")
 		case 18:E_BOOL(14,46,   fgroup.DivideCost, "^Divide^ the cost over all downlinks or charge each link full cost")
 		case 19:E_BOOL(15,46,   fgroup.AutoChange, "^Automatic change areas^ when a new arealist is received")
-		case 20:E_BOOL(16,46,   fgroup.UserChange, "Create new areas when ^users^ request new tic areas")
+		case 20:tmp = edit_bool(16,46, fgroup.UserChange, (char *)"Create new areas when ^users^ request new tic areas");
+			if (tmp && !fgroup.UpLink.zone)
+			    errmsg("It looks like you are at the toplevel, no Uplink defined");
+			else
+			    fgroup.UserChange = tmp;
+			break;
 		case 21:E_BOOL(17,46,   fgroup.Replace,    "Set ^Replace^ in new created tic areas")
 		case 22:E_BOOL(18,46,   fgroup.DupCheck,   "Set ^Dupe check^ in new created tic areas")
 		case 23:E_BOOL(19,46,   fgroup.Secure,     "Set ^Secure^ tic processing in new created tic areas")
