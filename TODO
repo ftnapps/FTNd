@@ -23,7 +23,8 @@ everything:
 
 	N: In BSO the i flavor should have been d flavor.
 
-	N: Increase size of Unix usernames > 8.
+	N: Increase size of Unix usernames > 8. The limit on Slackware is 32
+	   characters, defined in utmp.h in UT_NAMESIZE
 
 	N: Add personal message area.
 
@@ -160,5 +161,6 @@ mbsetup:
 	   format, if a filegate list is installed and the filegate switch
 	   setting is wrong, a lot of wrong areas will be created.
 
-	N: Sort tty records.
+	N: Sort tty records or use another method to create node numbers.
+
 
