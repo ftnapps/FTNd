@@ -6,6 +6,8 @@ v0.61.4		11-Aug-2004
 	upgrade:
 		If you have BBBS uplinks and use automatic uplink requests then
 		change the setup of these nodes in screen 7.10.
+		Run "mbfile check" and then "mbfile index". This fixes the
+		thumbnails if supported by your system.
 
 	libnodelist.a:
 		Removed some debug logging.
@@ -29,6 +31,12 @@ v0.61.4		11-Aug-2004
 	mbfile:
 		The html index now uses html named character entities on the
 		area names on the main index page.
+		With html index creation if the convert program for the
+		thumbnails failed, the html pages were wrong.
+		The thumbnails were created from the 8.3 name but the url was
+		created to the LFN. Depending on the settings of your apache
+		server you would see the thumbnails or not.
+		The check for wrong thumbnails changed from LFN to 8.3 names.
 
 	mbindex:
 		Fixed compiling pointlists where on the Boss line there is no

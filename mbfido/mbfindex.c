@@ -499,7 +499,7 @@ void HtmlIndex(char *Lang)
 {
     FILE		*pAreas, *fa, *fb = NULL, *fm, *fi = NULL;
     unsigned long	i, iAreas, KSize = 0L, aSize = 0;
-    int			AreaNr = 0, j, k, x = 0;
+    int			AreaNr = 0, j, k, x = 0, isthumb;
     int			aTotal = 0, inArea = 0, filenr;
     char		*sAreas, *fn;
     char		linebuf[1024], outbuf[1024], desc[6400], namebuf[1024];
@@ -632,20 +632,30 @@ void HtmlIndex(char *Lang)
 			 * check if a thumbnail file exists. If not try to
 			 * create a thumbnail file to add to the html listing.
 			 */
+			isthumb = FALSE;
 			if (strstr(fdb.LName, ".gif") || strstr(fdb.LName, ".jpg") ||
 			    strstr(fdb.LName, ".GIF") || strstr(fdb.LName, ".JPG")) {
-			    sprintf(linebuf, "%s/%s", area.Path, fdb.Name);
-			    sprintf(outbuf, "%s/.%s", area.Path, fdb.Name);
+			    sprintf(linebuf, "%s/%s", area.Path, fdb.LName);
+			    sprintf(outbuf, "%s/.%s", area.Path, fdb.LName);
 			    if (file_exist(outbuf, R_OK)) {
-				if ((j = execute_str(CFG.www_convert, linebuf, outbuf,
+				if (strlen(CFG.www_convert)) {
+				    if ((execute_str(CFG.www_convert, linebuf, outbuf,
 						    (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null"))) {
-				    Syslog('+', "Failed to create thumbnail for %s, rc=% d", fdb.Name, j);
+					Syslog('+', "Failed to create thumbnail for %s", fdb.LName);
+				    } else {
+					chmod(outbuf, 0644);
+					isthumb = TRUE;
+				    }
 				} else {
-				    chmod(outbuf, 0644);
+				    Syslog('+', "No convert program to create thumbnail %s", outbuf);
 				}
+			    } else {
+				isthumb = TRUE;
 			    }
-			    sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp, 
-					area.Path+strlen(CFG.ftp_base), fdb.LName);
+			}
+			sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
+				area.Path+strlen(CFG.ftp_base), fdb.LName);
+			if (isthumb) {
 			    sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), fdb.LName);
 			    MacroVars("fghi", "dsss", 1, outbuf, fdb.LName, linebuf);

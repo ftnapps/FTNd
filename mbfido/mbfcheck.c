@@ -430,12 +430,12 @@ void CheckArea(long Area)
 	    }
 
 	    /*
-    	     * It could be that there is a thumbnail made of the LFN.
+    	     * It could be that there is a thumbnail made of the 8.3 filename
     	     */
     	    tname = calloc(PATH_MAX, sizeof(char));
-    	    sprintf(tname, "%s/.%s", area.Path, fdb.LName);
+    	    sprintf(tname, "%s/.%s", area.Path, fdb.Name);
     	    if (file_exist(tname, R_OK) == 0) {
-    		Syslog('+', "Removing thumbnail %s", tname);
+    		Syslog('+', "Removing wrong 8.3 thumbnail %s", tname);
     		iErrors++;
     		unlink(tname);
     	    }
