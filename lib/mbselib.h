@@ -100,11 +100,14 @@
 #endif
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
+#if defined(__NetBSD__)
+#include <libgen.h>
+#endif
 
 
 /*
- *  *  Some older systems don;t have this
- *   */
+ *  Some older systems don;t have this
+ */
 #ifndef ICMP_FILTER
 #define ICMP_FILTER     1
 
