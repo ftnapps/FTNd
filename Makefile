@@ -1,6 +1,6 @@
 # Copyright (c) M. Broek, 1997-2000
 # Top-level makefile for MBSE BBS package
-# $Id:
+# $Id$
 
 include Makefile.global
 
