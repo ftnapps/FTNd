@@ -31,7 +31,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "structs.h"
 #include "clcomm.h"
 #include "common.h"

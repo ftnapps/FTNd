@@ -8,9 +8,6 @@
 #undef VERSION_REVISION
 #undef VERSION
 
-/* Memory debugging  */
-#undef MEMWATCH
-
 /* Define if you have the snprintf function.  */
 #undef HAVE_SNPRINTF
 

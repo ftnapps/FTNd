@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -157,10 +156,6 @@ int main(int argc, char *argv[])
     char	    temp[PATH_MAX];
 #endif
 
-#ifdef MEMWATCH
-    mwInit();
-#endif
-
     /*
      * The next trick is to supply a fake environment variable
      * MBSE_ROOT in case we are started from inetd or mgetty,
@@ -178,9 +173,6 @@ int main(int argc, char *argv[])
 	usage();
 	if (envptr)
 	    free(envptr);
-#ifdef MEMWATCH
-	mwTerm();
-#endif
 	exit(MBERR_COMMANDLINE);
     }
 
@@ -304,9 +296,6 @@ int main(int argc, char *argv[])
             free_mem();
             if (envptr)
                 free(envptr);
-#ifdef MEMWATCH
-            mwTerm();
-#endif
             exit(MBERROR_EXEC_FAILED);
         }
 #endif

@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mberrors.h"
 #include "../lib/structs.h"
 #include "common.h"

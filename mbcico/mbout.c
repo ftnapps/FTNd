@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -180,9 +179,6 @@ int main(int argc, char *argv[])
     FILE	    *fl;
     unsigned long   cmmask;
     
-#ifdef MEMWATCH
-    mwInit();
-#endif
     InitConfig();
     InitNode();
     InitFidonet();
@@ -364,9 +360,6 @@ int main(int argc, char *argv[])
     }
 
     Help();
-#ifdef MEMWATCH
-    mwTerm();
-#endif
     return MBERR_OK;
 }
 

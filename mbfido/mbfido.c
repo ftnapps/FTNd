@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -272,9 +271,6 @@ int main(int argc, char **argv)
     faddr	    *taddr = NULL;
     FILE	    *ofp;
 
-#ifdef MEMWATCH
-    mwInit();
-#endif
 
     /*
      * The next trick is to supply a fake environment variable

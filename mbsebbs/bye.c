@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -126,9 +125,6 @@ void Good_Bye(int onsig)
     Unsetraw();
     Free_Language();
     free(pTTY);
-#ifdef MEMWATCH
-    mwTerm();
-#endif
     exit(onsig);
 }
 
@@ -152,9 +148,6 @@ void Quick_Bye(int onsig)
 
     Free_Language();
     free(pTTY);
-#ifdef MEMWATCH
-    mwTerm();
-#endif
     exit(MBERR_OK);
 }
 

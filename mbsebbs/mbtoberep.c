@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/mberrors.h"
 
@@ -43,14 +42,8 @@ int main(int argc, char **argv)
 	struct _filerecord	rep;
 	int			i;
 
-#ifdef MEMWATCH
-	mwInit();
-#endif
 	if ((BBSpath = getenv("MBSE_ROOT")) == NULL) {
 		printf("MBSE_ROOT variable not set\n");
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_INIT_ERROR);
 	}
 
@@ -60,9 +53,6 @@ int main(int argc, char **argv)
 	if ((fp = fopen(temp, "r")) == NULL) {
 		printf("File %s not found\n", temp);
 		free(temp);
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_INIT_ERROR);
 	}
 
@@ -96,9 +86,6 @@ int main(int argc, char **argv)
 	fclose(fp);
 	chmod(temp, 0640);
 	free(temp);
-#ifdef MEMWATCH
-	mwTerm();
-#endif
 	return 0;
 }
 

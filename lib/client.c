@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "clcomm.h"
 
 static int		sock = -1;	/* Unix Datagram socket		*/

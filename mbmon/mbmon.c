@@ -31,7 +31,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mberrors.h"
 #include "../lib/structs.h"
 #include "common.h"
@@ -693,10 +692,6 @@ int main(int argc, char *argv[])
     char	    buf[128], *temp;
     int		    rc;
     FILE	    *fp;
-
-#ifdef MEMWATCH
-    mwInit();
-#endif
 
     /*
      * Read configuration

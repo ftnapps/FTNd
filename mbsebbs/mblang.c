@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -43,9 +42,6 @@ int main(int argc, char **argv)
 	int	i, j, lines;
 	char	*temp, *temp1;
 
-#ifdef MEMWATCH
-        mwInit();
-#endif
 	temp  = calloc(PATH_MAX, sizeof(char));
 	temp1 = calloc(PATH_MAX, sizeof(char));  
 
@@ -54,9 +50,6 @@ int main(int argc, char **argv)
 
 	if (argc < 3) {
 		printf("\nUsage: %s [language data file] [language text file]\n\n", *(argv));
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_COMMANDLINE);
 	}
 
@@ -66,17 +59,11 @@ int main(int argc, char **argv)
 	sprintf(temp, "%s", *(argv + 2));
 	if ((fp1 = fopen(temp, "r")) == NULL) {
 		printf("\nUnable to open %s\n", temp);
-#ifdef MEMWATCH
-                mwTerm();
-#endif
 		exit(MBERR_COMMANDLINE);
 	}
 	sprintf(temp1, "%s", *(argv + 1));
 	if ((fp = fopen(temp1, "a+")) == NULL) {
 		printf("\nUnable to open %s\n", temp1);
-#ifdef MEMWATCH
-                mwTerm();
-#endif
 		exit(MBERR_COMMANDLINE);
 	}
 
@@ -95,9 +82,6 @@ int main(int argc, char **argv)
 		}
 		if (i > 29) {
 			printf("\nKey part in line %d too long (%d chars)", lines, i);
-#ifdef MEMWATCH
-                	mwTerm();
-#endif
 			exit(MBERR_GENERAL);
 		}
 
@@ -113,9 +97,6 @@ int main(int argc, char **argv)
 		}
 		if (j > 84) {
 			printf("\nLanguage string in line %d too long (%d chars)", lines, j);
-#ifdef MEMWATCH
-                	mwTerm();
-#endif
 			exit(MBERR_GENERAL);
 		}
 
@@ -130,9 +111,6 @@ int main(int argc, char **argv)
 
 	printf("\nCompiled %d language lines\n", lines);
 
-#ifdef MEMWATCH
-        mwTerm();
-#endif
 	return 0;
 }
 

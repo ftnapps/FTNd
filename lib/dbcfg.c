@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "mbse.h"
 #include "structs.h"
 #include "users.h"
@@ -67,9 +66,6 @@ void LoadConfig(void)
 		printf("Please run mbsetup to create configuration file.\n");
 		printf("Or check that your MBSE_ROOT variable is set to the BBS path!\n\n");
 		free(FileName);
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_CONFIG_ERROR);
 	}
 

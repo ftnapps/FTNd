@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -415,10 +414,6 @@ int main(int argc, char *argv[])
 	printf("ERROR: only user \"mbse\" may use this program\n");
         exit(MBERR_INIT_ERROR);
     }
-
-#ifdef MEMWATCH
-    mwInit();
-#endif
 
     /*
      * Read the global configuration data, registrate connection

@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -61,9 +60,6 @@ int main(int argc, char **argv)
     char    *p, *tty, temp[PATH_MAX];
     int	    i;
 
-#ifdef MEMWATCH
-	mwInit();
-#endif
     printf("Loading MBSE BBS ...\n");
     pTTY = calloc(15, sizeof(char));
     tty = ttyname(1);

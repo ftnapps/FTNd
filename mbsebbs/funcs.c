@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -317,9 +316,6 @@ void FindMBSE()
 	if (getenv("MBSE_ROOT") == NULL) {
 		printf("FATAL ERROR: Environment variable MBSE_ROOT not set\n");
 		free(FileName);
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_INIT_ERROR);
 	}
 	sprintf(FileName, "%s/etc/config.data", getenv("MBSE_ROOT"));
@@ -329,9 +325,6 @@ void FindMBSE()
 		printf("Please run mbsetup to create configuration file.\n");
 		printf("Or check that your environment variable MBSE_ROOT is set to the BBS Path!\n");
 		free(FileName);
-#ifdef MEMWATCH
-                mwTerm();
-#endif
 		exit(MBERR_CONFIG_ERROR);
 	}
 

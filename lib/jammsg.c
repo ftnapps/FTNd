@@ -36,7 +36,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "clcomm.h"
 #include "msgtext.h"
 #include "msg.h"

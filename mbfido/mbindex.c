@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -141,9 +140,6 @@ int main(int argc,char *argv[])
     char	    *cmd;
     struct passwd   *pw;
 
-#ifdef MEMWATCH
-    mwInit();
-#endif
     InitConfig();
     InitFidonet();
     TermInit(1);

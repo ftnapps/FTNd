@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "mberrors.h"
 #include "clcomm.h"
 
@@ -143,9 +142,6 @@ void ExitClient(int errcode)
 	if (pbuff)
 		free(pbuff);
 
-#ifdef MEMWATCH
-	mwTerm();
-#endif
 	exit(errcode);
 }
 

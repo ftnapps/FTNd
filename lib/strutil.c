@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "libs.h"
-#include "memwatch.h"
 #include "structs.h"
 #include "common.h"
 
@@ -339,7 +338,7 @@ char *GetDateDMY()
 char *OsName()
 {
 #ifdef __linux__
-    return (char *)"Linux";
+    return (char *)"GNU/Linux";
 #elif __FreeBSD__
     return (char *)"FreeBSD";
 #elif __NetBSD__
@@ -372,7 +371,7 @@ char *OsCPU()
 
 /*
  * Return universal tearline, note if OS and CPU are
- * unknow, the tearline is already 39 characters.
+ * unknown, the tearline is already 39 characters.
  */
 char *TearLine()
 {

@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/mbse.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
@@ -61,9 +60,6 @@ int main(int argc, char **argv)
         char            temp[PATH_MAX];
         struct passwd   *pw;
 
-#ifdef MEMWATCH
-	mwInit();
-#endif
 	printf("\n\nLoading MBSE BBS New User Registration ...\n\n");
  	pTTY = calloc(15, sizeof(char));
 	tty = ttyname(1);
@@ -74,9 +70,6 @@ int main(int argc, char **argv)
 	FindMBSE();
 	if (!strlen(CFG.startname)) {
 		printf("FATAL: No bbs startname, edit mbsetup 1.2.10\n");
-#ifdef MEMWATCH
-		mwTerm();
-#endif
 		exit(MBERR_CONFIG_ERROR);
 	}
 
@@ -85,9 +78,6 @@ int main(int argc, char **argv)
 	 */
 	if ((pw = getpwnam((char *)"mbse")) == NULL) {
 		perror("Can't find user \"mbse\" in /etc/passwd");
-#ifdef MEMWATCH
-                mwTerm();
-#endif
 		exit(MBERR_INIT_ERROR);
 	}
 
@@ -96,9 +86,6 @@ int main(int argc, char **argv)
 	 */
 	if ((seteuid(pw->pw_uid) == -1) || (setegid(pw->pw_gid) == -1)) {
 		perror("Can't seteuid() or setegid() to \"mbse\" user");
-#ifdef MEMWATCH
-                mwTerm();
-#endif
 		exit(MBERR_INIT_ERROR);
 	}
 

@@ -41,7 +41,6 @@
 #define	MBERR_GENERAL		131	/* General error		    */
 #define	MBERR_TIMEOUT		132	/* Timeout error		    */
 #define	MBERR_TTYIO		200	/* Base for ttyio errors	    */
-#define	MBERR_MEMWATCH		255	/* Memwatch error		    */
 #define	MBERR_EXTERNAL		256	/* Status external prog + 256	    */
 
 #endif

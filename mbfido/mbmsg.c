@@ -30,7 +30,6 @@
 
 #include "../config.h"
 #include "../lib/libs.h"
-#include "../lib/memwatch.h"
 #include "../lib/structs.h"
 #include "../lib/users.h"
 #include "../lib/records.h"
@@ -89,9 +88,6 @@ int main(int argc, char **argv)
 	struct	passwd *pw;
 	long	tarea = 0;
 
-#ifdef MEMWATCH
-        mwInit();
-#endif
 
 	InitConfig();
 	TermInit(1);
