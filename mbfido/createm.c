@@ -126,8 +126,11 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		 * Area is in AREAS file, now create area.
 		 * If needed, connect at uplink.
 		 */
-		if (SendUplink) {
-		    sprintf(temp, "+%s", tag);
+		if (SendUplink && SearchNode(mgroup.UpLink)) {
+		    if (nodes.UplAmgrBbbs)
+			sprintf(temp, "echo +%s", tag);
+		    else
+			sprintf(temp, "+%s", tag);
 		    From = fido2faddr(mgroup.UseAka);
 		    To   = fido2faddr(mgroup.UpLink);
 		    if (UplinkRequest(To, From, FALSE, temp)) {

@@ -550,7 +550,7 @@ int Areas(void)
 	fseek(gp, mgrouphdr.hdrsize, SEEK_SET);
 
 	while ((fread(&mgroup, mgrouphdr.recsize, 1, gp)) == 1) {
-	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile)) {
+	    if (mgroup.Active && mgroup.AutoChange && strlen(mgroup.AreaFile) && mgroup.UpLink.zone && SearchNode(mgroup.UpLink)) {
 		if (!do_quiet) {
 		    colour(CYAN, BLACK);
 		    printf("\rEcho group %-12s ", mgroup.Name);
@@ -633,10 +633,14 @@ int Areas(void)
 			     */
 			    CheckEchoGroup(tmp->Name, FALSE, NULL);
 			    if (cmd == NULL) {
-				cmd = xstrcpy((char *)"+");
+				cmd = xstrcpy((char *)"");
 			    } else {
-				cmd = xstrcat(cmd, (char *)"\r+");
+				cmd = xstrcat(cmd, (char *)"\r");
 			    }
+			    if (nodes.UplAmgrBbbs)
+				cmd = xstrcat(cmd, (char *)"echo +");
+			    else
+				cmd = xstrcat(cmd, (char *)"+");
 			    cmd = xstrcat(cmd, tmp->Name);
 			    if (CFG.slow_util && do_quiet)
 				msleep(1);
@@ -692,9 +696,13 @@ int Areas(void)
 					 * Prepare uplink command
 					 */
 					if (cmd == NULL)
-					    cmd = xstrcpy((char *)"-");
+					    cmd = xstrcpy((char *)"");
 					else
-					    cmd = xstrcat(cmd, (char *)"\r-");
+					    cmd = xstrcat(cmd, (char *)"\r");
+					if (nodes.UplAmgrBbbs)
+					    cmd = xstrcat(cmd, (char *)"echo -");
+					else
+					    cmd = xstrcat(cmd, (char *)"-");
 					cmd = xstrcat(cmd, tmp->Name);
 					break;
 				    } else {
@@ -710,19 +718,15 @@ int Areas(void)
 			/*
 			 * Sent one uplink command with additions and deletions
 			 */
-			if (mgroup.UpLink.zone) {
-			    From = fido2faddr(mgroup.UseAka);
-			    To   = fido2faddr(mgroup.UpLink);
-			    if (UplinkRequest(To, From, FALSE, cmd)) {
-				WriteError("Uplink request failed");
-			    } else {
-				Mgrlog("AreaMgr request sent to %s", aka2str(mgroup.UpLink));
-			    }
-			    tidy_faddr(From);
-			    tidy_faddr(To);
+			From = fido2faddr(mgroup.UseAka);
+			To   = fido2faddr(mgroup.UpLink);
+		        if (UplinkRequest(To, From, FALSE, cmd)) {
+			    WriteError("Uplink request failed");
 			} else {
-			    Syslog('+', "No uplink defined, not sending a AreaMgr request");
+			    Mgrlog("AreaMgr request sent to %s", aka2str(mgroup.UpLink));
 			}
+		        tidy_faddr(From);
+		        tidy_faddr(To);
 			free(cmd);
 			cmd = NULL;
 		    }
@@ -731,7 +735,7 @@ int Areas(void)
 			fflush(stdout);
 		    }
 		}
-	    }
+	    } 
 	}
 	fclose(gp);
     }
@@ -744,7 +748,7 @@ int Areas(void)
 	fseek(gp, fgrouphdr.hdrsize, SEEK_SET);
 
 	while ((fread(&fgroup, fgrouphdr.recsize, 1, gp)) == 1) {
-	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile)) {
+	    if (fgroup.Active && fgroup.AutoChange && strlen(fgroup.AreaFile) && fgroup.UpLink.zone && SearchNode(fgroup.UpLink)) {
 		if (!do_quiet) {
 		    colour(CYAN, BLACK);
 		    printf("\r TIC group %-12s ", fgroup.Name);
@@ -879,10 +883,14 @@ int Areas(void)
 			     */
 			    CheckTicGroup(tmp->Name, FALSE, NULL);
 			    if (cmd == NULL) {
-				cmd = xstrcpy((char *)"+");
+				cmd = xstrcpy((char *)"");
 			    } else {
-				cmd = xstrcat(cmd, (char *)"\r+");
+				cmd = xstrcat(cmd, (char *)"\r");
 			    }
+			    if (nodes.UplFmgrBbbs)
+				cmd = xstrcat(cmd, (char *)"file +");
+			    else
+				cmd = xstrcat(cmd, (char *)"+");
 			    cmd = xstrcat(cmd, tmp->Name);
 			    if (CFG.slow_util && do_quiet)
 				msleep(1);
@@ -919,9 +927,13 @@ int Areas(void)
 					 * Prepare uplink command
 					 */
 					 if (cmd == NULL)
-					    cmd = xstrcpy((char *)"-");
+					    cmd = xstrcpy((char *)"");
 					else
-					    cmd = xstrcat(cmd, (char *)"\r-");
+					    cmd = xstrcat(cmd, (char *)"\r");
+					if (nodes.UplFmgrBbbs)
+					    cmd = xstrcat(cmd, (char *)"file -");
+					else
+					    cmd = xstrcat(cmd, (char *)"-");
 					cmd = xstrcat(cmd, tmp->Name);
 				    }
 				    fseek(fp, tichdr.syssize, SEEK_CUR);
@@ -968,19 +980,15 @@ int Areas(void)
 			/*
 			 * Sent one uplink command with additions and deletions
 			 */
-			if (fgroup.UpLink.zone) {
-			    From = fido2faddr(fgroup.UseAka);
-			    To   = fido2faddr(fgroup.UpLink);
-			    if (UplinkRequest(To, From, TRUE, cmd)) {
-				WriteError("Uplink request failed");
-			    } else {
-				Mgrlog("FileMgr request sent to %s", aka2str(fgroup.UpLink));
-			    }
-			    tidy_faddr(From);
-			    tidy_faddr(To);
+			From = fido2faddr(fgroup.UseAka);
+		        To   = fido2faddr(fgroup.UpLink);
+		        if (UplinkRequest(To, From, TRUE, cmd)) {
+			    WriteError("Uplink request failed");
 			} else {
-			    Syslog('+', "No uplink defined, not sending a FileMgr request");
+			    Mgrlog("FileMgr request sent to %s", aka2str(fgroup.UpLink));
 			}
+			tidy_faddr(From);
+		        tidy_faddr(To);
 			free(cmd);
 			cmd = NULL;
 		    }

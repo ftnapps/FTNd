@@ -190,8 +190,11 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
      * Area is in AREAS file, now create area.
      * If needed, connect at uplink.
      */
-    if (SendUplink) {
-	sprintf(temp, "+%s", tag);
+    if (SendUplink && SearchNode(fgroup.UpLink)) {
+	if (nodes.UplFmgrBbbs)
+	    sprintf(temp, "file +%s", tag);
+	else
+	    sprintf(temp, "+%s", tag);
 
 	From = fido2faddr(fgroup.UseAka);
 	To   = fido2faddr(fgroup.UpLink);

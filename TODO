@@ -116,8 +116,6 @@ mbfido:
 	N: Implement areamgr/filemgr %avail command to list available areas
 	   from areas files.
 
-	N: Areamgr uplink request, add change for bbbs (Aarrrgghhh).
-
 mbcico:
 	L: Implement binkp option ND.
 

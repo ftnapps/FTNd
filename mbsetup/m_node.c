@@ -1565,8 +1565,6 @@ int node_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)" Advanded SB lines in .TIC", getboolean(nodes.TIC_AdvSB));
 	    fprintf(fp, "     Sent To line   %s", getboolean(nodes.TIC_To));
 	    add_webtable(wp, (char *)"Sent 'To' lines in .TIC", getboolean(nodes.TIC_To));
-	    fprintf(fp, "     Uplink add +   %s\n", getboolean(nodes.AddPlus));
-	    add_webtable(wp, (char *)" Uplink add +", getboolean(nodes.AddPlus));
 	    fprintf(fp, "     Security flags %s\n\n", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    add_webtable(wp, (char *)"Security flags", getflag(nodes.Security.flags, nodes.Security.notflags));
 	    fprintf(wp, "<TR><TD colspan='2'>&nbsp;</TD></TR>\n");
