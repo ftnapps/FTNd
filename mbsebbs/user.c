@@ -414,10 +414,12 @@ void user()
 	    /*
 	     * Give user new bytes and files every day if needed.
 	     */
-	    if (LIMIT.DownK && LIMIT.DownF) {
+	    if (LIMIT.DownK) {
 		usrconfig.DownloadKToday = LIMIT.DownK;
-		usrconfig.DownloadsToday = LIMIT.DownF;
 	    }
+            if (LIMIT.DownF) {
+                usrconfig.DownloadsToday = LIMIT.DownF;
+            }
 	}
     } /* End of else  */
 

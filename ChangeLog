@@ -46,6 +46,7 @@ v0.71.0		27-Oct-2004
 		In change protocol, changed the colors.
 		With user chat, the timeout timer wasn't refreshed.
 		Improved test for users protocol available.
+		Fixed download K and files setting for users on a new day.
 
 	mbnewusr:
 		Rewrote terminal i/o.
