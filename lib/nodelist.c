@@ -67,6 +67,7 @@ static struct _keytab {
     {(char *)"tcpip",	    getmdm,	    (char **)&nl_tcpip},
     {(char *)"search",	    getarr,	    (char **)&nl_search},
     {(char *)"dialer",	    getarr,	    (char **)&nl_dialer},
+    {(char *)"ipprefix",    getarr,	    (char **)&nl_ipprefix},
     {(char *)"domsuffix",   getdom,	    (char **)&nl_domsuffix},
     {(char *)"service",	    getsrv,	    (char **)&nl_service},
     {NULL,		    NULL,	    NULL}
@@ -339,6 +340,7 @@ void deinitnl(void)
     tidy_nl_modem(&nl_tcpip);
     tidy_nl_array(&nl_search);
     tidy_nl_array(&nl_dialer);
+    tidy_nl_array(&nl_ipprefix);
     tidy_nl_domsuf(&nl_domsuffix);
     tidy_nl_service(&nl_service);
 
@@ -371,6 +373,7 @@ int initnl(void)
     nl_tcpip = NULL;
     nl_search = NULL;
     nl_domsuffix = NULL;
+    nl_ipprefix = NULL;
     nl_dialer = NULL;
     nl_service = NULL;
 
@@ -543,7 +546,7 @@ node *getnlent(faddr *addr)
     nodelist_modem	    **tmpm;
     nodelist_flag	    **tmpf;
     nodelist_service	    **tmps;
-    nodelist_array	    **tmpa;
+    nodelist_array	    **tmpa, **tmpaa;
     nodelist_domsuf	    **tmpd;
     unsigned long	    tport = 0;
     
@@ -935,18 +938,21 @@ node *getnlent(faddr *addr)
 			memset(&tbuf, 0, sizeof(tbuf));
 		    }
 		} else if (strcasecmp((*tmpa)->name, "field6") == 0) {
-		    if (nodebuf.phone && strncmp(nodebuf.phone, "000-", 4) == 0) {
-			Syslog('n', "getnlent: found 000- prefix");
-			sprintf(tbuf, "%s", nodebuf.phone+4);
-			for (i = 0; i < strlen(tbuf); i++)
-			    if (tbuf[i] == '-')
-				tbuf[i] = '.';
-			Syslog('n', "getnlent: using field6 \"%s\"", tbuf);
-			nodebuf.url = xstrcat(nodebuf.url, tbuf);
-			break;
-		    } else {
-			memset(&tbuf, 0, sizeof(tbuf));
+		    memset(&tbuf, 0, sizeof(tbuf));
+		    for (tmpaa = &nl_ipprefix; *tmpaa; tmpaa=&((*tmpaa)->next)) {
+			if (nodebuf.phone && strncmp(nodebuf.phone, (*tmpaa)->name, strlen((*tmpaa)->name)) == 0) {
+			    Syslog('n', "getnlent: found %s prefix", (*tmpaa)->name);
+			    sprintf(tbuf, "%s", nodebuf.phone+strlen((*tmpaa)->name));
+			    for (i = 0; i < strlen(tbuf); i++)
+				if (tbuf[i] == '-')
+				    tbuf[i] = '.';
+			    Syslog('n', "getnlent: using field6 \"%s\"", tbuf);
+			    nodebuf.url = xstrcat(nodebuf.url, tbuf);
+			    break;
+			}
 		    }
+		    if (strlen(tbuf))
+			break;
 		} else if (strcasecmp((*tmpa)->name, "field8") == 0) {
 		    /*
 		     * Read nodelist line again in another buffer, the original

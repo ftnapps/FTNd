@@ -110,6 +110,7 @@ nodelist_modem	    *nl_isdn;
 nodelist_modem	    *nl_tcpip;
 nodelist_array	    *nl_search;
 nodelist_array	    *nl_dialer;
+nodelist_array	    *nl_ipprefix;
 nodelist_domsuf	    *nl_domsuffix;
 nodelist_service    *nl_service;
 
