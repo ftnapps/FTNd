@@ -48,6 +48,9 @@ v0.37.00	26-Dec-2002.
 		Prepared for more example translations.
 		Added German template files made by Joachim Kuwan.
 
+	script:
+		Added new init script for FreeBSD.
+
 	mbfile:
 		Move old files to another area failed, only the symbolic link
 		was moved.

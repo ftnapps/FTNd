@@ -316,12 +316,12 @@ fi
 
 #--------------------------------------------------------------------------
 #
-#  Adding scripts for FreeBSD and NetBSD
+#  Adding scripts for NetBSD
 #
 #
-if [ "$DISTNAME" = "FreeBSD" ] || [ "$DISTNAME" = "NetBSD" ]; then
+if [ "$DISTNAME" = "NetBSD" ]; then
     #
-    # FreeBSD, NetBSD init
+    # NetBSD init
     #
     DISTINIT="$MBSE_ROOT/etc/rc"
     echo "Adding $DISTNAME style MBSE BBS start/stop scripts"
@@ -354,6 +354,23 @@ if [ "$DISTNAME" = "FreeBSD" ] || [ "$DISTNAME" = "NetBSD" ]; then
     chmod 755       $MBSE_ROOT/bin/mbse.start $MBSE_ROOT/bin/mbse.stop
     chown `id -un`.`id -gn` $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
     chmod 744       $MBSE_ROOT/etc/rc $MBSE_ROOT/etc/rc.shutdown
+fi
+
+
+#--------------------------------------------------------------------------
+#
+#  Adding scripts for FreeBSD
+#
+#
+if [ "$DISTNAME" = "FreeBSD" ]; then
+    #
+    # FreeBSD init
+    # 
+    DISTINIT="/usr/local/etc/rc.d/mbse"
+    echo "Adding $DISTNAME style MBSE BBS start/stop script"
+    log "+" "Adding $DISTNAME style MBSE BBS start/stop script"
+    cp init.FreeBSD $DISTINIT
+    chmod 0755 $DISTINIT
 fi
 
 

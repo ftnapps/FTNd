@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $MBSE_ROOT/etc/rc:  BBS Startup script for old Slackware, FreeBSD and NetBSD
+# $MBSE_ROOT/etc/rc:  BBS Startup script for old Slackware and NetBSD
 #
 # $Id$
 

@@ -29,7 +29,7 @@ log() {
 #------------------------------------------------------------------------
 #
 cat << EOF
-MBSE BBS for Linux first time setup. Checking your system..."
+MBSE BBS for Unix, first time setup. Checking your system..."
 
 If anything goes wrong with this script, look at the output of
 the file SETUP.log that is created by this script in this
@@ -282,8 +282,10 @@ if [ ! -d $MHOME/home ]; then
     mkdir $MHOME/home
     log "+" "[$?] Created directory $MHOME/home"
 fi
-chown mbse.bbs $MHOME/home
-log "+" "[$?] chown mbse.bbs $MHOME/home"
+chown mbse $MHOME/home
+log "+" "[$?] chown mbse $MHOME/home"
+chgrp bbs $MHOME/home
+log "+" "[$?] chgrp bbs $MHOME/home"
 chmod 770 $MHOME/home
 log "+" "[$?] chmod 770 $MHOME/home"
 if [ "$OSTYPE" = "Linux" ]; then
@@ -307,9 +309,10 @@ if [ -d $MHOME/home/bbs ]; then
 fi
 mkdir -m 0770 $MHOME/home/bbs
 log "+" "[$?] mkdir $MHOME/home/bbs"
-chown mbse.bbs $MHOME/home/bbs
-log "+" "[$?] chown mbse.bbs $MHOME/home/bbs"
-
+chown mbse $MHOME/home/bbs
+log "+" "[$?] chown mbse $MHOME/home/bbs"
+chgrp bbs $MHOME/home/bbs
+log "+" "[$?] chgrp bbs $MHOME/home/bbs"
 
 echo ", removing password:"
 if [ "$OSTYPE" = "Linux" ]; then
