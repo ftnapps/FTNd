@@ -99,7 +99,8 @@ int             ping_receive(struct in_addr);
 #define ICMP4_ECHO_LEN    ICMP_BASEHDR_LEN
 
 
-short                   p_sequence = 0;
+// short                   p_sequence = 0;
+short			p_sequence = 10;
 unsigned short          id;
 struct icmphdr          icmpd;
 struct sockaddr_in      to;
@@ -173,7 +174,7 @@ int ping_send(struct in_addr addr)
     SOL_IP = pe->p_proto;
 #endif
 
-    p_sequence++;
+//    p_sequence++;
     id = (unsigned short)get_rand16(); /* randomize a ping id */
 
 #ifdef __linux__
