@@ -49,7 +49,7 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-    char	*subject = NULL, *temp, *fwdfile = NULL, *queuedir, *listfile, *ticfile = NULL, fname[PATH_MAX], *ticname, flavor;
+    char	*subject = NULL, *fwdfile = NULL, *queuedir, *listfile, *ticfile = NULL, fname[PATH_MAX], *ticname, flavor;
     FILE	*fp, *fi, *fl, *net;
     faddr	*dest, *routeto, *Fa, *Temp, *ba;
     int		i, z, n;
@@ -103,17 +103,14 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
      * Create the full filename
      */
     if (TIC.PassThru || TIC.SendOrg) {
-	sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.RealName);
-	subject = xstrcpy(TIC.RealName);
+	sprintf(fwdfile, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	subject = xstrcpy(TIC.TicIn.File);
     } else {
 	/*
 	 * Make sure the file attach is the 8.3 filename
 	 */
-	temp = xstrcpy(TIC.NewName);
-	name_mangle(temp);
-	sprintf(fwdfile, "%s/%s", TIC.BBSpath, temp);
-	subject = xstrcpy(temp);
-	free(temp);
+	sprintf(fwdfile, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	subject = xstrcpy(TIC.NewFile);
     }
 
     flavor = 'f';
@@ -152,7 +149,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		MacroVars("b", "s", tic.Comment);
 		MacroVars("c", "d", TIC.FileCost);
 		MacroVars("d", "s", fgroup.Comment);
-		MacroVars("f", "s", TIC.TicIn.FullName);
+		if (TIC.PassThru || TIC.SendOrg)
+		    MacroVars("f", "s", TIC.TicIn.FullName);
+		else
+		    MacroVars("f", "s", TIC.NewFullName);
 		MacroVars("g", "d", TIC.FileSize);
 		MacroVars("h", "d", (TIC.FileSize / 1024));
 		MacroVars("i", "s", TIC.TicIn.Crc);
@@ -160,10 +160,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		MacroVars("m", "s", rfcdate(ftime));
 		MacroVars("n", "s", TIC.TicIn.Desc);
 		MacroVars("s", "s", nodes.Sysop);
-		if (TIC.SendOrg)
-		    MacroVars("e", "s", TIC.RealName);
+		if (TIC.PassThru || TIC.SendOrg)
+		    MacroVars("e", "s", TIC.TicIn.File);
 		else
-		    MacroVars("e", "s", TIC.NewName);
+		    MacroVars("e", "s", TIC.NewFile);
 		if (strlen(TIC.TicIn.Magic))
 		    MacroVars("k", "s", TIC.TicIn.Magic);
 		if (strlen(TIC.TicIn.Replace))
@@ -195,26 +195,15 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    if (strlen(TIC.TicIn.Magic))
 		fprintf(fp, "Magic %s\r\n", TIC.TicIn.Magic);
 
-	    if ((TIC.PassThru) || (TIC.SendOrg))
-		subject = xstrcpy(TIC.RealName);
-	    else
-		subject = xstrcpy(TIC.NewName);
-	    /*
-	     * Create 8.3 filename if this is a long filename. In normal
-	     * cases mbcico will transmit the long filename to the other
-	     * node. If they can't process the TIC files which has a short
-	     * 8.3 filename and they have a long filename in the inbound
-	     * then in mbsetup these nodes need to be set to 8.3 filenames.
-	     * The mailer will then transmit the file with a 8.3 name.
-	     * Thank the inventors of the 8.3 filenames for this.
-	     */
-	    temp = xstrcpy(subject);
-	    name_mangle(temp);
-	    fprintf(fp, "File %s\r\n", temp);
-	    fprintf(fp, "Fullname %s\r\n", subject);
-	    free(temp);
-	    free(subject);
-
+	    if ((TIC.PassThru) || (TIC.SendOrg)) {
+		fprintf(fp, "File %s\r\n", TIC.TicIn.File);
+		if (strlen(TIC.TicIn.FullName))
+		    fprintf(fp, "Fullname %s\r\n", TIC.TicIn.FullName);
+	    } else {
+		fprintf(fp, "File %s\r\n", TIC.NewFile);
+		if (strlen(TIC.NewFullName))
+		    fprintf(fp, "Fullname %s\r\n", TIC.NewFullName);
+	    }
 	    fprintf(fp, "Size %ld\r\n", (long)(TIC.FileSize));
 	    fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 	    fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
@@ -319,7 +308,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	if ((fp = fopen(fname, "a+")) != NULL) {
 	    memset(&bill, 0, sizeof(bill));
 	    bill.Node = nodes.Aka[0];
-	    strcpy(bill.FileName, TIC.NewName);
+	    strcpy(bill.FileName, TIC.NewFile);
 	    strcpy(bill.FileEcho, TIC.TicIn.Area);
 	    bill.Size = TIC.FileSize;
 	    bill.Cost = TIC.FileCost;

@@ -48,14 +48,14 @@ extern	int	do_quiet;
 
 char *MakeTicName()
 {
-	static char	buf[13];
+    static char	buf[13];
 
-	buf[12] = '\0';
-	sprintf(buf, "%08lx.tic", sequencer());
-	buf[0] = 'm';
-	buf[1] = 'b';
+    buf[12] = '\0';
+    sprintf(buf, "%08lx.tic", sequencer());
+    buf[0] = 'm';
+    buf[1] = 'b';
 
-	return buf;
+    return buf;
 }
 
 
@@ -65,13 +65,13 @@ char *MakeTicName()
  */
 int Day_Of_Year()
 {
-	time_t		Now;
-	struct tm	*Tm;
+    time_t	Now;
+    struct tm	*Tm;
 
-	Now = time(NULL);
-	Tm = localtime(&Now);
+    Now = time(NULL);
+    Tm = localtime(&Now);
 
-	return Tm->tm_yday;
+    return Tm->tm_yday;
 }
 
 
@@ -81,93 +81,106 @@ int Day_Of_Year()
  */
 int Rearc(char *unarc)
 {
-	int	i, j;
-	char	temp[PATH_MAX], *cmd = NULL;
+    int	    i = 0, j = 0, k = 0;
+    char    temp[PATH_MAX], *cmd = NULL;
 
-	Syslog('f', "Entering Rearc(%s)", unarc);
+    Syslog('f', "Entering Rearc(%s)", unarc);
 
-	i = 0;
-	while (TIC.NewName[i] != '.')
-		i++;
+    if (!getarchiver(unarc)) {
+	return FALSE;
+    }
+    cmd = xstrcpy(archiver.farc);
+    if (cmd == NULL) {
+	WriteError("Rearc(): No arc command available");
+	return FALSE;
+    }
+
+    while (TIC.NewFile[i] != '.')
 	i++;
+    i++;
 
-	j = 0;
-	for (; i < strlen(TIC.NewName); i++) {
-		if (TIC.NewName[i] > '9')
-			TIC.NewName[i] = tolower(unarc[j]);
-		j++;
+    while (TIC.NewFullName[k] != '.')
+	k++;
+    k++;
+
+    for (; i < strlen(TIC.NewFile); i++) {
+	if (TIC.NewFile[i] > '9') {
+	    TIC.NewFile[i] = toupper(unarc[j]);
+	    if (isupper(TIC.NewFullName[i]))
+		TIC.NewFullName[i] = toupper(unarc[k]);
+	    else
+		TIC.NewFullName[i] = tolower(unarc[k]);
 	}
+	j++;
+	k++;
+    }
 
 
-	Syslog('f' , "NewName = \"%s\"", TIC.NewName);
+    Syslog('f' , "NewFile=\"%s\", NewFullName=\"%s\"", TIC.NewFile, TIC.NewFullName);
 	
-	if (!getarchiver(unarc)) {
-		return FALSE;
-	}
-
-	cmd = xstrcpy(archiver.farc);
-
-	if (cmd == NULL) {
-		WriteError("Rearc(): No arc command available");
-		return FALSE;
-	} else {
-		sprintf(temp, "%s/%s .", TIC.Inbound, TIC.NewName);
-		if (execute(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
-			/* MUST SET TIC.FileDate to NEW ARCHIVE */
-			return TRUE;
-		}
-		WriteError("Rearc(%s) Failed", unarc);
-		return FALSE;
-	}
+    sprintf(temp, "%s/%s .", TIC.Inbound, TIC.NewFile);
+    if (execute(cmd, temp, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 	free(cmd);
+	return TRUE;
+    }
+
+    /*
+     * Restore filenames
+     */
+    strncpy(TIC.NewFile, TIC.TicIn.File, sizeof(TIC.NewFile) -1);
+    strncpy(TIC.NewFullName, TIC.TicIn.FullName, sizeof(TIC.NewFullName) -1);
+
+    free(cmd);
+    WriteError("Rearc(%s) Failed", unarc);
+    return FALSE;
 }
 
 
 
 void DeleteVirusWork()
 {
-	char	*buf, *temp;
+    char    *buf, *temp;
 
-	buf  = calloc(PATH_MAX, sizeof(char));
-	temp = calloc(PATH_MAX, sizeof(char));
-	getcwd(buf, PATH_MAX);
-	sprintf(temp, "%s/tmp", getenv("MBSE_ROOT"));
+    buf  = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
+    getcwd(buf, PATH_MAX);
+    sprintf(temp, "%s/tmp", getenv("MBSE_ROOT"));
 
-	if (chdir(temp) == 0) {
-		Syslog('f', "DeleteVirusWork %s/arc", temp);
-		system("rm -r -f arc");
-		system("mkdir arc");
-	} else
-		WriteError("$Can't chdir to %s", temp);
+    if (chdir(temp) == 0) {
+	Syslog('f', "DeleteVirusWork %s/arc", temp);
+	system("rm -r -f arc");
+	system("mkdir arc");
+    } else
+	WriteError("$Can't chdir to %s", temp);
 
-	chdir(buf);
-	free(temp);
-	free(buf);
+    chdir(buf);
+    free(temp);
+    free(buf);
 }
 
 
 
 void Bad(char *format, ...)
 {
-	char	outstr[1024];
-	va_list	va_ptr;
+    char    outstr[1024];
+    va_list va_ptr;
 
-	va_start(va_ptr, format);
-	vsprintf(outstr, format, va_ptr);
-	va_end(va_ptr);
+    va_start(va_ptr, format);
+    vsprintf(outstr, format, va_ptr);
+    va_end(va_ptr);
 
-	WriteError(outstr);
-	MoveBad();
-	tic_bad++;
+    WriteError(outstr);
+    MoveBad();
+    tic_bad++;
 }
 
 
 
 void ReCalcCrc(char *fn)
 {
-	TIC.Crc_Int = file_crc(fn, CFG.slow_util && do_quiet);
-	sprintf(TIC.TicIn.Crc, "%08lX", TIC.Crc_Int);
-	strcpy(T_File.Crc, TIC.TicIn.Crc);
+    TIC.Crc_Int = file_crc(fn, CFG.slow_util && do_quiet);
+    sprintf(TIC.TicIn.Crc, "%08lX", TIC.Crc_Int);
+    strcpy(T_File.Crc, TIC.TicIn.Crc);
 }
 
 
@@ -253,27 +266,29 @@ int Get_File_Id()
 
 void UpDateAlias(char *Alias)
 {
-	char	*path;
-	FILE	*fp;
+    char    *path;
+    FILE    *fp;
 
-	Syslog('f', "UpDateAlias(%s) with %s", Alias, TIC.NewName);
+    Syslog('f', "UpDateAlias(%s) with %s", Alias, TIC.NewFile);
 
-	if (!strlen(CFG.req_magic)) {
-		WriteError("No magic filename path configured");
-		return;
-	}
+    if (!strlen(CFG.req_magic)) {
+	WriteError("No magic filename path configured");
+	return;
+    }
 
-	path = xstrcpy(CFG.req_magic);
-	path = xstrcat(path, (char *)"/");
-	path = xstrcat(path, Alias);
+    path = xstrcpy(CFG.req_magic);
+    path = xstrcat(path, (char *)"/");
+    path = xstrcat(path, Alias);
 
-	if ((fp = fopen(path, "w")) == NULL) {
-		WriteError("$Can't create %s", path);
-		return;
-	}
-	fprintf(fp, "%s\n", TIC.NewName);
-	fclose(fp);
+    if ((fp = fopen(path, "w")) == NULL) {
+	WriteError("$Can't create %s", path);
 	free(path);
+	return;
+    }
+
+    fprintf(fp, "%s\n", TIC.NewFile);
+    fclose(fp);
+    free(path);
 }
 
 

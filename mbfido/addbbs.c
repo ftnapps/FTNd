@@ -63,12 +63,6 @@ int Add_BBS()
     fd_list		*fdl = NULL;
 
     /*
-     * First create 8.3 filename
-     */
-    sprintf(temp1, "%s", TIC.NewName);
-    name_mangle(temp1);
-
-    /*
      * First check for an existing record with the same filename,
      * if it exists, update the record and we are ready. This will
      * prevent for example allfiles.zip to get a new record everytime
@@ -77,9 +71,9 @@ int Add_BBS()
     sprintf(fdbname, "%s/fdb/fdb%ld.data", getenv("MBSE_ROOT"), tic.FileArea);
     if ((fdb = fopen(fdbname, "r+")) != NULL) {
 	while (fread(&frec, sizeof(frec), 1, fdb) == 1) {
-	    if ((strcmp(frec.Name, temp1) == 0) && (strcmp(frec.LName, TIC.NewName) == 0)) {
-		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
-		sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
+	    if (strcmp(frec.Name, TIC.NewFile) == 0) {
+		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
+		sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewFile);
 		mkdirs(temp2, 0755);
 		if ((rc = file_cp(temp1, temp2))) {
 		    WriteError("Copy to %s failed: %s", temp2, strerror(rc));
@@ -112,12 +106,24 @@ int Add_BBS()
 	fclose(fdb);
     }
 
+
+    Syslog('f', "addbbs 1");
     /*
      * Create filedatabase record.
      */
     memset(&frec, 0, sizeof(frec));
-    strcpy(frec.Name, temp1);
-    strcpy(frec.LName, TIC.NewName);
+    strncpy(frec.Name, TIC.NewFile, sizeof(frec.Name) -1);
+    if (strlen(TIC.NewFullName)) {
+	strncpy(frec.LName, TIC.NewFullName, sizeof(frec.LName) -1);
+    } else {
+	/*
+	 * No LFN, fake it with a lowercase copy of the 8.3 filename.
+	 */
+	strncpy(frec.LName, TIC.NewFile, sizeof(frec.LName) -1);
+	for (i = 0; i < strlen(frec.LName); i++)
+	    frec.LName[i] = tolower(frec.LName[i]);
+    }
+    Syslog('f', "addbbs 2");
     frec.TicAreaCRC =  StringCRC32(TIC.TicIn.Area);
     frec.Size = TIC.FileSize;
     frec.Crc32 = TIC.Crc_Int;
@@ -133,8 +139,9 @@ int Add_BBS()
     if (strlen(TIC.TicIn.Magic))
 	sprintf(frec.Desc[i], "Magic Request: %s", TIC.TicIn.Magic);
 
-    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
-    sprintf(temp2, "%s/%s", TIC.BBSpath, TIC.NewName);
+    Syslog('f', "addbbs 3");
+    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
+    sprintf(temp2, "%s/%s", TIC.BBSpath, frec.Name);
     mkdirs(temp2, 0755);
 
     if ((rc = file_cp(temp1, temp2))) {
@@ -143,11 +150,12 @@ int Add_BBS()
     }
     chmod(temp2, 0644);
     lname = calloc(PATH_MAX, sizeof(char));
-    sprintf(lname, "%s/%s", TIC.BBSpath, frec.Name);
+    sprintf(lname, "%s/%s", TIC.BBSpath, frec.LName);
     if (link(temp2, lname)) {
-	WriteError("$Create link %s to %s failed", lname, temp2);
+	WriteError("$Create link %s to %s failed", temp2, lname);
     }
     free(lname);
+    Syslog('f', "addbbs 4");
 
     sprintf(fdbtemp, "%s/fdb/fdb%ld.temp", getenv("MBSE_ROOT"), tic.FileArea);
 
@@ -173,6 +181,7 @@ int Add_BBS()
 	tic_imp++;
 	return TRUE;
     }
+    Syslog('f', "addbbs 5");
 
     /*
      * There are already files in the area. We must now see at
@@ -196,6 +205,7 @@ int Add_BBS()
 	}
     } while ((!Found) && (!Done));
 
+    Syslog('f', "addbbs 6");
     if (Found) {
 	if ((fdt = fopen(fdbtemp, "a+")) == NULL) {
 	    WriteError("$Can't create %s", fdbtemp);
@@ -246,6 +256,7 @@ int Add_BBS()
 	}
 	fclose(fdt);
 	fclose(fdb);
+	Syslog('f', "addbbs 7");
 
 	/*
 	 * Now make the changes for real.
@@ -273,6 +284,7 @@ int Add_BBS()
     if ((i = file_rm(temp1)))
 	WriteError("file_rm(%s): %s", temp1, strerror(i));
 
+    Syslog('f', "addbbs 8");
     /*
      * Handle the replace option.
      */
@@ -282,10 +294,11 @@ int Add_BBS()
 	if ((fdb = fopen(fdbname, "r+")) != NULL) {
 
 	    while (fread(&file, sizeof(file), 1, fdb) == 1) {
-		if (strlen(file.LName) == strlen(TIC.NewName)) {
-		    if (strcasecmp(file.LName, TIC.NewName) != 0) {
+		if (strlen(file.LName) == strlen(frec.LName)) {
+		    // FIXME: Search must be based on a reg_exp search
+		    if (strcasecmp(file.LName, frec.LName) != 0) {
 			Found = TRUE;
-			for (i = 0; i < strlen(TIC.NewName); i++) {
+			for (i = 0; i < strlen(frec.LName); i++) {
 			    if ((TIC.TicIn.Replace[i] != '?') && (toupper(TIC.TicIn.Replace[i]) != toupper(file.LName[i])))
 				Found = FALSE;
 			}
@@ -302,33 +315,37 @@ int Add_BBS()
 	    fclose(fdb);
 	}
     }
+    Syslog('f', "addbbs 9");
 
     /*
      * Handle the Keep number of files option
      */
     if (TIC.KeepNum) {
+	Syslog('f', "AddBBS, handle KeepNum %d", TIC.KeepNum);
 	if ((fdb = fopen(fdbname, "r")) != NULL) {
 
 	    while (fread(&file, sizeof(file), 1, fdb) == 1) {
 
-		if ((strlen(file.LName) == strlen(TIC.NewName)) && (!file.Deleted)) {
+		if ((strlen(file.LName) == strlen(frec.LName)) && (!file.Deleted)) {
 		    Found = TRUE;
 
 		    for (i = 0; i < strlen(file.LName); i++) {
-			if ((TIC.NewName[i] < '0') || (TIC.NewName[i] > '9')) {
-			    if (TIC.NewName[i] != file.LName[i]) {
+			if ((frec.LName[i] < '0') || (frec.LName[i] > '9')) {
+			    if (frec.LName[i] != file.LName[i]) {
 				Found = FALSE;
 			    }
 			}
 		    }
 		    if (Found) {
 			Keep++;
+			Syslog('f', "Add \"%s\" to keeplist", file.LName);
 			fill_fdlist(&fdl, file.LName, file.UploadDate);
 		    }
 		}
 	    }
 	    fclose(fdb);
 	}
+	Syslog('f', "addbbs 10");
 
 	/*
 	 * If there are files to delete, mark them.
@@ -356,6 +373,7 @@ int Add_BBS()
 	}
 	tidy_fdlist(&fdl);
     }
+    Syslog('f', "addbbs 11");
 
     /*
      *  Now realy delete the marked files and clean the file
@@ -389,6 +407,7 @@ int Add_BBS()
 	    DidDelete = FALSE;
 	}
     }
+    Syslog('f', "addbbs 12");
 
     tic_imp++;
     return TRUE;

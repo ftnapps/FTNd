@@ -104,7 +104,7 @@ int ProcessTic(fa_list *sbl)
 	fflush(stdout);
     }
 
-    if (strlen(TIC.RealName) == 0) {
+    if (TIC.Orphaned) {
 	WriteError("File not in inbound: %s", TIC.TicIn.File);
 	/*
 	 * Now check the age of the .tic file.
@@ -123,7 +123,7 @@ int ProcessTic(fa_list *sbl)
 	return 2;
     }
 
-    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.RealName);
+    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.TicIn.File);
     crc = file_crc(Temp, CFG.slow_util && do_quiet);
     TIC.FileSize = file_size(Temp);
     TIC.FileDate = file_time(Temp);
@@ -142,7 +142,7 @@ int ProcessTic(fa_list *sbl)
 	if (crc != TIC.Crc_Int) {
 	    Syslog('!', "CRC: expected %08lX, the file is %08lX", TIC.Crc_Int, crc);
 	    if (check_crc) {
-		Bad((char *)"CRC: error, %s may be damaged", TIC.RealName);
+		Bad((char *)"CRC: error, %s may be damaged", TIC.TicIn.File);
 		free(Temp);
 		return 1;
 	    } else {
@@ -409,8 +409,8 @@ int ProcessTic(fa_list *sbl)
      * is used for this file.
      */
     if (strlen(tic.Convert) || tic.VirScan || tic.FileId || tic.ConvertAll || strlen(tic.Banner)) {
-	if ((unarc = unpacker(TIC.RealName)) == NULL)
-	    Syslog('+', "Unknown archive format %s", TIC.RealName);
+	if ((unarc = unpacker(TIC.TicIn.File)) == NULL)
+	    Syslog('+', "Unknown archive format %s", TIC.TicIn.File);
 	else {
 	    IsArchive = TRUE;
 	    if ((strlen(tic.Convert) && (strcmp(unarc, tic.Convert) == 0)) || (tic.ConvertAll))
@@ -424,8 +424,8 @@ int ProcessTic(fa_list *sbl)
      * it's a passthru area.
      */
     if (((tic.SendOrg) && (MustRearc || strlen(tic.Banner))) || (!tic.FileArea)) {
-	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
-	sprintf(temp2, "%s/%s", CFG.ticout, TIC.RealName);
+	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	sprintf(temp2, "%s/%s", CFG.ticout, TIC.TicIn.File);
 	if ((rc = file_cp(temp1, temp2) == 0)) {
 	    TIC.SendOrg = TRUE;
 	} else {
@@ -464,7 +464,7 @@ int ProcessTic(fa_list *sbl)
 	if (!unlink(temp1))
 	    Syslog('+', "Removed stale %s", temp1);
 
-	if (!checkspace(temp2, TIC.RealName, UNPACK_FACTOR)) {
+	if (!checkspace(temp2, TIC.TicIn.File, UNPACK_FACTOR)) {
 	    Bad((char *)"Not enough free diskspace left");
 	    free(Temp);
 	    tidy_qualify(&qal);
@@ -491,7 +491,7 @@ int ProcessTic(fa_list *sbl)
 	if ((cmd == NULL) || (cmd == "")) {
 	    Syslog('!', "No unarc command available");
 	} else {
-	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
+	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 		sync();
 		UnPacked = TRUE;
@@ -512,8 +512,8 @@ int ProcessTic(fa_list *sbl)
 	 * whatever that is. This should catch single files
 	 * with worms or other macro viri
 	 */
-	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
-	sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.RealName);
+	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	sprintf(temp2, "%s/tmp/arc/%s", getenv("MBSE_ROOT"), TIC.TicIn.File);
 
 	if ((rc = file_cp(temp1, temp2))) {
 	    WriteError("Can't copy %s to %s: %s", temp1, temp2, strerror(rc));
@@ -577,12 +577,12 @@ int ProcessTic(fa_list *sbl)
 		} else {
 		    sprintf(temp1, "%s/tmp", getenv("MBSE_ROOT"));
 		    chdir(temp1);
-		    sprintf(temp1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.RealName);
+		    sprintf(temp1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.TicIn.File);
 		    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			sync();
 			File_Id = TRUE;
 		    } else {
-			sprintf(temp1, "%s/%s file_id.diz", TIC.Inbound, TIC.RealName);
+			sprintf(temp1, "%s/%s file_id.diz", TIC.Inbound, TIC.TicIn.File);
 			if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
 			    sync();
 			    File_Id = TRUE;
@@ -639,16 +639,15 @@ int ProcessTic(fa_list *sbl)
 	}
     } /* not get FILE_ID.DIZ */
 
+    /*
+     * Rearc file if it is an unpacked archive.
+     */
     if ((MustRearc) && (UnPacked) && (tic.FileArea)) {
 	if (Rearc(tic.Convert)) {
-	    if (strlen(tic.Banner)) {
-		Syslog('f', "Must replace banner 1");
-	    }
-
 	    /*
 	     * Get new filesize for import and announce
 	     */
-	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewName);
+	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
 	    TIC.FileSize = file_size(temp1);
 	    T_File.Size = TIC.FileSize;
 	    T_File.SizeKb = TIC.FileSize / 1024;
@@ -661,32 +660,31 @@ int ProcessTic(fa_list *sbl)
 	} else {
 	    WriteError("Rearc failed");
 	} /* if Rearc() */
-    } else {
-	/*
-	 * If the file is not unpacked, change the banner
-	 * direct if this is needed.
-	 */
-	if ((strlen(tic.Banner)) && IsArchive) {
-	    cmd = xstrcpy(archiver.barc);
-	    if ((cmd == NULL) || (!strlen(cmd))) {
-		Syslog('!', "No banner command for %s", archiver.name);
+    }
+
+    /*
+     * Change banner if needed.
+     */
+    if ((strlen(tic.Banner)) && IsArchive) {
+	cmd = xstrcpy(archiver.barc);
+	if ((cmd == NULL) || (!strlen(cmd))) {
+	    Syslog('!', "No banner command for %s", archiver.name);
+	} else {
+	    sprintf(temp1, "%s/%s", TIC.Inbound, TIC.NewFile);
+	    sprintf(Temp, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
+	    if (execute(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
+		WriteError("$Changing the banner failed");
 	    } else {
-		sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
-		sprintf(Temp, "%s/etc/%s", getenv("MBSE_ROOT"), tic.Banner);
-		if (execute(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
-		    WriteError("$Changing the banner failed");
-		} else {
-		    sync();
-		    Syslog('+', "New banner %s", tic.Banner);
-		    TIC.FileSize = file_size(temp1);
-		    T_File.Size = TIC.FileSize;
-		    T_File.SizeKb = TIC.FileSize / 1024;
-		    ReCalcCrc(temp1);
-		    DidBanner = TRUE;
-		}
+		sync();
+		Syslog('+', "New banner %s", tic.Banner);
+		TIC.FileSize = file_size(temp1);
+		T_File.Size = TIC.FileSize;
+		T_File.SizeKb = TIC.FileSize / 1024;
+		ReCalcCrc(temp1);
+		DidBanner = TRUE;
 	    }
 	}
-    } /* if MustRearc and Unpacked and not Passthtru */
+    }
 
     DeleteVirusWork();
     chdir(TIC.Inbound);
@@ -695,7 +693,7 @@ int ProcessTic(fa_list *sbl)
      * If the file is converted, we set the date of the original
      * received file as the file creation date.
      */
-    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewName);
+    sprintf(Temp, "%s/%s", TIC.Inbound, TIC.NewFile);
     if ((MustRearc || DidBanner) && CFG.ct_KeepDate) {
 	if ((tic.Touch) && (tic.FileArea)) {
 	    ut.actime = mktime(localtime(&TIC.FileDate));
@@ -715,7 +713,7 @@ int ProcessTic(fa_list *sbl)
      */
     if (tic.FileArea) {
 
-	Syslog('+', "Import: %s Area: %s", TIC.NewName, TIC.TicIn.Area);
+	Syslog('+', "Import: %s Area: %s", TIC.NewFile, TIC.TicIn.Area);
 	BBS_Imp = Add_BBS();
 
 	if (!BBS_Imp) {
@@ -726,25 +724,32 @@ int ProcessTic(fa_list *sbl)
 	}
     }
 
+    Syslog('f', "Import is done");
     chdir(TIC.Inbound);
+    Syslog('f', "Back in inbound");
 
+    /*
+     * Create file announce record
+     */
     if (tic.FileArea) {
+	Syslog('f', "Start magic check");
 	if (strlen(TIC.TicIn.Magic))
 	    UpDateAlias(TIC.TicIn.Magic);
 	else
 	    Magic_UpDateAlias();
 
+	Syslog('f', "done");
 	for (i = 0; i <= TIC.File_Id_Ct; i++)
 	    strncpy(T_File.LDesc[i], TIC.File_Id[i], 48);
 	T_File.TotLdesc = TIC.File_Id_Ct;
 	T_File.Announce = tic.Announce;
-	sprintf(Temp, "%s", TIC.NewName);
-	name_mangle(Temp);
-	strncpy(T_File.Name, Temp, 12);
-	strncpy(T_File.LName, TIC.NewName, 80);
+	strncpy(T_File.Name, TIC.NewFile, 12);
+	strncpy(T_File.LName, TIC.NewFullName, 80);
 	T_File.Fdate = TIC.FileDate;
 	T_File.Cost = TIC.TicIn.Cost;
+	Syslog('f', "Toberep record filled");
 	Add_ToBeRep();
+	Syslog('f', "Added");
     }
 
     if (TIC.SendOrg && !tic.FileArea) {
@@ -753,11 +758,12 @@ int ProcessTic(fa_list *sbl)
 	 * file in the inbound anymore so it can be
 	 * deleted.
 	 */
-	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
+	sprintf(temp1, "%s/%s", TIC.Inbound, TIC.TicIn.File);
 	if (file_rm(temp1) == 0)
 	    Syslog('f', "Deleted %s", temp1);
     }
 
+    Syslog('f', "Prepare forward");
     if (DownLinks) {
 	First = TRUE;
 
@@ -775,9 +781,10 @@ int ProcessTic(fa_list *sbl)
 		tidy_faddr(p_from);
 	    }
 	}
+	Syslog('f', "Seen-by's added");
 
 	/*
-	 * Debugging, new style SB adding
+	 * Add seen-by lines for all systems that will receive this file.
 	 */
 	for (tmpq = qal; tmpq; tmpq = tmpq->next) {
 	    if (tmpq->send) {
@@ -790,6 +797,7 @@ int ProcessTic(fa_list *sbl)
 	}
 	uniq_list(&sbl);
 	sort_list(&sbl);
+	Syslog('f', "More added");
 
 	for (tmp = sbl; tmp; tmp = tmp->next)
 	    Syslog('f', "final SB list %s", ascfnode(tmp->addr, 0x0f));

@@ -165,13 +165,14 @@ int Tic()
 int LoadTic(char *inb, char *tfn)
 {
     FILE    *tfp;
-    char    *Temp, *Temp2, *Buf, *Log = NULL;
+    char    *Temp, *Temp2, *Buf, *Log = NULL, RealName[256];
     int	    i, j, rc, bufsize, DescCnt = FALSE;
     fa_list *sbl = NULL;
 
     if (CFG.slow_util && do_quiet)
 	usleep(1);
 
+    memset(&RealName, 0, sizeof(RealName));
     memset(&TIC, 0, sizeof(TIC));
     memset(&T_File, 0, sizeof(T_File));
 
@@ -399,7 +400,7 @@ int LoadTic(char *inb, char *tfn)
 	 */
 	sprintf(Temp, "%s/%s", TIC.TicIn.Pth, TIC.TicIn.FullName);
 	if (file_exist(Temp, R_OK) == 0) {
-	    strcpy(TIC.RealName, TIC.TicIn.FullName);
+	    strcpy(RealName, TIC.TicIn.FullName);
 	} else {
 	    WriteError("Can't find %s", Temp);
 	    tidy_falist(&sbl);
@@ -425,17 +426,17 @@ int LoadTic(char *inb, char *tfn)
 	sprintf(Temp2, "%s", TIC.TicIn.File);
 	sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 	if (file_exist(Temp, R_OK) == 0) {
-	    strcpy(TIC.RealName, Temp2);
+	    strcpy(RealName, Temp2);
 	} else {
 	    tu(Temp2);
 	    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 	    if (file_exist(Temp, R_OK) == 0) {
-		strcpy(TIC.RealName, Temp2);
+		strcpy(RealName, Temp2);
 	    } else {
 		tl(Temp2);
 		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 		if (file_exist(Temp, R_OK) == 0) {
-		    strcpy(TIC.RealName, Temp2);
+		    strcpy(RealName, Temp2);
 		}
 	    }
 	}
@@ -444,38 +445,53 @@ int LoadTic(char *inb, char *tfn)
 	 * If the above didn't find the file and we got a LFN
 	 * the search again.
 	 */
-	if (strlen(TIC.TicIn.FullName) && (strlen(TIC.RealName) == 0)) {
+	if (strlen(TIC.TicIn.FullName) && (strlen(RealName) == 0)) {
 	    sprintf(Temp2, "%s", TIC.TicIn.FullName);
 	    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 	    if (file_exist(Temp, R_OK) == 0) {
-		strcpy(TIC.RealName, Temp2);
+		strcpy(RealName, Temp2);
 	    } else {
 		tu(Temp2);
 		sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 		if (file_exist(Temp, R_OK) == 0) {
-		    strcpy(TIC.RealName, Temp2);
+		    strcpy(RealName, Temp2);
 		} else {
 		    tl(Temp2);
 		    sprintf(Temp, "%s/%s", TIC.Inbound, Temp2);
 		    if (file_exist(Temp, R_OK) == 0) {
-			strcpy(TIC.RealName, Temp2);
+			strcpy(RealName, Temp2);
 		    }
 		}
 	    }
 	}
     }
 
-    if (strlen(TIC.RealName) == 0) {
+    if (strlen(RealName) == 0) {
 	/*
 	 * We leave RealName empty, the ProcessTic function
 	 * will handle this orphaned tic file.
 	 */
+	TIC.Orphaned = TRUE;
 	WriteError("Can't find file in inbound");
     } else {
-	Syslog('f', "Real filename in inbound is \"%s\"", TIC.RealName);
+	Syslog('f', "Real filename in inbound is \"%s\"", RealName);
 	Syslog('f', "8.3 name \"%s\", LFN \"%s\"", TIC.TicIn.File, TIC.TicIn.FullName);
-	strncpy(TIC.NewName, TIC.RealName, 80);
+	if (strcmp(RealName, TIC.TicIn.File)) {
+	    /*
+	     * File in inbound has not the same name as the name on disk.
+	     * It may be a LFN but also a case difference. The whole tic
+	     * processing is based on 8.3 filenames.
+	     */
+	    sprintf(Temp, "%s/%s", TIC.Inbound, RealName);
+	    sprintf(Temp2, "%s/%s", TIC.Inbound, TIC.TicIn.File);
+	    if (rename(Temp, Temp2))
+		WriteError("$Can't rename %s to %s", Temp, Temp2);
+	    else
+		Syslog('f', "Renamed %s to %s", Temp, Temp2);
+	}
     }
+    strncpy(TIC.NewFile, TIC.TicIn.File, 80);
+    strncpy(TIC.NewFullName, TIC.TicIn.FullName, 255);
 
     free(Temp2);
     free(Temp);

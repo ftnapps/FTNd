@@ -50,51 +50,36 @@ int	Magics = 0;		/* Processed magics			    */
 char *Magic_Macro(int);
 char *Magic_Macro(int C)
 {
-	static char	buf[PATH_MAX];
+    static char	buf[PATH_MAX];
 
-	buf[0] = '\0';
-	switch(toupper(C)) {
-		case 'F':
-			sprintf(buf, "%s/%s", TIC.BBSpath, TIC.NewName);
-			break;
+    buf[0] = '\0';
+    switch(toupper(C)) {
+	case 'F':   sprintf(buf, "%s/%s", TIC.BBSpath, TIC.NewFile);
+		    break;
+	case 'P':   sprintf(buf, "%s", TIC.BBSpath);
+		    break;
+	case 'N':   sprintf(buf, "%s", strtok(strdup(TIC.NewFile), "."));
+		    break;
+	case 'E':   sprintf(buf, "%s", strrchr(TIC.NewFile, '.'));
+		    break;
+	case 'L':   sprintf(buf, "%s", strrchr(TIC.NewFile, '.'));
+		    buf[0] = buf[1];
+		    buf[1] = buf[2];
+		    buf[2] = '\0';
+		    break;
+	case 'D':   sprintf(buf, "%03d", Day_Of_Year());
+		    break;
+	case 'C':   sprintf(buf, "%03d", Day_Of_Year());
+		    buf[0] = buf[1];
+		    buf[1] = buf[2];
+		    buf[2] = '\0';
+		    break;
+	case 'A':   sprintf(buf, "%s", TIC.TicIn.Area);
+		    break;
+    }
 
-		case 'P':
-			sprintf(buf, "%s", TIC.BBSpath);
-			break;
-
-		case 'N':
-			sprintf(buf, "%s", strtok(strdup(TIC.NewName), "."));
-			break;
-
-		case 'E':
-			sprintf(buf, "%s", strrchr(TIC.NewName, '.'));
-			break;
-
-		case 'L':
-			sprintf(buf, "%s", strrchr(TIC.NewName, '.'));
-			buf[0] = buf[1];
-			buf[1] = buf[2];
-			buf[2] = '\0';
-			break;
-
-		case 'D':
-			sprintf(buf, "%03d", Day_Of_Year());
-			break;
-
-		case 'C':
-			sprintf(buf, "%03d", Day_Of_Year());
-			buf[0] = buf[1];
-			buf[1] = buf[2];
-			buf[2] = '\0';
-			break;
-
-		case 'A':
-			sprintf(buf, "%s", TIC.TicIn.Area);
-			break;
-	}
-
-	Syslog('f', "Mgc Macro(%c): \"%s\"", C, buf);
-	return buf;
+    Syslog('f', "Mgc Macro(%c): \"%s\"", C, buf);
+    return buf;
 }
 
 
@@ -154,7 +139,7 @@ int GetMagicRec(int Typ, int First)
 		*q = '\0';
 
 		if ((re_comp(mask)) == NULL) {
-		    if (re_exec(TIC.NewName)) {
+		    if (re_exec(TIC.NewFile)) {
 			fclose(FeM);
 			free(temp);
 			return TRUE;
@@ -179,18 +164,18 @@ int GetMagicRec(int Typ, int First)
 
 void MagicResult(char *format, ...)
 {
-	char	*outputstr;
-	va_list	va_ptr;
+    char    *outputstr;
+    va_list va_ptr;
 
-	outputstr = calloc(1024, sizeof(char));
+    outputstr = calloc(1024, sizeof(char));
 
-	va_start(va_ptr, format);
-	vsprintf(outputstr, format, va_ptr);
-	va_end(va_ptr);
+    va_start(va_ptr, format);
+    vsprintf(outputstr, format, va_ptr);
+    va_end(va_ptr);
 
-	Syslog('+', "Magic: %s", outputstr);
-	free(outputstr);
-	Magics++;
+    Syslog('+', "Magic: %s", outputstr);
+    free(outputstr);
+    Magics++;
 }
 
 
@@ -198,96 +183,94 @@ void MagicResult(char *format, ...)
 void Magic_CheckCompile(void);
 void Magic_CheckCompile(void)
 {
-	if (magic.Compile) {
-		CompileNL = TRUE;
-		Syslog('+', "Magic: Trigger Compile Nodelists");
-	}
+    if (magic.Compile) {
+	CompileNL = TRUE;
+	Syslog('+', "Magic: Trigger Compile Nodelists");
+    }
 }
 
 
 
 int Magic_MoveFile(void)
 {
-	if (GetMagicRec(MG_MOVE, TRUE)) {
-		strcpy(TIC.TicIn.Area, magic.ToArea);
-		MagicResult((char *)"Move %s to Area %s", TIC.RealName, TIC.TicIn.Area);
-		return TRUE;	
-	} else
-		return FALSE;
+    if (GetMagicRec(MG_MOVE, TRUE)) {
+	strcpy(TIC.TicIn.Area, magic.ToArea);
+	MagicResult((char *)"Move %s to Area %s", TIC.NewFile, TIC.TicIn.Area);
+	return TRUE;	
+    } else
+	return FALSE;
 }
 
 
 
 void Magic_ExecCommand(void)
 {
-	int	i, j, k, Err, First = TRUE;
-	char	Line[256];
-	char	Temp[PATH_MAX];
-	char	*cmd, *opts;
+    int	    i, j, k, Err, First = TRUE;
+    char    Line[256], Temp[PATH_MAX], *cmd, *opts;
 
-	while (GetMagicRec(MG_EXEC, First)) {
-		First = FALSE;
-		j = 0;
-		memset(&Line, 0, sizeof(Line));
-		for (i = 0; i < strlen(magic.Cmd); i++) {
-			if (magic.Cmd[i] != '%') {
-				Line[j] = magic.Cmd[i];
-				j++;
-			} else {
-				i++;
-				if (magic.Cmd[i] == '%') {
-					Line[j] = '%';
-					j++;
-				} else {
-					Temp[0] = '\0';
-					sprintf(Temp, "%s", Magic_Macro(magic.Cmd[i]));
-					for (k = 0; k < strlen(Temp); k++) {
-						Line[j] = Temp[k];
-						j++;
-					}
-				}
-			}
+    while (GetMagicRec(MG_EXEC, First)) {
+	First = FALSE;
+	j = 0;
+	memset(&Line, 0, sizeof(Line));
+	for (i = 0; i < strlen(magic.Cmd); i++) {
+	    if (magic.Cmd[i] != '%') {
+		Line[j] = magic.Cmd[i];
+		j++;
+	    } else {
+		i++;
+		if (magic.Cmd[i] == '%') {
+		    Line[j] = '%';
+		    j++;
+		} else {
+		    Temp[0] = '\0';
+		    sprintf(Temp, "%s", Magic_Macro(magic.Cmd[i]));
+		    for (k = 0; k < strlen(Temp); k++) {
+			Line[j] = Temp[k];
+			j++;
+		    }
 		}
-
-		cmd = xstrcpy(getenv("MBSE_ROOT"));
-		cmd = xstrcat(cmd, (char *)"/bin/");
-		cmd = xstrcat(cmd, strtok(Line, " "));
-		opts = strtok(NULL, "\0");
-		MagicResult((char *)"Exec: \"%s %s\"", cmd, opts);
-	
-		if ((Err = execute(cmd, opts, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) == 0) {
-			Magics++;
-		} else
-			Syslog('!', "Mgc Exec: (%s %s) returns %d", cmd, opts, Err);
-
-		Magic_CheckCompile();
+	    }
 	}
+
+	cmd = xstrcpy(getenv("MBSE_ROOT"));
+	cmd = xstrcat(cmd, (char *)"/bin/");
+	cmd = xstrcat(cmd, strtok(Line, " "));
+	opts = strtok(NULL, "\0");
+	MagicResult((char *)"Exec: \"%s %s\"", cmd, opts);
+	
+	if ((Err = execute(cmd, opts, NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null")) == 0) {
+	    Magics++;
+	} else
+	    Syslog('!', "Mgc Exec: (%s %s) returns %d", cmd, opts, Err);
+
+	Magic_CheckCompile();
+    }
 }
 
 
 
 void Magic_CopyFile(void)
 {
-	int	First = TRUE, rc;
-	char	*From, *To;
+    int	    First = TRUE, rc;
+    char    *From, *To;
 
-	From = calloc(PATH_MAX, sizeof(char));
-	To   = calloc(PATH_MAX, sizeof(char));
+    From = calloc(PATH_MAX, sizeof(char));
+    To   = calloc(PATH_MAX, sizeof(char));
 
-	while (GetMagicRec(MG_COPY, First)) {
-		First = FALSE;
-		sprintf(From, "%s/%s", TIC.BBSpath, TIC.NewName);
-		sprintf(To, "%s/%s", magic.Path, TIC.NewName);
+    while (GetMagicRec(MG_COPY, First)) {
+	First = FALSE;
+	sprintf(From, "%s/%s", TIC.BBSpath, TIC.NewFile);
+	sprintf(To, "%s/%s", magic.Path, TIC.NewFile);
 
-		if ((rc = file_cp(From, To) == 0)) {
-			MagicResult((char *)"%s copied to %s", From, To);
-			Magic_CheckCompile();
-		} else
-			WriteError("Magic: copy: %s to %s failed, %s", strerror(rc));
-	}
+	if ((rc = file_cp(From, To) == 0)) {
+	    MagicResult((char *)"%s copied to %s", From, To);
+	    Magic_CheckCompile();
+	} else
+	    WriteError("Magic: copy: %s to %s failed, %s", strerror(rc));
+    }
 
-	free(From);
-	free(To);
+    free(From);
+    free(To);
 }
 
 
@@ -304,7 +287,7 @@ void Magic_UnpackFile(void)
 	getcwd(buf, 128);
 
 	if (chdir(magic.Path) == 0) {
-	    sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewName);
+	    sprintf(Fn, "%s/%s", TIC.BBSpath, TIC.NewFile);
 	    if ((unarc = unpacker(Fn)) != NULL) {
 		if (getarchiver(unarc)) {
 		    cmd = xstrcpy(archiver.funarc);
@@ -334,78 +317,80 @@ void Magic_UnpackFile(void)
 
 void Magic_Keepnum(void)
 {
-	if (GetMagicRec(MG_KEEPNUM, TRUE)) {
-		TIC.KeepNum = magic.KeepNum;
-		MagicResult((char *)"Keep %d files", TIC.KeepNum);
-	}
+    if (GetMagicRec(MG_KEEPNUM, TRUE)) {
+	TIC.KeepNum = magic.KeepNum;
+	MagicResult((char *)"Keep %d files", TIC.KeepNum);
+    }
 }
 
 
 
 void Magic_UpDateAlias(void)
 {
-	if (GetMagicRec(MG_UPDALIAS, TRUE)) {
-		UpDateAlias(TIC.TicIn.Area);
-		MagicResult((char *)"Update Alias");
-	}
+    if (GetMagicRec(MG_UPDALIAS, TRUE)) {
+	UpDateAlias(TIC.TicIn.Area);
+	MagicResult((char *)"Update Alias");
+    }
 }
 
 
 
 void Magic_AdoptFile(void)
 {
-	int	First = TRUE;
-	char	*temp;
-	FILE	*Tf;
+    int	    First = TRUE;
+    char    *temp;
+    FILE    *Tf;
 
-	temp = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
 
-	while (GetMagicRec(MG_ADOPT, First)) {
-		First = FALSE;
+    while (GetMagicRec(MG_ADOPT, First)) {
+	First = FALSE;
 
-		if (SearchTic(magic.ToArea)) {
-			MagicResult((char *)"Adoptfile in %s", magic.ToArea);
+	if (SearchTic(magic.ToArea)) {
+	    MagicResult((char *)"Adoptfile in %s", magic.ToArea);
 
-			sprintf(temp, "%s/%s", TIC.Inbound, MakeTicName());
-			if ((Tf = fopen(temp, "a+")) == NULL)
-				WriteError("$Can't create %s", temp);
-			else {
-				fprintf(Tf, "Hatch\r\n");
-				fprintf(Tf, "NoMove\r\n");
-				fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
-				fprintf(Tf, "Area %s\r\n", magic.ToArea);
-				fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));
-				fprintf(Tf, "From %s\r\n", aka2str(tic.Aka));
-				if (strlen(TIC.TicIn.Replace))
-					fprintf(Tf, "Replaces %s\r\n", TIC.TicIn.Replace);
-				if (strlen(TIC.TicIn.Magic))
-					fprintf(Tf, "Magic %s\r\n", TIC.TicIn.Magic);
-				fprintf(Tf, "File %s\r\n", TIC.NewName);
-				fprintf(Tf, "Pth %s\r\n", TIC.BBSpath);
-				fprintf(Tf, "Desc %s\r\n", TIC.TicIn.Desc);
-				fprintf(Tf, "Crc %s\r\n", TIC.TicIn.Crc);
-				fprintf(Tf, "Pw %s\r\n", CFG.hatchpasswd);
-				fclose(Tf);
-			}
+	    sprintf(temp, "%s/%s", TIC.Inbound, MakeTicName());
+	    if ((Tf = fopen(temp, "a+")) == NULL)
+		WriteError("$Can't create %s", temp);
+	    else {
+		fprintf(Tf, "Hatch\r\n");
+		fprintf(Tf, "NoMove\r\n");
+		fprintf(Tf, "Created MBSE BBS v%s, %s\r\n", VERSION, SHORTRIGHT);
+		fprintf(Tf, "Area %s\r\n", magic.ToArea);
+		fprintf(Tf, "Origin %s\r\n", aka2str(tic.Aka));
+		fprintf(Tf, "From %s\r\n", aka2str(tic.Aka));
+		if (strlen(TIC.TicIn.Replace))
+		    fprintf(Tf, "Replaces %s\r\n", TIC.TicIn.Replace);
+		if (strlen(TIC.TicIn.Magic))
+		    fprintf(Tf, "Magic %s\r\n", TIC.TicIn.Magic);
+		fprintf(Tf, "File %s\r\n", TIC.NewFile);
+		if (strlen(TIC.NewFullName))
+		    fprintf(Tf, "Fullname %s\r\n", TIC.NewFullName);
+		fprintf(Tf, "Pth %s\r\n", TIC.BBSpath);
+		fprintf(Tf, "Desc %s\r\n", TIC.TicIn.Desc);
+		fprintf(Tf, "Crc %s\r\n", TIC.TicIn.Crc);
+		fprintf(Tf, "Pw %s\r\n", CFG.hatchpasswd);
+		fclose(Tf);
+	    }
 
-			SearchTic(TIC.TicIn.Area);
-		} else
-			WriteError("Mgc Adopt: Area \"%s\" not found");
-	}
+	    SearchTic(TIC.TicIn.Area);
+	} else
+	    WriteError("Mgc Adopt: Area \"%s\" not found");
+    }
 
-	free(temp);
+    free(temp);
 }
 
 
 
 int Magic_DeleteFile(void)
 {
-	int	Result;
+    int	Result;
 
-	if ((Result = GetMagicRec(MG_DELETE, TRUE)))
-		MagicResult((char *)"Delete file");
+    if ((Result = GetMagicRec(MG_DELETE, TRUE)))
+	MagicResult((char *)"Delete file");
 
-	return Result;
+    return Result;
 }
 
 

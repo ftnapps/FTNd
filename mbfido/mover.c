@@ -43,25 +43,26 @@
 
 void mover(char *fn)
 {
-	char	*From, *To;
-	int	rc;
+    char	*From, *To;
+    int	rc;
 
-	From = calloc(PATH_MAX, sizeof(char));
-	To   = calloc(PATH_MAX, sizeof(char));
+    From = calloc(PATH_MAX, sizeof(char));
+    To   = calloc(PATH_MAX, sizeof(char));
 
-	sprintf(From, "%s/%s", TIC.Inbound, fn);
-	sprintf(To,   "%s/%s", CFG.badtic, fn);
-	Syslog('!', "Moving %s to %s", From, To);
+    sprintf(From, "%s/%s", TIC.Inbound, fn);
+    sprintf(To,   "%s/%s", CFG.badtic, fn);
+    Syslog('!', "Moving %s to %s", From, To);
 
-	if (mkdirs(To, 0770)) {
-		if ((rc = file_mv(From, To)))
-			WriteError("$Failed to move %s to %s: %s", From, To, strerror(rc));
-	} else {
-		WriteError("$Can't create directory for %s", To);
+    if (mkdirs(To, 0770)) {
+	if ((rc = file_mv(From, To))) {
+	    WriteError("$Failed to move %s to %s: %s", From, To, strerror(rc));
 	}
+    } else {
+	WriteError("$Can't create directory for %s", To);
+    }
 
-	free(From);
-	free(To);
+    free(From);
+    free(To);
 }
 
 
@@ -71,8 +72,8 @@ void mover(char *fn)
  */
 void MoveBad()
 {
-	mover(TIC.TicName);
-	mover(TIC.RealName);
+    mover(TIC.TicName);
+    mover(TIC.NewFile);
 }
 
 

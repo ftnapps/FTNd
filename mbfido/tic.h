@@ -39,8 +39,8 @@ typedef	struct	_TICrec {
 	Tic_in		TicIn;			/* Original TIC record	    */
 	fidoaddr	OrgAka;			/* Origin address	    */
 	fidoaddr	Aka;			/* An address ?		    */
-	char		NewName[81];		/* New name of file	    */
-	char		RealName[81];		/* Real name on disk	    */
+	char		NewFile[81];		/* New 8.3 filename	    */
+	char		NewFullName[256];	/* New LFN name		    */
 	char		File_Id[25][49];	/* Description		    */
 	int		File_Id_Ct;		/* Nr of lines		    */
 	unsigned long	Crc_Int;		/* Crc value		    */
@@ -52,6 +52,7 @@ typedef	struct	_TICrec {
 	unsigned	Charge		: 1;	/* Charge for this file	    */
 	unsigned	PassThru	: 1;	/* PassThru file	    */
 	unsigned	NewAlias	: 1;	/* New alias is set	    */
+	unsigned	Orphaned	: 1;	/* File is Orphaned	    */
 	long		FileCost;		/* Cost for this file	    */
 	char		BBSpath[PATH_MAX];	/* Path to import in	    */
 	char		BBSdesc[55];		/* Area description	    */
