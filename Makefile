@@ -5,7 +5,8 @@ include Makefile.global
 
 OTHER		= AUTHORS ChangeLog COPYING DEBUG CRON.sh FILE_ID.DIZ.in \
 		  INSTALL.in MBSE.FAQ Makefile Makefile.global.in NEWS \
-		  README README.GoldED SETUP.sh TODO UPGRADE aclocal.m4 \
+		  README README.GoldED README.isdn SETUP.sh TODO UPGRADE \
+		  aclocal.m4 \
 		  checkbasic config.h.in configure configure.in files.css
 TARFILE		= ${PACKAGE}-${VERSION}.tar.gz
 
