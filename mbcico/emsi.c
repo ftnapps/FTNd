@@ -271,196 +271,222 @@ int tx_emsi(char *data)
 
 SM_DECL(rxemsi,(char *)"rxemsi")
 SM_STATES
-	waitpkt,
-	waitchar,
-	checkemsi,
-	getdat,
-	checkpkt,
-	checkdat,
-	sendnak,
-	sendack
+    init,
+    waitpkt,
+    waitchar,
+    checkemsi,
+    getdat,
+    checkpkt,
+    checkdat,
+    sendnak,
+    sendack
 SM_NAMES
-	(char *)"waitpkt",
-	(char *)"waitchar",
-	(char *)"checkemsi",
-	(char *)"getdat",
-	(char *)"checkpkt",
-	(char *)"checkdat",
-	(char *)"sendnak",
-	(char *)"sendack"
+    (char *)"init",
+    (char *)"waitpkt",
+    (char *)"waitchar",
+    (char *)"checkemsi",
+    (char *)"getdat",
+    (char *)"checkpkt",
+    (char *)"checkdat",
+    (char *)"sendnak",
+    (char *)"sendack"
 SM_EDECL
 
-	int		c = 0;
-	unsigned short	lcrc, rcrc;
-	int		len;
-	int		standby = 0, tries = 0;
-	char		buf[13], *p;
-	char		*databuf = NULL;
+    int		    c = 0;
+    unsigned short  lcrc, rcrc;
+    int		    len;
+    int		    standby = 0, tries = 0;
+    char	    buf[13], *p;
+    char	    *databuf = NULL;
 
-	p = buf;
-	databuf = xstrcpy(intro);
+    p = buf;
+    databuf = xstrcpy(intro);
 
-SM_START(checkpkt)
-	Syslog('i', "RXEMSI: start");
+SM_START(init)
+
+SM_STATE(init)
+    
+    Syslog('i', "RXEMSI: init");
+    RESETTIMERS();
+    SETTIMER(0, 60);
+    SETTIMER(1, 20);
+    SM_PROCEED(checkpkt);
 
 SM_STATE(waitpkt)
 
-	standby = 0;
-	SM_PROCEED(waitchar);
+    Syslog('i', "RXEMSI: waitpkt");
+    standby = 0;
+    SETTIMER(1, 20);
+    SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
-	c = GETCHAR(5);
-	if (c == TIMEOUT) {
-		if (++tries > 9) {
-			Syslog('+', "Too many tries waiting EMSI handshake");
-			SM_ERROR;
-		} else {
-			SM_PROCEED(sendnak);
-		}
-	} else if (c < 0) {
-		SM_ERROR;
-	} else if ((c >= ' ') && (c <= '~')) {
-		if (c == '*') {
-			standby = 1;
-			p = buf;
-			*p = '\0';
-		} else if (standby) {
-			if ((p - buf) < (sizeof(buf) - 1)) {
-				*p++ = c;
-				*p = '\0';
-			} if ((p - buf) >= (sizeof(buf) - 1)) {
-				standby = 0;
-				SM_PROCEED(checkemsi);
-			}
-		}
-	} else switch(c) {
-		case DC1:	break;
-		case '\n':
-		case '\r':	standby = 0;
-				break;
-		default:	standby = 0;
-				break;
-	}
+    Syslog('i', "RXEMSI: waitchar, tries=%d", tries);
 
+    if (EXPIRED(0)) {
+	Syslog('+', "EMSI receive 60 seconds timeout");
+	SM_ERROR;
+    }
+
+    if (EXPIRED(1)) {
+	Syslog('s', "20 sec timeout");
+	SM_PROCEED(sendnak);
+    }
+
+    c = GETCHAR(1);
+    if (c == TIMEOUT) {
 	SM_PROCEED(waitchar);
+    } else if (c < 0) {
+	SM_ERROR;
+    } else if ((c >= ' ') && (c <= '~')) {
+	if (c == '*') {
+	    standby = 1;
+	    p = buf;
+	    *p = '\0';
+	} else if (standby) {
+	    if ((p - buf) < (sizeof(buf) - 1)) {
+		*p++ = c;
+		*p = '\0';
+	    } if ((p - buf) >= (sizeof(buf) - 1)) {
+		standby = 0;
+		SM_PROCEED(checkemsi);
+	    }
+	}
+    } else {
+	switch(c) {
+	    case DC1:	break;
+	    case '\n':
+	    case '\r':	standby = 0;
+			break;
+	    default:	standby = 0;
+			break;
+	}
+    }
+    SM_PROCEED(waitchar);
 
 SM_STATE(checkemsi)
 
-	Syslog('i', "RXEMSI: rcvd %s", printable(buf, 0));
+    Syslog('i', "RXEMSI: rcvd %s", printable(buf, 0));
 
-	if (strncasecmp(buf, "EMSI_DAT",8) == 0) {
-		SM_PROCEED(getdat);
-	} else if (strncasecmp(buf, "EMSI_",5) == 0) {
-		if (databuf) 
-			free(databuf);
-		databuf = xstrcpy(buf);
-		SM_PROCEED(checkpkt);
-	} else {
-		SM_PROCEED(waitpkt);
-	}
+    if (strncasecmp(buf, "EMSI_DAT",8) == 0) {
+	SM_PROCEED(getdat);
+    } else if (strncasecmp(buf, "EMSI_",5) == 0) {
+	if (databuf) 
+	    free(databuf);
+	databuf = xstrcpy(buf);
+	SM_PROCEED(checkpkt);
+    } else {
+	SM_PROCEED(waitpkt);
+    }
 
 SM_STATE(getdat)
 
-	if (sscanf(buf+8,"%04x",&len) != 1) {
-		SM_PROCEED(sendnak);
-	}
+    if (sscanf(buf+8,"%04x",&len) != 1) {
+	SM_PROCEED(sendnak);
+    }
 
-	len += 16; /* strlen("EMSI_DATxxxxyyyy"), include CRC */
-	if (databuf) 
-		free(databuf);
-	databuf = malloc(len + 1);
-	strcpy(databuf, buf);
-	p = databuf + strlen(databuf);
+    len += 16; /* strlen("EMSI_DATxxxxyyyy"), include CRC */
+    if (databuf) 
+	free(databuf);
+    databuf = malloc(len + 1);
+    strcpy(databuf, buf);
+    p = databuf + strlen(databuf);
 
-	while (((p-databuf) < len) && ((c=GETCHAR(8)) >= 0)) {
-		*p++ = c;
-		*p = '\0';
-	}
+    while (((p-databuf) < len) && ((c=GETCHAR(8)) >= 0)) {
+	*p++ = c;
+	*p = '\0';
+    }
 
-	Syslog('i', "RXEMSI: rcvd %s (%d bytes)", databuf, len);
+    Syslog('i', "RXEMSI: rcvd %s (%d bytes)", databuf, len);
 
-	if (c == TIMEOUT) {
-		SM_PROCEED(sendnak);
-	} else if (c < 0) {
-		Syslog('+', "Error while reading EMSI_DAT packet");
-		SM_ERROR;
-	}
+    if (c == TIMEOUT) {
+	SM_PROCEED(sendnak);
+    } else if (c < 0) {
+	Syslog('+', "Error while reading EMSI_DAT packet");
+	SM_ERROR;
+    }
 
-	SM_PROCEED(checkdat);
+    SM_PROCEED(checkdat);
 
 SM_STATE(checkpkt)
 
-	if (strncasecmp(databuf,"EMSI_DAT",8) == 0) {
-		SM_PROCEED(checkdat);
-	}
+    Syslog('i', "RXEMSI: checkpkt");
 
-	lcrc = crc16xmodem(databuf, 8);
-	sscanf(databuf + 8, "%04hx", &rcrc);
-	if (lcrc != rcrc) {
-		Syslog('+', "Got EMSI packet \"%s\" with bad crc: %04x/%04x", printable(databuf, 0), lcrc, rcrc);
-		SM_PROCEED(sendnak);
-	} if (strncasecmp(databuf, "EMSI_HBT", 8) == 0) {
-		tries = 0;
-		SM_PROCEED(waitpkt);
-	} else if (strncasecmp(databuf, "EMSI_INQ", 8) == 0) {
-		SM_PROCEED(sendnak);
-	} else {
-		SM_PROCEED(waitpkt);
-	}
+    if (strncasecmp(databuf,"EMSI_DAT",8) == 0) {
+	SM_PROCEED(checkdat);
+    }
+
+    lcrc = crc16xmodem(databuf, 8);
+    sscanf(databuf + 8, "%04hx", &rcrc);
+    if (lcrc != rcrc) {
+	Syslog('+', "Got EMSI packet \"%s\" with bad crc: %04x/%04x", printable(databuf, 0), lcrc, rcrc);
+	SM_PROCEED(sendnak);
+    } if (strncasecmp(databuf, "EMSI_HBT", 8) == 0) {
+	tries = 0;
+	SM_PROCEED(waitpkt);
+    } else if (strncasecmp(databuf, "EMSI_INQ", 8) == 0) {
+	SM_PROCEED(sendnak);
+    } else {
+	SM_PROCEED(waitpkt);
+    }
 
 SM_STATE(checkdat)
 
-	sscanf(databuf + 8, "%04x", &len);
-	if (len != (strlen(databuf) - 16)) {
-		Syslog('+', "Bad EMSI_DAT length: %d/%d", len, strlen(databuf));
-		SM_PROCEED(sendnak);
-	}
-	/* Some FD versions send length of the packet including the
-	   trailing CR.  Arrrgh!  Dirty overwork follows: */
-	if (*(p = databuf + strlen(databuf) - 1) == '\r') 
-		*p='\0';
-	sscanf(databuf + strlen(databuf) - 4, "%04hx", &rcrc);
-	*(databuf + strlen(databuf) - 4) = '\0';
-	lcrc = crc16xmodem(databuf, strlen(databuf));
-	if (lcrc != rcrc) {
-		Syslog('+', "Got EMSI_DAT packet \"%s\" with bad crc: %04x/%04x", printable(databuf, 0), lcrc, rcrc);
-		SM_PROCEED(sendnak);
-	} if (scanemsidat(databuf + 12) == 0) {
-		SM_PROCEED(sendack);
-	} else {
-		Syslog('+', "Could not parse EMSI_DAT packet \"%s\"",databuf);
-		SM_ERROR;
-	}
+    sscanf(databuf + 8, "%04x", &len);
+    if (len != (strlen(databuf) - 16)) {
+	Syslog('+', "Bad EMSI_DAT length: %d/%d", len, strlen(databuf));
+	SM_PROCEED(sendnak);
+    }
+    /* Some FD versions send length of the packet including the
+       trailing CR.  Arrrgh!  Dirty overwork follows: */
+    if (*(p = databuf + strlen(databuf) - 1) == '\r') 
+	*p='\0';
+    sscanf(databuf + strlen(databuf) - 4, "%04hx", &rcrc);
+    *(databuf + strlen(databuf) - 4) = '\0';
+    lcrc = crc16xmodem(databuf, strlen(databuf));
+    if (lcrc != rcrc) {
+	Syslog('+', "Got EMSI_DAT packet \"%s\" with bad crc: %04x/%04x", printable(databuf, 0), lcrc, rcrc);
+	SM_PROCEED(sendnak);
+    } if (scanemsidat(databuf + 12) == 0) {
+	SM_PROCEED(sendack);
+    } else {
+	Syslog('+', "Could not parse EMSI_DAT packet \"%s\"",databuf);
+	SM_ERROR;
+    }
 
 SM_STATE(sendnak)
 
-	if (++tries > 9) {
-		Syslog('+', "Too many tries getting EMSI_DAT");
-		SM_ERROR;
-	} if (caller) {
-		PUTSTR((char *)"**EMSI_NAKEEC3\r\021");
-		Syslog('i', "RXEMSI: send **EMSI_NAKEEC3");
-	} else {
-		PUTSTR((char *)"**EMSI_REQA77E\r\021");
-		Syslog('i', "RXEMSI: send **EMSI_REQA77E");
-		if (tries > 1) {
-			PUTSTR((char *)"**EMSI_NAKEEC3\r\021");
-			Syslog('i', "RXEMSI: send **EMSI_NAKEEC3");
-		}
+    /*
+     * The FSC-0059 says 6 attempts, but to accept maindoor sessions
+     * we seem to need about 11, we set it to 20 since we also have
+     * a global 60 seconds timer running.
+     */
+    if (++tries > 19) {
+	Syslog('+', "Too many tries getting EMSI_DAT");
+	SM_ERROR;
+    } if (caller) {
+	PUTSTR((char *)"**EMSI_NAKEEC3\r\021");
+	Syslog('i', "RXEMSI: send **EMSI_NAKEEC3");
+    } else {
+	PUTSTR((char *)"**EMSI_REQA77E\r\021");
+	Syslog('i', "RXEMSI: send **EMSI_REQA77E");
+	if (tries > 1) {
+	    PUTSTR((char *)"**EMSI_NAKEEC3\r\021");
+	    Syslog('i', "RXEMSI: send **EMSI_NAKEEC3");
 	}
-	SM_PROCEED(waitpkt);
+    }
+    SM_PROCEED(waitpkt);
 
 SM_STATE(sendack)
 
-	Syslog('i', "RXEMSI: send **EMSI_ACKA490 (2 times)"); 
-	PUTSTR((char *)"**EMSI_ACKA490\r\021");
-	PUTSTR((char *)"**EMSI_ACKA490\r\021");
-	SM_SUCCESS;
+    Syslog('i', "RXEMSI: send **EMSI_ACKA490 (2 times)"); 
+    PUTSTR((char *)"**EMSI_ACKA490\r\021");
+    PUTSTR((char *)"**EMSI_ACKA490\r\021");
+    SM_SUCCESS;
 
 SM_END
-	Syslog('i', "RXEMSI: end");
-	free(databuf);
+    Syslog('i', "RXEMSI: end");
+    free(databuf);
 
 SM_RETURN
 
@@ -469,117 +495,132 @@ SM_RETURN
 
 SM_DECL(txemsi,(char *)"txemsi")
 SM_STATES
-	senddata,
-	waitpkt,
-	waitchar,
-	checkpkt,
-	sendack
+    senddata,
+    waitpkt,
+    waitchar,
+    checkpkt,
+    sendack
 SM_NAMES
-	(char *)"senddata",
-	(char *)"waitpkt",
-	(char *)"waitchar",
-	(char *)"checkpkt",
-	(char *)"sendack"
+    (char *)"senddata",
+    (char *)"waitpkt",
+    (char *)"waitchar",
+    (char *)"checkpkt",
+    (char *)"sendack"
 SM_EDECL
 
-	int		c;
-	unsigned short	lcrc, rcrc;
-	int		standby = 0, tries = 0;
-	char		buf[13], *p;
-	char		trailer[8];
+    int		    c;
+    unsigned short  lcrc, rcrc;
+    int		    standby = 0, tries = 0;
+    char	    buf[13], *p;
+    char	    trailer[8];
 
-	p = buf;
-	memset(&buf, 0, sizeof(buf));
-	strncpy(buf, intro, sizeof(buf) - 1);
+    p = buf;
+    memset(&buf, 0, sizeof(buf));
+    strncpy(buf, intro, sizeof(buf) - 1);
+    RESETTIMERS();
+    SETTIMER(0, 60);
+    Syslog('i', "TXEMSI: 60 seconds timer set");
 
 SM_START(senddata)
-	Syslog('i', "TXEMSI: start");
+    Syslog('i', "TXEMSI: start");
 
 SM_STATE(senddata)
 
-	p = mkemsidat(caller);
-	PUTCHAR('*');
-	PUTCHAR('*');
-	PUTSTR(p);
-	sprintf(trailer, "%04X\r\021", crc16xmodem(p, strlen(p)));
-	PUTSTR(trailer);
-	Syslog('i', "TXEMSI: send **%s%04X", p, crc16xmodem(p, strlen(p)));
-	free(p);
-	SM_PROCEED(waitpkt);
+    p = mkemsidat(caller);
+    PUTCHAR('*');
+    PUTCHAR('*');
+    PUTSTR(p);
+    sprintf(trailer, "%04X\r\021", crc16xmodem(p, strlen(p)));
+    PUTSTR(trailer);
+    Syslog('i', "TXEMSI: send **%s%04X", p, crc16xmodem(p, strlen(p)));
+    free(p);
+    SETTIMER(1, 20);
+    SM_PROCEED(waitpkt);
 
 SM_STATE(waitpkt)
 
-	standby = 0;
-	SM_PROCEED(waitchar);
+    standby = 0;
+    SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
-	c = GETCHAR(8);
-	if (c == TIMEOUT) {
-		if (++tries > 9) {
-			Syslog('+', "too many tries sending EMSI");
-			SM_ERROR;
-		} else {
-			SM_PROCEED(senddata);
-		}
-	} else if (c < 0) {
-		SM_ERROR;
-	} else if ((c >= ' ') && (c <= '~')) {
-		if (c == '*') {
-			standby = 1;
-			p = buf;
-			*p = '\0';
-		} else if (standby) {
-			if ((p - buf) < (sizeof(buf) - 1)) {
-				*p++ = c;
-				*p = '\0';
-			} if ((p - buf) >= (sizeof(buf) - 1)) {
-				standby = 0;
-				SM_PROCEED(checkpkt);
-			}
-		}
-	} else switch(c) {
-		case DC1:	SM_PROCEED(waitchar);
-				break;
-		case '\n':
-		case '\r':	standby = 0;
-				break;
-		default:	standby = 0;
-				break;
+    if (EXPIRED(0)) {
+	Syslog('+', "EMSI transmit 60 seconds timeout");
+	SM_ERROR;
+    }
+
+    if (EXPIRED(1)) {
+	Syslog('i', "TXEMSI: 20 seconds timeout");
+	if (++tries > 19) {
+	    Syslog('+', "too many tries sending EMSI");
+	    SM_ERROR;
+	} else {
+	    SM_PROCEED(senddata);
 	}
+    }
+
+    c = GETCHAR(1);
+    if (c == TIMEOUT) {
 	SM_PROCEED(waitchar);
+    } else if (c < 0) {
+	SM_ERROR;
+    } else if ((c >= ' ') && (c <= '~')) {
+	if (c == '*') {
+	    standby = 1;
+	    p = buf;
+	    *p = '\0';
+	} else if (standby) {
+	    if ((p - buf) < (sizeof(buf) - 1)) {
+		*p++ = c;
+		*p = '\0';
+	    } if ((p - buf) >= (sizeof(buf) - 1)) {
+		standby = 0;
+		SM_PROCEED(checkpkt);
+	    }
+	}
+    } else 
+	switch(c) {
+	    case DC1:	SM_PROCEED(waitchar);
+				break;
+	    case '\n':
+	    case '\r':	standby = 0;
+				break;
+	    default:	standby = 0;
+				break;
+    }
+    SM_PROCEED(waitchar);
 
 SM_STATE(checkpkt)
 
-	Syslog('i', "TXEMSI: rcvd %s", buf);
-	if (strncasecmp(buf, "EMSI_DAT", 8) == 0) {
-		SM_PROCEED(sendack);
-	} else if (strncasecmp(buf, "EMSI_", 5) == 0) {
-		lcrc = crc16xmodem(buf, 8);
-		sscanf(buf + 8, "%04hx", &rcrc);
-		if (lcrc != rcrc) {
-			Syslog('+', "Got EMSI packet \"%s\" with bad crc: %04x/%04x", printable(buf, 0), lcrc, rcrc);
-			SM_PROCEED(senddata);
-		} if (strncasecmp(buf, "EMSI_REQ", 8) == 0) {
-			SM_PROCEED(waitpkt);
-		} if (strncasecmp(buf, "EMSI_ACK", 8) == 0) {
-			SM_SUCCESS;
-		} else {
-			SM_PROCEED(senddata);
-		}
+    Syslog('i', "TXEMSI: rcvd %s", buf);
+    if (strncasecmp(buf, "EMSI_DAT", 8) == 0) {
+	SM_PROCEED(sendack);
+    } else if (strncasecmp(buf, "EMSI_", 5) == 0) {
+	lcrc = crc16xmodem(buf, 8);
+	sscanf(buf + 8, "%04hx", &rcrc);
+	if (lcrc != rcrc) {
+	    Syslog('+', "Got EMSI packet \"%s\" with bad crc: %04x/%04x", printable(buf, 0), lcrc, rcrc);
+	    SM_PROCEED(senddata);
+	} if (strncasecmp(buf, "EMSI_REQ", 8) == 0) {
+	    SM_PROCEED(waitpkt);
+	} if (strncasecmp(buf, "EMSI_ACK", 8) == 0) {
+	    SM_SUCCESS;
 	} else {
-		SM_PROCEED(waitpkt);
+	    SM_PROCEED(senddata);
 	}
+    } else {
+	SM_PROCEED(waitpkt);
+    }
 
 SM_STATE(sendack)
 
-	Syslog('i', "TXEMSI: send **EMSI_ACKA490 (2 times)");
-	PUTSTR((char *)"**EMSI_ACKA490\r\021");
-	PUTSTR((char *)"**EMSI_ACKA490\r\021");
-	SM_PROCEED(waitpkt);
+    Syslog('i', "TXEMSI: send **EMSI_ACKA490 (2 times)");
+    PUTSTR((char *)"**EMSI_ACKA490\r\021");
+    PUTSTR((char *)"**EMSI_ACKA490\r\021");
+    SM_PROCEED(waitpkt);
 
 SM_END
-	Syslog('i', "TXEMSI: end");
+    Syslog('i', "TXEMSI: end");
 
 SM_RETURN
 

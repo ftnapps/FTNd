@@ -388,12 +388,14 @@ SM_RETURN
 SM_DECL(rx_define_type,(char *)"rx_define_type")
 SM_STATES
     sendintro,
+    settimer,
     waitchar,
     nextchar,
     checkemsi,
     getdat
 SM_NAMES
     (char *)"sendintro",
+    (char *)"settimer",
     (char *)"waitchar",
     (char *)"nextchar",
     (char *)"checkemsi",
@@ -413,16 +415,18 @@ SM_EDECL
     ep=ebuf;
     RESETTIMERS();
     SETTIMER(0, 60);
+    SETTIMER(1, 20);
 
 SM_START(sendintro)
 
 SM_STATE(sendintro)
 
-    Syslog('s', "rxdefine_type SENDINTRO count=%d", count);
     if (count++ > 6) {
 	Syslog('+', "Too many tries to get anything from the caller");
 	SM_ERROR;
     }
+
+    Syslog('s', "rxdefine_type SENDINTRO count=%d", count);
 
     standby = 0;
     ep = ebuf;
@@ -447,8 +451,14 @@ SM_STATE(sendintro)
     if (STATUS) {
 	SM_ERROR;
     } else {
-	SM_PROCEED(waitchar);
+	SM_PROCEED(settimer);
     }
+
+SM_STATE(settimer)
+
+    Syslog('s', "Set 20 secs timer");
+    SETTIMER(1, 20);
+    SM_PROCEED(waitchar);
 
 SM_STATE(waitchar)
 
@@ -457,8 +467,13 @@ SM_STATE(waitchar)
         SM_ERROR;
     }
 
-    if ((c = GETCHAR(20)) == TIMEOUT) {
+    if (EXPIRED(1)) {
+	Syslog('s', "20 sec timer timeout");
 	SM_PROCEED(sendintro);
+    }
+
+    if ((c = GETCHAR(1)) == TIMEOUT) {
+	SM_PROCEED(waitchar);
     } else if (c < 0) {
 	Syslog('+', "Session setup error");
 	SM_ERROR;
@@ -515,7 +530,18 @@ SM_STATE(nextchar)
 			if (ebuf[0]) {
 			    SM_PROCEED(checkemsi);
 			} else {
-			    SM_PROCEED(sendintro);
+			    /*
+			     * If the 20 second timer is expired or after the 
+			     * first sendintro, send the intro again. After
+			     * that take it easy.
+			     */
+			    if (EXPIRED(1) || (count == 1)) {
+				Syslog('s', "sendintro after eol char");
+				SM_PROCEED(sendintro);
+			    } else {
+				Syslog('s', "waitchar after eol char");
+				SM_PROCEED(waitchar);
+			    }
 			}
 			break;
 	    default:	standby = 0;
@@ -532,6 +558,7 @@ SM_STATE(checkemsi)
     Syslog('i', "check \"%s\" for being EMSI inquery or data",ebuf);
 
     if (localoptions & NOEMSI) {
+	Syslog('s', "Force sendintro");
 	SM_PROCEED(sendintro);
     }
 
@@ -543,11 +570,11 @@ SM_STATE(checkemsi)
 	standby = 0;
         ep = ebuf;
 	ebuf[0] = '\0';
-	SM_PROCEED(waitchar);
+	SM_PROCEED(settimer);
     } else if (strncasecmp(ebuf, "EMSI_DAT", 8) == 0) {
 	SM_PROCEED(getdat);
     } else {
-	SM_PROCEED(sendintro);
+	SM_PROCEED(settimer);
     }
 
 SM_STATE(getdat)
@@ -569,6 +596,7 @@ SM_STATE(getdat)
 	    *p= '\0';
     }
     if (c == TIMEOUT) {
+	Syslog('s', "c = TIMEOUT -> sendintro");
 	SM_PROCEED(sendintro);
     } else if (c < 0) {
 	Syslog('+', "Error while reading EMSI_DAT from the caller");

@@ -3,7 +3,15 @@ $Id$
 	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
 
 	Inbound file handling is changed, this version is under test and should NOT
-	be used on production systems
+	be used on production systems if you don't want to help debugging.
+	Handshake and EMSI is changed, please run this version with debugging on,
+	mbsetup 1.14.1 turn 5, 11 and 18 on at least. Report any problems and include
+	a piece of the logfile.
+
+	Before installing, make a copy of /opt/mbse/bin/mbcico so you can go back
+	if you experience any problems.
+
+	As far as I have tested, there should be no problems with this version.
 
 	WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !!
 
@@ -29,6 +37,11 @@ v0.37.6		10-Aug-2003
 		systems.
 		Fixed the binkp escape sequence which is wrong in the FSP.
 		A light improvement in session handshake setup timers.
+		Added EMSI handshake timers, this gives a more relaxed EMSI
+		handshake.
+		Set the EMSI receive failure count to 20 instead of 6, we can
+		now even accept buggy maindoor sessions and still display a
+		banner.
 
 
 v0.37.5		12-Jul-2003 - 10-Aug-2003
