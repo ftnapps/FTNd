@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>A Proposed Type-2 Packet Extension.</TITLE>
 </HEAD>
@@ -299,11 +300,11 @@ Date:     21-Oct-90
      ==========================
 
       Do we have a CW              Does CW indicate
-     stored for dest?  YES ---->   higher packets  YES ---> Generate higher
+     stored for dest?  YES ----&gt;   higher packets  YES ---&gt; Generate higher
            NO                       we support?                packet
            |                            NO
           \|/                           |
-           +-----<----------------------+
+           +-----&lt;----------------------+
            |
       Fill header with all info
            |
@@ -316,7 +317,7 @@ Date:     21-Oct-90
            |                                    set AuxNet = OrigNet
           \|/                                  set OrigNet = -1
            |                                              |
-           +-----<----------------------------------------+
+           +-----&lt;----------------------------------------+
            |
       Add Messages
            |
@@ -329,11 +330,11 @@ Date:     21-Oct-90
 
        Receive Packet
            |
-       Packettype = 2  NO  -------------> Process Type-Other
+       Packettype = 2  NO  -------------&gt; Process Type-Other
           YES
            |
            |
-       CWcopies match  NO --------+------> Treat as normal Stone-Age packet
+       CWcopies match  NO --------+------&gt; Treat as normal Stone-Age packet
           YES                     |     |
            |                      |     |
        Store CW                  /|\    |
@@ -351,7 +352,7 @@ Date:     21-Oct-90
            |                                         \|/
 !         \|/                            Set OrigNet is AuxNet
            |                                          |
-           +------<-----------------------------------+
+           +------&lt;-----------------------------------+
            |
         Process using added info
 
@@ -410,7 +411,7 @@ Date:     21-Oct-90
 
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>Standard FidoNet Addressing.</TITLE>
 </HEAD>
@@ -87,12 +88,12 @@ Introduction
                      If '@DO' is missing then fidonet can be assumed.
 
   The following are all valid examples:
-      1:234/5.6@fidonet  (a '5D' address)   => 1:234/5.6@fidonet
-      2:34/6.78          (a '4D' address)   => 2:34/6.78@fidonet
-      4:610/34           (a '3D' address)   => 4:610/34.0@fidonet
-      123/45             (a '2D' address)   => 1:123/45.0@fidonet
-      955:95/2@othernet  (another FTN)      => 955:95/2.0@othernet
-      2:259/-1           (node application) => 2:259/-1.0@fidonet
+      1:234/5.6@fidonet  (a '5D' address)   =&gt; 1:234/5.6@fidonet
+      2:34/6.78          (a '4D' address)   =&gt; 2:34/6.78@fidonet
+      4:610/34           (a '3D' address)   =&gt; 4:610/34.0@fidonet
+      123/45             (a '2D' address)   =&gt; 1:123/45.0@fidonet
+      955:95/2@othernet  (another FTN)      =&gt; 955:95/2.0@othernet
+      2:259/-1           (node application) =&gt; 2:259/-1.0@fidonet
 
   The limits on each various part of the address are a result of
   fts-0005 (zone, net, node, point), fsc-0045 (domain) and Policy 4
@@ -103,7 +104,7 @@ Introduction
 ------------------------------
 
   An internet user can send email/netmail to a fidonet user via one of
-  the fidonet->internet gateway systems (it's out-with the scope of
+  the fidonet-&gt;internet gateway systems (it's out-with the scope of
   this document to describe the semantics of posting). The internet
   user would send an email to a Fidonet user by using an email address
   of the following syntax:
@@ -134,19 +135,19 @@ Introduction
   The following are all valid examples (assuming 'fidonet.org' is an
   internet gateway):
 
-    joe.bloggs@p6.f5.n234.z1.fidonet.org  => 1:234/5.6@fidonet
-    harry.cat@p78.f6.n34.z2.fidonet.org   => 2:34/6.78@fidonet
-    i.be.jolly@f34.n610.z4.fidonet.org    => 4:610/34.0@fidonet
+    joe.bloggs@p6.f5.n234.z1.fidonet.org  =&gt; 1:234/5.6@fidonet
+    harry.cat@p78.f6.n34.z2.fidonet.org   =&gt; 2:34/6.78@fidonet
+    i.be.jolly@f34.n610.z4.fidonet.org    =&gt; 4:610/34.0@fidonet
 
   and if 'foo.bar.org.uk' is a gateway for 'othernet':
 
-    louise.hat@f2.n95.z955.foo.bar.org.uk => 955:95/2.0@othernet
+    louise.hat@f2.n95.z955.foo.bar.org.uk =&gt; 955:95/2.0@othernet
 
 
 3. Routing Address Syntax
 -------------------------
 
-  The two previous address types (Fidonet and Internet->Fidonet
+  The two previous address types (Fidonet and Internet-&gt;Fidonet
   gateway) are common practice, this however is a suggested standard
   of addressing for routing tables. The routing address has the
   following syntax:
@@ -196,12 +197,12 @@ Introduction
 
   Example fidonet addresses converted to routing addresses:
 
-    fidonet:2:25:259:0:7:0 => 2:259/7.0@fidonet, region 25, hub 0
-    fidonet:1:1:1:0:23:0   => 1:1/23.0@fidonet, zone 1 net
-    :955:9551:95:300:45:0  => 955:95/45.0, region 9551, hub 300
-    fidonet:2:25:25:0:0:0  => 2:25/0.0@fidonet, R25C
-    cnet:12:34:341:100:1:7 => 12:341/1.7@cnet, region 34, hub 100
-    :2:25:259:300:300:0    => 2:259/300.0, region 25, hub 300
+    fidonet:2:25:259:0:7:0 =&gt; 2:259/7.0@fidonet, region 25, hub 0
+    fidonet:1:1:1:0:23:0   =&gt; 1:1/23.0@fidonet, zone 1 net
+    :955:9551:95:300:45:0  =&gt; 955:95/45.0, region 9551, hub 300
+    fidonet:2:25:25:0:0:0  =&gt; 2:25/0.0@fidonet, R25C
+    cnet:12:34:341:100:1:7 =&gt; 12:341/1.7@cnet, region 34, hub 100
+    :2:25:259:300:300:0    =&gt; 2:259/300.0, region 25, hub 300
 
   Example POSIX regular expression patterns on routing addresses:
 
@@ -250,7 +251,7 @@ B. History
 **********************************************************************
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

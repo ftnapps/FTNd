@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>FTSC Document FSP-1011, Revision 003</TITLE>
 </HEAD>
@@ -264,7 +265,7 @@ Table of contents
     +-+-------+--------+--- ................ ---+
     |T|      SIZE      |          DATA          |
     +-+-------+--------+--- ................ ---+
-    |<-   2 octets   ->|<- up to 32767 octets ->|
+    |&lt;-   2 octets   -&gt;|&lt;- up to 32767 octets -&gt;|
        (frame header)          (frame data)
 
    If T bit is 0, this is a data frame.
@@ -366,7 +367,7 @@ Table of contents
    filename        = *pchar
    pchar           = unreserved | escape
    unreserved      = ALPHA | DIGIT | safe
-   safe            = "@" | "&" | "=" | "+" | "%" | "$" | "-" | "_" |
+   safe            = "@" | "&amp;" | "=" | "+" | "%" | "$" | "-" | "_" |
                      "." | "!" | "(" | ")" | "#" | "|"
    escape          = "\" HEX HEX
 
@@ -1024,7 +1025,7 @@ Table of contents
    |RxWriteD|Write data to|Write Failed |Report    |RxDone  |Failure |
    |        |file         |             |error     |        |        |
    |        |             |-------------+----------+--------+--------|
-   |        |             |File Pos >   |Report    |RxDone  |Failure |
+   |        |             |File Pos &gt;   |Report    |RxDone  |Failure |
    |        |             |Reported     |write     |        |        |
    |        |             |             |beyond EOF|        |        |
    |        |             |-------------+----------+--------+--------|
@@ -1034,7 +1035,7 @@ Table of contents
    |        |             |             |File      |        |        |
    |        |             |             |Received  |        |        |
    |        |             |-------------+----------+--------+--------|
-   |        |             |File Pos <   |none      |RxReceD |OK      |
+   |        |             |File Pos &lt;   |none      |RxReceD |OK      |
    |        |             |Reported     |          |        |        |
    |--------+-------------+-------------+----------+--------+--------|
    |RxEOB   |Get a frame  |Didn't get a |none      |RxEOB   |OK      |
@@ -1118,12 +1119,12 @@ Table of contents
    |-------+------------+--------------+------------+-------+--------|
    |TxWLA  |Check       |TheQueue is   |none        |TxDone |OK      |
    |       |TheQueue    |empty and     |            |       |        |
-   |       |            |RxState >=    |            |       |        |
+   |       |            |RxState &gt;=    |            |       |        |
    |       |            |RxEOB         |            |       |        |
    |       |            |--------------+------------+-------+--------|
    |       |            |TheQueue is   |none        |TxWLA  |OK      |
    |       |            |empty and     |            |       |        |
-   |       |            |RxState <     |            |       |        |
+   |       |            |RxState &lt;     |            |       |        |
    |       |            |RxEOB         |            |       |        |
    |       |            |--------------+--------------------+--------|
    |       |            |TheQueue is   |call ProcessTheQueue|continue|
@@ -1751,6 +1752,6 @@ B. History
               * Minor edits throughout the document to improve
                 readability.
 </PRE>
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 </BODY>
 

@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>A Basic FidoNet(r) Technical Standard.</TITLE>
 </HEAD>
@@ -350,19 +351,19 @@ Status of this document:
 
       If the first character of a physical line (e.g. the first character of
       the  message text, or the character immediately after a hard  carriage
-      return (ignoring any linefeeds)) is a ^A (<control-A>, 01H), then that
+      return (ignoring any linefeeds)) is a ^A (&lt;control-A&gt;, 01H), then that
       line  is  not  displayed  as  it  contains  control  information.  The
       convention for such control lines is:
         o They begin with ^A
-        o They end at the end of the physical line (i.e. ignore soft <cr>s).
+        o They end at the end of the physical line (i.e. ignore soft &lt;cr&gt;s).
         o They begin with a keyword followed by a colon.
         o The keywords are uniquely assigned to applications.
         o They keyword/colon pair is followed by application specific data.
 
       Current ^A keyword assignments are:
-|     o TOPT <pt no> - destination point address
-      o FMPT <pt no> - origin point address
-      o INTL <dest z:n/n> <orig z:n/n> - used for inter-zone address
+|     o TOPT &lt;pt no&gt; - destination point address
+      o FMPT &lt;pt no&gt; - origin point address
+      o INTL &lt;dest z:n/n&gt; &lt;orig z:n/n&gt; - used for inter-zone address
 
 
       File Specifications
@@ -510,7 +511,7 @@ Status of this document:
    | W1  | WindIdle | 1 incoming call         |                         | W2  |
    |     |          | 2 receive-only mode     |                         | W0  |
    |     |          | 3 send-only mode        |                         | W3  |
-   |     |          | 4 60-180 secs & no call |                         | W3  |
+   |     |          | 4 60-180 secs &amp; no call |                         | W3  |
    |-----+----------+-------------------------+-------------------------+-----|
    | W2* | WindRecv |                         | (receive call R0)       | W3  |
    |-----+----------+-------------------------+-------------------------+-----|
@@ -520,9 +521,9 @@ Status of this document:
    | W4* | WindSend |                         | (make call S0)          | W5  |
    |-----+----------+-------------------------+-------------------------+-----|
    | W5  | WindMark | 1 call successful       | remove node fr call list| W0  |
-   |     |          | 2 no connect            | remove if try cnt > lim | W0  |
+   |     |          | 2 no connect            | remove if try cnt &gt; lim | W0  |
    |     |          | 3 call failed           | incr conn cnt, remove   | W0  |
-   |     |          |                         |   if con cnt > lim      |     |
+   |     |          |                         |   if con cnt &gt; lim      |     |
    `-----+----------+-------------------------+-------------------------+-----'
 
 
@@ -956,7 +957,7 @@ Status of this document:
                                          trailer *)
                      | TeLinkBlock    (* TeLink File Descriptor Block *)
                      | ACK            (* acknowledge data received ok *)
-                     | NAK            (* negative ACK & poll 1st block *)
+                     | NAK            (* negative ACK &amp; poll 1st block *)
                      | EOT            (* end of xfer, after last block *)
                      | "C"            (* 43H *)
 
@@ -980,7 +981,7 @@ Status of this document:
                      Checksum         (* error detect/correction code *)
 
       ACK          = 06H              (* acknowledge data received ok *)
-      NAK          = 15H              (* negative ACK & poll 1st block *)
+      NAK          = 15H              (* negative ACK &amp; poll 1st block *)
       SOH          = 01H              (* start of header, begins block *)
       SYN          = 16H              (* start of TeLink file info blk *)
       EOT          = 04H              (* end of xfer, after last block *)
@@ -1069,8 +1070,8 @@ Status of this document:
    |     |          | 2 want checksum mode    | send NAK                | XR1 |
    |-----+----------+-------------------------+-------------------------+-----|
    | XR1 | WaitFirst| 1 10 retries or 1 minute| report receive failure  | exit|
-   |     |          | 2 > 3 retries or 30 secs| set want checksum mode  | XR0 |
-   |     |          | 3 EOT received          | delay < sec, purge input| exit|
+   |     |          | 2 &gt; 3 retries or 30 secs| set want checksum mode  | XR0 |
+   |     |          | 3 EOT received          | delay &lt; sec, purge input| exit|
    |     |          |                         | send ACK, report no file|     |
    |     |          | 4 TeLink block recd     | send ACK, set crc/cksm  | XR2 |
    |     |          | 5 data block recd       | send ACK, set crc/cksm  | XR2 |
@@ -1115,7 +1116,7 @@ Status of this document:
    |  #  | Name     |                         |                         |  St |
    |-----+----------+-------------------------+-------------------------+-----|
    | MS0 | WaitNak  | 1 20 retries or 1 minute| filename send failed    | exit|
-   |     |          | 2 NAK received          | send ACK & 1st ch of fn | MS1 |
+   |     |          | 2 NAK received          | send ACK &amp; 1st ch of fn | MS1 |
    |     | (note 1) | 3 C received            | return fn skipped       | exit|
    |-----+----------+-------------------------+-------------------------+-----|
    | MS1 | WaitChAck| 1 ACK rcd, fname done   | send SUB = 1AH          | MS2 |
@@ -1139,7 +1140,7 @@ Status of this document:
    |-----+----------+-------------------------+-------------------------+-----|
    | MR1 | WaitAck  | 1 rcd ACK               |                         | MR2 |
    |     |          | 2 rcd EOT               | report no files remain  | exit|
-   |     |          | 3 5 secs & no ACK/EOT   |                         | MR0 |
+   |     |          | 3 5 secs &amp; no ACK/EOT   |                         | MR0 |
    |-----+----------+-------------------------+-------------------------+-----|
    | MR2 | WaitChar | 1 recd EOT (can happen?)| report no files remain  | exit|
    |     |          | 2 recd SUB              | send checksum byte      | MR3 |
@@ -1253,7 +1254,7 @@ Status of this document:
     Messages generated by Fido 11w, SEAdog 3.8, and QMail 1.01
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

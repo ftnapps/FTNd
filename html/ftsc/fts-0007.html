@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>An Enhanced FidoNet(r) Technical Standard.</TITLE>
 </HEAD>
@@ -50,34 +51,6 @@ Status of this document:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     Introduction
 
     While the basic FTS-0001 protocol has become reasonably standardized, it
@@ -123,22 +96,6 @@ Status of this document:
        Network Layer:   Batch File Receiver - BR0
        Data Link Layer: XMODEM/TeLink Sender - XS0
        Data Link Layer: XMODEM/TeLink Receiver - XR0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -196,15 +153,6 @@ Status of this document:
          Data Link State Table: Send ACK (SA0) ............................ 26
          Data Link State Table: MODEM7 Filename Sender (MS0) .............. 27
          Data Link State Table: MODEM7 Filename Receiver (MR0) ............ 27
-
-
-
-
-
-
-
-
-
 
 
 
@@ -454,7 +402,7 @@ Status of this document:
       someName[.n]  - field of n bits
       someName(n)   - Null terminated string allocated n chars (incl Null)
       someName{max} - Null terminated string of up to max chars (incl Null)
-      someName<max> - String of up to max chars, NOT null terminated
+      someName&lt;max&gt; - String of up to max chars, NOT null terminated
 
       (* punctuation *)
       a b           - one 'a' followed by one 'b'
@@ -596,15 +544,6 @@ Status of this document:
 
 
 
-
-
-
-
-
-
-
-
-
                                                                              8
     Sender
 
@@ -615,8 +554,8 @@ Status of this document:
     | S0  | SendInit |                         | dial modem              | S1  |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | S1  | WaitCxD  |1| carrier detected      | delay 1-5 seconds       | S2  |
-    |     |  (*1)    | |                       | Set SLO if > 2400bps,   |     |
-    |     |          | |                       | Reset SLO if <= 2400bps |     |
+    |     |  (*1)    | |                       | Set SLO if &gt; 2400bps,   |     |
+    |     |          | |                       | Reset SLO if &lt;= 2400bps |     |
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |2| busy, etc.            | report no connection    | exit|
     |     |          +-+-----------------------+-------------------------+-----+
@@ -660,14 +599,6 @@ Status of this document:
 
     *1 - The action for (S1.1) is the only change from the corresponding
          FTS-0001 state table.
-
-
-
-
-
-
-
-
 
 
 
@@ -720,23 +651,6 @@ Status of this document:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                                                             10
  F. Network Layer : the Network's View of the System, Routing and Packets
 
@@ -782,25 +696,6 @@ Status of this document:
               ~                    3  bytes                   ~
               |           left adjusted blank filled          |
               `-----------------------------------------------'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                                                                             11
@@ -850,25 +745,6 @@ Status of this document:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                                                             12
    BATCH File Receiver
 
@@ -915,22 +791,6 @@ Status of this document:
          buffer so the next read operation will re-read it.
 
     *2 - "Eat" a character means to remove it from the input buffer.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -988,17 +848,6 @@ Status of this document:
               +-----------------------------------------------+
       132  84 |             CRC  low order byte               |
               `-----------------------------------------------'
-
-
-
-
-
-
-
-
-
-
-
 
 
                                                                             14
@@ -1141,9 +990,9 @@ Status of this document:
                      | TeLinkBlock    (* TeLink File Descriptor Block *)
                      | ReSyncBlock    (* SEAlink RESYNC request packet *)
                      | ACK            (* acknowledge data received ok *)
-                     | NAK            (* negative ACK & poll 1st block *)
+                     | NAK            (* negative ACK &amp; poll 1st block *)
                      | SEAlinkACK     (* acknowledge data received ok *)
-                     | SEAlinkNAK     (* negative ACK & poll 1st block *)
+                     | SEAlinkNAK     (* negative ACK &amp; poll 1st block *)
                      | EOT            (* end of xfer, after last block *)
                      | "C"            (* 43H *)
 
@@ -1181,22 +1030,6 @@ Status of this document:
       CreationTime = hour[.5]         (* 5 bits, hour of day, 0-23 *)
                      minute[.6]       (* 6 bits, minute of hour, 0-60 *)
                      biSeconds[.2]    (* 6 bits, seconds/2, 0-29 *)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                                                                             17
@@ -1238,31 +1071,11 @@ Status of this document:
     Definitions of Single byte Character values used in protocol:
 
       ACK          = 06H              (* acknowledge data received ok *)
-      NAK          = 15H              (* negative ACK & poll 1st block *)
+      NAK          = 15H              (* negative ACK &amp; poll 1st block *)
       SOH          = 01H              (* start of header, begins block *)
       SYN          = 16H              (* start of TeLink file info blk *)
       EOT          = 04H              (* end of xfer, after last block *)
       ETX          = 03H              (* end of RESYNC request data field*)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                                                                             18
@@ -1322,15 +1135,6 @@ Status of this document:
             RET
 
 
-
-
-
-
-
-
-
-
-
                                                                             19
  2. Data Link Layer Protocol : XMODEM/TeLink/SEAlink Finite State Machines
 
@@ -1383,20 +1187,6 @@ Status of this document:
     these numbers.  Good practice is to make file block numbers 32 bit values.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                                                             20
     XMODEM/TeLink/SEAlink - Sender
 
@@ -1422,7 +1212,7 @@ Status of this document:
     +-----+----------+-------------------------+-------------------------+-----+
     | XS1 | CheckACK |                         | (Check ACK/NAK AC0)     | XS2 |
     +-----+----------+-+-----------------------+-------------------------+-----+
-    | XS2 | SendBlk  |1| NumNAK &gt; 4 &          | If header = SEAlink     | XS0T|
+    | XS2 | SendBlk  |1| NumNAK &gt; 4 &amp;          | If header = SEAlink     | XS0T|
     |     |   (*2)   | |   SendBLK = 0         +-------------------------+-----+
     |     |          | |                       | If header = TeLink,     | XS2 |
     |     |          | |                       |   NumNAK = 0,           |     |
@@ -1440,7 +1230,7 @@ Status of this document:
     |     |          |6| SendBLK = Last Blk+1  | Send EOT, Incr SendBLK, | XS1 |
     |     |          | |                       |   Set T1 to 30 seconds  |     |
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |7| SLO set & SEAlink set | Send SendBLK, (*3)      | XS1 |
+    |     |          |7| SLO set &amp; SEAlink set | Send SendBLK, (*3)      | XS1 |
     |     |          | |                       |   ACKBLK = SendBLK,     |     |
     |     |          | |                       |   Incr SendBLK,         |     |
     |     |          | |                       |   Set T1 to 60 seconds  |     |
@@ -1479,7 +1269,7 @@ Status of this document:
     |     |          |2| ACKST &lt;=2             |                         | AC6 |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | AC2 | SLVerify |1| ARBLK8 = 1's comp(CHR)| ARBLK = SendBLK -       | AC3 |
-    |     |          | |                       | ((SendBLK-ARBLK8)&0FFh) |     |
+    |     |          | |                       | ((SendBLK-ARBLK8)&amp;0FFh) |     |
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |2| ARBLK8 # 1's comp(CHR)| Reset SEAlink flag,     | AC6 |
     |     |          | |                       |   WINDOW=1,             |     |
@@ -1574,24 +1364,10 @@ Status of this document:
          the SEAlink header block and add the following state to (AC7):
 
     .-----+--------+---+-----------------------+-------------------------+-----.
-    | AC7 |        |3.5| CHR = ^S (13H) &      | Delay 10 seconds or     | exit|
-    |     |        |   |   SEAlink set &       |   until ^Q (11H) rcvd   |     |
+    | AC7 |        |3.5| CHR = ^S (13H) &amp;      | Delay 10 seconds or     | exit|
+    |     |        |   |   SEAlink set &amp;       |   until ^Q (11H) rcvd   |     |
     |     |        |   |   ACKST = 0           |                         |     |
     `-----+--------+---+-----------------------+-------------------------+-----'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1683,7 +1459,7 @@ Status of this document:
     |     |          | |                       |   (Send ACK SA0),       |     |
     |     |          | |                       |   reset retry cnt       |     |
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |5| SEAlink set &         | Discard block - resync  | XR3 |
+    |     |          |5| SEAlink set &amp;         | Discard block - resync  | XR3 |
     |     |          | |   expected block+1 to |   in progress,          |     |
     |     |          | |   expected block+127  | Send Conditional NAK(*5)|     |
     |     |          +-+-----------------------+-------------------------+-----+
@@ -1695,7 +1471,7 @@ Status of this document:
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |2| Want to resume an     |  WriteBLK = file restart| XR5 |
     |     |          | |   interrupted xfer    |    block number,        |     |
-    |     |          | |   and RESYNC is set   |  blocknum=WriteBLK&0FFh,|     |
+    |     |          | |   and RESYNC is set   |  blocknum=WriteBLK&amp;0FFh,|     |
     |     |          | |                       |    (Send NAK SN0)       |     |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | XR5 | SetOvrdr |                         | Set SLO as indicated    | XR3 |
@@ -1805,7 +1581,7 @@ Status of this document:
     +-----+----------+-+-----------------------+-------------------------+-----+
     | MS0 | WaitNak  |1| 20 retries or 1 minute| filename send failed    | exit|
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |2| NAK received          | send ACK & 1st ch of fn | MS1 |
+    |     |          |2| NAK received          | send ACK &amp; 1st ch of fn | MS1 |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | MS1 | WaitChAck|1| ACK rcd, fname done   | send SUB = 1AH          | MS2 |
     |     |          +-+-----------------------+-------------------------+-----+
@@ -1835,7 +1611,7 @@ Status of this document:
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |2| rcd EOT               | report no files remain  | exit|
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |3| 5 secs & no ACK/EOT   |                         | MR0 |
+    |     |          |3| 5 secs &amp; no ACK/EOT   |                         | MR0 |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | MR2 | WaitChar |1| recd EOT (can happen?)| report no files remain  | exit|
     |     |          +-+-----------------------+-------------------------+-----+
@@ -1862,7 +1638,7 @@ Status of this document:
                                                                             27
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>Zone 2 nodelist flags.</TITLE>
 </HEAD>
@@ -48,11 +49,11 @@ Contents:
    V32B or V42B is not more enforced.  Currently new flags needed for
    IP-connectivity are under test in zone 2 (only internally), e.g.
 
-   ->   VM      VModem, default port  3141, dummy country code 000-
-   ->   IFC     IFCico, default port 60179, dummy country code 000-
-   ->   BND     BinkP,  default port 24544, dummy country code 000-
-   ->   IP      general IP connectivity,    dummy country code 000-
-   ->   TELN    Telnet                      dummy country code 000-
+   -&gt;   VM      VModem, default port  3141, dummy country code 000-
+   -&gt;   IFC     IFCico, default port 60179, dummy country code 000-
+   -&gt;   BND     BinkP,  default port 24544, dummy country code 000-
+   -&gt;   IP      general IP connectivity,    dummy country code 000-
+   -&gt;   TELN    Telnet                      dummy country code 000-
 
 
 2. FTS-0005 flags
@@ -64,7 +65,7 @@ Contents:
         LO      Listed Only, node accepts calls only from listed
                 node numbers in the current FidoNet nodelist
 
-   ->   V21     ITU-T V21      300 bps full duplex (obsolete)
+   -&gt;   V21     ITU-T V21      300 bps full duplex (obsolete)
         V22     ITU-T V22     1200 bps full duplex (obsolescent)
 
 |  In zone 2 the value 1200 in the baud rate field implies V22.  Only
@@ -74,7 +75,7 @@ Contents:
 |  FTS-0005 version.
 
         V29     ITU-T V29     9600 bps half duplex (obsolescent)
-   ->   V33     ITU-T V33    14400 bps half duplex (obsolete)
+   -&gt;   V33     ITU-T V33    14400 bps half duplex (obsolete)
 
    V33 cannot be used in connecting FidoNet nodes over public dial-up
    lines and is most probably a historical error in FTS-0005.  A very
@@ -96,12 +97,12 @@ Contents:
         H96     Hayes V9600
         HST     USR Courier HST up to 9600  (implies MNP)
         H14     USR Courier HST up to 14400 (implies HST)
-   ->   H16     USR Courier HST up to 16800 (implies H14 and V42b)
+   -&gt;   H16     USR Courier HST up to 16800 (implies H14 and V42b)
         MAX     Microcom AX/96xx series (almost obsolete)
         PEP     Packet Ensemble Protocol
         CSP     Compucom Speedmodem
-   ->   ZYX     Zyxel series 16800 bps (implies V32b and V42b)
-   ->   V32T    V.32 Terbo   19200 bps (implies V32b)
+   -&gt;   ZYX     Zyxel series 16800 bps (implies V32b and V42b)
+   -&gt;   V32T    V.32 Terbo   19200 bps (implies V32b)
         VFC     V.Fast Class 28800 bps (should imply V32b and V42b)
 
    If a flag directly or indirectly implies other flags, then these
@@ -163,7 +164,7 @@ Contents:
 
         #01     Zone 5 mail hour (01:00 - 02:00 UTC) w/ Bell 212A
         #02     Zone 2 mail hour (02:30 - 03:30 UTC) w/ Bell 212A
-   ->   #08     Zone 4 mail hour (08:00 - 09:00 UTC) w/ Bell 212A
+   -&gt;   #08     Zone 4 mail hour (08:00 - 09:00 UTC) w/ Bell 212A
         #09     Zone 1 mail hour (09:00 - 10:00 UTC) w/ Bell 212A
         #18     Zone 3 mail hour (18:00 - 19:00 UTC) w/ Bell 212A
         #20     Zone 6 mail hour (20:00 - 21:00 UTC) w/ Bell 212A
@@ -235,7 +236,7 @@ Contents:
    International Coordinator or the FTSC (i.e. user flags only used
    experimentally or locally) are separated by a new pseudo flag U.
 
-   ->   U       pseudo flag to the left of at least one user flag
+   -&gt;   U       pseudo flag to the left of at least one user flag
 
    All flags following this pseudo flag U are user flags, all flags
    before this pseudo flag are "real" flags specified in FTS-0005 or
@@ -252,19 +253,19 @@ Contents:
    In zone 2 user flags have to be approved by the Zone Coordinator.
    Currently the following zone 2 user flags exist:
 
-   ->   V110L   ITU-T V.110 19k2 async 'Low'    (former ISDNA)
-   ->   V110H   ITU-T V.110 38k4 async 'High'   (former ISDNB)
-   ->   V120L   ITU-T V.120 56k6 async, N1 = 259, W = 7, modulo 8
-   ->   V120H   ITU-T V.120 64k  async, N1 = 259, W = 7, modulo 8
-   ->   X75     ITU-T X.75 SLP (single link procedure),
+   -&gt;   V110L   ITU-T V.110 19k2 async 'Low'    (former ISDNA)
+   -&gt;   V110H   ITU-T V.110 38k4 async 'High'   (former ISDNB)
+   -&gt;   V120L   ITU-T V.120 56k6 async, N1 = 259, W = 7, modulo 8
+   -&gt;   V120H   ITU-T V.120 64k  async, N1 = 259, W = 7, modulo 8
+   -&gt;   X75     ITU-T X.75 SLP (single link procedure),
                 64kbit/s B channel; layer 2 max. framesize N1 = 2048,
                 window size W = 2, frame numbering modulo 8;
                 layer 3 transparent (no packet layer)
-   ->   ISDN    Other configuration, used only if none of above fits
+   -&gt;   ISDN    Other configuration, used only if none of above fits
 
    These ISDN flags follow the specification in FSC-0091.
 
-   ->   Tyz     Online time flags as specified in FSC-0062
+   -&gt;   Tyz     Online time flags as specified in FSC-0062
 
    The flag Tyz is used by non-CM nodes online not only during ZMH,
    y is a letter indicating the start and z a letter indicating the
@@ -281,16 +282,16 @@ Contents:
 
    For example TuB shows an online period from 20:30 until 1:00 UTC.
 
-   ->   Z19     Zyxel series 19200 bps (implies ZYX)
-   ->   X2C     x2 client w/ 56000 bps (should imply V34 and V42b)
-   ->   X2S     x2 server w/ 64000 bps (should imply V34 and V42b)
+   -&gt;   Z19     Zyxel series 19200 bps (implies ZYX)
+   -&gt;   X2C     x2 client w/ 56000 bps (should imply V34 and V42b)
+   -&gt;   X2S     x2 server w/ 64000 bps (should imply V34 and V42b)
 
-   ->   K12     Systems offering all educational K12-conferences
-   ->   ENC     The node accepts inbound encrypted mail
+   -&gt;   K12     Systems offering all educational K12-conferences
+   -&gt;   ENC     The node accepts inbound encrypted mail
 
-   ->   NC      Network Coordinator (only if the NC is not the host)
-   ->   NEC     Net Echomail Coordinator    (at most one per net)
-   ->   REC     Region Echomail Coordinator (at most one per region)
+   -&gt;   NC      Network Coordinator (only if the NC is not the host)
+   -&gt;   NEC     Net Echomail Coordinator    (at most one per net)
+   -&gt;   REC     Region Echomail Coordinator (at most one per region)
 
    Redundant AKAs used to indicate echomail coordination in zone 2
    are no longer permitted.  One *EC flag is valid for all AKAs of
@@ -301,35 +302,35 @@ Contents:
 --------------------
    Flag implications directly or indirectly specified in FTS-0005:
 
-        HST     => MNP
-        H14     => MNP HST
-        H16     => MNP HST H14
-        V42b    => V42 (MNP ?)
-        V32b    => V32
+        HST     =&gt; MNP
+        H14     =&gt; MNP HST
+        H16     =&gt; MNP HST H14
+        V42b    =&gt; V42 (MNP ?)
+        V32b    =&gt; V32
 
    Flag implications specified in the zone 2 nodelist epilogue:
 
-        HST     => MNP
-        H14     => HST MNP
-   ->   H16     => V42 MNP V42b H14 HST
-   ->   V42b    => V42 MNP
-   ->   ZYX     => V42 MNP V42b V32 V32b
-   ->   Z19     => V42 MNP V42b V32 V32b ZYX
-        V32b    => V32
-   ->   V32T    => V32 V32b
+        HST     =&gt; MNP
+        H14     =&gt; HST MNP
+   -&gt;   H16     =&gt; V42 MNP V42b H14 HST
+   -&gt;   V42b    =&gt; V42 MNP
+   -&gt;   ZYX     =&gt; V42 MNP V42b V32 V32b
+   -&gt;   Z19     =&gt; V42 MNP V42b V32 V32b ZYX
+        V32b    =&gt; V32
+   -&gt;   V32T    =&gt; V32 V32b
 
-   ->   V110L   => ISDN
-   ->   V110H   => ISDN
-   ->   V120L   => ISDN
-   ->   V120H   => ISDN
-   ->   X75     => ISDN
+   -&gt;   V110L   =&gt; ISDN
+   -&gt;   V110H   =&gt; ISDN
+   -&gt;   V120L   =&gt; ISDN
+   -&gt;   V120H   =&gt; ISDN
+   -&gt;   X75     =&gt; ISDN
 
    The latter ISDN flag redundancies are a consequence of FSC-0091.
    Maybe some of the following implications could be added in zone 2:
 
-        VFC     => V32 V32b MNP V42 V42b
-        X2C     => V34 MNP V42 V42b
-        X2S     => V34 MNP V42 V42b
+        VFC     =&gt; V32 V32b MNP V42 V42b
+        X2C     =&gt; V34 MNP V42 V42b
+        X2S     =&gt; V34 MNP V42 V42b
 
    Flag implications (i.e. not listing redundant flags) have several
    advantages:  Some old nodelist tools are unable to handle too long
@@ -344,11 +345,11 @@ Contents:
    XA, XB, XC, XP, XR, XW, and XX.  For flag checkers only supporting
    implications a good approximation based on FTS-0005 definitions is
 
-|       XA      => XW XR XP XB XC XX,
-|       XB      => XW XR XP,
-|       XC      => XW XR XX,
-|       XR      => XW,
-|       XX      => XW.
+|       XA      =&gt; XW XR XP XB XC XX,
+|       XB      =&gt; XW XR XP,
+|       XC      =&gt; XW XR XX,
+|       XR      =&gt; XW,
+|       XX      =&gt; XW.
 
    Further X2C cannot be combined with X2S, and FSC-62 Tyz-flags are
    not possible with CM.  Also Tyz with y = z is of course incorrect.
@@ -443,7 +444,7 @@ Contents:
 **********************************************************************
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

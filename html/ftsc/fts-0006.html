@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>YOOHOO and YOOHOO/2U2.</TITLE>
 </HEAD>
@@ -45,7 +46,7 @@ Status of this document:
 
 
 
-
+
 LEGAL STUFF
 -----------
 
@@ -86,7 +87,7 @@ FTS-0001, describing the base FidoNet protocol, was created by Randy Bush.
 
 FTS-0007, describing enhancement to FTS-0001 using SEAlink and/or SEAlink
 Overdrive, was created by Phil Becker.
-
+
 YooHoo and YooHoo/2u2                                              Page 2
 Overview
 
@@ -145,7 +146,7 @@ sees a TSYNC.
 
 This simple method allows a mailer to take care of both the TSYNC and the
 YOOHOO handshakes.
-
+
 YooHoo and YooHoo/2u2                                              Page 3
 WaZOO Protocols
 
@@ -202,7 +203,7 @@ Currently there are four WaZOO methods in use:
 
       * The same packet naming convention as ZedZap applies, allowing more
         than one packet to be transmitted in a single session.
-
+
 YooHoo and YooHoo/2u2                                              Page 4
 WaZOO Protocols
 
@@ -241,7 +242,7 @@ WaZOO Protocols
 
         The protocol is documented elsewhere; it is beyond the scope of this
         document to do so.
-
+
 YooHoo and YooHoo/2u2                                              Page 5
 Choosing WaZOO Methods
 
@@ -274,7 +275,7 @@ choose as follows:
 
 The capability highest on the list which both systems indicate ability to
 execute should be the one employed.
-
+
 YooHoo and YooHoo/2u2                                              Page 6
 WaZOO Filename conventions
 
@@ -314,7 +315,7 @@ WaZOO FILENAMES
         In a Janus session, the .REQ file isn't actually sent. Janus has
         a transaction system which sends the .REQ file one line at a time
         and then accepts the file(s) which the request generates.
-
+
 YooHoo and YooHoo/2u2                                              Page 7
 Flow of a ZedZap or ZedZip Session
 
@@ -356,7 +357,7 @@ Receiving system:
       * If we sent a .REQ file in the preceding step, receive all files 
         in a single batch.
 
-
+
 YooHoo and YooHoo/2u2                                              Page 8
 WaZOO File Requests
 
@@ -401,8 +402,8 @@ REQ file contents would have to change:
 
 Transaction-level passwords (of 6 or fewer characters) follow the file name:
 
-                  <filename><single-space-character>!<password><cr>
-
+                  &lt;filename&gt;&lt;single-space-character&gt;!&lt;password&gt;&lt;cr&gt;
+
 YooHoo and YooHoo/2u2                                              Page 9
 WaZOO File Requests
 
@@ -425,7 +426,7 @@ including the indicated time will be sent.
 
 The complete format of an action line in an REQ file is, then:
 
-          <filename>[<space>!<password>][<space><+/-><time>]<cr>
+          &lt;filename&gt;[&lt;space&gt;!&lt;password&gt;][&lt;space&gt;&lt;+/-&gt;&lt;time&gt;]&lt;cr&gt;
 
 
 
@@ -451,7 +452,7 @@ In the YooHoo packet, there's a bit that lets you know if the remote system
 currently accepts .REQ files.  This will be a clue as to whether a .REQ file
 would be a waste of time or not. Procedurally, you just should not send a .REQ
 file to a system which indicates that it won't process it.
-
+
 YooHoo and YooHoo/2u2                                              Page 10
 Structures and Definitions
 
@@ -490,7 +491,7 @@ struct   _Hello
 
 
 /*------------------------------------------------------------------------*/
-/* YOOHOO<tm> CAPABILITY VALUES                                           */
+/* YOOHOO&lt;tm&gt; CAPABILITY VALUES                                           */
 /*------------------------------------------------------------------------*/
 #define Y_DIETIFNA 0x0001  /* Can do fast "FTS-0001"  0000 0000 0000 0001 */
 #define FTB_USER   0x0002  /* Reserved by Opus-CBCS   0000 0000 0000 0010 */
@@ -508,7 +509,7 @@ struct   _Hello
 #define Bit_d      0x2000  /* reserved by FTSC        0010 0000 0000 0000 */
 #define DO_DOMAIN  0x4000  /* Packet contains domain  0100 0000 0000 0000 */
 #define WZ_FREQ    0x8000  /* WZ file req. ok         1000 0000 0000 0000 */
-
+
 YooHoo and YooHoo/2u2                                              Page 11
 Domain addressing in Hello Packet
 
@@ -548,7 +549,7 @@ hello.capabilities will contain the usual capabilities plus DO_DOMAIN.
 
 A remote system receiving this packet should look past the null in
 my_name to get the domain name.
-
+
 YooHoo and YooHoo/2u2                                              Page 12
 Caller State Tables
 
@@ -592,18 +593,18 @@ system.  It replaces state S3 in the FTS-0001 table.
  |     |          | 4. NAK received         | probable FTS-0001       | SS3 |
  |     |          +-------------------------+-------------------------+-----|
  |     |          | 5. Debris (might include| Reset NAK timer         |     |
- |     |          |    (YOOHOO|TSYNC) & 127)| if started              | SS1 |
+ |     |          |    (YOOHOO|TSYNC) &amp; 127)| if started              | SS1 |
  |-----+----------+-------------------------+-------------------------+-----|
  | SS3 | NAKTmr   | 1. Timer not expired    | Zero NAK count          |     |
  |     |          |    or timer not started | Start .5 sec NAK timer  | SS1 |
  |     |          +-------------------------+-------------------------+-----|
  |     |          | 2. Timer expired        | Bump NAK count          | SS4 |
  |-----+----------+-------------------------+-------------------------+-----|
- | SS4 | NAKCount | 1. Count >= 2?          | assume FTS-0001         | exit|
+ | SS4 | NAKCount | 1. Count &gt;= 2?          | assume FTS-0001         | exit|
  |     |          +-------------------------+-------------------------+-----|
- |     |          | 2. Count < 2            | Keep looking            | SS1 |
+ |     |          | 2. Count &lt; 2            | Keep looking            | SS1 |
  `-----+----------+-------------------------+-------------------------+-----'
-
+
 YooHoo and YooHoo/2u2                                              Page 13
 Caller State Tables
 
@@ -652,7 +653,7 @@ an FTS-0001 session.
 
 If the packet exchange is successful, session method selection proceeds and
 then the chosen session method should be employed to exchange mail and files.
-
+
 YooHoo and YooHoo/2u2                                              Page 14
 Called System State Tables
 
@@ -711,7 +712,7 @@ table.
  |     |          +-------------------------+-------------------------+-----|
  |     |          | 2. Timer running        | Two TSYNCS = FTS-0001   | exit|
  `-----+----------+-------------------------+-------------------------+-----'
-
+
 YooHoo and YooHoo/2u2                                              Page 15
 Called System State Tables
 
@@ -765,7 +766,7 @@ an FTS-0001 session.
 
 If the packet exchange is successful, session method selection proceeds and
 then the chosen session method should be employed to exchange mail and files.
-
+
 YooHoo and YooHoo/2u2                                              Page 16
 Packet Exchange State Tables
 
@@ -802,7 +803,7 @@ from one system to its partner:
  |     |          +- - - - - - - - - - - - -+- - - - - - - - - - - - -+- - -|
  |     |          | other character recvd   | Debris, keep watching   | SH4 |
  `-----+----------+-------------------------+-------------------------+-----'
-
+
 YooHoo and YooHoo/2u2                                              Page 17
 Packet Exchange State Tables
 
@@ -863,7 +864,7 @@ to a system by its partner:
  `-----+----------+-------------------------+-------------------------+-----'
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

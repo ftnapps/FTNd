@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>EMSI/IEMSI Protocol Definitions.</TITLE>
 </HEAD>
@@ -218,7 +219,7 @@ Date:     03-May-1991
 
         Calling system                   Answering system
     +-+-------------------------------+----------------------------------+
-    :1: Send <CR> until ANY character : Send EMSI_REQ and possible       :
+    :1: Send &lt;CR&gt; until ANY character : Send EMSI_REQ and possible       :
     : : is received.                  : banner, etc.                     :
     +-+-------------------------------+----------------------------------+
     :2: Receive banner, etc. Monitor  : Monitor line for the EMSI_INQ    :
@@ -232,7 +233,7 @@ Date:     03-May-1991
     : : by possible other protocol    : characters and if received,      :
     : : start characters.             : attempt to handshake immediately.:
     : :                               :                                  :
-    : : Transmit <CR>                 : Go to step 3.                    :
+    : : Transmit &lt;CR&gt;                 : Go to step 3.                    :
     +-+-------------------------------+----------------------------------+
     :4: If EMSI_REQ sequence received,:
     : : send EMSI_INQ and attempt to  :
@@ -241,26 +242,26 @@ Date:     03-May-1991
     +-+-------------------------------+
 
     In steps 1 and 2, both the Calling and Answering system terminate all
-    sequences with <CR>. In step 3, the Calling system does not terminate
-    sequences with <CR> as it is explicitly transmitted after possible
+    sequences with &lt;CR&gt;. In step 3, the Calling system does not terminate
+    sequences with &lt;CR&gt; as it is explicitly transmitted after possible
     protocol start characters. In step 4, the Calling system once again
-    terminate all sequences with a <CR>.
+    terminate all sequences with a &lt;CR&gt;.
 
 
     STEP 2A, RECEIVE EMSI HANDSHAKE
 
-    At this point, all sequences are terminated with a <CR>.
+    At this point, all sequences are terminated with a &lt;CR&gt;.
 
     +-+------------------------------------------------------------------+
     :1: Tries=0, T1=20 seconds, T2=60 seconds                            :
     +-+------------------------------------------------------------------+
     :2: Increment Tries                                                  :
     : :                                                                  :
-    : : Tries>6?                      Terminate, and report failure.     :
+    : : Tries&gt;6?                      Terminate, and report failure.     :
     : +------------------------------------------------------------------+
     : : Are we answering system?      Transmit EMSI_REQ, go to step 3.   :
     : +------------------------------------------------------------------+
-    : : Tries>1?                      Transmit EMSI_NAK, go to step 3.   :
+    : : Tries&gt;1?                      Transmit EMSI_NAK, go to step 3.   :
     : +------------------------------------------------------------------+
     : : Go to step 4.                                                    :
     +-+------------------------------------------------------------------+
@@ -301,7 +302,7 @@ Date:     03-May-1991
 
     STEP 2B, TRANSMIT EMSI HANDSHAKE
 
-    At this point, all sequences are terminated with a <CR>.
+    At this point, all sequences are terminated with a &lt;CR&gt;.
 
     +-+------------------------------------------------------------------+
     :1: Tries=0, T1=60 seconds                                           :
@@ -309,7 +310,7 @@ Date:     03-May-1991
     :2: Transmit EMSI_DAT packet and increment Tries                     :
     : :                                                                  :
     : +------------------------------------------------------------------+
-    : : Tries>6?                        Terminate, and report failure.   :
+    : : Tries&gt;6?                        Terminate, and report failure.   :
     : +------------------------------------------------------------------+
     : : Go to step 3.                                                    :
     +-+------------------------------------------------------------------+
@@ -808,7 +809,7 @@ Date:     03-May-1991
     and capabilities.
 
     =====================================================================
-    EMSI ISM                             **EMSI_ISM<len><data><crc32><CR>
+    EMSI ISM                             **EMSI_ISM&lt;len&gt;&lt;data&gt;&lt;lt;crc32&gt;&lt;lt;CR&gt;
     ---------------------------------------------------------------------
     The ISM packet is used to transfer ASCII images from the Server to
     the Client. These images can then be recalled by the Client when
@@ -816,7 +817,7 @@ Date:     03-May-1991
     be further described in future revisions of this document.
 
     =====================================================================
-    EMSI CHT                                        **EMSI_CHT<crc16><CR>
+    EMSI CHT                                        **EMSI_CHT&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The CHT sequence is used by the Server to instruct the Client
     software to enter its full-screen conversation mode function (CHAT).
@@ -833,7 +834,7 @@ Date:     03-May-1991
     characters back to the Client.
 
     =====================================================================
-    EMSI TCH                                        **EMSI_TCH<crc16><CR>
+    EMSI TCH                                        **EMSI_TCH&lt;crc16&gt;&lt;CR&gt;
     ---------------------------------------------------------------------
     The TCH sequence is used by the Server to instruct the Client
     software to terminate its full-screen conversation mode function
@@ -974,7 +975,7 @@ Date:     03-May-1991
         HUSH    Do not disturb.
         MORE    Page pausing, often referred to as "More".
         FSED*   Full-screen editor.
-        XPRS    <reserved>.
+        XPRS    &lt;reserved&gt;.
 
     (*) Note that this allows the Client to request use of a full-screen
     editor without requiring that it also supports a full-screen terminal
@@ -1055,7 +1056,7 @@ Date:     03-May-1991
     Wait
     ---------------------------------------------------------------------
     A single character used by the Server to indicate that the user
-    has to press the <Enter> key to resume operation. This is used in
+    has to press the &lt;Enter&gt; key to resume operation. This is used in
     conjunction with ASCII Image Downloads (see ISM packet).
 
     =====================================================================
@@ -1071,7 +1072,7 @@ Date:     03-May-1991
     designed by Joaquim H. Homrighausen and Andrew Milner.
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>The HYDRA file transfer protocol.</TITLE>
 </HEAD>
@@ -203,7 +204,7 @@ Status of this document:
 
     In formulas, "AND" means bitwise AND, "XOR" means bitwise Exclusive
     OR, "NOT" is ones complement (i.e. all zeros become ones, all ones
-    become zeros). The ">>" is a shift operation to the right, "R >> 3"
+    become zeros). The "&gt;&gt;" is a shift operation to the right, "R &gt;&gt; 3"
     means shift R three bits to the right.
 
 
@@ -302,18 +303,18 @@ TXPKT (Sender)
 |        +-+----------------------------+--------------------------+----------+
 |        |3|else (no spc.pkt, 8bit link)|format = BINPKT           |Format    |
 +--------+-+----------------------------+--------------------------+----------+
-|Coding  |1|escape all control chars &  |format = UUEPKT           |Format    |
+|Coding  |1|escape all control chars &amp;  |format = UUEPKT           |Format    |
 |        | |UUENCODED packets allowed   |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|ASCII packets allowed       |format = ASCPKT           |Format    |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|7 bit link &                |format = HEXPKT           |Format    |
-|        | |escape all control chars &  |                          |          |
+|        |3|7 bit link &amp;                |format = HEXPKT           |Format    |
+|        | |escape all control chars &amp;  |                          |          |
 |        | |UUE/ASC pkts not allowed    |                          |          |
 +--------+-+----------------------------+--------------------------+----------+
 |Format  |                              |Append format byte to data|CRC       |
 +--------+-+----------------------------+--------------------------+----------+
-|CRC     |1|format != HEXPKT &          |Calc CRC-32 (data,pkttype)|Encode    |
+|CRC     |1|format != HEXPKT &amp;          |Calc CRC-32 (data,pkttype)|Encode    |
 |        | |CRC-32 allowed              |Append one's complement of|          |
 |        | |                            |CRC to data, lowbyte first|          |
 |        +-+----------------------------+--------------------------+----------+
@@ -343,7 +344,7 @@ TXPKT (Sender)
 |        |                              |Transmit encoded buffer   |          |
 |        |                              |Transmit H_DLE,pktend byte|          |
 +--------+-+----------------------------+--------------------------+----------+
-|Suffix  |1|pkttype != DATA &           |Transmit CR,LF (ASC 13,10)|Done      |
+|Suffix  |1|pkttype != DATA &amp;           |Transmit CR,LF (ASC 13,10)|Done      |
 |        | |pktformat != BINPKT         |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (pkttype == DATA or    |                          |Done      |
@@ -378,19 +379,19 @@ RXPKT (Receiver)
 +--------+-+----------------------------+--------------------------+----------+
 |Process |1|c == H_DLE                  |increment rxdle           |DLE       |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|Escape XON/XOFF &           |Eat these                 |NextByte  |
+|        |2|Escape XON/XOFF &amp;           |Eat these                 |NextByte  |
 |        | |n == XON or n == XOFF       |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|Escape all control chars &  |Eat these                 |NextByte  |
-|        | |n < 32 or n == 127          |                          |          |
+|        |3|Escape all control chars &amp;  |Eat these                 |NextByte  |
+|        | |n &lt; 32 or n == 127          |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxdle > 0                   |                          |Escape    |
+|        |4|rxdle &gt; 0                   |                          |Escape    |
 |        +-+----------------------------+--------------------------+----------+
 |        |5|else (no eating or escaping)|                          |Store     |
 +--------+-+----------------------------+--------------------------+----------+
 |DLE     |1|rxdle == 5                  |Report remote wants abort |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (rxdle < 5)            |                          |NextByte  |
+|        |2|else (rxdle &lt; 5)            |                          |NextByte  |
 +--------+-+----------------------------+--------------------------+----------+
 |Escape  |1|c == PKTEND                 |                          |PktEnd    |
 |        +-+----------------------------+--------------------------+----------+
@@ -407,9 +408,9 @@ RXPKT (Receiver)
 +--------+-+----------------------------+--------------------------+----------+
 |Store   |1|format == 0                 |Garbage                   |NextByte  |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|pktlen >= maximum           |Pkt too long / lost PKTEND|Reset     |
+|        |2|pktlen &gt;= maximum           |Pkt too long / lost PKTEND|Reset     |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|else (fmt > 0 & len < max)  |Append c to databuffer    |NextByte  |
+|        |3|else (fmt &gt; 0 &amp; len &lt; max)  |Append c to databuffer    |NextByte  |
 |        | |                            |increment pktlen          |          |
 +--------+-+----------------------------+--------------------------+----------+
 |PktStart|                              |rxdle = 0                 |NextByte  |
@@ -429,7 +430,7 @@ RXPKT (Receiver)
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (errors in decoding)   |Bad encoding, ignore pkt  |Reset     |
 +--------+-+----------------------------+--------------------------+----------+
-|CalcCRC |1|format != HEXPKT &          |Calc CRC-32 over databuf  |CheckCRC  |
+|CalcCRC |1|format != HEXPKT &amp;          |Calc CRC-32 over databuf  |CheckCRC  |
 |        | |CRC-32 allowed              |ok = (crc == 0xdebb20e3)  |          |
 |        | |                            |pktlen = pktlen - 4       |          |
 |        +-+----------------------------+--------------------------+----------+
@@ -472,15 +473,15 @@ BINPKT Escaping
 |Escape  |1|n == H_DLE                  |Output H_DLE              |Output    |
 |        | |                            |c = c XOR 0x40            |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|Escape XON/XOFF &           |Output H_DLE              |Output    |
+|        |2|Escape XON/XOFF &amp;           |Output H_DLE              |Output    |
 |        | |n == XON or n == XOFF       |c = c XOR 0x40            |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|Escape Telenet &            |Output H_DLE              |Output    |
-|        | |n == CR &                   |c = c XOR 0x40            |          |
+|        |3|Escape Telenet &amp;            |Output H_DLE              |Output    |
+|        | |n == CR &amp;                   |c = c XOR 0x40            |          |
 |        | |txlasc == '@'               |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|Escape all control chars &  |Output H_DLE              |Output    |
-|        | |n < 32 or n == 127          |c = c XOR 0x40            |          |
+|        |4|Escape all control chars &amp;  |Output H_DLE              |Output    |
+|        | |n &lt; 32 or n == 127          |c = c XOR 0x40            |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |5|else (any other character)  |                          |Output    |
 +--------+-+----------------------------+--------------------------+----------+
@@ -535,7 +536,7 @@ HEXPKT Encoding/Escaping
 |        | |                            |Output hexdigit(c bit 4-7)|          |
 |        | |                            |Output hexdigit(c bit 0-3)|          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|c < 32 or c == 127          |Output H_DLE              |          |
+|        |3|c &lt; 32 or c == 127          |Output H_DLE              |          |
 |        | |                            |Output (c XOR 0x40)       |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |4|c == \ (backslash)          |Output \ (backslash)      |          |
@@ -565,7 +566,7 @@ HEXPKT Decoding
 +--------+-+----------------------------+--------------------------+----------+
 |NextHex |1|No more bytes to process    |Premature end of data     |Error     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|c == lowercase hexdigit     |Output (1st << 4 OR 2nd)  |NextByte  |
+|        |2|c == lowercase hexdigit     |Output (1st &lt;&lt; 4 OR 2nd)  |NextByte  |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|else (all other characters) |Invalid character         |Error     |
 +--------+-+----------------------------+--------------------------+----------+
@@ -604,16 +605,16 @@ ASCPKT Encoding/Escaping
 +--------+-+----------------------------+--------------------------+----------+
 |NextByte|1|No more bytes to process    |                          |Flush     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (more bytes to process)|n = n OR (c << bitshift)  |Shift     |
-|        | |                            |BINPKT escape (n & 0x7f)  |          |
-|        | |                            |n = n >> 7                |          |
+|        |2|else (more bytes to process)|n = n OR (c &lt;&lt; bitshift)  |Shift     |
+|        | |                            |BINPKT escape (n &amp; 0x7f)  |          |
+|        | |                            |n = n &gt;&gt; 7                |          |
 |        | |                            |increment bitshift        |          |
 +--------+-+----------------------------+--------------------------+----------+
-|Shift   |1|bitshift == 7               |BINPKT escape (n & 0x7f)  |Reset     |
+|Shift   |1|bitshift == 7               |BINPKT escape (n &amp; 0x7f)  |Reset     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (bitshift < 7)         |                          |NextByte  |
+|        |2|else (bitshift &lt; 7)         |                          |NextByte  |
 +--------+-+----------------------------+--------------------------+----------+
-|Flush   |1|bitshift > 0                |BINPKT escape (n & 0x7f)  |Done      |
+|Flush   |1|bitshift &gt; 0                |BINPKT escape (n &amp; 0x7f)  |Done      |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (bitshift == 0)        |                          |Done      |
 +--------+-+----------------------------+--------------------------+----------+
@@ -628,14 +629,14 @@ ASCPKT Decoding
 |NextByte|1|No more bytes to process    |                          |Done OK   |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (more bytes to process)|c = c AND 0x7f            |Shift     |
-|        | |                            |n = n OR (c << bitshift)  |          |
+|        | |                            |n = n OR (c &lt;&lt; bitshift)  |          |
 |        | |                            |bitshift = bitshift + 7   |          |
 +--------+-+----------------------------+--------------------------+----------+
-|Shift   |1|bitshift >= 8               |Output (n AND 0xff)       |NextByte  |
-|        | |                            |n = n >> 8                |          |
+|Shift   |1|bitshift &gt;= 8               |Output (n AND 0xff)       |NextByte  |
+|        | |                            |n = n &gt;&gt; 8                |          |
 |        | |                            |bitshift = bitshift - 8   |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (bitshift < 8)         |                          |NextByte  |
+|        |2|else (bitshift &lt; 8)         |                          |NextByte  |
 +--------+-+----------------------------+--------------------------+----------+
 
 
@@ -669,20 +670,20 @@ UUEPKT Encoding
 +--------+-+----------------------------+--------------------------+----------+
 |NextByte|1|Less than three bytes left  |                          |Flush     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (three or more left)   |UUE(in[0]>>2)             |          |
-|        | |                            |UUE(in[0]<<4 OR in[1]>>4) |          |
-|        | |                            |UUE(in[1]<<2 OR in[2]>>6) |          |
+|        |2|else (three or more left)   |UUE(in[0]&gt;&gt;2)             |          |
+|        | |                            |UUE(in[0]&lt;&lt;4 OR in[1]&gt;&gt;4) |          |
+|        | |                            |UUE(in[1]&lt;&lt;2 OR in[2]&gt;&gt;6) |          |
 |        | |                            |UUE(in[2])                |          |
 |        | |                            |(UUE: (c AND 0x3f) + '!') |          |
 +--------+-+----------------------------+--------------------------+----------+
 |Flush   |1|No more bytes left          |                          |Done      |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|One byte left               |UUE(in[0]>>2)             |Done      |
-|        | |                            |UUE(in[0]<<4)             |          |
+|        |2|One byte left               |UUE(in[0]&gt;&gt;2)             |Done      |
+|        | |                            |UUE(in[0]&lt;&lt;4)             |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|Two bytes left              |UUE(in[0]>>2)             |Done      |
-|        | |                            |UUE(in[0]<<4 OR in[1]>>4) |          |
-|        | |                            |UUE(in[1]<<2)             |          |
+|        |3|Two bytes left              |UUE(in[0]&gt;&gt;2)             |Done      |
+|        | |                            |UUE(in[0]&lt;&lt;4 OR in[1]&gt;&gt;4) |          |
+|        | |                            |UUE(in[1]&lt;&lt;2)             |          |
 +--------+-+----------------------------+--------------------------+----------+
 
 UUEPKT Decoding
@@ -691,9 +692,9 @@ UUEPKT Decoding
 +--------+-+----------------------------+--------------------------+----------+
 |NextByte|1|Less than four bytes left   |                          |Flush     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (four or more left) &  |UD(i[0])<<2 OR UD(i[1])>>4|          |
-|        | |(c AND 0x7f) is in UUE range|UD(i[1])<<4 OR UD(i[2])>>2|          |
-|        | |                            |UD(i[2])<<6 OR UD(i[3])   |          |
+|        |2|else (four or more left) &amp;  |UD(i[0])&lt;&lt;2 OR UD(i[1])&gt;&gt;4|          |
+|        | |(c AND 0x7f) is in UUE range|UD(i[1])&lt;&lt;4 OR UD(i[2])&gt;&gt;2|          |
+|        | |                            |UD(i[2])&lt;&lt;6 OR UD(i[3])   |          |
 |        | |                            |(UD: (c - '!') AND 0x3f)  |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|else (all other characters) |Invalid character(s)      |Error     |
@@ -701,11 +702,11 @@ UUEPKT Decoding
 |Flush   |1|No bytes left or            |                          |Done OK   |
 |        | |Less than two bytes left    |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|Two bytes left &            |UD(i[0])<<2 OR UD(i[1])>>4|Done OK   |
+|        |2|Two bytes left &amp;            |UD(i[0])&lt;&lt;2 OR UD(i[1])&gt;&gt;4|Done OK   |
 |        | |(c AND 0x7f) is in UUE range|                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|Three bytes left &          |UD(i[0])<<2 OR UD(i[1])>>4|Done OK   |
-|        | |(c AND 0x7f) is in UUE range|UD(i[1])<<4 OR UD(i[2])>>2|          |
+|        |3|Three bytes left &amp;          |UD(i[0])&lt;&lt;2 OR UD(i[1])&gt;&gt;4|Done OK   |
+|        | |(c AND 0x7f) is in UUE range|UD(i[1])&lt;&lt;4 OR UD(i[2])&gt;&gt;2|          |
 |        +-+----------------------------+--------------------------+----------+
 |        |4|else (all other characters) |Invalid character(s)      |Error     |
 +--------+-+----------------------------+--------------------------+----------+
@@ -768,7 +769,7 @@ UUEPKT Decoding
     document revision date, product name, product revision number, and
     optionally the product serial number. The format of the string is:
 
-        <RevDate><ProductName><,><ProductRevision>[<,><ProductSerial#>]
+        &lt;RevDate&gt;&lt;ProductName&gt;&lt;,&gt;&lt;ProductRevision&gt;[&lt;,&gt;&lt;ProductSerial#&gt;]
 
     RevDate is the UNIX timestamp (the hour, minute, and second portion
     is assumed to be zero), in hexadecimal notation, of the HYDRA
@@ -780,8 +781,8 @@ UUEPKT Decoding
 
     Capability flags
 
-        XON        Escape <XON> and <XOFF> characters.
-        TLN        Escape the <CR>@<CR> sequence (Telenet escape).
+        XON        Escape &lt;XON&gt; and &lt;XOFF&gt; characters.
+        TLN        Escape the &lt;CR&gt;@&lt;CR&gt; sequence (Telenet escape).
         CTL        Escape ASCII characters 0-31 and 127.
         HIC        Escape above three with high bit set.
         HI8        Escape ASCII characters 128-255 and strip the high bit.
@@ -934,7 +935,7 @@ UUEPKT Decoding
     options" of the receiver contains FPT. If the real filename field
     contains a path, it may include any ASCII character in the range 32
     (0x20) through 255 (0xff) with \ characters translated to /. A drive
-    specifier may be present in the <Drive>: (e.g. c:) format. If both
+    specifier may be present in the &lt;Drive&gt;: (e.g. c:) format. If both
     the short and real filename fields are present, they are separated
     by a NUL character. There is never more than one NUL character
     terminating the packet.
@@ -961,7 +962,7 @@ UUEPKT Decoding
            +------+----------------------------------------------+
            |Offset|Description                                   |
            +------+----------------------------------------------+
-           | >=0  |Seek to specified offset and start sending (1)|
+           | &gt;=0  |Seek to specified offset and start sending (1)|
            |  -1  |Already have file                          (2)|
            |  -2  |Send file during another batch (not now)      |
            +------+----------------------------------------------+
@@ -1105,7 +1106,7 @@ UUEPKT Decoding
              +------+-------------------------------------------+
              |Offset|Description                                |
              +------+-------------------------------------------+
-             | >=0  |Seek to specified offset and resume sending|
+             | &gt;=0  |Seek to specified offset and resume sending|
              |  -2  |Send file during another batch (not now)   |
              +------+-------------------------------------------+
 
@@ -1156,7 +1157,7 @@ UUEPKT Decoding
                +------+----------------------------------------+
                |Offset|Description                             |
                +------+----------------------------------------+
-               | >=0  |Final offset in file (size of file)     |
+               | &gt;=0  |Final offset in file (size of file)     |
                |  -2  |Send file during another batch (not now)|
                +------+----------------------------------------+
 
@@ -1301,19 +1302,19 @@ DEVICE sender (devtxstate HTD_...)
 |Begin   |                              |devtxid = 0               |DONE      |
 |        |                              |reset devtxtimer          |          |
 +--------+-+----------------------------+--------------------------+----------+
-|DONE    |1|wish to send device data &  |increase devtxid          |DATA      |
+|DONE    |1|wish to send device data &amp;  |increase devtxid          |DATA      |
 |        | |other side allows DEV pkts  |devtxretries = 0          |          |
 |        | |                            |reset devtxtimer          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|wish to send device data &  |Tell calling function     |          |
+|        |2|wish to send device data &amp;  |Tell calling function     |          |
 |        | |other doesn't allow DEV pkts|it's not on...            |          |
 +--------+-+----------------------------+--------------------------+----------+
 |DATA    |1|devtxretries == 10          |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (devtxretries < 10)    |txpkt DEVDATA(id,dev,data)|DACK      |
+|        |2|else (devtxretries &lt; 10)    |txpkt DEVDATA(id,dev,data)|DACK      |
 |        | |                            |devtxtimer = timeout      |          |
 +--------+-+----------------------------+--------------------------+----------+
-|DACK    |1|rxpkt DACK &                |reset devtxtimer          |DONE      |
+|DACK    |1|rxpkt DACK &amp;                |reset devtxtimer          |DONE      |
 |        | |DACK(id) == devtxid         |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|devtxtimer expired          |Report devtx timeout      |DATA      |
@@ -1336,7 +1337,7 @@ DEVICE RECEIVER
 |        +-+----------------------------+--------------------------+----------+
 |        |2|DEVDATA(dev) == CON         |Output to user console    |DONE      |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|DEVDATA(dev) == known&ok    |Call processing routine   |DONE      |
+|        |3|DEVDATA(dev) == known&amp;ok    |Call processing routine   |DONE      |
 |        +-+----------------------------+--------------------------+----------+
 |        |4|else (unknown/not-ok device)|One-way into bitbucket    |DONE      |
 +--------+-+----------------------------+--------------------------+----------+
@@ -1363,7 +1364,7 @@ DEVICE RECEIVER
             |  300 bps|     256 bytes    |     256 bytes     |
             | 1200 bps|     512 bytes    |     256 bytes     |
             | 2400 bps|    1024 bytes    |     512 bytes     |
-            |>2400 bps|    2048 bytes    |     512 bytes     |
+            |&gt;2400 bps|    2048 bytes    |     512 bytes     |
             +---------+------------------+-------------------+
 
     The blocksize is initialized to the starting blocksize when a session
@@ -1405,7 +1406,7 @@ DEVICE RECEIVER
                      |  300 bps|60 seconds|30 seconds|
                      | 1200 bps|34 seconds|17 seconds|
                      | 2400 bps|17 seconds| 8 seconds|
-                     |>2400 bps|10 seconds| 5 seconds|
+                     |&gt;2400 bps|10 seconds| 5 seconds|
                      +---------+----------+----------+
 
     If the output buffer is empty, the timeout value is halved. In
@@ -1452,7 +1453,7 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |START   |1|txretries == 10             |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (txretries < 10)       |txstr AutoStart           |SWAIT     |
+|        |2|else (txretries &lt; 10)       |txstr AutoStart           |SWAIT     |
 |        | |                            |txpkt START               |          |
 |        | |                            |txtimer = 5               |          |
 +--------+-+----------------------------+--------------------------+----------+
@@ -1465,7 +1466,7 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |INIT    |1|txretries == 10             |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (txretries < 10)       |txpkt INIT(linkinfo)      |INITACK   |
+|        |2|else (txretries &lt; 10)       |txpkt INIT(linkinfo)      |INITACK   |
 |        | |                            |txtimer = timeout/2       |          |
 +--------+-+----------------------------+--------------------------+----------+
 |INITACK |1|rxpkt INITACK               |txretries = 0             |RINIT     |
@@ -1490,64 +1491,64 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |FINFO   |1|txretries == 10             |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|txretries > 0               |txpkt FINFO(fileinfo)     |FINFOACK  |
+|        |2|txretries &gt; 0               |txpkt FINFO(fileinfo)     |FINFOACK  |
 |        | |                            |txtimer = timeout/2       |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|else (txretries == 0)       |txpkt FINFO(fileinfo)     |FINFOACK  |
 |        | |                            |txtimer = timeout         |          |
 +--------+-+----------------------------+--------------------------+----------+
-|FINFOACK|1|NULL fname (end of batch) & |txtimer = idletimeout     |REND      |
+|FINFOACK|1|NULL fname (end of batch) &amp; |txtimer = idletimeout     |REND      |
 |        | |rxpkt FINFOACK              |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt FINFOACK &            |txpos = FINFOACK(pos)     |DATA      |
-|        | |FINFOACK(pos) >= 0          |txretries = 0             |          |
+|        |2|rxpkt FINFOACK &amp;            |txpos = FINFOACK(pos)     |DATA      |
+|        | |FINFOACK(pos) &gt;= 0          |txretries = 0             |          |
 |        | |                            |txlastack = 0             |          |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|rxpkt FINFOACK &            |They already have file    |NextFile  |
+|        |3|rxpkt FINFOACK &amp;            |They already have file    |NextFile  |
 |        | |FINFOACK(pos) == -1)        |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxpkt FINFOACK &            |Skip this file for now    |NextFile  |
+|        |4|rxpkt FINFOACK &amp;            |Skip this file for now    |NextFile  |
 |        | |FINFOACK(pos) == -2)        |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |5|txtimer expired             |Report tx timeout         |FINFO     |
 |        | |                            |inrease txretries         |          |
 +--------+-+----------------------------+--------------------------+----------+
-|DATA    |1|rxstate != Done &           |txtimer = idletimeout     |XWAIT     |
+|DATA    |1|rxstate != Done &amp;           |txtimer = idletimeout     |XWAIT     |
 |        | |hdxlink == True             |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt DATAACK &             |txlastack = DATAACK(pos)  |          |
-|        | |DATAACK(pos) > txlastack    |                          |          |
+|        |2|rxpkt DATAACK &amp;             |txlastack = DATAACK(pos)  |          |
+|        | |DATAACK(pos) &gt; txlastack    |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|rxpkt RPOS &                |Skip this file for now    |SkipFile  |
-|        | |RPOS(pos) < 0               |braintimer = 120          |          |
+|        |3|rxpkt RPOS &amp;                |Skip this file for now    |SkipFile  |
+|        | |RPOS(pos) &lt; 0               |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxpkt RPOS &                |Report too many errors    |Abort     |
-|        | |RPOS(id) == txsyncid &      |                          |          |
+|        |4|rxpkt RPOS &amp;                |Report too many errors    |Abort     |
+|        | |RPOS(id) == txsyncid &amp;      |                          |          |
 |        | |inc txretries == 10         |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |5|rxpkt RPOS &                |txpos = RPOS(pos)         |          |
-|        | |RPOS(id) != txsyncid &      |txsyncid = RPOS(id)       |          |
-|        | |RPOS(pos) >= 0              |txretries = 1             |          |
+|        |5|rxpkt RPOS &amp;                |txpos = RPOS(pos)         |          |
+|        | |RPOS(id) != txsyncid &amp;      |txsyncid = RPOS(id)       |          |
+|        | |RPOS(pos) &gt;= 0              |txretries = 1             |          |
 |        | |                            |blksize = RPOS(blksize)   |          |
 |        | |                            |goodbytes = 0             |          |
 |        | |                            |inc goodneeded + 1024     |          |
-|        | |                            |if (goodneeded > 8192)    |          |
+|        | |                            |if (goodneeded &gt; 8192)    |          |
 |        | |                            |   goodneeded = 8192      |          |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |6|File seek/read error or     |Skip this file for now    |SkipFile  |
 |        | |user wishes to skip file    |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |7|txwindow &                  |if (txretries > 0)        |DATAACK   |
-|        | |txpos >= txlastack+txwindow |   txtimer = timeout/2    |          |
+|        |7|txwindow &amp;                  |if (txretries &gt; 0)        |DATAACK   |
+|        | |txpos &gt;= txlastack+txwindow |   txtimer = timeout/2    |          |
 |        | |                            |else                      |          |
 |        | |                            |   txtimer = timeout      |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |8|Enough room in output &     |txpkt DATA(pos,data)      |          |
+|        |8|Enough room in output &amp;     |txpkt DATA(pos,data)      |          |
 |        | |more filedata(blksize) to go|txpos += datalen          |          |
 |        | |                            |inc goodbytes + datalen   |          |
-|        | |                            |if goodbytes > goodneeded |          |
+|        | |                            |if goodbytes &gt; goodneeded |          |
 |        | |                            |   Store txpos,blksize    |          |
 |        | |                            |   blksize * 2 (max.2048) |          |
 |        +-+----------------------------+--------------------------+----------+
@@ -1558,9 +1559,9 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |DATAACK |1|txretries == 10             |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt DATAACK &             |txlastack = DATAACK(pos)  |DATA      |
-|        | |DATAACK(pos) > txlastack &  |txretries = 0             |          |
-|        | |txpos < DATAACK(pos) + txwin|reset txtimer             |          |
+|        |2|rxpkt DATAACK &amp;             |txlastack = DATAACK(pos)  |DATA      |
+|        | |DATAACK(pos) &gt; txlastack &amp;  |txretries = 0             |          |
+|        | |txpos &lt; DATAACK(pos) + txwin|reset txtimer             |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|rxpkt RPOS                  |Handle RPOS in state DATA |          |
 |        | |                            |but stay in this state    |          |
@@ -1570,8 +1571,8 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |XWAIT   |1|rxstate == Done             |reset txtimer             |DATA      |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt DATAACK &             |txlastack = DATAACK(pos)  |          |
-|        | |DATAACK(pos) > txlastack    |                          |          |
+|        |2|rxpkt DATAACK &amp;             |txlastack = DATAACK(pos)  |          |
+|        | |DATAACK(pos) &gt; txlastack    |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|rxpkt RPOS                  |Handle RPOS in state DATA |          |
 |        | |                            |but stay in this state    |          |
@@ -1584,7 +1585,7 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |EOF     |1|txretries == 10             |Report too many errors    |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|txretries > 0               |txpkt EOF(txpos)          |EOFACK    |
+|        |2|txretries &gt; 0               |txpkt EOF(txpos)          |EOFACK    |
 |        | |                            |txtimer = timeout/2       |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |3|else (txretries == 0)       |txpkt EOF(txpos)          |EOFACK    |
@@ -1592,20 +1593,20 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |EOFACK  |1|rxpkt EOFACK                |braintimer = 120          |NextFile  |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt DATAACK &             |txlastack = DATAACK(pos)  |          |
-|        | |DATAACK(pos) > txlastack    |                          |          |
+|        |2|rxpkt DATAACK &amp;             |txlastack = DATAACK(pos)  |          |
+|        | |DATAACK(pos) &gt; txlastack    |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|rxpkt RPOS &                |rxpos == -2               |EOF       |
-|        | |RPOS(pos) == -2 &           |                          |          |
+|        |3|rxpkt RPOS &amp;                |rxpos == -2               |EOF       |
+|        | |RPOS(pos) == -2 &amp;           |                          |          |
 |        | |rxpos != -2                 |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxpkt RPOS &                |Handle as in state DATA   |DATA      |
-|        | |RPOS(pos) >= 0              |                          |          |
+|        |4|rxpkt RPOS &amp;                |Handle as in state DATA   |DATA      |
+|        | |RPOS(pos) &gt;= 0              |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |5|txtimer expired             |Report tx timeout         |EOF       |
 |        | |                            |increment txretries       |          |
 +--------+-+----------------------------+--------------------------+----------+
-|REND    |1|rxstate == DONE &           |txretries = 0             |END       |
+|REND    |1|rxstate == DONE &amp;           |txretries = 0             |END       |
 |        | |devtxstate == DONE          |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|txtimer expired             |txpkt IDLE                |          |
@@ -1613,7 +1614,7 @@ GENERAL sender (txstate HTX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |END     |1|txretries == 10             |                          |Abort     |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|else (txretries < 10)       |txpkt END (twice)         |ENDACK    |
+|        |2|else (txretries &lt; 10)       |txpkt END (twice)         |ENDACK    |
 |        | |                            |txtimer = timeout/2       |          |
 +--------+-+----------------------------+--------------------------+----------+
 |ENDACK  |1|rxpkt END                   |txpkt END (thrice)        |Done      |
@@ -1632,7 +1633,7 @@ GENERAL RECEIVER (rxstate HRX_...)
 |        |                              |lastrxdlen = startblksize |          |
 |        |                              |(tx handles braintimer)   |          |
 +--------+-+----------------------------+--------------------------+----------+
-|INIT    |1|rxpkt INIT &                |txpkt INITACK             |FINFO     |
+|INIT    |1|rxpkt INIT &amp;                |txpkt INITACK             |FINFO     |
 |        | |INIT(options) are compatible|Set options               |          |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
@@ -1640,22 +1641,22 @@ GENERAL RECEIVER (rxstate HRX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |FINFO   |1|rxpkt INIT (apparent dup)   |txpkt INITACK             |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt FINFO &               |Report end of batch       |          |
+|        |2|rxpkt FINFO &amp;               |Report end of batch       |          |
 |        | |FINFO(fileinfo) == Empty    |txpkt FINFOACK            |DONE      |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|rxpkt FINFO &               |do not want this file     |          |
+|        |3|rxpkt FINFO &amp;               |do not want this file     |          |
 |        | |we already have file        |txpkt FINFOACK(-1)        |          |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxpkt FINFO &               |Skip this file for now    |          |
+|        |4|rxpkt FINFO &amp;               |Skip this file for now    |          |
 |        | |open/diskspace error        |txpkt FINFOACK(-2)        |          |
 |        | |                            |braintimer = 120          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |5|rxpkt FINFO &               |rxpos = resume offset     |ToData    |
+|        |5|rxpkt FINFO &amp;               |rxpos = resume offset     |ToData    |
 |        | |file we want to resume      |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |6|rxpkt FINFO &               |rxpos = 0                 |ToData    |
+|        |6|rxpkt FINFO &amp;               |rxpos = 0                 |ToData    |
 |        | |new file for us             |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |7|rxpkt EOF (apparent dup)    |txpkt EOFACK              |          |
@@ -1669,7 +1670,7 @@ GENERAL RECEIVER (rxstate HRX_...)
 +--------+-+----------------------------+--------------------------+----------+
 |DATA    |1|rxpkt FINFO (apparent dup)  |txpkt FINFOACK(rxpos)     |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|rxpkt DATA &                |Store data                |          |
+|        |2|rxpkt DATA &amp;                |Store data                |          |
 |        | |DATA(pos) == rxpos          |rxpos += datalen          |          |
 |        | |                            |rxretries = 0             |          |
 |        | |                            |rxlastsync = rxpos        |          |
@@ -1678,37 +1679,37 @@ GENERAL RECEIVER (rxstate HRX_...)
 |        | |                            |if (rxwindow)             |          |
 |        | |                            |   txpkt DATAACK(rxpos)   |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|rxpkt DATA &                |Report bad rxpos          |BadPos    |
+|        |3|rxpkt DATA &amp;                |Report bad rxpos          |BadPos    |
 |        | |DATA(pos) != rxpos          |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |4|rxpkt EOF &                 |Close file, received ok   |OkEOF     |
+|        |4|rxpkt EOF &amp;                 |Close file, received ok   |OkEOF     |
 |        | |EOF(pos) == rxpos           |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |5|rxpkt EOF &                 |Close, save for resume    |OkEOF     |
+|        |5|rxpkt EOF &amp;                 |Close, save for resume    |OkEOF     |
 |        | |EOF(pos) == -2              |                          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |6|rxpkt EOF &                 |Report bad EOF            |BadPos    |
+|        |6|rxpkt EOF &amp;                 |Report bad EOF            |BadPos    |
 |        | |EOF(pos) != rxpos           |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |7|File write error or         |Close, save for resume    |          |
 |        | |user wishes to skip file    |rxpos = -2                |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |8|rxpkt IDLE &                |braintimer = 120          |          |
+|        |8|rxpkt IDLE &amp;                |braintimer = 120          |          |
 |        | |hdxlink == False            |                          |          |
 +--------+-+----------------------------+--------------------------+----------+
-|BadPos  |1|DATA/EOF(pos) <= rxlastsync |rxretries = 0             |Timer     |
+|BadPos  |1|DATA/EOF(pos) &lt;= rxlastsync |rxretries = 0             |Timer     |
 |        | |                            |reset rxtimer             |          |
 |        | |                            |rxlastsync = pos          |          |
 |        +-+----------------------------+--------------------------+----------+
-|        |2|DATA/EOF(pos) > rxlastsync  |rxlastsync = pos          |Timer     |
+|        |2|DATA/EOF(pos) &gt; rxlastsync  |rxlastsync = pos          |Timer     |
 +--------+-+----------------------------+--------------------------+----------+
 |Timer   |1|rxtimer expired             |                          |HdxLink   |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (rxtimer not expired)  |                          |DATA      |
 +--------+-+----------------------------+--------------------------+----------+
-|HdxLink |1|rxretries > 4 &             |hdxlink = True            |Retries   |
-|        | |txstate < REND &            |rxretries = 0             |          |
-|        | |originator == False &       |                          |          |
+|HdxLink |1|rxretries &gt; 4 &amp;             |hdxlink = True            |Retries   |
+|        | |txstate &lt; REND &amp;            |rxretries = 0             |          |
+|        | |originator == False &amp;       |                          |          |
 |        | |hdxlink == False            |                          |          |
 |        +-+----------------------------+--------------------------+----------+
 |        |2|else (above not the case)   |                          |Retries   |
@@ -1717,7 +1718,7 @@ GENERAL RECEIVER (rxstate HRX_...)
 |        +-+----------------------------+--------------------------+----------+
 |        |2|rxretries == 1              |increase rxsyncid         |RPos      |
 |        +-+----------------------------+--------------------------+----------+
-|        |3|else (rxretries > 1)        |                          |RPos      |
+|        |3|else (rxretries &gt; 1)        |                          |RPos      |
 +--------+-+----------------------------+--------------------------+----------+
 |RPos    |                              |lastrxdatalen/=2 (min.64) |DATA      |
 |        |                              |txpkt RPOS (rxpos,        |          |
@@ -1794,9 +1795,9 @@ GENERAL RECEIVER (rxstate HRX_...)
             FOR (N=1 TO 8)
                 {
                 IF (CRC16 AND 1)
-                    CRC16=(CRC16 >> 1) XOR 0x8408
+                    CRC16=(CRC16 &gt;&gt; 1) XOR 0x8408
                 ELSE
-                    CRC16=CRC16 >> 1
+                    CRC16=CRC16 &gt;&gt; 1
                 }
             CRC16TAB[i]=CRC16;
             }
@@ -1805,7 +1806,7 @@ GENERAL RECEIVER (rxstate HRX_...)
     routine as follows (variable CRC stores the 16-bit CRC value/result,
     C is the next 8-bit char):
 
-        CRC=CRC16TAB[(CRC XOR C) AND 0xff] XOR ((CRC>>8) AND 0x00ff)
+        CRC=CRC16TAB[(CRC XOR C) AND 0xff] XOR ((CRC&gt;&gt;8) AND 0x00ff)
 
 
     CRC-32 error detection
@@ -1835,9 +1836,9 @@ GENERAL RECEIVER (rxstate HRX_...)
         FOR (N=1 TO 8)
             {
             IF (CRC32 AND 1)
-                CRC32 = (CRC32 >> 1) XOR 0xedb88320
+                CRC32 = (CRC32 &gt;&gt; 1) XOR 0xedb88320
             ELSE
-                CRC32 = CRC32 >> 1
+                CRC32 = CRC32 &gt;&gt; 1
             }
         CRC32TAB[i] = CRC32;
         }
@@ -1846,7 +1847,7 @@ GENERAL RECEIVER (rxstate HRX_...)
     routine as follows (variable CRC stores the 32-bit CRC value/result,
     C is the next 8-bit character):
 
-        CRC=CRC32TAB[(CRC XOR C) AND 0xFF] XOR ((CRC>>8) AND 0x00ffffff)
+        CRC=CRC32TAB[(CRC XOR C) AND 0xFF] XOR ((CRC&gt;&gt;8) AND 0x00ffffff)
 
 
     The authors
@@ -1918,7 +1919,7 @@ GENERAL RECEIVER (rxstate HRX_...)
 
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

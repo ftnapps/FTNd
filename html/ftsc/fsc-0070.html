@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>Improving FidoNet/UseNet gating and Dupe Checking.</TITLE>
 </HEAD>
@@ -42,7 +43,7 @@ Revision:   002
  both worlds, so that we can improve the reliability of Usenet/Fidonet 
  gateways.
 
- In this document "^" means <control-A> (character 01h).
+ In this document "^" means &lt;control-A&gt; (character 01h).
 
 
   History
@@ -66,11 +67,11 @@ Revision:   002
  in Fidonet messages. Of course, the use of the RFCID kludge doesn't replace
  the standard fts-0009 Message-ID:.
 
-       (Usenet)  Message-ID: <92_feb_10_19192012901@prep.ai.mit.edu>
+       (Usenet)  Message-ID: &lt;92_feb_10_19192012901@prep.ai.mit.edu&gt;
     to (Fido)    ^MSGID: 2:300/400.5 6789fedc
                  ^RFCID: 92_feb_10_19192012901@prep.ai.mit.edu
 
- Note ^RFCID does not include the Message-ID enclosing "<" and ">".
+ Note ^RFCID does not include the Message-ID enclosing "&lt;" and "&gt;".
 
  Then if a gateway finds a ^RFCID line in a Fido message, it will use it in
  the Usenet message ID, instead of converting the ^MSGID.
@@ -101,21 +102,21 @@ Revision:   002
  Some examples:
 
     (Fido)   ^MSGID: 2:300/400 12345AbC
- to (Usenet) Message-ID: <2-300-400-12345AbC@fidonet.org>
+ to (Usenet) Message-ID: &lt;2-300-400-12345AbC@fidonet.org&gt;
 
     (Fido)   ^MSGID: 15:300/400.50@somenet abcd6789
- to (Usenet) Message-ID: <15-300-400-50-somenet-abcd6789@fidonet.org>
+ to (Usenet) Message-ID: &lt;15-300-400-50-somenet-abcd6789@fidonet.org&gt;
 
     (Fido)   ^MSGID: Internet.Domain.org aBcD1234
- to (Usenet) Message-ID: <Internet-Domain-org-aBcD1234@fidonet.org>
+ to (Usenet) Message-ID: &lt;Internet-Domain-org-aBcD1234@fidonet.org&gt;
 
     (Fido)   ^MSGID: "LZKkoe$1982 98a" 45678bcd
- to (Usenet) Message-ID: <-LZKkoe-1982-98a--45678bcd@fidonet.org>
+ to (Usenet) Message-ID: &lt;-LZKkoe-1982-98a--45678bcd@fidonet.org&gt;
 
 
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

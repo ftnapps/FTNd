@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>Bark file-request protocol extension.</TITLE>
 </HEAD>
@@ -121,8 +122,10 @@ Status of this document:
     A.4, one extra terminal used in this notation:
   
     (* terminals *)
-    someName<max> - String of up to max chars, NOT null terminated
- C. Performing File Requests
+    someName&lt;max&gt; - String of up to max chars, NOT null terminated
+
+
+ C. Performing File Requests
 
  1. Introduction
 
@@ -186,21 +189,22 @@ Status of this document:
               *1 - CRC does not include the ACK or ETX and is
                    in the reverse byte order from the CRC in a
                    normal XMODEM data packet.
- 2. Data Description Notation of Bark Request Packet
+
+ 2. Data Description Notation of Bark Request Packet
 
     DataBlock (no password) = ACK
-                              Filename<12>
+                              Filename&lt;12&gt;
                               Space
-                              Date<11>
+                              Date&lt;11&gt;
                               ETX
                               CRC
   
     DataBlock (with password) = ACK
-                                Filename<12>
+                                Filename&lt;12&gt;
                                 Space
-                                Date<11>
+                                Date&lt;11&gt;
                                 Space
-                                Password<6|8>
+                                Password&lt;6|8&gt;
                                 ETX
                                 CRC
   
@@ -221,7 +225,8 @@ Status of this document:
                          CRCs.  The CRC is calculated on
                          all data in the block between but
                          not including the ACK and the ETX *)
- E. Session Layer Protocol:
+
+ E. Session Layer Protocol:
 
     This section describes the modified FTS-0001 session layer protocol.  This
     is the only area of FTS-0001 which is modified to implement Bark style file
@@ -244,7 +249,8 @@ Status of this document:
     The following diagrams fully replace the Session Layer protocol state
     tables in FTS-0001.  No other changes to FTS-0001 are required to implement
     the Bark File request feature.
-    Sender  (Top level)
+
+    Sender  (Top level)
 
     .-----+----------+-------------------------+-------------------------+-----.
     |State| State    | Predicate(s)            | Action(s)               | Next|
@@ -253,8 +259,8 @@ Status of this document:
     | S0  | SendInit |                         | dial modem              | S1  |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | S1  | WaitCxD  |1| carrier detected      | delay 1-5 seconds       | S2  |
-    |     |  (*1)    | |                       | Set SLO if > 2400bps,   |     |
-    |     |          | |                       | Reset SLO if <= 2400bps |     |
+    |     |  (*1)    | |                       | Set SLO if &gt; 2400bps,   |     |
+    |     |          | |                       | Reset SLO if &lt;= 2400bps |     |
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |2| busy, etc.            | report no connection    | exit|
     |     |          +-+-----------------------+-------------------------+-----+
@@ -263,11 +269,11 @@ Status of this document:
     |     |          |4| carrier not detected  | report no connection    | exit|
     |     |          | | within 60 seconds     |                         |     |
     +-----+----------+-+-----------------------+-------------------------+-----+
-    | S2  | WhackCRs |1| over 30 seconds       | report no response <cr> | exit|
+    | S2  | WhackCRs |1| over 30 seconds       | report no response &lt;cr&gt; | exit|
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |2| ?? <cr>s received     | delay 1 sec             | S3  |
+    |     |          |2| ?? &lt;cr&gt;s received     | delay 1 sec             | S3  |
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |3| <cr>s not received    | send <cr> <sp> <cr> <sp>| S2  |
+    |     |          |3| &lt;cr&gt;s not received    | send &lt;cr&gt; &lt;sp&gt; &lt;cr&gt; &lt;sp&gt;| S2  |
     |     |          | |                       |   delay ??? secs        |     |
     +-----+----------+-+-----------------------+-------------------------+-----+
     | S3  | WaitClear|1| no input for 0.5 secs | send TSYNCH = AEH       | S4  |
@@ -299,7 +305,7 @@ Status of this document:
     Note: Although the above shows the sender emitting only one TSYNCH, it is
     recommended that a timeout of 5-20 seconds should initiate another TSYNCH.
     The receiver should tolerate multiple TSYNCHs.
-    Receiver (Top Level)
+    Receiver (Top Level)
 
     The  receiving FSM is given  an external timer, the expiration of  which
     will cause termination with a result of 'no calls' (R0.2).
@@ -362,7 +368,7 @@ Status of this document:
     |     |          |2| Disallow Requests     | Hang Up                 | exit|
     `-----+----------+-+-----------------------+-------------------------+-----'
     *1 - Some implementations always do (R6.1) even if they have no requests.
-    Sender - Send Mail
+    Sender - Send Mail
 
     .-----+----------+-------------------------+-------------------------+-----.
     |State| State    | Predicate(s)            | Action(s)               | Next|
@@ -398,7 +404,7 @@ Status of this document:
     +-----+----------+-+-----------------------+-------------------------+-----+
     | SB2 | RcvFile  |1| Rcv ACK               | (Batch Receive BR0)     | SB3 |
     |     |          +-+-----------------------+-------------------------+-----+
-    |     |          |2| Tries > 5             | Send ETB, report failed | exit|
+    |     |          |2| Tries &gt; 5             | Send ETB, report failed | exit|
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |3| Rcv Other             | Purge input, Incr tries | SB1 |
     |     |          +-+-----------------------+-------------------------+-----+
@@ -412,7 +418,7 @@ Status of this document:
     |     |          +-+-----------------------+-------------------------+-----+
     |     |          |4| 45 sec in SB3         | Hang up, report error   | exit|
     `-----+----------+-+-----------------------+-------------------------+-----'
-    Sender & Receiver - Receive Mail
+    Sender &amp; Receiver - Receive Mail
 
     .-----+----------+-------------------------+-------------------------+-----.
     |State| State    | Predicate(s)            | Action(s)               | Next|
@@ -433,7 +439,7 @@ Status of this document:
     `-----+----------+-+-----------------------+-------------------------+-----'
 
 
-    Sender & Receiver - Receive Bark
+    Sender &amp; Receiver - Receive Bark
 
     .-----+----------+-------------------------+-------------------------+-----.
     |State| State    | Predicate(s)            | Action(s)               | Next|
@@ -478,7 +484,7 @@ Status of this document:
          FTS-0001 session, but will not buy more time.
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

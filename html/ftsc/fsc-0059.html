@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>Newsgroup Interchange within FidoNet.</TITLE>
 </HEAD>
@@ -43,7 +44,7 @@ Introduction:
 This document defines the standard format for the interchange of USENET
 news messages among FidoNet nodes.  It incorporates by reference the
 document RFC-1036, "Standard for Interchange of USENET Messages" by M.
-Horton of AT&T Bell Laboratories and R. Adams of the Center for Seismic
+Horton of AT&amp;T Bell Laboratories and R. Adams of the Center for Seismic
 Studies.  A copy of RFC-1036 should be included in the distribution
 archive of this standard.  However, RFC-1036 is NOT applicable in its
 entirety to FidoNet.  Therefore, unless specifically referenced
@@ -488,7 +489,7 @@ limit on UseNet messages.  If a FidoNet node passes newsgroup messages
 to, or on behalf of other FidoNet nodes, it is NOT permissible to
 discard or truncate messages that exceed a preset length limit.  Note
 that in a batched newsgroup file, each message is preceded by a header
-of the form "#! rnews <length in bytes>".  Since the message text
+of the form "#! rnews &lt;length in bytes&gt;".  Since the message text
 length is never changed in processing, it is possible to determine the
 length of a message after processing by reading in all the header
 lines, calculating the combined length of the header lines prior to
@@ -605,7 +606,7 @@ STATUS OF THIS MEMO
 
 
 
-Horton & Adams                                                  [Page 1]
+Horton &amp; Adams                                                  [Page 1]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -623,11 +624,11 @@ RFC 1036              Standard for USENET Messages         December 1987
               Path: cbosgd!mhuxj!mhuxt!eagle!jerry
               Newsgroups: news.announce
               Subject: Usenet Etiquette -- Please Read
-              Message-ID: <642@eagle.ATT.COM>
+              Message-ID: &lt;642@eagle.ATT.COM&gt;
               Date: Fri, 19 Nov 82 16:14:55 GMT
               Followup-To: news.misc
               Expires: Sat, 1 Jan 83 00:00:00 -0500
-              Organization: AT&T Bell Laboratories, Murray Hill
+              Organization: AT&amp;T Bell Laboratories, Murray Hill
 
               The body of the message comes here, after a blank line.
 
@@ -661,7 +662,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 2]
+Horton &amp; Adams                                                  [Page 2]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -717,19 +718,19 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 3]
+Horton &amp; Adams                                                  [Page 3]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
 
               From: mark@cbosgd.ATT.COM
               From: mark@cbosgd.ATT.COM (Mark Horton)
-              From: Mark Horton <mark@cbosgd.ATT.COM>
+              From: Mark Horton &lt;mark@cbosgd.ATT.COM&gt;
 
     Full names may contain any printing ASCII characters from space
     through tilde, except that they may not contain "(" (left
-    parenthesis), ")" (right parenthesis), "<" (left angle bracket), or
-    ">" (right angle bracket).  Additional restrictions may be placed on
+    parenthesis), ")" (right parenthesis), "&lt;" (left angle bracket), or
+    "&gt;" (right angle bracket).  Additional restrictions may be placed on
     full names by the mail standard, in particular, the characters ","
     (comma), ":" (colon), "@" (at), "!" (bang), "/" (slash), "="
     (equal), and ";" (semicolon) are inadvisable in full names.
@@ -773,7 +774,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 4]
+Horton &amp; Adams                                                  [Page 4]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -816,20 +817,20 @@ RFC 1036              Standard for USENET Messages         December 1987
     Message-ID be reused for at least two years.)  Message-ID's have the
     syntax:
 
-                     <string not containing blank or ">">
+                     &lt;string not containing blank or "&gt;"&gt;
 
     In order to conform to RFC-822, the Message-ID must have the format:
 
-                          <unique@full_domain_name>
+                          &lt;unique@full_domain_name&gt;
 
     where full_domain_name is the full name of the host at which the
     message entered the network, including a domain that host is in, and
-    unique is any string of printing ASCII characters, not including "<"
-    (left angle bracket), ">" (right angle bracket), or "@" (at sign).
+    unique is any string of printing ASCII characters, not including "&lt;"
+    (left angle bracket), "&gt;" (right angle bracket), or "@" (at sign).
 
 
 
-Horton & Adams                                                  [Page 5]
+Horton &amp; Adams                                                  [Page 5]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -838,7 +839,7 @@ RFC 1036              Standard for USENET Messages         December 1987
     sequence number for messages submitted to the network, or a short
     string derived from the date and time the message was created.  For
     example, a valid Message-ID for a message submitted from host ucbvax
-    in domain "Berkeley.EDU" would be "<4123@ucbvax.Berkeley.EDU>".
+    in domain "Berkeley.EDU" would be "&lt;4123@ucbvax.Berkeley.EDU&gt;".
     Programmers are urged not to make assumptions about the content of
     Message-ID fields from other hosts, but to treat them as unknown
     character strings.  It is not safe, for example, to assume that a
@@ -885,7 +886,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 6]
+Horton &amp; Adams                                                  [Page 6]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -941,7 +942,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 7]
+Horton &amp; Adams                                                  [Page 7]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -997,7 +998,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 8]
+Horton &amp; Adams                                                  [Page 8]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1053,7 +1054,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                  [Page 9]
+Horton &amp; Adams                                                  [Page 9]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1109,7 +1110,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 10]
+Horton &amp; Adams                                                 [Page 10]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1143,7 +1144,7 @@ RFC 1036              Standard for USENET Messages         December 1987
                From: reid@decwrl.DEC.COM (Brian Reid)
                Newsgroups: news.lists,news.groups
                Subject: USENET READERSHIP SUMMARY REPORT FOR SEP 86
-               Message-ID: <5658@decwrl.DEC.COM>
+               Message-ID: &lt;5658@decwrl.DEC.COM&gt;
                Date: 1 Oct 86 11:26:15 GMT
                Organization: DEC Western Research Laboratory
                Lines: 441
@@ -1165,7 +1166,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 11]
+Horton &amp; Adams                                                 [Page 11]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1184,7 +1185,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 3.1.  Cancel
 
-                     cancel <Message-ID>
+                     cancel &lt;Message-ID&gt;
 
 
     If a message with the given Message-ID is present on the local
@@ -1205,23 +1206,23 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 3.2.  Ihave/Sendme
 
-                   ihave <Message-ID list> [<remotesys>]
-                   sendme <Message-ID list> [<remotesys>]
+                   ihave &lt;Message-ID list&gt; [&lt;remotesys&gt;]
+                   sendme &lt;Message-ID list&gt; [&lt;remotesys&gt;]
 
     This message is part of the ihave/sendme protocol, which allows one
     host (say A) to tell another host (B) that a particular message has
     been received on A.  Suppose that host A receives message
-    "<1234@ucbvax.Berkeley.edu>", and wishes to transmit the message to
+    "&lt;1234@ucbvax.Berkeley.edu&gt;", and wishes to transmit the message to
     host B.
 
-    A sends the control message "ihave <1234@ucbvax.Berkeley.edu> A" to
+    A sends the control message "ihave &lt;1234@ucbvax.Berkeley.edu&gt; A" to
     host B (by posting it to newsgroup to.B).  B responds with the
-    control message "sendme <1234@ucbvax.Berkeley.edu> B" (on newsgroup
+    control message "sendme &lt;1234@ucbvax.Berkeley.edu&gt; B" (on newsgroup
     to.A), if it has not already received the message.  Upon receiving
 
 
 
-Horton & Adams                                                 [Page 12]
+Horton &amp; Adams                                                 [Page 12]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1242,7 +1243,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 3.3.  Newgroup
 
-                      newgroup <groupname> [moderated]
+                      newgroup &lt;groupname&gt; [moderated]
 
     This control message creates a new newsgroup with the given name.
     Since no messages may be posted or forwarded until a newsgroup is
@@ -1257,7 +1258,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 3.4.  Rmgroup
 
-                            rmgroup <groupname>
+                            rmgroup &lt;groupname&gt;
 
     This message removes a newsgroup with the given name.  Since the
     newsgroup is removed from every host on the network, this command
@@ -1277,7 +1278,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 13]
+Horton &amp; Adams                                                 [Page 13]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1333,7 +1334,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 14]
+Horton &amp; Adams                                                 [Page 14]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1356,7 +1357,7 @@ RFC 1036              Standard for USENET Messages         December 1987
     one system to the other, and once on the receiving system, processed
     by the netnews software on that system.  (On UNIX systems, this
     usually means the rnews program being run with the message on the
-    standard input. <1>)
+    standard input. &lt;1&gt;)
 
     It is not a requirement that USENET hosts have mail systems capable
     of understanding the Internet mail syntax, but it is strongly
@@ -1389,7 +1390,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 15]
+Horton &amp; Adams                                                 [Page 15]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1445,7 +1446,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 16]
+Horton &amp; Adams                                                 [Page 16]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1459,7 +1460,7 @@ RFC 1036              Standard for USENET Messages         December 1987
                 NFrom: derek@sask.UUCP (Derek Andrew)
                 NNewsgroups: misc.test
                 NSubject: necessary test
-                NMessage-ID: <176@sask.UUCP>
+                NMessage-ID: &lt;176@sask.UUCP&gt;
                 NDate: Mon, 3 Jan 83 00:59:15 MST
                 N
                 NThis really is a test.  If anyone out there more than 6
@@ -1492,8 +1493,8 @@ RFC 1036              Standard for USENET Messages         December 1987
     where 1234 is the length of the message in bytes.  Each such line is
     followed by a message containing the given number of bytes.  (The
     newline at the end of each line of the message is counted as one
-    byte, for purposes of this count, even if it is stored as <CARRIAGE
-    RETURN><LINE FEED>.)  For example, a batch of message might look
+    byte, for purposes of this count, even if it is stored as &lt;CARRIAGE
+    RETURN&gt;&lt;LINE FEED&gt;.)  For example, a batch of message might look
     like this:
 
 
@@ -1501,7 +1502,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 17]
+Horton &amp; Adams                                                 [Page 17]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1511,7 +1512,7 @@ RFC 1036              Standard for USENET Messages         December 1987
                 Path: cbosgd!mhuxj!mhuxt!eagle!jerry
                 Newsgroups: news.announce
                 Subject: Usenet Etiquette -- Please Read
-                Message-ID: <642@eagle.ATT.COM>
+                Message-ID: &lt;642@eagle.ATT.COM&gt;
                 Date: Fri, 19 Nov 82 16:14:55 EST
                 Approved: mark@cbosgd.ATT.COM
 
@@ -1521,7 +1522,7 @@ RFC 1036              Standard for USENET Messages         December 1987
                 Path: cbosgd!mhuxj!mhuxt!eagle!jerry
                 Newsgroups: news.announce
                 Subject: Notes on Etiquette message
-                Message-ID: <643@eagle.ATT.COM>
+                Message-ID: &lt;643@eagle.ATT.COM&gt;
                 Date: Fri, 19 Nov 82 17:24:12 EST
                 Approved: mark@cbosgd.ATT.COM
 
@@ -1557,7 +1558,7 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 
 
-Horton & Adams                                                 [Page 18]
+Horton &amp; Adams                                                 [Page 18]
 
 RFC 1036              Standard for USENET Messages         December 1987
 
@@ -1607,15 +1608,15 @@ RFC 1036              Standard for USENET Messages         December 1987
 
 Notes
 
-    <1>  UNIX is a registered trademark of AT&T.
+    <1>  UNIX is a registered trademark of AT&amp;T.
 
 
 
 
 
-Horton & Adams                                                 [Page 19]
+Horton &amp; Adams                                                 [Page 19]
 </PRE>
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

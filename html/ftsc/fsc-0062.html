@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>A Proposed Nodelist flag indicating Online Times of a Node.</TITLE>
 </HEAD>
@@ -243,7 +244,7 @@ Status of this document:
 /* TIMEFLAG.C
    Calculates FSC-0062 time flag requirement from user input */
 
-#include <stdio.h>
+#include &lt;stdio.h&gt;
 
 char *onlineflag(char *on, char *off, int utc_diff);
 
@@ -258,7 +259,7 @@ void main()
    printf("\nSpecify the difference between your local time zone in winter\n"
       "time and UTC (e.g. if your time zone is 6 hours behind UTC,\n"
       "enter 6): ");
-   scanf("%d", &utc_diff);
+   scanf("%d", &amp;utc_diff);
    printf("\nYour online time flag is %s\n\n",
       onlineflag(on, off, utc_diff));
 }
@@ -268,10 +269,10 @@ char *onlineflag(char *ontime, char *offtime, int utcdiff)
    int onhour, onmin, offhour, offmin;
    static char flag[4]="T  ";
 
-   sscanf(ontime, "%d:%d", &onhour, &onmin);
-   sscanf(offtime, "%d:%d", &offhour, &offmin);
+   sscanf(ontime, "%d:%d", &amp;onhour, &amp;onmin);
+   sscanf(offtime, "%d:%d", &amp;offhour, &amp;offmin);
 
-   if(onmin>30) ++onhour;
+   if(onmin&gt;30) ++onhour;
    --offhour; /* to correct for daylight saving time */
    onhour = (onhour+24+utcdiff) % 24;
    offhour = (offhour+24+utcdiff) % 24;
@@ -279,8 +280,8 @@ char *onlineflag(char *ontime, char *offtime, int utcdiff)
    flag[1]='A'+onhour;
    flag[2]='A'+offhour;
 
-   if(onmin>0 && onmin<31) flag[1] += 'a'-'A';
-   if(offmin>29) flag[2] += 'a'-'A';
+   if(onmin&gt;0 &amp;&amp; onmin&lt;31) flag[1] += 'a'-'A';
+   if(offmin&gt;29) flag[2] += 'a'-'A';
 
    return flag;
 }
@@ -313,12 +314,12 @@ struct TIMES *interpret_flag(char *timeflag)
    times.off_min=0;
 
    times.on_hour=timeflag[1]-'A';
-   if(times.on_hour>23) {
+   if(times.on_hour&gt;23) {
       times.on_hour -= 'a'-'A';
       times.on_min=30;
    }
    times.off_hour=timeflag[2]-'A';
-   if(times.off_hour>23) {
+   if(times.off_hour&gt;23) {
       times.off_hour -= 'a'-'A';
       times.off_min=30;
    }
@@ -356,7 +357,7 @@ struct TIMES *interpret_flag(char *timeflag)
 End of document.
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>
