@@ -445,7 +445,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			fprintf(ofp, "\001INTL %d:%d/%d %d:%d/%d\n", fmsg->to->zone, fmsg->to->net, fmsg->to->node,
 				fmsg->from->zone, fmsg->from->net, fmsg->from->node);
 		}
-
 		fprintf(ofp, "\001MSGID: %s %08lx\n", MBSE_SS(fmsg->msgid_a),fmsg->msgid_n);
 		if (fmsg->reply_s) 
 			fprintf(ofp, "\1REPLY: %s\n", fmsg->reply_s);
@@ -956,6 +955,7 @@ int needputrfc(rfcmsg *msg)
 	if (!strcasecmp(msg->key,"X-Origin-Date")) return 0;
 	if (!strncasecmp(msg->key,"X-PGP-",6)) return 0;
 	if (!strncasecmp(msg->key,"Resent-",7)) return 0;
+	if (!strncasecmp(msg->key,"X-MS-",5)) return -1;
 	if (!strcasecmp(msg->key,"X-Mailing-List")) return 0;
 	if (!strcasecmp(msg->key,"X-Loop")) return 0;
 	if (!strcasecmp(msg->key,"Precedence")) return 0;

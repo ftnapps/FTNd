@@ -112,6 +112,14 @@ rfcmsg *parsrfc(FILE *fp)
 //					Syslog('M', "This is a regular header");
 					cur->key = xstrcpy(buffer);
 					cur->val = xstrcpy(p+1);
+				} else if ((p=strchr(buffer,':')) && (!strncasecmp(buffer, (char *)"X-MS-", 5))) {
+					/*
+					 * It looks like M$ invented their own internet standard, these
+					 * are header lines without a key. This one will be stored here
+					 * and junked in the rfc2ftn function.
+					 */
+					cur->key = xstrcpy(buffer);
+					cur->val = xstrcpy((char *)" ");
 				} else {
 					Syslog('M', "Non-header line: \"%s\"",buffer);
 					cur->key = xstrcpy((char *)"X-Body-Start");
