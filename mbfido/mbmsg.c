@@ -235,9 +235,9 @@ void die(int onsig)
 		Syslog('+', "Last msg area %s", msgs.Name);
 
 	if (are_tot || are_proc || msg_link)
-		Syslog('+', "Areas  [%5d] Processed [%5d] Linked [%5d]", are_tot, are_proc, msg_link);
+		Syslog('+', "Areas  [%6d] Processed [%6d] Linked [%6d]", are_tot, are_proc, msg_link);
 	if (msg_tot || msg_del)
-		Syslog('+', "Msgs   [%5d]   Deleted [%5d]", msg_tot, msg_del);
+		Syslog('+', "Msgs   [%6d]   Deleted [%6d]", msg_tot, msg_del);
 
 	t_end = time(NULL);
 	Syslog(' ', "MBMSG finished in %s", t_elapsed(t_start, t_end));

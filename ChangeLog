@@ -15,6 +15,10 @@ v0.35.05	19-Oct-2002
 		Fixed crash with incoming YooHoo session with bad password.
 
 
+	mbmsg:
+		The total counters in the logfile are increased to 6 digits.
+
+
 
 v0.35.04	29-Sep-2002 - 19-Oct-2002.
 

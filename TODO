@@ -85,6 +85,8 @@ mbfido:
 
 	L: Maybe store echomail for unknown areas in badmail area.
 
+	N: Make ik possible to only virus scan the complete archives.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
