@@ -288,12 +288,15 @@ int Add_BBS(qualify **qal)
 		     * is attached for any possible downlink.
 		     * We must get the qualify list passed so we have a quick systems list.
 		     */
+		    Syslog('p', "Enter un_attach loop");
 		    for (tmpq = *qal; tmpq; tmpq = tmpq->next) {
+			Syslog('p', "loop");
 			if (tmpq->send) {
 			    taka = fido2faddr(tmpq->aka);
 			    un_attach(taka, temp2);
 			    tidy_faddr(taka);
 			}
+			Syslog('p', "done");
 		    }
 
 		    if (unlink(temp2) != 0)
