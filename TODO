@@ -163,3 +163,8 @@ mbsetup:
 	   format, if a filegate list is installed and the filegate switch
 	   setting is wrong, a lot of wrong areas will be created.
 
+	N: Disable settings for the bbs Ask screenlen, Ask codepage, Disable
+	   newmail and newfiles scan.
+
+	N: Sort tty records.
+
