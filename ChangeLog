@@ -8,6 +8,7 @@ v0.35.03	06-Jul-2002
 	common.a:
 		Added nodelist override to the nodelist lookup function.
 		Added protection against emty rfc headers with only a space.
+		Added test for HA archiver.
 
 	lang:
 		Corrected a spelling error in the Dutch language file.
@@ -38,6 +39,7 @@ v0.35.03	06-Jul-2002
 		When a user paged the sysop for a chat, after the timer was
 		expired, the bbs crashed.
 		Fixed a problem with extra spaces in UUCP replyto address.
+		Added test for HA archiver.
 
 	mbtask:
 		Changed logging of multiple logmessages that are equal.
@@ -59,6 +61,8 @@ v0.35.03	06-Jul-2002
 	script:
 		The bbsdoor.sh and rundoor.sh scripts are now only installed
 		if they were not installed before.
+		Added better support for different locations of the external
+		editor joe.
 
 	examples:
 		With the aid of a little utility (endian) the right menus are

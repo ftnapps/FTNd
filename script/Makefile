@@ -39,12 +39,15 @@ install:
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 hatch       ${BINDIR}" ; \
 		fi
 		@if [ -x ${JOEBIN}/joe ]; then \
+			echo "Installing support for joe editor" ; \
 			rm -f ${JOEBIN}/bbsjoe ; \
 			rm -f ${JOEBIN}/bbsjmacs ; \
 			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe" ; \
 			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjoe ; \
 			echo "ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs" ; \
 			ln -s ${JOEBIN}/joe ${JOEBIN}/bbsjmacs ; \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR} ; \
+			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}" ; \
 		fi
 		@if [ -d ${JOELIB} ]; then \
 			${INSTALL} -c -o root -g root -m 0644 bbsjoerc    ${JOELIB} ; \
@@ -52,7 +55,6 @@ install:
 			${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB} ; \
 			echo "${INSTALL} -c -o root -g root -m 0644 bbsjmacsrc  ${JOELIB}" ; \
 		fi
-		${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 editor      ${BINDIR}
 		@if [ ! -x ${BINDIR}/bbsdoor.sh ]; then \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0755 bbsdoor.sh  ${BINDIR}" ; \

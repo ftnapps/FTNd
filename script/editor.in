@@ -22,7 +22,7 @@ export JOETERM=ansi.sys
 TIME=`head -n19 ~/door.sys  |tail -n1  |tr -d "[:cntrl:]"`
 
 ## Set preferred editor and parameters
-EDITOR=/usr/bin/bbsjoe
+EDITOR=@joebin@/bbsjoe
 PARAM="~/edit.msg"
 
 # Using joe with emacs keys:
