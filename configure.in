@@ -311,7 +311,7 @@ for joebin in /usr/bin /usr/local/bin /usr/pkg/bin NONE; do
 	fi
 done
 AC_MSG_CHECKING(location of joe rc files)
-for joelib in /etc/joe /usr/lib/joe /usr/local/etc /usr/local/etc/joe /usr/local/lib/joe /usr/pkg/lib /usr/pkg/etc NONE; do
+for joelib in /etc/joe /usr/lib/joe /usr/local/etc /usr/local/etc/joe /usr/local/lib/joe /usr/local/lib /usr/pkg/lib /usr/pkg/etc NONE; do
 	if test "$joelib" = "NONE"; then
 		AC_MSG_RESULT(not found)
 	elif test -f $joelib/joerc; then
