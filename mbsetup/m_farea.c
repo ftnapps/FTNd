@@ -74,6 +74,7 @@ int CountFilearea(void)
 			area.FileReq   = TRUE;
 			area.Available = TRUE;
 			area.FileFind  = TRUE;
+			area.Free      = TRUE;
 			sprintf(area.BbsGroup, "LOCAL");
 			sprintf(area.NewGroup, "LOCAL");
 			sprintf(area.Path, "%s/local/common", CFG.ftp_base);
@@ -193,6 +194,7 @@ int AppendFilearea(void)
 		area.FileFind = TRUE;
 		area.AddAlpha = TRUE;
 		area.FileReq  = TRUE;
+		area.Free     = TRUE;
 		strcpy(area.Path, CFG.ftp_base);
 		fwrite(&area, sizeof(area), 1, fil);
 		fclose(fil);
