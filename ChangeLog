@@ -6,8 +6,9 @@ v0.35.02	22-Jun-2002
 
 	upgrade:
 		Delete ~/etc/lastcall.data
-		If you want to upgrade to the new archiver settings then
-		delete ~/etc/archiver.data and run mbsetup.
+		Delete ~/etc/archiver.data
+		Start mbsetup and enter the Edit Archiver Programs. The new
+		values should now be set.
 
 	general:
 		Added checks for GoldED in external program checks.
@@ -33,7 +34,7 @@ v0.35.02	22-Jun-2002
 
 	mbcico:
 		Implemented nodes special outbound boxes.
-		Corrected a problem with getting modem aftercall info for ISDN
+		Corrected a problem with getting modem aftercall info from ISDN
 		modems.
 
 	mbout:
@@ -74,6 +75,8 @@ v0.35.02	22-Jun-2002
 		difference.
 		Messages posted using BlueWave now show the tearline of the
 		OLR client if this is present.
+		When messages are uploaded with BlueWave or QWK the netmail.jam
+		or echomail.jam is updated.
 
 	mbtask:
 		When first run the goldnode command is only filled in if it
@@ -84,8 +87,9 @@ v0.35.02	22-Jun-2002
 v0.35.01	05-Jun-2002 - 22-Jun-2002
 
 	upgrade:
-		Start mbsetup, check in the nodes setup if all the session
-		passwords are ok.
+		Start mbsetup and enter Edit Fidonet Nodes. This will upgrade
+		the nodes.data file. You might as well check if all the session
+		passwords are still ok.
 
 	general:
 		Added structures for netmail routing file.

@@ -36,8 +36,6 @@ mbsebbs:
 
 	N: OLR, implement file requests.
 
-	N: OLR doesn't write echomail.jam or netmail.jam files.
-
 mbfido:
 	U: Code cleanup and make a structure in this program. Remove duplicate
 	   or similar functions.
