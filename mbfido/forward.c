@@ -45,7 +45,7 @@
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[128];
+	char		*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX];
 	FILE		*fp, *net;
 	char		flavor;
 	faddr		*dest, *route, *Fa;
@@ -83,7 +83,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 		/* CREATE NETMAIL */
 	}
 
-	fwdfile = calloc(128, sizeof(char));
+	fwdfile = calloc(PATH_MAX, sizeof(char));
 	/*
 	 * Create the full filename
 	 */
@@ -110,7 +110,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	else
 		subject = xstrcpy(fwdfile);
 
-	ticfile = calloc(128, sizeof(char));
+	ticfile = calloc(PATH_MAX, sizeof(char));
 	if (nodes.Tic) {
 		sprintf(ticfile, "%s/%08lx.tic", CFG.ticout, sequencer());
 		subject = xstrcat(subject, (char *)" ");
@@ -129,7 +129,10 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 			fprintf(net, "\r");
 			fprintf(net, "I sent the following file to your system:\r");
 			fprintf(net, "\r");
-			fprintf(net, "File        : %s\r", TIC.RealName);
+			if (TIC.SendOrg)
+			    fprintf(net, "File        : %s\r", TIC.RealName);
+			else
+			    fprintf(net, "File        : %s\r", TIC.NewName);
 			fprintf(net, "Description : %s\r", TIC.TicIn.Desc);
 			fprintf(net, "Area        : %s %s\r", TIC.TicIn.Area, TIC.TicIn.AreaDesc);
 			fprintf(net, "Size        : %ld\r", (long)(TIC.FileSize));
@@ -156,7 +159,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	if (nodes.Tic) {
 		mkdirs(ticfile);
 		if ((fp = fopen(ticfile, "a+")) != NULL) {
-//			subject = calloc(128, sizeof(char));
 			fprintf(fp, "Area %s\r\n", TIC.TicIn.Area);
 			fprintf(fp, "Origin %s\r\n", TIC.TicIn.Origin);
 			Fa = fido2faddr(tic.Aka);
@@ -166,21 +168,23 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 				fprintf(fp, "Replaces %s\r\n", TIC.TicIn.Replace);
 			if (strlen(TIC.TicIn.Magic))
 				fprintf(fp, "Magic %s\r\n", TIC.TicIn.Magic);
+
 			if ((TIC.PassThru) || (TIC.SendOrg))
 				subject = xstrcpy(TIC.RealName);
 			else
 				subject = xstrcpy(TIC.NewName);
+			temp = xstrcpy(subject);
 			if (nodes.FNC) {
-			    temp = xstrcpy(subject);
 			    name_mangle(temp);
 			    fprintf(fp, "File %s\r\n", temp); // mbcico will send the file with this name
 			    fprintf(fp, "Fullname %s\r\n", subject);
-			    free(temp);
 			} else {
-			    fprintf(fp, "File %s\r\n", tu(subject));
+			    fprintf(fp, "File %s\r\n", tu(temp));
 			    fprintf(fp, "Fullname %s\r\n", subject);
 			}
+			free(temp);
 			free(subject);
+
 			fprintf(fp, "Desc %s\r\n", TIC.TicIn.Desc);
 			fprintf(fp, "Crc %s\r\n", TIC.TicIn.Crc);
 			if (nodes.AdvTic) {
