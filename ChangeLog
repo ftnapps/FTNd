@@ -13,6 +13,7 @@ v0.37.01	14-Jan-2003.
 		Let me know if something goes wrong.
 		Make sure you have a copy of the previous sources available
 		if you need to downgrade.
+		Spanish templates and macros added to the examples.
 
 	mbtask:
 		Added debug logging to find some errors.
