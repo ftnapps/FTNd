@@ -128,20 +128,17 @@ et_tu:
     eof_seen = FALSE;
     Syslog('x', "Send %s", printablec(NAKchar));
     sendline(NAKchar);
-//    ioctl(1, TCFLSH, 0);
     purgeline(0); /* Do read next time ... */
     while ((c = wcgetsec(&Blklen, rpn, 10)) != 0) {
 	if (c == WCEOT) {
 	    Syslog('x', "Pathname fetch returned EOT");
 	    sendline(ACK);
-//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    goto et_tu;
 	}
 	return TERROR;
     }
     sendline(ACK);
-//    ioctl(1, TCFLSH, 0);
     return OK;
 }
 
@@ -162,7 +159,6 @@ int wcrx(void)
 
     for (;;) {
 	sendline(sendchar);     /* send it now, we're ready! */
-//	ioctl(1, TCFLSH, 0);
 	purgeline(0);   /* Do read next time ... */
 
 	/*
@@ -191,7 +187,6 @@ int wcrx(void)
 	    if (closeit(1))
 		return ERROR;
 	    sendline(ACK);
-//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	    return OK;
 	}
@@ -279,14 +274,12 @@ humbug:
 	
 	if (Firstsec) {
 	    sendline(NAKchar);
-//	    ioctl(1, TCFLSH, 0);
 	    Syslog('x', "%s: send %s", protname(), printablec(NAKchar));
 	    purgeline(0);   /* Do read next time ... */
 	} else {
 	    maxtime = 5;
 	    sendline(NAK);
 	    Syslog('x', "%s: send NAK", protname());
-//	    ioctl(1, TCFLSH, 0);
 	    purgeline(0);   /* Do read next time ... */
 	}
     }

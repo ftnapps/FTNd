@@ -224,7 +224,6 @@ static int wctxpn(char *fname)
     if ((input_f != stdin) && *fname)
 	sprintf(p, "%lu %lo %o 0 %d %ld", (long) f.st_size, f.st_mtime,
 	    (unsigned int)((no_unixmode) ? 0 : f.st_mode), Filesleft, Totalleft);
-//        sprintf(p, "%lu %lo 0 0 0 0", (long) f.st_size, f.st_mtime);
 
     Totalleft -= f.st_size;
     if (--Filesleft <= 0)
@@ -256,11 +255,6 @@ static int getnak(void)
     for (;;) {
 	tries++;
 	switch (firstch = GETCHAR(10)) {
-//	    case ZPAD:
-//			if (getzrxinit())
-//			    return ERROR;
-//			Ascii = 0;      /* Receiver does the conversion */
-//			return FALSE;
 	    case TIMEOUT:
 			Syslog('x', "getnak: timeout try %d", tries);
 			/* 50 seconds are enough (was 30, 26-11-2004 MB) */
@@ -268,17 +262,6 @@ static int getnak(void)
 			    Syslog('x', "Timeout on pathname");
 			    return TRUE;
 			}
-			/* don't send a second ZRQINIT _directly_ after the
-			 * first one. Never send more then 4 ZRQINIT, because
-			 * omen rz stops if it saw 5 of them */
-//			if ((zrqinits_sent>1 || tries>1) && zrqinits_sent<4) {
-			    /* if we already sent a ZRQINIT we are using zmodem
-			     * protocol and may send further ZRQINITs 
-			     */
-//			    stohdr(0L);
-//			    zshhdr(ZRQINIT, Txhdr);
-//			    zrqinits_sent++;
-//			}
 			continue;
 	    case WANTG:
 			Syslog('x', "getnak: got WANTG");

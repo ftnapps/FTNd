@@ -4,7 +4,6 @@
 #define TTYIO_H
 
 #define TCHECK() tty_check()
-#define FLUSHOUT() tty_flushout()
 #define FLUSHIN() tty_flushin()
 #define PUTCHAR(x) tty_putc(x)
 #define PUT(x,y) tty_put(x,y)
@@ -27,8 +26,6 @@
 #define HANGUP (-STAT_HANGUP)
 #define EMPTY (-STAT_EMPTY)
 
-#define GET_COMPLETE(x) (x & 1)
-#define PUT_COMPLETE(x) (x & 2)
 
 #ifndef NUL
 #define NUL 0x00
@@ -77,13 +74,13 @@
 #define TSYNC 0xae
 #define YOOHOO 0xf1
 
-extern int tty_status;
 
-extern int tty_check(void);
-extern int tty_getc(int);
-extern int tty_putc(int);
-extern int tty_put(char*,int);
-extern void tty_flushout(void);
-extern void tty_flushin(void);
+int	tty_status;
+int	tty_check(void);
+int	tty_getc(int);
+int	tty_putc(int);
+int	tty_put(char*, int);
+void	tty_flushin(void);
+
 
 #endif
