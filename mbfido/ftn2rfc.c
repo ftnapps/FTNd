@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/ftn2rfc.c
  * Purpose ...............: Gate netmail->email or echomail->news
- * Last modification date : 29-Oct-2001
+ * Last modification date : 30-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -290,8 +290,6 @@ void Send(int newsmode, char *outstr)
 			free(p);
 		}
 	}
-
-	free(outstr);
 }
 
 
@@ -819,7 +817,6 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				}
 			}
 		}
-
 		if (p == NULL) 
 			p=hdr((char *)"RFC-Newsgroups",kmsg);
 		if (p == NULL) 
@@ -849,7 +846,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			sprintf(temp,"Distribution: %s\n",distribution);
 			Send(newsmode, temp);
 		}
-		
+
 		p = hdr((char *)"Comment-To",msg);
 		if (p == NULL)
 			p=hdr((char *)"X-Comment-To",msg);
@@ -986,15 +983,15 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 
 	if ((p = hdr((char *)"From",msg))) {
 		sprintf(temp, "From:%s", hdrconv(p,outcode,incode));
-		Send(FALSE, temp);
+		Send(newsmode, temp);
 	} else if ((p = hdr((char *)"RFC-From",kmsg))) {
 		Syslog('m', "b");
 		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
-		Send(FALSE, temp);
+		Send(newsmode, temp);
 	} else if ((p = hdr((char *)"From\n",kmsg))) {
 		Syslog('m', "c");
 		sprintf(temp, "From: %s", hdrconv(p,outcode,incode));
-		Send(FALSE, temp);
+		Send(newsmode, temp);
         } else if ((p = hdr((char *)"X-PcBoard-FROM",msg))) {
                 if (f->name) {
                         while (isspace(*p)) 
@@ -1004,7 +1001,7 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
                 } else {
 			sprintf(temp,"From:%s\n", p);
 		}
-		Send(FALSE, temp);
+		Send(newsmode, temp);
 	} else if ((hdr((char *)"REPLYADDR",kmsg)) && (p=xstrcpy(hdr((char *)"REPLYADDR",kmsg)))) {
 		if (*(r=p+strlen(p)-1) == '\n') 
 			*(r--)='\0';
@@ -1030,16 +1027,16 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 			}
 			Syslog('m', "d");
 			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(l,outcode,incode),p);
-			Send(FALSE, temp);
+			Send(newsmode, temp);
 			free(q);
 		} else if (f->name) {
 			Syslog('m', "e");
 			sprintf(temp,"From: \"%s\" <%s>\n",hdrconv(f->name,outcode,incode),p);
-			Send(FALSE, temp);
+			Send(newsmode, temp);
 		} else {
 			Syslog('m', "f");
 			sprintf(temp,"From: %s\n",p);
-			Send(FALSE, temp);
+			Send(newsmode, temp);
 		}
 		free(p);
 	}
@@ -1542,14 +1539,18 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 	Syslog('M', "Start sending message body");
 	while (fgets(buf,sizeof(buf)-1,fp) && pass) {
 		if (first) {
-			Send(newsmode, (char *)"\n");
+			p = xstrcpy((char *)"\n");
+			Send(newsmode, p);
+			free(p);
 			first = FALSE;
 
 /* FIXME: Maybe scan now for repeating headers and drop them as they will appear in the message text */
 
 			if ((p=hdr((char *)"X-Body-Start",msg))) {
 				lines++;
-				Send(newsmode, strkconv(p, outcode, incode));
+				q = xstrcpy(strkconv(p, outcode, incode));
+				Send(newsmode, q);
+				free(q);
 			}
 		}
 
@@ -1577,9 +1578,11 @@ int ftn2rfc(faddr *f, faddr *t, char *subj, char *origline, time_t mdate, int fl
 				}
 			}
 			if (strncmp(buf, ".\r\n", 3))
-				Send(newsmode, strkconv(buf, outcode, incode));
+				q = xstrcpy(strkconv(buf, outcode, incode));
 			else
-				Send(newsmode, (char *)" .\n");
+				q = xstrcpy((char *)" .\n");
+			Send(newsmode, q);
+			free(q);
 		}
 	}
 	Syslog('M', "End sending message body");
