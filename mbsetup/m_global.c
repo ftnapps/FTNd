@@ -29,6 +29,7 @@
  *****************************************************************************/
 
 #include "../config.h"
+#include "../paths.h"
 #include "../lib/mbselib.h"
 #include "screen.h"
 #include "mutil.h"
@@ -1453,6 +1454,11 @@ void global_menu(void)
     if (strlen(CFG.rulesdir) == 0) {
 	sprintf(CFG.rulesdir, "%s/var/rules", getenv("MBSE_ROOT"));
 	Syslog('+', "Main config, upgraded rules directory");
+    }
+
+    if (!strlen(CFG.www_convert) && strlen(_PATH_CONVERT)) {
+	sprintf(CFG.www_convert,"%s -geometry x100", _PATH_CONVERT);
+	Syslog('+', "Main config, installed convert for thumbnails");
     }
 
     if (!CFG.is_upgraded) {

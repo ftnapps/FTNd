@@ -8,6 +8,7 @@ v0.61.4		11-Aug-2004
 		change the setup of these nodes in screen 7.10.
 		Run "mbfile check" and then "mbfile index". This fixes the
 		thumbnails if supported by your system.
+		Start mbsetup, enter global setup and leave.
 
 	libnodelist.a:
 		Removed some debug logging.

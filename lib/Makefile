@@ -142,7 +142,7 @@ unpacker.o: ../config.h mbselib.h
 rearc.o: ../config.h mbselib.h
 batchrd.o: ../config.h mbselib.h
 ftn.o: ../config.h mbselib.h users.h mbsedb.h
-pktname.o: ../config.h mbselib.h
+pktname.o: ../config.h mbselib.h users.h mbsedb.h
 mangle.o: ../config.h mbselib.h
 sectest.o: ../config.h mbselib.h
 proglock.o: ../config.h mbselib.h
