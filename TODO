@@ -141,6 +141,9 @@ mbfile:
 	N: It is not possible to import areas that run of cd-roms. Do we still
 	   need cd-rom support with current hd prices?
 
+	N: Add commandline switch for adopt that allows replacing files that
+	   already exist.
+
 mbnntp:
 	U: fetched mail doesn't get the status Rcvd if it was for the user.
 
