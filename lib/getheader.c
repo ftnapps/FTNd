@@ -4,7 +4,7 @@
  * Purpose ...............: Read fidonet .pkt header
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -84,6 +84,14 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname)
     t->zone = (buffer[0x25] << 8) + buffer[0x24];
 
     year    = (buffer[0x05] << 8) + buffer[0x04];
+    /*
+     * Check for Y2K bugs, if there are any this is not important,
+     * it is just for logging!
+     */
+    if (year < 50)
+	year = year + 2000;
+    else if (year < 1900)
+	year = year + 1900;
     month   = (buffer[0x07] << 8) + buffer[0x06] + 1;
     day     = (buffer[0x09] << 8) + buffer[0x08];
     hour    = (buffer[0x0b] << 8) + buffer[0x0a];
@@ -106,8 +114,28 @@ int getheader(faddr *f, faddr *t, FILE *pkt, char *pname)
 	t->zone   = buffer[0x30] + (buffer[0x31] << 8);
 	f->point  = buffer[0x32] + (buffer[0x33] << 8);
 	t->point  = buffer[0x34] + (buffer[0x35] << 8);
+    } else {
+	/*
+	 * Stone age @%#$@
+	 */
+	f->zone   = buffer[0x22] + (buffer[0x23] << 8);
+	t->zone   = buffer[0x24] + (buffer[0x25] << 8);
+	if ((f->zone == 0) && (t->zone == 0)) {
+	    /*
+	     * No zone info, since the packet should be for us, guess the zone
+	     * against our aka's from the setup using a 2d test.
+	     */
+	    for (i = 0; i < 40; i++) {
+		if ((CFG.akavalid[i]) && (t->net  == CFG.aka[i].net) && (t->node == CFG.aka[i].node)) {
+		    t->zone = CFG.aka[i].zone;
+		    f->zone = CFG.aka[i].zone;
+		    Syslog('!', "Warning, zone %d assumed", CFG.aka[i].zone);
+		    break;
+		}
+	    }
+	}
     }
-
+    
     for (i = 0; i < 8; i++) 
 	pktpwd[i] = buffer[0x1a + i];
     pktpwd[8]='\0';

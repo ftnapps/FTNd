@@ -11,10 +11,24 @@ v0.37.4		10-May-2003
 		Added check for inconv.h in configure script for UNIX98 
 		character set conversion.
 
+	common.a:
+		The getheader function changed to support stone-age .pkt's.
+		If the packet year has a Y2K bug, the year is fixed. This is
+		only cosmetic for logging.
+		If the zone info is missing, the zone is guessed from 2d aka
+		matching against the system aka's. Then all mail in the .pkt
+		file is also assumed to be in that zone if there is no zone
+		info in the messages also.
+		Guess what, these packets do still exist in Fidonet, it took
+		5 years to find them! If you want to check, call 5:5/0
+
 	mbcico:
 		The binkp transmitter does now escape the unsafe filename
 		characters.
 		The binkp receiver now does process escaped filenames.
+
+	mbfido:
+		Stone age packet support, see common.a.
 
 
 v0.37.3		09-Apr-2003 - 10-May-2003
