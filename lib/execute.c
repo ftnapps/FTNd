@@ -57,7 +57,7 @@ int _execute(char **args, char *in, char *out, char *err)
     if ((pid = fork()) == 0) {
 	/*
 	 * A delay in the child to prevent it returns before the main
-	 * process sess it ever started.
+	 * process sees it ever started.
 	 */
 	msleep(150);
 
@@ -106,11 +106,8 @@ int _execute(char **args, char *in, char *out, char *err)
 
     switch (rc) {
 	case -1:
-		/*
-		 * Seems to be a problem on fast systems, hope it is ok.
-		 */
 		if (errno == ECHILD) {
-		    Syslog('+', "Execute: no child process, this seems well");
+		    Syslog('+', "Execute: no child process");
 		    return 0;
 		} else {
 		    WriteError("$Wait returned %d, status %d,%d", rc,status>>8,status&0xff);
