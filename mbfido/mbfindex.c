@@ -138,7 +138,7 @@ void Index(void)
 	fAreas = calloc(PATH_MAX, sizeof(char));
 	sIndex = calloc(PATH_MAX, sizeof(char));
 
-	IsDoing("Kill files");
+	IsDoing("Index files");
 	if (!do_quiet) {
 		colour(3, 0);
 		printf("Create filerequest index...\n");

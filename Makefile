@@ -1,4 +1,3 @@
-# Copyright (c) M. Broek, 1997-2000
 # Top-level makefile for MBSE BBS package
 # $Id$
 
@@ -24,6 +23,9 @@ install:
 		@./checkbasic
 		@if [ "`id -un`" != "root" ] ; then \
 			echo; echo " Must be root to install!"; echo; exit 3; \
+		fi
+		@if [ -z ${PREFIX} ] ; then \
+			echo; echo "PREFIX is not set!"; echo; exit 3; \
 		fi
 		@if [ ! -d ${PREFIX}/bin ] ; then \
 			mkdir ${PREFIX}/bin ; \
@@ -56,8 +58,8 @@ install:
 		@if [ ! -d ${PREFIX}/sema ] ; then \
 			mkdir ${PREFIX}/sema ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/sema ; \
-			chmod 0777 ${PREFIX}/sema ; \
 		fi
+		@chmod 0777 ${PREFIX}/sema
 		@if [ ! -d ${PREFIX}/var ] ; then \
 			mkdir ${PREFIX}/var ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/var ; \
@@ -65,8 +67,8 @@ install:
 		@if [ ! -d ${PREFIX}/tmp ] ; then \
 			mkdir ${PREFIX}/tmp ; \
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/tmp ; \
-			chmod 0777 ${PREFIX}/tmp ; \
 		fi
+		@chmod 0775 ${PREFIX}/tmp
 		@if [ ! -d ${PREFIX}/dutch ] ; then \
 			mkdir ${PREFIX}/dutch ; \
 			mkdir ${PREFIX}/dutch/txtfiles ; \

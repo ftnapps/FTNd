@@ -116,7 +116,7 @@ void Help(void)
 	printf("	a  adopt <area> <file> [desc]	Adopt file to area\n");
 	printf("	c  check			Check filebase\n");
 //	printf("	d  delete <area> <file>		Mark file in area for deletion\n");
-//	printf("        im import <area>		Import files in current dir to area\n");
+	printf("        im import <area>		Import files in current dir to area\n");
 	printf("	in index			Create filerequest index\n");
 	printf("        k  kill				Kill/move old files\n");
 	printf("	l  list				List file areas\n");
@@ -217,6 +217,239 @@ void DeleteVirusWork()
         chdir(buf);
         free(temp);
         free(buf);
+}
+
+
+
+int UnpackFile(char *File)
+{
+    char    *temp, *pwd, *unarc, *cmd;
+
+    Syslog('f', "UnpackFile(%s)", File);
+
+    if ((unarc = unpacker(File)) == NULL) {
+	Syslog('+', "Unknown archive format %s", File);
+	return FALSE;
+    }
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    pwd  = calloc(PATH_MAX, sizeof(char));
+    getcwd(pwd, PATH_MAX);
+
+    /*
+     * Check if there is a temp directory to unpack the archive.
+     */
+    sprintf(temp, "%s/tmp/arc", getenv("MBSE_ROOT"));
+    if ((access(temp, R_OK)) != 0) {
+	if (mkdir(temp, 0777)) {
+	    WriteError("$Can't create %s", temp);
+	    if (!do_quiet)
+		printf("Can't create %s\n", temp);
+	    die(0);
+	}
+    }
+
+    /*
+     * Check for stale FILE_ID.DIZ files
+     */
+    sprintf(temp, "%s/tmp/arc/FILE_ID.DIZ", getenv("MBSE_ROOT"));
+    if (!unlink(temp))
+	Syslog('+', "Removed stale %s", temp);
+    sprintf(temp, "%s/tmp/arc/file_id.diz", getenv("MBSE_ROOT"));
+    if (!unlink(temp))
+	Syslog('+', "Removed stale %s", temp);
+
+    if (!getarchiver(unarc)) {
+	WriteError("No archiver available for %s", File);
+	if (!do_quiet)
+	    printf("No archiver available for %s\n", File);
+	return FALSE;
+    }
+
+    cmd = xstrcpy(archiver.funarc);
+    if ((cmd == NULL) || (cmd == "")) {
+	WriteError("No unarc command available");
+	if (!do_quiet)
+	    printf("No unarc command available\n");
+	return FALSE;
+    }
+
+    sprintf(temp, "%s/tmp/arc", getenv("MBSE_ROOT"));
+    if (chdir(temp) != 0) {
+	WriteError("$Can't change to %s", temp);
+	die(0);
+    }
+
+    if (execute(cmd, File, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+	chdir(pwd);
+	free(temp);
+	free(pwd);
+	free(cmd);
+	return TRUE;
+    } else {
+	chdir(pwd);
+	WriteError("Unpack error, file may be corrupt");
+	DeleteVirusWork();
+    }
+    return FALSE;
+}
+
+
+
+/*
+ * Add file to the BBS. The file is in the current
+ * directory. The fdb record already has all needed
+ * information.
+ */
+int AddFile(struct FILERecord fdb, int Area, char *DestPath, char *FromPath)
+{
+    char    *temp1, *temp2;
+    FILE    *fp1, *fp2;
+    int	    i, Insert, Done = FALSE, Found = FALSE;
+
+    mkdirs(DestPath);
+    if (file_cp(FromPath, DestPath)) {
+	WriteError("Can't move file in place");
+	return FALSE;
+    }
+
+    temp1 = calloc(PATH_MAX, sizeof(char));
+    temp2 = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp1, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+    sprintf(temp2, "%s/fdb/fdb%d.temp", getenv("MBSE_ROOT"), Area);
+
+    fp1 = fopen(temp1, "r+");
+    fseek(fp1, 0, SEEK_END);
+    if (ftell(fp1) == 0) {
+	/*
+	 * No records yet
+	 */
+	fwrite(&fdb, sizeof(fdb), 1, fp1);
+	fclose(fp1);
+    } else {
+	/*
+	 * Files are already there. Find the right spot.
+	 */
+	fseek(fp1, 0, SEEK_SET);
+
+	Insert = 0;
+	do {
+	    if (fread(&file, sizeof(file), 1, fp1) != 1)
+		Done = TRUE;
+	    if (!Done) {
+		if (strcmp(fdb.Name, file.Name) == 0) {
+		    Found = TRUE;
+		    Insert++;
+		} else {
+		    if (strcmp(fdb.Name, file.Name) < 0)
+			Found = TRUE;
+		    else
+			Insert++;
+		}
+	    }
+	} while ((!Found) && (!Done));
+
+	if (Found) {
+	    if ((fp2 = fopen(temp2, "a+")) == NULL) {
+		WriteError("Can't create %s", temp2);
+		return FALSE;
+	    }
+
+	    fseek(fp1, 0, SEEK_SET);
+	    /*
+	     * Copy until the insert point
+	     */
+	    for (i = 0; i < Insert; i++) {
+		fread(&file, sizeof(file), 1, fp1);
+		/*
+		 * If we are importing a file with the same name,
+		 * skip the original record and put the new one in place.
+		 */
+		if (strcmp(file.Name, fdb.Name) != 0)
+		    fwrite(&file, sizeof(file), 1, fp2);
+	    }
+
+	    if (area.AddAlpha)
+		fwrite(&fdb, sizeof(fdb), 1, fp2);
+
+	    /*
+	     * Append the rest of the records
+	     */
+	    while (fread(&file, sizeof(file), 1, fp1) == 1) {
+		if (strcmp(file.Name, fdb.Name) != 0)
+		    fwrite(&file, sizeof(file), 1, fp2);
+	    }
+	    if (!area.AddAlpha)
+		fwrite(&fdb, sizeof(fdb), 1, fp2);
+	    fclose(fp1);
+	    fclose(fp2);
+
+	    if (unlink(temp1) == 0) {
+		rename(temp2, temp1);
+		chmod(temp1, 0660);
+	    } else {
+		WriteError("$Can't unlink %s", temp1);
+		unlink(temp2);
+		return FALSE;
+	    }
+	} else { /* if (Found) */
+	    /*
+	     * Append file record
+	     */
+	    fseek(fp1, 0, SEEK_END);
+	    fwrite(&fdb, sizeof(fdb), 1, fp1);
+	    fclose(fp1);
+	}
+    }
+
+    free(temp1);
+    free(temp2);
+    return TRUE;
+}
+
+
+
+int CheckFDB(int Area, char *Path)
+{
+    char    *temp;
+    FILE    *fp;
+    int	    rc = FALSE;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/fdb/fdb%d.data", getenv("MBSE_ROOT"), Area);
+
+    /*
+     * Open the file database, create new one if it doesn't excist.
+     */
+    if ((fp = fopen(temp, "r+")) == NULL) {
+	Syslog('!', "Creating new %s", temp);
+	if ((fp = fopen(temp, "a+")) == NULL) {
+	    WriteError("$Can't create %s", temp);
+	    rc = TRUE;
+	} else {
+	    fclose(fp);
+	}
+    } else {
+	fclose(fp);
+    }
+
+    /*
+     * Set the right attributes
+     */
+    chmod(temp, 0660);
+
+    /*
+     * Now check the download directory
+     */
+    if (access(Path, W_OK) == -1) {
+	sprintf(temp, "%s/foobar", Path);
+	if (mkdirs(temp))
+	    Syslog('+', "Created directory %s", Path);
+    }
+
+    free(temp);
+
+    return rc;
 }
 
 

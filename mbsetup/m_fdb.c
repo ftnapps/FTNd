@@ -163,7 +163,7 @@ void E_F(long areanr)
 				set_color(WHITE, BLACK);
 				mvprintw(y, 1, (char *)"%4d.", o + i);
 
-				sprintf(temp, "%s/%s", area.Path, file.Name);
+				sprintf(temp, "%s/%s", area.Path, file.LName);
 				Ondisk = ((stat(temp, &statfile)) != -1);
 
 				if (Ondisk)
@@ -240,7 +240,7 @@ void E_F(long areanr)
 				crc = 0xffffffff;
 				crc = upd_crc32((char *)&file, crc, sizeof(file));
 
-				sprintf(temp, "%s/%s", area.Path, file.Name);
+				sprintf(temp, "%s/%s", area.Path, file.LName);
 				if (stat(temp, &statfile) == -1)
 					file.Missing = TRUE;
 

@@ -4288,6 +4288,10 @@ v0.33.19        26-Oct-2001
 		New program, run by user bbs. This is only to register a new
 		bbs user. Should be started by the bbs account.
 
+	mbcico:
+		Removed IEMSI support since mbsebbs doesn't support it 
+		anymore.
+
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller
 		information.
@@ -4315,4 +4319,19 @@ v0.33.19        26-Oct-2001
 	mbfile:
 		During check the file databases are reset to filemode 0660.
 		Implemented "mbfile adopt" function.
+		Started working on long filename support. The real name on
+		disk is the long filename, the database records also holds
+		an uppercase 8.3 filename. In most cases this is just the
+		same name in upper and lowercase.
+		Implemented "mbfile import" function, this imports complete
+		areas from files.bbs information.
+
+	mball:
+		The index function now creates the web pages with the use of
+		the long filenames instead of the uppercase dos 8.3 filenames.
+		Fixed html output for Konqueror browser.
+
+	mbfbgen:
+		Obsolete and removed from the distribution. The function is
+		now in mbfile.
 

@@ -40,6 +40,7 @@
 #include "mbfcheck.h"
 #include "mbfpack.h"
 #include "mbflist.h"
+#include "mbfimport.h"
 #include "mbfutil.h"
 #include "mbfile.h"
 
@@ -51,6 +52,7 @@ int		do_pack  = FALSE;	/* Pack filebase		    */
 int		do_check = FALSE;	/* Check filebase		    */
 int		do_kill  = FALSE;	/* Kill/move old files		    */
 int		do_index = FALSE;	/* Create request index		    */
+int		do_import= FALSE;	/* Import files in area		    */
 int		do_list  = FALSE;	/* List fileareas		    */
 extern	int	e_pid;			/* Pid of external process	    */
 extern	int	show_log;		/* Show logging			    */
@@ -113,6 +115,15 @@ int main(int argc, char **argv)
 		}
 		if (!strncmp(argv[i], "in", 2))
 			do_index = TRUE;
+		if (!strncmp(argv[i], "im", 2)) {
+		    if (argc > (i + 1)) {
+			do_import = TRUE;
+			i++;
+			Area = atoi(argv[i]);
+			cmd = xstrcat(cmd, (char *)" ");
+			cmd = xstrcat(cmd, argv[i]);
+		    }
+		}
 		if (!strncmp(argv[i], "l", 1))
 			do_list  = TRUE;
 		if (!strncmp(argv[i], "p", 1))
@@ -125,7 +136,7 @@ int main(int argc, char **argv)
 			do_quiet = TRUE;
 	}
 
-	if (!(do_pack || do_check || do_kill || do_index || do_list || do_adopt))
+	if (!(do_pack || do_check || do_kill || do_index || do_import || do_list || do_adopt))
 		Help();
 
 	ProgName();
@@ -145,6 +156,9 @@ int main(int argc, char **argv)
 
 	if (do_adopt)
 		AdoptFile(Area, FileName, Description);
+
+	if (do_import)
+		ImportFiles(Area);
 
 	if (do_kill)
 		Kill();

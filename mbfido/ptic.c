@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/ptic.c
+ * $Id$
  * Purpose ...............: Process 1 .tic file
- * Last modification date : 31-Jul-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -48,6 +47,7 @@
 #include "rollover.h"
 #include "ptic.h"
 #include "magic.h"
+#include "virscan.h"
 
 
 #define	UNPACK_FACTOR	300
@@ -501,35 +501,14 @@ int ProcessTic(fa_list *sbl, char *Realname)
 				printf("Virscan   \b\b\b\b\b\b\b\b\b\b");
 				fflush(stdout);
 			}
-			sprintf(temp2, "%s/etc/virscan.data", getenv("MBSE_ROOT"));
 
-			if ((fp = fopen(temp2, "r")) == NULL) {
-				WriteError("No virus scanners defined");
-			} else {
-				fread(&virscanhdr, sizeof(virscanhdr), 1, fp);
-
-				while (fread(&virscan, virscanhdr.recsize, 1, fp) == 1) {
-					cmd = NULL;
-					if (virscan.available) {
-						cmd = xstrcpy(virscan.scanner);
-						cmd = xstrcat(cmd, (char *)" ");
-						cmd = xstrcat(cmd, virscan.options);
-						if (execute(cmd, (char *)"*", (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") != virscan.error) {
-							Syslog('!', "Virus found by %s", virscan.comment);
-							IsVirus = TRUE;
-						}
-						free(cmd);
-					}
-				}
-				fclose(fp);
-
-				if (IsVirus) {
-					DeleteVirusWork();
-					chdir(TIC.Inbound);
-					Bad((char *)"Possible virus found!");
-					free(Temp);
-					return 1;
-				}
+			IsVirus = VirScan();
+			if (IsVirus) {
+				DeleteVirusWork();
+				chdir(TIC.Inbound);
+				Bad((char *)"Possible virus found!");
+				free(Temp);
+				return 1;
 			}
 
 			if (!do_quiet) {

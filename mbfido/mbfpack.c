@@ -40,16 +40,6 @@
 
 
 extern int	do_quiet;		/* Supress screen output	    */
-//int		do_pack  = FALSE;	/* Pack filebase		    */
-//int		do_check = FALSE;	/* Check filebase		    */
-//int		do_kill  = FALSE;	/* Kill/move old files		    */
-//int		do_index = FALSE;	/* Create request index		    */
-//int		do_list  = FALSE;	/* List fileareas		    */
-//extern	int	e_pid;			/* Pid of external process	    */
-//extern	int	show_log;		/* Show logging			    */
-//time_t		t_start;		/* Start time			    */
-//time_t		t_end;			/* End time			    */
-
 
 
 
@@ -60,7 +50,7 @@ extern int	do_quiet;		/* Supress screen output	    */
 void PackFileBase(void)
 {
 	FILE	*fp, *pAreas, *pFile;
-	int	i, iAreas, iAreasNew = 0;
+	int	i, iAreas, iAreasNew = 0, rc;
 	int	iTotal = 0, iRemoved = 0;
 	char	*sAreas, *fAreas, *fTmp, fn[PATH_MAX];
 
@@ -127,7 +117,9 @@ void PackFileBase(void)
 					iRemoved++;
 					Syslog('+', "Removed file \"%s\" from area %d", file.Name, i);
 					sprintf(fn, "%s/%s", area.Path, file.Name);
-					Syslog('+', "Unlink %s result %d", fn, unlink(fn));
+					rc = unlink(fn);
+					if (rc)
+					    Syslog('+', "Unlink %s result %d", fn, rc);
 					/*
 					 * If a dotted version (thumbnail) exists, remove it silently
 					 */

@@ -136,7 +136,7 @@ void Check(void)
 			while (fread(&file, sizeof(file), 1, pFile) == 1) {
 
 				iTotal++;
-				sprintf(newdir, "%s/%s", area.Path, file.Name);
+				sprintf(newdir, "%s/%s", area.Path, file.LName);
 
 				if (file_exist(newdir, R_OK)) {
 					Syslog('+', "File %s area %d not on disk.", newdir, i);
@@ -155,19 +155,19 @@ void Check(void)
 					Marker();
 					Update = FALSE;
 					if (file_time(newdir) != file.FileDate) {
-						Syslog('!', "Date mismatch area %d file %s", i, file.Name);
+						Syslog('!', "Date mismatch area %d file %s", i, file.LName);
 						file.FileDate = file_time(newdir);
 						iErrors++;
 						Update = TRUE;
 					}
 					if (file_size(newdir) != file.Size) {
-						Syslog('!', "Size mismatch area %d file %s", i, file.Name);
+						Syslog('!', "Size mismatch area %d file %s", i, file.LName);
 						file.Size = file_size(newdir);
 						iErrors++;
 						Update = TRUE;
 					}
 					if (file_crc(newdir, CFG.slow_util && do_quiet) != file.Crc32) {
-						Syslog('!', "CRC error area %d, file %s", i, file.Name);
+						Syslog('!', "CRC error area %d, file %s", i, file.LName);
 						file.Crc32 = file_crc(newdir, CFG.slow_util && do_quiet);
 						iErrors++;
 						Update = TRUE;
@@ -192,7 +192,7 @@ void Check(void)
 							Found = FALSE;
 							rewind(pFile);
 							while (fread(&file, sizeof(file), 1, pFile) == 1) {
-								if (strcmp(file.Name, de->d_name) == 0) {
+								if (strcmp(file.LName, de->d_name) == 0) {
 									Found = TRUE;
 									break;
 								}
