@@ -45,7 +45,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!do_quiet) {
         colour(12, 0);
-        printf("    ReArc file %s", filename);
+        printf("    ReArc file %s   ", filename);
 	fflush(stdout);
     }
 
@@ -146,7 +146,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!do_quiet) {
 	colour(11, 0);
-	printf("\rUnpacking file %s", filename);
+	printf("\rUnpacking file %s   ", filename);
 	fflush(stdout);
     }
 
@@ -166,7 +166,7 @@ int rearc(char *filename, char *arctype, int do_quiet)
 
     if (!do_quiet) {
 	colour(10, 0);
-	printf("\r  Packing file %s", filename);
+	printf("\r  Packing file %s   ", newname);
     }
 
     /*

@@ -14,7 +14,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<div align="right"><h5>Last update 08-Nov-2003</h5></div>
+<div align="right"><h5>Last update 08-Mar-2004</h5></div>
 <div align="center"><H1>mbfile - File database maintenance program.</H1></div>
 
 <H3>Synopsys.</H3>
@@ -70,8 +70,9 @@ file is removed. If the area is a CD-rom area, the check that files on disk
 must exist in the filedatabase is skipped.
 <P>
 
-<code><strong>mbfile</strong> delete &lt;area&gt; &lt;file&gt;</code>
-Mark a file in an area for later deletion. 
+<code><strong>mbfile</strong> delete &lt;area&gt; "&lt;filemask&gt;"</code>
+Mark file(s) in an area for later deletion. You can use wildcards, and if you do
+surround them with quotes to prevent shell expansion.
 The file is not removed until you run <strong>mbfile pack</strong>.
 <P>
 
@@ -136,15 +137,21 @@ you delete files with mbsetup or with mbfile, they are still in your database an
 until you run <strong>mbfile pack</strong>.
 <P>
 
+<code><strong>mbfile</strong> rearc &lt;area&gt; "&lt;filemask&gt;"</code>;
+Re-archive file(s) in an file area to the archiver that must be set in the
+<a href="../setup/files.html">file area setup</a>.
+<P>
+
 <code><strong>mbfile</strong> sort &lt;area&gt;</code>
 Sort the files in area on the long filenames. The sort is case insensitive. When
 the sort is completed, the command <strong>mbfile index</strong> will automatic
 run to rebuild all indexes.
 <P>
 
-<code><strong>mbfile</strong> undelete &lt;area&gt; &lt;file&gt;</code>
+<code><strong>mbfile</strong> undelete &lt;area&gt; "&lt;filemask&gt;"</code>
 Mark a file that is marked for deletion to be available again, ie. undo the deletion
-mark.
+mark. You can use wildcards, and if you do
+surround them with quotes to prevent shell expansion.
 <P>&nbsp;<P>
 
 <H3>Options.</H3>

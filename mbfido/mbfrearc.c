@@ -48,7 +48,7 @@ void ReArc(int Area, char *File)
 {
     char	    *p, *temp, *linkpath, mask[256];
     FILE	    *fp;
-    int		    i, rc = -1;
+    int		    i, rc = -1, count = 0, errors = 0;
     struct utimbuf  ut;
 
     IsDoing("ReArc file(s)");
@@ -98,7 +98,8 @@ void ReArc(int Area, char *File)
 	if (re_exec(fdb.LName) || re_exec(fdb.Name)) {
 	    Syslog('+', "Will rearc %s", fdb.LName);
 	    sprintf(temp, "%s/%s", area.Path, fdb.Name);
-	    
+	    count++;
+
 	    rc = rearc(temp, area.Archiver, do_quiet);
 	    if (rc == 0) {
 		/*
@@ -106,7 +107,7 @@ void ReArc(int Area, char *File)
 		 */
     		if (!do_quiet) {
 		    colour(9, 0);
-		    printf("\r   Update file %s", temp);
+		    printf("\r   Update file %s   ", temp);
 		    fflush(stdout);
 		}
 
@@ -177,12 +178,13 @@ void ReArc(int Area, char *File)
 		symlink(temp, linkpath);
 		free(linkpath);
 	    } else {
+		errors++;
 		break; // stop when something goes wrong
 	    }
 	    if (!do_quiet) {
 		colour(7, 0);
 		printf("\r");
-		for (i = 0; i < (strlen(temp) + 17); i++)
+		for (i = 0; i < (strlen(temp) + 20); i++)
 		    printf(" ");
 		printf("\r");
 		fflush(stdout);
@@ -191,6 +193,7 @@ void ReArc(int Area, char *File)
     }
     fclose(fp);
     free(temp);
+    Syslog('+', "ReArc Files [%5d]  Good [%5d]  Errors [%5d]", count, count - errors, errors);
 }
 
 
