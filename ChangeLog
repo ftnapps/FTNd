@@ -6,14 +6,23 @@ v0.39.5		24-Dec-2003
 		Added code for new binkp development, the code is disabled by
 		default and can only be used with the right configure option.
 
+	common.a:
+		Allows node locking with zero bytes lockfiles created by some
+		other OS when enabled in the setup.
+
 	mbcico:
 		Binkp code cleanup.
 		Allow m_file command in binkp during file transfer in progress.
 		Added two temporary binkp sourcefiles for development.
-
+		Fixed a segfault when a session failed.
+	
 	mbout:
 		Poll, remove poll and request failed to points which had no
 		point directory in the outbound, now the directory is created.
+
+	mbsetup:
+		Added setting in menu 1.14 to allow zero bytes lockfiles
+		created by another OS.
 
 	script:
 		Fixed NetBSD init script

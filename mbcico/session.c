@@ -182,6 +182,7 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	if (rc == 0)
 	    putstatus(tmpl->addr, 0, 0);
     }
+
     tidy_falist(&remote);
     if (data)
 	free(data);
@@ -191,9 +192,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	free(emsi_local_password);
     if (emsi_remote_password)
 	free(emsi_remote_password);
-
-    if (nlent->addr.domain)
-	free(nlent->addr.domain);
 
     inbound_close(rc == 0);
     return rc;

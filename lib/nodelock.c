@@ -31,6 +31,8 @@
 #include "../config.h"
 #include "libs.h"
 #include "structs.h"
+#include "users.h"
+#include "records.h"
 #include "clcomm.h"
 #include "common.h"
 
@@ -41,7 +43,7 @@ int nodelock(faddr *addr, pid_t mypid)
     char    *fn, *tfn, *p, tmp[16];
     FILE    *fp;
     pid_t   pid;
-    int	    tmppid, sverr;
+    int	    tmppid, sverr, rc;
     time_t  ltime, now;
 
     fn = bsyname(addr);
@@ -86,9 +88,10 @@ int nodelock(faddr *addr, pid_t mypid)
     }
 
     /*
-     * Lock exists, check owner
+     * Lock exists, check owner. If rc <> 1 then the lock may have
+     * been created by another OS (zero bytes lock).
      */
-    fscanf(fp, "%d", &tmppid);
+    rc = fscanf(fp, "%d", &tmppid);
     pid = tmppid;
     fclose(fp);
 
@@ -106,7 +109,15 @@ int nodelock(faddr *addr, pid_t mypid)
      */
     ltime = file_time(fn);
     now = time(NULL);
-    if (kill(pid, 0) && (errno == ESRCH)) {
+    if (CFG.ZeroLocks && (rc != 1) && (((unsigned long)now - (unsigned long)ltime) > 21600)) {
+	Syslog('+', "Found zero byte lock older then 6 hours for %s, unlink", ascfnode(addr,0x1f));
+	unlink(fn);
+    } else if (CFG.ZeroLocks && (rc != 1)) {
+	Syslog('+', "Node %s is locked from another OS", ascfnode(addr, 0x1f));
+	unlink(tfn);
+	free(tfn);
+	return 1;
+    } else if (kill(pid, 0) && (errno == ESRCH)) {
 	Syslog('+', "Found stale bsy file for %s, unlink", ascfnode(addr,0x1f));
 	unlink(fn);
     } else if (((unsigned long)now - (unsigned long)ltime) > 21600) {
@@ -139,19 +150,24 @@ int nodeulock(faddr *addr, pid_t mypid)
     char    *fn;
     FILE    *fp;
     pid_t   pid;
-    int	    tmppid;
+    int	    tmppid = 0, rc;
 
     fn = bsyname(addr);
     if ((fp = fopen(fn, "r")) == NULL) {
-	WriteError("$Can't open lock file (%s) \"%s\"", ascfnode(addr, 0x1f), fn);
+	Syslog('+', "Unlock %s failed, not locked", ascfnode(addr, 0x1f));
 	return 1;
     }
 
-    fscanf(fp, "%d", &tmppid);
+    rc = fscanf(fp, "%d", &tmppid);
     pid = tmppid;
     fclose(fp);
 
-    if (pid == mypid) {
+    if (CFG.ZeroLocks && (rc != 1)) {
+	/*
+	 * Zero byte lock from another OS, leave alone.
+	 */
+	return 0;
+    } else if (pid == mypid) {
 	unlink(fn);
 	return 0;
     } else {

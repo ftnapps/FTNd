@@ -725,7 +725,7 @@ struct	sysconfig {
 
 	unsigned	xNoJanus	: 1;
 	unsigned	NoHydra		: 1;	/* Don't do Hydra	    */
-	unsigned	xNoIBN		: 1;
+	unsigned	ZeroLocks	: 1;	/* Allow 0 bytes locking    */
 	unsigned	xNoITN		: 1;
 	unsigned	xNoIFC		: 1;
 

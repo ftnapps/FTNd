@@ -131,11 +131,11 @@ struct binkprec	bp;				/* Global structure		    */
 /*
  * Prototypes
  */
-int	binkp_send_frame(int, char *, int);	/* Send cmd/data frame		    */
-int	binkp_send_command(int, ...);		/* Send command frame		    */
-void	binkp_settimer(int);			/* Set timeout timer		    */
-int	binkp_expired(void);			/* Timer expired?		    */
-int	binkp_banner(void);			/* Send system banner		    */
+int	binkp_send_frame(int, char *, int);	    /* Send cmd/data frame	    */
+int	binkp_send_command(int, ...);		    /* Send command frame	    */
+void	binkp_settimer(int);			    /* Set timeout timer	    */
+int	binkp_expired(void);			    /* Timer expired?		    */
+int	binkp_banner(void);			    /* Send system banner	    */
 int	binkp_recv_command(char *, int *, int *);   /* Receive command frame	    */
 void	parse_m_nul(char *);			    /* Parse M_NUL message	    */
 
@@ -175,17 +175,21 @@ int binkp(int role)
 
     if (rc) {
 	Syslog('!', "Binkp: session failed");
-	goto binkperr;
+	goto binkpend;
     }
 
-binkperr:   
+binkpend:   
     /*
      * Deinit
      */
+    Syslog('b', "Binkp: deinit start");
     if (bp.MD_Challenge)
 	free(bp.MD_Challenge);
     if (bp.rxbuf)
 	free(bp.rxbuf);
+    Syslog('b', "Binkp: deinit end");
+    rc = abs(rc);
+    Syslog('b', "Binkp: rc=%d", rc);
     return rc;
 }
 
@@ -489,6 +493,10 @@ SM_RETURN
  *   Functions
  */
 
+
+/*
+ * Send a binkp frame
+ */
 int binkp_send_frame(int cmd, char *buf, int len)
 {
     unsigned short  header = 0;
@@ -513,6 +521,9 @@ int binkp_send_frame(int cmd, char *buf, int len)
 
 
 
+/*
+ * Send a command message
+ */
 int binkp_send_command(int id, ...)
 {
     va_list     args;
@@ -543,6 +554,9 @@ int binkp_send_command(int id, ...)
 
 
 
+/*
+ * Set binkp master timer
+ */
 void binkp_settimer(int interval)
 {
     Timer = time((time_t*)NULL) + interval;
@@ -550,6 +564,9 @@ void binkp_settimer(int interval)
 
 
 
+/*
+ * Test if master timer is expired
+ */
 int binkp_expired(void)
 {
     time_t      now;
@@ -562,6 +579,9 @@ int binkp_expired(void)
 
 
 
+/*
+ * Send system info to remote
+ */
 int binkp_banner(void)
 {
     time_t  t;
@@ -705,7 +725,6 @@ void parse_m_nul(char *msg)
 	Syslog('+', "Binkp: M_NUL \"%s\"", msg);
     }
 }
-
 
 
 
