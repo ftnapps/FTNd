@@ -122,7 +122,11 @@ extern int		disk_run;		/* Disk watch running	*/
 /*
  * Global thread vaiables
  */
-pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
+pthread_t	pt_ping;
+pthread_t	pt_command;
+pthread_t	pt_disk;
+pthread_t	pt_scheduler;
+// pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
 
 
 
@@ -946,7 +950,11 @@ void start_scheduler(void)
     char            *cmd = NULL;
     int		    rc;
     
+    if (nodaemon)
+	printf("init fidonet\n");
     InitFidonet();
+    if (nodaemon)
+        printf("done\n");
 
     /*
      * Registrate this server for mbmon in slot 0.
@@ -958,6 +966,8 @@ void start_scheduler(void)
     strcpy(reginfo[0].city,  "localhost");
     strcpy(reginfo[0].doing, "Start");
     reginfo[0].started = time(NULL);
+    if (nodaemon)
+        printf("reginfo filled\n");
 
     Processing = TRUE;
     TouchSema((char *)"mbtask.last");
@@ -980,6 +990,8 @@ void start_scheduler(void)
 	WriteError("$Can't bind socket %s", spath);
 	die(MBERR_INIT_ERROR);
     }
+    if (nodaemon)
+        printf("sockets created\n");
 
     /*
      * The flag masterinit is set if a new config.data is created, this
@@ -996,30 +1008,37 @@ void start_scheduler(void)
 	masterinit = FALSE;
     }
 
+    if (nodaemon)
+        printf("init nodelists\n");
+
     initnl();
     sem_set((char *)"scanout", TRUE);
     if (!TCFG.max_tcp && !pots_lines && !isdn_lines) {
 	Syslog('?', "WARNING: this system cannot connect to other systems, check setup");
     }
 
+    if (nodaemon)
+        printf("creating threads\n");
     /*
      * Install the threads that do the real work.
      */
-    if ((rc = pthread_create(&p_thread[0], NULL, (void (*))ping_thread, NULL))) {
+    if ((rc = pthread_create(&pt_ping, NULL, /* (void (*)) */ ping_thread, NULL))) {
 	WriteError("$pthread_create ping_thread rc=%d", rc);
 	die(SIGTERM);
-    } else if ((rc = pthread_create(&p_thread[1], NULL, (void (*))cmd_thread, NULL))) {
+    } else if ((rc = pthread_create(&pt_command, NULL, (void (*))cmd_thread, NULL))) {
 	WriteError("$pthread_create cmd_thread rc=%d", rc);
 	die(SIGTERM);
-    } else if ((rc = pthread_create(&p_thread[2], NULL, (void (*))disk_thread, NULL))) {
+    } else if ((rc = pthread_create(&pt_disk, NULL, (void (*))disk_thread, NULL))) {
 	WriteError("$pthread_create disk_thread rc=%d", rc);
 	die(SIGTERM);
-    } else if ((rc = pthread_create(&p_thread[3], NULL, (void (*))scheduler, NULL))) {
+    } else if ((rc = pthread_create(&pt_scheduler, NULL, (void (*))scheduler, NULL))) {
 	WriteError("$pthread_create scheduler rc=%d", rc);
 	die(SIGTERM);
     } else {
 	Syslog('+', "All threads installed");
     }
+    if (nodaemon)
+        printf("threads installed\n");
 
     /*
      * Sleep until we die
@@ -1043,7 +1062,7 @@ void *scheduler(void)
     char            *cmd = NULL, opts[41], port[21];
     static char     doing[32];
     time_t          now;
-    struct tm       *tm, *utm;
+    struct tm       tm, utm;
 #if defined(__linux__)
     FILE            *fp;
 #endif
@@ -1127,15 +1146,20 @@ void *scheduler(void)
 	 *  Reload configuration data if some file is changed.
 	 */
 	now = time(NULL);
-	tm = localtime(&now);
-	utm = gmtime(&now);
-	if (tm->tm_min != olddo) {
+#if defined(__OpenBSD__)
+	localtime_r(&now, &tm);
+	gmtime_r(&now, &utm);
+#else
+	tm = *localtime(&now);
+	utm = *gmtime(&now);
+#endif
+	if (tm.tm_min != olddo) {
 	    /*
 	     * Each minute we execute this part
 	     */
 	    if (tosswait)
 		tosswait--;
-	    olddo = tm->tm_min;
+	    olddo = tm.tm_min;
 	    TouchSema((char *)"mbtask.last");
 	    if (file_time(tcfgfn) != tcfg_time) {
 		Syslog('+', "Task configuration changed, reloading");
@@ -1163,8 +1187,8 @@ void *scheduler(void)
 	    /*
 	     * If the next event time is reached, rescan the outbound
 	     */
-	    if ((utm->tm_hour == nxt_hour) && (utm->tm_min == nxt_min)) {
-		Syslog('+', "It is now %02d:%02d UTC, starting new event", utm->tm_hour, utm->tm_min);
+	    if ((utm.tm_hour == nxt_hour) && (utm.tm_min == nxt_min)) {
+		Syslog('+', "It is now %02d:%02d UTC, starting new event", utm.tm_hour, utm.tm_min);
 		sem_set((char *)"scanout", TRUE);
 	    }
 	}
@@ -1188,8 +1212,8 @@ void *scheduler(void)
 	 * Check Pause Timer, make sure it's only checked
 	 * once each second. Also do pingcheck.
 	 */
-	if (tm->tm_sec != oldsec) {
-	    oldsec = tm->tm_sec;
+	if (tm.tm_sec != oldsec) {
+	    oldsec = tm.tm_sec;
 	    if (ptimer)
 		ptimer--;
 	}
@@ -1274,12 +1298,12 @@ void *scheduler(void)
 
 	} /* if (Processing) */
 
-	if ((tm->tm_sec / SLOWRUN) != oldmin) {
+	if ((tm.tm_sec / SLOWRUN) != oldmin) {
 
 	    /*
 	     *  These tasks run once per 20 seconds.
 	     */
-	    oldmin = tm->tm_sec / SLOWRUN;
+	    oldmin = tm.tm_sec / SLOWRUN;
 
 	    if (Processing) {
 
@@ -1410,17 +1434,15 @@ int main(int argc, char **argv)
      *  but that's live. This daemon should only be stopped by SIGTERM.
      */
     for (i = 0; i < NSIG; i++) {
-        if ((i == SIGHUP) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
+        if ((i == SIGHUP) || (i == SIGPIPE) || (i == SIGBUS) || (i == SIGILL) || (i == SIGSEGV))
             signal(i, (void (*))die);
 	else if ((i == SIGINT) || (i == SIGTERM))
 	    signal(i, (void (*))start_shutdown);
 	else if (i == SIGCHLD)
 	    signal(i, SIG_DFL);
-        else if ((i != SIGKILL) && (i != SIGSTOP))
-            signal(i, SIG_IGN);
+//        else if ((i != SIGKILL) && (i != SIGSTOP))
+//            signal(i, SIG_IGN);
     }
-
-    init_pingsocket();
 
     /*
      * Secret undocumented startup switch, ie: no help available.
@@ -1428,6 +1450,8 @@ int main(int argc, char **argv)
     if ((argc == 2) && (strcmp(argv[1], "-nd") == 0)) {
 	nodaemon = TRUE;
     }
+
+    init_pingsocket();
 
     /*
      *  mbtask is setuid root, drop privileges to user mbse.
@@ -1463,10 +1487,16 @@ int main(int argc, char **argv)
 
     sprintf(cfgfn, "%s/etc/config.data", getenv("MBSE_ROOT"));
     load_maincfg();
+    if (nodaemon)
+	printf("main config loaded\n");
 
     mypid = getpid();
+    if (nodaemon)
+	printf("my pid is %d\n", mypid);
+
     Syslog(' ', " ");
     Syslog(' ', "MBTASK v%s", VERSION);
+
     if (nodaemon)
 	Syslog('+', "Starting in no-daemon mode");
 
@@ -1496,6 +1526,7 @@ int main(int argc, char **argv)
 	 * For debugging, run in foreground mode
 	 */
 	mypid = getpid();
+	printf("init complete, starting scheduler ...\n");
 	start_scheduler();
     } else {
 	/*

@@ -143,19 +143,27 @@ void status_write(void);
 void status_write(void)
 {
     int	 	d, stat_fd, yday;
-    struct tm	*ttm;
+    struct tm	ttm;
     time_t	temp;
 
+#if defined(__OpenBSD)
     temp = time(NULL);
-    ttm = localtime(&temp);
-    yday = ttm->tm_yday;
+    localtime_r(&temp, &ttm);
+    yday = ttm.tm_yday;
+    temp = status.daily;
+    localtime_r(&temp, &ttm);
+#else
+    temp = time(NULL);
+    ttm = *localtime(&temp);
+    yday = ttm.tm_yday;
     temp = status.daily;	// On a Sparc, first put the time in temp, then pass it to locattime.
-    ttm = localtime(&temp);
+    ttm = *localtime(&temp);
+#endif
 
     /*
      * If we passed to the next day, zero the today counters 
      */
-    if (yday != ttm->tm_yday) {
+    if (yday != ttm.tm_yday) {
 	Syslog('+', "Last days statistics:");
 	Syslog('+', "Total clients : %lu", status.today.tot_clt);
 	Syslog('+', "Peak clients  : %lu", status.today.peak_clt);
@@ -201,13 +209,17 @@ void status_write(void)
  */
 int get_zmh()
 {
-	struct	tm *l_date; 
+	struct	tm l_date; 
 	char	sstime[6];
 	time_t	Now;
 
 	Now = time(NULL);
-	l_date = gmtime(&Now);
-	sprintf(sstime, "%02d:%02d", l_date->tm_hour, l_date->tm_min);
+#if defined(__OpenBSD__)
+	gmtime_r(&Now, &l_date);
+#else
+	l_date = *gmtime(&Now);
+#endif
+	sprintf(sstime, "%02d:%02d", l_date.tm_hour, l_date.tm_min);
 
 	if ((strncmp(sstime, TCFG.zmh_start, 5) >= 0) && (strncmp(sstime, TCFG.zmh_end, 5) < 0)) {
 		if (!ZMH) {
@@ -292,7 +304,7 @@ char *stat_status()
 
 	buf[0] = '\0';
 	sprintf(buf, "100:20,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%2.2f,%lu;",
-		status.start, status.laststart, status.daily,
+		(long)status.start, (long)status.laststart, (long)status.daily,
 		status.startups, status.clients, 
 		status.total.tot_clt, status.total.peak_clt,
 		status.total.s_error, status.total.c_error,

@@ -329,13 +329,15 @@ void init_pingsocket(void)
 /*
  * Ping thread
  */
-void *ping_thread(void)
+void *ping_thread(void *dummy)
 {
     int		    rc = 0;
     static int      pingnr, pingresult[2];
     static char     pingaddress[41];
     static time_t   pingsend;
     time_t	    now;
+
+printf("Start ping thread\n");
 
     Syslog('+', "Starting ping thread");
     pingresult[1] = pingresult[2] = FALSE;

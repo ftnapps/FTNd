@@ -203,9 +203,9 @@ fi
 
 
 dnl
-dnl For FreeBSD we need -pthread for gcc and don't need libpthread
+dnl For FreeBSD and OpenBSD we need -pthread for gcc and don't need libpthread
 dnl
-if test "$SYSTEM" = "FreeBSD"; then
+if test "$SYSTEM" = "FreeBSD" || test "$SYSTEM" = "OpenBSD"; then
     CFLAGS="-pthread $CFLAGS"
 else
     AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)

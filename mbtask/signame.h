@@ -4,7 +4,7 @@
 /* $Id$ */
 
 
-char SigName[32][16];
+// char SigName[32][16];
 
 
 #endif

@@ -11,6 +11,6 @@
 #define SET_SOCKA_LEN4(socka)
 
 void	init_pingsocket(void);
-void	*ping_thread(void);
+void	*ping_thread(void*);
 
 #endif

@@ -70,7 +70,11 @@ char *date(void)
     static char buf[20];
 
     now = time(NULL);
+#if defined(__OpenBSD__)
+    localtime_r(&now, &ptm);
+#else
     ptm = *localtime(&now);
+#endif
     sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
 			ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
     return(buf);
@@ -476,15 +480,19 @@ static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we",
 
 char *dayname(void)
 {
-        time_t  	tt;
-        struct tm	*ptm;
-	static char	buf[3];
+    time_t  	tt;
+    struct tm	ptm;
+    static char	buf[3];
 
-	tt  = time(NULL);
-        ptm = localtime(&tt);
-        sprintf(buf, "%s", dow[ptm->tm_wday]);
+    tt  = time(NULL);
+#if defined(__OpenBSD__)
+    localtime_r(&tt, &ptm);
+#else
+    ptm = *localtime(&tt);
+#endif
+    sprintf(buf, "%s", dow[ptm.tm_wday]);
 
-        return buf;     
+    return buf;     
 }
 
 

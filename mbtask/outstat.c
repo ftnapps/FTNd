@@ -116,13 +116,17 @@ void set_next(int, int);
 void set_next(int hour, int min)
 {
     time_t	now;
-    struct tm	*etm;
+    struct tm	etm;
     int		uhour, umin;
 
     now = time(NULL);
+#if defined(__OpenBSD__)
+    gmtime_r(&now, &etm);
+#else
     etm = gmtime(&now);
-    uhour = etm->tm_hour; /* For some reason, these intermediate integers are needed */
-    umin  = etm->tm_min;
+#endif
+    uhour = etm.tm_hour; /* For some reason, these intermediate integers are needed */
+    umin  = etm.tm_min;
 
     if ((hour > uhour) || ((hour == uhour) && (min > umin))) {
 	if (hour < nxt_hour) {
@@ -257,7 +261,7 @@ int outstat()
     struct _alist   *tmp, *old;
     char	    digit[6], flstr[13], *temp, as[6], be[6], utc[6], flavor, *temp2;
     time_t	    now;
-    struct tm	    *tm;
+    struct tm	    tm;
     int		    uhour, umin, thour, tmin;
     pp_list	    *tpl;
     faddr	    *fa;
@@ -277,9 +281,13 @@ int outstat()
 	    itnmask = (*tmpm)->mask;
     }
     now = time(NULL);
-    tm = gmtime(&now); /* UTC time */
-    uhour = tm->tm_hour;
-    umin  = tm->tm_min;
+#if defined(__OpenBSD__)
+    gmtime_r(&now, &tm);
+#else
+    tm = *gmtime(&now); /* UTC time */
+#endif
+    uhour = tm.tm_hour;
+    umin  = tm.tm_min;
     sprintf(utc, "%02d:%02d", uhour, umin);
     Syslog('+', "Scanning outbound at %s UTC.", utc);
     nxt_hour = 24;
