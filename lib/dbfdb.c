@@ -131,7 +131,7 @@ int mbsedb_CloseFDB(struct _fdbarea *fdb_area)
 	/*
 	 * Unlock first
 	 */
-	mbsedb_UnlockFDB(fdb_area);
+//	mbsedb_UnlockFDB(fdb_area);
     }
     fclose(fdb_area->fp);
 

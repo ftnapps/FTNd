@@ -12,6 +12,10 @@ v0.51.4		11-Apr-2004
 	libmsgbase.a:
 		With JAM_Readheader the Msg.Replyid field wasn't filled.
 
+	libdbase.a:
+		In experimental FDB functions, removed auto unlock on FDB 
+		close.
+
 	mbcico:
 		All heavy debug logmessages are now in defines and are only
 		enabled with ./configure --enable-newbinkp
