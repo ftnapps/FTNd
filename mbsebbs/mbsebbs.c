@@ -54,9 +54,10 @@ time_t		t_start;
 
 int main(int argc, char **argv)
 {
-    FILE    *pTty;
-    char    *p, *tty, temp[PATH_MAX];
-    int	    i;
+    FILE	*pTty;
+    char	*p, *tty, temp[PATH_MAX];
+    int		i;
+    struct stat	sb;
 
     printf("Loading MBSE BBS ...\n");
     pTTY = calloc(15, sizeof(char));
@@ -173,6 +174,17 @@ int main(int argc, char **argv)
     colour(WHITE, BLACK);
     printf("%s\n\n", COPYRIGHT);
  
+    /*
+     * Check users homedirectory, some *nix systems let users in if no
+     * homedirectory exists
+     */
+    sprintf(temp, "%s/%s", CFG.bbs_usersdir, sUnixName);
+    if (stat(temp, &sb)) {
+	printf("No homedirectory\n\n");
+	WriteError("homedirectory %s doesn't exist", temp);
+	Quick_Bye(MBERR_OK);
+    }
+    
     /*
      * Check if this port is available. In iNode we set a fake
      * line number, this will be used by doors.
