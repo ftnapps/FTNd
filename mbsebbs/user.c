@@ -6,7 +6,7 @@
  *                          does a lot of checking in general.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -185,7 +185,7 @@ void user()
     Syslog('+', "Unixmode login: %s", sUnixName);
 
     sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-    if ((pUsrConfig = fopen(temp,"r+b")) == NULL) {
+    if ((pUsrConfig = fopen(temp,"r+")) == NULL) {
 	/*
 	 * This should not happen.
 	 */
@@ -204,6 +204,7 @@ void user()
     }
 							
     if (!FoundName) {
+	fclose(pUsrConfig);
 	printf("Unknown username: %s\n", sUnixName);
 	/* FATAL ERROR: You are not in the BBS users file.*/
 	printf("%s\n", (char *) Language(389));
@@ -407,8 +408,8 @@ void user()
 	WriteError("Can't seek in %s/etc/users.data", getenv("MBSE_ROOT"));
     } else {
 	fwrite(&usrconfig, sizeof(usrconfig), 1, pUsrConfig);
-	fclose(pUsrConfig);
     }
+    fclose(pUsrConfig);
 
     /*
      * Write users structure to tmp file in ~/home/unixname/exitinfo
@@ -422,9 +423,9 @@ void user()
     ChangeHomeDir(exitinfo.Name, exitinfo.Email);
 
     Syslog('+', "User successfully logged into BBS");
-    Syslog('+', "Level %d (%s), %d mins. left, port %s", usrconfig.Security.level, LIMIT.Description, usrconfig.iTimeLeft, pTTY);
+    Syslog('+', "Level %d (%s), %d mins. left, port %s", exitinfo.Security.level, LIMIT.Description, exitinfo.iTimeLeft, pTTY);
     Time2Go = time(NULL);
-    Time2Go += usrconfig.iTimeLeft * 60;
+    Time2Go += exitinfo.iTimeLeft * 60;
     iUserTimeLeft = exitinfo.iTimeLeft;
 
     IsDoing("Welcome screens");

@@ -72,11 +72,10 @@ void Good_Bye(int onsig)
      * Update the users database record.
      */
     sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-    if ((pUsrConfig = fopen(temp,"r+b")) != NULL) {
+    if ((pUsrConfig = fopen(temp,"r+")) != NULL) {
 	sprintf(temp, "%s/%s/exitinfo", CFG.bbs_usersdir, exitinfo.Name);
 	if ((pExitinfo = fopen(temp,"rb")) != NULL) {
 	    fread(&usrconfighdr, sizeof(usrconfighdr), 1, pUsrConfig);
-	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
 	    fread(&exitinfo, sizeof(exitinfo), 1, pExitinfo);
 
 	    usrconfig = exitinfo;
@@ -93,8 +92,9 @@ void Good_Bye(int onsig)
 	    usrconfig.iLastMsgArea = iMsgAreaNumber;
 
 	    offset = usrconfighdr.hdrsize + (grecno * usrconfighdr.recsize);
+	    Syslog('b', "hdrsize=%ld recsize=%ld grecno=%ld", usrconfighdr.hdrsize, usrconfighdr.recsize, grecno);
 	    Syslog('b', "Good_Bye: write users.data at offset %ld", offset);
-	    if (fseek(pUsrConfig, offset, 0) != 0) {
+	    if (fseek(pUsrConfig, offset, SEEK_SET) != 0) {
 		WriteError("Can't move pointer in file %s", temp);
 		ExitClient(MBERR_GENERAL);
 	    }

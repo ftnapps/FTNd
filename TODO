@@ -46,6 +46,8 @@ mbsebbs:
 
 	N: OLR: qwk, check netmail entered from reader, fido address missing?
 
+	N: Reimplememnt CHRS kludge.
+
 newuser:
 	L: Allow handles to be the same as the unixname.
 

@@ -19,6 +19,8 @@ v0.37.3		09-Apr-2003.
 		Fixed recognition of tar.gz files.
 		Added menu function display file.
 		Display ascii textfiles now uses the More Y/n/= prompt.
+		When a new message is saved in a local area, the mailout
+		semafore is not set anymore.
 
 	mbuser:
 		Added nopper code during pack.

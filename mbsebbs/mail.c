@@ -604,95 +604,92 @@ void Post_Msg()
  */
 int Save_Msg(int IsReply, faddr *Dest)
 {
-	int		i;
-	char		*temp;
-	FILE		*fp;
+    int	    i;
+    char    *temp;
+    FILE    *fp;
 
-	if (Line < 2)
-		return TRUE;
-
-	if (!Open_Msgbase(msgs.Base, 'w'))
-		return FALSE;
-
-	Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-	Msg.Written = Msg.Arrived;
-	Msg.Local = TRUE;
-	temp = calloc(PATH_MAX, sizeof(char));
-
-	if (strlen(Msg.ReplyTo) && (msgs.Type == NETMAIL)) {
-		/*
-		 *  Send message to internet gateway.
-		 */
-		Syslog('m', "UUCP message to %s", Msg.ReplyAddr);
-		sprintf(Msg.To, "UUCP");
-		Add_Headkludges(Dest, IsReply);
-		sprintf(temp, "To: %s", Msg.ReplyAddr);
-		MsgText_Add2(temp);
-		MsgText_Add2((char *)"");
-	} else {
-		Add_Headkludges(Dest, IsReply);
-	}
-
-	/*
-	 * Add message text
-	 */
-	for (i = 1; i <= Line; i++) {
-		MsgText_Add2(Message[i]);
-	}
-
-	Add_Footkludges(TRUE, NULL, FALSE);
-
-	/*
-	 * Save if to disk
-	 */
-	Msg_AddMsg();
-	Msg_UnLock();
-
-	ReadExitinfo();
-	exitinfo.iPosted++;
-	WriteExitinfo();
-
-	do_mailout = TRUE;
-	LC_Wrote = TRUE;
-
-	Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
-
-	colour(CFG.HiliteF, CFG.HiliteB);
-	/* Saving message to disk */
-	printf("\n%s(%ld)\n\n", (char *) Language(202), Msg.Id);
-	fflush(stdout);
-	sleep(2);
-
-	msgs.LastPosted = time(NULL);
-	msgs.Posted.total++;
-	msgs.Posted.tweek++;
-	msgs.Posted.tdow[Diw]++;
-	msgs.Posted.month[Miy]++;
-
-	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	
-	if ((fp = fopen(temp, "r+")) != NULL) {
-		fseek(fp, msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize)), SEEK_SET);
-		fwrite(&msgs, msgshdr.recsize, 1, fp);
-		fclose(fp);
-	}
-
-	/*
-	 * Add quick mailscan info
-	 */
-	if (msgs.Type != LOCALMAIL) {
-		sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), 
-			((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
-		if ((fp = fopen(temp, "a")) != NULL) {
-			fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
-			fclose(fp);
-		}
-	}
-	free(temp);
-	Msg_Close();
-
-	SetMsgArea(iMsgAreaNumber);
+    if (Line < 2)
 	return TRUE;
+
+    if (!Open_Msgbase(msgs.Base, 'w'))
+	return FALSE;
+
+    Msg.Written = Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+    Msg.Local = TRUE;
+    temp = calloc(PATH_MAX, sizeof(char));
+
+    if (strlen(Msg.ReplyTo) && (msgs.Type == NETMAIL)) {
+	/*
+	 *  Send message to internet gateway.
+	 */
+	Syslog('m', "UUCP message to %s", Msg.ReplyAddr);
+	sprintf(Msg.To, "UUCP");
+	Add_Headkludges(Dest, IsReply);
+	sprintf(temp, "To: %s", Msg.ReplyAddr);
+	MsgText_Add2(temp);
+	MsgText_Add2((char *)"");
+    } else {
+	Add_Headkludges(Dest, IsReply);
+    }
+
+    /*
+     * Add message text
+     */
+    for (i = 1; i <= Line; i++)
+	MsgText_Add2(Message[i]);
+
+    Add_Footkludges(TRUE, NULL, FALSE);
+
+    /*
+     * Save if to disk
+     */
+    Msg_AddMsg();
+    Msg_UnLock();
+
+    ReadExitinfo();
+    exitinfo.iPosted++;
+    WriteExitinfo();
+
+    LC_Wrote = TRUE;
+
+    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
+
+    colour(CFG.HiliteF, CFG.HiliteB);
+    /* Saving message to disk */
+    printf("\n%s(%ld)\n\n", (char *) Language(202), Msg.Id);
+    fflush(stdout);
+    sleep(2);
+
+    msgs.LastPosted = time(NULL);
+    msgs.Posted.total++;
+    msgs.Posted.tweek++;
+    msgs.Posted.tdow[Diw]++;
+    msgs.Posted.month[Miy]++;
+
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	
+    if ((fp = fopen(temp, "r+")) != NULL) {
+	fseek(fp, msgshdr.hdrsize + (iMsgAreaNumber * (msgshdr.recsize + msgshdr.syssize)), SEEK_SET);
+	fwrite(&msgs, msgshdr.recsize, 1, fp);
+	fclose(fp);
+    }
+
+    /*
+     * Add quick mailscan info
+     */
+    if (msgs.Type != LOCALMAIL) {
+	do_mailout = TRUE;
+	sprintf(temp, "%s/tmp/%smail.jam", getenv("MBSE_ROOT"), ((msgs.Type == ECHOMAIL) || (msgs.Type == LIST))? "echo" : "net");
+	if ((fp = fopen(temp, "a")) != NULL) {
+	    fprintf(fp, "%s %lu\n", msgs.Base, Msg.Id);
+	    fclose(fp);
+	}
+    }
+    free(temp);
+    Msg_Close();
+
+    SetMsgArea(iMsgAreaNumber);
+    return TRUE;
 }
 
 
