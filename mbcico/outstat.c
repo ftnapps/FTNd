@@ -79,7 +79,7 @@ int outstat()
 
 	if (!do_quiet) {
 		colour(10, 0);
-		printf("flavor      size age    address\n");
+		printf("flavor       size age    address\n");
 		colour(3, 0);
 	}
 
@@ -96,7 +96,7 @@ int outstat()
 
 			age = time(NULL);
 			age -= tmp->time;
-			sprintf(temp, "%s  %8lu %s %s", flstr, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
+			sprintf(temp, "%s  %9lu %s %s", flstr, (long)tmp->size, str_time(age), ascfnode(&(tmp->addr), 0x1f));
 
 			if (!do_quiet)
 				printf("%s\n", temp);
