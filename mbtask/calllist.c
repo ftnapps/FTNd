@@ -84,9 +84,8 @@ int check_calllist(void)
     if (pots_calls || isdn_calls || inet_calls) {
 	call_work = 0;
 	for (tmp = alist; tmp; tmp = tmp->next) {
-	    if (((tmp->callmode == CM_INET) && TCFG.max_tcp) ||
-		((tmp->callmode == CM_ISDN) && TCFG.max_isdn) ||
-		((tmp->callmode == CM_POTS) && TCFG.max_pots)) {
+	    if (((tmp->callmode == CM_INET) && TCFG.max_tcp && internet) ||
+		((tmp->callmode == CM_ISDN) && TCFG.max_isdn) || ((tmp->callmode == CM_POTS) && TCFG.max_pots)) {
 		call_work++;
 
 		/*

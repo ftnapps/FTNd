@@ -78,7 +78,7 @@ int load_node(fidoaddr n)
 		(n.node == nodes.Aka[i].node) && (n.point == nodes.Aka[i].point)) {
 		fclose(fp);
 		free(temp);
-		tasklog('-' , "Node record %d, aka nr %d", j, i+1);
+//		tasklog('-' , "Node record %d, aka nr %d", j, i+1);
 		return TRUE;
 	    }
 	}
@@ -227,8 +227,8 @@ int outstat()
 	}
 
 	rc = load_node(tmp->addr);
-	tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
-		    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
+//	tasklog('o', "Load node %s rc=%s, NoCall=%s, NoTCP=%s", ascfnode(tmp->addr, 0x0f), rc?"true":"false",
+//		    nodes.NoCall?"True":"False", nodes.NoTCP?"True":"False");
 
 	/*
 	 * Zone Mail Hours, only use Fidonet Hours.
@@ -303,7 +303,7 @@ int outstat()
 		    T_window = TRUE;
 	    }
 	}
-	tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
+//	tasklog('o', "T_window=%s, iszmh=%s", T_window?"true":"false", iszmh?"true":"false");
 	strcpy(flstr,"...... ... ..");
 
 	/*

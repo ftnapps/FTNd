@@ -49,6 +49,7 @@
 
 extern char		ttyfn[];	    /* TTY file name		*/
 extern time_t		tty_time;	    /* TTY update time		*/
+extern int		rescan;		    /* Master rescan flag	*/
 pp_list			*pl = NULL;	    /* Portlist			*/
 
 
@@ -150,7 +151,8 @@ void load_ports()
 
 
 /*
- * Check status of all modem/ISDN ports
+ * Check status of all modem/ISDN ports. 
+ * If something is changed set the master rescan flag.
  */
 void check_ports(void)
 {
@@ -167,6 +169,10 @@ void check_ports(void)
 	    if (tpl->locked) {
 		tpl->locked = 0;
 		tasklog('+', "Port %s is now free", tpl->tty);
+		/*
+		 * Good, set master rescan flag
+		 */
+		rescan = TRUE;
 	    }
 	} else {
 	    fscanf(lf, "%d", &tmppid);
@@ -175,10 +181,12 @@ void check_ports(void)
 	    if (kill(rempid, 0) && (errno == ESRCH)) {
 		tasklog('+', "Stale lockfile for %s, unlink", tpl->tty);
 		unlink(lckname);
+		rescan = TRUE;
 	    } else {
 		if (!tpl->locked) {
 		    tpl->locked = rempid;
 		    tasklog('+', "Port %s locked, pid %d", tpl->tty, rempid);
+		    rescan = TRUE;
 		}
 	    }
 	}

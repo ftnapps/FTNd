@@ -92,6 +92,7 @@ int			tflags = FALSE;		/* if nodes with Txx	*/
 extern int		nxt_hour;		/* Next event hour	*/
 extern int		nxt_min;		/* Next event minute	*/
 extern _alist_l		*alist;			/* Nodes to call list	*/
+int			rescan = FALSE;		/* Master rescan flag	*/
 extern int		pots_calls;
 extern int		isdn_calls;
 extern int		inet_calls;
@@ -563,7 +564,7 @@ int runtasktype(int tasktype)
  */
 int checktasks(int onsig)
 {
-    int	i, j, rc, count = 0, first = TRUE, status, do_outstat = FALSE;
+    int	i, j, rc, count = 0, first = TRUE, status;
 
     for (i = 0; i < MAXTASKS; i++) {
 	if (strlen(task[i].name)) {
@@ -578,8 +579,11 @@ int checktasks(int onsig)
 	    task[i].rc = wait4(task[i].pid, &status, WNOHANG | WUNTRACED, NULL);
 	    if (task[i].rc) {
 		task[i].running = FALSE;
+		/*
+		 * If a mailer call is finished, set the global rescan flag.
+		 */
 		if (task[i].tasktype == CM_POTS || task[i].tasktype == CM_ISDN || task[i].tasktype == CM_INET)
-		    do_outstat = TRUE;
+		    rescan = TRUE;
 		ptimer = PAUSETIME;
 	    }
 
@@ -635,16 +639,12 @@ int checktasks(int onsig)
 		    if (calllist[j].taskpid == task[i].pid) {
 			calllist[j].calling = FALSE;
 			calllist[j].taskpid = 0;
+			rescan = TRUE;
 		    }
 		}
 		memset(&task[i], 0, sizeof(onetask));
 	    }
 	}
-    }
-
-    if (do_outstat) {
-	outstat();
-	check_calllist();
     }
 
     return count;
@@ -843,7 +843,7 @@ void scheduler(void)
     FILE	    *fp;
 #endif
     struct pollfd   pfd;
-    int		    call_work;
+    int		    call_work = 0;
     static int	    call_entry = MAXTASKS;
     double	    loadavg[3];
 
@@ -1120,10 +1120,11 @@ void scheduler(void)
 		/*
 		 * Update outbound status if needed.
 		 */
-		if (s_scanout) {
+		if (rescan) {
+		    rescan = FALSE;
 		    outstat();
+		    call_work = check_calllist();
 		}
-		call_work = check_calllist();
 
 		/*
 		 * Launch the systems to call, start one system each time.
@@ -1183,7 +1184,7 @@ void scheduler(void)
 			if (calllist[call_entry].taskpid)
 			    calllist[call_entry].calling = TRUE;
 			running = checktasks(0);
-			check_calllist();
+			rescan = TRUE;
 			free(cmd);
 			cmd = NULL;
 		    }

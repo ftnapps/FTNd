@@ -51,6 +51,7 @@ int			s_bbsopen  = FALSE;
 int			s_do_inet  = FALSE;
 extern int		UPSalarm;
 extern int		ptimer;
+extern int		rescan;
 
 
 
@@ -340,6 +341,8 @@ int sem_set(char *sem, int value)
 
 	if (!strcmp(sem, "scanout")) {
 		s_scanout = value;
+		if (value)
+			rescan = TRUE;
 	} else if (!strcmp(sem, "mailout")) {
 		s_mailout = value;
 	} else if (!strcmp(sem, "mailin")) {

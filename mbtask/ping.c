@@ -45,6 +45,7 @@ extern struct taskrec	TCFG;			/* Task config record	*/
 int     		ping_isocket;		/* Ping socket		*/
 int     		icmp_errs = 0;		/* ICMP error counter	*/
 extern int		internet;		/* Internet is down	*/
+extern int		rescan;			/* Master rescan flag	*/
 int			pingstate = P_INIT;	/* Ping state		*/
 int			pingnr = 1;		/* Ping #, 1 or 2	*/
 int			pingresult[2];		/* Ping results		*/
@@ -331,6 +332,7 @@ void check_ping(void)
 	    internet = FALSE;
 	    sem_set((char *)"scanout", TRUE);
 	    RemoveSema((char *)"is_inet");
+	    rescan = TRUE;
 	}
     } else {
 	if (!internet) {
@@ -338,6 +340,7 @@ void check_ping(void)
 	    internet = TRUE;
 	    sem_set((char *)"scanout", TRUE);
 	    CreateSema((char *)"is_inet");
+	    rescan = TRUE;
 	}
 	icmp_errs = 0;
     }
