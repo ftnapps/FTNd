@@ -341,7 +341,10 @@ int EditMGrpRec(int Area)
 
 		j = select_menu(18);
 		switch(j) {
-		case 0:
+		case 0:	if (!mgroup.StartArea && strlen(mgroup.AreaFile)) {
+			    errmsg("Areas file defined but no BBS start area");
+			    break;
+			}
 			crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&mgroup, crc1, sizeof(mgroup));
 			if (crc != crc1) {
