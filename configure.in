@@ -77,10 +77,11 @@ fi
 
 
 dnl
-dnl On NetBSD we need to add the pkg dirs
+dnl On NetBSD we need to add the pkg dirs for posix threads
 dnl
 if test "$SYSTEM" = "NetBSD"; then
-    CFLAGS="$CFLAGS -I /usr/pkg/include"
+    CFLAGS="$CFLAGS `pthread-config --cflags`"
+    LDFLAGS="$LDFLAGS `pthread-config --ldflags`"
 fi
 
 dnl
@@ -88,11 +89,18 @@ dnl For FreeBSD we need -pthread for GCC
 dnl
 if test "$SYSTEM" = "FreeBSD"; then
     CFLAGS="-pthread $CFLAGS"
-    PTLIBS="$PTLIBS -lpthread"
-else
-    PTLIBS="$PTLIBS -lpthread"
 fi
-AC_SUBST(PTLIBS)
+
+
+dnl
+dnl POSIX threads
+dnl
+AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
+if test "$result" = "yes"; then
+  LIBS="$LIBS -lpthread"
+fi
+  AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
+
 
 
 dnl
@@ -179,15 +187,6 @@ if test "$result" = "yes"; then
   LIBS="$LIBS -lz"
   AC_CHECK_HEADERS(zlib.h,ZLIBSUP=Yes,ZLIBSUP=No)
 fi
-
-dnl
-dnl POSIX threads
-dnl
-PTHREADS=No
-AC_CHECK_LIB(pthread,pthread_create,result=yes,result=no)
-dnl if test "$result" = "yes"; then
-  AC_CHECK_HEADERS(pthread.h,PTHREADS=Yes,PTHREADS=No)
-dnl fi
 
 
 dnl
@@ -354,7 +353,6 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra zlib compression : ...... ${ZLIBSUP}
-    Posix threads : ............... ${PTHREADS}
 
 ])
 
