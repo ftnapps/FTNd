@@ -152,6 +152,7 @@ char *callstatus(int status)
 	case MBERR_NO_PORT_AVAILABLE:	return (char *)"No tty ";
 	case MBERR_NOT_ZMH:		return (char *)"No ZMH ";
 	case MBERR_SESSION_ERROR:	return (char *)"Badsess";
+	case MBERR_NO_IP_ADDRESS:	return (char *)"No IP  ";
 	default:			tasklog('-', "callstatus(%d), unknown", status);
 					return (char *)"ERROR  ";
     }
