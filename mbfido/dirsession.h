@@ -4,7 +4,9 @@
 /* $Id$ */
 
 
-void dirinbound(void);
-
+int  islocked(char *, int, int);	/* Is directory locked	    */
+int  setlock(char *, int);		/* Lock directory	    */
+void remlock(char *, int);		/* Unlock directory	    */
+void dirinbound(void);			/* Process nodes	    */
 
 #endif

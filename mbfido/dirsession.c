@@ -45,7 +45,6 @@ extern int  do_unprot;
 /*
  * Check for lock, return TRUE if node is locked.
  */
-int islocked(char *, int, int);
 int islocked(char *lockfile, int chklck, int waitclr)
 {
     int	    i;
@@ -104,7 +103,6 @@ int islocked(char *lockfile, int chklck, int waitclr)
  * Create a 1 byte lockfile if create is TRUE.
  * Returns FALSE if failed.
  */
-int setlock(char *, int);
 int setlock(char *lockfile, int create)
 {
     FILE    *fp;
@@ -130,7 +128,6 @@ int setlock(char *lockfile, int create)
 /*
  * Removing lockfile
  */
-void remlock(char *, int);
 void remlock(char *lockfile, int create)
 {
     if (create) {
