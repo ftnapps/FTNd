@@ -20,6 +20,8 @@ v0.35.07	11-Dec-2002
 		With menu 201 there is now a new optional data parameter N.
 		When used if a user selects a different message area, areas
 		with new unread mail are marked with a yellow star.
+		Also with menu 201 these is now options U+ and U-, which 
+		takes the user to the next or previous Unread message area.
 
 	mbfile:
 		The index command displays LFN names in the webpages again.
