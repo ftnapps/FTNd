@@ -35,8 +35,6 @@ libdiesel.a:
 	   processed, instead the previous macro value will be returned.
 
 mbsebbs:
-	N: Test with valgrind.
-
 	X: Better word wrapping or paragraph justification in editor.
 
 	X: E-mail downloads with e-mail verification.
@@ -67,8 +65,6 @@ mbsebbs:
 	N: There are some bugs in the bbs list menu. Make it a door?
 
 newuser:
-	N: Test with valgrind.
-
 	L: Allow handles to be the same as the unixname.
 
 	N: Add menu setup to set users preffered character set.

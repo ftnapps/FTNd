@@ -47,6 +47,7 @@ mfs_list	    *mfs = NULL;		/* List of filesystems	*/
 int                 disk_reread = FALSE;        /* Reread tables        */
 extern int          T_Shutdown;                 /* Program shutdown     */
 int                 disk_run = FALSE;           /* Thread running       */
+int		    recursecount = 0;		/* Recurse counter	*/
 
 
 pthread_mutex_t a_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -219,17 +220,13 @@ char *disk_getfs()
 
 
 /*
- * Update disk useage status.
+ * Update disk useage status. The calling function must lock the mutex!
  */
 void update_diskstat(void)
 {
     struct statfs   sfs;
     unsigned long   temp;
     mfs_list        *tmp;
-    int		    rc;
-
-    if ((rc = pthread_mutex_lock(&a_mutex)))
-	Syslog('!', "update_diskstat() mutex_lock failed rc=%d", rc);
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
         if (statfs(tmp->mountpoint, &sfs) == 0) {
@@ -244,14 +241,13 @@ void update_diskstat(void)
 	     */
 	    tmp->ro = (strstr(tmp->fstype, "iso") != NULL);
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
-		tmp->ro = (sfs.f_flags & MNT_RDONLY);
-//	    Syslog('-', "%s %d %d", tmp->mountpoint, sfs.f_flags, sfs.f_flags & MNT_RDONLY);
+	    /*
+	     * XxxxBSD has the info in the statfs structure.
+	     */
+	    tmp->ro = (sfs.f_flags & MNT_RDONLY);
 #endif
         }
     }
-
-    if ((rc = pthread_mutex_unlock(&a_mutex)))
-	Syslog('!', "update_diskstat() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -275,6 +271,16 @@ void add_path(char *path)
 
     if (strlen(path) == 0) {
 	Syslog('d', "add_path() empty pathname");
+	return;
+    }
+
+    /*
+     * Safety recursive call count.
+     */
+    recursecount++;
+    if (recursecount > 2) {
+	Syslog('!', "add_path(%s), too many recursive calls", path);
+	recursecount--;
 	return;
     }
 
@@ -305,7 +311,6 @@ void add_path(char *path)
 		}
 		fclose(fp);
 		free(mtab);
-		Syslog('d', "Should be on \"%s\" \"%s\"", fsname, fstype);
 		fill_mfslist(&mfs, fsname, fstype);
 		free(fsname);
 		free(fstype);
@@ -323,7 +328,6 @@ void add_path(char *path)
 			sprintf(fstype, "%s", mntbuf[i].f_fstypename);
 		    }
 		}
-		Syslog('d', "Should be on \"%s\" \"%s\"", fsname, fstype);
 		fill_mfslist(&mfs, fsname, fstype);
 		free(fsname);
 		free(fstype);
@@ -353,6 +357,7 @@ void add_path(char *path)
 	Syslog('d', "Recursive add name %s", path);
 	add_path(path);
     }
+    recursecount--;
 }
 
 
@@ -417,6 +422,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -431,6 +439,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -447,6 +458,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -464,6 +478,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -476,6 +493,9 @@ void *disk_thread(void)
 		}
 		fclose(fp);
 	    }
+	    
+	    if (T_Shutdown)
+		break;
 	    
 	    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
@@ -490,6 +510,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -503,6 +526,9 @@ void *disk_thread(void)
 		fclose(fp);
 	    }
 
+	    if (T_Shutdown)
+		break;
+	    
 	    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
 	    if ((fp = fopen(temp, "r"))) {
 		Syslog('d', "+ %s", temp);
@@ -518,18 +544,32 @@ void *disk_thread(void)
 	    free(temp);
 	    Syslog('d', "All directories added");
 
+	    /*
+	     * Now update the new table with filesystems information. This must
+	     * be done before we unlock the mutex so that waiting clients get
+	     * usefull information.
+	     */
+	    update_diskstat();
 	    for (tmp = mfs; tmp; tmp = tmp->next) {
-		Syslog('+', "Found filesystem: %s type: %s", tmp->mountpoint, tmp->fstype);
+		Syslog('+', "Found filesystem: %s type: %s status: %s", tmp->mountpoint, tmp->fstype, tmp->ro ?"RO":"RW");
 	    }
 
 	    if ((rc = pthread_mutex_unlock(&a_mutex)))
 		Syslog('!', "disk_thread() mutex_unlock failed rc=%d", rc);
 	}
 
+	if ((rc = pthread_mutex_lock(&a_mutex)))
+	    Syslog('!', "disk_thread() mutex_lock failed rc=%d", rc);
+	
 	update_diskstat();
+
+	if ((rc = pthread_mutex_unlock(&a_mutex)))
+	    Syslog('!', "disk_thread() mutex_unlock failed rc=%d", rc);
+
 	sleep(1);
     }
 
+    tidy_mfslist(&mfs);
     disk_run = FALSE;
     Syslog('+', "Disk thread stopped");
     pthread_exit(NULL);

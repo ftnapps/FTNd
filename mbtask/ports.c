@@ -159,6 +159,7 @@ void load_ports()
 			}
 		}
 	    }
+	    free(q);
 
 	    Syslog('+', "Found line %s, %s", new.tty, capflags);
 	    fill_portlist(&pl, &new);
