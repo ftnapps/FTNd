@@ -218,20 +218,20 @@ void user()
     /*
      * Copy username, split first and lastname.
      */
-    strcpy(UserName, usrconfig.sUserName);
-    if ((strchr(UserName,' ') == NULL && !CFG.iOneName)) {
+    strncpy(UserName, usrconfig.sUserName, sizeof(UserName)-1);
+    if ((strchr(UserName,' ') == NULL) && !CFG.iOneName) {
 	token = strtok(UserName, " ");
-  	strcpy(FirstName, token);
+  	strncpy(FirstName, token, sizeof(FirstName)-1);
   	token = strtok(NULL, "\0");
 	i = strlen(token);
-	for(x = 2; x < i; x++) {
+	for (x = 2; x < i; x++) {
 	    if (token[x] == ' ')
 		token[x] = '\0';
 	}
-	strcpy(LastName, token);
+	strncpy(LastName, token, sizeof(LastName)-1);
     } else
-	strcpy(FirstName, UserName);
-    strcpy(UserName, usrconfig.sUserName);
+	strncpy(FirstName, UserName, sizeof(FirstName)-1);
+    strncpy(UserName, usrconfig.sUserName, sizeof(UserName)-1);
     Syslog('+', "%s On-Line at %s", UserName, ttyinfo.comment);
     IsDoing("Just Logged In");
 

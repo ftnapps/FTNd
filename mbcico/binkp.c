@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * $Id$
- * Purpose .................: Fidonet binkd protocol
+ * Purpose .................: Fidonet binkp protocol
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
@@ -63,16 +63,26 @@
 
 static char	rbuf[2048];
 
+
+/*
+ * Local prototypes
+ */
+char		*unix2binkp(char *);
+char		*binkp2unix(char *);
+int		binkp_expired(void);
+void		b_banner(int);
+void		b_nul(char *);
+void		fill_binkp_list(binkp_list **, file_list *, off_t);
+void		debug_binkp_list(binkp_list **);
 void		binkp_send_data(char *, int);
 void		binkp_send_control(int id, ...);
 int		binkp_recv_frame(char *, int *, int *);
 void		binkp_settimer(int);
 int		resync(off_t);
-
-
 static int	orgbinkp(void);
 static int	ansbinkp(void);
 static int	binkp_batch(file_list *, int);
+
 
 extern char	*ttystat[];
 extern int	Loaded;
@@ -100,20 +110,6 @@ static int	CRCflag = FALSE;
 unsigned long	nethold, mailhold;
 int		transferred = FALSE;
 int		batchnr = 0, crc_errors = 0;
-
-
-int  resync(off_t);
-char *unix2binkd(char *);
-void binkp_send_data(char *, int);
-void binkp_send_control(int,...);
-int  binkp_recv_frame(char *, int *, int *);
-void binkp_settimer(int);
-int  binkp_expired(void);
-void b_banner(int);
-void b_nul(char *);
-void fill_binkp_list(binkp_list **, file_list *, off_t);
-void debug_binkp_list(binkp_list **);
-int  binkp_batch(file_list *, int);
 
 
 
@@ -221,9 +217,9 @@ int resync(off_t off)
 
 
 /*
- * Translate filename to binkd filename, unsafe characters are escaped.
+ * Translate filename to binkp filename, unsafe characters are escaped.
  */
-char *unix2binkd(char *fn)
+char *unix2binkp(char *fn)
 {
     static char	buf[PATH_MAX];
     char	*p, *q;
@@ -245,6 +241,42 @@ char *unix2binkd(char *fn)
     }
     *q = '\0';
     
+    return buf;
+}
+
+
+
+/*
+ * Translate escaped binkp filename to unix.
+ */
+char *binkp2unix(char *fn)
+{
+    static char buf[PATH_MAX];
+    char	*p, *q, hex[3];
+    int		c;
+
+    memset(&buf, 0, sizeof(buf));
+    p = fn;
+    q = buf;
+
+    while (*p) {
+	if (p[0] == '\\') {
+	    hex[0] = *p++;
+	    hex[1] = *p++;
+	    hex[2] = '\0';
+	    Syslog('b', "binkp2unix hex=%s", hex);
+	    sscanf(hex, "%2x", &c);
+	    *q++ = c;
+	    *q = '\0';
+	} else {
+	    *q++ = *p;
+	    *q = '\0';
+	}
+	p++;
+    }
+    *q = '\0';
+
+    Syslog('b', "binkp2unix \"%s\"", printable(buf, 0));
     return buf;
 }
 
@@ -838,7 +870,7 @@ void fill_binkp_list(binkp_list **bll, file_list *fal, off_t offs)
     (*tmpl)->state  = NoState;
     (*tmpl)->get    = FALSE;
     (*tmpl)->local  = xstrcpy(fal->local);
-    (*tmpl)->remote = xstrcpy(unix2binkd(fal->remote));
+    (*tmpl)->remote = xstrcpy(unix2binkp(fal->remote));
     (*tmpl)->offset = offs;
     (*tmpl)->size   = tstat.st_size;
     (*tmpl)->date   = tstat.st_mtime;
@@ -1268,6 +1300,7 @@ int binkp_batch(file_list *to_send, int role)
 	    else
 		Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld", 
 			rname, date(rtime), rsize, roffs);
+	    (void)binkp2unix(rname);
 	    rxfp = openfile(rname, rtime, rsize, &rxbytes, resync);
 	    gettimeofday(&rxtvstart, &tz);
 	    rxpos = 0;
