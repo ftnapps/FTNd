@@ -2,10 +2,8 @@ $Id$
 
 	MBSEBBS History.
 
-	The good news is at the bottom :-)
 
-
-v0.33.20        10-Feb-2002
+v0.33.20        10-Feb-2002 - 04-Jun-2002
 
 	upgrade:
 		Remove /opt/mbse/etc/safe.data
