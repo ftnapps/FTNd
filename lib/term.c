@@ -41,7 +41,6 @@ int termy = 24;
 
 void TermInit(int mode, int x, int y)
 {
-    Syslog('-', "Terminit(%d, %d, %d)", mode, x, y);
     termmode = mode;
     termx = x;
     termy = y;

@@ -34,11 +34,6 @@
 #include "taskutil.h"
 
 
-int		    disk_reread = FALSE;	/* Reread tables	*/
-extern int	    T_Shutdown;			/* Program shutdown	*/
-int		    disk_run = FALSE;		/* Thread running	*/
-
-
 typedef struct _mfs_list {
     struct _mfs_list	*next;			/* Linked list		*/
     char		*mountpoint;		/* Mountpoint		*/
@@ -48,6 +43,12 @@ typedef struct _mfs_list {
 } mfs_list;
 
 mfs_list	    *mfs = NULL;		/* List of filesystems	*/
+int                 disk_reread = FALSE;        /* Reread tables        */
+extern int          T_Shutdown;                 /* Program shutdown     */
+int                 disk_run = FALSE;           /* Thread running       */
+
+
+pthread_mutex_t a_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /*
@@ -132,10 +133,10 @@ char *disk_check(char *token)
     static char	    buf[SS_BUFSIZE];
     mfs_list	    *tmp;
     unsigned long   needed;
+    int		    rc;
 
     strtok(token, ",");
     needed = atol(strtok(NULL, ";"));
-    Syslog('d', "disk_check(%ld)", needed);
 
     if (! needed) {
 	/*
@@ -153,15 +154,23 @@ char *disk_check(char *token)
 	return buf;
     }
 
+    if ((rc = pthread_mutex_lock(&a_mutex)))
+	Syslog('!', "disk_check() mutex_lock failed rc=%d", rc);
+
     for (tmp = mfs; tmp; tmp = tmp->next) {
 	if (tmp->avail < needed) {
 	    /*
 	     * Answer Not enough space
 	     */
+	    if ((rc = pthread_mutex_unlock(&a_mutex)))
+		Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 	    sprintf(buf, "100:1,0");
 	    return buf;
 	}
     }
+
+    if ((rc = pthread_mutex_unlock(&a_mutex)))
+	Syslog('!', "disk_check() mutex_unlock failed rc=%d", rc);
 
     /*
      * Enough space
@@ -181,13 +190,16 @@ char *disk_getfs()
     static char	    buf[SS_BUFSIZE];
     char	    tt[80], *ans = NULL;
     mfs_list	    *tmp;
-    int		    i = 0;
+    int		    rc, i = 0;
 
     buf[0] = '\0';
     if (mfs == NULL) {
 	sprintf(buf, "100:0;");
 	return buf;
     }
+
+    if ((rc = pthread_mutex_lock(&a_mutex)))
+	Syslog('!', "disk_getfs() mutex_lock failed rc=%d", rc);
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
 	i++;
@@ -201,6 +213,8 @@ char *disk_getfs()
 	if (i == 10) /* No more then 10 filesystems */
 	    break;
     }
+    if ((rc = pthread_mutex_unlock(&a_mutex)))
+	Syslog('!', "disk_getfs() mutex_unlock failed rc=%d", rc);
 
     if (strlen(ans) > (SS_BUFSIZE - 8))
 	sprintf(buf, "100:0;");
@@ -223,6 +237,10 @@ void update_diskstat(void)
     struct statfs   sfs;
     unsigned long   temp;
     mfs_list        *tmp;
+    int		    rc;
+
+    if ((rc = pthread_mutex_lock(&a_mutex)))
+	Syslog('!', "update_diskstat() mutex_lock failed rc=%d", rc);
 
     for (tmp = mfs; tmp; tmp = tmp->next) {
         if (statfs(tmp->mountpoint, &sfs) == 0) {
@@ -231,6 +249,9 @@ void update_diskstat(void)
 	    tmp->avail = (unsigned long)(sfs.f_bavail * temp) / 2048L;
         }
     }
+
+    if ((rc = pthread_mutex_unlock(&a_mutex)))
+	Syslog('!', "update_diskstat() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -338,6 +359,7 @@ void *disk_thread(void)
     FILE	*fp;
     char	*temp;
     mfs_list	*tmp;
+    int		rc;
 
     Syslog('+', "Start disk thread");
     disk_run = TRUE;
@@ -348,6 +370,10 @@ void *disk_thread(void)
 	if (disk_reread) {
 	    disk_reread = FALSE;
 	    Syslog('+', "Reread disk filesystems");
+
+	    if ((rc = pthread_mutex_lock(&a_mutex)))
+		Syslog('!', "disk_thread() mutex_lock failed rc=%d", rc);
+
 	    tidy_mfslist(&mfs);
 
 	    add_path(getenv("MBSE_ROOT"));
@@ -489,6 +515,9 @@ void *disk_thread(void)
 	    for (tmp = mfs; tmp; tmp = tmp->next) {
 		Syslog('+', "%s %s %ld %ld", tmp->mountpoint, tmp->fstype, tmp->size, tmp->avail);
 	    }
+
+	    if ((rc = pthread_mutex_unlock(&a_mutex)))
+		Syslog('!', "disk_thread() mutex_unlock failed rc=%d", rc);
 	}
 
 	update_diskstat();

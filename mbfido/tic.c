@@ -76,7 +76,8 @@ int Tic()
     }
     Syslog('+', "Pass: process ticfiles (%s)", inbound);
 
-    if (!diskfree(CFG.freespace)) {
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, abort tic processing");
 	free(inbound);
 	return -1;
     }
@@ -128,7 +129,8 @@ int Tic()
 	    Syslog('+', "Detected upsalarm semafore, aborting tic processing");
 	    break;
 	}
-	if (!diskfree(CFG.freespace)) {
+	if (enoughspace(CFG.freespace) == 0) {
+	    Syslog('+', "Low diskspace, aborting tic processing");
 	    rc = 0;
 	    break;
 	}

@@ -183,6 +183,7 @@ void CloseHatch(int force)
 			fclose(fo);
 			unlink(fout);
 			chmod(fin, 0640);
+			disk_reset();
 			Syslog('+', "Updated \"hatch.data\"");
 			if (!force)
 			    working(6, 0, 0);

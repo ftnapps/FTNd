@@ -270,6 +270,7 @@ void CloseMsgarea(int Force)
 				unlink(fout);
 			chmod(fin, 0660);
 			Syslog('+', "Updated \"mareas.data\"");
+			disk_reset();
 			if (!Force)
 			    working(6, 0, 0);
 			return;

@@ -239,6 +239,7 @@ void CloseLanguage(int force)
 			tidy_stlist(&lan);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"language.data\"");
+			disk_reset();
 			if (!force)
 			    working(6, 0, 0);
 			return;

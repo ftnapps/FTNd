@@ -42,6 +42,7 @@ v0.51.2		06-Mar-2004
 		was already transmitted to remove that file from the outbound
 		queue.
 		Removed some debug logging from inbound handler.
+		Updated to use new disk watcher.
 
 	mbfido:
 		When removing files during tic import due to replace or maximum
@@ -55,6 +56,7 @@ v0.51.2		06-Mar-2004
 		file was deleted or moved.
 		Doesn't write Magic Request into files description anymore,
 		this is now handled outsite the description lines.
+		Updated to use new disk watcher.
 
 	mbfile:
 		Updated kill, index, check, pack, list, adopt, import, move,
@@ -67,6 +69,7 @@ v0.51.2		06-Mar-2004
 		Added rearc command.
 		The check command does now also check if the magic alias file
 		request names are valid and removes the invalid entries.
+		Updated to use new disk watcher.
 
 	mbaff:
 		When scanning for uploads, files which were hatched now have
@@ -77,12 +80,25 @@ v0.51.2		06-Mar-2004
 		database structure.
 		The filefind function is updated to the new files database
 		structure.
+		Updated to use new disk watcher.
+
+	mbindex:
+		Updated to use new disk watcher.
+
+	mbdiff:
+		Updated to use new disk watcher.
+
+	mbmsg:
+		Updated to use new disk watcher.
 
 	mbsebbs:
 		Updated to the new files database structure.
 
 	mball:
 		Added support for files database Magic request field.
+
+	mbuser:
+		Updated to use new disk watcher.
 
 	mbsetup:
 		Added auto upgrade for the files database.
@@ -92,6 +108,8 @@ v0.51.2		06-Mar-2004
 		Added setup for filefind keyword length in menu 13.
 		Added setup items in menu 1.5 for child priority and filesystem
 		sync calls.
+		In several menus that can change paths, a command to mbtask is
+		given to reread filesystem tables when something is changed.
 
 	mbmon:
 		Switched to use new filesystems command.
@@ -102,6 +120,8 @@ v0.51.2		06-Mar-2004
 
 	mbtask:
 		Added communication commands for disk watch thread.
+		Added disk watch thread, this will monitor filesystems usage
+		for only the filesystems that are used by mbse.
 
 	mbuseradd:
 		Fixed removing of a OS created homedir. This may solve problems

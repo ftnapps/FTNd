@@ -167,8 +167,10 @@ int main(int argc, char **argv)
 	printf("\n");
     }
 
-    if (!diskfree(CFG.freespace))
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, abort");
 	die(MBERR_DISK_FULL);
+    }
 
     /*
      *  Extract work directory from the first commandline parameter

@@ -174,6 +174,7 @@ void CloseMagics(int force)
 			tidy_stlist(&mag);
 			unlink(fout);
 			chmod(fin, 0640);
+			disk_reset();
 			Syslog('+', "Updated \"magic.data\"");
 			if (!force)
 			    working(6, 0, 0);

@@ -79,8 +79,10 @@ void PackFileBase(void)
 
 	if (area.Available && !area.CDrom) {
 
-	    if (!diskfree(CFG.freespace))
+	    if (enoughspace(CFG.freespace) == 0) {
+		Syslog('+', "Low diskspace, abort");
 		die(MBERR_DISK_FULL);
+	    }
 
 	    if (!do_quiet) {
 		printf("\r%4d => %-44s", i, area.Name);

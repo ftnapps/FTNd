@@ -234,8 +234,10 @@ int main(int argc, char **argv)
     if (!do_quiet)
 	printf("\n");
 
-    if (!diskfree(CFG.freespace))
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, abort");
 	die(MBERR_DISK_FULL);
+    }
 
     if (lockprogram((char *)"mbfile")) {
 	if (!do_quiet)

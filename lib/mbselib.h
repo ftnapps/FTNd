@@ -2206,7 +2206,6 @@ long		file_size(char *path);
 long		file_crc(char *path, int);
 time_t		file_time(char *path);
 int             mkdirs(char *name, mode_t);
-int		diskfree(int);
 int		getfilecase(char *, char *);
 
 

@@ -162,6 +162,7 @@ void CloseFilearea(int force)
 				unlink(fout);
 			chmod(fin, 0640);
 			Syslog('+', "Updated \"fareas.data\"");
+			disk_reset();
 			if (!force)
 			    working(6, 0, 0);
 			return;

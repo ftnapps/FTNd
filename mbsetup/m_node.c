@@ -259,6 +259,7 @@ void CloseNoderec(int Force)
 	    free(fin);
 	    free(fout);
 	    Syslog('+', "Updated \"nodes.data\"");
+	    disk_reset();
 	    CreateSema((char *)"scanout");
 	    working(6, 0, 0);
 	    return;

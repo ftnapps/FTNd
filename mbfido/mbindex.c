@@ -177,8 +177,10 @@ int main(int argc,char *argv[])
     Syslog(' ', cmd);
     free(cmd);
 
-    if (!diskfree(CFG.freespace))
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, abort");
 	die(MBERR_DISK_FULL);
+    }
 
     if (lockprogram((char *)"mbindex")) {
 	if (!do_quiet)

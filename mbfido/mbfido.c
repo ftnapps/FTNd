@@ -424,8 +424,10 @@ int main(int argc, char **argv)
     /*
      * Not yet locked, if anything goes wrong, exit with die(MBERR_NO_PROGLOCK)
      */
-    if (!diskfree(CFG.freespace))
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, abort");
 	die(MBERR_DISK_FULL);
+    }
 
     if (do_mail) {
 	/*
@@ -671,7 +673,8 @@ int TossMail(void)
 	    Syslog('+', "Detected upsalarm semafore, aborting toss");
 	    break;
 	}
-	if (!diskfree(CFG.freespace)) {
+	if (enoughspace(CFG.freespace) == 0) {
+	    Syslog('+', "Low diskspace, aborting toss");
 	    rc = MBERR_DISK_FULL;
 	    break;
 	}
@@ -742,8 +745,10 @@ int TossPkts(void)
      */
     while ((fname = pull_fdlist(&fdl)) != NULL) {
 
-	if (!diskfree(CFG.freespace))
+	if (enoughspace(CFG.freespace) == 0) {
+	    Syslog('+', "Low diskspace, abort tossing packet");
 	    return FALSE;
+	}
 	packets++;
 
 	/*

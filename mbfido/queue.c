@@ -610,8 +610,10 @@ void flush_queue(void)
     DIR		    *dp;
     
     Syslog('+', "Flushing outbound queue");
-    if (!diskfree(CFG.freespace))
+    if (enoughspace(CFG.freespace) == 0) {
+	Syslog('+', "Low diskspace, not flushing outbound queue");
 	return;
+    }
 
     IsDoing("Flush queue");
     if (!do_quiet) {

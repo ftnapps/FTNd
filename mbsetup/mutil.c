@@ -136,3 +136,9 @@ void addtoc(FILE *fp, FILE *toc, int chapt, int par, int page, char *title)
 
 
 
+void disk_reset(void)
+{
+    SockS("DRES:0;");
+}
+
+

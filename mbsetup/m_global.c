@@ -1476,6 +1476,7 @@ void global_menu(void)
 		    if (crc != crc1) {
 			if (yes_no((char *)"Configuration is changed, save") == 1) {
 			    cf_close();
+			    disk_reset();
 			    Syslog('+', "Saved main config");
 			    working(6, 0, 0);
 			}

@@ -173,8 +173,10 @@ void ImportFiles(int Area)
 		/*
 		 * Check diskspace
 		 */
-		if (!diskfree(CFG.freespace))
+		if (enoughspace(CFG.freespace) == 0) {
+		    Syslog('+', "Low diskspace, abort");
 		    die(MBERR_DISK_FULL);
+		}
 
 		Files++;
 		memset(&f_db, 0, sizeof(f_db));

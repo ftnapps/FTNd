@@ -1085,7 +1085,7 @@ TrType binkp_receiver(void)
 	gettimeofday(&rxtvstart, &bp.tz);
 	bp.rxpos = bp.roffs;
 
-	if (!diskfree(CFG.freespace)) {
+	if (enoughspace(CFG.freespace) == 0) {
 	    Syslog('+', "Binkp: low diskspace, sending BSY");
 	    binkp_send_command(MM_BSY, "Low diskspace, try again later");
 	    bp.RxState = RxDone;
