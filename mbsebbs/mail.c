@@ -243,7 +243,7 @@ int IsPrivate(void)
     int	rc = FALSE;
 
     if (msgs.MsgKinds == BOTH) {
-        Enter(1);
+	Enter(1);
         /* Private [y/N]: */
         pout(CYAN, BLACK, (char *) Language(163));
         alarm_on();
@@ -492,6 +492,7 @@ void Post_Msg()
 		}
 	    } else if (msgs.Type == NETMAIL) {
 		x = FALSE;
+		Enter(1);
 		pout(YELLOW, BLACK, (char *)"Address  : ");
 		FidoNode = calloc(61, sizeof(char));
 		colour(CFG.MsgInputColourF, CFG.MsgInputColourB);
@@ -534,7 +535,7 @@ void Post_Msg()
 			}
 		    } else {
 			Dest->point = point;
-			PUTCHAR('\r');
+			Enter(1);
 			/* Node not known, continue anayway [y/N]: */
 			pout(CYAN, BLACK, (char *) Language(241));
 			alarm_on();
@@ -635,7 +636,7 @@ void Post_Msg()
 	    Save_Msg(FALSE, Dest);
 	}
 	Enter(1);
-	sleep(3);
+	sleep(2);
     }
     
     for (i = 0; i < (TEXTBUFSIZE + 1); i++)
@@ -779,6 +780,9 @@ int Save_Msg(int IsReply, faddr *Dest)
     if (Line < 2)
 	return TRUE;
 
+    /* Saving message to disk */
+    pout(CFG.HiliteF, CFG.HiliteB, (char *) Language(202));
+
     if (!Open_Msgbase(msgs.Base, 'w')) {
 	WriteError("Failed to open msgbase \"%s\"", msgs.Base);
 	return FALSE;
@@ -816,6 +820,10 @@ int Save_Msg(int IsReply, faddr *Dest)
     Msg_AddMsg();
     Msg_UnLock();
 
+    sprintf(temp, " (%ld)", Msg.Id);
+    PUTSTR(temp);
+    Enter(1);
+		
     ReadExitinfo();
     exitinfo.iPosted++;
     WriteExitinfo();
@@ -823,11 +831,6 @@ int Save_Msg(int IsReply, faddr *Dest)
     LC_Wrote = TRUE;
 
     Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %ld", Msg.Id, Msg.To, Msg.Subject, iMsgAreaNumber + 1);
-
-    /* Saving message to disk */
-    sprintf(temp, "%s(%ld)", (char *) Language(202), Msg.Id);
-    pout(CFG.HiliteF, CFG.HiliteB, temp);
-    Enter(1);
 
     msgs.LastPosted = time(NULL);
     msgs.Posted.total++;
