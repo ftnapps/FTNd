@@ -3,7 +3,7 @@
 # BBS Startup script, should be run as BBS owner.
 # Note: This is only used on Slackware systems until 7.0.0 and FreeBSD
 #
-# 13-Aug-2001 MB.
+# 25-Oct-2001 MB.
 
 if [ "$MBSE_ROOT" = "" ]; then
    export MBSE_ROOT=`cat /etc/passwd | grep mbse: | awk -F ':' '{ print $6}'`
@@ -20,6 +20,7 @@ if [ -f $MBSE_ROOT/bin/mbtask ]; then
 	cd $MBSE_ROOT
 	$MBSE_ROOT/bin/mbtask >/dev/null
 	echo -n "mbtask "
+	sleep 2
 	if [ -f $MBSE_ROOT/etc/config.data ]; then
 		$MBSE_ROOT/bin/mbstat open -quiet
 		echo -n "opened "

@@ -1,7 +1,7 @@
 #
 # Installation script to install bootscripts.
 #
-# (C) Michiel Broek, v0.23 25-Aug-2001
+# (C) Michiel Broek, v0.24 25-Oct-2001
 #
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:$MBSE_ROOT/bin
 DISTNAME=
@@ -173,6 +173,7 @@ case "\$1" in
 	rm -f \$MBSE_ROOT/tmp/mb*
         $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
         echo -n " mbtask"
+	sleep 2
         if [ -f \$MBSE_ROOT/etc/config.data ]; then
                 $SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
                 echo " and opened the bbs."
@@ -299,6 +300,7 @@ case "\$1" in
 	rm -f \$MBSE_ROOT/tmp/mb*
         $SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
         echo -n " mbtask"
+	sleep 2
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
         	$SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
         	echo " and opened the bbs."
@@ -444,6 +446,7 @@ case "\$1" in
 	rm -f \$MBSE_ROOT/tmp/mb*
 	$SU mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
 	echo -n "mbtask "
+	sleep 2
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
 		$SU mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
 		echo "opened"
@@ -533,6 +536,7 @@ case "\$1" in
 	rm -f \$MBSE_ROOT/tmp/mb*
 	su mbse -c '\$MBSE_ROOT/bin/mbtask' >/dev/null
 	echo -n "mbtask "
+	sleep 2
 	if [ -f \$MBSE_ROOT/etc/config.data ]; then
 		su mbse -c '\$MBSE_ROOT/bin/mbstat open -quiet'
 		echo -n "opened "
