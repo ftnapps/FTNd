@@ -35,6 +35,109 @@
 
 #ifdef USE_EXPERIMEMT
 
+int	fdbislocked	0;		    /* Should database be locked	*/
+long	current-area	-1;		    /* Current file area		*/
+
+
+/*
+ *  Open files database Area number, with path. Do some checks and abort
+ *  if they fail.
+ */
+FILE *mbsedb_OpenFDB(long Area, char *Path, int ulTimeout)
+{
+    char    *temp;
+    FILE    *fp;
+    int     rc, Tries;
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
+
+    /*
+     * Open the file database, if it's locked, just wait.
+     */
+    while (((fp = fopen(temp, "r+")) == NULL) && ((errno == EACCES) || (errno == EAGAIN))) {
+	if (++Tries >= (ulTimeout * 4)) {
+	    WriteError("Can't open file area %ld, timeout", Area);
+	    free(temp);
+	    return NULL;
+	}
+	msleep(250);
+	Syslog('f', "Open file area %ld, try %d", Area, Tries);
+    }
+    if (fp == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return NULL;
+    }
+    fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
+
+    /*
+     * Fix attributes if needed
+     */
+    chmod(temp, 0660);
+
+    /*
+     * Now check the download directory
+     */
+    if (access(Path, W_OK) == -1) {
+        sprintf(temp, "%s/foobar", Path);
+        if (mkdirs(temp, 0755))
+            Syslog('+', "Created directory %s", Path);
+    }
+
+    free(temp);
+
+    if ((fdbhdr.hdrsize != sizeof(fdbhdr)) || (fdbhdr.recsize != sizeof(fdb))) {
+        WriteError("Files database header in area %d is corrupt (%d:%d)", Area, fdbhdr.hdrsize, fdbhdr.recsize);
+	fclose(fp);
+	return NULL;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    if ((ftell(fp) - fdbhdr.hdrsize) % fdbhdr.recsize) {
+	WriteError("Files database area %ld is corrupt, unalligned records", Area);
+	fclose(fp);
+	return NULL;
+    }
+
+    /*
+     * Point to the first record
+     */
+    fseek(fp, hdbhdr.hdrsize, SEEK_SET);
+    fdbislocked = 0;
+    return fp;
+}
+
+
+
+/*
+ *  Close current open file area
+ */
+int mbsedb_CloseFDB(FILE *fp)
+{
+    if (current-area == -1) {
+	WriteError("Can't close already closed file area");
+	return FALSE;
+    }
+
+    if (fdbislocked) {
+	/*
+	 * Unlock first
+	 */
+    }
+    current-area = -1;
+    fclose(fp);
+}
+
+
+// mbsedb_LockFDB
+// mbsedb_UnlockFDB
+// mbsedb_SearchFileFDB
+// mbsedb_UpdateFileFDB
+// mbsedb_InsertFileFDB
+// mbsedb_DeleteFileFDB
+// mbsedb_SortFDB
+
 
 /*
  * Add file to the BBS. The file must in the current directory which may not be
@@ -221,62 +324,6 @@ int AddFile(struct FILE_record f_db, int Area, char *DestPath, char *FromPath, c
     return TRUE;
 }
 
-
-
-/*
- * Check files database, create if it doesn't exist.
- */
-int mbsedb_CheckFDB(int Area, char *Path)
-{
-    char    *temp;
-    FILE    *fp;
-    int     rc = FALSE;
-
-    temp = calloc(PATH_MAX, sizeof(char));
-    sprintf(temp, "%s/fdb/file%d.data", getenv("MBSE_ROOT"), Area);
-
-    /*
-     * Open the file database, create new one if it doesn't excist.
-     */
-    if ((fp = fopen(temp, "r+")) == NULL) {
-        Syslog('!', "Creating new %s", temp);
-        if ((fp = fopen(temp, "a+")) == NULL) {
-            WriteError("$Can't create %s", temp);
-            rc = TRUE;
-        } else {
-            fdbhdr.hdrsize = sizeof(fdbhdr);
-            fdbhdr.recsize = sizeof(fdb);
-            fwrite(&fdbhdr, sizeof(fdbhdr), 1, fp);
-            fclose(fp);
-        }
-    } else {
-        fread(&fdbhdr, sizeof(fdbhdr), 1, fp);
-        fclose(fp);
-    }
-
-    /*
-     * Set the right attributes
-     */
-    chmod(temp, 0660);
-
-    /*
-     * Now check the download directory
-     */
-    if (access(Path, W_OK) == -1) {
-        sprintf(temp, "%s/foobar", Path);
-        if (mkdirs(temp, 0755))
-            Syslog('+', "Created directory %s", Path);
-    }
-
-    free(temp);
-
-    if ((fdbhdr.hdrsize != sizeof(fdbhdr)) || (fdbhdr.recsize != sizeof(fdb))) {
-	WriteError("Files database header in area %d is corrupt", Area);
-	rc = TRUE;
-    }
-
-    return rc;
-}
 
 
 #endif
