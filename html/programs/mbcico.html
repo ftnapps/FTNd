@@ -1,8 +1,10 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML>
 <!-- $Id$ -->
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=ISO 8859-1">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META NAME="Language" content='en'>
 <META name="author" lang="en" content="Michiel Broek">
 <META name="copyright" lang="en" content="Copyright Michiel Broek">
 <META name="description" lang="en" content="MBSE BBS Manual">
@@ -12,12 +14,9 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 03-Mar-2002</h5>
-<P>&nbsp;<P>
+<div align="right"><h5>Last update 08-Nov-2003</h5></div>
+<div align="center"><H1>mbcico - The Fidonet mailer.</H1></div>
 
-<H1>mbcico - The Fidonet mailer.</H1>
-
-<P>
 This is work in progress....
 <P>
 
@@ -44,23 +43,21 @@ between <strong>ifcico</strong> and <strong>mbcico</strong>. Nowadays it is
 quite different then ifcico.
 <P>
 Currently it supports FTS-0001, YooHoo/2U2 and EMSI handshake protocols,
-Xmodem, Telink, Modem7, Hydra, SEAlink with and without overdrive and 
-crash recovery, Bark file and update requests, WaZoo protocols: DietIFNA, 
+Xmodem, Telink, Modem7, Hydra with zlib compression extension (FSP-xxxx), 
+SEAlink with and without overdrive and crash recovery, 
+Bark file and update requests, WaZoo protocols: DietIFNA, 
 plain Zmodem (aka ZedZip, EMSI flag "ZMO") and ZedZap, WaZoo file and 
 update requests (nodelist flag should be XA). WaZoo file and update requests 
 do also work with FTS-0001 sessions, this is supported by several well known DOS 
 mailers also.
-Password protected requests and update requests are implemented (but not
-yet full tested).
+Password protected requests and update requests are implemented.
 <P>
 There is also a special protocol optimized to use over TCP/IP connections,
 contributed by Stanislav Voronyi &lt;stas@uanet.kharkov.ua&gt;, it is
-identiefied by EMSI proto code TCP (not registered) and nodelist flag IFC.
-The default port is 60179. There is a telnet variant on this, the default
-port is 23, and nodelist flag is ITN. The telnet variant is written by
-T. Tanaka.
+identified by EMSI proto code TCP (not registered) and nodelist flag IFC.
+The default port is 60179.
 <P>
-There is also a <strong>Binkp</strong> implementation, this is a 
+There is also a <strong>Binkp/1.0</strong> implementation, this is a 
 bi-directional TCP/IP protocol. 
 This protocol is prefferred over the IFC protocol because it is
 more efficient. Nodelist flag is IBN, the default port is 24554, and the
@@ -79,7 +76,48 @@ stored in the "protected" inbound.
 directory. If a request is made for a file with matching name, the
 executable from the "magic" directory is run, and its stdout output is mailed
 to the requestor. Full requestor's address, in the form of "John Smith of
-1:234/56/7" is passed to the executable in the command line. Non-executable
+1:234/56/7" is passed to the executable in the command line. An example of
+such file is on my system, the filename in the magic directory is <b>STATUS</b>.
+<pre>
+echo "    Hello $1 $2,"
+echo ""
+echo "               Status report for MBSE BBS Development"
+echo "               --------------------------------------"
+echo ""
+echo "Date  : `date`"
+echo "System: `uname -mrs`"
+echo "Uptime: `uptime`"
+echo ""
+echo "`df -T`"
+echo ""
+echo "`free`"
+echo ""
+echo "Gtx, Michiel Broek"
+</pre>
+If you file request STATUS from my system you will get something like:
+<pre>
+    Hello John Doe,
+
+                   Status report for MBSE BBS Development
+		   --------------------------------------
+
+Date  : Sat Nov  8 17:29:07 CET 2003
+System: Linux 2.4.20 i586
+Uptime:  17:29:07 up 88 days, 20:02,  1 user, load average: 0.00, 0.00, 0.00
+
+Filesystem    Type   1k-blocks      Used Available Use% Mounted on
+/dev/hda2     ext3     5921096   3405184   2210276  61% /
+/dev/hdb1     ext3     6198404   5133056    750476  88% /opt
+
+             total       used       free     shared    buffers     cached
+Mem:         94280      91360       2920          0      13152      46276
+-/+ buffers/cache:      31932      62348
+Swap:       136512      32380     104132
+
+Gtx, Michiel Broek
+</pre>
+
+Non-executable
 files in the magic directory contain the full names to magic filenames. The
 magic NODELIST can thus point to the full path and filename of your latest
 nodelist. These magic names are automatic maintained by the <strong>mbfido</strong>
@@ -107,7 +145,6 @@ CR). To make this work <strong>mgetty</strong> must be compiled with the
 To answer TCP/IP calls the following lines should be added to /etc/inetd.conf:
 <P><PRE>
 binkd   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ibn
-tfido   stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t itn
 fido    stream  tcp     nowait  mbse    /opt/mbse/bin/mbcico    mbcico -t ifc
 </PRE><P>
 If your system uses xinetd the file /etc/xinetd.d/mbsebbs could be:
@@ -150,12 +187,9 @@ service fido
 In the file /etc/services the following lines must be present:
 <P><PRE>
 binkd           24554/tcp               # mbcico IBN mode
-tfido           60177/tcp               # mbcico ITN mode
 fido            60179/tcp               # mbcico IFC mode
 mbse            60180/tcp               # MBSE BBS deamon
-</PRE><P>
-In this case I installed the ITN mode at port 60177 instead of 23 like most
-sysops do.
+</PRE>
 <P>&nbsp;<P>
 
 
@@ -220,7 +254,7 @@ of ".sts". These are small datafiles containing three decimal numbers.
 <h3>Configuration.</H3>
 <P>
 The behaviour of mbcico can be configured with <strong>mbsetup</strong>,
-section 1.17 If something doesn't do what you want, set the debug on for
+section 1.14 If something doesn't do what you want, set the debug on for
 that problem. This will produce huge logfiles, but also a lot of information.
 Important flags are Device IO, EMSI debug, File forward, Locking, Outboundscan
 and Session.
@@ -240,7 +274,6 @@ later versions are ok.
 <pre>
 Eugene G. Crosser &lt;crosser@average.org&gt;   Orginal ifcico.
 Stanislav Voronyi &lt;stas@uanet.kharkov.ua&gt; TCP/IP code.
-T. Tanaka                                 Telnet mode.
 Martin Junius                             Rewrite of opentcp().
 Omen Technology Inc                       Zmodem protocol.
 Arjen G. Lentz, Joaquim H. Homrighausen   Hydra transfer protocol.
