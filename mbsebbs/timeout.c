@@ -2,10 +2,10 @@
  *
  * File ..................: bbs/timeout.c
  * Purpose ...............: Inactivity timeout functions
- * Last modification date : 24-Dec-2000
+ * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
- * Copyright (C) 1997-2000
+ * Copyright (C) 1997-2001
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -105,7 +105,7 @@ void die(int onsig)
 
 void alarm_sig()
 {
-	colour(12, 0);
+	colour(LIGHTRED, BLACK);
 	/* Autologout: idletime reached.*/
 	printf("\r\n%s\r\n", (char *) Language(410));
 

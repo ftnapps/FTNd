@@ -11,7 +11,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 02-Feb-2001</h5>
+<h5>Last update 26-Sep-2001</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Menu System</H1>
@@ -37,7 +37,7 @@ according to criteria such as security levels.
 
 <H3>ANSI Screens.</H3>
 <P>
-For the menus to work properly you must also draw ANSI screens, this
+For the menus to work properly you can draw ANSI screens, this
 is what the users will see. For Linux there is "Duh DRAW" written by Ben
 Fowler, see sunsite.unc.edu /pub/Lunux/docs.
 If you can't find it or have no internet access, you can also use 
@@ -46,6 +46,18 @@ it is a DOS program so you will need dosemu on your Linux box or a seperate
 DOS computer. You can define main screens and include screens for each
 menu, the include screen may for example show the keys that you have available
 in every menu. See the list of <A HREF="control.html">control codes</A>.
+<P>&nbsp;<P>
+
+<H3>Display lines.</H3>
+<P>
+It is also possible to display menu lines with the buildin display option.
+The used colors are selectable, a normal color and a bright color.
+The normal color is the default, you can toggle bright on and of using
+the ^ in the display line. If you end a menu display line with a ; then
+no newline is send after that line. If you want to output teh ^ or ; characters
+you need to escape them with a backslash like this: \; or \^. The order of menu
+entries is important. Also note that the display line does nothing in 
+autoexec menus.
 <P>&nbsp;<P>
 
 <H3>Automatic commands.</H3>
@@ -75,7 +87,7 @@ For each language you can define a set of menus. Only for the default
 language all menus must exist. It makes sense to make the filenames of
 your menus for each language the same and not to translate them. If a menu
 is missing for a non default language, the menu from the default language
-path is used. 
+path is used instead. 
 <P>&nbsp;<P>
 
 <H3>Editing a menu.</H3>
@@ -97,8 +109,8 @@ of all available types see below. </LI>
 <LI><B>Optional data.</B> Some menus need optional data, for example the
 function goto another menu needs the name of that menu file here. </LI>
 
-<LI><B>Display.</B> What is to be displayed to the user. This field has
-no meaning yet. What you want to diplay must be done with ANSI screens.
+<LI><B>Display.</B> What is to be displayed to the user. You can use this instead
+of ANSI screens.
 </LI>
 
 <LI><B>Security.</B> This is the minimum security level to execute this
@@ -120,13 +132,13 @@ If this field is empty, no password check is done. </LI>
 <LI><B>Credit.</B> How much credit a user must have to execute this menu
 selection. This field is not in use yet. </LI>
 
-<LI><B>Colors.</B> The display color for the display line, not in use yet.
+<LI><B>Lo-colors.</B> The normal display color for the display line.
 </LI>
+
+<LI><B>Hi-colors.</B> The bright display color for the display line.</LI>
 
 <LI><B>AutoExec.</B> If this is an automatic executed selection. </LI>
 
-<LI><B>Menu open.</B> Will be implemented later, you will be able to set
-opening hours for this menu selection. </LI>
 <LI><B>No door.sys</B> Suppress writing of a door.sys file in the users
 home directory. This item is only visible with menu type 7.</LI>
 <LI><B>Y2K style</B> Writes the dates in the door.sys file in the new style,

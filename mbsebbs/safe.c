@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/safe.c
  * Purpose ...............: Safe Door
- * Last modification date : 28-Jun-2001
+ * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -70,7 +70,7 @@ void Safe(void)
 
 	Enter(1);
 	/* Safe Cracker Door */
-	pout(15, 0, (char *) Language(86));
+	pout(WHITE, BLACK, (char *) Language(86));
 	Enter(1);
 
 	clear();
@@ -81,7 +81,7 @@ void Safe(void)
 		return;
 
 	/* In the safe lies */
-	pout(15, 0, (char *) Language(87));
+	pout(WHITE, BLACK, (char *) Language(87));
 
 	fflush(stdout);
 	alarm_on();
@@ -90,15 +90,15 @@ void Safe(void)
 	clear();
 
 	Enter(2);
-	pout(10, 0, (char *) Language(88));
+	pout(LIGHTGREEN, BLACK, (char *) Language(88));
 	Enter(2);
 
-	colour(13, 0);
+	colour(LIGHTMAGENTA, BLACK);
 	printf("%s", CFG.sSafePrize);
 
 	Enter(2);
 	/* Do you want to open the safe ? [Y/n]: */
-	pout(15, 0, (char *) Language(102));
+	pout(WHITE, BLACK, (char *) Language(102));
 
 	fflush(stdout);
 	alarm_on();
@@ -120,7 +120,7 @@ void Safe(void)
 
 		Enter(1);
 		/* Do you want to try again ? [Y/n]: */
-		pout(12, 0, (char *) Language(101));
+		pout(LIGHTRED, BLACK, (char *) Language(101));
 		fflush(stdout);
 
 		alarm_on();
@@ -145,7 +145,7 @@ int getdigits(void)
 	int	i;
 	char	temp[81];
 
-	colour(15, 0);
+	colour(WHITE, BLACK);
 	/* Please enter three numbers consisting from 1 to */
 	printf("\n\n%s%d\n", (char *) Language(89), CFG.iSafeMaxNumber);
 	/* Please enter three combinations. */
@@ -154,8 +154,8 @@ int getdigits(void)
 	while (TRUE) {
 		Enter(2);
 		/* 1st Digit */
-		pout(12, 0, (char *) Language(91));
-		colour(9, 0);
+		pout(LIGHTRED, BLACK, (char *) Language(91));
+		colour(LIGHTBLUE, BLACK);
 		fflush(stdout);
 		Getnum(sFirst, 2);
 		sprintf(temp, "1st: %s", sFirst);
@@ -165,7 +165,7 @@ int getdigits(void)
 		}
 
 		if((iFirst > CFG.iSafeMaxNumber) || (iFirst <= 0) || (strcmp(sFirst, "") == 0)) {
-			colour(15,1);
+			colour(WHITE, BLUE);
 			/* Please try again! You must input a number greater than Zero and less than */
 			printf("\n%s%d.", (char *) Language(92), CFG.iSafeMaxNumber);
        		        Syslog('-', "Value out of range!");
@@ -176,8 +176,8 @@ int getdigits(void)
 	while (TRUE) {
 		Enter(1);
 		/* 2nd digit: */
-		pout(12, 0, (char *) Language(93));
-		colour(9, 0);
+		pout(LIGHTRED, BLACK, (char *) Language(93));
+		colour(LIGHTBLUE, BLACK);
 		fflush(stdout);
 		Getnum(sSecond, 2);
 		sprintf(temp, "2nd: %s", sSecond);
@@ -187,7 +187,7 @@ int getdigits(void)
 		}
 
 		if((iSecond > CFG.iSafeMaxNumber) || (iSecond <= 0) || (strcmp(sSecond, "") == 0)) {
-			colour(15,1);
+			colour(WHITE, BLUE);
 			/* Please try again! You must input a number greater than Zero and less than */
 			printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
 			Syslog('-', "Value out of range!");
@@ -197,8 +197,8 @@ int getdigits(void)
 
 	while (TRUE) {
 		Enter(1);
-		pout(12, 0, (char *) Language(94));
-		colour(9, 0);
+		pout(LIGHTRED, BLACK, (char *) Language(94));
+		colour(LIGHTBLUE, BLACK);
 		fflush(stdout);
 		Getnum(sThird, 2);
 		if((strcmp(sThird, "")) != 0) {
@@ -216,7 +216,7 @@ int getdigits(void)
 			break;
 
 		if((iThird > CFG.iSafeMaxNumber) || (iThird <= 0)) {
-			colour(15,1);
+			colour(WHITE, BLUE);
 			/* Please try again! You must input a number greater than Zero and less than */
 			printf("\n%s%d.\n", (char *) Language(92), CFG.iSafeMaxNumber);
        		        Syslog('-', "Value out of range!");
@@ -226,20 +226,20 @@ int getdigits(void)
 
 	/* Left: */
 	Enter(1);
-	pout(12, 0, (char *) Language(95));
-	poutCR(9, 0, sFirst);
+	pout(LIGHTRED, BLACK, (char *) Language(95));
+	poutCR(LIGHTBLUE, BLACK, sFirst);
 
 	/* Right: */
-	pout(12, 0, (char *) Language(96));
-	poutCR(9, 0, sSecond);
+	pout(LIGHTRED, BLACK, (char *) Language(96));
+	poutCR(LIGHTBLUE, BLACK, sSecond);
 
 	/* Left: */
-	pout(12, 0, (char *) Language(95));
-	poutCR(9, 0, sThird);
+	pout(LIGHTRED, BLACK, (char *) Language(95));
+	poutCR(LIGHTBLUE, BLACK, sThird);
 
 	Enter(1);
 	/* Attempt to open safe with this combination [Y/n]: */
-	pout(12, 0, (char *) Language(97));
+	pout(LIGHTRED, BLACK, (char *) Language(97));
 	fflush(stdout);
 	alarm_on();
 	i = toupper(Getone());
@@ -249,22 +249,22 @@ int getdigits(void)
 		printf("\n\n");
 
 		/* Left: */
-		pout(12, 0, (char *) Language(95));
+		pout(LIGHTRED, BLACK, (char *) Language(95));
 		for (iLoop = 0; iLoop < iFirst; iLoop++)
-			pout(14, 0, (char *)".");
-		poutCR(9, 0, sFirst);
+			pout(YELLOW, BLACK, (char *)".");
+		poutCR(LIGHTBLUE, BLACK, sFirst);
 
 		/* Right: */
-		pout(12, 0, (char *) Language(96));
+		pout(LIGHTRED, BLACK, (char *) Language(96));
 		for (iLoop = 0; iLoop < iSecond; iLoop++)
-			pout(14, 0, (char *)".");
-		poutCR(9, 0, sSecond);
+			pout(YELLOW, BLACK, (char *)".");
+		poutCR(LIGHTBLUE, BLACK, sSecond);
 
 		/* Left: */
-		pout(12, 0, (char *) Language(95));
+		pout(LIGHTRED, BLACK, (char *) Language(95));
 		for (iLoop = 0; iLoop < iThird; iLoop++)
-			pout(14, 0, (char *)"."); 
-		poutCR(9, 0, sThird);
+			pout(YELLOW, BLACK, (char *)"."); 
+		poutCR(LIGHTBLUE, BLACK, sThird);
 
 		if(CFG.iSafeNumGen) {
 			CFG.iSafeFirstDigit  = (rand() % CFG.iSafeMaxNumber) + 1;
@@ -280,9 +280,9 @@ int getdigits(void)
 
 					Enter(1);
 					/* You have won the following... */
-					pout(12, 0, (char *) Language(98));
+					pout(LIGHTRED, BLACK, (char *) Language(98));
 					Enter(2);
-					poutCR(13, 0, CFG.sSafePrize);
+					poutCR(LIGHTMAGENTA, BLACK, CFG.sSafePrize);
 					Enter(1);
 
 			 		sprintf(temp, "%s/etc/safe.data", getenv("MBSE_ROOT"));
@@ -311,15 +311,15 @@ int getdigits(void)
 		}
 
 		Enter(1);
-		pout(10, 0, (char *) Language(99));
+		pout(LIGHTGREEN, BLACK, (char *) Language(99));
 		Enter(1);
 
 		if(CFG.iSafeNumGen) {
 			Enter(1);
 			/* The safe code was: */
-			pout(12, 0, (char *) Language(100));
+			pout(LIGHTRED, BLACK, (char *) Language(100));
 			Enter(2);
-			colour(12, 0);
+			colour(LIGHTRED, BLACK);
 
 			/* Left: */
 			printf("%s%d\n", (char *) Language(95), CFG.iSafeFirstDigit);
@@ -335,13 +335,13 @@ int getdigits(void)
 			CFG.iSafeNumGen = FALSE;
 
 		if(iThird == 747) {
-			colour(9, 0);
+			colour(LIGHTBLUE, BLACK);
 			printf("Code: %d %d %d\n", CFG.iSafeFirstDigit, CFG.iSafeSecondDigit, CFG.iSafeThirdDigit);
 		}
 
 		Enter(1);
 		/* Please press key to continue */
-		pout(10, 0, (char *) Language(87));
+		pout(LIGHTGREEN, BLACK, (char *) Language(87));
 		alarm_on();
 		getchar();
 	}
@@ -382,15 +382,15 @@ int SafeCheckUser(void)
 				Syslog('+', "Safe is currently LOCKED - exiting door.");
 
 				/* THE SAFE IS CURRENTLY LOCKED */
-				poutCR(15, 4, (char *) Language(103));
+				poutCR(WHITE, RED, (char *) Language(103));
 				Enter(1);
-				colour(12, 0);
+				colour(LIGHTRED, BLACK);
 
 				/* has cracked the safe. */
 				printf("%s, %s\n", safe.Name, (char *) Language(104));
 
 				/* The safe will remain locked until the sysop rewards the user. */
-				pout(10, 0, (char *) Language(105));
+				pout(LIGHTGREEN, BLACK, (char *) Language(105));
 				Enter(2);
 				Pause();
 				fclose(pSafe);
@@ -424,7 +424,7 @@ int SafeCheckUser(void)
 			if(Counter >= CFG.iSafeMaxTrys - 1) {
 				Enter(2);
 				/* Maximum trys per day exceeded */
-				pout(15, 0, (char *) Language(106));
+				pout(WHITE, BLACK, (char *) Language(106));
 				Enter(1);
 				sleep(3);
 				fclose(pSafe);

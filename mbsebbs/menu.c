@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/menu.c
  * Purpose ...............: Display and handle the menus.
- * Last modification date : 10-Jul-2001
+ * Last modification date : 27-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -83,7 +83,7 @@ void InitMenu()
 void menu()
 {
 	FILE	*pMenuFile;
-	int	iFoundKey = FALSE, Key;
+	int	iFoundKey = FALSE, Key, IsANSI;
 	char	*Input, *Semfile;
 	char	*sMenuPathFileName;
 
@@ -133,15 +133,26 @@ void menu()
 			strcpy(Menus[0], CFG.default_menu);
 		} else {
 			/*
-			 * Display Menu Text Fields and Perform all autoexec menus in order of menu file
+			 * Display Menu Text Fields and Perform all autoexec menus in order of menu file.
+			 * First check if there are any ANSI menus, if not, send a clearscreen first.
 			 */
+			IsANSI = FALSE;
+			while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
+				if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
+					if ((menus.MenuType == 5) || (menus.MenuType == 19) || (menus.MenuType == 20))
+						IsANSI = TRUE;
+				}
+			}
+			fseek(pMenuFile, 0, SEEK_SET);
+			if (! IsANSI)
+				clear();
+
 		        while (fread(&menus, sizeof(menus), 1, pMenuFile) == 1) {
 				if ( Access(exitinfo.Security, menus.MenuSecurity) && (UserAge >= menus.Age)){
 					if ( menus.AutoExec ) {
 						DoMenu( menus.MenuType );
-					} else { 
-						DisplayMenu( ); 
 					}
+					DisplayMenu( ); 
 				}
 			}
 
@@ -389,6 +400,10 @@ void DoMenu(int Type)
 		/* display a?? file with controlcode and wait for enter */
 		DisplayFileEnter(menus.OptionalData);
  		break;
+
+	case 21:
+		/* display menuline only */
+		break;
 
 	case 22:
 		/* nextuser door */
@@ -693,7 +708,7 @@ void DisplayMenu ( void ) {
 	int highlight ;
 
 	/* Anything to process, if not; save CPU time, return */
-	if ( strlen( menus.Display ) == 0 ) {
+	if (( strlen( menus.Display ) == 0 ) && (menus.MenuType != 21)) {
 		return;
 	}
 
@@ -731,7 +746,7 @@ void DisplayMenu ( void ) {
 					if ( !escaped ) {
 						if ( highlight == 0 ) { 
 							highlight = 1;
-							colour( CFG.HiliteF, CFG.HiliteB );
+							colour( menus.HiForeGnd, menus.HiBackGnd);
 						} else {					
 							highlight = 0 ;
 							colour( menus.ForeGnd, menus.BackGnd );

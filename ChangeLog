@@ -4126,6 +4126,9 @@ v0.33.18        27-Jul-2001
 		Shows the OS name in the info screen.
 		Creates default tty records with tty names for the right
 		OS (I hope).
+		Fixed a bug in the menu editor, deleted menus were not really
+		deleted.
+		Added setup items for the menu Display colors.
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a
@@ -4136,6 +4139,8 @@ v0.33.18        27-Jul-2001
 
 	mbsebbs:
 		Removed some compiler warnings on some systems.
+		Added menu Display lines.
+		Added menu item 21, display text only.
 
 	mbuseradd:
 		Ported to work on FreeBSD.

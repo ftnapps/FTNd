@@ -2,7 +2,7 @@
  *
  * File ..................: ledit.c
  * Purpose ...............: Line Editor
- * Last modification date : 27-May-2001
+ * Last modification date : 27-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1449,9 +1449,8 @@ void edit_color(int *fg, int *bg, char *help)
 	clr_index();
 	set_color(WHITE, BLACK);
 	mvprintw(5, 6, "1.7  EDIT COLORS");
-
-	sprintf(temp, "Change ^%s^ color with arrow keys,  press <Enter> whene done", help);
-	showhelp(help);
+	sprintf(temp, "Change the ^%s^ color with arrow keys, press <Enter> whene done", help);
+	showhelp(temp);
 
 	for (f = 0; f < 16; f++)
 		for (b = 0; b < 8; b++) {
@@ -1466,7 +1465,7 @@ void edit_color(int *fg, int *bg, char *help)
 		mvprintw(7, 6, "This is an example...");
 		fflush(stdout);
 		mvprintw(b + 9, f + 33, "*");
-		ch = readkey(10,10,f,b);
+		ch = readkey(7,28,f,b);
 		mvprintw(b + 9, f + 33, ".");
 		switch(ch) {
 			case KEY_LINEFEED: 
@@ -1486,6 +1485,30 @@ void edit_color(int *fg, int *bg, char *help)
 						b++;
 					break;
 		}
+	}
+}
+
+
+
+char *get_color(int c)
+{
+	switch (c) {
+		case BLACK:		return (char *)"black";
+		case BLUE:		return (char *)"blue";
+		case GREEN:		return (char *)"green";
+		case CYAN:		return (char *)"cyan";
+		case RED:		return (char *)"red";
+		case MAGENTA:		return (char *)"magenta";
+		case BROWN:		return (char *)"brown";
+		case LIGHTGRAY:		return (char *)"lightgray";
+		case DARKGRAY:		return (char *)"darkgray";
+		case LIGHTBLUE:		return (char *)"lightblue";
+		case LIGHTGREEN:	return (char *)"lightgreen";
+		case LIGHTCYAN:		return (char *)"lightcyan";
+		case LIGHTRED:		return (char *)"lightred";
+		case LIGHTMAGENTA:	return (char *)"lightmagenta";
+		case YELLOW:		return (char *)"yellow";
+		case WHITE:		return (char *)"white";
 	}
 }
 
@@ -1514,7 +1537,7 @@ char *getmenutype(int val)
 		case 18:	return (char *)"Send an on-line message";
 		case 19:	return (char *)"Display textfile with more";
 		case 20:	return (char *)"Display .A?? file with Enter";
-
+		case 21:	return (char *)"Display Text Only";
 		case 22:	return (char *)"Message to nextuser door";
 		case 23:	return (char *)"Time banking system";
 
@@ -1589,8 +1612,6 @@ char *getmenutype(int val)
 		case 504:	return (char *)"Mark a BBS for deletion";
 		case 505:	return (char *)"Print a BBS";
 		case 506:	return (char *)"Search for a BBS";
-
-		case 999:	return (char *)"Display Text Only";
 
 		default:	return (char *)"Unknown menu";
 	}

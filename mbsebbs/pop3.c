@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/pop3.c
  * Purpose ...............: POP3 client
- * Last modification date : 13-May-2001
+ * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -51,7 +51,7 @@ void error_popmail(char *umsg)
 	pop3_send((char *)"QUIT\r\n");
 	p = pop3_receive();
 	pop3_close();
-	colour(12, 0);
+	colour(LIGHTRED, BLACK);
 	printf("%s\r\n", umsg);
 	fflush(stdout);
 }
@@ -131,7 +131,7 @@ void retr_msg(int msgnum)
 void check_popmail(char *user, char *pass)
 {
 	char	*p, *q, temp[128];
-	int	tmsgs = 0, size, msgnum, color = 9;
+	int	tmsgs = 0, size, msgnum, color = LIGHTBLUE;
 	FILE	*tp;
 
 	/*
@@ -183,13 +183,13 @@ void check_popmail(char *user, char *pass)
 					/*
 					 *  Show progress
 					 */
-					colour(color, 0);
+					colour(color, BLACK);
 					printf("\rFetching message %02d/%02d, total %d bytes", msgnum, tmsgs, size);
 					fflush(stdout);
-					if (color < 15)
+					if (color < WHITE)
 						color++;
 					else
-						color = 9;
+						color = LIGHTBLUE;
 					retr_msg(msgnum);
 				}
 				fclose(tp);
@@ -202,7 +202,7 @@ void check_popmail(char *user, char *pass)
 	pop3_close();
 
 	if (tmsgs) {
-		colour(13, 0);
+		colour(LIGHTMAGENTA, BLACK);
 		printf("\r                                                \r");
 		fflush(stdout);
 	}

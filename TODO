@@ -12,6 +12,9 @@
                  L = Cosmetic or nice to have.
 
 
+SETUP.sh:
+	N: Better way to grep for excisting usernames and groupnames.
+
 mbsebbs:
 	L: Reading of function keys over modem lines, or worse PPP connections,
 	   must be fixed. Timing problems together with modem buffering?

@@ -2,7 +2,7 @@
  *
  * File ..................: m_global.c
  * Purpose ...............: Global Setup Program 
- * Last modification date : 11-Aug-2001
+ * Last modification date : 27-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -1633,12 +1633,6 @@ int PickAka(char *msg, int openit)
 }
 
 
-char Co[16][16] = {
-	"Black",	"Blue",		"Green",	"Cyan",
-	"Red",		"Magenta",	"Brown",	"Lightgray",
-	"Darkgary",	"Lightblue",	"Lightgreen",	"Lightcyan",
-	"Lightred",	"Lightmagenta",	"Yellow",	"White" };
-
 
 int global_doc(FILE *fp, FILE *toc, int page)
 {
@@ -1758,17 +1752,17 @@ int global_doc(FILE *fp, FILE *toc, int page)
 
 	addtoc(fp, toc, 1, 7, page, (char *)"Text colors");
 
-	fprintf(fp, "      Normal text      %s on %s\n", Co[CFG.TextColourF], Co[CFG.TextColourB]);
-	fprintf(fp, "      Underline text   %s on %s\n", Co[CFG.UnderlineColourF], Co[CFG.UnderlineColourB]);
-	fprintf(fp, "      Input text       %s on %s\n", Co[CFG.InputColourF], Co[CFG.InputColourB]);
-	fprintf(fp, "      CR text          %s on %s\n", Co[CFG.CRColourF], Co[CFG.CRColourB]);
-	fprintf(fp, "      More prompt      %s on %s\n", Co[CFG.MoreF], Co[CFG.MoreB]);
-	fprintf(fp, "      Hilite text      %s on %s\n", Co[CFG.HiliteF], Co[CFG.HiliteB]);
-	fprintf(fp, "      File name        %s on %s\n", Co[CFG.FilenameF], Co[CFG.FilenameB]);
-	fprintf(fp, "      File size        %s on %s\n", Co[CFG.FilesizeF], Co[CFG.FilesizeB]);
-	fprintf(fp, "      File date        %s on %s\n", Co[CFG.FiledateF], Co[CFG.FiledateB]);
-	fprintf(fp, "      File description %s on %s\n", Co[CFG.FiledescF], Co[CFG.FiledescB]);
-	fprintf(fp, "      Message input    %s on %s\n", Co[CFG.MsgInputColourF], Co[CFG.MsgInputColourB]);
+	fprintf(fp, "      Normal text      %s on %s\n", get_color(CFG.TextColourF), get_color(CFG.TextColourB));
+	fprintf(fp, "      Underline text   %s on %s\n", get_color(CFG.UnderlineColourF), get_color(CFG.UnderlineColourB));
+	fprintf(fp, "      Input text       %s on %s\n", get_color(CFG.InputColourF), get_color(CFG.InputColourB));
+	fprintf(fp, "      CR text          %s on %s\n", get_color(CFG.CRColourF), get_color(CFG.CRColourB));
+	fprintf(fp, "      More prompt      %s on %s\n", get_color(CFG.MoreF), get_color(CFG.MoreB));
+	fprintf(fp, "      Hilite text      %s on %s\n", get_color(CFG.HiliteF), get_color(CFG.HiliteB));
+	fprintf(fp, "      File name        %s on %s\n", get_color(CFG.FilenameF), get_color(CFG.FilenameB));
+	fprintf(fp, "      File size        %s on %s\n", get_color(CFG.FilesizeF), get_color(CFG.FilesizeB));
+	fprintf(fp, "      File date        %s on %s\n", get_color(CFG.FiledateF), get_color(CFG.FiledateB));
+	fprintf(fp, "      File description %s on %s\n", get_color(CFG.FiledescF), get_color(CFG.FiledescB));
+	fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
 
 	page = newpage(fp, page);
 	addtoc(fp, toc, 1, 8, page, (char *)"Next user door");

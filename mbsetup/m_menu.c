@@ -2,7 +2,7 @@
  *
  * File ..................: mbsetup/m_menu.c
  * Purpose ...............: Edit BBS menus
- * Last modification date : 27-May-2001
+ * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -96,8 +96,6 @@ char *select_menurec(int max)
 void Show_A_Menu(void);
 void Show_A_Menu(void)
 {
-	char	*p;
-
 	clr_index();
 	set_color(WHITE, BLACK);
 	mvprintw( 5, 2, "8.3. EDIT MENU ITEM");
@@ -105,50 +103,44 @@ void Show_A_Menu(void)
 	mvprintw( 7, 2, "1.  Sel. key");
 	mvprintw( 8, 2, "2.  Type nr.");
 	mvprintw( 9, 2, "3.  Opt. data");
-	mvprintw(10, 2, "4.  Display");
-	mvprintw(11, 2, "5.  Security");
-	mvprintw(12, 2, "6.  Min. age");
-	mvprintw(13, 2, "7.  Max. lvl");
-	mvprintw(14, 2, "8.  Password");
-	mvprintw(15, 2, "9.  Credit");
-	mvprintw(16, 2, "10. Colors");
-	mvprintw(12,42, "11. Autoexec");
-	mvprintw(13,42, "12. Menu open");
+	mvprintw(11, 2, "4.  Display");
+	mvprintw(12, 2, "5.  Security");
+	mvprintw(13, 2, "6.  Min. age");
+	mvprintw(14, 2, "7.  Max. lvl");
+	mvprintw(15, 2, "8.  Password");
+	mvprintw(16, 2, "9.  Credit");
+	mvprintw(17, 2, "10. Lo-colors");
+	mvprintw(18, 2, "11. Hi-colors");
+	mvprintw(15,42, "12. Autoexec");
 	if (menus.MenuType == 7) {
-		mvprintw(14,42, "13. No door.sys");
-		mvprintw(15,42, "14. Y2K style");
-		mvprintw(16,42, "15. Use Comport");
+		mvprintw(16,42, "13. No door.sys");
+		mvprintw(17,42, "14. Y2K style");
+		mvprintw(18,42, "15. Use Comport");
 	}
 
 	set_color(WHITE, BLACK);
 	show_str( 7,16, 1, menus.MenuKey);
 	show_int( 8,16,    menus.MenuType); show_str( 8, 26,29, menus.TypeDesc);
 	show_str( 9,16,64, menus.OptionalData);
-	show_str(10,16,64, menus.Display);
-	show_sec(11,16,    menus.MenuSecurity);
-	show_int(12,16,    menus.Age);
-	show_int(13,16,    menus.MaxSecurity);
+	show_str(10,16,64,(char *)"1234567890123456789012345678901234567890123456789012345678901234");
+	show_str(11,16,64, menus.Display);
+	show_sec(12,16,    menus.MenuSecurity);
+	show_int(13,16,    menus.Age);
+	show_int(14,16,    menus.MaxSecurity);
 	if (strlen(menus.Password))
-		show_str(14,16,14, (char *)"**************");
+		show_str(15,16,14, (char *)"**************");
 	else
-		show_str(14,16,14, (char *)"<null>");
-	show_int(15,16,    menus.Credit);
-	S_COL(16,16, "Display color", menus.ForeGnd, menus.BackGnd)
+		show_str(15,16,14, (char *)"<null>");
+	show_int(16,16,    menus.Credit);
+	S_COL(17,16, "Normal display color", menus.ForeGnd, menus.BackGnd)
+	S_COL(18,16, "Bright display color", menus.HiForeGnd, menus.HiBackGnd)
+
 	set_color(WHITE, BLACK);
-	show_bool(12,58,   menus.AutoExec);
-	if ((menus.OpenFrom == 0) && (menus.OpenTo == 0))
-		show_str(13,58, 6, (char *)"Always");
-	else {
-		p = calloc(40, sizeof(char));
-		sprintf(p, "%02d:%02d - %02d:%02d", menus.OpenFrom / 60, menus.OpenFrom % 60,
-						   menus.OpenTo / 60, menus.OpenTo % 60);
-		show_str(13, 58, 13, p);
-		free(p);
-	}
+	show_bool(15,58,   menus.AutoExec);
 	if (menus.MenuType == 7) {
-		show_bool(14,58,  menus.NoDoorsys);
-		show_bool(15,58,  menus.Y2Kdoorsys);
-		show_bool(16,58,  menus.Comport);
+		show_bool(16,58,  menus.NoDoorsys);
+		show_bool(17,58,  menus.Y2Kdoorsys);
+		show_bool(18,58,  menus.Comport);
 	}
 }
 
@@ -222,38 +214,41 @@ void Edit_A_Menu(void)
 
 	for (;;) {
 		switch(select_menu(15)) {
-		case 0:
-			return;
+		case 0: return;
 			break;
-
 		case 1:	E_UPS( 7,16, 1, menus.MenuKey,   "The ^key^ to select this menu item")
 		case 2: menus.MenuType = GetMenuType();
 			memset(&menus.TypeDesc, 0, sizeof(menus.TypeDesc));
 			if (menus.MenuType)
 				strcpy(menus.TypeDesc, getmenutype(menus.MenuType));
+			if (menus.MenuType == 21)
+				menus.AutoExec = TRUE;
 			Show_A_Menu();
 			break;
 		case 3: E_STR( 9,16,64, menus.OptionalData, "The ^optional data^ for this menu item")
-		case 4: E_STR(10,16,64, menus.Display,      "The text to ^display^ for this menu")
-		case 5: E_SEC(11,16,    menus.MenuSecurity, "7.3.5 MENU ACCESS SECURITY", Show_A_Menu)
-		case 6: E_INT(12,16,    menus.Age,          "The minimum ^Age^ to select this menu, 0 is don't care")
-		case 7: E_INT(13,16,    menus.MaxSecurity,  "The maximum ^Security level^ to access this menu")
-		case 8: E_STR(14,16,14, menus.Password,     "The ^password^ to access this menu item")
-		case 9: E_INT(15,16,    menus.Credit,       "The ^credit cost^ for this menu item")
-		case 10:edit_color(&menus.ForeGnd, &menus.BackGnd, (char *)"Display color");
+		case 4: E_STR(11,16,64, menus.Display,      "The text to ^display^ for this menu")
+		case 5: E_SEC(12,16,    menus.MenuSecurity, "7.3.5 MENU ACCESS SECURITY", Show_A_Menu)
+		case 6: E_INT(13,16,    menus.Age,          "The minimum ^Age^ to select this menu, 0 is don't care")
+		case 7: E_INT(14,16,    menus.MaxSecurity,  "The maximum ^Security level^ to access this menu")
+		case 8: E_STR(15,16,14, menus.Password,     "The ^password^ to access this menu item")
+		case 9: E_INT(16,16,    menus.Credit,       "The ^credit cost^ for this menu item")
+		case 10:edit_color(&menus.ForeGnd, &menus.BackGnd, (char *)"normal");
 			Show_A_Menu();
 			break;
-		case 11:E_BOOL(12,58,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
+		case 11:edit_color(&menus.HiForeGnd, &menus.HiBackGnd, (char *)"bright");
+			Show_A_Menu();
+			break;
+		case 12:E_BOOL(15,58,   menus.AutoExec,     "Is this an ^Autoexecute^ menu item")
 		case 13:if (menus.MenuType == 7) {
-				E_BOOL(14,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
+				E_BOOL(16,58,   menus.NoDoorsys,    "Suppress writing ^door.sys^ dropfile")
 			} else
 				break;
 		case 14:if (menus.MenuType == 7) {
-				E_BOOL(15,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
+				E_BOOL(17,58,   menus.Y2Kdoorsys,   "Create ^door.sys^ with 4 digit yearnumbers")
 			} else
 				break;
 		case 15:if (menus.MenuType == 7) {
-				E_BOOL(16,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
+				E_BOOL(18,58,   menus.Comport,      "Write real ^COM port^ in door.sys for Vmodem patch")
 			} else
 				break;
 		}
@@ -306,7 +301,7 @@ void EditMenu(char *Name)
 					offset = ((o + i) - 1) * sizeof(menus);
 					fseek(tmp, offset, SEEK_SET);
 					fread(&menus, sizeof(menus), 1, tmp);
-					if (menus.MenuType || menus.AutoExec) {
+					if (menus.MenuKey[0] || menus.AutoExec) {
 						set_color(CYAN, BLACK);
 						mvprintw(y, 5, "%3d. ", o + i);
 						if (menus.AutoExec) {
@@ -341,9 +336,10 @@ void EditMenu(char *Name)
 					if ((fil = fopen(temp, "w+")) == NULL) {
 						working(2, 0, 0);
 					} else {
+						Syslog('+', "Updated menu %s", temp);
 						fseek(tmp, 0, SEEK_SET);
 						while (fread(&menus, sizeof(menus), 1, tmp) == 1) {
-							if (menus.MenuType || menus.AutoExec)
+							if (menus.MenuKey[0] || menus.AutoExec)
 								fwrite(&menus, sizeof(menus), 1, fil);
 						}
 						fclose(fil);
@@ -359,6 +355,8 @@ void EditMenu(char *Name)
 		if (strncmp(pick, "A", 1) == 0) {
 			working(1, 0, 0);
 			memset(&menus, 0, sizeof(menus));
+			menus.ForeGnd = LIGHTGRAY;
+			menus.HiForeGnd = WHITE;
 			fseek(tmp, 0, SEEK_END);
 			fwrite(&menus, sizeof(menus), 1, tmp);
 			records++;
@@ -573,6 +571,10 @@ int bbs_menu_doc(FILE *fp, FILE *toc, int page)
 							fprintf(fp, "    Maximum level %d\n", menus.MaxSecurity);
 							fprintf(fp, "    Password      %s\n", menus.Password);
 							fprintf(fp, "    Credits       %ld\n", menus.Credit);
+							fprintf(fp, "    Lo-colors     %s on %s\n", 
+								get_color(menus.ForeGnd), get_color(menus.BackGnd));
+							fprintf(fp, "    Hi-colors     %s on %s\n", 
+								get_color(menus.HiForeGnd), get_color(menus.HiBackGnd));
 							if (menus.MenuType == 7) {
 								fprintf(fp, "    No door.sys   %s\n", getboolean(menus.NoDoorsys));
 								fprintf(fp, "    Y2K door.sys  %s\n", getboolean(menus.Y2Kdoorsys));

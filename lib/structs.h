@@ -2,7 +2,7 @@
  *
  * File ..................: structs.h
  * Purpose ...............: MBSE BBS Global structure
- * Last modification date : 06-Jul-2001
+ * Last modification date : 26-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -903,10 +903,10 @@ struct	menufile {
 	unsigned	Y2Kdoorsys	: 1;	/* Write Y2K style door.sys */
 	unsigned	Comport		: 1;	/* Vmodem compart mode	    */
 	long		Credit;			/* Credit needed	    */
-	int		OpenFrom;		/* Open From		    */
-	int		OpenTo;			/* Open To		    */
-	int		ForeGnd;		/* ForeGround color	    */
-	int		BackGnd;		/* BackGround color	    */
+	int		HiForeGnd;		/* High ForeGround color    */
+	int		HiBackGnd;		/* High ForeGround color    */
+	int		ForeGnd;		/* Normal ForeGround color  */
+	int		BackGnd;		/* Normal BackGround color  */
 };
 
 

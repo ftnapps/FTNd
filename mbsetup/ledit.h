@@ -59,6 +59,7 @@ void		show_magictype(int, int, int);
 int		edit_magictype(int, int, int);
 void		show_aka(int, int, fidoaddr);
 void		edit_color(int *, int *, char *);
+char		*get_color(int);
 char		*getmenutype(int);
 
 
