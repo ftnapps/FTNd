@@ -4334,9 +4334,13 @@ v0.33.19        26-Oct-2001
 		Filerequest responses are now created with long filenames.
 		When sending files, if the remote has the FNC link flag, the
 		filename is mangled to DOS 8.3 format when transmitted.
-		File request response messages now displayy the long and
+		File request response messages now display the long and
 		short filename in the reply.
-		Filerequest resonse messages now have a random quote added.
+		Filerequest response messages now have a random quote added.
+		The binkp driver now sends 8.3 mangled filenames if that 
+		option is set for the remote node in the setup.
+		The hydra driver now sends 8.3 mangled filenames and long
+		filenames as specified in the specs.
 
 	mbtask:
 		Changed to handle the External Doors flag in the lastcaller

@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbcico/hydra.c
- * Purpose ...............: Fidonet mailer
- * Last modification date : 07-Aug-2001
+ * $Id$
+ * Purpose ...............: Fidonet mailer - Hydra protocol driver
  * Remark ................: See below for more copyright details and credits.
  *
  *****************************************************************************
@@ -871,7 +870,8 @@ int hydra_batch(int role, file_list *to_send)
 					/*
 					 * convert file name to DOS-format
 					 */
-					outbuf = xtodos(to_send->remote);
+					outbuf = xstrcpy(to_send->remote);
+					name_mangle(outbuf);
 					strcpy(txbuf + txlen, outbuf);
 					free(outbuf);
 					for(; txbuf[txlen]; txlen++) {

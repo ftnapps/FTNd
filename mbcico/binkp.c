@@ -125,6 +125,12 @@ int binkp(int role)
 	}
 
 	eff_remote = remote;
+	/*
+	 * If remote doesn't have the 8.3 flag set, allow long filenames.
+	 */
+	if (!nodes.FNC)
+		remote_flags &= ~SESSION_FNC;
+	
 	tosend = create_filelist(eff_remote, nonhold_mail, 0);
 	request = create_freqlist(remote);
 
