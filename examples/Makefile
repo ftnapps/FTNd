@@ -6,7 +6,8 @@ include ../Makefile.global
 SRCS		= endian.c
 HDRS		= endian.h
 OBJS		= endian.o
-OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar txtfiles-en.tar templates-en.tar
+OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar \
+		  txtfiles-en.tar templates-en.tar templates-es.tar
 
 #####################################################################################
 
