@@ -217,7 +217,6 @@ void Cookie(void)
 	firstrandom = FALSE;
     }
     recno = 1+(int) (1.0 * records * rand() / (RAND_MAX + 1.0));
-    Syslog('f', "Selected quote %d out of %d records", recno, records);
 
     if (fseek(olf, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
 	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {

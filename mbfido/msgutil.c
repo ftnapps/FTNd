@@ -144,7 +144,7 @@ long Msg_Top(char *template, int language, fidoaddr aka)
 {
     char    *temp;
     FILE    *fp, *fi;
-    long    fileptr, fileptr1 = 0L;
+    long    fileptr, fileptr1 = -1L;
 
     temp = calloc(PATH_MAX, sizeof(char));
 
