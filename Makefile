@@ -20,6 +20,18 @@ all depend:
 			for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done; \
 		fi
 
+help:
+		@echo "         Help for MBSE BBS make:"
+		@echo ""
+		@echo "make [all]                 Compile all sources"
+		@echo "make install               Install everything (must be root)"
+		@echo "make depend                Update source dependencies"
+		@echo "make dist                  Create distribution archive"
+		@echo "make clean                 Clean sourcetree and configuration"
+		@echo "make crontab               Install default crontab for mbse"
+		@echo "make filelist              Create filelist for make dist"
+		@echo ""
+
 install:
 		@./checkbasic
 		@if [ "`id -un`" != "root" ] ; then \
@@ -37,12 +49,8 @@ install:
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/etc ; \
 		fi
 		@chmod 0775 ${PREFIX}/etc
-		@if [ -f ${PREFIX}/etc/lastcall.data ] ; then \
-			chmod 0660 ${PREFIX}/etc/lastcall.data ; \
-		fi
-		@if [ -f ${PREFIX}/etc/sysinfo.data ] ; then \
-			chmod 0660 ${PREFIX}/etc/sysinfo.data ; \
-		fi
+		@chmod -f 0660 ${PREFIX}/etc/lastcall.data
+		@chmod -f 0660 ${PREFIX}/etc/sysinfo.data
 		@if [ ! -d ${PREFIX}/doc ] ; then \
 			mkdir ${PREFIX}/doc ; \
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/doc ; \
@@ -174,8 +182,8 @@ install:
 			rmdir ${PREFIX}/var/inbound/tmp ; \
 			echo "Removed ${PREFIX}/var/inbound/tmp" ; \
 		fi
-		chmod 0770 ${PREFIX}/var/rules
-		chmod 0770 ${PREFIX}/var/run
+		@chmod 0770 ${PREFIX}/var/rules
+		@chmod 0770 ${PREFIX}/var/run
 		@if [ ! -d ${PREFIX}/var/unknown ] ; then \
 			mkdir ${PREFIX}/var/unknown ; \
 			mkdir ${PREFIX}/var/inbound ; \
@@ -191,23 +199,11 @@ install:
 			${CHOWN} ${OWNER}:${GROUP} ${PREFIX}/var/arealists ; \
 			chmod 0750 ${PREFIX}/var/arealists ; \
 		fi
-		@if [ -x ${BINDIR}/mbfbgen ]; then \
-			rm ${BINDIR}/mbfbgen; \
-			echo "removed ${BINDIR}/mbfbgen"; \
-		fi
-		@if [ -x ${BINDIR}/fbutil ]; then \
-			rm ${BINDIR}/fbutil ; \
-			echo "removed ${BINDIR}/fbutil "; \
-		fi
-		@if [ -x ${BINDIR}/mbchat ]; then \
-			rm ${BINDIR}/mbchat ; \
-			echo "removed ${BINDIR}/mbchat"; \
-		fi
 		@if [ -x ${BINDIR}/mbtelnetd ]; then \
 			rm ${BINDIR}/mbtelnetd ; \
 			echo "removed ${BINDIR}/mbtelnetd"; \
 		fi
-		for d in ${SUBDIRS}; do (cd $$d && ${MAKE} $@) || exit; done
+		@for d in ${SUBDIRS}; do (cd $$d && ${MAKE} -w $@) || exit; done
 
 dist tar:	${TARFILE}
 
