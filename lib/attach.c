@@ -143,8 +143,6 @@ int is_my_tic(char *filename, char *ticfile)
 
     buf = calloc(81, sizeof(char));
 
-    Syslog('p', "is_my_tic(%s, %s)", filename, ticfile);
-
     if ((fp = fopen(ticfile, "r"))) {
 	while (fgets(buf, 80, fp)) {
 	    if (strstr(buf, filename)) {
@@ -155,7 +153,7 @@ int is_my_tic(char *filename, char *ticfile)
 	fclose(fp);
     }
 
-    Syslog('p', "Found=%s", Found ?"True":"False");
+    free(buf);
     return Found;
 }
 
@@ -177,7 +175,7 @@ int check_flo(faddr node, char *filename, char flavor)
     flofile = calloc(PATH_MAX, sizeof(char));
     ticfile = calloc(PATH_MAX, sizeof(char));
 
-    sprintf(flofile, "%s", floname(&node, flavor));
+//    sprintf(flofile, "%s", floname(&node, flavor));
     Syslog('p', "%s", flofile);
     if ((fp = fopen(flofile, "r+"))) {
 	filepos = 0;
