@@ -695,6 +695,7 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 	     * Old and new paths did exist and are different.
 	     * Test if we are doing a message base move.
 	     */
+	    working(5, 0, 0);
 	    from = calloc(PATH_MAX, sizeof(char));
 	    too  = calloc(PATH_MAX, sizeof(char));
 	    sprintf(from, "%s.jhr", line);
@@ -753,6 +754,7 @@ char *edit_jam(int y, int x, int l, char *line, char *help)
 	    }
 	    free(from);
 	    free(too);
+	    working(0, 0, 0);
 	} else if (strlen(s) == 0) {
 	    /*
 	     * If no new path, report
