@@ -383,7 +383,7 @@ int rfc2ftn(FILE *fp)
 	}
 
 	if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
-	    sprintf(temp, " MBSE-FIDO %s (%s-%s)", VERSION, OsName(), OsCPU());
+	    sprintf(temp, " MBSE-NNTPD %s (%s-%s)", VERSION, OsName(), OsCPU());
 	    hdrsize += 4 + strlen(temp);
 	    fprintf(ofp, "\1TID:");
 	    kludgewrite(temp, ofp);

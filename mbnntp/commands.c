@@ -32,6 +32,7 @@
 #include "../lib/users.h"
 #include "../lib/msg.h"
 #include "../lib/msgtext.h"
+#include "../lib/mbsedb.h"
 #include "ttyio.h"
 #include "mbnntp.h"
 #include "rfc2ftn.h"
@@ -43,7 +44,9 @@ unsigned long	article = 0L;	    /* Current article	    */
 char		currentgroup[81];   /* Current newsgroup    */
 
 extern unsigned long	sentbytes;
+extern unsigned long	rcvdbytes;
 
+extern char         *ttystat[];
 
 void send_xlat(char *);
 char *make_msgid(char *);
@@ -381,12 +384,56 @@ void command_list(char *cmd)
 /*
  * POST
  */
+int get_post(char *buf, int max)
+{
+    int     c, len;
+
+    len = 0;
+    memset(buf, 0, sizeof(buf));
+    while (TRUE) {
+	c = tty_getc(180);
+	if (c <= 0) {
+	    if (c == -2) {
+		/*
+		 * Timeout
+		 */
+		send_nntp("400 Service discontinued, timeout");
+	    }
+	    Syslog('+', "Receiver status %s", ttystat[- c]);
+	    return c;
+	}
+	if (c != '\n') {
+	    buf[len] = c;
+	    len++;
+	    buf[len] = '\0';
+	    if (c == '\r') {
+		rcvdbytes += len;
+		return len;
+	    }
+	}
+	if (len >= max) {
+	    WriteError("Input buffer full");
+	    return len;
+	}
+    }
+
+    return 0;       /* Not reached */
+}
+
+
+
+/*
+ * POST
+ */
 void command_post(char *cmd)
 {
     FILE    *fp = NULL;
-    int	    rc, Done = FALSE;
-    char    buf[1024];
+    int	    i, rc, maxrc, Done = FALSE, nrofgroups;
+    char    buf[1024], *group, *groups[25];
 
+    IsDoing("Post");
+    Syslog('+', "%s", cmd);
+	    
     if ((fp = tmpfile()) == NULL) {
 	WriteError("$Can't create tmpfile");
 	send_nntp("503 Out of memory");
@@ -396,7 +443,19 @@ void command_post(char *cmd)
     send_nntp("340 Send article to be posted. End with <CR-LF>.<CR-LF>");
 
     while (Done == FALSE) {
-	rc = get_nntp(buf, sizeof(buf) -1);
+	rc = get_post(buf, sizeof(buf) -1);
+	/*
+	 * Strip CR/LF
+	 */
+	if (buf[strlen(buf)-1] == '\n') {
+	    buf[strlen(buf)-1] = '\0';
+	    rc--;
+	}
+	if (buf[strlen(buf)-1] == '\r') {
+	    buf[strlen(buf)-1] = '\0';
+	    rc--;
+	}
+	Syslog('n', "%02d \"%s\"", rc, printable(buf, 0));
 	if (rc < 0) {
 	    WriteError("nntp_get failed, abort");
 	    return;
@@ -409,13 +468,54 @@ void command_post(char *cmd)
 	}
     }
     
-    rc = rfc2ftn(fp);
+    /*
+     * Make a list of newsgroups to post in
+     */
+    rewind(fp);
+    nrofgroups = 0;
+    while (fgets(buf, sizeof(buf) -1, fp)) {
+	if (!strncasecmp(buf, "Newsgroups: ", 12)) {
+	    if (buf[strlen(buf)-1] == '\n')
+		buf[strlen(buf)-1] = '\0';
+	    if (buf[strlen(buf)-1] == '\r')
+		buf[strlen(buf)-1] = '\0';
+	    strtok(buf, " \0");
+	    while ((group = strtok(NULL, ",\0"))) {
+		Syslog('f', "group: \"%s\"", printable(group, 0));
+		if (SearchMsgsNews(group)) {
+		    Syslog('n', "Add group \"%s\" (%s)", msgs.Newsgroup, msgs.Tag);
+		    groups[nrofgroups] = xstrcpy(group);
+		    nrofgroups++;
+		} else {
+		    Syslog('+', "Newsgroup \"%s\" doesn't exist", group);
+		}
+	    }
+	}
+    }
+    
+    if (nrofgroups == 0) {
+	Syslog('+', "No newsgroups found for POST");
+	send_nntp("441 Posting failed");
+	fclose(fp);
+	return;
+    }
+
+    maxrc = 0;
+    for (i = 0; i < nrofgroups; i++) {
+	Syslog('+', "Posting in newsgroup %s", groups[i]);
+	if (SearchMsgsNews(groups[i])) {
+	    rc = rfc2ftn(fp);
+	    if (rc > maxrc)
+		maxrc = rc;
+	}
+	free(groups[i]);
+    }
     fclose(fp);
 
-    if (rc)
-	send_nntp("503 Post failed:");
+    if (maxrc)
+	send_nntp("441 Posting failed");
     else
-	send_nntp("240 Article posted");
+	send_nntp("240 Article posted OK");
 }
 
 

@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
     InitMsgs();
     InitUser();
     InitFidonet();
+    InitNode();
     umask(002);
     memset(&usrconfig, 0, sizeof(usrconfig));
 
@@ -276,7 +277,7 @@ void nntp(void)
 	} else if (strncasecmp(buf, "HEAD", 4) == 0) {
 	    if (check_auth(buf))
 		command_abhs(buf);
-	} else if (strncasecmp(buf, "HEAD", 4) == 0) {
+	} else if (strncasecmp(buf, "POST", 4) == 0) {
 	    if (check_auth(buf))
 		command_post(buf);
 	} else if (strncasecmp(buf, "IHAVE", 5) == 0) {

@@ -62,7 +62,7 @@ v0.51.4		11-Apr-2004
 
 	mbnntp:
 		New program, news server to read echomail with a news client.
-		Reading news works, no posts yet.
+		Reading news works, posts partial tested.
 
 	mbsebbs:
 		Added logging of virus scanner results.

@@ -46,7 +46,7 @@
  *  1 - Can't access messagebase.
  *
  */
-int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msgid, char *reply, int bad, int dupe, FILE *fp)
+int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msgid, char *reply, FILE *fp)
 {
     int             result;
     unsigned long   crc2;
@@ -55,33 +55,13 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
     /*
      *  Update import counters
      */
-    if (!bad && !dupe) {
-	StatAdd(&msgs.Received, 1L);
-	msgs.LastRcvd = time(NULL);
-	StatAdd(&mgroup.MsgsRcvd, 1L);
-	mgroup.LastDate = time(NULL);
-	UpdateMsgs();
-    }
+    StatAdd(&msgs.Received, 1L);
+    msgs.LastRcvd = time(NULL);
+    StatAdd(&mgroup.MsgsRcvd, 1L);
+    mgroup.LastDate = time(NULL);
+    UpdateMsgs();
 
-    if (bad) {
-        if (strlen(CFG.badboard) == 0) {
-            Syslog('+', "Killing bad message");
-            return 0;
-        } else {
-            if ((result = Msg_Open(CFG.badboard)))
-		Syslog('+', "Tossing in bad board");
-        }
-    } else if (dupe) {
-        if (strlen(CFG.dupboard) == 0) {
-            Syslog('+', "Killing dupe message");
-            return 0;
-        } else {
-            if ((result = Msg_Open(CFG.dupboard)))
-                Syslog('+', "Tossing in dupe board");
-        }
-    } else {
-        result = Msg_Open(msgs.Base);
-    }
+    result = Msg_Open(msgs.Base);
         
     if (!result) {
         WriteError("Can't open JAMmb %s", msgs.Base);
@@ -107,8 +87,6 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
          */
         if ((flags & M_PVT) && ((msgs.MsgKinds == BOTH) || (msgs.MsgKinds == PRIVATE)))
             Msg.Private = TRUE;
-        if (flags & M_FILE)
-	    Msg.FileAttach = TRUE;
 
         /*
          * Set MSGID and REPLY crc.
@@ -124,13 +102,11 @@ int storeecho(faddr *f, faddr *t, time_t mdate, int flags, char *subj, char *msg
 
         /*
          * Start write the message
-         * If not a bad or dupe message, eat the first
-         * line (AREA:tag).
+         * Eat the first line (AREA:tag).
          */
 	buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
         rewind(fp);
-        if (!dupe && !bad)
-            fgets(buf , MAX_LINE_LENGTH, fp);
+        fgets(buf , MAX_LINE_LENGTH, fp);
         Msg_Write(fp);
         Msg_AddMsg();
         Msg_UnLock();

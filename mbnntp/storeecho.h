@@ -3,7 +3,7 @@
 
 /* $Id$ */
 
-int storeecho(faddr *, faddr *, time_t, int, char *, char *, char *, int, int, FILE *);
+int storeecho(faddr *, faddr *, time_t, int, char *, char *, char *, FILE *);
 
 #endif
 

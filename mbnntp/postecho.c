@@ -422,7 +422,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
     /*
      * Import this echomail, even if it's bad or a dupe.
      */
-    if ((rc = storeecho(f, t, mdate, flags, subj, msgid, reply, bad, dupe, nfp)) || bad || dupe) {
+    if ((rc = storeecho(f, t, mdate, flags, subj, msgid, reply, nfp)) || bad || dupe) {
 	/*
 	 *  Store failed or it was bad or a dupe. Only log failed store.
 	 */
