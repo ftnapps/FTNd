@@ -177,7 +177,7 @@ void load_maincfg(void)
                 /*
                  * Newfiles reports
                  */
-                sprintf(CFG.ftp_base, "%s/ftp", getenv("MBSE_ROOT"));
+                sprintf(CFG.ftp_base, "%s/ftp/pub", getenv("MBSE_ROOT"));
                 CFG.newdays = 30;
                 CFG.security.level = 20;
                 CFG.new_split = 27;
@@ -376,7 +376,7 @@ void load_maincfg(void)
                 sprintf(CFG.ftp_msg_login, "/welcome.msg");
                 sprintf(CFG.ftp_msg_cwd, ".message");
                 sprintf(CFG.ftp_msg_shutmsg, "/etc/nologin");
-                sprintf(CFG.ftp_upl_path, "%s/incoming", CFG.ftp_base);
+                sprintf(CFG.ftp_upl_path, "%s/ftp/incoming", getenv("MBSE_ROOT"));
                 sprintf(CFG.ftp_banner, "%s/etc/ftpbanner", getenv("MBSE_ROOT"));
                 sprintf(CFG.ftp_email, "sysop@%s", CFG.sysdomain);
                 sprintf(CFG.ftp_pth_filter, "^[-A-Za-z0-9_\\.]*$  ^\\.  ^-");

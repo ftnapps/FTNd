@@ -247,8 +247,8 @@ if [ "$OSTYPE" = "NetBSD" ]; then
     useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/pkg/bin/bash mbse
 fi
 log "+" "[$?] Added user mbse"
-chmod 770 $MHOME
-log "+" "[$?] chmod 770 $MHOME"
+chmod 775 $MHOME
+log "+" "[$?] chmod 775 $MHOME"
 
 echo -n " writing '$MHOME/.profile'"
 cat << EOF >$MHOME/.profile
@@ -285,7 +285,7 @@ fi
 chown mbse.bbs $MHOME/home
 log "+" "[$?] chown mbse.bbs $MHOME/home"
 chmod 770 $MHOME/home
-log "+" "[$?] chmod 775 $MHOME/home"
+log "+" "[$?] chmod 770 $MHOME/home"
 if [ "$OSTYPE" = "Linux" ]; then
     useradd -c "MBSE BBS Login" -d $MHOME/home/bbs -g bbs -s $MHOME/bin/mbnewusr bbs
     log "+" "[$?] Added user bbs"
