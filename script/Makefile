@@ -86,8 +86,8 @@ install:
 			${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP}  -m 0644 runvirtual.sh  ${BINDIR}/runvirtual.sh.new" ; \
 		fi
-		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0440 doors.bat ${VARDIR}/dosemu/c
-		${INSTALL} -o ${OWNER} -g ${GROUP}  -m 0744 mbsedos   ${BINDIR}
+		${INSTALL}    -o ${OWNER} -g ${GROUP}  -m 0640 doors.bat    ${VARDIR}/dosemu/c
+		${INSTALL}    -o ${OWNER} -g ${GROUP}  -m 0744 mbsedos      ${BINDIR}
 		@bash ./installinit.sh
 
 filelist:	Makefile

@@ -1,3 +1,18 @@
 #!/bin/sh
 #
 # $Id$
+
+if [ "`whoami`" != "mbse" ]; then
+    echo "Only user 'mbse' is allowed"
+    exit 1
+fi
+
+# Save initial umask and set group read/write for dos
+UMASK=`umask`
+umask 007
+
+# Run DOS in X
+dosemu.bin -X -f $MBSE_ROOT/etc/dosemu/dosemu.conf
+
+# Restore umask
+umask $UMASK
