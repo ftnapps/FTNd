@@ -712,7 +712,10 @@ void die(int onsig)
     while ((cmd_run || ping_run || sched_run || disk_run) && (time(NULL) < now)) {
 	sleep(1);
     }
-    Syslog('+', "All threads stopped");
+    if (cmd_run || ping_run || sched_run || disk_run)
+	Syslog('+', "Not all threads stopped! Forced shutdown");
+    else
+	Syslog('+', "All threads stopped");
 
     /*
      * Free memory

@@ -175,9 +175,86 @@ char *disk_getfs()
 
 
 
+/*
+ * Add path to table. 
+ * Find out if the parameter is a path or a file on a path.
+ */
 void add_path(char *path)
 {
+    struct stat	    sb;
+    char	    *p, *fsname;
+#if defined(__linux__)
+    char	    *mtab, *fs;
+    FILE	    *fp;
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+    struct statfs   *mntbuf;
+    int		    i;
+#endif
+
+    if (strlen(path) == 0) {
+	Syslog('d', "add_path() empty pathname");
+	return;
+    }
+
     Syslog('d', "add_path(%s)", path);
+    if (lstat(path, &sb) == 0) {
+	if (S_ISDIR(sb.st_mode)) {
+
+#if defined(__linux__)
+	    if ((fp = fopen((char *)"/etc/mtab", "r"))) {
+		mtab = calloc(PATH_MAX, sizeof(char));
+		fsname = calloc(PATH_MAX, sizeof(char));
+		fsname[0] = '\0';
+
+		while (fgets(mtab, PATH_MAX -1, fp)) {
+		    fs = strtok(mtab, " \t");
+		    fs = strtok(NULL, " \t");
+		    /*
+		     * Overwrite fsname each time a match is found, the last
+		     * mounted filesystem that matches must be the one we seek.
+		     */
+		    if (strncmp(fs, path, strlen(fs)) == 0) {
+			Syslog('d', "Found fs %s", fs);
+			sprintf(fsname, "%s", fs);
+		    }
+		}
+		fclose(fp);
+		free(mtab);
+		Syslog('d', "Should be on \"%s\"", fsname);
+		free(fsname);
+	    }
+
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+
+	    if ((mntsize = getmntinfo(&mntbuf, MNT_NOWAIT))) {
+		fsname = calloc(PATH_MAX, sizeof(char));
+		for (i = 0; i < mntsize; i++) {
+		    Syslog('d', "Check fs %s", mntbuf[i].f_mntonname);
+		    if (strncmp(mntbuf[i].f_mntonname, path, strlen(mntbuf[i].f_mntonname)) == 0) {
+			Syslog('d', "Found fs %s", fs);
+			sprintf(fsname, "%s", fs);
+		    }
+		}
+		Syslog('d', "Should be on \"%s\"", fsname);
+		free(fsname);
+	    }
+
+#endif
+
+	} else {
+	    Syslog('d', "****  Is not a dir");
+	}
+    } else {
+	/*
+	 * Possible cause, we were given a filename that
+	 * may not be present because this is a temporary file.
+	 * Strip the last part of the name and try again.
+	 */
+	if ((p = strrchr(path, '/')))
+	    *p = '\0';
+	Syslog('d', "Recursive add name %s", path);
+	add_path(path);
+    }
 }
 
 
@@ -187,6 +264,9 @@ void add_path(char *path)
  */
 void *disk_thread(void)
 {
+    FILE    *fp;
+    char    *temp;
+
     Syslog('+', "Start disk thread");
     disk_run = TRUE;
     disk_reread = TRUE;
@@ -196,7 +276,141 @@ void *disk_thread(void)
 	if (disk_reread) {
 	    disk_reread = FALSE;
 	    Syslog('+', "Reread disk filesystems");
+	    add_path(getenv("MBSE_ROOT"));
 	    add_path(CFG.bbs_menus);
+	    add_path(CFG.bbs_txtfiles);
+	    add_path(CFG.alists_path);
+	    add_path(CFG.req_magic);
+	    add_path(CFG.bbs_usersdir);
+	    add_path(CFG.nodelists);
+	    add_path(CFG.inbound);
+	    add_path(CFG.pinbound);
+	    add_path(CFG.outbound);
+	    add_path(CFG.ftp_base);
+	    add_path(CFG.bbs_macros);
+	    add_path(CFG.out_queue);
+	    add_path(CFG.rulesdir);
+	    add_path(CFG.tmailshort);
+	    add_path(CFG.tmaillong);
+	
+	    temp = calloc(PATH_MAX, sizeof(char ));
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&areahdr, sizeof(areahdr), 1, fp);
+		fseek(fp, areahdr.hdrsize, SEEK_SET);
+
+		while (fread(&area, areahdr.recsize, 1, fp)) {
+		    if (area.Available) { 
+			if (area.CDrom)
+			    add_path(area.FilesBbs);
+			else
+			    add_path(area.Path);
+		    }
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&msgshdr, sizeof(msgshdr), 1, fp);
+		fseek(fp, msgshdr.hdrsize, SEEK_SET);
+
+		while (fread(&msgs, msgshdr.recsize, 1, fp)) {
+		    if (msgs.Active)
+			add_path(msgs.Base);
+		    fseek(fp, msgshdr.syssize, SEEK_CUR);
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/language.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&langhdr, sizeof(langhdr), 1, fp);
+		fseek(fp, langhdr.hdrsize, SEEK_SET);
+
+		while (fread(&lang, langhdr.recsize, 1, fp)) {
+		    if (lang.Available) {
+			add_path(lang.MenuPath);
+			add_path(lang.TextPath);
+			add_path(lang.MacroPath);
+		    }
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&nodeshdr, sizeof(nodeshdr), 1, fp);
+		fseek(fp, nodeshdr.hdrsize, SEEK_SET);
+
+		while (fread(&nodes, nodeshdr.recsize, 1, fp)) {
+		    if (nodes.Session_in == S_DIR)
+			add_path(nodes.Dir_in_path);
+		    if (nodes.Session_out == S_DIR)
+			add_path(nodes.Dir_out_path);
+		    add_path(nodes.OutBox);
+		    fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&fgrouphdr, sizeof(fgrouphdr), 1, fp);
+		fseek(fp, fgrouphdr.hdrsize, SEEK_SET);
+
+		while (fread(&fgroup, fgrouphdr.recsize, 1, fp)) {
+		    if (fgroup.Active)
+			add_path(fgroup.BasePath);
+		}
+		fclose(fp);
+	    }
+	    
+	    sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&mgrouphdr, sizeof(mgrouphdr), 1, fp);
+		fseek(fp, mgrouphdr.hdrsize, SEEK_SET);
+
+		while (fread(&mgroup, mgrouphdr.recsize, 1, fp)) {
+		    if (mgroup.Active)
+			add_path(mgroup.BasePath);
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/hatch.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&hatchhdr, sizeof(hatchhdr), 1, fp);
+		fseek(fp, hatchhdr.hdrsize, SEEK_SET);
+
+		while (fread(&hatch, hatchhdr.recsize, 1, fp)) {
+		    if (hatch.Active)
+			add_path(hatch.Spec);
+		}
+		fclose(fp);
+	    }
+
+	    sprintf(temp, "%s/etc/magic.data", getenv("MBSE_ROOT"));
+	    if ((fp = fopen(temp, "r"))) {
+		Syslog('d', "+ %s", temp);
+		fread(&magichdr, sizeof(magichdr), 1, fp);
+		fseek(fp, magichdr.hdrsize, SEEK_SET);
+
+		while (fread(&magic, magichdr.recsize, 1, fp)) {
+		    if (magic.Active && ((magic.Attrib == MG_COPY) || (magic.Attrib == MG_UNPACK)))
+			add_path(magic.Path);
+		}
+		fclose(fp);
+	    }
+	    free(temp);
+	    Syslog('d', "All directories added");
 	}
 
 	sleep(1);

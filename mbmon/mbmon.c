@@ -247,70 +247,81 @@ void system_moni(void)
 
 void system_stat(void)
 {
-	int	ch;
-	char	buf[256];
-	char	*cnt;
-	time_t	now;
+    int	    ch;
+    char    buf[256], *cnt;
+    time_t  now;
 
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 6, "2.    SERVER STATISTICS");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 6, "First date started");
-	mvprintw( 7,62, "BBS Open");
-	mvprintw( 8, 6, "Last date started");
-	mvprintw( 8,62, "ZMH");
-	mvprintw( 9, 6, "Total server starts");
-	mvprintw( 9,62, "Internet");
-	mvprintw(10, 6, "Connected clients");
-	mvprintw(10,62, "Need inet");
-	mvprintw(11,62, "Running");
-	mvprintw(12,30, "Total          Today");
-	mvprintw(12,62, "Load avg");
-	hor_lin(13,30,8);
-	hor_lin(13,45,8);
-	mvprintw(14, 6, "Client connects");
-	mvprintw(15, 6, "Peak connections");
-	mvprintw(16, 6, "Protocol syntax errors");
-	mvprintw(17, 6, "Communication errors");
-	mvprintw(19, 6, "Next sequence number");
-	mvprintw(19,62, "Press any key");
-	IsDoing("System Statistics");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 6, "2.    SERVER STATISTICS");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 6, "First date started");
+    mvprintw( 7,62, "BBS Open");
+    mvprintw( 8, 6, "Last date started");
+    mvprintw( 8,62, "ZMH");
+    mvprintw( 9, 6, "Total server starts");
+    mvprintw( 9,62, "Internet");
+    mvprintw(10, 6, "Connected clients");
+    mvprintw(10,62, "Need inet");
+    mvprintw(11,62, "Running");
+    mvprintw(12,30, "Total          Today");
+    mvprintw(12,62, "Load avg");
+    hor_lin(13,30,8);
+    hor_lin(13,45,8);
+    mvprintw(13,62, "Disk stat");
+    mvprintw(14, 6, "Client connects");
+    mvprintw(15, 6, "Peak connections");
+    mvprintw(16, 6, "Protocol syntax errors");
+    mvprintw(17, 6, "Communication errors");
+    mvprintw(19, 6, "Next sequence number");
+    mvprintw(19,62, "Press any key");
+    IsDoing("System Statistics");
 
-	do {
-		show_date(LIGHTGRAY, BLACK, 0, 0);
+    do {
+	show_date(LIGHTGRAY, BLACK, 0, 0);
 
-		sprintf(buf, "GSTA:1,%d;", getpid());
-		if (socket_send(buf) == 0) {
-			strcpy(buf, socket_receive());
-			set_color(LIGHTGRAY, BLACK);
-			cnt = strtok(buf, ",");
-			now = atoi(strtok(NULL, ","));
-			mvprintw(7, 30, "%s", ctime(&now));
-			now = atoi(strtok(NULL, ","));
-			mvprintw(8, 30, "%s", ctime(&now));
-			cnt = strtok(NULL, ",");
-			mvprintw(9, 30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(10,30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(14,30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(15,30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(16,30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(17,30, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(14,45, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(15,45, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(16,45, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(17,45, (char *)"%s ", strtok(NULL, ","));
-			mvprintw(7,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(8,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(9,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
-			mvprintw(12,72, "%s ", strtok(NULL, ","));
-			mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
-		}
+	sprintf(buf, "GSTA:1,%d;", getpid());
+	if (socket_send(buf) == 0) {
+	    strcpy(buf, socket_receive());
+	    set_color(LIGHTGRAY, BLACK);
+	    cnt = strtok(buf, ",");
+	    now = atoi(strtok(NULL, ","));
+	    mvprintw(7, 30, "%s", ctime(&now));
+	    now = atoi(strtok(NULL, ","));
+	    mvprintw(8, 30, "%s", ctime(&now));
+	    cnt = strtok(NULL, ",");
+	    mvprintw(9, 30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(10,30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(14,30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(15,30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(16,30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(17,30, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(14,45, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(15,45, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(16,45, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(17,45, (char *)"%s ", strtok(NULL, ","));
+	    mvprintw(7,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mvprintw(8,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mvprintw(9,72, "%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mvprintw(10,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mvprintw(11,72,"%s", atoi(strtok(NULL, ",")) == 1?"Yes":"No ");
+	    mvprintw(12,72, "%s ", strtok(NULL, ","));
+	    mvprintw(19,30, (char *)"%s", strtok(NULL, ";"));
+	}
 
-		ch = testkey(19,76);
-	} while (ch == '\0');
+	switch (enoughspace()) {
+	    case 0: mvprintw(13, 72, "Full ");
+		    break;
+	    case 1: mvprintw(13, 72, "Ok   ");
+		    break;
+	    case 2: mvprintw(13, 72, "N/A  ");
+		    break;
+	    case 3: mvprintw(13, 72, "Error");
+		    break;
+	}
+
+	ch = testkey(19,76);
+    } while (ch == '\0');
 }
 
 

@@ -11,8 +11,8 @@ v0.51.2		06-Mar-2004
 		Start mbsetup, this can take a while on a system with lots of
 		files, during startup the files database will be converted.
 		After the menu appears, enter global setup, exit and save.
-		Open the system again.
-		If you want you may restart mbtask.
+		Now stop and restart mbtask.
+		Open the system with mbstat open.
 
 	general:
 		Updated to a new files database structure that allows for
@@ -95,6 +95,7 @@ v0.51.2		06-Mar-2004
 
 	mbmon:
 		Switched to use new filesystems command.
+		On screen 2 added disk status.
 
 	mbtask:
 		Added communication commands for disk watch thread.
