@@ -250,8 +250,8 @@ JN|Node onbekend, toch doorgaan [j/N]:
 |U heeft
 |extra download KBytes.
 |U heeft niet genoeg tijd om dat bestand te downloaden.
-|U heeft niet genoeg bijtes over om te downloaden " 
-|U moet uploaden vorrdat U kunt downloaden.
+|U heeft niet genoeg bytes over om te downloaden " 
+|U moet uploaden voordat U kunt downloaden.
 |Kilobytes op dit moment beschikbaar: 
 |Kontroleren gemarkeerde bestanden, een ogenblik ...
 |Verwijder selectie Offline Reader berichten gebieden
