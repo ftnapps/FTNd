@@ -506,7 +506,7 @@ void EditNewfiles(void)
 	}
 
 	if (strncmp(pick, "A", 1) == 0) {
-	    if (records > CFG.new_groups) {
+	    if (records < CFG.new_groups) {
 		working(1, 0, 0);
 		if (AppendNewfiles() == 0) {
 		    records++;
