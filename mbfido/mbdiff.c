@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
 	ProgName();
 	pw = getpwuid(getuid());
-	InitClient(pw->pw_name, (char *)"mbdiff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log);
+	InitClient(pw->pw_name, (char *)"mbdiff", CFG.location, CFG.logfile, CFG.util_loglevel, CFG.error_log, CFG.mgrlog);
 
 	Syslog(' ', " ");
 	Syslog(' ', "MBDIFF v%s", VERSION);

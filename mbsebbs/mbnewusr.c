@@ -115,7 +115,8 @@ int main(int argc, char **argv)
 	 * who is at the other end of the line, so that's what we tell.
 	 */
 	do_quiet = TRUE;
-	InitClient((char *)"Unknown", (char *)"mbnewusr", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
+	InitClient((char *)"Unknown", (char *)"mbnewusr", (char *)"Unknown", 
+		    CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog);
 	IsDoing("Loging in");
 
 	Syslog(' ', " ");

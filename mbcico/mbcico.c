@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 	TermInit(1);
 	t_start = c_start = c_end = time(NULL);
 
-	InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, CFG.cico_loglevel, CFG.error_log);
+	InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile, CFG.cico_loglevel, CFG.error_log, CFG.mgrlog);
 	Syslog(' ', " ");
 	Syslog(' ', "MBCICO v%s", VERSION);
 

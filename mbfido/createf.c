@@ -389,9 +389,9 @@ int CheckTicGroup(char *Area, int SendUplink, faddr *f)
     free(buf);
     free(temp);
     if (f == NULL)
-	Syslog('+', "Auto created TIC area %s, group %s, bbs area %ld", tic.Name, tic.Group, AreaNr);
+	Mgrlog("Auto created TIC area %s, group %s, bbs area %ld", tic.Name, tic.Group, AreaNr);
     else
-	Syslog('+', "Auto created TIC area %s, group %s, bbs area %ld, for node %s",
+	Mgrlog("Auto created TIC area %s, group %s, bbs area %ld, for node %s",
 	    tic.Name, tic.Group, AreaNr, ascfnode(f, 0x1f));
 
     return 0;

@@ -84,7 +84,7 @@ void A_Help(faddr *t, char *replyid)
     char    *subject;
     faddr   *ta;
 
-    Syslog('+', "AreaMgr: Help");
+    Mgrlog("AreaMgr: Help");
     
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Help");
@@ -141,22 +141,22 @@ void A_List(faddr *t, char *replyid, int Notify)
     MacroVars("Y", "s", ascfnode(f, 0xff));
 
     switch (Notify) {
-	case LIST_NOTIFY:   Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
+	case LIST_NOTIFY:   Mgrlog("AreaMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"AreaMgr Notify");
 			    GetRpSubject("areamgr.notify.list",subject);
 			    fi = OpenMacro("areamgr.notify.list", nodes.Language, FALSE);
 			    break;
-	case LIST_LIST:	    Syslog('+', "AreaMgr: List");
+	case LIST_LIST:	    Mgrlog("AreaMgr: List");
 			    sprintf(subject,"AreaMgr list");
 			    GetRpSubject("areamgr.list",subject);
 			    fi = OpenMacro("areamgr.list", nodes.Language, FALSE);
 			    break;
-	case LIST_QUERY:    Syslog('+', "AreaMgr: Query");
+	case LIST_QUERY:    Mgrlog("AreaMgr: Query");
 			    sprintf(subject,"AreaMgr Query");
 			    GetRpSubject("areamgr.query",subject);
 			    fi = OpenMacro("areamgr.query", nodes.Language, FALSE);
 			    break;
-	case LIST_UNLINK:   Syslog('+', "AreaMgr: Unlinked");
+	case LIST_UNLINK:   Mgrlog("AreaMgr: Unlinked");
 			    sprintf(subject,"AreaMgr: Unlinked areas");
 			    GetRpSubject("areamgr.unlink",subject);
 			    fi = OpenMacro("areamgr.unlink", nodes.Language, FALSE);
@@ -327,12 +327,12 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     MacroVars("sKyY", "sdss", nodes.Sysop, Notify, ascfnode(t, 0xff), ascfnode(f, 0xf));
 
     if (Notify){
-	Syslog('+', "AreaMgr: Flow report to %s", ascfnode(t, 0xff));
+	Mgrlog("AreaMgr: Flow report to %s", ascfnode(t, 0xff));
         sprintf(subject,"AreaMgr Notify Flow Report");
         GetRpSubject("areamgr.notify.flow",subject);
 	fi = OpenMacro("areamgr.notify.flow", nodes.Language, FALSE);
     }else{
-	Syslog('+', "AreaMgr: Flow report");
+	Mgrlog("AreaMgr: Flow report");
         sprintf(subject,"AreaMgr Flow Report");
         GetRpSubject("areamgr.flow",subject);
 	fi = OpenMacro("areamgr.flow", nodes.Language, FALSE);
@@ -476,7 +476,7 @@ void A_Status(faddr *t, char *replyid)
 
     subject = calloc(255, sizeof(char));
     sprintf(subject,"AreaMgr Status");
-    Syslog('+', "AreaMgr: Status");
+    Mgrlog("AreaMgr: Status");
 
     if (Miy == 0)
 	i = 11;
@@ -537,7 +537,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     faddr	*b, *Temp;
     sysconnect	Sys;
 
-    Syslog('+', "AreaMgr: \"%s\"", Area);
+    Mgrlog("AreaMgr: disconnect \"%s\"", Area);
     ShiftBuf(Area, 1);
     for (i=0; i < strlen(Area); i++ ) 
 	Area[i]=toupper(Area[i]);
@@ -546,7 +546,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NOTFOUND",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  Area not found");
+	Mgrlog("  Area not found");
 	MacroClear();
 	return;
     }
@@ -563,7 +563,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NOTGROUP",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  Group %s not available for %s", mgroup.Name, ascfnode(t, 0x1f));
+	Mgrlog("  Group %s not available for %s", mgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
     }
@@ -578,7 +578,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_BADADD",Area,ascfnode(t, 0x1f),"","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), mgroup.Name);
+	Mgrlog("  %s may not disconnect from group %s", ascfnode(t, 0x1f), mgroup.Name);
 	MacroClear();
 	return;
     }
@@ -592,7 +592,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NC",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  %s is not connected to %s", ascfnode(t, 0x1f), Area);
+	Mgrlog("  %s is not connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
     }
@@ -603,7 +603,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 	 *  Make sure to write an overview afterwards.
 	 */
 	a_list = TRUE;
-	Syslog('+', "Disconnected echo area %s", Area);
+	Mgrlog("Disconnected echo area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","OK_DISC",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
@@ -614,7 +614,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
     MacroVars("RABCDE", "ssssss","ERR_DISC_NOTAVAIL",Area,"","","","");
     MsgResult("areamgr.responses",tmp);
-    Syslog('+', "Didn't disconnect %s from mandatory or cutoff echo area %s", ascfnode(t, 0x1f), Area);
+    Mgrlog("Didn't disconnect %s from mandatory or cutoff echo area %s", ascfnode(t, 0x1f), Area);
     MacroClear();
 }
 
@@ -629,7 +629,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     sysconnect	Sys;
     FILE	*gp;
 
-    Syslog('+', "AreaMgr: \"%s\"", printable(Area, 0));
+    Mgrlog("AreaMgr: connect \"%s\"", printable(Area, 0));
 
     if (Area[0] == '+')
 	ShiftBuf(Area, 1);
@@ -675,7 +675,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	    MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
 	    MsgResult("areamgr.responses",tmp);
-	    Syslog('+', "Area %s not found", Area);
+	    Mgrlog("Area %s not found", Area);
 	    MacroClear();
 	    return;
 	}
@@ -693,7 +693,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTGROUP",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  Group %s not available for node %s", mgroup.Name, ascfnode(t, 0x1f));
+	Mgrlog("  Group %s not available for node %s", mgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
     }
@@ -708,7 +708,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_BADADD",Area,ascfnode(t, 0x1f),"","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  %s may not connect to group %s", ascfnode(t, 0x1f), mgroup.Name);
+	Mgrlog("  %s may not connect to group %s", ascfnode(t, 0x1f), mgroup.Name);
 	MacroClear();
 	return;
     }
@@ -722,7 +722,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_ALREADY",Area,"","","","");
 	MsgResult("areamgr.responses",tmp);
-	Syslog('+', "  %s is already connected to %s", ascfnode(t, 0x1f), Area);
+	Mgrlog("  %s is already connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
     }
@@ -733,7 +733,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	 *  Make sure to write an overview afterwards.
 	 */
 	a_list = TRUE;
-	Syslog('+', "Connected echo area %s", Area);
+	Mgrlog("Connected echo area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 	MacroVars("RABCDE", "ssssss","OK_CONN",Area,aka2str(msgs.Aka),"","","");
 	MsgResult("areamgr.responses",tmp);
@@ -761,14 +761,14 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 
     if (Grp == NULL) {
 	if (Connect)
-	    Syslog('+', "AreaMgr: Connect All");
+	    Mgrlog("AreaMgr: Connect All");
 	else
-	    Syslog('+', "AreaMgr: Disconnect All");
+	    Mgrlog("AreaMgr: Disconnect All");
     } else {
 	if (Connect)
-	    Syslog('+', "AreaMgr: Connect group %s", Grp);
+	    Mgrlog("AreaMgr: Connect group %s", Grp);
 	else
-	    Syslog('+', "AreaMgr: Disconnect group %s", Grp);
+	    Mgrlog("AreaMgr: Disconnect group %s", Grp);
     }
 
     f = bestaka_s(t);
@@ -835,7 +835,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					Sys.receivefrom = TRUE;
 					fseek(mp, - sizeof(Sys), SEEK_CUR);
 					fwrite(&Sys, sizeof(Sys), 1, mp);
-					Syslog('+', "AreaMgr: Connected %s", msgs.Tag);
+					Mgrlog("AreaMgr: Connected %s", msgs.Tag);
 					MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    			MacroVars("RABCDE", "ssssss","OK_CONN",msgs.Tag,aka2str(msgs.Aka),"","","");
 		    			MsgResult("areamgr.responses",tmp);
@@ -855,7 +855,7 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 				    memset(&Sys, 0, sizeof(Sys));
 				    fseek(mp, - sizeof(Sys), SEEK_CUR);
 				    fwrite(&Sys, sizeof(Sys), 1, mp);
-				    Syslog('+', "AreaMgr: Disconnected %s", msgs.Tag);
+				    Mgrlog("AreaMgr: Disconnected %s", msgs.Tag);
 				    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    		    MacroVars("RABCDE", "ssssss","OK_DISC",msgs.Tag,"","","","");
 		    		    MsgResult("areamgr.responses",tmp);
@@ -901,9 +901,9 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
     char	*temp;
 
     if (Pause)
-	Syslog('+', "AreaMgr: Pause");
+	Mgrlog("AreaMgr: Pause");
     else
-	Syslog('+', "AreaMgr: Resume");
+	Mgrlog("AreaMgr: Resume");
 
     f = bestaka_s(t);
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
@@ -928,7 +928,7 @@ void A_Pause(faddr *t, int Pause, FILE *tmp)
 		    Sys.pause = Pause;
 		    fseek(mp, - sizeof(Sys), SEEK_CUR);
 		    fwrite(&Sys, sizeof(Sys), 1, mp);
-		    Syslog('+', "AreaMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
+		    Mgrlog("AreaMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
 		    MacroVars("RABCDE", "ssdsss","OK_PAUSE",msgs.Tag,Pause,"","","");
 		    MsgResult("areamgr.responses",tmp);
@@ -957,7 +957,7 @@ void A_Rescan(faddr *t, char *Area, FILE *tmp)
     CleanBuf(Area);
     for (i = 0; i < strlen(Area); i++ ) 
 	Area[i] = toupper(Area[i]);
-    Syslog('+', "AreaMgr: Rescan %s, MSGS=%lu", Area, a_msgs);
+    Mgrlog("AreaMgr: Rescan %s, MSGS=%lu", Area, a_msgs);
     result = RescanOne(t, Area, a_msgs);
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Areamgr");
     if (result == 0){
@@ -987,7 +987,7 @@ void A_Msgs(char *Buf, int skip)
     ShiftBuf(Buf, skip);
     CleanBuf(Buf);
     a_msgs = strtoul( Buf, (char **)NULL, 10 );
-    Syslog('+', "AreaMgr: msgs %s ", Buf );
+    Mgrlog("AreaMgr: msgs %s ", Buf );
 }
 
 
@@ -1003,7 +1003,7 @@ int AreaMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (SearchFidonet(f->zone))
 	f->domain = xstrcpy(fidonet.domain);
 
-    Syslog('+', "AreaMgr msg from %s", ascfnode(f, 0xff));
+    Mgrlog("AreaMgr request from %s", ascfnode(f, 0xff));
 
     /*
      * If the password failed, we return silently and don't respond.

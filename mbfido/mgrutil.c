@@ -247,7 +247,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	if ((strlen(Buf) < 3) || (strlen(Buf) > 15)) {
  	    MacroVars("RABCDE", "ssssss",(char *)"ERR_PASS_LEN",(char *)"",(char *)"",(char *)"",(char *)"",(char *)"");
 	    MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
-	    Syslog('+', "XxxxMgr: Password length %d, not changed", strlen(Buf));
+	    Mgrlog("%s: Password length %d, not changed", mgr?(char *)"Filemgr":(char *)"Areamgr", strlen(Buf));
 	    return;
 	}
 
@@ -255,7 +255,7 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len, int mgr)
 	strncpy(nodes.Apasswd, tu(Buf), 15);
 	MacroVars("RABCDE", "ssssss",(char *)"OK_PASS",nodes.Apasswd,(char *)"",(char *)"",(char *)"",(char *)"");
 	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
-	Syslog('+', "XxxxMgr: Password \"%s\" for node %s", nodes.Apasswd, ascfnode(t, 0x1f));
+	Mgrlog("%s: Password \"%s\" for node %s", mgr?(char *)"Filemgr":(char *)"Areamgr", nodes.Apasswd, ascfnode(t, 0x1f));
         MacroClear();
 	UpdateNode();
 	SearchNodeFaddr(t);
@@ -283,7 +283,7 @@ void MgrNotify(faddr *t, char *Buf, FILE *tmp, int mgr)
 
 	UpdateNode();
 	SearchNodeFaddr(t);
-	Syslog('+', "XxxxMgr: Notify %s", nodes.Notify?"Yes":"No");
+	Mgrlog("%s: Notify %s", mgr?(char *)"Filemgr":(char *)"Areamgr", nodes.Notify?"Yes":"No");
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,mgr?(char *)"Filemgr":(char *)"Areamgr");
 	MacroVars("RABCDE", "sdssss",(char *)"NOTIFY",nodes.Notify,(char *)"",(char *)"",(char *)"",(char *)"");
 	MsgResult(mgr?"filemgr.responses":"areamgr.responses",tmp);
@@ -510,7 +510,7 @@ int Areas(void)
     sysconnect	System;
     faddr	*From, *To;
 
-    Syslog('+', "Process areas taglists");
+    Mgrlog("Process areas taglists");
 
     if (!do_quiet) {
 	colour(3, 0);
@@ -642,13 +642,13 @@ int Areas(void)
 					fseek(fp, - msgshdr.recsize, SEEK_CUR);
 					sprintf(temp, "%s.jhr", msgs.Base);
 					if (strlen(msgs.Base) && (file_size(temp) != 1024)) {
-					    Syslog('+', "Marking message area %d, %s read-only",
+					    Mgrlog("Marking message area %d, %s read-only",
 						    ((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1,
 						    msgs.Tag);
 					    msgs.MsgKinds = RONLY;          // Area read-only
 					    sprintf(msgs.Group, "DELETED"); // Make groupname invalid
 					} else {
-					    Syslog('+', "Removing empty message area %d, %s", 
+					    Mgrlog("Removing empty message area %d, %s", 
 						((ftell(fp) - msgshdr.hdrsize) / (msgshdr.recsize + msgshdr.syssize)) + 1, 
 						msgs.Tag);
 					    memset(&msgs, 0, sizeof(msgs));
@@ -697,7 +697,7 @@ int Areas(void)
 			    if (UplinkRequest(To, From, FALSE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
-				Syslog('+', "AreaMgr request sent to %s", aka2str(mgroup.UpLink));
+				Mgrlog("AreaMgr request sent to %s", aka2str(mgroup.UpLink));
 			    }
 			    tidy_faddr(From);
 			    tidy_faddr(To);
@@ -940,7 +940,7 @@ int Areas(void)
 			    fclose(ap);
 			    unlink(temp);
 			    rename(buf, temp);
-			    Syslog('+', "Purged %d TIC records", count);
+			    Mgrlog("Purged %d TIC records", count);
 			}
 		    }
 
@@ -955,7 +955,7 @@ int Areas(void)
 			    if (UplinkRequest(To, From, TRUE, cmd)) {
 				WriteError("Uplink request failed");
 			    } else {
-				Syslog('+', "AreaMgr request sent to %s", aka2str(fgroup.UpLink));
+				Mgrlog("AreaMgr request sent to %s", aka2str(fgroup.UpLink));
 			    }
 			    tidy_faddr(From);
 			    tidy_faddr(To);

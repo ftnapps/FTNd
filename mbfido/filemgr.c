@@ -79,7 +79,7 @@ void F_Help(faddr *t, char *replyid)
     FILE	*fp, *fi;
     char	*subject;
 
-    Syslog('+', "FileMgr: Help");
+    Mgrlog("FileMgr: Help");
     subject=calloc(255,sizeof(char));
     sprintf(subject,"FileMgr help");
     GetRpSubject("filemgr.help",subject);
@@ -130,22 +130,22 @@ void F_List(faddr *t, char *replyid, int Notify)
     MacroVars("Y", "s", ascfnode(f, 0xff));
  
     switch (Notify) {
-	case LIST_NOTIFY:   Syslog('+', "FileMgr: Notify to %s", ascfnode(t, 0xff));
+	case LIST_NOTIFY:   Mgrlog("FileMgr: Notify to %s", ascfnode(t, 0xff));
 			    sprintf(subject,"FileMgr Notify");
 			    GetRpSubject("filemgr.notify.list",subject);
 			    fi=OpenMacro("filemgr.notify.list", nodes.Language, FALSE);
 			    break;
-	case LIST_LIST:	    Syslog('+', "FileMgr: List");
+	case LIST_LIST:	    Mgrlog("FileMgr: List");
 			    sprintf(subject,"FileMgr list");
 			    GetRpSubject("filemgr.list",subject);
 			    fi=OpenMacro("filemgr.list", nodes.Language, FALSE);
 			    break;
-	case LIST_QUERY:    Syslog('+', "FileMgr: Query");
+	case LIST_QUERY:    Mgrlog("FileMgr: Query");
 			    sprintf(subject,"FileMgr Query");
 			    GetRpSubject("filemgr.query",subject);
 			    fi=OpenMacro("filemgr.query", nodes.Language, FALSE);
 			    break;
-	default:	    Syslog('+', "FileMgr: Unlinked");
+	default:	    Mgrlog("FileMgr: Unlinked");
 			    sprintf(subject,"FileMgr: Unlinked areas");
 			    GetRpSubject("filemgr.unlink",subject);
 			    fi=OpenMacro("filemgr.unlink", nodes.Language, FALSE);
@@ -296,7 +296,7 @@ void F_Status(faddr *t, char *replyid)
 
     subject = calloc(255, sizeof(char));
     sprintf(subject,"FileMgr Status");
-    Syslog('+', "FileMgr: Status");
+    Mgrlog("FileMgr: Status");
     if (Miy == 0)
 	i = 11;
     else
@@ -363,7 +363,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     faddr	*b, *Temp;
     sysconnect	Sys;
 
-    Syslog('+', "FileMgr: %s", Area);
+    Mgrlog("FileMgr: disconnect %s", Area);
     ShiftBuf(Area, 1);
     for (i = 0; i < strlen(Area); i++)
 	Area[i] = toupper(Area[i]);
@@ -389,7 +389,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NOTGROUP",Area,"","","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
+	Mgrlog("  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
     }
@@ -404,7 +404,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_BADADD",Area,ascfnode(t, 0x1f),"","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), fgroup.Name);
+	Mgrlog("  %s may not disconnect from group %s", ascfnode(t, 0x1f), fgroup.Name);
 	MacroClear();
 	return;
     }
@@ -418,7 +418,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_DISC_NC",Area,"","","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  %s is not connected to %s", ascfnode(t, 0x1f), Area);
+	Mgrlog("  %s is not connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
     }
@@ -429,7 +429,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 	 * Make sure to write an overview afterwards
 	 */
 	f_list = TRUE;
-	Syslog('+', "Disconnected file area %s", Area);
+	Mgrlog("Disconnected file area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","OK_DISC",Area,"","","","");
 	MsgResult("filemgr.responses",tmp);
@@ -440,7 +440,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
     MacroVars("RABCDE", "ssssss","ERR_DISC_NOTAVAIL",Area,"","","","");
     MsgResult("filemgr.responses",tmp);
-    Syslog('+', "Didn't disconnect %s from mandatory file area %s", ascfnode(t, 0x1f), Area);
+    Mgrlog("Didn't disconnect %s from mandatory file area %s", ascfnode(t, 0x1f), Area);
     MacroClear();
 }
 
@@ -455,7 +455,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     sysconnect	Sys;
     FILE	*gp;
 
-    Syslog('+', "FileMgr: %s", Area);
+    Mgrlog("FileMgr: connect %s", Area);
 
     if (Area[0] == '+')
 	ShiftBuf(Area, 1);
@@ -501,7 +501,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
 	    MacroVars("RABCDE", "ssssss","ERR_CONN_NOTFOUND",Area,"","","","");
 	    MsgResult("filemgr.responses",tmp);
-	    Syslog('+', "Area %s not found", Area);
+	    Mgrlog("Area %s not found", Area);
 	    MacroClear();
 	    return;
 	}
@@ -519,7 +519,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop, "Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_NOTGROUP",Area,"","","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
+	Mgrlog("  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
 	MacroClear();
 	return;
     }
@@ -534,7 +534,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_BADADD",Area,ascfnode(t, 0x1f),"","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  Node %s may not connect to group %s", ascfnode(t, 0x1f), fgroup.Name);
+	Mgrlog("  Node %s may not connect to group %s", ascfnode(t, 0x1f), fgroup.Name);
 	MacroClear();
 	return;
     }
@@ -547,7 +547,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","ERR_CONN_ALREADY",Area,"","","","");
 	MsgResult("filemgr.responses",tmp);
-	Syslog('+', "  %s is already connected to %s", ascfnode(t, 0x1f), Area);
+	Mgrlog("  %s is already connected to %s", ascfnode(t, 0x1f), Area);
 	MacroClear();
 	return;
     }
@@ -558,7 +558,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 	 * Make sure to write an overview afterwards
 	 */
 	f_list = TRUE;
-	Syslog('+', "Connected to file area %s", Area);
+	Mgrlog("Connected to file area %s", Area);
 	MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 	MacroVars("RABCDE", "ssssss","OK_CONN",Area,aka2str(tic.Aka),"","","");
 	MsgResult("filemgr.responses",tmp);
@@ -586,14 +586,14 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 
     if (Grp == NULL) {
 	if (Connect)
-	    Syslog('+', "FileMgr: Connect All");
+	    Mgrlog("FileMgr: Connect All");
 	else
-	    Syslog('+', "FileMgr: Disconnect All");
+	    Mgrlog("FileMgr: Disconnect All");
     } else {
 	if (Connect)
-	    Syslog('+', "FileMgr: Connect group %s", Grp);
+	    Mgrlog("FileMgr: Connect group %s", Grp);
 	else
-	    Syslog('+', "FileMgr: Disconnect group %s", Grp);
+	    Mgrlog("FileMgr: Disconnect group %s", Grp);
     }
 
     f = bestaka_s(t);
@@ -654,7 +654,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 					Sys.sendto = TRUE;
 					fseek(fp, - sizeof(Sys), SEEK_CUR);
 					fwrite(&Sys, sizeof(Sys), 1, fp);
-					Syslog('+', "FileMgr: Connected %s", tic.Name);
+					Mgrlog("FileMgr: Connected %s", tic.Name);
 					MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 		    			MacroVars("RABCDE", "ssssss","OK_CONN",tic.Name,aka2str(tic.Aka),"","","");
 		    			MsgResult("filemgr.responses",tmp);
@@ -674,7 +674,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 				    memset(&Sys, 0, sizeof(Sys));
 				    fseek(fp, - sizeof(Sys), SEEK_CUR);
 				    fwrite(&Sys, sizeof(Sys), 1, fp);
-				    Syslog('+', "FileMgr: Disconnected %s", tic.Name);
+				    Mgrlog("FileMgr: Disconnected %s", tic.Name);
 				    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
 		    		    MacroVars("RABCDE", "ssssss","OK_DISC",tic.Name,"","","","");
 		    		    MsgResult("filemgr.responses",tmp);
@@ -720,9 +720,9 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
     char	*temp;
     
     if (Pause)
-	Syslog('+', "FileMgr: Pause");
+	Mgrlog("FileMgr: Pause");
     else
-	Syslog('+', "FileMgr: Resume");
+	Mgrlog("FileMgr: Resume");
 
     f = bestaka_s(t);
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
@@ -746,7 +746,7 @@ void F_Pause(faddr *t, int Pause, FILE *tmp)
 		    Sys.pause = Pause;
 		    fseek(fp, - sizeof(Sys), SEEK_CUR);
 		    fwrite(&Sys, sizeof(Sys), 1, fp);
-		    Syslog('+', "FileMgr: %s area %s",  Pause?"Pause":"Resume", tic.Name);
+		    Mgrlog("FileMgr: %s area %s",  Pause?"Pause":"Resume", tic.Name);
 		    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"FileMgr");
 		    MacroVars("RABCDE", "ssdsss","OK_PAUSE",tic.Name,Pause,"","","");
 		    MsgResult("filemgr.responses",tmp);
@@ -777,7 +777,7 @@ void F_Message(faddr *t, char *Buf, FILE *tmp)
 
     UpdateNode();
     SearchNodeFaddr(t);
-    Syslog('+', "FileMgr: Message %s", nodes.Message?"Yes":"No");
+    Mgrlog("FileMgr: Message %s", nodes.Message?"Yes":"No");
     MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
     MacroVars("RABCDE", "sdssss","OK_MESSAGE",nodes.Message,"","","","");
     MsgResult("filemgr.responses",tmp);
@@ -803,7 +803,7 @@ void F_Tick(faddr *t, char *Buf, FILE *tmp)
 
     UpdateNode();
     SearchNodeFaddr(t);
-    Syslog('+', "FileMgr: Tick %s, Advanced %s", nodes.Tic?"Yes":"No", nodes.AdvTic?"Yes":"No");
+    Mgrlog("FileMgr: Tick %s, Advanced %s", nodes.Tic?"Yes":"No", nodes.AdvTic?"Yes":"No");
     if (nodes.Tic)
 	if (nodes.AdvTic){
 	    MacroVars("SsP", "sss", CFG.sysop_name, nodes.Sysop,"Filemgr");
@@ -834,13 +834,14 @@ int FileMgr(faddr *f, faddr *t, char *replyid, char *subj, time_t mdate, int fla
     if (SearchFidonet(f->zone))
 	f->domain = xstrcpy(fidonet.domain);
 
-    Syslog('+', "FileMgr msg from %s", ascfnode(f, 0xff));
+    Mgrlog("FileMgr request from %s", ascfnode(f, 0xff));
 
     /*
      * If the password failed, we return silently and don't respond.
      */
     if ((!strlen(subj)) || (strcasecmp(subj, nodes.Fpasswd))) {
 	WriteError("FileMgr: password expected \"%s\", got \"%s\"", nodes.Fpasswd, subj);
+	Mgrlog("FileMgr: password expected \"%s\", got \"%s\"", nodes.Fpasswd, subj);
 	net_bad++;
 	return FALSE;
     }

@@ -70,10 +70,6 @@ mbfido:
 
 	N: Add macro's for stats of all months.
 
-	L: A separate log for processed area/filemgr requests.
-
-	N: Add logging info about added/removed areas.
-
 	L: Implement netmail K/S flag to mark netmail Deleted.
 
 	N: Implement file requests for directory nodes.

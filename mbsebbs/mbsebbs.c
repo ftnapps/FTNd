@@ -105,8 +105,7 @@ int main(int argc, char **argv)
 	 * Initialize this client with the server. 
 	 */
 	do_quiet = TRUE;
-	InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", 
-		CFG.logfile, CFG.bbs_loglevel, CFG.error_log);
+	InitClient(sUnixName, (char *)"mbsebbs", (char *)"Unknown", CFG.logfile, CFG.bbs_loglevel, CFG.error_log, CFG.mgrlog);
 	IsDoing("Loging in");
 
 	Syslog(' ', " ");

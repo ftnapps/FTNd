@@ -3,6 +3,7 @@ $Id$
 WARNING: Extra debug logging enabled for checking internet news dupes.
          This will just make bigger logfiles if you gate news.
 	 Since 28-08-2002 mbfido news produces real big logs!!
+	 Extra debug logging will be removed around 14 Oct 2002.
 
 
 				MBSEBBS History.
@@ -17,12 +18,17 @@ v0.35.03	06-Jul-2002
 		After installation restart mbtask.
 		Start mbsetup, enter global configuration and exit and save.
 		This will setup the new outbound queue path, default is
-		/opt/mbse/var/queue.
+		/opt/mbse/var/queue. This will also set defaults for area-
+		filemgr logging and security.
 
 	common.a:
 		Added nodelist override to the nodelist lookup function.
 		Added protection against emty rfc headers with only a space.
 		Added test for HA archiver.
+
+	clcomm.a:
+		Added Mgrlog function, logs default to manager.log. Does also
+		log to Syslog with level '+'.
 
 	mbinet.a:
 		If during a connect a newsserver refuses the connection then
@@ -70,6 +76,8 @@ v0.35.03	06-Jul-2002
 		made, this must prevent destroying a another lock.
 		Added extra check to unlock directory function to check that
 		only the owned lock is removed.
+		Area- and FileMgr requests are now also logged in manager.log
+		Auto created and removed areas are also logged in manager.log
 
 	newuser:
 		Check for Unix accounts is now case sensitive.
@@ -117,6 +125,7 @@ v0.35.03	06-Jul-2002
 		Added setup setting for outbound queue in global setup.
 		Added support for default setup of the HA archiver.
 		Changed Rubout key to do the same as Backspace. (experimental)
+		Added setup to the nodes record for security flags.
 
 	mbmon:
 		Changed Rubout key to do the same as Backspace. (experimental)

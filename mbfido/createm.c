@@ -264,9 +264,9 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		free(buf);
 		free(temp);
 		if (f == NULL)
-		    Syslog('+', "Auto created echo %s, group %s, area %ld", msgs.Tag, msgs.Group, offset);
+		    Mgrlog("Auto created echo %s, group %s, area %ld", msgs.Tag, msgs.Group, offset);
 		else
-		    Syslog('+', "Auto created echo %s, group %s, area %ld, for node %s",
+		    Mgrlog("Auto created echo %s, group %s, area %ld, for node %s",
 			msgs.Tag, msgs.Group, offset, ascfnode(f , 0x1f));
 		return 0;
 	    } /* if (strcmp(tag, Area) == 0) */
