@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/postecho.c
  * Purpose ...............: Post echomail message.
- * Last modification date : 29-Aug-2001
+ * Last modification date : 01-Sep-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -499,11 +499,12 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 	/*
 	 * Import this echomail, even if it's bad or a dupe.
 	 */
-	if (storeecho(f, t, mdate, flags, subj, msgid, reply, bad, dupe, nfp) || bad || dupe) {
+	if ((rc = storeecho(f, t, mdate, flags, subj, msgid, reply, bad, dupe, nfp)) || bad || dupe) {
 		/*
-		 *  Store failed or it was bad or a dupe.
+		 *  Store failed or it was bad or a dupe. Only log failed store.
 		 */
-		WriteError("Store echomail in JAM base failed");
+		if (rc)
+			WriteError("Store echomail in JAM base failed");
 		tidy_falist(&sbl);
 		tidy_falist(&ptl);
 		tidy_qualify(&qal);
@@ -512,7 +513,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 			free(msgid);
 		if (reply)
 			free(reply);
-		return 0;
+		return rc;
 	}
 
 	/*
