@@ -123,7 +123,7 @@ void set_next(int hour, int min)
 #if defined(__OpenBSD__)
     gmtime_r(&now, &etm);
 #else
-    etm = gmtime(&now);
+    etm = *gmtime(&now);
 #endif
     uhour = etm.tm_hour; /* For some reason, these intermediate integers are needed */
     umin  = etm.tm_min;

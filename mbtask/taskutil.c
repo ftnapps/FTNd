@@ -272,7 +272,7 @@ void CreateSema(char *sem)
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
     if (access(temp, F_OK) == 0)
 	return;
-    if ((fp = fopen(temp, "w"))) {
+    if ((fp = fopen(temp, "w")))
 	fclose(fp);
     else
         Syslog('?', "Can't create semafore %s", temp);
@@ -286,9 +286,9 @@ void TouchSema(char *sem)
     FILE    *fp;
 
     sprintf(temp, "%s/var/sema/%s", getenv("MBSE_ROOT"), sem);
-    if ((fp = fopen(temp, "w"))) {
+    if ((fp = fopen(temp, "w")))
 	fclose(fp);
-    } else
+    else
         Syslog('?', "Can't touch semafore %s", temp);
 }
 
