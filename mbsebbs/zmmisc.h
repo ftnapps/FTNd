@@ -120,7 +120,6 @@
 /* Parameters for ZCOMMAND frame ZF0 (otherwise 0) */
 #define ZCACK1  1       /* Acknowledge, then do command */
 
-
 /* Globals used by ZMODEM functions */
 int  Rxframeind;        /* ZBIN ZBIN32, or ZHEX type of frame */
 int  Rxtype;            /* Type of header received */
@@ -159,6 +158,8 @@ int	zdlread(void);
 void	stohdr(long);
 long	rclhdr(register char *);
 void	zsendline_init(void);
+char	*protname(void);
+
 
 #define FTOFFSET 16
 

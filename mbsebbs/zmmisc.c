@@ -72,8 +72,8 @@ static inline void zsendline_s(const char *, int);
 /* 
  * Original zm.c timing was in tenths of seconds, but our current ttyio driver
  * does timing in whole seconds.
- */
-static int Rxtimeout = 10;	/* Seconds to wait for something */
+ */ 
+int Rxtimeout = 10;      /* Seconds to wait for something */
 char *txbuf=NULL;
 static int lastsent;		/* Last char we sent */
 static int Not8bit;		/* Seven bits seen on header */
@@ -952,5 +952,25 @@ long rclhdr(register char *shdr)
     l = (l << 8) | (shdr[ZP0] & 0377);
     return l;
 }
+
+
+char *protname(void)
+{
+    const char *prot_name;
+    
+    switch(protocol) {
+	case ZM_XMODEM:
+			prot_name = (char *)"Xmodem"; 
+			break;
+	case ZM_YMODEM:
+			prot_name = (char *)"Ymodem"; 
+			break;
+	default: 
+			prot_name = (char *)"Zmodem";
+			break;
+    }
+    return prot_name;
+}
+
 
 /* End of zmmisc.c */

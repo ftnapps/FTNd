@@ -132,6 +132,8 @@ dispfile.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h ../lib/msg
 userlist.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h userlist.h language.h input.h timeout.h term.h ttyio.h
 timestats.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h timestats.h funcs.h language.h input.h exitinfo.h term.h
 logentry.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ../lib/users.h logentry.h
+ymsend.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ymsend.h ttyio.h zmmisc.h transfer.h openport.h timeout.h term.h
+ymrecv.o: ../config.h ../lib/mbselib.h ../lib/mbse.h ymrecv.h
 zmmisc.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h
 zmsend.o: ../config.h ../lib/mbselib.h ttyio.h zmmisc.h transfer.h openport.h timeout.h
 zmrecv.o: ../config.h ../lib/mbselib.h ../lib/users.h ttyio.h transfer.h zmmisc.h zmrecv.h openport.h timeout.h input.h
