@@ -4,7 +4,7 @@
  * Purpose ...............: Read mailer last call status
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -41,95 +41,92 @@ extern struct sysconfig        CFG;
 char *stsname(faddr *);
 char *stsname(faddr *addr)
 {
-	static char	buf[PATH_MAX];
-	char		*p, *domain=NULL;
-	char		zpref[8];
-	int		i;
+    static char	buf[PATH_MAX];
+    char	*p, *domain=NULL, zpref[8];
+    int		i;
 
-	sprintf(buf, "%s", CFG.outbound);
+    sprintf(buf, "%s", CFG.outbound);
 
-	if (CFG.addr4d) {
-		if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
-			zpref[0] = '\0';
-		else
-			sprintf(zpref, ".%03x", addr->zone);
-	} else {
-		/*
-		 * If we got a 5d address we use the given domain, if
-		 * we got a 4d address, we look for a matching domain name.
-		 */
-		if (addr->domain)
-			domain = xstrcpy(addr->domain);
-		else
-			for (i = 0; i < 40; i++)
-				if (CFG.aka[i].zone == addr->zone) {
-					domain = xstrcpy(CFG.aka[i].domain);
-					break;
-				}
-
-		if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) &&
-		    (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
-			if ((p = strrchr(buf,'/'))) 
-				p++;
-			else 
-				p = buf;
-			strcpy(p, domain);
-			for (; *p; p++) 
-				*p = tolower(*p);
-			for (i = 0; i < 40; i++)
-				if ((strlen(CFG.aka[i].domain)) &&
-				   (strcasecmp(CFG.aka[i].domain, domain) == 0))
-					break;
-
-			/*
-			 * The default zone must be the first one in the
-			 * setup, other zones get the hexadecimal zone
-			 * number appended.
-			 */
-			if (CFG.aka[i].zone == addr->zone)
-				zpref[0] = '\0';
-			else
-				sprintf(zpref, ".%03x", addr->zone);
-		} else {
-			/*
-			 * this is our primary domain
-			 */
-			if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
-				zpref[0]='\0';
-			else 
-				sprintf(zpref,".%03x",addr->zone);
-		}
-	}
-
-	p = buf + strlen(buf);
-
-	if (addr->point)
-		sprintf(p,"%s/%04x%04x.pnt/%08x.sts", zpref,addr->net,addr->node,addr->point);
+    if (CFG.addr4d) {
+	if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
+	    zpref[0] = '\0';
 	else
-		sprintf(p,"%s/%04x%04x.sts",zpref,addr->net,addr->node);
+	    sprintf(zpref, ".%03x", addr->zone);
+    } else {
+	/*
+	 * If we got a 5d address we use the given domain, if
+	 * we got a 4d address, we look for a matching domain name.
+	 */
+	if (addr->domain)
+	    domain = xstrcpy(addr->domain);
+	else
+	    for (i = 0; i < 40; i++)
+		if (CFG.aka[i].zone == addr->zone) {
+		    domain = xstrcpy(CFG.aka[i].domain);
+		    break;
+		}
 
-	if (domain)
-		free(domain);
-	return buf;
+	if ((domain != NULL) && (strlen(CFG.aka[0].domain) != 0) && (strcasecmp(domain,CFG.aka[0].domain) != 0)) {
+	    if ((p = strrchr(buf,'/'))) 
+		p++;
+	    else 
+		p = buf;
+	    strcpy(p, domain);
+	    for (; *p; p++) 
+		*p = tolower(*p);
+	    for (i = 0; i < 40; i++)
+		if ((strlen(CFG.aka[i].domain)) && (strcasecmp(CFG.aka[i].domain, domain) == 0))
+		    break;
+
+	    /*
+	     * The default zone must be the first one in the
+	     * setup, other zones get the hexadecimal zone
+	     * number appended.
+	     */
+	    if (CFG.aka[i].zone == addr->zone)
+		zpref[0] = '\0';
+	    else
+		sprintf(zpref, ".%03x", addr->zone);
+	} else {
+	    /*
+	     * this is our primary domain
+	     */
+	    if ((addr->zone == 0) || (addr->zone == CFG.aka[0].zone))
+		zpref[0]='\0';
+	    else 
+		sprintf(zpref,".%03x",addr->zone);
+	}
+    }
+
+    p = buf + strlen(buf);
+
+    if (addr->point)
+	sprintf(p,"%s/%04x%04x.pnt/%08x.sts", zpref,addr->net,addr->node,addr->point);
+    else
+	sprintf(p,"%s/%04x%04x.sts",zpref,addr->net,addr->node);
+
+    if (domain)
+	free(domain);
+    return buf;
 }
 
 
 
 callstat *getstatus(faddr *addr)
 {
-	static callstat	cst;
-	FILE		*fp;
+    static callstat cst;
+    FILE	    *fp;
 
-	cst.trytime = 0L;
-	cst.tryno   = 0;
-	cst.trystat = 0;
-	
-	if ((fp = fopen(stsname(addr), "r"))) {
-		fread(&cst, sizeof(callstat), 1, fp);
-		fclose(fp);
-	}
+    cst.trytime = 0L;
+    cst.tryno   = 0;
+    cst.trystat = 0;
 
-	return &cst;
+    if ((fp = fopen(stsname(addr), "r"))) {
+	fread(&cst, sizeof(callstat), 1, fp);
+	fclose(fp);
+    }
+
+    return &cst;
 }
 
 

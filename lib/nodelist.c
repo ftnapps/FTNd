@@ -117,7 +117,6 @@ static int getkwd(char **dest)
     (*tmpm)->name = xstrcpy(v);
     tmp = strtoul(p, NULL, 0);
     (*tmpm)->value = tmp;
-//  Syslog('n', "getkwd: %s(%d): \"%s\" \"%s\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name, (*tmpm)->value);
     
     return 0;
 }
@@ -161,8 +160,6 @@ static int getmdm(char **dest)
     tmp2 = strtoul(q, NULL, 0);
     (*tmpm)->mask = tmp1;
     (*tmpm)->value = tmp2;
-//  Syslog('n', "getmdm: %s(%d): \"%s\" \"%s\" \"%08x\" \"%08x\"", nlpath, linecnt, MBSE_SS(k), 
-//	    (*tmpm)->name, (*tmpm)->mask, (*tmpm)->value);
 
     return 0;
 }
@@ -185,7 +182,6 @@ static int getarr(char **dest)
     (*tmpm) = (nodelist_array *) xmalloc(sizeof(nodelist_array));
     (*tmpm)->next = NULL;
     (*tmpm)->name = xstrcpy(v);
-//  Syslog('n', "getarr: %s(%d): \"%s\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->name);
     return 0;
 }
 
@@ -216,7 +212,6 @@ static int getdom(char **dest)
     tmp = strtod(v, NULL);
     (*tmpm)->zone = tmp;
     (*tmpm)->name = xstrcpy(p);
-//  Syslog('n', "getdom: %s(%d): \"%s\" \"%d\" \"%s\"", nlpath, linecnt, MBSE_SS(k), (*tmpm)->zone, (*tmpm)->name);
 
     return 0;
 }
@@ -259,8 +254,6 @@ static int getsrv(char **dest)
     (*tmpm)->service = xstrcpy(p);
     tmp = strtoul(q, NULL, 0);
     (*tmpm)->port = tmp;
-//  Syslog('n', "getsrv: %s(%d): \"%s\" \"%s\" \"%s\" \"%d\"", nlpath, linecnt, MBSE_SS(k),
-//	    (*tmpm)->flag, (*tmpm)->service, (*tmpm)->port);
     return 0;
 }
 
@@ -459,8 +452,6 @@ int initnl(void)
 		continue;
 	    }
 	    
-//	    Syslog('n', "\"%s\" \"%s\" - parsed", MBSE_SS(k), MBSE_SS(v));
-
 	    for (i = 0; keytab[i].key; i++)
 		if (strcasecmp(k,keytab[i].key) == 0)
 		    break;
@@ -636,12 +627,18 @@ node *getnlent(faddr *addr)
 	fread(&fidonethdr, sizeof(fidonethdr), 1, fp);
 	while (fread(&fidonet, fidonethdr.recsize, 1, fp) == 1) {
 	    for (i = 0; i < 6; i++) {
-		if (addr->zone == fidonet.zone[i])
+		if (addr->zone == fidonet.zone[i]) {
 		    nodebuf.addr.domain = xstrcpy(fidonet.domain);
+		    Found = TRUE;
+		    break;
+		}
 	    }
+	    if (Found)
+		break;
 	}
 	fclose(fp);
     }
+    Found = FALSE;
 
     /*
      *  First, lookup node in index. NOTE -- NOT 5D YET
@@ -735,7 +732,6 @@ node *getnlent(faddr *addr)
 		if ((addr->zone == nd.Aka[i].zone) && (addr->net == nd.Aka[i].net) &&
 		    (addr->node == nd.Aka[i].node) && (addr->point == nd.Aka[i].point)) {
 		    ndrecord = TRUE;
-		    Syslog('n', "getnlent: node record is present");
 		    break;
 		}
 	    }
@@ -783,7 +779,7 @@ node *getnlent(faddr *addr)
     if ((q=strchr(p,','))) 
 	*q++ = '\0';
     if (ndrecord && strlen(nd.Nl_hostname)) {
-	Syslog('n', "getnlent: system name override with %s", nd.Nl_hostname);
+	Syslog('+', "getnlent: %s system name override with %s", ascfnode(addr,0xff), nd.Nl_hostname);
 	nodebuf.name = nd.Nl_hostname;
     } else
 	nodebuf.name = p;
@@ -843,7 +839,7 @@ node *getnlent(faddr *addr)
      * Process the nodelist flags.
      */
     if (ndrecord && strlen(nd.Nl_flags)) {
-	Syslog('n', "getnlent: flags override %s", nd.Nl_flags);
+	Syslog('+', "getnlent: %s flags override %s", ascfnode(addr,0xff), nd.Nl_flags);
 	q = nd.Nl_flags;
     }
     ixflag = 0;
@@ -900,7 +896,7 @@ node *getnlent(faddr *addr)
 	    break;
 	}
 	/*
-	 * Linse starting with ;E space are real errors.
+	 * Lines starting with ;E space are real errors.
 	 */
 	if (strncmp(ebuf, (char *)";E ", 3) == 0)
 	    break;
@@ -1011,7 +1007,6 @@ node *getnlent(faddr *addr)
 		    for (p = q; p; p = q) {
 			if ((q = strchr(p, ',')))
 		            *q++ = '\0';
-			Syslog('n', "\"%s\"", MBSE_SS(p));
 			if ((r = strchr(p, ':'))) {
 			    r++;
 			    /*

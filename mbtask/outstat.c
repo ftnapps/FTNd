@@ -4,7 +4,7 @@
  * Purpose ...............: mbtask - Scan mail outbound status
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -395,7 +395,6 @@ int outstat()
 	    else
 		tmin = 30;
 	    sprintf(be, "%02d:%02d", thour, tmin);
-//	    Syslog('o', "Setting next hour for Txx node at %s", be);
 	    set_next(thour, tmin);
 	    if (strcmp(as, be) > 0) {
 		/*
@@ -592,142 +591,142 @@ int outstat()
 
 int each(faddr *addr, char flavor, int isflo, char *fname)
 {
-	struct		_alist **tmp;
-	struct		stat st;
-	FILE		*fp;
-	char		buf[256], *p;
-	node		*nlent;
-	callstat	*cst;
+    struct _alist   **tmp;
+    struct stat	    st;
+    FILE	    *fp;
+    char	    buf[256], *p;
+    node	    *nlent;
+    callstat	    *cst;
 
-	if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL) && (isflo != OUT_FIL))
-		return 0;
-
-	for (tmp = &alist; *tmp; tmp = &((*tmp)->next))
-		if (((*tmp)->addr.zone  == addr->zone) && ((*tmp)->addr.net   == addr->net) &&
-		    ((*tmp)->addr.node  == addr->node) && ((*tmp)->addr.point == addr->point) &&
-		    (((*tmp)->addr.domain == NULL) || (addr->domain == NULL) ||
-		     (strcasecmp((*tmp)->addr.domain,addr->domain) == 0)))
-			break;
-	if (*tmp == NULL) {
-		Syslog('-', "%s", ascfnode(addr, 0xff));
-		nlent = getnlent(addr);
-		*tmp = (struct _alist *)malloc(sizeof(struct _alist));
-		(*tmp)->next = NULL;
-		(*tmp)->addr.zone   = addr->zone;
-		(*tmp)->addr.net    = addr->net;
-		(*tmp)->addr.node   = addr->node;
-		(*tmp)->addr.point  = addr->point;
-		sprintf((*tmp)->addr.domain, "%s", addr->domain);
-		if (nlent->addr.domain)
-			free(nlent->addr.domain);
-		(*tmp)->flavors = 0;
-		if (nlent->pflag != NL_DUMMY) {
-			(*tmp)->olflags = nlent->oflags;
-			(*tmp)->moflags = nlent->mflags;
-			(*tmp)->diflags = nlent->dflags;
-			(*tmp)->ipflags = nlent->iflags;
-			(*tmp)->t1 = nlent->t1;
-			(*tmp)->t2 = nlent->t2;
-		} else {
-			(*tmp)->olflags = 0L;
-			(*tmp)->moflags = 0L;
-			(*tmp)->diflags = 0L;
-			(*tmp)->ipflags = 0L;
-			(*tmp)->t1 = '\0';
-			(*tmp)->t2 = '\0';
-		}
-		(*tmp)->time = time(NULL);
-		(*tmp)->size = 0L;
-	}
-
-	cst = getstatus(addr);
-	(*tmp)->cst.trytime = cst->trytime;
-	(*tmp)->cst.tryno   = cst->tryno;
-	(*tmp)->cst.trystat = cst->trystat;
-
-	if ((isflo == OUT_FLO) || (isflo == OUT_PKT) || (isflo == OUT_FIL)) 
-		switch (flavor) {
-			case '?':	break;
-			case 'i':	(*tmp)->flavors |= F_IMM; break;
-			case 'o':	(*tmp)->flavors |= F_NORMAL; break;
-			case 'c':	(*tmp)->flavors |= F_CRASH; break;
-			case 'h':	(*tmp)->flavors |= F_HOLD; break;
-			default:	Syslog('?', "Unknown flavor: '%c'\n",flavor); break;
-		}
-
-	if (stat(fname,&st) != 0) {
-		Syslog('?', "$Can't stat %s", fname);
-		st.st_size  = 0L;
-		st.st_mtime = time(NULL);
-	}
-
-	/*
-	 * Find the oldest time
-	 */
-	if (st.st_mtime < (*tmp)->time) 
-		(*tmp)->time = st.st_mtime;
-
-	if (isflo == OUT_FLO) {
-		(*tmp)->flavors |= F_ISFLO;
-		if ((fp = fopen(fname,"r"))) {
-			while (fgets(buf, sizeof(buf) - 1, fp)) {
-				if (*(p = buf + strlen(buf) - 1) == '\n') 
-					*p-- = '\0';
-				while (isspace(*p)) 
-					*p-- = '\0';
-				for (p = buf; *p; p++) 
-					if (*p == '\\') 
-						*p='/';
-				for (p = buf; *p && isspace(*p); p++);
-				if (*p == '~') continue;
-				if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@')) 
-					p++;
-				if (stat(p, &st) != 0) {
-					if (strlen(CFG.dospath)) {
-						if (stat(Dos2Unix(p), &st) != 0) {
-							/*
-							 * Fileattach dissapeared, maybe
-							 * the node doesn't poll enough and
-							 * is losing mail or files.
-							 */
-							st.st_size  = 0L;
-							st.st_mtime = time(NULL);
-						}
-					} else {
-						if (stat(p, &st) != 0) {
-							st.st_size  = 0L;
-							st.st_mtime = time(NULL);
-						}
-					}
-				}
-
-				if ((p = strrchr(fname,'/'))) 
-					p++;
-				else 
-					p = fname;
-				if ((strlen(p) == 12) && (strspn(p,"0123456789abcdefABCDEF") == 8) && (p[8] == '.')) {
-					if (st.st_mtime < (*tmp)->time) 
-						(*tmp)->time = st.st_mtime;
-				}
-				(*tmp)->size += st.st_size;
-			}
-			fclose(fp);
-		} else 
-			Syslog('?', "Can't open %s", fname);
-
-	} else if (isflo == OUT_PKT) {
-		(*tmp)->size += st.st_size;
-		(*tmp)->flavors |= F_ISPKT;
-	} else if (isflo == OUT_REQ) {
-		(*tmp)->flavors |= F_FREQ;
-	} else if (isflo == OUT_POL) {
-		(*tmp)->flavors |= F_POLL;
-	} else if (isflo == OUT_FIL) {
-		(*tmp)->size += st.st_size;
-		(*tmp)->flavors |= F_ISFIL;
-	}
-
+    if ((isflo != OUT_PKT) && (isflo != OUT_FLO) && (isflo != OUT_REQ) && (isflo != OUT_POL) && (isflo != OUT_FIL))
 	return 0;
+
+    for (tmp = &alist; *tmp; tmp = &((*tmp)->next))
+	if (((*tmp)->addr.zone  == addr->zone) && ((*tmp)->addr.net   == addr->net) &&
+	    ((*tmp)->addr.node  == addr->node) && ((*tmp)->addr.point == addr->point) &&
+	    (((*tmp)->addr.domain == NULL) || (addr->domain == NULL) ||
+	    (strcasecmp((*tmp)->addr.domain,addr->domain) == 0)))
+	    break;
+    if (*tmp == NULL) {
+	nlent = getnlent(addr);
+	*tmp = (struct _alist *)malloc(sizeof(struct _alist));
+	(*tmp)->next = NULL;
+	(*tmp)->addr.zone   = addr->zone;
+	(*tmp)->addr.net    = addr->net;
+	(*tmp)->addr.node   = addr->node;
+	(*tmp)->addr.point  = addr->point;
+	sprintf((*tmp)->addr.domain, "%s", addr->domain);
+	if (nlent->addr.domain)
+	    free(nlent->addr.domain);
+	(*tmp)->flavors = 0;
+	if (nlent->pflag != NL_DUMMY) {
+	    (*tmp)->olflags = nlent->oflags;
+	    (*tmp)->moflags = nlent->mflags;
+	    (*tmp)->diflags = nlent->dflags;
+	    (*tmp)->ipflags = nlent->iflags;
+	    (*tmp)->t1 = nlent->t1;
+	    (*tmp)->t2 = nlent->t2;
+	} else {
+	    (*tmp)->olflags = 0L;
+	    (*tmp)->moflags = 0L;
+	    (*tmp)->diflags = 0L;
+	    (*tmp)->ipflags = 0L;
+	    (*tmp)->t1 = '\0';
+	    (*tmp)->t2 = '\0';
+	}
+	(*tmp)->time = time(NULL);
+	(*tmp)->size = 0L;
+    }
+
+    cst = getstatus(addr);
+    (*tmp)->cst.trytime = cst->trytime;
+    (*tmp)->cst.tryno   = cst->tryno;
+    (*tmp)->cst.trystat = cst->trystat;
+
+    if ((isflo == OUT_FLO) || (isflo == OUT_PKT) || (isflo == OUT_FIL)) 
+	switch (flavor) {
+	    case '?':	break;
+	    case 'i':	(*tmp)->flavors |= F_IMM; break;
+	    case 'o':	(*tmp)->flavors |= F_NORMAL; break;
+	    case 'c':	(*tmp)->flavors |= F_CRASH; break;
+	    case 'h':	(*tmp)->flavors |= F_HOLD; break;
+	    default:	Syslog('?', "Unknown flavor: '%c'\n",flavor); break;
+	}
+
+    if (stat(fname,&st) != 0) {
+	Syslog('?', "$Can't stat %s", fname);
+	st.st_size  = 0L;
+	st.st_mtime = time(NULL);
+    }
+
+    /*
+     * Find the oldest time
+     */
+    if (st.st_mtime < (*tmp)->time) 
+	(*tmp)->time = st.st_mtime;
+
+    if (isflo == OUT_FLO) {
+	(*tmp)->flavors |= F_ISFLO;
+	if ((fp = fopen(fname,"r"))) {
+	    while (fgets(buf, sizeof(buf) - 1, fp)) {
+		if (*(p = buf + strlen(buf) - 1) == '\n') 
+		    *p-- = '\0';
+		while (isspace(*p)) 
+		    *p-- = '\0';
+		for (p = buf; *p; p++) 
+		    if (*p == '\\') 
+			*p='/';
+		for (p = buf; *p && isspace(*p); p++);
+		    if (*p == '~') 
+			continue;
+		if ((*p == '#') || (*p == '-') || (*p == '^') || (*p == '@')) 
+		    p++;
+		if (stat(p, &st) != 0) {
+		    if (strlen(CFG.dospath)) {
+			if (stat(Dos2Unix(p), &st) != 0) {
+			    /*
+			     * Fileattach dissapeared, maybe
+			     * the node doesn't poll enough and
+			     * is losing mail or files.
+			     */
+			    st.st_size  = 0L;
+			    st.st_mtime = time(NULL);
+			}
+		    } else {
+			if (stat(p, &st) != 0) {
+			    st.st_size  = 0L;
+			    st.st_mtime = time(NULL);
+			}
+		    }
+		}
+
+		if ((p = strrchr(fname,'/'))) 
+		    p++;
+		else 
+		    p = fname;
+		if ((strlen(p) == 12) && (strspn(p,"0123456789abcdefABCDEF") == 8) && (p[8] == '.')) {
+		    if (st.st_mtime < (*tmp)->time) 
+			(*tmp)->time = st.st_mtime;
+		}
+		(*tmp)->size += st.st_size;
+	    }
+	    fclose(fp);
+	} else 
+	    Syslog('?', "Can't open %s", fname);
+
+    } else if (isflo == OUT_PKT) {
+	(*tmp)->size += st.st_size;
+	(*tmp)->flavors |= F_ISPKT;
+    } else if (isflo == OUT_REQ) {
+	(*tmp)->flavors |= F_FREQ;
+    } else if (isflo == OUT_POL) {
+	(*tmp)->flavors |= F_POLL;
+    } else if (isflo == OUT_FIL) {
+	(*tmp)->size += st.st_size;
+	(*tmp)->flavors |= F_ISFIL;
+    }
+
+    return 0;
 }
 
 
