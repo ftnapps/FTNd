@@ -1,11 +1,13 @@
 $Id$
 
-	!!!! DON'T USE, THIS VERSION HAS LOTS OF BUGS !!!!
-	==================================================
-	But if you don't use the bbs then you may be safe.
 
+v0.71.1		28-Nov-2004
 
-v0.71.0		27-Oct-2004
+v0.71.0		27-Oct-2004 - 28-Nov-2004
+
+	upgrade:
+		Start mbsetup and leave.
+		You might want to check menu 8.5, file transfer protocols.
 
 	general:
 		From filetranfer records removed the batch and bidirectional
