@@ -34,6 +34,7 @@
 #include "../lib/mbsedb.h"
 #include "tic.h"
 #include "fsort.h"
+#include "qualify.h"
 #include "addbbs.h"
 
 
@@ -55,6 +56,7 @@ int Add_BBS()
     char		    temp1[PATH_MAX], temp2[PATH_MAX], *fname, *lname, *p;
     fd_list		    *fdl = NULL;
     struct _fdbarea	    *fdb_area = NULL;
+    qualify		    *tmpq;
 
     /*
      * First check for an existing record with the same filename,
@@ -273,20 +275,29 @@ int Add_BBS()
      */
     if (DidDelete) {
 	if ((fdb_area = mbsedb_OpenFDB(tic.FileArea, 30))) {
-		while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1)
-		    if (fdb.Deleted) {
-			sprintf(temp2, "%s/%s", area.Path, fdb.LName);
-			if (unlink(temp2) != 0)
-			    WriteError("$Can't unlink file %s", temp2);
-			sprintf(temp2, "%s/%s", area.Path, fdb.Name);
-			if (unlink(temp2) != 0)
-			    WriteError("$Can't unlink file %s", temp2);
-			sprintf(temp2, "%s/.%s", area.Path, fdb.Name);
-			unlink(temp2); /* Thumbnail, no logging if there is an error */
-		    }
+	    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+		if (fdb.Deleted) {
+		    sprintf(temp2, "%s/%s", area.Path, fdb.LName);
+		    if (unlink(temp2) != 0)
+		        WriteError("$Can't unlink file %s", temp2);
+		    sprintf(temp2, "%s/%s", area.Path, fdb.Name);
+		    /*
+		     * With the path to the 8.3 name, we can check if this file
+		     * is attached for any possible downlink.
+		     * We must get the qualify list passed so we have a quick systems list.
+		     */
+
+
+
+		    if (unlink(temp2) != 0)
+		        WriteError("$Can't unlink file %s", temp2);
+		    sprintf(temp2, "%s/.%s", area.Path, fdb.Name);
+		    unlink(temp2); /* Thumbnail, no logging if there is an error */
+		}
 		mbsedb_PackFDB(fdb_area);
 		mbsedb_CloseFDB(fdb_area);
-	    DidDelete = FALSE;
+		DidDelete = FALSE;
+	    }
 	}
     }
 
