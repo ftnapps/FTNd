@@ -55,6 +55,9 @@
 #include "config.h"
 
 
+#define BNKCHARS    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&=+%$-_.!()#|"
+
+
 static char	rbuf[2048];
 
 void		binkp_send_data(char *, int);
@@ -196,6 +199,33 @@ int binkp(int role)
 int resync(off_t off)
 {
 	return 0;
+}
+
+
+
+/*
+ * Translate filename to binkd filename
+ */
+char *unix2binkd(char *fn)
+{
+    static char	buf[PATH_MAX];
+    char	*p, *q;
+
+    memset(&buf, 0, sizeof(buf));
+    p = fn;
+    q = buf;
+
+    while (*p) {
+	if (strspn(p, (char *)BNKCHARS)) {
+	    *q++ = *p; *q = '\0';
+	} else {
+	    sprintf(q, "\\%2x", *p);
+	}
+	p++;
+    }
+    *q = '\0';
+    
+    return buf;
 }
 
 
@@ -797,6 +827,7 @@ void fill_binkp_list(binkp_list **bll, file_list *fal, off_t offs)
 	(*tmpl)->offset = offs;
 	(*tmpl)->size   = tstat.st_size;
 	(*tmpl)->date   = tstat.st_mtime;
+	Syslog('b', "fill_binkp_list %s => %s", fal->remote, unix2binkd(fal->remote));
 }
 
 
