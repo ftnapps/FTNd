@@ -1318,3 +1318,4 @@ table	mac		mac
 
 # ----------------------------------------------------------------------------
 include russian.map
+include chinese.map

@@ -121,6 +121,7 @@ char *getchrs(int val)
         case FTNC_LATIN_5:  return (char *)"LATIN-5 2";
         case FTNC_MAC:      return (char *)"MAC 2";
 	case FTNC_KOI8_R:   return (char *)"KOI8-R 2";
+	case FTNC_CP936:    return (char *)"CP936 2";
         default:            return (char *)"LATIN-1 2";
     }
 }
@@ -141,6 +142,7 @@ char *getchrsdesc(int val)
         case FTNC_LATIN_5:  return (char *)"ISO 8859-5 (Turkish)";
 	case FTNC_MAC:      return (char *)"MacIntosh character set";
 	case FTNC_KOI8_R:   return (char *)"Unix codepage KOI8-R (Russian)";
+	case FTNC_CP936:    return (char *)"IBM codepage 936 (Chinese, GBK)";
         default:            return (char *)"ERROR";
     }
 }

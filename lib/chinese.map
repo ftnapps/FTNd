@@ -1,0 +1,26 @@
+#
+# $Id$
+#
+# Original written by Martin Junius for Fidogate.
+#
+# Character set mapping table (to be compiled by charsetc)
+#
+
+#
+# Chinese
+#
+alias	gbk		cp936
+alias	gbk		hz-gb-2312
+
+# ----------------------------------------------------------------------------
+#       Channel map for translation CP936 codes to GBK codes
+#	(Chinese language)
+#
+table	cp936		gbk
+
+
+# ----------------------------------------------------------------------------
+#       Channel map for translation GBK codes to CP936 codes
+#	(Chinese language)
+#
+table	koi8-r	cp866

@@ -121,6 +121,7 @@ char *getrfcchrs(int val)
         case FTNC_LATIN_5:  return (char *)"iso-8859-5";
         case FTNC_MAC:      return (char *)"MAC 2";
 	case FTNC_KOI8_R:   return (char *)"koi8-r";
+	case FTNC_CP936:    return (char *)"hz-gb-2312";
         default:            return (char *)"iso-8859-1";
     }
 }
