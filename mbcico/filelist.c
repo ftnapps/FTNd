@@ -191,13 +191,14 @@ static void check_flo(file_list **lst, char *nm)
 				*q = '\0';
 				p = buf2;
 			}
-		} else {
-			if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
-				for (p=p, q=buf2+strlen(buf2); *p; p++, q++)
-					*q = ((*p) == '\\')?'/':tolower(*p);
-				*q = '\0';
-				p = buf2;
-			}
+//  FIXME: removed because it is useless, but it may break some systems.
+//		} else {
+//			if (strncasecmp(p, CFG.uxpath, strlen(CFG.uxpath)) == 0) {
+//				for (p=p, q=buf2+strlen(buf2); *p; p++, q++)
+//					*q = ((*p) == '\\')?'/':tolower(*p);
+//				*q = '\0';
+//				p = buf2;
+//			}
 		}
 
 		if ((q=strrchr(p,'/')))
