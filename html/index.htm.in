@@ -14,14 +14,14 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<center><img SRC="images/mbse.png" BORDER=0></center>
+<center><img SRC="images/mbse.png" BORDER=0 alt="MBSE"></center>
 <div align=center><h1>MBSE BBS System Guide @VERSION@</h1></div>
 <div align=right><h5>Last update 11-Oct-2003</h5></div>
 
 
 <h3><a NAME="top"></a>Introduction</h3>
 
-<A HREF=images/mbsebbs.png><IMG SRC="images/mbsebbs-s.png" align=right></A>
+<A HREF=images/mbsebbs.png><IMG SRC="images/mbsebbs-s.png" align=right alt='Screenshot'></A>
 
 <ul>
   <li><a href="intro.html">Introduction to MBSE BBS</a></li>
@@ -42,7 +42,7 @@
   <li><a href="flow.html">Running a BBS under Linux</a></li>
   <li><a href="dist.html">Which distribution to use</a></li>
   <li><a href="basic.html">Basic installation MBSE BBS</a></li>
-  <li><a href="setup/index.htm">Configuring the bbs with mbsetup</a></li>
+  <li><a href="setup/index.htm">Configuring the bbs with mbsetup</a>
   <ol>
   <li><A HREF="setup/global.html">Edit Global configuration</a>
   <li><A HREF="setup/fidonet.html">Edit Fido networks</a>
@@ -84,10 +84,10 @@
    <li><A HREF="setup/route.html">Edit Routing Table</a>
    <li><A HREF="setup/softinfo.html">Show software information</a>
    <li><A HREF="setup/sitedoc.html">Create site documents</a>
-  </ol>
+  </ol></li>
   <li><a href="invoking.html">Starting and Stopping the BBS</a></li>
   <li><a href="mgetty.html">Setup mgetty for the BBS</a></li>
-  <li><a href="programs/index.htm">Programs and utilities</a></li>
+  <li><a href="programs/index.htm">Programs and utilities</a>
   <ol>
     <li><a href="programs/mbaff.html">mbaff, Announce newfiles and filefind</a></li>
     <li><a href="programs/mball.html">mball, Allfiles and newfiles list creator</a></li>
@@ -110,7 +110,7 @@
     <li><a href="programs/mbtoberep.html">mbtoberep, The toberep.data lister</a></li>
     <li><a href="programs/mbuser.html">mbuser, The userbase maintenance program</a></li>
     <li><a href="programs/mbuseradd.html">mbuseradd, The useradd wrapper</a></li>
-  </ol>
+  </ol></li>
   <li><a href="routing.html">Netmail routing behaviour</a></li>
   <li><a href="intergate.html">Fido to Internet Gateway</a></li>
   <li><a href="nodelist.html">Nodediff and Nodelist processing</a></li>

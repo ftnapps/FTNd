@@ -14,6 +14,7 @@ v0.39.1		22-Oct-2003
 		You may need to remove the lines for itn support from 
 		/etc/inetd.conf or /etc/xinetd.d/mbsebbs or /etc/xinetd.conf.
 		Also check mbsetup 1.14.3 and remove any ITN flag in there.
+		Updated all documentation to validate html makeup.
 
 	upgrade:
 		If you don't have any personal archivers, then remove 
