@@ -53,11 +53,11 @@ int Waitchar(unsigned char *ch, int wtime)
 //	Syslog('t', "Waitchar(): after GETCHAR() tty_status = %d, rc = %d", tty_status, rc);
 	if (tty_status == STAT_SUCCESS) {
 //	    Syslog('t', "Waitchar(): return %d", rc);
-#ifdef __NetBSD__
+// #ifdef __NetBSD__
 	    *ch = (unsigned char)rc;
-#else
-	    memcpy(ch, &rc, sizeof(unsigned char));
-#endif
+// #else
+// 	    memcpy(ch, &rc, sizeof(unsigned char));
+// #endif
 	    return 1;
 	}
 	if (tty_status != STAT_TIMEOUT) {
