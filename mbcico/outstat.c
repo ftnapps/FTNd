@@ -67,36 +67,6 @@ static struct _alist
 
 
 
-/*
- * Returns name of T-Mail filebox in Dos format (8+3).
- * I know, this code looks ungly, but it works. - MiCHA :-)
- */
-const char* shortboxname(const faddr *fa) {
-    static char	dirname[12];
-    unsigned	z=fa->zone, n=fa->net, f=fa->node, p=fa->point;
-    unsigned	u,v;
-
-    u=z%32; z/=32; if (z>=32) return NULL;
-    dirname[0]=z<10?z+'0':z-10+'a';
-    dirname[1]=u<10?u+'0':u-10+'a';
-    u=n%32; n/=32; v=n%32; n/=32; if (n>=32) return NULL;
-    dirname[2]=n<10?n+'0':n-10+'a';
-    dirname[3]=v<10?v+'0':v-10+'a';
-    dirname[4]=u<10?u+'0':u-10+'a';
-    u=f%32; f/=32; v=f%32; f/=32; if (f>=32) return NULL;
-    dirname[5]=f<10?f+'0':f-10+'a';
-    dirname[6]=v<10?v+'0':v-10+'a';
-    dirname[7]=u<10?u+'0':u-10+'a';
-    dirname[8]='.';
-    u=p%32; p/=32; if (p>=32) return NULL;
-    dirname[9]=p<10?p+'0':p-10+'a';
-    dirname[10]=u<10?u+'0':u-10+'a';
-    dirname[11]=0;
-    return dirname;
-}
-
-
-
 int outstat()
 {
     int		    rc;
@@ -219,6 +189,34 @@ int outstat()
 	fseek(fp, nodeshdr.filegrp + nodeshdr.mailgrp, SEEK_CUR);
     }
     fclose(fp);
+
+    /*
+     * Start checking T-Mail fileboxes
+     */
+    if (strlen(CFG.tmailshort) && (dp = opendir(CFG.tmailshort))) {
+	Syslog('o', "Checking T-Mail short box \"%s\"", CFG.tmailshort);
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		}
+	    }
+	}
+	closedir(dp);
+    }
+    if (strlen(CFG.tmaillong) && (dp = opendir(CFG.tmaillong))) {
+	Syslog('o', "Checking T-Mail long box \"%s\"", CFG.tmaillong);
+	while ((de = readdir(dp))) {
+	    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", CFG.tmailshort, de->d_name);
+		if (stat(temp, &sb) == 0) {
+		    Syslog('o' ,"checking \"%s\"", de->d_name);
+		}
+	    }
+	}
+	closedir(dp);
+    }
 
     if (!do_quiet) {
 	colour(10, 0);

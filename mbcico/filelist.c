@@ -4,7 +4,7 @@
  * Purpose ...............: fidonet mailer 
  *
  *****************************************************************************
- * Copyright (C) 1997-2003
+ * Copyright (C) 1997-2004
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -37,6 +37,7 @@
 #include "../lib/common.h"
 #include "../lib/nodelist.h"
 #include "config.h"
+#include "shortbox.h"
 #include "session.h"
 #include "filelist.h"
 
@@ -219,6 +220,70 @@ static void check_flo(file_list **lst, char *nm)
 
 
 
+void check_filebox(char *, file_list *);
+void check_filebox(char *boxpath, file_list *st)
+{
+    char	    *temp;
+    DIR             *dp;
+    struct dirent   *de;
+    struct passwd   *pw;
+    struct stat     stbuf;
+
+    if ((dp = opendir(boxpath)) == NULL) {
+	Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(boxpath));
+    } else {
+	Syslog('o', "checking filebox \"%s\"", boxpath);
+        temp = calloc(PATH_MAX, sizeof(char));
+	pw = getpwnam((char *)"mbse");
+        while ((de = readdir(dp))) {
+            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+		sprintf(temp, "%s/%s", boxpath, de->d_name);
+                if (stat(temp, &stbuf) == 0) {
+                    Syslog('o' ,"checking file \"%s\"", de->d_name);
+                    if (S_ISREG(stbuf.st_mode)) {
+                        if (pw->pw_uid == stbuf.st_uid) {
+                            /*
+                             * We own the file
+                             */
+                            if ((stbuf.st_mode & S_IRUSR) && (stbuf.st_mode & S_IWUSR)) {
+                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        } else if (pw->pw_gid == stbuf.st_gid) {
+                            /*
+                             * We own the file group
+                             */
+                            if ((stbuf.st_mode & S_IRGRP) && (stbuf.st_mode & S_IWGRP)) {
+                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        } else {
+                            /*
+                             * No owner of file
+                             */
+                            if ((stbuf.st_mode & S_IROTH) && (stbuf.st_mode & S_IWOTH)) {
+                                add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
+                            } else {
+                                Syslog('+', "No R/W permission on %s", temp);
+                            }
+                        }
+                    } else {
+                        Syslog('+', "Not a regular file %s", temp);
+                    }
+                } else {
+                    WriteError("Can't stat %s", temp);
+                }
+            }
+	}
+	closedir(dp);
+	free(temp);
+    }
+}
+
+
+
 file_list *create_filelist(fa_list *al, char *fl, int create)
 {
     file_list	    *st = NULL, *tmpf;
@@ -227,10 +292,7 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
     struct stat	    stbuf;
     int		    packets = 0;
     FILE	    *fp;
-    DIR		    *dp;
-    struct dirent   *de;
     unsigned char   buffer[2];
-    struct passwd   *pw;
 
     Syslog('o', "Create_filelist(%s,\"%s\",%d)", al?ascfnode(al->addr,0x1f):"<none>", MBSE_SS(fl), create);
     made_request = 0;
@@ -244,64 +306,38 @@ file_list *create_filelist(fa_list *al, char *fl, int create)
 	if ((tmpa->addr) && Loaded && strlen(nodes.OutBox) &&
 	    (tmpa->addr->zone == nodes.Aka[0].zone) && (tmpa->addr->net == nodes.Aka[0].net) &&
 	    (tmpa->addr->node == nodes.Aka[0].node) && (tmpa->addr->point == nodes.Aka[0].point)) {
-	    Syslog('o', "checking outbox %s", nodes.OutBox);
 	    if (nodes.Crash)
 		flavor = 'c';
 	    else if (nodes.Hold)
 		flavor = 'h';
 	    else
 		flavor = 'o';
-	    if ((dp = opendir(nodes.OutBox)) == NULL) {
-		Syslog('o', "\"%s\" cannot be opened, proceed", MBSE_SS(nodes.OutBox));
-	    } else {
-		temp = calloc(PATH_MAX, sizeof(char));
-		pw = getpwnam((char *)"mbse");
-		while ((de = readdir(dp))) {
-		    if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-			sprintf(temp, "%s/%s", nodes.OutBox, de->d_name);
-			if (stat(temp, &stbuf) == 0) {
-			    Syslog('o' ,"checking file \"%s\"", de->d_name);
-			    if (S_ISREG(stbuf.st_mode)) {
-				if (pw->pw_uid == stbuf.st_uid) {
-				    /*
-				     * We own the file
-				     */
-				    if ((stbuf.st_mode & S_IRUSR) && (stbuf.st_mode & S_IWUSR)) {
-					add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				} else if (pw->pw_gid == stbuf.st_gid) {
-				    /*
-				     * We own the file group
-				     */
-				    if ((stbuf.st_mode & S_IRGRP) && (stbuf.st_mode & S_IWGRP)) {
-					add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				} else {
-				    /*
-				     * No owner of file
-				     */
-				    if ((stbuf.st_mode & S_IROTH) && (stbuf.st_mode & S_IWOTH)) {
-					add_list(&st, temp, de->d_name, KFS, 0L, NULL, 1);
-				    } else {
-					Syslog('+', "No R/W permission on %s", temp);
-				    }
-				}
-			    } else {
-				Syslog('+', "Not a regular file %s", temp);
-			    }
-			} else {
-			    WriteError("Can't stat %s", temp);
-			}
-		    }
-		}
-		closedir(dp);
-		free(temp);
+	    check_filebox(nodes.OutBox, st);
+	}
+
+	/*
+	 * Check T-Mail style fileboxes
+	 */
+	temp = calloc(PATH_MAX, sizeof(char));
+	if (strlen(CFG.tmailshort)) {
+	    sprintf(temp, "%s/%s", CFG.tmailshort, shortboxname(tmpa->addr));
+	    check_filebox(temp, st);
+	    if (strchr(fl, 'h')) {
+		sprintf(temp, "%s/%sh", CFG.tmailshort, shortboxname(tmpa->addr));
+		check_filebox(temp, st);
 	    }
 	}
+	if (strlen(CFG.tmaillong)) {
+	    sprintf(temp, "%s/%d.%d.%d.%d", CFG.tmaillong, tmpa->addr->zone, 
+		    tmpa->addr->net, tmpa->addr->node, tmpa->addr->point);
+	    check_filebox(temp, st);
+	    if (strchr(fl, 'h')) {
+		sprintf(temp, "%s/%d.%d.%d.%d.h", CFG.tmaillong, tmpa->addr->zone, 
+			tmpa->addr->net, tmpa->addr->node, tmpa->addr->point);
+		check_filebox(temp, st);
+	    }
+	}
+	free(temp);
 
 	/*
 	 * Check spool files, these are more or less useless but they

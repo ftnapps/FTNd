@@ -9,7 +9,7 @@ SRCS		= zmmisc.c zmrle.c zmrecv.c zmsend.c binkp.c binkpnew.c md5b.c \
 		  answer.c chat.c dial.c dietifna.c emsidat.c filelist.c \
 		  openfile.c openport.c opentcp.c rdoptions.c yoohoo.c \
 		  recvbark.c respfreq.c sendbark.c tcp.c tcpproto.c wazoo.c \
-		  filetime.c ftsc.c atoul.c portsel.c \
+		  filetime.c ftsc.c atoul.c portsel.c shortbox.c \
 		  ttyio.c lutil.c scanout.c emsi.c ulock.c \
 		  callstat.c session.c call.c mbcico.c \
 		  outstat.c nlinfo.c mbout.c mbtelind.c mbtelout.c
@@ -18,7 +18,7 @@ HDRS		= zmodem.h binkp.h binkpnew.h config.h statetbl.h md5b.h \
 		  answer.h chat.h dial.h dietifna.h emsidat.h filelist.h \
 		  openfile.h openport.h opentcp.h rdoptions.h yoohoo.h \
 		  recvbark.h respfreq.h sendbark.h tcp.h tcpproto.h wazoo.h \
-		  filetime.h ftsc.h atoul.h portsel.h \
+		  filetime.h ftsc.h atoul.h portsel.h shortbox.h \
 		  ttyio.h lutil.h scanout.h emsi.h ulock.h \
 		  callstat.h session.h call.h mbcico.h \
 		  outstat.h nlinfo.h mbtelind.h mbtelout.h
@@ -27,7 +27,7 @@ MBCICO_OBJS	= zmmisc.o zmrle.o zmrecv.o zmsend.o binkp.o binkpnew.o md5b.o \
 		  answer.o chat.o dial.o dietifna.o emsidat.o filelist.o \
 		  openfile.o openport.o opentcp.o rdoptions.o yoohoo.o \
 		  recvbark.o respfreq.o sendbark.o tcp.o tcpproto.o wazoo.o \
-		  filetime.o ftsc.o atoul.o portsel.o \
+		  filetime.o ftsc.o atoul.o portsel.o shortbox.o \
 		  ttyio.o lutil.o scanout.o emsi.o ulock.o \
 		  callstat.o session.o call.o mbcico.o
 MBOUT_OBJS	= outstat.o nlinfo.o mbout.o scanout.o callstat.o
@@ -113,7 +113,7 @@ chat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records
 dial.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/dbnode.h ../lib/mberrors.h config.h chat.h ttyio.h session.h dial.h
 dietifna.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ttyio.h session.h emsi.h dietifna.h respfreq.h filelist.h xmrecv.h xmsend.h
 emsidat.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h emsi.h session.h lutil.h config.h emsidat.h filetime.h
-filelist.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h config.h session.h filelist.h
+filelist.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h ../lib/nodelist.h config.h shortbox.h session.h filelist.h
 openfile.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/clcomm.h ../lib/common.h ../lib/users.h ../lib/records.h config.h lutil.h openfile.h
 openport.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h ulock.h ttyio.h mbcico.h openport.h
 opentcp.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/nodelist.h ../lib/dbnode.h session.h ttyio.h openport.h opentcp.h
@@ -129,6 +129,7 @@ filetime.o: ../config.h ../lib/libs.h filetime.h
 ftsc.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/nodelist.h ../lib/clcomm.h ../lib/mberrors.h session.h ttyio.h statetbl.h config.h ftsc.h rdoptions.h recvbark.h filelist.h sendbark.h respfreq.h xmrecv.h xmsend.h inbound.h
 atoul.o: ../config.h ../lib/libs.h atoul.h
 portsel.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h portsel.h
+shortbox.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/clcomm.h ../lib/common.h shortbox.h
 ttyio.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ttyio.h lutil.h
 lutil.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/common.h ../lib/clcomm.h lutil.h
 scanout.o: ../config.h ../lib/libs.h ../lib/structs.h ../lib/users.h ../lib/records.h ../lib/common.h ../lib/clcomm.h ../lib/dbftn.h config.h scanout.h lutil.h
