@@ -713,7 +713,7 @@ int ProcessTic(fa_list *sbl)
      */
     if (tic.FileArea) {
 
-	Syslog('+', "Import: %s Area: %s", TIC.NewFile, TIC.TicIn.Area);
+	Syslog('+', "Import: %s (%s) Area: %s", TIC.NewFile, TIC.NewFullName, TIC.TicIn.Area);
 	BBS_Imp = Add_BBS();
 
 	if (!BBS_Imp) {

@@ -1,19 +1,23 @@
 $Id$
 
-WARNING WARNING: DO NOT USE THIS VERSION, YOU WILL LOOSE FILES !!!!!!!!!!!
-WARNING WARNING: TIC PROCESSING WILL MOST LIKELY NOT WORK !!!!!!!!!!!!!!!!
 
 				MBSEBBS History.
 
 v0.35.06
 
 	update:
+		Make sure you don't have download files with case differences
+		in download directories like FileName.zip and FILENAME.ZIP.
+		With this upgrade files with such names will be deleted!
+		Rename them before you upgrade!
+		Backup your whole bbs, including download files.
 		Before upgrade, close the bbs (mbstat close wait) and make 
 		sure the inbound is empty, toss everything.
 		Install the new binaries.
-		Run "mbfile check". This will create a error in the logfile
+		Run "mbfile check". This will create an error in the logfile
 		for each file! It will update the filenames on disk to have
-		both short and long filenames. Just ignore the errors!
+		both short and long filenames. Just ignore the errors but check
+		for real deleted files.
 		Start the bbs again (mbstat open).
 
 	templates:
@@ -55,8 +59,8 @@ v0.35.06
 		command would detect and correct this.
 		TIC files added to the bbs will now also have a 8.3 hard link.
 		With TIC file attaches, the filename attached is the 8.3 name.
-		TIC processing completly modified to make better LFN support.
-		EXPERIMENTAL, I BET IT DOESN'T WORK
+		TIC processing completly modified to make better LFN support,
+		internal everything works on the 8.3 filename.
 
 	mbcico:
 		With filetransfer errors, the attempts counter was not 

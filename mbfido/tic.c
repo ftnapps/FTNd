@@ -475,7 +475,7 @@ int LoadTic(char *inb, char *tfn)
 	WriteError("Can't find file in inbound");
     } else {
 	Syslog('f', "Real filename in inbound is \"%s\"", RealName);
-	Syslog('f', "8.3 name \"%s\", LFN \"%s\"", TIC.TicIn.File, TIC.TicIn.FullName);
+	Syslog('+', "8.3 name \"%s\", LFN \"%s\"", TIC.TicIn.File, TIC.TicIn.FullName);
 	if (strcmp(RealName, TIC.TicIn.File)) {
 	    /*
 	     * File in inbound has not the same name as the name on disk.
@@ -487,7 +487,7 @@ int LoadTic(char *inb, char *tfn)
 	    if (rename(Temp, Temp2))
 		WriteError("$Can't rename %s to %s", Temp, Temp2);
 	    else
-		Syslog('f', "Renamed %s to %s", Temp, Temp2);
+		Syslog('+', "Renamed %s to %s", Temp, Temp2);
 	}
     }
     strncpy(TIC.NewFile, TIC.TicIn.File, 80);
