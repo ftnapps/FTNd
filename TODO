@@ -57,10 +57,6 @@ mbfido:
 	N: Process GoldED filerequest netmails with the filereq flag set, we
 	   should create a .req file with the contents of the subject line.
 
-	N: When hatch a file with a long filename, the outgoing ticfiles will
-	   have a long uppercase filename and the file is transmitted with
-	   a long filename. I think this should all be 8.3 names.
-
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 
@@ -71,7 +67,7 @@ mbcico:
 	N: Remove code to make automatic calls after mbtask does this.
 
 mbfile:
-	N: Add a check to see if the magic filenames are valid.
+	N: Add a check to see if the magic filenames are (still) valid.
 
 	N: Update <filespec> <area> <-touch>
 

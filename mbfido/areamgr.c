@@ -142,11 +142,17 @@ void A_Query(faddr *t, char *replyid)
     char	Stat[5];
     faddr	*f, *g;
     sysconnect	System;
+    long        msgptr;
 
     Syslog('+', "AreaMgr: Query");
     f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", replyid)) != NULL) {
+
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
@@ -222,6 +228,15 @@ void A_Query(faddr *t, char *replyid)
 
 		    fprintf(qp, "----------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d connected area(s)\r\r\r", SubTot);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}
@@ -253,6 +268,7 @@ void A_List(faddr *t, char *replyid, int Notify)
     char	Stat[5];
     faddr	*f, *g;
     sysconnect	System;
+    long        msgptr;
 
     if (Notify)
 	Syslog('+', "AreaMgr: Notify to %s", ascfnode(t, 0xff));
@@ -261,6 +277,11 @@ void A_List(faddr *t, char *replyid, int Notify)
     f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", replyid)) != NULL) {
+
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 
 	WriteMailGroups(qp, f);
 
@@ -335,6 +356,15 @@ void A_List(faddr *t, char *replyid, int Notify)
 
 		    fprintf(qp, "----------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d available area(s)\r\r\r", SubTot);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}
@@ -370,6 +400,7 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     struct tm	*tt;
     int		lmonth;
     long	lw, lm;
+    long        msgptr;
 
     Now = time(NULL);
     tt = localtime(&Now);
@@ -386,6 +417,11 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", replyid)) != NULL) {
+
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
@@ -455,6 +491,15 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 
 		    fprintf(qp, "---------------------------------------------------------------------------\r");
 		    fprintf(qp, "Total %58lu %10lu\r\r\r", lw, lm);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}
@@ -525,11 +570,17 @@ void A_Unlinked(faddr *t, char *replyid)
     char	Stat[5];
     faddr	*f, *g;
     sysconnect	System;
+    long        msgptr;
 
     Syslog('+', "AreaMgr: Unlinked");
     f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", replyid)) != NULL) {
+
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 
 	WriteMailGroups(qp, f);
 
@@ -609,6 +660,15 @@ void A_Unlinked(faddr *t, char *replyid)
 
 		    fprintf(qp, "----------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d available area(s)\r\r\r", SubTot);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}

@@ -141,12 +141,18 @@ void F_Query(faddr *t, char *replyid)
     char	Stat[4];
     faddr	*f, *g;
     sysconnect	System;
+    long        msgptr;
 
     Syslog('+', "FileMgr: Query");
     f = bestaka_s(t);
     Syslog('f', "Bestaka for %s is %s", ascfnode(t, 0x0f), ascfnode(f, 0x0f));
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", replyid)) != NULL) {
+
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
@@ -222,6 +228,15 @@ void F_Query(faddr *t, char *replyid)
 
 		    fprintf(qp, "------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d available area(s)\r\r\r", SubTot);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your query request", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}
@@ -251,6 +266,7 @@ void F_List(faddr *t, char *replyid, int Notify)
     char	Stat[4];
     faddr	*f, *g;
     sysconnect	System;
+    long	msgptr;
 
     if (Notify)
 	Syslog('+', "FileMgr: Notify to %s", ascfnode(t, 0xff));
@@ -260,6 +276,10 @@ void F_List(faddr *t, char *replyid, int Notify)
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", replyid)) != NULL) {
 
+	/*
+	 * Mark begin of message in .pkt
+	 */
+	msgptr = ftell(qp);
 	WriteFileGroups(qp, f);
 
 	temp = calloc(PATH_MAX, sizeof(char));
@@ -331,6 +351,15 @@ void F_List(faddr *t, char *replyid, int Notify)
 
 		    fprintf(qp, "------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d available area(s)\r\r\r", SubTot);
+
+		    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+			fprintf(qp, "To be continued....\r\r");
+			Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+			CloseMail(qp, t);
+			net_out++;
+			qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"FileMgr List", replyid);
+			msgptr = ftell(qp);
+		    }
 		}
 	    }
 	}
@@ -414,12 +443,17 @@ void F_Unlinked(faddr *t, char *replyid)
     char	Stat[4];
     faddr	*f, *g;
     sysconnect	System;
+    long        msgptr;
 
     Syslog('+', "FileMgr: Unlinked");
     f = bestaka_s(t);
 
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", replyid)) != NULL) {
 
+        /*
+         * Mark begin of message in .pkt
+         */
+        msgptr = ftell(qp);
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
 	if ((fp = fopen(temp, "r")) == NULL) {
@@ -492,6 +526,15 @@ void F_Unlinked(faddr *t, char *replyid)
 
 		    fprintf(qp, "------------------------------------------------------------------------\r");
 		    fprintf(qp, "%d available area(s)\r\r\r", SubTot);
+
+                    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_split) {
+                        fprintf(qp, "To be continued....\r\r");
+                        Syslog('-', "  Splitting message at %ld bytes", ftell(qp) - msgptr);
+                        CloseMail(qp, t);
+                        net_out++;
+                        qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Filemgr", (char *)"Your unlinked request", replyid);
+                        msgptr = ftell(qp);
+                    }
 		}
 	    }
 	}
