@@ -12,5 +12,6 @@ FILE		*open_webdoc(char *, char *, char *);
 void		close_webdoc(FILE *);
 void		add_webtable(FILE *, char *, char *);
 void		add_webdigit(FILE *, char *, int);
+void		add_colors(FILE *, char *, int, int);
 
 #endif

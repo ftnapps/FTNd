@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "../lib/diesel.h"
 #include "screen.h" 
+#include "ledit.h"
 #include "mutil.h"
 
 
@@ -227,4 +228,12 @@ void add_webdigit(FILE *fp, char *hstr, int digit)
     html_massage(hstr, left);
     fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%d</TD></TR>\n", left, digit);
 }
+
+
+
+void add_colors(FILE *fp, char *hstr, int fg, int bg)
+{
+    fprintf(fp, "<TR><TH align='left'>%s</TH><TD>%s on %s</TR></TR>\n", hstr, get_color(fg), get_color(bg));
+}
+
 

@@ -2,8 +2,14 @@ $Id$
 
 v0.51.3		22-Mar-2003
 
+	general:
+		Removed one setup entry for check for free diskspace, there
+		were two different values for the same purpose. The removed
+		one was not used.
+
 	mbtask:
 		Signal handler for sigchld set to sig_dfl, test for Fedora.
+		Removed setup for old diskspace parameter.
 
 	mbsetup:
 		Added experimental sitedoc creation in html format.
@@ -12,6 +18,7 @@ v0.51.3		22-Mar-2003
 		The html files are created in /opt/mbse/doc/html.
 		The ~/doc/xref.doc and ~/doc/stat.doc are not created anymore,
 		there was nothing in it yet.
+		Removed setup for the unused free diskspace parameter.
 
 
 v0.51.2		06-Mar-2004 - 22-Mar-2003

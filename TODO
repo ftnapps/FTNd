@@ -175,15 +175,10 @@ mbsetup:
 	   Echomail        <=> Nodes
 	   Fileechos       <=> Groups
 	   Fileechos       <=> Nodes
-	   Fileechos       <=> BBS Areas
 	   Fileechos       <=> Magic processing
 	   Fileechos       <=> Hatch
 	   Newfiles        <=> BBS Areas
-	   Newfiles        <=> File groups
+	   Newfiles        <=> Newfiles groups
 	   Echomail groups <=> Nodes
 	   Echomail groups <=> Areas
-	   Fileecho groups <=> Nodes
-	   Fileecho groups <=> File echos
-	   Fileecho groups <=> Newfile reports
-	   Fileecho groups <=> BBS Areas
 

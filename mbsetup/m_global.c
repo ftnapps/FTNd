@@ -681,80 +681,76 @@ void e_ticconf(void)
 
     mvprintw( 7, 2, "1.  Keep days");
     mvprintw( 8, 2, "2.  Hatch pwd");
-    mvprintw( 9, 2, "3.  Drv space");
-    mvprintw(10, 2, "4.  Systems");
-    mvprintw(11, 2, "5.  Groups");
-    mvprintw(12, 2, "6.  Max. dupes");
-    mvprintw(13, 2, "7.  Keep date");
-    mvprintw(14, 2, "8.  Keep netm");
-    mvprintw(15, 2, "9.  Loc resp");
-	
-    mvprintw( 7,42, "10. Plus all");
-    mvprintw( 8,42, "11. Notify");
-    mvprintw( 9,42, "12. Passwd");
-    mvprintw(10,42, "13. Message");
-    mvprintw(11,42, "14. Tic on/off");
-    mvprintw(12,42, "15. Pause");
+    mvprintw( 9, 2, "3.  Systems");
+    mvprintw(10, 2, "4.  Groups");
+    mvprintw(11, 2, "5.  Max. dupes");
+    mvprintw(12, 2, "6.  Keep date");
+    mvprintw(13, 2, "7.  Keep netm");
+
+    mvprintw( 7,42, "8.  Loc resp");
+    mvprintw( 8,42, "9.  Plus all");
+    mvprintw( 9,42, "10. Notify");
+    mvprintw(10,42, "11. Passwd");
+    mvprintw(11,42, "12. Message");
+    mvprintw(12,42, "13. Tic on/off");
+    mvprintw(13,42, "14. Pause");
 
     for (;;) {
 	set_color(WHITE, BLACK);
 
 	show_int( 7,18, CFG.tic_days);
 	show_str( 8,18,20, (char *)"********************");
-	show_int( 9,18, CFG.drspace);
-	show_int(10,18, CFG.tic_systems);
-	show_int(11,18, CFG.tic_groups);
-	show_int(12,18, CFG.tic_dupes);
-	show_bool(13,18, CFG.ct_KeepDate);
-	show_bool(14,18, CFG.ct_KeepMgr);
-	show_bool(15,18, CFG.ct_LocalRep);
-		
-	show_bool( 7,58, CFG.ct_PlusAll);
-	show_bool( 8,58, CFG.ct_Notify);
-	show_bool( 9,58, CFG.ct_Passwd);
-	show_bool(10,58, CFG.ct_Message);
-	show_bool(11,58, CFG.ct_TIC);
-	show_bool(12,58, CFG.ct_Pause);  
+	show_int( 9,18, CFG.tic_systems);
+	show_int(10,18, CFG.tic_groups);
+	show_int(11,18, CFG.tic_dupes);
+	show_bool(12,18, CFG.ct_KeepDate);
+	show_bool(13,18, CFG.ct_KeepMgr);
 
-	switch(select_menu(15)) {
+	show_bool( 7,58, CFG.ct_LocalRep);
+	show_bool( 8,58, CFG.ct_PlusAll);
+	show_bool( 9,58, CFG.ct_Notify);
+	show_bool(10,58, CFG.ct_Passwd);
+	show_bool(11,58, CFG.ct_Message);
+	show_bool(12,58, CFG.ct_TIC);
+	show_bool(13,58, CFG.ct_Pause);  
+
+	switch(select_menu(14)) {
 	    case 0:	return;
 
 	    case 1: E_INT(  7,18,    CFG.tic_days,     "Number of days to ^keep^ files on hold.")
 	    case 2: E_STR(  8,18,20, CFG.hatchpasswd,  "Enter the internal ^hatch^ password.")
-	    case 3: E_INT(  9,18,    CFG.drspace,      "Enter the minimal ^free drivespace^ in KBytes.")
-	    case 4: temp = CFG.tic_systems;
-		    temp = edit_int(10,18, temp, (char *)"Enter the maximum number of ^connected systems^ in the database.");
+	    case 3: temp = CFG.tic_systems;
+		    temp = edit_int( 9,18, temp, (char *)"Enter the maximum number of ^connected systems^ in the database.");
 		    if (temp < CountNoderec()) {
 			errmsg("You have %d nodes defined", CountNoderec());
-			show_int(10,18, CFG.tic_systems);
+			show_int( 9,18, CFG.tic_systems);
 		    } else {
 			CFG.tic_systems = temp;
 			if ((OpenTicarea() == 0))
 			    CloseTicarea(TRUE);
 		    }
 		    break;
-	    case 5: temp =  CFG.tic_groups;
-		    temp = edit_int(11,18, temp, (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
+	    case 4: temp =  CFG.tic_groups;
+		    temp = edit_int(10,18, temp, (char *)"Enter the maximum number of ^fileecho groups^ in the database.");
 		    if (temp < CountFGroup()) {
 			errmsg("You have %d groups defined", CountFGroup());
-			show_int(11,18, CFG.tic_groups);
+			show_int(10,18, CFG.tic_groups);
 		    } else {
 			CFG.tic_groups = temp;
 			if ((OpenNoderec() == 0))
 			    CloseNoderec(TRUE);
 		    }
 		    break;
-	    case 6: E_INT( 12,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
-
-	    case 7: E_BOOL(13,18,    CFG.ct_KeepDate,  "^Keep^ original filedate on import")
-	    case 8: E_BOOL(14,18,    CFG.ct_KeepMgr,   "Keep ^Areamgr^ netmails.")
-	    case 9: E_BOOL(15,18,    CFG.ct_LocalRep,  "Respond to local ^filesearch^ requests.")
-	    case 10:E_BOOL( 7,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in FileMgr requests.")
-	    case 11:E_BOOL( 8,58,    CFG.ct_Notify,    "Allow turning ^Notify^ messages on or off.")
-	    case 12:E_BOOL( 9,58,    CFG.ct_Passwd,    "Allow changing the AreaMgr/FileMgr ^password^.")
-	    case 13:E_BOOL(10,58,    CFG.ct_Message,   "Allow turning FileMgr ^messages^ on or off.")
-	    case 14:E_BOOL(11,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
-	    case 15:E_BOOL(12,58,    CFG.ct_Pause,     "Allow the ^Pause^ FileMgr command.")
+	    case 5: E_INT( 11,18,    CFG.tic_dupes,    "Enter the maximum number of ^dupes^ in the dupe database.")
+	    case 6: E_BOOL(12,18,    CFG.ct_KeepDate,  "^Keep^ original filedate on import")
+	    case 7: E_BOOL(13,18,    CFG.ct_KeepMgr,   "Keep ^Areamgr^ netmails.")
+	    case 8: E_BOOL( 7,58,    CFG.ct_LocalRep,  "Respond to local ^filesearch^ requests.")
+	    case 9: E_BOOL( 8,58,    CFG.ct_PlusAll,   "Allow ^+%*^ (Plus all) in FileMgr requests.")
+	    case 10:E_BOOL( 9,58,    CFG.ct_Notify,    "Allow turning ^Notify^ messages on or off.")
+	    case 11:E_BOOL(10,58,    CFG.ct_Passwd,    "Allow changing the AreaMgr/FileMgr ^password^.")
+	    case 12:E_BOOL(11,58,    CFG.ct_Message,   "Allow turning FileMgr ^messages^ on or off.")
+	    case 13:E_BOOL(12,58,    CFG.ct_TIC,       "Allow turning ^TIC^ files on or off.")
+	    case 14:E_BOOL(13,58,    CFG.ct_Pause,     "Allow the ^Pause^ FileMgr command.")
 	}
     }
 }
@@ -1637,6 +1633,16 @@ int global_doc(FILE *fp, FILE *toc, int page)
     fprintf(wp, " <LI><A HREF=\"#_pathnames\">Pathnames</A></LI>\n");
     fprintf(wp, " <LI><A HREF=\"#_global\">Global settings</A></LI>\n");
     fprintf(wp, " <LI><A HREF=\"#_security\">Users flag descriptions</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_newusers\">New users defaults</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_colors\">Text colors</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_paging\">Sysop paging</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_fileecho\">Fileecho processing</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_fidomail\">Fidonet Mail and Echomail processing</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_inetmail\">Internet Mail and News processing</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_newfiles\">Newfiles reports</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_mailer\">Mailer setup</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_www\">WWW server setup</A></LI>\n");
+    fprintf(wp, " <LI><A HREF=\"#_manager\">Manager flag descriptions</A></LI>\n");
     fprintf(wp, "</UL>\n");
     fprintf(wp, "<HR>\n");
 
@@ -1894,175 +1900,365 @@ int global_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, " %s\n", CFG.fname[31 - i]);
     }
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
+    fprintf(wp, "<A NAME=\"_newusers\"></A><H3>New users defaults</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    web_secflags(wp, (char *)"Access level", CFG.newuser_access);
+    add_webtable(wp, (char *)"Cap. username", getboolean(CFG.iCapUserName));
+    add_webtable(wp, (char *)"Ask ANSI", getboolean(CFG.iAnsi));
+    add_webtable(wp, (char *)"Ask Sex", getboolean(CFG.iSex));
+    add_webtable(wp, (char *)"Ask Voicephone", getboolean(CFG.iVoicePhone));
+    add_webtable(wp, (char *)"Ask Dataphone", getboolean(CFG.iDataPhone));
+    add_webtable(wp, (char *)"Telephone Scan", getboolean(CFG.iTelephoneScan));
+    add_webtable(wp, (char *)"Ask Handle", getboolean(CFG.iHandle));
+    add_webtable(wp, (char *)"Ask Birthdate", getboolean(CFG.iDOB));
+    add_webtable(wp, (char *)"Ask Location", getboolean(CFG.iLocation));
+    add_webtable(wp, (char *)"Ask Hotkeys", getboolean(CFG.iHotkeys));
+    add_webtable(wp, (char *)"Allow one word names", getboolean(CFG.iOneName));
+    add_webtable(wp, (char *)"Ask Address", getboolean(CFG.AskAddress));
+    add_webtable(wp, (char *)"Give email box", getboolean(CFG.GiveEmail));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 8, page, (char *)"New users defaults");
+    fprintf(fp, "      Access level     %s\n", get_secstr(CFG.newuser_access));
+    fprintf(fp, "      Cap. username    %s\n", getboolean(CFG.iCapUserName));
+    fprintf(fp, "      Ask ANSI         %s\n", getboolean(CFG.iAnsi));
+    fprintf(fp, "      Ask Sex          %s\n", getboolean(CFG.iSex));
+    fprintf(fp, "      Ask voicephone   %s\n", getboolean(CFG.iVoicePhone));
+    fprintf(fp, "      Ask dataphone    %s\n", getboolean(CFG.iDataPhone));
+    fprintf(fp, "      Telephone scan   %s\n", getboolean(CFG.iTelephoneScan));
+    fprintf(fp, "      Ask handle       %s\n", getboolean(CFG.iHandle));
+    fprintf(fp, "      Ask birthdate    %s\n", getboolean(CFG.iDOB));
+    fprintf(fp, "      Ask location     %s\n", getboolean(CFG.iLocation));
+    fprintf(fp, "      Ask hotkeys      %s\n", getboolean(CFG.iHotkeys));
+    fprintf(fp, "      One word names   %s\n", getboolean(CFG.iOneName));
+    fprintf(fp, "      Ask address      %s\n", getboolean(CFG.AskAddress));
+    fprintf(fp, "      Give email box   %s\n", getboolean(CFG.GiveEmail));
 
-	fprintf(fp, "      Access level     %s\n", get_secstr(CFG.newuser_access));
-	fprintf(fp, "      Cap. username    %s\n", getboolean(CFG.iCapUserName));
-	fprintf(fp, "      Ask ANSI         %s\n", getboolean(CFG.iAnsi));
-	fprintf(fp, "      Ask Sex          %s\n", getboolean(CFG.iSex));
-	fprintf(fp, "      Ask voicephone   %s\n", getboolean(CFG.iVoicePhone));
-	fprintf(fp, "      Ask dataphone    %s\n", getboolean(CFG.iDataPhone));
-	fprintf(fp, "      Telephone scan   %s\n", getboolean(CFG.iTelephoneScan));
-	fprintf(fp, "      Ask handle       %s\n", getboolean(CFG.iHandle));
-	fprintf(fp, "      Ask birthdate    %s\n", getboolean(CFG.iDOB));
-	fprintf(fp, "      Ask location     %s\n", getboolean(CFG.iLocation));
-	fprintf(fp, "      Ask hotkeys      %s\n", getboolean(CFG.iHotkeys));
-	fprintf(fp, "      One word names   %s\n", getboolean(CFG.iOneName));
-	fprintf(fp, "      Ask address      %s\n", getboolean(CFG.AskAddress));
-	fprintf(fp, "      Give email box   %s\n", getboolean(CFG.GiveEmail));
+    fprintf(wp, "<A NAME=\"_colors\"></A><H3>Text colors</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_colors(wp, (char *)"Normal text", CFG.TextColourF, CFG.TextColourB);
+    add_colors(wp, (char *)"Underline text", CFG.UnderlineColourF, CFG.UnderlineColourB);
+    add_colors(wp, (char *)"Input text", CFG.InputColourF, CFG.InputColourB);
+    add_colors(wp, (char *)"CR text", CFG.CRColourF, CFG.CRColourB);
+    add_colors(wp, (char *)"More prompt", CFG.MoreF, CFG.MoreB);
+    add_colors(wp, (char *)"Hilite text", CFG.HiliteF, CFG.HiliteB);
+    add_colors(wp, (char *)"File name", CFG.FilenameF, CFG.FilenameB);
+    add_colors(wp, (char *)"File size", CFG.FilesizeF, CFG.FilesizeB);
+    add_colors(wp, (char *)"File date", CFG.FiledateF, CFG.FiledateB);
+    add_colors(wp, (char *)"File description", CFG.FiledescF, CFG.FiledescB);
+    add_colors(wp, (char *)"Message input", CFG.MsgInputColourF, CFG.MsgInputColourB);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    addtoc(fp, toc, 1, 9, page, (char *)"Text colors");
+    fprintf(fp, "      Normal text      %s on %s\n", get_color(CFG.TextColourF), get_color(CFG.TextColourB));
+    fprintf(fp, "      Underline text   %s on %s\n", get_color(CFG.UnderlineColourF), get_color(CFG.UnderlineColourB));
+    fprintf(fp, "      Input text       %s on %s\n", get_color(CFG.InputColourF), get_color(CFG.InputColourB));
+    fprintf(fp, "      CR text          %s on %s\n", get_color(CFG.CRColourF), get_color(CFG.CRColourB));
+    fprintf(fp, "      More prompt      %s on %s\n", get_color(CFG.MoreF), get_color(CFG.MoreB));
+    fprintf(fp, "      Hilite text      %s on %s\n", get_color(CFG.HiliteF), get_color(CFG.HiliteB));
+    fprintf(fp, "      File name        %s on %s\n", get_color(CFG.FilenameF), get_color(CFG.FilenameB));
+    fprintf(fp, "      File size        %s on %s\n", get_color(CFG.FilesizeF), get_color(CFG.FilesizeB));
+    fprintf(fp, "      File date        %s on %s\n", get_color(CFG.FiledateF), get_color(CFG.FiledateB));
+    fprintf(fp, "      File description %s on %s\n", get_color(CFG.FiledescF), get_color(CFG.FiledescB));
+    fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
 
-	addtoc(fp, toc, 1, 9, page, (char *)"Text colors");
+    fprintf(wp, "<A NAME=\"_paging\"></A><H3>Sysop Paging</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webdigit(wp, (char *)"Page length in seconds", CFG.iPageLength);
+    add_webdigit(wp, (char *)"Maximum page times", CFG.iMaxPageTimes);
+    add_webdigit(wp, (char *)"Sysop message area", CFG.iSysopArea);
+    add_webtable(wp, (char *)"Ask chat reason", getboolean(CFG.iAskReason));
+    add_webtable(wp, (char *)"Auto log chat session", getboolean(CFG.iAutoLog));
+    add_webtable(wp, (char *)"Check at menu prompt", getboolean(CFG.iChatPromptChk));
+    add_webtable(wp, (char *)"Freeze online time", getboolean(CFG.iStopChatTime));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 10, page, (char *)"Sysop paging");
+    fprintf(fp, "      Page length        %d seconds\n", CFG.iPageLength);
+    fprintf(fp, "      Page times         %d\n", CFG.iMaxPageTimes);
+    fprintf(fp, "      Sysop msg area     %d\n", CFG.iSysopArea);
+    fprintf(fp, "      Ask chat reason    %s\n", getboolean(CFG.iAskReason));
+    fprintf(fp, "      Log chat           %s\n", getboolean(CFG.iAutoLog));
+    fprintf(fp, "      Check at prompt    %s\n", getboolean(CFG.iChatPromptChk));
+    fprintf(fp, "      Freeze online time %s\n", getboolean(CFG.iStopChatTime));
 
-	fprintf(fp, "      Normal text      %s on %s\n", get_color(CFG.TextColourF), get_color(CFG.TextColourB));
-	fprintf(fp, "      Underline text   %s on %s\n", get_color(CFG.UnderlineColourF), get_color(CFG.UnderlineColourB));
-	fprintf(fp, "      Input text       %s on %s\n", get_color(CFG.InputColourF), get_color(CFG.InputColourB));
-	fprintf(fp, "      CR text          %s on %s\n", get_color(CFG.CRColourF), get_color(CFG.CRColourB));
-	fprintf(fp, "      More prompt      %s on %s\n", get_color(CFG.MoreF), get_color(CFG.MoreB));
-	fprintf(fp, "      Hilite text      %s on %s\n", get_color(CFG.HiliteF), get_color(CFG.HiliteB));
-	fprintf(fp, "      File name        %s on %s\n", get_color(CFG.FilenameF), get_color(CFG.FilenameB));
-	fprintf(fp, "      File size        %s on %s\n", get_color(CFG.FilesizeF), get_color(CFG.FilesizeB));
-	fprintf(fp, "      File date        %s on %s\n", get_color(CFG.FiledateF), get_color(CFG.FiledateB));
-	fprintf(fp, "      File description %s on %s\n", get_color(CFG.FiledescF), get_color(CFG.FiledescB));
-	fprintf(fp, "      Message input    %s on %s\n", get_color(CFG.MsgInputColourF), get_color(CFG.MsgInputColourB));
+    fprintf(wp, "<A NAME=\"_fileecho\"></A><H3>Fileecho Processing</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webdigit(wp, (char *)"Keep days on hold", CFG.tic_days);
+    add_webtable(wp, (char *)"Hatch password", CFG.hatchpasswd);
+    add_webdigit(wp, (char *)"Maximum connected systems", CFG.tic_systems);
+    add_webdigit(wp, (char *)"Max files groups", CFG.tic_groups);
+    add_webdigit(wp, (char *)"Max dupes in database", CFG.tic_dupes);
+    add_webtable(wp, (char *)"Keep filedate", getboolean(CFG.ct_KeepDate));
+    add_webtable(wp, (char *)"Keep FileMgr netmail", getboolean(CFG.ct_KeepMgr));
+    add_webtable(wp, (char *)"Local filefind requests", getboolean(CFG.ct_LocalRep));
+    add_webtable(wp, (char *)"FileMgr: allow +%%*", getboolean(CFG.ct_PlusAll));
+    add_webtable(wp, (char *)"FileMgr: notify", getboolean(CFG.ct_Notify));
+    add_webtable(wp, (char *)"FileMgr: passwd", getboolean(CFG.ct_Passwd));
+    add_webtable(wp, (char *)"FileMgr: message", getboolean(CFG.ct_Message));
+    add_webtable(wp, (char *)"FileMgr: TIC", getboolean(CFG.ct_TIC));
+    add_webtable(wp, (char *)"FileMgr: pause", getboolean(CFG.ct_Pause));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");    
+    addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
+    fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
+    fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
+    fprintf(fp, "      Max. systems       %ld\n", CFG.tic_systems);
+    fprintf(fp, "      Max. groups        %ld\n", CFG.tic_groups);
+    fprintf(fp, "      Max. dupes         %ld\n", CFG.tic_dupes);
+    fprintf(fp, "      Keep filedate      %s\n", getboolean(CFG.ct_KeepDate));
+    fprintf(fp, "      Keep mgr netmail   %s\n", getboolean(CFG.ct_KeepMgr));
+    fprintf(fp, "      Local requests     %s\n", getboolean(CFG.ct_LocalRep));
+    fprintf(fp, "      FileMgr: allow +%%* %s\n", getboolean(CFG.ct_PlusAll));
+    fprintf(fp, "      FileMgr: notify    %s\n", getboolean(CFG.ct_Notify));
+    fprintf(fp, "      FileMgr: passwd    %s\n", getboolean(CFG.ct_Passwd));
+    fprintf(fp, "      FileMgr: message   %s\n", getboolean(CFG.ct_Message));
+    fprintf(fp, "      FileMgr: TIC       %s\n", getboolean(CFG.ct_TIC));
+    fprintf(fp, "      FileMgr: pause     %s\n", getboolean(CFG.ct_Pause));
 
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 10, page, (char *)"Sysop paging");
+    fprintf(wp, "<A NAME=\"_fidomail\"></A><H3>Fidonet Mail and Echomail processing</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webdigit(wp, (char *)"Maximum .pkt size", CFG.maxpktsize);
+    add_webdigit(wp, (char *)"Maximum archive size", CFG.maxarcsize);
+    add_webtable(wp, (char *)"Bad mail board", CFG.badboard);
+    add_webtable(wp, (char *)"Dupe mail board", CFG.dupboard);
+    add_webtable(wp, (char *)"Pktdate program", CFG.pktdate);
+    add_webdigit(wp, (char *)"Keep days on hold", CFG.toss_days);
+    add_webdigit(wp, (char *)"Dupes in database", CFG.toss_dupes);
+    add_webdigit(wp, (char *)"Default maximum msgs", CFG.defmsgs);
+    add_webdigit(wp, (char *)"Default maximum days old", CFG.defdays);
+    add_webdigit(wp, (char *)"Reject messages older then", CFG.toss_old);
+    add_webdigit(wp, (char *)"Maximum connected systems", CFG.toss_systems);
+    add_webdigit(wp, (char *)"Maximum message groups", CFG.toss_groups);
+    add_webtable(wp, (char *)"Use 4d addressing", getboolean(CFG.addr4d));
+    add_webtable(wp, (char *)"AreaMgr: allow +%%*", getboolean(CFG.ca_PlusAll));
+    add_webtable(wp, (char *)"AreaMgr: notify", getboolean(CFG.ca_Notify));
+    add_webtable(wp, (char *)"AreaMgr: passwd", getboolean(CFG.ca_Passwd));
+    add_webtable(wp, (char *)"AreaMgr: pause", getboolean(CFG.ca_Pause));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 12, page, (char *)"Fidonet Mail and Echomail processing");
+    fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);
+    fprintf(fp, "      Max archive size   %d Kb.\n", CFG.maxarcsize);
+    fprintf(fp, "      Bad mail board     %s\n", CFG.badboard);
+    fprintf(fp, "      Dupe mail board    %s\n", CFG.dupboard);
+    fprintf(fp, "      Pktdate program    %s\n", CFG.pktdate);
+    fprintf(fp, "      Keep on hold       %d days\n", CFG.toss_days);
+    fprintf(fp, "      Dupes in database  %d\n", CFG.toss_dupes);
+    fprintf(fp, "      Default max msgs   %d\n", CFG.defmsgs);
+    fprintf(fp, "      Default days       %d\n", CFG.defdays);
+    fprintf(fp, "      Reject older then  %d days\n", CFG.toss_old);
+    fprintf(fp, "      Maximum systems    %ld\n", CFG.toss_systems);
+    fprintf(fp, "      Maximum groups     %ld\n", CFG.toss_groups);
+    fprintf(fp, "      Use 4d addressing  %s\n", getboolean(CFG.addr4d));
+    fprintf(fp, "      AreaMgr: allow +%%* %s\n", getboolean(CFG.ca_PlusAll));
+    fprintf(fp, "      AreaMgr: notify    %s\n", getboolean(CFG.ca_Notify));
+    fprintf(fp, "      AreaMgr: passwd    %s\n", getboolean(CFG.ca_Passwd));
+    fprintf(fp, "      AreaMgr: pause     %s\n", getboolean(CFG.ca_Pause));
 
-	fprintf(fp, "      Page length        %d seconds\n", CFG.iPageLength);
-	fprintf(fp, "      Page times         %d\n", CFG.iMaxPageTimes);
-	fprintf(fp, "      Sysop msg area     %d\n", CFG.iSysopArea);
-	fprintf(fp, "      Ask chat reason    %s\n", getboolean(CFG.iAskReason));
-	fprintf(fp, "      Log chat           %s\n", getboolean(CFG.iAutoLog));
-	fprintf(fp, "      Check at prompt    %s\n", getboolean(CFG.iChatPromptChk));
-	fprintf(fp, "      Freeze online time %s\n", getboolean(CFG.iStopChatTime));
-
-	addtoc(fp, toc, 1, 11, page, (char *)"Fileecho processing");
-
-	fprintf(fp, "      Keep days on hold  %d\n", CFG.tic_days);
-	fprintf(fp, "      Hatch password     %s\n", CFG.hatchpasswd);
-	fprintf(fp, "      Free drivespave    %lu\n", CFG.drspace);
-	fprintf(fp, "      Max. systems       %ld\n", CFG.tic_systems);
-	fprintf(fp, "      Max. groups        %ld\n", CFG.tic_groups);
-	fprintf(fp, "      Max. dupes         %ld\n", CFG.tic_dupes);
-	fprintf(fp, "      Keep filedate      %s\n", getboolean(CFG.ct_KeepDate));
-	fprintf(fp, "      Keep mgr netmail   %s\n", getboolean(CFG.ct_KeepMgr));
-	fprintf(fp, "      Local requests     %s\n", getboolean(CFG.ct_LocalRep));
-	fprintf(fp, "      FileMgr: allow +%%* %s\n", getboolean(CFG.ct_PlusAll));
-	fprintf(fp, "      FileMgr: notify    %s\n", getboolean(CFG.ct_Notify));
-	fprintf(fp, "      FileMgr: passwd    %s\n", getboolean(CFG.ct_Passwd));
-	fprintf(fp, "      FileMgr: message   %s\n", getboolean(CFG.ct_Message));
-	fprintf(fp, "      FileMgr: TIC       %s\n", getboolean(CFG.ct_TIC));
-	fprintf(fp, "      FileMgr: pause     %s\n", getboolean(CFG.ct_Pause));
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 12, page, (char *)"Fidonet Mail and Echomail  processing");
-
-	fprintf(fp, "      Max .pkt size      %d Kb.\n", CFG.maxpktsize);
-	fprintf(fp, "      Max archive size   %d Kb.\n", CFG.maxarcsize);
-	fprintf(fp, "      Bad mail board     %s\n", CFG.badboard);
-	fprintf(fp, "      Dupe mail board    %s\n", CFG.dupboard);
-	fprintf(fp, "      Pktdate program    %s\n", CFG.pktdate);
-	fprintf(fp, "      Keep on hold       %d days\n", CFG.toss_days);
-	fprintf(fp, "      Dupes in database  %d\n", CFG.toss_dupes);
-	fprintf(fp, "      Default max msgs   %d\n", CFG.defmsgs);
-	fprintf(fp, "      Default days       %d\n", CFG.defdays);
-	fprintf(fp, "      Reject older then  %d days\n", CFG.toss_old);
-	fprintf(fp, "      Maximum systems    %ld\n", CFG.toss_systems);
-	fprintf(fp, "      Maximum groups     %ld\n", CFG.toss_groups);
-	fprintf(fp, "      Use 4d addressing  %s\n", getboolean(CFG.addr4d));
-        fprintf(fp, "      AreaMgr: allow +%%* %s\n", getboolean(CFG.ca_PlusAll));
-	fprintf(fp, "      AreaMgr: notify    %s\n", getboolean(CFG.ca_Notify));
-	fprintf(fp, "      AreaMgr: passwd    %s\n", getboolean(CFG.ca_Passwd));
-	fprintf(fp, "      AreaMgr: pause     %s\n", getboolean(CFG.ca_Pause));
-
-	addtoc(fp, toc, 1, 13, page, (char *)"Internet Mail and News processing");
-
-	fprintf(fp, "      Split messages at  %d KBytes\n", CFG.new_split);
-	fprintf(fp, "      Force split at     %d KBytes\n", CFG.new_force);
-	fprintf(fp, "      ISP Email Mode     %s\n", getemailmode(CFG.EmailMode));
-	fprintf(fp, "      Email fido aka     %s\n", aka2str(CFG.EmailFidoAka));
-	fprintf(fp, "      UUCP gateway       %s\n", aka2str(CFG.UUCPgate));
-	fprintf(fp, "      POP3 host          %s\n", CFG.popnode);
-	fprintf(fp, "      SMTP host          %s\n", CFG.smtpnode);
-	fprintf(fp, "      News transfermode  %s\n", getnewsmode(CFG.newsfeed));
-	switch (CFG.newsfeed) {
+    fprintf(wp, "<A NAME=\"_inetmail\"></A><H3>Internet Mail and News processing</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webdigit(wp, (char *)"Split messages at KByte", CFG.new_split);
+    add_webdigit(wp, (char *)"Force split at KByte", CFG.new_force);
+    add_webtable(wp, (char *)"ISP Email Mode", getemailmode(CFG.EmailMode));
+    add_webtable(wp, (char *)"Email fido aka", aka2str(CFG.EmailFidoAka));
+    add_webtable(wp, (char *)"UUCP gateway", aka2str(CFG.UUCPgate));
+    add_webtable(wp, (char *)"POP3 host", CFG.popnode);
+    add_webtable(wp, (char *)"SMTP host", CFG.smtpnode);
+    add_webtable(wp, (char *)"News transfermode", getnewsmode(CFG.newsfeed));
+    addtoc(fp, toc, 1, 13, page, (char *)"Internet Mail and News processing");
+    fprintf(fp, "      Split messages at  %d KBytes\n", CFG.new_split);
+    fprintf(fp, "      Force split at     %d KBytes\n", CFG.new_force);
+    fprintf(fp, "      ISP Email Mode     %s\n", getemailmode(CFG.EmailMode));
+    fprintf(fp, "      Email fido aka     %s\n", aka2str(CFG.EmailFidoAka));
+    fprintf(fp, "      UUCP gateway       %s\n", aka2str(CFG.UUCPgate));
+    fprintf(fp, "      POP3 host          %s\n", CFG.popnode);
+    fprintf(fp, "      SMTP host          %s\n", CFG.smtpnode);
+    fprintf(fp, "      News transfermode  %s\n", getnewsmode(CFG.newsfeed));
+    switch (CFG.newsfeed) {
 	case FEEDINN:	fprintf(fp, "      NNTP host          %s\n", CFG.nntpnode);
 			fprintf(fp, "      NNTP mode reader   %s\n", getboolean(CFG.modereader));
 			fprintf(fp, "      NNTP username      %s\n", CFG.nntpuser);
 			fprintf(fp, "      NNTP password      %s\n", getboolean(strlen(CFG.nntppass)));
+			add_webtable(wp, (char *)"NNTP host", CFG.nntpnode);
+			add_webtable(wp, (char *)"NNTP mode reader", getboolean(CFG.modereader));
+			add_webtable(wp, (char *)"NNTP username", CFG.nntpuser);
+			add_webtable(wp, (char *)"NNTP password", CFG.nntppass);
 			break;
 	case FEEDRNEWS:	fprintf(fp, "      Path to rnews      %s\n", CFG.rnewspath);
+			add_webtable(wp, (char *)"Path to rnews", CFG.rnewspath);
 			break;
 	case FEEDUUCP:	fprintf(fp, "      NNTP host          %s\n", CFG.nntpnode);
 			fprintf(fp, "      Path to rnews      %s\n", CFG.rnewspath);
+			add_webtable(wp, (char *)"NNTP host", CFG.nntpnode);
+			add_webtable(wp, (char *)"Path to rnews", CFG.rnewspath);
 			break;
+    }
+    add_webdigit(wp, (char *)"Max articles fetch", CFG.maxarticles);
+    add_webtable(wp, (char *)"Allow control msgs", getboolean(CFG.allowcontrol));
+    add_webtable(wp, (char *)"Don't regate msgs", getboolean(CFG.dontregate));
+    fprintf(fp, "      Max articles fetch %d\n", CFG.maxarticles);
+    fprintf(fp, "      Allow control msgs %s\n", getboolean(CFG.allowcontrol));
+    fprintf(fp, "      Don't regate msgs  %s\n", getboolean(CFG.dontregate));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    
+    fprintf(wp, "<A NAME=\"_newfiles\"></A><H3>Newfile reports</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");    
+    add_webdigit(wp, (char *)"New files days", CFG.newdays);
+    web_secflags(wp, (char *)"Highest security level", CFG.security);
+    add_webdigit(wp, (char *)"Max. newfile groups", CFG.new_groups);
+    addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
+    fprintf(fp, "      New files days     %d\n", CFG.newdays);
+    fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
+    fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+
+    fprintf(wp, "<A NAME=\"_mailer\"></A><H3>Mailer setup</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"Mailer loglevel", getloglevel(CFG.cico_loglevel));
+    add_webdigit(wp, (char *)"Reset modem timeout", CFG.timeoutreset);
+    add_webdigit(wp, (char *)"Connect timeout", CFG.timeoutconnect);
+    add_webdigit(wp, (char *)"Random dialdelay", CFG.dialdelay);
+    add_webtable(wp, (char *)"Default phone number", CFG.Phone);
+    add_webdigit(wp, (char *)"Default linespeed", CFG.Speed);
+    add_webtable(wp, (char *)"TCP/IP flags", CFG.Flags);
+    add_webtable(wp, (char *)"No Filerequests", getboolean(CFG.NoFreqs));
+    add_webtable(wp, (char *)"No Calls", getboolean(CFG.NoCall));
+    add_webtable(wp, (char *)"No EMSI", getboolean(CFG.NoEMSI));
+    add_webtable(wp, (char *)"No YooHoo/2U2", getboolean(CFG.NoWazoo));
+    add_webtable(wp, (char *)"No Zmodem", getboolean(CFG.NoZmodem));
+    add_webtable(wp, (char *)"No Zedzap", getboolean(CFG.NoZedzap));
+    add_webtable(wp, (char *)"No Hydra", getboolean(CFG.NoHydra));
+    add_webtable(wp, (char *)"No MD5 passwords", getboolean(CFG.NoMD5));
+    add_webtable(wp, (char *)"0 bytes lockfiles are OK", getboolean(CFG.ZeroLocks));
+    add_webdigit(wp, (char *)"Max request files", CFG.Req_Files);
+    add_webdigit(wp, (char *)"Max request MBytes", CFG.Req_MBytes);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 15, page, (char *)"Mailer setup");
+    p = getloglevel(CFG.cico_loglevel);
+    fprintf(fp, "      Mailer loglevel    %s\n",  p);
+    free(p);
+    fprintf(fp, "      Res. modem timeout %ld\n", CFG.timeoutreset);
+    fprintf(fp, "      Connect timeout    %ld\n", CFG.timeoutconnect);
+    fprintf(fp, "      Random dialdelay   %ld\n", CFG.dialdelay);
+    fprintf(fp, "      Default phone nr.  %s\n",  CFG.Phone);
+    fprintf(fp, "      Default speed      %lu\n", CFG.Speed);
+    fprintf(fp, "      TCP/IP flags       %s\n",  CFG.Flags);
+    fprintf(fp, "      No Filerequests    %s\n",  getboolean(CFG.NoFreqs));
+    fprintf(fp, "      No Calls           %s\n",  getboolean(CFG.NoCall));
+    fprintf(fp, "      No EMSI            %s\n",  getboolean(CFG.NoEMSI));
+    fprintf(fp, "      No YooHoo/2U2      %s\n",  getboolean(CFG.NoWazoo));
+    fprintf(fp, "      No Zmodem          %s\n",  getboolean(CFG.NoZmodem));
+    fprintf(fp, "      No Zedzap          %s\n",  getboolean(CFG.NoZedzap));
+    fprintf(fp, "      No Hydra           %s\n",  getboolean(CFG.NoHydra));
+    fprintf(fp, "      No MD5 passwords   %s\n",  getboolean(CFG.NoMD5));
+    fprintf(fp, "      0 bytes locks OK   %s\n",  getboolean(CFG.ZeroLocks));
+    fprintf(fp, "      Max request files  %d\n",  CFG.Req_Files);
+    fprintf(fp, "      Max request MBytes %d\n",  CFG.Req_MBytes);
+    fprintf(wp, "<P>\n");
+    fprintf(wp, "<TABLE width='360' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    fprintf(wp, "<TR><TH colspan='2'>Phone number translation</TH></TR>\n");
+    fprintf(wp, "<TR><TH align='left'>From</TH><TH align='left'>To</TH></TR>\n");
+    for (i = 0; i < 40; i++)
+	if ((CFG.phonetrans[i].match[0] != '\0') || (CFG.phonetrans[i].repl[0] != '\0')) {
+	    fprintf(fp, "      Translate          %-20s %s\n", CFG.phonetrans[i].match, CFG.phonetrans[i].repl);
+	    fprintf(wp, "<TR><TD>%s</TD><TD>%s</TD></TR>\n", CFG.phonetrans[i].match, CFG.phonetrans[i].repl);
 	}
-	fprintf(fp, "      Max articles fetch %d\n", CFG.maxarticles);
-	fprintf(fp, "      Allow control msgs %s\n", getboolean(CFG.allowcontrol));
-	fprintf(fp, "      Don't regate msgs  %s\n", getboolean(CFG.dontregate));
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    
+    fprintf(wp, "<A NAME=\"_www\"></A><H3>WWW server setup</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    add_webtable(wp, (char *)"HTML root", CFG.www_root);
+    add_webtable(wp, (char *)"Link to FTP base", CFG.www_link2ftp);
+    add_webtable(wp, (char *)"Webserver URL", CFG.www_url);
+    add_webtable(wp, (char *)"Character set", CFG.www_charset);
+    add_webtable(wp, (char *)"Author name", CFG.www_author);
+    add_webtable(wp, (char *)"Convert command", CFG.www_convert);
+    add_webdigit(wp, (char *)"Files per webpage", CFG.www_files_page);
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    fprintf(wp, "<HR>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
+    fprintf(fp, "      HTML root          %s\n", CFG.www_root);
+    fprintf(fp, "      Link to FTP base   %s\n", CFG.www_link2ftp);
+    fprintf(fp, "      Webserver URL      %s\n", CFG.www_url);
+    fprintf(fp, "      Character set      %s\n", CFG.www_charset);
+    fprintf(fp, "      Author name        %s\n", CFG.www_author);
+    fprintf(fp, "      Convert command    %s\n", CFG.www_convert);
+    fprintf(fp, "      Files per webpage  %d\n", CFG.www_files_page);
 
-	addtoc(fp, toc, 1, 14, page, (char *)"Newfile reports");
-
-	fprintf(fp, "      New files days     %d\n", CFG.newdays);
-	fprintf(fp, "      Highest sec. level %s\n", get_secstr(CFG.security));
-	fprintf(fp, "      Max. newfile grps  %ld\n", CFG.new_groups);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 15, page, (char *)"Mailer setup");
-
-	p = getloglevel(CFG.cico_loglevel);
-	fprintf(fp, "      Mailer loglevel    %s\n",  p);
-	free(p);
-	fprintf(fp, "      Res. modem timeout %ld\n", CFG.timeoutreset);
-	fprintf(fp, "      Connect timeout    %ld\n", CFG.timeoutconnect);
-	fprintf(fp, "      Random dialdelay   %ld\n", CFG.dialdelay);
-	fprintf(fp, "      Default phone nr.  %s\n",  CFG.Phone);
-	fprintf(fp, "      Default speed      %lu\n", CFG.Speed);
-	fprintf(fp, "      TCP/IP flags       %s\n",  CFG.Flags);
-	fprintf(fp, "      No Filerequests    %s\n",  getboolean(CFG.NoFreqs));
-	fprintf(fp, "      No Calls           %s\n",  getboolean(CFG.NoCall));
-	fprintf(fp, "      No EMSI            %s\n",  getboolean(CFG.NoEMSI));
-	fprintf(fp, "      No YooHoo/2U2      %s\n",  getboolean(CFG.NoWazoo));
-	fprintf(fp, "      No Zmodem          %s\n",  getboolean(CFG.NoZmodem));
-	fprintf(fp, "      No Zedzap          %s\n",  getboolean(CFG.NoZedzap));
-	fprintf(fp, "      No Hydra           %s\n",  getboolean(CFG.NoHydra));
-	fprintf(fp, "      No MD5 passwords   %s\n",  getboolean(CFG.NoMD5));
-	fprintf(fp, "      0 bytes locks OK   %s\n",  getboolean(CFG.ZeroLocks));
-	fprintf(fp, "      Max request files  %d\n",  CFG.Req_Files);
-	fprintf(fp, "      Max request MBytes %d\n",  CFG.Req_MBytes);
-
-	for (i = 0; i < 40; i++)
-		if ((CFG.phonetrans[i].match[0] != '\0') ||
-		    (CFG.phonetrans[i].repl[0] != '\0'))
-			fprintf(fp, "      Translate          %-20s %s\n", CFG.phonetrans[i].match, CFG.phonetrans[i].repl);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1, 17, page, (char *)"WWW server setup");
-
-	fprintf(fp, "      HTML root          %s\n", CFG.www_root);
-	fprintf(fp, "      Link to FTP base   %s\n", CFG.www_link2ftp);
-	fprintf(fp, "      Webserver URL      %s\n", CFG.www_url);
-	fprintf(fp, "      Character set      %s\n", CFG.www_charset);
-	fprintf(fp, "      Author name        %s\n", CFG.www_author);
-	fprintf(fp, "      Convert command    %s\n", CFG.www_convert);
-	fprintf(fp, "      File per webpage   %d\n", CFG.www_files_page);
-
-	page = newpage(fp, page);
-	addtoc(fp, toc, 1,18, page, (char *)"Manager flag descriptions");
-	fprintf(fp, "               1    1    2    2    3 3\n");
-	fprintf(fp, "      1   5    0    5    0    5    0 2\n");
-	fprintf(fp, "      --------------------------------\n");
-	fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
-	for (i = 0; i < 32; i++) {
-	    fprintf(fp, "      ");
-	    for (j = 0; j < (31 - i); j++)
-		fprintf(fp, "|");
-	    fprintf(fp, "+");
-	    for (j = (32 - i); j < 32; j++)
-		fprintf(fp, "-");
-	    fprintf(fp, " %s\n", CFG.aname[31 - i]);
-	}
+    fprintf(wp, "<A NAME=\"_manager\"></A><H3>Manager flag descriptions</H3>\n");
+    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+    fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
+    fprintf(wp, "<TBODY>\n");
+    for (i = 0; i < 32; i++) {
+	sprintf(temp, "Bit %d", i+1); 
+	add_webtable(wp, temp, CFG.aname[i]);
+    }
+    fprintf(wp, "</TBODY>\n");
+    fprintf(wp, "</TABLE>\n");
+    fprintf(wp, "<A HREF=\"#_top\">Top</A>\n");
+    page = newpage(fp, page);
+    addtoc(fp, toc, 1,18, page, (char *)"Manager flag descriptions");
+    fprintf(fp, "               1    1    2    2    3 3\n");
+    fprintf(fp, "      1   5    0    5    0    5    0 2\n");
+    fprintf(fp, "      --------------------------------\n");
+    fprintf(fp, "      ||||||||||||||||||||||||||||||||\n");
+    for (i = 0; i < 32; i++) {
+	fprintf(fp, "      ");
+        for (j = 0; j < (31 - i); j++)
+	    fprintf(fp, "|");
+	fprintf(fp, "+");
+        for (j = (32 - i); j < 32; j++)
+	    fprintf(fp, "-");
+	fprintf(fp, " %s\n", CFG.aname[31 - i]);
+    }
 
     close_webdoc(wp);
     return page;

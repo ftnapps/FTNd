@@ -289,7 +289,6 @@ void load_maincfg(void)
         CFG.ct_TIC = TRUE;
         CFG.tic_days = 30;
         sprintf(CFG.hatchpasswd, "DizIzMyBIGseeKret");
-        CFG.drspace = 2048;
         CFG.tic_systems = 10;
         CFG.tic_groups  = 25;
         CFG.tic_dupes   = 16000;

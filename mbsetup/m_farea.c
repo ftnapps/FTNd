@@ -755,8 +755,8 @@ void InitFilearea(void)
 int bbs_file_doc(FILE *fp, FILE *toc, int page)
 {
     char    temp[PATH_MAX];
-    FILE    *wp, *ip, *no;
-    int	    i = 0, j = 0;
+    FILE    *ti, *wp, *ip, *no;
+    int	    i = 0, j = 0, tics;
 
     sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
     if ((no = fopen(temp, "r")) == NULL)
@@ -788,8 +788,8 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 	    if ((wp = open_webdoc(temp, (char *)"File area", area.Name))) {
 		fprintf(wp, "<A HREF=\"index.html\">Main</A>&nbsp;<A HREF=\"fileareas.html\">Back</A>\n");
 		fprintf(wp, "<P>\n");
-		fprintf(wp, "<TABLE width='400' border='0' cellspacing='0' cellpadding='2'>\n");
-		fprintf(wp, "<COL width='50%%'><COL width='50%%'>\n");
+		fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+		fprintf(wp, "<COL width='30%%'><COL width='70%%'>\n");
 		fprintf(wp, "<TBODY>\n");
 		add_webdigit(wp, (char *)"Area number", i);
 		add_webtable(wp, (char *)"Area name", area.Name);
@@ -820,6 +820,34 @@ int bbs_file_doc(FILE *fp, FILE *toc, int page)
 		add_webdigit(wp, (char *)"Upload area", area.Upload);
 		fprintf(wp, "</TBODY>\n");
 		fprintf(wp, "</TABLE>\n");
+		fprintf(wp, "<HR>\n");
+		fprintf(wp, "<H3>TIC Areas Reference</H3>\n");
+		tics = 0;
+		sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+		if ((ti = fopen(temp, "r"))) {
+		    fread(&tichdr, sizeof(tichdr), 1, ti);
+		    fseek(ti, 0, SEEK_SET);
+		    fread(&tichdr, tichdr.hdrsize, 1, ti);
+		    while ((fread(&tic, tichdr.recsize, 1, ti)) == 1) {
+			if (tic.FileArea == i) {
+			    if (tics == 0) {
+				fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+				fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+				fprintf(wp, "<TBODY>\n");
+			    }
+			    add_webtable(wp, tic.Name, tic.Comment);
+			    tics++;
+			}
+			fseek(ti, tichdr.syssize, SEEK_CUR);
+		    }
+		    fclose(ti);
+		}
+		if (tics == 0)
+		    fprintf(wp, "No TIC Areas References\n");
+		else {
+		    fprintf(wp, "</TBODY>\n");
+		    fprintf(wp, "</TABLE>\n");
+		}
 		close_webdoc(wp);
 	    }
 

@@ -682,9 +682,9 @@ char *PickFGroup(char *shdr)
 
 int tic_group_doc(FILE *fp, FILE *toc, int page)
 {
-    char    *temp;
-    FILE    *wp, *ip, *no;
-    int	    First = TRUE;;
+    char    *temp, group[13];
+    FILE    *ti, *wp, *ip, *no;
+    int	    refs, i, First = TRUE;;
 
     temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/fgroups.data", getenv("MBSE_ROOT"));
@@ -758,7 +758,92 @@ int tic_group_doc(FILE *fp, FILE *toc, int page)
 	    add_webtable(wp, (char *)"Last active date", ctime(&fgroup.LastDate));
 	    fprintf(wp, "</TBODY>\n");
 	    fprintf(wp, "</TABLE>\n");
-	    close_webdoc(wp);
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>BBS File Areas Reference</H3>\n");
+	    i = refs = 0;
+	    sprintf(temp, "%s/etc/fareas.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&areahdr, sizeof(areahdr), 1, ti);
+		while ((fread(&area, areahdr.recsize, 1, ti)) == 1) {
+		    i++;
+		    if (area.Available && (strcmp(fgroup.Name, area.BbsGroup) == 0)) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			sprintf(temp, "Area %d", i);
+			add_webtable(wp, temp, area.Name);
+			refs++;
+		    }
+		}
+		fclose(ti);
+	    }
+            if (refs == 0)
+		fprintf(wp, "No BBS File Areas References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>TIC Areas Reference</H3>\n");
+	    refs = 0;
+	    sprintf(temp, "%s/etc/tic.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&tichdr, sizeof(tichdr), 1, ti);
+		fseek(ti, 0, SEEK_SET);
+		fread(&tichdr, tichdr.hdrsize, 1, ti);
+		while ((fread(&tic, tichdr.recsize, 1, ti)) == 1) {
+		    if (strcmp(fgroup.Name, tic.Group) == 0) {
+			if (refs == 0) {
+			    fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+			    fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+			    fprintf(wp, "<TBODY>\n");
+			}
+			add_webtable(wp, tic.Name, tic.Comment);
+			refs++;
+		    }
+		    fseek(ti, tichdr.syssize, SEEK_CUR);
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No TIC Areas References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
+	    fprintf(wp, "<HR>\n");
+	    fprintf(wp, "<H3>Nodes Reference</H3>\n");
+	    refs = 0;
+	    sprintf(temp, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
+	    if ((ti = fopen(temp, "r"))) {
+		fread(&nodeshdr, sizeof(nodeshdr), 1, ti);
+		fseek(ti, 0, SEEK_SET);
+		fread(&nodeshdr, nodeshdr.hdrsize, 1, ti);
+		while ((fread(&nodes, nodeshdr.recsize, 1, ti)) == 1) {
+		    for (i = 0; i < nodeshdr.filegrp / sizeof(group); i++) {
+			fread(&group, sizeof(group), 1, ti);
+			if (strcmp(group, fgroup.Name) == 0) {
+			    if (refs == 0) {
+				fprintf(wp, "<TABLE width='600' border='0' cellspacing='0' cellpadding='2'>\n");
+				fprintf(wp, "<COL width='20%%'><COL width='80%%'>\n");
+				fprintf(wp, "<TBODY>\n");
+			    }
+			    add_webtable(wp, aka2str(nodes.Aka[0]), nodes.Sysop);
+			    refs++;
+			}
+		    }
+		    fseek(ti, nodeshdr.mailgrp, SEEK_CUR);
+		}
+		fclose(ti);
+	    }
+	    if (refs == 0)
+		fprintf(wp, "No Nodes References\n");
+	    else {
+		fprintf(wp, "</TBODY>\n");
+		fprintf(wp, "</TABLE>\n");
+	    }
 	}
 	
 	fprintf(fp, "    Group name     %s\n", fgroup.Name);

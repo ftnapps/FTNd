@@ -1047,7 +1047,7 @@ struct	sysconfig {
 	int		OLR_MaxReq;		/* Max nr of Freq's	    */
 	int		tic_days;		/* Keep on hold for n days  */
 	char		hatchpasswd[21];	/* Internal Hatch Passwd    */
-	unsigned long	drspace;		/* Minimum free drivespace  */
+	unsigned long	xdrspace;
 	char		xmgrname[5][21];	/* Areamgr names	    */
 	long		tic_systems;		/* Systems in database	    */
 	long		tic_groups;		/* Groups in database	    */
