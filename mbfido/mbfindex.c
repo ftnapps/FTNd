@@ -330,7 +330,7 @@ FILE *newpage(char *Path, char *Name, time_t later, int inArea, int Current)
                 fprintf(fa, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
                 fprintf(fa, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
                 fprintf(fa, "<HEAD><TITLE>%s</TITLE>\n", outbuf);
-                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/css/files.css\">\n", CFG.www_url);
+                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
                 fprintf(fa, "<STYLE TYPE=\"text/css\">\n");
                 fprintf(fa, "</STYLE>\n</HEAD>\n<BODY>\n");
                 pagelink(fa, Path, inArea, Current);
@@ -455,7 +455,7 @@ void Index(void)
 	fprintf(fm, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
 	fprintf(fm, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
 	fprintf(fm, "<HEAD><TITLE>%s</TITLE>\n", outbuf);
-	fprintf(fm, "<LINK rel=stylesheet HREF=\"%s/css/files.css\">\n", CFG.www_url);
+	fprintf(fm, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
 	fprintf(fm, "<STYLE TYPE=\"text/css\">\n");
 	fprintf(fm, "</STYLE>\n</HEAD>\n<BODY>\n");
 	fprintf(fm, "<H2 align=center>%s</H2><P>\n", outbuf);

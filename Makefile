@@ -133,6 +133,14 @@ install:
 			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub/local ; \
 			chmod 0755 ${PREFIX}/ftp/pub/local ; \
 		fi
+		@if [ ! -d ${PREFIX}/ftp/pub/css ] ; then \
+			mkdir ${PREFIX}/ftp/pub/css ; \
+			${CHOWN} ${OWNER}.${GROUP} ${PREFIX}/ftp/pub/css ; \
+			chmod 0755 ${PREFIX}/ftp/pub/css ; \
+		fi
+		@if [ ! -f ${PREFIX}/ftp/pub/css/files.css ]; then \
+			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0444 files.css ${PREFIX}/ftp/pub/css ; \
+		fi
 		@if [ ! -d ${PREFIX}/var/bso ] ; then \
 			mkdir ${PREFIX}/var/nodelist ; \
 			mkdir ${PREFIX}/var/bso ; \

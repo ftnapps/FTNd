@@ -186,7 +186,7 @@ FILE *newpage(char *Name, char *Title)
                 fprintf(fa, "<META http-equiv=\"Content-Type\" content=\"text/html; charset=%s\">\n", CFG.www_charset);
                 fprintf(fa, "<META name=\"%s\" lang=\"en\" content=\"%s\">\n", CFG.www_author, outbuf);
                 fprintf(fa, "<HEAD>\n<TITLE>%s</TITLE>\n", outbuf);
-                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/css/files.css\">\n", CFG.www_url);
+                fprintf(fa, "<LINK rel=stylesheet HREF=\"%s/%s/css/files.css\">\n", CFG.www_url, CFG.www_link2ftp);
                 fprintf(fa, "<STYLE TYPE=\"text/css\">\n");
                 fprintf(fa, "</STYLE>\n</HEAD>\n<BODY>\n<A NAME=top></A>\n");
                 fprintf(fa, "<H1 align=center>%s</H1><P>\n", Title);
