@@ -756,7 +756,7 @@ void Reply_Email(int IsReply)
 		x = TRUE;
 		j = 0;
 		for (i = 0; i < strlen(to); i++) {
-			if (x) {
+			if (x && isalpha(to[i])) {
 				qin[j] = to[i];
 				j++;
 				x = FALSE;

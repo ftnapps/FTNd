@@ -4215,6 +4215,8 @@ v0.33.18        27-Jul-2001
 v0.33.19        26-Oct-2001
 
 	upgrade:
+		Announce any new files you might have. If you run mbtoberep
+		it should display no data anymore.
 		Change the file /opt/mbse/etc/issue like the example in the
 		subdirectory mbtask.
 		Change the shell for user mbse to /opt/mbse/bin/mbnewusr
@@ -4313,6 +4315,9 @@ v0.33.19        26-Oct-2001
 		The upload virus file scan now also scans files that are not
 		known archives. Should catch macro viri and worms.
 		The file CRC is now set when importing an uploaded file.
+		Fixed quote initials of the original user containing a space
+		character if there was a dot followed by a space in the users
+		name.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new
