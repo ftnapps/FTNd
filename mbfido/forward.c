@@ -328,7 +328,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    WriteError("$Can't create %s", fname);
 	}
     }
-    Syslog('p', "Forward almost done");
     fsync(fileno(fl));
     fclose(fl);
     
@@ -344,7 +343,6 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     free(queuedir);
     free(listfile);
     tidy_faddr(routeto);
-    Syslog('p', "Forward really done");
 }
 
 

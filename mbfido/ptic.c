@@ -774,20 +774,14 @@ int ProcessTic(fa_list *sbl)
 	while (GetTicSystem(&Link, First)) {
 	    First = FALSE;
 	    if ((Link.aka.zone) && (Link.sendto) && (!Link.pause)) {
-		Syslog('p', "Forward loop to %s", aka2str(Link.aka));
 		if (!((TIC.Aka.zone == Link.aka.zone) && (TIC.Aka.net == Link.aka.net) &&
 		    (TIC.Aka.node == Link.aka.node) && (TIC.Aka.point == Link.aka.point))) {
-		    Syslog('p', "Will send");
 		    tic_out++;
 		    ForwardFile(Link.aka, sbl);
-		    Syslog('p', "Did send");
-		} else {
-		    Syslog('p', "Will not send");
 		}
 	    }
 	}
     }
-    Syslog('p', "Forwarding to all nodes done");
 
     Magic_ExecCommand();
     Magic_CopyFile();
@@ -798,7 +792,6 @@ int ProcessTic(fa_list *sbl)
 
     unlink(Temp);
     free(Temp);
-    Syslog('p', "ptic() done");
     return 0;
 }
 
