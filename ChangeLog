@@ -30,6 +30,8 @@ v0.51.3		22-Mar-2003
 
 	mbtask:
 		Fixed crash on NetBSD Sparc when getsysinfo was called.
+		Fixed disk search check when /opt/mbse is a symlink on a non-
+		root disk to display the correct partition.
 
 	mblogin:
 		Changed some defines for NetBSD 1.6.2

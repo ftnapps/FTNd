@@ -39,31 +39,31 @@
  */
 char *get_sysinfo(void)
 {
-	FILE		*fp;
-	static char	buf[SS_BUFSIZE];
-	char		*temp;
-	time_t		startdate;
+    FILE	*fp;
+    static char	buf[SS_BUFSIZE];
+    char	*temp;
+    time_t	startdate;
 
-	sprintf(buf, "201:1,16;");
-	temp = calloc(PATH_MAX, sizeof(char));
-	sprintf(temp, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+    sprintf(buf, "201:1,16;");
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
 
-	if ((fp = fopen(temp, "r")) == NULL) {
-		free(temp);
-		return buf;
-	}
+    if ((fp = fopen(temp, "r")) == NULL) {
 	free(temp);
+	return buf;
+    }
+    free(temp);
 
-	if (fread(&SYSINFO, sizeof(SYSINFO), 1, fp) == 1) {
-		startdate = SYSINFO.StartDate;
-		sprintf(buf, "100:7,%ld,%ld,%ld,%ld,%ld,%s,%s;", SYSINFO.SystemCalls,
+    if (fread(&SYSINFO, sizeof(SYSINFO), 1, fp) == 1) {
+	startdate = SYSINFO.StartDate;
+	sprintf(buf, "100:7,%ld,%ld,%ld,%ld,%ld,%s,%s;", SYSINFO.SystemCalls,
 			SYSINFO.Pots, SYSINFO.ISDN, SYSINFO.Network, SYSINFO.Local,
 			ctime(&startdate), SYSINFO.LastCaller);
-	}
+    }
 
-	fclose(fp);
+    fclose(fp);
 
-	return buf;
+    return buf;
 }
 
 
