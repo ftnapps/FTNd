@@ -1081,7 +1081,7 @@ void ListFileAreas(void)
     if (!do_quiet) {
 	colour(3, 0);
 	printf("----- ----- ----- ---------------------------------------------------------\n");
-	printf("%5d %5d %5ld \n", iAreas, tcount, tsize);
+	printf("%5d %5d %5ld \n", iTotal, tcount, tsize);
     }
 
     fclose(pAreas);
