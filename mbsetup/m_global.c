@@ -310,9 +310,9 @@ void e_global(void)
 		case 8:	E_PTH(13,16,64, CFG.outbound,     "The path to the base ^outbound^ directory.", 0750)
 		case 9: E_PTH(14,16,64, CFG.out_queue,    "The path to the ^temp outbound queue^ directory.", 0750)
 		case 10:E_PTH(15,16,64, CFG.msgs_path,    "The path to the ^*.msgs^ directory.", 0750)
-		case 12:E_PTH(16,16,64, CFG.badtic,       "The path to the ^bad tic files^.", 0750)
-		case 13:E_PTH(17,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.", 0750)
-		case 14:e_global2();
+		case 11:E_PTH(16,16,64, CFG.badtic,       "The path to the ^bad tic files^.", 0750)
+		case 12:E_PTH(17,16,64, CFG.ticout,       "The path to the ^outgoing TIC^ files.", 0750)
+		case 13:e_global2();
 			s_global();
 			break;
 		}

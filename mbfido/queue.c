@@ -50,6 +50,10 @@ static char *dow[] = {(char *)"su", (char *)"mo", (char *)"tu", (char *)"we",
 extern	int	do_quiet;
 
 
+/*
+ * Flush one queue directory of a node. If everything is successfull the
+ * directory will become empty.
+ */
 void flush_dir(char *);
 void flush_dir(char *ndir)
 {
@@ -58,9 +62,9 @@ void flush_dir(char *ndir)
     FILE	    *fp, *inf, *ouf;
     faddr	    noden, *bestaka;
     fidoaddr	    nodenr;
-    int		    flavor, Attach, fage, first, bread;
+    int		    flavor, mode, Attach, fage, first, bread, rc;
     long	    fsize;
-    char	    *temp, *fname, *arcfile, *pktfile, *ext, maxnr, nr, oldnr, *buf;
+    char	    *p, *temp, *fname, *arcfile, *pktfile, *ext, maxnr, nr, oldnr, *buf;
     time_t	    Now;
     struct tm	    *ptm;
     struct stat	    sbuf;
@@ -192,7 +196,7 @@ void flush_dir(char *ndir)
     Syslog('p', "Arcmail file %s", arcfile);
 
     /*
-     * If a not finished .pkt file exist, close it first and rename it.
+     * If there is a mailpkt.qqq file, close it and rename it.
      */
     pktfile = calloc(PATH_MAX, sizeof(char));
     fname   = calloc(PATH_MAX, sizeof(char));
@@ -487,8 +491,70 @@ void flush_dir(char *ndir)
     }
     Syslog('p', "Done with netmail");
 
-// Add files
+    /*
+     * Now add the files for the node, information is in the .filelist
+     * file, this tells the location of the file and what to do with
+     * it after it is sent.
+     */
+    sprintf(pktfile, "%s/.filelist", temp);
+    if ((fp = fopen(pktfile, "r")) != NULL) {
 
+	Syslog('+', "Adding files for %s, via %s", aka2str(nodenr), ascfnode(&noden, 0x1f));
+	if (!do_quiet) {
+	    printf("\rAdding files for %s                        ", ascfnode(&noden, 0x1f));
+	    fflush(stdout);
+	}
+
+	buf = calloc(PATH_MAX + 1, sizeof(char));
+
+	while (fgets(buf, PATH_MAX, fp)) {
+	    Striplf(buf);
+	    Syslog('p', "File: %s", buf);
+	    flavor = buf[0];
+	    p = strchr(buf, ' ');
+	    p++;
+	    if (strncmp(p, "LEAVE ", 6) == 0)
+		mode = LEAVE;
+	    else if (strncmp(p, "KFS ", 4) == 0)
+		mode = KFS;
+	    else if (strncmp(p, "TFS ", 4) == 0)
+		mode = TFS;
+	    else {
+		WriteError("Syntax error in filelist \"%s\"", buf);
+		mode = LEAVE;
+	    }
+	    p = strchr(p, ' ');
+	    p++;
+
+	    Syslog('+', "File attach %s", p);
+	    if (nodes.Session_out == S_DIRECT) {
+		attach(noden, p, mode, flavor);
+	    } else if (nodes.Session_out == S_DIR) {
+		sprintf(arcfile, "%s/%s", nodes.Dir_out_path, basename(p));
+		if (mode == LEAVE) {
+		    /*
+		     * LEAVE file, so we copy this one.
+		     */
+		    rc = file_cp(p, arcfile);
+		    Syslog('p', "file_cp(%s, %s) rc=%d", p, arcfile, rc);
+		} else {
+		    /*
+		     * KFS or TFS, move file to node directory
+		     */
+		    rc = file_mv(p, arcfile);
+		    Syslog('p', "file_mv(%s, %s) rc=%d", p, arcfile, rc);
+		}
+		chmod(arcfile, 0660);
+	    }
+
+	    Syslog('p', "%c %d %s", flavor, mode, pktfile);
+
+	}
+
+	free(buf);
+	fclose(fp);
+	unlink(pktfile);
+    }
 
     /*
      * We are done, the queue is flushed, unlock the node.

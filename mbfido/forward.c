@@ -44,14 +44,13 @@
 #include "rollover.h"
 #include "mgrutil.h"
 #include "forward.h"
-#include "dirsession.h"
 
 
 
 void ForwardFile(fidoaddr Node, fa_list *sbl)
 {
-    char	*subject = NULL, *temp, *fwdfile = NULL, *ticfile = NULL, fname[PATH_MAX], *ticname, flavor;
-    FILE	*fp, *fi, *net;
+    char	*subject = NULL, *temp, *fwdfile = NULL, *queuedir, *listfile, *ticfile = NULL, fname[PATH_MAX], *ticname, flavor;
+    FILE	*fp, *fi, *fl, *net;
     faddr	*dest, *routeto, *Fa, *Temp, *ba;
     int		i, z, n;
     time_t	now, ftime;
@@ -90,7 +89,20 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	}
     }
 
-    fwdfile = calloc(PATH_MAX, sizeof(char));
+    fwdfile  = calloc(PATH_MAX, sizeof(char));
+    queuedir = calloc(PATH_MAX, sizeof(char));
+    listfile = calloc(PATH_MAX, sizeof(char));
+    sprintf(queuedir, "%s/%d.%d.%d.%d", CFG.out_queue, Node.zone, Node.net, Node.node, Node.point);
+    sprintf(listfile, "%s/.filelist", queuedir);
+    mkdirs(listfile, 0750);
+    if ((fl = fopen(listfile, "a+")) == NULL) {
+	WriteError("$Can't open %s", listfile);
+	free(fwdfile);
+	free(listfile);
+	free(queuedir);
+	return;
+    }
+    Syslog('f', "%s is open", listfile);
     
     /*
      * Create the full filename
@@ -109,39 +121,13 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     if (nodes.Hold)
 	flavor = 'h';
 
+    fprintf(fl, "%c LEAVE %s\n", flavor, fwdfile);
+
     if (nodes.RouteVia.zone)
 	routeto = fido2faddr(nodes.RouteVia);
     else
 	routeto = fido2faddr(Node);
     dest = fido2faddr(Node);
-    if (nodes.Session_out == S_DIR) {
-	if (islocked(nodes.Dir_out_clock, nodes.Dir_out_chklck, nodes.Dir_out_waitclr, 'p')) {
-	    /*
-	     * Not good, should go to a queue
-	     */
-	    attach(*routeto, fwdfile, LEAVE, flavor);
-	} else {
-	    if (! setlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p')) {
-		/*
-		 * Not good again
-		 */
-		attach(*routeto, fwdfile, LEAVE, flavor);
-	    } else {
-		/*
-		 * Node locked, copy file to destination directory
-		 */
-		ticfile = calloc(PATH_MAX, sizeof(char));
-		sprintf(ticfile, "%s/%s", nodes.Dir_out_path, subject);
-		if (file_cp(fwdfile, ticfile))
-		    WriteError("$Can't copy %s to %s", fwdfile, ticfile);
-		else
-		    chmod(ticfile, 0660);
-		free(ticfile);
-	    }
-	}
-    } else {
-	attach(*routeto, fwdfile, LEAVE, flavor);
-    }
 
     ticfile = calloc(PATH_MAX, sizeof(char));
     ticname = calloc(15, sizeof(char));
@@ -149,10 +135,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	sprintf(ticname, "%08lx.tic", sequencer());
 	subject = xstrcat(subject, (char *)" ");
 	subject = xstrcat(subject, ticname);
-	if (nodes.Session_out == S_DIR)
-	    sprintf(ticfile, "%s/%s", nodes.Dir_out_path, ticname);
-	else
-	    sprintf(ticfile, "%s/%s", CFG.ticout, ticname);
+	sprintf(ticfile, "%s/%s", CFG.ticout, ticname);
     }
     free(ticname);
 
@@ -316,8 +299,7 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 
 	    fprintf(fp, "Pw %s\r\n", nodes.Fpasswd);
 	    fclose(fp);
-	    if (nodes.Session_out == S_DIRECT)
-		attach(*routeto, ticfile, KFS, flavor);
+	    fprintf(fl, "%c KFS %s\n", flavor, ticfile);
 	} else {
 	    WriteError("$Can't create %s", ticfile);
 	}
@@ -346,10 +328,9 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
 	    WriteError("$Can't create %s", fname);
 	}
     }
-
-    if (nodes.Session_out == S_DIR)
-	remlock(nodes.Dir_out_mlock, nodes.Dir_out_mklck, 'p');
-
+    fsync(fileno(fl));
+    fclose(fl);
+    
     /*
      * Update the nodes statistic counters
      */
@@ -359,6 +340,8 @@ void ForwardFile(fidoaddr Node, fa_list *sbl)
     SearchNode(Node);
     free(ticfile);
     free(fwdfile);
+    free(queuedir);
+    free(listfile);
     tidy_faddr(routeto);
 }
 

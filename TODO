@@ -72,6 +72,8 @@ mbfido:
 
 	L: Implement netmail K/S flag to mark netmail Deleted.
 
+	N: Implement file requests for directory nodes.
+
 mbcico:
 	L: Implement modem connect response translation for ISDN lines, i.e.
 	   make the CAUSE responses human readable. see McMail for this 

@@ -783,7 +783,7 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 {
     char	    *p, *q, ext[4], fromname[37], flavor, MailFrom[128], MailTo[128];
     int		    i, rc, flags = 0, first, is_fmpt = FALSE, is_topt = FALSE, is_intl = FALSE;
-    FILE	    *qp, *fp;
+    FILE	    *qp, *fp, *fl;
     fidoaddr	    Dest, Route, *dest;
     time_t	    now;
     struct tm	    *tm;
@@ -1041,12 +1041,22 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 	    flavor = 'f';
 
 	ta = parsefnode(Msg.ToAddress);
-	if (strlen(CFG.dospath)) {
-	    rc = attach(*ta, Dos2Unix(Msg.Subject), LEAVE, flavor);
-	    Syslog('+', "FileAttach %s %s", Dos2Unix(Msg.Subject), rc ? "Success":"Failed");
+	p = calloc(PATH_MAX, sizeof(char));
+	sprintf(p, "%s/%d.%d.%d.%d/.filelist", CFG.out_queue, ta->zone, ta->net, ta->node, ta->point);
+	mkdirs(p, 0750);
+
+	if ((fl = fopen(p, "a+")) == NULL) {
+	    WriteError("$Can't open %s", p);
 	} else {
-	    rc = attach(*ta, Msg.Subject, LEAVE, flavor);
-	    Syslog('+', "FileAttach %s %s", Msg.Subject, rc ? "Success":"Failed");
+	    if (strlen(CFG.dospath)) {
+		fprintf(fl, "%c LEAVE %s\n", flavor, Dos2Unix(Msg.Subject));
+		Syslog('+', "FileAttach %s", Dos2Unix(Msg.Subject));
+	    } else {
+		fprintf(fl, "%c LEAVE %s\n", flavor, Msg.Subject);
+		Syslog('+', "FileAttach %s", Msg.Subject);
+	    }
+	    fsync(fileno(fl));
+	    fclose(fl);
 	}
 	tidy_faddr(ta);
     }
