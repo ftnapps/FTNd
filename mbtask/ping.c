@@ -269,8 +269,10 @@ int ping_receive(struct in_addr addr)
 			    return -2;
 			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_TIME_EXCEEDED))
 			    return -4;
+#ifdef __linux__
 			if (icmp4_errcmp((char *)&icmpd, ICMP4_ECHO_LEN, &to.sin_addr, buf, len, ICMP_PARAMETERPROB))
 			    return -7;
+#endif
 			/*
 			 * No fatal problem, the return code will be -1 caused by other
 			 * icmp trafic on the network (packets not for us).
