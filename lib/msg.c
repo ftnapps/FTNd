@@ -308,26 +308,14 @@ int Msg_WriteHeader (unsigned long ulMsg)
 void Msg_Write(FILE *fp)
 {
 	char	*Buf;
-	int	i;
 
 	Buf = calloc(MAX_LINE_LENGTH +1, sizeof(char));
-	while ((fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL) {
-
-		for (i = 0; i < strlen(Buf); i++) {
-			if (*(Buf + i) == '\0')
-				break;
-			if (*(Buf + i) == '\n')
-				*(Buf + i) = '\0';
-			if (*(Buf + i) == '\r')
-				*(Buf + i) = '\0';
-		}
-
+	while ((Fgets(Buf, MAX_LINE_LENGTH, fp)) != NULL)
 		MsgText_Add2(Buf);
-	}
 
 	free(Buf);
 }
-
+ 
 
 typedef struct {
     unsigned long   Subject;
@@ -457,4 +445,57 @@ int Msg_Link(char *Path, int do_quiet, int slow_util)
     return msg_link;
 }
 
+/*
+ * Fgets() is like fgets() but never returns the line terminator
+ * at end of line and handles that line terminators:
+ *
+ * DOS/WINDOWS	->  CR/LF
+ * UNIX		->  LF only
+ * MAC		->  CR only
+ */
 
+char *Fgets(char *l, int size, FILE *f) {
+  char *cp = l;
+  int  cr, eol = FALSE;
+
+  if (feof(f)) return NULL;
+
+  cr = FALSE;
+  while (size>1 && !feof(f)) {
+    int c = fgetc(f);
+    if (c == EOF) {
+      if (ferror(f)) return NULL;
+      break;
+    }
+    if (cr && c != '\n') {
+      /* CR end-of-line (MAC) */
+      ungetc(c,f);
+      eol = TRUE;
+      break;
+    } else
+	 cr = (c=='\r');
+	 if ( cr )
+      continue;
+    --size;
+    if (c=='\n') { eol = TRUE; break; }
+    *(cp++) = c;
+  }
+  *cp = '\0';
+
+  cr = FALSE;
+  while (!eol && !feof(f)) {
+    int c = fgetc(f);
+    if (c == EOF)
+      break;
+    if (cr && c != '\n') {
+      /* CR end-of-line (MAC) */
+      ungetc(c,f);
+      break;
+	 } else
+	 cr = (c=='\r');
+	 if ( cr )
+		continue;
+    if (c=='\n') break;
+  }
+  return l;
+}

@@ -1612,6 +1612,7 @@ void BlueWave_Fetch()
 		Syslog('m', "  Type  : Internet");
 	    else
 		Syslog('m', "  Type  : Fidonet");
+	    getfilecase(Dirpath, Upr.filename);	
 	    Syslog('m', "  File  : %s", Upr.filename);
 	    Syslog('m', "  Tag   : %s", Upr.echotag);
 

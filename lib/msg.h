@@ -114,6 +114,7 @@ char		*strlwr(char *);
 char		*strupr(char *);
 long		filelength(int);
 long		tell(int);
+char		*Fgets(char *, int, FILE *);
 
 
 

@@ -28,6 +28,8 @@ v0.51.4		11-Apr-2004
 
 	mbsebbs:
 		Added loging of virus scanner results.
+		Patches for offline reader programs that create messages with
+		wrong line terminaters (Sempoint).
 
 	mbsetup:
 		Added auto setup for message area creation date. Also creates
