@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = foreign dist-zip no-installinfo no-installman
-EXTRA_DIST = COPYING DEBUG CRON.sh FILE_ID.DIZ.in README \
+EXTRA_DIST = COPYING DEBUG CRON.sh FILE_ID.DIZ.in MBSE.FAQ README \
 README.GoldED SETUP.sh TODO UPGRADE files.css checkbasic
 
 SUBDIRS = @SUBDIRS@
