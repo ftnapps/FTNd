@@ -144,8 +144,8 @@ int GetMagicRec(int Typ, int First)
 			case '.':   *q++ = '\\'; *q++ = '.'; break;
 			case '+':   *q++ = '\\'; *q++ = '+'; break;
 			case '*':   *q++ = '.'; *q++ = '*'; break;
-			case '@':   sprintf(q, "[:alpha:]"); while (*q) q++; break;
-			case '#':   sprintf(q, "[:digit:]"); while (*q) q++; break;
+			case '@':   sprintf(q, "[A-Za-z]"); while (*q) q++; break;
+			case '#':   sprintf(q, "[0-9]"); while (*q) q++; break;
 			default:    *q++ = *p; break;
 		    }
 		    p++;
