@@ -236,8 +236,7 @@ int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 		msgs.NetReply = mgroup.NetReply;
 		msgs.Active = TRUE;
 		msgs.Quotes = mgroup.Quotes;
-		msgs.Rfccode = 0; // CHRS_DEFAULT_RFC;
-		msgs.Ftncode = 0; // CHRS_DEFAULT_FTN;
+		msgs.Charset = mgroup.Charset;
 		msgs.MaxArticles = CFG.maxarticles;
 		tag = tl(tag);
 		for (i = 0; i < strlen(tag); i++)

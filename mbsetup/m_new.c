@@ -420,7 +420,7 @@ int EditNewRec(int Area)
 		case 10:E_BOOL(16,18,    newfiles.Active,    "If this report is ^active^")
 		case 11:E_BOOL(17,18,    newfiles.Deleted,   "Is this record ^deleted^")
 		case 12:E_BOOL(16,58,    newfiles.HiAscii,   "Allow ^High ASCII^ in this report")
-		case 13:if (E_Group(&fgr, (char *)"12.12 NEWFILE GROUPS"))
+		case 13:if (E_Group(&fgr, (char *)"12.13 NEWFILE GROUPS"))
 				GrpChanged = TRUE;
 			break;
 		}

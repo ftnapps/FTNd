@@ -1,6 +1,6 @@
 $Id$
 
-			MBSE BBS V0.51.0 TODO list.
+			MBSE BBS V0.51.1 TODO list.
 			---------------------------
 
 	These are a list of things that must be implemented one way or
@@ -169,9 +169,6 @@ mbsetup:
 	N: Put ZMH fields in the network setup for each zone. Currently Z1-6.
 
 	N: Add switch for file area to skip checking and indexing.
-
-	N: Add menu switches in nodes/groups to select/deselect all groups
-	   at once.
 
 	N: Add global setup in menus 9.1 and 10.1 at least to change uplink
 	   data.

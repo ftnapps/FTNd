@@ -154,6 +154,9 @@ int OpenMGroup(void)
 				    mgroup.LinkSec.level = 1;
 				    mgroup.LinkSec.flags = 1;
 				}
+				if (MGrpUpdated && (mgroup.Charset == FTNC_NONE)) {
+				    mgroup.Charset = FTNC_LATIN_1;
+				}
 				fwrite(&mgroup, sizeof(mgroup), 1, fout);
 				memset(&mgroup, 0, sizeof(mgroup));
 			}
@@ -218,51 +221,54 @@ void CloseMGroup(int force)
 
 int AppendMGroup(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
+    FILE	*fil;
+    char	ffile[PATH_MAX];
 
-	sprintf(ffile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "a")) != NULL) {
-		memset(&mgroup, 0, sizeof(mgroup));
-		mgroup.StartDate = time(NULL);
-		mgroup.LinkSec.level = 1;
-		mgroup.LinkSec.flags = 1;
-		fwrite(&mgroup, sizeof(mgroup), 1, fil);
-		fclose(fil);
-		MGrpUpdated = 1;
-		return 0;
-	} else
-		return -1;
+    sprintf(ffile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "a")) != NULL) {
+	memset(&mgroup, 0, sizeof(mgroup));
+	mgroup.StartDate = time(NULL);
+	mgroup.LinkSec.level = 1;
+	mgroup.LinkSec.flags = 1;
+	mgroup.Charset = FTNC_LATIN_1;
+	fwrite(&mgroup, sizeof(mgroup), 1, fil);
+	fclose(fil);
+	MGrpUpdated = 1;
+	return 0;
+    } else
+	return -1;
 }
 
 
 
 void MgScreen(void)
 {
-	clr_index();
-	set_color(WHITE, BLACK);
-	mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
-	set_color(CYAN, BLACK);
-	mvprintw( 7, 2, "1.  Name");
-	mvprintw( 8, 2, "2.  Comment");
-	mvprintw( 9, 2, "3.  Base path");
-	mvprintw(10, 2, "4.  Read sec");
-	mvprintw(11, 2, "5.  Write sec");
-	mvprintw(12, 2, "6.  Sysop sec");
-	mvprintw(13, 2, "7.  Link sec");
-	mvprintw(14, 2, "8.  Start at");
-	mvprintw(15, 2, "9.  Net reply");
-	mvprintw(16, 2, "10. Users del");
-	mvprintw(17, 2, "11. Aliases");
-	mvprintw(18, 2, "12. Quotes");
-	mvprintw(19, 2, "13. Active");
+    clr_index();
+    set_color(WHITE, BLACK);
+    mvprintw( 5, 2, "9.1 EDIT MESSAGE GROUP");
+    set_color(CYAN, BLACK);
+    mvprintw( 7, 2, "1.  Name");
+    mvprintw( 8, 2, "2.  Comment");
+    mvprintw( 9, 2, "3.  Base path");
+    mvprintw(10, 2, "4.  Read sec");
+    mvprintw(11, 2, "5.  Write sec");
+    mvprintw(12, 2, "6.  Sysop sec");
+    mvprintw(13, 2, "7.  Link sec");
+    mvprintw(14, 2, "8.  Start at");
+    mvprintw(15, 2, "9.  Net reply");
+    mvprintw(16, 2, "10. Users del");
+    mvprintw(17, 2, "11. Aliases");
+    mvprintw(18, 2, "12. Quotes");
+    mvprintw(19, 2, "13. Active");
 
-	mvprintw(14,41, "14. Deleted");
-	mvprintw(15,41, "15. Auto change");
-	mvprintw(16,41, "16. User change");
-	mvprintw(17,41, "17. Use Aka");
-	mvprintw(18,41, "18. Uplink");
-	mvprintw(19,41, "19. Areas");
+    mvprintw(14,26, "14. Deleted");
+    mvprintw(15,26, "15. Auto change");
+    mvprintw(16,26, "16. User change");
+    mvprintw(17,26, "17. Use Aka");
+    mvprintw(18,26, "18. Uplink");
+    mvprintw(19,26, "19. Areas");
+
+    mvprintw(14,54, "20. Charset");
 }
 
 
@@ -292,136 +298,140 @@ int CheckMgroup(void)
  */
 int EditMGrpRec(int Area)
 {
-	FILE		*fil;
-	static char	mfile[PATH_MAX], temp[13];
-	static long	offset;
-	static int	i, j, tmp;
-	unsigned long	crc, crc1;
+    FILE	    *fil;
+    static char	    mfile[PATH_MAX], temp[13];
+    static long	    offset;
+    static int	    i, j, tmp;
+    unsigned long   crc, crc1;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit MessageGroup");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit MessageGroup");
 
-	sprintf(mfile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/mgroups.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(mgrouphdr) + ((Area -1) * sizeof(mgroup));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(mgrouphdr) + ((Area -1) * sizeof(mgroup));
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&mgroup, sizeof(mgroup), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&mgroup, crc, sizeof(mgroup));
-	MgScreen();
+    fread(&mgroup, sizeof(mgroup), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&mgroup, crc, sizeof(mgroup));
+    MgScreen();
 	
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str(  7,16,12, mgroup.Name);
-		show_str(  8,16,55, mgroup.Comment);
-		show_str(  9,16,64, mgroup.BasePath);
-		show_sec( 10,16,    mgroup.RDSec);
-		show_sec( 11,16,    mgroup.WRSec);
-		show_sec( 12,16,    mgroup.SYSec);
-		mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
-		show_int( 14,16,    mgroup.StartArea);
-		show_int( 15,16,    mgroup.NetReply);
-		show_bool(16,16,    mgroup.UsrDelete);
-		show_bool(17,16,    mgroup.Aliases);
-		show_bool(18,16,    mgroup.Quotes);
-		show_bool(19,16,    mgroup.Active);
+    for (;;) {
+	set_color(WHITE, BLACK);
+	show_str(  7,16,12, mgroup.Name);
+	show_str(  8,16,55, mgroup.Comment);
+	show_str(  9,16,64, mgroup.BasePath);
+	show_sec( 10,16,    mgroup.RDSec);
+	show_sec( 11,16,    mgroup.WRSec);
+	show_sec( 12,16,    mgroup.SYSec);
+	mvprintw( 13,22,    getflag(mgroup.LinkSec.flags, mgroup.LinkSec.notflags));
+	show_int( 14,16,    mgroup.StartArea);
+	show_int( 15,16,    mgroup.NetReply);
+	show_bool(16,16,    mgroup.UsrDelete);
+	show_bool(17,16,    mgroup.Aliases);
+	show_bool(18,16,    mgroup.Quotes);
+	show_bool(19,16,    mgroup.Active);
 
-		show_bool(14,57,    mgroup.Deleted);
-		show_bool(15,57,    mgroup.AutoChange);
-		show_bool(16,57,    mgroup.UserChange);
-		show_aka( 17,57,    mgroup.UseAka);
-		show_aka( 18,57,    mgroup.UpLink);
-		show_str( 19,57,12, mgroup.AreaFile);
+	show_bool(14,42,    mgroup.Deleted);
+	show_bool(15,42,    mgroup.AutoChange);
+	show_bool(16,42,    mgroup.UserChange);
+	show_aka( 17,42,    mgroup.UseAka);
+	show_aka( 18,42,    mgroup.UpLink);
+	show_str( 19,42,12, mgroup.AreaFile);
 
-		j = select_menu(19);
-		switch(j) {
-		case 0:	if (!mgroup.StartArea && strlen(mgroup.AreaFile)) {
-			    errmsg("Areas file defined but no BBS start area");
-			    break;
-			}
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&mgroup, crc1, sizeof(mgroup));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						WriteError("$Can't reopen %s", mfile);
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&mgroup, sizeof(mgroup), 1, fil);
-					fclose(fil);
-					MGrpUpdated = 1;
-					working(6, 0, 0);
-				}
-			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1: if (CheckMgroup())
-				break;
-			strcpy(mgroup.Name, edit_str(7,16,12, mgroup.Name, (char *)"The ^name^ for this message group"));
-			if (strlen(mgroup.BasePath) == 0) {
-			    memset(&temp, 0, sizeof(temp));
-			    strcpy(temp, mgroup.Name);
-			    for (i = 0; i < strlen(temp); i++) {
-				if (temp[i] == '.')
-				    temp[i] = '/';
-				if (isupper(temp[i]))
-				    temp[i] = tolower(temp[i]);
+	show_charset(14,70, mgroup.Charset);
+
+	j = select_menu(20);
+	switch(j) {
+	    case 0: if (!mgroup.StartArea && strlen(mgroup.AreaFile)) {
+			errmsg("Areas file defined but no BBS start area");
+		        break;
+		    }
+		    crc1 = 0xffffffff;
+		    crc1 = upd_crc32((char *)&mgroup, crc1, sizeof(mgroup));
+		    if (crc != crc1) {
+			if (yes_no((char *)"Record is changed, save") == 1) {
+			    working(1, 0, 0);
+			    if ((fil = fopen(mfile, "r+")) == NULL) {
+				WriteError("$Can't reopen %s", mfile);
+				working(2, 0, 0);
+				return -1;
 			    }
-			    sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+			    fseek(fil, offset, 0);
+			    fwrite(&mgroup, sizeof(mgroup), 1, fil);
+			    fclose(fil);
+			    MGrpUpdated = 1;
+			    working(6, 0, 0);
 			}
+		    }
+		    IsDoing("Browsing Menu");
+		    return 0;
+	    case 1: if (CheckMgroup())
 			break;
-		case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
-		case 3: E_PTH(  9,16,64, mgroup.BasePath,   "The ^Base path^ where new JAM areas are created", 0770)
-		case 4: E_SEC( 10,16,    mgroup.RDSec,      "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
-		case 5: E_SEC( 11,16,    mgroup.WRSec,      "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
-		case 6: E_SEC( 12,16,    mgroup.SYSec,      "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
-		case 7: mgroup.LinkSec = edit_asec(mgroup.LinkSec, (char *)"9.1.7 DEFAULT SECURITY FOR NEW AREAS");
-			MgScreen();
-			break;
-		case 8: E_INT( 14,16,    mgroup.StartArea,  "The ^Start area number^ from where to add areas")
-		case 9: E_INT( 15,16,    mgroup.NetReply,   "The ^Area Number^ for netmail replies")
-		case 10:E_BOOL(16,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
-		case 11:E_BOOL(17,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
-		case 12:E_BOOL(18,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
-		case 13:if (CheckMgroup())
-			    break;
-			E_BOOL(19,16,    mgroup.Active,     "Is this message group ^active^")
-		case 14:if (CheckMgroup())
-			    break;
-			E_BOOL(14,57,    mgroup.Deleted,    "Is this group ^Deleted^")
-		case 15:E_BOOL(15,57,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
-		case 16:tmp = edit_bool(16,57, mgroup.UserChange, (char *)"^Auto add/delete^ areas from downlinks requests");
-			if (tmp && !mgroup.UpLink.zone)
-			    errmsg("It looks like you are the toplevel, no Uplink defined");
-			else
-			    mgroup.UserChange = tmp;
-			break;
-		case 17:tmp = PickAka((char *)"9.1.17", TRUE);
-			if (tmp != -1)
-				memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));
-			MgScreen();
-			break;
-		case 18:mgroup.UpLink = PullUplink((char *)"9.1.18");
-			MgScreen();
-			break;
-		case 19:E_STR( 19,57,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
-		}
+		    strcpy(mgroup.Name, edit_str(7,16,12, mgroup.Name, (char *)"The ^name^ for this message group"));
+		    if (strlen(mgroup.BasePath) == 0) {
+		        memset(&temp, 0, sizeof(temp));
+		        strcpy(temp, mgroup.Name);
+		        for (i = 0; i < strlen(temp); i++) {
+			    if (temp[i] == '.')
+				temp[i] = '/';
+			    if (isupper(temp[i]))
+			        temp[i] = tolower(temp[i]);
+			}
+		        sprintf(mgroup.BasePath, "%s/var/mail/%s", getenv("MBSE_ROOT"), temp);
+		    }
+		    break;
+	    case 2: E_STR(  8,16,55, mgroup.Comment,    "The ^desription^ for this message group")
+	    case 3: E_PTH(  9,16,64, mgroup.BasePath,   "The ^Base path^ where new JAM areas are created", 0770)
+	    case 4: E_SEC( 10,16,    mgroup.RDSec,      "9.1.4 MESSAGE GROUP READ SECURITY", MgScreen)
+	    case 5: E_SEC( 11,16,    mgroup.WRSec,      "9.1.5 MESSAGE GROUP WRITE SECURITY", MgScreen)
+	    case 6: E_SEC( 12,16,    mgroup.SYSec,      "9.1.6 MESSAGE GROUP SYSOP SECURITY", MgScreen)
+	    case 7: mgroup.LinkSec = edit_asec(mgroup.LinkSec, (char *)"9.1.7 DEFAULT SECURITY FOR NEW AREAS");
+		    MgScreen();
+		    break;
+	    case 8: E_INT( 14,16,    mgroup.StartArea,  "The ^Start area number^ from where to add areas")
+	    case 9: E_INT( 15,16,    mgroup.NetReply,   "The ^Area Number^ for netmail replies")
+	    case 10:E_BOOL(16,16,    mgroup.UsrDelete,  "Allow users to ^Delete^ their messages")
+	    case 11:E_BOOL(17,16,    mgroup.Aliases,    "Allow ^Aliases^ or real names only")
+	    case 12:E_BOOL(18,16,    mgroup.Quotes,     "Allow random ^quotes^ to new messages")
+	    case 13:if (CheckMgroup())
+		        break;
+		    E_BOOL(19,16,    mgroup.Active,     "Is this message group ^active^")
+	    case 14:if (CheckMgroup())
+		        break;
+		    E_BOOL(14,42,    mgroup.Deleted,    "Is this group ^Deleted^")
+	    case 15:E_BOOL(15,42,    mgroup.AutoChange, "^Auto change^ areas from new areas lists")
+	    case 16:tmp = edit_bool(16,42, mgroup.UserChange, (char *)"^Auto add/delete^ areas from downlinks requests");
+		    if (tmp && !mgroup.UpLink.zone)
+		        errmsg("It looks like you are the toplevel, no Uplink defined");
+		    else
+		        mgroup.UserChange = tmp;
+		    break;
+	    case 17:tmp = PickAka((char *)"9.1.17", TRUE);
+		    if (tmp != -1)
+		    	memcpy(&mgroup.UseAka, &CFG.aka[tmp], sizeof(fidoaddr));
+		    MgScreen();
+		    break;
+	    case 18:mgroup.UpLink = PullUplink((char *)"9.1.18");
+		    MgScreen();
+		    break;
+	    case 19:E_STR( 19,42,12, mgroup.AreaFile,   "The name of the ^Areas File^ from the uplink")
+	    case 20:mgroup.Charset = edit_charset(14, 70, mgroup.Charset);
+		    break;
 	}
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -667,7 +677,8 @@ int mail_group_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "    Use aliases        %s\n", getboolean(mgroup.Aliases));
 		fprintf(fp, "    Add quotes         %s\n", getboolean(mgroup.Quotes));
 		fprintf(fp, "    Auto add/del areas %s\n", getboolean(mgroup.AutoChange));
-		fprintf(fp, "    user add/del areas %s\n", getboolean(mgroup.UserChange));
+		fprintf(fp, "    User add/del areas %s\n", getboolean(mgroup.UserChange));
+		fprintf(fp, "    Default charset    %s\n", getchrs(mgroup.Charset));
 		fprintf(fp, "    Start area date    %s",   ctime(&mgroup.StartDate));
 		fprintf(fp, "    Last active date   %s\n", ctime(&mgroup.LastDate));
 		fprintf(fp, "\n\n");

@@ -1754,6 +1754,7 @@ struct	_mgroup {
 	unsigned	xRes8		: 1;
 	unsigned	StartArea;		/* Start at area number    */
 	securityrec	LinkSec;		/* Default link security   */
+	int		Charset;		/* Default charaacter set  */
 };
 
 

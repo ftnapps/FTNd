@@ -627,21 +627,22 @@ char *select_aka(int max, int items)
 /* 
  * Select menu, max is the highest item to pick. Returns zero if
  * "-" (previous level) is selected, -2 and -1 for the N and P keys.
+ * If allowall, the -3 is for the * key.
  */
-int select_menu_sub(int, int, char *);
+int select_menu_sub(int, int, int, char *);
 
 int select_menu(int max)
 {
-	return select_menu_sub(max, 50, (char *)"Select menu item");
+	return select_menu_sub(max, 50, FALSE, (char *)"Select menu item");
 }
 
 int select_tag(int max)
 {
-	return select_menu_sub(max, 40, (char *)"Toggle item");
+	return select_menu_sub(max, 40, TRUE, (char *)"Toggle item");
 }
 
 
-int select_menu_sub(int max, int items, char *hlp)
+int select_menu_sub(int max, int items, int allowall, char *hlp)
 {
 	static char	*menu=(char *)"-";
 	char		help[81];
@@ -649,11 +650,19 @@ int select_menu_sub(int max, int items, char *hlp)
 
 	if (max == 0)
 	    sprintf(help, "Select ^\"-\"^ for previous level");
-	else
-	    if (max > items)
-		sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
-	    else
-		sprintf(help, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
+	else {
+	    if (allowall) {
+		if (max > items)
+		    sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"*\"^ (de)select all, ^\"P\" or \"N\"^ to page", hlp, max);
+		else
+		    sprintf(help, "%s (1..%d), ^\"-\"^ for previous level, ^\"*\"^ (de)select all", hlp, max);
+	    } else {
+		if (max > items)
+		    sprintf(help, "%s (1..%d), ^\"-\"^ prev. level, ^\"P\" or \"N\"^ to page", hlp, max);
+		else
+		    sprintf(help, "%s (1..%d), ^\"-\"^ for previous level", hlp, max);
+	    }
+	}
 	showhelp(help);
 
 	/* 
@@ -675,6 +684,8 @@ int select_menu_sub(int max, int items, char *hlp)
 		    if (strncmp(menu, "P", 1) == 0)
 			return -2;
 		}
+		if (allowall && (strncmp(menu, "*", 1) == 0))
+		    return -3;
 
 		pick = atoi(menu);
 		if ((pick >= 1) && (pick <= max)) 
@@ -2177,5 +2188,54 @@ char *getmenutype(int val)
 	}
 }
 
+
+
+char *getchrs(int val)
+{
+    switch (val) {
+	case FTNC_NONE:	    return (char *)"Undefined";
+	case FTNC_CP437:    return (char *)"CP437";
+	case FTNC_CP850:    return (char *)"CP850";
+	case FTNC_CP865:    return (char *)"CP865";
+	case FTNC_CP866:    return (char *)"CP866";
+	case FTNC_LATIN_1:  return (char *)"Latin-1";
+	case FTNC_LATIN_2:  return (char *)"Latin-2";
+	case FTNC_LATIN_5:  return (char *)"Latin-5";
+	case FTNC_MAC:	    return (char *)"Mac";
+	default:	    return (char *)"ERROR";
+    }
+}
+
+
+
+void show_charset(int y, int x, int val)
+{
+    show_str(y, x, 9, getchrs(val));
+}
+
+
+
+int edit_charset(int y, int x, int val)
+{
+    int	ch;
+
+    showhelp((char *)"Toggle ^Charset^ with spacebar, press <Enter> when done.");
+    do {
+	set_color(YELLOW, BLUE);
+	show_charset(y, x, val);
+
+	ch = readkey(y, x, YELLOW, BLUE);
+
+	if (ch == ' ') {
+	    if (val < FTNC_MAXCHARS)
+		val++;
+	    else
+		val = FTNC_NONE;
+	}
+    } while (ch != KEY_ENTER && ch != '\012');
+    set_color(WHITE, BLACK);
+    show_charset(y, x, val);
+    return val;
+}
 
 
