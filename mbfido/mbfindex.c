@@ -580,11 +580,11 @@ void Index(void)
 					area.Path+strlen(CFG.ftp_base), file.Name);
 				sprintf(linebuf, "%s/%s%s/.%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), file.Name);
-				MacroVars("fghi", "dsss", 1, outbuf, file.Name, linebuf);
+				MacroVars("fghi", "dsss", 1, outbuf, file.LName, linebuf);
 			    } else {
 				sprintf(outbuf, "%s/%s%s/%s", CFG.www_url, CFG.www_link2ftp,
 					area.Path+strlen(CFG.ftp_base), file.Name);
-				MacroVars("fghi", "dsss", 0, outbuf, file.Name, "");
+				MacroVars("fghi", "dsss", 0, outbuf, file.LName, "");
 			    }
 			    sprintf(outbuf, "%lu Kb.", (long)(file.Size / 1024));
 			    MacroVars("jkl", "ssd", StrDateDMY(file.FileDate), outbuf, file.TimesDL+file.TimesFTP+file.TimesReq);

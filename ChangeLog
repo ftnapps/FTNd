@@ -16,6 +16,16 @@ v0.35.07	11-Dec-2002
 		On FreeBSD the lsz and lrz programs are found as alternate for
 		lz and sz.
 
+	mbsebbs:
+		With menu 201 there is now a new optional data parameter N.
+		When used if a user selects a different message area, areas
+		with new unread mail are marked with a yellow star.
+
+	mbfile:
+		The index command displays LFN names in the webpages again.
+		The real download still sends the 8.3 name.
+
+
 
 v0.35.06	13-Nov-2002 - 11-Dec-2002
 
