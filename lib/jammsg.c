@@ -2,7 +2,7 @@
  *
  * File ..................: jammsg.c 
  * Purpose ...............: JAM message base functions
- * Last modification date : 03-Aug-2001
+ * Last modification date : 30-Aug-2001
  *
  *****************************************************************************
  *
@@ -363,16 +363,16 @@ unsigned long JAM_Highest(void)
 
 int JAM_Lock(unsigned long ulTimeout)
 {
-	int		Tries = 0;
+	int		rc, Tries = 0;
 	struct flock	fl;
 
 	fl.l_type   = F_WRLCK;
-	fl.l_whence = 0;
+	fl.l_whence = SEEK_SET;
 	fl.l_start  = 0L;
 	fl.l_len    = 1L;		/* GoldED locks 1 byte as well */
 	fl.l_pid    = getpid();
 
-	while (fcntl(fdHdr, F_SETLK, &fl) && ((errno == EACCES) || (errno == EAGAIN))) {
+	while ((rc = fcntl(fdHdr, F_SETLK, &fl)) && ((errno == EACCES) || (errno == EAGAIN))) {
 		if (++Tries >= (ulTimeout * 4)) {
 			fcntl(fdHdr, F_GETLK, &fl);
 			WriteError("JAM messagebase is locked by pid %d", fl.l_pid);
@@ -380,6 +380,11 @@ int JAM_Lock(unsigned long ulTimeout)
 		}
 		usleep(250000);
 		Syslog('m', "JAM messagebase lock attempt %d", Tries);
+	}
+
+	if (rc) {
+		WriteError("$%s lock error", BaseName);
+		return FALSE;
 	}
 	return TRUE;
 }
@@ -1274,13 +1279,13 @@ void JAM_UnLock(void)
 	struct flock    fl;
 
 	fl.l_type   = F_UNLCK;
-	fl.l_whence = 0;
+	fl.l_whence = SEEK_SET;
 	fl.l_start  = 0L;
 	fl.l_len    = 1L;               /* GoldED locks 1 byte as well */
 	fl.l_pid    = getpid();
 
 	if (fcntl(fdHdr, F_SETLK, &fl)) {
-		WriteError("$Can't unlock JAM message base");
+		WriteError("$Can't unlock JAM message base %s", BaseName);
 	}
 }
 

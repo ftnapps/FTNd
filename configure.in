@@ -30,17 +30,9 @@ CFLAGS="$CFLAGS -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -pipe"
 
 dnl Additional commandline switches
 AC_ARG_ENABLE(memwatch,  [  --enable-memwatch       MEMWATCH debugging],     [ memwatch=$enableval ], [ memwatch=no ])
-AC_ARG_ENABLE(fsc0070,   [  --enable-fsc-0070       Enable FSC 0070],        [ fsc0070=$enableval ],   [ fsc0070=no ])
-AC_ARG_ENABLE(addpid,    [  --enable-add-pid        Enable add PID],         [ addpid=$enableval ],    [ addpid=no ])
 
 if test "$memwatch" = "yes"; then
   AC_DEFINE(MEMWATCH)
-fi
-if test "$fsc0070" = "yes"; then
-  AC_DEFINE(FSC_0070)
-fi
-if test "$addpid" = "yes"; then
-  AC_DEFINE(ADD_PID)
 fi
 
 dnl Defines for MBSE BBS (must use tests or --enable-stuff later)

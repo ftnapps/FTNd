@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/scannews.c
  * Purpose ...............: Scan for new News
- * Last modification date : 04-Aug-2001
+ * Last modification date : 29-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -340,7 +340,6 @@ int get_article(char *msgid, char *ftntag)
 				break;
 	}
 
-	news_in++;
 	IsDoing("Article %d", (news_in));
 	retval = rfc2ftn(fp, NULL);
 	fclose(fp);

@@ -4079,6 +4079,10 @@ v0.33.18        27-Jul-2001
 		Added ufs filesystem as normal filesystem to the diskfree 
 		function.
 
+	msg.a:
+		When locking the JAM messagebase failed due to a lock error
+		nothing was logged and the error was not flagged.
+
 	mbftpd:
 		Removed the subdirectory for this not finished program. It may
 		or may not return later.

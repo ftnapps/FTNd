@@ -21,12 +21,6 @@
 /* Believe ZFIN  */
 #undef BELEIVE_ZFIN
 
-/* Add pid to mbmail  */
-#undef ADD_PID
-
-/* FSC-0070  */
-#undef FSC_0070
-
 /* NOPROTO in lhash.h ??? */
 #undef NOPROTO
 
@@ -50,7 +44,7 @@
 /* mbuseradd  */
 #undef AGING
 #undef ATT_AGE
-#undef ATT_COMMENTS
+#undef ATT_COMMENT
 #undef AUTH_METHODS
 #undef CKDEFS
 #undef DOUBLESIZE

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/rfc2ftn.c
  * Purpose ...............: Convert RFC to FTN
- * Last modification date : 14-Aug-2001
+ * Last modification date : 29-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -154,12 +154,12 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 	if (recipient)
 		Syslog('m', "Recipient: %s", ascfnode(recipient, 0xff));
 	rewind(fp);
-	Syslog('m', "========== RFC Start");
-	while ((fgets(temp, 4095, fp)) != NULL) {
-		Syslogp('m', printable(temp, 0));
-	}
-	Syslog('m', "========== RFC end");
-	rewind(fp);
+//	Syslog('m', "========== RFC Start");
+//	while ((fgets(temp, 4095, fp)) != NULL) {
+//		Syslogp('m', printable(temp, 0));
+//	}
+//	Syslog('m', "========== RFC end");
+//	rewind(fp);
 	msg = parsrfc(fp);
 	incode = outcode = CHRS_NOTSET;
 	pgpsigned = FALSE;
@@ -198,7 +198,7 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 
 	if (!CFG.allowcontrol) {
 		if (hdr((char *)"Control",msg)) {
-			Syslog('n', "skipping news message");
+			Syslog('+', "Control message skipped");
 			tidyrfc(msg);
 			return 1;
 		}
@@ -530,27 +530,6 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 				fprintf(ofp,"\1ACUPDATE: MODIFY %s %08lx\n", acup_a,acup_n);
 			}
 		}
-#ifdef FSC_0070
-		/* FSC-0070 */
-		if((p = hdr((char *)"Message-ID", msg)) && !(hdr((char *)"X-FTN-RFCID", msg))) {
-			q = strdup(p);
-			fprintf(ofp,"\1RFCID:");
-			if ((l = strrchr(q, '<')) && (r = strchr(q, '>')) && (l < r)) {
-				*l++ = ' ';
-				while(*l && isspace(*l))
-					l++;
-				l--; /* leading ' ' */
-				*r-- = '\0';
-				while(*r && isspace(*r))
-					*r-- = '\0';
-			} else
-				l = q;
-			kludgewrite(l, ofp);
-			hdrsize += 6 + strlen(l);
-			free(q);
-		}
-#endif /* FSC_0070 */
-
 		if (!(hdr((char *)"X-FTN-Tearline", msg)) && !(hdr((char *)"X-FTN-TID", msg))) {
 			sprintf(temp, " MBSE-FIDO %s", VERSION);
 			hdrsize += 4 + strlen(temp);
@@ -836,10 +815,10 @@ int rfc2ftn(FILE *fp, faddr *recipient)
 			/*
 			 *  Only log kludges, skip the body
 			 */
-//			if ((temp[0] == '\001') || !strncmp(temp, "AREA:", 5) || !strncmp(temp, "SEEN-BY", 7)) {
-//				Striplf(temp);
+			if ((temp[0] == '\001') || !strncmp(temp, "AREA:", 5) || !strncmp(temp, "SEEN-BY", 7)) {
+				Striplf(temp);
 				Syslogp('n', printable(temp, 0));
-//			}
+			}
 		}
 		Syslog('n', "========== Fido end");
 

@@ -2,7 +2,7 @@
  *
  * File ..................: mbfido/postecho.c
  * Purpose ...............: Post echomail message.
- * Last modification date : 25-Aug-2001
+ * Last modification date : 29-Aug-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -183,16 +183,16 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 	qualify		*qal = NULL, *tmpq;
 	FILE		*nfp, *qp;
 
-	Syslog('M', "Entering postecho, area %s %s", msgs.Tag, msgs.Name);
-	Syslog('M', "p_from: %s", ascfnode(p_from, 0xff));
-	Syslog('M', "from  : %s", ascfnode(f, 0xff));
-	Syslog('M', "to    : %s", ascfnode(t, 0xff));
-	Syslog('M', "subj  : %s", printable(subj, 0));
-	Syslog('M', "origin: %s", orig);
-	Syslog('M', "date  : %s", rfcdate(mdate));
-	Syslog('M', "flags : %08x", flags);
-	Syslog('M', "cost  : %d", cost);
-	Syslog('M', "tonews: %s", tonews ? "True":"False");
+//	Syslog('M', "Entering postecho, area %s %s", msgs.Tag, msgs.Name);
+//	Syslog('M', "p_from: %s", ascfnode(p_from, 0xff));
+//	Syslog('M', "from  : %s", ascfnode(f, 0xff));
+//	Syslog('M', "to    : %s", ascfnode(t, 0xff));
+//	Syslog('M', "subj  : %s", printable(subj, 0));
+//	Syslog('M', "origin: %s", orig);
+//	Syslog('M', "date  : %s", rfcdate(mdate));
+//	Syslog('M', "flags : %08x", flags);
+//	Syslog('M', "cost  : %d", cost);
+//	Syslog('M', "tonews: %s", tonews ? "True":"False");
 
 	memset(&Link, 0, sizeof(Link));
 	crc = 0xffffffff;
@@ -255,7 +255,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 	while ((fgets(buf, 2048, fp)) != NULL) {
 
 		Striplf(buf);
-		Syslogp('M', printable(buf, 0));
+//		Syslogp('M', printable(buf, 0));
 
 		if (First && (!strncmp(buf, "AREA:", 5))) {
 			crc = upd_crc32(buf, crc, strlen(buf));
