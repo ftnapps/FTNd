@@ -49,120 +49,144 @@ int	TtyUpdated = 0;
  */
 int CountTtyinfo(void)
 {
-	FILE	*fil;
-	char	ffile[PATH_MAX];
-	int	count, i;
+    FILE    *fil;
+    char    ffile[PATH_MAX];
+    int	    count = 0, i;
 
-	sprintf(ffile, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
-	if ((fil = fopen(ffile, "r")) == NULL) {
-		if ((fil = fopen(ffile, "a+")) != NULL) {
-			Syslog('+', "Creaded new %s", ffile);
-			ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
-			ttyinfohdr.recsize = sizeof(ttyinfo);
-			fwrite(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
+    sprintf(ffile, "%s/etc/ttyinfo.data", getenv("MBSE_ROOT"));
+    if ((fil = fopen(ffile, "r")) == NULL) {
+	if ((fil = fopen(ffile, "a+")) != NULL) {
+	    Syslog('+', "Creaded new %s", ffile);
+	    ttyinfohdr.hdrsize = sizeof(ttyinfohdr);
+	    ttyinfohdr.recsize = sizeof(ttyinfo);
+	    fwrite(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
 
-			for (i = 0; i < 10; i++) {
-				memset(&ttyinfo, 0, sizeof(ttyinfo));
-				sprintf(ttyinfo.comment, "Network port %d", i+11);
-				sprintf(ttyinfo.tty,     "pts/%d", i);
-				sprintf(ttyinfo.speed,   "10 mbit");
-				sprintf(ttyinfo.flags,   "IBN,IFC,XX");
-				ttyinfo.type = NETWORK;
-				ttyinfo.available = TRUE;
-				sprintf(ttyinfo.name,    "Network port #%d", i+11);
-				fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-			}
+	    for (i = 0; i < 20; i++) {
+		memset(&ttyinfo, 0, sizeof(ttyinfo));
+		sprintf(ttyinfo.comment, "Network port %d", i+11);
+		sprintf(ttyinfo.tty,     "pts/%d", i);
+		sprintf(ttyinfo.speed,   "10 mbit");
+		sprintf(ttyinfo.flags,   "IBN,IFC,XX");
+		ttyinfo.type = NETWORK;
+		ttyinfo.available = TRUE;
+		sprintf(ttyinfo.name,    "Network port #%d", i+11);
+		fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+		count++;
+	    }
 
-                        for (i = 0; i < 10; i++) {
-                                memset(&ttyinfo, 0, sizeof(ttyinfo));
-                                sprintf(ttyinfo.comment, "Network port %d", i+1);
-                                sprintf(ttyinfo.tty,     "ttyp%d", i);
-                                sprintf(ttyinfo.speed,   "10 mbit");
-                                sprintf(ttyinfo.flags,   "IBN,IFC,XX");
-                                ttyinfo.type = NETWORK;
-                                ttyinfo.available = TRUE;
-                                sprintf(ttyinfo.name,    "Network port #%d", i+1);
-                                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-                        }
+            for (i = 0; i < 20; i++) {
+                memset(&ttyinfo, 0, sizeof(ttyinfo));
+		sprintf(ttyinfo.comment, "Network port %d", i+1);
+                sprintf(ttyinfo.tty,     "ttyp%d", i);
+                sprintf(ttyinfo.speed,   "10 mbit");
+                sprintf(ttyinfo.flags,   "IBN,IFC,XX");
+                ttyinfo.type = NETWORK;
+                ttyinfo.available = TRUE;
+                sprintf(ttyinfo.name,    "Network port #%d", i+1);
+                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+		count++;
+            }
 
-			for (i = 0; i < 6; i++) {
-                                memset(&ttyinfo, 0, sizeof(ttyinfo));
-                                sprintf(ttyinfo.comment, "Console port %d", i+1);
-                                sprintf(ttyinfo.tty,     "tty%d", i);
-                                sprintf(ttyinfo.speed,   "10 mbit");
-                                ttyinfo.type = LOCAL;
-                                ttyinfo.available = TRUE;
-                                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-                        }
-
-                        for (i = 0; i < 4; i++) {
-                                memset(&ttyinfo, 0, sizeof(ttyinfo));
-                                sprintf(ttyinfo.comment, "ISDN line %d", i+1);
 #ifdef __linux__
-                                sprintf(ttyinfo.tty,     "ttyI%d", i);
+	    /*
+	     * Linux has 6 virtual consoles
+	     */
+	    for (i = 0; i < 6; i++) {
+                memset(&ttyinfo, 0, sizeof(ttyinfo));
+                sprintf(ttyinfo.comment, "Console port %d", i+1);
+                sprintf(ttyinfo.tty,     "tty%d", i);
+                sprintf(ttyinfo.speed,   "10 mbit");
+                ttyinfo.type = LOCAL;
+                ttyinfo.available = TRUE;
+                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+		count++;
+            }
+#endif
+
+#if defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__)
+	    /*
+	     * By default, xxxBSD systems have only one console
+	     */
+	    memset(&ttyinfo, 0, sizeof(ttyinfo));
+	    sprintf(ttyinfo.comment, "Console port 1");
+	    sprintf(ttyinfo.tty, "console");
+	    sprintf(ttyinfo.speed,   "10 mbit");
+	    ttyinfo.type = LOCAL;
+	    ttyinfo.available = TRUE;
+	    fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+	    count++;
+#endif
+
+            for (i = 0; i < 4; i++) {
+                memset(&ttyinfo, 0, sizeof(ttyinfo));
+                sprintf(ttyinfo.comment, "ISDN line %d", i+1);
+#ifdef __linux__
+                sprintf(ttyinfo.tty,     "ttyI%d", i);
 #endif
 #ifdef __FreeBSD__
-				sprintf(ttyinfo.tty,     "cuaia%d", i);
+		sprintf(ttyinfo.tty,     "cuaia%d", i);
 #endif
 #ifdef __NetBSD__
-				sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
+		sprintf(ttyinfo.tty,     "ttyi%c", i + 'a'); // NetBSD on a Sparc, how about PC's? 
 #endif
 #ifdef __OpenBSD__
-				sprintf(ttyinfo.tty,     "cuaia%d", i);	// I think this is wrong!
+		sprintf(ttyinfo.tty,     "cuaia%d", i);	// I think this is wrong!
 #endif
-                                sprintf(ttyinfo.speed,   "64 kbits");
-				sprintf(ttyinfo.flags,   "XA,X75,CM");
-                                ttyinfo.type = ISDN;
-                                ttyinfo.available = FALSE;
-				ttyinfo.callout = TRUE;
-				ttyinfo.honor_zmh = TRUE;
-				sprintf(ttyinfo.name,    "ISDN line #%d", i+1);
-                                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-                        }
+                sprintf(ttyinfo.speed,   "64 kbits");
+		sprintf(ttyinfo.flags,   "XA,X75,CM");
+                ttyinfo.type = ISDN;
+                ttyinfo.available = FALSE;
+		ttyinfo.callout = TRUE;
+		ttyinfo.honor_zmh = TRUE;
+		sprintf(ttyinfo.name,    "ISDN line #%d", i+1);
+                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+		count++;
+            }
 
-                        for (i = 0; i < 4; i++) {
-                                memset(&ttyinfo, 0, sizeof(ttyinfo));
-                                sprintf(ttyinfo.comment, "Modem line %d", i+1);
+            for (i = 0; i < 4; i++) {
+                memset(&ttyinfo, 0, sizeof(ttyinfo));
+                sprintf(ttyinfo.comment, "Modem line %d", i+1);
 #ifdef __linux__
-                                sprintf(ttyinfo.tty,     "ttyS%d", i);
+		sprintf(ttyinfo.tty,     "ttyS%d", i);
 #endif
 #ifdef __FreeBSD__
-				sprintf(ttyinfo.tty,     "cuaa%d", i);
+		sprintf(ttyinfo.tty,     "cuaa%d", i);
 #endif
 #ifdef __NetBSD__
-				sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
+		sprintf(ttyinfo.tty,     "tty%c", i + 'a'); // NetBSD on a Sparc, how about PC's?
 #endif
 #ifdef __OpenBSD__
-				sprintf(ttyinfo.tty,	"tty0%d", i);
+		sprintf(ttyinfo.tty,	"tty0%d", i);
 #endif
-                                sprintf(ttyinfo.speed,   "33.6 kbits");
-				sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");
-                                ttyinfo.type = POTS;
-                                ttyinfo.available = FALSE;
-                                ttyinfo.callout = TRUE;
-                                ttyinfo.honor_zmh = TRUE;
+                sprintf(ttyinfo.speed,   "33.6 kbits");
+		sprintf(ttyinfo.flags,   "CM,XA,V32B,V42B,V34");
+		ttyinfo.type = POTS;
+                ttyinfo.available = FALSE;
+                ttyinfo.callout = TRUE;
+                ttyinfo.honor_zmh = TRUE;
 #ifdef __sparc__
-				ttyinfo.portspeed = 38400;	// Safe, ULTRA has a higher maxmimum speed
+		ttyinfo.portspeed = 38400;	// Safe, ULTRA has a higher maxmimum speed
 #else
-				ttyinfo.portspeed = 57600;
+		ttyinfo.portspeed = 57600;
 #endif
-                                sprintf(ttyinfo.name,    "Modem line #%d", i+1);
-                                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
-                        }
+                sprintf(ttyinfo.name,    "Modem line #%d", i+1);
+                fwrite(&ttyinfo, sizeof(ttyinfo), 1, fil);
+		count++;
+            }
 
-			fclose(fil);
-			chmod(ffile, 0640);
-			return 34;
-		} else
-			return -1;
-	}
+	    fclose(fil);
+	    chmod(ffile, 0640);
+	    return count;
+	} else
+	    return -1;
+    }
 
-	fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
-	fseek(fil, 0, SEEK_END);
-	count = (ftell(fil) - ttyinfohdr.hdrsize) / ttyinfohdr.recsize;
-	fclose(fil);
+    fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fil);
+    fseek(fil, 0, SEEK_END);
+    count = (ftell(fil) - ttyinfohdr.hdrsize) / ttyinfohdr.recsize;
+    fclose(fil);
 
-	return count;
+    return count;
 }
 
 

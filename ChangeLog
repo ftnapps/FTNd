@@ -49,6 +49,11 @@ v0.71.1		28-Nov-2004
 		Changed X-JAM kludges to X-FTN kludges to make it compatible
 		with the rest of the gates.
 
+	mbsetup:
+		Added support for XxxxBSD console port.
+		For new systems, there will now be 20 terminal ports created
+		instead of 10.
+
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
 		the Spanish menus and txtfiles.
