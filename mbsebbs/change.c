@@ -144,7 +144,6 @@ int Chg_Language(int NewMode)
 
 void Chg_Password()
 {
-	unsigned long crc, crctmp;
 	char	*temp1, *temp2;
 
   	temp1 = calloc(PATH_MAX, sizeof(char));
@@ -159,9 +158,8 @@ void Chg_Password()
 	fflush(stdout);
 	colour(CFG.InputColourF, CFG.InputColourB);
 	Getpass(temp1);
-	crctmp = StringCRC32(tu(temp1));
 
-	if (exitinfo.iPassword == crctmp) {
+	if (!strcmp(exitinfo.Password, temp1)) {
 		while (TRUE) {
 			Enter(1);
 			/* New password: */
@@ -184,7 +182,6 @@ void Chg_Password()
 				} else {
 					fflush(stdout);
 					fflush(stdin);
-					crc = StringCRC32(tu(temp1));
 					break;
 				}
 			} else {
@@ -199,9 +196,8 @@ void Chg_Password()
 		if (system(temp1) != 0) {
 			WriteError("Failed to set new Unix password");
 		} else {
-			exitinfo.iPassword = crc;
 			memset(&exitinfo.Password, 0, sizeof(exitinfo.Password));
-			sprintf(exitinfo.Password, "%s", temp2);
+			strcpy(exitinfo.Password, temp2);
 			exitinfo.tLastPwdChange = time(NULL);
 			Enter(1);
 			/* Password Change Successful */

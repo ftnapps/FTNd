@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ....................: mbcico/binkp.c
+ * $Id$
  * Purpose .................: Fidonet binkd protocol
- * Last modification date ..: 17-Oct-2001
  * Binkp protocol copyright : Dima Maloff.
  *
  *****************************************************************************
@@ -126,15 +125,7 @@ int binkp(int role)
 	}
 
 	eff_remote = remote;
-
-	/*
-	 *  Some systems hang on sending lowercase filenames, setting
-	 *  FNC forces old 8.3 uppercase filenames.
-	 */
-	if (!nodes.FNC)
-		remote_flags &= ~SESSION_FNC;
 	tosend = create_filelist(eff_remote, nonhold_mail, 0);
-
 	request = create_freqlist(remote);
 
 	if (request != NULL) {

@@ -52,8 +52,6 @@ mbfido:
 	N: Remove memory leak during toss. (It's ok for less 5000 messages for 
 	   each run).
 
-	N: Make a workaround for the fileecho name in the filesdatabase.
-
 	N: Implement long filename support from .tic files.
 
 	N: When a news article is received from a mailinglist there is a valid
@@ -82,8 +80,6 @@ mbcico:
 mbfile:
 	N: Add a check to see if the magic filenames are valid.
 
-	N: Export to files.bbs
-	
 	N: Update <filespec> <area> <-touch>
 
 	N: Rearc <area>

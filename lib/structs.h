@@ -208,15 +208,6 @@ typedef struct _dual {
 
 
 
-/*
- * Downloaded FTP files (~/var/download.ftp)
- */
-typedef struct _downftp {
-	unsigned long	Areanr;
-	char		Name[13];
-} downftp;
-
-
 /****************************************************************************
  *
  *  Datafile records structure in $MBSE_ROOT/etc
@@ -304,7 +295,7 @@ struct	userhdr {
 struct	userrec {
 	char		sUserName[36];		/* User First and Last Name */
 	char		Name[9];		/* Unix name		    */
-	unsigned long	iPassword;		/* Users Password (CRC)     */
+	unsigned long	xPassword;		/* Users Password (CRC)     */
 	char		sVoicePhone[20];	/* Voice Number             */
 	char		sDataPhone[20];		/* Data/Business Number     */
 	char		sLocation[28];		/* Users Location           */
@@ -372,7 +363,7 @@ struct	userrec {
 	unsigned	ieFILE		: 1;	/* Check for new files	    */
 	unsigned	Email		: 1;	/* Has private email box    */
 	unsigned	FSemacs		: 1;	/* FSedit uses emacs keys   */
-	char		Password[15];		/* Plain password	    */
+	char		Password[Max_passlen+1];/* Plain password	    */
 };
 
 
@@ -386,7 +377,7 @@ struct	sysrec {
 	unsigned long	ISDN;			/* ISDN calls		   */
 	unsigned long	Network;		/* Network (internet) calls*/
 	unsigned long	Local;			/* Local calls		   */
-	unsigned long	ADSL;			/* ADSL calls		   */
+	unsigned long	xADSL;			/*			   */
 	time_t		StartDate;		/* Start Date of BBS	   */
 	char		LastCaller[37];		/* Last Caller to BBS	   */
 	time_t		LastTime;		/* Time of last caller	   */
@@ -431,7 +422,7 @@ struct	oneline	{
 	char		Oneline[81];		/* Oneliner text            */
 	char		UserName[36];		/* User who wrote oneliner  */
 	char		DateOfEntry[12];	/* Date of oneliner entry   */
-	unsigned	Available	: 1;	/* Deleted Status           */
+	unsigned	Available	: 1;	/* Available Status         */
 };
 
 
@@ -902,6 +893,7 @@ struct	menufile {
 	unsigned	Y2Kdoorsys	: 1;	/* Write Y2K style door.sys */
 	unsigned	Comport		: 1;	/* Vmodem compart mode	    */
 	unsigned	NoSuid		: 1;	/* Execute door nosuid	    */
+	unsigned	NoPrompt	: 1;	/* No prompt after door	    */
 	long		Credit;			/* Credit needed	    */
 	int		HiForeGnd;		/* High ForeGround color    */
 	int		HiBackGnd;		/* High ForeGround color    */
@@ -938,7 +930,8 @@ struct msgareas {
 	char		Base[65];		/* JAM base		    */
 	char		QWKname[21];		/* QWK area name	    */
 	int		Type;			/* Msg Area Types           */
-						/* Local, Net, Echo, New, E */
+						/* Local, Net, Echo, News,  */
+						/* Listserv		    */
 	int		MsgKinds;		/* Type of Messages         */
 						/* Public,Private,ReadOnly  */
 	int		DaysOld;		/* Days to keep messages    */
@@ -972,9 +965,9 @@ struct msgareas {
 	statcnt		Posted;			/* Posted messages	    */
 	time_t		LastRcvd;		/* Last time msg received   */
 	time_t		LastPosted;		/* Last time msg posted	    */
-	char		Newsgroup[81];		/* Newsgroup name	    */
+	char		Newsgroup[81];		/* Newsgroup/Mailinglist    */
 	char		Distribution[17];	/* Ng distribution	    */
-	char		Moderator[65];		/* Moderator		    */
+	char		Moderator[65];		/* Moderator/Email-address  */
 	int		Rfccode;		/* RFC characterset	    */
 	int		Ftncode;		/* FTN characterset	    */
 };
@@ -1275,7 +1268,7 @@ struct	_nodes {
 	unsigned	PackNetmail	: 1;	/* Pack netmail		   */
 	unsigned	ARCmailCompat	: 1;	/* ARCmail Compatibility   */
 	unsigned	ARCmailAlpha	: 1;	/* Allow a..z ARCmail name */
-	unsigned	FNC		: 1;	/* FileName Conversion	   */
+	unsigned	xFNC		: 1;	/* FileName Conversion	   */
 
 	char		xExtra[94];
 	time_t		StartDate;		/* Node start date	   */
@@ -1524,7 +1517,7 @@ struct	_filerecord {
 /*
  *  Mailer history file (mailhist.data)
  *  The first record conatains only the date (online) from which date this
- *  file is valid. The offline date is teh date this file is created or
+ *  file is valid. The offline date is the date this file is created or
  *  packed. From the second record and on the records are valid data records.
  */
 struct _history {

@@ -626,16 +626,15 @@ void NScreen(void)
 	mvprintw(18,31, "18. Statistics");
 	mvprintw(19,31, "19. No EMSI");
 
-	mvprintw(10,51, "20. No YooHoo/2U2");
-	mvprintw(11,51, "21. No Filerequest");
-	mvprintw(12,51, "22. Don't call");
-	mvprintw(13,51, "23. No Hold mail");
-	mvprintw(14,51, "24. Pickup primary");
-	mvprintw(15,51, "25. No Zmodem");
-	mvprintw(16,51, "26. No Zedzap");
-	mvprintw(17,51, "27. No Hydra");
-	mvprintw(18,51, "28. No TCP/IP");
-	mvprintw(19,51, "29. Force FNC");
+	mvprintw(11,51, "20. No YooHoo/2U2");
+	mvprintw(12,51, "21. No Filerequest");
+	mvprintw(13,51, "22. Don't call");
+	mvprintw(14,51, "23. No Hold mail");
+	mvprintw(15,51, "24. Pickup primary");
+	mvprintw(16,51, "25. No Zmodem");
+	mvprintw(17,51, "26. No Zedzap");
+	mvprintw(18,51, "27. No Hydra");
+	mvprintw(19,51, "28. No TCP/IP");
 }
 
 
@@ -756,18 +755,17 @@ int EditNodeRec(int Area)
 		show_str(18,21,1, temp1);
 		show_bool(19,21, nodes.Deleted);
 		show_bool(19,47, nodes.NoEMSI);
-		show_bool(10,70, nodes.NoWaZOO);
-		show_bool(11,70, nodes.NoFreqs);
-		show_bool(12,70, nodes.NoCall);
-		show_bool(13,70, nodes.NoHold);
-		show_bool(14,70, nodes.NoPUA);
-		show_bool(15,70, nodes.NoZmodem);
-		show_bool(16,70, nodes.NoZedzap);
-		show_bool(17,70, nodes.NoHydra);
-		show_bool(18,70, nodes.NoTCP);
-		show_bool(19,70, nodes.FNC);
+		show_bool(11,70, nodes.NoWaZOO);
+		show_bool(12,70, nodes.NoFreqs);
+		show_bool(13,70, nodes.NoCall);
+		show_bool(14,70, nodes.NoHold);
+		show_bool(15,70, nodes.NoPUA);
+		show_bool(16,70, nodes.NoZmodem);
+		show_bool(17,70, nodes.NoZedzap);
+		show_bool(18,70, nodes.NoHydra);
+		show_bool(19,70, nodes.NoTCP);
 
-		switch(select_menu(29)) {
+		switch(select_menu(28)) {
 		case 0:	crc1 = 0xffffffff;
 			crc1 = upd_crc32((char *)&nodes, crc1, nodeshdr.recsize);
 			if ((crc != crc1) || GrpChanged) {
@@ -867,16 +865,15 @@ int EditNodeRec(int Area)
 			NScreen(); break;
 		case 18:S_Stat(); NScreen(); break;
 		case 19:E_BOOL(19,47, nodes.NoEMSI,   "Disable ^EMSI handshake^ with this node")
-		case 20:E_BOOL(10,70, nodes.NoWaZOO,  "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")
-		case 21:E_BOOL(11,70, nodes.NoFreqs,  "Disallow ^file requests^ from this node")
-		case 22:E_BOOL(12,70, nodes.NoCall,   "Don't ^call^ this node")
-		case 23:E_BOOL(13,70, nodes.NoHold,   "Don't ^hold hold-mail^ when we call (no = only pickup)")
-		case 24:E_BOOL(14,70, nodes.NoPUA,    "Only pickup mail from the ^primary^ address")
-		case 25:E_BOOL(15,70, nodes.NoZmodem, "Disable ^Zmodem^ protocol with this node")
-		case 26:E_BOOL(16,70, nodes.NoZedzap, "Disable ^Zedzap^ protocol with this node")
-		case 27:E_BOOL(17,70, nodes.NoHydra,  "Disable ^Hydra^ protocol with this node")
-		case 28:E_BOOL(18,70, nodes.NoTCP,    "Disable ^TCP/IP^ protocol whith this node")
-		case 29:E_BOOL(19,70, nodes.FNC,      "Force ^FileName Conversion^ during binkp sessions");
+		case 20:E_BOOL(11,70, nodes.NoWaZOO,  "Disable ^YooHoo/2U2 handshake^ (FTSC-0006) with this node")
+		case 21:E_BOOL(12,70, nodes.NoFreqs,  "Disallow ^file requests^ from this node")
+		case 22:E_BOOL(13,70, nodes.NoCall,   "Don't ^call^ this node")
+		case 23:E_BOOL(14,70, nodes.NoHold,   "Don't ^hold hold-mail^ when we call (no = only pickup)")
+		case 24:E_BOOL(15,70, nodes.NoPUA,    "Only pickup mail from the ^primary^ address")
+		case 25:E_BOOL(16,70, nodes.NoZmodem, "Disable ^Zmodem^ protocol with this node")
+		case 26:E_BOOL(17,70, nodes.NoZedzap, "Disable ^Zedzap^ protocol with this node")
+		case 27:E_BOOL(18,70, nodes.NoHydra,  "Disable ^Hydra^ protocol with this node")
+		case 28:E_BOOL(19,70, nodes.NoTCP,    "Disable ^TCP/IP^ protocol whith this node")
 		}
 	}
 }
@@ -1178,8 +1175,7 @@ int node_doc(FILE *fp, FILE *toc, int page)
 		fprintf(fp, "     No Zedzap     %s\n", getboolean(nodes.NoZedzap));
 		fprintf(fp, "     No Hydra      %s", getboolean(nodes.NoHydra));
 		fprintf(fp, "     No TCP/IP     %s", getboolean(nodes.NoTCP));
-		fprintf(fp, "     Force FNC     %s\n", getboolean(nodes.FNC));
-		fprintf(fp, "     Pack Netmail  %s", getboolean(nodes.PackNetmail));
+		fprintf(fp, "     Pack Netmail  %s\n", getboolean(nodes.PackNetmail));
 		fprintf(fp, "     ARCmail comp. %s", getboolean(nodes.ARCmailCompat));
 		fprintf(fp, "     ACRmail a..z  %s\n\n", getboolean(nodes.ARCmailAlpha));
 

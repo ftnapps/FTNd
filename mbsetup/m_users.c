@@ -311,11 +311,7 @@ void Fields2(void)
 	show_str(11,17,19, usrconfig.sVoicePhone);
 	show_str(12,17,19, usrconfig.sDataPhone);
 	show_str(13,17,10, usrconfig.sDateOfBirth);
-
-	if (usrconfig.iPassword == 0)
-		show_str(14,17,12, (char *)"Invalid");
-	else
-		show_str(14,17,12, (char *)"********");
+	show_str(14,17,12, (char *)"********");
 	show_str( 15,17, 7,usrconfig.sSex);
 	show_str( 16,17,12,usrconfig.sProtocol);
 	show_str( 17,17, 5,usrconfig.Archiver);
@@ -366,7 +362,6 @@ int EditUsrRec2(void)
 				working(1,0,0);
                                 memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
                                 strcpy(usrconfig.Password, temp);
-                                usrconfig.iPassword = StringCRC32(tu(temp));
 				usrconfig.tLastPwdChange = time(NULL);
 				Syslog('+', "%s/bin/mbpasswd -n %s ******", getenv("MBSE_ROOT"), usrconfig.Name);
 				sprintf(temp, "%s/bin/mbpasswd -n %s %s", getenv("MBSE_ROOT"), usrconfig.Name, usrconfig.Password);

@@ -67,7 +67,7 @@ int Add_BBS()
 	name_mangle(temp1);
 	strcpy(frec.Name, temp1);
 	strcpy(frec.LName, TIC.NewName);
-//	strcpy(frec.TicArea, TIC.TicIn.Area); /* TIJDELIJK IVM VELDLENGTE */
+	frec.TicAreaCRC =  StringCRC32(TIC.TicIn.Area);
 	frec.Size = TIC.FileSize;
 	frec.Crc32 = TIC.Crc_Int;
 	frec.Announced = TRUE;

@@ -183,7 +183,6 @@ int newuser()
 
 	memset(&usrconfig.Password, 0, sizeof(usrconfig.Password));
 	sprintf(usrconfig.Password, "%s", temp2);
-	usrconfig.iPassword = crc;
 	alarm_on();
 	sprintf(UnixName, "%s", (char *) NameCreate(NameGen(FullName), FullName, temp2));
 
