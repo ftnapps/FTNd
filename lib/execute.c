@@ -140,12 +140,12 @@ int execute(char *cmd, char *file, char *pkt, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(200);
+    msleep(300);
     rc = _execute(cmd, file, pkt, in, out, err);
 #ifdef __linux__
     sync();
 #endif
-    msleep(200);
+    msleep(300);
     return rc;
 }
 
@@ -217,12 +217,12 @@ int execsh(char *cmd, char *in, char *out, char *err)
 #ifdef __linux__
     sync();
 #endif
-    msleep(200);
+    msleep(300);
     rc = _execsh(cmd, in, out, err);
 #ifdef __linux__
     sync();
 #endif
-    msleep(200);
+    msleep(300);
     return rc;
 }
 

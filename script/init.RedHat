@@ -32,38 +32,9 @@ fi
 
 export MBSE_ROOT
 
-SU="su"
-#
-# From RedHat version 6.1 and up the behaviour of "su" has changed.
-# Extra tests are added for the RedHat e-smith server distribution,
-# this is a special distribution based on RedHat.
-# For Mandrake we follow the same behaviour.
-#
-if [ -f /etc/mandrake-release ]; then
-    #
-    # Mandrake 6.0 and newer, use "su -"
-    #
-    RHR="`cat /etc/mandrake-release | awk '{ print $4 }' | tr -d .`"
-    if [ $RHR -gt 60 ]; then
-	SU="su -"
-    fi
-else
-    if [ -f /etc/redhat-release ]; then
-	if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-	    # Standard RedHat
-	    RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
-	else
-	    # E-Smith server based on RedHat
-	    RHR=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d . | tr -d \)`
-	fi
-	if [ $RHR -gt 60 ]; then
-	    SU="su -"
-	fi
-    fi
-fi
-
 
 # See how we were called.
+#
 case "$1" in
     start)
 	echo -n "Starting MBSE BBS: "
@@ -71,11 +42,11 @@ case "$1" in
 	rm -f ${MBSE_ROOT}/sema/*
 	rm -f ${MBSE_ROOT}/var/*.LCK
 	rm -f ${MBSE_ROOT}/tmp/mb*
-	$SU mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
+	su - mbse -c '${MBSE_ROOT}/bin/mbtask' >/dev/null
 	echo -n "mbtask "
 	sleep 2
 	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
-	    $SU mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
+	    su - mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
 	    echo "opened"
 	fi
 	touch /var/lock/subsys/mbsed
@@ -84,7 +55,7 @@ case "$1" in
 	echo -n "Shutting down MBSE BBS: "
 	if [ -f ${MBSE_ROOT}/var/run/mbtask ]; then
 	    echo -n "logoff users "
-	    $SU mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
+	    su - mbse -c '${MBSE_ROOT}/bin/mbstat close wait -quiet' >/dev/null
 	    echo -n "done, "
 	    echo -n "stop mbtask: "
 	    killproc mbtask -15

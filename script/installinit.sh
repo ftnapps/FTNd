@@ -7,7 +7,6 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:${MBSE_ROOT}/bin
 DISTNAME=
 DISTVERS=
 DISTINIT=
-SU="su"
 OSTYPE=`uname -s`
 
 #------------------------------------------------------------------------

@@ -9456,7 +9456,7 @@ echo "$as_me:$LINENO: result:
   Configuration summary :
 
     Version : ..................... ${VERSION}
-    Hydra zlib compression : ...... ${ZLIBSUP}
+    Hydra/Binkp zlib compression :  ${ZLIBSUP}
 
 " >&5
 echo "${ECHO_T}
@@ -9465,7 +9465,7 @@ echo "${ECHO_T}
   Configuration summary :
 
     Version : ..................... ${VERSION}
-    Hydra zlib compression : ...... ${ZLIBSUP}
+    Hydra/Binkp zlib compression :  ${ZLIBSUP}
 
 " >&6
 
