@@ -4,45 +4,50 @@
 #define SM_DECL(proc,name) \
 int proc(void)\
 {\
-	int sm_success=0;\
-	char *sm_name=name;
+    int sm_success=0;\
+    char *sm_name=name;
 
 #define SM_STATES \
-	enum {
+    enum {
 
 #define SM_NAMES \
-	} sm_state; \
-	char * sm_sname[] = {
+    } sm_state; \
+    char * sm_sname[] = {
 
 #define SM_EDECL \
-	};
+    };
 
 #define SM_START(x) \
-	sm_state=x;\
-	Syslog('S', "Statemachine %s start %s (%d)",sm_name,sm_sname[sm_state],sm_state); \
-	while (!sm_success) switch (sm_state)\
-	{\
-	default: WriteError("Statemachine %s error: state=%d",sm_name,sm_state);\
-		sm_success=-1;
+    sm_state=x;\
+    Syslog('S', "SM (%s): Start => %s", sm_name, sm_sname[sm_state]); \
+    while (!sm_success) switch (sm_state)\
+    {\
+    default: WriteError("Statemachine %s error: state=%d",sm_name,sm_state);\
+    sm_success=-1;
 
 #define SM_STATE(x) \
-	break;\
-	case x: 
+    break;\
+    case x: 
 
 #define SM_END \
-	}\
+    }\
 
 #define SM_RETURN \
-	return (sm_success != 1);\
+    return (sm_success != 1);\
 }
 
 #define SM_PROCEED(x) \
-	sm_state=x; break;
+    if (x != sm_state) {\
+	Syslog('S', "SM (%s): %s => %s", sm_name, sm_sname[sm_state], sm_sname[x]);\
+    }\
+    sm_state=x; break;
 
 #define SM_SUCCESS \
-	sm_success=1; break;
+    Syslog('S', "SM (%s): %s => Success", sm_name, sm_sname[sm_state]);\
+    sm_success=1; break;
 
 #define SM_ERROR \
-	sm_success=-1; break;
+    Syslog('S', "SM (%s): %s => Error", sm_name, sm_sname[sm_state]);\
+    sm_success=-1; break;
 
 #endif

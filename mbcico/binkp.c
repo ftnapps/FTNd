@@ -62,7 +62,14 @@
 #define BNKCHARS    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@&=+%$-_.!()#|"
 
 
-static char	rbuf[2048];
+static char rbuf[MAX_BLKSIZE + 1];
+
+static char *bstate[] = {
+    (char *)"NUL", (char *)"ADR", (char *)"PWD", (char *)"FILE", (char *)"OK",
+    (char *)"EOB", (char *)"GOT", (char *)"ERR", (char *)"BSY", (char *)"GET",
+    (char *)"SKIP"
+};
+
 
 
 /*
@@ -71,7 +78,7 @@ static char	rbuf[2048];
 char		*unix2binkp(char *);
 char		*binkp2unix(char *);
 int		binkp_expired(void);
-void		b_banner(int);
+void		b_banner(void);
 void		b_nul(char *);
 void		fill_binkp_list(binkp_list **, file_list *, off_t);
 void		debug_binkp_list(binkp_list **);
@@ -89,6 +96,8 @@ extern char	*ttystat[];
 extern int	Loaded;
 extern pid_t	mypid;
 extern struct sockaddr_in   peeraddr;
+extern int	most_debug;
+
 
 extern unsigned long	sentbytes;
 extern unsigned long	rcvdbytes;
@@ -97,23 +106,24 @@ typedef enum {RxWaitFile, RxAcceptFile, RxReceData, RxWriteData, RxEndOfBatch, R
 typedef enum {TxGetNextFile, TxTryRead, TxReadSend, TxWaitLastAck, TxDone} TxType;
 typedef enum {InitTransfer, Switch, Receive, Transmit} TransferType;
 typedef enum {Ok, Failure, Continue} TrType;
+typedef enum {No, WeCan, TheyWant, Active} OptionState;
 
-static int	RxState;
-static int	TxState;
-static int	TfState;
+static int	RxState;			/* Receiver state		    */
+static int	TxState;			/* Transmitter state		    */
+//static int	TfState;
 static time_t	Timer;
-static int	NRflag = FALSE;
-static int	MBflag = FALSE;
-static int	NDflag = FALSE;
-static int	CRYPTflag = FALSE;
-static int	CRAMflag = FALSE;
-static int	CRCflag = FALSE;
-static int	Remote_1_1 = FALSE;
-unsigned long	nethold, mailhold;
-int		transferred = FALSE;
+static int	MBflag = WeCan;			/* MB option flag		    */
+static int	CRAMflag = FALSE;		/* CRAM option flag		    */
+static int	CRCflag = WeCan;		/* CRC option flag		    */
+static int	Major = 1;			/* Remote major protocol version    */
+static int	Minor = 0;			/* Remote minor protocol version    */
+static int	Secure = FALSE;			/* Secure session		    */
+unsigned long	nethold, mailhold;		/* Trafic for the remote	    */
+int		transferred = FALSE;		/* Anything transferred in batch    */
 int		batchnr = 0, crc_errors = 0;
-unsigned char	*MD_challenge = NULL;			/* Received CRAM challenge data   */
+unsigned char	*MD_challenge = NULL;		/* Received CRAM challenge data	    */
 int		ext_rand = 0;
+
 
 int binkp(int role)
 {
@@ -122,6 +132,7 @@ int binkp(int role)
     file_list	*tosend = NULL, *request = NULL, *respond = NULL, *tmpfl;
     char	*nonhold_mail;
 
+    most_debug = TRUE;
     if (role == 1) {
 	if (orgbinkp()) {
 	    rc = MBERR_SESSION_ERROR;
@@ -137,15 +148,9 @@ int binkp(int role)
 	return rc;
     }
 
-    /*
-     * Adjust file requests support. We only send requests to binkp/1.1
-     * systems and if file requests are not forbidden by setup.
-     */
-    if (Remote_1_1 == FALSE)
-	localoptions |= NOFREQS;
-    if (localoptions & NOFREQS)
-	session_flags &= ~SESSION_WAZOO;
-    else
+//    if (localoptions & NOFREQS)
+//	session_flags &= ~SESSION_WAZOO;
+//    else
 	session_flags |= SESSION_WAZOO;
 
     Syslog('b', "Binkp: WAZOO requests: %s", (session_flags & SESSION_WAZOO) ? "True":"False");
@@ -174,7 +179,7 @@ int binkp(int role)
     tidy_filelist(tosend, (rc == 0));
     tosend = NULL;
 
-    if ((rc == 0) && transferred && MBflag) {
+    if ((rc == 0) && transferred && (MBflag == Active)) {
 	/*
 	 * Running Multiple Batch, only if last batch actually
 	 * did transfer some data.
@@ -194,10 +199,11 @@ int binkp(int role)
     Syslog('+', "Binkp: end transfer rc=%d", rc);
     closetcp();
 
-    if (!MBflag) {
+    if (MBflag != Active) {
 	/*
 	 *  In singe batch mode we process filerequests after the batch.
 	 *  The results will be put on hold for the calling node.
+	 *  This method is also known as "dual session mode".
 	 */
 	respond = respond_wazoo();
 	for (tmpfl = respond; tmpfl; tmpfl = tmpfl->next) {
@@ -321,6 +327,8 @@ void binkp_send_data(char *buf, int len)
 {
     unsigned short	header = 0;
 
+    Syslog('B', "Binkp: send_data len=%d", len);
+
     header = ((BINKP_DATA_BLOCK + len) & 0xffff);
 
     PUTCHAR((header >> 8) & 0x00ff);
@@ -355,6 +363,7 @@ void binkp_send_control(int id,...)
 	sz = 1;
     }
 
+    Syslog('B', "Binkp: send_ctl %s \"%s\"", bstate[id], buf);
     frame.header = ((BINKP_CONTROL_BLOCK + sz) & 0xffff);
     frame.id = (char)id;
     frame.data = buf;
@@ -386,7 +395,7 @@ int binkp_recv_frame(char *buf, int *len, int *cmd)
 
     *len = *cmd = 0;
 
-    b0 = GETCHAR(180);
+    b0 = GETCHAR(BINKP_TIMEOUT);
     if (tty_status)
 	goto to;
     if (b0 & 0x80)
@@ -399,7 +408,7 @@ int binkp_recv_frame(char *buf, int *len, int *cmd)
     *len = (b0 & 0x7f) << 8;
     *len += b1;
 
-    GET(buf, *len, 120);
+    GET(buf, *len, BINKP_TIMEOUT / 2);
     buf[*len] = '\0';
     if (tty_status)
 	goto to;
@@ -431,7 +440,7 @@ int binkp_expired(void)
 
 
 
-void b_banner(int Norequests)
+void b_banner(void)
 {
     time_t  t;
 
@@ -441,8 +450,7 @@ void b_banner(int Norequests)
     binkp_send_control(MM_NUL,"NDL %s", CFG.Flags);
     t = time(NULL);
     binkp_send_control(MM_NUL,"TIME %s", rfcdate(t));
-    Syslog('b', "Binkp: M_NUL VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
-    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s binkp/1.%d", VERSION, OsName(), OsCPU(), Norequests ? 0 : 1);
+    binkp_send_control(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
     if (strlen(CFG.Phone))
 	binkp_send_control(MM_NUL,"PHN %s", CFG.Phone);
     if (strlen(CFG.comment))
@@ -453,6 +461,8 @@ void b_banner(int Norequests)
 
 void b_nul(char *msg)
 {
+    char    *p, *q;
+
     if (strncmp(msg, "SYS ", 4) == 0) {
 	Syslog('+', "System  : %s", msg+4);
 	strncpy(history.system_name, msg+4, 35);
@@ -468,10 +478,10 @@ void b_nul(char *msg)
 	Syslog('+', "Time    : %s", msg+5);
     else if (strncmp(msg, "VER ", 4) == 0) {
 	Syslog('+', "Uses    : %s", msg+4);
-	if (strstr(msg+4, "binkp/1.1")) {
-	    Remote_1_1 = TRUE;
-	} else {
-	    Remote_1_1 = FALSE;
+	if ((p = strstr(msg+4, PRTCLNAME "/")) && (q = strstr(p, "."))) {
+	    Major = atoi(p + 6);
+	    Minor = atoi(q + 1);
+	    Syslog('b', "Remote protocol version %d.%d", Major, Minor);
 	}
     }
     else if (strncmp(msg, "PHN ", 4) == 0)
@@ -482,16 +492,8 @@ void b_nul(char *msg)
 	Syslog('+', "Binkp: remote has %s mail/files for us", msg+4);
     else if (strncmp(msg, "OPT ", 4) == 0) {
 	Syslog('+', "Options : %s", msg+4);
-	if (strstr(msg, (char *)"NR") != NULL)
-	    NRflag = TRUE;
-	if (strstr(msg, (char *)"MB") != NULL)
-	    MBflag = TRUE;
-	if (strstr(msg, (char *)"ND") != NULL)
-	    NDflag = TRUE;
-	if (strstr(msg, (char *)"CRYPT") != NULL) {
-	    CRYPTflag = TRUE;
-//	    Syslog('+', "Remote requests CRYPT mode");
-	}
+	if ((strstr(msg, (char *)"MB") != NULL) && (MBflag == WeCan))
+	    MBflag = TheyWant;
 	if (strstr(msg, (char *)"CRAM-MD5-") != NULL) {	/* No SHA-1 support */
 	    if (CFG.NoMD5) {
 		Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
@@ -501,9 +503,8 @@ void b_nul(char *msg)
 		MD_challenge = MD_getChallenge(msg, NULL);
 	    }
 	}
-	if (strstr(msg, (char *)"CRC") != NULL) {
-	    CRCflag = TRUE;
-	    Syslog('b', "Binkp: remote supports CRC32 mode");
+	if ((strstr(msg, (char *)"CRC") != NULL) && (CRCflag == WeCan)) {
+	    CRCflag = TheyWant;
 	}
     } else
 	Syslog('+', "Binkp: M_NUL \"%s\"", msg);
@@ -516,41 +517,50 @@ void b_nul(char *msg)
  */
 SM_DECL(orgbinkp, (char *)"orgbinkp")
 SM_STATES
-    waitconn,
-    sendpass,
-    waitaddr,
-    authremote,
-    waitok
+    ConnInit,
+    WaitConn,
+    SendPasswd,
+    WaitAddr,
+    AuthRemote,
+    IfSecure,
+    WaitOk,
+    Opts
 SM_NAMES
-    (char *)"waitconn",
-    (char *)"sendpass",
-    (char *)"waitaddr",
-    (char *)"authremote",
-    (char *)"waitok"
+    (char *)"ConnInit",
+    (char *)"WaitConn",
+    (char *)"SendPasswd",
+    (char *)"WaitAddr",
+    (char *)"AuthRemote",
+    (char *)"IfSecure",
+    (char *)"WaitOk",
+    (char *)"Opts"
 SM_EDECL
     faddr   *primary;
-    char    *p, *q;
-    int	    i, rc, bufl, cmd, dupe;
+    char    *p, *q, *pwd;
+    int	    i, rc, bufl, cmd, dupe, SendPass = FALSE;
     fa_list **tmp, *tmpa;
-    int	    SendPass = FALSE;
     faddr   *fa, ra;
 
-SM_START(waitconn)
+SM_START(ConnInit)
 
-SM_STATE(waitconn)
+SM_STATE(ConnInit)
+
+    SM_PROCEED(WaitConn)
+
+SM_STATE(WaitConn)
 
     Loaded = FALSE;
     Syslog('+', "Binkp: node %s", ascfnode(remote->addr, 0x1f));
     IsDoing("Connect binkp %s", ascfnode(remote->addr, 0xf));
-    if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32) {
-	binkp_send_control(MM_NUL,"OPT MB CRC");
-    } else {
-	binkp_send_control(MM_NUL,"OPT MB");
-    }
-    if (((noderecord(remote->addr)) && nodes.NoFreqs) || CFG.NoFreqs)
-	b_banner(TRUE);
-    else
-	b_banner(FALSE);
+    p = xstrcpy((char *)"OPT");
+    if (MBflag == WeCan)
+	p = xstrcat(p, (char *)" MB");
+    if ((noderecord(remote->addr)) && nodes.CRC32 && !CFG.NoCRC32)
+	p = xstrcat(p, (char *)" CRC");
+    if (strcmp(p, (char *)"OPT"))
+	binkp_send_control(MM_NUL, p);
+    free(p);
+    b_banner();
 
     /*
      * Build a list of aka's to send, the primary aka first.
@@ -577,9 +587,9 @@ SM_STATE(waitconn)
     binkp_send_control(MM_ADR, "%s", p);
     free(p);
     tidy_faddr(primary);
-    SM_PROCEED(waitaddr)
+    SM_PROCEED(WaitAddr)
 
-SM_STATE(waitaddr)
+SM_STATE(WaitAddr)
 	
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
@@ -591,22 +601,22 @@ SM_STATE(waitaddr)
 	    if (rbuf[0] == MM_ADR) {
 		p = xstrcpy(&rbuf[1]);
 		tidy_falist(&remote);
-		remote = NULL;
-		tmp = &remote;
+	        remote = NULL;
+	        tmp = &remote;
 
-		for (q = strtok(p, " "); q; q = strtok(NULL, " "))
-		    if ((fa = parsefnode(q))) {
-			dupe = FALSE;
-			for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+	        for (q = strtok(p, " "); q; q = strtok(NULL, " ")) {
+		   if ((fa = parsefnode(q))) {
+		        dupe = FALSE;
+		        for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 			    if ((tmpa->addr->zone == fa->zone) && (tmpa->addr->net == fa->net) &&
-				(tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
-				(strcmp(tmpa->addr->domain, fa->domain) == 0)) {
-				dupe = TRUE;
-				Syslog('b', "Binkp: double address %s", ascfnode(tmpa->addr, 0x1f));
-				break;
+			        (tmpa->addr->node == fa->node) && (tmpa->addr->point == fa->point) &&
+			        (strcmp(tmpa->addr->domain, fa->domain) == 0)) {
+			        dupe = TRUE;
+			        Syslog('b', "Binkp: double address %s", ascfnode(tmpa->addr, 0x1f));
+			        break;
 			    }
 			}
-			if (!dupe) {
+		        if (!dupe) {
 			    *tmp = (fa_list*)malloc(sizeof(fa_list));
 			    (*tmp)->next = NULL;
 			    (*tmp)->addr = fa;
@@ -614,14 +624,15 @@ SM_STATE(waitaddr)
 			}
 		    } else {
 			Syslog('!', "Binkp: bad remote address: \"%s\"", printable(q, 0));
-			binkp_send_control(MM_ERR, "Bad address");
+		        binkp_send_control(MM_ERR, "Bad address");
 		    }
+		}
 
-		for (tmpa = remote; tmpa; tmpa = tmpa->next) {
+	        for (tmpa = remote; tmpa; tmpa = tmpa->next) {
 		    Syslog('+', "Address : %s", ascfnode(tmpa->addr, 0x1f));
 		    if (nodelock(tmpa->addr)) {
-			binkp_send_control(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
-			SM_ERROR;
+		        binkp_send_control(MM_BSY, "Address %s locked", ascfnode(tmpa->addr, 0x1f));
+		        SM_ERROR;
 		    }
 
 		    /*
@@ -629,60 +640,64 @@ SM_STATE(waitaddr)
 		     * when the remote presents us an address we don't know about.
 		     */
 		    if (!Loaded) {
-			if (noderecord(tmpa->addr))
-			    Loaded = TRUE;
+		        if (noderecord(tmpa->addr))
+			   Loaded = TRUE;
 		    }
 		}
 
-		history.aka.zone  = remote->addr->zone;
-		history.aka.net   = remote->addr->net;
-		history.aka.node  = remote->addr->node;
-		history.aka.point = remote->addr->point;
-		sprintf(history.aka.domain, "%s", remote->addr->domain);
+	        history.aka.zone  = remote->addr->zone;
+	        history.aka.net   = remote->addr->net;
+	        history.aka.node  = remote->addr->node;
+	        history.aka.point = remote->addr->point;
+	        sprintf(history.aka.domain, "%s", remote->addr->domain);
 
-		SM_PROCEED(sendpass)
-
+	        SM_PROCEED(SendPasswd)
+		    
 	    } else if (rbuf[0] == MM_BSY) {
 		Syslog('!', "Binkp: M_BSY \"%s\"", printable(&rbuf[1], 0));
-		SM_ERROR;
-
+	        SM_ERROR;
+		
 	    } else if (rbuf[0] == MM_ERR) {
 		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
 		SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
 		b_nul(&rbuf[1]);
+
+	    } else {
+		binkp_send_control(MM_ERR, "Unexpected frame");
+		SM_ERROR;
 	    }
 	}
     }
 
-SM_STATE(sendpass)
+SM_STATE(SendPasswd)
 
-    if (MD_challenge && strlen(nodes.Spasswd)) {
-	char	*pw = NULL, *tp = NULL;
-	pw = xstrcpy(nodes.Spasswd);
-	tp = MD_buildDigest(pw, MD_challenge);
+    if (Loaded && strlen(nodes.Spasswd)) {
+	pwd = xstrcpy(nodes.Spasswd);
+	SendPass = TRUE;
+    } else {
+	pwd = xstrcpy((char *)"-");
+    }
+
+    if (MD_challenge) {
+	char	*tp = NULL;
+	tp = MD_buildDigest(pwd, MD_challenge);
 	if (!tp) {
 	    Syslog('!', "Unable to build MD5 digest");
 	    SM_ERROR;
 	}
-	SendPass = TRUE;
 	CRAMflag = TRUE;
 	binkp_send_control(MM_PWD, "%s", tp);
 	free(tp);
-	free(pw);
     } else {
-	if (strlen(nodes.Spasswd)) {
-	    SendPass = TRUE;
-	    binkp_send_control(MM_PWD, "%s", nodes.Spasswd);
-	} else {
-	    binkp_send_control(MM_PWD, "-");
-	}
+	binkp_send_control(MM_PWD, "%s", pwd);
     }
 
-    SM_PROCEED(authremote)
+    free(pwd);
+    SM_PROCEED(AuthRemote)
 
-SM_STATE(authremote)
+SM_STATE(AuthRemote)
 
     rc = 0;
     for (tmpa = remote; tmpa; tmpa = tmpa->next) {
@@ -693,14 +708,18 @@ SM_STATE(authremote)
     }
 
     if (rc) {
-	SM_PROCEED(waitok)
+	SM_PROCEED(IfSecure)
     } else {
 	Syslog('!', "Binkp: error, the wrong node is reached");
 	binkp_send_control(MM_ERR, "No AKAs in common or all AKAs busy");
 	SM_ERROR;
     }
 
-SM_STATE(waitok)
+SM_STATE(IfSecure)
+
+    SM_PROCEED(WaitOk)
+
+SM_STATE(WaitOk)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
@@ -711,25 +730,37 @@ SM_STATE(waitok)
 	if (cmd) {
 	    if (rbuf[0] == MM_OK) {
 		Syslog('!', "Binkp: M_OK \"%s\"", printable(&rbuf[1], 0));
-		if (SendPass)
-		    Syslog('+', "Binkp: %spassword protected session", CRAMflag ? "MD5 ":"");
-		else
-		    Syslog('+', "Binkp: unprotected session");
-		SM_SUCCESS;
+	        if (SendPass)
+		   Secure = TRUE;
+		Syslog('+', "Binkp: %s%sprotected session", CRAMflag ? "MD5 ":"", Secure ? "":"un");
+		SM_PROCEED(Opts)
 
 	    } else if (rbuf[0] == MM_BSY) {
 		Syslog('!', "Binkp: M_BSY \"%s\"", printable(&rbuf[1], 0));
-		SM_ERROR;
+	        SM_ERROR;
 
 	    } else if (rbuf[0] == MM_ERR) {
 		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
-		SM_ERROR;
+	        SM_ERROR;
 
 	    } else if (rbuf[0] == MM_NUL) {
 		b_nul(&rbuf[1]);
+
+	    } else {
+		binkp_send_control(MM_ERR, "Unexpected frame");
+	        SM_ERROR;
 	    }
 	}
     }
+
+SM_STATE(Opts)
+
+    /*
+     * Room to negotiate more protocol options.
+     * When we are binkp/1.1 and remote is 1.0 we should
+     * negotiate MB mode here.
+     */
+    SM_SUCCESS;
 
 SM_END
 SM_RETURN
@@ -741,25 +772,29 @@ SM_RETURN
  */
 SM_DECL(ansbinkp, (char *)"ansbinkp")
 SM_STATES
-    waitconn,
-    waitaddr,
-    waitpwd,
-    pwdack
+    WaitConn,
+    WaitAddr,
+    IsPasswd,
+    WaitPwd,
+    PwdAck,
+    Opts
 SM_NAMES
-    (char *)"waitconn",
-    (char *)"waitaddr",
-    (char *)"waitpwd",
-    (char *)"pwdack"
+    (char *)"WaitConn",
+    (char *)"WaitAddr",
+    (char *)"IsPasswd",
+    (char *)"WaitPwd",
+    (char *)"PwdAck",
+    (char *)"Opts"
 
 SM_EDECL
-    char    *p, *q;
-    int     i, rc, bufl, cmd, dupe;
+    char    *p, *q, *pw;
+    int     i, rc, bufl, cmd, dupe, we_have_pwd = FALSE;
     fa_list **tmp, *tmpa;
     faddr   *fa;
 
-SM_START(waitconn)
+SM_START(WaitConn)
 
-SM_STATE(waitconn)
+SM_STATE(WaitConn)
 
     Loaded = FALSE;
 
@@ -780,7 +815,7 @@ SM_STATE(waitconn)
 	Syslog('b', "Binkp: sending \"%s\"", s);
 	binkp_send_control(MM_NUL, "%s", s);
     }
-    b_banner(CFG.NoFreqs);
+    b_banner();
     p = xstrcpy((char *)"");
 
     for (i = 0; i < 40; i++)
@@ -791,9 +826,9 @@ SM_STATE(waitconn)
 
     binkp_send_control(MM_ADR, "%s", p);
     free(p);
-    SM_PROCEED(waitaddr)
+    SM_PROCEED(WaitAddr)
 
-SM_STATE(waitaddr)
+SM_STATE(WaitAddr)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
@@ -858,17 +893,19 @@ SM_STATE(waitaddr)
 		if (nlent)
 		    rdoptions(Loaded);
 
-		if (MBflag) {
+		if (MBflag == TheyWant) {
 		    Syslog('b', "Binkp: remote supports MB");
 		    binkp_send_control(MM_NUL,"OPT MB");
+		    MBflag = Active;
 		}
-		if (CRCflag) {
+		if (CRCflag == TheyWant) {
 		    if (Loaded && nodes.CRC32 && !CFG.NoCRC32) {
 			binkp_send_control(MM_NUL,"OPT CRC");
 			Syslog('+', "Binkp: using file transfers with CRC32 checking");
+			CRCflag = Active;
 		    } else {
 			Syslog('b', "Binkp: CRC32 support is diabled here");
-			CRCflag = FALSE;
+			CRCflag = No;
 		    }
 		}
 
@@ -878,7 +915,7 @@ SM_STATE(waitaddr)
 		history.aka.point = remote->addr->point;
 		sprintf(history.aka.domain, "%s", remote->addr->domain);
 
-		SM_PROCEED(waitpwd)
+		SM_PROCEED(IsPasswd)
 
 	    } else if (rbuf[0] == MM_ERR) {
 		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
@@ -886,11 +923,23 @@ SM_STATE(waitaddr)
 
 	    } else if (rbuf[0] == MM_NUL) {
 		b_nul(&rbuf[1]);
+	    } else if (rbuf[0] <= MM_MAX) {
+		binkp_send_control(MM_ERR, "Unexpected frame");
+		SM_ERROR;
 	    }
 	}
     }
 
-SM_STATE(waitpwd)
+SM_STATE(IsPasswd)
+
+    if (Loaded && strlen(nodes.Spasswd)) {
+	we_have_pwd = TRUE;
+    }
+    
+    Syslog('b', "We %s have a password", we_have_pwd ?"do":"don't");
+    SM_PROCEED(WaitPwd)
+
+SM_STATE(WaitPwd)
 
     for (;;) {
 	if ((rc = binkp_recv_frame(rbuf, &bufl, &cmd))) {
@@ -900,66 +949,70 @@ SM_STATE(waitpwd)
 
         if (cmd) {
 	    if (rbuf[0] == MM_PWD) {
-		SM_PROCEED(pwdack)
+		SM_PROCEED(PwdAck)
 
 	    } else if (rbuf[0] == MM_ERR) {
 		Syslog('!', "Binkp: M_ERR \"%s\"", printable(&rbuf[1], 0));
                 SM_ERROR;
-
 	    } else if (rbuf[0] == MM_NUL) {
                 b_nul(&rbuf[1]);
+	    } else if (rbuf[0] <= MM_MAX) {
+		binkp_send_control(MM_ERR, "Unexpected frame");
+		SM_ERROR;
 	    }
 	}
     }
 
-SM_STATE(pwdack)
+SM_STATE(PwdAck)
 
-    tmpa = remote;
-    if ((strncmp(&rbuf[1], "CRAM-", 5) == 0) && CRAMflag && Loaded) {
-	char	*sp, *pw;
+    if (we_have_pwd) {
 	pw = xstrcpy(nodes.Spasswd);
+    } else {
+	pw = xstrcpy((char *)"-");
+    }
+
+    if ((strncmp(&rbuf[1], "CRAM-", 5) == 0) && CRAMflag) {
+	char	*sp;
 	sp = MD_buildDigest(pw, MD_challenge);
-	free(pw);
 	if (sp != NULL) {
 	    if (strcmp(&rbuf[1], sp)) {
 		Syslog('+', "Binkp: bad MD5 crypted password");
-		binkp_send_control(MM_ERR, "*** Password error, check setup ***");
+		binkp_send_control(MM_ERR, "Bad password");
 		free(sp);
 		sp = NULL;
+		free(pw);
 		SM_ERROR;
 	    } else {
 		free(sp);
 		sp = NULL;
-		Syslog('+', "Binkp: MD5 password OK, protected session");
-		inbound_open(tmpa->addr, TRUE);
-		binkp_send_control(MM_OK, "secure");
-		SM_SUCCESS;
+		if (we_have_pwd)
+		    Secure = TRUE;
 	    }
 	} else {
+	    free(pw);
 	    Syslog('!', "Binkp: could not build MD5 digest");
 	    binkp_send_control(MM_ERR, "*** Internal error ***");
 	    SM_ERROR;
 	}
-    } else if ((strcmp(&rbuf[1], "-") == 0) && !Loaded) {
-	Syslog('+', "Binkp: node not in setup, unprotected session");
-	inbound_open(tmpa->addr, FALSE);
-	binkp_send_control(MM_OK, "");
-	SM_SUCCESS;
-    } else if ((strcmp(&rbuf[1], "-") == 0) && Loaded && !strlen(nodes.Spasswd)) {
-	Syslog('+', "Binkp: node in setup but no session password, unprotected session");
-	inbound_open(tmpa->addr, FALSE);
-	binkp_send_control(MM_OK, "");
-	SM_SUCCESS;
-    } else if ((strcmp(&rbuf[1], nodes.Spasswd) == 0) && Loaded) {
-	Syslog('+', "Binkp: password OK, protected session");
-	inbound_open(tmpa->addr, TRUE);
-	binkp_send_control(MM_OK, "secure");
-	SM_SUCCESS;
+    } else if ((strcmp(&rbuf[1], pw) == 0)) {
+	if (we_have_pwd)
+	    Secure = TRUE;
     } else {
+	free(pw);
 	Syslog('?', "Binkp: password error: expected \"%s\", got \"%s\"", nodes.Spasswd, &rbuf[1]);
-	binkp_send_control(MM_ERR, "*** Password error, check setup ***");
+	binkp_send_control(MM_ERR, "Bad password");
 	SM_ERROR;
     }
+
+    free(pw);
+    Syslog('+', "Binkp: %s%sprotected session", CRAMflag ? "MD5 ":"", Secure ? "":"un");
+    inbound_open(remote->addr, Secure);
+    binkp_send_control(MM_OK, "%ssecure", Secure ? "":"non-");
+    SM_PROCEED(Opts)
+
+SM_STATE(Opts)
+
+    SM_SUCCESS;
 
 SM_END
 SM_RETURN
@@ -1048,7 +1101,7 @@ int binkp_batch(file_list *to_send, int role)
     rname = calloc(512, sizeof(char));
     lname = calloc(512, sizeof(char));
     gname = calloc(512, sizeof(char));
-    TfState = Switch;
+//    TfState = Switch;
     RxState = RxWaitFile;
     TxState = TxGetNextFile;
     binkp_settimer(BINKP_TIMEOUT);
@@ -1141,7 +1194,7 @@ int binkp_batch(file_list *to_send, int role)
 		    txflock.l_start  = 0L;
 		    txflock.l_len    = 0L;
 
-		    if (CRCflag)
+		    if (CRCflag == Active)
 			tcrc = file_crc(tmp->local, FALSE);
 		    else
 			tcrc = 0;
@@ -1168,7 +1221,7 @@ int binkp_batch(file_list *to_send, int role)
 
 		    txpos = stxpos = tmp->offset;
 		    Syslog('+', "Binkp: send \"%s\" as \"%s\"", MBSE_SS(tmp->local), MBSE_SS(tmp->remote));
-		    if (CRCflag && tcrc) {
+		    if ((CRCflag == Active) && tcrc) {
 			Syslog('+', "Binkp: size %lu bytes, dated %s, crc %lx", (unsigned long)tmp->size, date(tmp->date), tcrc);
 			binkp_send_control(MM_FILE, "%s %lu %ld %ld %lx", MBSE_SS(tmp->remote),
 			    (unsigned long)tmp->size, (long)tmp->date, (unsigned long)tmp->offset, tcrc);
@@ -1332,7 +1385,7 @@ int binkp_batch(file_list *to_send, int role)
 					 * Check against buffer overflow
 					 */
 					rcrc = 0;
-					if (CRCflag) {
+					if (CRCflag == Active) {
 					    sscanf(rxbuf+1, "%s %ld %ld %ld %lx", rname, &rsize, &rtime, &roffs, &rcrc);
 					} else {
 					    sscanf(rxbuf+1, "%s %ld %ld %ld", rname, &rsize, &rtime, &roffs);
@@ -1345,13 +1398,13 @@ int binkp_batch(file_list *to_send, int role)
 				}
 				break;
 
-		default:        Syslog('+', "Binkp: Unexpected frame %d", rxbuf[0]);
+		default:        Syslog('+', "Binkp: Unexpected frame %d \"%s\"", rxbuf[0], printable(rxbuf+1, 0));
 		}
 	    } else {
 		if (blklen) {
 		    if (RxState == RxReceData) {
 			written = fwrite(rxbuf, 1, blklen, rxfp);
-			if (CRCflag)
+			if (CRCflag == Active)
 			    rxcrc = upd_crc32(rxbuf, rxcrc, blklen);
 			if (!written && blklen) {
 			    Syslog('+', "Binkp: file write error");
@@ -1360,7 +1413,7 @@ int binkp_batch(file_list *to_send, int role)
 			rxpos += written;
 			if (rxpos == rsize) {
 			    RxState = RxWaitFile;
-			    if (CRCflag && rcrc) {
+			    if ((CRCflag == Active) && rcrc) {
 				rxcrc = rxcrc ^ 0xffffffff;
 				if (rcrc == rxcrc) {
 				    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
@@ -1411,7 +1464,7 @@ int binkp_batch(file_list *to_send, int role)
 	    break;
 
 	case RxAcceptFile:
-	    if (CRCflag)
+	    if (CRCflag == Active)
 		Syslog('+', "Binkp: receive file \"%s\" date %s size %ld offset %ld crc %lx", 
 			rname, date(rtime), rsize, roffs, rcrc);
 	    else
@@ -1439,7 +1492,7 @@ int binkp_batch(file_list *to_send, int role)
 		 * be deleted at the remote.
 		 */
 		Syslog('+', "Binkp: already got %s, sending GOT", rname);
-		if (CRCflag && rcrc)
+		if ((CRCflag == Active) && rcrc)
 		    binkp_send_control(MM_GOT, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
 		else
 		    binkp_send_control(MM_GOT, "%s %ld %ld", rname, rsize, rtime);
@@ -1450,7 +1503,7 @@ int binkp_batch(file_list *to_send, int role)
 		 * Some error, request to skip it
 		 */
 		Syslog('+', "Binkp: error file %s, sending SKIP", rname);
-		if (CRCflag && rcrc)
+		if ((CRCflag == Active) && rcrc)
 		    binkp_send_control(MM_SKIP, "%s %ld %ld %lx", rname, rsize, rtime, rcrc);
 		else
 		    binkp_send_control(MM_SKIP, "%s %ld %ld", rname, rsize, rtime);

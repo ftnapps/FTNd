@@ -1,6 +1,8 @@
 #ifndef	_BINKP_H
 #define	_BINKP_H
 
+/* $Id$ */
+
 /*
 
    binkp's frames:
@@ -17,7 +19,8 @@
 
 
 /* protocol version */
-#define BINKP_VERSION "1.1"
+#define	PRTCLNAME "binkp"
+#define PRTCLVER "1.0"
 
 #define MAX_BLKSIZE 0x7fff	/* Don't change!				*/
 #define	BLK_HDR_SIZE 2		/* 2 bytes header				*/
@@ -28,7 +31,7 @@
 #define MM_ADR	1		/* System aka's					*/
 #define MM_PWD	2		/* Password					*/
 #define MM_FILE	3
-#define MM_OK	4		/* The password is ok (data ignored)		*/
+#define MM_OK	4		/* The password is ok				*/
 #define MM_EOB	5		/* End-of-batch (data ignored)			*/
 #define MM_GOT	6		/* File received				*/
 #define MM_ERR	7		/* Misc errors					*/
@@ -68,17 +71,6 @@ typedef struct _binkp_list {
 } binkp_list;
 
 
-
-/*
- * state.NR_flag: state of binkp when in NR mode
- */
-#define NO_NR   0
-#define WANT_NR 1
-#define WE_NR   2
-#define THEY_NR 3
-
-
 int binkp(int);
 
 #endif
-

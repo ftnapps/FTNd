@@ -20,6 +20,8 @@ everything:
 
 	L: Implement IPv6.
 
+	L: Document error return codes in the manual.
+
 install:
 	N: On some (unsupported) distro's with xinetd the installation script
 	   also adds entries to inetd.conf.
@@ -110,6 +112,10 @@ mbcico:
 
 	N: Implement binkp resync when getting files. Transmit works.
 	   Under test now!
+
+	N: With binkp, if the other node is a binkp/1.0 mailer without MB
+	   mode and we did send a FREQ, a poll must be created after the
+	   session to pickup the result of the FREQ.
 
 mbfile:
 	L: Add a check to see if the magic filenames are (still) valid.

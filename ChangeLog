@@ -58,6 +58,11 @@ v0.37.6		10-Aug-2003
 		For FTS-0001 sessions the mail password was used instead of the
 		session password. Also improved the password check.
 		The product code was not entered in the FTS-0001 packet headers.
+		The binkp driver now always reports 1.0 again.
+		Revised some state tables in the binkp session setup stage.
+		Fixed a possible buffer overflow in the binkp driver.
+		Fixed aborting binkp session when the remote sent a empty CRAM
+		password for unprotected session.
 
 	mbfido:
 		The rfc to ftn gate now drops the headerlines starting with
