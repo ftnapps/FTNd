@@ -1697,7 +1697,7 @@ int global_doc(FILE *fp, FILE *toc, int page)
 #elif defined(__linux__)
 	add_webtable(wp, (char *)"Domain name", utsbuf.__domainname);
 	fprintf(fp, "      Domain name      %s\n", utsbuf.__domainname);
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
 	/* No domainname in struct utsname */
 #else
 #error "Don't know utsbuf.domainname on this OS"
