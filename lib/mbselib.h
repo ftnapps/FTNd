@@ -2455,8 +2455,10 @@ char *strcasestr(char *, char *);
 /*
  * mangle.c
  */
+int	is_8_3( char *);	    /* Return TRUE if name is 8.3	*/
 void	mangle_name_83( char *);    /* Mangle name to 8.3 format	*/
 void	name_mangle(char *);	    /* Mangle name or make uppercase	*/
+
 
 
 /*
