@@ -1,8 +1,7 @@
 /*****************************************************************************
  *
- * File ..................: mbfido/utic.c
+ * $Id$
  * Purpose ...............: Utilities for tic processing 
- * Last modification date : 26-May-2000
  *
  *****************************************************************************
  * Copyright (C) 1997-2000
@@ -80,7 +79,7 @@ int Day_Of_Year()
 int Rearc(char *unarc)
 {
 	int	i, j;
-	char	temp[81], *cmd = NULL;
+	char	temp[PATH_MAX], *cmd = NULL;
 
 	Syslog('f', "Entering Rearc(%s)", unarc);
 
@@ -124,10 +123,11 @@ int Rearc(char *unarc)
 
 void DeleteVirusWork()
 {
-	char	*buf = NULL;
-	char	temp[81];
+	char	*buf, *temp;
 
-	getcwd(buf, 128);
+	buf  = calloc(PATH_MAX, sizeof(char));
+	temp = calloc(PATH_MAX, sizeof(char));
+	getcwd(buf, PATH_MAX);
 	sprintf(temp, "%s/tmp", getenv("MBSE_ROOT"));
 
 	if (chdir(temp) == 0) {
@@ -138,6 +138,8 @@ void DeleteVirusWork()
 		WriteError("$Can't chdir to %s", temp);
 
 	chdir(buf);
+	free(temp);
+	free(buf);
 }
 
 
