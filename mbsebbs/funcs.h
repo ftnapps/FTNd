@@ -13,6 +13,5 @@ void CheckDir(char *);			/* Check and create directory		    */
 void FindMBSE(void);			/* Load Configuration file in memory        */
 char *GLCdateyy(void);			/* Returns current date  DD-Mmm-YYYY        */
 char *GetMonth(int);			/* Returns Mmm				    */
-int  Access(securityrec, securityrec);	/* Check security access		    */
 
 #endif

@@ -414,25 +414,3 @@ char *GLCdateyy()
 }
 
 
-
-/*
- * Security Access Check
- */
-int Access(securityrec us, securityrec ref)
-{
-	Syslog('B', "User %5d %08lx %08lx", us.level, us.flags, ~us.flags);
-	Syslog('B', "Ref. %5d %08lx %08lx", ref.level, ref.flags, ref.notflags);
-
-	if (us.level < ref.level)
-		return FALSE;
-
-	if ((ref.notflags & ~us.flags) != ref.notflags)
-		return FALSE;
-
-	if ((ref.flags & us.flags) != ref.flags)
-		return FALSE;
-
-	return TRUE;
-}
-
-

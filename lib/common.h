@@ -920,5 +920,11 @@ void	mangle_name_83( char *);    /* Mangle name to 8.3 format	*/
 void	name_mangle(char *);	    /* Mangle name or make uppercase	*/
 
 
+/*
+ * sectest.c
+ */
+int  Access(securityrec, securityrec);  /* Check security access	*/
+
+
 #endif
 
