@@ -248,6 +248,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	     * the old one.
 	     */
 	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
+		Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	    }
 
@@ -276,6 +277,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	     * the old one.
 	     */
 	    if (strlen(frec.Magic) && (strcmp(fdb.Magic, frec.Magic) == 0)) {
+		Syslog('f', "Clear magic %s file %s", fdb.Magic, fdb.LName);
 		memset(&fdb.Magic, 0, sizeof(fdb.Magic));
 	    }
 
