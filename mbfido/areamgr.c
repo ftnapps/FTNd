@@ -451,6 +451,13 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 			    plm += msgs.Posted.month[lmonth];
 			    plw += msgs.Posted.lweek;
 			    plt += msgs.Posted.total;
+			    if (((ftell(qp) - msgptr) / 1024) >= CFG.new_force) {
+				MacroVars("Z","d",1);
+				Syslog('-', "  Forced splitting message at %ld bytes", ftell(qp) - msgptr);
+				CloseMail(qp, t);
+				qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", subject, replyid);
+				msgptr = ftell(qp);
+			    }
 			} else
 			    fseek(mp, msgshdr.syssize, SEEK_CUR);
 		    }
