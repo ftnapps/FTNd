@@ -113,7 +113,7 @@ void load_ports()
     FILE	    *fp;
     pp_list	    new;
     int		    stdflag;
-    char	    *p, *q;
+    char	    *p, *q, *capflags;
     nodelist_modem  **tmpm;
     
     tidy_portlist(&pl);
@@ -136,6 +136,7 @@ void load_ports()
 	    memset(&new, 0, sizeof(new));
 	    strncpy(new.tty, ttyinfo.tty, 6);
 
+	    capflags = xstrcpy((char *)"flags:");
 	    stdflag = TRUE;
 	    q = xstrcpy(ttyinfo.flags);
 	    for (p = q; p; p = q) {
@@ -145,16 +146,24 @@ void load_ports()
 		    stdflag = FALSE;
 		} else {
 		    for (tmpm = &nl_pots; *tmpm; tmpm=&((*tmpm)->next))
-			if (strcasecmp(p, (*tmpm)->name) == 0)
+			if (strcasecmp(p, (*tmpm)->name) == 0) {
 			    new.mflags |= (*tmpm)->value;
+			    capflags = xstrcat(capflags, (char *)" ");
+			    capflags = xstrcat(capflags, (*tmpm)->name);
+			}
 		    for (tmpm = &nl_isdn; *tmpm; tmpm=&((*tmpm)->next))
-			if (strcasecmp(p, (*tmpm)->name) == 0)
+			if (strcasecmp(p, (*tmpm)->name) == 0) {
 			    new.dflags |= (*tmpm)->value;
+			    capflags = xstrcat(capflags, (char *)" ");
+			    capflags = xstrcat(capflags, (*tmpm)->name);
+			}
 		}
 	    }
 
-	    Syslog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
+	    Syslog('+', "Found line %s, %s", new.tty, capflags);
 	    fill_portlist(&pl, &new);
+	    if (capflags)
+		free(capflags);
 	}
     }
 

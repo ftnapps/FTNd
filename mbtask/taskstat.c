@@ -340,8 +340,6 @@ char *getseq(void)
 
 int sem_set(char *sem, int value)
 {
-    Syslog('s', "%s semafore \"%s\"", value?"Set":"Clear", sem);
-
     if (!strcmp(sem, "scanout")) {
 	s_scanout = value;
 	if (value)
@@ -373,77 +371,76 @@ int sem_set(char *sem, int value)
 
 char *sem_status(char *data)
 {
-	char		*cnt, *sem;
-	static char	buf[40];
-	int		value;
+    char	*cnt, *sem;
+    static char	buf[40];
+    int		value;
 
-	buf[0] = '\0';
-	sprintf(buf, "200:1,16;");
-	cnt = strtok(data, ",");
-	sem = strtok(NULL, ";");
+    buf[0] = '\0';
+    sprintf(buf, "200:1,16;");
+    cnt = strtok(data, ",");
+    sem = strtok(NULL, ";");
 
-        if (!strcmp(sem, "scanout")) {
-		value = s_scanout;
-        } else if (!strcmp(sem, "mailout")) {
-                value = s_mailout;
-        } else if (!strcmp(sem, "mailin")) {
-                value = s_mailin;
-        } else if (!strcmp(sem, "mbindex")) {
-                value = s_index;
-        } else if (!strcmp(sem, "newnews")) {
-                value = s_newnews;
-        } else if (!strcmp(sem, "msglink")) {
-                value = s_msglink;
-        } else if (!strcmp(sem, "reqindex")) {
-                value = s_reqindex;
-	} else if (!strcmp(sem, "upsalarm")) {
-		value = UPSalarm;
-	} else if (!strcmp(sem, "do_inet")) {
-	        value = s_do_inet;
-        } else {
-		Syslog('s', "sem_status(%s) buf=%s", sem, buf);
-		return buf;
-        }
-
-	sprintf(buf, "100:1,%s;", value ? "1":"0");
-	Syslog('s', "Check semafore \"%s\": %s present", sem, value?"is":"not");
+    if (!strcmp(sem, "scanout")) {
+	value = s_scanout;
+    } else if (!strcmp(sem, "mailout")) {
+        value = s_mailout;
+    } else if (!strcmp(sem, "mailin")) {
+        value = s_mailin;
+    } else if (!strcmp(sem, "mbindex")) {
+        value = s_index;
+    } else if (!strcmp(sem, "newnews")) {
+        value = s_newnews;
+    } else if (!strcmp(sem, "msglink")) {
+        value = s_msglink;
+    } else if (!strcmp(sem, "reqindex")) {
+        value = s_reqindex;
+    } else if (!strcmp(sem, "upsalarm")) {
+	value = UPSalarm;
+    } else if (!strcmp(sem, "do_inet")) {
+	value = s_do_inet;
+    } else {
+	Syslog('s', "sem_status(%s) buf=%s", sem, buf);
 	return buf;
+    }
+
+    sprintf(buf, "100:1,%s;", value ? "1":"0");
+    return buf;
 }
 
 
 
 char *sem_create(char *data)
 {
-	static char     buf[40];
-        char    	*cnt, *sem;
+    static char buf[40];
+    char    	*cnt, *sem;
 
-        cnt = strtok(data, ",");
-        sem = strtok(NULL, ";");
-        buf[0] = '\0';
-        sprintf(buf, "200:1,16;");
+    cnt = strtok(data, ",");
+    sem = strtok(NULL, ";");
+    buf[0] = '\0';
+    sprintf(buf, "200:1,16;");
 
-	if (sem_set(sem, TRUE))
-		sprintf(buf, "100:0;");
+    if (sem_set(sem, TRUE))
+	sprintf(buf, "100:0;");
 
-        return buf;
+    return buf;
 }
 
 
 
 char *sem_remove(char *data)
 {
-        static char     buf[40];
-        char    	*cnt, *sem;
+    static char buf[40];
+    char    	*cnt, *sem;
 
-        cnt = strtok(data, ",");
-        sem = strtok(NULL, ";");
-        buf[0] = '\0';
-        sprintf(buf, "200:1,16;");
+    cnt = strtok(data, ",");
+    sem = strtok(NULL, ";");
+    buf[0] = '\0';
+    sprintf(buf, "200:1,16;");
 
-	if (sem_set(sem, FALSE))
-		sprintf(buf, "100:0;");
+    if (sem_set(sem, FALSE))
+	sprintf(buf, "100:0;");
 
-        return buf;
+    return buf;
 }
 
 

@@ -600,10 +600,11 @@ int checktasks(int onsig)
 				Syslog('+', "Task %s is ready", task[i].name);
 			} else if (WIFSIGNALED(task[i].status)) {
 			    rc = WTERMSIG(task[i].status);
-			    if (rc <= 31)
-				Syslog('+', "Task %s terminated on signal %s (%d)", task[i].name, SigName[rc], rc);
-			    else
-				Syslog('+', "Task %s terminated with error nr %d", task[i].name, rc);
+			    /*
+			     * Here we don't report an error number, on FreeBSD WIFSIGNALED
+			     * seems true while there's nothing wrong.
+			     */
+			    Syslog('+', "Task %s terminated", task[i].name);
 			} else if (WIFSTOPPED(task[i].status)) {
 			    rc = WSTOPSIG(task[i].status);
 			    Syslog('+', "Task %s stopped on signal %s (%d)", task[i].name, SigName[rc], rc);

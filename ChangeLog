@@ -33,6 +33,7 @@ v0.37.5		12-Jul-2003
 		Now uses standard locking in ~/var/run
 		When idle, it now reports the time to the next event to be
 		seen in mbmon menu 1.
+		Remove some semafore debug messages.
 
 	mbmon:
 		Added program locking, only one mbmon can run at the same time
