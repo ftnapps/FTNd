@@ -342,8 +342,8 @@ documented above, in outstring.
 #endif
 
 struct mfent {
-    char *fname;		      /* Function name */
-    int (*ffunc)();		      /* Evaluation function */
+    char *fname;			    /* Function name */
+    int (*ffunc)(int, char *[], char *);    /* Evaluation function */
 };
 
 #define Mfunc(x) static int x( int, char *[], char *);\

@@ -76,7 +76,7 @@ void MacroVars( const char *codes, const char *fmt, ...)
                    }
                    dieselrc=diesel(tmp1,tmp2);
 		   if (dieselrc) {
-		       Syslog('!', "MacroVars error %d argument %d", dieselrc, j);
+		       Syslog('!', "MacroVars error %d argument %d, macro %c type %c", dieselrc, j, codes[j], fmt[j]);
 		   }
         }
         va_end(ap);
@@ -192,11 +192,11 @@ char *ParseMacro( const char *line, int *dieselrc)
 /*
  * Add random fortune cookie to the macrovars
  */
-void Cookie(void);
-void Cookie(void)
+void Cookie(int);
+void Cookie(int HtmlMode)
 {
     FILE    *olf;
-    char    *fname;
+    char    *fname, outbuf[256];
     long    recno, records;
 
     MacroVars("F", "s", "");
@@ -221,7 +221,12 @@ void Cookie(void)
 
     if (fseek(olf, olhdr.hdrsize + (recno * olhdr.recsize), SEEK_SET) == 0) {
 	if (fread(&ol, olhdr.recsize, 1, olf) == 1) {
-	    MacroVars("F", "s", ol.Oneline);
+	    if (HtmlMode) {
+		html_massage(ol.Oneline, outbuf);
+		MacroVars("F", "s", outbuf);
+	    } else {
+		MacroVars("F", "s", ol.Oneline);
+	    }
 	} else {
 	    WriteError("Can't read record %d from %s", recno, fname);
 	}
@@ -433,7 +438,7 @@ FILE *OpenMacro(const char *filename, int Language, int htmlmode)
 	    MacroVars("HLMNOSTUVYZ", "ssssssssssd", CFG.www_url, CFG.location, CFG.sysdomain, CFG.bbs_name, temp,
 					    CFG.sysop_name, CFG.comment, CFG.sysop, VERSION, aka, 0);
 	}
-	Cookie();
+	Cookie(htmlmode);
     }
 
     free(aka);

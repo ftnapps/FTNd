@@ -771,8 +771,11 @@ int ProcessTic(fa_list *sbl)
 	Magic_CopyFile();
 	Magic_UnpackFile();
 	Magic_AdoptFile();
+	Syslog('f', "Almost at end of ptic");
 
 	sprintf(Temp, "%s/%s", TIC.Inbound, TIC.TicName);
+	Syslog('f', "About to erase \"%s\"", Temp);
+
 	unlink(Temp);
 	free(Temp);
 	return 0;
