@@ -10,19 +10,16 @@ H_BASE		= basic.html dist.html manual.css \
 		  known_bugs.html mgetty.html routing.html nodelist.html
 
 H_FTSC		= ftsc/fsc-0039.html  ftsc/fsc-0056.html  ftsc/fsc-0087.html \
-		  ftsc/fts-0007.html \
-		  ftsc/fsc-0046.html  ftsc/fsc-0057.html  ftsc/fsc-0091.html \
-		  ftsc/fta-1005.html  ftsc/fts-0008.html \
-		  ftsc/fsc-0048.html  ftsc/fsc-0059.html  ftsc/fsc-0092.html \
-		  ftsc/fsp-1005.html  ftsc/fts-0001.html  ftsc/fts-0009.html \
-		  ftsc/fsc-0049.html  ftsc/fsc-0062.html  ftsc/fsc-0093.html \
-		  ftsc/fts-0004.html  ftsc/index.htm \
+		  ftsc/fts-0007.html  ftsc/fsc-0046.html  ftsc/fsc-0057.html \
+		  ftsc/fsc-0091.html  ftsc/fta-1005.html  ftsc/fts-0008.html \
+		  ftsc/fsc-0048.html  ftsc/fsc-0059.html  ftsc/fts-0001.html \
+		  ftsc/fts-0009.html  ftsc/fsc-0049.html  ftsc/fsc-0062.html \
+		  ftsc/fsc-0093.html  ftsc/fts-0004.html  ftsc/index.htm     \
 		  ftsc/fsc-0050.html  ftsc/fsc-0070.html  ftsc/fts-4008.html \
-		  ftsc/fts-5000.html  ftsc/fsc-0053.html \
-		  ftsc/fsc-0072.html  ftsc/fsp-1002.html  \
-		  ftsc/fts-0006.html  ftsc/fsc-0035.html  ftsc/fts-4009.html \
-		  ftsc/fsp-1011.html  ftsc/ftscprod.html  ftsc/fsc-0088.html \
-		  ftsc/fts-4001.html  ftsc/fts-5001.html
+		  ftsc/fts-5000.html  ftsc/fsc-0053.html  ftsc/fsc-0072.html \
+		  ftsc/fsp-1002.html  ftsc/fts-0006.html  ftsc/fsc-0035.html \
+		  ftsc/fts-4009.html  ftsc/fsp-1011.html  ftsc/ftscprod.html \
+		  ftsc/fsc-0088.html  ftsc/fts-4001.html  ftsc/fts-5001.html
 
 H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
 		  images/connec.gif   images/mbsetup0.gif     images/nodes2.png \
