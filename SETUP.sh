@@ -257,8 +257,8 @@ if [ "$OSTYPE" = "Darwin" ]; then
     useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -s /bin/bash
 fi
 log "+" "[$?] Added user mbse"
-chmod 775 $MHOME
-log "+" "[$?] chmod 775 $MHOME"
+chmod 755 $MHOME
+log "+" "[$?] chmod 755 $MHOME"
 
 echo -n " writing '$MHOME/.profile'"
 cat << EOF >$MHOME/.profile
