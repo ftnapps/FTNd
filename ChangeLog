@@ -20,6 +20,8 @@ v0.37.8		14-Sep-2003 - 17-Sep-2003
 		Session handshake and EMSI handshake use the general purpose
 		timers instead of the ttyio timers. This should prevent invalid
 		timeouts during zmodem transfers. (bug since 0.37.6).
+		Compiled IEMSI code back in, starts mblogin which is not IEMSI
+		ready yet.
 
 
 v0.37.7		09-Sep-2003 - 14-09-2003

@@ -47,7 +47,7 @@
 #include "mbcico.h"
 #include "session.h"
 
-
+#define	IEMSI 1
 
 int		master = 0;
 int		immediatecall = FALSE;
@@ -283,13 +283,15 @@ int main(int argc, char *argv[])
 #ifdef IEMSI
         if (strncasecmp(p, "EMSI_NAKEEC3", 12) == 0) {
 
-	    Syslog('+', "Detected IEMSI client, starting BBS");
-            sprintf(temp, "%s/bin/mbsebbs", getenv("MBSE_ROOT"));
+	    Syslog('+', "Detected IEMSI client, starting mblogin");
+            sprintf(temp, "%s/bin/mblogin", getenv("MBSE_ROOT"));
             socket_shutdown(mypid);
 
-            if (execl(temp, "mbsebbs", (char *)NULL) == -1)
+            if (execl(temp, "mblogin", (char *)NULL) == -1)
                 perror("FATAL: Error loading BBS!");
 
+	        InitClient(pw->pw_name, (char *)"mbcico", CFG.location, CFG.logfile,
+			            CFG.cico_loglevel, CFG.error_log, CFG.mgrlog, CFG.debuglog);
             /*
              * If this happens, nothing is logged!
              */
@@ -298,7 +300,7 @@ int main(int argc, char *argv[])
             free_mem();
             if (envptr)
                 free(envptr);
-            exit(MBERROR_EXEC_FAILED);
+            exit(MBERR_EXEC_FAILED);
         }
 #endif
 	if ((strcasecmp(argv[optind],"tsync") == 0) ||
