@@ -202,6 +202,7 @@ void CloseNoderec(int Force)
 	int	i;
 	char	group[13];
 	st_list	*nod = NULL, *tmp;
+	unsigned long	crc1, crc2;
 
 	sprintf(fin, "%s/etc/nodes.data", getenv("MBSE_ROOT"));
 	sprintf(fout,"%s/etc/nodes.temp", getenv("MBSE_ROOT"));
@@ -221,14 +222,21 @@ void CloseNoderec(int Force)
 			}
 			sort_stlist(&nod);
 
+			crc1 = crc2 = 0xffffffff;
 			for (tmp = nod; tmp; tmp = tmp->next) {
 				fseek(fi, tmp->pos, SEEK_SET);
 				fread(&nodes, nodeshdr.recsize, 1, fi);
-				fwrite(&nodes, nodeshdr.recsize, 1, fo);
+				crc2 = upd_crc32((char *)&nodes, crc2, nodeshdr.recsize);
+				if (crc2 == crc1)
+				    WriteError("Removing double noderecord %s", nodes.Sysop);
+				else
+				    fwrite(&nodes, nodeshdr.recsize, 1, fo);
 				for (i = 0; i < ((nodeshdr.filegrp + nodeshdr.mailgrp) / sizeof(group)); i++) {
 					fread(&group, sizeof(group), 1, fi);
-					fwrite(&group, sizeof(group), 1, fo);
+					if (crc2 != crc1)
+					    fwrite(&group, sizeof(group), 1, fo);
 				}
+				crc1 = crc2;
 			}
 
 			tidy_stlist(&nod);

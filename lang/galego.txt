@@ -3,7 +3,7 @@
 |Desconectando usuario ...
 |Explorando ficheiro de usuarios ...
 SN|¨Escribiche-lo teu nome correctamente? [S/n] 
-|You need to login again with the name: 
+|Tes que acceder de novo con este nome: 
 |Este ‚ un sistema PRIVADO. Teclea "off" para salir
 |Teclea n£mero de ficheiro ou <Enter> para rematar : 
 |Password: 
@@ -69,7 +69,7 @@ SN|¨Queres men£s r pidos? [S/n]:
 |Nome de Login : 
 |Password        : 
 |non visualizable
-|New user registration completed.
+|Rexistro de novo usuario completo.
 |Non topo 
 |Localidade anterior : 
 |Localidade demasiado curta: (min. 
@@ -313,7 +313,7 @@ SN|¨Queres a¤adir unha descripcion? [S/n]:
 |Buscar unha BBS 
 |Teclee 3 letras da BBS que quere buscar: 
 |Necesito lo menos 3 letras ...
-SN|¨Ver esta BBS? [S/n]: 
+SN| BBS? [S/n]: 
 |Non podo topa-la BBS ...
 |Amosar una BBS 
 |N£mero a listar: 
@@ -370,8 +370,8 @@ AT|(A)ctivar/desactivar, desactivar (T)odos, (ENTER) para seguir:
 SN|¨Est s seguro? [S/n]: 
 |Comprobar ficheiros novos ACTIVADO
 |Comprobar ficheios novos DESACTIVADO
-|Now using the
-123|Select: 1) Line editor, 2) Fullscreen editor, 3) External editor 
+|Est s usando o editor 
+123|Escolle: 1) Editor de li¤as, 2) E. pantalla completa, 3) Editor externo 
 |¡Non hai mensaxes! 
 |Pulsa (Enter) para seguir: 
 |Centrar
@@ -385,10 +385,10 @@ SN|¨Est s seguro? [S/n]:
 |'Elena Nito del Bosque ' podes usar 'enitob', 'elenanb' ou 'enbosque'
 |login > 
 |Ese nome de LOGIN xa existe. Escolle outro...
-|Line
-|Fullscreen
-|External
-|Editor
+|de li¤as
+|de pantalla completa
+|externo
+| 
 |New    
 |Local    
 |Netmail  
@@ -436,7 +436,7 @@ SN|¨Queres descargar estas mensaxes [S/N]?
 |A tua password caducou, nova password : 
 |Pulsa ENTER para seguir 
 |Non podes escribir, ­esta  rea es S¢ Lectura!
-12|Select: 1) Line editor, 2) Fullscreen editor
+12|Escolle: 1) Editor de li¤as, 2) Editor de pantalla completa
 |Upload de correo Off-Line
 |O paquete recibido non ‚ v lido
 |Comprimido con un compresor desco¤ecido
