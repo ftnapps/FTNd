@@ -141,11 +141,10 @@ int binkp(int role)
     }
 
     Syslog('b', "NoFreqs %s", (localoptions & NOFREQS) ? "True":"False");
-    Syslog('b', "Session WAZOO %s", (session_flags & SESSION_WAZOO) ? "True":"False");
     if (localoptions & NOFREQS)
 	session_flags &= ~SESSION_WAZOO;
     else
-	session_flags |= ~SESSION_WAZOO;
+	session_flags |= SESSION_WAZOO;
     Syslog('b', "Session WAZOO %s", (session_flags & SESSION_WAZOO) ? "True":"False");
 
     nonhold_mail = (char *)ALL_MAIL;
@@ -466,7 +465,7 @@ void b_nul(char *msg)
 	    Syslog('b', "1.1 mode");
 	else {
 	    Syslog('b', "1.0 mode");
-	    localoptions |= NOFREQS;
+	    localoptions &= ~NOFREQS;
 	}
     }
     else if (strncmp(msg, "PHN ", 4) == 0)
