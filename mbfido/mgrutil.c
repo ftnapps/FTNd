@@ -41,6 +41,9 @@
 
 
 
+/*
+ * Write Echomail groups list to tempfile
+ */
 void WriteMailGroups(FILE *fp, faddr *f)
 {
 	int	Count = 0, First = TRUE;
@@ -92,6 +95,9 @@ void WriteMailGroups(FILE *fp, faddr *f)
 
 
 
+/*
+ * Write ticarea groups to tempfile
+ */
 void WriteFileGroups(FILE *fp, faddr *f)
 {
 	int	Count = 0, First = TRUE;
@@ -153,6 +159,9 @@ char *GetBool(int Flag)
 
 
 
+/*
+ * Shift all characters in Buf Cnt places to left
+ */
 void ShiftBuf(char *Buf, int Cnt)
 {
 	int	i;
@@ -164,6 +173,9 @@ void ShiftBuf(char *Buf, int Cnt)
 
 
 
+/*
+ * Remove spaces and = characters from begin of line
+ */
 void CleanBuf(char *Buf)
 {
 	while (strlen(Buf) && ((Buf[0] == ' ') || (Buf[0] == '=')))
@@ -172,6 +184,9 @@ void CleanBuf(char *Buf)
 
 
 
+/*
+ * Change AreaMgr and FileMgr password for a node
+ */
 void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
 {
 	fidoaddr	Node;
@@ -185,10 +200,10 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
 		return;
 	}
 
-	memset(&nodes.Apasswd, 0, 16);
-	sprintf(nodes.Apasswd, "%s", tu(Buf));
+	memset(&nodes.Apasswd, 0, sizeof(nodes.Apasswd));
+	strncpy(nodes.Apasswd, tu(Buf), 15);
 	fprintf(tmp, "AreaMgr and FileMgr password is now \"%s\"\n", nodes.Apasswd);
-	Syslog('+', "XxxxMgr: Password \"%s\"", nodes.Apasswd);
+	Syslog('+', "XxxxMgr: Password \"%s\" for node %s", nodes.Apasswd, ascfnode(t, 0x1f));
 	UpdateNode();
 	memcpy(&Node, faddr2fido(t), sizeof(fidoaddr));
 	SearchNode(Node);
@@ -196,6 +211,9 @@ void MgrPasswd(faddr *t, char *Buf, FILE *tmp, int Len)
 
 
 
+/*
+ * Change AreaMgr/FileMgr nodify flag for node
+ */
 void MgrNotify(faddr *t, char *Buf, FILE *tmp)
 {
 	fidoaddr	Node;

@@ -503,7 +503,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (!SearchTic(Area)) {
 	fprintf(tmp, "Area %s not found\n", Area);
-	Syslog('m', "  Area not found");
+	Syslog('+', "  Area not found");
 	return;
     }
 
@@ -517,7 +517,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
     if (Group == NULL) {
 	fprintf(tmp, "You may not disconnect from area %s\n", Area);
-	Syslog('m', "  Group %s not available for node", fgroup.Name);
+	Syslog('+', "  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
 	return;
     }
 
@@ -527,7 +527,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (i > METRIC_POINT) {
 	fprintf(tmp, "You may not disconnect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
-	Syslog('m', "  Node may not disconnect from group %s", fgroup.Name);
+	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), fgroup.Name);
 	return;
     }
 
@@ -538,7 +538,7 @@ void F_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (!TicSystemConnected(Sys)) {
 	fprintf(tmp, "You are not connected to %s\n", Area);
-	Syslog('m', "  Node is not connected to %s", Area);
+	Syslog('+', "  %s is not connected to %s", ascfnode(t, 0x1f), Area);
 	return;
     }
 
@@ -595,7 +595,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
     }
     if (Group == NULL) {
 	fprintf(tmp, "You may not connect to area %s\n", Area);
-	Syslog('m', "  Group %s not available for node %s", fgroup.Name);
+	Syslog('+', "  Group %s not available for %s", fgroup.Name, ascfnode(t, 0x1f));
 	return;
     }
 
@@ -605,7 +605,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (i > METRIC_POINT) {
 	fprintf(tmp, "You may not connect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
-	Syslog('m', "  Node may not connect to group %s", fgroup.Name);
+	Syslog('+', "  Node %s may not connect to group %s", ascfnode(t, 0x1f), fgroup.Name);
 	return;
     }
 
@@ -615,7 +615,7 @@ void F_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (TicSystemConnected(Sys)) {
 	fprintf(tmp, "You are already connected to %s\n", Area);
-	Syslog('m', "  Node is already connected to %s", Area);
+	Syslog('+', "  %s is already connected to %s", ascfnode(t, 0x1f), Area);
 	return;
     }
 
@@ -687,7 +687,7 @@ void F_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 			    for (i = 0; i < Cons; i++) {
 				fread(&Sys, sizeof(Sys), 1, fp);
 				if (metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL)
-				Link = TRUE;
+				    Link = TRUE;
 			    }
 			    if (!Link) {
 				Pos = ftell(fp);

@@ -68,14 +68,14 @@ extern	int	echo_out;		/* Echomail forwarded		    */
 extern	int	echo_bad;		/* Bad echomail			    */
 extern	int	echo_dupe;		/* Dupe echomail		    */
 
-int	areamgr = 0;			/* Nr of AreaMgr messages	    */
-int	a_help	= FALSE;
-int	a_list	= FALSE;
-int	a_query	= FALSE;
-int	a_stat	= FALSE;
-int	a_unlnk	= FALSE;
-int	a_flow  = FALSE;
-unsigned long	a_msgs = 0;
+int		areamgr = 0;		/* Nr of AreaMgr messages	    */
+int		a_help	= FALSE;	/* Send AreaMgr help		    */
+int		a_list	= FALSE;	/* Send AreaMgr list		    */
+int		a_query	= FALSE;	/* Send AreaMgr query		    */
+int		a_stat	= FALSE;	/* Send AreaMgr status		    */
+int		a_unlnk	= FALSE;	/* Send AreaMgr unlinked	    */
+int		a_flow  = FALSE;	/* Send AreaMgr flow		    */
+unsigned long	a_msgs = 0;		/* Messages to rescan		    */
 
 
 
@@ -105,8 +105,8 @@ void A_Help(faddr *t, char *replyid)
 	fprintf(fp, "               to which you are not already connected\r");
 	fprintf(fp, "%%FLOW          To request a flow report of available areas\r");
 	fprintf(fp, "%%STATUS        To request a status report for your system\r");
-//	fprintf(fp, "%%PAUSE         To temporary disconnect from the connected echomail areas\r");
-//	fprintf(fp, "%%RESUME        To reconnect the temporary disconnected echomail areas\r");
+	fprintf(fp, "%%PAUSE         To temporary disconnect from the connected echomail areas\r");
+	fprintf(fp, "%%RESUME        To reconnect the temporary disconnected echomail areas\r");
 	fprintf(fp, "%%PWD=newpwd    To set a new AreaMgr and FileMgr password\r");
 	fprintf(fp, "%%MSGS <n>      To set max. number of messages to be rescanned\r");
 	fprintf(fp, "%%RESCAN <area> To request messages from 'area' again\r");
@@ -149,14 +149,24 @@ void A_Query(faddr *t, char *replyid)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your query request", replyid)) != NULL) {
 
 	temp = calloc(PATH_MAX, sizeof(char));
-
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	mp = fopen(temp, "r");
+	if ((mp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
+
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(mp);
+	    return;
+	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all connected message areas\r\r");
 
@@ -229,7 +239,6 @@ void A_Query(faddr *t, char *replyid)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -254,15 +263,26 @@ void A_List(faddr *t, char *replyid, int Notify)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr List", replyid)) != NULL) {
 
 	WriteMailGroups(qp, f);
-	temp = calloc(PATH_MAX, sizeof(char));
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	mp = fopen(temp, "r");
+	if ((mp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
+
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(mp);
+	    return;
+	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all message areas\r\r");
 
@@ -332,7 +352,6 @@ void A_List(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -369,14 +388,24 @@ void A_Flow(faddr *t, char *replyid, int Notify)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"AreaMgr Flow report", replyid)) != NULL) {
 
 	temp = calloc(PATH_MAX, sizeof(char));
-
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	mp = fopen(temp, "r");
+	if ((mp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
+	
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(mp);
+	    return;
+	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a flow report of all message areas\r\r");
 
@@ -439,7 +468,6 @@ void A_Flow(faddr *t, char *replyid, int Notify)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -472,8 +500,10 @@ void A_Status(faddr *t, char *replyid)
 
 	fprintf(fp, "                  Last week  Last month Total ever\r");
 	fprintf(fp, "                  ---------- ---------- ----------\r");
-	fprintf(fp, "Messages to you   %-10ld %-10ld %-10ld\r", nodes.MailSent.lweek, nodes.MailSent.month[i], nodes.MailSent.total);
-	fprintf(fp, "Messages from you %-10ld %-10ld %-10ld\r", nodes.MailRcvd.lweek, nodes.MailRcvd.month[i], nodes.MailRcvd.total);
+	fprintf(fp, "Messages to you   %-10ld %-10ld %-10ld\r", nodes.MailSent.lweek, 
+				    nodes.MailSent.month[i], nodes.MailSent.total);
+	fprintf(fp, "Messages from you %-10ld %-10ld %-10ld\r", nodes.MailRcvd.lweek, 
+				    nodes.MailRcvd.month[i], nodes.MailRcvd.total);
 
 	fprintf(fp, "\rWith regards, %s\r\r", CFG.sysop_name);
 
@@ -502,15 +532,26 @@ void A_Unlinked(faddr *t, char *replyid)
     if ((qp = SendMgrMail(t, CFG.ct_KeepMgr, FALSE, (char *)"Areamgr", (char *)"Your unlinked request", replyid)) != NULL) {
 
 	WriteMailGroups(qp, f);
-	temp = calloc(128, sizeof(char));
 
+	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	mp = fopen(temp, "r");
+	if ((mp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    return;
+	}
 	fread(&msgshdr, sizeof(msgshdr), 1, mp);
 	Cons = msgshdr.syssize / sizeof(System);
+
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-	gp = fopen(temp, "r");
+	if ((gp = fopen(temp, "r")) == NULL) {
+	    WriteError("$Can't open %s", temp);
+	    free(temp);
+	    fclose(mp);
+	    return;
+	}
 	fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+	free(temp);
 
 	fprintf(qp, "The following is a list of all available message areas\r\r");
 
@@ -584,7 +625,6 @@ void A_Unlinked(faddr *t, char *replyid)
 	fprintf(qp, "%s\r", TearLine());
 	CloseMail(qp, t);
 	net_out++;
-	free(temp);
     } else
 	WriteError("Can't create netmail");
 }
@@ -615,7 +655,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (!SearchMsgs(Area)) {
 	fprintf(tmp, "Area %s not found\n", Area);
-	Syslog('m', "  Area not found");
+	Syslog('+', "  Area not found");
 	return;
     }
 
@@ -629,7 +669,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
     }
     if (Group == NULL) {
 	fprintf(tmp, "You may not disconnect from area %s\n", Area);
-	Syslog('m', "  Group %s not available for node", mgroup.Name);
+	Syslog('+', "  Group %s not available for %s", mgroup.Name, ascfnode(t, 0x1f));
 	return;
     }
 
@@ -639,7 +679,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (i > METRIC_POINT) {
 	fprintf(tmp, "You may not disconnect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
-	Syslog('m', "  Node may not disconnect from group %s", mgroup.Name);
+	Syslog('+', "  %s may not disconnect from group %s", ascfnode(t, 0x1f), mgroup.Name);
 	return;
     }
 
@@ -650,7 +690,7 @@ void A_Disconnect(faddr *t, char *Area, FILE *tmp)
 
     if (!MsgSystemConnected(Sys)) {
 	fprintf(tmp, "You are not connected to %s\n", Area);
-	Syslog('m', "  Node is not connected to %s", Area);
+	Syslog('+', "  %s is not connected to %s", ascfnode(t, 0x1f), Area);
 	return;
     }
 
@@ -709,7 +749,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
     }
     if (Group == NULL) {
 	fprintf(tmp, "You may not connect to area %s\n", Area);
-	Syslog('m', "  Group %s not available for node %s", mgroup.Name);
+	Syslog('+', "  Group %s not available for node %s", mgroup.Name, ascfnode(t, 0x1f));
 	return;
     }
 
@@ -719,7 +759,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (i > METRIC_POINT) {
 	fprintf(tmp, "You may not connect area %s with nodenumber %s\n", Area, ascfnode(t, 0x1f));
-	Syslog('m', "  Node may not connect to group %s", mgroup.Name);
+	Syslog('+', "  %s may not connect to group %s", ascfnode(t, 0x1f), mgroup.Name);
 	return;
     }
 
@@ -730,7 +770,7 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 
     if (MsgSystemConnected(Sys)) {
 	fprintf(tmp, "You are already connected to %s\n", Area);
-	Syslog('m', "  Node is already connected to %s", Area);
+	Syslog('+', "  %s is already connected to %s", ascfnode(t, 0x1f), Area);
 	return;
     }
 
@@ -755,7 +795,7 @@ void A_All(faddr *, int, FILE *, char *);
 void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
 {
     FILE	*mp, *gp;
-    char	*Group, temp[81];
+    char	*Group, *temp;
     faddr	*f;
     int		i, Link, First = TRUE, Cons;
     sysconnect	Sys;
@@ -776,13 +816,25 @@ void A_All(faddr *t, int Connect, FILE *tmp, char *Grp)
     f = bestaka_s(t);
     Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
 
+    temp = calloc(PATH_MAX, sizeof(char));
     sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-    mp = fopen(temp, "r+");
+    if ((mp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return;
+    }
     fread(&msgshdr, sizeof(msgshdr), 1, mp);
     Cons = msgshdr.syssize / sizeof(Sys);
+    
     sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
-    gp = fopen(temp, "r");
+    if ((gp = fopen(temp, "r")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	fclose(mp);
+	return;
+    }
     fread(&mgrouphdr, sizeof(mgrouphdr), 1, gp);
+    free(temp);
 
     while (TRUE) {
 	Group = GetNodeMailGrp(First);
@@ -859,8 +911,8 @@ void A_Group(faddr *t, char *Area, int Connect, FILE *tmp)
 
     ShiftBuf(Area, 2);
     CleanBuf(Area);
-    for (i=0; i < strlen(Area); i++ ) 
-	Area[i]=toupper(Area[i]);
+    for (i = 0; i < strlen(Area); i++ ) 
+	Area[i] = toupper(Area[i]);
     A_All(t, Connect, tmp, Area);
 }
 
@@ -869,11 +921,49 @@ void A_Group(faddr *t, char *Area, int Connect, FILE *tmp)
 void A_Pause(faddr *, int, FILE *);
 void A_Pause(faddr *t, int Pause, FILE *tmp)
 {
-    return;
+    FILE	*mp;
+    faddr	*f;
+    int		i, Cons;
+    sysconnect	Sys;
+    char	*temp;
+
     if (Pause)
 	Syslog('+', "AreaMgr: Pause");
     else
 	Syslog('+', "AreaMgr: Resume");
+
+    f = bestaka_s(t);
+    Syslog('m', "Bestaka for %s is %s", ascfnode(t, 0x1f), ascfnode(f, 0x1f));
+
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if ((mp = fopen(temp, "r+")) == NULL) {
+	WriteError("$Can't open %s", temp);
+	free(temp);
+	return;
+    }
+    free(temp);
+    fread(&msgshdr, sizeof(msgshdr), 1, mp);
+    Cons = msgshdr.syssize / sizeof(Sys);
+
+    while (fread(&msgs, msgshdr.recsize, 1, mp) == 1) {
+	if (msgs.Active) {
+	    for (i = 0; i < Cons; i++) {
+		fread(&Sys, sizeof(Sys), 1, mp);
+		if ((metric(fido2faddr(Sys.aka), t) == METRIC_EQUAL) && (!Sys.cutoff)) {
+		    Sys.pause = Pause;
+		    fseek(mp, - sizeof(Sys), SEEK_CUR);
+		    fwrite(&Sys, sizeof(Sys), 1, mp);
+		    Syslog('+', "AreaMgr: %s area %s",  Pause?"Pause":"Resume", msgs.Tag);
+		    fprintf(tmp, "%s area %s\n", Pause?"Pause":"Resume", msgs.Tag);
+		    a_list = TRUE;
+		}
+	    }
+	} else {
+	    fseek(mp, msgshdr.syssize, SEEK_CUR);
+	}
+    }
+    fclose(mp);
 }
 
 
