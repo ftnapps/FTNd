@@ -57,18 +57,12 @@ failed error 2</a>
     </li>
      
     <ol>
-       <li><a href="#2.1">The nodelist compiler crashes, why?</a>
-      </li>
-       <li><a href="#2.2">What is the purpose of the "Comment" line in the
-tic area setup?</a>
-      </li>
-       <li><a href="#2.3">How do I poll a node?</a>
-      </li>
-       <li><a href="#2.4">I created a filerequest but mbcico doesn't call
-out.</a>
-      </li>
-       <li><a href="#2.5">Does MBSE support fidonet via ftp feeds?</a>
-      </li>
+       <li><a href="#2.1">The nodelist compiler crashes, why?</a></li>
+       <li><a href="#2.2">What is the purpose of the "Comment" line in the tic area setup?</a></li>
+       <li><a href="#2.3">How do I poll a node?</a></li>
+       <li><a href="#2.4">I created a filerequest but mbcico doesn't call out.</a></li>
+       <li><a href="#2.5">Does MBSE support fidonet via ftp feeds?</a></li>
+       <li><a href="#2.6">The tosser and mbmsg program are slow, why?</a></li>
      
     </ol>
      
@@ -354,6 +348,35 @@ It is meant only as a description for the filearea. </td>
  <a href="#_Fidosetup"><img src="images/hand.up.gif" border="0" alt="Up">
 </a>
  </p>
+
+<p>
+<table width="100%">
+<tbody>
+<tr>
+<td width="50" valign="Top"><a name="2.6">Q 2.6</a>
+</td>
+<td>The tosser and mbmsg programs are slow, why?</td>
+</tr>
+<tr>
+<td valign="Top">A 2.6</td>
+<td>
+Tossing mail and linking message areas are background tasks. When mbse was first
+developed the hardware was not fast enough to run these programs at full speed.
+The mailer could give CRC errors and the bbs seemed to stop now and then.
+To overcome this problem all programs started with the -quiet switch (background
+jobs) are stopping for short periods so that they would use less system
+resources. Systems with SCSI disks or other fast and well designed machines
+don't have a need for that slowdown. In mbsetup menu 1.5.17 is the setting for the
+speed of all utility programs, the default is slow. You might try this set to
+fast and see what happens on your system.
+</td>
+</tr>
+</tbody>
+</table>
+<a href="#_Fidosetup"><img src="images/hand.up.gif" border="0" alt="Up"></a>
+</p>
+
+
   <p>  </p>
   <hr> 
   <h3><a name="3">3. Internet setup.</a>
