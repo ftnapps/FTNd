@@ -222,7 +222,7 @@ static int sendtfile(char *ln, char *rn)
 	return 0;
     }
 
-    sprintf(txbuf,"S %s %lu %lu",rn,(unsigned long)st.st_size,st.st_mtime+(st.st_mtime%2));
+    sprintf(txbuf,"S %s %lu %lu",rn,(unsigned long)st.st_size,(unsigned long)st.st_mtime+(st.st_mtime%2));
     bufl = strlen(txbuf);
     rc = tcp_sblk(txbuf, bufl, TCP_CMD);
     rc = tcp_rblk(rxbuf, &bufl);

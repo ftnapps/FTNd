@@ -3,6 +3,12 @@ $Id$
 
 v0.71.1		28-Nov-2004
 
+	porting:
+		Compiles more or less on x86_64, there are issues with utmp
+		and struct lastlog
+		Compiles on NetBSD i386.
+		Compiles in Alpha.
+
 	upgrade:
 		Make sure you remove everything related to bbslist menus from
 		your menus and txtfiles.

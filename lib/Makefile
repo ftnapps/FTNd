@@ -84,7 +84,7 @@ libnodelist.a:	${NODELIST_OBJS}
 		ar r $@ $?
 		${RANLIB} $@
 
-mbcharsetc:	${CHC_OBJS} ${LIBS}
+mbcharsetc:	${CHC_OBJS}
 		${CC} -o mbcharsetc ${CHC_OBJS} ${LDFLAGS} ${LIBS}
 
 charset.bin:	mbcharsetc ${MAPS}

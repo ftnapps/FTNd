@@ -90,7 +90,9 @@
 #include <zlib.h>
 #endif
 #include <pthread.h>
+#if !defined(__ppc__)
 #include <sys/poll.h>
+#endif
 
 /* used to use #elif, but native braindead hpux 9.00 c compiler didn't 
  *  * understand it */
@@ -138,7 +140,7 @@ struct termios;
 
 #include <stddef.h>
 #include <fcntl.h>
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ppc__)
 #include <netinet/in_systm.h>
 #include <libgen.h>
 #endif

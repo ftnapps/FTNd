@@ -354,6 +354,8 @@ char *OsCPU()
 {
 #ifdef __i386__
     return (char *)"i386";
+#elif __x86_64__
+    return (char *)"x86_64";
 #elif __PPC__
     return (char *)"PPC";
 #elif __sparc__

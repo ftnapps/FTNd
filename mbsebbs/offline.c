@@ -2584,7 +2584,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 		    Total++;
 
 		    memset(&Qwk, ' ', sizeof(Qwk));
-		    sprintf(Temp, "%-*lu", sizeof(Qwk.Msgnum), (long)Number);
+		    sprintf(Temp, "%-*lu", (int)sizeof(Qwk.Msgnum), (long)Number);
 		    Syslog('M', "Message %s", Temp);
 		    memcpy(Qwk.Msgnum, Temp, sizeof(Qwk.Msgnum));
 		    tp = localtime(&Msg.Written);
@@ -2617,7 +2617,7 @@ unsigned long QWK_PackArea(unsigned long ulLast, long Area)
 			    Size += fwrite(Temp, (int)(128L - (Size % 128L)), 1, fdm);
 			}
 
-			sprintf(Qwk.Msgrecs, "%-*lu", sizeof(Qwk.Msgrecs), (long)((ftell(fdm) - Pos) / 128L));
+			sprintf(Qwk.Msgrecs, "%-*lu", (int)sizeof(Qwk.Msgrecs), (long)((ftell(fdm) - Pos) / 128L));
 			fseek(fdm, Pos, SEEK_SET);
 			fwrite(&Qwk, sizeof(Qwk), 1, fdm);
 			fseek(fdm, 0L, SEEK_END);
