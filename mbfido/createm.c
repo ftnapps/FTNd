@@ -82,7 +82,8 @@ int create_msgarea(char *marea, faddr *p_from)
  *  0  - All Seems Well
  *  1  - Some error
  *
- * The current nodes record may be destroyed after this!
+ * The current nodes record may be destroyed after this,
+ * make sure it is saved.
  */
 int CheckEchoGroup(char *Area, int SendUplink, faddr *f)
 {

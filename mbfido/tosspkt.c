@@ -205,6 +205,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 			}
 
 			if (!SearchMsgs(marea)) {
+				UpdateNode();
 				Syslog('m', "Unknown echo area %s", marea);
 				if (!create_msgarea(marea, p_from)) {
 				    WriteError("Create echomail area %s failed", marea);
@@ -215,6 +216,7 @@ int importmsg(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 				    free(buf);
 				    return 4;
 				}
+				SearchNode(Link.aka);
 				if (!SearchMsgs(marea)) {
 					WriteError("Unknown echo area %s", marea);
 					echo_bad++;

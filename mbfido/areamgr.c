@@ -763,6 +763,11 @@ void A_Connect(faddr *t, char *Area, FILE *tmp)
 	Area[i]=toupper(Area[i]);
 
     if (!SearchMsgs(Area)) {
+	/*
+	 * Close noderecord, autocreate will destroy it.
+	 */
+	UpdateNode();
+
 	Syslog('m', "  Area not found, trying to create");
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(temp, "%s/etc/mgroups.data", getenv("MBSE_ROOT"));
