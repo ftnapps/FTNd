@@ -18,6 +18,7 @@
 #undef HAVE_STRCASESTR
 
 /* If you have gettimeofday function  */
+#undef HAVE_DECLARED_TIMEZONE
 #undef HAVE_TM_GMTOFF
 
 /* News postings  */
