@@ -3018,7 +3018,7 @@ fi;
 if test "$debugging" = "yes"; then
     CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 else
-    CFLAGS="-O3 -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
+    CFLAGS="-O3 -fno-strict-aliasing -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
 fi
 
 # Check whether --enable-optimize or --disable-optimize was given.
