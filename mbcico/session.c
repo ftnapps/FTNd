@@ -48,11 +48,9 @@
 #include "callstat.h"
 #include "inbound.h"
 #include "opentcp.h"
-#include "telnio.h"
 
 
 extern	int	tcp_mode;
-extern	int	telnet;
 
 
 node	*nlent;
@@ -112,8 +110,6 @@ int session(faddr *a, node *nl, int role, int tp, char *dt)
 	}
 	session_flags |= SESSION_TCP;
     }
-    if (telnet && (session_flags & SESSION_TCP))
-	telnet_init();
 
     if (data)
 	free(data);

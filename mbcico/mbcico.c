@@ -83,11 +83,11 @@ void usage(void)
 {
     fprintf(stderr,"ifcico; (c) Eugene G. Crosser, 1993-1997\n");
     fprintf(stderr,"mbcico ver. %s; (c) %s\n\n", VERSION, SHORTRIGHT);
-    fprintf(stderr,"mbcico [-a inetaddr[:port]] [-n phone] [-l tty] [-t ibn|-t ifc|-t itn] node\n");
+    fprintf(stderr,"mbcico [-a inetaddr[:port]] [-n phone] [-l tty] [-t ibn|-t ifc] node\n");
     fprintf(stderr,"node   should be in domain form, e.g. f11.n22.z3\n");
     fprintf(stderr,"       (this implies master mode)\n");
     fprintf(stderr," or:\n");
-    fprintf(stderr,"mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc|-t itn\n");
+    fprintf(stderr,"mbcico tsync|yoohoo|**EMSI_INQC816|-t ibn|-t ifc\n");
     fprintf(stderr,"       (this implies slave mode)\n");
 }
 
@@ -357,7 +357,14 @@ int main(int argc, char *argv[])
 	if (rc > maxrc) 
 	    maxrc=rc;
     } else {
-	/* slave */
+	/*
+	 * Slave (answer) mode
+	 */
+	if (telnet) {
+	    WriteError("Answering calls with the \"-t itn\" option no longer supported");
+	    WriteError("Install mbtelind to answer incoming telnet calls");
+	    die(MBERR_COMMANDLINE);
+	}
 	if (!answermode && tcp_mode == TCPMODE_IBN)
 	    answermode = xstrcpy((char *)"ibn");
 	rc = maxrc = answer(answermode);

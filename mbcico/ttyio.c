@@ -38,13 +38,10 @@
 #include "../lib/records.h"
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
-#include "telnio.h"
-#include "hydra.h"
 #include "ttyio.h"
 #include "lutil.h"
 
 extern	int	hanged_up;
-extern	int	telnet;
 extern	char	*inetaddr;
 
 #define TT_BUFSIZ	1024
@@ -236,7 +233,7 @@ static int tty_read(char *buf, int size, int tot)
     }
 
     rc = read(0,buf,size);
-    Syslog('t', "tty_read: real read %d", rc);
+
     if (rc <= 0) {
 	Syslog('t', "tty_read: return %d",rc);
 	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
@@ -247,13 +244,8 @@ static int tty_read(char *buf, int size, int tot)
 	    Syslog('!', "tty_read: error flag");
 	}
 	rc=-tty_status;
-    } else {
-	if (telnet) {
-	    rc = telnet_buffer(buf, rc);
-	}
     }
 
-    Syslog('t', "tty_read: rc=%d", rc);
     return rc;
 }
 
@@ -264,10 +256,7 @@ int tty_write(char *buf, int size)
     int result;
 
     tty_status=0;
-    if (telnet)
-	result = telnet_write(buf, size);
-    else
-	result = write(1, buf, size);
+    result = write(1, buf, size);
 
     if (result != size) {
 	if (hanged_up || (errno == EPIPE) || (errno == ECONNRESET)) {
@@ -584,19 +573,13 @@ int tty_putget(char **obuf, int *osize, char **ibuf, int *isize)
 	    WriteError("$tty_putget: read failed");
 	    tty_status=STAT_ERROR;
 	} else {
-	    if (telnet) {
-		rc = telnet_buffer(*ibuf, rc);
-	    }
 	    (*ibuf)+=rc;
 	    (*isize)-=rc;
 	}
     }
 
     if (FD_ISSET(1,&writefds) && *osize) {
-	if (telnet)
-	    rc = telnet_write(*obuf,*osize);
-	else
-	    rc=write(1,*obuf,*osize);
+	rc=write(1, *obuf, *osize);
 	if (rc < 0) {
 	    WriteError("$tty_putget: write failed");
 	    tty_status=STAT_ERROR;

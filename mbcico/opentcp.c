@@ -63,7 +63,6 @@ static int	tcp_is_open = FALSE;
 
 
 /* opentcp() was rewritten by Martin Junius */
-/* telnet mode was written by T.Tanaka      */
 
 int opentcp(char *name)
 {
@@ -103,11 +102,11 @@ int opentcp(char *name)
 				else
 				    server.sin_port = htons(FIDOPORT);
 				break;
-	    case TCPMODE_ITN:   if ((se = getservbyname("telnet", "tcp")))
-				    server.sin_port = se->s_port;
-				else
-				    server.sin_port = htons(TELNPORT);
-				break;
+//	    case TCPMODE_ITN:   if ((se = getservbyname("telnet", "tcp")))
+//				    server.sin_port = se->s_port;
+//				else
+//				    server.sin_port = htons(TELNPORT);
+//				break;
 	    case TCPMODE_IBN:	if ((se = getservbyname("binkd", "tcp")))
 				    server.sin_port = se->s_port;
 				else
