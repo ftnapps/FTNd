@@ -22,7 +22,7 @@ tar xfvz /pathtopackage/@PACKAGE@-@VERSION@.tar.gz
 cd @PACKAGE@-@VERSION@ 
 sh ./SETUP.sh
 
-This will setup a new directory structure /opt/mbse and create's some 
+This will setup a new directory structure @prefix@ and create's some 
 necessary users. If this in successfull, logout and login as user "mbse".
 To build and install mbse bbs type the following commands:
 
@@ -35,9 +35,9 @@ su
 [type rootpassword]
 make install
 exit
-/opt/mbse/bin/mbtask
+@prefix@/bin/mbtask
 
-The next step is to read the documentation in /opt/mbse/html with a browser.
+The next step is to read the documentation in @prefix@/html with a browser.
 After your system is configured and tested type "sh ./CRON.sh" to install
 a default crontab for the bbs.
 
@@ -153,8 +153,8 @@ Installation Names
 ==================
 
    By default, `make install' will install the package's files in
-`/opt/mbse/bin', `/opt/mbse/etc', etc.  You can specify an
-installation prefix other than `/opt/mbse' by giving `configure' the
+`@prefix@/bin', `@prefix@/etc', etc.  You can specify an
+installation prefix other than `@prefix@' by giving `configure' the
 option `--prefix=PATH'. This is NOT ADVISED for MBSE BBS!!!
 
    You can specify separate installation prefixes for

@@ -9,7 +9,7 @@ AC_SUBST(SUBDIRS)
 dnl General settings for MBSE BBS
 dnl After changeing the version number, run autoconf!
 PACKAGE="mbsebbs"
-VERSION="0.35.04"
+VERSION="0.35.05"
 COPYRIGHT="Copyright (C) 1997-2002 Michiel Broek, All Rights Reserved"
 SHORTRIGHT="Copyright (C) 1997-2002 M. Broek"
 GROUP="bbs"
@@ -37,7 +37,6 @@ AC_CHECK_PROG(INSTALL, ginstall, ginstall)
 AC_CHECK_PROG(INSTALL, install, install)
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
-AC_PROG_YACC
 AC_CHECK_PROG(TAR, tar, tar)
 AC_CHECK_PROG(ZIP, zip, zip)
 AC_PATH_PROG(CHOWN, chown, chown, /bin:/sbin:/usr/bin:/usr/sbin:)
@@ -157,7 +156,7 @@ AC_CHECK_FUNCS(getspnam getutent initgroups updwtmp updwtmpx)
 
 dnl Check for external programs
 AC_PATH_PROG(COMPRESS,compress,no-compress-found-during-configure)
-AC_PATH_PROGS(GZIP,gzip,no-gzip-found-during-configure)
+AC_PATH_PROG(GZIP,gzip,no-gzip-found-during-configure)
 AC_PATH_PROG(ARC,arc)
 AC_PATH_PROG(ARJ,arj)
 AC_PATH_PROG(UNARJ,unarj)

@@ -21,7 +21,6 @@ RANLIB		= @RANLIB@
 SHELL		= /bin/sh
 ECHO		= echo -e
 CC		= @CC@
-YACC		= @YACC@
 AWK		= @AWK@
 TAR		= @TAR@
 ZIP		= @ZIP@
