@@ -53,6 +53,7 @@
 
 
 extern int		tcp_mode;
+extern int		telnet;
 extern int		immediatecall;
 extern char		*forcedphone;
 extern char		*forcedline;
@@ -178,6 +179,7 @@ int call(faddr *addr)
 #ifdef USE_TELNET
 	    } else if (strcmp(protocol, "telnet") == 0) {
 		tcp_mode = TCPMODE_ITN;
+		telnet = TRUE;
 #endif
 	    } else {
 		Syslog('+', "No common TCP/IP protocols for node %s", nlent->name);

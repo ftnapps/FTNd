@@ -67,10 +67,14 @@
 #define SO  0x0e
 #define SI  0x0f
 #define DLE 0x10
+#ifndef XON
 #define XON 0x11
+#endif
 #define DC1 0x11
 #define DC2 0x12
+#ifndef	XOFF
 #define XOFF 0x13
+#endif
 #define DC3 0x13
 #define DC4 0x14
 #define NAK 0x15

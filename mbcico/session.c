@@ -48,6 +48,7 @@
 #include "callstat.h"
 #include "inbound.h"
 #include "opentcp.h"
+#include "telnio.h"
 
 
 extern	int	tcp_mode;

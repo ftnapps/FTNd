@@ -4,22 +4,26 @@ $Id$
 v0.39.2		21-Nov-2003
 
 	NOTE:	Don't use this version yet, mbtelnetd might be removed again!
+		Well, almost certain that it will be removed. This version is
+		in cvs because I need to test it on several machines at once.
 
 	general:
 		With the use of a proxy based on the iftelnetd from the ifmail
-		package incoming telnet sessions are now supported. Outgoing
-		telnet still doesn't work.
+		package incoming telnet sessions are now supported.
+		Outgoing telnet finally works.
 
 	upgrade:
 		See mbtelnetd.html how to install mbtelnetd.
 
 	common.a:
-		A small fix in printable function.
+		A small fix in printable log function.
+		Added a safety check for the TCP registrate function to prevent
+		stale TCP/IP mailer counts.
 
 	mbcico:
 		If called by inetd with the -t itn parameters, mbcico aborts
 		and writes a short instruction in the log to install mbtelnetd.
-		Outgoing telnet works almost.
+		Outgoing telnet works.
 
 	mbtelnetd:
 		New program, a proxy to handle incoming telnet/vmodem sessions.

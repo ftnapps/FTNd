@@ -39,6 +39,7 @@
 #include "../lib/common.h"
 #include "../lib/clcomm.h"
 #include "telnio.h"
+#include "hydra.h"
 #include "ttyio.h"
 #include "lutil.h"
 

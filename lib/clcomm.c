@@ -4,7 +4,7 @@
  * Purpose ...............: Client/Server communications
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:	2:280/2802
  * Beekmansbos 10
@@ -37,6 +37,7 @@
 int		do_quiet = FALSE;	/* Quiet flag			    */
 int		show_log = FALSE;	/* Show loglines on screen	    */
 int		most_debug = FALSE;	/* Toggle normal/most debugging	    */
+int		tcp_regged = FALSE;	/* Safety TCP registration flag	    */
 char		progname[21];		/* Program name			    */
 char		logdebug[PATH_MAX];	/* Debug logfile		    */
 char		logfile[PATH_MAX];	/* Normal logfile		    */
@@ -383,7 +384,10 @@ void IsDoing(const char *format, ...)
 
 void RegTCP(void)
 {
-    SockS("ATCP:1,%d;", mypid);
+    if (!tcp_regged)
+	SockS("ATCP:1,%d;", mypid);
+
+    tcp_regged = TRUE;
 }
 
 

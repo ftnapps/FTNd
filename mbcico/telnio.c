@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * $id$
+ * $Id$
  * Purpose ...............: Telnet IO filter
  *
  *****************************************************************************
@@ -37,7 +37,7 @@
 
 
 static int	tellen;
-
+static int	buflen = 0;
 
 
 /* --- This is an artwork of serge terekhov, 2:5000/13@fidonet :) --- */
@@ -96,24 +96,19 @@ int telnet_read(char *buf, int len)
     char	*q, *p;
     static char	telbuf[4];
 
-    Syslog('s', "telnet_read(buf, %d tellen=%d)", len, tellen);
     while ((n == 0) && (n = read (0, buf + tellen, H_ZIPBUFLEN - tellen)) > 0) {
 
-	Syslog('s', " n=%d tellen=%d", n, tellen);
 	if (n < 0) {
-	    Syslog('s', "telnet_read n=%d", n);
 	    return n;
 	}
 
 	if (tellen) {
-	    Syslog('s', " memcpy");
 	    memcpy(buf, telbuf, tellen);
 	    n += tellen;
 	    tellen = 0;
 	}
 
 	if (memchr (buf, IAC, n)) {
-	    Syslog('s', " IAC detected");
 	    for (p = q = buf; n--; )
 		if ((m = (unsigned char)*q++) != IAC)
 		    *p++ = m;
@@ -154,7 +149,6 @@ int telnet_read(char *buf, int len)
 	}
     }
 
-    Syslog('s', " return n=%d", n);
     return n;
 }
 
@@ -168,7 +162,6 @@ int telnet_write(char *buf, int len)
     char    *q;
     int	    k, l;
     
-    Syslog('s', "telnet_write(buf, %d)", len);
     l = len;
     while ((len > 0) && (q = memchr(buf, IAC, len))) {
 	k = (q - buf) + 1;
@@ -187,46 +180,95 @@ int telnet_write(char *buf, int len)
 
 
 
+/*
+ * Process a passed buffer for telnet escapes sequences. Use a temp
+ * buffer for sequences at the begin and end of a data block so that
+ * series of buffers are processed as if it is one stream.
+ */
 int telnet_buffer(char *buf, int len)
 {
-    int	    i, j, m = 0, rc;
-
+    int		i, j, m = 0, rc;
+    static char	telbuf[4];
+    
     rc = len;
 
+    if (buflen > 2) {
+	WriteError("buflen=%d");
+	buflen = 0;
+    }
+
+    /*
+     * If from a previous call there are some telnet escape characters left in 
+     * telbuf, insert these into the buffer array.
+     */
+    if (buflen) {
+	memmove(buf+buflen, buf, (size_t)len);
+	memcpy(buf, telbuf, (size_t)buflen);
+	rc += buflen;
+	buflen = 0;
+    }
+
     if (memchr (buf, IAC, rc)) {
-	Syslog('s', "telnet_buffer: IAC in input stream rc=%d", rc);
-//	Syslogp('s', printable(buf, rc));
 	j = 0;
 	for (i = 0; i < rc; i++) {
 	    if ((buf[i] & 0xff) == IAC) {
+		telbuf[buflen] = buf[i] & 0xff;
+		buflen++;
 		i++;
+		if (i >= rc)
+		    break;
 		switch (buf[i] & 0xff) {
-		    case WILL:  i++;
-				m = buf[i] & 0xff;
-				Syslog('s', "Telnet recv WILL %d", m);
-				if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-				    telnet_answer(DONT, m);
+		    case WILL:  if ((i+1) < rc) {
+				    buflen = 0;
+				    i++;
+				    m = buf[i] & 0xff;
+				    Syslog('s', "Telnet recv WILL %d", m);
+				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
+					telnet_answer(DONT, m);
+				} else {
+				    telbuf[buflen] = WILL;
+				    buflen++;
+				}
 				break;
-		    case WONT:  i++;
-				m = buf[i] & 0xff;
-				Syslog('s', "Telnet recv WONT %d", m);
+		    case WONT:  if ((i+1) < rc) {
+				    buflen = 0;
+				    i++;
+				    m = buf[i] & 0xff;
+				    Syslog('s', "Telnet recv WONT %d", m);
+				} else {
+				    telbuf[buflen] = WONT;
+				    buflen++;
+				}
 				break;
-		    case DO:    i++;
-				m = buf[i] & 0xff;
-				Syslog('s', "Telnet recv DO %d", m);
-				if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
-				    telnet_answer(WONT, m);
+		    case DO:    if ((i+1) < rc) {
+				    buflen = 0;
+				    i++;
+				    m = buf[i] & 0xff;
+				    Syslog('s', "Telnet recv DO %d", m);
+				    if (m != TOPT_BIN && m != TOPT_SUPP && m != TOPT_ECHO)
+					telnet_answer(WONT, m);
+				} else {
+				    telbuf[buflen] = DO;
+				    buflen++;
+				}
 				break;
-		    case DONT:  i++;
-				m = buf[i] & 0xff;
-				Syslog('s', "Telnet recv DONT %d", m);
+		    case DONT:  if ((i+1) < rc) {
+				    buflen = 0;
+				    i++;
+				    m = buf[i] & 0xff;
+				    Syslog('s', "Telnet recv DONT %d", m);
+				} else {
+				    telbuf[buflen] = DONT;
+				    buflen++;
+				}
 				break;
 		    case IAC:   buf[j] = buf[i];
 				j++;
-				Syslog('s', "Telnet recv escaped IAC");
+				buflen = 0;
 				break;
 		    default:    m = buf[i] & 0xff;
-				Syslog('s', "TELNET: recv IAC %d, this is not good", m);
+				Syslog('s', "TELNET: recv IAC %d, this is not good, i=%d j=%d", m, i, j);
+				buflen = 0;
 				buf[j] = IAC;
 				j++;
 				buf[j] = m;
@@ -239,8 +281,6 @@ int telnet_buffer(char *buf, int len)
 	    }
 	}
 	rc = j;
-//	Syslog('s', "new rc=%d", rc);
-//	Syslogp('s', printable(buf, rc));
     }
 
     return rc;
