@@ -40,7 +40,9 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.gif \
 		  images/language.gif images/nodelist5.gif    images/uarrow.gif \
 		  images/larrow.gif   images/nodes.gif        images/users.gif \
 		  images/mbse.jpg     images/taskmgr.gif      images/mbsebbs.gif \
-		  images/mbsebbs.png  images/users2.gif
+		  images/mbsebbs.png  images/users2.gif \
+		  images/dream1.gif   images/dream2.gif       images/dream3.gif \
+		  images/tdream1.gif  images/tdream2.gif      images/tdream3.gif
 
 H_LICENSE	= license/copying.html license/hydracom.html license/index.htm \
 		  license/jam.html
