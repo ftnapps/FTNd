@@ -240,70 +240,71 @@ FILE *OpenPkt(fidoaddr Orig, fidoaddr Dest, char *Extension)
 
 int AddMsgHdr(FILE *fp, faddr *f, faddr *t, int flags, int cost, time_t date, char *tname, char *fname, char *subj)
 {
-	unsigned char	buffer[0x0e];
-	struct tm	*Tm;
+    unsigned char	buffer[0x0e];
+    struct tm	*Tm;
 
-	if ((tname == NULL) || (strlen(tname) > 36) ||
-	    (fname == NULL) || (strlen(fname) > 36) ||
-	    (subj  == NULL) || (strlen(subj) > 72)) {
-		if (tname == NULL)
-		    WriteError("AddMsgHdr() error, To name is NULL");
-		else if (strlen(tname) > 36)
-		    WriteError("AddMsgHdr() error, To name length %d", strlen(tname));
-		if (fname == NULL)
-		    WriteError("AddMsgHdr() error, From name is NULL");
-		else if (strlen(fname) > 36)
-		    WriteError("AddMsgHdr() error, From name length %d", strlen(fname));
-		if (subj  == NULL)
-		    WriteError("AddMsgHdr() error, Subject is NULL");
-		else if (strlen(subj) > 72)
-		    WriteError("AddMsgHdr() error, Subject length %d", strlen(subj));
-		return 1;
-	}
+    if ((tname == NULL) || (strlen(tname) > 36) || 
+	    (fname == NULL) || (strlen(fname) > 36) || (subj  == NULL) || (strlen(subj) > 72)) {
+	if (tname == NULL)
+	    WriteError("AddMsgHdr() error, To name is NULL");
+	else if (strlen(tname) > 36)
+	    WriteError("AddMsgHdr() error, To name length %d", strlen(tname));
+	if (fname == NULL)
+	    WriteError("AddMsgHdr() error, From name is NULL");
+	else if (strlen(fname) > 36)
+	    WriteError("AddMsgHdr() error, From name length %d", strlen(fname));
+	if (subj  == NULL)
+	    WriteError("AddMsgHdr() error, Subject is NULL");
+	else if (strlen(subj) > 72)
+	    WriteError("AddMsgHdr() error, Subject length %d", strlen(subj));
+	return 1;
+    }
 
-	buffer[0x00] = 2;
-	buffer[0x01] = 0;
-	buffer[0x02] = (f->node & 0x00ff);
-	buffer[0x03] = (f->node & 0xff00) >> 8;
-	buffer[0x04] = (t->node & 0x00ff);
-	buffer[0x05] = (t->node & 0xff00) >> 8;
-	buffer[0x06] = (f->net & 0x00ff);
-	buffer[0x07] = (f->net & 0xff00) >> 8;
-	buffer[0x08] = (t->net & 0x00ff);
-	buffer[0x09] = (t->net & 0xff00) >> 8;
-	buffer[0x0a] = (flags & 0x00ff);
-	buffer[0x0b] = (flags & 0xff00) >> 8;
-	buffer[0x0c] = (cost & 0x00ff);
-	buffer[0x0d] = (cost & 0xff00) >> 8;
-	fwrite(buffer, 1, sizeof(buffer), fp);
+    buffer[0x00] = 2;
+    buffer[0x01] = 0;
+    buffer[0x02] = (f->node & 0x00ff);
+    buffer[0x03] = (f->node & 0xff00) >> 8;
+    buffer[0x04] = (t->node & 0x00ff);
+    buffer[0x05] = (t->node & 0xff00) >> 8;
+    buffer[0x06] = (f->net & 0x00ff);
+    buffer[0x07] = (f->net & 0xff00) >> 8;
+    buffer[0x08] = (t->net & 0x00ff);
+    buffer[0x09] = (t->net & 0xff00) >> 8;
+    buffer[0x0a] = (flags & 0x00ff);
+    buffer[0x0b] = (flags & 0xff00) >> 8;
+    buffer[0x0c] = (cost & 0x00ff);
+    buffer[0x0d] = (cost & 0xff00) >> 8;
+    fwrite(buffer, 1, sizeof(buffer), fp);
 
-	if (date == (time_t)0) {
-		date = time(NULL);
-		Tm = localtime(&date);
-	} else
-		Tm = gmtime(&date);
+    if (date == (time_t)0) {
+	date = time(NULL);
+	Tm = localtime(&date);
+    } else
+	Tm = gmtime(&date);
 
-	/*
-	 * According to the manpage the tm_sec value is in the range 0..61
-	 * to allow leap seconds. FTN networks don't allow this, so if this
-	 * happens we reset the leap seconds.
-	 */
-	if (Tm->tm_sec > 59)
-		Tm->tm_sec = 59;
+    /*
+     * According to the manpage the tm_sec value is in the range 0..61
+     * to allow leap seconds. FTN networks don't allow this, so if this
+     * happens we reset the leap seconds.
+     */
+    if (Tm->tm_sec > 59)
+	Tm->tm_sec = 59;
 
-	fprintf(fp, "%02d %-3.3s %02d  %02d:%02d:%02d%c",
+    fprintf(fp, "%02d %-3.3s %02d  %02d:%02d:%02d%c",
 		Tm->tm_mday % 100, months[Tm->tm_mon], Tm->tm_year % 100,
 		Tm->tm_hour % 100, Tm->tm_min % 100, Tm->tm_sec % 100, '\0');
 
-	fprintf(fp, "%s%c", tname, '\0');
-	fprintf(fp, "%s%c", fname, '\0');
-	if (flags & M_FILE) {
-	    Syslog('-', "change %s to %s", subj, basename(subj));
-	    fprintf(fp, "%s%c", basename(subj), '\0');
-	} else {
-	    fprintf(fp, "%s%c", subj, '\0');
-	}
-	fsync(fileno(fp));
-	return 0;
+    fprintf(fp, "%s%c", tname, '\0');
+    fprintf(fp, "%s%c", fname, '\0');
+    if (flags & M_FILE) {
+        /*
+         * Strip path of filenames in the subject line.
+         */
+        fprintf(fp, "%s%c", basename(subj), '\0');
+    } else {
+        fprintf(fp, "%s%c", subj, '\0');
+    }
+    fsync(fileno(fp));
+    return 0;
 }
 

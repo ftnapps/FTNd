@@ -26,6 +26,7 @@ v0.61.1		20-Jun-2004.
 
 	mbfido:
 		Added compile directive for full newsgate.
+		Removed logmessage in addpkt function.
 
 	mbindex:
 		Code cleanup for nodelist processing.
