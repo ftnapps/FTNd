@@ -11,6 +11,9 @@ v0.61.3		25-Jul-2004
 		Changed netmail counters in the .msg import function.
 		Fixed logging of 0 articles in scannews.
 
+	examples:
+		Fixed 2 spelling errors in the dutch macro templates.
+
 
 v0.61.2		11-Jul-2004 - 25-Jul-2004
 
