@@ -198,9 +198,9 @@ void MakeStat(void)
 			MacroVars("b", "d", Area);
 			html_massage(msgs.Name, name);
 			MacroVars("c", "s", name);
-			html_massage(msgs.Tag, name);
+			html_massage(fgroup.Tag, name);
 			MacroVars("d", "s", name);
-			html_massage(msgs.Group, name);
+			html_massage(fgroup.Group, name);
 			MacroVars("e", "s", name);
 			MacroVars("f", "s", adate(msgs.LastRcvd));
 			MacroVars("g", "d", msgs.Received.lweek);
