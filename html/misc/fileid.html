@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>FILE_ID.DIZ Information.</TITLE>
 </HEAD>
@@ -65,7 +66,7 @@ industry more-or-less as the "standard" file description source. (The
 extension of "DIZ" actually stands for "Description In Zip").
 
 NOTE: The FILE_ID.DIZ file *MUST* be named exactly that, and *NOT* 
-something like <filename>.DIZ. It will *ONLY* be used if it is named 
+something like &lt;filename&gt;.DIZ. It will *ONLY* be used if it is named 
 FILE_ID.DIZ!
 
 The FILE_ID.DIZ file is nothing more than a straight ASCII text file which 
@@ -88,7 +89,7 @@ STRUCTURE:
 The file consists of straight ASCII text, up to 10 lines of text, each line 
 being no more than 45 characters long. It should *NOT* contain any blank 
 lines, any form of centering or formatting, or any Hi-ASCII or ANSI 
-characters. (i.e. it should ONLY contain alpha & numeric characters).
+characters. (i.e. it should ONLY contain alpha &amp; numeric characters).
 
 We recommended that it consist of 5 basic parts:
 
@@ -137,7 +138,7 @@ destroying it's usefulness.
 
 EXAMPLE
 -------
-MY PROGRAM v1.23 <ASP> - A program which will
+MY PROGRAM v1.23 &lt;ASP&gt; - A program which will
 do anything for anybody. Will run in only 2k
 of memory. Can be run from the command line,
 or installed as a TSR. Completely menu-
@@ -157,13 +158,13 @@ archive. This can be utilized to describe the various contents of each
 archive, and to identify each disk in the set. For example, the FILE_ID.DIZ 
 file for disk #1 could contain:
 
-   "MY PROGRAM v1.23 <ASP> Program Executable 
+   "MY PROGRAM v1.23 &lt;ASP&gt; Program Executable 
     Files - Disk 1 of 2"
     [followed by detailed description text]
 
 while the FILE_ID.DIZ file for disk #2 could contain:
 
-   "MY PROGRAM v1.23 <ASP> Documentation Files - 
+   "MY PROGRAM v1.23 &lt;ASP&gt; Documentation Files - 
     Disk 2 of 2"
     [followed by more detailed description text]
 
@@ -171,7 +172,7 @@ Optionally, you could also create a "complete" FILE_ID.DIZ file for the
 first disk, which would fully describe the program in detail, and identify 
 it as Disk 1 of x. Then, for each remaining file in the set, simply include 
 the Program Name, version number, ASP identifier, and the disk number (i.e. 
-"MY PROGRAM v1.23 <ASP> Disk 2 of x").
+"MY PROGRAM v1.23 &lt;ASP&gt; Disk 2 of x").
 
 
 ADDITIONAL INFO
@@ -180,17 +181,17 @@ Please don't be tempted to use fancy graphic or ANSI sequences in the
 FILE_ID.DIZ file, as most BBS software will not allow this, and will render 
 your FILE_ID.DIZ file useless. Also, don't be tempted to simply copy your 
 program description file to FILE_ID.DIZ. Attempting to "format" your 
-FILE_ID.DIZ file (i.e line centering, right & left justification, etc) will 
+FILE_ID.DIZ file (i.e line centering, right &amp; left justification, etc) will 
 also cause unexpected results, especially for BBS software which re-formats 
 descriptions to other than 10line/45char.
 
-Fred Hill <ASP> has written a freeware utility which interactively creates 
+Fred Hill &lt;ASP&gt; has written a freeware utility which interactively creates 
 a valid FILE_ID.DIZ file. The file is called DIZGEN.ZIP and can be found on 
 CompuServe (GO IBMBBS, Library 2) as well as on many fine BBS systems. I 
 highly recommend that you download a copy of this wonderful utility for 
 creating your FILE_ID.DIZ files.
 
-<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>
+==========================================================================
 
 The following is a recommendation for the structure and contents of 
 distribution archives prepared for use on BBS systems.
@@ -379,7 +380,7 @@ distribution file/disk if it is prepared in the above described format.
 
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0">Go Back</A>
 
 </BODY>
 </HTML>

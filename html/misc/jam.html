@@ -1,4 +1,5 @@
 <HTML>
+<!-- $Id$ -->
 <HEAD>
 <TITLE>JAM Message Base Proposal.</TITLE>
 </HEAD>
@@ -133,7 +134,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     the .JHR file.
 
     FixedHeaderInfoStruct:
-        ulong   Signature;       // <J><A><M> followed by <NUL>
+        ulong   Signature;       // &lt;J&gt;&lt;A&gt;&lt;M&gt; followed by &lt;NUL&gt;
         ulong   datecreated;     // Creation date
         ulong   modcounter;      // Update counter
         ulong   activemsgs;      // Number of active (not deleted) msgs
@@ -170,7 +171,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
 
     MessageHeader:
         MessageFixedHeader:
-            ulong  Signature;    // <J><A><M> followed by <NUL>
+            ulong  Signature;    // &lt;J&gt;&lt;A&gt;&lt;M&gt; followed by &lt;NUL&gt;
             ushort Revision;     // Revision level of header          (1)
             ushort ReservedWord; // Reserved for future use
             ulong  SubfieldLen;  // Length of subfields               (2)
@@ -289,7 +290,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
 
     This is also referred to as ^aVia information in FTNs. It contains
     information about a system which the message has travelled through.
-    The format of the field is <YYYYMMDDHHMMSS><Network address> where:
+    The format of the field is &lt;YYYYMMDDHHMMSS&gt;&lt;Network address&gt; where:
 
        YYYY is the year (1992-9999)
          MM is the month (01-12)
@@ -314,7 +315,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     ID=10, Name=ENCLOSEDFILEWALIAS
 
     Identical to ENCLOSEDFILE with the exception that the filename is
-    followed by a <NUL> (00H) and an alias filename to be transmited to
+    followed by a &lt;NUL&gt; (00H) and an alias filename to be transmited to
     the remote system in place of the local name of the file.
 
 
@@ -325,8 +326,8 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     regarded as an update file request. If this subfield is present in a
     message header, the ATTRIBUTE must include the MSG_FILEREQUEST bit.
     To indicate that a password is to be transmitted along with the
-    request, a <NUL> (00H) character followed by the password is
-    appended. E.g. SECRET*.*<NUL>MYPASSWORD.
+    request, a &lt;NUL&gt; (00H) character followed by the password is
+    appended. E.g. SECRET*.*&lt;NUL&gt;MYPASSWORD.
 
 
     ID=12, Name=ENCLOSEDFILEWCARD
@@ -342,7 +343,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     One or more files attached to the message. The filename points to an
     ASCII file with one filename entry per line. If alias filenames are
     to be used, they are specified after the actual filename and
-    separated by a <NUL> (00H) character, e.g. C:\MYFILE.LZH<NUL>NEWS.
+    separated by a &lt;NUL&gt; (00H) character, e.g. C:\MYFILE.LZH&lt;NUL&gt;NEWS.
     Wildcard characters are not allowed.
 
 
@@ -442,7 +443,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     MSG_ESCAPED bit enabled, in which case the legal range of data is 20H
     through 7eH.
 
-    An escaped character is stored as \<hex> where <hex> is the two digit
+    An escaped character is stored as \&lt;hex&gt; where &lt;hex&gt; is the two digit
     hexadecimal ASCII value of the character. A single \ is stored as \\
     or \5C. The case of the hexadecimal ASCII value is irrelevant, i.e.
     5c is treated as 5C.
@@ -556,13 +557,13 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     In the description of the different fields below, the following
     messages and message numbers will be referred to:
 
-      1 -> 2 -> 4 -> 5
+      1 -&gt; 2 -&gt; 4 -&gt; 5
       :    :
-      :    +--> 8
+      :    +--&gt; 8
       :
-      +--> 3 -> 7
+      +--&gt; 3 -&gt; 7
       :
-      +--> 6
+      +--&gt; 6
 
     Message number two, three, and six are replies to message number one.
     Message number four and eight are replies to message number two.
@@ -631,7 +632,7 @@ Co-Authors..: Andrew Milner, Mats Birch, Mats Wallin
     Sweden                                                     mw@fido.lu
 </PRE>
 
-<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">  Go Back</A>
+<A HREF="index.htm"><IMG SRC="../images/b_arrow.gif" ALT="Back" Border="0" width="33" height="35">Go Back</A>
 
 </BODY>
 </HTML>
