@@ -379,7 +379,7 @@ void closepage(FILE *fa, char *Path, int inArea, int Current)
 void Index(void)
 {
     FILE		*pAreas, *pFile, *pIndex, *fa, *fm, *fp;
-    long		i, iAreas, iAreasNew = 0, record, iSize = 0L, aSize = 0;
+    unsigned long	i, iAreas, iAreasNew = 0, record, KSize = 0L, aSize = 0;
     int			iTotal = 0, AreaNr = 0, j, z, x = 0, Areas = 0;
     int			Total = 0, aTotal = 0, inArea = 0, filenr;
     int			fbAreas = 0, fbFiles = 0;
@@ -603,7 +603,8 @@ void Index(void)
 			     * check if a thumbnail file exists. If not try to
 			     * create a thumbnail file to add to the html listing.
 			     */
-			    if (strstr(file.LName, ".gif") || strstr(file.LName, ".jpg")) {
+			    if (strstr(file.LName, ".gif") || strstr(file.LName, ".jpg") ||
+				strstr(file.LName, ".GIF") || strstr(file.LName, ".JPG")) {
 				sprintf(linebuf, "%s/%s", area.Path, file.LName);
 				sprintf(outbuf, "%s/.%s", area.Path, file.LName);
 				if (file_exist(outbuf, R_OK)) {
@@ -642,7 +643,6 @@ void Index(void)
 				}
 			    fprintf(fa, "</PRE></TD></TR>\n");
 			    aSize += file.Size;
-			    iSize += file.Size;
 			    if (file.FileDate > last)
 				last = file.FileDate;
 			    if ((aTotal % CFG.www_files_page) == 0) {
@@ -651,6 +651,7 @@ void Index(void)
 			    }
 			} /* if (!file.deleted) */
 		    }
+		    KSize += aSize / 1024;
 		    closepage(fa, area.Path, inArea, aTotal);
 		    fclose(fp);
 		    chmod(temp, 0644);
@@ -689,7 +690,7 @@ void Index(void)
 
     if (fm) {
 	fprintf(fm, "<TR align=right><TH>&nbsp;</TH><TH>Total</TH><TD>%d</TD><TD>%ld Mb.</TD><TD>&nbsp;</TD></TR>\n",
-		Total, iSize / 1048576);
+		Total, KSize / 1024);
 	fprintf(fm, "</TABLE><P>\n");
 	fprintf(fm, "<A HREF=\"/index.html\"><IMG SRC=\"/icons/%s\" ALT=\"%s\" BORDER=0>%s</A>\n",
 		CFG.www_icon_home, CFG.www_name_home, CFG.www_name_home);

@@ -2772,7 +2772,7 @@ v0.33/g5	13-Nov-1999.
 
 	mbsetup:
 		In edit tic area and edit message area editing of connected
-		systems now uses the excisting node setup.
+		systems now uses the existing node setup.
 		Made a new menu selector for areas with Global and Move
 		options.
 		Implemented new menu selector in message and tic areas select.
@@ -2844,7 +2844,7 @@ v0.33/g8	12-Dec-1999
 		Removed and changed nodelist lookup debug logging.
 
 	mbuseradd:
-		Now check the excistance of the users home directory, if it
+		Now check the existance of the users home directory, if it
 		is found then it is removed before the home directory is
 		created again. This fixes problems with RedHat 6.1.
 
@@ -3562,7 +3562,7 @@ v0.33.15        08-Oct-2000
 		Now closes active SMTP and NNTP servers only once if they have
 		been used instead of opening and closing for each message.
 		The filemover now creates destination directories if they don't
-		excist.
+		exist.
 		Added patches from Redy Rodriguez of 2:283/613.6:
 		. Added %RESCAN and %MSGS to the Areamgr.
 		. It also fixes two bugs in %QUERY: it incorrectly listed the 
@@ -3647,7 +3647,7 @@ v0.33.15        08-Oct-2000
 
 	run_inout:
 		Changed this script to check for the inbound/bad directory,
-		if it doesn't excist it is created.
+		if it doesn't exist it is created.
 		Removed all old news/email gateway stuff.
 		The goldnode compiler is called if it is in $MBSE_ROOT/bin.
 
@@ -3911,7 +3911,7 @@ v0.33.17        21-May-2001
 		if the internet connection is available with ICMP ping.
                 Added Internet connection status, system running status and
                 system load average to the GSTA command for mbmon.
-		Create's the file ~/etc/config.data if it doesn't excist and
+		Create's the file ~/etc/config.data if it doesn't exist and
 		fills it with default parameters.
 		Note: the internet connection status is for future use.
 
@@ -4167,7 +4167,7 @@ v0.33.18        27-Jul-2001
 
 	mbcico:
 		Renamed sendfile function in zmsend.c to sendzfile to prevent a
-		conflict with an excisting library call on FreeBSD.
+		conflict with an existing library call on FreeBSD.
 		Removed some debug logmessages.
 		The filerquest response message doesn't use the tmpnam function
 		anymore, this was the last one of the unsafe tmpnam calls.
@@ -4224,7 +4224,7 @@ v0.33.19        26-Oct-2001
 		the new style (not setuid) of mbsebbs.
 		Remove /opt/mbse/etc/maint to let it replace with a new
 		version, or change it by hand.
-		On RedHat, Mandrake or e-smith systems remove the excisting
+		On RedHat, Mandrake or e-smith systems remove the existing
 		start and stop commands with the runlevel editor, they will
 		be installed with other values when the system is installed.
 		If you forget this then mbsebbs will start and stop twice.
@@ -4264,7 +4264,7 @@ v0.33.19        26-Oct-2001
 		Fixed filemodes for some directories and data files.
 
 	SETUP.sh:
-		Better grep to check for excisting usernames like bbs, mbse.
+		Better grep to check for existing usernames like bbs, mbse.
 		Ported to NetBSD.
 		Added support for xinetd configuration.
 		Changed distribution test for Mandrake.
@@ -4529,6 +4529,8 @@ v0.33.19        26-Oct-2001
 		Implemented "mbfile delete" and "mbfile undelete" commands.
 		The command mbfile check now removes obsolete file databases.
 		Fixes for Sparc systems.
+		Fixed index screens to prevent negative totals with large
+		filebases.
 
 	mball:
 		The index function is now obsolete, this is added to mbfile.
