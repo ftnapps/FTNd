@@ -197,16 +197,16 @@ void command_abhs(char *buf)
 	    send_nntp("Message-ID: %s", make_msgid(Msg.Msgid));
 	    if (strlen(Msg.Replyid))
 		send_nntp("References: %s", make_msgid(Msg.Replyid));
-	    send_nntp("X-JAM-From: %s <%s>", Msg.From, Msg.FromAddress);
+	    send_nntp("X-FTN-From: %s <%s>", Msg.From, Msg.FromAddress);
 	    if (strlen(Msg.To))
-		send_nntp("X-JAM-To: %s", Msg.To);
+		send_nntp("X-FTN-To: %s", Msg.To);
 	    if ((p = (char *)MsgText_First()) != NULL) {
 		do {
 		    if ((p[0] == '\001') || (!strncmp(p, "SEEN-BY:", 8)) || (!strncmp(p, "AREA:", 5))) {
 			if (p[0] == '\001') {
-			    send_nntp("X-JAM-%s", p+1);
+			    send_nntp("X-FTN-%s", p+1);
 			} else {
-			    send_nntp("X-JAM-%s", p);
+			    send_nntp("X-FTN-%s", p);
 			}
 		    }
 		} while ((p = (char *)MsgText_Next()) != NULL);

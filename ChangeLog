@@ -43,6 +43,8 @@ v0.71.1		28-Nov-2004
 		Code cleanup.
 		When a message is posted without RFC Messageid, a fidonet MSGID
 		is fresh created.
+		Changed X-JAM kludges to X-FTN kludges to make it compatible
+		with the rest of the gates.
 
 	examples:
 		Removed bbs list items from the English menus and txtfiles and
