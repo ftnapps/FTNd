@@ -93,7 +93,7 @@ if [ "$OSTYPE" = "Linux" ]; then
 		if [ -f /etc/mandrake-release ]; then
 		    DISTNAME="Mandrake"
 		    # Format: Linux Mandrake release 8.0 (Cooker) for i586
-		    DISTVERS=`cat /etc/mandrake-release | awk '{ print $4 }'`
+		    DISTVERS="`cat /etc/mandrake-release | awk '{ print $4 }'`"
 		else
 		    if [ -f /etc/redhat-release ]; then
 			DISTNAME="RedHat"
@@ -377,7 +377,6 @@ fi
 #--------------------------------------------------------------------------
 #
 #  Adding scripts for RedHat, e-smith and Mandrake
-#  FIXME: some details unknown about Mandrake
 #
 if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
 
@@ -390,28 +389,28 @@ if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
     # this is a special distribution based on RedHat.
     # For Mandrake we follow the same behaviour.
     #
-    if [ -f /etc/redhat-release ]; then
-	if [ -z "`grep e-smith /etc/redhat-release`" ]; then
-	    RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
-	    RHN="RedHat"
-	else
-	    RHR=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d . | tr -d \)`
-	    RHN="e-smith based on RedHat"
-	fi
+    if [ -f /etc/mandrake-release ]; then
+	RHR="`cat /etc/mandrake-release | awk '{ print $4 }' | tr -d .`"
 	if [ $RHR -gt 60 ]; then
-	    echo "You are running $RHN v6.1 or newer"
+	    echo "You are running Mandrake v6.1 or newer"
 	    SU="su -"
 	else
-	    echo "You are running $RHN v6.0 or older"
+	    echo "You are running Mandrake v6.0 or older"
 	fi
     else
-	if [ -f /etc/mandrake-release ]; then
-	    RHR=`cat /etc/mandrake-release | awk '{ print $4 }' | tr -d .`
-	    if [ $RHR -gt 60 ]; then
-		echo "You are running Mandrake v6.1 or newer"
-		SU="su -"
+    	if [ -f /etc/redhat-release ]; then
+	    if [ -z "`grep e-smith /etc/redhat-release`" ]; then
+	    	RHR=`cat /etc/redhat-release | awk '{ print $5 }' | tr -d .`
+	    	RHN="RedHat"
 	    else
-		echo "You are running Mandrake v6.0 or older"
+	    	RHR=`cat /etc/redhat-release | awk '{ print $13 }' | tr -d . | tr -d \)`
+	    	RHN="e-smith based on RedHat"
+	    fi
+	    if [ $RHR -gt 60 ]; then
+	    	echo "You are running $RHN v6.1 or newer"
+	    	SU="su -"
+	    else
+	    	echo "You are running $RHN v6.0 or older"
 	    fi
 	else
 	    echo "You are in big trouble."
@@ -422,11 +421,11 @@ if [ "$DISTNAME" = "RedHat" ] || [ "$DISTNAME" = "Mandrake" ]; then
 cat << EOF >$DISTINIT
 #!/bin/sh
 #
-# chkconfig: 345 99 05
+# chkconfig: 345 95 05
 # description: Starts and stops MBSE BBS.
 #
 # For RedHat, E-Smith and Mandrake SYSV init style.
-# 18-Jan-2002 M. Broek
+# 20-Jan-2002 M. Broek
 #
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -496,10 +495,24 @@ esac
 exit 0
 EOF
 	chmod 755 $DISTINIT
-	echo "With the runlevel editor, 'tksysv' if you are running X,"
-	echo "or 'ntsysv' if you are running virtual consoles, you must"
-	echo "now add 'mbsed' start to the default runlevel, and 'mbsed'"
-	echo "stop to runlevels 0 and 6"
+        echo "Making links for stop in runlevels 0 and 6"
+	if [ -f /etc/rc.d/rc0.d/K05mbsed ]; then
+	    rm /etc/rc.d/rc0.d/K05mbsed
+	fi  
+	ln -s ../init.d/mbsed /etc/rc.d/rc0.d/K05mbsed
+	if [ -f /etc/rc.d/rc6.d/K05mbsed ]; then
+	    rm /etc/rc.d/rc6.d/K05mbsed
+	fi
+	ln -s ../init.d/mbsed /etc/rc.d/rc6.d/K05mbsed
+	echo "Making links for start in runlevels 3 and 5"
+	if [ -f /etc/rc.d/rc3.d/S95mbsed ]; then
+	    rm /etc/rc.d/rc3.d/S95mbsed
+	fi  
+	ln -s ../init.d/mbsed /etc/rc.d/rc3.d/S95mbsed
+	if [ -f /etc/rc.d/rc5.d/S95mbsed ]; then
+	    rm /etc/rc.d/rc5.d/S95mbsed
+	fi
+	ln -s ../init.d/mbsed /etc/rc.d/rc5.d/S95mbsed
 fi
 
 

@@ -464,7 +464,7 @@ service binkp
 	user		= mbse
 	instances	= 10
 	server		= $MHOME/bin/mbcico
-	server-args	= -t ibn
+	server_args	= -t ibn
 }
 
 service tfido
@@ -475,7 +475,7 @@ service tfido
 	user		= mbse
 	instances	= 10
 	server		= $MHOME/bin/mbcico
-	server-args	= -t itn
+	server_args	= -t itn
 }
 
 service fido
@@ -486,7 +486,7 @@ service fido
 	user		= mbse
 	instances	= 10
 	server		= $MHOME/bin/mbcico
-	server-args	= -t ifc
+	server_args	= -t ifc
 }
 EOF
 
