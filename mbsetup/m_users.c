@@ -451,28 +451,28 @@ int EditUsrRec2(void)
 void Reset_Time(void);
 void Reset_Time(void)
 {
-	char	*temp;
-	FILE	*pLimits;
+    char    *temp;
+    FILE    *pLimits;
 
-temp = calloc(PATH_MAX, sizeof(char));
-sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
-if ((pLimits = fopen(temp,"r")) == NULL) {
-WriteError("$Can't open %s", temp);
-} else {
-fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
-while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
-if (LIMIT.Security == usrconfig.Security.level) {
-if (LIMIT.Time)
-usrconfig.iTimeLeft = LIMIT.Time;
-else
-usrconfig.iTimeLeft = 86400;
-usrconfig.iTimeUsed = 0;
-break;
-}
-}
-fclose(pLimits);
-}
-free(temp);
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/limits.data", getenv("MBSE_ROOT"));
+    if ((pLimits = fopen(temp,"r")) == NULL) {
+	WriteError("$Can't open %s", temp);
+    } else {
+	fread(&LIMIThdr, sizeof(LIMIThdr), 1, pLimits);
+	while (fread(&LIMIT, sizeof(LIMIT), 1, pLimits) == 1) {
+	    if (LIMIT.Security == usrconfig.Security.level) {
+		if (LIMIT.Time)
+		    usrconfig.iTimeLeft = LIMIT.Time;
+		else
+		    usrconfig.iTimeLeft = 86400;
+		usrconfig.iTimeUsed = 0;
+		break;
+	    }
+	}
+	fclose(pLimits);
+    }
+    free(temp);
 }
 
 
@@ -482,85 +482,92 @@ free(temp);
  */
 int EditUsrRec(int Area)
 {
-	FILE	*fil;
-	char	mfile[PATH_MAX];
-	long	offset;
-	int	j = 0;
-	unsigned long crc, crc1;
+    FILE	    *fil;
+    char	    mfile[PATH_MAX];
+    long	    offset;
+    int		    j = 0;
+    unsigned long   crc, crc1, level;
 
-	clr_index();
-	working(1, 0, 0);
-	IsDoing("Edit Users");
+    clr_index();
+    working(1, 0, 0);
+    IsDoing("Edit Users");
 
-	sprintf(mfile, "%s/etc/users.temp", getenv("MBSE_ROOT"));
-	if ((fil = fopen(mfile, "r")) == NULL) {
-		working(2, 0, 0);
-		return -1;
-	}
+    sprintf(mfile, "%s/etc/users.temp", getenv("MBSE_ROOT"));
+    if ((fil = fopen(mfile, "r")) == NULL) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	offset = sizeof(usrconfighdr) + ((Area -1) * sizeof(usrconfig));
-	if (fseek(fil, offset, 0) != 0) {
-		working(2, 0, 0);
-		return -1;
-	}
+    offset = sizeof(usrconfighdr) + ((Area -1) * sizeof(usrconfig));
+    if (fseek(fil, offset, 0) != 0) {
+	working(2, 0, 0);
+	return -1;
+    }
 
-	fread(&usrconfig, sizeof(usrconfig), 1, fil);
-	fclose(fil);
-	crc = 0xffffffff;
-	crc = upd_crc32((char *)&usrconfig, crc, sizeof(usrconfig));
-	Screen1();
+    fread(&usrconfig, sizeof(usrconfig), 1, fil);
+    fclose(fil);
+    crc = 0xffffffff;
+    crc = upd_crc32((char *)&usrconfig, crc, sizeof(usrconfig));
+    Screen1();
 
-	for (;;) {
-		Fields1();
-		j = select_menu(16);
-		switch(j) {
-		case 0:
-			crc1 = 0xffffffff;
-			crc1 = upd_crc32((char *)&usrconfig, crc1, sizeof(usrconfig));
-			if (crc != crc1) {
-				if (yes_no((char *)"Record is changed, save") == 1) {
-					working(1, 0, 0);
-					if ((fil = fopen(mfile, "r+")) == NULL) {
-						working(2, 0, 0);
-						return -1;
-					}
-					fseek(fil, offset, 0);
-					fwrite(&usrconfig, sizeof(usrconfig), 1, fil);
-					fclose(fil);
-					UsrUpdated = 1;
-					working(6, 0, 0);
-				}
+    for (;;) {
+	Fields1();
+	j = select_menu(16);
+	switch(j) {
+	case 0: crc1 = 0xffffffff;
+		crc1 = upd_crc32((char *)&usrconfig, crc1, sizeof(usrconfig));
+		if (crc != crc1) {
+		    if (yes_no((char *)"Record is changed, save") == 1) {
+			working(1, 0, 0);
+			if ((fil = fopen(mfile, "r+")) == NULL) {
+			    working(2, 0, 0);
+			    return -1;
 			}
-			IsDoing("Browsing Menu");
-			return 0;
-		case 1:	E_STR(  6,17,35,usrconfig.sUserName,      "The ^First and Last name^ of this user")
-		case 2:	E_USEC( 7,17,   usrconfig.Security,       "15.2   EDIT USER SECURITY", Screen1)
-			break;
-		case 3 :E_STR(  8,17,10,usrconfig.sExpiryDate,    "The ^Expiry Date^ in DD-MM-YYYY format, 00-00-0000 is no expire")
-		case 4 :E_INT(  9,17,   usrconfig.ExpirySec.level,"The ^Expiry Level^ for this user")
-		case 5 :E_STR( 10,17,8, usrconfig.Name,           "The ^Unix username^ for this user")
-		case 6 :E_INT( 14,17,   usrconfig.Credit,         "Users ^Credit^")
-		case 7 :E_BOOL(15,17,   usrconfig.Hidden,         "Is user ^hidden^ on the BBS")
-		case 8 :E_BOOL(16,17,   usrconfig.Deleted,        "Is user marked for ^deletion^")
-		case 9 :E_BOOL(17,17,   usrconfig.NeverDelete,    "^Never delete^ this user")
-		case 10:E_STR( 18,17,62,usrconfig.sComment,       "A ^Comment^ for this user")
-
-		case 11:E_BOOL( 6,68,   usrconfig.LockedOut,      "User is ^Locked Out^ of this BBS")
-		case 12:E_BOOL( 7,68,   usrconfig.Guest,          "This is a ^Guest^ account")
-		case 13:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
-		case 14:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
-		case 15:if (yes_no((char *)"Reset time left for today") == 1) {
-				Reset_Time();
-			}
-			break;
-		case 16:EditUsrRec2();
-			clr_index();
-			Screen1();
-			Fields1();
-			break;
+			fseek(fil, offset, 0);
+			fwrite(&usrconfig, sizeof(usrconfig), 1, fil);
+			fclose(fil);
+			UsrUpdated = 1;
+			working(6, 0, 0);
+		    }
 		}
+		IsDoing("Browsing Menu");
+		return 0;
+	case 1:	E_STR(  6,17,35,usrconfig.sUserName,      "The ^First and Last name^ of this user")
+	case 2:	level = usrconfig.Security.level;
+		usrconfig.Security = edit_usec(7,17,usrconfig.Security, (char *)"15.2   EDIT USER SECURITY");
+		Screen1();
+		Fields1();
+		if (level != usrconfig.Security.level) {
+		    if (yes_no((char *)"Set time left for new level") == 1) {
+			Reset_Time();
+		    }
+		}
+		break;
+	case 3 :E_STR(  8,17,10,usrconfig.sExpiryDate,    "The ^Expiry Date^ in DD-MM-YYYY format, 00-00-0000 is no expire")
+	case 4 :E_INT(  9,17,   usrconfig.ExpirySec.level,"The ^Expiry Level^ for this user")
+	case 5 :E_STR( 10,17,8, usrconfig.Name,           "The ^Unix username^ for this user")
+	case 6 :E_INT( 14,17,   usrconfig.Credit,         "Users ^Credit^")
+	case 7 :E_BOOL(15,17,   usrconfig.Hidden,         "Is user ^hidden^ on the BBS")
+	case 8 :E_BOOL(16,17,   usrconfig.Deleted,        "Is user marked for ^deletion^")
+	case 9 :E_BOOL(17,17,   usrconfig.NeverDelete,    "^Never delete^ this user")
+	case 10:E_STR( 18,17,62,usrconfig.sComment,       "A ^Comment^ for this user")
+
+	case 11:E_BOOL( 6,68,   usrconfig.LockedOut,      "User is ^Locked Out^ of this BBS")
+	case 12:E_BOOL( 7,68,   usrconfig.Guest,          "This is a ^Guest^ account")
+	case 13:E_BOOL( 8,68,   usrconfig.OL_ExtInfo,     "Add ^Extended Message Info^ in OLR download")
+	case 14:E_BOOL( 9,68,   usrconfig.Email,          "User has a ^private email^ mailbox")
+	case 15:if (yes_no((char *)"Reset time left for today") == 1) {
+		    Reset_Time();
+		}
+		break;
+	case 16:EditUsrRec2();
+		clr_index();
+		Screen1();
+		Fields1();
+		break;
 	}
-	return 0;
+    }
+    return 0;
 }
 
 

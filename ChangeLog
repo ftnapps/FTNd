@@ -5,6 +5,12 @@ v0.61.5		25-Sep-2004
 
 	general:
 		In SETUP.sh better xinetd.d system detection.
+		On Linux SETUP.sh adds user mbse to group wheel and uucp.
+		SETUP.sh adds disabled telnet service to inetd.conf or xinetd.
+
+	mbsetup:
+		In user setup, if user gets a new security level, his timelimit
+		is updated with your permission.
 
 
 v0.61.4		11-Aug-2004 - 25-Sep-2004

@@ -245,7 +245,11 @@ log "+" "[$?] Added group bbs"
 
 echo -n ", user 'mbse'"
 if [ "$OSTYPE" = "Linux" ]; then
-    useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
+    if [ "`grep wheel /etc/group`" = "" ]; then
+	useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G uucp -m -s /bin/bash mbse
+    else
+	useradd -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,uucp -m -s /bin/bash mbse
+    fi
 fi
 if [ "$OSTYPE" = "FreeBSD" ]; then
     pw useradd mbse -c "MBSE BBS Admin" -d $MHOME -g bbs -G wheel,dialer -m -s /usr/local/bin/bash
@@ -445,6 +449,7 @@ cat << EOF >>/etc/inetd.conf
 binkp	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ibn
 fido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t ifc
 tfido	stream	tcp	nowait	mbse	$MHOME/bin/mbcico	mbcico -t itn
+#telnet	stream	tcp	nowait	root	/usr/sbin/tcpd	in.telnetd -L $MHOME/bin/mblogin
 
 EOF
 	chmod 644 /etc/inetd.conf
@@ -459,8 +464,8 @@ EOF
     fi
 fi
 
-if [ -f /etc/xinetd.conf ] || [ -d /etc/xinetd.d ]; then
-    log "+" "/etc/xinetd.conf or /etc/xinetd.d found, xinetd system"
+if [ -f /etc/xinetd.conf ]; then
+    log "+" "/etc/xinetd.conf found, xinetd system"
     if [ -d /etc/xinetd.d ]; then
 	log "+" "has xinetd.d subdir, writing files"
 	XINET="/etc/xinetd.d/mbsebbs"
@@ -471,7 +476,7 @@ if [ -f /etc/xinetd.conf ] || [ -d /etc/xinetd.d ]; then
 cat << EOF >> $XINET
 #:MBSE BBS services are defined here.
 #
-# Author: Michiel Broek <mbse@mbse.dds.nl>, 01-Feb-2004
+# Author: Michiel Broek <mbse@mbse.dds.nl>, 27-Sep-2004
 
 service binkp
 {
@@ -505,6 +510,24 @@ service tfido
 	server          = $MHOME/bin/mbcico
 	server_args	= -t itn
 }
+disable=yes
+
+# Telnet to the bbs using mblogin, disabled by default.
+#
+service telnet
+{
+	disable		= yes
+	protocol	= tcp
+	instances	= 10
+	flags		= REUSE
+	log_on_failure += USERID
+	socket_type	= stream
+	user		= root
+	server		= /usr/sbin/telnetd
+	server_args	= -L $MHOME/bin/mblogin
+	wait		= no
+}
+
 EOF
 
 fi
