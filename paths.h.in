@@ -37,7 +37,7 @@
 #define	_PATH_ANTIVIR	"@ANTIVIR@"
 #define	_PATH_FPROT	"@FPROT@"
 #define	_PATH_UVSCAN	"@UVSCAN@"
-
+#define	_PATH_CLAMAV	"@CLAMAV@"
 
 
 /*

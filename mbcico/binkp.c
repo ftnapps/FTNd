@@ -87,13 +87,17 @@ typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
+#ifdef USE_NEWBINKP
 static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", 
 			   (char *)"TxWLA", (char *)"TxDone" };
 static char *trstate[] = { (char *)"Ok", (char *)"Failure", (char *)"Continue" };
+#endif
 static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
+#ifdef USE_NEWBINKP
 static char *lbstate[] = { (char *)"None", (char *)"Sending", (char *)"IsSent", (char *)"Got", (char *)"Skipped", (char *)"Get"};
 static char *ftstate[] = { (char *)"InitTransfer", (char *)"Switch", (char *)"Receive", 
 			   (char *)"Transmit", (char *)"DeinitTransfer" };
+#endif
 
 
 static time_t	Timer;
@@ -880,7 +884,9 @@ int file_transfer(void)
     TrType	Trc = Ok;
     
     for (;;) {
+#ifdef USE_NEWBINKP
 	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
+#endif
 	switch (bp.FtState) {
 	    case InitTransfer:	binkp_settimer(BINKP_TIMEOUT);
 				bp.RxState = RxWaitF;
@@ -977,7 +983,9 @@ TrType binkp_receiver(void)
     long	    written;
     off_t	    rxbytes;
 
+#ifdef USE_NEWBINKP
     Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
+#endif
 
     if (bp.RxState == RxWaitF) {
 
@@ -1008,8 +1016,10 @@ TrType binkp_receiver(void)
             return Ok;
         } else if (bcmd == MM_EOB) {
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-//                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-//		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+#ifdef USE_NEWBINKP
+                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+#endif
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
 		    if ((bp.messages < 3) || binkp_pendingfiles()) {
@@ -1283,7 +1293,9 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
+#ifdef USE_NEWBINKP
     Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
+#endif
 
     if (bp.TxState == TxGNF) {
 	/*
@@ -1492,8 +1504,10 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-//		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-//			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+#ifdef USE_NEWBINKP
+		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
+			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
+#endif
 
 		if (bp.local_EOB && bp.remote_EOB) {
 		    /*
@@ -1852,7 +1866,6 @@ void parse_m_nul(char *msg)
 	p = msg;
 	q = strtok(p, " \n\r\0");
 	while ((q = strtok(NULL, " \r\n\0"))) {
-	    Syslog('b', "Binkp: parsing opt \"%s\"", printable(q, 0));
 	    if (strncmp(q, (char *)"CRAM-MD5-", 9) == 0) { /* No SHA-1 support */
 		if (CFG.NoMD5) {
 		    Syslog('+', "Binkp: Remote supports MD5, but it's turned off here");
@@ -1863,12 +1876,10 @@ void parse_m_nul(char *msg)
 		}
 #ifdef HAVE_ZLIB_H
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
-		Syslog('b', "Binkp: got PLZ, current state %s", opstate[bp.PLZflag]);
 		if (bp.PLZflag == WeCan) {
 		    bp.PLZflag = TheyWant;
 		    Syslog('b', "PLZflag WeCan => TheyWant");
 		    binkp_send_command(MM_NUL,"OPT PLZ");
-		    Syslog('b', "PLZflag TheyWant => Active");
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
 		} else if (bp.PLZflag == WeWant) {
@@ -2363,12 +2374,14 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
 
 void debug_binkp_list(binkp_list **bkll)
 {
+#ifdef USE_NEWBINKP
     binkp_list  *tmpl;
 
     Syslog('B', "Current filelist:");
 
     for (tmpl = *bkll; tmpl; tmpl = tmpl->next)
 	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
+#endif
 }
 
 

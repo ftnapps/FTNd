@@ -2,6 +2,10 @@ $Id$
 
 v0.51.4		11-Apr-2004
 
+	mbcico:
+		All heavy debug logmessages are now in defines and are only
+		enabled with ./configure --enable-newbinkp
+
 
 v0.51.3		22-Mar-2003 - 11-Apr-2004
 

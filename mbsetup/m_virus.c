@@ -100,9 +100,21 @@ int CountVirus(void)
                         sprintf(virscan.options, "--noboot --noexpire -r --secure -");
                         fwrite(&virscan, sizeof(virscan), 1, fil);
 
+			memset(&virscan, 0, sizeof(virscan));
+			sprintf(virscan.comment, "Clam AntiVirus");
+			if (strlen(_PATH_CLAMAV)) {
+			    sprintf(virscan.scanner, "%s", _PATH_CLAMAV);
+			    virscan.available = TRUE;
+			} else {
+			    sprintf(virscan.scanner, "/usr/local/bin/clamscan");
+			    virscan.available = FALSE;
+			}
+			sprintf(virscan.options, "--quiet --recursive");
+			fwrite(&virscan, sizeof(virscan), 1, fil);
+
 			fclose(fil);
 			chmod(ffile, 0640);
-			return 3;
+			return 4;
 		} else
 			return -1;
 	}
