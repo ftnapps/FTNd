@@ -113,7 +113,6 @@ FILE *CreatePkt(char *Queue, fidoaddr Orig, fidoaddr Dest, char *Extension)
 	WriteError("$Can't create Queue %s", Queue);
 	return NULL;
     }
-    Syslog('p', "CreatePkt(%s, %s, %s)", Queue, aka2str(Dest), Extension);
 
     /*
      * Write .PKT header, see FSC-0039 rev. 4
@@ -192,7 +191,6 @@ FILE *OpenPkt(fidoaddr Orig, fidoaddr Dest, char *Extension)
 
     sprintf(Queue, "%s/%d.%d.%d.%d/mailpkt.%s", CFG.out_queue, Dest.zone, Dest.net, Dest.node, Dest.point, Extension);
     mkdirs(Queue, 0750);
-    Syslog('p', "OpenPkt(%s, %s)", aka2str(Dest), Extension);
     
     if (file_exist(Queue, R_OK))
 	qp = CreatePkt(Queue, Orig, Dest, Extension);

@@ -1,6 +1,5 @@
 $Id$
 
-WARNING, OUTBOUND QUEUE MAY NOT WORK WITH THIS VERSION, BE CAREFULL !!
 
 				MBSEBBS History.
 
@@ -42,6 +41,7 @@ v0.35.03	06-Jul-2002
 		Implemented directory inbound tossing and outbound queueing.
 		Rewrote the outbound queue system, the queue now works for
 		files also.
+		Removed debug logline with extract of FILE_ID.DIZ.
 
 	newuser:
 		Check for Unix accounts is now case sensitive.

@@ -77,7 +77,6 @@ void flush_dir(char *ndir)
 	free(temp);
 	return;
     }
-    Syslog('p', "Processing outbound queue %s", temp);
 
     /*
      * Get the nodenumber from the filename
@@ -380,7 +379,6 @@ void flush_dir(char *ndir)
 	if (Attach && nodes.Session_out == S_DIRECT)
 	    attach(noden, arcfile, TFS, flavor);
     }
-    Syslog('p', "Done with ARCmail");
 
     /*
      * Open directory again.
@@ -489,7 +487,6 @@ void flush_dir(char *ndir)
 	if (nodes.Session_out == S_DIR)
 	    chmod(arcfile, 0660);
     }
-    Syslog('p', "Done with netmail");
 
     /*
      * Now add the files for the node, information is in the .filelist
@@ -509,7 +506,6 @@ void flush_dir(char *ndir)
 
 	while (fgets(buf, PATH_MAX, fp)) {
 	    Striplf(buf);
-	    Syslog('p', "File: %s", buf);
 	    flavor = buf[0];
 	    p = strchr(buf, ' ');
 	    p++;

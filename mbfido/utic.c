@@ -229,7 +229,6 @@ int Get_File_Id()
 	    while (j && isspace(TIC.File_Id[TIC.File_Id_Ct][j-1]))
 		j--;
 	    TIC.File_Id[TIC.File_Id_Ct][j] = '\0';
-	    Syslog('f', "%2d/%2d: \"%s\"", TIC.File_Id_Ct, j, TIC.File_Id[TIC.File_Id_Ct]);
 	    TIC.File_Id_Ct++;
 	}
     }
