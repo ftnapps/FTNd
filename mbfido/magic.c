@@ -313,6 +313,7 @@ void Magic_UnpackFile(void)
 		    cmd = xstrcpy(archiver.funarc);
 		    if (strlen(cmd)) {
 			rc = execute(cmd, Fn, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null");
+			sync();
 			if (rc)
 			    WriteError("$Magic: unpack in %s, error %d", magic.Path, rc);
 			else

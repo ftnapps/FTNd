@@ -287,12 +287,14 @@ int UnpackFile(char *File)
 	free(temp);
 	free(pwd);
 	free(cmd);
+	sync();
 	return TRUE;
     } else {
 	chdir(pwd);
 	WriteError("Unpack error, file may be corrupt");
 	DeleteVirusWork();
     }
+    sync();
     return FALSE;
 }
 

@@ -306,6 +306,7 @@ int main(int argc, char **argv)
 			die(100);
 		}
 		free(cmd);
+		sync();
 
 		Match = FALSE;
 		if ((dp = opendir(wrk)) != NULL) {
@@ -416,6 +417,7 @@ int main(int argc, char **argv)
 			else {
 				CreateSema((char *)"mailin");
 			}
+			sync();
 			free(p);
 			free(cmd);
 		}

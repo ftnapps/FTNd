@@ -463,6 +463,7 @@ int ProcessTic(fa_list *sbl)
 		} else {
 			sprintf(temp1, "%s/%s", TIC.Inbound, TIC.RealName);
 			if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", (char *)"/dev/null", (char *)"/dev/null") == 0) {
+				sync();
 				UnPacked = TRUE;
 			} else {
 				chdir(TIC.Inbound);
@@ -548,11 +549,13 @@ int ProcessTic(fa_list *sbl)
 					sprintf(temp1, "%s/%s FILE_ID.DIZ", TIC.Inbound, TIC.RealName);
 					if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null", 
 							(char *)"/dev/null", (char *)"/dev/null") == 0) {
+						sync();
 						File_Id = TRUE;
 					} else {
 					    sprintf(temp1, "%s/%s file_id.diz", TIC.Inbound, TIC.RealName);
 					    if (execute(cmd, temp1, (char *)NULL, (char *)"/dev/null",
 							(char *)"/dev/null", (char *)"/dev/null") == 0) {
+						sync();
 						File_Id = TRUE;
 					    }
 					}
@@ -640,6 +643,7 @@ int ProcessTic(fa_list *sbl)
 				if (execute(cmd, temp1, (char *)NULL, Temp, (char *)"/dev/null", (char *)"/dev/null")) {
 					WriteError("$Changing the banner failed");
 				} else {
+					sync();
 					Syslog('+', "New banner %s", tic.Banner);
 					TIC.FileSize = file_size(temp1);
 					T_File.Size = TIC.FileSize;
