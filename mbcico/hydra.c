@@ -576,7 +576,9 @@ int hydra_batch(int role, file_list *to_send)
     rxlastsync = rxsyncid = 0;
     rxlastdatalen = 0;
     blksize = 512;
+#ifdef HAVE_ZLIB_H
     cmpblksize = H_UNCBLKLEN;
+#endif
     goodbytes = 0;
     goodneeded = 1024;
     Syslog('h', "Hydra: set BRAIN timer %d", H_BRAINDEAD);
