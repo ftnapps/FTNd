@@ -1,6 +1,8 @@
 #ifndef	_FSEDIT_H
 #define	_FSEDIT_H
 
+/* $Id$ */
+
 /* Includes needed for fsedit.c */
 
 #include "../lib/libs.h"
@@ -15,7 +17,6 @@
 #include "language.h"
 #include "timeout.h"
 #include "pinfo.h"
-
 
 int	Fs_Edit(void);	/* The fullscreen message editor	*/
 
@@ -46,5 +47,5 @@ void ScrollDown(void);
 void FsMove(unsigned char);
 int FsWordWrap(void);
 
-#endif
+#endif /* _FSEDIT_H */
 
