@@ -6,7 +6,7 @@ include ../Makefile.global
 SRCS		= endian.c
 HDRS		= endian.h
 OBJS		= endian.o
-OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar txtfiles.tar templates.tar
+OTHER		= Makefile header.txt footer.txt menus-le.tar menus-be.tar txtfiles-en.tar templates-en.tar
 
 #####################################################################################
 
@@ -34,11 +34,11 @@ install:	all
 			echo "Installed default english menus" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/txtfiles/main.ans ]; then \
-			tar xfC txtfiles.tar ${PREFIX}/english/txtfiles ; \
+			tar xfC txtfiles-en.tar ${PREFIX}/english/txtfiles ; \
 			echo "Installed default english txtfiles" ; \
 		fi
 		@if [ ! -f ${PREFIX}/english/macro/html.tic ]; then \
-			tar xfC templates.tar ${PREFIX}/english/macro ; \
+			tar xfC templates-en.tar ${PREFIX}/english/macro ; \
 			echo "Installed default english macro files" ; \
 		fi
 
