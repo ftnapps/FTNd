@@ -283,6 +283,8 @@ static int getnak(void)
 	    case WANTG:
 			Syslog('x', "getnak: got WANTG");
 			io_mode(0, 2);  /* Set cbreak, XON/XOFF, etc. */
+			if (!Optiong)
+			    Syslog('+', "%s: using Ymodem-G", protname());
 			Optiong = TRUE;
 			blklen=1024;
 			Crcflg = TRUE;
