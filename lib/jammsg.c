@@ -590,187 +590,185 @@ int JAM_Open(char *Msgbase)
  */
 void JAM_Pack(void)
 {
-	int		fdnHdr, fdnJdx, fdnJdt, fdnJlr;
-	int		ToRead, Readed, i, count;
-	char		*File, *New, *Subfield, *Temp;
-	JAMIDXREC	jamIdx;
-	unsigned long	NewNumber = 0, RefNumber = 0, Written = 0;
-	lastread	LR;
+    int		    fdnHdr, fdnJdx, fdnJdt, fdnJlr;
+    int		    ToRead, Readed, i, count;
+    char	    *File, *New, *Subfield, *Temp;
+    JAMIDXREC	    jamIdx;
+    unsigned long   NewNumber = 0, RefNumber = 0, Written = 0;
+    lastread	    LR;
 
-	File = calloc(PATH_MAX, sizeof(char));
-	New  = calloc(PATH_MAX, sizeof(char));
-	sprintf(File, "%s%s", BaseName, ".$dr");
-	fdnHdr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-	sprintf(File, "%s%s", BaseName, ".$dt");
-	fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-	sprintf(File, "%s%s", BaseName, ".$dx");
-	fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
-        sprintf(File, "%s%s", BaseName, ".$lr");
-        fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    File = calloc(PATH_MAX, sizeof(char));
+    New  = calloc(PATH_MAX, sizeof(char));
+    sprintf(File, "%s%s", BaseName, ".$dr");
+    fdnHdr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    sprintf(File, "%s%s", BaseName, ".$dt");
+    fdnJdt = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    sprintf(File, "%s%s", BaseName, ".$dx");
+    fdnJdx = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    sprintf(File, "%s%s", BaseName, ".$lr");
+    fdnJlr = open(File, O_RDWR|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
 
-	/*
-	 * Get the number of LastRead records, this number is needed to prevent
-	 * that FreeBSD makes garbage of the LastRead pointers for some reason.
-	 */
-	count = lseek(fdJlr, 0, SEEK_END) / sizeof(lastread);
+    /*
+     * Get the number of LastRead records, this number is needed to prevent
+     * that FreeBSD makes garbage of the LastRead pointers for some reason.
+     */
+    count = lseek(fdJlr, 0, SEEK_END) / sizeof(lastread);
 
-	if (fdnHdr != -1 && fdnJdt != -1 && fdnJdx != -1 && fdnJlr != -1) {
-		lseek(fdHdr, 0L, SEEK_SET);
-		if (read(fdHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) == sizeof(JAMHDRINFO)) {
-			write(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO));
-			while (read(fdHdr, &jamHdr, sizeof(JAMHDR)) == sizeof(JAMHDR)) {
-				RefNumber++;
-				if (strncmp(jamHdr.Signature, "JAM", 3)) {
-					WriteError("jamPack: %s headerfile corrupt", BaseName);
-					lseek(fdJdx, (RefNumber -1) * sizeof(JAMIDXREC), SEEK_SET);
-					read(fdJdx, &jamIdx, sizeof(JAMIDXREC));
-					lseek(fdHdr, jamIdx.HdrOffset, SEEK_SET);
-					read(fdHdr, &jamHdr, sizeof(JAMHDR));
-					if ((strncmp(jamHdr.Signature, "JAM", 3) == 0) && (jamHdr.MsgNum == RefNumber))
-						WriteError("jamPack: corrected the problem");
-					else {
-						WriteError("jamPack: PANIC, problem cannot be solved, skipping this area");
-						Written = 0;
-						break;
-					}
-				}
-				if (jamHdr.Attribute & MSG_DELETED) {
-					if (jamHdr.SubfieldLen > 0L)
-						lseek (fdHdr, jamHdr.SubfieldLen, SEEK_CUR);
-				} else {
-					jamIdx.UserCRC = 0;
-					jamIdx.HdrOffset = tell(fdnHdr);
-					write(fdnJdx, &jamIdx, sizeof(JAMIDXREC));
-
-					lseek(fdJdt, jamHdr.TxtOffset, SEEK_SET);
-					jamHdr.TxtOffset = tell(fdnJdt);
-					NewNumber++;
-					Written++;
-
-					lseek(fdJlr, 0, SEEK_SET);
-					for (i = 0; i < count; i++) {
-						if ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
-							/*
-							 * Test if one of the lastread pointer is the current
-							 * old message number.
-							 */
-							if ((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) {
-								/*
-								 * Adjust the matching numbers
-								 */
-								if (LR.LastReadMsg == jamHdr.MsgNum)
-									LR.LastReadMsg = NewNumber;
-								if (LR.HighReadMsg == jamHdr.MsgNum)
-									LR.HighReadMsg = NewNumber;
-								lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
-								write(fdJlr, &LR, sizeof(lastread));
-							}
-						}
-					}
-					jamHdr.MsgNum = NewNumber;
-					write(fdnHdr, &jamHdr, sizeof(JAMHDR));
-
-					if (jamHdr.SubfieldLen > 0L) {
-						if ((Subfield = (char *)malloc ((size_t)(jamHdr.SubfieldLen + 1))) != NULL) {
-							read (fdHdr, Subfield, (size_t)jamHdr.SubfieldLen);
-							write (fdnHdr, Subfield, (size_t)jamHdr.SubfieldLen);
-							free(Subfield);
-						}
-					}
-
-					if ((Temp = (char *)malloc (MAX_TEXT)) != NULL) {
-						do {
-							if ((ToRead = MAX_TEXT) > jamHdr.TxtLen)
-								ToRead = (int)jamHdr.TxtLen;
-								Readed = (int)read (fdJdt, Temp, ToRead);
-								write (fdnJdt, Temp, Readed);
-								jamHdr.TxtLen -= Readed;
-						} while (jamHdr.TxtLen > 0);
-						free(Temp);
-					}
-				}
-			}
+    if (fdnHdr != -1 && fdnJdt != -1 && fdnJdx != -1 && fdnJlr != -1) {
+	lseek(fdHdr, 0L, SEEK_SET);
+	if (read(fdHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) == sizeof(JAMHDRINFO)) {
+	    write(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO));
+	    while (read(fdHdr, &jamHdr, sizeof(JAMHDR)) == sizeof(JAMHDR)) {
+		RefNumber++;
+		if (strncmp(jamHdr.Signature, "JAM", 3)) {
+		    WriteError("jamPack: %s headerfile corrupt", BaseName);
+		    lseek(fdJdx, (RefNumber -1) * sizeof(JAMIDXREC), SEEK_SET);
+		    read(fdJdx, &jamIdx, sizeof(JAMIDXREC));
+		    lseek(fdHdr, jamIdx.HdrOffset, SEEK_SET);
+		    read(fdHdr, &jamHdr, sizeof(JAMHDR));
+		    if ((strncmp(jamHdr.Signature, "JAM", 3) == 0) && (jamHdr.MsgNum == RefNumber))
+			WriteError("jamPack: corrected the problem");
+		    else {
+			WriteError("jamPack: PANIC, problem cannot be solved, skipping this area");
+			Written = 0;
+			break;
+		    }
 		}
+		if (jamHdr.Attribute & MSG_DELETED) {
+		    if (jamHdr.SubfieldLen > 0L)
+			lseek (fdHdr, jamHdr.SubfieldLen, SEEK_CUR);
+		} else {
+		    jamIdx.UserCRC = 0;
+		    jamIdx.HdrOffset = tell(fdnHdr);
+		    write(fdnJdx, &jamIdx, sizeof(JAMIDXREC));
 
-		/*
-		 * Correct any errors in the header
-		 */
-		if (Written) {
-			lseek(fdnHdr, 0, SEEK_SET);
-			if (read(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) == sizeof(JAMHDRINFO)) {
-				if (jamHdrInfo.ActiveMsgs != Written) {
-					WriteError("jamPack: repair msgs %lu to %lu area %s", 
-							jamHdrInfo.ActiveMsgs, Written, BaseName);
-					jamHdrInfo.ActiveMsgs = Written;
-					lseek(fdnHdr, 0, SEEK_SET);
-					write(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO));
-				}
+		    lseek(fdJdt, jamHdr.TxtOffset, SEEK_SET);
+		    jamHdr.TxtOffset = tell(fdnJdt);
+		    NewNumber++;
+		    Written++;
+
+		    lseek(fdJlr, 0, SEEK_SET);
+		    for (i = 0; i < count; i++) {
+			if ((read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))) {
+			    /*
+			     * Test if one of the lastread pointer is the current
+			     * old message number.
+			     */
+			    if ((LR.LastReadMsg == jamHdr.MsgNum) || (LR.HighReadMsg == jamHdr.MsgNum)) {
+				/*
+				 * Adjust the matching numbers
+				 */
+				if (LR.LastReadMsg == jamHdr.MsgNum)
+				    LR.LastReadMsg = NewNumber;
+				if (LR.HighReadMsg == jamHdr.MsgNum)
+				    LR.HighReadMsg = NewNumber;
+				lseek(fdJlr, - sizeof(lastread), SEEK_CUR);
+				write(fdJlr, &LR, sizeof(lastread));
+			    }
 			}
-		}
+		    }
+		    jamHdr.MsgNum = NewNumber;
+		    write(fdnHdr, &jamHdr, sizeof(JAMHDR));
 
-		/*
-		 * Now copy the lastread file
-		 */
-		lseek(fdJlr, 0, SEEK_SET);
-		for (i = 0; i < count; i++) {
-			if (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread)) {
-				write(fdnJlr, &LR, sizeof(lastread));
+		    if (jamHdr.SubfieldLen > 0L) {
+			if ((Subfield = (char *)malloc ((size_t)(jamHdr.SubfieldLen + 1))) != NULL) {
+			    read (fdHdr, Subfield, (size_t)jamHdr.SubfieldLen);
+			    write (fdnHdr, Subfield, (size_t)jamHdr.SubfieldLen);
+			    free(Subfield);
 			}
+		    }
+
+		    if ((Temp = (char *)malloc (MAX_TEXT)) != NULL) {
+			do {
+			    if ((ToRead = MAX_TEXT) > jamHdr.TxtLen)
+				ToRead = (int)jamHdr.TxtLen;
+			    Readed = (int)read (fdJdt, Temp, ToRead);
+			    write (fdnJdt, Temp, Readed);
+			    jamHdr.TxtLen -= Readed;
+			} while (jamHdr.TxtLen > 0);
+			free(Temp);
+		    }
 		}
-
-		/*
-		 * Close all files
-		 */
-		close(fdnHdr);
-		close(fdnJdt);
-		close(fdnJdx);
-		close(fdnJlr);
-		fdnHdr = fdnJdt = fdnJdx = fdnJlr = -1;
-
-		close(fdHdr);
-		close(fdJdt);
-		close(fdJdx);
-		close(fdJlr);
-		fdHdr = fdJdt = fdJdx = fdJlr = -1;
-
-		sprintf(File, "%s%s", BaseName, ".$dr");
-		sprintf(New, "%s%s", BaseName, EXT_HDRFILE);
-		unlink(New);
-		rename(File, New);
-		sprintf(File, "%s%s", BaseName, ".$dt");
-		sprintf(New, "%s%s", BaseName, EXT_TXTFILE);
-		unlink(New);
-		rename(File, New);
-		sprintf(File, "%s%s", BaseName, ".$dx");
-		sprintf(New, "%s%s", BaseName, EXT_IDXFILE);
-		unlink(New);
-		rename(File, New);
-		sprintf(File, "%s%s", BaseName, ".$lr");
-		sprintf(New, "%s%s", BaseName, EXT_LRDFILE);
-		unlink(New);
-		rename(File, New);
-
-		JAM_Open(BaseName);
+	    }
 	}
 
-	if (fdnHdr != -1)
-		close(fdnHdr);
+	/*
+	 * Correct any errors in the header
+	 */
+	if (Written) {
+	    lseek(fdnHdr, 0, SEEK_SET);
+	    if (read(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO)) == sizeof(JAMHDRINFO)) {
+		if (jamHdrInfo.ActiveMsgs != Written) {
+		    WriteError("jamPack: repair msgs %lu to %lu area %s", jamHdrInfo.ActiveMsgs, Written, BaseName);
+		    jamHdrInfo.ActiveMsgs = Written;
+		    lseek(fdnHdr, 0, SEEK_SET);
+		    write(fdnHdr, &jamHdrInfo, sizeof(JAMHDRINFO));
+		}
+	    }
+	}
+
+	/*
+	 * Now copy the lastread file
+	 */
+	lseek(fdJlr, 0, SEEK_SET);
+	for (i = 0; i < count; i++) {
+	    if (read(fdJlr, &LR, sizeof(lastread)) == sizeof(lastread))
+		write(fdnJlr, &LR, sizeof(lastread));
+	}
+
+	/*
+	 * Close all files
+	 */
+	close(fdnHdr);
+	close(fdnJdt);
+	close(fdnJdx);
+	close(fdnJlr);
+	fdnHdr = fdnJdt = fdnJdx = fdnJlr = -1;
+
+	close(fdHdr);
+	close(fdJdt);
+	close(fdJdx);
+	close(fdJlr);
+	fdHdr = fdJdt = fdJdx = fdJlr = -1;
+
 	sprintf(File, "%s%s", BaseName, ".$dr");
-	unlink(File);
-	if (fdnJdt != -1)
-		close(fdnJdt);
+	sprintf(New, "%s%s", BaseName, EXT_HDRFILE);
+	unlink(New);
+	rename(File, New);
 	sprintf(File, "%s%s", BaseName, ".$dt");
-	unlink(File);
-	if (fdnJdx != -1)
-		close(fdnJdx);
+	sprintf(New, "%s%s", BaseName, EXT_TXTFILE);
+	unlink(New);
+	rename(File, New);
 	sprintf(File, "%s%s", BaseName, ".$dx");
-	unlink(File);
-	if (fdnJlr != -1)
-		close(fdnJlr);
+	sprintf(New, "%s%s", BaseName, EXT_IDXFILE);
+	unlink(New);
+	rename(File, New);
 	sprintf(File, "%s%s", BaseName, ".$lr");
-	unlink(File);
-	free(File);
-	free(New);
+	sprintf(New, "%s%s", BaseName, EXT_LRDFILE);
+	unlink(New);
+	rename(File, New);
+
+	JAM_Open(BaseName);
+    }
+
+    if (fdnHdr != -1)
+	close(fdnHdr);
+    sprintf(File, "%s%s", BaseName, ".$dr");
+    unlink(File);
+    if (fdnJdt != -1)
+	close(fdnJdt);
+    sprintf(File, "%s%s", BaseName, ".$dt");
+    unlink(File);
+    if (fdnJdx != -1)
+	close(fdnJdx);
+    sprintf(File, "%s%s", BaseName, ".$dx");
+    unlink(File);
+    if (fdnJlr != -1)
+	close(fdnJlr);
+    sprintf(File, "%s%s", BaseName, ".$lr");
+    unlink(File);
+    free(File);
+    free(New);
 }
 
 
