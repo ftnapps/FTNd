@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/change.c
  * Purpose ...............: Change user settings
- * Last modification date : 28-Jun-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -203,6 +203,7 @@ void Chg_Password()
 			exitinfo.iPassword = crc;
 			memset(&exitinfo.Password, 0, sizeof(exitinfo.Password));
 			sprintf(exitinfo.Password, "%s", temp2);
+			exitinfo.tLastPwdChange = time(NULL);
 			Enter(1);
 			/* Password Change Successful */
 			language(10, 0, 124);
@@ -382,6 +383,31 @@ void Chg_FsMsged()
 
 
 /*
+ * Toggle Fullscreen Editor Shotcut keys
+ */
+void Chg_FsMsgedKeys()
+{
+    ReadExitinfo();
+    Enter(2);
+
+    if (exitinfo.FSemacs) {
+	exitinfo.FSemacs = FALSE;
+	/* Fullscreen Editor shortcut keys set to Wordstar */
+	pout(10, 0, (char *) Language(473));
+    } else {
+	exitinfo.FSemacs = TRUE;
+	/* Fullscreen Editor shortcut keys set to Emacs */
+	pout(10, 0, (char *) Language(472));
+    }
+    Enter(2);
+    sleep(2);
+    Syslog('+', "FS editor shortcut keys changed to %s", exitinfo.FSemacs?"Emacs":"Wordstar");
+    WriteExitinfo();
+}
+
+
+
+/*
  * Function to toggle DoNotDisturb Flag
  */
 void Chg_Disturb()
@@ -451,6 +477,58 @@ void Chg_Location()
 
 	Syslog('+', "New location \"%s\"", exitinfo.sLocation);
 	WriteExitinfo();
+}
+
+
+
+void Chg_Address()
+{
+    int	    i;
+    char    temp[41];
+    
+    ReadExitinfo();
+    Syslog('+', "Old address \"%s\"", exitinfo.address[0]);
+    Syslog('+', "            \"%s\"", exitinfo.address[1]);
+    Syslog('+', "            \"%s\"", exitinfo.address[2]);
+
+    while (TRUE) {
+	Enter(1);
+	/* Old address: */
+	pout(WHITE, BLACK, (char *) Language(476));
+	Enter(1);
+	colour(LIGHTBLUE, BLACK);
+	printf("%s\n", exitinfo.address[0]);
+	printf("%s\n", exitinfo.address[1]);
+	printf("%s\n", exitinfo.address[2]);
+	Enter(1);
+	/* Your address, maximum 3 lines (only visible for the sysop): */
+	pout(YELLOW, BLACK, (char *) Language(474));
+	Enter(1);
+
+	for (i = 0; i < 3; i++ ) {
+	    colour(YELLOW, BLACK);
+	    printf("%d: ", i+1);
+	    colour(CFG.InputColourF, CFG.InputColourB);
+	    fflush(stdout);
+	    alarm_on();
+	    GetstrC(temp, 40);
+	    if (strcmp(temp, ""))
+		Setup(exitinfo.address[i], temp);
+	}
+
+	if (strlen(exitinfo.address[0]) || strlen(exitinfo.address[1]) || strlen(exitinfo.address[2]))
+	    break;
+
+	Enter(1);
+	/* You need to enter your address here */
+	pout(LIGHTRED, BLACK, (char *)Language(475));
+	Enter(1);
+    }
+
+    Syslog('+', "New address \"%s\"", exitinfo.address[0]);
+    Syslog('+', "            \"%s\"", exitinfo.address[1]);
+    Syslog('+', "            \"%s\"", exitinfo.address[2]);
+    WriteExitinfo();
 }
 
 

@@ -2,7 +2,7 @@
  *
  * File ..................: bbs/menu.c
  * Purpose ...............: Display and handle the menus.
- * Last modification date : 17-Oct-2001
+ * Last modification date : 27-Oct-2001
  *
  *****************************************************************************
  * Copyright (C) 1997-2001
@@ -637,6 +637,14 @@ void DoMenu(int Type)
 
 	case 316:
 		Chg_FsMsged();
+		break;
+
+	case 317:
+		Chg_FsMsgedKeys();
+		break;
+
+	case 318:
+		Chg_Address();
 		break;
 
 	case 401:
