@@ -75,7 +75,11 @@ void GetLastUser(void)
 
         sDataFile = calloc(PATH_MAX, sizeof(char));
         sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
-
+	/*
+	 * Fix security in case it is wrong.
+	 */
+	chmod(sDataFile, 0660);
+	
         if((pCallerLog = fopen(sDataFile, "r+")) == NULL)
                 WriteError("GetLastUser: Can't open file: %s", sDataFile);
         else {

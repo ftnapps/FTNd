@@ -4269,6 +4269,8 @@ v0.33.19        26-Oct-2001
 		Added support for xinetd configuration.
 		Changed distribution test for Mandrake.
 		Changed to recognize the e-smith server based on RedHat.
+		If system runs xinetd instead of inetd, the configuration for
+		xinetd is updated with info for mbsebbs.
 
 	installinit.sh:
 		Changed to recognize the e-smith server based on RedHat.
@@ -4400,6 +4402,7 @@ v0.33.19        26-Oct-2001
 		with execute.
 		During startup the username is tried from the environment
 		variables LOGNAME and USER.
+		Added some automatic file permission corrections.
 
 	mbnewusr:
 		New program, run by user bbs. This is only to register a new

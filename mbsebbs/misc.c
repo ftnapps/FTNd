@@ -68,6 +68,7 @@ int ChkFiles()
 	sDataFile = calloc(PATH_MAX, sizeof(char));
 	temp = calloc(PATH_MAX, sizeof(char));
 	sprintf(sDataFile, "%s/etc/sysinfo.data", getenv("MBSE_ROOT"));
+	chmod(sDataFile, 0660);
 
 	/*
 	 * Check if users.data exists, if not create a new one.
@@ -180,8 +181,8 @@ void SaveLastCallers()
 			Syslog('+', "Created new lastcall.data");
 		}
 		fclose(pGLC);
-		chmod(sFileName, 0660);
 	}
+	chmod(sFileName, 0660);
 
 	if ((pGLC = fopen(sFileName,"a+")) == NULL) {
 		WriteError("$Can't open %s", sFileName);
