@@ -52,6 +52,11 @@ extern time_t		tty_time;	    /* TTY update time		*/
 extern int		rescan;		    /* Master rescan flag	*/
 pp_list			*pl = NULL;	    /* Portlist			*/
 
+int			pots_lines = 0;	    /* POTS (Modem) lines	*/
+int			isdn_lines = 0;	    /* ISDN lines		*/
+int			pots_free  = 0;	    /* POTS (Modem) lines free	*/
+int			isdn_free  = 0;	    /* ISDN lines free		*/
+
 
 
 /*
@@ -106,7 +111,7 @@ void load_ports()
 {
     FILE    *fp;
     pp_list new;
-    int	    count = 0, j, stdflag;
+    int	    j, stdflag;
     char    *p, *q;
 
     tidy_portlist(&pl);
@@ -117,8 +122,16 @@ void load_ports()
     fread(&ttyinfohdr, sizeof(ttyinfohdr), 1, fp);
     
     tasklog('p', "Building portlist...");
+    pots_lines = isdn_lines = 0;
+
     while (fread(&ttyinfo, ttyinfohdr.recsize, 1, fp) == 1) {
 	if (((ttyinfo.type == POTS) || (ttyinfo.type == ISDN)) && (ttyinfo.available) && (ttyinfo.callout)) {
+
+	    if (ttyinfo.type == POTS)
+		pots_lines++;
+	    if (ttyinfo.type == ISDN)
+		isdn_lines++;
+
 	    memset(&new, 0, sizeof(new));
 	    strncpy(new.tty, ttyinfo.tty, 6);
 
@@ -138,14 +151,15 @@ void load_ports()
 			    new.dflags |= dkey[j].flag;
 		}
 	    }
+
 	    tasklog('p', "port %s modem %08lx ISDN %08lx", new.tty, new.mflags, new.dflags);
 	    fill_portlist(&pl, &new);
-	    count++;
 	}
     }
+
     fclose(fp);
     tty_time = file_time(ttyfn);
-    tasklog('p', "make_portlist %d ports", count);
+    tasklog('+', "Detected %d modem ports and %d ISDN ports", pots_lines, isdn_lines);
 }
 
 
@@ -159,12 +173,13 @@ void check_ports(void)
     pp_list	*tpl;
     char	lckname[256];
     FILE	*lf;
-    int		tmppid;
+    int		tmppid, changed = FALSE;
     pid_t	rempid = 0;
+
+    pots_free = isdn_free = 0;
 
     for (tpl = pl; tpl; tpl = tpl->next) {
 	sprintf(lckname, "%s%s", LCKPREFIX, tpl->tty);
-//	tasklog('p', "checking %s", lckname);
 	if ((lf = fopen(lckname, "r")) == NULL) {
 	    if (tpl->locked) {
 		tpl->locked = 0;
@@ -172,7 +187,7 @@ void check_ports(void)
 		/*
 		 * Good, set master rescan flag
 		 */
-		rescan = TRUE;
+		changed = TRUE;
 	    }
 	} else {
 	    fscanf(lf, "%d", &tmppid);
@@ -181,14 +196,27 @@ void check_ports(void)
 	    if (kill(rempid, 0) && (errno == ESRCH)) {
 		tasklog('+', "Stale lockfile for %s, unlink", tpl->tty);
 		unlink(lckname);
-		rescan = TRUE;
+		changed = TRUE;
 	    } else {
 		if (!tpl->locked) {
 		    tpl->locked = rempid;
 		    tasklog('+', "Port %s locked, pid %d", tpl->tty, rempid);
-		    rescan = TRUE;
+		    changed = TRUE;
 		}
 	    }
+	}
+
+	/*
+	 * Now count free ports
+	 */
+	if (tpl->mflags && !tpl->locked)
+	    pots_free++;
+	if (tpl->dflags && !tpl->locked)
+	    isdn_free++;
+
+	if (changed) {
+	    rescan = TRUE;
+	    tasklog('p', "Free ports: pots=%d isdn=%d", pots_free, isdn_free);
 	}
     }
 }

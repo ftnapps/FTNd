@@ -48,6 +48,8 @@ int			isdn_calls;	    /* ISDN calls to make	*/
 int			pots_calls;	    /* POTS calls to make	*/
 _alist_l		*alist = NULL;	    /* Nodes to call list	*/
 extern int		s_do_inet;	    /* Internet wanted		*/
+extern int		pots_lines;	    /* POTS lines available	*/
+extern int		isdn_lines;	    /* ISDN lines available	*/
 
 
 
@@ -389,7 +391,7 @@ int outstat()
 		tmp->callmode = CM_INET;
 	    }
 
-	    if ((tmp->callmode == CM_NONE) && TCFG.max_isdn) {
+	    if ((tmp->callmode == CM_NONE) && isdn_lines) {
 		/*
 		 * ISDN node
 		 */
@@ -398,13 +400,20 @@ int outstat()
 		break;
 	    }
 
-	    if ((tmp->callmode == CM_NONE) && TCFG.max_pots) {
+	    if ((tmp->callmode == CM_NONE) && pots_lines) {
 		/*
 		 * POTS node
 		 */
 		pots_calls++;
 		tmp->callmode = CM_POTS;
 		break;
+	    }
+
+	    /*
+	     * Here we are out of options.
+	     */
+	    if (tmp->callmode == CM_NONE) {
+		tasklog('!', "No method to call %s available", ascfnode(tmp->addr, 0x0f));
 	    }
 	}
 	

@@ -49,6 +49,8 @@ extern _alist_l		*alist;			/* Nodes to call list	*/
 extern int		pots_calls;
 extern int		isdn_calls;
 extern int		inet_calls;
+extern int		pots_lines;		/* POTS lines available	*/
+extern int		isdn_lines;		/* ISDN lines available	*/
 extern struct taskrec	TCFG;
 
 
@@ -85,7 +87,7 @@ int check_calllist(void)
 	call_work = 0;
 	for (tmp = alist; tmp; tmp = tmp->next) {
 	    if (((tmp->callmode == CM_INET) && TCFG.max_tcp && internet) ||
-		((tmp->callmode == CM_ISDN) && TCFG.max_isdn) || ((tmp->callmode == CM_POTS) && TCFG.max_pots)) {
+		((tmp->callmode == CM_ISDN) && isdn_lines) || ((tmp->callmode == CM_POTS) && pots_lines)) {
 		call_work++;
 
 		/*

@@ -121,16 +121,13 @@ int EditTask()
 	mvprintw(15, 1, "10.  ISP disc");
 	mvprintw(16, 1, "11.  Ping #1");
 	mvprintw(17, 1, "12.  Ping #2");
-	mvprintw(18, 1, "13.  ISP blks");
+	mvprintw(18, 1, "13.  Max TCP");
 	mvprintw(19, 1, "14.  Max Load");
 
 	mvprintw(18,29, "15.  ZMH start");
 	mvprintw(19,29, "16.  ZMH end");
 
-	mvprintw(16,55, "17.  Debug");
-	mvprintw(17,55, "18.  Max POTS");
-	mvprintw(18,55, "19.  Max ISDN");
-	mvprintw(19,55, "20.  Max TCP");
+	mvprintw(19,55, "17.  Debug");
 
 	for (;;) {
 		set_color(WHITE, BLACK);
@@ -146,19 +143,16 @@ int EditTask()
 		show_str(15, 15,65, TCFG.isp_hangup);
 		show_str(16, 15,40, TCFG.isp_ping1);
 		show_str(17, 15,40, TCFG.isp_ping2);
-		show_bool(18,15,    TCFG.ipblocks);
+		show_int(18, 15,    TCFG.max_tcp);
 		sprintf(temp, "%0.2f", TCFG.maxload);
 		show_str(19, 15,5, temp);
 
 		show_str( 18,44, 5, TCFG.zmh_start);
 		show_str( 19,44, 5, TCFG.zmh_end);
 
-		show_bool(16,69,    TCFG.debug);
-		show_int( 17,69,    TCFG.max_pots);
-		show_int( 18,69,    TCFG.max_isdn);
-		show_int( 19,69,    TCFG.max_tcp); 
+		show_bool(19,69,    TCFG.debug);
 
-		j = select_menu(20);
+		j = select_menu(17);
 		switch(j) {
 		case 0:	return 0;
 		case 1:	E_STR(  6,15,65,TCFG.cmd_mailout,    "The command to execute on semafore ^mailout^")
@@ -173,16 +167,13 @@ int EditTask()
 		case 10:E_STR( 15,15,65,TCFG.isp_hangup,     "The command to ^hangup^ the Internet Connection")
 		case 11:E_STR( 16,15,40,TCFG.isp_ping1,      "The ^IP address^ of host 1 to check the Internet Connection")
 		case 12:E_STR( 17,15,40,TCFG.isp_ping2,      "The ^IP address^ of host 2 to check the Internet Connection")
-		case 13:E_BOOL(18,15,   TCFG.ipblocks,       "The ^internet^ connection ^blocks^ dial connections")
+		case 13:E_INT( 18,15,   TCFG.max_tcp,        "Maximum simultanous ^TCP/IP^ connections")
 		case 14:strcpy(temp, edit_str(19,15,5,temp, (char *)"^Maximum system load^ at which processing stops (1.00 .. 3.00)"));
 			sscanf(temp, "%f", &TCFG.maxload);
 			break;
 		case 15:E_STR( 18,44,5, TCFG.zmh_start,      "^Start^ of Zone Mail Hour in UTC")
 		case 16:E_STR( 19,44,5, TCFG.zmh_end,        "^End& of Zone Mail Hour in UTC")
-		case 17:E_BOOL(16,69,   TCFG.debug,          "Enable ^debug^ logging")
-		case 18:E_INT( 17,69,   TCFG.max_pots,       "Maximum simultanous ^POTS^ (analogue) connections")
-		case 19:E_INT( 18,69,   TCFG.max_isdn,       "Maximum simultanous ^ISDN^ connections")
-		case 20:E_INT( 19,69,   TCFG.max_tcp,        "Maximum simultanous ^TCP/IP^ connections")
+		case 17:E_BOOL(19,69,   TCFG.debug,          "Enable ^debug^ logging")
 		}
 	}
 
@@ -230,12 +221,9 @@ int task_doc(FILE *fp, FILE *toc, int page)
 	fprintf(fp, "     ISP hangup command     %s\n", TCFG.isp_hangup);
 	fprintf(fp, "     ISP ping host 1        %s\n", TCFG.isp_ping1);
 	fprintf(fp, "     ISP ping host 2        %s\n", TCFG.isp_ping2);
-	fprintf(fp, "     Internet blocks dial   %s\n\n", getboolean(TCFG.ipblocks));
 
 	fprintf(fp, "     Enable denug logging   %s\n", getboolean(TCFG.debug));
 	fprintf(fp, "     Maximum system load    %0.2f\n", TCFG.maxload);
-	fprintf(fp, "     Max POTS connections   %d\n", TCFG.max_pots);
-	fprintf(fp, "     Max ISDN connections   %d\n", TCFG.max_isdn);
 	fprintf(fp, "     Max TCP/IP connections %d\n", TCFG.max_tcp);
 
 	return page;

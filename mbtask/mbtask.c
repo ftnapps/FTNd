@@ -96,6 +96,10 @@ int			rescan = FALSE;		/* Master rescan flag	*/
 extern int		pots_calls;
 extern int		isdn_calls;
 extern int		inet_calls;
+extern int		pots_lines;		/* POTS lines available	*/
+extern int		isdn_lines;		/* ISDN lines available */
+extern int		pots_free;		/* POTS lines free	*/
+extern int		isdn_free;		/* ISDN lines free	*/
 
 
 
@@ -423,10 +427,7 @@ void load_taskcfg(void)
 		sprintf(TCFG.cmd_mbindex2, "%s/bin/goldnode -f -q", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_msglink,  "%s/bin/mbmsg link -quiet", getenv("MBSE_ROOT"));
 		sprintf(TCFG.cmd_reqindex, "%s/bin/mbfile index -quiet", getenv("MBSE_ROOT"));
-		TCFG.ipblocks = TRUE;
 		TCFG.debug    = FALSE;
-		TCFG.max_pots = 1;
-		TCFG.max_isdn = 0;
 		TCFG.max_tcp  = 0;
 		sprintf(TCFG.isp_ping1, "192.168.1.1");
 		sprintf(TCFG.isp_ping2, "192.168.1.1");
@@ -902,6 +903,9 @@ void scheduler(void)
 
     initnl();
     sem_set((char *)"scanout", TRUE);
+    if (!TCFG.max_tcp && !pots_lines && !isdn_lines) {
+	tasklog('?', "ERROR: this system cannot connect to other systems, check setup");
+    }
 	
     /*
      * Enter the mainloop (forever)
@@ -1157,11 +1161,11 @@ void scheduler(void)
 				found = TRUE;
 				break;
 			    }
-			    if ((calllist[call_entry].callmode == CM_ISDN) && (runtasktype(CM_ISDN) < TCFG.max_isdn)) {
+			    if ((calllist[call_entry].callmode == CM_ISDN) && (runtasktype(CM_ISDN) < isdn_free)) {
 				found = TRUE;
 				break;
 			    }
-			    if ((calllist[call_entry].callmode == CM_POTS) && (runtasktype(CM_POTS) < TCFG.max_pots)) {
+			    if ((calllist[call_entry].callmode == CM_POTS) && (runtasktype(CM_POTS) < pots_free)) {
 				found = TRUE;
 				break;
 			    }
@@ -1176,6 +1180,11 @@ void scheduler(void)
 		    }
 		    if (found) {
 //			tasklog('c', "Should launch slot %d node %s", call_entry, ascfnode(calllist[call_entry].addr, 0x1f));
+			/*
+			 * FIXME: here we should check if there are multiple ISDN or POTS lines which of the
+			 * lines matches the flags to call that node and use the most simple device.
+			 * The mbcico should be called with the instruction which line to use.
+			 */
 			cmd = xstrcpy(pw->pw_dir);
 			cmd = xstrcat(cmd, (char *)"/bin/mbcico");
 			sprintf(opts, "f%u.n%u.z%u", calllist[call_entry].addr.node, calllist[call_entry].addr.net,

@@ -12,7 +12,7 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 29-Dec-2001</h5>
+<h5>Last update 24-Feb-2002</h5>
 <P>&nbsp;<P>
 
 <H1>MBSE BBS Setup - Task Manager.</H1>
@@ -41,14 +41,11 @@ The behaviour is setup in this screen.
 <b>ISP disc  </b>Not in use yet!
 <b>Ping #1   </b>IP address of node to ping to check the internet.
 <b>Ping #2   </b>IP address of second node to ping to check the internet.
-<b>ISP blks  </b>Set to true if you have internet dialup and it blocks normal dial.
+<b>Max TCP   </b>Maximum simultaneous outgoing calls over the internet.
 <b>Max Load  </b>Max system load until processing is suspended.
 <b>ZMH start </b>Start of Zone Mail Hour in UTC time.
 <b>ZMH end   </b>End of Zone Mail Hour in UTC time.
 <b>Debug     </b>Enable debug logging.
-<b>Max POTS  </b>Maximum simultaneous outgoing calls over analogue modems.
-<b>Max ISDN  </b>Maximum simultaneous outgoing calls over ISDN channels.
-<b>Max TCP   </b>Maximum simultaneous outgoing calls over the internet.
 </pre>
 <P>
 Default are the original MBSE commands filled in, but you could also call
@@ -60,9 +57,12 @@ the nameservers of your own ISP here. One of these will always be up, so if one
 of these can be reached, the internet connection is assumed to be alive. The
 status of the internet connection is used to decide if it is allowed (and
 possible) to call TCP/IP nodes. Calling these nodes is not depending on ZMH
-unless the destination is not a CM node.
+unless the destination is not a CM node.<br>
+The <b>max load</b> setting decides at which system load point processing of background
+tasks will be suspended. The default value should be allright for machines slower then 200
+MHz or with low ram. On faster machines you may set this value higher.
 <P>
-<IMG SRC="../images/taskmgr.gif" Border="0">
+<IMG SRC="../images/taskmgr.png" Border="0">
 <P>
 
 <A HREF="./"><IMG SRC="../images/larrow.gif" ALT="Back" Border="0">  Back to index</A>&nbsp;
