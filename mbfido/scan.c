@@ -4,7 +4,7 @@
  * Purpose ...............: Scan for outgoing mail.
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -861,11 +861,6 @@ void ExportNet(unsigned long MsgNum, int UUCPgate)
 
 	if (msgs.Aka.point && !is_fmpt)
 	    fprintf(fp, "X-FTN-FMPT: %d\n", msgs.Aka.point);
-	if (Dest.point && !is_topt)
-	    fprintf(fp, "X-FTN-TOPT: %d\n", Dest.point);
-	if (!is_intl)
-	    fprintf(fp, "X-FTN-INTL: %d:%d/%d %d:%d/%d\n", Dest.zone, Dest.net, Dest.node,
-				msgs.Aka.zone, msgs.Aka.net, msgs.Aka.node);
 
         if (Msg_Read(MsgNum, 78)) {
             if ((p = (char *)MsgText_First()) != NULL) {

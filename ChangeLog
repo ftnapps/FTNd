@@ -27,6 +27,11 @@ v0.37.3		09-Apr-2003.
 		Some minor changes to the raw ifcico protocol, better error
 		checking and a check for buffer overflow.
 
+	mbfido:
+		In a scanned netmail destined to our own local UUCP gate the
+		useless X-FTN-INTL and X-FTN-TOPT kludges are no longer 
+		inserted in the message.
+
 	lang:
 		New language prompt number 17.
 		Erased language prompts 18..36.
