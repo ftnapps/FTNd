@@ -1073,6 +1073,7 @@ int hydra_batch(int role, file_list *to_send)
 				    goodbytes += txlen;
 				    txlen += 4;
 				    hytxpkt(HPKT_DATA, txbuf, txlen);
+				    cmpblksize = H_UNCBLKLEN;
 				}
 			    } else {
 				/*
@@ -1084,6 +1085,7 @@ int hydra_batch(int role, file_list *to_send)
 				goodbytes += txlen;
 				txlen += 4;
 				hytxpkt(HPKT_DATA, txbuf, txlen);
+				cmpblksize = H_UNCBLKLEN;
 			    }
 			} else {
 			    /*
@@ -1094,6 +1096,7 @@ int hydra_batch(int role, file_list *to_send)
 			    goodbytes += txlen;
 			    txlen += 4;
 			    hytxpkt(HPKT_DATA, txbuf, txlen);
+			    cmpblksize = H_UNCBLKLEN;
 			}
 			if (goodbytes > goodneeded) {
 			    blksize *= 2;
