@@ -222,8 +222,12 @@ int ping_send(struct in_addr addr)
 
     sentlen = sendto(ping_isocket, &icmpd, ICMP4_ECHO_LEN, 0, (struct sockaddr *)&to, sizeof(to));
     if (sentlen != ICMP4_ECHO_LEN) {
-	if (icmp_errs < ICMP_MAX_ERRS)
-	    tasklog('+', "ping: sent %d octets, ret %d", ICMP4_ECHO_LEN, sentlen);
+	if (icmp_errs < ICMP_MAX_ERRS) {
+	    if (sentlen == -1)
+		tasklog('+', "ping: sent error: %s", strerror(errno));
+	    else
+		tasklog('+', "ping: sent %d octets, ret %d", ICMP4_ECHO_LEN, sentlen);
+	}
 	return -2;
     }
     return 0;
