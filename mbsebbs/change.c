@@ -849,6 +849,7 @@ void Chg_Protocol()
 
     temp = calloc(PATH_MAX, sizeof(char));
     ReadExitinfo();
+    Set_Protocol(exitinfo.sProtocol);
     Syslog('+', "Old protocol %s", sProtName);
 
     while(TRUE) {
@@ -944,11 +945,12 @@ void Set_Protocol(char *Protocol)
     int	    precno = 0;
     char    *temp;
 
+    memset(&sProtName, 0, sizeof(sProtName));
     temp = calloc(PATH_MAX, sizeof(char));
 
     sprintf(temp, "%s/etc/protocol.data", getenv("MBSE_ROOT"));
 
-    if(( pProtConfig = fopen(temp, "rb")) == NULL) {
+    if (( pProtConfig = fopen(temp, "rb")) == NULL) {
 	WriteError("$Can't open %s", temp);
         Enter(1);
         /* Protocol: Can't open protocol file. */
@@ -962,8 +964,7 @@ void Set_Protocol(char *Protocol)
     fread(&PROThdr, sizeof(PROThdr), 1, pProtConfig);
 
     while (fread(&PROT, PROThdr.recsize, 1, pProtConfig) == 1) {
-	if ((strcmp(PROT.ProtName, Protocol)) == 0) {
-	    tlf(sProtName);
+	if (((strcmp(PROT.ProtName, Protocol)) == 0) && PROT.Available) {
 	    strcpy(sProtName, PROT.ProtName);
 	    strcpy(sProtUp, PROT.ProtUp);
 	    strcpy(sProtDn, PROT.ProtDn);

@@ -45,6 +45,7 @@ v0.71.0		27-Oct-2004
 		After upload, files are now stored correctly in the filebase.
 		In change protocol, changed the colors.
 		With user chat, the timeout timer wasn't refreshed.
+		Improved test for users protocol available.
 
 	mbnewusr:
 		Rewrote terminal i/o.

@@ -434,11 +434,11 @@ int upload(up_list **upload_list)
 	    if (strncasecmp(sProtName, "xmodem", 6) == 0)
 		protocol = ZM_XMODEM;
 
-	    if ((strstr(sProtName, "1K") || strstr(sProtName, "1k")) && (protocol != ZM_ZMODEM)) {
+	    if (strstr(sProtName, "-1K") && (protocol != ZM_ZMODEM)) {
 		Syslog('x', "%s: want 1K blocks", protname());
 		want1k = TRUE;
 	    }
-	    if ((strstr(sProtName, "G")) && (protocol == ZM_YMODEM)) {
+	    if ((strstr(sProtName, "-G")) && (protocol == ZM_YMODEM)) {
 		Syslog('x', "%s: want Ymodem-G", protname());
 		wantg = TRUE;
 	    }
