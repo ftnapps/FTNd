@@ -6,6 +6,7 @@
 
 void UserSilent(int);			/* Update users silent flag info	    */
 int  CheckStatus(void);			/* Check BBS open status		    */
+int  CheckUnixNames(char *);		/* Check Unix and other forbidden names	    */
 int  CheckName(char *);			/* Check if user name exists                */
 char *ChangeHomeDir(char *, int);	/* Change and Create Users Home Directories */
 void CheckDir(char *);			/* Check and create directory		    */

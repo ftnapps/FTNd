@@ -335,8 +335,9 @@ int newuser()
 	    alarm_on();
 	    Getname(temp, 34);
 
-	    badname = (BadNames(temp) || CheckName(temp));
+	    badname = (strlen(temp) && (BadNames(temp) || CheckName(temp) || CheckUnixNames(temp)));
 	    if (badname) {
+		Syslog('+', "User tried \"%s\" as Handle", MBSE_SS(temp));
 		/* That login name already exists, please choose another one. */
 		language(LIGHTRED, BLACK, 386);
 		Enter(1);
@@ -603,13 +604,12 @@ void Good_Bye(int onsig)
  */
 char *NameGen(char *FidoName)
 {
-    char	    *sUserName;
-    struct passwd   *pw;
+    char    *sUserName;
 
     sUserName = calloc(10, sizeof(char));
     Syslog('+', "NameGen(%s)", FidoName);
 
-    while ((strcmp(sUserName, "") == 0) || ((pw = getpwnam(sUserName)) != NULL) || (strlen(sUserName) < 3)) {
+    while ((strcmp(sUserName, "") == 0) || (CheckUnixNames(sUserName)) || (strlen(sUserName) < 3)) {
 	colour(LIGHTRED, BLACK);
 	printf("\n%s\n\n", (char *) Language(381));
 	colour(WHITE, BLACK);
@@ -624,10 +624,11 @@ char *NameGen(char *FidoName)
 	fflush(stdin);
 	GetstrU(sUserName, 7);
 
-	if ((pw = getpwnam(sUserName)) != NULL) {
+	if (CheckUnixNames(sUserName)) {
 	    /* That login name already exists, please choose another one. */
 	    colour(LIGHTRED, BLACK);
 	    printf("\n%s\n", (char *) Language(386));
+	    Syslog('+', "Users tried to use \"%s\" as Unix name", MBSE_SS(sUserName));
 	}
     }
     return sUserName;
@@ -706,6 +707,7 @@ int BadNames(char *Username)
             Striplf(String);
             if ((strstr(User, String)) != NULL) {
                 printf("\nSorry that name is not acceptable on this system\n");
+		Syslog('+', "User tried username \"%s\", found in %s", Username, temp);
                 iFoundName = TRUE;
                 break;
             }

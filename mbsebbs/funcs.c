@@ -110,6 +110,69 @@ int CheckName(char *Name)
 
 
 /*
+ * Check several Unix names and other build-in system names
+ * that are forbidden to select for new users.
+ */
+int CheckUnixNames(char *name)
+{
+    struct passwd   *pw;
+    char            *temp;
+    FILE            *fp;
+    int             rc = FALSE;
+
+    /*
+     * Basic checks
+     */
+    if (name == NULL)
+        rc = TRUE;
+    else if (strlen(name) == 0)
+        rc = TRUE;
+    else if (strlen(name) > 8)
+        rc = TRUE;
+
+    /*
+     * Check Unix names in the password file
+     */
+    if (! rc) {
+        if ((pw = getpwnam(name)) != NULL)
+            rc = TRUE;
+        endpwent();
+    }
+
+    /*
+     * Username ping is used by the PING function
+     */
+    if (! rc) {
+        if (strcasecmp(name, (char *)"ping") == 0)
+            rc = TRUE;
+    }
+
+    /*
+     * Check service names
+     */
+    if (! rc) {
+        temp = calloc(PATH_MAX, sizeof(char));
+        sprintf(temp, "%s/etc/service.data", getenv("MBSE_ROOT"));
+        if ((fp = fopen(temp, "r")) != NULL) {
+            fread(&servhdr, sizeof(servhdr), 1, fp);
+
+            while (fread(&servrec, servhdr.recsize, 1, fp) == 1) {
+                if ((strcasecmp(servrec.Service, name) == 0) && servrec.Active) {
+                    rc = TRUE;
+                    break;
+                }
+            }
+            fclose(fp);
+        }
+        free(temp);
+    }
+
+    return rc;
+}
+
+
+
+/*
  * Function will check and create a home directory for the user if
  * needed. It will also change into the users home directory when
  * they login.

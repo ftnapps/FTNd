@@ -228,35 +228,28 @@ void Chg_Password()
 int CheckHandle(char *);
 int CheckHandle(char *Name)
 {
-        FILE    *fp;
-        int     Status = FALSE;
-        char    *temp, *temp1;
-        struct  userhdr uhdr;
-        struct  userrec u;
+    FILE    *fp;
+    int     Status = FALSE;
+    struct  userhdr uhdr;
+    struct  userrec u;
+    char    *temp;
 
-        temp   = calloc(PATH_MAX, sizeof(char));
-        temp1  = calloc(PATH_MAX, sizeof(char));
+    temp = calloc(PATH_MAX, sizeof(char));
+    sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
+    if ((fp = fopen(temp,"rb")) != NULL) {
+        fread(&uhdr, sizeof(uhdr), 1, fp);
 
-        strcpy(temp1, tl(Name));
-
-        sprintf(temp, "%s/etc/users.data", getenv("MBSE_ROOT"));
-        if(( fp = fopen(temp,"rb")) != NULL) {
-                fread(&uhdr, sizeof(uhdr), 1, fp);
-
-                while (fread(&u, uhdr.recsize, 1, fp) == 1) {
-                        strcpy(temp, tl(u.sHandle));
-
-                        if((strcmp(temp, temp1)) == 0) {
-                                Status = TRUE;
-                                break;
-                        }
-                }
-                free(temp);
-                free(temp1);
-                fclose(fp);
+        while (fread(&u, uhdr.recsize, 1, fp) == 1) {
+            if ((strcasecmp(u.sHandle, Name)) == 0) {
+                Status = TRUE;
+                break;
+            }
         }
+        fclose(fp);
+    }
 
-        return Status;
+    free(temp);
+    return Status;
 }
 
 
@@ -266,51 +259,46 @@ int CheckHandle(char *Name)
  */
 void Chg_Handle()
 {
-	char	*Handle, *temp;
+    char    *Handle, *temp;
 
-	Handle = calloc(81, sizeof(char));
-	temp   = calloc(81, sizeof(char));
+    Handle = calloc(81, sizeof(char));
+    temp   = calloc(81, sizeof(char));
 
-	ReadExitinfo();
-	Syslog('+', "Old handle \"%s\"", exitinfo.sHandle);
+    ReadExitinfo();
+    Syslog('+', "Old handle \"%s\"", exitinfo.sHandle);
 
-	while (TRUE) {
-		Enter(1);
-		/* Enter a handle (Enter to Quit): */
-		pout(9, 0, (char *) Language(412));
-		colour(CFG.InputColourF, CFG.InputColourB);
-		fflush(stdout);
-		Getname(temp, 34);
+    while (TRUE) {
+	Enter(1);
+	/* Enter a handle (Enter to Quit): */
+	pout(9, 0, (char *) Language(412));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	fflush(stdout);
+	Getname(temp, 34);
 
-		if((strcmp(temp, "")) == 0) {
-			free(Handle);
-			free(temp);
-			return;
-		}
-
-		strcpy(Handle, tl(temp));
-
-		if (CheckHandle(Handle))
-			pout(12, 0, (char *)"\nThat handle is already been used\n");
-		else 
-			if (CheckName(Handle))
-				pout(12, 0, (char *)"\nThat name is already been used\n");
-			else 
-				if((strcmp(Handle, "sysop")) == 0)
-					pout(12, 0, (char *)"\nYou cannot use Sysop as a handle\n");
-				else {
-					if(strcmp(temp, "") != 0) {
-						Setup(exitinfo.sHandle, temp);
-						pout(10, 0, (char *)"\nHandle Changed!\n\n");
-						Syslog('+', "New handle \"%s\"", exitinfo.sHandle);
-						break;
-					}
-				}
+	if ((strcmp(temp, "")) == 0) {
+	    free(Handle);
+	    free(temp);
+	    return;
 	}
+	strcpy(Handle, tlcap(temp));
 
-	WriteExitinfo();
-	free(temp);
-	free(Handle);
+	if (CheckHandle(Handle) || CheckUnixNames(Handle)) {
+	    pout(12, 0, (char *)"\nThat handle is already been used\n");
+	} else if (CheckName(Handle)) {
+	    pout(12, 0, (char *)"\nThat name is already been used\n");
+	} else if((strcmp(Handle, "sysop")) == 0) {
+	    pout(12, 0, (char *)"\nYou cannot use Sysop as a handle\n");
+	} else if(strcmp(temp, "") != 0) {
+	    Setup(exitinfo.sHandle, temp);
+	    pout(10, 0, (char *)"\nHandle Changed!\n\n");
+	    Syslog('+', "New handle \"%s\"", exitinfo.sHandle);
+	    break;
+	}
+    }
+
+    WriteExitinfo();
+    free(temp);
+    free(Handle);
 }
 
 
