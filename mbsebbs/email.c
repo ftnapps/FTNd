@@ -4,7 +4,7 @@
  * Purpose ...............: Internet email
  *
  *****************************************************************************
- * Copyright (C) 1997-2002
+ * Copyright (C) 1997-2003
  *   
  * Michiel Broek		FIDO:		2:280/2802
  * Beekmansbos 10
@@ -65,7 +65,6 @@ extern int		LC_Wrote;
 int  HasNoEmail(void);
 int  Export_a_Email(unsigned long);
 int  EmailPanel(void);
-void Reply_Email(int);
 int  Save_Email(int);
 
 

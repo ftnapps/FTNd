@@ -26,16 +26,21 @@ typedef struct _reg_info {
         unsigned        chatting        : 1;    /* User is chatting     */
         unsigned        ismsg           : 1;    /* Message waiting      */
 	unsigned	istcp		: 1;	/* Is a TCP/IP session	*/
+	unsigned	paging		: 1;	/* Is paging sysop	*/
+	unsigned	haspaged	: 1;	/* Has paged sysop	*/
+	unsigned	moderator	: 1;	/* Is channel moderator	*/
         int             channel;                /* Chat channel         */
         int             ptr_in;                 /* Input buffer pointer */
         int             ptr_out;                /* Output buffer ptr    */
         char            fname[RB][36];          /* Message from user    */
         char            msg[RB][81];            /* The message itself   */
+	char		reason[81];		/* Chat reason		*/
+	char		chname[21];		/* Short channel name	*/
+	char		chsubj[61];		/* Channel subject	*/
 } reg_info;
 
 
 
-void	reg_init(void);
 int	reg_newcon(char *);
 int	reg_closecon(char *);
 void	reg_check(void);
@@ -50,6 +55,7 @@ char	*reg_ipm(char *);
 int	reg_spm(char *);
 char	*reg_fre(void);
 char	*get_reginfo(int);
+int	reg_sysop(char *);
 
 #endif
 

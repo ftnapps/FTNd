@@ -22,16 +22,13 @@ mbsebbs:
 
 	N: Implement session and time/day limits.
 
-	N: Display textfiles and archives.
+	N: Display archives.
 
 	L: Better word wrapping or paragraph justification in editor.
 
 	L: E-mail downloads with e-mail verification.
 
 	N: OLR, implement file requests.
-
-	N: If a new mailcheck takes longer then the idle timeout, the user is 
-	   disconnected as soon as the mailcheck is ready.
 
 	N: Only count posted messages in local mail areas.
 

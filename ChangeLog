@@ -43,8 +43,24 @@ v0.37.2		23-Feb-2003.
 		Added menu 320, toggle Offline Reader Extended Info.
 		Added new control code: control-U + 8, this displays YES or NO
 		for the new Extended Info setting.
-		The display file functio now displays the ^U8 code.
+		The display file function now displays the ^U8 code.
 		Added support for door32.sys dropfile.
+		Fixed user idle logoff when new mailcheck took too long.
+		Added email reply when reading new (e)mail.
+		With the CIPM and CSPM mbtask commands added the parameter for
+		the chat channel.
+
+	mbmon:
+		Reports sysop available or left the system when mbmon starts
+		or stops.
+
+	mbtask:
+		Safer logging of user log messages.
+		The CSPM command has an extra channel parameter.
+		The CIPM reply has an extra channel parameter.
+		In personal message text the text after a ; character is not
+		ignored anymore.
+		Added CSYS command to report if sysop is available.
 
 	lang:
 		Changed language prompts 15 and 16.

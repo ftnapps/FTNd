@@ -159,7 +159,7 @@ void Syslog(int grade, const char *format, ...)
  */
 int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
 {
-    int     oldmask;
+    int     i, oldmask;
     FILE    *log;
         
     oldmask = umask(066);
@@ -172,10 +172,17 @@ int ulog(char *fn, char *grade, char *prname, char *prpid, char *format)
     }
 
     fprintf(log, "%s %s %s[%s] ", grade, date(), prname, prpid);
-    fwrite(format, strlen(format), 1, log);
-    fprintf(log, "\n");
-
+    for (i = 0; i < strlen(format); i++) {
+	if (iscntrl(format[i])) {
+	    fputc('^', log);
+	    fputc(format[i] + 64, log);
+	} else {
+	    fputc(format[i], log);
+	}
+    }
+    fputc('\n', log);
     fflush(log);
+
     if (fclose(log) != 0) {
         oserr = errno;
         Syslog('!', "$Cannot close user logfile %s", fn);

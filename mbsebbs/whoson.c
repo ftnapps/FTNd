@@ -315,11 +315,11 @@ void SendOnlineMsg(char *OpData)
     if ((strcmp(String, "")) != 0) {
 	buf[0] = '\0';
 	if ((strcasecmp(OpData, "/H") == 0) && strlen(exitinfo.sHandle))
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.sHandle, User, String);
+	    sprintf(buf, "CSPM:4,-1,%s,%s,%s;", exitinfo.sHandle, User, String);
 	else if (strcasecmp(OpData, "/U") == 0)
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.Name, User, String);
+	    sprintf(buf, "CSPM:4,-1,%s,%s,%s;", exitinfo.Name, User, String);
 	else
-	    sprintf(buf, "CSPM:3,%s,%s,%s;", exitinfo.sUserName, User, String);
+	    sprintf(buf, "CSPM:4,-1,%s,%s,%s;", exitinfo.sUserName, User, String);
 
 	if (socket_send(buf) == 0) {
 	    strcpy(buf, socket_receive());

@@ -77,276 +77,291 @@ int userlog(char *param)
 char *exe_cmd(char *);
 char *exe_cmd(char *in)
 {
-	static char	obuf[SS_BUFSIZE];
-	static char	ibuf[SS_BUFSIZE];
-	static char	cmd[4];
-	static char	token[SS_BUFSIZE];
-	static char	ebuf[19];
-	static char	*cnt, var1[16];
-	int		result;
+    static char	obuf[SS_BUFSIZE];
+    static char	ibuf[SS_BUFSIZE];
+    static char	cmd[4];
+    static char	token[SS_BUFSIZE];
+    static char	ebuf[19];
+    static char	*cnt, var1[16];
+    int		result;
 
-	strcpy(ibuf, in);
-	strncpy(cmd, ibuf, 4);
-	token[0] = '\0';
-	strcpy(ebuf, "200:1,Syntax error;");
+    strcpy(ibuf, in);
+    strncpy(cmd, ibuf, 4);
+    token[0] = '\0';
+    strcpy(ebuf, "200:1,Syntax error;");
 
-	/*
-	 * Split the commandline after the colon so we can give the
-	 * options directly to the actual functions. Also set a default
-	 * and most used answer.
-	 */
-	strcpy(token, &ibuf[5]);
-	strcpy(obuf, "100:0;");
+    /*
+     * Split the commandline after the colon so we can give the
+     * options directly to the actual functions. Also set a default
+     * and most used answer.
+     */
+    strcpy(token, &ibuf[5]);
+    strcpy(obuf, "100:0;");
 
 
-	/*
-	 * The A(counting) commands.
-	 *
-	 *  AINI:5,pid,tty,user,program,city;
-	 *  100:0;
-	 *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "AINI", 4) == 0) {
-		if (reg_newcon(token) != -1)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     * The A(counting) commands.
+     *
+     *  AINI:5,pid,tty,user,program,city;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "AINI", 4) == 0) {
+	if (reg_newcon(token) != -1)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-        /*
-         *  ACLO:1,pid;
-         *  107:0;
-         *  200:1,Syntax Error;
-         */
-	if (strncmp(cmd ,"ACLO", 4) == 0) {
-		if (reg_closecon(token) == 0) {
-			strcpy(obuf, "107:0;");
-			return obuf;
-		} else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ACLO:1,pid;
+     *  107:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd ,"ACLO", 4) == 0) {
+	if (reg_closecon(token) == 0) {
+	    strcpy(obuf, "107:0;");
+	    return obuf;
+	} else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ADOI:2,pid,doing;
-         *  100:0;
-         *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "ADOI", 4) == 0) {
-		if (reg_doing(token) == 0)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ADOI:2,pid,doing;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "ADOI", 4) == 0) {
+	if (reg_doing(token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ATCP:1,pid;
-	 *  100:0;
-	 *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "ATCP", 4) == 0) {
-	    if (reg_ip(token) == 0)
-		return obuf;
-	    else {
-		stat_inc_serr();
-		return ebuf;
-	    }
+    /*
+     *  ATCP:1,pid;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "ATCP", 4) == 0) {
+	if (reg_ip(token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ATTY:2,pid,tty;
-         *  100:0;
-         *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "ATTY", 4) == 0) {
-		if (reg_tty(token) == 0)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ATTY:2,pid,tty;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "ATTY", 4) == 0) {
+	if (reg_tty(token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ALOG:5,file,program,pid,grade,text;
-         *  100:0;
-         *  201:1,errno;
-	 */
-	if (strncmp(cmd, "ALOG", 4) == 0) {
-		if (userlog(token) != 0) 
-			sprintf(obuf, "201:1,%d;", oserr);
-		return obuf;
-	}
+    /*
+     *  ALOG:5,file,program,pid,grade,text;
+     *  100:0;
+     *  201:1,errno;
+     */
+    if (strncmp(cmd, "ALOG", 4) == 0) {
+	if (userlog(token) != 0) 
+	    sprintf(obuf, "201:1,%d;", oserr);
+	return obuf;
+    }
 
-	/*
-	 *  AUSR:3,pid,user,city;
-	 *  100:0;
-	 *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "AUSR", 4) == 0) {
-		if (reg_user(token) == 0) 
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  AUSR:3,pid,user,city;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "AUSR", 4) == 0) {
+	if (reg_user(token) == 0) 
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ADIS:2,pid,flag; (set Do Not Disturb).
-         *  100:0;
-         *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "ADIS", 4) == 0) {
-		if (reg_silent(token) == 0)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ADIS:2,pid,flag; (set Do Not Disturb).
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "ADIS", 4) == 0) {
+	if (reg_silent(token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ATIM:2,pid,seconds;
-         *  100:0;
-         *  200:1,Syntax Error;
-	 */
-	if (strncmp(cmd, "ATIM", 4) == 0) {
-		if (reg_timer(TRUE, token) == 0)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ATIM:2,pid,seconds;
+     *  100:0;
+     *  200:1,Syntax Error;
+     */
+    if (strncmp(cmd, "ATIM", 4) == 0) {
+	if (reg_timer(TRUE, token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 *  ADEF:1,pid;
-         *  100:0;
-	 */
-	if (strncmp(cmd, "ADEF", 4) == 0) {
-		if (reg_timer(FALSE, token) == 0)
-			return obuf;
-		else {
-			stat_inc_serr();
-			return ebuf;
-		}
+    /*
+     *  ADEF:1,pid;
+     *  100:0;
+     */
+    if (strncmp(cmd, "ADEF", 4) == 0) {
+	if (reg_timer(FALSE, token) == 0)
+	    return obuf;
+	else {
+	    stat_inc_serr();
+	    return ebuf;
 	}
+    }
 
-	/*
-	 * The chat commands
-	 *
-	 *  CIPM:1,pid;  (Is personal message present)
-	 *  100:2,fromname,message;
-	 *  100:0;
-	 */
-	if (strncmp(cmd, "CIPM", 4) == 0) {
-		return reg_ipm(token);
-	}
+    /*
+     *  The chat commands
+     *
+     *  Used channels:  -1	    Personal messages between ordinary users.
+     *		    0	    Sysop/user chat
+     *		    1..99   Chatting channels
+     *
+     *  CIPM:1,pid;  (Is personal/chat message present)
+     *  100:3,channel,fromname,message;
+     *  100:0;
+     */
+    if (strncmp(cmd, "CIPM", 4) == 0) {
+	return reg_ipm(token);
+    }
 
-	/*
-	 * CSPM:3,fromuser,touser,text; (Send personal message).
-	 * 100:1,n;  n: 0=oke, 1=donotdisturb 2=buffer full 3=error
-	 * 100:0;
-	 */
-	if (strncmp(cmd, "CSPM", 4) == 0) {
-		if ((result = reg_spm(token))) {
-			sprintf(obuf, "100:1,%d;", result);
-			return obuf;
-		} else
-			return obuf;
-	}
+    /*
+     * CSPM:3,channel,fromuser,touser,text; (Send personal/chat message).
+     * 100:1,n;  n: 1=donotdisturb 2=buffer full 3=error
+     * 100:0;
+     */
+    if (strncmp(cmd, "CSPM", 4) == 0) {
+	if ((result = reg_spm(token))) {
+	    sprintf(obuf, "100:1,%d;", result);
+	    return obuf;
+	} else
+	    return obuf;
+    }
 
-	/*
-	 * The G(lobal) commands.
-	 *
-	 *  GNOP:1,pid;
-	 *  100:0;
-	 */
-	if (strncmp(cmd ,"GNOP", 4) == 0) {
-		reg_nop(token);
-		return obuf;
-	}
+    /*
+     * CSYS:1,1;    Sysop available for chat (from mbmon)
+     * CSYS:1,0;    Sysop goes away (from mbmon)
+     * 100:0;	    Allways Ok.
+     */
+    if (strncmp(cmd, "CSYS", 4) == 0) {
+	reg_sysop(token);
+	return obuf;
+    }
 
-	/*
-	 *  GPNG:n,data;
-	 *  100:n,data;
-	 */
-	if (strncmp(cmd, "GPNG", 4) == 0) {
-		sprintf(obuf, "100:%s", token);
-		return obuf;
-	}
 
-	/*
-	 *  GVER:0;
-	 *  100:1,Version ...;
-	 */
-	if (strncmp(cmd, "GVER", 4) == 0) {
-		sprintf(obuf, "100:1,Version %s;", VERSION);
-		return obuf;
-	}
+    /*
+     * The G(lobal) commands.
+     *
+     *  GNOP:1,pid;
+     *  100:0;
+     */
+    if (strncmp(cmd ,"GNOP", 4) == 0) {
+	reg_nop(token);
+	return obuf;
+    }
 
-	/*
-	 *  GSTA:0;
-	 *  100:19,start,laststart,daily,startups,clients,tot_clients,tot_peak,tot_syntax,tot_comerr,
-	 *         today_clients,today_peak,today_syntax,today_comerr,!BBSopen,ZMH,internet,Processing,Load,sequence;
-	 *  201:1,16;
-	 */
-	if (strncmp(cmd, "GSTA", 4) == 0) {
-		return stat_status();
-	}
+    /*
+     *  GPNG:n,data;
+     *  100:n,data;
+     */
+    if (strncmp(cmd, "GPNG", 4) == 0) {
+	sprintf(obuf, "100:%s", token);
+	return obuf;
+    }
 
-	/*
-	 *  GMON:1,n;  n=1 First time
-	 *  100:7,pid,tty,user,program,city,isdoing,starttime;
-	 *  100:0;
-	 */
-	if (strncmp(cmd, "GMON", 4) == 0) {
-		cnt = strtok(token, ",");
-		strcpy(var1, strtok(NULL, ";"));
-		return get_reginfo(atoi(var1));
-	}
+    /*
+     *  GVER:0;
+     *  100:1,Version ...;
+     */
+    if (strncmp(cmd, "GVER", 4) == 0) {
+	sprintf(obuf, "100:1,Version %s;", VERSION);
+	return obuf;
+    }
 
-	/*
-	 *  GDST:0;
-	 *  100:n,data1,..,data10;
-	 */
-	if (strncmp(cmd, "GDST", 4) == 0) {
-		return get_diskstat();
-	}
+    /*
+     *  GSTA:0;
+     *  100:19,start,laststart,daily,startups,clients,tot_clients,tot_peak,tot_syntax,tot_comerr,
+     *         today_clients,today_peak,today_syntax,today_comerr,!BBSopen,ZMH,internet,Processing,Load,sequence;
+     *  201:1,16;
+     */
+    if (strncmp(cmd, "GSTA", 4) == 0) {
+	return stat_status();
+    }
 
-	/*
-	 *  GSYS:0;
-	 *  100:7,calls,pots_calls,isdn_calls,network_calls,local_calls,startdate,last_caller;
-	 *  201:1,16;
-	 */
-	if (strncmp(cmd, "GSYS", 4) == 0) {
-		return get_sysinfo();
-	}
+    /*
+     *  GMON:1,n;  n=1 First time
+     *  100:7,pid,tty,user,program,city,isdoing,starttime;
+     *  100:0;
+     */
+    if (strncmp(cmd, "GMON", 4) == 0) {
+	cnt = strtok(token, ",");
+	strcpy(var1, strtok(NULL, ";"));
+	return get_reginfo(atoi(var1));
+    }
 
-	/*
-	 *  GLCC:0;
-	 *  100:1,n;
-	 */
-	if (strncmp(cmd, "GLCC", 4) == 0) {
-		return get_lastcallercount();
-	}
+    /*
+     *  GDST:0;
+     *  100:n,data1,..,data10;
+     */
+    if (strncmp(cmd, "GDST", 4) == 0) {
+	return get_diskstat();
+    }
 
-	/*
-	 *  GLCR:1,recno;
-	 *  100:9,user,location,level,device,time,mins,calls,speed,actions;
-	 *  201:1,16;
-	 */
-	if (strncmp(cmd, "GLCR", 4) == 0) {
-                cnt = strtok(token, ",");
-                strcpy(var1, strtok(NULL, ";"));
-		return get_lastcallerrec(atoi(var1));
-	}
+    /*
+     *  GSYS:0;
+     *  100:7,calls,pots_calls,isdn_calls,network_calls,local_calls,startdate,last_caller;
+     *  201:1,16;
+     */
+    if (strncmp(cmd, "GSYS", 4) == 0) {
+	return get_sysinfo();
+    }
+
+    /*
+     *  GLCC:0;
+     *  100:1,n;
+     */
+    if (strncmp(cmd, "GLCC", 4) == 0) {
+	return get_lastcallercount();
+    }
+
+    /*
+     *  GLCR:1,recno;
+     *  100:9,user,location,level,device,time,mins,calls,speed,actions;
+     *  201:1,16;
+     */
+    if (strncmp(cmd, "GLCR", 4) == 0) {
+        cnt = strtok(token, ",");
+        strcpy(var1, strtok(NULL, ";"));
+	return get_lastcallerrec(atoi(var1));
+    }
 
 
 	/*

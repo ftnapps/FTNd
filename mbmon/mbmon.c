@@ -41,13 +41,19 @@ extern int  bbs_free;
 
 static void die(int onsig)
 {
-	signal(onsig, SIG_IGN);
-	screen_stop(); 
-	if (onsig && (onsig <= NSIG))
-		Syslog('?', "Finished on signal %s", SigName[onsig]);
-	else
-		Syslog(' ', "Normally finished");
-	ExitClient(0);
+    char    buf[128];
+    
+    signal(onsig, SIG_IGN);
+    screen_stop(); 
+    if (onsig && (onsig <= NSIG))
+	Syslog('?', "Finished on signal %s", SigName[onsig]);
+    else
+	Syslog(' ', "Normally finished");
+    
+    sprintf(buf, "CSYS:1,0;");
+    if (socket_send(buf) == 0)
+	sprintf(buf, "%s", socket_receive());
+    ExitClient(0);
 }
 
 
@@ -413,70 +419,78 @@ void soft_info(void)
 
 int main(int argc, char *argv[])
 {
-	struct passwd	*pw;
-
+    struct passwd   *pw;
+    char	    buf[128];
+    
 #ifdef MEMWATCH
-	mwInit();
+    mwInit();
 #endif
 
-	/*
-	 * Find out who is on the keyboard or automated the keyboard.
-	 */
-	pw = getpwuid(getuid());
-	InitClient(pw->pw_name);
-	Syslog(' ', "Started by %s", pw->pw_name);
-	bbs_free = FALSE;
+    /*
+     * Find out who is on the keyboard or automated the keyboard.
+     */
+    pw = getpwuid(getuid());
+    InitClient(pw->pw_name);
+    Syslog(' ', "Started by %s", pw->pw_name);
+    bbs_free = FALSE;
+
+    /*
+     * Report sysop available for chat
+     */
+    sprintf(buf, "CSYS:1,1;");
+    if (socket_send(buf) == 0)
+	sprintf(buf, "%s", socket_receive());
 
 	
-	/*
-	 * Setup several signals so when the program terminate's it
-	 * will properly close.
-	 */
-	signal(SIGINT, (void (*))die);
-	signal(SIGBUS, (void (*))die);
-	signal(SIGSEGV,(void (*))die);
-	signal(SIGTERM,(void (*))die);
-	signal(SIGKILL,(void (*))die);
+    /*
+     * Setup several signals so when the program terminate's it
+     * will properly close.
+     */
+    signal(SIGINT, (void (*))die);
+    signal(SIGBUS, (void (*))die);
+    signal(SIGSEGV,(void (*))die);
+    signal(SIGTERM,(void (*))die);
+    signal(SIGKILL,(void (*))die);
 
-	screen_start((char *)"MBmon");
+    screen_start((char *)"MBmon");
 
-	for (;;) {
+    for (;;) {
 
-		IsDoing("Browsing Menu");
-		clr_index();
-		set_color(WHITE, BLACK);
-		mvprintw( 5, 6, "0.    MBSE BBS MONITOR");
-		set_color(CYAN, BLACK);
-		mvprintw( 7, 6, "1.    View Server Clients");
-		mvprintw( 8, 6, "2.    View Server Statistics");
-		mvprintw( 9, 6, "3.    View Filesystem Usage");
-		mvprintw(10, 6, "4.    View BBS System Information");
-		mvprintw(11, 6, "5.    View BBS Lastcallers List");
-		mvprintw(12, 6, "6.    View Software Information");
+	IsDoing("Browsing Menu");
+	clr_index();
+	set_color(WHITE, BLACK);
+	mvprintw( 5, 6, "0.    MBSE BBS MONITOR");
+	set_color(CYAN, BLACK);
+	mvprintw( 7, 6, "1.    View Server Clients");
+	mvprintw( 8, 6, "2.    View Server Statistics");
+	mvprintw( 9, 6, "3.    View Filesystem Usage");
+	mvprintw(10, 6, "4.    View BBS System Information");
+	mvprintw(11, 6, "5.    View BBS Lastcallers List");
+	mvprintw(12, 6, "6.    View Software Information");
 
-		switch(select_menu(6)) {
-		case 0:
-			die(0);
-			break;
-		case 1:
-			system_moni();
-			break;
-		case 2:
-			system_stat();
-			break;
-		case 3:
-			disk_stat();
-			break;
-		case 4:
-			ShowSysinfo();
-			break;
-		case 5:
-			ShowLastcaller();
-			break;
-		case 6:
-			soft_info();
-			break;
-		}
+	switch(select_menu(6)) {
+	    case 0:
+		    die(0);
+		    break;
+	    case 1:
+		    system_moni();
+		    break;
+	    case 2:
+		    system_stat();
+		    break;
+	    case 3:
+		    disk_stat();
+		    break;
+	    case 4:
+		    ShowSysinfo();
+		    break;
+	    case 5:
+		    ShowLastcaller();
+		    break;
+	    case 6:
+		    soft_info();
+		    break;
 	}
+    }
 }
 

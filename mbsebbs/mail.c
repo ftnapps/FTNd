@@ -2083,227 +2083,229 @@ int CheckUser(char *To)
  */
 void CheckMail()
 {
-	FILE		*pMsgArea, *Tmp;
-	int		x, Found = 0; 
-	int		Color, Count = 0, Reading;
-	int		OldMsgArea;
-	char		*temp;
-	char		*sFileName;
-	unsigned long	i, Start;
-	typedef	struct _Mailrec {
-		long		Area;
-		unsigned long	Msg;
-	} _Mail;
-	_Mail		Mail;
-	lastread	LR;
+    FILE		*pMsgArea, *Tmp;
+    int			x, Found = 0, Color, Count = 0, Reading, OldMsgArea;
+    char		*temp, *sFileName;
+    unsigned long	i, Start;
+    typedef struct	_Mailrec {
+	long		Area;
+	unsigned long	Msg;
+    } _Mail;
+    _Mail		Mail;
+    lastread		LR;
 
-	OldMsgArea = iMsgAreaNumber;
-	iMsgAreaNumber = 0;
-	Syslog('+', "Start checking for new mail");
+    OldMsgArea = iMsgAreaNumber;
+    iMsgAreaNumber = 0;
+    Syslog('+', "Start checking for new mail");
 
-	clear();
-	/* Checking your mail box ... */
-	language(LIGHTGREEN, BLACK, 150);
-	Enter(2);
-	Color = LIGHTBLUE;
+    clear();
+    /* Checking your mail box ... */
+    language(LIGHTGREEN, BLACK, 150);
+    Enter(2);
+    Color = LIGHTBLUE;
+    fflush(stdout);
+
+    /*
+     * Open temporary file
+     */
+    if ((Tmp = tmpfile()) == NULL) {
+	WriteError("$unable to open temporary file");
+	return;
+    }
+
+    /*
+     * First check the e-mail mailbox
+     */
+    temp = calloc(PATH_MAX, sizeof(char));
+    if (exitinfo.Email && strlen(exitinfo.Password)) {
+	check_popmail(exitinfo.Name, exitinfo.Password);
+	colour(Color++, BLACK);
+	printf("\re-mail  Private e-mail mailbox");
 	fflush(stdout);
+	Count = 0;
+	sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
+	SetEmailArea((char *)"mailbox");
+	if (Msg_Open(temp)) {
+	    /*
+	     * Check lastread pointer, if none found start
+	     * at the begin of the messagebase.
+	     */
+	    LR.UserID = grecno;
+	    if (Msg_GetLastRead(&LR))
+		Start = LR.HighReadMsg + 1;
+	    else
+		Start = EmailBase.Lowest;
 
-	/*
-	 * Open temporary file
-	 */
-	if ((Tmp = tmpfile()) == NULL) {
-		WriteError("$unable to open temporary file");
-		return;
-	}
-
-	/*
-	 * First check the e-mail mailbox
-	 */
-	temp = calloc(PATH_MAX, sizeof(char));
-	if (exitinfo.Email && strlen(exitinfo.Password)) {
-		check_popmail(exitinfo.Name, exitinfo.Password);
-		colour(Color++, BLACK);
-		printf("\re-mail  Private e-mail mailbox");
-		fflush(stdout);
-		Count = 0;
-		sprintf(temp, "%s/%s/mailbox", CFG.bbs_usersdir, exitinfo.Name);
-		SetEmailArea((char *)"mailbox");
-		if (Msg_Open(temp)) {
+	    for (i = Start; i <= EmailBase.Highest; i++) {
+		if (Msg_ReadHeader(i)) {
+		    /*
+		     * Only check the received status of the email. The mail
+		     * may not be direct addressed to this user (aliases database)
+		     * but if it is in his mailbox it is always for the user.
+		     */
+		    if (!Msg.Received) {
 			/*
-			 * Check lastread pointer, if none found start
-			 * at the begin of the messagebase.
+			 * Store area and message number in temporary file.
 			 */
-			LR.UserID = grecno;
-			if (Msg_GetLastRead(&LR))
-				Start = LR.HighReadMsg + 1;
-			else
-				Start = EmailBase.Lowest;
-
-			for (i = Start; i <= EmailBase.Highest; i++) {
-				if (Msg_ReadHeader(i)) {
-					/*
-					 * Only check the received status of the email. The mail
-					 * may not be direct addressed to this user (aliases database)
-					 * but if it is in his mailbox it is always for the user.
-					 */
-					if (!Msg.Received) {
-						/*
-						 * Store area and message number in temporary file.
-						 */
-						Mail.Area = -1; /* Means e-mail mailbox */
-						Mail.Msg  = Msg.Id + EmailBase.Lowest -1;
-						fwrite(&Mail, sizeof(Mail), 1, Tmp);
-						Count++;
-						Found++;
-					}
-				}
-			}
-			Msg_Close();
+			Mail.Area = -1; /* Means e-mail mailbox */
+			Mail.Msg  = Msg.Id + EmailBase.Lowest -1;
+			fwrite(&Mail, sizeof(Mail), 1, Tmp);
+			Count++;
+			Found++;
+		    }
 		}
-		if (Count) {
-			colour(CFG.TextColourF, CFG.TextColourB);
-			/* messages in */
-			printf("\n\n%d %s private e-mail mailbox\n\n", Count, (char *)Language(213));
-			Syslog('m', "  %d messages in private e-mail mailbox", Count);
-		}
+	    }
+	    Msg_Close();
 	}
-
-	/*
-	 * Open the message base configuration
-	 */
-	sFileName = calloc(PATH_MAX, sizeof(char));
-	sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
-	if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
-		WriteError("$Can't open: %s", sFileName);
-		free(temp);
-		free(sFileName);
-		return;
+	if (Count) {
+	    colour(CFG.TextColourF, CFG.TextColourB);
+	    /* messages in */
+	    printf("\n\n%d %s private e-mail mailbox\n\n", Count, (char *)Language(213));
+	    Syslog('m', "  %d messages in private e-mail mailbox", Count);
 	}
-	fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
+    }
 
-	/*
-	 * Check all normal areas one by one
-	 */
-	while (fread(&msgs, msgshdr.recsize, 1, pMsgArea) == 1) {
-		fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
-		if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
-			SetMsgArea(iMsgAreaNumber);
-			sprintf(temp, "%d", iMsgAreaNumber + 1);
-			colour(Color, 0);
-			if (Color < WHITE)
-				Color++;
-			else
-				Color = LIGHTBLUE;
-			printf("\r%6s  %-40s", temp, sMsgAreaDesc);
-			fflush(stdout);
-			Count = 0;
-			Nopper();
+    /*
+     * Open the message base configuration
+     */
+    sFileName = calloc(PATH_MAX, sizeof(char));
+    sprintf(sFileName,"%s/etc/mareas.data", getenv("MBSE_ROOT"));
+    if((pMsgArea = fopen(sFileName, "r+")) == NULL) {
+	WriteError("$Can't open: %s", sFileName);
+	free(temp);
+	free(sFileName);
+	return;
+    }
+    fread(&msgshdr, sizeof(msgshdr), 1, pMsgArea);
 
-			if (Msg_Open(sMsgAreaBase)) {
-				/*
-				 * Check lastread pointer, if none found start
-				 * at the begin of the messagebase.
-				 */
-				LR.UserID = grecno;
-				if (Msg_GetLastRead(&LR))
-					Start = LR.HighReadMsg + 1;
-				else
-					Start = MsgBase.Lowest;
+    /*
+     * Check all normal areas one by one
+     */
+    while (fread(&msgs, msgshdr.recsize, 1, pMsgArea) == 1) {
+	fseek(pMsgArea, msgshdr.syssize, SEEK_CUR);
+	if ((msgs.Active) && (exitinfo.Security.level >= msgs.RDSec.level)) {
+	    SetMsgArea(iMsgAreaNumber);
+	    sprintf(temp, "%d", iMsgAreaNumber + 1);
+	    colour(Color, 0);
+	    if (Color < WHITE)
+		Color++;
+	    else
+		Color = LIGHTBLUE;
+	    printf("\r%6s  %-40s", temp, sMsgAreaDesc);
+	    fflush(stdout);
+	    Count = 0;
+	    /*
+	     * Refresh timers
+	     */
+	    Nopper();
+	    alarm_on();
 
-				for (i = Start; i <= MsgBase.Highest; i++) {
-					if (Msg_ReadHeader(i)) {
-						if ((!Msg.Received) && (IsMe(Msg.To))) {
-							/*
-							 * Store area and message number
-							 * in temporary file.
-							 */
-							Mail.Area = iMsgAreaNumber;
-							Mail.Msg  = Msg.Id + MsgBase.Lowest -1;
-							fwrite(&Mail, sizeof(Mail), 1, Tmp);
-							Count++;
-							Found++;
-						}
-					}
-				}
-				Msg_Close();
+	    if (Msg_Open(sMsgAreaBase)) {
+		/*
+		 * Check lastread pointer, if none found start
+		 * at the begin of the messagebase.
+		 */
+		LR.UserID = grecno;
+		if (Msg_GetLastRead(&LR))
+		    Start = LR.HighReadMsg + 1;
+		else
+		    Start = MsgBase.Lowest;
+
+		for (i = Start; i <= MsgBase.Highest; i++) {
+		    if (Msg_ReadHeader(i)) {
+			if ((!Msg.Received) && (IsMe(Msg.To))) {
+			    /*
+			     * Store area and message number
+			     * in temporary file.
+			     */
+			    Mail.Area = iMsgAreaNumber;
+			    Mail.Msg  = Msg.Id + MsgBase.Lowest -1;
+			    fwrite(&Mail, sizeof(Mail), 1, Tmp);
+			    Count++;
+			    Found++;
 			}
-			if (Count) {
-				colour(CFG.TextColourF, CFG.TextColourB);
-				/* messages in */
-				printf("\n\n%d %s %s\n\n", Count, (char *)Language(213), sMsgAreaDesc);
-				Syslog('m', "  %d messages in %s", Count, sMsgAreaDesc);
-			}
+		    }
 		}
-		iMsgAreaNumber++;
+		Msg_Close();
+	    }
+	    if (Count) {
+		colour(CFG.TextColourF, CFG.TextColourB);
+		/* messages in */
+		printf("\n\n%d %s %s\n\n", Count, (char *)Language(213), sMsgAreaDesc);
+		Syslog('m', "  %d messages in %s", Count, sMsgAreaDesc);
+	    }
 	}
+	iMsgAreaNumber++;
+    }
 
-	fclose(pMsgArea);
-	putchar('\r');
-	for (i = 0; i < 48; i++)
-		putchar(' ');
-	putchar('\r');
+    fclose(pMsgArea);
+    putchar('\r');
+    for (i = 0; i < 48; i++)
+	putchar(' ');
+    putchar('\r');
 
-	if (Found) {
-		colour(YELLOW, BLACK);
-		/* You have messages, read your mail now? [Y/n]: */
-		printf("\n%s%d %s", (char *) Language(142), Found, (char *) Language(143));
-		colour(CFG.InputColourF, CFG.InputColourB);
+    if (Found) {
+	colour(YELLOW, BLACK);
+	/* You have messages, read your mail now? [Y/n]: */
+	printf("\n%s%d %s", (char *) Language(142), Found, (char *) Language(143));
+	colour(CFG.InputColourF, CFG.InputColourB);
+	fflush(stdout);
+	fflush(stdin);
+	alarm_on();
+
+	if (toupper(Getone()) != Keystroke(143,1)) {
+	    rewind(Tmp);
+	    Reading = TRUE;
+
+	    while ((Reading) && (fread(&Mail, sizeof(Mail), 1, Tmp) == 1)) {
+		if (Mail.Area == -1) {
+		    /*
+		     * Private e-mail
+		     */
+		    Read_a_Email(Mail.Msg);
+		} else {
+		    SetMsgArea(Mail.Area);
+		    Read_a_Msg(Mail.Msg, FALSE);
+		}
+		/* (R)eply, (N)ext, (Q)uit */
+		pout(CFG.CRColourF, CFG.CRColourB, (char *)Language(218));
 		fflush(stdout);
 		fflush(stdin);
 		alarm_on();
+		x = toupper(Getone());
 
-		if (toupper(Getone()) != Keystroke(143,1)) {
-			rewind(Tmp);
-			Reading = TRUE;
-
-			while ((Reading) && (fread(&Mail, sizeof(Mail), 1, Tmp) == 1)) {
-				if (Mail.Area == -1) {
-					/*
-					 * Private e-mail
-					 */
-					Read_a_Email(Mail.Msg);
-				} else {
-					SetMsgArea(Mail.Area);
-					Read_a_Msg(Mail.Msg, FALSE);
-				}
-				/* (R)eply, (N)ext, (Q)uit */
-				pout(CFG.CRColourF, CFG.CRColourB, (char *)Language(218));
-				fflush(stdout);
-				fflush(stdin);
-				alarm_on();
-				x = toupper(Getone());
-
-				if (x == Keystroke(218, 0)) {
-					Syslog('m', "  Reply!");
-					if (Mail.Area == -1) {
-					} else {
-						Reply_Msg(TRUE);
-					}
-				}
-				if (x == Keystroke(218, 2)) {
-					Syslog('m', "  Quit check for new mail");
-					iMsgAreaNumber = OldMsgArea;
-					fclose(Tmp);
-					SetMsgArea(OldMsgArea);
-					printf("\n\n");
-					free(temp);
-					free(sFileName);
-					return;
-				}
-			}
+		if (x == Keystroke(218, 0)) {
+		    Syslog('m', "  Reply!");
+		    if (Mail.Area == -1) {
+			Reply_Email(TRUE);
+		    } else {
+			Reply_Msg(TRUE);
+		    }
 		}
-	} else {
-		language(LIGHTRED, BLACK, 144);
-		Enter(1);
-		sleep(3);
-	} /* if (Found) */
+		if (x == Keystroke(218, 2)) {
+		    Syslog('m', "  Quit check for new mail");
+		    iMsgAreaNumber = OldMsgArea;
+		    fclose(Tmp);
+		    SetMsgArea(OldMsgArea);
+		    printf("\n\n");
+		    free(temp);
+		    free(sFileName);
+		    return;
+		}
+	    }
+	}
+    } else {
+	language(LIGHTRED, BLACK, 144);
+	Enter(1);
+	sleep(3);
+    } /* if (Found) */
 
-	iMsgAreaNumber = OldMsgArea;
-	fclose(Tmp);
-	SetMsgArea(OldMsgArea);
-	printf("\n\n");
-	free(temp);
-	free(sFileName);
+    iMsgAreaNumber = OldMsgArea;
+    fclose(Tmp);
+    SetMsgArea(OldMsgArea);
+    printf("\n\n");
+    free(temp);
+    free(sFileName);
 }
 
 
