@@ -179,7 +179,9 @@ int rx_yoohoo(void)
 		inbound = xstrcpy(CFG.pinbound);
 		pwd = xstrcpy(nodes.Spasswd);
 	    } else {
-		pwd = (char *)"BAD_PASS";
+		if (pwd)
+		    free(pwd);
+		pwd = xstrcpy((char *)"BAD_PASS");
 		Syslog('?', "Remote password \"%s\", expected \"%s\"", (char*)hello2.my_password, nodes.Spasswd);
 		localcaps = 0;
 	    }
@@ -187,7 +189,7 @@ int rx_yoohoo(void)
 	    Syslog('s', "No YooHoo password check");
 	
 	fillhello(localcaps,pwd);
-
+	
 	rc = txyoohoo();
 	if (pwd)
 	    free(pwd);
