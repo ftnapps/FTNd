@@ -12,10 +12,9 @@
 </HEAD>
 <BODY>
 <BLOCKQUOTE>
-<h5>Last update 22-Apr-2002</h5>
-<P>&nbsp;<P>
+<div align="right"><h5>Last update 28-Sep-2002</h5></div>
 
-<h1>MBSE BBS Basic Installation</h1>
+<div align="center"><h1>MBSE BBS Basic Installation</h1></div>
 
 <h3>Introduction.</h3>
 <p>
@@ -31,46 +30,49 @@ layout looks like this:<br>
 /opt/mbse                      0775  Default MBSE_ROOT
 /opt/mbse/bin                  0755  Binaries
 /opt/mbse/doc                  0755  Generated sitedocs
-/opt/mbse/dutch/macro          0755  N/A
+/opt/mbse/dutch/macro          0755  Dutch macro files
 /opt/mbse/dutch/menus          0755  Dutch menu files
 /opt/mbse/dutch/txtfiles       0755  Dutch ANSI files
-/opt/mbse/english/macro        0755  Default english macros, not yet.
-/opt/mbse/english/menus        0755  Default english menus
+/opt/mbse/english/macro        0755  Default english macro files
+/opt/mbse/english/menus        0755  Default english menu files
 /opt/mbse/english/txtfiles     0755  Default english ANSI files
 /opt/mbse/etc                  0775  System configuration files
 /opt/mbse/fdb                  0775  Files database
 /opt/mbse/ftp/pub              0775  Default FTP root for download areas.
-/opt/mbse/galego/macro         0755  N/A
+/opt/mbse/galego/macro         0755  Galego macro files
 /opt/mbse/galego/menus         0755  Galego menu files
 /opt/mbse/galego/txtfiles      0755  Galego ANSI files
 /opt/mbse/home                 0770  Users homedirectories
 /opt/mbse/home/bbs             0770  Newuser account
 /opt/mbse/html                 0755  HTML documentation
-/opt/mbse/italian/macro        0755  N/A
+/opt/mbse/italian/macro        0755  Italian macro files
 /opt/mbse/italian/menus        0755  Italian menu files
 /opt/mbse/italian/txtfiles     0755  Italian ANSI files
 /opt/mbse/log                  0775  MBSE BBS logfiles
 /opt/mbse/magic                0755  Magic filerequest names
 /opt/mbse/sema                 0777  Semafore files
-/opt/mbse/spanish/macro        0755  N/A
+/opt/mbse/spanish/macro        0755  Spanish macro files
 /opt/mbse/spanish/menus        0755  Spanish menu files
 /opt/mbse/spanish/txtfiles     0755  Spanish ANSI files
 /opt/mbse/tmp                  0775  Temp directory
 /opt/mbse/tmp/arc              0775  Temp archiver directory
 /opt/mbse/var                  0770  Var root
+/opt/mbse/var/arealists        0750  Areamgr arealist files
 /opt/mbse/var/badtic           0750  Bad TIC files
+/opt/mbse/var/boxes            0750  Base for nodes fileboxes
 /opt/mbse/var/bso              0750  Binkley Style Outbound directory
 /opt/mbse/var/bso/outbound     0750  Default outbound for main aka
 /opt/mbse/var/inbound          0750  Protected inbound directory
 /opt/mbse/var/mail             0770  JAM messagebase root
 /opt/mbse/var/msgs             0750  *.msgs netmail directory (not yet in use).
 /opt/mbse/var/nodelist         0750  Nodelists
+/opt/mbse/var/queue            0750  Queue for before outbound
 /opt/mbse/var/ticqueue         0750  Queue for TIC files
 /opt/mbse/var/unknown          0750  Unprotected inbound directory
 </pre>
 <p>
 Don't use UMSDOS or SAMBA filesystems for the bbs, stick by the standard Linux
-filesystems (ext2 or reiserfs) or ufs if you use FreeBSD.
+filesystems (ext2, ext3 or reiserfs) or ufs if you use FreeBSD.
 If you intent to make your bbs also accessible
 by FTP and WWW you must create the directory structure under the ftp user
 behind the pub directory. Read <a href="misc/ftpserver.html">the
@@ -88,15 +90,15 @@ previous or failed installation on your system. If that's so the script will
 not run. In other words, you can only run this script once. The script makes
 backup copies of the system files it changes, these files will get the
 extension <strong>.mbse</strong> To run the installation script you need
-the archive <strong>mbbsebbs-0.33.nn.tar.gz</strong>.
+the archive <strong>mbbsebbs-0.nn.nn.tar.gz</strong>.
 Unpack this archive on your system, in /tmp will do fine:
 <pre>
 cd /tmp
-tar xfvz /path/to/the/mbsebbs-0.33.nn.tar.gz
+tar xfvz /path/to/the/mbsebbs-0.nn.nn.tar.gz
 </pre>
 To start the script type:
 <pre>
-cd mbsebbs-0.33.nn
+cd mbsebbs-0.nn.nn
 bash ./SETUP.sh
 </pre>
 Yes, use <b>bash</b> as shell here. On some systems root doesn't use  bash
@@ -134,10 +136,10 @@ If something is wrong, now is the time to fix it. Don't panic and remember
 the backups of the system files that are changed are in /etc with the 
 extension <strong>.mbse</strong> i.e: those were the original files.
 The installation logfile is copied to /opt/mbse.
-If everythings is allright, then remove the directory /tmp/mbsebbs-0.33.nn:
+If everythings is allright, then remove the directory /tmp/mbsebbs-0.nn.nn:
 <pre>
 cd /tmp
-rm -Rf mbsebbs-0.33.nn
+rm -Rf mbsebbs-0.nn.nn
 </pre>
 <p>&nbsp;<p>
 
@@ -146,12 +148,12 @@ rm -Rf mbsebbs-0.33.nn
 Login as user <b>mbse</b>. Yes, very important, <b>login as user mbse</b>.
 While in mbse's home directory (/opt/mbse) unpack the distribution archives:
 <pre>
-tar xfvz /path/to/mbsebbs-0.33.nn.tar.gz
+tar xfvz /path/to/mbsebbs-0.nn.nn.tar.gz
 </pre>
 You now have the subdirectory with sources in the right place. 
 Next build the binaries and install them using the folowing commands:
 <pre>
-cd ~/mbsebbs-0.33.nn
+cd ~/mbsebbs-0.nn.nn
 ./configure
 make
 su        <b>important, do not use "su -"</b>

@@ -4,7 +4,7 @@
 
 include ../Makefile.global
 
-H_BASE		= basic.html date.html dist.html manual.css \
+H_BASE		= basic.html dist.html manual.css \
 		  flow.html postfix.html index.htm ups.html \
 		  intergate.html intro.html invoking.html faq.html \
 		  known_bugs.html mgetty.html routing.html nodelist.html
@@ -30,7 +30,7 @@ H_IMAGES	= images/b_arrow.gif  images/magic.gif        images/nodes1.png \
 		  images/e_menu.png   images/mbsetup1.6.gif   images/nodes4.gif \
 		  images/emareas.gif  images/mbsetup2.gif     images/nodes5.gif \
 		  images/nodes6.gif   images/nodes7.png       images/nodes8.png \
-		  images/nodes9.png  \
+		  images/nodes9.png   images/nodes10.png \
 		  images/emgroup.gif  images/modems0.gif      images/oneliner.gif \
 		  images/fdb.gif      images/newfiles.gif     images/protocol.gif \
 		  images/fegroup.gif  images/newgroups.gif    images/rarrow.gif \
