@@ -1,3 +1,6 @@
+# $Id$
+#
+
 BEGIN	{
 		print "#include \"libs.h\""
 		print "#include \"structs.h\""

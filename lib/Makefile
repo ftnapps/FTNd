@@ -51,7 +51,7 @@ TARGET		= libclcomm.a libcommon.a libdbase.a libmsgbase.a libmbinet.a libdiesel.
 
 all:		${TARGET}
 
-ftscprod.c:	ftscprod.???
+ftscprod.c:	ftscprod.??? mkprod.awk
 		${AWK} -F, -f mkprod.awk ftscprod.??? >ftscprod.c
 
 libclcomm.a:	${CLCOMM_OBJS}
