@@ -13,7 +13,7 @@ HDRS		= callstat.h mbtask.h outstat.h signame.h taskdisk.h taskregs.h  taskutil.
 OBJS		= callstat.o scanout.o taskcomm.o taskinfo.o taskstat.o \
 		  mbtask.o outstat.o signame.o taskdisk.o taskregs.o taskutil.o \
 		  ports.o calllist.o ping.o taskchat.o crc.o
-LIBS		+= ../lib/libnodelist.a
+SLIBS		= ../lib/libnodelist.a
 OTHER		= Makefile issue issue.netbsd
 
 #############################################################################
@@ -23,8 +23,8 @@ OTHER		= Makefile issue issue.netbsd
 
 all:		mbtask
 
-mbtask:		${OBJS} ${LIBS}
-		${CC} ${CFLAGS} -o mbtask ${OBJS} ${LDFLAGS} ${LIBS}
+mbtask:		${OBJS} ${SLIBS}
+		${CC} ${CFLAGS} -o mbtask ${OBJS} ${LDFLAGS} ${LIBS} ${LIBS}
 
 clean:
 		rm -f mbtask *.o *.h~ *.c~ version.* core filelist Makefile.bak
@@ -33,7 +33,7 @@ install:	all
 		@if [ "`id -un`" != "root" ] ; then \
 			echo; echo " Must be root to install!"; echo; exit 3; \
 		fi
-		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6700 mbtask   ${BINDIR}
+		${INSTALL} -c -s -o ${ROWNER} -g ${RGROUP} -m 6711 mbtask   ${BINDIR}
 		@if [ ! -f ${ETCDIR}/issue ]; then \
 			${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR} ; \
 			echo "${INSTALL} -c -o ${OWNER} -g ${GROUP} -m 0644 issue  ${ETCDIR}"; \
