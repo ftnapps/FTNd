@@ -1596,373 +1596,365 @@ void OLR_DownBW()
  */
 void BlueWave_Fetch()
 {
-	char		*temp;
-	char		*buffer,*b;
-	FILE		*up, *mf, *tp, *iol;
-	UPL_HEADER	Uph;
-	UPL_REC		Upr;
-	PDQ_HEADER	Pdh;
-	PDQ_REC		Pdr;
-	REQ_REC		Req;
-	int		i, Found, OLC_head, OLC_filter, OLC_macro, OLC_keyword, HEAD_written;
-	fidoaddr	dest;
+    char	*temp;
+    char	*buffer,*b;
+    FILE	*up, *mf, *tp, *iol;
+    UPL_HEADER	Uph;
+    UPL_REC	Upr;
+    PDQ_HEADER	Pdh;
+    PDQ_REC	Pdr;
+    REQ_REC	Req;
+    int		i, Found, OLC_head, OLC_filter, OLC_macro, OLC_keyword, HEAD_written;
+    fidoaddr	dest;
+    time_t	now;
+    struct tm	*tm;
 
-	colour(9, 0);
-	/*      Processing BlueWave reply packet */
-	printf("%s\n", (char *)Language(450));
-	temp = calloc(PATH_MAX, sizeof(char));
-	b = calloc(255, sizeof(char));
-	buffer = b;
+    colour(9, 0);
+    /*      Processing BlueWave reply packet */
+    printf("%s\n", (char *)Language(450));
+    temp = calloc(PATH_MAX, sizeof(char));
+    b = calloc(255, sizeof(char));
+    buffer = b;
+    /*
+     *  Process uploaded mail
+     */
+    sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((up = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	up = fopen(temp, "r");
+    }
+    if (up != NULL) {
+	fread(&Uph, sizeof(UPL_HEADER), 1, up);
+	Syslog('+', "Processing BlueWave .UPL file");
+	Syslog('+', "Client: %s %d.%d", Uph.reader_name, Uph.reader_major, Uph.reader_minor);
+	if (Uph.upl_header_len != sizeof(UPL_HEADER)) {
+	    WriteError("Recordsize mismatch");
+	    fclose(up);
+	    /*      ERROR in packet */
+	    printf("%s\n", (char *)Language(451));
+	    Pause();
+	    return;
+	}
+	Syslog('+', "Login %s, Alias %s", Uph.loginname, Uph.aliasname);
+	Syslog('m', "Tear: %s", Uph.reader_tear);
+	/* MORE CHECKS HERE */
+
+	colour(CFG.TextColourF, CFG.TextColourB);
+	/*      Import messages  */
+	printf("%s ", (char *)Language(452));
+	colour(CFG.HiliteF, CFG.HiliteB);
+	fflush(stdout);
+	i = 0;
+
+	memset(&Upr, 0, sizeof(UPL_REC));
+	while (fread(&Upr, Uph.upl_rec_len, 1, up) == 1) {
+	    printf(".");
+	    fflush(stdout);
+	    Syslog('m', "  From  : %s", Upr.from);
+	    Syslog('m', "  To    : %s", Upr.to);
+	    Syslog('m', "  Subj  : %s", Upr.subj);
+	    now = Upr.unix_date;
+	    tm = gmtime(&now);
+	    Syslog('m', "  Date  : %02d-%02d-%d %02d:%02d:%02d", tm->tm_mday, tm->tm_mon+1, 
+		    tm->tm_year+1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
+	    Syslog('m', "  Dest  : %d:%d/%d.%d", Upr.destzone, Upr.destnet, Upr.destnode, Upr.destpoint);
+	    if (Upr.msg_attr & UPL_INACTIVE)
+		Syslog('m', "  Message is Inactive");
+	    if (Upr.msg_attr & UPL_PRIVATE)
+		Syslog('m', "  Message is Private");
+	    if (Upr.msg_attr & UPL_HAS_FILE)
+		Syslog('m', "  File Attach");
+	    if (Upr.msg_attr & UPL_NETMAIL)
+		Syslog('m', "  Is Netmail");
+	    if (Upr.msg_attr & UPL_IS_REPLY)
+		Syslog('m', "  Is Reply");
+	    if (Upr.network_type)
+		Syslog('m', "  Type  : Internet");
+	    else
+		Syslog('m', "  Type  : Fidonet");
+	    Syslog('m', "  File  : %s", Upr.filename);
+	    Syslog('m', "  Tag   : %s", Upr.echotag);
+
+	    sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
+	    if ((mf = fopen(temp, "r+")) != NULL) {
+		fread(&msgshdr, sizeof(msgshdr), 1, mf);
+		Found = FALSE;
+
+		if (strlen(Upr.echotag)) {
+		    while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+			fseek(mf, msgshdr.syssize, SEEK_CUR);
+			if (msgs.Active && (strcasecmp(msgs.QWKname, Upr.echotag) == 0)) {
+			    Found = TRUE;
+			    break;
+			}
+		    }
+		} else {
+		    /*
+		     *  If there is no echotag, the filename is used
+		     *  this is "areanum.msgnum" so we pick the part
+		     *  before the dot and pray that it's ok.
+		     */
+		    temp = strtok(strdup(Upr.filename), ".");
+		    if (fseek(mf, ((atoi(temp) -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0)
+			if (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
+			    Found = TRUE;
+			    fseek(mf, msgshdr.syssize, SEEK_CUR);
+			}
+		}
+
+		/* SHOULD ALSO CHECK FROM FIELD */
+		if (!Found) {
+		    WriteError("No msg area, File \"%s\"", Upr.filename);
+		} else {
+		    if ((Access(exitinfo.Security, msgs.WRSec)) && (msgs.MsgKinds != RONLY)) {
+
+			if (Open_Msgbase(msgs.Base, 'w')) {
+			    Msg_New();
+			    strcpy(Msg.From, Upr.from);
+			    strcpy(Msg.To, Upr.to);
+			    strcpy(Msg.Subject, Upr.subj);
+			    if (Upr.msg_attr & UPL_PRIVATE)
+				Msg.Private = TRUE;
+			    if (msgs.MsgKinds == PRIVATE)
+				Msg.Private = TRUE;
+			    Msg.Written = Upr.unix_date;
+			    Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
+			    Msg.Local  = TRUE;
+			    dest.zone  = Upr.destzone;
+			    dest.net   = Upr.destnet;
+			    dest.node  = Upr.destnode;
+			    dest.point = Upr.destpoint;
+			    Add_Kludges(dest, FALSE, Upr.filename);
+			    Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
+			    sprintf(temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
+			    unlink(temp);
+			    i++;
+			    Close_Msgbase();
+			    fseek(mf, - (msgshdr.recsize + msgshdr.syssize), SEEK_CUR);
+			    msgs.Posted.total++;
+			    msgs.Posted.tweek++;
+			    msgs.Posted.tdow[Diw]++;
+			    msgs.Posted.month[Miy]++;
+			    msgs.LastPosted = time(NULL);
+			    fwrite(&msgs, msgshdr.recsize, 1, mf);
+			}
+		    } else {
+			/*        No Write access to area */
+			printf("\n%s %s\n", (char *)Language(453), msgs.Name);
+			WriteError("No Write Access to area %s", msgs.Name);
+		    }
+		}
+		fclose(mf);
+	    }
+	    memset(&Upr, 0, sizeof(UPL_REC));
+	}
+	printf("\n");
+	colour(CFG.TextColourF, CFG.TextColourB);
+	if (i) {
+	    /*         Messages imported */
+	    printf("%d %s\n", i, (char *)Language(454));
+	    ReadExitinfo();
+	    exitinfo.iPosted += i;
+	    WriteExitinfo();
+	    do_mailout = TRUE;
+	}
+	fflush(stdout);
+	fclose(up);
+
 	/*
-	 *  Process uploaded mail
+	 *  Remove processed files.
 	 */
 	sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((up = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		up = fopen(temp, "r");
-	}
-	if (up != NULL) {
-		fread(&Uph, sizeof(UPL_HEADER), 1, up);
-		Syslog('+', "Processing BlueWave .UPL file");
-		Syslog('+', "Client: %s %d.%d", Uph.reader_name, Uph.reader_major, Uph.reader_minor);
-		if (Uph.upl_header_len != sizeof(UPL_HEADER)) {
-			WriteError("Recordsize mismatch");
-			fclose(up);
-			/*      ERROR in packet */
-			printf("%s\n", (char *)Language(451));
-			Pause();
-			return;
-		}
-		Syslog('+', "Login %s, Alias %s", Uph.loginname, Uph.aliasname);
-		/* MORE CHECKS HERE */
-
-		colour(CFG.TextColourF, CFG.TextColourB);
-		/*      Import messages  */
-		printf("%s ", (char *)Language(452));
-		colour(CFG.HiliteF, CFG.HiliteB);
-		fflush(stdout);
-		i = 0;
-
-		memset(&Upr, 0, sizeof(UPL_REC));
-		while (fread(&Upr, Uph.upl_rec_len, 1, up) == 1) {
-			printf(".");
-			fflush(stdout);
-			Syslog('m', "  From  : %s", Upr.from);
-			Syslog('m', "  To    : %s", Upr.to);
-			Syslog('m', "  Subj  : %s", Upr.subj);
-			Syslog('m', "  Date  : %ld", Upr.unix_date);
-			Syslog('m', "  Dest  : %d:%d/%d.%d", Upr.destzone, Upr.destnet, Upr.destnode, Upr.destpoint);
-			if (Upr.msg_attr & UPL_INACTIVE)
-				Syslog('m', "  Message is Inactive");
-			if (Upr.msg_attr & UPL_PRIVATE)
-				Syslog('m', "  Message is Private");
-			if (Upr.msg_attr & UPL_HAS_FILE)
-				Syslog('m', "  File Attach");
-			if (Upr.msg_attr & UPL_NETMAIL)
-				Syslog('m', "  Is Netmail");
-			if (Upr.msg_attr & UPL_IS_REPLY)
-				Syslog('m', "  Is Reply");
-			if (Upr.network_type)
-				Syslog('m', "  Type  : Internet");
-			else
-				Syslog('m', "  Type  : Fidonet");
-			Syslog('m', "  File  : %s", Upr.filename);
-			Syslog('m', "  Tag   : %s", Upr.echotag);
-
-			sprintf(temp, "%s/etc/mareas.data", getenv("MBSE_ROOT"));
-			if ((mf = fopen(temp, "r+")) != NULL) {
-				fread(&msgshdr, sizeof(msgshdr), 1, mf);
-				Found = FALSE;
-
-				if (strlen(Upr.echotag)) {
-					while (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-						fseek(mf, msgshdr.syssize, SEEK_CUR);
-						if (msgs.Active && (strcasecmp(msgs.QWKname, Upr.echotag) == 0)) {
-							Found = TRUE;
-							break;
-						}
-					}
-				} else {
-					/*
-					 *  If there is no echotag, the filename is used
-					 *  this is "areanum.msgnum" so we pick the part
-					 *  before the dot and pray that it's ok.
-					 */
-					temp = strtok(strdup(Upr.filename), ".");
-					if (fseek(mf, ((atoi(temp) -1) * (msgshdr.recsize + msgshdr.syssize)) + msgshdr.hdrsize, SEEK_SET) == 0)
-						if (fread(&msgs, msgshdr.recsize, 1, mf) == 1) {
-							Found = TRUE;
-							fseek(mf, msgshdr.syssize, SEEK_CUR);
-						}
-				}
-
-				/* SHOULD ALSO CHECK FROM FIELD */
-				if (!Found) {
-					WriteError("No msg area, File \"%s\"", Upr.filename);
-				} else {
-					if ((Access(exitinfo.Security, msgs.WRSec)) && (msgs.MsgKinds != RONLY)) {
-
-						if (Open_Msgbase(msgs.Base, 'w')) {
-							Msg_New();
-							Syslog('m', "Msgbase open and locked");
-							strcpy(Msg.From, Upr.from);
-							strcpy(Msg.To, Upr.to);
-							strcpy(Msg.Subject, Upr.subj);
-							if (Upr.msg_attr & UPL_PRIVATE)
-								Msg.Private = TRUE;
-							if (msgs.MsgKinds == PRIVATE)
-								Msg.Private = TRUE;
-							Msg.Written = Upr.unix_date;
-							Msg.Arrived = time(NULL) - (gmt_offset((time_t)0) * 60);
-							Msg.Local  = TRUE;
-							dest.zone  = Upr.destzone;
-							dest.net   = Upr.destnet;
-							dest.node  = Upr.destnode;
-							dest.point = Upr.destpoint;
-							Syslog('m', "Header fields are set, starting kludges");
-							Add_Kludges(dest, FALSE, Upr.filename);
-							Syslog('+', "Msg (%ld) to \"%s\", \"%s\", in %s", Msg.Id, Msg.To, Msg.Subject, msgs.QWKname);
-							sprintf(temp, "%s/%s/%s", CFG.bbs_usersdir, exitinfo.Name, Upr.filename);
-							unlink(temp);
-							i++;
-							Close_Msgbase();
-							Syslog('m', "Msgbase closed again");
-							fseek(mf, - (msgshdr.recsize + msgshdr.syssize), SEEK_CUR);
-							msgs.Posted.total++;
-							msgs.Posted.tweek++;
-							msgs.Posted.tdow[Diw]++;
-							msgs.Posted.month[Miy]++;
-							msgs.LastPosted = time(NULL);
-							fwrite(&msgs, msgshdr.recsize, 1, mf);
-						}
-					} else {
-						/*        No Write access to area */
-						printf("\n%s %s\n", (char *)Language(453), msgs.Name);
-						WriteError("No Write Access to area %s", msgs.Name);
-					}
-				}
-				fclose(mf);
-			}
-			memset(&Upr, 0, sizeof(UPL_REC));
-		}
-		printf("\n");
-		colour(CFG.TextColourF, CFG.TextColourB);
-		if (i) {
-			/*         Messages imported */
-			printf("%d %s\n", i, (char *)Language(454));
-			ReadExitinfo();
-			exitinfo.iPosted += i;
-			WriteExitinfo();
-			do_mailout = TRUE;
-		}
-		fflush(stdout);
-		fclose(up);
-
-		/*
-		 *  Remove processed files.
-		 */
-		sprintf(temp, "%s/%s/%s.UPL", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		unlink(temp);
-		temp = tl(temp);
-		unlink(temp);
-		sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		unlink(temp);
-		temp = tl(temp);
-		unlink(temp);
-		sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		unlink(temp);
-		temp = tl(temp);
-		unlink(temp);
-	}
-
-	/*
-	 * If a .UPL file was not found it is possible we received an version 2
-	 * reply packet.
-	 */
+	unlink(temp);
+	temp = tl(temp);
+	unlink(temp);
 	sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((up = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		up = fopen(temp, "r");
-	}
-	if (up != NULL) {
-		Syslog('+', "Received Version 2 .UPI packet, not supported");
-		fclose(up);
-	}
+	unlink(temp);
+	temp = tl(temp);
+	unlink(temp);
 	sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((up = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		up = fopen(temp, "r");
-	}
-	if (up != NULL) {
-		Syslog('+', "Received Version 2 .NET packet, not supported");
-		fclose(up);
-	}
+	unlink(temp);
+	temp = tl(temp);
+	unlink(temp);
+    }
 
+    /*
+     * If a .UPL file was not found it is possible we received an version 2
+     * reply packet.
+     */
+    sprintf(temp, "%s/%s/%s.UPI", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((up = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	up = fopen(temp, "r");
+    }
+    if (up != NULL) {
+	Syslog('+', "Received Version 2 .UPI packet, not supported");
+	fclose(up);
+    }
+    sprintf(temp, "%s/%s/%s.NET", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((up = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	up = fopen(temp, "r");
+    }
+    if (up != NULL) {
+	Syslog('+', "Received Version 2 .NET packet, not supported");
+	fclose(up);
+    }
+
+    /*
+     *  Process offline configuration
+     */
+    sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+    if ((iol = fopen(temp, "r")) == NULL) {
+	temp = tl(temp);
+	iol = fopen(temp, "r");
+    }
+    if (iol != NULL) {
 	/*
-	 *  Process offline configuration
+	 *   If .OLC file found convert it in .PDQ
 	 */
-	 
-	sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-	if ((iol = fopen(temp, "r")) == NULL) {
-		temp = tl(temp);
-		iol = fopen(temp, "r");
-	}
-	if (iol != NULL) {
-		/*
-		*   If .OLC file found convert it in .PDQ
-		*/
-		sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		Syslog('+', "Converting BW/v3 .OLC file to %s",temp);
-		if (( tp = fopen(temp, "w")) != NULL) {
-			HEAD_written=FALSE;
-			OLC_head=FALSE;
-			OLC_filter=OLC_macro=OLC_keyword=0;
-			memset(&Pdh,0,sizeof(PDQ_HEADER));
-			Syslog('f', "%s Opened for writing", temp);
-			while(fgets(b,255,iol) != NULL ){
-			        buffer=b;
-				while (isspace(buffer[0]))
+	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	Syslog('+', "Converting BW/v3 .OLC file to %s",temp);
+	if (( tp = fopen(temp, "w")) != NULL) {
+	    HEAD_written=FALSE;
+	    OLC_head=FALSE;
+	    OLC_filter=OLC_macro=OLC_keyword=0;
+	    memset(&Pdh,0,sizeof(PDQ_HEADER));
+	    Syslog('f', "%s Opened for writing", temp);
+	    while (fgets(b,255,iol) != NULL ){
+	        buffer=b;
+		while (isspace(buffer[0]))
 				    buffer++;
-				Syslog('m', "Reading: %s ", buffer);
-				if ( ( strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ){
-				   OLC_head=TRUE;
-				   continue;
-				}else{   
-					if (buffer[0]=='['){
-					   strtok(buffer,"]");
-					   buffer++;
-					   OLC_head=FALSE;
-					   strncpy(Pdr.echotag,buffer,20);
-					   continue;
-					}
-				}
-				if (OLC_head == TRUE){
-				   if (strncasecmp(buffer,"AreaChanges",11)==0){ 
-				      buffer+=11; 
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      if ((strncasecmp(buffer,"TRUE",4)==0) 
-				      || (strncasecmp(buffer,"YES",3)==0)
-				      || (strncasecmp(buffer,"ON",2)==0))
-				      	 Pdh.flags |= PDQ_AREA_CHANGES;
-				      continue;
-				   }
-				   if (strncasecmp(buffer,"MenuHotKeys",11)==0){ 
-				      buffer+=11; 
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      if ((strncasecmp(buffer,"TRUE",4)==0) 
-				      || (strncasecmp(buffer,"YES",3)==0)
-				      || (strncasecmp(buffer,"ON",2)==0))
-				      	 Pdh.flags |= PDQ_HOTKEYS;
-				      continue;
-			  	   }
-				   if ( (strncasecmp(buffer,"ExpertMenus",11)==0)){ 
-				      buffer+=11; 
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      if ((strncasecmp(buffer,"TRUE",4)==0) 
-				      || (strncasecmp(buffer,"YES",3)==0)
-				      || (strncasecmp(buffer,"ON",2)==0))
-				      	 Pdh.flags |= PDQ_XPERT;
-				      continue;
-				   }
-				   if (strncasecmp(buffer,"SkipUserMsgs",12)==0){ 
-				      buffer+=12; 
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      if ((strncasecmp(buffer,"TRUE",4)==0) 
-				      || (strncasecmp(buffer,"YES",3)==0)
-				      || (strncasecmp(buffer,"ON",2)==0))
-				      	 Pdh.flags |= PDQ_NOT_MY_MAIL;
-				      continue;
-				   }
-				   if (strncasecmp(buffer,"DoorGraphics",12)==0){ 
-				      buffer+=12; 
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      if ((strncasecmp(buffer,"TRUE",4)==0) 
-				      || (strncasecmp(buffer,"YES",3)==0)
-				      || (strncasecmp(buffer,"ON",2)==0))
-				      	 Pdh.flags |= PDQ_GRAPHICS;
-				      continue;
-				   }
-				   if (strncasecmp(buffer,"Password",8)==0){
-				      buffer+=8;
-				      while (isspace(buffer[0]) || buffer[0]=='=')
-					      buffer++;
-				      Pdh.passtype=0;
-				      if(strncasecmp(buffer,"Door",4)==0)
-				         Pdh.passtype=1;
-				      if(strncasecmp(buffer,"Reader",6)==0)
-				         Pdh.passtype=2;
-				      if(strncasecmp(buffer,"Both",4)==0)
-				         Pdh.passtype=3;
-				      while(buffer[0] != ',' && buffer[0] !='\0')
-				        buffer++;
-				      if ( Pdh.passtype != 0 ){
-					      while (isspace(buffer[0])); 
-					      	buffer++;
-					      strncpy(Pdh.password,buffer,20);
-				      }
-				      continue;
-				   }
-				   if (strncasecmp(buffer,"Filter",6)==0){
-					buffer+=6;
-					while (isspace(buffer[0]) || buffer[0]=='=') 
-						buffer++;
-				        strncpy(Pdh.filters[OLC_filter],buffer,20);
-				        OLC_filter++;
-				        continue;
-				   }
-				   if (strncasecmp(buffer,"Keyword",7)==0){
-					buffer+=7;
-					while (isspace(buffer[0]) || buffer[0]=='=') 
-						buffer++;
-				        strncpy(Pdh.keywords[OLC_keyword],buffer,20);
-				        OLC_keyword++;
-				        continue;
-				   }
-				   if (strncasecmp(buffer,"Macro=",5)==0){
-					buffer+=5;
-					while (isspace(buffer[0]) || buffer[0]=='=') 
-						buffer++;
-				        strncpy(Pdh.macros[OLC_macro],buffer,20);
-				        OLC_macro++;
-				        continue;
-				   }
-				continue;
-				}
-				if (strncasecmp(buffer,"Scan",4) == 0){
-				   buffer+=4;
-				   while (isspace(buffer[0]) || buffer[0]=='=') 
-					buffer++;
-				   if ((strncasecmp(buffer,"All",3)==0) 
-				   || (strncasecmp(buffer,"Pers",4)==0)){
-				   	if ( HEAD_written == FALSE ){
-				      		fwrite(&Pdh,sizeof(PDQ_HEADER),1,tp);
-				      		Syslog('m', "Writting PDQ header...");
-				      		HEAD_written = TRUE;
-				   	}
-				        if (strlen(Pdr.echotag) > 0){
-					   fwrite(&Pdr,sizeof(PDQ_REC),1,tp);
-					   Syslog('m', "Writting PDQ record: %s", Pdr.echotag);
-					   memset(&Pdr,0,sizeof(PDQ_REC));
-				        }
-				   }
-				}
+		Syslog('m', "Reading: %s ", buffer);
+		if (( strncasecmp(buffer,"[Global",7) == 0) && (strlen(buffer) > 22) ){
+		   OLC_head=TRUE;
+		   continue;
+		}else{   
+		    if (buffer[0]=='['){
+			strtok(buffer,"]");
+			buffer++;
+			OLC_head=FALSE;
+			strncpy(Pdr.echotag,buffer,20);
+			continue;
+		    }
+		}
+		if (OLC_head == TRUE){
+		    if (strncasecmp(buffer,"AreaChanges",11)==0){ 
+			buffer+=11; 
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			    Pdh.flags |= PDQ_AREA_CHANGES;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"MenuHotKeys",11)==0){ 
+			buffer+=11; 
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			    Pdh.flags |= PDQ_HOTKEYS;
+			continue;
+		    }
+		    if ( (strncasecmp(buffer,"ExpertMenus",11)==0)){ 
+			buffer+=11; 
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			    Pdh.flags |= PDQ_XPERT;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"SkipUserMsgs",12)==0){ 
+			buffer+=12; 
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			    Pdh.flags |= PDQ_NOT_MY_MAIL;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"DoorGraphics",12)==0){ 
+			buffer+=12; 
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			if ((strncasecmp(buffer,"TRUE",4)==0) || (strncasecmp(buffer,"YES",3)==0) || (strncasecmp(buffer,"ON",2)==0))
+			    Pdh.flags |= PDQ_GRAPHICS;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"Password",8)==0){
+			buffer+=8;
+			while (isspace(buffer[0]) || buffer[0]=='=')
+			    buffer++;
+			Pdh.passtype=0;
+			if(strncasecmp(buffer,"Door",4)==0)
+			    Pdh.passtype=1;
+			if(strncasecmp(buffer,"Reader",6)==0)
+			    Pdh.passtype=2;
+			if(strncasecmp(buffer,"Both",4)==0)
+			    Pdh.passtype=3;
+			while(buffer[0] != ',' && buffer[0] !='\0')
+			    buffer++;
+			if ( Pdh.passtype != 0 ){
+			    while (isspace(buffer[0])); 
+				buffer++;
+			    strncpy(Pdh.password,buffer,20);
 			}
-			fclose(tp);
-		}else{
-			WriteError("Unable to convert .OLC file to %s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-			Syslog('?', "Unable to convert .OLC file to %s/%s/%s.PDQ",CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		}			
-		fclose(iol);		
-		sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
-		unlink(temp);
-		temp = tl(temp);
-		unlink(temp);
-        }
+			continue;
+		    }
+		    if (strncasecmp(buffer,"Filter",6)==0){
+			buffer+=6;
+			while (isspace(buffer[0]) || buffer[0]=='=') 
+			    buffer++;
+			strncpy(Pdh.filters[OLC_filter],buffer,20);
+			OLC_filter++;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"Keyword",7)==0){
+			buffer+=7;
+			while (isspace(buffer[0]) || buffer[0]=='=') 
+			    buffer++;
+			strncpy(Pdh.keywords[OLC_keyword],buffer,20);
+			OLC_keyword++;
+			continue;
+		    }
+		    if (strncasecmp(buffer,"Macro=",5)==0){
+			buffer+=5;
+			while (isspace(buffer[0]) || buffer[0]=='=') 
+			    buffer++;
+			strncpy(Pdh.macros[OLC_macro],buffer,20);
+			OLC_macro++;
+			continue;
+		    }
+		    continue;
+		}
+		if (strncasecmp(buffer,"Scan",4) == 0){
+		    buffer+=4;
+		    while (isspace(buffer[0]) || buffer[0]=='=') 
+			buffer++;
+		    if ((strncasecmp(buffer,"All",3)==0) || (strncasecmp(buffer,"Pers",4)==0)){
+			if ( HEAD_written == FALSE ){
+			    fwrite(&Pdh,sizeof(PDQ_HEADER),1,tp);
+			    Syslog('m', "Writting PDQ header...");
+			    HEAD_written = TRUE;
+			}
+			if (strlen(Pdr.echotag) > 0){
+			    fwrite(&Pdr,sizeof(PDQ_REC),1,tp);
+			    Syslog('m', "Writting PDQ record: %s", Pdr.echotag);
+			    memset(&Pdr,0,sizeof(PDQ_REC));
+			}
+		    }
+		}
+	    }
+	    fclose(tp);
+	} else {
+	    WriteError("Unable to convert .OLC file to %s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	    Syslog('?', "Unable to convert .OLC file to %s/%s/%s.PDQ",CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	}			
+	fclose(iol);		
+	sprintf(temp, "%s/%s/%s.OLC", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
+	unlink(temp);
+	temp = tl(temp);
+	unlink(temp);
+    }
+
 	sprintf(temp, "%s/%s/%s.PDQ", CFG.bbs_usersdir, exitinfo.Name, CFG.bbsid);
 	if ((tp = fopen(temp, "r")) == NULL) {
 		temp = tl(temp);
