@@ -232,7 +232,8 @@ void E_F(long areanr)
 		fread(&fdb, fdbhdr.recsize, 1, fil);
 		crc = 0xffffffff;
 		crc = upd_crc32((char *)&fdb, crc, fdbhdr.recsize);
-
+		o = ((atoi(menu) - 1) / 10) * 10;
+				
 		sprintf(temp, "%s/%s", area.Path, fdb.LName);
 		EditFile();
 

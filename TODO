@@ -162,7 +162,3 @@ mbsetup:
 
 	N: When a message area is deleted, delete the rulesfile too.
 
-	N: In files browsing (menu 14) after leaving a file edit, show the
-	   group of 10 files where that file was in.
-
-
