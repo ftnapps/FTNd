@@ -219,7 +219,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	 * No records yet, simply append this first record.
 	 */
 	Syslog('f', "append first record");
-	fwrite(&frec, sizeof(frec), 1, fdb_area->fp);
+	fwrite(&frec, fdbhdr.recsize, 1, fdb_area->fp);
 	mbsedb_UnlockFDB(fdb_area);
 	return TRUE;
     }
@@ -260,7 +260,7 @@ int mbsedb_InsertFDB(struct _fdbarea *fdb_area, struct FILE_record frec, int Add
 	 * Copy entries untill the insert point.
 	 */
 	for (i = 0; i < Insert; i++) {
-	    fread(&fdb, fdbhdr.hdrsize, 1, fdb_area->fp);
+	    fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp);
 	    /*
 	     * If we see a magic that is the new magic, remove
 	     * the old one.
