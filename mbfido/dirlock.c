@@ -130,7 +130,9 @@ void ulockdir(char *directory)
     sprintf(lockfile + strlen(lockfile), "%s", LCKNAME);
 
     if ((fp = fopen(lockfile, "r")) == NULL) {
-	Syslog('-', "Lockfile \"%s\" doesn't exist", lockfile);
+	/*
+	 * No lockfile found, so not removed.
+	 */
 	free(lockfile);
 	return;
     }
@@ -141,6 +143,9 @@ void ulockdir(char *directory)
 	if (getpid() != oldpid) {
 	    WriteError("Attempt to remove lock %s of pid %d", lockfile, oldpid);
 	} else {
+	    /*
+	     * Only remove our own lock.
+	     */
 	    unlink(lockfile);
 	}
     }
