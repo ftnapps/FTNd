@@ -195,7 +195,7 @@ mbfmove.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h
 mbfdel.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mbfutil.h mbfmove.h
 bounce.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h ../lib/msgtext.h ../lib/mbsedb.h sendmail.h postnetmail.h ping.h
 createm.o: ../config.h ../lib/mbselib.h ../lib/msg.h ../lib/users.h ../lib/mbsedb.h mgrutil.h createm.h
-createf.o: ../config.h ../lib/mbselib.h mgrutil.h createf.h
+createf.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h mgrutil.h createf.h
 msgflags.o: ../config.h ../lib/mbselib.h msgflags.h
 dirsession.o: ../config.h ../lib/mbselib.h dirsession.h
 queue.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h fsort.h dirsession.h queue.h

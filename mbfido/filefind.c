@@ -245,12 +245,17 @@ void ScanFiles(ff_list *);
 void ScanFiles(ff_list *tmp)
 {
     char	    *temp, *kwd, *BigDesc, *line;
-    FILE	    *pAreas, *pFile, *fi;
+    FILE	    *pAreas, *fi;
     unsigned long   areanr = 0, found = 0, SubSize = 0;
     int		    i, j, k, keywrd, Found;
     rf_list	    *rfl = NULL, *rft;
     int		    Rep = 0, Sub = 0, Stop = FALSE;
     long	    filepos, filepos1 = 0, filepos2 = 0, filepos3 = 0, filepos4 = 0;
+#ifdef	USE_EXPERIMENT
+    struct _fdbarea *fdb_area = NULL;
+#else
+    FILE	    *pFile;
+#endif
 
     /*
      *  Check for local generated requests.
@@ -291,11 +296,15 @@ void ScanFiles(ff_list *tmp)
 		Back(15);
 	    }
 	    if (area.Available && area.FileFind) {
+#ifdef	USE_EXPERIMENT
+		if ((fdb_area = mbsedb_OpenFDB(areanr, 30))) {
+		    while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1) {
+#else
 		sprintf(temp, "%s/fdb/file%lu.data", getenv("MBSE_ROOT"), areanr);
 		if ((pFile = fopen(temp, "r")) != NULL) {
-
 		    fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
 		    while (fread(&fdb, fdbhdr.recsize, 1, pFile) == 1) {
+#endif
 			for (i = 0; i < 25; i++)
 			    sprintf(BigDesc, "%s%s", BigDesc, *(fdb.Desc + i));
 			sprintf(temp, "%s", tmp->subject);
@@ -350,8 +359,11 @@ void ScanFiles(ff_list *tmp)
 			}
 			strcpy(BigDesc, "");
 		    }
-
+#ifdef	USE_EXPERIMENT
+		    mbsedb_CloseFDB(fdb_area);
+#else
 		    fclose(pFile);
+#endif
 		} else
 		    WriteError("$Can't open %s", temp);
 	    }
@@ -405,6 +417,13 @@ void ScanFiles(ff_list *tmp)
 			areanr = rft->area;
 		    }
 
+#ifdef	USE_EXPERIMENT
+		    if ((fdb_area = mbsedb_OpenFDB(rft->area, 30))) {
+			while (fread(&fdb, fdbhdr.recsize, 1, fdb_area->fp) == 1)
+			    if (!strcmp(rft->filename, fdb.Name))
+				break;
+			mbsedb_CloseFDB(fdb_area);
+#else
 		    sprintf(temp, "%s/fdb/file%lu.data", getenv("MBSE_ROOT"), rft->area);
 		    if ((pFile = fopen(temp, "r")) != NULL) {
 			fread(&fdbhdr, sizeof(fdbhdr), 1, pFile);
@@ -412,6 +431,7 @@ void ScanFiles(ff_list *tmp)
 			    if (!strcmp(rft->filename, fdb.Name))
 				break;
 			fclose(pFile);
+#endif
 			MacroVars("slbkdt", "ssddss", fdb.Name, fdb.LName, fdb.Size, fdb.Size / 1024, " ",
 					To_Low(fdb.Desc[0],scanmgr.HiAscii));
 			fseek(fi, filepos1, SEEK_SET);
