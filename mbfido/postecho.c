@@ -374,7 +374,7 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj,
 		 * When ready filter dupe's, there is at least one.
 		 */
 		for (i = 0; i < 40; i++) {
-			if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) &&
+			if (CFG.akavalid[i] && (msgs.Aka.zone == CFG.aka[i].zone) && (CFG.aka[i].point == 0) &&
 			    !((msgs.Aka.net == CFG.aka[i].net) && (msgs.Aka.node == CFG.aka[i].node))) {
 				sprintf(sbe, "%u/%u", CFG.aka[i].net, CFG.aka[i].node);
 				fill_list(&sbl, sbe, NULL);

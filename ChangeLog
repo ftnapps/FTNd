@@ -4679,6 +4679,7 @@ v0.33.20        10-Feb-2002
 		address was created.
 		The mbfido news functions doesn't abort anymore when a 
 		newsgroup didn't exist.
+		For points in echomail no seen-by entry is added.
 
 	mball:
 		Will not crash anymore when it needs more then 10 minutes to

@@ -261,6 +261,7 @@ void ScanFull()
 									for (i = 0; i < 40; i++) {
 										if (CFG.akavalid[i] &&
 										    (msgs.Aka.zone == CFG.aka[i].zone) &&
+										    (CFG.aka[i].point == 0) &&
 										    !((msgs.Aka.net == CFG.aka[i].net) &&
 										    (msgs.Aka.node == CFG.aka[i].node))) {
 											sprintf(sbe, "%u/%u", CFG.aka[i].net,
@@ -413,6 +414,7 @@ void ScanOne(char *path, unsigned long MsgNum)
 								for (i = 0; i < 40; i++) {
 									if (CFG.akavalid[i] && 
 									    (msgs.Aka.zone == CFG.aka[i].zone) &&
+									    (CFG.aka[i].point == 0) &&
 									    !((msgs.Aka.net == CFG.aka[i].net) && 
 									      (msgs.Aka.node == CFG.aka[i].node))) {
 										sprintf(sbe, "%u/%u", CFG.aka[i].net, 
