@@ -33,6 +33,8 @@
 #include "atoul.h"
 
 
+#ifndef	USE_NEWSGATE
+
 unsigned long atoul(char *str)
 {
 	unsigned long x;
@@ -43,3 +45,4 @@ unsigned long atoul(char *str)
 		return 0xffffffff;
 }
 
+#endif

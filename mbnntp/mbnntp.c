@@ -76,10 +76,14 @@ void die(int onsig)
 	free(envptr);
 
     ExitClient(onsig);
+
+    msleep(1);      /* For the linker only */
+    colour(0, 0);
 }
 
 
 
+#ifndef	USE_NEWSGATE
 /*
  * Check if the system is available.
  */
@@ -96,6 +100,7 @@ int check_free(void)
 
     return TRUE;
 }
+#endif
 
 
 
@@ -135,6 +140,10 @@ int main(int argc, char *argv[])
     Syslog(' ', "MBNNTP v%s", VERSION);
     IsDoing("Loging in");
 
+#ifdef	USE_NEWSGATE
+    WriteError("MBSEBBS is compiled for full newsgate, you cannot use mbnntp!");
+#endif
+
     /*
      * Catch all the signals we can, and ignore the rest.
      */
@@ -155,12 +164,16 @@ int main(int argc, char *argv[])
 	    Syslog('s', "TCP connection: len=%d, family=%hd, port=%hu, addr=%s",
 		    addrlen,peeraddr.sin_family, peeraddr.sin_port, inet_ntoa(peeraddr.sin_addr));
 	    Syslog('+', "Incoming connection from %s", inet_ntoa(peeraddr.sin_addr));
+#ifdef	USE_NEWSGATE
+	    send_nntp("400 Server closed");
+#else
 	    if (! check_free()) {
 		send_nntp("400 Server closed");
 	    } else {
 		send_nntp("200 MBNNTP v%s server ready -- posting allowed", VERSION);
 		nntp();
 	    }
+#endif
 	}
     }
 
@@ -172,6 +185,7 @@ int main(int argc, char *argv[])
 
 
 
+#ifndef	USE_NEWSGATE
 /*
  * Get command from the client.
  * return  < 0: error
@@ -212,6 +226,7 @@ int get_nntp(char *buf, int max)
 
     return 0;	    /* Not reached */
 }
+#endif
 
 
 
@@ -236,6 +251,7 @@ void send_nntp(const char *format, ...)
 
 
 
+#ifndef	USE_NEWSGATE
 void nntp(void)
 {
     char    buf[4096];
@@ -335,4 +351,4 @@ void nntp(void)
     }
 }
 
-
+#endif

@@ -3066,11 +3066,14 @@ if test "${enable_newsgate+set}" = set; then
 else
    newsgate=no
 fi;
-if test "$newsgate" = "ues"; then
+if test "$newsgate" = "yes"; then
   cat >>confdefs.h <<\_ACEOF
 #define USE_NEWSGATE 1
 _ACEOF
 
+  NEWSGATE="Yes"
+else
+  NEWSGATE="No"
 fi
 
 
@@ -10189,6 +10192,7 @@ echo "$as_me:$LINENO: result:
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Full newsgate : ............... ${NEWSGATE}
 
 " >&5
 echo "${ECHO_T}
@@ -10198,6 +10202,7 @@ echo "${ECHO_T}
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Full newsgate : ............... ${NEWSGATE}
 
 " >&6
 

@@ -39,6 +39,7 @@
 #include "commands.h"
 
 
+#ifndef	USE_NEWSGATE
 
 unsigned long	article = 0L;	    /* Current article	    */
 char		currentgroup[81];   /* Current newsgroup    */
@@ -595,4 +596,4 @@ void command_xover(char *cmd)
     send_nntp(".");
 }
 
-
+#endif

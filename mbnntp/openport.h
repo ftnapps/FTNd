@@ -6,5 +6,4 @@
 int 	rawport(void);
 int 	cookedport(void);
 
-
 #endif

@@ -102,8 +102,11 @@ dnl
 dnl Enable full newsgate, this was default upto 0.50.0
 dnl
 AC_ARG_ENABLE(newsgate,  [  --enable-newsgate       Compile with newsgate],      [ newsgate=$enableval ], [ newsgate=no ])
-if test "$newsgate" = "ues"; then
+if test "$newsgate" = "yes"; then
   AC_DEFINE(USE_NEWSGATE)
+  NEWSGATE="Yes"
+else
+  NEWSGATE="No"
 fi
 
 
@@ -383,6 +386,7 @@ AC_MSG_RESULT([
 
     Version : ..................... ${VERSION}
     Hydra/Binkp zlib compression :  ${ZLIBSUP}
+    Full newsgate : ............... ${NEWSGATE}
 
 ])
 

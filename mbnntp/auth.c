@@ -33,6 +33,7 @@
 #include "mbnntp.h"
 #include "auth.h"
 
+#ifndef	USE_NEWSGATE
 
 int	authorized = FALSE;	    /* Authentication status	*/
 int	got_username = FALSE;	    /* Did we get a username?	*/
@@ -168,4 +169,4 @@ void auth_pass(char *cmd)
     send_nntp("281 Authentication accepted");
 }
 
-
+#endif

@@ -32,6 +32,8 @@
 #include "../lib/mbselib.h"
 #include "lhash.h"
 
+#ifndef	USE_NEWSGATE
+
 /* crypto/lhash/lhash.c */
 /* Copyright (C) 1995-1996 Eric Young (eay@mincom.oz.au)
  * All rights reserved.
@@ -498,3 +500,4 @@ unsigned long lh_strhash(char *c)
 	return((ret>>16)^ret);
 }
 
+#endif

@@ -487,10 +487,17 @@ int postecho(faddr *p_from, faddr *f, faddr *t, char *orig, char *subj, time_t m
 	}
     }
 
+#ifdef USE_NEWSGATE
+    /*
+     *  Gate to newsserver 
+     */
+    if (strlen(msgs.Newsgroup) && tonews) {
+#else
     /*
      *  Gate to newsserver if this is a real newsgroup
      */
     if (strlen(msgs.Newsgroup) && (msgs.Type == NEWS) && tonews) {
+#endif
 	rewind(nfp);
 	qp = tmpfile();
         while ((fgets(buf, MAX_LINE_LENGTH, nfp)) != NULL) {

@@ -3,6 +3,8 @@
 
 /* $Id$ */
 
+#ifndef	USE_NEWSGATE
+
 int     flag_on(char *,char *);
 int     flagset(char *);
 char    *compose_flags(int,char *);
@@ -11,3 +13,4 @@ int     flag_on(char *,char *);
 
 #endif
 
+#endif

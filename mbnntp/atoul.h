@@ -3,6 +3,10 @@
 
 /* $Id$ */
 
+#ifndef	USE_NEWSGATE
+
 unsigned long atoul(char*);
+
+#endif
 
 #endif

@@ -48,10 +48,9 @@
 #include "atoul.h"
 #include "hash.h"
 #include "msgflags.h"
-//#include "aliasdb.h"
 #include "mkftnhdr.h"
 
-
+#ifndef	USE_NEWSGATE
 
 #ifndef ULONG_MAX
 #define ULONG_MAX 4294967295
@@ -591,4 +590,4 @@ ftnmsg *mkftnhdr(rfcmsg *msg, int newsmode, faddr *recipient)
     return tmsg;
 }
 
-
+#endif

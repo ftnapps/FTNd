@@ -32,6 +32,7 @@
 #include "../lib/mbselib.h"
 #include "msgflags.h"
 
+#ifndef	USE_NEWSGATE
 
 static char *flnm[] = {
 	(char *)"PVT",(char *)"CRS",(char *)"RCV",(char *)"SNT",
@@ -130,4 +131,4 @@ int flag_on(char *flag, char *flags)
 	return up;
 }
 
-
+#endif

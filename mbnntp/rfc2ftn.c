@@ -40,6 +40,7 @@
 #include "msgflags.h"
 #include "rfc2ftn.h"
 
+#ifndef	USE_NEWSGATE
 
 #define MAXHDRSIZE 2048
 #define	MAXSEEN 70
@@ -841,4 +842,4 @@ int needputrfc(rfcmsg *msg, int newsmode)
 	return 1;
 }
 
-
+#endif

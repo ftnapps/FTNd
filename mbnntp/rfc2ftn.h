@@ -3,6 +3,10 @@
 
 /* $Id$ */
 
+#ifndef	USE_NEWSGATE
+
 int rfc2ftn(FILE *fp);
+
+#endif
 
 #endif

@@ -52,6 +52,8 @@
 #ifndef HEADER_LHASH_H
 #define HEADER_LHASH_H
 
+#ifndef	USE_NEWSGATE
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -142,6 +144,8 @@ void lh_node_usage_stats_bio();
 
 #ifdef  __cplusplus
 }
+#endif
+
 #endif
 
 #endif

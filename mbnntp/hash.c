@@ -33,6 +33,7 @@
 #include "hash.h"
 #include "lhash.h"
 
+#ifndef	USE_NEWSGATE
 
 void hash_update_s(unsigned long *id, char *mod)
 {
@@ -50,3 +51,4 @@ void hash_update_n(unsigned long *id, unsigned long mod)
 }
 
 
+#endif

@@ -1,18 +1,24 @@
 $Id$
 
-	WARNING!!!!!
 
-		This is a testversion for the ICM flag (FSP-1033). This flag
-		is not yet accepted. It is also possible that certain nodes
-		are not called anymore!! Please report if so, but only Fidonet
-		nodes, or if from other nets, show me the nodelist entry too.
+v0.61.1		20-Jun-2004.
+
+	general:
+		Added compile directive for full newsgate. If this switch is
+		used then mbfido behaves like it did upto version 0.50.0 and
+		mbnntp is disabled.
+
+	mbfido:
+		Added compile directive for full newsgate.
+
+	mbnntp:
+		If compiled in full newsmode, this program acts like a dummy.
 
 
-v0.61.0		06-Jun-2004.
-
+v0.61.0		06-Jun-2004 - 20-Jun-2004
 
 	libnodelist.a:
-		Prepared for ICM flag (FSP-1033).
+		Implemented the ICM flag (FSP-1033).
 
 	mbmsg:
 		With te post command, the right number of commandline options
@@ -26,13 +32,13 @@ v0.61.0		06-Jun-2004.
 		failed.
 
 	mbout:
-		Prepared for ICM flag (FSP-1033).
+		Implemented the ICM flag (FSP-1033).
 
 	mbcico:
-		Prepared for ICM flag (FSP-1033).
+		Implemented the ICM flag (FSP-1033).
 
 	mbtask:
-		Prepared for ICM flag (FSP-1033). (Partly).
+		Implemented the ICM flag (FSP-1033).
 
 	mbfile:
 		The filenames in the html pages are now the long filenames.

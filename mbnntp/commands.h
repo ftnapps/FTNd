@@ -3,10 +3,14 @@
 
 /* $Id$ */
 
+#ifndef	USE_NEWSGATE
+
 void command_abhs(char *);	    /* ARTICLE/BODY/HEADER/STAT	*/
 void command_group(char *);	    /* GROUP			*/
 void command_list(char *);	    /* LIST			*/
 void command_post(char *);	    /* POST			*/
 void command_xover(char *);	    /* XOVER			*/
+
+#endif
 
 #endif
