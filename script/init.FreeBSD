@@ -35,7 +35,7 @@ case "$1" in
 	sleep 2
 	if [ -f ${MBSE_ROOT}/etc/config.data ]; then
         	su mbse -c '${MBSE_ROOT}/bin/mbstat open -quiet'
-        	echo ", opened bbs"
+        	echo -n ", opened bbs"
 	fi
         ;;
   stop)
@@ -43,8 +43,8 @@ case "$1" in
                 echo -n " logoff users"
                 su mbse -c '$MBSE_ROOT/bin/mbstat close wait -quiet' >/dev/null
 	fi
-        kill -15 `pidof ${MBSE_ROOT}/bin/mbtask`
-	echo -n " mbtask"
+#        kill -15 `pidof ${MBSE_ROOT}/bin/mbtask`
+#	echo -n " mbtask"
         ;;
   *)
         echo "Usage: `basename $0` {start|stop}" >&2

@@ -366,7 +366,7 @@ if [ "$DISTNAME" = "FreeBSD" ]; then
     #
     # FreeBSD init
     # 
-    DISTINIT="/usr/local/etc/rc.d/mbse"
+    DISTINIT="/usr/local/etc/rc.d/mbse.sh"
     echo "Adding $DISTNAME style MBSE BBS start/stop script"
     log "+" "Adding $DISTNAME style MBSE BBS start/stop script"
     cp init.FreeBSD $DISTINIT
