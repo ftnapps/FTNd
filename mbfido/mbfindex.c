@@ -509,6 +509,7 @@ void Index(void)
 				}
 			    }
 			    
+			    MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
 			    MacroVars("e", "d", aTotal);
 			    /*
 			     * Check if this is a .gif or .jpg file, if so then
@@ -556,6 +557,7 @@ void Index(void)
 			    fseek(fb, fileptr1, SEEK_SET);
 			    MacroRead(fb, fa);
 			    aSize += file.Size;
+			    MacroVars("efghijklm", "ddsssssds", 0, 0, "", "", "", "", "", 0, "");
 			    if (file.FileDate > last)
 				last = file.FileDate;
 			    if ((aTotal % CFG.www_files_page) == 0) {
@@ -565,6 +567,14 @@ void Index(void)
 			    }
 			} /* if (!file.deleted) */
 		    }
+
+		    if (aTotal == 0) {
+			/*
+			 * Nothing written, skip skip fileblock
+			 */
+			while ((fgets(linebuf, 254, fb) != NULL) && ((linebuf[0]!='@') || (linebuf[1]!='|')));
+		    }
+
 		    KSize += aSize / 1024;
 		    closepage(fa, area.Path, inArea, aTotal, fb);
 		    fclose(fb);
