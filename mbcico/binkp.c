@@ -155,6 +155,8 @@ struct binkprec {
 
     int			batchnr;
     int			msgs_on_queue;		/* Messages on the queue	    */
+
+    int			buggyIrex;		/* Buggy Irex detected		    */
 };
 
 
@@ -220,6 +222,7 @@ int binkp(int role)
 #else
     bp.PLZflag = No;
 #endif
+    bp.buggyIrex = FALSE;
 
     if (role == 1) {
 	if (orgbinkp()) {
@@ -236,7 +239,7 @@ int binkp(int role)
 	goto binkpend;
     }
 
-    if (Loaded && nodes.NoBinkp11 && (bp.Major == 1) && (bp.Minor != 0)) {
+    if (((Loaded && nodes.NoBinkp11) || bp.buggyIrex) && (bp.Major == 1) && (bp.Minor != 0)) {
 	Syslog('+', "Binkp: forcing downgrade to binkp/1.0 protocol");
         bp.Major = 1;
         bp.Minor = 0;
@@ -1792,6 +1795,18 @@ void parse_m_nul(char *msg)
 	if ((p = strstr(msg+4, PRTCLNAME "/")) && (q = strstr(p, "."))) {
 	    bp.Major = atoi(p + 6);
 	    bp.Minor = atoi(q + 1);
+	}
+	/*
+	 * Irex 2.24 upto 2.29 claims binkp/1.1 while it is binkp/1.0
+	 * Set a flag so we can activate a workaround. This only works
+	 * for incoming sessions.
+	 */
+	if ((p = strstr(msg+4, "Internet Rex 2."))) {
+	    q = strtok(p + 15, (char *)" \0");
+	    if ((atoi(q) >= 24) && (atoi(q) <= 29)) {
+		Syslog('b', "        : Irex bug detected, workaround activated");
+		bp.buggyIrex = TRUE;
+	    }
 	}
     } else if (strncmp(msg, "PHN ", 4) == 0) {
 	Syslog('+', "Phone   : %s", msg+4);
