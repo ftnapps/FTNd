@@ -87,17 +87,7 @@ typedef enum {InitTransfer, Switch, Receive, Transmit, DeinitTransfer} FtType;
 
 static char *rxstate[] = { (char *)"RxWaitF", (char *)"RxAccF", (char *)"RxReceD", 
 			   (char *)"RxWriteD", (char *)"RxEOB", (char *)"RxDone" };
-#ifdef USE_NEWBINKP
-static char *txstate[] = { (char *)"TxGNF", (char *)"TxTryR", (char *)"TxReadS", 
-			   (char *)"TxWLA", (char *)"TxDone" };
-static char *trstate[] = { (char *)"Ok", (char *)"Failure", (char *)"Continue" };
-#endif
 static char *opstate[] = { (char *)"No", (char *)"WeCan", (char *)"WeWant", (char *)"TheyWant", (char *)"Active" };
-#ifdef USE_NEWBINKP
-static char *lbstate[] = { (char *)"None", (char *)"Sending", (char *)"IsSent", (char *)"Got", (char *)"Skipped", (char *)"Get"};
-static char *ftstate[] = { (char *)"InitTransfer", (char *)"Switch", (char *)"Receive", 
-			   (char *)"Transmit", (char *)"DeinitTransfer" };
-#endif
 
 
 static time_t	Timer;
@@ -190,7 +180,6 @@ int	binkp_resync(off_t);			    /* File resync		    */
 char	*unix2binkp(char *);			    /* Binkp -> Unix escape	    */
 char	*binkp2unix(char *);			    /* Unix -> Binkp escape	    */
 void	fill_binkp_list(binkp_list **, file_list *, off_t); /* Build pending files  */
-void	debug_binkp_list(binkp_list **);	    /* Debug pending files list	    */
 int	binkp_pendingfiles(void);		    /* Count pending files	    */
 void	binkp_clear_filelist(int);		    /* Clear current filelist	    */
 
@@ -209,12 +198,7 @@ int binkp(int role)
 {
     int	    rc = 0;
 
-#ifdef USE_NEWBINKP
-    most_debug = TRUE;
-#endif
-
     Syslog('+', "Binkp: start session");
-
     memset(&bp, 0, sizeof(bp));
     bp.Role = role;
     bp.CRAMflag = FALSE;
@@ -338,7 +322,6 @@ SM_STATE(WaitConn)
     if (bp.PLZflag == WeCan) {
 	p = xstrcat(p, (char *)" PLZ");
 	bp.PLZflag = WeWant;
-	Syslog('b', "PLZflag WeCan => WeWant");
     }
 #endif
     
@@ -569,14 +552,6 @@ SM_STATE(WaitOk)
 
 SM_STATE(Opts)
 
-    /*
-     *  Try to initiate the MB option if the remote is binkp/1.0
-     */
-//    if ((bp.MBflag == WeCan) && (bp.Major == 1) && (bp.Minor == 0)) {
-//	bp.MBflag = WeWant;
-//	Syslog('b', "MBflag WeCan => WeWant");
-//	binkp_send_command(MM_NUL, "OPT MB");
-//    }
     IsDoing("Binkp to %s", ascfnode(remote->addr, 0xf));
     SM_SUCCESS;
 
@@ -640,7 +615,6 @@ SM_STATE(WaitConn)
 	if (bp.PLZflag == WeCan) {
 	    strcpy(s + strlen(s), "PLZ ");
 	    bp.PLZflag = WeWant;
-	    Syslog('b', "PLZflag WeCan => WeWant");
 	}
 #endif
 	MD_toString(s + strlen(s), bp.MD_Challenge[0], bp.MD_Challenge+1);
@@ -748,11 +722,6 @@ SM_STATE(WaitAddr)
 	        if (nlent)
 		    rdoptions(Loaded);
 
-		//if (bp.MBflag == TheyWant) {
-		//                  Syslog('b', "Binkp: remote supports MB");
-	        //                  binkp_send_control(MM_NUL,"OPT MB");
-	        //                  bp.MBflag = Active;
-	        //}
 	        history.aka.zone  = remote->addr->zone;
 	        history.aka.net   = remote->addr->net;
 	        history.aka.node  = remote->addr->node;
@@ -784,8 +753,6 @@ SM_STATE(IsPasswd)
     if (Loaded && strlen(nodes.Spasswd)) {
 	we_have_pwd = TRUE;
     }
-    
-    Syslog('b', "We %s have a password", we_have_pwd ?"do":"don't");
     SM_PROCEED(WaitPwd)
 
 SM_STATE(WaitPwd)
@@ -878,7 +845,6 @@ SM_RETURN
 /*
  * We do not use the normal state machine because that produces a lot
  * of debug logging that will drive up the CPU usage.
- *         FIXME: Remove these messages!!
  */
 int file_transfer(void)
 {
@@ -886,9 +852,6 @@ int file_transfer(void)
     TrType	Trc = Ok;
     
     for (;;) {
-#ifdef USE_NEWBINKP
-	Syslog('B', "Binkp: FileTransfer state %s", ftstate[bp.FtState]);
-#endif
 	switch (bp.FtState) {
 	    case InitTransfer:	binkp_settimer(BINKP_TIMEOUT);
 				bp.RxState = RxWaitF;
@@ -931,7 +894,6 @@ int file_transfer(void)
 				/*
 				 * Nothing done, release
 				 */
-				Syslog('b', "Binkp: NOTHING DONE");
 				msleep(1);
 				break;
 
@@ -985,10 +947,6 @@ TrType binkp_receiver(void)
     long	    written;
     off_t	    rxbytes;
 
-#ifdef USE_NEWBINKP
-    Syslog('B', "Binkp: receiver state %s", rxstate[bp.RxState]);
-#endif
-
     if (bp.RxState == RxWaitF) {
 
 	if (! bp.GotFrame)
@@ -1018,10 +976,6 @@ TrType binkp_receiver(void)
             return Ok;
         } else if (bcmd == MM_EOB) {
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-#ifdef USE_NEWBINKP
-                Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-		    bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
-#endif
 		if (bp.local_EOB && bp.remote_EOB) {
 		    Syslog('b', "Binkp: receiver detects both sides in EOB state");
 		    if ((bp.messages < 3) || binkp_pendingfiles()) {
@@ -1295,10 +1249,6 @@ TrType binkp_transmitter(void)
     file_list	*tsl;
     static binkp_list	*tmp;
 
-#ifdef USE_NEWBINKP
-    Syslog('B', "Binkp: transmitter state %s", txstate[bp.TxState]);
-#endif
-
     if (bp.TxState == TxGNF) {
 	/*
 	 * If we do not have a filelist yet, create one.
@@ -1331,7 +1281,6 @@ TrType binkp_transmitter(void)
 		if (tsl->remote != NULL)
 		    fill_binkp_list(&bll, tsl, 0L);
 	    }
-	    debug_binkp_list(&bll);
 
 	    if ((bp.nethold || bp.mailhold) || (bp.batchnr == 0)) {
 		Syslog('+', "Binkp: mail %ld, files %ld bytes", bp.nethold, bp.mailhold);
@@ -1430,7 +1379,6 @@ TrType binkp_transmitter(void)
 		WriteError("$Binkp: error reading from file");
 		bp.TxState = TxDone;
 		cursend->state = Skipped;
-		debug_binkp_list(&bll);
 		return Failure;
 	    }
 
@@ -1506,11 +1454,6 @@ TrType binkp_transmitter(void)
 	    }
 
 	    if ((bp.Major == 1) && (bp.Minor != 0)) {
-#ifdef USE_NEWBINKP
-		Syslog('B', "Binkp: 1.1 check local_EOB=%s remote_EOB=%s messages=%d",
-			bp.local_EOB?"True":"False", bp.remote_EOB?"True":"False", bp.messages);
-#endif
-
 		if (bp.local_EOB && bp.remote_EOB) {
 		    /*
 		     * We did send EOB and got a EOB
@@ -1581,9 +1524,7 @@ int binkp_send_frame(int cmd, char *buf, int len)
     int		    rcz, last;
     unsigned long   zlen;
     char	    *zbuf;
-#endif
 
-#ifdef HAVE_ZLIB_H
     if ((len >= BINKP_PLZ_BLOCK) && (bp.PLZflag == Active)) {
 	WriteError("Can't send block of %d bytes in PLZ mode", len);
 	return 1;
@@ -1670,8 +1611,6 @@ int binkp_send_frame(int cmd, char *buf, int len)
 	if (!cmd)
 	    bp.cmpblksize = SND_BLKSIZE;
     }
-//    if (!cmd && (last != bp.cmpblksize))
-//	Syslog('b', "Binkp: adjusting next blocksize to %d bytes", bp.cmpblksize);
 #else
     rc = PUTCHAR((header >> 8) & 0x00ff);
     if (!rc)
@@ -1880,13 +1819,11 @@ void parse_m_nul(char *msg)
 	    } else if (strncmp(q, (char *)"PLZ", 3) == 0) {
 		if (bp.PLZflag == WeCan) {
 		    bp.PLZflag = TheyWant;
-		    Syslog('b', "PLZflag WeCan => TheyWant");
 		    binkp_send_command(MM_NUL,"OPT PLZ");
 		    bp.PLZflag = Active;
 		    Syslog('+', "        : zlib compression active");
 		} else if (bp.PLZflag == WeWant) {
 		    bp.PLZflag = Active;
-		    Syslog('b', "PLZflag WeWant => Active");
 		    Syslog('+', "        : zlib compression active");
 		} else {
 		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
@@ -2207,7 +2144,6 @@ int binkp_process_messages(void)
     free(lname);
     bp.msgs_on_queue = 0;
 
-    debug_binkp_list(&bll);
     Syslog('b', "Binkp: Process The Messages Queue End");
     return 0;
 }
@@ -2374,20 +2310,6 @@ void fill_binkp_list(binkp_list **bkll, file_list *fal, off_t offs)
     (*tmpl)->offset = offs;
     (*tmpl)->size   = tstat.st_size;
     (*tmpl)->date   = tstat.st_mtime;
-}
-
-
-
-void debug_binkp_list(binkp_list **bkll)
-{
-#ifdef USE_NEWBINKP
-    binkp_list  *tmpl;
-
-    Syslog('B', "Current filelist:");
-
-    for (tmpl = *bkll; tmpl; tmpl = tmpl->next)
-	Syslog('B', "%s %s %s %ld", MBSE_SS(tmpl->local), MBSE_SS(tmpl->remote), lbstate[tmpl->state], tmpl->offset);
-#endif
 }
 
 

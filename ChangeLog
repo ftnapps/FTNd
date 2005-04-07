@@ -18,6 +18,7 @@ v0.71.2		16-Jan-2005
 		Fixed test for valid aka's in the EMSI handshake that prevented
 		that host aka's (node /0) were not presented to the remote.
 		(thanks Przemyslaw Kwiatkowski).
+		Removed binkp extra debug logging and some standard dbug logging.
 
 	mbsebbs:
 		When a message is posted by a user, the CHRS kludge of the user

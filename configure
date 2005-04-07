@@ -841,10 +841,8 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-experiment     Compile experimental code
   --enable-debugging      Compile for debugging
   --enable-optimize       Enable CPU optimize
-  --enable-newbinkp       Compile Debugging Binkp code
   --enable-newsgate       Compile with newsgate
   --enable-gbkdel         Delete key is 126 (default is 207)
 
@@ -2991,19 +2989,7 @@ esac
 
 
 
-# Check whether --enable-experiment or --disable-experiment was given.
-if test "${enable_experiment+set}" = set; then
-  enableval="$enable_experiment"
-   experiment=$enableval
-else
-   experiment=no
-fi;
-if test "$experiment" = "yes"; then
-  cat >>confdefs.h <<\_ACEOF
-#define USE_EXPERIMENT 1
-_ACEOF
 
-fi
 # Check whether --enable-debugging or --disable-debugging was given.
 if test "${enable_debugging+set}" = set; then
   enableval="$enable_debugging"
@@ -3041,19 +3027,6 @@ echo "${ECHO_T}$CPUFLAGS" >&6
     done
 fi
 
-# Check whether --enable-newbinkp or --disable-newbinkp was given.
-if test "${enable_newbinkp+set}" = set; then
-  enableval="$enable_newbinkp"
-   newbinkp=$enableval
-else
-   newbinkp=no
-fi;
-if test "$newbinkp" = "yes"; then
-  cat >>confdefs.h <<\_ACEOF
-#define USE_NEWBINKP 1
-_ACEOF
-
-fi
 
 # Check whether --enable-newsgate or --disable-newsgate was given.
 if test "${enable_newsgate+set}" = set; then

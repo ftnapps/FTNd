@@ -67,10 +67,11 @@ AC_C_BIGENDIAN
 dnl
 dnl Additional commandline switches
 dnl
-AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
-if test "$experiment" = "yes"; then
-  AC_DEFINE(USE_EXPERIMENT)
-fi
+dnl AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
+dnl if test "$experiment" = "yes"; then
+dnl   AC_DEFINE(USE_EXPERIMENT)
+dnl fi
+
 AC_ARG_ENABLE(debugging,   [  --enable-debugging      Compile for debugging], [ debugging=$enableval ], [ debugging=no ])
 if test "$debugging" = "yes"; then
     CFLAGS="-O -g -Wall -Wshadow -Wwrite-strings -Wstrict-prototypes -D_REENTRANT"
@@ -93,10 +94,6 @@ AC_MSG_CHECKING(for cpuflags)
     done
 fi
 
-AC_ARG_ENABLE(newbinkp,  [  --enable-newbinkp       Compile Debugging Binkp code],     [ newbinkp=$enableval ], [ newbinkp=no ])
-if test "$newbinkp" = "yes"; then
-  AC_DEFINE(USE_NEWBINKP)
-fi
 
 dnl
 dnl Enable full newsgate, this was default upto 0.50.0
