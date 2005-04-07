@@ -19,6 +19,9 @@ v0.71.2		16-Jan-2005
 		that host aka's (node /0) were not presented to the remote.
 		(thanks Przemyslaw Kwiatkowski).
 		Removed binkp extra debug logging and some standard dbug logging.
+		Added auto workaround for Internet Rex 2.24 upto 2.29 binkp bug.
+		However, it is still wise to set the "No binkp/1.1" setting in
+		the node setup if you have a record for such node.
 
 	mbsebbs:
 		When a message is posted by a user, the CHRS kludge of the user

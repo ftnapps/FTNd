@@ -1707,7 +1707,7 @@ int binkp_banner(void)
     if (!rc)
 	rc = binkp_send_command(MM_NUL,"TIME %s", rfcdate(t));
     if (!rc) {
-	if (nodes.NoBinkp11)
+	if (nodes.NoBinkp11 || bp.buggyIrex)
 	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLOLD);
 	else
 	    rc = binkp_send_command(MM_NUL,"VER mbcico/%s/%s-%s %s/%s", VERSION, OsName(), OsCPU(), PRTCLNAME, PRTCLVER);
@@ -1844,8 +1844,8 @@ void parse_m_nul(char *msg)
 		    Syslog('b', "PLZflag is %s and received PLZ option", opstate[bp.PLZflag]);
 		}
 #endif
-	    } else {
-		Syslog('b', "Binkp: opt not supported");
+//	    } else {
+//		Syslog('b', "Binkp: opt not supported");
 	    }
 	}
 
