@@ -69,6 +69,9 @@ v0.71.2		16-Jan-2005
 		symlinks in runlevel 4 if the directory /etc/rc.d/rc4.d didn't
 		exist.
 
+	unix:
+		Fixed compiling under FreeBSD 5.3.
+
 
 v0.71.1		28-Nov-2004 - 16-Jan-2005
 

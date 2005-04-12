@@ -252,3 +252,6 @@
 
 /* Define if Del != 207 */
 #define GBK_DEL @GBK_DEL@
+
+/* Define if you have the <crypt.h> header file. */
+#undef HAVE_CRYPT_H

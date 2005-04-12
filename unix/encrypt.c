@@ -64,7 +64,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef	_XOPEN_CRYPT
+#ifdef	HAVE_CRYPT_H
 #include <crypt.h>
 #endif
 #include "encrypt.h"
