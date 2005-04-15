@@ -347,9 +347,6 @@ printf("Start ping thread\n");
 
     while (! T_Shutdown) {
 
-#ifdef USE_EXPERMIMENT
-	Syslog('p', "ping_thread loop start");
-#endif
 	/*
 	 * Select new address to ping
 	 */

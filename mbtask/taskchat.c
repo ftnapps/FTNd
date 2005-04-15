@@ -33,6 +33,8 @@
 #include "taskutil.h"
 #include "taskregs.h"
 #include "taskchat.h"
+#include "taskirc.h"
+
 
 #define	MAXCHANNELS 10		    /* Maximum chat channels		*/
 #define	MAXMESSAGES 100		    /* Maximum ringbuffer for messages	*/
@@ -120,7 +122,6 @@ void system_msg(pid_t, char *);
 void chat_help(pid_t);
 int join(pid_t, char *, int);
 int part(pid_t, char*);
-
 
 
 
@@ -371,6 +372,10 @@ void chat_msg(int channel, char *nick, char *msg)
 	    system_msg(chat_users[i].pid, buf);
 	}
     }
+
+#ifdef	USE_EXPERIMENT
+    send_all(buf);
+#endif
 }
 
 

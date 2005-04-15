@@ -37,6 +37,7 @@
 #include "taskregs.h"
 #include "taskcomm.h"
 #include "taskdisk.h"
+#include "taskirc.h"
 #include "callstat.h"
 #include "outstat.h"
 #include "../lib/nodelist.h"
@@ -46,8 +47,6 @@
 #include "taskchat.h"
 #include "mbtask.h"
 
-
-#define	NUM_THREADS	4			/* Max.	nr of threads	*/
 
 
 /*
@@ -116,7 +115,9 @@ extern int		cmd_run;		/* Cmd running		*/
 extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
-
+#ifdef	USE_EXPERIMENT
+extern int		irc_run;		/* IRC thread running	*/
+#endif
 
 
 /*
@@ -126,7 +127,9 @@ pthread_t	pt_ping;
 pthread_t	pt_command;
 pthread_t	pt_disk;
 pthread_t	pt_scheduler;
-// pthread_t	p_thread[NUM_THREADS];		/* thread's structure	*/
+#ifdef	USE_EXPERIMENT
+pthread_t	pt_irc;
+#endif
 
 
 
@@ -742,10 +745,18 @@ void die(int onsig)
      * build to stop within a second.
      */
     now = time(NULL) + 2;
+#ifdef	USE_EXPERIMENT
+    while ((cmd_run || ping_run || sched_run || disk_run || irc_run) && (time(NULL) < now)) {
+#else
     while ((cmd_run || ping_run || sched_run || disk_run) && (time(NULL) < now)) {
+#endif
 	sleep(1);
     }
+#ifdef	USE_EXPERIMENT
+    if (cmd_run || ping_run || sched_run || disk_run || irc_run)
+#else
     if (cmd_run || ping_run || sched_run || disk_run)
+#endif
 	Syslog('+', "Not all threads stopped! Forced shutdown");
     else
 	Syslog('+', "All threads stopped");
@@ -1036,6 +1047,11 @@ void start_scheduler(void)
     } else if ((rc = pthread_create(&pt_scheduler, NULL, (void (*))scheduler, NULL))) {
 	WriteError("$pthread_create scheduler rc=%d", rc);
 	die(SIGTERM);
+#ifdef	USE_EXPERIMENT
+    } else if ((rc = pthread_create(&pt_irc, NULL, (void (*))irc_thread, NULL))) {
+	WriteError("$pthread_create irc rc=%d", rc);
+	die(SIGTERM);
+#endif
     } else {
 	Syslog('+', "All threads installed");
     }

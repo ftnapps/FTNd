@@ -67,10 +67,10 @@ AC_C_BIGENDIAN
 dnl
 dnl Additional commandline switches
 dnl
-dnl AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
-dnl if test "$experiment" = "yes"; then
-dnl   AC_DEFINE(USE_EXPERIMENT)
-dnl fi
+AC_ARG_ENABLE(experiment,  [  --enable-experiment     Compile experimental code],     [ experiment=$enableval ], [ experiment=no ])
+if test "$experiment" = "yes"; then
+  AC_DEFINE(USE_EXPERIMENT)
+fi
 
 AC_ARG_ENABLE(debugging,   [  --enable-debugging      Compile for debugging], [ debugging=$enableval ], [ debugging=no ])
 if test "$debugging" = "yes"; then

@@ -841,6 +841,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-experiment     Compile experimental code
   --enable-debugging      Compile for debugging
   --enable-optimize       Enable CPU optimize
   --enable-newsgate       Compile with newsgate
@@ -2989,6 +2990,19 @@ esac
 
 
 
+# Check whether --enable-experiment or --disable-experiment was given.
+if test "${enable_experiment+set}" = set; then
+  enableval="$enable_experiment"
+   experiment=$enableval
+else
+   experiment=no
+fi;
+if test "$experiment" = "yes"; then
+  cat >>confdefs.h <<\_ACEOF
+#define USE_EXPERIMENT 1
+_ACEOF
+
+fi
 
 # Check whether --enable-debugging or --disable-debugging was given.
 if test "${enable_debugging+set}" = set; then
