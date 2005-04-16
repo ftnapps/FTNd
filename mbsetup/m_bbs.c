@@ -40,7 +40,6 @@
 #include "m_farea.h"
 #include "m_menu.h"
 #include "m_bbs.h"
-#include "m_bbslist.h"
 #include "m_limits.h"
 
 
@@ -58,10 +57,9 @@ void bbs_menu(void)
 		mbse_mvprintw( 9, 6, "3.    Edit BBS Menus");
 		mbse_mvprintw(10, 6, "4.    Edit File Areas");
 		mbse_mvprintw(11, 6, "5.    Edit Transfer Protocols");
-		mbse_mvprintw(12, 6, "6.    Edit BBS List Data");
-		mbse_mvprintw(13, 6, "7.    Edit Oneliners");
+		mbse_mvprintw(12, 6, "6.    Edit Oneliners");
 
-		switch(select_menu(7)) {
+		switch(select_menu(6)) {
 		case 0: return;
 
 		case 1: EditLimits();
@@ -79,10 +77,7 @@ void bbs_menu(void)
 		case 5: EditProtocol();
 			break;
 
-		case 6: bbslist_menu();
-			break;
-
-		case 7: ol_menu();
+		case 6: ol_menu();
 			break;
 		}
 	}

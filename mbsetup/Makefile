@@ -9,18 +9,18 @@ SRCS		= grlist.c m_domain.c m_fgroup.c m_lang.c m_marea.c m_new.c m_ibc.c \
 		  m_limits.c m_menu.c m_ngroup.c m_service.c m_tty.c mutil.c m_archive.c \
 		  m_fdb.c m_global.c m_magic.c m_mgroup.c m_node.c m_task.c m_users.c \
 		  screen.c m_bbs.c m_ff.c m_hatch.c m_mail.c m_modem.c m_ol.c m_tic.c \
-		  m_virus.c stlist.c m_bbslist.c m_route.c
+		  m_virus.c stlist.c m_route.c
 HDRS		= grlist.h m_domain.h m_fgroup.h m_lang.h m_marea.h m_new.h m_ibc.h m_protocol.h \
 		  m_ticarea.h mutil.h ledit.h m_farea.h m_fido.h m_limits.h m_menu.h \
 		  m_ngroup.h m_service.h m_tty.h screen.h m_archive.h m_fdb.h m_global.h \
 		  m_magic.h m_mgroup.h m_node.h m_task.h m_users.h stlist.h m_bbs.h m_ff.h \
-		  m_hatch.h m_mail.h m_modem.h m_ol.h m_tic.h m_virus.h m_bbslist.h \
+		  m_hatch.h m_mail.h m_modem.h m_ol.h m_tic.h m_virus.h \
 		  m_route.h
 OBJS		= grlist.o m_domain.o m_fgroup.o m_lang.o m_marea.o m_new.o m_ibc.o m_protocol.o \
 		  m_ticarea.o mbsetup.o ledit.o m_farea.o m_fido.o m_limits.o m_menu.o \
 		  m_ngroup.o m_service.o m_tty.o mutil.o m_archive.o m_fdb.o m_global.o \
 		  m_magic.o m_mgroup.o m_node.o m_task.o m_users.o screen.o m_bbs.o m_ff.o \
-		  m_hatch.o m_mail.o m_modem.o m_ol.o m_tic.o m_virus.o stlist.o m_bbslist.o \
+		  m_hatch.o m_mail.o m_modem.o m_ol.o m_tic.o m_virus.o stlist.o \
 		  m_route.o
 SLIBS		= ../lib/libmbse.a ../lib/libmsgbase.a ../lib/libdbase.a ../lib/libdiesel.a
 OTHER		= Makefile
@@ -80,7 +80,7 @@ m_new.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global
 m_ibc.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_ibc.h
 m_protocol.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_protocol.h
 m_ticarea.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h grlist.h m_global.h m_node.h m_fgroup.h m_farea.h m_archive.h m_ticarea.h
-mbsetup.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_bbs.h m_farea.h m_fgroup.h m_mail.h m_mgroup.h m_hatch.h m_tic.h m_ticarea.h m_magic.h m_fido.h m_lang.h m_archive.h m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h m_ol.h m_bbslist.h m_protocol.h m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h m_task.h m_route.h m_ibc.h
+mbsetup.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_bbs.h m_farea.h m_fgroup.h m_mail.h m_mgroup.h m_hatch.h m_tic.h m_ticarea.h m_magic.h m_fido.h m_lang.h m_archive.h m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h m_ol.h m_protocol.h m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h m_task.h m_route.h m_ibc.h
 ledit.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h screen.h mutil.h ledit.h
 m_farea.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_fgroup.h m_archive.h m_farea.h m_fgroup.h m_ngroup.h
 m_fido.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_fido.h
@@ -99,7 +99,7 @@ m_node.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h grlist.h stlist.
 m_task.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_task.h
 m_users.o: ../config.h ../lib/mbselib.h ../lib/users.h screen.h mutil.h ledit.h m_lang.h m_global.h m_archive.h m_protocol.h m_users.h
 screen.o: ../config.h ../lib/mbselib.h screen.h
-m_bbs.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_lang.h m_protocol.h m_ol.h m_fgroup.h m_farea.h m_menu.h m_bbs.h m_bbslist.h m_limits.h
+m_bbs.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_lang.h m_protocol.h m_ol.h m_fgroup.h m_farea.h m_menu.h m_bbs.h m_limits.h
 m_ff.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_ff.h m_lang.h m_marea.h
 m_hatch.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_fgroup.h m_ticarea.h m_hatch.h
 m_mail.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_marea.h m_mgroup.h m_mail.h
@@ -108,6 +108,5 @@ m_ol.o: ../config.h ../lib/mbselib.h ../lib/diesel.h screen.h mutil.h ledit.h m_
 m_tic.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_fgroup.h m_ticarea.h m_magic.h m_hatch.h m_tic.h
 m_virus.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_virus.h
 stlist.o: ../config.h ../lib/mbselib.h stlist.h
-m_bbslist.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h m_global.h m_bbslist.h
 m_route.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h grlist.h m_node.h m_route.h
 # End of generated dependencies
