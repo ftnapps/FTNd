@@ -33,7 +33,7 @@
 #include "taskutil.h"
 #include "taskregs.h"
 #include "taskchat.h"
-#include "taskirc.h"
+#include "taskibc.h"
 
 
 #define	MAXCHANNELS 10		    /* Maximum chat channels		*/

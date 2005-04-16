@@ -1,11 +1,11 @@
-#ifndef _TASKIRC_H
-#define	_TASKIRC_H
+#ifndef _TASKIBC_H
+#define	_TASKIBC_H
 
 /* $Id$ */
 
 #ifdef	USE_EXPERIMENT
 void send_all(char *);
-void *irc_thread(void *);
+void *ibc_thread(void *);
 #endif
 
 #endif

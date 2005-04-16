@@ -37,7 +37,7 @@
 #include "taskregs.h"
 #include "taskcomm.h"
 #include "taskdisk.h"
-#include "taskirc.h"
+#include "taskibc.h"
 #include "callstat.h"
 #include "outstat.h"
 #include "../lib/nodelist.h"
@@ -116,7 +116,7 @@ extern int		ping_run;		/* Ping running		*/
 int			sched_run = FALSE;	/* Scheduler running	*/
 extern int		disk_run;		/* Disk watch running	*/
 #ifdef	USE_EXPERIMENT
-extern int		irc_run;		/* IRC thread running	*/
+extern int		ibc_run;		/* IBC thread running	*/
 #endif
 
 
@@ -128,7 +128,7 @@ pthread_t	pt_command;
 pthread_t	pt_disk;
 pthread_t	pt_scheduler;
 #ifdef	USE_EXPERIMENT
-pthread_t	pt_irc;
+pthread_t	pt_ibc;
 #endif
 
 
@@ -746,14 +746,14 @@ void die(int onsig)
      */
     now = time(NULL) + 2;
 #ifdef	USE_EXPERIMENT
-    while ((cmd_run || ping_run || sched_run || disk_run || irc_run) && (time(NULL) < now)) {
+    while ((cmd_run || ping_run || sched_run || disk_run || ibc_run) && (time(NULL) < now)) {
 #else
     while ((cmd_run || ping_run || sched_run || disk_run) && (time(NULL) < now)) {
 #endif
 	sleep(1);
     }
 #ifdef	USE_EXPERIMENT
-    if (cmd_run || ping_run || sched_run || disk_run || irc_run)
+    if (cmd_run || ping_run || sched_run || disk_run || ibc_run)
 #else
     if (cmd_run || ping_run || sched_run || disk_run)
 #endif
@@ -1048,8 +1048,8 @@ void start_scheduler(void)
 	WriteError("$pthread_create scheduler rc=%d", rc);
 	die(SIGTERM);
 #ifdef	USE_EXPERIMENT
-    } else if ((rc = pthread_create(&pt_irc, NULL, (void (*))irc_thread, NULL))) {
-	WriteError("$pthread_create irc rc=%d", rc);
+    } else if ((rc = pthread_create(&pt_ibc, NULL, (void (*))ibc_thread, NULL))) {
+	WriteError("$pthread_create ibc rc=%d", rc);
 	die(SIGTERM);
 #endif
     } else {

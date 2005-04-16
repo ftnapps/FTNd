@@ -2030,16 +2030,16 @@ struct _route {
 
 
 /*
- * IRC servers to connect to.
+ * IBC servers to connect to.
  */
 #ifdef	USE_EXPERIMENT
-struct _ircsrvhdr {
+struct _ibcsrvhdr {
 	long		hdrsize;		/* Size of header	    */
 	long		recsize;		/* Size of record	    */
 };
 
 
-struct _ircsrv {
+struct _ibcsrv {
 	char		server[64];		/* Peer server name	    */
 	char		passwd[16];		/* Password		    */
 	unsigned	Active	    : 1;	/* Is server active	    */
@@ -2664,8 +2664,8 @@ struct	_routehdr	routehdr;		/* Routing file		    */
 struct	_route		route;
 
 #ifdef	USE_EXPERIMENT
-struct	_ircsrvhdr	ircsrvhdr;		/* IRC servers		    */
-struct	_ircsrv		ircsrv;
+struct	_ibcsrvhdr	ibcsrvhdr;		/* IBC servers		    */
+struct	_ibcsrv		ibcsrv;
 #endif
 
 

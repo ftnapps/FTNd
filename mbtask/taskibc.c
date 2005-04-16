@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * $Id$
- * Purpose ...............: mbtask - Internet Realy Chat (sort of)
+ * Purpose ...............: mbtask - Internet BBS Chat (but it looks like...)
  *
  *****************************************************************************
  * Copyright (C) 1997-2005
@@ -30,13 +30,13 @@
 
 #include "../config.h"
 #include "../lib/mbselib.h"
-#include "taskirc.h"
+#include "taskibc.h"
 
 
 
 #ifdef  USE_EXPERIMENT
 
-int		irc_run = FALSE;	    /* Thread running	    */
+int		ibc_run = FALSE;	    /* Thread running	    */
 extern int	T_Shutdown;		    /* Program shutdown	    */
 
 
@@ -115,17 +115,17 @@ void send_all(char *msg)
 /*
  * IRC thread
  */
-void *irc_thread(void *dummy)
+void *ibc_thread(void *dummy)
 {
-    Syslog('+', "Starting IRC thread");
-    irc_run = TRUE;
+    Syslog('+', "Starting IBC thread");
+    ibc_run = TRUE;
 
     while (! T_Shutdown) {
 	sleep(1);
     }
 
-    irc_run = FALSE;
-    Syslog('+', "IRC thread stopped");
+    ibc_run = FALSE;
+    Syslog('+', "IBC thread stopped");
     pthread_exit(NULL);
 }
 
