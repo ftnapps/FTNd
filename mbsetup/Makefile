@@ -79,7 +79,7 @@ m_marea.o: ../config.h ../lib/mbselib.h ../lib/msg.h ../lib/users.h ../lib/mbsed
 m_new.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h grlist.h m_new.h m_lang.h m_marea.h m_ngroup.h
 m_protocol.o: ../config.h ../lib/mbselib.h ../paths.h screen.h mutil.h ledit.h stlist.h m_global.h m_protocol.h
 m_ticarea.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h grlist.h m_global.h m_node.h m_fgroup.h m_farea.h m_archive.h m_ticarea.h
-mbsetup.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_bbs.h m_farea.h m_fgroup.h m_mail.h m_mgroup.h m_hatch.h m_tic.h m_ticarea.h m_magic.h m_fido.h m_lang.h m_archive.h m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h m_ol.h m_bbslist.h m_protocol.h m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h m_task.h m_route.h
+mbsetup.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_bbs.h m_farea.h m_fgroup.h m_mail.h m_mgroup.h m_hatch.h m_tic.h m_ticarea.h m_magic.h m_fido.h m_lang.h m_archive.h m_virus.h m_tty.h m_limits.h m_users.h m_node.h m_fdb.h m_new.h m_ol.h m_bbslist.h m_protocol.h m_ff.h m_modem.h m_marea.h m_ngroup.h m_service.h m_domain.h m_task.h m_route.h m_ibc.h
 ledit.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/msg.h screen.h mutil.h ledit.h
 m_farea.o: ../config.h ../lib/mbselib.h ../lib/users.h ../lib/mbsedb.h screen.h mutil.h ledit.h m_global.h m_fgroup.h m_archive.h m_farea.h m_fgroup.h m_ngroup.h
 m_fido.o: ../config.h ../lib/mbselib.h screen.h mutil.h ledit.h stlist.h m_global.h m_fido.h
