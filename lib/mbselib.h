@@ -2040,6 +2040,7 @@ struct _ibcsrvhdr {
 
 
 struct _ibcsrv {
+	char		comment[41];		/* Comment		    */
 	char		server[64];		/* Peer server name	    */
 	char		passwd[16];		/* Password		    */
 	unsigned	Active	    : 1;	/* Is server active	    */
