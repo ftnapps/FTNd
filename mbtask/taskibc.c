@@ -117,6 +117,13 @@ void send_all(char *msg)
  */
 void *ibc_thread(void *dummy)
 {
+    struct servent  *se;
+
+    if ((se = getservbyname("fido", "udp")) == NULL) {
+	Syslog('!', "No fido udp entry in /etc/services, cannot start Internet BBS Chat");
+	goto exit;
+    }
+
     Syslog('+', "Starting IBC thread");
     ibc_run = TRUE;
 
@@ -124,6 +131,7 @@ void *ibc_thread(void *dummy)
 	sleep(1);
     }
 
+exit:
     ibc_run = FALSE;
     Syslog('+', "IBC thread stopped");
     pthread_exit(NULL);
