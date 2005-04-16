@@ -150,7 +150,7 @@ void CloseIBC(int force)
 	    fwrite(&ibcsrvhdr, ibcsrvhdr.hdrsize, 1, fo);
 
 	    while (fread(&ibcsrv, ibcsrvhdr.recsize, 1, fi) == 1)
-		if (!ibcsrv.deleted)
+		if (!ibcsrv.Deleted)
 		    fill_stlist(&vir, ibcsrv.comment, ftell(fi) - ibcsrvhdr.recsize);
 	    sort_stlist(&vir);
 
@@ -241,7 +241,7 @@ int EditIBCRec(int Area)
 	set_color(WHITE, BLACK);
 	show_str(  7,16,40, ibcsrv.comment);
 	show_str(  8,16,63, ibcsrv.server);
-	show_str(  9,16,15, ibcsrv.password);
+	show_str(  9,16,15, ibcsrv.passwd);
 	show_bool(10,16,    ibcsrv.Active);
 	show_bool(11,16,    ibcsrv.Deleted);
 	show_bool(12,16,    ibcsrv.Compress);
@@ -268,7 +268,7 @@ int EditIBCRec(int Area)
 		return 0;
 	case 1:	E_STR(  7,16,40,ibcsrv.comment,  "The ^Comment^ for this record")
 	case 2:	E_STR(  8,16,64,ibcsrv.server,   "The internet ^name^ or ^IP^ address of the server")
-	case 3:	E_STR(  9,16,64,ibcsrv.password, "The ^password^ for this server")
+	case 3:	E_STR(  9,16,64,ibcsrv.passwd,   "The ^password^ for this server")
 	case 4:	E_BOOL(10,16,   ibcsrv.Active,   "Switch if this server is ^Active^ for chat")
 	case 5:	E_BOOL(11,16,   ibcsrv.Deleted,  "Is this server to be ^Deleted^")
 	case 6:	E_BOOL(12,16,   ibcsrv.Compress, "Use ^zlib compression^ with this server")
