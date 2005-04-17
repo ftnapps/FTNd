@@ -59,8 +59,8 @@ static char *ncsstate[] = {
 /*
  * Add a port to the portlist
  */
-void fill_ncslist(ncs_list **, char *, char *);
-void fill_ncslist(ncs_list **fdp, char *server, char *passwd)
+void fill_ncslist(ncs_list **, char *, char *, char *);
+void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 {
     ncs_list *tmp, *ta;
 
@@ -68,6 +68,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *passwd)
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
+    strncpy(tmp->server, myname, 63);
     strncpy(tmp->passwd, passwd, 15);
     tmp->state = NCS_INIT;
     tmp->action = time(NULL);
@@ -166,7 +167,7 @@ void check_servers(void)
 		    }
 		    if (!inlist ) {
 			Syslog('r', "  not in neighbour list, add");
-			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.passwd);
+			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			changed = TRUE;
 			Syslog('+', "Added Internet BBS Chatserver %s", ibcsrv.server);
 		    }
@@ -262,7 +263,7 @@ void check_servers(void)
 		case NCS_CALL:	    Syslog('r', "%s call", tnsl->server);
 				    sprintf(buf, "PASS %s 0000 IBC| %s\r", tnsl->passwd, tnsl->compress ? "Z":"");
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
-				    sprintf(buf, "SERVER seaport 0 %ld mbsebbs v%s\r",  tnsl->token, VERSION);
+				    sprintf(buf, "SERVER %s 0 %ld mbsebbs v%s\r",  tnsl->myname, tnsl->token, VERSION);
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
 				    tnsl->action = now + (time_t)50;
 				    tnsl->state = NCS_WAITPWD;

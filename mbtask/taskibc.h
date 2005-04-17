@@ -12,6 +12,7 @@
 typedef struct _ncs_list {
     struct _ncs_list	*next;
     char		server[64];	    /* Server address		*/
+    char		myname[64];	    /* My server address	*/
     char		passwd[16];	    /* Server password		*/
     int			state;		    /* Connection state		*/
     time_t		action;		    /* Time for next action	*/
