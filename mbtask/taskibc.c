@@ -350,6 +350,7 @@ void *ibc_thread(void *dummy)
 	    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 		sl = sizeof(myaddr_in);
 		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
+		memset(&buf, 0, sizeof(buf));
 		if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
 		    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
 		    if (hp == NULL)
@@ -357,7 +358,6 @@ void *ibc_thread(void *dummy)
 		    else
 			hostname = hp->h_name;
 
-		    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
 		    if ((buf[strlen(buf) -2] != '\r') && (buf[strlen(buf) -1] != '\n')) {
 			Syslog('r', "Message not terminated with CR-LF, dropped");
 			continue;
