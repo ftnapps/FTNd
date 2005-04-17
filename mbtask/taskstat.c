@@ -349,6 +349,15 @@ char *getseq(void)
 
 
 
+unsigned long gettoken(void)
+{
+    status.sequence++;
+    status_write();
+    return status.sequence;
+}
+
+
+
 int sem_set(char *sem, int value)
 {
     if (!strcmp(sem, "scanout")) {
