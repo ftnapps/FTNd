@@ -44,6 +44,8 @@ time_t		    scfg_time = (time_t)0;  /* Servers config time	*/
 ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
+struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
+
 
 
 typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL} NCSTYPE;
@@ -111,6 +113,22 @@ void dump_ncslist(void)
  */
 void send_all(char *msg)
 {
+}
+
+
+
+/*
+ * Send message to a server
+ */
+int send_msg(int s, struct sockaddr_in servaddr, char *host, char *msg)
+{
+    Syslog('r', "> %s: %s", host, printable(msg, 0));
+
+    if (sendto(s, msg, strlen(msg), 0, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
+	Syslog('r', "$Can't send message");
+	return -1;
+    }
+    return 0;
 }
 
 
@@ -243,15 +261,9 @@ void check_servers(void)
 				    
 		case NCS_CALL:	    Syslog('r', "%s call", tnsl->server);
 				    sprintf(buf, "PASS %s 0000 IBC| %s\r", tnsl->passwd, tnsl->compress ? "Z":"");
-				    if (sendto(tnsl->socket, buf, strlen(buf), 0, 
-						(struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
-					Syslog('r', "$Can't send message");
-				    }
+				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
 				    sprintf(buf, "SERVER seaport 0 %ld mbsebbs v%s\r",  tnsl->token, VERSION);
-				    if (sendto(tnsl->socket, buf, strlen(buf), 0,
-						(struct sockaddr *)&tnsl->servaddr_in, sizeof(struct sockaddr_in)) == -1) {
-					Syslog('r', "$Can't send message");
-				    }
+				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
 				    tnsl->action = now + (time_t)50;
 				    tnsl->state = NCS_WAITPWD;
 				    changed = TRUE;
@@ -281,9 +293,10 @@ void *ibc_thread(void *dummy)
 {
     struct servent  *se;
     struct pollfd   pfd;
+    struct hostent  *hp;
     int		    rc, len;
     socklen_t	    sl;
-    char	    buf[1024];
+    char	    buf[1024], *hostname;
 
     Syslog('+', "Starting IBC thread");
 
@@ -333,12 +346,15 @@ void *ibc_thread(void *dummy)
 	if ((rc = poll(&pfd, 1, 1000) < 0)) {
 	    Syslog('r', "$poll/select failed");
 	} else {
-	    Syslog('r', "poll_thread: poll interrupted rc=%d events=%04x", rc, pfd.revents);
-
 	    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 		sl = sizeof(myaddr_in);
-		if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&myaddr_in, &sl)) != -1) {
-		    Syslog('r', "< : \"%s\"", printable(buf, 0));
+		if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
+		    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
+		    if (hp == NULL)
+			hostname = inet_ntoa(clientaddr_in.sin_addr);
+		    else
+			hostname = hp->h_name;
+		    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
 		} else {
 		    Syslog('r', "recvfrom returned len=%d", len);
 		}
