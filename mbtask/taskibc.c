@@ -68,7 +68,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
-    strncpy(tmp->server, myname, 63);
+    strncpy(tmp->myname, myname, 63);
     strncpy(tmp->passwd, passwd, 15);
     tmp->state = NCS_INIT;
     tmp->action = time(NULL);
