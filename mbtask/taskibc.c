@@ -261,9 +261,9 @@ void check_servers(void)
 				    break;
 				    
 		case NCS_CALL:	    Syslog('r', "%s call", tnsl->server);
-				    sprintf(buf, "PASS %s 0000 IBC| %s\r", tnsl->passwd, tnsl->compress ? "Z":"");
+				    sprintf(buf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
-				    sprintf(buf, "SERVER %s 0 %ld mbsebbs v%s\r",  tnsl->myname, tnsl->token, VERSION);
+				    sprintf(buf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, tnsl->token, VERSION);
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
 				    tnsl->action = now + (time_t)50;
 				    tnsl->state = NCS_WAITPWD;
@@ -349,13 +349,25 @@ void *ibc_thread(void *dummy)
 	} else {
 	    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 		sl = sizeof(myaddr_in);
+		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
 		if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
 		    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
 		    if (hp == NULL)
 			hostname = inet_ntoa(clientaddr_in.sin_addr);
 		    else
 			hostname = hp->h_name;
+
 		    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
+		    if ((buf[strlen(buf) -2] != '\r') && (buf[strlen(buf) -1] != '\n')) {
+			Syslog('r', "Message not terminated with CR-LF, dropped");
+			continue;
+		    }
+		    buf[strlen(buf) -2] = '\0';
+		    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
+
+		    /*
+		     * Parse message
+		     */
 		} else {
 		    Syslog('r', "recvfrom returned len=%d", len);
 		}
