@@ -20,6 +20,8 @@ typedef struct _ncs_list {
     int			version;	    /* Protocol version of peer	*/
     unsigned		remove	    : 1;    /* If entry must be removed	*/
     unsigned		compress    : 1;    /* User link compression	*/
+    unsigned		gotpass	    : 1;    /* Received valid password	*/
+    unsigned		gotserver   : 1;    /* Received valid server	*/
     struct sockaddr_in	servaddr_in;	    /* Peer socketaddress	*/
     int			socket;		    /* Peer socket		*/
     unsigned long	token;		    /* Server token		*/

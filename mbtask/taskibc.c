@@ -45,14 +45,15 @@ ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
+int		    changed = FALSE;	    /* Databases changed	*/
 
 
-
-typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL} NCSTYPE;
+typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL, NCS_DEAD} NCSTYPE;
 
 
 static char *ncsstate[] = {
-    (char *)"init", (char *)"call", (char *)"waitpwd", (char *)"connect", (char *)"hangup", (char *)"fail"
+    (char *)"init", (char *)"call", (char *)"waitpwd", (char *)"connect", 
+    (char *)"hangup", (char *)"fail", (char *)"dead"
 };
 
 
@@ -77,6 +78,8 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     tmp->remove = FALSE;
     tmp->socket = -1;
     tmp->token = 0;
+    tmp->gotpass = FALSE;
+    tmp->gotserver = FALSE;
 
     if (*fdp == NULL) {
 	*fdp = tmp;
@@ -97,14 +100,19 @@ void dump_ncslist(void)
     ncs_list	*tmp;
     time_t	now;
 
-    now = time(NULL);
-    Syslog('r', "Server                                                          State  Del Next action");
-    Syslog('r', "--------------------------------------------------------------- ------ --- --------------");
+    if (!changed)
+	return;
 
+    now = time(NULL);
+    Syslog('r', "Server                         State   Del Pwd Srv Next action");
+    Syslog('r', "------------------------------ ------- --- --- --- -----------");
+    
     for (tmp = ncsl; tmp; tmp = tmp->next) {
-	Syslog('r', "%-63s %-6s %s %d", tmp->server, ncsstate[tmp->state], 
-		tmp->remove ? "yes":"no ", (int)tmp->action - (int)now);
+	Syslog('r', "%-30s %-7s %s %s %s %d", tmp->server, ncsstate[tmp->state], 
+		tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
+		tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
     }
+    changed = FALSE;
 }
 
 
@@ -139,7 +147,7 @@ void check_servers(void)
     char	*errmsg, scfgfn[PATH_MAX], buf[512];
     FILE	*fp;
     ncs_list	*tnsl;
-    int		inlist, changed = FALSE;
+    int		inlist;
     time_t	now;
     int         a1, a2, a3, a4;
     struct servent      *se;
@@ -200,13 +208,11 @@ void check_servers(void)
 	scfg_time = file_time(scfgfn);
     }
 
-    if (changed)
-	dump_ncslist();
+    dump_ncslist();
 
     /*
      * Check if we need to make state changes
      */
-    changed = FALSE;
     now = time(NULL);
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (((int)tnsl->action - (int)now) <= 0) {
@@ -281,8 +287,96 @@ void check_servers(void)
 	}
     }
 
-    if (changed)
-	dump_ncslist();
+    dump_ncslist();
+}
+
+
+
+void command_pass(char *hostname, char *parameters)
+{
+    ncs_list	*tnsl;
+
+}
+
+
+void receiver(struct servent  *se)
+{
+    struct pollfd   pfd;
+    struct hostent  *hp;
+    int             rc, len, inlist;
+    socklen_t       sl;
+    ncs_list	    *tnsl;
+    char            buf[1024], resp[512], *hostname, *prefix, *command, *parameters;
+
+    pfd.fd = ls;
+    pfd.events = POLLIN;
+    pfd.revents = 0;
+
+    if ((rc = poll(&pfd, 1, 1000) < 0)) {
+	Syslog('r', "$poll/select failed");
+	return;
+    } 
+	
+    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
+	sl = sizeof(myaddr_in);
+	memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
+        memset(&buf, 0, sizeof(buf));
+        if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
+	    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
+	    if (hp == NULL)
+	        hostname = inet_ntoa(clientaddr_in.sin_addr);
+	    else
+	        hostname = hp->h_name;
+
+	    if ((buf[strlen(buf) -2] != '\r') && (buf[strlen(buf) -1] != '\n')) {
+	        Syslog('r', "Message not terminated with CR-LF, dropped");
+	        return;
+	    }
+
+	    inlist = FALSE;
+	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+		if (strcmp(tnsl->server, hostname) == 0) {
+		    inlist = TRUE;
+		    break;
+		}
+	    }
+	    if (!inlist) {
+		Syslog('!', "Message from unknown host (%s), dropped", hostname);
+		return;
+	    }
+
+	    buf[strlen(buf) -2] = '\0';
+	    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
+
+	    /*
+	     * Parse message
+	     */
+	    if (buf[0] == ':') {
+		prefix = strtok(buf, " ");
+		command = strtok(NULL, " \0");
+		parameters = strtok(NULL, "\0");
+	    } else {
+		prefix = NULL;
+		command = strtok(buf, " \0");
+		parameters = strtok(NULL, "\0");
+	    }
+	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
+	    Syslog('r', "command    \"%s\"", printable(command, 0));
+	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
+
+	    if (! strcmp(command, (char *)"PASS") && parameters) {
+		command_pass(hostname, parameters);
+	    } else if (tnsl->state == NCS_CONNECT) {
+		/*
+		 * Only if connected we send a error response
+		 */
+		sprintf(resp, "421 %s: Unknown command\r\n", command);
+		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, resp);
+	    }
+	} else {
+	    Syslog('r', "recvfrom returned len=%d", len);
+	}
+    }
 }
 
 
@@ -293,11 +387,6 @@ void check_servers(void)
 void *ibc_thread(void *dummy)
 {
     struct servent  *se;
-    struct pollfd   pfd;
-    struct hostent  *hp;
-    int		    rc, len;
-    socklen_t	    sl;
-    char	    buf[1024], *hostname;
 
     Syslog('+', "Starting IBC thread");
 
@@ -340,39 +429,7 @@ void *ibc_thread(void *dummy)
 	/*
 	 * Get any incoming messages
 	 */
-	pfd.fd = ls;
-	pfd.events = POLLIN;
-	pfd.revents = 0;
-
-	if ((rc = poll(&pfd, 1, 1000) < 0)) {
-	    Syslog('r', "$poll/select failed");
-	} else {
-	    if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
-		sl = sizeof(myaddr_in);
-		memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
-		memset(&buf, 0, sizeof(buf));
-		if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
-		    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
-		    if (hp == NULL)
-			hostname = inet_ntoa(clientaddr_in.sin_addr);
-		    else
-			hostname = hp->h_name;
-
-		    if ((buf[strlen(buf) -2] != '\r') && (buf[strlen(buf) -1] != '\n')) {
-			Syslog('r', "Message not terminated with CR-LF, dropped");
-			continue;
-		    }
-		    buf[strlen(buf) -2] = '\0';
-		    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
-
-		    /*
-		     * Parse message
-		     */
-		} else {
-		    Syslog('r', "recvfrom returned len=%d", len);
-		}
-	    }
-	}
+	receiver(se);
     }
 
 exit:
