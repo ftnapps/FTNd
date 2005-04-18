@@ -46,6 +46,9 @@ int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
 int		    changed = FALSE;	    /* Databases changed	*/
+char		    crbuf[512];		    /* Chat receive buffer	*/
+char		    csbuf[512];		    /* Chat send buffer		*/
+
 
 
 typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL, NCS_DEAD} NCSTYPE;
@@ -58,9 +61,20 @@ static char *ncsstate[] = {
 
 
 /*
- * Add a port to the portlist
+ * Internal prototypes
  */
 void fill_ncslist(ncs_list **, char *, char *, char *);
+void dump_ncslist(void);
+int send_msg(int, struct sockaddr_in, char *, char *);
+void check_servers(void);
+void command_pass(char *, char *);
+void receiver(struct servent *);
+
+
+
+/*
+ * Add a server to the serverlist
+ */
 void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 {
     ncs_list *tmp, *ta;
@@ -94,7 +108,6 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 
 
 
-void dump_ncslist(void);
 void dump_ncslist(void)
 {   
     ncs_list	*tmp;
@@ -134,7 +147,7 @@ int send_msg(int s, struct sockaddr_in servaddr, char *host, char *msg)
     Syslog('r', "> %s: %s", host, printable(msg, 0));
 
     if (sendto(s, msg, strlen(msg), 0, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
-	Syslog('r', "$Can't send message");
+	Syslog('r', "$IBC: can't send message");
 	return -1;
     }
     return 0;
@@ -144,14 +157,14 @@ int send_msg(int s, struct sockaddr_in servaddr, char *host, char *msg)
 
 void check_servers(void)
 {
-    char	*errmsg, scfgfn[PATH_MAX], buf[512];
-    FILE	*fp;
-    ncs_list	*tnsl;
-    int		inlist;
-    time_t	now;
-    int         a1, a2, a3, a4;
-    struct servent      *se;
-    struct hostent      *he;
+    char	    *errmsg, scfgfn[PATH_MAX];
+    FILE	    *fp;
+    ncs_list	    *tnsl;
+    int		    j, inlist;
+    time_t	    now;
+    int		    a1, a2, a3, a4;
+    struct servent  *se;
+    struct hostent  *he;
 
     sprintf(scfgfn, "%s/etc/ibcsrv.data", getenv("MBSE_ROOT"));
     
@@ -177,7 +190,7 @@ void check_servers(void)
 			Syslog('r', "  not in neighbour list, add");
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			changed = TRUE;
-			Syslog('+', "Added Internet BBS Chatserver %s", ibcsrv.server);
+			Syslog('+', "IBC: added Internet BBS Chatserver %s", ibcsrv.server);
 		    }
 		}
 	    }
@@ -245,20 +258,19 @@ void check_servers(void)
 						case NO_RECOVERY:       errmsg = (char *)"Non recoverable errors"; break;
 						default:                errmsg = (char *)"Unknown error"; break;
 					    }
-					    Syslog('+', "No IP address for %s: %s", tnsl->server, errmsg);
+					    Syslog('+', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
 					    tnsl->state = NCS_FAIL;
 					    break;
 					}
 					
 					tnsl->socket = socket(AF_INET, SOCK_DGRAM, 0);
 					if (tnsl->socket == -1) {
-					    Syslog('+', "$Can't create socket for %s", tnsl->server);
+					    Syslog('+', "$IBC: can't create socket for %s", tnsl->server);
 					    tnsl->state = NCS_FAIL;
 					    break;
 					}
 
 					Syslog('r', "socket %d", tnsl->socket);
-					tnsl->token = gettoken();
 					tnsl->state = NCS_CALL;
 					tnsl->action = now + (time_t)1;
 				    } else {
@@ -266,12 +278,17 @@ void check_servers(void)
 				    }
 				    break;
 				    
-		case NCS_CALL:	    Syslog('r', "%s call", tnsl->server);
-				    sprintf(buf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
-				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
-				    sprintf(buf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, tnsl->token, VERSION);
-				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, buf);
-				    tnsl->action = now + (time_t)50;
+		case NCS_CALL:	    /*
+				     * In this state we accept PASS and SERVER commands from
+				     * the remote with the same token as we have sent.
+				     */
+				    Syslog('r', "%s call", tnsl->server);
+				    tnsl->token = gettoken();
+				    sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+				    sprintf(csbuf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, tnsl->token, VERSION);
+				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
 				    changed = TRUE;
 				    break;
@@ -281,7 +298,16 @@ void check_servers(void)
 				     * by a reply from the remote if the connection is accepted.
 				     */
 				    Syslog('r', "%s waitpwd", tnsl->server);
+				    tnsl->token = 0;
 				    tnsl->state = NCS_CALL;
+				    srand(getpid());
+				    while (TRUE) {
+					j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
+					if ((j > (CFG.dialdelay / 10)) && (j > 9))
+					    break;
+				    }
+				    Syslog('r', "next call in %d seconds", j);
+				    tnsl->action = now + (time_t)j;
 				    break;
 	    }
 	}
@@ -295,8 +321,114 @@ void check_servers(void)
 void command_pass(char *hostname, char *parameters)
 {
     ncs_list	*tnsl;
+    char	*passwd, *version, *opts, *lnk;
 
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    passwd = strtok(parameters, " \0");
+    version = strtok(NULL, " \0");
+    opts = strtok(NULL, " \0");
+    lnk = strtok(NULL, " \0");
+
+    Syslog('r', "passwd \"%s\"", printable(passwd, 0));
+    Syslog('r', "version \"%s\"", printable(version, 0));
+    Syslog('r', "opts \"%s\"", printable(opts, 0));
+    Syslog('r', "link \"%s\"", printable(lnk, 0));
+
+    if (version == NULL) {
+	sprintf(csbuf, "461 PASS: Not enough parameters");
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	return;
+    }
+
+    if (strcmp(passwd, tnsl->passwd)) {
+	Syslog('!', "IBC: got bad password %s from %s", passwd, hostname);
+	return;
+    }
+
+    tnsl->gotpass = TRUE;
+    tnsl->version = atoi(version);
+    if (lnk && strchr(lnk, 'Z'))
+	tnsl->compress = TRUE;
+    changed = TRUE;
 }
+
+
+
+void command_server(char *hostname, char *parameters)
+{
+    ncs_list	    *tnsl;
+    char	    *name, *hops, *id;
+    time_t	    now;
+    unsigned long   token;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    name = strtok(parameters, " \0");
+    hops = strtok(NULL, " \0");
+    id = strtok(NULL, " \0");
+
+    Syslog('r', "name \"%s\"", printable(name, 0));
+    Syslog('r', "hops \"%s\"", printable(hops, 0));
+    Syslog('r', "id \"%s\"", printable(id, 0));
+    Syslog('r', "vers \"%s\"", printable(parameters, 0));
+
+    if (id == NULL) {
+	sprintf(csbuf, "461 SERVER: Not enough parameters");
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	return;
+    }
+
+    token = atoi(id);
+    now = time(NULL);
+
+    if (tnsl->token) {
+	/*
+	 * We are in calling state, so we expect the token from the
+	 * remote is the same as the token we sent.
+	 * In that case, the session is authorized.
+	 */
+	if (tnsl->token == token) {
+	    tnsl->gotserver = TRUE;
+	    changed = TRUE;
+	    tnsl->state = NCS_CONNECT;
+	    tnsl->action = now + (time_t)10;
+	    Syslog('+', "IBC: connected with %s", tnsl->server);
+	    return;
+	}
+	Syslog('r', "IBC: collision with %s", tnsl->server);
+	return;
+    }
+
+    /*
+     * We are in waiting state, so we sent our PASS and SERVER
+     * messages and set the session to connected if we got a
+     * valid PASS command.
+     */
+    if (tnsl->gotpass) {
+	sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, token, VERSION);
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	tnsl->gotserver = TRUE;
+	tnsl->state = NCS_CONNECT;
+	tnsl->action = now + (time_t)10;
+	Syslog('+', "IBC: connected with %s", tnsl->server);
+	changed = TRUE;
+    } else {
+	Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
+    }
+    return;
+}
+
 
 
 void receiver(struct servent  *se)
@@ -306,7 +438,7 @@ void receiver(struct servent  *se)
     int             rc, len, inlist;
     socklen_t       sl;
     ncs_list	    *tnsl;
-    char            buf[1024], resp[512], *hostname, *prefix, *command, *parameters;
+    char            *hostname, *prefix, *command, *parameters;
 
     pfd.fd = ls;
     pfd.events = POLLIN;
@@ -320,15 +452,15 @@ void receiver(struct servent  *se)
     if (pfd.revents & POLLIN || pfd.revents & POLLERR || pfd.revents & POLLHUP || pfd.revents & POLLNVAL) {
 	sl = sizeof(myaddr_in);
 	memset(&clientaddr_in, 0, sizeof(struct sockaddr_in));
-        memset(&buf, 0, sizeof(buf));
-        if ((len = recvfrom(ls, &buf, sizeof(buf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
+        memset(&crbuf, 0, sizeof(crbuf));
+        if ((len = recvfrom(ls, &crbuf, sizeof(crbuf)-1, 0,(struct sockaddr *)&clientaddr_in, &sl)) != -1) {
 	    hp = gethostbyaddr((char *)&clientaddr_in.sin_addr, sizeof(struct in_addr), clientaddr_in.sin_family);
 	    if (hp == NULL)
 	        hostname = inet_ntoa(clientaddr_in.sin_addr);
 	    else
 	        hostname = hp->h_name;
 
-	    if ((buf[strlen(buf) -2] != '\r') && (buf[strlen(buf) -1] != '\n')) {
+	    if ((crbuf[strlen(crbuf) -2] != '\r') && (crbuf[strlen(crbuf) -1] != '\n')) {
 	        Syslog('r', "Message not terminated with CR-LF, dropped");
 	        return;
 	    }
@@ -341,37 +473,50 @@ void receiver(struct servent  *se)
 		}
 	    }
 	    if (!inlist) {
-		Syslog('!', "Message from unknown host (%s), dropped", hostname);
+		Syslog('!', "IBC: message from unknown host (%s), dropped", hostname);
 		return;
 	    }
 
-	    buf[strlen(buf) -2] = '\0';
-	    Syslog('r', "< %s: \"%s\"", hostname, printable(buf, 0));
+	    tnsl->last = time(NULL);
+	    crbuf[strlen(crbuf) -2] = '\0';
+	    Syslog('r', "< %s: \"%s\"", hostname, printable(crbuf, 0));
 
 	    /*
 	     * Parse message
 	     */
-	    if (buf[0] == ':') {
-		prefix = strtok(buf, " ");
+	    if (crbuf[0] == ':') {
+		prefix = strtok(crbuf, " ");
 		command = strtok(NULL, " \0");
 		parameters = strtok(NULL, "\0");
 	    } else {
 		prefix = NULL;
-		command = strtok(buf, " \0");
+		command = strtok(crbuf, " \0");
 		parameters = strtok(NULL, "\0");
 	    }
-	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
-	    Syslog('r', "command    \"%s\"", printable(command, 0));
-	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
+//	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
+//	    Syslog('r', "command    \"%s\"", printable(command, 0));
+//	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
 
-	    if (! strcmp(command, (char *)"PASS") && parameters) {
-		command_pass(hostname, parameters);
+	    if (! strcmp(command, (char *)"PASS")) {
+		if (parameters == NULL) {
+		    sprintf(csbuf, "461 %s: Not enough parameters", command);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		} else {
+		    command_pass(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"SERVER")) {
+		if (parameters == NULL) {
+		    sprintf(csbuf, "461 %s: Not enough parameters", command);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		} else {
+		    command_server(hostname, parameters);
+		}
 	    } else if (tnsl->state == NCS_CONNECT) {
 		/*
 		 * Only if connected we send a error response
 		 */
-		sprintf(resp, "421 %s: Unknown command\r\n", command);
-		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, resp);
+		sprintf(csbuf, "421 %s: Unknown command\r\n", command);
+		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	    }
 	} else {
 	    Syslog('r', "recvfrom returned len=%d", len);
@@ -391,23 +536,23 @@ void *ibc_thread(void *dummy)
     Syslog('+', "Starting IBC thread");
 
     if ((se = getservbyname("fido", "udp")) == NULL) {
-	Syslog('!', "No fido udp entry in /etc/services, cannot start Internet BBS Chat");
+	Syslog('!', "IBC: no fido udp entry in /etc/services, cannot start Internet BBS Chat");
 	goto exit;
     }
 
     myaddr_in.sin_family = AF_INET;
     myaddr_in.sin_addr.s_addr = INADDR_ANY;
     myaddr_in.sin_port = se->s_port;
-    Syslog('+', "Listen on %s, port %d\n", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
+    Syslog('+', "IBC: listen on %s, port %d\n", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
 
     ls = socket(AF_INET, SOCK_DGRAM, 0);
     if (ls == -1) {
-	Syslog('!', "$Can't create socket");
+	Syslog('!', "$IBC: can't create listen socket");
 	goto exit;
     }
 
     if (bind(ls, (struct sockaddr *)&myaddr_in, sizeof(struct sockaddr_in)) == -1) {
-	Syslog('!', "$Can't bind socket");
+	Syslog('!', "$IBC: can't bind listen socket");
 	goto exit;
     }
 
