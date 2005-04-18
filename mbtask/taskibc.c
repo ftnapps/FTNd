@@ -69,7 +69,7 @@ static char *ncsstate[] = {
 void fill_ncslist(ncs_list **, char *, char *, char *);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
-void add_server(srv_list **, char *, int, char *, char *, char *);
+void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 int send_msg(int, struct sockaddr_in, char *, char *);
 void broadcast(char *, char *);
@@ -134,10 +134,10 @@ void dump_ncslist(void)
 		tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
     }
 
-    Syslog('r', "Server                          Hops Users Connect time");
-    Syslog('r', "------------------------------ ----- ----- --------------------");
+    Syslog('r', "Server                    Router                     Hops Users Connect time");
+    Syslog('r', "------------------------- ------------------------- ----- ----- --------------------");
     for (srv = servers; srv; srv = srv->next) {
-	Syslog('r', "%-30s %5d %5d %s", srv->server, srv->hops, srv->users, rfcdate(srv->connected));
+	Syslog('r', "%-30s %-30s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
     }
     changed = FALSE;
 }
@@ -157,7 +157,7 @@ void tidy_servers(srv_list ** fdp)
 
 
 
-void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname)
+void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
     srv_list *tmp, *ta;
 
@@ -166,6 +166,7 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->server, name, 63);
+    strncpy(tmp->router, router, 63);
     strncpy(tmp->prod, prod, 20);
     strncpy(tmp->vers, vers, 20);
     strncpy(tmp->fullname, fullname, 35);
@@ -295,7 +296,8 @@ void check_servers(void)
 			    /*
 			     * First add this server name to the servers database.
 			     */
-			    add_server(&servers, ibcsrv.myname, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name);
+			    add_server(&servers, ibcsrv.myname, 0, (char *)"mbsebbs", 
+				    (char *)VERSION, CFG.bbs_name, (char *)"none");
 			}
 		    }
 		}
@@ -571,7 +573,7 @@ void command_server(char *hostname, char *parameters)
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		}
 	    }
-	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
+	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	    return;
 	}
 	Syslog('r', "IBC: collision with %s", tnsl->server);
@@ -602,7 +604,7 @@ void command_server(char *hostname, char *parameters)
 		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	    }
 	}
-	add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
+	add_server(&servers, tnsl->server, ihops, prod, vers, fullname, hostname);
 	changed = TRUE;
 	return;
     }
@@ -611,7 +613,7 @@ void command_server(char *hostname, char *parameters)
        /*
 	* Got a message about a server that is not our neighbour.
 	*/
-	add_server(&servers, name, ihops, prod, vers, fullname);
+	add_server(&servers, name, ihops, prod, vers, fullname, hostname);
 	broadcast(temp, hostname);
 	changed = TRUE;
 	return;

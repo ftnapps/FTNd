@@ -35,6 +35,7 @@ typedef struct _ncs_list {
 typedef struct _srv_list {
     struct _srv_list	*next;
     char		server[64];	    /* FQDN of the server	*/
+    char		router[64];	    /* Route to this server	*/
     int			hops;		    /* Howmany hops away	*/
     time_t		connected;	    /* Connection time		*/
     char		prod[21];	    /* Product name		*/
