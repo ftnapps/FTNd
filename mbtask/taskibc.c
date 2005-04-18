@@ -630,25 +630,6 @@ void *ibc_thread(void *dummy)
     ibc_run = TRUE;
 
     while (! T_Shutdown) {
-
-	/*
-	 * First check Shutdown requested
-	 */
-	if (T_Shutdown) {
-	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-		if (tnsl->state == NCS_CONNECT) {
-		    sprintf(csbuf, "SQUIT %s System shutdown\r\n", tnsl->server);
-		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-		}
-	    }
-
-	    /*
-	     * Cleanup
-	     */
-
-	    break;
-	}
-	
 	/*
 	 * Check neighbour servers state
 	 */
@@ -658,6 +639,14 @@ void *ibc_thread(void *dummy)
 	 * Get any incoming messages
 	 */
 	receiver(se);
+    }
+
+    Syslog('r', "IBC: start shutdown connections");
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (tnsl->state == NCS_CONNECT) {
+	    sprintf(csbuf, "SQUIT %s System shutdown\r\n", tnsl->server);
+	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	}
     }
 
 exit:
