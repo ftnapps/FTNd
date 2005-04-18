@@ -533,6 +533,10 @@ void receiver(struct servent  *se)
 	    } else if (! strcmp(command, (char *)"PING")) {
 		sprintf(csbuf, "PONG\r\n");
 		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    } else if (! strcmp(command, (char *)"PONG")) {
+		/*
+		 * Just accept
+		 */
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
 	    } else if (tnsl->state == NCS_CONNECT) {
