@@ -592,7 +592,7 @@ void command_squit(char *hostname, char *parameters)
 	tnsl->gotserver = FALSE;
 	tnsl->token = 0;
     } else {
-	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database");
+	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database", name);
     }
     del_server(&servers, name);
     changed = TRUE;
