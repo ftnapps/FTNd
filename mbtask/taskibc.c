@@ -533,6 +533,8 @@ void receiver(struct servent  *se)
 	    } else if (! strcmp(command, (char *)"PING")) {
 		sprintf(csbuf, "PONG\r\n");
 		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    } else if (atoi(command)) {
+		Syslog('r', "IBC: Got error %d", atoi(command));
 	    } else if (tnsl->state == NCS_CONNECT) {
 		/*
 		 * Only if connected we send a error response
@@ -565,7 +567,7 @@ void *ibc_thread(void *dummy)
     myaddr_in.sin_family = AF_INET;
     myaddr_in.sin_addr.s_addr = INADDR_ANY;
     myaddr_in.sin_port = se->s_port;
-    Syslog('+', "IBC: listen on %s, port %d\n", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
+    Syslog('+', "IBC: listen on %s, port %d", inet_ntoa(myaddr_in.sin_addr), ntohs(myaddr_in.sin_port));
 
     ls = socket(AF_INET, SOCK_DGRAM, 0);
     if (ls == -1) {
