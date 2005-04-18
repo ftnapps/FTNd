@@ -512,7 +512,7 @@ void command_pass(char *hostname, char *parameters)
 void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
-    char	    *name, *hops, *id, *prod, *vers, *fullname;
+    char	    temp[512], *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
     int		    ihops;
 
@@ -532,7 +532,7 @@ void command_server(char *hostname, char *parameters)
 
     Syslog('r', "name \"%s\"", printable(name, 0));
     Syslog('r', "hops \"%s\"", printable(hops, 0));
-    Syslog('r', "id \"%s\"", printable(id, 0));
+    Syslog('r', "id   \"%s\"", printable(id, 0));
     Syslog('r', "prod \"%s\"", printable(prod, 0));
     Syslog('r', "vers \"%s\"", printable(vers, 0));
     Syslog('r', "full \"%s\"", printable(fullname, 0));
@@ -544,6 +544,7 @@ void command_server(char *hostname, char *parameters)
     }
 
     token = atoi(id);
+    sprintf(temp, "SERVER %s %d %s %s %s %s", name, ihops, id, prod, vers, fullname);
 
     if (tnsl->token) {
 	/*
@@ -552,6 +553,7 @@ void command_server(char *hostname, char *parameters)
 	 * In that case, the session is authorized.
 	 */
 	if (tnsl->token == token) {
+	    broadcast(temp, tnsl->server);
 	    tnsl->gotserver = TRUE;
 	    changed = TRUE;
 	    tnsl->state = NCS_CONNECT;
@@ -574,6 +576,7 @@ void command_server(char *hostname, char *parameters)
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	broadcast(temp, tnsl->server);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
