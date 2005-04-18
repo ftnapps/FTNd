@@ -72,6 +72,7 @@ void tidy_servers(srv_list **);
 void add_server(srv_list **, char *, int, char *, char *, char *);
 void del_server(srv_list **, char *);
 int send_msg(int, struct sockaddr_in, char *, char *);
+void broadcast(char *, char *);
 void check_servers(void);
 void command_pass(char *, char *);
 void command_server(char *, char *);
@@ -214,6 +215,23 @@ void send_all(char *msg)
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (tnsl->state == NCS_CONNECT) {
+	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	}
+    }
+}
+
+
+
+/*
+ * Broadcast a message to all servers except the originating server
+ */
+void broadcast(char *msg, char *origin)
+{
+    ncs_list    *tnsl;
+
+    sprintf(csbuf, "%s\r\n", msg);
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if ((tnsl->state == NCS_CONNECT) && (strcmp(origin, tnsl->server))) {
 	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	}
     }
@@ -573,7 +591,7 @@ void command_server(char *hostname, char *parameters)
 void command_squit(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
-    char        *name, *message;
+    char        temp[512], *name, *message;
     
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -594,6 +612,9 @@ void command_squit(char *hostname, char *parameters)
     } else {
 	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database", name);
     }
+
+    sprintf(temp, "SQUIT %s %s", name, message);
+    broadcast(temp, hostname);
     del_server(&servers, name);
     changed = TRUE;
 }
@@ -607,7 +628,7 @@ void receiver(struct servent  *se)
     int             rc, len, inlist;
     socklen_t       sl;
     ncs_list	    *tnsl;
-    char            temp[512], *hostname, *prefix, *command, *parameters;
+    char            *hostname, *prefix, *command, *parameters;
 
     pfd.fd = ls;
     pfd.events = POLLIN;
@@ -697,9 +718,7 @@ void receiver(struct servent  *se)
 		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
-		    sprintf(temp, "SQUIT %s", parameters);
 		    command_squit(hostname, parameters);
-		    send_all(temp);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
