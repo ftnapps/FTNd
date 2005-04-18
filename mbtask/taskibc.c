@@ -53,6 +53,8 @@ char		    crbuf[512];		    /* Chat receive buffer	*/
 char		    csbuf[512];		    /* Chat send buffer		*/
 
 
+pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 typedef enum {NCS_INIT, NCS_CALL, NCS_WAITPWD, NCS_CONNECT, NCS_HANGUP, NCS_FAIL, NCS_DEAD} NCSTYPE;
 
@@ -72,7 +74,7 @@ void tidy_servers(srv_list **);
 void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
-int send_msg(int, struct sockaddr_in, char *, char *);
+int  send_msg(int, struct sockaddr_in, char *, char *);
 void broadcast(char *, char *);
 void check_servers(void);
 void command_pass(char *, char *);
@@ -87,7 +89,11 @@ void receiver(struct servent *);
  */
 void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 {
-    ncs_list *tmp, *ta;
+    ncs_list	*tmp, *ta;
+    int		rc;
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "fill_ncslist() mutex_lock failed rc=%d", rc);
 
     tmp = (ncs_list *)malloc(sizeof(ncs_list));
     memset(tmp, 0, sizeof(tmp));
@@ -114,6 +120,9 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 	    break;
 	}
     }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "fill_ncslist() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -160,10 +169,11 @@ void tidy_servers(srv_list ** fdp)
 
 void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname, char *router)
 {
-    srv_list *tmp, *ta;
-
-    Syslog('r', "add_server %s %d %s %s %s", name, hops, prod, vers, fullname);
+    srv_list	*tmp, *ta;
+    int		rc;
     
+    Syslog('r', "add_server %s %d %s %s %s", name, hops, prod, vers, fullname);
+ 
     for (ta = *fdp; ta; ta = ta->next) {
 	if (strcmp(ta->server, name) == 0) {
 	    Syslog('r', "duplicate, ignore");
@@ -171,6 +181,9 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 	}
     }
 
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "add_server() mutex_lock failed rc=%d", rc);
+    
     tmp = (srv_list *)malloc(sizeof(srv_list));
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
@@ -192,6 +205,9 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 		break;
 	    }
     }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "fill_ncslist() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -201,12 +217,17 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
  */
 void del_server(srv_list **fap, char *name)
 {
-    srv_list *ta, *tan;
-
+    srv_list	*ta, *tan;
+    int		rc;
+    
     Syslog('r', "delserver %s", name);
 
     if (*fap == NULL)
 	return;
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "del_server() mutex_lock failed rc=%d", rc);
+
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
 	    ta->next = tan->next;
@@ -214,6 +235,9 @@ void del_server(srv_list **fap, char *name)
 	}
 	ta->next = tan;
     }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "del_server() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -223,12 +247,17 @@ void del_server(srv_list **fap, char *name)
  */ 
 void del_router(srv_list **fap, char *name)
 {   
-    srv_list *ta, *tan;
-
+    srv_list	*ta, *tan;
+    int		rc;
+    
     Syslog('r', "delrouter %s", name);
 
     if (*fap == NULL)
 	return;
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "del_router() mutex_lock failed rc=%d", rc);
+
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
 	    ta->next = tan->next;
@@ -236,6 +265,9 @@ void del_router(srv_list **fap, char *name)
 	}
 	ta->next = tan;
     }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "del_router() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -399,7 +431,7 @@ void check_servers(void)
 						case NO_RECOVERY:       errmsg = (char *)"Non recoverable errors"; break;
 						default:                errmsg = (char *)"Unknown error"; break;
 					    }
-					    Syslog('+', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
+					    Syslog('!', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
 					    tnsl->action = now + (time_t)120;
 					    tnsl->state = NCS_FAIL;
 					    changed = TRUE;
@@ -408,7 +440,7 @@ void check_servers(void)
 					
 					tnsl->socket = socket(AF_INET, SOCK_DGRAM, 0);
 					if (tnsl->socket == -1) {
-					    Syslog('+', "$IBC: can't create socket for %s", tnsl->server);
+					    Syslog('!', "$IBC: can't create socket for %s", tnsl->server);
 					    tnsl->state = NCS_FAIL;
 					    tnsl->action = now + (time_t)120;
 					    changed = TRUE;
@@ -446,7 +478,6 @@ void check_servers(void)
 				    Syslog('r', "%s waitpwd", tnsl->server);
 				    tnsl->token = 0;
 				    tnsl->state = NCS_CALL;
-				    srand(getpid());
 				    while (TRUE) {
 					j = 1+(int) (1.0 * CFG.dialdelay * rand() / (RAND_MAX + 1.0));
 					if ((j > (CFG.dialdelay / 10)) && (j > 9))
@@ -842,6 +873,7 @@ void *ibc_thread(void *dummy)
     }
 
     ibc_run = TRUE;
+    srand(getpid());
 
     while (! T_Shutdown) {
 
