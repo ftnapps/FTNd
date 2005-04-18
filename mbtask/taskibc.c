@@ -310,6 +310,7 @@ void check_servers(void)
 				    }
 				    Syslog('r', "next call in %d %d seconds", CFG.dialdelay, j);
 				    tnsl->action = now + (time_t)j;
+				    changed = TRUE;
 				    break;
 
 		case NCS_CONNECT:   /*
@@ -317,7 +318,14 @@ void check_servers(void)
 				     */
 				    Syslog('r', "%s connect", tnsl->server);
 				    if (((int)now - (int)tnsl->last) > 70) {
-					Syslog('r', "Server %s is dead", tnsl->server);
+					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
+					tnsl->state = NCS_DEAD;
+					tnsl->action = now + (time_t)120;    // 2 minutes delay before calling again.
+					tnsl->gotpass = FALSE;
+					tnsl->gotserver = FALSE;
+					tnsl->token = 0;
+					changed = TRUE;
+					break;
 				    }
 				    if (((int)now - (int)tnsl->last) > 60) {
 					sprintf(csbuf, "PING\r\n");
@@ -329,6 +337,13 @@ void check_servers(void)
 		case NCS_HANGUP:    Syslog('r', "%s hangup", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
+				    changed = TRUE;
+				    break;
+
+		case NCS_DEAD:	    Syslog('r', "%s dead", tnsl->server);
+				    tnsl->action = now + (time_t)1;
+				    tnsl->state = NCS_CALL;
+				    changed = TRUE;
 				    break;
 	    }
 	}
