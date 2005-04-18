@@ -513,6 +513,7 @@ void command_pass(char *hostname, char *parameters)
 void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
+    srv_list	    *ta;
     char	    temp[512], *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
     int		    ihops, found = FALSE;
@@ -561,6 +562,15 @@ void command_server(char *hostname, char *parameters)
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
 	    Syslog('+', "IBC: connected with %s", tnsl->server);
+	    /*
+	     * Send all already known servers
+	     */
+	    for (ta = servers; ta; ta = ta->next) {
+		if (ta->hops) {
+		    sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops +1, ta->prod, ta->vers, ta->fullname);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		}
+	    }
 	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
 	    return;
 	}
@@ -583,6 +593,15 @@ void command_server(char *hostname, char *parameters)
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
 	Syslog('+', "IBC: connected with %s", tnsl->server);
+	/*
+	 * Send all already known servers
+	 */
+	for (ta = servers; ta; ta = ta->next) {
+	    if (ta->hops) {
+		sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops +1, ta->prod, ta->vers, ta->fullname);
+		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	    }
+	}
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
 	changed = TRUE;
 	return;
