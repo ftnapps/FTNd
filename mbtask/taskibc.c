@@ -71,6 +71,7 @@ void dump_ncslist(void);
 void tidy_servers(srv_list **);
 void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
+void del_router(srv_list **, char *);
 int send_msg(int, struct sockaddr_in, char *, char *);
 void broadcast(char *, char *);
 void check_servers(void);
@@ -137,7 +138,7 @@ void dump_ncslist(void)
     Syslog('r', "Server                    Router                     Hops Users Connect time");
     Syslog('r', "------------------------- ------------------------- ----- ----- --------------------");
     for (srv = servers; srv; srv = srv->next) {
-	Syslog('r', "%-30s %-30s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
+	Syslog('r', "%-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
     }
     changed = FALSE;
 }
@@ -187,6 +188,9 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 
 
 
+/*
+ * Delete server.
+ */
 void del_server(srv_list **fap, char *name)
 {
     srv_list *ta, *tan;
@@ -197,6 +201,28 @@ void del_server(srv_list **fap, char *name)
 	return;
     for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
+	    ta->next = tan->next;
+	    free(tan);
+	}
+	ta->next = tan;
+    }
+}
+
+
+
+/*  
+ * Delete router.
+ */ 
+void del_router(srv_list **fap, char *name)
+{   
+    srv_list *ta, *tan;
+
+    Syslog('r', "delrouter %s", name);
+
+    if (*fap == NULL)
+	return;
+    for (ta = *fap; ta; ta = ta->next) {
+	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
 	    ta->next = tan->next;
 	    free(tan);
 	}
@@ -434,7 +460,7 @@ void check_servers(void)
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
-					del_server(&servers, tnsl->server);
+					del_router(&servers, tnsl->server);
 					changed = TRUE;
 					break;
 				    }
@@ -646,13 +672,14 @@ void command_squit(char *hostname, char *parameters)
 	tnsl->gotpass = FALSE;
 	tnsl->gotserver = FALSE;
 	tnsl->token = 0;
+	del_router(&servers, name);
     } else {
 	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database", name);
+	del_server(&servers, name);
     }
 
     sprintf(temp, "SQUIT %s %s", name, message);
     broadcast(temp, hostname);
-    del_server(&servers, name);
     changed = TRUE;
 }
 
