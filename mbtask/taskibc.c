@@ -261,7 +261,9 @@ void check_servers(void)
 						default:                errmsg = (char *)"Unknown error"; break;
 					    }
 					    Syslog('+', "IBC: no IP address for %s: %s", tnsl->server, errmsg);
+					    tnsl->action = now + (time_t)120;
 					    tnsl->state = NCS_FAIL;
+					    changed = TRUE;
 					    break;
 					}
 					
@@ -269,6 +271,8 @@ void check_servers(void)
 					if (tnsl->socket == -1) {
 					    Syslog('+', "$IBC: can't create socket for %s", tnsl->server);
 					    tnsl->state = NCS_FAIL;
+					    tnsl->action = now + (time_t)120;
+					    changed = TRUE;
 					    break;
 					}
 
@@ -343,6 +347,12 @@ void check_servers(void)
 		case NCS_DEAD:	    Syslog('r', "%s dead", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
+				    changed = TRUE;
+				    break;
+
+		case NCS_FAIL:	    Syslog('r', "%s fail", tnsl->server);
+				    tnsl->action = now + (time_t)1;
+				    tnsl->state = NCS_INIT;
 				    changed = TRUE;
 				    break;
 	    }
@@ -482,15 +492,15 @@ void command_squit(char *hostname, char *parameters)
     name = strtok(parameters, " \0");
     message = strtok(NULL, "\0");
 
-    if ((tnsl->state == NCS_CONNECT) && (strcmp(hostname, name) == 0)) {
+    if (strcmp(name, tnsl->myname) == 0) {
 	Syslog('+', "IBC: disconnect server %s: %s", name, message);
+	tnsl->state = NCS_HANGUP;
+	tnsl->action = time(NULL) + (time_t)120;	// 2 minutes delay before calling again.
+	tnsl->gotpass = FALSE;
+	tnsl->gotserver = FALSE;
+	tnsl->token = 0;
+	changed = TRUE;
     }
-    tnsl->state = NCS_HANGUP;
-    tnsl->action = time(NULL) + (time_t)120;	// 2 minutes delay before calling again.
-    tnsl->gotpass = FALSE;
-    tnsl->gotserver = FALSE;
-    tnsl->token = 0;
-    changed = TRUE;
 }
 
 
