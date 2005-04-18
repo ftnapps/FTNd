@@ -163,6 +163,14 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
     srv_list *tmp, *ta;
 
     Syslog('r', "add_server %s %d %s %s %s", name, hops, prod, vers, fullname);
+    
+    for (ta = *fdp; ta; ta = ta->next) {
+	if (strcmp(ta->server, name) == 0) {
+	    Syslog('r', "duplicate, ignore");
+	    return;
+	}
+    }
+
     tmp = (srv_list *)malloc(sizeof(srv_list));
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
