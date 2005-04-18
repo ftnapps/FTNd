@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../lib/mbselib.h"
 #include "taskstat.h"
+#include "taskutil.h"
 #include "taskibc.h"
 
 
@@ -133,7 +134,7 @@ void dump_ncslist(void)
     Syslog('r', "Server                         Users Connect time");
     Syslog('r', "------------------------------ ----- ---------------------");
     for (srv = servers; srv; srv = srv->next) {
-	Syslog('r', "%-30s %5d %s", srv->server, srv->users, (char *)"NA");
+	Syslog('r', "%-30s %5d %s", srv->server, srv->users, rfcdate(srv->connected));
     }
     changed = FALSE;
 }
@@ -247,6 +248,12 @@ void check_servers(void)
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			changed = TRUE;
 			Syslog('+', "IBC: added Internet BBS Chatserver %s", ibcsrv.server);
+			if (servers == NULL) {
+			    /*
+			     * First add this server name to the servers database.
+			     */
+			    add_server(&servers, ibcsrv.myname);
+			}
 		    }
 		}
 	    }

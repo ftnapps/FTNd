@@ -82,6 +82,23 @@ char *date(void)
 
 
 
+char *rfcdate(time_t now)
+{
+    struct tm   ptm;
+    static char buf[20];
+
+#if defined(__OpenBSD__)
+    localtime_r(&now, &ptm);
+#else
+    ptm = *localtime(&now);
+#endif
+    sprintf(buf,"%02d-%s-%04d %02d:%02d:%02d", ptm.tm_mday, mon[ptm.tm_mon], ptm.tm_year+1900,
+		ptm.tm_hour, ptm.tm_min, ptm.tm_sec);
+    return(buf);
+}
+
+
+
 void WriteError(const char *format, ...)
 {
     char    *outputstr;
