@@ -468,8 +468,8 @@ void check_servers(void)
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
 					del_router(&servers, tnsl->server);
-					sprintf(temp, "SQUIT %s Connection died", tnsl->server);
-					broadcast(temp, tnsl->server);
+					sprintf(csbuf, "SQUIT %s Connection died", tnsl->server);
+					broadcast(csbuf, tnsl->server);
 					changed = TRUE;
 					break;
 				    }
