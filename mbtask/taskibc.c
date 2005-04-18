@@ -68,6 +68,8 @@ void dump_ncslist(void);
 int send_msg(int, struct sockaddr_in, char *, char *);
 void check_servers(void);
 void command_pass(char *, char *);
+void command_server(char *, char *);
+void command_squit(char *, char *);
 void receiver(struct servent *);
 
 
@@ -323,6 +325,11 @@ void check_servers(void)
 				    }
 				    tnsl->action = now + (time_t)10;
 				    break;
+
+		case NCS_HANGUP:    Syslog('r', "%s hangup", tnsl->server);
+				    tnsl->action = now + (time_t)1;
+				    tnsl->state = NCS_CALL;
+				    break;
 	    }
 	}
     }
@@ -376,7 +383,7 @@ void command_pass(char *hostname, char *parameters)
 void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
-    char	    *name, *hops, *id;
+    char	    *name, *hops, *id, *vers;
     time_t	    now;
     unsigned long   token;
 
@@ -389,11 +396,12 @@ void command_server(char *hostname, char *parameters)
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
     id = strtok(NULL, " \0");
+    vers = strtok(NULL, "\0");
 
     Syslog('r', "name \"%s\"", printable(name, 0));
     Syslog('r', "hops \"%s\"", printable(hops, 0));
     Syslog('r', "id \"%s\"", printable(id, 0));
-    Syslog('r', "vers \"%s\"", printable(parameters, 0));
+    Syslog('r', "vers \"%s\"", printable(vers, 0));
 
     if (id == NULL) {
 	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
@@ -441,6 +449,33 @@ void command_server(char *hostname, char *parameters)
 	Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
     }
     return;
+}
+
+
+
+void command_squit(char *hostname, char *parameters)
+{
+    ncs_list        *tnsl;
+    char            *name, *message;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    name = strtok(parameters, " \0");
+    message = strtok(NULL, "\0");
+
+    if ((tnsl->state == NCS_CONNECT) && (strcmp(hostname, name) == 0)) {
+	Syslog('+', "IBC: disconnect server %s: %s", name, message);
+    }
+    tnsl->state = NCS_HANGUP;
+    tnsl->action = time(NULL) + (time_t)120;	// 2 minutes delay before calling again.
+    tnsl->gotpass = FALSE;
+    tnsl->gotserver = FALSE;
+    tnsl->token = 0;
+    changed = TRUE;
 }
 
 
@@ -537,6 +572,13 @@ void receiver(struct servent  *se)
 		/*
 		 * Just accept
 		 */
+	    } else if (! strcmp(command, (char *)"SQUIT")) {
+		if (parameters == NULL) {
+		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		} else {
+		    command_squit(hostname, parameters);
+		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
 	    } else if (tnsl->state == NCS_CONNECT) {
@@ -560,6 +602,7 @@ void receiver(struct servent  *se)
 void *ibc_thread(void *dummy)
 {
     struct servent  *se;
+    ncs_list        *tnsl;
 
     Syslog('+', "Starting IBC thread");
 
@@ -592,6 +635,18 @@ void *ibc_thread(void *dummy)
 	 * First check Shutdown requested
 	 */
 	if (T_Shutdown) {
+	    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+		if (tnsl->state == NCS_CONNECT) {
+		    sprintf(csbuf, "SQUIT %s System shutdown\r\n", tnsl->server);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		}
+	    }
+
+	    /*
+	     * Cleanup
+	     */
+
+	    break;
 	}
 	
 	/*
