@@ -508,7 +508,7 @@ void command_server(char *hostname, char *parameters)
     hops = strtok(NULL, " \0");
     id = strtok(NULL, " \0");
     prod = strtok(NULL, " \0");
-    vers = strtok(NULL, "\0");
+    vers = strtok(NULL, " \0");
     fullname = strtok(NULL, "\0");
     ihops = atoi(hops) + 1;
 
