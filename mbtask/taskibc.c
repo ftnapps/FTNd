@@ -515,13 +515,7 @@ void command_server(char *hostname, char *parameters)
     ncs_list	    *tnsl;
     char	    temp[512], *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
-    int		    ihops;
-
-    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
-	if (strcmp(tnsl->server, hostname) == 0) {
-	    break;
-	}
-    }
+    int		    ihops, found = FALSE;
 
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
@@ -530,6 +524,13 @@ void command_server(char *hostname, char *parameters)
     vers = strtok(NULL, " \0");
     fullname = strtok(NULL, "\0");
     ihops = atoi(hops) + 1;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, name) == 0) {
+	    found = TRUE;
+	    break;
+	}
+    }
 
     Syslog('r', "name \"%s\"", printable(name, 0));
     Syslog('r', "hops \"%s\"", printable(hops, 0));
@@ -547,7 +548,7 @@ void command_server(char *hostname, char *parameters)
     token = atoi(id);
     sprintf(temp, "SERVER %s %d %s %s %s %s", name, ihops, id, prod, vers, fullname);
 
-    if (tnsl->token) {
+    if (found && tnsl->token) {
 	/*
 	 * We are in calling state, so we expect the token from the
 	 * remote is the same as the token we sent.
@@ -572,7 +573,7 @@ void command_server(char *hostname, char *parameters)
      * messages and set the session to connected if we got a
      * valid PASS command.
      */
-    if (tnsl->gotpass) {
+    if (found && tnsl->gotpass) {
 	sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
@@ -584,9 +585,20 @@ void command_server(char *hostname, char *parameters)
 	Syslog('+', "IBC: connected with %s", tnsl->server);
 	add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
 	changed = TRUE;
-    } else {
-	Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
+	return;
     }
+
+    if (! found) {
+       /*
+	* Got a message about a server that is not our neighbour.
+	*/
+	add_server(&servers, name, ihops, prod, vers, fullname);
+	broadcast(temp, hostname);
+	changed = TRUE;
+	return;
+    }
+
+    Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
     return;
 }
 
