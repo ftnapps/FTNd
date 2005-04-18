@@ -42,6 +42,7 @@ int		    ibc_run = FALSE;	    /* Thread running		*/
 extern int	    T_Shutdown;		    /* Program shutdown		*/
 extern int	    internet;		    /* Internet status		*/
 time_t		    scfg_time = (time_t)0;  /* Servers config time	*/
+time_t		    now;		    /* Current time		*/
 ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 srv_list	    *servers = NULL;	    /* Active servers		*/
 int		    ls;			    /* Listen socket		*/
@@ -68,7 +69,7 @@ static char *ncsstate[] = {
 void fill_ncslist(ncs_list **, char *, char *, char *);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
-void add_server(srv_list **, char *, int);
+void add_server(srv_list **, char *, int, char *, char *, char *);
 void del_server(srv_list **, char *);
 int send_msg(int, struct sockaddr_in, char *, char *);
 void check_servers(void);
@@ -93,7 +94,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
     strncpy(tmp->myname, myname, 63);
     strncpy(tmp->passwd, passwd, 15);
     tmp->state = NCS_INIT;
-    tmp->action = time(NULL);
+    tmp->action = now;
     tmp->last = (time_t)0;
     tmp->version = 0;
     tmp->remove = FALSE;
@@ -119,12 +120,10 @@ void dump_ncslist(void)
 {   
     ncs_list	*tmp;
     srv_list	*srv;
-    time_t	now;
 
     if (!changed)
 	return;
 
-    now = time(NULL);
     Syslog('r', "Server                         State   Del Pwd Srv Next action");
     Syslog('r', "------------------------------ ------- --- --- --- -----------");
     
@@ -157,7 +156,7 @@ void tidy_servers(srv_list ** fdp)
 
 
 
-void add_server(srv_list **fdp, char *name, int hops)
+void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, char *fullname)
 {
     srv_list *tmp, *ta;
 
@@ -165,7 +164,10 @@ void add_server(srv_list **fdp, char *name, int hops)
     memset(tmp, 0, sizeof(tmp));
     tmp->next = NULL;
     strncpy(tmp->server, name, 63);
-    tmp->connected = time(NULL);
+    strncpy(tmp->prod, prod, 20);
+    strncpy(tmp->vers, vers, 20);
+    strncpy(tmp->fullname, fullname, 35);
+    tmp->connected = now;
     tmp->users = 0;
     tmp->hops = hops;
 
@@ -241,7 +243,6 @@ void check_servers(void)
     FILE	    *fp;
     ncs_list	    *tnsl;
     int		    j, inlist;
-    time_t	    now;
     int		    a1, a2, a3, a4;
     struct servent  *se;
     struct hostent  *he;
@@ -275,7 +276,7 @@ void check_servers(void)
 			    /*
 			     * First add this server name to the servers database.
 			     */
-			    add_server(&servers, ibcsrv.myname, 0);
+			    add_server(&servers, ibcsrv.myname, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name);
 			}
 		    }
 		}
@@ -297,7 +298,7 @@ void check_servers(void)
 		if (!inlist) {
 		    Syslog('r', "  not in configuration, remove");
 		    tnsl->remove = TRUE;
-		    tnsl->action = time(NULL);
+		    tnsl->action = now;
 		    changed = TRUE;
 		}
 	    }
@@ -312,7 +313,6 @@ void check_servers(void)
     /*
      * Check if we need to make state changes
      */
-    now = time(NULL);
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (((int)tnsl->action - (int)now) <= 0) {
 	    switch (tnsl->state) {
@@ -493,9 +493,9 @@ void command_pass(char *hostname, char *parameters)
 void command_server(char *hostname, char *parameters)
 {
     ncs_list	    *tnsl;
-    char	    *name, *hops, *id, *vers;
-    time_t	    now;
+    char	    *name, *hops, *id, *prod, *vers, *fullname;
     unsigned long   token;
+    int		    ihops;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -506,21 +506,25 @@ void command_server(char *hostname, char *parameters)
     name = strtok(parameters, " \0");
     hops = strtok(NULL, " \0");
     id = strtok(NULL, " \0");
+    prod = strtok(NULL, " \0");
     vers = strtok(NULL, "\0");
+    fullname = strtok(NULL, "\0");
+    ihops = atoi(hops) + 1;
 
     Syslog('r', "name \"%s\"", printable(name, 0));
     Syslog('r', "hops \"%s\"", printable(hops, 0));
     Syslog('r', "id \"%s\"", printable(id, 0));
+    Syslog('r', "prod \"%s\"", printable(prod, 0));
     Syslog('r', "vers \"%s\"", printable(vers, 0));
+    Syslog('r', "full \"%s\"", printable(fullname, 0));
 
-    if (id == NULL) {
+    if (vers == NULL) {
 	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	return;
     }
 
     token = atoi(id);
-    now = time(NULL);
 
     if (tnsl->token) {
 	/*
@@ -534,7 +538,7 @@ void command_server(char *hostname, char *parameters)
 	    tnsl->state = NCS_CONNECT;
 	    tnsl->action = now + (time_t)10;
 	    Syslog('+', "IBC: connected with %s", tnsl->server);
-	    add_server(&servers, tnsl->server, 1);
+	    add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
 	    return;
 	}
 	Syslog('r', "IBC: collision with %s", tnsl->server);
@@ -555,7 +559,7 @@ void command_server(char *hostname, char *parameters)
 	tnsl->state = NCS_CONNECT;
 	tnsl->action = now + (time_t)10;
 	Syslog('+', "IBC: connected with %s", tnsl->server);
-	add_server(&servers, tnsl->server, 1);
+	add_server(&servers, tnsl->server, ihops, prod, vers, fullname);
 	changed = TRUE;
     } else {
 	Syslog('r', "IBC: got SERVER command without PASS command from %s", hostname);
@@ -567,9 +571,9 @@ void command_server(char *hostname, char *parameters)
 
 void command_squit(char *hostname, char *parameters)
 {
-    ncs_list        *tnsl;
-    char            *name, *message;
-
+    ncs_list    *tnsl;
+    char        *name, *message;
+    
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
 	    break;
@@ -582,7 +586,7 @@ void command_squit(char *hostname, char *parameters)
     if (strcmp(name, tnsl->server) == 0) {
 	Syslog('+', "IBC: disconnect server %s: %s", name, message);
 	tnsl->state = NCS_HANGUP;
-	tnsl->action = time(NULL) + (time_t)120;	// 2 minutes delay before calling again.
+	tnsl->action = now + (time_t)120;	// 2 minutes delay before calling again.
 	tnsl->gotpass = FALSE;
 	tnsl->gotserver = FALSE;
 	tnsl->token = 0;
@@ -646,7 +650,7 @@ void receiver(struct servent  *se)
 		return;
 	    }
 
-	    tnsl->last = time(NULL);
+	    tnsl->last = now;
 	    crbuf[strlen(crbuf) -2] = '\0';
 	    Syslog('r', "< %s: \"%s\"", hostname, printable(crbuf, 0));
 
@@ -662,9 +666,9 @@ void receiver(struct servent  *se)
 		command = strtok(crbuf, " \0");
 		parameters = strtok(NULL, "\0");
 	    }
-//	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
-//	    Syslog('r', "command    \"%s\"", printable(command, 0));
-//	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
+	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
+	    Syslog('r', "command    \"%s\"", printable(command, 0));
+	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
 
 	    if (! strcmp(command, (char *)"PASS")) {
 		if (parameters == NULL) {
@@ -747,6 +751,8 @@ void *ibc_thread(void *dummy)
     ibc_run = TRUE;
 
     while (! T_Shutdown) {
+
+	now = time(NULL);
 	/*
 	 * Check neighbour servers state
 	 */
