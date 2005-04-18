@@ -51,6 +51,7 @@ struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
 int		    changed = FALSE;	    /* Databases changed	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
 char		    csbuf[512];		    /* Chat send buffer		*/
+int		    srvchg = FALSE;	    /* Is serverlist changed	*/
 
 
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -132,7 +133,7 @@ void dump_ncslist(void)
     ncs_list	*tmp;
     srv_list	*srv;
 
-    if (!changed)
+    if (!changed && !srvchg)
 	return;
 
     Syslog('r', "Server                         State   Del Pwd Srv Next action");
@@ -144,11 +145,15 @@ void dump_ncslist(void)
 		tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
     }
 
-    Syslog('r', "Server                    Router                     Hops Users Connect time");
-    Syslog('r', "------------------------- ------------------------- ----- ----- --------------------");
-    for (srv = servers; srv; srv = srv->next) {
-	Syslog('r', "%-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
+    if (srvchg) {
+	Syslog('+', "IBC: Server                    Router                     Hops Users Connect time");
+	Syslog('+', "IBC: ------------------------- ------------------------- ----- ----- --------------------");
+	for (srv = servers; srv; srv = srv->next) {
+	    Syslog('+', "IBC: %-25s %-25s %5d %5d %s", srv->server, srv->router, srv->hops, srv->users, rfcdate(srv->connected));
+	}
     }
+    
+    srvchg = FALSE;
     changed = FALSE;
 }
 
@@ -208,6 +213,8 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
 
     if ((rc = pthread_mutex_unlock(&b_mutex)))
 	Syslog('!', "fill_ncslist() mutex_unlock failed rc=%d", rc);
+
+    srvchg = TRUE;
 }
 
 
@@ -232,6 +239,7 @@ void del_server(srv_list **fap, char *name)
 	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
 	    ta->next = tan->next;
 	    free(tan);
+	    srvchg = TRUE;
 	}
 	ta->next = tan;
     }
@@ -262,6 +270,7 @@ void del_router(srv_list **fap, char *name)
 	while ((tan = ta->next) && (strcmp(tan->router, name) == 0)) {
 	    ta->next = tan->next;
 	    free(tan);
+	    srvchg = TRUE;
 	}
 	ta->next = tan;
     }
