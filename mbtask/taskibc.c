@@ -42,6 +42,7 @@ extern int	    T_Shutdown;		    /* Program shutdown		*/
 extern int	    internet;		    /* Internet status		*/
 time_t		    scfg_time = (time_t)0;  /* Servers config time	*/
 ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
+srv_list	    *servers = NULL;	    /* Active servers		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
@@ -113,6 +114,7 @@ void fill_ncslist(ncs_list **fdp, char *server, char *myname, char *passwd)
 void dump_ncslist(void)
 {   
     ncs_list	*tmp;
+    srv_list	*srv;
     time_t	now;
 
     if (!changed)
@@ -127,7 +129,50 @@ void dump_ncslist(void)
 		tmp->remove ? "yes":"no ", tmp->gotpass ? "yes":"no ", 
 		tmp->gotserver ? "yes":"no ", (int)tmp->action - (int)now);
     }
+
+    Syslog('r', "Server                         Users Connect time");
+    Syslog('r', "------------------------------ ----- ---------------------");
+    for (srv = servers; srv; srv = srv->next) {
+	Syslog('r', "%-30s %5d %s", srv->server, srv->users, (char *)"NA");
+    }
     changed = FALSE;
+}
+
+
+
+void tidy_servers(srv_list ** fdp)
+{
+    srv_list *tmp, *old;
+
+    for (tmp = *fdp; tmp; tmp = old) {
+	old = tmp->next;
+	free(tmp);
+    }
+    *fdp = NULL;
+}
+
+
+
+void add_server(srv_list **fdp, char *name)
+{
+    srv_list *tmp, *ta;
+
+    tmp = (srv_list *)malloc(sizeof(srv_list));
+    memset(tmp, 0, sizeof(tmp));
+    tmp->next = NULL;
+    strncpy(tmp->server, name, 63);
+    tmp->connected = time(NULL);
+    tmp->users = 0;
+
+    if (*fdp == NULL) {
+	*fdp = tmp;
+    } else {
+	for (ta = *fdp; ta; ta = ta->next)
+	    if (ta->next == NULL) {
+		ta->next = (srv_list *)tmp;
+		break;
+	    }
+    }
 }
 
 
