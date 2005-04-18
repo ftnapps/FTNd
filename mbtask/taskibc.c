@@ -306,8 +306,22 @@ void check_servers(void)
 					if ((j > (CFG.dialdelay / 10)) && (j > 9))
 					    break;
 				    }
-				    Syslog('r', "next call in %d seconds", j);
+				    Syslog('r', "next call in %d %d seconds", CFG.dialdelay, j);
 				    tnsl->action = now + (time_t)j;
+				    break;
+
+		case NCS_CONNECT:   /*
+				     * In this state we check if the connection is still alive
+				     */
+				    Syslog('r', "%s connect", tnsl->server);
+				    if (((int)now - (int)tnsl->last) > 70) {
+					Syslog('r', "Server %s is dead", tnsl->server);
+				    }
+				    if (((int)now - (int)tnsl->last) > 60) {
+					sprintf(csbuf, "PING\r\n");
+					send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+				    }
+				    tnsl->action = now + (time_t)10;
 				    break;
 	    }
 	}
@@ -340,7 +354,7 @@ void command_pass(char *hostname, char *parameters)
     Syslog('r', "link \"%s\"", printable(lnk, 0));
 
     if (version == NULL) {
-	sprintf(csbuf, "461 PASS: Not enough parameters");
+	sprintf(csbuf, "461 PASS: Not enough parameters\r\n");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	return;
     }
@@ -382,7 +396,7 @@ void command_server(char *hostname, char *parameters)
     Syslog('r', "vers \"%s\"", printable(parameters, 0));
 
     if (id == NULL) {
-	sprintf(csbuf, "461 SERVER: Not enough parameters");
+	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	return;
     }
@@ -499,18 +513,21 @@ void receiver(struct servent  *se)
 
 	    if (! strcmp(command, (char *)"PASS")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters", command);
+		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
 		    command_pass(hostname, parameters);
 		}
 	    } else if (! strcmp(command, (char *)"SERVER")) {
 		if (parameters == NULL) {
-		    sprintf(csbuf, "461 %s: Not enough parameters", command);
+		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
 		    command_server(hostname, parameters);
 		}
+	    } else if (! strcmp(command, (char *)"PING")) {
+		sprintf(csbuf, "PONG\r\n");
+		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	    } else if (tnsl->state == NCS_CONNECT) {
 		/*
 		 * Only if connected we send a error response
