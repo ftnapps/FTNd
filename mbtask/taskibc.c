@@ -491,6 +491,11 @@ void receiver(struct servent  *se)
 		return;
 	    }
 
+	    if (tnsl->state == NCS_INIT) {
+		Syslog('r', "IBC: message received from %s while in init state, dropped", hostname);
+		return;
+	    }
+
 	    tnsl->last = time(NULL);
 	    crbuf[strlen(crbuf) -2] = '\0';
 	    Syslog('r', "< %s: \"%s\"", hostname, printable(crbuf, 0));
