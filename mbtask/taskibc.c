@@ -182,27 +182,20 @@ void add_server(srv_list **fdp, char *name, int hops)
 
 
 
-void del_server(srv_list **fdp, char *name)
+void del_server(srv_list **fap, char *name)
 {
-    srv_list *tmp, *old = NULL;
+    srv_list *ta, *tan;
 
     Syslog('r', "delserver %s", name);
 
-    for (tmp = *fdp; tmp; tmp = old) {
-	Syslog('r', " loop %s", tmp->server);
-	if (strcmp(tmp->server, name) == 0) {
-	    if (old) {
-		Syslog('r', " old is true");
-		old->next = tmp->next;
-	    } else {
-		Syslog('r', " old = false");
-		*fdp = tmp->next;
-	    }
-	    old = tmp->next;
-	    free(tmp);
-	} else {
-	    old = tmp->next;
+    if (*fap == NULL)
+	return;
+    for (ta = *fap; ta; ta = ta->next) {
+	while ((tan = ta->next) && (strcmp(tan->server, name) == 0)) {
+	    ta->next = tan->next;
+	    free(tan);
 	}
+	ta->next = tan;
     }
 }
 
@@ -419,6 +412,7 @@ void check_servers(void)
 					tnsl->gotpass = FALSE;
 					tnsl->gotserver = FALSE;
 					tnsl->token = 0;
+					del_server(&servers, tnsl->server);
 					changed = TRUE;
 					break;
 				    }
@@ -698,7 +692,7 @@ void receiver(struct servent  *se)
 		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
-		    sprintf(temp, "SQUIT %s %s", hostname, parameters);
+		    sprintf(temp, "SQUIT %s", parameters);
 		    command_squit(hostname, parameters);
 		    send_all(temp);
 		}
