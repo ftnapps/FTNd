@@ -452,7 +452,6 @@ void check_servers(void)
 		case NCS_CONNECT:   /*
 				     * In this state we check if the connection is still alive
 				     */
-				    Syslog('r', "%s connect", tnsl->server);
 				    if (((int)now - (int)tnsl->last) > 70) {
 					Syslog('+', "IBC: server %s connection is dead", tnsl->server);
 					tnsl->state = NCS_DEAD;
@@ -471,19 +470,19 @@ void check_servers(void)
 				    tnsl->action = now + (time_t)10;
 				    break;
 
-		case NCS_HANGUP:    Syslog('r', "%s hangup", tnsl->server);
+		case NCS_HANGUP:    Syslog('r', "%s hangup => call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
 				    changed = TRUE;
 				    break;
 
-		case NCS_DEAD:	    Syslog('r', "%s dead", tnsl->server);
+		case NCS_DEAD:	    Syslog('r', "%s dead -> call", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_CALL;
 				    changed = TRUE;
 				    break;
 
-		case NCS_FAIL:	    Syslog('r', "%s fail", tnsl->server);
+		case NCS_FAIL:	    Syslog('r', "%s fail => init", tnsl->server);
 				    tnsl->action = now + (time_t)1;
 				    tnsl->state = NCS_INIT;
 				    changed = TRUE;
