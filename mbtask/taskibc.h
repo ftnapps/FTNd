@@ -28,6 +28,49 @@ typedef struct _ncs_list {
 } ncs_list;
 
 
+
+/*
+ * Database with servers
+ */
+typedef struct _srv_list {
+    struct _srv_list	*next;
+    char		server[64];	    /* FQDN of the server	*/
+    time_t		connected;	    /* Connection time		*/
+    int			users;		    /* Users in chat		*/
+} srv_list;
+
+
+
+/*
+ * Database with users
+ */
+typedef struct _usr_list {
+    struct _usr_list	*next;
+    char		server[64];	    /* FQDN of users server	*/
+    char		nick[9];	    /* Users nick		*/
+    char		realname[36];	    /* Users real name		*/
+    char		channel[21];	    /* Users channel		*/
+    time_t		connected;	    /* Users connect time	*/
+    unsigned		chanop	    : 1;    /* User is a chanop		*/
+} usr_list;
+
+
+
+/*
+ * Database with channels
+ */
+typedef struct _chn_list {
+    struct _chn_list	*next;
+    char		server[64];	    /* Originating server	*/
+    char		name[21];	    /* Channel name		*/
+    char		topic[55];	    /* Channel topic		*/
+    char		owner[9];	    /* Channel owner		*/
+    time_t		created;	    /* Channel created		*/
+    int			users;		    /* Users in channel		*/
+} chn_list;
+
+
+
 void send_all(char *);
 void *ibc_thread(void *);
 

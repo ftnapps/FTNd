@@ -137,6 +137,15 @@ void dump_ncslist(void)
  */
 void send_all(char *msg)
 {
+    ncs_list	*tnsl;
+
+    sprintf(csbuf, "%s\r\n", msg);
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (tnsl->state == NCS_CONNECT) {
+	    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	}
+    }
 }
 
 
@@ -500,6 +509,8 @@ void command_squit(char *hostname, char *parameters)
 	tnsl->gotserver = FALSE;
 	tnsl->token = 0;
 	changed = TRUE;
+    } else {
+	Syslog('r', "IBC: disconnect server %s: message is not for us, but update database");
     }
 }
 
@@ -602,7 +613,9 @@ void receiver(struct servent  *se)
 		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
+		    sprintf(csbuf, "SQUIT %s %s", hostname, parameters);
 		    command_squit(hostname, parameters);
+		    send_all(csbuf);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
