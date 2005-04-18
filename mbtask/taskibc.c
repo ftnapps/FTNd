@@ -485,10 +485,10 @@ void command_pass(char *hostname, char *parameters)
     opts = strtok(NULL, " \0");
     lnk = strtok(NULL, " \0");
 
-    Syslog('r', "passwd \"%s\"", printable(passwd, 0));
-    Syslog('r', "version \"%s\"", printable(version, 0));
-    Syslog('r', "opts \"%s\"", printable(opts, 0));
-    Syslog('r', "link \"%s\"", printable(lnk, 0));
+//    Syslog('r', "passwd \"%s\"", printable(passwd, 0));
+//    Syslog('r', "version \"%s\"", printable(version, 0));
+//    Syslog('r', "opts \"%s\"", printable(opts, 0));
+//    Syslog('r', "link \"%s\"", printable(lnk, 0));
 
     if (version == NULL) {
 	sprintf(csbuf, "461 PASS: Not enough parameters\r\n");
@@ -533,12 +533,12 @@ void command_server(char *hostname, char *parameters)
 	}
     }
 
-    Syslog('r', "name \"%s\"", printable(name, 0));
-    Syslog('r', "hops \"%s\"", printable(hops, 0));
-    Syslog('r', "id   \"%s\"", printable(id, 0));
-    Syslog('r', "prod \"%s\"", printable(prod, 0));
-    Syslog('r', "vers \"%s\"", printable(vers, 0));
-    Syslog('r', "full \"%s\"", printable(fullname, 0));
+//    Syslog('r', "name \"%s\"", printable(name, 0));
+//    Syslog('r', "hops \"%s\"", printable(hops, 0));
+//    Syslog('r', "id   \"%s\"", printable(id, 0));
+//    Syslog('r', "prod \"%s\"", printable(prod, 0));
+//    Syslog('r', "vers \"%s\"", printable(vers, 0));
+//    Syslog('r', "full \"%s\"", printable(fullname, 0));
 
     if (fullname == NULL) {
 	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
@@ -723,9 +723,9 @@ void receiver(struct servent  *se)
 		command = strtok(crbuf, " \0");
 		parameters = strtok(NULL, "\0");
 	    }
-	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
-	    Syslog('r', "command    \"%s\"", printable(command, 0));
-	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
+//	    Syslog('r', "prefix     \"%s\"", printable(prefix, 0));
+//	    Syslog('r', "command    \"%s\"", printable(command, 0));
+//	    Syslog('r', "parameters \"%s\"", printable(parameters, 0));
 
 	    if (! strcmp(command, (char *)"PASS")) {
 		if (parameters == NULL) {
