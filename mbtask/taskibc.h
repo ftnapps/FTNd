@@ -37,6 +37,9 @@ typedef struct _srv_list {
     char		server[64];	    /* FQDN of the server	*/
     int			hops;		    /* Howmany hops away	*/
     time_t		connected;	    /* Connection time		*/
+    char		prod[21];	    /* Product name		*/
+    char		vers[21];	    /* Version string		*/
+    char		fullname[36];	    /* Full BBS name		*/
     int			users;		    /* Users in chat		*/
 } srv_list;
 

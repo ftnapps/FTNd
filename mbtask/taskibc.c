@@ -376,7 +376,8 @@ void check_servers(void)
 				    tnsl->token = gettoken();
 				    sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-				    sprintf(csbuf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, tnsl->token, VERSION);
+				    sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
+					    VERSION, CFG.bbs_name);
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 				    tnsl->action = now + (time_t)10;
 				    tnsl->state = NCS_WAITPWD;
@@ -518,7 +519,7 @@ void command_server(char *hostname, char *parameters)
     Syslog('r', "vers \"%s\"", printable(vers, 0));
     Syslog('r', "full \"%s\"", printable(fullname, 0));
 
-    if (vers == NULL) {
+    if (fullname == NULL) {
 	sprintf(csbuf, "461 SERVER: Not enough parameters\r\n");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	return;
@@ -553,7 +554,7 @@ void command_server(char *hostname, char *parameters)
     if (tnsl->gotpass) {
 	sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
-	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs v%s\r\n",  tnsl->myname, token, VERSION);
+	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	tnsl->gotserver = TRUE;
 	tnsl->state = NCS_CONNECT;
