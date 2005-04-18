@@ -1,5 +1,8 @@
 $Id$
 
+	WARNING: Do not compile with --enable-experiment. This may make your
+	system unstable.
+
 
 v0.71.2		16-Jan-2005
 
@@ -54,10 +57,15 @@ v0.71.2		16-Jan-2005
 	mbtask:
 		The created semafore files are now world readable so that low
 		privileged users like nobody can check the semafore's.
+		Added experimental code to build Internet BBS Chat. With this
+		code we will build inter-bbs chat. Currently this only works
+		to connect/disconnect servers to build the network.
 
 	mbsetup:
-		Added langugae defaults for Chinese.
-		removed obsolete bbslist editor.
+		Added language defaults for Chinese.
+		Removed obsolete bbslist editor.
+		Added chatserver setup, only visible when compiled with the
+		dangerous --enable-experint configuration.
 
 	html:
 		Added batch file upload written by Russell Tiedt to the faq.
