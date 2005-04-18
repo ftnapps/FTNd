@@ -567,7 +567,7 @@ void command_server(char *hostname, char *parameters)
 	     */
 	    for (ta = servers; ta; ta = ta->next) {
 		if (ta->hops) {
-		    sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops +1, ta->prod, ta->vers, ta->fullname);
+		    sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		}
 	    }
@@ -598,7 +598,7 @@ void command_server(char *hostname, char *parameters)
 	 */
 	for (ta = servers; ta; ta = ta->next) {
 	    if (ta->hops) {
-		sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops +1, ta->prod, ta->vers, ta->fullname);
+		sprintf(csbuf, "SERVER %s %d 0 %s %s %s\r\n", ta->server, ta->hops, ta->prod, ta->vers, ta->fullname);
 		send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	    }
 	}
