@@ -185,6 +185,7 @@ int AppendIBC(void)
     sprintf(ffile, "%s/etc/ibcsrv.temp", getenv("MBSE_ROOT"));
     if ((fil = fopen(ffile, "a")) != NULL) {
 	memset(&ibcsrv, 0, sizeof(ibcsrv));
+	strcpy(ibcsrv.myname, CFG.myfqdn);
 	fwrite(&ibcsrv, sizeof(ibcsrv), 1, fil);
 	fclose(fil);
 	IBCUpdated = 1;

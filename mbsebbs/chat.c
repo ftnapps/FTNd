@@ -194,7 +194,7 @@ void Chat(char *username, char *channel)
     sprintf(buf, "%-*s", 79, " MBSE BBS Chat Server");
     mvprintw(1, 1, buf);
 
-    sprintf(buf, "CCON,3,%d,%s,0;", mypid, exitinfo.Name);
+    sprintf(buf, "CCON,4,%d,%s,%s,0;", mypid, exitinfo.sUserName, exitinfo.Name);
     Syslog('c', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strncpy(buf, socket_receive(), sizeof(buf)-1);

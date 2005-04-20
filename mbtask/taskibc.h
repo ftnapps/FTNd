@@ -40,7 +40,7 @@ typedef struct _srv_list {
     time_t		connected;	    /* Connection time		*/
     char		prod[21];	    /* Product name		*/
     char		vers[21];	    /* Version string		*/
-    char		fullname[36];	    /* Full BBS name		*/
+    char		fullname[37];	    /* Full BBS name		*/
     int			users;		    /* Users in chat		*/
 } srv_list;
 
@@ -52,8 +52,8 @@ typedef struct _srv_list {
 typedef struct _usr_list {
     struct _usr_list	*next;
     char		server[64];	    /* FQDN of users server	*/
-    char		nick[9];	    /* Users nick		*/
-    char		realname[36];	    /* Users real name		*/
+    char		nick[10];	    /* Users nick		*/
+    char		realname[37];	    /* Users real name		*/
     char		channel[21];	    /* Users channel		*/
     time_t		connected;	    /* Users connect time	*/
     unsigned		chanop	    : 1;    /* User is a chanop		*/
@@ -69,12 +69,15 @@ typedef struct _chn_list {
     char		server[64];	    /* Originating server	*/
     char		name[21];	    /* Channel name		*/
     char		topic[55];	    /* Channel topic		*/
-    char		owner[9];	    /* Channel owner		*/
+    char		owner[10];	    /* Channel owner		*/
     time_t		created;	    /* Channel created		*/
     int			users;		    /* Users in channel		*/
 } chn_list;
 
 
+
+void add_user(char *, char *, char *);
+void del_user(char *, char *);
 
 void send_all(char *);
 void *ibc_thread(void *);

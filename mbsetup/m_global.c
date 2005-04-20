@@ -129,45 +129,48 @@ void cf_close(void)
 
 void e_reginfo(void)
 {
-	clr_index();
+    clr_index();
+    set_color(WHITE, BLACK);
+    mbse_mvprintw( 5, 2, "1.2 EDIT REGISTRATION INFO");
+    set_color(CYAN, BLACK);
+    mbse_mvprintw( 7, 2, "1.  BBS name");
+    mbse_mvprintw( 8, 2, "2.  Maildomain");
+    mbse_mvprintw( 9, 2, "3.  Sysop uid");
+    mbse_mvprintw(10, 2, "4.  Sysop Fido");
+    mbse_mvprintw(11, 2, "5.  Location");
+    mbse_mvprintw(12, 2, "6.  OLR id");
+    mbse_mvprintw(13, 2, "7.  Comment");
+    mbse_mvprintw(14, 2, "8.  Origin");
+    mbse_mvprintw(15, 2, "9.  Newuser");
+    mbse_mvprintw(16, 2, "10. My FQDN");
+
+    for (;;) {
 	set_color(WHITE, BLACK);
-	mbse_mvprintw( 5, 6, "1.2   EDIT REGISTRATION INFO");
-	set_color(CYAN, BLACK);
-	mbse_mvprintw( 7, 6, "1.    System name");
-	mbse_mvprintw( 8, 6, "2.    Domain name");
-	mbse_mvprintw( 9, 6, "3.    Sysop uid");
-	mbse_mvprintw(10, 6, "4.    Sysop Fido");
-	mbse_mvprintw(11, 6, "5.    Location");
-	mbse_mvprintw(12, 6, "6.    QWK/Bluewave");
-	mbse_mvprintw(13, 6, "7.    Comment");
-	mbse_mvprintw(14, 6, "8.    Origin line");
-	mbse_mvprintw(15, 6, "9.    Startup uid");
+	show_str( 7,17,35, CFG.bbs_name);
+	show_str( 8,17,35, CFG.sysdomain);
+	show_str( 9,17, 8, CFG.sysop);
+	show_str(10,17,35, CFG.sysop_name);
+	show_str(11,17,35, CFG.location);
+	show_str(12,17, 8, CFG.bbsid);
+	show_str(13,17,55, CFG.comment);
+	show_str(14,17,50, CFG.origin);  
+	show_str(15,17, 8, CFG.startname);
+	show_str(16,17,63, CFG.myfqdn);
 
-	for (;;) {
-		set_color(WHITE, BLACK);
-		show_str( 7,25,35, CFG.bbs_name);
-		show_str( 8,25,35, CFG.sysdomain);
-		show_str( 9,25, 8, CFG.sysop);
-		show_str(10,25,35, CFG.sysop_name);
-		show_str(11,25,35, CFG.location);
-		show_str(12,25, 8, CFG.bbsid);
-		show_str(13,25,55, CFG.comment);
-		show_str(14,25,50, CFG.origin);  
-		show_str(15,25, 8, CFG.startname);
-
-		switch(select_menu(9)) {
-		case 0: return;
-		case 1: E_STR( 7,25,35, CFG.bbs_name,   "Name of this ^BBS^ system")
-		case 2: E_STR( 8,25,35, CFG.sysdomain,  "Internet ^mail domain^ name of this system")
-		case 3:	E_STR( 9,25, 8, CFG.sysop,      "^Unix name^ of the sysop")
-		case 4:	E_STR(10,25,35, CFG.sysop_name, "^Fidonet name^ of the sysop")
-		case 5:	E_STR(11,25,35, CFG.location,   "^Location^ (city) of this system")
-		case 6:	E_UPS(12,25, 8, CFG.bbsid,      "^QWK/Bluewave^ packets name")
-		case 7:	E_STR(13,25,55, CFG.comment,    "Some ^comment^ you may like to give")
-		case 8:	E_STR(14,25,50, CFG.origin,     "Default ^origin^ line under echomail messages")
-		case 9: E_STR(15,25, 8, CFG.startname,  "The ^Unix username^ that is used to start the bbs")
-		}
-	};
+	switch(select_menu(10)) {
+	    case 0: return;
+	    case 1: E_STR( 7,17,35, CFG.bbs_name,   "Name of this ^BBS^ system")
+	    case 2: E_STR( 8,17,35, CFG.sysdomain,  "Internet ^mail domain^ name of this system")
+	    case 3: E_STR( 9,17, 8, CFG.sysop,      "^Unix name^ of the sysop")
+	    case 4: E_STR(10,17,35, CFG.sysop_name, "^Fidonet name^ of the sysop")
+	    case 5: E_STR(11,17,35, CFG.location,   "^Location^ (city/country) of this system")
+	    case 6: E_UPS(12,17, 8, CFG.bbsid,      "^QWK/Bluewave^ packets name")
+	    case 7: E_STR(13,17,55, CFG.comment,    "Some ^comment^ you may like to give")
+	    case 8: E_STR(14,17,50, CFG.origin,     "Default ^origin^ line under echomail messages")
+	    case 9: E_STR(15,17, 8, CFG.startname,  "The ^Unix username^ for new users that is used to start the bbs")
+	    case 10:E_STR(16,17,63, CFG.myfqdn,     "My real internet ^Full Qualified Domain Name^ or IP address if not in the DNS")
+	}
+    }
 } 
 
 

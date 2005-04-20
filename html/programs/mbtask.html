@@ -265,7 +265,7 @@ Command: CISC:1,pid;                    Check sysop in chatmode.
 Reply:   100:1,1;                       Yes and drop into chatmode.
          100:1,0;                       No.
 
-Command: CCON:3,pid,username,n;         Connect to chatserver with username. n=1 user is sysop.
+Command: CCON:4,pid,username,unixname,n; Connect to chatserver with username. n=1 user is sysop.
 Reply:   100:1,error;                   Error with message.
          100:0;                         Ok.
 

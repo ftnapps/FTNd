@@ -45,6 +45,7 @@ time_t		    scfg_time = (time_t)0;  /* Servers config time	*/
 time_t		    now;		    /* Current time		*/
 ncs_list	    *ncsl = NULL;	    /* Neighbours list		*/
 srv_list	    *servers = NULL;	    /* Active servers		*/
+usr_list	    *users = NULL;	    /* Active users		*/
 int		    ls;			    /* Listen socket		*/
 struct sockaddr_in  myaddr_in;		    /* Listen socket address	*/
 struct sockaddr_in  clientaddr_in;	    /* Remote socket address	*/
@@ -52,6 +53,8 @@ int		    changed = FALSE;	    /* Databases changed	*/
 char		    crbuf[512];		    /* Chat receive buffer	*/
 char		    csbuf[512];		    /* Chat send buffer		*/
 int		    srvchg = FALSE;	    /* Is serverlist changed	*/
+int		    usrchg = FALSE;	    /* Is userlist changed	*/
+
 
 
 pthread_mutex_t b_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -66,12 +69,14 @@ static char *ncsstate[] = {
 };
 
 
+
 /*
  * Internal prototypes
  */
 void fill_ncslist(ncs_list **, char *, char *, char *);
 void dump_ncslist(void);
 void tidy_servers(srv_list **);
+void del_userbyserver(usr_list **, char *);
 void add_server(srv_list **, char *, int, char *, char *, char *, char *);
 void del_server(srv_list **, char *);
 void del_router(srv_list **, char *);
@@ -132,6 +137,7 @@ void dump_ncslist(void)
 {   
     ncs_list	*tmp;
     srv_list	*srv;
+    usr_list	*usrp;
 
     if (!changed && !srvchg)
 	return;
@@ -153,7 +159,17 @@ void dump_ncslist(void)
 	}
     }
     
+    if (usrchg) {
+	Syslog('+', "IBC: Server                    User                      Nick      Channel              Cop Connect time");
+	Syslog('+', "IBC: ------------------------- ------------------------- --------- -------------------- --- --------------------");
+	for (usrp = users; usrp; usrp = usrp->next) {
+	    Syslog('+', "IBC: %-25s %-25s %-9s %-20s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
+		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
+	}
+    }
+
     srvchg = FALSE;
+    usrchg = FALSE;
     changed = FALSE;
 }
 
@@ -168,6 +184,99 @@ void tidy_servers(srv_list ** fdp)
 	free(tmp);
     }
     *fdp = NULL;
+}
+
+
+
+/*
+ * Add one user to the userlist
+ */
+void add_user(char *server, char *nick, char *realname)
+{
+    usr_list    *tmp, *ta;
+    srv_list	*sl;
+    int         rc;
+
+    Syslog('r', "add_user %s %s %s", server, nick, realname);
+
+    for (ta = users; ta; ta = ta->next) {
+	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
+	    Syslog('r', "duplicate, ignore");
+	    return;
+	}
+    }
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "add_user() mutex_lock failed rc=%d", rc);
+
+    tmp = (usr_list *)malloc(sizeof(usr_list));
+    memset(tmp, 0, sizeof(tmp));
+    tmp->next = NULL;
+    strncpy(tmp->server, server, 63);
+    strncpy(tmp->nick, nick, 9);
+    strncpy(tmp->realname, realname, 36);
+    tmp->connected = now;
+
+    if (users == NULL) {
+	users = tmp;
+    } else {
+	for (ta = users; ta; ta = ta->next)
+	    if (ta->next == NULL) {
+		ta->next = (usr_list *)tmp;
+		break;
+	    }
+    }
+
+    for (sl = servers; sl; sl = sl->next) {
+	if (strcmp(sl->server, server) == 0) {
+		sl->users++;
+		srvchg = TRUE;
+	}
+    }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "add_user() mutex_unlock failed rc=%d", rc);
+
+    usrchg = TRUE;
+}
+
+
+
+/*
+ * Delete one user.
+ */
+void del_user(char *server, char *realname)
+{
+    usr_list    *ta, *tan;
+    srv_list	*sl;
+    int         rc;
+
+    Syslog('r', "deluser %s %s", server, realname);
+
+    if (users == NULL)
+	return;
+
+    if ((rc = pthread_mutex_lock(&b_mutex)))
+	Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
+
+    for (ta = users; ta; ta = ta->next) {
+	while ((tan = ta->next) && (strcmp(tan->server, server) == 0) && (strcmp(tan->realname, realname) == 0)) {
+	    ta->next = tan->next;
+	    free(tan);
+	    usrchg = TRUE;
+	}
+	ta->next = tan;
+    }
+
+    for (sl = servers; sl; sl = sl->next) {
+	if ((strcmp(sl->server, server) == 0) && sl->users) {
+	    sl->users--;
+	    srvchg = TRUE;
+	}
+    }
+
+    if ((rc = pthread_mutex_unlock(&b_mutex)))
+	Syslog('!', "del_user() mutex_unlock failed rc=%d", rc);
 }
 
 
@@ -212,7 +321,7 @@ void add_server(srv_list **fdp, char *name, int hops, char *prod, char *vers, ch
     }
 
     if ((rc = pthread_mutex_unlock(&b_mutex)))
-	Syslog('!', "fill_ncslist() mutex_unlock failed rc=%d", rc);
+	Syslog('!', "add_server() mutex_unlock failed rc=%d", rc);
 
     srvchg = TRUE;
 }
@@ -350,6 +459,13 @@ void check_servers(void)
     if (file_time(scfgfn) != scfg_time) {
 	Syslog('r', "%s filetime changed, rereading");
 
+	if (servers == NULL) {
+	    /*
+	     * First add this server name to the servers database.
+	     */
+	    add_server(&servers, CFG.myfqdn, 0, (char *)"mbsebbs", (char *)VERSION, CFG.bbs_name, (char *)"none");
+	}
+
 	if ((fp = fopen(scfgfn, "r"))) {
 	    fread(&ibcsrvhdr, sizeof(ibcsrvhdr), 1, fp);
 
@@ -367,13 +483,6 @@ void check_servers(void)
 			fill_ncslist(&ncsl, ibcsrv.server, ibcsrv.myname, ibcsrv.passwd);
 			changed = TRUE;
 			Syslog('+', "IBC: added Internet BBS Chatserver %s", ibcsrv.server);
-			if (servers == NULL) {
-			    /*
-			     * First add this server name to the servers database.
-			     */
-			    add_server(&servers, ibcsrv.myname, 0, (char *)"mbsebbs", 
-				    (char *)VERSION, CFG.bbs_name, (char *)"none");
-			}
 		    }
 		}
 	    }

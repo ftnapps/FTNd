@@ -48,7 +48,8 @@ typedef enum {CH_FREE, CH_PRIVATE, CH_PUBLIC} CHANNELTYPE;
  */
 typedef struct _ch_user_rec {
     pid_t	pid;		    /* User's pid			*/
-    char	name[36];	    /* His name used (may become nick)	*/
+    char	realname[36];	    /* Real name                      	*/
+    char	nick[10];	    /* Nickname				*/
     time_t	connected;	    /* Time connected			*/
     int		channel;	    /* Connected channel or -1		*/
     int		pointer;	    /* Message pointer			*/
@@ -110,7 +111,7 @@ _channel		chat_channels[MAXCHANNELS];
 int			buffer_head = 0;    /* Messages buffer head	*/
 extern struct sysconfig CFG;		    /* System configuration	*/
 extern int		s_bbsopen;	    /* The BBS open status	*/
-
+extern srv_list		*servers;	    /* Connected servers	*/
 
 
 /*
@@ -133,11 +134,11 @@ void chat_dump(void)
     for (i = 0; i < MAXCLIENT; i++)
 	if (chat_users[i].pid) {
 	    if (first) {
-		Syslog('u', "  pid username                             ch chats sysop");
-		Syslog('u', "----- ------------------------------------ -- ----- -----");
+		Syslog('u', "  pid username                             nick      ch chats sysop");
+		Syslog('u', "----- ------------------------------------ --------- -- ----- -----");
 		first = FALSE;
 	    }
-	    Syslog('u', "%5d %-36s %2d %s %s", chat_users[i].pid, chat_users[i].name, chat_users[i].channel,
+	    Syslog('u', "%5d %-36s %-9s %2d %s %s", chat_users[i].pid, chat_users[i].realname, chat_users[i].nick, chat_users[i].channel,
 		chat_users[i].chatting?"True ":"False", chat_users[i].sysop?"True ":"False");
 	}
     first = TRUE;
@@ -221,7 +222,7 @@ int join(pid_t pid, char *channel, int sysop)
 		    chat_users[j].chatting = TRUE;
 		    Syslog('-', "Added user %d to channel %d", j, i);
 		    chat_dump();
-		    sprintf(buf, "%s has joined channel #%s, now %d users", chat_users[j].name, channel, chat_channels[i].users);
+		    sprintf(buf, "%s has joined channel #%s, now %d users", chat_users[j].nick, channel, chat_channels[i].users);
 		    chat_msg(i, NULL, buf);
 		    return TRUE;
 		}
@@ -298,8 +299,8 @@ int part(pid_t pid, char *reason)
 	     * Inform other users
 	     */
 	    if (reason != NULL)
-		chat_msg(chat_users[i].channel, chat_users[i].name, reason);
-	    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].name, chat_channels[chat_users[i].channel].name,
+		chat_msg(chat_users[i].channel, chat_users[i].nick, reason);
+	    sprintf(buf, "%s has left channel #%s, %d users left", chat_users[i].nick, chat_channels[chat_users[i].channel].name,
 		    chat_channels[chat_users[i].channel].users);
 	    chat_msg(chat_users[i].channel, NULL, buf);
 	    
@@ -385,9 +386,10 @@ void chat_msg(int channel, char *nick, char *msg)
  */
 char *chat_connect(char *data)
 {
-    char	*pid, *usr;
+    char	*pid, *realname, *nick;
     static char buf[200];
-    int		i, j, count = 0, sys = FALSE;
+    int		i, count = 0, sys = FALSE;
+    srv_list	*sl;
 
     Syslog('-', "CCON:%s", data);
     memset(&buf, 0, sizeof(buf));
@@ -412,27 +414,40 @@ char *chat_connect(char *data)
 	     */
 	    pid = strtok(data, ",");	    /* Should be 3  */
 	    pid = strtok(NULL, ",");	    /* The pid	    */
-	    usr = strtok(NULL, ",");	    /* Username	    */
+	    realname = strtok(NULL, ",");   /* Username	    */
+	    nick = strtok(NULL, ",");	    /* Mickname	    */
 	    sys = atoi(strtok(NULL, ";"));  /* Sysop flag   */
 	    chat_users[i].pid = atoi(pid);
-	    strncpy(chat_users[i].name, usr, 36);
+	    strncpy(chat_users[i].realname, realname, 36);
+	    strncpy(chat_users[i].nick, nick, 9);
 	    chat_users[i].connected = time(NULL);
 	    chat_users[i].pointer = buffer_head;
 	    chat_users[i].channel = -1;
 	    chat_users[i].sysop = sys;
 
-	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d, sysop %s", usr, pid, i, sys ? "True":"False");
+	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d, sysop %s", realname, pid, i, sys ? "True":"False");
+
+	    /*
+	     * Register with IBC
+	     */
+	    add_user(CFG.myfqdn, nick, realname);
+	    sprintf(buf, "USER %s@%s 0 * :%s", nick, CFG.myfqdn, realname);
+	    send_all(buf);
 
 	    /*
 	     * Now put welcome message into the ringbuffer and report success.
 	     */
 	    sprintf(buf, "MBSE BBS v%s chat server; type /help for help", VERSION);
 	    system_msg(chat_users[i].pid, buf);
-	    sprintf(buf, "Welcome to the %s chat network", CFG.bbs_name);
+	    sprintf(buf, "Welcome to the Internet BBS Chat Network");
 	    system_msg(chat_users[i].pid, buf);
-	    for (j = 0; j < MAXCLIENT; j++)
-		if (chat_users[j].pid)
-		    count++;
+	    sprintf(buf, "Current connected servers:");
+	    system_msg(chat_users[i].pid, buf);
+	    for (sl = servers; sl; sl = sl->next) {
+		sprintf(buf, "  %s (%d user%s)", sl->fullname, sl->users, (sl->users == 1) ? "":"s");
+		system_msg(chat_users[i].pid, buf);
+		count += sl->users;
+	    }
 	    sprintf(buf, "There %s %d user%s connected", (count != 1)?"are":"is", count, (count != 1)?"s":"");
 	    system_msg(chat_users[i].pid, buf);
 
@@ -456,9 +471,13 @@ char *chat_close(char *data)
     memset(&buf, 0, sizeof(buf));
     pid = strtok(data, ",");
     pid = strtok(NULL, ";");
-    
+ 
     for (i = 0; i < MAXCLIENT; i++) {
 	if (chat_users[i].pid == atoi(pid)) {
+	    /*
+	     * Remove from IBC network
+	     */
+	    del_user(CFG.myfqdn, chat_users[i].realname);
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
 	    chat_users[i].channel = -1;
@@ -562,7 +581,7 @@ char *chat_put(char *data)
 			count = 0;
 			for (j = 0; j < MAXCLIENT; j++) {
 			    if ((chat_users[j].channel == chat_users[i].channel) && chat_users[j].pid) {
-				sprintf(buf, "%s %s", chat_users[j].name, 
+				sprintf(buf, "%s %s", chat_users[j].nick, 
 					chat_users[j].chanop ?"(chanop)": chat_users[j].sysop ?"(sysop)":"");
 				system_msg(chat_users[i].pid, buf);
 				count++;
@@ -578,10 +597,10 @@ char *chat_put(char *data)
 		} else if (strncasecmp(msg, "/nick", 5) == 0) {
 		    cmd = strtok(msg, " \0");
 		    cmd = strtok(NULL, "\0");
-		    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 36)) {
-			sprintf(buf, "** Nickname must be between 1 and 36 characters");
+		    if ((cmd == NULL) || (strlen(cmd) == 0) || (strlen(cmd) > 9)) {
+			sprintf(buf, "** Nickname must be between 1 and 9 characters");
 		    } else {
-			strncpy(chat_users[i].name, cmd, 36);
+			strncpy(chat_users[i].nick, cmd, 9);
 			sprintf(buf, "Nick set to \"%s\"", cmd);
 		    }
 		    system_msg(chat_users[i].pid, buf);
@@ -637,7 +656,7 @@ char *chat_put(char *data)
 		chat_dump();
 		goto ack;
 	    } else {
-		chat_msg(chat_users[i].channel, chat_users[i].name, msg);
+		chat_msg(chat_users[i].channel, chat_users[i].nick, msg);
 		chat_dump();
 	    }
 	    goto ack;

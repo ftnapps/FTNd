@@ -540,7 +540,7 @@ void Chat(int sysop)
     rsize = lines - 7;
     rpointer = 0;
 
-    sprintf(buf, "CCON,3,%d,%s,%s;", mypid, CFG.sysop, sysop ? "1":"0");
+    sprintf(buf, "CCON,4,%d,%s,%s,%s;", mypid, CFG.sysop_name, CFG.sysop, sysop ? "1":"0");
     Syslog('-', "> %s", buf);
     if (socket_send(buf) == 0) {
 	strcpy(buf, socket_receive());

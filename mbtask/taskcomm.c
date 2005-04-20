@@ -322,7 +322,7 @@ char *exe_cmd(char *in)
     /*
      * Connect to chatserver
      *
-     * CCON:3,pid,username,n;	Connect to chatserver with username, n=1 user is the sysop
+     * CCON:4,pid,username,unixname,n;	Connect to chatserver with username, n=1 user is the sysop
      * 100:1,error;		If error
      * 100:0;			Ok
      */
