@@ -111,7 +111,9 @@ _channel		chat_channels[MAXCHANNELS];
 int			buffer_head = 0;    /* Messages buffer head	*/
 extern struct sysconfig CFG;		    /* System configuration	*/
 extern int		s_bbsopen;	    /* The BBS open status	*/
+#ifdef	USE_EXPERIMENT
 extern srv_list		*servers;	    /* Connected servers	*/
+#endif
 
 
 /*
@@ -389,7 +391,9 @@ char *chat_connect(char *data)
     char	*pid, *realname, *nick;
     static char buf[200];
     int		i, count = 0, sys = FALSE;
+#ifdef	USE_EXPERIMENT
     srv_list	*sl;
+#endif
 
     Syslog('-', "CCON:%s", data);
     memset(&buf, 0, sizeof(buf));
@@ -427,12 +431,14 @@ char *chat_connect(char *data)
 
 	    Syslog('-', "Connected user %s (%s) with chatserver, slot %d, sysop %s", realname, pid, i, sys ? "True":"False");
 
+#ifdef	USE_EXPERIMENT
 	    /*
 	     * Register with IBC
 	     */
 	    add_user(CFG.myfqdn, nick, realname);
 	    sprintf(buf, "USER %s@%s 0 * :%s", nick, CFG.myfqdn, realname);
 	    send_all(buf);
+#endif
 
 	    /*
 	     * Now put welcome message into the ringbuffer and report success.
@@ -441,6 +447,7 @@ char *chat_connect(char *data)
 	    system_msg(chat_users[i].pid, buf);
 	    sprintf(buf, "Welcome to the Internet BBS Chat Network");
 	    system_msg(chat_users[i].pid, buf);
+#ifdef	USE_EXPERIMENT
 	    sprintf(buf, "Current connected servers:");
 	    system_msg(chat_users[i].pid, buf);
 	    for (sl = servers; sl; sl = sl->next) {
@@ -448,6 +455,7 @@ char *chat_connect(char *data)
 		system_msg(chat_users[i].pid, buf);
 		count += sl->users;
 	    }
+#endif
 	    sprintf(buf, "There %s %d user%s connected", (count != 1)?"are":"is", count, (count != 1)?"s":"");
 	    system_msg(chat_users[i].pid, buf);
 
@@ -477,7 +485,9 @@ char *chat_close(char *data)
 	    /*
 	     * Remove from IBC network
 	     */
+#ifdef	USE_EXPERIMENT
 	    del_user(CFG.myfqdn, chat_users[i].realname);
+#endif
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
 	    chat_users[i].channel = -1;
