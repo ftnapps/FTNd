@@ -436,7 +436,7 @@ char *chat_connect(char *data)
 	     * Register with IBC
 	     */
 	    add_user(CFG.myfqdn, nick, realname);
-	    sprintf(buf, "USER %s@%s 0 * :%s", nick, CFG.myfqdn, realname);
+	    sprintf(buf, "USER %s@%s %s", nick, CFG.myfqdn, realname);
 	    send_all(buf);
 #endif
 
@@ -487,6 +487,8 @@ char *chat_close(char *data)
 	     */
 #ifdef	USE_EXPERIMENT
 	    del_user(CFG.myfqdn, chat_users[i].realname);
+	    sprintf(buf, "QUIT %s@%s Leaving chat", chat_users[i].nick, CFG.myfqdn);
+	    send_all(buf);
 #endif
 	    Syslog('-', "Closing chat for pid %s, slot %d", pid, i);
 	    memset(&chat_users[i], 0, sizeof(_chat_users));
