@@ -76,8 +76,8 @@ typedef struct _chn_list {
 
 
 
-void add_user(char *, char *, char *);
-void del_user(char *, char *);
+void add_user(usr_list **, char *, char *, char *);
+void del_user(usr_list **, char *, char *);
 
 void send_all(char *);
 void *ibc_thread(void *);

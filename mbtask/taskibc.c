@@ -160,10 +160,10 @@ void dump_ncslist(void)
     }
     
     if (usrchg) {
-	Syslog('+', "IBC: Server                    User                      Nick      Channel              Cop Connect time");
-	Syslog('+', "IBC: ------------------------- ------------------------- --------- -------------------- --- --------------------");
+	Syslog('+', "IBC: Server               User                 Nick      Channel         Cop Connect time");
+	Syslog('+', "IBC: -------------------- -------------------- --------- --------------- --- --------------------");
 	for (usrp = users; usrp; usrp = usrp->next) {
-	    Syslog('+', "IBC: %-25s %-25s %-9s %-20s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
+	    Syslog('+', "IBC: %-20s %-20s %-9s %-15s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
 		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
 	}
     }
@@ -191,7 +191,7 @@ void tidy_servers(srv_list ** fdp)
 /*
  * Add one user to the userlist
  */
-void add_user(char *server, char *nick, char *realname)
+void add_user(usr_list **fap, char *server, char *nick, char *realname)
 {
     usr_list    *tmp, *ta;
     srv_list	*sl;
@@ -199,7 +199,7 @@ void add_user(char *server, char *nick, char *realname)
 
     Syslog('r', "add_user %s %s %s", server, nick, realname);
 
-    for (ta = users; ta; ta = ta->next) {
+    for (ta = *fap; ta; ta = ta->next) {
 	if ((strcmp(ta->server, server) == 0) && (strcmp(ta->realname, realname) == 0)) {
 	    Syslog('r', "duplicate, ignore");
 	    return;
@@ -217,10 +217,10 @@ void add_user(char *server, char *nick, char *realname)
     strncpy(tmp->realname, realname, 36);
     tmp->connected = now;
 
-    if (users == NULL) {
-	users = tmp;
+    if (*fap == NULL) {
+	*fap = tmp;
     } else {
-	for (ta = users; ta; ta = ta->next)
+	for (ta = *fap; ta; ta = ta->next)
 	    if (ta->next == NULL) {
 		ta->next = (usr_list *)tmp;
 		break;
@@ -245,7 +245,7 @@ void add_user(char *server, char *nick, char *realname)
 /*
  * Delete one user.
  */
-void del_user(char *server, char *realname)
+void del_user(usr_list **fap, char *server, char *realname)
 {
     usr_list    *ta, *tan;
     srv_list	*sl;
@@ -253,13 +253,13 @@ void del_user(char *server, char *realname)
 
     Syslog('r', "deluser %s %s", server, realname);
 
-    if (users == NULL)
+    if (*fap == NULL)
 	return;
 
     if ((rc = pthread_mutex_lock(&b_mutex)))
 	Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
 
-    for (ta = users; ta; ta = ta->next) {
+    for (ta = *fap; ta; ta = ta->next) {
 	while ((tan = ta->next) && (strcmp(tan->server, server) == 0) && (strcmp(tan->realname, realname) == 0)) {
 	    ta->next = tan->next;
 	    free(tan);

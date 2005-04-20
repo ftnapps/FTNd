@@ -113,6 +113,7 @@ extern struct sysconfig CFG;		    /* System configuration	*/
 extern int		s_bbsopen;	    /* The BBS open status	*/
 #ifdef	USE_EXPERIMENT
 extern srv_list		*servers;	    /* Connected servers	*/
+extern usr_list		*users;		    /* Connected users		*/
 #endif
 
 
@@ -435,7 +436,7 @@ char *chat_connect(char *data)
 	    /*
 	     * Register with IBC
 	     */
-	    add_user(CFG.myfqdn, nick, realname);
+	    add_user(&users, CFG.myfqdn, nick, realname);
 	    sprintf(buf, "USER %s@%s %s", nick, CFG.myfqdn, realname);
 	    send_all(buf);
 #endif
@@ -486,7 +487,7 @@ char *chat_close(char *data)
 	     * Remove from IBC network
 	     */
 #ifdef	USE_EXPERIMENT
-	    del_user(CFG.myfqdn, chat_users[i].realname);
+	    del_user(&users, CFG.myfqdn, chat_users[i].realname);
 	    sprintf(buf, "QUIT %s@%s Leaving chat", chat_users[i].nick, CFG.myfqdn);
 	    send_all(buf);
 #endif
