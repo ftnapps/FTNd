@@ -579,7 +579,7 @@ void check_servers(void)
 				     */
 				    Syslog('r', "%s call", tnsl->server);
 				    tnsl->token = gettoken();
-				    sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+				    sprintf(csbuf, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 				    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 				    sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, tnsl->token, 
 					    VERSION, CFG.bbs_name);
@@ -658,7 +658,7 @@ void check_servers(void)
 void command_pass(char *hostname, char *parameters)
 {
     ncs_list	*tnsl;
-    char	*passwd, *version, *opts, *lnk;
+    char	*passwd, *version, *lnk;
 
     for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
 	if (strcmp(tnsl->server, hostname) == 0) {
@@ -668,12 +668,10 @@ void command_pass(char *hostname, char *parameters)
 
     passwd = strtok(parameters, " \0");
     version = strtok(NULL, " \0");
-    opts = strtok(NULL, " \0");
     lnk = strtok(NULL, " \0");
 
 //    Syslog('r', "passwd \"%s\"", printable(passwd, 0));
 //    Syslog('r', "version \"%s\"", printable(version, 0));
-//    Syslog('r', "opts \"%s\"", printable(opts, 0));
 //    Syslog('r', "link \"%s\"", printable(lnk, 0));
 
     if (version == NULL) {
@@ -770,7 +768,7 @@ void command_server(char *hostname, char *parameters)
      * valid PASS command.
      */
     if (found && tnsl->gotpass) {
-	sprintf(csbuf, "PASS %s 0000 IBC| %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
+	sprintf(csbuf, "PASS %s 0100 %s\r\n", tnsl->passwd, tnsl->compress ? "Z":"");
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 	sprintf(csbuf, "SERVER %s 0 %ld mbsebbs %s %s\r\n",  tnsl->myname, token, VERSION, CFG.bbs_name);
 	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
