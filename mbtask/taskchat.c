@@ -487,7 +487,7 @@ char *chat_close(char *data)
 	     * Remove from IBC network
 	     */
 #ifdef	USE_EXPERIMENT
-	    del_user(&users, CFG.myfqdn, chat_users[i].realname);
+	    del_user(&users, CFG.myfqdn, chat_users[i].nick);
 	    sprintf(buf, "QUIT %s@%s Leaving chat", chat_users[i].nick, CFG.myfqdn);
 	    send_all(buf);
 #endif

@@ -86,6 +86,8 @@ void check_servers(void);
 void command_pass(char *, char *);
 void command_server(char *, char *);
 void command_squit(char *, char *);
+void command_user(char *, char *);
+void command_quit(char *, char *);
 void receiver(struct servent *);
 
 
@@ -245,13 +247,13 @@ void add_user(usr_list **fap, char *server, char *nick, char *realname)
 /*
  * Delete one user.
  */
-void del_user(usr_list **fap, char *server, char *realname)
+void del_user(usr_list **fap, char *server, char *nick)
 {
-    usr_list    *ta, *tan;
+    usr_list    **tmp, *tmpa;
     srv_list	*sl;
     int         rc;
 
-    Syslog('r', "deluser %s %s", server, realname);
+    Syslog('r', "deluser %s %s", server, nick);
 
     if (*fap == NULL)
 	return;
@@ -259,14 +261,22 @@ void del_user(usr_list **fap, char *server, char *realname)
     if ((rc = pthread_mutex_lock(&b_mutex)))
 	Syslog('!', "del_user() mutex_lock failed rc=%d", rc);
 
-    for (ta = *fap; ta; ta = ta->next) {
-	while ((tan = ta->next) && (strcmp(tan->server, server) == 0) && (strcmp(tan->realname, realname) == 0)) {
-	    ta->next = tan->next;
-	    free(tan);
+    tmp = fap;
+    while (*tmp) {
+//	Syslog('r', "%s %s", (*tmp)->server, (*tmp)->realname);
+	if ((strcmp((*tmp)->server, server) == 0) && (strcmp((*tmp)->nick, nick) == 0)) {
+//	    Syslog('r', "remove");
+	    tmpa = *tmp;
+	    *tmp=(*tmp)->next;
+	    free(tmpa);
 	    usrchg = TRUE;
+	} else {
+	    tmp = &((*tmp)->next);
 	}
-	ta->next = tan;
     }
+
+//    if (!usrchg)
+//	Syslog('r', "Could not delete user");
 
     for (sl = servers; sl; sl = sl->next) {
 	if ((strcmp(sl->server, server) == 0) && sl->users) {
@@ -841,6 +851,63 @@ void command_squit(char *hostname, char *parameters)
 
 
 
+void command_user(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    char	*nick, *server, *realname;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+	
+    nick = strtok(parameters, "@\0");
+    server = strtok(NULL, " \0");
+    realname = strtok(NULL, "\0");
+
+    if (realname == NULL) {
+	sprintf(csbuf, "461 USER: Not enough parameters\r\n");
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	return;
+    }
+    
+    add_user(&users, server, nick, realname);
+}
+
+
+
+void command_quit(char *hostname, char *parameters)
+{
+    ncs_list    *tnsl;
+    char	temp[512], *nick, *server, *message;
+
+    for (tnsl = ncsl; tnsl; tnsl = tnsl->next) {
+	if (strcmp(tnsl->server, hostname) == 0) {
+	    break;
+	}
+    }
+
+    nick = strtok(parameters, "@\0");
+    server = strtok(NULL, " \0");
+    message = strtok(NULL, "\0");
+
+    if (server == NULL) {
+	sprintf(csbuf, "461 QUIT: Not enough parameters\r\n");
+	send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+	return;
+    }
+
+    if (message)
+	sprintf(temp, "MSG ** %s is leaving: %s", nick, message);
+    else
+	sprintf(temp, "MSG ** %s is leaving: Quit", nick);
+    send_all(temp);
+    del_user(&users, server, nick);
+}
+
+
+
 void receiver(struct servent  *se)
 {
     struct pollfd   pfd;
@@ -939,6 +1006,20 @@ void receiver(struct servent  *se)
 		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
 		} else {
 		    command_squit(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"USER")) {
+		if (parameters == NULL) {
+		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		} else {
+		    command_user(hostname, parameters);
+		}
+	    } else if (! strcmp(command, (char *)"QUIT")) {
+		if (parameters == NULL) {
+		    sprintf(csbuf, "461 %s: Not enough parameters\r\n", command);
+		    send_msg(tnsl->socket, tnsl->servaddr_in, tnsl->server, csbuf);
+		} else {
+		    command_quit(hostname, parameters);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
