@@ -6,6 +6,11 @@ $Id$
 
 v0.71.2		16-Jan-2005
 
+	upgrade:
+		Start mbsetup, in screen 1.2 item 10, add your real internet
+		name or IP there. This MUST be the name that is returned when
+		you do a nslookup on your IP address.
+
 	charset:
 		Changed rfc-2045 name x-mac to mac. Changed x-ibmpc to cp437.
 		This allows rfc mime headers to show official names.
