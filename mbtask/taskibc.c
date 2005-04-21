@@ -162,10 +162,10 @@ void dump_ncslist(void)
     }
     
     if (usrchg) {
-	Syslog('+', "IBC: Server               User                 Nick      Channel         Cop Connect time");
-	Syslog('+', "IBC: -------------------- -------------------- --------- --------------- --- --------------------");
+	Syslog('+', "IBC: Server               User                 Nick      Channel       Cop Connect time");
+	Syslog('+', "IBC: -------------------- -------------------- --------- ------------- --- --------------------");
 	for (usrp = users; usrp; usrp = usrp->next) {
-	    Syslog('+', "IBC: %-20s %-20s %-9s %-15s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
+	    Syslog('+', "IBC: %-20s %-20s %-9s %-13s %s %s", usrp->server, usrp->realname, usrp->nick, usrp->channel, 
 		    usrp->chanop ? "yes":"no ", rfcdate(usrp->connected));
 	}
     }
@@ -212,7 +212,7 @@ void add_user(usr_list **fap, char *server, char *nick, char *realname)
 	Syslog('!', "add_user() mutex_lock failed rc=%d", rc);
 
     tmp = (usr_list *)malloc(sizeof(usr_list));
-    memset(tmp, 0, sizeof(tmp));
+    memset(tmp, 0, sizeof(usr_list));
     tmp->next = NULL;
     strncpy(tmp->server, server, 63);
     strncpy(tmp->nick, nick, 9);
