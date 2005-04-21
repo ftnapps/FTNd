@@ -85,7 +85,7 @@ void check_servers(void);
 void command_pass(char *, char *);
 void command_server(char *, char *);
 void command_squit(char *, char *);
-int  command_user(char *, char *);
+void command_user(char *, char *);
 void command_quit(char *, char *);
 void receiver(struct servent *);
 
@@ -857,7 +857,7 @@ void command_squit(char *hostname, char *parameters)
 
 
 
-int command_user(char *hostname, char *parameters)
+void command_user(char *hostname, char *parameters)
 {
     ncs_list    *tnsl;
     char	*nick, *server, *realname;
@@ -874,10 +874,11 @@ int command_user(char *hostname, char *parameters)
 
     if (realname == NULL) {
 	send_msg(tnsl, "461 USER: Not enough parameters\r\n");
-	return 0;
+	return;
     }
     
-    return add_user(&users, server, nick, realname);
+    if (add_user(&users, server, nick, realname) == 0)
+	broadcast(hostname, "USER %s@%s %s\r\n", nick, server, realname);
 }
 
 
@@ -907,6 +908,7 @@ void command_quit(char *hostname, char *parameters)
     else
 	send_all("MSG ** %s is leaving: Quit\r\n", nick);
     del_user(&users, server, nick);
+    broadcast(hostname, "QUIT %s@%s %s\r\n", nick, server, parameters);
 }
 
 
@@ -1010,16 +1012,13 @@ void receiver(struct servent  *se)
 		if (parameters == NULL) {
 		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
-		    if (command_user(hostname, parameters) == 0) {
-			broadcast(hostname, parameters);
-		    }
+		    command_user(hostname, parameters);
 		}
 	    } else if (! strcmp(command, (char *)"QUIT")) {
 		if (parameters == NULL) {
 		    send_msg(tnsl, "461 %s: Not enough parameters\r\n", command);
 		} else {
 		    command_quit(hostname, parameters);
-		    broadcast(hostname, parameters);
 		}
 	    } else if (atoi(command)) {
 		Syslog('r', "IBC: Got error %d", atoi(command));
